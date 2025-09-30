@@ -86,7 +86,7 @@ export default defineConfig({
 				timeout: 120 * 1000, // 2 minutes for Docker startup
 				stdout: 'pipe',
 				stderr: 'pipe',
-		  },
+			},
 
 	// Global timeout for each test (60 seconds)
 	timeout: 60 * 1000,
