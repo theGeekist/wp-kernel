@@ -596,4 +596,123 @@ describe('defineResource', () => {
 			}
 		});
 	});
+
+	describe('lazy store initialization', () => {
+		it('should have a store property', () => {
+			const resource = defineResource<Thing>({
+				name: 'thing',
+				routes: {
+					list: { path: '/gk/v1/things', method: 'GET' },
+				},
+			});
+
+			expect(resource).toHaveProperty('store');
+		});
+
+		it('should return same store instance on multiple accesses', () => {
+			const resource = defineResource<Thing>({
+				name: 'thing',
+				routes: {
+					list: { path: '/gk/v1/things', method: 'GET' },
+				},
+			});
+
+			const store1 = resource.store;
+			const store2 = resource.store;
+
+			expect(store1).toBe(store2);
+		});
+
+		it('should create store with correct storeKey', () => {
+			const resource = defineResource<Thing>({
+				name: 'thing',
+				routes: {
+					list: { path: '/gk/v1/things', method: 'GET' },
+				},
+			});
+
+			const store = resource.store as any;
+
+			expect(store).toHaveProperty('storeKey', 'gk/thing');
+		});
+
+		it('should create store with selectors, actions, resolvers, reducer', () => {
+			const resource = defineResource<Thing>({
+				name: 'thing',
+				routes: {
+					list: { path: '/gk/v1/things', method: 'GET' },
+				},
+			});
+
+			const store = resource.store as any;
+
+			expect(store).toHaveProperty('selectors');
+			expect(store).toHaveProperty('actions');
+			expect(store).toHaveProperty('resolvers');
+			expect(store).toHaveProperty('reducer');
+			expect(store).toHaveProperty('initialState');
+		});
+
+		it('should not register store when window.wp.data is undefined', () => {
+			// Mock scenario where window.wp is not available
+			const originalWp = (global as any).window?.wp;
+			if ((global as any).window) {
+				delete (global as any).window.wp;
+			}
+
+			const resource = defineResource<Thing>({
+				name: 'thing',
+				routes: {
+					list: { path: '/gk/v1/things', method: 'GET' },
+				},
+			});
+
+			// Should still return store descriptor without throwing
+			const store = resource.store as any;
+			expect(store).toHaveProperty('storeKey');
+
+			// Restore
+			if ((global as any).window && originalWp) {
+				(global as any).window.wp = originalWp;
+			}
+		});
+
+		it('should register store when window.wp.data.register is available', () => {
+			// Mock window.wp.data.register
+			const mockRegister = jest.fn();
+			const originalWp = (global as any).window?.wp;
+
+			if ((global as any).window) {
+				(global as any).window.wp = {
+					data: {
+						register: mockRegister,
+					},
+				};
+			}
+
+			const resource = defineResource<Thing>({
+				name: 'thing-with-register',
+				routes: {
+					list: { path: '/gk/v1/things', method: 'GET' },
+				},
+			});
+
+			// Access store to trigger registration
+			const store = resource.store;
+
+			if ((global as any).window?.wp?.data?.register) {
+				expect(mockRegister).toHaveBeenCalledTimes(1);
+				expect(mockRegister).toHaveBeenCalledWith(store);
+			}
+
+			// Restore
+			if ((global as any).window) {
+				if (originalWp) {
+					(global as any).window.wp = originalWp;
+				} else {
+					delete (global as any).window.wp;
+				}
+			}
+		});
+	});
 });

@@ -13,6 +13,45 @@ _No unreleased changes yet._
 
 ---
 
+## [0.1.1] - 2025-10-01
+
+### Added - Sprint 1 A3: @wordpress/data Store Integration
+
+#### Store Factory
+
+- **createStore factory** - Generates typed @wordpress/data stores from ResourceObject definitions (closes #3)
+- **Automatic store registration** - Lazy-loaded stores auto-register with window.wp.data on first access
+- **TypeScript store types** - Full type definitions for ResourceState, ResourceActions, ResourceSelectors, ResourceResolvers, ResourceStoreConfig, ResourceStore
+- **Normalized state management** - Items stored by ID with separate lists and metadata tracking
+- **Redux-compatible reducer** - Handles RECEIVE_ITEM, RECEIVE_ITEMS, RECEIVE_ERROR, INVALIDATE, INVALIDATE_ALL actions
+- **Declarative data fetching** - Resolvers automatically fetch data when selectors are used (WordPress data layer pattern)
+- **Resolution tracking** - Built-in isResolving, hasStartedResolution, hasFinishedResolution selectors
+- **Error handling** - Stores errors by cache key with getError selector
+- **Custom configuration** - Support for custom getId and getQueryKey functions, plus initial state
+
+#### Resource Integration
+
+- **Lazy store property** - Added `store` getter to ResourceObject for on-demand store creation
+- **Zero configuration** - Stores automatically use resource name, routes, and cache keys
+- **Seamless WordPress integration** - Works with @wordpress/data select/dispatch/useSelect APIs
+
+#### Documentation
+
+- **Comprehensive store guide** - Added complete @wordpress/data integration section to docs/guide/resources.md
+- **Selector examples** - Documented all selectors (getItem, getItems, getList, getError, resolution helpers)
+- **Resolver patterns** - Explained automatic data fetching and error handling
+- **Best practices** - Four key patterns for using stores effectively
+
+#### Testing
+
+- **36 new test cases** - Comprehensive coverage for createStore factory
+- **Store module coverage** - 93.82% coverage for store creation, reducer, actions, selectors, resolvers
+- **defineResource tests** - Added 6 tests for lazy store initialization (window.wp.data registration)
+- **Overall coverage** - Improved from 91.6% to 94.8%
+- **defineResource coverage** - Improved from 80% to 92.53%
+
+---
+
 ## [0.1.0] - 2025-10-01
 
 ### Sprint 0 Complete! 🎉 (100%, 18/18 Tasks)

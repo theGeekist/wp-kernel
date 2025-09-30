@@ -276,6 +276,284 @@ invalidate(thing.cacheKeys.get(id));
 invalidate(thing.cacheKeys.list({}));
 ```
 
+## @wordpress/data Store Integration
+
+> **Status**: ✅ Implemented in Sprint 1 (A3)
+
+Each resource automatically provides a `@wordpress/data` store for state management. The store is lazy-loaded and registered on first access.
+
+### Accessing the Store
+
+```typescript
+const thing = defineResource<Thing, ThingQuery>({ ... });
+
+// Access the lazy-loaded store
+const store = thing.store;
+
+// The store is automatically registered with @wordpress/data
+import { select, dispatch } from '@wordpress/data';
+
+// Use with WordPress data layer
+const item = select(store).getItem(123);
+const items = select(store).getList({ q: 'search' });
+```
+
+### Store Selectors
+
+The store provides typed selectors for accessing state:
+
+#### `getItem(id)`
+
+Get a single item by ID from the store state.
+
+```typescript
+import { useSelect } from '@wordpress/data';
+
+function ThingDetail({ id }: { id: number }) {
+	const item = useSelect((select) => select(thing.store).getItem(id), [id]);
+
+	if (!item) {
+		return <div>Loading...</div>;
+	}
+
+	return <div>{item.title}</div>;
+}
+```
+
+#### `getItems(query)`
+
+Get items matching a query from a list.
+
+```typescript
+const items = useSelect((select) =>
+	select(thing.store).getItems({ q: 'search' })
+);
+
+// Returns: Thing[]
+```
+
+#### `getList(query)`
+
+Get list response with items and metadata (total, hasMore, nextCursor).
+
+```typescript
+const { items, total, hasMore, nextCursor } = useSelect((select) =>
+	select(thing.store).getList({ q: 'search', page: 1 })
+);
+
+// Returns: ListResponse<Thing>
+```
+
+#### `getError(cacheKey)`
+
+Get error for a specific cache key.
+
+```typescript
+const error = useSelect((select) =>
+	select(thing.store).getError('thing:get:123')
+);
+
+if (error) {
+	return <div>Error: {error}</div>;
+}
+```
+
+#### Resolution Status Selectors
+
+Check if data is currently being fetched:
+
+```typescript
+const isLoading = useSelect((select) =>
+	select(thing.store).isResolving('getItem', [123])
+);
+
+const hasStarted = useSelect((select) =>
+	select(thing.store).hasStartedResolution('getItem', [123])
+);
+
+const hasFinished = useSelect((select) =>
+	select(thing.store).hasFinishedResolution('getItem', [123])
+);
+```
+
+### Store Resolvers
+
+Resolvers automatically fetch data when selectors are used. This follows the @wordpress/data pattern of declarative data fetching.
+
+```typescript
+// When you use a selector, the resolver automatically fetches data
+function ThingList() {
+	// This automatically triggers thing.list() if data isn't already loaded
+	const items = useSelect((select) =>
+		select(thing.store).getItems({ q: 'search' })
+	);
+
+	return (
+		<ul>
+			{items.map((item) => (
+				<li key={item.id}>{item.title}</li>
+			))}
+		</ul>
+	);
+}
+```
+
+Resolvers handle:
+
+- Automatic data fetching when selectors are used
+- Error handling (stores errors in state)
+- Duplicate request prevention (via WordPress resolution system)
+
+### Store Actions
+
+The store provides actions for manual state updates (typically used by Actions layer):
+
+```typescript
+import { dispatch } from '@wordpress/data';
+
+// Manually update store state
+dispatch(thing.store).receiveItem({ id: 123, title: 'Thing' });
+
+dispatch(thing.store).receiveItems('query-key', [item1, item2], {
+	total: 2,
+	hasMore: false,
+});
+
+dispatch(thing.store).receiveError('thing:get:123', 'Not found');
+
+// Invalidate cached data
+dispatch(thing.store).invalidate(['query-key-1', 'query-key-2']);
+dispatch(thing.store).invalidateAll();
+```
+
+### Complete Example
+
+```typescript
+import { defineResource } from '@geekist/wp-kernel/resource';
+import { useSelect } from '@wordpress/data';
+
+interface Thing {
+	id: number;
+	title: string;
+	description: string;
+}
+
+interface ThingQuery {
+	q?: string;
+	page?: number;
+}
+
+export const thing = defineResource<Thing, ThingQuery>({
+	name: 'thing',
+	routes: {
+		list: { path: '/gk/v1/things', method: 'GET' },
+		get: { path: '/gk/v1/things/:id', method: 'GET' },
+	},
+	cacheKeys: {
+		list: (q) => ['thing', 'list', q?.q, q?.page],
+		get: (id) => ['thing', 'get', id],
+	},
+});
+
+// Component using the store
+function ThingList() {
+	const { items, isLoading } = useSelect((select) => {
+		const store = select(thing.store);
+		return {
+			items: store.getItems({ q: 'search' }),
+			isLoading: store.isResolving('getItems', [{ q: 'search' }]),
+		};
+	});
+
+	if (isLoading) {
+		return <div>Loading...</div>;
+	}
+
+	return (
+		<ul>
+			{items.map((item) => (
+				<li key={item.id}>
+					<h3>{item.title}</h3>
+					<p>{item.description}</p>
+				</li>
+			))}
+		</ul>
+	);
+}
+```
+
+### Custom Store Configuration
+
+You can customize store behavior when creating stores manually:
+
+```typescript
+import { createStore } from '@geekist/wp-kernel/resource';
+
+const customStore = createStore({
+	resource: thing,
+	// Custom ID function (default uses item.id)
+	getId: (item) => `${item.type}-${item.id}`,
+	// Custom query key generator (default uses JSON.stringify)
+	getQueryKey: (query) => `search-${query?.q}-page-${query?.page}`,
+	// Initial state
+	initialState: {
+		items: { 1: preloadedItem },
+	},
+});
+```
+
+### Best Practices
+
+**1. Use Selectors for Data Access**
+
+Always access resource data through selectors, never direct REST calls in components:
+
+```typescript
+// ❌ Don't fetch directly in components
+function MyComponent() {
+	const [items, setItems] = useState([]);
+	useEffect(() => {
+		thing.list().then(setItems);
+	}, []);
+}
+
+// ✅ Use store selectors
+function MyComponent() {
+	const items = useSelect((select) => select(thing.store).getItems());
+}
+```
+
+**2. Let Resolvers Handle Fetching**
+
+Resolvers automatically fetch when data is missing:
+
+```typescript
+// ✅ Just use the selector - resolver handles the rest
+const item = useSelect((select) => select(thing.store).getItem(id));
+```
+
+**3. Check Loading State**
+
+Use resolution selectors to show loading UI:
+
+```typescript
+const { item, isLoading } = useSelect((select) => ({
+	item: select(thing.store).getItem(id),
+	isLoading: select(thing.store).isResolving('getItem', [id]),
+}));
+```
+
+**4. Invalidate After Writes**
+
+Always invalidate relevant cache keys after write operations (handled by Actions layer):
+
+```typescript
+import { dispatch } from '@wordpress/data';
+
+// After create/update/delete
+dispatch(thing.store).invalidate(thing.cacheKeys.list({ q: 'search' }));
+```
+
 ## TypeScript Generics
 
 Resources support two generic type parameters:

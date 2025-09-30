@@ -9,6 +9,7 @@
 
 import { KernelError } from '../errors';
 import { interpolatePath } from './interpolate';
+import { createStore } from './store/createStore';
 import type {
 	ResourceConfig,
 	ResourceObject,
@@ -347,6 +348,10 @@ export function defineResource<T = unknown, TQuery = unknown>(
 		...config.cacheKeys,
 	};
 
+	// Lazy store initialization
+	let _store: unknown = null;
+	let _storeRegistered = false;
+
 	// Build resource object
 	const resource: ResourceObject<T, TQuery> = {
 		...client,
@@ -354,6 +359,30 @@ export function defineResource<T = unknown, TQuery = unknown>(
 		storeKey: `gk/${config.name}`,
 		cacheKeys,
 		routes: config.routes,
+
+		// Lazy-load and register @wordpress/data store on first access
+		get store() {
+			if (!_storeRegistered) {
+				// Create store descriptor
+				const storeDescriptor = createStore<T, TQuery>({
+					resource: resource as ResourceObject<T, TQuery>,
+				});
+
+				// Check if @wordpress/data is available (browser environment)
+				const globalWp =
+					typeof window !== 'undefined'
+						? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+							(window as any).wp
+						: undefined;
+				if (globalWp?.data?.register) {
+					globalWp.data.register(storeDescriptor);
+				}
+
+				_store = storeDescriptor;
+				_storeRegistered = true;
+			}
+			return _store;
+		},
 	};
 
 	return resource;
