@@ -76,14 +76,17 @@ export default defineConfig({
 	],
 
 	// Run your local dev server before starting the tests
-	webServer: {
-		command: 'pnpm wp:start',
-		url: 'http://localhost:8889',
-		reuseExistingServer: !process.env.CI,
-		timeout: 120 * 1000, // 2 minutes for Docker startup
-		stdout: 'pipe',
-		stderr: 'pipe',
-	},
+	// Only start server locally, not in CI (CI starts it manually)
+	webServer: process.env.CI
+		? undefined
+		: {
+				command: 'pnpm wp:start',
+				url: 'http://localhost:8889',
+				reuseExistingServer: true,
+				timeout: 120 * 1000, // 2 minutes for Docker startup
+				stdout: 'pipe',
+				stderr: 'pipe',
+		  },
 
 	// Global timeout for each test (60 seconds)
 	timeout: 60 * 1000,

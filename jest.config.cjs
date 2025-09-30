@@ -16,6 +16,14 @@ module.exports = {
 		'**/?(*.)+(spec|test).tsx',
 	],
 
+	// Exclude E2E tests (Playwright files)
+	testPathIgnorePatterns: [
+		'/node_modules/',
+		'/dist/',
+		'/build/',
+		'/packages/e2e-utils/tests/', // Exclude Playwright E2E tests
+	],
+
 	// Module resolution
 	moduleNameMapper: {
 		'^@geekist/wp-kernel$': '<rootDir>/packages/kernel/src',
