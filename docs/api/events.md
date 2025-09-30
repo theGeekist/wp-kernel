@@ -15,6 +15,7 @@ import { events } from '@geekist/wp-kernel/events';
 All events follow the pattern: `wpk.{domain}.{action}`
 
 Examples:
+
 - `wpk.thing.created`
 - `wpk.thing.updated`
 - `wpk.thing.deleted`
@@ -27,8 +28,8 @@ Examples:
 import { events } from '@geekist/wp-kernel/events';
 
 action.emit(events.thing.created, {
-  id: thing.id,
-  data: thing,
+	id: thing.id,
+	data: thing,
 });
 ```
 
@@ -39,7 +40,7 @@ import { addAction } from '@wordpress/hooks';
 import { events } from '@geekist/wp-kernel/events';
 
 addAction(events.thing.created, 'my-plugin', (payload) => {
-  console.log('Thing created:', payload.id);
+	console.log('Thing created:', payload.id);
 });
 ```
 

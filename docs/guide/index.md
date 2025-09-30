@@ -100,12 +100,12 @@ UI components NEVER call transport directly. Always route through Actions.
 ```typescript
 // ❌ WRONG
 const handleSubmit = async () => {
-  await thing.create(formData); // ESLint error + runtime warning
+	await thing.create(formData); // ESLint error + runtime warning
 };
 
 // ✅ CORRECT
 const handleSubmit = async () => {
-  await CreateThing({ data: formData });
+	await CreateThing({ data: formData });
 };
 ```
 
@@ -162,15 +162,15 @@ All errors are `KernelError` (typed, structured, serializable):
 
 ```typescript
 try {
-  await CreateThing({ data });
+	await CreateThing({ data });
 } catch (e) {
-  if (e.code === 'PolicyDenied') {
-    showNotice(__('Permission denied'), 'error');
-  } else if (e.code === 'ValidationError') {
-    showNotice(__('Invalid data'), 'error');
-  } else {
-    reporter.error(e); // Logs + emits event
-  }
+	if (e.code === 'PolicyDenied') {
+		showNotice(__('Permission denied'), 'error');
+	} else if (e.code === 'ValidationError') {
+		showNotice(__('Invalid data'), 'error');
+	} else {
+		reporter.error(e); // Logs + emits event
+	}
 }
 ```
 
@@ -185,6 +185,7 @@ Automatic retry with exponential backoff:
 - **Default**: 3 attempts, 1s → 2s → 4s backoff
 
 Timeouts:
+
 - Request: 30s
 - Total (with retries): 60s
 - Job polling: 60s (configurable)

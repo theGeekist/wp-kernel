@@ -3,6 +3,7 @@
 > **Status**: 🚧 This page will be expanded in Sprint 1+
 
 Actions orchestrate writes. They:
+
 - Call Resources
 - Emit Events
 - Invalidate cache
@@ -16,13 +17,13 @@ import { events } from '@geekist/wp-kernel/events';
 import { invalidate } from '@wordpress/data';
 
 export const CreateThing = defineAction(
-  'Thing.Create',
-  async ({ data }: { data: Partial<Thing> }) => {
-    const created = await thing.create(data);
-    CreateThing.emit(events.thing.created, { id: created.id, data });
-    invalidate(['thing', 'list']);
-    return created;
-  }
+	'Thing.Create',
+	async ({ data }: { data: Partial<Thing> }) => {
+		const created = await thing.create(data);
+		CreateThing.emit(events.thing.created, { id: created.id, data });
+		invalidate(['thing', 'list']);
+		return created;
+	}
 );
 ```
 

@@ -17,13 +17,13 @@ UI components **never** call transport directly. Always route writes through Act
 ```typescript
 // ❌ WRONG - UI calling resource directly
 const handleSubmit = async () => {
-  await thing.create(formData); // Lint error + runtime warning
+	await thing.create(formData); // Lint error + runtime warning
 };
 
 // ✅ CORRECT - UI calls Action
 import { CreateThing } from '@/app/actions/Thing/Create';
 const handleSubmit = async () => {
-  await CreateThing({ data: formData });
+	await CreateThing({ data: formData });
 };
 ```
 
@@ -36,7 +36,7 @@ const handleSubmit = async () => {
 ```typescript
 // Client-side binding
 registerBindingSource('gk', {
-  'thing.title': (attrs) => select('gk/thing').getById(attrs.id)?.title,
+	'thing.title': (attrs) => select('gk/thing').getById(attrs.id)?.title,
 });
 ```
 
@@ -44,10 +44,10 @@ registerBindingSource('gk', {
 
 ```typescript
 export const CreateThing = defineAction('Thing.Create', async ({ data }) => {
-  const created = await thing.create(data);
-  CreateThing.emit(events.thing.created, { id: created.id });
-  invalidate(['thing', 'list']);
-  return created;
+	const created = await thing.create(data);
+	CreateThing.emit(events.thing.created, { id: created.id });
+	invalidate(['thing', 'list']);
+	return created;
 });
 ```
 
@@ -78,6 +78,7 @@ export const CreateThing = defineAction('Thing.Create', async ({ data }) => {
 **Task**: "Add an 'Apply' button that creates an application, shows a toast, and moves a card on the admin board."
 
 **Implementation**:
+
 1. Scaffold Resource `application`
 2. Write Action `Application.Submit` (permission check → REST → emit `wpk.application.created` → invalidate list → enqueue parsing job)
 3. Bind a Button in the block editor to the Interactivity action

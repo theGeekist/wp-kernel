@@ -10,14 +10,14 @@ Always use TypeScript strict mode:
 
 ```json
 {
-  "compilerOptions": {
-    "strict": true,
-    "noImplicitAny": true,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true
-  }
+	"compilerOptions": {
+		"strict": true,
+		"noImplicitAny": true,
+		"strictNullChecks": true,
+		"strictFunctionTypes": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true
+	}
 }
 ```
 
@@ -32,9 +32,9 @@ function process(data: any) {}
 // ✅ CORRECT
 function process(data: Thing) {}
 function processUnknown(data: unknown) {
-  if (isThing(data)) {
-    // Now TypeScript knows data is Thing
-  }
+	if (isThing(data)) {
+		// Now TypeScript knows data is Thing
+	}
 }
 ```
 
@@ -45,8 +45,8 @@ Use `interface` for objects, `type` for unions/intersections:
 ```typescript
 // ✅ Objects: use interface
 interface Thing {
-  id: number;
-  title: string;
+	id: number;
+	title: string;
 }
 
 // ✅ Unions: use type
@@ -66,8 +66,8 @@ function map<T, U>(items: T[], fn: (item: T) => U): U[] {}
 
 // ✅ CORRECT
 function mapThings<Thing, Result>(
-  things: Thing[],
-  transformer: (thing: Thing) => Result
+	things: Thing[],
+	transformer: (thing: Thing) => Result
 ): Result[] {}
 ```
 
@@ -215,7 +215,7 @@ Extends `@wordpress/eslint-plugin`:
 
 ```json
 {
-  "extends": ["plugin:@wordpress/eslint-plugin/recommended"]
+	"extends": ["plugin:@wordpress/eslint-plugin/recommended"]
 }
 ```
 
@@ -223,11 +223,11 @@ Extends `@wordpress/eslint-plugin`:
 
 ```json
 {
-  "semi": true,
-  "singleQuote": true,
-  "trailingComma": "es5",
-  "useTabs": true,
-  "tabWidth": 2
+	"semi": true,
+	"singleQuote": true,
+	"trailingComma": "es5",
+	"useTabs": true,
+	"tabWidth": 2
 }
 ```
 
@@ -269,11 +269,11 @@ Use trailing commas in multi-line:
 ```typescript
 // ✅ CORRECT
 const config = {
-  name: 'thing',
-  routes: {
-    list: { path: '/gk/v1/things', method: 'GET' },
-    create: { path: '/gk/v1/things', method: 'POST' },
-  }, // <- trailing comma
+	name: 'thing',
+	routes: {
+		list: { path: '/gk/v1/things', method: 'GET' },
+		create: { path: '/gk/v1/things', method: 'POST' },
+	}, // <- trailing comma
 };
 ```
 
@@ -281,7 +281,7 @@ const config = {
 
 ### JSDoc for Public API
 
-```typescript
+````typescript
 /**
  * Define a typed REST resource with client methods, store, and cache keys.
  *
@@ -299,11 +299,11 @@ const config = {
  * ```
  */
 export function defineResource<T, Q = unknown>(
-  config: ResourceConfig<T, Q>
+	config: ResourceConfig<T, Q>
 ): Resource<T, Q> {
-  // Implementation
+	// Implementation
 }
-```
+````
 
 ### Inline Comments
 
@@ -335,8 +335,8 @@ import { KernelError } from '@geekist/wp-kernel/errors';
 
 // ✅ CORRECT
 throw new KernelError('ValidationError', {
-  field: 'title',
-  message: 'Title is required',
+	field: 'title',
+	message: 'Title is required',
 });
 
 // ❌ WRONG
@@ -347,16 +347,16 @@ throw new Error('Validation failed');
 
 ```typescript
 try {
-  await CreateThing({ data });
+	await CreateThing({ data });
 } catch (e) {
-  if (e.code === 'PolicyDenied') {
-    // Handle permission error
-  } else if (e.code === 'ValidationError') {
-    // Handle validation error
-  } else {
-    // Handle unknown error
-    reporter.error(e);
-  }
+	if (e.code === 'PolicyDenied') {
+		// Handle permission error
+	} else if (e.code === 'ValidationError') {
+		// Handle validation error
+	} else {
+		// Handle unknown error
+		reporter.error(e);
+	}
 }
 ```
 
@@ -367,12 +367,12 @@ try {
 ```typescript
 // ❌ WRONG
 const handleSubmit = async () => {
-  await thing.create(formData); // Lint error
+	await thing.create(formData); // Lint error
 };
 
 // ✅ CORRECT
 const handleSubmit = async () => {
-  await CreateThing({ data: formData });
+	await CreateThing({ data: formData });
 };
 ```
 
@@ -418,17 +418,17 @@ Quick reference:
 ```typescript
 // Describe blocks for grouping
 describe('CreateThing', () => {
-  it('should create a thing', async () => {
-    // Arrange
-    const data = { title: 'Test' };
+	it('should create a thing', async () => {
+		// Arrange
+		const data = { title: 'Test' };
 
-    // Act
-    const result = await CreateThing({ data });
+		// Act
+		const result = await CreateThing({ data });
 
-    // Assert
-    expect(result).toHaveProperty('id');
-    expect(result.title).toBe('Test');
-  });
+		// Assert
+		expect(result).toHaveProperty('id');
+		expect(result.title).toBe('Test');
+	});
 });
 ```
 
@@ -507,11 +507,11 @@ import deprecated from '@wordpress/deprecated';
  * @deprecated Use `CreateThing` instead
  */
 export function createThing(data: Partial<Thing>) {
-  deprecated('createThing', {
-    since: '1.0.0',
-    alternative: 'CreateThing',
-  });
-  return CreateThing({ data });
+	deprecated('createThing', {
+		since: '1.0.0',
+		alternative: 'CreateThing',
+	});
+	return CreateThing({ data });
 }
 ```
 

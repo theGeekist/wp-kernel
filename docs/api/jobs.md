@@ -19,8 +19,8 @@ Define a background job with status polling support.
 
 ```typescript
 {
-  enqueue: (params: P) => Promise<void>;  // Enqueue the job
-  status: (params: P) => Promise<JobStatus>;  // Check job status
+	enqueue: (params: P) => Promise<void>; // Enqueue the job
+	status: (params: P) => Promise<JobStatus>; // Check job status
 }
 ```
 
@@ -36,29 +36,32 @@ A job object with:
 
 ```typescript
 export const IndexThing = defineJob('IndexThing', {
-  enqueue: (params: { id: number }) => {
-    return transport.post('/gk/v1/jobs/index-thing', params);
-  },
-  status: (params: { id: number }) => {
-    return transport.get(`/gk/v1/jobs/index-thing/status?id=${params.id}`);
-  },
+	enqueue: (params: { id: number }) => {
+		return transport.post('/gk/v1/jobs/index-thing', params);
+	},
+	status: (params: { id: number }) => {
+		return transport.get(`/gk/v1/jobs/index-thing/status?id=${params.id}`);
+	},
 });
 
 // Usage
 await IndexThing.enqueue({ id: 123 });
-await IndexThing.wait({ id: 123 }, {
-  pollInterval: 1500,
-  pollTimeout: 60000,
-});
+await IndexThing.wait(
+	{ id: 123 },
+	{
+		pollInterval: 1500,
+		pollTimeout: 60000,
+	}
+);
 ```
 
 ## JobStatus Type
 
 ```typescript
 type JobStatus = {
-  status: 'pending' | 'in-progress' | 'completed' | 'failed';
-  progress?: number;  // 0-100
-  error?: string;
-  result?: unknown;
+	status: 'pending' | 'in-progress' | 'completed' | 'failed';
+	progress?: number; // 0-100
+	error?: string;
+	result?: unknown;
 };
 ```
