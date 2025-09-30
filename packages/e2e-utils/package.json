@@ -2,7 +2,7 @@
 	"name": "@geekist/wp-kernel-e2e-utils",
 	"version": "0.0.0",
 	"description": "E2E testing utilities for WP Kernel projects",
-	"license": "MIT",
+	"license": "EUPL-1.2",
 	"type": "module",
 	"repository": {
 		"type": "git",
