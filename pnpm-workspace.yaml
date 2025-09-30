@@ -1,4 +1,4 @@
 packages:
-  - "packages/*"
-  - "examples/*"
-  - "test-harness/*"
+    - 'packages/*'
+    - 'examples/*'
+    - 'test-harness/*'

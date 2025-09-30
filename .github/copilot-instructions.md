@@ -21,18 +21,19 @@ WP Kernel is a Rails-like, opinionated framework for building modern WordPress p
 ## Golden Path Patterns (The "Way" to Do Things)
 
 ### 1. **Actions-First Rule** (enforced by lint + runtime)
+
 UI components NEVER call transport directly. Always route writes through Actions.
 
 ```typescript
 // ❌ WRONG - UI calling resource directly
 const handleSubmit = async () => {
-  await thing.create(formData); // Lint error + runtime warning
+	await thing.create(formData); // Lint error + runtime warning
 };
 
 // ✅ CORRECT - UI calls Action
 import { CreateThing } from '@/app/actions/Thing/Create';
 const handleSubmit = async () => {
-  await CreateThing({ data: formData });
+	await CreateThing({ data: formData });
 };
 ```
 
@@ -51,19 +52,19 @@ Resources define typed REST contracts. One definition → client + store + cache
 import { defineResource } from '@geekist/wp-kernel/resource';
 
 export const thing = defineResource<Thing, { q?: string; cursor?: Cursor }>({
-  name: 'thing',
-  routes: {
-    list:   { path: '/gk/v1/things',      method: 'GET'  },
-    get:    { path: '/gk/v1/things/:id',  method: 'GET'  },
-    create: { path: '/gk/v1/things',      method: 'POST' },
-    update: { path: '/gk/v1/things/:id',  method: 'PUT'  },
-    remove: { path: '/gk/v1/things/:id',  method: 'DELETE' }
-  },
-  schema: import('../../contracts/thing.schema.json'),
-  cacheKeys: {
-    list: (q) => ['thing', 'list', q?.q, q?.cursor],
-    get:  (id) => ['thing', 'get', id]
-  }
+	name: 'thing',
+	routes: {
+		list: { path: '/gk/v1/things', method: 'GET' },
+		get: { path: '/gk/v1/things/:id', method: 'GET' },
+		create: { path: '/gk/v1/things', method: 'POST' },
+		update: { path: '/gk/v1/things/:id', method: 'PUT' },
+		remove: { path: '/gk/v1/things/:id', method: 'DELETE' },
+	},
+	schema: import('../../contracts/thing.schema.json'),
+	cacheKeys: {
+		list: (q) => ['thing', 'list', q?.q, q?.cursor],
+		get: (id) => ['thing', 'get', id],
+	},
 });
 ```
 
@@ -80,13 +81,13 @@ Use canonical events from the registry. Never create ad-hoc event names.
 import { events } from '@geekist/wp-kernel/events';
 
 export const CreateThing = defineAction('Thing.Create', async ({ data }) => {
-  const created = await thing.create(data);
-  
-  // ✅ Use canonical event
-  CreateThing.emit(events.thing.created, { id: created.id, data });
-  
-  invalidate(['thing', 'list']);
-  return created;
+	const created = await thing.create(data);
+
+	// ✅ Use canonical event
+	CreateThing.emit(events.thing.created, { id: created.id, data });
+
+	invalidate(['thing', 'list']);
+	return created;
 });
 ```
 
@@ -103,19 +104,19 @@ All errors are KernelErrors (typed, structured, serializable).
 ```typescript
 // Throwing a KernelError
 throw new KernelError('PolicyDenied', {
-  policyKey: 'things.manage',
-  context: { userId: currentUser.id }
+	policyKey: 'things.manage',
+	context: { userId: currentUser.id },
 });
 
 // Catching and handling
 try {
-  await CreateThing({ data });
+	await CreateThing({ data });
 } catch (e) {
-  if (e.code === 'PolicyDenied') {
-    showNotice(__('Permission denied'), 'error');
-  } else {
-    reporter.error(e); // Logs + emits event
-  }
+	if (e.code === 'PolicyDenied') {
+		showNotice(__('Permission denied'), 'error');
+	} else {
+		reporter.error(e); // Logs + emits event
+	}
 }
 ```
 
@@ -160,19 +161,19 @@ Front-end behavior without jQuery or custom React components.
 import { defineInteraction } from '@geekist/wp-kernel/interactivity';
 
 export const useThingForm = defineInteraction('gk/thing-form', {
-  state: () => ({ saving: false, error: null }),
-  actions: {
-    async submit(formData) {
-      this.state.saving = true;
-      try {
-        await CreateThing({ data: formData });
-      } catch (e) {
-        this.state.error = e.message;
-      } finally {
-        this.state.saving = false;
-      }
-    }
-  }
+	state: () => ({ saving: false, error: null }),
+	actions: {
+		async submit(formData) {
+			this.state.saving = true;
+			try {
+				await CreateThing({ data: formData });
+			} catch (e) {
+				this.state.error = e.message;
+			} finally {
+				this.state.saving = false;
+			}
+		},
+	},
 });
 ```
 
@@ -188,20 +189,24 @@ Background work with polling support.
 import { defineJob } from '@geekist/wp-kernel/jobs';
 
 export const IndexThing = defineJob('IndexThing', {
-  enqueue: (params: { id: number }) => {
-    // POST /gk/v1/jobs/index-thing
-  },
-  status: (params) => {
-    // GET /gk/v1/jobs/index-thing/status?id=...
-  }
+	enqueue: (params: { id: number }) => {
+		// POST /gk/v1/jobs/index-thing
+	},
+	status: (params) => {
+		// GET /gk/v1/jobs/index-thing/status?id=...
+	},
 });
 
 // Usage
 await jobs.enqueue('IndexThing', { id: 123 });
-await jobs.wait('IndexThing', { id: 123 }, {
-  pollInterval: 1500,
-  pollTimeout: 60000
-});
+await jobs.wait(
+	'IndexThing',
+	{ id: 123 },
+	{
+		pollInterval: 1500,
+		pollTimeout: 60000,
+	}
+);
 ```
 
 **Reference**: [Product Spec § 4.5 Jobs](../information/Product%20Specification%20PO%20Draft%20%E2%80%A2%20v1.0.md#45-jobs-background-work)
@@ -231,11 +236,13 @@ app/
 ## Network & Retry Strategy
 
 **Automatic retry** with exponential backoff:
+
 - Network timeout / 408 / 429 / 5xx: Retry with backoff (see config)
 - 4xx (except 408, 429): Fail immediately
 - Default: 3 attempts, 1s → 2s → 4s backoff
 
 **Timeouts**:
+
 - Request: 30s
 - Total (with retries): 60s
 - Job polling: 60s (configurable)
@@ -247,11 +254,13 @@ app/
 ## Testing Strategy
 
 ### Unit Tests
+
 - Jest with `@wordpress/jest-preset-default`
 - Test Actions, Policies, Resources in isolation
 - Mock transport layer
 
 ### E2E Tests
+
 - Playwright with `@wordpress/e2e-test-utils-playwright`
 - Target `wp-env` tests site (localhost:8889)
 - Use seed scripts for consistent fixtures
@@ -265,6 +274,7 @@ app/
 ## Common Tasks
 
 ### Add a New Resource
+
 1. Create `app/resources/{ResourceName}.ts` using `defineResource` pattern
 2. Create JSON Schema in `contracts/{resource}.schema.json`
 3. Generate TypeScript types: `pnpm types:generate`
@@ -272,6 +282,7 @@ app/
 5. Write unit test for client methods
 
 ### Add a New Action
+
 1. Create `app/actions/{Domain}/{ActionName}.ts`
 2. Use `defineAction(name, handler)`
 3. Emit canonical events (check registry)
@@ -280,12 +291,14 @@ app/
 6. Write unit test with mocked transport
 
 ### Add a Block Binding
+
 1. Register source in `app/views/bindings.ts`
 2. Use `select()` from `@wordpress/data` to read store
 3. Add to `block.json` bindings object
 4. (Optional) Add server binding in PHP for SEO
 
 ### Add Custom Event
+
 1. Check if canonical event exists first (see registry)
 2. If truly custom, follow pattern: `wpk.{domain}.{action}`
 3. Document payload contract
@@ -370,7 +383,7 @@ pnpm playground     # Launch Playground (WASM)
 ❌ Long-running sync operations in PHP bridge (< 100ms budget)  
 ❌ Include PII in event payloads  
 ❌ Skip cache invalidation after writes  
-❌ Ignore TypeScript errors  
+❌ Ignore TypeScript errors
 
 ---
 

@@ -1,8 +1,7 @@
 /**
  * WP Kernel - Core Framework Package
- * 
- * @package @geekist/wp-kernel
- * @description Rails-like framework for building modern WordPress products
+ *
+ * Rails-like framework for building modern WordPress products
  */
 
 export const VERSION = '0.0.0';

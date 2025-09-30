@@ -1,8 +1,7 @@
 /**
  * WP Kernel CLI - Development Tools Package
- * 
- * @package @geekist/wp-kernel-cli
- * @description CLI for scaffolding and managing WP Kernel projects
+ *
+ * CLI for scaffolding and managing WP Kernel projects
  */
 
 export const VERSION = '0.0.0';
