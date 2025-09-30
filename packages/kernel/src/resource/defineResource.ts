@@ -10,6 +10,7 @@
 import { KernelError } from '@kernel/errors';
 import { interpolatePath } from './interpolate';
 import { createStore } from './store/createStore';
+import { registerStoreKey } from './invalidate';
 import type {
 	ResourceConfig,
 	ResourceObject,
@@ -363,6 +364,9 @@ export function defineResource<T = unknown, TQuery = unknown>(
 		// Lazy-load and register @wordpress/data store on first access
 		get store() {
 			if (!_storeRegistered) {
+				// Register store key for invalidation tracking
+				registerStoreKey(resource.storeKey);
+
 				// Create store descriptor
 				const storeDescriptor = createStore<T, TQuery>({
 					resource: resource as ResourceObject<T, TQuery>,
