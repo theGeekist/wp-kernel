@@ -13,6 +13,16 @@ pnpm typecheck:tests || {
   exit 1
 }
 
+# Build documentation to catch syntax errors
+echo "📚 Building documentation..."
+pnpm docs:build || {
+  echo ""
+  echo "❌ Documentation build failed. Please fix syntax errors."
+  echo "💡 Run: pnpm docs:build"
+  echo ""
+  exit 1
+}
+
 # Check for changeset (only on feature branches)
 BRANCH=$(git branch --show-current)
 if [[ "$BRANCH" =~ ^(sprint-|feat/|fix/) ]]; then
