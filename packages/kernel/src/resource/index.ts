@@ -7,6 +7,15 @@
 
 export { defineResource } from './defineResource';
 export { interpolatePath, extractPathParams } from './interpolate';
+export { invalidate, invalidateAll } from './invalidate';
+export type { InvalidateOptions } from './invalidate';
+export {
+	normalizeCacheKey,
+	matchesCacheKey,
+	findMatchingKeys,
+	findMatchingKeysMultiple,
+} from './cacheKeys';
+export type { CacheKeyPattern } from './cacheKeys';
 export type {
 	HttpMethod,
 	ResourceRoute,

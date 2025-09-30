@@ -25,7 +25,17 @@ export type {
 /**
  * Resource system (Sprint 1)
  */
-export { defineResource, interpolatePath, extractPathParams } from './resource';
+export {
+	defineResource,
+	interpolatePath,
+	extractPathParams,
+	invalidate,
+	invalidateAll,
+	normalizeCacheKey,
+	matchesCacheKey,
+	findMatchingKeys,
+	findMatchingKeysMultiple,
+} from './resource';
 export { createStore } from './resource/store/createStore';
 export type {
 	HttpMethod,
@@ -38,6 +48,8 @@ export type {
 	ResourceClient,
 	ResourceObject,
 	PathParams,
+	CacheKeyPattern,
+	InvalidateOptions,
 } from './resource';
 export type {
 	ResourceState,
