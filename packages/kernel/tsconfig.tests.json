@@ -1,0 +1,17 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig",
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"rootDir": "./src",
+		"outDir": "./dist-tests",
+		"composite": false,
+		"noEmit": true,
+		"types": ["jest", "node"]
+	},
+	"include": [
+		"src/**/*.test.ts",
+		"src/**/*.test.tsx",
+		"src/**/__tests__/**/*"
+	],
+	"exclude": ["node_modules", "dist", "dist-tests"]
+}
