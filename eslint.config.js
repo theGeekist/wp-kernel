@@ -65,6 +65,9 @@ export default [
 
 		// Custom rules for WP Kernel
 		rules: {
+			// Disable problematic rule (ESLint 9 compatibility issue)
+			'@wordpress/no-unused-vars-before-return': 'off',
+
 			// Enforce no deep imports across packages (must use public entry points)
 			'no-restricted-imports': [
 				'error',

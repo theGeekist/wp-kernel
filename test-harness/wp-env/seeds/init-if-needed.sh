@@ -8,7 +8,7 @@ set -e
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Check if this is the first run (no posts except "Hello World")
-POST_COUNT=$(wp post list --post_type=post --format=count 2>/dev/null || echo "0")
+POST_COUNT=$(wp-env run tests-cli wp post list --post_type=post --format=count 2>/dev/null || echo "0")
 
 if [ "$POST_COUNT" -le "1" ]; then
     echo "🌱 First run detected, seeding database..."
