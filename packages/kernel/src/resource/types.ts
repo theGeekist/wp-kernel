@@ -260,6 +260,10 @@ export interface ResourceClient<T = unknown, TQuery = unknown> {
  * // Use in store selectors
  * const storeKey = thing.storeKey; // 'gk/thing'
  *
+ * // Access @wordpress/data store (lazy-loaded, auto-registered)
+ * const store = thing.store;
+ * const item = select(store).getItem(123);
+ *
  * // Use cache keys for invalidation
  * invalidate(thing.cacheKeys.list({ q: 'search' }));
  * ```
@@ -277,6 +281,20 @@ export interface ResourceObject<T = unknown, TQuery = unknown>
 	 * Used for store registration and selectors
 	 */
 	storeKey: string;
+
+	/**
+	 * Lazy-loaded @wordpress/data store
+	 *
+	 * Automatically registered on first access.
+	 * Returns the store descriptor compatible with select/dispatch.
+	 *
+	 * @example
+	 * ```ts
+	 * import { select } from '@wordpress/data';
+	 * const item = select(thing.store).getItem(123);
+	 * ```
+	 */
+	readonly store: unknown; // Type is unknown because @wordpress/data types are complex
 
 	/**
 	 * Cache key generators for all operations

@@ -26,6 +26,7 @@ export type {
  * Resource system (Sprint 1)
  */
 export { defineResource, interpolatePath, extractPathParams } from './resource';
+export { createStore } from './resource/store/createStore';
 export type {
 	HttpMethod,
 	ResourceRoute,
@@ -38,6 +39,14 @@ export type {
 	ResourceObject,
 	PathParams,
 } from './resource';
+export type {
+	ResourceState,
+	ResourceActions,
+	ResourceSelectors,
+	ResourceResolvers,
+	ResourceStoreConfig,
+	ResourceStore,
+} from './resource/store/types';
 
 /**
  * Module placeholders - implementations coming in future sprints

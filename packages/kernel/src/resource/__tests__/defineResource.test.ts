@@ -5,6 +5,16 @@
 import { defineResource } from '../defineResource';
 import { KernelError } from '../../errors';
 import type { CacheKeyFn } from '../types';
+import type { ResourceStore } from '../store/types';
+
+// Type for window.wp mock in tests
+interface WindowWithWp extends Window {
+	wp?: {
+		data?: {
+			register?: (store: unknown) => void;
+		};
+	};
+}
 
 interface Thing {
 	id: number;
@@ -593,6 +603,127 @@ describe('defineResource', () => {
 				expect(e).toBeInstanceOf(KernelError);
 				const error = e as KernelError;
 				expect(error.code).toBe('NotImplementedError');
+			}
+		});
+	});
+
+	describe('lazy store initialization', () => {
+		it('should have a store property', () => {
+			const resource = defineResource<Thing>({
+				name: 'thing',
+				routes: {
+					list: { path: '/gk/v1/things', method: 'GET' },
+				},
+			});
+
+			expect(resource).toHaveProperty('store');
+		});
+
+		it('should return same store instance on multiple accesses', () => {
+			const resource = defineResource<Thing>({
+				name: 'thing',
+				routes: {
+					list: { path: '/gk/v1/things', method: 'GET' },
+				},
+			});
+
+			const store1 = resource.store;
+			const store2 = resource.store;
+
+			expect(store1).toBe(store2);
+		});
+
+		it('should create store with correct storeKey', () => {
+			const resource = defineResource<Thing>({
+				name: 'thing',
+				routes: {
+					list: { path: '/gk/v1/things', method: 'GET' },
+				},
+			});
+
+			const store = resource.store as ResourceStore<Thing, ThingQuery>;
+
+			expect(store).toHaveProperty('storeKey', 'gk/thing');
+		});
+
+		it('should create store with selectors, actions, resolvers, reducer', () => {
+			const resource = defineResource<Thing>({
+				name: 'thing',
+				routes: {
+					list: { path: '/gk/v1/things', method: 'GET' },
+				},
+			});
+
+			const store = resource.store as ResourceStore<Thing, ThingQuery>;
+
+			expect(store).toHaveProperty('selectors');
+			expect(store).toHaveProperty('actions');
+			expect(store).toHaveProperty('resolvers');
+			expect(store).toHaveProperty('reducer');
+			expect(store).toHaveProperty('initialState');
+		});
+
+		it('should not register store when window.wp.data is undefined', () => {
+			// Mock scenario where window.wp is not available
+			const windowWithWp = global.window as WindowWithWp;
+			const originalWp = windowWithWp?.wp;
+			if (windowWithWp) {
+				delete windowWithWp.wp;
+			}
+
+			const resource = defineResource<Thing>({
+				name: 'thing',
+				routes: {
+					list: { path: '/gk/v1/things', method: 'GET' },
+				},
+			});
+
+			// Should still return store descriptor without throwing
+			const store = resource.store as ResourceStore<Thing, ThingQuery>;
+			expect(store).toHaveProperty('storeKey');
+
+			// Restore
+			if (windowWithWp && originalWp) {
+				windowWithWp.wp = originalWp;
+			}
+		});
+
+		it('should register store when window.wp.data.register is available', () => {
+			// Mock window.wp.data.register
+			const mockRegister = jest.fn();
+			const windowWithWp = global.window as WindowWithWp;
+			const originalWp = windowWithWp?.wp;
+
+			if (windowWithWp) {
+				windowWithWp.wp = {
+					data: {
+						register: mockRegister,
+					},
+				};
+			}
+
+			const resource = defineResource<Thing>({
+				name: 'thing-with-register',
+				routes: {
+					list: { path: '/gk/v1/things', method: 'GET' },
+				},
+			});
+
+			// Access store to trigger registration
+			const store = resource.store;
+
+			if (windowWithWp?.wp?.data?.register) {
+				expect(mockRegister).toHaveBeenCalledTimes(1);
+				expect(mockRegister).toHaveBeenCalledWith(store);
+			}
+
+			// Restore
+			if (windowWithWp) {
+				if (originalWp) {
+					windowWithWp.wp = originalWp;
+				} else {
+					delete windowWithWp.wp;
+				}
 			}
 		});
 	});
