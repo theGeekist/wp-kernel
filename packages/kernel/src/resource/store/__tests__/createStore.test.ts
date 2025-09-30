@@ -263,7 +263,10 @@ describe('createStore', () => {
 		});
 
 		it('should handle invalid action objects gracefully', () => {
-			const invalidAction = 'not an object' as any;
+			// Intentionally pass invalid type to test error handling
+			const invalidAction = 'not an object' as unknown as {
+				type: string;
+			};
 
 			const state = store.reducer(undefined, invalidAction);
 

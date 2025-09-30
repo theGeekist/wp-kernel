@@ -5,6 +5,16 @@
 import { defineResource } from '../defineResource';
 import { KernelError } from '../../errors';
 import type { CacheKeyFn } from '../types';
+import type { ResourceStore } from '../store/types';
+
+// Type for window.wp mock in tests
+interface WindowWithWp extends Window {
+	wp?: {
+		data?: {
+			register?: (store: unknown) => void;
+		};
+	};
+}
 
 interface Thing {
 	id: number;
@@ -631,7 +641,7 @@ describe('defineResource', () => {
 				},
 			});
 
-			const store = resource.store as any;
+			const store = resource.store as ResourceStore<Thing, ThingQuery>;
 
 			expect(store).toHaveProperty('storeKey', 'gk/thing');
 		});
@@ -644,7 +654,7 @@ describe('defineResource', () => {
 				},
 			});
 
-			const store = resource.store as any;
+			const store = resource.store as ResourceStore<Thing, ThingQuery>;
 
 			expect(store).toHaveProperty('selectors');
 			expect(store).toHaveProperty('actions');
@@ -655,9 +665,10 @@ describe('defineResource', () => {
 
 		it('should not register store when window.wp.data is undefined', () => {
 			// Mock scenario where window.wp is not available
-			const originalWp = (global as any).window?.wp;
-			if ((global as any).window) {
-				delete (global as any).window.wp;
+			const windowWithWp = global.window as WindowWithWp;
+			const originalWp = windowWithWp?.wp;
+			if (windowWithWp) {
+				delete windowWithWp.wp;
 			}
 
 			const resource = defineResource<Thing>({
@@ -668,22 +679,23 @@ describe('defineResource', () => {
 			});
 
 			// Should still return store descriptor without throwing
-			const store = resource.store as any;
+			const store = resource.store as ResourceStore<Thing, ThingQuery>;
 			expect(store).toHaveProperty('storeKey');
 
 			// Restore
-			if ((global as any).window && originalWp) {
-				(global as any).window.wp = originalWp;
+			if (windowWithWp && originalWp) {
+				windowWithWp.wp = originalWp;
 			}
 		});
 
 		it('should register store when window.wp.data.register is available', () => {
 			// Mock window.wp.data.register
 			const mockRegister = jest.fn();
-			const originalWp = (global as any).window?.wp;
+			const windowWithWp = global.window as WindowWithWp;
+			const originalWp = windowWithWp?.wp;
 
-			if ((global as any).window) {
-				(global as any).window.wp = {
+			if (windowWithWp) {
+				windowWithWp.wp = {
 					data: {
 						register: mockRegister,
 					},
@@ -700,17 +712,17 @@ describe('defineResource', () => {
 			// Access store to trigger registration
 			const store = resource.store;
 
-			if ((global as any).window?.wp?.data?.register) {
+			if (windowWithWp?.wp?.data?.register) {
 				expect(mockRegister).toHaveBeenCalledTimes(1);
 				expect(mockRegister).toHaveBeenCalledWith(store);
 			}
 
 			// Restore
-			if ((global as any).window) {
+			if (windowWithWp) {
 				if (originalWp) {
-					(global as any).window.wp = originalWp;
+					windowWithWp.wp = originalWp;
 				} else {
-					delete (global as any).window.wp;
+					delete windowWithWp.wp;
 				}
 			}
 		});
