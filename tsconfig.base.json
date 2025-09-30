@@ -24,7 +24,9 @@
 			"@geekist/wp-kernel-e2e-utils": [
 				"./packages/e2e-utils/src/index.ts"
 			],
-			"@geekist/wp-kernel-e2e-utils/*": ["./packages/e2e-utils/src/*"]
+			"@geekist/wp-kernel-e2e-utils/*": ["./packages/e2e-utils/src/*"],
+			// Internal kernel aliases for cleaner imports
+			"@kernel/*": ["./packages/kernel/src/*"]
 		},
 
 		// Type Checking (Strict Mode)
