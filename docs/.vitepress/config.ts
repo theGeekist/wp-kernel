@@ -6,6 +6,8 @@ export default defineConfig({
 	description:
 		'A Rails-like, opinionated framework for building modern WordPress products',
 	base: '/wp-kernel/',
+	lastUpdated: true,
+	sitemap: { hostname: 'https://thegeekist.github.io' },
 	ignoreDeadLinks: [
 		// Ignore localhost URLs (environment-specific)
 		/^http:\/\/localhost:\d+/,
