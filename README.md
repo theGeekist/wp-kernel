@@ -61,12 +61,12 @@ Login: `admin` / `password`
 
 ## 📦 Packages
 
-| Package | Description | Status |
-|---------|-------------|--------|
-| [@geekist/wp-kernel](packages/kernel) | Core framework (Resources, Actions, Events, Jobs) | 🚧 Sprint 0 |
-| [@geekist/wp-kernel-ui](packages/ui) | Accessible UI components (wraps @wordpress/components) | 🚧 Sprint 0 |
-| [@geekist/wp-kernel-cli](packages/cli) | Scaffolding CLI (generators) | 🚧 Sprint 0 |
-| [@geekist/wp-kernel-e2e-utils](packages/e2e-utils) | Playwright test utilities | 🚧 Sprint 0 |
+| Package                                            | Description                                            | Status      |
+| -------------------------------------------------- | ------------------------------------------------------ | ----------- |
+| [@geekist/wp-kernel](packages/kernel)              | Core framework (Resources, Actions, Events, Jobs)      | 🚧 Sprint 0 |
+| [@geekist/wp-kernel-ui](packages/ui)               | Accessible UI components (wraps @wordpress/components) | 🚧 Sprint 0 |
+| [@geekist/wp-kernel-cli](packages/cli)             | Scaffolding CLI (generators)                           | 🚧 Sprint 0 |
+| [@geekist/wp-kernel-e2e-utils](packages/e2e-utils) | Playwright test utilities                              | 🚧 Sprint 0 |
 
 ---
 
@@ -104,17 +104,20 @@ pnpm playground     # Launch WordPress Playground (WASM)
 ## 📚 Documentation
 
 ### Core Concepts
+
 - **[Foreword](information/Foreword.md)** - Why WP Kernel exists, mental model
 - **[Product Specification](information/Product%20Specification%20PO%20Draft%20•%20v1.0.md)** - Complete API contracts
 - **[Code Primitives](information/Code%20Primitives%20%26%20Dev%20Tooling%20PO%20Draft%20•%20v1.0.md)** - Error model, transport, testing
 
 ### Developer Guides
+
 - **[Sprint 0 Setup](information/Sprint%200%20—%20Environment%20%26%20Tooling.md)** - Environment configuration
 - **[CONTRIBUTING](CONTRIBUTING.md)** - How to contribute
 - **[TESTING](TESTING.md)** - Testing conventions
 - **[RUNBOOK](RUNBOOK.md)** - Common tasks and troubleshooting
 
 ### References
+
 - **[Event Taxonomy](information/REFERENCE%20-%20Event%20Taxonomy%20Quick%20Card.md)** - All events and payloads
 - **[Copilot Instructions](.github/copilot-instructions.md)** - AI assistant guide
 
@@ -157,21 +160,22 @@ pnpm playground     # Launch WordPress Playground (WASM)
 import { defineResource } from '@geekist/wp-kernel/resource';
 
 export const thing = defineResource<Thing>({
-  name: 'thing',
-  routes: {
-    list: { path: '/gk/v1/things', method: 'GET' },
-    get: { path: '/gk/v1/things/:id', method: 'GET' },
-    create: { path: '/gk/v1/things', method: 'POST' }
-  },
-  schema: import('../../contracts/thing.schema.json'),
-  cacheKeys: {
-    list: () => ['thing', 'list'],
-    get: (id) => ['thing', 'get', id]
-  }
+	name: 'thing',
+	routes: {
+		list: { path: '/gk/v1/things', method: 'GET' },
+		get: { path: '/gk/v1/things/:id', method: 'GET' },
+		create: { path: '/gk/v1/things', method: 'POST' },
+	},
+	schema: import('../../contracts/thing.schema.json'),
+	cacheKeys: {
+		list: () => ['thing', 'list'],
+		get: (id) => ['thing', 'get', id],
+	},
 });
 ```
 
 This gives you:
+
 - ✅ Typed client methods (`thing.list()`, `thing.create()`)
 - ✅ @wordpress/data store with selectors
 - ✅ Automatic cache management
@@ -196,6 +200,7 @@ See [Sprint 0 Tasks](information/SPRINT_0_TASKS.md) for detailed breakdown.
 We welcome contributions! Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting PRs.
 
 **Quick contribution flow**:
+
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/amazing-feature`)
 3. Make your changes
@@ -215,6 +220,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ## 🙏 Acknowledgments
 
 Built on the shoulders of giants:
+
 - **WordPress Core Team** - Gutenberg, Script Modules, Interactivity API
 - **@wordpress packages** - The foundation we build upon
 - **Rails** - Inspiration for conventions and the Golden Path philosophy
