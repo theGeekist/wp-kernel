@@ -1,0 +1,62 @@
+{
+	"name": "@geekist/wp-kernel-cli",
+	"version": "0.0.0",
+	"description": "CLI for scaffolding and managing WP Kernel projects",
+	"license": "MIT",
+	"type": "module",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/theGeekist/wp-kernel.git",
+		"directory": "packages/cli"
+	},
+	"homepage": "https://github.com/theGeekist/wp-kernel#readme",
+	"bugs": {
+		"url": "https://github.com/theGeekist/wp-kernel/issues"
+	},
+	"keywords": [
+		"wordpress",
+		"cli",
+		"generator",
+		"scaffold",
+		"wp-kernel"
+	],
+	"bin": {
+		"wpk": "./bin/wpk.js"
+	},
+	"main": "./dist/index.js",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js",
+			"default": "./dist/index.js"
+		},
+		"./package.json": "./package.json"
+	},
+	"files": [
+		"dist",
+		"bin",
+		"README.md",
+		"LICENSE"
+	],
+	"scripts": {
+		"dev": "tsc --build --watch",
+		"build": "tsc --build",
+		"clean": "rm -rf dist *.tsbuildinfo",
+		"typecheck": "tsc --noEmit"
+	},
+	"dependencies": {
+		"commander": "^12.1.0"
+	},
+	"peerDependencies": {
+		"@geekist/wp-kernel": "workspace:*"
+	},
+	"devDependencies": {
+		"@types/node": "^24.6.0",
+		"typescript": "^5.9.2"
+	},
+	"publishConfig": {
+		"access": "public"
+	}
+}
