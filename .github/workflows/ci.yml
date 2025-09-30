@@ -1,0 +1,232 @@
+name: CI
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
+
+# Cancel in-progress runs for the same branch
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    # Lint: Check code quality
+    lint:
+        name: Lint
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 9.12.3
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '22.20.0'
+                  cache: 'pnpm'
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Run ESLint
+              run: pnpm lint
+
+            - name: Check Prettier formatting
+              run: pnpm format:check
+
+            - name: TypeScript type check
+              run: pnpm typecheck
+
+    # Build: Ensure all packages build successfully
+    build:
+        name: Build
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 9.12.3
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '22.20.0'
+                  cache: 'pnpm'
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Build packages
+              run: pnpm build
+
+            - name: Upload build artifacts
+              uses: actions/upload-artifact@v4
+              with:
+                  name: dist
+                  path: |
+                      packages/*/dist
+                      examples/*/build
+                  retention-days: 7
+
+    # Unit Tests: Run Jest tests
+    unit-test:
+        name: Unit Tests
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 9.12.3
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '22.20.0'
+                  cache: 'pnpm'
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Run unit tests with coverage
+              run: pnpm test:coverage
+
+            - name: Upload coverage to Codecov
+              uses: codecov/codecov-action@v4
+              with:
+                  files: ./coverage/lcov.info
+                  flags: unittests
+                  name: unit-tests
+                  fail_ci_if_error: false
+
+    # E2E Tests: Run Playwright tests
+    e2e-test:
+        name: E2E Tests
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 9.12.3
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '22.20.0'
+                  cache: 'pnpm'
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Cache Playwright browsers
+              uses: actions/cache@v4
+              id: playwright-cache
+              with:
+                  path: ~/.cache/ms-playwright
+                  key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+                  restore-keys: |
+                      playwright-${{ runner.os }}-
+
+            - name: Install Playwright browsers
+              if: steps.playwright-cache.outputs.cache-hit != 'true'
+              run: pnpm exec playwright install --with-deps chromium
+
+            - name: Install Playwright browser dependencies
+              if: steps.playwright-cache.outputs.cache-hit == 'true'
+              run: pnpm exec playwright install-deps chromium
+
+            - name: Build packages (required for tests)
+              run: pnpm build
+
+            - name: Start WordPress (wp-env)
+              run: pnpm wp:start
+
+            - name: Seed test data
+              run: pnpm wp:seed
+
+            - name: Run E2E tests
+              run: pnpm e2e --project=chromium
+
+            - name: Upload Playwright report
+              if: failure()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: playwright-report
+                  path: playwright-report/
+                  retention-days: 7
+
+            - name: Upload test results
+              if: always()
+              uses: actions/upload-artifact@v4
+              with:
+                  name: test-results
+                  path: test-results/
+                  retention-days: 7
+
+    # Changesets: Verify changeset exists for PRs
+    changesets-check:
+        name: Changesets Check
+        runs-on: ubuntu-latest
+        if: github.event_name == 'pull_request'
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: 9.12.3
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '22.20.0'
+                  cache: 'pnpm'
+
+            - name: Install dependencies
+              run: pnpm install --frozen-lockfile
+
+            - name: Check for changesets
+              run: |
+                  # Check if there are any changesets
+                  if [ -z "$(ls .changeset/*.md 2>/dev/null | grep -v README)" ]; then
+                    echo "⚠️ No changeset found. Please add a changeset for your changes."
+                    echo "Run: pnpm changeset"
+                    exit 1
+                  else
+                    echo "✅ Changeset found"
+                  fi
+
+    # All checks passed
+    all-checks:
+        name: All Checks Passed
+        runs-on: ubuntu-latest
+        needs: [lint, build, unit-test, e2e-test]
+        if: always()
+        steps:
+            - name: Check status
+              run: |
+                  if [[ "${{ needs.lint.result }}" != "success" ]] || \
+                     [[ "${{ needs.build.result }}" != "success" ]] || \
+                     [[ "${{ needs.unit-test.result }}" != "success" ]] || \
+                     [[ "${{ needs.e2e-test.result }}" != "success" ]]; then
+                    echo "❌ One or more checks failed"
+                    exit 1
+                  fi
+                  echo "✅ All checks passed!"
