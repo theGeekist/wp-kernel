@@ -12,8 +12,8 @@ module.exports = {
 	testMatch: [
 		'**/__tests__/**/*.ts',
 		'**/__tests__/**/*.tsx',
-		'**/?(*.)+(spec|test).ts',
-		'**/?(*.)+(spec|test).tsx',
+		'**/__tests__/**/*.test.ts',
+		'**/__tests__/**/*.test.tsx',
 	],
 
 	// Module resolution
