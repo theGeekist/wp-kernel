@@ -43,7 +43,8 @@
 		"dev": "tsc --build --watch",
 		"build": "tsc --build",
 		"clean": "rm -rf dist *.tsbuildinfo",
-		"typecheck": "tsc --noEmit"
+		"typecheck": "tsc --noEmit",
+		"typecheck:tests": "tsc --project tsconfig.tests.json --noEmit"
 	},
 	"peerDependencies": {
 		"@wordpress/data": ">=10.0.0",

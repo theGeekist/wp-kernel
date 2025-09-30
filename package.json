@@ -27,6 +27,7 @@
 		"format": "prettier --write '**/*.{js,ts,tsx,json,md,yml,yaml}'",
 		"format:check": "prettier --check '**/*.{js,ts,tsx,json,md,yml,yaml}'",
 		"typecheck": "pnpm --recursive --filter './packages/*' run typecheck",
+		"typecheck:tests": "pnpm --recursive --filter './packages/*' run typecheck:tests",
 		"test": "jest --passWithNoTests",
 		"test:watch": "jest --watch",
 		"test:coverage": "jest --coverage",
