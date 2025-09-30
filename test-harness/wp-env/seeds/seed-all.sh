@@ -10,6 +10,12 @@ echo ""
 # Get the directory where this script is located
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+# Ensure permalinks are configured (needed for REST API)
+echo "⚙️  Configuring permalinks..."
+wp rewrite structure '/%postname%/' --hard --quiet
+echo "✅ Permalinks configured"
+echo ""
+
 # Run seeds in order
 bash "$SCRIPT_DIR/seed-users.sh"
 bash "$SCRIPT_DIR/seed-content.sh"

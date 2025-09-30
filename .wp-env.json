@@ -32,8 +32,5 @@
 	"mappings": {
 		"wp-content/plugins/wp-kernel": "./packages/kernel",
 		"wp-content/plugins/wp-kernel-ui": "./packages/ui"
-	},
-	"lifecycleScripts": {
-		"afterStart": "bash ./test-harness/wp-env/seeds/init-if-needed.sh"
 	}
 }
