@@ -13,6 +13,7 @@ pnpm changeset
 ```
 
 Follow the prompts to:
+
 1. Select which packages changed
 2. Choose bump type (major/minor/patch)
 3. Write a summary of changes
@@ -22,13 +23,15 @@ Follow the prompts to:
 #### Pre-1.0 (Current: 0.x.x)
 
 We're in **pre-1.0 development**:
+
 - **Minor (0.x.0)**: May include breaking changes - API is still evolving
 - **Patch (0.0.x)**: Bug fixes and non-breaking changes only
 
 Example:
+
 ```markdown
 ---
-"@geekist/wp-kernel": minor
+'@geekist/wp-kernel': minor
 ---
 
 Add Resource API with cache invalidation
@@ -37,6 +40,7 @@ Add Resource API with cache invalidation
 #### Post-1.0 (Future: 1.0.0+)
 
 After reaching 1.0.0, we follow strict SemVer:
+
 - **Major (x.0.0)**: Breaking changes
 - **Minor (0.x.0)**: New features (backward compatible)
 - **Patch (0.0.x)**: Bug fixes only
@@ -63,6 +67,7 @@ pnpm changeset publish
 ### Common Workflows
 
 #### Bug Fix
+
 ```bash
 # Fix the bug
 git add .
@@ -75,6 +80,7 @@ pnpm changeset
 ```
 
 #### New Feature
+
 ```bash
 # Build the feature
 git add .
@@ -87,6 +93,7 @@ pnpm changeset
 ```
 
 #### Breaking Change (Pre-1.0)
+
 ```bash
 # Make breaking changes
 git add .
@@ -99,6 +106,7 @@ pnpm changeset
 ```
 
 #### Breaking Change (Post-1.0)
+
 ```bash
 # Make breaking changes
 git add .
@@ -116,9 +124,7 @@ If packages should always version together, use `linked` in `config.json`:
 
 ```json
 {
-  "linked": [
-    ["@geekist/wp-kernel", "@geekist/wp-kernel-ui"]
-  ]
+	"linked": [["@geekist/wp-kernel", "@geekist/wp-kernel-ui"]]
 }
 ```
 
@@ -130,9 +136,7 @@ For monorepos where all packages share the same version:
 
 ```json
 {
-  "fixed": [
-    ["@geekist/*"]
-  ]
+	"fixed": [["@geekist/*"]]
 }
 ```
 
@@ -158,11 +162,13 @@ In CI (GitHub Actions), we:
 ### Pre-1.0 Versioning Strategy
 
 We're currently at **0.x.x** because:
+
 - Event taxonomy is not frozen yet
 - Resource API may evolve
 - PHP bridge behavior may change
 
 **When we hit 1.0.0**:
+
 - Event names become stable contracts
 - SemVer guarantees apply strictly
 - Deprecation workflow required before removals

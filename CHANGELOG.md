@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added - Sprint 0 Progress (Phases 1-3)
 
 #### Phase 1: Repository Foundation ✅
+
 - Monorepo structure with pnpm workspaces
 - TypeScript 5.9.2 strict configuration with composite builds
 - **ESLint 9.36.0 flat config** (migrated from ESLint 8)
@@ -20,12 +21,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comprehensive `.gitignore` for WordPress, Node, build artifacts
 
 #### Phase 2: Package Scaffolding ✅
+
 - `@geekist/wp-kernel` - Core framework package with Resource, Action, Event, Job APIs
 - `@geekist/wp-kernel-ui` - UI components package
 - `@geekist/wp-kernel-cli` - Code generator CLI (`wpk` command)
 - `@geekist/wp-kernel-e2e-utils` - E2E testing utilities for Playwright
 
 All packages:
+
 - TypeScript strict mode enabled
 - ES2022 target with ESNext modules
 - Path aliases configured (`@geekist/*`)
@@ -33,6 +36,7 @@ All packages:
 - README with API documentation
 
 #### Phase 2.5: Developer Experience & Tooling ✅
+
 - **VS Code workspace** with 25+ tasks for all workflows
 - Debug configurations for Jest and CLI
 - Recommended extensions documented
@@ -42,28 +46,45 @@ All packages:
 - Complete script documentation (`docs/SCRIPTS.md`, `docs/SCRIPTS_AUDIT.md`)
 - `.vscode/README.md` - VS Code usage guide
 
-#### Phase 3: WordPress Environments ✅ (Partial)
-- **wp-env configuration** with WordPress 6.7 + PHP 8.3
-- Dev environment on `:8888`, tests environment on `:8889`
-- **Script Modules API integration** verified and working
-- **Showcase plugin** demonstrating Script Module registration
-  - ESM module with `@wordpress/dom-ready` imports
-  - Webpack build: 857 bytes minified
-  - Active by default in wp-env
-- WordPress lifecycle scripts (`afterStart` seed hook)
-- `pnpm wp:*` commands: start, stop, restart, cli, logs, seed, fresh
-- **PHP CodeSniffer** configuration for WordPress standards
+#### Phase 3: Changesets & Versioning ✅
+
+- `@changesets/cli` installed and configured
+- Pre-1.0 versioning strategy (0.x.y releases)
+- Initial changesets created for Sprint 0 foundation
+- All packages versioned at 0.1.0
+- Changeset workflow documented
+
+#### Phase 4: WordPress Environments ✅
+
+- **wp-env configuration** with dev (:8888) and tests (:8889) sites
+- Showcase plugin with Script Modules integration (857 bytes minified)
+- Plugin active by default with admin bar indicator
+- **Comprehensive seed scripts** (idempotent, tested):
+    - `seed-users.sh` - 4 test users with roles
+    - `seed-content.sh` - 5 job postings with HTML content
+    - `seed-applications.sh` - 10 applications with various statuses
+    - `seed-media.sh` - Sample CV PDF and profile images
+    - `seed-all.sh` - Master orchestration script
+- Lifecycle hook (`init-if-needed.sh`) for automatic seeding on first start
+- **WordPress Playground** configured with blueprint.json
+- `@wp-playground/cli` installed (+103 packages, 270MB)
+- Playground mounts built plugin files via `--mount` flag
+- WordPress 6.7+ with PHP 8.3 verified working
+- All Phase 4 acceptance criteria met
 
 ### Changed
 
 #### ESLint 9 Migration (Zero Deprecations Achievement)
+
 Upgraded entire toolchain to latest versions:
+
 - ESLint: `8.57.1` → `9.36.0` (flat config)
 - @typescript-eslint: `v7.18.0` → `v8.45.0`
 - eslint-plugin-jest: `27.9.0` → `29.0.1`
 - eslint-plugin-react-hooks: `4.6.2` → `5.2.0`
 
 **Strategic pnpm overrides** eliminated **8 deprecated subdependencies**:
+
 - `glob` → `10.4.5` (removes `inflight`)
 - `jsdom` → `27.0.0` (removes `abab` + `domexception`)
 - `markdownlint-cli` → `0.45.0` (uses glob v11)
@@ -74,21 +95,25 @@ Upgraded entire toolchain to latest versions:
 Result: **Zero deprecated subdependencies, zero peer warnings**
 
 #### React 18 Enforcement
+
 - All dependencies use React 18.3.1 (enforced via pnpm overrides)
 - No version conflicts across WordPress packages
 
 #### PHP Namespace Corrections
+
 - All WordPress functions in showcase plugin now use global namespace prefix (`\`)
 - Fixes Intelephense undefined function errors
 
 ### Documentation
 
 #### Critical Items Addressed (Product Specification)
+
 - **Section 4.6: Event Taxonomy** - Complete registry with 20+ system events, TypeScript definitions, PHP bridge mapping
 - **Section 4.4.1.1: Server Binding Sources** - Attribute-level SSR for SEO, performance budgets, clear limitations
 - **Section 5.1: Transport Strategy** - Retry policies, timeout hierarchy, circuit breaker pattern
 
 #### New Documentation Created
+
 - `.github/copilot-instructions.md` - AI assistant golden path patterns
 - `information/SPRINT_0_TASKS.md` - 30+ actionable tasks across 7 phases
 - `information/REFERENCE - Event Taxonomy Quick Card.md` - Developer cheat sheet
@@ -99,6 +124,7 @@ Result: **Zero deprecated subdependencies, zero peer warnings**
 ### Infrastructure
 
 #### Git & Repository
+
 - Initial commit: `cc8862d` - Repository structure
 - Commit `36c674c` + `9a9da9d` - Monorepo foundation
 - Commit `aa9de1b` - TypeScript configuration
@@ -107,12 +133,14 @@ Result: **Zero deprecated subdependencies, zero peer warnings**
 - Commit `2ed7ec8` - WordPress environment + VS Code tooling
 
 #### Build System
+
 - Turborepo ready (structure supports)
 - Split builds: `build:packages` / `build:examples`
 - Parallel watch mode with `pnpm dev`
 - Clean scripts: `clean` (all) / `clean:dist` (targeted)
 
 #### Testing Infrastructure (Partial)
+
 - Jest configuration with `@wordpress/jest-preset-default`
 - Playwright ready (config pending Phase 4)
 - Seed script infrastructure created (scripts pending Task 3.3)
@@ -120,18 +148,21 @@ Result: **Zero deprecated subdependencies, zero peer warnings**
 ### Sprint 0 Status: 47% Complete (8/17 Tasks)
 
 **Completed:**
+
 - ✅ Phase 1: Repository Foundation (3/3 tasks)
 - ✅ Phase 2: Package Scaffolding (4/4 tasks)
 - ✅ Phase 2.5: Developer Experience (1/1 task - NEW)
 
 **In Progress:**
+
 - ⏳ Phase 3: WordPress Environments (2/4 tasks)
-  - ✅ Task 3.1: wp-env Configuration
-  - ✅ Task 3.2: Showcase Plugin Stub
-  - ⏳ Task 3.3: Seed Scripts (infrastructure ready)
-  - ⏳ Task 3.4: Playground Configuration (command ready)
+    - ✅ Task 3.1: wp-env Configuration
+    - ✅ Task 3.2: Showcase Plugin Stub
+    - ⏳ Task 3.3: Seed Scripts (infrastructure ready)
+    - ⏳ Task 3.4: Playground Configuration (command ready)
 
 **Pending:**
+
 - Phase 4: Testing Infrastructure (0/3 tasks)
 - Phase 5: CI/CD Pipeline (0/2 tasks)
 - Phase 6: Documentation (0/4 tasks)
@@ -144,6 +175,7 @@ Result: **Zero deprecated subdependencies, zero peer warnings**
 ### Pre-1.0 Development (Current: 0.x.x)
 
 We are in **pre-1.0 development** where:
+
 - **Minor versions** (0.x.0) may include breaking changes
 - **Patch versions** (0.0.x) are for fixes only
 - API is still evolving toward stable 1.0 release
@@ -152,6 +184,7 @@ We are in **pre-1.0 development** where:
 ### Post-1.0 Commitment
 
 Once we reach **1.0.0**, we guarantee:
+
 - **SemVer strict**: MAJOR.MINOR.PATCH
 - **Event taxonomy frozen** - names are API contracts
 - **Deprecation workflow** - 1 major version warning before removal
@@ -168,9 +201,11 @@ _Will be added as breaking changes are introduced during 0.x.x development_
 ## Release History
 
 ### 0.1.0 - [Unreleased]
+
 **Sprint 0 Foundation Release**
 
 Initial scaffolding with:
+
 - Monorepo structure (4 packages)
 - TypeScript + ESLint 9 + Prettier
 - wp-env WordPress 6.7 environment
@@ -179,6 +214,7 @@ Initial scaffolding with:
 - 30+ validated pnpm scripts
 
 **Known Limitations:**
+
 - No published npm packages yet
 - Seed scripts incomplete
 - Playground config untested
@@ -192,6 +228,7 @@ Initial scaffolding with:
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for how to propose changes and create changesets.
 
 All changes should:
+
 1. Include a changeset (`pnpm changeset`)
 2. Follow conventional commits
 3. Update this CHANGELOG automatically via CI
