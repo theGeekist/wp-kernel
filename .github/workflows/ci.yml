@@ -201,21 +201,30 @@ jobs:
                   key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
                   fail-on-cache-miss: true
 
+            # Get Playwright version for cache key (more accurate than lockfile hash)
+            - name: Get Playwright version
+              id: playwright-version
+              run: echo "version=$(pnpm list @playwright/test --depth=0 --json | jq -r '.[0].devDependencies["@playwright/test"].version')" >> $GITHUB_OUTPUT
+
+            # Cache Playwright browsers (~267MB, saves ~30s download time)
+            # Cache key based on OS + Playwright version (invalidates when Playwright updates)
             - name: Cache Playwright browsers
               id: playwright-cache
               uses: actions/cache@v4
               with:
                   path: ~/.cache/ms-playwright
-                  key: playwright-${{ runner.os }}-${{ env.NODE_VERSION }}-${{ hashFiles('pnpm-lock.yaml') }}
+                  key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
                   restore-keys: |
-                      playwright-${{ runner.os }}-${{ env.NODE_VERSION }}-
                       playwright-${{ runner.os }}-
 
-            - name: Install Playwright browsers
+            # On cache miss: Download browsers + install system dependencies (~40s)
+            - name: Install Playwright browsers and dependencies
               if: steps.playwright-cache.outputs.cache-hit != 'true'
               run: pnpm exec playwright install --with-deps chromium
 
-            - name: Install Playwright browser dependencies
+            # On cache hit: Only install system dependencies (fonts, libs, etc.) (~15s)
+            # System deps must be reinstalled on each run (fresh VM)
+            - name: Install Playwright system dependencies only
               if: steps.playwright-cache.outputs.cache-hit == 'true'
               run: pnpm exec playwright install-deps chromium
 
