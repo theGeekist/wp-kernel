@@ -1,0 +1,59 @@
+{
+	"name": "@geekist/wp-kernel",
+	"version": "0.0.0",
+	"description": "Rails-like framework for building modern WordPress products",
+	"license": "MIT",
+	"type": "module",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/theGeekist/wp-kernel.git",
+		"directory": "packages/kernel"
+	},
+	"homepage": "https://github.com/theGeekist/wp-kernel#readme",
+	"bugs": {
+		"url": "https://github.com/theGeekist/wp-kernel/issues"
+	},
+	"keywords": [
+		"wordpress",
+		"framework",
+		"blocks",
+		"gutenberg",
+		"interactivity",
+		"actions",
+		"resources",
+		"rest-api"
+	],
+	"main": "./dist/index.js",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js",
+			"default": "./dist/index.js"
+		},
+		"./package.json": "./package.json"
+	},
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE"
+	],
+	"scripts": {
+		"dev": "tsc --build --watch",
+		"build": "tsc --build",
+		"clean": "rm -rf dist *.tsbuildinfo",
+		"typecheck": "tsc --noEmit"
+	},
+	"peerDependencies": {
+		"@wordpress/data": ">=10.0.0",
+		"@wordpress/element": ">=6.0.0",
+		"@wordpress/hooks": ">=4.0.0"
+	},
+	"devDependencies": {
+		"typescript": "^5.9.2"
+	},
+	"publishConfig": {
+		"access": "public"
+	}
+}

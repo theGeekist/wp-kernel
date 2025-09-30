@@ -1,0 +1,58 @@
+{
+	"name": "@geekist/wp-kernel-e2e-utils",
+	"version": "0.0.0",
+	"description": "E2E testing utilities for WP Kernel projects",
+	"license": "MIT",
+	"type": "module",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/theGeekist/wp-kernel.git",
+		"directory": "packages/e2e-utils"
+	},
+	"homepage": "https://github.com/theGeekist/wp-kernel#readme",
+	"bugs": {
+		"url": "https://github.com/theGeekist/wp-kernel/issues"
+	},
+	"keywords": [
+		"wordpress",
+		"testing",
+		"e2e",
+		"playwright",
+		"wp-kernel"
+	],
+	"main": "./dist/index.js",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js",
+			"default": "./dist/index.js"
+		},
+		"./package.json": "./package.json"
+	},
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE"
+	],
+	"scripts": {
+		"dev": "tsc --build --watch",
+		"build": "tsc --build",
+		"clean": "rm -rf dist *.tsbuildinfo",
+		"typecheck": "tsc --noEmit"
+	},
+	"peerDependencies": {
+		"@geekist/wp-kernel": "workspace:*",
+		"@playwright/test": ">=1.40.0",
+		"@wordpress/e2e-test-utils-playwright": ">=1.0.0"
+	},
+	"devDependencies": {
+		"@playwright/test": "^1.55.1",
+		"@wordpress/e2e-test-utils-playwright": "^1.31.0",
+		"typescript": "^5.9.2"
+	},
+	"publishConfig": {
+		"access": "public"
+	}
+}
