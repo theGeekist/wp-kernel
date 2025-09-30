@@ -5,15 +5,13 @@
 		"php": "8.3",
 		"wp": "latest"
 	},
-	"phpExtensionBundles": ["kitchen-sink"],
 	"features": {
 		"networking": true
 	},
 	"steps": [
 		{
 			"step": "login",
-			"username": "admin",
-			"password": "password"
+			"username": "admin"
 		},
 		{
 			"step": "activatePlugin",
