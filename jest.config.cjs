@@ -27,6 +27,8 @@ module.exports = {
 		'^@geekist/wp-kernel-e2e-utils$': '<rootDir>/packages/e2e-utils/src',
 		'^@geekist/wp-kernel-e2e-utils/(.*)$':
 			'<rootDir>/packages/e2e-utils/src/$1',
+		// Internal kernel aliases
+		'^@kernel/(.*)$': '<rootDir>/packages/kernel/src/$1',
 	},
 
 	// TypeScript transformation

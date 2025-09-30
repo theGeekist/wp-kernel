@@ -7,7 +7,7 @@
  * @see Product Specification § 4.1 Resources
  */
 
-import { KernelError } from '../errors';
+import { KernelError } from '@kernel/errors';
 import { interpolatePath } from './interpolate';
 import { createStore } from './store/createStore';
 import type {
