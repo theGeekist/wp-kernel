@@ -12,17 +12,27 @@
 export const VERSION = '0.0.0';
 
 /**
+ * Error types (Sprint 1)
+ */
+export { KernelError, TransportError, ServerError } from './errors';
+export type {
+	ErrorCode,
+	ErrorContext,
+	ErrorData,
+	SerializedError,
+} from './errors';
+
+/**
  * Module placeholders - implementations coming in future sprints
  *
  * Planned exports:
- * - defineResource (from './resource')
- * - defineAction (from './actions')
- * - definePolicy (from './policies')
- * - defineJob (from './jobs')
- * - defineInteraction (from './interactivity')
- * - registerBindingSource (from './bindings')
- * - events (from './events')
- * - KernelError (from './errors')
+ * - defineResource (from './resource') - Sprint 1
+ * - defineAction (from './actions') - Sprint 3
+ * - definePolicy (from './policies') - Sprint 2
+ * - defineJob (from './jobs') - Sprint 4
+ * - defineInteraction (from './interactivity') - Sprint 5
+ * - registerBindingSource (from './bindings') - Sprint 6
+ * - events (from './events') - Sprint 1
  */
 
 // Future module structure:
