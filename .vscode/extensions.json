@@ -1,0 +1,10 @@
+{
+	"recommendations": [
+		"esbenp.prettier-vscode",
+		"dbaeumer.vscode-eslint",
+		"ms-playwright.playwright",
+		"bmewburn.vscode-intelephense-client",
+		"bradlc.vscode-tailwindcss"
+	],
+	"unwantedRecommendations": []
+}

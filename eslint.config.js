@@ -35,6 +35,7 @@ export default [
 			'**/information/**',
 			'coverage/**',
 			'.changeset/**',
+			'**/*.php', // PHP files handled by PHPCS
 		],
 	},
 
@@ -89,9 +90,35 @@ export default [
 			'import/no-unresolved': [
 				'error',
 				{
-					ignore: ['^@typescript-eslint/', '^@eslint/', '^globals$'],
+					ignore: [
+						'^@typescript-eslint/',
+						'^@eslint/',
+						'^globals$',
+						'^@wordpress/',
+					],
 				},
 			],
+		},
+	},
+
+	// WordPress Script Modules - runtime-resolved imports
+	{
+		files: ['examples/*/src/**/*.js', 'examples/*/src/**/*.jsx'],
+		rules: {
+			'import/no-unresolved': [
+				'error',
+				{
+					ignore: ['^@wordpress/'],
+				},
+			],
+		},
+	},
+
+	// CLI bin files - runtime-resolved paths
+	{
+		files: ['packages/cli/bin/**/*.js'],
+		rules: {
+			'import/no-unresolved': 'off',
 		},
 	},
 

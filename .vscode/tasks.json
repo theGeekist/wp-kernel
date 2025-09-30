@@ -1,0 +1,290 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		// === Build Tasks ===
+		{
+			"label": "Build All",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["-r", "build"],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+			"problemMatcher": ["$tsc"],
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared",
+				"clear": true
+			}
+		},
+		{
+			"label": "Build Kernel",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["--filter", "@geekist/wp-kernel", "build"],
+			"group": "build",
+			"problemMatcher": ["$tsc"]
+		},
+		{
+			"label": "Build UI",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["--filter", "@geekist/wp-kernel-ui", "build"],
+			"group": "build",
+			"problemMatcher": ["$tsc"]
+		},
+		{
+			"label": "Build CLI",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["--filter", "@geekist/wp-kernel-cli", "build"],
+			"group": "build",
+			"problemMatcher": ["$tsc"]
+		},
+		{
+			"label": "Build Showcase Plugin",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["--filter", "wp-kernel-showcase", "build"],
+			"group": "build",
+			"problemMatcher": ["$tsc"]
+		},
+
+		// === Dev/Watch Tasks ===
+		{
+			"label": "Dev: Watch All Packages",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["dev"],
+			"isBackground": true,
+			"problemMatcher": {
+				"owner": "typescript",
+				"fileLocation": "relative",
+				"pattern": {
+					"regexp": "^([^\\s].*)[\\(:](\\d+)[,:](\\d+)(?:\\):\\s+|\\s+-\\s+)(error|warning|info)\\s+(TS\\d+)\\s*:\\s*(.*)$",
+					"file": 1,
+					"line": 2,
+					"column": 3,
+					"severity": 4,
+					"code": 5,
+					"message": 6
+				},
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": "Starting compilation in watch mode",
+					"endsPattern": "Watching for file changes"
+				}
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated",
+				"clear": false
+			}
+		},
+		{
+			"label": "Dev: Watch Showcase Plugin",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["--filter", "wp-kernel-showcase", "dev"],
+			"isBackground": true,
+			"problemMatcher": {
+				"owner": "webpack",
+				"fileLocation": "relative",
+				"pattern": {
+					"regexp": "^\\s*ERROR\\s+in\\s+(.*)$",
+					"file": 1
+				},
+				"background": {
+					"activeOnStart": true,
+					"beginsPattern": "webpack.*compiled",
+					"endsPattern": "webpack.*compiled"
+				}
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated"
+			}
+		},
+
+		// === WordPress Environment ===
+		{
+			"label": "WordPress: Start",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["wp:start"],
+			"problemMatcher": [],
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated"
+			}
+		},
+		{
+			"label": "WordPress: Stop",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["wp:stop"],
+			"problemMatcher": []
+		},
+		{
+			"label": "WordPress: Restart",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["wp:stop"],
+			"problemMatcher": [],
+			"dependsOn": [],
+			"dependsOrder": "sequence",
+			"presentation": {
+				"reveal": "always"
+			},
+			"runOptions": {
+				"runOn": "default"
+			}
+		},
+		{
+			"label": "WordPress: Fresh Start (with seed)",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["wp:fresh"],
+			"problemMatcher": [],
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated"
+			}
+		},
+		{
+			"label": "WordPress: Destroy",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["wp:destroy"],
+			"problemMatcher": []
+		},
+
+		// === Testing ===
+		{
+			"label": "Test: Unit Tests",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["test"],
+			"group": "test",
+			"problemMatcher": [],
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared",
+				"clear": true
+			}
+		},
+		{
+			"label": "Test: Unit Tests (Watch)",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["test:watch"],
+			"isBackground": true,
+			"group": "test",
+			"problemMatcher": [],
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated"
+			}
+		},
+		{
+			"label": "Test: E2E Tests",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["e2e"],
+			"group": "test",
+			"problemMatcher": [],
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared",
+				"clear": true
+			}
+		},
+		{
+			"label": "Test: E2E Tests (Headed)",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["e2e:headed"],
+			"group": "test",
+			"problemMatcher": []
+		},
+		{
+			"label": "Test: E2E Tests (UI)",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["e2e:ui"],
+			"group": "test",
+			"problemMatcher": []
+		},
+
+		// === Linting & Formatting ===
+		{
+			"label": "Lint",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["lint"],
+			"problemMatcher": ["$eslint-stylish"],
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			}
+		},
+		{
+			"label": "Format",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["format"],
+			"problemMatcher": []
+		},
+		{
+			"label": "Format: Check",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["format:check"],
+			"problemMatcher": []
+		},
+		{
+			"label": "TypeCheck: All",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["typecheck"],
+			"problemMatcher": ["$tsc"],
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared"
+			}
+		},
+
+		// === Cleanup ===
+		{
+			"label": "Clean: All",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["clean"],
+			"problemMatcher": []
+		},
+		{
+			"label": "Clean: node_modules",
+			"type": "shell",
+			"command": "rm -rf node_modules packages/*/node_modules examples/*/node_modules && pnpm install",
+			"problemMatcher": [],
+			"presentation": {
+				"reveal": "always"
+			}
+		},
+
+		// === Playground ===
+		{
+			"label": "Playground: Start",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["playground"],
+			"isBackground": true,
+			"problemMatcher": [],
+			"presentation": {
+				"reveal": "always",
+				"panel": "dedicated"
+			}
+		}
+	]
+}

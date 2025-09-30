@@ -9,7 +9,8 @@ build/
 
 # WordPress environments
 .wp-env/
-wp-env.override.json
+.wp-env.override.json
+.wp-env.local.json
 test-harness/wp-env/wordpress/
 test-harness/wp-env/tests-wordpress/
 
@@ -37,6 +38,7 @@ playwright/.cache/
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+!.vscode/README.md
 *.swp
 *.swo
 *~

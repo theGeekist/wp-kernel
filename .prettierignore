@@ -1,0 +1,24 @@
+# Ignore auto-generated files
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# Ignore build outputs
+**/dist/**
+**/build/**
+**/*.tsbuildinfo
+
+# Ignore WordPress environment
+.wp-env/**
+**/wordpress/**
+**/tests-wordpress/**
+
+# Ignore dependencies
+**/node_modules/**
+
+# Ignore coverage
+coverage/**
+
+# Ignore changesets
+.changeset/**/*.md
+!.changeset/README.md

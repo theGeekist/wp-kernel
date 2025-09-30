@@ -1,0 +1,19 @@
+{
+	"name": "wp-kernel-showcase",
+	"version": "0.1.0",
+	"private": true,
+	"description": "Showcase plugin demonstrating WP Kernel framework features",
+	"type": "module",
+	"scripts": {
+		"dev": "wp-scripts start src/index.js --output-path=build",
+		"build": "wp-scripts build src/index.js --output-path=build",
+		"clean": "rm -rf build"
+	},
+	"dependencies": {
+		"@geekist/wp-kernel": "workspace:*",
+		"@geekist/wp-kernel-ui": "workspace:*"
+	},
+	"devDependencies": {
+		"@wordpress/scripts": "^30.24.0"
+	}
+}
