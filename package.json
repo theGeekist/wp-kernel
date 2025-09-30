@@ -45,6 +45,9 @@
 		"e2e:ui": "playwright test --ui",
 		"e2e:debug": "playwright test --debug",
 		"playground": "wp-playground-cli server --blueprint=./test-harness/playground/blueprint.json --mount=./examples/showcase-plugin:/wordpress/wp-content/plugins/showcase-plugin --port=9400",
+		"docs:dev": "vitepress dev docs",
+		"docs:build": "vitepress build docs",
+		"docs:preview": "vitepress preview docs",
 		"changeset": "changeset",
 		"changeset:version": "changeset version",
 		"changeset:publish": "pnpm build && changeset publish",
@@ -74,7 +77,8 @@
 		"react": "^18.3.1",
 		"react-dom": "^18.3.1",
 		"ts-jest": "^29.4.4",
-		"typescript": "^5.9.2"
+		"typescript": "^5.9.2",
+		"vitepress": "^1.6.4"
 	},
 	"pnpm": {
 		"overrides": {
