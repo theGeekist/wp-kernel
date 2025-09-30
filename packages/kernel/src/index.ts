@@ -23,10 +23,26 @@ export type {
 } from './errors';
 
 /**
+ * Resource system (Sprint 1)
+ */
+export { defineResource, interpolatePath, extractPathParams } from './resource';
+export type {
+	HttpMethod,
+	ResourceRoute,
+	ResourceRoutes,
+	CacheKeyFn,
+	CacheKeys,
+	ResourceConfig,
+	ListResponse,
+	ResourceClient,
+	ResourceObject,
+	PathParams,
+} from './resource';
+
+/**
  * Module placeholders - implementations coming in future sprints
  *
  * Planned exports:
- * - defineResource (from './resource') - Sprint 1
  * - defineAction (from './actions') - Sprint 3
  * - definePolicy (from './policies') - Sprint 2
  * - defineJob (from './jobs') - Sprint 4

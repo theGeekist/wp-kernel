@@ -1,0 +1,599 @@
+/**
+ * Tests for defineResource and config validation
+ */
+
+import { defineResource } from '../defineResource';
+import { KernelError } from '../../errors';
+import type { CacheKeyFn } from '../types';
+
+interface Thing {
+	id: number;
+	title: string;
+	description: string;
+}
+
+interface ThingQuery {
+	q?: string;
+	page?: number;
+}
+
+describe('defineResource', () => {
+	describe('config validation', () => {
+		describe('name validation', () => {
+			it('should throw DeveloperError when name is missing', () => {
+				expect(() => {
+					defineResource({
+						name: '',
+						routes: {
+							list: { path: '/gk/v1/things', method: 'GET' },
+						},
+					});
+				}).toThrow(KernelError);
+			});
+
+			it('should throw DeveloperError with correct error code for missing name', () => {
+				try {
+					defineResource({
+						name: '',
+						routes: {
+							list: { path: '/gk/v1/things', method: 'GET' },
+						},
+					});
+					fail('Should have thrown');
+				} catch (e) {
+					expect(e).toBeInstanceOf(KernelError);
+					const error = e as KernelError;
+					expect(error.code).toBe('DeveloperError');
+					expect(error.message).toContain('name');
+				}
+			});
+
+			it('should reject uppercase names', () => {
+				expect(() => {
+					defineResource({
+						name: 'Thing',
+						routes: {
+							list: { path: '/gk/v1/things', method: 'GET' },
+						},
+					});
+				}).toThrow(KernelError);
+			});
+
+			it('should reject names with spaces', () => {
+				expect(() => {
+					defineResource({
+						name: 'my thing',
+						routes: {
+							list: { path: '/gk/v1/things', method: 'GET' },
+						},
+					});
+				}).toThrow(KernelError);
+			});
+
+			it('should reject names with underscores', () => {
+				expect(() => {
+					defineResource({
+						name: 'my_thing',
+						routes: {
+							list: { path: '/gk/v1/things', method: 'GET' },
+						},
+					});
+				}).toThrow(KernelError);
+			});
+
+			it('should accept valid kebab-case names', () => {
+				expect(() => {
+					defineResource({
+						name: 'my-thing',
+						routes: {
+							list: { path: '/gk/v1/things', method: 'GET' },
+						},
+					});
+				}).not.toThrow();
+			});
+
+			it('should accept names with numbers', () => {
+				expect(() => {
+					defineResource({
+						name: 'thing-123',
+						routes: {
+							list: { path: '/gk/v1/things', method: 'GET' },
+						},
+					});
+				}).not.toThrow();
+			});
+
+			it('should accept single-word names', () => {
+				expect(() => {
+					defineResource({
+						name: 'thing',
+						routes: {
+							list: { path: '/gk/v1/things', method: 'GET' },
+						},
+					});
+				}).not.toThrow();
+			});
+		});
+
+		describe('routes validation', () => {
+			it('should throw when routes is missing', () => {
+				expect(() => {
+					defineResource({
+						name: 'thing',
+						routes: undefined as never,
+					});
+				}).toThrow(KernelError);
+			});
+
+			it('should throw when routes is empty object', () => {
+				expect(() => {
+					defineResource({
+						name: 'thing',
+						routes: {},
+					});
+				}).toThrow(KernelError);
+			});
+
+			it('should accept config with only list route', () => {
+				expect(() => {
+					defineResource({
+						name: 'thing',
+						routes: {
+							list: { path: '/gk/v1/things', method: 'GET' },
+						},
+					});
+				}).not.toThrow();
+			});
+
+			it('should accept config with only get route', () => {
+				expect(() => {
+					defineResource({
+						name: 'thing',
+						routes: {
+							get: { path: '/gk/v1/things/:id', method: 'GET' },
+						},
+					});
+				}).not.toThrow();
+			});
+
+			it('should accept config with all CRUD routes', () => {
+				expect(() => {
+					defineResource<Thing>({
+						name: 'thing',
+						routes: {
+							list: { path: '/gk/v1/things', method: 'GET' },
+							get: { path: '/gk/v1/things/:id', method: 'GET' },
+							create: {
+								path: '/gk/v1/things',
+								method: 'POST',
+							},
+							update: {
+								path: '/gk/v1/things/:id',
+								method: 'PUT',
+							},
+							remove: {
+								path: '/gk/v1/things/:id',
+								method: 'DELETE',
+							},
+						},
+					});
+				}).not.toThrow();
+			});
+
+			it('should throw for invalid route name', () => {
+				expect(() => {
+					defineResource({
+						name: 'thing',
+						routes: {
+							fetch: { path: '/gk/v1/things', method: 'GET' },
+						} as never,
+					});
+				}).toThrow(KernelError);
+			});
+		});
+
+		describe('route definition validation', () => {
+			it('should throw when route.path is missing', () => {
+				expect(() => {
+					defineResource({
+						name: 'thing',
+						routes: {
+							list: { method: 'GET' } as never,
+						},
+					});
+				}).toThrow(KernelError);
+			});
+
+			it('should throw when route.method is missing', () => {
+				expect(() => {
+					defineResource({
+						name: 'thing',
+						routes: {
+							list: { path: '/gk/v1/things' } as never,
+						},
+					});
+				}).toThrow(KernelError);
+			});
+
+			it('should throw for invalid HTTP method', () => {
+				expect(() => {
+					defineResource({
+						name: 'thing',
+						routes: {
+							list: {
+								path: '/gk/v1/things',
+								method: 'FETCH' as never,
+							},
+						},
+					});
+				}).toThrow(KernelError);
+			});
+
+			it('should accept GET method', () => {
+				expect(() => {
+					defineResource({
+						name: 'thing',
+						routes: {
+							list: { path: '/gk/v1/things', method: 'GET' },
+						},
+					});
+				}).not.toThrow();
+			});
+
+			it('should accept POST method', () => {
+				expect(() => {
+					defineResource({
+						name: 'thing',
+						routes: {
+							create: {
+								path: '/gk/v1/things',
+								method: 'POST',
+							},
+						},
+					});
+				}).not.toThrow();
+			});
+
+			it('should accept PUT method', () => {
+				expect(() => {
+					defineResource({
+						name: 'thing',
+						routes: {
+							update: {
+								path: '/gk/v1/things/:id',
+								method: 'PUT',
+							},
+						},
+					});
+				}).not.toThrow();
+			});
+
+			it('should accept PATCH method', () => {
+				expect(() => {
+					defineResource({
+						name: 'thing',
+						routes: {
+							update: {
+								path: '/gk/v1/things/:id',
+								method: 'PATCH',
+							},
+						},
+					});
+				}).not.toThrow();
+			});
+
+			it('should accept DELETE method', () => {
+				expect(() => {
+					defineResource({
+						name: 'thing',
+						routes: {
+							remove: {
+								path: '/gk/v1/things/:id',
+								method: 'DELETE',
+							},
+						},
+					});
+				}).not.toThrow();
+			});
+		});
+	});
+
+	describe('resource object structure', () => {
+		it('should include resource name', () => {
+			const resource = defineResource({
+				name: 'thing',
+				routes: {
+					list: { path: '/gk/v1/things', method: 'GET' },
+				},
+			});
+
+			expect(resource.name).toBe('thing');
+		});
+
+		it('should generate correct store key', () => {
+			const resource = defineResource({
+				name: 'thing',
+				routes: {
+					list: { path: '/gk/v1/things', method: 'GET' },
+				},
+			});
+
+			expect(resource.storeKey).toBe('gk/thing');
+		});
+
+		it('should preserve routes', () => {
+			const routes = {
+				list: { path: '/gk/v1/things', method: 'GET' as const },
+				get: { path: '/gk/v1/things/:id', method: 'GET' as const },
+			};
+
+			const resource = defineResource({
+				name: 'thing',
+				routes,
+			});
+
+			expect(resource.routes).toEqual(routes);
+		});
+
+		it('should generate default cache keys when not provided', () => {
+			const resource = defineResource({
+				name: 'thing',
+				routes: {
+					list: { path: '/gk/v1/things', method: 'GET' },
+					get: { path: '/gk/v1/things/:id', method: 'GET' },
+				},
+			});
+
+			expect(resource.cacheKeys.list).toBeDefined();
+			expect(resource.cacheKeys.get).toBeDefined();
+			expect(typeof resource.cacheKeys.list).toBe('function');
+			expect(typeof resource.cacheKeys.get).toBe('function');
+		});
+
+		it('should use custom cache keys when provided', () => {
+			const customCacheKeys: {
+				list: CacheKeyFn<ThingQuery>;
+				get: CacheKeyFn<string | number>;
+			} = {
+				list: (q?: ThingQuery) => ['custom', 'list', q?.q],
+				get: (id?: string | number) => ['custom', 'get', id],
+			};
+
+			const resource = defineResource<Thing, ThingQuery>({
+				name: 'thing',
+				routes: {
+					list: { path: '/gk/v1/things', method: 'GET' },
+					get: { path: '/gk/v1/things/:id', method: 'GET' },
+				},
+				cacheKeys: customCacheKeys as never,
+			});
+
+			expect(resource.cacheKeys.list({ q: 'search' })).toEqual([
+				'custom',
+				'list',
+				'search',
+			]);
+			expect(resource.cacheKeys.get(123)).toEqual(['custom', 'get', 123]);
+		});
+
+		it('should merge custom and default cache keys', () => {
+			const resource = defineResource<Thing, ThingQuery>({
+				name: 'thing',
+				routes: {
+					list: { path: '/gk/v1/things', method: 'GET' },
+					get: { path: '/gk/v1/things/:id', method: 'GET' },
+				},
+				cacheKeys: {
+					list: ((q?: ThingQuery) => [
+						'custom',
+						'list',
+						q?.q,
+					]) as CacheKeyFn<ThingQuery>,
+					// get uses default
+				} as never,
+			});
+
+			// Custom list cache key
+			expect(resource.cacheKeys.list({ q: 'search' })).toEqual([
+				'custom',
+				'list',
+				'search',
+			]);
+
+			// Default get cache key
+			const getKey = resource.cacheKeys.get(123);
+			expect(getKey[0]).toBe('thing');
+			expect(getKey[1]).toBe('get');
+			expect(getKey[2]).toBe(123);
+		});
+	});
+
+	describe('client method generation', () => {
+		it('should generate list method when list route is defined', () => {
+			const resource = defineResource({
+				name: 'thing',
+				routes: {
+					list: { path: '/gk/v1/things', method: 'GET' },
+				},
+			});
+
+			expect(resource.list).toBeDefined();
+			expect(typeof resource.list).toBe('function');
+		});
+
+		it('should not generate list method when list route is not defined', () => {
+			const resource = defineResource({
+				name: 'thing',
+				routes: {
+					get: { path: '/gk/v1/things/:id', method: 'GET' },
+				},
+			});
+
+			expect(resource.list).toBeUndefined();
+		});
+
+		it('should generate get method when get route is defined', () => {
+			const resource = defineResource({
+				name: 'thing',
+				routes: {
+					get: { path: '/gk/v1/things/:id', method: 'GET' },
+				},
+			});
+
+			expect(resource.get).toBeDefined();
+			expect(typeof resource.get).toBe('function');
+		});
+
+		it('should generate create method when create route is defined', () => {
+			const resource = defineResource({
+				name: 'thing',
+				routes: {
+					create: { path: '/gk/v1/things', method: 'POST' },
+				},
+			});
+
+			expect(resource.create).toBeDefined();
+			expect(typeof resource.create).toBe('function');
+		});
+
+		it('should generate update method when update route is defined', () => {
+			const resource = defineResource({
+				name: 'thing',
+				routes: {
+					update: {
+						path: '/gk/v1/things/:id',
+						method: 'PUT',
+					},
+				},
+			});
+
+			expect(resource.update).toBeDefined();
+			expect(typeof resource.update).toBe('function');
+		});
+
+		it('should generate remove method when remove route is defined', () => {
+			const resource = defineResource({
+				name: 'thing',
+				routes: {
+					remove: {
+						path: '/gk/v1/things/:id',
+						method: 'DELETE',
+					},
+				},
+			});
+
+			expect(resource.remove).toBeDefined();
+			expect(typeof resource.remove).toBe('function');
+		});
+
+		it('should generate all methods for full CRUD config', () => {
+			const resource = defineResource<Thing>({
+				name: 'thing',
+				routes: {
+					list: { path: '/gk/v1/things', method: 'GET' },
+					get: { path: '/gk/v1/things/:id', method: 'GET' },
+					create: { path: '/gk/v1/things', method: 'POST' },
+					update: {
+						path: '/gk/v1/things/:id',
+						method: 'PUT',
+					},
+					remove: {
+						path: '/gk/v1/things/:id',
+						method: 'DELETE',
+					},
+				},
+			});
+
+			expect(resource.list).toBeDefined();
+			expect(resource.get).toBeDefined();
+			expect(resource.create).toBeDefined();
+			expect(resource.update).toBeDefined();
+			expect(resource.remove).toBeDefined();
+		});
+	});
+
+	describe('client method stubs (NotImplementedError)', () => {
+		it('should throw NotImplementedError when list is called', async () => {
+			const resource = defineResource<Thing, ThingQuery>({
+				name: 'thing',
+				routes: {
+					list: { path: '/gk/v1/things', method: 'GET' },
+				},
+			});
+
+			await expect(resource.list!()).rejects.toThrow(KernelError);
+		});
+
+		it('should throw NotImplementedError when get is called', async () => {
+			const resource = defineResource<Thing>({
+				name: 'thing',
+				routes: {
+					get: { path: '/gk/v1/things/:id', method: 'GET' },
+				},
+			});
+
+			await expect(resource.get!(123)).rejects.toThrow(KernelError);
+		});
+
+		it('should throw NotImplementedError when create is called', async () => {
+			const resource = defineResource<Thing>({
+				name: 'thing',
+				routes: {
+					create: { path: '/gk/v1/things', method: 'POST' },
+				},
+			});
+
+			await expect(resource.create!({ title: 'Test' })).rejects.toThrow(
+				KernelError
+			);
+		});
+
+		it('should throw NotImplementedError when update is called', async () => {
+			const resource = defineResource<Thing>({
+				name: 'thing',
+				routes: {
+					update: {
+						path: '/gk/v1/things/:id',
+						method: 'PUT',
+					},
+				},
+			});
+
+			await expect(
+				resource.update!(123, { title: 'Updated' })
+			).rejects.toThrow(KernelError);
+		});
+
+		it('should throw NotImplementedError when remove is called', async () => {
+			const resource = defineResource<Thing>({
+				name: 'thing',
+				routes: {
+					remove: {
+						path: '/gk/v1/things/:id',
+						method: 'DELETE',
+					},
+				},
+			});
+
+			await expect(resource.remove!(123)).rejects.toThrow(KernelError);
+		});
+
+		it('should include correct error code in NotImplementedError', async () => {
+			const resource = defineResource<Thing>({
+				name: 'thing',
+				routes: {
+					list: { path: '/gk/v1/things', method: 'GET' },
+				},
+			});
+
+			try {
+				await resource.list!();
+				fail('Should have thrown');
+			} catch (e) {
+				expect(e).toBeInstanceOf(KernelError);
+				const error = e as KernelError;
+				expect(error.code).toBe('NotImplementedError');
+			}
+		});
+	});
+});

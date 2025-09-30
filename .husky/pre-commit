@@ -3,6 +3,16 @@
 # Run lint-staged (formats and lints staged files)
 pnpm lint-staged
 
+# TypeScript type check for test files
+echo "🔍 Type checking test files..."
+pnpm typecheck:tests || {
+  echo ""
+  echo "❌ TypeScript errors in test files. Please fix before committing."
+  echo "💡 Run: pnpm typecheck:tests"
+  echo ""
+  exit 1
+}
+
 # Check for changeset (only on feature branches)
 BRANCH=$(git branch --show-current)
 if [[ "$BRANCH" =~ ^(sprint-|feat/|fix/) ]]; then
