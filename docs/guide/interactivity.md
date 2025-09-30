@@ -10,19 +10,19 @@ Add front-end behavior to blocks without custom JavaScript.
 import { defineInteraction } from '@geekist/wp-kernel/interactivity';
 
 export const useThingForm = defineInteraction('gk/thing-form', {
-  state: () => ({ saving: false, error: null }),
-  actions: {
-    async submit(formData) {
-      this.state.saving = true;
-      try {
-        await CreateThing({ data: formData });
-      } catch (e) {
-        this.state.error = e.message;
-      } finally {
-        this.state.saving = false;
-      }
-    },
-  },
+	state: () => ({ saving: false, error: null }),
+	actions: {
+		async submit(formData) {
+			this.state.saving = true;
+			try {
+				await CreateThing({ data: formData });
+			} catch (e) {
+				this.state.error = e.message;
+			} finally {
+				this.state.saving = false;
+			}
+		},
+	},
 });
 ```
 

@@ -239,17 +239,21 @@ git push
 
 ```markdown
 ## What
+
 Fix validation error for empty description field.
 
 ## Why
+
 Users were unable to submit things without descriptions, even though description is optional.
 
 Fixes #123
 
 ## How
+
 Updated validation schema to allow empty strings for description field.
 
 ## Testing
+
 1. Navigate to Things page
 2. Click "Add New"
 3. Enter title only, leave description empty
@@ -261,18 +265,23 @@ Updated validation schema to allow empty strings for description field.
 
 ```markdown
 ## What
+
 Add custom cache invalidation strategies for Resources.
 
 ## Why
+
 Some resources need fine-grained control over when cache is invalidated based on the specific action and payload.
 
 ## How
+
 Added optional `shouldInvalidate` function to resource config that receives action and payload and returns boolean.
 
 ## Testing
+
 See new unit tests in `packages/kernel/src/__tests__/resource.test.ts`.
 
 ## Breaking Changes
+
 None. This is an optional enhancement.
 ```
 
@@ -280,16 +289,21 @@ None. This is an optional enhancement.
 
 ```markdown
 ## What
+
 Document block bindings usage patterns.
 
 ## Why
+
 Users were asking how to implement server-side bindings for SEO.
 
 ## How
+
 Added comprehensive guide with examples in `/docs/guide/block-bindings.md`.
 
 ## Testing
+
 Review documentation locally:
+
 1. `pnpm docs:dev`
 2. Navigate to Guide → Block Bindings
 3. Verify examples are clear
@@ -299,18 +313,23 @@ Review documentation locally:
 
 ```markdown
 ## What
+
 Extract transport retry logic into separate utility.
 
 ## Why
+
 Retry logic was duplicated across resource methods. Extracting improves maintainability.
 
 ## How
+
 Created `packages/kernel/src/transport/retry.ts` with exponential backoff implementation. Updated all resource methods to use it.
 
 ## Testing
+
 All existing tests pass. Added unit tests for retry utility.
 
 ## Breaking Changes
+
 None. Internal refactor only.
 ```
 

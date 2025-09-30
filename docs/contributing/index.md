@@ -121,9 +121,9 @@ Follow the prompts:
 - **One changeset per PR** (usually)
 - **Clear summaries** - Users will read these in the changelog
 - **Correct bump type**:
-  - **Major**: Breaking changes, event taxonomy changes, slot changes
-  - **Minor**: New features, new events/slots (non-breaking)
-  - **Patch**: Bug fixes, documentation, internal refactors
+    - **Major**: Breaking changes, event taxonomy changes, slot changes
+    - **Minor**: New features, new events/slots (non-breaking)
+    - **Patch**: Bug fixes, documentation, internal refactors
 
 Example changeset:
 
@@ -138,10 +138,10 @@ Resources can now define custom `shouldInvalidate` functions to control when cac
 
 \`\`\`typescript
 export const thing = defineResource({
-  // ...
-  shouldInvalidate: (action, payload) => {
-    return action === 'update' && payload.status === 'published';
-  },
+// ...
+shouldInvalidate: (action, payload) => {
+return action === 'update' && payload.status === 'published';
+},
 });
 \`\`\`
 ```
@@ -185,6 +185,7 @@ chore(deps): update @wordpress/scripts to v27
 ### Scope
 
 Use package names or feature areas:
+
 - `resources`
 - `actions`
 - `events`

@@ -98,6 +98,7 @@ pnpm wp:fresh
 ```
 
 This command:
+
 1. Starts Docker containers
 2. Seeds test users, applications, and jobs
 3. Activates the showcase plugin
@@ -175,9 +176,10 @@ pnpm e2e
 ### Making Changes
 
 1. **Create a branch**:
-   ```bash
-   git checkout -b feature/my-feature
-   ```
+
+    ```bash
+    git checkout -b feature/my-feature
+    ```
 
 2. **Make changes**: Edit files in `packages/*/src/`
 
@@ -186,34 +188,38 @@ pnpm e2e
 4. **Write tests**: Add tests for new functionality
 
 5. **Run tests**:
-   ```bash
-   pnpm test        # Unit tests
-   pnpm e2e         # E2E tests
-   pnpm test:coverage  # With coverage
-   ```
+
+    ```bash
+    pnpm test        # Unit tests
+    pnpm e2e         # E2E tests
+    pnpm test:coverage  # With coverage
+    ```
 
 6. **Lint**:
-   ```bash
-   pnpm lint        # Check
-   pnpm lint:fix    # Auto-fix
-   ```
+
+    ```bash
+    pnpm lint        # Check
+    pnpm lint:fix    # Auto-fix
+    ```
 
 7. **Add changeset**:
-   ```bash
-   pnpm changeset
-   ```
+
+    ```bash
+    pnpm changeset
+    ```
 
 8. **Commit**:
-   ```bash
-   git add .
-   git commit -m "feat(resources): add custom invalidation"
-   ```
+
+    ```bash
+    git add .
+    git commit -m "feat(resources): add custom invalidation"
+    ```
 
 9. **Push and PR**:
-   ```bash
-   git push origin feature/my-feature
-   # Open PR on GitHub
-   ```
+    ```bash
+    git push origin feature/my-feature
+    # Open PR on GitHub
+    ```
 
 ## Package Structure
 
@@ -283,15 +289,13 @@ Create `.vscode/settings.json`:
 
 ```json
 {
-  "editor.formatOnSave": true,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
-  "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": true
-  },
-  "typescript.tsdk": "node_modules/typescript/lib",
-  "eslint.workingDirectories": [
-    { "pattern": "packages/*" }
-  ]
+	"editor.formatOnSave": true,
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"editor.codeActionsOnSave": {
+		"source.fixAll.eslint": true
+	},
+	"typescript.tsdk": "node_modules/typescript/lib",
+	"eslint.workingDirectories": [{ "pattern": "packages/*" }]
 }
 ```
 

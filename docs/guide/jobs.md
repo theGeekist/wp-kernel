@@ -10,20 +10,24 @@ Background work with polling support.
 import { defineJob } from '@geekist/wp-kernel/jobs';
 
 export const IndexThing = defineJob('IndexThing', {
-  enqueue: (params: { id: number }) => {
-    // POST /gk/v1/jobs/index-thing
-  },
-  status: (params) => {
-    // GET /gk/v1/jobs/index-thing/status?id=...
-  },
+	enqueue: (params: { id: number }) => {
+		// POST /gk/v1/jobs/index-thing
+	},
+	status: (params) => {
+		// GET /gk/v1/jobs/index-thing/status?id=...
+	},
 });
 
 // Usage
 await jobs.enqueue('IndexThing', { id: 123 });
-await jobs.wait('IndexThing', { id: 123 }, {
-  pollInterval: 1500,
-  pollTimeout: 60000,
-});
+await jobs.wait(
+	'IndexThing',
+	{ id: 123 },
+	{
+		pollInterval: 1500,
+		pollTimeout: 60000,
+	}
+);
 ```
 
 ## See Also

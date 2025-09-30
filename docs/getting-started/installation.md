@@ -35,6 +35,7 @@ pnpm install
 ```
 
 This installs dependencies for:
+
 - Core packages (`@geekist/wp-kernel`, `@geekist/wp-kernel-ui`)
 - E2E testing utilities
 - Example showcase plugin
@@ -56,6 +57,7 @@ pnpm wp:fresh
 ```
 
 This command:
+
 1. Starts Docker containers (wp-env)
 2. Seeds test data (users, applications, jobs)
 3. Activates the showcase plugin

@@ -17,7 +17,7 @@ Unit tests use Jest with `@wordpress/jest-preset-default`:
 
 ```json
 {
-  "preset": "@wordpress/jest-preset-default"
+	"preset": "@wordpress/jest-preset-default"
 }
 ```
 
@@ -34,33 +34,33 @@ Unit tests use Jest with `@wordpress/jest-preset-default`:
 import { thing } from '../resources/Thing';
 
 describe('Thing Resource', () => {
-  beforeEach(() => {
-    // Setup before each test
-  });
+	beforeEach(() => {
+		// Setup before each test
+	});
 
-  afterEach(() => {
-    // Cleanup after each test
-  });
+	afterEach(() => {
+		// Cleanup after each test
+	});
 
-  it('should create a thing', async () => {
-    // Arrange
-    const data = { title: 'Test Thing' };
+	it('should create a thing', async () => {
+		// Arrange
+		const data = { title: 'Test Thing' };
 
-    // Act
-    const result = await thing.create(data);
+		// Act
+		const result = await thing.create(data);
 
-    // Assert
-    expect(result).toHaveProperty('id');
-    expect(result.title).toBe('Test Thing');
-  });
+		// Assert
+		expect(result).toHaveProperty('id');
+		expect(result.title).toBe('Test Thing');
+	});
 
-  it('should throw ValidationError for invalid data', async () => {
-    // Arrange
-    const data = { title: '' }; // Invalid: empty title
+	it('should throw ValidationError for invalid data', async () => {
+		// Arrange
+		const data = { title: '' }; // Invalid: empty title
 
-    // Act & Assert
-    await expect(thing.create(data)).rejects.toThrow('ValidationError');
-  });
+		// Act & Assert
+		await expect(thing.create(data)).rejects.toThrow('ValidationError');
+	});
 });
 ```
 
@@ -74,22 +74,22 @@ import { transport } from '@geekist/wp-kernel/transport';
 jest.mock('@geekist/wp-kernel/transport');
 
 describe('CreateThing', () => {
-  it('should call REST endpoint', async () => {
-    // Mock the POST request
-    (transport.post as jest.Mock).mockResolvedValue({
-      id: 1,
-      title: 'Test',
-    });
+	it('should call REST endpoint', async () => {
+		// Mock the POST request
+		(transport.post as jest.Mock).mockResolvedValue({
+			id: 1,
+			title: 'Test',
+		});
 
-    // Act
-    const result = await CreateThing({ data: { title: 'Test' } });
+		// Act
+		const result = await CreateThing({ data: { title: 'Test' } });
 
-    // Assert
-    expect(transport.post).toHaveBeenCalledWith('/gk/v1/things', {
-      title: 'Test',
-    });
-    expect(result.id).toBe(1);
-  });
+		// Assert
+		expect(transport.post).toHaveBeenCalledWith('/gk/v1/things', {
+			title: 'Test',
+		});
+		expect(result.id).toBe(1);
+	});
 });
 ```
 
@@ -101,23 +101,25 @@ import { addAction, doAction } from '@wordpress/hooks';
 jest.mock('@wordpress/hooks');
 
 describe('Event Emission', () => {
-  it('should emit event after creation', async () => {
-    // Arrange
-    const listener = jest.fn();
-    (addAction as jest.Mock).mockImplementation((hook, namespace, callback) => {
-      if (hook === 'wpk.thing.created') {
-        listener.mockImplementation(callback);
-      }
-    });
+	it('should emit event after creation', async () => {
+		// Arrange
+		const listener = jest.fn();
+		(addAction as jest.Mock).mockImplementation(
+			(hook, namespace, callback) => {
+				if (hook === 'wpk.thing.created') {
+					listener.mockImplementation(callback);
+				}
+			}
+		);
 
-    // Act
-    await CreateThing({ data: { title: 'Test' } });
+		// Act
+		await CreateThing({ data: { title: 'Test' } });
 
-    // Assert
-    expect(listener).toHaveBeenCalledWith(
-      expect.objectContaining({ id: expect.any(Number) })
-    );
-  });
+		// Assert
+		expect(listener).toHaveBeenCalledWith(
+			expect.objectContaining({ id: expect.any(Number) })
+		);
+	});
 });
 ```
 
@@ -146,14 +148,14 @@ Target coverage thresholds:
 
 ```json
 {
-  "coverageThreshold": {
-    "global": {
-      "branches": 80,
-      "functions": 80,
-      "lines": 80,
-      "statements": 80
-    }
-  }
+	"coverageThreshold": {
+		"global": {
+			"branches": 80,
+			"functions": 80,
+			"lines": 80,
+			"statements": 80
+		}
+	}
 }
 ```
 
@@ -188,34 +190,34 @@ pnpm wp:start
 import { test, expect } from '@wordpress/e2e-test-utils-playwright';
 
 test.describe('Thing Management', () => {
-  test.beforeEach(async ({ admin }) => {
-    await admin.visitAdminPage('admin.php', 'page=things');
-  });
+	test.beforeEach(async ({ admin }) => {
+		await admin.visitAdminPage('admin.php', 'page=things');
+	});
 
-  test('should create a new thing', async ({ page, admin }) => {
-    // Arrange
-    await page.click('button:has-text("Add New")');
-    await page.fill('input[name="title"]', 'Test Thing');
+	test('should create a new thing', async ({ page, admin }) => {
+		// Arrange
+		await page.click('button:has-text("Add New")');
+		await page.fill('input[name="title"]', 'Test Thing');
 
-    // Act
-    await page.click('button:has-text("Create")');
+		// Act
+		await page.click('button:has-text("Create")');
 
-    // Assert
-    await expect(page.locator('.notice-success')).toBeVisible();
-    await expect(page.locator('text=Test Thing')).toBeVisible();
-  });
+		// Assert
+		await expect(page.locator('.notice-success')).toBeVisible();
+		await expect(page.locator('text=Test Thing')).toBeVisible();
+	});
 
-  test('should show validation error for empty title', async ({ page }) => {
-    // Arrange
-    await page.click('button:has-text("Add New")');
+	test('should show validation error for empty title', async ({ page }) => {
+		// Arrange
+		await page.click('button:has-text("Add New")');
 
-    // Act
-    await page.click('button:has-text("Create")');
+		// Act
+		await page.click('button:has-text("Create")');
 
-    // Assert
-    await expect(page.locator('.notice-error')).toBeVisible();
-    await expect(page.locator('text=Title is required')).toBeVisible();
-  });
+		// Assert
+		await expect(page.locator('.notice-error')).toBeVisible();
+		await expect(page.locator('text=Title is required')).toBeVisible();
+	});
 });
 ```
 
@@ -244,30 +246,30 @@ For complex pages, use the page object pattern:
 ```typescript
 // pages/ThingPage.ts
 export class ThingPage {
-  constructor(private page: Page) {}
+	constructor(private page: Page) {}
 
-  async goto() {
-    await this.page.goto('/wp-admin/admin.php?page=things');
-  }
+	async goto() {
+		await this.page.goto('/wp-admin/admin.php?page=things');
+	}
 
-  async createThing(title: string, description: string) {
-    await this.page.click('button:has-text("Add New")');
-    await this.page.fill('input[name="title"]', title);
-    await this.page.fill('textarea[name="description"]', description);
-    await this.page.click('button:has-text("Create")');
-  }
+	async createThing(title: string, description: string) {
+		await this.page.click('button:has-text("Add New")');
+		await this.page.fill('input[name="title"]', title);
+		await this.page.fill('textarea[name="description"]', description);
+		await this.page.click('button:has-text("Create")');
+	}
 
-  async expectThingVisible(title: string) {
-    await expect(this.page.locator(`text=${title}`)).toBeVisible();
-  }
+	async expectThingVisible(title: string) {
+		await expect(this.page.locator(`text=${title}`)).toBeVisible();
+	}
 }
 
 // In test
 test('should create thing', async ({ page, admin }) => {
-  const thingPage = new ThingPage(page);
-  await thingPage.goto();
-  await thingPage.createThing('Test', 'Description');
-  await thingPage.expectThingVisible('Test');
+	const thingPage = new ThingPage(page);
+	await thingPage.goto();
+	await thingPage.createThing('Test', 'Description');
+	await thingPage.expectThingVisible('Test');
 });
 ```
 
@@ -318,8 +320,8 @@ await page.click('#submit-btn');
 ```typescript
 // Wait for API call to complete
 await Promise.all([
-  page.waitForResponse((res) => res.url().includes('/gk/v1/things')),
-  page.click('button:has-text("Create")'),
+	page.waitForResponse((res) => res.url().includes('/gk/v1/things')),
+	page.click('button:has-text("Create")'),
 ]);
 ```
 
@@ -327,17 +329,17 @@ await Promise.all([
 
 ```typescript
 test('should not have console errors', async ({ page }) => {
-  const errors: string[] = [];
+	const errors: string[] = [];
 
-  page.on('console', (msg) => {
-    if (msg.type() === 'error') {
-      errors.push(msg.text());
-    }
-  });
+	page.on('console', (msg) => {
+		if (msg.type() === 'error') {
+			errors.push(msg.text());
+		}
+	});
 
-  await page.goto('/');
+	await page.goto('/');
 
-  expect(errors).toHaveLength(0);
+	expect(errors).toHaveLength(0);
 });
 ```
 
@@ -345,10 +347,10 @@ test('should not have console errors', async ({ page }) => {
 
 ```typescript
 test.afterEach(async ({ page }) => {
-  // Delete created test data
-  await page.evaluate(() => {
-    // Call cleanup function
-  });
+	// Delete created test data
+	await page.evaluate(() => {
+		// Call cleanup function
+	});
 });
 ```
 
@@ -365,47 +367,47 @@ jest.mock('@/app/resources/Thing');
 jest.mock('@wordpress/hooks');
 
 describe('CreateThing Action', () => {
-  it('should create thing via resource', async () => {
-    // Mock
-    (thing.create as jest.Mock).mockResolvedValue({
-      id: 1,
-      title: 'Test',
-    });
+	it('should create thing via resource', async () => {
+		// Mock
+		(thing.create as jest.Mock).mockResolvedValue({
+			id: 1,
+			title: 'Test',
+		});
 
-    // Act
-    const result = await CreateThing({ data: { title: 'Test' } });
+		// Act
+		const result = await CreateThing({ data: { title: 'Test' } });
 
-    // Assert
-    expect(thing.create).toHaveBeenCalledWith({ title: 'Test' });
-    expect(result).toEqual({ id: 1, title: 'Test' });
-  });
+		// Assert
+		expect(thing.create).toHaveBeenCalledWith({ title: 'Test' });
+		expect(result).toEqual({ id: 1, title: 'Test' });
+	});
 
-  it('should emit event after creation', async () => {
-    // Mock
-    const emitSpy = jest.spyOn(CreateThing, 'emit');
-    (thing.create as jest.Mock).mockResolvedValue({ id: 1 });
+	it('should emit event after creation', async () => {
+		// Mock
+		const emitSpy = jest.spyOn(CreateThing, 'emit');
+		(thing.create as jest.Mock).mockResolvedValue({ id: 1 });
 
-    // Act
-    await CreateThing({ data: { title: 'Test' } });
+		// Act
+		await CreateThing({ data: { title: 'Test' } });
 
-    // Assert
-    expect(emitSpy).toHaveBeenCalledWith(
-      events.thing.created,
-      expect.objectContaining({ id: 1 })
-    );
-  });
+		// Assert
+		expect(emitSpy).toHaveBeenCalledWith(
+			events.thing.created,
+			expect.objectContaining({ id: 1 })
+		);
+	});
 
-  it('should invalidate cache after creation', async () => {
-    // Mock
-    const invalidateSpy = jest.spyOn(global, 'invalidate');
-    (thing.create as jest.Mock).mockResolvedValue({ id: 1 });
+	it('should invalidate cache after creation', async () => {
+		// Mock
+		const invalidateSpy = jest.spyOn(global, 'invalidate');
+		(thing.create as jest.Mock).mockResolvedValue({ id: 1 });
 
-    // Act
-    await CreateThing({ data: { title: 'Test' } });
+		// Act
+		await CreateThing({ data: { title: 'Test' } });
 
-    // Assert
-    expect(invalidateSpy).toHaveBeenCalledWith(['thing', 'list']);
-  });
+		// Assert
+		expect(invalidateSpy).toHaveBeenCalledWith(['thing', 'list']);
+	});
 });
 ```
 
@@ -420,37 +422,37 @@ import { transport } from '@geekist/wp-kernel/transport';
 jest.mock('@geekist/wp-kernel/transport');
 
 describe('Thing Resource', () => {
-  it('should call list endpoint', async () => {
-    // Mock
-    (transport.get as jest.Mock).mockResolvedValue([
-      { id: 1, title: 'Thing 1' },
-      { id: 2, title: 'Thing 2' },
-    ]);
+	it('should call list endpoint', async () => {
+		// Mock
+		(transport.get as jest.Mock).mockResolvedValue([
+			{ id: 1, title: 'Thing 1' },
+			{ id: 2, title: 'Thing 2' },
+		]);
 
-    // Act
-    const result = await thing.list();
+		// Act
+		const result = await thing.list();
 
-    // Assert
-    expect(transport.get).toHaveBeenCalledWith('/gk/v1/things');
-    expect(result).toHaveLength(2);
-  });
+		// Assert
+		expect(transport.get).toHaveBeenCalledWith('/gk/v1/things');
+		expect(result).toHaveLength(2);
+	});
 
-  it('should call create endpoint', async () => {
-    // Mock
-    (transport.post as jest.Mock).mockResolvedValue({
-      id: 1,
-      title: 'New Thing',
-    });
+	it('should call create endpoint', async () => {
+		// Mock
+		(transport.post as jest.Mock).mockResolvedValue({
+			id: 1,
+			title: 'New Thing',
+		});
 
-    // Act
-    const result = await thing.create({ title: 'New Thing' });
+		// Act
+		const result = await thing.create({ title: 'New Thing' });
 
-    // Assert
-    expect(transport.post).toHaveBeenCalledWith('/gk/v1/things', {
-      title: 'New Thing',
-    });
-    expect(result.id).toBe(1);
-  });
+		// Assert
+		expect(transport.post).toHaveBeenCalledWith('/gk/v1/things', {
+			title: 'New Thing',
+		});
+		expect(result.id).toBe(1);
+	});
 });
 ```
 
@@ -462,34 +464,34 @@ Test error scenarios:
 import { KernelError } from '@geekist/wp-kernel/errors';
 
 describe('Error Handling', () => {
-  it('should throw ValidationError for invalid data', async () => {
-    // Arrange
-    (transport.post as jest.Mock).mockRejectedValue(
-      new KernelError('ValidationError', {
-        field: 'title',
-        message: 'Title is required',
-      })
-    );
+	it('should throw ValidationError for invalid data', async () => {
+		// Arrange
+		(transport.post as jest.Mock).mockRejectedValue(
+			new KernelError('ValidationError', {
+				field: 'title',
+				message: 'Title is required',
+			})
+		);
 
-    // Act & Assert
-    await expect(CreateThing({ data: { title: '' } })).rejects.toThrow(
-      'ValidationError'
-    );
-  });
+		// Act & Assert
+		await expect(CreateThing({ data: { title: '' } })).rejects.toThrow(
+			'ValidationError'
+		);
+	});
 
-  it('should throw PolicyDenied for unauthorized', async () => {
-    // Arrange
-    (transport.post as jest.Mock).mockRejectedValue(
-      new KernelError('PolicyDenied', {
-        policyKey: 'things.create',
-      })
-    );
+	it('should throw PolicyDenied for unauthorized', async () => {
+		// Arrange
+		(transport.post as jest.Mock).mockRejectedValue(
+			new KernelError('PolicyDenied', {
+				policyKey: 'things.create',
+			})
+		);
 
-    // Act & Assert
-    await expect(CreateThing({ data: { title: 'Test' } })).rejects.toThrow(
-      'PolicyDenied'
-    );
-  });
+		// Act & Assert
+		await expect(CreateThing({ data: { title: 'Test' } })).rejects.toThrow(
+			'PolicyDenied'
+		);
+	});
 });
 ```
 
@@ -528,8 +530,8 @@ console.log('Debug:', value);
 
 // In E2E tests
 test('debug test', async ({ page }) => {
-  page.on('console', (msg) => console.log('Browser:', msg.text()));
-  // ...
+	page.on('console', (msg) => console.log('Browser:', msg.text()));
+	// ...
 });
 ```
 
@@ -572,10 +574,10 @@ Create custom fixtures for tests:
 ```typescript
 // fixtures/thing.ts
 export const mockThing = {
-  id: 1,
-  title: 'Test Thing',
-  description: 'Test description',
-  created_at: '2025-01-01T00:00:00Z',
+	id: 1,
+	title: 'Test Thing',
+	description: 'Test description',
+	created_at: '2025-01-01T00:00:00Z',
 };
 
 export const mockThingList = [mockThing, { ...mockThing, id: 2 }];
@@ -584,12 +586,12 @@ export const mockThingList = [mockThing, { ...mockThing, id: 2 }];
 import { mockThing } from '../fixtures/thing';
 
 test('should display thing', async ({ page }) => {
-  // Mock API response
-  await page.route('/gk/v1/things/1', (route) =>
-    route.fulfill({ json: mockThing })
-  );
+	// Mock API response
+	await page.route('/gk/v1/things/1', (route) =>
+		route.fulfill({ json: mockThing })
+	);
 
-  // Test...
+	// Test...
 });
 ```
 

@@ -5,6 +5,7 @@ This guide walks you through building your first feature with WP Kernel: a simpl
 ## Goal
 
 By the end of this guide, you'll have:
+
 - A typed REST resource
 - An Action that orchestrates writes
 - A UI component that submits data
@@ -20,30 +21,31 @@ Resources define your data contract. Create `app/resources/Thing.ts`:
 import { defineResource } from '@geekist/wp-kernel/resource';
 
 export interface Thing {
-  id: number;
-  title: string;
-  description: string;
-  created_at: string;
+	id: number;
+	title: string;
+	description: string;
+	created_at: string;
 }
 
 export const thing = defineResource<Thing, { q?: string }>({
-  name: 'thing',
-  routes: {
-    list: { path: '/gk/v1/things', method: 'GET' },
-    get: { path: '/gk/v1/things/:id', method: 'GET' },
-    create: { path: '/gk/v1/things', method: 'POST' },
-    update: { path: '/gk/v1/things/:id', method: 'PUT' },
-    remove: { path: '/gk/v1/things/:id', method: 'DELETE' },
-  },
-  schema: import('../../contracts/thing.schema.json'),
-  cacheKeys: {
-    list: (q) => ['thing', 'list', q?.q],
-    get: (id) => ['thing', 'get', id],
-  },
+	name: 'thing',
+	routes: {
+		list: { path: '/gk/v1/things', method: 'GET' },
+		get: { path: '/gk/v1/things/:id', method: 'GET' },
+		create: { path: '/gk/v1/things', method: 'POST' },
+		update: { path: '/gk/v1/things/:id', method: 'PUT' },
+		remove: { path: '/gk/v1/things/:id', method: 'DELETE' },
+	},
+	schema: import('../../contracts/thing.schema.json'),
+	cacheKeys: {
+		list: (q) => ['thing', 'list', q?.q],
+		get: (id) => ['thing', 'get', id],
+	},
 });
 ```
 
 **What this gives you:**
+
 - Typed client methods: `thing.list()`, `thing.create()`, etc.
 - Store selectors: `select('gk/thing').getList()`, `select('gk/thing').getById(id)`
 - Cache keys for invalidation
@@ -55,15 +57,15 @@ Create `contracts/thing.schema.json`:
 
 ```json
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "type": "object",
-  "properties": {
-    "id": { "type": "number" },
-    "title": { "type": "string", "minLength": 1, "maxLength": 200 },
-    "description": { "type": "string", "maxLength": 1000 },
-    "created_at": { "type": "string", "format": "date-time" }
-  },
-  "required": ["id", "title", "created_at"]
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"type": "object",
+	"properties": {
+		"id": { "type": "number" },
+		"title": { "type": "string", "minLength": 1, "maxLength": 200 },
+		"description": { "type": "string", "maxLength": 1000 },
+		"created_at": { "type": "string", "format": "date-time" }
+	},
+	"required": ["id", "title", "created_at"]
 }
 ```
 
@@ -84,27 +86,28 @@ import { thing } from '@/app/resources/Thing';
 import { invalidate } from '@wordpress/data';
 
 export const CreateThing = defineAction(
-  'Thing.Create',
-  async ({ data }: { data: Partial<Thing> }) => {
-    // 1. Call the resource
-    const created = await thing.create(data);
+	'Thing.Create',
+	async ({ data }: { data: Partial<Thing> }) => {
+		// 1. Call the resource
+		const created = await thing.create(data);
 
-    // 2. Emit canonical event
-    CreateThing.emit(events.thing.created, {
-      id: created.id,
-      data: created,
-    });
+		// 2. Emit canonical event
+		CreateThing.emit(events.thing.created, {
+			id: created.id,
+			data: created,
+		});
 
-    // 3. Invalidate affected cache keys
-    invalidate(['thing', 'list']);
+		// 3. Invalidate affected cache keys
+		invalidate(['thing', 'list']);
 
-    // 4. Return the result
-    return created;
-  }
+		// 4. Return the result
+		return created;
+	}
 );
 ```
 
 **What this does:**
+
 - Calls REST endpoint via resource
 - Emits `wpk.thing.created` event (canonical)
 - Invalidates list cache (triggers refetch)
@@ -145,20 +148,20 @@ export function ThingForm() {
   return (
     <form onSubmit={handleSubmit}>
       {error && <Notice status="error" isDismissible={false}>{error}</Notice>}
-      
+
       <TextControl
         label="Title"
         value={title}
         onChange={setTitle}
         required
       />
-      
+
       <TextControl
         label="Description"
         value={description}
         onChange={setDescription}
       />
-      
+
       <Button type="submit" variant="primary" isBusy={saving}>
         Create Thing
       </Button>
@@ -212,7 +215,7 @@ class Things_Controller extends \WP_REST_Controller {
 
     public function create_item( $request ) {
         $params = $request->get_json_params();
-        
+
         // Validate, sanitize, create...
         $thing = [
             'id'          => wp_generate_uuid4(),
@@ -248,7 +251,7 @@ add_action( 'rest_api_init', function() {
 ✅ **Resources**: One definition → typed client + store + cache  
 ✅ **Actions**: Orchestrate writes, emit events, invalidate caches  
 ✅ **Events**: Canonical taxonomy (`wpk.thing.created`)  
-✅ **Actions-first**: UI never calls transport directly  
+✅ **Actions-first**: UI never calls transport directly
 
 ## Next Steps
 

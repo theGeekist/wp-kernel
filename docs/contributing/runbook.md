@@ -50,6 +50,7 @@ pnpm wp:seed
 ```
 
 Seeds:
+
 - Test users (admin, editor, author, contributor, subscriber)
 - Sample applications (pending, approved, rejected)
 - Sample jobs (completed, in-progress, failed)

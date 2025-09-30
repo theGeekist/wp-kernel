@@ -3,8 +3,9 @@
 > A Rails-like, opinionated framework for building modern WordPress products where JavaScript is the source of truth and PHP is a thin contract.
 
 [![CI Status](https://github.com/theGeekist/wp-kernel/workflows/ci/badge.svg)](https://github.com/theGeekist/wp-kernel/actions)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-EUPL--1.2-blue.svg)](LICENSE)
 [![Node Version](https://img.shields.io/badge/node-22.20.0%20LTS-brightgreen.svg)](.nvmrc)
+[![Documentation](https://img.shields.io/badge/docs-VitePress-42b883.svg)](https://theGeekist.github.io/wp-kernel/)
 
 ---
 
@@ -30,9 +31,10 @@ Built on WordPress Core primitives: Script Modules, Block Bindings, Interactivit
 ### Prerequisites
 
 - **Node.js**: 22.20.0 LTS ([nvm](https://github.com/nvm-sh/nvm) recommended)
-- **pnpm**: 9+ (`npm install -g pnpm`)
+- **pnpm**: 9.12.3+ (`npm install -g pnpm`)
 - **Docker**: For local WordPress via wp-env
 - **PHP**: 8.3+ (for wp-env)
+- **WordPress**: 6.7+ (Script Modules API)
 
 ### Installation
 
@@ -61,12 +63,12 @@ Login: `admin` / `password`
 
 ## 📦 Packages
 
-| Package                                            | Description                                            | Status      |
-| -------------------------------------------------- | ------------------------------------------------------ | ----------- |
-| [@geekist/wp-kernel](packages/kernel)              | Core framework (Resources, Actions, Events, Jobs)      | 🚧 Sprint 0 |
-| [@geekist/wp-kernel-ui](packages/ui)               | Accessible UI components (wraps @wordpress/components) | 🚧 Sprint 0 |
-| [@geekist/wp-kernel-cli](packages/cli)             | Scaffolding CLI (generators)                           | 🚧 Sprint 0 |
-| [@geekist/wp-kernel-e2e-utils](packages/e2e-utils) | Playwright test utilities                              | 🚧 Sprint 0 |
+| Package                                            | Description                                            | Version |
+| -------------------------------------------------- | ------------------------------------------------------ | ------- |
+| [@geekist/wp-kernel](packages/kernel)              | Core framework (Resources, Actions, Events, Jobs)      | 0.1.0   |
+| [@geekist/wp-kernel-ui](packages/ui)               | Accessible UI components (wraps @wordpress/components) | 0.1.0   |
+| [@geekist/wp-kernel-cli](packages/cli)             | Scaffolding CLI (generators)                           | 0.1.0   |
+| [@geekist/wp-kernel-e2e-utils](packages/e2e-utils) | Playwright test utilities                              | 0.1.0   |
 
 ---
 
@@ -103,23 +105,22 @@ pnpm playground     # Launch WordPress Playground (WASM)
 
 ## 📚 Documentation
 
-### Core Concepts
+**📖 [Official Documentation](https://theGeekist.github.io/wp-kernel/)** - Complete guide with 24 pages
+
+### Quick Links
+
+- **[Getting Started](https://theGeekist.github.io/wp-kernel/getting-started/)** - Installation and quick start tutorial
+- **[Core Concepts](https://theGeekist.github.io/wp-kernel/guide/)** - Resources, Actions, Events, Bindings, Interactivity, Jobs
+- **[API Reference](https://theGeekist.github.io/wp-kernel/api/)** - Type definitions and interfaces
+- **[Contributing Guide](https://theGeekist.github.io/wp-kernel/contributing/)** - Development workflow and standards
+
+### Project Documentation
 
 - **[Foreword](information/Foreword.md)** - Why WP Kernel exists, mental model
-- **[Product Specification](information/Product%20Specification%20PO%20Draft%20•%20v1.0.md)** - Complete API contracts
-- **[Code Primitives](information/Code%20Primitives%20%26%20Dev%20Tooling%20PO%20Draft%20•%20v1.0.md)** - Error model, transport, testing
-
-### Developer Guides
-
-- **[Sprint 0 Setup](information/Sprint%200%20—%20Environment%20%26%20Tooling.md)** - Environment configuration
-- **[CONTRIBUTING](CONTRIBUTING.md)** - How to contribute
-- **[TESTING](TESTING.md)** - Testing conventions
-- **[RUNBOOK](RUNBOOK.md)** - Common tasks and troubleshooting
-
-### References
-
+- **[Product Specification](information/Product%20Specification%20PO%20Draft%20•%20v1.0.md)** - Complete API contracts and guarantees
+- **[Code Primitives](information/Code%20Primitives%20%26%20Dev%20Tooling%20PO%20Draft%20•%20v1.0.md)** - Error model, network strategy, testing approach
+- **[Sprint 0 Tasks](information/SPRINT_0_TASKS.md)** - Sprint 0 completion status (100% ✅)
 - **[Event Taxonomy](information/REFERENCE%20-%20Event%20Taxonomy%20Quick%20Card.md)** - All events and payloads
-- **[Copilot Instructions](.github/copilot-instructions.md)** - AI assistant guide
 
 ---
 
@@ -187,17 +188,28 @@ This gives you:
 
 ## 📋 Current Status
 
-**Sprint**: Sprint 0 (Environment & Tooling)  
-**Phase**: Foundation  
-**Next**: Sprint 1 (Resources & Stores)
+**Sprint 0**: ✅ **Complete** (100%, 18/18 tasks)  
+**Next Sprint**: Sprint 1 - Resources, Actions & Events implementation
 
-See [Sprint 0 Tasks](information/SPRINT_0_TASKS.md) for detailed breakdown.
+### Sprint 0 Achievements
+
+- ✅ Monorepo with pnpm workspaces + TypeScript strict mode
+- ✅ ESLint 9 flat config + Prettier (zero deprecated dependencies)
+- ✅ WordPress environments: wp-env + Playground
+- ✅ Testing: Jest (4 tests) + Playwright (5 E2E tests across 3 browsers)
+- ✅ CI/CD: GitHub Actions with caching and quality gates
+- ✅ Documentation: VitePress site with 24 pages (5,746+ lines)
+- ✅ Developer Experience: VS Code workspace with 25+ tasks
+- ✅ Seed scripts: 5 users, 5 jobs, 10 applications, 4 media files
+- ✅ Changesets configured for semantic versioning
+
+See **[Sprint 0 Tasks](information/SPRINT_0_TASKS.md)** for complete breakdown.
 
 ---
 
 ## 🤝 Contributing
 
-We welcome contributions! Please read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting PRs.
+We welcome contributions! Please read our **[Contributing Guide](https://theGeekist.github.io/wp-kernel/contributing/)** before submitting PRs.
 
 **Quick contribution flow**:
 
@@ -209,11 +221,23 @@ We welcome contributions! Please read [CONTRIBUTING.md](CONTRIBUTING.md) before 
 6. Create a changeset (`pnpm changeset`)
 7. Push and open a PR
 
+**Development Setup**:
+
+```bash
+pnpm install        # Install dependencies
+pnpm build          # Build all packages
+pnpm wp:fresh       # Start WordPress + seed data
+pnpm test           # Run unit tests
+pnpm e2e            # Run E2E tests
+```
+
 ---
 
 ## 📄 License
 
-MIT License - see [LICENSE](LICENSE) file for details.
+EUPL-1.2 License - see [LICENSE](LICENSE) file for details.
+
+**For Contributors**: By contributing, you agree to license your contributions under EUPL-1.2 while retaining copyright. See [.github/CONTRIBUTOR_LICENSE.md](.github/CONTRIBUTOR_LICENSE.md) for details.
 
 ---
 
@@ -229,9 +253,10 @@ Built on the shoulders of giants:
 
 ## 🔗 Links
 
-- **Documentation**: [/information](information/)
-- **Issues**: [GitHub Issues](https://github.com/theGeekist/wp-kernel/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/theGeekist/wp-kernel/discussions)
+- **[Documentation](https://theGeekist.github.io/wp-kernel/)** - Official docs site
+- **[GitHub Repository](https://github.com/theGeekist/wp-kernel)** - Source code
+- **[Issues](https://github.com/theGeekist/wp-kernel/issues)** - Bug reports and feature requests
+- **[Discussions](https://github.com/theGeekist/wp-kernel/discussions)** - Community Q&A
 
 ---
 
