@@ -69,14 +69,44 @@ Unique resource name (lowercase, kebab-case recommended).
 
 ```typescript
 // ✅ Good
-name: 'thing';
-name: 'blog-post';
-name: 'user-profile';
+defineResource({
+	name: 'thing',
+	routes: {
+		/* ... */
+	},
+});
+defineResource({
+	name: 'blog-post',
+	routes: {
+		/* ... */
+	},
+});
+defineResource({
+	name: 'user-profile',
+	routes: {
+		/* ... */
+	},
+});
 
-// ❌ Bad
-name: 'Thing'; // uppercase
-name: 'my_thing'; // underscores
-name: 'my thing'; // spaces
+// ❌ Bad - will throw DeveloperError
+defineResource({
+	name: 'Thing',
+	routes: {
+		/* ... */
+	},
+}); // uppercase
+defineResource({
+	name: 'my_thing',
+	routes: {
+		/* ... */
+	},
+}); // underscores
+defineResource({
+	name: 'my thing',
+	routes: {
+		/* ... */
+	},
+}); // spaces
 ```
 
 #### `routes` (object)
@@ -102,14 +132,13 @@ routes: {
 
 ```typescript
 // Single parameter
-'/gk/v1/things/:id'; // thing.get(123) → '/gk/v1/things/123'
+'/gk/v1/things/:id'; // thing.get(123) becomes '/gk/v1/things/123'
 
 // Multiple parameters
 '/gk/v1/things/:id/comments/:commentId';
-// thing.getComment(42, 99) → '/gk/v1/things/42/comments/99'
+// thing.getComment(42, 99) becomes '/gk/v1/things/42/comments/99'
 
-// Supported patterns
-(':id', ':slug', ':userId', ':_id', ':$id'); // All valid
+// Supported patterns: :id, :slug, :userId, :_id, :$id
 ```
 
 ### Optional Properties
@@ -140,7 +169,7 @@ cacheKeys: {
 }
 ```
 
-#### `schema` (Promise<unknown>)
+#### `schema` (`Promise<unknown>`)
 
 JSON Schema for runtime validation (coming in future sprints).
 
@@ -152,7 +181,9 @@ schema: import('../../contracts/thing.schema.json');
 
 Based on your configured routes, `defineResource` generates typed client methods:
 
-### `list(query?): Promise<ListResponse<T>>`
+### list()
+
+**Signature**: `list(query?): Promise<ListResponse<T>>`
 
 Fetch a collection of resources.
 
@@ -170,7 +201,9 @@ const { items, total, hasMore, nextCursor } = await thing.list({
 - `hasMore?: boolean` - Whether more pages exist
 - `nextCursor?: string` - Pagination cursor
 
-### `get(id): Promise<T>`
+### get()
+
+**Signature**: `get(id): Promise<T>`
 
 Fetch a single resource by ID.
 
@@ -178,7 +211,9 @@ Fetch a single resource by ID.
 const item = await thing.get(123);
 ```
 
-### `create(data): Promise<T>`
+### create()
+
+**Signature**: `create(data): Promise<T>`
 
 Create a new resource.
 
@@ -189,7 +224,9 @@ const created = await thing.create({
 });
 ```
 
-### `update(id, data): Promise<T>`
+### update()
+
+**Signature**: `update(id, data): Promise<T>`
 
 Update an existing resource.
 
@@ -199,7 +236,9 @@ const updated = await thing.update(123, {
 });
 ```
 
-### `remove(id): Promise<void>`
+### remove()
+
+**Signature**: `remove(id): Promise<void>`
 
 Delete a resource.
 
