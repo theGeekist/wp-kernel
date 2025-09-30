@@ -23,10 +23,10 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin constants.
-define( 'WPK_SHOWCASE_VERSION', '0.1.0' );
-define( 'WPK_SHOWCASE_FILE', __FILE__ );
-define( 'WPK_SHOWCASE_PATH', plugin_dir_path( __FILE__ ) );
-define( 'WPK_SHOWCASE_URL', plugin_dir_url( __FILE__ ) );
+\define( 'WPK_SHOWCASE_VERSION', '0.1.0' );
+\define( 'WPK_SHOWCASE_FILE', __FILE__ );
+\define( 'WPK_SHOWCASE_PATH', \plugin_dir_path( __FILE__ ) );
+\define( 'WPK_SHOWCASE_URL', \plugin_dir_url( __FILE__ ) );
 
 /**
  * Initialize the plugin.
@@ -35,7 +35,7 @@ define( 'WPK_SHOWCASE_URL', plugin_dir_url( __FILE__ ) );
  */
 function init(): void {
 	// Register the main module script.
-	wp_register_script_module(
+	\wp_register_script_module(
 		'@geekist/wp-kernel-showcase',
 		WPK_SHOWCASE_URL . 'build/index.js',
 		array(
@@ -46,40 +46,40 @@ function init(): void {
 	);
 
 	// Enqueue on all pages for demonstration.
-	add_action(
+	\add_action(
 		'wp_enqueue_scripts',
 		function () {
-			wp_enqueue_script_module( '@geekist/wp-kernel-showcase' );
+			\wp_enqueue_script_module( '@geekist/wp-kernel-showcase' );
 		}
 	);
 
 	// Also enqueue in admin for testing.
-	add_action(
+	\add_action(
 		'admin_enqueue_scripts',
 		function () {
-			wp_enqueue_script_module( '@geekist/wp-kernel-showcase' );
+			\wp_enqueue_script_module( '@geekist/wp-kernel-showcase' );
 		}
 	);
 }
 
-add_action( 'init', __NAMESPACE__ . '\\init' );
+\add_action( 'init', __NAMESPACE__ . '\\init' );
 
 /**
  * Activation hook.
  */
 function activate(): void {
 	// Flush rewrite rules on activation.
-	flush_rewrite_rules();
+	\flush_rewrite_rules();
 }
 
-register_activation_hook( __FILE__, __NAMESPACE__ . '\\activate' );
+\register_activation_hook( __FILE__, __NAMESPACE__ . '\\activate' );
 
 /**
  * Deactivation hook.
  */
 function deactivate(): void {
 	// Flush rewrite rules on deactivation.
-	flush_rewrite_rules();
+	\flush_rewrite_rules();
 }
 
-register_deactivation_hook( __FILE__, __NAMESPACE__ . '\\deactivate' );
+\register_deactivation_hook( __FILE__, __NAMESPACE__ . '\\deactivate' );
