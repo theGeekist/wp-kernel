@@ -1,0 +1,8 @@
+# Test Harness
+
+This directory contains test infrastructure:
+
+- `wp-env/` - Docker WordPress environment configuration
+- `playground/` - WordPress Playground (WASM) configuration
+
+Test infrastructure will be created in Sprint 0.
