@@ -39,23 +39,23 @@
     "changeset:publish": "pnpm build && changeset publish"
   },
   "devDependencies": {
-    "@changesets/cli": "latest",
-    "@playwright/test": "latest",
-    "@types/jest": "latest",
-    "@types/node": "latest",
+    "@changesets/cli": "^2.29.7",
+    "@playwright/test": "^1.55.1",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.6.0",
     "@typescript-eslint/eslint-plugin": "^7.18.0",
     "@typescript-eslint/parser": "^7.18.0",
-    "@wordpress/e2e-test-utils-playwright": "latest",
-    "@wordpress/env": "latest",
-    "@wordpress/eslint-plugin": "latest",
-    "@wordpress/jest-preset-default": "latest",
-    "@wordpress/prettier-config": "latest",
-    "@wordpress/scripts": "latest",
-    "eslint": "^8",
-    "jest": "latest",
-    "jest-environment-jsdom": "latest",
-    "prettier": "latest",
-    "typescript": "latest"
+    "@wordpress/e2e-test-utils-playwright": "^1.31.0",
+    "@wordpress/env": "^10.31.0",
+    "@wordpress/eslint-plugin": "^22.17.0",
+    "@wordpress/jest-preset-default": "^12.31.0",
+    "@wordpress/prettier-config": "^4.31.0",
+    "@wordpress/scripts": "^30.24.0",
+    "eslint": "^8.57.1",
+    "jest": "^30.2.0",
+    "jest-environment-jsdom": "^30.2.0",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.2"
   },
   "pnpm": {
     "overrides": {
