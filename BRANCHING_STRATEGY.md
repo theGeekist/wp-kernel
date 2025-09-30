@@ -29,6 +29,7 @@ This document defines the branching strategy and git workflow for the WP Kernel 
 - **Merge strategy**: Squash and merge via GitHub PR
 
 **Examples**:
+
 ```
 sprint-1/a1-errors
 sprint-1/a2-define-resource
@@ -140,6 +141,7 @@ git push --force-with-lease
 ### 6. Merge PR
 
 **Via GitHub UI**:
+
 1. Ensure CI is green ✅
 2. Ensure 1+ approvals ✅
 3. Click "Squash and merge"
@@ -148,6 +150,7 @@ git push --force-with-lease
 6. Delete branch automatically (checkbox)
 
 **After merge**:
+
 ```bash
 # Switch to main and pull
 git checkout main
@@ -238,14 +241,17 @@ fix(store): prevent duplicate resolver calls
 
 ```markdown
 ## Summary
+
 Brief description of what this PR does.
 
 ## Changes
+
 - ✅ Change 1
 - ✅ Change 2
 - ✅ Change 3
 
 ## Testing
+
 - [ ] Unit tests pass
 - [ ] Lint passes
 - [ ] Types check
@@ -253,9 +259,11 @@ Brief description of what this PR does.
 - [ ] Manual testing complete
 
 ## Screenshots (if UI changes)
+
 [Add screenshots]
 
 ## Related
+
 Closes #<issue-number>
 Relates to #<issue-number>
 ```
@@ -277,11 +285,13 @@ Before requesting review:
 ### Review Guidelines
 
 **As Author**:
+
 - Respond to feedback within 24 hours
 - Mark conversations as resolved when addressed
 - Request re-review when ready
 
 **As Reviewer**:
+
 - Review within 24 hours of request
 - Test locally if possible
 - Leave constructive feedback
@@ -318,11 +328,13 @@ git push --force-with-lease
 ### Merge vs Rebase
 
 **Use rebase** (default):
+
 - Keeps history linear
 - No merge commits
 - Cleaner git log
 
 **Use merge** if:
+
 - Multiple people working on same branch
 - Already have PR reviews in progress
 
@@ -347,7 +359,7 @@ pnpm changeset
 
 ```markdown
 ---
-"@geekist/wp-kernel": minor
+'@geekist/wp-kernel': minor
 ---
 
 Add defineResource API for declaring REST resources with generated stores
@@ -356,6 +368,7 @@ Add defineResource API for declaring REST resources with generated stores
 ### When to Skip
 
 Only skip changeset for:
+
 - Documentation-only changes
 - Internal refactors (no API change)
 - Test-only changes
@@ -418,21 +431,23 @@ gh release create v0.2.0 \
 ### `main` Branch Protection
 
 **Required**:
+
 - ✅ Require pull request before merging
-  - ✅ Require 1 approval
-  - ✅ Dismiss stale reviews when new commits pushed
-  - ✅ Require review from Code Owners (future)
+    - ✅ Require 1 approval
+    - ✅ Dismiss stale reviews when new commits pushed
+    - ✅ Require review from Code Owners (future)
 - ✅ Require status checks to pass
-  - ✅ Build
-  - ✅ Lint
-  - ✅ Unit Tests
-  - ✅ E2E Tests
-  - ✅ Changeset Check
+    - ✅ Build
+    - ✅ Lint
+    - ✅ Unit Tests
+    - ✅ E2E Tests
+    - ✅ Changeset Check
 - ✅ Require branches to be up to date before merging
 - ✅ Require conversation resolution before merging
 - ✅ Do not allow bypassing the above settings
 
 **Optional** (can enable later):
+
 - Require signed commits
 - Require linear history
 - Lock branch (prevent force push)
@@ -543,11 +558,13 @@ git checkout sprint-1/accidental-commit
 ## Updates to This Document
 
 This branching strategy may evolve. Updates will be communicated via:
+
 - Slack/Discord announcement
 - PR to this document
 - Team meeting discussion
 
 **Version History**:
+
 - v1.0 (1 Oct 2025): Initial branching strategy for Sprint 1
 
 ---
