@@ -1,0 +1,8 @@
+# Contracts
+
+This directory contains JSON Schema files that define data contracts:
+
+- Resource schemas (e.g., `thing.schema.json`)
+- TypeScript types are generated from these schemas
+
+Schemas will be added as resources are created.

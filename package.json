@@ -1,0 +1,67 @@
+{
+  "name": "wp-kernel",
+  "version": "0.0.0",
+  "private": true,
+  "description": "A Rails-like, opinionated framework for building modern WordPress products",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/theGeekist/wp-kernel.git"
+  },
+  "packageManager": "pnpm@9.12.3",
+  "engines": {
+    "node": ">=22.20.0",
+    "pnpm": ">=9.0.0"
+  },
+  "scripts": {
+    "dev": "pnpm --filter './packages/*' --parallel run dev",
+    "build": "pnpm --recursive run build",
+    "clean": "pnpm --recursive run clean && rm -rf node_modules",
+    "lint": "eslint . --ext .js,.ts,.tsx,.cjs,.mjs,.json,.md",
+    "format": "prettier --write '**/*.{js,ts,tsx,json,md,yml,yaml}'",
+    "format:check": "prettier --check '**/*.{js,ts,tsx,json,md,yml,yaml}'",
+    "typecheck": "pnpm --recursive run typecheck",
+    "test": "jest --passWithNoTests",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "wp:start": "wp-env start --cwd ./test-harness/wp-env",
+    "wp:stop": "wp-env stop --cwd ./test-harness/wp-env",
+    "wp:destroy": "wp-env destroy --cwd ./test-harness/wp-env",
+    "wp:seed": "wp-env run tests-cli --cwd ./test-harness/wp-env wp wpk seed run",
+    "wp:seed:reset": "wp-env run tests-cli --cwd ./test-harness/wp-env wp wpk seed reset",
+    "wp:fresh": "pnpm wp:start && pnpm wp:seed",
+    "e2e": "playwright test",
+    "e2e:headed": "playwright test --headed",
+    "e2e:ui": "playwright test --ui",
+    "playground": "wp-playground server --auto-mount ./examples/showcase-plugin",
+    "changeset": "changeset",
+    "changeset:version": "changeset version",
+    "changeset:publish": "pnpm build && changeset publish"
+  },
+  "devDependencies": {
+    "@changesets/cli": "latest",
+    "@playwright/test": "latest",
+    "@types/jest": "latest",
+    "@types/node": "latest",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "@wordpress/e2e-test-utils-playwright": "latest",
+    "@wordpress/env": "latest",
+    "@wordpress/eslint-plugin": "latest",
+    "@wordpress/jest-preset-default": "latest",
+    "@wordpress/prettier-config": "latest",
+    "@wordpress/scripts": "latest",
+    "eslint": "^8",
+    "jest": "latest",
+    "jest-environment-jsdom": "latest",
+    "prettier": "latest",
+    "typescript": "latest"
+  },
+  "pnpm": {
+    "overrides": {
+      "@babel/runtime": ">=7.26.10",
+      "webpack-dev-server": ">=5.2.1"
+    }
+  },
+  "prettier": "@wordpress/prettier-config"
+}
