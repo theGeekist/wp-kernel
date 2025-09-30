@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    // Language & Environment
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+    "jsxImportSource": "@wordpress/element",
+    
+    // Module Resolution
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    
+    // Path Aliases
+    "baseUrl": ".",
+    "paths": {
+      "@geekist/wp-kernel": ["./packages/kernel/src/index.ts"],
+      "@geekist/wp-kernel/*": ["./packages/kernel/src/*"],
+      "@geekist/wp-kernel-ui": ["./packages/ui/src/index.ts"],
+      "@geekist/wp-kernel-ui/*": ["./packages/ui/src/*"],
+      "@geekist/wp-kernel-cli": ["./packages/cli/src/index.ts"],
+      "@geekist/wp-kernel-cli/*": ["./packages/cli/src/*"],
+      "@geekist/wp-kernel-e2e-utils": ["./packages/e2e-utils/src/index.ts"],
+      "@geekist/wp-kernel-e2e-utils/*": ["./packages/e2e-utils/src/*"]
+    },
+    
+    // Type Checking (Strict Mode)
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitReturns": true,
+    "noImplicitOverride": true,
+    "allowUnusedLabels": false,
+    "allowUnreachableCode": false,
+    
+    // Emit
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "noEmit": false,
+    "outDir": "./dist",
+    
+    // Interop Constraints
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "isolatedModules": true,
+    
+    // Completeness
+    "skipLibCheck": true,
+    
+    // Project References
+    "composite": true,
+    "incremental": true
+  },
+  "exclude": [
+    "**/node_modules",
+    "**/dist",
+    "**/build",
+    "**/.wp-env",
+    "**/coverage",
+    "**/*.test.ts",
+    "**/*.test.tsx",
+    "**/*.spec.ts",
+    "**/*.spec.tsx"
+  ]
+}
