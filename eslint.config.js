@@ -61,6 +61,12 @@ export default [
 			react: {
 				version: 'detect',
 			},
+			'import/resolver': {
+				typescript: {
+					alwaysTryTypes: true,
+					project: './tsconfig.base.json',
+				},
+			},
 		},
 
 		// Custom rules for WP Kernel
@@ -98,6 +104,8 @@ export default [
 						'^@eslint/',
 						'^globals$',
 						'^@wordpress/',
+						'^@kernel/',
+						'^@geekist/wp-kernel',
 					],
 				},
 			],

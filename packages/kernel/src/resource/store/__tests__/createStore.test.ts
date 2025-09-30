@@ -4,9 +4,9 @@
  * Tests the @wordpress/data store integration
  */
 
-import { createStore } from '../createStore';
-import type { ResourceObject, ListResponse } from '../../types';
-import { KernelError } from '../../../errors';
+import { createStore } from '@kernel/resource/store/createStore';
+import type { ResourceObject, ListResponse } from '@kernel/resource';
+import { KernelError } from '@kernel/errors';
 
 // Mock resource for testing
 interface MockThing {

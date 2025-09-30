@@ -2,8 +2,11 @@
  * Tests for REST path interpolation
  */
 
-import { interpolatePath, extractPathParams } from '../interpolate';
-import { KernelError } from '../../errors';
+import {
+	interpolatePath,
+	extractPathParams,
+} from '@kernel/resource/interpolate';
+import { KernelError } from '@kernel/errors';
 
 describe('interpolatePath', () => {
 	describe('basic interpolation', () => {

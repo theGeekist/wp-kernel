@@ -14,8 +14,8 @@ import type {
 	ResourceStore,
 	ResourceStoreConfig,
 } from './types';
-import type { ListResponse } from '../types';
-import { KernelError } from '../../errors';
+import type { ListResponse } from '@kernel/resource';
+import { KernelError } from '@kernel/errors';
 
 /**
  * Action types for the resource store.
