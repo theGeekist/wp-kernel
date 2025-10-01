@@ -11,6 +11,7 @@ import { KernelError } from '@kernel/errors';
 import { interpolatePath } from './interpolate';
 import { createStore } from './store/createStore';
 import { registerStoreKey } from './invalidate';
+import { fetch as transportFetch } from '../transport/fetch';
 import type {
 	ResourceConfig,
 	ResourceObject,
@@ -196,10 +197,9 @@ function validateConfig<T, TQuery>(config: ResourceConfig<T, TQuery>): void {
 }
 
 /**
- * Create client methods for a resource
+ * Create resource client
  *
  * Generates typed REST client methods based on configured routes.
- * Methods are placeholders for now (A2 scope: structure only).
  *
  * @param config - Validated resource configuration
  * @return Resource client with typed methods
@@ -211,16 +211,30 @@ function createClient<T, TQuery>(
 
 	// List method
 	if (config.routes.list) {
-		client.list = async (_query?: TQuery): Promise<ListResponse<T>> => {
-			// TODO: Implement actual transport call in A3 (after transport integration)
-			throw new KernelError('NotImplementedError', {
-				message: `Resource "${config.name}".list() not yet implemented`,
-				context: {
-					resourceName: config.name,
-					method: 'GET',
-					path: config.routes.list?.path,
-				},
+		client.list = async (query?: TQuery): Promise<ListResponse<T>> => {
+			const response = await transportFetch<{
+				items?: T[];
+				total?: number;
+				hasMore?: boolean;
+				nextCursor?: string;
+			}>({
+				path: config.routes.list!.path,
+				method: 'GET',
+				query: query as Record<string, unknown>,
 			});
+
+			// Normalize response to ListResponse format
+			// Support both array responses and object responses with items property
+			const items = Array.isArray(response.data)
+				? response.data
+				: response.data.items || [];
+
+			return {
+				items,
+				total: response.data.total,
+				hasMore: response.data.hasMore,
+				nextCursor: response.data.nextCursor,
+			};
 		};
 	}
 
@@ -229,15 +243,12 @@ function createClient<T, TQuery>(
 		client.get = async (id: string | number): Promise<T> => {
 			const path = interpolatePath(config.routes.get!.path, { id });
 
-			// TODO: Implement actual transport call in A3
-			throw new KernelError('NotImplementedError', {
-				message: `Resource "${config.name}".get() not yet implemented`,
-				context: {
-					resourceName: config.name,
-					method: 'GET',
-					path,
-				},
+			const response = await transportFetch<T>({
+				path,
+				method: 'GET',
 			});
+
+			return response.data;
 		};
 	}
 

@@ -1,5 +1,5 @@
 /**
- * Tests for REST path interpolation
+ * Tests for path interpolation utilities
  */
 
 import {

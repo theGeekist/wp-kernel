@@ -522,29 +522,7 @@ describe('defineResource', () => {
 		});
 	});
 
-	describe('client method stubs (NotImplementedError)', () => {
-		it('should throw NotImplementedError when list is called', async () => {
-			const resource = defineResource<Thing, ThingQuery>({
-				name: 'thing',
-				routes: {
-					list: { path: '/wpk/v1/things', method: 'GET' },
-				},
-			});
-
-			await expect(resource.list!()).rejects.toThrow(KernelError);
-		});
-
-		it('should throw NotImplementedError when get is called', async () => {
-			const resource = defineResource<Thing>({
-				name: 'thing',
-				routes: {
-					get: { path: '/wpk/v1/things/:id', method: 'GET' },
-				},
-			});
-
-			await expect(resource.get!(123)).rejects.toThrow(KernelError);
-		});
-
+	describe('client method stubs (write methods - NotImplementedError)', () => {
 		it('should throw NotImplementedError when create is called', async () => {
 			const resource = defineResource<Thing>({
 				name: 'thing',
@@ -592,12 +570,12 @@ describe('defineResource', () => {
 			const resource = defineResource<Thing>({
 				name: 'thing',
 				routes: {
-					list: { path: '/wpk/v1/things', method: 'GET' },
+					create: { path: '/wpk/v1/things', method: 'POST' },
 				},
 			});
 
 			try {
-				await resource.list!();
+				await resource.create!({ title: 'Test' });
 				fail('Should have thrown');
 			} catch (e) {
 				expect(e).toBeInstanceOf(KernelError);
@@ -725,6 +703,179 @@ describe('defineResource', () => {
 					delete windowWithWp.wp;
 				}
 			}
+		});
+	});
+
+	describe('client methods', () => {
+		let mockApiFetch: jest.Mock;
+		let mockDoAction: jest.Mock;
+
+		beforeEach(() => {
+			// Mock @wordpress/api-fetch and hooks
+			mockApiFetch = jest.fn();
+			mockDoAction = jest.fn();
+
+			const windowWithWp = global.window as any;
+
+			if (windowWithWp) {
+				windowWithWp.wp = {
+					apiFetch: mockApiFetch,
+					hooks: {
+						doAction: mockDoAction,
+					},
+					data: {
+						register: jest.fn(),
+					},
+				};
+			}
+		});
+
+		afterEach(() => {
+			jest.restoreAllMocks();
+		});
+
+		describe('list()', () => {
+			it('should call transport.fetch() with correct parameters', async () => {
+				const mockData = [
+					{ id: 1, title: 'Thing 1', description: 'First' },
+					{ id: 2, title: 'Thing 2', description: 'Second' },
+				];
+				mockApiFetch.mockResolvedValue(mockData);
+
+				const resource = defineResource<Thing, ThingQuery>({
+					name: 'thing',
+					routes: {
+						list: { path: '/wpk/v1/things', method: 'GET' },
+					},
+				});
+
+				const result = await resource.list!({ q: 'search', page: 1 });
+
+				expect(mockApiFetch).toHaveBeenCalledWith({
+					path: '/wpk/v1/things?q=search&page=1',
+					method: 'GET',
+					data: undefined,
+					parse: true,
+				});
+				expect(result.items).toEqual(mockData);
+			});
+
+			it('should normalize array response to ListResponse format', async () => {
+				const mockData = [
+					{ id: 1, title: 'Thing 1', description: 'First' },
+				];
+				mockApiFetch.mockResolvedValue(mockData);
+
+				const resource = defineResource<Thing>({
+					name: 'thing',
+					routes: {
+						list: { path: '/wpk/v1/things', method: 'GET' },
+					},
+				});
+
+				const result = await resource.list!();
+
+				expect(result).toEqual({
+					items: mockData,
+					total: undefined,
+					hasMore: undefined,
+					nextCursor: undefined,
+				});
+			});
+
+			it('should handle object response with items property', async () => {
+				const mockResponse = {
+					items: [{ id: 1, title: 'Thing 1', description: 'First' }],
+					total: 10,
+					hasMore: true,
+					nextCursor: 'cursor_abc123',
+				};
+				mockApiFetch.mockResolvedValue(mockResponse);
+
+				const resource = defineResource<Thing>({
+					name: 'thing',
+					routes: {
+						list: { path: '/wpk/v1/things', method: 'GET' },
+					},
+				});
+
+				const result = await resource.list!();
+
+				expect(result).toEqual(mockResponse);
+			});
+		});
+
+		describe('get()', () => {
+			it('should call transport.fetch() with interpolated path', async () => {
+				const mockData = {
+					id: 123,
+					title: 'Thing 123',
+					description: 'Test',
+				};
+				mockApiFetch.mockResolvedValue(mockData);
+
+				const resource = defineResource<Thing>({
+					name: 'thing',
+					routes: {
+						get: { path: '/wpk/v1/things/:id', method: 'GET' },
+					},
+				});
+
+				const result = await resource.get!(123);
+
+				expect(mockApiFetch).toHaveBeenCalledWith({
+					path: '/wpk/v1/things/123',
+					method: 'GET',
+					data: undefined,
+					parse: true,
+				});
+				expect(result).toEqual(mockData);
+			});
+
+			it('should handle string IDs', async () => {
+				const mockData = {
+					id: 'abc',
+					title: 'Thing ABC',
+					description: 'Test',
+				};
+				mockApiFetch.mockResolvedValue(mockData);
+
+				const resource = defineResource<Thing>({
+					name: 'thing',
+					routes: {
+						get: { path: '/wpk/v1/things/:id', method: 'GET' },
+					},
+				});
+
+				await resource.get!('abc');
+
+				expect(mockApiFetch).toHaveBeenCalledWith({
+					path: '/wpk/v1/things/abc',
+					method: 'GET',
+					data: undefined,
+					parse: true,
+				});
+			});
+		});
+
+		describe('error handling', () => {
+			it('should propagate transport errors', async () => {
+				const mockError = {
+					code: 'rest_not_found',
+					message: 'Resource not found',
+					data: { status: 404 },
+				};
+				mockApiFetch.mockRejectedValue(mockError);
+
+				const resource = defineResource<Thing>({
+					name: 'thing',
+					routes: {
+						get: { path: '/wpk/v1/things/:id', method: 'GET' },
+					},
+				});
+
+				await expect(resource.get!(999)).rejects.toThrow(KernelError);
+			});
 		});
 	});
 });
