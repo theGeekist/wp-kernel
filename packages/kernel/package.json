@@ -32,6 +32,21 @@
 			"import": "./dist/index.js",
 			"default": "./dist/index.js"
 		},
+		"./http": {
+			"types": "./dist/http/index.d.ts",
+			"import": "./dist/http/index.js",
+			"default": "./dist/http/index.js"
+		},
+		"./resource": {
+			"types": "./dist/resource/index.d.ts",
+			"import": "./dist/resource/index.js",
+			"default": "./dist/resource/index.js"
+		},
+		"./error": {
+			"types": "./dist/error/index.d.ts",
+			"import": "./dist/error/index.js",
+			"default": "./dist/error/index.js"
+		},
 		"./package.json": "./package.json"
 	},
 	"files": [

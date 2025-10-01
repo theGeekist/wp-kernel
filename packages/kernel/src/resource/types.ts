@@ -197,7 +197,7 @@ export interface ResourceClient<T = unknown, TQuery = unknown> {
 	 * @throws TransportError on network failure
 	 * @throws ServerError on REST API error
 	 */
-	list?: (query?: TQuery) => Promise<ListResponse<T>>;
+	fetchList?: (query?: TQuery) => Promise<ListResponse<T>>;
 
 	/**
 	 * Fetch a single resource by ID
@@ -207,7 +207,7 @@ export interface ResourceClient<T = unknown, TQuery = unknown> {
 	 * @throws TransportError on network failure
 	 * @throws ServerError on REST API error (including 404)
 	 */
-	get?: (id: string | number) => Promise<T>;
+	fetch?: (id: string | number) => Promise<T>;
 
 	/**
 	 * Create a new resource
@@ -456,6 +456,201 @@ export interface ResourceObject<T = unknown, TQuery = unknown>
 		operation: 'list' | 'get' | 'create' | 'update' | 'remove',
 		params?: TQuery | string | number | Partial<T>
 	) => (string | number | boolean)[];
+
+	// Grouped API (power users)
+	/**
+	 * Grouped API: Pure selectors (no fetching)
+	 *
+	 * Access cached data without triggering network requests.
+	 * Ideal for computed values and derived state.
+	 */
+	select?: {
+		/**
+		 * Get cached item by ID (no fetch)
+		 * @param id - Item identifier
+		 * @return Cached item or undefined
+		 */
+		item: (id: string | number) => T | undefined;
+
+		/**
+		 * Get all cached items (no fetch)
+		 * @return Array of all cached items
+		 */
+		items: () => T[];
+
+		/**
+		 * Get cached list by query (no fetch)
+		 * @param query - Query parameters
+		 * @return Array of items matching query or empty array
+		 */
+		list: (query?: TQuery) => T[];
+	};
+
+	/**
+	 * Grouped API: React hooks
+	 *
+	 * Convenience wrappers around useGet/useList for the grouped API.
+	 */
+	use?: {
+		/**
+		 * React hook to fetch and watch a single item
+		 */
+		item: (id: string | number) => {
+			data: T | undefined;
+			isLoading: boolean;
+			error: string | undefined;
+		};
+
+		/**
+		 * React hook to fetch and watch a list
+		 */
+		list: (query?: TQuery) => {
+			data: ListResponse<T> | undefined;
+			isLoading: boolean;
+			error: string | undefined;
+		};
+	};
+
+	/**
+	 * Grouped API: Explicit data fetching (bypass cache)
+	 *
+	 * Direct network calls that always hit the server.
+	 * Useful for refresh actions or real-time data requirements.
+	 */
+	get?: {
+		/**
+		 * Get item from server (bypass cache)
+		 *
+		 * Always fetches fresh data from the server, ignoring cache.
+		 * Use for explicit refresh actions or real-time requirements.
+		 *
+		 * @param id - Item identifier
+		 * @return Promise resolving to the item
+		 */
+		item: (id: string | number) => Promise<T>;
+
+		/**
+		 * Get list from server (bypass cache)
+		 *
+		 * Always fetches fresh data from the server, ignoring cache.
+		 * Use for explicit refresh actions or real-time requirements.
+		 *
+		 * @param query - Optional query parameters
+		 * @return Promise resolving to list response
+		 */
+		list: (query?: TQuery) => Promise<ListResponse<T>>;
+	};
+
+	/**
+	 * Grouped API: Mutations (CRUD operations)
+	 *
+	 * Write operations that modify server state.
+	 */
+	mutate?: {
+		/**
+		 * Create new item
+		 */
+		create: (data: Partial<T>) => Promise<T>;
+
+		/**
+		 * Update existing item
+		 */
+		update: (id: string | number, data: Partial<T>) => Promise<T>;
+
+		/**
+		 * Delete item
+		 */
+		remove: (id: string | number) => Promise<void>;
+	};
+
+	/**
+	 * Grouped API: Cache control
+	 *
+	 * Fine-grained cache management operations.
+	 */
+	cache: {
+		/**
+		 * Prefetch operations (eager loading)
+		 */
+		prefetch: {
+			/**
+			 * Prefetch single item into cache
+			 */
+			item: (id: string | number) => Promise<void>;
+
+			/**
+			 * Prefetch list into cache
+			 */
+			list: (query?: TQuery) => Promise<void>;
+		};
+
+		/**
+		 * Cache invalidation operations
+		 */
+		invalidate: {
+			/**
+			 * Invalidate cached item by ID
+			 */
+			item: (id: string | number) => void;
+
+			/**
+			 * Invalidate cached list by query
+			 */
+			list: (query?: TQuery) => void;
+
+			/**
+			 * Invalidate all cached data for this resource
+			 */
+			all: () => void;
+		};
+
+		/**
+		 * Generate cache key
+		 */
+		key: (
+			operation: 'list' | 'get' | 'create' | 'update' | 'remove',
+			params?: TQuery | string | number | Partial<T>
+		) => (string | number | boolean)[];
+	};
+
+	/**
+	 * Grouped API: Store access
+	 *
+	 * Direct access to @wordpress/data store internals.
+	 */
+	storeApi: {
+		/**
+		 * Store key for @wordpress/data
+		 */
+		key: string;
+
+		/**
+		 * Store descriptor (lazy-loaded)
+		 */
+		descriptor: unknown;
+	};
+
+	/**
+	 * Grouped API: Event names
+	 *
+	 * Canonical event names for this resource.
+	 */
+	events?: {
+		/**
+		 * Fired when item is created
+		 */
+		created: string;
+
+		/**
+		 * Fired when item is updated
+		 */
+		updated: string;
+
+		/**
+		 * Fired when item is removed
+		 */
+		removed: string;
+	};
 }
 
 /**
