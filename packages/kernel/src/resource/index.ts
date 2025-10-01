@@ -5,17 +5,17 @@
  * client generation, store keys, and cache management.
  */
 
-export { defineResource } from './defineResource';
-export { interpolatePath, extractPathParams } from './interpolate';
-export { invalidate, invalidateAll } from './invalidate';
-export type { InvalidateOptions } from './invalidate';
+export { defineResource } from './defineResource.js';
+export { interpolatePath, extractPathParams } from './interpolate.js';
+export { invalidate, invalidateAll } from './invalidate.js';
+export type { InvalidateOptions } from './invalidate.js';
 export {
 	normalizeCacheKey,
 	matchesCacheKey,
 	findMatchingKeys,
 	findMatchingKeysMultiple,
-} from './cacheKeys';
-export type { CacheKeyPattern } from './cacheKeys';
+} from './cacheKeys.js';
+export type { CacheKeyPattern } from './cacheKeys.js';
 export type {
 	HttpMethod,
 	ResourceRoute,
@@ -26,5 +26,5 @@ export type {
 	ListResponse,
 	ResourceClient,
 	ResourceObject,
-} from './types';
-export type { PathParams } from './interpolate';
+} from './types.js';
+export type { PathParams } from './interpolate.js';

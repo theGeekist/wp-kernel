@@ -6,13 +6,13 @@
  * @module
  */
 
-export { KernelError } from './KernelError';
-export { TransportError } from './TransportError';
-export { ServerError } from './ServerError';
-export type { WordPressRESTError } from './ServerError';
+export { KernelError } from './KernelError.js';
+export { TransportError } from './TransportError.js';
+export { ServerError } from './ServerError.js';
+export type { WordPressRESTError } from './ServerError.js';
 export type {
 	ErrorCode,
 	ErrorContext,
 	ErrorData,
 	SerializedError,
-} from './types';
+} from './types.js';

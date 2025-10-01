@@ -13,7 +13,7 @@
  * ```
  */
 
-import { KernelError } from '@kernel/errors';
+import { KernelError } from '../errors/index.js';
 
 /**
  * Path parameter values (string, number, or boolean)
