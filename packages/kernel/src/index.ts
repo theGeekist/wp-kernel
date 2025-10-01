@@ -14,18 +14,18 @@ export const VERSION = '0.0.0';
 /**
  * Error types (Sprint 1)
  */
-export { KernelError, TransportError, ServerError } from './errors/index.js';
+export { KernelError, TransportError, ServerError } from './error/index.js';
 export type {
 	ErrorCode,
 	ErrorContext,
 	ErrorData,
 	SerializedError,
-} from './errors/index.js';
+} from './error/index.js';
 
 /**
  * Transport layer (Sprint 1 - A3)
  */
-export { fetch } from './transport/fetch.js';
+export { fetch } from './http/fetch.js';
 export type {
 	HttpMethod,
 	TransportRequest,
@@ -33,7 +33,7 @@ export type {
 	ResourceRequestEvent,
 	ResourceResponseEvent,
 	ResourceErrorEvent,
-} from './transport/types.js';
+} from './http/types.js';
 
 /**
  * Resource system (Sprint 1)

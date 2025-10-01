@@ -3,7 +3,7 @@
  */
 
 import { defineResource } from '../defineResource';
-import { KernelError } from '../../errors';
+import { KernelError } from '../../error';
 import type { CacheKeyFn } from '../../resource';
 import type { ResourceStore } from '../../resource/store/types';
 

@@ -7,11 +7,11 @@
  * @see Product Specification § 4.1 Resources
  */
 
-import { KernelError } from '../errors/index.js';
+import { KernelError } from '../error/index.js';
 import { interpolatePath } from './interpolate.js';
 import { createStore } from './store/createStore.js';
 import { registerStoreKey } from './invalidate.js';
-import { fetch as transportFetch } from '../transport/fetch.js';
+import { fetch as transportFetch } from '../http/fetch.js';
 import type {
 	ResourceConfig,
 	ResourceObject,

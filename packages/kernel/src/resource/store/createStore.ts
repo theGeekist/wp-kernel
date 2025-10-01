@@ -15,7 +15,7 @@ import type {
 	ResourceStoreConfig,
 } from './types.js';
 import type { ListResponse } from '../types.js';
-import { KernelError } from '../../errors/index.js';
+import { KernelError } from '../../error/index.js';
 
 /**
  * Action types for the resource store.
