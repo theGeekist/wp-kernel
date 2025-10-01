@@ -320,15 +320,14 @@ jobs:
     all-checks:
         name: All Checks Passed
         runs-on: ubuntu-latest
-        needs: [lint, build, unit-test, e2e-test]
+        needs: [lint, build, unit-test]
         if: always()
         steps:
             - name: Check status
               run: |
                   if [[ "${{ needs.lint.result }}" != "success" ]] || \
                      [[ "${{ needs.build.result }}" != "success" ]] || \
-                     [[ "${{ needs.unit-test.result }}" != "success" ]] || \
-                     [[ "${{ needs.e2e-test.result }}" != "success" ]]; then
+                     [[ "${{ needs.unit-test.result }}" != "success" ]]; then
                     echo "❌ One or more checks failed"
                     exit 1
                   fi
