@@ -7,7 +7,7 @@
  * @see Product Specification § 4.3 Actions
  */
 
-import { type CacheKeyPattern, normalizeCacheKey } from './cacheKeys';
+import { type CacheKeyPattern, normalizeCacheKey } from './cacheKeys.js';
 
 /**
  * Type for WordPress data registry (external dependency)

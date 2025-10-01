@@ -3,7 +3,6 @@
 # Usage: ./scripts/generate-types.sh
 
 set -euo pipefail
-set -e
 
 echo "🔄 Generating TypeScript types from JSON Schema..."
 
@@ -11,15 +10,15 @@ echo "🔄 Generating TypeScript types from JSON Schema..."
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
-# Get the repository root directory
+# Get the showcase directory
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+SHOWCASE_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
-# Generate types for showcase plugin Job schema
+# Generate types for Job schema
 echo "  📝 Generating Job types..."
 pnpm exec json2ts \
-  "$REPO_ROOT/examples/showcase-plugin/contracts/job.schema.json" \
-  --output "$REPO_ROOT/examples/showcase-plugin/types/job.d.ts" \
+  "$SHOWCASE_DIR/contracts/job.schema.json" \
+  --output "$SHOWCASE_DIR/types/job.d.ts" \
   --bannerComment "/**
  * Auto-generated TypeScript types from job.schema.json
  * DO NOT EDIT MANUALLY - regenerate with: pnpm types:generate
@@ -29,9 +28,9 @@ pnpm exec json2ts \
   --style.singleQuote
 
 echo "  🎨 Formatting generated types..."
-pnpm exec prettier --write "$REPO_ROOT/examples/showcase-plugin/types/job.d.ts" --log-level=silent
+pnpm exec prettier --write "$SHOWCASE_DIR/types/job.d.ts" --log-level=silent
 
 echo -e "${GREEN}✅ Type generation complete${NC}"
 echo ""
 echo "Generated files:"
-echo "  • examples/showcase-plugin/types/job.d.ts"
+echo "  • types/job.d.ts"

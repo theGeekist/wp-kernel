@@ -2,10 +2,10 @@
  * Tests for defineResource and config validation
  */
 
-import { defineResource } from '@kernel/resource/defineResource';
-import { KernelError } from '@kernel/errors';
-import type { CacheKeyFn } from '@kernel/resource';
-import type { ResourceStore } from '@kernel/resource/store/types';
+import { defineResource } from '../defineResource';
+import { KernelError } from '../../errors';
+import type { CacheKeyFn } from '../../resource';
+import type { ResourceStore } from '../../resource/store/types';
 
 // Type for window.wp mock in tests
 interface WindowWithWp extends Window {

@@ -5,9 +5,10 @@
 	"description": "Showcase plugin demonstrating WP Kernel framework features",
 	"type": "module",
 	"scripts": {
-		"dev": "wp-scripts start src/index.js --output-path=build",
-		"build": "pnpm types:generate && wp-scripts build src/index.js --output-path=build",
-		"types:generate": "../../scripts/generate-types.sh",
+		"dev": "wp-scripts start src/index.ts --output-path=build",
+		"build": "pnpm types:generate && wp-scripts build src/index.ts --output-path=build",
+		"types:generate": "./scripts/generate-types.sh",
+		"typecheck": "tsc --noEmit",
 		"clean": "rm -rf build types"
 	},
 	"dependencies": {

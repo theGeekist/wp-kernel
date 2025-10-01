@@ -19,7 +19,7 @@ This plugin demonstrates how to build a modern WordPress product using WP Kernel
 ## Project Structure
 
 ```
-examples/showcase-plugin/
+app/showcase/
 ├── contracts/           # JSON Schema definitions
 │   └── job.schema.json  # Job entity schema
 ├── types/              # Auto-generated TypeScript types
@@ -186,8 +186,8 @@ const job: Job = {
 
 **Showcase code** (domain-specific demonstration):
 
-- `examples/showcase-plugin/contracts/` - Job Posting schema
-- `examples/showcase-plugin/src/resources/job.ts` - Uses `defineResource<Job>()`
+- `app/showcase/contracts/` - Job Posting schema
+- `app/showcase/src/resources/job.ts` - Uses `defineResource<Job>()`
 - REST endpoints, UI components, business logic
 
 ## License

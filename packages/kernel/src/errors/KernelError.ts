@@ -12,7 +12,7 @@ import type {
 	ErrorContext,
 	ErrorData,
 	SerializedError,
-} from './types';
+} from './types.js';
 
 /**
  * Base error class for WP Kernel

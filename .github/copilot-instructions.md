@@ -391,7 +391,7 @@ pnpm playground     # Launch Playground (WASM)
 
 1. Check relevant doc section (links above)
 2. Search event registry for existing patterns
-3. Look at `examples/showcase-plugin` for working code
+3. Look at `app/showcase` for working code
 4. Review test files for usage examples
 
 ---

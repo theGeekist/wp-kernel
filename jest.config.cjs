@@ -8,7 +8,7 @@ module.exports = {
 	testEnvironment: 'jsdom',
 
 	// Test file locations
-	roots: ['<rootDir>/packages', '<rootDir>/examples'],
+	roots: ['<rootDir>/packages', '<rootDir>/app'],
 	testMatch: [
 		'**/__tests__/**/*.ts',
 		'**/__tests__/**/*.tsx',
@@ -18,6 +18,9 @@ module.exports = {
 
 	// Module resolution
 	moduleNameMapper: {
+		// Strip .js extensions for Jest (TypeScript source files are .ts)
+		'^(\\.{1,2}/.*)\\.js$': '$1',
+		// Workspace package aliases
 		'^@geekist/wp-kernel$': '<rootDir>/packages/kernel/src',
 		'^@geekist/wp-kernel/(.*)$': '<rootDir>/packages/kernel/src/$1',
 		'^@geekist/wp-kernel-ui$': '<rootDir>/packages/ui/src',
@@ -27,8 +30,6 @@ module.exports = {
 		'^@geekist/wp-kernel-e2e-utils$': '<rootDir>/packages/e2e-utils/src',
 		'^@geekist/wp-kernel-e2e-utils/(.*)$':
 			'<rootDir>/packages/e2e-utils/src/$1',
-		// Internal kernel aliases
-		'^@kernel/(.*)$': '<rootDir>/packages/kernel/src/$1',
 	},
 
 	// TypeScript transformation
@@ -48,8 +49,11 @@ module.exports = {
 	// Coverage configuration
 	collectCoverageFrom: [
 		'packages/*/src/**/*.{ts,tsx}',
+		'app/*/src/**/*.{ts,tsx}',
 		'!packages/*/src/**/*.d.ts',
+		'!app/*/src/**/*.d.ts',
 		'!packages/*/src/**/__tests__/**',
+		'!app/*/src/**/__tests__/**',
 	],
 	coverageThreshold: {
 		global: {
