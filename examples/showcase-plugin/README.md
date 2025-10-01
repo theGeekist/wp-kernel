@@ -82,8 +82,22 @@ pnpm test job-schema
 ### Install Dependencies
 
 ```bash
+# Install Node.js dependencies
 pnpm install
+
+# Install PHP dependencies (WordPress stubs for IDE support)
+composer install
 ```
+
+### PHP Development
+
+The plugin uses WordPress and WP-CLI stubs for IDE support (Intelephense):
+
+- **WordPress Stubs**: Provides type hints for WordPress core functions and classes
+- **WP-CLI Stubs**: Provides type hints for WP-CLI commands
+- **VSCode Configuration**: `.vscode/settings.json` configures Intelephense to use the stubs
+
+**Note**: After installing composer dependencies, reload your PHP language server (VSCode: `Ctrl+Shift+P` → "PHP: Restart Language Server") to pick up the stubs.
 
 ### Build
 

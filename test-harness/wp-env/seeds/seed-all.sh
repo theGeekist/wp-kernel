@@ -22,6 +22,12 @@ bash "$SCRIPT_DIR/seed-content.sh"
 bash "$SCRIPT_DIR/seed-applications.sh"
 bash "$SCRIPT_DIR/seed-media.sh"
 
+# Run showcase plugin seeds
+PLUGIN_SEEDS_DIR="$SCRIPT_DIR/../../../examples/showcase-plugin/seeds"
+if [ -f "$PLUGIN_SEEDS_DIR/seed-jobs.sh" ]; then
+	bash "$PLUGIN_SEEDS_DIR/seed-jobs.sh"
+fi
+
 echo "🎉 All seeding complete!"
 echo ""
 echo "═══════════════════════════════════════════════"
