@@ -8,7 +8,7 @@ import {
 	findMatchingKeys,
 	findMatchingKeysMultiple,
 	type CacheKeyPattern,
-} from '../cacheKeys';
+} from '@kernel/resource/cacheKeys';
 
 describe('cacheKeys', () => {
 	describe('normalizeCacheKey', () => {

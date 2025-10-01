@@ -23,6 +23,19 @@ export type {
 } from './errors';
 
 /**
+ * Transport layer (Sprint 1 - A3)
+ */
+export { fetch } from './transport/fetch';
+export type {
+	HttpMethod,
+	TransportRequest,
+	TransportResponse,
+	ResourceRequestEvent,
+	ResourceResponseEvent,
+	ResourceErrorEvent,
+} from './transport/types';
+
+/**
  * Resource system (Sprint 1)
  */
 export {
@@ -38,7 +51,6 @@ export {
 } from './resource';
 export { createStore } from './resource/store/createStore';
 export type {
-	HttpMethod,
 	ResourceRoute,
 	ResourceRoutes,
 	CacheKeyFn,
