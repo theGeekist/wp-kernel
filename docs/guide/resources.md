@@ -2,58 +2,60 @@
 
 > **Status**: ✅ Core API implemented in Sprint 1 (A2: defineResource, A3: Store & Transport, A4: Cache Invalidation)
 
-Resources define your data contract. One definition gives you:
+Resources define your typed REST contracts. One definition gives you:
 
 - Typed REST client with automatic method generation
-- WordPress data store integration
-- Cache key generators for invalidation
+- WordPress data store integration (`@wordpress/data`)
+- Automatic cache management and invalidation
+- React hooks for data fetching
 - Full TypeScript type safety
+
+**Two API surfaces**: Resources provide both a **thin-flat API** (recommended for most cases) and a **grouped API** (power users). See [Advanced Resources Guide](./resources-advanced.md) for grouped API patterns.
 
 ## Quick Start
 
 ```typescript
 import { defineResource } from '@geekist/wp-kernel/resource';
 
-interface Thing {
+interface TestimonialPost {
 	id: number;
 	title: string;
-	description: string;
+	content: string;
+	author: string;
+	rating: number;
 }
 
-interface ThingQuery {
-	q?: string;
+interface TestimonialQuery {
+	search?: string;
+	rating?: number;
 	page?: number;
 }
 
-export const thing = defineResource<Thing, ThingQuery>({
-	name: 'thing',
+export const testimonial = defineResource<TestimonialPost, TestimonialQuery>({
+	name: 'testimonial',
 	routes: {
-		list: { path: '/wpk/v1/things', method: 'GET' },
-		get: { path: '/wpk/v1/things/:id', method: 'GET' },
-		create: { path: '/wpk/v1/things', method: 'POST' },
-		update: { path: '/wpk/v1/things/:id', method: 'PUT' },
-		remove: { path: '/wpk/v1/things/:id', method: 'DELETE' },
+		list: { path: '/wpk/v1/testimonials', method: 'GET' },
+		get: { path: '/wpk/v1/testimonials/:id', method: 'GET' },
+		create: { path: '/wpk/v1/testimonials', method: 'POST' },
+		update: { path: '/wpk/v1/testimonials/:id', method: 'PUT' },
+		remove: { path: '/wpk/v1/testimonials/:id', method: 'DELETE' },
 	},
 	cacheKeys: {
-		list: (q) => ['thing', 'list', q?.q, q?.page],
-		get: (id) => ['thing', 'get', id],
+		list: (q) => ['testimonial', 'list', q?.search, q?.rating, q?.page],
+		get: (id) => ['testimonial', 'get', id],
 	},
 });
 
-// Use the resource client
-const { items, total, hasMore, nextCursor } = await thing.list({ q: 'search', page: 1 });
-const item = await thing.get(123);
-const created = await thing.create({ title: 'New Thing' });
+// ✅ Use in Actions (write path - orchestrated)
+import { CreateTestimonial } from '@/actions/Testimonial/Create';
+await CreateTestimonial({ data: { title: 'Great service!', rating: 5 } });
 
-// Use the resource store
-import { useSelect } from '@wordpress/data';
+// ✅ Use React hooks (read path)
+function TestimonialList() {
+	const { data, isLoading } = testimonial.useList({ rating: 5 });
 
-function ThingList() {
-	const items = useSelect((select) =>
-		select(thing.store).getItems({ q: 'search' })
-	);
-
-	return <ul>{items.map(item => <li key={item.id}>{item.title}</li>)}</ul>;
+	if (isLoading) return <Spinner />;
+	return <ul>{data?.items.map(item => <li key={item.id}>{item.title}</li>)}</ul>;
 }
 ```
 
@@ -71,14 +73,14 @@ Unique resource name (lowercase, kebab-case recommended).
 
 ```typescript
 // ✅ Good
-name: 'thing';
-name: 'blog-post';
-name: 'user-profile';
+name: 'testimonial';
+name: 'team-member';
+name: 'portfolio-item';
 
 // ❌ Bad - throws DeveloperError
-name: 'Thing'; // uppercase
-name: 'my_thing'; // underscores
-name: 'my thing'; // spaces
+name: 'Testimonial'; // uppercase
+name: 'my_testimonial'; // underscores
+name: 'my testimonial'; // spaces
 ```
 
 #### `routes` \<object\>
@@ -92,30 +94,28 @@ Each route has:
 
 ```typescript
 routes: {
-  list: { path: '/wpk/v1/things', method: 'GET' },
-  get: { path: '/wpk/v1/things/:id', method: 'GET' },
-  create: { path: '/wpk/v1/things', method: 'POST' },
-  update: { path: '/wpk/v1/things/:id', method: 'PUT' },
-  remove: { path: '/wpk/v1/things/:id', method: 'DELETE' }
+  list: { path: '/wpk/v1/testimonials', method: 'GET' },
+  get: { path: '/wpk/v1/testimonials/:id', method: 'GET' },
+  create: { path: '/wpk/v1/testimonials', method: 'POST' },
+  update: { path: '/wpk/v1/testimonials/:id', method: 'PUT' },
+  remove: { path: '/wpk/v1/testimonials/:id', method: 'DELETE' }
 }
 ```
 
-**Path Parameters**: Multi-segment paths with multiple parameters are fully supported (A3+):
+**Path Parameters**: Multi-segment paths with multiple parameters are fully supported:
 
 ```typescript
 // Single parameter
-'/wpk/v1/things/:id'; // → /wpk/v1/things/123
+'/wpk/v1/testimonials/:id'; // → /wpk/v1/testimonials/123
 
 // Multiple parameters
-'/wpk/v1/things/:id/comments/:commentId'; // → /wpk/v1/things/42/comments/99
+'/wpk/v1/testimonials/:id/comments/:commentId'; // → /wpk/v1/testimonials/42/comments/99
 
 // Supported patterns: :id, :slug, :userId, :_id, :$id
 ```
 
-````
-
-::: tip Path Parameter Support
-Multi-parameter interpolation is available from Sprint 1 (A3: Store & Transport). Earlier versions support single parameters only.
+::: tip Multi-Parameter Support
+Multi-parameter interpolation is fully supported. All path parameters are type-safe and validated at runtime.
 :::
 
 ### Optional Properties
@@ -126,13 +126,13 @@ Functions to generate cache keys for each operation. Defaults to sensible keys i
 
 ```typescript
 cacheKeys: {
-  list: (query) => ['thing', 'list', query?.q, query?.page],
-  get: (id) => ['thing', 'get', id],
-  create: (data) => ['thing', 'create'],
-  update: (id) => ['thing', 'update', id],
-  remove: (id) => ['thing', 'remove', id]
+  list: (query) => ['testimonial', 'list', query?.search, query?.rating],
+  get: (id) => ['testimonial', 'get', id],
+  create: (data) => ['testimonial', 'create'],
+  update: (id) => ['testimonial', 'update', id],
+  remove: (id) => ['testimonial', 'remove', id]
 }
-````
+```
 
 ::: warning Avoid Timestamps in Cache Keys
 Don't use `Date.now()` or timestamps in cache keys—it makes invalidation impossible. Use timestamps only for specific time-sensitive use cases (see Advanced Patterns).
@@ -143,7 +143,7 @@ Don't use `Date.now()` or timestamps in cache keys—it makes invalidation impos
 JSON Schema for runtime validation (coming in future sprints).
 
 ```typescript
-schema: import('../../contracts/thing.schema.json');
+schema: import('../../contracts/testimonial.schema.json');
 ```
 
 ### TypeScript Generics
@@ -160,32 +160,34 @@ defineResource<T, TQuery>({...})
 #### `T` - Resource Entity Type
 
 ```typescript
-interface Thing {
+interface TestimonialPost {
 	id: number;
 	title: string;
-	description: string;
+	content: string;
+	author: string;
+	rating: number;
 }
 
-const thing = defineResource<Thing>({ ... });
+const testimonial = defineResource<TestimonialPost>({ ... });
 
 // Methods are fully typed
-const item: Thing = await thing.get(123);
+const item: TestimonialPost = await testimonial.get(123);
 ```
 
 #### `TQuery` - List Query Parameters
 
 ```typescript
-interface ThingQuery {
-	q?: string;
-	category?: string;
+interface TestimonialQuery {
+	search?: string;
+	rating?: number;
 	page?: number;
 }
 
-const thing = defineResource<Thing, ThingQuery>({ ... });
+const testimonial = defineResource<TestimonialPost, TestimonialQuery>({ ... });
 
 // Query types are enforced
-await thing.list({ q: 'search', page: 1 }); // ✅
-await thing.list({ invalid: 'param' });      // ❌ TypeScript error
+await testimonial.list({ search: 'great', page: 1 }); // ✅
+await testimonial.list({ invalid: 'param' });          // ❌ TypeScript error
 ```
 
 ### Validation
@@ -198,29 +200,56 @@ defineResource({ routes: { ... } });
 // DeveloperError: Resource config must have a valid "name" property
 
 // ❌ Invalid name format
+defineResource({ name: 'My_Testimonial', routes: { ... } });
+// DeveloperError: Resource name must be lowercase with hyphens only
+
+// ❌ No routes
+defineResource({ name: 'testimonial', routes: {} });
+// DeveloperError: Resource "testimonial" must define at least one route
+
+// ❌ Invalid HTTP method
+defineResource({ name: 'testimonial', routes: { list: { path: '/api', method: 'FETCH' } } });
+// DeveloperError: Invalid HTTP method "FETCH"
+```
+
 defineResource({ name: 'My_Thing', routes: { ... } });
 // DeveloperError: Resource name must be lowercase with hyphens only
 
 // ❌ No routes
-defineResource({ name: 'thing', routes: {} });
-// DeveloperError: Resource "thing" must define at least one route
 
-// ❌ Invalid HTTP method
-defineResource({ name: 'thing', routes: { list: { path: '/api', method: 'FETCH' } } });
-// DeveloperError: Invalid HTTP method "FETCH"
+## Thin-Flat API (Recommended)
+
+The thin-flat API provides direct access to common operations without nesting. This is the **recommended API** for most use cases.
+
+### Direct Client Methods
+
+::: warning Actions-First Architecture
+**Never call write methods (`create`, `update`, `remove`) directly from UI components.** Always route through Actions for proper event emission, cache invalidation, and job orchestration.
+
+```typescript
+// ❌ BAD - Direct write from UI
+async function handleSubmit() {
+	await testimonial.create(formData); // Bypasses Actions layer!
+}
+
+// ✅ GOOD - Route through Action
+import { CreateTestimonial } from '@/actions/Testimonial/Create';
+async function handleSubmit() {
+	await CreateTestimonial({ data: formData });
+}
 ```
 
-## Client Methods
+**Read methods (`list`, `get`) are safe** to call directly for non-UI use cases (data migration, CLI tools, etc.).
+:::
 
-Based on configured routes, resources generate typed client methods:
-
-### list(query?)
+#### list(query?)
 
 Fetch a collection of resources. **Always destructure the response** to access items and metadata.
 
 ```typescript
-const { items, total, hasMore, nextCursor } = await thing.list({
-	q: 'search',
+const { items, total, hasMore, nextCursor } = await testimonial.list({
+	search: 'excellent',
+	rating: 5,
 	page: 1,
 });
 ```
@@ -232,197 +261,97 @@ const { items, total, hasMore, nextCursor } = await thing.list({
 - `hasMore?: boolean` - Whether more pages exist
 - `nextCursor?: string` - Pagination cursor
 
-### get(id)
+#### get(id)
 
 Fetch a single resource by ID.
 
 ```typescript
-const item: Thing = await thing.get(123);
+const item: TestimonialPost = await testimonial.get(123);
 ```
 
 **Returns**: `Promise<T>`
 
-### create(data)
+#### create(data)
 
-Create a new resource.
+Create a new resource. **Use only from Actions, never from UI.**
 
 ```typescript
-const created = await thing.create({
-	title: 'New Thing',
-	description: 'Details',
+// In an Action
+const created = await testimonial.create({
+	title: 'Amazing product!',
+	content: 'Best purchase ever...',
+	author: 'Jane Doe',
+	rating: 5,
 });
 ```
 
 **Returns**: `Promise<T>`
 
-### update(id, data)
+#### update(id, data)
 
-Update an existing resource.
+Update an existing resource. **Use only from Actions, never from UI.**
 
 ```typescript
-const updated = await thing.update(123, { title: 'Updated Title' });
+// In an Action
+const updated = await testimonial.update(123, { rating: 4 });
 ```
 
 **Returns**: `Promise<T>`
 
-### remove(id)
+#### remove(id)
 
-Delete a resource.
+Delete a resource. **Use only from Actions, never from UI.**
 
 ```typescript
-await thing.remove(123);
+// In an Action
+await testimonial.remove(123);
 ```
 
 **Returns**: `Promise<void>`
 
-## Store Integration
+### React Hooks
 
-Each resource provides a `@wordpress/data` store for state management. The store is lazy-loaded and auto-registered on first access.
+React hooks for data fetching with automatic loading states and re-fetching.
 
-### Basic Usage
+#### useGet(id)
+
+Fetch and watch a single item. Automatically handles loading states.
 
 ```typescript
-import { useSelect } from '@wordpress/data';
+function TestimonialView({ id }: { id: number }) {
+	const { data: testimonial, isLoading, error } = testimonial.useGet(id);
 
-function ThingList() {
-	const items = useSelect((select) =>
-		select(thing.store).getItems({ q: 'search' })
+	if (isLoading) return <Spinner />;
+	if (error) return <Notice status="error">{error}</Notice>;
+
+	return (
+		<div>
+			<h2>{testimonial.title}</h2>
+			<p>{testimonial.content}</p>
+			<Rating value={testimonial.rating} />
+		</div>
 	);
-
-	return <ul>{items.map(item => <li key={item.id}>{item.title}</li>)}</ul>;
 }
 ```
 
-### Store Selectors
+**Returns**: `{ data: T | undefined, isLoading: boolean, error: string | undefined }`
 
-The store provides different selectors depending on whether you need just the items array or the full response with metadata.
+#### useList(query?)
 
-#### `getItem(id)` - Get single item by ID
-
-```typescript
-const item = useSelect((select) => select(thing.store).getItem(123));
-```
-
-#### `getItems(query)` - Get items array only
-
-Returns **just the array of items** from a list query. Use when you only need the items and not pagination metadata.
+Fetch and watch a list of items. Automatically handles loading states.
 
 ```typescript
-const items: Thing[] = useSelect((select) =>
-	select(thing.store).getItems({ q: 'search' })
-);
-```
+function TestimonialList({ rating }: { rating?: number }) {
+	const { data, isLoading, error } = testimonial.useList({ rating });
 
-#### `getList(query)` - Get full response with metadata
-
-Returns the **complete ListResponse** including items, total, hasMore, and nextCursor. Use when you need pagination metadata.
-
-```typescript
-const { items, total, hasMore, nextCursor } = useSelect((select) =>
-	select(thing.store).getList({ q: 'search', page: 1 })
-);
-```
-
-#### `getError(cacheKey)` - Get error for cache key
-
-```typescript
-const error = useSelect((select) =>
-	select(thing.store).getError('thing:get:123')
-);
-```
-
-#### Resolution Status
-
-```typescript
-const isLoading = useSelect((select) =>
-	select(thing.store).isResolving('getItem', [123])
-);
-```
-
-### Store Resolvers
-
-Resolvers automatically fetch data when selectors are called with missing data:
-
-```typescript
-function ThingDetail({ id }) {
-	// Automatically fetches if not in store
-	const item = useSelect((select) => select(thing.store).getItem(id));
-
-	if (!item) return <div>Loading...</div>;
-	return <div>{item.title}</div>;
-}
-```
-
-### Store Actions
-
-```typescript
-import { dispatch } from '@wordpress/data';
-
-// Update store state manually (typically done by Actions layer)
-dispatch(thing.store).receiveItem({ id: 123, title: 'Thing' });
-dispatch(thing.store).receiveError('thing:get:123', 'Not found');
-
-// Invalidate cache
-dispatch(thing.store).invalidate(['thing:list:search']);
-dispatch(thing.store).invalidateAll();
-```
-
-::: info Resource Events
-Resources automatically emit events during transport operations:
-
-- `wpk.resource.request` - Before REST call
-- `wpk.resource.response` - After successful response
-- `wpk.resource.error` - On request failure
-
-See [Events Guide](/guide/events) for full event taxonomy and hooking patterns.
-:::
-
-### Complete Example
-
-```typescript
-import { defineResource } from '@geekist/wp-kernel/resource';
-import { useSelect } from '@wordpress/data';
-
-interface Thing {
-	id: number;
-	title: string;
-	description: string;
-}
-
-interface ThingQuery {
-	q?: string;
-	page?: number;
-}
-
-export const thing = defineResource<Thing, ThingQuery>({
-	name: 'thing',
-	routes: {
-		list: { path: '/wpk/v1/things', method: 'GET' },
-		get: { path: '/wpk/v1/things/:id', method: 'GET' },
-	},
-	cacheKeys: {
-		list: (q) => ['thing', 'list', q?.q, q?.page],
-		get: (id) => ['thing', 'get', id],
-	},
-});
-
-function ThingList() {
-	const { items, isLoading } = useSelect((select) => {
-		const store = select(thing.store);
-		return {
-			items: store.getItems({ q: 'search' }),
-			isLoading: store.isResolving('getItems', [{ q: 'search' }]),
-		};
-	});
-
-	if (isLoading) return <div>Loading...</div>;
+	if (isLoading) return <Spinner />;
+	if (error) return <Notice status="error">{error}</Notice>;
 
 	return (
 		<ul>
-			{items.map((item) => (
+			{data?.items.map(item => (
 				<li key={item.id}>
-					<h3>{item.title}</h3>
-					<p>{item.description}</p>
+					{item.title} - {item.author}
 				</li>
 			))}
 		</ul>
@@ -430,126 +359,358 @@ function ThingList() {
 }
 ```
 
-## Cache Invalidation
+**Returns**: `{ data: ListResponse<T> | undefined, isLoading: boolean, error: string | undefined }`
 
-Use the `invalidate()` function to clear stale cache after writes:
+### Prefetch Methods
+
+Load data into cache without rendering. Useful for optimistic loading.
+
+#### prefetchGet(id)
+
+Prefetch a single item before navigation or on hover.
 
 ```typescript
-import { invalidate } from '@geekist/wp-kernel';
-
-// In an Action
-export const CreateThing = defineAction('Thing.Create', async ({ data }) => {
-	const created = await thing.create(data);
-
-	// Invalidate affected caches
-	invalidate(thing.cacheKeys.list({}));
-
-	return created;
-});
-
-// Invalidate specific query
-invalidate(thing.cacheKeys.list({ q: 'search' }));
-
-// Invalidate all lists matching pattern
-invalidate(['thing', 'list']); // Matches all thing:list:* keys
-
-// Invalidate single item
-invalidate(thing.cacheKeys.get(123));
+function TestimonialCard({ id }: { id: number }) {
+	return (
+		<Link
+			to={`/testimonials/${id}`}
+			onMouseEnter={() => testimonial.prefetchGet(id)}
+		>
+			View Testimonial
+		</Link>
+	);
+}
 ```
 
-See [Cache Invalidation API](/api/resources#invalidation) for full details.
+**Returns**: `Promise<void>`
+
+#### prefetchList(query?)
+
+Prefetch a list on app mount or route change.
+
+```typescript
+function TestimonialPage() {
+	useEffect(() => {
+		// Preload featured testimonials
+		testimonial.prefetchList({ rating: 5 });
+	}, []);
+
+	return <TestimonialList />;
+}
+```
+
+**Returns**: `Promise<void>`
+
+### Cache Management
+
+#### invalidate(patterns)
+
+Invalidate cached data for this resource. Scoped to the resource's store.
+
+```typescript
+// In an Action after creating
+await testimonial.create(data);
+testimonial.invalidate([['testimonial', 'list']]); // Invalidate all lists
+
+// In an Action after updating
+await testimonial.update(id, data);
+testimonial.invalidate([
+	['testimonial', 'get', id], // Invalidate specific item
+	['testimonial', 'list'], // Invalidate all lists
+]);
+
+// In an Action after deleting
+await testimonial.remove(id);
+testimonial.invalidate([
+	['testimonial', 'get', id],
+	['testimonial', 'list'],
+]);
+```
+
+**Parameters**: `patterns: (string | number | boolean | null | undefined)[][]`
+
+#### key(operation, params?)
+
+Generate a cache key for manual cache operations or debugging.
+
+```typescript
+const listKey = testimonial.key('list', { rating: 5 });
+// => ['testimonial', 'list', '{"rating":5}']
+
+const getKey = testimonial.key('get', 123);
+// => ['testimonial', 'get', 123]
+```
+
+**Returns**: `(string | number | boolean)[]`
+
+## Store Integration
+
+Each resource provides a lazy-loaded `@wordpress/data` store. The store is automatically registered on first access.
+
+### Direct Store Access
+
+```typescript
+import { select, dispatch } from '@wordpress/data';
+
+// Access store (auto-registers on first use)
+const store = testimonial.store; // Returns store descriptor
+const storeKey = testimonial.storeKey; // 'wpk/testimonial'
+
+// Use with selectors (advanced - prefer hooks)
+const item = select(store).getItem(123);
+const items = select(store).getItems({ rating: 5 });
+```
+
+::: tip Prefer React Hooks
+Use `testimonial.useGet()` and `testimonial.useList()` instead of direct store access in React components. Direct store access is for advanced patterns only.
+:::
+
+## Resource Events
+
+Resources automatically emit events during transport operations:
+
+- `wpk.resource.request` - Before REST call
+- `wpk.resource.response` - After successful response
+- `wpk.resource.error` - On request failure
+
+See [Events Guide](./events.md) for full event taxonomy and hooking patterns.
+
+## Grouped API
+
+For power users, resources provide a **grouped API** with namespaced methods:
+
+```typescript
+// Grouped API (power users)
+const cached = testimonial.select.item(123); // Pure selector (no fetch)
+const { data } = testimonial.use.item(123); // React hook
+await testimonial.fetch.item(123); // Explicit fetch (bypass cache)
+await testimonial.mutate.create(data); // Write operation
+await testimonial.cache.prefetch.item(123); // Prefetch
+testimonial.cache.invalidate.all(); // Invalidate all
+```
+
+See [Advanced Resources Guide](./resources-advanced.md) for complete grouped API documentation.
+
+## Complete Example
+
+```typescript
+// app/resources/Testimonial.ts
+import { defineResource } from '@geekist/wp-kernel/resource';
+
+export interface TestimonialPost {
+	id: number;
+	title: string;
+	content: string;
+	author: string;
+	rating: number;
+	featured: boolean;
+	createdAt: string;
+}
+
+export interface TestimonialQuery {
+	search?: string;
+	rating?: number;
+	featured?: boolean;
+	page?: number;
+}
+
+export const testimonial = defineResource<TestimonialPost, TestimonialQuery>({
+	name: 'testimonial',
+	routes: {
+		list: { path: '/wpk/v1/testimonials', method: 'GET' },
+		get: { path: '/wpk/v1/testimonials/:id', method: 'GET' },
+		create: { path: '/wpk/v1/testimonials', method: 'POST' },
+		update: { path: '/wpk/v1/testimonials/:id', method: 'PUT' },
+		remove: { path: '/wpk/v1/testimonials/:id', method: 'DELETE' },
+	},
+	cacheKeys: {
+		list: (q) => [
+			'testimonial',
+			'list',
+			q?.search,
+			q?.rating,
+			q?.featured,
+			q?.page,
+		],
+		get: (id) => ['testimonial', 'get', id],
+	},
+});
+```
+
+```typescript
+// app/actions/Testimonial/Create.ts
+import { defineAction } from '@geekist/wp-kernel/action';
+import { testimonial } from '@/resources/Testimonial';
+import { events } from '@geekist/wp-kernel/events';
+
+export const CreateTestimonial = defineAction(
+	'Testimonial.Create',
+	async ({ data }: { data: Partial<TestimonialPost> }) => {
+		// Permission check
+		if (!currentUserCan('create_testimonials')) {
+			throw new PolicyDenied('testimonials.create');
+		}
+
+		// Create via resource
+		const created = await testimonial.create(data);
+
+		// Emit event
+		CreateTestimonial.emit(events.testimonial.created, {
+			id: created.id,
+			data: created,
+		});
+
+		// Invalidate cache
+		testimonial.invalidate([['testimonial', 'list']]);
+
+		// Queue job if needed
+		if (data.featured) {
+			await jobs.enqueue('NotifyFeaturedTestimonial', { id: created.id });
+		}
+
+		return created;
+	}
+);
+```
+
+```typescript
+// app/views/TestimonialList.tsx
+import { testimonial } from '@/resources/Testimonial';
+import { CreateTestimonial } from '@/actions/Testimonial/Create';
+
+export function TestimonialList() {
+	const { data, isLoading, error } = testimonial.useList({
+		featured: true,
+		rating: 5
+	});
+
+	if (isLoading) return <Spinner />;
+	if (error) return <Notice status="error">{error}</Notice>;
+
+	return (
+		<div>
+			<h2>Featured Testimonials ({data?.total})</h2>
+			<ul>
+				{data?.items.map(item => (
+					<li key={item.id}>
+						<h3>{item.title}</h3>
+						<p>{item.content}</p>
+						<Rating value={item.rating} />
+						<cite>— {item.author}</cite>
+					</li>
+				))}
+			</ul>
+			{data?.hasMore && (
+				<Button onClick={() => loadMore()}>Load More</Button>
+			)}
+		</div>
+	);
+}
+
+async function handleCreate(formData: Partial<TestimonialPost>) {
+	// ✅ CORRECT - Route through Action
+	await CreateTestimonial({ data: formData });
+}
+```
 
 ## Best Practices
 
-### 1. Co-locate Resources with Types
+### 1. Actions-First for Writes
+
+**Never call write methods directly from UI components.** Always route through Actions.
 
 ```typescript
-// resources/thing.ts
-export interface Thing {
+// ❌ BAD - Direct write from UI
+await testimonial.create(data);
+
+// ✅ GOOD - Route through Action
+await CreateTestimonial({ data });
+```
+
+### 2. Co-locate Resources with Types
+
+```typescript
+// app/resources/Testimonial.ts
+export interface TestimonialPost {
 	id: number;
 	title: string;
+	// ...
 }
 
-export interface ThingQuery {
-	q?: string;
+export interface TestimonialQuery {
+	search?: string;
+	rating?: number;
 }
 
-export const thing = defineResource<Thing, ThingQuery>({ ... });
+export const testimonial = defineResource<TestimonialPost, TestimonialQuery>({ ... });
 ```
 
-### 2. Use Consistent Naming
+### 3. Use Consistent Naming
 
-Match resource names to REST endpoints:
+Match resource names to REST endpoints (lowercase, singular):
 
 ```typescript
+// Custom REST: /wpk/v1/testimonials
+name: 'testimonial';
+
 // WordPress Core REST: /wp/v2/posts
 name: 'post';
-
-// Custom REST: /wpk/v1/things
-name: 'thing';
 ```
 
-### 3. Define Granular Cache Keys
+### 4. Define Granular Cache Keys
 
 More specific keys = better invalidation control:
 
 ```typescript
 // ❌ Too broad - invalidates ALL lists
 cacheKeys: {
-	list: () => ['thing', 'list'];
+	list: () => ['testimonial', 'list'];
 }
 
-// ✅ Granular - invalidate by category/status
+// ✅ Granular - invalidate by rating/featured status
 cacheKeys: {
-	list: (q) => ['thing', 'list', q?.category, q?.status];
+	list: (q) => ['testimonial', 'list', q?.rating, q?.featured, q?.page];
 }
 ```
 
-### 4. Always Type Your Queries
+### 5. Always Type Your Queries
 
 ```typescript
 // ✅ Typed - enforces query parameters
-defineResource<Thing, ThingQuery>({ ... })
+defineResource<TestimonialPost, TestimonialQuery>({ ... })
 
 // ❌ Untyped - accepts any query
-defineResource<Thing>({ ... })
+defineResource<TestimonialPost>({ ... })
 ```
 
-### 5. Use Store Selectors, Not Direct Calls
+### 6. Use React Hooks, Not Direct Calls
 
 ```typescript
 // ❌ Don't fetch directly in components
 function MyComponent() {
 	const [items, setItems] = useState([]);
 	useEffect(() => {
-		thing.list().then(setItems);
+		testimonial.list().then(setItems);
 	}, []);
 }
 
-// ✅ Use store selectors (auto-caching, auto-loading)
+// ✅ Use hooks (auto-caching, auto-loading)
 function MyComponent() {
-	const items = useSelect((select) => select(thing.store).getItems());
+	const { data, isLoading } = testimonial.useList();
 }
 ```
 
-### 6. Check Loading State
-
-```typescript
-const { item, isLoading } = useSelect((select) => ({
-	item: select(thing.store).getItem(id),
-	isLoading: select(thing.store).isResolving('getItem', [id]),
-}));
-```
-
-### 7. Invalidate After Writes
+### 7. Invalidate After Writes (in Actions)
 
 Always invalidate affected caches in your Actions:
 
 ```typescript
-// In Actions layer
-await thing.update(id, data);
-invalidate(thing.cacheKeys.get(id));
-invalidate(thing.cacheKeys.list({}));
+// In Action
+await testimonial.update(id, data);
+testimonial.invalidate([
+	['testimonial', 'get', id],
+	['testimonial', 'list'],
+]);
 ```
 
 ## Advanced Patterns
@@ -560,18 +721,18 @@ You don't need all CRUD operations:
 
 ```typescript
 // Read-only resource
-const readOnlyThing = defineResource<Thing>({
-	name: 'read-only-thing',
+const testimonial = defineResource<TestimonialPost>({
+	name: 'testimonial',
 	routes: {
-		list: { path: '/wpk/v1/things', method: 'GET' },
-		get: { path: '/wpk/v1/things/:id', method: 'GET' },
+		list: { path: '/wpk/v1/testimonials', method: 'GET' },
+		get: { path: '/wpk/v1/testimonials/:id', method: 'GET' },
 	},
 });
 
-// Methods not defined are undefined
-readOnlyThing.list(); // ✅ Available
-readOnlyThing.get(1); // ✅ Available
-readOnlyThing.create; // undefined
+// Write methods are undefined
+testimonial.list(); // ✅ Available
+testimonial.get(1); // ✅ Available
+testimonial.create; // undefined
 ```
 
 ### Custom HTTP Methods
@@ -580,66 +741,58 @@ Use `PATCH` for partial updates:
 
 ```typescript
 routes: {
-	update: { path: '/wpk/v1/things/:id', method: 'PATCH' }
+	update: { path: '/wpk/v1/testimonials/:id', method: 'PATCH' }
 }
 ```
 
 ### Nested Resources
 
-Define resources with multi-parameter paths. Pass parameters as an object matching the named placeholders:
+Define resources with multi-parameter paths:
 
 ```typescript
 const comment = defineResource<Comment>({
 	name: 'comment',
 	routes: {
-		list: { path: '/wpk/v1/things/:thingId/comments', method: 'GET' },
-		get: { path: '/wpk/v1/things/:thingId/comments/:id', method: 'GET' },
+		list: {
+			path: '/wpk/v1/testimonials/:testimonialId/comments',
+			method: 'GET',
+		},
+		get: {
+			path: '/wpk/v1/testimonials/:testimonialId/comments/:id',
+			method: 'GET',
+		},
 	},
 });
 
 // Pass parameters as object with named keys
-await comment.list({ thingId: 42 }); // → /wpk/v1/things/42/comments
-await comment.get({ thingId: 42, id: 7 }); // → /wpk/v1/things/42/comments/7
+await comment.list({ testimonialId: 42 });
+// → /wpk/v1/testimonials/42/comments
+
+await comment.get({ testimonialId: 42, id: 7 });
+// → /wpk/v1/testimonials/42/comments/7
 ```
 
 ### Custom Cache Strategy
 
 ```typescript
 cacheKeys: {
-	// Time-sensitive cache (1-minute buckets)
-	list: (q) => ['thing', 'list', q?.q, Math.floor(Date.now() / 60000)],
-
 	// Include user context
-	get: (id) => ['thing', 'get', id, currentUserId],
+	get: (id) => ['testimonial', 'get', id, currentUserId],
 
 	// Conditional keys based on query
 	list: (q) => {
-		const parts = ['thing', 'list'];
-		if (q?.category) parts.push('cat', q.category);
-		if (q?.status) parts.push('status', q.status);
+		const parts = ['testimonial', 'list'];
+		if (q?.rating) parts.push('rating', q.rating);
+		if (q?.featured) parts.push('featured', q.featured);
 		return parts;
 	}
 }
 ```
 
-### Custom Store Configuration
-
-For advanced use cases, create stores manually:
-
-```typescript
-import { createStore } from '@geekist/wp-kernel/resource';
-
-const customStore = createStore({
-	resource: thing,
-	getId: (item) => `${item.type}-${item.id}`, // Custom ID function
-	getQueryKey: (query) => `search-${query?.q}-page-${query?.page}`,
-	initialState: { items: { 1: preloadedItem } },
-});
-```
-
 ## See Also
 
+- [Advanced Resources Guide](./resources-advanced.md) - Grouped API, power patterns
+- [Actions Guide](./actions.md) - Using resources in actions
+- [Events Guide](./events.md) - Resource-related events
 - [API Reference](/api/resources) - Complete API documentation
-- [Actions Guide](/guide/actions) - Using resources in actions
-- [Events Guide](/guide/events) - Resource-related events
 - [Product Spec § 4.1](https://github.com/theGeekist/wp-kernel/blob/main/information/Product%20Specification%20PO%20Draft%20•%20v1.0.md#41-resources-model--client) - Design rationale

@@ -6,20 +6,36 @@
 
 # Interface: ResourceObject\<T, TQuery\>
 
-Defined in: [resource/types.ts:271](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L271)
+Defined in: [resource/types.ts:284](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L284)
 
 Complete resource object returned by defineResource
 
 Combines client methods, store key, cache key generators, and metadata.
+Provides both thin-flat API (direct methods) and grouped API (namespaces).
 
 ## Example
 
 ```ts
 const thing = defineResource<Thing, { q?: string }>({ ... });
 
-// Use client methods
+// Use client methods (thin-flat API)
 const items = await thing.list({ q: 'search' });
 const item = await thing.get(123);
+
+// Use React hooks
+const { data, isLoading } = thing.useGet(123);
+const { data: items } = thing.useList({ q: 'search' });
+
+// Prefetch data
+await thing.prefetchGet(123);
+await thing.prefetchList({ q: 'search' });
+
+// Instance-based invalidation
+thing.invalidate(['list']); // Invalidate all lists
+thing.invalidate(['list', 'active']); // Invalidate specific query
+
+// Generate cache keys
+const key = thing.key('list', { q: 'search' });
 
 // Use in store selectors
 const storeKey = thing.storeKey; // 'wpk/thing'
@@ -27,9 +43,6 @@ const storeKey = thing.storeKey; // 'wpk/thing'
 // Access @wordpress/data store (lazy-loaded, auto-registered)
 const store = thing.store;
 const item = select(store).getItem(123);
-
-// Use cache keys for invalidation
-invalidate(thing.cacheKeys.list({ q: 'search' }));
 ```
 
 ## Extends
@@ -254,7 +267,7 @@ ServerError on REST API error (including 404)
 name: string;
 ```
 
-Defined in: [resource/types.ts:276](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L276)
+Defined in: [resource/types.ts:289](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L289)
 
 Resource name
 
@@ -266,7 +279,7 @@ Resource name
 storeKey: string;
 ```
 
-Defined in: [resource/types.ts:283](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L283)
+Defined in: [resource/types.ts:296](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L296)
 
 WordPress data store key (e.g., 'wpk/thing')
 
@@ -280,7 +293,7 @@ Used for store registration and selectors
 readonly store: unknown;
 ```
 
-Defined in: [resource/types.ts:297](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L297)
+Defined in: [resource/types.ts:310](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L310)
 
 Lazy-loaded @wordpress/data store
 
@@ -302,7 +315,7 @@ const item = select(thing.store).getItem(123);
 cacheKeys: Required<CacheKeys>;
 ```
 
-Defined in: [resource/types.ts:304](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L304)
+Defined in: [resource/types.ts:317](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L317)
 
 Cache key generators for all operations
 
@@ -316,6 +329,765 @@ Use these to generate cache keys for invalidation
 routes: ResourceRoutes;
 ```
 
-Defined in: [resource/types.ts:309](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L309)
+Defined in: [resource/types.ts:322](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L322)
 
 REST route definitions (normalized)
+
+---
+
+### useGet()?
+
+```ts
+optional useGet: (id) => object;
+```
+
+Defined in: [resource/types.ts:343](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L343)
+
+React hook to fetch a single item
+
+Uses @wordpress/data's useSelect under the hood.
+Automatically handles loading states and re-fetching.
+
+#### Parameters
+
+##### id
+
+Item identifier
+
+`string` | `number`
+
+#### Returns
+
+`object`
+
+Hook result with data, isLoading, error
+
+##### data
+
+```ts
+data: undefined | T;
+```
+
+##### isLoading
+
+```ts
+isLoading: boolean;
+```
+
+##### error
+
+```ts
+error: undefined | string;
+```
+
+#### Example
+
+```ts
+function ThingView({ id }: { id: number }) {
+  const { data: thing, isLoading } = thing.useGet(id);
+  if (isLoading) return <Spinner />;
+  return <div>{thing.title}</div>;
+}
+```
+
+---
+
+### useList()?
+
+```ts
+optional useList: (query?) => object;
+```
+
+Defined in: [resource/types.ts:367](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L367)
+
+React hook to fetch a list of items
+
+Uses @wordpress/data's useSelect under the hood.
+Automatically handles loading states and re-fetching.
+
+#### Parameters
+
+##### query?
+
+`TQuery`
+
+Query parameters
+
+#### Returns
+
+`object`
+
+Hook result with data, isLoading, error
+
+##### data
+
+```ts
+data: undefined | ListResponse<T>;
+```
+
+##### isLoading
+
+```ts
+isLoading: boolean;
+```
+
+##### error
+
+```ts
+error: undefined | string;
+```
+
+#### Example
+
+```ts
+function ThingList({ status }: { status: string }) {
+  const { data, isLoading } = thing.useList({ status });
+  if (isLoading) return <Spinner />;
+  return <List items={data?.items} />;
+}
+```
+
+---
+
+### prefetchGet()?
+
+```ts
+optional prefetchGet: (id) => Promise<void>;
+```
+
+Defined in: [resource/types.ts:391](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L391)
+
+Prefetch a single item into the cache
+
+Useful for optimistic loading or preloading data before navigation.
+Does not return the data, only ensures it's in the cache.
+
+#### Parameters
+
+##### id
+
+Item identifier
+
+`string` | `number`
+
+#### Returns
+
+`Promise`\<`void`\>
+
+Promise resolving when prefetch completes
+
+#### Example
+
+```ts
+// Prefetch on hover
+<Link onMouseEnter={() => thing.prefetchGet(123)}>
+  View Thing
+</Link>
+```
+
+---
+
+### prefetchList()?
+
+```ts
+optional prefetchList: (query?) => Promise<void>;
+```
+
+Defined in: [resource/types.ts:410](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L410)
+
+Prefetch a list of items into the cache
+
+Useful for optimistic loading or preloading data before navigation.
+Does not return the data, only ensures it's in the cache.
+
+#### Parameters
+
+##### query?
+
+`TQuery`
+
+Query parameters
+
+#### Returns
+
+`Promise`\<`void`\>
+
+Promise resolving when prefetch completes
+
+#### Example
+
+```ts
+// Prefetch on app mount
+useEffect(() => {
+	thing.prefetchList({ status: 'active' });
+}, []);
+```
+
+---
+
+### invalidate()
+
+```ts
+invalidate: (patterns) => void;
+```
+
+Defined in: [resource/types.ts:433](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L433)
+
+Invalidate cached data for this resource
+
+Instance method alternative to global `invalidate()` function.
+Automatically scoped to this resource's store.
+
+#### Parameters
+
+##### patterns
+
+(`undefined` \| `null` \| `string` \| `number` \| `boolean`)[][]
+
+Cache key patterns to invalidate
+
+#### Returns
+
+`void`
+
+#### Example
+
+```ts
+// After creating a thing
+await thing.create(data);
+thing.invalidate(['list']); // Invalidate all lists
+
+// After updating
+await thing.update(id, data);
+thing.invalidate(['get', id]); // Invalidate specific item
+thing.invalidate(['list']); // Also invalidate lists
+```
+
+---
+
+### key()
+
+```ts
+key: (operation, params?) => (string | number | boolean)[];
+```
+
+Defined in: [resource/types.ts:455](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L455)
+
+Generate a cache key for this resource
+
+Useful for manual cache management or debugging.
+
+#### Parameters
+
+##### operation
+
+Operation name ('list', 'get', etc.)
+
+`"list"` | `"get"` | `"create"` | `"update"` | `"remove"`
+
+##### params?
+
+Parameters for the operation
+
+`string` | `number` | `TQuery` | `Partial`\<`T`\>
+
+#### Returns
+
+(`string` \| `number` \| `boolean`)[]
+
+Cache key array
+
+#### Example
+
+```ts
+const key = thing.key('list', { status: 'active' });
+// => ['thing', 'list', '{"status":"active"}']
+
+const key2 = thing.key('get', 123);
+// => ['thing', 'get', 123]
+```
+
+---
+
+### select?
+
+```ts
+optional select: object;
+```
+
+Defined in: [resource/types.ts:467](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L467)
+
+Grouped API: Pure selectors (no fetching)
+
+Access cached data without triggering network requests.
+Ideal for computed values and derived state.
+
+#### item()
+
+```ts
+item: (id) => undefined | T;
+```
+
+Get cached item by ID (no fetch)
+
+##### Parameters
+
+###### id
+
+Item identifier
+
+`string` | `number`
+
+##### Returns
+
+`undefined` \| `T`
+
+Cached item or undefined
+
+#### items()
+
+```ts
+items: () => T[];
+```
+
+Get all cached items (no fetch)
+
+##### Returns
+
+`T`[]
+
+Array of all cached items
+
+#### list()
+
+```ts
+list: (query?) => T[];
+```
+
+Get cached list by query (no fetch)
+
+##### Parameters
+
+###### query?
+
+`TQuery`
+
+Query parameters
+
+##### Returns
+
+`T`[]
+
+Array of items matching query or empty array
+
+---
+
+### use?
+
+```ts
+optional use: object;
+```
+
+Defined in: [resource/types.ts:494](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L494)
+
+Grouped API: React hooks
+
+Convenience wrappers around useGet/useList for the grouped API.
+
+#### item()
+
+```ts
+item: (id) => object;
+```
+
+React hook to fetch and watch a single item
+
+##### Parameters
+
+###### id
+
+`string` | `number`
+
+##### Returns
+
+`object`
+
+###### data
+
+```ts
+data: undefined | T;
+```
+
+###### isLoading
+
+```ts
+isLoading: boolean;
+```
+
+###### error
+
+```ts
+error: undefined | string;
+```
+
+#### list()
+
+```ts
+list: (query?) => object;
+```
+
+React hook to fetch and watch a list
+
+##### Parameters
+
+###### query?
+
+`TQuery`
+
+##### Returns
+
+`object`
+
+###### data
+
+```ts
+data: undefined | ListResponse<T>;
+```
+
+###### isLoading
+
+```ts
+isLoading: boolean;
+```
+
+###### error
+
+```ts
+error: undefined | string;
+```
+
+---
+
+### fetch?
+
+```ts
+optional fetch: object;
+```
+
+Defined in: [resource/types.ts:519](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L519)
+
+Grouped API: Explicit fetching (bypass cache)
+
+Direct network calls that always hit the server.
+
+#### item()
+
+```ts
+item: (id) => Promise<T>;
+```
+
+Fetch item from server (bypass cache)
+
+##### Parameters
+
+###### id
+
+`string` | `number`
+
+##### Returns
+
+`Promise`\<`T`\>
+
+#### list()
+
+```ts
+list: (query?) => Promise<ListResponse<T>>;
+```
+
+Fetch list from server (bypass cache)
+
+##### Parameters
+
+###### query?
+
+`TQuery`
+
+##### Returns
+
+`Promise`\<[`ListResponse`](ListResponse.md)\<`T`\>\>
+
+---
+
+### mutate?
+
+```ts
+optional mutate: object;
+```
+
+Defined in: [resource/types.ts:536](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L536)
+
+Grouped API: Mutations (CRUD operations)
+
+Write operations that modify server state.
+
+#### create()
+
+```ts
+create: (data) => Promise<T>;
+```
+
+Create new item
+
+##### Parameters
+
+###### data
+
+`Partial`\<`T`\>
+
+##### Returns
+
+`Promise`\<`T`\>
+
+#### update()
+
+```ts
+update: (id, data) => Promise<T>;
+```
+
+Update existing item
+
+##### Parameters
+
+###### id
+
+`string` | `number`
+
+###### data
+
+`Partial`\<`T`\>
+
+##### Returns
+
+`Promise`\<`T`\>
+
+#### remove()
+
+```ts
+remove: (id) => Promise<void>;
+```
+
+Delete item
+
+##### Parameters
+
+###### id
+
+`string` | `number`
+
+##### Returns
+
+`Promise`\<`void`\>
+
+---
+
+### cache
+
+```ts
+cache: object;
+```
+
+Defined in: [resource/types.ts:558](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L558)
+
+Grouped API: Cache control
+
+Fine-grained cache management operations.
+
+#### prefetch
+
+```ts
+prefetch: object;
+```
+
+Prefetch operations (eager loading)
+
+##### prefetch.item()
+
+```ts
+item: (id) => Promise<void>;
+```
+
+Prefetch single item into cache
+
+###### Parameters
+
+###### id
+
+`string` | `number`
+
+###### Returns
+
+`Promise`\<`void`\>
+
+##### prefetch.list()
+
+```ts
+list: (query?) => Promise<void>;
+```
+
+Prefetch list into cache
+
+###### Parameters
+
+###### query?
+
+`TQuery`
+
+###### Returns
+
+`Promise`\<`void`\>
+
+#### invalidate
+
+```ts
+invalidate: object;
+```
+
+Cache invalidation operations
+
+##### invalidate.item()
+
+```ts
+item: (id) => void;
+```
+
+Invalidate cached item by ID
+
+###### Parameters
+
+###### id
+
+`string` | `number`
+
+###### Returns
+
+`void`
+
+##### invalidate.list()
+
+```ts
+list: (query?) => void;
+```
+
+Invalidate cached list by query
+
+###### Parameters
+
+###### query?
+
+`TQuery`
+
+###### Returns
+
+`void`
+
+##### invalidate.all()
+
+```ts
+all: () => void;
+```
+
+Invalidate all cached data for this resource
+
+###### Returns
+
+`void`
+
+#### key()
+
+```ts
+key: (operation, params?) => (string | number | boolean)[];
+```
+
+Generate cache key
+
+##### Parameters
+
+###### operation
+
+`"list"` | `"get"` | `"create"` | `"update"` | `"remove"`
+
+###### params?
+
+`string` | `number` | `TQuery` | `Partial`\<`T`\>
+
+##### Returns
+
+(`string` \| `number` \| `boolean`)[]
+
+---
+
+### storeApi
+
+```ts
+storeApi: object;
+```
+
+Defined in: [resource/types.ts:608](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L608)
+
+Grouped API: Store access
+
+Direct access to @wordpress/data store internals.
+
+#### key
+
+```ts
+key: string;
+```
+
+Store key for @wordpress/data
+
+#### descriptor
+
+```ts
+descriptor: unknown;
+```
+
+Store descriptor (lazy-loaded)
+
+---
+
+### events?
+
+```ts
+optional events: object;
+```
+
+Defined in: [resource/types.ts:625](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L625)
+
+Grouped API: Event names
+
+Canonical event names for this resource.
+
+#### created
+
+```ts
+created: string;
+```
+
+Fired when item is created
+
+#### updated
+
+```ts
+updated: string;
+```
+
+Fired when item is updated
+
+#### removed
+
+```ts
+removed: string;
+```
+
+Fired when item is removed

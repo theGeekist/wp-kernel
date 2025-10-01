@@ -61,6 +61,44 @@ Login: `admin` / `password`
 
 ---
 
+## 📦 Import Patterns
+
+WP Kernel supports three flexible import patterns. Choose what fits your project:
+
+### 1. Scoped Imports (Recommended)
+
+Tree-shakeable, clear module boundaries. Best for production apps.
+
+```typescript
+import { fetch } from '@geekist/wp-kernel/http';
+import { defineResource, invalidate } from '@geekist/wp-kernel/resource';
+import { KernelError } from '@geekist/wp-kernel/error';
+```
+
+### 2. Namespace Imports
+
+Organized by module. Good for mid-sized projects.
+
+```typescript
+import { http, resource, error } from '@geekist/wp-kernel';
+
+await http.fetch({ path: '/wpk/v1/things' });
+const thing = resource.defineResource({ name: 'thing', routes: {...} });
+throw new error.KernelError('ValidationError', {...});
+```
+
+### 3. Flat Imports
+
+Quick and simple. Good for prototyping.
+
+```typescript
+import { fetch, defineResource, KernelError } from '@geekist/wp-kernel';
+```
+
+All patterns work identically - pick what you prefer. The framework doesn't care.
+
+---
+
 ## 📦 Packages
 
 | Package                                            | Description                                            | Version |

@@ -10,7 +10,7 @@
 function defineResource<T, TQuery>(config): ResourceObject<T, TQuery>;
 ```
 
-Defined in: [resource/defineResource.ts:340](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/defineResource.ts#L340)
+Defined in: [resource/define.ts:68](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/define.ts#L68)
 
 Define a resource with typed REST client
 
@@ -20,6 +20,8 @@ Creates a resource object with:
 - Store key for @wordpress/data registration
 - Cache key generators for invalidation
 - Route definitions
+- Thin-flat API (useGet, useList, prefetchGet, prefetchList, invalidate, key)
+- Grouped API (select._, use._, fetch._, mutate._, cache._, storeApi._, events.\*)
 
 ## Type Parameters
 
@@ -69,11 +71,13 @@ const thing = defineResource<Thing, { q?: string }>({
 	},
 });
 
-// Use client methods
+// Thin-flat API
 const items = await thing.list({ q: 'search' });
 const item = await thing.get(123);
+thing.invalidate([['thing', 'list']]);
 
-// Use metadata
-console.log(thing.storeKey); // 'wpk/thing'
-invalidate(thing.cacheKeys.list({ q: 'search' }));
+// Grouped API
+const cached = thing.select.item(123);
+await thing.mutate.create({ title: 'New' });
+thing.cache.invalidate.all();
 ```

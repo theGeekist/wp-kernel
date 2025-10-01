@@ -128,7 +128,7 @@ describe('Resource Flow Integration', () => {
 				},
 			});
 
-			const result = await resource.list!({ q: 'test' });
+			const result = await resource.fetchList!({ q: 'test' });
 
 			// Verify transport was called
 			expect(mockApiFetch).toHaveBeenCalledWith({
@@ -160,7 +160,7 @@ describe('Resource Flow Integration', () => {
 				},
 			});
 
-			const result = await resource.get!(123);
+			const result = await resource.fetch!(123);
 
 			// Verify transport was called with interpolated path
 			expect(mockApiFetch).toHaveBeenCalledWith({
@@ -267,7 +267,7 @@ describe('Resource Flow Integration', () => {
 				},
 			});
 
-			await expect(resource.list!()).rejects.toThrow();
+			await expect(resource.fetchList!()).rejects.toThrow();
 		});
 
 		it('should handle errors when getting single item', async () => {
@@ -281,7 +281,7 @@ describe('Resource Flow Integration', () => {
 				},
 			});
 
-			await expect(resource.get!(999)).rejects.toThrow();
+			await expect(resource.fetch!(999)).rejects.toThrow();
 		});
 
 		it('should handle errors on create', async () => {

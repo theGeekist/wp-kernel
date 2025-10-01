@@ -300,16 +300,16 @@ export function createStore<T, TQuery = unknown>(
 	const resolvers: ResourceResolvers<T, TQuery> = {
 		async getItem(id: string | number): Promise<void> {
 			// Check if client method exists
-			if (!resource.get) {
+			if (!resource.fetch) {
 				throw new KernelError('NotImplementedError', {
 					message:
-						`Resource "${resource.name}" does not have a "get" method. ` +
+						`Resource "${resource.name}" does not have a "fetch" method. ` +
 						'Define a "get" route in your resource configuration.',
 				});
 			}
 
 			try {
-				const item = await resource.get(id);
+				const item = await resource.fetch(id);
 				return actions.receiveItem(item);
 			} catch (error) {
 				const cacheKey =
@@ -323,10 +323,10 @@ export function createStore<T, TQuery = unknown>(
 
 		async getItems(query?: TQuery): Promise<void> {
 			// Check if client method exists
-			if (!resource.list) {
+			if (!resource.fetchList) {
 				throw new KernelError('NotImplementedError', {
 					message:
-						`Resource "${resource.name}" does not have a "list" method. ` +
+						`Resource "${resource.name}" does not have a "fetchList" method. ` +
 						'Define a "list" route in your resource configuration.',
 				});
 			}
@@ -334,7 +334,7 @@ export function createStore<T, TQuery = unknown>(
 			const queryKey = getQueryKey(query);
 
 			try {
-				const response = await resource.list(query);
+				const response = await resource.fetchList(query);
 				return actions.receiveItems(queryKey, response.items, {
 					total: response.total,
 					hasMore: response.hasMore,
