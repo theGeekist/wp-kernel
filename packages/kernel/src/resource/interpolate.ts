@@ -5,11 +5,11 @@
  *
  * @example
  * ```ts
- * interpolatePath('/gk/v1/things/:id', { id: 123 })
- * // => '/gk/v1/things/123'
+ * interpolatePath('/wpk/v1/things/:id', { id: 123 })
+ * // => '/wpk/v1/things/123'
  *
- * interpolatePath('/gk/v1/things/:id/comments/:commentId', { id: 1, commentId: 42 })
- * // => '/gk/v1/things/1/comments/42'
+ * interpolatePath('/wpk/v1/things/:id/comments/:commentId', { id: 1, commentId: 42 })
+ * // => '/wpk/v1/things/1/comments/42'
  * ```
  */
 
@@ -33,10 +33,10 @@ export type PathParams = Record<string, string | number | boolean>;
  *
  * @example
  * ```ts
- * interpolatePath('/gk/v1/things/:id', { id: 123 })
- * // => '/gk/v1/things/123'
+ * interpolatePath('/wpk/v1/things/:id', { id: 123 })
+ * // => '/wpk/v1/things/123'
  *
- * interpolatePath('/gk/v1/things/:id', {}) // throws DeveloperError
+ * interpolatePath('/wpk/v1/things/:id', {}) // throws DeveloperError
  * ```
  */
 export function interpolatePath(path: string, params: PathParams = {}): string {
@@ -91,10 +91,10 @@ export function interpolatePath(path: string, params: PathParams = {}): string {
  *
  * @example
  * ```ts
- * extractPathParams('/gk/v1/things/:id')
+ * extractPathParams('/wpk/v1/things/:id')
  * // => ['id']
  *
- * extractPathParams('/gk/v1/things/:id/comments/:commentId')
+ * extractPathParams('/wpk/v1/things/:id/comments/:commentId')
  * // => ['id', 'commentId']
  * ```
  */

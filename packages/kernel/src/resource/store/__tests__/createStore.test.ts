@@ -36,7 +36,7 @@ describe('createStore', () => {
 
 		mockResource = {
 			name: 'thing',
-			storeKey: 'gk/thing',
+			storeKey: 'wpk/thing',
 			cacheKeys: {
 				list: (query) => ['thing', 'list', JSON.stringify(query || {})],
 				get: (id) => ['thing', 'get', id],
@@ -49,8 +49,8 @@ describe('createStore', () => {
 				remove: (id) => ['thing', 'remove', id],
 			},
 			routes: {
-				list: { path: '/gk/v1/things', method: 'GET' },
-				get: { path: '/gk/v1/things/:id', method: 'GET' },
+				list: { path: '/wpk/v1/things', method: 'GET' },
+				get: { path: '/wpk/v1/things/:id', method: 'GET' },
 			},
 			list: jest.fn().mockResolvedValue(mockListResponse),
 			get: jest.fn().mockResolvedValue({
@@ -68,7 +68,7 @@ describe('createStore', () => {
 				resource: mockResource,
 			});
 
-			expect(store).toHaveProperty('storeKey', 'gk/thing');
+			expect(store).toHaveProperty('storeKey', 'wpk/thing');
 			expect(store).toHaveProperty('reducer');
 			expect(store).toHaveProperty('actions');
 			expect(store).toHaveProperty('selectors');

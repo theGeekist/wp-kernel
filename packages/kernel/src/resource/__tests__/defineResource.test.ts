@@ -35,7 +35,7 @@ describe('defineResource', () => {
 					defineResource({
 						name: '',
 						routes: {
-							list: { path: '/gk/v1/things', method: 'GET' },
+							list: { path: '/wpk/v1/things', method: 'GET' },
 						},
 					});
 				}).toThrow(KernelError);
@@ -46,7 +46,7 @@ describe('defineResource', () => {
 					defineResource({
 						name: '',
 						routes: {
-							list: { path: '/gk/v1/things', method: 'GET' },
+							list: { path: '/wpk/v1/things', method: 'GET' },
 						},
 					});
 					fail('Should have thrown');
@@ -63,7 +63,7 @@ describe('defineResource', () => {
 					defineResource({
 						name: 'Thing',
 						routes: {
-							list: { path: '/gk/v1/things', method: 'GET' },
+							list: { path: '/wpk/v1/things', method: 'GET' },
 						},
 					});
 				}).toThrow(KernelError);
@@ -74,7 +74,7 @@ describe('defineResource', () => {
 					defineResource({
 						name: 'my thing',
 						routes: {
-							list: { path: '/gk/v1/things', method: 'GET' },
+							list: { path: '/wpk/v1/things', method: 'GET' },
 						},
 					});
 				}).toThrow(KernelError);
@@ -85,7 +85,7 @@ describe('defineResource', () => {
 					defineResource({
 						name: 'my_thing',
 						routes: {
-							list: { path: '/gk/v1/things', method: 'GET' },
+							list: { path: '/wpk/v1/things', method: 'GET' },
 						},
 					});
 				}).toThrow(KernelError);
@@ -96,7 +96,7 @@ describe('defineResource', () => {
 					defineResource({
 						name: 'my-thing',
 						routes: {
-							list: { path: '/gk/v1/things', method: 'GET' },
+							list: { path: '/wpk/v1/things', method: 'GET' },
 						},
 					});
 				}).not.toThrow();
@@ -107,7 +107,7 @@ describe('defineResource', () => {
 					defineResource({
 						name: 'thing-123',
 						routes: {
-							list: { path: '/gk/v1/things', method: 'GET' },
+							list: { path: '/wpk/v1/things', method: 'GET' },
 						},
 					});
 				}).not.toThrow();
@@ -118,7 +118,7 @@ describe('defineResource', () => {
 					defineResource({
 						name: 'thing',
 						routes: {
-							list: { path: '/gk/v1/things', method: 'GET' },
+							list: { path: '/wpk/v1/things', method: 'GET' },
 						},
 					});
 				}).not.toThrow();
@@ -149,7 +149,7 @@ describe('defineResource', () => {
 					defineResource({
 						name: 'thing',
 						routes: {
-							list: { path: '/gk/v1/things', method: 'GET' },
+							list: { path: '/wpk/v1/things', method: 'GET' },
 						},
 					});
 				}).not.toThrow();
@@ -160,7 +160,7 @@ describe('defineResource', () => {
 					defineResource({
 						name: 'thing',
 						routes: {
-							get: { path: '/gk/v1/things/:id', method: 'GET' },
+							get: { path: '/wpk/v1/things/:id', method: 'GET' },
 						},
 					});
 				}).not.toThrow();
@@ -171,18 +171,18 @@ describe('defineResource', () => {
 					defineResource<Thing>({
 						name: 'thing',
 						routes: {
-							list: { path: '/gk/v1/things', method: 'GET' },
-							get: { path: '/gk/v1/things/:id', method: 'GET' },
+							list: { path: '/wpk/v1/things', method: 'GET' },
+							get: { path: '/wpk/v1/things/:id', method: 'GET' },
 							create: {
-								path: '/gk/v1/things',
+								path: '/wpk/v1/things',
 								method: 'POST',
 							},
 							update: {
-								path: '/gk/v1/things/:id',
+								path: '/wpk/v1/things/:id',
 								method: 'PUT',
 							},
 							remove: {
-								path: '/gk/v1/things/:id',
+								path: '/wpk/v1/things/:id',
 								method: 'DELETE',
 							},
 						},
@@ -195,7 +195,7 @@ describe('defineResource', () => {
 					defineResource({
 						name: 'thing',
 						routes: {
-							fetch: { path: '/gk/v1/things', method: 'GET' },
+							fetch: { path: '/wpk/v1/things', method: 'GET' },
 						} as never,
 					});
 				}).toThrow(KernelError);
@@ -219,7 +219,7 @@ describe('defineResource', () => {
 					defineResource({
 						name: 'thing',
 						routes: {
-							list: { path: '/gk/v1/things' } as never,
+							list: { path: '/wpk/v1/things' } as never,
 						},
 					});
 				}).toThrow(KernelError);
@@ -231,7 +231,7 @@ describe('defineResource', () => {
 						name: 'thing',
 						routes: {
 							list: {
-								path: '/gk/v1/things',
+								path: '/wpk/v1/things',
 								method: 'FETCH' as never,
 							},
 						},
@@ -244,7 +244,7 @@ describe('defineResource', () => {
 					defineResource({
 						name: 'thing',
 						routes: {
-							list: { path: '/gk/v1/things', method: 'GET' },
+							list: { path: '/wpk/v1/things', method: 'GET' },
 						},
 					});
 				}).not.toThrow();
@@ -256,7 +256,7 @@ describe('defineResource', () => {
 						name: 'thing',
 						routes: {
 							create: {
-								path: '/gk/v1/things',
+								path: '/wpk/v1/things',
 								method: 'POST',
 							},
 						},
@@ -270,7 +270,7 @@ describe('defineResource', () => {
 						name: 'thing',
 						routes: {
 							update: {
-								path: '/gk/v1/things/:id',
+								path: '/wpk/v1/things/:id',
 								method: 'PUT',
 							},
 						},
@@ -284,7 +284,7 @@ describe('defineResource', () => {
 						name: 'thing',
 						routes: {
 							update: {
-								path: '/gk/v1/things/:id',
+								path: '/wpk/v1/things/:id',
 								method: 'PATCH',
 							},
 						},
@@ -298,7 +298,7 @@ describe('defineResource', () => {
 						name: 'thing',
 						routes: {
 							remove: {
-								path: '/gk/v1/things/:id',
+								path: '/wpk/v1/things/:id',
 								method: 'DELETE',
 							},
 						},
@@ -313,7 +313,7 @@ describe('defineResource', () => {
 			const resource = defineResource({
 				name: 'thing',
 				routes: {
-					list: { path: '/gk/v1/things', method: 'GET' },
+					list: { path: '/wpk/v1/things', method: 'GET' },
 				},
 			});
 
@@ -324,17 +324,17 @@ describe('defineResource', () => {
 			const resource = defineResource({
 				name: 'thing',
 				routes: {
-					list: { path: '/gk/v1/things', method: 'GET' },
+					list: { path: '/wpk/v1/things', method: 'GET' },
 				},
 			});
 
-			expect(resource.storeKey).toBe('gk/thing');
+			expect(resource.storeKey).toBe('wpk/thing');
 		});
 
 		it('should preserve routes', () => {
 			const routes = {
-				list: { path: '/gk/v1/things', method: 'GET' as const },
-				get: { path: '/gk/v1/things/:id', method: 'GET' as const },
+				list: { path: '/wpk/v1/things', method: 'GET' as const },
+				get: { path: '/wpk/v1/things/:id', method: 'GET' as const },
 			};
 
 			const resource = defineResource({
@@ -349,8 +349,8 @@ describe('defineResource', () => {
 			const resource = defineResource({
 				name: 'thing',
 				routes: {
-					list: { path: '/gk/v1/things', method: 'GET' },
-					get: { path: '/gk/v1/things/:id', method: 'GET' },
+					list: { path: '/wpk/v1/things', method: 'GET' },
+					get: { path: '/wpk/v1/things/:id', method: 'GET' },
 				},
 			});
 
@@ -372,8 +372,8 @@ describe('defineResource', () => {
 			const resource = defineResource<Thing, ThingQuery>({
 				name: 'thing',
 				routes: {
-					list: { path: '/gk/v1/things', method: 'GET' },
-					get: { path: '/gk/v1/things/:id', method: 'GET' },
+					list: { path: '/wpk/v1/things', method: 'GET' },
+					get: { path: '/wpk/v1/things/:id', method: 'GET' },
 				},
 				cacheKeys: customCacheKeys as never,
 			});
@@ -390,8 +390,8 @@ describe('defineResource', () => {
 			const resource = defineResource<Thing, ThingQuery>({
 				name: 'thing',
 				routes: {
-					list: { path: '/gk/v1/things', method: 'GET' },
-					get: { path: '/gk/v1/things/:id', method: 'GET' },
+					list: { path: '/wpk/v1/things', method: 'GET' },
+					get: { path: '/wpk/v1/things/:id', method: 'GET' },
 				},
 				cacheKeys: {
 					list: ((q?: ThingQuery) => [
@@ -423,7 +423,7 @@ describe('defineResource', () => {
 			const resource = defineResource({
 				name: 'thing',
 				routes: {
-					list: { path: '/gk/v1/things', method: 'GET' },
+					list: { path: '/wpk/v1/things', method: 'GET' },
 				},
 			});
 
@@ -435,7 +435,7 @@ describe('defineResource', () => {
 			const resource = defineResource({
 				name: 'thing',
 				routes: {
-					get: { path: '/gk/v1/things/:id', method: 'GET' },
+					get: { path: '/wpk/v1/things/:id', method: 'GET' },
 				},
 			});
 
@@ -446,7 +446,7 @@ describe('defineResource', () => {
 			const resource = defineResource({
 				name: 'thing',
 				routes: {
-					get: { path: '/gk/v1/things/:id', method: 'GET' },
+					get: { path: '/wpk/v1/things/:id', method: 'GET' },
 				},
 			});
 
@@ -458,7 +458,7 @@ describe('defineResource', () => {
 			const resource = defineResource({
 				name: 'thing',
 				routes: {
-					create: { path: '/gk/v1/things', method: 'POST' },
+					create: { path: '/wpk/v1/things', method: 'POST' },
 				},
 			});
 
@@ -471,7 +471,7 @@ describe('defineResource', () => {
 				name: 'thing',
 				routes: {
 					update: {
-						path: '/gk/v1/things/:id',
+						path: '/wpk/v1/things/:id',
 						method: 'PUT',
 					},
 				},
@@ -486,7 +486,7 @@ describe('defineResource', () => {
 				name: 'thing',
 				routes: {
 					remove: {
-						path: '/gk/v1/things/:id',
+						path: '/wpk/v1/things/:id',
 						method: 'DELETE',
 					},
 				},
@@ -500,15 +500,15 @@ describe('defineResource', () => {
 			const resource = defineResource<Thing>({
 				name: 'thing',
 				routes: {
-					list: { path: '/gk/v1/things', method: 'GET' },
-					get: { path: '/gk/v1/things/:id', method: 'GET' },
-					create: { path: '/gk/v1/things', method: 'POST' },
+					list: { path: '/wpk/v1/things', method: 'GET' },
+					get: { path: '/wpk/v1/things/:id', method: 'GET' },
+					create: { path: '/wpk/v1/things', method: 'POST' },
 					update: {
-						path: '/gk/v1/things/:id',
+						path: '/wpk/v1/things/:id',
 						method: 'PUT',
 					},
 					remove: {
-						path: '/gk/v1/things/:id',
+						path: '/wpk/v1/things/:id',
 						method: 'DELETE',
 					},
 				},
@@ -527,7 +527,7 @@ describe('defineResource', () => {
 			const resource = defineResource<Thing, ThingQuery>({
 				name: 'thing',
 				routes: {
-					list: { path: '/gk/v1/things', method: 'GET' },
+					list: { path: '/wpk/v1/things', method: 'GET' },
 				},
 			});
 
@@ -538,7 +538,7 @@ describe('defineResource', () => {
 			const resource = defineResource<Thing>({
 				name: 'thing',
 				routes: {
-					get: { path: '/gk/v1/things/:id', method: 'GET' },
+					get: { path: '/wpk/v1/things/:id', method: 'GET' },
 				},
 			});
 
@@ -549,7 +549,7 @@ describe('defineResource', () => {
 			const resource = defineResource<Thing>({
 				name: 'thing',
 				routes: {
-					create: { path: '/gk/v1/things', method: 'POST' },
+					create: { path: '/wpk/v1/things', method: 'POST' },
 				},
 			});
 
@@ -563,7 +563,7 @@ describe('defineResource', () => {
 				name: 'thing',
 				routes: {
 					update: {
-						path: '/gk/v1/things/:id',
+						path: '/wpk/v1/things/:id',
 						method: 'PUT',
 					},
 				},
@@ -579,7 +579,7 @@ describe('defineResource', () => {
 				name: 'thing',
 				routes: {
 					remove: {
-						path: '/gk/v1/things/:id',
+						path: '/wpk/v1/things/:id',
 						method: 'DELETE',
 					},
 				},
@@ -592,7 +592,7 @@ describe('defineResource', () => {
 			const resource = defineResource<Thing>({
 				name: 'thing',
 				routes: {
-					list: { path: '/gk/v1/things', method: 'GET' },
+					list: { path: '/wpk/v1/things', method: 'GET' },
 				},
 			});
 
@@ -612,7 +612,7 @@ describe('defineResource', () => {
 			const resource = defineResource<Thing>({
 				name: 'thing',
 				routes: {
-					list: { path: '/gk/v1/things', method: 'GET' },
+					list: { path: '/wpk/v1/things', method: 'GET' },
 				},
 			});
 
@@ -623,7 +623,7 @@ describe('defineResource', () => {
 			const resource = defineResource<Thing>({
 				name: 'thing',
 				routes: {
-					list: { path: '/gk/v1/things', method: 'GET' },
+					list: { path: '/wpk/v1/things', method: 'GET' },
 				},
 			});
 
@@ -637,20 +637,20 @@ describe('defineResource', () => {
 			const resource = defineResource<Thing>({
 				name: 'thing',
 				routes: {
-					list: { path: '/gk/v1/things', method: 'GET' },
+					list: { path: '/wpk/v1/things', method: 'GET' },
 				},
 			});
 
 			const store = resource.store as ResourceStore<Thing, ThingQuery>;
 
-			expect(store).toHaveProperty('storeKey', 'gk/thing');
+			expect(store).toHaveProperty('storeKey', 'wpk/thing');
 		});
 
 		it('should create store with selectors, actions, resolvers, reducer', () => {
 			const resource = defineResource<Thing>({
 				name: 'thing',
 				routes: {
-					list: { path: '/gk/v1/things', method: 'GET' },
+					list: { path: '/wpk/v1/things', method: 'GET' },
 				},
 			});
 
@@ -674,7 +674,7 @@ describe('defineResource', () => {
 			const resource = defineResource<Thing>({
 				name: 'thing',
 				routes: {
-					list: { path: '/gk/v1/things', method: 'GET' },
+					list: { path: '/wpk/v1/things', method: 'GET' },
 				},
 			});
 
@@ -705,7 +705,7 @@ describe('defineResource', () => {
 			const resource = defineResource<Thing>({
 				name: 'thing-with-register',
 				routes: {
-					list: { path: '/gk/v1/things', method: 'GET' },
+					list: { path: '/wpk/v1/things', method: 'GET' },
 				},
 			});
 

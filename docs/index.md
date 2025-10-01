@@ -69,8 +69,8 @@ WordPress has gone JS-first (Blocks, Interactivity, Script Modules), but teams s
 export const thing = defineResource<Thing>({
 	name: 'thing',
 	routes: {
-		list: { path: '/gk/v1/things', method: 'GET' },
-		create: { path: '/gk/v1/things', method: 'POST' },
+		list: { path: '/wpk/v1/things', method: 'GET' },
+		create: { path: '/wpk/v1/things', method: 'POST' },
 	},
 	schema: import('../../contracts/thing.schema.json'),
 });

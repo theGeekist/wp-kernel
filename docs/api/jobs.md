@@ -37,10 +37,10 @@ A job object with:
 ```typescript
 export const IndexThing = defineJob('IndexThing', {
 	enqueue: (params: { id: number }) => {
-		return transport.post('/gk/v1/jobs/index-thing', params);
+		return transport.post('/wpk/v1/jobs/index-thing', params);
 	},
 	status: (params: { id: number }) => {
-		return transport.get(`/gk/v1/jobs/index-thing/status?id=${params.id}`);
+		return transport.get(`/wpk/v1/jobs/index-thing/status?id=${params.id}`);
 	},
 });
 
