@@ -8,7 +8,11 @@
  */
 import type * as WPData from '@wordpress/data';
 import { KernelError } from '../error/index.js';
-import { interpolatePath, registerStoreKey } from './cache.js';
+import {
+	interpolatePath,
+	registerStoreKey,
+	invalidate as globalInvalidate,
+} from './cache.js';
 import { createStore } from './store.js';
 import { fetch as transportFetch } from '../http/fetch.js';
 import type {
@@ -402,6 +406,211 @@ export function defineResource<T = unknown, TQuery = unknown>(
 				_storeRegistered = true;
 			}
 			return _store;
+		},
+
+		// Thin-flat API: React hooks
+		useGet: config.routes.get
+			? (id: string | number) => {
+					// Check if we're in a React context (useSelect available)
+					const globalWp =
+						typeof window !== 'undefined'
+							? (window as Window & WPGlobal).wp
+							: undefined;
+					if (!globalWp?.data?.useSelect) {
+						throw new KernelError('DeveloperError', {
+							message:
+								'useGet requires @wordpress/data to be loaded',
+							context: {
+								resource: config.name,
+								method: 'useGet',
+							},
+						});
+					}
+
+					// Use @wordpress/data useSelect to watch store
+					const result = globalWp.data.useSelect(
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
+						(select: any) => {
+							// Trigger lazy store registration
+							void resource.store;
+
+							const storeSelect = select(resource.storeKey);
+							const data = storeSelect?.getItem?.(id);
+							const isResolving = storeSelect?.isResolving?.(
+								'getItem',
+								[id]
+							);
+							const hasResolved =
+								storeSelect?.hasFinishedResolution?.(
+									'getItem',
+									[id]
+								);
+							const error = storeSelect?.getItemError?.(id);
+
+							return {
+								data,
+								isLoading: isResolving || !hasResolved,
+								error: error?.message,
+							};
+						},
+						[id]
+					);
+
+					return result;
+				}
+			: undefined,
+
+		useList: config.routes.list
+			? (query?: TQuery) => {
+					// Check if we're in a React context (useSelect available)
+					const globalWp =
+						typeof window !== 'undefined'
+							? (window as Window & WPGlobal).wp
+							: undefined;
+					if (!globalWp?.data?.useSelect) {
+						throw new KernelError('DeveloperError', {
+							message:
+								'useList requires @wordpress/data to be loaded',
+							context: {
+								resource: config.name,
+								method: 'useList',
+							},
+						});
+					}
+
+					// Use @wordpress/data useSelect to watch store
+					const result = globalWp.data.useSelect(
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
+						(select: any) => {
+							// Trigger lazy store registration
+							void resource.store;
+
+							const storeSelect = select(resource.storeKey);
+							const data = storeSelect?.getList?.(query);
+							const isResolving = storeSelect?.isResolving?.(
+								'getList',
+								[query]
+							);
+							const hasResolved =
+								storeSelect?.hasFinishedResolution?.(
+									'getList',
+									[query]
+								);
+							const error = storeSelect?.getListError?.(query);
+
+							return {
+								data,
+								isLoading: isResolving || !hasResolved,
+								error: error?.message,
+							};
+						},
+						[query]
+					);
+
+					return result;
+				}
+			: undefined,
+
+		// Thin-flat API: Prefetch methods
+		prefetchGet: config.routes.get
+			? async (id: string | number) => {
+					// Check if @wordpress/data is available
+					const globalWp =
+						typeof window !== 'undefined'
+							? (window as Window & WPGlobal).wp
+							: undefined;
+					if (!globalWp?.data?.dispatch) {
+						throw new KernelError('DeveloperError', {
+							message:
+								'prefetchGet requires @wordpress/data to be loaded',
+							context: {
+								resource: config.name,
+								method: 'prefetchGet',
+							},
+						});
+					}
+
+					// Trigger lazy store registration
+					void resource.store;
+
+					// Dispatch resolver (fire and forget)
+					// eslint-disable-next-line @typescript-eslint/no-explicit-any
+					const storeDispatch = globalWp.data.dispatch as any;
+					const dispatch = storeDispatch(resource.storeKey);
+					if (dispatch?.getItem) {
+						// Trigger the resolver by selecting
+						await globalWp.data
+							// eslint-disable-next-line @typescript-eslint/no-explicit-any
+							.resolveSelect(resource.storeKey as any)
+							.getItem(id);
+					}
+				}
+			: undefined,
+
+		prefetchList: config.routes.list
+			? async (query?: TQuery) => {
+					// Check if @wordpress/data is available
+					const globalWp =
+						typeof window !== 'undefined'
+							? (window as Window & WPGlobal).wp
+							: undefined;
+					if (!globalWp?.data?.dispatch) {
+						throw new KernelError('DeveloperError', {
+							message:
+								'prefetchList requires @wordpress/data to be loaded',
+							context: {
+								resource: config.name,
+								method: 'prefetchList',
+							},
+						});
+					}
+
+					// Trigger lazy store registration
+					void resource.store;
+
+					// Dispatch resolver (fire and forget)
+
+					await globalWp.data
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
+						.resolveSelect(resource.storeKey as any)
+						.getList(query);
+				}
+			: undefined,
+
+		// Thin-flat API: Cache management
+		invalidate: (
+			patterns: (string | number | boolean | null | undefined)[][]
+		) => {
+			// Call global invalidate with resource context
+			globalInvalidate(patterns, { storeKey: resource.storeKey });
+		},
+
+		key: (
+			operation: 'list' | 'get' | 'create' | 'update' | 'remove',
+			params?: TQuery | string | number | Partial<T>
+		): (string | number | boolean)[] => {
+			// Access the appropriate cache key generator
+			const generator = cacheKeys[operation];
+			if (!generator) {
+				throw new KernelError('DeveloperError', {
+					message: `Cache key generator for operation '${operation}' not found`,
+					context: {
+						resource: config.name,
+						operation,
+						availableOperations: Object.keys(cacheKeys),
+					},
+				});
+			}
+
+			// Generate and return the cache key
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			const cacheKey = generator(params as any);
+
+			// Filter out null and undefined values
+			return cacheKey.filter(
+				(v): v is string | number | boolean =>
+					v !== null && v !== undefined
+			);
 		},
 	};
 

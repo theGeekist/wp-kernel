@@ -10,7 +10,7 @@
 function findMatchingKeysMultiple(keys, patterns): string[];
 ```
 
-Defined in: [resource/cacheKeys.ts:116](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/cacheKeys.ts#L116)
+Defined in: [resource/cache.ts:118](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/cache.ts#L118)
 
 Find all cache keys matching any of the provided patterns.
 

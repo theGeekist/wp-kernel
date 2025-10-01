@@ -5,7 +5,7 @@
  * Mocks REST endpoints, verifies store state after resolvers, and validates event emission.
  */
 
-import { defineResource } from '../../resource/defineResource.js';
+import { defineResource } from '../../resource/define.js';
 
 // Mock window.wp global
 interface WindowWithWp extends Window {

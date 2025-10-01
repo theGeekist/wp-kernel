@@ -6,7 +6,7 @@
 
 # Interface: InvalidateOptions
 
-Defined in: [resource/invalidate.ts:46](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/invalidate.ts#L46)
+Defined in: [resource/cache.ts:281](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/cache.ts#L281)
 
 Options for invalidate function
 
@@ -18,7 +18,7 @@ Options for invalidate function
 optional storeKey: string;
 ```
 
-Defined in: [resource/invalidate.ts:51](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/invalidate.ts#L51)
+Defined in: [resource/cache.ts:286](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/cache.ts#L286)
 
 Store key to target (e.g., 'wpk/thing')
 If not provided, invalidates across all 'wpk/\*' stores
@@ -31,7 +31,7 @@ If not provided, invalidates across all 'wpk/\*' stores
 optional emitEvent: boolean;
 ```
 
-Defined in: [resource/invalidate.ts:57](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/invalidate.ts#L57)
+Defined in: [resource/cache.ts:292](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/cache.ts#L292)
 
 Whether to emit the wpk.cache.invalidated event
 
