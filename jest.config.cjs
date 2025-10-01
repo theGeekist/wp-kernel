@@ -8,7 +8,7 @@ module.exports = {
 	testEnvironment: 'jsdom',
 
 	// Test file locations
-	roots: ['<rootDir>/packages'],
+	roots: ['<rootDir>/packages', '<rootDir>/examples'],
 	testMatch: [
 		'**/__tests__/**/*.ts',
 		'**/__tests__/**/*.tsx',
