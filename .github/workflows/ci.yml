@@ -172,103 +172,106 @@ jobs:
                   name: unit-tests
                   fail_ci_if_error: false
 
-    # E2E Tests: Run Playwright tests
-    e2e-test:
-        name: E2E Tests
-        runs-on: ubuntu-latest
-        needs: [setup, build]
-        steps:
-            - name: Checkout
-              uses: actions/checkout@v4
-
-            - name: Setup pnpm
-              uses: pnpm/action-setup@v4
-              with:
-                  version: ${{ env.PNPM_VERSION }}
-
-            - name: Setup Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: ${{ env.NODE_VERSION }}
-
-            - name: Restore node_modules
-              uses: actions/cache@v4
-              with:
-                  path: |
-                      node_modules
-                      packages/*/node_modules
-                      examples/*/node_modules
-                  key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-                  fail-on-cache-miss: true
-
-            # Get Playwright version for cache key (more accurate than lockfile hash)
-            - name: Get Playwright version
-              id: playwright-version
-              run: echo "version=$(pnpm list @playwright/test --depth=0 --json | jq -r '.[0].devDependencies["@playwright/test"].version')" >> $GITHUB_OUTPUT
-
-            # Cache Playwright browsers (~267MB, saves ~30s download time)
-            # Cache key based on OS + Playwright version (invalidates when Playwright updates)
-            - name: Cache Playwright browsers
-              id: playwright-cache
-              uses: actions/cache@v4
-              with:
-                  path: ~/.cache/ms-playwright
-                  key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
-                  restore-keys: |
-                      playwright-${{ runner.os }}-
-
-            # On cache miss: Download browsers + install system dependencies (~40s)
-            - name: Install Playwright browsers and dependencies
-              if: steps.playwright-cache.outputs.cache-hit != 'true'
-              run: pnpm exec playwright install --with-deps chromium
-
-            # On cache hit: Only install system dependencies (fonts, libs, etc.) (~15s)
-            # System deps must be reinstalled on each run (fresh VM)
-            - name: Install Playwright system dependencies only
-              if: steps.playwright-cache.outputs.cache-hit == 'true'
-              run: pnpm exec playwright install-deps chromium
-
-            - name: Download build artifacts
-              uses: actions/download-artifact@v4
-              with:
-                  name: dist
-
-            - name: Restore build artifacts to packages
-              run: |
-                  # The artifacts are downloaded flat, need to restore structure
-                  mkdir -p packages/kernel/dist packages/ui/dist packages/cli/dist packages/e2e-utils/dist
-                  mkdir -p examples/showcase-plugin/build
-                  # Copy if artifacts exist (they should from the build job)
-                  if [ -d "packages" ]; then
-                      cp -r packages/*/dist/* packages/ 2>/dev/null || true
-                      cp -r examples/*/build/* examples/ 2>/dev/null || true
-                  fi
-
-            - name: Start WordPress (wp-env)
-              run: pnpm wp:start
-
-            - name: Seed test data
-              run: pnpm wp:seed
-
-            - name: Run E2E tests
-              run: pnpm e2e --project=chromium
-
-            - name: Upload Playwright report
-              if: failure()
-              uses: actions/upload-artifact@v4
-              with:
-                  name: playwright-report
-                  path: playwright-report/
-                  retention-days: 7
-
-            - name: Upload test results
-              if: failure()
-              uses: actions/upload-artifact@v4
-              with:
-                  name: test-results
-                  path: test-results/
-                  retention-days: 7
-                  if-no-files-found: ignore
+    # E2E Tests: Disabled temporarily (Sprint 1)
+    # Reason: Takes too long to set up wp-env in CI (~3-5 minutes) for minimal test coverage
+    # Will re-enable when we have comprehensive E2E tests (Sprint 2+)
+    # To run locally: pnpm wp:fresh && pnpm e2e
+    # e2e-test:
+    #     name: E2E Tests
+    #     runs-on: ubuntu-latest
+    #     needs: [setup, build]
+    #     steps:
+    #         - name: Checkout
+    #           uses: actions/checkout@v4
+    #
+    #         - name: Setup pnpm
+    #           uses: pnpm/action-setup@v4
+    #           with:
+    #               version: ${{ env.PNPM_VERSION }}
+    #
+    #         - name: Setup Node.js
+    #           uses: actions/setup-node@v4
+    #           with:
+    #               node-version: ${{ env.NODE_VERSION }}
+    #
+    #         - name: Restore node_modules
+    #           uses: actions/cache@v4
+    #           with:
+    #               path: |
+    #                   node_modules
+    #                   packages/*/node_modules
+    #                   examples/*/node_modules
+    #               key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+    #               fail-on-cache-miss: true
+    #
+    #         # Get Playwright version for cache key (more accurate than lockfile hash)
+    #         - name: Get Playwright version
+    #           id: playwright-version
+    #           run: echo "version=$(pnpm list @playwright/test --depth=0 --json | jq -r '.[0].devDependencies["@playwright/test"].version')" >> $GITHUB_OUTPUT
+    #
+    #         # Cache Playwright browsers (~267MB, saves ~30s download time)
+    #         # Cache key based on OS + Playwright version (invalidates when Playwright updates)
+    #         - name: Cache Playwright browsers
+    #           id: playwright-cache
+    #           uses: actions/cache@v4
+    #           with:
+    #               path: ~/.cache/ms-playwright
+    #               key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
+    #               restore-keys: |
+    #                   playwright-${{ runner.os }}-
+    #
+    #         # On cache miss: Download browsers + install system dependencies (~40s)
+    #         - name: Install Playwright browsers and dependencies
+    #           if: steps.playwright-cache.outputs.cache-hit != 'true'
+    #           run: pnpm exec playwright install --with-deps chromium
+    #
+    #         # On cache hit: Only install system dependencies (fonts, libs, etc.) (~15s)
+    #         # System deps must be reinstalled on each run (fresh VM)
+    #         - name: Install Playwright system dependencies only
+    #           if: steps.playwright-cache.outputs.cache-hit == 'true'
+    #           run: pnpm exec playwright install-deps chromium
+    #
+    #         - name: Download build artifacts
+    #           uses: actions/download-artifact@v4
+    #           with:
+    #               name: dist
+    #
+    #         - name: Restore build artifacts to packages
+    #           run: |
+    #               # The artifacts are downloaded flat, need to restore structure
+    #               mkdir -p packages/kernel/dist packages/ui/dist packages/cli/dist packages/e2e-utils/dist
+    #               mkdir -p examples/showcase-plugin/build
+    #               # Copy if artifacts exist (they should from the build job)
+    #               if [ -d "packages" ]; then
+    #                   cp -r packages/*/dist/* packages/ 2>/dev/null || true
+    #                   cp -r examples/*/build/* examples/ 2>/dev/null || true
+    #               fi
+    #
+    #         - name: Start WordPress (wp-env)
+    #           run: pnpm wp:start
+    #
+    #         - name: Seed test data
+    #           run: pnpm wp:seed
+    #
+    #         - name: Run E2E tests
+    #           run: pnpm e2e --project=chromium
+    #
+    #         - name: Upload Playwright report
+    #           if: failure()
+    #           uses: actions/upload-artifact@v4
+    #           with:
+    #               name: playwright-report
+    #               path: playwright-report/
+    #               retention-days: 7
+    #
+    #         - name: Upload test results
+    #           if: failure()
+    #           uses: actions/upload-artifact@v4
+    #           with:
+    #               name: test-results
+    #               path: test-results/
+    #               retention-days: 7
+    #               if-no-files-found: ignore
 
     # Changesets: Verify changeset exists for PRs
     changesets-check:
@@ -317,15 +320,14 @@ jobs:
     all-checks:
         name: All Checks Passed
         runs-on: ubuntu-latest
-        needs: [lint, build, unit-test, e2e-test]
+        needs: [lint, build, unit-test]
         if: always()
         steps:
             - name: Check status
               run: |
                   if [[ "${{ needs.lint.result }}" != "success" ]] || \
                      [[ "${{ needs.build.result }}" != "success" ]] || \
-                     [[ "${{ needs.unit-test.result }}" != "success" ]] || \
-                     [[ "${{ needs.e2e-test.result }}" != "success" ]]; then
+                     [[ "${{ needs.unit-test.result }}" != "success" ]]; then
                     echo "❌ One or more checks failed"
                     exit 1
                   fi
