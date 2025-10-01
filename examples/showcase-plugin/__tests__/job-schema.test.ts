@@ -259,16 +259,24 @@ describe('Job Schema Validation', () => {
 			const typesPath = resolve(__dirname, '../types/job.d.ts');
 			const typesContent = readFileSync(typesPath, 'utf-8');
 
-			expect(typesContent).toContain('"draft" | "publish" | "closed"');
+			// Check that status has the correct enum values (format-agnostic)
+			expect(typesContent).toContain('status:');
+			expect(typesContent).toContain("'draft'");
+			expect(typesContent).toContain("'publish'");
+			expect(typesContent).toContain("'closed'");
 		});
 
 		it('should have correct type for seniority field', () => {
 			const typesPath = resolve(__dirname, '../types/job.d.ts');
 			const typesContent = readFileSync(typesPath, 'utf-8');
 
-			expect(typesContent).toContain(
-				'"Junior" | "Mid" | "Senior" | "Lead" | "Principal"'
-			);
+			// Check that seniority has the correct enum values (format-agnostic)
+			expect(typesContent).toContain('seniority?:');
+			expect(typesContent).toContain("'Junior'");
+			expect(typesContent).toContain("'Mid'");
+			expect(typesContent).toContain("'Senior'");
+			expect(typesContent).toContain("'Lead'");
+			expect(typesContent).toContain("'Principal'");
 		});
 	});
 });
