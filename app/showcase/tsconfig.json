@@ -4,11 +4,10 @@
 	"compilerOptions": {
 		"rootDir": "./src",
 		"outDir": "./dist",
-		"composite": true,
-		"noEmit": true
+		"composite": true
 	},
 	"include": ["src/**/*"],
-	"exclude": ["node_modules", "dist"],
+	"exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.test.tsx"],
 	"references": [
 		{ "path": "../../packages/kernel" },
 		{ "path": "../../packages/ui" }
