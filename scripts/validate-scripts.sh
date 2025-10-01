@@ -52,6 +52,7 @@ validate "build (all)" "pnpm build"
 echo ""
 echo "Type Checking:"
 validate "typecheck" "pnpm typecheck"
+validate "typecheck:tests" "pnpm typecheck:tests"
 
 echo ""
 echo "Linting:"
@@ -61,10 +62,6 @@ validate "format:check" "pnpm format:check"
 echo ""
 echo "Testing:"
 validate "test" "pnpm test"
-
-echo ""
-echo "Clean:"
-validate "clean:dist" "pnpm clean:dist"
 
 echo ""
 echo "WordPress (requires wp-env running):"
