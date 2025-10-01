@@ -33,10 +33,10 @@ Query parameters type for list operations
 
 ## Properties
 
-### list()?
+### fetchList()?
 
 ```ts
-optional list: (query?) => Promise<ListResponse<T>>;
+optional fetchList: (query?) => Promise<ListResponse<T>>;
 ```
 
 Defined in: [resource/types.ts:200](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L200)
@@ -67,10 +67,10 @@ ServerError on REST API error
 
 ---
 
-### get()?
+### fetch()?
 
 ```ts
-optional get: (id) => Promise<T>;
+optional fetch: (id) => Promise<T>;
 ```
 
 Defined in: [resource/types.ts:210](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L210)

@@ -65,10 +65,10 @@ Query parameters type for list operations
 
 ## Properties
 
-### list()?
+### fetchList()?
 
 ```ts
-optional list: (query?) => Promise<ListResponse<T>>;
+optional fetchList: (query?) => Promise<ListResponse<T>>;
 ```
 
 Defined in: [resource/types.ts:200](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L200)
@@ -99,14 +99,14 @@ ServerError on REST API error
 
 #### Inherited from
 
-[`ResourceClient`](ResourceClient.md).[`list`](ResourceClient.md#list)
+[`ResourceClient`](ResourceClient.md).[`fetchList`](ResourceClient.md#fetchlist)
 
 ---
 
-### get()?
+### fetch()?
 
 ```ts
-optional get: (id) => Promise<T>;
+optional fetch: (id) => Promise<T>;
 ```
 
 Defined in: [resource/types.ts:210](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L210)
@@ -137,7 +137,7 @@ ServerError on REST API error (including 404)
 
 #### Inherited from
 
-[`ResourceClient`](ResourceClient.md).[`get`](ResourceClient.md#get)
+[`ResourceClient`](ResourceClient.md).[`fetch`](ResourceClient.md#fetch)
 
 ---
 
@@ -583,7 +583,7 @@ Useful for manual cache management or debugging.
 
 Operation name ('list', 'get', etc.)
 
-`"list"` | `"get"` | `"create"` | `"update"` | `"remove"`
+`"get"` | `"list"` | `"create"` | `"update"` | `"remove"`
 
 ##### params?
 
@@ -768,17 +768,18 @@ error: undefined | string;
 
 ---
 
-### fetch?
+### get?
 
 ```ts
-optional fetch: object;
+optional get: object;
 ```
 
-Defined in: [resource/types.ts:519](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L519)
+Defined in: [resource/types.ts:520](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L520)
 
-Grouped API: Explicit fetching (bypass cache)
+Grouped API: Explicit data fetching (bypass cache)
 
 Direct network calls that always hit the server.
+Useful for refresh actions or real-time data requirements.
 
 #### item()
 
@@ -786,11 +787,16 @@ Direct network calls that always hit the server.
 item: (id) => Promise<T>;
 ```
 
-Fetch item from server (bypass cache)
+Get item from server (bypass cache)
+
+Always fetches fresh data from the server, ignoring cache.
+Use for explicit refresh actions or real-time requirements.
 
 ##### Parameters
 
 ###### id
+
+Item identifier
 
 `string` | `number`
 
@@ -798,13 +804,18 @@ Fetch item from server (bypass cache)
 
 `Promise`\<`T`\>
 
+Promise resolving to the item
+
 #### list()
 
 ```ts
 list: (query?) => Promise<ListResponse<T>>;
 ```
 
-Fetch list from server (bypass cache)
+Get list from server (bypass cache)
+
+Always fetches fresh data from the server, ignoring cache.
+Use for explicit refresh actions or real-time requirements.
 
 ##### Parameters
 
@@ -812,9 +823,13 @@ Fetch list from server (bypass cache)
 
 `TQuery`
 
+Optional query parameters
+
 ##### Returns
 
 `Promise`\<[`ListResponse`](ListResponse.md)\<`T`\>\>
+
+Promise resolving to list response
 
 ---
 
@@ -824,7 +839,7 @@ Fetch list from server (bypass cache)
 optional mutate: object;
 ```
 
-Defined in: [resource/types.ts:536](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L536)
+Defined in: [resource/types.ts:549](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L549)
 
 Grouped API: Mutations (CRUD operations)
 
@@ -896,7 +911,7 @@ Delete item
 cache: object;
 ```
 
-Defined in: [resource/types.ts:558](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L558)
+Defined in: [resource/types.ts:571](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L571)
 
 Grouped API: Cache control
 
@@ -1014,7 +1029,7 @@ Generate cache key
 
 ###### operation
 
-`"list"` | `"get"` | `"create"` | `"update"` | `"remove"`
+`"get"` | `"list"` | `"create"` | `"update"` | `"remove"`
 
 ###### params?
 
@@ -1032,7 +1047,7 @@ Generate cache key
 storeApi: object;
 ```
 
-Defined in: [resource/types.ts:608](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L608)
+Defined in: [resource/types.ts:621](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L621)
 
 Grouped API: Store access
 
@@ -1062,7 +1077,7 @@ Store descriptor (lazy-loaded)
 optional events: object;
 ```
 
-Defined in: [resource/types.ts:625](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L625)
+Defined in: [resource/types.ts:638](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L638)
 
 Grouped API: Event names
 
