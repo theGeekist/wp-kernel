@@ -203,6 +203,42 @@ describe('defineResource', () => {
 		});
 
 		describe('route definition validation', () => {
+			it('should throw when route is null', () => {
+				expect(() => {
+					defineResource({
+						name: 'thing',
+						routes: {
+							list: null as never,
+						},
+					});
+				}).toThrow(KernelError);
+
+				try {
+					defineResource({
+						name: 'thing',
+						routes: {
+							list: null as never,
+						},
+					});
+				} catch (e) {
+					expect(e).toBeInstanceOf(KernelError);
+					const error = e as KernelError;
+					expect(error.code).toBe('DeveloperError');
+					expect(error.message).toContain('must be an object');
+				}
+			});
+
+			it('should throw when route is not an object', () => {
+				expect(() => {
+					defineResource({
+						name: 'thing',
+						routes: {
+							list: 'not an object' as never,
+						},
+					});
+				}).toThrow(KernelError);
+			});
+
 			it('should throw when route.path is missing', () => {
 				expect(() => {
 					defineResource({
@@ -358,6 +394,51 @@ describe('defineResource', () => {
 			expect(resource.cacheKeys.get).toBeDefined();
 			expect(typeof resource.cacheKeys.list).toBe('function');
 			expect(typeof resource.cacheKeys.get).toBe('function');
+		});
+
+		it('should generate all default cache keys for CRUD operations', () => {
+			const resource = defineResource<Thing>({
+				name: 'thing',
+				routes: {
+					list: { path: '/wpk/v1/things', method: 'GET' },
+					get: { path: '/wpk/v1/things/:id', method: 'GET' },
+					create: { path: '/wpk/v1/things', method: 'POST' },
+					update: { path: '/wpk/v1/things/:id', method: 'PUT' },
+					remove: { path: '/wpk/v1/things/:id', method: 'DELETE' },
+				},
+			});
+
+			// Test default cache key generators
+			expect(resource.cacheKeys.list({ q: 'test' })).toEqual([
+				'thing',
+				'list',
+				JSON.stringify({ q: 'test' }),
+			]);
+
+			expect(resource.cacheKeys.get(123)).toEqual(['thing', 'get', 123]);
+
+			expect(
+				resource.cacheKeys.create({
+					title: 'New thing',
+					description: 'Test',
+				})
+			).toEqual([
+				'thing',
+				'create',
+				JSON.stringify({ title: 'New thing', description: 'Test' }),
+			]);
+
+			expect(resource.cacheKeys.update(456)).toEqual([
+				'thing',
+				'update',
+				456,
+			]);
+
+			expect(resource.cacheKeys.remove(789)).toEqual([
+				'thing',
+				'remove',
+				789,
+			]);
 		});
 
 		it('should use custom cache keys when provided', () => {
