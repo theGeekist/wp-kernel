@@ -138,6 +138,12 @@ importers:
       '@wordpress/scripts':
         specifier: ^30.24.0
         version: 30.24.0(@playwright/test@1.55.1)(@types/eslint@9.6.1)(@types/node@24.6.0)(@wordpress/env@10.31.0(@types/node@24.6.0))(babel-plugin-macros@3.1.0)(eslint-import-resolver-typescript@4.4.4(eslint-plugin-import@2.32.0)(eslint@9.36.0))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint-scss@6.12.1(stylelint@16.24.0(typescript@5.9.2)))(type-fest@4.41.0)(typescript@5.9.2)
+      ajv:
+        specifier: ^8.17.1
+        version: 8.17.1
+      ajv-formats:
+        specifier: ^3.0.1
+        version: 3.0.1(ajv@8.17.1)
 
   packages/cli:
     dependencies:
@@ -13047,17 +13053,17 @@ snapshots:
   '@webpack-cli/configtest@2.1.1(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.2)(webpack@5.102.0))(webpack@5.102.0)':
     dependencies:
       webpack: 5.102.0(webpack-cli@5.1.4)
-      webpack-cli: 5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.2(webpack-cli@5.1.4)(webpack@5.102.0))(webpack@5.102.0(webpack-cli@5.1.4))
+      webpack-cli: 5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.2)(webpack@5.102.0)
 
   '@webpack-cli/info@2.0.2(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.2)(webpack@5.102.0))(webpack@5.102.0)':
     dependencies:
       webpack: 5.102.0(webpack-cli@5.1.4)
-      webpack-cli: 5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.2(webpack-cli@5.1.4)(webpack@5.102.0))(webpack@5.102.0(webpack-cli@5.1.4))
+      webpack-cli: 5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.2)(webpack@5.102.0)
 
   '@webpack-cli/serve@2.0.5(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.2)(webpack@5.102.0))(webpack-dev-server@5.2.2)(webpack@5.102.0)':
     dependencies:
       webpack: 5.102.0(webpack-cli@5.1.4)
-      webpack-cli: 5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.2(webpack-cli@5.1.4)(webpack@5.102.0))(webpack@5.102.0(webpack-cli@5.1.4))
+      webpack-cli: 5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.2)(webpack@5.102.0)
     optionalDependencies:
       webpack-dev-server: 5.2.2(webpack-cli@5.1.4)(webpack@5.102.0)
 
@@ -13506,7 +13512,7 @@ snapshots:
       url-loader: 4.1.1(webpack@5.102.0)
       webpack: 5.102.0(webpack-cli@5.1.4)
       webpack-bundle-analyzer: 4.10.2
-      webpack-cli: 5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.2(webpack-cli@5.1.4)(webpack@5.102.0))(webpack@5.102.0(webpack-cli@5.1.4))
+      webpack-cli: 5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.2)(webpack@5.102.0)
       webpack-dev-server: 5.2.2(webpack-cli@5.1.4)(webpack@5.102.0)
     optionalDependencies:
       '@wordpress/env': 10.31.0(@types/node@24.6.0)
@@ -20113,7 +20119,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.2(webpack-cli@5.1.4)(webpack@5.102.0))(webpack@5.102.0(webpack-cli@5.1.4)):
+  webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.2)(webpack@5.102.0):
     dependencies:
       '@discoveryjs/json-ext': 0.5.7
       '@webpack-cli/configtest': 2.1.1(webpack-cli@5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.2)(webpack@5.102.0))(webpack@5.102.0)
@@ -20176,7 +20182,7 @@ snapshots:
       ws: 8.18.3
     optionalDependencies:
       webpack: 5.102.0(webpack-cli@5.1.4)
-      webpack-cli: 5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.2(webpack-cli@5.1.4)(webpack@5.102.0))(webpack@5.102.0(webpack-cli@5.1.4))
+      webpack-cli: 5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.2)(webpack@5.102.0)
     transitivePeerDependencies:
       - bufferutil
       - debug
@@ -20219,7 +20225,7 @@ snapshots:
       watchpack: 2.4.4
       webpack-sources: 3.3.3
     optionalDependencies:
-      webpack-cli: 5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.2(webpack-cli@5.1.4)(webpack@5.102.0))(webpack@5.102.0(webpack-cli@5.1.4))
+      webpack-cli: 5.1.4(webpack-bundle-analyzer@4.10.2)(webpack-dev-server@5.2.2)(webpack@5.102.0)
     transitivePeerDependencies:
       - '@swc/core'
       - esbuild
