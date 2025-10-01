@@ -304,7 +304,7 @@ export function createStore<T, TQuery = unknown>(
 				throw new KernelError('NotImplementedError', {
 					message:
 						`Resource "${resource.name}" does not have a "fetch" method. ` +
-						'Define a "get" route in your resource configuration.',
+						'Define a "get" route to enable the fetch method in your resource configuration.',
 				});
 			}
 
