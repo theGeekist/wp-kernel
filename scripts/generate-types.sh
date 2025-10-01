@@ -20,7 +20,10 @@ echo "  📝 Generating Job types..."
 pnpm exec json2ts \
   "$REPO_ROOT/examples/showcase-plugin/contracts/job.schema.json" \
   --output "$REPO_ROOT/examples/showcase-plugin/types/job.d.ts" \
-  --bannerComment "/**\n * Auto-generated TypeScript types from job.schema.json\n * DO NOT EDIT MANUALLY - regenerate with: pnpm types:generate\n */" \
+  --bannerComment "/**
+ * Auto-generated TypeScript types from job.schema.json
+ * DO NOT EDIT MANUALLY - regenerate with: pnpm types:generate
+ */" \
   --unknownAny false \
   --unreachableDefinitions false \
   --style.singleQuote
