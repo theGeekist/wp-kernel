@@ -1,0 +1,42 @@
+{
+	"$schema": "https://typedoc.org/schema.json",
+	"entryPoints": [
+		"packages/kernel/src/resource/index.ts",
+		"packages/kernel/src/errors/index.ts",
+		"packages/kernel/src/transport/index.ts"
+	],
+	"entryPointStrategy": "expand",
+	"out": "docs/api/generated",
+	"plugin": ["typedoc-plugin-markdown"],
+	"readme": "none",
+	"skipErrorChecking": false,
+	"excludePrivate": true,
+	"excludeProtected": true,
+	"excludeInternal": false,
+	"excludeExternals": true,
+	"hideGenerator": true,
+	"gitRevision": "main",
+	"name": "WP Kernel API",
+	"includeVersion": true,
+	"disableSources": false,
+	"sourceLinkTemplate": "https://github.com/theGeekist/wp-kernel/blob/{gitRevision}/{path}#L{line}",
+	"sort": ["source-order"],
+	"kindSortOrder": [
+		"Function",
+		"Class",
+		"Interface",
+		"TypeAlias",
+		"Variable",
+		"Enum"
+	],
+	"categorizeByGroup": true,
+	"categoryOrder": ["Resources", "Errors", "Transport", "*"],
+	"validation": {
+		"notExported": true,
+		"invalidLink": true,
+		"notDocumented": false
+	},
+	"fileExtension": ".md",
+	"flattenOutputFiles": false,
+	"useCodeBlocks": true
+}
