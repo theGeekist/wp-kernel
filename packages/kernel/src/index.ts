@@ -49,7 +49,7 @@ export {
 	findMatchingKeys,
 	findMatchingKeysMultiple,
 } from './resource/index.js';
-export { createStore } from './resource/store/createStore.js';
+export { createStore } from './resource/store.js';
 export type {
 	ResourceRoute,
 	ResourceRoutes,
@@ -70,7 +70,7 @@ export type {
 	ResourceResolvers,
 	ResourceStoreConfig,
 	ResourceStore,
-} from './resource/store/types.js';
+} from './resource/types.js';
 
 /**
  * Module placeholders - implementations coming in future sprints

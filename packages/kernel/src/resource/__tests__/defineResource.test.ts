@@ -5,7 +5,7 @@
 import { defineResource } from '../defineResource';
 import { KernelError } from '../../error';
 import type { CacheKeyFn } from '../../resource';
-import type { ResourceStore } from '../../resource/store/types';
+import type { ResourceStore } from '../types';
 
 // Type for window.wp mock in tests
 interface WindowWithWp extends Window {
