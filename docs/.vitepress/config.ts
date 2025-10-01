@@ -70,6 +70,24 @@ export default defineConfig({
 						{ text: 'Resources', link: '/api/resources' },
 						{ text: 'Actions', link: '/api/actions' },
 						{ text: 'Events', link: '/api/events' },
+						{ text: 'Jobs', link: '/api/jobs' },
+					],
+				},
+				{
+					text: 'Generated Docs',
+					items: [
+						{
+							text: 'Resources',
+							link: '/api/generated/resource/',
+						},
+						{
+							text: 'Errors',
+							link: '/api/generated/errors/',
+						},
+						{
+							text: 'Transport',
+							link: '/api/generated/transport/',
+						},
 					],
 				},
 			],

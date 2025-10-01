@@ -1,29 +1,21 @@
 # Actions API
 
-> **Status**: 🚧 Auto-generated API docs coming in Sprint 1+
+> **Status**: 🚧 Coming in Sprint 3
 
-## `defineAction<P, R>(name, handler)`
+Actions orchestrate write operations (create, update, delete) with event emission, cache invalidation, and job queuing.
 
-Define an action that orchestrates writes, emits events, and manages cache.
+## Planned API
 
-### Type Parameters
+```typescript
+import { defineAction } from '@geekist/wp-kernel/actions';
 
-- `P` - Parameters type
-- `R` - Return type
+export const CreateThing = defineAction('Thing.Create', async ({ data }) => {
+	// Orchestrate write operation
+	return result;
+});
 
-### Parameters
+// Use in UI
+await CreateThing({ data: formData });
+```
 
-- `name: string` - Action name in format `{Domain}.{Verb}` (e.g., `Thing.Create`)
-- `handler: (params: P) => Promise<R>` - Async function that performs the action
-
-### Returns
-
-An action function with:
-
-- `(params: P) => Promise<R>` - Call the action
-- `.emit(event, payload)` - Emit canonical events
-- `.name` - Action name
-
-### Example
-
-See [Quick Start](/getting-started/quick-start#step-3-write-an-action) for a complete example.
+See [Actions Guide](/guide/actions) for the full pattern.

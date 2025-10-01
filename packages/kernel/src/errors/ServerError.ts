@@ -12,13 +12,23 @@ import type { ErrorContext } from './types';
 
 /**
  * WordPress REST API error response shape
+ *
+ * This interface represents the standard error format returned by WordPress REST API.
+ *
+ * @public
  */
-interface WordPressRESTError {
+export interface WordPressRESTError {
+	/** Error code from WordPress (e.g., 'rest_forbidden', 'invalid_param') */
 	code: string;
+	/** Human-readable error message */
 	message: string;
+	/** Additional error data */
 	data?: {
+		/** HTTP status code */
 		status?: number;
+		/** Invalid parameters that caused the error */
 		params?: Record<string, string>;
+		/** Detailed validation or error information */
 		details?: Record<string, unknown>;
 		[key: string]: unknown;
 	};

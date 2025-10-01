@@ -7,6 +7,13 @@ dist/
 build/
 *.tsbuildinfo
 
+# Generated API documentation (committed to source control, but listed here for reference)
+# docs/api/generated/
+
+# VitePress build output
+docs/.vitepress/dist/
+docs/.vitepress/cache/
+
 # WordPress environments
 .wp-env/
 .wp-env.override.json

@@ -1,151 +1,50 @@
 # Resources API
 
-> **Status**: 🚧 Auto-generated API docs coming in Sprint 1+
+Complete API reference for the Resources module.
 
-## `defineResource<T, Q>(config)`
+## Overview
 
-Define a typed REST resource with client methods, store, and cache keys.
+Resources are the foundation of WP Kernel. They define typed REST endpoints with automatic:
 
-### Type Parameters
-
-- `T` - The resource entity type
-- `Q` - Query parameters type (optional)
-
-### Config Object
-
-```typescript
-{
-  name: string;           // Resource name (singular)
-  routes: {               // REST endpoints
-    list?: RouteConfig;
-    get?: RouteConfig;
-    create?: RouteConfig;
-    update?: RouteConfig;
-    remove?: RouteConfig;
-    [custom: string]: RouteConfig;
-  };
-  schema: Promise<JSONSchema>;  // JSON Schema for validation
-  cacheKeys: {            // Cache key generators
-    list?: (query?: Q) => string[];
-    get?: (id: string | number) => string[];
-    [custom: string]: (...args: any[]) => string[];
-  };
-}
-```
-
-### Returns
-
-A resource object with:
-
-- Client methods: `list()`, `get()`, `create()`, `update()`, `remove()`
-- Store integration (automatic)
+- Client method generation
+- Store registration (@wordpress/data)
 - Cache key management
+- Event emission
 
-### Example
-
-See [Quick Start](/getting-started/quick-start#step-1-define-a-resource) for a complete example.
-
-## `invalidate(patterns, options?)`
-
-Invalidate cached data matching the given cache key patterns.
-
-This is the primary cache invalidation API used by Actions to ensure UI reflects updated data after write operations.
-
-### Parameters
-
-- `patterns` - Cache key pattern(s) to invalidate
-    - Single pattern: `['resource', 'operation', ...params]`
-    - Multiple patterns: `[['resource1', 'list'], ['resource2', 'list']]`
-- `options` - Optional configuration
-    - `storeKey?: string` - Target specific store (e.g., 'wpk/thing'), omit to invalidate across all stores
-    - `emitEvent?: boolean` - Whether to emit `wpk.cache.invalidated` event (default: `true`)
-
-### Pattern Matching
-
-Cache key patterns support prefix matching:
-
-- `['thing', 'list']` matches all list queries: `thing:list`, `thing:list:active`, `thing:list:active:page:2`
-- `['thing', 'list', 'active']` matches only active list queries
-- `['thing', 'get', 123]` matches a specific item query
-
-### Examples
+## Quick Example
 
 ```typescript
-import { invalidate } from '@geekist/wp-kernel';
+import { defineResource } from '@geekist/wp-kernel';
 
-// Invalidate all list queries for 'thing' resource
-invalidate(['thing', 'list']);
+interface Thing {
+	id: number;
+	title: string;
+	status: 'active' | 'inactive';
+}
 
-// Invalidate specific query
-invalidate(['thing', 'list', 'active']);
-
-// Invalidate across multiple resources
-invalidate([
-	['thing', 'list'],
-	['job', 'list'],
-]);
-
-// Target specific store
-invalidate(['thing', 'list'], { storeKey: 'wpk/thing' });
-
-// Skip event emission
-invalidate(['thing', 'list'], { emitEvent: false });
-```
-
-### Usage in Actions
-
-```typescript
-import { defineAction } from '@geekist/wp-kernel';
-import { invalidate } from '@geekist/wp-kernel';
-import { thing } from '@/app/resources/thing';
-
-export const CreateThing = defineAction('Thing.Create', async ({ data }) => {
-	const created = await thing.create(data);
-
-	// Invalidate list caches so UI refreshes
-	invalidate(['thing', 'list']);
-
-	return created;
+export const thing = defineResource<Thing, { status?: string }>({
+	name: 'thing',
+	routes: {
+		list: { path: '/wpk/v1/things', method: 'GET' },
+		get: { path: '/wpk/v1/things/:id', method: 'GET' },
+	},
+	schema: import('../../contracts/thing.schema.json'),
+	cacheKeys: {
+		list: (query) => ['thing', 'list', query?.status],
+		get: (id) => ['thing', 'get', id],
+	},
 });
+
+// Use the client
+const things = await thing.list({ status: 'active' });
+const single = await thing.get(123);
 ```
 
-## `invalidateAll(storeKey)`
+## Full API Reference
 
-Clear all cached data in a specific store.
+For complete type signatures and all exported functions, see the [auto-generated API documentation](/api/generated/resource/README).
 
-### Parameters
+## Learn More
 
-- `storeKey` - The store key to invalidate (e.g., 'wpk/thing')
-
-### Example
-
-```typescript
-import { invalidateAll } from '@geekist/wp-kernel';
-
-// Clear all cached data for 'thing' resource
-invalidateAll('wpk/thing');
-```
-
-## Cache Key Utilities
-
-### `normalizeCacheKey(pattern)`
-
-Normalize a cache key pattern to a string representation.
-
-```typescript
-import { normalizeCacheKey } from '@geekist/wp-kernel';
-
-normalizeCacheKey(['thing', 'list']); // → 'thing:list'
-normalizeCacheKey(['thing', 'list', null]); // → 'thing:list' (filters nulls)
-```
-
-### `matchesCacheKey(key, pattern)`
-
-Check if a cache key matches a pattern (supports prefix matching).
-
-```typescript
-import { matchesCacheKey } from '@geekist/wp-kernel';
-
-matchesCacheKey('thing:list:active', ['thing', 'list']); // → true
-matchesCacheKey('thing:get:123', ['thing', 'list']); // → false
-```
+- [Resources Guide](/guide/resources) - Complete tutorial with examples
+- [Quick Start](/getting-started/quick-start) - Get up and running fast
