@@ -57,7 +57,7 @@ This is the primary cache invalidation API used by Actions to ensure UI reflects
     - Single pattern: `['resource', 'operation', ...params]`
     - Multiple patterns: `[['resource1', 'list'], ['resource2', 'list']]`
 - `options` - Optional configuration
-    - `storeKey?: string` - Target specific store (e.g., 'gk/thing'), omit to invalidate across all stores
+    - `storeKey?: string` - Target specific store (e.g., 'wpk/thing'), omit to invalidate across all stores
     - `emitEvent?: boolean` - Whether to emit `wpk.cache.invalidated` event (default: `true`)
 
 ### Pattern Matching
@@ -86,7 +86,7 @@ invalidate([
 ]);
 
 // Target specific store
-invalidate(['thing', 'list'], { storeKey: 'gk/thing' });
+invalidate(['thing', 'list'], { storeKey: 'wpk/thing' });
 
 // Skip event emission
 invalidate(['thing', 'list'], { emitEvent: false });
@@ -115,7 +115,7 @@ Clear all cached data in a specific store.
 
 ### Parameters
 
-- `storeKey` - The store key to invalidate (e.g., 'gk/thing')
+- `storeKey` - The store key to invalidate (e.g., 'wpk/thing')
 
 ### Example
 
@@ -123,7 +123,7 @@ Clear all cached data in a specific store.
 import { invalidateAll } from '@geekist/wp-kernel';
 
 // Clear all cached data for 'thing' resource
-invalidateAll('gk/thing');
+invalidateAll('wpk/thing');
 ```
 
 ## Cache Key Utilities

@@ -54,11 +54,11 @@ import { defineResource } from '@geekist/wp-kernel/resource';
 export const thing = defineResource<Thing, { q?: string; cursor?: Cursor }>({
 	name: 'thing',
 	routes: {
-		list: { path: '/gk/v1/things', method: 'GET' },
-		get: { path: '/gk/v1/things/:id', method: 'GET' },
-		create: { path: '/gk/v1/things', method: 'POST' },
-		update: { path: '/gk/v1/things/:id', method: 'PUT' },
-		remove: { path: '/gk/v1/things/:id', method: 'DELETE' },
+		list: { path: '/wpk/v1/things', method: 'GET' },
+		get: { path: '/wpk/v1/things/:id', method: 'GET' },
+		create: { path: '/wpk/v1/things', method: 'POST' },
+		update: { path: '/wpk/v1/things/:id', method: 'PUT' },
+		remove: { path: '/wpk/v1/things/:id', method: 'DELETE' },
 	},
 	schema: import('../../contracts/thing.schema.json'),
 	cacheKeys: {
@@ -136,8 +136,8 @@ import { registerBindingSource } from '@geekist/wp-kernel/bindings';
 import { select } from '@wordpress/data';
 
 registerBindingSource('gk', {
-  'thing.title': (attrs) => select('gk/thing').getById(attrs.id)?.title,
-  'thing.price': (attrs) => select('gk/thing').getById(attrs.id)?.price
+  'thing.title': (attrs) => select('wpk/thing').getById(attrs.id)?.title,
+  'thing.price': (attrs) => select('wpk/thing').getById(attrs.id)?.price
 });
 
 // In block.json
@@ -160,7 +160,7 @@ Front-end behavior without jQuery or custom React components.
 ```typescript
 import { defineInteraction } from '@geekist/wp-kernel/interactivity';
 
-export const useThingForm = defineInteraction('gk/thing-form', {
+export const useThingForm = defineInteraction('wpk/thing-form', {
 	state: () => ({ saving: false, error: null }),
 	actions: {
 		async submit(formData) {
@@ -190,10 +190,10 @@ import { defineJob } from '@geekist/wp-kernel/jobs';
 
 export const IndexThing = defineJob('IndexThing', {
 	enqueue: (params: { id: number }) => {
-		// POST /gk/v1/jobs/index-thing
+		// POST /wpk/v1/jobs/index-thing
 	},
 	status: (params) => {
-		// GET /gk/v1/jobs/index-thing/status?id=...
+		// GET /wpk/v1/jobs/index-thing/status?id=...
 	},
 });
 

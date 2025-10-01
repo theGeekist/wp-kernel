@@ -45,8 +45,8 @@ function getDataRegistry(): WordPressDataRegistry | null {
  */
 export interface InvalidateOptions {
 	/**
-	 * Store key to target (e.g., 'gk/thing')
-	 * If not provided, invalidates across all 'gk/*' stores
+	 * Store key to target (e.g., 'wpk/thing')
+	 * If not provided, invalidates across all 'wpk/*' stores
 	 */
 	storeKey?: string;
 
@@ -68,7 +68,7 @@ const registeredStoreKeys = new Set<string>();
  * Called internally by defineResource
  *
  * @internal
- * @param storeKey - The store key to register (e.g., 'gk/thing')
+ * @param storeKey - The store key to register (e.g., 'wpk/thing')
  */
 export function registerStoreKey(storeKey: string): void {
 	registeredStoreKeys.add(storeKey);
@@ -77,10 +77,10 @@ export function registerStoreKey(storeKey: string): void {
 /**
  * Get all registered store keys matching the given prefix
  *
- * @param prefix - Prefix to filter by (e.g., 'gk/')
+ * @param prefix - Prefix to filter by (e.g., 'wpk/')
  * @return Array of matching store keys
  */
-function getMatchingStoreKeys(prefix: string = 'gk/'): string[] {
+function getMatchingStoreKeys(prefix: string = 'wpk/'): string[] {
 	return Array.from(registeredStoreKeys).filter((key) =>
 		key.startsWith(prefix)
 	);
@@ -111,7 +111,7 @@ function getMatchingStoreKeys(prefix: string = 'gk/'): string[] {
  * ]);
  *
  * // Target specific store
- * invalidate(['thing', 'list'], { storeKey: 'gk/thing' });
+ * invalidate(['thing', 'list'], { storeKey: 'wpk/thing' });
  * ```
  */
 export function invalidate(
@@ -134,7 +134,7 @@ export function invalidate(
 	}
 
 	// Determine which stores to invalidate
-	const storeKeys = storeKey ? [storeKey] : getMatchingStoreKeys('gk/');
+	const storeKeys = storeKey ? [storeKey] : getMatchingStoreKeys('wpk/');
 
 	// Track which keys were actually invalidated (for event emission)
 	const invalidatedKeysSet = new Set<string>();
@@ -218,12 +218,12 @@ function emitCacheInvalidatedEvent(keys: string[]): void {
 /**
  * Invalidate all caches in a specific store
  *
- * @param storeKey - The store key to invalidate (e.g., 'gk/thing')
+ * @param storeKey - The store key to invalidate (e.g., 'wpk/thing')
  *
  * @example
  * ```ts
  * // Clear all cached data for 'thing' resource
- * invalidateAll('gk/thing');
+ * invalidateAll('wpk/thing');
  * ```
  */
 export function invalidateAll(storeKey: string): void {

@@ -315,9 +315,9 @@ function createClient<T, TQuery>(
  * const thing = defineResource<Thing, { q?: string }>({
  *   name: 'thing',
  *   routes: {
- *     list: { path: '/gk/v1/things', method: 'GET' },
- *     get: { path: '/gk/v1/things/:id', method: 'GET' },
- *     create: { path: '/gk/v1/things', method: 'POST' }
+ *     list: { path: '/wpk/v1/things', method: 'GET' },
+ *     get: { path: '/wpk/v1/things/:id', method: 'GET' },
+ *     create: { path: '/wpk/v1/things', method: 'POST' }
  *   },
  *   cacheKeys: {
  *     list: (q) => ['thing', 'list', q?.q],
@@ -330,7 +330,7 @@ function createClient<T, TQuery>(
  * const item = await thing.get(123);
  *
  * // Use metadata
- * console.log(thing.storeKey); // 'gk/thing'
+ * console.log(thing.storeKey); // 'wpk/thing'
  * invalidate(thing.cacheKeys.list({ q: 'search' }));
  * ```
  */
@@ -357,7 +357,7 @@ export function defineResource<T = unknown, TQuery = unknown>(
 	const resource: ResourceObject<T, TQuery> = {
 		...client,
 		name: config.name,
-		storeKey: `gk/${config.name}`,
+		storeKey: `wpk/${config.name}`,
 		cacheKeys,
 		routes: config.routes,
 

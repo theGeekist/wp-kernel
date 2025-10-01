@@ -30,11 +30,11 @@ export interface Thing {
 export const thing = defineResource<Thing, { q?: string }>({
 	name: 'thing',
 	routes: {
-		list: { path: '/gk/v1/things', method: 'GET' },
-		get: { path: '/gk/v1/things/:id', method: 'GET' },
-		create: { path: '/gk/v1/things', method: 'POST' },
-		update: { path: '/gk/v1/things/:id', method: 'PUT' },
-		remove: { path: '/gk/v1/things/:id', method: 'DELETE' },
+		list: { path: '/wpk/v1/things', method: 'GET' },
+		get: { path: '/wpk/v1/things/:id', method: 'GET' },
+		create: { path: '/wpk/v1/things', method: 'POST' },
+		update: { path: '/wpk/v1/things/:id', method: 'PUT' },
+		remove: { path: '/wpk/v1/things/:id', method: 'DELETE' },
 	},
 	schema: import('../../contracts/thing.schema.json'),
 	cacheKeys: {
@@ -47,7 +47,7 @@ export const thing = defineResource<Thing, { q?: string }>({
 **What this gives you:**
 
 - Typed client methods: `thing.list()`, `thing.create()`, etc.
-- Store selectors: `select('gk/thing').getList()`, `select('gk/thing').getById(id)`
+- Store selectors: `select('wpk/thing').getList()`, `select('wpk/thing').getById(id)`
 - Cache keys for invalidation
 - Automatic retry logic
 
@@ -181,7 +181,7 @@ Create `includes/rest/class-things-controller.php`:
 namespace Geekist\WPKernel\REST;
 
 class Things_Controller extends \WP_REST_Controller {
-    protected $namespace = 'gk/v1';
+    protected $namespace = 'wpk/v1';
     protected $rest_base = 'things';
 
     public function register_routes() {

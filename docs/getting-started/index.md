@@ -36,7 +36,7 @@ const handleSubmit = async () => {
 ```typescript
 // Client-side binding
 registerBindingSource('gk', {
-	'thing.title': (attrs) => select('gk/thing').getById(attrs.id)?.title,
+	'thing.title': (attrs) => select('wpk/thing').getById(attrs.id)?.title,
 });
 ```
 
