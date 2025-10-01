@@ -47,6 +47,7 @@
 		"typecheck:tests": "tsc --project tsconfig.tests.json --noEmit"
 	},
 	"peerDependencies": {
+		"@wordpress/api-fetch": ">=7.0.0",
 		"@wordpress/data": ">=10.0.0",
 		"@wordpress/element": ">=6.0.0",
 		"@wordpress/hooks": ">=4.0.0"
