@@ -1,5 +1,6 @@
 /**
- * @file Cache Key Utilities Tests
+ * @file Cache Utilities Tests - Cache Keys
+ * Consolidated tests for cache keys, interpolation, and invalidation
  */
 
 import {
@@ -8,7 +9,7 @@ import {
 	findMatchingKeys,
 	findMatchingKeysMultiple,
 	type CacheKeyPattern,
-} from '../cacheKeys.js';
+} from '../../cache.js';
 
 describe('cacheKeys', () => {
 	describe('normalizeCacheKey', () => {

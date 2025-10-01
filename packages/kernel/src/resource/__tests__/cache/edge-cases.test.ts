@@ -1,9 +1,9 @@
 /**
- * @file Edge Case Tests for Cache Invalidation
- * Tests for development warnings and error paths
+ * @file Cache Utilities Tests - Edge Cases
+ * Consolidated tests for cache keys, interpolation, and invalidation
  */
 
-import { invalidate, invalidateAll } from '../invalidate.js';
+import { invalidate, invalidateAll } from '../../cache.js';
 
 // Mock window.wp global
 interface WindowWithWp extends Window {

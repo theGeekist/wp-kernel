@@ -10,7 +10,7 @@
  * @see Product Specification § 4.1 Resources
  */
 
-import { KernelError } from '../errors/KernelError.js';
+import { KernelError } from '../error/KernelError.js';
 import type {
 	TransportRequest,
 	TransportResponse,

@@ -4,24 +4,28 @@
 
 Background work with polling support.
 
+Queue long-running tasks from Actions. Client can poll for status updates.
+
 ## Quick Reference
 
 ```typescript
 import { defineJob } from '@geekist/wp-kernel/jobs';
 
-export const IndexThing = defineJob('IndexThing', {
+export const IndexTestimonial = defineJob('IndexTestimonial', {
 	enqueue: (params: { id: number }) => {
-		// POST /wpk/v1/jobs/index-thing
+		// POST /wpk/v1/jobs/index-testimonial
 	},
 	status: (params) => {
-		// GET /wpk/v1/jobs/index-thing/status?id=...
+		// GET /wpk/v1/jobs/index-testimonial/status?id=...
 	},
 });
 
-// Usage
-await jobs.enqueue('IndexThing', { id: 123 });
+// Usage in Actions
+await jobs.enqueue('IndexTestimonial', { id: 123 });
+
+// Wait for completion (optional)
 await jobs.wait(
-	'IndexThing',
+	'IndexTestimonial',
 	{ id: 123 },
 	{
 		pollInterval: 1500,
@@ -32,4 +36,5 @@ await jobs.wait(
 
 ## See Also
 
+- [Actions Guide](/guide/actions) - Enqueueing jobs from actions
 - [API Reference](/api/jobs) - Complete API docs (coming soon)

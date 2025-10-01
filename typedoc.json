@@ -2,8 +2,8 @@
 	"$schema": "https://typedoc.org/schema.json",
 	"entryPoints": [
 		"packages/kernel/src/resource/index.ts",
-		"packages/kernel/src/errors/index.ts",
-		"packages/kernel/src/transport/index.ts"
+		"packages/kernel/src/error/index.ts",
+		"packages/kernel/src/http/index.ts"
 	],
 	"entryPointStrategy": "expand",
 	"out": "docs/api/generated",
