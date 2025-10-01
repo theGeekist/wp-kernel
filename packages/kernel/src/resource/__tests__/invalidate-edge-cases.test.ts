@@ -3,7 +3,7 @@
  * Tests for development warnings and error paths
  */
 
-import { invalidate, invalidateAll } from '../invalidate.js';
+import { invalidate, invalidateAll } from '../cache.js';
 
 // Mock window.wp global
 interface WindowWithWp extends Window {

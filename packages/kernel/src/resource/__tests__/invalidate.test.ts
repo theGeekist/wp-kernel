@@ -2,7 +2,7 @@
  * @file Cache Invalidation Tests
  */
 
-import { invalidate, invalidateAll, registerStoreKey } from '../invalidate.js';
+import { invalidate, invalidateAll, registerStoreKey } from '../cache.js';
 
 // Mock window.wp global
 interface WindowWithWp extends Window {

@@ -6,11 +6,10 @@
  *
  * @see Product Specification § 4.1 Resources
  */
-
+import type * as WPData from '@wordpress/data';
 import { KernelError } from '../error/index.js';
-import { interpolatePath } from './interpolate.js';
-import { createStore } from './store/createStore.js';
-import { registerStoreKey } from './invalidate.js';
+import { interpolatePath, registerStoreKey } from './cache.js';
+import { createStore } from './store.js';
 import { fetch as transportFetch } from '../http/fetch.js';
 import type {
 	ResourceConfig,
@@ -19,6 +18,8 @@ import type {
 	ListResponse,
 	CacheKeys,
 } from './types.js';
+
+type WPGlobal = { wp?: { data?: typeof WPData } };
 
 /**
  * Default cache key generators
@@ -377,8 +378,7 @@ export function defineResource<T = unknown, TQuery = unknown>(
 				// Check if @wordpress/data is available (browser environment)
 				const globalWp =
 					typeof window !== 'undefined'
-						? // eslint-disable-next-line @typescript-eslint/no-explicit-any
-							(window as any).wp
+						? (window as Window & WPGlobal).wp
 						: undefined;
 				if (
 					globalWp?.data?.createReduxStore &&
