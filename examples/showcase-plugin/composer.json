@@ -1,0 +1,18 @@
+{
+	"name": "geekist/wp-kernel-showcase",
+	"description": "Showcase plugin demonstrating WP Kernel framework features",
+	"type": "wordpress-plugin",
+	"license": "MIT",
+	"require-dev": {
+		"php-stubs/wordpress-stubs": "^6.7",
+		"php-stubs/wp-cli-stubs": "^2.11"
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		},
+		"platform": {
+			"php": "8.3"
+		}
+	}
+}

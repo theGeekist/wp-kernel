@@ -1,4 +1,7 @@
-/**\n * Auto-generated TypeScript types from job.schema.json\n * DO NOT EDIT MANUALLY - regenerate with: pnpm types:generate\n */
+/**
+ * Auto-generated TypeScript types from job.schema.json
+ * DO NOT EDIT MANUALLY - regenerate with: pnpm types:generate
+ */
 
 /**
  * A job posting entity in the careers showcase plugin

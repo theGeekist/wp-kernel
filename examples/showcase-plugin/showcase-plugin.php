@@ -29,6 +29,37 @@ if ( ! defined( 'ABSPATH' ) ) {
 \define( 'WPK_SHOWCASE_URL', \plugin_dir_url( __FILE__ ) );
 
 /**
+ * Autoload classes.
+ *
+ * @param string $class Class name.
+ */
+function autoload( string $class ): void {
+	// Only autoload classes in our namespace.
+	if ( strpos( $class, 'WPKernel\\Showcase\\' ) !== 0 ) {
+		return;
+	}
+
+	// Convert namespace to file path.
+	$class = str_replace( 'WPKernel\\Showcase\\', '', $class );
+	$class = str_replace( '\\', '/', $class );
+	$file  = WPK_SHOWCASE_PATH . 'includes/class-' . strtolower( str_replace( '_', '-', $class ) ) . '.php';
+
+	// Handle nested namespaces (e.g., REST\Jobs_Controller).
+	if ( strpos( $class, '/' ) !== false ) {
+		$parts = explode( '/', $class );
+		$class = array_pop( $parts );
+		$path  = strtolower( implode( '/', $parts ) );
+		$file  = WPK_SHOWCASE_PATH . 'includes/' . $path . '/class-' . strtolower( str_replace( '_', '-', $class ) ) . '.php';
+	}
+
+	if ( file_exists( $file ) ) {
+		require_once $file;
+	}
+}
+
+\spl_autoload_register( __NAMESPACE__ . '\\autoload' );
+
+/**
  * Initialize the plugin.
  *
  * Registers Script Modules and enqueues them with proper import maps.
@@ -63,6 +94,21 @@ function init(): void {
 }
 
 \add_action( 'init', __NAMESPACE__ . '\\init' );
+
+/**
+ * Register REST API routes.
+ */
+function register_rest_routes(): void {
+	$controllers = array(
+		new REST\Jobs_Controller(),
+	);
+
+	foreach ( $controllers as $controller ) {
+		$controller->register_routes();
+	}
+}
+
+\add_action( 'rest_api_init', __NAMESPACE__ . '\\register_rest_routes' );
 
 /**
  * Activation hook.
