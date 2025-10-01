@@ -5,7 +5,7 @@
  * client generation, store keys, and cache management.
  */
 
-export { defineResource } from './defineResource.js';
+export { defineResource } from './define.js';
 export {
 	interpolatePath,
 	extractPathParams,

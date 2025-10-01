@@ -245,6 +245,7 @@ export interface ResourceClient<T = unknown, TQuery = unknown> {
  * Complete resource object returned by defineResource
  *
  * Combines client methods, store key, cache key generators, and metadata.
+ * Provides both thin-flat API (direct methods) and grouped API (namespaces).
  *
  * @template T - The resource entity type
  * @template TQuery - Query parameters type for list operations
@@ -253,9 +254,24 @@ export interface ResourceClient<T = unknown, TQuery = unknown> {
  * ```ts
  * const thing = defineResource<Thing, { q?: string }>({ ... });
  *
- * // Use client methods
+ * // Use client methods (thin-flat API)
  * const items = await thing.list({ q: 'search' });
  * const item = await thing.get(123);
+ *
+ * // Use React hooks
+ * const { data, isLoading } = thing.useGet(123);
+ * const { data: items } = thing.useList({ q: 'search' });
+ *
+ * // Prefetch data
+ * await thing.prefetchGet(123);
+ * await thing.prefetchList({ q: 'search' });
+ *
+ * // Instance-based invalidation
+ * thing.invalidate(['list']); // Invalidate all lists
+ * thing.invalidate(['list', 'active']); // Invalidate specific query
+ *
+ * // Generate cache keys
+ * const key = thing.key('list', { q: 'search' });
  *
  * // Use in store selectors
  * const storeKey = thing.storeKey; // 'wpk/thing'
@@ -263,9 +279,6 @@ export interface ResourceClient<T = unknown, TQuery = unknown> {
  * // Access @wordpress/data store (lazy-loaded, auto-registered)
  * const store = thing.store;
  * const item = select(store).getItem(123);
- *
- * // Use cache keys for invalidation
- * invalidate(thing.cacheKeys.list({ q: 'search' }));
  * ```
  */
 export interface ResourceObject<T = unknown, TQuery = unknown>
@@ -307,6 +320,142 @@ export interface ResourceObject<T = unknown, TQuery = unknown>
 	 * REST route definitions (normalized)
 	 */
 	routes: ResourceRoutes;
+
+	// Thin-flat API: React hooks
+	/**
+	 * React hook to fetch a single item
+	 *
+	 * Uses @wordpress/data's useSelect under the hood.
+	 * Automatically handles loading states and re-fetching.
+	 *
+	 * @param id - Item identifier
+	 * @return Hook result with data, isLoading, error
+	 *
+	 * @example
+	 * ```ts
+	 * function ThingView({ id }: { id: number }) {
+	 *   const { data: thing, isLoading } = thing.useGet(id);
+	 *   if (isLoading) return <Spinner />;
+	 *   return <div>{thing.title}</div>;
+	 * }
+	 * ```
+	 */
+	useGet?: (id: string | number) => {
+		data: T | undefined;
+		isLoading: boolean;
+		error: string | undefined;
+	};
+
+	/**
+	 * React hook to fetch a list of items
+	 *
+	 * Uses @wordpress/data's useSelect under the hood.
+	 * Automatically handles loading states and re-fetching.
+	 *
+	 * @param query - Query parameters
+	 * @return Hook result with data, isLoading, error
+	 *
+	 * @example
+	 * ```ts
+	 * function ThingList({ status }: { status: string }) {
+	 *   const { data, isLoading } = thing.useList({ status });
+	 *   if (isLoading) return <Spinner />;
+	 *   return <List items={data?.items} />;
+	 * }
+	 * ```
+	 */
+	useList?: (query?: TQuery) => {
+		data: ListResponse<T> | undefined;
+		isLoading: boolean;
+		error: string | undefined;
+	};
+
+	// Thin-flat API: Prefetch methods
+	/**
+	 * Prefetch a single item into the cache
+	 *
+	 * Useful for optimistic loading or preloading data before navigation.
+	 * Does not return the data, only ensures it's in the cache.
+	 *
+	 * @param id - Item identifier
+	 * @return Promise resolving when prefetch completes
+	 *
+	 * @example
+	 * ```ts
+	 * // Prefetch on hover
+	 * <Link onMouseEnter={() => thing.prefetchGet(123)}>
+	 *   View Thing
+	 * </Link>
+	 * ```
+	 */
+	prefetchGet?: (id: string | number) => Promise<void>;
+
+	/**
+	 * Prefetch a list of items into the cache
+	 *
+	 * Useful for optimistic loading or preloading data before navigation.
+	 * Does not return the data, only ensures it's in the cache.
+	 *
+	 * @param query - Query parameters
+	 * @return Promise resolving when prefetch completes
+	 *
+	 * @example
+	 * ```ts
+	 * // Prefetch on app mount
+	 * useEffect(() => {
+	 *   thing.prefetchList({ status: 'active' });
+	 * }, []);
+	 * ```
+	 */
+	prefetchList?: (query?: TQuery) => Promise<void>;
+
+	// Thin-flat API: Cache management
+	/**
+	 * Invalidate cached data for this resource
+	 *
+	 * Instance method alternative to global `invalidate()` function.
+	 * Automatically scoped to this resource's store.
+	 *
+	 * @param patterns - Cache key patterns to invalidate
+	 *
+	 * @example
+	 * ```ts
+	 * // After creating a thing
+	 * await thing.create(data);
+	 * thing.invalidate(['list']); // Invalidate all lists
+	 *
+	 * // After updating
+	 * await thing.update(id, data);
+	 * thing.invalidate(['get', id]); // Invalidate specific item
+	 * thing.invalidate(['list']); // Also invalidate lists
+	 * ```
+	 */
+	invalidate: (
+		patterns: (string | number | boolean | null | undefined)[][]
+	) => void;
+
+	/**
+	 * Generate a cache key for this resource
+	 *
+	 * Useful for manual cache management or debugging.
+	 *
+	 * @param operation - Operation name ('list', 'get', etc.)
+	 * @param params    - Parameters for the operation
+	 * @return Cache key array
+	 *
+	 * @example
+	 * ```ts
+	 * const key = thing.key('list', { status: 'active' });
+	 * // => ['thing', 'list', '{"status":"active"}']
+	 *
+	 * const key2 = thing.key('get', 123);
+	 * // => ['thing', 'get', 123]
+	 * ```
+	 */
+	key: (
+		operation: 'list' | 'get' | 'create' | 'update' | 'remove',
+		params?: TQuery | string | number | Partial<T>
+	) => (string | number | boolean)[];
 }
 
 /**

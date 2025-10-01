@@ -2,7 +2,7 @@
  * Tests for defineResource and config validation
  */
 
-import { defineResource } from '../defineResource';
+import { defineResource } from '../define';
 import { KernelError } from '../../error';
 import type { CacheKeyFn } from '../../resource';
 import type { ResourceStore } from '../types';
