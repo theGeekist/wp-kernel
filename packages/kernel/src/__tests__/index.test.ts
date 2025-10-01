@@ -2,7 +2,7 @@
  * Unit tests for @geekist/wp-kernel package
  */
 
-import { VERSION } from '../index';
+import { VERSION } from '@kernel/index';
 
 describe('Kernel Package', () => {
 	describe('VERSION', () => {

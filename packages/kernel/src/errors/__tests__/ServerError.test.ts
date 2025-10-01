@@ -2,8 +2,8 @@
  * Tests for ServerError
  */
 
-import { ServerError } from '../ServerError';
-import { KernelError } from '../KernelError';
+import { ServerError } from '@kernel/errors/ServerError';
+import { KernelError } from '@kernel/errors/KernelError';
 
 describe('ServerError', () => {
 	describe('constructor', () => {

@@ -2,8 +2,8 @@
  * Tests for TransportError
  */
 
-import { TransportError } from '../TransportError';
-import { KernelError } from '../KernelError';
+import { TransportError } from '@kernel/errors/TransportError';
+import { KernelError } from '@kernel/errors/KernelError';
 
 describe('TransportError', () => {
 	describe('constructor', () => {
