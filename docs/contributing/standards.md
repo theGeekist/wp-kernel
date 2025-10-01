@@ -271,8 +271,8 @@ Use trailing commas in multi-line:
 const config = {
 	name: 'thing',
 	routes: {
-		list: { path: '/gk/v1/things', method: 'GET' },
-		create: { path: '/gk/v1/things', method: 'POST' },
+		list: { path: '/wpk/v1/things', method: 'GET' },
+		create: { path: '/wpk/v1/things', method: 'POST' },
 	}, // <- trailing comma
 };
 ```
@@ -293,7 +293,7 @@ const config = {
  * const thing = defineResource<Thing>({
  *   name: 'thing',
  *   routes: {
- *     list: { path: '/gk/v1/things', method: 'GET' },
+ *     list: { path: '/wpk/v1/things', method: 'GET' },
  *   },
  * });
  * ```

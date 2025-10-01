@@ -9,7 +9,7 @@ Add front-end behavior to blocks without custom JavaScript.
 ```typescript
 import { defineInteraction } from '@geekist/wp-kernel/interactivity';
 
-export const useThingForm = defineInteraction('gk/thing-form', {
+export const useThingForm = defineInteraction('wpk/thing-form', {
 	state: () => ({ saving: false, error: null }),
 	actions: {
 		async submit(formData) {

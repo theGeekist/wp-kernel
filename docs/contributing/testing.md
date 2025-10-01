@@ -85,7 +85,7 @@ describe('CreateThing', () => {
 		const result = await CreateThing({ data: { title: 'Test' } });
 
 		// Assert
-		expect(transport.post).toHaveBeenCalledWith('/gk/v1/things', {
+		expect(transport.post).toHaveBeenCalledWith('/wpk/v1/things', {
 			title: 'Test',
 		});
 		expect(result.id).toBe(1);
@@ -320,7 +320,7 @@ await page.click('#submit-btn');
 ```typescript
 // Wait for API call to complete
 await Promise.all([
-	page.waitForResponse((res) => res.url().includes('/gk/v1/things')),
+	page.waitForResponse((res) => res.url().includes('/wpk/v1/things')),
 	page.click('button:has-text("Create")'),
 ]);
 ```
@@ -433,7 +433,7 @@ describe('Thing Resource', () => {
 		const result = await thing.list();
 
 		// Assert
-		expect(transport.get).toHaveBeenCalledWith('/gk/v1/things');
+		expect(transport.get).toHaveBeenCalledWith('/wpk/v1/things');
 		expect(result).toHaveLength(2);
 	});
 
@@ -448,7 +448,7 @@ describe('Thing Resource', () => {
 		const result = await thing.create({ title: 'New Thing' });
 
 		// Assert
-		expect(transport.post).toHaveBeenCalledWith('/gk/v1/things', {
+		expect(transport.post).toHaveBeenCalledWith('/wpk/v1/things', {
 			title: 'New Thing',
 		});
 		expect(result.id).toBe(1);
@@ -587,7 +587,7 @@ import { mockThing } from '../fixtures/thing';
 
 test('should display thing', async ({ page }) => {
 	// Mock API response
-	await page.route('/gk/v1/things/1', (route) =>
+	await page.route('/wpk/v1/things/1', (route) =>
 		route.fulfill({ json: mockThing })
 	);
 

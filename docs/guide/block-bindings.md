@@ -11,8 +11,8 @@ import { registerBindingSource } from '@geekist/wp-kernel/bindings';
 import { select } from '@wordpress/data';
 
 registerBindingSource('gk', {
-	'thing.title': (attrs) => select('gk/thing').getById(attrs.id)?.title,
-	'thing.price': (attrs) => select('gk/thing').getById(attrs.id)?.price,
+	'thing.title': (attrs) => select('wpk/thing').getById(attrs.id)?.title,
+	'thing.price': (attrs) => select('wpk/thing').getById(attrs.id)?.price,
 });
 ```
 
