@@ -1,0 +1,92 @@
+{
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"$id": "https://geekist.co/schemas/job.json",
+	"title": "Job",
+	"description": "A job posting entity in the careers showcase plugin",
+	"type": "object",
+	"required": ["id", "title", "status", "created_at"],
+	"properties": {
+		"id": {
+			"type": "integer",
+			"description": "Unique identifier for the job posting (WordPress post ID)",
+			"minimum": 1
+		},
+		"title": {
+			"type": "string",
+			"description": "Job posting title",
+			"minLength": 1,
+			"maxLength": 200
+		},
+		"slug": {
+			"type": "string",
+			"description": "URL-friendly slug for the job posting",
+			"pattern": "^[a-z0-9-]+$"
+		},
+		"status": {
+			"type": "string",
+			"description": "Publication status of the job posting",
+			"enum": ["draft", "publish", "closed"]
+		},
+		"description": {
+			"type": "string",
+			"description": "Full job description (HTML content)"
+		},
+		"department": {
+			"type": "string",
+			"description": "Department or team for this position",
+			"examples": ["Engineering", "Product", "Marketing", "Sales"]
+		},
+		"location": {
+			"type": "string",
+			"description": "Geographic location for the position",
+			"examples": ["San Francisco, CA", "Remote", "New York, NY"]
+		},
+		"seniority": {
+			"type": "string",
+			"description": "Experience level required",
+			"enum": ["Junior", "Mid", "Senior", "Lead", "Principal"]
+		},
+		"job_type": {
+			"type": "string",
+			"description": "Type of employment",
+			"enum": [
+				"Full-time",
+				"Part-time",
+				"Contract",
+				"Internship",
+				"Temporary"
+			]
+		},
+		"remote_policy": {
+			"type": "string",
+			"description": "Remote work policy",
+			"enum": ["on-site", "remote", "hybrid"]
+		},
+		"salary_min": {
+			"type": "integer",
+			"description": "Minimum salary range (annual, in cents to avoid floating point)",
+			"minimum": 0
+		},
+		"salary_max": {
+			"type": "integer",
+			"description": "Maximum salary range (annual, in cents to avoid floating point)",
+			"minimum": 0
+		},
+		"apply_deadline": {
+			"type": "string",
+			"description": "Application deadline (ISO 8601 date string)",
+			"format": "date-time"
+		},
+		"created_at": {
+			"type": "string",
+			"description": "Timestamp when the job was created (ISO 8601)",
+			"format": "date-time"
+		},
+		"updated_at": {
+			"type": "string",
+			"description": "Timestamp when the job was last updated (ISO 8601)",
+			"format": "date-time"
+		}
+	},
+	"additionalProperties": false
+}
