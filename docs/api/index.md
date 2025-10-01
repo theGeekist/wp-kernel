@@ -1,45 +1,35 @@
 # API Reference
 
-> **Status**: 🚧 This section will be populated in Sprint 1+ with auto-generated API documentation
+Complete API documentation for WP Kernel.
 
-WP Kernel API documentation will be generated from TypeScript source code using TypeDoc or API Extractor.
+## Core Modules
 
-## Available APIs
+### [Resources](/api/resources)
 
-### Core Package (`@geekist/wp-kernel`)
+Define typed REST resources with automatic client generation, store integration, and cache management.
 
-- [Resources](/api/resources) - REST client + store + cache
-- [Actions](/api/actions) - Write orchestration
-- [Events](/api/events) - Canonical event taxonomy
-- Jobs - Background work (coming soon)
-- Policies - Permission checks (coming soon)
+### [Errors](/api/generated/errors/README)
 
-### UI Package (`@geekist/wp-kernel-ui`)
+Structured error handling with typed error classes.
 
-- Components - React components (coming soon)
-- Bindings - Block binding sources (coming soon)
-- Interactivity - Front-end behavior (coming soon)
+### [Transport](/api/generated/transport/README)
 
-### E2E Utils (`@geekist/wp-kernel-e2e-utils`)
+HTTP transport layer wrapping @wordpress/api-fetch.
 
-- Test Helpers - Playwright utilities (coming soon)
-- Fixtures - Test data management (coming soon)
+## Coming Soon
 
-## Type Definitions
+The following modules are planned for future sprints:
 
-All types are exported from package entry points:
+- [**Actions**](/api/actions) - Write operation orchestration (Sprint 3)
+- [**Jobs**](/api/jobs) - Background task management (Sprint 2)
+- [**Events**](/api/events) - Hook system integration (Sprint 2)
+
+## Usage
 
 ```typescript
-import type { Resource, Action, Event } from '@geekist/wp-kernel';
-import type { Component } from '@geekist/wp-kernel-ui';
+import { defineResource, invalidate } from '@geekist/wp-kernel';
+import { KernelError, ServerError } from '@geekist/wp-kernel/errors';
+import { fetch } from '@geekist/wp-kernel/transport';
 ```
 
-## Contributing
-
-To generate API documentation locally:
-
-```bash
-pnpm docs:api
-```
-
-(This command will be added in Sprint 1)
+For detailed examples and tutorials, see the [Guide](/guide/).

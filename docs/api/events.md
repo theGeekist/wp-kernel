@@ -1,59 +1,29 @@
 # Events API
 
-> **Status**: 🚧 Auto-generated API docs coming in Sprint 1+
+> **Status**: 🚧 Documentation in progress
 
-## Canonical Event Registry
+Canonical event taxonomy for observability and extensibility.
 
-Import canonical events from the registry:
+## Current Events
 
-```typescript
-import { events } from '@geekist/wp-kernel/events';
-```
+### Resource Events
 
-## Event Naming Convention
+Emitted by the transport layer:
 
-All events follow the pattern: `wpk.{domain}.{action}`
-
-Examples:
-
-- `wpk.thing.created`
-- `wpk.thing.updated`
-- `wpk.thing.deleted`
-- `wpk.job.enqueued`
-- `wpk.job.completed`
-
-## Emitting Events
-
-```typescript
-import { events } from '@geekist/wp-kernel/events';
-
-action.emit(events.thing.created, {
-	id: thing.id,
-	data: thing,
-});
-```
-
-## Listening to Events
+- `wpk.resource.request` - Before making a REST request
+- `wpk.resource.response` - After successful response
+- `wpk.resource.error` - On request failure
 
 ```typescript
 import { addAction } from '@wordpress/hooks';
-import { events } from '@geekist/wp-kernel/events';
 
-addAction(events.thing.created, 'my-plugin', (payload) => {
-	console.log('Thing created:', payload.id);
+addAction('wpk.resource.request', 'my-plugin', (event) => {
+	console.log(`Request ${event.requestId}: ${event.method} ${event.path}`);
 });
 ```
 
-## PHP Bridge
+See [Events Guide](/guide/events) for full taxonomy and examples.
 
-Selected events are mirrored to PHP:
+## Related
 
-```php
-add_action('wpk.bridge.thing.created', function($payload) {
-    error_log('Thing created: ' . $payload['id']);
-});
-```
-
-## Complete Reference
-
-See [Event Taxonomy Quick Card](https://github.com/theGeekist/wp-kernel/blob/main/information/REFERENCE%20-%20Event%20Taxonomy%20Quick%20Card.md) for the full event list.
+- [Transport API](/api/generated/transport/README)
