@@ -1,0 +1,51 @@
+[**WP Kernel API v0.1.1**](../README.md)
+
+---
+
+[WP Kernel API](../README.md) / interpolatePath
+
+# Function: interpolatePath()
+
+```ts
+function interpolatePath(path, params): string;
+```
+
+Defined in: [interpolate.ts:42](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/interpolate.ts#L42)
+
+Interpolate dynamic segments in a REST path
+
+Replaces `:paramName` patterns with values from the params object.
+Throws DeveloperError if required params are missing.
+
+## Parameters
+
+### path
+
+`string`
+
+REST path with :param placeholders
+
+### params
+
+[`PathParams`](../type-aliases/PathParams.md) = `{}`
+
+Parameter values to interpolate
+
+## Returns
+
+`string`
+
+Interpolated path
+
+## Throws
+
+DeveloperError if required params are missing
+
+## Example
+
+```ts
+interpolatePath('/wpk/v1/things/:id', { id: 123 });
+// => '/wpk/v1/things/123'
+
+interpolatePath('/wpk/v1/things/:id', {}); // throws DeveloperError
+```

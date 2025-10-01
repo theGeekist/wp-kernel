@@ -6,7 +6,7 @@
 
 import { createStore } from '../createStore.js';
 import type { ResourceObject, ListResponse } from '../../types.js';
-import { KernelError } from '../../../errors/index.js';
+import { KernelError } from '../../../error/index.js';
 
 // Mock resource for testing
 interface MockThing {

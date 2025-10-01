@@ -3,7 +3,7 @@
  */
 
 import { interpolatePath, extractPathParams } from '../interpolate.js';
-import { KernelError } from '../../errors/index.js';
+import { KernelError } from '../../error/index.js';
 
 describe('interpolatePath', () => {
 	describe('basic interpolation', () => {
