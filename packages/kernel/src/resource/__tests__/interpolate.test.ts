@@ -2,10 +2,7 @@
  * Tests for path interpolation utilities
  */
 
-import {
-	interpolatePath,
-	extractPathParams,
-} from '../interpolate.js';
+import { interpolatePath, extractPathParams } from '../interpolate.js';
 import { KernelError } from '../../errors/index.js';
 
 describe('interpolatePath', () => {
