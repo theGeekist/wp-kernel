@@ -49,18 +49,22 @@ module.exports = {
 	// Coverage configuration
 	collectCoverageFrom: [
 		'packages/*/src/**/*.{ts,tsx}',
-		'app/*/src/**/*.{ts,tsx}',
+		// Exclude showcase app (example/demo code, not framework code)
+		'!app/showcase/src/**',
 		'!packages/*/src/**/*.d.ts',
 		'!app/*/src/**/*.d.ts',
 		'!packages/*/src/**/__tests__/**',
 		'!app/*/src/**/__tests__/**',
+		// Exclude entry point index files (trivial re-exports)
+		'!packages/*/src/index.ts',
+		'!packages/kernel/src/*/index.ts',
 	],
 	coverageThreshold: {
 		global: {
-			branches: 0, // Will increase as implementation grows
-			functions: 0,
-			lines: 0,
-			statements: 0,
+			branches: 89,
+			functions: 90,
+			lines: 90,
+			statements: 90,
 		},
 	},
 	coverageDirectory: '<rootDir>/coverage',
