@@ -78,15 +78,15 @@ export default defineConfig({
 					items: [
 						{
 							text: 'Resources',
-							link: '/api/generated/resource/',
+							link: '/api/generated/resource/README',
 						},
 						{
 							text: 'Errors',
-							link: '/api/generated/errors/',
+							link: '/api/generated/errors/README',
 						},
 						{
 							text: 'Transport',
-							link: '/api/generated/transport/',
+							link: '/api/generated/transport/README',
 						},
 					],
 				},
