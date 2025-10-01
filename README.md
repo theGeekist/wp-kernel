@@ -163,9 +163,9 @@ import { defineResource } from '@geekist/wp-kernel/resource';
 export const thing = defineResource<Thing>({
 	name: 'thing',
 	routes: {
-		list: { path: '/gk/v1/things', method: 'GET' },
-		get: { path: '/gk/v1/things/:id', method: 'GET' },
-		create: { path: '/gk/v1/things', method: 'POST' },
+		list: { path: '/wpk/v1/things', method: 'GET' },
+		get: { path: '/wpk/v1/things/:id', method: 'GET' },
+		create: { path: '/wpk/v1/things', method: 'POST' },
 	},
 	schema: import('../../contracts/thing.schema.json'),
 	cacheKeys: {

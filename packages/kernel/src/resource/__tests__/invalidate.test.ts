@@ -47,8 +47,8 @@ describe('invalidate', () => {
 		}
 
 		// Register test store keys
-		registerStoreKey('gk/thing');
-		registerStoreKey('gk/job');
+		registerStoreKey('wpk/thing');
+		registerStoreKey('wpk/job');
 	});
 
 	afterEach(() => {
@@ -88,8 +88,8 @@ describe('invalidate', () => {
 			// Invalidate all 'thing' list queries
 			invalidate(['thing', 'list']);
 
-			// Should call invalidate on gk/thing store
-			expect(mockDispatch).toHaveBeenCalledWith('gk/thing');
+			// Should call invalidate on wpk/thing store
+			expect(mockDispatch).toHaveBeenCalledWith('wpk/thing');
 			expect(mockStoreDispatch.invalidate).toHaveBeenCalledWith([
 				'thing:list:active',
 				'thing:list:inactive',
@@ -185,10 +185,10 @@ describe('invalidate', () => {
 			mockDispatch.mockReturnValue(mockStoreDispatch);
 			mockSelect.mockReturnValue(mockStoreSelect);
 
-			invalidate(['thing', 'list'], { storeKey: 'gk/thing' });
+			invalidate(['thing', 'list'], { storeKey: 'wpk/thing' });
 
 			// Should only call dispatch for specified store
-			expect(mockDispatch).toHaveBeenCalledWith('gk/thing');
+			expect(mockDispatch).toHaveBeenCalledWith('wpk/thing');
 			expect(mockDispatch).toHaveBeenCalledTimes(1);
 		});
 
@@ -211,8 +211,8 @@ describe('invalidate', () => {
 			invalidate(['thing', 'list']);
 
 			// Should call dispatch for all registered stores
-			expect(mockDispatch).toHaveBeenCalledWith('gk/thing');
-			expect(mockDispatch).toHaveBeenCalledWith('gk/job');
+			expect(mockDispatch).toHaveBeenCalledWith('wpk/thing');
+			expect(mockDispatch).toHaveBeenCalledWith('wpk/job');
 		});
 	});
 
@@ -407,9 +407,9 @@ describe('invalidateAll', () => {
 
 		mockDispatch.mockReturnValue(mockStoreDispatch);
 
-		invalidateAll('gk/thing');
+		invalidateAll('wpk/thing');
 
-		expect(mockDispatch).toHaveBeenCalledWith('gk/thing');
+		expect(mockDispatch).toHaveBeenCalledWith('wpk/thing');
 		expect(mockStoreDispatch.invalidateAll).toHaveBeenCalled();
 	});
 
@@ -420,10 +420,10 @@ describe('invalidateAll', () => {
 
 		mockDispatch.mockReturnValue(mockStoreDispatch);
 
-		invalidateAll('gk/thing');
+		invalidateAll('wpk/thing');
 
 		expect(mockDoAction).toHaveBeenCalledWith('wpk.cache.invalidated', {
-			keys: ['gk/thing:*'],
+			keys: ['wpk/thing:*'],
 		});
 	});
 
@@ -434,7 +434,7 @@ describe('invalidateAll', () => {
 
 		// Should not throw
 		expect(() => {
-			invalidateAll('gk/thing');
+			invalidateAll('wpk/thing');
 		}).not.toThrow();
 
 		expect(mockDoAction).not.toHaveBeenCalled();
@@ -447,7 +447,7 @@ describe('invalidateAll', () => {
 
 		// Should not throw
 		expect(() => {
-			invalidateAll('gk/thing');
+			invalidateAll('wpk/thing');
 		}).not.toThrow();
 	});
 });

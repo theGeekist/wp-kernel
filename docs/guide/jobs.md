@@ -11,10 +11,10 @@ import { defineJob } from '@geekist/wp-kernel/jobs';
 
 export const IndexThing = defineJob('IndexThing', {
 	enqueue: (params: { id: number }) => {
-		// POST /gk/v1/jobs/index-thing
+		// POST /wpk/v1/jobs/index-thing
 	},
 	status: (params) => {
-		// GET /gk/v1/jobs/index-thing/status?id=...
+		// GET /wpk/v1/jobs/index-thing/status?id=...
 	},
 });
 
