@@ -3,7 +3,7 @@
  * Plugin Name: WP Kernel Showcase
  * Plugin URI: https://github.com/theGeekist/wp-kernel
  * Description: Demonstrates WP Kernel framework features using Script Modules and modern WordPress APIs
- * Version: 0.1.0
+ * Version: 0.3.0
  * Requires at least: 6.7
  * Requires PHP: 8.3
  * Author: Geekist
@@ -23,7 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin constants.
-\define( 'WPK_SHOWCASE_VERSION', '0.1.0' );
+\define( 'WPK_SHOWCASE_VERSION', '0.3.0' );
 \define( 'WPK_SHOWCASE_FILE', __FILE__ );
 \define( 'WPK_SHOWCASE_PATH', \plugin_dir_path( __FILE__ ) );
 \define( 'WPK_SHOWCASE_URL', \plugin_dir_url( __FILE__ ) );
@@ -65,13 +65,16 @@ function autoload( string $class ): void {
  * Registers Script Modules and enqueues them with proper import maps.
  */
 function init(): void {
-	// Register the main module script.
+	// Register the main module script (includes admin when needed).
 	\wp_register_script_module(
 		'@geekist/wp-kernel-showcase',
 		WPK_SHOWCASE_URL . 'build/index.js',
 		array(
+			'@wordpress/element',
+			'@wordpress/components',
+			'@wordpress/data',
+			'@wordpress/i18n',
 			'@wordpress/interactivity',
-			'@wordpress/dom-ready',
 		),
 		WPK_SHOWCASE_VERSION
 	);
@@ -84,16 +87,56 @@ function init(): void {
 		}
 	);
 
-	// Also enqueue in admin for testing.
+	// Enqueue in admin.
 	\add_action(
 		'admin_enqueue_scripts',
 		function () {
+			// Enqueue React and WordPress packages as regular scripts
+			// (Script Modules can't use import maps for packages yet)
+			\wp_enqueue_script( 'react' );
+			\wp_enqueue_script( 'react-dom' );
+			\wp_enqueue_script( 'wp-element' );
+			\wp_enqueue_script( 'wp-components' );
+			\wp_enqueue_script( 'wp-data' );
+			\wp_enqueue_script( 'wp-i18n' );
+			\wp_enqueue_script( 'wp-api-fetch' );
+			\wp_enqueue_script( 'wp-hooks' );
+			
 			\wp_enqueue_script_module( '@geekist/wp-kernel-showcase' );
 		}
 	);
 }
 
 \add_action( 'init', __NAMESPACE__ . '\\init' );
+
+/**
+ * Register admin menu and pages.
+ */
+function register_admin_menu(): void {
+	\add_menu_page(
+		__( 'Jobs', 'wp-kernel-showcase' ),
+		__( 'Jobs', 'wp-kernel-showcase' ),
+		'manage_options',
+		'wpk-jobs',
+		__NAMESPACE__ . '\\render_admin_page',
+		'dashicons-businessman',
+		30
+	);
+}
+
+\add_action( 'admin_menu', __NAMESPACE__ . '\\register_admin_menu' );
+
+/**
+ * Render the admin page.
+ *
+ * Prints the React mount point. The Script Module detects it and loads the admin UI.
+ * This is the minimal PHP that Sprint 5's mountAdmin() will replace.
+ */
+function render_admin_page(): void {
+	// Print the mount point for React.
+	// The main script module will detect this and dynamically import admin UI.
+	echo '<div id="wpk-admin-root"></div>';
+}
 
 /**
  * Register REST API routes.

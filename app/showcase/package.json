@@ -5,8 +5,8 @@
 	"description": "Showcase plugin demonstrating WP Kernel framework features",
 	"type": "module",
 	"scripts": {
-		"dev": "wp-scripts start src/index.ts --output-path=build",
-		"build": "pnpm types:generate && wp-scripts build src/index.ts --output-path=build",
+		"dev": "wp-scripts start",
+		"build": "pnpm types:generate && wp-scripts build",
 		"types:generate": "./scripts/generate-types.sh",
 		"typecheck": "tsc --noEmit",
 		"clean": "rm -rf build types"
@@ -16,6 +16,13 @@
 		"@geekist/wp-kernel-ui": "workspace:*"
 	},
 	"devDependencies": {
+		"@wordpress/api-fetch": "^7.31.0",
+		"@wordpress/components": "^30.4.0",
+		"@wordpress/data": "^10.31.0",
+		"@wordpress/dom-ready": "^4.31.0",
+		"@wordpress/element": "^6.31.0",
+		"@wordpress/hooks": "^4.31.0",
+		"@wordpress/i18n": "^6.4.0",
 		"@wordpress/scripts": "^30.24.0",
 		"ajv": "^8.17.1",
 		"ajv-formats": "^3.0.1"

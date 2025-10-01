@@ -4,7 +4,10 @@
 	"compilerOptions": {
 		"rootDir": "./src",
 		"outDir": "./dist",
-		"composite": true
+		"composite": true,
+		"jsx": "react-jsx",
+		"jsxImportSource": "react",
+		"types": ["@wordpress/element"]
 	},
 	"include": ["src/**/*"],
 	"exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.test.tsx"],
