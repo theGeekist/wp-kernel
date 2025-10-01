@@ -4,7 +4,7 @@
  * Creates typed stores from resource definitions
  */
 
-export { createStore } from './createStore';
+export { createStore } from './createStore.js';
 export type {
 	ResourceState,
 	ResourceActions,
@@ -12,4 +12,4 @@ export type {
 	ResourceResolvers,
 	ResourceStoreConfig,
 	ResourceStore,
-} from './types';
+} from './types.js';

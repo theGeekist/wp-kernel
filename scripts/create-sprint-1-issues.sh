@@ -211,8 +211,8 @@ PHP routes in showcase plugin: list, get, create.
 - [ ] Test with \`wp-env run cli wp rest-api list\`
 
 ## Files
-- \`examples/showcase-plugin/includes/class-rest-controller.php\`
-- \`examples/showcase-plugin/includes/rest/class-jobs-controller.php\`
+- \`app/showcase/includes/class-rest-controller.php\`
+- \`app/showcase/includes/rest/class-jobs-controller.php\`
 
 ## Estimate
 3 hours
@@ -234,7 +234,7 @@ Define job resource using defineResource.
 - [ ] Export from plugin entry point
 
 ## Files
-- \`examples/showcase-plugin/src/resources/job.ts\`
+- \`app/showcase/src/resources/job.ts\`
 
 ## Estimate
 1 hour
@@ -258,7 +258,7 @@ Mount admin page with list display and create form.
 - [ ] Build and test in wp-env
 
 ## Files
-- \`examples/showcase-plugin/src/admin/pages/JobsList.tsx\`
+- \`app/showcase/src/admin/pages/JobsList.tsx\`
 
 ## Estimate
 4 hours

@@ -43,7 +43,7 @@ jobs:
                   path: |
                       node_modules
                       packages/*/node_modules
-                      examples/*/node_modules
+                      app/*/node_modules
                   key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
                   restore-keys: |
                       node-modules-${{ runner.os }}-
@@ -56,7 +56,7 @@ jobs:
     lint:
         name: Lint
         runs-on: ubuntu-latest
-        needs: setup
+        needs: [setup, build]
         steps:
             - name: Checkout
               uses: actions/checkout@v4
@@ -78,8 +78,19 @@ jobs:
                   path: |
                       node_modules
                       packages/*/node_modules
-                      examples/*/node_modules
+                      app/*/node_modules
                   key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+                  fail-on-cache-miss: true
+
+            - name: Restore build outputs
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      packages/*/dist
+                      packages/*/*.tsbuildinfo
+                      app/*/build
+                      app/*/dist
+                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**', 'app/*/src/**', 'tsconfig*.json', 'pnpm-lock.yaml') }}
                   fail-on-cache-miss: true
 
             - name: Run ESLint
@@ -116,21 +127,36 @@ jobs:
                   path: |
                       node_modules
                       packages/*/node_modules
-                      examples/*/node_modules
+                      app/*/node_modules
                   key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
                   fail-on-cache-miss: true
 
+            - name: Cache build outputs
+              id: cache-build
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      packages/*/dist
+                      packages/*/*.tsbuildinfo
+                      app/*/build
+                      app/*/dist
+                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**', 'app/*/src/**', 'tsconfig*.json', 'pnpm-lock.yaml') }}
+                  restore-keys: |
+                      build-${{ runner.os }}-
+
             - name: Build packages
+              if: steps.cache-build.outputs.cache-hit != 'true'
               run: pnpm build
 
-            - name: Upload build artifacts
+            - name: Upload build artifacts (fallback)
+              if: steps.cache-build.outputs.cache-hit != 'true'
               uses: actions/upload-artifact@v4
               with:
                   name: dist
                   path: |
                       packages/*/dist
-                      examples/*/build
-                  retention-days: 7
+                      app/*/build
+                  retention-days: 1
 
     # Unit Tests: Run Jest tests
     unit-test:
@@ -157,7 +183,7 @@ jobs:
                   path: |
                       node_modules
                       packages/*/node_modules
-                      examples/*/node_modules
+                      app/*/node_modules
                   key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
                   fail-on-cache-miss: true
 
@@ -200,7 +226,7 @@ jobs:
     #               path: |
     #                   node_modules
     #                   packages/*/node_modules
-    #                   examples/*/node_modules
+    #                   app/*/node_modules
     #               key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
     #               fail-on-cache-miss: true
     #
@@ -240,11 +266,11 @@ jobs:
     #           run: |
     #               # The artifacts are downloaded flat, need to restore structure
     #               mkdir -p packages/kernel/dist packages/ui/dist packages/cli/dist packages/e2e-utils/dist
-    #               mkdir -p examples/showcase-plugin/build
+    #               mkdir -p app/showcase/build
     #               # Copy if artifacts exist (they should from the build job)
     #               if [ -d "packages" ]; then
     #                   cp -r packages/*/dist/* packages/ 2>/dev/null || true
-    #                   cp -r examples/*/build/* examples/ 2>/dev/null || true
+    #                   cp -r app/*/build/* app/ 2>/dev/null || true
     #               fi
     #
     #         - name: Start WordPress (wp-env)
@@ -284,26 +310,6 @@ jobs:
               uses: actions/checkout@v4
               with:
                   fetch-depth: 0
-
-            - name: Setup pnpm
-              uses: pnpm/action-setup@v4
-              with:
-                  version: ${{ env.PNPM_VERSION }}
-
-            - name: Setup Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: ${{ env.NODE_VERSION }}
-
-            - name: Restore node_modules
-              uses: actions/cache@v4
-              with:
-                  path: |
-                      node_modules
-                      packages/*/node_modules
-                      examples/*/node_modules
-                  key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
-                  fail-on-cache-miss: true
 
             - name: Check for changesets
               run: |

@@ -7,18 +7,18 @@
  * @see Product Specification § 4.1 Resources
  */
 
-import { KernelError } from '@kernel/errors';
-import { interpolatePath } from './interpolate';
-import { createStore } from './store/createStore';
-import { registerStoreKey } from './invalidate';
-import { fetch as transportFetch } from '../transport/fetch';
+import { KernelError } from '../errors/index.js';
+import { interpolatePath } from './interpolate.js';
+import { createStore } from './store/createStore.js';
+import { registerStoreKey } from './invalidate.js';
+import { fetch as transportFetch } from '../transport/fetch.js';
 import type {
 	ResourceConfig,
 	ResourceObject,
 	ResourceClient,
 	ListResponse,
 	CacheKeys,
-} from './types';
+} from './types.js';
 
 /**
  * Default cache key generators

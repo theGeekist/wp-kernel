@@ -6,8 +6,8 @@
  * @module
  */
 
-import { KernelError } from './KernelError';
-import type { ErrorContext, ErrorData } from './types';
+import { KernelError } from './KernelError.js';
+import type { ErrorContext, ErrorData } from './types.js';
 
 /**
  * Error thrown when a network/HTTP request fails

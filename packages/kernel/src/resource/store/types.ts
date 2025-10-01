@@ -4,7 +4,7 @@
  * @module resource/store/types
  */
 
-import type { ResourceObject, ListResponse } from '@kernel/resource';
+import type { ResourceObject, ListResponse } from '../types.js';
 
 /**
  * State shape for a resource store.
