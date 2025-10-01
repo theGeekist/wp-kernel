@@ -266,7 +266,7 @@
 		{
 			"label": "Clean: node_modules",
 			"type": "shell",
-			"command": "rm -rf node_modules packages/*/node_modules examples/*/node_modules && pnpm install",
+			"command": "rm -rf node_modules packages/*/node_modules app/*/node_modules && pnpm install",
 			"problemMatcher": [],
 			"presentation": {
 				"reveal": "always"

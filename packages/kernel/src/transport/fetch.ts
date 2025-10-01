@@ -10,14 +10,14 @@
  * @see Product Specification § 4.1 Resources
  */
 
-import { KernelError } from '../errors/KernelError';
+import { KernelError } from '../errors/KernelError.js';
 import type {
 	TransportRequest,
 	TransportResponse,
 	ResourceRequestEvent,
 	ResourceResponseEvent,
 	ResourceErrorEvent,
-} from './types';
+} from './types.js';
 
 /**
  * Generate a unique request ID for correlation

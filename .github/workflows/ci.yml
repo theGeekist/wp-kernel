@@ -43,7 +43,7 @@ jobs:
                   path: |
                       node_modules
                       packages/*/node_modules
-                      examples/*/node_modules
+                      app/*/node_modules
                   key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
                   restore-keys: |
                       node-modules-${{ runner.os }}-
@@ -78,7 +78,7 @@ jobs:
                   path: |
                       node_modules
                       packages/*/node_modules
-                      examples/*/node_modules
+                      app/*/node_modules
                   key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
                   fail-on-cache-miss: true
 
@@ -116,7 +116,7 @@ jobs:
                   path: |
                       node_modules
                       packages/*/node_modules
-                      examples/*/node_modules
+                      app/*/node_modules
                   key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
                   fail-on-cache-miss: true
 
@@ -129,7 +129,7 @@ jobs:
                   name: dist
                   path: |
                       packages/*/dist
-                      examples/*/build
+                      app/*/build
                   retention-days: 7
 
     # Unit Tests: Run Jest tests
@@ -157,7 +157,7 @@ jobs:
                   path: |
                       node_modules
                       packages/*/node_modules
-                      examples/*/node_modules
+                      app/*/node_modules
                   key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
                   fail-on-cache-miss: true
 
@@ -200,7 +200,7 @@ jobs:
     #               path: |
     #                   node_modules
     #                   packages/*/node_modules
-    #                   examples/*/node_modules
+    #                   app/*/node_modules
     #               key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
     #               fail-on-cache-miss: true
     #
@@ -240,11 +240,11 @@ jobs:
     #           run: |
     #               # The artifacts are downloaded flat, need to restore structure
     #               mkdir -p packages/kernel/dist packages/ui/dist packages/cli/dist packages/e2e-utils/dist
-    #               mkdir -p examples/showcase-plugin/build
+    #               mkdir -p app/showcase/build
     #               # Copy if artifacts exist (they should from the build job)
     #               if [ -d "packages" ]; then
     #                   cp -r packages/*/dist/* packages/ 2>/dev/null || true
-    #                   cp -r examples/*/build/* examples/ 2>/dev/null || true
+    #                   cp -r app/*/build/* app/ 2>/dev/null || true
     #               fi
     #
     #         - name: Start WordPress (wp-env)
@@ -301,7 +301,7 @@ jobs:
                   path: |
                       node_modules
                       packages/*/node_modules
-                      examples/*/node_modules
+                      app/*/node_modules
                   key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
                   fail-on-cache-miss: true
 

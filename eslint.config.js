@@ -114,7 +114,7 @@ export default [
 
 	// WordPress Script Modules - runtime-resolved imports
 	{
-		files: ['examples/*/src/**/*.js', 'examples/*/src/**/*.jsx'],
+		files: ['app/*/src/**/*.js', 'app/*/src/**/*.jsx'],
 		rules: {
 			'import/no-unresolved': [
 				'error',

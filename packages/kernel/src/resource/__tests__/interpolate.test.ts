@@ -5,8 +5,8 @@
 import {
 	interpolatePath,
 	extractPathParams,
-} from '@kernel/resource/interpolate';
-import { KernelError } from '@kernel/errors';
+} from '../../resource/interpolate.js';
+import { KernelError } from '../../errors/index.js';
 
 describe('interpolatePath', () => {
 	describe('basic interpolation', () => {

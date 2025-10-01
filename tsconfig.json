@@ -8,6 +8,6 @@
 		{ "path": "./packages/kernel/tsconfig.tests.json" },
 		{ "path": "./packages/cli" },
 		{ "path": "./packages/e2e-utils" },
-		{ "path": "./examples/showcase-plugin" }
+		{ "path": "./app/showcase" }
 	]
 }

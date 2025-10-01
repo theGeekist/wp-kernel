@@ -1,8 +1,8 @@
 /**
  * Tests for the transport fetch wrapper
  */
-import { fetch } from '@kernel/transport/fetch';
-import { KernelError } from '@kernel/errors';
+import { fetch } from '../fetch.js';
+import { KernelError } from '../../errors/index.js';
 
 describe('transport/fetch', () => {
 	let mockApiFetch: jest.Mock;
