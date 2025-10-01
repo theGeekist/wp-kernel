@@ -4,18 +4,24 @@
 
 Add front-end behavior to blocks without custom JavaScript.
 
+Use for client-side interactions that don't need React. Always route writes through Actions.
+
 ## Quick Reference
 
 ```typescript
 import { defineInteraction } from '@geekist/wp-kernel/interactivity';
+import { CreateTestimonial } from '@/actions/Testimonial/Create';
 
-export const useThingForm = defineInteraction('wpk/thing-form', {
+export const useTestimonialForm = defineInteraction('wpk/testimonial-form', {
 	state: () => ({ saving: false, error: null }),
 	actions: {
 		async submit(formData) {
 			this.state.saving = true;
+			this.state.error = null;
+
 			try {
-				await CreateThing({ data: formData });
+				// ✅ Route through Action
+				await CreateTestimonial({ data: formData });
 			} catch (e) {
 				this.state.error = e.message;
 			} finally {
@@ -29,3 +35,4 @@ export const useThingForm = defineInteraction('wpk/thing-form', {
 ## See Also
 
 - [WordPress Interactivity API](https://developer.wordpress.org/block-editor/reference-guides/interactivity-api/)
+- [Actions Guide](/guide/actions) - Calling actions from interactivity

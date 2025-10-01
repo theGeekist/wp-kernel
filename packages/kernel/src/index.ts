@@ -1,31 +1,57 @@
 /**
  * WP Kernel - Core Framework Package
  *
- * Rails-like framework for building modern WordPress products
+ * Rails-like framework for building modern WordPress products where
+ * JavaScript is the source of truth and PHP is a thin contract.
+ *
+ * @example Scoped imports (recommended)
+ * ```ts
+ * import { fetch } from '@geekist/wp-kernel/http';
+ * import { defineResource } from '@geekist/wp-kernel/resource';
+ * import { KernelError } from '@geekist/wp-kernel/error';
+ * ```
+ *
+ * @example Namespace imports (organized)
+ * ```ts
+ * import { http, resource, error } from '@geekist/wp-kernel';
+ * await http.fetch({ path: '/wpk/v1/things' });
+ * resource.defineResource({ name: 'thing', routes: {...} });
+ * throw new error.KernelError('ValidationError', {...});
+ * ```
+ *
+ * @example Flat imports (convenience)
+ * ```ts
+ * import { fetch, defineResource, KernelError } from '@geekist/wp-kernel';
+ * ```
  *
  * @module
  */
 
-/**
- * Current version of WP Kernel
- */
-export const VERSION = '0.0.0';
+export const VERSION = '0.1.1';
 
-/**
- * Error types (Sprint 1)
- */
-export { KernelError, TransportError, ServerError } from './errors/index.js';
+// ============================================================================
+// Namespace Exports (Organized by module)
+// ============================================================================
+
+export * as http from './http/index.js';
+export * as resource from './resource/index.js';
+export * as error from './error/index.js';
+
+// ============================================================================
+// Flat Exports (Convenience aliases)
+// ============================================================================
+
+// Error classes
+export { KernelError, TransportError, ServerError } from './error/index.js';
 export type {
 	ErrorCode,
 	ErrorContext,
 	ErrorData,
 	SerializedError,
-} from './errors/index.js';
+} from './error/index.js';
 
-/**
- * Transport layer (Sprint 1 - A3)
- */
-export { fetch } from './transport/fetch.js';
+// HTTP transport
+export { fetch } from './http/fetch.js';
 export type {
 	HttpMethod,
 	TransportRequest,
@@ -33,13 +59,11 @@ export type {
 	ResourceRequestEvent,
 	ResourceResponseEvent,
 	ResourceErrorEvent,
-} from './transport/types.js';
+} from './http/types.js';
 
-/**
- * Resource system (Sprint 1)
- */
+// Resource system
+export { defineResource } from './resource/define.js';
 export {
-	defineResource,
 	interpolatePath,
 	extractPathParams,
 	invalidate,
@@ -48,8 +72,8 @@ export {
 	matchesCacheKey,
 	findMatchingKeys,
 	findMatchingKeysMultiple,
-} from './resource/index.js';
-export { createStore } from './resource/store/createStore.js';
+} from './resource/cache.js';
+export { createStore } from './resource/store.js';
 export type {
 	ResourceRoute,
 	ResourceRoutes,
@@ -59,37 +83,15 @@ export type {
 	ListResponse,
 	ResourceClient,
 	ResourceObject,
-	PathParams,
-	CacheKeyPattern,
-	InvalidateOptions,
-} from './resource/index.js';
-export type {
 	ResourceState,
 	ResourceActions,
 	ResourceSelectors,
 	ResourceResolvers,
 	ResourceStoreConfig,
 	ResourceStore,
-} from './resource/store/types.js';
-
-/**
- * Module placeholders - implementations coming in future sprints
- *
- * Planned exports:
- * - defineAction (from './actions.js') - Sprint 3
- * - definePolicy (from './policies.js') - Sprint 2
- * - defineJob (from './jobs.js') - Sprint 4
- * - defineInteraction (from './interactivity.js') - Sprint 5
- * - registerBindingSource (from './bindings.js') - Sprint 6
- * - events (from './events.js') - Sprint 1
- */
-
-// Future module structure:
-// export * from './resource/index.js';
-// export * from './actions.js';
-// export * from './policies.js';
-// export * from './jobs.js';
-// export * from './interactivity.js';
-// export * from './bindings.js';
-// export * from './events.js';
-// export * from './errors/index.js';
+} from './resource/types.js';
+export type {
+	PathParams,
+	CacheKeyPattern,
+	InvalidateOptions,
+} from './resource/cache.js';

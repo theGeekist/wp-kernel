@@ -26,4 +26,4 @@ See [Events Guide](/guide/events) for full taxonomy and examples.
 
 ## Related
 
-- [Transport API](/api/generated/transport/README)
+- [HTTP Transport API](/api/generated/http/README)

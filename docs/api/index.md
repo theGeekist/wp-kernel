@@ -8,13 +8,11 @@ Complete API documentation for WP Kernel.
 
 Define typed REST resources with automatic client generation, store integration, and cache management.
 
-### [Errors](/api/generated/errors/README)
+### [Errors](/api/generated/error/README)
 
-Structured error handling with typed error classes.
+Error types and handling primitives.
 
-### [Transport](/api/generated/transport/README)
-
-HTTP transport layer wrapping @wordpress/api-fetch.
+### [HTTP Transport](/api/generated/http/README)
 
 ## Coming Soon
 

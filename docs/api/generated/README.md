@@ -6,6 +6,6 @@
 
 ## Modules
 
-- [errors](errors/README.md)
+- [error](error/README.md)
+- [http](http/README.md)
 - [resource](resource/README.md)
-- [transport](transport/README.md)

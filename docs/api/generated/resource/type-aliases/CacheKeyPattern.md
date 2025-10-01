@@ -10,7 +10,7 @@
 type CacheKeyPattern = (string | number | boolean | null | undefined)[];
 ```
 
-Defined in: [resource/cacheKeys.ts:21](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/cacheKeys.ts#L21)
+Defined in: [resource/cache.ts:23](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/cache.ts#L23)
 
 Cache key pattern - array of primitives (strings, numbers, booleans)
 Null and undefined values are filtered out during normalization.
