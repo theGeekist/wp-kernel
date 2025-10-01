@@ -522,8 +522,43 @@ describe('defineResource', () => {
 		});
 	});
 
-	describe('client method stubs (write methods - NotImplementedError)', () => {
-		it('should throw NotImplementedError when create is called', async () => {
+	describe('client write methods (create/update/remove)', () => {
+		let mockApiFetch: jest.Mock;
+		let originalWp: any;
+
+		beforeEach(() => {
+			// Mock @wordpress/api-fetch
+			mockApiFetch = jest.fn();
+
+			// Save original wp object
+			originalWp = (global as any).window?.wp;
+
+			// Setup global wp object
+			if (typeof (global as any).window !== 'undefined') {
+				(global as any).window.wp = {
+					apiFetch: mockApiFetch,
+					hooks: {
+						doAction: jest.fn(),
+					},
+				};
+			}
+		});
+
+		afterEach(() => {
+			// Restore original wp object
+			if (typeof (global as any).window !== 'undefined') {
+				if (originalWp) {
+					(global as any).window.wp = originalWp;
+				} else {
+					delete (global as any).window.wp;
+				}
+			}
+		});
+
+		it('should call transportFetch when create is called', async () => {
+			const mockData = { id: 1, title: 'Test' };
+			mockApiFetch.mockResolvedValue(mockData);
+
 			const resource = defineResource<Thing>({
 				name: 'thing',
 				routes: {
@@ -531,12 +566,20 @@ describe('defineResource', () => {
 				},
 			});
 
-			await expect(resource.create!({ title: 'Test' })).rejects.toThrow(
-				KernelError
-			);
+			const result = await resource.create!({ title: 'Test' });
+			expect(result).toEqual(mockData);
+			expect(mockApiFetch).toHaveBeenCalledWith({
+				path: '/wpk/v1/things',
+				method: 'POST',
+				data: { title: 'Test' },
+				parse: true,
+			});
 		});
 
-		it('should throw NotImplementedError when update is called', async () => {
+		it('should call transportFetch when update is called', async () => {
+			const mockData = { id: 123, title: 'Updated' };
+			mockApiFetch.mockResolvedValue(mockData);
+
 			const resource = defineResource<Thing>({
 				name: 'thing',
 				routes: {
@@ -547,12 +590,19 @@ describe('defineResource', () => {
 				},
 			});
 
-			await expect(
-				resource.update!(123, { title: 'Updated' })
-			).rejects.toThrow(KernelError);
+			const result = await resource.update!(123, { title: 'Updated' });
+			expect(result).toEqual(mockData);
+			expect(mockApiFetch).toHaveBeenCalledWith({
+				path: '/wpk/v1/things/123',
+				method: 'PUT',
+				data: { title: 'Updated' },
+				parse: true,
+			});
 		});
 
-		it('should throw NotImplementedError when remove is called', async () => {
+		it('should call transportFetch when remove is called', async () => {
+			mockApiFetch.mockResolvedValue({});
+
 			const resource = defineResource<Thing>({
 				name: 'thing',
 				routes: {
@@ -563,10 +613,18 @@ describe('defineResource', () => {
 				},
 			});
 
-			await expect(resource.remove!(123)).rejects.toThrow(KernelError);
+			const result = await resource.remove!(123);
+			expect(result).toBeUndefined(); // DELETE returns void
+			expect(mockApiFetch).toHaveBeenCalledWith({
+				path: '/wpk/v1/things/123',
+				method: 'DELETE',
+				parse: true,
+			});
 		});
 
-		it('should include correct error code in NotImplementedError', async () => {
+		it('should handle transport errors correctly', async () => {
+			mockApiFetch.mockRejectedValue(new Error('Network error'));
+
 			const resource = defineResource<Thing>({
 				name: 'thing',
 				routes: {
@@ -574,14 +632,9 @@ describe('defineResource', () => {
 				},
 			});
 
-			try {
-				await resource.create!({ title: 'Test' });
-				fail('Should have thrown');
-			} catch (e) {
-				expect(e).toBeInstanceOf(KernelError);
-				const error = e as KernelError;
-				expect(error.code).toBe('NotImplementedError');
-			}
+			await expect(resource.create!({ title: 'Test' })).rejects.toThrow(
+				'Network error'
+			);
 		});
 	});
 
@@ -667,7 +720,11 @@ describe('defineResource', () => {
 		});
 
 		it('should register store when window.wp.data.register is available', () => {
-			// Mock window.wp.data.register
+			// Mock window.wp.data.createReduxStore and register
+			const mockCreatedStore = { name: 'mock-redux-store' };
+			const mockCreateReduxStore = jest
+				.fn()
+				.mockReturnValue(mockCreatedStore);
 			const mockRegister = jest.fn();
 			const windowWithWp = global.window as WindowWithWp;
 			const originalWp = windowWithWp?.wp;
@@ -675,8 +732,9 @@ describe('defineResource', () => {
 			if (windowWithWp) {
 				windowWithWp.wp = {
 					data: {
+						createReduxStore: mockCreateReduxStore,
 						register: mockRegister,
-					},
+					} as any,
 				};
 			}
 
@@ -688,11 +746,21 @@ describe('defineResource', () => {
 			});
 
 			// Access store to trigger registration
-			const store = resource.store;
+			void resource.store;
 
 			if (windowWithWp?.wp?.data?.register) {
+				expect(mockCreateReduxStore).toHaveBeenCalledTimes(1);
+				expect(mockCreateReduxStore).toHaveBeenCalledWith(
+					'wpk/thing-with-register',
+					expect.objectContaining({
+						reducer: expect.any(Function),
+						actions: expect.any(Object),
+						selectors: expect.any(Object),
+						resolvers: expect.any(Object),
+					})
+				);
 				expect(mockRegister).toHaveBeenCalledTimes(1);
-				expect(mockRegister).toHaveBeenCalledWith(store);
+				expect(mockRegister).toHaveBeenCalledWith(mockCreatedStore);
 			}
 
 			// Restore

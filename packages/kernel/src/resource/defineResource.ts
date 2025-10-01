@@ -254,16 +254,14 @@ function createClient<T, TQuery>(
 
 	// Create method
 	if (config.routes.create) {
-		client.create = async (_data: Partial<T>): Promise<T> => {
-			// TODO: Implement actual transport call in A3
-			throw new KernelError('NotImplementedError', {
-				message: `Resource "${config.name}".create() not yet implemented`,
-				context: {
-					resourceName: config.name,
-					method: 'POST',
-					path: config.routes.create?.path,
-				},
+		client.create = async (data: Partial<T>): Promise<T> => {
+			const response = await transportFetch<T>({
+				path: config.routes.create!.path,
+				method: 'POST',
+				data,
 			});
+
+			return response.data;
 		};
 	}
 
@@ -271,19 +269,17 @@ function createClient<T, TQuery>(
 	if (config.routes.update) {
 		client.update = async (
 			id: string | number,
-			_data: Partial<T>
+			data: Partial<T>
 		): Promise<T> => {
 			const path = interpolatePath(config.routes.update!.path, { id });
 
-			// TODO: Implement actual transport call in A3
-			throw new KernelError('NotImplementedError', {
-				message: `Resource "${config.name}".update() not yet implemented`,
-				context: {
-					resourceName: config.name,
-					method: config.routes.update?.method,
-					path,
-				},
+			const response = await transportFetch<T>({
+				path,
+				method: config.routes.update!.method as 'PUT' | 'PATCH',
+				data,
 			});
+
+			return response.data;
 		};
 	}
 
@@ -292,14 +288,9 @@ function createClient<T, TQuery>(
 		client.remove = async (id: string | number): Promise<void> => {
 			const path = interpolatePath(config.routes.remove!.path, { id });
 
-			// TODO: Implement actual transport call in A3
-			throw new KernelError('NotImplementedError', {
-				message: `Resource "${config.name}".remove() not yet implemented`,
-				context: {
-					resourceName: config.name,
-					method: 'DELETE',
-					path,
-				},
+			await transportFetch<void>({
+				path,
+				method: 'DELETE',
 			});
 		};
 	}
@@ -389,8 +380,22 @@ export function defineResource<T = unknown, TQuery = unknown>(
 						? // eslint-disable-next-line @typescript-eslint/no-explicit-any
 							(window as any).wp
 						: undefined;
-				if (globalWp?.data?.register) {
-					globalWp.data.register(storeDescriptor);
+				if (
+					globalWp?.data?.createReduxStore &&
+					globalWp?.data?.register
+				) {
+					// Use createReduxStore to create a proper store descriptor
+					const reduxStore = globalWp.data.createReduxStore(
+						resource.storeKey,
+						{
+							reducer: storeDescriptor.reducer,
+							actions: storeDescriptor.actions,
+							selectors: storeDescriptor.selectors,
+							resolvers: storeDescriptor.resolvers,
+							initialState: storeDescriptor.initialState,
+						}
+					);
+					globalWp.data.register(reduxStore);
 				}
 
 				_store = storeDescriptor;
