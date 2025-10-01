@@ -6,14 +6,17 @@
 	"type": "module",
 	"scripts": {
 		"dev": "wp-scripts start src/index.js --output-path=build",
-		"build": "wp-scripts build src/index.js --output-path=build",
-		"clean": "rm -rf build"
+		"build": "pnpm types:generate && wp-scripts build src/index.js --output-path=build",
+		"types:generate": "../../scripts/generate-types.sh",
+		"clean": "rm -rf build types"
 	},
 	"dependencies": {
 		"@geekist/wp-kernel": "workspace:*",
 		"@geekist/wp-kernel-ui": "workspace:*"
 	},
 	"devDependencies": {
-		"@wordpress/scripts": "^30.24.0"
+		"@wordpress/scripts": "^30.24.0",
+		"ajv": "^8.17.1",
+		"ajv-formats": "^3.0.1"
 	}
 }
