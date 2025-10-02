@@ -336,6 +336,27 @@ describe('transport/fetch', () => {
 			}
 		});
 
+		it('should handle unknown error types with string conversion', async () => {
+			// Mock a non-Error object (e.g., string or number thrown)
+			mockApiFetch.mockRejectedValue('Something went wrong');
+
+			try {
+				await fetch({
+					path: '/wpk/v1/things',
+					method: 'GET',
+				});
+			} catch (error) {
+				expect(error).toBeInstanceOf(KernelError);
+				expect((error as KernelError).code).toBe('TransportError');
+				expect((error as KernelError).message).toBe(
+					'Unknown transport error'
+				);
+				expect((error as KernelError).context?.error).toBe(
+					'Something went wrong'
+				);
+			}
+		});
+
 		it('should preserve existing KernelError instances', async () => {
 			const customError = new KernelError('PolicyDenied', {
 				message: 'Custom error',
