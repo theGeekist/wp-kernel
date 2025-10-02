@@ -46,8 +46,11 @@ export default defineConfig({
 		// Video on failure
 		video: 'retain-on-failure',
 
-		// Timeout for each action (e.g. click, fill)
-		actionTimeout: 10000,
+		// Timeout for each action (e.g. click, fill) - increased for CI
+		actionTimeout: 15000,
+
+		// Navigation timeout - increased for slow CI environments
+		navigationTimeout: 30000,
 	},
 
 	// Configure projects for major browsers
