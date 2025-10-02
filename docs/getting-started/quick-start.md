@@ -46,7 +46,7 @@ export const thing = defineResource<Thing, { q?: string }>({
 
 **What this gives you:**
 
-- Typed client methods: `thing.list()`, `thing.create()`, etc.
+- Typed client methods: `thing.fetchList()`, `thing.fetch()`, `thing.create()`, etc.
 - Store selectors: `select('wpk/thing').getList()`, `select('wpk/thing').getById(id)`
 - Cache keys for invalidation
 - Automatic retry logic

@@ -32,6 +32,10 @@ export default defineConfig({
 							link: '/getting-started/',
 						},
 						{
+							text: 'Why WP Kernel?',
+							link: '/getting-started/why',
+						},
+						{
 							text: 'Installation',
 							link: '/getting-started/installation',
 						},
@@ -59,6 +63,23 @@ export default defineConfig({
 							link: '/guide/interactivity',
 						},
 						{ text: 'Jobs', link: '/guide/jobs' },
+					],
+				},
+				{
+					text: 'Advanced',
+					items: [
+						{
+							text: 'Resources Deep Dive',
+							link: '/guide/resources-advanced',
+						},
+						{
+							text: 'Modes (Static/Headless/WP)',
+							link: '/guide/modes',
+						},
+						{
+							text: 'Showcase Plugin',
+							link: '/guide/showcase',
+						},
 					],
 				},
 			],
@@ -107,6 +128,10 @@ export default defineConfig({
 						},
 						{ text: 'Testing', link: '/contributing/testing' },
 						{
+							text: 'E2E Testing',
+							link: '/contributing/e2e-testing',
+						},
+						{
 							text: 'Pull Requests',
 							link: '/contributing/pull-requests',
 						},
@@ -128,7 +153,8 @@ export default defineConfig({
 
 		footer: {
 			message: 'Released under the EUPL-1.2 License.',
-			copyright: 'Copyright © 2025 Geekist',
+			copyright:
+				'Made with ❤️ by <a href="https://geekist.co" target="_blank" rel="noopener noreferrer">Geekist</a>',
 		},
 	},
 });
