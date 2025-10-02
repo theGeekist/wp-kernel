@@ -80,10 +80,13 @@ export function createKernelUtils(fixtures: WordPressFixtures): KernelUtils {
 /**
  * Internal: Create resource utilities
  *
+ * Exported for testing only, not part of public API
+ *
+ * @internal
  * @param config       - Resource configuration
  * @param requestUtils - WordPress REST request utilities
  */
-function createResourceHelper<T>(
+export function createResourceHelper<T>(
 	config: ResourceConfig,
 	requestUtils: RequestUtils
 ): ResourceUtils<T> {
@@ -220,10 +223,16 @@ function createResourceHelper<T>(
 /**
  * Internal: Create store utilities
  *
+ * Exported for testing only, not part of public API
+ *
+ * @internal
  * @param storeKey - WordPress data store key
  * @param page     - Playwright page instance
  */
-function createStoreHelper<T>(storeKey: string, page: Page): StoreUtils<T> {
+export function createStoreHelper<T>(
+	storeKey: string,
+	page: Page
+): StoreUtils<T> {
 	return {
 		wait: async <R>(
 			selector: (state: T) => R,
@@ -302,10 +311,13 @@ function createStoreHelper<T>(storeKey: string, page: Page): StoreUtils<T> {
 /**
  * Internal: Create event recorder
  *
+ * Exported for testing only, not part of public API
+ *
+ * @internal
  * @param page    - Playwright page instance
  * @param options - Optional event filtering configuration
  */
-async function createEventHelper<P>(
+export async function createEventHelper<P>(
 	page: Page,
 	options?: EventRecorderOptions
 ): Promise<EventRecorder<P>> {

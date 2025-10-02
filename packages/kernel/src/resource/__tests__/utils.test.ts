@@ -172,3 +172,51 @@ describe('defineResource - resource object structure', () => {
 		});
 	});
 });
+
+import { getWPData } from '../utils.js';
+
+describe('utils - getWPData', () => {
+	beforeEach(() => {
+		// Clear any existing wp.data
+		delete (window as any).wp;
+	});
+
+	it('should return wp.data when available', () => {
+		const mockWPData = {
+			select: jest.fn(),
+			dispatch: jest.fn(),
+			subscribe: jest.fn(),
+		};
+
+		(window as any).wp = {
+			data: mockWPData,
+		};
+
+		const result = getWPData();
+		expect(result).toBe(mockWPData);
+	});
+
+	it('should return undefined when wp is not available', () => {
+		delete (window as any).wp;
+
+		const result = getWPData();
+		expect(result).toBeUndefined();
+	});
+
+	it('should return undefined when wp.data is not available', () => {
+		(window as any).wp = {};
+
+		const result = getWPData();
+		expect(result).toBeUndefined();
+	});
+
+	it('should handle partial wp object', () => {
+		(window as any).wp = {
+			hooks: {},
+			// data is missing
+		};
+
+		const result = getWPData();
+		expect(result).toBeUndefined();
+	});
+});
