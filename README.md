@@ -22,7 +22,7 @@ WP Kernel provides a **Golden Path** for WordPress development in 2025+:
 
 Built on WordPress Core primitives: Script Modules, Block Bindings, Interactivity API, @wordpress/data.
 
-**Read the [Foreword](information/Foreword.md) to understand why this exists.**
+**[Read the documentation](https://theGeekist.github.io/wp-kernel/)** to get started, or see **[Why WP Kernel?](https://theGeekist.github.io/wp-kernel/getting-started/why)** to understand the philosophy.
 
 ---
 
@@ -215,7 +215,7 @@ export const thing = defineResource<Thing>({
 
 This gives you:
 
-- ✅ Typed client methods (`thing.list()`, `thing.create()`)
+- ✅ Typed client methods (`thing.fetchList()`, `thing.fetch()`, `thing.create()`)
 - ✅ @wordpress/data store with selectors
 - ✅ Automatic cache management
 - ✅ Request/response events
@@ -298,4 +298,11 @@ Built on the shoulders of giants:
 
 ---
 
-**Made with ❤️ by developers who love WordPress but want better DX.**
+<br>
+<br>
+<p align="center">
+  <sub>
+    Proudly brought to you by 
+    <a href="https://github.com/theGeekist" target="_blank">@theGeekist</a> and <a href="https://github.com/pipewrk" target="_blank">@pipewrk</a>
+  </sub>
+</p>

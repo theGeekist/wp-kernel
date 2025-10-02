@@ -537,6 +537,192 @@ pnpm wp:logs
 docker exec -it <container-id> tail -f /var/www/html/wp-content/debug.log
 ```
 
+---
+
+## Deployment Modes
+
+WP Kernel supports three deployment modes: Dynamic WordPress, Headless, and Static Export. Each mode has specific build and deployment requirements.
+
+> **See [Modes Guide](/guide/modes)** for complete mode documentation, patterns, and troubleshooting.
+
+### Dynamic WordPress (Default)
+
+Standard WordPress deployment with full runtime.
+
+**Build:**
+
+```bash
+pnpm build
+```
+
+**Deploy:**
+
+- Upload plugin/theme to WordPress
+- Standard WordPress hosting
+- No special configuration needed
+
+### Headless WordPress
+
+WordPress as backend API, external frontend.
+
+**Configure API root:**
+
+```typescript
+// Client app
+import { configure } from '@geekist/wp-kernel';
+
+configure({
+	rootURL: process.env.NEXT_PUBLIC_WP_URL,
+	nonce: process.env.WP_NONCE,
+});
+```
+
+**Build:**
+
+```bash
+# WordPress backend
+pnpm build
+
+# Frontend app (example: Next.js)
+NEXT_PUBLIC_WP_URL=https://cms.example.com npm run build
+```
+
+**Deploy:**
+
+- WordPress: Standard hosting with REST API enabled
+- Frontend: Vercel, Netlify, or custom host
+- Configure CORS if needed
+
+**CORS Setup (WordPress):**
+
+```php
+// In theme/plugin
+add_action('rest_api_init', function () {
+	remove_filter('rest_pre_serve_request', 'rest_send_cors_headers');
+	add_filter('rest_pre_serve_request', function ($value) {
+		header('Access-Control-Allow-Origin: https://your-frontend.com');
+		header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
+		header('Access-Control-Allow-Credentials: true');
+		header('Access-Control-Allow-Headers: Authorization, Content-Type, X-WP-Nonce');
+		return $value;
+	});
+});
+```
+
+### Static Export (CDN)
+
+Pre-rendered HTML for CDN deployment.
+
+**Configure for static:**
+
+```typescript
+// wpk.config.ts
+export default defineKernelConfig({
+	project: {
+		supports: {
+			wp: true,
+			headless: false,
+			static: true,
+		},
+	},
+	build: {
+		staticEnvVar: 'STATIC',
+	},
+});
+```
+
+**Build:**
+
+```bash
+# Build with static mode enabled
+STATIC=1 pnpm build
+
+# Generate static pages
+STATIC=1 node build/generate-static.ts
+```
+
+**Verify build:**
+
+```bash
+# Check for forbidden REST calls in front-end bundles
+grep -r "apiFetch" dist/public/
+# Should return no results
+```
+
+**Deploy:**
+
+- Upload `dist/` to CDN (Cloudflare, Fastly, AWS CloudFront)
+- Configure cache headers
+- Set up redirects/rewrites
+
+**Cloudflare Pages example:**
+
+```bash
+# Install Wrangler CLI
+npm install -g wrangler
+
+# Deploy
+wrangler pages deploy dist/ \
+	--project-name=my-site \
+	--branch=main
+```
+
+### Build Verification
+
+Before deployment, verify mode constraints:
+
+```bash
+# Check bundle sizes
+ls -lh dist/*.js
+
+# Verify externals (should not bundle WordPress packages)
+grep -r "@wordpress" dist/
+# Should be imports, not bundled code
+
+# Check for violations (static mode)
+if grep -r "apiFetch\|kernel.fetch" dist/public/ ; then
+	echo "❌ Static mode violation detected"
+	exit 1
+fi
+
+# Test in target environment
+pnpm e2e --config=playwright.static.config.ts
+```
+
+### Environment Variables
+
+Set these for different modes:
+
+**Dynamic WordPress:**
+
+```bash
+# .env
+NODE_ENV=production
+WP_ENV=production
+```
+
+**Headless:**
+
+```bash
+# .env (frontend)
+NEXT_PUBLIC_WP_URL=https://cms.example.com
+WP_NONCE=<runtime-nonce>
+
+# .env (WordPress)
+ALLOW_ORIGIN=https://app.example.com
+```
+
+**Static:**
+
+```bash
+# .env
+STATIC=1
+WP_API_ROOT=http://localhost:8888  # For build-time fetching
+OUTPUT_DIR=dist/static
+```
+
+---
+
 ## Common Snippets
 
 ### Add New Resource
@@ -581,5 +767,7 @@ pnpm e2e packages/e2e-utils/tests/my-feature.spec.ts
 ## Next Steps
 
 - [Coding Standards](/contributing/standards) - Style guide
-- [Testing](/contributing/testing) - Testing guide
+- [Testing](/contributing/testing) - Unit testing guide
+- [E2E Testing](/contributing/e2e-testing) - E2E testing guide
 - [Pull Requests](/contributing/pull-requests) - PR process
+- [Modes Guide](/guide/modes) - Deployment modes deep dive

@@ -36,8 +36,8 @@ export const thing = defineResource<Thing, { status?: string }>({
 });
 
 // Use the client
-const things = await thing.list({ status: 'active' });
-const single = await thing.get(123);
+const things = await thing.fetchList({ status: 'active' });
+const single = await thing.fetch(123);
 ```
 
 ## Full API Reference

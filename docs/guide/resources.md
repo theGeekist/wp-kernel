@@ -171,7 +171,7 @@ interface TestimonialPost {
 const testimonial = defineResource<TestimonialPost>({ ... });
 
 // Methods are fully typed
-const item: TestimonialPost = await testimonial.get(123);
+const item: TestimonialPost = await testimonial.fetch(123);
 ```
 
 #### `TQuery` - List Query Parameters
@@ -186,8 +186,8 @@ interface TestimonialQuery {
 const testimonial = defineResource<TestimonialPost, TestimonialQuery>({ ... });
 
 // Query types are enforced
-await testimonial.list({ search: 'great', page: 1 }); // ✅
-await testimonial.list({ invalid: 'param' });          // ❌ TypeScript error
+await testimonial.fetchList({ search: 'great', page: 1 }); // ✅
+await testimonial.fetchList({ invalid: 'param' });          // ❌ TypeScript error
 ```
 
 ### Validation
@@ -239,15 +239,15 @@ async function handleSubmit() {
 }
 ```
 
-**Read methods (`list`, `get`) are safe** to call directly for non-UI use cases (data migration, CLI tools, etc.).
+**Read methods (`fetchList`, `fetch`) are safe** to call directly for non-UI use cases (data migration, CLI tools, etc.).
 :::
 
-#### list(query?)
+#### fetchList(query?)
 
 Fetch a collection of resources. **Always destructure the response** to access items and metadata.
 
 ```typescript
-const { items, total, hasMore, nextCursor } = await testimonial.list({
+const { items, total, hasMore, nextCursor } = await testimonial.fetchList({
 	search: 'excellent',
 	rating: 5,
 	page: 1,
@@ -261,12 +261,12 @@ const { items, total, hasMore, nextCursor } = await testimonial.list({
 - `hasMore?: boolean` - Whether more pages exist
 - `nextCursor?: string` - Pagination cursor
 
-#### get(id)
+#### fetch(id)
 
 Fetch a single resource by ID.
 
 ```typescript
-const item: TestimonialPost = await testimonial.get(123);
+const item: TestimonialPost = await testimonial.fetch(123);
 ```
 
 **Returns**: `Promise<T>`
@@ -690,7 +690,7 @@ defineResource<TestimonialPost>({ ... })
 function MyComponent() {
 	const [items, setItems] = useState([]);
 	useEffect(() => {
-		testimonial.list().then(setItems);
+		testimonial.fetchList().then(setItems);
 	}, []);
 }
 
@@ -730,8 +730,8 @@ const testimonial = defineResource<TestimonialPost>({
 });
 
 // Write methods are undefined
-testimonial.list(); // ✅ Available
-testimonial.get(1); // ✅ Available
+testimonial.fetchList(); // ✅ Available
+testimonial.fetch(1); // ✅ Available
 testimonial.create; // undefined
 ```
 
