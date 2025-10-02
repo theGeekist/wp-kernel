@@ -14,7 +14,7 @@ concurrency:
 # Environment variables for caching
 env:
     NODE_VERSION: '22.20.0'
-    PNPM_VERSION: '9.12.3'
+    PNPM_VERSION: '10.17.1'
 
 jobs:
     # Setup: Install dependencies once and cache for all jobs
