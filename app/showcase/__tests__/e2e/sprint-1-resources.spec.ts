@@ -62,19 +62,23 @@ test.describe('Sprint 1: Resources & Stores', () => {
 		page,
 	}) => {
 		// Navigate to Jobs admin page
-		await page.goto('/wp-admin/admin.php?page=wpk-jobs');
-
-		// Wait for page to load
-		await page.waitForLoadState('networkidle');
+		await page.goto('/wp-admin/admin.php?page=wpk-jobs', {
+			waitUntil: 'domcontentloaded', // Don't wait for networkidle on initial load
+		});
 
 		// Wait for the jobs list to render (look for common elements)
 		// Adjust selector based on actual implementation
+		// Increased timeout to 15s for slow CI environments
 		await page.waitForSelector(
 			'[data-testid="jobs-list"], .jobs-list, table',
 			{
-				timeout: 5000,
+				timeout: 15000,
+				state: 'visible',
 			}
 		);
+
+		// Wait for network to be idle after React renders
+		await page.waitForLoadState('networkidle');
 
 		// Count job items (adjust selector based on actual implementation)
 		const jobItems = await page
@@ -91,11 +95,21 @@ test.describe('Sprint 1: Resources & Stores', () => {
 	test('should have no console errors on Jobs page', async ({ page }) => {
 		const errors = setupConsoleErrorTracking(page);
 
-		await page.goto('/wp-admin/admin.php?page=wpk-jobs');
-		await page.waitForLoadState('networkidle');
+		await page.goto('/wp-admin/admin.php?page=wpk-jobs', {
+			waitUntil: 'domcontentloaded',
+		});
 
-		// Wait a moment for any deferred scripts
-		await page.waitForTimeout(1000);
+		// Wait for jobs list to be visible
+		await page.waitForSelector(
+			'[data-testid="jobs-list"], .jobs-list, table',
+			{
+				timeout: 15000,
+				state: 'visible',
+			}
+		);
+
+		// Wait for network to settle
+		await page.waitForLoadState('networkidle');
 
 		// Filter out acceptable errors (404s, resource loading issues)
 		const realErrors = errors.filter(
@@ -112,36 +126,55 @@ test.describe('Sprint 1: Resources & Stores', () => {
 	});
 
 	test('should show loading state before jobs render', async ({ page }) => {
+		let loadingStateDetected = false;
+
 		// Intercept the REST API call to delay it
 		await page.route('**/wp-json/wpk/v1/jobs*', async (route: Route) => {
-			// Delay response by 500ms to observe loading state
-			await new Promise((resolve) => setTimeout(resolve, 500));
+			// Delay response by 1s to give more time to observe loading state
+			await new Promise((resolve) => setTimeout(resolve, 1000));
 			await route.continue();
 		});
 
-		await page.goto('/wp-admin/admin.php?page=wpk-jobs');
-
-		// Look for loading indicator (adjust selector based on implementation)
-		const hasLoadingState = await page.evaluate(() => {
-			const body = document.body.innerHTML;
-			return (
-				body.includes('Loading') ||
-				body.includes('loading') ||
-				body.includes('spinner') ||
-				document.querySelector('[data-testid="loading"]') !== null
-			);
+		await page.goto('/wp-admin/admin.php?page=wpk-jobs', {
+			waitUntil: 'domcontentloaded',
 		});
 
-		// Note: This might not catch the loading state if it's too fast
-		// But it verifies the page doesn't error during loading
-		if (hasLoadingState) {
+		// Check for loading indicator quickly before it disappears
+		try {
+			await page.waitForSelector(
+				'[data-testid="loading"], .loading, .spinner',
+				{
+					timeout: 2000,
+					state: 'visible',
+				}
+			);
+			loadingStateDetected = true;
+		} catch {
+			// Loading state might be too fast - check with evaluate as fallback
+			loadingStateDetected = await page.evaluate(() => {
+				const body = document.body.innerHTML;
+				return (
+					body.includes('Loading') ||
+					body.includes('loading') ||
+					body.includes('spinner')
+				);
+			});
+		}
+
+		if (loadingStateDetected) {
 			console.log('✓ Loading state detected');
 		} else {
 			console.log('Note: Loading state may have been too fast to detect');
 		}
 
 		// Wait for jobs to load
-		await page.waitForLoadState('networkidle');
+		await page.waitForSelector(
+			'[data-testid="job-item"], .job-item, tbody tr',
+			{
+				timeout: 15000,
+				state: 'visible',
+			}
+		);
 
 		// Verify jobs eventually appear
 		const jobItems = await page
@@ -160,7 +193,11 @@ test.describe('Sprint 1: Resources & Stores', () => {
 			});
 		});
 
-		await page.goto('/wp-admin/admin.php?page=wpk-jobs');
+		await page.goto('/wp-admin/admin.php?page=wpk-jobs', {
+			waitUntil: 'domcontentloaded',
+		});
+
+		// Wait for page to settle
 		await page.waitForLoadState('networkidle');
 
 		// Look for empty state message (adjust selector based on implementation)
@@ -192,7 +229,11 @@ test.describe('Sprint 1: Resources & Stores', () => {
 			await route.continue();
 		});
 
-		await page.goto('/wp-admin/admin.php?page=wpk-jobs');
+		await page.goto('/wp-admin/admin.php?page=wpk-jobs', {
+			waitUntil: 'domcontentloaded',
+		});
+
+		// Wait for REST call to complete
 		await page.waitForLoadState('networkidle');
 
 		// Check if _fields parameter is included
