@@ -278,4 +278,45 @@ describe('createStore - Selectors', () => {
 			expect(error).toBeUndefined();
 		});
 	});
+
+	describe('resolution tracking selectors (stubs)', () => {
+		let store: ReturnType<typeof createStore<MockThing, MockThingQuery>>;
+		let emptyState: ReturnType<typeof store.reducer>;
+
+		beforeEach(() => {
+			store = createStore({
+				resource: mockResource,
+			});
+
+			emptyState = store.reducer(undefined, { type: '@@INIT' });
+		});
+
+		it('should have isResolving stub that returns false', () => {
+			expect(store.selectors.isResolving).toBeDefined();
+			const result = store.selectors.isResolving(emptyState, 'getItem', [
+				1,
+			]);
+			expect(result).toBe(false);
+		});
+
+		it('should have hasStartedResolution stub that returns false', () => {
+			expect(store.selectors.hasStartedResolution).toBeDefined();
+			const result = store.selectors.hasStartedResolution(
+				emptyState,
+				'getItem',
+				[1]
+			);
+			expect(result).toBe(false);
+		});
+
+		it('should have hasFinishedResolution stub that returns false', () => {
+			expect(store.selectors.hasFinishedResolution).toBeDefined();
+			const result = store.selectors.hasFinishedResolution(
+				emptyState,
+				'getItem',
+				[1]
+			);
+			expect(result).toBe(false);
+		});
+	});
 });
