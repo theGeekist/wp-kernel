@@ -265,21 +265,17 @@ jobs:
               if: steps.playwright-cache.outputs.cache-hit == 'true'
               run: pnpm exec playwright install-deps chromium
 
-            - name: Download build artifacts
-              uses: actions/download-artifact@v4
+            # Restore build outputs from cache (same as lint/unit jobs)
+            - name: Restore build outputs
+              uses: actions/cache@v4
               with:
-                  name: dist
-
-            - name: Restore build artifacts to packages
-              run: |
-                  # The artifacts are downloaded flat, need to restore structure
-                  mkdir -p packages/kernel/dist packages/ui/dist packages/cli/dist packages/e2e-utils/dist
-                  mkdir -p app/showcase/build
-                  # Copy if artifacts exist (they should from the build job)
-                  if [ -d "packages" ]; then
-                      cp -r packages/*/dist/* packages/ 2>/dev/null || true
-                      cp -r app/*/build/* app/ 2>/dev/null || true
-                  fi
+                  path: |
+                      packages/*/dist
+                      packages/*/*.tsbuildinfo
+                      app/*/build
+                      app/*/dist
+                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**', 'app/*/src/**', 'tsconfig*.json', 'pnpm-lock.yaml') }}
+                  fail-on-cache-miss: true
 
             - name: Start WordPress (wp-env)
               run: pnpm wp:start
