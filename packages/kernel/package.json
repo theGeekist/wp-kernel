@@ -55,8 +55,8 @@
 		"LICENSE"
 	],
 	"scripts": {
-		"dev": "tsc --build --watch",
-		"build": "tsc --build",
+		"dev": "vite build --watch",
+		"build": "vite build && tsc --noEmit",
 		"clean": "rm -rf dist *.tsbuildinfo",
 		"typecheck": "tsc --noEmit",
 		"typecheck:tests": "tsc --project tsconfig.tests.json --noEmit"

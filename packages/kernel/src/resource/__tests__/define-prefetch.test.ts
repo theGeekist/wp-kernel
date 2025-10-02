@@ -4,7 +4,7 @@
  * Tests prefetchGet and prefetchList methods that preload data into cache
  */
 
-import { defineResource } from '../define.js';
+import { defineResource } from '../define';
 
 // Mock resource for testing
 interface MockThing {

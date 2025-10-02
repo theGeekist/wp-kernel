@@ -3,7 +3,7 @@
  * Consolidated tests for cache keys, interpolation, and invalidation
  */
 
-import { invalidate, registerStoreKey } from '../../cache.js';
+import { invalidate, registerStoreKey } from '../../cache';
 
 // Mock window.wp global
 interface WindowWithWp extends Window {

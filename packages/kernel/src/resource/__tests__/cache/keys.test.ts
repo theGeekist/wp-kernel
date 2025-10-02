@@ -9,7 +9,7 @@ import {
 	findMatchingKeys,
 	findMatchingKeysMultiple,
 	type CacheKeyPattern,
-} from '../../cache.js';
+} from '../../cache';
 
 describe('cacheKeys', () => {
 	describe('normalizeCacheKey', () => {

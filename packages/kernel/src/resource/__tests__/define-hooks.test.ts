@@ -4,7 +4,7 @@
  * Tests useGet and useList hooks that integrate with @wordpress/data
  */
 
-import { defineResource } from '../define.js';
+import { defineResource } from '../define';
 
 // Mock resource for testing
 interface MockThing {

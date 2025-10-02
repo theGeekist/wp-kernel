@@ -2,8 +2,8 @@
  * Tests for KernelError base class
  */
 
-import { KernelError } from '../KernelError.js';
-import type { SerializedError } from '../types.js';
+import { KernelError } from '../KernelError';
+import type { SerializedError } from '../types';
 
 describe('KernelError', () => {
 	describe('constructor', () => {
