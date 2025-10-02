@@ -178,7 +178,7 @@ import { getWPData } from '../utils.js';
 describe('utils - getWPData', () => {
 	beforeEach(() => {
 		// Clear any existing wp.data
-		delete (window as any).wp;
+		delete (window as typeof window & { wp?: Record<string, unknown> }).wp;
 	});
 
 	it('should return wp.data when available', () => {
@@ -188,7 +188,7 @@ describe('utils - getWPData', () => {
 			subscribe: jest.fn(),
 		};
 
-		(window as any).wp = {
+		(window as typeof window & { wp: { data: typeof mockWPData } }).wp = {
 			data: mockWPData,
 		};
 
@@ -197,21 +197,23 @@ describe('utils - getWPData', () => {
 	});
 
 	it('should return undefined when wp is not available', () => {
-		delete (window as any).wp;
+		delete (window as typeof window & { wp?: Record<string, unknown> }).wp;
 
 		const result = getWPData();
 		expect(result).toBeUndefined();
 	});
 
 	it('should return undefined when wp.data is not available', () => {
-		(window as any).wp = {};
+		(window as typeof window & { wp: Record<string, unknown> }).wp = {};
 
 		const result = getWPData();
 		expect(result).toBeUndefined();
 	});
 
 	it('should handle partial wp object', () => {
-		(window as any).wp = {
+		(
+			window as typeof window & { wp: { hooks: Record<string, unknown> } }
+		).wp = {
 			hooks: {},
 			// data is missing
 		};

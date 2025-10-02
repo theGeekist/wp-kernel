@@ -80,7 +80,7 @@ describe('createResourceHelper', () => {
 		});
 
 		it('should throw error when response is not an object', async () => {
-			mockRequestUtils.rest.mockResolvedValue('invalid' as any);
+			mockRequestUtils.rest.mockResolvedValue('invalid' as unknown);
 
 			const helper = createResourceHelper(
 				resourceConfig,
@@ -268,9 +268,9 @@ describe('createResourceHelper', () => {
 		});
 
 		it('should skip items without id property', async () => {
-			const mockList = [
+			const mockList: Array<{ id?: number; title: string }> = [
 				{ id: 1, title: 'Valid' },
-				{ title: 'Invalid - no id' } as any,
+				{ title: 'Invalid - no id' },
 				{ id: 2, title: 'Valid' },
 			];
 
@@ -336,7 +336,7 @@ describe('createResourceHelper', () => {
 		it('should throw error when list returns non-array', async () => {
 			mockRequestUtils.rest.mockResolvedValue({
 				invalid: 'response',
-			} as any);
+			} as unknown);
 
 			const helper = createResourceHelper(
 				resourceConfig,
