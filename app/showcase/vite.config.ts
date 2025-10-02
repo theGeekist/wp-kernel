@@ -15,11 +15,9 @@
 import { defineConfig, type UserConfig } from 'vite';
 import { resolve } from 'path';
 import { v4wp } from '@kucrut/vite-for-wp';
+import { wp_scripts as wpScripts } from '@kucrut/vite-for-wp/plugins';
 
 export default defineConfig(async (_env): Promise<UserConfig> => {
-	const { wp_scripts: wpScripts } = await import(
-		'@kucrut/vite-for-wp/plugins'
-	);
 	const wpScriptsPlugins = await wpScripts({
 		extraScripts: {
 			'@wordpress/interactivity': 'wp.interactivity',
