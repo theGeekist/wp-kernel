@@ -176,7 +176,7 @@ export default [
 		},
 	},
 
-	// Config files can use default exports (root and nested)
+	// Config files can use default exports and devDependencies (root and nested)
 	{
 		files: [
 			'*.config.js',
@@ -190,6 +190,16 @@ export default [
 		],
 		rules: {
 			'import/no-default-export': 'off',
+			'import/no-extraneous-dependencies': [
+				'error',
+				{
+					devDependencies: true,
+					optionalDependencies: false,
+					peerDependencies: false,
+				},
+			],
+			// Allow multiple imports from packages with subpath exports (e.g., @kucrut/vite-for-wp and @kucrut/vite-for-wp/plugins)
+			'import/no-duplicates': 'off',
 		},
 	},
 ];
