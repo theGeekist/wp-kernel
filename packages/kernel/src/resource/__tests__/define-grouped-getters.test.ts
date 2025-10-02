@@ -325,4 +325,32 @@ describe('defineResource - grouped API getters and cache.key()', () => {
 			expect(select2).toBeDefined();
 		});
 	});
+
+	describe('cache.invalidate.all behavior', () => {
+		it('should call invalidate.all without errors', () => {
+			const resource = defineResource<MockThing, MockThingQuery>({
+				name: 'thing',
+				routes: {
+					list: { path: '/wpk/v1/things', method: 'GET' },
+				},
+			});
+
+			// Should not throw when calling invalidate.all
+			expect(() => {
+				resource.cache.invalidate.all();
+			}).not.toThrow();
+		});
+
+		it('should have invalidate.all method defined', () => {
+			const resource = defineResource<MockThing, MockThingQuery>({
+				name: 'thing',
+				routes: {
+					list: { path: '/wpk/v1/things', method: 'GET' },
+				},
+			});
+
+			expect(resource.cache.invalidate.all).toBeDefined();
+			expect(typeof resource.cache.invalidate.all).toBe('function');
+		});
+	});
 });

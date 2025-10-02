@@ -223,5 +223,50 @@ describe('KernelError', () => {
 				expect(error.message.length).toBeGreaterThan(0);
 			});
 		});
+
+		it('uses fallback message for invalid error code', () => {
+			// TypeScript will complain, but we want to test runtime behavior
+			const error = new KernelError('InvalidCode' as 'ValidationError');
+
+			expect(error.code).toBe('InvalidCode');
+			expect(error.message).toBe('An error occurred');
+		});
+	});
+
+	describe('Error.captureStackTrace', () => {
+		it('uses Error.captureStackTrace when available', () => {
+			// Save original
+			const originalCaptureStackTrace = Error.captureStackTrace;
+
+			// Mock it
+			const mockCaptureStackTrace = jest.fn();
+			Error.captureStackTrace = mockCaptureStackTrace;
+
+			const error = new KernelError('ValidationError');
+
+			expect(mockCaptureStackTrace).toHaveBeenCalledWith(
+				error,
+				KernelError
+			);
+
+			// Restore
+			Error.captureStackTrace = originalCaptureStackTrace;
+		});
+
+		it('works when Error.captureStackTrace is undefined', () => {
+			// Save original
+			const originalCaptureStackTrace = Error.captureStackTrace;
+
+			// Remove it
+			Error.captureStackTrace = undefined as any;
+
+			// Should not throw
+			expect(() => {
+				new KernelError('ValidationError');
+			}).not.toThrow();
+
+			// Restore
+			Error.captureStackTrace = originalCaptureStackTrace;
+		});
 	});
 });
