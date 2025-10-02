@@ -3,6 +3,13 @@
  *
  * Uses @kucrut/vite-for-wp to build WordPress assets with proper externals.
  * Outputs ESM modules for WordPress Script Modules API.
+ *
+ * IMPORTANT: The wp_scripts helper requires these peer dependencies:
+ * - rollup-plugin-external-globals@^0.13
+ * - vite-plugin-external@^6
+ *
+ * Without these, WordPress packages will be bundled instead of externalized,
+ * causing duplicate registries and store access failures.
  */
 
 import { defineConfig, type UserConfig } from 'vite';

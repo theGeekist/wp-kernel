@@ -101,6 +101,23 @@ The plugin uses WordPress and WP-CLI stubs for IDE support (Intelephense):
 
 ### Build
 
+The showcase plugin uses Vite with `@kucrut/vite-for-wp` to build WordPress-compatible Script Modules.
+
+**Required dependencies:**
+
+The build requires specific peer dependencies for proper WordPress package externalization:
+
+- `rollup-plugin-external-globals@^0.13`
+- `vite-plugin-external@^6`
+
+These are already declared in `package.json`. Without them, WordPress packages (wp.data, wp.element, etc.) will be bundled instead of externalized, causing duplicate registries and runtime errors.
+
+**Build output:**
+
+- Bundle size: ~22KB (WordPress packages externalized)
+- Format: ESM (WordPress Script Modules)
+- Externals: `window.wp.*` globals
+
 ```bash
 pnpm build  # Generates types + builds JS bundles
 ```
