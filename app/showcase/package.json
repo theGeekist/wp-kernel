@@ -16,6 +16,7 @@
 		"@geekist/wp-kernel-ui": "workspace:*"
 	},
 	"devDependencies": {
+		"@geekist/wp-kernel-e2e-utils": "workspace:*",
 		"@kucrut/vite-for-wp": "^0.12.0",
 		"@playwright/test": "^1.55.1",
 		"@types/node": "^22.10.6",
@@ -23,6 +24,7 @@
 		"@wordpress/components": "^30.4.0",
 		"@wordpress/data": "^10.31.0",
 		"@wordpress/dom-ready": "^4.31.0",
+		"@wordpress/e2e-test-utils-playwright": "^1.11.0",
 		"@wordpress/element": "^6.31.0",
 		"@wordpress/hooks": "^4.31.0",
 		"@wordpress/i18n": "^6.4.0",

@@ -159,6 +159,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/ui
     devDependencies:
+      '@geekist/wp-kernel-e2e-utils':
+        specifier: workspace:*
+        version: link:../../packages/e2e-utils
       '@kucrut/vite-for-wp':
         specifier: ^0.12.0
         version: 0.12.0(rollup-plugin-external-globals@0.13.0(rollup@4.52.3))(vite-plugin-external@6.2.2)(vite@7.1.7(@types/node@22.18.8)(sass@1.93.2)(terser@5.44.0)(yaml@2.8.1))
@@ -180,6 +183,9 @@ importers:
       '@wordpress/dom-ready':
         specifier: ^4.31.0
         version: 4.31.0
+      '@wordpress/e2e-test-utils-playwright':
+        specifier: ^1.11.0
+        version: 1.31.0(@playwright/test@1.55.1)
       '@wordpress/element':
         specifier: ^6.31.0
         version: 6.31.0
