@@ -89,9 +89,9 @@ export type {
 	ResourceResolvers,
 	ResourceStoreConfig,
 	ResourceStore,
-} from './resource/types.js';
+} from './resource/types';
 export type {
 	PathParams,
 	CacheKeyPattern,
 	InvalidateOptions,
-} from './resource/cache.js';
+} from './resource/cache';

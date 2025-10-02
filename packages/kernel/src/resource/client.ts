@@ -7,9 +7,9 @@
  *
  * @see Product Specification § 4.1 Resources
  */
-import { fetch as transportFetch } from '../http/fetch.js';
-import { interpolatePath } from './cache.js';
-import type { ResourceConfig, ResourceClient, ListResponse } from './types.js';
+import { fetch as transportFetch } from '../http/fetch';
+import { interpolatePath } from './cache';
+import type { ResourceConfig, ResourceClient, ListResponse } from './types';
 
 /**
  * Create resource client

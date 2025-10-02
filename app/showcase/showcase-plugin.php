@@ -60,6 +60,38 @@ function autoload( string $class ): void {
 \spl_autoload_register( __NAMESPACE__ . '\\autoload' );
 
 /**
+ * Get the entry file from Vite manifest.
+ *
+ * @return string Entry file path relative to build directory.
+ */
+function get_vite_entry_file(): string {
+	static $entry_file = null;
+
+	if ( null !== $entry_file ) {
+		return $entry_file;
+	}
+
+	$manifest_path = WPK_SHOWCASE_PATH . 'build/manifest.json';
+
+	if ( ! file_exists( $manifest_path ) ) {
+		// Fallback to default if manifest doesn't exist (dev mode).
+		$entry_file = 'index.js';
+		return $entry_file;
+	}
+
+	$manifest = json_decode( file_get_contents( $manifest_path ), true );
+
+	if ( isset( $manifest['src/index.ts']['file'] ) ) {
+		$entry_file = $manifest['src/index.ts']['file'];
+	} else {
+		// Fallback to default.
+		$entry_file = 'index.js';
+	}
+
+	return $entry_file;
+}
+
+/**
  * Initialize the plugin.
  *
  * Registers Script Modules and enqueues them with proper import maps.
@@ -68,7 +100,7 @@ function init(): void {
 	// Register the main module script (includes admin when needed).
 	\wp_register_script_module(
 		'@geekist/wp-kernel-showcase',
-		WPK_SHOWCASE_URL . 'build/index.js',
+		WPK_SHOWCASE_URL . 'build/' . get_vite_entry_file(),
 		array(
 			'@wordpress/element',
 			'@wordpress/components',
@@ -87,22 +119,29 @@ function init(): void {
 		}
 	);
 
-	// Enqueue in admin.
+	// Enqueue in admin as a classic script (Script Modules + admin not fully compatible yet).
 	\add_action(
 		'admin_enqueue_scripts',
 		function () {
-			// Enqueue React and WordPress packages as regular scripts
-			// (Script Modules can't use import maps for packages yet)
-			\wp_enqueue_script( 'react' );
-			\wp_enqueue_script( 'react-dom' );
-			\wp_enqueue_script( 'wp-element' );
-			\wp_enqueue_script( 'wp-components' );
-			\wp_enqueue_script( 'wp-data' );
-			\wp_enqueue_script( 'wp-i18n' );
-			\wp_enqueue_script( 'wp-api-fetch' );
-			\wp_enqueue_script( 'wp-hooks' );
+			// Register as classic script for admin context.
+			\wp_register_script(
+				'wp-kernel-showcase-admin',
+				WPK_SHOWCASE_URL . 'build/' . get_vite_entry_file(),
+				array(
+					'react',
+					'react-dom',
+					'wp-element',
+					'wp-components',
+					'wp-data',
+					'wp-i18n',
+					'wp-api-fetch',
+					'wp-hooks',
+				),
+				WPK_SHOWCASE_VERSION,
+				true // In footer
+			);
 			
-			\wp_enqueue_script_module( '@geekist/wp-kernel-showcase' );
+			\wp_enqueue_script( 'wp-kernel-showcase-admin' );
 		}
 	);
 }

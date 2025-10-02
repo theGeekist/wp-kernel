@@ -5,7 +5,7 @@
  * client generation, store keys, and cache management.
  */
 
-export { defineResource } from './define.js';
+export { defineResource } from './define';
 export {
 	interpolatePath,
 	extractPathParams,
@@ -15,12 +15,8 @@ export {
 	matchesCacheKey,
 	findMatchingKeys,
 	findMatchingKeysMultiple,
-} from './cache.js';
-export type {
-	InvalidateOptions,
-	CacheKeyPattern,
-	PathParams,
-} from './cache.js';
+} from './cache';
+export type { InvalidateOptions, CacheKeyPattern, PathParams } from './cache';
 export type {
 	HttpMethod,
 	ResourceRoute,
@@ -31,4 +27,4 @@ export type {
 	ListResponse,
 	ResourceClient,
 	ResourceObject,
-} from './types.js';
+} from './types';

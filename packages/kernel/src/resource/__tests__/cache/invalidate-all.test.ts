@@ -3,7 +3,7 @@
  * Consolidated tests for cache keys, interpolation, and invalidation
  */
 
-import { invalidateAll } from '../../cache.js';
+import { invalidateAll } from '../../cache';
 
 // Mock window.wp global
 interface WindowWithWp extends Window {

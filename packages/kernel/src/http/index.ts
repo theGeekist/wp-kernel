@@ -10,7 +10,7 @@
  * @module
  */
 
-export { fetch } from './fetch.js';
+export { fetch } from './fetch';
 export type {
 	HttpMethod,
 	TransportRequest,
@@ -18,4 +18,4 @@ export type {
 	ResourceRequestEvent,
 	ResourceResponseEvent,
 	ResourceErrorEvent,
-} from './types.js';
+} from './types';

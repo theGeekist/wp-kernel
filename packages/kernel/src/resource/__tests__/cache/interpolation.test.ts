@@ -3,8 +3,8 @@
  * Consolidated tests for cache keys, interpolation, and invalidation
  */
 
-import { interpolatePath, extractPathParams } from '../../cache.js';
-import { KernelError } from '../../../error/index.js';
+import { interpolatePath, extractPathParams } from '../../cache';
+import { KernelError } from '../../../error/index';
 
 describe('interpolatePath', () => {
 	describe('basic interpolation', () => {

@@ -19,7 +19,7 @@ import {
 	createCacheGetter,
 	createStoreApiGetter,
 	createEventsGetter,
-} from '../grouped-api.js';
+} from '../grouped-api';
 import type { ResourceConfig, ResourceObject, CacheKeys } from '../types';
 
 // Mock types for testing

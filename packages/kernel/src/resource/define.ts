@@ -6,12 +6,12 @@
  *
  * @see Product Specification § 4.1 Resources
  */
-import { KernelError } from '../error/KernelError.js';
-import { registerStoreKey, invalidate as globalInvalidate } from './cache.js';
-import { createStore } from './store.js';
-import { validateConfig } from './validation.js';
-import { createClient } from './client.js';
-import { createDefaultCacheKeys, type WPGlobal } from './utils.js';
+import { KernelError } from '../error/KernelError';
+import { registerStoreKey, invalidate as globalInvalidate } from './cache';
+import { createStore } from './store';
+import { validateConfig } from './validation';
+import { createClient } from './client';
+import { createDefaultCacheKeys, type WPGlobal } from './utils';
 import {
 	createSelectGetter,
 	createUseGetter,
@@ -20,8 +20,8 @@ import {
 	createCacheGetter,
 	createStoreApiGetter,
 	createEventsGetter,
-} from './grouped-api.js';
-import type { CacheKeys, ResourceConfig, ResourceObject } from './types.js';
+} from './grouped-api';
+import type { CacheKeys, ResourceConfig, ResourceObject } from './types';
 
 /**
  * Define a resource with typed REST client

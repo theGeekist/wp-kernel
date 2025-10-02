@@ -4,7 +4,7 @@
  * Shared helper functions used across resource modules
  */
 import type * as WPData from '@wordpress/data';
-import type { CacheKeys } from './types.js';
+import type { CacheKeys } from './types';
 
 /**
  * WordPress global type for data package access
