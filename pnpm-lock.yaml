@@ -195,9 +195,15 @@ importers:
       ajv-formats:
         specifier: ^3.0.1
         version: 3.0.1(ajv@8.17.1)
+      rollup-plugin-external-globals:
+        specifier: ^0.13.0
+        version: 0.13.0(rollup@4.52.3)
       vite:
         specifier: ^7.1.7
         version: 7.1.7(@types/node@22.18.8)(sass@1.93.2)(terser@5.44.0)(yaml@2.8.1)
+      vite-plugin-external:
+        specifier: ^6.2.2
+        version: 6.2.2
 
   packages/cli:
     dependencies:

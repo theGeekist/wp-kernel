@@ -33,8 +33,10 @@ describe('Build: Monorepo package imports', () => {
 
 		// Since kernel is a workspace package, it should be bundled
 		// (not marked as external like WordPress packages)
-		// Check for some kernel-specific code
-		expect(bundle.length).toBeGreaterThan(100000); // Should be substantial
+		// With WordPress packages properly externalized, bundle should be ~20-30KB
+		// (vs 100KB+ when bundling WordPress packages)
+		expect(bundle.length).toBeGreaterThan(15000); // Should contain kernel code
+		expect(bundle.length).toBeLessThan(50000); // But not bundle WordPress
 	});
 
 	it('should NOT bundle WordPress packages', () => {

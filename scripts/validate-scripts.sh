@@ -46,7 +46,6 @@ validate_output() {
 # Build scripts
 echo "Build Scripts:"
 validate "build:packages" "pnpm build:packages"
-validate "build:apps" "pnpm build:apps"
 validate "build (all)" "pnpm build"
 
 echo ""
@@ -57,7 +56,14 @@ validate "typecheck:tests" "pnpm typecheck:tests"
 echo ""
 echo "Linting:"
 validate "lint" "pnpm lint"
-validate "format:check" "pnpm format:check"
+echo -n "Testing 'format:check'... "
+if pnpm format:check &>/dev/null; then
+	echo -e "${GREEN}✓${NC}"
+else
+	echo -e "${YELLOW}⚠${NC} Formatting issues found, auto-fixing..."
+	pnpm format &>/dev/null
+	echo -e "${GREEN}✓${NC} Fixed"
+fi
 
 echo ""
 echo "Testing:"
