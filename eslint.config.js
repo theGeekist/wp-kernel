@@ -176,9 +176,18 @@ export default [
 		},
 	},
 
-	// Config files can use default exports
+	// Config files can use default exports (root and nested)
 	{
-		files: ['*.config.js', '*.config.ts', '*.config.cjs', '*.config.mjs'],
+		files: [
+			'*.config.js',
+			'*.config.ts',
+			'*.config.cjs',
+			'*.config.mjs',
+			'**/*.config.js',
+			'**/*.config.ts',
+			'**/*.config.cjs',
+			'**/*.config.mjs',
+		],
 		rules: {
 			'import/no-default-export': 'off',
 		},
