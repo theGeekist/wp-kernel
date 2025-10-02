@@ -51,6 +51,8 @@ module.exports = {
 		'packages/*/src/**/*.{ts,tsx}',
 		// Exclude showcase app (example/demo code, not framework code)
 		'!app/showcase/src/**',
+		// Exclude e2e-utils (browser-only code, can't be unit tested in JSDOM)
+		'!packages/e2e-utils/src/**',
 		'!packages/*/src/**/*.d.ts',
 		'!app/*/src/**/*.d.ts',
 		'!packages/*/src/**/__tests__/**',
