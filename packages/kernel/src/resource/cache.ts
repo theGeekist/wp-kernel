@@ -1,4 +1,4 @@
-import { KernelError } from '../error/index.js';
+import { KernelError } from '../error/index';
 
 /**
  * Cache key utilities for resource store invalidation

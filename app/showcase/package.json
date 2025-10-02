@@ -5,8 +5,8 @@
 	"description": "Showcase plugin demonstrating WP Kernel framework features",
 	"type": "module",
 	"scripts": {
-		"dev": "wp-scripts start",
-		"build": "pnpm types:generate && wp-scripts build",
+		"dev": "vite",
+		"build": "pnpm types:generate && vite build",
 		"types:generate": "./scripts/generate-types.sh",
 		"typecheck": "tsc --noEmit",
 		"clean": "rm -rf build types"
@@ -16,6 +16,9 @@
 		"@geekist/wp-kernel-ui": "workspace:*"
 	},
 	"devDependencies": {
+		"@kucrut/vite-for-wp": "^0.12.0",
+		"@playwright/test": "^1.55.1",
+		"@types/node": "^22.10.6",
 		"@wordpress/api-fetch": "^7.31.0",
 		"@wordpress/components": "^30.4.0",
 		"@wordpress/data": "^10.31.0",
@@ -23,8 +26,10 @@
 		"@wordpress/element": "^6.31.0",
 		"@wordpress/hooks": "^4.31.0",
 		"@wordpress/i18n": "^6.4.0",
-		"@wordpress/scripts": "^30.24.0",
 		"ajv": "^8.17.1",
-		"ajv-formats": "^3.0.1"
+		"ajv-formats": "^3.0.1",
+		"rollup-plugin-external-globals": "^0.13.0",
+		"vite": "^7.1.7",
+		"vite-plugin-external": "^6.2.2"
 	}
 }

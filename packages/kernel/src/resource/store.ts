@@ -14,8 +14,8 @@ import type {
 	ResourceStore,
 	ResourceStoreConfig,
 	ListResponse,
-} from './types.js';
-import { KernelError } from '../error/index.js';
+} from './types';
+import { KernelError } from '../error/index';
 
 /**
  * Action types for the resource store.
@@ -56,7 +56,7 @@ function defaultGetQueryKey<TQuery>(query?: TQuery): string {
  * @example
  * ```typescript
  * import { createStore } from '@geekist/wp-kernel/resource';
- * import { thing } from './resources/thing.js';
+ * import { thing } from './resources/thing';
  *
  * const thingStore = createStore({
  *   resource: thing,

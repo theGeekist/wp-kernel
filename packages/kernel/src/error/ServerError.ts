@@ -7,8 +7,8 @@
  * @module
  */
 
-import { KernelError } from './KernelError.js';
-import type { ErrorContext } from './types.js';
+import { KernelError } from './KernelError';
+import type { ErrorContext } from './types';
 
 /**
  * WordPress REST API error response shape
