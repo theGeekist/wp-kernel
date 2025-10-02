@@ -177,6 +177,45 @@ describe('createStore - Grouped API', () => {
 				const list = mockResource.select?.list({ q: 'search' });
 				expect(list).toEqual([]);
 			});
+
+			it('select.list should return empty array when getItems returns falsy', () => {
+				// Import defineResource to test with real implementation
+				// eslint-disable-next-line @typescript-eslint/no-require-imports
+				const { defineResource } = require('../../define');
+
+				// Save original wp object
+				const originalWp = (global as any).window?.wp;
+
+				// Mock window.wp.data.select to return a store with getItems that returns null
+				const mockGetItems = jest.fn().mockReturnValue(null);
+				(global as any).window.wp = {
+					data: {
+						select: jest.fn().mockReturnValue({
+							getItems: mockGetItems,
+						}),
+					},
+				};
+
+				// Create a real resource
+				const realResource = defineResource({
+					name: 'test',
+					routes: {
+						list: { path: '/wpk/v1/test', method: 'GET' },
+					},
+				});
+
+				// This will call the real select.list which should fallback to [] when getItems returns null
+				const list = realResource.select?.list({ q: 'test' });
+				expect(list).toEqual([]);
+				expect(mockGetItems).toHaveBeenCalledWith({ q: 'test' });
+
+				// Restore original
+				if (originalWp) {
+					(global as any).window.wp = originalWp;
+				} else {
+					delete (global as any).window.wp;
+				}
+			});
 		});
 
 		describe('use namespace (React hooks)', () => {
