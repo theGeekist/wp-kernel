@@ -13,10 +13,10 @@
  *
  * @see Product Specification § 4.1 Resources (Phase 2.2)
  */
-import { KernelError } from '../error/index.js';
-import { invalidate as globalInvalidate } from './cache.js';
-import { getWPData } from './utils.js';
-import type { ResourceConfig, ResourceObject, CacheKeys } from './types.js';
+import { KernelError } from '../error/index';
+import { invalidate as globalInvalidate } from './cache';
+import { getWPData } from './utils';
+import type { ResourceConfig, ResourceObject, CacheKeys } from './types';
 
 /**
  * Create select namespace getter

@@ -23,8 +23,8 @@ import {
 	Notice,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { job } from '../../resources/job';
-import type { Job } from '../../../types/job.js';
+import { job } from '../../resources'; // Use index.ts re-export for consistency
+import type { Job } from '../../resources';
 
 /**
  * Jobs List Component
@@ -50,8 +50,25 @@ export function JobsList(): JSX.Element {
 
 	// Read from store using the auto-generated selectors
 	const { jobsResponse, isLoading, error } = useSelect((select) => {
+		console.log('[JobsList] Selecting store with key:', job.storeKey);
+		console.log('[JobsList] job object:', job);
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		const store = select(job.storeKey) as any;
+		console.log('[JobsList] Store returned from select:', store);
+		console.log(
+			'[JobsList] Store type:',
+			typeof store,
+			'Has getList:',
+			store && typeof store === 'object' && 'getList' in store
+		);
+		if (!store) {
+			console.error('[JobsList] Store is null/undefined!');
+			return {
+				jobsResponse: undefined,
+				isLoading: false,
+				error: 'Store not found',
+			};
+		}
 		return {
 			jobsResponse: store.getList(),
 			isLoading: store.isResolving('getList', []),
@@ -175,7 +192,10 @@ export function JobsList(): JSX.Element {
 					<h2>{__('All Jobs', 'wp-kernel-showcase')}</h2>
 				</CardHeader>
 				<CardBody>
-					<table className="wp-list-table widefat fixed striped">
+					<table
+						className="wp-list-table widefat fixed striped"
+						data-testid="jobs-list"
+					>
 						<thead>
 							<tr>
 								<th>{__('ID', 'wp-kernel-showcase')}</th>
@@ -190,7 +210,7 @@ export function JobsList(): JSX.Element {
 						</thead>
 						<tbody>
 							{jobs.map((jobItem: Job) => (
-								<tr key={jobItem.id}>
+								<tr key={jobItem.id} data-testid="job-item">
 									<td>{jobItem.id}</td>
 									<td>
 										<strong>{jobItem.title}</strong>

@@ -4,7 +4,7 @@
  * Tests the @wordpress/data store integration
  */
 
-import type { ResourceObject, ListResponse } from '../../types.js';
+import type { ResourceObject, ListResponse } from '../../types';
 
 // Mock resource for testing
 interface MockThing {

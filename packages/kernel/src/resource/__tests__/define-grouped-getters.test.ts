@@ -5,7 +5,7 @@
  * and the cache.key() method that generates cache keys.
  */
 
-import { defineResource } from '../define.js';
+import { defineResource } from '../define';
 
 // Mock types for testing
 interface MockThing {

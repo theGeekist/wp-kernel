@@ -7,8 +7,11 @@ import { defineConfig, devices } from '@playwright/test';
  * @see https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
-	// Test directory
-	testDir: './packages/e2e-utils/tests',
+	// Test directory - showcase e2e tests
+	testDir: './app/showcase/__tests__/e2e',
+
+	// Only pick up Playwright-style specs (avoid Jest-style *.test.ts files)
+	testMatch: /.*\.spec\.[jt]sx?$/,
 
 	// Run tests in files in parallel
 	fullyParallel: true,
@@ -77,16 +80,18 @@ export default defineConfig({
 
 	// Run your local dev server before starting the tests
 	// Only start server locally, not in CI (CI starts it manually)
-	webServer: process.env.CI
-		? undefined
+	...(process.env.CI
+		? {}
 		: {
-				command: 'pnpm wp:start',
-				url: 'http://localhost:8889',
-				reuseExistingServer: true,
-				timeout: 120 * 1000, // 2 minutes for Docker startup
-				stdout: 'pipe',
-				stderr: 'pipe',
-			},
+				webServer: {
+					command: 'pnpm wp:start',
+					url: 'http://localhost:8889',
+					reuseExistingServer: true,
+					timeout: 120 * 1000, // 2 minutes for Docker startup
+					stdout: 'pipe',
+					stderr: 'pipe',
+				},
+			}),
 
 	// Global timeout for each test (60 seconds)
 	timeout: 60 * 1000,

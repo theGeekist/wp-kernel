@@ -6,8 +6,8 @@
  *
  * @see Product Specification § 4.1 Resources
  */
-import { KernelError } from '../error/index.js';
-import type { ResourceConfig } from './types.js';
+import { KernelError } from '../error/index';
+import type { ResourceConfig } from './types';
 
 /**
  * Validate resource configuration

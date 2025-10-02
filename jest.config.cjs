@@ -77,6 +77,8 @@ module.exports = {
 		'/build/',
 		'/.wp-env/',
 		'/packages/e2e-utils/tests/', // Exclude Playwright E2E tests
+		'/__tests__/e2e/', // Exclude all E2E test directories
+		'.spec.ts$', // Exclude Playwright spec files
 	],
 
 	// Setup files
