@@ -18,25 +18,15 @@ interface MockThingQuery {
 	status?: string;
 }
 
-// Mock @wordpress/data
-interface MockWPData {
-	dispatch: jest.Mock;
-	resolveSelect: jest.Mock;
-}
-
-interface WindowWithWP extends Window {
-	wp?: {
-		data?: MockWPData;
-	};
-}
+// Use global types for window.wp
 
 describe('defineResource - Prefetch Methods', () => {
-	let mockWpData: MockWPData;
-	let originalWp: WindowWithWP['wp'];
+	let mockWpData: any;
+	let originalWp: Window['wp'];
 
 	beforeEach(() => {
 		// Store original window.wp
-		const windowWithWp = global.window as WindowWithWP;
+		const windowWithWp = global.window as Window & { wp?: any };
 		originalWp = windowWithWp?.wp;
 
 		// Create mock wp.data
@@ -63,7 +53,7 @@ describe('defineResource - Prefetch Methods', () => {
 
 	afterEach(() => {
 		// Restore original window.wp
-		const windowWithWp = global.window as WindowWithWP;
+		const windowWithWp = global.window as Window & { wp?: any };
 		if (windowWithWp) {
 			windowWithWp.wp = originalWp;
 		}
@@ -72,7 +62,7 @@ describe('defineResource - Prefetch Methods', () => {
 	describe('prefetchGet method', () => {
 		it('should throw error if @wordpress/data is not loaded', async () => {
 			// Remove wp.data
-			(global.window as WindowWithWP).wp = undefined;
+			(global.window as Window & { wp?: any }).wp = undefined;
 
 			const resource = defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
@@ -157,7 +147,7 @@ describe('defineResource - Prefetch Methods', () => {
 	describe('prefetchList method', () => {
 		it('should throw error if @wordpress/data is not loaded', async () => {
 			// Remove wp.data
-			(global.window as WindowWithWP).wp = undefined;
+			(global.window as Window & { wp?: any }).wp = undefined;
 
 			const resource = defineResource<MockThing, MockThingQuery>({
 				name: 'thing',

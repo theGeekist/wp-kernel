@@ -11,7 +11,7 @@ import { registerStoreKey, invalidate as globalInvalidate } from './cache';
 import { createStore } from './store';
 import { validateConfig } from './validation';
 import { createClient } from './client';
-import { createDefaultCacheKeys, type WPGlobal } from './utils';
+import { createDefaultCacheKeys } from './utils';
 import {
 	createSelectGetter,
 	createUseGetter,
@@ -107,7 +107,7 @@ export function defineResource<T = unknown, TQuery = unknown>(
 				// Check if @wordpress/data is available (browser environment)
 				const globalWp =
 					typeof window !== 'undefined'
-						? (window as Window & WPGlobal).wp
+						? (window as WPGlobal).wp
 						: undefined;
 				if (
 					globalWp?.data?.createReduxStore &&
@@ -139,7 +139,7 @@ export function defineResource<T = unknown, TQuery = unknown>(
 					// Check if we're in a React context (useSelect available)
 					const globalWp =
 						typeof window !== 'undefined'
-							? (window as Window & WPGlobal).wp
+							? (window as WPGlobal).wp
 							: undefined;
 					if (!globalWp?.data?.useSelect) {
 						throw new KernelError('DeveloperError', {
@@ -190,7 +190,7 @@ export function defineResource<T = unknown, TQuery = unknown>(
 					// Check if we're in a React context (useSelect available)
 					const globalWp =
 						typeof window !== 'undefined'
-							? (window as Window & WPGlobal).wp
+							? (window as WPGlobal).wp
 							: undefined;
 					if (!globalWp?.data?.useSelect) {
 						throw new KernelError('DeveloperError', {
@@ -242,7 +242,7 @@ export function defineResource<T = unknown, TQuery = unknown>(
 					// Check if @wordpress/data is available
 					const globalWp =
 						typeof window !== 'undefined'
-							? (window as Window & WPGlobal).wp
+							? (window as WPGlobal).wp
 							: undefined;
 					if (!globalWp?.data?.dispatch) {
 						throw new KernelError('DeveloperError', {
@@ -277,7 +277,7 @@ export function defineResource<T = unknown, TQuery = unknown>(
 					// Check if @wordpress/data is available
 					const globalWp =
 						typeof window !== 'undefined'
-							? (window as Window & WPGlobal).wp
+							? (window as WPGlobal).wp
 							: undefined;
 					if (!globalWp?.data?.dispatch) {
 						throw new KernelError('DeveloperError', {

@@ -4,7 +4,7 @@
  * Tests createDefaultCacheKeys and getWPData helper functions
  */
 
-import { createDefaultCacheKeys, getWPData } from '../utils';
+import { createDefaultCacheKeys } from '../utils';
 
 describe('resource utilities', () => {
 	describe('createDefaultCacheKeys', () => {
@@ -80,51 +80,6 @@ describe('resource utilities', () => {
 			expect(keys.create()[0]).toBe('custom-resource');
 			expect(keys.update(1)[0]).toBe('custom-resource');
 			expect(keys.remove(1)[0]).toBe('custom-resource');
-		});
-	});
-
-	describe('getWPData', () => {
-		it('should return wp.data when available in browser', () => {
-			const mockWpData = {
-				registerStore: jest.fn(),
-				select: jest.fn(),
-				dispatch: jest.fn(),
-			};
-
-			// Mock window.wp.data
-			const originalWp = (global.window as any).wp;
-			(global.window as any).wp = { data: mockWpData };
-
-			const wpData = getWPData();
-
-			expect(wpData).toBe(mockWpData);
-
-			// Restore
-			(global.window as any).wp = originalWp;
-		});
-
-		it('should return undefined when wp is not defined', () => {
-			const originalWp = (global.window as any).wp;
-			(global.window as any).wp = undefined;
-
-			const wpData = getWPData();
-
-			expect(wpData).toBeUndefined();
-
-			// Restore
-			(global.window as any).wp = originalWp;
-		});
-
-		it('should return undefined when wp.data is not defined', () => {
-			const originalWp = (global.window as any).wp;
-			(global.window as any).wp = {}; // wp exists but no data
-
-			const wpData = getWPData();
-
-			expect(wpData).toBeUndefined();
-
-			// Restore
-			(global.window as any).wp = originalWp;
 		});
 	});
 });
