@@ -63,13 +63,9 @@ beforeEach(() => {
 		global.process.env = { NODE_ENV: 'test' };
 	}
 
-	// Implement getWPData globally
-	(globalThis as { getWPData?: () => unknown }).getWPData = () => {
-		if (typeof window === 'undefined') {
-			return undefined;
-		}
-		return (window as Window & WPGlobal).wp?.data;
-	};
+	// Implement getWPData globally (imported from kernel implementation)
+	// The actual implementation is provided by packages/kernel/src/index.ts
+	// which gets loaded during module resolution
 
 	// Set up WordPress globals with proper typing
 	// Thanks to ambient declarations in test-globals.d.ts, window.wp is properly typed
