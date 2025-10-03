@@ -116,8 +116,6 @@ function init(): void {
 	\add_action(
 		'wp_enqueue_scripts',
 		function () {
-			// Ensure lodash is available for wp-data
-			\wp_enqueue_script( 'lodash' );
 			\wp_enqueue_script_module( '@geekist/wp-kernel-showcase' );
 		}
 	);
@@ -131,7 +129,6 @@ function init(): void {
 				'wp-kernel-showcase-admin',
 				WPK_SHOWCASE_URL . 'build/' . get_vite_entry_file(),
 				array(
-					'lodash',
 					'react',
 					'react-dom',
 					'wp-element',
