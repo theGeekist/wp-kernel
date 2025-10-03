@@ -139,14 +139,6 @@ addAction('wpk.system.error', 'acme-blog/system-monitor', (payload) => {
 });
 ```
 
-import { addAction } from '@wordpress/hooks';
-
-addAction('wpk.cache.invalidated', 'my-plugin/debug', (payload) => {
-console.log('Cache invalidated:', payload.keys);
-});
-
-````
-
 ### Access Resource Event Names
 
 ```typescript
