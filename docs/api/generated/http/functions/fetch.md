@@ -10,7 +10,7 @@
 function fetch<T>(request): Promise<TransportResponse<T>>;
 ```
 
-Defined in: [http/fetch.ts:171](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/http/fetch.ts#L171)
+Defined in: [http/fetch.ts:178](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/http/fetch.ts#L178)
 
 Fetch data from WordPress REST API
 
@@ -53,7 +53,7 @@ KernelError on request failure
 import { fetch } from '@geekist/wp-kernel/transport';
 
 const response = await fetch<Thing>({
-	path: '/wpk/v1/things/123',
+	path: '/my-plugin/v1/things/123',
 	method: 'GET',
 });
 

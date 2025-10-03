@@ -67,7 +67,7 @@ describe('defineResource - Prefetch Methods', () => {
 			const resource = defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
 				routes: {
-					get: { path: '/wpk/v1/things/:id', method: 'GET' },
+					get: { path: '/my-plugin/v1/things/:id', method: 'GET' },
 				},
 			});
 
@@ -80,7 +80,7 @@ describe('defineResource - Prefetch Methods', () => {
 			const resource = defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
 				routes: {
-					get: { path: '/wpk/v1/things/:id', method: 'GET' },
+					get: { path: '/my-plugin/v1/things/:id', method: 'GET' },
 				},
 			});
 
@@ -99,7 +99,7 @@ describe('defineResource - Prefetch Methods', () => {
 			const resource = defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
 				routes: {
-					get: { path: '/wpk/v1/things/:id', method: 'GET' },
+					get: { path: '/my-plugin/v1/things/:id', method: 'GET' },
 				},
 			});
 
@@ -118,7 +118,7 @@ describe('defineResource - Prefetch Methods', () => {
 				name: 'thing',
 				routes: {
 					// No get route
-					list: { path: '/wpk/v1/things', method: 'GET' },
+					list: { path: '/my-plugin/v1/things', method: 'GET' },
 				},
 			});
 
@@ -129,7 +129,7 @@ describe('defineResource - Prefetch Methods', () => {
 			const resource = defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
 				routes: {
-					get: { path: '/wpk/v1/things/:id', method: 'GET' },
+					get: { path: '/my-plugin/v1/things/:id', method: 'GET' },
 				},
 			});
 
@@ -152,7 +152,7 @@ describe('defineResource - Prefetch Methods', () => {
 			const resource = defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
 				routes: {
-					list: { path: '/wpk/v1/things', method: 'GET' },
+					list: { path: '/my-plugin/v1/things', method: 'GET' },
 				},
 			});
 
@@ -165,7 +165,7 @@ describe('defineResource - Prefetch Methods', () => {
 			const resource = defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
 				routes: {
-					list: { path: '/wpk/v1/things', method: 'GET' },
+					list: { path: '/my-plugin/v1/things', method: 'GET' },
 				},
 			});
 
@@ -184,7 +184,7 @@ describe('defineResource - Prefetch Methods', () => {
 			const resource = defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
 				routes: {
-					list: { path: '/wpk/v1/things', method: 'GET' },
+					list: { path: '/my-plugin/v1/things', method: 'GET' },
 				},
 			});
 
@@ -203,7 +203,7 @@ describe('defineResource - Prefetch Methods', () => {
 			const resource = defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
 				routes: {
-					list: { path: '/wpk/v1/things', method: 'GET' },
+					list: { path: '/my-plugin/v1/things', method: 'GET' },
 				},
 			});
 
@@ -222,7 +222,7 @@ describe('defineResource - Prefetch Methods', () => {
 				name: 'thing',
 				routes: {
 					// No list route
-					get: { path: '/wpk/v1/things/:id', method: 'GET' },
+					get: { path: '/my-plugin/v1/things/:id', method: 'GET' },
 				},
 			});
 

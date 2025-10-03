@@ -46,11 +46,11 @@ describe('grouped-api namespace factories', () => {
 		mockConfig = {
 			name: 'test-resource',
 			routes: {
-				list: { path: '/wpk/v1/tests', method: 'GET' },
-				get: { path: '/wpk/v1/tests/:id', method: 'GET' },
-				create: { path: '/wpk/v1/tests', method: 'POST' },
-				update: { path: '/wpk/v1/tests/:id', method: 'PUT' },
-				remove: { path: '/wpk/v1/tests/:id', method: 'DELETE' },
+				list: { path: '/my-plugin/v1/tests', method: 'GET' },
+				get: { path: '/my-plugin/v1/tests/:id', method: 'GET' },
+				create: { path: '/my-plugin/v1/tests', method: 'POST' },
+				update: { path: '/my-plugin/v1/tests/:id', method: 'PUT' },
+				remove: { path: '/my-plugin/v1/tests/:id', method: 'DELETE' },
 			},
 		};
 
@@ -345,13 +345,19 @@ describe('grouped-api namespace factories', () => {
 			const configNoMutations = {
 				...mockConfig,
 				routes: {
-					list: { path: '/wpk/v1/tests', method: 'GET' },
-					get: { path: '/wpk/v1/tests/:id', method: 'GET' },
+					list: {
+						path: '/my-plugin/v1/tests',
+						method: 'GET' as const,
+					},
+					get: {
+						path: '/my-plugin/v1/tests/:id',
+						method: 'GET' as const,
+					},
 				},
 			};
 
 			const getter = createMutateGetter<TestItem, TestQuery>(
-				configNoMutations as any
+				configNoMutations
 			);
 			const result = getter.call(mockResourceObject);
 
@@ -386,12 +392,15 @@ describe('grouped-api namespace factories', () => {
 			const configOnlyCreate = {
 				...mockConfig,
 				routes: {
-					create: { path: '/wpk/v1/tests', method: 'POST' },
+					create: {
+						path: '/my-plugin/v1/tests',
+						method: 'POST' as const,
+					},
 				},
 			};
 
 			const getter = createMutateGetter<TestItem, TestQuery>(
-				configOnlyCreate as any
+				configOnlyCreate
 			);
 			const mutateNamespace = getter.call(mockResourceObject);
 
@@ -494,7 +503,7 @@ describe('grouped-api namespace factories', () => {
 		it('should return cache namespace with invalidate.all method', () => {
 			// Mock globalInvalidate
 			const mockGlobalInvalidate = jest.fn();
-			jest.mock('../cache.js', () => ({
+			jest.mock('../cache', () => ({
 				invalidate: mockGlobalInvalidate,
 			}));
 

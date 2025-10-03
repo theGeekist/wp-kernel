@@ -10,7 +10,7 @@
 function invalidate(patterns, options): void;
 ```
 
-Defined in: [resource/cache.ts:352](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/cache.ts#L352)
+Defined in: [resource/cache.ts:323](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/cache.ts#L323)
 
 Invalidate cached data matching the given patterns.
 Deletes matching cache entries and marks selectors as stale.
@@ -52,5 +52,5 @@ invalidate([
 ]);
 
 // Target specific store
-invalidate(['thing', 'list'], { storeKey: 'wpk/thing' });
+invalidate(['thing', 'list'], { storeKey: 'my-plugin/thing' });
 ```

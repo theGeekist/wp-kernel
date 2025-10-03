@@ -26,7 +26,7 @@ describe('defineResource - integration', () => {
 			const resource = defineResource<Thing>({
 				name: 'thing',
 				routes: {
-					list: { path: '/wpk/v1/things', method: 'GET' },
+					list: { path: '/my-plugin/v1/things', method: 'GET' },
 				},
 			});
 
@@ -37,7 +37,7 @@ describe('defineResource - integration', () => {
 			const resource = defineResource<Thing>({
 				name: 'thing',
 				routes: {
-					list: { path: '/wpk/v1/things', method: 'GET' },
+					list: { path: '/my-plugin/v1/things', method: 'GET' },
 				},
 			});
 
@@ -51,7 +51,7 @@ describe('defineResource - integration', () => {
 			const resource = defineResource<Thing>({
 				name: 'thing',
 				routes: {
-					list: { path: '/wpk/v1/things', method: 'GET' },
+					list: { path: '/my-plugin/v1/things', method: 'GET' },
 				},
 			});
 
@@ -64,7 +64,7 @@ describe('defineResource - integration', () => {
 			const resource = defineResource<Thing>({
 				name: 'thing',
 				routes: {
-					list: { path: '/wpk/v1/things', method: 'GET' },
+					list: { path: '/my-plugin/v1/things', method: 'GET' },
 				},
 			});
 
@@ -88,7 +88,7 @@ describe('defineResource - integration', () => {
 			const resource = defineResource<Thing>({
 				name: 'thing',
 				routes: {
-					list: { path: '/wpk/v1/things', method: 'GET' },
+					list: { path: '/my-plugin/v1/things', method: 'GET' },
 				},
 			});
 
@@ -114,17 +114,20 @@ describe('defineResource - integration', () => {
 
 			if (windowWithWp) {
 				windowWithWp.wp = {
+					...windowWithWp.wp,
+					...windowWithWp.wp,
 					data: {
+						...windowWithWp.wp?.data,
 						createReduxStore: mockCreateReduxStore,
 						register: mockRegister,
-					} as any,
+					},
 				};
 			}
 
 			const resource = defineResource<Thing>({
 				name: 'thing-with-register',
 				routes: {
-					list: { path: '/wpk/v1/things', method: 'GET' },
+					list: { path: '/my-plugin/v1/things', method: 'GET' },
 				},
 			});
 
@@ -166,18 +169,19 @@ describe('defineResource - integration', () => {
 			mockApiFetch = jest.fn();
 			mockDoAction = jest.fn();
 
-			const windowWithWp = global.window as any;
+			const windowWithWp = global.window;
 
 			if (windowWithWp) {
 				windowWithWp.wp = {
+					...windowWithWp.wp,
 					apiFetch: mockApiFetch,
 					hooks: {
 						doAction: mockDoAction,
 					},
 					data: {
 						register: jest.fn(),
-					},
-				};
+					} as any, // Mock for testing - needs to match WPGlobal type
+				} as unknown as Window['wp'];
 			}
 		});
 
@@ -196,7 +200,7 @@ describe('defineResource - integration', () => {
 				const resource = defineResource<Thing, ThingQuery>({
 					name: 'thing',
 					routes: {
-						list: { path: '/wpk/v1/things', method: 'GET' },
+						list: { path: '/my-plugin/v1/things', method: 'GET' },
 					},
 				});
 
@@ -206,7 +210,7 @@ describe('defineResource - integration', () => {
 				});
 
 				expect(mockApiFetch).toHaveBeenCalledWith({
-					path: '/wpk/v1/things?q=search&page=1',
+					path: '/my-plugin/v1/things?q=search&page=1',
 					method: 'GET',
 					data: undefined,
 					parse: true,
@@ -223,7 +227,7 @@ describe('defineResource - integration', () => {
 				const resource = defineResource<Thing>({
 					name: 'thing',
 					routes: {
-						list: { path: '/wpk/v1/things', method: 'GET' },
+						list: { path: '/my-plugin/v1/things', method: 'GET' },
 					},
 				});
 
@@ -249,7 +253,7 @@ describe('defineResource - integration', () => {
 				const resource = defineResource<Thing>({
 					name: 'thing',
 					routes: {
-						list: { path: '/wpk/v1/things', method: 'GET' },
+						list: { path: '/my-plugin/v1/things', method: 'GET' },
 					},
 				});
 
@@ -271,14 +275,17 @@ describe('defineResource - integration', () => {
 				const resource = defineResource<Thing>({
 					name: 'thing',
 					routes: {
-						get: { path: '/wpk/v1/things/:id', method: 'GET' },
+						get: {
+							path: '/my-plugin/v1/things/:id',
+							method: 'GET',
+						},
 					},
 				});
 
 				const result = await resource.fetch!(123);
 
 				expect(mockApiFetch).toHaveBeenCalledWith({
-					path: '/wpk/v1/things/123',
+					path: '/my-plugin/v1/things/123',
 					method: 'GET',
 					data: undefined,
 					parse: true,
@@ -297,14 +304,17 @@ describe('defineResource - integration', () => {
 				const resource = defineResource<Thing>({
 					name: 'thing',
 					routes: {
-						get: { path: '/wpk/v1/things/:id', method: 'GET' },
+						get: {
+							path: '/my-plugin/v1/things/:id',
+							method: 'GET',
+						},
 					},
 				});
 
 				await resource.fetch!('abc');
 
 				expect(mockApiFetch).toHaveBeenCalledWith({
-					path: '/wpk/v1/things/abc',
+					path: '/my-plugin/v1/things/abc',
 					method: 'GET',
 					data: undefined,
 					parse: true,
@@ -324,7 +334,10 @@ describe('defineResource - integration', () => {
 				const resource = defineResource<Thing>({
 					name: 'thing',
 					routes: {
-						get: { path: '/wpk/v1/things/:id', method: 'GET' },
+						get: {
+							path: '/my-plugin/v1/things/:id',
+							method: 'GET',
+						},
 					},
 				});
 
@@ -342,18 +355,19 @@ describe('defineResource - integration', () => {
 			mockApiFetch = jest.fn();
 			mockDoAction = jest.fn();
 
-			const windowWithWp = global.window as any;
+			const windowWithWp = global.window;
 
 			if (windowWithWp) {
 				windowWithWp.wp = {
+					...windowWithWp.wp,
 					apiFetch: mockApiFetch,
 					hooks: {
 						doAction: mockDoAction,
 					},
 					data: {
 						register: jest.fn(),
-					},
-				};
+					} as any,
+				} as unknown as Window['wp'];
 			}
 		});
 
@@ -440,8 +454,12 @@ describe('defineResource - integration', () => {
 
 		it('should detect namespace from build-time defines', () => {
 			// Mock build-time define
-			const originalDefine = (globalThis as any).__WPK_NAMESPACE__;
-			(globalThis as any).__WPK_NAMESPACE__ = 'build-time-plugin';
+			const originalDefine = (
+				globalThis as GlobalThis & { __WPK_NAMESPACE__?: string }
+			).__WPK_NAMESPACE__;
+			(
+				globalThis as GlobalThis & { __WPK_NAMESPACE__?: string }
+			).__WPK_NAMESPACE__ = 'build-time-plugin';
 
 			try {
 				const resource = defineResource<Thing>({
@@ -461,16 +479,24 @@ describe('defineResource - integration', () => {
 			} finally {
 				// Restore
 				if (originalDefine !== undefined) {
-					(globalThis as any).__WPK_NAMESPACE__ = originalDefine;
+					(
+						globalThis as GlobalThis & {
+							__WPK_NAMESPACE__?: string;
+						}
+					).__WPK_NAMESPACE__ = originalDefine;
 				} else {
-					delete (globalThis as any).__WPK_NAMESPACE__;
+					delete (
+						globalThis as GlobalThis & {
+							__WPK_NAMESPACE__?: string;
+						}
+					).__WPK_NAMESPACE__;
 				}
 			}
 		});
 
 		it('should detect namespace from WordPress plugin data', () => {
 			// Mock WordPress plugin data
-			const windowWithWp = global.window as any;
+			const windowWithWp = global.window;
 			const originalData = windowWithWp?.wpKernelData;
 
 			if (windowWithWp) {
@@ -514,7 +540,7 @@ describe('defineResource - integration', () => {
 			const resource = defineResource<Thing>({
 				name: 'thing',
 				routes: {
-					list: { path: '/wpk/v1/things', method: 'GET' },
+					list: { path: '/my-plugin/v1/things', method: 'GET' },
 				},
 			});
 

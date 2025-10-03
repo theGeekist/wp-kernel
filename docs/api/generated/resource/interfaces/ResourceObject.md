@@ -38,7 +38,7 @@ thing.invalidate(['list', 'active']); // Invalidate specific query
 const key = thing.key('list', { q: 'search' });
 
 // Use in store selectors
-const storeKey = thing.storeKey; // 'wpk/thing'
+const storeKey = thing.storeKey; // 'my-plugin/thing'
 
 // Access @wordpress/data store (lazy-loaded, auto-registered)
 const store = thing.store;
@@ -281,7 +281,7 @@ storeKey: string;
 
 Defined in: [resource/types.ts:311](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L311)
 
-WordPress data store key (e.g., 'wpk/thing')
+WordPress data store key (e.g., 'my-plugin/thing')
 
 Used for store registration and selectors
 

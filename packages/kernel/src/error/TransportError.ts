@@ -16,7 +16,7 @@ import type { ErrorContext, ErrorData } from './types';
  * ```typescript
  * throw new TransportError({
  *   status: 404,
- *   path: '/wpk/v1/things/123',
+ *   path: '/my-plugin/v1/things/123',
  *   method: 'GET',
  *   message: 'Resource not found'
  * });

@@ -11,8 +11,18 @@
 			"sameSite": "Lax"
 		},
 		{
+			"name": "wp-settings-time-1",
+			"value": "1759496348",
+			"domain": "localhost",
+			"path": "/",
+			"expires": 1791032348.714,
+			"httpOnly": false,
+			"secure": false,
+			"sameSite": "Lax"
+		},
+		{
 			"name": "wordpress_23778236db82f19306f247e20a353a99",
-			"value": "admin%7C1759601367%7CMwyy2JkZzdXqLHkU8oRxTes9rcfFpItrzj6xtoRzHle%7Ca4590121a9feb0db338c913fba8b0e4cd918e0b14ba07f63abc0812b16d85d0f",
+			"value": "admin%7C1759669148%7CbTxRmFCRagfSkdqG4OBnWP8c6LTHZXlxuxrXWfPBnse%7C710917de3e3bea94e5eac7a8c9a140f7c89d1cfad0231063a1c2151de133d100",
 			"domain": "localhost",
 			"path": "/wp-content/plugins",
 			"expires": -1,
@@ -22,7 +32,7 @@
 		},
 		{
 			"name": "wordpress_23778236db82f19306f247e20a353a99",
-			"value": "admin%7C1759601367%7CMwyy2JkZzdXqLHkU8oRxTes9rcfFpItrzj6xtoRzHle%7Ca4590121a9feb0db338c913fba8b0e4cd918e0b14ba07f63abc0812b16d85d0f",
+			"value": "admin%7C1759669148%7CbTxRmFCRagfSkdqG4OBnWP8c6LTHZXlxuxrXWfPBnse%7C710917de3e3bea94e5eac7a8c9a140f7c89d1cfad0231063a1c2151de133d100",
 			"domain": "localhost",
 			"path": "/wp-admin",
 			"expires": -1,
@@ -32,25 +42,15 @@
 		},
 		{
 			"name": "wordpress_logged_in_23778236db82f19306f247e20a353a99",
-			"value": "admin%7C1759601367%7CMwyy2JkZzdXqLHkU8oRxTes9rcfFpItrzj6xtoRzHle%7Cce6fa2f10fcb8329cc0f87ce9ab3ed4bc6f52b3bf6d1286476e01a3125f8926e",
+			"value": "admin%7C1759669148%7CbTxRmFCRagfSkdqG4OBnWP8c6LTHZXlxuxrXWfPBnse%7Ce32fd4b717ea534e4b3e838a8b2720d8310d702b8f97b6db8e655cbc24a1f07d",
 			"domain": "localhost",
 			"path": "/",
 			"expires": -1,
 			"httpOnly": true,
 			"secure": false,
 			"sameSite": "Lax"
-		},
-		{
-			"name": "wp-settings-time-1",
-			"value": "1759428567",
-			"domain": "localhost",
-			"path": "/",
-			"expires": 1790964567.875,
-			"httpOnly": false,
-			"secure": false,
-			"sameSite": "Lax"
 		}
 	],
-	"nonce": "00663aef8c",
+	"nonce": "ff13683c85",
 	"rootURL": "http://localhost:8889/wp-json/"
 }

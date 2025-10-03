@@ -16,8 +16,8 @@ Complete resource definition configuration
 const thing = defineResource<Thing, { q?: string }>({
 	name: 'thing',
 	routes: {
-		list: { path: '/wpk/v1/things', method: 'GET' },
-		get: { path: '/wpk/v1/things/:id', method: 'GET' },
+		list: { path: '/my-plugin/v1/things', method: 'GET' },
+		get: { path: '/my-plugin/v1/things/:id', method: 'GET' },
 	},
 	cacheKeys: {
 		list: (q) => ['thing', 'list', q?.q],

@@ -16,7 +16,7 @@ describe('defineResource - client methods', () => {
 			const resource = defineResource({
 				name: 'thing',
 				routes: {
-					list: { path: '/wpk/v1/things', method: 'GET' },
+					list: { path: '/my-plugin/v1/things', method: 'GET' },
 				},
 			});
 
@@ -28,7 +28,7 @@ describe('defineResource - client methods', () => {
 			const resource = defineResource({
 				name: 'thing',
 				routes: {
-					get: { path: '/wpk/v1/things/:id', method: 'GET' },
+					get: { path: '/my-plugin/v1/things/:id', method: 'GET' },
 				},
 			});
 
@@ -39,7 +39,7 @@ describe('defineResource - client methods', () => {
 			const resource = defineResource({
 				name: 'thing',
 				routes: {
-					get: { path: '/wpk/v1/things/:id', method: 'GET' },
+					get: { path: '/my-plugin/v1/things/:id', method: 'GET' },
 				},
 			});
 
@@ -51,7 +51,7 @@ describe('defineResource - client methods', () => {
 			const resource = defineResource({
 				name: 'thing',
 				routes: {
-					create: { path: '/wpk/v1/things', method: 'POST' },
+					create: { path: '/my-plugin/v1/things', method: 'POST' },
 				},
 			});
 
@@ -64,7 +64,7 @@ describe('defineResource - client methods', () => {
 				name: 'thing',
 				routes: {
 					update: {
-						path: '/wpk/v1/things/:id',
+						path: '/my-plugin/v1/things/:id',
 						method: 'PUT',
 					},
 				},
@@ -79,7 +79,7 @@ describe('defineResource - client methods', () => {
 				name: 'thing',
 				routes: {
 					remove: {
-						path: '/wpk/v1/things/:id',
+						path: '/my-plugin/v1/things/:id',
 						method: 'DELETE',
 					},
 				},
@@ -93,15 +93,15 @@ describe('defineResource - client methods', () => {
 			const resource = defineResource<Thing>({
 				name: 'thing',
 				routes: {
-					list: { path: '/wpk/v1/things', method: 'GET' },
-					get: { path: '/wpk/v1/things/:id', method: 'GET' },
-					create: { path: '/wpk/v1/things', method: 'POST' },
+					list: { path: '/my-plugin/v1/things', method: 'GET' },
+					get: { path: '/my-plugin/v1/things/:id', method: 'GET' },
+					create: { path: '/my-plugin/v1/things', method: 'POST' },
 					update: {
-						path: '/wpk/v1/things/:id',
+						path: '/my-plugin/v1/things/:id',
 						method: 'PUT',
 					},
 					remove: {
-						path: '/wpk/v1/things/:id',
+						path: '/my-plugin/v1/things/:id',
 						method: 'DELETE',
 					},
 				},
@@ -117,33 +117,37 @@ describe('defineResource - client methods', () => {
 
 	describe('client write methods (create/update/remove)', () => {
 		let mockApiFetch: jest.Mock;
-		let originalWp: any;
+		let originalWp: Window['wp'];
 
 		beforeEach(() => {
 			// Mock @wordpress/api-fetch
 			mockApiFetch = jest.fn();
 
 			// Save original wp object
-			originalWp = (global as any).window?.wp;
+			originalWp = global.window?.wp;
 
 			// Setup global wp object
-			if (typeof (global as any).window !== 'undefined') {
-				(global as any).window.wp = {
+			if (typeof global.window !== 'undefined') {
+				global.window.wp = {
+					...global.window.wp,
 					apiFetch: mockApiFetch,
 					hooks: {
 						doAction: jest.fn(),
 					},
+				} as typeof global.window.wp & {
+					apiFetch: jest.Mock;
+					hooks: { doAction: jest.Mock };
 				};
 			}
 		});
 
 		afterEach(() => {
 			// Restore original wp object
-			if (typeof (global as any).window !== 'undefined') {
+			if (typeof global.window !== 'undefined') {
 				if (originalWp) {
-					(global as any).window.wp = originalWp;
+					global.window.wp = originalWp;
 				} else {
-					delete (global as any).window.wp;
+					delete global.window.wp;
 				}
 			}
 		});
@@ -155,14 +159,14 @@ describe('defineResource - client methods', () => {
 			const resource = defineResource<Thing>({
 				name: 'thing',
 				routes: {
-					create: { path: '/wpk/v1/things', method: 'POST' },
+					create: { path: '/my-plugin/v1/things', method: 'POST' },
 				},
 			});
 
 			const result = await resource.create!({ title: 'Test' });
 			expect(result).toEqual(mockData);
 			expect(mockApiFetch).toHaveBeenCalledWith({
-				path: '/wpk/v1/things',
+				path: '/my-plugin/v1/things',
 				method: 'POST',
 				data: { title: 'Test' },
 				parse: true,
@@ -177,7 +181,7 @@ describe('defineResource - client methods', () => {
 				name: 'thing',
 				routes: {
 					update: {
-						path: '/wpk/v1/things/:id',
+						path: '/my-plugin/v1/things/:id',
 						method: 'PUT',
 					},
 				},
@@ -186,7 +190,7 @@ describe('defineResource - client methods', () => {
 			const result = await resource.update!(123, { title: 'Updated' });
 			expect(result).toEqual(mockData);
 			expect(mockApiFetch).toHaveBeenCalledWith({
-				path: '/wpk/v1/things/123',
+				path: '/my-plugin/v1/things/123',
 				method: 'PUT',
 				data: { title: 'Updated' },
 				parse: true,
@@ -200,7 +204,7 @@ describe('defineResource - client methods', () => {
 				name: 'thing',
 				routes: {
 					remove: {
-						path: '/wpk/v1/things/:id',
+						path: '/my-plugin/v1/things/:id',
 						method: 'DELETE',
 					},
 				},
@@ -209,7 +213,7 @@ describe('defineResource - client methods', () => {
 			const result = await resource.remove!(123);
 			expect(result).toBeUndefined(); // DELETE returns void
 			expect(mockApiFetch).toHaveBeenCalledWith({
-				path: '/wpk/v1/things/123',
+				path: '/my-plugin/v1/things/123',
 				method: 'DELETE',
 				parse: true,
 			});
@@ -221,7 +225,7 @@ describe('defineResource - client methods', () => {
 			const resource = defineResource<Thing>({
 				name: 'thing',
 				routes: {
-					create: { path: '/wpk/v1/things', method: 'POST' },
+					create: { path: '/my-plugin/v1/things', method: 'POST' },
 				},
 			});
 
@@ -247,7 +251,7 @@ describe('defineResource - client methods', () => {
 			const resource = defineResource<Thing>({
 				name: 'thing',
 				routes: {
-					list: { path: '/wpk/v1/things', method: 'GET' },
+					list: { path: '/my-plugin/v1/things', method: 'GET' },
 				},
 			});
 
@@ -271,7 +275,7 @@ describe('defineResource - client methods', () => {
 			const resource = defineResource<Thing>({
 				name: 'thing',
 				routes: {
-					list: { path: '/wpk/v1/things', method: 'GET' },
+					list: { path: '/my-plugin/v1/things', method: 'GET' },
 				},
 			});
 
