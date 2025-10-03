@@ -32,24 +32,14 @@ interface TestQuery {
 	search?: string;
 }
 
-// Mock window.wp.data
-interface MockWPData {
-	select: jest.Mock;
-	dispatch: jest.Mock;
-}
-
-interface WindowWithWP extends Window {
-	wp?: {
-		data?: MockWPData;
-	};
-}
+// Use global types for window.wp
 
 describe('grouped-api namespace factories', () => {
 	let mockConfig: ResourceConfig<TestItem, TestQuery>;
 	let mockResourceObject: ResourceObject<TestItem, TestQuery>;
 	let mockCacheKeys: Required<CacheKeys>;
-	let mockWpData: MockWPData;
-	let originalWp: WindowWithWP['wp'];
+	let mockWpData: any;
+	let originalWp: Window['wp'];
 
 	beforeEach(() => {
 		// Setup mock config
@@ -88,7 +78,7 @@ describe('grouped-api namespace factories', () => {
 		};
 
 		// Store original window.wp
-		const windowWithWp = global.window as WindowWithWP;
+		const windowWithWp = global.window as Window & { wp?: any };
 		originalWp = windowWithWp?.wp;
 
 		// Mock window.wp.data
@@ -123,7 +113,7 @@ describe('grouped-api namespace factories', () => {
 
 	afterEach(() => {
 		// Restore original window.wp
-		const windowWithWp = global.window as WindowWithWP;
+		const windowWithWp = global.window as Window & { wp?: any };
 		if (windowWithWp) {
 			windowWithWp.wp = originalWp;
 		}
@@ -167,7 +157,7 @@ describe('grouped-api namespace factories', () => {
 		});
 
 		it('should return undefined from item selector when @wordpress/data not loaded', () => {
-			const windowWithWp = global.window as WindowWithWP;
+			const windowWithWp = global.window as Window & { wp?: any };
 			if (windowWithWp.wp) {
 				windowWithWp.wp.data = undefined;
 			}
@@ -218,7 +208,7 @@ describe('grouped-api namespace factories', () => {
 		});
 
 		it('should return empty array from items selector when @wordpress/data not loaded', () => {
-			const windowWithWp = global.window as WindowWithWP;
+			const windowWithWp = global.window as Window & { wp?: any };
 			if (windowWithWp.wp) {
 				windowWithWp.wp.data = undefined;
 			}

@@ -5,27 +5,16 @@
 
 import { invalidateAll } from '../../cache';
 
-// Mock window.wp global
-interface WindowWithWp extends Window {
-	wp?: {
-		data?: {
-			dispatch: jest.Mock;
-			select: jest.Mock;
-		};
-		hooks?: {
-			doAction: jest.Mock;
-		};
-	};
-}
+// Use global types for window.wp
 
 describe('invalidateAll', () => {
 	let mockDispatch: jest.Mock;
 	let mockSelect: jest.Mock;
 	let mockDoAction: jest.Mock;
-	let originalWp: WindowWithWp['wp'];
+	let originalWp: Window['wp'];
 
 	beforeEach(() => {
-		const windowWithWp = global.window as WindowWithWp;
+		const windowWithWp = global.window as Window & { wp?: any };
 		originalWp = windowWithWp?.wp;
 
 		mockDispatch = jest.fn();
@@ -46,7 +35,7 @@ describe('invalidateAll', () => {
 	});
 
 	afterEach(() => {
-		const windowWithWp = global.window as WindowWithWp;
+		const windowWithWp = global.window as Window & { wp?: any };
 		if (windowWithWp && originalWp) {
 			windowWithWp.wp = originalWp;
 		}
@@ -104,16 +93,3 @@ describe('invalidateAll', () => {
 		}).not.toThrow();
 	});
 });
-
-// Mock window.wp global
-interface WindowWithWp extends Window {
-	wp?: {
-		data?: {
-			dispatch: jest.Mock;
-			select: jest.Mock;
-		};
-		hooks?: {
-			doAction: jest.Mock;
-		};
-	};
-}

@@ -6,14 +6,7 @@ import { defineResource } from '../define';
 import { KernelError } from '../../error';
 import type { ResourceStore } from '../types';
 
-// Type for window.wp mock in tests
-interface WindowWithWp extends Window {
-	wp?: {
-		data?: {
-			register?: (store: unknown) => void;
-		};
-	};
-}
+// Use global types for window.wp
 
 interface Thing {
 	id: number;
@@ -85,7 +78,7 @@ describe('defineResource - integration', () => {
 
 		it('should not register store when window.wp.data is undefined', () => {
 			// Mock scenario where window.wp is not available
-			const windowWithWp = global.window as WindowWithWp;
+			const windowWithWp = global.window as Window & { wp?: any };
 			const originalWp = windowWithWp?.wp;
 			if (windowWithWp) {
 				delete windowWithWp.wp;
@@ -115,7 +108,7 @@ describe('defineResource - integration', () => {
 				.fn()
 				.mockReturnValue(mockCreatedStore);
 			const mockRegister = jest.fn();
-			const windowWithWp = global.window as WindowWithWp;
+			const windowWithWp = global.window as Window & { wp?: any };
 			const originalWp = windowWithWp?.wp;
 
 			if (windowWithWp) {

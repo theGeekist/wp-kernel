@@ -2,12 +2,13 @@
 	"$schema": "https://json.schemastore.org/tsconfig",
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
-		"rootDir": "./src",
+		"baseUrl": "../../",
+		"rootDir": "../../",
 		"outDir": "./dist-tests",
 		"composite": true,
 		"noEmit": true,
 		"types": ["jest", "node"]
 	},
-	"include": ["src/**/*"],
+	"include": ["src/**/*", "../../tests/**/*"],
 	"exclude": ["node_modules", "dist", "dist-tests"]
 }

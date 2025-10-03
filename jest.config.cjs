@@ -8,7 +8,7 @@ module.exports = {
 	testEnvironment: 'jsdom',
 
 	// Test file locations
-	roots: ['<rootDir>/packages', '<rootDir>/app'],
+	roots: ['<rootDir>/packages', '<rootDir>/app', '<rootDir>/tests'],
 	testMatch: [
 		'**/__tests__/**/*.ts',
 		'**/__tests__/**/*.tsx',
@@ -20,6 +20,9 @@ module.exports = {
 	moduleNameMapper: {
 		// Strip .js extensions for Jest (TypeScript source files are .ts)
 		'^(\\.{1,2}/.*)\\.js$': '$1',
+		// Test utilities (with and without .js extension)
+		'^@test-utils/(.*)\\.js$': '<rootDir>/tests/test-utils/$1',
+		'^@test-utils/(.*)$': '<rootDir>/tests/test-utils/$1',
 		// Workspace package aliases
 		'^@geekist/wp-kernel$': '<rootDir>/packages/kernel/src',
 		'^@geekist/wp-kernel/(.*)$': '<rootDir>/packages/kernel/src/$1',
@@ -80,11 +83,13 @@ module.exports = {
 		'/.wp-env/',
 		'/packages/e2e-utils/tests/', // Exclude Playwright E2E tests
 		'/__tests__/e2e/', // Exclude all E2E test directories
+		'/tests/test-globals.d.ts', // Exclude ambient type declarations
+		'/tests/setup-jest.ts', // Exclude setup file from being run as test
 		'.spec.ts$', // Exclude Playwright spec files
 	],
 
 	// Setup files
-	setupFilesAfterEnv: ['<rootDir>/jest.setup.cjs'],
+	setupFilesAfterEnv: ['<rootDir>/tests/setup-jest.ts'],
 
 	// Performance
 	maxWorkers: '50%',

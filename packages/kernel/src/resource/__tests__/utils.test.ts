@@ -173,8 +173,6 @@ describe('defineResource - resource object structure', () => {
 	});
 });
 
-import { getWPData } from '../utils.js';
-
 describe('utils - getWPData', () => {
 	beforeEach(() => {
 		// Clear any existing wp.data
@@ -183,12 +181,25 @@ describe('utils - getWPData', () => {
 
 	it('should return wp.data when available', () => {
 		const mockWPData = {
+			// Core store methods
 			select: jest.fn(),
 			dispatch: jest.fn(),
 			subscribe: jest.fn(),
-		};
+			createReduxStore: jest.fn(),
+			register: jest.fn(),
 
-		(window as typeof window & { wp: { data: typeof mockWPData } }).wp = {
+			// Higher-order components
+			withSelect: jest.fn(),
+			withDispatch: jest.fn(),
+			withRegistry: jest.fn(),
+
+			// Hooks
+			useSelect: jest.fn(),
+			useDispatch: jest.fn(),
+			useRegistry: jest.fn(),
+		} as any; // Use 'as any' to satisfy the complex @wordpress/data type requirements
+
+		(window as Window & { wp: { data: any } }).wp = {
 			data: mockWPData,
 		};
 

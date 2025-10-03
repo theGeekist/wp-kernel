@@ -27,6 +27,21 @@
  * @module
  */
 
+// ============================================================================
+// Global Function Implementations
+// ============================================================================
+
+/**
+ * Implement global getWPData function
+ * Available globally without imports via global.d.ts declaration
+ */
+(globalThis as { getWPData?: () => unknown }).getWPData = () => {
+	if (typeof window === 'undefined') {
+		return undefined;
+	}
+	return (window as WPGlobal).wp?.data;
+};
+
 export const VERSION = '0.1.1';
 
 // ============================================================================
@@ -36,6 +51,7 @@ export const VERSION = '0.1.1';
 export * as http from './http/index.js';
 export * as resource from './resource/index.js';
 export * as error from './error/index.js';
+export * as namespace from './namespace/index.js';
 
 // ============================================================================
 // Flat Exports (Convenience aliases)
@@ -74,6 +90,9 @@ export {
 	findMatchingKeysMultiple,
 } from './resource/cache.js';
 export { createStore } from './resource/store.js';
+
+// Global functions (re-export for convenience)
+export const getWPData = globalThis.getWPData;
 export type {
 	ResourceRoute,
 	ResourceRoutes,
@@ -95,3 +114,18 @@ export type {
 	CacheKeyPattern,
 	InvalidateOptions,
 } from './resource/cache';
+
+// Namespace detection
+export {
+	detectNamespace,
+	getNamespace,
+	isValidNamespace,
+	sanitizeNamespace,
+	resetNamespaceCache,
+} from './namespace/detect.js';
+export type {
+	NamespaceDetectionOptions,
+	NamespaceDetectionResult,
+	NamespaceDetectionMode,
+	NamespaceRuntimeContext,
+} from './namespace/detect.js';
