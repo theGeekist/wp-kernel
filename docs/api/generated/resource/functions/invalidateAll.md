@@ -10,7 +10,7 @@
 function invalidateAll(storeKey): void;
 ```
 
-Defined in: [resource/cache.ts:454](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/cache.ts#L454)
+Defined in: [resource/cache.ts:445](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/cache.ts#L445)
 
 Invalidate all caches in a specific store
 
