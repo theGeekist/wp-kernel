@@ -32,19 +32,31 @@ interface TestimonialQuery {
 }
 
 export const testimonial = defineResource<TestimonialPost, TestimonialQuery>({
-	name: 'testimonial',
+	name: 'testimonial',                    // Namespace auto-detected from plugin context
 	routes: {
-		list: { path: '/wpk/v1/testimonials', method: 'GET' },
-		get: { path: '/wpk/v1/testimonials/:id', method: 'GET' },
-		create: { path: '/wpk/v1/testimonials', method: 'POST' },
-		update: { path: '/wpk/v1/testimonials/:id', method: 'PUT' },
-		remove: { path: '/wpk/v1/testimonials/:id', method: 'DELETE' },
+		list: { path: '/acme-blog/v1/testimonials', method: 'GET' },
+		get: { path: '/acme-blog/v1/testimonials/:id', method: 'GET' },
+		create: { path: '/acme-blog/v1/testimonials', method: 'POST' },
+		update: { path: '/acme-blog/v1/testimonials/:id', method: 'PUT' },
+		remove: { path: '/acme-blog/v1/testimonials/:id', method: 'DELETE' },
 	},
 	cacheKeys: {
 		list: (q) => ['testimonial', 'list', q?.search, q?.rating, q?.page],
 		get: (id) => ['testimonial', 'get', id],
 	},
 });
+
+// Events use auto-detected namespace (e.g., plugin slug: "acme-blog")
+console.log(testimonial.events.created); // 'acme-blog.testimonial.created'
+console.log(testimonial.storeKey);       // 'acme-blog/testimonial'
+
+// Override namespace when needed
+export const enterpriseTestimonial = defineResource<TestimonialPost>({
+	name: 'testimonial',
+	namespace: 'enterprise-suite',          // Explicit override
+	routes: { /* ... */ }
+});
+console.log(enterpriseTestimonial.events.created); // 'enterprise-suite.testimonial.created'
 
 // ✅ Use in Actions (write path - orchestrated)
 import { CreateTestimonial } from '@/actions/Testimonial/Create';
