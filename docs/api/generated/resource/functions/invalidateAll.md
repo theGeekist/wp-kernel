@@ -10,7 +10,7 @@
 function invalidateAll(storeKey): void;
 ```
 
-Defined in: [resource/cache.ts:464](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/cache.ts#L464)
+Defined in: [resource/cache.ts:454](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/cache.ts#L454)
 
 Invalidate all caches in a specific store
 
@@ -20,7 +20,7 @@ Invalidate all caches in a specific store
 
 `string`
 
-The store key to invalidate (e.g., 'wpk/thing')
+The store key to invalidate (e.g., 'my-plugin/thing')
 
 ## Returns
 
@@ -30,5 +30,5 @@ The store key to invalidate (e.g., 'wpk/thing')
 
 ```ts
 // Clear all cached data for 'thing' resource
-invalidateAll('wpk/thing');
+invalidateAll('my-plugin/thing');
 ```

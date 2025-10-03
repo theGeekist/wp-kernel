@@ -31,9 +31,9 @@ Array of parameter names
 ## Example
 
 ```ts
-extractPathParams('/wpk/v1/things/:id');
+extractPathParams('/my-plugin/v1/things/:id');
 // => ['id']
 
-extractPathParams('/wpk/v1/things/:id/comments/:commentId');
+extractPathParams('/my-plugin/v1/things/:id/comments/:commentId');
 // => ['id', 'commentId']
 ```

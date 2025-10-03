@@ -44,8 +44,8 @@ DeveloperError if required params are missing
 ## Example
 
 ```ts
-interpolatePath('/wpk/v1/things/:id', { id: 123 });
-// => '/wpk/v1/things/123'
+interpolatePath('/my-plugin/v1/things/:id', { id: 123 });
+// => '/my-plugin/v1/things/123'
 
-interpolatePath('/wpk/v1/things/:id', {}); // throws DeveloperError
+interpolatePath('/my-plugin/v1/things/:id', {}); // throws DeveloperError
 ```

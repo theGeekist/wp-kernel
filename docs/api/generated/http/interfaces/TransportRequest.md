@@ -20,7 +20,7 @@ path: string;
 
 Defined in: [http/types.ts:20](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/http/types.ts#L20)
 
-REST API path (e.g., '/wpk/v1/things' or '/wpk/v1/things/123')
+REST API path (e.g., '/my-plugin/v1/things' or '/my-plugin/v1/things/123')
 
 ---
 

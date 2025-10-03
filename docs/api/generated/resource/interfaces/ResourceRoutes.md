@@ -16,11 +16,11 @@ All routes are optional. At minimum, define the operations your resource support
 
 ```ts
 {
-  list: { path: '/wpk/v1/things', method: 'GET' },
-  get: { path: '/wpk/v1/things/:id', method: 'GET' },
-  create: { path: '/wpk/v1/things', method: 'POST' },
-  update: { path: '/wpk/v1/things/:id', method: 'PUT' },
-  remove: { path: '/wpk/v1/things/:id', method: 'DELETE' }
+  list: { path: '/my-plugin/v1/things', method: 'GET' },
+  get: { path: '/my-plugin/v1/things/:id', method: 'GET' },
+  create: { path: '/my-plugin/v1/things', method: 'POST' },
+  update: { path: '/my-plugin/v1/things/:id', method: 'PUT' },
+  remove: { path: '/my-plugin/v1/things/:id', method: 'DELETE' }
 }
 ```
 

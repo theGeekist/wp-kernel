@@ -13,7 +13,7 @@ Route definition for a single REST operation
 ## Example
 
 ```ts
-{ path: '/wpk/v1/things/:id', method: 'GET' }
+{ path: '/my-plugin/v1/things/:id', method: 'GET' }
 ```
 
 ## Properties

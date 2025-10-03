@@ -245,14 +245,6 @@ export function extractPathParams(path: string): string[] {
  */
 
 /**
- * Get the WordPress data registry from global scope
- * Returns undefined if not available (e.g., in tests or Node environment)
- */
-function getDataRegistry() {
-	return getWPData();
-}
-
-/**
  * Options for invalidate function
  */
 export interface InvalidateOptions {
@@ -293,12 +285,11 @@ export function registerStoreKey(storeKey: string): void {
  * @return Array of matching store keys
  */
 function getMatchingStoreKeys(prefix: string = ''): string[] {
+	const keysArray = Array.from(registeredStoreKeys);
 	if (!prefix) {
-		return Array.from(registeredStoreKeys);
+		return keysArray;
 	}
-	return Array.from(registeredStoreKeys).filter((key) =>
-		key.startsWith(prefix)
-	);
+	return keysArray.filter((key) => key.startsWith(prefix));
 }
 
 /**
@@ -341,7 +332,7 @@ export function invalidate(
 		: [patterns as CacheKeyPattern];
 
 	// Get data registry
-	const dataRegistry = getDataRegistry();
+	const dataRegistry = getWPData();
 	if (!dataRegistry) {
 		// In test/node environment, just return
 		// Tests will mock this function as needed
@@ -452,7 +443,7 @@ function emitCacheInvalidatedEvent(keys: string[]): void {
  * ```
  */
 export function invalidateAll(storeKey: string): void {
-	const dataRegistry = getDataRegistry();
+	const dataRegistry = getWPData();
 	if (!dataRegistry) {
 		return;
 	}
