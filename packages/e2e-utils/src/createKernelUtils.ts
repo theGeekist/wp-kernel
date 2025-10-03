@@ -1,7 +1,8 @@
 /**
- * WP Kernel E2E Utils - M/**
- * Create E2E utilities for WordPress Kernel* Single factory pattern that creates kernel-aware E2E utilities
- * extending WordPress E2E test utils.
+ * WP Kernel E2E Utils
+ *
+ * Provides a single factory pattern for creating kernel-aware E2E utilities,
+ * extending WordPress E2E test utils for use with WordPress Kernel applications.
  *
  * @module
  */
@@ -302,10 +303,26 @@ export function createStoreHelper<T>(
 								);
 							}
 
-							// Safe property access evaluation
+							// SECURITY: Prevent prototype pollution attacks
 							const props = propertyPath
 								.replace(/^state\.?/, '')
 								.split('.');
+
+							// Reject dangerous property names
+							const dangerousProps = [
+								'__proto__',
+								'constructor',
+								'prototype',
+							];
+							for (const prop of props) {
+								if (dangerousProps.includes(prop)) {
+									throw new Error(
+										`Security violation: Property "${prop}" is not allowed`
+									);
+								}
+							}
+
+							// Safe property access evaluation
 							return props.reduce(
 								(obj, prop) => obj?.[prop],
 								store
@@ -472,13 +489,13 @@ export async function createEventHelper<P>(
 		},
 
 		stop: async (): Promise<void> => {
-			await page.evaluate(() => {
+			await page.evaluate((eventPattern) => {
 				if (window.__wpkernelE2EListenerActive) {
 					const { removeAction } = window.wp.hooks;
-					removeAction('wpk.*', 'wp-kernel-e2e');
+					removeAction(eventPattern, 'wp-kernel-e2e');
 					window.__wpkernelE2EListenerActive = false;
 				}
-			});
+			}, listenPattern);
 		},
 	};
 }
