@@ -15,7 +15,6 @@
  */
 import { KernelError } from '../error/index';
 import { invalidate as globalInvalidate } from './cache';
-import { getWPData } from './utils';
 import type { ResourceConfig, ResourceObject, CacheKeys } from './types';
 
 /**

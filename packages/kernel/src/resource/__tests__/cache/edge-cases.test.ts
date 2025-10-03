@@ -5,30 +5,19 @@
 
 import { invalidate, invalidateAll } from '../../cache';
 
-// Mock window.wp global
-interface WindowWithWp extends Window {
-	wp?: {
-		data?: {
-			dispatch: jest.Mock;
-			select: jest.Mock;
-		};
-		hooks?: {
-			doAction: jest.Mock;
-		};
-	};
-}
+// Use global types for window.wp
 
 describe('invalidate edge cases', () => {
 	let mockDispatch: jest.Mock;
 	let mockSelect: jest.Mock;
 	let mockDoAction: jest.Mock;
-	let originalWp: WindowWithWp['wp'];
+	let originalWp: Window['wp'];
 	let originalNodeEnv: string | undefined;
 	let consoleWarnSpy: jest.SpyInstance;
 
 	beforeEach(() => {
 		// Store originals
-		const windowWithWp = global.window as WindowWithWp;
+		const windowWithWp = global.window as Window & { wp?: any };
 		originalWp = windowWithWp?.wp;
 		originalNodeEnv = process.env.NODE_ENV;
 
@@ -56,7 +45,7 @@ describe('invalidate edge cases', () => {
 
 	afterEach(() => {
 		// Restore originals
-		const windowWithWp = global.window as WindowWithWp;
+		const windowWithWp = global.window as Window & { wp?: any };
 		if (windowWithWp && originalWp) {
 			windowWithWp.wp = originalWp;
 		}
@@ -222,7 +211,7 @@ describe('invalidate edge cases', () => {
 		});
 
 		it('should handle missing window.wp.hooks gracefully', () => {
-			const windowWithWp = global.window as WindowWithWp;
+			const windowWithWp = global.window as Window & { wp?: any };
 			if (windowWithWp && windowWithWp.wp) {
 				delete windowWithWp.wp.hooks;
 			}

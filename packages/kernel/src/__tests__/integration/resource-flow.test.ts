@@ -7,21 +7,7 @@
 
 import { defineResource } from '../../resource/define';
 
-// Mock window.wp global
-interface WindowWithWp extends Window {
-	wp?: {
-		apiFetch?: jest.Mock;
-		data?: {
-			register: jest.Mock;
-			createReduxStore: jest.Mock;
-			dispatch: jest.Mock;
-			select: jest.Mock;
-		};
-		hooks?: {
-			doAction: jest.Mock;
-		};
-	};
-}
+// Use global types instead of local interface
 
 interface Thing {
 	id: number;
@@ -41,11 +27,11 @@ describe('Resource Flow Integration', () => {
 	let mockDispatch: jest.Mock;
 	let mockSelect: jest.Mock;
 	let mockDoAction: jest.Mock;
-	let originalWp: WindowWithWp['wp'];
+	let originalWp: Window['wp'];
 
 	beforeEach(() => {
 		// Store original window.wp
-		const windowWithWp = global.window as WindowWithWp;
+		const windowWithWp = global.window as Window & { wp?: any };
 		originalWp = windowWithWp?.wp;
 
 		// Create mocks
@@ -77,7 +63,7 @@ describe('Resource Flow Integration', () => {
 
 	afterEach(() => {
 		// Restore original window.wp
-		const windowWithWp = global.window as WindowWithWp;
+		const windowWithWp = global.window as Window & { wp?: any };
 		if (windowWithWp && originalWp) {
 			windowWithWp.wp = originalWp;
 		}
