@@ -25,6 +25,30 @@ import {
 import type { CacheKeys, ResourceConfig, ResourceObject } from './types';
 
 /**
+ * Parse namespace:name syntax from a string
+ *
+ * @param name - String that may contain namespace:name syntax
+ * @return Parsed namespace and resource name, or null if invalid
+ */
+function parseNamespaceFromString(
+	name: string
+): { namespace: string; resourceName: string } | null {
+	if (!name.includes(':')) {
+		return null;
+	}
+
+	const parts = name.split(':', 2);
+	const namespace = parts[0];
+	const resourceName = parts[1];
+
+	if (namespace && resourceName) {
+		return { namespace, resourceName };
+	}
+
+	return null;
+}
+
+/**
  * Resolve namespace from config with support for shorthand syntax
  *
  * @param config - Resource configuration
@@ -37,21 +61,20 @@ function resolveNamespaceAndName<T, TQuery>(
 	if (config.namespace) {
 		// If name also contains colon syntax, parse the resource name part
 		// This handles the edge case where both are provided
-		if (config.name.includes(':')) {
-			const [, resourceName] = config.name.split(':', 2);
-			if (resourceName) {
-				return { namespace: config.namespace, resourceName };
-			}
+		const parsed = parseNamespaceFromString(config.name);
+		if (parsed) {
+			return {
+				namespace: config.namespace,
+				resourceName: parsed.resourceName,
+			};
 		}
 		return { namespace: config.namespace, resourceName: config.name };
 	}
 
 	// Check for shorthand namespace:name syntax
-	if (config.name.includes(':')) {
-		const [namespace, resourceName] = config.name.split(':', 2);
-		if (namespace && resourceName) {
-			return { namespace, resourceName };
-		}
+	const parsed = parseNamespaceFromString(config.name);
+	if (parsed) {
+		return parsed;
 	}
 
 	// Use auto-detection
