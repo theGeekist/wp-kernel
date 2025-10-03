@@ -16,25 +16,41 @@ describe('createEventHelper', () => {
 
 	describe('initialization', () => {
 		it('should initialize without pattern filter', async () => {
-			mockPage.evaluate.mockResolvedValue(undefined);
+			mockPage.evaluate
+				.mockResolvedValueOnce('wpk') // namespace detection
+				.mockResolvedValueOnce(undefined); // setup
 
 			await createEventHelper(mockPage);
 
-			expect(mockPage.evaluate).toHaveBeenCalledWith(
+			expect(mockPage.evaluate).toHaveBeenCalledTimes(2);
+			expect(mockPage.evaluate).toHaveBeenNthCalledWith(
+				1,
+				expect.any(Function)
+			); // namespace
+			expect(mockPage.evaluate).toHaveBeenNthCalledWith(
+				2,
 				expect.any(Function),
-				undefined
+				{ filterPattern: undefined, eventPattern: 'wpk.*' }
 			);
 		});
 
 		it('should initialize with pattern filter', async () => {
-			mockPage.evaluate.mockResolvedValue(undefined);
+			mockPage.evaluate
+				.mockResolvedValueOnce('wpk') // namespace detection
+				.mockResolvedValueOnce(undefined); // setup
 			const pattern = /^wpk\.job\./;
 
 			await createEventHelper(mockPage, { pattern });
 
-			expect(mockPage.evaluate).toHaveBeenCalledWith(
+			expect(mockPage.evaluate).toHaveBeenCalledTimes(2);
+			expect(mockPage.evaluate).toHaveBeenNthCalledWith(
+				1,
+				expect.any(Function)
+			); // namespace
+			expect(mockPage.evaluate).toHaveBeenNthCalledWith(
+				2,
 				expect.any(Function),
-				pattern.source
+				{ filterPattern: pattern.source, eventPattern: 'wpk.*' }
 			);
 		});
 
@@ -65,8 +81,9 @@ describe('createEventHelper', () => {
 			];
 
 			mockPage.evaluate
-				.mockResolvedValueOnce(undefined)
-				.mockResolvedValueOnce(mockEvents);
+				.mockResolvedValueOnce('wpk') // namespace detection
+				.mockResolvedValueOnce(undefined) // setup
+				.mockResolvedValueOnce(mockEvents); // list() method
 
 			const recorder = await createEventHelper(mockPage);
 			const events = await recorder.list();
@@ -76,8 +93,9 @@ describe('createEventHelper', () => {
 
 		it('should return empty array when no events captured', async () => {
 			mockPage.evaluate
-				.mockResolvedValueOnce(undefined)
-				.mockResolvedValueOnce([]);
+				.mockResolvedValueOnce('wpk') // namespace detection
+				.mockResolvedValueOnce(undefined) // setup
+				.mockResolvedValueOnce([]); // list() method
 
 			const recorder = await createEventHelper(mockPage);
 			const events = await recorder.list();
@@ -87,8 +105,9 @@ describe('createEventHelper', () => {
 
 		it('should handle undefined events array', async () => {
 			mockPage.evaluate
-				.mockResolvedValueOnce(undefined)
-				.mockResolvedValueOnce(undefined);
+				.mockResolvedValueOnce('wpk') // namespace detection
+				.mockResolvedValueOnce(undefined) // setup
+				.mockResolvedValueOnce(undefined); // list() method
 
 			const recorder = await createEventHelper(mockPage);
 			const events = await recorder.list();
@@ -106,15 +125,16 @@ describe('createEventHelper', () => {
 			};
 
 			mockPage.evaluate
-				.mockResolvedValueOnce(undefined)
-				.mockResolvedValueOnce(mockEvent);
+				.mockResolvedValueOnce('wpk') // namespace detection
+				.mockResolvedValueOnce(undefined) // setup
+				.mockResolvedValueOnce(mockEvent); // find() method
 
 			const recorder = await createEventHelper(mockPage);
 			const event = await recorder.find('wpk.job.created');
 
 			expect(event).toEqual(mockEvent);
 			expect(mockPage.evaluate).toHaveBeenNthCalledWith(
-				2,
+				3,
 				expect.any(Function),
 				'wpk.job.created'
 			);
@@ -122,8 +142,9 @@ describe('createEventHelper', () => {
 
 		it('should return undefined when event not found', async () => {
 			mockPage.evaluate
-				.mockResolvedValueOnce(undefined)
-				.mockResolvedValueOnce(undefined);
+				.mockResolvedValueOnce('wpk') // namespace detection
+				.mockResolvedValueOnce(undefined) // setup
+				.mockResolvedValueOnce(undefined); // find() method
 
 			const recorder = await createEventHelper(mockPage);
 			const event = await recorder.find('wpk.job.deleted');
@@ -148,15 +169,16 @@ describe('createEventHelper', () => {
 			];
 
 			mockPage.evaluate
-				.mockResolvedValueOnce(undefined)
-				.mockResolvedValueOnce(mockEvents);
+				.mockResolvedValueOnce('wpk') // namespace detection
+				.mockResolvedValueOnce(undefined) // setup
+				.mockResolvedValueOnce(mockEvents); // findAll() method
 
 			const recorder = await createEventHelper(mockPage);
 			const events = await recorder.findAll('wpk.job.created');
 
 			expect(events).toEqual(mockEvents);
 			expect(mockPage.evaluate).toHaveBeenNthCalledWith(
-				2,
+				3,
 				expect.any(Function),
 				'wpk.job.created'
 			);
@@ -164,8 +186,9 @@ describe('createEventHelper', () => {
 
 		it('should return empty array when no matching events', async () => {
 			mockPage.evaluate
-				.mockResolvedValueOnce(undefined)
-				.mockResolvedValueOnce([]);
+				.mockResolvedValueOnce('wpk') // namespace detection
+				.mockResolvedValueOnce(undefined) // setup
+				.mockResolvedValueOnce([]); // findAll() method
 
 			const recorder = await createEventHelper(mockPage);
 			const events = await recorder.findAll('wpk.job.deleted');
@@ -181,17 +204,18 @@ describe('createEventHelper', () => {
 			const recorder = await createEventHelper(mockPage);
 			await recorder.clear();
 
-			expect(mockPage.evaluate).toHaveBeenCalledTimes(2);
+			expect(mockPage.evaluate).toHaveBeenCalledTimes(3);
 			expect(mockPage.evaluate).toHaveBeenNthCalledWith(
-				2,
+				3,
 				expect.any(Function)
 			);
 		});
 
 		it('should handle page.evaluate error', async () => {
 			mockPage.evaluate
-				.mockResolvedValueOnce(undefined)
-				.mockRejectedValueOnce(new Error('Clear failed'));
+				.mockResolvedValueOnce('wpk') // namespace detection
+				.mockResolvedValueOnce(undefined) // setup
+				.mockRejectedValueOnce(new Error('Clear failed')); // clear() method
 
 			const recorder = await createEventHelper(mockPage);
 
@@ -206,17 +230,18 @@ describe('createEventHelper', () => {
 			const recorder = await createEventHelper(mockPage);
 			await recorder.stop();
 
-			expect(mockPage.evaluate).toHaveBeenCalledTimes(2);
+			expect(mockPage.evaluate).toHaveBeenCalledTimes(3);
 			expect(mockPage.evaluate).toHaveBeenNthCalledWith(
-				2,
+				3,
 				expect.any(Function)
 			);
 		});
 
 		it('should handle page.evaluate error', async () => {
 			mockPage.evaluate
-				.mockResolvedValueOnce(undefined)
-				.mockRejectedValueOnce(new Error('Stop failed'));
+				.mockResolvedValueOnce('wpk') // namespace detection
+				.mockResolvedValueOnce(undefined) // setup
+				.mockRejectedValueOnce(new Error('Stop failed')); // stop() method
 
 			const recorder = await createEventHelper(mockPage);
 
@@ -238,8 +263,9 @@ describe('createEventHelper', () => {
 			};
 
 			mockPage.evaluate
-				.mockResolvedValueOnce(undefined)
-				.mockResolvedValueOnce(mockEvent);
+				.mockResolvedValueOnce('wpk') // namespace detection
+				.mockResolvedValueOnce(undefined) // setup
+				.mockResolvedValueOnce(mockEvent); // find() method
 
 			const recorder = await createEventHelper<JobPayload>(mockPage);
 			const event = await recorder.find('wpk.job.created');
@@ -263,8 +289,9 @@ describe('createEventHelper', () => {
 			];
 
 			mockPage.evaluate
-				.mockResolvedValueOnce(undefined)
-				.mockResolvedValueOnce(mockEvents);
+				.mockResolvedValueOnce('wpk') // namespace detection
+				.mockResolvedValueOnce(undefined) // setup
+				.mockResolvedValueOnce(mockEvents); // list() method
 
 			const recorder = await createEventHelper<JobPayload>(mockPage);
 			const events = await recorder.list();
@@ -276,26 +303,32 @@ describe('createEventHelper', () => {
 
 	describe('pattern filtering', () => {
 		it('should create recorder with custom pattern', async () => {
-			mockPage.evaluate.mockResolvedValue(undefined);
+			mockPage.evaluate
+				.mockResolvedValueOnce('wpk') // namespace detection
+				.mockResolvedValueOnce(undefined); // setup
 			const pattern = /^wpk\.application\./;
 
 			await createEventHelper(mockPage, { pattern });
 
-			expect(mockPage.evaluate).toHaveBeenCalledWith(
+			expect(mockPage.evaluate).toHaveBeenNthCalledWith(
+				2,
 				expect.any(Function),
-				pattern.source
+				{ filterPattern: pattern.source, eventPattern: 'wpk.*' }
 			);
 		});
 
 		it('should create recorder with complex pattern', async () => {
-			mockPage.evaluate.mockResolvedValue(undefined);
+			mockPage.evaluate
+				.mockResolvedValueOnce('wpk') // namespace detection
+				.mockResolvedValueOnce(undefined); // setup
 			const pattern = /^wpk\.(job|application)\.(created|updated)$/;
 
 			await createEventHelper(mockPage, { pattern });
 
-			expect(mockPage.evaluate).toHaveBeenCalledWith(
+			expect(mockPage.evaluate).toHaveBeenNthCalledWith(
+				2,
 				expect.any(Function),
-				pattern.source
+				{ filterPattern: pattern.source, eventPattern: 'wpk.*' }
 			);
 		});
 	});
