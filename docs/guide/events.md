@@ -66,28 +66,55 @@ Each resource automatically gets event names (available via `resource.events`):
 ```typescript
 import { testimonial } from './resources/testimonial';
 
-// Event names generated from resource config
-testimonial.events.created; // 'wpk.testimonial.created'
-testimonial.events.updated; // 'wpk.testimonial.updated'
-testimonial.events.removed; // 'wpk.testimonial.removed'
+// Event names use auto-detected namespace (e.g., plugin slug: "acme-blog")
+testimonial.events.created; // 'acme-blog.testimonial.created'
+testimonial.events.updated; // 'acme-blog.testimonial.updated'
+testimonial.events.removed; // 'acme-blog.testimonial.removed'
 ```
 
-**Note**: These events are defined but not yet emitted automatically. Full emission happens in Sprint 4 when Actions are implemented.
+**Note**: Event namespace is automatically detected from your plugin context. These events are defined but not yet emitted automatically. Full emission happens in Sprint 4 when Actions are implemented.
+
+### Namespace Auto-Detection
+
+WP Kernel automatically detects your plugin's namespace to brand events correctly:
+
+```typescript
+// Your plugin: "ACME Blog Pro" (slug: acme-blog)
+export const post = defineResource<Post>({
+	name: 'post', // Auto-detects namespace from plugin context
+	routes: {
+		/* ... */
+	},
+});
+
+console.log(post.events.created); // 'acme-blog.post.created' ✅
+
+// Override namespace when needed
+export const customPost = defineResource<Post>({
+	name: 'post',
+	namespace: 'enterprise', // Explicit override
+	routes: {
+		/* ... */
+	},
+});
+
+console.log(customPost.events.created); // 'enterprise.post.created' ✅
+```
 
 ## Quick Examples
 
-### Listen to Transport Events
+### Listen to Your Application Events
 
 ```typescript
 import { addAction } from '@wordpress/hooks';
 
-// Track all resource requests
-addAction('wpk.resource.request', 'my-plugin/analytics', (payload) => {
+// Track your resource requests (uses your namespace)
+addAction('acme-blog.resource.request', 'acme-blog/analytics', (payload) => {
 	console.log(`${payload.method} ${payload.path}`);
 });
 
-// Handle errors
-addAction('wpk.resource.error', 'my-plugin/error-handler', (payload) => {
+// Handle your application errors
+addAction('acme-blog.resource.error', 'acme-blog/error-handler', (payload) => {
 	showNotice(`Request failed: ${payload.error.message}`, 'error');
 });
 ```
@@ -97,10 +124,28 @@ addAction('wpk.resource.error', 'my-plugin/error-handler', (payload) => {
 ```typescript
 import { addAction } from '@wordpress/hooks';
 
-addAction('wpk.cache.invalidated', 'my-plugin/debug', (payload) => {
+// Listen to your application's cache events
+addAction('acme-blog.cache.invalidated', 'acme-blog/debug', (payload) => {
 	console.log('Cache invalidated:', payload.keys);
 });
 ```
+
+### Listen to Framework Events
+
+```typescript
+// Framework events use 'wpk' namespace
+addAction('wpk.system.error', 'acme-blog/system-monitor', (payload) => {
+	console.log('Framework error:', payload.error);
+});
+```
+
+import { addAction } from '@wordpress/hooks';
+
+addAction('wpk.cache.invalidated', 'my-plugin/debug', (payload) => {
+console.log('Cache invalidated:', payload.keys);
+});
+
+````
 
 ### Access Resource Event Names
 
@@ -112,7 +157,7 @@ console.log(thing.events.updated); // 'wpk.thing.updated'
 console.log(thing.events.removed); // 'wpk.thing.removed'
 
 // These will be emitted by Actions in Sprint 4
-```
+````
 
 ## Coming Soon
 
