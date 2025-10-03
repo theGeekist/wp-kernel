@@ -149,7 +149,7 @@ console.log(thing.events.updated); // 'wpk.thing.updated'
 console.log(thing.events.removed); // 'wpk.thing.removed'
 
 // These will be emitted by Actions in Sprint 4
-````
+```
 
 ## Coming Soon
 
