@@ -75,9 +75,9 @@ describe('createKernelUtils', () => {
 			const resourceConfig = {
 				name: 'test',
 				routes: {
-					create: { path: '/test', method: 'POST' },
+					create: { path: '/test', method: 'POST' as const },
 				},
-			};
+			} as const;
 
 			const resource = kernel.resource(resourceConfig);
 
@@ -93,9 +93,9 @@ describe('createKernelUtils', () => {
 			const resourceConfig = {
 				name: 'test',
 				routes: {
-					create: { path: '/test', method: 'POST' },
+					create: { path: '/test', method: 'POST' as const },
 				},
-			};
+			} as const;
 
 			mockRequestUtils.rest.mockResolvedValue({ id: 1, title: 'Test' });
 
@@ -164,13 +164,20 @@ describe('createKernelUtils', () => {
 			const kernel = createKernelUtils(fixtures);
 			const pattern = /^wpk\.test\./;
 
-			mockPage.evaluate.mockResolvedValue(undefined);
+			mockPage.evaluate.mockResolvedValueOnce('wpk'); // namespace detection
+			mockPage.evaluate.mockResolvedValueOnce(undefined); // setup
 
 			await kernel.events({ pattern });
 
-			expect(mockPage.evaluate).toHaveBeenCalledWith(
+			expect(mockPage.evaluate).toHaveBeenCalledTimes(2);
+			expect(mockPage.evaluate).toHaveBeenNthCalledWith(
+				1,
+				expect.any(Function)
+			); // namespace detection
+			expect(mockPage.evaluate).toHaveBeenNthCalledWith(
+				2,
 				expect.any(Function),
-				pattern.source
+				{ filterPattern: pattern.source, eventPattern: 'wpk.*' }
 			);
 		});
 	});
@@ -532,27 +539,44 @@ describe('createKernelUtils', () => {
 
 		beforeEach(() => {
 			kernel = createKernelUtils(fixtures);
-			mockPage.evaluate.mockResolvedValue(undefined);
+			mockPage.evaluate.mockClear();
 		});
 
 		describe('initialization', () => {
 			it('should inject event listener on page', async () => {
+				mockPage.evaluate.mockResolvedValueOnce('wpk'); // namespace detection
+				mockPage.evaluate.mockResolvedValueOnce(undefined); // setup
+
 				await kernel.events();
 
-				expect(mockPage.evaluate).toHaveBeenCalledWith(
+				expect(mockPage.evaluate).toHaveBeenCalledTimes(2);
+				expect(mockPage.evaluate).toHaveBeenNthCalledWith(
+					1,
+					expect.any(Function)
+				); // namespace detection
+				expect(mockPage.evaluate).toHaveBeenNthCalledWith(
+					2,
 					expect.any(Function),
-					undefined
+					{ filterPattern: undefined, eventPattern: 'wpk.*' }
 				);
 			});
 
 			it('should pass pattern filter to page', async () => {
+				mockPage.evaluate.mockResolvedValueOnce('wpk'); // namespace detection
+				mockPage.evaluate.mockResolvedValueOnce(undefined); // setup
 				const pattern = /^wpk\.job\./;
 
 				await kernel.events({ pattern });
 
-				expect(mockPage.evaluate).toHaveBeenCalledWith(
+				expect(mockPage.evaluate).toHaveBeenCalledTimes(2);
+				expect(mockPage.evaluate).toHaveBeenNthCalledWith(
+					1,
+					expect.any(Function)
+				); // namespace detection
+				expect(mockPage.evaluate).toHaveBeenNthCalledWith(
+					2,
 					expect.any(Function),
-					pattern.source
+					{ filterPattern: pattern.source, eventPattern: 'wpk.*' }
 				);
 			});
 		});

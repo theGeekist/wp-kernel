@@ -11,6 +11,10 @@ import type {
 	PageUtils,
 	RequestUtils,
 } from '@wordpress/e2e-test-utils-playwright';
+import type { ResourceConfig } from '@geekist/wp-kernel';
+
+// Re-export for convenience
+export type { ResourceConfig };
 
 /**
  * WordPress E2E fixture context passed to the factory
@@ -21,20 +25,6 @@ export interface WordPressFixtures {
 	admin: Admin;
 	editor: Editor;
 	pageUtils: PageUtils;
-}
-
-/**
- * Resource configuration matching defineResource output
- */
-export interface ResourceConfig {
-	name: string;
-	routes: {
-		create?: { path: string; method: string };
-		get?: { path: string; method: string };
-		list?: { path: string; method: string };
-		update?: { path: string; method: string };
-		remove?: { path: string; method: string };
-	};
 }
 
 /**

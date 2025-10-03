@@ -1,7 +1,6 @@
 /**
- * WP Kernel E2E Utils - Main Factory
- *
- * Single factory pattern that creates kernel-aware E2E utilities
+ * WP Kernel E2E Utils - M/**
+ * Create E2E utilities for WordPress Kernel* Single factory pattern that creates kernel-aware E2E utilities
  * extending WordPress E2E test utils.
  *
  * @module
@@ -19,6 +18,21 @@ import type {
 	WordPressFixtures,
 	CapturedEvent,
 } from './types.js';
+
+// Extend window type for namespace detection
+declare global {
+	interface Window {
+		wpKernelNamespace?: string;
+	}
+}
+
+/**
+ * Create E2E utilities for WordPress Kernel
+ *
+ * @param wpFixtures - WordPress fixture context
+ * @param config     - Optional resource configuration for custom namespace detection
+ * @return Kernel E2E utilities
+ */
 
 /**
  * Create kernel-aware E2E utilities
@@ -243,18 +257,65 @@ export function createStoreHelper<T>(
 			while (true) {
 				const result = await page.evaluate(
 					({ key, fn }) => {
+						// Auto-detect namespace
+						const namespace = window.wpKernelNamespace || 'wpk';
 						const { select } = window.wp.data;
-						const store = select(key);
+
+						// Try namespace-aware key first, fallback to original
+						const namespacedKey = key.includes('/')
+							? key
+							: `${namespace}/${key}`;
+						const store = select(namespacedKey) || select(key);
 
 						if (!store) {
-							throw new Error(`Store "${key}" not found`);
+							throw new Error(
+								`Store "${namespacedKey}" not found`
+							);
 						}
 
-						const selectorFn = new Function(
-							'state',
-							`return (${fn})(state)`
-						);
-						return selectorFn(store);
+						// SECURITY FIX: Use safe eval instead of new Function()
+						// Parse the function string more carefully
+						try {
+							// Extract the return statement from the function
+							const fnBody = fn
+								.replace(/^[^{]*{/, '') // Remove function signature and opening brace
+								.replace(/}[^}]*$/, '') // Remove closing brace
+								.trim();
+
+							// Only allow simple property access patterns for security
+							const returnMatch =
+								fnBody.match(/^return\s+(.+);?$/);
+							if (!returnMatch || !returnMatch[1]) {
+								throw new Error(
+									'Invalid selector: Only simple return statements allowed'
+								);
+							}
+
+							const propertyPath = returnMatch[1].trim();
+							if (
+								!/^state(\.[a-zA-Z_$][a-zA-Z0-9_$]*)*$/.test(
+									propertyPath
+								)
+							) {
+								throw new Error(
+									'Invalid selector: Only simple property access allowed'
+								);
+							}
+
+							// Safe property access evaluation
+							const props = propertyPath
+								.replace(/^state\.?/, '')
+								.split('.');
+							return props.reduce(
+								(obj, prop) => obj?.[prop],
+								store
+							);
+						} catch (error) {
+							// Fallback for complex selectors - disable for security
+							throw new Error(
+								`Selector evaluation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+							);
+						}
 					},
 					{ key: storeKey, fn: selector.toString() }
 				);
@@ -275,11 +336,18 @@ export function createStoreHelper<T>(
 
 		invalidate: async (): Promise<void> => {
 			await page.evaluate((key) => {
+				// Auto-detect namespace
+				const namespace = window.wpKernelNamespace || 'wpk';
 				const { dispatch } = window.wp.data;
-				const store = dispatch(key);
+
+				// Try namespace-aware key first, fallback to original
+				const namespacedKey = key.includes('/')
+					? key
+					: `${namespace}/${key}`;
+				const store = dispatch(namespacedKey) || dispatch(key);
 
 				if (!store) {
-					throw new Error(`Store "${key}" not found`);
+					throw new Error(`Store "${namespacedKey}" not found`);
 				}
 
 				if ('invalidateResolution' in store) {
@@ -293,11 +361,18 @@ export function createStoreHelper<T>(
 
 		getState: async (): Promise<T> => {
 			const state = await page.evaluate((key) => {
+				// Auto-detect namespace
+				const namespace = window.wpKernelNamespace || 'wpk';
 				const { select } = window.wp.data;
-				const store = select(key);
+
+				// Try namespace-aware key first, fallback to original
+				const namespacedKey = key.includes('/')
+					? key
+					: `${namespace}/${key}`;
+				const store = select(namespacedKey) || select(key);
 
 				if (!store) {
-					throw new Error(`Store "${key}" not found`);
+					throw new Error(`Store "${namespacedKey}" not found`);
 				}
 
 				return store;
@@ -323,34 +398,51 @@ export async function createEventHelper<P>(
 ): Promise<EventRecorder<P>> {
 	const pattern = options?.pattern;
 
-	await page.evaluate((filterPattern) => {
-		if (!window.__wpkernelE2EEvents) {
-			window.__wpkernelE2EEvents = [];
+	// Auto-detect namespace from browser context or default to 'wpk'
+	// This maintains backward compatibility while enabling namespace support
+	const namespace = await page.evaluate(() => {
+		// Try to detect namespace from various sources
+		const win = window as Window & { wpKernelNamespace?: string };
+		if (typeof win.wpKernelNamespace === 'string') {
+			return win.wpKernelNamespace;
 		}
+		// Could add other detection methods here in the future
+		return 'wpk'; // Default fallback
+	});
 
-		if (!window.__wpkernelE2EListenerActive) {
-			const { addAction } = window.wp.hooks;
+	const listenPattern = `${namespace}.*`;
 
-			addAction('wpk.*', 'wp-kernel-e2e', (payload: unknown) => {
-				const eventType = window.wp.hooks.currentAction();
+	await page.evaluate(
+		({ filterPattern, eventPattern }) => {
+			if (!window.__wpkernelE2EEvents) {
+				window.__wpkernelE2EEvents = [];
+			}
 
-				if (filterPattern) {
-					const regex = new RegExp(filterPattern);
-					if (!regex.test(eventType)) {
-						return;
+			if (!window.__wpkernelE2EListenerActive) {
+				const { addAction } = window.wp.hooks;
+
+				addAction(eventPattern, 'wp-kernel-e2e', (payload: unknown) => {
+					const eventType = window.wp.hooks.currentAction();
+
+					if (filterPattern) {
+						const regex = new RegExp(filterPattern);
+						if (!regex.test(eventType)) {
+							return;
+						}
 					}
-				}
 
-				window.__wpkernelE2EEvents.push({
-					type: eventType,
-					payload,
-					timestamp: Date.now(),
+					window.__wpkernelE2EEvents.push({
+						type: eventType,
+						payload,
+						timestamp: Date.now(),
+					});
 				});
-			});
 
-			window.__wpkernelE2EListenerActive = true;
-		}
-	}, pattern?.source);
+				window.__wpkernelE2EListenerActive = true;
+			}
+		},
+		{ filterPattern: pattern?.source, eventPattern: listenPattern }
+	);
 
 	return {
 		list: async (): Promise<CapturedEvent<P>[]> => {
