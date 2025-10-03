@@ -229,5 +229,58 @@ describe('defineResource - client methods', () => {
 				'Network error'
 			);
 		});
+
+		it('should normalize object response with items property in fetchList', async () => {
+			// Mock an object response (not an array)
+			const mockObjectResponse = {
+				items: [
+					{ id: 1, title: 'Thing 1', description: 'First' },
+					{ id: 2, title: 'Thing 2', description: 'Second' },
+				],
+				total: 10,
+				hasMore: true,
+				nextCursor: 'cursor123',
+			};
+
+			mockApiFetch.mockResolvedValue(mockObjectResponse);
+
+			const resource = defineResource<Thing>({
+				name: 'thing',
+				routes: {
+					list: { path: '/wpk/v1/things', method: 'GET' },
+				},
+			});
+
+			const result = await resource.fetchList!();
+
+			expect(result.items).toEqual(mockObjectResponse.items);
+			expect(result.total).toBe(10);
+			expect(result.hasMore).toBe(true);
+			expect(result.nextCursor).toBe('cursor123');
+		});
+
+		it('should handle object response without items property in fetchList', async () => {
+			// Mock an object response without items property
+			const mockObjectResponse = {
+				total: 0,
+				hasMore: false,
+			};
+
+			mockApiFetch.mockResolvedValue(mockObjectResponse);
+
+			const resource = defineResource<Thing>({
+				name: 'thing',
+				routes: {
+					list: { path: '/wpk/v1/things', method: 'GET' },
+				},
+			});
+
+			const result = await resource.fetchList!();
+
+			// Should fallback to empty array
+			expect(result.items).toEqual([]);
+			expect(result.total).toBe(0);
+			expect(result.hasMore).toBe(false);
+		});
 	});
 });

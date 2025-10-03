@@ -290,5 +290,87 @@ describe('createStore - Resolvers', () => {
 				});
 			});
 		});
+
+		describe('error handling edge cases', () => {
+			it('should handle non-Error object thrown in getItem', async () => {
+				// Throw a string instead of Error
+				(mockResource.fetch as jest.Mock).mockRejectedValue(
+					'Something went wrong'
+				);
+
+				const action = await store.resolvers.getItem(1);
+
+				expect(action).toEqual({
+					type: 'RECEIVE_ERROR',
+					cacheKey: 'thing:get:1',
+					error: 'Unknown error',
+				});
+			});
+
+			it('should handle non-Error object thrown in getItems', async () => {
+				// Throw a number instead of Error
+				(mockResource.fetchList as jest.Mock).mockRejectedValue(500);
+
+				const action = await store.resolvers.getItems();
+
+				expect(action).toEqual({
+					type: 'RECEIVE_ERROR',
+					cacheKey: 'thing:list:{}',
+					error: 'Unknown error',
+				});
+			});
+
+			it('should use fallback cache key when cacheKeys.get is undefined', async () => {
+				const resourceWithoutGetKey = {
+					...mockResource,
+					cacheKeys: {
+						...mockResource.cacheKeys,
+						get: undefined,
+					},
+				} as unknown as typeof mockResource;
+
+				const storeWithoutGetKey = createStore({
+					resource: resourceWithoutGetKey,
+				});
+
+				(resourceWithoutGetKey.fetch as jest.Mock).mockRejectedValue(
+					new Error('Failed')
+				);
+
+				const action = await storeWithoutGetKey.resolvers.getItem(123);
+
+				expect(action).toEqual({
+					type: 'RECEIVE_ERROR',
+					cacheKey: 'thing:get:123',
+					error: 'Failed',
+				});
+			});
+
+			it('should use fallback cache key when cacheKeys.list is undefined', async () => {
+				const resourceWithoutListKey = {
+					...mockResource,
+					cacheKeys: {
+						...mockResource.cacheKeys,
+						list: undefined,
+					},
+				} as unknown as typeof mockResource;
+
+				const storeWithoutListKey = createStore({
+					resource: resourceWithoutListKey,
+				});
+
+				(
+					resourceWithoutListKey.fetchList as jest.Mock
+				).mockRejectedValue(new Error('Failed'));
+
+				const action = await storeWithoutListKey.resolvers.getItems();
+
+				expect(action).toEqual({
+					type: 'RECEIVE_ERROR',
+					cacheKey: 'thing:list:{}',
+					error: 'Failed',
+				});
+			});
+		});
 	});
 });

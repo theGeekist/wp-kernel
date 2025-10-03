@@ -1,5 +1,42 @@
 # @geekist/wp-kernel-e2e-utils
 
+## Unreleased
+
+### Added
+
+- **Core Factory Implementation**: Complete E2E testing utilities following WordPress patterns
+    - `createKernelUtils()` factory with resource, store, and event utilities
+    - Extended test fixture with `kernel` fixture pre-configured
+    - Primary usage: `import { test, expect } from '@geekist/wp-kernel-e2e-utils'`
+    - Advanced usage: `import { createKernelUtils }` for custom fixture setup
+- **Resource Utilities**: REST API testing helpers
+    - `seed()` - Create single resource via REST
+    - `seedMany()` - Batch create resources
+    - `remove()` - Delete single resource by ID
+    - `deleteAll()` - Clean up all test data
+- **Store Utilities**: @wordpress/data store testing
+    - `wait()` - Wait for store selector to resolve
+    - `invalidate()` - Force store cache invalidation
+    - `getState()` - Get current store state snapshot
+- **Event Utilities**: JS hooks event tracking
+    - `start()` - Begin recording events
+    - `stop()` - Stop recording and cleanup
+    - `list()` - Get all captured events
+    - `find()` - Find first matching event
+    - `findAll()` - Find all matching events
+    - `clear()` - Clear event history
+- **Documentation**:
+    - `MIGRATION.md` - Guide for migrating from vanilla Playwright
+    - `IMPLEMENTATION.md` - Architecture decisions and patterns
+
+### Technical Details
+
+- Single consolidated factory (not separate modules)
+- Extends `@wordpress/e2e-test-utils-playwright` with kernel fixture
+- Dependency injection pattern for fixtures
+- Full TypeScript support with generics (`T = unknown`)
+- Follows WordPress E2E utils export pattern
+
 ## 1.0.0
 
 ### Minor Changes

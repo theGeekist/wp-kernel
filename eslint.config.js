@@ -179,11 +179,13 @@ export default [
 	// Config files can use default exports and devDependencies (root and nested)
 	{
 		files: [
+			'*.spec.ts',
 			'*.config.js',
 			'*.config.ts',
 			'*.config.cjs',
 			'*.config.mjs',
 			'**/*.config.js',
+			'**/*.spec.ts',
 			'**/*.config.ts',
 			'**/*.config.cjs',
 			'**/*.config.mjs',

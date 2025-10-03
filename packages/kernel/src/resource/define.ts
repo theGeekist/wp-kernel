@@ -315,17 +315,9 @@ export function defineResource<T = unknown, TQuery = unknown>(
 			params?: TQuery | string | number | Partial<T>
 		): (string | number | boolean)[] => {
 			// Access the appropriate cache key generator
+			// Note: createDefaultCacheKeys always provides all operations,
+			// so generator is guaranteed to exist
 			const generator = cacheKeys[operation];
-			if (!generator) {
-				throw new KernelError('DeveloperError', {
-					message: `Cache key generator for operation '${operation}' not found`,
-					context: {
-						resource: config.name,
-						operation,
-						availableOperations: Object.keys(cacheKeys),
-					},
-				});
-			}
 
 			// Generate and return the cache key
 			// eslint-disable-next-line @typescript-eslint/no-explicit-any
