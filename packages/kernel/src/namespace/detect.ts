@@ -5,11 +5,13 @@
  * from WordPress plugin headers and package.json while maintaining
  * backward compatibility with explicit overrides.
  *
- * Detection Priority:
+ * Detection Priority (cascade order):
  * 1. Explicit namespace parameter
- * 2. WordPress plugin header 'Text Domain'
- * 3. package.json 'name' field
- * 4. Fallback to 'wpk'
+ * 2. Build-time define (__WPK_NAMESPACE__)
+ * 3. Module ID (if available)
+ * 4. WordPress plugin header 'Text Domain'
+ * 5. package.json 'name' field
+ * 6. Fallback to 'wpk'
  *
  * @package
  */

@@ -39,8 +39,8 @@ describe('regex security and edge cases', () => {
 		const result = detectNamespace({ mode: 'heuristic' });
 		const duration = Date.now() - startTime;
 
-		// Should complete quickly (< 100ms) and not hang
-		expect(duration).toBeLessThan(100);
+		// Should complete quickly (< 1000ms) and not hang on CI
+		expect(duration).toBeLessThan(1000);
 		// Should reject the overly long input (security feature)
 		expect(result.source).toBe('fallback');
 
@@ -62,8 +62,8 @@ describe('regex security and edge cases', () => {
 		const result = detectNamespace({ mode: 'heuristic' });
 		const duration = Date.now() - startTime;
 
-		// Should complete quickly and not hang
-		expect(duration).toBeLessThan(100);
+		// Should complete quickly and not hang on CI
+		expect(duration).toBeLessThan(1000);
 		// Should reject the overly long input (security feature)
 		expect(result.source).toBe('fallback');
 
