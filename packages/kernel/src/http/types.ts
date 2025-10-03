@@ -15,7 +15,7 @@ export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
  */
 export interface TransportRequest {
 	/**
-	 * REST API path (e.g., '/wpk/v1/things' or '/wpk/v1/things/123')
+	 * REST API path (e.g., '/my-plugin/v1/things' or '/my-plugin/v1/things/123')
 	 */
 	path: string;
 

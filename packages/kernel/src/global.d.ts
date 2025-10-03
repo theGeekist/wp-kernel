@@ -5,6 +5,8 @@
  * These types are available globally without imports.
  */
 import type * as WPData from '@wordpress/data';
+import type * as WPApiFetch from '@wordpress/api-fetch';
+import type * as WPHooks from '@wordpress/hooks';
 
 export {};
 
@@ -17,6 +19,8 @@ declare global {
 	type WPGlobal = {
 		wp?: {
 			data?: typeof WPData;
+			apiFetch?: typeof WPApiFetch;
+			hooks?: typeof WPHooks;
 		};
 	};
 

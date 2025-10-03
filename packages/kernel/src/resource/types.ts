@@ -18,7 +18,7 @@ export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
  *
  * @example
  * ```ts
- * { path: '/wpk/v1/things/:id', method: 'GET' }
+ * { path: '/my-plugin/v1/things/:id', method: 'GET' }
  * ```
  */
 export interface ResourceRoute {
@@ -36,11 +36,11 @@ export interface ResourceRoute {
  * @example
  * ```ts
  * {
- *   list: { path: '/wpk/v1/things', method: 'GET' },
- *   get: { path: '/wpk/v1/things/:id', method: 'GET' },
- *   create: { path: '/wpk/v1/things', method: 'POST' },
- *   update: { path: '/wpk/v1/things/:id', method: 'PUT' },
- *   remove: { path: '/wpk/v1/things/:id', method: 'DELETE' }
+ *   list: { path: '/my-plugin/v1/things', method: 'GET' },
+ *   get: { path: '/my-plugin/v1/things/:id', method: 'GET' },
+ *   create: { path: '/my-plugin/v1/things', method: 'POST' },
+ *   update: { path: '/my-plugin/v1/things/:id', method: 'PUT' },
+ *   remove: { path: '/my-plugin/v1/things/:id', method: 'DELETE' }
  * }
  * ```
  */
@@ -111,8 +111,8 @@ export interface CacheKeys {
  * const thing = defineResource<Thing, { q?: string }>({
  *   name: 'thing',
  *   routes: {
- *     list: { path: '/wpk/v1/things', method: 'GET' },
- *     get: { path: '/wpk/v1/things/:id', method: 'GET' }
+ *     list: { path: '/my-plugin/v1/things', method: 'GET' },
+ *     get: { path: '/my-plugin/v1/things/:id', method: 'GET' }
  *   },
  *   cacheKeys: {
  *     list: (q) => ['thing', 'list', q?.q],
@@ -289,7 +289,7 @@ export interface ResourceClient<T = unknown, TQuery = unknown> {
  * const key = thing.key('list', { q: 'search' });
  *
  * // Use in store selectors
- * const storeKey = thing.storeKey; // 'wpk/thing'
+ * const storeKey = thing.storeKey; // 'my-plugin/thing'
  *
  * // Access @wordpress/data store (lazy-loaded, auto-registered)
  * const store = thing.store;
@@ -304,7 +304,7 @@ export interface ResourceObject<T = unknown, TQuery = unknown>
 	name: string;
 
 	/**
-	 * WordPress data store key (e.g., 'wpk/thing')
+	 * WordPress data store key (e.g., 'my-plugin/thing')
 	 *
 	 * Used for store registration and selectors
 	 */

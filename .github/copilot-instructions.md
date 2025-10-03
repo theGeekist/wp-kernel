@@ -54,17 +54,19 @@ import { defineResource } from '@geekist/wp-kernel/resource';
 export const thing = defineResource<Thing, { q?: string; cursor?: Cursor }>({
 	name: 'thing',
 	routes: {
-		list: { path: '/wpk/v1/things', method: 'GET' },
-		get: { path: '/wpk/v1/things/:id', method: 'GET' },
-		create: { path: '/wpk/v1/things', method: 'POST' },
-		update: { path: '/wpk/v1/things/:id', method: 'PUT' },
-		remove: { path: '/wpk/v1/things/:id', method: 'DELETE' },
+		list: { path: '/my-plugin/v1/things', method: 'GET' },
+		get: { path: '/my-plugin/v1/things/:id', method: 'GET' },
+		create: { path: '/my-plugin/v1/things', method: 'POST' },
+		update: { path: '/my-plugin/v1/things/:id', method: 'PUT' },
+		remove: { path: '/my-plugin/v1/things/:id', method: 'DELETE' },
 	},
 	schema: import('../../contracts/thing.schema.json'),
 	cacheKeys: {
 		list: (q) => ['thing', 'list', q?.q, q?.cursor],
 		get: (id) => ['thing', 'get', id],
 	},
+	// namespace auto-detected from plugin context, or specify explicitly:
+	// namespace: 'my-plugin'
 });
 ```
 
@@ -136,8 +138,8 @@ import { registerBindingSource } from '@geekist/wp-kernel/bindings';
 import { select } from '@wordpress/data';
 
 registerBindingSource('gk', {
-  'thing.title': (attrs) => select('wpk/thing').getById(attrs.id)?.title,
-  'thing.price': (attrs) => select('wpk/thing').getById(attrs.id)?.price
+  'thing.title': (attrs) => select('my-plugin/thing').getById(attrs.id)?.title,
+  'thing.price': (attrs) => select('my-plugin/thing').getById(attrs.id)?.price
 });
 
 // In block.json
@@ -160,7 +162,7 @@ Front-end behavior without jQuery or custom React components.
 ```typescript
 import { defineInteraction } from '@geekist/wp-kernel/interactivity';
 
-export const useThingForm = defineInteraction('wpk/thing-form', {
+export const useThingForm = defineInteraction('my-plugin/thing-form', {
 	state: () => ({ saving: false, error: null }),
 	actions: {
 		async submit(formData) {
@@ -190,10 +192,10 @@ import { defineJob } from '@geekist/wp-kernel/jobs';
 
 export const IndexThing = defineJob('IndexThing', {
 	enqueue: (params: { id: number }) => {
-		// POST /wpk/v1/jobs/index-thing
+		// POST /my-plugin/v1/jobs/index-thing
 	},
 	status: (params) => {
-		// GET /wpk/v1/jobs/index-thing/status?id=...
+		// GET /my-plugin/v1/jobs/index-thing/status?id=...
 	},
 });
 
@@ -300,7 +302,7 @@ app/
 ### Add Custom Event
 
 1. Check if canonical event exists first (see registry)
-2. If truly custom, follow pattern: `wpk.{domain}.{action}`
+2. If truly custom, follow pattern: `{namespace}.{domain}.{action}`
 3. Document payload contract
 4. Decide if it should bridge to PHP (update docs)
 
@@ -341,7 +343,7 @@ pnpm playground     # Launch Playground (WASM)
 - **MAJOR**: Breaking API, event taxonomy, or slot changes
 - **MINOR**: New events/slots/helpers (non-breaking)
 - **PATCH**: Fixes only
-- **Deprecation**: Use `@wordpress/deprecated`, emit `wpk.deprecated`, remove in next major
+- **Deprecation**: Use `@wordpress/deprecated`, emit `{namespace}.deprecated`, remove in next major
 
 **Process**: [Code Primitives § 6 Deprecation](../information/Code%20Primitives%20%26%20Dev%20Tooling%20PO%20Draft%20%E2%80%A2%20v1.0.md#6-deprecation--feature-flags)
 

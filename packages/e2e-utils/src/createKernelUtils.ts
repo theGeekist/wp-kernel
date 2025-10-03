@@ -52,10 +52,10 @@ declare global {
  *   const job = kernel.resource({ name: 'job', routes: {...} });
  *   await job.seed({ title: 'Engineer' });
  *
- *   const jobStore = kernel.store('wpk/job');
+ *   const jobStore = kernel.store('my-plugin/job');
  *   await jobStore.wait(s => s.getList());
  *
- *   const recorder = await kernel.events({ pattern: /^wpk\.job\./ });
+ *   const recorder = await kernel.events({ pattern: /^my-plugin\.job\./ });
  *   expect(recorder.list()).toHaveLength(1);
  * });
  * ```

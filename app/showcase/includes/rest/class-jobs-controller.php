@@ -32,7 +32,7 @@ class Jobs_Controller extends REST_Controller {
 	 * Register the routes for job postings.
 	 */
 	public function register_routes() {
-		// List jobs: GET /wpk/v1/jobs
+		// List jobs: GET /wp-kernel-showcase/v1/jobs
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base,
@@ -52,7 +52,7 @@ class Jobs_Controller extends REST_Controller {
 			)
 		);
 
-		// Single job: GET /wpk/v1/jobs/:id
+		// Single job: GET /wp-kernel-showcase/v1/jobs/:id
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base . '/(?P<id>[\d]+)',

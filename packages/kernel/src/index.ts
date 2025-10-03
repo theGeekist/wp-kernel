@@ -14,7 +14,7 @@
  * @example Namespace imports (organized)
  * ```ts
  * import { http, resource, error } from '@geekist/wp-kernel';
- * await http.fetch({ path: '/wpk/v1/things' });
+ * await http.fetch({ path: '/my-plugin/v1/things' });
  * resource.defineResource({ name: 'thing', routes: {...} });
  * throw new error.KernelError('ValidationError', {...});
  * ```

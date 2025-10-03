@@ -49,11 +49,11 @@ describe('createStore - Resolvers', () => {
 				remove: (id) => ['thing', 'remove', id],
 			},
 			routes: {
-				list: { path: '/wpk/v1/things', method: 'GET' },
-				get: { path: '/wpk/v1/things/:id', method: 'GET' },
-				create: { path: '/wpk/v1/things', method: 'POST' },
-				update: { path: '/wpk/v1/things/:id', method: 'PUT' },
-				remove: { path: '/wpk/v1/things/:id', method: 'DELETE' },
+				list: { path: '/my-plugin/v1/things', method: 'GET' },
+				get: { path: '/my-plugin/v1/things/:id', method: 'GET' },
+				create: { path: '/my-plugin/v1/things', method: 'POST' },
+				update: { path: '/my-plugin/v1/things/:id', method: 'PUT' },
+				remove: { path: '/my-plugin/v1/things/:id', method: 'DELETE' },
 			},
 			fetchList: jest.fn().mockResolvedValue(mockListResponse),
 			fetch: jest.fn().mockResolvedValue({
@@ -84,7 +84,7 @@ describe('createStore - Resolvers', () => {
 					params?: any
 				): (string | number | boolean)[] => {
 					const generators = mockResource.cacheKeys;
-					const result = generators[operation]?.(params as any) || [];
+					const result = generators[operation]?.(params) || [];
 					return result.filter(
 						(v): v is string | number | boolean =>
 							v !== null && v !== undefined

@@ -23,10 +23,11 @@ use WP_REST_Server;
 abstract class REST_Controller extends WP_REST_Controller {
 	/**
 	 * Namespace for REST routes.
+	 * Uses the plugin's text domain for proper namespace isolation.
 	 *
 	 * @var string
 	 */
-	protected $namespace = 'wpk/v1';
+	protected $namespace = 'wp-kernel-showcase/v1';
 
 	/**
 	 * Filter response data based on _fields parameter.

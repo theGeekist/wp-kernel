@@ -101,8 +101,7 @@ export function createStore<T, TQuery = unknown>(
 
 		const typedAction = action as {
 			type: string;
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			[key: string]: any;
+			[key: string]: unknown;
 		};
 
 		switch (typedAction.type) {
