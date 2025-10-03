@@ -16,6 +16,7 @@
 import { KernelError } from '../error/index';
 import { invalidate as globalInvalidate } from './cache';
 import type { ResourceConfig, ResourceObject, CacheKeys } from './types';
+import { detectNamespace } from '../namespace/index';
 
 /**
  * Create select namespace getter
@@ -248,7 +249,13 @@ export function createEventsGetter<T, TQuery>(
 	config: ResourceConfig<T, TQuery>
 ) {
 	return function () {
-		const namespace = config.namespace || 'wpk';
+		// Use namespace from config, or detect from environment with 'wpk' fallback
+		const namespace =
+			config.namespace ||
+			detectNamespace({
+				fallback: 'wpk',
+				runtime: 'frontend', // Ensure we check all detection methods
+			}).namespace;
 		const resourceName = config.name;
 
 		return {

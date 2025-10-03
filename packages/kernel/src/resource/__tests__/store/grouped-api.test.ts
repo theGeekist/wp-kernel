@@ -47,11 +47,11 @@ describe('createStore - Grouped API', () => {
 				remove: (id) => ['thing', 'remove', id],
 			},
 			routes: {
-				list: { path: '/wpk/v1/things', method: 'GET' },
-				get: { path: '/wpk/v1/things/:id', method: 'GET' },
-				create: { path: '/wpk/v1/things', method: 'POST' },
-				update: { path: '/wpk/v1/things/:id', method: 'PUT' },
-				remove: { path: '/wpk/v1/things/:id', method: 'DELETE' },
+				list: { path: '/my-plugin/v1/things', method: 'GET' },
+				get: { path: '/my-plugin/v1/things/:id', method: 'GET' },
+				create: { path: '/my-plugin/v1/things', method: 'POST' },
+				update: { path: '/my-plugin/v1/things/:id', method: 'PUT' },
+				remove: { path: '/my-plugin/v1/things/:id', method: 'DELETE' },
 			},
 			fetchList: jest.fn().mockResolvedValue(mockListResponse),
 			fetch: jest.fn().mockResolvedValue({
@@ -82,7 +82,7 @@ describe('createStore - Grouped API', () => {
 					params?: any
 				): (string | number | boolean)[] => {
 					const generators = mockResource.cacheKeys;
-					const result = generators[operation]?.(params as any) || [];
+					const result = generators[operation]?.(params) || [];
 					return result.filter(
 						(v): v is string | number | boolean =>
 							v !== null && v !== undefined
@@ -184,16 +184,17 @@ describe('createStore - Grouped API', () => {
 				const { defineResource } = require('../../define');
 
 				// Save original wp object
-				const originalWp = (global as any).window?.wp;
+				const originalWp = global.window?.wp;
 
 				// Mock window.wp.data.select to return a store with getItems that returns null
 				const mockGetItems = jest.fn().mockReturnValue(null);
-				(global as any).window.wp = {
+				global.window.wp = {
+					...global.window.wp,
 					data: {
 						select: jest.fn().mockReturnValue({
 							getItems: mockGetItems,
 						}),
-					},
+					} as any, // Mock for testing - needs to match WPGlobal type
 				};
 
 				// Create a real resource
@@ -211,9 +212,9 @@ describe('createStore - Grouped API', () => {
 
 				// Restore original
 				if (originalWp) {
-					(global as any).window.wp = originalWp;
+					global.window.wp = originalWp;
 				} else {
-					delete (global as any).window.wp;
+					delete global.window.wp;
 				}
 			});
 		});

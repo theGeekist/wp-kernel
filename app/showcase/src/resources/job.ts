@@ -70,43 +70,43 @@ export const job = defineResource<Job, JobListParams>({
 	 */
 	routes: {
 		/**
-		 * GET /wpk/v1/jobs - List all job postings
+		 * GET /wp-kernel-showcase/v1/jobs - List all job postings
 		 * Supports query params: q, department, location, status, cursor
 		 */
 		list: {
-			path: '/wpk/v1/jobs',
+			path: '/wp-kernel-showcase/v1/jobs',
 			method: 'GET',
 		},
 
 		/**
-		 * GET /wpk/v1/jobs/:id - Get single job posting
+		 * GET /wp-kernel-showcase/v1/jobs/:id - Get single job posting
 		 */
 		get: {
-			path: '/wpk/v1/jobs/:id',
+			path: '/wp-kernel-showcase/v1/jobs/:id',
 			method: 'GET',
 		},
 
 		/**
-		 * POST /wpk/v1/jobs - Create job posting (stub - 501)
+		 * POST /wp-kernel-showcase/v1/jobs - Create job posting (stub - 501)
 		 */
 		create: {
-			path: '/wpk/v1/jobs',
+			path: '/wp-kernel-showcase/v1/jobs',
 			method: 'POST',
 		},
 
 		/**
-		 * PUT /wpk/v1/jobs/:id - Update job posting (stub - 501)
+		 * PUT /wp-kernel-showcase/v1/jobs/:id - Update job posting (stub - 501)
 		 */
 		update: {
-			path: '/wpk/v1/jobs/:id',
+			path: '/wp-kernel-showcase/v1/jobs/:id',
 			method: 'PUT',
 		},
 
 		/**
-		 * DELETE /wpk/v1/jobs/:id - Delete job posting (stub - 501)
+		 * DELETE /wp-kernel-showcase/v1/jobs/:id - Delete job posting (stub - 501)
 		 */
 		remove: {
-			path: '/wpk/v1/jobs/:id',
+			path: '/wp-kernel-showcase/v1/jobs/:id',
 			method: 'DELETE',
 		},
 	},

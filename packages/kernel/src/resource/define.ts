@@ -22,7 +22,12 @@ import {
 	createStoreApiGetter,
 	createEventsGetter,
 } from './grouped-api';
-import type { CacheKeys, ResourceConfig, ResourceObject } from './types';
+import type {
+	CacheKeys,
+	ResourceConfig,
+	ResourceObject,
+	ListResponse,
+} from './types';
 
 /**
  * Parse namespace:name syntax from a string
@@ -228,8 +233,24 @@ export function defineResource<T = unknown, TQuery = unknown>(
 
 					// Use @wordpress/data useSelect to watch store
 					const result = globalWp.data.useSelect(
-						// eslint-disable-next-line @typescript-eslint/no-explicit-any
-						(select: any) => {
+						(
+							select: (storeKey: string) => {
+								getItem?: (
+									id: string | number
+								) => T | undefined;
+								isResolving?: (
+									method: string,
+									args: unknown[]
+								) => boolean;
+								hasFinishedResolution?: (
+									method: string,
+									args: unknown[]
+								) => boolean;
+								getItemError?: (
+									id: string | number
+								) => Error | undefined;
+							}
+						) => {
 							// Trigger lazy store registration
 							void resource.store;
 
@@ -279,8 +300,24 @@ export function defineResource<T = unknown, TQuery = unknown>(
 
 					// Use @wordpress/data useSelect to watch store
 					const result = globalWp.data.useSelect(
-						// eslint-disable-next-line @typescript-eslint/no-explicit-any
-						(select: any) => {
+						(
+							select: (storeKey: string) => {
+								getList?: (
+									query?: TQuery
+								) => ListResponse<T> | undefined;
+								isResolving?: (
+									method: string,
+									args: unknown[]
+								) => boolean;
+								hasFinishedResolution?: (
+									method: string,
+									args: unknown[]
+								) => boolean;
+								getListError?: (
+									query?: TQuery
+								) => Error | undefined;
+							}
+						) => {
 							// Trigger lazy store registration
 							void resource.store;
 
@@ -333,14 +370,16 @@ export function defineResource<T = unknown, TQuery = unknown>(
 					void resource.store;
 
 					// Dispatch resolver (fire and forget)
-					// eslint-disable-next-line @typescript-eslint/no-explicit-any
-					const storeDispatch = globalWp.data.dispatch as any;
+					const storeDispatch = globalWp.data.dispatch as (
+						storeKey: string
+					) => {
+						getItem?: (id: string | number) => void;
+					};
 					const dispatch = storeDispatch(resource.storeKey);
 					if (dispatch?.getItem) {
 						// Trigger the resolver by selecting
 						await globalWp.data
-							// eslint-disable-next-line @typescript-eslint/no-explicit-any
-							.resolveSelect(resource.storeKey as any)
+							.resolveSelect(resource.storeKey as string)
 							.getItem(id);
 					}
 				}
@@ -370,8 +409,7 @@ export function defineResource<T = unknown, TQuery = unknown>(
 					// Dispatch resolver (fire and forget)
 
 					await globalWp.data
-						// eslint-disable-next-line @typescript-eslint/no-explicit-any
-						.resolveSelect(resource.storeKey as any)
+						.resolveSelect(resource.storeKey as string)
 						.getList(query);
 				}
 			: undefined,
@@ -394,8 +432,9 @@ export function defineResource<T = unknown, TQuery = unknown>(
 			const generator = cacheKeys[operation];
 
 			// Generate and return the cache key
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
-			const cacheKey = generator(params as any);
+			// Type assertion is safe because we know the generator exists
+			// and params will be passed to the appropriate cache key function
+			const cacheKey = generator(params as never);
 
 			// Filter out null and undefined values
 			return cacheKey.filter(

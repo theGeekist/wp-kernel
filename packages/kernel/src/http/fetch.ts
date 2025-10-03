@@ -35,8 +35,15 @@ function getHooks() {
 		return null;
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const globalWp = (window as any).wp;
+	const globalWp = (
+		window as Window & {
+			wp?: {
+				hooks?: {
+					doAction?: (event: string, data: unknown) => void;
+				};
+			};
+		}
+	).wp;
 	return globalWp?.hooks || null;
 }
 
@@ -160,7 +167,7 @@ function normalizeError(
  * import { fetch } from '@geekist/wp-kernel/transport';
  *
  * const response = await fetch<Thing>({
- *   path: '/wpk/v1/things/123',
+ *   path: '/my-plugin/v1/things/123',
  *   method: 'GET'
  * });
  *

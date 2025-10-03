@@ -32,8 +32,8 @@ import type { ResourceConfig, ResourceClient, ListResponse } from './types';
  * const client = createClient({
  *   name: 'testimonial',
  *   routes: {
- *     list: { path: '/wpk/v1/testimonials', method: 'GET' },
- *     get: { path: '/wpk/v1/testimonials/:id', method: 'GET' }
+ *     list: { path: '/my-plugin/v1/testimonials', method: 'GET' },
+ *     get: { path: '/my-plugin/v1/testimonials/:id', method: 'GET' }
  *   }
  * });
  *

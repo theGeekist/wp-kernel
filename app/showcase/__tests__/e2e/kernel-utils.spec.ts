@@ -35,6 +35,8 @@ async function loginToWordPress(page: Page) {
 	await page.waitForURL(/\/wp-admin/, { timeout: 10000 });
 }
 
+test.describe.configure({ mode: 'serial' });
+
 test.describe('Kernel E2E Utils Integration', () => {
 	test.beforeEach(async ({ requestUtils }) => {
 		await requestUtils.activatePlugin('wp-kernel-showcase');
@@ -51,8 +53,14 @@ test.describe('Kernel E2E Utils Integration', () => {
 		const jobResource = kernel.resource<Job>({
 			name: 'job',
 			routes: {
-				create: { path: '/wpk/v1/jobs', method: 'POST' },
-				remove: { path: '/wpk/v1/jobs/:id', method: 'DELETE' },
+				create: {
+					path: '/wp-kernel-showcase/v1/jobs',
+					method: 'POST',
+				},
+				remove: {
+					path: '/wp-kernel-showcase/v1/jobs/:id',
+					method: 'DELETE',
+				},
 			},
 		});
 
@@ -104,8 +112,11 @@ test.describe('Kernel E2E Utils Integration', () => {
 		const jobResource = kernel.resource<Job>({
 			name: 'job',
 			routes: {
-				create: { path: '/wpk/v1/jobs', method: 'POST' },
-				remove: { path: '/wpk/v1/jobs/:id', method: 'DELETE' },
+				create: { path: '/wp-kernel-showcase/v1/jobs', method: 'POST' },
+				remove: {
+					path: '/wp-kernel-showcase/v1/jobs/:id',
+					method: 'DELETE',
+				},
 			},
 		});
 
@@ -171,8 +182,11 @@ test.describe('Kernel E2E Utils Integration', () => {
 		const jobResource = kernel.resource<Job>({
 			name: 'job',
 			routes: {
-				create: { path: '/wpk/v1/jobs', method: 'POST' },
-				remove: { path: '/wpk/v1/jobs/:id', method: 'DELETE' },
+				create: { path: '/wp-kernel-showcase/v1/jobs', method: 'POST' },
+				remove: {
+					path: '/wp-kernel-showcase/v1/jobs/:id',
+					method: 'DELETE',
+				},
 			},
 		});
 
@@ -190,7 +204,7 @@ test.describe('Kernel E2E Utils Integration', () => {
 		await page.waitForLoadState('networkidle');
 
 		// Create store helper
-		const jobStore = kernel.store('wpk/job');
+		const jobStore = kernel.store('wp-kernel-showcase/job');
 
 		// Wait for store to have data (with 10s timeout)
 		const storeHasData = await jobStore.wait((selectors: any) => {
@@ -225,9 +239,12 @@ test.describe('Kernel E2E Utils Integration', () => {
 		const jobResource = kernel.resource<Job>({
 			name: 'job',
 			routes: {
-				list: { path: '/wpk/v1/jobs', method: 'GET' },
-				create: { path: '/wpk/v1/jobs', method: 'POST' },
-				remove: { path: '/wpk/v1/jobs/:id', method: 'DELETE' },
+				list: { path: '/wp-kernel-showcase/v1/jobs', method: 'GET' },
+				create: { path: '/wp-kernel-showcase/v1/jobs', method: 'POST' },
+				remove: {
+					path: '/wp-kernel-showcase/v1/jobs/:id',
+					method: 'DELETE',
+				},
 			},
 		});
 

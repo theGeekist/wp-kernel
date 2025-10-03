@@ -136,11 +136,11 @@ export function findMatchingKeysMultiple(
  *
  * @example
  * ```ts
- * interpolatePath('/wpk/v1/things/:id', { id: 123 })
- * // => '/wpk/v1/things/123'
+ * interpolatePath('/my-plugin/v1/things/:id', { id: 123 })
+ * // => '/my-plugin/v1/things/123'
  *
- * interpolatePath('/wpk/v1/things/:id/comments/:commentId', { id: 1, commentId: 42 })
- * // => '/wpk/v1/things/1/comments/42'
+ * interpolatePath('/my-plugin/v1/things/:id/comments/:commentId', { id: 1, commentId: 42 })
+ * // => '/my-plugin/v1/things/1/comments/42'
  * ```
  */
 
@@ -162,10 +162,10 @@ export type PathParams = Record<string, string | number | boolean>;
  *
  * @example
  * ```ts
- * interpolatePath('/wpk/v1/things/:id', { id: 123 })
- * // => '/wpk/v1/things/123'
+ * interpolatePath('/my-plugin/v1/things/:id', { id: 123 })
+ * // => '/my-plugin/v1/things/123'
  *
- * interpolatePath('/wpk/v1/things/:id', {}) // throws DeveloperError
+ * interpolatePath('/my-plugin/v1/things/:id', {}) // throws DeveloperError
  * ```
  */
 export function interpolatePath(path: string, params: PathParams = {}): string {
@@ -220,10 +220,10 @@ export function interpolatePath(path: string, params: PathParams = {}): string {
  *
  * @example
  * ```ts
- * extractPathParams('/wpk/v1/things/:id')
+ * extractPathParams('/my-plugin/v1/things/:id')
  * // => ['id']
  *
- * extractPathParams('/wpk/v1/things/:id/comments/:commentId')
+ * extractPathParams('/my-plugin/v1/things/:id/comments/:commentId')
  * // => ['id', 'commentId']
  * ```
  */
@@ -245,34 +245,11 @@ export function extractPathParams(path: string): string[] {
  */
 
 /**
- * Type for WordPress data registry (external dependency)
- * We type it minimally to avoid depending on @wordpress/data types
- */
-interface WordPressDataRegistry {
-	select: (storeKey: string) => {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		[key: string]: any;
-	};
-	dispatch: (storeKey: string) => {
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		invalidate?: (cacheKeys: string[]) => any;
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		[key: string]: any;
-	};
-}
-
-/**
  * Get the WordPress data registry from global scope
- * Returns null if not available (e.g., in tests or Node environment)
+ * Returns undefined if not available (e.g., in tests or Node environment)
  */
-function getDataRegistry(): WordPressDataRegistry | null {
-	if (typeof window === 'undefined') {
-		return null;
-	}
-
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const globalWp = (window as any).wp;
-	return globalWp?.data || null;
+function getDataRegistry() {
+	return getWPData();
 }
 
 /**
@@ -280,13 +257,13 @@ function getDataRegistry(): WordPressDataRegistry | null {
  */
 export interface InvalidateOptions {
 	/**
-	 * Store key to target (e.g., 'wpk/thing')
-	 * If not provided, invalidates across all 'wpk/*' stores
+	 * Store key to target (e.g., 'my-plugin/thing')
+	 * If not provided, invalidates across all registered stores
 	 */
 	storeKey?: string;
 
 	/**
-	 * Whether to emit the wpk.cache.invalidated event
+	 * Whether to emit the cache.invalidated event
 	 * @default true
 	 */
 	emitEvent?: boolean;
@@ -303,7 +280,7 @@ const registeredStoreKeys = new Set<string>();
  * Called internally by defineResource
  *
  * @internal
- * @param storeKey - The store key to register (e.g., 'wpk/thing')
+ * @param storeKey - The store key to register (e.g., 'my-plugin/thing')
  */
 export function registerStoreKey(storeKey: string): void {
 	registeredStoreKeys.add(storeKey);
@@ -312,10 +289,13 @@ export function registerStoreKey(storeKey: string): void {
 /**
  * Get all registered store keys matching the given prefix
  *
- * @param prefix - Prefix to filter by (e.g., 'wpk/')
+ * @param prefix - Prefix to filter by (e.g., 'my-plugin/')
  * @return Array of matching store keys
  */
-function getMatchingStoreKeys(prefix: string = 'wpk/'): string[] {
+function getMatchingStoreKeys(prefix: string = ''): string[] {
+	if (!prefix) {
+		return Array.from(registeredStoreKeys);
+	}
 	return Array.from(registeredStoreKeys).filter((key) =>
 		key.startsWith(prefix)
 	);
@@ -346,7 +326,7 @@ function getMatchingStoreKeys(prefix: string = 'wpk/'): string[] {
  * ]);
  *
  * // Target specific store
- * invalidate(['thing', 'list'], { storeKey: 'wpk/thing' });
+ * invalidate(['thing', 'list'], { storeKey: 'my-plugin/thing' });
  * ```
  */
 export function invalidate(
@@ -369,7 +349,7 @@ export function invalidate(
 	}
 
 	// Determine which stores to invalidate
-	const storeKeys = storeKey ? [storeKey] : getMatchingStoreKeys('wpk/');
+	const storeKeys = storeKey ? [storeKey] : getMatchingStoreKeys();
 
 	// Track which keys were actually invalidated (for event emission)
 	const invalidatedKeysSet = new Set<string>();
@@ -378,14 +358,19 @@ export function invalidate(
 	for (const key of storeKeys) {
 		try {
 			// Get store's dispatch to call invalidate action
-			const dispatch = dataRegistry.dispatch(key);
-			if (!dispatch || typeof dispatch.invalidate !== 'function') {
+			const dispatch = dataRegistry?.dispatch(key);
+			if (
+				!dispatch ||
+				typeof dispatch !== 'object' ||
+				!('invalidate' in dispatch) ||
+				typeof dispatch.invalidate !== 'function'
+			) {
 				continue;
 			}
 
 			// Get current state to find matching keys
 			// The state structure is: { items: {}, lists: {}, listMeta: {}, errors: {} }
-			const select = dataRegistry.select(key);
+			const select = dataRegistry?.select(key);
 			const state = select?.getState?.() || {};
 
 			// Collect all unique cache keys from the state
@@ -409,8 +394,8 @@ export function invalidate(
 			);
 
 			if (matchingKeys.length > 0) {
-				// Dispatch invalidate action
-				dispatch.invalidate(matchingKeys);
+				// Dispatch invalidate action with proper typing
+				(dispatch.invalidate as (keys: string[]) => void)(matchingKeys);
 				matchingKeys.forEach((k) => invalidatedKeysSet.add(k));
 			}
 		} catch (error) {
@@ -432,7 +417,7 @@ export function invalidate(
 }
 
 /**
- * Emit the wpk.cache.invalidated event
+ * Emit the cache.invalidated event
  *
  * @param keys - The cache keys that were invalidated
  */
@@ -441,24 +426,29 @@ function emitCacheInvalidatedEvent(keys: string[]): void {
 		return;
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const globalWp = (window as any).wp;
-	const hooks = globalWp?.hooks;
+	// Use the global wp object with proper typing fallback
+	const wp = (
+		window as Window & {
+			wp?: {
+				hooks?: { doAction: (event: string, data: unknown) => void };
+			};
+		}
+	).wp;
 
-	if (hooks?.doAction) {
-		hooks.doAction('wpk.cache.invalidated', { keys });
+	if (wp?.hooks?.doAction) {
+		wp.hooks.doAction('wpk.cache.invalidated', { keys });
 	}
 }
 
 /**
  * Invalidate all caches in a specific store
  *
- * @param storeKey - The store key to invalidate (e.g., 'wpk/thing')
+ * @param storeKey - The store key to invalidate (e.g., 'my-plugin/thing')
  *
  * @example
  * ```ts
  * // Clear all cached data for 'thing' resource
- * invalidateAll('wpk/thing');
+ * invalidateAll('my-plugin/thing');
  * ```
  */
 export function invalidateAll(storeKey: string): void {
@@ -469,8 +459,13 @@ export function invalidateAll(storeKey: string): void {
 
 	try {
 		const dispatch = dataRegistry.dispatch(storeKey);
-		if (dispatch && typeof dispatch.invalidateAll === 'function') {
-			dispatch.invalidateAll();
+		if (
+			dispatch &&
+			typeof dispatch === 'object' &&
+			'invalidateAll' in dispatch &&
+			typeof dispatch.invalidateAll === 'function'
+		) {
+			(dispatch.invalidateAll as () => void)();
 
 			// Emit event
 			emitCacheInvalidatedEvent([`${storeKey}:*`]);
