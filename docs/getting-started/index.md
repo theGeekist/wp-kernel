@@ -80,7 +80,7 @@ export const CreateThing = defineAction('Thing.Create', async ({ data }) => {
 **Implementation**:
 
 1. Scaffold Resource `application`
-2. Write Action `Application.Submit` (permission check → REST → emit `wpk.application.created` → invalidate list → enqueue parsing job)
+2. Write Action `Application.Submit` (permission check → REST → emit `acme-plugin.application.created` → invalidate list → enqueue parsing job)
 3. Bind a Button in the block editor to the Interactivity action
 4. Optional: PHP plugin listens to `wpk.bridge.application.created` to notify HR
 

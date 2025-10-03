@@ -140,7 +140,7 @@ test('should load jobs', async ({ page, admin, kernel }) => {
 
 	const events = recorder.list();
 	expect(events).toContainEqual(
-		expect.objectContaining({ type: 'wpk.job.created' })
+		expect.objectContaining({ type: 'acme-plugin.job.created' })
 	);
 });
 ```
@@ -221,8 +221,8 @@ const recorder = await kernel.events({
 
 // Methods
 recorder.list(); // All captured events
-recorder.find('wpk.job.created'); // First matching event
-recorder.findAll('wpk.job.updated'); // All matching events
+recorder.find('acme-plugin.job.created'); // First matching event
+recorder.findAll('acme-plugin.job.updated'); // All matching events
 recorder.clear(); // Reset recorded events
 recorder.stop(); // Stop recording
 ```
