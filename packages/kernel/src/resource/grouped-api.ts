@@ -239,19 +239,22 @@ export function createStoreApiGetter<T, TQuery>() {
  * Create events namespace getter
  *
  * Canonical event names for the resource.
- * Follows pattern: wpk.{name}.{action}
+ * Follows pattern: {namespace}.{resourceName}.{action}
  *
- * @param config - Resource configuration
+ * @param config - Resource configuration with resolved namespace and name
  * @return Getter descriptor for events namespace
  */
 export function createEventsGetter<T, TQuery>(
 	config: ResourceConfig<T, TQuery>
 ) {
 	return function () {
+		const namespace = config.namespace || 'wpk';
+		const resourceName = config.name;
+
 		return {
-			created: `wpk.${config.name}.created`,
-			updated: `wpk.${config.name}.updated`,
-			removed: `wpk.${config.name}.removed`,
+			created: `${namespace}.${resourceName}.created`,
+			updated: `${namespace}.${resourceName}.updated`,
+			removed: `${namespace}.${resourceName}.removed`,
 		};
 	};
 }

@@ -151,6 +151,21 @@ export interface ResourceConfig<
 	cacheKeys?: CacheKeys;
 
 	/**
+	 * Namespace for events and store keys
+	 *
+	 * Optional. If omitted, namespace will be auto-detected from plugin context.
+	 * For explicit control, provide a namespace string.
+	 *
+	 * @example
+	 * ```ts
+	 * namespace: 'my-plugin'  // Explicit namespace
+	 * // OR
+	 * name: 'my-plugin:job'   // Shorthand namespace:name format
+	 * ```
+	 */
+	namespace?: string;
+
+	/**
 	 * JSON Schema for runtime validation
 	 *
 	 * Optional. Provides runtime type safety and validation errors

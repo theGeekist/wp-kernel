@@ -560,7 +560,12 @@ describe('grouped-api namespace factories', () => {
 
 	describe('createEventsGetter', () => {
 		it('should return events namespace with created event name', () => {
-			const getter = createEventsGetter<TestItem, TestQuery>(mockConfig);
+			const testConfig = {
+				...mockConfig,
+				namespace: 'wpk',
+				name: 'test-resource',
+			};
+			const getter = createEventsGetter<TestItem, TestQuery>(testConfig);
 			const eventsNamespace = getter.call(mockResourceObject);
 
 			expect(eventsNamespace).toBeDefined();
@@ -568,28 +573,36 @@ describe('grouped-api namespace factories', () => {
 		});
 
 		it('should return events namespace with updated event name', () => {
-			const getter = createEventsGetter<TestItem, TestQuery>(mockConfig);
+			const testConfig = {
+				...mockConfig,
+				namespace: 'wpk',
+				name: 'test-resource',
+			};
+			const getter = createEventsGetter<TestItem, TestQuery>(testConfig);
 			const eventsNamespace = getter.call(mockResourceObject);
 
 			expect(eventsNamespace.updated).toBe('wpk.test-resource.updated');
 		});
 
 		it('should return events namespace with removed event name', () => {
-			const getter = createEventsGetter<TestItem, TestQuery>(mockConfig);
+			const testConfig = {
+				...mockConfig,
+				namespace: 'wpk',
+				name: 'test-resource',
+			};
+			const getter = createEventsGetter<TestItem, TestQuery>(testConfig);
 			const eventsNamespace = getter.call(mockResourceObject);
 
 			expect(eventsNamespace.removed).toBe('wpk.test-resource.removed');
 		});
 
 		it('should use config.name in event names', () => {
-			const customConfig = {
+			const testConfig = {
 				...mockConfig,
+				namespace: 'wpk',
 				name: 'custom-resource',
 			};
-
-			const getter = createEventsGetter<TestItem, TestQuery>(
-				customConfig
-			);
+			const getter = createEventsGetter<TestItem, TestQuery>(testConfig);
 			const eventsNamespace = getter.call(mockResourceObject);
 
 			expect(eventsNamespace.created).toBe('wpk.custom-resource.created');
