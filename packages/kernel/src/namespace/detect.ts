@@ -60,6 +60,44 @@ const RESERVED_NAMESPACES = [
 ] as const;
 
 /**
+ * Check if we're in development mode
+ * @return True if in development environment
+ */
+function isDevelopment(): boolean {
+	// Check various development indicators
+	return (
+		(typeof process !== 'undefined' &&
+			process.env &&
+			(process.env.NODE_ENV === 'development' ||
+				process.env.NODE_ENV === 'dev' ||
+				process.env.WP_DEBUG === 'true')) ||
+		(typeof window !== 'undefined' &&
+			(window as { wpKernelDev?: boolean }).wpKernelDev === true)
+	);
+}
+
+/**
+ * Emit development-only warning for non-deterministic fallbacks
+ * @param source    - The detection source that was used
+ * @param namespace - The detected namespace
+ */
+function emitDevWarning(source: string, namespace: string): void {
+	if (!isDevelopment()) {
+		return;
+	}
+
+	if (source === 'fallback') {
+		console.warn(
+			`🔧 WP Kernel: Using fallback namespace "${namespace}". For deterministic behavior, set __WPK_NAMESPACE__ (build-time) or wpKernelData.textDomain (runtime). See: https://github.com/theGeekist/wp-kernel/docs/namespace-detection`
+		);
+	} else if (source === 'package-json') {
+		console.warn(
+			`📦 WP Kernel: Using package.json name for namespace "${namespace}". For WordPress-native behavior, set wpKernelData.textDomain or __WPK_NAMESPACE__. See: https://github.com/theGeekist/wp-kernel/docs/namespace-detection`
+		);
+	}
+}
+
+/**
  * Cache for namespace detection results
  * Key is a combination of options to ensure cache validity
  */
@@ -303,9 +341,10 @@ function extractFromPluginHeader(
 		const scripts = document.querySelectorAll('script[id*="wp-kernel"]');
 		for (const script of scripts) {
 			const id = script.getAttribute('id');
-			if (id) {
+			if (id && id.length <= 100) {
 				// Extract from script ID pattern like 'my-plugin-wp-kernel-js'
-				const match = id.match(/^(.+?)-wp-kernel/);
+				// Limit input length and use more restrictive pattern to prevent ReDoS
+				const match = id.match(/^([a-z0-9-]{1,50})-wp-kernel/);
 				if (match && match[1]) {
 					return match[1];
 				}
@@ -314,11 +353,14 @@ function extractFromPluginHeader(
 
 		// Try to extract from body classes (many plugins add these)
 		const bodyClasses = document.body.className;
-		const pluginMatches = bodyClasses.match(
-			/(?:^|\s)([a-z0-9-]+)-admin(?:\s|$)/
-		);
-		if (pluginMatches && pluginMatches[1]) {
-			return pluginMatches[1];
+		if (bodyClasses && bodyClasses.length <= 500) {
+			// Limit input length and use more restrictive pattern
+			const pluginMatches = bodyClasses.match(
+				/(?:^|\s)([a-z0-9-]{1,50})-admin(?:\s|$)/
+			);
+			if (pluginMatches && pluginMatches[1]) {
+				return pluginMatches[1];
+			}
 		}
 
 		return null;
@@ -469,6 +511,10 @@ export function detectNamespace(
 					? original || namespace
 					: undefined,
 		};
+
+		// Emit development warnings for non-deterministic fallbacks
+		emitDevWarning(source, namespace);
+
 		_namespaceCache.set(cacheKey, result);
 		return result;
 	};
