@@ -23,6 +23,10 @@ pnpm docs:build || {
   exit 1
 }
 
+# Format generated docs to ensure consistency
+echo "🎨 Formatting generated documentation..."
+pnpm format docs/api/generated/
+
 # Check for changeset (only on feature branches)
 BRANCH=$(git branch --show-current)
 if [[ "$BRANCH" =~ ^(sprint-|feat/|fix/) ]]; then
