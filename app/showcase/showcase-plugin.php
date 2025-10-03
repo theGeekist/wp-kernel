@@ -8,7 +8,8 @@
  * Requires PHP: 8.3
  * Author: Geekist
  * Author URI: https://github.com/theGeekist
- * License: MIT
+ * License: GPL-2.0-or-later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: wp-kernel-showcase
  * Domain Path: /languages
  *

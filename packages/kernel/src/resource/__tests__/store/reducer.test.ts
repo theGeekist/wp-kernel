@@ -306,5 +306,25 @@ describe('createStore - Reducer', () => {
 				errors: {},
 			});
 		});
+
+		it('should handle RECEIVE_ITEMS with undefined meta (use empty object)', () => {
+			const items: MockThing[] = [
+				{ id: 1, title: 'Thing One', status: 'active' },
+			];
+			const queryKey = '{}';
+			const action = {
+				type: 'RECEIVE_ITEMS',
+				items,
+				queryKey,
+				meta: undefined, // No meta provided
+			};
+
+			const state = store.reducer(undefined, action);
+
+			expect(state.items[1]).toEqual(items[0]);
+			expect(state.lists[queryKey]).toEqual([1]);
+			// Should fallback to empty object
+			expect(state.listMeta[queryKey]).toEqual({});
+		});
 	});
 });

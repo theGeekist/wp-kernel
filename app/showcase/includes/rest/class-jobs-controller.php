@@ -91,9 +91,13 @@ class Jobs_Controller extends REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response object or error.
 	 */
 	public function get_items( $request ) {
-		// TODO: Replace with actual database query in Sprint 3.
-		// For now, return static sample data matching job.schema.json.
-		$jobs = $this->get_sample_jobs();
+		// Get jobs from transient (created via REST API).
+		$jobs = get_transient( 'wpk_showcase_jobs' );
+		
+		// Fall back to sample data if no jobs in transient.
+		if ( false === $jobs || empty( $jobs ) ) {
+			$jobs = $this->get_sample_jobs();
+		}
 
 		// Apply _fields filtering.
 		$filtered_jobs = array_map(
@@ -115,9 +119,15 @@ class Jobs_Controller extends REST_Controller {
 	public function get_item( $request ) {
 		$id = (int) $request->get_param( 'id' );
 
-		// TODO: Replace with actual database query in Sprint 3.
-		$jobs = $this->get_sample_jobs();
-		$job  = null;
+		// Get jobs from transient first.
+		$jobs = get_transient( 'wpk_showcase_jobs' );
+		
+		// Fall back to sample data if no jobs in transient.
+		if ( false === $jobs || empty( $jobs ) ) {
+			$jobs = $this->get_sample_jobs();
+		}
+
+		$job = null;
 
 		foreach ( $jobs as $item ) {
 			if ( $item['id'] === $id ) {
@@ -143,52 +153,171 @@ class Jobs_Controller extends REST_Controller {
 	/**
 	 * Create a new job posting.
 	 *
-	 * Stub implementation - returns 501 Not Implemented.
-	 * Will be implemented in Sprint 3.
+	 * Creates a new job and stores it in transients for demonstration purposes.
+	 * In production, this would store to a database table or custom post type.
 	 *
 	 * @param WP_REST_Request $request Request object.
-	 * @return WP_Error Error response.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function create_item( $request ) {
-		return $this->get_error(
-			'not_implemented',
-			__( 'Creating job postings is not yet implemented. Coming in Sprint 3.', 'wp-kernel-showcase' ),
-			501
+		// Get existing jobs from transient.
+		$jobs = get_transient( 'wpk_showcase_jobs' );
+		if ( false === $jobs ) {
+			$jobs = array();
+		}
+
+		// Generate new ID.
+		$max_id = 0;
+		foreach ( $jobs as $job ) {
+			if ( $job['id'] > $max_id ) {
+				$max_id = $job['id'];
+			}
+		}
+		$new_id = $max_id + 1;
+
+		// Build the new job object.
+		$now = gmdate( 'Y-m-d\TH:i:s\Z' );
+		$new_job = array(
+			'id'             => $new_id,
+			'title'          => $request->get_param( 'title' ) ?? '',
+			'description'    => $request->get_param( 'description' ) ?? '',
+			'department'     => $request->get_param( 'department' ) ?? '',
+			'location'       => $request->get_param( 'location' ) ?? '',
+			'remote_policy'  => $request->get_param( 'remote_policy' ) ?? 'office',
+			'job_type'       => $request->get_param( 'job_type' ) ?? 'full-time',
+			'seniority'      => $request->get_param( 'seniority' ) ?? 'mid',
+			'salary_min'     => $request->get_param( 'salary_min' ) ?? null,
+			'salary_max'     => $request->get_param( 'salary_max' ) ?? null,
+			'currency'       => $request->get_param( 'currency' ) ?? 'USD',
+			'apply_deadline' => $request->get_param( 'apply_deadline' ) ?? null,
+			'status'         => $request->get_param( 'status' ) ?? 'draft',
+			'created_at'     => $now,
+			'updated_at'     => $now,
 		);
+
+		// Add to jobs array.
+		$jobs[] = $new_job;
+
+		// Save to transient (expires in 1 hour, good for testing).
+		set_transient( 'wpk_showcase_jobs', $jobs, HOUR_IN_SECONDS );
+
+		// Return the new job.
+		return new \WP_REST_Response( $new_job, 201 );
 	}
 
 	/**
 	 * Update an existing job posting.
 	 *
-	 * Stub implementation - returns 501 Not Implemented.
-	 * Will be implemented in Sprint 3.
+	 * Updates a job stored in transients for demonstration purposes.
+	 * In production, this would update a database table or custom post type.
 	 *
 	 * @param WP_REST_Request $request Request object.
-	 * @return WP_Error Error response.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function update_item( $request ) {
-		return $this->get_error(
-			'not_implemented',
-			__( 'Updating job postings is not yet implemented. Coming in Sprint 3.', 'wp-kernel-showcase' ),
-			501
+		$id = $request->get_param( 'id' );
+
+		// Get existing jobs from transient.
+		$jobs = get_transient( 'wpk_showcase_jobs' );
+		if ( false === $jobs ) {
+			$jobs = array();
+		}
+
+		// Find the job to update.
+		$job_index = null;
+		foreach ( $jobs as $index => $job ) {
+			if ( $job['id'] === (int) $id ) {
+				$job_index = $index;
+				break;
+			}
+		}
+
+		if ( null === $job_index ) {
+			return $this->get_error(
+				'not_found',
+				__( 'Job posting not found.', 'wp-kernel-showcase' ),
+				404
+			);
+		}
+
+		// Update the job (merge with existing data).
+		$updated_job = array_merge(
+			$jobs[ $job_index ],
+			array_filter(
+				array(
+					'title'          => $request->get_param( 'title' ),
+					'description'    => $request->get_param( 'description' ),
+					'department'     => $request->get_param( 'department' ),
+					'location'       => $request->get_param( 'location' ),
+					'remote_policy'  => $request->get_param( 'remote_policy' ),
+					'job_type'       => $request->get_param( 'job_type' ),
+					'seniority'      => $request->get_param( 'seniority' ),
+					'salary_min'     => $request->get_param( 'salary_min' ),
+					'salary_max'     => $request->get_param( 'salary_max' ),
+					'currency'       => $request->get_param( 'currency' ),
+					'apply_deadline' => $request->get_param( 'apply_deadline' ),
+					'status'         => $request->get_param( 'status' ),
+				),
+				fn( $value ) => null !== $value
+			)
 		);
+
+		$updated_job['updated_at'] = gmdate( 'Y-m-d\TH:i:s\Z' );
+
+		$jobs[ $job_index ] = $updated_job;
+
+		// Save to transient.
+		set_transient( 'wpk_showcase_jobs', $jobs, HOUR_IN_SECONDS );
+
+		// Return the updated job.
+		return new \WP_REST_Response( $updated_job, 200 );
 	}
 
 	/**
 	 * Delete a job posting.
 	 *
-	 * Stub implementation - returns 501 Not Implemented.
-	 * Will be implemented in Sprint 3.
+	 * Deletes a job from transients for demonstration purposes.
+	 * In production, this would delete from a database table or custom post type.
 	 *
 	 * @param WP_REST_Request $request Request object.
-	 * @return WP_Error Error response.
+	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function delete_item( $request ) {
-		return $this->get_error(
-			'not_implemented',
-			__( 'Deleting job postings is not yet implemented. Coming in Sprint 3.', 'wp-kernel-showcase' ),
-			501
-		);
+		$id = $request->get_param( 'id' );
+
+		// Get existing jobs from transient.
+		$jobs = get_transient( 'wpk_showcase_jobs' );
+		if ( false === $jobs ) {
+			$jobs = array();
+		}
+
+		// Find the job to delete.
+		$job_index = null;
+		$deleted_job = null;
+		foreach ( $jobs as $index => $job ) {
+			if ( $job['id'] === (int) $id ) {
+				$job_index = $index;
+				$deleted_job = $job;
+				break;
+			}
+		}
+
+		if ( null === $job_index ) {
+			return $this->get_error(
+				'not_found',
+				__( 'Job posting not found.', 'wp-kernel-showcase' ),
+				404
+			);
+		}
+
+		// Remove the job.
+		array_splice( $jobs, $job_index, 1 );
+
+		// Save to transient.
+		set_transient( 'wpk_showcase_jobs', $jobs, HOUR_IN_SECONDS );
+
+		// Return the deleted job with 200 status.
+		return new \WP_REST_Response( $deleted_job, 200 );
 	}
 
 	/**
