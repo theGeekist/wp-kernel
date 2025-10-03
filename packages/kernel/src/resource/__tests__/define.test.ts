@@ -4,6 +4,7 @@
 
 import { defineResource } from '../define';
 import { KernelError } from '../../error';
+import { resetNamespaceCache } from '../../namespace';
 import type { ResourceStore } from '../types';
 
 // Use global types for window.wp
@@ -329,6 +330,209 @@ describe('defineResource - integration', () => {
 
 				await expect(resource.fetch!(999)).rejects.toThrow(KernelError);
 			});
+		});
+	});
+
+	describe('namespace support', () => {
+		let mockApiFetch: jest.Mock;
+		let mockDoAction: jest.Mock;
+
+		beforeEach(() => {
+			// Mock @wordpress/api-fetch and hooks
+			mockApiFetch = jest.fn();
+			mockDoAction = jest.fn();
+
+			const windowWithWp = global.window as any;
+
+			if (windowWithWp) {
+				windowWithWp.wp = {
+					apiFetch: mockApiFetch,
+					hooks: {
+						doAction: mockDoAction,
+					},
+					data: {
+						register: jest.fn(),
+					},
+				};
+			}
+		});
+
+		afterEach(() => {
+			jest.restoreAllMocks();
+			// Clear namespace cache for clean tests
+			resetNamespaceCache();
+		});
+
+		it('should use auto-detected namespace by default', () => {
+			const resource = defineResource<Thing>({
+				name: 'thing',
+				routes: {
+					list: { path: '/my-plugin/v1/things', method: 'GET' },
+				},
+			});
+
+			// With fallback, should use 'wpk' namespace by default
+			expect(resource.storeKey).toBe('wpk/thing');
+			expect(resource.events?.created).toBe('wpk.thing.created');
+			expect(resource.events?.updated).toBe('wpk.thing.updated');
+			expect(resource.events?.removed).toBe('wpk.thing.removed');
+		});
+
+		it('should use explicit namespace when provided', () => {
+			const resource = defineResource<Thing>({
+				name: 'thing',
+				namespace: 'my-plugin',
+				routes: {
+					list: { path: '/my-plugin/v1/things', method: 'GET' },
+				},
+			});
+
+			expect(resource.storeKey).toBe('my-plugin/thing');
+			expect(resource.events?.created).toBe('my-plugin.thing.created');
+			expect(resource.events?.updated).toBe('my-plugin.thing.updated');
+			expect(resource.events?.removed).toBe('my-plugin.thing.removed');
+		});
+
+		it('should parse namespace from shorthand name syntax', () => {
+			const resource = defineResource<Thing>({
+				name: 'acme:thing',
+				routes: {
+					list: { path: '/acme/v1/things', method: 'GET' },
+				},
+			});
+
+			expect(resource.name).toBe('thing');
+			expect(resource.storeKey).toBe('acme/thing');
+			expect(resource.events?.created).toBe('acme.thing.created');
+			expect(resource.events?.updated).toBe('acme.thing.updated');
+			expect(resource.events?.removed).toBe('acme.thing.removed');
+		});
+
+		it('should prefer explicit namespace over shorthand syntax', () => {
+			const resource = defineResource<Thing>({
+				name: 'prefix:thing',
+				namespace: 'explicit',
+				routes: {
+					list: { path: '/explicit/v1/things', method: 'GET' },
+				},
+			});
+
+			// When explicit namespace is provided, it takes precedence
+			// but if name has colon syntax, parse the resource name part
+			expect(resource.name).toBe('thing');
+			expect(resource.storeKey).toBe('explicit/thing');
+			expect(resource.events?.created).toBe('explicit.thing.created');
+		});
+
+		it('should use namespace in cache invalidation', () => {
+			const resource = defineResource<Thing>({
+				name: 'thing',
+				namespace: 'custom',
+				routes: {
+					list: { path: '/custom/v1/things', method: 'GET' },
+				},
+			});
+
+			// The cache invalidation test would need mocking to verify
+			// For now, just verify the resource has the correct properties
+			expect(resource.cache?.invalidate?.all).toBeDefined();
+		});
+
+		it('should detect namespace from build-time defines', () => {
+			// Mock build-time define
+			const originalDefine = (globalThis as any).__WPK_NAMESPACE__;
+			(globalThis as any).__WPK_NAMESPACE__ = 'build-time-plugin';
+
+			try {
+				const resource = defineResource<Thing>({
+					name: 'thing',
+					routes: {
+						list: {
+							path: '/build-time-plugin/v1/things',
+							method: 'GET',
+						},
+					},
+				});
+
+				expect(resource.storeKey).toBe('build-time-plugin/thing');
+				expect(resource.events?.created).toBe(
+					'build-time-plugin.thing.created'
+				);
+			} finally {
+				// Restore
+				if (originalDefine !== undefined) {
+					(globalThis as any).__WPK_NAMESPACE__ = originalDefine;
+				} else {
+					delete (globalThis as any).__WPK_NAMESPACE__;
+				}
+			}
+		});
+
+		it('should detect namespace from WordPress plugin data', () => {
+			// Mock WordPress plugin data
+			const windowWithWp = global.window as any;
+			const originalData = windowWithWp?.wpKernelData;
+
+			if (windowWithWp) {
+				windowWithWp.wpKernelData = {
+					textDomain: 'wp-plugin-namespace',
+				};
+			}
+
+			try {
+				// Clear cache to ensure fresh detection
+				resetNamespaceCache();
+
+				const resource = defineResource<Thing>({
+					name: 'thing',
+					routes: {
+						list: {
+							path: '/wp-plugin-namespace/v1/things',
+							method: 'GET',
+						},
+					},
+				});
+
+				expect(resource.storeKey).toBe('wp-plugin-namespace/thing');
+				expect(resource.events?.created).toBe(
+					'wp-plugin-namespace.thing.created'
+				);
+			} finally {
+				// Restore
+				if (windowWithWp) {
+					if (originalData !== undefined) {
+						windowWithWp.wpKernelData = originalData;
+					} else {
+						delete windowWithWp.wpKernelData;
+					}
+				}
+			}
+		});
+
+		it('should maintain backward compatibility with existing code', () => {
+			// Existing code without namespace should still work
+			const resource = defineResource<Thing>({
+				name: 'thing',
+				routes: {
+					list: { path: '/wpk/v1/things', method: 'GET' },
+				},
+			});
+
+			// Should have all the same properties and methods
+			expect(resource).toHaveProperty('name', 'thing');
+			expect(resource).toHaveProperty('storeKey');
+			expect(resource).toHaveProperty('cacheKeys');
+			expect(resource).toHaveProperty('routes');
+			expect(resource).toHaveProperty('fetchList');
+			expect(resource).toHaveProperty('invalidate');
+			expect(resource).toHaveProperty('key');
+			expect(resource).toHaveProperty('select');
+			expect(resource).toHaveProperty('use');
+			expect(resource).toHaveProperty('get');
+			expect(resource).toHaveProperty('mutate');
+			expect(resource).toHaveProperty('cache');
+			expect(resource).toHaveProperty('storeApi');
+			expect(resource).toHaveProperty('events');
 		});
 	});
 });

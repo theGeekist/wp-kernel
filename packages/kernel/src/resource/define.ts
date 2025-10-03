@@ -12,6 +12,7 @@ import { createStore } from './store';
 import { validateConfig } from './validation';
 import { createClient } from './client';
 import { createDefaultCacheKeys } from './utils';
+import { getNamespace } from '../namespace';
 import {
 	createSelectGetter,
 	createUseGetter,
@@ -22,6 +23,41 @@ import {
 	createEventsGetter,
 } from './grouped-api';
 import type { CacheKeys, ResourceConfig, ResourceObject } from './types';
+
+/**
+ * Resolve namespace from config with support for shorthand syntax
+ *
+ * @param config - Resource configuration
+ * @return Resolved namespace and resource name
+ */
+function resolveNamespaceAndName<T, TQuery>(
+	config: ResourceConfig<T, TQuery>
+): { namespace: string; resourceName: string } {
+	// If explicit namespace is provided, use it
+	if (config.namespace) {
+		// If name also contains colon syntax, parse the resource name part
+		// This handles the edge case where both are provided
+		if (config.name.includes(':')) {
+			const [, resourceName] = config.name.split(':', 2);
+			if (resourceName) {
+				return { namespace: config.namespace, resourceName };
+			}
+		}
+		return { namespace: config.namespace, resourceName: config.name };
+	}
+
+	// Check for shorthand namespace:name syntax
+	if (config.name.includes(':')) {
+		const [namespace, resourceName] = config.name.split(':', 2);
+		if (namespace && resourceName) {
+			return { namespace, resourceName };
+		}
+	}
+
+	// Use auto-detection
+	const namespace = getNamespace();
+	return { namespace, resourceName: config.name };
+}
 
 /**
  * Define a resource with typed REST client
@@ -41,43 +77,58 @@ import type { CacheKeys, ResourceConfig, ResourceObject } from './types';
  * @throws DeveloperError if configuration is invalid
  * @example
  * ```ts
+ * // Auto-detection (90% case) - namespace detected from plugin context
  * const testimonial = defineResource<TestimonialPost, { search?: string }>({
  *   name: 'testimonial',
  *   routes: {
- *     list: { path: '/wpk/v1/testimonials', method: 'GET' },
- *     get: { path: '/wpk/v1/testimonials/:id', method: 'GET' },
- *     create: { path: '/wpk/v1/testimonials', method: 'POST' }
+ *     list: { path: '/my-plugin/v1/testimonials', method: 'GET' },
+ *     get: { path: '/my-plugin/v1/testimonials/:id', method: 'GET' },
+ *     create: { path: '/my-plugin/v1/testimonials', method: 'POST' }
  *   },
  *   cacheKeys: {
  *     list: (q) => ['testimonial', 'list', q?.search],
  *     get: (id) => ['testimonial', 'get', id]
  *   }
  * });
+ * // Events: 'my-plugin.testimonial.created', Store: 'my-plugin/testimonial'
  *
- * // Thin-flat API
- * const { items } = await testimonial.fetchList({ search: 'excellent' });
- * const item = await testimonial.fetch(123);
- * testimonial.invalidate([['testimonial', 'list']]);
+ * // Explicit namespace override
+ * const job = defineResource<Job>({
+ *   name: 'job',
+ *   namespace: 'custom-hr',
+ *   routes: { list: { path: '/custom-hr/v1/jobs', method: 'GET' } }
+ * });
+ * // Events: 'custom-hr.job.created', Store: 'custom-hr/job'
  *
- * // Grouped API
- * const cached = testimonial.select.item(123);
- * await testimonial.get.item(123); // Always fresh from server
- * await testimonial.mutate.create({ title: 'Amazing!' });
- * testimonial.cache.invalidate.all();
+ * // Shorthand namespace:name syntax
+ * const task = defineResource<Task>({
+ *   name: 'acme:task',
+ *   routes: { list: { path: '/acme/v1/tasks', method: 'GET' } }
+ * });
+ * // Events: 'acme.task.created', Store: 'acme/task'
  * ```
  */
 export function defineResource<T = unknown, TQuery = unknown>(
 	config: ResourceConfig<T, TQuery>
 ): ResourceObject<T, TQuery> {
-	// Validate configuration (throws on error)
-	validateConfig(config);
+	// Resolve namespace and resource name first
+	const { namespace, resourceName } = resolveNamespaceAndName(config);
 
-	// Create client methods
+	// Create a normalized config for validation
+	const normalizedConfig = {
+		...config,
+		name: resourceName,
+	};
+
+	// Validate configuration (throws on error)
+	validateConfig(normalizedConfig);
+
+	// Create client methods using original config (for routes)
 	const client = createClient<T, TQuery>(config);
 
 	// Create or use provided cache keys
 	const cacheKeys: Required<CacheKeys> = {
-		...createDefaultCacheKeys(config.name),
+		...createDefaultCacheKeys(resourceName),
 		...config.cacheKeys,
 	};
 
@@ -88,8 +139,8 @@ export function defineResource<T = unknown, TQuery = unknown>(
 	// Build resource object
 	const resource: ResourceObject<T, TQuery> = {
 		...client,
-		name: config.name,
-		storeKey: `wpk/${config.name}`,
+		name: resourceName,
+		storeKey: `${namespace}/${resourceName}`,
 		cacheKeys,
 		routes: config.routes,
 
@@ -357,7 +408,10 @@ export function defineResource<T = unknown, TQuery = unknown>(
 
 		// Grouped API: Cache control
 		get cache() {
-			return createCacheGetter<T, TQuery>(config, cacheKeys).call(this);
+			return createCacheGetter<T, TQuery>(
+				normalizedConfig,
+				cacheKeys
+			).call(this);
 		},
 
 		// Grouped API: Store access
@@ -367,7 +421,11 @@ export function defineResource<T = unknown, TQuery = unknown>(
 
 		// Grouped API: Event names
 		get events() {
-			return createEventsGetter<T, TQuery>(config).call(this);
+			return createEventsGetter<T, TQuery>({
+				...config,
+				namespace,
+				name: resourceName,
+			}).call(this);
 		},
 	};
 
