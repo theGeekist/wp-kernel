@@ -17,26 +17,15 @@ interface MockThingQuery {
 	q?: string;
 }
 
-// Mock window.wp.data
-interface MockWPData {
-	registerStore: jest.Mock;
-	select: jest.Mock;
-	dispatch: jest.Mock;
-}
-
-interface WindowWithWP extends Window {
-	wp?: {
-		data?: MockWPData;
-	};
-}
+// Use global types for window.wp
 
 describe('defineResource - grouped API getters and cache.key()', () => {
-	let mockWpData: MockWPData;
-	let originalWp: WindowWithWP['wp'];
+	let mockWpData: any;
+	let originalWp: Window['wp'];
 
 	beforeEach(() => {
 		// Store original window.wp
-		const windowWithWp = global.window as WindowWithWP;
+		const windowWithWp = global.window as Window & { wp?: any };
 		originalWp = windowWithWp?.wp;
 
 		// Create mock wp.data
@@ -56,7 +45,7 @@ describe('defineResource - grouped API getters and cache.key()', () => {
 
 	afterEach(() => {
 		// Restore original window.wp
-		const windowWithWp = global.window as WindowWithWP;
+		const windowWithWp = global.window as Window & { wp?: any };
 		if (windowWithWp) {
 			windowWithWp.wp = originalWp;
 		}

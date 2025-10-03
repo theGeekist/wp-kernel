@@ -18,27 +18,15 @@ interface MockThingQuery {
 	status?: string;
 }
 
-// Mock @wordpress/data
-interface MockWPData {
-	useSelect: jest.Mock;
-	select: jest.Mock;
-	dispatch: jest.Mock;
-	resolveSelect: jest.Mock;
-}
-
-interface WindowWithWP extends Window {
-	wp?: {
-		data?: MockWPData;
-	};
-}
+// Use global types for window.wp
 
 describe('defineResource - React Hooks', () => {
-	let mockWpData: MockWPData;
-	let originalWp: WindowWithWP['wp'];
+	let mockWpData: any;
+	let originalWp: Window['wp'];
 
 	beforeEach(() => {
 		// Store original window.wp
-		const windowWithWp = global.window as WindowWithWP;
+		const windowWithWp = global.window as Window & { wp?: any };
 		originalWp = windowWithWp?.wp;
 
 		// Create mock wp.data
@@ -59,7 +47,7 @@ describe('defineResource - React Hooks', () => {
 
 	afterEach(() => {
 		// Restore original window.wp
-		const windowWithWp = global.window as WindowWithWP;
+		const windowWithWp = global.window as Window & { wp?: any };
 		if (windowWithWp) {
 			windowWithWp.wp = originalWp;
 		}
@@ -68,7 +56,7 @@ describe('defineResource - React Hooks', () => {
 	describe('useGet hook', () => {
 		it('should throw error if @wordpress/data is not loaded', () => {
 			// Remove wp.data
-			(global.window as WindowWithWP).wp = undefined;
+			(global.window as Window & { wp?: any }).wp = undefined;
 
 			const resource = defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
@@ -90,7 +78,7 @@ describe('defineResource - React Hooks', () => {
 			};
 
 			// Mock useSelect to return data
-			mockWpData.useSelect.mockImplementation((callback) => {
+			mockWpData.useSelect.mockImplementation((callback: any) => {
 				const mockSelect = {
 					getItem: jest.fn().mockReturnValue(mockItem),
 					isResolving: jest.fn().mockReturnValue(false),
@@ -120,7 +108,7 @@ describe('defineResource - React Hooks', () => {
 
 		it('should indicate loading state correctly', () => {
 			// Mock useSelect to return loading state
-			mockWpData.useSelect.mockImplementation((callback) => {
+			mockWpData.useSelect.mockImplementation((callback: any) => {
 				const mockSelect = {
 					getItem: jest.fn().mockReturnValue(undefined),
 					isResolving: jest.fn().mockReturnValue(true),
@@ -151,7 +139,7 @@ describe('defineResource - React Hooks', () => {
 			const mockError = { message: 'Not found' };
 
 			// Mock useSelect to return error
-			mockWpData.useSelect.mockImplementation((callback) => {
+			mockWpData.useSelect.mockImplementation((callback: any) => {
 				const mockSelect = {
 					getItem: jest.fn().mockReturnValue(undefined),
 					isResolving: jest.fn().mockReturnValue(false),
@@ -194,7 +182,7 @@ describe('defineResource - React Hooks', () => {
 	describe('useList hook', () => {
 		it('should throw error if @wordpress/data is not loaded', () => {
 			// Remove wp.data
-			(global.window as WindowWithWP).wp = undefined;
+			(global.window as Window & { wp?: any }).wp = undefined;
 
 			const resource = defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
@@ -215,7 +203,7 @@ describe('defineResource - React Hooks', () => {
 			];
 
 			// Mock useSelect to return data
-			mockWpData.useSelect.mockImplementation((callback) => {
+			mockWpData.useSelect.mockImplementation((callback: any) => {
 				const mockSelect = {
 					getList: jest.fn().mockReturnValue(mockItems),
 					isResolving: jest.fn().mockReturnValue(false),
@@ -250,7 +238,7 @@ describe('defineResource - React Hooks', () => {
 			const query: MockThingQuery = { status: 'active' };
 
 			// Mock useSelect to return data
-			mockWpData.useSelect.mockImplementation((callback) => {
+			mockWpData.useSelect.mockImplementation((callback: any) => {
 				const mockSelect = {
 					getList: jest.fn().mockReturnValue(mockItems),
 					isResolving: jest.fn().mockReturnValue(false),
@@ -280,7 +268,7 @@ describe('defineResource - React Hooks', () => {
 
 		it('should indicate loading state correctly', () => {
 			// Mock useSelect to return loading state
-			mockWpData.useSelect.mockImplementation((callback) => {
+			mockWpData.useSelect.mockImplementation((callback: any) => {
 				const mockSelect = {
 					getList: jest.fn().mockReturnValue(undefined),
 					isResolving: jest.fn().mockReturnValue(true),
@@ -311,7 +299,7 @@ describe('defineResource - React Hooks', () => {
 			const mockError = { message: 'Server error' };
 
 			// Mock useSelect to return error
-			mockWpData.useSelect.mockImplementation((callback) => {
+			mockWpData.useSelect.mockImplementation((callback: any) => {
 				const mockSelect = {
 					getList: jest.fn().mockReturnValue(undefined),
 					isResolving: jest.fn().mockReturnValue(false),
