@@ -89,13 +89,36 @@ Optional. If omitted, default cache keys based on resource name will be used
 
 ---
 
+### namespace?
+
+```ts
+optional namespace: string;
+```
+
+Defined in: [resource/types.ts:166](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L166)
+
+Namespace for events and store keys
+
+Optional. If omitted, namespace will be auto-detected from plugin context.
+For explicit control, provide a namespace string.
+
+#### Example
+
+```ts
+namespace: 'my-plugin'; // Explicit namespace
+// OR
+name: 'my-plugin:job'; // Shorthand namespace:name format
+```
+
+---
+
 ### schema?
 
 ```ts
 optional schema: unknown;
 ```
 
-Defined in: [resource/types.ts:163](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L163)
+Defined in: [resource/types.ts:178](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L178)
 
 JSON Schema for runtime validation
 
