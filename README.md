@@ -273,7 +273,34 @@ pnpm e2e            # Run E2E tests
 
 ## 📄 License
 
-EUPL-1.2 License - see [LICENSE](LICENSE) file for details.
+### Framework: EUPL-1.2
+
+The WP Kernel framework (packages: `@geekist/wp-kernel`, `@geekist/wp-kernel-ui`, `@geekist/wp-kernel-cli`, `@geekist/wp-kernel-e2e-utils`) is licensed under **EUPL-1.2** (European Union Public License v1.2).
+
+**This means you CAN**:
+✅ Build commercial plugins and themes  
+✅ Build SaaS products  
+✅ Keep your application code proprietary  
+✅ Sell products built with WP Kernel
+
+**You only need to share**:
+
+- Modifications to the framework itself (if you distribute them)
+
+### Showcase App: GPL-2.0-or-later
+
+The showcase WordPress plugin (`app/showcase`) is licensed under **GPL-2.0-or-later** to comply with WordPress.org requirements. This is example/reference code meant to demonstrate framework usage.
+
+### 📖 Full Licensing Guide
+
+For comprehensive information about:
+
+- Building commercial products with WP Kernel
+- WordPress.org plugin publishing
+- SaaS and premium version patterns
+- Frequently asked questions
+
+**Read the complete guide**: [LICENSING.md](LICENSING.md)
 
 **For Contributors**: By contributing, you agree to license your contributions under EUPL-1.2 while retaining copyright. See [.github/CONTRIBUTOR_LICENSE.md](.github/CONTRIBUTOR_LICENSE.md) for details.
 
