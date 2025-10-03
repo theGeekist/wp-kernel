@@ -30,6 +30,25 @@ import type {
 } from './types';
 
 /**
+ * Interface for WordPress data store selectors used in useSelect hooks
+ */
+interface WordPressStoreSelector<T, TQuery = unknown> {
+	getItem?: (id: string | number) => T | undefined;
+	getList?: (query?: TQuery) => ListResponse<T> | undefined;
+	isResolving?: (method: string, args: unknown[]) => boolean;
+	hasFinishedResolution?: (method: string, args: unknown[]) => boolean;
+	getItemError?: (id: string | number) => Error | undefined;
+	getListError?: (query?: TQuery) => Error | undefined;
+}
+
+/**
+ * Type for the select function passed to useSelect
+ */
+type WordPressSelectFunction<T, TQuery = unknown> = (
+	storeKey: string
+) => WordPressStoreSelector<T, TQuery>;
+
+/**
  * Parse namespace:name syntax from a string
  *
  * @param name - String that may contain namespace:name syntax
@@ -233,24 +252,7 @@ export function defineResource<T = unknown, TQuery = unknown>(
 
 					// Use @wordpress/data useSelect to watch store
 					const result = globalWp.data.useSelect(
-						(
-							select: (storeKey: string) => {
-								getItem?: (
-									id: string | number
-								) => T | undefined;
-								isResolving?: (
-									method: string,
-									args: unknown[]
-								) => boolean;
-								hasFinishedResolution?: (
-									method: string,
-									args: unknown[]
-								) => boolean;
-								getItemError?: (
-									id: string | number
-								) => Error | undefined;
-							}
-						) => {
+						(select: WordPressSelectFunction<T>) => {
 							// Trigger lazy store registration
 							void resource.store;
 
@@ -300,24 +302,7 @@ export function defineResource<T = unknown, TQuery = unknown>(
 
 					// Use @wordpress/data useSelect to watch store
 					const result = globalWp.data.useSelect(
-						(
-							select: (storeKey: string) => {
-								getList?: (
-									query?: TQuery
-								) => ListResponse<T> | undefined;
-								isResolving?: (
-									method: string,
-									args: unknown[]
-								) => boolean;
-								hasFinishedResolution?: (
-									method: string,
-									args: unknown[]
-								) => boolean;
-								getListError?: (
-									query?: TQuery
-								) => Error | undefined;
-							}
-						) => {
+						(select: WordPressSelectFunction<T, TQuery>) => {
 							// Trigger lazy store registration
 							void resource.store;
 
