@@ -124,6 +124,11 @@ export function clearNamespaceState(): void {
 	// Clear kernel package data
 	setKernelPackage(null);
 
+	// Clear build-time defines
+	if ('__WPK_NAMESPACE__' in globalThis) {
+		delete (globalThis as any).__WPK_NAMESPACE__;
+	}
+
 	// Clear namespace detection cache
 	resetNamespaceCache();
 }
