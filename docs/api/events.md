@@ -127,9 +127,9 @@ Each resource provides event names via the `events` property:
 import { testimonial } from './resources/testimonial';
 
 // Access event names
-console.log(testimonial.events.created); // 'wpk.testimonial.created'
-console.log(testimonial.events.updated); // 'wpk.testimonial.updated'
-console.log(testimonial.events.removed); // 'wpk.testimonial.removed'
+console.log(testimonial.events.created); // 'acme-blog.testimonial.created' (auto-detected)
+console.log(testimonial.events.updated); // 'acme-blog.testimonial.updated'
+console.log(testimonial.events.removed); // 'acme-blog.testimonial.removed'
 ```
 
 **Note**: These events are defined but not automatically emitted yet. They will be emitted by Actions in Sprint 4.

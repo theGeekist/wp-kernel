@@ -29,7 +29,7 @@ pnpm add @geekist/wp-kernel
 import { defineResource } from '@geekist/wp-kernel/resource';
 
 export const post = defineResource({
-	name: 'post',
+	name: 'post', // Namespace auto-detected from plugin context
 	routes: {
 		list: { path: '/wp/v2/posts', method: 'GET' },
 		get: { path: '/wp/v2/posts/:id', method: 'GET' },
@@ -102,7 +102,7 @@ import { events } from '@geekist/wp-kernel/events';
 action.emit(events.thing.created, payload);
 
 // Listen
-wp.hooks.addAction('wpk.thing.created', 'my-plugin', callback);
+wp.hooks.addAction('acme-plugin.thing.created', 'my-plugin', callback);
 ```
 
 ### Automatic Caching
