@@ -199,11 +199,11 @@ pnpm playground     # Launch WordPress Playground (WASM)
 import { defineResource } from '@geekist/wp-kernel/resource';
 
 export const thing = defineResource<Thing>({
-	name: 'thing',
+	name: 'thing', // Namespace auto-detected from plugin context
 	routes: {
-		list: { path: '/wpk/v1/things', method: 'GET' },
-		get: { path: '/wpk/v1/things/:id', method: 'GET' },
-		create: { path: '/wpk/v1/things', method: 'POST' },
+		list: { path: '/acme-plugin/v1/things', method: 'GET' },
+		get: { path: '/acme-plugin/v1/things/:id', method: 'GET' },
+		create: { path: '/acme-plugin/v1/things', method: 'POST' },
 	},
 	schema: import('../../contracts/thing.schema.json'),
 	cacheKeys: {
@@ -218,7 +218,7 @@ This gives you:
 - ✅ Typed client methods (`thing.fetchList()`, `thing.fetch()`, `thing.create()`)
 - ✅ @wordpress/data store with selectors
 - ✅ Automatic cache management
-- ✅ Request/response events
+- ✅ Request/response events (using your plugin's namespace automatically)
 
 **See [Product Spec § 4.1](information/Product%20Specification%20PO%20Draft%20•%20v1.0.md#41-resources-model--client) for details.**
 

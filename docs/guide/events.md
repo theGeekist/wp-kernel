@@ -10,7 +10,7 @@ JS hooks are canonical; PHP bridge mirrors selected events only.
 
 ### Resource Transport Events
 
-Automatically emitted by the HTTP transport layer:
+Automatically emitted by the HTTP transport layer (framework events use `wpk.*` namespace):
 
 ```typescript
 // Before making a REST request
@@ -51,7 +51,7 @@ Automatically emitted by the HTTP transport layer:
 
 ### Cache Invalidation Events
 
-Emitted when cache is invalidated:
+Emitted when cache is invalidated (framework events use `wpk.*` namespace):
 
 ```typescript
 'wpk.cache.invalidated': {
