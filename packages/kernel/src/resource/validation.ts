@@ -27,7 +27,7 @@ import type { ResourceConfig } from './types';
  * validateConfig({
  *   name: 'thing',
  *   routes: {
- *     list: { path: '/wpk/v1/things', method: 'GET' }
+ *     list: { path: '/my-plugin/v1/things', method: 'GET' }
  *   }
  * }); // ✓ Valid
  *

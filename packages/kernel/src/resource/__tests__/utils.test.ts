@@ -22,7 +22,7 @@ describe('defineResource - resource object structure', () => {
 			const resource = defineResource({
 				name: 'thing',
 				routes: {
-					list: { path: '/wpk/v1/things', method: 'GET' },
+					list: { path: '/my-plugin/v1/things', method: 'GET' },
 				},
 			});
 
@@ -33,7 +33,7 @@ describe('defineResource - resource object structure', () => {
 			const resource = defineResource({
 				name: 'thing',
 				routes: {
-					list: { path: '/wpk/v1/things', method: 'GET' },
+					list: { path: '/my-plugin/v1/things', method: 'GET' },
 				},
 			});
 
@@ -42,8 +42,11 @@ describe('defineResource - resource object structure', () => {
 
 		it('should preserve routes', () => {
 			const routes = {
-				list: { path: '/wpk/v1/things', method: 'GET' as const },
-				get: { path: '/wpk/v1/things/:id', method: 'GET' as const },
+				list: { path: '/my-plugin/v1/things', method: 'GET' as const },
+				get: {
+					path: '/my-plugin/v1/things/:id',
+					method: 'GET' as const,
+				},
 			};
 
 			const resource = defineResource({
@@ -58,8 +61,8 @@ describe('defineResource - resource object structure', () => {
 			const resource = defineResource({
 				name: 'thing',
 				routes: {
-					list: { path: '/wpk/v1/things', method: 'GET' },
-					get: { path: '/wpk/v1/things/:id', method: 'GET' },
+					list: { path: '/my-plugin/v1/things', method: 'GET' },
+					get: { path: '/my-plugin/v1/things/:id', method: 'GET' },
 				},
 			});
 
@@ -73,11 +76,14 @@ describe('defineResource - resource object structure', () => {
 			const resource = defineResource<Thing>({
 				name: 'thing',
 				routes: {
-					list: { path: '/wpk/v1/things', method: 'GET' },
-					get: { path: '/wpk/v1/things/:id', method: 'GET' },
-					create: { path: '/wpk/v1/things', method: 'POST' },
-					update: { path: '/wpk/v1/things/:id', method: 'PUT' },
-					remove: { path: '/wpk/v1/things/:id', method: 'DELETE' },
+					list: { path: '/my-plugin/v1/things', method: 'GET' },
+					get: { path: '/my-plugin/v1/things/:id', method: 'GET' },
+					create: { path: '/my-plugin/v1/things', method: 'POST' },
+					update: { path: '/my-plugin/v1/things/:id', method: 'PUT' },
+					remove: {
+						path: '/my-plugin/v1/things/:id',
+						method: 'DELETE',
+					},
 				},
 			});
 
@@ -126,8 +132,8 @@ describe('defineResource - resource object structure', () => {
 			const resource = defineResource<Thing, ThingQuery>({
 				name: 'thing',
 				routes: {
-					list: { path: '/wpk/v1/things', method: 'GET' },
-					get: { path: '/wpk/v1/things/:id', method: 'GET' },
+					list: { path: '/my-plugin/v1/things', method: 'GET' },
+					get: { path: '/my-plugin/v1/things/:id', method: 'GET' },
 				},
 				cacheKeys: customCacheKeys as never,
 			});
@@ -144,8 +150,8 @@ describe('defineResource - resource object structure', () => {
 			const resource = defineResource<Thing, ThingQuery>({
 				name: 'thing',
 				routes: {
-					list: { path: '/wpk/v1/things', method: 'GET' },
-					get: { path: '/wpk/v1/things/:id', method: 'GET' },
+					list: { path: '/my-plugin/v1/things', method: 'GET' },
+					get: { path: '/my-plugin/v1/things/:id', method: 'GET' },
 				},
 				cacheKeys: {
 					list: ((q?: ThingQuery) => [
@@ -154,7 +160,7 @@ describe('defineResource - resource object structure', () => {
 						q?.q,
 					]) as CacheKeyFn<ThingQuery>,
 					// get uses default
-				} as never,
+				} as Partial<Record<string, CacheKeyFn<unknown>>>,
 			});
 
 			// Custom list cache key
@@ -176,7 +182,7 @@ describe('defineResource - resource object structure', () => {
 describe('utils - getWPData', () => {
 	beforeEach(() => {
 		// Clear any existing wp.data
-		delete (window as typeof window & { wp?: Record<string, unknown> }).wp;
+		delete window.wp;
 	});
 
 	it('should return wp.data when available', () => {
@@ -199,7 +205,7 @@ describe('utils - getWPData', () => {
 			useRegistry: jest.fn(),
 		} as any; // Use 'as any' to satisfy the complex @wordpress/data type requirements
 
-		(window as Window & { wp: { data: any } }).wp = {
+		window.wp = {
 			data: mockWPData,
 		};
 
@@ -208,14 +214,14 @@ describe('utils - getWPData', () => {
 	});
 
 	it('should return undefined when wp is not available', () => {
-		delete (window as typeof window & { wp?: Record<string, unknown> }).wp;
+		delete window.wp;
 
 		const result = getWPData();
 		expect(result).toBeUndefined();
 	});
 
 	it('should return undefined when wp.data is not available', () => {
-		(window as typeof window & { wp: Record<string, unknown> }).wp = {};
+		window.wp = {};
 
 		const result = getWPData();
 		expect(result).toBeUndefined();
@@ -223,9 +229,11 @@ describe('utils - getWPData', () => {
 
 	it('should handle partial wp object', () => {
 		(
-			window as typeof window & { wp: { hooks: Record<string, unknown> } }
+			window as unknown as Window & {
+				wp: { hooks: Record<string, unknown> };
+			}
 		).wp = {
-			hooks: {},
+			hooks: {} as any, // Mock hooks object for testing
 			// data is missing
 		};
 
