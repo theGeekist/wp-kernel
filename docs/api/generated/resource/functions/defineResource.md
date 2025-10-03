@@ -10,7 +10,7 @@
 function defineResource<T, TQuery>(config): ResourceObject<T, TQuery>;
 ```
 
-Defined in: [resource/define.ts:69](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/define.ts#L69)
+Defined in: [resource/define.ts:111](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/define.ts#L111)
 
 Define a resource with typed REST client
 
@@ -58,27 +58,33 @@ DeveloperError if configuration is invalid
 ## Example
 
 ```ts
+// Auto-detection (90% case) - namespace detected from plugin context
 const testimonial = defineResource<TestimonialPost, { search?: string }>({
 	name: 'testimonial',
 	routes: {
-		list: { path: '/wpk/v1/testimonials', method: 'GET' },
-		get: { path: '/wpk/v1/testimonials/:id', method: 'GET' },
-		create: { path: '/wpk/v1/testimonials', method: 'POST' },
+		list: { path: '/my-plugin/v1/testimonials', method: 'GET' },
+		get: { path: '/my-plugin/v1/testimonials/:id', method: 'GET' },
+		create: { path: '/my-plugin/v1/testimonials', method: 'POST' },
 	},
 	cacheKeys: {
 		list: (q) => ['testimonial', 'list', q?.search],
 		get: (id) => ['testimonial', 'get', id],
 	},
 });
+// Events: 'my-plugin.testimonial.created', Store: 'my-plugin/testimonial'
 
-// Thin-flat API
-const { items } = await testimonial.fetchList({ search: 'excellent' });
-const item = await testimonial.fetch(123);
-testimonial.invalidate([['testimonial', 'list']]);
+// Explicit namespace override
+const job = defineResource<Job>({
+	name: 'job',
+	namespace: 'custom-hr',
+	routes: { list: { path: '/custom-hr/v1/jobs', method: 'GET' } },
+});
+// Events: 'custom-hr.job.created', Store: 'custom-hr/job'
 
-// Grouped API
-const cached = testimonial.select.item(123);
-await testimonial.get.item(123); // Always fresh from server
-await testimonial.mutate.create({ title: 'Amazing!' });
-testimonial.cache.invalidate.all();
+// Shorthand namespace:name syntax
+const task = defineResource<Task>({
+	name: 'acme:task',
+	routes: { list: { path: '/acme/v1/tasks', method: 'GET' } },
+});
+// Events: 'acme.task.created', Store: 'acme/task'
 ```

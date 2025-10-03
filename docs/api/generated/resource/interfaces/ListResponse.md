@@ -6,7 +6,7 @@
 
 # Interface: ListResponse\<T\>
 
-Defined in: [resource/types.ts:171](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L171)
+Defined in: [resource/types.ts:186](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L186)
 
 List response with pagination metadata
 
@@ -26,7 +26,7 @@ The resource entity type
 items: T[];
 ```
 
-Defined in: [resource/types.ts:173](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L173)
+Defined in: [resource/types.ts:188](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L188)
 
 Array of resource entities
 
@@ -38,7 +38,7 @@ Array of resource entities
 optional total: number;
 ```
 
-Defined in: [resource/types.ts:175](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L175)
+Defined in: [resource/types.ts:190](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L190)
 
 Total count of items (if available)
 
@@ -50,7 +50,7 @@ Total count of items (if available)
 optional nextCursor: string;
 ```
 
-Defined in: [resource/types.ts:177](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L177)
+Defined in: [resource/types.ts:192](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L192)
 
 Pagination cursor for next page
 
@@ -62,6 +62,6 @@ Pagination cursor for next page
 optional hasMore: boolean;
 ```
 
-Defined in: [resource/types.ts:179](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L179)
+Defined in: [resource/types.ts:194](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L194)
 
 Whether there are more pages
