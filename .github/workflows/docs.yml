@@ -64,6 +64,9 @@ jobs:
             - name: Build documentation
               run: pnpm docs:build
 
+            - name: Format generated docs
+              run: pnpm format docs/api/generated/
+
             - name: Upload artifact
               uses: actions/upload-pages-artifact@v3
               with:
