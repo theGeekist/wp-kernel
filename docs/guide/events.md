@@ -1,5 +1,7 @@
 # Events
 
+# Events
+
 > **Status**: 🚧 Foundation implemented in Sprint 1. Full event system (Actions, Policies, Jobs, PHP Bridge) coming in Sprints 3-9.
 
 Canonical event taxonomy with stable names.
