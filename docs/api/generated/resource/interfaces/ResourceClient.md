@@ -6,7 +6,7 @@
 
 # Interface: ResourceClient\<T, TQuery\>
 
-Defined in: [resource/types.ts:206](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L206)
+Defined in: [resource/types.ts:207](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L207)
 
 Client methods for REST operations
 
@@ -39,7 +39,7 @@ Query parameters type for list operations
 optional fetchList: (query?) => Promise<ListResponse<T>>;
 ```
 
-Defined in: [resource/types.ts:215](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L215)
+Defined in: [resource/types.ts:216](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L216)
 
 Fetch a list of resources
 
@@ -73,7 +73,7 @@ ServerError on REST API error
 optional fetch: (id) => Promise<T>;
 ```
 
-Defined in: [resource/types.ts:225](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L225)
+Defined in: [resource/types.ts:226](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L226)
 
 Fetch a single resource by ID
 
@@ -107,7 +107,7 @@ ServerError on REST API error (including 404)
 optional create: (data) => Promise<T>;
 ```
 
-Defined in: [resource/types.ts:235](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L235)
+Defined in: [resource/types.ts:236](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L236)
 
 Create a new resource
 
@@ -141,7 +141,7 @@ ServerError on REST API error (including validation errors)
 optional update: (id, data) => Promise<T>;
 ```
 
-Defined in: [resource/types.ts:246](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L246)
+Defined in: [resource/types.ts:247](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L247)
 
 Update an existing resource
 
@@ -181,7 +181,7 @@ ServerError on REST API error (including 404, validation errors)
 optional remove: (id) => Promise<void | T>;
 ```
 
-Defined in: [resource/types.ts:256](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L256)
+Defined in: [resource/types.ts:257](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L257)
 
 Delete a resource
 

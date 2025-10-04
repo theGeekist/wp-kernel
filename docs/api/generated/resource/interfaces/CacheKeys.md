@@ -6,7 +6,7 @@
 
 # Interface: CacheKeys
 
-Defined in: [resource/types.ts:90](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L90)
+Defined in: [resource/types.ts:91](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L91)
 
 Cache key generators for all CRUD operations
 
@@ -27,7 +27,7 @@ Cache key generators for all CRUD operations
 optional list: CacheKeyFn<unknown>;
 ```
 
-Defined in: [resource/types.ts:92](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L92)
+Defined in: [resource/types.ts:93](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L93)
 
 Cache key for list operations
 
@@ -39,7 +39,7 @@ Cache key for list operations
 optional get: CacheKeyFn<string | number>;
 ```
 
-Defined in: [resource/types.ts:94](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L94)
+Defined in: [resource/types.ts:95](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L95)
 
 Cache key for single-item fetch
 
@@ -51,7 +51,7 @@ Cache key for single-item fetch
 optional create: CacheKeyFn<unknown>;
 ```
 
-Defined in: [resource/types.ts:96](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L96)
+Defined in: [resource/types.ts:97](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L97)
 
 Cache key for create operations (typically not cached)
 
@@ -63,7 +63,7 @@ Cache key for create operations (typically not cached)
 optional update: CacheKeyFn<string | number>;
 ```
 
-Defined in: [resource/types.ts:98](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L98)
+Defined in: [resource/types.ts:99](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L99)
 
 Cache key for update operations
 
@@ -75,6 +75,6 @@ Cache key for update operations
 optional remove: CacheKeyFn<string | number>;
 ```
 
-Defined in: [resource/types.ts:100](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L100)
+Defined in: [resource/types.ts:101](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L101)
 
 Cache key for delete operations

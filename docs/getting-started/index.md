@@ -8,6 +8,26 @@ We're building a standardized way to make WordPress plugins and themes in 2025+:
 
 **It's not another heavy framework.** It's a small, opinionated kernel that gives you boring, reliable plumbing so you can focus on building features.
 
+### Orientation Map
+
+```mermaid
+journey
+    title Getting started with WP Kernel
+    section Understand
+      Read "Why WP Kernel?" : 5
+      Skim architecture overview : 4
+    section Prepare
+      Follow Installation guide : 5
+      Review Repository Handbook : 3
+    section Build
+      Complete Quick Start : 5
+    section Deepen
+      Explore Core Concepts : 4
+      Tour Showcase plugin : 3
+```
+
+Start with the narrative on this page, install the tooling, build something small, then branch out into the guides.
+
 ## Core Philosophy
 
 ### Actions-First Rule
@@ -115,5 +135,6 @@ You don't learn a new universe; you apply a clear set of conventions on top of C
 Ready to get started?
 
 - [Installation](/getting-started/installation) - Set up your development environment
-- [Quick Start](/getting-started/quick-start) - Build your first feature
+- [Quick Start](/getting-started/quick-start) - Build your first feature end-to-end
+- [Repository Handbook](/guide/repository-handbook) - Map repo docs like `DEVELOPMENT.md`
 - [Core Concepts](/guide/) - Understand Resources, Actions, Events, and more

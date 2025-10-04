@@ -26,8 +26,8 @@ The following modules are planned for future sprints:
 
 ```typescript
 import { defineResource, invalidate } from '@geekist/wp-kernel';
-import { KernelError, ServerError } from '@geekist/wp-kernel/errors';
-import { fetch } from '@geekist/wp-kernel/transport';
+import { KernelError, ServerError } from '@geekist/wp-kernel/error';
+import { fetch } from '@geekist/wp-kernel/http';
 ```
 
 For detailed examples and tutorials, see the [Guide](/guide/).

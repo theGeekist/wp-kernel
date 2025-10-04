@@ -209,3 +209,4 @@ Dive into each primitive:
 - [Block Bindings](/guide/block-bindings) - Read path
 - [Interactivity](/guide/interactivity) - Front-end behavior
 - [Jobs](/guide/jobs) - Background work
+- [Repository Handbook](/guide/repository-handbook) - Source-of-truth docs outside `/docs`

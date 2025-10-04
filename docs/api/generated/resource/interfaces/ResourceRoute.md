@@ -6,7 +6,7 @@
 
 # Interface: ResourceRoute
 
-Defined in: [resource/types.ts:24](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L24)
+Defined in: [resource/types.ts:25](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L25)
 
 Route definition for a single REST operation
 
@@ -24,7 +24,7 @@ Route definition for a single REST operation
 path: string;
 ```
 
-Defined in: [resource/types.ts:26](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L26)
+Defined in: [resource/types.ts:27](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L27)
 
 REST API path (may include :id, :slug patterns)
 
@@ -36,6 +36,6 @@ REST API path (may include :id, :slug patterns)
 method: HttpMethod;
 ```
 
-Defined in: [resource/types.ts:28](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L28)
+Defined in: [resource/types.ts:29](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L29)
 
 HTTP method

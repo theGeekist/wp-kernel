@@ -10,7 +10,7 @@
 function defineResource<T, TQuery>(config): ResourceObject<T, TQuery>;
 ```
 
-Defined in: [resource/define.ts:160](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/define.ts#L160)
+Defined in: [resource/define.ts:164](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/define.ts#L164)
 
 Define a resource with typed REST client
 

@@ -12,7 +12,7 @@ type CacheKeyFn<TParams> = (
 ) => (string | number | boolean | null | undefined)[];
 ```
 
-Defined in: [resource/types.ts:75](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L75)
+Defined in: [resource/types.ts:76](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L76)
 
 Cache key generator function
 

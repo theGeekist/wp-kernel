@@ -7,7 +7,11 @@
  * @see Product Specification § 4.1 Resources
  */
 import { KernelError } from '../error/KernelError';
-import { registerStoreKey, invalidate as globalInvalidate } from './cache';
+import {
+	registerStoreKey,
+	invalidate as globalInvalidate,
+	type CacheKeyPattern,
+} from './cache';
 import { createStore } from './store';
 import { validateConfig } from './validation';
 import { createClient } from './client';
@@ -412,9 +416,7 @@ export function defineResource<T = unknown, TQuery = unknown>(
 			: undefined,
 
 		// Thin-flat API: Cache management
-		invalidate: (
-			patterns: (string | number | boolean | null | undefined)[][]
-		) => {
+		invalidate: (patterns: CacheKeyPattern | CacheKeyPattern[]) => {
 			// Call global invalidate with resource context
 			globalInvalidate(patterns, { storeKey: resource.storeKey });
 		},

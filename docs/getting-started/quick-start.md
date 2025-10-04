@@ -1,21 +1,43 @@
 # Quick Start
 
-This guide walks you through building your first feature with WP Kernel: a simple "Thing" resource with create functionality.
+This tutorial shows how a single feature flows through WP Kernel—from declaring a resource to wiring a form. The narrative mirrors the style of WordPress developer docs: short steps, rationale at every turn, and diagrams for mental models.
 
 ## Goal
 
-By the end of this guide, you'll have:
+By the end you will have:
 
 - A typed REST resource
-- An Action that orchestrates writes
-- A UI component that submits data
-- Events emitted on success
+- A (planned) Action orchestrator that wraps writes
+- A UI form that submits data through the Action
+- A PHP endpoint that fulfils the contract
 
-Time: **~15 minutes**
+Time to complete: **about 15 minutes**.
+
+### How the flow fits together
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant View as View (React/Blocks)
+    participant Action as Action (planned)
+    participant Resource
+    participant REST as WordPress REST API
+
+    User->>View: Submit form
+    View->>Action: CreateThing({ data })
+    Action->>Resource: create(data)
+    Resource->>REST: POST /wpk/v1/things
+    REST-->>Resource: 201 Created
+    Resource-->>Action: created Thing
+    Action-->>View: return created
+    Action-->>View: invalidate(['thing','list'])
+    View->>Resource: fetchList()
+    Resource-->>View: fresh list (cached)
+```
 
 ## Step 1: Define a Resource
 
-Resources define your data contract. Create `app/resources/Thing.ts`:
+Resources capture your data contract and generate a typed client, store bindings, and cache keys. Create `app/resources/Thing.ts`:
 
 ```typescript
 import { defineResource } from '@geekist/wp-kernel/resource';
@@ -33,8 +55,6 @@ export const thing = defineResource<Thing, { q?: string }>({
 		list: { path: '/wpk/v1/things', method: 'GET' },
 		get: { path: '/wpk/v1/things/:id', method: 'GET' },
 		create: { path: '/wpk/v1/things', method: 'POST' },
-		update: { path: '/wpk/v1/things/:id', method: 'PUT' },
-		remove: { path: '/wpk/v1/things/:id', method: 'DELETE' },
 	},
 	schema: import('../../contracts/thing.schema.json'),
 	cacheKeys: {
@@ -44,16 +64,15 @@ export const thing = defineResource<Thing, { q?: string }>({
 });
 ```
 
-**What this gives you:**
+**Why this matters**
 
-- Typed client methods: `thing.fetchList()`, `thing.fetch()`, `thing.create()`, etc.
-- Store selectors: `select('wpk/thing').getList()`, `select('wpk/thing').getById(id)`
-- Cache keys for invalidation
-- Automatic retry logic
+- You now have typed methods such as `thing.fetchList()`, `thing.fetch(id)`, and `thing.create(data)`
+- Store selectors (`thing.useList`, `thing.useGet`) and cache helpers (`thing.invalidate`) come for free
+- JSON Schema keeps the TypeScript model and REST payload in sync
 
 ## Step 2: Create JSON Schema
 
-Create `contracts/thing.schema.json`:
+Create `contracts/thing.schema.json` to formalise the API contract and feed type generation:
 
 ```json
 {
@@ -69,112 +88,129 @@ Create `contracts/thing.schema.json`:
 }
 ```
 
-Generate TypeScript types:
+Generate types so the client and server stay aligned:
 
 ```bash
 pnpm types:generate
 ```
 
-## Step 3: Write an Action
+## Step 3: Sketch the Action orchestrator
 
-Actions orchestrate writes. Create `app/actions/Thing/Create.ts`:
+::: info Planned module
+`defineAction` ships with the upcoming Actions sprint. The example below shows the intended usage so you can structure your code today. Keep the file in place—once the module lands you will simply wire the real import.
+:::
+
+Actions own the write path: they call the resource, emit events, invalidate caches, and return the result. Create `app/actions/Thing/Create.ts`:
 
 ```typescript
-import { defineAction } from '@geekist/wp-kernel/actions';
+import { defineAction } from '@geekist/wp-kernel/action';
 import { events } from '@geekist/wp-kernel/events';
+import { invalidate } from '@geekist/wp-kernel';
 import { thing } from '@/app/resources/Thing';
-import { invalidate } from '@wordpress/data';
 
 export const CreateThing = defineAction(
 	'Thing.Create',
 	async ({ data }: { data: Partial<Thing> }) => {
-		// 1. Call the resource
 		const created = await thing.create(data);
 
-		// 2. Emit canonical event
 		CreateThing.emit(events.thing.created, {
 			id: created.id,
 			data: created,
 		});
 
-		// 3. Invalidate affected cache keys
 		invalidate(['thing', 'list']);
 
-		// 4. Return the result
 		return created;
 	}
 );
 ```
 
-**What this does:**
+**Why this matters**
 
-- Calls REST endpoint via resource
-- Emits `wpk.thing.created` event (canonical)
-- Invalidates list cache (triggers refetch)
-- Returns created object
+- Centralises permissions, retries, job queuing, and analytics
+- Guarantees cache invalidation happens with every mutation
+- Emits canonical events (`{namespace}.thing.created`) for extensions and telemetry
 
-## Step 4: Use in a Component
+## Step 4: Bind data to the UI
 
-Create a simple form component:
+Use the generated hooks to show data and the Action to mutate it. Create `app/views/Thing/Form.tsx`:
 
-```typescript
-import { CreateThing } from '@/app/actions/Thing/Create';
+```tsx
 import { useState } from '@wordpress/element';
-import { Button, TextControl, Notice } from '@wordpress/components';
+import { Button, Notice, TextControl } from '@wordpress/components';
+import { thing } from '@/app/resources/Thing';
+import { CreateThing } from '@/app/actions/Thing/Create';
 
 export function ThingForm() {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+	const { data: list, isLoading } = thing.useList();
+	const [title, setTitle] = useState('');
+	const [description, setDescription] = useState('');
+	const [saving, setSaving] = useState(false);
+	const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
-    setError(null);
+	const handleSubmit = async (event: React.FormEvent) => {
+		event.preventDefault();
+		setSaving(true);
+		setError(null);
 
-    try {
-      await CreateThing({ data: { title, description } });
-      // Success! Clear form
-      setTitle('');
-      setDescription('');
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setSaving(false);
-    }
-  };
+		try {
+			await CreateThing({ data: { title, description } });
+			setTitle('');
+			setDescription('');
+		} catch (err) {
+			setError((err as Error).message);
+		} finally {
+			setSaving(false);
+		}
+	};
 
-  return (
-    <form onSubmit={handleSubmit}>
-      {error && <Notice status="error" isDismissible={false}>{error}</Notice>}
+	return (
+		<form onSubmit={handleSubmit}>
+			{error && (
+				<Notice status="error" isDismissible={false}>
+					{error}
+				</Notice>
+			)}
 
-      <TextControl
-        label="Title"
-        value={title}
-        onChange={setTitle}
-        required
-      />
+			<TextControl
+				label="Title"
+				value={title}
+				onChange={setTitle}
+				required
+			/>
 
-      <TextControl
-        label="Description"
-        value={description}
-        onChange={setDescription}
-      />
+			<TextControl
+				label="Description"
+				value={description}
+				onChange={setDescription}
+			/>
 
-      <Button type="submit" variant="primary" isBusy={saving}>
-        Create Thing
-      </Button>
-    </form>
-  );
+			<Button type="submit" variant="primary" isBusy={saving}>
+				Create Thing
+			</Button>
+
+			<section aria-live="polite" style={{ marginTop: '1rem' }}>
+				{isLoading && <p>Loading things…</p>}
+				{!isLoading && list?.items?.length ? (
+					<ul>
+						{list.items.map((item) => (
+							<li key={item.id}>{item.title}</li>
+						))}
+					</ul>
+				) : (
+					!isLoading && <p>No things yet.</p>
+				)}
+			</section>
+		</form>
+	);
 }
 ```
 
-**Note**: The component calls the Action, not the resource directly. This is enforced by ESLint rules.
+The component always reads via `thing.useList()` and writes via `CreateThing`. ESLint rules (and later runtime guards) prevent direct transport access from the view.
 
-## Step 5: Add REST Endpoint (PHP)
+## Step 5: Provide the REST endpoint (PHP)
 
-Create `includes/rest/class-things-controller.php`:
+Create `includes/rest/class-things-controller.php` so WordPress fulfils the contract:
 
 ```php
 <?php
@@ -209,14 +245,16 @@ class Things_Controller extends \WP_REST_Controller {
     }
 
     public function get_items( $request ) {
-        // Your implementation
-        return rest_ensure_response( [] );
+        // TODO: Replace with real persistence
+        return rest_ensure_response( [
+            'items' => [],
+            'headers' => [],
+        ] );
     }
 
     public function create_item( $request ) {
         $params = $request->get_json_params();
 
-        // Validate, sanitize, create...
         $thing = [
             'id'          => wp_generate_uuid4(),
             'title'       => sanitize_text_field( $params['title'] ),
@@ -229,7 +267,7 @@ class Things_Controller extends \WP_REST_Controller {
 }
 ```
 
-Register in your plugin's main file:
+Register the controller inside your plugin bootstrap:
 
 ```php
 add_action( 'rest_api_init', function() {
@@ -238,24 +276,22 @@ add_action( 'rest_api_init', function() {
 } );
 ```
 
-## Step 6: Test It
+## Step 6: Verify the loop
 
-1. **Build**: `pnpm build`
-2. **Start WordPress**: `pnpm wp:start`
-3. **Open admin**: http://localhost:8888/wp-admin
-4. **Test the form**: Submit a new "thing"
-5. **Check events**: Open browser console, watch for `wpk.thing.created`
+1. Build the workspace: `pnpm build`
+2. Start WordPress: `pnpm wp:start`
+3. Load http://localhost:8888 and submit the form
+4. Confirm the UI updates (list shows the new item)
+5. Inspect the console for the `wpk.thing.created` event payload
+6. Optional: run `await thing.fetchList()` in the browser console to confirm the cache refresh
 
-## What You've Learned
+## Step 7: Continue exploring
 
-✅ **Resources**: One definition → typed client + store + cache  
-✅ **Actions**: Orchestrate writes, emit events, invalidate caches  
-✅ **Events**: Canonical taxonomy (`wpk.thing.created`)  
-✅ **Actions-first**: UI never calls transport directly
+- [Core Concepts](/guide/) — deeper explanations of Resources, Actions, Events, Jobs, and Bindings
+- [Resources Guide](/guide/resources) — thin-flat vs grouped APIs, cache management, selectors
+- [Repository Handbook](/guide/repository-handbook) — maps project documentation such as `DEVELOPMENT.md`
+- [Showcase tour](/guide/showcase) — see the complete kernel in action
 
-## Next Steps
-
-- [Core Concepts](/guide/) - Dive deeper into Resources, Actions, Events
-- [Block Bindings](/guide/block-bindings) - Display data in blocks
-- [Interactivity](/guide/interactivity) - Add front-end behavior
-- [Jobs](/guide/jobs) - Queue background work
+::: tip Need more context?
+Check `DEVELOPMENT.md` in the repository root for environment tips, and `BRANCHING_STRATEGY.md` for collaboration flow. Both are linked from the Repository Handbook.
+:::
