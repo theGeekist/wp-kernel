@@ -8,6 +8,36 @@ import { createStore } from '../../store';
 import type { ResourceObject, ListResponse } from '../../types';
 import { KernelError } from '../../../error/index';
 
+// Helper to extract actions from resolver generators, handling async controls
+async function collectActionsFromResolver(
+	generator: Generator<unknown, void, unknown>
+): Promise<unknown[]> {
+	const actions: unknown[] = [];
+	let result = generator.next();
+	while (!result.done) {
+		const value = result.value;
+		actions.push(value);
+		if (
+			value &&
+			typeof value === 'object' &&
+			'promise' in (value as { promise?: unknown }) &&
+			(value as { promise?: unknown }).promise instanceof Promise
+		) {
+			try {
+				const resolved = await (value as { promise: Promise<unknown> })
+					.promise;
+				result = generator.next(resolved);
+			} catch (error) {
+				// Pass the error to the generator's catch block
+				result = generator.throw(error);
+			}
+		} else {
+			result = generator.next();
+		}
+	}
+	return actions;
+}
+
 // Mock resource for testing
 interface MockThing {
 	id: number;
@@ -157,14 +187,16 @@ describe('createStore - Resolvers', () => {
 		});
 
 		describe('getItem', () => {
-			it('should fetch item and return receiveItem action', async () => {
+			it('should fetch item and yield receiveItem action', async () => {
 				const item = { id: 1, title: 'Thing One', status: 'active' };
 				(mockResource.fetch as jest.Mock).mockResolvedValue(item);
 
-				const action = await store.resolvers.getItem(1);
+				const generator = store.resolvers.getItem(1);
+				const actions = await collectActionsFromResolver(generator);
 
 				expect(mockResource.fetch).toHaveBeenCalledWith(1);
-				expect(action).toEqual({
+				expect(actions).toHaveLength(2); // fetch promise + receiveItem action
+				expect(actions[1]).toEqual({
 					type: 'RECEIVE_ITEM',
 					item,
 				});
@@ -174,9 +206,10 @@ describe('createStore - Resolvers', () => {
 				const error = new Error('Network error');
 				(mockResource.fetch as jest.Mock).mockRejectedValue(error);
 
-				const action = await store.resolvers.getItem(1);
+				const generator = store.resolvers.getItem(1);
+				const actions = await collectActionsFromResolver(generator);
 
-				expect(action).toEqual({
+				expect(actions).toContainEqual({
 					type: 'RECEIVE_ERROR',
 					cacheKey: 'thing:get:1',
 					error: 'Network error',
@@ -193,12 +226,16 @@ describe('createStore - Resolvers', () => {
 					resource: resourceWithoutFetch,
 				});
 
-				await expect(
-					storeWithoutFetch.resolvers.getItem(1)
-				).rejects.toThrow(KernelError);
-				await expect(
-					storeWithoutFetch.resolvers.getItem(1)
-				).rejects.toThrow(/does not have a "fetch" method/);
+				const generator = storeWithoutFetch.resolvers.getItem(1);
+
+				await expect(async () => {
+					await collectActionsFromResolver(generator);
+				}).rejects.toThrow(KernelError);
+
+				const generator2 = storeWithoutFetch.resolvers.getItem(1);
+				await expect(async () => {
+					await collectActionsFromResolver(generator2);
+				}).rejects.toThrow(/does not have a "fetch" method/);
 			});
 		});
 
@@ -209,10 +246,17 @@ describe('createStore - Resolvers', () => {
 					mockListResponse
 				);
 
-				const action = await store.resolvers.getItems(query);
+				const generator = store.resolvers.getItems(query);
+				const actions = await collectActionsFromResolver(generator);
 
 				expect(mockResource.fetchList).toHaveBeenCalledWith(query);
-				expect(action).toEqual({
+				expect(actions).toHaveLength(3);
+				expect(actions[0]).toEqual({
+					type: 'SET_LIST_STATUS',
+					queryKey: JSON.stringify(query),
+					status: 'loading',
+				});
+				expect(actions[2]).toEqual({
 					type: 'RECEIVE_ITEMS',
 					queryKey: JSON.stringify(query),
 					items: mockListResponse.items,
@@ -229,20 +273,22 @@ describe('createStore - Resolvers', () => {
 					mockListResponse
 				);
 
-				const action = await store.resolvers.getItems();
+				const generator = store.resolvers.getItems();
+				const actions = await collectActionsFromResolver(generator);
 
 				expect(mockResource.fetchList).toHaveBeenCalledWith(undefined);
-				expect(action).toHaveProperty('type', 'RECEIVE_ITEMS');
-				expect(action).toHaveProperty('queryKey');
+				expect(actions[2]).toHaveProperty('type', 'RECEIVE_ITEMS');
+				expect(actions[2]).toHaveProperty('queryKey');
 			});
 
 			it('should return receiveError action on fetch failure', async () => {
 				const error = new Error('Network error');
 				(mockResource.fetchList as jest.Mock).mockRejectedValue(error);
 
-				const action = await store.resolvers.getItems();
+				const generator = store.resolvers.getItems();
+				const actions = await collectActionsFromResolver(generator);
 
-				expect(action).toEqual({
+				expect(actions).toContainEqual({
 					type: 'RECEIVE_ERROR',
 					cacheKey: 'thing:list:{}',
 					error: 'Network error',
@@ -259,12 +305,15 @@ describe('createStore - Resolvers', () => {
 					resource: resourceWithoutList,
 				});
 
-				await expect(
-					storeWithoutList.resolvers.getItems()
-				).rejects.toThrow(KernelError);
-				await expect(
-					storeWithoutList.resolvers.getItems()
-				).rejects.toThrow(/does not have a "fetchList" method/);
+				const generator = storeWithoutList.resolvers.getItems();
+				await expect(async () => {
+					await collectActionsFromResolver(generator);
+				}).rejects.toThrow(KernelError);
+
+				const generator2 = storeWithoutList.resolvers.getItems();
+				await expect(async () => {
+					await collectActionsFromResolver(generator2);
+				}).rejects.toThrow(/does not have a "fetchList" method/);
 			});
 		});
 
@@ -275,10 +324,17 @@ describe('createStore - Resolvers', () => {
 					mockListResponse
 				);
 
-				const action = await store.resolvers.getList(query);
+				const generator = store.resolvers.getList(query);
+				const actions = await collectActionsFromResolver(generator);
 
 				expect(mockResource.fetchList).toHaveBeenCalledWith(query);
-				expect(action).toEqual({
+				expect(actions).toHaveLength(3);
+				expect(actions[0]).toEqual({
+					type: 'SET_LIST_STATUS',
+					queryKey: JSON.stringify(query),
+					status: 'loading',
+				});
+				expect(actions[2]).toEqual({
 					type: 'RECEIVE_ITEMS',
 					queryKey: JSON.stringify(query),
 					items: mockListResponse.items,
@@ -298,9 +354,10 @@ describe('createStore - Resolvers', () => {
 					'Something went wrong'
 				);
 
-				const action = await store.resolvers.getItem(1);
+				const generator = store.resolvers.getItem(1);
+				const actions = await collectActionsFromResolver(generator);
 
-				expect(action).toEqual({
+				expect(actions).toContainEqual({
 					type: 'RECEIVE_ERROR',
 					cacheKey: 'thing:get:1',
 					error: 'Unknown error',
@@ -311,9 +368,10 @@ describe('createStore - Resolvers', () => {
 				// Throw a number instead of Error
 				(mockResource.fetchList as jest.Mock).mockRejectedValue(500);
 
-				const action = await store.resolvers.getItems();
+				const generator = store.resolvers.getItems();
+				const actions = await collectActionsFromResolver(generator);
 
-				expect(action).toEqual({
+				expect(actions).toContainEqual({
 					type: 'RECEIVE_ERROR',
 					cacheKey: 'thing:list:{}',
 					error: 'Unknown error',
@@ -337,9 +395,10 @@ describe('createStore - Resolvers', () => {
 					new Error('Failed')
 				);
 
-				const action = await storeWithoutGetKey.resolvers.getItem(123);
+				const generator = storeWithoutGetKey.resolvers.getItem(123);
+				const actions = await collectActionsFromResolver(generator);
 
-				expect(action).toEqual({
+				expect(actions).toContainEqual({
 					type: 'RECEIVE_ERROR',
 					cacheKey: 'thing:get:123',
 					error: 'Failed',
@@ -363,9 +422,10 @@ describe('createStore - Resolvers', () => {
 					resourceWithoutListKey.fetchList as jest.Mock
 				).mockRejectedValue(new Error('Failed'));
 
-				const action = await storeWithoutListKey.resolvers.getItems();
+				const generator = storeWithoutListKey.resolvers.getItems();
+				const actions = await collectActionsFromResolver(generator);
 
-				expect(action).toEqual({
+				expect(actions).toContainEqual({
 					type: 'RECEIVE_ERROR',
 					cacheKey: 'thing:list:{}',
 					error: 'Failed',

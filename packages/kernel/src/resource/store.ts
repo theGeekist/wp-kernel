@@ -14,6 +14,7 @@ import type {
 	ResourceStore,
 	ResourceStoreConfig,
 	ListResponse,
+	ResourceListStatus,
 } from './types';
 import { KernelError } from '../error/index';
 
@@ -26,6 +27,7 @@ const ACTION_TYPES = {
 	RECEIVE_ERROR: 'RECEIVE_ERROR',
 	INVALIDATE: 'INVALIDATE',
 	INVALIDATE_ALL: 'INVALIDATE_ALL',
+	SET_LIST_STATUS: 'SET_LIST_STATUS',
 } as const;
 
 /**
@@ -121,7 +123,8 @@ export function createStore<T, TQuery = unknown>(
 				const items = typedAction.items as T[];
 				const queryKey = typedAction.queryKey as string;
 				const meta =
-					typedAction.meta as ResourceState<T>['listMeta'][string];
+					(typedAction.meta as ResourceState<T>['listMeta'][string]) ||
+					{};
 
 				const newItems = { ...state.items };
 				const ids: (string | number)[] = [];
@@ -141,7 +144,11 @@ export function createStore<T, TQuery = unknown>(
 					},
 					listMeta: {
 						...state.listMeta,
-						[queryKey]: meta || {},
+						[queryKey]: {
+							...state.listMeta[queryKey],
+							...meta,
+							status: 'success',
+						},
 					},
 				};
 			}
@@ -188,6 +195,22 @@ export function createStore<T, TQuery = unknown>(
 				};
 			}
 
+			case ACTION_TYPES.SET_LIST_STATUS: {
+				const queryKey = typedAction.queryKey as string;
+				const status = typedAction.status as ResourceListStatus;
+
+				return {
+					...state,
+					listMeta: {
+						...state.listMeta,
+						[queryKey]: {
+							...state.listMeta[queryKey],
+							status,
+						},
+					},
+				};
+			}
+
 			default:
 				return state;
 		}
@@ -231,6 +254,14 @@ export function createStore<T, TQuery = unknown>(
 				type: ACTION_TYPES.INVALIDATE_ALL,
 			};
 		},
+
+		setListStatus(queryKey: string, status: ResourceListStatus) {
+			return {
+				type: ACTION_TYPES.SET_LIST_STATUS,
+				queryKey,
+				status,
+			};
+		},
 	};
 
 	// Selectors
@@ -256,6 +287,18 @@ export function createStore<T, TQuery = unknown>(
 				hasMore: meta.hasMore,
 				nextCursor: meta.nextCursor,
 			};
+		},
+
+		getListStatus(state: ResourceState<T>, query?: TQuery) {
+			const queryKey = getQueryKey(query);
+			return state.listMeta[queryKey]?.status ?? 'idle';
+		},
+
+		getListError(state: ResourceState<T>, query?: TQuery) {
+			const cacheKey =
+				resource.cacheKeys.list?.(query).join(':') ||
+				`${resource.name}:list:${getQueryKey(query)}`;
+			return state.errors[cacheKey];
 		},
 
 		// Note: These are provided by @wordpress/data's resolution system
@@ -295,9 +338,9 @@ export function createStore<T, TQuery = unknown>(
 		},
 	};
 
-	// Resolvers
+	// Resolvers - using generator functions with controls pattern for promises
 	const resolvers: ResourceResolvers<T, TQuery> = {
-		async getItem(id: string | number): Promise<void> {
+		*getItem(id: string | number) {
 			// Check if client method exists
 			if (!resource.fetch) {
 				throw new KernelError('NotImplementedError', {
@@ -308,19 +351,22 @@ export function createStore<T, TQuery = unknown>(
 			}
 
 			try {
-				const item = await resource.fetch(id);
-				return actions.receiveItem(item);
+				const item = (yield {
+					type: 'FETCH_FROM_API',
+					promise: resource.fetch(id),
+				}) as T;
+				yield actions.receiveItem(item);
 			} catch (error) {
 				const cacheKey =
 					resource.cacheKeys.get?.(id).join(':') ||
 					`${resource.name}:get:${id}`;
 				const errorMessage =
 					error instanceof Error ? error.message : 'Unknown error';
-				return actions.receiveError(cacheKey, errorMessage);
+				yield actions.receiveError(cacheKey, errorMessage);
 			}
 		},
 
-		async getItems(query?: TQuery): Promise<void> {
+		*getItems(query?: TQuery) {
 			// Check if client method exists
 			if (!resource.fetchList) {
 				throw new KernelError('NotImplementedError', {
@@ -333,25 +379,62 @@ export function createStore<T, TQuery = unknown>(
 			const queryKey = getQueryKey(query);
 
 			try {
-				const response = await resource.fetchList(query);
-				return actions.receiveItems(queryKey, response.items, {
+				yield actions.setListStatus(queryKey, 'loading');
+				const response = (yield {
+					type: 'FETCH_FROM_API',
+					promise: resource.fetchList(query),
+				}) as ListResponse<T>;
+				yield actions.receiveItems(queryKey, response.items, {
 					total: response.total,
 					hasMore: response.hasMore,
 					nextCursor: response.nextCursor,
 				});
 			} catch (error) {
+				yield actions.setListStatus(queryKey, 'error');
 				const cacheKey =
 					resource.cacheKeys.list?.(query).join(':') ||
 					`${resource.name}:list:${queryKey}`;
 				const errorMessage =
 					error instanceof Error ? error.message : 'Unknown error';
-				return actions.receiveError(cacheKey, errorMessage);
+				yield actions.receiveError(cacheKey, errorMessage);
 			}
 		},
 
-		// getList uses the same resolver as getItems
-		async getList(query?: TQuery): Promise<void> {
-			return resolvers.getItems(query);
+		// getList resolver - same implementation as getItems
+		// Note: Cannot delegate with yield* because WordPress data tracks resolution
+		// by the resolver method name, so getList must be its own resolver
+		*getList(query?: TQuery) {
+			// Check if client method exists
+			if (!resource.fetchList) {
+				throw new KernelError('NotImplementedError', {
+					message:
+						`Resource "${resource.name}" does not have a "fetchList" method. ` +
+						'Define a "list" route to enable the fetchList method in your resource configuration.',
+				});
+			}
+
+			const queryKey = getQueryKey(query);
+
+			try {
+				yield actions.setListStatus(queryKey, 'loading');
+				const response = (yield {
+					type: 'FETCH_FROM_API',
+					promise: resource.fetchList(query),
+				}) as ListResponse<T>;
+				yield actions.receiveItems(queryKey, response.items, {
+					total: response.total,
+					hasMore: response.hasMore,
+					nextCursor: response.nextCursor,
+				});
+			} catch (error) {
+				yield actions.setListStatus(queryKey, 'error');
+				const cacheKey =
+					resource.cacheKeys.list?.(query).join(':') ||
+					`${resource.name}:list:${queryKey}`;
+				const errorMessage =
+					error instanceof Error ? error.message : 'Unknown error';
+				yield actions.receiveError(cacheKey, errorMessage);
+			}
 		},
 	};
 
@@ -362,5 +445,11 @@ export function createStore<T, TQuery = unknown>(
 		resolvers,
 		reducer,
 		initialState,
+		controls: {
+			FETCH_FROM_API: (action: unknown) => {
+				const { promise } = action as { promise: Promise<unknown> };
+				return promise;
+			},
+		},
 	};
 }

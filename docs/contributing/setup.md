@@ -2,6 +2,12 @@
 
 Complete guide to setting up your development environment for WP Kernel.
 
+## 🚨 TL;DR - Quick Start
+
+**👉 [Runbook](/contributing/runbook)** - Common development tasks and workflows.
+
+For experienced developers who want the critical information fast, read that first. This page has the complete, detailed setup instructions.
+
 ## Prerequisites
 
 ### Required Software

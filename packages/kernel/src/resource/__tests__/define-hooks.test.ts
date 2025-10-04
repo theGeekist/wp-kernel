@@ -206,6 +206,7 @@ describe('defineResource - React Hooks', () => {
 			mockWpData.useSelect.mockImplementation((callback: any) => {
 				const mockSelect = {
 					getList: jest.fn().mockReturnValue(mockItems),
+					getListStatus: jest.fn().mockReturnValue('success'),
 					isResolving: jest.fn().mockReturnValue(false),
 					hasFinishedResolution: jest.fn().mockReturnValue(true),
 					getListError: jest.fn().mockReturnValue(null),
@@ -227,7 +228,7 @@ describe('defineResource - React Hooks', () => {
 			expect(result).toEqual({
 				data: mockItems,
 				isLoading: false,
-				error: undefined,
+				error: null,
 			});
 		});
 
@@ -241,6 +242,7 @@ describe('defineResource - React Hooks', () => {
 			mockWpData.useSelect.mockImplementation((callback: any) => {
 				const mockSelect = {
 					getList: jest.fn().mockReturnValue(mockItems),
+					getListStatus: jest.fn().mockReturnValue('success'),
 					isResolving: jest.fn().mockReturnValue(false),
 					hasFinishedResolution: jest.fn().mockReturnValue(true),
 					getListError: jest.fn().mockReturnValue(null),
@@ -262,7 +264,7 @@ describe('defineResource - React Hooks', () => {
 			expect(result).toEqual({
 				data: mockItems,
 				isLoading: false,
-				error: undefined,
+				error: null,
 			});
 		});
 
@@ -271,6 +273,7 @@ describe('defineResource - React Hooks', () => {
 			mockWpData.useSelect.mockImplementation((callback: any) => {
 				const mockSelect = {
 					getList: jest.fn().mockReturnValue(undefined),
+					getListStatus: jest.fn().mockReturnValue('loading'),
 					isResolving: jest.fn().mockReturnValue(true),
 					hasFinishedResolution: jest.fn().mockReturnValue(false),
 					getListError: jest.fn().mockReturnValue(null),
@@ -291,17 +294,18 @@ describe('defineResource - React Hooks', () => {
 			expect(result).toEqual({
 				data: undefined,
 				isLoading: true,
-				error: undefined,
+				error: null,
 			});
 		});
 
 		it('should return error when present', () => {
-			const mockError = { message: 'Server error' };
+			const mockError = 'Server error';
 
 			// Mock useSelect to return error
 			mockWpData.useSelect.mockImplementation((callback: any) => {
 				const mockSelect = {
 					getList: jest.fn().mockReturnValue(undefined),
+					getListStatus: jest.fn().mockReturnValue('error'),
 					isResolving: jest.fn().mockReturnValue(false),
 					hasFinishedResolution: jest.fn().mockReturnValue(true),
 					getListError: jest.fn().mockReturnValue(mockError),
