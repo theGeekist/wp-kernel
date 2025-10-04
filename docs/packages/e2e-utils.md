@@ -304,7 +304,7 @@ export default defineConfig({
 			use: {
 				...devices['Desktop Chrome'],
 				kernel: {
-					wordpressVersion: '6.7',
+					wordpressVersion: '6.8',
 					phpVersion: '8.3',
 					plugins: ['wp-kernel-showcase'],
 				},

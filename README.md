@@ -34,7 +34,7 @@ Built on WordPress Core primitives: Script Modules, Block Bindings, Interactivit
 - **pnpm**: 9.12.3+ (`npm install -g pnpm`)
 - **Docker**: For local WordPress via wp-env
 - **PHP**: 8.3+ (for wp-env)
-- **WordPress**: 6.7+ (Script Modules API)
+- **WordPress**: 6.8+ (Script Modules API)
 
 ### Installation
 

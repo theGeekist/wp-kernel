@@ -97,7 +97,7 @@ await events.captureEmitted(page, 'wpk.resource.user.created');
 
 ## Requirements
 
-- WordPress 6.7+
+- WordPress 6.8+
 - Playwright 1.45+
 - `@geekist/wp-kernel` for fixturesutilities for WP Kernel projects
 

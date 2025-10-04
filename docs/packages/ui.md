@@ -211,7 +211,7 @@ function Edit({ attributes, setAttributes }) {
 
 Building admin data tables using modern WordPress core primitives with WP Kernel as the data layer.
 
-#### DataViews Implementation (WordPress 6.6+)
+#### DataViews Implementation (WordPress 6.8+)
 
 ```typescript
 import { DataViews } from '@wordpress/dataviews';
