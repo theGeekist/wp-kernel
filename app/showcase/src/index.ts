@@ -1,104 +1,54 @@
 /**
  * WP Kernel Showcase Plugin - Entry Point
- *
- * Initializes the showcase plugin, registers resources, and mounts React UI.
  */
 
 import { mountAdmin } from './admin';
 import { job } from './resources';
+import { ShowcaseActionError } from './errors/ShowcaseActionError';
 
-// Type augmentation for window.wp
-interface WPGlobal {
+type WPWindow = typeof window & {
 	wp?: {
-		data?: {
-			select: (storeKey: string) => unknown;
-			createReduxStore?: unknown;
-			register?: unknown;
-		};
+		data?: unknown;
 	};
-}
+};
 
 /**
- * Initialize the showcase plugin
- * Registers stores and mounts UI
+ * Initialize plugin resources and mount the admin UI if available.
  */
-export function init() {
-	const globalWindow = window as Window & WPGlobal;
+export function init(): void {
+	const globalWindow = window as WPWindow;
 
-	console.log('[WP Kernel Showcase] Initializing...');
-
-	// Check if wp.data is available (browser environment)
 	if (!globalWindow.wp?.data) {
-		console.error(
-			'[WP Kernel Showcase] wp.data not available. Cannot register store.'
-		);
+		// Classic admin may load scripts out of order; fail quietly.
+		console.warn('[WP Kernel Showcase] wp.data not available yet.');
 		return;
 	}
 
-	console.log('[WP Kernel Showcase] wp.data available');
-
-	// Force store registration by accessing .store getter
-	// This triggers lazy registration in defineResource
-	const store = job.store;
-	console.log('[WP Kernel Showcase] Initialized with job resource:', {
-		name: job.name,
-		storeKey: job.storeKey,
-		routes: Object.keys(job.routes),
-		storeRegistered: !!store,
-		wpDataAvailable: !!globalWindow.wp?.data,
-	});
-
-	// Verify store was registered and has selectors
-	const registeredStore = globalWindow.wp.data.select(job.storeKey);
-	console.log('[WP Kernel Showcase] Registered store:', registeredStore);
-	console.log('[WP Kernel Showcase] Store type:', typeof registeredStore);
-	console.log(
-		'[WP Kernel Showcase] Store keys:',
-		registeredStore ? Object.keys(registeredStore) : 'null'
-	);
-	console.log(
-		'[WP Kernel Showcase] Has getList:',
-		registeredStore &&
-			typeof registeredStore === 'object' &&
-			'getList' in registeredStore
-	);
-
-	if (!registeredStore) {
+	try {
+		// Trigger lazy store registration and warm initial data.
+		void job.store;
+		void job.prefetchList?.();
+	} catch (error) {
+		const wrapped = ShowcaseActionError.fromUnknown(error, {
+			context: { actionName: 'Jobs.Init', resourceName: job.storeKey },
+		});
 		console.error(
-			`[WP Kernel Showcase] Store ${job.storeKey} not registered properly`
+			'[WP Kernel Showcase] Failed to prepare job resource:',
+			wrapped
 		);
-		return;
 	}
 
-	console.log('[WP Kernel Showcase] Store verified');
-
-	// Mount admin UI if root element exists
 	const adminRoot = document.getElementById('wpk-admin-root');
 	if (adminRoot) {
-		console.log('[WP Kernel Showcase] Mounting admin UI...');
-		// Add a small delay to let the store registration settle
-		// This is a workaround for a potential timing issue with classic scripts
-		setTimeout(() => {
-			console.log(
-				'[WP Kernel Showcase] After delay, checking store again...'
-			);
-			const storeAfterDelay = globalWindow.wp?.data?.select(job.storeKey);
-			console.log(
-				'[WP Kernel Showcase] Store after delay:',
-				storeAfterDelay
-			);
-			mountAdmin();
-		}, 100);
+		mountAdmin();
 	}
 }
 
-// Auto-initialize on load
 if (document.readyState === 'loading') {
 	document.addEventListener('DOMContentLoaded', init);
 } else {
 	init();
 }
 
-// Export resources for use in other modules
-export { job } from './resources/index';
-export type { Job, JobListParams } from './resources/index';
+export { job } from './resources';
+export type { JobListParams } from './resources';

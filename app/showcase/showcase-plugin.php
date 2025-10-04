@@ -98,51 +98,37 @@ function get_vite_entry_file(): string {
  * Registers Script Modules and enqueues them with proper import maps.
  */
 function init(): void {
-	// Register the main module script (includes admin when needed).
-	\wp_register_script_module(
-		'@geekist/wp-kernel-showcase',
+	// Register the main showcase script once.
+	\wp_register_script(
+		'wp-kernel-showcase',
 		WPK_SHOWCASE_URL . 'build/' . get_vite_entry_file(),
 		array(
-			'@wordpress/element',
-			'@wordpress/components',
-			'@wordpress/data',
-			'@wordpress/i18n',
-			'@wordpress/interactivity',
+			'react',
+			'react-dom',
+			'wp-element',
+			'wp-components',
+			'wp-data',
+			'wp-i18n',
+			'wp-api-fetch',
+			'wp-hooks',
 		),
-		WPK_SHOWCASE_VERSION
+		WPK_SHOWCASE_VERSION,
+		true
 	);
 
-	// Enqueue on all pages for demonstration.
+	// Enqueue on the front-end for demonstration.
 	\add_action(
 		'wp_enqueue_scripts',
 		function () {
-			\wp_enqueue_script_module( '@geekist/wp-kernel-showcase' );
+			\wp_enqueue_script( 'wp-kernel-showcase' );
 		}
 	);
 
-	// Enqueue in admin as a classic script (Script Modules + admin not fully compatible yet).
+	// Enqueue in admin as a classic script; script modules + admin still have layout issues.
 	\add_action(
 		'admin_enqueue_scripts',
 		function () {
-			// Register as classic script for admin context.
-			\wp_register_script(
-				'wp-kernel-showcase-admin',
-				WPK_SHOWCASE_URL . 'build/' . get_vite_entry_file(),
-				array(
-					'react',
-					'react-dom',
-					'wp-element',
-					'wp-components',
-					'wp-data',
-					'wp-i18n',
-					'wp-api-fetch',
-					'wp-hooks',
-				),
-				WPK_SHOWCASE_VERSION,
-				true // In footer
-			);
-			
-			\wp_enqueue_script( 'wp-kernel-showcase-admin' );
+			\wp_enqueue_script( 'wp-kernel-showcase' );
 		}
 	);
 }

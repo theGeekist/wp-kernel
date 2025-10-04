@@ -38,10 +38,10 @@ export default defineConfig(async (_env): Promise<UserConfig> => {
 		],
 
 		build: {
-			// Ensure ESM output (for Script Modules)
 			rollupOptions: {
 				output: {
-					// Use [name].js for main files
+					format: 'iife',
+					name: 'WPKernelShowcase',
 					entryFileNames: '[name].js',
 					chunkFileNames: '[name]-[hash].js',
 					assetFileNames: '[name]-[hash][extname]',
