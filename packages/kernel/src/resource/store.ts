@@ -135,6 +135,11 @@ export function createStore<T, TQuery = unknown>(
 					ids.push(id);
 				});
 
+				// Clear any previous error for this list
+				const cacheKey = `${resource.name}:list:${queryKey}`;
+				const newErrors = { ...state.errors };
+				delete newErrors[cacheKey];
+
 				return {
 					...state,
 					items: newItems,
@@ -150,9 +155,9 @@ export function createStore<T, TQuery = unknown>(
 							status: 'success',
 						},
 					},
+					errors: newErrors,
 				};
 			}
-
 			case ACTION_TYPES.RECEIVE_ERROR: {
 				const cacheKey = typedAction.cacheKey as string;
 				const error = typedAction.error as string;

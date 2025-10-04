@@ -9,17 +9,29 @@ type InternalState = {
 };
 
 /**
+ * Dispatch interface for stores with invalidation capabilities.
+ */
+interface DispatchWithInvalidate {
+	invalidate?: (keys: string[]) => void;
+	invalidateResolution?: (type: string) => void;
+	invalidateAll?: () => void;
+	[key: string]: unknown;
+}
+
+/**
  * Convert input pattern(s) into an array form.
- * Accepts a single pattern or an array of patterns, with defensive typing.
+ * Accepts a single pattern or an array of patterns.
  * @param patterns
  */
 function toPatternsArray(
 	patterns: CacheKeyPattern | CacheKeyPattern[]
 ): CacheKeyPattern[] {
-	// If patterns is already an array of arrays, return as-is
+	// Check if patterns is an array of patterns by testing if first element is an array
+	// If patterns is empty or first element is not an array, it's a single pattern
 	if (
 		Array.isArray(patterns) &&
-		Array.isArray((patterns as CacheKeyPattern[])[0])
+		patterns.length > 0 &&
+		Array.isArray(patterns[0])
 	) {
 		return patterns as CacheKeyPattern[];
 	}
@@ -107,8 +119,7 @@ function findMatchingNormalizedKeys(
 }
 
 /**
- * Invalidate store data and resolution state for the given matching keys.
- * Also records invalidated normalized keys into invalidatedKeysSet.
+ * Process matched keys and dispatch actual invalidate + resolution actions.
  * @param dispatch
  * @param matchingNormalizedKeys
  * @param normalizedToRaw
@@ -116,24 +127,22 @@ function findMatchingNormalizedKeys(
  * @param invalidatedKeysSet
  */
 function invalidateStoreMatches(
-	dispatch: unknown,
+	dispatch: DispatchWithInvalidate,
 	matchingNormalizedKeys: string[],
 	normalizedToRaw: Map<string, string>,
 	resourceName: string,
 	invalidatedKeysSet: Set<string>
 ): void {
 	// Dispatch invalidate action with raw reducer keys
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const d = dispatch as any;
-	if (typeof d.invalidate === 'function') {
+	if (typeof dispatch.invalidate === 'function') {
 		const rawKeysForInvalidate = matchingNormalizedKeys.map(
 			(k) => normalizedToRaw.get(k) ?? k
 		);
-		d.invalidate(rawKeysForInvalidate);
+		dispatch.invalidate(rawKeysForInvalidate);
 	}
 
 	// Invalidate resolution state so resolveSelect() knows to refetch
-	if (typeof d.invalidateResolution === 'function') {
+	if (typeof dispatch.invalidateResolution === 'function') {
 		const listPrefix = normalizeCacheKey([resourceName, 'list']);
 		const itemPrefix = normalizeCacheKey([resourceName, 'item']);
 
@@ -141,18 +150,18 @@ function invalidateStoreMatches(
 			k.startsWith(listPrefix)
 		);
 		if (hasListKeys) {
-			d.invalidateResolution('getList');
+			dispatch.invalidateResolution('getList');
 		}
 
 		const hasItemKeys = matchingNormalizedKeys.some((k) =>
 			k.startsWith(itemPrefix)
 		);
 		if (hasItemKeys) {
-			d.invalidateResolution('getItem');
+			dispatch.invalidateResolution('getItem');
 		}
 	}
 
-	// Track invalidated normalized keys
+	// Track invalidated keys
 	matchingNormalizedKeys.forEach((k) => invalidatedKeysSet.add(k));
 }
 
@@ -171,8 +180,9 @@ function processStoreInvalidation(
 	invalidatedKeysSet: Set<string>
 ): void {
 	// Verify store exposes the expected dispatch API
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	const dispatch: any = dataRegistry?.dispatch(storeKey);
+	const dispatch = dataRegistry?.dispatch(storeKey) as
+		| DispatchWithInvalidate
+		| undefined;
 	if (
 		!dispatch ||
 		typeof dispatch !== 'object' ||
@@ -624,14 +634,15 @@ export function invalidateAll(storeKey: string): void {
 	}
 
 	try {
-		const dispatch = dataRegistry.dispatch(storeKey);
+		const dispatch = dataRegistry.dispatch(storeKey) as
+			| DispatchWithInvalidate
+			| undefined;
 		if (
 			dispatch &&
 			typeof dispatch === 'object' &&
-			'invalidateAll' in dispatch &&
 			typeof dispatch.invalidateAll === 'function'
 		) {
-			(dispatch.invalidateAll as () => void)();
+			dispatch.invalidateAll();
 
 			// Emit event
 			emitCacheInvalidatedEvent([`${storeKey}:*`]);

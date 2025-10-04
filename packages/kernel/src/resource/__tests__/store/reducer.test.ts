@@ -221,6 +221,40 @@ describe('createStore - Reducer', () => {
 			expect(state.errors[cacheKey]).toBe(error);
 		});
 
+		it('should clear list errors when RECEIVE_ITEMS succeeds', () => {
+			const queryKey = '{"q":"search"}';
+			const cacheKey = `thing:list:${queryKey}`;
+
+			// First, set an error for this list
+			const errorAction = {
+				type: 'RECEIVE_ERROR',
+				cacheKey,
+				error: 'Network error',
+			};
+			let state = store.reducer(undefined, errorAction);
+			expect(state.errors[cacheKey]).toBe('Network error');
+
+			// Then receive items successfully
+			const items: MockThing[] = [
+				{ id: 1, title: 'Thing One', status: 'active' },
+			];
+			const receiveAction = {
+				type: 'RECEIVE_ITEMS',
+				items,
+				queryKey,
+				meta: { total: 1, hasMore: false },
+			};
+			state = store.reducer(state, receiveAction);
+
+			// Error should be cleared
+			expect(state.errors[cacheKey]).toBeUndefined();
+			expect(state.lists[queryKey]).toEqual([1]);
+			expect(state.listMeta[queryKey]).toHaveProperty(
+				'status',
+				'success'
+			);
+		});
+
 		it('should handle INVALIDATE action', () => {
 			// Setup state with data
 			const setupAction1 = {
