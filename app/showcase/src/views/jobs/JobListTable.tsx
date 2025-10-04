@@ -51,7 +51,6 @@ export function JobListTable({
 						<Spinner />
 					</div>
 				)}
-
 				{errorMessage && (
 					<Notice
 						status="error"
@@ -61,20 +60,16 @@ export function JobListTable({
 						{errorMessage}
 					</Notice>
 				)}
-
 				{!isLoading && !errorMessage && jobs.length === 0 && (
-					<Notice
-						status="info"
-						isDismissible={false}
-						data-testid="jobs-table-empty"
-					>
-						{__(
-							'No job postings match the current filters.',
-							'wp-kernel-showcase'
-						)}
-					</Notice>
-				)}
-
+					<div data-testid="jobs-table-empty">
+						<Notice status="info" isDismissible={false}>
+							{__(
+								'No job postings match the current filters.',
+								'wp-kernel-showcase'
+							)}
+						</Notice>
+					</div>
+				)}{' '}
 				{jobs.length > 0 && (
 					<table
 						className="wp-list-table widefat striped jobs-table"

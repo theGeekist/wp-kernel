@@ -50,7 +50,11 @@ test.describe.serial('Job creation workflow', () => {
 
 		const jobResource = kernel.resource<Job>(JOB_RESOURCE_CONFIG);
 		for (const id of createdJobIds.splice(0, createdJobIds.length)) {
-			await jobResource.remove(id);
+			try {
+				await jobResource.remove(id);
+			} catch (error) {
+				console.warn(`Failed to cleanup job ${id}:`, error);
+			}
 		}
 	});
 
@@ -58,7 +62,6 @@ test.describe.serial('Job creation workflow', () => {
 		page,
 	}) => {
 		await openJobsPage(page);
-
 		const jobTitle = `Platform QA Lead ${Date.now()}`;
 		await page.fill('[data-testid="job-title-input"]', jobTitle);
 		await page.fill('[data-testid="job-department-input"]', 'Quality');
@@ -70,21 +73,27 @@ test.describe.serial('Job creation workflow', () => {
 		await page.selectOption('[data-testid="job-status-select"]', 'publish');
 		await page.click('[data-testid="job-submit-button"]');
 
-		await waitForJobsTableSettled(page);
-
+		// Wait for submission to complete - button becomes enabled again
 		await expect(
 			page.locator('[data-testid="job-submit-button"]')
 		).toBeEnabled({ timeout: 15000 });
 
+		// Check feedback message appears (should be visible after submission completes)
+		await expect(
+			page.locator('[data-testid="job-create-feedback"]')
+		).toBeVisible({ timeout: 5000 });
+		await expect(
+			page.locator('[data-testid="job-create-feedback"]')
+		).toHaveText(/Job created successfully/i);
+
+		// Wait for table to update
+		await waitForJobsTableSettled(page);
+
+		// Verify the job appears in the table
 		const rowLocator = page
 			.locator('[data-testid^="jobs-table-row-"]')
 			.filter({ hasText: jobTitle });
 		await expect(rowLocator).toBeVisible({ timeout: 30000 });
-
-		await expect
-			.soft(page.locator('[data-testid="job-create-feedback"]'))
-			.toHaveText(/Job created successfully/i);
-
 		const jobIdAttr = await rowLocator.first().getAttribute('data-job-id');
 		const jobId = jobIdAttr ? Number(jobIdAttr) : NaN;
 		if (!Number.isNaN(jobId)) {

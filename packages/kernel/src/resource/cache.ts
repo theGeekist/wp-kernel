@@ -1,3 +1,219 @@
+/**
+ * Internal state shape exposed by the __getInternalState selector.
+ * Mirrors reducer slices we care about for invalidation.
+ */
+type InternalState = {
+	lists?: Record<string, unknown>;
+	listMeta?: Record<string, unknown>;
+	errors?: Record<string, unknown>;
+};
+
+/**
+ * Convert input pattern(s) into an array form.
+ * Accepts a single pattern or an array of patterns, with defensive typing.
+ * @param patterns
+ */
+function toPatternsArray(
+	patterns: CacheKeyPattern | CacheKeyPattern[]
+): CacheKeyPattern[] {
+	// If patterns is already an array of arrays, return as-is
+	if (
+		Array.isArray(patterns) &&
+		Array.isArray((patterns as CacheKeyPattern[])[0])
+	) {
+		return patterns as CacheKeyPattern[];
+	}
+	// Otherwise, wrap single pattern
+	return [patterns as CacheKeyPattern];
+}
+
+/**
+ * Safely get __getInternalState selector from a store registry.
+ * Returns a function when present, otherwise undefined.
+ * @param dataRegistry
+ * @param storeKey
+ */
+function getInternalStateSelector(
+	dataRegistry: ReturnType<NonNullable<typeof getWPData>>,
+	storeKey: string
+): (() => InternalState) | undefined {
+	const select = dataRegistry?.select(storeKey) as
+		| { __getInternalState?: () => InternalState }
+		| undefined;
+
+	if (select && typeof select.__getInternalState === 'function') {
+		return select.__getInternalState as () => InternalState;
+	}
+	return undefined;
+}
+
+/**
+ * Build a map from normalized cache key to the raw reducer key.
+ * We normalise list and listMeta keys to `<resource>:list:<queryKey>` and pass errors through.
+ * @param state
+ * @param resourceName
+ */
+function buildNormalizedToRawMap(
+	state: InternalState,
+	resourceName: string
+): Map<string, string> {
+	const normalizedToRaw = new Map<string, string>();
+
+	const listKeys = Object.keys(state.lists || {});
+	for (const queryKey of listKeys) {
+		const normalized = normalizeCacheKey([resourceName, 'list', queryKey]);
+		normalizedToRaw.set(normalized, queryKey);
+	}
+
+	const listMetaKeys = Object.keys(state.listMeta || {});
+	for (const queryKey of listMetaKeys) {
+		const normalized = normalizeCacheKey([resourceName, 'list', queryKey]);
+		// Preserve mapping from lists if already present
+		if (!normalizedToRaw.has(normalized)) {
+			normalizedToRaw.set(normalized, queryKey);
+		}
+	}
+
+	const errorKeys = Object.keys(state.errors || {});
+	for (const errorKey of errorKeys) {
+		normalizedToRaw.set(errorKey, errorKey);
+	}
+
+	return normalizedToRaw;
+}
+
+/**
+ * Compute the set of normalized keys that match any pattern.
+ * Performs exact or prefix (pattern + ':') matching.
+ * @param allNormalizedKeys
+ * @param patternsArray
+ */
+function findMatchingNormalizedKeys(
+	allNormalizedKeys: string[],
+	patternsArray: CacheKeyPattern[]
+): string[] {
+	return allNormalizedKeys.filter((cacheKey) =>
+		patternsArray.some((pattern) => {
+			const normalizedPattern = normalizeCacheKey(pattern);
+			if (normalizedPattern === '') {
+				return false;
+			}
+			return (
+				cacheKey === normalizedPattern ||
+				cacheKey.startsWith(normalizedPattern + ':')
+			);
+		})
+	);
+}
+
+/**
+ * Invalidate store data and resolution state for the given matching keys.
+ * Also records invalidated normalized keys into invalidatedKeysSet.
+ * @param dispatch
+ * @param matchingNormalizedKeys
+ * @param normalizedToRaw
+ * @param resourceName
+ * @param invalidatedKeysSet
+ */
+function invalidateStoreMatches(
+	dispatch: unknown,
+	matchingNormalizedKeys: string[],
+	normalizedToRaw: Map<string, string>,
+	resourceName: string,
+	invalidatedKeysSet: Set<string>
+): void {
+	// Dispatch invalidate action with raw reducer keys
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const d = dispatch as any;
+	if (typeof d.invalidate === 'function') {
+		const rawKeysForInvalidate = matchingNormalizedKeys.map(
+			(k) => normalizedToRaw.get(k) ?? k
+		);
+		d.invalidate(rawKeysForInvalidate);
+	}
+
+	// Invalidate resolution state so resolveSelect() knows to refetch
+	if (typeof d.invalidateResolution === 'function') {
+		const listPrefix = normalizeCacheKey([resourceName, 'list']);
+		const itemPrefix = normalizeCacheKey([resourceName, 'item']);
+
+		const hasListKeys = matchingNormalizedKeys.some((k) =>
+			k.startsWith(listPrefix)
+		);
+		if (hasListKeys) {
+			d.invalidateResolution('getList');
+		}
+
+		const hasItemKeys = matchingNormalizedKeys.some((k) =>
+			k.startsWith(itemPrefix)
+		);
+		if (hasItemKeys) {
+			d.invalidateResolution('getItem');
+		}
+	}
+
+	// Track invalidated normalized keys
+	matchingNormalizedKeys.forEach((k) => invalidatedKeysSet.add(k));
+}
+
+/**
+ * Orchestrate invalidation for a single store key.
+ * Encapsulates selector access, mapping construction, pattern matching, and dispatch.
+ * @param dataRegistry
+ * @param storeKey
+ * @param patternsArray
+ * @param invalidatedKeysSet
+ */
+function processStoreInvalidation(
+	dataRegistry: ReturnType<NonNullable<typeof getWPData>>,
+	storeKey: string,
+	patternsArray: CacheKeyPattern[],
+	invalidatedKeysSet: Set<string>
+): void {
+	// Verify store exposes the expected dispatch API
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	const dispatch: any = dataRegistry?.dispatch(storeKey);
+	if (
+		!dispatch ||
+		typeof dispatch !== 'object' ||
+		typeof dispatch.invalidate !== 'function'
+	) {
+		return;
+	}
+
+	const getInternalState = getInternalStateSelector(dataRegistry, storeKey);
+	if (!getInternalState) {
+		if (process.env.NODE_ENV === 'development') {
+			console.warn(
+				`Store ${storeKey} does not expose __getInternalState selector`
+			);
+		}
+		return;
+	}
+
+	const state = getInternalState();
+	const resourceName = storeKey.split('/').pop() || storeKey;
+
+	// Build mapping of normalized -> raw keys
+	const normalizedToRaw = buildNormalizedToRawMap(state, resourceName);
+	const allNormalizedKeys = Array.from(normalizedToRaw.keys());
+
+	// Compute matches and perform invalidations
+	const matchingNormalizedKeys = findMatchingNormalizedKeys(
+		allNormalizedKeys,
+		patternsArray
+	);
+
+	if (matchingNormalizedKeys.length > 0) {
+		invalidateStoreMatches(
+			dispatch,
+			matchingNormalizedKeys,
+			normalizedToRaw,
+			resourceName,
+			invalidatedKeysSet
+		);
+	}
+}
 import { KernelError } from '../error/index';
 
 /**
@@ -326,72 +542,31 @@ export function invalidate(
 ): void {
 	const { storeKey, emitEvent = true } = options;
 
-	// Normalize patterns to array
-	const patternsArray = Array.isArray(patterns[0])
-		? (patterns as CacheKeyPattern[])
-		: [patterns as CacheKeyPattern];
+	// Normalise patterns input
+	const patternsArray = toPatternsArray(patterns);
 
-	// Get data registry
+	// Resolve data registry (noop in tests / node)
 	const dataRegistry = getWPData();
 	if (!dataRegistry) {
-		// In test/node environment, just return
-		// Tests will mock this function as needed
 		return;
 	}
 
-	// Determine which stores to invalidate
+	// Determine which stores to touch
 	const storeKeys = storeKey ? [storeKey] : getMatchingStoreKeys();
 
-	// Track which keys were actually invalidated (for event emission)
+	// Accumulate invalidated keys for event emission
 	const invalidatedKeysSet = new Set<string>();
 
-	// For each store, find matching cache keys and invalidate
+	// Process each store with defensive error handling
 	for (const key of storeKeys) {
 		try {
-			// Get store's dispatch to call invalidate action
-			const dispatch = dataRegistry?.dispatch(key);
-			if (
-				!dispatch ||
-				typeof dispatch !== 'object' ||
-				!('invalidate' in dispatch) ||
-				typeof dispatch.invalidate !== 'function'
-			) {
-				continue;
-			}
-
-			// Get current state to find matching keys
-			// The state structure is: { items: {}, lists: {}, listMeta: {}, errors: {} }
-			const select = dataRegistry?.select(key);
-			const state = select?.getState?.() || {};
-
-			// Collect all unique cache keys from the state
-			const allKeysSet = new Set<string>([
-				...Object.keys(state.lists || {}),
-				...Object.keys(state.listMeta || {}),
-				...Object.keys(state.errors || {}),
-			]);
-			const allKeys = Array.from(allKeysSet);
-
-			// Find keys matching our patterns
-			const matchingKeys = allKeys.filter((cacheKey) =>
-				patternsArray.some((pattern) => {
-					const normalizedPattern = normalizeCacheKey(pattern);
-					// Check if key starts with pattern
-					return (
-						cacheKey === normalizedPattern ||
-						cacheKey.startsWith(normalizedPattern + ':')
-					);
-				})
+			processStoreInvalidation(
+				dataRegistry,
+				key,
+				patternsArray,
+				invalidatedKeysSet
 			);
-
-			if (matchingKeys.length > 0) {
-				// Dispatch invalidate action with proper typing
-				(dispatch.invalidate as (keys: string[]) => void)(matchingKeys);
-				matchingKeys.forEach((k) => invalidatedKeysSet.add(k));
-			}
 		} catch (error) {
-			// Silently fail - store might not be registered yet
-			// In development, could log this for debugging
 			if (process.env.NODE_ENV === 'development') {
 				console.warn(
 					`Failed to invalidate cache for store ${key}:`,

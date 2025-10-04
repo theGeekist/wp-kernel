@@ -70,15 +70,6 @@ export function JobsList(): JSX.Element {
 
 	const listResult = job.useList?.(query);
 
-	if (process.env.NODE_ENV !== 'production') {
-		console.log('[JobsList] useList result', {
-			query,
-			isLoading: listResult?.isLoading,
-			error: listResult?.error,
-			items: listResult?.data?.items?.length,
-		});
-	}
-
 	useEffect(() => {
 		if (typeof window === 'undefined') {
 			return;

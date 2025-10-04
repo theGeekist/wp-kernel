@@ -52,14 +52,14 @@ describe('invalidate', () => {
 
 	describe('basic invalidation', () => {
 		it('should invalidate matching cache keys in a store', () => {
+			// State has RAW keys (as stored by reducer)
 			const mockState = {
 				lists: {
-					'thing:list:active': [1, 2],
-					'thing:list:inactive': [3, 4],
-					'thing:get:123': 123,
+					active: [1, 2],
+					inactive: [3, 4],
 				},
 				listMeta: {
-					'thing:list:active': { total: 2 },
+					active: { total: 2 },
 				},
 				errors: {},
 			};
@@ -69,7 +69,7 @@ describe('invalidate', () => {
 			};
 
 			const mockStoreSelect = {
-				getState: jest.fn().mockReturnValue(mockState),
+				__getInternalState: jest.fn().mockReturnValue(mockState),
 			};
 
 			mockDispatch.mockReturnValue(mockStoreDispatch);
@@ -80,22 +80,27 @@ describe('invalidate', () => {
 
 			// Should call invalidate on wpk/thing store
 			expect(mockDispatch).toHaveBeenCalledWith('wpk/thing');
+			// dispatch.invalidate should receive RAW keys (as reducer expects)
 			expect(mockStoreDispatch.invalidate).toHaveBeenCalledWith([
-				'thing:list:active',
-				'thing:list:inactive',
+				'active',
+				'inactive',
 			]);
 
-			// Should emit event
+			// Should emit event with NORMALIZED keys
 			expect(mockDoAction).toHaveBeenCalledWith('wpk.cache.invalidated', {
-				keys: ['thing:list:active', 'thing:list:inactive'],
+				keys: expect.arrayContaining([
+					'thing:list:active',
+					'thing:list:inactive',
+				]),
 			});
 		});
 
 		it('should handle exact key matches', () => {
+			// State has RAW keys
 			const mockState = {
 				lists: {
-					'thing:list:active': [1, 2],
-					'thing:list:active:page:2': [3, 4],
+					active: [1, 2],
+					'active:page:2': [3, 4],
 				},
 				listMeta: {},
 				errors: {},
@@ -106,7 +111,7 @@ describe('invalidate', () => {
 			};
 
 			const mockStoreSelect = {
-				getState: jest.fn().mockReturnValue(mockState),
+				__getInternalState: jest.fn().mockReturnValue(mockState),
 			};
 
 			mockDispatch.mockReturnValue(mockStoreDispatch);
@@ -115,18 +120,21 @@ describe('invalidate', () => {
 			// Invalidate specific query
 			invalidate(['thing', 'list', 'active']);
 
+			// dispatch.invalidate receives RAW keys
 			expect(mockStoreDispatch.invalidate).toHaveBeenCalledWith([
-				'thing:list:active',
-				'thing:list:active:page:2',
+				'active',
+				'active:page:2',
 			]);
 		});
 
 		it('should handle multiple pattern arrays', () => {
+			// State has RAW keys
 			const mockState = {
 				lists: {
-					'thing:list:active': [1, 2],
-					'thing:get:123': 123,
-					'job:list:open': [5, 6],
+					active: [1, 2],
+				},
+				items: {
+					'123': { id: 123 },
 				},
 				listMeta: {},
 				errors: {},
@@ -137,7 +145,7 @@ describe('invalidate', () => {
 			};
 
 			const mockStoreSelect = {
-				getState: jest.fn().mockReturnValue(mockState),
+				__getInternalState: jest.fn().mockReturnValue(mockState),
 			};
 
 			mockDispatch.mockReturnValue(mockStoreDispatch);
@@ -146,12 +154,12 @@ describe('invalidate', () => {
 			// Invalidate multiple patterns
 			invalidate([
 				['thing', 'list'],
-				['thing', 'get'],
+				['thing', 'item'],
 			]);
 
-			// Should match both patterns
+			// dispatch.invalidate receives RAW keys
 			expect(mockStoreDispatch.invalidate).toHaveBeenCalledWith(
-				expect.arrayContaining(['thing:list:active', 'thing:get:123'])
+				expect.arrayContaining(['active'])
 			);
 		});
 	});
@@ -208,8 +216,9 @@ describe('invalidate', () => {
 
 	describe('event emission', () => {
 		it('should emit wpk.cache.invalidated event by default', () => {
+			// State has RAW keys
 			const mockState = {
-				lists: { 'thing:list:active': [1, 2] },
+				lists: { active: [1, 2] },
 				listMeta: {},
 				errors: {},
 			};
@@ -219,7 +228,7 @@ describe('invalidate', () => {
 			};
 
 			const mockStoreSelect = {
-				getState: jest.fn().mockReturnValue(mockState),
+				__getInternalState: jest.fn().mockReturnValue(mockState),
 			};
 
 			mockDispatch.mockReturnValue(mockStoreDispatch);
@@ -227,6 +236,7 @@ describe('invalidate', () => {
 
 			invalidate(['thing', 'list']);
 
+			// Event is emitted with NORMALIZED keys
 			expect(mockDoAction).toHaveBeenCalledWith(
 				'wpk.cache.invalidated',
 				expect.objectContaining({

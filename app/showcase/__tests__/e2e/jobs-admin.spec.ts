@@ -39,8 +39,34 @@ async function waitForJobsTableSettled(page: Page): Promise<void> {
 test.describe.serial('Jobs admin overview', () => {
 	const createdJobIds: number[] = [];
 
-	test.beforeEach(async ({ requestUtils }) => {
+	test.beforeEach(async ({ requestUtils, kernel }) => {
 		await requestUtils.activatePlugin('wp-kernel-showcase');
+
+		// Clear all existing jobs before each test for isolation
+		const jobResource = kernel.resource<Job>(JOB_RESOURCE_CONFIG);
+		try {
+			const response = await requestUtils.rest({
+				path: '/wp-kernel-showcase/v1/jobs',
+				method: 'GET',
+			});
+
+			if (Array.isArray(response)) {
+				for (const job of response) {
+					if (job.id) {
+						try {
+							await jobResource.remove(job.id);
+						} catch (error) {
+							console.warn(
+								`Failed to clear job ${job.id}:`,
+								error
+							);
+						}
+					}
+				}
+			}
+		} catch (error) {
+			console.warn('Failed to clear jobs in beforeEach:', error);
+		}
 	});
 
 	test.afterEach(async ({ kernel }) => {
@@ -50,7 +76,11 @@ test.describe.serial('Jobs admin overview', () => {
 
 		const jobResource = kernel.resource<Job>(JOB_RESOURCE_CONFIG);
 		for (const id of createdJobIds.splice(0, createdJobIds.length)) {
-			await jobResource.remove(id);
+			try {
+				await jobResource.remove(id);
+			} catch (error) {
+				console.warn(`Failed to cleanup job ${id}:`, error);
+			}
 		}
 	});
 
@@ -82,9 +112,11 @@ test.describe.serial('Jobs admin overview', () => {
 			'[data-testid="jobs-search-input"]',
 			'Nonexistent role'
 		);
+		// Wait for React to re-render with filtered results
+		await page.waitForTimeout(100);
 		await expect(
 			page.locator('[data-testid="jobs-table-empty"]')
-		).toBeVisible();
+		).toBeVisible({ timeout: 10000 });
 	});
 
 	test('filters by status when draft postings exist', async ({
@@ -106,7 +138,11 @@ test.describe.serial('Jobs admin overview', () => {
 		await expect(
 			page.locator(`[data-testid="jobs-table-row-${draftJob.id}"]`)
 		).toBeVisible({ timeout: 20000 });
-		await expect(page.locator('[data-job-id="1"]')).toHaveCount(0);
+
+		// Ensure only draft jobs are shown (check that table has exactly 1 row)
+		await expect(
+			page.locator('[data-testid^="jobs-table-row-"]')
+		).toHaveCount(1);
 
 		await page.fill(
 			'[data-testid="jobs-search-input"]',

@@ -70,17 +70,19 @@ export function JobCreatePanel({
 			</CardHeader>
 			<CardBody>
 				{feedback && (
-					<Notice
-						status={
-							feedback.type === 'success' ? 'success' : 'error'
-						}
-						isDismissible={false}
-						data-testid="job-create-feedback"
-					>
-						{feedback.message}
-					</Notice>
-				)}
-
+					<div data-testid="job-create-feedback">
+						<Notice
+							status={
+								feedback.type === 'success'
+									? 'success'
+									: 'error'
+							}
+							isDismissible={false}
+						>
+							{feedback.message}
+						</Notice>
+					</div>
+				)}{' '}
 				<form onSubmit={handleSubmit} data-testid="job-create-form">
 					<TextControl
 						label={__('Job title', 'wp-kernel-showcase')}
