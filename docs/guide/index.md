@@ -1,8 +1,8 @@
 # Core Concepts
 
-WP Kernel is built around a few key primitives that work together to give you a complete application framework.
+WP Kernel revolves around a handful of primitives that cooperate rather than compete. This page narrates how they fit together before you dive into the dedicated guides for resources, Actions, events, bindings, interactivity, and jobs.
 
-## The Architecture
+## Architecture overview
 
 ```
 ┌─────────────────────────────────────────────────┐
@@ -41,61 +41,39 @@ WP Kernel is built around a few key primitives that work together to give you a 
     └──────────────────────────────────────────┘
 ```
 
-## The Five Primitives
+The diagram mirrors the way WordPress ships features today. Views render blocks backed by bindings and Interactivity controllers. Actions coordinate writes. Resources speak REST to WordPress, while events and jobs make the system observable and resilient.
 
-### 1. Resources
+## The five primitives
 
-**What**: Typed REST client + store + cache keys from one definition
+### Resources
 
-**When**: Every time you need to read/write data from WordPress
+A resource turns a REST contract into a typed client, data store, and cache keys from a single definition. Reach for one whenever the UI needs to read or write data. Because the schema drives both TypeScript and PHP validation, the documentation you write here stays true across the stack. [Read the full guide →](/guide/resources)
 
-[Learn more →](/guide/resources)
+### Actions
 
-### 2. Actions
+Actions are the only sanctioned write path. They call resources, wrap permission checks, emit canonical events, invalidate caches, and schedule jobs. When you trace a bug or audit a change, Actions form the timeline. [Read the full guide →](/guide/actions)
 
-**What**: Orchestration layer that coordinates writes, events, cache, jobs
+### Events
 
-**When**: Every time UI needs to modify data (enforced rule)
+Events publish what happened in language the rest of the platform understands. Names follow `wpk.{domain}.{verb}` and remain stable across major versions. Extensions listen to them, telemetry records them, and the PHP bridge mirrors a curated subset for legacy integrations. [Read the full guide →](/guide/events)
 
-[Learn more →](/guide/actions)
+### Block bindings
 
-### 3. Events
+Bindings connect WordPress blocks to your data. Instead of hard-coded `InnerBlocks` or custom blocks, you register sources that map store selectors to block attributes. Editors and front-end users see consistent content without juggling bespoke APIs. [Read the full guide →](/guide/block-bindings)
 
-**What**: Canonical event taxonomy with stable names (`wpk.{domain}.{action}`)
+### Interactivity API
 
-**When**: After every write, for extensibility and debugging
+The Interactivity API adds behaviour without shipping custom JavaScript bundles per feature. It consumes the same stores and Actions you already defined, which means front-end interactions stay in sync with the editor. [Read the full guide →](/guide/interactivity)
 
-[Learn more →](/guide/events)
+### Jobs
 
-### 4. Block Bindings
+Jobs handle long-running work—imports, exports, background synchronisation—while providing polling hooks back to the UI. They live alongside Actions so retry policies and status updates stay coherent. [Read the full guide →](/guide/jobs)
 
-**What**: Connect core WordPress blocks to your store data
+## Golden rules
 
-**When**: Displaying content in editor or on front-end (read path)
+### Actions-first
 
-[Learn more →](/guide/block-bindings)
-
-### 5. Interactivity API
-
-**What**: Add front-end behavior to blocks without custom JavaScript
-
-**When**: User interactions on the front-end (forms, toggles, etc.)
-
-[Learn more →](/guide/interactivity)
-
-### Bonus: Jobs
-
-**What**: Background work with polling support
-
-**When**: Long-running tasks (imports, exports, processing)
-
-[Learn more →](/guide/jobs)
-
-## The Golden Rules
-
-### 1. Actions-First (Enforced)
-
-UI components NEVER call transport directly. Always route through Actions.
+Every write flows through an Action. The rule is enforced by linting and, soon, runtime guards. It keeps permission checks, retries, cache invalidation, and analytics in one place.
 
 ```typescript
 // ❌ WRONG
@@ -109,103 +87,49 @@ const handleSubmit = async () => {
 };
 ```
 
-### 2. Read Path vs Write Path
+### Separate read and write paths
 
-**Read**: View → Bindings → Store selectors → Resource (cached)
+Read operations travel from views to bindings to store selectors and finally to resources. Write operations move from views to Actions, then to resources, and back through events and invalidation. Keeping those paths distinct is what makes features observable and debuggable.
 
-**Write**: View → Action → Resource → Events + Invalidation → Re-render
+### Event stability
 
-### 3. Event Stability
-
-Event names are frozen in major versions. Use the canonical registry:
+Events are part of the public contract. Use the canonical registry:
 
 ```typescript
 import { events } from '@geekist/wp-kernel/events';
 
-// ✅ Use canonical events
 CreateThing.emit(events.thing.created, { id });
-
-// ❌ Never use ad-hoc strings
-CreateThing.emit('thing:created', { id }); // Lint error
 ```
 
-### 4. JS Hooks Are Canonical
+Avoid ad-hoc strings; linting will remind you, and future integrations will thank you.
 
-JavaScript hooks are the source of truth. PHP bridge mirrors selected events only.
+### JavaScript hooks are canonical
 
-### 5. Explicit Cache Lifecycle
+The JavaScript event registry is the source of truth. The PHP bridge mirrors only the events needed for server-side integrations, which prevents drift and double-bookkeeping.
 
-No magic. You control when caches invalidate:
+### Explicit cache lifecycle
 
-```typescript
-invalidate(['thing', 'list']); // Explicit
-```
+Resources expose `invalidate`, `prefetch`, and `use*` hooks so the UI can manage cache behaviour deliberately. There are no hidden timers or stale-while-revalidate surprises.
 
-## Data Flow Example
+## Walk through a request
 
-Let's trace a "Create Thing" request:
+Consider a user submitting the Thing form from the quick start:
 
-1. **User clicks Submit** → Component calls `CreateThing({ data })`
-2. **Action validates** → Checks permissions (optional)
-3. **Action calls Resource** → `thing.create(data)` → POST to REST
-4. **WordPress validates** → Schema, capabilities, sanitization
-5. **Resource returns** → Action receives created object
-6. **Action emits event** → `wpk.thing.created` (canonical)
-7. **Action invalidates cache** → `['thing', 'list']` marked stale
-8. **Action returns** → Component receives result
-9. **Store refetches** → List query re-runs, gets fresh data
-10. **UI updates** → New item appears in list
+1. The component calls `CreateThing({ data })`.
+2. The Action validates permissions and forwards the call to `thing.create(data)`.
+3. WordPress receives the REST request, applies schema validation, and persists the record.
+4. The resource resolves with the created object.
+5. The Action emits `wpk.thing.created` so analytics and extensions can react.
+6. The Action invalidates the `['thing', 'list']` cache key.
+7. Store resolvers notice the invalidation and refetch.
+8. The UI re-renders with the fresh list.
 
-## Error Handling
+Because each step has a dedicated place in the architecture, you can add logging, retries, or additional side effects without rewriting existing code.
 
-All errors are `KernelError` (typed, structured, serializable):
+## Error handling and resilience
 
-```typescript
-try {
-	await CreateThing({ data });
-} catch (e) {
-	if (e.code === 'PolicyDenied') {
-		showNotice(__('Permission denied'), 'error');
-	} else if (e.code === 'ValidationError') {
-		showNotice(__('Invalid data'), 'error');
-	} else {
-		reporter.error(e); // Logs + emits event
-	}
-}
-```
+All surfaced errors extend `KernelError`, giving you predictable properties for UX messaging, logging, and telemetry. Transports retry with exponential backoff on recoverable failures (timeouts, 5xx, 429). Background jobs follow the same policy and expose polling hooks so the UI can communicate progress without guesswork.
 
-Error types: `TransportError`, `ServerError`, `PolicyDenied`, `ValidationError`, `TimeoutError`, `DeveloperError`, `DeprecatedError`
+## Performance expectations
 
-## Network & Retry Strategy
-
-Automatic retry with exponential backoff:
-
-- **Retry**: Network timeout / 408 / 429 / 5xx
-- **No retry**: 4xx (except 408, 429)
-- **Default**: 3 attempts, 1s → 2s → 4s backoff
-
-Timeouts:
-
-- Request: 30s
-- Total (with retries): 60s
-- Job polling: 60s (configurable)
-
-## Performance Budgets
-
-WP Kernel enforces these guarantees:
-
-- **TTI**: < 1500ms on 3G
-- **Added JS**: < 30KB gzipped
-- **API response**: < 500ms (p95)
-- **Background jobs**: Status updates < 100ms
-
-## Next Steps
-
-Dive into each primitive:
-
-- [Resources](/guide/resources) - Data layer
-- [Actions](/guide/actions) - Write orchestration
-- [Events](/guide/events) - Canonical taxonomy
-- [Block Bindings](/guide/block-bindings) - Read path
-- [Interactivity](/guide/interactivity) - Front-end behavior
-- [Jobs](/guide/jobs) - Background work
+The framework sets budgets—sub-1.5s TTI on 3G, less than 30KB of additional JavaScript when you adopt the kernel, REST responses that stay under 500ms at p95. By baking these expectations into the architecture, the documentation you are reading doubles as a checklist for production readiness.

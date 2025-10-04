@@ -29,13 +29,15 @@ pnpm format docs/api/generated/
 
 # Check for changeset (only on feature branches)
 BRANCH=$(git branch --show-current)
-if [[ "$BRANCH" =~ ^(sprint-|feat/|fix/) ]]; then
-  if [ -z "$(ls .changeset/*.md 2>/dev/null | grep -v README)" ]; then
-    echo ""
-    echo "⚠️  No changeset found. Creating one is recommended for tracking changes."
-    echo "💡 Run: pnpm changeset"
-    echo ""
-    # Don't fail - just warn
-    # exit 1
-  fi
-fi
+case "$BRANCH" in
+  sprint-*|feat/*|fix/*)
+    if [ -z "$(ls .changeset/*.md 2>/dev/null | grep -v README)" ]; then
+      echo ""
+      echo "⚠️  No changeset found. Creating one is recommended for tracking changes."
+      echo "💡 Run: pnpm changeset"
+      echo ""
+      # Don't fail - just warn
+      # exit 1
+    fi
+    ;;
+esac

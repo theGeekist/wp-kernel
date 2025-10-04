@@ -6,6 +6,10 @@ The core framework package that provides the foundation for modern WordPress dev
 
 WP Kernel is built on the principle that **JavaScript is the source of truth** while PHP serves as a thin contract layer. This package provides the essential primitives for building scalable WordPress applications.
 
+::: info Canonical source
+This page summarises the package README. For the authoritative reference see [packages/kernel/README.md](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/README.md).
+:::
+
 ## Architecture
 
 ```mermaid
@@ -42,8 +46,8 @@ export const post = defineResource({
 		create: { path: '/wp/v2/posts', method: 'POST' },
 	},
 	cacheKeys: {
-		list: (params) => ['post', 'list', params],
-		get: (id) => ['post', id],
+		list: (params) => ['post', 'list', JSON.stringify(params)],
+		get: (id) => ['post', 'get', id],
 	},
 });
 ```
@@ -147,15 +151,15 @@ Direct method access for simple, straightforward usage:
 const post = defineResource({ name: 'post' /* ... */ });
 
 // Direct methods
-const posts = await post.list();
-const singlePost = await post.get(123);
+const posts = await post.fetchList();
+const singlePost = await post.fetch(123);
 await post.create({ title: 'New Post' });
 await post.update(123, { title: 'Updated' });
 await post.remove(123);
 
 // Cache control
-await post.invalidate();
-post.key(); // Get cache key
+await post.invalidate(['post', 'list']);
+post.key('get', 123); // Cache key helper
 ```
 
 ### Grouped API
@@ -183,9 +187,9 @@ await post.mutate.update(123, { title: 'Updated' });
 await post.mutate.remove(123);
 
 // Cache control
-await post.cache.prefetch.list();
+await post.cache.prefetch.list({ status: 'draft' });
 await post.cache.prefetch.item(123);
-post.cache.invalidate.list();
+post.cache.invalidate.list({ status: 'draft' });
 post.cache.invalidate.item(123);
 post.cache.invalidate.all();
 

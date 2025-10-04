@@ -331,7 +331,7 @@ const thing = getThing(id);
 ### Always Use KernelError
 
 ```typescript
-import { KernelError } from '@geekist/wp-kernel/errors';
+import { KernelError } from '@geekist/wp-kernel/error';
 
 // ✅ CORRECT
 throw new KernelError('ValidationError', {

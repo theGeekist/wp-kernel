@@ -7,6 +7,7 @@
  *
  * @see Product Specification § 4.1 Resources
  */
+import type { CacheKeyPattern } from './cache';
 
 /**
  * HTTP methods supported for REST operations
@@ -281,9 +282,9 @@ export interface ResourceClient<T = unknown, TQuery = unknown> {
  * await thing.prefetchGet(123);
  * await thing.prefetchList({ q: 'search' });
  *
- * // Instance-based invalidation (cache keys include resource name)
- * thing.invalidate([['thing', 'list']]); // Invalidate all lists
- * thing.invalidate([['thing', 'list', 'active']]); // Invalidate specific query
+ * // Instance-based invalidation (include resource name as first segment)
+ * thing.invalidate(['thing', 'list']); // Invalidate all lists
+ * thing.invalidate(['thing', 'list', 'active']); // Invalidate specific query
  *
  * // Generate cache keys
  * const key = thing.key('list', { q: 'search' });
@@ -445,9 +446,7 @@ export interface ResourceObject<T = unknown, TQuery = unknown>
 	 * thing.invalidate([['thing', 'list']]); // Also invalidate lists
 	 * ```
 	 */
-	invalidate: (
-		patterns: (string | number | boolean | null | undefined)[][]
-	) => void;
+	invalidate: (patterns: CacheKeyPattern | CacheKeyPattern[]) => void;
 
 	/**
 	 * Generate a cache key for this resource

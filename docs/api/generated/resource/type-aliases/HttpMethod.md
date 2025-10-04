@@ -10,6 +10,6 @@
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 ```
 
-Defined in: [resource/types.ts:14](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L14)
+Defined in: [resource/types.ts:15](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L15)
 
 HTTP methods supported for REST operations

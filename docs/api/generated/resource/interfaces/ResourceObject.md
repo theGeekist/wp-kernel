@@ -6,7 +6,7 @@
 
 # Interface: ResourceObject\<T, TQuery\>
 
-Defined in: [resource/types.ts:299](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L299)
+Defined in: [resource/types.ts:300](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L300)
 
 Complete resource object returned by defineResource
 
@@ -19,8 +19,8 @@ Provides both thin-flat API (direct methods) and grouped API (namespaces).
 const thing = defineResource<Thing, { q?: string }>({ ... });
 
 // Use client methods (thin-flat API)
-const items = await thing.list({ q: 'search' });
-const item = await thing.get(123);
+const items = await thing.fetchList({ q: 'search' });
+const item = await thing.fetch(123);
 
 // Use React hooks
 const { data, isLoading } = thing.useGet(123);
@@ -30,9 +30,9 @@ const { data: items } = thing.useList({ q: 'search' });
 await thing.prefetchGet(123);
 await thing.prefetchList({ q: 'search' });
 
-// Instance-based invalidation
-thing.invalidate(['list']); // Invalidate all lists
-thing.invalidate(['list', 'active']); // Invalidate specific query
+// Instance-based invalidation (include resource name as first segment)
+thing.invalidate(['thing', 'list']); // Invalidate all lists
+thing.invalidate(['thing', 'list', 'active']); // Invalidate specific query
 
 // Generate cache keys
 const key = thing.key('list', { q: 'search' });
@@ -71,7 +71,7 @@ Query parameters type for list operations
 optional fetchList: (query?) => Promise<ListResponse<T>>;
 ```
 
-Defined in: [resource/types.ts:215](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L215)
+Defined in: [resource/types.ts:216](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L216)
 
 Fetch a list of resources
 
@@ -109,7 +109,7 @@ ServerError on REST API error
 optional fetch: (id) => Promise<T>;
 ```
 
-Defined in: [resource/types.ts:225](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L225)
+Defined in: [resource/types.ts:226](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L226)
 
 Fetch a single resource by ID
 
@@ -147,7 +147,7 @@ ServerError on REST API error (including 404)
 optional create: (data) => Promise<T>;
 ```
 
-Defined in: [resource/types.ts:235](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L235)
+Defined in: [resource/types.ts:236](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L236)
 
 Create a new resource
 
@@ -185,7 +185,7 @@ ServerError on REST API error (including validation errors)
 optional update: (id, data) => Promise<T>;
 ```
 
-Defined in: [resource/types.ts:246](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L246)
+Defined in: [resource/types.ts:247](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L247)
 
 Update an existing resource
 
@@ -229,7 +229,7 @@ ServerError on REST API error (including 404, validation errors)
 optional remove: (id) => Promise<void | T>;
 ```
 
-Defined in: [resource/types.ts:256](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L256)
+Defined in: [resource/types.ts:257](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L257)
 
 Delete a resource
 
@@ -267,7 +267,7 @@ ServerError on REST API error (including 404)
 name: string;
 ```
 
-Defined in: [resource/types.ts:304](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L304)
+Defined in: [resource/types.ts:305](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L305)
 
 Resource name
 
@@ -279,7 +279,7 @@ Resource name
 storeKey: string;
 ```
 
-Defined in: [resource/types.ts:311](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L311)
+Defined in: [resource/types.ts:312](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L312)
 
 WordPress data store key (e.g., 'my-plugin/thing')
 
@@ -293,7 +293,7 @@ Used for store registration and selectors
 readonly store: unknown;
 ```
 
-Defined in: [resource/types.ts:325](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L325)
+Defined in: [resource/types.ts:326](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L326)
 
 Lazy-loaded @wordpress/data store
 
@@ -315,7 +315,7 @@ const item = select(thing.store).getItem(123);
 cacheKeys: Required<CacheKeys>;
 ```
 
-Defined in: [resource/types.ts:332](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L332)
+Defined in: [resource/types.ts:333](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L333)
 
 Cache key generators for all operations
 
@@ -329,7 +329,7 @@ Use these to generate cache keys for invalidation
 routes: ResourceRoutes;
 ```
 
-Defined in: [resource/types.ts:337](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L337)
+Defined in: [resource/types.ts:338](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L338)
 
 REST route definitions (normalized)
 
@@ -341,7 +341,7 @@ REST route definitions (normalized)
 optional useGet: (id) => object;
 ```
 
-Defined in: [resource/types.ts:358](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L358)
+Defined in: [resource/types.ts:359](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L359)
 
 React hook to fetch a single item
 
@@ -398,7 +398,7 @@ function ThingView({ id }: { id: number }) {
 optional useList: (query?) => object;
 ```
 
-Defined in: [resource/types.ts:382](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L382)
+Defined in: [resource/types.ts:383](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L383)
 
 React hook to fetch a list of items
 
@@ -455,7 +455,7 @@ function ThingList({ status }: { status: string }) {
 optional prefetchGet: (id) => Promise<void>;
 ```
 
-Defined in: [resource/types.ts:406](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L406)
+Defined in: [resource/types.ts:407](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L407)
 
 Prefetch a single item into the cache
 
@@ -493,7 +493,7 @@ Promise resolving when prefetch completes
 optional prefetchList: (query?) => Promise<void>;
 ```
 
-Defined in: [resource/types.ts:425](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L425)
+Defined in: [resource/types.ts:426](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L426)
 
 Prefetch a list of items into the cache
 
@@ -531,7 +531,7 @@ useEffect(() => {
 invalidate: (patterns) => void;
 ```
 
-Defined in: [resource/types.ts:448](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L448)
+Defined in: [resource/types.ts:449](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L449)
 
 Invalidate cached data for this resource
 
@@ -542,9 +542,9 @@ Automatically scoped to this resource's store.
 
 ##### patterns
 
-(`undefined` \| `null` \| `string` \| `number` \| `boolean`)[][]
-
 Cache key patterns to invalidate
+
+[`CacheKeyPattern`](../type-aliases/CacheKeyPattern.md) | [`CacheKeyPattern`](../type-aliases/CacheKeyPattern.md)[]
 
 #### Returns
 
@@ -571,7 +571,7 @@ thing.invalidate(['list']); // Also invalidate lists
 key: (operation, params?) => (string | number | boolean)[];
 ```
 
-Defined in: [resource/types.ts:470](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L470)
+Defined in: [resource/types.ts:469](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L469)
 
 Generate a cache key for this resource
 
@@ -615,7 +615,7 @@ const key2 = thing.key('get', 123);
 optional select: object;
 ```
 
-Defined in: [resource/types.ts:482](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L482)
+Defined in: [resource/types.ts:481](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L481)
 
 Grouped API: Pure selectors (no fetching)
 
@@ -688,7 +688,7 @@ Array of items matching query or empty array
 optional use: object;
 ```
 
-Defined in: [resource/types.ts:509](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L509)
+Defined in: [resource/types.ts:508](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L508)
 
 Grouped API: React hooks
 
@@ -774,7 +774,7 @@ error: undefined | string;
 optional get: object;
 ```
 
-Defined in: [resource/types.ts:535](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L535)
+Defined in: [resource/types.ts:534](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L534)
 
 Grouped API: Explicit data fetching (bypass cache)
 
@@ -839,7 +839,7 @@ Promise resolving to list response
 optional mutate: object;
 ```
 
-Defined in: [resource/types.ts:564](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L564)
+Defined in: [resource/types.ts:563](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L563)
 
 Grouped API: Mutations (CRUD operations)
 
@@ -911,7 +911,7 @@ Delete item
 cache: object;
 ```
 
-Defined in: [resource/types.ts:586](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L586)
+Defined in: [resource/types.ts:585](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L585)
 
 Grouped API: Cache control
 
@@ -1047,7 +1047,7 @@ Generate cache key
 storeApi: object;
 ```
 
-Defined in: [resource/types.ts:636](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L636)
+Defined in: [resource/types.ts:635](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L635)
 
 Grouped API: Store access
 
@@ -1077,7 +1077,7 @@ Store descriptor (lazy-loaded)
 optional events: object;
 ```
 
-Defined in: [resource/types.ts:653](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L653)
+Defined in: [resource/types.ts:652](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L652)
 
 Grouped API: Event names
 

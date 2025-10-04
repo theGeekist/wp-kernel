@@ -6,7 +6,7 @@
 
 # Interface: ResourceConfig\<T, TQuery, \_TTypes\>
 
-Defined in: [resource/types.ts:125](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L125)
+Defined in: [resource/types.ts:126](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L126)
 
 Complete resource definition configuration
 
@@ -53,7 +53,7 @@ Query parameters type for list operations (e.g., { q?: string })
 name: string;
 ```
 
-Defined in: [resource/types.ts:137](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L137)
+Defined in: [resource/types.ts:138](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L138)
 
 Unique resource name (lowercase, singular recommended)
 
@@ -67,7 +67,7 @@ Used for store keys, event names, and debugging
 routes: ResourceRoutes;
 ```
 
-Defined in: [resource/types.ts:144](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L144)
+Defined in: [resource/types.ts:145](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L145)
 
 REST route definitions
 
@@ -81,7 +81,7 @@ Define only the operations your resource supports
 optional cacheKeys: CacheKeys;
 ```
 
-Defined in: [resource/types.ts:151](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L151)
+Defined in: [resource/types.ts:152](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L152)
 
 Cache key generators
 
@@ -95,7 +95,7 @@ Optional. If omitted, default cache keys based on resource name will be used
 optional namespace: string;
 ```
 
-Defined in: [resource/types.ts:166](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L166)
+Defined in: [resource/types.ts:167](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L167)
 
 Namespace for events and store keys
 
@@ -118,7 +118,7 @@ name: 'my-plugin:job'; // Shorthand namespace:name format
 optional schema: unknown;
 ```
 
-Defined in: [resource/types.ts:178](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L178)
+Defined in: [resource/types.ts:179](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/types.ts#L179)
 
 JSON Schema for runtime validation
 

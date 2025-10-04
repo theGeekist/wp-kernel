@@ -69,24 +69,33 @@ describe('Thing Resource', () => {
 #### Mock Transport Layer
 
 ```typescript
-import { transport } from '@geekist/wp-kernel/transport';
+import * as http from '@geekist/wp-kernel/http';
 
-jest.mock('@geekist/wp-kernel/transport');
+jest.mock('@geekist/wp-kernel/http', () => ({
+	fetch: jest.fn(),
+}));
 
 describe('CreateThing', () => {
 	it('should call REST endpoint', async () => {
 		// Mock the POST request
-		(transport.post as jest.Mock).mockResolvedValue({
-			id: 1,
-			title: 'Test',
+		(http.fetch as jest.Mock).mockResolvedValue({
+			data: {
+				id: 1,
+				title: 'Test',
+			},
+			status: 200,
+			headers: {},
+			requestId: 'req_test',
 		});
 
 		// Act
 		const result = await CreateThing({ data: { title: 'Test' } });
 
 		// Assert
-		expect(transport.post).toHaveBeenCalledWith('/wpk/v1/things', {
-			title: 'Test',
+		expect(http.fetch).toHaveBeenCalledWith({
+			path: '/wpk/v1/things',
+			method: 'POST',
+			data: { title: 'Test' },
 		});
 		expect(result.id).toBe(1);
 	});
@@ -413,43 +422,60 @@ describe('CreateThing Action', () => {
 
 ## Testing Resources
 
-Resources integrate with REST and store. Mock the transport layer:
+Resources integrate with REST and store. Mock the HTTP layer:
 
 ```typescript
 import { thing } from '@/app/resources/Thing';
-import { transport } from '@geekist/wp-kernel/transport';
+import * as http from '@geekist/wp-kernel/http';
 
-jest.mock('@geekist/wp-kernel/transport');
+jest.mock('@geekist/wp-kernel/http', () => ({
+	fetch: jest.fn(),
+}));
 
 describe('Thing Resource', () => {
 	it('should call list endpoint', async () => {
 		// Mock
-		(transport.get as jest.Mock).mockResolvedValue([
-			{ id: 1, title: 'Thing 1' },
-			{ id: 2, title: 'Thing 2' },
-		]);
+		(http.fetch as jest.Mock).mockResolvedValue({
+			data: {
+				items: [
+					{ id: 1, title: 'Thing 1' },
+					{ id: 2, title: 'Thing 2' },
+				],
+			},
+			status: 200,
+			headers: {},
+			requestId: 'req_list',
+		});
 
 		// Act
-		const result = await thing.list();
+		const result = await thing.fetchList();
 
 		// Assert
-		expect(transport.get).toHaveBeenCalledWith('/wpk/v1/things');
-		expect(result).toHaveLength(2);
+		expect(http.fetch).toHaveBeenCalledWith({
+			path: '/wpk/v1/things',
+			method: 'GET',
+			query: undefined,
+		});
+		expect(result.items).toHaveLength(2);
 	});
 
 	it('should call create endpoint', async () => {
 		// Mock
-		(transport.post as jest.Mock).mockResolvedValue({
-			id: 1,
-			title: 'New Thing',
+		(http.fetch as jest.Mock).mockResolvedValue({
+			data: { id: 1, title: 'New Thing' },
+			status: 201,
+			headers: {},
+			requestId: 'req_create',
 		});
 
 		// Act
 		const result = await thing.create({ title: 'New Thing' });
 
 		// Assert
-		expect(transport.post).toHaveBeenCalledWith('/wpk/v1/things', {
-			title: 'New Thing',
+		expect(http.fetch).toHaveBeenCalledWith({
+			path: '/wpk/v1/things',
+			method: 'POST',
+			data: { title: 'New Thing' },
 		});
 		expect(result.id).toBe(1);
 	});
@@ -461,12 +487,13 @@ describe('Thing Resource', () => {
 Test error scenarios:
 
 ```typescript
-import { KernelError } from '@geekist/wp-kernel/errors';
+import * as http from '@geekist/wp-kernel/http';
+import { KernelError } from '@geekist/wp-kernel/error';
 
 describe('Error Handling', () => {
 	it('should throw ValidationError for invalid data', async () => {
 		// Arrange
-		(transport.post as jest.Mock).mockRejectedValue(
+		(http.fetch as jest.Mock).mockRejectedValue(
 			new KernelError('ValidationError', {
 				field: 'title',
 				message: 'Title is required',
@@ -481,7 +508,7 @@ describe('Error Handling', () => {
 
 	it('should throw PolicyDenied for unauthorized', async () => {
 		// Arrange
-		(transport.post as jest.Mock).mockRejectedValue(
+		(http.fetch as jest.Mock).mockRejectedValue(
 			new KernelError('PolicyDenied', {
 				policyKey: 'things.create',
 			})
