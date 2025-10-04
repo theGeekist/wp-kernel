@@ -211,7 +211,7 @@ pnpm add @geekist/wp-kernel
 
 ### Peer Dependencies
 
-- WordPress 6.7+ (Script Modules API)
+- WordPress 6.8+ (Script Modules API)
 - Node.js 22+ (development)
 
 ## Integration Guides
