@@ -336,6 +336,18 @@ export function createStore<T, TQuery = unknown>(
 		): string | undefined {
 			return state.errors[cacheKey];
 		},
+
+		/**
+		 * Internal selector to get the entire state.
+		 * Used by cache invalidation system to find matching cache keys.
+		 *
+		 * @param state - Store state
+		 * @return The complete resource state
+		 * @internal
+		 */
+		__getInternalState(state: ResourceState<T>): ResourceState<T> {
+			return state;
+		},
 	};
 
 	// Resolvers - using generator functions with controls pattern for promises

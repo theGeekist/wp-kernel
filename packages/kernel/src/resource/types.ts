@@ -885,6 +885,16 @@ export interface ResourceSelectors<T, TQuery = unknown> {
 	 * @return Error message or undefined
 	 */
 	getError: (state: ResourceState<T>, cacheKey: string) => string | undefined;
+
+	/**
+	 * Internal selector to get the entire state.
+	 * Used by cache invalidation system to find matching cache keys.
+	 *
+	 * @internal
+	 * @param state - Store state
+	 * @return The complete resource state
+	 */
+	__getInternalState: (state: ResourceState<T>) => ResourceState<T>;
 }
 
 /**

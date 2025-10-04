@@ -60,21 +60,15 @@ describe('invalidate edge cases', () => {
 	});
 
 	describe('development environment warnings', () => {
-		it('should log warning when invalidate fails in development', () => {
+		it('should log warning when store does not expose __getInternalState in development', () => {
 			process.env.NODE_ENV = 'development';
 
 			const mockStoreDispatch = {
-				invalidate: jest.fn(() => {
-					throw new Error('Store error');
-				}),
+				invalidate: jest.fn(),
 			};
 
 			const mockStoreSelect = {
-				getState: jest.fn().mockReturnValue({
-					lists: { 'thing:list': [1, 2] },
-					listMeta: {},
-					errors: {},
-				}),
+				// No __getInternalState selector
 			};
 
 			mockDispatch.mockReturnValue(mockStoreDispatch);
@@ -86,8 +80,9 @@ describe('invalidate edge cases', () => {
 			}).not.toThrow();
 
 			expect(consoleWarnSpy).toHaveBeenCalledWith(
-				expect.stringContaining('Failed to invalidate cache'),
-				expect.any(Error)
+				expect.stringContaining(
+					'does not expose __getInternalState selector'
+				)
 			);
 		});
 
