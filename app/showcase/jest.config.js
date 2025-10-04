@@ -39,5 +39,8 @@ export default {
 		...rootConfig.moduleNameMapper,
 		// Map relative imports within showcase
 		'^@/(.*)$': '<rootDir>/src/$1',
+		// Ensure kernel packages resolve correctly from showcase context
+		'^@geekist/wp-kernel$': '<rootDir>/../../packages/kernel/src',
+		'^@geekist/wp-kernel/(.*)$': '<rootDir>/../../packages/kernel/src/$1',
 	},
 };
