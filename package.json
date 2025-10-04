@@ -60,6 +60,7 @@
 		"preinstall": "npx only-allow pnpm"
 	},
 	"devDependencies": {
+		"@braintree/sanitize-url": "^7.1.1",
 		"@changesets/cli": "^2.29.7",
 		"@eslint/eslintrc": "^3.3.1",
 		"@eslint/js": "^9.36.0",
@@ -89,6 +90,10 @@
 		"ajv": "^8.17.1",
 		"ajv-formats": "^3.0.1",
 		"commander": "^12.1.0",
+		"cytoscape": "^3.33.1",
+		"cytoscape-cose-bilkent": "^4.1.0",
+		"dayjs": "^1.11.18",
+		"debug": "^4.4.3",
 		"eslint": "^9.36.0",
 		"eslint-import-resolver-typescript": "^4.4.4",
 		"globals": "^16.4.0",

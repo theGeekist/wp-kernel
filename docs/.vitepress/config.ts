@@ -16,6 +16,16 @@ export default withMermaid(
 		],
 		themeConfig: {
 			// https://vitepress.dev/reference/default-theme-config
+			logo: '/logo.png',
+
+			editLink: {
+				pattern:
+					'https://github.com/theGeekist/wp-kernel/edit/main/docs/:path',
+				text: 'Edit this page on GitHub',
+			},
+
+			externalLinkIcon: true,
+
 			nav: [
 				{ text: 'Home', link: '/' },
 				{ text: 'Getting Started', link: '/getting-started/' },
@@ -29,6 +39,7 @@ export default withMermaid(
 				'/getting-started/': [
 					{
 						text: 'Getting Started',
+						collapsed: false,
 						items: [
 							{
 								text: 'Introduction',
@@ -52,6 +63,7 @@ export default withMermaid(
 				'/guide/': [
 					{
 						text: 'Core Concepts',
+						collapsed: false,
 						items: [
 							{ text: 'Overview', link: '/guide/' },
 							{
@@ -74,6 +86,7 @@ export default withMermaid(
 					},
 					{
 						text: 'Advanced',
+						collapsed: true,
 						items: [
 							{
 								text: 'Resources Deep Dive',
@@ -93,6 +106,7 @@ export default withMermaid(
 				'/packages/': [
 					{
 						text: 'Packages',
+						collapsed: false,
 						items: [
 							{ text: 'Overview', link: '/packages/' },
 							{
@@ -117,6 +131,7 @@ export default withMermaid(
 				'/api/': [
 					{
 						text: 'API Reference',
+						collapsed: false,
 						items: [
 							{ text: 'Overview', link: '/api/' },
 							{ text: 'Resources', link: '/api/resources' },
@@ -127,6 +142,7 @@ export default withMermaid(
 					},
 					{
 						text: 'Generated Docs',
+						collapsed: true,
 						items: [
 							{
 								text: 'Resources',
@@ -146,6 +162,7 @@ export default withMermaid(
 				'/contributing/': [
 					{
 						text: 'Contributing',
+						collapsed: false,
 						items: [
 							{ text: 'Overview', link: '/contributing/' },
 							{ text: 'Roadmap', link: '/contributing/roadmap' },
