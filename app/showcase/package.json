@@ -21,7 +21,11 @@
 		"e2e": "cd ../../ && playwright test",
 		"e2e:headed": "cd ../../ && playwright test --headed",
 		"e2e:ui": "cd ../../ && playwright test --ui",
-		"e2e:debug": "cd ../../ && playwright test --debug"
+		"e2e:debug": "cd ../../ && playwright test --debug",
+		"e2e:playground": "cd ../../ && TEST_ENV=playground WP_BASE_URL=http://127.0.0.1:9400 WP_USERNAME=admin WP_PASSWORD=password playwright test",
+		"e2e:playground:headed": "cd ../../ && TEST_ENV=playground WP_BASE_URL=http://127.0.0.1:9400 WP_USERNAME=admin WP_PASSWORD=password playwright test --headed",
+		"e2e:playground:ui": "cd ../../ && TEST_ENV=playground WP_BASE_URL=http://127.0.0.1:9400 WP_USERNAME=admin WP_PASSWORD=password playwright test --ui",
+		"e2e:playground:debug": "cd ../../ && TEST_ENV=playground WP_BASE_URL=http://127.0.0.1:9400 WP_USERNAME=admin WP_PASSWORD=password playwright test --debug"
 	},
 	"dependencies": {
 		"@geekist/wp-kernel": "workspace:*",

@@ -116,27 +116,33 @@ export function JobsList(): JSX.Element {
 	}, [listResult?.data?.items, filters]);
 
 	const handleCreate = async (input: CreateJobInput) => {
+		console.log('[JobsList] handleCreate START', { input, isSubmitting });
 		setFeedback(null);
 		setIsSubmitting(true);
+		console.log('[JobsList] isSubmitting set to TRUE');
 
 		try {
-			if (process.env.NODE_ENV !== 'production') {
-				console.log('[JobsList] Creating job', input);
-			}
+			console.log('[JobsList] About to call CreateJob');
 			await CreateJob(input);
+			console.log('[JobsList] CreateJob SUCCESS - job created');
+
 			setFeedback({
 				type: 'success',
 				message: __('Job created successfully.', 'wp-kernel-showcase'),
 			});
 
-			if (process.env.NODE_ENV !== 'production') {
-				console.log('[JobsList] Job created, invalidating list cache', {
-					query,
-				});
-			}
+			console.log('[JobsList] About to invalidate cache', { query });
 			job.cache.invalidate.list();
-			await job.prefetchList?.(query);
+			console.log('[JobsList] Cache invalidated');
+			// Trigger refetch in background (don't await - let it run async)
+			if (job.prefetchList) {
+				job.prefetchList(query).catch((err) => {
+					console.warn('[JobsList] Background prefetch failed:', err);
+				});
+				console.log('[JobsList] Started background prefetch');
+			}
 		} catch (error) {
+			console.error('[JobsList] Error in handleCreate:', error);
 			const wrapped = ShowcaseActionError.fromUnknown(error, {
 				context: {
 					actionName: 'Jobs.Create',
@@ -149,7 +155,11 @@ export function JobsList(): JSX.Element {
 				message: wrapped.message,
 			});
 		} finally {
+			console.log(
+				'[JobsList] FINALLY block - setting isSubmitting to FALSE'
+			);
 			setIsSubmitting(false);
+			console.log('[JobsList] handleCreate END', { isSubmitting });
 		}
 	};
 

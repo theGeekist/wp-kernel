@@ -1,8 +1,34 @@
 import { defineConfig, devices } from '@playwright/test';
 
 /**
+ * Determine test environment: 'wp-env' (default) or 'playground'
+ * Set via TEST_ENV environment variable
+ */
+const TEST_ENV = (process.env.TEST_ENV || 'wp-env') as 'wp-env' | 'playground';
+
+/**
+ * Environment-specific configuration
+ */
+const ENV_CONFIG = {
+	'wp-env': {
+		baseURL: 'http://localhost:8889',
+		webServerCommand: 'pnpm wp:start',
+		webServerTimeout: 120 * 1000, // 2 minutes for Docker startup
+		autoStart: true, // wp-env can be auto-started (exits after starting)
+	},
+	playground: {
+		baseURL: 'http://127.0.0.1:9400', // Match Playground's actual output (uses 127.0.0.1 not localhost)
+		webServerCommand: 'pnpm playground',
+		webServerTimeout: 60 * 1000, // 1 minute for Playground startup
+		autoStart: false, // Playground runs in foreground, must be started manually
+	},
+};
+
+const config = ENV_CONFIG[TEST_ENV];
+
+/**
  * Playwright configuration for WP Kernel E2E tests
- * Targets wp-env tests site on port 8889
+ * Supports both wp-env (Docker) and WP Playground environments
  *
  * @see https://playwright.dev/docs/test-configuration
  */
@@ -35,7 +61,7 @@ export default defineConfig({
 	// Shared settings for all the projects below
 	use: {
 		// Base URL to use in actions like `await page.goto('/')`
-		baseURL: 'http://localhost:8889',
+		baseURL: config.baseURL,
 
 		// Collect trace when retrying the failed test
 		trace: 'on-first-retry',
@@ -82,15 +108,16 @@ export default defineConfig({
 	],
 
 	// Run your local dev server before starting the tests
-	// Only start server locally, not in CI (CI starts it manually)
-	...(process.env.CI
+	// Note: Playground must be started manually (it runs in foreground)
+	// wp-env can be auto-started (it daemonizes after starting)
+	...(process.env.CI || !config.autoStart
 		? {}
 		: {
 				webServer: {
-					command: 'pnpm wp:start',
-					url: 'http://localhost:8889',
+					command: config.webServerCommand,
+					url: config.baseURL,
 					reuseExistingServer: true,
-					timeout: 120 * 1000, // 2 minutes for Docker startup
+					timeout: config.webServerTimeout,
 					stdout: 'pipe',
 					stderr: 'pipe',
 				},
