@@ -270,8 +270,8 @@ export interface ResourceClient<T = unknown, TQuery = unknown> {
  * const thing = defineResource<Thing, { q?: string }>({ ... });
  *
  * // Use client methods (thin-flat API)
- * const items = await thing.list({ q: 'search' });
- * const item = await thing.get(123);
+ * const items = await thing.fetchList({ q: 'search' });
+ * const item = await thing.fetch(123);
  *
  * // Use React hooks
  * const { data, isLoading } = thing.useGet(123);
@@ -281,9 +281,9 @@ export interface ResourceClient<T = unknown, TQuery = unknown> {
  * await thing.prefetchGet(123);
  * await thing.prefetchList({ q: 'search' });
  *
- * // Instance-based invalidation
- * thing.invalidate(['list']); // Invalidate all lists
- * thing.invalidate(['list', 'active']); // Invalidate specific query
+ * // Instance-based invalidation (cache keys include resource name)
+ * thing.invalidate([['thing', 'list']]); // Invalidate all lists
+ * thing.invalidate([['thing', 'list', 'active']]); // Invalidate specific query
  *
  * // Generate cache keys
  * const key = thing.key('list', { q: 'search' });
@@ -437,12 +437,12 @@ export interface ResourceObject<T = unknown, TQuery = unknown>
 	 * ```ts
 	 * // After creating a thing
 	 * await thing.create(data);
-	 * thing.invalidate(['list']); // Invalidate all lists
+	 * thing.invalidate([['thing', 'list']]); // Invalidate all lists
 	 *
 	 * // After updating
 	 * await thing.update(id, data);
-	 * thing.invalidate(['get', id]); // Invalidate specific item
-	 * thing.invalidate(['list']); // Also invalidate lists
+	 * thing.invalidate([['thing', 'get', id]]); // Invalidate specific item
+	 * thing.invalidate([['thing', 'list']]); // Also invalidate lists
 	 * ```
 	 */
 	invalidate: (
