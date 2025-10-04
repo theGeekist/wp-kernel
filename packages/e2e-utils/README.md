@@ -1,33 +1,150 @@
 # @geekist/wp-kernel-e2e-utils
 
-E2E testing utilities for WP Kernel projects built on top of `@wordpress/e2e-test-utils-playwright`.
+> End-to-end testing utilities for WordPress + WP Kernel applications
 
----
+## Overview
 
-## Current E2E Setup (Analysis)
+Playwright-based testing utilities designed for WordPress environments:
 
-### Status: Pre-Sprint 2
+- **WordPress fixtures** - Auth, database seeding, role management
+- **Kernel integration** - Resource state, cache validation, event capture
+- **Flexible imports** - Scoped, namespaced, or flat import patterns
+- **Real environment testing** - Validated via showcase app E2E tests
 
-The monorepo currently has E2E tests configured but **does NOT yet use WordPress E2E utilities** or kernel-specific helpers.
+Built for testing WordPress plugins and themes with modern patterns.
 
-#### Configuration
+## Quick Start
 
-- **Playwright Config**: Root-level `playwright.config.ts`
-- **Test Location**: `app/showcase/__tests__/e2e/*.spec.ts`
-- **Target Environment**: wp-env on `http://localhost:8889` (tests site)
-- **Browsers**: chromium, firefox, webkit
-- **Test Pattern**: `*.spec.ts` files only
-
-#### Current Test Implementation
-
-Existing tests use **vanilla Playwright** with manual helper functions:
+```bash
+npm install -D @geekist/wp-kernel-e2e-utils playwright
+```
 
 ```typescript
-// app/showcase/__tests__/e2e/sanity.spec.ts
-import { test, expect } from '@playwright/test'; // ❌ NOT using WordPress utils
+import { test } from '@playwright/test';
+import { auth, db, store } from '@geekist/wp-kernel-e2e-utils';
 
-// Manual helper (duplicated across test files)
-async function loginToWordPress(page: Page) {
+test('admin can create posts', async ({ page }) => {
+	// WordPress auth
+	await auth.login(page, 'admin');
+
+	// Database setup
+	await db.seedUsers({ role: 'editor', count: 3 });
+
+	// Test admin functionality
+	await page.goto('/wp-admin/post-new.php');
+	// ... test interactions
+
+	// Validate kernel state
+	await store.waitForResource(page, 'post', { status: 'published' });
+});
+```
+
+## Key Features
+
+**📖 [Complete Documentation →](../../docs/packages/e2e-utils.md)**
+
+### Import Patterns
+
+```typescript
+// Scoped imports (recommended)
+import { login } from '@geekist/wp-kernel-e2e-utils/auth';
+import { seedPosts } from '@geekist/wp-kernel-e2e-utils/db';
+
+// Namespace imports
+import { auth, db, store } from '@geekist/wp-kernel-e2e-utils';
+
+// Flat imports
+import {
+	login,
+	seedPosts,
+	waitForResource,
+} from '@geekist/wp-kernel-e2e-utils';
+```
+
+### WordPress Integration
+
+```typescript
+// User management and auth
+await auth.login(page, 'admin');
+await auth.switchUser(page, 'editor');
+
+// Database operations
+await db.seedPosts({ count: 10, status: 'published' });
+await db.cleanup(['posts', 'users']);
+
+// REST API testing
+await rest.validateEndpoint(page, '/wp/v2/posts');
+```
+
+### Kernel Testing
+
+```typescript
+// Resource state validation
+await store.waitForResource(page, 'user');
+await store.expectCacheKey(page, ['user', 'list']);
+
+// Event capture
+await events.captureEmitted(page, 'wpk.resource.user.created');
+```
+
+## Validation Strategy
+
+**Real-world validation** - This package is tested through actual usage in the showcase app's E2E tests rather than isolated unit tests, ensuring utilities work correctly in live WordPress environments.
+
+**🧪 [Testing Patterns →](../../docs/packages/e2e-utils.md#testing-patterns)**
+
+- 🚧 Performance testing helpers
+
+## Requirements
+
+- WordPress 6.7+
+- Playwright 1.45+
+- `@geekist/wp-kernel` for fixturesutilities for WP Kernel projects
+
+## What is this?
+
+Comprehensive E2E testing toolkit built on `@wordpress/e2e-test-utils-playwright` with kernel-specific helpers:
+
+- **Playwright fixture** with kernel-aware utilities
+- **Resource testing** for CRUD operations and validation
+- **Action testing** with event capture and verification
+- **Store testing** for cache invalidation and state management
+- **WordPress integration** with wp-env and seeding utilities
+
+Validates complete user workflows in real WordPress environments.
+
+## Installation
+
+```bash
+npm install -D @geekist/wp-kernel-e2e-utils
+# or
+pnpm add -D @geekist/wp-kernel-e2e-utils
+```
+
+**Peer Dependencies**: `@playwright/test`, `@wordpress/e2e-test-utils-playwright`
+
+## Quick Example
+
+```typescript
+import { test } from './test-utils';
+
+test('user can create post', async ({ page, kernel }) => {
+  // Setup test data
+  await kernel.auth.loginAsAdmin(page);
+
+  // Test user workflow
+  await page.goto('/wp-admin/post-new.php');
+  await page.fill('#title', 'E2E Test Post');
+  await page.click('#publish');
+
+  // Verify with kernel utilities
+  const post = await kernel.db.getPostByTitle('E2E Test Post');
+  expect(post.status).toBe('publish');
+
+  // Verify events were emitted
+  const events = await kernel.events.getEvents();
+  expect(events).toContainEventType('wpk.resource.post.created');
+});
 	await page.goto('/wp-login.php');
 	await page.fill('input[name="log"]', 'admin');
 	await page.fill('input[name="pwd"]', 'password');

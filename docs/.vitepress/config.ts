@@ -18,6 +18,7 @@ export default defineConfig({
 			{ text: 'Home', link: '/' },
 			{ text: 'Getting Started', link: '/getting-started/' },
 			{ text: 'Guide', link: '/guide/' },
+			{ text: 'Packages', link: '/packages/' },
 			{ text: 'API', link: '/api/' },
 			{ text: 'Contributing', link: '/contributing/' },
 		],
@@ -51,6 +52,10 @@ export default defineConfig({
 					text: 'Core Concepts',
 					items: [
 						{ text: 'Overview', link: '/guide/' },
+						{
+							text: 'Philosophy & Architecture',
+							link: '/guide/philosophy',
+						},
 						{ text: 'Resources', link: '/guide/resources' },
 						{ text: 'Actions', link: '/guide/actions' },
 						{ text: 'Events', link: '/guide/events' },
@@ -79,6 +84,27 @@ export default defineConfig({
 						{
 							text: 'Showcase Plugin',
 							link: '/guide/showcase',
+						},
+					],
+				},
+			],
+			'/packages/': [
+				{
+					text: 'Packages',
+					items: [
+						{ text: 'Overview', link: '/packages/' },
+						{
+							text: '@geekist/wp-kernel',
+							link: '/packages/kernel',
+						},
+						{ text: '@geekist/wp-kernel-ui', link: '/packages/ui' },
+						{
+							text: '@geekist/wp-kernel-cli',
+							link: '/packages/cli',
+						},
+						{
+							text: '@geekist/wp-kernel-e2e-utils',
+							link: '/packages/e2e-utils',
 						},
 					],
 				},
@@ -117,6 +143,7 @@ export default defineConfig({
 					text: 'Contributing',
 					items: [
 						{ text: 'Overview', link: '/contributing/' },
+						{ text: 'Roadmap', link: '/contributing/roadmap' },
 						{
 							text: 'Development Setup',
 							link: '/contributing/setup',

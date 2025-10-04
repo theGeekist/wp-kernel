@@ -59,6 +59,10 @@ pnpm wp:fresh
 Visit [http://localhost:8888/wp-admin](http://localhost:8888/wp-admin)  
 Login: `admin` / `password`
 
+### 🚨 New to this monorepo?
+
+**[📖 Read the Development Guide](DEVELOPMENT.md)** - Essential workflow, testing infrastructure, and troubleshooting.
+
 ---
 
 ## 📦 Import Patterns

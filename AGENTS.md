@@ -1,5 +1,8 @@
 # AGENTS.md — WP Kernel
 
+> 💡 For human contributors: see [DEVELOPMENT.md](./DEVELOPMENT.md) for setup, workflow, and environment details.  
+> This file focuses on agent/contribution rules.
+
 **Purpose**: Operational guide for coding agents (Codex, etc.) working on WP Kernel. Follow the commands and constraints below. Finish only when checks are green and diffs are minimal.
 
 ## Project Overview (for agents)

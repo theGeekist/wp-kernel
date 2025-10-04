@@ -2,6 +2,12 @@
 
 Thank you for your interest in contributing to WP Kernel! This guide will help you get started.
 
+## 🚀 Quick Start
+
+**👉 [Development Setup](/contributing/setup)** - Complete guide to setting up your development environment.
+
+New contributors should read this first - it covers the critical infrastructure that makes this project work.
+
 ## Code of Conduct
 
 This project adheres to a code of conduct. By participating, you are expected to uphold this code. Please report unacceptable behavior to the project maintainers.

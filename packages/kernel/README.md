@@ -1,67 +1,131 @@
 # @geekist/wp-kernel
 
-> Rails-like framework for building modern WordPress products
+> The core framework for JavaScript-first WordPress development with Rails-like conventions
 
 ## Overview
 
-WP Kernel is a small, opinionated framework that standardizes how teams build WordPress plugins and themes in 2025+. It provides:
+WP Kernel is the foundation package that provides:
 
-- **Actions-first architecture** - Write path orchestration
-- **Resources** - Typed REST client with automatic caching
-- **Events** - Canonical taxonomy with JS hooks + PHP bridge
-- **Block Bindings** - Data-driven content without custom blocks
-- **Interactivity API** - Front-end behavior without jQuery
-- **Jobs** - Background work with polling support
+- **Actions-first architecture** - All writes flow through `defineAction()` orchestrators
+- **Resource definitions** - Single `defineResource()` creates client + store + cache + events
+- **Background jobs** - Define and queue async work with `defineJob()`
+- **Event system** - Canonical taxonomy with PHP bridge for extensibility
 
-## Installation
-
-```bash
-npm install @geekist/wp-kernel
-# or
-pnpm add @geekist/wp-kernel
-```
+Built on WordPress primitives: Script Modules, Block Bindings, Interactivity API, @wordpress/data.
 
 ## Quick Start
 
-### Define a Resource
+```bash
+npm install @geekist/wp-kernel
+```
 
 ```typescript
-import { defineResource } from '@geekist/wp-kernel/resource';
+import { defineResource, defineAction } from '@geekist/wp-kernel';
 
-export const post = defineResource({
-	name: 'post', // Namespace auto-detected from plugin context
+// 1. Define your resource
+const post = defineResource({
+  name: 'post',
+  routes: {
+    list: { path: '/wp/v2/posts', method: 'GET' },
+    create: { path: '/wp/v2/posts', method: 'POST' },
+  },
+});
+
+// 2. Create actions for writes
+const CreatePost = defineAction({
+  name: 'CreatePost',
+  execute: ({ title, content }) => post.create({ title, content }),
+});
+
+// 3. Use in components
+import { ActionButton } from '@geekist/wp-kernel-ui';
+<ActionButton action={CreatePost}>Create Post</ActionButton>
+```
+
+## Key Patterns
+
+**📖 [Complete Documentation →](../../docs/packages/kernel.md)**
+
+### Resources
+
+```typescript
+// Complete CRUD with events and caching
+const user = defineResource<User>({
+	name: 'user',
 	routes: {
-		list: { path: '/wp/v2/posts', method: 'GET' },
-		get: { path: '/wp/v2/posts/:id', method: 'GET' },
-		create: { path: '/wp/v2/posts', method: 'POST' },
-		update: { path: '/wp/v2/posts/:id', method: 'PUT' },
+		/* REST endpoints */
 	},
 	cacheKeys: {
-		list: (params) => ['post', 'list', params],
-		get: (id) => ['post', id],
+		/* cache strategies */
+	},
+	events: {
+		/* canonical events */
 	},
 });
 ```
 
-### Create an Action
+### Actions
 
 ```typescript
-import { defineAction } from '@geekist/wp-kernel/actions';
-import { events } from '@geekist/wp-kernel/events';
-import { post } from './resources/post';
-
-export const CreatePost = defineAction('Post.Create', async ({ data }) => {
-	const created = await post.create(data);
-
-	// Emit canonical event
-	CreatePost.emit(events.post.created, { id: created.id });
-
-	// Invalidate cache
-	invalidate(['post', 'list']);
-
-	return created;
+// Orchestrate writes with validation and events
+const UpdateUser = defineAction({
+	name: 'UpdateUser',
+	async execute({ id, data }) {
+		// validation, optimistic updates, events
+		return await user.update(id, data);
+	},
 });
 ```
+
+### Jobs
+
+```typescript
+// Background processing with retries
+const SendWelcomeEmail = defineJob({
+	name: 'SendWelcomeEmail',
+	async execute({ userId }) {
+		// async work, error handling, retries
+	},
+});
+```
+
+## WordPress Integration
+
+- **WordPress 6.5+** - Core feature compatibility
+- **WordPress 6.7+** - Full DataViews and Script Modules support
+- **PHP Bridge** - Automatic REST endpoint and capability integration
+
+**📚 [Integration Guide →](../../docs/guide/getting-started.md)**
+
+## Import Patterns
+
+Choose what fits your project:
+
+```typescript
+// Scoped (recommended)
+import { defineResource } from '@geekist/wp-kernel/resource';
+
+// Namespace
+import { resource } from '@geekist/wp-kernel';
+
+// Flat
+import { defineResource } from '@geekist/wp-kernel';
+```
+
+## Documentation
+
+- **[Complete Documentation](https://thegeekist.github.io/wp-kernel/packages/kernel/)** - Comprehensive guides and examples
+- **[Getting Started](https://thegeekist.github.io/wp-kernel/getting-started/)** - Your first resource and action
+- **[Philosophy](https://thegeekist.github.io/wp-kernel/guide/philosophy/)** - Why WP Kernel works this way
+- **[API Reference](https://thegeekist.github.io/wp-kernel/api/)** - Complete API documentation
+
+## Requirements
+
+- WordPress 6.7+ (Script Modules API)
+- Node.js 22+ (development)
+- TypeScript support recommended
+
+````
 
 ### Use in Block Editor
 
@@ -75,7 +139,7 @@ const PostForm = () => {
 
 	return <form onSubmit={handleSubmit}>{/* ... */}</form>;
 };
-```
+````
 
 ## Core Concepts
 

@@ -4,11 +4,21 @@
 
 Canonical event taxonomy for observability and extensibility.
 
+## Event Naming Convention
+
+Events follow the pattern: `{namespace}.{category}.{event}` where:
+
+- **namespace**:
+    - Framework events: Always `wpk` (core kernel events)
+    - Resource events: Auto-detected from environment or explicitly configured (fallback: 'wpk')
+- **category**: Type of event (resource, action, job, etc.)
+- **event**: Specific event name
+
 ## Currently Available Events (Sprint 1)
 
 ### Resource Transport Events
 
-Emitted by the HTTP transport layer during resource operations:
+Emitted by the HTTP transport layer during resource operations. These are **framework events** that always use the `wpk` namespace:
 
 #### `wpk.resource.request`
 
@@ -121,16 +131,34 @@ addAction('wpk.cache.invalidated', 'my-plugin', (event) => {
 
 ### Resource-Specific Events
 
-Each resource provides event names via the `events` property:
+Each resource automatically generates events using **auto-detected namespaces**. Unlike framework events which always use `wpk`, resource events use your plugin's detected namespace:
 
 ```typescript
 import { testimonial } from './resources/testimonial';
 
-// Access event names
-console.log(testimonial.events.created); // 'acme-blog.testimonial.created' (auto-detected)
+// Access event names (namespace auto-detected from your plugin)
+console.log(testimonial.events.created); // 'acme-blog.testimonial.created'
 console.log(testimonial.events.updated); // 'acme-blog.testimonial.updated'
 console.log(testimonial.events.removed); // 'acme-blog.testimonial.removed'
+
+// Subscribe to resource events
+import { addAction } from '@wordpress/hooks';
+
+addAction(testimonial.events.created, 'my-plugin', (payload) => {
+	console.log('Testimonial created:', payload.data);
+});
+
+// Or use the pattern directly (if you know your namespace)
+addAction('acme-blog.testimonial.created', 'my-plugin', (payload) => {
+	console.log('Testimonial created:', payload.data);
+});
 ```
+
+**Event Pattern**: `{namespace}.{resourceName}.{action}` where:
+
+- `{namespace}`: Auto-detected from your plugin (e.g., 'acme-blog', 'wp-kernel-showcase')
+- `{resourceName}`: The resource name from `defineResource({ name: 'testimonial' })`
+- `{action}`: CRUD action (`created`, `updated`, `removed`)
 
 **Note**: These events are defined but not automatically emitted yet. They will be emitted by Actions in Sprint 4.
 

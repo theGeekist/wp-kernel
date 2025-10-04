@@ -1,89 +1,97 @@
 # @geekist/wp-kernel-ui
 
-> Reusable UI components for WP Kernel
+> WordPress-native UI components for modern admin interfaces and blocks
 
 ## Overview
 
-A collection of WordPress-native UI components built on `@wordpress/components` that follow WP Kernel patterns and conventions.
+React components built on `@wordpress/components` with kernel-aware functionality:
 
-## Installation
+- **ActionButton** - Buttons that trigger actions (never transport directly)
+- **DataViews integration** - Modern admin tables for WordPress 6.7+
+- **ResourceForm** - Forms with validation and action submission
+- **Block utilities** - Binding and Interactivity API helpers
+
+Maintains WordPress design consistency while adding modern patterns.
+
+## Quick Start
 
 ```bash
 npm install @geekist/wp-kernel-ui @geekist/wp-kernel
-# or
-pnpm add @geekist/wp-kernel-ui @geekist/wp-kernel
 ```
-
-## Peer Dependencies
-
-This package requires:
-
-- `@geekist/wp-kernel` (the core framework)
-- `@wordpress/components` (WordPress component library)
-- `@wordpress/element` (WordPress React wrapper)
-- `react` (React 18+)
-
-## Components (Coming Soon)
-
-This package will include:
-
-### Layout Components
-
-- `ActionButton` - Button that triggers WP Kernel actions
-- `ResourceList` - Data-driven list with automatic loading states
-- `ResourceForm` - Form with validation and action submission
-- `NoticeContainer` - Global notices using core/notices
-
-### Data Components
-
-- `ResourceProvider` - Context provider for resource data
-- `useResource` - Hook for accessing resource state
-- `useAction` - Hook for triggering actions
-
-### Block Components
-
-- `BindingPreview` - Preview block bindings in editor
-- `InteractivityProvider` - Wrap blocks with interactivity context
-
-## Usage Example
 
 ```typescript
 import { ActionButton, useResource } from '@geekist/wp-kernel-ui';
-import { CreatePost } from './actions/Post/Create';
-import { post } from './resources/post';
+import { CreatePost } from '@/actions/CreatePost';
+import { post } from '@/resources/post';
 
-const PostList = () => {
-	const { data: posts, loading } = useResource(post, 'list');
+function PostDashboard() {
+  const { data: posts, isLoading } = useResource(post);
 
-	return (
-		<div>
-			{loading && <Spinner />}
-			{posts?.map((p) => (
-				<div key={p.id}>{p.title}</div>
-			))}
-			<ActionButton
-				action={CreatePost}
-				actionArgs={{ data: { title: 'New Post' } }}
-			>
-				Create Post
-			</ActionButton>
-		</div>
-	);
-};
+  return (
+    <div>
+      <ActionButton action={CreatePost} variant="primary">
+        Add New Post
+      </ActionButton>
+
+      {isLoading ? <Spinner /> : (
+        <ul>{posts.map(p => <li key={p.id}>{p.title}</li>)}</ul>
+      )}
+    </div>
+  );
+}
 ```
 
-## Design Principles
+## Key Components
 
-1. **WordPress-Native** - Uses `@wordpress/components` exclusively
-2. **Action-Aware** - Components understand WP Kernel actions
-3. **Type-Safe** - Full TypeScript support with generics
-4. **Accessible** - Follows WordPress accessibility guidelines
-5. **Minimal** - Thin wrappers, not a reinvention
+**📖 [Complete Documentation →](../../docs/packages/ui.md)**
 
-## Documentation
+### Admin Interfaces
 
-For complete documentation, see the [main repository](https://github.com/theGeekist/wp-kernel).
+```typescript
+// DataViews for WordPress 6.7+
+import { AdminTable } from '@geekist/wp-kernel-ui';
+<AdminTable resource={user} fields={userFields} />
 
-## License
+// Fallback for older WordPress
+<FallbackTable resource={user} />
+```
 
-MIT © [The Geekist](https://github.com/theGeekist)
+### Action Integration
+
+```typescript
+// Buttons that trigger actions
+<ActionButton action={DeleteUser} variant="destructive">
+  Delete User
+</ActionButton>
+
+// Forms with kernel actions
+<ResourceForm
+  resource={user}
+  createAction={CreateUser}
+  updateAction={UpdateUser}
+/>
+```
+
+### WordPress Version Support
+
+- **WordPress 6.5+** - Core components with graceful degradation
+- **WordPress 6.7+** - Full DataViews and modern features
+- **Feature detection** - Automatic fallbacks for compatibility
+
+**🎨 [Implementation Patterns →](../../docs/packages/ui.md#admin-crud-patterns)**
+
+- **[Getting Started](https://thegeekist.github.io/wp-kernel/getting-started/)** - Basic setup
+- **[Component Reference](https://thegeekist.github.io/wp-kernel/api/ui-components/)** - Complete API docs
+
+## Development Status
+
+- ✅ Component architecture designed
+- ✅ Core hooks implemented
+- 🚧 Layout components in progress
+- 🚧 Block components in progress
+
+## Requirements
+
+- WordPress 6.7+
+- React 18+
+- `@geekist/wp-kernel` installed

@@ -2,6 +2,9 @@
 node_modules/
 vendor/
 
+# private, symlinked folders are not in source control
+instructions/ 
+
 # Build outputs
 dist/
 build/
