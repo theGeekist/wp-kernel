@@ -1,125 +1,45 @@
-/**
- * Job Posting Resource
- *
- * Demonstrates WP Kernel's defineResource pattern for domain-specific entities.
- * This is the canonical way to wire REST endpoints to @wordpress/data stores.
- */
-
 import { defineResource } from '@geekist/wp-kernel';
 import type { Job } from '../../types/job';
 
 /**
- * Query parameters for job listing endpoint
+ * Query parameters for job listing endpoint.
  */
 export interface JobListParams {
-	/**
-	 * Search query for job title or description
-	 */
 	q?: string;
-
-	/**
-	 * Filter by department
-	 */
 	department?: string;
-
-	/**
-	 * Filter by location
-	 */
 	location?: string;
-
-	/**
-	 * Filter by status
-	 */
 	status?: 'draft' | 'publish' | 'closed';
-
-	/**
-	 * Pagination cursor
-	 */
 	cursor?: string;
 }
 
 /**
- * Job Posting Resource
- *
- * Provides typed REST client + @wordpress/data store for Job entities.
- *
- * @example
- * ```typescript
- * // In a component
- * import { useSelect } from '@wordpress/data';
- * import { job } from '@/resources/job';
- *
- * const jobs = useSelect((select) => select(job.storeKey).getList());
- * ```
- *
- * @example
- * ```typescript
- * // Direct client usage
- * const allJobs = await job.client.list({ status: 'publish' });
- * const singleJob = await job.client.get(123);
- * ```
+ * Resource definition for job postings.
  */
 export const job = defineResource<Job, JobListParams>({
-	/**
-	 * Resource name - used for store key and cache key prefix
-	 */
 	name: 'job',
-
-	/**
-	 * REST routes configuration
-	 */
 	routes: {
-		/**
-		 * GET /wp-kernel-showcase/v1/jobs - List all job postings
-		 * Supports query params: q, department, location, status, cursor
-		 */
 		list: {
 			path: '/wp-kernel-showcase/v1/jobs',
 			method: 'GET',
 		},
-
-		/**
-		 * GET /wp-kernel-showcase/v1/jobs/:id - Get single job posting
-		 */
 		get: {
 			path: '/wp-kernel-showcase/v1/jobs/:id',
 			method: 'GET',
 		},
-
-		/**
-		 * POST /wp-kernel-showcase/v1/jobs - Create job posting (stub - 501)
-		 */
 		create: {
 			path: '/wp-kernel-showcase/v1/jobs',
 			method: 'POST',
 		},
-
-		/**
-		 * PUT /wp-kernel-showcase/v1/jobs/:id - Update job posting (stub - 501)
-		 */
 		update: {
 			path: '/wp-kernel-showcase/v1/jobs/:id',
 			method: 'PUT',
 		},
-
-		/**
-		 * DELETE /wp-kernel-showcase/v1/jobs/:id - Delete job posting (stub - 501)
-		 */
 		remove: {
 			path: '/wp-kernel-showcase/v1/jobs/:id',
 			method: 'DELETE',
 		},
 	},
-
-	/**
-	 * Cache key generators for deterministic cache invalidation
-	 */
 	cacheKeys: {
-		/**
-		 * Cache key for list queries
-		 * Pattern: ['job', 'list', queryParams...]
-		 * @param params
-		 */
 		list: (params?: unknown) => {
 			const query = params as JobListParams | undefined;
 			return [
@@ -132,17 +52,6 @@ export const job = defineResource<Job, JobListParams>({
 				query?.cursor,
 			];
 		},
-
-		/**
-		 * Cache key for single job queries
-		 * Pattern: ['job', 'get', id]
-		 * @param params
-		 */
 		get: (params?: string | number) => ['job', 'get', params],
 	},
 });
-
-/**
- * Re-export Job type for convenience
- */
-export type { Job };
