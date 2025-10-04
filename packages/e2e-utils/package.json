@@ -40,17 +40,20 @@
 		"dev": "tsc --build --watch",
 		"build": "tsc --build",
 		"clean": "rm -rf dist *.tsbuildinfo",
-		"typecheck": "tsc --noEmit"
+		"lint": "eslint src/",
+		"lint:fix": "eslint src/ --fix",
+		"format": "prettier --write 'src/**/*.{js,ts,tsx,json,md}'",
+		"format:check": "prettier --check 'src/**/*.{js,ts,tsx,json,md}'",
+		"typecheck": "tsc --noEmit",
+		"typecheck:tests": "tsc --project tsconfig.tests.json --noEmit",
+		"test": "jest --passWithNoTests",
+		"test:watch": "jest --watch",
+		"test:coverage": "jest --coverage"
 	},
 	"peerDependencies": {
 		"@geekist/wp-kernel": "workspace:*",
 		"@playwright/test": ">=1.40.0",
 		"@wordpress/e2e-test-utils-playwright": ">=1.0.0"
-	},
-	"devDependencies": {
-		"@playwright/test": "^1.55.1",
-		"@wordpress/e2e-test-utils-playwright": "^1.31.0",
-		"typescript": "^5.9.2"
 	},
 	"publishConfig": {
 		"access": "public"
