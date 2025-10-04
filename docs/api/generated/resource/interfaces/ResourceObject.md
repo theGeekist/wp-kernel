@@ -555,12 +555,12 @@ Cache key patterns to invalidate
 ```ts
 // After creating a thing
 await thing.create(data);
-thing.invalidate(['list']); // Invalidate all lists
+thing.invalidate([['thing', 'list']]); // Invalidate all lists
 
 // After updating
 await thing.update(id, data);
-thing.invalidate(['get', id]); // Invalidate specific item
-thing.invalidate(['list']); // Also invalidate lists
+thing.invalidate([['thing', 'get', id]]); // Invalidate specific item
+thing.invalidate([['thing', 'list']]); // Also invalidate lists
 ```
 
 ---
