@@ -9,6 +9,7 @@ import { JobFilters, type JobFiltersState } from '../../views/jobs/JobFilters';
 import { JobListTable } from '../../views/jobs/JobListTable';
 import { CreateJob, type CreateJobInput } from '../../actions/jobs/CreateJob';
 import { ShowcaseActionError } from '../../errors/ShowcaseActionError';
+import { logDebug } from '../utils/debug';
 
 type DebuggableWindow = Window &
 	typeof globalThis & {
@@ -19,6 +20,7 @@ type DebuggableWindow = Window &
 		};
 		__wpkKernelDebug?: unknown;
 		__wpkKernelSelectors?: unknown;
+		__wpkKernelDebugLogs?: unknown;
 	};
 
 const defaultFilters: JobFiltersState = {
@@ -70,14 +72,12 @@ export function JobsList(): JSX.Element {
 
 	const listResult = job.useList?.(query);
 
-	if (process.env.NODE_ENV !== 'production') {
-		console.log('[JobsList] useList result', {
-			query,
-			isLoading: listResult?.isLoading,
-			error: listResult?.error,
-			items: listResult?.data?.items?.length,
-		});
-	}
+	logDebug('JobsList.useList', {
+		query,
+		isLoading: listResult?.isLoading,
+		error: listResult?.error,
+		items: listResult?.data?.items?.length,
+	});
 
 	useEffect(() => {
 		if (typeof window === 'undefined') {
@@ -120,20 +120,14 @@ export function JobsList(): JSX.Element {
 		setIsSubmitting(true);
 
 		try {
-			if (process.env.NODE_ENV !== 'production') {
-				console.log('[JobsList] Creating job', input);
-			}
+			logDebug('JobsList.create.start', input);
 			await CreateJob(input);
 			setFeedback({
 				type: 'success',
 				message: __('Job created successfully.', 'wp-kernel-showcase'),
 			});
 
-			if (process.env.NODE_ENV !== 'production') {
-				console.log('[JobsList] Job created, invalidating list cache', {
-					query,
-				});
-			}
+			logDebug('JobsList.create.prefetch', { query });
 			job.cache.invalidate.list();
 			await job.prefetchList?.(query);
 		} catch (error) {
@@ -149,13 +143,16 @@ export function JobsList(): JSX.Element {
 				message: wrapped.message,
 			});
 		} finally {
+			logDebug('JobsList.create.complete', {
+				query,
+			});
 			setIsSubmitting(false);
 		}
 	};
 
 	return (
 		<div className="jobs-admin" data-testid="jobs-admin-root">
-			<h1>{__('Careers showcase', 'wp-kernel-showcase')}</h1>
+			<h1>{__('Careers Dashboard', 'wp-kernel-showcase')}</h1>
 
 			{listResult?.error && (
 				<Notice
