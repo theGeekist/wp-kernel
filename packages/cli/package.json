@@ -44,17 +44,18 @@
 		"dev": "vite build --watch",
 		"build": "vite build && tsc --noEmit",
 		"clean": "rm -rf dist *.tsbuildinfo",
-		"typecheck": "tsc --noEmit"
-	},
-	"dependencies": {
-		"commander": "^12.1.0"
+		"lint": "eslint src/",
+		"lint:fix": "eslint src/ --fix",
+		"format": "prettier --write 'src/**/*.{js,ts,tsx,json,md}'",
+		"format:check": "prettier --check 'src/**/*.{js,ts,tsx,json,md}'",
+		"typecheck": "tsc --noEmit",
+		"typecheck:tests": "echo 'No test files configured'",
+		"test": "jest --passWithNoTests",
+		"test:watch": "jest --watch",
+		"test:coverage": "jest --coverage"
 	},
 	"peerDependencies": {
 		"@geekist/wp-kernel": "workspace:*"
-	},
-	"devDependencies": {
-		"@types/node": "^24.6.0",
-		"typescript": "^5.9.2"
 	},
 	"publishConfig": {
 		"access": "public"

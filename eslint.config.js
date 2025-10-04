@@ -173,22 +173,24 @@ export default [
 			'no-console': 'off',
 			'@typescript-eslint/no-explicit-any': 'off',
 			'import/no-default-export': 'off',
+			// Disable extraneous dependencies rule for test files
+			// In a monorepo with centralized dependency management, this rule is more harmful than helpful
+			'import/no-extraneous-dependencies': 'off',
 		},
 	},
 
 	// Config files can use default exports and devDependencies (root and nested)
 	{
 		files: [
-			'*.spec.ts',
 			'*.config.js',
 			'*.config.ts',
 			'*.config.cjs',
 			'*.config.mjs',
 			'**/*.config.js',
-			'**/*.spec.ts',
 			'**/*.config.ts',
 			'**/*.config.cjs',
 			'**/*.config.mjs',
+			'**/bin/**', // CLI bin files
 		],
 		rules: {
 			'import/no-default-export': 'off',
@@ -198,6 +200,7 @@ export default [
 					devDependencies: true,
 					optionalDependencies: false,
 					peerDependencies: false,
+					packageDir: [__dirname], // Look for dependencies in monorepo root
 				},
 			],
 			// Allow multiple imports from packages with subpath exports (e.g., @kucrut/vite-for-wp and @kucrut/vite-for-wp/plugins)
