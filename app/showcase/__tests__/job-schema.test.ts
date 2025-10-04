@@ -7,7 +7,10 @@ import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
 import { readFileSync } from 'fs';
 import { resolve } from 'path';
-import jobSchema from '../contracts/job.schema.json';
+
+const jobSchema = JSON.parse(
+	readFileSync(resolve(__dirname, '../contracts/job.schema.json'), 'utf-8')
+);
 
 describe('Job Schema Validation', () => {
 	let ajv: Ajv;

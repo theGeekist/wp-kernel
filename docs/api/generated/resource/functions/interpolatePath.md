@@ -10,7 +10,7 @@
 function interpolatePath(path, params): string;
 ```
 
-Defined in: [resource/cache.ts:171](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/cache.ts#L171)
+Defined in: [resource/cache.ts:387](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/cache.ts#L387)
 
 Interpolate dynamic segments in a REST path
 

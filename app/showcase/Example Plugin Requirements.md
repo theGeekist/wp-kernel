@@ -1,0 +1,1 @@
+/Users/jasonnathan/Downloads/Obsidian/WP Kernel/Example Plugin Requirements.md

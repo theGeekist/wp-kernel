@@ -221,7 +221,7 @@ describe('utils - getWPData', () => {
 	});
 
 	it('should return undefined when wp.data is not available', () => {
-		window.wp = {};
+		(window as Window & { wp?: unknown }).wp = {};
 
 		const result = getWPData();
 		expect(result).toBeUndefined();

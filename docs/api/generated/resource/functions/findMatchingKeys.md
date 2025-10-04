@@ -10,7 +10,7 @@
 function findMatchingKeys(keys, pattern): string[];
 ```
 
-Defined in: [resource/cache.ts:97](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/cache.ts#L97)
+Defined in: [resource/cache.ts:313](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/cache.ts#L313)
 
 Find all cache keys in a collection that match the given pattern.
 

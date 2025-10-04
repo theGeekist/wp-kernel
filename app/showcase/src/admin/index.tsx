@@ -29,6 +29,4 @@ export function mountAdmin() {
 	// Create React root and render the application
 	const root = createRoot(rootElement);
 	root.render(<JobsList />);
-
-	console.log('[WP Kernel Showcase] Admin application mounted');
 }

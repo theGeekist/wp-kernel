@@ -284,7 +284,7 @@ jobs:
               run: pnpm wp:seed
 
             - name: Run E2E tests
-              run: pnpm e2e --project=chromium
+              run: pnpm e2e --project=chromium --workers=1
 
             - name: Upload Playwright report
               if: failure()

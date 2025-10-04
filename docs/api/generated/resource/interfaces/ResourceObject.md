@@ -583,7 +583,7 @@ Useful for manual cache management or debugging.
 
 Operation name ('list', 'get', etc.)
 
-`"get"` | `"list"` | `"create"` | `"update"` | `"remove"`
+`"list"` | `"get"` | `"create"` | `"update"` | `"remove"`
 
 ##### params?
 
@@ -1029,7 +1029,7 @@ Generate cache key
 
 ###### operation
 
-`"get"` | `"list"` | `"create"` | `"update"` | `"remove"`
+`"list"` | `"get"` | `"create"` | `"update"` | `"remove"`
 
 ###### params?
 

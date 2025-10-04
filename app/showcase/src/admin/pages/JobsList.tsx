@@ -1,356 +1,190 @@
-/**
- * Jobs List Admin Page
- *
- * Demonstrates WP Kernel framework usage in an admin context:
- * - Reading from the auto-generated @wordpress/data store
- * - Using the typed resource client for writes
- * - Handling loading/empty/error states
- * - Using @wordpress/components for UI
- *
- * This is a preview of the pattern that Sprint 5's mountAdmin() will formalize.
- */
-
-import { useSelect } from '@wordpress/data';
-import { useState } from '@wordpress/element';
-import {
-	Button,
-	Card,
-	CardBody,
-	CardHeader,
-	Spinner,
-	TextControl,
-	SelectControl,
-	Notice,
-} from '@wordpress/components';
+import { useEffect, useMemo, useState } from '@wordpress/element';
+import { Flex, FlexItem, Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { job } from '../../resources'; // Use index.ts re-export for consistency
-import type { Job } from '../../resources';
+import { job } from '../../resources';
+import type { Job } from '../../../types/job';
+import type { JobListParams } from '../../resources';
+import { JobCreatePanel } from '../../views/jobs/JobCreatePanel';
+import { JobFilters, type JobFiltersState } from '../../views/jobs/JobFilters';
+import { JobListTable } from '../../views/jobs/JobListTable';
+import { CreateJob, type CreateJobInput } from '../../actions/jobs/CreateJob';
+import { ShowcaseActionError } from '../../errors/ShowcaseActionError';
+
+type DebuggableWindow = Window &
+	typeof globalThis & {
+		wp?: {
+			data?: {
+				select: (storeKey: string) => unknown;
+			};
+		};
+		__wpkKernelDebug?: unknown;
+		__wpkKernelSelectors?: unknown;
+	};
+
+const defaultFilters: JobFiltersState = {
+	search: '',
+	status: 'all',
+};
+
+const filterJobs = (jobs: Job[], filters: JobFiltersState): Job[] => {
+	if (!filters.search.trim()) {
+		return jobs;
+	}
+
+	const searchLower = filters.search.trim().toLowerCase();
+	return jobs.filter((jobItem) => {
+		const matchesStatus =
+			filters.status === 'all' || jobItem.status === filters.status;
+
+		if (!matchesStatus) {
+			return false;
+		}
+
+		const haystacks = [
+			jobItem.title,
+			jobItem.department || '',
+			jobItem.location || '',
+		];
+		return haystacks.some((value) =>
+			value.toLowerCase().includes(searchLower)
+		);
+	});
+};
 
 /**
- * Jobs List Component
- *
- * Reads from the job store and provides a form to create new jobs.
+ * JobsList renders a lean admin experience for managing job postings.
  */
 export function JobsList(): JSX.Element {
-	// State for create form
-	const [isCreating, setIsCreating] = useState(false);
-	const [createError, setCreateError] = useState<string | null>(null);
-	const [createSuccess, setCreateSuccess] = useState(false);
-	const [formData, setFormData] = useState<{
-		title: string;
-		department: string;
-		location: string;
-		status: 'draft' | 'publish' | 'closed';
-	}>({
-		title: '',
-		department: '',
-		location: '',
-		status: 'draft',
-	});
+	const [filters, setFilters] = useState<JobFiltersState>(defaultFilters);
+	const [feedback, setFeedback] = useState<{
+		type: 'success' | 'error';
+		message: string;
+	} | null>(null);
+	const [isSubmitting, setIsSubmitting] = useState(false);
 
-	// Read from store using the auto-generated selectors
-	const { jobsResponse, isLoading, error } = useSelect((select) => {
-		console.log('[JobsList] Selecting store with key:', job.storeKey);
-		console.log('[JobsList] job object:', job);
-		// eslint-disable-next-line @typescript-eslint/no-explicit-any
-		const store = select(job.storeKey) as any;
-		console.log('[JobsList] Store returned from select:', store);
-		console.log(
-			'[JobsList] Store type:',
-			typeof store,
-			'Has getList:',
-			store && typeof store === 'object' && 'getList' in store
-		);
-		if (!store) {
-			console.error('[JobsList] Store is null/undefined!');
-			return {
-				jobsResponse: undefined,
-				isLoading: false,
-				error: 'Store not found',
-			};
+	const query = useMemo<JobListParams | undefined>(
+		() =>
+			filters.status === 'all' ? undefined : { status: filters.status },
+		[filters.status]
+	);
+
+	const listResult = job.useList?.(query);
+
+	useEffect(() => {
+		if (typeof window === 'undefined') {
+			return;
 		}
-		return {
-			jobsResponse: store.getList(),
-			isLoading: store.isResolving('getList', []),
-			error: store.getResolutionError('getList', []),
-		};
+
+		const debugWindow = window as DebuggableWindow;
+
+		if (!debugWindow.wp?.data) {
+			return;
+		}
+
+		debugWindow.__wpkKernelSelectors = debugWindow.wp.data.select(
+			job.storeKey
+		);
 	}, []);
 
-	// Extract items array from the response
-	const jobs = jobsResponse?.items || [];
+	useEffect(() => {
+		if (!listResult || typeof window === 'undefined') {
+			return;
+		}
 
-	/**
-	 * Handle form submission
-	 *
-	 * Uses the typed resource client directly.
-	 * Sprint 3 will replace this with an Action (CreateJob).
-	 * @param e - Form submit event
-	 */
-	const handleSubmit = async (
-		e: React.FormEvent<HTMLFormElement>
-	): Promise<void> => {
-		e.preventDefault();
-		setIsCreating(true);
-		setCreateError(null);
-		setCreateSuccess(false);
+		const debugWindow = window as DebuggableWindow;
+
+		debugWindow.__wpkKernelDebug = {
+			query,
+			isLoading: listResult.isLoading,
+			error: listResult.error,
+			items: listResult.data?.items?.length ?? 0,
+		};
+	}, [listResult, query]);
+
+	const visibleJobs = useMemo(() => {
+		const jobs = listResult?.data?.items ?? [];
+		return filterJobs(jobs, filters);
+	}, [listResult?.data?.items, filters]);
+
+	const handleCreate = async (input: CreateJobInput) => {
+		console.log('[JobsList] handleCreate START', { input, isSubmitting });
+		setFeedback(null);
+		setIsSubmitting(true);
+		console.log('[JobsList] isSubmitting set to TRUE');
 
 		try {
-			// Use the typed client from the resource
-			// The resource object extends ResourceClient, so methods are direct
-			await job.create?.({
-				title: formData.title,
-				department: formData.department,
-				location: formData.location,
-				status: formData.status,
+			console.log('[JobsList] About to call CreateJob');
+			await CreateJob(input);
+			console.log('[JobsList] CreateJob SUCCESS - job created');
+
+			setFeedback({
+				type: 'success',
+				message: __('Job created successfully.', 'wp-kernel-showcase'),
 			});
 
-			// Success - reset form
-			setFormData({
-				title: '',
-				department: '',
-				location: '',
-				status: 'draft',
+			console.log('[JobsList] About to invalidate cache', { query });
+			job.cache.invalidate.list();
+			console.log('[JobsList] Cache invalidated');
+			// Trigger refetch in background (don't await - let it run async)
+			if (job.prefetchList) {
+				job.prefetchList(query).catch((err) => {
+					console.warn('[JobsList] Background prefetch failed:', err);
+				});
+				console.log('[JobsList] Started background prefetch');
+			}
+		} catch (error) {
+			console.error('[JobsList] Error in handleCreate:', error);
+			const wrapped = ShowcaseActionError.fromUnknown(error, {
+				context: {
+					actionName: 'Jobs.Create',
+					resourceName: job.storeKey,
+				},
 			});
-			setCreateSuccess(true);
 
-			// Auto-dismiss success message
-			setTimeout(() => setCreateSuccess(false), 3000);
-		} catch (err) {
-			setCreateError(
-				err instanceof Error
-					? err.message
-					: __('Failed to create job', 'wp-kernel-showcase')
-			);
+			setFeedback({
+				type: 'error',
+				message: wrapped.message,
+			});
 		} finally {
-			setIsCreating(false);
+			console.log(
+				'[JobsList] FINALLY block - setting isSubmitting to FALSE'
+			);
+			setIsSubmitting(false);
+			console.log('[JobsList] handleCreate END', { isSubmitting });
 		}
 	};
 
-	/**
-	 * Render loading state
-	 */
-	if (isLoading) {
-		return (
-			<div style={{ padding: '20px', textAlign: 'center' }}>
-				<Spinner />
-				<p>{__('Loading jobs…', 'wp-kernel-showcase')}</p>
-			</div>
-		);
-	}
-
-	/**
-	 * Render error state
-	 */
-	if (error) {
-		return (
-			<div style={{ padding: '20px' }}>
-				<Notice status="error" isDismissible={false}>
-					{__('Error loading jobs:', 'wp-kernel-showcase')}{' '}
-					{error instanceof Error ? error.message : String(error)}
-				</Notice>
-			</div>
-		);
-	}
-
-	/**
-	 * Render empty state
-	 */
-	if (!jobs || jobs.length === 0) {
-		return (
-			<div style={{ padding: '20px' }}>
-				<Notice status="warning" isDismissible={false}>
-					{__(
-						'No jobs found. Create one below to get started.',
-						'wp-kernel-showcase'
-					)}
-				</Notice>
-				{renderCreateForm()}
-			</div>
-		);
-	}
-
-	/**
-	 * Render jobs list
-	 */
 	return (
-		<div style={{ padding: '20px' }}>
-			<h1>{__('Jobs', 'wp-kernel-showcase')}</h1>
+		<div className="jobs-admin" data-testid="jobs-admin-root">
+			<h1>{__('Careers showcase', 'wp-kernel-showcase')}</h1>
 
-			{/* Success message */}
-			{createSuccess && (
-				<Notice status="success" isDismissible={false}>
-					{__('Job created successfully!', 'wp-kernel-showcase')}
+			{listResult?.error && (
+				<Notice
+					status="error"
+					isDismissible={false}
+					data-testid="jobs-prefetch-error"
+				>
+					{listResult.error}
 				</Notice>
 			)}
 
-			{/* Create form */}
-			{renderCreateForm()}
-
-			{/* Jobs list */}
-			<Card style={{ marginTop: '20px' }}>
-				<CardHeader>
-					<h2>{__('All Jobs', 'wp-kernel-showcase')}</h2>
-				</CardHeader>
-				<CardBody>
-					<table
-						className="wp-list-table widefat fixed striped"
-						data-testid="jobs-list"
-					>
-						<thead>
-							<tr>
-								<th>{__('ID', 'wp-kernel-showcase')}</th>
-								<th>{__('Title', 'wp-kernel-showcase')}</th>
-								<th>
-									{__('Department', 'wp-kernel-showcase')}
-								</th>
-								<th>{__('Location', 'wp-kernel-showcase')}</th>
-								<th>{__('Status', 'wp-kernel-showcase')}</th>
-								<th>{__('Created', 'wp-kernel-showcase')}</th>
-							</tr>
-						</thead>
-						<tbody>
-							{jobs.map((jobItem: Job) => (
-								<tr key={jobItem.id} data-testid="job-item">
-									<td>{jobItem.id}</td>
-									<td>
-										<strong>{jobItem.title}</strong>
-									</td>
-									<td>{jobItem.department}</td>
-									<td>{jobItem.location}</td>
-									<td>
-										<span
-											className={`status-badge status-${jobItem.status}`}
-											style={{
-												padding: '2px 8px',
-												borderRadius: '3px',
-												fontSize: '12px',
-												backgroundColor: (() => {
-													if (
-														jobItem.status ===
-														'publish'
-													) {
-														return '#d1f0d1';
-													}
-													if (
-														jobItem.status ===
-														'draft'
-													) {
-														return '#f0f0f0';
-													}
-													return '#f0d1d1';
-												})(),
-											}}
-										>
-											{jobItem.status}
-										</span>
-									</td>
-									<td>
-										{new Date(
-											jobItem.created_at
-										).toLocaleDateString()}
-									</td>
-								</tr>
-							))}
-						</tbody>
-					</table>
-				</CardBody>
-			</Card>
+			<Flex align="flex-start" wrap style={{ gap: '32px' }}>
+				<FlexItem style={{ flex: '0 0 320px', minWidth: '280px' }}>
+					<JobCreatePanel
+						onSubmit={handleCreate}
+						isSubmitting={isSubmitting}
+						feedback={feedback}
+					/>
+				</FlexItem>
+				<FlexItem style={{ flex: '1 1 480px', minWidth: '320px' }}>
+					<JobFilters value={filters} onChange={setFilters} />
+					<JobListTable
+						jobs={visibleJobs}
+						isLoading={Boolean(listResult?.isLoading)}
+						errorMessage={listResult?.error ?? null}
+					/>
+				</FlexItem>
+			</Flex>
 		</div>
 	);
-
-	/**
-	 * Render create form (helper)
-	 */
-	function renderCreateForm() {
-		return (
-			<Card style={{ marginTop: '20px' }}>
-				<CardHeader>
-					<h2>{__('Create New Job', 'wp-kernel-showcase')}</h2>
-				</CardHeader>
-				<CardBody>
-					{createError && (
-						<Notice
-							status="error"
-							isDismissible
-							onRemove={() => setCreateError(null)}
-						>
-							{createError}
-						</Notice>
-					)}
-
-					<form onSubmit={handleSubmit}>
-						<TextControl
-							label={__('Job Title', 'wp-kernel-showcase')}
-							value={formData.title}
-							onChange={(title) =>
-								setFormData({ ...formData, title })
-							}
-							required
-							disabled={isCreating}
-						/>
-						<TextControl
-							label={__('Department', 'wp-kernel-showcase')}
-							value={formData.department}
-							onChange={(department) =>
-								setFormData({ ...formData, department })
-							}
-							required
-							disabled={isCreating}
-						/>
-						<TextControl
-							label={__('Location', 'wp-kernel-showcase')}
-							value={formData.location}
-							onChange={(location) =>
-								setFormData({ ...formData, location })
-							}
-							required
-							disabled={isCreating}
-						/>
-						<SelectControl
-							label={__('Status', 'wp-kernel-showcase')}
-							value={formData.status}
-							options={[
-								{
-									label: __('Draft', 'wp-kernel-showcase'),
-									value: 'draft',
-								},
-								{
-									label: __(
-										'Published',
-										'wp-kernel-showcase'
-									),
-									value: 'publish',
-								},
-								{
-									label: __('Closed', 'wp-kernel-showcase'),
-									value: 'closed',
-								},
-							]}
-							onChange={(status) =>
-								setFormData({
-									...formData,
-									status:
-										(status as
-											| 'draft'
-											| 'publish'
-											| 'closed') || 'draft',
-								})
-							}
-							disabled={isCreating}
-						/>{' '}
-						<Button
-							type="submit"
-							variant="primary"
-							isBusy={isCreating}
-							disabled={isCreating}
-						>
-							{isCreating
-								? __('Creating…', 'wp-kernel-showcase')
-								: __('Create Job', 'wp-kernel-showcase')}
-						</Button>
-					</form>
-				</CardBody>
-			</Card>
-		);
-	}
 }

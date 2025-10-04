@@ -673,6 +673,8 @@ export interface ResourceObject<T = unknown, TQuery = unknown>
  *
  * @template T - The resource entity type
  */
+export type ResourceListStatus = 'idle' | 'loading' | 'success' | 'error';
+
 export interface ResourceState<T> {
 	/**
 	 * Map of items by ID.
@@ -694,6 +696,7 @@ export interface ResourceState<T> {
 			total?: number;
 			hasMore?: boolean;
 			nextCursor?: string;
+			status?: ResourceListStatus;
 		}
 	>;
 
@@ -732,6 +735,7 @@ export interface ResourceActions<T> extends Record<string, AnyFn> {
 			total?: number;
 			hasMore?: boolean;
 			nextCursor?: string;
+			status?: ResourceListStatus;
 		}
 	) => void;
 
@@ -754,6 +758,14 @@ export interface ResourceActions<T> extends Record<string, AnyFn> {
 	 * Clear all cached data for this resource.
 	 */
 	invalidateAll: () => void;
+
+	/**
+	 * Update the status of a list query.
+	 *
+	 * @param queryKey - Stringified query parameters
+	 * @param status   - Loading status
+	 */
+	setListStatus: (queryKey: string, status: ResourceListStatus) => void;
 }
 
 /**
@@ -789,6 +801,30 @@ export interface ResourceSelectors<T, TQuery = unknown> {
 	 * @return List response with items and metadata
 	 */
 	getList: (state: ResourceState<T>, query?: TQuery) => ListResponse<T>;
+
+	/**
+	 * Get the status for a list query.
+	 *
+	 * @param state - Store state
+	 * @param query - Query parameters
+	 * @return List status
+	 */
+	getListStatus: (
+		state: ResourceState<T>,
+		query?: TQuery
+	) => ResourceListStatus;
+
+	/**
+	 * Get the error message for a list query, if any.
+	 *
+	 * @param state - Store state
+	 * @param query - Query parameters
+	 * @return Error message or undefined
+	 */
+	getListError: (
+		state: ResourceState<T>,
+		query?: TQuery
+	) => string | undefined;
 
 	/**
 	 * Check if a selector is currently resolving.
@@ -849,6 +885,16 @@ export interface ResourceSelectors<T, TQuery = unknown> {
 	 * @return Error message or undefined
 	 */
 	getError: (state: ResourceState<T>, cacheKey: string) => string | undefined;
+
+	/**
+	 * Internal selector to get the entire state.
+	 * Used by cache invalidation system to find matching cache keys.
+	 *
+	 * @internal
+	 * @param state - Store state
+	 * @return The complete resource state
+	 */
+	__getInternalState: (state: ResourceState<T>) => ResourceState<T>;
 }
 
 /**
@@ -865,7 +911,7 @@ export interface ResourceResolvers<_T, TQuery = unknown>
 	 *
 	 * @param id - Item ID
 	 */
-	getItem: (id: string | number) => Promise<void>;
+	getItem: (id: string | number) => Generator<unknown, void, unknown>;
 
 	/**
 	 * Resolver for getItems selector.
@@ -873,7 +919,7 @@ export interface ResourceResolvers<_T, TQuery = unknown>
 	 *
 	 * @param query - Query parameters
 	 */
-	getItems: (query?: TQuery) => Promise<void>;
+	getItems: (query?: TQuery) => Generator<unknown, void, unknown>;
 
 	/**
 	 * Resolver for getList selector.
@@ -881,7 +927,7 @@ export interface ResourceResolvers<_T, TQuery = unknown>
 	 *
 	 * @param query - Query parameters
 	 */
-	getList: (query?: TQuery) => Promise<void>;
+	getList: (query?: TQuery) => Generator<unknown, void, unknown>;
 }
 
 /**
@@ -953,4 +999,9 @@ export interface ResourceStore<T, TQuery = unknown> {
 	 * Initial state.
 	 */
 	initialState: ResourceState<T>;
+
+	/**
+	 * Controls for handling async operations in generators.
+	 */
+	controls?: Record<string, (action: unknown) => unknown>;
 }

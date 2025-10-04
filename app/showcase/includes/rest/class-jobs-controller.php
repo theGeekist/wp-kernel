@@ -444,7 +444,7 @@ class Jobs_Controller extends REST_Controller {
 				'salary_max'     => 16000000, // $160,000
 				'currency'       => 'USD',
 				'apply_deadline' => '2025-12-31T23:59:59Z',
-				'status'         => 'open',
+				'status'         => 'publish',
 				'created_at'     => '2025-01-15T10:00:00Z',
 				'updated_at'     => '2025-01-15T10:00:00Z',
 			),
@@ -461,7 +461,7 @@ class Jobs_Controller extends REST_Controller {
 				'salary_max'     => 9000000, // $90,000
 				'currency'       => 'USD',
 				'apply_deadline' => '2025-11-30T23:59:59Z',
-				'status'         => 'open',
+				'status'         => 'publish',
 				'created_at'     => '2025-01-10T14:30:00Z',
 				'updated_at'     => '2025-01-10T14:30:00Z',
 			),
@@ -478,7 +478,7 @@ class Jobs_Controller extends REST_Controller {
 				'salary_max'     => 20000000, // $200,000
 				'currency'       => 'USD',
 				'apply_deadline' => '2025-10-31T23:59:59Z',
-				'status'         => 'open',
+				'status'         => 'publish',
 				'created_at'     => '2025-01-05T09:15:00Z',
 				'updated_at'     => '2025-01-12T16:45:00Z',
 			),
@@ -495,7 +495,7 @@ class Jobs_Controller extends REST_Controller {
 				'salary_max'     => 14000000, // $140,000
 				'currency'       => 'USD',
 				'apply_deadline' => '2025-09-30T23:59:59Z',
-				'status'         => 'open',
+				'status'         => 'publish',
 				'created_at'     => '2025-01-08T11:20:00Z',
 				'updated_at'     => '2025-01-08T11:20:00Z',
 			),
@@ -512,7 +512,7 @@ class Jobs_Controller extends REST_Controller {
 				'salary_max'     => 12000000, // $120,000
 				'currency'       => 'USD',
 				'apply_deadline' => '2025-08-31T23:59:59Z',
-				'status'         => 'open',
+				'status'         => 'publish',
 				'created_at'     => '2025-01-12T13:45:00Z',
 				'updated_at'     => '2025-01-12T13:45:00Z',
 			),

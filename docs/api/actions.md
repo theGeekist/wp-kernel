@@ -7,11 +7,14 @@ Actions orchestrate write operations (create, update, delete) with event emissio
 ## Planned API
 
 ```typescript
-import { defineAction } from '@geekist/wp-kernel/actions';
+import { defineAction } from '@geekist/wp-kernel/action';
 
-export const CreateThing = defineAction('Thing.Create', async ({ data }) => {
-	// Orchestrate write operation
-	return result;
+export const CreateThing = defineAction({
+	name: 'Thing.Create',
+	async execute({ data }) {
+		// Orchestrate write operation
+		return result;
+	},
 });
 
 // Use in UI
