@@ -363,4 +363,424 @@ describe('invalidate', () => {
 			}
 		});
 	});
+
+	describe('helper function branches', () => {
+		it('should handle stores with no __getInternalState selector', () => {
+			const mockStoreDispatch = {
+				invalidate: jest.fn(),
+			};
+
+			const mockStoreSelect = {
+				// No __getInternalState method
+			};
+
+			mockDispatch.mockReturnValue(mockStoreDispatch);
+			mockSelect.mockReturnValue(mockStoreSelect);
+
+			// Should not throw, just skip that store
+			expect(() => {
+				invalidate(['thing', 'list']);
+			}).not.toThrow();
+
+			// invalidate should not be called since we couldn't get state
+			expect(mockStoreDispatch.invalidate).not.toHaveBeenCalled();
+		});
+
+		it('should handle __getInternalState that is not a function', () => {
+			const mockStoreDispatch = {
+				invalidate: jest.fn(),
+			};
+
+			const mockStoreSelect = {
+				__getInternalState: 'not-a-function', // Wrong type
+			};
+
+			mockDispatch.mockReturnValue(mockStoreDispatch);
+			mockSelect.mockReturnValue(mockStoreSelect);
+
+			// Should not throw
+			expect(() => {
+				invalidate(['thing', 'list']);
+			}).not.toThrow();
+
+			// invalidate should not be called
+			expect(mockStoreDispatch.invalidate).not.toHaveBeenCalled();
+		});
+
+		it('should handle dispatch without invalidateResolution method', () => {
+			const mockState = {
+				lists: {
+					active: [1, 2],
+				},
+				listMeta: {},
+				errors: {},
+			};
+
+			const mockStoreDispatch = {
+				invalidate: jest.fn(),
+				// No invalidateResolution method
+			};
+
+			const mockStoreSelect = {
+				__getInternalState: jest.fn().mockReturnValue(mockState),
+			};
+
+			mockDispatch.mockReturnValue(mockStoreDispatch);
+			mockSelect.mockReturnValue(mockStoreSelect);
+
+			// Should not throw
+			expect(() => {
+				invalidate(['thing', 'list']);
+			}).not.toThrow();
+
+			// Should still call invalidate
+			expect(mockStoreDispatch.invalidate).toHaveBeenCalledWith([
+				'active',
+			]);
+		});
+
+		it('should handle item keys and invalidate getItem resolution', () => {
+			const mockState = {
+				lists: {},
+				listMeta: {},
+				errors: {
+					'thing:item:123': 'Some error',
+				},
+			};
+
+			const mockStoreDispatch = {
+				invalidate: jest.fn(),
+				invalidateResolution: jest.fn(),
+			};
+
+			const mockStoreSelect = {
+				__getInternalState: jest.fn().mockReturnValue(mockState),
+			};
+
+			mockDispatch.mockReturnValue(mockStoreDispatch);
+			mockSelect.mockReturnValue(mockStoreSelect);
+
+			// Invalidate with pattern that matches item
+			invalidate(['thing', 'item']);
+
+			// Should call invalidate
+			expect(mockStoreDispatch.invalidate).toHaveBeenCalled();
+
+			// Should call invalidateResolution for getItem
+			expect(mockStoreDispatch.invalidateResolution).toHaveBeenCalledWith(
+				'getItem'
+			);
+		});
+
+		it('should preserve existing listMeta mappings when already present', () => {
+			const mockState = {
+				lists: {
+					active: [1, 2],
+				},
+				listMeta: {
+					active: { total: 2 },
+				},
+				errors: {},
+			};
+
+			const mockStoreDispatch = {
+				invalidate: jest.fn(),
+			};
+
+			const mockStoreSelect = {
+				__getInternalState: jest.fn().mockReturnValue(mockState),
+			};
+
+			mockDispatch.mockReturnValue(mockStoreDispatch);
+			mockSelect.mockReturnValue(mockStoreSelect);
+
+			invalidate(['thing', 'list']);
+
+			// Should still work correctly
+			expect(mockStoreDispatch.invalidate).toHaveBeenCalledWith([
+				'active',
+			]);
+		});
+
+		it('should handle lists and listMeta with same queryKey (normalized mapping preserved)', () => {
+			// When both lists and listMeta have the same key, the mapping should be preserved
+			const mockState = {
+				lists: {
+					active: [1, 2],
+				},
+				listMeta: {
+					active: { total: 2 }, // Same key as in lists
+				},
+				errors: {},
+			};
+
+			const mockStoreDispatch = {
+				invalidate: jest.fn(),
+			};
+
+			const mockStoreSelect = {
+				__getInternalState: jest.fn().mockReturnValue(mockState),
+			};
+
+			mockDispatch.mockReturnValue(mockStoreDispatch);
+			mockSelect.mockReturnValue(mockStoreSelect);
+
+			invalidate(['thing', 'list']);
+
+			// Should only invalidate once per unique queryKey
+			expect(mockStoreDispatch.invalidate).toHaveBeenCalledWith([
+				'active',
+			]);
+		});
+
+		it('should handle listMeta-only keys (lists empty)', () => {
+			// When lists is empty but listMeta has keys
+			const mockState = {
+				lists: {}, // Empty
+				listMeta: {
+					active: { total: 0 }, // Has key but lists doesn't
+				},
+				errors: {},
+			};
+
+			const mockStoreDispatch = {
+				invalidate: jest.fn(),
+			};
+
+			const mockStoreSelect = {
+				__getInternalState: jest.fn().mockReturnValue(mockState),
+			};
+
+			mockDispatch.mockReturnValue(mockStoreDispatch);
+			mockSelect.mockReturnValue(mockStoreSelect);
+
+			invalidate(['thing', 'list']);
+
+			// Should still invalidate the listMeta key
+			expect(mockStoreDispatch.invalidate).toHaveBeenCalledWith([
+				'active',
+			]);
+		});
+
+		it('should handle empty pattern in findMatchingNormalizedKeys', () => {
+			const mockState = {
+				lists: {
+					active: [1, 2],
+				},
+				listMeta: {},
+				errors: {},
+			};
+
+			const mockStoreDispatch = {
+				invalidate: jest.fn(),
+			};
+
+			const mockStoreSelect = {
+				__getInternalState: jest.fn().mockReturnValue(mockState),
+			};
+
+			mockDispatch.mockReturnValue(mockStoreDispatch);
+			mockSelect.mockReturnValue(mockStoreSelect);
+
+			// Pass pattern that will result in empty normalized pattern
+			invalidate([null, undefined]);
+
+			// Should not match anything
+			expect(mockStoreDispatch.invalidate).not.toHaveBeenCalled();
+		});
+
+		it('should handle matching keys that do NOT start with listPrefix (no getList invalidation)', () => {
+			const mockState = {
+				lists: {},
+				listMeta: {},
+				errors: {
+					'thing:error:123': 'Some error', // Doesn't start with list or item prefix
+				},
+			};
+
+			const mockStoreDispatch = {
+				invalidate: jest.fn(),
+				invalidateResolution: jest.fn(),
+			};
+
+			const mockStoreSelect = {
+				__getInternalState: jest.fn().mockReturnValue(mockState),
+			};
+
+			mockDispatch.mockReturnValue(mockStoreDispatch);
+			mockSelect.mockReturnValue(mockStoreSelect);
+
+			// This pattern will match the error key but not trigger list/item resolution invalidation
+			invalidate(['thing', 'error']);
+
+			// Should call invalidate
+			expect(mockStoreDispatch.invalidate).toHaveBeenCalled();
+
+			// Should NOT call invalidateResolution for getList or getItem
+			// because the keys don't start with list or item prefix
+			expect(
+				mockStoreDispatch.invalidateResolution
+			).not.toHaveBeenCalled();
+		});
+
+		it('should handle error during processStoreInvalidation gracefully in development', () => {
+			const originalEnv = process.env.NODE_ENV;
+			process.env.NODE_ENV = 'development';
+
+			const consoleWarnSpy = jest
+				.spyOn(console, 'warn')
+				.mockImplementation();
+
+			// Mock dispatch to throw an error
+			mockDispatch.mockImplementation(() => {
+				throw new Error('Store explosion!');
+			});
+
+			// Should not throw
+			expect(() => {
+				invalidate(['thing', 'list']);
+			}).not.toThrow();
+
+			// Should log warning in development
+			expect(consoleWarnSpy).toHaveBeenCalledWith(
+				expect.stringContaining('Failed to invalidate cache for store'),
+				expect.any(Error)
+			);
+
+			consoleWarnSpy.mockRestore();
+			process.env.NODE_ENV = originalEnv;
+		});
+
+		it('should handle error during processStoreInvalidation silently in production', () => {
+			const originalEnv = process.env.NODE_ENV;
+			process.env.NODE_ENV = 'production';
+
+			const consoleWarnSpy = jest
+				.spyOn(console, 'warn')
+				.mockImplementation();
+
+			// Mock dispatch to throw an error
+			mockDispatch.mockImplementation(() => {
+				throw new Error('Store explosion!');
+			});
+
+			// Should not throw
+			expect(() => {
+				invalidate(['thing', 'list']);
+			}).not.toThrow();
+
+			// Should NOT log warning in production
+			expect(consoleWarnSpy).not.toHaveBeenCalled();
+
+			consoleWarnSpy.mockRestore();
+			process.env.NODE_ENV = originalEnv;
+		});
+
+		it('should skip emitting event when emitEvent is false', () => {
+			const mockState = {
+				lists: {
+					active: [1, 2],
+				},
+				listMeta: {},
+				errors: {},
+			};
+
+			const mockStoreDispatch = {
+				invalidate: jest.fn(),
+			};
+
+			const mockStoreSelect = {
+				__getInternalState: jest.fn().mockReturnValue(mockState),
+			};
+
+			mockDispatch.mockReturnValue(mockStoreDispatch);
+			mockSelect.mockReturnValue(mockStoreSelect);
+
+			invalidate(['thing', 'list'], { emitEvent: false });
+
+			// Should call invalidate
+			expect(mockStoreDispatch.invalidate).toHaveBeenCalled();
+
+			// Should NOT emit event
+			expect(mockDoAction).not.toHaveBeenCalled();
+		});
+
+		it('should skip emitting event when no keys were invalidated', () => {
+			const mockState = {
+				lists: {},
+				listMeta: {},
+				errors: {},
+			};
+
+			const mockStoreDispatch = {
+				invalidate: jest.fn(),
+			};
+
+			const mockStoreSelect = {
+				__getInternalState: jest.fn().mockReturnValue(mockState),
+			};
+
+			mockDispatch.mockReturnValue(mockStoreDispatch);
+			mockSelect.mockReturnValue(mockStoreSelect);
+
+			invalidate(['thing', 'list']);
+
+			// Should NOT emit event (no keys matched)
+			expect(mockDoAction).not.toHaveBeenCalled();
+		});
+
+		it('should handle getMatchingStoreKeys with empty prefix', () => {
+			const mockState = {
+				lists: {
+					active: [1, 2],
+				},
+				listMeta: {},
+				errors: {},
+			};
+
+			const mockStoreDispatch = {
+				invalidate: jest.fn(),
+			};
+
+			const mockStoreSelect = {
+				__getInternalState: jest.fn().mockReturnValue(mockState),
+			};
+
+			mockDispatch.mockReturnValue(mockStoreDispatch);
+			mockSelect.mockReturnValue(mockStoreSelect);
+
+			// Invalidate without storeKey option (will match all registered stores)
+			invalidate(['thing', 'list']);
+
+			// Should have been called for registered stores
+			expect(mockDispatch).toHaveBeenCalled();
+		});
+
+		it('should filter stores by prefix when storeKey is provided', () => {
+			const mockState = {
+				lists: {
+					active: [1, 2],
+				},
+				listMeta: {},
+				errors: {},
+			};
+
+			const mockStoreDispatch = {
+				invalidate: jest.fn(),
+			};
+
+			const mockStoreSelect = {
+				__getInternalState: jest.fn().mockReturnValue(mockState),
+			};
+
+			mockDispatch.mockReturnValue(mockStoreDispatch);
+			mockSelect.mockReturnValue(mockStoreSelect);
+
+			// Invalidate with specific storeKey (uses prefix filtering)
+			invalidate(['thing', 'list'], { storeKey: 'wpk/thing' });
+
+			// Should have been called only for the specific store
+			expect(mockDispatch).toHaveBeenCalledWith('wpk/thing');
+		});
+	});
 });

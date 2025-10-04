@@ -10,7 +10,7 @@
 function invalidate(patterns, options): void;
 ```
 
-Defined in: [resource/cache.ts:323](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/cache.ts#L323)
+Defined in: [resource/cache.ts:539](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/cache.ts#L539)
 
 Invalidate cached data matching the given patterns.
 Deletes matching cache entries and marks selectors as stale.

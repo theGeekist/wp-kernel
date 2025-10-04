@@ -10,6 +10,6 @@
 type PathParams = Record<string, string | number | boolean>;
 ```
 
-Defined in: [resource/cache.ts:150](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/cache.ts#L150)
+Defined in: [resource/cache.ts:366](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/resource/cache.ts#L366)
 
 Path parameter values (string, number, or boolean)

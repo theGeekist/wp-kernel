@@ -345,6 +345,47 @@ describe('createStore - Resolvers', () => {
 					},
 				});
 			});
+
+			it('should handle errors in getList', async () => {
+				const query = { status: 'active' };
+				const error = new Error('Fetch failed');
+				(mockResource.fetchList as jest.Mock).mockRejectedValue(error);
+
+				const generator = store.resolvers.getList(query);
+				const actions = await collectActionsFromResolver(generator);
+
+				expect(actions).toContainEqual({
+					type: 'SET_LIST_STATUS',
+					queryKey: JSON.stringify(query),
+					status: 'loading',
+				});
+				expect(actions).toContainEqual({
+					type: 'SET_LIST_STATUS',
+					queryKey: JSON.stringify(query),
+					status: 'error',
+				});
+				expect(actions).toContainEqual({
+					type: 'RECEIVE_ERROR',
+					cacheKey: `thing:list:${JSON.stringify(query)}`,
+					error: 'Fetch failed',
+				});
+			});
+
+			it('should handle non-Error object thrown in getList', async () => {
+				const query = { status: 'active' };
+				(mockResource.fetchList as jest.Mock).mockRejectedValue(
+					'Something went wrong'
+				);
+
+				const generator = store.resolvers.getList(query);
+				const actions = await collectActionsFromResolver(generator);
+
+				expect(actions).toContainEqual({
+					type: 'RECEIVE_ERROR',
+					cacheKey: `thing:list:${JSON.stringify(query)}`,
+					error: 'Unknown error',
+				});
+			});
 		});
 
 		describe('error handling edge cases', () => {
