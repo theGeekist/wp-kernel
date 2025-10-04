@@ -2,7 +2,7 @@
 
 > A Rails-like, opinionated framework for building modern WordPress products where JavaScript is the source of truth and PHP is a thin contract.
 
-[![CI Status](https://github.com/theGeekist/wp-kernel/workflows/ci/badge.svg)](https://github.com/theGeekist/wp-kernel/actions)
+[![CI Status](https://github.com/theGeekist/wp-kernel/workflows/CI/badge.svg)](https://github.com/theGeekist/wp-kernel/actions)
 [![License](https://img.shields.io/badge/license-EUPL--1.2-blue.svg)](LICENSE)
 [![Node Version](https://img.shields.io/badge/node-22.20.0%20LTS-brightgreen.svg)](.nvmrc)
 [![Documentation](https://img.shields.io/badge/docs-VitePress-42b883.svg)](https://theGeekist.github.io/wp-kernel/)
@@ -34,7 +34,7 @@ Built on WordPress Core primitives: Script Modules, Block Bindings, Interactivit
 - **pnpm**: 9.12.3+ (`npm install -g pnpm`)
 - **Docker**: For local WordPress via wp-env
 - **PHP**: 8.3+ (for wp-env)
-- **WordPress**: 6.7+ (Script Modules API)
+- **WordPress**: 6.8+ (Script Modules API)
 
 ### Installation
 
@@ -58,6 +58,10 @@ pnpm wp:fresh
 
 Visit [http://localhost:8888/wp-admin](http://localhost:8888/wp-admin)  
 Login: `admin` / `password`
+
+### 🚨 New to this monorepo?
+
+**[📖 Read the Development Guide](DEVELOPMENT.md)** - Essential workflow, testing infrastructure, and troubleshooting.
 
 ---
 

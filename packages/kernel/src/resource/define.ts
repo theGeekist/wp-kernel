@@ -27,6 +27,7 @@ import type {
 	ResourceConfig,
 	ResourceObject,
 	ListResponse,
+	ResourceListStatus,
 } from './types';
 
 /**
@@ -35,10 +36,11 @@ import type {
 interface WordPressStoreSelector<T, TQuery = unknown> {
 	getItem?: (id: string | number) => T | undefined;
 	getList?: (query?: TQuery) => ListResponse<T> | undefined;
+	getListStatus?: (query?: TQuery) => ResourceListStatus | undefined;
 	isResolving?: (method: string, args: unknown[]) => boolean;
 	hasFinishedResolution?: (method: string, args: unknown[]) => boolean;
 	getItemError?: (id: string | number) => Error | undefined;
-	getListError?: (query?: TQuery) => Error | undefined;
+	getListError?: (query?: TQuery) => string | undefined;
 }
 
 /**
@@ -220,6 +222,7 @@ export function defineResource<T = unknown, TQuery = unknown>(
 							selectors: storeDescriptor.selectors,
 							resolvers: storeDescriptor.resolvers,
 							initialState: storeDescriptor.initialState,
+							controls: storeDescriptor.controls,
 						}
 					);
 					globalWp.data.register(reduxStore);
@@ -308,10 +311,12 @@ export function defineResource<T = unknown, TQuery = unknown>(
 
 							const storeSelect = select(resource.storeKey);
 							const data = storeSelect?.getList?.(query);
-							const isResolving = storeSelect?.isResolving?.(
-								'getList',
-								[query]
-							);
+							const status =
+								storeSelect?.getListStatus?.(query) ?? 'idle';
+							const isResolving =
+								storeSelect?.isResolving?.('getList', [
+									query,
+								]) ?? false;
 							const hasResolved =
 								storeSelect?.hasFinishedResolution?.(
 									'getList',
@@ -319,10 +324,17 @@ export function defineResource<T = unknown, TQuery = unknown>(
 								);
 							const error = storeSelect?.getListError?.(query);
 
+							const resolvedByStatus =
+								status === 'success' || status === 'error';
+							const isLoading =
+								status === 'loading' ||
+								((hasResolved === false || status === 'idle') &&
+									!resolvedByStatus);
+
 							return {
 								data,
-								isLoading: isResolving || !hasResolved,
-								error: error?.message,
+								isLoading: isLoading || isResolving,
+								error,
 							};
 						},
 						[query]

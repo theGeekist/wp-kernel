@@ -1,123 +1,109 @@
 # @geekist/wp-kernel-cli
 
-> CLI for scaffolding and managing WP Kernel projects
+> Rails-like generators and development tools for WP Kernel projects
 
 ## Overview
 
-Command-line interface for generating resources, actions, components, and managing WP Kernel projects.
+Command-line tools that accelerate WordPress development with kernel patterns:
 
-## Installation
+- **Project scaffolding** - Complete plugin/theme setup with build tooling
+- **Code generators** - Resources, actions, admin interfaces, and tests
+- **Development server** - Hot reload with wp-env integration
+- **Custom templates** - Reusable patterns for your organization
+
+Gets you from idea to working WordPress plugin in minutes.
+
+## Quick Start
 
 ```bash
+# Global installation
 npm install -g @geekist/wp-kernel-cli
-# or
-pnpm add -g @geekist/wp-kernel-cli
-```
 
-Or use without installing:
-
-```bash
-npx @geekist/wp-kernel-cli init my-project
-```
-
-## Commands
-
-### Initialize a New Project
-
-```bash
-wpk init [options]
+# Create new plugin
 wpk init my-plugin --template=plugin
+
+# Generate complete CRUD feature
+wpk generate feature Job --with=resource,admin-table,actions,tests
+
+# Start development
+wpk dev
 ```
 
-**Options:**
+## Key Commands
 
-- `-n, --name <name>` - Project name
-- `-t, --template <template>` - Template to use (default, plugin, theme)
+**📖 [Complete Documentation →](../../docs/packages/cli.md)**
 
-### Generate Resources
+### Project Setup
 
 ```bash
-wpk generate resource <name>
-wpk g resource Post
+wpk init my-plugin --template=plugin    # WordPress plugin
+wpk init my-theme --template=theme      # Block theme
+wpk init my-app --template=headless     # Headless WordPress
 ```
 
-Generates:
-
-- `app/resources/Post.ts` - Resource definition
-- `contracts/post.schema.json` - JSON Schema
-- Types in `types/post.d.ts`
-
-### Generate Actions
+### Code Generation
 
 ```bash
-wpk generate action <domain>/<name>
-wpk g action Post/Create
+# Individual components
+wpk generate resource Post              # Resource definition
+wpk generate action CreatePost          # Action orchestrator
+wpk generate admin-page PostsList       # DataViews admin table
+
+# Complete features
+wpk generate feature Job \
+  --with=resource,admin-table,actions,tests,php-bridge
 ```
 
-Generates:
-
-- `app/actions/Post/Create.ts` - Action with event emission
-- Unit test stub
-
-### Generate Components
+### Development
 
 ```bash
-wpk generate component <name>
-wpk g component PostList
+wpk dev                                 # Start dev server + wp-env
+wpk build                              # Production build
+wpk test                               # Run tests + typecheck
 ```
 
-Generates:
-
-- `app/views/components/PostList.tsx` - React component
-- Storybook story (if configured)
-
-### Check Project Health
+## Template System
 
 ```bash
-wpk doctor
+# Use built-in templates
+wpk generate feature User --template=crud-complete
+
+# Create custom templates
+wpk template create my-feature-template
+
+# Organization templates
+wpk config set template-repo github:my-org/wpk-templates
 ```
 
-Checks:
+**🚀 [Generator Patterns →](../../docs/packages/cli.md#advanced-generator-patterns)**
+wpk generate view PostList # Create view component
+wpk generate job SendEmail # Create background job
 
-- Node/pnpm versions
-- TypeScript configuration
-- WordPress dependencies
-- Lint/format setup
+# Development tools
 
-## Templates
+wpk typecheck # Validate TypeScript
+wpk test # Run test suite
+wpk package # Create distribution zip
 
-Available project templates:
-
-- **default** - Basic WP Kernel setup
-- **plugin** - WordPress plugin structure
-- **theme** - WordPress theme structure
-- **block** - Single block plugin
-
-## Configuration
-
-Create `wpk.config.js` in your project root:
-
-```javascript
-export default {
-	paths: {
-		resources: 'app/resources',
-		actions: 'app/actions',
-		views: 'app/views',
-		contracts: 'contracts',
-	},
-	typescript: true,
-	testing: 'jest',
-};
 ```
 
-## Planned Features
+## Documentation
 
-- [ ] Interactive project initialization
-- [ ] Code generation with templates
-- [ ] Database schema sync
-- [ ] WordPress plugin packaging
-- [ ] Deployment helpers
-- [ ] Migration generation
+- **[Complete Documentation](https://thegeekist.github.io/wp-kernel/packages/cli/)** - All commands and options
+- **[Getting Started](https://thegeekist.github.io/wp-kernel/getting-started/)** - Project setup guide
+- **[Generators Guide](https://thegeekist.github.io/wp-kernel/guide/generators/)** - Using and customizing generators
+
+## Development Status
+
+- ✅ Project initialization templates
+- ✅ Core generator architecture
+- 🚧 Resource and action generators in progress
+- 🚧 Build and deployment tools planned
+
+## Requirements
+
+- Node.js 22+
+- pnpm (recommended) or npm
 
 ## Documentation
 
@@ -126,3 +112,4 @@ For complete documentation, see the [main repository](https://github.com/theGeek
 ## License
 
 MIT © [The Geekist](https://github.com/theGeekist)
+```

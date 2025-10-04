@@ -201,7 +201,10 @@ describe('createStore - Reducer', () => {
 			expect(state.items[1]).toEqual(items[0]);
 			expect(state.items[2]).toEqual(items[1]);
 			expect(state.lists[queryKey]).toEqual([1, 2]);
-			expect(state.listMeta[queryKey]).toEqual(meta);
+			expect(state.listMeta[queryKey]).toEqual({
+				...meta,
+				status: 'success',
+			});
 		});
 
 		it('should handle RECEIVE_ERROR action', () => {
@@ -323,8 +326,8 @@ describe('createStore - Reducer', () => {
 
 			expect(state.items[1]).toEqual(items[0]);
 			expect(state.lists[queryKey]).toEqual([1]);
-			// Should fallback to empty object
-			expect(state.listMeta[queryKey]).toEqual({});
+			// Should fallback to empty object with success status
+			expect(state.listMeta[queryKey]).toEqual({ status: 'success' });
 		});
 	});
 });

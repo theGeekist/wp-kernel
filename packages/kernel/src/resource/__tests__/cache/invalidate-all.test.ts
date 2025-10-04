@@ -92,4 +92,23 @@ describe('invalidateAll', () => {
 			invalidateAll('wpk/thing');
 		}).not.toThrow();
 	});
+
+	it('should handle missing window.wp gracefully', () => {
+		const windowWithWp = global.window as Window & { wp?: any };
+		const savedWp = windowWithWp?.wp;
+
+		if (windowWithWp) {
+			delete windowWithWp.wp;
+		}
+
+		// Should not throw when dataRegistry is unavailable
+		expect(() => {
+			invalidateAll('wpk/thing');
+		}).not.toThrow();
+
+		// Restore
+		if (windowWithWp && savedWp) {
+			windowWithWp.wp = savedWp;
+		}
+	});
 });

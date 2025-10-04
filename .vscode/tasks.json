@@ -1,6 +1,31 @@
 {
 	"version": "2.0.0",
 	"tasks": [
+		// === Global Development Tasks ===
+		{
+			"label": "Dev: Watch All Packages",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["dev"],
+			"isBackground": true,
+			"group": "build",
+			"problemMatcher": ["$tsc-watch"],
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared",
+				"clear": true
+			}
+		},
+		{
+			"label": "Dev: Watch Showcase Plugin",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["--filter", "wp-kernel-showcase", "dev"],
+			"isBackground": true,
+			"group": "build",
+			"problemMatcher": ["$tsc-watch"]
+		},
+
 		// === Build Tasks ===
 		{
 			"label": "Build All",
@@ -19,7 +44,7 @@
 			}
 		},
 		{
-			"label": "Build Kernel",
+			"label": "Build: Kernel",
 			"type": "shell",
 			"command": "pnpm",
 			"args": ["--filter", "@geekist/wp-kernel", "build"],
@@ -27,7 +52,7 @@
 			"problemMatcher": ["$tsc"]
 		},
 		{
-			"label": "Build UI",
+			"label": "Build: UI",
 			"type": "shell",
 			"command": "pnpm",
 			"args": ["--filter", "@geekist/wp-kernel-ui", "build"],
@@ -35,7 +60,7 @@
 			"problemMatcher": ["$tsc"]
 		},
 		{
-			"label": "Build CLI",
+			"label": "Build: CLI",
 			"type": "shell",
 			"command": "pnpm",
 			"args": ["--filter", "@geekist/wp-kernel-cli", "build"],
@@ -43,7 +68,15 @@
 			"problemMatcher": ["$tsc"]
 		},
 		{
-			"label": "Build Showcase Plugin",
+			"label": "Build: E2E Utils",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["--filter", "@geekist/wp-kernel-e2e-utils", "build"],
+			"group": "build",
+			"problemMatcher": ["$tsc"]
+		},
+		{
+			"label": "Build: Showcase Plugin",
 			"type": "shell",
 			"command": "pnpm",
 			"args": ["--filter", "wp-kernel-showcase", "build"],
@@ -51,62 +84,216 @@
 			"problemMatcher": ["$tsc"]
 		},
 
-		// === Dev/Watch Tasks ===
+		// === Lint & Format Tasks ===
 		{
-			"label": "Dev: Watch All Packages",
+			"label": "Lint: All",
 			"type": "shell",
 			"command": "pnpm",
-			"args": ["dev"],
-			"isBackground": true,
-			"problemMatcher": {
-				"owner": "typescript",
-				"fileLocation": "relative",
-				"pattern": {
-					"regexp": "^([^\\s].*)[\\(:](\\d+)[,:](\\d+)(?:\\):\\s+|\\s+-\\s+)(error|warning|info)\\s+(TS\\d+)\\s*:\\s*(.*)$",
-					"file": 1,
-					"line": 2,
-					"column": 3,
-					"severity": 4,
-					"code": 5,
-					"message": 6
-				},
-				"background": {
-					"activeOnStart": true,
-					"beginsPattern": "Starting compilation in watch mode",
-					"endsPattern": "Watching for file changes"
-				}
-			},
-			"presentation": {
-				"reveal": "always",
-				"panel": "dedicated",
-				"clear": false
-			}
+			"args": ["lint"],
+			"group": "build",
+			"problemMatcher": ["$eslint-stylish"]
 		},
 		{
-			"label": "Dev: Watch Showcase Plugin",
+			"label": "Lint: All (Fix)",
 			"type": "shell",
 			"command": "pnpm",
-			"args": ["--filter", "wp-kernel-showcase", "dev"],
-			"isBackground": true,
-			"problemMatcher": {
-				"owner": "webpack",
-				"fileLocation": "relative",
-				"pattern": {
-					"regexp": "^\\s*ERROR\\s+in\\s+(.*)$",
-					"file": 1
-				},
-				"background": {
-					"activeOnStart": true,
-					"beginsPattern": "webpack.*compiled",
-					"endsPattern": "webpack.*compiled"
-				}
-			},
-			"presentation": {
-				"reveal": "always",
-				"panel": "dedicated"
-			}
+			"args": ["lint:fix"],
+			"group": "build",
+			"problemMatcher": ["$eslint-stylish"]
+		},
+		{
+			"label": "Lint: Kernel",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["--filter", "@geekist/wp-kernel", "lint"],
+			"group": "build",
+			"problemMatcher": ["$eslint-stylish"]
+		},
+		{
+			"label": "Lint: UI",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["--filter", "@geekist/wp-kernel-ui", "lint"],
+			"group": "build",
+			"problemMatcher": ["$eslint-stylish"]
+		},
+		{
+			"label": "Lint: CLI",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["--filter", "@geekist/wp-kernel-cli", "lint"],
+			"group": "build",
+			"problemMatcher": ["$eslint-stylish"]
+		},
+		{
+			"label": "Lint: E2E Utils",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["--filter", "@geekist/wp-kernel-e2e-utils", "lint"],
+			"group": "build",
+			"problemMatcher": ["$eslint-stylish"]
+		},
+		{
+			"label": "Lint: Showcase",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["--filter", "wp-kernel-showcase", "lint"],
+			"group": "build",
+			"problemMatcher": ["$eslint-stylish"]
+		},
+		{
+			"label": "Format: All",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["format"],
+			"group": "build"
+		},
+		{
+			"label": "Format: Check All",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["format:check"],
+			"group": "build"
 		},
 
+		// === TypeCheck Tasks ===
+		{
+			"label": "TypeCheck: All",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["typecheck"],
+			"group": "build",
+			"problemMatcher": ["$tsc"]
+		},
+		{
+			"label": "TypeCheck: All Tests",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["typecheck:tests"],
+			"group": "build",
+			"problemMatcher": ["$tsc"]
+		},
+		{
+			"label": "TypeCheck: Kernel",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["--filter", "@geekist/wp-kernel", "typecheck"],
+			"group": "build",
+			"problemMatcher": ["$tsc"]
+		},
+		{
+			"label": "TypeCheck: UI",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["--filter", "@geekist/wp-kernel-ui", "typecheck"],
+			"group": "build",
+			"problemMatcher": ["$tsc"]
+		},
+		{
+			"label": "TypeCheck: CLI",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["--filter", "@geekist/wp-kernel-cli", "typecheck"],
+			"group": "build",
+			"problemMatcher": ["$tsc"]
+		},
+		{
+			"label": "TypeCheck: E2E Utils",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["--filter", "@geekist/wp-kernel-e2e-utils", "typecheck"],
+			"group": "build",
+			"problemMatcher": ["$tsc"]
+		},
+		{
+			"label": "TypeCheck: Showcase",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["--filter", "wp-kernel-showcase", "typecheck"],
+			"group": "build",
+			"problemMatcher": ["$tsc"]
+		},
+
+		// === Test Tasks ===
+		{
+			"label": "Test: Unit Tests",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["test"],
+			"group": "test",
+			"problemMatcher": []
+		},
+		{
+			"label": "Test: Unit Tests (Watch)",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["test:watch"],
+			"isBackground": true,
+			"group": "test",
+			"problemMatcher": []
+		},
+		{
+			"label": "Test: Coverage",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["test:coverage"],
+			"group": "test",
+			"problemMatcher": []
+		},
+		{
+			"label": "Test: Kernel",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["--filter", "@geekist/wp-kernel", "test"],
+			"group": "test",
+			"problemMatcher": []
+		},
+		{
+			"label": "Test: E2E Utils",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["--filter", "@geekist/wp-kernel-e2e-utils", "test"],
+			"group": "test",
+			"problemMatcher": []
+		},
+		{
+			"label": "Test: Showcase",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["--filter", "wp-kernel-showcase", "test"],
+			"group": "test",
+			"problemMatcher": []
+		},
+
+		// === E2E Test Tasks ===
+		{
+			"label": "Test: E2E Tests",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["e2e"],
+			"group": "test"
+		},
+		{
+			"label": "Test: E2E Tests (Headed)",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["e2e:headed"],
+			"group": "test"
+		},
+		{
+			"label": "Test: E2E Tests (UI)",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["e2e:ui"],
+			"group": "test"
+		},
+		{
+			"label": "Test: E2E Tests (Debug)",
+			"type": "shell",
+			"command": "pnpm",
+			"args": ["e2e:debug"],
+			"group": "test"
+		},
 		// === WordPress Environment ===
 		{
 			"label": "WordPress: Start",
@@ -130,16 +317,8 @@
 			"label": "WordPress: Restart",
 			"type": "shell",
 			"command": "pnpm",
-			"args": ["wp:stop"],
-			"problemMatcher": [],
-			"dependsOn": [],
-			"dependsOrder": "sequence",
-			"presentation": {
-				"reveal": "always"
-			},
-			"runOptions": {
-				"runOn": "default"
-			}
+			"args": ["wp:restart"],
+			"problemMatcher": []
 		},
 		{
 			"label": "WordPress: Fresh Start (with seed)",
@@ -158,101 +337,6 @@
 			"command": "pnpm",
 			"args": ["wp:destroy"],
 			"problemMatcher": []
-		},
-
-		// === Testing ===
-		{
-			"label": "Test: Unit Tests",
-			"type": "shell",
-			"command": "pnpm",
-			"args": ["test"],
-			"group": "test",
-			"problemMatcher": [],
-			"presentation": {
-				"reveal": "always",
-				"panel": "shared",
-				"clear": true
-			}
-		},
-		{
-			"label": "Test: Unit Tests (Watch)",
-			"type": "shell",
-			"command": "pnpm",
-			"args": ["test:watch"],
-			"isBackground": true,
-			"group": "test",
-			"problemMatcher": [],
-			"presentation": {
-				"reveal": "always",
-				"panel": "dedicated"
-			}
-		},
-		{
-			"label": "Test: E2E Tests",
-			"type": "shell",
-			"command": "pnpm",
-			"args": ["e2e"],
-			"group": "test",
-			"problemMatcher": [],
-			"presentation": {
-				"reveal": "always",
-				"panel": "shared",
-				"clear": true
-			}
-		},
-		{
-			"label": "Test: E2E Tests (Headed)",
-			"type": "shell",
-			"command": "pnpm",
-			"args": ["e2e:headed"],
-			"group": "test",
-			"problemMatcher": []
-		},
-		{
-			"label": "Test: E2E Tests (UI)",
-			"type": "shell",
-			"command": "pnpm",
-			"args": ["e2e:ui"],
-			"group": "test",
-			"problemMatcher": []
-		},
-
-		// === Linting & Formatting ===
-		{
-			"label": "Lint",
-			"type": "shell",
-			"command": "pnpm",
-			"args": ["lint"],
-			"problemMatcher": ["$eslint-stylish"],
-			"presentation": {
-				"reveal": "always",
-				"panel": "shared"
-			}
-		},
-		{
-			"label": "Format",
-			"type": "shell",
-			"command": "pnpm",
-			"args": ["format"],
-			"problemMatcher": []
-		},
-		{
-			"label": "Format: Check",
-			"type": "shell",
-			"command": "pnpm",
-			"args": ["format:check"],
-			"problemMatcher": []
-		},
-		{
-			"label": "TypeCheck: All",
-			"type": "shell",
-			"command": "pnpm",
-			"args": ["typecheck"],
-			"problemMatcher": ["$tsc"],
-			"presentation": {
-				"reveal": "always",
-				"panel": "shared"
-			}
 		},
 
 		// === Cleanup ===

@@ -8,30 +8,30 @@
 		"dev": "vite",
 		"build": "pnpm types:generate && vite build",
 		"types:generate": "./scripts/generate-types.sh",
+		"clean": "rm -rf build types",
+		"lint": "eslint src/",
+		"lint:fix": "eslint src/ --fix",
+		"format": "prettier --write 'src/**/*.{js,ts,tsx,json,md,php}'",
+		"format:check": "prettier --check 'src/**/*.{js,ts,tsx,json,md,php}'",
 		"typecheck": "tsc --noEmit",
-		"clean": "rm -rf build types"
+		"typecheck:tests": "tsc --project tsconfig.tests.json --noEmit",
+		"test": "jest --passWithNoTests",
+		"test:watch": "jest --watch",
+		"test:coverage": "jest --coverage",
+		"e2e": "cd ../../ && playwright test",
+		"e2e:headed": "cd ../../ && playwright test --headed",
+		"e2e:ui": "cd ../../ && playwright test --ui",
+		"e2e:debug": "cd ../../ && playwright test --debug",
+		"e2e:playground": "cd ../../ && TEST_ENV=playground WP_BASE_URL=http://127.0.0.1:9400 WP_USERNAME=admin WP_PASSWORD=password playwright test",
+		"e2e:playground:headed": "cd ../../ && TEST_ENV=playground WP_BASE_URL=http://127.0.0.1:9400 WP_USERNAME=admin WP_PASSWORD=password playwright test --headed",
+		"e2e:playground:ui": "cd ../../ && TEST_ENV=playground WP_BASE_URL=http://127.0.0.1:9400 WP_USERNAME=admin WP_PASSWORD=password playwright test --ui",
+		"e2e:playground:debug": "cd ../../ && TEST_ENV=playground WP_BASE_URL=http://127.0.0.1:9400 WP_USERNAME=admin WP_PASSWORD=password playwright test --debug"
 	},
 	"dependencies": {
 		"@geekist/wp-kernel": "workspace:*",
 		"@geekist/wp-kernel-ui": "workspace:*"
 	},
 	"devDependencies": {
-		"@geekist/wp-kernel-e2e-utils": "workspace:*",
-		"@kucrut/vite-for-wp": "^0.12.0",
-		"@playwright/test": "^1.55.1",
-		"@types/node": "^22.10.6",
-		"@wordpress/api-fetch": "^7.31.0",
-		"@wordpress/components": "^30.4.0",
-		"@wordpress/data": "^10.31.0",
-		"@wordpress/dom-ready": "^4.31.0",
-		"@wordpress/e2e-test-utils-playwright": "^1.11.0",
-		"@wordpress/element": "^6.31.0",
-		"@wordpress/hooks": "^4.31.0",
-		"@wordpress/i18n": "^6.4.0",
-		"ajv": "^8.17.1",
-		"ajv-formats": "^3.0.1",
-		"rollup-plugin-external-globals": "^0.13.0",
-		"vite": "^7.1.7",
-		"vite-plugin-external": "^6.2.2"
+		"@geekist/wp-kernel-e2e-utils": "workspace:*"
 	}
 }
