@@ -41,28 +41,19 @@ features:
 
 ## Why WP Kernel?
 
-WordPress has gone JS-first (Blocks, Interactivity, Script Modules), but teams still lose time wiring state, data, and glue per project. **WP Kernel gives you a clear path forward.**
+WordPress already gives us powerful primitives—blocks, Interactivity, script modules, and a reliable REST API. What teams still lack is a shared frame for turning those primitives into products without re-solving the same architecture on every build. WP Kernel steps in as that frame. It keeps JavaScript in the driver’s seat while asking PHP to focus on capabilities and transport, so you deliver features faster without forking away from Core.
 
-### For Developers
+### Built for people shipping features
 
-- **Scaffold → Ship**: Generate features with resources, actions, views, and tests—no yak-shaving
-- **Predictable State**: One store model (`@wordpress/data`) with resolvers & cache lifecycle
-- **Extensibility Without Fear**: Single event taxonomy and SlotFill extension points
+Developers get consistent patterns for data fetching, mutation, and error handling. Product teams see shorter feedback loops because the guardrails prevent accidental tight coupling. Business stakeholders gain confidence that every feature emits canonical events, making analytics, integrations, and audits first-class rather than afterthoughts.
 
-### For Product Teams
+## The golden path
 
-- **Shorter Lead Times**: Less boilerplate, more features
-- **Lower Risk**: Typed REST contracts + versioning + deprecations
-- **Future-Proof**: Built on official WordPress primitives; benefit as Core evolves
+A typical feature follows four beats. Start by defining a Resource so the contract between client and server is explicit. Wrap writes in an Action that manages permissions, retries, events, and cache invalidation. Bind data into blocks or React components using the generated hooks, then extend behaviour through the Interactivity API. Because every team walks the same path, documentation stays in sync with the actual code.
 
-## The Golden Path
+## A guided example
 
-1. **Actions-First**: All writes go through Actions (enforced by lint + runtime)
-2. **Resources**: Define your data contract once (typed, cached, versioned)
-3. **Views**: Blocks with bindings (data in) and interactivity (behavior out)
-4. **Events**: JS hooks are canonical; PHP listens through one mirrored bridge
-
-## Quick Example
+To make the flow tangible, consider the smallest slice of functionality: creating and listing “things.”
 
 ```typescript
 // 1. Define a resource
@@ -74,16 +65,22 @@ export const thing = defineResource<Thing>({
 	},
 	schema: import('../../contracts/thing.schema.json'),
 });
+```
 
-// 2. Write an action
+That declaration generates a typed client and store selectors. An Action then centralises the write path:
+
+```typescript
 export const CreateThing = defineAction('Thing.Create', async ({ data }) => {
 	const created = await thing.create(data);
 	CreateThing.emit(events.thing.created, { id: created.id, data });
 	invalidate(['thing', 'list']);
 	return created;
 });
+```
 
-// 3. Use in UI
+Finally, your UI calls the Action. No component reaches into transport APIs directly, which keeps retries and analytics consistent across the application.
+
+```typescript
 import { CreateThing } from '@/app/actions/Thing/Create';
 
 const handleSubmit = async () => {
@@ -91,15 +88,10 @@ const handleSubmit = async () => {
 };
 ```
 
-## What's Included
+## What ships in the repository
 
-- **Core Packages**: `@geekist/wp-kernel` (Resources, Actions, Events, Jobs)
-- **UI Library**: `@geekist/wp-kernel-ui` (Components, Bindings, Interactivity)
-- **Testing Utils**: `@geekist/wp-kernel-e2e-utils` (Playwright helpers, fixtures)
-- **Development Tools**: Monorepo setup, wp-env, Playground, CI/CD templates
+The monorepo includes the core `@geekist/wp-kernel` package for resources, Actions, events, and jobs; `@geekist/wp-kernel-ui` for bindings and components; `@geekist/wp-kernel-e2e-utils` for Playwright helpers; and a showcase application that exercises the full stack. Tooling for linting, testing, and CI/CD is already configured so new contributors can focus on product work from day one.
 
-## Ready to Start?
+## Ready to start?
 
-<div style="margin-top: 2rem;">
-  <a href="/getting-started/" style="display: inline-block; background: var(--vp-c-brand); color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 600;">Get Started →</a>
-</div>
+Head to the [Getting Started guide](/getting-started/) for installation and the narrated quick start. If you prefer to skim before coding, the [Core Concepts section](/guide/) explains how resources, Actions, events, bindings, and jobs work together. When you want to explore the wider project documentation, the [Repository Handbook](/guide/repository-handbook) points directly to `DEVELOPMENT.md`, `BRANCHING_STRATEGY.md`, and other living references.
