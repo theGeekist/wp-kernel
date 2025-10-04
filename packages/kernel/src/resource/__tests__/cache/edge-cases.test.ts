@@ -3,9 +3,23 @@
  * Consolidated tests for cache keys, interpolation, and invalidation
  */
 
-import { invalidate, invalidateAll } from '../../cache';
+import { invalidate, invalidateAll, normalizeCacheKey } from '../../cache';
 
 // Use global types for window.wp
+
+describe('cache helper functions', () => {
+	describe('normalizeCacheKey', () => {
+		it('should handle empty pattern resulting in empty string', () => {
+			const result = normalizeCacheKey([]);
+			expect(result).toBe('');
+		});
+
+		it('should filter out all nulls and undefineds leaving empty string', () => {
+			const result = normalizeCacheKey([null, undefined]);
+			expect(result).toBe('');
+		});
+	});
+});
 
 describe('invalidate edge cases', () => {
 	let mockDispatch: jest.Mock;
