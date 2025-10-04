@@ -175,14 +175,14 @@ Resources manage cache lifecycle automatically.
 
 ```typescript
 // First call - fetches from server
-const posts = await post.list();
+const posts = await post.fetchList();
 
 // Second call - returns from cache
-const samePosts = await post.list();
+const samePosts = await post.fetchList();
 
 // After write - cache invalidated
 await CreatePost({ data });
-// Next list() will refetch
+// Next fetchList() will refetch
 ```
 
 ## Architecture
@@ -220,12 +220,12 @@ await CreatePost({ data });
 - **`@geekist/wp-kernel/jobs`** - defineJob, background work
 - **`@geekist/wp-kernel/bindings`** - Block binding sources
 - **`@geekist/wp-kernel/interactivity`** - defineInteraction, front-end actions
-- **`@geekist/wp-kernel/errors`** - KernelError, error taxonomy
+- **`@geekist/wp-kernel/error`** - KernelError, error taxonomy
 
 ### Error Handling
 
 ```typescript
-import { KernelError } from '@geekist/wp-kernel/errors';
+import { KernelError } from '@geekist/wp-kernel/error';
 
 try {
 	await CreatePost({ data });

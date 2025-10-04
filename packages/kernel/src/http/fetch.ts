@@ -164,7 +164,7 @@ function normalizeError(
  *
  * @example
  * ```typescript
- * import { fetch } from '@geekist/wp-kernel/transport';
+ * import { fetch } from '@geekist/wp-kernel/http';
  *
  * const response = await fetch<Thing>({
  *   path: '/my-plugin/v1/things/123',
