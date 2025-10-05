@@ -47,7 +47,32 @@ const wpDataStub = {
 	// Selectors and controls
 	resolveSelect: jest.fn(),
 	suspendSelect: jest.fn(),
-} as any; // Use 'as any' to satisfy the complex @wordpress/data type requirements
+} as any; // Stub - 'as any' acceptable for test fixtures
+
+/**
+ * Complete WPHooks stub that satisfies the global type requirements
+ * Provides core @wordpress/hooks exports as mocks
+ */
+const wpHooksStub = {
+	doAction: jest.fn(),
+	addAction: jest.fn(),
+	removeAction: jest.fn(),
+	hasAction: jest.fn(),
+	doingAction: jest.fn(),
+	didAction: jest.fn(),
+	currentAction: jest.fn(),
+	applyFilters: jest.fn(),
+	addFilter: jest.fn(),
+	removeFilter: jest.fn(),
+	hasFilter: jest.fn(),
+	doingFilter: jest.fn(),
+	didFilter: jest.fn(),
+	currentFilter: jest.fn(),
+	removeAllActions: jest.fn(),
+	removeAllFilters: jest.fn(),
+	defaultHooks: {} as any,
+	createHooks: jest.fn(),
+} as any; // Stub - 'as any' acceptable for test fixtures
 
 /**
  * Global test environment setup
@@ -71,6 +96,7 @@ beforeEach(() => {
 	// Thanks to ambient declarations in test-globals.d.ts, window.wp is properly typed
 	window.wp = {
 		data: wpDataStub,
+		hooks: wpHooksStub,
 	};
 
 	// Implement getWPData globally for tests
@@ -96,9 +122,4 @@ afterEach(() => {
 
 	// Clear all mocks to avoid test interference
 	jest.clearAllMocks();
-
-	// NOTE: Do NOT automatically clean up test-specific globals like
-	// wpKernelData or __WP_KERNEL_PACKAGE__ here, as this interferes
-	// with test utilities that manage these explicitly within tests.
-	// Tests should clean up their own globals using test utilities.
 });
