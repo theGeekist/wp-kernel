@@ -4,7 +4,7 @@
  * Plugin URI: https://github.com/theGeekist/wp-kernel
  * Description: Demonstrates WP Kernel framework features using Script Modules and modern WordPress APIs
  * Version: 0.3.0
- * Requires at least: 6.7
+ * Requires at least: 6.8
  * Requires PHP: 8.3
  * Author: Geekist
  * Author URI: https://github.com/theGeekist
