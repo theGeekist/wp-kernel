@@ -1,3 +1,19 @@
+/**
+ * Policy context management and action integration
+ *
+ * This module provides the policy proxy pattern used in actions via `ctx.policy.assert()`.
+ * It handles:
+ * - Request context propagation (actionName, requestId for event correlation)
+ * - Policy runtime resolution from global action runtime
+ * - Event enrichment with request metadata for denied policies
+ * - Graceful degradation when policy runtime is unavailable
+ *
+ * The proxy ensures policy checks in actions include full request context in events,
+ * enabling audit trails and debugging (e.g., "which action triggered this denial?").
+ *
+ * @module @geekist/wp-kernel/policy/context
+ */
+
 import { KernelError } from '../error/KernelError';
 import type { ActionRuntime } from '../actions/types';
 import type { PolicyHelpers } from './types';
@@ -48,6 +64,17 @@ export function createPolicyProxy(
 ): Pick<PolicyHelpers<Record<string, unknown>>, 'assert' | 'can'> {
 	let warned = false;
 
+	/**
+	 * Normalize params array to single value or empty array.
+	 *
+	 * @param params - Variadic params from can/assert calls
+	 * @return Empty array or array with single param value
+	 * @internal
+	 */
+	function normalizeParams(params: unknown[]): [] | [unknown] {
+		return params.length === 0 ? [] : [params[0]];
+	}
+
 	function resolvePolicy(): Partial<PolicyHelpers<Record<string, unknown>>> {
 		const runtime = getPolicyRuntime();
 		if (runtime?.policy) {
@@ -63,10 +90,7 @@ export function createPolicyProxy(
 		assert(key: string, ...params: unknown[]): void | Promise<void> {
 			const runtimePolicy = resolvePolicy();
 			return withPolicyRequestContext(options, () => {
-				const normalizedParams =
-					params.length === 0
-						? ([] as never[])
-						: ([params[0]] as never[]);
+				const normalizedParams = normalizeParams(params) as never[];
 
 				if (runtimePolicy.assert) {
 					const assertFn = runtimePolicy.assert as (
@@ -130,10 +154,7 @@ export function createPolicyProxy(
 				}
 				return false;
 			}
-			const normalizedParams =
-				params.length === 0
-					? ([] as never[])
-					: ([params[0]] as never[]);
+			const normalizedParams = normalizeParams(params) as never[];
 			const canFn = runtimePolicy.can as (
 				policyKey: string,
 				param?: unknown
