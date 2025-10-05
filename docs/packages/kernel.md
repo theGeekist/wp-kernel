@@ -57,7 +57,7 @@ export const post = defineResource({
 Orchestrate write operations with automatic event emission:
 
 ```typescript
-import { defineAction } from '@geekist/wp-kernel/action';
+import { defineAction } from '@geekist/wp-kernel/actions';
 
 export const CreatePost = defineAction({
 	name: 'CreatePost',
@@ -119,7 +119,7 @@ Choose the pattern that fits your project:
 
 ```typescript
 import { defineResource } from '@geekist/wp-kernel/resource';
-import { defineAction } from '@geekist/wp-kernel/action';
+import { defineAction } from '@geekist/wp-kernel/actions';
 import { KernelError } from '@geekist/wp-kernel/error';
 ```
 
