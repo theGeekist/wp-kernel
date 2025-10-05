@@ -147,7 +147,7 @@ cacheKeys: {
 ```
 
 ::: warning Avoid Timestamps in Cache Keys
-Don't use `Date.now()` or timestamps in cache keys—it makes invalidation impossible. Use timestamps only for specific time-sensitive use cases (see Advanced Patterns).
+Don't use `Date.now()` or timestamps in cache keys-it makes invalidation impossible. Use timestamps only for specific time-sensitive use cases (see Advanced Patterns).
 :::
 
 #### `schema` \<Promise\<unknown\>\>
@@ -608,7 +608,7 @@ export function TestimonialList() {
 						<h3>{item.title}</h3>
 						<p>{item.content}</p>
 						<Rating value={item.rating} />
-						<cite>— {item.author}</cite>
+						<cite>- {item.author}</cite>
 					</li>
 				))}
 			</ul>

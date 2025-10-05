@@ -91,7 +91,7 @@
     - First Action with event emission
     - Cache invalidation helpers
 
-- # Sprint 0 Complete — Foundation Release
+- # Sprint 0 Complete - Foundation Release
 
     Complete development environment, tooling, and CI/CD pipeline for WP Kernel framework.
 

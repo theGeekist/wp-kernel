@@ -29,10 +29,10 @@ Each package ships with its own README. Review them when you work inside that pa
 
 ## Additional Guides
 
-- [AGENTS.md](https://github.com/theGeekist/wp-kernel/blob/main/AGENTS.md) — execution policy for automation agents
-- [LICENSING.md](https://github.com/theGeekist/wp-kernel/blob/main/LICENSING.md) — rationale behind dual licensing choices
-- [information/Roadmap](https://github.com/theGeekist/wp-kernel/blob/main/information/Roadmap%20PO%20%E2%80%A2%20v1.0.md) — product roadmap with sprint-by-sprint milestones
-- [app/showcase README](https://github.com/theGeekist/wp-kernel/blob/main/app/showcase/README.md) — walkthrough of the example plugin
+- [AGENTS.md](https://github.com/theGeekist/wp-kernel/blob/main/AGENTS.md) - execution policy for automation agents
+- [LICENSING.md](https://github.com/theGeekist/wp-kernel/blob/main/LICENSING.md) - rationale behind dual licensing choices
+- [information/Roadmap](https://github.com/theGeekist/wp-kernel/blob/main/information/Roadmap%20PO%20%E2%80%A2%20v1.0.md) - product roadmap with sprint-by-sprint milestones
+- [app/showcase README](https://github.com/theGeekist/wp-kernel/blob/main/app/showcase/README.md) - walkthrough of the example plugin
 
 ## Keeping Docs in Sync
 

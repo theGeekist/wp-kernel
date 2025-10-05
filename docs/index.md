@@ -41,7 +41,7 @@ features:
 
 ## Why WP Kernel?
 
-WordPress already gives us powerful primitives—blocks, Interactivity, script modules, and a reliable REST API. What teams still lack is a shared frame for turning those primitives into products without re-solving the same architecture on every build. WP Kernel steps in as that frame. It keeps JavaScript in the driver’s seat while asking PHP to focus on capabilities and transport, so you deliver features faster without forking away from Core.
+WordPress already gives us powerful primitives-blocks, Interactivity, script modules, and a reliable REST API. What teams still lack is a shared frame for turning those primitives into products without re-solving the same architecture on every build. WP Kernel steps in as that frame. It keeps JavaScript in the driver’s seat while asking PHP to focus on capabilities and transport, so you deliver features faster without forking away from Core.
 
 ### Built for people shipping features
 

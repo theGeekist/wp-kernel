@@ -83,7 +83,7 @@ TypeScript alone cannot protect a REST endpoint. JSON Schema keeps the JavaScrip
 }
 ```
 
-Run `pnpm types:generate` to regenerate the resource typings. Whenever schema changes, rerun the command and the generated API docs stay in sync—no drift between prose and implementation.
+Run `pnpm types:generate` to regenerate the resource typings. Whenever schema changes, rerun the command and the generated API docs stay in sync-no drift between prose and implementation.
 
 ## Step 3: Sketch the Action orchestrator
 

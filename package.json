@@ -23,7 +23,7 @@
 		"clean:dist": "pnpm --recursive run clean",
 		"lint": "eslint packages/ app/",
 		"lint:fix": "eslint packages/ app/ --fix",
-		"format": "prettier --write '**/*.{js,ts,tsx,json,md,yml,yaml}'",
+		"format": "prettier --write '**/*.{js,ts,tsx,json,md,yml,yaml}' && node scripts/normalize-punctuation.js",
 		"format:check": "prettier --check '**/*.{js,ts,tsx,json,md,yml,yaml}'",
 		"typecheck": "pnpm --recursive --filter './packages/*' --filter './app/*' run typecheck",
 		"typecheck:tests": "pnpm --recursive --filter './packages/*' --filter './app/*' run typecheck:tests",
@@ -96,6 +96,7 @@
 		"debug": "^4.4.3",
 		"eslint": "^9.36.0",
 		"eslint-import-resolver-typescript": "^4.4.4",
+		"glob": "^10.4.5",
 		"globals": "^16.4.0",
 		"husky": "^9.1.7",
 		"jest": "^30.2.0",
@@ -124,6 +125,9 @@
 		],
 		"*.{json,md,yml,yaml}": [
 			"prettier --write"
+		],
+		"*.md": [
+			"node scripts/normalize-punctuation.js"
 		]
 	},
 	"pnpm": {
