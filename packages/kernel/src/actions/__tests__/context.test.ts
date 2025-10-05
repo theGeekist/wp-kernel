@@ -147,13 +147,17 @@ describe('Action Context', () => {
 					bridged: true,
 				});
 
-				ctx.policy.assert('test.capability');
+				ctx.policy.assert('test.capability', undefined);
 				expect(mockPolicy.assert).toHaveBeenCalledWith(
-					'test.capability'
+					'test.capability',
+					undefined
 				);
 
-				const result = ctx.policy.can('test.capability');
-				expect(mockPolicy.can).toHaveBeenCalledWith('test.capability');
+				const result = ctx.policy.can('test.capability', undefined);
+				expect(mockPolicy.can).toHaveBeenCalledWith(
+					'test.capability',
+					undefined
+				);
 				expect(result).toBe(true);
 			});
 
@@ -165,12 +169,12 @@ describe('Action Context', () => {
 					bridged: true,
 				});
 
-				expect(() => ctx.policy.assert('test.capability')).toThrow(
-					KernelError
-				);
-				expect(() => ctx.policy.assert('test.capability')).toThrow(
-					/attempted to assert capability/
-				);
+				expect(() =>
+					ctx.policy.assert('test.capability', undefined)
+				).toThrow(KernelError);
+				expect(() =>
+					ctx.policy.assert('test.capability', undefined)
+				).toThrow(/attempted to assert a policy/);
 			});
 
 			it('returns false and warns when can called without runtime policy', () => {
@@ -186,7 +190,7 @@ describe('Action Context', () => {
 					bridged: true,
 				});
 
-				const result1 = ctx.policy.can('test.capability');
+				const result1 = ctx.policy.can('test.capability', undefined);
 				expect(result1).toBe(false);
 				expect(consoleWarnSpy).toHaveBeenCalledWith(
 					expect.stringContaining('no policy runtime is configured')
@@ -194,7 +198,7 @@ describe('Action Context', () => {
 
 				// Second call should not warn again (warned = true)
 				consoleWarnSpy.mockClear();
-				const result2 = ctx.policy.can('test.capability');
+				const result2 = ctx.policy.can('test.capability', undefined);
 				expect(result2).toBe(false);
 				expect(consoleWarnSpy).not.toHaveBeenCalled();
 
@@ -215,7 +219,7 @@ describe('Action Context', () => {
 					bridged: true,
 				});
 
-				const result = ctx.policy.can('test.capability');
+				const result = ctx.policy.can('test.capability', undefined);
 				expect(result).toBe(false);
 				expect(consoleWarnSpy).not.toHaveBeenCalled();
 
