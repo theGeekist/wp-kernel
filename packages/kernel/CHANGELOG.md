@@ -28,7 +28,10 @@
     - Comprehensive documentation (SCRIPTS.md, SCRIPTS_AUDIT.md)
 
     **WordPress Integration**:
-    - wp-env configuration (WordPress 6.7 + PHP 8.3)
+    - Error tests (KernelError, ServerError, TransportError)
+    - Resources with cache invalidation + auto-retry
+    - wp-env configuration (WordPress 6.8 + PHP 8.3)
+    - Changesets for version management
     - Dev environment (:8888) and tests environment (:8889)
     - Script Modules API integration verified
     - Showcase plugin demonstrating Script Module registration (857 bytes minified)
@@ -66,10 +69,10 @@
     - **Changesets**: Semantic versioning with automated releases
 
     ## Development Environment ✅
-    - **wp-env**: WordPress 6.7+ with PHP 8.3, dual environments (dev:8888, test:8889)
+    - **wp-env**: WordPress 6.8+ with PHP 8.3, dual environments (dev:8888, test:8889)
     - **WordPress Playground**: WASM environment for quick demos
     - **Seed Scripts**: Idempotent fixtures (users, applications, jobs, media)
-    - **Script Modules**: ESM support verified in WordPress 6.7
+    - **Script Modules**: ESM support verified in WordPress 6.8
 
     ## Testing ✅
     - **Jest**: Unit tests with @wordpress/jest-preset-default (4 tests passing, 25% coverage)

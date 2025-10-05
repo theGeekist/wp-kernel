@@ -190,7 +190,7 @@ export default defineKernelConfig({
 	// Optional build settings
 	build: {
 		staticEnvVar: 'STATIC', // Check this env var for static mode
-		targetWP: '6.7', // Target WordPress version
+		targetWP: '6.8', // Target WordPress version
 	},
 });
 ```
