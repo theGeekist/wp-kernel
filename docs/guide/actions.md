@@ -46,7 +46,7 @@ graph LR
 
 **The Golden Rule**: UI components **never** call resource write methods directly. Always route through Actions.
 
-This isn't just a suggestion—it's the foundation that makes everything else possible:
+This isn't just a suggestion-it's the foundation that makes everything else possible:
 
 - **Consistent side effects**: Every write operation follows the same pattern
 - **Automatic event emission**: Other parts of your app can react to changes
@@ -355,6 +355,76 @@ export const PublishPost = defineAction(
 	}
 );
 ```
+
+### Redux Middleware Integration
+
+For complex admin UIs or block editor environments using `@wordpress/data`, actions can be dispatched through Redux stores:
+
+```typescript
+import {
+	createActionMiddleware,
+	invokeAction,
+} from '@geekist/wp-kernel/actions';
+import { createReduxStore, register } from '@wordpress/data';
+import { CreatePost } from '@/actions/CreatePost';
+
+// Setup store with action middleware
+const actionMiddleware = createActionMiddleware();
+
+register(
+	createReduxStore('my-plugin/posts', {
+		reducer: postsReducer,
+		actions: {
+			// Standard Redux actions...
+		},
+		selectors: {
+			// Standard selectors...
+		},
+		__experimentalUseMiddleware: () => [actionMiddleware],
+	})
+);
+
+// In your components
+import { useDispatch } from '@wordpress/data';
+
+function PostEditor() {
+	const dispatch = useDispatch('my-plugin/posts');
+
+	const handlePublish = async () => {
+		// Dispatch kernel action through Redux
+		const envelope = invokeAction(CreatePost, {
+			title: 'New Post',
+			content: '...',
+		});
+
+		const result = await dispatch(envelope);
+		// Result is returned directly, bypassing reducers
+		console.log('Created post:', result);
+	};
+
+	return <button onClick={handlePublish}>Publish</button>;
+}
+```
+
+**How it works**:
+
+1. `createActionMiddleware()` creates Redux middleware that intercepts kernel action envelopes
+2. `invokeAction()` wraps your action in a Redux-compatible envelope
+3. The middleware executes the action (with all lifecycle events, cache invalidation, etc.)
+4. The action's result is returned directly, bypassing Redux reducers
+5. Standard Redux actions pass through normally
+
+**When to use Redux middleware**:
+
+- ✅ WordPress block editor environments (Gutenberg)
+- ✅ Complex admin UIs with existing Redux state
+- ✅ Apps needing Redux DevTools integration for debugging
+
+**When to call actions directly**:
+
+- ✅ Simple components: `await CreatePost(args)`
+- ✅ Non-Redux state management (Zustand, MobX, etc.)
+- ✅ Server-side contexts or React Server Components
 
 ## Why This Pattern Works
 

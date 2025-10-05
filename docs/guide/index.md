@@ -67,7 +67,7 @@ The Interactivity API adds behaviour without shipping custom JavaScript bundles 
 
 ### Jobs
 
-Jobs handle long-running work—imports, exports, background synchronisation—while providing polling hooks back to the UI. They live alongside Actions so retry policies and status updates stay coherent. [Read the full guide →](/guide/jobs)
+Jobs handle long-running work-imports, exports, background synchronisation-while providing polling hooks back to the UI. They live alongside Actions so retry policies and status updates stay coherent. [Read the full guide →](/guide/jobs)
 
 ## Golden rules
 
@@ -132,4 +132,4 @@ All surfaced errors extend `KernelError`, giving you predictable properties for 
 
 ## Performance expectations
 
-The framework sets budgets—sub-1.5s TTI on 3G, less than 30KB of additional JavaScript when you adopt the kernel, REST responses that stay under 500ms at p95. By baking these expectations into the architecture, the documentation you are reading doubles as a checklist for production readiness.
+The framework sets budgets-sub-1.5s TTI on 3G, less than 30KB of additional JavaScript when you adopt the kernel, REST responses that stay under 500ms at p95. By baking these expectations into the architecture, the documentation you are reading doubles as a checklist for production readiness.

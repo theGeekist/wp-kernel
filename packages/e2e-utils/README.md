@@ -181,7 +181,7 @@ Despite having `@wordpress/e2e-test-utils-playwright@^1.31.0` installed:
 
 ```typescript
 // app/showcase/__tests__/e2e/sprint-1-resources.spec.ts
-test.describe('Sprint 1 — Resources', () => {
+test.describe('Sprint 1 - Resources', () => {
 	test.beforeEach(async ({ page }) => {
 		await loginToWordPress(page); // Manual helper
 	});
@@ -380,7 +380,7 @@ test('example', async ({
 
 ## Migration Path
 
-### Before (Current — vanilla Playwright)
+### Before (Current - vanilla Playwright)
 
 ```typescript
 import { test, expect } from '@playwright/test';
@@ -406,7 +406,7 @@ test('jobs page works', async ({ page }) => {
 });
 ```
 
-### After (Post-Sprint 2 — WordPress + kernel fixtures)
+### After (Post-Sprint 2 - WordPress + kernel fixtures)
 
 ```typescript
 import { test, expect } from '@geekist/wp-kernel-e2e-utils';

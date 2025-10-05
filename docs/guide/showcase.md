@@ -4,7 +4,7 @@
 
 ## Overview
 
-The Jobs & Applications showcase plugin is a comprehensive example of building modern WordPress products with WP Kernel. It implements a full careers site with job listings, application workflows, and an admin hiring pipeline—all using kernel primitives.
+The Jobs & Applications showcase plugin is a comprehensive example of building modern WordPress products with WP Kernel. It implements a full careers site with job listings, application workflows, and an admin hiring pipeline-all using kernel primitives.
 
 **What it demonstrates:**
 

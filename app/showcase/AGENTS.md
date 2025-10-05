@@ -1,4 +1,4 @@
-# AGENTS.md — Showcase Plugin
+# AGENTS.md - Showcase Plugin
 
 > 💡 For human contributors: see [DEVELOPMENT.md](../../DEVELOPMENT.md) for setup, workflow, and environment details.  
 > This file focuses on agent/contribution rules.
@@ -39,7 +39,7 @@ It is **not** the kernel itself. Use it to validate features, integration flows,
     - Run `pnpm test` at repo root (includes showcase e2e).
     - All showcase flows must pass (public + admin).
 4. **Seeds updated** if new data requirements appear.
-5. **No hidden kernel logic** — don’t let framework fixes live only in showcase.
+5. **No hidden kernel logic** - don’t let framework fixes live only in showcase.
 
 ---
 
@@ -69,7 +69,7 @@ index.ts     # plugin entrypoint
 - `__tests__/e2e/` → full browser-driven flows.
 - `__tests__/build-verification/` → ensures build outputs load correctly.
 - Coverage is less critical here than in kernel, but **all major flows** (job listing, application, admin pipeline) must be tested end-to-end.
-- `dist-tests/` exists only for generated/compiled test output — do not edit manually.
+- `dist-tests/` exists only for generated/compiled test output - do not edit manually.
 
 ---
 
@@ -78,7 +78,7 @@ index.ts     # plugin entrypoint
 - ❌ Hide framework fixes inside showcase (upstream them to kernel).
 - ❌ Break alignment with Example Plugin Requirements/Specifications.
 - ❌ Commit symlinked docs (they live outside repo; symlinks only).
-- ❌ Rely on showcase for unit tests — kernel coverage belongs in `packages/wp-kernel`.
+- ❌ Rely on showcase for unit tests - kernel coverage belongs in `packages/wp-kernel`.
 
 ---
 

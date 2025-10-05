@@ -1,4 +1,4 @@
-# AGENTS.md — WP Kernel
+# AGENTS.md - WP Kernel
 
 > 💡 For human contributors: see [DEVELOPMENT.md](./DEVELOPMENT.md) for setup, workflow, and environment details.  
 > This file focuses on agent/contribution rules.
