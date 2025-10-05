@@ -97,10 +97,16 @@ beforeEach(() => {
 
 	// Mock BroadcastChannel since jsdom doesn't provide it
 	// This is a minimal spy-able implementation for testing cross-tab events
-	if (typeof (global as { BroadcastChannel?: unknown }).BroadcastChannel === 'undefined') {
-		(global as { BroadcastChannel?: typeof BroadcastChannel }).BroadcastChannel = class MockBroadcastChannel {
+	if (
+		typeof (global as { BroadcastChannel?: unknown }).BroadcastChannel ===
+		'undefined'
+	) {
+		(
+			global as { BroadcastChannel?: typeof BroadcastChannel }
+		).BroadcastChannel = class MockBroadcastChannel {
 			// --- Static registry so instances with the same name can talk to each other
-			private static registry: Map<string, Set<MockBroadcastChannel>> = new Map();
+			private static registry: Map<string, Set<MockBroadcastChannel>> =
+				new Map();
 
 			public messages: unknown[] = [];
 			public name: string;
@@ -112,19 +118,25 @@ beforeEach(() => {
 
 			public constructor(name: string) {
 				this.name = name;
-				const set = MockBroadcastChannel.registry.get(name) ?? new Set<MockBroadcastChannel>();
+				const set =
+					MockBroadcastChannel.registry.get(name) ??
+					new Set<MockBroadcastChannel>();
 				set.add(this);
 				MockBroadcastChannel.registry.set(name, set);
 			}
 
 			public postMessage(message: unknown) {
-				if (this.closed) return;
+				if (this.closed) {
+					return;
+				}
 
 				this.messages.push(message);
 
 				// Fan-out to all channels with the same name
 				const peers = MockBroadcastChannel.registry.get(this.name);
-				if (!peers) return;
+				if (!peers) {
+					return;
+				}
 
 				// Use a minimal event object compatible with typical listeners
 				const ev = { data: message } as MessageEvent;
@@ -136,7 +148,7 @@ beforeEach(() => {
 							ch.onmessage(ev);
 						}
 						// addEventListener('message', fn)
-						ch.listeners.forEach(fn => fn(ev));
+						ch.listeners.forEach((fn) => fn(ev));
 					} catch (err) {
 						// onmessageerror handler
 						if (typeof ch.onmessageerror === 'function') {
@@ -146,20 +158,28 @@ beforeEach(() => {
 				}
 			}
 
-			public addEventListener(type: string, fn: (ev: MessageEvent) => void) {
+			public addEventListener(
+				type: string,
+				fn: (ev: MessageEvent) => void
+			) {
 				if (type === 'message') {
 					this.listeners.add(fn);
 				}
 			}
 
-			public removeEventListener(type: string, fn: (ev: MessageEvent) => void) {
+			public removeEventListener(
+				type: string,
+				fn: (ev: MessageEvent) => void
+			) {
 				if (type === 'message') {
 					this.listeners.delete(fn);
 				}
 			}
 
 			public close() {
-				if (this.closed) return;
+				if (this.closed) {
+					return;
+				}
 				this.closed = true;
 				this.listeners.clear();
 				this.messages = [];
