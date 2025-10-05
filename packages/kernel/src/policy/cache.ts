@@ -1,3 +1,19 @@
+/**
+ * Policy cache implementation with cross-tab synchronization
+ *
+ * Provides memory + sessionStorage caching for policy evaluation results with:
+ * - Automatic TTL expiration (default: 60 seconds)
+ * - Cross-tab synchronization via BroadcastChannel
+ * - useSyncExternalStore integration for React re-renders
+ * - Stable cache key generation (parameter serialization)
+ *
+ * The cache is namespace-scoped to prevent conflicts between plugins sharing
+ * the same browser session. Cache entries are invalidated automatically when
+ * rules change via policy.extend() or manually via policy.cache.invalidate().
+ *
+ * @module @geekist/wp-kernel/policy/cache
+ */
+
 import { getNamespace } from '../namespace/detect';
 import type { PolicyCache, PolicyCacheOptions } from './types';
 
