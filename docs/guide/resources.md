@@ -551,7 +551,7 @@ export const testimonial = defineResource<TestimonialPost, TestimonialQuery>({
 
 ```typescript
 // app/actions/Testimonial/Create.ts
-import { defineAction } from '@geekist/wp-kernel/action';
+import { defineAction } from '@geekist/wp-kernel/actions';
 import { testimonial } from '@/resources/Testimonial';
 import { events } from '@geekist/wp-kernel/events';
 

@@ -293,7 +293,7 @@ wpk generate action CreateProduct \
 
 ```typescript
 // src/actions/CreateProduct.ts
-import { defineAction } from '@geekist/wp-kernel/action';
+import { defineAction } from '@geekist/wp-kernel/actions';
 import { product } from '../resources/product';
 import { KernelError } from '@geekist/wp-kernel/error';
 import { events } from '@geekist/wp-kernel/events';
