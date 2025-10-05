@@ -92,7 +92,7 @@ Run `pnpm types:generate` to regenerate the resource typings. Whenever schema ch
 Create `app/actions/Thing/Create.ts` with the planned API:
 
 ```typescript
-import { defineAction } from '@geekist/wp-kernel/action';
+import { defineAction } from '@geekist/wp-kernel/actions';
 import { events } from '@geekist/wp-kernel/events';
 import { invalidate } from '@geekist/wp-kernel';
 import { thing, Thing } from '@/app/resources/Thing';

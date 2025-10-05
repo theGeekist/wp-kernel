@@ -61,7 +61,7 @@ Let's build up an action step by step to see how it all fits together:
 ### 1. Basic Structure
 
 ```typescript
-import { defineAction } from '@geekist/wp-kernel/action';
+import { defineAction } from '@geekist/wp-kernel/actions';
 
 export const CreatePost = defineAction({
 	name: 'Post.Create',
@@ -74,7 +74,7 @@ export const CreatePost = defineAction({
 ### 2. Add Resource Integration
 
 ```typescript
-import { defineAction } from '@geekist/wp-kernel/action';
+import { defineAction } from '@geekist/wp-kernel/actions';
 import { post } from '@/resources/post';
 
 export const CreatePost = defineAction({
@@ -91,7 +91,7 @@ export const CreatePost = defineAction({
 ### 3. Add Event Emission
 
 ```typescript
-import { defineAction } from '@geekist/wp-kernel/action';
+import { defineAction } from '@geekist/wp-kernel/actions';
 import { post } from '@/resources/post';
 import { events } from '@geekist/wp-kernel/events';
 
@@ -114,7 +114,7 @@ export const CreatePost = defineAction({
 ### 4. Add Cache Invalidation
 
 ```typescript
-import { defineAction } from '@geekist/wp-kernel/action';
+import { defineAction } from '@geekist/wp-kernel/actions';
 import { post } from '@/resources/post';
 import { events } from '@geekist/wp-kernel/events';
 
@@ -139,7 +139,7 @@ export const CreatePost = defineAction({
 ### 5. Add Background Jobs
 
 ```typescript
-import { defineAction } from '@geekist/wp-kernel/action';
+import { defineAction } from '@geekist/wp-kernel/actions';
 import { post } from '@/resources/post';
 import { events } from '@geekist/wp-kernel/events';
 import { jobs } from '@geekist/wp-kernel/jobs';
@@ -171,7 +171,7 @@ export const CreatePost = defineAction({
 ### 6. Add Error Handling & Validation
 
 ```typescript
-import { defineAction } from '@geekist/wp-kernel/action';
+import { defineAction } from '@geekist/wp-kernel/actions';
 import { post } from '@/resources/post';
 import { events } from '@geekist/wp-kernel/events';
 import { jobs } from '@geekist/wp-kernel/jobs';

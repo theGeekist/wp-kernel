@@ -52,6 +52,7 @@ export * as http from './http/index.js';
 export * as resource from './resource/index.js';
 export * as error from './error/index.js';
 export * as namespace from './namespace/index.js';
+export * as actions from './actions/index.js';
 
 // ============================================================================
 // Flat Exports (Convenience aliases)
@@ -114,6 +115,29 @@ export type {
 	CacheKeyPattern,
 	InvalidateOptions,
 } from './resource/cache';
+
+// Actions system
+export { defineAction } from './actions/define.js';
+export {
+	createActionMiddleware,
+	invokeAction,
+	EXECUTE_ACTION_TYPE,
+} from './actions/middleware.js';
+export type {
+	ActionContext,
+	ActionFn,
+	ActionOptions,
+	ActionLifecycleEvent,
+	ActionStartEvent,
+	ActionCompleteEvent,
+	ActionErrorEvent,
+	DefinedAction,
+	ResolvedActionOptions,
+	Reporter,
+	ActionJobs,
+	ActionPolicy,
+	WaitOptions,
+} from './actions/types';
 
 // Namespace detection
 export {
