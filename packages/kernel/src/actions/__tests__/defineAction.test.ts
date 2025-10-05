@@ -125,4 +125,35 @@ describe('defineAction', () => {
 		expect(action.options.scope).toBe('tabLocal');
 		expect(action.options.bridged).toBe(false);
 	});
+
+	it('does not emit lifecycle events to bridge when bridged is false', async () => {
+		const bridgeEmit = jest.fn();
+		global.__WP_KERNEL_ACTION_RUNTIME__ = {
+			...global.__WP_KERNEL_ACTION_RUNTIME__!,
+			bridge: { emit: bridgeEmit },
+		};
+
+		const action = defineAction(
+			'Thing.NoBridge',
+			async () => ({ ok: true }),
+			{
+				bridged: false,
+			}
+		);
+
+		await action(undefined as never);
+
+		// Should emit to hooks
+		expect(doAction).toHaveBeenCalledWith(
+			'wpk.action.start',
+			expect.objectContaining({ actionName: 'Thing.NoBridge' })
+		);
+		expect(doAction).toHaveBeenCalledWith(
+			'wpk.action.complete',
+			expect.objectContaining({ actionName: 'Thing.NoBridge' })
+		);
+
+		// Should NOT emit to bridge
+		expect(bridgeEmit).not.toHaveBeenCalled();
+	});
 });
