@@ -161,7 +161,7 @@ export function emitLifecycleEvent(event: ActionLifecycleEvent): void {
 	}
 
 	const runtime = getRuntime();
-	if (runtime?.bridge?.emit) {
+	if (event.bridged && runtime?.bridge?.emit) {
 		runtime.bridge.emit(`wpk.action.${event.phase}`, event, event);
 	}
 
