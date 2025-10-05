@@ -21,24 +21,11 @@ describe('policy module', () => {
 	beforeEach(() => {
 		delete (globalThis as { __WP_KERNEL_ACTION_RUNTIME__?: unknown })
 			.__WP_KERNEL_ACTION_RUNTIME__;
-		(
-			global as { BroadcastChannel?: typeof BroadcastChannel }
-		).BroadcastChannel = class {
-			public messages: unknown[] = [];
-			public constructor(public name: string) {}
-			postMessage(message: unknown) {
-				this.messages.push(message);
-			}
-			close() {}
-		} as unknown as typeof BroadcastChannel;
 	});
 
 	afterEach(() => {
 		delete (globalThis as { __WP_KERNEL_ACTION_RUNTIME__?: unknown })
 			.__WP_KERNEL_ACTION_RUNTIME__;
-		delete (global as { BroadcastChannel?: typeof BroadcastChannel })
-			.BroadcastChannel;
-		delete (window as typeof window & { wp?: unknown }).wp;
 	});
 
 	it('evaluates synchronous policies', () => {
