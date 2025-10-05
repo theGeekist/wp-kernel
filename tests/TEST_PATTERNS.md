@@ -30,7 +30,10 @@ window.wp!.hooks!.doAction = jest.fn();
 
 ```typescript
 // ✅ CORRECT: Use test utilities
-import { setKernelPackage, setWpPluginData } from '../../../tests/test-utils/wp';
+import {
+	setKernelPackage,
+	setWpPluginData,
+} from '../../../tests/test-utils/wp';
 
 setKernelPackage({ name: '@acme/plugin' });
 setWpPluginData({ name: 'acme-plugin', slug: 'acme' });
@@ -78,10 +81,10 @@ window.wp = { hooks: { doAction: jest.fn() } };
 
 // ❌ WRONG: Recreating wpData stub
 global.window.wp = {
-  data: {
-    select: jest.fn(),
-    dispatch: jest.fn(),
-  }
+	data: {
+		select: jest.fn(),
+		dispatch: jest.fn(),
+	},
 };
 ```
 
@@ -89,11 +92,13 @@ global.window.wp = {
 
 ```typescript
 // ❌ WRONG: Recreating BroadcastChannel implementation (already in setup-jest.ts)
-(global as { BroadcastChannel?: typeof BroadcastChannel }).BroadcastChannel = 
-  class {
-    messages = [];
-    postMessage(msg) { this.messages.push(msg); }
-  } as unknown as typeof BroadcastChannel;
+(global as { BroadcastChannel?: typeof BroadcastChannel }).BroadcastChannel =
+	class {
+		messages = [];
+		postMessage(msg) {
+			this.messages.push(msg);
+		}
+	} as unknown as typeof BroadcastChannel;
 
 // ✅ CORRECT: Setting to undefined/restoring is OK (testing unavailability)
 global.BroadcastChannel = undefined; // OK
@@ -105,8 +110,8 @@ global.BroadcastChannel = originalBroadcastChannel; // OK (restoring)
 ```typescript
 // ❌ WRONG: Custom storage implementation
 global.sessionStorage = {
-  getItem: jest.fn(),
-  setItem: jest.fn(),
+	getItem: jest.fn(),
+	setItem: jest.fn(),
 } as any;
 ```
 
@@ -126,8 +131,8 @@ window.wp!.hooks!.doAction = doAction;
 // Test your code...
 
 expect(doAction).toHaveBeenCalledWith(
-  'wpk.policy.denied',
-  expect.objectContaining({ policyKey: 'test' })
+	'wpk.policy.denied',
+	expect.objectContaining({ policyKey: 'test' })
 );
 ```
 
@@ -153,7 +158,7 @@ import { ensureWpData } from '../../../tests/test-utils/wp';
 
 const mockCanUser = jest.fn().mockReturnValue(true);
 ensureWpData().select.mockReturnValue({
-  canUser: mockCanUser
+	canUser: mockCanUser,
 });
 
 // Test your code...
@@ -166,20 +171,20 @@ expect(mockCanUser).toHaveBeenCalledWith('update', 'posts', 123);
 ```typescript
 // ✅ CORRECT: Set to undefined (not delete)
 it('handles missing wp', () => {
-  (window as Window & { wp?: unknown }).wp = undefined;
-  
-  const result = getWPData();
-  expect(result).toBeUndefined();
+	(window as Window & { wp?: unknown }).wp = undefined;
+
+	const result = getWPData();
+	expect(result).toBeUndefined();
 });
 
 // ✅ CORRECT: Test BroadcastChannel unavailability (SSR)
 it('handles missing BroadcastChannel', () => {
-  const original = global.BroadcastChannel;
-  global.BroadcastChannel = undefined;
-  
-  // Test code that should handle missing BroadcastChannel...
-  
-  global.BroadcastChannel = original;
+	const original = global.BroadcastChannel;
+	global.BroadcastChannel = undefined;
+
+	// Test code that should handle missing BroadcastChannel...
+
+	global.BroadcastChannel = original;
 });
 ```
 

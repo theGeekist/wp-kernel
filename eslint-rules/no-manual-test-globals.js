@@ -55,54 +55,54 @@ export default {
 				});
 			},
 
-		// Catch: global.BroadcastChannel = class { ... }
-		// But ALLOW:
-		//   - global.BroadcastChannel = undefined (testing absence/SSR)
-		//   - global.BroadcastChannel = originalBroadcastChannel (restoring)
-		// (setup-jest.ts provides the mock centrally)
-		'AssignmentExpression[left.object.name="global"][left.property.name="BroadcastChannel"]'(
-			node
-		) {
-			// Allow setting to undefined (testing SSR/unavailability)
-			if (
-				node.right.type === 'Identifier' &&
-				node.right.name === 'undefined'
+			// Catch: global.BroadcastChannel = class { ... }
+			// But ALLOW:
+			//   - global.BroadcastChannel = undefined (testing absence/SSR)
+			//   - global.BroadcastChannel = originalBroadcastChannel (restoring)
+			// (setup-jest.ts provides the mock centrally)
+			'AssignmentExpression[left.object.name="global"][left.property.name="BroadcastChannel"]'(
+				node
 			) {
-				return;
-			}
+				// Allow setting to undefined (testing SSR/unavailability)
+				if (
+					node.right.type === 'Identifier' &&
+					node.right.name === 'undefined'
+				) {
+					return;
+				}
 
-			// Allow setting to a variable (restoring original value)
-			if (node.right.type === 'Identifier') {
-				return;
-			}
-
-			context.report({
-				node,
-				messageId: 'manualGlobalBroadcastChannel',
-			});
-		},
-
-		// Catch type casts for global.BroadcastChannel (unless setting to undefined/variable)
-		'AssignmentExpression > TSAsExpression[expression.name="global"]'(
-			node
-		) {
-			const parent = node.parent;
-			if (
-				parent.type === 'AssignmentExpression' &&
-				parent.left.type === 'MemberExpression' &&
-				parent.left.property.name === 'BroadcastChannel'
-			) {
-				// Allow setting to undefined or a variable
-				if (parent.right.type === 'Identifier') {
+				// Allow setting to a variable (restoring original value)
+				if (node.right.type === 'Identifier') {
 					return;
 				}
 
 				context.report({
-					node: parent,
+					node,
 					messageId: 'manualGlobalBroadcastChannel',
 				});
-			}
-		},			// Catch: global.sessionStorage = { ... }
+			},
+
+			// Catch type casts for global.BroadcastChannel (unless setting to undefined/variable)
+			'AssignmentExpression > TSAsExpression[expression.name="global"]'(
+				node
+			) {
+				const parent = node.parent;
+				if (
+					parent.type === 'AssignmentExpression' &&
+					parent.left.type === 'MemberExpression' &&
+					parent.left.property.name === 'BroadcastChannel'
+				) {
+					// Allow setting to undefined or a variable
+					if (parent.right.type === 'Identifier') {
+						return;
+					}
+
+					context.report({
+						node: parent,
+						messageId: 'manualGlobalBroadcastChannel',
+					});
+				}
+			}, // Catch: global.sessionStorage = { ... }
 			// Catch: global.localStorage = { ... }
 			'AssignmentExpression[left.object.name="global"][left.property.name=/^(sessionStorage|localStorage)$/]'(
 				node
