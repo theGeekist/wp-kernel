@@ -358,7 +358,10 @@ _Will be added as breaking changes are introduced during 0.x.x development_
 
 **Development Environment** ✅
 
-- wp-env (WordPress 6.7+, PHP 8.3)
+- CI/CD with GitHub Actions (optimized caching)
+- Commit hooks (lint-staged + Husky)
+- wp-env (WordPress 6.8+, PHP 8.3)
+- WordPress Playground integration
 - WordPress Playground (WASM)
 - Seed scripts (5 users, 5 jobs, 10 applications, 4 media files)
 - Script Modules API integration

@@ -524,7 +524,7 @@ mountAdmin('#wpk-admin-root', JobsAdminTable, {
 
 | WordPress Version | DataViews        | Script Modules | Interactivity API |
 | ----------------- | ---------------- | -------------- | ----------------- |
-| 6.7+              | ✅ Stable        | ✅ Full        | ✅ Full           |
+| 6.8+              | ✅ Stable        | ✅ Full        | ✅ Full           |
 | 6.6               | ⚠️ Experimental  | ✅ Basic       | ✅ Basic          |
 | 6.5               | ❌ Not Available | ⚠️ Limited     | ⚠️ Limited        |
 

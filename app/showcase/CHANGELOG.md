@@ -16,10 +16,10 @@
     - **Changesets**: Semantic versioning with automated releases
 
     ## Development Environment ✅
-    - **wp-env**: WordPress 6.7+ with PHP 8.3, dual environments (dev:8888, test:8889)
+    - **wp-env**: WordPress 6.8+ with PHP 8.3, dual environments (dev:8888, test:8889)
     - **WordPress Playground**: WASM environment for quick demos
     - **Seed Scripts**: Idempotent fixtures (users, applications, jobs, media)
-    - **Script Modules**: ESM support verified in WordPress 6.7
+    - **Script Modules**: ESM support verified in WordPress 6.8
 
     ## Testing ✅
     - **Jest**: Unit tests with @wordpress/jest-preset-default (4 tests passing, 25% coverage)
