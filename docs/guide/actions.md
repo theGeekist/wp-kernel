@@ -63,12 +63,12 @@ Let's build up an action step by step to see how it all fits together:
 ```typescript
 import { defineAction } from '@geekist/wp-kernel/actions';
 
-export const CreatePost = defineAction({
-	name: 'Post.Create',
-	async execute({ title, content }) {
+export const CreatePost = defineAction(
+	'Post.Create',
+	async (ctx, { title, content }) => {
 		// Action logic goes here
-	},
-});
+	}
+);
 ```
 
 ### 2. Add Resource Integration
@@ -77,15 +77,15 @@ export const CreatePost = defineAction({
 import { defineAction } from '@geekist/wp-kernel/actions';
 import { post } from '@/resources/post';
 
-export const CreatePost = defineAction({
-	name: 'Post.Create',
-	async execute({ title, content }) {
+export const CreatePost = defineAction(
+	'Post.Create',
+	async (ctx, { title, content }) => {
 		// Call the resource (this does the actual API work)
 		const created = await post.create({ title, content });
 
 		return created;
-	},
-});
+	}
+);
 ```
 
 ### 3. Add Event Emission
@@ -93,22 +93,21 @@ export const CreatePost = defineAction({
 ```typescript
 import { defineAction } from '@geekist/wp-kernel/actions';
 import { post } from '@/resources/post';
-import { events } from '@geekist/wp-kernel/events';
 
-export const CreatePost = defineAction({
-	name: 'Post.Create',
-	async execute({ title, content }) {
+export const CreatePost = defineAction(
+	'Post.Create',
+	async (ctx, { title, content }) => {
 		const created = await post.create({ title, content });
 
-		// Emit canonical events (automatic in many cases)
-		events.emit('wpk.resource.post.created', {
+		// Emit canonical domain events
+		ctx.emit('post.created', {
+			postId: created.id,
 			data: created,
-			meta: { userId: getCurrentUserId() },
 		});
 
 		return created;
-	},
-});
+	}
+);
 ```
 
 ### 4. Add Cache Invalidation
@@ -116,24 +115,23 @@ export const CreatePost = defineAction({
 ```typescript
 import { defineAction } from '@geekist/wp-kernel/actions';
 import { post } from '@/resources/post';
-import { events } from '@geekist/wp-kernel/events';
 
-export const CreatePost = defineAction({
-	name: 'Post.Create',
-	async execute({ title, content }) {
+export const CreatePost = defineAction(
+	'Post.Create',
+	async (ctx, { title, content }) => {
 		const created = await post.create({ title, content });
 
-		events.emit('wpk.resource.post.created', {
+		ctx.emit('post.created', {
+			postId: created.id,
 			data: created,
-			meta: { userId: getCurrentUserId() },
 		});
 
-		// Invalidate relevant cache keys (often automatic)
-		post.cache.invalidate(['list']); // Post lists need to refresh
+		// Invalidate relevant cache keys
+		ctx.invalidate(['post', 'post:list']);
 
 		return created;
-	},
-});
+	}
+);
 ```
 
 ### 5. Add Background Jobs
@@ -141,31 +139,29 @@ export const CreatePost = defineAction({
 ```typescript
 import { defineAction } from '@geekist/wp-kernel/actions';
 import { post } from '@/resources/post';
-import { events } from '@geekist/wp-kernel/events';
-import { jobs } from '@geekist/wp-kernel/jobs';
 
-export const CreatePost = defineAction({
-	name: 'Post.Create',
-	async execute({ title, content, notifySubscribers = false }) {
+export const CreatePost = defineAction(
+	'Post.Create',
+	async (ctx, { title, content, notifySubscribers = false }) => {
 		const created = await post.create({ title, content });
 
-		events.emit('wpk.resource.post.created', {
+		ctx.emit('post.created', {
+			postId: created.id,
 			data: created,
-			meta: { userId: getCurrentUserId() },
 		});
 
-		post.cache.invalidate(['list']);
+		ctx.invalidate(['post', 'post:list']);
 
 		// Queue background work
 		if (notifySubscribers) {
-			await jobs.enqueue('SendPostNotification', {
+			await ctx.jobs.enqueue('SendPostNotification', {
 				postId: created.id,
 			});
 		}
 
 		return created;
-	},
-});
+	}
+);
 ```
 
 ### 6. Add Error Handling & Validation
@@ -173,13 +169,11 @@ export const CreatePost = defineAction({
 ```typescript
 import { defineAction } from '@geekist/wp-kernel/actions';
 import { post } from '@/resources/post';
-import { events } from '@geekist/wp-kernel/events';
-import { jobs } from '@geekist/wp-kernel/jobs';
 import { KernelError } from '@geekist/wp-kernel/error';
 
-export const CreatePost = defineAction({
-	name: 'Post.Create',
-	async execute({ title, content, notifySubscribers = false }) {
+export const CreatePost = defineAction(
+	'Post.Create',
+	async (ctx, { title, content, notifySubscribers = false }) => {
 		// Validation
 		if (!title?.trim()) {
 			throw new KernelError('ValidationError', {
@@ -188,43 +182,33 @@ export const CreatePost = defineAction({
 			});
 		}
 
-		// Permission check
-		if (!currentUserCan('publish_posts')) {
-			throw new KernelError('PermissionError', {
-				message: 'You cannot create posts',
-				capability: 'publish_posts',
-			});
-		}
+		// Permission check via policy surface
+		ctx.policy.assert('publish_posts');
 
 		try {
 			const created = await post.create({ title, content });
 
-			events.emit('wpk.resource.post.created', {
+			ctx.emit('post.created', {
+				postId: created.id,
 				data: created,
-				meta: { userId: getCurrentUserId() },
 			});
 
-			post.cache.invalidate(['list']);
+			ctx.invalidate(['post', 'post:list']);
 
 			if (notifySubscribers) {
-				await jobs.enqueue('SendPostNotification', {
+				await ctx.jobs.enqueue('SendPostNotification', {
 					postId: created.id,
 				});
 			}
 
 			return created;
 		} catch (error) {
-			// Emit error event for monitoring
-			events.emit('wpk.action.error', {
-				action: 'CreatePost',
-				error: error.message,
-				data: { title, content },
-			});
-
+			// Error is automatically normalized and emitted via wpk.action.error
+			ctx.reporter.error('Post creation failed', { title, error });
 			throw error;
 		}
-	},
-});
+	}
+);
 ```
 
 ## Using Actions in Your UI
@@ -296,32 +280,27 @@ store('my-plugin', {
 ### Optimistic Updates
 
 ```typescript
-export const UpdatePost = defineAction({
-	name: 'Post.Update',
-	async execute({ id, updates }) {
-		// Optimistically update the cache first
-		post.cache.setItem(id, { ...existingPost, ...updates });
+export const UpdatePost = defineAction(
+	'Post.Update',
+	async (ctx, { id, updates }) => {
+		// Note: Optimistic updates would require additional store integration
+		// beyond the action itself. This is a conceptual example.
 
-		try {
-			const updated = await post.update(id, updates);
-			// Replace optimistic update with real data
-			post.cache.setItem(id, updated);
-			return updated;
-		} catch (error) {
-			// Revert optimistic update
-			post.cache.setItem(id, existingPost);
-			throw error;
-		}
-	},
-});
+		const updated = await post.update(id, updates);
+		ctx.invalidate([`post:${id}`, 'post:list']);
+		ctx.emit('post.updated', { postId: id, data: updated });
+
+		return updated;
+	}
+);
 ```
 
 ### Batch Operations
 
 ```typescript
-export const BulkDeletePosts = defineAction({
-	name: 'Post.BulkDelete',
-	async execute({ ids }) {
+export const BulkDeletePosts = defineAction(
+	'Post.BulkDelete',
+	async (ctx, { ids }) => {
 		const results = [];
 
 		for (const id of ids) {
@@ -334,45 +313,47 @@ export const BulkDeletePosts = defineAction({
 		}
 
 		// Invalidate cache once at the end
-		post.cache.invalidate(['list']);
+		ctx.invalidate(['post', 'post:list']);
 
-		events.emit('wpk.bulk.operation.completed', {
+		ctx.emit('bulk.operation.completed', {
 			operation: 'delete',
 			results,
 		});
 
 		return results;
-	},
-});
+	}
+);
 ```
 
 ### Conditional Side Effects
 
 ```typescript
-export const PublishPost = defineAction({
-	name: 'Post.Publish',
-	async execute({ id, scheduleNotifications = true }) {
+export const PublishPost = defineAction(
+	'Post.Publish',
+	async (ctx, { id, scheduleNotifications = true }) => {
 		const updated = await post.update(id, { status: 'publish' });
 
-		events.emit('wpk.resource.post.published', {
+		ctx.emit('post.published', {
+			postId: updated.id,
 			data: updated,
-			meta: { publishedAt: new Date() },
 		});
 
-		post.cache.invalidate(['list', 'featured']);
+		ctx.invalidate(['post', 'post:list', 'post:featured']);
 
 		// Conditional side effects based on post properties
 		if (updated.featured && scheduleNotifications) {
-			await jobs.enqueue('SendFeaturedPostNotification', { postId: id });
+			await ctx.jobs.enqueue('SendFeaturedPostNotification', {
+				postId: id,
+			});
 		}
 
 		if (updated.categories.includes('breaking-news')) {
-			await jobs.enqueue('SendBreakingNewsAlert', { postId: id });
+			await ctx.jobs.enqueue('SendBreakingNewsAlert', { postId: id });
 		}
 
 		return updated;
-	},
-});
+	}
+);
 ```
 
 ## Why This Pattern Works
