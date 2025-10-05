@@ -3,7 +3,7 @@ import React, { act, useEffect, useRef } from 'react';
 import { definePolicy } from '../define';
 import { usePolicy } from '../hooks';
 import { createPolicyProxy } from '../context';
-import type { PolicyHelpers, UsePolicyResult } from '../types';
+import type { PolicyHelpers, PolicyRule, UsePolicyResult } from '../types';
 import { KernelError } from '../../error/KernelError';
 
 describe('policy module', () => {
@@ -73,20 +73,10 @@ describe('policy module', () => {
 	});
 
 	it('throws KernelError with messageKey and emits events when denied', async () => {
-		const doAction = jest.fn();
-		const hooks = {
-			doAction,
-		} as unknown as typeof import('@wordpress/hooks') & {
-			doAction: typeof doAction;
-		};
-
-		(
-			window as typeof window & {
-				wp?: { hooks?: typeof hooks };
-			}
-		).wp = {
-			hooks,
-		};
+		const hooks = window.wp?.hooks as { doAction?: jest.Mock } | undefined;
+		expect(hooks?.doAction).toBeDefined();
+		const doAction = hooks!.doAction!;
+		doAction.mockImplementation(() => undefined);
 
 		const policy = definePolicy<{
 			'tasks.manage': void;
@@ -188,20 +178,10 @@ describe('policy module', () => {
 	});
 
 	it('proxy injects request context for action assertions', async () => {
-		const doAction = jest.fn();
-		const hooks = {
-			doAction,
-		} as unknown as typeof import('@wordpress/hooks') & {
-			doAction: typeof doAction;
-		};
-
-		(
-			window as typeof window & {
-				wp?: { hooks?: typeof hooks };
-			}
-		).wp = {
-			hooks,
-		};
+		const hooks = window.wp?.hooks as { doAction?: jest.Mock } | undefined;
+		expect(hooks?.doAction).toBeDefined();
+		const doAction = hooks!.doAction!;
+		doAction.mockImplementation(() => undefined);
 
 		const policy = definePolicy<{
 			'tasks.manage': void;
@@ -246,5 +226,48 @@ describe('policy module', () => {
 			expect.objectContaining({ policyKey: 'tasks.manage' }),
 			expect.objectContaining({ requestId: 'req-1' })
 		);
+	});
+
+	it('throws a developer error when accessing unknown policy keys', () => {
+		const policy = definePolicy<{ 'tasks.manage': void }>({
+			'tasks.manage': () => true,
+		});
+
+		expect(() => policy.can('tasks.delete' as never)).toThrow(KernelError);
+	});
+
+	it('reuses in-flight promises for async policy evaluations', async () => {
+		let resolveFn: ((value: boolean) => void) | undefined;
+		const asyncRule = jest.fn(
+			() =>
+				new Promise<boolean>((resolve) => {
+					resolveFn = resolve;
+				})
+		);
+		const policy = definePolicy<{ 'tasks.async': void }>({
+			'tasks.async': asyncRule,
+		});
+
+		const first = policy.can('tasks.async');
+		const second = policy.can('tasks.async');
+		expect(first).toBe(second);
+		resolveFn?.(true);
+		await expect(first).resolves.toBe(true);
+		expect(asyncRule).toHaveBeenCalledTimes(1);
+	});
+
+	it('clears in-flight cache when async rules reject', async () => {
+		const asyncRule = jest
+			.fn<Promise<boolean>, Parameters<PolicyRule<void>>>()
+			.mockRejectedValueOnce(new Error('fail'))
+			.mockResolvedValueOnce(true);
+
+		const policy = definePolicy<{ 'tasks.async': void }>({
+			'tasks.async': asyncRule,
+		});
+
+		await expect(policy.can('tasks.async')).rejects.toThrow('fail');
+		await expect(policy.can('tasks.async')).resolves.toBe(true);
+		expect(asyncRule).toHaveBeenCalledTimes(2);
 	});
 });
