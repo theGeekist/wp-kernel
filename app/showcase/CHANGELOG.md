@@ -1,5 +1,13 @@
 # wp-kernel-showcase
 
+## 0.3.1
+
+### Patch Changes
+
+- Updated dependencies [1370297]
+    - @geekist/wp-kernel@1.0.0
+    - @geekist/wp-kernel-ui@1.0.0
+
 ## 0.3.0
 
 ### Minor Changes
