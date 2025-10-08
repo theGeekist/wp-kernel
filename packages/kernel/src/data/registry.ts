@@ -3,6 +3,7 @@ import { getNamespace } from '../namespace/detect';
 import { createReporter } from '../reporter';
 import { kernelEventsPlugin } from './plugins/events';
 import type { KernelRegistry, KernelRegistryOptions } from './types';
+import { getKernelEventBus } from '../events/bus';
 
 /**
  * Wire the WP Kernel runtime into a given `@wordpress/data` registry.
@@ -44,10 +45,11 @@ export function withKernel(
 		cleanupTasks.push(detachAction);
 	}
 
-	const eventsMiddleware = kernelEventsPlugin({
-		reporter,
-		registry,
-	});
+        const eventsMiddleware = kernelEventsPlugin({
+                reporter,
+                registry,
+                events: options.events ?? getKernelEventBus(),
+        });
 	const detachEvents = applyMiddleware(() => [eventsMiddleware]);
 	cleanupTasks.push(() => {
 		if (typeof detachEvents === 'function') {
