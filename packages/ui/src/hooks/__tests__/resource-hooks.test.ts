@@ -1,5 +1,10 @@
 import { defineResource } from '@geekist/wp-kernel/resource';
 import {
+        clearRegisteredResources,
+        getKernelEventBus,
+        type ResourceDefinedEvent,
+} from '@geekist/wp-kernel';
+import {
 	attachResourceHooks,
 	type UseResourceItemResult,
 	type UseResourceListResult,
@@ -26,10 +31,11 @@ describe('resource hooks (UI integration)', () => {
 	};
 	let originalWp: Window['wp'];
 
-	beforeEach(() => {
-		const windowWithWp = global.window as Window & { wp?: any };
-		originalWp = windowWithWp?.wp;
-		mockWpData = {
+        beforeEach(() => {
+                clearRegisteredResources();
+                const windowWithWp = global.window as Window & { wp?: any };
+                originalWp = windowWithWp?.wp;
+                mockWpData = {
 			useSelect: jest.fn(),
 			select: jest.fn(),
 			dispatch: jest.fn(),
@@ -473,46 +479,28 @@ describe('resource hooks (UI integration)', () => {
 		});
 	});
 
-	it('processes pending resources when UI bundle loads after resource definition', () => {
-		// Simulate kernel defining resources before UI loads
-		const globalCache = globalThis as typeof globalThis & {
-			__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__?: () => any[];
-			__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__?: (resource: any) => void;
-		};
+        it('attaches hooks when kernel emits resource:defined events', () => {
+                const bus = getKernelEventBus();
 
-		// Create a mock pending resources function (normally set by kernel)
-		const mockPendingResources: any[] = [];
-		globalCache.__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__ = () => {
-			return mockPendingResources.splice(0);
-		};
+                const resource1 = {
+                        name: 'Resource1',
+                        routes: { get: { path: '/test/1', method: 'GET' } },
+                } as ResourceDefinedEvent['resource'];
+                const resource2 = {
+                        name: 'Resource2',
+                        routes: { list: { path: '/test/2', method: 'GET' } },
+                } as ResourceDefinedEvent['resource'];
 
-		const resource1 = {
-			name: 'Resource1',
-			routes: { get: { path: '/test/1' } },
-		};
-		const resource2 = {
-			name: 'Resource2',
-			routes: { list: { path: '/test/2' } },
-		};
+                bus.emit('resource:defined', {
+                        resource: resource1,
+                        namespace: 'tests',
+                });
+                bus.emit('resource:defined', {
+                        resource: resource2,
+                        namespace: 'tests',
+                });
 
-		mockPendingResources.push(resource1, resource2);
-
-		// Now load the UI module code (simulate what happens in resource-hooks.ts)
-		const processPending =
-			globalCache.__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__;
-		if (processPending) {
-			const pending = processPending();
-			pending.forEach((resource) => {
-				attachResourceHooks(resource);
-			});
-		}
-
-		// Verify hooks were attached
-		expect(typeof (resource1 as any).useGet).toBe('function');
-		expect(typeof (resource2 as any).useList).toBe('function');
-		expect(mockPendingResources.length).toBe(0);
-
-		// Cleanup
-		delete globalCache.__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__;
-	});
+                expect(typeof (resource1 as any).useGet).toBe('function');
+                expect(typeof (resource2 as any).useList).toBe('function');
+        });
 });

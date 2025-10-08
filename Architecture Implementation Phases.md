@@ -140,7 +140,9 @@ integration, while maintaining the `wp.hooks` bridge.
 - Complete the "Summary of work done below"
 
 **Summary of work done**
-`<placeholder to be replaced when complete>`
+Promoted lifecycle emission to the typed `KernelEventBus`, exposed the bus via `kernel.events`, refactored `kernelEventsPlugin`
+to listen on the bus while continuing the `wp.hooks` bridge, and updated UI hooks to attach through `resource:defined` events
+rather than global queues.
 
 ---
 

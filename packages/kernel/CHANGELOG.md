@@ -8,6 +8,10 @@
   `kernel.hasUIRuntime()` to manage UI adapters without global mutation.
 - `defineResource()` now registers resources with the runtime via
   `trackUIResource()` instead of relying on queued globals.
+- Added `KernelEventBus` with `kernel.events` so lifecycle events surface through
+  a typed subscription interface while continuing to bridge into `wp.hooks`.
+  Action and cache events now emit through the bus, enabling UI runtimes and
+  adapters to subscribe without global shims.
 
 ### Technical Details
 

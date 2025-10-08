@@ -1,12 +1,35 @@
 # Events
 
-> **Status**: ✓ **Fully Implemented** - JavaScript event system complete via `@wordpress/hooks`.
+> **Status**: ✓ **Fully Implemented** – JavaScript event system now flows through
+> `KernelEventBus` with a WordPress hooks bridge.
 >
 > **PHP Bridge**: 🚧 Planned for Sprint 9 (legacy plugin integrations).
 
-Stable, versioned event registry with predictable names. All events come from a central registry-no ad-hoc strings.
+Stable, versioned event registry with predictable names. All events come from a
+central registry-no ad-hoc strings. `KernelEventBus` is the authoritative
+publisher: every lifecycle notification runs through the bus first, then the
+kernel events plugin forwards canonical events into `wp.hooks` for backwards
+compatibility. JavaScript remains the source of truth, but consumers can choose
+between the bus (typed subscriptions) or WordPress hooks (legacy interoperability)
+without losing coverage.
 
-JavaScript hooks are the source of truth. Events fire in JavaScript via WordPress hooks (`addAction`, `doAction`), with automatic namespace detection for your plugin.
+```ts
+import { configureKernel } from '@geekist/wp-kernel';
+
+const kernel = configureKernel({ namespace: 'acme' });
+
+const unsubscribe = kernel.events.on('action:complete', (event) => {
+	kernel.getReporter().info('Action completed', {
+		action: event.actionName,
+		requestId: event.requestId,
+	});
+});
+
+// WordPress hooks still receive the same payloads via the bridge
+addAction('wpk.action.complete', 'acme/logger', (event) => {
+	window.console.log('Legacy listener:', event);
+});
+```
 
 ## What's Available Now
 

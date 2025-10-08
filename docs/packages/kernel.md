@@ -34,7 +34,7 @@ graph LR
 
 ### Bootstrap
 
-`configureKernel()` is the canonical bootstrap. It wires the existing registry middleware, bridges lifecycle events into `wp.hooks`, and returns a `KernelInstance` with helpers like `getNamespace()`, `getReporter()`, `invalidate()`, and `emit()`. Legacy `withKernel()` remains available for advanced registry control but now sits underneath the unified bootstrap.
+`configureKernel()` is the canonical bootstrap. It wires the existing registry middleware, bridges lifecycle events into `wp.hooks`, and returns a `KernelInstance` with helpers like `getNamespace()`, `getReporter()`, `invalidate()`, `emit()`, and the typed `KernelEventBus` exposed as `kernel.events`. Legacy `withKernel()` remains available for advanced registry control but now sits underneath the unified bootstrap.
 
 ### Resources
 

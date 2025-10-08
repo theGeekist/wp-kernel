@@ -2,6 +2,7 @@ import type { WPDataRegistry } from '@wordpress/data/build-types/registry';
 import type { ReduxMiddleware } from '../actions/types';
 import type { Reporter } from '../reporter';
 import type { CacheKeyPattern, InvalidateOptions } from '../resource/cache';
+import type { KernelEventBus } from '../events/bus';
 
 export type KernelRegistry = WPDataRegistry & {
 	__experimentalUseMiddleware?: (
@@ -11,9 +12,10 @@ export type KernelRegistry = WPDataRegistry & {
 };
 
 export interface KernelRegistryOptions {
-	middleware?: ReduxMiddleware[];
-	reporter?: Reporter;
-	namespace?: string;
+        middleware?: ReduxMiddleware[];
+        reporter?: Reporter;
+        namespace?: string;
+        events?: KernelEventBus;
 }
 
 export interface KernelUIConfig {
@@ -30,17 +32,18 @@ export interface ConfigureKernelOptions {
 }
 
 export interface KernelInstance {
-	getNamespace: () => string;
-	getReporter: () => Reporter;
-	invalidate: (
-		patterns: CacheKeyPattern | CacheKeyPattern[],
-		options?: InvalidateOptions
-	) => void;
-	emit: (eventName: string, payload: unknown) => void;
-	teardown: () => void;
-	getRegistry: () => KernelRegistry | undefined;
-	ui: {
-		isEnabled: () => boolean;
-		options?: KernelUIConfig['options'];
-	};
+        getNamespace: () => string;
+        getReporter: () => Reporter;
+        invalidate: (
+                patterns: CacheKeyPattern | CacheKeyPattern[],
+                options?: InvalidateOptions
+        ) => void;
+        emit: (eventName: string, payload: unknown) => void;
+        teardown: () => void;
+        getRegistry: () => KernelRegistry | undefined;
+        ui: {
+                isEnabled: () => boolean;
+                options?: KernelUIConfig['options'];
+        };
+        events: KernelEventBus;
 }
