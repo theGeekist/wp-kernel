@@ -63,12 +63,12 @@ Let's build up an action step by step to see how it all fits together:
 ```typescript
 import { defineAction } from '@geekist/wp-kernel/actions';
 
-export const CreatePost = defineAction(
-	'Post.Create',
-	async (ctx, { title, content }) => {
+export const CreatePost = defineAction({
+	name: 'Post.Create',
+	handler: async (ctx, { title, content }) => {
 		// Action logic goes here
-	}
-);
+	},
+});
 ```
 
 ### 2. Add Resource Integration
@@ -77,15 +77,15 @@ export const CreatePost = defineAction(
 import { defineAction } from '@geekist/wp-kernel/actions';
 import { post } from '@/resources/post';
 
-export const CreatePost = defineAction(
-	'Post.Create',
-	async (ctx, { title, content }) => {
+export const CreatePost = defineAction({
+	name: 'Post.Create',
+	handler: async (ctx, { title, content }) => {
 		// Call the resource (this does the actual API work)
 		const created = await post.create({ title, content });
 
 		return created;
-	}
-);
+	},
+});
 ```
 
 ### 3. Add Event Emission
@@ -94,9 +94,9 @@ export const CreatePost = defineAction(
 import { defineAction } from '@geekist/wp-kernel/actions';
 import { post } from '@/resources/post';
 
-export const CreatePost = defineAction(
-	'Post.Create',
-	async (ctx, { title, content }) => {
+export const CreatePost = defineAction({
+	name: 'Post.Create',
+	handler: async (ctx, { title, content }) => {
 		const created = await post.create({ title, content });
 
 		// Emit canonical domain events
@@ -106,8 +106,8 @@ export const CreatePost = defineAction(
 		});
 
 		return created;
-	}
-);
+	},
+});
 ```
 
 ### 4. Add Cache Invalidation
@@ -116,9 +116,9 @@ export const CreatePost = defineAction(
 import { defineAction } from '@geekist/wp-kernel/actions';
 import { post } from '@/resources/post';
 
-export const CreatePost = defineAction(
-	'Post.Create',
-	async (ctx, { title, content }) => {
+export const CreatePost = defineAction({
+	name: 'Post.Create',
+	handler: async (ctx, { title, content }) => {
 		const created = await post.create({ title, content });
 
 		ctx.emit('post.created', {
@@ -130,8 +130,8 @@ export const CreatePost = defineAction(
 		ctx.invalidate(['post', 'post:list']);
 
 		return created;
-	}
-);
+	},
+});
 ```
 
 ### 5. Add Background Jobs
@@ -140,9 +140,9 @@ export const CreatePost = defineAction(
 import { defineAction } from '@geekist/wp-kernel/actions';
 import { post } from '@/resources/post';
 
-export const CreatePost = defineAction(
-	'Post.Create',
-	async (ctx, { title, content, notifySubscribers = false }) => {
+export const CreatePost = defineAction({
+	name: 'Post.Create',
+	handler: async (ctx, { title, content, notifySubscribers = false }) => {
 		const created = await post.create({ title, content });
 
 		ctx.emit('post.created', {
@@ -160,8 +160,8 @@ export const CreatePost = defineAction(
 		}
 
 		return created;
-	}
-);
+	},
+});
 ```
 
 ### 6. Add Error Handling & Validation
@@ -171,9 +171,9 @@ import { defineAction } from '@geekist/wp-kernel/actions';
 import { post } from '@/resources/post';
 import { KernelError } from '@geekist/wp-kernel/error';
 
-export const CreatePost = defineAction(
-	'Post.Create',
-	async (ctx, { title, content, notifySubscribers = false }) => {
+export const CreatePost = defineAction({
+	name: 'Post.Create',
+	handler: async (ctx, { title, content, notifySubscribers = false }) => {
 		// Validation
 		if (!title?.trim()) {
 			throw new KernelError('ValidationError', {
@@ -207,8 +207,8 @@ export const CreatePost = defineAction(
 			ctx.reporter.error('Post creation failed', { title, error });
 			throw error;
 		}
-	}
-);
+	},
+});
 ```
 
 ### Reporting and notices
@@ -334,9 +334,9 @@ store('my-plugin', {
 ### Optimistic Updates
 
 ```typescript
-export const UpdatePost = defineAction(
-	'Post.Update',
-	async (ctx, { id, updates }) => {
+export const UpdatePost = defineAction({
+	name: 'Post.Update',
+	handler: async (ctx, { id, updates }) => {
 		// Note: Optimistic updates would require additional store integration
 		// beyond the action itself. This is a conceptual example.
 
@@ -345,16 +345,16 @@ export const UpdatePost = defineAction(
 		ctx.emit('post.updated', { postId: id, data: updated });
 
 		return updated;
-	}
-);
+	},
+});
 ```
 
 ### Batch Operations
 
 ```typescript
-export const BulkDeletePosts = defineAction(
-	'Post.BulkDelete',
-	async (ctx, { ids }) => {
+export const BulkDeletePosts = defineAction({
+	name: 'Post.BulkDelete',
+	handler: async (ctx, { ids }) => {
 		const results = [];
 
 		for (const id of ids) {
@@ -375,16 +375,16 @@ export const BulkDeletePosts = defineAction(
 		});
 
 		return results;
-	}
-);
+	},
+});
 ```
 
 ### Conditional Side Effects
 
 ```typescript
-export const PublishPost = defineAction(
-	'Post.Publish',
-	async (ctx, { id, scheduleNotifications = true }) => {
+export const PublishPost = defineAction({
+	name: 'Post.Publish',
+	handler: async (ctx, { id, scheduleNotifications = true }) => {
 		const updated = await post.update(id, { status: 'publish' });
 
 		ctx.emit('post.published', {
@@ -406,8 +406,8 @@ export const PublishPost = defineAction(
 		}
 
 		return updated;
-	}
-);
+	},
+});
 ```
 
 ### Redux Middleware Integration

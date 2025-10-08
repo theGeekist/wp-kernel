@@ -1,15 +1,21 @@
 import { type PolicyDeniedError } from '../../error/PolicyDeniedError';
 import { withPolicyRequestContext } from '../context';
 import type { ActionRuntime } from '../../actions/types';
-import type { definePolicy as definePolicyFn } from '../define';
+import type { PolicyHelpers, PolicyMap, PolicyOptions } from '../types';
 import { WPK_SUBSYSTEM_NAMESPACES } from '../../namespace/constants';
 
-type DefinePolicy = typeof definePolicyFn;
+type DefinePolicy = <K extends Record<string, unknown>>(
+	map: PolicyMap<K>,
+	options?: PolicyOptions
+) => PolicyHelpers<K>;
 
 async function loadDefinePolicy(): Promise<DefinePolicy> {
 	jest.resetModules();
 	const module = await import('../define');
-	return module.definePolicy;
+	return <K extends Record<string, unknown>>(
+		map: PolicyMap<K>,
+		options?: PolicyOptions
+	) => module.definePolicy<K>({ map, options });
 }
 
 describe('definePolicy behaviour', () => {

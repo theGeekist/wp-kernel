@@ -1,5 +1,14 @@
 import { createActionMiddleware, invokeAction } from '../middleware';
 import { defineAction } from '../define';
+import type { ActionConfig, ActionOptions } from '../types';
+
+function createAction<TArgs = void, TResult = void>(
+	name: string,
+	handler: ActionConfig<TArgs, TResult>['handler'],
+	options?: ActionOptions
+) {
+	return defineAction<TArgs, TResult>({ name, handler, options });
+}
 
 describe('createActionMiddleware', () => {
 	it('executes defined actions and returns their promise', async () => {
@@ -8,7 +17,7 @@ describe('createActionMiddleware', () => {
 		const next = jest.fn();
 		const invoke = middleware(api)(next);
 
-		const action = defineAction<{ value: number }, number>(
+		const action = createAction<{ value: number }, number>(
 			'Thing.Double',
 			async (_ctx, args) => {
 				return args.value * 2;

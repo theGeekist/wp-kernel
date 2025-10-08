@@ -16,9 +16,8 @@ import {
 	resolveOptions,
 } from './context';
 import type {
-	ActionFn,
+	ActionConfig,
 	ActionLifecycleEvent,
-	ActionOptions,
 	DefinedAction,
 	ResolvedActionOptions,
 } from './types';
@@ -289,11 +288,12 @@ function createLifecycleEvent(
  *
  * @template TArgs - Type of arguments passed to the action
  * @template TResult - Type of value returned by the action
- * @param    actionName      - Unique action identifier (e.g., 'Post.Create', 'User.Login')
- * @param    fn              - Action implementation receiving context and args
- * @param    options         - Optional configuration for event scope and bridging
- * @param    options.scope   - Event visibility: 'crossTab' (default) or 'tabLocal'
- * @param    options.bridged - Whether to forward events to PHP (default: true for crossTab)
+ * @param    config                 - Configuration describing the action
+ * @param    config.name            - Unique action identifier (e.g., 'Post.Create', 'User.Login')
+ * @param    config.handler         - Implementation receiving the context and args
+ * @param    config.options         - Optional event scope and bridging configuration
+ * @param    config.options.scope   - Event visibility: 'crossTab' (default) or 'tabLocal'
+ * @param    config.options.bridged - Whether to forward events to PHP (default: true for crossTab)
  * @return Callable action function with metadata attached
  * @throws DeveloperError if actionName is invalid or fn is not a function
  *
@@ -325,34 +325,42 @@ function createLifecycleEvent(
  *
  * @example
  * // Tab-local UI action
- * export const ToggleSidebar = defineAction(
- *   'UI.ToggleSidebar',
- *   async (ctx, { isOpen }) => {
+ * export const ToggleSidebar = defineAction({
+ *   name: 'UI.ToggleSidebar',
+ *   handler: async (ctx, { isOpen }) => {
  *     // Events stay in this tab only
  *     ctx.emit('ui.sidebar.toggled', { isOpen });
  *     return { isOpen };
  *   },
- *   { scope: 'tabLocal' }
- * );
+ *   options: { scope: 'tabLocal' }
+ * });
  *
  * @see ActionContext interface for the full context API surface
  * @see middleware module for Redux integration
  * @public
  */
 export function defineAction<TArgs = void, TResult = void>(
-	actionName: string,
-	fn: ActionFn<TArgs, TResult>,
-	options: ActionOptions = {}
+	config: ActionConfig<TArgs, TResult>
 ): DefinedAction<TArgs, TResult> {
-	if (!actionName || typeof actionName !== 'string') {
+	if (!config || typeof config !== 'object') {
 		throw new KernelError('DeveloperError', {
-			message: 'defineAction requires a non-empty string action name.',
+			message:
+				'defineAction requires a configuration object with "name" and "handler".',
 		});
 	}
 
-	if (typeof fn !== 'function') {
+	const { name, handler, options = {} } = config;
+
+	if (!name || typeof name !== 'string') {
 		throw new KernelError('DeveloperError', {
-			message: `defineAction(\"${actionName}\") expects a function as the second argument.`,
+			message:
+				'defineAction requires a non-empty string "name" property.',
+		});
+	}
+
+	if (typeof handler !== 'function') {
+		throw new KernelError('DeveloperError', {
+			message: `defineAction(\"${name}\") expects a function for the "handler" property.`,
 		});
 	}
 
@@ -360,15 +368,11 @@ export function defineAction<TArgs = void, TResult = void>(
 
 	const action = async function executeAction(args: TArgs): Promise<TResult> {
 		const requestId = generateActionRequestId();
-		const context = createActionContext(
-			actionName,
-			requestId,
-			resolvedOptions
-		);
+		const context = createActionContext(name, requestId, resolvedOptions);
 		const startEvent = createLifecycleEvent(
 			'start',
 			resolvedOptions,
-			actionName,
+			name,
 			requestId,
 			context.namespace,
 			{ args }
@@ -377,12 +381,12 @@ export function defineAction<TArgs = void, TResult = void>(
 		const startTime = performance.now();
 
 		try {
-			const result = await fn(context, args);
+			const result = await handler(context, args);
 			const duration = performance.now() - startTime;
 			const completeEvent = createLifecycleEvent(
 				'complete',
 				resolvedOptions,
-				actionName,
+				name,
 				requestId,
 				context.namespace,
 				{ result, durationMs: duration }
@@ -390,12 +394,12 @@ export function defineAction<TArgs = void, TResult = void>(
 			emitLifecycleEvent(completeEvent);
 			return result;
 		} catch (error) {
-			const kernelError = normalizeError(error, actionName, requestId);
+			const kernelError = normalizeError(error, name, requestId);
 			const duration = performance.now() - startTime;
 			const errorEvent = createLifecycleEvent(
 				'error',
 				resolvedOptions,
-				actionName,
+				name,
 				requestId,
 				context.namespace,
 				{ error: kernelError, durationMs: duration }
@@ -406,7 +410,7 @@ export function defineAction<TArgs = void, TResult = void>(
 	} as DefinedAction<TArgs, TResult>;
 
 	Object.defineProperty(action, 'actionName', {
-		value: actionName,
+		value: name,
 		enumerable: true,
 		writable: false,
 	});

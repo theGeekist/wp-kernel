@@ -38,10 +38,18 @@ export type { Reporter } from '../reporter';
  * @example
  * ```typescript
  * // Cross-tab action with PHP bridge (default for mutations)
- * defineAction('CreatePost', impl, { scope: 'crossTab', bridged: true });
+ * defineAction({
+ *   name: 'CreatePost',
+ *   handler: impl,
+ *   options: { scope: 'crossTab', bridged: true }
+ * });
  *
  * // Tab-local UI action (no PHP bridge)
- * defineAction('ToggleSidebar', impl, { scope: 'tabLocal' }); // bridged=false automatically
+ * defineAction({
+ *   name: 'ToggleSidebar',
+ *   handler: impl,
+ *   options: { scope: 'tabLocal' } // bridged=false automatically
+ * });
  * ```
  */
 export type ActionOptions = {
@@ -311,6 +319,18 @@ export type ActionFn<TArgs, TResult> = (
 ) => Promise<TResult>;
 
 /**
+ * Configuration object accepted by `defineAction()`.
+ */
+export type ActionConfig<TArgs, TResult> = {
+	/** Unique action identifier. */
+	name: string;
+	/** Implementation invoked when the action is executed. */
+	handler: ActionFn<TArgs, TResult>;
+	/** Optional runtime configuration. */
+	options?: ActionOptions;
+};
+
+/**
  * Callable action returned by `defineAction()`.
  *
  * After wrapping with `defineAction()`, actions become callable functions that:
@@ -324,8 +344,11 @@ export type ActionFn<TArgs, TResult> = (
  *
  * @example
  * ```typescript
- * const CreatePost = defineAction('CreatePost', async (ctx, input) => {
- *   // implementation
+ * const CreatePost = defineAction({
+ *   name: 'CreatePost',
+ *   handler: async (ctx, input) => {
+ *     // implementation
+ *   }
  * });
  *
  * // Usage

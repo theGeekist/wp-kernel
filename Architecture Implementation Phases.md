@@ -277,7 +277,10 @@ removing positional overloads entirely.
 - Complete the "Summary of work done below"
 
 **Summary of work done**
-`<placeholder to be replaced when complete>`
+Replaced the positional `defineAction()` and `definePolicy()` signatures with
+configuration objects, updated runtime validation + error messaging, refactored
+tests and documentation to the new call shape, and noted the breaking change in
+the kernel changelog.
 
 ---
 
