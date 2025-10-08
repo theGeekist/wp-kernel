@@ -211,7 +211,7 @@ if (typeof globalThis !== 'undefined') {
 		attachResourceHooks(event.resource as ResourceObject<unknown, unknown>);
 	});
 
-	getRegisteredResources().forEach((event) => {
+	getRegisteredResources().forEach((event: ResourceDefinedEvent) => {
 		attachResourceHooks(event.resource as ResourceObject<unknown, unknown>);
 	});
 }
