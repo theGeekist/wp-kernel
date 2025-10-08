@@ -4,9 +4,9 @@
  * Initializes the Kernel runtime and mounts admin UI.
  */
 
-import '@geekist/wp-kernel-ui';
 import { configureKernel } from '@geekist/wp-kernel';
 import type { KernelRegistry } from '@geekist/wp-kernel';
+import { attachUIBindings } from '@geekist/wp-kernel-ui';
 import { mountAdmin } from './admin';
 import { job } from './resources';
 import { ShowcaseActionError } from './errors/ShowcaseActionError';
@@ -30,7 +30,12 @@ export function init(): void {
 	}
 
 	// Initialize WP Kernel runtime (middleware + events plugin)
-	configureKernel({ registry: globalWindow.wp.data as KernelRegistry });
+	const kernel = configureKernel({
+		registry: globalWindow.wp.data as KernelRegistry,
+		ui: { attach: attachUIBindings },
+	});
+
+	const runtime = kernel.getUIRuntime();
 
 	try {
 		// Trigger lazy store registration and warm initial data.
@@ -48,7 +53,13 @@ export function init(): void {
 
 	const adminRoot = document.getElementById('wpk-admin-root');
 	if (adminRoot) {
-		mountAdmin();
+		if (!runtime) {
+			console.warn(
+				'[WP Kernel Showcase] UI runtime unavailable. Ensure attachUIBindings is configured.'
+			);
+			return;
+		}
+		mountAdmin(runtime);
 	}
 }
 

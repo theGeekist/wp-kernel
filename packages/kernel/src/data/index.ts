@@ -7,4 +7,8 @@ export type {
 	ConfigureKernelOptions,
 	KernelInstance,
 	KernelUIConfig,
+	KernelUIRuntime,
+	KernelUIAttach,
+	UIIntegrationOptions,
+	KernelUIPolicyRuntime,
 } from './types';

@@ -1,6 +1,10 @@
 import React, { act, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import { usePolicy } from '../usePolicy';
+import { KernelUIProvider } from '../../runtime';
+import type { KernelUIRuntime } from '@geekist/wp-kernel/data';
+import { KernelEventBus } from '@geekist/wp-kernel';
+import type { Reporter } from '@geekist/wp-kernel/reporter';
 import {
 	createPolicyCache,
 	createPolicyCacheKey,
@@ -18,6 +22,24 @@ type RuntimePolicy =
 			cache?: PolicyHelpers<Record<string, unknown>>['cache'];
 	  });
 
+const noopReporter: Reporter = {
+	info: jest.fn(),
+	warn: jest.fn(),
+	error: jest.fn(),
+	debug: jest.fn(),
+	child: jest.fn(),
+};
+
+function createRuntime(policy?: RuntimePolicy): KernelUIRuntime {
+	return {
+		namespace: 'acme',
+		reporter: noopReporter,
+		registry: undefined,
+		events: new KernelEventBus(),
+		policies: policy ? { policy } : undefined,
+	};
+}
+
 describe('usePolicy hook (UI integration)', () => {
 	beforeAll(() => {
 		(
@@ -31,13 +53,12 @@ describe('usePolicy hook (UI integration)', () => {
 	});
 
 	afterEach(() => {
-		delete (globalThis as { __WP_KERNEL_ACTION_RUNTIME__?: unknown })
-			.__WP_KERNEL_ACTION_RUNTIME__;
 		jest.restoreAllMocks();
 	});
 
 	function renderTestComponent<Policy extends Record<string, unknown>>(
-		results: UsePolicyResult<Policy>[]
+		results: UsePolicyResult<Policy>[],
+		runtime: KernelUIRuntime
 	) {
 		const container = document.createElement('div');
 		const root = createRoot(container);
@@ -56,7 +77,12 @@ describe('usePolicy hook (UI integration)', () => {
 		}
 
 		act(() => {
-			root.render(React.createElement(TestComponent));
+			root.render(
+				React.createElement(KernelUIProvider, {
+					runtime,
+					children: React.createElement(TestComponent),
+				})
+			);
 		});
 
 		return {
@@ -69,19 +95,35 @@ describe('usePolicy hook (UI integration)', () => {
 		};
 	}
 
-	it('reports a developer error when no runtime is configured', async () => {
-		const results: UsePolicyResult<Record<string, never>>[] = [];
-		const { cleanup } = renderTestComponent(results);
+	it('throws a developer error when no runtime is configured', () => {
+		const container = document.createElement('div');
+		const root = createRoot(container);
+		const consoleErrorSpy = jest
+			.spyOn(console, 'error')
+			.mockImplementation(() => {});
 
-		await act(async () => {
-			await Promise.resolve();
-		});
+		function TestComponent() {
+			usePolicy<Record<string, never>>();
+			return null;
+		}
 
-		const latest = results[results.length - 1]!;
-		expect(latest.isLoading).toBe(false);
-		expect(latest.error).toBeInstanceOf(KernelError);
-		expect((latest.error as KernelError).code).toBe('DeveloperError');
-		cleanup();
+		try {
+			expect(() => {
+				act(() => {
+					root.render(React.createElement(TestComponent));
+				});
+			}).toThrow(
+				expect.objectContaining({
+					name: 'KernelError',
+					code: 'DeveloperError',
+				})
+			);
+		} finally {
+			act(() => {
+				root.unmount();
+			});
+			consoleErrorSpy.mockRestore();
+		}
 	});
 
 	it('returns cached values without calling runtime can()', async () => {
@@ -97,14 +139,11 @@ describe('usePolicy hook (UI integration)', () => {
 			keys: () => ['tasks.manage'],
 			cache,
 		};
-		(
-			globalThis as {
-				__WP_KERNEL_ACTION_RUNTIME__?: { policy?: RuntimePolicy };
-			}
-		).__WP_KERNEL_ACTION_RUNTIME__ = { policy: runtime };
-
 		const results: UsePolicyResult<Record<string, unknown>>[] = [];
-		const { cleanup } = renderTestComponent(results);
+		const { cleanup } = renderTestComponent(
+			results,
+			createRuntime(runtime)
+		);
 
 		await act(async () => {
 			await Promise.resolve();
@@ -125,14 +164,11 @@ describe('usePolicy hook (UI integration)', () => {
 			keys: () => ['tasks.manage'],
 			cache: createPolicyCache({ crossTab: false }, 'acme'),
 		};
-		(
-			globalThis as {
-				__WP_KERNEL_ACTION_RUNTIME__?: { policy?: RuntimePolicy };
-			}
-		).__WP_KERNEL_ACTION_RUNTIME__ = { policy: runtime };
-
 		const results: UsePolicyResult<Record<string, unknown>>[] = [];
-		const { cleanup } = renderTestComponent(results);
+		const { cleanup } = renderTestComponent(
+			results,
+			createRuntime(runtime)
+		);
 
 		await act(async () => {
 			await Promise.resolve();
@@ -159,14 +195,11 @@ describe('usePolicy hook (UI integration)', () => {
 			keys: () => ['tasks.manage'],
 			cache: createPolicyCache({ crossTab: false }, 'acme'),
 		};
-		(
-			globalThis as {
-				__WP_KERNEL_ACTION_RUNTIME__?: { policy?: RuntimePolicy };
-			}
-		).__WP_KERNEL_ACTION_RUNTIME__ = { policy: runtime };
-
 		const results: UsePolicyResult<Record<string, unknown>>[] = [];
-		const { cleanup } = renderTestComponent(results);
+		const { cleanup } = renderTestComponent(
+			results,
+			createRuntime(runtime)
+		);
 
 		await act(async () => {
 			await Promise.resolve();
@@ -194,14 +227,11 @@ describe('usePolicy hook (UI integration)', () => {
 			keys: () => ['tasks.manage'],
 			cache: createPolicyCache({ crossTab: false }, 'acme'),
 		};
-		(
-			globalThis as {
-				__WP_KERNEL_ACTION_RUNTIME__?: { policy?: RuntimePolicy };
-			}
-		).__WP_KERNEL_ACTION_RUNTIME__ = { policy: runtime };
-
 		const results: UsePolicyResult<Record<string, unknown>>[] = [];
-		const { cleanup } = renderTestComponent(results);
+		const { cleanup } = renderTestComponent(
+			results,
+			createRuntime(runtime)
+		);
 
 		await act(async () => {
 			await Promise.resolve();
@@ -227,14 +257,11 @@ describe('usePolicy hook (UI integration)', () => {
 			keys: () => ['tasks.manage'],
 			cache: createPolicyCache({ crossTab: false }, 'acme'),
 		};
-		(
-			globalThis as {
-				__WP_KERNEL_ACTION_RUNTIME__?: { policy?: RuntimePolicy };
-			}
-		).__WP_KERNEL_ACTION_RUNTIME__ = { policy: runtime };
-
 		const results: UsePolicyResult<Record<string, unknown>>[] = [];
-		const { cleanup } = renderTestComponent(results);
+		const { cleanup } = renderTestComponent(
+			results,
+			createRuntime(runtime)
+		);
 
 		await act(async () => {
 			await Promise.resolve();
@@ -260,14 +287,11 @@ describe('usePolicy hook (UI integration)', () => {
 			keys: () => ['tasks.manage'],
 			cache: createPolicyCache({ crossTab: false }, 'acme'),
 		};
-		(
-			globalThis as {
-				__WP_KERNEL_ACTION_RUNTIME__?: { policy?: RuntimePolicy };
-			}
-		).__WP_KERNEL_ACTION_RUNTIME__ = { policy: runtime };
-
 		const results: UsePolicyResult<Record<string, unknown>>[] = [];
-		const { cleanup } = renderTestComponent(results);
+		const { cleanup } = renderTestComponent(
+			results,
+			createRuntime(runtime)
+		);
 
 		await act(async () => {
 			await Promise.resolve();
@@ -302,14 +326,11 @@ describe('usePolicy hook (UI integration)', () => {
 			keys: () => ['tasks.edit'],
 			cache,
 		};
-		(
-			globalThis as {
-				__WP_KERNEL_ACTION_RUNTIME__?: { policy?: RuntimePolicy };
-			}
-		).__WP_KERNEL_ACTION_RUNTIME__ = { policy: runtime };
-
 		const results: UsePolicyResult<Record<string, unknown>>[] = [];
-		const { cleanup } = renderTestComponent(results);
+		const { cleanup } = renderTestComponent(
+			results,
+			createRuntime(runtime)
+		);
 
 		await act(async () => {
 			await Promise.resolve();
