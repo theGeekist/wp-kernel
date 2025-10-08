@@ -32,6 +32,10 @@ graph LR
 
 ## Key Features
 
+### Bootstrap
+
+`configureKernel()` is the canonical bootstrap. It wires the existing registry middleware, bridges lifecycle events into `wp.hooks`, and returns a `KernelInstance` with helpers like `getNamespace()`, `getReporter()`, `invalidate()`, and `emit()`. Legacy `withKernel()` remains available for advanced registry control but now sits underneath the unified bootstrap.
+
 ### Resources
 
 Define your data layer once, get everything you need:
