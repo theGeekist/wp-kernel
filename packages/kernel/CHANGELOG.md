@@ -4,17 +4,17 @@
 
 ### Minor Changes
 
-- **Sprint 5: React Hooks Integration**
-    - Modified `defineResource()` to support lazy hook attachment via global queue mechanism
-    - Added resource hook queuing for resources defined before UI package loads
-    - Exposed `__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__` global for pending resource processing
-    - Enhanced resource-to-hook binding with comprehensive JSDoc documentation
+- Introduced `kernel.attachUIBindings()`, `kernel.getUIRuntime()`, and
+  `kernel.hasUIRuntime()` to manage UI adapters without global mutation.
+- `defineResource()` now registers resources with the runtime via
+  `trackUIResource()` instead of relying on queued globals.
 
 ### Technical Details
 
-- Module-level queue in `resource/define.ts` (lines 28-50, 377-413)
-- Global hooks: `__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__`, `__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__`
-- Ensures resources defined before UI loads can still bind React hooks when UI initializes
+- UI runtime state lives in `data/ui-runtime.ts`, flushing pending resources when
+  adapters attach.
+- `resource/define.ts` calls `trackUIResource()` so hooks attach immediately once
+  a runtime is available.
 
 ## 0.2.0
 

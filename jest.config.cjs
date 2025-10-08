@@ -17,14 +17,16 @@ module.exports = {
 	],
 
 	// Module resolution
-	moduleNameMapper: {
-		// Strip .js extensions for Jest (TypeScript source files are .ts)
-		'^(\\.{1,2}/.*)\\.js$': '$1',
-		// Test utilities (with and without .js extension)
-		'^@test-utils/(.*)\\.js$': '<rootDir>/tests/test-utils/$1',
-		'^@test-utils/(.*)$': '<rootDir>/tests/test-utils/$1',
-		// Workspace package aliases
-		'^@geekist/wp-kernel$': '<rootDir>/packages/kernel/src',
+        moduleNameMapper: {
+                // Strip .js extensions for Jest (TypeScript source files are .ts)
+                '^(\\.{1,2}/.*)\\.js$': '$1',
+                // Test utilities (with and without .js extension)
+                '^@test-utils/(.*)\\.js$': '<rootDir>/tests/test-utils/$1',
+                '^@test-utils/(.*)$': '<rootDir>/tests/test-utils/$1',
+                // Ensure automatic JSX runtime resolves during tests
+                '^@wordpress/element/jsx-runtime$': 'react/jsx-runtime',
+                // Workspace package aliases
+                '^@geekist/wp-kernel$': '<rootDir>/packages/kernel/src',
 		'^@geekist/wp-kernel/(.*)$': '<rootDir>/packages/kernel/src/$1',
 		'^@geekist/wp-kernel-ui$': '<rootDir>/packages/ui/src',
 		'^@geekist/wp-kernel-ui/(.*)$': '<rootDir>/packages/ui/src/$1',

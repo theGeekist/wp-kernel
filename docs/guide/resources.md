@@ -64,12 +64,16 @@ await CreateTestimonial({ data: { title: 'Great service!', rating: 5 } });
 
 // ✓ Use React hooks (read path)
 function TestimonialList() {
-	const { data, isLoading } = testimonial.useList({ rating: 5 });
+        const { data, isLoading } = testimonial.useList({ rating: 5 });
 
-	if (isLoading) return <Spinner />;
-	return <ul>{data?.items.map(item => <li key={item.id}>{item.title}</li>)}</ul>;
+        if (isLoading) return <Spinner />;
+        return <ul>{data?.items.map(item => <li key={item.id}>{item.title}</li>)}</ul>;
 }
 ```
+
+> ℹ️ Hook access (`useList`, `useGet`) requires a configured `KernelUIRuntime`.
+> Call `configureKernel({ ui: { attach: attachUIBindings } })` and wrap your React
+> tree with `KernelUIProvider` to make the runtime available.
 
 ## Configuration
 

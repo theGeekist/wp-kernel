@@ -7,10 +7,13 @@ the lifecycle instrumentation provided by `defineAction`
 (`packages/kernel/src/actions/define.ts`) while gaining a first-class React
 interface.
 
-The hook lives in `@geekist/wp-kernel-ui` and expects the kernel middleware to
-be registered in the WordPress data registry (via `withKernel`). It does **not**
-reimplement Actions-everything still flows through `invokeAction` and the
-runtime declared in `packages/kernel/src/actions/types.ts`.
+The hook lives in `@geekist/wp-kernel-ui` and expects a `KernelUIRuntime` to be
+available via `KernelUIProvider`. Attach the runtime during
+`configureKernel({ ui: { attach: attachUIBindings } })` and wrap your React tree
+with `KernelUIProvider` so hooks can resolve the registry and action dispatcher.
+`useAction()` does **not** reimplement actions-everything still flows through
+`invokeAction` and the runtime declared in
+`packages/kernel/src/actions/types.ts`.
 
 ## Signature
 
@@ -152,8 +155,10 @@ export function SearchBox() {
 ## SSR
 
 The module can be imported in server contexts. Calling `run()` requires
-`window.wp.data` to be available (the hook throws a `KernelError('DeveloperError')`
-otherwise). This mirrors the behaviour of the kernel runtime.
+`window.wp.data` **and** an attached UI runtime (the hook throws a
+`KernelError('DeveloperError')` otherwise). This mirrors the behaviour of the
+kernel runtime and prevents hooks from running before the browser environment is
+available.
 
 ## References
 
