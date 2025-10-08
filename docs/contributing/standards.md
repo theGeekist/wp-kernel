@@ -92,8 +92,8 @@ function mapThings<Thing, Result>(
 export const thing = defineResource({ ... });
 
 // Actions: PascalCase, {Domain}.{Verb}
-export const CreateThing = defineAction('Thing.Create', ...);
-export const UpdateThing = defineAction('Thing.Update', ...);
+export const CreateThing = defineAction({ name: 'Thing.Create', handler: async (ctx, input) => { /* ... */ } });
+export const UpdateThing = defineAction({ name: 'Thing.Update', handler: async (ctx, input) => { /* ... */ } });
 
 // Events: use canonical registry
 import { events } from '@geekist/wp-kernel/events';

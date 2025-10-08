@@ -47,6 +47,12 @@ createRoot(node).render(
   the adapter is provided.
 - TypeScript strict mode with full type safety
 
+### Documentation
+
+- Recorded the adapter-only runtime baseline across the documentation site,
+  highlighting `KernelUIProvider`, runtime attachment, and the absence of legacy
+  globals so integrators follow the final architecture.
+
 ## 0.2.0
 
 ### Patch Changes
