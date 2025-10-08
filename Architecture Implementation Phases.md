@@ -89,11 +89,11 @@ Legacy globals and side-effect modules are removed outright.
 - Complete the "Summary of work done below"
 
 **Summary of work done**
-Refactored the UI package to use the new runtime adapter without global
-side-effects: removed the queue/attach globals, introduced `attachUIBindings`,
-updated hook tests to resolve dispatch errors through the runtime, and added the
-requisite changelog entries. Remaining console warnings stem from the mocked
-WordPress data registry during tests and are acceptable. resource-hooks.ts still installs **WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS**, and `useAction` continues to lean on the legacy global dispatch cache. Plan to treat this as “incomplete” and move the removal plus adapter wiring into the next phase sprint; the specs already describe the target design.
+Introduced the adapter-driven integration (`attachUIBindings`, `KernelUIProvider`),
+updated UI tests and documentation, and recorded the breaking-change guidance in
+the package changelog. Legacy globals (`__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__`
+and the cached dispatch bridge) remain in place pending the deeper rewire slated
+for Phase 3, so they are intentionally documented as follow-up work.
 
 ---
 
@@ -111,6 +111,8 @@ integration, while maintaining the `wp.hooks` bridge.
 - Update `kernelEventsPlugin` to subscribe to the bus instead of intercepting
   internal helpers while still bridging into `wp.hooks`.
 - Modify UI runtime to depend on event subscriptions rather than queued globals.
+- Remove the remaining legacy glue (`__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__`,
+  cached action dispatcher) now that the adapter path is available.
 - Inline registry bootstrap logic into `configureKernel()` and remove the `withKernel`
   export; update all call sites to use the instance methods instead.
 - Thread the configured registry through cache helpers so `kernel.invalidate()`
