@@ -6,7 +6,7 @@ Core primitives-resources, actions, cache helpers-continue to work without any b
 
 ## `configureKernel(config)` – Unified bootstrap
 
-`configureKernel()` accepts a small configuration object and returns a `KernelInstance`. The instance exposes shared services such as the namespace, reporter, cache helpers, and event emitter.
+`configureKernel()` accepts a small configuration object and returns a `KernelInstance`. The instance exposes shared services such as the namespace, reporter, cache helpers, and `KernelEventBus` (`kernel.events`) so you can subscribe to lifecycle updates without touching globals.
 
 ```ts
 import { configureKernel } from '@geekist/wp-kernel';
@@ -173,7 +173,7 @@ configureKernel({ registry, reporter });
 
 ### PHP / WP hooks listeners
 
-`configureKernel()` forwards action events into `wp.hooks`, so a PHP plugin can listen:
+`configureKernel()` forwards action events into `wp.hooks`, so a PHP plugin can listen, while the `KernelEventBus` gives JavaScript consumers a typed subscription surface:
 
 ```php
 add_action( 'wpk.action.error', 'my_plugin_handle_action_error', 10, 1 );

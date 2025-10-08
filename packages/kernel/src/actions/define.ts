@@ -10,18 +10,20 @@
 
 import { KernelError } from '../error/KernelError';
 import {
-	createActionContext,
-	emitLifecycleEvent,
-	generateActionRequestId,
-	resolveOptions,
+        createActionContext,
+        emitLifecycleEvent,
+        generateActionRequestId,
+        resolveOptions,
 } from './context';
 import type {
-	ActionFn,
-	ActionLifecycleEvent,
-	ActionOptions,
-	DefinedAction,
-	ResolvedActionOptions,
+        ActionFn,
+        ActionLifecycleEvent,
+        ActionOptions,
+        DefinedAction,
+        ResolvedActionOptions,
 } from './types';
+import { getKernelEventBus, recordActionDefined } from '../events/bus';
+import { getNamespace } from '../namespace/detect';
 
 /**
  * Normalize unknown errors into structured KernelError instances.
@@ -415,5 +417,13 @@ export function defineAction<TArgs = void, TResult = void>(
 		writable: false,
 	});
 
-	return action;
+        const namespace = getNamespace();
+        const definition = {
+                action: action as DefinedAction<unknown, unknown>,
+                namespace,
+        };
+        recordActionDefined(definition);
+        getKernelEventBus().emit('action:defined', definition);
+
+        return action;
 }

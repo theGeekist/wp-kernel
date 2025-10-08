@@ -10,6 +10,11 @@
  * @module resource-hooks
  */
 import { KernelError } from '@geekist/wp-kernel/error';
+import {
+        getKernelEventBus,
+        getRegisteredResources,
+        type ResourceDefinedEvent,
+} from '@geekist/wp-kernel';
 import type { ResourceObject, ListResponse } from '@geekist/wp-kernel/resource';
 
 /**
@@ -193,51 +198,22 @@ export function attachResourceHooks<T, TQuery>(
 }
 
 /**
- * Global hook registration and pending resource processing
+ * Kernel event bus integration for resource hook attachment
  *
- * When this module loads, it registers the hook attachment function on globalThis
- * and processes any resources that were defined before the UI bundle loaded.
- *
- * This enables late binding of React hooks to resources, ensuring that resources
- * defined in data modules (before React UI is imported) still receive useGet/useList
- * when the UI package eventually loads.
- *
- * @see types/global.d.ts for __WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__ type definition
- * @see packages/kernel/src/resource/define.ts for resource queuing logic
+ * Registers listeners on the kernel event bus so that every time a resource
+ * is defined, React hooks are attached immediately. Also replays definitions
+ * that occurred before the UI bundle loaded by reading the registry maintained
+ * by the kernel package.
  */
 if (typeof globalThis !== 'undefined') {
-	(
-		globalThis as typeof globalThis & {
-			__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__?: <T, TQuery>(
-				resource: ResourceObject<T, TQuery>
-			) => void;
-			__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__?: () => ResourceObject<
-				unknown,
-				unknown
-			>[];
-		}
-	).__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__ = <HookEntity, HookQuery>(
-		resource: ResourceObject<HookEntity, HookQuery>
-	) => {
-		attachResourceHooks(resource);
-	};
+        const bus = getKernelEventBus();
+        bus.on('resource:defined', (event: ResourceDefinedEvent) => {
+                attachResourceHooks(event.resource as ResourceObject<unknown, unknown>);
+        });
 
-	// Process any resources that were created before this UI bundle loaded
-	const processPending = (
-		globalThis as typeof globalThis & {
-			__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__?: () => ResourceObject<
-				unknown,
-				unknown
-			>[];
-		}
-	).__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__;
-
-	if (processPending) {
-		const pending = processPending();
-		pending.forEach((resource) => {
-			attachResourceHooks(resource);
-		});
-	}
+        getRegisteredResources().forEach((event) => {
+                attachResourceHooks(event.resource as ResourceObject<unknown, unknown>);
+        });
 }
 
 function computeItemLoading<T>(

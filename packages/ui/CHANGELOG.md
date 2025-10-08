@@ -12,6 +12,9 @@
 - Removed the legacy global queue (`__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__` /
   `__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__`). Importing
   `@geekist/wp-kernel-ui` no longer auto-attaches hooks.
+- Resource hook attachment now listens to `kernel.events` (`resource:defined`)
+  and replays the kernel registry instead of mutating globals, so UI bundles can
+  subscribe deterministically regardless of load order.
 - Hooks such as `useAction`, `useResourceList`, and prefetch helpers now throw a
   `KernelError` if a `KernelUIRuntime` is not available.
 

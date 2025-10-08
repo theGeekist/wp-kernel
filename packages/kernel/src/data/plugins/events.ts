@@ -2,13 +2,17 @@ import { KernelError } from '../../error/KernelError';
 import type { ActionErrorEvent, ReduxMiddleware } from '../../actions/types';
 import type { Reporter } from '../../reporter';
 import type { KernelRegistry } from '../types';
-import { WPK_EVENTS, WPK_INFRASTRUCTURE } from '../../namespace/constants';
+import { WPK_EVENTS } from '../../namespace/constants';
+import type { KernelEventBus } from '../../events/bus';
+import type { ActionErrorEvent, ActionLifecycleEvent } from '../../actions/types';
+import type { KernelEventMap } from '../../events/bus';
 
 export type NoticeStatus = 'success' | 'info' | 'warning' | 'error';
 
 export type KernelEventsPluginOptions = {
-	reporter?: Reporter;
-	registry?: KernelRegistry;
+        reporter?: Reporter;
+        registry?: KernelRegistry;
+        events: KernelEventBus;
 };
 
 type NoticesDispatch = {
@@ -94,48 +98,99 @@ function resolveErrorMessage(error: unknown): string {
 	return 'An unexpected error occurred';
 }
 
-let instanceCounter = 0;
-
 export function kernelEventsPlugin({
-	reporter,
-	registry,
+        reporter,
+        registry,
+        events,
 }: KernelEventsPluginOptions): KernelReduxMiddleware {
-	const hooks = getHooks();
-	const notices = getNoticesDispatch(registry);
-	const pluginNamespace = `${WPK_INFRASTRUCTURE.WP_HOOKS_NAMESPACE_PREFIX}/${++instanceCounter}`;
+        const hooks = getHooks();
+        const notices = getNoticesDispatch(registry);
 
-	let detach: (() => void) | undefined;
+        const detachListeners: Array<() => void> = [];
 
-	const middleware: KernelReduxMiddleware = () => {
-		if (hooks?.addAction) {
-			const handler = (event: ActionErrorEvent) => {
-				const message = resolveErrorMessage(event.error);
-				const status = mapErrorToStatus(event.error);
+        const middleware: KernelReduxMiddleware = () => {
+                const emitToHooks = <K extends keyof KernelEventMap>(
+                        event: K,
+                        payload: KernelEventMap[K]
+                ) => {
+                        switch (event) {
+                                case 'action:start':
+                                        hooks?.doAction?.(WPK_EVENTS.ACTION_START, payload);
+                                        break;
+                                case 'action:complete':
+                                        hooks?.doAction?.(WPK_EVENTS.ACTION_COMPLETE, payload);
+                                        break;
+                                case 'action:error':
+                                        hooks?.doAction?.(WPK_EVENTS.ACTION_ERROR, payload);
+                                        break;
+                                case 'cache:invalidated':
+                                        hooks?.doAction?.(WPK_EVENTS.CACHE_INVALIDATED, payload);
+                                        break;
+                                case 'action:domain':
+                                case 'custom:event':
+                                        hooks?.doAction?.(payload.eventName, payload.payload);
+                                        break;
+                                default:
+                                        break;
+                        }
+                };
 
-				notices?.createNotice(status, message, {
-					id: event.requestId,
-					isDismissible: true,
-				});
+                detachListeners.push(
+                        events.on('action:error', (event) => {
+                                const errorEvent = event as ActionErrorEvent;
+                                const message = resolveErrorMessage(errorEvent.error);
+                                const status = mapErrorToStatus(errorEvent.error);
 
-				reporter?.error(message, {
-					action: event.actionName,
-					requestId: event.requestId,
-					namespace: event.namespace,
-					status,
-				});
-			};
+                                notices?.createNotice(status, message, {
+                                        id: errorEvent.requestId,
+                                        isDismissible: true,
+                                });
 
-			hooks.addAction(WPK_EVENTS.ACTION_ERROR, pluginNamespace, handler);
-			detach = () =>
-				hooks.removeAction?.(WPK_EVENTS.ACTION_ERROR, pluginNamespace);
-		}
-		return (next) => (action) => next(action);
-	};
+                                reporter?.error(message, {
+                                        action: errorEvent.actionName,
+                                        requestId: errorEvent.requestId,
+                                        namespace: errorEvent.namespace,
+                                        status,
+                                });
 
-	middleware.destroy = () => {
-		detach?.();
-		detach = undefined;
-	};
+                                emitToHooks('action:error', errorEvent);
+                        })
+                );
 
-	return middleware;
+                detachListeners.push(
+                        events.on('action:start', (event) => {
+                                emitToHooks('action:start', event as ActionLifecycleEvent);
+                        })
+                );
+                detachListeners.push(
+                        events.on('action:complete', (event) => {
+                                emitToHooks('action:complete', event as ActionLifecycleEvent);
+                        })
+                );
+                detachListeners.push(
+                        events.on('cache:invalidated', (event) => {
+                                emitToHooks('cache:invalidated', event);
+                        })
+                );
+                detachListeners.push(
+                        events.on('action:domain', (event) => {
+                                emitToHooks('action:domain', event);
+                        })
+                );
+                detachListeners.push(
+                        events.on('custom:event', (event) => {
+                                emitToHooks('custom:event', event);
+                        })
+                );
+                return (next) => (action) => next(action);
+        };
+
+        middleware.destroy = () => {
+                while (detachListeners.length) {
+                        const teardown = detachListeners.pop();
+                        teardown?.();
+                }
+        };
+
+        return middleware;
 }
