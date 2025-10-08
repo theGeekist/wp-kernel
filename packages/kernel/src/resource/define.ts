@@ -8,9 +8,9 @@
  */
 import { KernelError } from '../error/KernelError';
 import {
-	registerStoreKey,
-	invalidate as globalInvalidate,
-	type CacheKeyPattern,
+        registerStoreKey,
+        invalidate as globalInvalidate,
+        type CacheKeyPattern,
 } from './cache';
 import { createStore } from './store';
 import { validateConfig } from './validation';
@@ -18,35 +18,15 @@ import { createClient } from './client';
 import { createDefaultCacheKeys } from './utils';
 import { getNamespace } from '../namespace';
 import {
-	createSelectGetter,
-	createGetGetter,
-	createMutateGetter,
-	createCacheGetter,
-	createStoreApiGetter,
-	createEventsGetter,
+        createSelectGetter,
+        createGetGetter,
+        createMutateGetter,
+        createCacheGetter,
+        createStoreApiGetter,
+        createEventsGetter,
 } from './grouped-api';
 import type { CacheKeys, ResourceConfig, ResourceObject } from './types';
-
-/**
- * Module-level queue for resources created before UI bundle loads
- *
- * When defineResource() is called before @geekist/wp-kernel-ui loads, resources
- * are queued here. The UI package processes this queue on module load to attach
- * React hooks (useGet, useList) retroactively.
- *
- * @internal
- */
-const pendingResources: ResourceObject<unknown, unknown>[] = [];
-
-/**
- * Flag tracking whether UI hooks have been attached
- *
- * Set to true once the UI bundle processes the pending queue, preventing
- * future resources from being queued unnecessarily.
- *
- * @internal
- */
-let uiHooksAttached = false;
+import { getKernelEventBus, recordResourceDefined } from '../events/bus';
 
 /**
  * Parse namespace:name syntax from a string
@@ -371,52 +351,12 @@ export function defineResource<T = unknown, TQuery = unknown>(
 		},
 	};
 
-	/**
-	 * React hook attachment logic with lazy binding support
-	 *
-	 * When a resource is defined:
-	 * 1. If UI bundle is already loaded → attach hooks immediately
-	 * 2. If UI not loaded → queue resource for processing when UI loads
-	 * 3. Expose __WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__ for UI to retrieve queue
-	 *
-	 * This ensures resources defined before @geekist/wp-kernel-ui still receive
-	 * useGet/useList hooks when the UI package eventually loads.
-	 *
-	 * @see packages/ui/src/hooks/resource-hooks.ts for hook attachment implementation
-	 * @see types/global.d.ts for global interface definitions
-	 */
-	const attachHooks = (
-		globalThis as {
-			__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__?: <HookEntity, HookQuery>(
-				resource: ResourceObject<HookEntity, HookQuery>
-			) => void;
-			__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__?: () => void;
-		}
-	).__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__;
+        const definition = {
+                resource: resource as ResourceObject<unknown, unknown>,
+                namespace,
+        };
+        recordResourceDefined(definition);
+        getKernelEventBus().emit('resource:defined', definition);
 
-	if (attachHooks) {
-		// UI is loaded, attach hooks immediately
-		attachHooks(resource as ResourceObject<T, TQuery>);
-		uiHooksAttached = true;
-	} else if (!uiHooksAttached) {
-		// UI not loaded yet, queue the resource
-		pendingResources.push(resource as ResourceObject<unknown, unknown>);
-
-		// Expose a function for UI to process pending resources
-		if (typeof globalThis !== 'undefined') {
-			(
-				globalThis as typeof globalThis & {
-					__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__?: () => ResourceObject<
-						unknown,
-						unknown
-					>[];
-				}
-			).__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__ = () => {
-				uiHooksAttached = true;
-				return pendingResources.splice(0); // Return and clear the queue
-			};
-		}
-	}
-
-	return resource;
+        return resource;
 }

@@ -68,7 +68,7 @@ const kernel = configureKernel({
 kernel.emit('my-plugin.ready', { timestamp: Date.now() });
 ```
 
-`configureKernel()` installs the same registry middleware that powered `withKernel()` and returns a shared instance so you can access the namespace, reporter, and cache helpers. The legacy `withKernel()` export remains available for advanced registry wiring.
+`configureKernel()` installs the same registry middleware that powered `withKernel()` and returns a shared instance so you can access the namespace, reporter, cache helpers, and the typed `kernel.events` bus. The legacy `withKernel()` export remains available for advanced registry wiring.
 
 **See the [Getting Started Guide](https://theGeekist.github.io/wp-kernel/getting-started/)** for creating your first WP Kernel plugin.
 
