@@ -41,6 +41,7 @@ infrastructure so current plugins remain functional.
 
 - `configureKernel()` can replace existing `withKernel()` bootstraps without breaking tests.
 - Documentation references the new entry point.
+- Complete the "Summary of work done below"
 
 **Summary of work done**
 Implemented `configureKernel()` on top of the existing registry wiring, exposed the initial `KernelInstance` helpers, threaded the `ui` option, updated showcase + documentation to prefer the new bootstrap, and added coverage to prove the delegation to `withKernel()`.
@@ -85,9 +86,14 @@ Legacy globals and side-effect modules are removed outright.
 
 - Importing UI hooks without supplying an adapter emits a typed `KernelError`.
 - Runtime-backed hooks pass the existing test suite; legacy globals are gone.
+- Complete the "Summary of work done below"
 
 **Summary of work done**
-`<placeholder to be replaced when complete>`
+Refactored the UI package to use the new runtime adapter without global
+side-effects: removed the queue/attach globals, introduced `attachUIBindings`,
+updated hook tests to resolve dispatch errors through the runtime, and added the
+requisite changelog entries. Remaining console warnings stem from the mocked
+WordPress data registry during tests and are acceptable. resource-hooks.ts still installs **WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS**, and `useAction` continues to lean on the legacy global dispatch cache. Plan to treat this as “incomplete” and move the removal plus adapter wiring into the next phase sprint; the specs already describe the target design.
 
 ---
 
@@ -130,6 +136,7 @@ integration, while maintaining the `wp.hooks` bridge.
 - `kernelEventsPlugin` continues to emit to `wp.hooks`.
 - Event bus tests cover at least the defined canonical events.
 - `withKernel` export and internal usage removed; `configureKernel()` owns registry setup.
+- Complete the "Summary of work done below"
 
 **Summary of work done**
 `<placeholder to be replaced when complete>`
@@ -169,6 +176,7 @@ removing positional overloads entirely.
 
 - Positional-call usage is removed; only config-object signatures remain.
 - All tests and type checks continue to pass with the config-object pattern.
+- Complete the "Summary of work done below"
 
 **Summary of work done**
 `<placeholder to be replaced when complete>`
@@ -204,6 +212,7 @@ remaining compatibility layers.
 
 - No references to deprecated patterns (`withKernel` bootstrap, global UI hooks, positional definitions) remain in project docs.
 - Compatibility layers removed where safe, and all automated checks pass.
+- Complete the "Summary of work done below"
 
 **Summary of work done**
 `<placeholder to be replaced when complete>`
