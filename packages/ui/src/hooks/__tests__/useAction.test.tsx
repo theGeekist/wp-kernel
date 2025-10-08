@@ -499,13 +499,10 @@ describe('useAction', () => {
 	it('throws when WordPress data registry dispatch API is unavailable', () => {
 		const action = makeDefinedAction(async () => 'noop');
 		const dispatchMock = window.wp?.data?.dispatch as jest.Mock;
-		dispatchMock.mockReturnValueOnce({});
+		dispatchMock.mockReset();
+		dispatchMock.mockImplementation(() => ({}));
 
-		const { result } = renderHook(() => useAction(action));
-
-		expect(() => {
-			result.current.run({} as never);
-		}).toThrow(
+		expect(() => renderUseActionHook(action)).toThrow(
 			expect.objectContaining({
 				name: 'KernelError',
 				code: 'DeveloperError',
@@ -514,6 +511,8 @@ describe('useAction', () => {
 				),
 			})
 		);
+
+		dispatchMock.mockReset();
 	});
 
 	it('ignores duplicate store registration errors', async () => {
@@ -702,16 +701,13 @@ describe('useAction', () => {
 		windowWithWp.wp = undefined;
 
 		const action = makeDefinedAction(async () => 'noop');
-		const { result } = renderHook(() => useAction(action));
 
-		expect(() => {
-			result.current.run({} as never);
-		}).toThrow(
+		expect(() => renderUseActionHook(action)).toThrow(
 			expect.objectContaining({
 				name: 'KernelError',
 				code: 'DeveloperError',
 				message: expect.stringContaining(
-					'useAction requires the WordPress data registry'
+					'Kernel UI runtime requires the WordPress data registry'
 				),
 			})
 		);

@@ -258,6 +258,10 @@ function PostForm() {
 }
 ```
 
+> ℹ️ Wrap your application with `KernelUIProvider` after calling
+> `configureKernel({ ui: { attach: attachUIBindings } })` so that `useAction()`
+> can resolve the action dispatcher from the runtime.
+
 `useAction` exposes the request lifecycle (`status`, `error`, `result`) and
 allows you to tune concurrency:
 
