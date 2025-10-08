@@ -237,7 +237,7 @@ function Edit({ attributes, setAttributes }) {
 
 Building admin data tables using modern WordPress core primitives with WP Kernel as the data layer.
 
-#### DataViews Implementation (WordPress 6.8+)
+#### DataViews Implementation (WordPress 6.7+)
 
 ```typescript
 import { DataViews } from '@wordpress/dataviews';
@@ -548,11 +548,10 @@ mountAdmin('#wpk-admin-root', JobsAdminTable, {
 
 ## WordPress Compatibility Matrix
 
-| WordPress Version | DataViews       | Script Modules | Interactivity API |
-| ----------------- | --------------- | -------------- | ----------------- |
-| 6.8+              | ✓ Stable        | ✓ Full         | ✓ Full            |
-| 6.6               | ⚠️ Experimental | ✓ Basic        | ✓ Basic           |
-| 6.5               | ✗ Not Available | ⚠️ Limited     | ⚠️ Limited        |
+| WordPress Version | DataViews       | Script Modules  | Interactivity API |
+| ----------------- | --------------- | --------------- | ----------------- |
+| 6.7+              | ✓ Stable        | ✓ Full          | ✓ Full            |
+| < 6.7             | ✗ Not Available | ✗ Not Available | ✗ Not Available   |
 
 ### Feature Detection & Graceful Degradation
 

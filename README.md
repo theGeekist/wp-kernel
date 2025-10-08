@@ -42,9 +42,9 @@ To **build your WordPress plugin** with WP Kernel:
 
 - **Node.js**: 20.x LTS or higher ([nvm](https://github.com/nvm-sh/nvm) recommended)
 - **pnpm**: 9.x or higher (`npm install -g pnpm`) or npm
-- **WordPress**: 6.8+ (required for [Script Modules API](https://make.wordpress.org/core/2024/03/04/script-modules-in-6-5/) - core to the framework architecture)
+- **WordPress**: 6.7+ (required for [Script Modules API](https://make.wordpress.org/core/2024/03/04/script-modules-in-6-5/) - core to the framework architecture)
 
-> **Why WordPress 6.8+?** WP Kernel builds on WordPress Core primitives (Script Modules, Block Bindings, Interactivity API). Script Modules enable native ESM support, which is fundamental to the framework's design.
+> **Why WordPress 6.7+?** WP Kernel builds on WordPress Core primitives (Script Modules, Block Bindings, Interactivity API). Script Modules enable native ESM support, which is fundamental to the framework's design.
 
 **Installation:**
 
@@ -140,7 +140,7 @@ pnpm playground  # Launches WASM-based WordPress in browser
 
 | Component     | Minimum Version | Recommended      | Notes                                           |
 | ------------- | --------------- | ---------------- | ----------------------------------------------- |
-| **WordPress** | 6.8+            | Latest stable    | Script Modules API required                     |
+| **WordPress** | 6.7+            | Latest stable    | Script Modules API required                     |
 | **Node.js**   | 20.x LTS        | 22.x LTS         | Vite 7 constraint                               |
 | **pnpm**      | 9.0+            | Latest           | Monorepo workspace manager                      |
 | **PHP**       | 8.1+            | 8.2+             | wp-env/Docker only, not a framework requirement |
@@ -148,9 +148,8 @@ pnpm playground  # Launches WASM-based WordPress in browser
 
 ### WordPress Version Support
 
-✓ **6.8+**: Full support (Script Modules, Block Bindings, Interactivity API)  
-⚠️ **6.5-6.7**: Not supported (missing Script Modules API)  
-✗ **< 6.5**: Not supported
+✓ **6.7+**: Full support (Script Modules, Block Bindings, Interactivity API)  
+✗ **< 6.7**: Not supported (missing required features)
 
 ### CI/CD Test Matrix
 
@@ -158,8 +157,8 @@ We test against multiple combinations to ensure compatibility:
 
 | WordPress | PHP | Node   | Status                                                                                                                                                  |
 | --------- | --- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 6.8       | 8.1 | 20 LTS | [![CI](https://img.shields.io/github/actions/workflow/status/theGeekist/wp-kernel/ci.yml?branch=main)](https://github.com/theGeekist/wp-kernel/actions) |
-| 6.8       | 8.2 | 22 LTS | [![CI](https://img.shields.io/github/actions/workflow/status/theGeekist/wp-kernel/ci.yml?branch=main)](https://github.com/theGeekist/wp-kernel/actions) |
+| 6.7.4     | 8.1 | 20 LTS | [![CI](https://img.shields.io/github/actions/workflow/status/theGeekist/wp-kernel/ci.yml?branch=main)](https://github.com/theGeekist/wp-kernel/actions) |
+| 6.7.4     | 8.2 | 22 LTS | [![CI](https://img.shields.io/github/actions/workflow/status/theGeekist/wp-kernel/ci.yml?branch=main)](https://github.com/theGeekist/wp-kernel/actions) |
 | Latest    | 8.3 | Latest | [![CI](https://img.shields.io/github/actions/workflow/status/theGeekist/wp-kernel/ci.yml?branch=main)](https://github.com/theGeekist/wp-kernel/actions) |
 
 ### Development Environment Options

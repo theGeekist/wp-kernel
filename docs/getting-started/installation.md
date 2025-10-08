@@ -10,13 +10,13 @@ This guide covers installing WP Kernel for **plugin development** or **contribut
 
 | Component     | Plugin Developers | Framework Contributors |
 | ------------- | ----------------- | ---------------------- |
-| **WordPress** | 6.8+              | 6.8+                   |
+| **WordPress** | 6.7+              | 6.7+                   |
 | **Node.js**   | 20.x LTS+         | 20.x LTS+              |
 | **pnpm**      | 9.0+              | 9.0+                   |
 | **PHP**       | N/A               | 8.1+ (wp-env only)     |
 | **Docker**    | N/A               | Optional (wp-env)      |
 
-> **Why WordPress 6.8+?** WP Kernel relies on the [Script Modules API](https://make.wordpress.org/core/2024/03/04/script-modules-in-6-5/), which provides native ESM support. This is fundamental to the framework's architecture.
+> **Why WordPress 6.7+?** WP Kernel relies on the [Script Modules API](https://make.wordpress.org/core/2024/03/04/script-modules-in-6-5/), which provides native ESM support. This is fundamental to the framework's architecture.
 
 > **Why Node 20+?** Our build system uses [Vite 7](https://vitejs.dev/), which requires Node 18+ as a minimum. We recommend Node 20 LTS for long-term stability (Node 22 LTS also supported).
 
@@ -40,7 +40,7 @@ To use WP Kernel in your WordPress plugin:
 
 - Node.js 20.x LTS+ ([nvm recommended](https://github.com/nvm-sh/nvm))
 - pnpm 9+ or npm
-- WordPress 6.8+
+- WordPress 6.7+
 
 **Install:**
 

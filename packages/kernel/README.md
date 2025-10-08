@@ -90,7 +90,7 @@ const SendWelcomeEmail = defineJob({
 
 ## WordPress Integration
 
-- **WordPress 6.8+** - Required (Script Modules API)
+- **WordPress 6.7+** - Required (Script Modules API)
 - **PHP Bridge** - Automatic REST endpoint and capability integration (Sprint 9)
 
 **📚 [Integration Guide](https://thegeekist.github.io/wp-kernel/guide/getting-started)**
@@ -118,7 +118,7 @@ import { defineResource } from '@geekist/wp-kernel';
 
 ## Requirements
 
-- **WordPress**: 6.8+ (Script Modules API required)
+- **WordPress**: 6.7+ (Script Modules API required)
 - **Node.js**: 20+ LTS (development)
 - **TypeScript**: Recommended for type safety
 

@@ -24,7 +24,7 @@ This document provides operational guidance for coding agents (Codex, etc.) work
 ## Environment & Tooling
 
 - Node v20.x LTS or higher (required for Vite 7).
-- WordPress 6.8+ (Script Modules API required).
+- WordPress 6.7+ (Script Modules API required).
 - Development environments: `wp-env` (Docker + PHP 8.1+) or WordPress Playground (WASM, no Docker).
 - E2E testing is optional; uses Playwright and `@geekist/wp-kernel-e2e-utils`.
 - Commands:

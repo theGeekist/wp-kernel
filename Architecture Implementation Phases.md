@@ -319,4 +319,80 @@ Audited and refreshed the documentation stack so every public surface reflects t
 
 ---
 
+## Phase 8 – Resource Reporter Wiring
+
+_see [Resource Reporter Integration.md](./Resource Reporter Integration.md) for context_
+
+**Objective**  
+Propagate kernel reporters through resource definition, client generation, and store resolvers so fetch/mutation paths emit structured telemetry in line with actions.
+
+**Scope**
+
+- Update `defineResource()` to resolve a resource-scoped reporter (`kernel.getReporter().child('resource.{name}')` fallback) and pass it into `createClient`, `createStore`, and grouped APIs.
+- Plumb reporter usage through client methods (`fetchList`, `fetch`, `create`, `update`, `remove`) and store resolvers (`getItem`, `getItems`, `getList`) with debug/info/error instrumentation.
+- Ensure standalone usage (without a configured kernel) still creates a deterministic console reporter so tests and utilities receive consistent logging.
+- Expose optional reporter overrides in resource config for advanced instrumentation without breaking ergonomics.
+
+**Documentation**
+
+- `Resource Reporter Integration.md` – capture reporter plumbing details and fallback behaviour.
+- `docs/guide/resources.md` / `docs/api/resource.md` – describe reporter inheritance, overrides, and expected log output.
+- `packages/kernel/CHANGELOG.md` – note the new reporter contract and any config additions.
+
+**Testing**
+
+- Unit tests asserting reporter invocations for success/error paths in client methods and store resolvers.
+- Integration test verifying `kernel.defineResource()` delivers a reporter to resource consumers (client + store), even when custom reporters are supplied.
+- UI hook smoke tests updated to stub reporters where needed.
+
+**Acceptance Criteria**
+
+- Resource clients and resolvers emit reporter debug/info/error messages aligned with the integration plan.
+- Kernel-provided reporters automatically scope logs per resource while allowing custom overrides.
+- No behavioural regressions across existing resource consumers; automated checks remain green.
+- Complete the "Summary of work done below"
+
+**Summary of work done**
+Threaded scoped reporters from the kernel through resource definition, client methods, and store resolvers; added overrides/fallbacks for standalone usage; refreshed documentation to outline reporter behaviour; and expanded tests to capture success/error instrumentation.
+
+---
+
+## Phase 9 – Cache & Transport Telemetry
+
+_see [Resource Reporter Integration.md](./Resource Reporter Integration.md) for context_
+
+**Objective**  
+Bring cache invalidation and transport operations under the reporter hierarchy so request lifecycles share correlation IDs and structured logs with resource reporters.
+
+**Scope**
+
+- Extend cache helpers (`invalidate`, `invalidateAll`, `matchesCacheKey`) to accept reporter overrides while defaulting to `kernel.getReporter().child('cache')`; log debug/info events for requested patterns, matched keys, and misses.
+- Update `transportFetch` (and associated types) to accept optional reporter metadata from resource clients, logging request start/finish/failure with request IDs and namespaces.
+- Ensure transport-level reporter usage remains optional for backwards compatibility; fallback to noop reporter when metadata is absent.
+- Document how action/resource reporters can forward logs to external observability tools (e.g., Sentry) via transport metadata.
+
+**Documentation**
+
+- `Resource Reporter Integration.md` – add cache + transport sections covering reporter metadata expectations.
+- `docs/guide/resources.md` & `docs/guide/debugging.md` (or equivalent) – showcase cache invalidation logging and transport telemetry examples.
+- `packages/kernel/CHANGELOG.md` – highlight transport meta support and cache logging changes.
+
+**Testing**
+
+- Unit coverage for cache helpers asserting reporter debug/info calls and verifying no-logger paths remain silent.
+- Transport tests verifying reporter metadata triggers debug/info/error logs and that legacy requests (no meta) behave unchanged.
+- Integration tests ensuring reporter metadata flows from resource clients into transport without breaking API consumers.
+
+**Acceptance Criteria**
+
+- Cache invalidation emits structured reporter events (debug + info) using kernel-scoped or resource overrides.
+- `transportFetch` logs request/response/failure with correlation IDs when reporter metadata is provided, while remaining backwards compatible.
+- All automated checks pass with no regressions in resource fetching behaviour.
+- Complete the "Summary of work done below"
+
+**Summary of work done**
+Instrumented cache helpers and transport fetch with reporter-aware logging, added metadata plumbing from resource clients, expanded tests for cache + transport observability, and documented how reporters propagate through resource operations.
+
+---
+
 End of document.

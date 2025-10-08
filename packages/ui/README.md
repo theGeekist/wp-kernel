@@ -7,7 +7,7 @@
 React components built on `@wordpress/components` with kernel-aware functionality:
 
 - **ActionButton** - Buttons that trigger actions (never transport directly)
-- **DataViews integration** - Modern admin tables for WordPress 6.8+
+- **DataViews integration** - Modern admin tables for WordPress 6.7+
 - **ResourceForm** - Forms with validation and action submission
 - **Block utilities** - Binding and Interactivity API helpers
 
@@ -58,7 +58,7 @@ function PostDashboard() {
 ### Admin Interfaces
 
 ```typescript
-// DataViews for WordPress 6.8+
+// DataViews for WordPress 6.7+
 import { AdminTable } from '@geekist/wp-kernel-ui';
 <AdminTable resource={user} fields={userFields} />
 
@@ -106,7 +106,7 @@ invalidation hooks. Pair it with `configureKernel()` from `@geekist/wp-kernel` s
 
 ## Requirements
 
-- **WordPress**: 6.8+
+- **WordPress**: 6.7+
 - **React**: 18+
 - **@geekist/wp-kernel**: Latest version
 
