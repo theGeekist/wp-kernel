@@ -20,6 +20,8 @@ export default {
 		// Test utilities (with and without .js extension)
 		'^@test-utils/(.*)\\.js$': '<rootDir>/tests/test-utils/$1',
 		'^@test-utils/(.*)$': '<rootDir>/tests/test-utils/$1',
+		// Ensure automatic JSX runtime resolves during tests
+		'^@wordpress/element/jsx-runtime$': 'react/jsx-runtime',
 		// Workspace package aliases
 		'^@geekist/wp-kernel$': '<rootDir>/packages/kernel/src',
 		'^@geekist/wp-kernel/(.*)$': '<rootDir>/packages/kernel/src/$1',

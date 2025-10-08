@@ -502,7 +502,9 @@ describe('useAction', () => {
 		dispatchMock.mockReset();
 		dispatchMock.mockImplementation(() => ({}));
 
-		expect(() => renderUseActionHook(action)).toThrow(
+		const { result } = renderHook(() => useAction(action));
+
+		expect(() => result.current.run({} as never)).toThrow(
 			expect.objectContaining({
 				name: 'KernelError',
 				code: 'DeveloperError',
@@ -701,13 +703,14 @@ describe('useAction', () => {
 		windowWithWp.wp = undefined;
 
 		const action = makeDefinedAction(async () => 'noop');
+		const { result } = renderHook(() => useAction(action));
 
-		expect(() => renderUseActionHook(action)).toThrow(
+		expect(() => result.current.run({} as never)).toThrow(
 			expect.objectContaining({
 				name: 'KernelError',
 				code: 'DeveloperError',
 				message: expect.stringContaining(
-					'Kernel UI runtime requires the WordPress data registry'
+					'useAction requires the WordPress data registry'
 				),
 			})
 		);
