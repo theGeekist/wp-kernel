@@ -28,6 +28,9 @@ The UI package should be the framework’s presentation layer. Its responsibilit
 - **Non-React primitives** – Script Modules, Interactivity API bindings, web components, and PHP-rendered views that rely on kernel services.
 - **UX scaffolding** – Notices, toasts, skeletons, and policy-aware gating helpers.
 - **Developer tooling** – Debug overlays, storybook harnesses, and testing utilities.
+- **Namespace awareness** – UI adapters respect the kernel’s namespace helpers
+  (`@geekist/wp-kernel/namespace`) so emitted events and store keys always align
+  with the configured namespace.
 
 To fulfill this role the package must:
 
@@ -103,7 +106,8 @@ Key characteristics:
 ### 5.3 Resource & Action Binding
 
 - Replace the global queue with kernel events. `defineResource()` emits `resource:defined` with the new resource object.
-- UI runtime registers listeners to decorate resources (`resource.useGet`, `resource.useList`) and actions (`useAction` controllers) synchronously.
+- UI runtime registers listeners to decorate resources (`resource.useGet`, `resource.useList`) and actions (`useAction` controllers) synchronously, using
+  the namespace information already computed by the kernel.
 - Hooks throw a `UIHooksDisabledError` when called without a runtime that supports them.
 
 ### 5.4 Components and Primitives
