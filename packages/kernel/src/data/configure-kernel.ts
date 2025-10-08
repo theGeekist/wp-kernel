@@ -1,10 +1,10 @@
 import { withKernel } from './registry';
 import type {
-        KernelRegistry,
-        KernelRegistryOptions,
-        ConfigureKernelOptions,
-        KernelInstance,
-        KernelUIConfig,
+	KernelRegistry,
+	KernelRegistryOptions,
+	ConfigureKernelOptions,
+	KernelInstance,
+	KernelUIConfig,
 } from './types';
 import { getNamespace as detectNamespace } from '../namespace/detect';
 import { createReporter } from '../reporter';
@@ -14,9 +14,9 @@ import type { CacheKeyPattern, InvalidateOptions } from '../resource/cache';
 import { KernelError } from '../error/KernelError';
 import type { ReduxMiddleware } from '../actions/types';
 import {
-        getKernelEventBus,
-        KernelEventBus,
-        setKernelEventBus,
+	getKernelEventBus,
+	type KernelEventBus,
+	setKernelEventBus,
 } from '../events/bus';
 
 function resolveRegistry(
@@ -60,50 +60,59 @@ function normalizeUIConfig(config?: KernelUIConfig): {
 }
 
 function createRegistryOptions(
-        namespace: string,
-        reporter: Reporter,
-        middleware: ReduxMiddleware[] | undefined,
-        events: KernelEventBus
+	namespace: string,
+	reporter: Reporter,
+	middleware: ReduxMiddleware[] | undefined,
+	events: KernelEventBus
 ): KernelRegistryOptions {
-        return {
-                namespace,
-                reporter,
-                middleware,
-                events,
-        };
+	return {
+		namespace,
+		reporter,
+		middleware,
+		events,
+	};
 }
 
-function emitEvent(bus: KernelEventBus, eventName: string, payload: unknown): void {
-        if (!eventName || typeof eventName !== 'string') {
-                throw new KernelError('DeveloperError', {
-                        message: 'kernel emit requires a non-empty string event name.',
-                });
-        }
+function emitEvent(
+	bus: KernelEventBus,
+	eventName: string,
+	payload: unknown
+): void {
+	if (!eventName || typeof eventName !== 'string') {
+		throw new KernelError('DeveloperError', {
+			message: 'kernel emit requires a non-empty string event name.',
+		});
+	}
 
-        bus.emit('custom:event', { eventName, payload });
+	bus.emit('custom:event', { eventName, payload });
 }
 
 export function configureKernel(
-        options: ConfigureKernelOptions = {}
+	options: ConfigureKernelOptions = {}
 ): KernelInstance {
 	const registry = resolveRegistry(options.registry);
 	const namespace = resolveNamespace(options.namespace);
 	const reporter = resolveReporter(namespace, options.reporter);
 	const ui = normalizeUIConfig(options.ui);
 
-        const events = getKernelEventBus();
-        setKernelEventBus(events);
-        let teardown: () => void = () => undefined;
+	const events = getKernelEventBus();
+	setKernelEventBus(events);
+	let teardown: () => void = () => undefined;
 
-        if (registry) {
-                const cleanup = withKernel(
-                        registry,
-                        createRegistryOptions(namespace, reporter, options.middleware, events)
-                );
-                teardown = cleanup;
-        }
+	if (registry) {
+		const cleanup = withKernel(
+			registry,
+			createRegistryOptions(
+				namespace,
+				reporter,
+				options.middleware,
+				events
+			)
+		);
+		teardown = cleanup;
+	}
 
-        return {
+	return {
 		getNamespace() {
 			return namespace;
 		},
@@ -116,21 +125,21 @@ export function configureKernel(
 		) {
 			invalidateCache(patterns, opts);
 		},
-                emit(eventName: string, payload: unknown) {
-                        emitEvent(events, eventName, payload);
-                },
-                teardown() {
-                        teardown();
-                },
-                getRegistry() {
-                        return registry;
-                },
-                ui: {
-                        isEnabled() {
-                                return ui.enable;
-                        },
-                        options: ui.options,
-                },
-                events,
-        };
+		emit(eventName: string, payload: unknown) {
+			emitEvent(events, eventName, payload);
+		},
+		teardown() {
+			teardown();
+		},
+		getRegistry() {
+			return registry;
+		},
+		ui: {
+			isEnabled() {
+				return ui.enable;
+			},
+			options: ui.options,
+		},
+		events,
+	};
 }

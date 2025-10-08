@@ -7,6 +7,14 @@
 
 ---
 
+## SHARED ACCEPTANCE CRITERIA
+
+- Run `pnpm typecheck` and `pnpm typecheck:tests`
+- Run `pnpm lint --fix`, the result will fail if your functions are high in complexity
+- git `pre-commit hooks` will run all of the above, so it will take roughly ~30 seconds. _It is important you wait. Use `CI=1 git commit...`_
+- Not running the above will fail in CI when you push you PR.
+- Respect AGENTS.md
+
 ## Phase 1 – Canonical Bootstrap Skeleton
 
 **Objective**  
@@ -134,6 +142,7 @@ integration, while maintaining the `wp.hooks` bridge.
 
 **Acceptance Criteria**
 
+- Respect AGENTS.md
 - UI runtime operates solely via event subscriptions.
 - `kernelEventsPlugin` continues to emit to `wp.hooks`.
 - Event bus tests cover at least the defined canonical events.
@@ -181,6 +190,7 @@ removing positional overloads entirely.
 
 **Acceptance Criteria**
 
+- Respect AGENTS.md
 - No code paths invoke `withKernel()`.
 - `kernel.invalidate()` respects the configured registry.
 - Teardown removes registry middleware and listeners.
@@ -221,8 +231,85 @@ remaining compatibility layers.
 
 **Acceptance Criteria**
 
+- Respect AGENTS.md
 - No `__WP_KERNEL_UI_*` globals remain and no cached dispatcher is in use.
 - Documentation/specs align with the final adapter-only runtime.
+- Complete the "Summary of work done below"
+
+**Summary of work done**
+`<placeholder to be replaced when complete>`
+
+---
+
+## Phase 6 – Config-Object Definitions & API Cohesion
+
+**Objective**  
+Align action, policy, and job definition signatures with shared config objects,
+removing positional overloads entirely.
+
+**Scope**
+
+- Update core exports (`defineAction`, `definePolicy`, `defineJob`) to accept
+  `{ name, handler, options }` config objects exclusively. Delete positional
+  overloads and helper wrappers.
+- Adjust TypeScript types, error messages, and runtime validations accordingly.
+- Refactor dependent code in `packages/kernel`, `packages/ui`, and showcase app
+  to use the new signatures.
+- Document the breaking API change in `packages/kernel/CHANGELOG.md`
+  (unreleased).
+
+**Documentation**
+
+- `docs/guide/actions.md`, `docs/guide/policy.md`, `docs/guide/jobs.md` – rewrite examples
+  with config object signatures.
+- `docs/api/index.md` – update API tables to reflect the new call shapes.
+- `docs/packages/kernel.md` – detail the standardized patterns.
+
+**Testing**
+
+- Update unit tests covering action/policy/job definitions to the new syntax.
+- Ensure TypeScript test build (`pnpm typecheck:tests`) passes with updated typings.
+
+**Acceptance Criteria**
+
+- Positional-call usage is removed; only config-object signatures remain.
+- All tests and type checks continue to pass with the config-object pattern.
+- Complete the "Summary of work done below"
+
+**Summary of work done**
+`<placeholder to be replaced when complete>`
+
+---
+
+## Phase 7 – Documentation & Example Consolidation
+
+**Objective**  
+Synchronize all reference material with the final architecture and clean up
+remaining compatibility layers.
+
+**Scope**
+
+- Rewrite high-level guides (`docs/index.md`, `docs/guide/philosophy.md`,
+  `docs/guide/showcase.md`) to reflect the final architecture.
+- Audit README snippets, ensuring all examples align with `configureKernel()`,
+  `KernelUIProvider`, and event bus usage.
+- Update `CURRENT_STATE.md` to match the new architecture baseline.
+- Add final release notes to relevant CHANGELOG files summarising the overhaul.
+
+**Documentation**
+
+- Comprehensive sweep across `/docs` and package READMEs, following the “Documentation Impact” lists from the specifications.
+- Update the roadmap in `docs/contributing/roadmap.md` to mark completed phases and outline future enhancements.
+
+**Testing**
+
+- Full test suite (`pnpm lint --fix`, `pnpm typecheck`, `pnpm typecheck:tests`, `pnpm test`) plus Playwright.
+- Optional: add example-driven tests (e.g., markdown-snippet verification) to prevent drift.
+
+**Acceptance Criteria**
+
+- No references to deprecated patterns (`withKernel` bootstrap, global UI hooks, positional definitions) remain in project docs.
+- Compatibility layers removed where safe, and all automated checks pass.
 - Complete the "Summary of work done below"
 
 **Summary of work done**

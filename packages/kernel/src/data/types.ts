@@ -12,10 +12,10 @@ export type KernelRegistry = WPDataRegistry & {
 };
 
 export interface KernelRegistryOptions {
-        middleware?: ReduxMiddleware[];
-        reporter?: Reporter;
-        namespace?: string;
-        events?: KernelEventBus;
+	middleware?: ReduxMiddleware[];
+	reporter?: Reporter;
+	namespace?: string;
+	events?: KernelEventBus;
 }
 
 export interface KernelUIConfig {
@@ -32,18 +32,18 @@ export interface ConfigureKernelOptions {
 }
 
 export interface KernelInstance {
-        getNamespace: () => string;
-        getReporter: () => Reporter;
-        invalidate: (
-                patterns: CacheKeyPattern | CacheKeyPattern[],
-                options?: InvalidateOptions
-        ) => void;
-        emit: (eventName: string, payload: unknown) => void;
-        teardown: () => void;
-        getRegistry: () => KernelRegistry | undefined;
-        ui: {
-                isEnabled: () => boolean;
-                options?: KernelUIConfig['options'];
-        };
-        events: KernelEventBus;
+	getNamespace: () => string;
+	getReporter: () => Reporter;
+	invalidate: (
+		patterns: CacheKeyPattern | CacheKeyPattern[],
+		options?: InvalidateOptions
+	) => void;
+	emit: (eventName: string, payload: unknown) => void;
+	teardown: () => void;
+	getRegistry: () => KernelRegistry | undefined;
+	ui: {
+		isEnabled: () => boolean;
+		options?: KernelUIConfig['options'];
+	};
+	events: KernelEventBus;
 }

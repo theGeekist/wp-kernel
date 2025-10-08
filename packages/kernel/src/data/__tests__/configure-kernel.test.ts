@@ -6,9 +6,9 @@ import { invalidate as invalidateCache } from '../../resource/cache';
 import { KernelError } from '../../error/KernelError';
 import type { KernelRegistry } from '../types';
 import {
-        KernelEventBus,
-        getKernelEventBus,
-        setKernelEventBus,
+	KernelEventBus,
+	getKernelEventBus,
+	setKernelEventBus,
 } from '../../events/bus';
 
 jest.mock('../registry', () => ({
@@ -37,16 +37,16 @@ function createMockReporter(): Reporter {
 }
 
 describe('configureKernel', () => {
-        const mockReporter = createMockReporter();
+	const mockReporter = createMockReporter();
 
-        beforeEach(() => {
-                jest.clearAllMocks();
-                (createReporter as jest.Mock).mockReturnValue(mockReporter);
-                (withKernel as jest.Mock).mockImplementation(() => jest.fn());
-                (invalidateCache as jest.Mock).mockImplementation(() => undefined);
-                globalThis.getWPData = jest.fn();
-                setKernelEventBus(new KernelEventBus());
-        });
+	beforeEach(() => {
+		jest.clearAllMocks();
+		(createReporter as jest.Mock).mockReturnValue(mockReporter);
+		(withKernel as jest.Mock).mockImplementation(() => jest.fn());
+		(invalidateCache as jest.Mock).mockImplementation(() => undefined);
+		globalThis.getWPData = jest.fn();
+		setKernelEventBus(new KernelEventBus());
+	});
 
 	it('delegates to withKernel with resolved configuration', () => {
 		const registry = {
@@ -68,12 +68,12 @@ describe('configureKernel', () => {
 			ui: { enable: true },
 		});
 
-                expect(withKernel).toHaveBeenCalledWith(registry, {
-                        namespace: 'acme',
-                        reporter: mockReporter,
-                        middleware: [customMiddleware],
-                        events: expect.any(KernelEventBus),
-                });
+		expect(withKernel).toHaveBeenCalledWith(registry, {
+			namespace: 'acme',
+			reporter: mockReporter,
+			middleware: [customMiddleware],
+			events: expect.any(KernelEventBus),
+		});
 		expect(kernel.getNamespace()).toBe('acme');
 		expect(kernel.getReporter()).toBe(mockReporter);
 		expect(kernel.ui.isEnabled()).toBe(true);
@@ -114,10 +114,10 @@ describe('configureKernel', () => {
 		configureKernel();
 
 		expect(globalThis.getWPData).toHaveBeenCalled();
-                expect(withKernel).toHaveBeenCalledWith(
-                        registry,
-                        expect.objectContaining({ events: expect.any(KernelEventBus) })
-                );
+		expect(withKernel).toHaveBeenCalledWith(
+			registry,
+			expect.objectContaining({ events: expect.any(KernelEventBus) })
+		);
 	});
 
 	it('skips registry wiring when registry is unavailable', () => {
@@ -141,19 +141,19 @@ describe('configureKernel', () => {
 		});
 	});
 
-        it('emits custom events through the event bus', () => {
-                const kernel = configureKernel({ namespace: 'acme' });
-                const payload = { foo: 'bar' };
-                const bus = getKernelEventBus();
-                const emitSpy = jest.spyOn(bus, 'emit');
+	it('emits custom events through the event bus', () => {
+		const kernel = configureKernel({ namespace: 'acme' });
+		const payload = { foo: 'bar' };
+		const bus = getKernelEventBus();
+		const emitSpy = jest.spyOn(bus, 'emit');
 
-                kernel.emit('wpk.event', payload);
+		kernel.emit('wpk.event', payload);
 
-                expect(emitSpy).toHaveBeenCalledWith('custom:event', {
-                        eventName: 'wpk.event',
-                        payload,
-                });
-        });
+		expect(emitSpy).toHaveBeenCalledWith('custom:event', {
+			eventName: 'wpk.event',
+			payload,
+		});
+	});
 
 	it('throws KernelError when emit is called with invalid event name', () => {
 		const kernel = configureKernel({ namespace: 'acme' });
@@ -161,16 +161,16 @@ describe('configureKernel', () => {
 		expect(() => kernel.emit('', {})).toThrow(KernelError);
 	});
 
-        it('reports UI disabled state by default', () => {
-                const kernel = configureKernel({ namespace: 'acme' });
+	it('reports UI disabled state by default', () => {
+		const kernel = configureKernel({ namespace: 'acme' });
 
-                expect(kernel.ui.isEnabled()).toBe(false);
-        });
+		expect(kernel.ui.isEnabled()).toBe(false);
+	});
 
-        it('exposes the shared event bus on the kernel instance', () => {
-                const kernel = configureKernel({ namespace: 'acme' });
-                const bus = getKernelEventBus();
+	it('exposes the shared event bus on the kernel instance', () => {
+		const kernel = configureKernel({ namespace: 'acme' });
+		const bus = getKernelEventBus();
 
-                expect(kernel.events).toBe(bus);
-        });
+		expect(kernel.events).toBe(bus);
+	});
 });

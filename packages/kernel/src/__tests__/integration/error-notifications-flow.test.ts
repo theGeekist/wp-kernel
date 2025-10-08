@@ -5,6 +5,7 @@ import { registerKernelStore } from '../../data/store';
 import type { KernelRegistry } from '../../data/types';
 import { ensureWpData } from '@test-utils/wp';
 import type { ActionErrorEvent } from '../../actions/types';
+import { KernelEventBus } from '../../events/bus';
 
 function createActionErrorEvent(
 	overrides: Partial<ActionErrorEvent> = {}
@@ -137,7 +138,12 @@ describe('Integration: Kernel error reporting flow', () => {
 			level: 'info',
 		});
 
-		const middleware = kernelEventsPlugin({ reporter, registry });
+		const bus = new KernelEventBus();
+		const middleware = kernelEventsPlugin({
+			reporter,
+			registry,
+			events: bus,
+		});
 		const next = jest.fn();
 		middleware({ dispatch: jest.fn(), getState: jest.fn() })(next)({
 			type: 'INIT',
@@ -153,7 +159,7 @@ describe('Integration: Kernel error reporting flow', () => {
 			durationMs: 42,
 		});
 
-		window.wp?.hooks?.doAction?.('wpk.action.error', event);
+		bus.emit('action:error', event);
 
 		expect(createNotice).toHaveBeenCalledWith(
 			'info',
@@ -180,7 +186,7 @@ describe('Integration: Kernel error reporting flow', () => {
 
 		middleware.destroy?.();
 
-		window.wp?.hooks?.doAction?.('wpk.action.error', {
+		bus.emit('action:error', {
 			...event,
 			requestId: 'req-456',
 		});
