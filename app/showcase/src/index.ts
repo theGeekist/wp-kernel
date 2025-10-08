@@ -5,7 +5,7 @@
  */
 
 import '@geekist/wp-kernel-ui';
-import { withKernel } from '@geekist/wp-kernel';
+import { configureKernel } from '@geekist/wp-kernel';
 import type { KernelRegistry } from '@geekist/wp-kernel';
 import { mountAdmin } from './admin';
 import { job } from './resources';
@@ -30,7 +30,7 @@ export function init(): void {
 	}
 
 	// Initialize WP Kernel runtime (middleware + events plugin)
-	withKernel(globalWindow.wp.data as KernelRegistry);
+	configureKernel({ registry: globalWindow.wp.data as KernelRegistry });
 
 	try {
 		// Trigger lazy store registration and warm initial data.
