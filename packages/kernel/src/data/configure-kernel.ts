@@ -3,6 +3,8 @@ import type {
 	ConfigureKernelOptions,
 	KernelInstance,
 	KernelUIConfig,
+	KernelUIAttach,
+	KernelUIRuntime,
 } from './types';
 import { getNamespace as detectNamespace } from '../namespace/detect';
 import { createReporter } from '../reporter';
@@ -53,10 +55,12 @@ function resolveReporter(namespace: string, reporter?: Reporter): Reporter {
 function normalizeUIConfig(config?: KernelUIConfig): {
 	enable: boolean;
 	options?: KernelUIConfig['options'];
+	attach?: KernelUIAttach;
 } {
 	return {
-		enable: Boolean(config?.enable),
+		enable: Boolean(config?.enable ?? config?.attach),
 		options: config?.options,
+		attach: config?.attach,
 	};
 }
 
@@ -85,6 +89,7 @@ export function configureKernel(
 	const events = getKernelEventBus();
 	setKernelEventBus(events);
 	const cleanupTasks: CleanupTask[] = [];
+	let uiRuntime: KernelUIRuntime | undefined;
 
 	if (
 		registry &&
@@ -118,7 +123,7 @@ export function configureKernel(
 		});
 	}
 
-	return {
+	const kernel: KernelInstance = {
 		getNamespace() {
 			return namespace;
 		},
@@ -157,12 +162,28 @@ export function configureKernel(
 		getRegistry() {
 			return registry;
 		},
+		hasUIRuntime() {
+			return Boolean(uiRuntime);
+		},
+		getUIRuntime() {
+			return uiRuntime;
+		},
+		attachUIBindings(attach: KernelUIAttach, attachOptions) {
+			uiRuntime = attach(kernel, attachOptions ?? ui.options);
+			return uiRuntime;
+		},
 		ui: {
 			isEnabled() {
-				return ui.enable;
+				return Boolean(uiRuntime);
 			},
 			options: ui.options,
 		},
 		events,
 	};
+
+	if (ui.attach && ui.enable) {
+		kernel.attachUIBindings(ui.attach, ui.options);
+	}
+
+	return kernel;
 }

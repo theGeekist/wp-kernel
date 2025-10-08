@@ -10,12 +10,9 @@
  * @module resource-hooks
  */
 import { KernelError } from '@geekist/wp-kernel/error';
-import {
-	getKernelEventBus,
-	getRegisteredResources,
-	type ResourceDefinedEvent,
-} from '@geekist/wp-kernel';
 import type { ResourceObject, ListResponse } from '@geekist/wp-kernel/resource';
+import type { KernelUIRuntime } from '@geekist/wp-kernel/data';
+import { useKernelUI } from '../runtime/context';
 
 /**
  * WordPress data store selector shape
@@ -123,6 +120,7 @@ function ensureUseSelect<T, TQuery>(
  */
 function createUseGet<T, TQuery>(resource: ResourceObject<T, TQuery>) {
 	return (id: string | number): UseResourceItemResult<T> => {
+		useKernelUI();
 		const wpData = ensureUseSelect(resource, 'useGet');
 
 		return wpData.useSelect(
@@ -152,6 +150,7 @@ function createUseGet<T, TQuery>(resource: ResourceObject<T, TQuery>) {
  */
 function createUseList<T, TQuery>(resource: ResourceObject<T, TQuery>) {
 	return (query?: TQuery): UseResourceListResult<T> => {
+		useKernelUI();
 		const wpData = ensureUseSelect(resource, 'useList');
 
 		return wpData.useSelect(
@@ -181,10 +180,12 @@ function createUseList<T, TQuery>(resource: ResourceObject<T, TQuery>) {
  * @template T - Entity type
  * @template TQuery - Query parameter type
  * @param    resource - Resource definition to augment with hooks
+ * @param    _runtime - Active Kernel UI runtime (unused placeholder for API symmetry)
  * @return The same resource object with hooks attached
  */
 export function attachResourceHooks<T, TQuery>(
-	resource: ResourceObject<T, TQuery>
+	resource: ResourceObject<T, TQuery>,
+	_runtime?: KernelUIRuntime
 ): ResourceObject<T, TQuery> {
 	if (resource.routes.get) {
 		resource.useGet = createUseGet(resource);
@@ -195,25 +196,6 @@ export function attachResourceHooks<T, TQuery>(
 	}
 
 	return resource;
-}
-
-/**
- * Kernel event bus integration for resource hook attachment
- *
- * Registers listeners on the kernel event bus so that every time a resource
- * is defined, React hooks are attached immediately. Also replays definitions
- * that occurred before the UI bundle loaded by reading the registry maintained
- * by the kernel package.
- */
-if (typeof globalThis !== 'undefined') {
-	const bus = getKernelEventBus();
-	bus.on('resource:defined', (event: ResourceDefinedEvent) => {
-		attachResourceHooks(event.resource as ResourceObject<unknown, unknown>);
-	});
-
-	getRegisteredResources().forEach((event: ResourceDefinedEvent) => {
-		attachResourceHooks(event.resource as ResourceObject<unknown, unknown>);
-	});
 }
 
 function computeItemLoading<T>(

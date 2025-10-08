@@ -1,10 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import {
-	KernelError,
-	getWPData,
-	invalidate,
-	type CacheKeyPattern,
-} from '@geekist/wp-kernel';
+import { KernelError, type CacheKeyPattern } from '@geekist/wp-kernel';
 import {
 	invokeAction,
 	type ActionEnvelope,
@@ -12,6 +7,8 @@ import {
 } from '@geekist/wp-kernel/actions';
 import { registerKernelStore } from '@geekist/wp-kernel/data';
 import { useLatest, useStableCallback } from './internal/useStableCallback';
+import { useKernelUI } from '../runtime/context';
+import type { KernelUIRuntime } from '@geekist/wp-kernel/data';
 
 interface WPDataLike {
 	dispatch?: (store: string) => unknown;
@@ -41,16 +38,17 @@ type ResolvedRegistry = WPDataLike & {
 	dispatch: NonNullable<WPDataLike['dispatch']>;
 };
 
-function resolveWpDataRegistry(): ResolvedRegistry {
-	const wpData = getWPData() as WPDataLike | undefined;
+function resolveWpDataRegistry(runtime: KernelUIRuntime): ResolvedRegistry {
+	const registry = runtime.registry ?? runtime.kernel?.getRegistry();
 
-	if (!wpData?.dispatch) {
+	if (!registry?.dispatch) {
 		throw new KernelError('DeveloperError', {
 			message:
-				'useAction requires the WordPress data registry. Ensure wp.data is available and configureKernel() has been called.',
+				'useAction requires the WordPress data registry. Ensure configureKernel() was called with a registry and attach UI bindings.',
 		});
 	}
-	return wpData as ResolvedRegistry;
+
+	return registry as ResolvedRegistry;
 }
 
 function ensureActionStoreRegistered(wpData: ResolvedRegistry): void {
@@ -124,9 +122,9 @@ function wrapInvoke(
 	return dispatchFn;
 }
 
-function createDispatch(): DispatchFunction {
+function createDispatch(runtime: KernelUIRuntime): DispatchFunction {
 	ensureBrowserEnvironment();
-	const wpData = resolveWpDataRegistry();
+	const wpData = resolveWpDataRegistry(runtime);
 	ensureActionStoreRegistered(wpData);
 	const invokeMethod = resolveInvokeMethod(wpData);
 	const dispatchFn = wrapInvoke(invokeMethod);
@@ -187,6 +185,7 @@ export function useAction<TInput, TResult>(
 	action: DefinedAction<TInput, TResult>,
 	options: UseActionOptions<TInput, TResult> = {}
 ): UseActionResult<TInput, TResult> {
+	const runtime = useKernelUI();
 	const actionRef = useLatest(action);
 	const optionsRef = useLatest(options);
 	const autoInvalidateRef = useLatest(options.autoInvalidate);
@@ -262,7 +261,7 @@ export function useAction<TInput, TResult>(
 
 	const startRequest = useCallback(
 		(input: TInput): Promise<TResult> => {
-			const dispatch = createDispatch();
+			const dispatch = createDispatch(runtime);
 			const targetAction = actionRef.current;
 			const requestId = ++idCounterRef.current;
 			const dedupeKey = dedupeKeyRef.current?.(input);
@@ -320,7 +319,10 @@ export function useAction<TInput, TResult>(
 							invalidatePatterns &&
 							invalidatePatterns.length > 0
 						) {
-							invalidate(invalidatePatterns);
+							runtime.invalidate?.(invalidatePatterns);
+							if (!runtime.invalidate && runtime.kernel) {
+								runtime.kernel.invalidate(invalidatePatterns);
+							}
 						}
 						applySuccessState(result);
 					}
@@ -355,6 +357,7 @@ export function useAction<TInput, TResult>(
 			markRequestCancelled,
 			autoInvalidateRef,
 			dedupeKeyRef,
+			runtime,
 		]
 	);
 
