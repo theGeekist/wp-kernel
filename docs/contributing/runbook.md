@@ -578,15 +578,23 @@ WordPress as backend API, external frontend.
 
 **Configure API root:**
 
+````typescript
+#### Configure Reporter Transport
+
+> **✓ Available**: Sprint 4.5 - Unified Reporting (shipped in v0.1.0)
+
 ```typescript
-// Client app
 import { configure } from '@geekist/wp-kernel';
 
 configure({
-	rootURL: process.env.NEXT_PUBLIC_WP_URL,
-	nonce: process.env.WP_NONCE,
+	reporter: {
+		transport: 'console', // or 'hooks', 'all', custom transport
+		level: 'debug',
+	},
 });
-```
+````
+
+````
 
 **Build:**
 
@@ -596,7 +604,7 @@ pnpm build
 
 # Frontend app (example: Next.js)
 NEXT_PUBLIC_WP_URL=https://cms.example.com npm run build
-```
+````
 
 **Deploy:**
 

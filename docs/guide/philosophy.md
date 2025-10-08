@@ -399,14 +399,14 @@ const post = defineResource({
 });
 
 // 2. Create Action
-const CreatePost = defineAction({
-  name: 'CreatePost',
-  async execute({ data }) {
+const CreatePost = defineAction(
+  'CreatePost',
+  async ({ data }) => {
     const result = await post.create(data);
     // Events and cache invalidation happen automatically
     return result;
-  },
-});
+  }
+);
 
 // 3. Build View
 function PostForm() {

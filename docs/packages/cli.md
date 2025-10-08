@@ -299,9 +299,9 @@ import { KernelError } from '@geekist/wp-kernel/error';
 import { events } from '@geekist/wp-kernel/events';
 import { jobs } from '@geekist/wp-kernel/jobs';
 
-export const CreateProduct = defineAction({
-	name: 'CreateProduct',
-	async execute({ name, price, status = 'draft' }) {
+export const CreateProduct = defineAction(
+	'CreateProduct',
+	async ({ name, price, status = 'draft' }) => {
 		// Generated validation
 		if (!name?.trim()) {
 			throw new KernelError('ValidationError', {
@@ -348,8 +348,8 @@ export const CreateProduct = defineAction({
 			product.cache.removeItem(tempId);
 			throw error;
 		}
-	},
-});
+	}
+);
 ```
 
 ### Template Customization

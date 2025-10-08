@@ -74,6 +74,11 @@ This document provides operational guidance for coding agents (Codex, etc.) work
 - Never run destructive commands, alter Git history, or publish artifacts.
 - Always show plan, then diffs, then run checks. Close task only after DoD passes.
 
+## Docs & Spec Coordination
+
+- Architectural specs live alongside code (`configureKernel - Specification.md`, `UI Package Architecture Fix - Specification.md`, `Architecture Cohesion Proposal.md`). Update them before mirroring changes into `/docs`.
+- For documentation-only work, see `docs/AGENTS.md`; mention affected pages in PR descriptions to avoid drift.
+
 ## What NOT to do
 
 - Call transport from UI components.

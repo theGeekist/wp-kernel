@@ -121,6 +121,8 @@ const _namespaceCache = new Map<string, NamespaceDetectionResult>();
 /**
  * Reset the namespace detection cache
  * Useful for testing or when context changes
+ *
+ * @internal
  */
 export function resetNamespaceCache(): void {
 	_namespaceCache.clear();

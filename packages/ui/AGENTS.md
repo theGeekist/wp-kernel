@@ -36,4 +36,10 @@ This file supplements the root [AGENTS.md](../../AGENTS.md) with agent guideline
 
 ---
 
+## Coordination
+
+- Reference `UI Package Architecture Fix - Specification.md` when changing runtime integration or exports.
+- Coordinate with the kernel package when UI hooks depend on new instance APIs; specs must be updated in lockstep.
+- Mention affected docs (see `../../docs/AGENTS.md`) when publishing UI-facing API changes.
+
 See [../../AGENTS.md](../../AGENTS.md) for shared monorepo agent policies.

@@ -1,8 +1,10 @@
 # Events API
 
-> **Status**: 🚧 Foundation implemented (Sprint 1). Full API coming in Sprint 4.
+> **Status**: ✓ **Fully Implemented** - JavaScript event system complete. Events work via `@wordpress/hooks` (`addAction`, `doAction`).
+>
+> **PHP Bridge**: 🚧 Planned for Sprint 9 (not yet available).
 
-Canonical event taxonomy for observability and extensibility.
+Canonical event taxonomy for observability and extensibility. All events use WordPress hooks and auto-namespace based on your plugin context.
 
 ## Event Naming Convention
 
@@ -14,7 +16,9 @@ Events follow the pattern: `{namespace}.{category}.{event}` where:
 - **category**: Type of event (resource, action, job, etc.)
 - **event**: Specific event name
 
-## Currently Available Events (Sprint 1)
+## Currently Available Events
+
+All events below are **available now** and can be subscribed to using `addAction()` from `@wordpress/hooks`.
 
 ### Resource Transport Events
 
@@ -131,7 +135,9 @@ addAction('wpk.cache.invalidated', 'my-plugin', (event) => {
 
 ### Resource-Specific Events
 
-Each resource automatically generates events using **auto-detected namespaces**. Unlike framework events which always use `wpk`, resource events use your plugin's detected namespace:
+Each resource automatically generates events using **auto-detected namespaces**. Unlike framework events which always use `wpk`, resource events use your plugin's detected namespace.
+
+**Status**: ✓ Event names available via `resource.events.*`, emitted by Actions layer when resources are created/updated/removed.
 
 ```typescript
 import { testimonial } from './resources/testimonial';
@@ -160,33 +166,66 @@ addAction('acme-blog.testimonial.created', 'my-plugin', (payload) => {
 - `{resourceName}`: The resource name from `defineResource({ name: 'testimonial' })`
 - `{action}`: CRUD action (`created`, `updated`, `removed`)
 
-**Note**: These events are defined but not automatically emitted yet. They will be emitted by Actions in Sprint 4.
-
-## Coming in Sprint 4+
-
 ### Action Events
 
-- `wpk.action.start`
-- `wpk.action.complete`
-- `wpk.action.error`
+**Status**: ✓ Available now, emitted during action execution.
 
-### Policy Events (Sprint 3)
+- `wpk.action.start` - Action begins execution
+- `wpk.action.complete` - Action completes successfully
+- `wpk.action.error` - Action fails
 
-- `wpk.policy.denied`
+### Policy Events
 
-### Job Events (Sprint 8)
+**Status**: ✓ Available now, emitted during policy checks.
 
-- `wpk.job.enqueued`
-- `wpk.job.completed`
-- `wpk.job.failed`
+- `wpk.policy.denied` - Policy check fails
 
-### Canonical Event Registry
+### Job Events
+
+**Status**: ✓ Available now, emitted during job lifecycle.
+
+- `wpk.job.enqueued` - Job queued for background processing
+- `wpk.job.completed` - Job completes successfully
+- `wpk.job.failed` - Job execution fails
+
+## Future: PHP Bridge (Sprint 9)
+
+> **⚠️ NOT YET IMPLEMENTED**: PHP event bridge is planned for Sprint 9.
+
+The PHP bridge will mirror selected JavaScript events to WordPress `do_action()` hooks for legacy plugin integrations. When implemented:
+
+```php
+// 🚧 FUTURE - NOT YET AVAILABLE
+add_action('wpk.bridge.acme-blog.testimonial.created', function($payload) {
+    // React to testimonial creation in PHP
+    error_log('New testimonial: ' . $payload['id']);
+}, 10, 1);
+```
+
+See the [Event Taxonomy Quick Reference](https://github.com/theGeekist/wp-kernel/blob/main/information/Event%20Taxonomy%20Quick%20Reference.md#php-bridge-future) for planned PHP bridge details.
+
+## Canonical Event Registry
+
+**Status**: ✓ Available now via `resource.events.*` properties.
 
 ```typescript
-// Coming in Sprint 4
-import { events } from '@geekist/wp-kernel/events';
+import { defineAction } from '@geekist/wp-kernel';
+import { thing } from './resources/thing';
 
-action.emit(events.thing.created, { id, data });
+export const CreateThing = defineAction(
+	'Thing.Create',
+	async (ctx, { data }) => {
+		const result = await thing.create(data);
+
+		// Emit resource event
+		ctx.emit(thing.events.created, {
+			id: result.id,
+			data: result,
+		});
+
+		return result;
+	}
+);
 ```
 
 ## Full Specification

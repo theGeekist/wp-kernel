@@ -2,7 +2,11 @@
 
 Concise headline. Example: “Sprint 5: Bindings & Interactivity — Block Bindings, Interactivity API, Providers”.
 
-**Sprint:** 5 (Bindings & Interactivity) / 5.5 (Alignment) / Norms (check docs/contributing/roadmap.md for guidance)
+<!-- Delete this comment block after reading:
+PR Title should match sprint headline (e.g., "Sprint 5: React Hooks Integration")
+-->
+
+**Sprint:** 5 (React Hooks Integration) / 6 (Admin Mount) / Norms (check docs/contributing/roadmap.md for guidance)
 **Scope:** actions · policy · resource · data · reporter · ui · cli · e2e
 
 ## Links
