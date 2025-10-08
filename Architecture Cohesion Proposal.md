@@ -52,9 +52,9 @@ High-level findings:
 
 ### 3.1 Make `configureKernel()` the Canonical Bootstrap
 
-1. **Deprecate direct `withKernel()` usage** in favor of `configureKernel({ registry, ui: { enable } })`, exposing `kernel.attachRegistry()` for advanced cases.
+1. **Deprecate direct `withKernel()` usage** in favor of `configureKernel({ registry, ui: { attach: attachUIBindings } })`, exposing `kernel.attachRegistry()` for advanced cases.
 2. **Expose lifecycle hooks** (`kernel.on('teardown', fn)`) so escape hatches (UI and tests) can tie into the same lifecycle without mutating globals.
-3. **Ship `KernelUIRuntime` accessors** (`kernel.hasUIRuntime()`, `kernel.getUIRuntime()`) as specified, ensuring UI bindings are driven through explicit APIs.
+3. **Ship `KernelUIRuntime` accessors** (`kernel.hasUIRuntime()`, `kernel.getUIRuntime()`) as specified, ensuring UI bindings are driven through explicit APIs; the kernel should accept adapters (e.g., `attachUIBindings`) supplied by callers rather than importing UI modules directly.
 
 ### 3.2 Align Definition API Shapes
 

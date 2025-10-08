@@ -77,19 +77,19 @@ function configureKernel(config: KernelConfig): KernelInstance;
 
 ### 3.1 Input Configuration
 
-| Property                    | Type                                                  | Required | Description                                                                                |
-| --------------------------- | ----------------------------------------------------- | -------- | ------------------------------------------------------------------------------------------ |
-| `namespace`                 | `string`                                              | Yes      | Plugin/theme namespace used for stores, cache keys, events, and reporters.                 |
-| `registry`                  | `KernelRegistry`                                      | No       | WordPress Data registry instance. Defaults to `window.wp.data` when available.             |
-| `reporter`                  | `Reporter`                                            | No       | Existing reporter to reuse. Defaults to `createReporter({ namespace, level: 'debug' })`.   |
-| `middleware`                | `ReduxMiddleware[]`                                   | No       | Custom middleware appended after kernel middleware.                                        |
-| `enableReduxMiddleware`     | `boolean`                                             | No       | Enables Redux envelopes for actions (default `true`).                                      |
-| `enableRegistryIntegration` | `boolean`                                             | No       | Enables the error bridge and `wp.hooks` bridge (default `true`).                           |
-| `ui`                        | `{ enable: boolean; options?: UIIntegrationOptions }` | No       | Attaches UI runtime (hooks, components, primitives) when `enable` is `true`.               |
-| `policies`                  | `PolicyMap<Record<string, unknown>>`                  | No       | Initial policy map registration (optional convenience).                                    |
-| `autoBootstrap`             | `boolean`                                             | No       | If `true`, automatically installs registry integration and middleware. Defaults to `true`. |
+| Property                    | Type                                                          | Required | Description                                                                                           |
+| --------------------------- | ------------------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------- |
+| `namespace`                 | `string`                                                      | Yes      | Plugin/theme namespace used for stores, cache keys, events, and reporters.                            |
+| `registry`                  | `KernelRegistry`                                              | No       | WordPress Data registry instance. Defaults to `window.wp.data` when available.                        |
+| `reporter`                  | `Reporter`                                                    | No       | Existing reporter to reuse. Defaults to `createReporter({ namespace, level: 'debug' })`.              |
+| `middleware`                | `ReduxMiddleware[]`                                           | No       | Custom middleware appended after kernel middleware.                                                   |
+| `enableReduxMiddleware`     | `boolean`                                                     | No       | Enables Redux envelopes for actions (default `true`).                                                 |
+| `enableRegistryIntegration` | `boolean`                                                     | No       | Enables the error bridge and `wp.hooks` bridge (default `true`).                                      |
+| `ui`                        | `{ attach?: KernelUIAttach; options?: UIIntegrationOptions }` | No       | Optional adapter function for UI integration (e.g., `attachUIBindings` from `@geekist/wp-kernel-ui`). |
+| `policies`                  | `PolicyMap<Record<string, unknown>>`                          | No       | Initial policy map registration (optional convenience).                                               |
+| `autoBootstrap`             | `boolean`                                                     | No       | If `true`, automatically installs registry integration and middleware. Defaults to `true`.            |
 
-`UIIntegrationOptions` mirrors the contract defined in `UI Package Architecture Fix - Specification.md` and controls UI-specific features (e.g., suspense boundaries, notices, devtools). When `ui.enable` is `false` or omitted, the kernel does not load UI bindings.
+`UIIntegrationOptions` mirrors the contract defined in `UI Package Architecture Fix - Specification.md` and controls UI-specific features (e.g., suspense boundaries, notices, devtools). The kernel never imports UI code directly; callers either supply a `KernelUIAttach` adapter during configuration or attach bindings later by invoking `kernel.attachUIBindings()` with the adapter exported from `@geekist/wp-kernel-ui`.
 
 ### 3.2 Output Instance
 
@@ -105,7 +105,7 @@ interface KernelInstance {
   setReporter: (reporter: Reporter) => void;
   hasUIRuntime: () => boolean;
   getUIRuntime: () => KernelUIRuntime | undefined;
-  attachUIBindings: (options?: UIIntegrationOptions) => KernelUIRuntime;
+  attachUIBindings: (attach: KernelUIAttach, options?: UIIntegrationOptions) => KernelUIRuntime;
   defineResource: <T, TQuery = unknown>(config: ResourceConfig<T, TQuery>) => ResourceObject<T, TQuery>;
   defineAction: <TArgs = void, TResult = void>(config: ActionConfig<TArgs, TResult>) => DefinedAction<TArgs, TResult>;
   definePolicy: <K extends Record<string, unknown>>(config: PolicyDefinitionConfig<K>) => PolicyHelpers<K>;
@@ -138,6 +138,8 @@ interface JobConfig<TArgs, TResult> {
   handler: JobFn<TArgs, TResult>;
   options?: JobOptions<TArgs, TResult>;
 }
+
+type KernelUIAttach = (kernel: KernelInstance, options?: UIIntegrationOptions) => KernelUIRuntime;
 ````
 
 `KernelEventBus` is a typed pub/sub interface exposed on the instance; it powers internal lifecycle emission and external extensibility while continuing to bridge into `wp.hooks` when the events plugin is enabled.
@@ -177,7 +179,7 @@ Positional signatures (`defineAction(name, handler, options)`, etc.) remain temp
 ### 4.6 UI Runtime Access
 - `kernel.hasUIRuntime()` reports whether UI integration is active.
 - `kernel.getUIRuntime()` returns the runtime established during configuration (or `undefined` if UI disabled).
-- `kernel.attachUIBindings()` allows advanced consumers to attach or replace UI bindings on demand (useful for lazy-loaded bundles) and returns the active `KernelUIRuntime`.
+- `kernel.attachUIBindings(attach, options)` allows advanced consumers to attach or replace UI bindings on demand (useful for lazy-loaded bundles) and returns the active `KernelUIRuntime`.
 
 ### 4.7 Utility APIs
 - `kernel.invalidate()` scopes cache invalidation by namespace.
@@ -198,7 +200,7 @@ Positional signatures (`defineAction(name, handler, options)`, etc.) remain temp
 4. **Consistent Redux Middleware:** Action dispatch respects the same middleware configuration regardless of entry point.
 5. **Event Visibility:** Lifecycle events flow through a single typed bus and, when enabled, bridge to `wp.hooks`.
 6. **Shared Policy Runtime:** Policies defined through the instance are the same ones consumed by the UI and action runtime.
-7. **Explicit UI Integration:** Developers must opt in via `ui.enable`. Hooks and components throw descriptive errors when the `KernelUIRuntime` is unavailable.
+7. **Explicit UI Integration:** Developers opt in by supplying a `KernelUIAttach` adapter (either at configuration time or via `kernel.attachUIBindings()`). Without an adapter, UI helpers throw descriptive errors.
 8. **Deterministic Lifecycle:** Configuration → Usage → Teardown is well-defined (see §6).
 
 ---
@@ -227,7 +229,7 @@ Positional signatures (`defineAction(name, handler, options)`, etc.) remain temp
 - **Reconfiguration:** Subsequent calls to `configureKernel()` should warn or throw unless the previous instance was torn down. Development mode may support reconfigure-after-teardown for hot reloads.
 - **SSR / No Registry:** `registry` is optional. Without it, registry-dependent features (error bridge, `useAction`, `useGet`, `useList`) are disabled gracefully.
 - **Pre-configuration Definitions:** Resources or actions must be defined through the instance. The global `defineResource` export remains for backward compatibility but issues a deprecation warning and delegates when possible.
-- **UI Runtime Disabled:** When `ui.enable` is false, UI runtime accessors return `undefined`, resource hook properties remain unset, and attempts to use UI helpers throw `KernelError` guidance to enable UI integration.
+- **UI Runtime Disabled:** If no `KernelUIAttach` adapter has been provided, UI runtime accessors return `undefined`, resource hook properties remain unset, and attempts to use UI helpers throw `KernelError` guidance to attach bindings.
 
 ---
 
@@ -249,7 +251,7 @@ Positional signatures (`defineAction(name, handler, options)`, etc.) remain temp
 3. **SSR Defaults:** What degraded features should ship when no registry exists, and how do we surface warnings?
 4. **Teardown Semantics:** Should teardown be mandatory before reconfiguration? How do we protect against partial teardown?
 5. **Validation:** What schema validation should run on the configuration object?
-6. **UI Integration Default:** Should `ui.enable` default to `true`, or remain opt-in to avoid bundling React/DOM utilities automatically?
+6. **UI Integration Default:** Should the kernel attempt to auto-attach UI bindings when an adapter is discoverable, or require callers to provide the adapter explicitly every time?
 
 ---
 
@@ -295,10 +297,12 @@ Issues: hidden side-effects, load order dependencies, larger bundles, and easy-t
 ```typescript
 import { configureKernel } from '@geekist/wp-kernel';
 
+import { attachUIBindings } from '@geekist/wp-kernel-ui';
+
 const kernel = configureKernel({
 	namespace: 'showcase',
 	registry: wp.data,
-	ui: { enable: true },
+	ui: { attach: attachUIBindings },
 });
 
 const job = kernel.defineResource({
@@ -350,12 +354,12 @@ configureKernel({
 ### 12.3 Enabling UI Integration on Demand
 
 ```typescript
-import { KernelUIProvider } from '@geekist/wp-kernel-ui';
+import { KernelUIProvider, attachUIBindings } from '@geekist/wp-kernel-ui';
 
 const kernel = configureKernel({
   namespace: 'analytics',
   registry: window.wp?.data,
-  ui: { enable: true, options: { suspense: true } },
+  ui: { attach: attachUIBindings, options: { suspense: true } },
 });
 
 const runtime = kernel.getUIRuntime();
@@ -384,13 +388,13 @@ createRoot(appNode).render(
 
 ## 13. Documentation Impact
 
-- `README.md` – Update bootstrap instructions to feature `configureKernel()` and UI runtime toggles.
+- `README.md` – Update bootstrap instructions to feature `configureKernel()` and the adapter-based UI integration flow (no side-effect imports).
 - `docs/guide/data.md` – Replace `withKernel()` walkthroughs with the unified bootstrap, event bus, and registry guidance.
 - `docs/guide/actions.md` – Reflect the config-object action signature and lifecycle guarantees.
 - `docs/api/useAction.md` – Document reliance on `KernelUIRuntime` for dispatch and state management.
 - `docs/guide/reporting.md` – Note reporter onboarding through `configureKernel()` and child reporter helpers.
 - `docs/packages/kernel.md` – Capture the canonical exports (`configureKernel`, `KernelEventBus`, instance helpers).
-- `docs/packages/ui.md` – Describe `KernelUIRuntime`, `KernelUIProvider`, and paired/standalone usage.
+- `docs/packages/ui.md` – Describe `KernelUIRuntime`, `KernelUIProvider`, and the adapter pattern for attaching bindings.
 - `docs/contributing/roadmap.md` – Align roadmap milestones with the unified bootstrap strategy.
 
 ## 14. Test Impact
