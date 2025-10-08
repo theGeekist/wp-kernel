@@ -55,6 +55,21 @@ npm install @geekist/wp-kernel
 pnpm add @geekist/wp-kernel
 ```
 
+**Bootstrap the runtime:**
+
+```ts
+import { configureKernel } from '@geekist/wp-kernel';
+
+const kernel = configureKernel({
+	registry: window.wp.data,
+	namespace: 'my-plugin',
+});
+
+kernel.emit('my-plugin.ready', { timestamp: Date.now() });
+```
+
+`configureKernel()` installs the same registry middleware that powered `withKernel()` and returns a shared instance so you can access the namespace, reporter, and cache helpers. The legacy `withKernel()` export remains available for advanced registry wiring.
+
 **See the [Getting Started Guide](https://theGeekist.github.io/wp-kernel/getting-started/)** for creating your first WP Kernel plugin.
 
 ---

@@ -155,11 +155,18 @@ export type {
 } from './policy/index.js';
 
 // Data integration
-export { withKernel, registerKernelStore } from './data/index.js';
+export {
+	configureKernel,
+	withKernel,
+	registerKernelStore,
+} from './data/index.js';
 export { kernelEventsPlugin } from './data/plugins/events';
 export type {
 	KernelRegistry,
 	KernelRegistryOptions,
+	ConfigureKernelOptions,
+	KernelInstance,
+	KernelUIConfig,
 	NoticeStatus,
 } from './data/index.js';
 

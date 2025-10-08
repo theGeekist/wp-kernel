@@ -43,7 +43,7 @@ infrastructure so current plugins remain functional.
 - Documentation references the new entry point.
 
 **Summary of work done**
-`<placeholder to be replaced when complete>`
+Implemented `configureKernel()` on top of the existing registry wiring, exposed the initial `KernelInstance` helpers, threaded the `ui` option, updated showcase + documentation to prefer the new bootstrap, and added coverage to prove the delegation to `withKernel()`.
 
 ---
 
