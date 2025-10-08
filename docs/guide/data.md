@@ -1,6 +1,6 @@
 # WordPress Data Integration
 
-WP Kernel integrates with `@wordpress/data` through the new `configureKernel()` bootstrap. The helper installs the same registry middleware that powered `withKernel()`, forwards to the existing events plugin, and returns a kernel instance you can use immediately. Legacy calls to `withKernel()` continue to work, but new projects should call `configureKernel()` so every runtime surface shares the same configuration.
+WP Kernel integrates with `@wordpress/data` through the `configureKernel()` bootstrap. The helper installs the registry middleware, forwards to the existing events plugin, and returns a kernel instance you can use immediately so every runtime surface shares the same configuration.
 
 Core primitives-resources, actions, cache helpers-continue to work without any bootstrap. Stores register themselves and actions can be invoked directly. Calling `configureKernel()` layers in observability, WordPress hooks integration, and optional Redux dispatch so the rest of the ecosystem can listen in.
 
@@ -34,12 +34,10 @@ The initial instance surface focuses on read-mostly helpers:
 
 - `kernel.getNamespace()` – Returns the namespace resolved during configuration.
 - `kernel.getReporter()` – Provides access to the shared reporter.
-- `kernel.invalidate(patterns, options?)` – Delegates to the global cache invalidation helpers.
+- `kernel.invalidate(patterns, options?)` – Delegates to the cache helpers using the configured registry.
 - `kernel.emit(eventName, payload)` – Emits custom events through WordPress hooks (and existing bridges).
 - `kernel.ui.isEnabled()` – Reports whether UI integration was requested.
-- `kernel.teardown()` – Runs the cleanup returned by `withKernel()` when a registry was wired (useful in tests and hot reloads).
-
-`withKernel()` is still exported for advanced scenarios that need to manually control registry wiring, but it now sits underneath `configureKernel()` so both paths share behaviour.
+- `kernel.teardown()` – Removes middleware and listeners that were installed during configuration (useful in tests and hot reloads).
 
 ## Core functionality without `configureKernel()`
 
@@ -201,7 +199,7 @@ function my_plugin_handle_action_error( $payload ) {
 
 ## Summary
 
-`configureKernel()` is now the canonical bootstrap for WP Kernel. It installs the familiar middleware stack, exposes the shared reporter and namespace, and prepares the ecosystem bridges that production plugins rely on. Continue using `withKernel()` only when you need granular control-otherwise configure once and let the kernel handle the wiring.
+`configureKernel()` is the canonical bootstrap for WP Kernel. It installs the middleware stack, exposes the shared reporter and namespace, and prepares the ecosystem bridges that production plugins rely on. Configure once and let the kernel handle the wiring.
 
 ## `usePolicy()` – gate UI with runtime capabilities
 

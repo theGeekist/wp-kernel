@@ -262,7 +262,7 @@ Positional signatures (`defineAction(name, handler, options)`, etc.) remain temp
 
 ### 10.1 Replaces
 - Manual namespace and reporter configuration scattered across resources, actions, and `withKernel`.
-- `withKernel()` as the primary bootstrap path.
+- Legacy `withKernel()` as the primary bootstrap path.
 - UI side-effect import pattern for hook attachment.
 
 ### 10.2 Unifies
@@ -273,7 +273,7 @@ Positional signatures (`defineAction(name, handler, options)`, etc.) remain temp
 - UI integration opt-in.
 
 ### 10.3 Retains (Advanced / Internal Use)
-- `withKernel()` remains available for power users needing granular control.
+- Registry integration now lives entirely behind `configureKernel()`.
 - Global hook attachment utilities stay accessible for legacy code but emit warnings.
 - `global.__WP_KERNEL_ACTION_RUNTIME__` escape hatch continues to exist for testing overrides.
 
@@ -285,9 +285,9 @@ Positional signatures (`defineAction(name, handler, options)`, etc.) remain temp
 
 ```typescript
 import '@geekist/wp-kernel-ui'; // required side effect
-import { withKernel, defineResource } from '@geekist/wp-kernel';
+import { configureKernel, defineResource } from '@geekist/wp-kernel';
 
-withKernel(wp.data);
+configureKernel({ registry: wp.data });
 
 const job = defineResource({ name: 'job', routes: { list: '/api/jobs' } });
 const { data } = job.useList(); // works only if UI import executed earlier

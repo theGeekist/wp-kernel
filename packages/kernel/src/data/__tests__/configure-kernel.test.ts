@@ -1,5 +1,4 @@
 import { configureKernel } from '../configure-kernel';
-import { withKernel } from '../registry';
 import { createReporter } from '../../reporter';
 import type { Reporter } from '../../reporter';
 import { invalidate as invalidateCache } from '../../resource/cache';
@@ -10,95 +9,111 @@ import {
 	getKernelEventBus,
 	setKernelEventBus,
 } from '../../events/bus';
+import { createActionMiddleware } from '../../actions/middleware';
+import { kernelEventsPlugin } from '../plugins/events';
 
-jest.mock('../registry', () => ({
-	withKernel: jest.fn(() => jest.fn()),
+jest.mock('../../actions/middleware', () => ({
+	createActionMiddleware: jest.fn(() =>
+		jest.fn(() => jest.fn((action) => action))
+	),
 }));
 
 jest.mock('../../reporter', () => ({
 	createReporter: jest.fn(),
 }));
 
+jest.mock('../plugins/events', () => ({
+	kernelEventsPlugin: jest.fn(() => ({ destroy: jest.fn() })),
+}));
+
 jest.mock('../../resource/cache', () => ({
 	invalidate: jest.fn(),
 }));
 
-function createMockReporter(): Reporter {
-	const reporter: Reporter = {
+type Middleware = ReturnType<typeof createActionMiddleware>;
+
+describe('configureKernel', () => {
+	const actionMiddleware: Middleware = jest
+		.fn()
+		.mockImplementation((next) => (action: unknown) => next(action));
+	const mockReporter: Reporter = {
 		info: jest.fn(),
 		warn: jest.fn(),
 		error: jest.fn(),
 		debug: jest.fn(),
 		child: jest.fn(),
-	};
-
-	(reporter.child as jest.Mock).mockImplementation(() => reporter);
-	return reporter;
-}
-
-describe('configureKernel', () => {
-	const mockReporter = createMockReporter();
+	} as unknown as Reporter;
+	const eventMiddleware = { destroy: jest.fn() };
 
 	beforeEach(() => {
 		jest.clearAllMocks();
+		(createActionMiddleware as jest.Mock).mockReturnValue(actionMiddleware);
 		(createReporter as jest.Mock).mockReturnValue(mockReporter);
-		(withKernel as jest.Mock).mockImplementation(() => jest.fn());
+		(kernelEventsPlugin as jest.Mock).mockReturnValue(eventMiddleware);
 		(invalidateCache as jest.Mock).mockImplementation(() => undefined);
 		globalThis.getWPData = jest.fn();
 		setKernelEventBus(new KernelEventBus());
 	});
 
-	it('delegates to withKernel with resolved configuration', () => {
+	afterEach(() => {
+		(actionMiddleware as jest.Mock).mockReset();
+		eventMiddleware.destroy.mockReset();
+	});
+
+	it('installs middleware on the provided registry and cleans up on teardown', () => {
+		const detachActions = jest.fn();
+		const detachEvents = jest.fn();
+		const customMiddleware = jest.fn();
 		const registry = {
 			__experimentalUseMiddleware: jest
 				.fn()
-				.mockReturnValue(() => undefined),
-			dispatch: jest.fn(),
-		} as unknown as KernelRegistry;
-		const cleanup = jest.fn();
-		const customMiddleware = jest.fn();
-
-		(withKernel as jest.Mock).mockReturnValue(cleanup);
+				.mockReturnValueOnce(detachActions)
+				.mockReturnValueOnce(detachEvents),
+			dispatch: jest.fn().mockReturnValue({ createNotice: jest.fn() }),
+		} as unknown as KernelRegistry & {
+			__experimentalUseMiddleware: jest.Mock;
+		};
 
 		const kernel = configureKernel({
 			namespace: 'acme',
 			registry,
-			reporter: mockReporter,
 			middleware: [customMiddleware],
-			ui: { enable: true },
+			reporter: mockReporter,
 		});
 
-		expect(withKernel).toHaveBeenCalledWith(registry, {
-			namespace: 'acme',
-			reporter: mockReporter,
-			middleware: [customMiddleware],
-			events: expect.any(KernelEventBus),
-		});
-		expect(kernel.getNamespace()).toBe('acme');
-		expect(kernel.getReporter()).toBe(mockReporter);
-		expect(kernel.ui.isEnabled()).toBe(true);
-		expect(kernel.getRegistry()).toBe(registry);
+		expect(registry.__experimentalUseMiddleware).toHaveBeenCalledTimes(2);
+		const [actionFactory] =
+			registry.__experimentalUseMiddleware.mock.calls[0];
+		const [eventsFactory] =
+			registry.__experimentalUseMiddleware.mock.calls[1];
+
+		expect(typeof actionFactory).toBe('function');
+		expect(typeof eventsFactory).toBe('function');
+		const installedActions = actionFactory();
+		expect(installedActions).toEqual([actionMiddleware, customMiddleware]);
+
+		const [installedEvents] = eventsFactory();
+		expect(installedEvents).toBe(eventMiddleware);
 
 		kernel.teardown();
-		expect(cleanup).toHaveBeenCalled();
+		expect(detachActions).toHaveBeenCalled();
+		expect(detachEvents).toHaveBeenCalled();
+		expect(eventMiddleware.destroy).toHaveBeenCalled();
 	});
 
-	it('creates a reporter when one is not provided', () => {
+	it('handles registries without middleware support gracefully', () => {
 		const registry = {
-			__experimentalUseMiddleware: jest
-				.fn()
-				.mockReturnValue(() => undefined),
 			dispatch: jest.fn(),
 		} as unknown as KernelRegistry;
 
 		const kernel = configureKernel({ namespace: 'acme', registry });
 
-		expect(createReporter).toHaveBeenCalledWith({
-			namespace: 'acme',
-			channel: 'all',
-			level: 'debug',
-		});
-		expect(kernel.getReporter()).toBe(mockReporter);
+		expect(
+			(registry as { __experimentalUseMiddleware?: unknown })
+				.__experimentalUseMiddleware
+		).toBeUndefined();
+
+		expect(() => kernel.teardown()).not.toThrow();
 	});
 
 	it('falls back to global registry when not provided', () => {
@@ -111,33 +126,32 @@ describe('configureKernel', () => {
 
 		(globalThis.getWPData as jest.Mock).mockReturnValue(registry);
 
-		configureKernel();
+		configureKernel({ namespace: 'acme' });
 
 		expect(globalThis.getWPData).toHaveBeenCalled();
-		expect(withKernel).toHaveBeenCalledWith(
-			registry,
-			expect.objectContaining({ events: expect.any(KernelEventBus) })
-		);
+		expect(registry.__experimentalUseMiddleware).toHaveBeenCalled();
 	});
 
-	it('skips registry wiring when registry is unavailable', () => {
-		(globalThis.getWPData as jest.Mock).mockReturnValue(undefined);
+	it('delegates invalidate calls to resource cache with registry context', () => {
+		const registry = {
+			__experimentalUseMiddleware: jest
+				.fn()
+				.mockReturnValue(() => undefined),
+			dispatch: jest.fn(),
+		} as unknown as KernelRegistry;
 
-		configureKernel();
-
-		expect(withKernel).not.toHaveBeenCalled();
-	});
-
-	it('delegates invalidate calls to resource cache', () => {
-		const kernel = configureKernel({ namespace: 'acme' });
+		const kernel = configureKernel({ namespace: 'acme', registry });
 		const patterns = ['post', 'list'];
 
 		kernel.invalidate(patterns);
-		expect(invalidateCache).toHaveBeenCalledWith(patterns, undefined);
+		expect(invalidateCache).toHaveBeenCalledWith(patterns, {
+			registry,
+		});
 
 		kernel.invalidate(patterns, { emitEvent: false });
 		expect(invalidateCache).toHaveBeenCalledWith(patterns, {
 			emitEvent: false,
+			registry,
 		});
 	});
 
@@ -172,5 +186,41 @@ describe('configureKernel', () => {
 		const bus = getKernelEventBus();
 
 		expect(kernel.events).toBe(bus);
+	});
+
+	it('reports errors thrown during teardown cleanup', () => {
+		const detachActions = jest.fn(() => {
+			throw new Error('cleanup failed');
+		});
+		const detachEvents = jest.fn();
+		const registry = {
+			__experimentalUseMiddleware: jest
+				.fn()
+				.mockReturnValueOnce(detachActions)
+				.mockReturnValueOnce(detachEvents),
+			dispatch: jest.fn().mockReturnValue({ createNotice: jest.fn() }),
+		} as unknown as KernelRegistry & {
+			__experimentalUseMiddleware: jest.Mock;
+		};
+
+		const originalEnv = process.env.NODE_ENV;
+		process.env.NODE_ENV = 'development';
+
+		try {
+			const kernel = configureKernel({
+				namespace: 'acme',
+				registry,
+				reporter: mockReporter,
+			});
+
+			kernel.teardown();
+
+			expect(mockReporter.error).toHaveBeenCalledWith(
+				'Kernel teardown failed',
+				expect.any(Error)
+			);
+		} finally {
+			process.env.NODE_ENV = originalEnv;
+		}
 	});
 });

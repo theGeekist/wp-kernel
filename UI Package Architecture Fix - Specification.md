@@ -56,7 +56,7 @@ To fulfill this role the package must:
 
 - Resources push themselves into a global queue if hooks are not yet attached (`pendingResources[]`).
 - `@geekist/wp-kernel-ui` registers a global callback (`__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__`) and flushes the queue during import.
-- Hooks call `getWPData()`, register internal stores, and rely on `withKernel()` having run.
+- Hooks call `getWPData()`, register internal stores, and rely on `configureKernel()` having run.
 - Components referenced in README are not yet implemented; there is no shared UI runtime to host them.
 
 This architecture does not scale once components and additional primitives arrive; each feature would need to repeat the same global dance.
