@@ -4,63 +4,44 @@
 
 ### Major Changes
 
-- **Sprint 5: Complete React Hooks Integration for WordPress Data**
+- Introduced `attachUIBindings`, `KernelUIProvider`, and runtime context so hooks
+  consume configuration explicitly instead of relying on global side effects.
 
 ### Breaking Changes
 
-- **Removed `useKernel()`** - This function has been moved to `@geekist/wp-kernel` and renamed to `withKernel()`
-    - Import from `@geekist/wp-kernel` instead of `@geekist/wp-kernel-ui`
-    - Function renamed to better reflect its purpose (it's not a React hook)
-    - See migration guide below
+- Removed the legacy global queue (`__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__` /
+  `__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__`). Importing
+  `@geekist/wp-kernel-ui` no longer auto-attaches hooks.
+- Hooks such as `useAction`, `useResourceList`, and prefetch helpers now throw a
+  `KernelError` if a `KernelUIRuntime` is not available.
 
 ### Migration Guide
 
-```typescript
-// Before (Sprint 5)
-import { useKernel } from '@geekist/wp-kernel-ui';
-useKernel(registry, options);
+```tsx
+import { configureKernel } from '@geekist/wp-kernel';
+import { attachUIBindings, KernelUIProvider } from '@geekist/wp-kernel-ui';
 
-// After
-import { withKernel } from '@geekist/wp-kernel';
-withKernel(registry, options);
+const kernel = configureKernel({
+	namespace: 'my-plugin',
+	registry: window.wp.data,
+	ui: { attach: attachUIBindings },
+});
+
+const runtime = kernel.getUIRuntime();
+
+createRoot(node).render(
+	<KernelUIProvider runtime={runtime}>
+		<App />
+	</KernelUIProvider>
+);
 ```
-
-### New Hooks
-
-- **`useAction()`** - Complete action dispatch system with WordPress data integration
-    - 4 concurrency modes: `parallel`, `switch`, `queue`, `drop`
-    - Automatic cache invalidation and deduplication
-    - Cancellation support with proper queue handling
-    - 427 lines with comprehensive JSDoc
-- **`useGet()` & `useList()`** - Resource data fetching hooks
-    - Lazy attachment mechanism for resources defined before UI loads
-    - WordPress data store integration
-    - 266 lines with full documentation
-- **`usePolicy()`** - Capability checks in UI (migrated from kernel)
-    - Reactive policy cache with `can()` helper
-    - Loading and error states
-    - 130 lines
-- **Prefetching Hooks**:
-    - `usePrefetcher()` - Generic prefetching orchestrator with debouncing (43 lines)
-    - `useVisiblePrefetch()` - IntersectionObserver-based viewport prefetching (168 lines)
-    - `useHoverPrefetch()` - Hover-triggered prefetching (75 lines)
-    - `useNextPagePrefetch()` - Pagination-aware prefetching (46 lines)
-
-### Critical Fixes
-
-- **P1: Resource Hook Timing** - Implemented module-level queue to handle resources defined before UI loads
-- **P1: Queue Cancellation** - Fixed queue concurrency mode to properly prevent cancelled actions from executing
-
-### Testing
-
-- Added 28 new test cases across 9 test files
-- Achieved 89.73% branch coverage (970 tests passing)
-- Comprehensive coverage of all new hooks and edge cases
 
 ### Technical Details
 
-- Global hooks: `__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__`, `__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__`
-- All hooks include comprehensive JSDoc documentation
+- `useAction` now resolves its dispatcher from the runtime using a cached
+  factory (no more globals on `window`).
+- Resource hooks attach via the runtime’s `attachResourceHooks()` callback when
+  the adapter is provided.
 - TypeScript strict mode with full type safety
 
 ## 0.2.0
