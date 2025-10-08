@@ -105,6 +105,9 @@ integration, while maintaining the `wp.hooks` bridge.
 - Modify UI runtime to depend on event subscriptions rather than queued globals.
 - Inline registry bootstrap logic into `configureKernel()` and remove the `withKernel`
   export; update all call sites to use the instance methods instead.
+- Thread the configured registry through cache helpers so `kernel.invalidate()`
+  and related utilities operate on the instance’s registry rather than
+  `getWPData()`.
 - Record the new event bus in `packages/kernel/CHANGELOG.md` (unreleased).
 
 **Documentation**
