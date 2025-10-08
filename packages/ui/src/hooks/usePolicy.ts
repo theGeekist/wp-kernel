@@ -11,31 +11,21 @@ import type {
 	PolicyHelpers,
 	UsePolicyResult,
 } from '@geekist/wp-kernel/policy';
-
-interface PolicyRuntime {
-	policy?: Partial<PolicyHelpers<Record<string, unknown>>> & {
-		cache?: PolicyHelpers<Record<string, unknown>>['cache'];
-	};
-}
+import { useKernelUI } from '../runtime/context';
+import type { KernelUIRuntime } from '@geekist/wp-kernel/data';
 
 type PolicyLike<K extends Record<string, unknown>> =
 	| PolicyHelpers<K>
 	| (Partial<PolicyHelpers<K>> & { cache?: PolicyHelpers<K>['cache'] });
 
-function getPolicyRuntime(): PolicyRuntime | undefined {
-	return (globalThis as { __WP_KERNEL_ACTION_RUNTIME__?: PolicyRuntime })
-		.__WP_KERNEL_ACTION_RUNTIME__;
-}
-
 function isPromise(value: unknown): value is Promise<unknown> {
 	return typeof value === 'object' && value !== null && 'then' in value;
 }
 
-function resolvePolicy<K extends Record<string, unknown>>():
-	| PolicyLike<K>
-	| undefined {
-	const runtime = getPolicyRuntime();
-	return runtime?.policy as PolicyLike<K> | undefined;
+function resolvePolicy<K extends Record<string, unknown>>(
+	runtime: KernelUIRuntime
+): PolicyLike<K> | undefined {
+	return runtime.policies?.policy as PolicyLike<K> | undefined;
 }
 
 /**
@@ -50,7 +40,8 @@ function resolvePolicy<K extends Record<string, unknown>>():
 export function usePolicy<
 	K extends Record<string, unknown>,
 >(): UsePolicyResult<K> {
-	const policy = resolvePolicy<K>();
+	const runtime = useKernelUI();
+	const policy = resolvePolicy<K>(runtime);
 	const cache = policy?.cache;
 
 	const subscribe = useCallback(

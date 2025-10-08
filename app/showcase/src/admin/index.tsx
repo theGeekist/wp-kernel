@@ -9,6 +9,8 @@
  */
 
 import { createRoot } from '@wordpress/element';
+import { KernelUIProvider } from '@geekist/wp-kernel-ui';
+import type { KernelUIRuntime } from '@geekist/wp-kernel/data';
 import { JobsList } from './pages/JobsList';
 
 /**
@@ -22,8 +24,9 @@ function App(): JSX.Element {
  * Mount the admin application
  *
  * Called by main index.ts when #wpk-admin-root is detected.
+ * @param runtime
  */
-export function mountAdmin() {
+export function mountAdmin(runtime: KernelUIRuntime) {
 	const rootElement = document.getElementById('wpk-admin-root');
 
 	if (!rootElement) {
@@ -35,5 +38,9 @@ export function mountAdmin() {
 
 	// Create React root and render the application
 	const root = createRoot(rootElement);
-	root.render(<App />);
+	root.render(
+		<KernelUIProvider runtime={runtime}>
+			<App />
+		</KernelUIProvider>
+	);
 }

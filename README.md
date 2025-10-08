@@ -59,10 +59,12 @@ pnpm add @geekist/wp-kernel
 
 ```ts
 import { configureKernel } from '@geekist/wp-kernel';
+import { attachUIBindings } from '@geekist/wp-kernel-ui';
 
 const kernel = configureKernel({
 	registry: window.wp.data,
 	namespace: 'my-plugin',
+	ui: { attach: attachUIBindings },
 });
 
 kernel.emit('my-plugin.ready', { timestamp: Date.now() });

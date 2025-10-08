@@ -3,6 +3,7 @@ import type { ReduxMiddleware } from '../actions/types';
 import type { Reporter } from '../reporter';
 import type { CacheKeyPattern, InvalidateOptions } from '../resource/cache';
 import type { KernelEventBus } from '../events/bus';
+import type { PolicyHelpers } from '../policy/types';
 
 export type KernelRegistry = WPDataRegistry & {
 	__experimentalUseMiddleware?: (
@@ -13,7 +14,8 @@ export type KernelRegistry = WPDataRegistry & {
 
 export interface KernelUIConfig {
 	enable?: boolean;
-	options?: Record<string, unknown>;
+	attach?: KernelUIAttach;
+	options?: UIIntegrationOptions;
 }
 
 export interface ConfigureKernelOptions {
@@ -23,6 +25,38 @@ export interface ConfigureKernelOptions {
 	middleware?: ReduxMiddleware[];
 	ui?: KernelUIConfig;
 }
+
+export interface UIIntegrationOptions {
+	suspense?: boolean;
+	notices?: boolean;
+	devtools?: boolean;
+	[key: string]: unknown;
+}
+
+export interface KernelUIPolicyRuntime {
+	policy?: Partial<PolicyHelpers<Record<string, unknown>>> & {
+		cache?: PolicyHelpers<Record<string, unknown>>['cache'];
+	};
+}
+
+export interface KernelUIRuntime {
+	kernel?: KernelInstance;
+	namespace: string;
+	reporter: Reporter;
+	registry?: KernelRegistry;
+	events: KernelEventBus;
+	policies?: KernelUIPolicyRuntime;
+	invalidate?: (
+		patterns: CacheKeyPattern | CacheKeyPattern[],
+		options?: InvalidateOptions
+	) => void;
+	options?: UIIntegrationOptions;
+}
+
+export type KernelUIAttach = (
+	kernel: KernelInstance,
+	options?: UIIntegrationOptions
+) => KernelUIRuntime;
 
 export interface KernelInstance {
 	getNamespace: () => string;
@@ -34,6 +68,12 @@ export interface KernelInstance {
 	emit: (eventName: string, payload: unknown) => void;
 	teardown: () => void;
 	getRegistry: () => KernelRegistry | undefined;
+	hasUIRuntime: () => boolean;
+	getUIRuntime: () => KernelUIRuntime | undefined;
+	attachUIBindings: (
+		attach: KernelUIAttach,
+		options?: UIIntegrationOptions
+	) => KernelUIRuntime;
 	ui: {
 		isEnabled: () => boolean;
 		options?: KernelUIConfig['options'];

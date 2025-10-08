@@ -3,7 +3,7 @@ import { createReporter } from '../../reporter';
 import type { Reporter } from '../../reporter';
 import { invalidate as invalidateCache } from '../../resource/cache';
 import { KernelError } from '../../error/KernelError';
-import type { KernelRegistry } from '../types';
+import type { KernelRegistry, KernelUIRuntime } from '../types';
 import {
 	KernelEventBus,
 	getKernelEventBus,
@@ -179,6 +179,51 @@ describe('configureKernel', () => {
 		const kernel = configureKernel({ namespace: 'acme' });
 
 		expect(kernel.ui.isEnabled()).toBe(false);
+	});
+
+	it('attaches UI runtime when adapter is provided', () => {
+		const runtime: KernelUIRuntime = {
+			namespace: 'acme',
+			reporter: mockReporter,
+			registry: undefined,
+			events: new KernelEventBus(),
+			invalidate: jest.fn(),
+			options: undefined,
+		};
+		const attach = jest.fn(() => runtime);
+
+		const kernel = configureKernel({
+			namespace: 'acme',
+			ui: { attach },
+		});
+
+		expect(attach).toHaveBeenCalledWith(kernel, undefined);
+		expect(kernel.hasUIRuntime()).toBe(true);
+		expect(kernel.getUIRuntime()).toBe(runtime);
+		expect(kernel.ui.isEnabled()).toBe(true);
+	});
+
+	it('allows manual UI runtime attachment', () => {
+		const runtime: KernelUIRuntime = {
+			namespace: 'acme',
+			reporter: mockReporter,
+			registry: undefined,
+			events: new KernelEventBus(),
+			invalidate: jest.fn(),
+			options: undefined,
+		};
+		const attach = jest.fn(() => runtime);
+
+		const kernel = configureKernel({ namespace: 'acme' });
+
+		expect(kernel.hasUIRuntime()).toBe(false);
+
+		const attached = kernel.attachUIBindings(attach);
+
+		expect(attach).toHaveBeenCalledWith(kernel, undefined);
+		expect(attached).toBe(runtime);
+		expect(kernel.getUIRuntime()).toBe(runtime);
+		expect(kernel.ui.isEnabled()).toBe(true);
 	});
 
 	it('exposes the shared event bus on the kernel instance', () => {
