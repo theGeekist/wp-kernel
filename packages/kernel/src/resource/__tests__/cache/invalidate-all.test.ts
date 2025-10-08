@@ -4,13 +4,15 @@
  */
 
 import { invalidateAll } from '../../cache';
+import { KernelEventBus, setKernelEventBus } from '../../../events/bus';
 
 // Use global types for window.wp
 
 describe('invalidateAll', () => {
 	let mockDispatch: jest.Mock;
 	let mockSelect: jest.Mock;
-	let mockDoAction: jest.Mock;
+	let bus: KernelEventBus;
+	let cacheListener: jest.Mock;
 	let originalWp: Window['wp'];
 
 	beforeEach(() => {
@@ -19,7 +21,6 @@ describe('invalidateAll', () => {
 
 		mockDispatch = jest.fn();
 		mockSelect = jest.fn();
-		mockDoAction = jest.fn();
 
 		if (windowWithWp) {
 			windowWithWp.wp = {
@@ -27,11 +28,13 @@ describe('invalidateAll', () => {
 					dispatch: mockDispatch,
 					select: mockSelect,
 				},
-				hooks: {
-					doAction: mockDoAction,
-				},
 			};
 		}
+
+		bus = new KernelEventBus();
+		setKernelEventBus(bus);
+		cacheListener = jest.fn();
+		bus.on('cache:invalidated', cacheListener);
 	});
 
 	afterEach(() => {
@@ -39,6 +42,7 @@ describe('invalidateAll', () => {
 		if (windowWithWp && originalWp) {
 			windowWithWp.wp = originalWp;
 		}
+		setKernelEventBus(new KernelEventBus());
 		jest.clearAllMocks();
 	});
 
@@ -64,7 +68,7 @@ describe('invalidateAll', () => {
 
 		invalidateAll('wpk/thing');
 
-		expect(mockDoAction).toHaveBeenCalledWith('wpk.cache.invalidated', {
+		expect(cacheListener).toHaveBeenCalledWith({
 			keys: ['wpk/thing:*'],
 		});
 	});
@@ -79,7 +83,7 @@ describe('invalidateAll', () => {
 			invalidateAll('wpk/thing');
 		}).not.toThrow();
 
-		expect(mockDoAction).not.toHaveBeenCalled();
+		expect(cacheListener).not.toHaveBeenCalled();
 	});
 
 	it('should handle errors gracefully', () => {

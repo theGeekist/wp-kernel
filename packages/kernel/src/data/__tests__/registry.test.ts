@@ -1,41 +1,32 @@
 import { withKernel } from '../registry';
 import type { KernelRegistry } from '@geekist/wp-kernel/data';
-import { getKernelEventBus, KernelEventBus, setKernelEventBus } from '../../events/bus';
+import {
+	getKernelEventBus,
+	KernelEventBus,
+	setKernelEventBus,
+} from '../../events/bus';
 
 describe('withKernel (data registry integration)', () => {
-        beforeEach(() => {
-                setKernelEventBus(new KernelEventBus());
-                const windowWithWp = window as Window & {
-                        wp?: {
-                                hooks?: {
-                                        addAction?: jest.Mock;
-                                        removeAction?: jest.Mock;
-                                        doAction?: jest.Mock;
-                                };
-                        };
-                };
-                windowWithWp.wp = windowWithWp.wp ?? { hooks: {} };
-                windowWithWp.wp.hooks = windowWithWp.wp.hooks ?? {};
-                windowWithWp.wp.hooks.addAction = windowWithWp.wp.hooks.addAction ??
-                        jest.fn();
-                windowWithWp.wp.hooks.removeAction = windowWithWp.wp.hooks.removeAction ??
-                        jest.fn();
-                windowWithWp.wp.hooks.doAction = windowWithWp.wp.hooks.doAction ?? jest.fn();
-                windowWithWp.wp.hooks.addAction.mockReset();
-                windowWithWp.wp.hooks.removeAction.mockReset();
-                windowWithWp.wp.hooks.doAction.mockReset();
-        });
+	beforeEach(() => {
+		setKernelEventBus(new KernelEventBus());
+		// Reset the global mocks that are already set up by setup-jest.ts
+		if (window.wp?.hooks) {
+			(window.wp.hooks.addAction as jest.Mock).mockReset();
+			(window.wp.hooks.removeAction as jest.Mock).mockReset();
+			(window.wp.hooks.doAction as jest.Mock).mockReset();
+		}
+	});
 
 	it('installs kernel middleware and returns cleanup handler', () => {
-                const detachAction = jest.fn();
-                const detachEvents = jest.fn();
-                const createNotice = jest.fn();
-                const registry = {
-                        __experimentalUseMiddleware: jest
-                                .fn()
-                                .mockReturnValueOnce(detachAction)
-                                .mockReturnValueOnce(detachEvents),
-                        dispatch: jest.fn().mockReturnValue({ createNotice }),
+		const detachAction = jest.fn();
+		const detachEvents = jest.fn();
+		const createNotice = jest.fn();
+		const registry = {
+			__experimentalUseMiddleware: jest
+				.fn()
+				.mockReturnValueOnce(detachAction)
+				.mockReturnValueOnce(detachEvents),
+			dispatch: jest.fn().mockReturnValue({ createNotice }),
 		} as unknown as KernelRegistry & {
 			__experimentalUseMiddleware: jest.Mock;
 		};
@@ -72,56 +63,56 @@ describe('withKernel (data registry integration)', () => {
 		expect(middlewares).toHaveLength(2);
 		expect(middlewares[1]).toBe(customMiddleware);
 
-                const eventsMiddlewareFactory =
-                        registry.__experimentalUseMiddleware.mock.calls[1][0];
-                const [eventsMiddleware] = eventsMiddlewareFactory();
-                const next = jest.fn();
-                eventsMiddleware({ dispatch: jest.fn(), getState: jest.fn() })(next)({
-                        type: 'PING',
-                });
+		const eventsMiddlewareFactory =
+			registry.__experimentalUseMiddleware.mock.calls[1][0];
+		const [eventsMiddleware] = eventsMiddlewareFactory();
+		const next = jest.fn();
+		eventsMiddleware({ dispatch: jest.fn(), getState: jest.fn() })(next)({
+			type: 'PING',
+		});
 
-                const bus = getKernelEventBus();
-                bus.emit('action:error', {
-                        phase: 'error',
-                        actionName: 'Test',
-                        requestId: 'act_123',
-                        namespace: 'acme',
-                        scope: 'crossTab',
-                        bridged: true,
-                        timestamp: Date.now(),
-                        error: new Error('boom'),
-                        durationMs: 10,
-                });
+		const bus = getKernelEventBus();
+		bus.emit('action:error', {
+			phase: 'error',
+			actionName: 'Test',
+			requestId: 'act_123',
+			namespace: 'acme',
+			scope: 'crossTab',
+			bridged: true,
+			timestamp: Date.now(),
+			error: new Error('boom'),
+			durationMs: 10,
+		});
 
-                expect(window.wp?.hooks?.doAction).toHaveBeenCalledWith(
-                        'wpk.action.error',
-                        expect.objectContaining({ actionName: 'Test' })
-                );
-                expect(createNotice).toHaveBeenCalledWith(
-                        'error',
-                        'boom',
-                        expect.objectContaining({ id: 'act_123' })
-                );
+		expect(window.wp?.hooks?.doAction).toHaveBeenCalledWith(
+			'wpk.action.error',
+			expect.objectContaining({ actionName: 'Test' })
+		);
+		expect(createNotice).toHaveBeenCalledWith(
+			'error',
+			'boom',
+			expect.objectContaining({ id: 'act_123' })
+		);
 
-                cleanup();
+		cleanup();
 
-                expect(detachAction).toHaveBeenCalled();
-                expect(detachEvents).toHaveBeenCalled();
-                const doActionCalls = (window.wp?.hooks?.doAction as jest.Mock).mock.calls
-                        .length;
-                bus.emit('action:error', {
-                        phase: 'error',
-                        actionName: 'Test',
-                        requestId: 'act_123',
-                        namespace: 'acme',
-                        scope: 'crossTab',
-                        bridged: true,
-                        timestamp: Date.now(),
-                        error: new Error('boom'),
-                        durationMs: 10,
-                });
-                expect(window.wp?.hooks?.doAction).toHaveBeenCalledTimes(doActionCalls);
-        });
+		expect(detachAction).toHaveBeenCalled();
+		expect(detachEvents).toHaveBeenCalled();
+		const doActionCalls = (window.wp?.hooks?.doAction as jest.Mock).mock
+			.calls.length;
+		bus.emit('action:error', {
+			phase: 'error',
+			actionName: 'Test',
+			requestId: 'act_123',
+			namespace: 'acme',
+			scope: 'crossTab',
+			bridged: true,
+			timestamp: Date.now(),
+			error: new Error('boom'),
+			durationMs: 10,
+		});
+		expect(window.wp?.hooks?.doAction).toHaveBeenCalledTimes(doActionCalls);
+	});
 
 	it('returns noop when registry does not support middleware', () => {
 		const registry = {} as unknown as KernelRegistry;

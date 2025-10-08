@@ -45,11 +45,11 @@ export function withKernel(
 		cleanupTasks.push(detachAction);
 	}
 
-        const eventsMiddleware = kernelEventsPlugin({
-                reporter,
-                registry,
-                events: options.events ?? getKernelEventBus(),
-        });
+	const eventsMiddleware = kernelEventsPlugin({
+		reporter,
+		registry,
+		events: options.events ?? getKernelEventBus(),
+	});
 	const detachEvents = applyMiddleware(() => [eventsMiddleware]);
 	cleanupTasks.push(() => {
 		if (typeof detachEvents === 'function') {

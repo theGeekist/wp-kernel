@@ -28,6 +28,9 @@ This document provides operational guidance for coding agents (Codex, etc.) work
 - Development environments: `wp-env` (Docker + PHP 8.1+) or WordPress Playground (WASM, no Docker).
 - E2E testing is optional; uses Playwright and `@geekist/wp-kernel-e2e-utils`.
 - Commands:
+  **NOTE the correct usage of the `--filter` flag is to always precede it with `pnpm`**
+  `pnpm build|test|lint --filter <workspace>` = WRONG
+  `pnpm --filter <workspace> build|test|lint` = CORRECT
     - Install: `pnpm install`
     - Format/lint: `pnpm lint --fix` and `pnpm format`
     - Typecheck code: `pnpm typecheck`
@@ -36,6 +39,7 @@ This document provides operational guidance for coding agents (Codex, etc.) work
     - Build: `pnpm build` (if needed)
 - We have `types/globals.d.ts`, `tests/test-globals.d.ts`, and stubs in `tests/test-utils/wp.ts` for typing and testing support. Use these and update incrementally as needed.
 - When running agents (Codex, Co-Pilot, etc.) inside private containers or CI, set `CI=1` before running any `git` commands to ensure non-interactive behavior.
+- The pre-commit hook will take some time. PLease allow it to finish!
 
 ## Quality & Coverage
 
@@ -57,6 +61,8 @@ This document provides operational guidance for coding agents (Codex, etc.) work
   `pnpm lint --fix && pnpm typecheck && pnpm typecheck:tests && pnpm test`
 
 ## Commit & PR Guidelines
+
+**IMPORTANT!! NEVER `git commit --no-verify`! JUST BE PATIENT AND WAIT!!**
 
 - Make small, focused commits (one concern per commit).
 - Always use the PR template (`.github/PULL_REQUEST_TEMPLATE.md`).
@@ -81,9 +87,11 @@ This document provides operational guidance for coding agents (Codex, etc.) work
 
 ## What NOT to do
 
+- `pnpm COMMAND --filter`: WRONG, `pnpm --filter ... COMMAND`: CORRECT
 - Call transport from UI components.
 - Create ad-hoc event names.
 - Deep-import across packages (`packages/*/src/**`).
 - Use `any` or throw plain `Error`.
 - Skip cache invalidation after writes.
 - Ignore TypeScript errors or coverage regressions.
+- git commit --no-verify

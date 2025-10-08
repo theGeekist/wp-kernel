@@ -8,9 +8,9 @@
  */
 import { KernelError } from '../error/KernelError';
 import {
-        registerStoreKey,
-        invalidate as globalInvalidate,
-        type CacheKeyPattern,
+	registerStoreKey,
+	invalidate as globalInvalidate,
+	type CacheKeyPattern,
 } from './cache';
 import { createStore } from './store';
 import { validateConfig } from './validation';
@@ -18,12 +18,12 @@ import { createClient } from './client';
 import { createDefaultCacheKeys } from './utils';
 import { getNamespace } from '../namespace';
 import {
-        createSelectGetter,
-        createGetGetter,
-        createMutateGetter,
-        createCacheGetter,
-        createStoreApiGetter,
-        createEventsGetter,
+	createSelectGetter,
+	createGetGetter,
+	createMutateGetter,
+	createCacheGetter,
+	createStoreApiGetter,
+	createEventsGetter,
 } from './grouped-api';
 import type { CacheKeys, ResourceConfig, ResourceObject } from './types';
 import { getKernelEventBus, recordResourceDefined } from '../events/bus';
@@ -351,12 +351,12 @@ export function defineResource<T = unknown, TQuery = unknown>(
 		},
 	};
 
-        const definition = {
-                resource: resource as ResourceObject<unknown, unknown>,
-                namespace,
-        };
-        recordResourceDefined(definition);
-        getKernelEventBus().emit('resource:defined', definition);
+	const definition = {
+		resource: resource as ResourceObject<unknown, unknown>,
+		namespace,
+	};
+	recordResourceDefined(definition);
+	getKernelEventBus().emit('resource:defined', definition);
 
-        return resource;
+	return resource;
 }

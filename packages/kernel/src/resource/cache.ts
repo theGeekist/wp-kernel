@@ -1,6 +1,7 @@
 import { createReporter } from '../reporter';
 import { WPK_EVENTS, WPK_SUBSYSTEM_NAMESPACES } from '../namespace/constants';
 import { getKernelEventBus } from '../events/bus';
+import { getHooks as getActionHooks } from '../actions/context';
 
 /**
  * Internal state shape exposed by the __getInternalState selector.
@@ -620,9 +621,11 @@ export function invalidate(
  * @param keys - The cache keys that were invalidated
  */
 function emitCacheInvalidatedEvent(keys: string[]): void {
-        getKernelEventBus().emit('cache:invalidated', {
-                keys,
-        });
+	getKernelEventBus().emit('cache:invalidated', {
+		keys,
+	});
+	const hooks = getActionHooks();
+	hooks?.doAction(WPK_EVENTS.CACHE_INVALIDATED, { keys });
 }
 
 /**

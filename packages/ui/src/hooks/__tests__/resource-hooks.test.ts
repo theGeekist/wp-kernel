@@ -1,8 +1,8 @@
 import { defineResource } from '@geekist/wp-kernel/resource';
 import {
-        clearRegisteredResources,
-        getKernelEventBus,
-        type ResourceDefinedEvent,
+	clearRegisteredResources,
+	getKernelEventBus,
+	type ResourceDefinedEvent,
 } from '@geekist/wp-kernel';
 import {
 	attachResourceHooks,
@@ -31,11 +31,11 @@ describe('resource hooks (UI integration)', () => {
 	};
 	let originalWp: Window['wp'];
 
-        beforeEach(() => {
-                clearRegisteredResources();
-                const windowWithWp = global.window as Window & { wp?: any };
-                originalWp = windowWithWp?.wp;
-                mockWpData = {
+	beforeEach(() => {
+		clearRegisteredResources();
+		const windowWithWp = global.window as Window & { wp?: any };
+		originalWp = windowWithWp?.wp;
+		mockWpData = {
 			useSelect: jest.fn(),
 			select: jest.fn(),
 			dispatch: jest.fn(),
@@ -479,28 +479,28 @@ describe('resource hooks (UI integration)', () => {
 		});
 	});
 
-        it('attaches hooks when kernel emits resource:defined events', () => {
-                const bus = getKernelEventBus();
+	it('attaches hooks when kernel emits resource:defined events', () => {
+		const bus = getKernelEventBus();
 
-                const resource1 = {
-                        name: 'Resource1',
-                        routes: { get: { path: '/test/1', method: 'GET' } },
-                } as ResourceDefinedEvent['resource'];
-                const resource2 = {
-                        name: 'Resource2',
-                        routes: { list: { path: '/test/2', method: 'GET' } },
-                } as ResourceDefinedEvent['resource'];
+		const resource1 = {
+			name: 'Resource1',
+			routes: { get: { path: '/test/1', method: 'GET' } },
+		} as ResourceDefinedEvent['resource'];
+		const resource2 = {
+			name: 'Resource2',
+			routes: { list: { path: '/test/2', method: 'GET' } },
+		} as ResourceDefinedEvent['resource'];
 
-                bus.emit('resource:defined', {
-                        resource: resource1,
-                        namespace: 'tests',
-                });
-                bus.emit('resource:defined', {
-                        resource: resource2,
-                        namespace: 'tests',
-                });
+		bus.emit('resource:defined', {
+			resource: resource1,
+			namespace: 'tests',
+		});
+		bus.emit('resource:defined', {
+			resource: resource2,
+			namespace: 'tests',
+		});
 
-                expect(typeof (resource1 as any).useGet).toBe('function');
-                expect(typeof (resource2 as any).useList).toBe('function');
-        });
+		expect(typeof (resource1 as any).useGet).toBe('function');
+		expect(typeof (resource2 as any).useList).toBe('function');
+	});
 });

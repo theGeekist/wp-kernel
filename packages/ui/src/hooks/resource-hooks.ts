@@ -11,9 +11,9 @@
  */
 import { KernelError } from '@geekist/wp-kernel/error';
 import {
-        getKernelEventBus,
-        getRegisteredResources,
-        type ResourceDefinedEvent,
+	getKernelEventBus,
+	getRegisteredResources,
+	type ResourceDefinedEvent,
 } from '@geekist/wp-kernel';
 import type { ResourceObject, ListResponse } from '@geekist/wp-kernel/resource';
 
@@ -206,14 +206,14 @@ export function attachResourceHooks<T, TQuery>(
  * by the kernel package.
  */
 if (typeof globalThis !== 'undefined') {
-        const bus = getKernelEventBus();
-        bus.on('resource:defined', (event: ResourceDefinedEvent) => {
-                attachResourceHooks(event.resource as ResourceObject<unknown, unknown>);
-        });
+	const bus = getKernelEventBus();
+	bus.on('resource:defined', (event: ResourceDefinedEvent) => {
+		attachResourceHooks(event.resource as ResourceObject<unknown, unknown>);
+	});
 
-        getRegisteredResources().forEach((event) => {
-                attachResourceHooks(event.resource as ResourceObject<unknown, unknown>);
-        });
+	getRegisteredResources().forEach((event) => {
+		attachResourceHooks(event.resource as ResourceObject<unknown, unknown>);
+	});
 }
 
 function computeItemLoading<T>(

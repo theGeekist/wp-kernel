@@ -289,9 +289,9 @@ function createJobs(actionName: string, runtime?: ActionRuntime) {
  * ```
  */
 const LIFECYCLE_EVENT_MAP: Record<ActionLifecycleEvent['phase'], string> = {
-        start: WPK_EVENTS.ACTION_START,
-        complete: WPK_EVENTS.ACTION_COMPLETE,
-        error: WPK_EVENTS.ACTION_ERROR,
+	start: WPK_EVENTS.ACTION_START,
+	complete: WPK_EVENTS.ACTION_COMPLETE,
+	error: WPK_EVENTS.ACTION_ERROR,
 };
 
 function emitLifecycleThroughBridge(
@@ -317,16 +317,18 @@ function broadcastLifecycle(event: ActionLifecycleEvent): void {
 }
 
 export function emitLifecycleEvent(event: ActionLifecycleEvent): void {
-        const eventName = LIFECYCLE_EVENT_MAP[event.phase];
-        const bus = getKernelEventBus();
-        const busEventMap = {
-                start: 'action:start',
-                complete: 'action:complete',
-                error: 'action:error',
-        } as const;
-        bus.emit(busEventMap[event.phase], event);
-        emitLifecycleThroughBridge(eventName, event);
-        broadcastLifecycle(event);
+	const eventName = LIFECYCLE_EVENT_MAP[event.phase];
+	const bus = getKernelEventBus();
+	const busEventMap = {
+		start: 'action:start',
+		complete: 'action:complete',
+		error: 'action:error',
+	} as const;
+	bus.emit(busEventMap[event.phase], event);
+	const hooks = getHooks();
+	hooks?.doAction(eventName, event);
+	emitLifecycleThroughBridge(eventName, event);
+	broadcastLifecycle(event);
 }
 
 /**
@@ -406,15 +408,17 @@ function emitDomainEvent(
 		timestamp: Date.now(),
 	};
 
-        const bus = getKernelEventBus();
-        bus.emit('action:domain', {
-                eventName,
-                payload,
-                metadata: eventMetadata,
-        });
-        if (eventMetadata.bridged) {
-                const runtime = getRuntime();
-                runtime?.bridge?.emit?.(eventName, payload, eventMetadata);
+	const bus = getKernelEventBus();
+	bus.emit('action:domain', {
+		eventName,
+		payload,
+		metadata: eventMetadata,
+	});
+	const hooks = getHooks();
+	hooks?.doAction(eventName, payload);
+	if (eventMetadata.bridged) {
+		const runtime = getRuntime();
+		runtime?.bridge?.emit?.(eventName, payload, eventMetadata);
 	}
 	if (eventMetadata.scope === 'crossTab') {
 		const channel = getBroadcastChannel();

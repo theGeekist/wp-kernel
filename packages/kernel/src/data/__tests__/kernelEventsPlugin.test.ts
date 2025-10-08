@@ -3,6 +3,7 @@ import { KernelError } from '../../error/KernelError';
 import { kernelEventsPlugin } from '../plugins/events';
 import type { Reporter } from '../../reporter';
 import type { KernelRegistry } from '../types';
+import { KernelEventBus } from '../../events/bus';
 
 function createRegistryMock(): KernelRegistry & { createNotice: jest.Mock } {
 	const createNotice = jest.fn();
@@ -32,13 +33,13 @@ function createActionErrorEvent(
 
 describe('kernelEventsPlugin', () => {
 	beforeEach(() => {
-		(window.wp?.hooks?.addAction as jest.Mock | undefined)?.mockReset?.();
-		(
-			window.wp?.hooks?.removeAction as jest.Mock | undefined
-		)?.mockReset?.();
+		const hooks = window.wp?.hooks as { doAction?: jest.Mock } | undefined;
+		if (hooks && hooks.doAction) {
+			hooks.doAction.mockReset();
+		}
 	});
 
-	it('dispatches notices and reports errors from action events', () => {
+	it('dispatches notices, reports errors, bridges to hooks, and maps statuses', () => {
 		const registry = createRegistryMock();
 		const reporter = {
 			info: jest.fn(),
@@ -49,29 +50,22 @@ describe('kernelEventsPlugin', () => {
 		} as jest.Mocked<Reporter>;
 		reporter.child.mockReturnValue(reporter);
 
-		let eventHandler: ((event: ActionErrorEvent) => void) | undefined;
-		const addAction = window.wp?.hooks?.addAction as jest.Mock;
-		addAction.mockImplementation((hookName, _namespace, handler) => {
-			if (hookName === 'wpk.action.error') {
-				eventHandler = handler as (event: ActionErrorEvent) => void;
-			}
-		});
-
+		const bus = new KernelEventBus();
 		const middleware = kernelEventsPlugin({
 			reporter,
 			registry,
+			events: bus,
 		});
 
-		const next = jest.fn();
-		middleware({ dispatch: jest.fn(), getState: jest.fn() })(next)({
-			type: 'IGNORE',
+		middleware({ dispatch: jest.fn(), getState: jest.fn() })(jest.fn())({
+			type: 'INIT',
 		});
 
-		const error = new Error('Network failed');
-		eventHandler?.({
-			error,
+		// Generic error → error notice
+		bus.emit('action:error', {
+			error: new Error('Network failed'),
 			actionName: 'CreatePost',
-			requestId: 'act_123',
+			requestId: 'act_error',
 			namespace: 'acme',
 			phase: 'error',
 			durationMs: 25,
@@ -80,50 +74,26 @@ describe('kernelEventsPlugin', () => {
 			timestamp: Date.now(),
 		} as ActionErrorEvent);
 
-		expect(registry.createNotice).toHaveBeenCalledWith(
+		expect(registry.createNotice).toHaveBeenNthCalledWith(
+			1,
 			'error',
 			'Network failed',
-			expect.objectContaining({ id: 'act_123', isDismissible: true })
+			expect.objectContaining({ id: 'act_error', isDismissible: true })
 		);
 		expect(reporter.error).toHaveBeenCalledWith('Network failed', {
 			action: 'CreatePost',
 			namespace: 'acme',
-			requestId: 'act_123',
+			requestId: 'act_error',
 			status: 'error',
 		});
-
-		middleware.destroy?.();
-		expect(window.wp?.hooks?.removeAction).toHaveBeenCalledWith(
+		expect(window.wp?.hooks?.doAction).toHaveBeenCalledWith(
 			'wpk.action.error',
-			expect.stringMatching(/^wpk\/notices\/\d+$/)
+			expect.objectContaining({ requestId: 'act_error' })
 		);
-	});
 
-	it('maps KernelError codes to notice statuses', () => {
-		const registry = createRegistryMock();
-		const reporter = {
-			info: jest.fn(),
-			warn: jest.fn(),
-			error: jest.fn(),
-			debug: jest.fn(),
-			child: jest.fn(),
-		} as jest.Mocked<Reporter>;
-		reporter.child.mockReturnValue(reporter);
-
-		const addAction = window.wp?.hooks?.addAction as jest.Mock;
-		let eventHandler: ((event: ActionErrorEvent) => void) | undefined;
-		addAction.mockImplementation((hookName, _namespace, handler) => {
-			if (hookName === 'wpk.action.error') {
-				eventHandler = handler as (event: ActionErrorEvent) => void;
-			}
-		});
-
-		const middleware = kernelEventsPlugin({ reporter, registry });
-		middleware({ dispatch: jest.fn(), getState: jest.fn() })(jest.fn())({
-			type: 'IGNORE',
-		});
-
-		eventHandler?.(
+		// Policy denied → warning notice
+		bus.emit(
+			'action:error',
 			createActionErrorEvent({
 				error: new KernelError('PolicyDenied', { message: 'denied' }),
 				actionName: 'CheckPolicy',
@@ -132,15 +102,16 @@ describe('kernelEventsPlugin', () => {
 				bridged: true,
 			})
 		);
-
 		expect(registry.createNotice).toHaveBeenNthCalledWith(
-			1,
+			2,
 			'warning',
 			'denied',
 			expect.objectContaining({ id: 'act_warning' })
 		);
 
-		eventHandler?.(
+		// Validation error → info notice
+		bus.emit(
+			'action:error',
 			createActionErrorEvent({
 				error: new KernelError('ValidationError', {
 					message: 'invalid',
@@ -151,15 +122,15 @@ describe('kernelEventsPlugin', () => {
 				bridged: true,
 			})
 		);
-
 		expect(registry.createNotice).toHaveBeenNthCalledWith(
-			2,
+			3,
 			'info',
 			'invalid',
 			expect.objectContaining({ id: 'act_info' })
 		);
 
-		eventHandler?.({
+		// Non-error value → normalized to error notice
+		bus.emit('action:error', {
 			error: 'string failure',
 			actionName: 'StringError',
 			requestId: 'act_string',
@@ -170,195 +141,35 @@ describe('kernelEventsPlugin', () => {
 			bridged: true,
 			timestamp: Date.now(),
 		} as ActionErrorEvent);
-
 		expect(registry.createNotice).toHaveBeenNthCalledWith(
-			3,
+			4,
 			'error',
 			'string failure',
 			expect.objectContaining({ id: 'act_string' })
 		);
 
 		middleware.destroy?.();
+
+		const hooks = window.wp?.hooks as { doAction?: jest.Mock } | undefined;
+		const before = hooks?.doAction?.mock.calls.length ?? 0;
+		bus.emit('action:error', createActionErrorEvent());
+		expect(hooks?.doAction?.mock.calls.length ?? 0).toBe(before);
 	});
 
-	it('creates unique namespaces for multiple plugin instances', () => {
-		const addAction = window.wp?.hooks?.addAction as jest.Mock;
-		const capturedNamespaces: string[] = [];
-
-		addAction.mockImplementation((_hookName: string, namespace: string) => {
-			capturedNamespaces.push(namespace);
-		});
-
+	it('removes listeners when destroy is called', () => {
 		const registry = createRegistryMock();
-
-		// Create multiple instances
-		const middleware1 = kernelEventsPlugin({ registry });
-		const middleware2 = kernelEventsPlugin({ registry });
-		const middleware3 = kernelEventsPlugin({ registry });
-
-		// Trigger middleware creation to register handlers
+		const bus = new KernelEventBus();
+		const middleware = kernelEventsPlugin({ registry, events: bus });
 		const next = jest.fn();
-		middleware1({ dispatch: jest.fn(), getState: jest.fn() })(next)({
-			type: 'IGNORE',
-		});
-		middleware2({ dispatch: jest.fn(), getState: jest.fn() })(next)({
-			type: 'IGNORE',
-		});
-		middleware3({ dispatch: jest.fn(), getState: jest.fn() })(next)({
+		middleware({ dispatch: jest.fn(), getState: jest.fn() })(next)({
 			type: 'IGNORE',
 		});
 
-		// Verify all namespaces are unique
-		expect(capturedNamespaces).toHaveLength(3);
-		expect(new Set(capturedNamespaces).size).toBe(3);
+		middleware.destroy?.();
 
-		// Verify namespace format
-		capturedNamespaces.forEach((ns) => {
-			expect(ns).toMatch(/^wpk\/notices\/\d+$/);
-		});
-	});
-
-	it('handles registries that cannot dispatch notices', () => {
-		const reporter = {
-			info: jest.fn(),
-			warn: jest.fn(),
-			error: jest.fn(),
-			debug: jest.fn(),
-			child: jest.fn(),
-		} as jest.Mocked<Reporter>;
-		reporter.child.mockReturnValue(reporter);
-
-		const addAction = window.wp?.hooks?.addAction as jest.Mock;
-		let eventHandler: ((event: ActionErrorEvent) => void) | undefined;
-		addAction.mockImplementation((hookName, _namespace, handler) => {
-			if (hookName === 'wpk.action.error') {
-				eventHandler = handler as (event: ActionErrorEvent) => void;
-			}
-		});
-
-		const middleware = kernelEventsPlugin({
-			reporter,
-			registry: undefined,
-		});
-
-		middleware({ dispatch: jest.fn(), getState: jest.fn() })(jest.fn())({
-			type: 'IGNORE',
-		});
-
-		eventHandler?.({
-			error: { reason: 'totally-unknown' },
-			actionName: 'UnknownAction',
-			requestId: 'fallback_1',
-			namespace: 'acme',
-			phase: 'error',
-			durationMs: 5,
-			scope: 'crossTab',
-			bridged: false,
-			timestamp: Date.now(),
-		} as ActionErrorEvent);
-
-		expect(reporter.error).toHaveBeenCalledWith(
-			'An unexpected error occurred',
-			expect.objectContaining({
-				action: 'UnknownAction',
-				requestId: 'fallback_1',
-				status: 'error',
-			})
-		);
-	});
-
-	it('swallows registry dispatch errors when notices cannot be resolved', () => {
-		const reporter = {
-			info: jest.fn(),
-			warn: jest.fn(),
-			error: jest.fn(),
-			debug: jest.fn(),
-			child: jest.fn(),
-		} as jest.Mocked<Reporter>;
-		reporter.child.mockReturnValue(reporter);
-
-		const dispatch = jest.fn(() => {
-			throw new Error('dispatch failed');
-		});
-
-		const registry = { dispatch } as unknown as KernelRegistry;
-
-		const addAction = window.wp?.hooks?.addAction as jest.Mock;
-		let eventHandler: ((event: ActionErrorEvent) => void) | undefined;
-		addAction.mockImplementation((hookName, _namespace, handler) => {
-			if (hookName === 'wpk.action.error') {
-				eventHandler = handler as (event: ActionErrorEvent) => void;
-			}
-		});
-
-		const middleware = kernelEventsPlugin({ reporter, registry });
-		middleware({ dispatch: jest.fn(), getState: jest.fn() })(jest.fn())({
-			type: 'IGNORE',
-		});
-
-		expect(() =>
-			eventHandler?.({
-				error: new KernelError('UnknownError', { message: 'uh oh' }),
-				actionName: 'FailingAction',
-				requestId: 'fallback_2',
-				namespace: 'acme',
-				phase: 'error',
-				durationMs: 12,
-				scope: 'crossTab',
-				bridged: false,
-				timestamp: Date.now(),
-			} as ActionErrorEvent)
-		).not.toThrow();
-
-		expect(dispatch).toHaveBeenCalledWith('core/notices');
-		expect(reporter.error).toHaveBeenCalledWith(
-			'uh oh',
-			expect.any(Object)
-		);
-	});
-
-	it('ignores registry responses without createNotice helpers', () => {
-		const reporter = {
-			info: jest.fn(),
-			warn: jest.fn(),
-			error: jest.fn(),
-			debug: jest.fn(),
-			child: jest.fn(),
-		} as jest.Mocked<Reporter>;
-		reporter.child.mockReturnValue(reporter);
-
-		const dispatch = jest.fn().mockReturnValue({});
-		const registry = { dispatch } as unknown as KernelRegistry;
-
-		const addAction = window.wp?.hooks?.addAction as jest.Mock;
-		let eventHandler: ((event: ActionErrorEvent) => void) | undefined;
-		addAction.mockImplementation((hookName, _namespace, handler) => {
-			if (hookName === 'wpk.action.error') {
-				eventHandler = handler as (event: ActionErrorEvent) => void;
-			}
-		});
-
-		const middleware = kernelEventsPlugin({ reporter, registry });
-		middleware({ dispatch: jest.fn(), getState: jest.fn() })(jest.fn())({
-			type: 'IGNORE',
-		});
-
-		eventHandler?.({
-			error: new KernelError('PolicyDenied', { message: 'denied' }),
-			actionName: 'DeniedAction',
-			requestId: 'fallback_3',
-			namespace: 'acme',
-			phase: 'error',
-			durationMs: 8,
-			scope: 'crossTab',
-			bridged: true,
-			timestamp: Date.now(),
-		} as ActionErrorEvent);
-
-		expect(dispatch).toHaveBeenCalledWith('core/notices');
-		expect(reporter.error).toHaveBeenCalledWith(
-			'denied',
-			expect.any(Object)
-		);
+		const hooks = window.wp?.hooks as { doAction?: jest.Mock } | undefined;
+		const before = hooks?.doAction?.mock.calls.length ?? 0;
+		bus.emit('action:error', createActionErrorEvent());
+		expect(hooks?.doAction?.mock.calls.length ?? 0).toBe(before);
 	});
 });

@@ -5,13 +5,15 @@
 
 import { invalidate, registerStoreKey } from '../../cache';
 import { WPK_SUBSYSTEM_NAMESPACES } from '../../../namespace/constants';
+import { setKernelEventBus, KernelEventBus } from '../../../events/bus';
 
 // Use global types for window.wp
 
 describe('invalidate', () => {
 	let mockDispatch: jest.Mock;
 	let mockSelect: jest.Mock;
-	let mockDoAction: jest.Mock;
+	let bus: KernelEventBus;
+	let cacheListener: jest.Mock;
 	let originalWp: Window['wp'];
 
 	beforeEach(() => {
@@ -22,7 +24,6 @@ describe('invalidate', () => {
 		// Create mocks
 		mockDispatch = jest.fn();
 		mockSelect = jest.fn();
-		mockDoAction = jest.fn();
 
 		// Setup window.wp mock
 		if (windowWithWp) {
@@ -31,11 +32,13 @@ describe('invalidate', () => {
 					dispatch: mockDispatch,
 					select: mockSelect,
 				},
-				hooks: {
-					doAction: mockDoAction,
-				},
 			};
 		}
+
+		bus = new KernelEventBus();
+		setKernelEventBus(bus);
+		cacheListener = jest.fn();
+		bus.on('cache:invalidated', cacheListener);
 
 		// Register test store keys
 		registerStoreKey('wpk/thing');
@@ -48,6 +51,7 @@ describe('invalidate', () => {
 		if (windowWithWp && originalWp) {
 			windowWithWp.wp = originalWp;
 		}
+		setKernelEventBus(new KernelEventBus());
 		jest.clearAllMocks();
 	});
 
@@ -87,8 +91,8 @@ describe('invalidate', () => {
 				'inactive',
 			]);
 
-			// Should emit event with NORMALIZED keys
-			expect(mockDoAction).toHaveBeenCalledWith('wpk.cache.invalidated', {
+			// Should emit event with NORMALIZED keys via event bus
+			expect(cacheListener).toHaveBeenCalledWith({
 				keys: expect.arrayContaining([
 					'thing:list:active',
 					'thing:list:inactive',
@@ -237,9 +241,7 @@ describe('invalidate', () => {
 
 			invalidate(['thing', 'list']);
 
-			// Event is emitted with NORMALIZED keys
-			expect(mockDoAction).toHaveBeenCalledWith(
-				'wpk.cache.invalidated',
+			expect(cacheListener).toHaveBeenCalledWith(
 				expect.objectContaining({
 					keys: expect.arrayContaining(['thing:list:active']),
 				})
@@ -266,7 +268,7 @@ describe('invalidate', () => {
 
 			invalidate(['thing', 'list'], { emitEvent: false });
 
-			expect(mockDoAction).not.toHaveBeenCalled();
+			expect(cacheListener).not.toHaveBeenCalled();
 		});
 
 		it('should not emit event when no keys matched', () => {
@@ -289,7 +291,7 @@ describe('invalidate', () => {
 
 			invalidate(['thing', 'list']);
 
-			expect(mockDoAction).not.toHaveBeenCalled();
+			expect(cacheListener).not.toHaveBeenCalled();
 		});
 	});
 
@@ -705,7 +707,7 @@ describe('invalidate', () => {
 			expect(mockStoreDispatch.invalidate).toHaveBeenCalled();
 
 			// Should NOT emit event
-			expect(mockDoAction).not.toHaveBeenCalled();
+			expect(cacheListener).not.toHaveBeenCalled();
 		});
 
 		it('should skip emitting event when no keys were invalidated', () => {
@@ -729,7 +731,7 @@ describe('invalidate', () => {
 			invalidate(['thing', 'list']);
 
 			// Should NOT emit event (no keys matched)
-			expect(mockDoAction).not.toHaveBeenCalled();
+			expect(cacheListener).not.toHaveBeenCalled();
 		});
 
 		it('should handle getMatchingStoreKeys with empty prefix', () => {

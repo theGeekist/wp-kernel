@@ -5,6 +5,7 @@
 
 import { invalidate, invalidateAll, normalizeCacheKey } from '../../cache';
 import { WPK_SUBSYSTEM_NAMESPACES } from '../../../namespace/constants';
+import { KernelEventBus, setKernelEventBus } from '../../../events/bus';
 
 // Use global types for window.wp
 
@@ -25,7 +26,8 @@ describe('cache helper functions', () => {
 describe('invalidate edge cases', () => {
 	let mockDispatch: jest.Mock;
 	let mockSelect: jest.Mock;
-	let mockDoAction: jest.Mock;
+	let bus: KernelEventBus;
+	let cacheListener: jest.Mock;
 	let originalWp: Window['wp'];
 	let originalNodeEnv: string | undefined;
 	let consoleWarnSpy: jest.SpyInstance;
@@ -42,7 +44,10 @@ describe('invalidate edge cases', () => {
 		// Create mocks
 		mockDispatch = jest.fn();
 		mockSelect = jest.fn();
-		mockDoAction = jest.fn();
+		bus = new KernelEventBus();
+		setKernelEventBus(bus);
+		cacheListener = jest.fn();
+		bus.on('cache:invalidated', cacheListener);
 
 		// Setup window.wp mock
 		if (windowWithWp) {
@@ -50,9 +55,6 @@ describe('invalidate edge cases', () => {
 				data: {
 					dispatch: mockDispatch,
 					select: mockSelect,
-				},
-				hooks: {
-					doAction: mockDoAction,
 				},
 			};
 		}
@@ -71,6 +73,7 @@ describe('invalidate edge cases', () => {
 		}
 
 		consoleWarnSpy.mockRestore();
+		setKernelEventBus(new KernelEventBus());
 		jest.clearAllMocks();
 	});
 
@@ -195,7 +198,7 @@ describe('invalidate edge cases', () => {
 				emitEvent: false,
 			});
 
-			expect(mockDoAction).not.toHaveBeenCalled();
+			expect(cacheListener).not.toHaveBeenCalled();
 		});
 
 		it('should not emit event when no keys were invalidated', () => {
@@ -219,7 +222,7 @@ describe('invalidate edge cases', () => {
 				emitEvent: true,
 			});
 
-			expect(mockDoAction).not.toHaveBeenCalled();
+			expect(cacheListener).not.toHaveBeenCalled();
 		});
 
 		it('should handle missing window.wp.hooks gracefully', () => {
@@ -264,7 +267,7 @@ describe('invalidate edge cases', () => {
 			}).not.toThrow();
 
 			// Should not emit event
-			expect(mockDoAction).not.toHaveBeenCalled();
+			expect(cacheListener).not.toHaveBeenCalled();
 		});
 
 		it('should emit event with wildcard when invalidateAll succeeds', () => {
@@ -277,7 +280,7 @@ describe('invalidate edge cases', () => {
 			invalidateAll('wpk/thing');
 
 			expect(mockStoreDispatch.invalidateAll).toHaveBeenCalled();
-			expect(mockDoAction).toHaveBeenCalledWith('wpk.cache.invalidated', {
+			expect(cacheListener).toHaveBeenCalledWith({
 				keys: ['wpk/thing:*'],
 			});
 		});
