@@ -91,11 +91,15 @@ Action’s implementation you can synchronously or asynchronously gate behaviour
 import { defineAction } from '@geekist/wp-kernel/actions';
 import { policy } from '@/policy';
 
-export const DeleteJob = defineAction('Job.Delete', async (ctx, { id }) => {
-	await ctx.policy.assert('jobs.delete', { id });
+export const DeleteJob = defineAction({
+	name: 'Job.Delete',
+	handler: async (ctx, { id }) => {
+		await ctx.policy.assert('jobs.delete', { id });
 
-	await jobsResource.delete({ id });
-	ctx.emit('wpk.jobs.deleted', { id });
+		await jobsResource.delete({ id });
+		ctx.emit('wpk.jobs.deleted', { id });
+		ctx.invalidate([['job', 'list']]);
+	},
 });
 ```
 

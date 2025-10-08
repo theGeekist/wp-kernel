@@ -28,6 +28,13 @@
 - `resource/define.ts` calls `trackUIResource()` so hooks attach immediately once
   a runtime is available.
 
+### Documentation
+
+- Finalized Phase 7 by aligning the root specifications, README, roadmap, and
+  `/docs` guides with the adapter-driven runtime, typed event bus, and
+  configuration-object APIs. Examples now showcase `configureKernel()`,
+  `KernelUIProvider`, and cache/event orchestration through action context.
+
 ## 0.2.0
 
 ### Patch Changes

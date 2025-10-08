@@ -81,7 +81,7 @@ Globals and runtime wiring:
 Developer expectations:
 
 - Call `defineResource()` to declare resource - stores auto-register with `wp.data`, no middleware needed.
-- Call `defineAction()` to create actions - work as direct function calls (`await CreatePost(args)`).
+- Call `defineAction({ name, handler })` to create actions - work as direct function calls (`await CreatePost(args)`).
 - **Recommended**: Call `configureKernel({ registry, ...options })` at bootstrap for registry integration (error → notices bridge, `wp.hooks` extensibility, reporter integration).
 - **Required only for `useAction()` hook**: The Redux middleware layer enabled by `configureKernel()` allows action dispatch through stores via `invokeAction()` envelopes.
 - Actions can be called directly (`await CreatePost(args)`) or dispatched through stores when using `useAction()` hook.
@@ -190,10 +190,13 @@ What authors/testers use:
 const Posts = defineResource({ name: 'posts', routes: { get: '/wp/v2/posts/:id' } });
 
 // Actions work as direct function calls
-const CreatePost = defineAction('CreatePost', async (args, ctx) => {
-  const result = await Posts.create(args);
-  ctx.invalidate(['posts:list']);
-  return result;
+const CreatePost = defineAction({
+  name: 'Post.Create',
+  handler: async (ctx, args) => {
+    const result = await Posts.create(args);
+    ctx.invalidate([Posts.key('list')]);
+    return result;
+  },
 });
 
 // In React components
@@ -255,11 +258,14 @@ function PostList() {
     });
 
     // Define actions - work as direct calls OR Redux dispatch
-    const CreatePost = defineAction('CreatePost', async (args, ctx) => {
-    	const result = await Posts.create(args);
-    	ctx.invalidate(['posts:list']);
-    	ctx.emit('post.created', { id: result.id });
-    	return result;
+    const CreatePost = defineAction({
+    	name: 'Post.Create',
+    	handler: async (ctx, args) => {
+    		const result = await Posts.create(args);
+    		ctx.invalidate([Posts.key('list')]);
+    		ctx.emit('post.created', { id: result.id });
+    		return result;
+    	},
     });
     ```
 

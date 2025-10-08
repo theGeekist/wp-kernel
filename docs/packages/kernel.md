@@ -63,11 +63,14 @@ Orchestrate write operations with automatic event emission:
 ```typescript
 import { defineAction } from '@geekist/wp-kernel/actions';
 
-export const CreatePost = defineAction('CreatePost', async ({ data }) => {
-	const result = await post.create(data);
-	// Events automatically emitted
-	// Cache automatically invalidated
-	return result;
+export const CreatePost = defineAction({
+	name: 'Post.Create',
+	handler: async (ctx, { data }) => {
+		const result = await post.create(data);
+		ctx.emit(post.events.created, { id: result.id });
+		ctx.invalidate([post.key('list')]);
+		return result;
+	},
 });
 ```
 
@@ -130,7 +133,14 @@ import { KernelError } from '@geekist/wp-kernel/error';
 import { resource, actions, error } from '@geekist/wp-kernel';
 
 const post = resource.defineResource({...});
-const CreatePost = actions.defineAction('CreatePost', async ({...}) => {...});
+const CreatePost = actions.defineAction({
+        name: 'Post.Create',
+        handler: async (ctx, input) => {
+                const created = await post.create(input);
+                ctx.emit(post.events.created, { id: created.id });
+                return created;
+        },
+});
 throw new error.KernelError('ValidationError', {...});
 ```
 

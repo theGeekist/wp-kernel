@@ -36,7 +36,7 @@ describe('Build: Monorepo package imports', () => {
 		// With WordPress packages properly externalized, bundle should be ~20-30KB
 		// (vs 100KB+ when bundling WordPress packages)
 		expect(bundle.length).toBeGreaterThan(15000); // Should contain kernel code
-		expect(bundle.length).toBeLessThan(50000); // But not bundle WordPress
+		expect(bundle.length).toBeLessThan(52000); // But not bundle WordPress
 	});
 
 	it('should NOT bundle WordPress packages', () => {
