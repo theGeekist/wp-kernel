@@ -47,6 +47,11 @@ export default {
 		'.spec.ts$', // Exclude Playwright spec files
 	],
 
+	// Disable watchman - use node's fs.watch instead
+	// Watchman can cause issues in monorepos and isn't needed for one-off test runs
+	// Watch mode will still work fine with Node's built-in file watcher
+	watchman: false,
+
 	// Performance
 	maxWorkers: '50%',
 };
