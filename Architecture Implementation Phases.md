@@ -50,17 +50,18 @@ Implemented `configureKernel()` on top of the existing registry wiring, exposed 
 ## Phase 2 – KernelUIRuntime Integration (Paired Mode)
 
 **Objective**  
-Replace UI side-effect imports with the explicit runtime contract while keeping
-legacy entry points functional via internal shims.
+Replace UI side-effect imports with the explicit runtime contract.
+Legacy globals and side-effect modules are removed outright.
 
 **Scope**
 
 - Implement `KernelUIRuntime`, `kernel.hasUIRuntime()`,
   `kernel.getUIRuntime()`, and `kernel.attachUIBindings()`.
-- Update `@geekist/wp-kernel-ui` hooks to consume the runtime instead of globals.
-- Add a legacy shim in the UI package that calls `attachUIBindings()` when
-  the UI bundle is imported, logging a one-time migration warning.
+- Update `@geekist/wp-kernel-ui` hooks to consume the runtime instead of globals;
+  delete the global queue/attachment code and the side-effect entry point.
 - Ensure the kernel defers runtime creation when `ui.enable` is `false`.
+- Document the breaking change in the unreleased sections of
+  `packages/kernel/CHANGELOG.md` and `packages/ui/CHANGELOG.md`.
 
 **Documentation**
 
@@ -74,15 +75,14 @@ legacy entry points functional via internal shims.
 **Testing**
 
 - Unit: refactor `packages/ui/src/hooks/__tests__` to construct a runtime before
-  asserting hook behavior; ensure regression coverage for the legacy shim.
+  asserting hook behavior; remove assertions for the global shim.
 - Showcase: update React entry point to wrap the app with `KernelUIProvider`.
 - Playwright: rerun to ensure UI flows pass with runtime-based hooks.
 
 **Acceptance Criteria**
 
 - Importing UI hooks without enabling `ui` emits a typed `KernelError`.
-- Runtime-backed hooks pass the existing test suite.
-- Legacy side-effect import path warns but continues to work for external consumers.
+- Runtime-backed hooks pass the existing test suite; legacy globals are gone.
 
 **Summary of work done**
 `<placeholder to be replaced when complete>`
@@ -101,8 +101,11 @@ integration, while maintaining the `wp.hooks` bridge.
   `action:defined`, `action:completed`, etc.).
 - Update resource/action creation to emit through the event bus.
 - Update `kernelEventsPlugin` to subscribe to the bus instead of intercepting
-  internal helpers, keeping `wp.hooks` parity intact.
+  internal helpers while still bridging into `wp.hooks`.
 - Modify UI runtime to depend on event subscriptions rather than queued globals.
+- Inline registry bootstrap logic into `configureKernel()` and remove the `withKernel`
+  export; update all call sites to use the instance methods instead.
+- Record the new event bus in `packages/kernel/CHANGELOG.md` (unreleased).
 
 **Documentation**
 
@@ -121,6 +124,7 @@ integration, while maintaining the `wp.hooks` bridge.
 - UI runtime operates solely via event subscriptions.
 - `kernelEventsPlugin` continues to emit to `wp.hooks`.
 - Event bus tests cover at least the defined canonical events.
+- `withKernel` export and internal usage removed; `configureKernel()` owns registry setup.
 
 **Summary of work done**
 `<placeholder to be replaced when complete>`
@@ -131,16 +135,18 @@ integration, while maintaining the `wp.hooks` bridge.
 
 **Objective**  
 Align action, policy, and job definition signatures with shared config objects,
-removing positional overloads.
+removing positional overloads entirely.
 
 **Scope**
 
 - Update core exports (`defineAction`, `definePolicy`, `defineJob`) to accept
-  `{ name, handler, options }` config objects exclusively. Implement compatibility
-  wrappers that log migrations where necessary.
+  `{ name, handler, options }` config objects exclusively. Delete positional
+  overloads and helper wrappers.
 - Adjust TypeScript types, error messages, and runtime validations accordingly.
 - Refactor dependent code in `packages/kernel`, `packages/ui`, and showcase app
   to use the new signatures.
+- Document the breaking API change in `packages/kernel/CHANGELOG.md`
+  (unreleased).
 
 **Documentation**
 
@@ -156,7 +162,7 @@ removing positional overloads.
 
 **Acceptance Criteria**
 
-- No positional-call usage remains in the repo (except narrow shims if external consumers rely on them).
+- Positional-call usage is removed; only config-object signatures remain.
 - All tests and type checks continue to pass with the config-object pattern.
 
 **Summary of work done**
@@ -172,12 +178,12 @@ remaining compatibility layers.
 
 **Scope**
 
-- Remove the UI legacy shim and any migration warnings once adoption is confirmed.
 - Rewrite high-level guides (`docs/index.md`, `docs/guide/philosophy.md`,
   `docs/guide/showcase.md`) to reflect the final architecture.
 - Audit README snippets, ensuring all examples align with `configureKernel()`,
   `KernelUIProvider`, and event bus usage.
 - Update `CURRENT_STATE.md` to match the new architecture baseline.
+- Add final release notes to relevant CHANGELOG files summarising the overhaul.
 
 **Documentation**
 
