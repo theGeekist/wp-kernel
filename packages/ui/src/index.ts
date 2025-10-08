@@ -11,6 +11,9 @@
  */
 export const VERSION = '0.3.0';
 
+export { attachUIBindings, KernelUIProvider, useKernelUI } from './runtime';
+export type { KernelUIProviderProps } from './runtime';
+
 // Hooks migrated from kernel
 export { usePolicy } from './hooks/usePolicy';
 export {

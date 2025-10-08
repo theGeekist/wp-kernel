@@ -97,11 +97,10 @@ Legacy globals and side-effect modules are removed outright.
 - Complete the "Summary of work done below"
 
 **Summary of work done**
-Introduced the adapter-driven integration (`attachUIBindings`, `KernelUIProvider`),
-updated UI tests and documentation, and recorded the breaking-change guidance in
-the package changelog. Legacy globals (`__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__`
-and the cached dispatch bridge) remain in place pending the deeper rewire slated
-for Phase 3, so they are intentionally documented as follow-up work.
+Implemented the adapter-driven integration (`attachUIBindings`, `KernelUIProvider`,
+`useKernelUI`), removed the legacy globals and side-effect module, refactored UI
+hooks/tests to require the runtime, updated showcase bootstrap to pass the
+adapter, and refreshed documentation/changelogs to describe the breaking change.
 
 ---
 

@@ -164,6 +164,10 @@ export type {
 	ConfigureKernelOptions,
 	KernelInstance,
 	KernelUIConfig,
+	KernelUIRuntime,
+	KernelUIAttach,
+	UIIntegrationOptions,
+	KernelUIPolicyRuntime,
 	NoticeStatus,
 } from './data/index.js';
 
