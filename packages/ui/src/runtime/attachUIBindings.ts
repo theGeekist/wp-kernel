@@ -49,7 +49,11 @@ export const attachUIBindings: KernelUIAttach = (
 		reporter: kernel.getReporter(),
 		registry: kernel.getRegistry(),
 		events: kernel.events,
-		policies: resolvePolicyRuntime(),
+		// Use a getter to resolve policy runtime dynamically, allowing late registrations
+		// via definePolicy() after attachUIBindings() has been called (e.g., lazy-loaded plugins)
+		get policies() {
+			return resolvePolicyRuntime();
+		},
 		invalidate: (patterns, invalidateOptions) =>
 			kernel.invalidate(patterns, invalidateOptions),
 		options,
