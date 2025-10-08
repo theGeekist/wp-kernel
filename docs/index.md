@@ -66,14 +66,17 @@ export const thing = defineResource<Thing>({
 });
 ```
 
-That declaration generates a typed client and store selectors. An Action then centralises the write path:
+That declaration generates a typed client, cache helpers, and store selectors. An Action then centralises the write path and emits canonical events:
 
 ```typescript
-export const CreateThing = defineAction('Thing.Create', async ({ data }) => {
-	const created = await thing.create(data);
-	CreateThing.emit(events.thing.created, { id: created.id, data });
-	invalidate(['thing', 'list']);
-	return created;
+export const CreateThing = defineAction({
+	name: 'Thing.Create',
+	handler: async (ctx, { data }) => {
+		const created = await thing.create(data);
+		ctx.emit(thing.events.created, { id: created.id });
+		ctx.invalidate([thing.key('list')]);
+		return created;
+	},
 });
 ```
 
@@ -85,6 +88,18 @@ import { CreateThing } from '@/app/actions/Thing/Create';
 const handleSubmit = async () => {
 	await CreateThing({ data: formData });
 };
+```
+
+When React enters the picture, mount the runtime with `KernelUIProvider` so hooks can subscribe to the kernel event bus without legacy globals.
+
+```tsx
+import { KernelUIProvider } from '@geekist/wp-kernel-ui';
+
+createRoot(node).render(
+	<KernelUIProvider runtime={kernel.getUIRuntime()}>
+		<App />
+	</KernelUIProvider>
+);
 ```
 
 ## What ships in the repository

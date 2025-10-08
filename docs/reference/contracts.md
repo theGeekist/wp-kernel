@@ -79,21 +79,21 @@ job.events.removed; // → 'acme-jobs.job.removed'
 **Configure per action:**
 
 ```typescript
-defineAction(
-	'Job.Create',
-	async (ctx, { data }) => {
+defineAction({
+	name: 'Job.Create',
+	handler: async (ctx, { data }) => {
 		// ... implementation
 	},
-	{ scope: 'crossTab' }
-); // explicit (default)
+	options: { scope: 'crossTab' },
+}); // explicit (default)
 
-defineAction(
-	'UI.UpdateSidebar',
-	async (ctx, { data }) => {
+defineAction({
+	name: 'UI.UpdateSidebar',
+	handler: async (ctx, { data }) => {
 		// ... implementation
 	},
-	{ scope: 'tabLocal' }
-); // tab-local only
+	options: { scope: 'tabLocal' },
+}); // tab-local only
 ```
 
 ---
@@ -236,16 +236,19 @@ thing.cache.delete(['thing', 'item', 123]);
 import { defineAction } from '@geekist/wp-kernel/actions';
 import { job } from '@/app/resources/job';
 
-export const CreateJob = defineAction('Job.Create', async (ctx, { data }) => {
-	const created = await job.create(data);
+export const CreateJob = defineAction({
+	name: 'Job.Create',
+	handler: async (ctx, { data }) => {
+		const created = await job.create(data);
 
-	// Invalidate list cache so new item appears
-	ctx.invalidate(['job', 'list']);
+		// Invalidate list cache so new item appears
+		ctx.invalidate([job.key('list')]);
 
-	// Optionally invalidate filtered variants
-	ctx.invalidate(['job', 'list', { status: 'open' }]);
+		// Optionally invalidate filtered variants
+		ctx.invalidate([job.key('list', { status: 'open' })]);
 
-	return created;
+		return created;
+	},
 });
 ```
 

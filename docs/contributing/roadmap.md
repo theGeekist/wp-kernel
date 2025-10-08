@@ -43,12 +43,16 @@ Write-path orchestration with `defineAction()`, middleware layer, lifecycle even
 - ✓ Prefetching hooks: `usePrefetcher()`, `useVisiblePrefetch()`, `useHoverPrefetch()`, `useNextPagePrefetch()`
 - ✓ Lazy attachment mechanism for resources defined before UI loads
 
+### Architecture Implementation (Phases 1-7)
+
+Completed the bootstrap transition to `configureKernel()`, replaced global UI shims with the adapter-driven runtime, introduced the typed event bus, unified action/policy/job signatures around configuration objects, and refreshed the documentation stack so every guide, reference, and showcase page matches the final architecture.
+
 ---
 
 ## 🚧 In Progress
 
-**Sprint 5 - Bindings & Interactivity** (Continuing - Deferred to post-MVP)  
-Block bindings for resource data, Interactivity API integration (`data-wp-*` directives), base interactivity components, editor plugin wrappers.
+**Guided Examples & Bindings** (post-architecture polish)
+Deepen the learning surface with refreshed block binding walkthroughs, Interactivity API blueprints, and expanded showcase coverage that demonstrates the completed kernel architecture in practice.
 
 ---
 
