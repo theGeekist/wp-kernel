@@ -41,8 +41,8 @@ createRoot(node).render(
 
 ### Technical Details
 
-- `useAction` now resolves its dispatcher from the runtime using a cached
-  factory (no more globals on `window`).
+- `useAction` now resolves its dispatcher directly from the WordPress data
+  registry on demand-no global caching on `window`.
 - Resource hooks attach via the runtime’s `attachResourceHooks()` callback when
   the adapter is provided.
 - TypeScript strict mode with full type safety
