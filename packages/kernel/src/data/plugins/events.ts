@@ -111,89 +111,79 @@ export function kernelEventsPlugin({
 	const detachListeners: Array<() => void> = [];
 
 	const middleware: KernelReduxMiddleware = () => {
+		const hookMap: Partial<Record<keyof KernelEventMap, string>> = {
+			'action:start': WPK_EVENTS.ACTION_START,
+			'action:complete': WPK_EVENTS.ACTION_COMPLETE,
+			'action:error': WPK_EVENTS.ACTION_ERROR,
+			'cache:invalidated': WPK_EVENTS.CACHE_INVALIDATED,
+		};
+
 		const emitToHooks = <K extends keyof KernelEventMap>(
 			event: K,
 			payload: KernelEventMap[K]
 		) => {
-			switch (event) {
-				case 'action:start':
-					hooks?.doAction?.(WPK_EVENTS.ACTION_START, payload);
-					break;
-				case 'action:complete':
-					hooks?.doAction?.(WPK_EVENTS.ACTION_COMPLETE, payload);
-					break;
-				case 'action:error':
-					hooks?.doAction?.(WPK_EVENTS.ACTION_ERROR, payload);
-					break;
-				case 'cache:invalidated':
-					hooks?.doAction?.(WPK_EVENTS.CACHE_INVALIDATED, payload);
-					break;
-				case 'action:domain':
-				case 'custom:event': {
-					// Type assertion safe here: both ActionDomainEvent and CustomKernelEvent have these properties
-					const domainPayload = payload as {
-						eventName: string;
-						payload: unknown;
-					};
-					hooks?.doAction?.(
-						domainPayload.eventName,
-						domainPayload.payload
-					);
-					break;
-				}
-				default:
-					break;
+			if (event === 'action:domain' || event === 'custom:event') {
+				const domainPayload = payload as {
+					eventName: string;
+					payload: unknown;
+				};
+				hooks?.doAction?.(
+					domainPayload.eventName,
+					domainPayload.payload
+				);
+				return;
+			}
+
+			const hookName = hookMap[event];
+			if (hookName) {
+				hooks?.doAction?.(hookName, payload);
 			}
 		};
 
-		detachListeners.push(
-			events.on('action:error', (event) => {
-				const errorEvent = event as ActionErrorEvent;
-				const message = resolveErrorMessage(errorEvent.error);
-				const status = mapErrorToStatus(errorEvent.error);
-				const notices = getNoticesDispatch(registry);
+		const register = <K extends keyof KernelEventMap>(
+			eventName: K,
+			handler: (payload: KernelEventMap[K]) => void
+		) => {
+			detachListeners.push(events.on(eventName, handler));
+		};
 
-				notices?.createNotice(status, message, {
-					id: errorEvent.requestId,
-					isDismissible: true,
-				});
+		register('action:error', (event) => {
+			const errorEvent = event as ActionErrorEvent;
+			const message = resolveErrorMessage(errorEvent.error);
+			const status = mapErrorToStatus(errorEvent.error);
+			const notices = getNoticesDispatch(registry);
 
-				reporter?.error(message, {
-					action: errorEvent.actionName,
-					requestId: errorEvent.requestId,
-					namespace: errorEvent.namespace,
-					status,
-				});
+			notices?.createNotice(status, message, {
+				id: errorEvent.requestId,
+				isDismissible: true,
+			});
 
-				emitToHooks('action:error', errorEvent);
-			})
-		);
+			reporter?.error(message, {
+				action: errorEvent.actionName,
+				requestId: errorEvent.requestId,
+				namespace: errorEvent.namespace,
+				status,
+			});
 
-		detachListeners.push(
-			events.on('action:start', (event) => {
-				emitToHooks('action:start', event as ActionLifecycleEvent);
-			})
-		);
-		detachListeners.push(
-			events.on('action:complete', (event) => {
-				emitToHooks('action:complete', event as ActionLifecycleEvent);
-			})
-		);
-		detachListeners.push(
-			events.on('cache:invalidated', (event) => {
-				emitToHooks('cache:invalidated', event);
-			})
-		);
-		detachListeners.push(
-			events.on('action:domain', (event) => {
-				emitToHooks('action:domain', event);
-			})
-		);
-		detachListeners.push(
-			events.on('custom:event', (event) => {
-				emitToHooks('custom:event', event);
-			})
-		);
+			emitToHooks('action:error', errorEvent);
+		});
+
+		register('action:start', (event) => {
+			emitToHooks('action:start', event as ActionLifecycleEvent);
+		});
+		register('action:complete', (event) => {
+			emitToHooks('action:complete', event as ActionLifecycleEvent);
+		});
+		register('cache:invalidated', (event) => {
+			emitToHooks('cache:invalidated', event);
+		});
+		register('action:domain', (event) => {
+			emitToHooks('action:domain', event);
+		});
+		register('custom:event', (event) => {
+			emitToHooks('custom:event', event);
+		});
+
 		return (next) => (action) => next(action);
 	};
 

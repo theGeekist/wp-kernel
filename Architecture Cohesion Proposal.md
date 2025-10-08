@@ -12,7 +12,7 @@ WP Kernel already offers a clear separation between core runtime (`packages/kern
 
 High-level findings:
 
-- **Bootstrap asymmetry:** `withKernel()` handles registry/middleware wiring, while UI bindings rely on side-effects. `configureKernel()` resolves this but must become the canonical path.
+- **Bootstrap asymmetry:** Legacy `withKernel()` handled registry/middleware wiring while UI bindings relied on side-effects. `configureKernel()` resolves this and is now the canonical path.
 - **API shape drift:** `defineResource(config)` uses an object, `defineAction(name, fn, options)` mixes positional parameters, and policy jobs follow yet another pattern. These inconsistencies make the framework feel less cohesive.
 - **Event wiring and globals:** Resources and actions expose lifecycle events, but the UI package still watches globals instead of consuming an explicit runtime contract.
 - **Package boundaries:** Consumers can deep import or skip namespaces entirely, which blurs modular intent.
@@ -25,7 +25,7 @@ High-level findings:
 
 ### 2.1 Bootstrap & Runtime
 
-- `withKernel()` offers registry + middleware setup but lives outside the new unified bootstrap.
+- `configureKernel()` now owns registry + middleware setup rather than a standalone `withKernel()` export.
 - UI features depend on global mutation (`__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__`), creating hidden contracts.
 - Global helpers (`getWPData`, action runtime overrides) remain escape hatches without formal lifecycle control.
 
@@ -106,7 +106,7 @@ Provide shims to keep positional signatures working with deprecation warnings.
     2. Implement `kernel.attachUIBindings()` and `KernelUIRuntime` creation; migrate UI hooks away from globals.
     3. Provide wrapper overloads for definition signatures, logging deprecation warnings for positional forms.
     4. Add lint rules/docs guiding preferred import style (`import { resource } from '@geekist/wp-kernel'` or use the configured instance).
-    5. Gradually deprecate `withKernel()` in documentation, pointing developers to `configureKernel()`.
+    5. Remove `withKernel()` from documentation and code, pointing developers to `configureKernel()`.
 
 3. **Design alignments**
     - Ensure all public errors derive from `KernelError` subclasses with domain-specific codes (UI runtime should throw `UIHooksDisabledError`).
@@ -123,7 +123,7 @@ By executing these adjustments, WP Kernel will present a unified, intentional AP
 - `docs/guide/data.md` / `docs/guide/actions.md` – Reflect the unified definition signatures and instance-driven APIs.
 - `docs/packages/kernel.md` / `docs/packages/ui.md` – Align package responsibilities with the runtime/adapter model.
 - `docs/api/index.md` and related API pages – Reorganize entries around the cohesive namespace (resources, actions, policies, events, UI runtime) and point readers to the namespace helpers/constants.
-- `docs/contributing/roadmap.md` – Track migration checkpoints (event bus, definition configs, `withKernel` deprecation).
+- `docs/contributing/roadmap.md` – Track migration checkpoints (event bus, definition configs, `configureKernel` adoption).
 
 ## 6. Test Impact
 

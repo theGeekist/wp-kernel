@@ -38,3 +38,13 @@ Whether to emit the cache.invalidated event
 ```ts
 true;
 ```
+
+---
+
+### registry?
+
+```ts
+optional registry: KernelRegistry;
+```
+
+Registry to operate against instead of relying on global getWPData().

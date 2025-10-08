@@ -11,13 +11,6 @@ export type KernelRegistry = WPDataRegistry & {
 	dispatch: (storeName: string) => unknown;
 };
 
-export interface KernelRegistryOptions {
-	middleware?: ReduxMiddleware[];
-	reporter?: Reporter;
-	namespace?: string;
-	events?: KernelEventBus;
-}
-
 export interface KernelUIConfig {
 	enable?: boolean;
 	options?: Record<string, unknown>;

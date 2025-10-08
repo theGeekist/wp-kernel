@@ -18,7 +18,7 @@ Structured logging via LogLayer with console and WordPress hook transports.
 
 ### [Data Helpers](/guide/data)
 
-Registry utilities (`registerKernelStore`) and notice bridging for `@wordpress/data` stores. `withKernel`
+Registry utilities (`registerKernelStore`) and notice bridging for `@wordpress/data` stores. `configureKernel()`
 is the bootstrap function available from `@geekist/wp-kernel`.
 
 ### [Errors](/api/generated/error/README)
