@@ -10,6 +10,7 @@ export {
 	type ActionEnvelope,
 } from './middleware';
 export type {
+	ActionConfig,
 	ActionContext,
 	ActionFn,
 	ActionOptions,

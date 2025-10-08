@@ -126,6 +126,7 @@ export {
 	EXECUTE_ACTION_TYPE,
 } from './actions/middleware.js';
 export type {
+	ActionConfig,
 	ActionContext,
 	ActionFn,
 	ActionOptions,
@@ -146,6 +147,7 @@ export type {
 	PolicyMap,
 	PolicyHelpers,
 	PolicyOptions,
+	PolicyDefinitionConfig,
 	PolicyContext,
 	PolicyCache,
 	PolicyCacheOptions,
