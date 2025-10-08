@@ -316,7 +316,7 @@ remaining compatibility layers.
 - Complete the "Summary of work done below"
 
 **Summary of work done**
-`<placeholder to be replaced when complete>`
+Audited and refreshed the documentation stack so every public surface reflects the final architecture: guides now showcase the configuration-object APIs, event bus, and adapter-driven UI runtime; README and roadmap highlight `configureKernel()` plus `KernelUIProvider`; changelogs record the close-out of the compatibility layers; and `CURRENT_STATE.md` describes the kernel instance as the canonical entry point.
 
 ---
 

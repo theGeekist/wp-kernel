@@ -68,6 +68,21 @@ const kernel = configureKernel({
 kernel.emit('my-plugin.ready', { timestamp: Date.now() });
 ```
 
+Mount the UI runtime so React hooks can subscribe to resources and actions through the kernel event bus:
+
+```tsx
+import { createRoot } from 'react-dom/client';
+import { KernelUIProvider } from '@geekist/wp-kernel-ui';
+
+const runtime = kernel.getUIRuntime();
+
+createRoot(document.getElementById('app')!).render(
+	<KernelUIProvider runtime={runtime}>
+		<App />
+	</KernelUIProvider>
+);
+```
+
 `configureKernel()` installs the registry middleware and returns a shared instance so you can access the namespace, reporter, cache helpers, and the typed `kernel.events` bus.
 
 **See the [Getting Started Guide](https://theGeekist.github.io/wp-kernel/getting-started/)** for creating your first WP Kernel plugin.
