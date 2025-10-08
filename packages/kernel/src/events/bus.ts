@@ -4,6 +4,8 @@ import type {
 	DefinedAction,
 } from '../actions/types';
 import type { ResourceObject } from '../resource/types';
+import { createReporter } from '../reporter';
+import { WPK_SUBSYSTEM_NAMESPACES } from '../namespace/constants';
 
 export type ResourceDefinedEvent = {
 	resource: ResourceObject<unknown, unknown>;
@@ -47,6 +49,12 @@ type KernelEventName = keyof KernelEventMap;
 type Listener<T> = (payload: T) => void;
 
 export class KernelEventBus {
+	private reporter = createReporter({
+		namespace: WPK_SUBSYSTEM_NAMESPACES.EVENTS,
+		channel: 'console',
+		level: 'error',
+	});
+
 	private listeners: Map<
 		KernelEventName,
 		Set<Listener<KernelEventMap[KernelEventName]>>
@@ -103,7 +111,7 @@ export class KernelEventBus {
 				listener(payload as KernelEventMap[KernelEventName]);
 			} catch (error) {
 				if (process.env.NODE_ENV !== 'production') {
-					console.error('KernelEventBus listener failed', {
+					this.reporter.error('KernelEventBus listener failed', {
 						event,
 						error,
 					});

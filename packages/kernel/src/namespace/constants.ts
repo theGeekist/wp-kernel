@@ -35,6 +35,8 @@ export const WPK_SUBSYSTEM_NAMESPACES = {
 	CACHE: `${WPK_NAMESPACE}.cache`,
 	/** Action subsystem */
 	ACTIONS: `${WPK_NAMESPACE}.actions`,
+	/** Event bus subsystem */
+	EVENTS: `${WPK_NAMESPACE}.events`,
 	/** Namespace detection subsystem */
 	NAMESPACE: `${WPK_NAMESPACE}.namespace`,
 	/** Reporter subsystem */
