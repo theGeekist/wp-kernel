@@ -37,7 +37,8 @@ High-level findings:
 
 ### 2.3 Observability & Events
 
-- Reporter usage is consistent in the runtime but UI hooks create their own noop fallback.
+- Reporter usage is consistent across actions and policies, but resources still rely on ad-hoc logging/noops because a scoped reporter never flows through `defineResource()`.
+- Cache invalidation and the transport layer use subsystem-level reporters (or none), so resource operations lack traceable correlation IDs and namespaces.
 - Events are emitted with canonical names, yet there is no typed event bus interface exposed publicly.
 
 ### 2.4 Package Structure
@@ -74,19 +75,27 @@ Benefits:
 
 Provide shims to keep positional signatures working with deprecation warnings.
 
-### 3.3 Normalize Option Names & Namespacing
+### 3.3 Complete Reporter Parity for Resources
+
+- Thread a `Reporter` instance from the kernel through `defineResource()`, the generated client, and store resolvers so fetch/create/update/delete/resolver pipelines emit the same structured telemetry as actions.
+- Adopt the integration plan captured in `Resource Reporter Integration.md`: inherit the kernel reporter by default, create scoped child reporters per resource (`{namespace}.resource.{name}`), and ensure cache helpers (`invalidate`) accept an optional reporter with sensible defaults.
+- Surface reporter usage in documentation alongside actions so consumers understand debugging/observability behaviour is uniform.
+- Extend the transport layer (`http/fetch.ts`) to accept reporter metadata so request/response/error logs share correlation IDs with resource-level instrumentation.
+- Update cache invalidation to default to the kernel reporter's `cache` child while still allowing resource-scoped overrides for granular logging.
+
+### 3.4 Normalize Option Names & Namespacing
 
 - Reserve `options` objects for optional parameters, `config` for required definitions, and `adapter` for integration shims.
 - Ensure every definition config includes `name` and inherits the kernel namespace automatically (no local overrides), reusing the helpers provided by `@geekist/wp-kernel/namespace` instead of hardcoded strings.
 - Document canonical event names in a single source (`packages/kernel/types/events.ts`) and export them via `kernel.events`.
 
-### 3.4 Formalize the Event Bus
+### 3.5 Formalize the Event Bus
 
 - Promote the internal event emitter to a typed `KernelEventBus` interface, surfaced through `kernel.events`.
 - UI runtime subscribes to resource/action definition events instead of polling globals.
 - Third-party plugins use `kernel.events.on('resource:defined', handler)` instead of relying on `wp.hooks` alone (while the `kernelEventsPlugin` keeps bridging to hooks for backwards compatibility).
 
-### 3.5 Clarify Package Responsibilities
+### 3.6 Clarify Package Responsibilities
 
 - Update `packages/ui` README and exports to reflect the upcoming structure (runtime, hooks, components, elements).
 - Provide a `KernelUIProvider` and non-React controllers so consumers understand this package is the presentation toolkit, not merely hook glue.
@@ -107,6 +116,8 @@ Provide shims to keep positional signatures working with deprecation warnings.
     3. Provide wrapper overloads for definition signatures, logging deprecation warnings for positional forms.
     4. Add lint rules/docs guiding preferred import style (`import { resource } from '@geekist/wp-kernel'` or use the configured instance).
     5. Remove `withKernel()` from documentation and code, pointing developers to `configureKernel()`.
+    6. Deliver resource reporter wiring (definition → client → store) with kernel-scoped child reporters.
+    7. Layer cache + transport telemetry so invalidation, request, and error flows log against the same reporter hierarchy.
 
 3. **Design alignments**
     - Ensure all public errors derive from `KernelError` subclasses with domain-specific codes (UI runtime should throw `UIHooksDisabledError`).

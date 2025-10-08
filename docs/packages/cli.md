@@ -249,7 +249,7 @@ export const product = defineResource<Product>({
 wpk generate admin-page ProductsList \
   --resource=Product \
   --features=search,filter,bulk-actions \
-  --wp-version=6.8
+  --wp-version=6.7
 ```
 
 **Generated Admin Page:**
@@ -276,7 +276,7 @@ const fields = [
 
 export default function ProductsListPage() {
 	// Complete implementation with search, filters, bulk actions
-	// Uses DataViews for WordPress 6.8+, fallback table for older versions
+	// Uses DataViews for WordPress 6.7+, fallback table for older versions
 }
 ```
 
@@ -417,11 +417,11 @@ export default {
 
 ### WordPress Version-Specific Generation
 
-#### Modern WordPress (6.8+) Features
+#### Modern WordPress (6.7+) Features
 
 ```bash
 wpk generate admin-table JobsList \
-  --wp-version=6.8 \
+  --wp-version=6.7 \
   --features=dataviews,script-modules,interactivity
 ```
 

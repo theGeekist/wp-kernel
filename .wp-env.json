@@ -1,5 +1,5 @@
 {
-	"core": "WordPress/WordPress#6.8",
+	"core": "WordPress/WordPress#6.7.4",
 	"phpVersion": "8.1",
 	"plugins": ["./app/showcase"],
 	"themes": [
