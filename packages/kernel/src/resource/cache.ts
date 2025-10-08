@@ -281,6 +281,9 @@ export function normalizeCacheKey(pattern: CacheKeyPattern): string {
  * Check if a cache key matches a pattern.
  * Supports prefix matching: pattern ['thing', 'list'] matches keys starting with 'thing:list'.
  *
+ * Used internally by invalidate logic.
+ *
+ * @internal
  * @param key     - The cache key to test (already normalized string)
  * @param pattern - The pattern to match against
  * @return True if the key matches the pattern
@@ -318,6 +321,9 @@ export function matchesCacheKey(
 /**
  * Find all cache keys in a collection that match the given pattern.
  *
+ * Used internally by invalidate logic.
+ *
+ * @internal
  * @param keys    - Collection of cache keys (typically from store state)
  * @param pattern - Pattern to match against
  * @return Array of matching cache keys
@@ -339,6 +345,9 @@ export function findMatchingKeys(
 /**
  * Find all cache keys matching any of the provided patterns.
  *
+ * Used internally by invalidate logic.
+ *
+ * @internal
  * @param keys     - Collection of cache keys
  * @param patterns - Array of patterns to match against
  * @return Array of matching cache keys (deduplicated)
@@ -450,6 +459,9 @@ export function interpolatePath(path: string, params: PathParams = {}): string {
 /**
  * Extract parameter names from a path
  *
+ * Used internally by the resource system for path handling.
+ *
+ * @internal
  * @param path - REST path with :param placeholders
  * @return Array of parameter names
  *
@@ -628,6 +640,10 @@ function emitCacheInvalidatedEvent(keys: string[]): void {
 /**
  * Invalidate all caches in a specific store
  *
+ * Clears all cache entries in a store. Too aggressive for most use cases.
+ * Use `invalidate()` with patterns instead for targeted cache invalidation.
+ *
+ * @internal
  * @param storeKey - The store key to invalidate (e.g., 'my-plugin/thing')
  *
  * @example

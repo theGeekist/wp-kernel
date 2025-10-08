@@ -32,10 +32,12 @@ const post = defineResource({
 });
 
 // 2. Create actions for writes
-const CreatePost = defineAction({
-  name: 'CreatePost',
-  execute: ({ title, content }) => post.create({ title, content }),
-});
+const CreatePost = defineAction(
+  'CreatePost',
+  async ({ title, content }) => {
+    return await post.create({ title, content });
+  }
+);
 
 // 3. Use in components
 import { ActionButton } from '@geekist/wp-kernel-ui';
@@ -68,12 +70,9 @@ const user = defineResource<User>({
 
 ```typescript
 // Orchestrate writes with validation and events
-const UpdateUser = defineAction({
-	name: 'UpdateUser',
-	async execute({ id, data }) {
-		// validation, optimistic updates, events
-		return await user.update(id, data);
-	},
+const UpdateUser = defineAction('UpdateUser', async ({ id, data }) => {
+	// validation, optimistic updates, events
+	return await user.update(id, data);
 });
 ```
 

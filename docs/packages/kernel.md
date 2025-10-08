@@ -59,14 +59,11 @@ Orchestrate write operations with automatic event emission:
 ```typescript
 import { defineAction } from '@geekist/wp-kernel/actions';
 
-export const CreatePost = defineAction({
-	name: 'CreatePost',
-	async execute({ data }) {
-		const result = await post.create(data);
-		// Events automatically emitted
-		// Cache automatically invalidated
-		return result;
-	},
+export const CreatePost = defineAction('CreatePost', async ({ data }) => {
+	const result = await post.create(data);
+	// Events automatically emitted
+	// Cache automatically invalidated
+	return result;
 });
 ```
 
@@ -126,10 +123,10 @@ import { KernelError } from '@geekist/wp-kernel/error';
 ### Namespace Imports
 
 ```typescript
-import { resource, action, error } from '@geekist/wp-kernel';
+import { resource, actions, error } from '@geekist/wp-kernel';
 
 const post = resource.defineResource({...});
-const CreatePost = action.defineAction({...});
+const CreatePost = actions.defineAction('CreatePost', async ({...}) => {...});
 throw new error.KernelError('ValidationError', {...});
 ```
 

@@ -1,14 +1,16 @@
 # Events
 
-# Events
-
-> **Status**: 🚧 Foundation implemented in Sprint 1. Full event system (Actions, Policies, Jobs, PHP Bridge) coming in Sprints 3-9.
+> **Status**: ✓ **Fully Implemented** - JavaScript event system complete via `@wordpress/hooks`.
+>
+> **PHP Bridge**: 🚧 Planned for Sprint 9 (legacy plugin integrations).
 
 Stable, versioned event registry with predictable names. All events come from a central registry-no ad-hoc strings.
 
-JavaScript hooks are the authoritative source-events fire here first. The PHP bridge mirrors only selected events for legacy integrations.
+JavaScript hooks are the source of truth. Events fire in JavaScript via WordPress hooks (`addAction`, `doAction`), with automatic namespace detection for your plugin.
 
-## What's Implemented Now (Sprint 1)
+## What's Available Now
+
+All events below are **implemented and working** in the current release. Subscribe to them using `addAction()` from `@wordpress/hooks`.
 
 ### Resource Transport Events
 
@@ -63,7 +65,7 @@ Emitted when cache is invalidated (framework events use `wpk.*` namespace):
 
 ### Per-Resource CRUD Events
 
-Each resource automatically gets event names (available via `resource.events`):
+✓ **Available Now**: Each resource automatically gets event names (available via `resource.events`), emitted by Actions layer during create/update/delete operations.
 
 ```typescript
 import { testimonial } from './resources/testimonial';
@@ -74,7 +76,7 @@ testimonial.events.updated; // 'acme-blog.testimonial.updated'
 testimonial.events.removed; // 'acme-blog.testimonial.removed'
 ```
 
-**Note**: Event namespace is automatically detected from your plugin context. These events are defined but not yet emitted automatically. Full emission happens in Sprint 4 when Actions are implemented.
+**Usage**: Actions emit these events when resources are created, updated, or removed.
 
 ### Namespace Auto-Detection
 
@@ -101,6 +103,72 @@ export const customPost = defineResource<Post>({
 });
 
 console.log(customPost.events.created); // 'enterprise.post.created' ✓
+```
+
+### Action Events
+
+✓ **Available Now**: Emitted during action execution lifecycle.
+
+```typescript
+// Action started
+'wpk.action.start': {
+  actionName: string;
+  args: unknown;
+  requestId: string;
+}
+
+// Action completed
+'wpk.action.complete': {
+  actionName: string;
+  result: unknown;
+  requestId: string;
+}
+
+// Action failed
+'wpk.action.error': {
+  actionName: string;
+  error: KernelError;
+  requestId: string;
+}
+```
+
+### Policy Events
+
+✓ **Available Now**: Emitted during policy checks.
+
+```typescript
+// Client policy check failed
+'wpk.policy.denied': {
+  policyKey: string;
+  context?: Record<string, unknown>;
+}
+```
+
+### Job Events
+
+✓ **Available Now**: Emitted during background job processing.
+
+```typescript
+// Job queued
+'wpk.job.enqueued': {
+  jobName: string;
+  params: Record<string, unknown>;
+  jobId: string;
+}
+
+// Job completed
+'wpk.job.completed': {
+  jobName: string;
+  jobId: string;
+  result: unknown;
+}
+
+// Job failed
+'wpk.job.failed': {
+  jobName: string;
+  jobId: string;
+  error: KernelError;
+}
 ```
 
 ## Quick Examples
@@ -146,46 +214,72 @@ addAction('wpk.system.error', 'acme-blog/system-monitor', (payload) => {
 ```typescript
 import { thing } from './resources/thing';
 
-console.log(thing.events.created); // 'wpk.thing.created'
-console.log(thing.events.updated); // 'wpk.thing.updated'
-console.log(thing.events.removed); // 'wpk.thing.removed'
+console.log(thing.events.created); // 'your-plugin.thing.created'
+console.log(thing.events.updated); // 'your-plugin.thing.updated'
+console.log(thing.events.removed); // 'your-plugin.thing.removed'
 
-// These will be emitted by Actions in Sprint 4
+// Emitted by Actions when resources are created/updated/removed
 ```
 
-## Coming Soon
+### Emit Events from Actions
 
-### Sprint 3: Policy Events
+```typescript
+import { defineAction } from '@geekist/wp-kernel';
+import { thing } from './resources/thing';
 
-- `wpk.policy.denied` - When client-side policy check fails
+export const CreateThing = defineAction(
+	'Thing.Create',
+	async (ctx, { data }) => {
+		const result = await thing.create(data);
 
-### Sprint 4: Action Events & Full Domain Events
+		// Emit standard CRUD event
+		ctx.emit(thing.events.created, {
+			id: result.id,
+			data: result,
+		});
 
-- `wpk.action.start` - Action orchestration begins
-- `wpk.action.complete` - Action completes successfully
-- `wpk.action.error` - Action fails
-- Full emission of `wpk.{resource}.created/updated/deleted` from Actions
-- Canonical `events` registry export from `@geekist/wp-kernel/events`
+		// Emit custom domain event
+		const namespace = thing.events.created.split('.')[0];
+		ctx.emit(`${namespace}.thing.submitted`, {
+			id: result.id,
+			status: 'pending',
+		});
 
-### Sprint 8: Job Events
+		return result;
+	}
+);
+```
 
-- `wpk.job.enqueued` - Background job queued
-- `wpk.job.completed` - Job finished successfully
-- `wpk.job.failed` - Job failed
+## Future: PHP Bridge (Sprint 9)
 
-### Sprint 9: PHP Bridge
+> **⚠️ NOT YET IMPLEMENTED**: PHP event bridge is planned for Sprint 9.
 
-- Event mirroring to PHP hooks (`wpk.bridge.*`)
-- Sync vs Async execution patterns
-- Payload serialization and guarantees
+The PHP bridge will mirror selected JavaScript events to WordPress `do_action()` hooks for legacy plugin integrations:
+
+```php
+// 🚧 FUTURE - NOT YET AVAILABLE
+add_action('wpk.bridge.acme-blog.thing.created', function($payload) {
+    // React to thing creation in PHP
+    error_log('New thing: ' . $payload['id']);
+
+    // Send webhook, update external system, etc.
+}, 10, 1);
+```
+
+**Key features (when implemented)**:
+
+- **Sync events**: Run immediately, block JS (< 100ms budget)
+- **Async events**: Queued via Action Scheduler (process within 60s)
+- **Automatic prefix**: `wpk.bridge.` prefix added to all mirrored events
+- **Selective mirroring**: Only cross-tab events, not per-tab events
 
 ## Full Event Taxonomy
 
-For the complete event taxonomy, payload contracts, PHP bridge mapping, versioning rules, and best practices, see:
+For the complete event taxonomy, payload contracts, PHP bridge planning, versioning rules, and best practices, see:
 
 **[Event Taxonomy Quick Reference](https://github.com/theGeekist/wp-kernel/blob/main/information/Event%20Taxonomy%20Quick%20Reference.md)**
 
-This is the authoritative specification for the entire event system. The current implementation (Sprint 1) is the foundation; the full system will be completed by Sprint 9.
+This is the authoritative specification for the entire event system. The JavaScript implementation is complete; PHP bridge is planned for Sprint 9.
 
 ## See Also
 

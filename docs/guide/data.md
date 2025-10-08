@@ -1,43 +1,88 @@
 # WordPress Data Integration
 
-WP Kernel ships first-class helpers for wiring actions and resources into `@wordpress/data`. The goal is to make ### Summary
+WP Kernel integrates seamlessly with `@wordpress/data` to bridge custom plugin logic into the broader WordPress ecosystem. Its main integration API, `withKernel()`, connects two key runtime layers: a registry integration that enhances extensibility and observability within the WordPress ecosystem, and an optional Redux middleware that enables action dispatch through Redux stores.
 
-`withKernel` is the framework's public bootstrapping API. Calling it enables participation in the kernel ecosystem: typed actions, lifecycle & domain events bridged to `wp.hooks`, automatic notices, cross-tab coordination, extensible middleware, and upcoming job/bridge integrations. Plugin authors gain consistency and interoperability without bespoke wiring.istries aware of actions, errors, and notices without duplicating glue code in every plugin.
+Core WP Kernel functionality-including resources and actions-works independently of `withKernel()`. Resources auto-register stores, and actions can be called directly as functions without requiring this integration. Using `withKernel()` adds an extensibility layer that standardizes error handling, event bridging, and reporting, as well as optional Redux dispatch capabilities for React hooks like `useAction()`.
 
-## What WP Kernel provides (for plugin & theme authors)
+### 1. Registry Integration (Recommended for Production)
+
+**Purpose**: Bridges kernel runtime into WordPress ecosystem for extensibility and observability.
+
+**What it provides**:
+
+- **`kernelEventsPlugin`** - Bridges action errors to `core/notices` store automatically
+- **WordPress hooks integration** - Connects lifecycle events to `wp.hooks` so 3rd-party plugins can listen
+- **Reporter integration** - Centralized observability for errors and events
+- **Ecosystem extensibility** - Makes your plugin interoperable with WordPress ecosystem
+
+**When you need this**: Most production plugins should use this layer for consistent error handling and ecosystem integration.
+
+### 2. Redux Middleware (Optional - Only for `useAction()` hook)
+
+**Purpose**: Enables Redux dispatch of actions through `@wordpress/data` stores.
+
+**What it provides**:
+
+- **`createActionMiddleware`** - Intercepts action envelopes and executes them
+- **Redux dispatch** - Enables `useAction()` React hook to dispatch through stores
+- **Type-safe envelopes** - `invokeAction()` wraps actions for Redux dispatch
+
+**When you need this**: Only if you're using the `useAction()` React hook. If you call actions directly (`await CreatePost(args)`), you don't need this layer.
+
+## Core Functionality Works Without `withKernel()`
+
+**Important**: Resources and Actions are designed to work standalone:
+
+- **`defineResource()`** - Auto-registers stores with `wp.data.register()` without any middleware
+- **`defineAction()`** - Works as direct function calls: `await CreatePost({ title: 'Hello' })`
+- **Resource hooks** - `useGet()` and `useList()` work with auto-registered stores
+- **Events** - Lifecycle events still emit via `wp.hooks.doAction()` when present
+
+The `withKernel()` integration adds the **extensibility layer** (recommended) and **optional Redux dispatch** (for `useAction()` hook only).
+
+## What WP Kernel provides
 
 WP Kernel standardizes how plugins and themes interact with data, actions, events, jobs, and error reporting:
 
-- **Typed actions system** – Actions are first-class functions you can dispatch and observe through lifecycle and domain events.
-- **Resource system** – Define REST-backed resources once and get stores, cache helpers, fetch/prefetch utilities, and events for free.
-- **Events and reporting** – Lifecycle events, domain events, reporter integrations, and cross-tab sync keep behaviour observable.
-- **WordPress data integration** – Helpers that connect kernel runtime features to `@wordpress/data` registries with minimal boilerplate.
-- **Background jobs** – Roadmap feature (Sprint 6) that will let actions enqueue durable background work via `defineJob()`.
-- **PHP bridge** – Roadmap feature (Sprint 9) to mirror events into PHP for legacy plugin interoperability.
+- **Typed actions system** – Actions are first-class functions you can call directly or dispatch through Redux
+- **Resource system** – Define REST-backed resources once and get stores, cache helpers, fetch/prefetch utilities, and events for free
+- **Events and reporting** – Lifecycle events, domain events, reporter integrations, and cross-tab sync keep behaviour observable
+- **WordPress data integration** – `withKernel()` bridges kernel runtime into WordPress ecosystem
+- **Background jobs** – Roadmap feature (Sprint 6) that will let actions enqueue durable background work via `defineJob()`
+- **PHP bridge** – Roadmap feature (Sprint 9) to mirror events into PHP for legacy plugin interoperability
 
-The UI hooks in `@geekist/wp-kernel-ui` are the activation point for these systems inside React/WordPress experiences.
+## `withKernel(registry, options)` – WordPress Data Integration
 
-## `withKernel(registry, options)` – bootstrap the runtime
+Calling `withKernel(registry, options)` enables two integration layers:
 
-`withKernel` is the primary integration helper that plugin and theme authors call to wire the kernel runtime into an `@wordpress/data` registry. It is intentionally usable by host applications (plugins/themes), not just internal framework code.
+**Layer 1: Registry Integration (Recommended)**
 
-### What `withKernel` does
+- **Installs kernel events plugin** – Bridges action lifecycle events to `wp.hooks`, forwards errors to `core/notices.createNotice`, reports to configured `Reporter`
+- **Enables ecosystem extensibility** – 3rd-party plugins can listen to kernel events via WordPress hooks
+- **Centralized observability** – All errors and events flow through unified reporter
 
-Calling `withKernel(registry, options)` enables the kernel runtime on that registry:
+**Layer 2: Redux Middleware (Optional - Only for `useAction()` hook)**
 
-- **Installs action execution middleware** – Dispatch envelopes from `invokeAction()` and get full ActionContext (policy checks, lifecycle events, reporter wiring, cache invalidation, and planned job hooks _(Roadmap: Sprint 6)_).
-- **Installs the kernel events plugin** – Bridges action lifecycle events to `wp.hooks`, forwards actionable errors to `core/notices.createNotice`, and reports to your configured `Reporter`.
-- **Accepts additional middleware** – Pass `{ middleware: [myMiddleware] }` to append custom middleware after the kernel handler.
-- **Returns a cleanup function** – Remove middleware and detach WP hooks, which keeps hot reloads, tests, and SPA lifecycles stable.
+- **Installs action execution middleware** – Enables dispatch of action envelopes through Redux stores
+- **Required for `useAction()` hook** – If you call actions directly (`await CreatePost(args)`), this layer is unused
 
-### Why authors should call `withKernel`
+**Additional Features**:
 
-1. **Single-step activation of kernel behaviours** – Skip writing bespoke middleware or notice plumbing; `withKernel` installs the tested integration.
-2. **Leverage the ActionContext** – Actions executed through the middleware gain policy enforcement, lifecycle events, domain events via `ctx.emit`, cross-tab broadcast, cache invalidation, reporter logging, and future background job coordination _(Roadmap: Sprint 6)_.
-3. **Native WordPress experience** – Lifecycle and domain events are bridged into `wp.hooks` so PHP-side plugins or other JS code can observe them, keeping backwards compatibility.
-4. **Consistent error handling** – Kernel errors map into WordPress notices automatically while still logging structured context through the reporter.
-5. **Cross-tab and bridge support** – `scope: 'crossTab'` actions sync via `BroadcastChannel`. When the PHP bridge lands _(Roadmap: Sprint 9)_, the same events will be mirrored server-side.
-6. **Extensible middleware** – Custom middleware and reporters plug into the runtime without reimplementing the action pipeline.
+- **Accepts additional middleware** – Pass `{ middleware: [myMiddleware] }` to append custom middleware after the kernel handler
+- **Returns a cleanup function** – Remove middleware and detach WP hooks, which keeps hot reloads, tests, and SPA lifecycles stable
+
+### Why production plugins should use `withKernel()`
+
+**For Registry Integration (Recommended for all production plugins)**:
+
+1. **Consistent error handling** – Kernel errors map into WordPress notices automatically while still logging structured context through the reporter
+2. **Ecosystem extensibility** – Lifecycle and domain events are bridged into `wp.hooks` so PHP-side plugins or other JS code can observe them
+3. **Centralized observability** – Reporter integration provides unified logging and error tracking
+4. **Cross-tab coordination** – `scope: 'crossTab'` actions sync via `BroadcastChannel`. PHP bridge coming in Sprint 9
+
+**For Redux Middleware (Only if using `useAction()` hook)**: 5. **Redux dispatch** – Enables `useAction()` React hook for reactive action execution with loading/error states 6. **Type-safe envelopes** – `invokeAction()` wraps actions in type-safe envelopes for Redux dispatch
+
+**Note**: Actions have full `ActionContext` capabilities (policy enforcement, lifecycle events, `ctx.emit()`, cache invalidation, reporter logging) whether called directly or dispatched through Redux.
 
 ### Practical examples
 
@@ -67,7 +112,30 @@ export function bootstrap(registry) {
 }
 ```
 
-#### Dispatch kernel actions via a store
+#### Calling actions directly (no Redux middleware needed)
+
+```ts
+import { CreateItem } from './actions/CreateItem';
+
+// Direct function call - works without withKernel()
+export async function createItem(payload) {
+	try {
+		const result = await CreateItem(payload);
+		// Action still has full ActionContext capabilities:
+		// - Policy enforcement
+		// - Lifecycle events (wpk.action.start/complete/error)
+		// - ctx.emit() for domain events
+		// - Cache invalidation
+		// - Reporter logging
+		return result;
+	} catch (error) {
+		// Handle error
+		console.error(error);
+	}
+}
+```
+
+#### Dispatch kernel actions via Redux store (requires withKernel())
 
 ```ts
 import { invokeAction } from '@geekist/wp-kernel/actions';

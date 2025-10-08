@@ -118,6 +118,16 @@ function stableSerialize(value: unknown): unknown {
 	return value;
 }
 
+/**
+ * Generate stable cache key for policy evaluation
+ *
+ * Used internally by definePolicy for cache key generation.
+ *
+ * @internal
+ * @param policyKey - The policy key
+ * @param params    - The parameters to serialize
+ * @return Stable cache key string
+ */
 export function createPolicyCacheKey(
 	policyKey: string,
 	params: unknown
