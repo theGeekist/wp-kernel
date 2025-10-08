@@ -62,6 +62,7 @@ Based on `CURRENT_STATE.md`, the kernel exposes several independent configuratio
 
 - Establishes a `KernelUIRuntime` that coordinates hooks, components, and other UI primitives with the configured kernel instance.
 - Eliminates side-effect imports from `@geekist/wp-kernel-ui` by driving attachment through explicit configuration.
+- Ensures adapters (e.g., `attachUIBindings`) subscribe to `kernel.events` for resource/action definitions-no `__WP_KERNEL_UI_*` globals participate in runtime setup.
 
 ### 2.8 Event Bus
 
