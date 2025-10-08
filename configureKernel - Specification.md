@@ -29,6 +29,9 @@ Based on `CURRENT_STATE.md`, the kernel exposes several independent configuratio
 
 - Eliminates duplicate namespace configuration across resources, actions, policies, and jobs.
 - Ensures cache keys, store names, and event payloads share a consistent namespace.
+- Leverages `@geekist/wp-kernel/namespace` utilities (`detectNamespace`,
+  `sanitizeNamespace`, `WPK_NAMESPACE`, etc.) to provide sensible defaults and
+  explicit overrides when a namespace is not supplied.
 
 ### 2.2 Reporter
 

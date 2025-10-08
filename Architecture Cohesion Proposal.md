@@ -77,7 +77,7 @@ Provide shims to keep positional signatures working with deprecation warnings.
 ### 3.3 Normalize Option Names & Namespacing
 
 - Reserve `options` objects for optional parameters, `config` for required definitions, and `adapter` for integration shims.
-- Ensure every definition config includes `name` and inherits the kernel namespace automatically (no local overrides).
+- Ensure every definition config includes `name` and inherits the kernel namespace automatically (no local overrides), reusing the helpers provided by `@geekist/wp-kernel/namespace` instead of hardcoded strings.
 - Document canonical event names in a single source (`packages/kernel/types/events.ts`) and export them via `kernel.events`.
 
 ### 3.4 Formalize the Event Bus
@@ -122,7 +122,7 @@ By executing these adjustments, WP Kernel will present a unified, intentional AP
 - `docs/index.md` – Update the high-level architecture diagram to include the UI runtime and event bus.
 - `docs/guide/data.md` / `docs/guide/actions.md` – Reflect the unified definition signatures and instance-driven APIs.
 - `docs/packages/kernel.md` / `docs/packages/ui.md` – Align package responsibilities with the runtime/adapter model.
-- `docs/api/index.md` and related API pages – Reorganize entries around the cohesive namespace (resources, actions, policies, events, UI runtime).
+- `docs/api/index.md` and related API pages – Reorganize entries around the cohesive namespace (resources, actions, policies, events, UI runtime) and point readers to the namespace helpers/constants.
 - `docs/contributing/roadmap.md` – Track migration checkpoints (event bus, definition configs, `withKernel` deprecation).
 
 ## 6. Test Impact
