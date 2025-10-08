@@ -40,15 +40,17 @@ type JobPolicies = {
 };
 
 export const policy = definePolicy<JobPolicies>({
-	'jobs.manage': () => true,
-	'jobs.delete': ({ adapters }, { id }) =>
-		adapters.wp?.canUser('delete', {
-			kind: 'postType',
-			name: 'job',
-			id,
-		}) ?? false,
-	'beta.enabled': async ({ adapters }) =>
-		(await adapters.restProbe?.('beta')) ?? false,
+	map: {
+		'jobs.manage': () => true,
+		'jobs.delete': ({ adapters }, { id }) =>
+			adapters.wp?.canUser('delete', {
+				kind: 'postType',
+				name: 'job',
+				id,
+			}) ?? false,
+		'beta.enabled': async ({ adapters }) =>
+			(await adapters.restProbe?.('beta')) ?? false,
+	},
 });
 ```
 
@@ -152,11 +154,14 @@ seconds. The cache keeps both Action assertions and UI hooks in sync. Configure
 it via the `cache` option when defining the policy:
 
 ```ts
-const policy = definePolicy(map, {
-	cache: {
-		ttlMs: 5 * 60_000,
-		storage: 'session',
-		crossTab: true,
+const policy = definePolicy({
+	map,
+	options: {
+		cache: {
+			ttlMs: 5 * 60_000,
+			storage: 'session',
+			crossTab: true,
+		},
 	},
 });
 ```

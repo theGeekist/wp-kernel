@@ -134,7 +134,8 @@ export type PolicyCache = {
  * ```typescript
  * // Using WordPress adapter in policy rule
  * const policy = definePolicy({
- *   'posts.edit': async (ctx, postId: number) => {
+ *   map: {
+ *     'posts.edit': async (ctx, postId: number) => {
  *     // ctx.adapters.wp is auto-injected
  *     const result = await ctx.adapters.wp?.canUser('update', {
  *       kind: 'postType',
@@ -148,11 +149,14 @@ export type PolicyCache = {
  * @example
  * ```typescript
  * // Custom adapter for REST endpoint probing
- * const policy = definePolicy(rules, {
- *   adapters: {
- *     restProbe: async (key) => {
- *       const res = await fetch(`/wp-json/acme/v1/capabilities/${key}`);
- *       return res.ok;
+ * const policy = definePolicy({
+ *   map: rules,
+ *   options: {
+ *     adapters: {
+ *       restProbe: async (key) => {
+ *         const res = await fetch(`/wp-json/acme/v1/capabilities/${key}`);
+ *         return res.ok;
+ *       }
  *     }
  *   }
  * });
@@ -223,6 +227,14 @@ export type PolicyOptions = {
 	adapters?: PolicyAdapters;
 	cache?: PolicyCacheOptions;
 	debug?: boolean;
+};
+
+/**
+ * Configuration object accepted by `definePolicy()`.
+ */
+export type PolicyDefinitionConfig<K extends Record<string, unknown>> = {
+	map: PolicyMap<K>;
+	options?: PolicyOptions;
 };
 
 /**

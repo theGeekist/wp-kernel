@@ -9,8 +9,17 @@
  */
 
 import { defineAction } from '../../actions/define';
+import type { ActionConfig, ActionOptions } from '../../actions/types';
 import { createActionMiddleware, invokeAction } from '../../actions/middleware';
 import { defineResource } from '../../resource/define';
+
+function createAction<TArgs = void, TResult = void>(
+	name: string,
+	handler: ActionConfig<TArgs, TResult>['handler'],
+	options?: ActionOptions
+) {
+	return defineAction<TArgs, TResult>({ name, handler, options });
+}
 
 type TestItem = {
 	id: number;
@@ -70,7 +79,7 @@ describe('Redux Middleware Integration', () => {
 			},
 		});
 
-		const CreateItem = defineAction<{ data: { title: string } }, TestItem>(
+		const CreateItem = createAction<{ data: { title: string } }, TestItem>(
 			'Item.Create',
 			async (ctx, { data }) => {
 				const created = await resource.create!(data);
@@ -140,7 +149,7 @@ describe('Redux Middleware Integration', () => {
 			},
 		});
 
-		const CreateItem = defineAction<{ data: { title: string } }, TestItem>(
+		const CreateItem = createAction<{ data: { title: string } }, TestItem>(
 			'Item.Create',
 			async (_ctx, { data }) => {
 				return await resource.create!(data);
@@ -175,7 +184,7 @@ describe('Redux Middleware Integration', () => {
 			},
 		});
 
-		const CreateItem = defineAction<{ data: { title: string } }, TestItem>(
+		const CreateItem = createAction<{ data: { title: string } }, TestItem>(
 			'Item.Create',
 			async (_ctx, { data }) => {
 				return await resource.create!(data);
