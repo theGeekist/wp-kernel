@@ -6,6 +6,7 @@ export type {
 	PolicyMap,
 	PolicyHelpers,
 	PolicyOptions,
+	PolicyDefinitionConfig,
 	PolicyContext,
 	PolicyCache,
 	PolicyCacheOptions,
