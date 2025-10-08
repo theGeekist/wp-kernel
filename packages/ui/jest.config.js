@@ -1,6 +1,6 @@
 /**
- * Jest configuration for Showcase app
- * Extends base config from monorepo root
+ * Jest configuration for @geekist/wp-kernel-ui package
+ * Extends base configuration from monorepo root
  */
 
 import path from 'path';
@@ -8,41 +8,32 @@ import { fileURLToPath } from 'url';
 import baseConfig from '../../jest.config.base.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Calculate monorepo root from this package
 const monorepoRoot = path.resolve(__dirname, '../..');
 
 export default {
 	...baseConfig,
 
 	// Set display name for this project
-	displayName: 'wp-kernel-showcase',
+	displayName: '@geekist/wp-kernel-ui',
 
 	// Root directory for this package
 	rootDir: monorepoRoot,
 
-	// Only test files in this app
+	// Only test files in this package
 	testMatch: [
-		'<rootDir>/app/showcase/**/__tests__/**/*.test.ts',
-		'<rootDir>/app/showcase/**/__tests__/**/*.test.tsx',
-		// Explicitly exclude spec files (these are E2E tests for Playwright)
-		'!**/__tests__/**/*.spec.ts',
-		'!**/__tests__/**/*.spec.tsx',
+		'<rootDir>/packages/ui/**/__tests__/**/*.ts',
+		'<rootDir>/packages/ui/**/__tests__/**/*.tsx',
+		'<rootDir>/packages/ui/**/__tests__/**/*.test.ts',
+		'<rootDir>/packages/ui/**/__tests__/**/*.test.tsx',
 	],
 
-	// Additional ignore patterns specific to showcase
-	testPathIgnorePatterns: [
-		...baseConfig.testPathIgnorePatterns,
-		'/__tests__/e2e/', // Exclude entire E2E directory
-		'/e2e/', // Exclude any top-level E2E directory
-	],
-
-	// Module resolution for showcase app
+	// Module resolution
 	moduleNameMapper: {
 		...baseConfig.moduleNameMapper,
 		'^@test-utils/(.*)\\.js$': '<rootDir>/tests/test-utils/$1',
 		'^@test-utils/(.*)$': '<rootDir>/tests/test-utils/$1',
-		// Map relative imports within showcase
-		'^@/(.*)$': '<rootDir>/app/showcase/src/$1',
-		// Ensure kernel packages resolve correctly from showcase context
 		'^@geekist/wp-kernel$': '<rootDir>/packages/kernel/src',
 		'^@geekist/wp-kernel/(.*)$': '<rootDir>/packages/kernel/src/$1',
 		'^@geekist/wp-kernel-ui$': '<rootDir>/packages/ui/src',
