@@ -197,7 +197,7 @@ removing positional overloads entirely.
 - Complete the "Summary of work done below"
 
 **Summary of work done**
-`<placeholder to be replaced when complete>`
+Inlined the registry bootstrap directly into `configureKernel()`, retired the standalone `withKernel` export, threaded the instance registry through cache invalidation helpers, and refreshed documentation/specs to reflect the instance-driven bootstrap and teardown semantics.
 
 ---
 

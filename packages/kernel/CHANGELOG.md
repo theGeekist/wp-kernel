@@ -2,6 +2,11 @@
 
 ## 0.3.0 [Unreleased]
 
+### Breaking Changes
+
+- Removed the `withKernel()` export. Registry middleware is now wired directly
+  through `configureKernel()`, and teardown happens via the returned instance.
+
 ### Minor Changes
 
 - Introduced `kernel.attachUIBindings()`, `kernel.getUIRuntime()`, and

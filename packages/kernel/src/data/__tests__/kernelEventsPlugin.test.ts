@@ -1,9 +1,26 @@
-import type { ActionErrorEvent } from '../../actions/types';
+import type {
+	ActionErrorEvent,
+	ActionCompleteEvent,
+	ActionStartEvent,
+} from '../../actions/types';
 import { KernelError } from '../../error/KernelError';
 import { kernelEventsPlugin } from '../plugins/events';
 import type { Reporter } from '../../reporter';
 import type { KernelRegistry } from '../types';
 import { KernelEventBus } from '../../events/bus';
+import { WPK_EVENTS } from '../../namespace/constants';
+
+type WordPressHooks = {
+	doAction: jest.Mock;
+	addAction: jest.Mock;
+	removeAction: jest.Mock;
+};
+
+type WordPressWindow = typeof window & {
+	wp?: {
+		hooks: WordPressHooks;
+	};
+};
 
 function createRegistryMock(): KernelRegistry & { createNotice: jest.Mock } {
 	const createNotice = jest.fn();
@@ -33,10 +50,14 @@ function createActionErrorEvent(
 
 describe('kernelEventsPlugin', () => {
 	beforeEach(() => {
-		const hooks = window.wp?.hooks as { doAction?: jest.Mock } | undefined;
-		if (hooks && hooks.doAction) {
-			hooks.doAction.mockReset();
-		}
+		const wpGlobal = window as WordPressWindow;
+		wpGlobal.wp = {
+			hooks: {
+				doAction: jest.fn(),
+				addAction: jest.fn(),
+				removeAction: jest.fn(),
+			},
+		} as WordPressWindow['wp'];
 	});
 
 	it('dispatches notices, reports errors, bridges to hooks, and maps statuses', () => {
@@ -150,10 +171,88 @@ describe('kernelEventsPlugin', () => {
 
 		middleware.destroy?.();
 
-		const hooks = window.wp?.hooks as { doAction?: jest.Mock } | undefined;
-		const before = hooks?.doAction?.mock.calls.length ?? 0;
+		const hooks = (window as WordPressWindow).wp?.hooks;
+		const before = hooks?.doAction.mock.calls.length ?? 0;
 		bus.emit('action:error', createActionErrorEvent());
-		expect(hooks?.doAction?.mock.calls.length ?? 0).toBe(before);
+		expect(hooks?.doAction.mock.calls.length ?? 0).toBe(before);
+	});
+
+	it('bridges lifecycle and custom events to WordPress hooks', () => {
+		const registry = createRegistryMock();
+		const bus = new KernelEventBus();
+		const middleware = kernelEventsPlugin({
+			registry,
+			events: bus,
+		});
+
+		middleware({ dispatch: jest.fn(), getState: jest.fn() })(jest.fn())({
+			type: 'INIT',
+		});
+
+		const hooks = (window as WordPressWindow).wp?.hooks;
+		hooks?.doAction.mockClear();
+
+		const startEvent: ActionStartEvent = {
+			phase: 'start',
+			args: ['input'],
+			actionName: 'DemoAction',
+			requestId: 'start-1',
+			namespace: 'acme',
+			scope: 'crossTab',
+			bridged: false,
+			timestamp: Date.now(),
+		};
+
+		const completeEvent: ActionCompleteEvent = {
+			phase: 'complete',
+			result: { success: true },
+			durationMs: 42,
+			actionName: 'DemoAction',
+			requestId: 'complete-1',
+			namespace: 'acme',
+			scope: 'crossTab',
+			bridged: true,
+			timestamp: Date.now(),
+		};
+
+		bus.emit('action:start', startEvent);
+		bus.emit('action:complete', completeEvent);
+		bus.emit('cache:invalidated', { keys: ['list'], storeKey: 'posts' });
+		bus.emit('action:domain', {
+			eventName: 'acme.action.event',
+			payload: { foo: 'bar' },
+			metadata: startEvent,
+		});
+		bus.emit('custom:event', {
+			eventName: 'acme.custom.event',
+			payload: { fizz: 'buzz' },
+		});
+
+		expect(hooks?.doAction).toHaveBeenNthCalledWith(
+			1,
+			WPK_EVENTS.ACTION_START,
+			startEvent
+		);
+		expect(hooks?.doAction).toHaveBeenNthCalledWith(
+			2,
+			WPK_EVENTS.ACTION_COMPLETE,
+			completeEvent
+		);
+		expect(hooks?.doAction).toHaveBeenNthCalledWith(
+			3,
+			WPK_EVENTS.CACHE_INVALIDATED,
+			expect.objectContaining({ keys: ['list'] })
+		);
+		expect(hooks?.doAction).toHaveBeenNthCalledWith(
+			4,
+			'acme.action.event',
+			{ foo: 'bar' }
+		);
+		expect(hooks?.doAction).toHaveBeenNthCalledWith(
+			5,
+			'acme.custom.event',
+			{ fizz: 'buzz' }
+		);
 	});
 
 	it('removes listeners when destroy is called', () => {
@@ -167,9 +266,9 @@ describe('kernelEventsPlugin', () => {
 
 		middleware.destroy?.();
 
-		const hooks = window.wp?.hooks as { doAction?: jest.Mock } | undefined;
-		const before = hooks?.doAction?.mock.calls.length ?? 0;
+		const hooks = (window as WordPressWindow).wp?.hooks;
+		const before = hooks?.doAction.mock.calls.length ?? 0;
 		bus.emit('action:error', createActionErrorEvent());
-		expect(hooks?.doAction?.mock.calls.length ?? 0).toBe(before);
+		expect(hooks?.doAction.mock.calls.length ?? 0).toBe(before);
 	});
 });

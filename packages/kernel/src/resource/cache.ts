@@ -1,7 +1,9 @@
 import { createReporter } from '../reporter';
 import { WPK_EVENTS, WPK_SUBSYSTEM_NAMESPACES } from '../namespace/constants';
 import { getKernelEventBus } from '../events/bus';
+import type { KernelRegistry } from '../data/types';
 import { getHooks as getActionHooks } from '../actions/context';
+import { KernelError } from '../error/index';
 
 /**
  * Internal state shape exposed by the __getInternalState selector.
@@ -57,7 +59,7 @@ function toPatternsArray(
  * @param storeKey
  */
 function getInternalStateSelector(
-	dataRegistry: ReturnType<NonNullable<typeof getWPData>>,
+	dataRegistry: KernelRegistry,
 	storeKey: string
 ): (() => InternalState) | undefined {
 	const select = dataRegistry?.select(storeKey) as
@@ -185,7 +187,7 @@ function invalidateStoreMatches(
  * @param invalidatedKeysSet
  */
 function processStoreInvalidation(
-	dataRegistry: ReturnType<NonNullable<typeof getWPData>>,
+	dataRegistry: KernelRegistry,
 	storeKey: string,
 	patternsArray: CacheKeyPattern[],
 	invalidatedKeysSet: Set<string>
@@ -235,8 +237,31 @@ function processStoreInvalidation(
 		);
 	}
 }
-import { KernelError } from '../error/index';
 
+function invalidateStores(
+	dataRegistry: KernelRegistry,
+	storeKeys: string[],
+	patternsArray: CacheKeyPattern[],
+	invalidatedKeysSet: Set<string>
+): void {
+	for (const key of storeKeys) {
+		try {
+			processStoreInvalidation(
+				dataRegistry,
+				key,
+				patternsArray,
+				invalidatedKeysSet
+			);
+		} catch (error) {
+			if (process.env.NODE_ENV === 'development') {
+				cacheReporter.warn(
+					`Failed to invalidate cache for store ${key}:`,
+					error
+				);
+			}
+		}
+	}
+}
 /**
  * Cache key utilities for resource store invalidation
  *
@@ -508,6 +533,11 @@ export type InvalidateOptions = {
 	 * @default true
 	 */
 	emitEvent?: boolean;
+
+	/**
+	 * Registry to operate against instead of relying on global getWPData().
+	 */
+	registry?: KernelRegistry;
 };
 
 /**
@@ -573,13 +603,14 @@ export function invalidate(
 	patterns: CacheKeyPattern | CacheKeyPattern[],
 	options: InvalidateOptions = {}
 ): void {
-	const { storeKey, emitEvent = true } = options;
+	const { storeKey, emitEvent = true, registry: overrideRegistry } = options;
 
 	// Normalise patterns input
 	const patternsArray = toPatternsArray(patterns);
 
 	// Resolve data registry (noop in tests / node)
-	const dataRegistry = getWPData();
+	const dataRegistry =
+		overrideRegistry ?? (getWPData() as KernelRegistry | undefined);
 	if (!dataRegistry) {
 		return;
 	}
@@ -590,24 +621,12 @@ export function invalidate(
 	// Accumulate invalidated keys for event emission
 	const invalidatedKeysSet = new Set<string>();
 
-	// Process each store with defensive error handling
-	for (const key of storeKeys) {
-		try {
-			processStoreInvalidation(
-				dataRegistry,
-				key,
-				patternsArray,
-				invalidatedKeysSet
-			);
-		} catch (error) {
-			if (process.env.NODE_ENV === 'development') {
-				cacheReporter.warn(
-					`Failed to invalidate cache for store ${key}:`,
-					error
-				);
-			}
-		}
-	}
+	invalidateStores(
+		dataRegistry,
+		storeKeys,
+		patternsArray,
+		invalidatedKeysSet
+	);
 
 	// Emit event if requested
 	if (emitEvent && invalidatedKeysSet.size > 0) {
@@ -636,6 +655,7 @@ function emitCacheInvalidatedEvent(keys: string[]): void {
  *
  * @internal
  * @param storeKey - The store key to invalidate (e.g., 'my-plugin/thing')
+ * @param registry
  *
  * @example
  * ```ts
@@ -643,8 +663,12 @@ function emitCacheInvalidatedEvent(keys: string[]): void {
  * invalidateAll('my-plugin/thing');
  * ```
  */
-export function invalidateAll(storeKey: string): void {
-	const dataRegistry = getWPData();
+export function invalidateAll(
+	storeKey: string,
+	registry?: KernelRegistry
+): void {
+	const dataRegistry =
+		registry ?? (getWPData() as KernelRegistry | undefined);
 	if (!dataRegistry) {
 		return;
 	}

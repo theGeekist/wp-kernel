@@ -29,7 +29,7 @@ Write-path orchestration with `defineAction()`, middleware layer, lifecycle even
 
 ### WordPress Data Integration (Sprint 4)
 
-`withKernel()` provides two integration layers: 1) Registry integration (`kernelEventsPlugin` bridges errors → `core/notices`, connects lifecycle events to `wp.hooks` for ecosystem extensibility, reporter integration) - recommended for production, and 2) Redux middleware (`createActionMiddleware` enables action dispatch via envelopes) - only needed when using `useAction()` React hook. Resources auto-register stores without `withKernel()`.
+`configureKernel()` provides two integration layers: 1) Registry integration (`kernelEventsPlugin` bridges errors → `core/notices`, connects lifecycle events to `wp.hooks` for ecosystem extensibility, reporter integration) - recommended for production, and 2) Redux middleware (`createActionMiddleware` enables action dispatch via envelopes) - only needed when using `useAction()` React hook. Resources auto-register stores without the bootstrap.
 
 ### Unified Reporting (Sprint 4.5)
 

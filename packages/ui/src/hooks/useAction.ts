@@ -54,7 +54,7 @@ function resolveWpDataRegistry(): ResolvedRegistry {
 	if (!wpData?.dispatch) {
 		throw new KernelError('DeveloperError', {
 			message:
-				'useAction requires the WordPress data registry. Ensure wp.data is available and withKernel() has been called.',
+				'useAction requires the WordPress data registry. Ensure wp.data is available and configureKernel() has been called.',
 		});
 	}
 	return wpData as ResolvedRegistry;
@@ -104,7 +104,7 @@ function resolveInvokeMethod(
 	if (typeof invoke !== 'function') {
 		throw new KernelError('DeveloperError', {
 			message:
-				'Failed to resolve kernel action dispatcher. Verify withKernel() was initialised.',
+				'Failed to resolve kernel action dispatcher. Verify configureKernel() initialised the registry.',
 		});
 	}
 

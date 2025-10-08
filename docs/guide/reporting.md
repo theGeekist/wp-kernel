@@ -63,14 +63,15 @@ Without `debug`, the policy reporter becomes a no-op and avoids console noise.
 
 ## Registry integration
 
-The `withKernel()` helper wires kernel middleware into an `@wordpress/data` registry:
+`configureKernel()` wires kernel middleware into an `@wordpress/data` registry:
 
 ```typescript
-import { withKernel } from '@geekist/wp-kernel';
+import { configureKernel } from '@geekist/wp-kernel';
 
 const registry = createRegistry();
-const teardown = withKernel(registry, {
+const kernel = configureKernel({
 	namespace: 'showcase',
+	registry,
 	reporter: createReporter({ namespace: 'showcase', channel: 'all' }),
 });
 ```
@@ -79,7 +80,7 @@ const teardown = withKernel(registry, {
 - Registers the events plugin which converts `wpk.action.error` into `core/notices` entries and logs via the reporter.
 - Accepts additional middleware through the `middleware` option.
 
-Call the returned cleanup function when hot reloading or tearing down tests to remove middleware and hook listeners.
+Call `kernel.teardown()` when hot reloading or tearing down tests to remove middleware and hook listeners.
 
 ## Linting: no console in kernel
 

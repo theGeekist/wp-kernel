@@ -29,12 +29,12 @@ Public surface (from index.ts):
     - `defineAction<TArgs = void, TResult = void>(actionName: string, fn: ActionFn<TArgs, TResult>, options?: ActionOptions): DefinedAction<TArgs, TResult>` - action authoring
     - `createActionMiddleware(): ReduxMiddleware`, `invokeAction<TArgs, TResult>(action: DefinedAction<TArgs, TResult>, args: TArgs, meta?: Record<string, unknown>): ActionEnvelope<TArgs, TResult>`, `EXECUTE_ACTION_TYPE` (string constant) - action middleware API
         - **data** (`packages/kernel/src/data/`)
-    - `withKernel(registry: KernelRegistry, options?: KernelRegistryOptions): () => void`, `registerKernelStore<Key extends string, State, Actions, Selectors>(key: Key, config: Parameters<typeof createReduxStore>[1]): ReturnType<typeof createReduxStore>` - WordPress Data Integration with two layers: 1) Registry integration (`kernelEventsPlugin` bridges errors → `core/notices`, enables ecosystem extensibility via `wp.hooks`) - recommended for production, and 2) Redux middleware (action dispatch via `invokeAction()`) - only needed when using `useAction()` hook
+- `configureKernel(config: ConfigureKernelOptions): KernelInstance`, `registerKernelStore<Key extends string, State, Actions, Selectors>(key: Key, config: Parameters<typeof createReduxStore>[1]): ReturnType<typeof createReduxStore>` - WordPress Data Integration with two layers: 1) Registry integration (`kernelEventsPlugin` bridges errors → `core/notices`, enables ecosystem extensibility via `wp.hooks`) - recommended for production, and 2) Redux middleware (action dispatch via `invokeAction()`) - only needed when using `useAction()` hook
     - `createReporter(options?: ReporterOptions): Reporter`, `createNoopReporter(): Reporter` - reporter factory
     - `createPolicyProxy<K>(): PolicyHelpers<K>`, `definePolicy<K>(map: PolicyMap<K>, opts?: PolicyOptions): PolicyHelpers<K>` - policy runtime (note: `usePolicy` is provided by the UI package)
     - `getWPData(): unknown | undefined` global helper (`globalThis.getWPData`)
     - **API functions**:
-    - `getNamespace(explicit?: string): string` - get current namespace for scoping (used internally by defineResource, definePolicy, optional withKernel Redux middleware)
+    - `getNamespace(explicit?: string): string` - get current namespace for scoping (used internally by defineResource, definePolicy, optional configureKernel Redux middleware)
     - `detectNamespace(options?: NamespaceDetectionOptions): NamespaceDetectionResult` - auto-detect namespace from plugin headers/package.json
     - `fetch<T>(request: TransportRequest): Promise<TransportResponse<T>>` - WordPress REST API fetch with error normalization and event emission
     - `interpolatePath(template: string, params: PathParams): string` - replace :param placeholders in REST paths (e.g., '/things/:id' → '/things/123')
@@ -56,13 +56,7 @@ Key modules and hooks:
     - Lazy store registration: `defineResource()` lazily registers with `wp.data.createReduxStore(storeKey, descriptor)` when `window.wp.data` is present. Hooks are attached lazily too.
 
 - Data integration (WordPress Data Integration):
-    - `withKernel<Registry>(registry: KernelRegistry, options?: KernelRegistryOptions): () => void` - WordPress Data Integration with two distinct layers:
-        1. **Registry Integration** (recommended): `kernelEventsPlugin` bridges action errors to `core/notices` store, connects lifecycle events to `wp.hooks` for ecosystem extensibility, integrates reporter for centralized observability
-        2. **Redux Middleware** (optional): `createActionMiddleware` enables Redux dispatch via action envelopes - only needed when using `useAction()` React hook
-        - Injects kernel action middleware and kernel event plugin via `registry.__experimentalUseMiddleware`.
-        - Accepts `middleware?: ReduxMiddleware[]` and `reporter?: Reporter`.
-        - Returns a teardown function to remove middleware/hook attachments.
-        - **Note**: Resources auto-register stores with `wp.data` without needing `withKernel()`. This integration provides the extensibility and Redux dispatch layers.
+- `configureKernel(config: ConfigureKernelOptions): KernelInstance` - WordPress Data Integration with two distinct layers: 1. **Registry Integration** (recommended): `kernelEventsPlugin` bridges action errors to `core/notices` store, connects lifecycle events to `wp.hooks` for ecosystem extensibility, integrates reporter for centralized observability 2. **Redux Middleware** (optional): `createActionMiddleware` enables Redux dispatch via action envelopes - only needed when using `useAction()` React hook - Injects kernel action middleware and kernel event plugin via `registry.__experimentalUseMiddleware`. - Accepts `middleware?: ReduxMiddleware[]` and `reporter?: Reporter`. - Returns a teardown function to remove middleware/hook attachments. - **Note**: Resources auto-register stores with `wp.data` without needing `configureKernel()`. The bootstrap provides the extensibility and Redux dispatch layers.
     - `registerKernelStore<Key extends string, State, Actions, Selectors>(key: Key, config: Parameters<typeof createReduxStore<State, Actions, Selectors>>[1]): ReturnType<typeof createReduxStore>` - wrapper to create a Redux store descriptor and register it into `@wordpress/data`.
 
 - Reporter:
@@ -88,8 +82,8 @@ Developer expectations:
 
 - Call `defineResource()` to declare resource - stores auto-register with `wp.data`, no middleware needed.
 - Call `defineAction()` to create actions - work as direct function calls (`await CreatePost(args)`).
-- **Recommended**: Call `withKernel(registry, options)` at bootstrap for registry integration (error → notices bridge, `wp.hooks` extensibility, reporter integration).
-- **Required only for `useAction()` hook**: The Redux middleware layer within `withKernel()` enables action dispatch through stores via `invokeAction()` envelopes.
+- **Recommended**: Call `configureKernel({ registry, ...options })` at bootstrap for registry integration (error → notices bridge, `wp.hooks` extensibility, reporter integration).
+- **Required only for `useAction()` hook**: The Redux middleware layer enabled by `configureKernel()` allows action dispatch through stores via `invokeAction()` envelopes.
 - Actions can be called directly (`await CreatePost(args)`) or dispatched through stores when using `useAction()` hook.
 
 ---
@@ -134,8 +128,8 @@ Detailed hook behaviors:
 
 Takeaway for authors:
 
-- To use React hooks (`useGet`, `useList`, `usePolicy`), ensure the UI bundle is loaded - no `withKernel` required.
-- To use `useAction()` hook for Redux dispatch, call `withKernel(registry)` at bootstrap.
+- To use React hooks (`useGet`, `useList`, `usePolicy`), ensure the UI bundle is loaded - no bootstrap required.
+- To use `useAction()` hook for Redux dispatch, call `configureKernel({ registry })` at bootstrap.
 - `useAction` is the recommended UI-level API for dispatching kernel actions with lifecycle states and concurrency control.
 - `usePolicy` keeps UI capability checks consistent with action policy enforcement.
 
@@ -166,14 +160,14 @@ What authors/testers use:
 
 - `getWPData` (global helper) - convenience to access `window.wp.data`.
 - registry-level plugin hooks:
-    - `registry.__experimentalUseMiddleware` - used by `withKernel` to append middleware.
+    - `registry.__experimentalUseMiddleware` - used by `configureKernel` to append middleware.
     - A possible future `registry.__experimentalUseEnhancer` would allow enhancers, but not present now.
 
 ---
 
 ## Common author workflows (patterns)
 
-### Minimal approach (without `withKernel()`)
+### Minimal approach (without `configureKernel()`)
 
 **What works standalone:**
 
@@ -182,7 +176,7 @@ What authors/testers use:
 - In React, use `useGet<T>`/`useList<T, TQuery>` hooks - work with auto-registered stores
 - Define policies via `definePolicy()` - capability checks work in actions
 
-**What you DON'T get without `withKernel()`:**
+**What you DON'T get without `configureKernel()`:**
 
 - ✗ No automatic error → notices bridge (errors stay in console/manual handling)
 - ✗ No ecosystem extensibility (lifecycle events don't bridge to `wp.hooks` for 3rd-party plugins)
@@ -204,7 +198,7 @@ const CreatePost = defineAction('CreatePost', async (args, ctx) => {
 
 // In React components
 function PostList() {
-  const { data } = Posts.useList(); // Works without withKernel
+  const { data } = Posts.useList(); // Works without configureKernel
 
   async function handleCreate(formData) {
     try {
@@ -220,17 +214,18 @@ function PostList() {
 }
 ```
 
-### Recommended approach (with `withKernel()`)
+### Recommended approach (with `configureKernel()`)
 
 **Registry Integration Layer (Recommended for all production plugins):**
 
 1. **Plugin bootstrap with ecosystem integration**
 
     ```typescript
-    import { withKernel } from '@geekist/wp-kernel';
+    import { configureKernel } from '@geekist/wp-kernel';
 
     // Enable registry integration at bootstrap
-    const teardown = withKernel(window.wp.data, {
+    const kernel = configureKernel({
+    	registry: window.wp.data,
     	namespace: 'my-plugin',
     	reporter: createReporter({ level: 'debug' }),
     });
@@ -246,7 +241,8 @@ function PostList() {
 
     ```typescript
     // Same as above, but now also enables useAction() hook
-    const teardown = withKernel(window.wp.data, {
+    const kernel = configureKernel({
+    	registry: window.wp.data,
     	namespace: 'my-plugin',
     	reporter: createReporter({ level: 'debug' }),
     	middleware: [myCustomMiddleware], // Optional
@@ -273,7 +269,7 @@ function PostList() {
     function PostList() {
       const { data } = Posts.useList(); // Works with auto-registered store
 
-      // Option 1: useAction() hook (requires Redux middleware from withKernel)
+      // Option 1: useAction() hook (requires Redux middleware from configureKernel)
       const { run, status, error } = useAction(CreatePost);
 
       async function handleCreate(formData) {
@@ -293,7 +289,7 @@ function PostList() {
     ```
 
 3. **Hook wiring & custom middleware**
-    - Call `withKernel()` early in bootstrap to enable kernel middleware and `kernelEventsPlugin`
+    - Call `configureKernel()` early in bootstrap to enable kernel middleware and `kernelEventsPlugin`
     - Pass `middleware: [myMiddleware]` to add host middleware (note: runs after kernel action middleware)
 
 4. **Store registration (optional advanced)**
@@ -303,13 +299,13 @@ function PostList() {
     - Define policy rules via `definePolicy()` and use `usePolicy<K extends Record<string, unknown>>()` in UI to gate controls
 
 6. **Reporting/logging**
-    - Provide a custom reporter via `withKernel(registry, { reporter: createReporter() })` to route logs to your telemetry
+    - Provide a custom reporter via `configureKernel({ registry, reporter: createReporter() })` to route logs to your telemetry
 
 ---
 
 ## Important behavioral nuances and gotchas
 
-- Middleware ordering: host-provided middleware runs after kernel action middleware. This is deliberate to ensure action middleware executes envelopes first. If you need to observe envelopes, add instrumentation in `createActionMiddleware()` or change ordering in `withKernel()` (breaking).
+- Middleware ordering: host-provided middleware runs after kernel action middleware. This is deliberate to ensure action middleware executes envelopes first. If you need to observe envelopes, add instrumentation in `createActionMiddleware()` or adjust the ordering passed to `configureKernel()`.
 - Lazy registration: resource stores & UI hooks are lazily registered/attached. Pre-importing resources before UI loads is supported via pending queue + global attach function.
 - Envelopes vs. direct calls: Actions can be invoked directly (call function) or dispatched via store (invoke envelope). Middleware intercepts envelopes; direct calls bypass middleware and execute the function.
 - Globals:

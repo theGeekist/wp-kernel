@@ -1,7 +1,5 @@
-import { withKernel } from './registry';
 import type {
 	KernelRegistry,
-	KernelRegistryOptions,
 	ConfigureKernelOptions,
 	KernelInstance,
 	KernelUIConfig,
@@ -12,12 +10,15 @@ import type { Reporter } from '../reporter';
 import { invalidate as invalidateCache } from '../resource/cache';
 import type { CacheKeyPattern, InvalidateOptions } from '../resource/cache';
 import { KernelError } from '../error/KernelError';
-import type { ReduxMiddleware } from '../actions/types';
 import {
 	getKernelEventBus,
 	type KernelEventBus,
 	setKernelEventBus,
 } from '../events/bus';
+import { createActionMiddleware } from '../actions/middleware';
+import { kernelEventsPlugin } from './plugins/events';
+
+type CleanupTask = () => void;
 
 function resolveRegistry(
 	registry?: KernelRegistry
@@ -59,20 +60,6 @@ function normalizeUIConfig(config?: KernelUIConfig): {
 	};
 }
 
-function createRegistryOptions(
-	namespace: string,
-	reporter: Reporter,
-	middleware: ReduxMiddleware[] | undefined,
-	events: KernelEventBus
-): KernelRegistryOptions {
-	return {
-		namespace,
-		reporter,
-		middleware,
-		events,
-	};
-}
-
 function emitEvent(
 	bus: KernelEventBus,
 	eventName: string,
@@ -97,19 +84,38 @@ export function configureKernel(
 
 	const events = getKernelEventBus();
 	setKernelEventBus(events);
-	let teardown: () => void = () => undefined;
+	const cleanupTasks: CleanupTask[] = [];
 
-	if (registry) {
-		const cleanup = withKernel(
+	if (
+		registry &&
+		typeof registry.__experimentalUseMiddleware === 'function'
+	) {
+		const actionMiddleware = createActionMiddleware();
+
+		const detachActions = registry.__experimentalUseMiddleware(() => [
+			actionMiddleware,
+			...(options.middleware ?? []),
+		]);
+		if (typeof detachActions === 'function') {
+			cleanupTasks.push(detachActions);
+		}
+
+		const eventsMiddleware = kernelEventsPlugin({
+			reporter,
 			registry,
-			createRegistryOptions(
-				namespace,
-				reporter,
-				options.middleware,
-				events
-			)
-		);
-		teardown = cleanup;
+			events,
+		});
+
+		const detachEvents = registry.__experimentalUseMiddleware(() => [
+			eventsMiddleware,
+		]);
+
+		cleanupTasks.push(() => {
+			if (typeof detachEvents === 'function') {
+				detachEvents();
+			}
+			eventsMiddleware.destroy?.();
+		});
 	}
 
 	return {
@@ -123,13 +129,30 @@ export function configureKernel(
 			patterns: CacheKeyPattern | CacheKeyPattern[],
 			opts?: InvalidateOptions
 		) {
-			invalidateCache(patterns, opts);
+			invalidateCache(patterns, {
+				...opts,
+				registry,
+			});
 		},
 		emit(eventName: string, payload: unknown) {
 			emitEvent(events, eventName, payload);
 		},
 		teardown() {
-			teardown();
+			while (cleanupTasks.length > 0) {
+				const task = cleanupTasks.pop();
+				try {
+					task?.();
+				} catch (error) {
+					if (process.env.NODE_ENV === 'development') {
+						reporter.error(
+							'Kernel teardown failed',
+							error instanceof Error
+								? error
+								: new Error(String(error))
+						);
+					}
+				}
+			}
 		},
 		getRegistry() {
 			return registry;

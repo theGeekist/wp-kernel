@@ -24,11 +24,6 @@
 ## Functions
 
 - [normalizeCacheKey](functions/normalizeCacheKey.md)
-- [matchesCacheKey](functions/matchesCacheKey.md)
-- [findMatchingKeys](functions/findMatchingKeys.md)
-- [findMatchingKeysMultiple](functions/findMatchingKeysMultiple.md)
 - [interpolatePath](functions/interpolatePath.md)
-- [extractPathParams](functions/extractPathParams.md)
 - [invalidate](functions/invalidate.md)
-- [invalidateAll](functions/invalidateAll.md)
 - [defineResource](functions/defineResource.md)

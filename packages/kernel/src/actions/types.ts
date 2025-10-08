@@ -14,7 +14,7 @@
  * @module actions/types
  */
 
-import type { CacheKeyPattern } from '../resource/cache';
+import type { CacheKeyPattern, InvalidateOptions } from '../resource/cache';
 import type { PolicyHelpers } from '../policy/types';
 import type { Reporter } from '../reporter';
 
@@ -267,7 +267,7 @@ export type ActionContext = {
 	/** Invalidate cache keys. */
 	invalidate: (
 		patterns: CacheKeyPattern | CacheKeyPattern[],
-		options?: { storeKey?: string; emitEvent?: boolean }
+		options?: InvalidateOptions
 	) => void;
 	/** Background job helpers. */
 	readonly jobs: ActionJobs;
