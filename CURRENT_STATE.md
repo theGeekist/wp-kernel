@@ -74,9 +74,9 @@ Globals and runtime wiring:
 
 - globalThis.getWPData() helper is provided for convenience.
 - global.**WP_KERNEL_ACTION_RUNTIME** can be set to override runtime pieces (reporter, jobs, policy, bridge). The UI and action runtime use this to get policy/reporting backing.
-- UI attach/processing globals:
-    - globalThis.**WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS** - used by UI to attach hooks to resources.
-    - globalThis.**WP_KERNEL_UI_PROCESS_PENDING_RESOURCES** - used to retrieve & process resources defined before UI loaded.
+- UI runtime wiring now relies on the kernel event bus instead of globals:
+    - Resource hooks subscribe to `kernel.events` (`resource:defined`) and replay the kernel registry via `getRegisteredResources()`.
+    - `useAction()` lazily registers the `wp-kernel/ui/actions` store and resolves the dispatcher directly from the WordPress data registry-no global caching or queueing remains.
 
 Developer expectations:
 

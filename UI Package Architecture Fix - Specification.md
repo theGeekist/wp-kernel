@@ -1,14 +1,14 @@
 # UI Package Architecture Fix – Specification
 
 **Version:** 1.0  
-**Status:** Proposed (not yet implemented)  
+**Status:** Implemented
 **Related doc:** `configureKernel - Specification.md`
 
 ---
 
 ## 1. Problem Statement
 
-`@geekist/wp-kernel-ui` currently attaches React hooks (`useGet`, `useList`, `useAction`, `usePolicy`) by mutating globals when the module is imported. Resources enqueue themselves until the UI bundle loads, at which point hooks are patched onto each resource. The package also pokes `global.__WP_KERNEL_ACTION_RUNTIME__` to graft in reporters and policy adapters. This approach produces:
+Earlier revisions of `@geekist/wp-kernel-ui` attached React hooks (`useGet`, `useList`, `useAction`, `usePolicy`) by mutating globals when the module was imported. Resources enqueued themselves until the UI bundle loaded, at which point hooks were patched onto each resource. The package also poked `global.__WP_KERNEL_ACTION_RUNTIME__` to graft in reporters and policy adapters. This approach produced:
 
 - Hidden coupling between the UI bundle and the kernel package (`import '@geekist/wp-kernel-ui'` must run before any resource usage).
 - Load-order fragility when the UI bundle is code-split or loaded lazily.
@@ -54,10 +54,10 @@ To fulfill this role the package must:
 
 ## 4. Current State Summary
 
-- Resources push themselves into a global queue if hooks are not yet attached (`pendingResources[]`).
-- `@geekist/wp-kernel-ui` registers a global callback (`__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__`) and flushes the queue during import.
-- Hooks call `getWPData()`, register internal stores, and rely on `configureKernel()` having run.
-- Components referenced in README are not yet implemented; there is no shared UI runtime to host them.
+- Resource hooks subscribe to `kernel.events` (`resource:defined`) and replay definitions from the kernel registry-no queues or globals remain.
+- UI bindings are attached through adapters (e.g., `attachUIBindings`) that integrate with the kernel instance and operate entirely through runtime events.
+- Hooks call `getWPData()`, register internal stores on demand, and surface explicit `KernelError` guidance when the registry is unavailable.
+- Components referenced in README are still forthcoming, but the runtime contract (`KernelUIRuntime`, `KernelUIProvider`) is documented here for future expansion.
 
 This architecture does not scale once components and additional primitives arrive; each feature would need to repeat the same global dance.
 

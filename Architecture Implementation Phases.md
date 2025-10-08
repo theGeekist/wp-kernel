@@ -237,7 +237,7 @@ remaining compatibility layers.
 - Complete the "Summary of work done below"
 
 **Summary of work done**
-`<placeholder to be replaced when complete>`
+Retired the `__WP_KERNEL_UI_*` compatibility layer by resolving action dispatchers directly from the WordPress registry, refreshed UI tests for the event-driven flow, and updated the specs/state docs to document adapter-only runtime integration.
 
 ---
 

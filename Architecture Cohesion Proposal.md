@@ -26,7 +26,7 @@ High-level findings:
 ### 2.1 Bootstrap & Runtime
 
 - `configureKernel()` now owns registry + middleware setup rather than a standalone `withKernel()` export.
-- UI features depend on global mutation (`__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__`), creating hidden contracts.
+- UI features attach through kernel event subscriptions rather than global mutation, eliminating the hidden `__WP_KERNEL_UI_*` contracts.
 - Global helpers (`getWPData`, action runtime overrides) remain escape hatches without formal lifecycle control.
 
 ### 2.2 Definition APIs
