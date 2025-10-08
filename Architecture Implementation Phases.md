@@ -47,7 +47,7 @@ Implemented `configureKernel()` on top of the existing registry wiring, exposed 
 
 ---
 
-## Phase 2 – KernelUIRuntime Integration (Paired Mode)
+## Phase 2 – KernelUIRuntime Integration (Read the report in "./UI Package Architecture Fix - Specification.md")
 
 **Objective**  
 Replace UI side-effect imports with the explicit runtime contract.
