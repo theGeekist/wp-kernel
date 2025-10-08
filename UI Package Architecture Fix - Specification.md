@@ -45,6 +45,7 @@ To fulfill this role the package must:
 3. **Tree-Shakeable:** Importing hooks or components should not drag in the entire UI surface. Side-effect-only imports are eliminated.
 4. **Component-Ready:** The runtime must power both hooks and higher-level components (React and non-React) through the same service layer.
 5. **No Global Mutation:** All coordination happens through explicit runtime APIs or events emitted by the kernel instance.
+6. **One-Way Dependency:** The kernel never imports UI modules; adapters supplied by the application bridge the two packages.
 
 ---
 
@@ -88,10 +89,10 @@ Key characteristics:
 
 **Paired Mode (default):**
 
-- `configureKernel()` accepts `ui: { enable: boolean, options?: UIIntegrationOptions }`.
-- When enabled, it calls `attachUIBindings(kernel, options)` from the UI package.
-- `attachUIBindings()` receives the kernel instance, builds a `KernelUIRuntime`, registers listeners on `kernel.events` (e.g., `resource:defined`, `action:defined`), and attaches hooks/components immediately-no queue.
-- All UI exports consume the runtime via a shared context (`KernelUIContext`).
+- Applications call `configureKernel({ ui: { attach: attachUIBindings, options } })`, passing the adapter exported from the UI package.
+- `configureKernel()` stores the adapter reference and either invokes it immediately or exposes `kernel.attachUIBindings()` for delayed execution-no kernel → UI import is required.
+- `attachUIBindings(kernel, options)` builds the `KernelUIRuntime`, registers listeners on `kernel.events` (e.g., `resource:defined`, `action:defined`), and attaches hooks/components synchronously.
+- UI exports consume the runtime via `KernelUIProvider`/`useKernelUI` while staying decoupled from kernel internals.
 
 **Standalone Mode:**
 
@@ -189,14 +190,16 @@ export function createResourceController(
 ): ResourceController;
 ```
 
-When `configureKernel({ ui: { enable: true } })` is called:
+Applications typically import `attachUIBindings` and pass it to `configureKernel({ ui: { attach: attachUIBindings } })`, ensuring the kernel never needs to import the UI package. For delayed integration, the same adapter can be supplied to `kernel.attachUIBindings(attachUIBindings, options)` after configuration.
+
+When `configureKernel({ ui: { attach: attachUIBindings, options } })` is called:
 
 ```typescript
 const kernel = configureKernel({
   namespace: 'my-plugin',
   registry,
   ui: {
-    enable: true,
+    attach: attachUIBindings,
     options: { suspense: true },
   },
 });
@@ -229,7 +232,7 @@ createRoot(node).render(
 
 ## 7. Compatibility & Migration Strategy
 
-1. **Phase 1 – Dual Mode:** Keep the legacy side-effect entry (`import '@geekist/wp-kernel-ui'`) but implement it as a thin shim that calls `kernel.getUIRuntime().legacyAttachResources()` if available, otherwise warns developers to enable UI via `configureKernel()`.
+1. **Phase 1 – Dual Mode:** Keep the legacy side-effect entry (`import '@geekist/wp-kernel-ui'`) but implement it as a thin shim that calls `kernel.getUIRuntime().legacyAttachResources()` if available, otherwise warns developers to supply an adapter via `configureKernel({ ui: { attach: attachUIBindings } })`.
 2. **Phase 2 – Event Binding:** Update `defineResource()` and `defineAction()` to emit lifecycle events. Deprecate the global queue and rely on events for hook attachment.
 3. **Phase 3 – Component Rollout:** As components land, they consume the runtime and require either paired or standalone initialization.
 4. **Phase 4 – Remove Legacy:** After consumers migrate, drop globals and side-effect import path.

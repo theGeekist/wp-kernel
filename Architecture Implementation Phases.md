@@ -59,7 +59,9 @@ Legacy globals and side-effect modules are removed outright.
   `kernel.getUIRuntime()`, and `kernel.attachUIBindings()`.
 - Update `@geekist/wp-kernel-ui` hooks to consume the runtime instead of globals;
   delete the global queue/attachment code and the side-effect entry point.
-- Ensure the kernel defers runtime creation when `ui.enable` is `false`.
+- Ensure the kernel treats UI adapters as optional-no automatic imports or
+  globals. Consumers pass `attachUIBindings` via configuration or call
+  `kernel.attachUIBindings()` manually.
 - Document the breaking change in the unreleased sections of
   `packages/kernel/CHANGELOG.md` and `packages/ui/CHANGELOG.md`.
 
@@ -81,7 +83,7 @@ Legacy globals and side-effect modules are removed outright.
 
 **Acceptance Criteria**
 
-- Importing UI hooks without enabling `ui` emits a typed `KernelError`.
+- Importing UI hooks without supplying an adapter emits a typed `KernelError`.
 - Runtime-backed hooks pass the existing test suite; legacy globals are gone.
 
 **Summary of work done**
