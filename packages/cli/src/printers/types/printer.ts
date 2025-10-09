@@ -55,19 +55,19 @@ async function generateTypeForSchema(
 	const typeName = toPascalCase(schema.key);
 	const targetPath = resolveTypeOutputPath(schema, context, indexDirectory);
 
-	const compileOptions = {
+	const compileOptions: Partial<JsonSchemaToTsOptions> = {
 		bannerComment: createBanner(schema, context),
 		style: {
 			singleQuote: true,
 		},
 		unknownAny: false,
 		unreachableDefinitions: false,
-	} satisfies Partial<JsonSchemaToTsOptions>;
+	};
 
 	const compiled = await compile(
 		schema.schema as JSONSchema,
 		typeName,
-		compileOptions as JsonSchemaToTsOptions
+		compileOptions
 	);
 	const formatted = await context.formatTs(targetPath, compiled);
 

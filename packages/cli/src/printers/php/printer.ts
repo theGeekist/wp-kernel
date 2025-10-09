@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
+import { createNoopReporter } from '@geekist/wp-kernel';
 import type { AdapterContext } from '../../config/types';
 import type { IRResource, IRSchema } from '../../ir';
 import type { PrinterContext } from '../types';
@@ -220,12 +221,18 @@ function ensureAdapterContext(
 		return context.adapterContext;
 	}
 
-	return {
+	const adapterContext: AdapterContext & {
+		ir: PrinterContext['ir'];
+	} = {
 		config: context.ir.config,
-		reporter: {} as AdapterContext['reporter'],
+		reporter: createNoopReporter(),
 		namespace: context.ir.meta.sanitizedNamespace,
 		ir: context.ir,
-	} as AdapterContext & { ir: PrinterContext['ir'] };
+	};
+
+	context.adapterContext = adapterContext;
+
+	return adapterContext;
 }
 
 function createPhpIndex(
