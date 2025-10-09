@@ -124,6 +124,25 @@ export type CacheKeys = {
  * })
  * ```
  */
+export type ResourceStoreOptions<T, TQuery = unknown> = {
+	/**
+	 * Function to extract ID from an item.
+	 * Defaults to (item) => item.id
+	 */
+	getId?: (item: T) => string | number;
+
+	/**
+	 * Function to generate query key from query params.
+	 * Defaults to JSON.stringify
+	 */
+	getQueryKey?: (query?: TQuery) => string;
+
+	/**
+	 * Initial state overrides for the store.
+	 */
+	initialState?: Partial<ResourceState<T>>;
+};
+
 export type ResourceConfig<
 	T = unknown,
 	TQuery = unknown,
@@ -186,6 +205,14 @@ export type ResourceConfig<
 	 * reporter instead of creating a child reporter from the kernel instance.
 	 */
 	reporter?: Reporter;
+
+	/**
+	 * Optional store configuration overrides.
+	 *
+	 * Use this to customize identifier extraction, query key generation, or
+	 * provide seeded state when registering the resource store.
+	 */
+	store?: ResourceStoreOptions<T, TQuery>;
 };
 
 /**
@@ -934,24 +961,7 @@ export type ResourceStoreConfig<T, TQuery = unknown> = {
 	 * Reporter instance used for store instrumentation.
 	 */
 	reporter?: Reporter;
-
-	/**
-	 * Initial state for the store.
-	 */
-	initialState?: Partial<ResourceState<T>>;
-
-	/**
-	 * Function to extract ID from an item.
-	 * Defaults to (item) => item.id
-	 */
-	getId?: (item: T) => string | number;
-
-	/**
-	 * Function to generate query key from query params.
-	 * Defaults to JSON.stringify
-	 */
-	getQueryKey?: (query?: TQuery) => string;
-};
+} & ResourceStoreOptions<T, TQuery>;
 
 /**
  * Complete store descriptor returned by createStore.

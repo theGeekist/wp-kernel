@@ -46,6 +46,8 @@ export function validateConfig<T, TQuery>(
 	for (const [routeName, route] of routes) {
 		validateRouteDefinition(routeName, route, resourceName);
 	}
+
+	validateStoreOptions(config, resourceName);
 }
 
 const VALID_ROUTE_NAMES = new Set<
@@ -177,6 +179,41 @@ function validateRouteDefinition(
 			`Invalid HTTP method "${route.method}" for route "${routeName}" in resource "${resourceName}"`,
 			`routes.${routeName}.method`,
 			{ code: 'INVALID_METHOD', resourceName }
+		);
+	}
+}
+
+function validateStoreOptions<T, TQuery>(
+	config: ResourceConfig<T, TQuery>,
+	resourceName: string
+): void {
+	if (config.store === undefined) {
+		return;
+	}
+
+	if (config.store === null || typeof config.store !== 'object') {
+		failValidation(
+			`Resource "${resourceName}" store configuration must be an object`,
+			'store',
+			{ code: 'INVALID_STORE_CONFIG', resourceName }
+		);
+	}
+
+	const { getId, getQueryKey } = config.store;
+
+	if (getId !== undefined && typeof getId !== 'function') {
+		failValidation(
+			`Resource "${resourceName}" store.getId must be a function`,
+			'store.getId',
+			{ code: 'INVALID_STORE_GET_ID', resourceName }
+		);
+	}
+
+	if (getQueryKey !== undefined && typeof getQueryKey !== 'function') {
+		failValidation(
+			`Resource "${resourceName}" store.getQueryKey must be a function`,
+			'store.getQueryKey',
+			{ code: 'INVALID_STORE_GET_QUERY_KEY', resourceName }
 		);
 	}
 }
