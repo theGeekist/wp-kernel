@@ -1,6 +1,6 @@
 # @geekist/wp-kernel-ui
 
-## 0.3.0 [Unreleased]
+## 0.4.0 [Unreleased]
 
 ### Major Changes
 
@@ -17,6 +17,15 @@
   subscribe deterministically regardless of load order.
 - Hooks such as `useAction`, `useResourceList`, and prefetch helpers now throw a
   `KernelError` if a `KernelUIRuntime` is not available.
+
+### Bug Fixes
+
+- Fixed policy runtime freezing at UI attachment time. `runtime.policies` is now
+  a getter that dynamically resolves from the global policy runtime, allowing
+  policies registered via `definePolicy()` after `attachUIBindings()` to be
+  observed (e.g., lazy-loaded plugins). Components won't auto-rerender on late
+  registration but will observe new policies on their next render triggered by
+  other state changes.
 
 ### Migration Guide
 

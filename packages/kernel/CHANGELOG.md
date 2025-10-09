@@ -1,6 +1,6 @@
 # @geekist/wp-kernel
 
-## 0.3.0 [Unreleased]
+## 0.4.0 [Unreleased]
 
 ### Breaking Changes
 
@@ -41,7 +41,7 @@
   configuration-object APIs. Examples now showcase `configureKernel()`,
   `KernelUIProvider`, and cache/event orchestration through action context.
 
-## 0.2.0
+## 0.3.0
 
 ### Patch Changes
 
