@@ -2,6 +2,18 @@
 
 ---
 
+#### Shared Deliverable Expectations
+
+- Update the Status Log for the active phase before marking it complete.
+- Keep CLI package coverage healthy: rerun `pnpm --filter @geekist/wp-kernel-cli test` and confirm branch coverage stays ≥ 89% when landing a phase.
+- Run `pnpm --filter @geekist/wp-kernel-cli build` (vite + tsc) to catch compile regressions introduced during the phase.
+- Document supporting analyses (e.g., Phase 0 audit in `packages/cli/docs/phase-0-baseline-audit.md`) alongside code when a phase requires them.
+- Cross-check referenced specs (PHASES.md, `the-cli-idea.md`, discussion docs) after each phase to prevent drift.
+- Always run `pnpm build` locally before calling a phase done; it’s fast and ensures the updated code typechecks.
+- When committing, use `CI=1 git commit …` (never `git commit --no-verify`) and allow the pre-commit hook to finish; it runs `pnpm typecheck`, `pnpm typecheck:tests`, `pnpm lint --fix`, and a VitePress build. If the hook fails, rerun the individual commands, fix issues, and retry the commit.
+
+---
+
 ### Phase 0 - Baseline Audit & Gap Analysis
 
 **Spec references:** [Sections 1 & 7](./the-cli-idea.md#1-source-of-truth--runtime-parity), [Section 3](./the-cli-idea.md#3-configuration-schema-v1)  
@@ -93,6 +105,7 @@
 
 - `src/printers/types.ts`, `src/printers/php/controllers.ts`, `src/printers/php/base.ts`, `src/printers/php/rest-args.ts`, and aggregator emitters.
 - Golden fixtures comparing generated files to expected outputs (based on showcase).
+- Updated Status Log entry for this phase.
 
 **DoD:** Generated files match formatting expectations; `.generated/types/index.d.ts` emitted; PHP headers include config provenance and sanitised namespace; persistence registrations and controllers align with `identity`/`storage`; `php -l` passes.
 
@@ -119,6 +132,7 @@
 **Deliverables:**
 
 - `src/commands/generate.ts` + integration tests using temporary directories.
+- Updated Status Log entry for this phase.
 
 **DoD:** Running the command in showcase reproduces existing `.generated` outputs; reporter summary includes counts (written/unchanged/skipped); exit codes 0/1/2 verified; reporter honours `--json`/`--verbose`; identity- and storage-driven defaults (slug routes, CPT registration) surface in generated artifacts.
 
@@ -145,6 +159,7 @@
 **Deliverables:**
 
 - `src/commands/apply.ts`, merge utility for guard sections, log writer.
+- Updated Status Log entry for this phase.
 
 **DoD:** Integration tests covering: clean apply, custom code preservation, abort on dirty state, `--yes` and `--backup` behaviour; edits inside AUTO fail without `--force`; PSR-4 check passes.
 
@@ -171,6 +186,7 @@
 **Deliverables:**
 
 - `src/commands/dev.ts`, watcher utility, debounce mechanism.
+- Updated Status Log entry for this phase.
 
 **DoD:** Manual smoke test + mocked unit tests; debounced rebuild by file type; adapters hot-reloaded; clean SIGINT shutdown.
 
@@ -196,6 +212,7 @@
 
 - Extension manager module + tests verifying execution order and error handling.
 - Example adapter extension (e.g., telemetry stub) documented for consumers.
+- Updated Status Log entry for this phase.
 
 **DoD:** Adapter execution order deterministic (config order); failures produce exit code 3 with zero partial writes (temp swap); logs highlight failing adapter.
 
@@ -224,6 +241,7 @@
 - README updates, migration docs, changelog entries, optional demo recording.
 - CLI reference doc generated from command metadata.
 - Updated showcase `.generated/**` committed via CLI.
+- Updated Status Log entry for this phase.
 
 **DoD:** CLI reference generated from `wpk --help`; showcase “golden run” CI job (generate → no diff; apply → PSR-4 check) passes; documentation reviewed.
 

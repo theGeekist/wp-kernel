@@ -555,12 +555,19 @@ function createDefaultCacheKeySegments(resourceName: string): {
 	update: readonly unknown[];
 	remove: readonly unknown[];
 } {
+	const idToken = '__wpk_id__';
+	const emptyObjectToken = '{}';
+
 	return {
-		list: Object.freeze([resourceName, 'list'] as const),
-		get: Object.freeze([resourceName, 'get'] as const),
-		create: Object.freeze([resourceName, 'create'] as const),
-		update: Object.freeze([resourceName, 'update'] as const),
-		remove: Object.freeze([resourceName, 'remove'] as const),
+		list: Object.freeze([resourceName, 'list', emptyObjectToken] as const),
+		get: Object.freeze([resourceName, 'get', idToken] as const),
+		create: Object.freeze([
+			resourceName,
+			'create',
+			emptyObjectToken,
+		] as const),
+		update: Object.freeze([resourceName, 'update', idToken] as const),
+		remove: Object.freeze([resourceName, 'remove', idToken] as const),
 	};
 }
 
@@ -596,9 +603,9 @@ function canonicalJson(value: unknown): string {
 	return JSON.stringify(sortValue(value), null, 2).replace(/\r\n/g, '\n');
 }
 
-function sortValue<T>(value: T): T {
+function sortValue(value: unknown): unknown {
 	if (Array.isArray(value)) {
-		return value.map((entry) => sortValue(entry)) as unknown as T;
+		return value.map((entry) => sortValue(entry));
 	}
 
 	if (value && typeof value === 'object') {
@@ -606,7 +613,7 @@ function sortValue<T>(value: T): T {
 			.map(([key, val]) => [key, sortValue(val)] as const)
 			.sort(([keyA], [keyB]) => keyA.localeCompare(keyB));
 
-		return Object.fromEntries(entries) as T;
+		return Object.fromEntries(entries);
 	}
 
 	if (typeof value === 'undefined') {
@@ -620,7 +627,7 @@ function sortValue<T>(value: T): T {
 }
 
 function sortObject<T extends Record<string, unknown>>(value: T): T {
-	return sortValue(value);
+	return sortValue(value) as T;
 }
 
 function toTitleCase(value: string): string {
@@ -644,5 +651,10 @@ function createPhpNamespace(namespace: string): string {
 
 		return segment.charAt(0).toUpperCase() + segment.slice(1);
 	});
-	return [converted.slice(0, -1).join(''), converted.at(-1)!].join('\\');
+	if (converted.length === 1) {
+		return converted[0]!;
+	}
+
+	const head = converted.slice(0, -1).join('\\');
+	return `${head}\\${converted.at(-1)!}`;
 }
