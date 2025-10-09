@@ -38,9 +38,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Kernel Changes (`@geekist/wp-kernel`)
 
-- Modified `defineResource()` to support lazy hook attachment via global queue mechanism
-- Added resource hook queuing for resources defined before UI package loads
-- Exposed `__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__` global for pending resource processing
+- Emitted typed events from `defineResource()` so UI bindings attach deterministically without queues.
+- Replayed registered resources through the kernel instance, allowing UI packages to hydrate hooks on demand.
+- Removed the `__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__` global now that runtime events drive attachment.
 
 ### Fixed
 

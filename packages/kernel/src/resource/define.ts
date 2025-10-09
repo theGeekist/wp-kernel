@@ -26,27 +26,9 @@ import {
 	createEventsGetter,
 } from './grouped-api';
 import type { CacheKeys, ResourceConfig, ResourceObject } from './types';
-
-/**
- * Module-level queue for resources created before UI bundle loads
- *
- * When defineResource() is called before @geekist/wp-kernel-ui loads, resources
- * are queued here. The UI package processes this queue on module load to attach
- * React hooks (useGet, useList) retroactively.
- *
- * @internal
- */
-const pendingResources: ResourceObject<unknown, unknown>[] = [];
-
-/**
- * Flag tracking whether UI hooks have been attached
- *
- * Set to true once the UI bundle processes the pending queue, preventing
- * future resources from being queued unnecessarily.
- *
- * @internal
- */
-let uiHooksAttached = false;
+import { getKernelEventBus, recordResourceDefined } from '../events/bus';
+import { createReporter, createNoopReporter } from '../reporter';
+import type { Reporter } from '../reporter';
 
 /**
  * Parse namespace:name syntax from a string
@@ -108,6 +90,26 @@ function resolveNamespaceAndName<T, TQuery>(
 	return { namespace, resourceName: config.name };
 }
 
+function resolveReporter(
+	namespace: string,
+	resourceName: string,
+	override?: Reporter
+): Reporter {
+	if (override) {
+		return override;
+	}
+
+	if (process.env.WPK_SILENT_REPORTERS === '1') {
+		return createNoopReporter();
+	}
+
+	return createReporter({
+		namespace: `${namespace}.resource.${resourceName}`,
+		channel: 'all',
+		level: 'debug',
+	});
+}
+
 /**
  * Define a resource with typed REST client
  *
@@ -163,6 +165,15 @@ export function defineResource<T = unknown, TQuery = unknown>(
 	// Resolve namespace and resource name first
 	const { namespace, resourceName } = resolveNamespaceAndName(config);
 
+	const reporter = resolveReporter(namespace, resourceName, config.reporter);
+	const RESOURCE_LOG_MESSAGES = {
+		define: 'resource.define',
+		registerStore: 'resource.store.register',
+		storeRegistered: 'resource.store.registered',
+		prefetchItem: 'resource.prefetch.item',
+		prefetchList: 'resource.prefetch.list',
+	} as const;
+
 	// Create a normalized config for validation
 	const normalizedConfig = {
 		...config,
@@ -172,8 +183,18 @@ export function defineResource<T = unknown, TQuery = unknown>(
 	// Validate configuration (throws on error)
 	validateConfig(normalizedConfig);
 
+	reporter.info(RESOURCE_LOG_MESSAGES.define, {
+		namespace,
+		resource: resourceName,
+		routes: Object.keys(config.routes ?? {}),
+		hasCacheKeys: Boolean(config.cacheKeys),
+	});
+
 	// Create client methods using original config (for routes)
-	const client = createClient<T, TQuery>(config);
+	const client = createClient<T, TQuery>(config, reporter, {
+		namespace,
+		resourceName,
+	});
 
 	// Create or use provided cache keys
 	const cacheKeys: Required<CacheKeys> = {
@@ -186,12 +207,16 @@ export function defineResource<T = unknown, TQuery = unknown>(
 	let _storeRegistered = false;
 
 	// Build resource object
+	const storeReporter = reporter.child('store');
+	const cacheReporter = reporter.child('cache');
+
 	const resource: ResourceObject<T, TQuery> = {
 		...client,
 		name: resourceName,
 		storeKey: `${namespace}/${resourceName}`,
 		cacheKeys,
 		routes: config.routes,
+		reporter,
 
 		// Lazy-load and register @wordpress/data store on first access
 		get store() {
@@ -202,6 +227,7 @@ export function defineResource<T = unknown, TQuery = unknown>(
 				// Create store descriptor
 				const storeDescriptor = createStore<T, TQuery>({
 					resource: resource as ResourceObject<T, TQuery>,
+					reporter,
 				});
 
 				// Check if @wordpress/data is available (browser environment)
@@ -213,6 +239,10 @@ export function defineResource<T = unknown, TQuery = unknown>(
 					globalWp?.data?.createReduxStore &&
 					globalWp?.data?.register
 				) {
+					storeReporter.debug(RESOURCE_LOG_MESSAGES.registerStore, {
+						storeKey: resource.storeKey,
+						resource: resourceName,
+					});
 					// Use createReduxStore to create a proper store descriptor
 					const reduxStore = globalWp.data.createReduxStore(
 						resource.storeKey,
@@ -226,6 +256,10 @@ export function defineResource<T = unknown, TQuery = unknown>(
 						}
 					);
 					globalWp.data.register(reduxStore);
+					storeReporter.info(RESOURCE_LOG_MESSAGES.storeRegistered, {
+						storeKey: resource.storeKey,
+						resource: resourceName,
+					});
 				}
 
 				_store = storeDescriptor;
@@ -264,6 +298,11 @@ export function defineResource<T = unknown, TQuery = unknown>(
 					};
 					const dispatch = storeDispatch(resource.storeKey);
 					if (dispatch?.getItem) {
+						reporter.debug(RESOURCE_LOG_MESSAGES.prefetchItem, {
+							id,
+							storeKey: resource.storeKey,
+							resource: resourceName,
+						});
 						// Trigger the resolver by selecting
 						await globalWp.data
 							.resolveSelect(resource.storeKey as string)
@@ -295,6 +334,11 @@ export function defineResource<T = unknown, TQuery = unknown>(
 
 					// Dispatch resolver (fire and forget)
 
+					reporter.debug(RESOURCE_LOG_MESSAGES.prefetchList, {
+						query,
+						storeKey: resource.storeKey,
+						resource: resourceName,
+					});
 					await globalWp.data
 						.resolveSelect(resource.storeKey as string)
 						.getList(query);
@@ -303,8 +347,12 @@ export function defineResource<T = unknown, TQuery = unknown>(
 
 		// Thin-flat API: Cache management
 		invalidate: (patterns: CacheKeyPattern | CacheKeyPattern[]) => {
-			// Call global invalidate with resource context
-			globalInvalidate(patterns, { storeKey: resource.storeKey });
+			globalInvalidate(patterns, {
+				storeKey: resource.storeKey,
+				reporter: cacheReporter,
+				namespace,
+				resourceName,
+			});
 		},
 
 		key: (
@@ -371,52 +419,12 @@ export function defineResource<T = unknown, TQuery = unknown>(
 		},
 	};
 
-	/**
-	 * React hook attachment logic with lazy binding support
-	 *
-	 * When a resource is defined:
-	 * 1. If UI bundle is already loaded → attach hooks immediately
-	 * 2. If UI not loaded → queue resource for processing when UI loads
-	 * 3. Expose __WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__ for UI to retrieve queue
-	 *
-	 * This ensures resources defined before @geekist/wp-kernel-ui still receive
-	 * useGet/useList hooks when the UI package eventually loads.
-	 *
-	 * @see packages/ui/src/hooks/resource-hooks.ts for hook attachment implementation
-	 * @see types/global.d.ts for global interface definitions
-	 */
-	const attachHooks = (
-		globalThis as {
-			__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__?: <HookEntity, HookQuery>(
-				resource: ResourceObject<HookEntity, HookQuery>
-			) => void;
-			__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__?: () => void;
-		}
-	).__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__;
-
-	if (attachHooks) {
-		// UI is loaded, attach hooks immediately
-		attachHooks(resource as ResourceObject<T, TQuery>);
-		uiHooksAttached = true;
-	} else if (!uiHooksAttached) {
-		// UI not loaded yet, queue the resource
-		pendingResources.push(resource as ResourceObject<unknown, unknown>);
-
-		// Expose a function for UI to process pending resources
-		if (typeof globalThis !== 'undefined') {
-			(
-				globalThis as typeof globalThis & {
-					__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__?: () => ResourceObject<
-						unknown,
-						unknown
-					>[];
-				}
-			).__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__ = () => {
-				uiHooksAttached = true;
-				return pendingResources.splice(0); // Return and clear the queue
-			};
-		}
-	}
+	const definition = {
+		resource: resource as ResourceObject<unknown, unknown>,
+		namespace,
+	};
+	recordResourceDefined(definition);
+	getKernelEventBus().emit('resource:defined', definition);
 
 	return resource;
 }

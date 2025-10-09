@@ -7,7 +7,7 @@
 React components built on `@wordpress/components` with kernel-aware functionality:
 
 - **ActionButton** - Buttons that trigger actions (never transport directly)
-- **DataViews integration** - Modern admin tables for WordPress 6.8+
+- **DataViews integration** - Modern admin tables for WordPress 6.7+
 - **ResourceForm** - Forms with validation and action submission
 - **Block utilities** - Binding and Interactivity API helpers
 
@@ -53,12 +53,12 @@ function PostDashboard() {
 
 > Importing `@geekist/wp-kernel-ui` once in your app bootstrap automatically registers resource hooks for all defined resources.
 
-**Note**: The `withKernel()` bootstrap function is now available from `@geekist/wp-kernel` (see [Data Integration Guide](/guide/data)).
+**Note**: The `configureKernel()` bootstrap function is available from `@geekist/wp-kernel` (see [Data Integration Guide](/guide/data)).
 
 ### Admin Interfaces
 
 ```typescript
-// DataViews for WordPress 6.8+
+// DataViews for WordPress 6.7+
 import { AdminTable } from '@geekist/wp-kernel-ui';
 <AdminTable resource={user} fields={userFields} />
 
@@ -99,14 +99,14 @@ import { AdminTable } from '@geekist/wp-kernel-ui';
 `useAction` wraps kernel Actions with a React-friendly state machine and the
 same middleware pipeline used everywhere else. You get predictable status
 transitions, optional dedupe, concurrency controls, and automatic cache
-invalidation hooks. Pair it with `withKernel()` from `@geekist/wp-kernel` so the data registry is wired up.
+invalidation hooks. Pair it with `configureKernel()` from `@geekist/wp-kernel` so the data registry is wired up.
 
 - [Guide – Actions](/guide/actions)
 - [API reference – `useAction`](/api/useAction)
 
 ## Requirements
 
-- **WordPress**: 6.8+
+- **WordPress**: 6.7+
 - **React**: 18+
 - **@geekist/wp-kernel**: Latest version
 

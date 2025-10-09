@@ -357,7 +357,7 @@ Setup WordPress environment for testing.
 
 ```typescript
 const env = await kernel.project.setup({
-	wpVersion: '6.8',
+	wpVersion: '6.7.4',
 	site: 'tests',
 	headless: true,
 });
@@ -594,7 +594,7 @@ Tests run against wp-env (configured in `.wp-env.json`):
 
 ```json
 {
-	"core": "WordPress/WordPress#6.8",
+	"core": "WordPress/WordPress#6.7.4",
 	"plugins": ["./app/showcase"],
 	"port": 8888,
 	"testsPort": 8889

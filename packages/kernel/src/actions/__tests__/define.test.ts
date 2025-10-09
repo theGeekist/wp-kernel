@@ -1,39 +1,75 @@
 import { defineAction } from '../define';
+import type { ActionConfig, ActionOptions } from '../types';
 import { KernelError } from '../../error/KernelError';
+
+function createAction<TArgs = void, TResult = void>(
+	name: string,
+	handler: ActionConfig<TArgs, TResult>['handler'],
+	options?: ActionOptions
+) {
+	return defineAction<TArgs, TResult>({ name, handler, options });
+}
 
 describe('defineAction', () => {
 	describe('argument validation', () => {
-		it('throws DeveloperError if actionName is missing', () => {
-			expect(() => defineAction('' as string, async () => {})).toThrow(
-				KernelError
-			);
-			expect(() => defineAction('' as string, async () => {})).toThrow(
-				'defineAction requires a non-empty string action name'
+		it('throws DeveloperError when config is missing', () => {
+			expect(() =>
+				defineAction(undefined as unknown as ActionConfig<void, void>)
+			).toThrow(KernelError);
+			expect(() =>
+				defineAction(undefined as unknown as ActionConfig<void, void>)
+			).toThrow(
+				'defineAction requires a configuration object with "name" and "handler".'
 			);
 		});
 
-		it('throws DeveloperError if actionName is not a string', () => {
+		it('throws DeveloperError if name is missing', () => {
 			expect(() =>
-				defineAction(123 as unknown as string, async () => {})
+				defineAction({
+					name: '' as string,
+					handler: async () => {},
+				})
 			).toThrow(KernelError);
 			expect(() =>
-				defineAction(123 as unknown as string, async () => {})
-			).toThrow('defineAction requires a non-empty string action name');
+				defineAction({
+					name: '' as string,
+					handler: async () => {},
+				})
+			).toThrow(
+				'defineAction requires a non-empty string "name" property.'
+			);
 		});
 
-		it('throws DeveloperError if fn is not a function', () => {
+		it('throws DeveloperError if name is not a string', () => {
 			expect(() =>
-				defineAction(
-					'TestAction',
-					'not a function' as unknown as () => Promise<void>
-				)
+				defineAction({
+					name: 123 as unknown as string,
+					handler: async () => {},
+				})
 			).toThrow(KernelError);
 			expect(() =>
-				defineAction(
-					'TestAction',
-					'not a function' as unknown as () => Promise<void>
-				)
-			).toThrow('expects a function as the second argument');
+				defineAction({
+					name: 123 as unknown as string,
+					handler: async () => {},
+				})
+			).toThrow(
+				'defineAction requires a non-empty string "name" property.'
+			);
+		});
+
+		it('throws DeveloperError if handler is not a function', () => {
+			expect(() =>
+				defineAction({
+					name: 'TestAction',
+					handler: 'not a function' as unknown as () => Promise<void>,
+				})
+			).toThrow(KernelError);
+			expect(() =>
+				defineAction({
+					name: 'TestAction',
+					handler: 'not a function' as unknown as () => Promise<void>,
+				})
+			).toThrow('expects a function for the "handler" property');
 		});
 	});
 
@@ -45,7 +81,7 @@ describe('defineAction', () => {
 				context: { source: 'form' },
 			});
 
-			const action = defineAction('TestAction', async () => {
+			const action = createAction('TestAction', async () => {
 				throw originalError;
 			});
 
@@ -67,7 +103,7 @@ describe('defineAction', () => {
 			});
 			const originalStack = originalError.stack;
 
-			const action = defineAction('TestAction', async () => {
+			const action = createAction('TestAction', async () => {
 				throw originalError;
 			});
 
@@ -81,7 +117,7 @@ describe('defineAction', () => {
 		it('wraps standard Error into KernelError with UnknownError code', async () => {
 			const standardError = new Error('Something went wrong');
 
-			const action = defineAction('TestAction', async () => {
+			const action = createAction('TestAction', async () => {
 				throw standardError;
 			});
 
@@ -96,7 +132,7 @@ describe('defineAction', () => {
 		});
 
 		it('wraps non-Error values into KernelError with descriptive message', async () => {
-			const action = defineAction('TestAction', async () => {
+			const action = createAction('TestAction', async () => {
 				throw 'string error';
 			});
 
@@ -112,7 +148,7 @@ describe('defineAction', () => {
 		});
 
 		it('wraps null throw into KernelError', async () => {
-			const action = defineAction('TestAction', async () => {
+			const action = createAction('TestAction', async () => {
 				throw null;
 			});
 
@@ -128,7 +164,7 @@ describe('defineAction', () => {
 		});
 
 		it('wraps undefined throw into KernelError', async () => {
-			const action = defineAction('TestAction', async () => {
+			const action = createAction('TestAction', async () => {
 				throw undefined;
 			});
 
@@ -144,7 +180,7 @@ describe('defineAction', () => {
 		});
 
 		it('wraps number throw into KernelError', async () => {
-			const action = defineAction('TestAction', async () => {
+			const action = createAction('TestAction', async () => {
 				throw 42;
 			});
 
@@ -160,7 +196,7 @@ describe('defineAction', () => {
 		});
 
 		it('wraps object throw into KernelError', async () => {
-			const action = defineAction('TestAction', async () => {
+			const action = createAction('TestAction', async () => {
 				throw { custom: 'error object' };
 			});
 
@@ -190,7 +226,7 @@ describe('defineAction', () => {
 				}
 			});
 
-			const action = defineAction<
+			const action = createAction<
 				{ input: string },
 				{ success: boolean }
 			>('TestAction', async (_ctx) => {
@@ -207,7 +243,7 @@ describe('defineAction', () => {
 		});
 
 		it('emits complete event with result and duration', async () => {
-			const action = defineAction<
+			const action = createAction<
 				{ input: string },
 				{ success: boolean }
 			>('TestAction', async (_ctx) => {
@@ -219,7 +255,7 @@ describe('defineAction', () => {
 		});
 
 		it('emits error event with error and duration', async () => {
-			const action = defineAction('TestAction', async () => {
+			const action = createAction('TestAction', async () => {
 				throw new Error('Test error');
 			});
 
@@ -232,7 +268,7 @@ describe('defineAction', () => {
 
 	describe('action metadata', () => {
 		it('attaches actionName as read-only property', () => {
-			const action = defineAction('TestAction', async () => {});
+			const action = createAction('TestAction', async () => {});
 
 			expect(action.actionName).toBe('TestAction');
 
@@ -243,7 +279,7 @@ describe('defineAction', () => {
 		});
 
 		it('attaches resolved options as read-only property', () => {
-			const action = defineAction('TestAction', async () => {}, {
+			const action = createAction('TestAction', async () => {}, {
 				scope: 'crossTab',
 			});
 
@@ -266,7 +302,7 @@ describe('defineAction', () => {
 			let capturedContext: unknown = null;
 			let capturedArgs: unknown = null;
 
-			const action = defineAction<{ value: number }, number>(
+			const action = createAction<{ value: number }, number>(
 				'TestAction',
 				async (ctx, args) => {
 					capturedContext = ctx;
@@ -287,7 +323,7 @@ describe('defineAction', () => {
 		it('generates unique requestId for each invocation', async () => {
 			const requestIds: string[] = [];
 
-			const action = defineAction('TestAction', async (ctx) => {
+			const action = createAction('TestAction', async (ctx) => {
 				requestIds.push(ctx.requestId);
 			});
 
@@ -302,7 +338,7 @@ describe('defineAction', () => {
 
 	describe('options propagation', () => {
 		it('resolves default options correctly', () => {
-			const action = defineAction('TestAction', async () => {});
+			const action = createAction('TestAction', async () => {});
 
 			expect(action.options).toEqual({
 				scope: 'crossTab',
@@ -311,7 +347,7 @@ describe('defineAction', () => {
 		});
 
 		it('resolves explicit crossTab scope', () => {
-			const action = defineAction('TestAction', async () => {}, {
+			const action = createAction('TestAction', async () => {}, {
 				scope: 'crossTab',
 			});
 
@@ -322,7 +358,7 @@ describe('defineAction', () => {
 		});
 
 		it('resolves explicit tabLocal scope with bridged=false', () => {
-			const action = defineAction('TestAction', async () => {}, {
+			const action = createAction('TestAction', async () => {}, {
 				scope: 'tabLocal',
 			});
 
@@ -333,7 +369,7 @@ describe('defineAction', () => {
 		});
 
 		it('respects explicit bridged=false even with crossTab scope', () => {
-			const action = defineAction('TestAction', async () => {}, {
+			const action = createAction('TestAction', async () => {}, {
 				scope: 'crossTab',
 				bridged: false,
 			});

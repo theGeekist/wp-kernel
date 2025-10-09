@@ -15,6 +15,7 @@ export type {
 	HttpMethod,
 	TransportRequest,
 	TransportResponse,
+	TransportMeta,
 	ResourceRequestEvent,
 	ResourceResponseEvent,
 	ResourceErrorEvent,

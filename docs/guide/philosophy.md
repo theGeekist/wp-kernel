@@ -57,6 +57,8 @@ graph LR
 5. **Jobs** process background work
 6. **PHP Bridge** provides REST endpoints and capabilities
 
+`configureKernel()` wires the registry middleware that powers this flow, exposes the typed event bus, and hands React a runtime through `KernelUIProvider`. With that adapter in place the UI listens to events instead of globals, actions receive a consistent context surface, and the event catalogue stays in lockstep with the documentation you are reading now.
+
 ## Core Principles
 
 ### 1. Actions-First Architecture
@@ -400,21 +402,31 @@ const post = defineResource({
 
 // 2. Create Action
 const CreatePost = defineAction({
-  name: 'CreatePost',
-  async execute({ data }) {
-    const result = await post.create(data);
-    // Events and cache invalidation happen automatically
+  name: 'Post.Create',
+  handler: async (ctx, input) => {
+    const result = await post.create(input);
+    ctx.emit(post.events.created, { id: result.id });
+    ctx.invalidate([post.key('list')]);
     return result;
   },
 });
 
 // 3. Build View
 function PostForm() {
-  const [createPost, { loading }] = useAction(CreatePost);
+  const { run, status } = useAction(CreatePost);
 
   return (
-    <form onSubmit={(data) => createPost(data)}>
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        const formData = new FormData(event.currentTarget);
+        return run(Object.fromEntries(formData));
+      }}
+    >
       {/* Form fields */}
+      <button type="submit" disabled={status === 'running'}>
+        {status === 'running' ? 'Saving…' : 'Save job'}
+      </button>
     </form>
   );
 }

@@ -1,54 +1,81 @@
 # WordPress Data Integration
 
-WP Kernel ships first-class helpers for wiring actions and resources into `@wordpress/data`. The goal is to make ### Summary
+WP Kernel integrates with `@wordpress/data` through the `configureKernel()` bootstrap. The helper installs the registry middleware, forwards to the existing events plugin, and returns a kernel instance you can use immediately so every runtime surface shares the same configuration.
 
-`withKernel` is the framework's public bootstrapping API. Calling it enables participation in the kernel ecosystem: typed actions, lifecycle & domain events bridged to `wp.hooks`, automatic notices, cross-tab coordination, extensible middleware, and upcoming job/bridge integrations. Plugin authors gain consistency and interoperability without bespoke wiring.istries aware of actions, errors, and notices without duplicating glue code in every plugin.
+Core primitives-resources, actions, cache helpers-continue to work without any bootstrap. Stores register themselves and actions can be invoked directly. Calling `configureKernel()` layers in observability, WordPress hooks integration, and optional Redux dispatch so the rest of the ecosystem can listen in.
 
-## What WP Kernel provides (for plugin & theme authors)
+## `configureKernel(config)` – Unified bootstrap
 
-WP Kernel standardizes how plugins and themes interact with data, actions, events, jobs, and error reporting:
-
-- **Typed actions system** – Actions are first-class functions you can dispatch and observe through lifecycle and domain events.
-- **Resource system** – Define REST-backed resources once and get stores, cache helpers, fetch/prefetch utilities, and events for free.
-- **Events and reporting** – Lifecycle events, domain events, reporter integrations, and cross-tab sync keep behaviour observable.
-- **WordPress data integration** – Helpers that connect kernel runtime features to `@wordpress/data` registries with minimal boilerplate.
-- **Background jobs** – Roadmap feature (Sprint 6) that will let actions enqueue durable background work via `defineJob()`.
-- **PHP bridge** – Roadmap feature (Sprint 9) to mirror events into PHP for legacy plugin interoperability.
-
-The UI hooks in `@geekist/wp-kernel-ui` are the activation point for these systems inside React/WordPress experiences.
-
-## `withKernel(registry, options)` – bootstrap the runtime
-
-`withKernel` is the primary integration helper that plugin and theme authors call to wire the kernel runtime into an `@wordpress/data` registry. It is intentionally usable by host applications (plugins/themes), not just internal framework code.
-
-### What `withKernel` does
-
-Calling `withKernel(registry, options)` enables the kernel runtime on that registry:
-
-- **Installs action execution middleware** – Dispatch envelopes from `invokeAction()` and get full ActionContext (policy checks, lifecycle events, reporter wiring, cache invalidation, and planned job hooks _(Roadmap: Sprint 6)_).
-- **Installs the kernel events plugin** – Bridges action lifecycle events to `wp.hooks`, forwards actionable errors to `core/notices.createNotice`, and reports to your configured `Reporter`.
-- **Accepts additional middleware** – Pass `{ middleware: [myMiddleware] }` to append custom middleware after the kernel handler.
-- **Returns a cleanup function** – Remove middleware and detach WP hooks, which keeps hot reloads, tests, and SPA lifecycles stable.
-
-### Why authors should call `withKernel`
-
-1. **Single-step activation of kernel behaviours** – Skip writing bespoke middleware or notice plumbing; `withKernel` installs the tested integration.
-2. **Leverage the ActionContext** – Actions executed through the middleware gain policy enforcement, lifecycle events, domain events via `ctx.emit`, cross-tab broadcast, cache invalidation, reporter logging, and future background job coordination _(Roadmap: Sprint 6)_.
-3. **Native WordPress experience** – Lifecycle and domain events are bridged into `wp.hooks` so PHP-side plugins or other JS code can observe them, keeping backwards compatibility.
-4. **Consistent error handling** – Kernel errors map into WordPress notices automatically while still logging structured context through the reporter.
-5. **Cross-tab and bridge support** – `scope: 'crossTab'` actions sync via `BroadcastChannel`. When the PHP bridge lands _(Roadmap: Sprint 9)_, the same events will be mirrored server-side.
-6. **Extensible middleware** – Custom middleware and reporters plug into the runtime without reimplementing the action pipeline.
-
-### Practical examples
-
-#### Minimal bootstrap (plugin entry point)
+`configureKernel()` accepts a small configuration object and returns a `KernelInstance`. The instance exposes shared services such as the namespace, reporter, cache helpers, and `KernelEventBus` (`kernel.events`) so you can subscribe to lifecycle updates without touching globals.
 
 ```ts
-import { withKernel } from '@geekist/wp-kernel';
-import { registerKernelStore } from '@geekist/wp-kernel';
+import { configureKernel } from '@geekist/wp-kernel';
+
+const kernel = configureKernel({
+	namespace: 'acme',
+	registry: window.wp.data,
+	ui: { enable: false },
+});
+
+kernel.emit('acme.bootstrap.ready', { timestamp: Date.now() });
+```
+
+### What it wires
+
+- **Registry integration** – Installs the existing `kernelEventsPlugin`, bridges action errors into `core/notices`, and forwards lifecycle events to `wp.hooks` when available.
+- **Redux middleware (optional)** – Appends the action middleware that powers `invokeAction()` envelopes. Hooks like `useAction()` rely on this layer.
+- **Reporter resolution** – Reuses a provided reporter or creates one scoped to the detected namespace. Retrieve it any time with `kernel.getReporter()`.
+- **Cache + events helpers** – Call `kernel.invalidate()` to reuse the canonical resource cache helpers and `kernel.emit()` to publish domain events.
+- **UI plumbing** – Pass `ui: { enable: true }` to opt into UI runtime integration in later phases. The flag defaults to `false` so nothing changes until you enable it.
+
+### Instance helpers available today
+
+The initial instance surface focuses on read-mostly helpers:
+
+- `kernel.getNamespace()` – Returns the namespace resolved during configuration.
+- `kernel.getReporter()` – Provides access to the shared reporter.
+- `kernel.invalidate(patterns, options?)` – Delegates to the cache helpers using the configured registry.
+- `kernel.emit(eventName, payload)` – Emits custom events through WordPress hooks (and existing bridges).
+- `kernel.ui.isEnabled()` – Reports whether UI integration was requested.
+- `kernel.teardown()` – Removes middleware and listeners that were installed during configuration (useful in tests and hot reloads).
+
+## Core functionality without `configureKernel()`
+
+Resources, actions, and cache helpers remain self-sufficient:
+
+- `defineResource()` automatically registers stores with the WordPress registry.
+- `defineAction()` works as a plain async function: `await CreatePost({ title: 'Hello' })`.
+- Resource hooks such as `useGet()` and `useList()` continue to function without registry middleware.
+- Lifecycle events still call into `wp.hooks.doAction()` when the hooks runtime exists.
+
+You gain additional telemetry, notices, and Redux dispatch once `configureKernel()` runs.
+
+## Why production plugins should configure the kernel
+
+### Registry integration (recommended)
+
+1. **Consistent error handling** – Kernel errors map into WordPress notices automatically while emitting structured reporter output.
+2. **Ecosystem extensibility** – Lifecycle and domain events bridge into `wp.hooks` so PHP plugins or other JS bundles can observe them.
+3. **Centralised observability** – All events flow through the shared reporter, giving you a single telemetry pipeline.
+4. **Cross-tab coordination** – `scope: 'crossTab'` actions continue to use `BroadcastChannel` for synchronisation.
+
+### Redux middleware (only when using `useAction()`)
+
+5. **Redux dispatch** – `invokeAction()` envelopes dispatch through the registry so `useAction()` hooks can provide loading and error states.
+6. **Type-safe envelopes** – Middleware unwraps the action metadata and ensures dispatch stays strongly typed.
+
+Actions retain their full `ActionContext` (policy enforcement, cache invalidation, reporter access, `ctx.emit()`) whether called directly or dispatched through Redux.
+
+## Practical examples
+
+### Minimal bootstrap (plugin entry point)
+
+```ts
+import { configureKernel, registerKernelStore } from '@geekist/wp-kernel';
 
 export function bootstrap(registry) {
-	const teardown = withKernel(registry, {
+	const kernel = configureKernel({
+		registry,
 		namespace: 'my-plugin',
 	});
 
@@ -63,11 +90,33 @@ export function bootstrap(registry) {
 		controls: {},
 	});
 
-	return teardown;
+	return kernel.teardown;
 }
 ```
 
-#### Dispatch kernel actions via a store
+### Calling actions directly (no Redux middleware required)
+
+```ts
+import { CreateItem } from './actions/CreateItem';
+
+// Direct function call - works without configureKernel()
+export async function createItem(payload) {
+	try {
+		const result = await CreateItem(payload);
+		// Action still has full ActionContext capabilities:
+		// - Policy enforcement
+		// - Lifecycle events (wpk.action.start/complete/error)
+		// - ctx.emit() for domain events
+		// - Cache invalidation
+		// - Reporter logging
+		return result;
+	} catch (error) {
+		console.error(error);
+	}
+}
+```
+
+### Dispatch kernel actions via Redux store (requires middleware)
 
 ```ts
 import { invokeAction } from '@geekist/wp-kernel/actions';
@@ -80,14 +129,16 @@ export async function createItemViaStore(store, payload) {
 }
 ```
 
-#### Automatic notices & reporting
+> Ensure `configureKernel({ registry })` runs before dispatching envelopes so the middleware is installed.
 
-If `CreateItem` throws `KernelError('ValidationError', { message: 'Bad input' })`, then after `withKernel(registry)` runs:
+### Automatic notices & reporting
 
-- `core/notices.createNotice('info', 'Bad input')` fires when the store is registered.
+If `CreateItem` throws `KernelError('ValidationError', { message: 'Bad input' })`, then after `configureKernel({ registry })` runs:
+
+- `core/notices.createNotice('info', 'Bad input')` fires once the store is registered.
 - The configured reporter receives `error(...)` with contextual metadata.
 
-#### Add tracing middleware
+### Add tracing middleware
 
 ```ts
 const metricsMiddleware = () => (next) => async (action) => {
@@ -97,14 +148,17 @@ const metricsMiddleware = () => (next) => async (action) => {
 	return result;
 };
 
-const teardown = withKernel(registry, { middleware: [metricsMiddleware] });
+configureKernel({
+	registry,
+	namespace: 'my-plugin',
+	middleware: [metricsMiddleware],
+});
 ```
 
-#### Custom reporter
+### Custom reporter
 
 ```ts
-import { withKernel } from '@geekist/wp-kernel';
-import { createReporter } from '@geekist/wp-kernel';
+import { configureKernel, createReporter } from '@geekist/wp-kernel';
 
 const reporter = createReporter({
 	namespace: 'my-plugin',
@@ -112,12 +166,12 @@ const reporter = createReporter({
 	level: 'debug',
 });
 
-withKernel(registry, { reporter });
+configureKernel({ registry, reporter });
 ```
 
-#### PHP / WP hooks listeners
+### PHP / WP hooks listeners
 
-`withKernel` forwards action events into `wp.hooks`, so a PHP plugin can listen:
+`configureKernel()` forwards action events into `wp.hooks`, so a PHP plugin can listen, while the `KernelEventBus` gives JavaScript consumers a typed subscription surface:
 
 ```php
 add_action( 'wpk.action.error', 'my_plugin_handle_action_error', 10, 1 );
@@ -126,132 +180,27 @@ function my_plugin_handle_action_error( $payload ) {
 }
 ```
 
-### Edge cases & limitations
+## Edge cases & limitations
 
 - **Registry support** – No-op when `__experimentalUseMiddleware` is missing (older `@wordpress/data`).
 - **Missing hooks** – If `window.wp?.hooks` is absent, lifecycle events stay internal.
 - **Notice dependencies** – Without `core/notices`, notice forwarding is skipped but reporter logging stays active.
 - **BroadcastChannel** – Absent in SSR or older browsers; cross-tab sync degrades gracefully.
-- **Runtime configuration** – Policy engines and reporters rely on runtime wiring. Background jobs and PHP bridge integrations will arrive with future roadmap sprints.
+- **Runtime configuration** – Policy engines and reporters rely on runtime wiring. Background jobs and PHP bridge integrations arrive in later phases.
 - **Middleware ordering** – Custom middleware runs after the kernel middleware. Ensure ordering aligns with your instrumentation requirements.
 
-### Best practices
+## Best practices
 
-- Call `withKernel(registry)` once per registry at bootstrap; it is idempotent for typical usage.
+- Call `configureKernel()` once per registry at bootstrap; retain the teardown for tests and hot module replacement.
 - Register stores via `registerKernelStore()` so they inherit kernel-aware behaviour.
 - Throw `KernelError` subclasses from actions for structured notice mapping.
 - Provide a production reporter to forward logs to your telemetry system.
-- Retain the teardown function for tests and hot module replacement.
+- Use `kernel.emit()` for domain events so they route through existing bridges.
 
-### Summary
+## Summary
 
-`useKernel` is the framework’s public bootstrapping API. Calling it enables participation in the kernel ecosystem: typed actions, lifecycle & domain events bridged to `wp.hooks`, automatic notices, cross-tab coordination, extensible middleware, and upcoming job/bridge integrations. Plugin authors gain consistency and interoperability without bespoke wiring.
+`configureKernel()` is the canonical bootstrap for WP Kernel. It installs the middleware stack, exposes the shared reporter and namespace, and prepares the ecosystem bridges that production plugins rely on. Configure once and let the kernel handle the wiring.
 
 ## `usePolicy()` – gate UI with runtime capabilities
 
 `usePolicy` gives components access to the active policy runtime so UI can conditionally render based on capabilities.
-
-### What `usePolicy` does
-
-- Subscribes to the policy cache so capability decisions stay reactive.
-- Exposes `can(key, ...params)` to evaluate policy helpers.
-- Surfaces `keys`, `isLoading`, and `error` for loading/error states.
-- Emits developer-friendly errors when no policy runtime is wired (remember to call `definePolicy()` during bootstrap).
-
-### Why authors should use `usePolicy`
-
-1. **Policy-driven UX** – Render controls only when authorised, using the same rules as action execution.
-2. **Shared cache** – Reads from the kernel’s policy cache, including cross-tab synchronisation.
-3. **Consistency** – Keeps UI behaviour aligned with policy enforcement in the action layer.
-4. **Graceful loading** – Reflects `isLoading` and `error` so you can show skeletons or fallback messages.
-
-### Example
-
-```ts
-import { usePolicy } from '@geekist/wp-kernel-ui';
-import type { PolicyKeys } from '../policies';
-
-export function DeleteButton({ postId }) {
-        const { can, isLoading, error } = usePolicy<PolicyKeys>();
-        const allowed = can('posts.delete', { postId });
-
-        if (isLoading) {
-                return <Spinner />;
-        }
-        if (!allowed) {
-                return null;
-        }
-        if (error) {
-                return <Notice status="warning">{error.message}</Notice>;
-        }
-
-        return <ActionButton action={DeletePost} args={{ postId }} />;
-}
-```
-
-### Edge cases
-
-- Ensure a policy runtime is registered via `definePolicy()` inside your kernel bootstrap.
-- `usePolicy` returns `false` until hydration completes; design loading states accordingly.
-- Async `can()` helpers resolve to `false` while pending but propagate errors for observability.
-
-### Summary
-
-Use `usePolicy` to keep UI affordances in sync with capability checks. It leans on the shared policy runtime so action execution and UI gating stay consistent.
-
-## Resource hooks – `useGet` and `useList`
-
-Resource definitions automatically gain `useGet` and `useList` when the UI bundle is loaded. These hooks wrap `@wordpress/data` selectors and lifecycle helpers for you.
-
-### What they provide
-
-- **`useGet(id)`** – Reads a single entity, returning `{ data, isLoading, error }` based on store resolution state.
-- **`useList(query)`** – Reads collection data with loading/error signals derived from resolver status.
-- **Automatic store hydration** – Accessing the hook ensures the resource store is registered (no manual imports).
-- **WordPress awareness** – Hooks require `@wordpress/data.useSelect`; they throw a helpful `KernelError` when unavailable.
-
-### Example
-
-```ts
-import { defineResource } from '@geekist/wp-kernel/resource';
-
-export const Posts = defineResource({
-        name: 'Posts',
-        routes: {
-                get: { path: '/wp/v2/posts/:id' },
-                list: { path: '/wp/v2/posts' },
-        },
-});
-
-function PostList() {
-        const { data, isLoading, error } = Posts.useList({ per_page: 5 });
-
-        if (isLoading) {
-                return <Spinner />;
-        }
-        if (error) {
-                return <Notice status="error">{error}</Notice>;
-        }
-        if (!data?.items?.length) {
-                return <EmptyState>No posts yet.</EmptyState>;
-        }
-
-        return (
-                <ul>
-                        {data.items.map((post) => (
-                                <li key={post.id}>{post.title.rendered}</li>
-                        ))}
-                </ul>
-        );
-}
-```
-
-### Edge cases
-
-- Hooks throw a `DeveloperError` when `@wordpress/data` is absent. Ensure WordPress data is loaded before rendering.
-- `useGet` reports `isLoading: true` until the resolver finishes or cached data exists.
-- Errors are surfaced as strings (`error` for lists, `error.message` for items) to simplify notice rendering.
-
-### Summary
-
-Let resources supply their own hooks. `useGet` and `useList` provide idiomatic access to resource stores with automatic loading/error states and zero boilerplate.

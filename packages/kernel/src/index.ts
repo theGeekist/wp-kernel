@@ -75,6 +75,7 @@ export type {
 	HttpMethod,
 	TransportRequest,
 	TransportResponse,
+	TransportMeta,
 	ResourceRequestEvent,
 	ResourceResponseEvent,
 	ResourceErrorEvent,
@@ -126,6 +127,7 @@ export {
 	EXECUTE_ACTION_TYPE,
 } from './actions/middleware.js';
 export type {
+	ActionConfig,
 	ActionContext,
 	ActionFn,
 	ActionOptions,
@@ -146,6 +148,7 @@ export type {
 	PolicyMap,
 	PolicyHelpers,
 	PolicyOptions,
+	PolicyDefinitionConfig,
 	PolicyContext,
 	PolicyCache,
 	PolicyCacheOptions,
@@ -155,16 +158,47 @@ export type {
 } from './policy/index.js';
 
 // Data integration
-export { withKernel, registerKernelStore } from './data/index.js';
+export { configureKernel, registerKernelStore } from './data/index.js';
 export { kernelEventsPlugin } from './data/plugins/events';
 export type {
 	KernelRegistry,
-	KernelRegistryOptions,
+	ConfigureKernelOptions,
+	KernelInstance,
+	KernelUIConfig,
+	KernelUIRuntime,
+	KernelUIAttach,
+	UIIntegrationOptions,
+	KernelUIPolicyRuntime,
 	NoticeStatus,
 } from './data/index.js';
 
+// Event bus
+export {
+	KernelEventBus,
+	getKernelEventBus,
+	setKernelEventBus,
+	getRegisteredResources,
+	getRegisteredActions,
+	clearRegisteredResources,
+	clearRegisteredActions,
+} from './events/bus';
+export type {
+	KernelEventMap,
+	ResourceDefinedEvent,
+	ActionDefinedEvent,
+	ActionDomainEvent,
+	CacheInvalidatedEvent,
+	CustomKernelEvent,
+} from './events/bus';
+
 // Reporter
-export { createReporter, createNoopReporter } from './reporter/index.js';
+export {
+	createReporter,
+	createNoopReporter,
+	getKernelReporter,
+	setKernelReporter,
+	clearKernelReporter,
+} from './reporter/index.js';
 export type {
 	Reporter,
 	ReporterOptions,

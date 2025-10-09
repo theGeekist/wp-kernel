@@ -4,14 +4,17 @@
  */
 
 import { invalidate, registerStoreKey } from '../../cache';
-import { WPK_SUBSYSTEM_NAMESPACES } from '../../../namespace/constants';
+import { setKernelEventBus, KernelEventBus } from '../../../events/bus';
+import { setKernelReporter, clearKernelReporter } from '../../../reporter';
+import type { Reporter } from '../../../reporter';
 
 // Use global types for window.wp
 
 describe('invalidate', () => {
 	let mockDispatch: jest.Mock;
 	let mockSelect: jest.Mock;
-	let mockDoAction: jest.Mock;
+	let bus: KernelEventBus;
+	let cacheListener: jest.Mock;
 	let originalWp: Window['wp'];
 
 	beforeEach(() => {
@@ -22,7 +25,6 @@ describe('invalidate', () => {
 		// Create mocks
 		mockDispatch = jest.fn();
 		mockSelect = jest.fn();
-		mockDoAction = jest.fn();
 
 		// Setup window.wp mock
 		if (windowWithWp) {
@@ -31,15 +33,18 @@ describe('invalidate', () => {
 					dispatch: mockDispatch,
 					select: mockSelect,
 				},
-				hooks: {
-					doAction: mockDoAction,
-				},
 			};
 		}
+
+		bus = new KernelEventBus();
+		setKernelEventBus(bus);
+		cacheListener = jest.fn();
+		bus.on('cache:invalidated', cacheListener);
 
 		// Register test store keys
 		registerStoreKey('wpk/thing');
 		registerStoreKey('wpk/job');
+		clearKernelReporter();
 	});
 
 	afterEach(() => {
@@ -48,8 +53,39 @@ describe('invalidate', () => {
 		if (windowWithWp && originalWp) {
 			windowWithWp.wp = originalWp;
 		}
+		setKernelEventBus(new KernelEventBus());
 		jest.clearAllMocks();
+		clearKernelReporter();
 	});
+
+	function createReporterSpy(): { reporter: Reporter; logs: LogEntry[] } {
+		const logs: LogEntry[] = [];
+		const reporter: Reporter = {
+			info(message, context) {
+				logs.push({ level: 'info', message, context });
+			},
+			warn(message, context) {
+				logs.push({ level: 'warn', message, context });
+			},
+			error(message, context) {
+				logs.push({ level: 'error', message, context });
+			},
+			debug(message, context) {
+				logs.push({ level: 'debug', message, context });
+			},
+			child() {
+				return reporter;
+			},
+		};
+
+		return { reporter, logs };
+	}
+
+	type LogEntry = {
+		level: 'debug' | 'info' | 'warn' | 'error';
+		message: string;
+		context?: unknown;
+	};
 
 	describe('basic invalidation', () => {
 		it('should invalidate matching cache keys in a store', () => {
@@ -87,8 +123,8 @@ describe('invalidate', () => {
 				'inactive',
 			]);
 
-			// Should emit event with NORMALIZED keys
-			expect(mockDoAction).toHaveBeenCalledWith('wpk.cache.invalidated', {
+			// Should emit event with NORMALIZED keys via event bus
+			expect(cacheListener).toHaveBeenCalledWith({
 				keys: expect.arrayContaining([
 					'thing:list:active',
 					'thing:list:inactive',
@@ -215,6 +251,90 @@ describe('invalidate', () => {
 		});
 	});
 
+	describe('reporter instrumentation', () => {
+		it('uses kernel reporter when no override provided', () => {
+			const { reporter, logs } = createReporterSpy();
+			setKernelReporter(reporter);
+
+			const mockState = {
+				lists: {
+					active: [1, 2],
+				},
+				listMeta: {},
+				errors: {},
+			};
+
+			const mockStoreDispatch = {
+				invalidate: jest.fn(),
+			};
+
+			const mockStoreSelect = {
+				__getInternalState: jest.fn().mockReturnValue(mockState),
+			};
+
+			mockDispatch.mockReturnValue(mockStoreDispatch);
+			mockSelect.mockReturnValue(mockStoreSelect);
+
+			invalidate(['thing', 'list'], { storeKey: 'wpk/thing' });
+
+			expect(logs).toEqual(
+				expect.arrayContaining([
+					expect.objectContaining({
+						level: 'debug',
+						message: 'cache.invalidate.request',
+					}),
+					expect.objectContaining({
+						level: 'info',
+						message: 'cache.invalidate.match',
+					}),
+					expect.objectContaining({
+						level: 'info',
+						message: 'cache.invalidate.summary',
+					}),
+				])
+			);
+		});
+
+		it('prefers explicit reporter override', () => {
+			const kernelSpy = createReporterSpy();
+			const overrideSpy = createReporterSpy();
+			setKernelReporter(kernelSpy.reporter);
+
+			const mockState = {
+				lists: {
+					active: [1, 2],
+				},
+				listMeta: {},
+				errors: {},
+			};
+
+			const mockStoreDispatch = {
+				invalidate: jest.fn(),
+			};
+
+			const mockStoreSelect = {
+				__getInternalState: jest.fn().mockReturnValue(mockState),
+			};
+
+			mockDispatch.mockReturnValue(mockStoreDispatch);
+			mockSelect.mockReturnValue(mockStoreSelect);
+
+			invalidate(['thing', 'list'], {
+				storeKey: 'wpk/thing',
+				reporter: overrideSpy.reporter,
+			});
+
+			expect(overrideSpy.logs).toEqual(
+				expect.arrayContaining([
+					expect.objectContaining({
+						message: 'cache.invalidate.match',
+					}),
+				])
+			);
+			expect(kernelSpy.logs).toEqual([]);
+		});
+	});
+
 	describe('event emission', () => {
 		it('should emit wpk.cache.invalidated event by default', () => {
 			// State has RAW keys
@@ -237,9 +357,7 @@ describe('invalidate', () => {
 
 			invalidate(['thing', 'list']);
 
-			// Event is emitted with NORMALIZED keys
-			expect(mockDoAction).toHaveBeenCalledWith(
-				'wpk.cache.invalidated',
+			expect(cacheListener).toHaveBeenCalledWith(
 				expect.objectContaining({
 					keys: expect.arrayContaining(['thing:list:active']),
 				})
@@ -266,7 +384,7 @@ describe('invalidate', () => {
 
 			invalidate(['thing', 'list'], { emitEvent: false });
 
-			expect(mockDoAction).not.toHaveBeenCalled();
+			expect(cacheListener).not.toHaveBeenCalled();
 		});
 
 		it('should not emit event when no keys matched', () => {
@@ -289,7 +407,7 @@ describe('invalidate', () => {
 
 			invalidate(['thing', 'list']);
 
-			expect(mockDoAction).not.toHaveBeenCalled();
+			expect(cacheListener).not.toHaveBeenCalled();
 		});
 	});
 
@@ -628,29 +746,26 @@ describe('invalidate', () => {
 			const originalEnv = process.env.NODE_ENV;
 			process.env.NODE_ENV = 'development';
 
-			const consoleWarnSpy = jest
-				.spyOn(console, 'warn')
-				.mockImplementation();
+			const { reporter, logs } = createReporterSpy();
+			setKernelReporter(reporter);
 
-			// Mock dispatch to throw an error
 			mockDispatch.mockImplementation(() => {
 				throw new Error('Store explosion!');
 			});
 
-			// Should not throw
 			expect(() => {
 				invalidate(['thing', 'list']);
 			}).not.toThrow();
 
-			// Should log warning in development
-			expect(consoleWarnSpy).toHaveBeenCalledWith(
-				`[${WPK_SUBSYSTEM_NAMESPACES.CACHE}]`,
-				expect.stringContaining('Failed to invalidate cache for store'),
-				expect.any(Error)
+			expect(logs).toEqual(
+				expect.arrayContaining([
+					expect.objectContaining({
+						level: 'error',
+						message: 'cache.store.invalidate.failure',
+					}),
+				])
 			);
-			expect(console as any).toHaveWarned();
 
-			consoleWarnSpy.mockRestore();
 			process.env.NODE_ENV = originalEnv;
 		});
 
@@ -658,24 +773,25 @@ describe('invalidate', () => {
 			const originalEnv = process.env.NODE_ENV;
 			process.env.NODE_ENV = 'production';
 
-			const consoleWarnSpy = jest
-				.spyOn(console, 'warn')
-				.mockImplementation();
+			const { reporter, logs } = createReporterSpy();
+			setKernelReporter(reporter);
 
-			// Mock dispatch to throw an error
 			mockDispatch.mockImplementation(() => {
 				throw new Error('Store explosion!');
 			});
 
-			// Should not throw
 			expect(() => {
 				invalidate(['thing', 'list']);
 			}).not.toThrow();
 
-			// Should NOT log warning in production
-			expect(consoleWarnSpy).not.toHaveBeenCalled();
+			expect(logs).toEqual(
+				expect.not.arrayContaining([
+					expect.objectContaining({
+						message: 'cache.store.invalidate.failure',
+					}),
+				])
+			);
 
-			consoleWarnSpy.mockRestore();
 			process.env.NODE_ENV = originalEnv;
 		});
 
@@ -705,7 +821,7 @@ describe('invalidate', () => {
 			expect(mockStoreDispatch.invalidate).toHaveBeenCalled();
 
 			// Should NOT emit event
-			expect(mockDoAction).not.toHaveBeenCalled();
+			expect(cacheListener).not.toHaveBeenCalled();
 		});
 
 		it('should skip emitting event when no keys were invalidated', () => {
@@ -729,7 +845,7 @@ describe('invalidate', () => {
 			invalidate(['thing', 'list']);
 
 			// Should NOT emit event (no keys matched)
-			expect(mockDoAction).not.toHaveBeenCalled();
+			expect(cacheListener).not.toHaveBeenCalled();
 		});
 
 		it('should handle getMatchingStoreKeys with empty prefix', () => {

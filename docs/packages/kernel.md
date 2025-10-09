@@ -32,6 +32,10 @@ graph LR
 
 ## Key Features
 
+### Bootstrap
+
+`configureKernel()` is the canonical bootstrap. It wires the registry middleware, bridges lifecycle events into `wp.hooks`, and returns a `KernelInstance` with helpers like `getNamespace()`, `getReporter()`, `invalidate()`, `emit()`, and the typed `KernelEventBus` exposed as `kernel.events`.
+
 ### Resources
 
 Define your data layer once, get everything you need:
@@ -60,11 +64,11 @@ Orchestrate write operations with automatic event emission:
 import { defineAction } from '@geekist/wp-kernel/actions';
 
 export const CreatePost = defineAction({
-	name: 'CreatePost',
-	async execute({ data }) {
+	name: 'Post.Create',
+	handler: async (ctx, { data }) => {
 		const result = await post.create(data);
-		// Events automatically emitted
-		// Cache automatically invalidated
+		ctx.emit(post.events.created, { id: result.id });
+		ctx.invalidate([post.key('list')]);
 		return result;
 	},
 });
@@ -126,10 +130,17 @@ import { KernelError } from '@geekist/wp-kernel/error';
 ### Namespace Imports
 
 ```typescript
-import { resource, action, error } from '@geekist/wp-kernel';
+import { resource, actions, error } from '@geekist/wp-kernel';
 
 const post = resource.defineResource({...});
-const CreatePost = action.defineAction({...});
+const CreatePost = actions.defineAction({
+        name: 'Post.Create',
+        handler: async (ctx, input) => {
+                const created = await post.create(input);
+                ctx.emit(post.events.created, { id: created.id });
+                return created;
+        },
+});
 throw new error.KernelError('ValidationError', {...});
 ```
 
@@ -215,7 +226,7 @@ pnpm add @geekist/wp-kernel
 
 ### Peer Dependencies
 
-- WordPress 6.8+ (Script Modules API)
+- WordPress 6.7+ (Script Modules API)
 - Node.js 22+ (development)
 
 ## Integration Guides

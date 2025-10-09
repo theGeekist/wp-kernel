@@ -6,6 +6,7 @@
 
 import { createStore } from '../../store';
 import type { ResourceObject, ListResponse } from '../../types';
+import { createNoopReporter } from '../../../reporter';
 
 // Mock resource for testing
 interface MockThing {
@@ -36,6 +37,7 @@ describe('createStore - Cache Keys', () => {
 		mockResource = {
 			name: 'thing',
 			storeKey: 'wpk/thing',
+			reporter: createNoopReporter(),
 			cacheKeys: {
 				list: (query) => ['thing', 'list', JSON.stringify(query || {})],
 				get: (id) => ['thing', 'get', id],

@@ -63,14 +63,15 @@ Without `debug`, the policy reporter becomes a no-op and avoids console noise.
 
 ## Registry integration
 
-The `withKernel()` helper wires kernel middleware into an `@wordpress/data` registry:
+`configureKernel()` wires kernel middleware into an `@wordpress/data` registry:
 
 ```typescript
-import { withKernel } from '@geekist/wp-kernel';
+import { configureKernel } from '@geekist/wp-kernel';
 
 const registry = createRegistry();
-const teardown = withKernel(registry, {
+const kernel = configureKernel({
 	namespace: 'showcase',
+	registry,
 	reporter: createReporter({ namespace: 'showcase', channel: 'all' }),
 });
 ```
@@ -79,7 +80,19 @@ const teardown = withKernel(registry, {
 - Registers the events plugin which converts `wpk.action.error` into `core/notices` entries and logs via the reporter.
 - Accepts additional middleware through the `middleware` option.
 
-Call the returned cleanup function when hot reloading or tearing down tests to remove middleware and hook listeners.
+Call `kernel.teardown()` when hot reloading or tearing down tests to remove middleware and hook listeners.
+
+## Resource telemetry
+
+Resources now emit cache and transport logs through the same reporter tree. When you
+call `resource.invalidate()` the framework records `cache.invalidate.request` and
+`cache.invalidate.summary` events (along with match/miss debug entries) using a
+kernel-scoped reporter child. Transport operations inherit the reporter metadata as
+well, so `fetchList`, `fetch`, `create`, `update`, and `remove` generate
+`transport.request`, `transport.response`, or `transport.error` messages with
+correlated request IDs. Forward the reporter to your logging pipeline (Sentry,
+Datadog, etc.) to correlate cache invalidations and REST requests with upstream
+actions and policies.
 
 ## Linting: no console in kernel
 

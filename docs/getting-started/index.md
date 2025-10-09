@@ -57,11 +57,14 @@ registerBindingSource('gk', {
 ```
 
 ```typescript
-export const CreateThing = defineAction('Thing.Create', async ({ data }) => {
-	const created = await thing.create(data);
-	CreateThing.emit(events.thing.created, { id: created.id });
-	invalidate(['thing', 'list']);
-	return created;
+export const CreateThing = defineAction({
+	name: 'Thing.Create',
+	handler: async (ctx, { data }) => {
+		const created = await thing.create(data);
+		ctx.emit(thing.events.created, { id: created.id });
+		ctx.invalidate([thing.key('list')]);
+		return created;
+	},
 });
 ```
 
@@ -84,7 +87,3 @@ Actions remain the only sanctioned write path. JavaScript hooks are the authorit
 ## Next steps
 
 When you are ready to dive in, start with the [installation guide](/getting-started/installation) to prepare your tooling. Move on to the [Quick Start](/getting-started/quick-start) to build a feature end to end. The [Repository Handbook](/guide/repository-handbook) points you to project-level documents like `DEVELOPMENT.md`, and the broader [Core Concepts](/guide/) section unpacks Actions, resources, events, bindings, and jobs in depth.
-
-```
-
-```

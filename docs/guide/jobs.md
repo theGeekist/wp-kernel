@@ -11,12 +11,15 @@ Queue long-running tasks from Actions. Client can poll for status updates.
 ```typescript
 import { defineJob } from '@geekist/wp-kernel/jobs';
 
-export const IndexTestimonial = defineJob('IndexTestimonial', {
-	enqueue: (params: { id: number }) => {
-		// POST /wpk/v1/jobs/index-testimonial
-	},
-	status: (params) => {
-		// GET /wpk/v1/jobs/index-testimonial/status?id=...
+export const IndexTestimonial = defineJob({
+	name: 'IndexTestimonial',
+	handler: {
+		enqueue: (params: { id: number }) => {
+			// POST /wpk/v1/jobs/index-testimonial
+		},
+		status: (params) => {
+			// GET /wpk/v1/jobs/index-testimonial/status?id=...
+		},
 	},
 });
 

@@ -4,7 +4,9 @@
  */
 
 import { invalidate, invalidateAll, normalizeCacheKey } from '../../cache';
-import { WPK_SUBSYSTEM_NAMESPACES } from '../../../namespace/constants';
+import { KernelEventBus, setKernelEventBus } from '../../../events/bus';
+import { setKernelReporter, clearKernelReporter } from '../../../reporter';
+import type { Reporter } from '../../../reporter';
 
 // Use global types for window.wp
 
@@ -25,10 +27,12 @@ describe('cache helper functions', () => {
 describe('invalidate edge cases', () => {
 	let mockDispatch: jest.Mock;
 	let mockSelect: jest.Mock;
-	let mockDoAction: jest.Mock;
+	let bus: KernelEventBus;
+	let cacheListener: jest.Mock;
 	let originalWp: Window['wp'];
 	let originalNodeEnv: string | undefined;
-	let consoleWarnSpy: jest.SpyInstance;
+	let reporterLogs: LogEntry[];
+	let reporter: Reporter;
 
 	beforeEach(() => {
 		// Store originals
@@ -36,13 +40,16 @@ describe('invalidate edge cases', () => {
 		originalWp = windowWithWp?.wp;
 		originalNodeEnv = process.env.NODE_ENV;
 
-		// Spy on console.warn
-		consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+		({ reporter, logs: reporterLogs } = createReporterSpy());
+		setKernelReporter(reporter);
 
 		// Create mocks
 		mockDispatch = jest.fn();
 		mockSelect = jest.fn();
-		mockDoAction = jest.fn();
+		bus = new KernelEventBus();
+		setKernelEventBus(bus);
+		cacheListener = jest.fn();
+		bus.on('cache:invalidated', cacheListener);
 
 		// Setup window.wp mock
 		if (windowWithWp) {
@@ -50,9 +57,6 @@ describe('invalidate edge cases', () => {
 				data: {
 					dispatch: mockDispatch,
 					select: mockSelect,
-				},
-				hooks: {
-					doAction: mockDoAction,
 				},
 			};
 		}
@@ -70,9 +74,39 @@ describe('invalidate edge cases', () => {
 			delete process.env.NODE_ENV;
 		}
 
-		consoleWarnSpy.mockRestore();
+		clearKernelReporter();
+		setKernelEventBus(new KernelEventBus());
 		jest.clearAllMocks();
 	});
+
+	type LogEntry = {
+		level: 'debug' | 'info' | 'warn' | 'error';
+		message: string;
+		context?: unknown;
+	};
+
+	function createReporterSpy(): { reporter: Reporter; logs: LogEntry[] } {
+		const logs: LogEntry[] = [];
+		const spyReporter: Reporter = {
+			info(message, context) {
+				logs.push({ level: 'info', message, context });
+			},
+			warn(message, context) {
+				logs.push({ level: 'warn', message, context });
+			},
+			error(message, context) {
+				logs.push({ level: 'error', message, context });
+			},
+			debug(message, context) {
+				logs.push({ level: 'debug', message, context });
+			},
+			child() {
+				return spyReporter;
+			},
+		};
+
+		return { reporter: spyReporter, logs };
+	}
 
 	describe('development environment warnings', () => {
 		it('should log warning when store does not expose __getInternalState in development', () => {
@@ -94,11 +128,14 @@ describe('invalidate edge cases', () => {
 				invalidate(['thing', 'list'], { storeKey: 'wpk/thing' });
 			}).not.toThrow();
 
-			expect(consoleWarnSpy).toHaveBeenCalledWith(
-				`[${WPK_SUBSYSTEM_NAMESPACES.CACHE}]`,
-				'Store wpk/thing does not expose __getInternalState selector'
+			expect(reporterLogs).toEqual(
+				expect.arrayContaining([
+					expect.objectContaining({
+						level: 'warn',
+						message: 'cache.store.missingState',
+					}),
+				])
 			);
-			expect(console as any).toHaveWarned();
 		});
 
 		it('should log warning when invalidateAll fails in development', () => {
@@ -117,12 +154,14 @@ describe('invalidate edge cases', () => {
 				invalidateAll('wpk/thing');
 			}).not.toThrow();
 
-			expect(consoleWarnSpy).toHaveBeenCalledWith(
-				`[${WPK_SUBSYSTEM_NAMESPACES.CACHE}]`,
-				expect.stringContaining('Failed to invalidate all caches'),
-				expect.any(Error)
+			expect(reporterLogs).toEqual(
+				expect.arrayContaining([
+					expect.objectContaining({
+						level: 'error',
+						message: 'cache.store.invalidate.failure',
+					}),
+				])
 			);
-			expect(console as any).toHaveWarned();
 		});
 
 		it('should not log warning when invalidate fails in production', () => {
@@ -150,7 +189,13 @@ describe('invalidate edge cases', () => {
 				invalidate(['thing', 'list'], { storeKey: 'wpk/thing' });
 			}).not.toThrow();
 
-			expect(consoleWarnSpy).not.toHaveBeenCalled();
+			expect(reporterLogs).toEqual(
+				expect.not.arrayContaining([
+					expect.objectContaining({
+						message: 'cache.store.invalidate.failure',
+					}),
+				])
+			);
 		});
 
 		it('should not log warning when invalidateAll fails in production', () => {
@@ -162,6 +207,9 @@ describe('invalidate edge cases', () => {
 				}),
 			};
 
+			const override = createReporterSpy();
+			setKernelReporter(override.reporter);
+
 			mockDispatch.mockReturnValue(mockStoreDispatch);
 
 			// Should not throw or log
@@ -169,7 +217,13 @@ describe('invalidate edge cases', () => {
 				invalidateAll('wpk/thing');
 			}).not.toThrow();
 
-			expect(consoleWarnSpy).not.toHaveBeenCalled();
+			expect(override.logs).toEqual(
+				expect.not.arrayContaining([
+					expect.objectContaining({
+						message: 'cache.store.invalidate.failure',
+					}),
+				])
+			);
 		});
 	});
 
@@ -195,7 +249,7 @@ describe('invalidate edge cases', () => {
 				emitEvent: false,
 			});
 
-			expect(mockDoAction).not.toHaveBeenCalled();
+			expect(cacheListener).not.toHaveBeenCalled();
 		});
 
 		it('should not emit event when no keys were invalidated', () => {
@@ -219,7 +273,7 @@ describe('invalidate edge cases', () => {
 				emitEvent: true,
 			});
 
-			expect(mockDoAction).not.toHaveBeenCalled();
+			expect(cacheListener).not.toHaveBeenCalled();
 		});
 
 		it('should handle missing window.wp.hooks gracefully', () => {
@@ -264,7 +318,7 @@ describe('invalidate edge cases', () => {
 			}).not.toThrow();
 
 			// Should not emit event
-			expect(mockDoAction).not.toHaveBeenCalled();
+			expect(cacheListener).not.toHaveBeenCalled();
 		});
 
 		it('should emit event with wildcard when invalidateAll succeeds', () => {
@@ -277,7 +331,7 @@ describe('invalidate edge cases', () => {
 			invalidateAll('wpk/thing');
 
 			expect(mockStoreDispatch.invalidateAll).toHaveBeenCalled();
-			expect(mockDoAction).toHaveBeenCalledWith('wpk.cache.invalidated', {
+			expect(cacheListener).toHaveBeenCalledWith({
 				keys: ['wpk/thing:*'],
 			});
 		});
