@@ -276,7 +276,7 @@ describe('createResourceHelper', () => {
 				routes: {
 					...resourceConfig.routes,
 					remove: {
-						path: '/wpk/v1/jobs/:id',
+						path: '/wpk/v1/jobs/:slug',
 						method: 'DELETE',
 					},
 				},
@@ -384,6 +384,13 @@ describe('createResourceHelper', () => {
 				...resourceConfig,
 				store: {
 					getId: (item: { slug: string }) => item.slug,
+				},
+				routes: {
+					...resourceConfig.routes,
+					remove: {
+						path: '/wpk/v1/jobs/:slug',
+						method: 'DELETE',
+					},
 				},
 			} satisfies ResourceConfig;
 
