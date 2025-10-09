@@ -230,4 +230,90 @@ describe('useHoverPrefetch', () => {
 			expect.any(Function)
 		);
 	});
+
+	it('ignores additional hover events while a timeout is pending', () => {
+		const { element, callback, unmount } = setupHover({ delayMs: 100 });
+
+		act(() => {
+			element.dispatchEvent(
+				new MouseEvent('mouseenter', { bubbles: true })
+			);
+			element.dispatchEvent(
+				new MouseEvent('mouseenter', { bubbles: true })
+			);
+			jest.advanceTimersByTime(100);
+		});
+
+		expect(callback).toHaveBeenCalledTimes(1);
+		unmount();
+	});
+
+	it('prevents double invocation when timers resolve repeatedly', () => {
+		const setTimeoutSpy = jest.spyOn(window, 'setTimeout');
+		const { element, callback, unmount } = setupHover({
+			delayMs: 50,
+			once: true,
+		});
+
+		act(() => {
+			element.dispatchEvent(
+				new MouseEvent('mouseenter', { bubbles: true })
+			);
+		});
+
+		const timeoutCall = setTimeoutSpy.mock.calls[0];
+		expect(timeoutCall).toBeDefined();
+		const [timeoutCallback] = timeoutCall as [() => void];
+
+		act(() => {
+			(timeoutCallback as () => void)();
+			(timeoutCallback as () => void)();
+		});
+
+		expect(callback).toHaveBeenCalledTimes(1);
+		unmount();
+		setTimeoutSpy.mockRestore();
+	});
+
+	it('short-circuits gracefully when window is undefined', () => {
+		const descriptor = Object.getOwnPropertyDescriptor(
+			globalThis,
+			'window'
+		);
+
+		if (!descriptor?.configurable) {
+			expect(descriptor?.configurable).toBe(false);
+			return;
+		}
+
+		const container = document.createElement('div');
+		const root = createRoot(container);
+		const callback = jest.fn();
+		const ref = createRef<HTMLDivElement>();
+
+		function SSRComponent() {
+			useHoverPrefetch(ref, callback);
+			return <div ref={ref}>content</div>;
+		}
+
+		Object.defineProperty(globalThis, 'window', {
+			configurable: true,
+			value: undefined,
+		});
+
+		try {
+			expect(() => {
+				act(() => {
+					root.render(<SSRComponent />);
+				});
+			}).not.toThrow();
+		} finally {
+			Object.defineProperty(globalThis, 'window', descriptor);
+			act(() => {
+				root.unmount();
+			});
+		}
+
+		expect(callback).not.toHaveBeenCalled();
+	});
 });

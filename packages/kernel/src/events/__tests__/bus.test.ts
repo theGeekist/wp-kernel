@@ -150,4 +150,31 @@ describe('KernelEventBus', () => {
 
 		expect(reporter?.error).not.toHaveBeenCalled();
 	});
+
+	it('supports once listeners that tear themselves down', () => {
+		const bus = new KernelEventBus();
+		const listener = jest.fn();
+
+		bus.once('custom:event', listener);
+
+		const payload = { eventName: 'wpk.once', payload: { id: 1 } };
+		bus.emit('custom:event', payload);
+		bus.emit('custom:event', payload);
+
+		expect(listener).toHaveBeenCalledTimes(1);
+	});
+
+	it('allows removing listeners before registration', () => {
+		const bus = new KernelEventBus();
+		const listener = jest.fn();
+
+		expect(() => bus.off('custom:event', listener)).not.toThrow();
+
+		bus.on('custom:event', listener);
+		bus.off('custom:event', listener);
+
+		// Emitting after removal should not trigger listener
+		bus.emit('custom:event', { eventName: 'noop', payload: null });
+		expect(listener).not.toHaveBeenCalled();
+	});
 });

@@ -157,6 +157,23 @@ describe('usePolicy hook (UI integration)', () => {
 		cleanup();
 	});
 
+	it('provides a developer error when no policy runtime is available', async () => {
+		const runtime = createRuntime();
+		const results: UsePolicyResult<Record<string, unknown>>[] = [];
+		const { cleanup } = renderTestComponent(results, runtime);
+
+		await act(async () => {
+			await Promise.resolve();
+		});
+
+		const latest = results[results.length - 1]!;
+		expect(latest.isLoading).toBe(false);
+		expect(latest.keys).toEqual([]);
+		expect(latest.error).toBeInstanceOf(KernelError);
+		expect(latest.can('any' as never, undefined as never)).toBe(false);
+		cleanup();
+	});
+
 	it('captures async denials from runtime can()', async () => {
 		const runtimeCan = jest.fn(() => Promise.reject('nope'));
 		const runtime: RuntimePolicy = {

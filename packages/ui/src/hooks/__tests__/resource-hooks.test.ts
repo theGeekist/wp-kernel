@@ -639,6 +639,44 @@ describe('resource hooks (UI integration)', () => {
 		expect(typeof (resource1 as any).useGet).toBe('function');
 		expect(typeof (resource2 as any).useList).toBe('function');
 	});
+
+	it('does not attach hooks when routes are missing', () => {
+		const resource = {
+			name: 'empty',
+			routes: {},
+		} as unknown as ResourceObject<MockThing, MockThingQuery>;
+
+		attachResourceHooks(resource);
+
+		expect(resource.useGet).toBeUndefined();
+		expect(resource.useList).toBeUndefined();
+	});
+
+	it('treats unknown list statuses as resolved', () => {
+		mockWpData.useSelect.mockImplementation((callback: any) => {
+			const mockSelect = {
+				getList: jest.fn().mockReturnValue([]),
+				getListStatus: jest.fn().mockReturnValue('ready'),
+				isResolving: jest.fn().mockReturnValue(false),
+				hasFinishedResolution: jest.fn().mockReturnValue(undefined),
+				getListError: jest.fn().mockReturnValue(undefined),
+			};
+
+			return callback(() => mockSelect);
+		});
+
+		const resource = defineResourceWithHooks<MockThing, MockThingQuery>({
+			name: 'thing',
+			routes: {
+				list: { path: '/wpk/v1/things', method: 'GET' },
+			},
+		});
+
+		const { result } = renderUseListHook(resource);
+
+		expect(result.current.isLoading).toBe(false);
+		expect(result.current.error).toBeUndefined();
+	});
 });
 function defineResourceWithHooks<T, Q>(
 	config: Parameters<typeof defineResource<T, Q>>[0]
