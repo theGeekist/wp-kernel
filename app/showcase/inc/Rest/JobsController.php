@@ -7,20 +7,21 @@
  * @package WPKernelShowcase
  */
 
-namespace WPKernel\Showcase\REST;
+namespace WPKernel\Showcase\Rest;
 
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
-use WPKernel\Showcase\REST_Controller;
+use WPKernel\Showcase\Rest\Controller;
 
 /**
- * Jobs REST Controller class.
+ * Jobs REST controller generated from the `kernelConfig.resources.job` definition.
+ * This working copy mirrors the generator output; customise behaviour here as needed.
  *
  * Provides endpoints for listing, retrieving, and managing job postings.
  */
-class Jobs_Controller extends REST_Controller {
+class JobsController extends Controller {
 	/**
 	 * Resource name.
 	 *
@@ -162,8 +163,10 @@ class Jobs_Controller extends REST_Controller {
 	public function create_item( $request ) {
 		// Get existing jobs from transient.
 		$jobs = get_transient( 'wpk_showcase_jobs' );
-		if ( false === $jobs ) {
-			$jobs = array();
+		
+		// Fall back to sample data if no jobs in transient.
+		if ( false === $jobs || empty( $jobs ) ) {
+			$jobs = $this->get_sample_jobs();
 		}
 
 		// Generate new ID.
@@ -219,8 +222,10 @@ class Jobs_Controller extends REST_Controller {
 
 		// Get existing jobs from transient.
 		$jobs = get_transient( 'wpk_showcase_jobs' );
-		if ( false === $jobs ) {
-			$jobs = array();
+		
+		// Fall back to sample data if no jobs in transient.
+		if ( false === $jobs || empty( $jobs ) ) {
+			$jobs = $this->get_sample_jobs();
 		}
 
 		// Find the job to update.
@@ -287,8 +292,10 @@ class Jobs_Controller extends REST_Controller {
 
 		// Get existing jobs from transient.
 		$jobs = get_transient( 'wpk_showcase_jobs' );
-		if ( false === $jobs ) {
-			$jobs = array();
+		
+		// Fall back to sample data if no jobs in transient.
+		if ( false === $jobs || empty( $jobs ) ) {
+			$jobs = $this->get_sample_jobs();
 		}
 
 		// Find the job to delete.

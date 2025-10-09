@@ -3,6 +3,11 @@
 	"description": "Showcase plugin demonstrating WP Kernel framework features",
 	"type": "wordpress-plugin",
 	"license": "MIT",
+	"autoload": {
+		"psr-4": {
+			"WPKernel\\\\Showcase\\\\": "inc/"
+		}
+	},
 	"require-dev": {
 		"php-stubs/wordpress-stubs": "^6.8",
 		"php-stubs/wp-cli-stubs": "^2.11"

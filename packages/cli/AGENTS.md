@@ -13,3 +13,5 @@ Run `pnpm test --filter @geekist/wp-kernel-cli` and `pnpm build --filter @geekis
 ### Conventions
 
 Respect package boundaries: consume kernel APIs through public exports, never deep imports. When adding commands that touch documentation or specs, coordinate the updates so generated output references the latest guidance.
+
+Refer to `PHASES.md` in this package for the current roadmap, DoD, and testing expectations before extending the CLI.

@@ -8,7 +8,11 @@
 		"jsx": "react-jsx",
 		"jsxImportSource": "react"
 	},
-	"include": ["src/**/*", "../../types/**/*.d.ts"],
+	"include": [
+		"src/**/*",
+		".generated/types/**/*.d.ts",
+		"../../types/**/*.d.ts"
+	],
 	"exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.test.tsx"],
 	"references": [
 		{ "path": "../../packages/kernel" },

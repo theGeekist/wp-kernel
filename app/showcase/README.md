@@ -20,16 +20,21 @@ This plugin demonstrates how to build a modern WordPress product using WP Kernel
 
 ```
 app/showcase/
-├── contracts/           # JSON Schema definitions
-│   └── job.schema.json  # Job entity schema
-├── types/              # Auto-generated TypeScript types
-│   └── job.d.ts        # Generated from job.schema.json
+├── .generated/         # Auto-generated artifacts (types, future PHP/apply output)
+│   ├── types/          # Generated TypeScript types
+│   │   └── job.d.ts    # Generated from job.schema.json
+│   ├── php/            # Reserved for generated PHP bridge code
+│   ├── rest-args/      # Reserved for REST argument maps
+│   ├── validators/     # Reserved for dev-only validators
+│   └── helpers/        # Reserved for query helpers/cache keys
+├── contracts/          # JSON Schema definitions
+│   └── job.schema.json # Job entity schema
 ├── src/                # Source code
 │   ├── resources/      # defineResource() definitions
 │   ├── actions/        # defineAction() orchestrators
 │   ├── views/          # Block bindings + Interactivity
 │   └── admin/          # Admin surfaces
-├── includes/           # PHP code
+├── inc/                # PHP bridge code (PSR-4, thin runtime wiring)
 │   └── rest/           # REST API controllers
 ├── seeds/             # Development seed scripts
 └── __tests__/         # Unit tests
@@ -47,7 +52,7 @@ Domain-specific schemas live in `contracts/` (within the showcase plugin, not th
 
 ### Type Generation
 
-TypeScript types are automatically generated from JSON Schema files using `json-schema-to-typescript`.
+TypeScript types are automatically generated from JSON Schema files using `json-schema-to-typescript`. Outputs live under `.generated/types/` so downstream tooling and generators can consume the same artifacts that power runtime imports.
 
 **Generate types manually:**
 
@@ -60,6 +65,12 @@ pnpm types:generate
 ```bash
 pnpm build  # Runs types:generate first
 ```
+
+Generated files are written to `.generated/types/job.d.ts`.
+
+### PHP Bridge Scaffolding
+
+REST controllers and other PHP bridge files under `inc/` adhere to PSR-4 (`WPKernel\Showcase\*`) and mirror the auto-generated templates in `.generated/php/**`. The generator derives these templates from `src/kernel.config.ts`, so developers can regenerate confidently and still customise the working copies.
 
 ### Schema Validation
 
@@ -178,7 +189,7 @@ The Job entity schema (`contracts/job.schema.json`) defines:
 Once types are generated, import and use them in your code:
 
 ```typescript
-import type { Job } from '../types/job';
+import type { Job } from '../.generated/types/job';
 
 // Fully typed Job entity
 const job: Job = {

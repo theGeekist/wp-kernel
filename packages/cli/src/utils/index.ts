@@ -1,0 +1,1 @@
+export { resolveFromWorkspace } from './path';

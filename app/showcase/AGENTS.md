@@ -33,7 +33,7 @@ This app is a **real-world WordPress plugin demo** designed to exercise WP Kerne
 - Prefer using block.json `viewScriptModule`/`editorScriptModule` for mounting wherever possible.
 - Enqueue scripts via PHP only when a screen or route cannot be block-mounted (e.g., custom admin pages).
 
-- Keep `includes/` for PHP bridge code; keep PHP thin (REST controllers + wiring).
+- Keep `inc/` for PHP bridge code; keep PHP thin (REST controllers + wiring).
 - Build artifacts (`build/`, `dist-tests/`) should never be hand-edited.
 
 ## Tests

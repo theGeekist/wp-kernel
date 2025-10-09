@@ -251,7 +251,10 @@ describe('Job Schema Validation', () => {
 
 	describe('Type Generation', () => {
 		it('should have generated TypeScript types file', () => {
-			const typesPath = resolve(__dirname, '../types/job.d.ts');
+			const typesPath = resolve(
+				__dirname,
+				'../.generated/types/job.d.ts'
+			);
 			const typesContent = readFileSync(typesPath, 'utf-8');
 
 			expect(typesContent).toContain('export interface Job');
@@ -259,7 +262,10 @@ describe('Job Schema Validation', () => {
 		});
 
 		it('should have correct type for status field', () => {
-			const typesPath = resolve(__dirname, '../types/job.d.ts');
+			const typesPath = resolve(
+				__dirname,
+				'../.generated/types/job.d.ts'
+			);
 			const typesContent = readFileSync(typesPath, 'utf-8');
 
 			// Check that status has the correct enum values (format-agnostic)
@@ -270,7 +276,10 @@ describe('Job Schema Validation', () => {
 		});
 
 		it('should have correct type for seniority field', () => {
-			const typesPath = resolve(__dirname, '../types/job.d.ts');
+			const typesPath = resolve(
+				__dirname,
+				'../.generated/types/job.d.ts'
+			);
 			const typesContent = readFileSync(typesPath, 'utf-8');
 
 			// Check that seniority has the correct enum values (format-agnostic)

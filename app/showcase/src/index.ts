@@ -10,6 +10,7 @@ import { attachUIBindings } from '@geekist/wp-kernel-ui';
 import { mountAdmin } from './admin';
 import { job } from './resources';
 import { ShowcaseActionError } from './errors/ShowcaseActionError';
+import { kernelConfig } from './kernel.config';
 
 type WPWindow = typeof window & {
 	wp?: {
@@ -31,6 +32,7 @@ export function init(): void {
 
 	// Initialize WP Kernel runtime (middleware + events plugin)
 	const kernel = configureKernel({
+		namespace: kernelConfig.namespace,
 		registry: globalWindow.wp.data as KernelRegistry,
 		ui: { attach: attachUIBindings },
 	});

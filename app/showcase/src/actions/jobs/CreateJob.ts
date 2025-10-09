@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { job } from '../../resources';
-import type { Job } from '../../../types/job';
+import type { Job } from '../../../.generated/types/job';
 import { ShowcaseActionError } from '../../errors/ShowcaseActionError';
 
 export type CreateJobInput = {
