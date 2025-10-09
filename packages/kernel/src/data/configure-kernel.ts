@@ -198,10 +198,14 @@ export function configureKernel(
 				resourceConfig.reporter ??
 				reporter.child(`resource.${resourceName}`);
 
+			const shouldApplyKernelNamespace =
+				resourceConfig.namespace === undefined &&
+				!resourceConfig.name.includes(':');
+
 			return baseDefineResource<T, TQuery>({
 				...resourceConfig,
 				reporter: resourceReporter,
-				namespace,
+				...(shouldApplyKernelNamespace ? { namespace } : {}),
 			});
 		},
 	};

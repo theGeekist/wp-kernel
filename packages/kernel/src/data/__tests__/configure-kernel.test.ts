@@ -313,4 +313,33 @@ describe('configureKernel', () => {
 		expect(resource.reporter).toBe(customReporter);
 		expect(resource.routes.list).toBeDefined();
 	});
+
+	it('preserves explicit resource namespaces supplied in config', () => {
+		const kernel = configureKernel({ namespace: 'acme' });
+
+		const resource = kernel.defineResource<{ id: number }>({
+			name: 'thing',
+			namespace: 'custom',
+			routes: {
+				get: { path: '/custom/v1/things/:id', method: 'GET' },
+			},
+		});
+
+		expect(resource.storeKey).toBe('custom/thing');
+		expect(resource.events?.created).toBe('custom.thing.created');
+	});
+
+	it('respects namespace embedded within resource name shorthand', () => {
+		const kernel = configureKernel({ namespace: 'acme' });
+
+		const resource = kernel.defineResource<{ id: number }>({
+			name: 'custom:thing',
+			routes: {
+				get: { path: '/custom/v1/things/:id', method: 'GET' },
+			},
+		});
+
+		expect(resource.storeKey).toBe('custom/thing');
+		expect(resource.events?.updated).toBe('custom.thing.updated');
+	});
 });
