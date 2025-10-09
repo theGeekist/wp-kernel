@@ -453,4 +453,22 @@ describe('configureKernel', () => {
 		expect(resource.storeKey).toBe('custom/thing');
 		expect(resource.events?.updated).toBe('custom.thing.updated');
 	});
+
+	it('prefers explicit namespace when provided alongside shorthand name syntax', () => {
+		const kernel = configureKernel({ namespace: 'acme' });
+
+		const resource = kernel.defineResource<{ id: number }>({
+			name: 'custom:thing',
+			namespace: 'custom-explicit',
+			routes: {
+				create: {
+					path: '/custom-explicit/v1/things',
+					method: 'POST',
+				},
+			},
+		});
+
+		expect(resource.storeKey).toBe('custom-explicit/thing');
+		expect(resource.events?.created).toBe('custom-explicit.thing.created');
+	});
 });
