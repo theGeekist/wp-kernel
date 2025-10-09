@@ -1,7 +1,7 @@
 # WP Kernel Roadmap
 
 **Status**: Active development toward v1.0  
-**Latest Release**: v0.3.0 (October 2025)
+**Latest Release**: v0.4.0 (December 2025)
 
 ---
 
@@ -43,9 +43,13 @@ Write-path orchestration with `defineAction()`, middleware layer, lifecycle even
 - ✓ Prefetching hooks: `usePrefetcher()`, `useVisiblePrefetch()`, `useHoverPrefetch()`, `useNextPagePrefetch()`
 - ✓ Lazy attachment mechanism for resources defined before UI loads
 
-### Architecture Implementation (Phases 1-7)
+### Architecture Implementation (Phases 1-9) - v0.4.0
 
-Completed the bootstrap transition to `configureKernel()`, replaced global UI shims with the adapter-driven runtime, introduced the typed event bus, unified action/policy/job signatures around configuration objects, and refreshed the documentation stack so every guide, reference, and showcase page matches the final architecture.
+Completed the bootstrap transition to `configureKernel()`, replaced global UI shims with the adapter-driven runtime, introduced the typed event bus, unified action/policy/job signatures around configuration objects, threaded resource reporters through client/store/cache/transport for full observability, and refreshed the documentation stack so every guide, reference, and showcase page matches the final architecture.
+
+**Phase 8 - Resource Reporter Wiring**: Propagated kernel reporters through resource definitions, clients, store resolvers, and grouped APIs with comprehensive 615-line test suite. Resources now emit structured telemetry aligned with actions/policies.
+
+**Phase 9 - Cache & Transport Telemetry**: Extended reporter hierarchy to cache invalidation and transport layer. Request lifecycles now share correlation IDs and structured logs from resource → client → transport → cache. Fully backwards compatible.
 
 ---
 
@@ -60,8 +64,7 @@ Deepen the learning surface with refreshed block binding walkthroughs, Interacti
 
 **Sprint 6** - Admin Mount & UI Surface (minimal admin scaffolding)  
 **Sprint 7** - CLI Scaffolder (project initialization, resource generators)  
-**Sprint 8** - Jobs & background processing (`defineJob()`, status tracking, polling)  
-**Sprint 9** - PHP Bridge (JS → PHP event mirroring, legacy plugin integration)  
+**Sprint 9** - PHP Bridge (JS → PHP event mirroring, legacy plugin integration) ⬅️ **Next Up**  
 **Sprint 10** - Server Bindings (SSR for SEO-critical fields)  
 **Sprint 11** - SlotFill (UI extension points)  
 **Sprint 13** - CI Matrices & Playgrounds (expanded WP/PHP test matrices)  
@@ -69,21 +72,21 @@ Deepen the learning surface with refreshed block binding walkthroughs, Interacti
 **Sprint 17** - Hardening (performance, accessibility, i18n)  
 **Sprint 18** - Documentation v2 & Migration Guide
 
-**Note:** Sprint 12 (Reporter & Transport Middleware) was completed as part of Sprint 4.5 (Unified Reporting).
+**Note:** Sprint 8 (Jobs & background processing) has been descoped. Sprint 12 (Reporter & Transport Middleware) was completed as part of Sprint 4.5 (Unified Reporting).
 
 ---
 
 ## Timeline
 
-| Phase             | Target  | Status     |
-| ----------------- | ------- | ---------- |
-| Alpha (v0.1.x)    | Q4 2024 | ✓ Complete |
-| **Beta** (v0.3.x) | Q3 2025 | ✓ Complete |
-| **RC** (v0.9.x)   | Q4 2025 | Planned    |
-| **v1.0**          | Q4 2025 | Planned    |
+| Phase           | Target  | Status     |
+| --------------- | ------- | ---------- |
+| Alpha (v0.1.x)  | Q4 2024 | ✓ Complete |
+| Beta (v0.4.x)   | Q4 2025 | ✓ Complete |
+| **RC** (v0.9.x) | Q1 2026 | Planned    |
+| **v1.0**        | Q2 2026 | Planned    |
 
 ---
 
 **Get Involved**: [GitHub](https://github.com/theGeekist/wp-kernel) · [Issues](https://github.com/theGeekist/wp-kernel/issues) · [Contributing](https://theGeekist.github.io/wp-kernel/contributing/)
 
-_Last updated: October 8, 2025_
+_Last updated: October 9, 2025_
