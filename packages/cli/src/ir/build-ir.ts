@@ -637,22 +637,12 @@ function createPhpNamespace(namespace: string): string {
 		return 'WPKernel';
 	}
 
-	const converted = segments.map((segment, index) => {
+	const converted = segments.map((segment) => {
 		if (segment.toLowerCase() === 'wp') {
 			return 'WP';
 		}
 
-		const capitalised = segment.charAt(0).toUpperCase() + segment.slice(1);
-		if (index === 0 && segments.length > 1) {
-			return capitalised;
-		}
-
-		return capitalised;
+		return segment.charAt(0).toUpperCase() + segment.slice(1);
 	});
-
-	if (converted.length === 1) {
-		return converted[0] ?? 'WPKernel';
-	}
-
 	return [converted.slice(0, -1).join(''), converted.at(-1)!].join('\\');
 }
