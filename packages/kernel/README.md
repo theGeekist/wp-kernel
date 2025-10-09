@@ -66,6 +66,39 @@ const user = defineResource<User>({
 });
 ```
 
+#### Custom identifiers
+
+Resources index items by `item.id` out of the box. When your API uses slugs or
+UUIDs, declare a store strategy so the cache uses the correct identifier.
+
+```ts
+const article = defineResource<Article, ArticleQuery>({
+	name: 'article',
+	routes: {
+		list: { path: '/my-plugin/v1/articles', method: 'GET' },
+		get: { path: '/my-plugin/v1/articles/:slug', method: 'GET' },
+	},
+	store: {
+		getId: (item) => item.slug, // string | number
+		getQueryKey: (query) => `category:${query?.category ?? 'all'}`,
+		initialState: {
+			items: {},
+		},
+	},
+});
+```
+
+- `getId` determines how list and single item caches are keyed. The reporter
+  logs a warning if the function returns `undefined` or produces duplicates.
+- `getQueryKey` keeps list queries stable for slugs, UUIDs, or composite keys.
+- `initialState` lets you seed deterministic fixtures (handy for previews).
+- Test utilities (`createResourceHelper`) automatically use `getId`, so slug
+  resources work end-to-end.
+
+See the [Resource Store Identifier Strategy
+specification](https://github.com/thegeekiest/wp-kernel/blob/main/Resource%20Store%20Identifier%20Strategy%20-%20Specification.md)
+for the full design rationale.
+
 ### Actions
 
 ```typescript

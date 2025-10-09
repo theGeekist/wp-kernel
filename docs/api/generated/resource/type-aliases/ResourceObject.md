@@ -1,4 +1,4 @@
-[**WP Kernel API v0.3.0**](../../README.md)
+[**WP Kernel API v0.4.0**](../../README.md)
 
 ---
 
@@ -70,6 +70,14 @@ routes: ResourceRoutes;
 ```
 
 REST route definitions (normalized)
+
+### reporter
+
+```ts
+reporter: Reporter;
+```
+
+Reporter instance used for resource instrumentation.
 
 ### useGet()?
 

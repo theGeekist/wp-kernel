@@ -1,4 +1,4 @@
-[**WP Kernel API v0.3.0**](../../README.md)
+[**WP Kernel API v0.4.0**](../../README.md)
 
 ---
 
@@ -10,38 +10,15 @@
 type ResourceConfig<T, TQuery, _TTypes> = object;
 ```
 
-Complete resource definition configuration
-
-## Example
-
-```ts
-const thing = defineResource<Thing, { q?: string }>({
-	name: 'thing',
-	routes: {
-		list: { path: '/my-plugin/v1/things', method: 'GET' },
-		get: { path: '/my-plugin/v1/things/:id', method: 'GET' },
-	},
-	cacheKeys: {
-		list: (q) => ['thing', 'list', q?.q],
-		get: (id) => ['thing', 'get', id],
-	},
-	schema: import('./thing.schema.json'),
-});
-```
-
 ## Type Parameters
 
 ### T
 
 `T` = `unknown`
 
-The resource entity type (e.g., Thing)
-
 ### TQuery
 
 `TQuery` = `unknown`
-
-Query parameters type for list operations (e.g., { q?: string })
 
 ### \_TTypes
 
@@ -121,3 +98,29 @@ Optional. Provides runtime type safety and validation errors
 ```ts
 schema: import('../../contracts/thing.schema.json');
 ```
+
+---
+
+### reporter?
+
+```ts
+optional reporter: Reporter;
+```
+
+Optional reporter override for resource instrumentation.
+
+When provided, the resource will emit debug/info/error logs through this
+reporter instead of creating a child reporter from the kernel instance.
+
+---
+
+### store?
+
+```ts
+optional store: ResourceStoreOptions<T, TQuery>;
+```
+
+Optional store configuration overrides.
+
+Use this to customize identifier extraction, query key generation, or
+provide seeded state when registering the resource store.

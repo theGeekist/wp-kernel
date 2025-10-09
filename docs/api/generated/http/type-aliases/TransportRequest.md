@@ -1,4 +1,4 @@
-[**WP Kernel API v0.3.0**](../../README.md)
+[**WP Kernel API v0.4.0**](../../README.md)
 
 ---
 
@@ -72,3 +72,13 @@ optional requestId: string;
 ```
 
 Custom request ID for correlation (generated if not provided)
+
+---
+
+### meta?
+
+```ts
+optional meta: TransportMeta;
+```
+
+Metadata used for reporter instrumentation.

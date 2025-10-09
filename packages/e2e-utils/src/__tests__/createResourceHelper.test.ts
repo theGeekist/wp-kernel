@@ -91,6 +91,28 @@ describe('createResourceHelper', () => {
 				'Failed to seed resource "job": Invalid response'
 			);
 		});
+
+		it('should derive identifier from config.store.getId when provided', async () => {
+			const configWithStore = {
+				...resourceConfig,
+				store: {
+					getId: (item: { slug: string }) => item.slug,
+				},
+			} satisfies ResourceConfig;
+
+			const mockResponse = { slug: 'job-engineer', title: 'Engineer' };
+			mockRequestUtils.rest.mockResolvedValue(mockResponse);
+
+			const helper = createResourceHelper<{
+				slug: string;
+				title: string;
+			}>(configWithStore, mockRequestUtils);
+
+			const result = await helper.seed({ title: 'Engineer' });
+
+			expect(result.id).toBe('job-engineer');
+			expect(result.slug).toBe('job-engineer');
+		});
 	});
 
 	describe('seedMany()', () => {
@@ -164,6 +186,36 @@ describe('createResourceHelper', () => {
 			expect(results).toEqual([]);
 			expect(mockRequestUtils.rest).not.toHaveBeenCalled();
 		});
+
+		it('should use store getId when returning seeded identifiers', async () => {
+			const configWithStore = {
+				...resourceConfig,
+				store: {
+					getId: (item: { uuid: string }) => item.uuid,
+				},
+			} satisfies ResourceConfig;
+
+			const responses = [
+				{ uuid: 'job-1', title: 'Engineer' },
+				{ uuid: 'job-2', title: 'Designer' },
+			];
+
+			mockRequestUtils.rest
+				.mockResolvedValueOnce(responses[0])
+				.mockResolvedValueOnce(responses[1]);
+
+			const helper = createResourceHelper<{ uuid: string }>(
+				configWithStore,
+				mockRequestUtils
+			);
+
+			const results = await helper.seedMany([
+				{ title: 'Engineer' },
+				{ title: 'Designer' },
+			]);
+
+			expect(results.map((item) => item.id)).toEqual(['job-1', 'job-2']);
+		});
 	});
 
 	describe('remove()', () => {
@@ -213,6 +265,36 @@ describe('createResourceHelper', () => {
 			await expect(helper.remove(123)).rejects.toThrow(
 				'Resource "job" does not have a remove route configured'
 			);
+		});
+
+		it('should accept string identifiers when removing resources', async () => {
+			const configWithStore = {
+				...resourceConfig,
+				store: {
+					getId: (item: { slug: string }) => item.slug,
+				},
+				routes: {
+					...resourceConfig.routes,
+					remove: {
+						path: '/wpk/v1/jobs/:id',
+						method: 'DELETE',
+					},
+				},
+			} satisfies ResourceConfig;
+
+			mockRequestUtils.rest.mockResolvedValue({});
+
+			const helper = createResourceHelper(
+				configWithStore,
+				mockRequestUtils
+			);
+
+			await helper.remove('job-engineer');
+
+			expect(mockRequestUtils.rest).toHaveBeenCalledWith({
+				path: '/wpk/v1/jobs/job-engineer',
+				method: 'DELETE',
+			});
 		});
 	});
 
@@ -293,6 +375,41 @@ describe('createResourceHelper', () => {
 			});
 			expect(mockRequestUtils.rest).toHaveBeenNthCalledWith(3, {
 				path: '/wpk/v1/jobs/2',
+				method: 'DELETE',
+			});
+		});
+
+		it('should use store getId when deleting slug resources', async () => {
+			const configWithStore = {
+				...resourceConfig,
+				store: {
+					getId: (item: { slug: string }) => item.slug,
+				},
+			} satisfies ResourceConfig;
+
+			const mockList = [
+				{ slug: 'job-1', title: 'Job 1' },
+				{ slug: 'job-2', title: 'Job 2' },
+			];
+
+			mockRequestUtils.rest
+				.mockResolvedValueOnce(mockList)
+				.mockResolvedValueOnce({})
+				.mockResolvedValueOnce({});
+
+			const helper = createResourceHelper<{ slug: string }>(
+				configWithStore,
+				mockRequestUtils
+			);
+
+			await helper.deleteAll();
+
+			expect(mockRequestUtils.rest).toHaveBeenNthCalledWith(2, {
+				path: '/wpk/v1/jobs/job-1',
+				method: 'DELETE',
+			});
+			expect(mockRequestUtils.rest).toHaveBeenNthCalledWith(3, {
+				path: '/wpk/v1/jobs/job-2',
 				method: 'DELETE',
 			});
 		});

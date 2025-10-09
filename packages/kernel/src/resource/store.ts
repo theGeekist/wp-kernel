@@ -24,6 +24,8 @@ const STORE_LOG_MESSAGES = {
 	resolverStart: 'resource.store.resolver.start',
 	resolverSuccess: 'resource.store.resolver.success',
 	resolverError: 'resource.store.resolver.error',
+	invalidIdentifier: 'resource.store.identifier.invalid',
+	duplicateIdentifier: 'resource.store.identifier.duplicate',
 } as const;
 
 /**
@@ -107,6 +109,13 @@ export function createStore<T, TQuery = unknown>(
 
 	function receiveItem(state: ResourceState<T>, item: T): ResourceState<T> {
 		const id = getId(item);
+		if ((id as unknown) === undefined) {
+			storeReporter.warn(STORE_LOG_MESSAGES.invalidIdentifier, {
+				resource: resource.name,
+				item,
+				operation: 'receiveItem',
+			});
+		}
 		return {
 			...state,
 			items: {
@@ -124,9 +133,29 @@ export function createStore<T, TQuery = unknown>(
 	): ResourceState<T> {
 		const nextItems = { ...state.items };
 		const ids: Array<string | number> = [];
+		const seenIdentifiers = new Set<string>();
 
 		for (const item of items) {
 			const id = getId(item);
+			if ((id as unknown) === undefined) {
+				storeReporter.warn(STORE_LOG_MESSAGES.invalidIdentifier, {
+					resource: resource.name,
+					item,
+					operation: 'receiveItems',
+					queryKey,
+				});
+			} else {
+				const normalizedId = String(id);
+				if (seenIdentifiers.has(normalizedId)) {
+					storeReporter.warn(STORE_LOG_MESSAGES.duplicateIdentifier, {
+						resource: resource.name,
+						id,
+						queryKey,
+					});
+				} else {
+					seenIdentifiers.add(normalizedId);
+				}
+			}
 			nextItems[id] = item;
 			ids.push(id);
 		}
@@ -430,7 +459,7 @@ export function createStore<T, TQuery = unknown>(
 
 			const cacheKey =
 				resource.cacheKeys.get?.(id).join(':') ||
-				`${resource.name}:get:${id}`;
+				`${resource.name}:get:${String(id)}`;
 
 			resolverLoggers.getItem.debug(STORE_LOG_MESSAGES.resolverStart, {
 				resource: resource.name,
