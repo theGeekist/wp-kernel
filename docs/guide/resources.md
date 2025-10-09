@@ -75,6 +75,15 @@ function TestimonialList() {
 > Call `configureKernel({ ui: { attach: attachUIBindings } })` and wrap your React
 > tree with `KernelUIProvider` to make the runtime available.
 
+### Reporter inheritance
+
+Every resource carries a reporter so fetches, mutations, and store resolvers emit
+structured telemetry. When you define a resource through `configureKernel()` the
+reporter is created as a child of the kernel instance (`resource.{name}`). Standalone
+resources fall back to a deterministic console reporter so local development still
+surfaces debug output. You can access the reporter via `resource.reporter` or supply
+your own implementation through the `reporter` option.
+
 ## Configuration
 
 ### Required Properties
@@ -160,6 +169,27 @@ JSON Schema for runtime validation (coming in future sprints).
 
 ```typescript
 schema: import('../../contracts/testimonial.schema.json');
+```
+
+#### `reporter` \<Reporter\>
+
+Override the reporter used for observability. By default resources inherit the kernel
+reporter (or create a console reporter when no kernel is active). Provide a custom
+reporter to forward logs to external tooling:
+
+```typescript
+import { createReporter } from '@geekist/wp-kernel';
+
+const testimonial = defineResource<TestimonialPost>({
+	name: 'testimonial',
+	routes: {
+		/* ... */
+	},
+	reporter: createReporter({
+		namespace: 'acme.telemetry',
+		channel: 'all',
+	}),
+});
 ```
 
 ### TypeScript Generics

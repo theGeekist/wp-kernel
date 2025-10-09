@@ -6,6 +6,7 @@
 
 import { createStore } from '../../store';
 import type { ResourceObject, ListResponse } from '../../types';
+import { createNoopReporter } from '../../../reporter';
 import { KernelError } from '../../../error/index';
 
 // Helper to extract actions from resolver generators, handling async controls
@@ -67,6 +68,7 @@ describe('createStore - Resolvers', () => {
 		mockResource = {
 			name: 'thing',
 			storeKey: 'wpk/thing',
+			reporter: createNoopReporter(),
 			cacheKeys: {
 				list: (query) => ['thing', 'list', JSON.stringify(query || {})],
 				get: (id) => ['thing', 'get', id],

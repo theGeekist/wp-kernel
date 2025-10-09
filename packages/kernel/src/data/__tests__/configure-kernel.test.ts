@@ -36,17 +36,25 @@ describe('configureKernel', () => {
 	const actionMiddleware: Middleware = jest
 		.fn()
 		.mockImplementation((next) => (action: unknown) => next(action));
-	const mockReporter: Reporter = {
-		info: jest.fn(),
-		warn: jest.fn(),
-		error: jest.fn(),
-		debug: jest.fn(),
-		child: jest.fn(),
-	} as unknown as Reporter;
+	let mockReporter: jest.Mocked<Reporter>;
 	const eventMiddleware = { destroy: jest.fn() };
+
+	function createMockReporter(): jest.Mocked<Reporter> {
+		const child = jest.fn<Reporter, [string]>();
+		const reporter = {
+			info: jest.fn(),
+			warn: jest.fn(),
+			error: jest.fn(),
+			debug: jest.fn(),
+			child,
+		} as unknown as jest.Mocked<Reporter>;
+		child.mockReturnValue(reporter);
+		return reporter;
+	}
 
 	beforeEach(() => {
 		jest.clearAllMocks();
+		mockReporter = createMockReporter();
 		(createActionMiddleware as jest.Mock).mockReturnValue(actionMiddleware);
 		(createReporter as jest.Mock).mockReturnValue(mockReporter);
 		(kernelEventsPlugin as jest.Mock).mockReturnValue(eventMiddleware);
@@ -267,5 +275,71 @@ describe('configureKernel', () => {
 		} finally {
 			process.env.NODE_ENV = originalEnv;
 		}
+	});
+
+	it('defines resources using kernel reporter namespace', () => {
+		const childReporter = createMockReporter();
+		mockReporter.child.mockReturnValue(childReporter);
+
+		const kernel = configureKernel({
+			namespace: 'acme',
+			reporter: mockReporter,
+		});
+
+		const resource = kernel.defineResource<{ id: number }>({
+			name: 'thing',
+			routes: {
+				get: { path: '/acme/v1/things/:id', method: 'GET' },
+			},
+		});
+
+		expect(mockReporter.child).toHaveBeenCalledWith('resource.thing');
+		expect(resource.reporter).toBe(childReporter);
+		expect(resource.storeKey).toBe('acme/thing');
+	});
+
+	it('respects custom resource reporters when provided', () => {
+		const kernel = configureKernel({ namespace: 'acme' });
+		const customReporter = createMockReporter();
+
+		const resource = kernel.defineResource<{ id: number }>({
+			name: 'thing',
+			reporter: customReporter,
+			routes: {
+				list: { path: '/acme/v1/things', method: 'GET' },
+			},
+		});
+
+		expect(resource.reporter).toBe(customReporter);
+		expect(resource.routes.list).toBeDefined();
+	});
+
+	it('preserves explicit resource namespaces supplied in config', () => {
+		const kernel = configureKernel({ namespace: 'acme' });
+
+		const resource = kernel.defineResource<{ id: number }>({
+			name: 'thing',
+			namespace: 'custom',
+			routes: {
+				get: { path: '/custom/v1/things/:id', method: 'GET' },
+			},
+		});
+
+		expect(resource.storeKey).toBe('custom/thing');
+		expect(resource.events?.created).toBe('custom.thing.created');
+	});
+
+	it('respects namespace embedded within resource name shorthand', () => {
+		const kernel = configureKernel({ namespace: 'acme' });
+
+		const resource = kernel.defineResource<{ id: number }>({
+			name: 'custom:thing',
+			routes: {
+				get: { path: '/custom/v1/things/:id', method: 'GET' },
+			},
+		});
+
+		expect(resource.storeKey).toBe('custom/thing');
+		expect(resource.events?.updated).toBe('custom.thing.updated');
 	});
 });
