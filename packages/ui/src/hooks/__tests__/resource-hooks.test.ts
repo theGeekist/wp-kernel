@@ -1,9 +1,25 @@
-import { defineResource } from '@geekist/wp-kernel/resource';
+import { createElement, type ReactNode } from 'react';
+import {
+	defineResource,
+	type ResourceObject,
+} from '@geekist/wp-kernel/resource';
+import {
+	clearRegisteredResources,
+	type ResourceDefinedEvent,
+} from '@geekist/wp-kernel';
 import {
 	attachResourceHooks,
-	type UseResourceItemResult,
 	type UseResourceListResult,
 } from '../resource-hooks';
+import { KernelEventBus } from '@geekist/wp-kernel';
+import type { Reporter } from '@geekist/wp-kernel/reporter';
+import { attachUIBindings, KernelUIProvider } from '../../runtime';
+import type {
+	KernelInstance,
+	KernelUIRuntime,
+	KernelRegistry,
+} from '@geekist/wp-kernel/data';
+import { renderHook } from '../testing/test-utils';
 
 interface MockThing {
 	id: number;
@@ -26,7 +42,77 @@ describe('resource hooks (UI integration)', () => {
 	};
 	let originalWp: Window['wp'];
 
+	const noopReporter: Reporter = {
+		info: jest.fn(),
+		warn: jest.fn(),
+		error: jest.fn(),
+		debug: jest.fn(),
+		child: jest.fn(),
+	};
+
+	function createRuntime(
+		overrides: Partial<KernelUIRuntime> = {}
+	): KernelUIRuntime {
+		const registry = Object.prototype.hasOwnProperty.call(
+			overrides,
+			'registry'
+		)
+			? overrides.registry
+			: (mockWpData as unknown as KernelRegistry | undefined);
+
+		return {
+			namespace: 'tests',
+			reporter: overrides.reporter ?? noopReporter,
+			registry,
+			events: overrides.events ?? new KernelEventBus(),
+			invalidate: overrides.invalidate ?? jest.fn(),
+			kernel: overrides.kernel,
+			policies: overrides.policies,
+			options: overrides.options,
+		};
+	}
+
+	function createWrapper(runtime: KernelUIRuntime) {
+		return function Wrapper({ children }: { children: ReactNode }) {
+			return createElement(KernelUIProvider, { runtime, children });
+		};
+	}
+
+	function renderUseGetHook<T, Q>(
+		resource: ResourceObject<T, Q>,
+		id: string | number,
+		runtimeOverrides?: Partial<KernelUIRuntime>
+	) {
+		const runtime = createRuntime(runtimeOverrides);
+		return renderHook(() => resource.useGet!(id), {
+			wrapper: createWrapper(runtime),
+		});
+	}
+
+	function renderUseListHook<T, Q>(
+		resource: ResourceObject<T, Q>,
+		query?: Q,
+		runtimeOverrides?: Partial<KernelUIRuntime>
+	) {
+		const runtime = createRuntime(runtimeOverrides);
+		return renderHook(() => resource.useList!(query), {
+			wrapper: createWrapper(runtime),
+		});
+	}
+
+	function withConsoleErrorSuppressed(callback: () => void) {
+		const consoleErrorSpy = jest
+			.spyOn(console, 'error')
+			.mockImplementation(() => {});
+		try {
+			callback();
+		} finally {
+			consoleErrorSpy.mockRestore();
+		}
+	}
+
 	beforeEach(() => {
+		clearRegisteredResources();
 		const windowWithWp = global.window as Window & { wp?: any };
 		originalWp = windowWithWp?.wp;
 		mockWpData = {
@@ -49,16 +135,20 @@ describe('resource hooks (UI integration)', () => {
 		it('throws when @wordpress/data is not available', () => {
 			(global.window as Window & { wp?: any }).wp = undefined;
 
-			const resource = defineResource<MockThing, MockThingQuery>({
-				name: 'thing',
-				routes: {
-					get: { path: '/wpk/v1/things/:id', method: 'GET' },
-				},
-			});
-
-			expect(() => resource.useGet!(1)).toThrow(
-				'useGet requires @wordpress/data to be loaded'
+			const resource = defineResourceWithHooks<MockThing, MockThingQuery>(
+				{
+					name: 'thing',
+					routes: {
+						get: { path: '/wpk/v1/things/:id', method: 'GET' },
+					},
+				}
 			);
+
+			withConsoleErrorSuppressed(() => {
+				expect(() => renderUseGetHook(resource, 1)).toThrow(
+					'useGet requires @wordpress/data to be loaded'
+				);
+			});
 		});
 
 		it('invokes useSelect with correct selector', () => {
@@ -78,19 +168,19 @@ describe('resource hooks (UI integration)', () => {
 				return callback(() => mockSelect);
 			});
 
-			const resource = defineResource<MockThing, MockThingQuery>({
-				name: 'thing',
-				routes: {
-					get: { path: '/wpk/v1/things/:id', method: 'GET' },
-				},
-			});
+			const resource = defineResourceWithHooks<MockThing, MockThingQuery>(
+				{
+					name: 'thing',
+					routes: {
+						get: { path: '/wpk/v1/things/:id', method: 'GET' },
+					},
+				}
+			);
 
-			const result = resource.useGet!(
-				1
-			) as UseResourceItemResult<MockThing>;
+			const { result } = renderUseGetHook(resource, 1);
 
 			expect(mockWpData.useSelect).toHaveBeenCalled();
-			expect(result).toEqual({
+			expect(result.current).toEqual({
 				data: mockItem,
 				isLoading: false,
 				error: undefined,
@@ -108,16 +198,18 @@ describe('resource hooks (UI integration)', () => {
 				return callback(() => mockSelect);
 			});
 
-			const resource = defineResource<MockThing, MockThingQuery>({
-				name: 'thing',
-				routes: {
-					get: { path: '/wpk/v1/things/:id', method: 'GET' },
-				},
-			});
+			const resource = defineResourceWithHooks<MockThing, MockThingQuery>(
+				{
+					name: 'thing',
+					routes: {
+						get: { path: '/wpk/v1/things/:id', method: 'GET' },
+					},
+				}
+			);
 
-			const result = resource.useGet!(1);
+			const { result } = renderUseGetHook(resource, 1);
 
-			expect(result).toEqual({
+			expect(result.current).toEqual({
 				data: undefined,
 				isLoading: true,
 				error: undefined,
@@ -137,16 +229,18 @@ describe('resource hooks (UI integration)', () => {
 				return callback(() => mockSelect);
 			});
 
-			const resource = defineResource<MockThing, MockThingQuery>({
-				name: 'thing',
-				routes: {
-					get: { path: '/wpk/v1/things/:id', method: 'GET' },
-				},
-			});
+			const resource = defineResourceWithHooks<MockThing, MockThingQuery>(
+				{
+					name: 'thing',
+					routes: {
+						get: { path: '/wpk/v1/things/:id', method: 'GET' },
+					},
+				}
+			);
 
-			const result = resource.useGet!(1);
+			const { result } = renderUseGetHook(resource, 1);
 
-			expect(result).toEqual({
+			expect(result.current).toEqual({
 				data: undefined,
 				isLoading: false,
 				error: 'Not found',
@@ -168,17 +262,22 @@ describe('resource hooks (UI integration)', () => {
 				return callback(() => mockSelect);
 			});
 
-			const resource = defineResource<MockThing, MockThingQuery>({
-				name: 'thing',
-				routes: {
-					get: { path: '/wpk/v1/things/:id', method: 'GET' },
-				},
+			const resource = defineResourceWithHooks<MockThing, MockThingQuery>(
+				{
+					name: 'thing',
+					routes: {
+						get: { path: '/wpk/v1/things/:id', method: 'GET' },
+					},
+				}
+			);
+
+			const { result } = renderUseGetHook(resource, 5);
+
+			expect(result.current.isLoading).toBe(true);
+			expect(result.current.data).toMatchObject({
+				id: 5,
+				title: 'Pending',
 			});
-
-			const result = resource.useGet!(5);
-
-			expect(result.isLoading).toBe(true);
-			expect(result.data).toMatchObject({ id: 5, title: 'Pending' });
 		});
 	});
 
@@ -186,16 +285,20 @@ describe('resource hooks (UI integration)', () => {
 		it('throws when @wordpress/data is not available', () => {
 			(global.window as Window & { wp?: any }).wp = undefined;
 
-			const resource = defineResource<MockThing, MockThingQuery>({
-				name: 'thing',
-				routes: {
-					list: { path: '/wpk/v1/things', method: 'GET' },
-				},
-			});
-
-			expect(() => resource.useList!()).toThrow(
-				'useList requires @wordpress/data to be loaded'
+			const resource = defineResourceWithHooks<MockThing, MockThingQuery>(
+				{
+					name: 'thing',
+					routes: {
+						list: { path: '/wpk/v1/things', method: 'GET' },
+					},
+				}
 			);
+
+			withConsoleErrorSuppressed(() => {
+				expect(() => renderUseListHook(resource)).toThrow(
+					'useList requires @wordpress/data to be loaded'
+				);
+			});
 		});
 
 		it('returns list data and loading state', () => {
@@ -222,17 +325,19 @@ describe('resource hooks (UI integration)', () => {
 
 				return callback(() => mockSelect);
 			});
-			const resource = defineResource<MockThing, MockThingQuery>({
-				name: 'thing',
-				routes: {
-					list: { path: '/wpk/v1/things', method: 'GET' },
-				},
-			});
+			const resource = defineResourceWithHooks<MockThing, MockThingQuery>(
+				{
+					name: 'thing',
+					routes: {
+						list: { path: '/wpk/v1/things', method: 'GET' },
+					},
+				}
+			);
 
-			const result = resource.useList!();
+			const { result } = renderUseListHook(resource);
 
 			expect(mockWpData.useSelect).toHaveBeenCalled();
-			expect(result).toEqual({
+			expect(result.current).toEqual({
 				data: mockListResponse,
 				isLoading: false,
 				error: undefined,
@@ -256,17 +361,19 @@ describe('resource hooks (UI integration)', () => {
 				return callback(() => mockSelect);
 			});
 
-			const resource = defineResource<MockThing, MockThingQuery>({
-				name: 'thing',
-				routes: {
-					list: { path: '/wpk/v1/things', method: 'GET' },
-				},
-			});
+			const resource = defineResourceWithHooks<MockThing, MockThingQuery>(
+				{
+					name: 'thing',
+					routes: {
+						list: { path: '/wpk/v1/things', method: 'GET' },
+					},
+				}
+			);
 
-			const result = resource.useList!(query);
+			const { result } = renderUseListHook(resource, query);
 
 			expect(mockWpData.useSelect).toHaveBeenCalled();
-			expect(result.data).toEqual(mockItems);
+			expect(result.current.data).toEqual(mockItems);
 		});
 
 		it('derives loading state from status', () => {
@@ -282,16 +389,18 @@ describe('resource hooks (UI integration)', () => {
 				return callback(() => mockSelect);
 			});
 
-			const resource = defineResource<MockThing, MockThingQuery>({
-				name: 'thing',
-				routes: {
-					list: { path: '/wpk/v1/things', method: 'GET' },
-				},
-			});
+			const resource = defineResourceWithHooks<MockThing, MockThingQuery>(
+				{
+					name: 'thing',
+					routes: {
+						list: { path: '/wpk/v1/things', method: 'GET' },
+					},
+				}
+			);
 
-			const result = resource.useList!();
+			const { result } = renderUseListHook(resource);
 
-			expect(result).toEqual({
+			expect(result.current).toEqual({
 				data: undefined,
 				isLoading: true,
 				error: null,
@@ -322,18 +431,20 @@ describe('resource hooks (UI integration)', () => {
 				return callback(() => mockSelect);
 			});
 
-			const resource = defineResource<MockThing, MockThingQuery>({
-				name: 'thing',
-				routes: {
-					list: { path: '/wpk/v1/things', method: 'GET' },
-				},
-			});
+			const resource = defineResourceWithHooks<MockThing, MockThingQuery>(
+				{
+					name: 'thing',
+					routes: {
+						list: { path: '/wpk/v1/things', method: 'GET' },
+					},
+				}
+			);
 
-			const result = resource.useList!();
+			const { result } = renderUseListHook(resource);
 
 			// Should NOT be loading despite hasFinishedResolution being false
 			// because status explicitly says 'success'
-			expect(result).toEqual({
+			expect(result.current).toEqual({
 				data: mockListResponse,
 				isLoading: false, // This is the critical assertion!
 				error: undefined,
@@ -354,16 +465,18 @@ describe('resource hooks (UI integration)', () => {
 				return callback(() => mockSelect);
 			});
 
-			const resource = defineResource<MockThing, MockThingQuery>({
-				name: 'thing',
-				routes: {
-					list: { path: '/wpk/v1/things', method: 'GET' },
-				},
-			});
+			const resource = defineResourceWithHooks<MockThing, MockThingQuery>(
+				{
+					name: 'thing',
+					routes: {
+						list: { path: '/wpk/v1/things', method: 'GET' },
+					},
+				}
+			);
 
-			const result = resource.useList!();
+			const { result } = renderUseListHook(resource);
 
-			expect(result).toEqual({
+			expect(result.current).toEqual({
 				data: undefined,
 				isLoading: false,
 				error: mockError,
@@ -383,15 +496,17 @@ describe('resource hooks (UI integration)', () => {
 				return callback(() => mockSelect);
 			});
 
-			const resource = defineResource<MockThing, MockThingQuery>({
-				name: 'thing',
-				routes: {
-					list: { path: '/wpk/v1/things', method: 'GET' },
-				},
-			});
+			const resource = defineResourceWithHooks<MockThing, MockThingQuery>(
+				{
+					name: 'thing',
+					routes: {
+						list: { path: '/wpk/v1/things', method: 'GET' },
+					},
+				}
+			);
 
-			const result = resource.useList?.();
-			expect(result?.isLoading).toBe(true);
+			const { result } = renderUseListHook(resource);
+			expect(result.current.isLoading).toBe(true);
 		});
 
 		it('keeps success lists loading while resolver runs', () => {
@@ -411,16 +526,18 @@ describe('resource hooks (UI integration)', () => {
 				return callback(() => mockSelect);
 			});
 
-			const resource = defineResource<MockThing, MockThingQuery>({
-				name: 'thing',
-				routes: {
-					list: { path: '/wpk/v1/things', method: 'GET' },
-				},
-			});
+			const resource = defineResourceWithHooks<MockThing, MockThingQuery>(
+				{
+					name: 'thing',
+					routes: {
+						list: { path: '/wpk/v1/things', method: 'GET' },
+					},
+				}
+			);
 
-			const result = resource.useList?.();
-			expect(result?.isLoading).toBe(true);
-			expect(result?.data).toHaveLength(1);
+			const { result } = renderUseListHook(resource);
+			expect(result.current.isLoading).toBe(true);
+			expect(result.current.data).toHaveLength(1);
 		});
 	});
 
@@ -456,16 +573,18 @@ describe('resource hooks (UI integration)', () => {
 			value: undefined,
 		});
 
-		const resource = defineResource<MockThing, MockThingQuery>({
+		const resource = defineResourceWithHooks<MockThing, MockThingQuery>({
 			name: 'thing',
 			routes: {
 				get: { path: '/wpk/v1/things/:id', method: 'GET' },
 			},
 		});
 
-		expect(() => {
-			resource.useGet!(1);
-		}).toThrow('useGet requires @wordpress/data to be loaded');
+		withConsoleErrorSuppressed(() => {
+			expect(() => {
+				renderUseGetHook(resource, 1, { registry: undefined });
+			}).toThrow('useGet requires @wordpress/data to be loaded');
+		});
 
 		Object.defineProperty(globalThis, 'window', {
 			...descriptor,
@@ -473,46 +592,96 @@ describe('resource hooks (UI integration)', () => {
 		});
 	});
 
-	it('processes pending resources when UI bundle loads after resource definition', () => {
-		// Simulate kernel defining resources before UI loads
-		const globalCache = globalThis as typeof globalThis & {
-			__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__?: () => any[];
-			__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__?: (resource: any) => void;
+	it('attaches hooks when kernel emits resource:defined events', () => {
+		const bus = new KernelEventBus();
+		const reporter: Reporter = {
+			info: jest.fn(),
+			warn: jest.fn(),
+			error: jest.fn(),
+			debug: jest.fn(),
+			child: jest.fn(),
 		};
 
-		// Create a mock pending resources function (normally set by kernel)
-		const mockPendingResources: any[] = [];
-		globalCache.__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__ = () => {
-			return mockPendingResources.splice(0);
-		};
+		const kernelStub = {
+			getNamespace: () => 'tests',
+			getReporter: () => reporter,
+			invalidate: jest.fn(),
+			emit: jest.fn(),
+			teardown: jest.fn(),
+			getRegistry: () => undefined,
+			hasUIRuntime: () => false,
+			getUIRuntime: () => undefined,
+			attachUIBindings: jest.fn(),
+			ui: { isEnabled: () => false, options: undefined },
+			events: bus,
+		} as unknown as KernelInstance;
+
+		const runtime = attachUIBindings(kernelStub);
 
 		const resource1 = {
 			name: 'Resource1',
-			routes: { get: { path: '/test/1' } },
-		};
+			routes: { get: { path: '/test/1', method: 'GET' } },
+		} as ResourceDefinedEvent['resource'];
 		const resource2 = {
 			name: 'Resource2',
-			routes: { list: { path: '/test/2' } },
-		};
+			routes: { list: { path: '/test/2', method: 'GET' } },
+		} as ResourceDefinedEvent['resource'];
 
-		mockPendingResources.push(resource1, resource2);
+		runtime.events.emit('resource:defined', {
+			resource: resource1,
+			namespace: 'tests',
+		});
+		runtime.events.emit('resource:defined', {
+			resource: resource2,
+			namespace: 'tests',
+		});
 
-		// Now load the UI module code (simulate what happens in resource-hooks.ts)
-		const processPending =
-			globalCache.__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__;
-		if (processPending) {
-			const pending = processPending();
-			pending.forEach((resource) => {
-				attachResourceHooks(resource);
-			});
-		}
-
-		// Verify hooks were attached
 		expect(typeof (resource1 as any).useGet).toBe('function');
 		expect(typeof (resource2 as any).useList).toBe('function');
-		expect(mockPendingResources.length).toBe(0);
+	});
 
-		// Cleanup
-		delete globalCache.__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__;
+	it('does not attach hooks when routes are missing', () => {
+		const resource = {
+			name: 'empty',
+			routes: {},
+		} as unknown as ResourceObject<MockThing, MockThingQuery>;
+
+		attachResourceHooks(resource);
+
+		expect(resource.useGet).toBeUndefined();
+		expect(resource.useList).toBeUndefined();
+	});
+
+	it('treats unknown list statuses as resolved', () => {
+		mockWpData.useSelect.mockImplementation((callback: any) => {
+			const mockSelect = {
+				getList: jest.fn().mockReturnValue([]),
+				getListStatus: jest.fn().mockReturnValue('ready'),
+				isResolving: jest.fn().mockReturnValue(false),
+				hasFinishedResolution: jest.fn().mockReturnValue(undefined),
+				getListError: jest.fn().mockReturnValue(undefined),
+			};
+
+			return callback(() => mockSelect);
+		});
+
+		const resource = defineResourceWithHooks<MockThing, MockThingQuery>({
+			name: 'thing',
+			routes: {
+				list: { path: '/wpk/v1/things', method: 'GET' },
+			},
+		});
+
+		const { result } = renderUseListHook(resource);
+
+		expect(result.current.isLoading).toBe(false);
+		expect(result.current.error).toBeUndefined();
 	});
 });
+function defineResourceWithHooks<T, Q>(
+	config: Parameters<typeof defineResource<T, Q>>[0]
+) {
+	const resource = defineResource<T, Q>(config);
+	attachResourceHooks(resource);
+	return resource;
+}

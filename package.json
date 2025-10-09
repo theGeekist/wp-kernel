@@ -29,7 +29,6 @@
 		"typecheck": "pnpm --recursive --filter './packages/*' --filter './app/*' run typecheck",
 		"typecheck:tests": "pnpm --recursive --filter './packages/*' --filter './app/*' run typecheck:tests",
 		"test": "jest --passWithNoTests",
-		"test:ci": "jest --watchman=false --runInBand --passWithNoTests",
 		"test:watch": "jest --watch",
 		"test:coverage": "jest --coverage",
 		"wp:start": "pnpm wp:fresh",

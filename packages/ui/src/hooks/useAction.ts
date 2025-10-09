@@ -1,10 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import {
-	KernelError,
-	getWPData,
-	invalidate,
-	type CacheKeyPattern,
-} from '@geekist/wp-kernel';
+import { KernelError, type CacheKeyPattern } from '@geekist/wp-kernel';
 import {
 	invokeAction,
 	type ActionEnvelope,
@@ -12,6 +7,8 @@ import {
 } from '@geekist/wp-kernel/actions';
 import { registerKernelStore } from '@geekist/wp-kernel/data';
 import { useLatest, useStableCallback } from './internal/useStableCallback';
+import { useKernelUI } from '../runtime/context';
+import type { KernelUIRuntime } from '@geekist/wp-kernel/data';
 
 interface WPDataLike {
 	dispatch?: (store: string) => unknown;
@@ -22,18 +19,11 @@ type DispatchFunction = <TArgs, TResult>(
 ) => Promise<TResult>;
 
 const ACTION_STORE_KEY = 'wp-kernel/ui/actions';
+const ACTION_STORE_MARKER = Symbol.for('wpKernelUIActionStoreRegistered');
 
-interface DispatchGlobal {
-	__WP_KERNEL_UI_ACTION_DISPATCH__?: DispatchFunction;
-	__WP_KERNEL_UI_ACTION_STORE__?: boolean;
-}
-
-function getGlobalObject(): DispatchGlobal {
-	if (typeof window !== 'undefined') {
-		return window as unknown as DispatchGlobal;
-	}
-	return (globalThis as DispatchGlobal | undefined) ?? {};
-}
+type StoreMarkerRegistry = ResolvedRegistry & {
+	[ACTION_STORE_MARKER]?: boolean;
+};
 
 function ensureBrowserEnvironment() {
 	if (typeof window === 'undefined') {
@@ -48,20 +38,22 @@ type ResolvedRegistry = WPDataLike & {
 	dispatch: NonNullable<WPDataLike['dispatch']>;
 };
 
-function resolveWpDataRegistry(): ResolvedRegistry {
-	const wpData = getWPData() as WPDataLike | undefined;
+function resolveWpDataRegistry(runtime: KernelUIRuntime): ResolvedRegistry {
+	const registry = runtime.registry ?? runtime.kernel?.getRegistry();
 
-	if (!wpData?.dispatch) {
+	if (!registry?.dispatch) {
 		throw new KernelError('DeveloperError', {
 			message:
-				'useAction requires the WordPress data registry. Ensure wp.data is available and withKernel() has been called.',
+				'useAction requires the WordPress data registry. Ensure configureKernel() was called with a registry and attach UI bindings.',
 		});
 	}
-	return wpData as ResolvedRegistry;
+
+	return registry as ResolvedRegistry;
 }
 
-function ensureActionStoreRegistered(globalObj: DispatchGlobal): void {
-	if (globalObj.__WP_KERNEL_UI_ACTION_STORE__) {
+function ensureActionStoreRegistered(wpData: ResolvedRegistry): void {
+	const registry = wpData as StoreMarkerRegistry;
+	if (registry[ACTION_STORE_MARKER]) {
 		return;
 	}
 
@@ -85,7 +77,7 @@ function ensureActionStoreRegistered(globalObj: DispatchGlobal): void {
 		}
 	}
 
-	globalObj.__WP_KERNEL_UI_ACTION_STORE__ = true;
+	registry[ACTION_STORE_MARKER] = true;
 }
 
 function resolveInvokeMethod(
@@ -104,7 +96,7 @@ function resolveInvokeMethod(
 	if (typeof invoke !== 'function') {
 		throw new KernelError('DeveloperError', {
 			message:
-				'Failed to resolve kernel action dispatcher. Verify withKernel() was initialised.',
+				'Failed to resolve kernel action dispatcher. Verify configureKernel() initialised the registry.',
 		});
 	}
 
@@ -130,19 +122,12 @@ function wrapInvoke(
 	return dispatchFn;
 }
 
-function ensureDispatch(): DispatchFunction {
-	const globalObj = getGlobalObject();
-	if (globalObj.__WP_KERNEL_UI_ACTION_DISPATCH__) {
-		return globalObj.__WP_KERNEL_UI_ACTION_DISPATCH__;
-	}
-
+function createDispatch(runtime: KernelUIRuntime): DispatchFunction {
 	ensureBrowserEnvironment();
-	const wpData = resolveWpDataRegistry();
-	ensureActionStoreRegistered(globalObj);
+	const wpData = resolveWpDataRegistry(runtime);
+	ensureActionStoreRegistered(wpData);
 	const invokeMethod = resolveInvokeMethod(wpData);
 	const dispatchFn = wrapInvoke(invokeMethod);
-
-	globalObj.__WP_KERNEL_UI_ACTION_DISPATCH__ = dispatchFn;
 	return dispatchFn;
 }
 
@@ -200,6 +185,7 @@ export function useAction<TInput, TResult>(
 	action: DefinedAction<TInput, TResult>,
 	options: UseActionOptions<TInput, TResult> = {}
 ): UseActionResult<TInput, TResult> {
+	const runtime = useKernelUI();
 	const actionRef = useLatest(action);
 	const optionsRef = useLatest(options);
 	const autoInvalidateRef = useLatest(options.autoInvalidate);
@@ -275,7 +261,7 @@ export function useAction<TInput, TResult>(
 
 	const startRequest = useCallback(
 		(input: TInput): Promise<TResult> => {
-			const dispatch = ensureDispatch();
+			const dispatch = createDispatch(runtime);
 			const targetAction = actionRef.current;
 			const requestId = ++idCounterRef.current;
 			const dedupeKey = dedupeKeyRef.current?.(input);
@@ -333,7 +319,10 @@ export function useAction<TInput, TResult>(
 							invalidatePatterns &&
 							invalidatePatterns.length > 0
 						) {
-							invalidate(invalidatePatterns);
+							runtime.invalidate?.(invalidatePatterns);
+							if (!runtime.invalidate && runtime.kernel) {
+								runtime.kernel.invalidate(invalidatePatterns);
+							}
 						}
 						applySuccessState(result);
 					}
@@ -368,6 +357,7 @@ export function useAction<TInput, TResult>(
 			markRequestCancelled,
 			autoInvalidateRef,
 			dedupeKeyRef,
+			runtime,
 		]
 	);
 

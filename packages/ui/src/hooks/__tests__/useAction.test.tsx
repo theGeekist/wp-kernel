@@ -1,12 +1,66 @@
-import { act } from 'react';
+import { act, type ReactNode } from 'react';
 import { createDeferred, renderHook } from '../testing/test-utils';
 import { useAction } from '../useAction';
+import type { UseActionOptions } from '../useAction';
 import type { ActionEnvelope, DefinedAction } from '@geekist/wp-kernel/actions';
-import { KernelError } from '@geekist/wp-kernel';
-import * as kernel from '@geekist/wp-kernel';
+import { KernelError, KernelEventBus } from '@geekist/wp-kernel';
 import * as kernelData from '@geekist/wp-kernel/data';
+import { KernelUIProvider } from '../../runtime';
+import type {
+	KernelUIRuntime,
+	KernelRegistry,
+	KernelInstance,
+} from '@geekist/wp-kernel/data';
+import type { Reporter } from '@geekist/wp-kernel/reporter';
 
 const ACTION_STORE_KEY = 'wp-kernel/ui/actions';
+
+const noopReporter: Reporter = {
+	info: jest.fn(),
+	warn: jest.fn(),
+	error: jest.fn(),
+	debug: jest.fn(),
+	child: jest.fn(),
+};
+
+function createRuntime(
+	overrides: Partial<KernelUIRuntime> = {}
+): KernelUIRuntime {
+	return {
+		namespace: 'tests',
+		reporter: overrides.reporter ?? noopReporter,
+		registry:
+			overrides.registry ??
+			(globalThis.window?.wp?.data as KernelRegistry | undefined) ??
+			undefined,
+		events: overrides.events ?? new KernelEventBus(),
+		invalidate: overrides.invalidate ?? jest.fn(),
+		kernel: overrides.kernel,
+		policies: overrides.policies,
+		options: overrides.options,
+	};
+}
+
+function createWrapper(runtime: KernelUIRuntime) {
+	return function Wrapper({ children }: { children: ReactNode }) {
+		return (
+			<KernelUIProvider runtime={runtime}>{children}</KernelUIProvider>
+		);
+	};
+}
+
+function renderUseActionHook<TInput, TResult>(
+	action: DefinedAction<TInput, TResult>,
+	options?: UseActionOptions<TInput, TResult>,
+	runtimeOverrides?: Partial<KernelUIRuntime>
+) {
+	const runtime = createRuntime(runtimeOverrides ?? {});
+	const renderResult = renderHook(() => useAction(action, options ?? {}), {
+		wrapper: createWrapper(runtime),
+	});
+
+	return { ...renderResult, runtime };
+}
 
 function makeDefinedAction<TInput, TResult>(
 	impl: (input: TInput) => Promise<TResult> | TResult,
@@ -34,13 +88,6 @@ function prepareWpData(
 		throw new Error('wp.data stub not initialised');
 	}
 
-	const globalCache = globalThis as {
-		__WP_KERNEL_UI_ACTION_DISPATCH__?: unknown;
-		__WP_KERNEL_UI_ACTION_STORE__?: boolean;
-	};
-	delete globalCache.__WP_KERNEL_UI_ACTION_DISPATCH__;
-	delete globalCache.__WP_KERNEL_UI_ACTION_STORE__;
-
 	(wpData.createReduxStore as jest.Mock).mockReset();
 	(wpData.register as jest.Mock).mockReset();
 	(wpData.dispatch as jest.Mock).mockReset();
@@ -66,22 +113,16 @@ function prepareWpData(
 	return invoke as jest.Mock;
 }
 
+function resetActionStoreMarker() {
+	const marker = Symbol.for('wpKernelUIActionStoreRegistered');
+	if (window.wp?.data) {
+		delete (window.wp.data as { [key: symbol]: unknown })[marker];
+	}
+}
+
 describe('useAction', () => {
-	let invalidateSpy: jest.SpyInstance;
-
-	beforeEach(() => {
-		invalidateSpy = jest.spyOn(kernel, 'invalidate');
-	});
-
 	afterEach(() => {
 		jest.clearAllMocks();
-		invalidateSpy.mockRestore();
-		const globalCache = globalThis as {
-			__WP_KERNEL_UI_ACTION_DISPATCH__?: unknown;
-			__WP_KERNEL_UI_ACTION_STORE__?: boolean;
-		};
-		delete globalCache.__WP_KERNEL_UI_ACTION_DISPATCH__;
-		delete globalCache.__WP_KERNEL_UI_ACTION_STORE__;
 	});
 
 	it('executes actions and updates state on success', async () => {
@@ -94,7 +135,7 @@ describe('useAction', () => {
 			ok: true,
 		}));
 
-		const { result } = renderHook(() => useAction(action));
+		const { result } = renderUseActionHook(action);
 
 		await act(async () => {
 			const payload = { id: 123 };
@@ -123,7 +164,7 @@ describe('useAction', () => {
 			return Promise.reject(kernelError);
 		});
 
-		const { result } = renderHook(() => useAction(action));
+		const { result } = renderUseActionHook(action);
 
 		await act(async () => {
 			await expect(result.current.run({})).rejects.toBe(kernelError);
@@ -142,9 +183,9 @@ describe('useAction', () => {
 
 		const action = makeDefinedAction(async () => deferred.promise);
 
-		const { result } = renderHook(() =>
-			useAction(action, { dedupeKey: (input: string) => input })
-		);
+		const { result } = renderUseActionHook(action, {
+			dedupeKey: (input: string) => input,
+		});
 
 		let firstPromise!: Promise<{ value: string }>;
 		let secondPromise!: Promise<{ value: string }>;
@@ -176,7 +217,7 @@ describe('useAction', () => {
 		);
 
 		const action = makeDefinedAction(async () => deferred.promise);
-		const { result } = renderHook(() => useAction(action));
+		const { result } = renderUseActionHook(action);
 
 		let promise!: Promise<string>;
 		act(() => {
@@ -213,9 +254,9 @@ describe('useAction', () => {
 			return callCount === 1 ? first.promise : second.promise;
 		});
 
-		const { result } = renderHook(() =>
-			useAction(action, { concurrency: 'switch' })
-		);
+		const { result } = renderUseActionHook(action, {
+			concurrency: 'switch',
+		});
 
 		let firstRun!: Promise<string>;
 		act(() => {
@@ -253,9 +294,9 @@ describe('useAction', () => {
 			return call === 1 ? first.promise : second.promise;
 		});
 
-		const { result } = renderHook(() =>
-			useAction(action, { concurrency: 'queue' })
-		);
+		const { result } = renderUseActionHook(action, {
+			concurrency: 'queue',
+		});
 
 		let firstRun!: Promise<string>;
 		let secondRun!: Promise<string>;
@@ -292,9 +333,9 @@ describe('useAction', () => {
 			envelope.payload.action(envelope.payload.args)
 		);
 		const action = makeDefinedAction(async () => deferred.promise);
-		const { result } = renderHook(() =>
-			useAction(action, { concurrency: 'drop' })
-		);
+		const { result } = renderUseActionHook(action, {
+			concurrency: 'drop',
+		});
 
 		let first!: Promise<string>;
 		let second!: Promise<string>;
@@ -320,17 +361,15 @@ describe('useAction', () => {
 		const action = makeDefinedAction(async () => ({ id: 10 }));
 		const patterns = [['job', 'list']];
 
-		const { result } = renderHook(() =>
-			useAction(action, {
-				autoInvalidate: () => patterns,
-			})
-		);
+		const { result, runtime } = renderUseActionHook(action, {
+			autoInvalidate: () => patterns,
+		});
 
 		await act(async () => {
 			await result.current.run({ id: 10 });
 		});
 
-		expect(invalidateSpy).toHaveBeenCalledWith(patterns);
+		expect(runtime.invalidate).toHaveBeenCalledWith(patterns);
 	});
 
 	it('reset clears state without cancelling in-flight requests', async () => {
@@ -340,7 +379,7 @@ describe('useAction', () => {
 		);
 		const action = makeDefinedAction(async () => deferred.promise);
 
-		const { result } = renderHook(() => useAction(action));
+		const { result } = renderUseActionHook(action);
 		let promise!: Promise<string>;
 		act(() => {
 			promise = result.current.run('value');
@@ -368,12 +407,12 @@ describe('useAction', () => {
 		);
 		const action = makeDefinedAction(async (value: number) => value * 2);
 
-		const { result: first } = renderHook(() =>
-			useAction(action, { concurrency: 'parallel' })
-		);
-		const { result: second } = renderHook(() =>
-			useAction(action, { concurrency: 'parallel' })
-		);
+		const { result: first } = renderUseActionHook(action, {
+			concurrency: 'parallel',
+		});
+		const { result: second } = renderUseActionHook(action, {
+			concurrency: 'parallel',
+		});
 
 		await act(async () => {
 			await first.current.run(2);
@@ -418,47 +457,6 @@ describe('useAction', () => {
 		}
 	});
 
-	it('reuses cached dispatcher when available', async () => {
-		const globalCache = globalThis as {
-			__WP_KERNEL_UI_ACTION_DISPATCH__?: (
-				envelope: ActionEnvelope<unknown, unknown>
-			) => Promise<unknown>;
-			__WP_KERNEL_UI_ACTION_STORE__?: boolean;
-		};
-		const cachedDispatch = jest
-			.fn()
-			.mockImplementation(
-				async (envelope: ActionEnvelope<{ name: string }, unknown>) => {
-					return envelope.payload.action(
-						envelope.payload.args
-					) as unknown;
-				}
-			);
-		globalCache.__WP_KERNEL_UI_ACTION_DISPATCH__ =
-			cachedDispatch as unknown as (
-				envelope: ActionEnvelope<unknown, unknown>
-			) => Promise<unknown>;
-		globalCache.__WP_KERNEL_UI_ACTION_STORE__ = true;
-
-		const registerSpy = jest.spyOn(kernelData, 'registerKernelStore');
-		const action = makeDefinedAction(async (input: { name: string }) => ({
-			...input,
-			ok: true,
-		}));
-
-		const { result } = renderHook(() => useAction(action));
-
-		await act(async () => {
-			const response = await result.current.run({ name: 'demo' });
-			expect(response).toEqual({ name: 'demo', ok: true });
-		});
-
-		expect(cachedDispatch).toHaveBeenCalledTimes(1);
-		expect(registerSpy).not.toHaveBeenCalled();
-
-		registerSpy.mockRestore();
-	});
-
 	it('throws a KernelError when run during SSR', () => {
 		const descriptor = Object.getOwnPropertyDescriptor(
 			globalThis,
@@ -477,7 +475,7 @@ describe('useAction', () => {
 		});
 
 		const action = makeDefinedAction(async () => 'noop');
-		const { result } = renderHook(() => useAction(action));
+		const { result } = renderUseActionHook(action);
 
 		expect(() => {
 			result.current.run({} as never);
@@ -499,13 +497,12 @@ describe('useAction', () => {
 	it('throws when WordPress data registry dispatch API is unavailable', () => {
 		const action = makeDefinedAction(async () => 'noop');
 		const dispatchMock = window.wp?.data?.dispatch as jest.Mock;
-		dispatchMock.mockReturnValueOnce({});
+		dispatchMock.mockReset();
+		dispatchMock.mockImplementation(() => ({}));
 
-		const { result } = renderHook(() => useAction(action));
+		const { result } = renderUseActionHook(action);
 
-		expect(() => {
-			result.current.run({} as never);
-		}).toThrow(
+		expect(() => result.current.run({} as never)).toThrow(
 			expect.objectContaining({
 				name: 'KernelError',
 				code: 'DeveloperError',
@@ -514,9 +511,12 @@ describe('useAction', () => {
 				),
 			})
 		);
+
+		dispatchMock.mockReset();
 	});
 
 	it('ignores duplicate store registration errors', async () => {
+		resetActionStoreMarker();
 		const registerSpy = jest
 			.spyOn(kernelData, 'registerKernelStore')
 			.mockImplementation(() => {
@@ -532,7 +532,7 @@ describe('useAction', () => {
 			envelope.payload.action(envelope.payload.args)
 		);
 
-		const { result } = renderHook(() => useAction(action));
+		const { result } = renderUseActionHook(action);
 
 		await act(async () => {
 			const output = await result.current.run({ id: 42 });
@@ -544,6 +544,7 @@ describe('useAction', () => {
 	});
 
 	it('propagates unexpected store registration errors', async () => {
+		resetActionStoreMarker();
 		const registerSpy = jest
 			.spyOn(kernelData, 'registerKernelStore')
 			.mockImplementation(() => {
@@ -555,7 +556,7 @@ describe('useAction', () => {
 			envelope.payload.action(envelope.payload.args)
 		);
 
-		const { result } = renderHook(() => useAction(action));
+		const { result } = renderUseActionHook(action);
 
 		expect(() => {
 			result.current.run({} as never);
@@ -565,22 +566,12 @@ describe('useAction', () => {
 	});
 
 	it('normalises non-error dispatch failures into KernelError instances', async () => {
-		type DispatchFunction = <TArgs, TResult>(
-			envelope: ActionEnvelope<TArgs, TResult>
-		) => Promise<TResult>;
-
-		const globalCache = globalThis as {
-			__WP_KERNEL_UI_ACTION_DISPATCH__?: DispatchFunction;
-			__WP_KERNEL_UI_ACTION_STORE__?: boolean;
-		};
-		// Intentionally throw a primitive string (not an Error) to test error normalization
-		globalCache.__WP_KERNEL_UI_ACTION_DISPATCH__ = (() => {
+		prepareWpData(() => {
 			throw 'primitive failure';
-		}) as unknown as DispatchFunction;
-		globalCache.__WP_KERNEL_UI_ACTION_STORE__ = true;
+		});
 
 		const action = makeDefinedAction(async (value: number) => value);
-		const { result } = renderHook(() => useAction(action));
+		const { result } = renderUseActionHook(action);
 		let capturedError: unknown;
 		await act(async () => {
 			try {
@@ -598,6 +589,7 @@ describe('useAction', () => {
 	});
 
 	it('does not invalidate cache when autoInvalidate returns falsey values', async () => {
+		resetActionStoreMarker();
 		const registerSpy = jest
 			.spyOn(kernelData, 'registerKernelStore')
 			.mockReturnValue({
@@ -610,14 +602,14 @@ describe('useAction', () => {
 		);
 		const action = makeDefinedAction(async () => ({ id: 1 }));
 
-		const { result } = renderHook(() =>
-			useAction(action, { autoInvalidate: () => false })
-		);
+		const { result, runtime } = renderUseActionHook(action, {
+			autoInvalidate: () => false,
+		});
 		await act(async () => {
 			await result.current.run({ id: 1 });
 		});
 
-		expect(invalidateSpy).not.toHaveBeenCalled();
+		expect(runtime.invalidate).not.toHaveBeenCalled();
 		registerSpy.mockRestore();
 	});
 
@@ -641,9 +633,9 @@ describe('useAction', () => {
 			return third.promise;
 		});
 
-		const { result } = renderHook(() =>
-			useAction(action, { concurrency: 'queue' })
-		);
+		const { result } = renderUseActionHook(action, {
+			concurrency: 'queue',
+		});
 
 		// Start first call
 		let firstRun!: Promise<string>;
@@ -702,11 +694,9 @@ describe('useAction', () => {
 		windowWithWp.wp = undefined;
 
 		const action = makeDefinedAction(async () => 'noop');
-		const { result } = renderHook(() => useAction(action));
+		const { result } = renderUseActionHook(action);
 
-		expect(() => {
-			result.current.run({} as never);
-		}).toThrow(
+		expect(() => result.current.run({} as never)).toThrow(
 			expect.objectContaining({
 				name: 'KernelError',
 				code: 'DeveloperError',
@@ -717,49 +707,6 @@ describe('useAction', () => {
 		);
 
 		windowWithWp.wp = originalWp;
-	});
-
-	it('throws when getGlobalObject returns object without window', () => {
-		const descriptor = Object.getOwnPropertyDescriptor(
-			globalThis,
-			'window'
-		);
-		if (!descriptor?.configurable) {
-			expect(descriptor?.configurable).toBe(false);
-			return;
-		}
-
-		const originalWindow = globalThis.window;
-		Object.defineProperty(globalThis, 'window', {
-			configurable: true,
-			value: undefined,
-		});
-
-		// Clear cached dispatch
-		const globalCache = globalThis as {
-			__WP_KERNEL_UI_ACTION_DISPATCH__?: unknown;
-			__WP_KERNEL_UI_ACTION_STORE__?: boolean;
-		};
-		delete globalCache.__WP_KERNEL_UI_ACTION_DISPATCH__;
-		delete globalCache.__WP_KERNEL_UI_ACTION_STORE__;
-
-		const action = makeDefinedAction(async () => 'noop');
-		const { result } = renderHook(() => useAction(action));
-
-		expect(() => {
-			result.current.run({} as never);
-		}).toThrow(
-			expect.objectContaining({
-				name: 'KernelError',
-				code: 'DeveloperError',
-				message: expect.stringContaining('cannot run during SSR'),
-			})
-		);
-
-		Object.defineProperty(globalThis, 'window', {
-			...descriptor,
-			value: originalWindow,
-		});
 	});
 
 	it('handles Error instances in normaliseToKernelError', async () => {
@@ -773,7 +720,7 @@ describe('useAction', () => {
 		});
 
 		const action = makeDefinedAction(async () => 'value');
-		const { result } = renderHook(() => useAction(action));
+		const { result } = renderUseActionHook(action);
 
 		await act(async () => {
 			try {
@@ -795,19 +742,34 @@ describe('useAction', () => {
 			envelope.payload.action(envelope.payload.args)
 		);
 		const action = makeDefinedAction(async () => ({ id: 10 }));
-		const spy = jest.spyOn(kernel, 'invalidate');
+		const kernelInvalidate = jest.fn();
+		const kernelStub = {
+			invalidate: kernelInvalidate,
+			getNamespace: () => 'tests',
+			getReporter: () => noopReporter,
+			emit: jest.fn(),
+			teardown: jest.fn(),
+			getRegistry: () =>
+				globalThis.window?.wp?.data as KernelRegistry | undefined,
+			hasUIRuntime: () => true,
+			getUIRuntime: () => undefined,
+			attachUIBindings: jest.fn(),
+			ui: { isEnabled: () => true, options: undefined },
+			events: new KernelEventBus(),
+		} as unknown as KernelInstance;
 
-		const { result } = renderHook(() =>
-			useAction(action, {
+		const { result } = renderUseActionHook(
+			action,
+			{
 				autoInvalidate: () => false,
-			})
+			},
+			{ invalidate: undefined, kernel: kernelStub }
 		);
 
 		await act(async () => {
 			await result.current.run({ id: 10 });
 		});
 
-		expect(spy).not.toHaveBeenCalled();
-		spy.mockRestore();
+		expect(kernelInvalidate).not.toHaveBeenCalled();
 	});
 });

@@ -1,6 +1,15 @@
 import { defineAction } from '../define';
+import type { ActionConfig, ActionOptions } from '../types';
 import * as cache from '../../resource/cache';
 import { KernelError } from '../../error/KernelError';
+
+function createAction<TArgs = void, TResult = void>(
+	name: string,
+	handler: ActionConfig<TArgs, TResult>['handler'],
+	options?: ActionOptions
+) {
+	return defineAction<TArgs, TResult>({ name, handler, options });
+}
 
 describe('defineAction', () => {
 	let originalRuntime: typeof global.__WP_KERNEL_ACTION_RUNTIME__;
@@ -50,7 +59,7 @@ describe('defineAction', () => {
 			.spyOn(cache, 'invalidate')
 			.mockImplementation(() => undefined);
 
-		const action = defineAction<{ title: string }, { id: number }>(
+		const action = createAction<{ title: string }, { id: number }>(
 			'Thing.Create',
 			async (ctx, args) => {
 				expect(args).toEqual({ title: 'Example' });
@@ -103,7 +112,7 @@ describe('defineAction', () => {
 	});
 
 	it('wraps thrown errors and emits error lifecycle event', async () => {
-		const action = defineAction('Thing.Fail', async () => {
+		const action = createAction('Thing.Fail', async () => {
 			throw new Error('boom');
 		});
 
@@ -121,7 +130,7 @@ describe('defineAction', () => {
 	});
 
 	it('marks tabLocal actions as non-bridged', async () => {
-		const action = defineAction('Thing.Local', async () => ({ ok: true }), {
+		const action = createAction('Thing.Local', async () => ({ ok: true }), {
 			scope: 'tabLocal',
 			bridged: true,
 		});
@@ -137,7 +146,7 @@ describe('defineAction', () => {
 			bridge: { emit: bridgeEmit },
 		};
 
-		const action = defineAction(
+		const action = createAction(
 			'Thing.NoBridge',
 			async () => ({ ok: true }),
 			{

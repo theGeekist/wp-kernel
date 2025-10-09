@@ -11,6 +11,8 @@
  */
 import { KernelError } from '@geekist/wp-kernel/error';
 import type { ResourceObject, ListResponse } from '@geekist/wp-kernel/resource';
+import type { KernelUIRuntime } from '@geekist/wp-kernel/data';
+import { useKernelUI } from '../runtime/context';
 
 /**
  * WordPress data store selector shape
@@ -118,6 +120,7 @@ function ensureUseSelect<T, TQuery>(
  */
 function createUseGet<T, TQuery>(resource: ResourceObject<T, TQuery>) {
 	return (id: string | number): UseResourceItemResult<T> => {
+		useKernelUI();
 		const wpData = ensureUseSelect(resource, 'useGet');
 
 		return wpData.useSelect(
@@ -147,6 +150,7 @@ function createUseGet<T, TQuery>(resource: ResourceObject<T, TQuery>) {
  */
 function createUseList<T, TQuery>(resource: ResourceObject<T, TQuery>) {
 	return (query?: TQuery): UseResourceListResult<T> => {
+		useKernelUI();
 		const wpData = ensureUseSelect(resource, 'useList');
 
 		return wpData.useSelect(
@@ -176,10 +180,12 @@ function createUseList<T, TQuery>(resource: ResourceObject<T, TQuery>) {
  * @template T - Entity type
  * @template TQuery - Query parameter type
  * @param    resource - Resource definition to augment with hooks
+ * @param    _runtime - Active Kernel UI runtime (unused placeholder for API symmetry)
  * @return The same resource object with hooks attached
  */
 export function attachResourceHooks<T, TQuery>(
-	resource: ResourceObject<T, TQuery>
+	resource: ResourceObject<T, TQuery>,
+	_runtime?: KernelUIRuntime
 ): ResourceObject<T, TQuery> {
 	if (resource.routes.get) {
 		resource.useGet = createUseGet(resource);
@@ -190,54 +196,6 @@ export function attachResourceHooks<T, TQuery>(
 	}
 
 	return resource;
-}
-
-/**
- * Global hook registration and pending resource processing
- *
- * When this module loads, it registers the hook attachment function on globalThis
- * and processes any resources that were defined before the UI bundle loaded.
- *
- * This enables late binding of React hooks to resources, ensuring that resources
- * defined in data modules (before React UI is imported) still receive useGet/useList
- * when the UI package eventually loads.
- *
- * @see types/global.d.ts for __WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__ type definition
- * @see packages/kernel/src/resource/define.ts for resource queuing logic
- */
-if (typeof globalThis !== 'undefined') {
-	(
-		globalThis as typeof globalThis & {
-			__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__?: <T, TQuery>(
-				resource: ResourceObject<T, TQuery>
-			) => void;
-			__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__?: () => ResourceObject<
-				unknown,
-				unknown
-			>[];
-		}
-	).__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__ = <HookEntity, HookQuery>(
-		resource: ResourceObject<HookEntity, HookQuery>
-	) => {
-		attachResourceHooks(resource);
-	};
-
-	// Process any resources that were created before this UI bundle loaded
-	const processPending = (
-		globalThis as typeof globalThis & {
-			__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__?: () => ResourceObject<
-				unknown,
-				unknown
-			>[];
-		}
-	).__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__;
-
-	if (processPending) {
-		const pending = processPending();
-		pending.forEach((resource) => {
-			attachResourceHooks(resource);
-		});
-	}
 }
 
 function computeItemLoading<T>(

@@ -40,15 +40,17 @@ type JobPolicies = {
 };
 
 export const policy = definePolicy<JobPolicies>({
-	'jobs.manage': () => true,
-	'jobs.delete': ({ adapters }, { id }) =>
-		adapters.wp?.canUser('delete', {
-			kind: 'postType',
-			name: 'job',
-			id,
-		}) ?? false,
-	'beta.enabled': async ({ adapters }) =>
-		(await adapters.restProbe?.('beta')) ?? false,
+	map: {
+		'jobs.manage': () => true,
+		'jobs.delete': ({ adapters }, { id }) =>
+			adapters.wp?.canUser('delete', {
+				kind: 'postType',
+				name: 'job',
+				id,
+			}) ?? false,
+		'beta.enabled': async ({ adapters }) =>
+			(await adapters.restProbe?.('beta')) ?? false,
+	},
 });
 ```
 
@@ -89,11 +91,15 @@ Action’s implementation you can synchronously or asynchronously gate behaviour
 import { defineAction } from '@geekist/wp-kernel/actions';
 import { policy } from '@/policy';
 
-export const DeleteJob = defineAction('Job.Delete', async (ctx, { id }) => {
-	await ctx.policy.assert('jobs.delete', { id });
+export const DeleteJob = defineAction({
+	name: 'Job.Delete',
+	handler: async (ctx, { id }) => {
+		await ctx.policy.assert('jobs.delete', { id });
 
-	await jobsResource.delete({ id });
-	ctx.emit('wpk.jobs.deleted', { id });
+		await jobsResource.delete({ id });
+		ctx.emit('wpk.jobs.deleted', { id });
+		ctx.invalidate([['job', 'list']]);
+	},
 });
 ```
 
@@ -152,11 +158,14 @@ seconds. The cache keeps both Action assertions and UI hooks in sync. Configure
 it via the `cache` option when defining the policy:
 
 ```ts
-const policy = definePolicy(map, {
-	cache: {
-		ttlMs: 5 * 60_000,
-		storage: 'session',
-		crossTab: true,
+const policy = definePolicy({
+	map,
+	options: {
+		cache: {
+			ttlMs: 5 * 60_000,
+			storage: 'session',
+			crossTab: true,
+		},
 	},
 });
 ```

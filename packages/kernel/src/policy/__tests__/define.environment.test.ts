@@ -66,7 +66,9 @@ describe('policy environment edge cases', () => {
 			const { definePolicy } = loadPolicyModule();
 
 			const policy = definePolicy<{ 'tasks.manage': void }>({
-				'tasks.manage': () => false,
+				map: {
+					'tasks.manage': () => false,
+				},
 			});
 
 			expect(() => policy.assert('tasks.manage')).toThrow(
@@ -111,8 +113,8 @@ describe('policy environment edge cases', () => {
 
 			const { definePolicy } = loadPolicyModule();
 
-			const policy = definePolicy<{ 'tasks.wp': void }>(
-				{
+			const policy = definePolicy<{ 'tasks.wp': void }>({
+				map: {
 					'tasks.wp': ({ adapters }: PolicyContext) => {
 						const allowed = adapters.wp?.canUser?.('read', {
 							path: '/wp-json/acme',
@@ -121,11 +123,11 @@ describe('policy environment edge cases', () => {
 						return false;
 					},
 				},
-				{
+				options: {
 					namespace: 'acme',
 					debug: true,
-				}
-			);
+				},
+			});
 
 			expect(() => policy.assert('tasks.wp')).toThrow(
 				'Policy "tasks.wp" denied.'
@@ -154,7 +156,9 @@ describe('policy environment edge cases', () => {
 		jest.isolateModules(() => {
 			const { definePolicy } = loadPolicyModule();
 			const policy = definePolicy<{ 'tasks.invalid': void }>({
-				'tasks.invalid': () => 'nope' as unknown as boolean,
+				map: {
+					'tasks.invalid': () => 'nope' as unknown as boolean,
+				},
 			});
 
 			expect(() => policy.can('tasks.invalid')).toThrow(
@@ -167,7 +171,9 @@ describe('policy environment edge cases', () => {
 		jest.isolateModules(() => {
 			const { definePolicy } = loadPolicyModule();
 			const policy = definePolicy<{ 'tasks.manage': void }>({
-				'tasks.manage': () => true,
+				map: {
+					'tasks.manage': () => true,
+				},
 			});
 
 			policy.extend({
@@ -186,13 +192,13 @@ describe('policy environment edge cases', () => {
 			const policy = definePolicy<{
 				'tasks.scalar': string;
 				'tasks.object': { reason: string };
-			}>(
-				{
+			}>({
+				map: {
 					'tasks.scalar': () => false,
 					'tasks.object': () => false,
 				},
-				{ namespace: 'acme' }
-			);
+				options: { namespace: 'acme' },
+			});
 
 			try {
 				policy.assert('tasks.scalar', 'blocked');
@@ -242,12 +248,14 @@ describe('policy environment edge cases', () => {
 			const { definePolicy } = loadPolicyModule();
 
 			const policy = definePolicy<{ 'tasks.reporter': void }>({
-				'tasks.reporter': ({ reporter }: PolicyContext) => {
-					reporter?.info('info');
-					reporter?.warn('warn');
-					reporter?.error('error');
-					reporter?.debug?.('debug');
-					return true;
+				map: {
+					'tasks.reporter': ({ reporter }: PolicyContext) => {
+						reporter?.info('info');
+						reporter?.warn('warn');
+						reporter?.error('error');
+						reporter?.debug?.('debug');
+						return true;
+					},
 				},
 			});
 
@@ -281,8 +289,8 @@ describe('policy environment edge cases', () => {
 		jest.isolateModules(() => {
 			const { definePolicy } = loadPolicyModule();
 
-			const policy = definePolicy<{ 'tasks.reporter': void }>(
-				{
+			const policy = definePolicy<{ 'tasks.reporter': void }>({
+				map: {
 					'tasks.reporter': ({ reporter }: PolicyContext) => {
 						reporter?.info('inform', { id: 1 });
 						reporter?.warn('warn', { id: 2 });
@@ -291,8 +299,8 @@ describe('policy environment edge cases', () => {
 						return true;
 					},
 				},
-				{ debug: true }
-			);
+				options: { debug: true },
+			});
 
 			expect(policy.can('tasks.reporter')).toBe(true);
 		});
@@ -324,9 +332,11 @@ describe('policy environment edge cases', () => {
 			const { definePolicy } = loadPolicyModule();
 
 			const policy = definePolicy<{ 'tasks.wp': void }>({
-				'tasks.wp': ({ adapters }: PolicyContext) => {
-					expect(adapters.wp).toBeUndefined();
-					return true;
+				map: {
+					'tasks.wp': ({ adapters }: PolicyContext) => {
+						expect(adapters.wp).toBeUndefined();
+						return true;
+					},
 				},
 			});
 
@@ -347,12 +357,14 @@ describe('policy environment edge cases', () => {
 			const { definePolicy } = loadPolicyModule();
 
 			const policy = definePolicy<{ 'tasks.wp': void }>({
-				'tasks.wp': ({ adapters }: PolicyContext) => {
-					const allowed = adapters.wp?.canUser?.('read', {
-						path: '/wp-json',
-					});
-					expect(allowed).toBe(false);
-					return true;
+				map: {
+					'tasks.wp': ({ adapters }: PolicyContext) => {
+						const allowed = adapters.wp?.canUser?.('read', {
+							path: '/wp-json',
+						});
+						expect(allowed).toBe(false);
+						return true;
+					},
 				},
 			});
 
@@ -369,7 +381,9 @@ describe('policy environment edge cases', () => {
 
 			const { definePolicy } = loadPolicyModule();
 			const policy = definePolicy<{ 'tasks.deny': void }>({
-				'tasks.deny': () => false,
+				map: {
+					'tasks.deny': () => false,
+				},
 			});
 
 			expect(() => policy.assert('tasks.deny')).toThrow(
@@ -393,7 +407,9 @@ describe('policy environment edge cases', () => {
 			try {
 				const { definePolicy } = loadPolicyModule();
 				const policy = definePolicy<{ 'tasks.deny': void }>({
-					'tasks.deny': () => false,
+					map: {
+						'tasks.deny': () => false,
+					},
 				});
 
 				expect(() => policy.assert('tasks.deny')).toThrow(

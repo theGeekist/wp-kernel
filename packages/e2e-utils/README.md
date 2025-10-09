@@ -96,7 +96,7 @@ await events.captureEmitted(page, 'wpk.resource.user.created');
 
 ## Requirements
 
-- **WordPress**: 6.8+
+- **WordPress**: 6.7+
 - **Playwright**: 1.45+
 - **@geekist/wp-kernel**: For kernel-aware fixtures
 

@@ -16,6 +16,8 @@ The Jobs & Applications showcase plugin is a comprehensive example of building m
 - Jobs for background processing
 - Policies for permissions
 
+The plugin bootstraps with `configureKernel()` to install middleware, publishes the runtime through `KernelUIProvider`, and leans on the kernel event bus for every UI attachment. What you see in this guide mirrors the production architecture: no global shims, no positional function signatures, and a single source of truth for telemetry, caching, and extensibility.
+
 **Repository:** [View source code](https://github.com/theGeekist/wp-kernel/tree/main/app/showcase)
 
 ---
@@ -191,43 +193,32 @@ defineInteraction('wpk/job-filters', {
 
 ```typescript
 // Action orchestrates the write path
-export const SubmitApplication = defineAction(
-	'Application.Submit',
-	async ({ jobId, formData, cvFile }) => {
-		// 1. Validate policy
-		if (!policy.check('applications.create')) {
-			throw new KernelError('PolicyDenied', {
-				policyKey: 'applications.create',
-			});
-		}
+export const SubmitApplication = defineAction({
+	name: 'Application.Submit',
+	handler: async (ctx, { jobId, formData, cvFile }) => {
+		await ctx.policy.assert('applications.create', { jobId });
 
-		// 2. Upload CV with progress
 		const media = await uploadFile(cvFile, {
 			onProgress: (pct) => dispatch('wpk/ui').setProgress(pct),
 		});
 
-		// 3. Create application via REST
 		const app = await application.create({
 			job_id: jobId,
 			...formData,
 			cv_media_id: media.id,
 		});
 
-		// 4. Emit events
-		SubmitApplication.emit('wpk.application.created', {
+		ctx.emit(application.events.created, {
 			id: app.id,
 			jobId,
 		});
 
-		// 5. Invalidate caches
-		invalidate(['application', 'list']);
-
-		// 6. Queue background job
-		await jobs.enqueue('ParseResume', { applicationId: app.id });
+		ctx.invalidate([application.key('list')]);
+		await ctx.jobs.enqueue('ParseResume', { applicationId: app.id });
 
 		return app;
-	}
-);
+	},
+});
 ```
 
 **Interactivity controller:**
@@ -287,30 +278,26 @@ AdminSurface.mount('wpk-applications-pipeline', {
 });
 
 // Optimistic update Action
-export const MoveApplicationStage = defineAction(
-	'Application.MoveStage',
-	async ({ id, fromStage, toStage }) => {
-		// Optimistic update
+export const MoveApplicationStage = defineAction({
+	name: 'Application.MoveStage',
+	handler: async (ctx, { id, fromStage, toStage }) => {
 		const prev = select('wpk/application').getById(id);
 		dispatch('wpk/application').updateEntity(id, { stage: toStage });
 
 		try {
-			// Server update
 			await application.update(id, { stage: toStage });
 
-			// Emit event
-			MoveApplicationStage.emit('wpk.application.stageChanged', {
+			ctx.emit('wpk.application.stageChanged', {
 				id,
 				fromStage,
 				toStage,
 			});
-		} catch (e) {
-			// Auto-revert on failure
+		} catch (error) {
 			dispatch('wpk/application').updateEntity(id, prev);
-			throw e;
+			throw error;
 		}
-	}
-);
+	},
+});
 ```
 
 **What you get:**
@@ -329,22 +316,20 @@ export const MoveApplicationStage = defineAction(
 
 ```typescript
 // JavaScript (canonical)
-export const ChangeApplicationStage = defineAction(
-	'Application.ChangeStage',
-	async ({ id, stage }) => {
-		await application.update(id, { stage });
+export const ChangeApplicationStage = defineAction({
+        name: 'Application.ChangeStage',
+        handler: async (ctx, { id, stage }) => {
+                await application.update(id, { stage });
 
-		// Emit event
-		ChangeApplicationStage.emit('wpk.application.stageChanged', {
-			id,
-			stage,
-			timestamp: Date.now(),
-		});
+                ctx.emit('wpk.application.stageChanged', {
+                        id,
+                        stage,
+                        timestamp: Date.now(),
+                });
 
-		// Queue email job
-		await jobs.enqueue('SendStageEmail', { applicationId: id, stage });
-	}
-);
+                await ctx.jobs.enqueue('SendStageEmail', { applicationId: id, stage });
+        },
+});
 
 // PHP Bridge (for legacy integrations)
 add_action('wpk.bridge.application.stageChanged', function ($payload) {
@@ -397,18 +382,14 @@ const applicationStore = {
 };
 
 // CSV Export Action + Job
-export const ExportApplicationsCSV = defineAction(
-	'Applications.ExportCSV',
-	async ({ filters }) => {
-		// Queue long-running job
-		const jobId = await jobs.enqueue('ExportCSV', { filters });
-
-		// Poll for completion
-		const result = await jobs.wait('ExportCSV', { jobId });
-
+export const ExportApplicationsCSV = defineAction({
+	name: 'Applications.ExportCSV',
+	handler: async (ctx, { filters }) => {
+		await ctx.jobs.enqueue('ExportCSV', { filters });
+		const result = await ctx.jobs.wait('ExportCSV', { filters });
 		return result.downloadUrl; // Signed URL
-	}
-);
+	},
+});
 ```
 
 **What you get:**

@@ -17,6 +17,14 @@ import type {
 	ResourceListStatus,
 } from './types';
 import { KernelError } from '../error/index';
+import { createNoopReporter } from '../reporter';
+
+const STORE_LOG_MESSAGES = {
+	missingRoute: 'resource.store.missingRoute',
+	resolverStart: 'resource.store.resolver.start',
+	resolverSuccess: 'resource.store.resolver.success',
+	resolverError: 'resource.store.resolver.error',
+} as const;
 
 /**
  * Action types for the resource store.
@@ -74,9 +82,19 @@ export function createStore<T, TQuery = unknown>(
 		initialState: customInitialState = {},
 		getId = defaultGetId,
 		getQueryKey = defaultGetQueryKey,
+		reporter: reporterOverride,
 	} = config;
 
 	const storeKey = resource.storeKey;
+	const storeReporter = (reporterOverride ?? createNoopReporter()).child(
+		'store'
+	);
+	const resolversReporter = storeReporter.child('resolvers');
+	const resolverLoggers = {
+		getItem: resolversReporter.child('getItem'),
+		getItems: resolversReporter.child('getItems'),
+		getList: resolversReporter.child('getList'),
+	} as const;
 
 	// Initial state
 	const initialState: ResourceState<T> = {
@@ -398,6 +416,11 @@ export function createStore<T, TQuery = unknown>(
 		*getItem(id: string | number) {
 			// Check if client method exists
 			if (!resource.fetch) {
+				resolverLoggers.getItem.error(STORE_LOG_MESSAGES.missingRoute, {
+					resource: resource.name,
+					operation: 'getItem',
+					itemId: id,
+				});
 				throw new KernelError('NotImplementedError', {
 					message:
 						`Resource "${resource.name}" does not have a "fetch" method. ` +
@@ -405,25 +428,63 @@ export function createStore<T, TQuery = unknown>(
 				});
 			}
 
+			const cacheKey =
+				resource.cacheKeys.get?.(id).join(':') ||
+				`${resource.name}:get:${id}`;
+
+			resolverLoggers.getItem.debug(STORE_LOG_MESSAGES.resolverStart, {
+				resource: resource.name,
+				operation: 'getItem',
+				id,
+				cacheKey,
+			});
+
 			try {
 				const item = (yield {
 					type: 'FETCH_FROM_API',
 					promise: resource.fetch(id),
 				}) as T;
 				yield actions.receiveItem(item);
+				resolverLoggers.getItem.info(
+					STORE_LOG_MESSAGES.resolverSuccess,
+					{
+						resource: resource.name,
+						operation: 'getItem',
+						id,
+						cacheKey,
+					}
+				);
 			} catch (error) {
-				const cacheKey =
-					resource.cacheKeys.get?.(id).join(':') ||
-					`${resource.name}:get:${id}`;
 				const errorMessage =
 					error instanceof Error ? error.message : 'Unknown error';
 				yield actions.receiveError(cacheKey, errorMessage);
+				resolverLoggers.getItem.error(
+					STORE_LOG_MESSAGES.resolverError,
+					{
+						resource: resource.name,
+						operation: 'getItem',
+						id,
+						cacheKey,
+						error:
+							error instanceof Error
+								? error.message
+								: String(error),
+					}
+				);
 			}
 		},
 
 		*getItems(query?: TQuery) {
 			// Check if client method exists
 			if (!resource.fetchList) {
+				resolverLoggers.getItems.error(
+					STORE_LOG_MESSAGES.missingRoute,
+					{
+						resource: resource.name,
+						operation: 'getItems',
+						query,
+					}
+				);
 				throw new KernelError('NotImplementedError', {
 					message:
 						`Resource "${resource.name}" does not have a "fetchList" method. ` +
@@ -432,6 +493,17 @@ export function createStore<T, TQuery = unknown>(
 			}
 
 			const queryKey = getQueryKey(query);
+			const cacheKey =
+				resource.cacheKeys.list?.(query).join(':') ||
+				`${resource.name}:list:${queryKey}`;
+
+			resolverLoggers.getItems.debug(STORE_LOG_MESSAGES.resolverStart, {
+				resource: resource.name,
+				operation: 'getItems',
+				query,
+				queryKey,
+				cacheKey,
+			});
 
 			try {
 				yield actions.setListStatus(queryKey, 'loading');
@@ -444,14 +516,37 @@ export function createStore<T, TQuery = unknown>(
 					hasMore: response.hasMore,
 					nextCursor: response.nextCursor,
 				});
+				resolverLoggers.getItems.info(
+					STORE_LOG_MESSAGES.resolverSuccess,
+					{
+						resource: resource.name,
+						operation: 'getItems',
+						query,
+						queryKey,
+						cacheKey,
+						total: response.total,
+						count: response.items.length,
+					}
+				);
 			} catch (error) {
 				yield actions.setListStatus(queryKey, 'error');
-				const cacheKey =
-					resource.cacheKeys.list?.(query).join(':') ||
-					`${resource.name}:list:${queryKey}`;
 				const errorMessage =
 					error instanceof Error ? error.message : 'Unknown error';
 				yield actions.receiveError(cacheKey, errorMessage);
+				resolverLoggers.getItems.error(
+					STORE_LOG_MESSAGES.resolverError,
+					{
+						resource: resource.name,
+						operation: 'getItems',
+						query,
+						queryKey,
+						cacheKey,
+						error:
+							error instanceof Error
+								? error.message
+								: String(error),
+					}
+				);
 			}
 		},
 
@@ -461,6 +556,11 @@ export function createStore<T, TQuery = unknown>(
 		*getList(query?: TQuery) {
 			// Check if client method exists
 			if (!resource.fetchList) {
+				resolverLoggers.getList.error(STORE_LOG_MESSAGES.missingRoute, {
+					resource: resource.name,
+					operation: 'getList',
+					query,
+				});
 				throw new KernelError('NotImplementedError', {
 					message:
 						`Resource "${resource.name}" does not have a "fetchList" method. ` +
@@ -469,6 +569,17 @@ export function createStore<T, TQuery = unknown>(
 			}
 
 			const queryKey = getQueryKey(query);
+			const cacheKey =
+				resource.cacheKeys.list?.(query).join(':') ||
+				`${resource.name}:list:${queryKey}`;
+
+			resolverLoggers.getList.debug(STORE_LOG_MESSAGES.resolverStart, {
+				resource: resource.name,
+				operation: 'getList',
+				query,
+				queryKey,
+				cacheKey,
+			});
 
 			try {
 				yield actions.setListStatus(queryKey, 'loading');
@@ -481,14 +592,37 @@ export function createStore<T, TQuery = unknown>(
 					hasMore: response.hasMore,
 					nextCursor: response.nextCursor,
 				});
+				resolverLoggers.getList.info(
+					STORE_LOG_MESSAGES.resolverSuccess,
+					{
+						resource: resource.name,
+						operation: 'getList',
+						query,
+						queryKey,
+						cacheKey,
+						total: response.total,
+						count: response.items.length,
+					}
+				);
 			} catch (error) {
 				yield actions.setListStatus(queryKey, 'error');
-				const cacheKey =
-					resource.cacheKeys.list?.(query).join(':') ||
-					`${resource.name}:list:${queryKey}`;
 				const errorMessage =
 					error instanceof Error ? error.message : 'Unknown error';
 				yield actions.receiveError(cacheKey, errorMessage);
+				resolverLoggers.getList.error(
+					STORE_LOG_MESSAGES.resolverError,
+					{
+						resource: resource.name,
+						operation: 'getList',
+						query,
+						queryKey,
+						cacheKey,
+						error:
+							error instanceof Error
+								? error.message
+								: String(error),
+					}
+				);
 			}
 		},
 	};

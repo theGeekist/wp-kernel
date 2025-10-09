@@ -11,8 +11,17 @@
  */
 
 import { defineAction } from '../../actions/define';
+import type { ActionConfig, ActionOptions } from '../../actions/types';
 import { defineResource } from '../../resource/define';
 import * as cache from '../../resource/cache';
+
+function createAction<TArgs = void, TResult = void>(
+	name: string,
+	handler: ActionConfig<TArgs, TResult>['handler'],
+	options?: ActionOptions
+) {
+	return defineAction<TArgs, TResult>({ name, handler, options });
+}
 
 describe('Action Flow Integration', () => {
 	let mockApiFetch: jest.Mock;
@@ -57,7 +66,7 @@ describe('Action Flow Integration', () => {
 			},
 		});
 
-		const CreateThing = defineAction<
+		const CreateThing = createAction<
 			{ data: { title: string } },
 			{ id: number; title: string }
 		>('Thing.Create', async (ctx, { data }) => {
@@ -112,7 +121,7 @@ describe('Action Flow Integration', () => {
 			},
 		});
 
-		const UpdateThing = defineAction<
+		const UpdateThing = createAction<
 			{ id: number; updates: { title: string } },
 			{ id: number; title: string }
 		>('Thing.Update', async (ctx, { id, updates }) => {
@@ -160,7 +169,7 @@ describe('Action Flow Integration', () => {
 
 		mockApiFetch.mockResolvedValue({ id: 1, title: 'Updated' });
 
-		const UpdateThing = defineAction<
+		const UpdateThing = createAction<
 			{ id: number; updates: { title: string } },
 			{ id: number; title: string }
 		>('Thing.Update', async (ctx, { id, updates }) => {
@@ -204,7 +213,7 @@ describe('Action Flow Integration', () => {
 		const createdThing = { id: 42, title: 'Created' };
 		mockApiFetch.mockResolvedValue(createdThing);
 
-		const CreateThing = defineAction<
+		const CreateThing = createAction<
 			{ data: { title: string } },
 			{ id: number; title: string }
 		>('Thing.Create', async (ctx, { data }) => {
@@ -232,7 +241,7 @@ describe('Action Flow Integration', () => {
 		const createdThing = { id: 42, title: 'Created' };
 		mockApiFetch.mockResolvedValue(createdThing);
 
-		const CreateThing = defineAction<
+		const CreateThing = createAction<
 			{ data: { title: string } },
 			{ id: number; title: string }
 		>(

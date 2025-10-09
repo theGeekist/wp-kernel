@@ -2,11 +2,11 @@
 /**
  * Plugin Name: WP Kernel Showcase
  * Plugin URI: https://github.com/theGeekist/wp-kernel
- * Description: Demonstrates WP Kernel framework features using Script Modules and modern WordPress APIs
- * Version: 0.3.0
- * Requires at least: 6.8
- * Requires PHP: 8.1
- * Author: Geekist
+ * Description: Comprehensive demonstration of WP Kernel framework capabilities through a jobs and applications management system
+ * Version:           0.1.0
+ * Requires at least: 6.7
+ * Requires PHP:      8.1
+ * Author: theGeekist
  * Author URI: https://github.com/theGeekist
  * License: GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html

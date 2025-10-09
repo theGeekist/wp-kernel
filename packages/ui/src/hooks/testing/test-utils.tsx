@@ -1,5 +1,5 @@
 /* @jsxImportSource react */
-import { act } from 'react';
+import { act, type ComponentType, type ReactNode } from 'react';
 import { createRoot } from 'react-dom/client';
 
 if (typeof globalThis !== 'undefined') {
@@ -10,6 +10,7 @@ if (typeof globalThis !== 'undefined') {
 
 interface RenderHookOptions<TProps> {
 	initialProps?: TProps;
+	wrapper?: ComponentType<{ children: ReactNode }>;
 }
 
 interface RenderHookResult<TResult, TProps> {
@@ -25,6 +26,7 @@ export function renderHook<TResult, TProps = undefined>(
 	const container = document.createElement('div');
 	const root = createRoot(container);
 	let hookProps = options.initialProps as TProps;
+	const Wrapper = options.wrapper;
 
 	const result: { current: TResult } = {
 		current: undefined as unknown as TResult,
@@ -35,8 +37,16 @@ export function renderHook<TResult, TProps = undefined>(
 		return null;
 	}
 
+	function renderWithWrapper(element: ReactNode) {
+		if (!Wrapper) {
+			return element;
+		}
+
+		return <Wrapper>{element}</Wrapper>;
+	}
+
 	act(() => {
-		root.render(<HookComponent props={hookProps} />);
+		root.render(renderWithWrapper(<HookComponent props={hookProps} />));
 	});
 
 	return {
@@ -44,7 +54,9 @@ export function renderHook<TResult, TProps = undefined>(
 		rerender(nextProps?: TProps) {
 			hookProps = (nextProps ?? hookProps) as TProps;
 			act(() => {
-				root.render(<HookComponent props={hookProps} />);
+				root.render(
+					renderWithWrapper(<HookComponent props={hookProps} />)
+				);
 			});
 		},
 		unmount() {

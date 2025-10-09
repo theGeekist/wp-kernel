@@ -150,6 +150,29 @@ pnpm wp:fresh       # Start WordPress + seed (one command)
 - **Package package.json**: Only internal workspace deps (`workspace:*`)
 - **Benefits**: No version drift, easier maintenance, consistent builds
 
+### **Working with Filtered Commands**
+
+When running commands on specific packages, **always put `--filter` BEFORE the command**:
+
+```bash
+# ✓ CORRECT - filter first, then command
+pnpm --filter @geekist/wp-kernel build
+pnpm --filter @geekist/wp-kernel-ui test
+pnpm --filter @geekist/wp-kernel typecheck
+
+# ✗ WRONG - command first will pass --filter through to package scripts
+pnpm build --filter @geekist/wp-kernel      # Causes "Unknown compiler option '--filter'"
+pnpm test --filter @geekist/wp-kernel-ui    # Will fail with unexpected flags
+```
+
+**Why this matters:**
+
+- `pnpm build --filter X` runs the **root build script** and appends `--filter X` as an argument
+- This causes `--filter` to be passed to package tools (vite, tsc) which don't understand it
+- `pnpm --filter X build` correctly **filters the workspace first**, then runs the package's build script
+
+> **📖 See also**: [`information/PNPM_FILTER_COMMANDS.md`](information/PNPM_FILTER_COMMANDS.md) for detailed examples and common patterns
+
 ### **Adding Dependencies**
 
 ```bash

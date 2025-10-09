@@ -1,8 +1,21 @@
 import { definePolicy } from '../define';
 import { createPolicyProxy } from '../context';
-import type { PolicyHelpers, PolicyRule } from '../types';
+import type {
+	PolicyDefinitionConfig,
+	PolicyHelpers,
+	PolicyMap,
+	PolicyOptions,
+	PolicyRule,
+} from '../types';
 import { KernelError } from '../../error/KernelError';
 import { PolicyDeniedError } from '../../error/PolicyDeniedError';
+
+function createPolicy<K extends Record<string, unknown>>(
+	map: PolicyMap<K>,
+	options?: PolicyOptions
+) {
+	return definePolicy<K>({ map, options });
+}
 
 describe('policy module', () => {
 	beforeAll(() => {
@@ -26,8 +39,26 @@ describe('policy module', () => {
 			.__WP_KERNEL_ACTION_RUNTIME__;
 	});
 
+	it('throws DeveloperError when config is missing', () => {
+		expect(() =>
+			definePolicy(
+				undefined as unknown as PolicyDefinitionConfig<
+					Record<string, unknown>
+				>
+			)
+		).toThrow('definePolicy requires a configuration object with "map".');
+	});
+
+	it('throws DeveloperError when map is invalid', () => {
+		expect(() =>
+			definePolicy<{ foo: void }>({
+				map: undefined as unknown as PolicyMap<{ foo: void }>,
+			})
+		).toThrow('definePolicy requires a "map" of policy rules.');
+	});
+
 	it('evaluates synchronous policies', () => {
-		const policy = definePolicy<{
+		const policy = createPolicy<{
 			'tasks.manage': void;
 			'tasks.delete': void;
 		}>({
@@ -41,7 +72,7 @@ describe('policy module', () => {
 
 	it('caches asynchronous evaluations', async () => {
 		let hits = 0;
-		const policy = definePolicy<{
+		const policy = createPolicy<{
 			'tasks.async': void;
 		}>({
 			'tasks.async': async () => {
@@ -63,7 +94,7 @@ describe('policy module', () => {
 		const doAction = hooks!.doAction!;
 		doAction.mockImplementation(() => undefined);
 
-		const policy = definePolicy<{
+		const policy = createPolicy<{
 			'tasks.manage': void;
 		}>(
 			{
@@ -91,7 +122,7 @@ describe('policy module', () => {
 	});
 
 	it('extend overrides rules and invalidates cache', async () => {
-		const policy = definePolicy<{
+		const policy = createPolicy<{
 			'tasks.manage': void;
 		}>({
 			'tasks.manage': async () => true,
@@ -117,7 +148,7 @@ describe('policy module', () => {
 		const doAction = hooks!.doAction!;
 		doAction.mockImplementation(() => undefined);
 
-		const policy = definePolicy<{
+		const policy = createPolicy<{
 			'tasks.manage': void;
 		}>(
 			{
@@ -163,7 +194,7 @@ describe('policy module', () => {
 	});
 
 	it('throws a developer error when accessing unknown policy keys', () => {
-		const policy = definePolicy<{ 'tasks.manage': void }>({
+		const policy = createPolicy<{ 'tasks.manage': void }>({
 			'tasks.manage': () => true,
 		});
 
@@ -178,7 +209,7 @@ describe('policy module', () => {
 					resolveFn = resolve;
 				})
 		);
-		const policy = definePolicy<{ 'tasks.async': void }>({
+		const policy = createPolicy<{ 'tasks.async': void }>({
 			'tasks.async': asyncRule,
 		});
 
@@ -196,7 +227,7 @@ describe('policy module', () => {
 			.mockRejectedValueOnce(new Error('fail'))
 			.mockResolvedValueOnce(true);
 
-		const policy = definePolicy<{ 'tasks.async': void }>({
+		const policy = createPolicy<{ 'tasks.async': void }>({
 			'tasks.async': asyncRule,
 		});
 

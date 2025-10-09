@@ -10,6 +10,7 @@ Resources are the foundation of WP Kernel. They define typed REST endpoints with
 - Store registration (@wordpress/data)
 - Cache key management
 - Event emission
+- Reporter instrumentation (debug/info/error)
 
 ## Quick Example
 
@@ -38,6 +39,9 @@ export const thing = defineResource<Thing, { status?: string }>({
 // Use the client
 const things = await thing.fetchList({ status: 'active' });
 const single = await thing.fetch(123);
+
+// Reporter access
+thing.reporter.debug('Fetched Thing list from settings panel');
 ```
 
 ## Full API Reference

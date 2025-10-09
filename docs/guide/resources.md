@@ -64,12 +64,33 @@ await CreateTestimonial({ data: { title: 'Great service!', rating: 5 } });
 
 // ✓ Use React hooks (read path)
 function TestimonialList() {
-	const { data, isLoading } = testimonial.useList({ rating: 5 });
+        const { data, isLoading } = testimonial.useList({ rating: 5 });
 
-	if (isLoading) return <Spinner />;
-	return <ul>{data?.items.map(item => <li key={item.id}>{item.title}</li>)}</ul>;
+        if (isLoading) return <Spinner />;
+        return <ul>{data?.items.map(item => <li key={item.id}>{item.title}</li>)}</ul>;
 }
 ```
+
+> ℹ️ Hook access (`useList`, `useGet`) requires a configured `KernelUIRuntime`.
+> Call `configureKernel({ ui: { attach: attachUIBindings } })` and wrap your React
+> tree with `KernelUIProvider` to make the runtime available.
+
+### Reporter inheritance
+
+Every resource carries a reporter so fetches, mutations, and store resolvers emit
+structured telemetry. When you define a resource through `configureKernel()` the
+reporter is created as a child of the kernel instance (`resource.{name}`). Standalone
+resources fall back to a deterministic console reporter so local development still
+surfaces debug output. You can access the reporter via `resource.reporter` or supply
+your own implementation through the `reporter` option.
+
+Cache utilities participate in the same hierarchy. Calling `resource.invalidate()` or
+the grouped `cache.invalidate.*` helpers emits `cache.invalidate.request` and
+`cache.invalidate.summary` messages (plus match/miss debug logs) using the resource's
+reporter, giving you visibility into which cache keys were touched. Transport requests
+inherit the reporter too, so every `fetchList`, `fetch`, `create`, and `remove` call
+produces `transport.request`, `transport.response`, or `transport.error` entries with
+correlation IDs that downstream observability tooling can consume.
 
 ## Configuration
 
@@ -156,6 +177,27 @@ JSON Schema for runtime validation (coming in future sprints).
 
 ```typescript
 schema: import('../../contracts/testimonial.schema.json');
+```
+
+#### `reporter` \<Reporter\>
+
+Override the reporter used for observability. By default resources inherit the kernel
+reporter (or create a console reporter when no kernel is active). Provide a custom
+reporter to forward logs to external tooling:
+
+```typescript
+import { createReporter } from '@geekist/wp-kernel';
+
+const testimonial = defineResource<TestimonialPost>({
+	name: 'testimonial',
+	routes: {
+		/* ... */
+	},
+	reporter: createReporter({
+		namespace: 'acme.telemetry',
+		channel: 'all',
+	}),
+});
 ```
 
 ### TypeScript Generics

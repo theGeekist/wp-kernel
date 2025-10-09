@@ -2,19 +2,44 @@
 
 ## 0.3.0 [Unreleased]
 
+### Breaking Changes
+
+- Removed the `withKernel()` export. Registry middleware is now wired directly
+  through `configureKernel()`, and teardown happens via the returned instance.
+- `defineAction()` and `definePolicy()` now accept configuration objects
+  (`{ name, handler, options }` / `{ map, options }`) rather than positional
+  parameters. Update call sites to pass the new shape.
+
 ### Minor Changes
 
-- **Sprint 5: React Hooks Integration**
-    - Modified `defineResource()` to support lazy hook attachment via global queue mechanism
-    - Added resource hook queuing for resources defined before UI package loads
-    - Exposed `__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__` global for pending resource processing
-    - Enhanced resource-to-hook binding with comprehensive JSDoc documentation
+- Introduced `kernel.attachUIBindings()`, `kernel.getUIRuntime()`, and
+  `kernel.hasUIRuntime()` to manage UI adapters without global mutation.
+- `defineResource()` now registers resources with the runtime via
+  `trackUIResource()` instead of relying on queued globals.
+- Added `KernelEventBus` with `kernel.events` so lifecycle events surface through
+  a typed subscription interface while continuing to bridge into `wp.hooks`.
+  Action and cache events now emit through the bus, enabling UI runtimes and
+  adapters to subscribe without global shims.
+- Resource reporters inherit from the kernel instance. Client methods and store
+  resolvers emit structured `debug`/`info`/`error` logs and every resource now
+  exposes a `reporter` property for custom instrumentation.
+- Cache invalidation helpers and the transport layer accept reporter metadata,
+  emitting `cache.invalidate.*` and `transport.*` events with kernel-scoped
+  defaults so cache/REST lifecycles share correlation IDs.
 
 ### Technical Details
 
-- Module-level queue in `resource/define.ts` (lines 28-50, 377-413)
-- Global hooks: `__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__`, `__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__`
-- Ensures resources defined before UI loads can still bind React hooks when UI initializes
+- UI runtime state lives in `data/ui-runtime.ts`, flushing pending resources when
+  adapters attach.
+- `resource/define.ts` calls `trackUIResource()` so hooks attach immediately once
+  a runtime is available.
+
+### Documentation
+
+- Finalized Phase 7 by aligning the root specifications, README, roadmap, and
+  `/docs` guides with the adapter-driven runtime, typed event bus, and
+  configuration-object APIs. Examples now showcase `configureKernel()`,
+  `KernelUIProvider`, and cache/event orchestration through action context.
 
 ## 0.2.0
 

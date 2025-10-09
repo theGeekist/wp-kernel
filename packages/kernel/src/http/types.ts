@@ -5,10 +5,18 @@
  * used by the resource client.
  */
 
+import type { Reporter } from '../reporter';
+
 /**
  * HTTP methods supported by the transport layer
  */
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+
+export type TransportMeta = {
+	reporter?: Reporter;
+	namespace?: string;
+	resourceName?: string;
+};
 
 /**
  * Request options for transport.fetch()
@@ -44,6 +52,11 @@ export type TransportRequest = {
 	 * Custom request ID for correlation (generated if not provided)
 	 */
 	requestId?: string;
+
+	/**
+	 * Metadata used for reporter instrumentation.
+	 */
+	meta?: TransportMeta;
 };
 
 /**

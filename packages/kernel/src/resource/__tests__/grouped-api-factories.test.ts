@@ -20,6 +20,7 @@ import {
 	createEventsGetter,
 } from '../grouped-api';
 import type { ResourceConfig, ResourceObject, CacheKeys } from '../types';
+import { createNoopReporter } from '../../reporter';
 
 // Mock types for testing
 interface TestItem {
@@ -91,6 +92,7 @@ describe('grouped-api namespace factories', () => {
 		mockResourceObject = {
 			name: 'test-resource',
 			storeKey: 'wpk/test-resource',
+			reporter: createNoopReporter(),
 			store: {} as ResourceObject<TestItem, TestQuery>['store'],
 			key: jest.fn(),
 			invalidate: jest.fn(),

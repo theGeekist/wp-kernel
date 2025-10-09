@@ -36,6 +36,7 @@ import type {
 	ParamsOf,
 	PolicyAdapters,
 	PolicyContext,
+	PolicyDefinitionConfig,
 	PolicyHelpers,
 	PolicyMap,
 	PolicyOptions,
@@ -615,10 +616,12 @@ function createDeniedError(
  *
  * ```typescript
  * definePolicy({
- *   'fast.check': (ctx) => true,                    // Sync: immediate
- *   'slow.check': async (ctx) => {                  // Async: cached
- *     const result = await fetch('/api/check');
- *     return result.ok;
+ *   map: {
+ *     'fast.check': (ctx) => true,                    // Sync: immediate
+ *     'slow.check': async (ctx) => {                  // Async: cached
+ *       const result = await fetch('/api/check');
+ *       return result.ok;
+ *     }
  *   }
  * });
  * ```
@@ -626,16 +629,18 @@ function createDeniedError(
  * In React components, async rules return `false` during evaluation and update when resolved.
  *
  * @template K - Policy map type defining capability keys and their parameter types
- * @param    map     - Object mapping policy keys to rule functions
- * @param    options - Configuration options for namespace, adapters, caching, and debugging
+ * @param    config - Configuration object mapping policy keys to rule functions and runtime options
  * @return Policy helpers object with can(), assert(), keys(), extend(), and cache API
  * @throws DeveloperError if a rule returns non-boolean value
  * @throws PolicyDenied when assert() called on denied capability
  * @example
  * ```typescript
  * // Minimal example (no params)
- * const policy = definePolicy<{ 'admin.access': void }>({
- *   'admin.access': (ctx) => ctx.adapters.wp?.canUser('manage_options') ?? false
+ * const policy = definePolicy({
+ *   map: {
+ *     'admin.access': (ctx) =>
+ *       ctx.adapters.wp?.canUser('manage_options') ?? false
+ *   }
  * });
  *
  * if (policy.can('admin.access')) {
@@ -645,23 +650,39 @@ function createDeniedError(
  * @example
  * ```typescript
  * // With custom adapters
- * const policy = definePolicy(rules, {
- *   namespace: 'acme-plugin',
- *   adapters: {
- *     restProbe: async (key) => {
- *       const res = await fetch(`/wp-json/acme/v1/capabilities/${key}`);
- *       return res.ok;
- *     }
- *   },
- *   cache: { ttlMs: 5000, storage: 'session' },
- *   debug: true // Log all policy checks
+ * const policy = definePolicy({
+ *   map: rules,
+ *   options: {
+ *     namespace: 'acme-plugin',
+ *     adapters: {
+ *       restProbe: async (key) => {
+ *         const res = await fetch(`/wp-json/acme/v1/capabilities/${key}`);
+ *         return res.ok;
+ *       }
+ *     },
+ *     cache: { ttlMs: 5000, storage: 'session' },
+ *     debug: true // Log all policy checks
+ *   }
  * });
  * ```
  */
 export function definePolicy<K extends Record<string, unknown>>(
-	map: PolicyMap<K>,
-	options?: PolicyOptions
+	config: PolicyDefinitionConfig<K>
 ): PolicyHelpers<K> {
+	if (!config || typeof config !== 'object') {
+		throw new KernelError('DeveloperError', {
+			message: 'definePolicy requires a configuration object with "map".',
+		});
+	}
+
+	const { map, options } = config;
+
+	if (!map || typeof map !== 'object') {
+		throw new KernelError('DeveloperError', {
+			message: 'definePolicy requires a "map" of policy rules.',
+		});
+	}
+
 	const namespace = options?.namespace ?? getNamespace();
 	const reporter = resolveReporter(options?.debug, namespace);
 	const cache = createPolicyCache(options?.cache, namespace);
