@@ -4,11 +4,6 @@ export { runCli } from './cli';
 export type {
 	KernelConfigV1,
 	SchemaConfig,
-	ResourceConfig,
-	RouteConfig,
-	CacheKeyTemplate,
-	CacheKeyToken,
-	QueryParamDescriptor,
 	AdaptersConfig,
 	PhpAdapterConfig,
 	PhpAdapterFactory,

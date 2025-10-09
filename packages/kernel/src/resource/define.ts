@@ -197,8 +197,8 @@ export function defineResource<T = unknown, TQuery = unknown>(
 	});
 
 	// Create or use provided cache keys
-	const cacheKeys: Required<CacheKeys> = {
-		...createDefaultCacheKeys(resourceName),
+	const cacheKeys: Required<CacheKeys<TQuery>> = {
+		...createDefaultCacheKeys<TQuery>(resourceName),
 		...config.cacheKeys,
 	};
 

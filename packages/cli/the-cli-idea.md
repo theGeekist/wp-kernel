@@ -61,22 +61,21 @@ interface PhpAdapterConfig {
 `Reporter` refers to the framework logger exported from [`packages/kernel/src/reporter/create-reporter.ts`](../kernel/src/reporter/create-reporter.ts). `PhpAstBuilder` will be provided by the CLI printers and exposes helpers to mutate namespaces, imports, docblocks, and class members before formatting.
 ```
 
-- **SchemaConfig**
-    - `path`: relative path to JSON Schema (resolves against config directory).
-    - `generated.types`: location of generated `.d.ts` file (for reference only).
-    - Optional metadata: `description`.
-- **ResourceConfig**
-    - `name`: store key used with [`defineResource`](../kernel/src/resource/define-resource.ts).
-    - `schema`: schema key reference.
-    - `routes`: map of CRUD operations to `{ path, method, policy? }`.
-    - `cacheKeys`: templates for list and single cache keys, consumed by runtime code.
-    - `queryParams`: typed descriptions for CLI to generate REST arg metadata.
+- **SchemaConfig** and **ResourceConfig** – imported directly from `@geekist/wp-kernel/resource`. Use the kernel types as-is; the CLI must not introduce alternative shapes.
 - **AdaptersConfig**
     - Optional, lets consumers customise emission without duplicating config data.
     - Factories receive the full config (and later IR) so they can derive defaults rather than redefining values.
     - Returning `undefined` preserves default behaviour; returned values override printer defaults.
 
 The CLI MUST validate configs using Typanion, emitting diagnostics that include file path and property (e.g. `kernel.config.ts:resources.job.routes.list.method`).
+
+**Identifier precedence note**: `store.getId` ultimately used at runtime respects this order:
+
+1. explicit `store.getId` passed to `defineResource`;
+2. CLI-generated wrapper derived from `identity` (available when consuming CLI-generated resource helper or store config);
+3. runtime fallback `(item) => item.id`.
+
+CLI validation MUST warn when `identity.type` conflicts with route params, synthesized schema, or generated store behaviour (e.g., numeric route paired with string identity).
 
 ## 4. Intermediate Representation (IR)
 
@@ -100,7 +99,7 @@ interface IRv1 {
 ```
 
 - **IRSchema**: resolved absolute path, parsed JSON Schema, per-schema SHA-256 hash for change detection.
-- **IRResource**: includes normalized REST routes, policy keys (from config or naming convention), cache key templates, and per-resource SHA-256 hash (combined route + policy signature) after canonical JSON stringify and normalised EOLs.
+- **IRResource**: includes normalized REST routes, policy keys (from config or naming convention), cache key templates, identifier hints, persistence metadata, synthesized schema provenance (`'auto'` vs provided), and per-resource SHA-256 hash (combined route + policy signature) after canonical JSON stringify and normalised EOLs.
 - **IRPolicyHint**: inferred policy identifiers to feed PHP permission callbacks later.
 - **IRBlock**: discovered from `blocks/**/block.json`, aligning with current manifest behaviour described in [`app/showcase/build/blocks-manifest.php`](../../app/showcase/build/blocks-manifest.php).
 - **IRPhpProject**: PSR-4 root (`WPKernel\Showcase`), target directories (`inc/Rest`), Composer autoload hints (see [`app/showcase/composer.json`](../../app/showcase/composer.json)).
@@ -116,23 +115,24 @@ Printer modules convert IR to concrete files:
 - **Type definitions**: `printTypes(irSchema)` leverages `json-schema-to-ts` to emit `.generated/types/*.d.ts`. Output paths MUST match `schema.generated.types` and format via `prettier`.
 - Emit `.generated/types/index.d.ts` re-exporting all generated interfaces to simplify consumer imports.
 - **Validators (future)**: optionally emit `.generated/validators/*.dev.ts`.
-- **REST args**: PHP array files under `.generated/rest-args/*.php` mirroring REST validation rules; leverage WordPress functions `rest_validate_value_from_schema` and `rest_sanitize_value_from_schema`.
+- **REST args**: PHP array files under `.generated/rest-args/*.php` mirroring REST validation rules; leverage WordPress functions `rest_validate_value_from_schema` and `rest_sanitize_value_from_schema`. When `schema: 'auto'`, the CLI synthesises schema segments from `storage`.
 - **PHP bridge**:
     - Base controller and resource controllers follow PSR-4 under `.generated/php/Rest`.
     - Generated header comments MUST cite cfg origin (e.g. `Source: kernelConfig.resources.job`).
     - Headers also include source config path (`kernel.config.ts`) and specific property addresses (e.g. `resources.job.routes.list`).
     - Use a minimal PHP AST to render class structures; final formatting handled by `prettier-plugin-php`.
+    - Persistence helpers honour `storage` metadata: CLI emits CPT/taxonomy/option registration under `.generated/php/Registration/**` and ensures controllers resolve identifiers (numeric IDs vs slug/uuid lookup).
     - Apply sanitized namespace from kernel namespace utilities to guarantee parity with runtime expectations.
     - Guarded regions with markers:
-        ```php
-        /**
-         * AUTO-GENERATED by WP Kernel CLI.
-         * Edits within WPK:BEGIN AUTO / WPK:END AUTO will be overwritten.
-         */
-        // WPK:BEGIN AUTO
-        // …
-        /* WPK:END AUTO */
-        ```
+      `php
+      /\*\*
+    * AUTO-GENERATED by WP Kernel CLI.
+    * Edits within WPK:BEGIN AUTO / WPK:END AUTO will be overwritten.
+      _/
+      // WPK:BEGIN AUTO
+      // …
+      /_ WPK:END AUTO \*/
+      `
 - Emit `.generated/php/index.php` including return map of generated classes to file paths. This script can be required by bootstrap code to load all generated controllers lazily.
     - **Blocks manifest**: replicate existing behaviour from [`packages/kernel/src/resource/block-manifest.ts`](../kernel/src/resource/block-manifest.ts) (if available) or current showcase manifest logic.
 

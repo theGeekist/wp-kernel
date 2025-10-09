@@ -37,7 +37,7 @@ interface TestQuery {
 describe('grouped-api namespace factories', () => {
 	let mockConfig: ResourceConfig<TestItem, TestQuery>;
 	let mockResourceObject: ResourceObject<TestItem, TestQuery>;
-	let mockCacheKeys: Required<CacheKeys>;
+	let mockCacheKeys: Required<CacheKeys<TestQuery>>;
 	let mockWpData: any;
 	let originalWp: Window['wp'];
 
@@ -56,13 +56,13 @@ describe('grouped-api namespace factories', () => {
 
 		// Setup mock cache keys
 		mockCacheKeys = {
-			list: (query?: unknown) => [
+			list: (query?: TestQuery) => [
 				'test-resource',
 				'list',
-				(query as TestQuery)?.search,
+				query?.search,
 			],
 			get: (id?: string | number) => ['test-resource', 'get', id],
-			create: (data?: unknown) => [
+		create: (data?: unknown) => [
 				'test-resource',
 				'create',
 				JSON.stringify(data || {}),

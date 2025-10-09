@@ -7,7 +7,7 @@
 **Spec references:** [Sections 1 & 7](./the-cli-idea.md#1-source-of-truth--runtime-parity), [Section 3](./the-cli-idea.md#3-configuration-schema-v1)  
 **Scope:**
 
-- Catalogue existing configuration usage in `app/showcase/src/kernel.config.ts` and highlight discrepancies with `KernelConfigV1`.
+- Catalogue existing configuration usage in `app/showcase/src/kernel.config.ts` and highlight discrepancies with `KernelConfigV1`, including identifier strategies and persistence metadata that would populate `identity` and `storage`.
 - Verify composer autoload mappings in current consumers (`app/showcase/composer.json`) align with PSR-4 requirements.
 - Produce a gap matrix listing missing fields, version flags, and policy hints.  
   **Deliverables:**
@@ -27,7 +27,7 @@
 
 - **Scope:**
 - Implement `loadKernelConfig()` using cosmiconfig + tsx fallback, supporting TS/JS and `package.json#wpk`.
-- Define Typanion schemas mirroring `KernelConfigV1`, including adapter factories and default inference rules; emit reporter-driven diagnostics.
+- Define Typanion schemas mirroring `KernelConfigV1`, including adapter factories, `identity`, `storage`, and default inference rules (e.g., deriving `store` defaults); emit reporter-driven diagnostics clarifying misconfigurations (route/identity mismatches, unsupported storage modes).
 - Reuse kernel namespace helpers to validate/sanitise `namespace` (see `packages/kernel/src/namespace`).
 - Validate composer `autoload.psr-4` entries target `inc/`; fail fast with remediation guidance.
 - Add unit tests covering success, missing fields, type mismatches, invalid adapter shapes, namespace/autoload failures, and policy key presence checks.
@@ -53,8 +53,9 @@
 
 **Scope:**
 
-- Convert validated config into deterministic `IRv1` (sanitised namespace + origin metadata).
+- Convert validated config into deterministic `IRv1` (sanitised namespace + origin metadata), capturing identifier and storage metadata for each resource.
 - Resolve schema paths and load JSON Schema content, generating per-artifact SHA-256 hashes over canonical JSON + normalised EOLs.
+- For resources with `schema: 'auto'`, synthesise JSON Schemas from `storage` definitions and annotate provenance.
 - Infer policy hints from resource routes and config options; detect duplicate method/path collisions and reserved path usage with actionable errors.
 - Populate adapter context with derived IR (including sanitized namespace) for later phases.
 - Sort IR nodes deterministically (namespace → resource name → method/path) prior to serialisation.
@@ -65,7 +66,7 @@
 - Fixture-based tests comparing produced IR against golden JSON.
 - Config→IR mapping appendix (within this roadmap or spec).
 
-**DoD:** IR builder handles multiple resources, exposes IR to adapters, hashes each node (canonical JSON), applies deterministic sorting, rejects duplicate/reserved routes, and golden snapshots remain identical across runs.
+**DoD:** IR builder handles multiple resources, exposes IR to adapters, hashes each node (canonical JSON), applies deterministic sorting, rejects duplicate/reserved routes, records identifier/storage metadata (including synthesised schemas), flags identity/route/schema conflicts, and golden snapshots remain identical across runs.
 
 **Testing:** Jest golden-file comparisons, path resolution edge cases.
 
@@ -81,9 +82,10 @@
 
 **Scope:**
 
-- Implement type printer using `json-schema-to-ts`, writing to `.generated/types` and aggregating via `.generated/types/index.d.ts`.
+- Implement type printer using `json-schema-to-ts`, writing to `.generated/types` and aggregating via `.generated/types/index.d.ts`. Synthesised schemas (`'auto'`) must produce the same surface as author-provided files.
 - Build minimal PHP AST + renderer supporting base controller and resource controllers, with Prettier formatting, provenance headers, and guard comments.
-- Generate REST args arrays leveraging schema data.
+- Generate REST args arrays leveraging schema data; infer from synthesised schema when storage drives generation.
+- Emit persistence registration files (e.g., CPT/meta/taxonomy/option setup) honouring `storage` defaults, and ensure controllers resolve identifiers per `identity` (numeric ID vs slug/uuid lookup).
 - Honour adapter `customise` callbacks before formatting output.
 - Emit `.generated/php/index.php` to enumerate generated classes for bootstrap usage.
 
@@ -92,7 +94,7 @@
 - `src/printers/types.ts`, `src/printers/php/controllers.ts`, `src/printers/php/base.ts`, `src/printers/php/rest-args.ts`, and aggregator emitters.
 - Golden fixtures comparing generated files to expected outputs (based on showcase).
 
-**DoD:** Generated files match formatting expectations; `.generated/types/index.d.ts` emitted; PHP headers include config provenance and sanitised namespace; `php -l` passes.
+**DoD:** Generated files match formatting expectations; `.generated/types/index.d.ts` emitted; PHP headers include config provenance and sanitised namespace; persistence registrations and controllers align with `identity`/`storage`; `php -l` passes.
 
 **Testing:** Jest snapshot tests and formatting smoke tests.
 
@@ -118,11 +120,11 @@
 
 - `src/commands/generate.ts` + integration tests using temporary directories.
 
-**DoD:** Running the command in showcase reproduces existing `.generated` outputs; reporter summary includes counts (written/unchanged/skipped); exit codes 0/1/2 verified; reporter honours `--json`/`--verbose`.
+**DoD:** Running the command in showcase reproduces existing `.generated` outputs; reporter summary includes counts (written/unchanged/skipped); exit codes 0/1/2 verified; reporter honours `--json`/`--verbose`; identity- and storage-driven defaults (slug routes, CPT registration) surface in generated artifacts.
 
 **Testing:** Integration tests (Jest) with temp dirs verifying file contents, hashes, exit codes, and reporter modes.
 
-**Parity:** CLI usage documented in README; generated artifacts respect adapter overrides and sanitised namespace.
+**Parity:** CLI usage documented in README; generated artifacts respect adapter overrides, sanitised namespace, and the canonical identifier/persistence defaults.
 
 **Status Log (fill during execution):** Completed - / Outstanding - / Risks & Notes -
 

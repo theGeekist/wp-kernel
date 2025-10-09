@@ -21,13 +21,17 @@ import type { CacheKeys } from './types';
  * keys.list({ q: 'search' }); // ['thing', 'list', '{"q":"search"}']
  * ```
  */
-export function createDefaultCacheKeys(
+export function createDefaultCacheKeys<TListParams = unknown>(
 	resourceName: string
-): Required<CacheKeys> {
+): Required<CacheKeys<TListParams>> {
 	return {
-		list: (query) => [resourceName, 'list', JSON.stringify(query || {})],
+		list: (query?: TListParams) => [
+			resourceName,
+			'list',
+			JSON.stringify(query ?? {}),
+		],
 		get: (id) => [resourceName, 'get', id],
-		create: (data) => [resourceName, 'create', JSON.stringify(data || {})],
+		create: (data) => [resourceName, 'create', JSON.stringify(data ?? {})],
 		update: (id) => [resourceName, 'update', id],
 		remove: (id) => [resourceName, 'remove', id],
 	};
