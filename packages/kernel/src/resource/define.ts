@@ -27,6 +27,8 @@ import {
 } from './grouped-api';
 import type { CacheKeys, ResourceConfig, ResourceObject } from './types';
 import { getKernelEventBus, recordResourceDefined } from '../events/bus';
+import { createReporter, createNoopReporter } from '../reporter';
+import type { Reporter } from '../reporter';
 
 /**
  * Parse namespace:name syntax from a string
@@ -88,6 +90,26 @@ function resolveNamespaceAndName<T, TQuery>(
 	return { namespace, resourceName: config.name };
 }
 
+function resolveReporter(
+	namespace: string,
+	resourceName: string,
+	override?: Reporter
+): Reporter {
+	if (override) {
+		return override;
+	}
+
+	if (process.env.WPK_SILENT_REPORTERS === '1') {
+		return createNoopReporter();
+	}
+
+	return createReporter({
+		namespace: `${namespace}.resource.${resourceName}`,
+		channel: 'all',
+		level: 'debug',
+	});
+}
+
 /**
  * Define a resource with typed REST client
  *
@@ -143,6 +165,15 @@ export function defineResource<T = unknown, TQuery = unknown>(
 	// Resolve namespace and resource name first
 	const { namespace, resourceName } = resolveNamespaceAndName(config);
 
+	const reporter = resolveReporter(namespace, resourceName, config.reporter);
+	const RESOURCE_LOG_MESSAGES = {
+		define: 'resource.define',
+		registerStore: 'resource.store.register',
+		storeRegistered: 'resource.store.registered',
+		prefetchItem: 'resource.prefetch.item',
+		prefetchList: 'resource.prefetch.list',
+	} as const;
+
 	// Create a normalized config for validation
 	const normalizedConfig = {
 		...config,
@@ -152,8 +183,15 @@ export function defineResource<T = unknown, TQuery = unknown>(
 	// Validate configuration (throws on error)
 	validateConfig(normalizedConfig);
 
+	reporter.info(RESOURCE_LOG_MESSAGES.define, {
+		namespace,
+		resource: resourceName,
+		routes: Object.keys(config.routes ?? {}),
+		hasCacheKeys: Boolean(config.cacheKeys),
+	});
+
 	// Create client methods using original config (for routes)
-	const client = createClient<T, TQuery>(config);
+	const client = createClient<T, TQuery>(config, reporter);
 
 	// Create or use provided cache keys
 	const cacheKeys: Required<CacheKeys> = {
@@ -166,12 +204,15 @@ export function defineResource<T = unknown, TQuery = unknown>(
 	let _storeRegistered = false;
 
 	// Build resource object
+	const storeReporter = reporter.child('store');
+
 	const resource: ResourceObject<T, TQuery> = {
 		...client,
 		name: resourceName,
 		storeKey: `${namespace}/${resourceName}`,
 		cacheKeys,
 		routes: config.routes,
+		reporter,
 
 		// Lazy-load and register @wordpress/data store on first access
 		get store() {
@@ -182,6 +223,7 @@ export function defineResource<T = unknown, TQuery = unknown>(
 				// Create store descriptor
 				const storeDescriptor = createStore<T, TQuery>({
 					resource: resource as ResourceObject<T, TQuery>,
+					reporter,
 				});
 
 				// Check if @wordpress/data is available (browser environment)
@@ -193,6 +235,10 @@ export function defineResource<T = unknown, TQuery = unknown>(
 					globalWp?.data?.createReduxStore &&
 					globalWp?.data?.register
 				) {
+					storeReporter.debug(RESOURCE_LOG_MESSAGES.registerStore, {
+						storeKey: resource.storeKey,
+						resource: resourceName,
+					});
 					// Use createReduxStore to create a proper store descriptor
 					const reduxStore = globalWp.data.createReduxStore(
 						resource.storeKey,
@@ -206,6 +252,10 @@ export function defineResource<T = unknown, TQuery = unknown>(
 						}
 					);
 					globalWp.data.register(reduxStore);
+					storeReporter.info(RESOURCE_LOG_MESSAGES.storeRegistered, {
+						storeKey: resource.storeKey,
+						resource: resourceName,
+					});
 				}
 
 				_store = storeDescriptor;
@@ -244,6 +294,11 @@ export function defineResource<T = unknown, TQuery = unknown>(
 					};
 					const dispatch = storeDispatch(resource.storeKey);
 					if (dispatch?.getItem) {
+						reporter.debug(RESOURCE_LOG_MESSAGES.prefetchItem, {
+							id,
+							storeKey: resource.storeKey,
+							resource: resourceName,
+						});
 						// Trigger the resolver by selecting
 						await globalWp.data
 							.resolveSelect(resource.storeKey as string)
@@ -275,6 +330,11 @@ export function defineResource<T = unknown, TQuery = unknown>(
 
 					// Dispatch resolver (fire and forget)
 
+					reporter.debug(RESOURCE_LOG_MESSAGES.prefetchList, {
+						query,
+						storeKey: resource.storeKey,
+						resource: resourceName,
+					});
 					await globalWp.data
 						.resolveSelect(resource.storeKey as string)
 						.getList(query);
