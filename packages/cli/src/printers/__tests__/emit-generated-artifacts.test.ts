@@ -2,7 +2,7 @@ import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { emitGeneratedArtifacts } from '..';
-import type { Reporter } from '@geekist/wp-kernel';
+import { createNoopReporter } from '@geekist/wp-kernel';
 import type { KernelConfigV1 } from '../../config/types';
 import type { IRResource, IRSchema, IRv1 } from '../../ir';
 import type { PrinterContext } from '../types';
@@ -312,7 +312,7 @@ describe('emitGeneratedArtifacts', () => {
 			const customised: string[] = [];
 			const adapterContext = {
 				config: ir.config,
-				reporter: {} as Reporter,
+				reporter: createNoopReporter(),
 				namespace: ir.meta.sanitizedNamespace,
 				ir,
 			} satisfies PrinterContext['adapterContext'];
