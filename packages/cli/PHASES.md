@@ -43,7 +43,7 @@
 
 **Parity:** Legacy configs missing `version` emit actionable guidance; namespace defaults match runtime behaviour.
 
-**Status Log (fill during execution):** Completed - / Outstanding - / Risks & Notes -
+**Status Log (fill during execution):** Completed - Phase 2 IR builder implemented / Outstanding - None / Risks & Notes - Deterministic hashing + route validation guard future emitters.
 
 ---
 
