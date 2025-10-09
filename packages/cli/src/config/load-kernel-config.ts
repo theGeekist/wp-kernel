@@ -307,21 +307,19 @@ async function findUp(
 	startDir: string,
 	fileName: string
 ): Promise<string | null> {
-	let current = path.resolve(startDir);
+	const current = path.resolve(startDir);
+	const candidate = path.join(current, fileName);
 
-	while (true) {
-		const candidate = path.join(current, fileName);
-		if (await fileExists(candidate)) {
-			return candidate;
-		}
-
-		const parent = path.dirname(current);
-		if (parent === current) {
-			return null;
-		}
-
-		current = parent;
+	if (await fileExists(candidate)) {
+		return candidate;
 	}
+
+	const parent = path.dirname(current);
+	if (parent === current) {
+		return null;
+	}
+
+	return findUp(parent, fileName);
 }
 
 async function fileExists(filePath: string): Promise<boolean> {
