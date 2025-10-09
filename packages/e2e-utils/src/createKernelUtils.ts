@@ -7,6 +7,7 @@
  * @module
  */
 
+import { extractPathParams, interpolatePath } from '@geekist/wp-kernel';
 import type { Page } from '@playwright/test';
 import type { RequestUtils } from '@wordpress/e2e-test-utils-playwright';
 import type {
@@ -107,8 +108,62 @@ export function createResourceHelper<T>(
 ): ResourceUtils<T> {
 	const { routes } = config;
 
+	const removeRouteParam = routes.remove
+		? extractPathParams(routes.remove.path)[0]
+		: undefined;
+
+	const buildRemovePath = (
+		identifier: string | number
+	): string | undefined => {
+		if (!routes.remove) {
+			return undefined;
+		}
+
+		if (!removeRouteParam) {
+			return routes.remove.path;
+		}
+
+		try {
+			return interpolatePath(routes.remove.path, {
+				[removeRouteParam]: identifier,
+			});
+		} catch (error) {
+			const message =
+				error instanceof Error
+					? error.message
+					: 'Unknown interpolation error';
+
+			throw new Error(
+				`Failed to interpolate remove path for resource "${config.name}": ${message}`
+			);
+		}
+	};
+
+	const resolveIdentifier = (item: unknown): string | number | undefined => {
+		if (config.store?.getId) {
+			const value = config.store.getId(item as T);
+			if (typeof value === 'string' || typeof value === 'number') {
+				return value;
+			}
+		}
+
+		if (item && typeof item === 'object' && 'id' in item) {
+			const candidate = (item as { id?: unknown }).id;
+			if (
+				typeof candidate === 'string' ||
+				typeof candidate === 'number'
+			) {
+				return candidate;
+			}
+		}
+
+		return undefined;
+	};
+
 	return {
-		seed: async (data: Partial<T>): Promise<T & { id: number }> => {
+		seed: async (
+			data: Partial<T>
+		): Promise<T & { id: string | number }> => {
 			if (!routes.create) {
 				throw new Error(
 					`Resource "${config.name}" does not have a create route configured`
@@ -131,12 +186,21 @@ export function createResourceHelper<T>(
 				);
 			}
 
-			return response as T & { id: number };
+			const identifier = resolveIdentifier(response);
+			if (identifier === undefined) {
+				throw new Error(
+					`Failed to seed resource "${config.name}": Missing identifier`
+				);
+			}
+
+			return { ...(response as T), id: identifier } as T & {
+				id: string | number;
+			};
 		},
 
 		seedMany: async (
 			items: Partial<T>[]
-		): Promise<Array<T & { id: number }>> => {
+		): Promise<Array<T & { id: string | number }>> => {
 			if (!routes.create) {
 				throw new Error(
 					`Resource "${config.name}" does not have a create route configured`
@@ -163,21 +227,36 @@ export function createResourceHelper<T>(
 						);
 					}
 
-					return response as T & { id: number };
+					const identifier = resolveIdentifier(response);
+					if (identifier === undefined) {
+						throw new Error(
+							`Failed to seed resource "${config.name}": Missing identifier`
+						);
+					}
+
+					return { ...(response as T), id: identifier } as T & {
+						id: string | number;
+					};
 				})
 			);
 
 			return results;
 		},
 
-		remove: async (id: number): Promise<void> => {
+		remove: async (id: string | number): Promise<void> => {
 			if (!routes.remove) {
 				throw new Error(
 					`Resource "${config.name}" does not have a remove route configured`
 				);
 			}
 
-			const path = routes.remove.path.replace(':id', String(id));
+			const path = buildRemovePath(id);
+
+			if (!path) {
+				throw new Error(
+					`Resource "${config.name}" does not have a remove route configured`
+				);
+			}
 
 			await requestUtils.rest({
 				path,
@@ -211,15 +290,17 @@ export function createResourceHelper<T>(
 
 			await Promise.all(
 				response.map(async (item: unknown) => {
-					if (!item || typeof item !== 'object' || !('id' in item)) {
+					const identifier = resolveIdentifier(item);
+					if (identifier === undefined) {
 						return;
 					}
 
-					const resourceItem = item as { id: number };
-					const path = removeRoute.path.replace(
-						':id',
-						String(resourceItem.id)
-					);
+					const path = buildRemovePath(identifier);
+					if (!path) {
+						throw new Error(
+							`Resource "${config.name}" does not have a remove route configured`
+						);
+					}
 
 					await requestUtils.rest({
 						path,

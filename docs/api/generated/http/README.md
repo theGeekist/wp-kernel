@@ -1,4 +1,4 @@
-[**WP Kernel API v0.3.0**](../README.md)
+[**WP Kernel API v0.4.0**](../README.md)
 
 ---
 
@@ -18,6 +18,7 @@ Provides HTTP transport layer wrapping @wordpress/api-fetch with:
 ## Type Aliases
 
 - [HttpMethod](type-aliases/HttpMethod.md)
+- [TransportMeta](type-aliases/TransportMeta.md)
 - [TransportRequest](type-aliases/TransportRequest.md)
 - [TransportResponse](type-aliases/TransportResponse.md)
 - [ResourceRequestEvent](type-aliases/ResourceRequestEvent.md)

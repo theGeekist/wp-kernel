@@ -7,6 +7,7 @@
 import { createStore } from '../../store';
 import type { ResourceObject, ListResponse } from '../../types';
 import { createNoopReporter } from '../../../reporter';
+import type { Reporter } from '../../../reporter';
 
 // Mock resource for testing
 interface MockThing {
@@ -198,6 +199,90 @@ describe('createStore - Store Creation', () => {
 				title: 'Preset',
 				status: 'active',
 			});
+		});
+
+		it('should warn when custom getId returns undefined', () => {
+			const warn = jest.fn();
+			const reporter: Reporter = {
+				info: jest.fn(),
+				warn,
+				error: jest.fn(),
+				debug: jest.fn(),
+				child: () => reporter,
+			};
+
+			const store = createStore({
+				resource: mockResource,
+				reporter,
+				getId: (() => undefined) as unknown as (
+					item: MockThing
+				) => string | number,
+			});
+
+			store.reducer(
+				undefined,
+				store.actions.receiveItem({
+					id: 101,
+					title: 'Missing identifier',
+					status: 'active',
+				})
+			);
+
+			expect(warn).toHaveBeenCalledWith(
+				'resource.store.identifier.invalid',
+				expect.objectContaining({
+					resource: mockResource.name,
+					operation: 'receiveItem',
+				})
+			);
+		});
+
+		it('should warn when duplicate identifiers are produced', () => {
+			const warn = jest.fn();
+			const reporter: Reporter = {
+				info: jest.fn(),
+				warn,
+				error: jest.fn(),
+				debug: jest.fn(),
+				child: () => reporter,
+			};
+
+			const store = createStore({
+				resource: mockResource,
+				reporter,
+				getId: (() => 'duplicate-id') as unknown as (
+					item: MockThing
+				) => string | number,
+			});
+
+			store.reducer(
+				undefined,
+				store.actions.receiveItems(
+					'custom-query',
+					[
+						{
+							id: 1,
+							title: 'First',
+							status: 'active',
+						},
+						{
+							id: 2,
+							title: 'Second',
+							status: 'inactive',
+						},
+					],
+					undefined
+				)
+			);
+
+			expect(warn).toHaveBeenCalledWith(
+				'resource.store.identifier.duplicate',
+				expect.objectContaining({
+					resource: mockResource.name,
+					id: 'duplicate-id',
+					queryKey: 'custom-query',
+				})
+			);
 		});
 	});
 });

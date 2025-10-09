@@ -41,6 +41,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Emitted typed events from `defineResource()` so UI bindings attach deterministically without queues.
 - Replayed registered resources through the kernel instance, allowing UI packages to hydrate hooks on demand.
 - Removed the `__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__` global now that runtime events drive attachment.
+- Added configurable resource store identifiers (`store.getId`, `store.getQueryKey`, `store.initialState`) with runtime
+  validation and reporter diagnostics for duplicates or missing keys.
+- Updated end-to-end helpers to respect slug and UUID identifiers when seeding or deleting fixtures.
 
 ### Fixed
 

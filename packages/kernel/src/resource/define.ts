@@ -228,6 +228,7 @@ export function defineResource<T = unknown, TQuery = unknown>(
 				const storeDescriptor = createStore<T, TQuery>({
 					resource: resource as ResourceObject<T, TQuery>,
 					reporter,
+					...(config.store ?? {}),
 				});
 
 				// Check if @wordpress/data is available (browser environment)

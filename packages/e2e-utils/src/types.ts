@@ -37,7 +37,7 @@ export type ResourceUtils<T = unknown> = {
 	 * @param data - Resource data to create
 	 * @return Created resource with ID
 	 */
-	seed: (data: Partial<T>) => Promise<T & { id: number }>;
+	seed: (data: Partial<T>) => Promise<T & { id: string | number }>;
 
 	/**
 	 * Seed multiple resources in bulk
@@ -45,14 +45,16 @@ export type ResourceUtils<T = unknown> = {
 	 * @param items - Array of resource data to create
 	 * @return Array of created resources with IDs
 	 */
-	seedMany: (items: Partial<T>[]) => Promise<Array<T & { id: number }>>;
+	seedMany: (
+		items: Partial<T>[]
+	) => Promise<Array<T & { id: string | number }>>;
 
 	/**
 	 * Remove a single resource by ID
 	 *
 	 * @param id - Resource ID to delete
 	 */
-	remove: (id: number) => Promise<void>;
+	remove: (id: string | number) => Promise<void>;
 
 	/**
 	 * Delete all resources (cleanup utility)

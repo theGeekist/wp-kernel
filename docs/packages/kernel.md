@@ -56,6 +56,30 @@ export const post = defineResource({
 });
 ```
 
+#### Custom identifiers
+
+By default the store uses `item.id` as the cache key. When your API returns
+slugs or UUIDs, declare a store strategy so the identifiers stay stable.
+
+```ts
+const article = defineResource<Article, ArticleQuery>({
+	name: 'article',
+	routes: {
+		list: { path: '/wp/v1/articles', method: 'GET' },
+		get: { path: '/wp/v1/articles/:slug', method: 'GET' },
+	},
+	store: {
+		getId: (item) => item.slug,
+		getQueryKey: (query) => `category:${query?.category ?? 'all'}`,
+	},
+});
+```
+
+The kernel warns in development if `getId` returns `undefined` or collides with
+another item. The same strategy powers the end-to-end helpers, so slugs flow
+through seeding and cleanup without extra work. You can read the full rationale
+in the [Resource Store Identifier Strategy specification](https://github.com/thegeekiest/wp-kernel/blob/main/Resource%20Store%20Identifier%20Strategy%20-%20Specification.md).
+
 ### Actions
 
 Orchestrate write operations with automatic event emission:

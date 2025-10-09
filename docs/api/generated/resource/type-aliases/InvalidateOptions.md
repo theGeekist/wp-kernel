@@ -1,4 +1,4 @@
-[**WP Kernel API v0.3.0**](../../README.md)
+[**WP Kernel API v0.4.0**](../../README.md)
 
 ---
 
@@ -48,3 +48,33 @@ optional registry: KernelRegistry;
 ```
 
 Registry to operate against instead of relying on global getWPData().
+
+---
+
+### reporter?
+
+```ts
+optional reporter: Reporter;
+```
+
+Reporter override for cache instrumentation.
+
+---
+
+### namespace?
+
+```ts
+optional namespace: string;
+```
+
+Optional namespace for logging context.
+
+---
+
+### resourceName?
+
+```ts
+optional resourceName: string;
+```
+
+Optional resource name for logging context.
