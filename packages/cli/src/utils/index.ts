@@ -1,1 +1,1 @@
-export { resolveFromWorkspace } from './path';
+export { resolveFromWorkspace, toWorkspaceRelative } from './path';
