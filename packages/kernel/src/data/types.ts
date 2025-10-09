@@ -4,6 +4,7 @@ import type { Reporter } from '../reporter';
 import type { CacheKeyPattern, InvalidateOptions } from '../resource/cache';
 import type { KernelEventBus } from '../events/bus';
 import type { PolicyHelpers } from '../policy/types';
+import type { ResourceConfig, ResourceObject } from '../resource/types';
 
 export type KernelRegistry = WPDataRegistry & {
 	__experimentalUseMiddleware?: (
@@ -79,4 +80,7 @@ export interface KernelInstance {
 		options?: KernelUIConfig['options'];
 	};
 	events: KernelEventBus;
+	defineResource: <T = unknown, TQuery = unknown>(
+		config: ResourceConfig<T, TQuery>
+	) => ResourceObject<T, TQuery>;
 }

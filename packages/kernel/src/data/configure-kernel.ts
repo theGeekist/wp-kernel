@@ -19,6 +19,8 @@ import {
 } from '../events/bus';
 import { createActionMiddleware } from '../actions/middleware';
 import { kernelEventsPlugin } from './plugins/events';
+import { defineResource as baseDefineResource } from '../resource/define';
+import type { ResourceConfig, ResourceObject } from '../resource/types';
 
 type CleanupTask = () => void;
 
@@ -76,6 +78,15 @@ function emitEvent(
 	}
 
 	bus.emit('custom:event', { eventName, payload });
+}
+
+function extractResourceName(name: string): string {
+	if (!name.includes(':')) {
+		return name;
+	}
+
+	const [, resourceName] = name.split(':', 2);
+	return resourceName || name;
 }
 
 export function configureKernel(
@@ -179,6 +190,24 @@ export function configureKernel(
 			options: ui.options,
 		},
 		events,
+		defineResource<T = unknown, TQuery = unknown>(
+			resourceConfig: ResourceConfig<T, TQuery>
+		): ResourceObject<T, TQuery> {
+			const resourceName = extractResourceName(resourceConfig.name);
+			const resourceReporter =
+				resourceConfig.reporter ??
+				reporter.child(`resource.${resourceName}`);
+
+			const shouldApplyKernelNamespace =
+				resourceConfig.namespace === undefined &&
+				!resourceConfig.name.includes(':');
+
+			return baseDefineResource<T, TQuery>({
+				...resourceConfig,
+				reporter: resourceReporter,
+				...(shouldApplyKernelNamespace ? { namespace } : {}),
+			});
+		},
 	};
 
 	if (ui.attach && ui.enable) {

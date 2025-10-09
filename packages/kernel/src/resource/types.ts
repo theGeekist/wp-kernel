@@ -8,6 +8,7 @@
  * @see Product Specification § 4.1 Resources
  */
 import type { CacheKeyPattern } from './cache';
+import type { Reporter } from '../reporter';
 
 /**
  * HTTP methods supported for REST operations
@@ -177,6 +178,14 @@ export type ResourceConfig<
 	 * ```
 	 */
 	schema?: Promise<unknown> | unknown;
+
+	/**
+	 * Optional reporter override for resource instrumentation.
+	 *
+	 * When provided, the resource will emit debug/info/error logs through this
+	 * reporter instead of creating a child reporter from the kernel instance.
+	 */
+	reporter?: Reporter;
 };
 
 /**
@@ -335,6 +344,11 @@ export type ResourceObject<T = unknown, TQuery = unknown> = {
 	 * REST route definitions (normalized)
 	 */
 	routes: ResourceRoutes;
+
+	/**
+	 * Reporter instance used for resource instrumentation.
+	 */
+	reporter: Reporter;
 
 	// Thin-flat API: React hooks
 	/**
@@ -915,6 +929,11 @@ export type ResourceStoreConfig<T, TQuery = unknown> = {
 	 * The resource object this store is for.
 	 */
 	resource: ResourceObject<T, TQuery>;
+
+	/**
+	 * Reporter instance used for store instrumentation.
+	 */
+	reporter?: Reporter;
 
 	/**
 	 * Initial state for the store.

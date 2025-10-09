@@ -20,6 +20,9 @@
   a typed subscription interface while continuing to bridge into `wp.hooks`.
   Action and cache events now emit through the bus, enabling UI runtimes and
   adapters to subscribe without global shims.
+- Resource reporters inherit from the kernel instance. Client methods and store
+  resolvers emit structured `debug`/`info`/`error` logs and every resource now
+  exposes a `reporter` property for custom instrumentation.
 
 ### Technical Details
 

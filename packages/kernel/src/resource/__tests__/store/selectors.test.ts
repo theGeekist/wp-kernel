@@ -6,6 +6,7 @@
 
 import { createStore } from '../../store';
 import type { ResourceObject, ListResponse } from '../../types';
+import { createNoopReporter } from '../../../reporter';
 
 // Mock resource for testing
 interface MockThing {
@@ -36,6 +37,7 @@ describe('createStore - Selectors', () => {
 		mockResource = {
 			name: 'thing',
 			storeKey: 'wpk/thing',
+			reporter: createNoopReporter(),
 			cacheKeys: {
 				list: (query) => ['thing', 'list', JSON.stringify(query || {})],
 				get: (id) => ['thing', 'get', id],
@@ -273,6 +275,27 @@ describe('createStore - Selectors', () => {
 			);
 
 			expect(error).toBeUndefined();
+		});
+
+		it('uses fallback cache key when list generator returns empty pattern', () => {
+			mockResource.cacheKeys.list = () => [];
+			const fallbackStore = createStore({
+				resource: mockResource,
+			});
+
+			const query = { q: 'page-3' };
+			const fallbackKey = `thing:list:${JSON.stringify(query)}`;
+			const stateWithError = fallbackStore.reducer(
+				undefined,
+				fallbackStore.actions.receiveError(fallbackKey, 'List failed')
+			);
+
+			const error = fallbackStore.selectors.getListError(
+				stateWithError,
+				query
+			);
+
+			expect(error).toBe('List failed');
 		});
 	});
 

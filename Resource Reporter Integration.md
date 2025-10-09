@@ -1,3 +1,12 @@
+### ✓ **Status**
+
+- `defineResource()` now resolves a scoped reporter for every resource and passes it
+  through client methods, store resolvers, and grouped APIs.
+- `configureKernel().defineResource()` threads the kernel reporter into resource
+  definitions by default while allowing custom overrides.
+- Client methods emit `debug`/`info`/`error` logs around transport calls, and store
+  resolvers record success and failure paths for cache keys and queries.
+
 ### 🎯 **Primary Integration Points**
 
 #### **1. Store Resolvers (store.ts lines 398-511)**
