@@ -1,6 +1,6 @@
 # @geekist/wp-kernel-e2e-utils
 
-## 0.3.0 [Unreleased]
+## 0.4.0 [Unreleased]
 
 ### Changes
 
