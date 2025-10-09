@@ -55,7 +55,16 @@
 		"test:coverage": "jest --coverage"
 	},
 	"peerDependencies": {
-		"@geekist/wp-kernel": "workspace:*"
+		"@geekist/wp-kernel": "workspace:*",
+		"@prettier/plugin-php": ">=0.24.0",
+		"json-schema-to-typescript": ">=15.0.4",
+		"tsx": ">=4.20.6"
+	},
+	"dependencies": {
+		"chokidar": "^4.0.3",
+		"clipanion": "4.0.0-rc.4",
+		"cosmiconfig": "^9.0.0",
+		"typanion": "^3.14.0"
 	},
 	"publishConfig": {
 		"access": "public"

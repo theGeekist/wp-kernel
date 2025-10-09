@@ -7,7 +7,7 @@
  * @package WPKernelShowcase
  */
 
-namespace WPKernel\Showcase;
+namespace WPKernel\Showcase\Rest;
 
 use WP_Error;
 use WP_REST_Controller;
@@ -16,11 +16,12 @@ use WP_REST_Response;
 use WP_REST_Server;
 
 /**
- * Base REST Controller class.
+ * Base REST controller scaffolding copied from the generated template.
  *
- * Extends WordPress core WP_REST_Controller to add consistent behavior across all endpoints.
+ * Originates from `src/kernel.config.ts` via the kernel generator. You may add
+ * custom logic below while retaining PSR-4 compatibility.
  */
-abstract class REST_Controller extends WP_REST_Controller {
+abstract class Controller extends WP_REST_Controller {
 	/**
 	 * Namespace for REST routes.
 	 * Uses the plugin's text domain for proper namespace isolation.

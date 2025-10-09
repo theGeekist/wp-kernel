@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from '@wordpress/element';
 import { Flex, FlexItem, Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { job } from '../../resources';
-import type { Job } from '../../../types/job';
+import type { Job } from '../../../.generated/types/job';
 import type { JobListParams } from '../../resources';
 import { JobCreatePanel } from '../../views/jobs/JobCreatePanel';
 import { JobFilters, type JobFiltersState } from '../../views/jobs/JobFilters';

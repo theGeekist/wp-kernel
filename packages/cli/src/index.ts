@@ -1,30 +1,34 @@
-/**
- * WP Kernel CLI - Development Tools Package
- *
- * CLI for scaffolding and managing WP Kernel projects
- *
- * @module
- */
+export { VERSION } from './version';
+export { runCli } from './cli';
 
-/**
- * Current version of WP Kernel CLI
- */
-export const VERSION = '0.0.0';
+export type {
+	KernelConfigV1,
+	SchemaConfig,
+	ResourceConfig,
+	RouteConfig,
+	CacheKeyTemplate,
+	CacheKeyToken,
+	QueryParamDescriptor,
+	AdaptersConfig,
+	PhpAdapterConfig,
+	PhpAdapterFactory,
+	AdapterContext,
+	ConfigOrigin,
+	LoadedKernelConfig,
+} from './config';
 
-/**
- * CLI module placeholders - implementations coming in future sprints
- *
- * Planned exports:
- * - generate (from './commands/generate')
- * - init (from './commands/init')
- * - doctor (from './commands/doctor')
- * - templates (from './templates')
- * - utils (from './utils')
- */
+export type {
+	IRv1,
+	IRSchema,
+	IRResource,
+	IRRoute,
+	IRPolicyHint,
+	IRBlock,
+	IRPhpProject,
+	BuildIrOptions,
+} from './ir';
 
-// Future command structure:
-// export { generateResource } from './commands/generate/resource';
-// export { generateAction } from './commands/generate/action';
-// export { generateComponent } from './commands/generate/component';
-// export { initProject } from './commands/init';
-// export { checkHealth } from './commands/doctor';
+export type { PrinterContext } from './printers';
+export type { PhpAstBuilder } from './printers';
+
+export { GenerateCommand, InitCommand, DoctorCommand } from './commands';

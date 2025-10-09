@@ -18,6 +18,8 @@
 
 namespace WPKernel\Showcase;
 
+use WPKernel\Showcase\Rest\JobsController;
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -40,18 +42,10 @@ function autoload( string $class ): void {
 		return;
 	}
 
-	// Convert namespace to file path.
-	$class = str_replace( 'WPKernel\\Showcase\\', '', $class );
-	$class = str_replace( '\\', '/', $class );
-	$file  = WPK_SHOWCASE_PATH . 'includes/class-' . strtolower( str_replace( '_', '-', $class ) ) . '.php';
-
-	// Handle nested namespaces (e.g., REST\Jobs_Controller).
-	if ( strpos( $class, '/' ) !== false ) {
-		$parts = explode( '/', $class );
-		$class = array_pop( $parts );
-		$path  = strtolower( implode( '/', $parts ) );
-		$file  = WPK_SHOWCASE_PATH . 'includes/' . $path . '/class-' . strtolower( str_replace( '_', '-', $class ) ) . '.php';
-	}
+	$prefix_length = strlen( 'WPKernel\\Showcase\\' );
+	$relative      = substr( $class, $prefix_length );
+	$relative_path = str_replace( '\\', '/', $relative ) . '.php';
+	$file          = WPK_SHOWCASE_PATH . 'inc/' . $relative_path;
 
 	if ( file_exists( $file ) ) {
 		require_once $file;
@@ -169,7 +163,7 @@ function render_admin_page(): void {
  */
 function register_rest_routes(): void {
 	$controllers = array(
-		new REST\Jobs_Controller(),
+		new JobsController(),
 	);
 
 	foreach ( $controllers as $controller ) {

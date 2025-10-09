@@ -1,44 +1,12 @@
 import { defineResource } from '@geekist/wp-kernel';
-import type { Job } from '../../types/job';
+import type { Job } from '../../.generated/types/job';
+import { kernelConfig, type JobListParams } from '../kernel.config';
 
-/**
- * Query parameters for job listing endpoint.
- */
-export type JobListParams = {
-	q?: string;
-	department?: string;
-	location?: string;
-	status?: 'draft' | 'publish' | 'closed';
-	cursor?: string;
-};
+const jobResourceConfig = kernelConfig.resources.job;
 
-/**
- * Resource definition for job postings.
- */
 export const job = defineResource<Job, JobListParams>({
-	name: 'job',
-	routes: {
-		list: {
-			path: '/wp-kernel-showcase/v1/jobs',
-			method: 'GET',
-		},
-		get: {
-			path: '/wp-kernel-showcase/v1/jobs/:id',
-			method: 'GET',
-		},
-		create: {
-			path: '/wp-kernel-showcase/v1/jobs',
-			method: 'POST',
-		},
-		update: {
-			path: '/wp-kernel-showcase/v1/jobs/:id',
-			method: 'PUT',
-		},
-		remove: {
-			path: '/wp-kernel-showcase/v1/jobs/:id',
-			method: 'DELETE',
-		},
-	},
+	name: jobResourceConfig.name,
+	routes: jobResourceConfig.routes,
 	cacheKeys: {
 		list: (params?: unknown) => {
 			const query = params as JobListParams | undefined;
@@ -52,6 +20,6 @@ export const job = defineResource<Job, JobListParams>({
 				query?.cursor,
 			];
 		},
-		get: (params?: string | number) => ['job', 'get', params],
+		get: (id?: string | number) => ['job', 'get', id],
 	},
 });

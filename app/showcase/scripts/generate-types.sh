@@ -14,11 +14,14 @@ NC='\033[0m' # No Color
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SHOWCASE_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
+# Ensure generated directories exist
+mkdir -p "$SHOWCASE_DIR/.generated/types"
+
 # Generate types for Job schema
 echo "  📝 Generating Job types..."
 pnpm exec json2ts \
   "$SHOWCASE_DIR/contracts/job.schema.json" \
-  --output "$SHOWCASE_DIR/types/job.d.ts" \
+  --output "$SHOWCASE_DIR/.generated/types/job.d.ts" \
   --bannerComment "/**
  * Auto-generated TypeScript types from job.schema.json
  * DO NOT EDIT MANUALLY - regenerate with: pnpm types:generate
@@ -28,9 +31,9 @@ pnpm exec json2ts \
   --style.singleQuote
 
 echo "  🎨 Formatting generated types..."
-pnpm exec prettier --write "$SHOWCASE_DIR/types/job.d.ts" --log-level=silent
+pnpm exec prettier --write "$SHOWCASE_DIR/.generated/types/job.d.ts" --log-level=silent
 
 echo -e "${GREEN}✅ Type generation complete${NC}"
 echo ""
 echo "Generated files:"
-echo "  • types/job.d.ts"
+echo "  • .generated/types/job.d.ts"

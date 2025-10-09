@@ -102,3 +102,20 @@ export type WPKInfrastructureConstant =
  * Type-safe public event name keys
  */
 export type WPKEvent = (typeof WPK_EVENTS)[keyof typeof WPK_EVENTS];
+
+/**
+ * Configuration sources recognised by kernel tooling.
+ *
+ * These filenames/keys are consumed by the CLI and runtime config loaders.
+ */
+export const WPK_CONFIG_SOURCES = {
+	KERNEL_CONFIG_TS: 'kernel.config.ts',
+	KERNEL_CONFIG_JS: 'kernel.config.js',
+	PACKAGE_JSON_WPK: 'package.json#wpk',
+} as const;
+
+/**
+ * Type-safe configuration source values.
+ */
+export type WPKConfigSource =
+	(typeof WPK_CONFIG_SOURCES)[keyof typeof WPK_CONFIG_SOURCES];
