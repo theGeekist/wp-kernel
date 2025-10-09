@@ -4,8 +4,9 @@
  */
 
 import { invalidate, registerStoreKey } from '../../cache';
-import { WPK_SUBSYSTEM_NAMESPACES } from '../../../namespace/constants';
 import { setKernelEventBus, KernelEventBus } from '../../../events/bus';
+import { setKernelReporter, clearKernelReporter } from '../../../reporter';
+import type { Reporter } from '../../../reporter';
 
 // Use global types for window.wp
 
@@ -43,6 +44,7 @@ describe('invalidate', () => {
 		// Register test store keys
 		registerStoreKey('wpk/thing');
 		registerStoreKey('wpk/job');
+		clearKernelReporter();
 	});
 
 	afterEach(() => {
@@ -53,7 +55,37 @@ describe('invalidate', () => {
 		}
 		setKernelEventBus(new KernelEventBus());
 		jest.clearAllMocks();
+		clearKernelReporter();
 	});
+
+	function createReporterSpy(): { reporter: Reporter; logs: LogEntry[] } {
+		const logs: LogEntry[] = [];
+		const reporter: Reporter = {
+			info(message, context) {
+				logs.push({ level: 'info', message, context });
+			},
+			warn(message, context) {
+				logs.push({ level: 'warn', message, context });
+			},
+			error(message, context) {
+				logs.push({ level: 'error', message, context });
+			},
+			debug(message, context) {
+				logs.push({ level: 'debug', message, context });
+			},
+			child() {
+				return reporter;
+			},
+		};
+
+		return { reporter, logs };
+	}
+
+	type LogEntry = {
+		level: 'debug' | 'info' | 'warn' | 'error';
+		message: string;
+		context?: unknown;
+	};
 
 	describe('basic invalidation', () => {
 		it('should invalidate matching cache keys in a store', () => {
@@ -216,6 +248,90 @@ describe('invalidate', () => {
 			// Should call dispatch for all registered stores
 			expect(mockDispatch).toHaveBeenCalledWith('wpk/thing');
 			expect(mockDispatch).toHaveBeenCalledWith('wpk/job');
+		});
+	});
+
+	describe('reporter instrumentation', () => {
+		it('uses kernel reporter when no override provided', () => {
+			const { reporter, logs } = createReporterSpy();
+			setKernelReporter(reporter);
+
+			const mockState = {
+				lists: {
+					active: [1, 2],
+				},
+				listMeta: {},
+				errors: {},
+			};
+
+			const mockStoreDispatch = {
+				invalidate: jest.fn(),
+			};
+
+			const mockStoreSelect = {
+				__getInternalState: jest.fn().mockReturnValue(mockState),
+			};
+
+			mockDispatch.mockReturnValue(mockStoreDispatch);
+			mockSelect.mockReturnValue(mockStoreSelect);
+
+			invalidate(['thing', 'list'], { storeKey: 'wpk/thing' });
+
+			expect(logs).toEqual(
+				expect.arrayContaining([
+					expect.objectContaining({
+						level: 'debug',
+						message: 'cache.invalidate.request',
+					}),
+					expect.objectContaining({
+						level: 'info',
+						message: 'cache.invalidate.match',
+					}),
+					expect.objectContaining({
+						level: 'info',
+						message: 'cache.invalidate.summary',
+					}),
+				])
+			);
+		});
+
+		it('prefers explicit reporter override', () => {
+			const kernelSpy = createReporterSpy();
+			const overrideSpy = createReporterSpy();
+			setKernelReporter(kernelSpy.reporter);
+
+			const mockState = {
+				lists: {
+					active: [1, 2],
+				},
+				listMeta: {},
+				errors: {},
+			};
+
+			const mockStoreDispatch = {
+				invalidate: jest.fn(),
+			};
+
+			const mockStoreSelect = {
+				__getInternalState: jest.fn().mockReturnValue(mockState),
+			};
+
+			mockDispatch.mockReturnValue(mockStoreDispatch);
+			mockSelect.mockReturnValue(mockStoreSelect);
+
+			invalidate(['thing', 'list'], {
+				storeKey: 'wpk/thing',
+				reporter: overrideSpy.reporter,
+			});
+
+			expect(overrideSpy.logs).toEqual(
+				expect.arrayContaining([
+					expect.objectContaining({
+						message: 'cache.invalidate.match',
+					}),
+				])
+			);
+			expect(kernelSpy.logs).toEqual([]);
 		});
 	});
 
@@ -630,29 +746,26 @@ describe('invalidate', () => {
 			const originalEnv = process.env.NODE_ENV;
 			process.env.NODE_ENV = 'development';
 
-			const consoleWarnSpy = jest
-				.spyOn(console, 'warn')
-				.mockImplementation();
+			const { reporter, logs } = createReporterSpy();
+			setKernelReporter(reporter);
 
-			// Mock dispatch to throw an error
 			mockDispatch.mockImplementation(() => {
 				throw new Error('Store explosion!');
 			});
 
-			// Should not throw
 			expect(() => {
 				invalidate(['thing', 'list']);
 			}).not.toThrow();
 
-			// Should log warning in development
-			expect(consoleWarnSpy).toHaveBeenCalledWith(
-				`[${WPK_SUBSYSTEM_NAMESPACES.CACHE}]`,
-				expect.stringContaining('Failed to invalidate cache for store'),
-				expect.any(Error)
+			expect(logs).toEqual(
+				expect.arrayContaining([
+					expect.objectContaining({
+						level: 'error',
+						message: 'cache.store.invalidate.failure',
+					}),
+				])
 			);
-			expect(console as any).toHaveWarned();
 
-			consoleWarnSpy.mockRestore();
 			process.env.NODE_ENV = originalEnv;
 		});
 
@@ -660,24 +773,25 @@ describe('invalidate', () => {
 			const originalEnv = process.env.NODE_ENV;
 			process.env.NODE_ENV = 'production';
 
-			const consoleWarnSpy = jest
-				.spyOn(console, 'warn')
-				.mockImplementation();
+			const { reporter, logs } = createReporterSpy();
+			setKernelReporter(reporter);
 
-			// Mock dispatch to throw an error
 			mockDispatch.mockImplementation(() => {
 				throw new Error('Store explosion!');
 			});
 
-			// Should not throw
 			expect(() => {
 				invalidate(['thing', 'list']);
 			}).not.toThrow();
 
-			// Should NOT log warning in production
-			expect(consoleWarnSpy).not.toHaveBeenCalled();
+			expect(logs).toEqual(
+				expect.not.arrayContaining([
+					expect.objectContaining({
+						message: 'cache.store.invalidate.failure',
+					}),
+				])
+			);
 
-			consoleWarnSpy.mockRestore();
 			process.env.NODE_ENV = originalEnv;
 		});
 
