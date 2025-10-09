@@ -610,7 +610,10 @@ function sortValue<T>(value: T): T {
 	}
 
 	if (typeof value === 'undefined') {
-		return null as unknown as T;
+		// Convert undefined to null for canonical JSON serialization.
+		// This ensures undefined values are represented as null in the output,
+		// making the serialization consistent and explicit.
+		return null;
 	}
 
 	return value;
