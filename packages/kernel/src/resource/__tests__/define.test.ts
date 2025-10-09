@@ -77,6 +77,90 @@ describe('defineResource - integration', () => {
 			expect(store).toHaveProperty('initialState');
 		});
 
+		it('should respect custom store identifier configuration', () => {
+			interface Article {
+				slug: string;
+				title: string;
+			}
+
+			interface ArticleQuery {
+				category?: string;
+			}
+
+			const resource = defineResource<Article, ArticleQuery>({
+				name: 'article',
+				routes: {
+					list: { path: '/my-plugin/v1/articles', method: 'GET' },
+					get: {
+						path: '/my-plugin/v1/articles/:slug',
+						method: 'GET',
+					},
+				},
+				store: {
+					getId: (item) => item.slug,
+					getQueryKey: (query) =>
+						`category:${query?.category ?? 'all'}`,
+					initialState: {
+						items: {
+							'seed-article': {
+								slug: 'seed-article',
+								title: 'Seed Article',
+							},
+						},
+					},
+				},
+			});
+
+			const store = resource.store as ResourceStore<
+				Article,
+				ArticleQuery
+			>;
+			const initialState = store.reducer(undefined, { type: '@@INIT' });
+			expect(initialState.items['seed-article']).toEqual({
+				slug: 'seed-article',
+				title: 'Seed Article',
+			});
+
+			const query = { category: 'news' };
+			const queryKey = 'category:news';
+			const listState = store.reducer(
+				initialState,
+				store.actions.receiveItems(
+					queryKey,
+					[
+						{ slug: 'article-one', title: 'Article One' },
+						{ slug: 'article-two', title: 'Article Two' },
+					],
+					{ total: 2 }
+				)
+			);
+
+			expect(store.selectors.getItem(listState, 'article-two')).toEqual({
+				slug: 'article-two',
+				title: 'Article Two',
+			});
+			expect(store.selectors.getItems(listState, query)).toEqual([
+				{ slug: 'article-one', title: 'Article One' },
+				{ slug: 'article-two', title: 'Article Two' },
+			]);
+			expect(store.selectors.getListStatus(listState, query)).toBe(
+				'success'
+			);
+
+			const cacheKey =
+				resource.cacheKeys
+					.list?.({ category: query.category })
+					?.join(':') ?? `${resource.name}:list:${queryKey}`;
+			const errorState = store.reducer(
+				listState,
+				store.actions.receiveError(cacheKey, 'Failed to fetch')
+			);
+
+			expect(store.selectors.getListError(errorState, query)).toBe(
+				'Failed to fetch'
+			);
+		});
+
 		it('should not register store when window.wp.data is undefined', () => {
 			// Mock scenario where window.wp is not available
 			const windowWithWp = global.window as Window & { wp?: any };

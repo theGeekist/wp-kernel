@@ -326,5 +326,66 @@ describe('defineResource - config validation', () => {
 				}).not.toThrow();
 			});
 		});
+
+		describe('store configuration validation', () => {
+			it('should reject non-object store configuration', () => {
+				expect(() => {
+					defineResource({
+						name: 'thing',
+						routes: {
+							list: { path: '/wpk/v1/things', method: 'GET' },
+						},
+						store: null as never,
+					});
+				}).toThrow(KernelError);
+			});
+
+			it('should reject store.getId when not a function', () => {
+				expect(() => {
+					defineResource({
+						name: 'thing',
+						routes: {
+							list: { path: '/wpk/v1/things', method: 'GET' },
+						},
+						store: {
+							// @ts-expect-error runtime validation
+							getId: 'not-a-function',
+						},
+					});
+				}).toThrow(KernelError);
+			});
+
+			it('should reject store.getQueryKey when not a function', () => {
+				expect(() => {
+					defineResource({
+						name: 'thing',
+						routes: {
+							list: { path: '/wpk/v1/things', method: 'GET' },
+						},
+						store: {
+							// @ts-expect-error runtime validation
+							getQueryKey: 'not-a-function',
+						},
+					});
+				}).toThrow(KernelError);
+			});
+
+			it('should accept valid store overrides', () => {
+				expect(() => {
+					defineResource<{ slug: string }>({
+						name: 'thing',
+						routes: {
+							list: { path: '/wpk/v1/things', method: 'GET' },
+						},
+						store: {
+							getId: (item) => item.slug,
+							getQueryKey: (query) =>
+								`custom:${JSON.stringify(query ?? {})}`,
+							initialState: { items: {} },
+						},
+					});
+				}).not.toThrow();
+			});
+		});
 	});
 });
