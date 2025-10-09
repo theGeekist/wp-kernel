@@ -142,16 +142,28 @@ const jobResource: ResourceConfig<unknown, JobListParams> = {
 	queryParams,
 } as ResourceConfig<unknown, JobListParams>;
 
+const schemaRegistry: Record<string, SchemaConfig> = {
+	job: {
+		path: '../contracts/job.schema.json',
+		generated: {
+			types: '../.generated/types/job.d.ts',
+		},
+		description: 'Primary job resource schema used for generation.',
+	},
+};
+
 export const kernelConfig = {
+	version: 1,
 	namespace: 'wp-kernel-showcase',
-	schemas: {} as Record<string, SchemaConfig>,
+	schemas: schemaRegistry,
 	resources: {
 		job: {
 			...jobResource,
-			schema: 'auto',
+			schema: 'job',
 		},
 	},
 } satisfies {
+	version: 1;
 	namespace: string;
 	schemas: Record<string, SchemaConfig>;
 	resources: Record<

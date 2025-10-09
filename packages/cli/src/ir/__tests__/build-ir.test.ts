@@ -456,11 +456,11 @@ describe('buildIr', () => {
 		const cacheKeys = ir.resources[0].cacheKeys;
 		expect(cacheKeys.list).toEqual({
 			source: 'default',
-			segments: ['demo', 'list'],
+			segments: ['demo', 'list', '{}'],
 		});
 		expect(cacheKeys.get).toEqual({
 			source: 'default',
-			segments: ['demo', 'get'],
+			segments: ['demo', 'get', '__wpk_id__'],
 		});
 	});
 
@@ -617,6 +617,41 @@ describe('buildIr', () => {
 		expect(ir.resources.map((resource) => resource.schemaKey)).toEqual([
 			'first',
 			'second',
+		]);
+	});
+
+	it('provides default cache key placeholders matching runtime defaults', async () => {
+		const config = createBaseConfig();
+		config.resources = {
+			article: {
+				name: 'article',
+				schema: 'auto',
+				routes: {
+					list: { path: '/articles/v1/articles', method: 'GET' },
+					get: { path: '/articles/v1/articles/:id', method: 'GET' },
+				},
+			},
+		} as unknown as KernelConfigV1['resources'];
+
+		const ir = await buildIr({
+			config,
+			sourcePath: FIXTURE_CONFIG_PATH,
+			origin: 'kernel.config.ts',
+			namespace: config.namespace,
+		});
+
+		const [resource] = ir.resources;
+		expect(resource.cacheKeys.list.source).toBe('default');
+		expect(resource.cacheKeys.list.segments).toEqual([
+			'article',
+			'list',
+			'{}',
+		]);
+		expect(resource.cacheKeys.get.source).toBe('default');
+		expect(resource.cacheKeys.get.segments).toEqual([
+			'article',
+			'get',
+			'__wpk_id__',
 		]);
 	});
 });
