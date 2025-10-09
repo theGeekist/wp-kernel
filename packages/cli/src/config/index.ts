@@ -10,3 +10,4 @@ export type {
 } from './types';
 
 export { loadKernelConfig } from './load-kernel-config';
+export { validateKernelConfig } from './validate-kernel-config';
