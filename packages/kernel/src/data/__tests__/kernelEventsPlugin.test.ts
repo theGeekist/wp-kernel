@@ -271,4 +271,152 @@ describe('kernelEventsPlugin', () => {
 		bus.emit('action:error', createActionErrorEvent());
 		expect(hooks?.doAction.mock.calls.length ?? 0).toBe(before);
 	});
+
+	it('gracefully handles registries without dispatch helpers', () => {
+		const registry = {} as unknown as KernelRegistry;
+		const reporter = {
+			error: jest.fn(),
+			child: jest.fn().mockReturnThis(),
+		} as unknown as jest.Mocked<Reporter>;
+
+		const bus = new KernelEventBus();
+		const middleware = kernelEventsPlugin({
+			registry,
+			reporter,
+			events: bus,
+		});
+
+		middleware({ dispatch: jest.fn(), getState: jest.fn() })(jest.fn())({
+			type: 'INIT',
+		});
+
+		expect(() =>
+			bus.emit('action:error', createActionErrorEvent())
+		).not.toThrow();
+		expect(reporter.error).toHaveBeenCalled();
+	});
+
+	it('ignores registries that do not expose createNotice()', () => {
+		const registry = {
+			dispatch: jest.fn().mockReturnValue({}),
+		} as unknown as KernelRegistry;
+
+		const bus = new KernelEventBus();
+		const middleware = kernelEventsPlugin({ registry, events: bus });
+		middleware({ dispatch: jest.fn(), getState: jest.fn() })(jest.fn())({
+			type: 'INIT',
+		});
+
+		expect(() =>
+			bus.emit('action:error', createActionErrorEvent())
+		).not.toThrow();
+	});
+
+	it('swallows dispatch errors when notices store fails', () => {
+		const registry = {
+			dispatch: jest.fn(() => {
+				throw new Error('registry failure');
+			}),
+		} as unknown as KernelRegistry;
+
+		const bus = new KernelEventBus();
+		const middleware = kernelEventsPlugin({ registry, events: bus });
+		middleware({ dispatch: jest.fn(), getState: jest.fn() })(jest.fn())({
+			type: 'INIT',
+		});
+
+		expect(() =>
+			bus.emit('action:error', createActionErrorEvent())
+		).not.toThrow();
+	});
+
+	it('falls back to a default error message for unexpected values', () => {
+		const registry = createRegistryMock();
+		const bus = new KernelEventBus();
+		const middleware = kernelEventsPlugin({ registry, events: bus });
+		middleware({ dispatch: jest.fn(), getState: jest.fn() })(jest.fn())({
+			type: 'INIT',
+		});
+
+		const errorEvent = createActionErrorEvent({ error: 42 });
+		bus.emit('action:error', errorEvent);
+
+		expect(registry.createNotice).toHaveBeenCalledWith(
+			'error',
+			'An unexpected error occurred',
+			expect.objectContaining({ id: errorEvent.requestId })
+		);
+	});
+
+	it('maps unknown KernelError codes to error notices', () => {
+		const registry = createRegistryMock();
+		const bus = new KernelEventBus();
+		const middleware = kernelEventsPlugin({ registry, events: bus });
+		middleware({ dispatch: jest.fn(), getState: jest.fn() })(jest.fn())({
+			type: 'INIT',
+		});
+
+		const kernelError = new KernelError('ServerError', {
+			message: 'Internal failure',
+		});
+		const event = createActionErrorEvent({
+			error: kernelError,
+			requestId: 'server-failure',
+		});
+
+		bus.emit('action:error', event);
+
+		expect(registry.createNotice).toHaveBeenCalledWith(
+			'error',
+			'Internal failure',
+			expect.objectContaining({ id: 'server-failure' })
+		);
+	});
+
+	it('skips hook bridging when WordPress hooks are unavailable', () => {
+		const descriptor = Object.getOwnPropertyDescriptor(
+			globalThis,
+			'window'
+		);
+
+		if (!descriptor?.configurable) {
+			expect(descriptor?.configurable).toBe(false);
+			return;
+		}
+
+		Object.defineProperty(globalThis, 'window', {
+			configurable: true,
+			value: undefined,
+		});
+
+		try {
+			const registry = createRegistryMock();
+			const bus = new KernelEventBus();
+			const middleware = kernelEventsPlugin({
+				registry,
+				events: bus,
+			});
+
+			middleware({ dispatch: jest.fn(), getState: jest.fn() })(jest.fn())(
+				{
+					type: 'INIT',
+				}
+			);
+
+			const startEvent: ActionStartEvent = {
+				phase: 'start',
+				args: [],
+				actionName: 'noop',
+				requestId: 'start',
+				namespace: 'acme',
+				scope: 'crossTab',
+				bridged: false,
+				timestamp: Date.now(),
+			};
+
+			expect(() => bus.emit('action:start', startEvent)).not.toThrow();
+		} finally {
+			Object.defineProperty(globalThis, 'window', descriptor!);
+		}
+	});
 });
