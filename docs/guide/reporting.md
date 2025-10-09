@@ -82,6 +82,18 @@ const kernel = configureKernel({
 
 Call `kernel.teardown()` when hot reloading or tearing down tests to remove middleware and hook listeners.
 
+## Resource telemetry
+
+Resources now emit cache and transport logs through the same reporter tree. When you
+call `resource.invalidate()` the framework records `cache.invalidate.request` and
+`cache.invalidate.summary` events (along with match/miss debug entries) using a
+kernel-scoped reporter child. Transport operations inherit the reporter metadata as
+well, so `fetchList`, `fetch`, `create`, `update`, and `remove` generate
+`transport.request`, `transport.response`, or `transport.error` messages with
+correlated request IDs. Forward the reporter to your logging pipeline (Sentry,
+Datadog, etc.) to correlate cache invalidations and REST requests with upstream
+actions and policies.
+
 ## Linting: no console in kernel
 
 `console.*` calls are forbidden in `packages/kernel/src` outside the reporter module. Use the reporter everywhere else. The ESLint

@@ -1,4 +1,9 @@
-import { createReporter } from '../reporter';
+import {
+	createNoopReporter,
+	createReporter,
+	getKernelReporter,
+} from '../reporter';
+import type { Reporter } from '../reporter';
 import { WPK_EVENTS, WPK_SUBSYSTEM_NAMESPACES } from '../namespace/constants';
 import { getKernelEventBus } from '../events/bus';
 import type { KernelRegistry } from '../data/types';
@@ -30,11 +35,39 @@ type DispatchWithInvalidate = {
  * Accepts a single pattern or an array of patterns.
  * @param patterns
  */
-const cacheReporter = createReporter({
+const FALLBACK_CACHE_REPORTER = createReporter({
 	namespace: WPK_SUBSYSTEM_NAMESPACES.CACHE,
 	channel: 'console',
-	level: 'warn',
+	level: 'debug',
 });
+
+const CACHE_LOG_MESSAGES = {
+	request: 'cache.invalidate.request',
+	summary: 'cache.invalidate.summary',
+	match: 'cache.invalidate.match',
+	miss: 'cache.invalidate.miss',
+	all: 'cache.invalidate.all',
+	storeMissingState: 'cache.store.missingState',
+	storeFailure: 'cache.store.invalidate.failure',
+	matchEvaluate: 'cache.key.match',
+} as const;
+
+function resolveCacheReporter(provided?: Reporter): Reporter {
+	if (provided) {
+		return provided;
+	}
+
+	const kernelReporter = getKernelReporter();
+	if (kernelReporter) {
+		return kernelReporter.child('cache');
+	}
+
+	if (process.env.WPK_SILENT_REPORTERS === '1') {
+		return createNoopReporter();
+	}
+
+	return FALLBACK_CACHE_REPORTER;
+}
 
 function toPatternsArray(
 	patterns: CacheKeyPattern | CacheKeyPattern[]
@@ -57,10 +90,12 @@ function toPatternsArray(
  * Returns a function when present, otherwise undefined.
  * @param dataRegistry
  * @param storeKey
+ * @param reporter
  */
 function getInternalStateSelector(
 	dataRegistry: KernelRegistry,
-	storeKey: string
+	storeKey: string,
+	reporter: Reporter
 ): (() => InternalState) | undefined {
 	const select = dataRegistry?.select(storeKey) as
 		| { __getInternalState?: () => InternalState }
@@ -68,6 +103,9 @@ function getInternalStateSelector(
 
 	if (select && typeof select.__getInternalState === 'function') {
 		return select.__getInternalState as () => InternalState;
+	}
+	if (process.env.NODE_ENV === 'development') {
+		reporter.warn(CACHE_LOG_MESSAGES.storeMissingState, { storeKey });
 	}
 	return undefined;
 }
@@ -185,12 +223,14 @@ function invalidateStoreMatches(
  * @param storeKey
  * @param patternsArray
  * @param invalidatedKeysSet
+ * @param reporter
  */
 function processStoreInvalidation(
 	dataRegistry: KernelRegistry,
 	storeKey: string,
 	patternsArray: CacheKeyPattern[],
-	invalidatedKeysSet: Set<string>
+	invalidatedKeysSet: Set<string>,
+	reporter: Reporter
 ): void {
 	// Verify store exposes the expected dispatch API
 	const dispatch = dataRegistry?.dispatch(storeKey) as
@@ -204,13 +244,12 @@ function processStoreInvalidation(
 		return;
 	}
 
-	const getInternalState = getInternalStateSelector(dataRegistry, storeKey);
+	const getInternalState = getInternalStateSelector(
+		dataRegistry,
+		storeKey,
+		reporter
+	);
 	if (!getInternalState) {
-		if (process.env.NODE_ENV === 'development') {
-			cacheReporter.warn(
-				`Store ${storeKey} does not expose __getInternalState selector`
-			);
-		}
 		return;
 	}
 
@@ -228,6 +267,11 @@ function processStoreInvalidation(
 	);
 
 	if (matchingNormalizedKeys.length > 0) {
+		reporter.info(CACHE_LOG_MESSAGES.match, {
+			storeKey,
+			resource: resourceName,
+			matchedKeys: matchingNormalizedKeys,
+		});
 		invalidateStoreMatches(
 			dispatch,
 			matchingNormalizedKeys,
@@ -235,6 +279,14 @@ function processStoreInvalidation(
 			resourceName,
 			invalidatedKeysSet
 		);
+	} else {
+		reporter.debug(CACHE_LOG_MESSAGES.miss, {
+			storeKey,
+			resource: resourceName,
+			patterns: patternsArray.map((pattern) => ({
+				pattern: normalizeCacheKey(pattern),
+			})),
+		});
 	}
 }
 
@@ -242,7 +294,8 @@ function invalidateStores(
 	dataRegistry: KernelRegistry,
 	storeKeys: string[],
 	patternsArray: CacheKeyPattern[],
-	invalidatedKeysSet: Set<string>
+	invalidatedKeysSet: Set<string>,
+	reporter: Reporter
 ): void {
 	for (const key of storeKeys) {
 		try {
@@ -250,14 +303,15 @@ function invalidateStores(
 				dataRegistry,
 				key,
 				patternsArray,
-				invalidatedKeysSet
+				invalidatedKeysSet,
+				reporter
 			);
 		} catch (error) {
 			if (process.env.NODE_ENV === 'development') {
-				cacheReporter.warn(
-					`Failed to invalidate cache for store ${key}:`,
-					error
-				);
+				reporter.error(CACHE_LOG_MESSAGES.storeFailure, {
+					storeKey: key,
+					error,
+				});
 			}
 		}
 	}
@@ -311,8 +365,9 @@ export function normalizeCacheKey(pattern: CacheKeyPattern): string {
  * Used internally by invalidate logic.
  *
  * @internal
- * @param key     - The cache key to test (already normalized string)
- * @param pattern - The pattern to match against
+ * @param key      - The cache key to test (already normalized string)
+ * @param pattern  - The pattern to match against
+ * @param reporter - Optional reporter used for logging match evaluations
  * @return True if the key matches the pattern
  *
  * @example
@@ -326,23 +381,31 @@ export function normalizeCacheKey(pattern: CacheKeyPattern): string {
  */
 export function matchesCacheKey(
 	key: string,
-	pattern: CacheKeyPattern
+	pattern: CacheKeyPattern,
+	reporter?: Reporter
 ): boolean {
 	const normalizedPattern = normalizeCacheKey(pattern);
 
 	// Empty pattern matches nothing (safety check)
 	if (normalizedPattern === '') {
+		reporter?.debug(CACHE_LOG_MESSAGES.matchEvaluate, {
+			key,
+			pattern: normalizedPattern,
+			match: false,
+		});
 		return false;
 	}
 
 	// Exact match
-	if (key === normalizedPattern) {
-		return true;
-	}
-
-	// Prefix match: key starts with pattern followed by ':'
-	// This ensures 'thing:list' matches 'thing:list:active' but not 'thing:listing'
-	return key.startsWith(normalizedPattern + ':');
+	const isExactMatch = key === normalizedPattern;
+	const isPrefixMatch = key.startsWith(normalizedPattern + ':');
+	const match = isExactMatch || isPrefixMatch;
+	reporter?.debug(CACHE_LOG_MESSAGES.matchEvaluate, {
+		key,
+		pattern: normalizedPattern,
+		match,
+	});
+	return match;
 }
 
 /**
@@ -351,8 +414,9 @@ export function matchesCacheKey(
  * Used internally by invalidate logic.
  *
  * @internal
- * @param keys    - Collection of cache keys (typically from store state)
- * @param pattern - Pattern to match against
+ * @param keys     - Collection of cache keys (typically from store state)
+ * @param pattern  - Pattern to match against
+ * @param reporter - Optional reporter used for logging matches
  * @return Array of matching cache keys
  *
  * @example
@@ -364,9 +428,10 @@ export function matchesCacheKey(
  */
 export function findMatchingKeys(
 	keys: string[],
-	pattern: CacheKeyPattern
+	pattern: CacheKeyPattern,
+	reporter?: Reporter
 ): string[] {
-	return keys.filter((key) => matchesCacheKey(key, pattern));
+	return keys.filter((key) => matchesCacheKey(key, pattern, reporter));
 }
 
 /**
@@ -377,6 +442,7 @@ export function findMatchingKeys(
  * @internal
  * @param keys     - Collection of cache keys
  * @param patterns - Array of patterns to match against
+ * @param reporter - Optional reporter used for logging matches
  * @return Array of matching cache keys (deduplicated)
  *
  * @example
@@ -388,12 +454,13 @@ export function findMatchingKeys(
  */
 export function findMatchingKeysMultiple(
 	keys: string[],
-	patterns: CacheKeyPattern[]
+	patterns: CacheKeyPattern[],
+	reporter?: Reporter
 ): string[] {
 	const matchedKeys = new Set<string>();
 
 	for (const pattern of patterns) {
-		const matches = findMatchingKeys(keys, pattern);
+		const matches = findMatchingKeys(keys, pattern, reporter);
 		matches.forEach((key) => matchedKeys.add(key));
 	}
 
@@ -538,6 +605,21 @@ export type InvalidateOptions = {
 	 * Registry to operate against instead of relying on global getWPData().
 	 */
 	registry?: KernelRegistry;
+
+	/**
+	 * Reporter override for cache instrumentation.
+	 */
+	reporter?: Reporter;
+
+	/**
+	 * Optional namespace for logging context.
+	 */
+	namespace?: string;
+
+	/**
+	 * Optional resource name for logging context.
+	 */
+	resourceName?: string;
 };
 
 /**
@@ -603,7 +685,16 @@ export function invalidate(
 	patterns: CacheKeyPattern | CacheKeyPattern[],
 	options: InvalidateOptions = {}
 ): void {
-	const { storeKey, emitEvent = true, registry: overrideRegistry } = options;
+	const {
+		storeKey,
+		emitEvent = true,
+		registry: overrideRegistry,
+		reporter: reporterOverride,
+		namespace,
+		resourceName,
+	} = options;
+
+	const reporter = resolveCacheReporter(reporterOverride);
 
 	// Normalise patterns input
 	const patternsArray = toPatternsArray(patterns);
@@ -621,16 +712,30 @@ export function invalidate(
 	// Accumulate invalidated keys for event emission
 	const invalidatedKeysSet = new Set<string>();
 
+	reporter.debug(CACHE_LOG_MESSAGES.request, {
+		patterns: patternsArray.map((pattern) => normalizeCacheKey(pattern)),
+		storeKey,
+		namespace,
+		resourceName,
+	});
+
 	invalidateStores(
 		dataRegistry,
 		storeKeys,
 		patternsArray,
-		invalidatedKeysSet
+		invalidatedKeysSet,
+		reporter
 	);
 
 	// Emit event if requested
 	if (emitEvent && invalidatedKeysSet.size > 0) {
 		emitCacheInvalidatedEvent(Array.from(invalidatedKeysSet));
+		reporter.info(CACHE_LOG_MESSAGES.summary, {
+			storeKey,
+			namespace,
+			resourceName,
+			invalidatedKeys: Array.from(invalidatedKeysSet),
+		});
 	}
 }
 
@@ -654,8 +759,9 @@ function emitCacheInvalidatedEvent(keys: string[]): void {
  * Use `invalidate()` with patterns instead for targeted cache invalidation.
  *
  * @internal
- * @param storeKey - The store key to invalidate (e.g., 'my-plugin/thing')
+ * @param storeKey         - The store key to invalidate (e.g., 'my-plugin/thing')
  * @param registry
+ * @param reporterOverride
  *
  * @example
  * ```ts
@@ -665,13 +771,17 @@ function emitCacheInvalidatedEvent(keys: string[]): void {
  */
 export function invalidateAll(
 	storeKey: string,
-	registry?: KernelRegistry
+	registry?: KernelRegistry,
+	reporterOverride?: Reporter
 ): void {
 	const dataRegistry =
 		registry ?? (getWPData() as KernelRegistry | undefined);
 	if (!dataRegistry) {
 		return;
 	}
+
+	const reporter = resolveCacheReporter(reporterOverride);
+	reporter.debug(CACHE_LOG_MESSAGES.all, { storeKey });
 
 	try {
 		const dispatch = dataRegistry.dispatch(storeKey) as
@@ -686,13 +796,17 @@ export function invalidateAll(
 
 			// Emit event
 			emitCacheInvalidatedEvent([`${storeKey}:*`]);
+			reporter.info(CACHE_LOG_MESSAGES.summary, {
+				storeKey,
+				invalidatedKeys: [`${storeKey}:*`],
+			});
 		}
 	} catch (error) {
 		if (process.env.NODE_ENV === 'development') {
-			cacheReporter.warn(
-				`Failed to invalidate all caches for store ${storeKey}:`,
-				error
-			);
+			reporter.error(CACHE_LOG_MESSAGES.storeFailure, {
+				storeKey,
+				error,
+			});
 		}
 	}
 }

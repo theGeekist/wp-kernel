@@ -191,7 +191,10 @@ export function defineResource<T = unknown, TQuery = unknown>(
 	});
 
 	// Create client methods using original config (for routes)
-	const client = createClient<T, TQuery>(config, reporter);
+	const client = createClient<T, TQuery>(config, reporter, {
+		namespace,
+		resourceName,
+	});
 
 	// Create or use provided cache keys
 	const cacheKeys: Required<CacheKeys> = {
@@ -205,6 +208,7 @@ export function defineResource<T = unknown, TQuery = unknown>(
 
 	// Build resource object
 	const storeReporter = reporter.child('store');
+	const cacheReporter = reporter.child('cache');
 
 	const resource: ResourceObject<T, TQuery> = {
 		...client,
@@ -343,8 +347,12 @@ export function defineResource<T = unknown, TQuery = unknown>(
 
 		// Thin-flat API: Cache management
 		invalidate: (patterns: CacheKeyPattern | CacheKeyPattern[]) => {
-			// Call global invalidate with resource context
-			globalInvalidate(patterns, { storeKey: resource.storeKey });
+			globalInvalidate(patterns, {
+				storeKey: resource.storeKey,
+				reporter: cacheReporter,
+				namespace,
+				resourceName,
+			});
 		},
 
 		key: (

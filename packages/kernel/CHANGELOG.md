@@ -23,6 +23,9 @@
 - Resource reporters inherit from the kernel instance. Client methods and store
   resolvers emit structured `debug`/`info`/`error` logs and every resource now
   exposes a `reporter` property for custom instrumentation.
+- Cache invalidation helpers and the transport layer accept reporter metadata,
+  emitting `cache.invalidate.*` and `transport.*` events with kernel-scoped
+  defaults so cache/REST lifecycles share correlation IDs.
 
 ### Technical Details
 

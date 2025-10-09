@@ -115,3 +115,8 @@ export function createNoopReporter(): Reporter {
 }
 
 export type { Reporter, ReporterOptions, ReporterLevel } from './types';
+export {
+	getKernelReporter,
+	setKernelReporter,
+	clearKernelReporter,
+} from './context';

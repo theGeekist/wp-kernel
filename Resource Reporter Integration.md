@@ -6,6 +6,10 @@
   definitions by default while allowing custom overrides.
 - Client methods emit `debug`/`info`/`error` logs around transport calls, and store
   resolvers record success and failure paths for cache keys and queries.
+- Cache helpers default to kernel-scoped reporters, logging invalidate requests,
+  matches, misses, and summaries while respecting explicit overrides.
+- `transportFetch` accepts metadata (`meta.reporter`, `resourceName`, `namespace`)
+  so request lifecycle events emit structured telemetry alongside resource logs.
 
 ### 🎯 **Primary Integration Points**
 
@@ -193,29 +197,58 @@ export function defineResource<T = unknown, TQuery = unknown>(
 #### **4. Cache Invalidation (`cache.ts`)**
 
 **Current Behavior**: Silent invalidation operations
-**Proposed Reporter Usage**: Track cache operations for debugging
+**Reporter Usage**: Track cache operations and misses with kernel-scoped reporters
 
 ```typescript
 export function invalidate(
-  patterns: CacheKeyPattern | CacheKeyPattern[],
-  options: InvalidateOptions = {},
-  reporter?: Reporter
+	patterns: CacheKeyPattern | CacheKeyPattern[],
+	options: InvalidateOptions = {}
 ): void {
-  const log = reporter || getKernelReporter()?.child('cache') || createNoopReporter();
+	const log = resolveCacheReporter(options.reporter);
+	const patternsArray = toPatternsArray(patterns);
 
-  log.debug('Cache invalidation requested', {
-    patterns: Array.isArray(patterns) ? patterns : [patterns],
-    targetStore: options.targetStore,
-  });
+	log.debug('cache.invalidate.request', {
+		patterns: patternsArray.map(normalizeCacheKey),
+		storeKey: options.storeKey,
+		namespace: options.namespace,
+		resourceName: options.resourceName,
+	});
 
-  // ... existing invalidation logic
+	invalidateStores(registry, storeKeys, patternsArray, invalidatedKeys, log);
 
-  const matchedKeys = /* ... */;
+	if (invalidatedKeys.size > 0) {
+		log.info('cache.invalidate.summary', {
+			invalidatedKeys: Array.from(invalidatedKeys),
+			storeKey: options.storeKey,
+			namespace: options.namespace,
+			resourceName: options.resourceName,
+		});
+	}
+}
 
-  log.info('Cache invalidated', {
-    matchedKeys: matchedKeys.length,
-    patterns: Array.isArray(patterns) ? patterns : [patterns],
-  });
+export function invalidateAll(
+	storeKey: string,
+	registry?: KernelRegistry,
+	reporter?: Reporter
+): void {
+	const log = resolveCacheReporter(reporter);
+	log.debug('cache.invalidate.all', { storeKey });
+	// dispatch.invalidateAll(); emit events...
+	log.info('cache.invalidate.summary', {
+		storeKey,
+		invalidatedKeys: [`${storeKey}:*`],
+	});
+}
+
+export function matchesCacheKey(
+	key: string,
+	pattern: CacheKeyPattern,
+	reporter?: Reporter
+): boolean {
+	const normalized = normalizeCacheKey(pattern);
+	const match = key === normalized || key.startsWith(`${normalized}:`);
+	reporter?.debug('cache.key.match', { key, pattern: normalized, match });
+	return match;
 }
 ```
 
@@ -244,55 +277,47 @@ export function invalidate(
 ```typescript
 // transport/types.ts
 export type TransportMeta = {
-	reporter?: Reporter;
-	resourceName?: string;
-	namespace?: string;
-};
-
-export type TransportRequest<TData = unknown> = {
-	path: string;
-	method: HttpMethod;
-	query?: Record<string, unknown>;
-	data?: unknown;
-	fields?: string[];
-	meta?: TransportMeta;
+  reporter?: Reporter;
+  resourceName?: string;
+  namespace?: string;
 };
 
 // transport/fetch.ts
-export async function fetch<TResponse>(
-	request: TransportRequest<TResponse>
-): Promise<TransportResponse<TResponse>> {
-	const reporter =
-		request.meta?.reporter ??
-		getKernelReporter()?.child(
-			`transport.${request.meta?.resourceName ?? 'unknown'}`
-		) ??
-		createNoopReporter();
+export async function fetch<TResponse>(request: TransportRequest<TResponse>) {
+  const reporter = resolveTransportReporter(request.meta);
+  const requestId = request.requestId ?? generateRequestId();
 
-	const requestId = generateRequestId();
-	reporter.debug('Resource transport request', {
-		requestId,
-		path: request.path,
-		method: request.method,
-	});
+  reporter.debug('transport.request', {
+    requestId,
+    method: request.method,
+    path: request.path,
+    namespace: request.meta?.namespace,
+    resourceName: request.meta?.resourceName,
+  });
 
-	try {
-		// existing fetch logic ...
-		reporter.info('Resource transport response', {
-			requestId,
-			path: request.path,
-			method: request.method,
-		});
-		return response;
-	} catch (error) {
-		reporter.error('Resource transport failed', {
-			requestId,
-			path: request.path,
-			method: request.method,
-			error,
-		});
-		throw normalizeError(error, requestId, request.method, request.path);
-	}
+  try {
+    const response = await apiFetch(...);
+    reporter.info('transport.response', {
+      requestId,
+      method: request.method,
+      path: request.path,
+      duration,
+      namespace: request.meta?.namespace,
+      resourceName: request.meta?.resourceName,
+    });
+    return response;
+  } catch (error) {
+    reporter.error('transport.error', {
+      requestId,
+      method: request.method,
+      path: request.path,
+      duration,
+      namespace: request.meta?.namespace,
+      resourceName: request.meta?.resourceName,
+      error,
+    });
+    throw normalizeError(...);
+  }
 }
 ```
 

@@ -4,8 +4,9 @@
  */
 
 import { invalidate, invalidateAll, normalizeCacheKey } from '../../cache';
-import { WPK_SUBSYSTEM_NAMESPACES } from '../../../namespace/constants';
 import { KernelEventBus, setKernelEventBus } from '../../../events/bus';
+import { setKernelReporter, clearKernelReporter } from '../../../reporter';
+import type { Reporter } from '../../../reporter';
 
 // Use global types for window.wp
 
@@ -30,7 +31,8 @@ describe('invalidate edge cases', () => {
 	let cacheListener: jest.Mock;
 	let originalWp: Window['wp'];
 	let originalNodeEnv: string | undefined;
-	let consoleWarnSpy: jest.SpyInstance;
+	let reporterLogs: LogEntry[];
+	let reporter: Reporter;
 
 	beforeEach(() => {
 		// Store originals
@@ -38,8 +40,8 @@ describe('invalidate edge cases', () => {
 		originalWp = windowWithWp?.wp;
 		originalNodeEnv = process.env.NODE_ENV;
 
-		// Spy on console.warn
-		consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
+		({ reporter, logs: reporterLogs } = createReporterSpy());
+		setKernelReporter(reporter);
 
 		// Create mocks
 		mockDispatch = jest.fn();
@@ -72,10 +74,39 @@ describe('invalidate edge cases', () => {
 			delete process.env.NODE_ENV;
 		}
 
-		consoleWarnSpy.mockRestore();
+		clearKernelReporter();
 		setKernelEventBus(new KernelEventBus());
 		jest.clearAllMocks();
 	});
+
+	type LogEntry = {
+		level: 'debug' | 'info' | 'warn' | 'error';
+		message: string;
+		context?: unknown;
+	};
+
+	function createReporterSpy(): { reporter: Reporter; logs: LogEntry[] } {
+		const logs: LogEntry[] = [];
+		const spyReporter: Reporter = {
+			info(message, context) {
+				logs.push({ level: 'info', message, context });
+			},
+			warn(message, context) {
+				logs.push({ level: 'warn', message, context });
+			},
+			error(message, context) {
+				logs.push({ level: 'error', message, context });
+			},
+			debug(message, context) {
+				logs.push({ level: 'debug', message, context });
+			},
+			child() {
+				return spyReporter;
+			},
+		};
+
+		return { reporter: spyReporter, logs };
+	}
 
 	describe('development environment warnings', () => {
 		it('should log warning when store does not expose __getInternalState in development', () => {
@@ -97,11 +128,14 @@ describe('invalidate edge cases', () => {
 				invalidate(['thing', 'list'], { storeKey: 'wpk/thing' });
 			}).not.toThrow();
 
-			expect(consoleWarnSpy).toHaveBeenCalledWith(
-				`[${WPK_SUBSYSTEM_NAMESPACES.CACHE}]`,
-				'Store wpk/thing does not expose __getInternalState selector'
+			expect(reporterLogs).toEqual(
+				expect.arrayContaining([
+					expect.objectContaining({
+						level: 'warn',
+						message: 'cache.store.missingState',
+					}),
+				])
 			);
-			expect(console as any).toHaveWarned();
 		});
 
 		it('should log warning when invalidateAll fails in development', () => {
@@ -120,12 +154,14 @@ describe('invalidate edge cases', () => {
 				invalidateAll('wpk/thing');
 			}).not.toThrow();
 
-			expect(consoleWarnSpy).toHaveBeenCalledWith(
-				`[${WPK_SUBSYSTEM_NAMESPACES.CACHE}]`,
-				expect.stringContaining('Failed to invalidate all caches'),
-				expect.any(Error)
+			expect(reporterLogs).toEqual(
+				expect.arrayContaining([
+					expect.objectContaining({
+						level: 'error',
+						message: 'cache.store.invalidate.failure',
+					}),
+				])
 			);
-			expect(console as any).toHaveWarned();
 		});
 
 		it('should not log warning when invalidate fails in production', () => {
@@ -153,7 +189,13 @@ describe('invalidate edge cases', () => {
 				invalidate(['thing', 'list'], { storeKey: 'wpk/thing' });
 			}).not.toThrow();
 
-			expect(consoleWarnSpy).not.toHaveBeenCalled();
+			expect(reporterLogs).toEqual(
+				expect.not.arrayContaining([
+					expect.objectContaining({
+						message: 'cache.store.invalidate.failure',
+					}),
+				])
+			);
 		});
 
 		it('should not log warning when invalidateAll fails in production', () => {
@@ -165,6 +207,9 @@ describe('invalidate edge cases', () => {
 				}),
 			};
 
+			const override = createReporterSpy();
+			setKernelReporter(override.reporter);
+
 			mockDispatch.mockReturnValue(mockStoreDispatch);
 
 			// Should not throw or log
@@ -172,7 +217,13 @@ describe('invalidate edge cases', () => {
 				invalidateAll('wpk/thing');
 			}).not.toThrow();
 
-			expect(consoleWarnSpy).not.toHaveBeenCalled();
+			expect(override.logs).toEqual(
+				expect.not.arrayContaining([
+					expect.objectContaining({
+						message: 'cache.store.invalidate.failure',
+					}),
+				])
+			);
 		});
 	});
 
