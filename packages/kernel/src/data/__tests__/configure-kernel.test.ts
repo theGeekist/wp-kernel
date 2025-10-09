@@ -11,6 +11,7 @@ import {
 } from '../../events/bus';
 import { createActionMiddleware } from '../../actions/middleware';
 import { kernelEventsPlugin } from '../plugins/events';
+import { getNamespace as detectNamespace } from '../../namespace/detect';
 
 jest.mock('../../actions/middleware', () => ({
 	createActionMiddleware: jest.fn(() =>
@@ -31,6 +32,10 @@ jest.mock('../plugins/events', () => ({
 
 jest.mock('../../resource/cache', () => ({
 	invalidate: jest.fn(),
+}));
+
+jest.mock('../../namespace/detect', () => ({
+	getNamespace: jest.fn(() => 'detected.namespace'),
 }));
 
 type Middleware = ReturnType<typeof createActionMiddleware>;
@@ -141,6 +146,14 @@ describe('configureKernel', () => {
 
 		expect(globalThis.getWPData).toHaveBeenCalled();
 		expect(registry.__experimentalUseMiddleware).toHaveBeenCalled();
+	});
+
+	it('handles missing global registry helpers gracefully', () => {
+		delete (globalThis as { getWPData?: unknown }).getWPData;
+
+		const kernel = configureKernel({ namespace: 'acme' });
+
+		expect(kernel.getRegistry()).toBeUndefined();
 	});
 
 	it('delegates invalidate calls to resource cache with registry context', () => {
@@ -256,6 +269,87 @@ describe('configureKernel', () => {
 		const bus = getKernelEventBus();
 
 		expect(kernel.events).toBe(bus);
+	});
+
+	it('exposes namespace, reporter, and registry accessors', () => {
+		const registry = {
+			__experimentalUseMiddleware: jest
+				.fn()
+				.mockReturnValue(() => undefined),
+			dispatch: jest.fn(),
+		} as unknown as KernelRegistry;
+
+		const kernel = configureKernel({
+			namespace: 'acme',
+			registry,
+			reporter: mockReporter,
+		});
+
+		expect(kernel.getNamespace()).toBe('acme');
+		expect(kernel.getReporter()).toBe(mockReporter);
+		expect(kernel.getRegistry()).toBe(registry);
+	});
+
+	it('falls back to detected namespace when none is provided', () => {
+		const detectNamespaceMock = detectNamespace as jest.MockedFunction<
+			typeof detectNamespace
+		>;
+		detectNamespaceMock.mockReturnValueOnce('fallback.namespace');
+
+		const kernel = configureKernel();
+
+		expect(detectNamespaceMock).toHaveBeenCalled();
+		expect(kernel.getNamespace()).toBe('fallback.namespace');
+	});
+
+	it('handles middleware hooks that do not return teardown callbacks', () => {
+		const registry = {
+			__experimentalUseMiddleware: jest
+				.fn()
+				.mockReturnValueOnce(undefined)
+				.mockReturnValueOnce(undefined),
+			dispatch: jest.fn(),
+		} as unknown as KernelRegistry;
+
+		(kernelEventsPlugin as jest.Mock).mockReturnValueOnce({});
+
+		const kernel = configureKernel({ namespace: 'acme', registry });
+
+		expect(() => kernel.teardown()).not.toThrow();
+	});
+
+	it('normalizes teardown errors that are not Error instances', () => {
+		const detachActions = jest.fn(() => {
+			throw 'cleanup-failed';
+		});
+		const registry = {
+			__experimentalUseMiddleware: jest
+				.fn()
+				.mockReturnValueOnce(detachActions)
+				.mockReturnValueOnce(() => undefined),
+			dispatch: jest.fn().mockReturnValue({ createNotice: jest.fn() }),
+		} as unknown as KernelRegistry & {
+			__experimentalUseMiddleware: jest.Mock;
+		};
+
+		const originalEnv = process.env.NODE_ENV;
+		process.env.NODE_ENV = 'development';
+
+		try {
+			const kernel = configureKernel({ namespace: 'acme', registry });
+
+			kernel.teardown();
+
+			expect(mockReporter.error).toHaveBeenCalledWith(
+				'Kernel teardown failed',
+				expect.any(Error)
+			);
+			const errorArg = mockReporter.error.mock.calls.pop()?.[1];
+			expect(errorArg).toBeInstanceOf(Error);
+			expect((errorArg as Error).message).toBe('cleanup-failed');
+		} finally {
+			process.env.NODE_ENV = originalEnv;
+		}
 	});
 
 	it('reports errors thrown during teardown cleanup', () => {
