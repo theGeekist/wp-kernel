@@ -62,12 +62,23 @@ const CLIENT_LOG_MESSAGES = {
  * const item = await client.fetch(123);
  * ```
  */
+type ClientMetadata = {
+	namespace?: string;
+	resourceName?: string;
+};
+
 export function createClient<T, TQuery>(
 	config: ResourceConfig<T, TQuery>,
-	reporter?: Reporter
+	reporter?: Reporter,
+	metadata: ClientMetadata = {}
 ): ResourceClient<T, TQuery> {
 	const client: ResourceClient<T, TQuery> = {};
 	const clientReporter = (reporter ?? createNoopReporter()).child('client');
+	const transportMeta = {
+		reporter: clientReporter,
+		resourceName: metadata.resourceName ?? config.name,
+		namespace: metadata.namespace,
+	};
 
 	// fetchList method - GET collection
 	if (config.routes.list) {
@@ -89,6 +100,7 @@ export function createClient<T, TQuery>(
 					path: config.routes.list!.path,
 					method: 'GET',
 					query: query as Record<string, unknown>,
+					meta: transportMeta,
 				});
 
 				// Normalize response to ListResponse format
@@ -142,6 +154,7 @@ export function createClient<T, TQuery>(
 				const response = await transportFetch<T>({
 					path,
 					method: 'GET',
+					meta: transportMeta,
 				});
 
 				fetchReporter.info(CLIENT_LOG_MESSAGES.fetchSuccess, {
@@ -178,6 +191,7 @@ export function createClient<T, TQuery>(
 					path: config.routes.create!.path,
 					method: 'POST',
 					data,
+					meta: transportMeta,
 				});
 
 				createReporter.info(CLIENT_LOG_MESSAGES.createSuccess, {
@@ -220,6 +234,7 @@ export function createClient<T, TQuery>(
 					path,
 					method: config.routes.update!.method as 'PUT' | 'PATCH',
 					data,
+					meta: transportMeta,
 				});
 
 				updateReporter.info(CLIENT_LOG_MESSAGES.updateSuccess, {
@@ -257,6 +272,7 @@ export function createClient<T, TQuery>(
 				await transportFetch<void>({
 					path,
 					method: 'DELETE',
+					meta: transportMeta,
 				});
 
 				removeReporter.info(CLIENT_LOG_MESSAGES.removeSuccess, {

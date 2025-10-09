@@ -3,11 +3,14 @@
  */
 import { fetch } from '../fetch';
 import { KernelError } from '../../error/index';
+import type { Reporter } from '../../reporter';
+import { setKernelReporter, clearKernelReporter } from '../../reporter';
 
 describe('transport/fetch', () => {
 	let mockApiFetch: jest.Mock;
 	let mockDoAction: jest.Mock;
 	let originalWp: unknown;
+	let nowSpy: jest.SpyInstance<number, []>;
 
 	beforeEach(() => {
 		// Mock @wordpress/api-fetch
@@ -32,7 +35,7 @@ describe('transport/fetch', () => {
 		}
 
 		// Mock performance.now
-		jest.spyOn(performance, 'now').mockReturnValue(1000);
+		nowSpy = jest.spyOn(performance, 'now').mockReturnValue(1000);
 	});
 
 	afterEach(() => {
@@ -45,7 +48,37 @@ describe('transport/fetch', () => {
 				delete (global as { window: { wp?: unknown } }).window.wp;
 			}
 		}
+		clearKernelReporter();
 	});
+
+	function createReporterSpy(): { reporter: Reporter; logs: LogEntry[] } {
+		const logs: LogEntry[] = [];
+		const reporter: Reporter = {
+			info(message, context) {
+				logs.push({ level: 'info', message, context });
+			},
+			warn(message, context) {
+				logs.push({ level: 'warn', message, context });
+			},
+			error(message, context) {
+				logs.push({ level: 'error', message, context });
+			},
+			debug(message, context) {
+				logs.push({ level: 'debug', message, context });
+			},
+			child() {
+				return reporter;
+			},
+		};
+
+		return { reporter, logs };
+	}
+
+	type LogEntry = {
+		level: 'debug' | 'info' | 'warn' | 'error';
+		message: string;
+		context?: unknown;
+	};
 
 	describe('successful requests', () => {
 		it('should fetch data and return response with requestId', async () => {
@@ -430,6 +463,116 @@ describe('transport/fetch', () => {
 
 			expect(response.data).toEqual({ id: 1 });
 			expect(mockDoAction).not.toHaveBeenCalled();
+		});
+	});
+
+	describe('reporter metadata', () => {
+		it('emits request and response logs when reporter provided', async () => {
+			const { reporter, logs } = createReporterSpy();
+			mockApiFetch.mockResolvedValue({ id: 1 });
+			nowSpy.mockReturnValueOnce(1000).mockReturnValue(1010);
+
+			await fetch({
+				path: '/my-plugin/v1/things',
+				method: 'GET',
+				meta: {
+					reporter,
+					namespace: 'acme',
+					resourceName: 'thing',
+				},
+			});
+
+			expect(logs).toEqual(
+				expect.arrayContaining([
+					expect.objectContaining({
+						level: 'debug',
+						message: 'transport.request',
+						context: expect.objectContaining({
+							namespace: 'acme',
+							resourceName: 'thing',
+							path: '/my-plugin/v1/things',
+							method: 'GET',
+							requestId: expect.any(String),
+						}),
+					}),
+					expect.objectContaining({
+						level: 'info',
+						message: 'transport.response',
+						context: expect.objectContaining({
+							duration: 10,
+							namespace: 'acme',
+							resourceName: 'thing',
+						}),
+					}),
+				])
+			);
+		});
+
+		it('logs transport errors with reporter metadata', async () => {
+			const { reporter, logs } = createReporterSpy();
+			const wpError = {
+				code: 'rest_error',
+				message: 'Boom',
+				data: { status: 500 },
+			};
+			mockApiFetch.mockRejectedValue(wpError);
+
+			await expect(
+				fetch({
+					path: '/my-plugin/v1/things/1',
+					method: 'DELETE',
+					meta: {
+						reporter,
+						namespace: 'acme',
+						resourceName: 'thing',
+					},
+				})
+			).rejects.toThrow(KernelError);
+
+			expect(logs).toEqual(
+				expect.arrayContaining([
+					expect.objectContaining({
+						level: 'debug',
+						message: 'transport.request',
+					}),
+					expect.objectContaining({
+						level: 'error',
+						message: 'transport.error',
+						context: expect.objectContaining({
+							namespace: 'acme',
+							resourceName: 'thing',
+							error: 'Boom',
+						}),
+					}),
+				])
+			);
+		});
+
+		it('uses kernel reporter when metadata is not provided', async () => {
+			const kernelSpy = createReporterSpy();
+			setKernelReporter(kernelSpy.reporter);
+			mockApiFetch.mockResolvedValue({ id: 7 });
+
+			await fetch({
+				path: '/my-plugin/v1/things/7',
+				method: 'GET',
+			});
+
+			expect(kernelSpy.logs).toEqual(
+				expect.arrayContaining([
+					expect.objectContaining({
+						level: 'debug',
+						message: 'transport.request',
+						context: expect.objectContaining({
+							resourceName: undefined,
+						}),
+					}),
+					expect.objectContaining({
+						level: 'info',
+						message: 'transport.response',
+					}),
+				])
+			);
 		});
 	});
 });

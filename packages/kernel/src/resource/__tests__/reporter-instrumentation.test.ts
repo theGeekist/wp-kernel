@@ -65,6 +65,14 @@ describe('resource reporters', () => {
 
 		await resource.fetchList!({ search: 'test' });
 
+		expect(transportFetch).toHaveBeenCalledWith(
+			expect.objectContaining({
+				meta: expect.objectContaining({
+					reporter,
+					resourceName: 'thing',
+				}),
+			})
+		);
 		expect(logs).toEqual(
 			expect.arrayContaining([
 				expect.objectContaining({
@@ -169,6 +177,14 @@ describe('resource reporters', () => {
 		const item = await resource.fetch!(7);
 
 		expect(item).toEqual({ id: 7 });
+		expect(transportFetch).toHaveBeenCalledWith(
+			expect.objectContaining({
+				meta: expect.objectContaining({
+					reporter,
+					resourceName: 'thing',
+				}),
+			})
+		);
 		expect(logs).toEqual(
 			expect.arrayContaining([
 				expect.objectContaining({

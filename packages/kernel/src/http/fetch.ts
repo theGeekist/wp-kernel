@@ -12,12 +12,15 @@
 
 import { KernelError } from '../error/KernelError';
 import { WPK_EVENTS } from '../namespace/constants';
+import { createNoopReporter, getKernelReporter } from '../reporter';
+import type { Reporter } from '../reporter';
 import type {
 	TransportRequest,
 	TransportResponse,
 	ResourceRequestEvent,
 	ResourceResponseEvent,
 	ResourceErrorEvent,
+	TransportMeta,
 } from './types';
 
 /**
@@ -25,6 +28,32 @@ import type {
  */
 function generateRequestId(): string {
 	return `req_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+}
+
+const TRANSPORT_LOG_MESSAGES = {
+	request: 'transport.request',
+	response: 'transport.response',
+	error: 'transport.error',
+} as const;
+
+function resolveTransportReporter(meta?: TransportMeta): Reporter {
+	if (meta?.reporter) {
+		return meta.reporter.child('transport');
+	}
+
+	const kernelReporter = getKernelReporter();
+	if (kernelReporter) {
+		const resourceScope = meta?.resourceName
+			? `transport.${meta.resourceName}`
+			: 'transport';
+		return kernelReporter.child(resourceScope);
+	}
+
+	if (process.env.WPK_SILENT_REPORTERS === '1') {
+		return createNoopReporter();
+	}
+
+	return createNoopReporter();
 }
 
 /**
@@ -301,9 +330,18 @@ export async function fetch<T = unknown>(
 	const requestId = request.requestId || generateRequestId();
 	const startTime = performance.now();
 	const hooks = getHooks();
+	const reporter = resolveTransportReporter(request.meta);
 
 	// Build URL with query params and _fields
 	const fullPath = buildUrl(request.path, request.query, request.fields);
+
+	reporter.debug(TRANSPORT_LOG_MESSAGES.request, {
+		requestId,
+		method: request.method,
+		path: request.path,
+		namespace: request.meta?.namespace,
+		resourceName: request.meta?.resourceName,
+	});
 
 	emitRequestEvent(hooks, requestId, request);
 
@@ -329,6 +367,14 @@ export async function fetch<T = unknown>(
 		};
 
 		emitResponseEvent(hooks, request, response, duration);
+		reporter.info(TRANSPORT_LOG_MESSAGES.response, {
+			requestId,
+			method: request.method,
+			path: request.path,
+			duration,
+			namespace: request.meta?.namespace,
+			resourceName: request.meta?.resourceName,
+		});
 		return response;
 	} catch (error) {
 		const duration = performance.now() - startTime;
@@ -340,6 +386,15 @@ export async function fetch<T = unknown>(
 		);
 
 		emitErrorEvent(hooks, request, kernelError, duration);
+		reporter.error(TRANSPORT_LOG_MESSAGES.error, {
+			requestId,
+			method: request.method,
+			path: request.path,
+			duration,
+			namespace: request.meta?.namespace,
+			resourceName: request.meta?.resourceName,
+			error: kernelError.message,
+		});
 		throw kernelError;
 	}
 }

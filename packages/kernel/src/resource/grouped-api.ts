@@ -187,6 +187,9 @@ export function createCacheGetter<T, TQuery>(
 					// Invalidate all cache keys for this resource
 					globalInvalidate([[config.name]], {
 						storeKey: this.storeKey,
+						reporter: this.reporter.child('cache'),
+						namespace: this.storeKey.split('/')[0],
+						resourceName: this.name,
 					});
 				},
 			},

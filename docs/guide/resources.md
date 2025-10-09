@@ -84,6 +84,14 @@ resources fall back to a deterministic console reporter so local development sti
 surfaces debug output. You can access the reporter via `resource.reporter` or supply
 your own implementation through the `reporter` option.
 
+Cache utilities participate in the same hierarchy. Calling `resource.invalidate()` or
+the grouped `cache.invalidate.*` helpers emits `cache.invalidate.request` and
+`cache.invalidate.summary` messages (plus match/miss debug logs) using the resource's
+reporter, giving you visibility into which cache keys were touched. Transport requests
+inherit the reporter too, so every `fetchList`, `fetch`, `create`, and `remove` call
+produces `transport.request`, `transport.response`, or `transport.error` entries with
+correlation IDs that downstream observability tooling can consume.
+
 ## Configuration
 
 ### Required Properties

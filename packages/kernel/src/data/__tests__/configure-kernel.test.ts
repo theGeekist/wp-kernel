@@ -20,6 +20,9 @@ jest.mock('../../actions/middleware', () => ({
 
 jest.mock('../../reporter', () => ({
 	createReporter: jest.fn(),
+	setKernelReporter: jest.fn(),
+	getKernelReporter: jest.fn(() => undefined),
+	clearKernelReporter: jest.fn(),
 }));
 
 jest.mock('../plugins/events', () => ({
@@ -152,15 +155,29 @@ describe('configureKernel', () => {
 		const patterns = ['post', 'list'];
 
 		kernel.invalidate(patterns);
-		expect(invalidateCache).toHaveBeenCalledWith(patterns, {
-			registry,
-		});
+		expect(invalidateCache).toHaveBeenCalledWith(
+			patterns,
+			expect.objectContaining({
+				registry,
+				namespace: 'acme',
+				reporter: expect.objectContaining({
+					child: expect.any(Function),
+				}),
+			})
+		);
 
 		kernel.invalidate(patterns, { emitEvent: false });
-		expect(invalidateCache).toHaveBeenCalledWith(patterns, {
-			emitEvent: false,
-			registry,
-		});
+		expect(invalidateCache).toHaveBeenCalledWith(
+			patterns,
+			expect.objectContaining({
+				emitEvent: false,
+				registry,
+				namespace: 'acme',
+				reporter: expect.objectContaining({
+					child: expect.any(Function),
+				}),
+			})
+		);
 	});
 
 	it('emits custom events through the event bus', () => {
