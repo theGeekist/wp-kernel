@@ -3,7 +3,7 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import { emitGeneratedArtifacts } from '..';
 import { createNoopReporter } from '@geekist/wp-kernel';
-import type { KernelConfigV1 } from '../../config/types';
+import type { AdapterContext, KernelConfigV1 } from '../../config/types';
 import type { IRResource, IRSchema, IRv1 } from '../../ir';
 import type { PrinterContext } from '../types';
 import { PhpFileBuilder } from '../php/builder';
@@ -301,6 +301,33 @@ describe('emitGeneratedArtifacts', () => {
 			expect(indexContents).toContain(
 				"'Demo\\Namespace\\Rest\\LiteralController'"
 			);
+		});
+	});
+
+	it('provides a noop reporter to adapter customisers by default', async () => {
+		await withTempDir(async (tempDir) => {
+			const context = createPrinterContext(tempDir);
+			const reporters: AdapterContext['reporter'][] = [];
+
+			context.phpAdapter = {
+				customise(_builder, adapterContext) {
+					reporters.push(adapterContext.reporter);
+					expect(() =>
+						adapterContext.reporter.info('demo')
+					).not.toThrow();
+					expect(() =>
+						adapterContext.reporter.warn('demo')
+					).not.toThrow();
+					expect(() =>
+						adapterContext.reporter.error('demo')
+					).not.toThrow();
+				},
+			};
+
+			await emitGeneratedArtifacts(context);
+
+			expect(reporters).not.toHaveLength(0);
+			expect(context.adapterContext?.reporter).toBe(reporters[0]);
 		});
 	});
 
