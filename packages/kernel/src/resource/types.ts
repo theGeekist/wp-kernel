@@ -28,7 +28,67 @@ export type ResourceRoute = {
 	path: string;
 	/** HTTP method */
 	method: HttpMethod;
+	/** Optional policy identifier used by tooling to map to capability checks */
+	policy?: string;
 };
+
+/**
+ * Identifier configuration for CLI-generated helpers.
+ *
+ * Runtime ignores this by default but accepts the fields so configs remain compatible.
+ */
+export type ResourceIdentityConfig =
+	| {
+			type: 'number';
+			param?: 'id';
+	  }
+	| {
+			type: 'string';
+			param?: 'id' | 'slug' | 'uuid';
+	  };
+
+/**
+ * Descriptor for post meta fields when using WordPress persistence adapters.
+ *
+ * Included for forward compatibility with CLI-generated registration code.
+ */
+export type ResourcePostMetaDescriptor = {
+	type: 'string' | 'integer' | 'number' | 'boolean' | 'array' | 'object';
+	single?: boolean;
+};
+
+/**
+ * High-level storage configuration for CLI-driven persistence.
+ *
+ * The runtime does not consume these properties directly; they exist so resource
+ * definitions remain type-safe when enriched via generators.
+ */
+export type ResourceStorageConfig =
+	| { mode: 'transient' }
+	| {
+			mode: 'wp-post';
+			postType?: string;
+			statuses?: string[];
+			supports?: ('title' | 'editor' | 'excerpt' | 'custom-fields')[];
+			meta?: Record<string, ResourcePostMetaDescriptor>;
+			taxonomies?: Record<
+				string,
+				{
+					taxonomy: string;
+					hierarchical?: boolean;
+					register?: boolean;
+				}
+			>;
+	  }
+	| {
+			mode: 'wp-taxonomy';
+			taxonomy: string;
+			hierarchical?: boolean;
+	  }
+	| {
+			mode: 'wp-option';
+			option: string;
+	  };
 
 /**
  * Standard CRUD routes for a resource
@@ -89,9 +149,9 @@ export type CacheKeyFn<TParams = unknown> = (
  * }
  * ```
  */
-export type CacheKeys = {
+export type CacheKeys<TListParams = unknown> = {
 	/** Cache key for list operations */
-	list?: CacheKeyFn<unknown>;
+	list?: CacheKeyFn<TListParams>;
 	/** Cache key for single-item fetch */
 	get?: CacheKeyFn<string | number>;
 	/** Cache key for create operations (typically not cached) */
@@ -101,6 +161,20 @@ export type CacheKeys = {
 	/** Cache key for delete operations */
 	remove?: CacheKeyFn<string | number>;
 };
+
+/**
+ * Descriptor for query parameters exposed by a resource.
+ *
+ * Used by tooling to generate REST argument metadata.
+ */
+export type ResourceQueryParamDescriptor = {
+	type: 'string' | 'enum';
+	optional?: boolean;
+	enum?: readonly string[];
+	description?: string;
+};
+
+export type ResourceQueryParams = Record<string, ResourceQueryParamDescriptor>;
 
 /**
  * Complete resource definition configuration
@@ -165,11 +239,32 @@ export type ResourceConfig<
 	routes: ResourceRoutes;
 
 	/**
+	 * Optional identifier hints used by tooling.
+	 *
+	 * The runtime ignores this field; CLI tooling can derive store defaults and route helpers.
+	 */
+	identity?: ResourceIdentityConfig;
+
+	/**
+	 * Optional persistence strategy metadata.
+	 *
+	 * The runtime ignores this field; CLI tooling can emit registration scaffolding.
+	 */
+	storage?: ResourceStorageConfig;
+
+	/**
+	 * Optional overrides for store configuration.
+	 *
+	 * Provided for forward compatibility with CLI-generated descriptors.
+	 */
+	store?: ResourceStoreOptions<T, TQuery>;
+
+	/**
 	 * Cache key generators
 	 *
 	 * Optional. If omitted, default cache keys based on resource name will be used
 	 */
-	cacheKeys?: CacheKeys;
+	cacheKeys?: CacheKeys<TQuery>;
 
 	/**
 	 * Namespace for events and store keys
@@ -196,7 +291,12 @@ export type ResourceConfig<
 	 * schema: import('../../contracts/thing.schema.json')
 	 * ```
 	 */
-	schema?: Promise<unknown> | unknown;
+	schema?: Promise<unknown> | unknown | string;
+
+	/**
+	 * Optional query parameter descriptors for tooling.
+	 */
+	queryParams?: ResourceQueryParams;
 
 	/**
 	 * Optional reporter override for resource instrumentation.
@@ -205,14 +305,6 @@ export type ResourceConfig<
 	 * reporter instead of creating a child reporter from the kernel instance.
 	 */
 	reporter?: Reporter;
-
-	/**
-	 * Optional store configuration overrides.
-	 *
-	 * Use this to customize identifier extraction, query key generation, or
-	 * provide seeded state when registering the resource store.
-	 */
-	store?: ResourceStoreOptions<T, TQuery>;
 };
 
 /**
@@ -365,7 +457,7 @@ export type ResourceObject<T = unknown, TQuery = unknown> = {
 	 *
 	 * Use these to generate cache keys for invalidation
 	 */
-	cacheKeys: Required<CacheKeys>;
+	cacheKeys: Required<CacheKeys<TQuery>>;
 
 	/**
 	 * REST route definitions (normalized)

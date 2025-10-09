@@ -1,4 +1,5 @@
 import type { Reporter } from '@geekist/wp-kernel';
+import type { ResourceConfig } from '@geekist/wp-kernel/resource';
 import type { WPKConfigSource } from '@geekist/wp-kernel/namespace/constants';
 import type { IRv1 } from '../ir/types';
 import type { PhpAstBuilder } from '../printers/php/types';
@@ -7,55 +8,12 @@ export type ConfigOrigin = WPKConfigSource;
 
 export type KernelConfigVersion = 1;
 
-export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-
-export type CacheKeyToken =
-	| string
-	| {
-			param: string;
-	  }
-	| {
-			literal: unknown;
-	  };
-
-export type CacheKeyTemplate = readonly CacheKeyToken[];
-
 export interface SchemaConfig {
 	path: string;
 	generated: {
 		types: string;
 	};
 	description?: string;
-}
-
-export interface RouteConfig {
-	method: HttpMethod;
-	path: string;
-	policy?: string;
-}
-
-export interface QueryParamDescriptor {
-	type: 'string' | 'enum';
-	optional?: boolean;
-	enum?: readonly string[];
-	description?: string;
-}
-
-export interface ResourceConfig {
-	name: string;
-	schema: string;
-	routes: {
-		list: RouteConfig;
-		get: RouteConfig;
-		create: RouteConfig;
-		update: RouteConfig;
-		remove: RouteConfig;
-	};
-	cacheKeys: {
-		list: CacheKeyTemplate;
-		get: CacheKeyTemplate;
-	};
-	queryParams?: Record<string, QueryParamDescriptor>;
 }
 
 export interface SchemaRegistry {
