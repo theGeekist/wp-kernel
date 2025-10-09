@@ -7,6 +7,7 @@
  * @module
  */
 
+import { extractPathParams, interpolatePath } from '@geekist/wp-kernel';
 import type { Page } from '@playwright/test';
 import type { RequestUtils } from '@wordpress/e2e-test-utils-playwright';
 import type {
@@ -106,6 +107,37 @@ export function createResourceHelper<T>(
 	requestUtils: RequestUtils
 ): ResourceUtils<T> {
 	const { routes } = config;
+
+	const removeRouteParam = routes.remove
+		? extractPathParams(routes.remove.path)[0]
+		: undefined;
+
+	const buildRemovePath = (
+		identifier: string | number
+	): string | undefined => {
+		if (!routes.remove) {
+			return undefined;
+		}
+
+		if (!removeRouteParam) {
+			return routes.remove.path;
+		}
+
+		try {
+			return interpolatePath(routes.remove.path, {
+				[removeRouteParam]: identifier,
+			});
+		} catch (error) {
+			const message =
+				error instanceof Error
+					? error.message
+					: 'Unknown interpolation error';
+
+			throw new Error(
+				`Failed to interpolate remove path for resource "${config.name}": ${message}`
+			);
+		}
+	};
 
 	const resolveIdentifier = (item: unknown): string | number | undefined => {
 		if (config.store?.getId) {
@@ -218,7 +250,13 @@ export function createResourceHelper<T>(
 				);
 			}
 
-			const path = routes.remove.path.replace(':id', String(id));
+			const path = buildRemovePath(id);
+
+			if (!path) {
+				throw new Error(
+					`Resource "${config.name}" does not have a remove route configured`
+				);
+			}
 
 			await requestUtils.rest({
 				path,
@@ -257,10 +295,12 @@ export function createResourceHelper<T>(
 						return;
 					}
 
-					const path = removeRoute.path.replace(
-						':id',
-						String(identifier)
-					);
+					const path = buildRemovePath(identifier);
+					if (!path) {
+						throw new Error(
+							`Resource "${config.name}" does not have a remove route configured`
+						);
+					}
 
 					await requestUtils.rest({
 						path,
