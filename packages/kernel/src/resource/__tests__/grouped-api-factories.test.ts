@@ -62,7 +62,7 @@ describe('grouped-api namespace factories', () => {
 				query?.search,
 			],
 			get: (id?: string | number) => ['test-resource', 'get', id],
-		create: (data?: unknown) => [
+			create: (data?: unknown) => [
 				'test-resource',
 				'create',
 				JSON.stringify(data || {}),

@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+import fsSync from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { loadKernelConfig } from '../load-kernel-config';
@@ -63,8 +64,12 @@ describe('loadKernelConfig', () => {
 				expect(result.configOrigin).toBe(
 					WPK_CONFIG_SOURCES.KERNEL_CONFIG_JS
 				);
-				expect(result.sourcePath).toBe(
-					path.join(workspaceRoot, 'kernel.config.js')
+				// macOS may return tmpdir paths with a "/private" prefix;
+				// canonicalize both sides using realpathSync for stable equality.
+				expect(fsSync.realpathSync(result.sourcePath)).toBe(
+					fsSync.realpathSync(
+						path.join(workspaceRoot, 'kernel.config.js')
+					)
 				);
 				expect(result.composerCheck).toBe('ok');
 				expect(result.config.version).toBe(1);
@@ -381,8 +386,10 @@ describe('loadKernelConfig', () => {
 				expect(result.configOrigin).toBe(
 					WPK_CONFIG_SOURCES.PACKAGE_JSON_WPK
 				);
-				expect(result.sourcePath).toBe(
-					path.join(workspaceRoot, 'package.json')
+				expect(fsSync.realpathSync(result.sourcePath)).toBe(
+					fsSync.realpathSync(
+						path.join(workspaceRoot, 'package.json')
+					)
 				);
 			}
 		);
