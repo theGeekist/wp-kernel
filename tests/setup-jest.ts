@@ -10,6 +10,8 @@
 // import matchers from 'jest-extended';
 // expect.extend(matchers);
 
+process.env.WPK_SILENT_REPORTERS = '1';
+
 /**
  * Complete WPData stub that satisfies the global type requirements
  * Provides all @wordpress/data exports as mocks to match the type interface
