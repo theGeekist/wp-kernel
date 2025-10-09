@@ -7,7 +7,7 @@ import type {
 	KernelUIRuntime,
 } from './types';
 import { getNamespace as detectNamespace } from '../namespace/detect';
-import { createReporter } from '../reporter';
+import { createReporter, setKernelReporter } from '../reporter';
 import type { Reporter } from '../reporter';
 import { invalidate as invalidateCache } from '../resource/cache';
 import type { CacheKeyPattern, InvalidateOptions } from '../resource/cache';
@@ -99,7 +99,8 @@ export function configureKernel(
 
 	const events = getKernelEventBus();
 	setKernelEventBus(events);
-	const cleanupTasks: CleanupTask[] = [];
+	setKernelReporter(reporter);
+	const cleanupTasks: CleanupTask[] = [() => setKernelReporter(undefined)];
 	let uiRuntime: KernelUIRuntime | undefined;
 
 	if (
@@ -146,8 +147,10 @@ export function configureKernel(
 			opts?: InvalidateOptions
 		) {
 			invalidateCache(patterns, {
-				...opts,
+				...(opts ?? {}),
 				registry,
+				reporter: opts?.reporter ?? reporter.child('cache'),
+				namespace,
 			});
 		},
 		emit(eventName: string, payload: unknown) {

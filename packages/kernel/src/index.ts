@@ -75,6 +75,7 @@ export type {
 	HttpMethod,
 	TransportRequest,
 	TransportResponse,
+	TransportMeta,
 	ResourceRequestEvent,
 	ResourceResponseEvent,
 	ResourceErrorEvent,
@@ -191,7 +192,13 @@ export type {
 } from './events/bus';
 
 // Reporter
-export { createReporter, createNoopReporter } from './reporter/index.js';
+export {
+	createReporter,
+	createNoopReporter,
+	getKernelReporter,
+	setKernelReporter,
+	clearKernelReporter,
+} from './reporter/index.js';
 export type {
 	Reporter,
 	ReporterOptions,

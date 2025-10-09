@@ -37,7 +37,7 @@ describe('Build: Monorepo package imports', () => {
 		// (vs 100KB+ when bundling WordPress packages)
 		expect(bundle.length).toBeGreaterThan(15000); // Should contain kernel code
 		// Reporter instrumentation increases bundle size slightly but should stay well below 60KB
-		expect(bundle.length).toBeLessThan(58000); // But not bundle WordPress
+		expect(bundle.length).toBeLessThan(60000); // But not bundle WordPress
 	});
 
 	it('should NOT bundle WordPress packages', () => {
