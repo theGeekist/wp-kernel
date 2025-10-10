@@ -1,5 +1,4 @@
 import path from 'node:path';
-import { promises as fs } from 'node:fs';
 import {
 	compile,
 	type JSONSchema,
@@ -23,7 +22,7 @@ export async function emitTypeDefinitions(
 	context: PrinterContext
 ): Promise<TypeArtifact[]> {
 	const indexDirectory = path.resolve(context.outputDir, 'types');
-	await fs.mkdir(indexDirectory, { recursive: true });
+	await context.ensureDirectory(indexDirectory);
 
 	const artifacts: TypeArtifact[] = [];
 
@@ -41,8 +40,8 @@ export async function emitTypeDefinitions(
 	const indexPath = path.join(indexDirectory, 'index.d.ts');
 	const indexContents = createTypeIndex(indexPath, artifacts, context);
 	const formattedIndex = await context.formatTs(indexPath, indexContents);
-	await fs.mkdir(path.dirname(indexPath), { recursive: true });
-	await fs.writeFile(indexPath, formattedIndex, 'utf8');
+	await context.ensureDirectory(path.dirname(indexPath));
+	await context.writeFile(indexPath, formattedIndex);
 
 	return artifacts;
 }
@@ -71,8 +70,8 @@ async function generateTypeForSchema(
 	);
 	const formatted = await context.formatTs(targetPath, compiled);
 
-	await fs.mkdir(path.dirname(targetPath), { recursive: true });
-	await fs.writeFile(targetPath, formatted, 'utf8');
+	await context.ensureDirectory(path.dirname(targetPath));
+	await context.writeFile(targetPath, formatted);
 
 	return { schema, filePath: targetPath, typeName };
 }
