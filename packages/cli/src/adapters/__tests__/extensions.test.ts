@@ -297,13 +297,13 @@ describe('runAdapterExtensions', () => {
 	});
 
 	it('falls back to JSON cloning when structuredClone is unavailable', async () => {
+		const hadStructuredClone = 'structuredClone' in globalThis;
 		const originalStructuredClone = globalThis.structuredClone;
-		// @ts-expect-error - testing fallback when structuredClone is missing
-		delete (
-			globalThis as typeof globalThis & {
-				structuredClone?: typeof structuredClone;
-			}
-		).structuredClone;
+		Object.defineProperty(globalThis, 'structuredClone', {
+			value: undefined,
+			configurable: true,
+			writable: true,
+		} as PropertyDescriptor);
 
 		const outputDir = await fs.mkdtemp(TMP_OUTPUT);
 		const reporter = createReporterMock();
@@ -343,7 +343,19 @@ describe('runAdapterExtensions', () => {
 			expect(run.ir.meta.namespace).toBe('UpdatedNamespace');
 			expect(ir.meta.namespace).toBe('Demo\\Namespace');
 		} finally {
-			globalThis.structuredClone = originalStructuredClone;
+			if (hadStructuredClone) {
+				Object.defineProperty(globalThis, 'structuredClone', {
+					value: originalStructuredClone,
+					configurable: true,
+					writable: true,
+				} as PropertyDescriptor);
+			} else {
+				delete (
+					globalThis as typeof globalThis & {
+						structuredClone?: typeof structuredClone;
+					}
+				).structuredClone;
+			}
 			await fs.rm(outputDir, { recursive: true, force: true });
 		}
 	});
