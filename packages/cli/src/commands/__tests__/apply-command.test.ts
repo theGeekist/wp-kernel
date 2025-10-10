@@ -1,6 +1,8 @@
 import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
+import { execFile as execFileCallback } from 'node:child_process';
+import { promisify } from 'node:util';
 import { Writable } from 'node:stream';
 import type { Command } from 'clipanion';
 import { ApplyCommand } from '../apply';
@@ -24,6 +26,8 @@ return 'manual';
 // WPK:END AUTO
 // Manual footer
 `;
+
+const execFile = promisify(execFileCallback);
 
 describe('ApplyCommand', () => {
 	it('creates new files when target is missing', async () => {
@@ -240,6 +244,224 @@ return 'manual';
 			expect(command.summary).toBeNull();
 		});
 	});
+
+	it('fails when generated PHP directory has uncommitted changes', async () => {
+		await withWorkspace(async (workspace) => {
+			await initGitRepository();
+			await writeGeneratedFile(
+				workspace,
+				'Rest/BaseController.php',
+				GUARDED_SOURCE
+			);
+
+			const command = createCommand(workspace);
+			const exitCode = await command.execute();
+
+			expect(exitCode).toBe(1);
+			expect(command.summary).toBeNull();
+		});
+	});
+
+	it('allows overriding cleanliness check with --yes', async () => {
+		await withWorkspace(async (workspace) => {
+			await initGitRepository();
+			await writeGeneratedFile(
+				workspace,
+				'Rest/BaseController.php',
+				GUARDED_SOURCE
+			);
+
+			const command = createCommand(workspace);
+			command.yes = true;
+
+			const exitCode = await command.execute();
+
+			expect(exitCode).toBe(0);
+			expect(command.summary).toEqual({
+				created: 1,
+				updated: 0,
+				skipped: 0,
+			});
+		});
+	});
+
+	it('creates backups before overwriting when --backup is provided', async () => {
+		await withWorkspace(async (workspace) => {
+			await writeGeneratedFile(
+				workspace,
+				'Rest/BaseController.php',
+				GUARDED_SOURCE
+			);
+
+			const target = path.join(workspace, 'inc/Rest/BaseController.php');
+			await ensureDirectory(path.dirname(target));
+			const original = GUARDED_EXISTING.replace(
+				"return 'manual';",
+				"return 'old';"
+			);
+			await fs.writeFile(target, original, 'utf8');
+
+			const command = createCommand(workspace);
+			command.backup = true;
+
+			const exitCode = await command.execute();
+
+			expect(exitCode).toBe(0);
+
+			const backupPath = `${target}.bak`;
+			const backupContents = await fs.readFile(backupPath, 'utf8');
+			expect(backupContents).toBe(original);
+		});
+	});
+
+	it('overwrites missing guard markers when --force is provided', async () => {
+		await withWorkspace(async (workspace) => {
+			await writeGeneratedFile(
+				workspace,
+				'Rest/BaseController.php',
+				GUARDED_SOURCE
+			);
+
+			const target = path.join(workspace, 'inc/Rest/BaseController.php');
+			await ensureDirectory(path.dirname(target));
+			await fs.writeFile(
+				target,
+				`<?php
+// Manual header without guard markers.
+return 'manual';
+`,
+				'utf8'
+			);
+
+			const command = createCommand(workspace);
+			command.force = true;
+
+			const exitCode = await command.execute();
+
+			expect(exitCode).toBe(0);
+			expect(command.summary).toEqual({
+				created: 0,
+				updated: 1,
+				skipped: 0,
+			});
+
+			const contents = await fs.readFile(target, 'utf8');
+			expect(contents).toBe(GUARDED_SOURCE);
+		});
+	});
+
+	it('writes a success entry to the apply log', async () => {
+		await withWorkspace(async (workspace) => {
+			await writeGeneratedFile(
+				workspace,
+				'Rest/BaseController.php',
+				GUARDED_SOURCE
+			);
+
+			const command = createCommand(workspace);
+			const exitCode = await command.execute();
+
+			expect(exitCode).toBe(0);
+
+			const logPath = path.join(workspace, '.wpk-apply.log');
+			const rawLog = await fs.readFile(logPath, 'utf8');
+			const lines = rawLog.trim().split('\n');
+			expect(lines).toHaveLength(1);
+			const entry = JSON.parse(lines[0]);
+
+			expect(entry.result).toBe('success');
+			expect(entry.flags).toEqual({
+				yes: false,
+				backup: false,
+				force: false,
+			});
+			expect(entry.summary).toEqual({
+				created: 1,
+				updated: 0,
+				skipped: 0,
+			});
+			expect(Array.isArray(entry.files)).toBe(true);
+			expect(entry.files[0].status).toBe('created');
+			expect(entry.files[0].forced).toBeUndefined();
+			expect(Number.isNaN(Date.parse(entry.timestamp))).toBe(false);
+		});
+	});
+
+	it('writes a failure entry to the apply log', async () => {
+		await withWorkspace(async (workspace) => {
+			await writeGeneratedFile(
+				workspace,
+				'Rest/BaseController.php',
+				GUARDED_SOURCE
+			);
+
+			const target = path.join(workspace, 'inc/Rest/BaseController.php');
+			await ensureDirectory(path.dirname(target));
+			await fs.writeFile(target, '<?php\n', 'utf8');
+
+			const command = createCommand(workspace);
+			const exitCode = await command.execute();
+
+			expect(exitCode).toBe(1);
+
+			const logPath = path.join(workspace, '.wpk-apply.log');
+			const rawLog = await fs.readFile(logPath, 'utf8');
+			const lines = rawLog.trim().split('\n');
+			expect(lines).toHaveLength(1);
+			const entry = JSON.parse(lines[0]);
+
+			expect(entry.result).toBe('failure');
+			expect(entry.error).toMatchObject({ code: 'ValidationError' });
+		});
+	});
+
+	it('continues when apply log cannot be written', async () => {
+		await withWorkspace(async (workspace) => {
+			await writeGeneratedFile(
+				workspace,
+				'Rest/BaseController.php',
+				GUARDED_SOURCE
+			);
+
+			const appendSpy = jest
+				.spyOn(fs, 'appendFile')
+				.mockRejectedValueOnce({ boom: true } as never);
+
+			const command = createCommand(workspace);
+			const exitCode = await command.execute();
+
+			appendSpy.mockRestore();
+
+			expect(exitCode).toBe(0);
+			expect(command.summary).toEqual({
+				created: 1,
+				updated: 0,
+				skipped: 0,
+			});
+		});
+	});
+
+	it('returns exit code 2 when unexpected errors bubble from apply', async () => {
+		await withWorkspace(async (workspace) => {
+			await writeGeneratedFile(
+				workspace,
+				'Rest/BaseController.php',
+				GUARDED_SOURCE
+			);
+
+			const mkdirSpy = jest
+				.spyOn(fs, 'mkdir')
+				.mockRejectedValueOnce(new Error('boom'));
+
+			const command = createCommand(workspace);
+			const exitCode = await command.execute();
+
+			mkdirSpy.mockRestore();
+
+			expect(exitCode).toBe(2);
+			expect(command.summary).toBeNull();
+		});
+	});
 });
 
 async function withWorkspace(
@@ -287,6 +509,10 @@ function createCommand(workspace: string): ApplyCommand {
 		cwd: () => workspace,
 	} as Command.Context;
 
+	command.yes = false;
+	command.backup = false;
+	command.force = false;
+
 	return command;
 }
 
@@ -305,4 +531,8 @@ class MemoryStream extends Writable {
 	toString(): string {
 		return this.chunks.join('');
 	}
+}
+
+async function initGitRepository(): Promise<void> {
+	await execFile('git', ['init']);
 }
