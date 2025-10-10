@@ -28,3 +28,7 @@ export function useKernelUI(): KernelUIRuntime {
 	}
 	return runtime;
 }
+
+export function useOptionalKernelUI(): KernelUIRuntime | null {
+	return useContext(KernelUIContext);
+}
