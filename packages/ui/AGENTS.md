@@ -14,6 +14,7 @@ This file supplements the root [AGENTS.md](../../AGENTS.md) with agent guideline
 
 ## UI Package Conventions
 
+- `vendor/` directory contains read-only snapshots (e.g., `dataviews-snapshot`) for reference. Do not import from or edit these files; always use published packages like `@wordpress/dataviews`.
 - Wrap `@wordpress/components` lightly; mirror WP props/types/events.
 - Implement canonical async UX states with `AsyncBoundary`: idle, loading, empty, error, success.
 - Use `ActionButton` for all write operations; avoid direct transport calls.

@@ -1,21 +1,21 @@
 # WP Kernel - Current State (v2)
 
-**Last Updated:** 9 October 2025  
-**Version:** 0.4.0 (unreleased)  
-**Status:** Post-Architecture Overhaul (Phases 1-7 complete)
+**Last Updated:** 10 October 2025  
+**Version:** 0.3.0 (monorepo snapshot)  
+**Status:** Core runtime stable; CLI Phases 0–6 complete (5C/7/7a/8 in progress)
 
 ---
 
 ## Quick Orientation
 
-WP Kernel is a Rails-like framework for WordPress where JavaScript is the source of truth and PHP is a thin contract. This document provides a comprehensive snapshot of all public APIs, runtime integration patterns, and developer workflows as of the completed architecture overhaul.
+WP Kernel is a Rails-like framework for WordPress where JavaScript is the source of truth and PHP is a thin contract. This document provides a comprehensive snapshot of public APIs, runtime integration patterns, and developer workflows, plus the CLI pipeline now responsible for config → IR → codegen → apply → watch.
 
 ### Package Roles
 
 - **`@geekist/wp-kernel`** - Core framework: actions, resources, data integration, policy, reporter, namespace detection, HTTP transport, error types, event bus
 - **`@geekist/wp-kernel-ui`** - React integration: hooks, runtime adapter, context provider for UI primitives
 - **`@geekist/wp-kernel-e2e-utils`** - End-to-end test helpers and fixtures for Playwright/Jest
-- **`@geekist/wp-kernel-cli`** - CLI stubs (planned)
+- **`@geekist/wp-kernel-cli`** - Authoring workflow: `loadKernelConfig`, deterministic IR builder, printers for TypeScript/PHP, adapter extension runner, commands (`generate`, `apply`, `dev`, placeholder `init`/`doctor`)
 - **`app/showcase`** - Example plugin demonstrating real-world usage (jobs & applications system)
 
 ---
@@ -123,16 +123,18 @@ configureKernel(config: ConfigureKernelOptions): KernelInstance
 **Configuration Options:**
 
 ```typescript
+interface KernelUIConfig {
+	enable?: boolean; // Explicitly enable UI bindings (defaults to truthy attach)
+	attach?: KernelUIAttach; // Adapter function (e.g., attachUIBindings)
+	options?: UIIntegrationOptions; // Adapter-specific options
+}
+
 interface ConfigureKernelOptions {
 	namespace?: string; // Plugin namespace (auto-detected if omitted)
 	registry?: KernelRegistry; // WordPress Data registry (defaults to window.wp.data)
 	reporter?: Reporter; // Custom reporter (defaults to createReporter)
 	middleware?: ReduxMiddleware[]; // Additional Redux middleware
-	ui?: {
-		// Optional UI runtime integration
-		attach?: KernelUIAttach; // Adapter function (e.g., attachUIBindings)
-		options?: UIIntegrationOptions; // UI-specific options
-	};
+	ui?: KernelUIConfig; // Optional UI runtime integration
 }
 ```
 
@@ -167,14 +169,19 @@ interface KernelInstance {
 		options?: UIIntegrationOptions
 	): KernelUIRuntime;
 
-	// UI configuration (legacy)
+	// UI configuration (compat)
 	ui: {
 		isEnabled(): boolean;
-		options?: Record<string, unknown>;
+		options?: UIIntegrationOptions;
 	};
 
 	// Event bus
 	events: KernelEventBus;
+
+	// Resource helper (optional convenience)
+	defineResource<T, TQuery>(
+		config: ResourceConfig<T, TQuery>
+	): ResourceObject<T, TQuery>;
 }
 ```
 
@@ -518,7 +525,39 @@ E2E testing utilities for Playwright/Jest integration:
 
 ### `@geekist/wp-kernel-cli`
 
-CLI stubs (planned for future sprints) - scaffolding and generator tools.
+Authoring workflow that turns `kernel.config.*` into generated TypeScript/PHP artifacts and keeps `inc/` in sync.
+
+- **Config Loader (`loadKernelConfig`)** – cosmiconfig + TSX resolve TS/JS/JSON/`package.json#wpk`, enforce Typanion schema parity, composer autoload guard, surface typed `KernelError` diagnostics.
+- **IR Builder (`buildIr`)** – deterministic `IRv1` carrying sanitised namespace, schema hashes, identity/storage metadata, policy hints, and printer directives.
+- **Printers** – emit `.generated/types/**` and `.generated/php/**` with adapter `customise` hooks before Prettier formatting.
+- **Adapter Extensions** – sandboxed pipeline (`adapter.extensions`) that can mutate IR and queue writes committed atomically after printers.
+- **Commands**
+    - `wpk generate [--dry-run] [--verbose]` – runs loader → IR → printers, summarises hash-based writes, exits 0/1/2/3 for success/validation/printer/adapter errors.
+    - `wpk apply [--yes] [--backup] [--force]` – enforces clean `.generated/php`, merges `WPK:BEGIN/END AUTO` blocks, writes `.wpk-apply.log` audit entries with flags and per-file metadata.
+    - `wpk dev [--verbose] [--auto-apply-php]` – chokidar watch with fast/slow debounce tiers, queued triggers, optional best-effort PHP copy, graceful SIGINT handling.
+    - `wpk init`, `wpk doctor` – placeholders slated for adapter/diagnostic work once Phase 7a/8 land.
+
+### Kernel Config (`kernel.config.ts`)
+
+The CLI treats `KernelConfigV1` as the single authoring surface:
+
+```ts
+interface KernelConfigV1 {
+	version: 1;
+	namespace: string;
+	schemas: Record<string, SchemaConfig>;
+	resources: Record<string, ResourceConfig>;
+	adapters?: {
+		php?: PhpAdapterFactory; // Custom namespace/autoload & printer customise hook
+		extensions?: AdapterExtensionFactory[]; // Sandbox-queued file/IR mutations
+	};
+}
+```
+
+- `SchemaConfig` declares filesystem path and generated type target.
+- `ResourceConfig` is the same structure consumed by `defineResource`, ensuring runtime parity.
+- Adapter factories receive `AdapterContext { config, namespace, reporter, ir }`.
+- `AdapterExtensionContext` exposes `queueFile`, `updateIr`, `formatPhp`, and `formatTs` helpers – all writes must stay under `.generated/**`.
 
 ---
 
@@ -670,6 +709,19 @@ function PostList() {
 - ✓ `useAction()` hook with concurrency control and state management
 - ✓ Resource hooks with type-safe selectors
 - ✓ Policy-aware UI with `usePolicy()` hook
+
+---
+
+### CLI-Driven Authoring Workflow
+
+1. **Edit** `kernel.config.ts`, resource definitions, or JSON Schemas.
+2. **Generate**: `wpk generate [--dry-run]` runs loader → IR → printers. Inspect the SHA-256-based summary before committing.
+3. **Commit** `.generated/**` to capture the canonical codegen state (required before apply).
+4. **Apply**: `wpk apply [--backup][--force][--yes]` merges guarded PHP into `inc/**`, writes `.wpk-apply.log`, and enforces clean `.generated/php`.
+5. **Watch** (optional): `wpk dev [--auto-apply-php]` for chokidar-based regeneration during development.
+6. **Tests**: Follow the repo policy - `pnpm lint --fix && pnpm typecheck && pnpm typecheck:tests && pnpm test`.
+7. **Showcase parity**: Running generate/apply inside `app/showcase` keeps the reference plugin aligned.
+8. **Extensions**: Adapter factories can queue additional generated files or mutate IR; they run inside temp sandboxes and commit atomically after printers.
 
 ---
 

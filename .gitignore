@@ -1,6 +1,8 @@
 # Dependencies
 node_modules/
 vendor/
+!packages/ui/vendor/
+!packages/ui/vendor/**
 
 # private, symlinked folders are not in source control
 instructions/ 
@@ -95,3 +97,5 @@ Desktop.ini
 # Linux
 *~
 artifacts/
+information/
+gutenberg/
