@@ -1,10 +1,22 @@
+import type {
+	ResourceIdentityConfig,
+	ResourceQueryParams,
+	ResourceStorageConfig,
+} from '@geekist/wp-kernel/resource';
 import type { KernelConfigV1 } from '../config/types';
+
+export type SchemaProvenance = 'manual' | 'auto';
 
 export interface IRSchema {
 	key: string;
 	sourcePath: string;
 	hash: string;
 	schema: unknown;
+	provenance: SchemaProvenance;
+	generatedFrom?: {
+		type: 'storage';
+		resource: string;
+	};
 }
 
 export interface IRRoute {
@@ -14,15 +26,26 @@ export interface IRRoute {
 	hash: string;
 }
 
+export interface IRResourceCacheKey {
+	segments: readonly unknown[];
+	source: 'default' | 'config';
+}
+
 export interface IRResource {
 	name: string;
 	schemaKey: string;
+	schemaProvenance: SchemaProvenance;
 	routes: IRRoute[];
 	cacheKeys: {
-		list: readonly unknown[];
-		get: readonly unknown[];
+		list: IRResourceCacheKey;
+		get: IRResourceCacheKey;
+		create?: IRResourceCacheKey;
+		update?: IRResourceCacheKey;
+		remove?: IRResourceCacheKey;
 	};
-	queryParams?: Record<string, unknown>;
+	identity?: ResourceIdentityConfig;
+	storage?: ResourceStorageConfig;
+	queryParams?: ResourceQueryParams;
 	hash: string;
 }
 

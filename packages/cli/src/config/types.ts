@@ -1,25 +1,21 @@
-import type { Reporter } from '@geekist/wp-kernel';
+import type { Reporter, ResourceConfig } from '@geekist/wp-kernel';
 import type { WPKConfigSource } from '@geekist/wp-kernel/namespace/constants';
 import type { IRv1 } from '../ir/types';
 import type { PhpAstBuilder } from '../printers/php/types';
 
+/**
+ * Source identifier describing where a kernel config was loaded from.
+ */
 export type ConfigOrigin = WPKConfigSource;
 
+/**
+ * Currently supported kernel config schema version.
+ */
 export type KernelConfigVersion = 1;
 
-export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-
-export type CacheKeyToken =
-	| string
-	| {
-			param: string;
-	  }
-	| {
-			literal: unknown;
-	  };
-
-export type CacheKeyTemplate = readonly CacheKeyToken[];
-
+/**
+ * Configuration for a registered schema file.
+ */
 export interface SchemaConfig {
 	path: string;
 	generated: {
@@ -28,48 +24,31 @@ export interface SchemaConfig {
 	description?: string;
 }
 
-export interface RouteConfig {
-	method: HttpMethod;
-	path: string;
-	policy?: string;
-}
-
-export interface QueryParamDescriptor {
-	type: 'string' | 'enum';
-	optional?: boolean;
-	enum?: readonly string[];
-	description?: string;
-}
-
-export interface ResourceConfig {
-	name: string;
-	schema: string;
-	routes: {
-		list: RouteConfig;
-		get: RouteConfig;
-		create: RouteConfig;
-		update: RouteConfig;
-		remove: RouteConfig;
-	};
-	cacheKeys: {
-		list: CacheKeyTemplate;
-		get: CacheKeyTemplate;
-	};
-	queryParams?: Record<string, QueryParamDescriptor>;
-}
-
+/**
+ * Mapping of schema identifiers to their configuration.
+ */
 export interface SchemaRegistry {
 	[key: string]: SchemaConfig;
 }
 
+/**
+ * Mapping of resource identifiers to their kernel configuration.
+ */
 export interface ResourceRegistry {
 	[key: string]: ResourceConfig;
 }
 
+/**
+ * Optional adapters configured by a kernel project.
+ */
 export interface AdaptersConfig {
 	php?: PhpAdapterFactory;
+	extensions?: AdapterExtensionFactory[];
 }
 
+/**
+ * Shape of a v1 kernel configuration object.
+ */
 export interface KernelConfigV1 {
 	version: KernelConfigVersion;
 	namespace: string;
@@ -78,6 +57,9 @@ export interface KernelConfigV1 {
 	adapters?: AdaptersConfig;
 }
 
+/**
+ * Context shared with adapter factories while generating artifacts.
+ */
 export interface AdapterContext {
 	config: KernelConfigV1;
 	reporter: Reporter;
@@ -85,6 +67,9 @@ export interface AdapterContext {
 	ir?: IRv1;
 }
 
+/**
+ * Configuration returned by the PHP adapter factory.
+ */
 export interface PhpAdapterConfig {
 	namespace?: string;
 	autoload?: string;
@@ -94,10 +79,45 @@ export interface PhpAdapterConfig {
 	) => void;
 }
 
+/**
+ * Factory for producing PHP adapter configuration.
+ */
 export type PhpAdapterFactory = (
 	context: AdapterContext
 ) => PhpAdapterConfig | void;
 
+/**
+ * Execution context provided to adapter extensions.
+ */
+export interface AdapterExtensionContext extends AdapterContext {
+	ir: IRv1;
+	outputDir: string;
+	configDirectory?: string;
+	tempDir: string;
+	queueFile: (filePath: string, contents: string) => Promise<void>;
+	updateIr: (nextIr: IRv1) => void;
+	formatPhp: (filePath: string, contents: string) => Promise<string>;
+	formatTs: (filePath: string, contents: string) => Promise<string>;
+}
+
+/**
+ * Adapter extension contract.
+ */
+export interface AdapterExtension {
+	name: string;
+	apply: (context: AdapterExtensionContext) => Promise<void> | void;
+}
+
+/**
+ * Factory responsible for returning adapter extensions.
+ */
+export type AdapterExtensionFactory = (
+	context: AdapterContext
+) => AdapterExtension | AdapterExtension[] | void;
+
+/**
+ * Result returned when loading and validating a kernel config file.
+ */
 export interface LoadedKernelConfig {
 	config: KernelConfigV1;
 	sourcePath: string;

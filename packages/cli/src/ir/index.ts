@@ -6,6 +6,8 @@ export type {
 	IRPolicyHint,
 	IRBlock,
 	IRPhpProject,
+	IRResourceCacheKey,
+	SchemaProvenance,
 	BuildIrOptions,
 } from './types';
 

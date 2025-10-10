@@ -1,2 +1,2 @@
 export { job } from './job';
-export type { JobListParams } from '../kernel.config';
+export type { JobListParams } from '../../kernel.config';

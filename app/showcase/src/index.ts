@@ -10,7 +10,7 @@ import { attachUIBindings } from '@geekist/wp-kernel-ui';
 import { mountAdmin } from './admin';
 import { job } from './resources';
 import { ShowcaseActionError } from './errors/ShowcaseActionError';
-import { kernelConfig } from './kernel.config';
+import { kernelConfig } from '../kernel.config';
 
 type WPWindow = typeof window & {
 	wp?: {

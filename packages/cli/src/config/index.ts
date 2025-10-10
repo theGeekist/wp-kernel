@@ -1,17 +1,19 @@
+/**
+ * Kernel config types and utilities.
+ */
 export type {
 	KernelConfigV1,
 	SchemaConfig,
-	ResourceConfig,
-	RouteConfig,
-	CacheKeyTemplate,
-	CacheKeyToken,
-	QueryParamDescriptor,
 	AdaptersConfig,
 	PhpAdapterConfig,
 	PhpAdapterFactory,
 	AdapterContext,
+	AdapterExtension,
+	AdapterExtensionContext,
+	AdapterExtensionFactory,
 	ConfigOrigin,
 	LoadedKernelConfig,
 } from './types';
 
 export { loadKernelConfig } from './load-kernel-config';
+export { validateKernelConfig } from './validate-kernel-config';

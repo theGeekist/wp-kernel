@@ -54,4 +54,15 @@ export default {
 
 	// Performance
 	maxWorkers: '50%',
+
+	// Coverage thresholds
+	// Individual packages should override these if needed
+	coverageThreshold: {
+		global: {
+			branches: 89,
+			functions: 90,
+			lines: 90,
+			statements: 90,
+		},
+	},
 };
