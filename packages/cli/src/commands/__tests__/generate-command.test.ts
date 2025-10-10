@@ -144,6 +144,152 @@ describe('GenerateCommand', () => {
 		);
 	});
 
+	it('runs adapter extensions and commits queued files', async () => {
+		await withWorkspace(
+			async (workspace) => {
+				await writeKernelConfig(workspace, {
+					extensions: [
+						`() => ({
+                                                        name: 'telemetry',
+                                                        async apply({ queueFile, outputDir }) {
+                                                                const path = require('node:path');
+                                                                await queueFile(
+                                                                        path.join(outputDir, 'telemetry.json'),
+                                                                        JSON.stringify({ event: 'generated' })
+                                                                );
+                                                        },
+                                                })`,
+					],
+				});
+
+				const command = createCommand(workspace);
+				const exitCode = await command.execute();
+				expect(exitCode).toBe(0);
+
+				const telemetryPath = path.join(
+					workspace,
+					'.generated',
+					'telemetry.json'
+				);
+				const telemetry = await fs.readFile(telemetryPath, 'utf8');
+				expect(JSON.parse(telemetry)).toEqual({ event: 'generated' });
+			},
+			{ withDefaultConfig: false }
+		);
+	});
+
+	it('returns exit code 3 when adapter extensions fail', async () => {
+		await withWorkspace(
+			async (workspace) => {
+				await writeKernelConfig(workspace, {
+					extensions: [
+						`() => ({
+                                                        name: 'broken',
+                                                        async apply({ queueFile, outputDir }) {
+                                                                const path = require('node:path');
+                                                                await queueFile(
+                                                                        path.join(outputDir, 'broken.txt'),
+                                                                        'partial'
+                                                                );
+                                                                throw new Error('extension boom');
+                                                        },
+                                                })`,
+					],
+				});
+
+				const command = createCommand(workspace);
+				const exitCode = await command.execute();
+				expect(exitCode).toBe(3);
+
+				await expect(
+					fs.stat(path.join(workspace, '.generated', 'broken.txt'))
+				).rejects.toMatchObject({ code: 'ENOENT' });
+			},
+			{ withDefaultConfig: false }
+		);
+	});
+
+	it('returns exit code 3 when adapter extension factory throws', async () => {
+		await withWorkspace(
+			async (workspace) => {
+				await writeKernelConfig(workspace, {
+					extensions: [`() => { throw new Error('factory boom'); }`],
+				});
+
+				const command = createCommand(workspace);
+				const exitCode = await command.execute();
+				expect(exitCode).toBe(3);
+			},
+			{ withDefaultConfig: false }
+		);
+	});
+
+	it('returns exit code 3 when adapter extension is invalid', async () => {
+		await withWorkspace(
+			async (workspace) => {
+				await writeKernelConfig(workspace, {
+					extensions: [
+						`() => ({
+                                                        name: '   ',
+                                                        async apply() {}
+                                                })`,
+						`() => ({ apply() {} })`,
+					],
+				});
+
+				const command = createCommand(workspace);
+				const exitCode = await command.execute();
+				expect(exitCode).toBe(3);
+			},
+			{ withDefaultConfig: false }
+		);
+	});
+
+	it('succeeds when adapter extension factory returns nothing', async () => {
+		await withWorkspace(
+			async (workspace) => {
+				await writeKernelConfig(workspace, {
+					extensions: [`() => { return; }`, `() => []`],
+				});
+
+				const command = createCommand(workspace);
+				const exitCode = await command.execute();
+				expect(exitCode).toBe(0);
+			},
+			{ withDefaultConfig: false }
+		);
+	});
+
+	it('returns exit code 3 when adapter extension result is null', async () => {
+		await withWorkspace(
+			async (workspace) => {
+				await writeKernelConfig(workspace, {
+					extensions: [`() => [null]`],
+				});
+
+				const command = createCommand(workspace);
+				const exitCode = await command.execute();
+				expect(exitCode).toBe(3);
+			},
+			{ withDefaultConfig: false }
+		);
+	});
+
+	it('returns exit code 3 when adapter extension lacks apply', async () => {
+		await withWorkspace(
+			async (workspace) => {
+				await writeKernelConfig(workspace, {
+					extensions: [`() => ({ name: 'invalid' })`],
+				});
+
+				const command = createCommand(workspace);
+				const exitCode = await command.execute();
+				expect(exitCode).toBe(3);
+			},
+			{ withDefaultConfig: false }
+		);
+	});
+
 	it('returns exit code 2 when printers fail', async () => {
 		const emitSpy = jest
 			.spyOn(printers, 'emitGeneratedArtifacts')
@@ -252,13 +398,27 @@ function createCommand(workspace: string): GenerateCommand {
 
 async function writeKernelConfig(
 	workspace: string,
-	options: { phpAdapter?: string } = {}
+	options: { phpAdapter?: string; extensions?: string[] } = {}
 ): Promise<void> {
-	const { phpAdapter } = options;
-	const adapterSnippet = phpAdapter
+	const { phpAdapter, extensions } = options;
+	const adapterEntries: string[] = [];
+
+	if (phpAdapter) {
+		adapterEntries.push(`php: ${phpAdapter}`);
+	}
+
+	if (extensions?.length) {
+		adapterEntries.push(
+			`extensions: [
+${extensions.map((extension) => `                        ${extension}`).join(',\n')}
+                ]`
+		);
+	}
+
+	const adapterSnippet = adapterEntries.length
 		? `,
         adapters: {
-                php: ${phpAdapter},
+${adapterEntries.map((entry) => `                ${entry}`).join(',\n')}
         }`
 		: '';
 
