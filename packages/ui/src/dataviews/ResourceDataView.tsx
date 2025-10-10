@@ -552,7 +552,7 @@ function useStableView(
 	controller: ResourceDataViewController<unknown, unknown>,
 	initial: View
 ): [View, (next: View) => void] {
-	const [view, setView] = useState<View>(
+	const [view, setView] = useState<View>(() =>
 		mergeViewWithDefaults(controller.config.defaultView, initial)
 	);
 
@@ -578,6 +578,10 @@ function useStableView(
 			controller.emitUnregistered(controller.preferencesKey);
 		};
 	}, [controller]);
+
+	useEffect(() => {
+		setView(mergeViewWithDefaults(controller.config.defaultView, initial));
+	}, [controller, initial]);
 
 	const updateView = useCallback(
 		(next: View) => {
