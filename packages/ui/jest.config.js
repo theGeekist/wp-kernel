@@ -45,6 +45,7 @@ export default {
 		'^@geekist/wp-kernel-e2e-utils$': '<rootDir>/packages/e2e-utils/src',
 		'^@geekist/wp-kernel-e2e-utils/(.*)$':
 			'<rootDir>/packages/e2e-utils/src/$1',
+		'^@wordpress/element/jsx-runtime$': 'react/jsx-runtime',
 	},
 
 	// Setup files
