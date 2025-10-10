@@ -77,6 +77,7 @@ export async function runGenerate(
 		config: loadedConfig.config,
 		namespace: ir.meta.sanitizedNamespace,
 		reporter: reporter.child('adapter'),
+		ir,
 	};
 
 	const ensureDirectory = createEnsureDirectory(dryRun);
