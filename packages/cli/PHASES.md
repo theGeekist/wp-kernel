@@ -113,7 +113,7 @@
 
 **Parity:** Generated controllers align with showcase working copies; differences documented/back-ported.
 
-**Status Log (fill during execution):** Completed - Type & PHP printers shipped via `emitGeneratedArtifacts` (adapter customisation path verified); Outstanding - None; Risks & Notes - Future emitters should reuse shared builders.
+**Status Log (fill during execution):** Completed - Type & PHP printers shipped via `emitGeneratedArtifacts` (adapter customisation path verified); Outstanding - None; Risks & Notes - Future emitters should reuse shared builders and replace the current `json_decode` payloads with native PHP array builders for friendlier DX.
 
 ---
 
@@ -143,7 +143,7 @@
 
 **Parity:** CLI usage documented in README; generated artifacts respect adapter overrides, sanitised namespace, and the canonical identifier/persistence defaults.
 
-**Status Log (fill during execution):** Completed - generation pipeline wired with file writer + integration tests / Outstanding - None / Risks & Notes - Vite config updated to externalise Node builtins for CLI bundle
+**Status Log (fill during execution):** Completed - generation pipeline wired with FileWriter + integration tests; Outstanding - None; Risks & Notes - Prettier and its PHP plugin stay peer deps and are externalised from the bundle (ensure they’re installed when invoking the CLI).
 
 ---
 
@@ -169,6 +169,33 @@
 **Testing:** Jest integration tests with fixture repositories and pre/post-apply validation.
 
 **Parity:** Result matches manual PHP structure with sanitised namespace; documentation updated for apply workflow.
+
+**Status Log (fill during execution):** Completed - / Outstanding - / Risks & Notes -
+
+---
+
+### Phase 5a - PHP Printer DX Improvements
+
+**Spec references:** [Section 5 – Printers](./the-cli-idea.md#5-printers--emitters)
+
+**Scope:**
+
+- Replace the JSON-string emission in PHP controllers and the persistence registry with native PHP array builders to improve readability and maintainability.
+- Ensure the generated array structures preserve ordering, identity annotations, and schema metadata currently encoded inside the `json_decode` strings.
+- Update documentation/comments to reflect the new code structure so developers know where to edit if manual tweaks are required.
+- Keep array formatting stable (respect indentation, guard comments, and docblocks) so diffs stay clean when regening.
+
+**Deliverables:**
+
+- Refactored printer helpers that render REST args and persistence payloads as PHP arrays, plus supporting unit tests.
+- Updated integration tests validating that generated PHP files match golden fixtures with readable array structures.
+- Updated Status Log entry for this phase.
+
+**DoD:** CLI printers emit PHP arrays instead of JSON strings; regenerated showcase assets remain semantically identical; new fixtures cover both manual and auto schemas; CLI package branch coverage stays ≥ 89%.
+
+**Testing:** Jest unit + integration tests comparing generated PHP against updated golden fixtures.
+
+**Parity:** PHP output retains all current metadata (routes, identity, storage) while being readable for developers editing controllers.
 
 **Status Log (fill during execution):** Completed - / Outstanding - / Risks & Notes -
 

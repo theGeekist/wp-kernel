@@ -2,7 +2,7 @@
 	"$schema": "https://json.schemastore.org/tsconfig",
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
-		"rootDir": "./src",
+		"rootDir": ".",
 		"outDir": "./dist",
 		"composite": true,
 		"jsx": "react-jsx",
@@ -11,7 +11,8 @@
 	"include": [
 		"src/**/*",
 		".generated/types/**/*.d.ts",
-		"../../types/**/*.d.ts"
+		"../../types/**/*.d.ts",
+		"./kernel.config.ts"
 	],
 	"exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.test.tsx"],
 	"references": [

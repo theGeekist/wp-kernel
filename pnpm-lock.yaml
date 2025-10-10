@@ -261,12 +261,19 @@ importers:
       json-schema-to-typescript:
         specifier: '>=15.0.4'
         version: 15.0.4
+      prettier:
+        specifier: '>=3.6.0'
+        version: 3.6.2
       tsx:
         specifier: '>=4.20.6'
         version: 4.20.6
       typanion:
         specifier: ^3.14.0
         version: 3.14.0
+    devDependencies:
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
 
   packages/e2e-utils:
     dependencies:
