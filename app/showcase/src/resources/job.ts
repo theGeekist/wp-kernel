@@ -1,6 +1,6 @@
 import { defineResource } from '@geekist/wp-kernel';
 import type { Job } from '../../.generated/types/job';
-import { kernelConfig, type JobListParams } from '../kernel.config';
+import { kernelConfig, type JobListParams } from '../../kernel.config';
 
 const jobResourceConfig = kernelConfig.resources.job;
 
