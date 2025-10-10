@@ -170,7 +170,7 @@
 
 **Parity:** Result matches manual PHP structure with sanitised namespace; documentation updated for apply workflow.
 
-**Status Log (fill during execution):** Completed - / Outstanding - / Risks & Notes -
+**Status Log (fill during execution):** Completed - `wpk dev` watcher with tiered debounce, chokidar integration, and PHP auto-apply opt-in shipped with tests / Outstanding - None / Risks & Notes - Future apply command should replace direct fs.cp once guard-aware merger lands
 
 ---
 
@@ -197,7 +197,7 @@
 
 **Parity:** Namespace changes propagate without restart; PHP auto-apply remains opt-in.
 
-**Status Log (fill during execution):** Completed - / Outstanding - / Risks & Notes -
+**Status Log (fill during execution):** Completed - `wpk dev` watcher with tiered debounce, chokidar integration, and optional PHP auto-apply shipped with tests / Outstanding - None / Risks & Notes - Future guard-aware apply command should replace direct `fs.cp` usage when available
 
 ---
 
