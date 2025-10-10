@@ -159,14 +159,19 @@ export async function runAdapterExtensions(
 
 function cloneIr(ir: IRv1): IRv1 {
 	if (typeof globalThis.structuredClone === 'function') {
-		return globalThis.structuredClone(ir) as IRv1;
+		try {
+			return globalThis.structuredClone(ir) as IRv1;
+		} catch (_error) {
+			// When structuredClone throws (e.g. because a polyfill is
+			// unavailable), fall back to the JSON-based approach below.
+		}
 	}
 
-	// Fallback to JSON cloning when structuredClone is unavailable. Our IR
-	// graphs contain only plain objects/arrays/primitives, so JSON
-	// serialisation preserves the required data while keeping the fallback
-	// dependency-free. If richer types are introduced in the future, this
-	// should be revisited.
+	// Fallback to JSON cloning when structuredClone is unavailable or
+	// throws. Our IR graphs contain only plain objects/arrays/primitives, so
+	// JSON serialisation preserves the required data while keeping the
+	// fallback dependency-free. If richer types are introduced in the
+	// future, this should be revisited.
 	return JSON.parse(JSON.stringify(ir)) as IRv1;
 }
 
