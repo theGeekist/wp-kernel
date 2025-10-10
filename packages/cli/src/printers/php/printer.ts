@@ -157,7 +157,7 @@ function initialiseResourceController(
 
 	if (schema) {
 		const restArgs = buildRestArgsPayload(schema, resource);
-		const payloadLines = renderJsonDecode(restArgs, 2);
+		const payloadLines = renderPhpReturn(restArgs, 2);
 		for (const line of payloadLines) {
 			builder.appendStatement(line);
 		}
@@ -187,7 +187,7 @@ function initialisePersistenceRegistry(
 	builder.appendStatement(`${INDENT}{`);
 
 	const payload = buildPersistencePayload(context);
-	const payloadLines = renderJsonDecode(payload, 2);
+	const payloadLines = renderPhpReturn(payload, 2);
 	for (const line of payloadLines) {
 		builder.appendStatement(line);
 	}
@@ -360,23 +360,112 @@ function buildPersistencePayload(context: PrinterContext): unknown {
 	return { resources };
 }
 
-function renderJsonDecode(value: unknown, indentLevel: number): string[] {
-	const json = JSON.stringify(sortValue(value), null, 2).replace(
-		/\r\n/g,
-		'\n'
-	);
-	const escaped = json.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-	const indent = INDENT.repeat(indentLevel);
-	const inner = INDENT.repeat(indentLevel + 1);
+function renderPhpReturn(value: unknown, indentLevel: number): string[] {
+	const expressionLines = renderPhpExpression(value, indentLevel);
 
-	return [
-		`${indent}return json_decode(`,
-		`${inner}'${escaped}',`,
-		`${inner}true,`,
-		`${inner}512,`,
-		`${inner}JSON_THROW_ON_ERROR`,
-		`${indent});`,
-	];
+	const indent = INDENT.repeat(indentLevel);
+	const firstLine = expressionLines[0]!;
+	const remainder = firstLine.slice(indent.length);
+	expressionLines[0] = `${indent}return ${remainder}`;
+
+	const lastIndex = expressionLines.length - 1;
+	expressionLines[lastIndex] = `${expressionLines[lastIndex]};`;
+
+	return expressionLines;
+}
+
+function renderPhpExpression(value: unknown, indentLevel: number): string[] {
+	const indent = INDENT.repeat(indentLevel);
+
+	if (Array.isArray(value)) {
+		return renderPhpList(value, indentLevel, indent);
+	}
+
+	if (isRecord(value)) {
+		return renderPhpAssociative(
+			value as Record<string, unknown>,
+			indentLevel,
+			indent
+		);
+	}
+
+	return renderPhpScalar(value, indent);
+}
+
+function renderPhpList(
+	value: unknown[],
+	indentLevel: number,
+	indent: string
+): string[] {
+	if (value.length === 0) {
+		return [`${indent}[]`];
+	}
+
+	const lines = [`${indent}[`];
+	for (const entry of value) {
+		const rendered = renderPhpExpression(entry, indentLevel + 1);
+		const last = rendered.length - 1;
+		rendered[last] = `${rendered[last]},`;
+		lines.push(...rendered);
+	}
+
+	lines.push(`${indent}]`);
+	return lines;
+}
+
+function renderPhpAssociative(
+	value: Record<string, unknown>,
+	indentLevel: number,
+	indent: string
+): string[] {
+	const entries = Object.entries(value);
+	if (entries.length === 0) {
+		return [`${indent}[]`];
+	}
+
+	const lines = [`${indent}[`];
+	const childIndent = INDENT.repeat(indentLevel + 1);
+
+	for (const [key, val] of entries) {
+		const rendered = renderPhpExpression(val, indentLevel + 1);
+		const firstLine = rendered[0]!;
+		const remainder = firstLine.slice(childIndent.length);
+		rendered[0] = `${childIndent}'${escapeSingleQuotes(key)}' => ${remainder}`;
+		const last = rendered.length - 1;
+		rendered[last] = `${rendered[last]},`;
+		lines.push(...rendered);
+	}
+
+	lines.push(`${indent}]`);
+	return lines;
+}
+
+function renderPhpScalar(value: unknown, indent: string): string[] {
+	if (typeof value === 'string') {
+		return [`${indent}'${escapeSingleQuotes(value)}'`];
+	}
+
+	if (typeof value === 'number') {
+		if (!Number.isFinite(value)) {
+			throw new Error('Cannot render non-finite numbers in PHP output.');
+		}
+
+		return [`${indent}${value}`];
+	}
+
+	if (typeof value === 'bigint') {
+		return [`${indent}${value.toString()}`];
+	}
+
+	if (typeof value === 'boolean') {
+		return [`${indent}${value ? 'true' : 'false'}`];
+	}
+
+	if (value === null) {
+		return [`${indent}null`];
+	}
+
+	throw new Error(`Unsupported PHP value: ${String(value)}`);
 }
 
 function sanitizeJson(value: unknown): unknown {
@@ -389,22 +478,6 @@ function sanitizeJson(value: unknown): unknown {
 			.map(([key, val]) => [key, sanitizeJson(val)] as const)
 			.sort(([a], [b]) => a.localeCompare(b));
 		return Object.fromEntries(entries);
-	}
-
-	return value;
-}
-
-function sortValue(value: unknown): unknown {
-	if (Array.isArray(value)) {
-		return value.map((entry) => sortValue(entry));
-	}
-
-	if (isRecord(value)) {
-		return Object.fromEntries(
-			Object.entries(value)
-				.map(([key, val]) => [key, sortValue(val)] as const)
-				.sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
-		);
 	}
 
 	return value;
@@ -427,5 +500,5 @@ function toPascalCase(value: string): string {
 }
 
 function escapeSingleQuotes(value: string): string {
-	return value.replace(/'/g, "\\'");
+	return value.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 }

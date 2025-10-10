@@ -116,6 +116,60 @@ Printers may introduce new slots; they are documented in the auto-generated Slot
 
 ---
 
+### REST Args & Persistence Array Recipes
+
+Phase 05C replaced the `json_decode('…', true)` wrappers in generated controllers and registries with native PHP arrays. The core printers now emit native structures instead of strings:
+
+```php
+public function get_rest_args(): array
+{
+        return [
+                'status' => [
+                        'schema' => [
+                                'enum' => ['draft', 'publish', 'closed'],
+                                'type' => 'string',
+                        ],
+                        'required' => true,
+                ],
+        ];
+}
+```
+
+```php
+public static function get_config(): array
+{
+        return [
+                'resources' => [
+                        'job' => [
+                                'storage' => [
+                                        'supports' => ['title', 'editor'],
+                                ],
+                        ],
+                ],
+        ];
+}
+```
+
+Adapters should extend these arrays via the recipe helpers rather than post-processing PHP strings:
+
+```ts
+builder.restArgs.extend('job', {
+	status: {
+		required: true,
+		schema: { enum: ['draft', 'publish', 'archived'], type: 'string' },
+	},
+});
+
+builder.registration.ensurePostType('wpk_job', {
+	statuses: ['archived'],
+	supports: ['title', 'editor', 'thumbnail'],
+});
+```
+
+The helpers merge into the native arrays before formatting, so adapters receive stable PHP output without touching `json_decode` payloads or manual PHP concatenation.
+
+---
+
 ## 3. Optional Read-Only Analysis (No Patching)
 
 When an adapter needs to inspect existing PHP (e.g., a custom controller), expose a CLI command:

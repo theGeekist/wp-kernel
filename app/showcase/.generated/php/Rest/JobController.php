@@ -30,155 +30,142 @@ class JobController extends BaseController
 
     public function get_rest_args(): array
     {
-        return json_decode(
-            '{
-  "apply_deadline": {
-    "schema": {
-      "description": "Application deadline (ISO 8601 date string)",
-      "format": "date-time",
-      "type": "string"
-    }
-  },
-  "created_at": {
-    "required": true,
-    "schema": {
-      "description": "Timestamp when the job was created (ISO 8601)",
-      "format": "date-time",
-      "type": "string"
-    }
-  },
-  "department": {
-    "schema": {
-      "description": "Department or team for this position",
-      "examples": [
-        "Engineering",
-        "Product",
-        "Marketing",
-        "Sales"
-      ],
-      "type": "string"
-    }
-  },
-  "description": {
-    "schema": {
-      "description": "Full job description (HTML content)",
-      "type": "string"
-    }
-  },
-  "id": {
-    "identity": {
-      "param": "id",
-      "type": "number"
-    },
-    "required": true,
-    "schema": {
-      "description": "Unique identifier for the job posting (WordPress post ID)",
-      "minimum": 1,
-      "type": "integer"
-    }
-  },
-  "job_type": {
-    "schema": {
-      "description": "Type of employment",
-      "enum": [
-        "Full-time",
-        "Part-time",
-        "Contract",
-        "Internship",
-        "Temporary"
-      ],
-      "type": "string"
-    }
-  },
-  "location": {
-    "schema": {
-      "description": "Geographic location for the position",
-      "examples": [
-        "San Francisco, CA",
-        "Remote",
-        "New York, NY"
-      ],
-      "type": "string"
-    }
-  },
-  "remote_policy": {
-    "schema": {
-      "description": "Remote work policy",
-      "enum": [
-        "on-site",
-        "remote",
-        "hybrid"
-      ],
-      "type": "string"
-    }
-  },
-  "salary_max": {
-    "schema": {
-      "description": "Maximum salary range (annual, in cents to avoid floating point)",
-      "minimum": 0,
-      "type": "integer"
-    }
-  },
-  "salary_min": {
-    "schema": {
-      "description": "Minimum salary range (annual, in cents to avoid floating point)",
-      "minimum": 0,
-      "type": "integer"
-    }
-  },
-  "seniority": {
-    "schema": {
-      "description": "Experience level required",
-      "enum": [
-        "Junior",
-        "Mid",
-        "Senior",
-        "Lead",
-        "Principal"
-      ],
-      "type": "string"
-    }
-  },
-  "slug": {
-    "schema": {
-      "description": "URL-friendly slug for the job posting",
-      "pattern": "^[a-z0-9-]+$",
-      "type": "string"
-    }
-  },
-  "status": {
-    "required": true,
-    "schema": {
-      "description": "Publication status of the job posting",
-      "enum": [
-        "draft",
-        "publish",
-        "closed"
-      ],
-      "type": "string"
-    }
-  },
-  "title": {
-    "required": true,
-    "schema": {
-      "description": "Job posting title",
-      "maxLength": 200,
-      "minLength": 1,
-      "type": "string"
-    }
-  },
-  "updated_at": {
-    "schema": {
-      "description": "Timestamp when the job was last updated (ISO 8601)",
-      "format": "date-time",
-      "type": "string"
-    }
-  }
-}',
-            true,
-            512,
-            JSON_THROW_ON_ERROR,
-        );
+        return [
+            "id" => [
+                "schema" => [
+                    "description" =>
+                        "Unique identifier for the job posting (WordPress post ID)",
+                    "minimum" => 1,
+                    "type" => "integer",
+                ],
+                "required" => true,
+                "identity" => [
+                    "type" => "number",
+                    "param" => "id",
+                ],
+            ],
+            "title" => [
+                "schema" => [
+                    "description" => "Job posting title",
+                    "maxLength" => 200,
+                    "minLength" => 1,
+                    "type" => "string",
+                ],
+                "required" => true,
+            ],
+            "slug" => [
+                "schema" => [
+                    "description" => "URL-friendly slug for the job posting",
+                    "pattern" => '^[a-z0-9-]+$',
+                    "type" => "string",
+                ],
+            ],
+            "status" => [
+                "schema" => [
+                    "description" => "Publication status of the job posting",
+                    "enum" => ["draft", "publish", "closed"],
+                    "type" => "string",
+                ],
+                "required" => true,
+            ],
+            "description" => [
+                "schema" => [
+                    "description" => "Full job description (HTML content)",
+                    "type" => "string",
+                ],
+            ],
+            "department" => [
+                "schema" => [
+                    "description" => "Department or team for this position",
+                    "examples" => [
+                        "Engineering",
+                        "Product",
+                        "Marketing",
+                        "Sales",
+                    ],
+                    "type" => "string",
+                ],
+            ],
+            "location" => [
+                "schema" => [
+                    "description" => "Geographic location for the position",
+                    "examples" => [
+                        "San Francisco, CA",
+                        "Remote",
+                        "New York, NY",
+                    ],
+                    "type" => "string",
+                ],
+            ],
+            "seniority" => [
+                "schema" => [
+                    "description" => "Experience level required",
+                    "enum" => ["Junior", "Mid", "Senior", "Lead", "Principal"],
+                    "type" => "string",
+                ],
+            ],
+            "job_type" => [
+                "schema" => [
+                    "description" => "Type of employment",
+                    "enum" => [
+                        "Full-time",
+                        "Part-time",
+                        "Contract",
+                        "Internship",
+                        "Temporary",
+                    ],
+                    "type" => "string",
+                ],
+            ],
+            "remote_policy" => [
+                "schema" => [
+                    "description" => "Remote work policy",
+                    "enum" => ["on-site", "remote", "hybrid"],
+                    "type" => "string",
+                ],
+            ],
+            "salary_min" => [
+                "schema" => [
+                    "description" =>
+                        "Minimum salary range (annual, in cents to avoid floating point)",
+                    "minimum" => 0,
+                    "type" => "integer",
+                ],
+            ],
+            "salary_max" => [
+                "schema" => [
+                    "description" =>
+                        "Maximum salary range (annual, in cents to avoid floating point)",
+                    "minimum" => 0,
+                    "type" => "integer",
+                ],
+            ],
+            "apply_deadline" => [
+                "schema" => [
+                    "description" =>
+                        "Application deadline (ISO 8601 date string)",
+                    "format" => "date-time",
+                    "type" => "string",
+                ],
+            ],
+            "created_at" => [
+                "schema" => [
+                    "description" =>
+                        "Timestamp when the job was created (ISO 8601)",
+                    "format" => "date-time",
+                    "type" => "string",
+                ],
+                "required" => true,
+            ],
+            "updated_at" => [
+                "schema" => [
+                    "description" =>
+                        "Timestamp when the job was last updated (ISO 8601)",
+                    "format" => "date-time",
+                    "type" => "string",
+                ],
+            ],
+        ];
     }
 }
 // WPK:END AUTO
