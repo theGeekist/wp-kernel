@@ -1,6 +1,7 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { createNoopReporter } from '@geekist/wp-kernel';
+import type { Reporter } from '@geekist/wp-kernel';
 import type { AdapterContext } from '../../config/types';
 import type { IRResource, IRSchema } from '../../ir';
 import type { PrinterContext } from '../types';
@@ -218,7 +219,23 @@ function ensureAdapterContext(
 	context: PrinterContext
 ): AdapterContext & { ir: PrinterContext['ir'] } {
 	if (context.adapterContext) {
-		return context.adapterContext;
+		const adapterContext: AdapterContext & {
+			ir: PrinterContext['ir'];
+		} = {
+			...context.adapterContext,
+			config: context.adapterContext.config ?? context.ir.config,
+			reporter: isReporter(context.adapterContext.reporter)
+				? context.adapterContext.reporter
+				: createNoopReporter(),
+			namespace:
+				context.adapterContext.namespace ??
+				context.ir.meta.sanitizedNamespace,
+			ir: context.adapterContext.ir ?? context.ir,
+		};
+
+		context.adapterContext = adapterContext;
+
+		return adapterContext;
 	}
 
 	const adapterContext: AdapterContext & {
@@ -233,6 +250,21 @@ function ensureAdapterContext(
 	context.adapterContext = adapterContext;
 
 	return adapterContext;
+}
+
+function isReporter(value: unknown): value is Reporter {
+	if (!value || typeof value !== 'object') {
+		return false;
+	}
+
+	const candidate = value as Record<string, unknown>;
+	return (
+		typeof candidate.info === 'function' &&
+		typeof candidate.warn === 'function' &&
+		typeof candidate.error === 'function' &&
+		typeof candidate.debug === 'function' &&
+		typeof candidate.child === 'function'
+	);
 }
 
 function createPhpIndex(
