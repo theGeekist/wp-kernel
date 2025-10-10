@@ -645,9 +645,15 @@ function useListResult<TItem, TQuery>(
 	query: TQuery,
 	reporter: DataViewsRuntimeContext['reporter']
 ): { data?: ListResponse<TItem>; isLoading?: boolean } {
-	const listFromResource = controller.resource?.useList?.(query);
 	const effectiveFetch = fetchList ?? controller.fetchList;
 	const asyncList = useAsyncList(effectiveFetch, query, reporter);
+	if (effectiveFetch) {
+		return asyncList as {
+			data?: ListResponse<TItem>;
+			isLoading?: boolean;
+		};
+	}
+	const listFromResource = controller.resource?.useList?.(query);
 	return (listFromResource ?? asyncList) as {
 		data?: ListResponse<TItem>;
 		isLoading?: boolean;
