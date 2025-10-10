@@ -12,6 +12,8 @@ export interface PrinterContext {
 	configDirectory?: string;
 	formatPhp: (filePath: string, contents: string) => Promise<string>;
 	formatTs: (filePath: string, contents: string) => Promise<string>;
+	writeFile: (filePath: string, contents: string) => Promise<void>;
+	ensureDirectory: (directoryPath: string) => Promise<void>;
 	phpAdapter?: PhpAdapterConfig;
 	adapterContext?: AdapterContext & { ir: IRv1 };
 }

@@ -143,7 +143,7 @@
 
 **Parity:** CLI usage documented in README; generated artifacts respect adapter overrides, sanitised namespace, and the canonical identifier/persistence defaults.
 
-**Status Log (fill during execution):** Completed - / Outstanding - / Risks & Notes -
+**Status Log (fill during execution):** Completed - generation pipeline wired with file writer + integration tests / Outstanding - None / Risks & Notes - Vite config updated to externalise Node builtins for CLI bundle
 
 ---
 
