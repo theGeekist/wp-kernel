@@ -261,6 +261,9 @@ importers:
       json-schema-to-typescript:
         specifier: '>=15.0.4'
         version: 15.0.4
+      prettier:
+        specifier: '>=3.6.0'
+        version: 3.6.2
       tsx:
         specifier: '>=4.20.6'
         version: 4.20.6

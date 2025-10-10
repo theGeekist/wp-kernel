@@ -32,4 +32,9 @@ export type {
 export type { PrinterContext } from './printers/types';
 export type { PhpAstBuilder } from './printers/php/types';
 
-export { GenerateCommand, InitCommand, DoctorCommand } from './commands';
+export {
+	GenerateCommand,
+	InitCommand,
+	DoctorCommand,
+	DevCommand,
+} from './commands';

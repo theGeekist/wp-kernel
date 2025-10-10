@@ -6,7 +6,12 @@
  * other scripts.
  */
 import { Cli, Command } from 'clipanion';
-import { GenerateCommand, InitCommand, DoctorCommand } from '../commands';
+import {
+	GenerateCommand,
+	InitCommand,
+	DoctorCommand,
+	DevCommand,
+} from '../commands';
 import { VERSION } from '../version';
 
 class RootCommand extends Command {
@@ -35,6 +40,7 @@ cli.register(RootCommand);
 cli.register(GenerateCommand);
 cli.register(InitCommand);
 cli.register(DoctorCommand);
+cli.register(DevCommand);
 
 /**
  * Run the WP Kernel CLI programmatically.
