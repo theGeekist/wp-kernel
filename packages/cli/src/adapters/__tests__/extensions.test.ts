@@ -264,6 +264,50 @@ describe('runAdapterExtensions', () => {
 		}
 	});
 
+	it('rejects queued files that escape the output directory via symlink', async () => {
+		if (process.platform === 'win32') {
+			return;
+		}
+
+		const outputDir = await fs.mkdtemp(TMP_OUTPUT);
+		const outsideDir = await fs.mkdtemp(
+			path.join(os.tmpdir(), 'wpk-extension-outside-')
+		);
+		const reporter = createReporterMock();
+
+		try {
+			await fs.symlink(outsideDir, path.join(outputDir, 'link'), 'dir');
+			const ir = createIr();
+			const adapterContext = createAdapterContext(reporter, ir);
+			const extension: AdapterExtension = {
+				name: 'escape',
+				async apply({ queueFile, outputDir: dir }) {
+					await queueFile(
+						path.join(dir, 'link', 'steal.txt'),
+						'data'
+					);
+				},
+			};
+
+			await expect(
+				runAdapterExtensions({
+					extensions: [extension],
+					adapterContext,
+					ir,
+					outputDir,
+					ensureDirectory: async () => undefined,
+					writeFile: async () => undefined,
+					configDirectory: undefined,
+					formatPhp: async (_filePath, contents) => contents,
+					formatTs: async (_filePath, contents) => contents,
+				})
+			).rejects.toThrow('escape');
+		} finally {
+			await fs.rm(outputDir, { recursive: true, force: true });
+			await fs.rm(outsideDir, { recursive: true, force: true });
+		}
+	});
+
 	it('supports multiple rollback calls', async () => {
 		const outputDir = await fs.mkdtemp(TMP_OUTPUT);
 		const reporter = createReporterMock();

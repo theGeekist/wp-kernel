@@ -52,7 +52,7 @@
 		"typecheck:tests": "tsc --project tsconfig.tests.json --noEmit",
 		"test": "jest --passWithNoTests",
 		"test:watch": "jest --watch",
-		"test:coverage": "jest --coverage"
+		"test:coverage": "jest --passWithNoTests --coverage"
 	},
 	"peerDependencies": {
 		"@geekist/wp-kernel": "workspace:*",
