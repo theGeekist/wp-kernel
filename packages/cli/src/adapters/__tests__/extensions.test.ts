@@ -3,7 +3,11 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import { runAdapterExtensions } from '..';
 import { KernelError } from '@geekist/wp-kernel';
-import type { AdapterContext, AdapterExtension } from '../../config/types';
+import type {
+	AdapterContext,
+	AdapterExtension,
+	KernelConfigV1,
+} from '../../config/types';
 import type { IRv1 } from '../../ir';
 import { FileWriter } from '../../utils/file-writer';
 import type { Reporter } from '@geekist/wp-kernel';
@@ -221,6 +225,45 @@ describe('runAdapterExtensions', () => {
 		}
 	});
 
+	it('sanitises IR clones before invoking extensions', async () => {
+		const outputDir = await fs.mkdtemp(TMP_OUTPUT);
+		const reporter = createReporterMock();
+
+		try {
+			const ir = createIr();
+			const adapterContext = createAdapterContext(reporter, ir);
+			const adaptersSeen: Array<IRv1['config']['adapters'] | undefined> =
+				[];
+
+			const extension: AdapterExtension = {
+				name: 'inspect',
+				async apply({ ir: clonedIr }) {
+					adaptersSeen.push(clonedIr.config.adapters);
+				},
+			};
+
+			await runAdapterExtensions({
+				extensions: [extension],
+				adapterContext,
+				ir,
+				outputDir,
+				ensureDirectory: async (directoryPath: string) => {
+					await fs.mkdir(directoryPath, { recursive: true });
+				},
+				writeFile: async () => undefined,
+				configDirectory: undefined,
+				formatPhp: async (_filePath, contents) => contents,
+				formatTs: async (_filePath, contents) => contents,
+			});
+
+			expect(adaptersSeen).toHaveLength(1);
+			expect(adaptersSeen[0]).toEqual({ extensions: [] });
+			expect(typeof adapterContext.config.adapters?.php).toBe('function');
+		} finally {
+			await fs.rm(outputDir, { recursive: true, force: true });
+		}
+	});
+
 	it('supports multiple rollback calls', async () => {
 		const outputDir = await fs.mkdtemp(TMP_OUTPUT);
 		const reporter = createReporterMock();
@@ -400,6 +443,8 @@ describe('runAdapterExtensions', () => {
 });
 
 function createIr(): IRv1 {
+	const config = createConfig();
+
 	return {
 		meta: {
 			version: 1,
@@ -408,6 +453,7 @@ function createIr(): IRv1 {
 			origin: 'file',
 			sanitizedNamespace: 'Demo\\Namespace',
 		},
+		config,
 		schemas: [],
 		resources: [],
 		policies: [],
@@ -422,15 +468,23 @@ function createIr(): IRv1 {
 
 function createAdapterContext(reporter: Reporter, ir: IRv1): AdapterContext {
 	return {
-		config: {
-			version: 1,
-			namespace: 'demo',
-			schemas: {},
-			resources: {},
-		},
+		config: ir.config,
 		namespace: 'Demo\\Namespace',
 		reporter,
 		ir,
+	};
+}
+
+function createConfig(): KernelConfigV1 {
+	return {
+		version: 1,
+		namespace: 'demo',
+		schemas: {},
+		resources: {},
+		adapters: {
+			php: () => ({ namespace: 'Demo\\Namespace' }),
+			extensions: [() => ({ name: 'noop', apply: () => undefined })],
+		},
 	};
 }
 

@@ -71,4 +71,14 @@ export default {
 		'!<rootDir>/packages/cli/src/printers/php/**',
 		'!<rootDir>/packages/cli/src/ir/index.ts',
 	],
+
+	// Coverage thresholds for this package
+	coverageThreshold: {
+		global: {
+			branches: 89,
+			functions: 90,
+			lines: 90,
+			statements: 90,
+		},
+	},
 };
