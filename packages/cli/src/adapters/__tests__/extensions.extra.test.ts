@@ -2,6 +2,19 @@ import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { runAdapterExtensions } from '..';
+import {
+	sanitizeNamespace,
+	resolveOutputRoot,
+	validateSandboxTarget,
+	safeLstat,
+	assertWithinOutput,
+	isWithinRoot,
+	stripFunctions,
+	serialiseError,
+	normaliseError,
+	assertValidExtension,
+} from '../extensions';
+import { KernelError } from '@geekist/wp-kernel';
 import type { AdapterContext } from '../../config/types';
 import type { IRv1 } from '../../ir';
 import type { Reporter } from '@geekist/wp-kernel';
@@ -102,6 +115,35 @@ describe('runAdapterExtensions extra branches', () => {
 				} as any)
 			).rejects.toThrow(
 				'Adapter extensions must provide a non-empty name.'
+			);
+		} finally {
+			await fs.rm(outputDir, { recursive: true, force: true });
+		}
+	});
+
+	it('throws when extension omits an apply function', async () => {
+		const outputDir = await fs.mkdtemp(TMP_OUTPUT);
+		const reporter = createReporterMock();
+		try {
+			const ir = createIr();
+			const adapterContext = createAdapterContext(reporter, ir);
+
+			const badExt = { name: 'missing-apply' } as any;
+
+			await expect(
+				runAdapterExtensions({
+					extensions: [badExt],
+					adapterContext,
+					ir,
+					outputDir,
+					ensureDirectory: async () => {},
+					writeFile: async () => {},
+					configDirectory: undefined,
+					formatPhp: async (_f: string, c: string) => c,
+					formatTs: async (_f: string, c: string) => c,
+				} as any)
+			).rejects.toThrow(
+				'Adapter extensions must define an apply() function.'
 			);
 		} finally {
 			await fs.rm(outputDir, { recursive: true, force: true });
@@ -278,5 +320,128 @@ describe('runAdapterExtensions extra branches', () => {
 		} finally {
 			await fs.rm(outputDir, { recursive: true, force: true });
 		}
+	});
+
+	it('sanitises namespaces for reporters', () => {
+		expect(sanitizeNamespace('My Extension!')).toBe('my-extension');
+		expect(sanitizeNamespace('Already-clean')).toBe('already-clean');
+	});
+
+	it('rethrows unexpected errors when resolving output root', async () => {
+		const boom = Object.assign(new Error('fail'), { code: 'EACCES' });
+		const realpath = jest
+			.spyOn(fs, 'realpath')
+			.mockRejectedValueOnce(boom as never);
+
+		await expect(resolveOutputRoot('/tmp/forbidden')).rejects.toBe(boom);
+
+		realpath.mockRestore();
+	});
+
+	it('validates sandbox targets across symlinks', async () => {
+		if (process.platform === 'win32') {
+			return;
+		}
+
+		const outputDir = await fs.mkdtemp(TMP_OUTPUT);
+		const actualDir = path.join(outputDir, 'actual');
+		const linkDir = path.join(outputDir, 'link');
+		await fs.mkdir(actualDir, { recursive: true });
+		await fs.symlink(actualDir, linkDir, 'dir');
+
+		const originFile = path.join(actualDir, 'origin.txt');
+		await fs.writeFile(originFile, 'data');
+		const linkFile = path.join(linkDir, 'file.txt');
+		await fs.symlink(originFile, linkFile);
+
+		const outputRoot = await fs.realpath(outputDir);
+		await expect(
+			validateSandboxTarget({
+				targetPath: linkFile,
+				relativeTarget: path.relative(outputDir, linkFile),
+				outputRoot,
+				outputDir,
+			})
+		).resolves.toBeUndefined();
+
+		await fs.rm(outputDir, { recursive: true, force: true });
+	});
+
+	it('detects sandbox escapes via assertWithinOutput', async () => {
+		const tmp = await fs.mkdtemp(TMP_OUTPUT);
+		const outside = path.join(os.tmpdir(), 'wpk-outside');
+		await fs.mkdir(outside, { recursive: true });
+		try {
+			await expect(
+				assertWithinOutput(outside, await fs.realpath(tmp))
+			).rejects.toThrow('Adapter extensions must not escape');
+		} finally {
+			await fs.rm(outside, { recursive: true, force: true });
+			await fs.rm(tmp, { recursive: true, force: true });
+		}
+	});
+
+	it('wraps unknown lstat failures in safeLstat', async () => {
+		const error = Object.assign(new Error('bad lstat'), { code: 'EACCES' });
+		const spy = jest
+			.spyOn(fs, 'lstat')
+			.mockRejectedValueOnce(error as never);
+
+		await expect(safeLstat('/tmp/missing')).rejects.toBe(error);
+
+		spy.mockRestore();
+	});
+
+	it('evaluates root containment helpers', async () => {
+		const tmp = await fs.mkdtemp(TMP_OUTPUT);
+		const root = await fs.realpath(tmp);
+		const inside = path.join(root, 'child');
+		const outside = path.join(root, '..', 'sibling');
+
+		expect(isWithinRoot(inside, root)).toBe(true);
+		expect(isWithinRoot(outside, root)).toBe(false);
+
+		await fs.rm(tmp, { recursive: true, force: true });
+	});
+
+	it('strips functions while preserving circular references', () => {
+		const array: unknown[] = [];
+		array.push(array);
+		array.push(() => 'ignored');
+
+		const object: Record<string, unknown> = { array };
+		object.self = object;
+		object.fn = () => 'skip';
+
+		const clone = stripFunctions(object) as Record<string, unknown>;
+
+		expect(clone.fn).toBeUndefined();
+		const clonedArray = clone.array as unknown[];
+		expect(clonedArray[0]).toBe(clonedArray);
+		expect(clonedArray).toHaveLength(1);
+		expect(clone.self).toBe(clone);
+	});
+
+	it('serialises unknown errors safely', () => {
+		expect(serialiseError('boom')).toEqual({ message: 'boom' });
+	});
+
+	it('normalises kernel errors and primitives', () => {
+		const kernelError = new KernelError('DeveloperError', {
+			message: 'bad',
+		});
+		expect(normaliseError(kernelError)).toBe(kernelError);
+		const normalised = normaliseError('oops');
+		expect(normalised).toBeInstanceOf(Error);
+		expect(normalised.message).toBe('oops');
+	});
+
+	it('asserts extension validity directly', () => {
+		expect(() => assertValidExtension(null)).toThrow(
+			'Invalid adapter extension returned from factory.'
+		);
+		expect(() =>
+			assertValidExtension({ name: '  ', apply: async () => {} } as any)
+		).toThrow('Adapter extensions must provide a non-empty name.');
 	});
 });

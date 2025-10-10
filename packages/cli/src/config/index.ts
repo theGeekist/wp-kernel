@@ -1,3 +1,6 @@
+/**
+ * Kernel config types and utilities.
+ */
 export type {
 	KernelConfigV1,
 	SchemaConfig,

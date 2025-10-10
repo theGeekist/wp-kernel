@@ -1,3 +1,6 @@
+/**
+ * Adapter utilities for integrating kernel extensions.
+ */
 export { runAdapterExtensions } from './extensions';
 
 export type { AdapterExtensionRunResult } from './extensions';
