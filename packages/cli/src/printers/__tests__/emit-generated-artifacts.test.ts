@@ -321,6 +321,9 @@ describe('emitGeneratedArtifacts', () => {
 					expect(() =>
 						adapterContext.reporter.error('demo')
 					).not.toThrow();
+					expect(() =>
+						adapterContext.reporter.debug('demo')
+					).not.toThrow();
 				},
 			};
 
@@ -328,6 +331,128 @@ describe('emitGeneratedArtifacts', () => {
 
 			expect(reporters).not.toHaveLength(0);
 			expect(context.adapterContext?.reporter).toBe(reporters[0]);
+		});
+	});
+
+	it('repairs incomplete reporter implementations in adapter context overrides', async () => {
+		await withTempDir(async (tempDir) => {
+			const ir = createIrFixture();
+			const context = createPrinterContext(tempDir, { ir });
+			const brokenReporter = {
+				info: () => undefined,
+			} as unknown as AdapterContext['reporter'];
+			const reporters: AdapterContext['reporter'][] = [];
+
+			context.adapterContext = {
+				config: ir.config,
+				reporter: brokenReporter,
+				namespace: ir.meta.sanitizedNamespace,
+				ir,
+			} satisfies PrinterContext['adapterContext'];
+
+			context.phpAdapter = {
+				customise(_builder, adapterContext) {
+					reporters.push(adapterContext.reporter);
+
+					expect(() =>
+						adapterContext.reporter.info('demo')
+					).not.toThrow();
+					expect(() =>
+						adapterContext.reporter.warn('demo')
+					).not.toThrow();
+					expect(() =>
+						adapterContext.reporter.error('demo')
+					).not.toThrow();
+					expect(() =>
+						adapterContext.reporter.debug('demo')
+					).not.toThrow();
+					expect(() =>
+						adapterContext.reporter.child('test')
+					).not.toThrow();
+				},
+			};
+
+			await emitGeneratedArtifacts(context);
+
+			expect(reporters).not.toHaveLength(0);
+			const [firstReporter, ...rest] = reporters;
+			for (const reporter of rest) {
+				expect(reporter).toBe(firstReporter);
+			}
+			expect(firstReporter).not.toBe(brokenReporter);
+			expect(context.adapterContext?.reporter).toBe(firstReporter);
+		});
+	});
+
+	it('preserves valid adapter context reporters and metadata', async () => {
+		await withTempDir(async (tempDir) => {
+			const ir = createIrFixture();
+			const context = createPrinterContext(tempDir, { ir });
+			const reporter = createNoopReporter().child('adapter');
+			const adapterNamespace = 'Demo\\Override';
+
+			const adapterContext = {
+				config: ir.config,
+				reporter,
+				namespace: adapterNamespace,
+				ir,
+			} satisfies PrinterContext['adapterContext'];
+
+			context.adapterContext = adapterContext;
+			const reporters: AdapterContext['reporter'][] = [];
+
+			context.phpAdapter = {
+				customise(_builder, nextContext) {
+					reporters.push(nextContext.reporter);
+					expect(nextContext.reporter).toBe(reporter);
+					expect(nextContext.namespace).toBe(adapterNamespace);
+					expect(nextContext.config).toBe(ir.config);
+				},
+			};
+
+			await emitGeneratedArtifacts(context);
+
+			expect(reporters).not.toHaveLength(0);
+			for (const nextReporter of reporters) {
+				expect(nextReporter).toBe(reporter);
+			}
+			expect(context.adapterContext?.reporter).toBe(reporter);
+			expect(context.adapterContext?.namespace).toBe(adapterNamespace);
+		});
+	});
+
+	it('hydrates missing adapter context fields before customisers run', async () => {
+		await withTempDir(async (tempDir) => {
+			const ir = createIrFixture();
+			const context = createPrinterContext(tempDir, { ir });
+			const reporters: AdapterContext['reporter'][] = [];
+
+			context.adapterContext = {
+				config: undefined,
+				reporter: createNoopReporter(),
+				namespace: undefined,
+				ir: undefined,
+			} as unknown as PrinterContext['adapterContext'];
+
+			context.phpAdapter = {
+				customise(_builder, nextContext) {
+					reporters.push(nextContext.reporter);
+					expect(nextContext.config).toBe(ir.config);
+					expect(nextContext.namespace).toBe(
+						ir.meta.sanitizedNamespace
+					);
+					expect(nextContext.ir).toBe(ir);
+				},
+			};
+
+			await emitGeneratedArtifacts(context);
+
+			expect(reporters).not.toHaveLength(0);
+			expect(context.adapterContext?.config).toBe(ir.config);
+			expect(context.adapterContext?.namespace).toBe(
+				ir.meta.sanitizedNamespace
+			);
+			expect(context.adapterContext?.ir).toBe(ir);
 		});
 	});
 
