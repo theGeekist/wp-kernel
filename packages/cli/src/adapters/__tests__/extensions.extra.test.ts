@@ -108,6 +108,145 @@ describe('runAdapterExtensions extra branches', () => {
 		}
 	});
 
+	it('allows queued files that traverse symlinks remaining within outputDir', async () => {
+		if (process.platform === 'win32') {
+			return;
+		}
+
+		const outputDir = await fs.mkdtemp(TMP_OUTPUT);
+		const reporter = createReporterMock();
+
+		try {
+			const innerDir = path.join(outputDir, 'actual');
+			await fs.mkdir(innerDir, { recursive: true });
+			await fs.symlink(innerDir, path.join(outputDir, 'link'), 'dir');
+
+			const ir = createIr();
+			const adapterContext = createAdapterContext(reporter, ir);
+
+			const extension = {
+				name: 'within',
+				async apply({ queueFile, outputDir: dir }) {
+					await queueFile(path.join(dir, 'link', 'ok.txt'), 'inside');
+				},
+			};
+
+			const run = await runAdapterExtensions({
+				extensions: [extension],
+				adapterContext,
+				ir,
+				outputDir,
+				ensureDirectory: async (directoryPath: string) => {
+					await fs.mkdir(directoryPath, { recursive: true });
+				},
+				writeFile: async (filePath, contents) => {
+					await fs.writeFile(filePath, contents, 'utf8');
+				},
+				configDirectory: undefined,
+				formatPhp: async (_filePath: string, contents: string) =>
+					contents,
+				formatTs: async (_filePath: string, contents: string) =>
+					contents,
+			});
+
+			await run.commit();
+
+			const written = await fs.readFile(
+				path.join(innerDir, 'ok.txt'),
+				'utf8'
+			);
+			expect(written).toBe('inside');
+		} finally {
+			await fs.rm(outputDir, { recursive: true, force: true });
+		}
+	});
+
+	it('creates the output directory when it does not exist', async () => {
+		const parent = await fs.mkdtemp(
+			path.join(os.tmpdir(), 'wpk-extension-missing-')
+		);
+		const outputDir = path.join(parent, 'new-output');
+		const reporter = createReporterMock();
+
+		try {
+			const ir = createIr();
+			const adapterContext = createAdapterContext(reporter, ir);
+
+			const extension = {
+				name: 'create',
+				async apply({ queueFile, outputDir: dir }) {
+					await queueFile(path.join(dir, 'generated.json'), '{}');
+				},
+			};
+
+			const run = await runAdapterExtensions({
+				extensions: [extension],
+				adapterContext,
+				ir,
+				outputDir,
+				ensureDirectory: async (directoryPath: string) => {
+					await fs.mkdir(directoryPath, { recursive: true });
+				},
+				writeFile: async (filePath, contents) => {
+					await fs.writeFile(filePath, contents, 'utf8');
+				},
+				configDirectory: undefined,
+				formatPhp: async (_filePath: string, contents: string) =>
+					contents,
+				formatTs: async (_filePath: string, contents: string) =>
+					contents,
+			});
+
+			await run.commit();
+			const exists = await fs.readFile(
+				path.join(outputDir, 'generated.json'),
+				'utf8'
+			);
+			expect(exists).toBe('{}');
+		} finally {
+			await fs.rm(parent, { recursive: true, force: true });
+		}
+	});
+
+	it('handles circular structures when cloning IR', async () => {
+		const outputDir = await fs.mkdtemp(TMP_OUTPUT);
+		const reporter = createReporterMock();
+
+		try {
+			const ir = createIr();
+			const shared: Record<string, unknown> = {};
+			const circular = { ref: shared };
+			shared.loop = circular;
+			(ir as Record<string, unknown>).resources = [shared as unknown];
+			const adapterContext = createAdapterContext(reporter, ir);
+
+			const extension = {
+				name: 'circular',
+				async apply() {
+					// no-op, just ensure traversal succeeds
+				},
+			};
+
+			await expect(
+				runAdapterExtensions({
+					extensions: [extension],
+					adapterContext,
+					ir,
+					outputDir,
+					ensureDirectory: async () => undefined,
+					writeFile: async () => undefined,
+					configDirectory: undefined,
+					formatPhp: async (_filePath: string, contents: string) =>
+						contents,
+					formatTs: async (_filePath: string, contents: string) =>
+						contents,
+				})
+			).resolves.toBeDefined();
+		} finally {
+			await fs.rm(outputDir, { recursive: true, force: true });
+		}
+	});
+
 	it('normalises thrown non-Error values (string) and reports error', async () => {
 		const outputDir = await fs.mkdtemp(TMP_OUTPUT);
 		const reporter = createReporterMock();
