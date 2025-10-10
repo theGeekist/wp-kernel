@@ -10,6 +10,10 @@ import {
 } from '@geekist/wp-kernel';
 import type { ResourceObject } from '@geekist/wp-kernel/resource';
 import { attachResourceHooks } from '../hooks/resource-hooks';
+import {
+	createKernelDataViewsRuntime,
+	normalizeDataViewsOptions,
+} from './dataviews/runtime';
 
 type RuntimePolicy = NonNullable<KernelUIRuntime['policies']>['policy'];
 
@@ -58,6 +62,16 @@ export const attachUIBindings: KernelUIAttach = (
 			kernel.invalidate(patterns, invalidateOptions),
 		options,
 	};
+
+	const dataviewsOptions = normalizeDataViewsOptions(options?.dataviews);
+
+	if (dataviewsOptions.enable) {
+		runtime.dataviews = createKernelDataViewsRuntime(
+			kernel,
+			runtime,
+			dataviewsOptions
+		);
+	}
 
 	attachExistingResources(runtime, getRegisteredResources());
 

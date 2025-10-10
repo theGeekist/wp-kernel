@@ -14,6 +14,8 @@
 - Update the Status Log entry within each phase section before completion (include Completed/Outstanding/Risks).
 - Respect the declared `@wordpress/dataviews` peer range (`^N.M.0`). CI runs must cover WordPress stable−1, stable, and Gutenberg nightly; log a reporter warning when versions drift.
 
+**The precommit hook will run test --coverage and will fail if you don't meet the coverage criteria** So its best your write code that aids testing, test branch logic and run `pnpm test --coverage` before attempting to commit so you save time
+
 ---
 
 ## Phase 1 – Kernel UI Runtime Foundations
@@ -125,10 +127,10 @@
 
 ### Status Log Template
 
-| Phase | Completed Deliverables | Outstanding Work | Risks / Notes |
-| ----- | ---------------------- | ---------------- | ------------- |
-| P1    |                        |                  |               |
-| P2    |                        |                  |               |
-| P3    |                        |                  |               |
-| P4    |                        |                  |               |
-| P5    |                        |                  |               |
+| Phase | Completed Deliverables                                                                                               | Outstanding Work | Risks / Notes                                                                                                       |
+| ----- | -------------------------------------------------------------------------------------------------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------- |
+| P1    | Kernel UI runtime exposes DataViews namespace with preferences adapter, events, errors, and snapshot updater script. | None             | Snapshot script depends on local Gutenberg checkout; ensure GUTENBERG_PATH is set in environments without the repo. |
+| P2    |                                                                                                                      |                  |                                                                                                                     |
+| P3    |                                                                                                                      |                  |                                                                                                                     |
+| P4    |                                                                                                                      |                  |                                                                                                                     |
+| P5    |                                                                                                                      |                  |                                                                                                                     |
