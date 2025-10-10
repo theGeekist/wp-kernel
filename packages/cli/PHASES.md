@@ -170,6 +170,7 @@
 
 **Parity:** Result matches manual PHP structure with sanitised namespace; documentation updated for apply workflow.
 
+<<<<<<< HEAD
 **Status Log (fill during execution):** Completed - Sandbox extension manager with tests and telemetry example / Outstanding - None / Risks & Notes - Ensure future emitters reuse queueFile helpers
 
 ---
@@ -198,6 +199,11 @@
 **Parity:** PHP output retains all current metadata (routes, identity, storage) while being readable for developers editing controllers.
 
 **Status Log (fill during execution):** Completed - / Outstanding - / Risks & Notes -
+||||||| parent of 093d5d3 (feat(cli): add dev watch command)
+**Status Log (fill during execution):** Completed - / Outstanding - / Risks & Notes -
+=======
+**Status Log (fill during execution):** Completed - `wpk dev` watcher with tiered debounce, chokidar integration, and PHP auto-apply opt-in shipped with tests / Outstanding - None / Risks & Notes - Future apply command should replace direct fs.cp once guard-aware merger lands
+>>>>>>> 093d5d3 (feat(cli): add dev watch command)
 
 ---
 
@@ -224,7 +230,7 @@
 
 **Parity:** Namespace changes propagate without restart; PHP auto-apply remains opt-in.
 
-**Status Log (fill during execution):** Completed - / Outstanding - / Risks & Notes -
+**Status Log (fill during execution):** Completed - `wpk dev` watcher with tiered debounce, chokidar integration, and optional PHP auto-apply shipped with tests / Outstanding - None / Risks & Notes - Future guard-aware apply command should replace direct `fs.cp` usage when available
 
 ---
 
