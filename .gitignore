@@ -78,10 +78,6 @@ wp-content/cache/
 # Playground
 .wp-playground/
 
-# Changesets config (changeset/*.md files MUST be committed in PRs)
-!.changeset/README.md
-!.changeset/config.json
-
 # TypeScript
 *.tsbuildinfo
 
