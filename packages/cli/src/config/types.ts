@@ -25,6 +25,7 @@ export interface ResourceRegistry {
 
 export interface AdaptersConfig {
 	php?: PhpAdapterFactory;
+	extensions?: AdapterExtensionFactory[];
 }
 
 export interface KernelConfigV1 {
@@ -54,6 +55,26 @@ export interface PhpAdapterConfig {
 export type PhpAdapterFactory = (
 	context: AdapterContext
 ) => PhpAdapterConfig | void;
+
+export interface AdapterExtensionContext extends AdapterContext {
+	ir: IRv1;
+	outputDir: string;
+	configDirectory?: string;
+	tempDir: string;
+	queueFile: (filePath: string, contents: string) => Promise<void>;
+	updateIr: (nextIr: IRv1) => void;
+	formatPhp: (filePath: string, contents: string) => Promise<string>;
+	formatTs: (filePath: string, contents: string) => Promise<string>;
+}
+
+export interface AdapterExtension {
+	name: string;
+	apply: (context: AdapterExtensionContext) => Promise<void> | void;
+}
+
+export type AdapterExtensionFactory = (
+	context: AdapterContext
+) => AdapterExtension | AdapterExtension[] | void;
 
 export interface LoadedKernelConfig {
 	config: KernelConfigV1;

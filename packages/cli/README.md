@@ -66,6 +66,33 @@ wpk test                               # Run tests + typecheck
 - **Node.js**: 20+ LTS
 - **pnpm**: 9+ (recommended) or npm
 
+## Adapter extensions
+
+Adapters can register extension factories to participate in the generation pipeline without mutating `.generated/` directly. Each extension runs inside an isolated sandbox; queued files are only written after the core printers succeed.
+
+```ts
+module.exports = {
+	// ...kernel.config.js contents
+	adapters: {
+		extensions: [
+			({ namespace, reporter }) => ({
+				name: 'telemetry',
+				async apply({ queueFile, outputDir }) {
+					const path = require('node:path');
+					await queueFile(
+						path.join(outputDir, 'telemetry.json'),
+						JSON.stringify({ namespace })
+					);
+					reporter.info('Telemetry manifest generated.');
+				},
+			}),
+		],
+	},
+};
+```
+
+Extensions can also call `updateIr(nextIr)` to feed changes back into the printers while keeping the configuration as the single source of truth.
+
 ## Contributing
 
 See the [main repository](https://github.com/theGeekist/wp-kernel) for contribution guidelines.
