@@ -61,7 +61,7 @@ function isPreferencesAdapter(
 
 function childReporter(base: Reporter, namespace: string): Reporter {
 	try {
-		const next = base.child(namespace) as Reporter | undefined;
+		const next = base.child?.(namespace) as Reporter | undefined;
 		return next ?? base;
 	} catch (error) {
 		base.warn?.('Failed to create reporter child', {
@@ -116,7 +116,7 @@ export function createKernelDataViewsRuntime(
 	);
 
 	return {
-		registry: new Map(),
+		registry: new Map<string, DataViewRegistryEntry>(),
 		controllers: new Map(),
 		preferences,
 		events,
