@@ -11,6 +11,7 @@ import {
 	InitCommand,
 	DoctorCommand,
 	DevCommand,
+	ApplyCommand,
 } from '../commands';
 import { VERSION } from '../version';
 
@@ -41,6 +42,7 @@ cli.register(GenerateCommand);
 cli.register(InitCommand);
 cli.register(DoctorCommand);
 cli.register(DevCommand);
+cli.register(ApplyCommand);
 
 /**
  * Run the WP Kernel CLI programmatically.
