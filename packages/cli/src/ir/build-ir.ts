@@ -1,3 +1,22 @@
+/**
+ * Build an intermediate representation (IR) from a kernel configuration.
+ *
+ * This function reads a `BuildIrOptions` configuration and synthesises a
+ * canonical, deterministic intermediate representation (IR) describing
+ * schemas, resources, routes, cache-keys and PHP output hints. The IR is
+ * the single source of truth used by the CLI to emit code and generated
+ * artifacts.
+ *
+ * @param options - Options describing the kernel config, source path and
+ *                namespace to use when building the IR.
+ * @return The constructed IRv1 object.
+ * @throws KernelError for validation or resolution failures.
+ * @example
+ * ```ts
+ * const ir = await buildIr({ config, sourcePath: 'kernel.config.ts', origin: 'kernel.config.ts', namespace: 'my-plugin' });
+ * ```
+ * @see Product Specification § 4.1 Resources
+ */
 import crypto from 'node:crypto';
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
@@ -637,6 +656,13 @@ function toTitleCase(value: string): string {
 		.map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
 		.join(' ');
 }
+
+/**
+ * Convert a dashed/underscored identifier into Title Case suitable for
+ * schema titles and display strings.
+ * @param namespace
+ */
+// documented above
 
 function createPhpNamespace(namespace: string): string {
 	const segments = namespace.split('-').filter(Boolean);

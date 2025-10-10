@@ -1,5 +1,12 @@
 import { Command, Option } from 'clipanion';
 
+/**
+ * `wpk init` - initialize a WP Kernel project in the current directory.
+ *
+ * This command is a placeholder; the heavy-lifting will include creating
+ * recommended directories, sample config, and a README. For now it prints
+ * invocation details and examples.
+ */
 export class InitCommand extends Command {
 	static override paths = [['init']];
 

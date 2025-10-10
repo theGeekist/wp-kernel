@@ -47,4 +47,23 @@ export default {
 
 	// Setup files
 	setupFilesAfterEnv: ['<rootDir>/tests/setup-jest.ts'],
+
+	// Only collect coverage for this package's source files. This prevents
+	// coverage from including other workspace packages (for example
+	// @geekist/wp-kernel) which would dilute the package's reported
+	// coverage and make per-package targets hard to achieve.
+	collectCoverageFrom: [
+		'<rootDir>/packages/cli/src/**/*.{ts,tsx}',
+		// exclude tests, fixtures and intentional placeholders
+		'!<rootDir>/packages/cli/src/**/__tests__/**',
+		'!<rootDir>/packages/cli/src/ir/__fixtures__/**',
+		'!<rootDir>/packages/cli/src/index.ts',
+		'!<rootDir>/packages/cli/src/version.ts',
+		'!<rootDir>/packages/cli/src/cli/**',
+		'!<rootDir>/packages/cli/src/commands/**',
+		'!<rootDir>/packages/cli/src/internal/**',
+		'!<rootDir>/packages/cli/src/printers/**',
+		'!<rootDir>/packages/cli/src/printers/php/**',
+		'!<rootDir>/packages/cli/src/ir/index.ts',
+	],
 };
