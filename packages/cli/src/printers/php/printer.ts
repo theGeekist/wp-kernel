@@ -1,5 +1,4 @@
 import path from 'node:path';
-import { promises as fs } from 'node:fs';
 import { createNoopReporter } from '@geekist/wp-kernel';
 import type { Reporter } from '@geekist/wp-kernel';
 import type { AdapterContext } from '../../config/types';
@@ -18,7 +17,7 @@ const INDENT = '        ';
 
 export async function emitPhpArtifacts(context: PrinterContext): Promise<void> {
 	const phpRoot = path.resolve(context.outputDir, 'php');
-	await fs.mkdir(phpRoot, { recursive: true });
+	await context.ensureDirectory(phpRoot);
 
 	const namespaceRoot = context.ir.php.namespace;
 
@@ -78,8 +77,8 @@ export async function emitPhpArtifacts(context: PrinterContext): Promise<void> {
 		context
 	);
 	const formattedIndex = await context.formatPhp(indexPath, indexContents);
-	await fs.mkdir(path.dirname(indexPath), { recursive: true });
-	await fs.writeFile(indexPath, formattedIndex, 'utf8');
+	await context.ensureDirectory(path.dirname(indexPath));
+	await context.writeFile(indexPath, formattedIndex);
 }
 
 function initialiseBaseController(
@@ -211,8 +210,8 @@ async function writePhpArtifact(
 	const ast = builder.toAst();
 	const rendered = renderPhpFile(ast);
 	const formatted = await context.formatPhp(filePath, rendered);
-	await fs.mkdir(path.dirname(filePath), { recursive: true });
-	await fs.writeFile(filePath, formatted, 'utf8');
+	await context.ensureDirectory(path.dirname(filePath));
+	await context.writeFile(filePath, formatted);
 }
 
 function ensureAdapterContext(
