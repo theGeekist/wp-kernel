@@ -353,7 +353,6 @@ Add docs/guide/resources.md to VitePress; add tests to CI matrix.
 ## Tasks
 - [ ] Update VitePress config with new docs pages
 - [ ] Update CI workflow for new test files
-- [ ] Verify Changeset validation passes
 - [ ] Test on WP 6.8 & latest
 
 ## Files

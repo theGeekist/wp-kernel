@@ -58,101 +58,35 @@ export async function runGenerate(
 			enabled: process.env.NODE_ENV !== 'test',
 		});
 
-	let loadedConfig!: Awaited<ReturnType<typeof loadKernelConfig>>;
-	let ir!: IRv1;
-	try {
-		loadedConfig = await loadKernelConfig();
-		ir = await buildIr({
-			config: loadedConfig.config,
-			sourcePath: loadedConfig.sourcePath,
-			origin: loadedConfig.configOrigin,
-			namespace: loadedConfig.namespace,
-		});
-	} catch (error) {
-		const exitCode = handleFailure(error, reporter, 1);
-		return { exitCode, error };
+	const configResult = await loadConfigAndIr(reporter);
+	if ('exitCode' in configResult) {
+		return configResult;
 	}
 
-	const outputDir = path.resolve(process.cwd(), GENERATED_ROOT);
-	const configDirectory = path.dirname(loadedConfig.sourcePath);
-	const writer = new FileWriter({ dryRun });
+	const preparation = await prepareGeneration({
+		dryRun,
+		reporter,
+		loadedConfig: configResult.loadedConfig,
+		sourceIr: configResult.ir,
+	});
 
-	const adapterContext: AdapterContext = {
-		config: loadedConfig.config,
-		namespace: ir.meta.sanitizedNamespace,
-		reporter: reporter.child('adapter'),
-		ir,
-	};
+	if ('exitCode' in preparation) {
+		return preparation;
+	}
 
-	const ensureDirectory = createEnsureDirectory(dryRun);
+	const { printerContext, writer, extensionsRun } = preparation;
+	const printerResult = await runPrinters(
+		printerContext,
+		extensionsRun,
+		reporter
+	);
+	if (printerResult) {
+		return printerResult;
+	}
 
-	let extensionsRun: AdapterExtensionRunResult | undefined;
-	let effectiveIr = ir;
-
-	try {
-		const phpAdapter = evaluatePhpAdapter(
-			loadedConfig.config,
-			adapterContext,
-			reporter
-		);
-
-		const extensionsResult = await evaluateAdapterExtensions(
-			loadedConfig.config,
-			adapterContext,
-			{
-				ir,
-				outputDir,
-				configDirectory,
-				writer,
-				ensureDirectory,
-			},
-			reporter
-		);
-
-		if (extensionsResult instanceof Error) {
-			return { exitCode: 3, error: extensionsResult };
-		}
-
-		extensionsRun = extensionsResult;
-		effectiveIr = extensionsRun?.ir ?? ir;
-		adapterContext.ir = effectiveIr;
-
-		const printerContext: PrinterContext = {
-			ir: effectiveIr,
-			outputDir,
-			configDirectory,
-			formatPhp: (filePath, contents) => formatPhp(contents, filePath),
-			formatTs: (filePath, contents) => formatTs(contents, filePath),
-			writeFile: async (filePath, contents) => {
-				await writer.write(filePath, contents);
-			},
-			ensureDirectory,
-			phpAdapter,
-			adapterContext: { ...adapterContext, ir: effectiveIr },
-		};
-
-		await emitGeneratedArtifacts(printerContext);
-
-		const commitError = await commitExtensions(extensionsRun, reporter);
-		if (commitError) {
-			return { exitCode: 3, error: commitError };
-		}
-	} catch (error) {
-		if (extensionsRun) {
-			await rollbackExtensions(extensionsRun, reporter);
-		}
-
-		if (error instanceof AdapterEvaluationError) {
-			return { exitCode: 3, error: error.original };
-		}
-
-		const printerError =
-			error instanceof Error ? error : new Error(String(error));
-		reportError(reporter, 'Printer failure.', printerError, 'printer');
-		return {
-			exitCode: 2,
-			error: printerError,
-		};
+	const commitError = await commitExtensions(extensionsRun, reporter);
+	if (commitError) {
+		return { exitCode: 3, error: commitError };
 	}
 
 	const summary = writer.summarise();
@@ -170,6 +104,157 @@ export async function runGenerate(
 		summary: generationSummary,
 		output: renderSummary(summary, dryRun, verbose),
 	};
+}
+
+type LoadConfigSuccess = {
+	loadedConfig: Awaited<ReturnType<typeof loadKernelConfig>>;
+	ir: IRv1;
+};
+
+type LoadConfigFailure = {
+	exitCode: ExitCode;
+	error: unknown;
+};
+
+async function loadConfigAndIr(
+	reporter: Reporter
+): Promise<LoadConfigSuccess | LoadConfigFailure> {
+	try {
+		const loadedConfig = await loadKernelConfig();
+		const ir = await buildIr({
+			config: loadedConfig.config,
+			sourcePath: loadedConfig.sourcePath,
+			origin: loadedConfig.configOrigin,
+			namespace: loadedConfig.namespace,
+		});
+
+		return { loadedConfig, ir };
+	} catch (error) {
+		const exitCode = handleFailure(error, reporter, 1);
+		return { exitCode, error };
+	}
+}
+
+type PreparationSuccess = {
+	printerContext: PrinterContext;
+	writer: FileWriter;
+	extensionsRun?: AdapterExtensionRunResult;
+};
+
+type PreparationFailure = {
+	exitCode: ExitCode;
+	error?: unknown;
+};
+
+async function prepareGeneration({
+	dryRun,
+	reporter,
+	loadedConfig,
+	sourceIr,
+}: {
+	dryRun: boolean;
+	reporter: Reporter;
+	loadedConfig: Awaited<ReturnType<typeof loadKernelConfig>>;
+	sourceIr: IRv1;
+}): Promise<PreparationSuccess | PreparationFailure> {
+	const outputDir = path.resolve(process.cwd(), GENERATED_ROOT);
+	const configDirectory = path.dirname(loadedConfig.sourcePath);
+	const writer = new FileWriter({ dryRun });
+	const adapterContext: AdapterContext = {
+		config: loadedConfig.config,
+		namespace: sourceIr.meta.sanitizedNamespace,
+		reporter: reporter.child('adapter'),
+		ir: sourceIr,
+	};
+
+	const ensureDirectory = createEnsureDirectory(dryRun);
+
+	let extensionsRun: AdapterExtensionRunResult | undefined;
+	let effectiveIr = sourceIr;
+
+	try {
+		const phpAdapter = evaluatePhpAdapter(
+			loadedConfig.config,
+			adapterContext,
+			reporter
+		);
+
+		const extensionsResult = await evaluateAdapterExtensions(
+			loadedConfig.config,
+			adapterContext,
+			{
+				ir: sourceIr,
+				outputDir,
+				configDirectory,
+				writer,
+				ensureDirectory,
+			},
+			reporter
+		);
+
+		if (extensionsResult instanceof Error) {
+			return { exitCode: 3, error: extensionsResult };
+		}
+
+		extensionsRun = extensionsResult;
+		effectiveIr = extensionsRun?.ir ?? sourceIr;
+		adapterContext.ir = effectiveIr;
+
+		const printerContext: PrinterContext = {
+			ir: effectiveIr,
+			outputDir,
+			configDirectory,
+			formatPhp: (filePath, contents) => formatPhp(contents, filePath),
+			formatTs: (filePath, contents) => formatTs(contents, filePath),
+			writeFile: async (filePath, contents) => {
+				await writer.write(filePath, contents);
+			},
+			ensureDirectory,
+			phpAdapter,
+			adapterContext: { ...adapterContext, ir: effectiveIr },
+		};
+
+		return { printerContext, writer, extensionsRun };
+	} catch (error) {
+		if (extensionsRun) {
+			await rollbackExtensions(extensionsRun, reporter);
+		}
+
+		if (error instanceof AdapterEvaluationError) {
+			return { exitCode: 3, error: error.original };
+		}
+
+		const printerError =
+			error instanceof Error ? error : new Error(String(error));
+		reportError(reporter, 'Printer failure.', printerError, 'printer');
+		return { exitCode: 2, error: printerError };
+	}
+}
+
+type PrinterRunResult = RunGenerateResult | null;
+
+async function runPrinters(
+	printerContext: PrinterContext,
+	extensionsRun: AdapterExtensionRunResult | undefined,
+	reporter: Reporter
+): Promise<PrinterRunResult> {
+	try {
+		await emitGeneratedArtifacts(printerContext);
+		return null;
+	} catch (error) {
+		if (extensionsRun) {
+			await rollbackExtensions(extensionsRun, reporter);
+		}
+
+		if (error instanceof AdapterEvaluationError) {
+			return { exitCode: 3, error: error.original };
+		}
+
+		const printerError =
+			error instanceof Error ? error : new Error(String(error));
+		reportError(reporter, 'Printer failure.', printerError, 'printer');
+		return { exitCode: 2, error: printerError };
+	}
 }
 
 function evaluatePhpAdapter(
@@ -346,15 +431,11 @@ function validateExtension(
 	const name =
 		typeof candidate.name === 'string' ? candidate.name.trim() : '';
 	if (!name) {
-		return new Error(
-			'Adapter extensions must provide a non-empty name.'
-		);
+		return new Error('Adapter extensions must provide a non-empty name.');
 	}
 
 	if (typeof candidate.apply !== 'function') {
-		return new Error(
-			'Adapter extensions must define an apply() function.'
-		);
+		return new Error('Adapter extensions must define an apply() function.');
 	}
 
 	return {
