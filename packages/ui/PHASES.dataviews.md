@@ -1,6 +1,6 @@
 # DataViews Integration – Phased Delivery
 
-> Roadmap aligned with [`DataViews Integration – Specification`](../DataViews%20Integration%20-%20Specification.md). Each phase references relevant sections to keep implementation contextual and auditable for the cloud agent. Phase deliverables assume the Gutenberg snapshot lives under [`packages/ui/vendor/dataviews-snapshot/`](vendor/dataviews-snapshot/README.md), while runtime imports continue to use the published `@wordpress/dataviews` package (`node_modules`). For feature reference, see [`packages/ui/wp-dataviews.md`](wp-dataviews.md).
+> Roadmap aligned with [`DataViews Integration - Specification.md`](./DataViews%20Integration%20-%20Specification.md). Each phase references relevant sections to keep implementation contextual and auditable for the cloud agent. Phase deliverables assume the Gutenberg snapshot lives under [`packages/ui/vendor/dataviews-snapshot/`](vendor/dataviews-snapshot/README.md), while runtime imports continue to use the published `@wordpress/dataviews` package (`node_modules`). For feature reference, see [`packages/ui/wp-dataviews.md`](wp-dataviews.md).
 
 ---
 
