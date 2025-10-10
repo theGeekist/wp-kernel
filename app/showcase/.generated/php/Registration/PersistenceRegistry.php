@@ -14,77 +14,66 @@ final class PersistenceRegistry
 {
     public static function get_config(): array
     {
-        return json_decode(
-            '{
-  "resources": {
-    "job": {
-      "identity": {
-        "param": "id",
-        "type": "number"
-      },
-      "storage": {
-        "meta": {
-          "apply_deadline": {
-            "single": true,
-            "type": "string"
-          },
-          "department": {
-            "single": true,
-            "type": "string"
-          },
-          "job_type": {
-            "single": true,
-            "type": "string"
-          },
-          "location": {
-            "single": true,
-            "type": "string"
-          },
-          "remote_policy": {
-            "single": true,
-            "type": "string"
-          },
-          "salary_max": {
-            "single": true,
-            "type": "integer"
-          },
-          "salary_min": {
-            "single": true,
-            "type": "integer"
-          },
-          "seniority": {
-            "single": true,
-            "type": "string"
-          }
-        },
-        "mode": "wp-post",
-        "postType": "wpk_job",
-        "statuses": [
-          "closed"
-        ],
-        "supports": [
-          "title",
-          "editor",
-          "custom-fields"
-        ],
-        "taxonomies": {
-          "department": {
-            "hierarchical": false,
-            "taxonomy": "wpk_job_department"
-          },
-          "location": {
-            "hierarchical": false,
-            "taxonomy": "wpk_job_location"
-          }
-        }
-      }
-    }
-  }
-}',
-            true,
-            512,
-            JSON_THROW_ON_ERROR,
-        );
+        return [
+            "resources" => [
+                "job" => [
+                    "identity" => [
+                        "param" => "id",
+                        "type" => "number",
+                    ],
+                    "storage" => [
+                        "meta" => [
+                            "apply_deadline" => [
+                                "single" => true,
+                                "type" => "string",
+                            ],
+                            "department" => [
+                                "single" => true,
+                                "type" => "string",
+                            ],
+                            "job_type" => [
+                                "single" => true,
+                                "type" => "string",
+                            ],
+                            "location" => [
+                                "single" => true,
+                                "type" => "string",
+                            ],
+                            "remote_policy" => [
+                                "single" => true,
+                                "type" => "string",
+                            ],
+                            "salary_max" => [
+                                "single" => true,
+                                "type" => "integer",
+                            ],
+                            "salary_min" => [
+                                "single" => true,
+                                "type" => "integer",
+                            ],
+                            "seniority" => [
+                                "single" => true,
+                                "type" => "string",
+                            ],
+                        ],
+                        "mode" => "wp-post",
+                        "postType" => "wpk_job",
+                        "statuses" => ["closed"],
+                        "supports" => ["title", "editor", "custom-fields"],
+                        "taxonomies" => [
+                            "department" => [
+                                "hierarchical" => false,
+                                "taxonomy" => "wpk_job_department",
+                            ],
+                            "location" => [
+                                "hierarchical" => false,
+                                "taxonomy" => "wpk_job_location",
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ];
     }
 }
 // WPK:END AUTO
