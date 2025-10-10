@@ -349,7 +349,9 @@ export class GenerateCommand extends Command {
 			);
 		}
 
-		if (candidate.name.trim() === '') {
+		const name =
+			typeof candidate.name === 'string' ? candidate.name.trim() : '';
+		if (!name) {
 			return new Error(
 				'Adapter extensions must provide a non-empty name.'
 			);
@@ -361,7 +363,10 @@ export class GenerateCommand extends Command {
 			);
 		}
 
-		return candidate;
+		return {
+			...candidate,
+			name,
+		};
 	}
 
 	private async loadConfigAndIr(reporter: Reporter): Promise<

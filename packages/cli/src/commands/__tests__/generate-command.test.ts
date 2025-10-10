@@ -233,6 +233,7 @@ describe('GenerateCommand', () => {
                                                         name: '   ',
                                                         async apply() {}
                                                 })`,
+						`() => ({ apply() {} })`,
 					],
 				});
 
