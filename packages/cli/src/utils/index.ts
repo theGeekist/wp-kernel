@@ -1,3 +1,6 @@
+/**
+ * Shared filesystem utilities used across CLI commands.
+ */
 export { resolveFromWorkspace, toWorkspaceRelative } from './path';
 export {
 	FileWriter,
