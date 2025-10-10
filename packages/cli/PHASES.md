@@ -149,11 +149,11 @@
 
 ### Phase 5 Cohort (See `packages/cli/docs/Phase_05-Apply_Workflow.md` for the detailed breakdown)
 
-| Sub-phase                       | Summary                                                                      | Status Log                                    |
-| ------------------------------- | ---------------------------------------------------------------------------- | --------------------------------------------- |
-| **5A – Guarded Apply Command**  | Stand up `wpk apply` with guarded merges and basic summary reporting.        | Completed - / Outstanding - / Risks & Notes - |
-| **5B – Apply Safety & Logging** | Add clean-state enforcement, `--yes/--backup/--force`, and `.wpk-apply.log`. | Completed - / Outstanding - / Risks & Notes - |
-| **5C – PHP Printer DX Upgrade** | Refactor generated PHP to use native arrays and update fixtures/docs.        | Completed - / Outstanding - / Risks & Notes - |
+| Sub-phase                       | Summary                                                                      | Status Log                                                                                                                 |
+| ------------------------------- | ---------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| **5A – Guarded Apply Command**  | Stand up `wpk apply` with guarded merges and basic summary reporting.        | Completed - Guarded PHP apply command with merge tests / Outstanding - None / Risks & Notes - Safety flags targeted for 5B |
+| **5B – Apply Safety & Logging** | Add clean-state enforcement, `--yes/--backup/--force`, and `.wpk-apply.log`. | Completed - / Outstanding - / Risks & Notes -                                                                              |
+| **5C – PHP Printer DX Upgrade** | Refactor generated PHP to use native arrays and update fixtures/docs.        | Completed - / Outstanding - / Risks & Notes -                                                                              |
 
 See the companion Markdown spec for full scope/deliverables/DoD details.
 
