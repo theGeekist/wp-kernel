@@ -428,7 +428,10 @@ function renderPhpAssociative(
 
 	for (const [key, val] of entries) {
 		const rendered = renderPhpExpression(val, indentLevel + 1);
-		const firstLine = rendered[0]!;
+		if (rendered.length === 0) {
+			continue;
+		}
+		const firstLine = rendered[0];
 		const remainder = firstLine.slice(childIndent.length);
 		rendered[0] = `${childIndent}'${escapeSingleQuotes(key)}' => ${remainder}`;
 		const last = rendered.length - 1;
