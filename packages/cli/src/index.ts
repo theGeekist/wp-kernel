@@ -1,5 +1,12 @@
+/**
+ * Top-level exports for the `@geekist/wp-kernel-cli` package.
+ *
+ * This module re-exports the small, public surface of the CLI package so
+ * documentation generators (VitePress) can build clear API pages. Each
+ * exported symbol is documented in its source module.
+ */
 export { VERSION } from './version';
-export { runCli } from './cli';
+export { runCli } from './cli/run';
 
 export type {
 	KernelConfigV1,
@@ -22,8 +29,7 @@ export type {
 	IRPhpProject,
 	BuildIrOptions,
 } from './ir';
-
-export type { PrinterContext } from './printers';
-export type { PhpAstBuilder } from './printers';
+export type { PrinterContext } from './printers/types';
+export type { PhpAstBuilder } from './printers/php/types';
 
 export { GenerateCommand, InitCommand, DoctorCommand } from './commands';

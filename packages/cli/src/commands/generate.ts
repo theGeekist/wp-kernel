@@ -1,5 +1,12 @@
 import { Command, Option } from 'clipanion';
 
+/**
+ * `wpk generate` command - scaffolds artifacts.
+ *
+ * Placeholder implementation. When implemented this command will create
+ * resources, actions and other project artifacts from templates. The
+ * current stub emits helpful usage examples for contributors.
+ */
 export class GenerateCommand extends Command {
 	static override paths = [['generate']];
 

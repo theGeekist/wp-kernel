@@ -1,3 +1,10 @@
+/**
+ * CLI runtime entry point
+ *
+ * This module wires up the available commands and provides `runCli`, a
+ * programmatic entry point suitable for tests and embedding the CLI in
+ * other scripts.
+ */
 import { Cli, Command } from 'clipanion';
 import { GenerateCommand, InitCommand, DoctorCommand } from '../commands';
 import { VERSION } from '../version';
@@ -29,6 +36,22 @@ cli.register(GenerateCommand);
 cli.register(InitCommand);
 cli.register(DoctorCommand);
 
+/**
+ * Run the WP Kernel CLI programmatically.
+ *
+ * This convenience function mirrors the behavior of the shipped `wpk`
+ * binary but is safe to call from scripts or tests. It accepts an argv
+ * array (defaults to process.argv slice(2)) and forwards stdio streams to
+ * the underlying Clipanion CLI instance.
+ *
+ * @param argv - Command-line arguments (without the node and script path)
+ * @return A promise that resolves when the CLI invocation completes.
+ * @example
+ * ```ts
+ * // programmatic invocation from a script
+ * await runCli(['generate', 'resource', '--name', 'post']);
+ * ```
+ */
 export async function runCli(
 	argv: string[] = process.argv.slice(2)
 ): Promise<void> {

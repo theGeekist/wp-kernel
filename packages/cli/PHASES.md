@@ -5,7 +5,7 @@
 #### Shared Deliverable Expectations
 
 - Update the Status Log for the active phase before marking it complete.
-- Keep CLI package coverage healthy: rerun `pnpm --filter @geekist/wp-kernel-cli test` and confirm branch coverage stays ≥ 89% when landing a phase.
+- Keep CLI package coverage healthy: rerun `pnpm --filter @geekist/wp-kernel-cli test --coverage` and confirm branch coverage stays ≥ 89% when landing a phase.
 - Run `pnpm --filter @geekist/wp-kernel-cli build` (vite + tsc) to catch compile regressions introduced during the phase.
 - Document supporting analyses (e.g., Phase 0 audit in `packages/cli/docs/phase-0-baseline-audit.md`) alongside code when a phase requires them.
 - Cross-check referenced specs (PHASES.md, `the-cli-idea.md`, discussion docs) after each phase to prevent drift.
@@ -113,7 +113,7 @@
 
 **Parity:** Generated controllers align with showcase working copies; differences documented/back-ported.
 
-**Status Log (fill during execution):** Completed - Type & PHP printers implemented with adapter hooks and coverage fixtures / Outstanding - None / Risks & Notes - Future emitters should reuse shared builders
+**Status Log (fill during execution):** Completed - Type & PHP printers shipped via `emitGeneratedArtifacts` (adapter customisation path verified); Outstanding - None; Risks & Notes - Future emitters should reuse shared builders.
 
 ---
 
@@ -128,13 +128,16 @@
 - Evaluate adapters before printing so overrides run.
 - Provide exit codes and structured log summaries.
 - Detect unchanged files via content hash to avoid unnecessary writes.
+- Invoke the full pipeline (`loadKernelConfig` → `validateKernelConfig` → `buildIr` → `emitGeneratedArtifacts`) and honour `ir.php` metadata (namespace, autoload, output directory).
+- Pass adapter factories from config through to printers so customisations execute.
 
 **Deliverables:**
 
 - `src/commands/generate.ts` + integration tests using temporary directories.
 - Updated Status Log entry for this phase.
+- Golden fixtures asserting `.generated/types/**` and `.generated/php/**` outputs.
 
-**DoD:** Running the command in showcase reproduces existing `.generated` outputs; reporter summary includes counts (written/unchanged/skipped); exit codes 0/1/2 verified; reporter honours `--json`/`--verbose`; identity- and storage-driven defaults (slug routes, CPT registration) surface in generated artifacts.
+**DoD:** Running the command in showcase reproduces existing `.generated` outputs; reporter summary includes counts (written/unchanged/skipped) and respects dry-run/verbose modes; exit codes 0/1/2 verified; identity- and storage-driven defaults surface in generated artifacts; CLI package branch coverage remains ≥ 89%.
 
 **Testing:** Integration tests (Jest) with temp dirs verifying file contents, hashes, exit codes, and reporter modes.
 

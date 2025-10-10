@@ -1,3 +1,11 @@
+/**
+ * Kernel config loader
+ *
+ * Responsible for locating and resolving the project's kernel.config.(ts|js)
+ * (or a `wpk` field in package.json). It supports TS execution via `tsx`
+ * and falls back to standard Node imports for JS files. Returned values
+ * are normalised to the canonical kernel configuration object.
+ */
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { pathToFileURL } from 'node:url';
@@ -344,6 +352,8 @@ function isPromise(value: unknown): value is Promise<unknown> {
 
 async function getTsImport(): Promise<TsImport> {
 	if (!cachedTsImport) {
+		// Dynamically load the `tsx` ESM loader when needed. This keeps the
+		// dependency optional for consumers that never load TS kernel configs.
 		cachedTsImport = import('tsx/esm/api').then(
 			(mod) => mod.tsImport as TsImport
 		);
