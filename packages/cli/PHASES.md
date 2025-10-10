@@ -170,7 +170,7 @@
 
 **Parity:** Result matches manual PHP structure with sanitised namespace; documentation updated for apply workflow.
 
-**Status Log (fill during execution):** Completed - / Outstanding - / Risks & Notes -
+**Status Log (fill during execution):** Completed - Phase 5a foundations: `wpk apply` copies PHP artifacts into `inc/` with guarded merge logic + error/merge coverage suite / Outstanding - `.wpk-apply.log`, backups & `--force` flags, `.generated/build` propagation, PSR-4 + manual edit validation / Risks & Notes - Need follow-up for dirty-state enforcement and AUTO edit detection
 
 ---
 
