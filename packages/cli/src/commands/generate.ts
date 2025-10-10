@@ -1,31 +1,61 @@
 import { Command, Option } from 'clipanion';
+import { createReporter } from '@geekist/wp-kernel';
+import { WPK_NAMESPACE } from '@geekist/wp-kernel/namespace/constants';
+import {
+	runGenerate,
+	type ExitCode,
+	type GenerationSummary,
+} from './run-generate';
 
+/**
+ * Clipanion command for generating kernel artifacts.
+ *
+ * The command powers `wpk generate`, running printers and emitting summary
+ * metadata back to the invoking context for inspection in tests or higher level
+ * tooling.
+ */
 export class GenerateCommand extends Command {
 	static override paths = [['generate']];
 
 	static override usage = Command.Usage({
-		description:
-			'Generate WP Kernel artifacts (placeholder - implementation pending).',
+		description: 'Generate WP Kernel artifacts from kernel.config.*.',
 		examples: [
-			['Generate a resource', 'wpk generate resource Job'],
+			['Generate artifacts into .generated/', 'wpk generate'],
+			['Preview changes without writing files', 'wpk generate --dry-run'],
 			[
-				'Dry run without writing files',
-				'wpk generate action Submit --dry-run',
+				'Verbose logging including per-file status',
+				'wpk generate --verbose',
 			],
 		],
 	});
 
-	type = Option.String();
-	name = Option.String();
 	dryRun = Option.Boolean('--dry-run', false);
+	verbose = Option.Boolean('--verbose', false);
 
-	override async execute(): Promise<number | void> {
-		this.context.stdout.write(
-			`[wpk] generate(${this.type}, ${this.name}) :: stub\n`
-		);
-		if (this.dryRun) {
-			this.context.stdout.write('[wpk] dry run - no files created\n');
+	/**
+	 * Summary of the last generation run, populated after `execute` completes.
+	 */
+	public summary?: GenerationSummary;
+
+	override async execute(): Promise<ExitCode> {
+		const reporter = createReporter({
+			namespace: `${WPK_NAMESPACE}.cli.generate`,
+			level: this.verbose ? 'debug' : 'info',
+			enabled: process.env.NODE_ENV !== 'test',
+		});
+
+		const result = await runGenerate({
+			dryRun: this.dryRun,
+			verbose: this.verbose,
+			reporter,
+		});
+
+		this.summary = result.summary;
+
+		if (result.output) {
+			this.context.stdout.write(result.output);
 		}
-		return undefined;
+
+		return result.exitCode;
 	}
 }

@@ -156,7 +156,7 @@ export function createMutateGetter<T, TQuery>(
  */
 export function createCacheGetter<T, TQuery>(
 	config: ResourceConfig<T, TQuery>,
-	cacheKeys: Required<CacheKeys>
+	cacheKeys: Required<CacheKeys<TQuery>>
 ) {
 	return function (this: ResourceObject<T, TQuery>) {
 		return {

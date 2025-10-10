@@ -13,7 +13,8 @@ import type {
 } from '@wordpress/e2e-test-utils-playwright';
 import type { ResourceConfig } from '@geekist/wp-kernel';
 
-// Re-export for convenience
+export type KernelResourceConfig = ResourceConfig<unknown, unknown>;
+
 export type { ResourceConfig };
 
 /**
@@ -155,7 +156,7 @@ export type KernelUtils = {
 	 * @param config - Resource configuration from defineResource
 	 * @return Resource utilities with typed methods
 	 */
-	resource: <T = unknown>(config: ResourceConfig) => ResourceUtils<T>;
+	resource: <T = unknown>(config: KernelResourceConfig) => ResourceUtils<T>;
 
 	/**
 	 * Create store utilities for a given store key

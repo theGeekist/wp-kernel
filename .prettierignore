@@ -18,7 +18,3 @@ yarn.lock
 
 # Ignore coverage
 coverage/**
-
-# Ignore changesets
-.changeset/**/*.md
-!.changeset/README.md

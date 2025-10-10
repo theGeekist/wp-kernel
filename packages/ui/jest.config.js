@@ -34,6 +34,8 @@ export default {
 		...baseConfig.moduleNameMapper,
 		'^@test-utils/(.*)\\.js$': '<rootDir>/tests/test-utils/$1',
 		'^@test-utils/(.*)$': '<rootDir>/tests/test-utils/$1',
+		// Ensure automatic JSX runtime resolves during tests
+		'^@wordpress/element/jsx-runtime$': 'react/jsx-runtime',
 		'^@geekist/wp-kernel$': '<rootDir>/packages/kernel/src',
 		'^@geekist/wp-kernel/(.*)$': '<rootDir>/packages/kernel/src/$1',
 		'^@geekist/wp-kernel-ui$': '<rootDir>/packages/ui/src',
@@ -47,4 +49,24 @@ export default {
 
 	// Setup files
 	setupFilesAfterEnv: ['<rootDir>/tests/setup-jest.ts'],
+
+	// Coverage collection for this package only
+	collectCoverageFrom: [
+		'<rootDir>/packages/ui/src/**/*.{ts,tsx}',
+		'!<rootDir>/packages/ui/src/**/__tests__/**',
+		'!<rootDir>/packages/ui/src/**/*.d.ts',
+		'!<rootDir>/packages/ui/src/index.ts',
+		// Exclude testing utilities (test helpers, not production code)
+		'!<rootDir>/packages/ui/src/hooks/testing/**',
+	],
+
+	// Coverage thresholds for this package
+	coverageThreshold: {
+		global: {
+			branches: 89,
+			functions: 90,
+			lines: 90,
+			statements: 90,
+		},
+	},
 };

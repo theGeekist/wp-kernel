@@ -67,6 +67,16 @@
 			"import": "./dist/reporter/index.js",
 			"default": "./dist/reporter/index.js"
 		},
+		"./namespace": {
+			"types": "./dist/namespace/index.d.ts",
+			"import": "./dist/namespace/index.js",
+			"default": "./dist/namespace/index.js"
+		},
+		"./namespace/constants": {
+			"types": "./dist/namespace/constants.d.ts",
+			"import": "./dist/namespace/constants.js",
+			"default": "./dist/namespace/constants.js"
+		},
 		"./package.json": "./package.json"
 	},
 	"files": [

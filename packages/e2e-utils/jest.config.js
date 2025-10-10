@@ -47,4 +47,23 @@ export default {
 
 	// Setup files
 	setupFilesAfterEnv: ['<rootDir>/tests/setup-jest.ts'],
+
+	// Coverage collection for this package only
+	// Note: e2e-utils is excluded from root coverage but can be tested independently
+	collectCoverageFrom: [
+		'<rootDir>/packages/e2e-utils/src/**/*.{ts,tsx}',
+		'!<rootDir>/packages/e2e-utils/src/**/__tests__/**',
+		'!<rootDir>/packages/e2e-utils/src/**/*.d.ts',
+		'!<rootDir>/packages/e2e-utils/src/index.ts',
+	],
+
+	// Coverage thresholds for this package
+	coverageThreshold: {
+		global: {
+			branches: 89,
+			functions: 90,
+			lines: 90,
+			statements: 90,
+		},
+	},
 };

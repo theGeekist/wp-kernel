@@ -772,4 +772,183 @@ describe('useAction', () => {
 
 		expect(kernelInvalidate).not.toHaveBeenCalled();
 	});
+
+	it('registers invoke action for the kernel store', async () => {
+		resetActionStoreMarker();
+		let registeredInvoke:
+			| ((envelope: ActionEnvelope<any, any>) => ActionEnvelope<any, any>)
+			| null = null;
+		const registerSpy = jest
+			.spyOn(kernelData, 'registerKernelStore')
+			.mockImplementation((name, definition) => {
+				registeredInvoke = (
+					definition.actions as {
+						invoke: (
+							envelope: ActionEnvelope<any, any>
+						) => ActionEnvelope<any, any>;
+					}
+				).invoke;
+				return {
+					name,
+					instantiate: () => ({}) as never,
+				} as never;
+			});
+
+		prepareWpData((envelope) =>
+			envelope.payload.action(envelope.payload.args)
+		);
+
+		const action = makeDefinedAction(async (input: { value: number }) => ({
+			doubled: input.value * 2,
+		}));
+
+		const { result } = renderUseActionHook(action);
+
+		await act(async () => {
+			await result.current.run({ value: 5 });
+		});
+
+		expect(registerSpy).toHaveBeenCalled();
+		if (!registeredInvoke) {
+			throw new Error('Expected action store registration.');
+		}
+		const invoke = registeredInvoke as (
+			envelope: ActionEnvelope<any, any>
+		) => ActionEnvelope<any, any>;
+		expect(typeof invoke).toBe('function');
+
+		const envelope = {
+			payload: { action, args: { value: 7 } },
+		} as unknown as ActionEnvelope<unknown, unknown>;
+
+		expect(invoke(envelope)).toBe(envelope);
+
+		expect(result.current.result).toEqual({ doubled: 10 });
+		registerSpy.mockRestore();
+	});
+
+	it('cancels active deduped requests and clears the dedupe map', async () => {
+		resetActionStoreMarker();
+		const first = createDeferred<string>();
+		const second = createDeferred<string>();
+		prepareWpData((envelope) =>
+			envelope.payload.action(envelope.payload.args)
+		);
+
+		let call = 0;
+		const action = makeDefinedAction(async () => {
+			call += 1;
+			return call === 1 ? first.promise : second.promise;
+		});
+
+		const { result } = renderUseActionHook(action, {
+			dedupeKey: () => 'static-key',
+		});
+
+		act(() => {
+			result.current.run('first');
+		});
+
+		act(() => {
+			result.current.cancel();
+		});
+
+		await act(async () => {
+			await Promise.resolve();
+		});
+
+		let rerun!: Promise<string>;
+		act(() => {
+			rerun = result.current.run('second');
+		});
+
+		expect(call).toBe(2);
+		first.resolve('ignored');
+
+		await act(async () => {
+			second.resolve('second-value');
+			await rerun;
+		});
+
+		expect(result.current.result).toBe('second-value');
+	});
+
+	it('falls back to kernel.invalidate when runtime invalidate is unavailable', async () => {
+		resetActionStoreMarker();
+		const invalidate = jest.fn();
+		prepareWpData((envelope) =>
+			envelope.payload.action(envelope.payload.args)
+		);
+
+		const action = makeDefinedAction(async () => ({ id: 1 }));
+		const kernelInstance = {
+			invalidate: invalidate as KernelInstance['invalidate'],
+		} as KernelInstance;
+
+		const { result, runtime } = renderUseActionHook(
+			action,
+			{
+				autoInvalidate: () => [['resource']],
+			},
+			{ kernel: kernelInstance }
+		);
+
+		runtime.invalidate = undefined as unknown as typeof runtime.invalidate;
+		runtime.kernel = kernelInstance;
+
+		await act(async () => {
+			await result.current.run({} as never);
+		});
+
+		expect(invalidate).toHaveBeenCalledWith([['resource']]);
+	});
+
+	it('throws a descriptive error when queued calls are cancelled before execution', async () => {
+		resetActionStoreMarker();
+		const first = createDeferred<void>();
+		prepareWpData((envelope) =>
+			envelope.payload.action(envelope.payload.args)
+		);
+
+		let call = 0;
+		const action = makeDefinedAction(async () => {
+			call += 1;
+			if (call === 1) {
+				return first.promise;
+			}
+			return 'done';
+		});
+
+		const { result } = renderUseActionHook(action, {
+			concurrency: 'queue',
+		});
+
+		let firstRun!: Promise<unknown>;
+		act(() => {
+			firstRun = result.current.run('initial');
+		});
+
+		await act(async () => {
+			await Promise.resolve();
+		});
+
+		let queuedRun!: Promise<unknown>;
+		act(() => {
+			queuedRun = result.current.run('queued');
+		});
+
+		act(() => {
+			result.current.cancel();
+		});
+
+		await act(async () => {
+			first.resolve();
+			await firstRun.catch(() => undefined);
+		});
+
+		await expect(queuedRun).rejects.toMatchObject({
+			message:
+				'Queued action cancelled before execution in queue concurrency mode',
+		});
+	});
 });
