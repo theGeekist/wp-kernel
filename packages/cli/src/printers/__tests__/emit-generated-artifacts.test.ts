@@ -152,9 +152,9 @@ describe('emitGeneratedArtifacts', () => {
 			);
 			expect(jobContents).toContain("return 'job';");
 			expect(jobContents).toContain('Route: [GET] /jobs');
-			expect(jobContents).toContain('json_decode(');
+			expect(jobContents).toContain('return [');
 
-			const jobRestArgs = extractPhpJsonPayload(jobContents);
+			const jobRestArgs = extractPhpArrayPayload(jobContents);
 			expect(jobRestArgs).toEqual({
 				id: {
 					identity: {
@@ -164,7 +164,15 @@ describe('emitGeneratedArtifacts', () => {
 					required: true,
 					schema: {
 						description: 'Identifier',
+						minimum: 0,
 						type: 'integer',
+					},
+				},
+				log_path: {
+					schema: {
+						description: 'Windows log path for debugging',
+						examples: ['C:\\logs\\'],
+						type: 'string',
 					},
 				},
 				status: {
@@ -183,7 +191,7 @@ describe('emitGeneratedArtifacts', () => {
 			});
 
 			const taskContents = await fs.readFile(taskControllerPath, 'utf8');
-			const taskRestArgs = extractPhpJsonPayload(taskContents);
+			const taskRestArgs = extractPhpArrayPayload(taskContents);
 			expect(taskRestArgs).toEqual({
 				slug: {
 					identity: {
@@ -204,6 +212,7 @@ describe('emitGeneratedArtifacts', () => {
 				tags: {
 					schema: {
 						items: {
+							enum: [],
 							type: 'string',
 						},
 						type: 'array',
@@ -230,8 +239,8 @@ describe('emitGeneratedArtifacts', () => {
 				'class LiteralController extends BaseController'
 			);
 
-			const literalRestArgs = extractPhpJsonPayload(literalContents);
-			expect(literalRestArgs).toEqual({});
+			const literalRestArgs = extractPhpArrayPayload(literalContents);
+			expect(literalRestArgs).toEqual([]);
 
 			const persistenceContents = await fs.readFile(
 				persistencePath,
@@ -241,7 +250,7 @@ describe('emitGeneratedArtifacts', () => {
 			expect(persistenceContents).toContain('storage');
 
 			const persistencePayload =
-				extractPhpJsonPayload(persistenceContents);
+				extractPhpArrayPayload(persistenceContents);
 			expect(persistencePayload).toEqual({
 				resources: {
 					job: {
@@ -250,6 +259,7 @@ describe('emitGeneratedArtifacts', () => {
 							type: 'number',
 						},
 						storage: {
+							cacheTtl: 900,
 							mode: 'wp-post',
 							postType: 'job',
 						},
@@ -259,10 +269,7 @@ describe('emitGeneratedArtifacts', () => {
 							param: 'uuid',
 							type: 'string',
 						},
-						storage: {
-							mode: 'wp-option',
-							optionName: 'literal_mode',
-						},
+						storage: null,
 					},
 					task: {
 						identity: {
@@ -285,6 +292,8 @@ describe('emitGeneratedArtifacts', () => {
 							},
 							mode: 'wp-post',
 							postType: 'task',
+							retryLimit: 2,
+							revision: 3,
 							supports: ['title', 'editor'],
 						},
 					},
@@ -503,6 +512,34 @@ describe('emitGeneratedArtifacts', () => {
 			);
 		});
 	});
+
+	it('throws when encountering non-finite numbers during PHP rendering', async () => {
+		await withTempDir(async (tempDir) => {
+			const context = createPrinterContext(tempDir);
+			const resource = context.ir.resources.find(
+				(entry) => entry.name === 'job'
+			);
+
+			if (!resource) {
+				throw new Error('Expected job resource to be present in IR');
+			}
+
+			resource.storage = {
+				mode: 'wp-post',
+				postType: 'job',
+				meta: {
+					unstable: {
+						type: 'number',
+						default: Number.POSITIVE_INFINITY,
+					},
+				},
+			} as unknown as IRResource['storage'];
+
+			await expect(emitGeneratedArtifacts(context)).rejects.toThrow(
+				'Cannot render non-finite numbers in PHP output.'
+			);
+		});
+	});
 });
 
 it('renders PHP files without docblocks or namespace declarations', () => {
@@ -600,7 +637,16 @@ function createIrFixture(): IRv1 {
 			type: 'object',
 			required: ['id', 'status'],
 			properties: {
-				id: { type: 'integer', description: 'Identifier' },
+				id: {
+					type: 'integer',
+					description: 'Identifier',
+					minimum: 0,
+				},
+				log_path: {
+					type: 'string',
+					description: 'Windows log path for debugging',
+					examples: ['C:\\logs\\'],
+				},
 				title: { type: 'string', description: 'Title' },
 				status: {
 					type: 'string',
@@ -623,7 +669,7 @@ function createIrFixture(): IRv1 {
 				status: { type: 'string' },
 				tags: {
 					type: 'array',
-					items: { type: 'string' },
+					items: { type: 'string', enum: [] },
 				},
 			},
 		},
@@ -635,10 +681,7 @@ function createIrFixture(): IRv1 {
 		key: 'literal',
 		sourcePath: 'contracts/literal.schema.json',
 		hash: 'hash-literal',
-		schema: {
-			type: 'string',
-			enum: ['alpha', 'beta'],
-		},
+		schema: 'string' as unknown,
 		provenance: 'manual',
 	};
 
@@ -678,7 +721,11 @@ function createIrFixture(): IRv1 {
 			},
 		},
 		identity: { type: 'number', param: 'id' } as IRResource['identity'],
-		storage: { mode: 'wp-post', postType: 'job' } as IRResource['storage'],
+		storage: {
+			mode: 'wp-post',
+			postType: 'job',
+			cacheTtl: 900,
+		} as IRResource['storage'],
 		queryParams: undefined,
 		hash: 'resource-job',
 	};
@@ -703,6 +750,8 @@ function createIrFixture(): IRv1 {
 			mode: 'wp-post',
 			postType: 'task',
 			supports: ['title', 'editor'],
+			retryLimit: 2,
+			revision: BigInt(3),
 			meta: {
 				status: { type: 'string', single: true },
 				tags: {
@@ -711,7 +760,7 @@ function createIrFixture(): IRv1 {
 					items: { type: 'string' },
 				},
 			},
-		} as IRResource['storage'],
+		} as unknown as IRResource['storage'],
 		queryParams: undefined,
 		hash: 'resource-task',
 	};
@@ -734,10 +783,6 @@ function createIrFixture(): IRv1 {
 			},
 		},
 		identity: { type: 'string', param: 'uuid' } as IRResource['identity'],
-		storage: {
-			mode: 'wp-option',
-			optionName: 'literal_mode',
-		} as IRResource['storage'],
 		queryParams: undefined,
 		hash: 'resource-literal',
 	};
@@ -788,20 +833,176 @@ function createIrFixture(): IRv1 {
 	return ir;
 }
 
-function extractPhpJsonPayload(contents: string): unknown {
-	const match = contents.match(
-		/return json_decode\([\s\S]*?'([^'\\]*(?:\\.[^'\\]*)*)',\s*true,/u
-	);
-
-	if (!match) {
-		throw new Error('Unable to locate json_decode payload in PHP file');
+function extractPhpArrayPayload(contents: string): unknown {
+	const returnIndex = contents.indexOf('return ');
+	if (returnIndex === -1) {
+		throw new Error('Unable to locate return statement in PHP file');
 	}
 
-	const encoded = match[1]!;
-	const unescapedBackslashes = encoded.replace(/\\\\/g, '\\');
-	const json = unescapedBackslashes.replace(/\\'/g, "'");
+	const expressionStart = contents.indexOf('[', returnIndex);
+	if (expressionStart === -1) {
+		if (/return\s*\[\s*\];/u.test(contents.slice(returnIndex))) {
+			return [];
+		}
 
-	return JSON.parse(json);
+		throw new Error('Unable to locate array payload in PHP file');
+	}
+
+	const { value } = parsePhpValue(contents, expressionStart);
+	return value;
+}
+
+function parsePhpValue(
+	input: string,
+	index: number
+): { value: unknown; nextIndex: number } {
+	index = skipWhitespace(input, index);
+	const char = input[index];
+
+	if (char === '[') {
+		return parsePhpArray(input, index);
+	}
+
+	if (char === "'") {
+		return parsePhpString(input, index);
+	}
+
+	if (/[0-9-]/u.test(char ?? '')) {
+		return parsePhpNumber(input, index);
+	}
+
+	if (input.startsWith('true', index)) {
+		return { value: true, nextIndex: index + 4 };
+	}
+
+	if (input.startsWith('false', index)) {
+		return { value: false, nextIndex: index + 5 };
+	}
+
+	if (input.startsWith('null', index)) {
+		return { value: null, nextIndex: index + 4 };
+	}
+
+	throw new Error(
+		`Unsupported PHP token near: ${input.slice(index, index + 20)}`
+	);
+}
+
+function parsePhpArray(
+	input: string,
+	index: number
+): { value: unknown; nextIndex: number } {
+	let cursor = index + 1;
+	const list: unknown[] = [];
+	const entries: [string, unknown][] = [];
+	let hasAssociativeKey = false;
+
+	while (cursor < input.length) {
+		cursor = skipWhitespace(input, cursor);
+
+		if (input[cursor] === ']') {
+			cursor += 1;
+			break;
+		}
+
+		const entry = parsePhpArrayEntry(input, cursor);
+		cursor = entry.nextIndex;
+
+		if (entry.key === undefined) {
+			list.push(entry.value);
+		} else {
+			hasAssociativeKey = true;
+			entries.push([entry.key, entry.value]);
+		}
+
+		cursor = skipWhitespace(input, cursor);
+		if (input[cursor] === ',') {
+			cursor += 1;
+		}
+	}
+
+	const value = hasAssociativeKey ? Object.fromEntries(entries) : list;
+
+	return { value, nextIndex: cursor };
+}
+
+function parsePhpArrayEntry(
+	input: string,
+	index: number
+): { key?: string; value: unknown; nextIndex: number } {
+	if (input[index] === "'") {
+		const keyResult = parsePhpString(input, index);
+		const afterKey = skipWhitespace(input, keyResult.nextIndex);
+		if (input.slice(afterKey, afterKey + 2) === '=>') {
+			const valueResult = parsePhpValue(input, afterKey + 2);
+			return {
+				key: keyResult.value as string,
+				value: valueResult.value,
+				nextIndex: valueResult.nextIndex,
+			};
+		}
+	}
+
+	const valueResult = parsePhpValue(input, index);
+	return { value: valueResult.value, nextIndex: valueResult.nextIndex };
+}
+
+function parsePhpString(
+	input: string,
+	index: number
+): { value: string; nextIndex: number } {
+	let cursor = index + 1;
+	let result = '';
+
+	while (cursor < input.length) {
+		const char = input[cursor];
+
+		if (char === '\\') {
+			const next = input[cursor + 1];
+			if (next === "'" || next === '\\') {
+				result += next;
+				cursor += 2;
+				continue;
+			}
+
+			result += next ?? '';
+			cursor += 2;
+			continue;
+		}
+
+		if (char === "'") {
+			cursor += 1;
+			break;
+		}
+
+		result += char;
+		cursor += 1;
+	}
+
+	return { value: result, nextIndex: cursor };
+}
+
+function parsePhpNumber(
+	input: string,
+	index: number
+): { value: number; nextIndex: number } {
+	const match = input.slice(index).match(/^-?\d+(?:\.\d+)?/u);
+
+	if (!match) {
+		throw new Error(
+			`Unable to parse number near: ${input.slice(index, index + 20)}`
+		);
+	}
+
+	return { value: Number(match[0]), nextIndex: index + match[0].length };
+}
+
+function skipWhitespace(input: string, index: number): number {
+	while (index < input.length && /\s/u.test(input[index]!)) {
+		index += 1;
+	}
+
+	return index;
 }
 
 function ensureTrailingNewline(value: string): string {

@@ -80,7 +80,7 @@ _Purpose_: Break the large Phase 5/5a scope into three incremental, testable pha
 
 - Printer refactor with helper functions + unit tests.
 - Updated integration snapshots for `.generated/php/**` in the showcase.
-- Documentation updates describing the new structure.
+- Documentation updates (Adapter DX spec) describing the new array structure and adapter recipe.
 - Status log entry.
 
 ### Definition of Done

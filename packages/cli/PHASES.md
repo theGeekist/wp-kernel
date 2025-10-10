@@ -113,7 +113,7 @@
 
 **Parity:** Generated controllers align with showcase working copies; differences documented/back-ported.
 
-**Status Log (fill during execution):** Completed - Type & PHP printers shipped via `emitGeneratedArtifacts` (adapter customisation path verified); Outstanding - None; Risks & Notes - Future emitters should reuse shared builders and replace the current `json_decode` payloads with native PHP array builders for friendlier DX.
+**Status Log (fill during execution):** Completed - Type & PHP printers ship via `emitGeneratedArtifacts` with native PHP array emitters for REST args/persistence; Outstanding - None; Risks & Notes - Array rendering utilities must stay shared across printers so adapters receive consistent shapes.
 
 ---
 
@@ -153,7 +153,7 @@
 | ------------------------------- | ---------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **5A – Guarded Apply Command**  | Stand up `wpk apply` with guarded merges and basic summary reporting.        | Completed - Guarded PHP apply command with merge tests / Outstanding - None / Risks & Notes - Safety flags targeted for 5B                                                                                                       |
 | **5B – Apply Safety & Logging** | Add clean-state enforcement, `--yes/--backup/--force`, and `.wpk-apply.log`. | Completed - Guard rails enforce clean generated sources, optional backups/force flag, and audit log entries / Outstanding - None / Risks & Notes - Git check skips when repository metadata unavailable (falls back to warning). |
-| **5C – PHP Printer DX Upgrade** | Refactor generated PHP to use native arrays and update fixtures/docs.        | Completed - / Outstanding - / Risks & Notes -                                                                                                                                                                                    |
+| **5C – PHP Printer DX Upgrade** | Refactor generated PHP to use native arrays and update fixtures/docs.        | Completed - REST args + persistence now return native arrays, fixtures/docs updated, adapter recipe captured / Outstanding - None / Risks & Notes - Array printer must remain stable for adapter extensions                      |
 
 See the companion Markdown spec for full scope/deliverables/DoD details.
 
