@@ -29,7 +29,7 @@
   **Testing:** none (analysis only).  
   **Parity:** map every config property to runtime usage (resources → `defineResource`, namespace → `configureKernel`).
 
-**Status Log (fill during execution):** Completed - / Outstanding - / Risks & Notes -
+**Status Log (fill during execution):** Completed - Type & PHP printers implemented with adapter hooks and coverage fixtures / Outstanding - None / Risks & Notes - Ensure future emitters reuse builders for consistency
 
 ---
 
@@ -84,7 +84,7 @@
 
 **Parity:** Sanitised namespace matches runtime; appendix documents mapping for each IR field.
 
-**Status Log (fill during execution):** Completed - / Outstanding - / Risks & Notes -
+**Status Log (fill during execution):** Completed - Type & PHP printer foundations implemented with adapter hooks and tests / Outstanding - None / Risks & Notes - Extend coverage to additional emitters in later phases
 
 ---
 
@@ -113,7 +113,7 @@
 
 **Parity:** Generated controllers align with showcase working copies; differences documented/back-ported.
 
-**Status Log (fill during execution):** Completed - / Outstanding - / Risks & Notes -
+**Status Log (fill during execution):** Completed - Type & PHP printers implemented with adapter hooks and coverage fixtures / Outstanding - None / Risks & Notes - Future emitters should reuse shared builders
 
 ---
 
