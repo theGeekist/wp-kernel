@@ -254,6 +254,35 @@
 
 ---
 
+### Phase 7a - Adapter Recipe & Slot System
+
+**Spec references:** [Adapter DX Specification](./docs/Adapter%20DX%20Specification.md)
+
+**Scope:**
+
+- Introduce the `PhpRecipeBuilder` API so adapters compose recipes (namespace imports, controller hooks, REST args, batch endpoints) without touching AST.
+- Extend printers to emit named WPK slots and merge contributions deterministically.
+- Add optional `wpk analyze-php` command that produces read-only JSON describing existing PHP (classes, methods, slots) via `glayzzle/php-parser`.
+- Provide scaffolding/test harness (`wpk adapter scaffold/test`) for adapter authors.
+
+**Deliverables:**
+
+- Recipe builder implementation with unit tests.
+- Printer updates supporting named slots and deterministic merges.
+- Analysis CLI command + documentation.
+- Adapter scaffolding & test commands (`wpk adapter scaffold/test`) with fixtures.
+- Updated Status Log entry for this phase.
+
+**DoD:** Adapters can target named slots via recipes; generated PHP remains stable and readable; analysis command outputs usable JSON; CLI coverage ≥ 89%.
+
+**Testing:** Jest unit tests for builder + analysis; integration tests verifying adapter recipes produce expected `.generated/php/**`.
+
+**Parity:** Existing adapters continue to work; new recipe API enables richer DX without exposing AST.
+
+**Status Log (fill during execution):** Completed - / Outstanding - / Risks & Notes -
+
+---
+
 ### Phase 8 - Documentation, Adoption & QA
 
 **Spec references:** [Section 8 & 9](./the-cli-idea.md#8-testing-strategy), [Section 9](./the-cli-idea.md#9-documentation--adoption)
