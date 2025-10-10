@@ -46,12 +46,18 @@ const PHP_TARGET_DIR = 'inc';
 
 type ChangeTier = 'fast' | 'slow';
 
+/**
+ * File system change metadata tracked by the dev command.
+ */
 export type Trigger = {
 	tier: ChangeTier;
 	event: string;
 	file: string;
 };
 
+/**
+ * Clipanion command that watches kernel sources and regenerates artifacts.
+ */
 export class DevCommand extends Command {
 	static override paths = [['dev']];
 

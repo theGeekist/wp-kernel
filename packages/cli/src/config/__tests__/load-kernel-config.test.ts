@@ -2,8 +2,14 @@ import fs from 'node:fs/promises';
 import fsSync from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { loadKernelConfig } from '../load-kernel-config';
+import {
+	loadKernelConfig,
+	getConfigOrigin,
+	resolveConfigValue,
+	formatError,
+} from '../load-kernel-config';
 import { WPK_CONFIG_SOURCES } from '@geekist/wp-kernel/namespace/constants';
+import { KernelError } from '@geekist/wp-kernel';
 
 const TMP_PREFIX = 'wpk-cli-config-loader-';
 
@@ -146,6 +152,38 @@ describe('loadKernelConfig', () => {
 		);
 	});
 
+	it('wraps composer read failures with KernelError for primitive reasons', async () => {
+		await withWorkspace(
+			{
+				'kernel.config.js': createValidKernelConfig('valid-namespace'),
+				'composer.json': createComposerJson('inc/'),
+			},
+			async () => {
+				const originalReadFile = fs.readFile;
+				const readSpy = jest
+					.spyOn(fs, 'readFile')
+					.mockImplementation(
+						async (filePath: string, encoding?: BufferEncoding) => {
+							if (filePath.endsWith('composer.json')) {
+								throw 'read-failure';
+							}
+							return originalReadFile(
+								filePath,
+								encoding as BufferEncoding
+							);
+						}
+					);
+
+				await expect(loadKernelConfig()).rejects.toMatchObject({
+					code: 'ValidationError',
+				});
+
+				expect(readSpy).toHaveBeenCalled();
+				readSpy.mockRestore();
+			}
+		);
+	});
+
 	it('throws when composer.json is missing autoload metadata', async () => {
 		await withWorkspace(
 			{
@@ -160,6 +198,30 @@ describe('loadKernelConfig', () => {
 				await expect(loadKernelConfig()).rejects.toMatchObject({
 					code: 'ValidationError',
 				});
+			}
+		);
+	});
+
+	it('accepts composer mappings without trailing slash', async () => {
+		await withWorkspace(
+			{
+				'kernel.config.js': createValidKernelConfig('valid-namespace'),
+				'composer.json': JSON.stringify(
+					{
+						name: 'temp/plugin',
+						autoload: {
+							'psr-4': {
+								'Temp\\\\Plugin\\\\': 'inc',
+							},
+						},
+					},
+					null,
+					2
+				),
+			},
+			async () => {
+				const result = await loadKernelConfig();
+				expect(result.namespace).toBe('valid-namespace');
 			}
 		);
 	});
@@ -393,6 +455,35 @@ describe('loadKernelConfig', () => {
 				);
 			}
 		);
+	});
+});
+
+describe('loadKernelConfig helpers', () => {
+	it('throws for unsupported config origins', () => {
+		const result = {
+			filepath: '/workspace/kernel.config.json',
+			config: {},
+		} as unknown as Parameters<typeof getConfigOrigin>[0];
+
+		expect(() => getConfigOrigin(result)).toThrow(KernelError);
+	});
+
+	it('resolves config value across promises and wrappers', async () => {
+		const config = await resolveConfigValue(
+			Promise.resolve({
+				default: {
+					kernelConfig: {
+						config: { version: 1 },
+					},
+				},
+			})
+		);
+
+		expect(config).toEqual({ version: 1 });
+	});
+
+	it('stringifies unknown errors in formatError', () => {
+		expect(formatError(42)).toBe('42');
 	});
 });
 

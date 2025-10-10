@@ -3,8 +3,14 @@ import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { toWorkspaceRelative } from './path';
 
+/**
+ * Outcome recorded for a file write attempt.
+ */
 export type FileWriteStatus = 'written' | 'unchanged' | 'skipped';
 
+/**
+ * Metadata describing an individual file write event.
+ */
 export interface FileWriteRecord {
 	path: string;
 	status: FileWriteStatus;
@@ -12,6 +18,9 @@ export interface FileWriteRecord {
 	reason?: string;
 }
 
+/**
+ * Aggregated summary returned by the `FileWriter.summarise` helper.
+ */
 export interface FileWriterSummary {
 	counts: Record<FileWriteStatus, number>;
 	entries: FileWriteRecord[];
@@ -21,6 +30,9 @@ interface FileWriterOptions {
 	dryRun?: boolean;
 }
 
+/**
+ * Track filesystem writes while deduplicating unchanged content.
+ */
 export class FileWriter {
 	private readonly dryRun: boolean;
 
@@ -30,6 +42,13 @@ export class FileWriter {
 		this.dryRun = Boolean(options.dryRun);
 	}
 
+	/**
+	 * Write file contents if they differ from what already exists.
+	 *
+	 * @param filePath - Absolute or relative file path.
+	 * @param contents - File contents to persist.
+	 * @return The recorded file write status.
+	 */
 	async write(filePath: string, contents: string): Promise<FileWriteStatus> {
 		const absolutePath = path.resolve(filePath);
 		const finalContents = ensureTrailingNewline(contents);
@@ -70,6 +89,9 @@ export class FileWriter {
 		return 'written';
 	}
 
+	/**
+	 * Generate a deterministic summary of all tracked writes.
+	 */
 	summarise(): FileWriterSummary {
 		const entries = Array.from(this.records.values()).sort((a, b) =>
 			a.path.localeCompare(b.path)

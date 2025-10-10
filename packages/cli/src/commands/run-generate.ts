@@ -24,18 +24,30 @@ import type { AdapterExtensionRunResult } from '../adapters';
 type PrettierModule = typeof Prettier;
 type PrettierPlugin = Prettier.Plugin;
 
+/**
+ * Exit codes produced by the runGenerate helper.
+ */
 export type ExitCode = 0 | 1 | 2 | 3;
 
+/**
+ * Aggregated summary returned after generating artifacts.
+ */
 export interface GenerationSummary extends FileWriterSummary {
 	dryRun: boolean;
 }
 
+/**
+ * Options controlling runGenerate behaviour.
+ */
 export interface RunGenerateOptions {
 	dryRun?: boolean;
 	verbose?: boolean;
 	reporter?: Reporter;
 }
 
+/**
+ * Result returned from runGenerate.
+ */
 export interface RunGenerateResult {
 	exitCode: ExitCode;
 	summary?: GenerationSummary;
@@ -46,6 +58,13 @@ export interface RunGenerateResult {
 let prettierPromise: Promise<PrettierModule> | null = null;
 let phpPluginPromise: Promise<PrettierPlugin> | null = null;
 
+/**
+ * Execute the artifact generation workflow.
+ *
+ * Loads kernel config, builds the IR, runs printers, executes adapter
+ * extensions and returns a structured summary including CLI-friendly output.
+ * @param options
+ */
 export async function runGenerate(
 	options: RunGenerateOptions = {}
 ): Promise<RunGenerateResult> {
@@ -471,6 +490,10 @@ function reportError(
 	reporter.child(channel).error(message, serialised);
 }
 
+/**
+ * Serialise unknown errors into JSON-safe payloads for logging.
+ * @param error
+ */
 function serialiseError(error: unknown): Record<string, unknown> {
 	if (KernelError.isKernelError(error)) {
 		return {
