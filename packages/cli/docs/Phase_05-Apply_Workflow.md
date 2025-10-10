@@ -47,6 +47,7 @@ _Purpose_: Break the large Phase 5/5a scope into three incremental, testable pha
     - `0` success
     - `1` validation / guard failure
     - `2` unexpected I/O failure
+- All validation and failure paths should raise `KernelError` instances (e.g., `DeveloperError`, `ValidationError`) and push structured diagnostics through the reporter.
 
 ### Deliverables
 
@@ -58,6 +59,7 @@ _Purpose_: Break the large Phase 5/5a scope into three incremental, testable pha
 
 - All CLI tests + typecheck/lint pass.
 - `.wpk-apply.log` matches snapshot in fixtures.
+- Reporter output and thrown errors match the coded `KernelError` expectations in tests.
 
 ---
 
