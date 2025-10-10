@@ -147,58 +147,15 @@
 
 ---
 
-### Phase 5 - `wpk apply` Command
+### Phase 5 Cohort (See `packages/cli/docs/Phase_05-Apply_Workflow.md` for the detailed breakdown)
 
-**Spec references:** [Section 6 – `wpk apply`](./the-cli-idea.md#6-commands)
+| Sub-phase                       | Summary                                                                      | Status Log                                    |
+| ------------------------------- | ---------------------------------------------------------------------------- | --------------------------------------------- |
+| **5A – Guarded Apply Command**  | Stand up `wpk apply` with guarded merges and basic summary reporting.        | Completed - / Outstanding - / Risks & Notes - |
+| **5B – Apply Safety & Logging** | Add clean-state enforcement, `--yes/--backup/--force`, and `.wpk-apply.log`. | Completed - / Outstanding - / Risks & Notes - |
+| **5C – PHP Printer DX Upgrade** | Refactor generated PHP to use native arrays and update fixtures/docs.        | Completed - / Outstanding - / Risks & Notes - |
 
-**Scope:**
-
-- Implement apply logic that copies `.generated/php` → `inc/` while respecting `WPK:BEGIN/END AUTO` markers.
-- Enforce clean `.generated` state or support `--yes` override.
-- Produce `.wpk-apply.log` summarising actions.
-- Offer `--backup` (writes `.bak` before overwrite) and `--force` for guarded sections.
-- Post-apply validation: PSR-4 namespace/path consistency and detection of manual edits inside AUTO regions.
-
-**Deliverables:**
-
-- `src/commands/apply.ts`, merge utility for guard sections, log writer.
-- Updated Status Log entry for this phase.
-
-**DoD:** Integration tests covering: clean apply, custom code preservation, abort on dirty state, `--yes` and `--backup` behaviour; edits inside AUTO fail without `--force`; PSR-4 check passes.
-
-**Testing:** Jest integration tests with fixture repositories and pre/post-apply validation.
-
-**Parity:** Result matches manual PHP structure with sanitised namespace; documentation updated for apply workflow.
-
-<<<<<<< HEAD
-**Status Log (fill during execution):** Completed - Sandbox extension manager with tests and telemetry example / Outstanding - None / Risks & Notes - Ensure future emitters reuse queueFile helpers
-
----
-
-### Phase 5a - PHP Printer DX Improvements
-
-**Spec references:** [Section 5 – Printers](./the-cli-idea.md#5-printers--emitters)
-
-**Scope:**
-
-- Replace the JSON-string emission in PHP controllers and the persistence registry with native PHP array builders to improve readability and maintainability.
-- Ensure the generated array structures preserve ordering, identity annotations, and schema metadata currently encoded inside the `json_decode` strings.
-- Update documentation/comments to reflect the new code structure so developers know where to edit if manual tweaks are required.
-- Keep array formatting stable (respect indentation, guard comments, and docblocks) so diffs stay clean when regening.
-
-**Deliverables:**
-
-- Refactored printer helpers that render REST args and persistence payloads as PHP arrays, plus supporting unit tests.
-- Updated integration tests validating that generated PHP files match golden fixtures with readable array structures.
-- Updated Status Log entry for this phase.
-
-**DoD:** CLI printers emit PHP arrays instead of JSON strings; regenerated showcase assets remain semantically identical; new fixtures cover both manual and auto schemas; CLI package branch coverage stays ≥ 89%.
-
-**Testing:** Jest unit + integration tests comparing generated PHP against updated golden fixtures.
-
-**Parity:** PHP output retains all current metadata (routes, identity, storage) while being readable for developers editing controllers.
-
-**Status Log (fill during execution):** Completed - / Outstanding - / Risks & Notes -
+See the companion Markdown spec for full scope/deliverables/DoD details.
 
 ---
 
