@@ -336,4 +336,70 @@ describe('useVisiblePrefetch', () => {
 			root.unmount();
 		});
 	});
+
+	it('removes fallback listeners after triggering once', () => {
+		const originalObserver = window.IntersectionObserver;
+		const rafSpy = jest
+			.spyOn(window, 'requestAnimationFrame')
+			.mockImplementation((callback: FrameRequestCallback) => {
+				callback(0);
+				return 1;
+			});
+		const addListenerSpy = jest.spyOn(window, 'addEventListener');
+		const removeListenerSpy = jest.spyOn(window, 'removeEventListener');
+		const windowWithObserver = window as typeof window & {
+			IntersectionObserver?: typeof IntersectionObserver;
+		};
+		windowWithObserver.IntersectionObserver =
+			undefined as unknown as typeof IntersectionObserver;
+
+		const container = document.createElement('div');
+		const root = createRoot(container);
+		const callback = jest.fn();
+		const ref = createRef<HTMLDivElement>();
+
+		function TestComponent() {
+			useVisiblePrefetch(ref, callback, { once: true });
+			return (
+				<div ref={ref} style={{ height: '10px' }}>
+					Target
+				</div>
+			);
+		}
+
+		act(() => {
+			root.render(<TestComponent />);
+		});
+
+		expect(addListenerSpy).toHaveBeenCalledWith(
+			'scroll',
+			expect.any(Function),
+			true
+		);
+
+		act(() => {
+			window.dispatchEvent(new Event('scroll'));
+		});
+
+		expect(callback).toHaveBeenCalled();
+		expect(removeListenerSpy).toHaveBeenCalledWith(
+			'scroll',
+			expect.any(Function),
+			true
+		);
+		expect(removeListenerSpy).toHaveBeenCalledWith(
+			'resize',
+			expect.any(Function),
+			true
+		);
+
+		act(() => {
+			root.unmount();
+		});
+
+		rafSpy.mockRestore();
+		addListenerSpy.mockRestore();
+		removeListenerSpy.mockRestore();
+		windowWithObserver.IntersectionObserver = originalObserver;
+	});
 });

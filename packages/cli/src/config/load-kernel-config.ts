@@ -1,7 +1,7 @@
 /**
- * Kernel config loader
+ * Kernel config loader.
  *
- * Responsible for locating and resolving the project's kernel.config.(ts|js)
+ * Responsible for locating and resolving the project's `kernel.config.(ts|js)`
  * (or a `wpk` field in package.json). It supports TS execution via `tsx`
  * and falls back to standard Node imports for JS files. Returned values
  * are normalised to the canonical kernel configuration object.
@@ -35,6 +35,17 @@ const reporter = createReporter({
 	enabled: process.env.NODE_ENV !== 'test',
 });
 
+/**
+ * Locate and load the project's kernel configuration.
+ *
+ * The function searches for supported config files, executes them via
+ * cosmiconfig loaders, validates the resulting structure and performs a
+ * Composer autoload sanity check to ensure PHP namespaces are mapped
+ * correctly.
+ *
+ * @return The validated kernel config and associated metadata.
+ * @throws KernelError when discovery, parsing or validation fails.
+ */
 export async function loadKernelConfig(): Promise<LoadedKernelConfig> {
 	const explorer = cosmiconfig('wpk', {
 		searchPlaces: [
@@ -98,7 +109,14 @@ export async function loadKernelConfig(): Promise<LoadedKernelConfig> {
 	};
 }
 
-function getConfigOrigin(
+/**
+ * Determine the origin identifier for a discovered config file.
+ *
+ * @param result - Result returned from cosmiconfig.
+ * @return The matching `WPK_CONFIG_SOURCES` identifier.
+ * @throws KernelError when the file is unsupported.
+ */
+export function getConfigOrigin(
 	result: NonNullable<CosmiconfigResult>
 ): WPKConfigSource {
 	const fileName = path.basename(result.filepath);
@@ -166,7 +184,16 @@ function createJsLoader() {
 	};
 }
 
-async function resolveConfigValue(value: unknown): Promise<unknown> {
+/**
+ * Normalise nested config module exports into a raw config value.
+ *
+ * The helper unwraps default exports, `kernelConfig` wrappers, `config`
+ * wrappers and promises to support a wide range of authoring styles.
+ *
+ * @param value - Raw module export from a loader.
+ * @return The resolved kernel config candidate.
+ */
+export async function resolveConfigValue(value: unknown): Promise<unknown> {
 	let current = value;
 
 	while (isPromise(current)) {
@@ -362,7 +389,13 @@ async function getTsImport(): Promise<TsImport> {
 	return cachedTsImport;
 }
 
-function formatError(error: unknown): string {
+/**
+ * Produce a human-readable error message for logging purposes.
+ *
+ * @param error - Unknown error thrown by dynamic imports.
+ * @return The error message or its stringified representation.
+ */
+export function formatError(error: unknown): string {
 	if (error instanceof Error) {
 		return error.message;
 	}

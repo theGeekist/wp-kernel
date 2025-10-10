@@ -14,6 +14,9 @@ const END_MARKER = 'WPK:END AUTO';
 
 const execFile = promisify(execFileCallback);
 
+/**
+ * Summary totals produced when applying generated PHP artifacts.
+ */
 export interface ApplySummary {
 	created: number;
 	updated: number;
@@ -28,6 +31,9 @@ interface ApplyOptions {
 	backup: boolean;
 }
 
+/**
+ * Detailed record describing how a single file was handled.
+ */
 export interface ApplyFileRecord {
 	source: string;
 	target: string;
@@ -36,11 +42,17 @@ export interface ApplyFileRecord {
 	forced?: boolean;
 }
 
+/**
+ * Result returned from the `applyGeneratedPhpArtifacts` helper.
+ */
 export interface ApplyResult {
 	summary: ApplySummary;
 	records: ApplyFileRecord[];
 }
 
+/**
+ * Clipanion command that applies generated PHP into the working directory.
+ */
 export class ApplyCommand extends Command {
 	static override paths = [['apply']];
 
@@ -54,6 +66,9 @@ export class ApplyCommand extends Command {
 	backup = Option.Boolean('--backup', false);
 	force = Option.Boolean('--force', false);
 
+	/**
+	 * Summary of the last apply run, populated after `execute` completes.
+	 */
 	public summary: ApplySummary | null = null;
 
 	override async execute(): Promise<number> {
@@ -143,6 +158,18 @@ export class ApplyCommand extends Command {
 	}
 }
 
+/**
+ * Apply generated PHP files into the target directory.
+ *
+ * Handles dry runs, optional backups and force overwrites while returning a
+ * structured summary of work performed.
+ * @param root0
+ * @param root0.reporter
+ * @param root0.sourceDir
+ * @param root0.targetDir
+ * @param root0.force
+ * @param root0.backup
+ */
 export async function applyGeneratedPhpArtifacts({
 	reporter,
 	sourceDir,

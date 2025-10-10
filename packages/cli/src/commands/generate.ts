@@ -7,6 +7,13 @@ import {
 	type GenerationSummary,
 } from './run-generate';
 
+/**
+ * Clipanion command for generating kernel artifacts.
+ *
+ * The command powers `wpk generate`, running printers and emitting summary
+ * metadata back to the invoking context for inspection in tests or higher level
+ * tooling.
+ */
 export class GenerateCommand extends Command {
 	static override paths = [['generate']];
 
@@ -25,6 +32,9 @@ export class GenerateCommand extends Command {
 	dryRun = Option.Boolean('--dry-run', false);
 	verbose = Option.Boolean('--verbose', false);
 
+	/**
+	 * Summary of the last generation run, populated after `execute` completes.
+	 */
 	public summary?: GenerationSummary;
 
 	override async execute(): Promise<ExitCode> {

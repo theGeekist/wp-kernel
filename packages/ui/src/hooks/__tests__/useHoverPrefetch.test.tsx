@@ -174,6 +174,33 @@ describe('useHoverPrefetch', () => {
 		expect(callback).not.toHaveBeenCalled();
 	});
 
+	it('uses default delay and once behaviour when options are omitted', () => {
+		const { element, callback, unmount } = setupHover();
+
+		act(() => {
+			element.dispatchEvent(
+				new MouseEvent('mouseenter', { bubbles: true })
+			);
+			jest.advanceTimersByTime(149);
+		});
+		expect(callback).not.toHaveBeenCalled();
+
+		act(() => {
+			jest.advanceTimersByTime(1);
+		});
+		expect(callback).toHaveBeenCalledTimes(1);
+
+		act(() => {
+			element.dispatchEvent(
+				new MouseEvent('mouseenter', { bubbles: true })
+			);
+			jest.advanceTimersByTime(200);
+		});
+		expect(callback).toHaveBeenCalledTimes(1);
+
+		unmount();
+	});
+
 	it('handles repeated hover before timeout completes', () => {
 		const { element, callback, unmount } = setupHover({
 			delayMs: 100,

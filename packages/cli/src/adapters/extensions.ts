@@ -10,9 +10,25 @@ import type {
 } from '../config/types';
 import type { IRv1 } from '../ir/types';
 
+/**
+ * Result returned by the `runAdapterExtensions` helper.
+ *
+ * The object mirrors a transactional workflow where adapter extensions are run
+ * in isolation and can later commit their generated files to disk. Consumers
+ * can roll back the sandbox at any time to discard pending writes.
+ */
 export interface AdapterExtensionRunResult {
+	/**
+	 * Final intermediate representation after all extensions have executed.
+	 */
 	ir: IRv1;
+	/**
+	 * Persist queued files to disk and dispose of the sandbox.
+	 */
 	commit: () => Promise<void>;
+	/**
+	 * Remove the sandbox without writing queued files.
+	 */
 	rollback: () => Promise<void>;
 }
 
@@ -35,6 +51,31 @@ interface RunAdapterExtensionsOptions {
 
 const SANDBOX_PREFIX = path.join(os.tmpdir(), 'wpk-adapter-ext-');
 
+/**
+ * Execute adapter extensions within a sandboxed environment.
+ *
+ * Each extension receives a cloned version of the intermediate representation
+ * (IR) and can queue files that are written only after
+ * AdapterExtensionRunResult.commit resolves. Failures automatically roll back
+ * queued writes and propagate a normalised error for consistent reporting.
+ *
+ * @param options - Runtime options for executing adapter extensions.
+ * @return The updated IR along with commit/rollback controls.
+ * @example
+ * ```ts
+ * const { ir, commit } = await runAdapterExtensions({
+ *   extensions: [myExtension],
+ *   adapterContext,
+ *   ir,
+ *   outputDir,
+ *   ensureDirectory,
+ *   writeFile,
+ *   formatPhp,
+ *   formatTs,
+ * });
+ * await commit();
+ * ```
+ */
 export async function runAdapterExtensions(
 	options: RunAdapterExtensionsOptions
 ): Promise<AdapterExtensionRunResult> {
@@ -134,6 +175,7 @@ export async function runAdapterExtensions(
 		ir: effectiveIr,
 		async commit() {
 			if (disposed) {
+				await cleanup();
 				return;
 			}
 
@@ -151,10 +193,6 @@ export async function runAdapterExtensions(
 			}
 		},
 		async rollback() {
-			if (disposed) {
-				return;
-			}
-
 			await cleanup();
 		},
 	};
@@ -199,7 +237,13 @@ async function scheduleFile(
 	return { targetPath, sandboxPath };
 }
 
-function sanitizeNamespace(value: string): string {
+/**
+ * Sanitize adapter extension namespaces for reporter child loggers.
+ *
+ * @param value - Extension namespace, typically provided by the extension.
+ * @return A kebab-case identifier safe for log channels.
+ */
+export function sanitizeNamespace(value: string): string {
 	return value
 		.toLowerCase()
 		.replace(/[^a-z0-9]+/g, '-')
@@ -207,7 +251,17 @@ function sanitizeNamespace(value: string): string {
 		.replace(/-{2,}/g, '-');
 }
 
-async function resolveOutputRoot(outputDir: string): Promise<string> {
+/**
+ * Resolve the canonical output directory for adapter extension artifacts.
+ *
+ * When the directory does not exist, it is created to mirror the behaviour of
+ * `fs.promises.mkdtemp`. Any other filesystem errors are rethrown to the
+ * caller so they can surface meaningful diagnostics.
+ *
+ * @param outputDir - User-specified output directory.
+ * @return The real path to the directory on disk.
+ */
+export async function resolveOutputRoot(outputDir: string): Promise<string> {
 	try {
 		return await fs.realpath(outputDir);
 	} catch (error) {
@@ -220,7 +274,20 @@ async function resolveOutputRoot(outputDir: string): Promise<string> {
 	}
 }
 
-async function validateSandboxTarget(options: {
+/**
+ * Ensure queued files remain within the sandbox output directory.
+ *
+ * The validation walks intermediate path segments to detect symlinks that
+ * could otherwise escape the intended workspace.
+ *
+ * @param options
+ * @param options.targetPath
+ * @param options.relativeTarget
+ * @param options.outputRoot
+ * @param options.outputDir
+ * @internal
+ */
+export async function validateSandboxTarget(options: {
 	targetPath: string;
 	relativeTarget: string;
 	outputRoot: string;
@@ -248,7 +315,13 @@ async function validateSandboxTarget(options: {
 	}
 }
 
-async function safeLstat(filePath: string): Promise<Stats | null> {
+/**
+ * Perform an `fs.lstat` returning `null` when the entry is missing.
+ *
+ * @param filePath - Path to inspect.
+ * @return The stat result or `null` if the file does not exist.
+ */
+export async function safeLstat(filePath: string): Promise<Stats | null> {
 	try {
 		return await fs.lstat(filePath);
 	} catch (error) {
@@ -260,7 +333,14 @@ async function safeLstat(filePath: string): Promise<Stats | null> {
 	}
 }
 
-async function assertWithinOutput(
+/**
+ * Assert that the resolved path resides inside the sandbox output root.
+ *
+ * @param resolvedPath - Real path produced by `fs.realpath`.
+ * @param root         - Root directory that must contain the resolved path.
+ * @throws Error when the path escapes the output directory.
+ */
+export async function assertWithinOutput(
 	resolvedPath: string,
 	root: string
 ): Promise<void> {
@@ -273,7 +353,13 @@ async function assertWithinOutput(
 	);
 }
 
-function isWithinRoot(candidate: string, root: string): boolean {
+/**
+ * Determine whether a candidate path is located within a root directory.
+ *
+ * @param candidate - Path to inspect.
+ * @param root      - Root directory that must contain the candidate.
+ */
+export function isWithinRoot(candidate: string, root: string): boolean {
 	const relative = path.relative(root, candidate);
 	return (
 		relative === '' ||
@@ -283,7 +369,18 @@ function isWithinRoot(candidate: string, root: string): boolean {
 
 const OMIT_FUNCTION = Symbol('omit-function');
 
-function stripFunctions(
+/**
+ * Deeply clone an arbitrary value, removing function references.
+ *
+ * Adapter extensions receive an IR snapshot that should be serialisable. The
+ * helper strips functions while preserving object/array identity, including
+ * circular references.
+ *
+ * @param value
+ * @param seen
+ * @internal
+ */
+export function stripFunctions(
 	value: unknown,
 	seen = new WeakMap<object, unknown>()
 ): unknown {
@@ -350,7 +447,13 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 	return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }
 
-function serialiseError(error: unknown): Record<string, unknown> {
+/**
+ * Convert arbitrary thrown values into a serialisable error payload.
+ *
+ * @param error - Value thrown by an adapter extension.
+ * @return Normalised error metadata for logging.
+ */
+export function serialiseError(error: unknown): Record<string, unknown> {
 	if (KernelError.isKernelError(error)) {
 		return {
 			code: error.code,
@@ -370,19 +473,31 @@ function serialiseError(error: unknown): Record<string, unknown> {
 	return { message: String(error) };
 }
 
-function normaliseError(error: unknown): Error {
-	if (error instanceof Error) {
+/**
+ * Transform thrown values into `Error` instances.
+ *
+ * @param error - Unknown value thrown by an adapter extension.
+ * @return An error instance suitable for propagation to callers.
+ */
+export function normaliseError(error: unknown): Error {
+	if (KernelError.isKernelError(error)) {
 		return error;
 	}
 
-	if (KernelError.isKernelError(error)) {
+	if (error instanceof Error) {
 		return error;
 	}
 
 	return new Error(String(error));
 }
 
-function assertValidExtension(
+/**
+ * Validate that an adapter extension adheres to the expected contract.
+ *
+ * @param extension - Extension instance returned from a factory.
+ * @throws Error when the extension is malformed.
+ */
+export function assertValidExtension(
 	extension: AdapterExtension | undefined | null
 ): asserts extension is AdapterExtension {
 	if (!extension) {
