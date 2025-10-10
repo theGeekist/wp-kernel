@@ -40,4 +40,5 @@ export {
 	InitCommand,
 	DoctorCommand,
 	DevCommand,
+	ApplyCommand,
 } from './commands';
