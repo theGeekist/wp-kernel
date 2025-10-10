@@ -15,6 +15,9 @@ export type {
 	PhpAdapterConfig,
 	PhpAdapterFactory,
 	AdapterContext,
+	AdapterExtension,
+	AdapterExtensionContext,
+	AdapterExtensionFactory,
 	ConfigOrigin,
 	LoadedKernelConfig,
 } from './config';

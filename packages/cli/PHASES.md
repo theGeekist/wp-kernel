@@ -170,7 +170,7 @@
 
 **Parity:** Result matches manual PHP structure with sanitised namespace; documentation updated for apply workflow.
 
-**Status Log (fill during execution):** Completed - / Outstanding - / Risks & Notes -
+**Status Log (fill during execution):** Completed - Sandbox extension manager with tests and telemetry example / Outstanding - None / Risks & Notes - Ensure future emitters reuse queueFile helpers
 
 ---
 
