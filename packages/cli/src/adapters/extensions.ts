@@ -74,7 +74,7 @@ export async function runAdapterExtensions(
 		await fs.rm(sandboxRoot, { recursive: true, force: true });
 	};
 
-	let effectiveIr = ir;
+	let effectiveIr = cloneIr(ir);
 
 	for (const [index, extension] of extensions.entries()) {
 		assertValidExtension(extension);
@@ -158,16 +158,7 @@ export async function runAdapterExtensions(
 }
 
 function cloneIr(ir: IRv1): IRv1 {
-	if (typeof globalThis.structuredClone === 'function') {
-		return globalThis.structuredClone(ir) as IRv1;
-	}
-
-	// Fallback to JSON cloning when structuredClone is unavailable. Our IR
-	// graphs contain only plain objects/arrays/primitives, so JSON
-	// serialisation preserves the required data while keeping the fallback
-	// dependency-free. If richer types are introduced in the future, this
-	// should be revisited.
-	return JSON.parse(JSON.stringify(ir)) as IRv1;
+	return stripFunctions(ir) as IRv1;
 }
 
 interface ScheduleFileOptions {
@@ -203,6 +194,75 @@ function sanitizeNamespace(value: string): string {
 		.replace(/[^a-z0-9]+/g, '-')
 		.replace(/^-+|-+$/g, '')
 		.replace(/-{2,}/g, '-');
+}
+
+const OMIT_FUNCTION = Symbol('omit-function');
+
+function stripFunctions(
+	value: unknown,
+	seen = new WeakMap<object, unknown>()
+): unknown {
+	if (typeof value === 'function') {
+		return OMIT_FUNCTION;
+	}
+
+	if (Array.isArray(value)) {
+		return stripArray(value, seen);
+	}
+
+	if (isPlainObject(value)) {
+		return stripObject(value, seen);
+	}
+
+	return value;
+}
+
+function stripArray(
+	value: unknown[],
+	seen: WeakMap<object, unknown>
+): unknown[] {
+	const existing = seen.get(value);
+	if (existing) {
+		return existing as unknown[];
+	}
+
+	const result: unknown[] = [];
+	seen.set(value, result);
+
+	for (const entry of value) {
+		const next = stripFunctions(entry, seen);
+		if (next !== OMIT_FUNCTION) {
+			result.push(next);
+		}
+	}
+
+	return result;
+}
+
+function stripObject(
+	value: Record<string, unknown>,
+	seen: WeakMap<object, unknown>
+): Record<string, unknown> {
+	const existing = seen.get(value);
+	if (existing) {
+		return existing as Record<string, unknown>;
+	}
+
+	const result: Record<string, unknown> = {};
+	seen.set(value, result);
+
+	for (const [key, entry] of Object.entries(value)) {
+		const next = stripFunctions(entry, seen);
+		if (next !== OMIT_FUNCTION) {
+			result[key] = next;
+		}
+	}
+
+	return result;
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+	return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }
 
 function serialiseError(error: unknown): Record<string, unknown> {

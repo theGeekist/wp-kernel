@@ -47,4 +47,23 @@ export default {
 
 	// Setup files
 	setupFilesAfterEnv: ['<rootDir>/tests/setup-jest.ts'],
+
+	// Coverage collection for this package only
+	collectCoverageFrom: [
+		'<rootDir>/packages/kernel/src/**/*.{ts,tsx}',
+		'!<rootDir>/packages/kernel/src/**/__tests__/**',
+		'!<rootDir>/packages/kernel/src/**/*.d.ts',
+		'!<rootDir>/packages/kernel/src/index.ts',
+		'!<rootDir>/packages/kernel/src/*/index.ts',
+	],
+
+	// Coverage thresholds for this package
+	coverageThreshold: {
+		global: {
+			branches: 89,
+			functions: 90,
+			lines: 90,
+			statements: 90,
+		},
+	},
 };

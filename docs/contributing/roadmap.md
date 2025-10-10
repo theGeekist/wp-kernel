@@ -35,7 +35,7 @@ Write-path orchestration with `defineAction()`, middleware layer, lifecycle even
 
 `createReporter()` with pluggable transports (console, hooks, "all" channel), consolidated logging across all packages, request correlation IDs, reporter context management, noop reporter for production.
 
-### React Hooks Integration (Sprint 5 - Partial, v0.3.0)
+### React Hooks Integration (Sprint 5 - Completed, v0.3.0)
 
 - ✓ `useAction()` - Complete action dispatch system with 4 concurrency modes
 - ✓ `useGet()` & `useList()` - Resource data fetching hooks
@@ -43,7 +43,7 @@ Write-path orchestration with `defineAction()`, middleware layer, lifecycle even
 - ✓ Prefetching hooks: `usePrefetcher()`, `useVisiblePrefetch()`, `useHoverPrefetch()`, `useNextPagePrefetch()`
 - ✓ Lazy attachment mechanism for resources defined before UI loads
 
-### Architecture Implementation (Phases 1-9) - v0.4.0
+### Architecture Implementation Sprint 5.5 (Phases 1-9), Completed v0.4.0
 
 Completed the bootstrap transition to `configureKernel()`, replaced global UI shims with the adapter-driven runtime, introduced the typed event bus, unified action/policy/job signatures around configuration objects, threaded resource reporters through client/store/cache/transport for full observability, and refreshed the documentation stack so every guide, reference, and showcase page matches the final architecture.
 

@@ -431,7 +431,7 @@ function renderPhpAssociative(
 		if (rendered.length === 0) {
 			continue;
 		}
-		const firstLine = rendered[0];
+		const firstLine = rendered[0]!;
 		const remainder = firstLine.slice(childIndent.length);
 		rendered[0] = `${childIndent}'${escapeSingleQuotes(key)}' => ${remainder}`;
 		const last = rendered.length - 1;
