@@ -561,6 +561,16 @@ function createPrinterContext(
 			ensureTrailingNewline(contents),
 		formatTs: async (_filePath, contents) =>
 			ensureTrailingNewline(contents),
+		writeFile: async (filePath, contents) => {
+			await fs.writeFile(
+				filePath,
+				ensureTrailingNewline(contents),
+				'utf8'
+			);
+		},
+		ensureDirectory: async (directoryPath) => {
+			await fs.mkdir(directoryPath, { recursive: true });
+		},
 		...overrides,
 	} as PrinterContext;
 

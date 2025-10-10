@@ -11,4 +11,4 @@
  * code-generation helpers. Keeping it as a constant centralises naming so
  * tests can assert paths without hardcoding string literals.
  */
-export const GENERATED_ROOT = 'generated';
+export const GENERATED_ROOT = '.generated';
