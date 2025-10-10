@@ -162,6 +162,11 @@ function cloneIr(ir: IRv1): IRv1 {
 		return globalThis.structuredClone(ir) as IRv1;
 	}
 
+	// Fallback to JSON cloning when structuredClone is unavailable. Our IR
+	// graphs contain only plain objects/arrays/primitives, so JSON
+	// serialisation preserves the required data while keeping the fallback
+	// dependency-free. If richer types are introduced in the future, this
+	// should be revisited.
 	return JSON.parse(JSON.stringify(ir)) as IRv1;
 }
 
