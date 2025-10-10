@@ -175,7 +175,7 @@ export async function runAdapterExtensions(
 		ir: effectiveIr,
 		async commit() {
 			if (disposed) {
-				await cleanup();
+				// no-op if already disposed
 				return;
 			}
 
