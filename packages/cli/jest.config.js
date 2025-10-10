@@ -48,6 +48,11 @@ export default {
 	// Setup files
 	setupFilesAfterEnv: ['<rootDir>/tests/setup-jest.ts'],
 
+	coveragePathIgnorePatterns: [
+		...(baseConfig.coveragePathIgnorePatterns ?? []),
+		'<rootDir>/packages/cli/src/ir/__fixtures__',
+	],
+
 	// Only collect coverage for this package's source files. This prevents
 	// coverage from including other workspace packages (for example
 	// @geekist/wp-kernel) which would dilute the package's reported
