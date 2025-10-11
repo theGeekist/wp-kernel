@@ -476,10 +476,8 @@ class JobsController extends Controller {
 
 	/**
 	 * Prepare collection parameters.
-	 *
-	 * @return array
 	 */
-	public function get_collection_params(): array {
+	public function get_collection_params() {
 		return array(
 			'_fields'    => array(
 				'description' => __( 'Limit response to specific fields. Supports dot notation for nested fields.', 'wp-kernel-showcase' ),
@@ -519,10 +517,8 @@ class JobsController extends Controller {
 
 	/**
 	 * Get the job posting schema.
-	 *
-	 * @return array Item schema.
 	 */
-	public function get_item_schema(): array {
+	public function get_item_schema() {
 		return array(
 			'$schema'    => 'http://json-schema.org/draft-07/schema#',
 			'title'      => 'Job Posting',
@@ -611,9 +607,8 @@ class JobsController extends Controller {
 	 * @param WP_Post         $post    Job post object.
 	 * @param WP_REST_Request $request Request object.
 	 * @param int             $status  Response status code.
-	 * @return WP_REST_Response
 	 */
-	private function prepare_item_for_response( WP_Post $post, WP_REST_Request $request, int $status = 200 ): WP_REST_Response {
+	public function prepare_item_for_response( $post, $request, $status = 200 ) {
 		$data = $this->filter_response_by_fields(
 			$this->prepare_item_data( $post ),
 			$request
