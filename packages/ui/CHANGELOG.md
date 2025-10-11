@@ -12,6 +12,8 @@
     - `ResourceDataView` React component bridging kernel resources/actions with WordPress DataViews UI
     - Policy-gated actions with error normalization
     - Comprehensive test fixtures for DataViews integration (`packages/ui/fixtures/dataviews/`)
+- **DataViews Phase 3**: `configureKernel` auto-registers resource DataViews configs, wiring runtime events and integration
+  tests across kernel/UI packages.
 
 ### Breaking Changes
 
