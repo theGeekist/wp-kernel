@@ -92,6 +92,7 @@
     - Extend `ResourceConfig` and `ResourceObject` types with `ui.admin.dataviews`.
     - Update CLI validators (`validate-kernel-config`) and loader to accept new metadata.
     - Ensure generated code (e.g., `wpk generate admin-page`) emits scaffolding referencing `ResourceDataView`, optional menu registration, and fixture files per the spec.
+    - Carry forward Phase 3 follow-ups: document the controller registry contract and expose any additional metadata the CLI needs for auto-registration.
     - Add CLI unit tests verifying validation, metadata propagation, and generator outputs (golden fixtures).
 
 - **Deliverables:** kernel type updates, CLI schema updates/tests, generator fixture updates, documentation refresh (`docs/packages/ui.md`, CLI docs).
