@@ -112,7 +112,8 @@
 
 - **Scope:**
     - Update `docs/packages/ui.md`, create a dedicated DataViews guide, and ensure the showcase app demonstrates the new `ResourceDataView`.
-    - Add Playwright scenario exercising list interactions, filters, bulk actions, and DataForm edit.
+    - Update the showcase app to use `ResourceDataView` and `createDataFormController` for at least one resource screen, replacing any legacy table implementation.
+    - Extend `@geekist/wp-kernel-e2e-utils` (or add test fixtures under `packages/ui/fixtures/dataviews`) with helpers that make writing Playwright specs straightforward; do **not** add new Playwright specs in-cloud, just ship the helpers and document usage.
     - Document migration guidance (Phase 0 snapshot, compat data provider) in `/docs/`.
     - Create accessibility backlog items referencing the roadmap sprint (link in doc/Status Log).
 
