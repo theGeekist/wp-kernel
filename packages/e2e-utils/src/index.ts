@@ -14,6 +14,8 @@ export { createKernelUtils } from './createKernelUtils.js';
 
 // Export all types
 export type {
+	DataViewHelper,
+	DataViewHelperOptions,
 	WordPressFixtures,
 	ResourceConfig,
 	ResourceUtils,

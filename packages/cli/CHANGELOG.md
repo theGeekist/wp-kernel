@@ -5,6 +5,9 @@
 ### Changes
 
 - Version bump to align with monorepo
+- DataViews Phase 4: CLI now validates `ui.admin.dataviews` metadata and emits
+  generated React screens, fixtures, and optional menu stubs under
+  `.generated/` for resources declaring DataViews defaults.
 
 ## 0.2.0
 

@@ -6,6 +6,19 @@
 
 - Introduced `attachUIBindings`, `KernelUIProvider`, and runtime context so hooks
   consume configuration explicitly instead of relying on global side effects.
+- **DataViews Phase 2**: Added `ResourceDataView` component with resource/action controllers
+    - `createResourceDataViewController` for DataViews state → resource query mapping
+    - `createDataFormController` for DataForm → kernel action integration with cache invalidation
+    - `ResourceDataView` React component bridging kernel resources/actions with WordPress DataViews UI
+    - Policy-gated actions with error normalization
+    - Comprehensive test fixtures for DataViews integration (`packages/ui/fixtures/dataviews/`)
+- **DataViews Phase 3**: `configureKernel` auto-registers resource DataViews configs, wiring runtime events and integration
+  tests across kernel/UI packages.
+- **DataViews Phase 5**: Complete documentation, showcase integration, and E2E utilities
+    - Comprehensive DataViews guide (`docs/guide/dataviews.md`) with setup, usage patterns, and migration notes
+    - Showcase app JobsList migrated to `ResourceDataView` demonstrating real-world usage
+    - Enhanced `ResourceDataView` with better error handling and loading states
+    - Updated UI package docs with DataViews API reference and examples
 
 ### Breaking Changes
 
@@ -26,6 +39,10 @@
   observed (e.g., lazy-loaded plugins). Components won't auto-rerender on late
   registration but will observe new policies on their next render triggered by
   other state changes.
+- Auto-registered `ResourceDataView` controllers now re-resolve policy runtime
+  accessors so that actions gated by policies unlock once `definePolicy()`
+  registers the runtime, avoiding the need for a full refresh when the UI
+  attached before policies were available.
 
 ### Migration Guide
 

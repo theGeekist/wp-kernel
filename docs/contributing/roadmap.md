@@ -69,7 +69,7 @@ Deepen the learning surface with refreshed block binding walkthroughs, Interacti
 **Sprint 11** - SlotFill (UI extension points)  
 **Sprint 13** - CI Matrices & Playgrounds (expanded WP/PHP test matrices)  
 **Sprint 14-16** - Showcase App (public discovery, applications, admin pipeline)  
-**Sprint 17** - Hardening (performance, accessibility, i18n)  
+**Sprint 17** - Hardening (performance, accessibility, i18n) - DataViews accessibility backlog: - Keyboard trap audit across bulk actions and inline forms - High contrast + dark mode sweep for table rows and selection chips - ARIA announcements for async bulk action results and preference errors - Documented escape hatches for screen reader only copy in ResourceDataView
 **Sprint 18** - Documentation v2 & Migration Guide
 
 **Note:** Sprint 8 (Jobs & background processing) has been descoped. Sprint 12 (Reporter & Transport Middleware) was completed as part of Sprint 4.5 (Unified Reporting).

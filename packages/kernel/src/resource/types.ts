@@ -305,7 +305,59 @@ export type ResourceConfig<
 	 * reporter instead of creating a child reporter from the kernel instance.
 	 */
 	reporter?: Reporter;
+
+	/**
+	 * Optional UI metadata surfaced to runtime integrations (e.g., DataViews).
+	 */
+	ui?: ResourceUIConfig<T, TQuery>;
 };
+
+export interface ResourceDataViewsMenuConfig {
+	slug: string;
+	title: string;
+	capability?: string;
+	parent?: string;
+	position?: number;
+	[key: string]: unknown;
+}
+
+export interface ResourceDataViewsScreenConfig {
+	component?: string;
+	route?: string;
+	resourceImport?: string;
+	resourceSymbol?: string;
+	kernelImport?: string;
+	kernelSymbol?: string;
+	menu?: ResourceDataViewsMenuConfig;
+	[key: string]: unknown;
+}
+
+export interface ResourceDataViewsUIConfig<TItem = unknown, TQuery = unknown> {
+	fields?: unknown[] | readonly unknown[];
+	defaultView?: unknown;
+	actions?: unknown[];
+	mapQuery?: (viewState: Record<string, unknown>) => TQuery;
+	search?: boolean;
+	searchLabel?: string;
+	getItemId?: (item: TItem) => string;
+	empty?: unknown;
+	perPageSizes?: number[];
+	defaultLayouts?: Record<string, unknown>;
+	preferencesKey?: string;
+	screen?: ResourceDataViewsScreenConfig;
+	[key: string]: unknown;
+}
+
+export interface ResourceAdminUIConfig<TItem = unknown, TQuery = unknown> {
+	view?: 'dataviews' | string;
+	dataviews?: ResourceDataViewsUIConfig<TItem, TQuery>;
+	[key: string]: unknown;
+}
+
+export interface ResourceUIConfig<TItem = unknown, TQuery = unknown> {
+	admin?: ResourceAdminUIConfig<TItem, TQuery>;
+	[key: string]: unknown;
+}
 
 /**
  * List response with pagination metadata
@@ -383,6 +435,11 @@ export type ResourceClient<T = unknown, TQuery = unknown> = {
 	 * @throws ServerError on REST API error (including 404)
 	 */
 	remove?: (id: string | number) => Promise<void | T>;
+
+	/**
+	 * Optional UI metadata carried over from ResourceConfig.ui.
+	 */
+	ui?: ResourceUIConfig<T, TQuery>;
 };
 
 /**

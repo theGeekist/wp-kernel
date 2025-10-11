@@ -28,3 +28,4 @@ export { useHoverPrefetch } from './hooks/useHoverPrefetch';
 export { useVisiblePrefetch } from './hooks/useVisiblePrefetch';
 export { useNextPagePrefetch } from './hooks/useNextPagePrefetch';
 export { useAction } from './hooks/useAction';
+export * from './dataviews';

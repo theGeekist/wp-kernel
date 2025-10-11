@@ -6,7 +6,10 @@ import type {
 	ResourceStorageConfig,
 	ResourceQueryParams,
 	ResourceQueryParamDescriptor,
+	ResourceDataViewsUIConfig,
 } from '@geekist/wp-kernel/resource';
+import type { ResourceDataViewConfig } from '@geekist/wp-kernel-ui/dataviews';
+import type { Job } from './.generated/types/job';
 
 /**
  * Showcase kernel configuration
@@ -20,6 +23,7 @@ export type JobListParams = {
 	location?: string;
 	status?: 'draft' | 'publish' | 'closed';
 	cursor?: string;
+	per_page?: number;
 };
 
 export interface SchemaConfig {
@@ -133,14 +137,151 @@ const queryParams: ResourceQueryParams = {
 	} satisfies ResourceQueryParamDescriptor,
 };
 
-const jobResource: ResourceConfig<unknown, JobListParams> = {
+const jobStatusLabels: Record<'draft' | 'publish' | 'closed', string> = {
+	draft: 'Draft',
+	publish: 'Published',
+	closed: 'Closed',
+};
+
+const toTrimmedString = (value: unknown): string | undefined => {
+	if (typeof value !== 'string') {
+		return undefined;
+	}
+
+	const trimmed = value.trim();
+	return trimmed.length > 0 ? trimmed : undefined;
+};
+
+const resolveStatus = (value: unknown): JobListParams['status'] | undefined => {
+	const candidate = Array.isArray(value) ? value[0] : value;
+	const status = toTrimmedString(candidate);
+	return status ? (status as JobListParams['status']) : undefined;
+};
+
+const assignStringFilter = <K extends keyof JobListParams>(
+	target: JobListParams,
+	key: K,
+	value: unknown
+) => {
+	const normalized = toTrimmedString(value);
+	if (normalized) {
+		target[key] = normalized as JobListParams[K];
+	}
+};
+
+type JobDataViewState = {
+	search?: string;
+	filters?: Record<string, unknown>;
+	page?: number;
+	perPage?: number;
+};
+
+const jobQueryMapping = (viewState: Record<string, unknown>): JobListParams => {
+	const state = viewState as JobDataViewState;
+	const params: JobListParams = {
+		cursor: String(state.page ?? 1),
+		per_page: state.perPage ?? 10,
+	};
+
+	const search = toTrimmedString(state.search);
+	if (search) {
+		params.q = search;
+	}
+
+	const filters = state.filters ?? {};
+	const status = resolveStatus(filters.status);
+	if (status) {
+		params.status = status;
+	}
+
+	assignStringFilter(params, 'department', filters.department);
+	assignStringFilter(params, 'location', filters.location);
+
+	return params;
+};
+
+const jobDataViewFields: ResourceDataViewConfig<Job, JobListParams>['fields'] =
+	[
+		{
+			id: 'title',
+			label: 'Title',
+			enableSorting: true,
+		},
+		{ id: 'department', label: 'Department' },
+		{ id: 'location', label: 'Location' },
+		{
+			id: 'status',
+			label: 'Status',
+			elements: (
+				Object.entries(jobStatusLabels) as Array<
+					[keyof typeof jobStatusLabels, string]
+				>
+			).map(([value, label]) => ({ value, label })),
+			filterBy: { operators: ['isAny'] },
+			getValue: ({ item }) =>
+				jobStatusLabels[
+					(item.status as keyof typeof jobStatusLabels) ?? 'draft'
+				] ??
+				item.status ??
+				'',
+		},
+		{
+			id: 'updated_at',
+			label: 'Updated',
+			enableSorting: true,
+			getValue: ({ item }) => {
+				const timestamp = item.updated_at ?? item.created_at;
+				if (!timestamp) {
+					return '';
+				}
+
+				const parsed = new Date(timestamp);
+				return Number.isNaN(parsed.getTime())
+					? timestamp
+					: parsed.toLocaleDateString();
+			},
+		},
+	];
+
+export const jobDataViewsConfig: ResourceDataViewConfig<Job, JobListParams> &
+	ResourceDataViewsUIConfig<Job, JobListParams> = {
+	fields: jobDataViewFields,
+	defaultView: {
+		type: 'table',
+		fields: ['title', 'department', 'location', 'status', 'updated_at'],
+		perPage: 10,
+		page: 1,
+		sort: { field: 'updated_at', direction: 'desc' },
+	},
+	mapQuery: jobQueryMapping,
+	search: true,
+	searchLabel: 'Search jobs',
+	perPageSizes: [10, 20, 50],
+};
+
+const jobResource: ResourceConfig<Job, JobListParams> = {
 	name: 'job',
 	identity,
 	storage,
 	routes,
 	cacheKeys,
 	queryParams,
-} as ResourceConfig<unknown, JobListParams>;
+	ui: {
+		admin: {
+			view: 'dataviews',
+			dataviews: jobDataViewsConfig,
+			screen: {
+				component: 'JobsAdminScreen',
+				route: '/admin.php?page=wpk-jobs',
+				menu: {
+					slug: 'wpk-jobs',
+					title: 'Jobs',
+					capability: 'manage_options',
+				},
+			},
+		},
+	},
+};
 
 const schemaRegistry: Record<string, SchemaConfig> = {
 	job: {
@@ -168,7 +309,7 @@ export const kernelConfig = {
 	schemas: Record<string, SchemaConfig>;
 	resources: Record<
 		string,
-		ResourceConfig<unknown, JobListParams> & { schema: string | 'auto' }
+		ResourceConfig<Job, JobListParams> & { schema: string | 'auto' }
 	>;
 };
 

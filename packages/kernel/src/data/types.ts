@@ -31,6 +31,12 @@ export interface UIIntegrationOptions {
 	suspense?: boolean;
 	notices?: boolean;
 	devtools?: boolean;
+	dataviews?: {
+		enable?: boolean;
+		autoRegisterResources?: boolean;
+		preferences?: unknown;
+		[key: string]: unknown;
+	};
 	[key: string]: unknown;
 }
 

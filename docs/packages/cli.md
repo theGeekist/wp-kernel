@@ -168,11 +168,13 @@ src/
 │   ├── UpdateJob.ts             # Update action with optimistic updates
 │   ├── DeleteJob.ts             # Delete action with confirmation
 │   └── BulkDeleteJobs.ts        # Batch operations
-├── admin/
-│   ├── pages/
-│   │   └── JobsList.tsx         # DataViews-based admin table
-│   └── dataviews/
-│       └── jobViews.ts          # DataViews field configuration
+├── .generated/
+│   ├── ui/
+│   │   ├── app/
+│   │   │   └── job/admin/JobsAdminScreen.tsx  # ResourceDataView screen wired to kernel
+│   │   └── dataviews/jobDataView.ts          # createResourceDataViewController scaffold
+│   └── php/
+│       └── Admin/Menu_JobsAdminScreen.php    # Optional menu registration
 ├── types/
 │   └── job.d.ts                 # TypeScript interfaces
 └── __tests__/
@@ -183,6 +185,8 @@ src/
     └── e2e/
         └── job-admin.spec.ts    # End-to-end admin tests
 ```
+
+> Generated assets land under `.generated/` by default. Commit them directly or promote them into your source tree as part of your build step.
 
 **PHP Bridge Files:**
 
@@ -255,30 +259,41 @@ wpk generate admin-page ProductsList \
 **Generated Admin Page:**
 
 ```typescript
-// src/admin/pages/ProductsList.tsx
-import { DataViews } from '@wordpress/dataviews';
-import { useSelect, useDispatch } from '@wordpress/data';
-import { SearchControl, SelectControl, Button } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+// .generated/ui/app/product/admin/ProductsAdminScreen.tsx
+import {
+        createResourceDataViewController,
+        createDataFormController,
+        ResourceDataView,
+} from '@geekist/wp-kernel-ui/dataviews';
 import { product } from '../../resources/product';
-import { DeleteProduct, BulkDeleteProducts } from '../../actions/product';
+import { CreateProduct } from '../../actions/product';
 
-const fields = [
-	{ id: 'name', label: __('Product Name', 'my-plugin'), enableSorting: true },
-	{ id: 'price', label: __('Price', 'my-plugin'), enableSorting: true },
-	{ id: 'status', label: __('Status', 'my-plugin'), enableSorting: true },
-	{
-		id: 'created_at',
-		label: __('Created', 'my-plugin'),
-		enableSorting: true,
-	},
-];
+const controller = createResourceDataViewController({
+        resource: product,
+        config: product.ui?.admin?.dataviews!,
+});
 
-export default function ProductsListPage() {
-	// Complete implementation with search, filters, bulk actions
-	// Uses DataViews for WordPress 6.7+, fallback table for older versions
+const createProductForm = createDataFormController({
+        action: CreateProduct,
+        onSuccess: ({ invalidate }) => invalidate(controller.keys.list()),
+});
+
+export default function ProductsAdminScreen() {
+        return (
+                <ResourceDataView
+                        controller={controller}
+                        dataForm={createProductForm}
+                        emptyState={{
+                                title: 'No products yet',
+                                description: 'Create the first product to publish it in the catalog.',
+                                actionLabel: 'Add product',
+                        }}
+                />
+        );
 }
 ```
+
+Actions declared in `product.ui.admin.dataviews.actions` determine which kernel actions run for row and bulk operations (for example `products.delete` mapping to `DeleteProduct`).
 
 #### Action Generation with Patterns
 
@@ -427,10 +442,10 @@ wpk generate admin-table JobsList \
 
 Generates code using:
 
-- DataViews for table interface
+- `ResourceDataView` + `createResourceDataViewController`
 - Script Modules for loading
-- Full Interactivity API features
-- Latest @wordpress/components
+- Inline creation via `createDataFormController`
+- Latest `@wordpress/components`
 
 #### Legacy-Compatible Generation
 

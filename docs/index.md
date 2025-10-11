@@ -21,6 +21,10 @@ features:
       title: Typed Resources
       details: Define REST contracts once, get typed client + store + cache keys + events. One definition for your entire data layer.
 
+    - icon: 🗂️
+      title: Admin DataViews
+      details: Generate WordPress 6.7+ DataViews screens powered by kernel controllers, policies, and persisted preferences.
+
     - icon: 🔌
       title: Block Bindings & Interactivity
       details: Bind core WordPress blocks to your data. Add behavior with the Interactivity API. No custom blocks needed for most use cases.
@@ -104,7 +108,7 @@ createRoot(node).render(
 
 ## What ships in the repository
 
-The monorepo includes the core `@geekist/wp-kernel` package for resources, Actions, events, and jobs; `@geekist/wp-kernel-ui` for bindings and components; `@geekist/wp-kernel-e2e-utils` for Playwright helpers; and a showcase application that exercises the full stack. Tooling for linting, testing, and CI/CD is already configured so new contributors can focus on product work from day one.
+The monorepo includes the core `@geekist/wp-kernel` package for resources, Actions, events, and jobs; `@geekist/wp-kernel-ui` for DataViews controllers, forms, and bindings; `@geekist/wp-kernel-e2e-utils` for Playwright helpers; and a showcase application that exercises the full stack. Tooling for linting, testing, and CI/CD is already configured so new contributors can focus on product work from day one.
 
 ## Ready to start?
 

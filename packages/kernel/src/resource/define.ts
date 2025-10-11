@@ -420,6 +420,12 @@ export function defineResource<T = unknown, TQuery = unknown>(
 		},
 	};
 
+	const configWithUI = config as ResourceConfig<T, TQuery>;
+
+	if (configWithUI.ui && typeof configWithUI.ui === 'object') {
+		resource.ui = configWithUI.ui;
+	}
+
 	const definition = {
 		resource: resource as ResourceObject<unknown, unknown>,
 		namespace,

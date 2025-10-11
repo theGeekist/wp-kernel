@@ -2,6 +2,7 @@ import type {
 	ResourceIdentityConfig,
 	ResourceQueryParams,
 	ResourceStorageConfig,
+	ResourceUIConfig,
 } from '@geekist/wp-kernel/resource';
 import type { KernelConfigV1 } from '../config/types';
 
@@ -46,6 +47,7 @@ export interface IRResource {
 	identity?: ResourceIdentityConfig;
 	storage?: ResourceStorageConfig;
 	queryParams?: ResourceQueryParams;
+	ui?: ResourceUIConfig;
 	hash: string;
 }
 

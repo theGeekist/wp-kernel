@@ -54,10 +54,12 @@ The plugin bootstraps with `configureKernel()` to install middleware, publishes 
 
 ✓ **Jobs Management**
 
-- Standard WordPress list table
-- Publish, close, duplicate jobs
-- Bulk operations
-- Custom columns (department, location, status)
+- `ResourceDataView` screen backed by kernel controllers
+- Inline creation with `createDataFormController`
+- Policy-gated row & bulk actions (publish, close, duplicate)
+- Custom columns (department, location, status) driven by metadata
+- Persisted view preferences per user/role/site
+- `data-wpk-dataview-*` selectors expose reliable hooks for Playwright helpers
 
 ✓ **Application Pipeline (Kanban)**
 
