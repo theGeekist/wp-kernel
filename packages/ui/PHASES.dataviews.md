@@ -110,11 +110,8 @@
 **Spec references:** §6 Implementation Plan (Docs & Testing), §9 Deferred Items & Follow-Ups  
 **Goal:** Final polish for MVP: documentation, example screens, and Playwright regression coverage; log accessibility follow-up tasks for the dedicated sprint.
 
-- **Scope:**
-    - Update `docs/packages/ui.md`, create a dedicated DataViews guide, and ensure the showcase app demonstrates the new `ResourceDataView`.
-| P5    | Docs refreshed (`packages/ui/README.md`, `/docs/packages/ui.md`, `/docs/guide/dataviews.md`); showcase + e2e helpers updated; roadmap backlog noted                | None                                                                                | Docs reiterate runtime-only imports; guide links to roadmap sprint for accessibility follow-ups.                      |
-    - Document migration guidance (Phase 0 snapshot, compat data provider) in `/docs/`.
-    - Create accessibility backlog items referencing the roadmap sprint (link in doc/Status Log).
+- **Scope:** - Update `docs/packages/ui.md`, create a dedicated DataViews guide, and ensure the showcase app demonstrates the new `ResourceDataView`.
+  | P5 | Docs refreshed (`packages/ui/README.md`, `/docs/packages/ui.md`, `/docs/guide/dataviews.md`); showcase + e2e helpers updated; roadmap backlog noted | None | Docs reiterate runtime-only imports; guide links to roadmap sprint for accessibility follow-ups. | - Document migration guidance (Phase 0 snapshot, compat data provider) in `/docs/`. - Create accessibility backlog items referencing the roadmap sprint (link in doc/Status Log).
 
 - **Deliverables:** documentation updates, Playwright specs under `e2e/`, migration notes, backlog references.
 
