@@ -1,124 +1,162 @@
 # @geekist/wp-kernel-ui
 
-> WordPress-native UI components for modern admin interfaces and blocks
+> WordPress-native UI primitives that stay aligned with WP Kernel resources, actions, and events.
 
 ## Overview
 
-React components built on `@wordpress/components` with kernel-aware functionality:
+This package exposes UI building blocks that lean on the kernel runtime instead of bespoke data plumbing. Major surfaces include:
 
-- **ActionButton** - Buttons that trigger actions (never transport directly)
-- **DataViews integration** - Modern admin tables for WordPress 6.7+
-- **ResourceForm** - Forms with validation and action submission
-- **Block utilities** - Binding and Interactivity API helpers
+- **ResourceDataView** – render `@wordpress/dataviews` with kernel-aware controllers, policy gating, and persisted preferences.
+- **createResourceDataViewController** – translate DataViews state (search, filters, sort, pagination) into resource queries and event payloads.
+- **createDataFormController** – pair inline editors with kernel actions and automatic cache invalidation.
+- **ActionButton / useAction** – trigger kernel actions from the UI without touching transports directly.
+- **KernelUIProvider** – share the bootstrapped runtime with React components.
 
-Maintains WordPress design consistency while adding modern patterns.
+All runtime imports come from published packages (`@wordpress/dataviews`, `@wordpress/components`) while this repository mirrors their types and wiring. The snapshot under `packages/ui/vendor/` is reference-only.
 
-## Quick Start
+## Installation
 
 ```bash
-npm install @geekist/wp-kernel-ui @geekist/wp-kernel
+pnpm add @geekist/wp-kernel-ui @geekist/wp-kernel
 ```
 
-```typescript
-import { ActionButton, useResource } from '@geekist/wp-kernel-ui';
-import { CreatePost } from '@/actions/CreatePost';
-import { post } from '@/resources/post';
+Peer dependencies (React 18+, WordPress 6.7+) must be installed alongside.
 
-function PostDashboard() {
-  const { data: posts, isLoading } = useResource(post);
+## Bootstrapping the runtime
 
-  return (
-    <div>
-      <ActionButton action={CreatePost} variant="primary">
-        Add New Post
-      </ActionButton>
+```tsx
+import { configureKernel } from '@geekist/wp-kernel';
+import { attachUIBindings, KernelUIProvider } from '@geekist/wp-kernel-ui';
+import { job } from '@/resources/job';
 
-      {isLoading ? <Spinner /> : (
-        <ul>{posts.map(p => <li key={p.id}>{p.title}</li>)}</ul>
-      )}
-    </div>
-  );
+const kernel = configureKernel({
+	namespace: 'demo',
+	registry: window.wp.data,
+	ui: {
+		attach: attachUIBindings,
+		dataviews: {
+			enable: true,
+			autoRegisterResources: true,
+		},
+	},
+});
+
+const runtime = kernel.getUIRuntime();
+
+const App = () => (
+	<KernelUIProvider runtime={runtime}>
+		{/* screens render ResourceDataView with controllers */}
+	</KernelUIProvider>
+);
+```
+
+## DataViews in practice
+
+1. **Describe the view in your resource config** so CLI generators and the runtime can discover it:
+
+```ts
+export const job = defineResource<Job, JobQuery>({
+	name: 'job',
+	routes: {
+		/* … */
+	},
+	ui: {
+		admin: {
+			dataviews: {
+				preferencesKey: 'jobs/admin',
+				mapQuery: ({ search, filters, sort, page, perPage }) => ({
+					q: search,
+					department: filters.department,
+					orderBy: sort?.field ?? 'created_at',
+					order: sort?.direction ?? 'desc',
+					page,
+					perPage,
+				}),
+				actions: [
+					{
+						id: 'jobs.edit',
+						action: 'Job.Edit',
+						supportsBulk: false,
+					},
+				],
+			},
+		},
+	},
+});
+```
+
+2. **Create the controller** (the CLI will scaffold this for you):
+
+```ts
+import { createResourceDataViewController } from '@geekist/wp-kernel-ui/dataviews';
+import { job } from '@/resources/job';
+
+export const jobDataView = createResourceDataViewController({
+	resource: job,
+	config: job.ui?.admin?.dataviews!,
+});
+```
+
+3. **Render the screen** with `ResourceDataView` and optionally a `createDataFormController` for inline creation flows:
+
+```tsx
+import {
+	ResourceDataView,
+	createDataFormController,
+} from '@geekist/wp-kernel-ui/dataviews';
+import { jobDataView } from '@/dataviews/jobDataView';
+import { createJob } from '@/actions/Job.Create';
+
+const createJobForm = createDataFormController({
+	action: createJob,
+	onSuccess: ({ invalidate }) => invalidate(jobDataView.keys.list()),
+});
+
+export function JobsAdminScreen() {
+	return (
+		<ResourceDataView
+			controller={jobDataView}
+			dataForm={createJobForm}
+			emptyState={{
+				title: 'No jobs yet',
+				description:
+					'Create the first role to publish it on the careers site.',
+				actionLabel: 'Add job',
+			}}
+		/>
+	);
 }
 ```
 
-## Key Components
+`ResourceDataView` emits `data-wpk-dataview-*` attributes so Playwright helpers can target search, filters, bulk actions, and counters reliably.
 
-**📖 [Complete Documentation →](../../docs/packages/ui.md)**
+## CLI & Showcase integration
 
-## React Hooks
+Running `wpk generate admin-page job` consumes the metadata above and emits:
 
-- `usePolicy()` – subscribe to policy results with hydration-safe loading states.
-- `attachResourceHooks(resource)` – attach `useGet`/`useList` hooks to kernel resources.
-- `useAction()` – dispatch kernel actions with React state management
+- `.generated/ui/app/job/admin/JobsAdminScreen.tsx` using `ResourceDataView`.
+- `.generated/php/Admin/Menu_JobsAdminScreen.php` when menu metadata is provided.
+- `.generated/ui/fixtures/dataviews/job.ts` for tests and documentation.
 
-> Importing `@geekist/wp-kernel-ui` once in your app bootstrap automatically registers resource hooks for all defined resources.
+The showcase application (`app/showcase`) mounts the generated screen to demonstrate best practices end-to-end.
 
-**Note**: The `configureKernel()` bootstrap function is available from `@geekist/wp-kernel` (see [Data Integration Guide](/guide/data)).
+## Testing & E2E helpers
 
-### Admin Interfaces
+Unit tests live alongside the controllers and components (`packages/ui/src/dataviews/__tests__`). For end-to-end coverage, `@geekist/wp-kernel-e2e-utils` exposes `kernel.dataview()` helpers that build on the DOM attributes emitted by `ResourceDataView`.
 
-```typescript
-// DataViews for WordPress 6.7+
-import { AdminTable } from '@geekist/wp-kernel-ui';
-<AdminTable resource={user} fields={userFields} />
-
-// Fallback for older WordPress
-<FallbackTable resource={user} />
+```ts
+const dataview = kernel.dataview({ resource: 'job' });
+await dataview.waitForLoaded();
+await dataview.search('engineer');
+await dataview.selectRow('Engineering Manager');
+await dataview.runBulkAction('Publish');
 ```
 
-### Action Integration
+See the [DataViews guide](../../docs/guide/dataviews.md) for a full walkthrough covering configuration, CLI scaffolding, runtime integration, migration strategy, and accessibility follow-ups.
 
-```typescript
-// Buttons that trigger actions
-<ActionButton action={DeleteUser} variant="destructive">
-  Delete User
-</ActionButton>
+## Additional resources
 
-// Forms with kernel actions
-<ResourceForm
-  resource={user}
-  createAction={CreateUser}
-  updateAction={UpdateUser}
-/>
-```
-
-## Development Status (Sprint 5 - Bindings & Interactivity)
-
-- ✓ Component architecture designed
-- ✓ Core hooks specified
-- 🚧 `useAction()` hook implementation (Sprint 5)
-- 🚧 `useEvents()` hook implementation (Sprint 5)
-- ⏳ Layout components (Sprint 6+)
-- ⏳ Block components (Sprint 6+)
-- ⏳ Admin CRUD patterns (Sprint 6+)
-
-**Current Status**: Specification complete, implementation starting in Sprint 5
-
-## Actions in React
-
-`useAction` wraps kernel Actions with a React-friendly state machine and the
-same middleware pipeline used everywhere else. You get predictable status
-transitions, optional dedupe, concurrency controls, and automatic cache
-invalidation hooks. Pair it with `configureKernel()` from `@geekist/wp-kernel` so the data registry is wired up.
-
-- [Guide – Actions](/guide/actions)
-- [API reference – `useAction`](/api/useAction)
-
-## Requirements
-
-- **WordPress**: 6.7+
-- **React**: 18+
-- **@geekist/wp-kernel**: Latest version
-
-## Documentation
-
-- **[Getting Started](https://thegeekist.github.io/wp-kernel/getting-started/)** - Basic setup
-- **[Component Patterns](https://thegeekist.github.io/wp-kernel/guide/ui-patterns)** - Planned component patterns
-
-## Contributing
-
-See the [main repository](https://github.com/theGeekist/wp-kernel) for contribution guidelines.
-
-## License
-
-EUPL-1.2 © [The Geekist](https://github.com/theGeekist)
+- [DataViews Integration – Specification](./DataViews%20Integration%20-%20Specification.md)
+- [Phased delivery plan](./PHASES.dataviews.md)
+- [E2E helpers](../e2e-utils/README.md)
+- [Project documentation](../../docs/index.md)

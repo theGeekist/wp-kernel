@@ -218,6 +218,24 @@ test('action emits correct events', async ({ page, kernel }) => {
 });
 ```
 
+### DataView helpers (`dataview`)
+
+```typescript
+test('jobs admin screen', async ({ admin, kernel }) => {
+	await admin.visitAdminPage('admin.php', 'page=wpk-jobs');
+
+	const dataview = kernel.dataview({ resource: 'job' });
+	await dataview.waitForLoaded();
+	await dataview.search('engineer');
+	await dataview.selectRow('Engineering Manager');
+	await dataview.runBulkAction('Publish');
+
+	expect(await dataview.getSelectedCount()).toBeGreaterThan(0);
+});
+```
+
+> The helper expects `ResourceDataView` to emit its standard `data-wpk-dataview-*` attributes. See the [DataViews guide](../guide/dataviews.md) for the configuration steps that power this screen.
+
 ### Project Utilities (`project`)
 
 **Manage test environments:**

@@ -37,7 +37,7 @@
 
 - **Testing:** Jest unit tests (preferences precedence, event bus usage).
 
-- **Status Log:** _TBD_
+- **Status Log:** Completed (see table below).
 
 ---
 
@@ -112,7 +112,7 @@
 
 - **Scope:**
     - Update `docs/packages/ui.md`, create a dedicated DataViews guide, and ensure the showcase app demonstrates the new `ResourceDataView`.
-    - Add Playwright scenario exercising list interactions, filters, bulk actions, and DataForm edit.
+| P5    | Docs refreshed (`packages/ui/README.md`, `/docs/packages/ui.md`, `/docs/guide/dataviews.md`); showcase + e2e helpers updated; roadmap backlog noted                | None                                                                                | Docs reiterate runtime-only imports; guide links to roadmap sprint for accessibility follow-ups.                      |
     - Document migration guidance (Phase 0 snapshot, compat data provider) in `/docs/`.
     - Create accessibility backlog items referencing the roadmap sprint (link in doc/Status Log).
 

@@ -4,7 +4,7 @@
  * @module
  */
 
-import type { Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 import type {
 	Admin,
 	Editor,
@@ -62,6 +62,42 @@ export type ResourceUtils<T = unknown> = {
 	 * WARNING: This will delete all resources of this type
 	 */
 	deleteAll: () => Promise<void>;
+};
+
+/**
+ * Helper options for interacting with DataViews in Playwright.
+ */
+export type DataViewHelperOptions = {
+	/** Resource name used to locate the DataView wrapper. */
+	resource: string;
+	/** Optional namespace attribute to disambiguate multiple runtimes. */
+	namespace?: string;
+	/** Optional CSS selector limiting the search scope. */
+	within?: string;
+};
+
+/**
+ * Convenience helpers for interacting with ResourceDataView in tests.
+ */
+export type DataViewHelper = {
+	/** Root locator for the DataView wrapper. */
+	root: () => Locator;
+	/** Wait until the DataView reports that loading has finished. */
+	waitForLoaded: () => Promise<void>;
+	/** Fill the toolbar search control. */
+	search: (value: string) => Promise<void>;
+	/** Clear the search control. */
+	clearSearch: () => Promise<void>;
+	/** Retrieve a locator for a row containing the provided text. */
+	getRow: (text: string) => Locator;
+	/** Toggle selection for a row that matches the provided text. */
+	selectRow: (text: string) => Promise<void>;
+	/** Trigger a bulk action button by its visible label. */
+	runBulkAction: (label: string) => Promise<void>;
+	/** Read the bulk selection counter rendered in the footer. */
+	getSelectedCount: () => Promise<number>;
+	/** Read the total item count exposed by the wrapper metadata. */
+	getTotalCount: () => Promise<number>;
 };
 
 /**
@@ -175,4 +211,11 @@ export type KernelUtils = {
 	events: <P = unknown>(
 		options?: EventRecorderOptions
 	) => Promise<EventRecorder<P>>;
+
+	/**
+	 * Interact with a DataView rendered via ResourceDataView.
+	 *
+	 * @param options - Selection options for the DataView wrapper.
+	 */
+	dataview: (options: DataViewHelperOptions) => DataViewHelper;
 };
