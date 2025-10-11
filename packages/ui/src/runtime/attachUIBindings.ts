@@ -100,12 +100,8 @@ function registerResourceDataView<TItem, TQuery>(
 			invalidate: runtime.invalidate,
 			policies: runtime.policies,
 			preferencesKey: metadata.preferencesKey,
-			fetchList: resource.fetchList as
-				| typeof resource.fetchList
-				| undefined,
-			prefetchList: resource.prefetchList as
-				| typeof resource.prefetchList
-				| undefined,
+			fetchList: resource.fetchList,
+			prefetchList: resource.prefetchList,
 		});
 
 		dataviews.controllers.set(resource.name, controller);
