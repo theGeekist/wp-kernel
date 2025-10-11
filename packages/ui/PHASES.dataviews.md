@@ -111,14 +111,14 @@
 **Goal:** Final polish for MVP: documentation, example screens, and Playwright regression coverage; log accessibility follow-up tasks for the dedicated sprint.
 
 - **Scope:**
-    - Update `docs/packages/ui.md`, create a dedicated DataViews guide, and add showcase example using `ResourceDataView`.
+    - Update `docs/packages/ui.md`, create a dedicated DataViews guide, and ensure the showcase app demonstrates the new `ResourceDataView`.
     - Add Playwright scenario exercising list interactions, filters, bulk actions, and DataForm edit.
     - Document migration guidance (Phase 0 snapshot, compat data provider) in `/docs/`.
     - Create accessibility backlog items referencing the roadmap sprint (link in doc/Status Log).
 
 - **Deliverables:** documentation updates, Playwright specs under `e2e/`, migration notes, backlog references.
 
-- **DoD:** `pnpm test` (full suite) passes including Playwright (`pnpm --filter @geekist/wp-kernel-e2e test`); docs published locally via `pnpm docs:dev` smoke test; Accessibility tasks logged; Status Log summarises coverage results.
+- **DoD:** `pnpm test` (full suite) passes including Playwright (`pnpm --filter @geekist/wp-kernel-e2e test`); docs published locally via `pnpm docs:dev` smoke test; showcase example updated; Accessibility tasks logged; Status Log summarises coverage results.
 
 - **Testing:** Playwright E2E, doc build (`pnpm docs:build`) smoke test.
 
@@ -133,5 +133,5 @@
 | P1    | Kernel UI runtime exposes DataViews namespace with preferences adapter, events, errors, and snapshot updater script.                                               | None                                                                                | Snapshot script depends on local Gutenberg checkout; ensure `GUTENBERG_PATH` is set in environments without the repo. |
 | P2    | Resource DataView controller, DataForm controller, React wrapper, and fixtures implemented with unit coverage for query mapping, persistence, and action dispatch. | Document standalone runtime usage guidance and extend integration tests in Phase 3. | DataViews snapshot remains reference-only; ensure runtime imports continue to resolve from `node_modules`.            |
 | P3    | configureKernel auto-wires DataViews runtime options, registering controllers on `resource:defined` and bridging `ui:dataviews:*` events.                          | None                                                                                | Kernel + UI integration tests cover resource replay, live registration, and event emission.                           |
-| P4    |                                                                                                                                                                    |                                                                                     |                                                                                                                       |
-| P5    |                                                                                                                                                                    |                                                                                     |                                                                                                                       |
+| P4    | Resource metadata typed for DataViews; CLI validation/IR propagate it and generators emit `.generated/ui` screens, fixtures, and optional PHP menus.               | None                                                                                | CLI outputs require declarative metadata (functions are rejected during serialisation).                               |
+| P5    | -                                                                                                                                                                  | -                                                                                   | -                                                                                                                     |

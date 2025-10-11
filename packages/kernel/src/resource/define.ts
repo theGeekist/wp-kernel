@@ -420,12 +420,10 @@ export function defineResource<T = unknown, TQuery = unknown>(
 		},
 	};
 
-	const configWithUI = config as ResourceConfig<T, TQuery> & {
-		ui?: Record<string, unknown>;
-	};
+	const configWithUI = config as ResourceConfig<T, TQuery>;
 
 	if (configWithUI.ui && typeof configWithUI.ui === 'object') {
-		(resource as { ui?: Record<string, unknown> }).ui = configWithUI.ui;
+		resource.ui = configWithUI.ui;
 	}
 
 	const definition = {
