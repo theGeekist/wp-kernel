@@ -111,6 +111,11 @@ function registerResourceDataView<TItem, TQuery>(
 			metadata: metadata.config as unknown as Record<string, unknown>,
 		});
 
+		dataviews.events.registered({
+			resource: resource.name,
+			preferencesKey: controller.preferencesKey,
+		});
+
 		dataviews.reporter.debug?.('Auto-registered DataViews controller', {
 			resource: resource.name,
 			preferencesKey: controller.preferencesKey,
