@@ -6,6 +6,7 @@ import type {
 } from '@geekist/wp-kernel/data';
 import type { Reporter } from '@geekist/wp-kernel/reporter';
 import type { ResourceObject } from '@geekist/wp-kernel/resource';
+import type { View } from '@wordpress/dataviews';
 import {
 	KernelEventBus,
 	type ResourceDefinedEvent,
@@ -133,6 +134,39 @@ function createReporterWithUndefinedChild(): Reporter {
 		debug: jest.fn(),
 		child,
 	} as unknown as jest.Mocked<Reporter>;
+}
+
+function createResourceWithDataView(): ResourceObject<
+	unknown,
+	{ search?: string }
+> {
+	const reporter = createReporter();
+	const resource = {
+		name: 'jobs',
+		routes: { list: { path: '/jobs', method: 'GET' } },
+		cacheKeys: {
+			list: jest.fn(),
+			get: jest.fn(),
+			create: jest.fn(),
+			update: jest.fn(),
+			remove: jest.fn(),
+		},
+		reporter,
+		fetchList: jest.fn(),
+		prefetchList: jest.fn(),
+	} as unknown as ResourceObject<unknown, { search?: string }>;
+
+	(resource as unknown as { ui?: { admin?: { dataviews?: unknown } } }).ui = {
+		admin: {
+			dataviews: {
+				fields: [{ id: 'title', label: 'Title' }],
+				defaultView: { type: 'table', fields: ['title'] } as View,
+				mapQuery: jest.fn(() => ({ search: undefined })),
+			},
+		},
+	};
+
+	return resource;
 }
 
 function createKernel(
@@ -367,6 +401,68 @@ describe('attachUIBindings', () => {
 			resource: 'jobs',
 			preferencesKey: key,
 		});
+	});
+
+	it('auto-registers DataViews controllers for existing resources', () => {
+		const events = new KernelEventBus();
+		const registry = createPreferencesRegistry();
+		const kernel = createKernel(events, undefined, registry);
+		const resource = createResourceWithDataView();
+
+		mockGetRegisteredResources.mockReturnValueOnce([
+			{ resource, namespace: 'tests' } as ResourceDefinedEvent,
+		]);
+
+		const runtime = attachUIBindings(kernel);
+		const dataviews = runtime.dataviews!;
+		const controller = dataviews.controllers.get('jobs') as
+			| { resourceName: string; preferencesKey: string }
+			| undefined;
+
+		expect(controller).toBeDefined();
+		expect(controller?.resourceName).toBe('jobs');
+		expect(dataviews.registry.get('jobs')).toEqual(
+			expect.objectContaining({
+				resource: 'jobs',
+				preferencesKey: controller?.preferencesKey,
+			})
+		);
+	});
+
+	it('auto-registers DataViews controllers for future resources', () => {
+		const events = new KernelEventBus();
+		const registry = createPreferencesRegistry();
+		const kernel = createKernel(events, undefined, registry);
+		const runtime = attachUIBindings(kernel);
+		const resource = createResourceWithDataView();
+
+		events.emit('resource:defined', {
+			resource: resource as ResourceObject<unknown, unknown>,
+			namespace: 'tests',
+		});
+
+		expect(runtime.dataviews?.controllers.get('jobs')).toBeDefined();
+	});
+
+	it('skips auto-registration when disabled via options', () => {
+		const events = new KernelEventBus();
+		const registry = createPreferencesRegistry();
+		const kernel = createKernel(
+			events,
+			{ dataviews: { enable: true, autoRegisterResources: false } },
+			registry
+		);
+		const resource = createResourceWithDataView();
+
+		mockGetRegisteredResources.mockReturnValueOnce([
+			{ resource, namespace: 'tests' } as ResourceDefinedEvent,
+		]);
+
+		const runtime = attachUIBindings(kernel, {
+			dataviews: { enable: true, autoRegisterResources: false },
+		});
+
+		expect(runtime.dataviews?.controllers.has('jobs')).toBe(false);
 	});
 
 	it('resolves preferences using scope precedence', async () => {
