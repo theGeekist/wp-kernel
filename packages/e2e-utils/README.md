@@ -8,6 +8,7 @@ Playwright-based testing utilities designed for WordPress environments:
 
 - **WordPress fixtures** - Auth, database seeding, role management
 - **Kernel integration** - Resource state, cache validation, event capture
+- **DataView helpers** - Playwright helpers for ResourceDataView screens
 - **Flexible imports** - Scoped, namespaced, or flat import patterns
 - **Real environment testing** - Validated via showcase app E2E tests
 
@@ -83,6 +84,20 @@ await store.expectCacheKey(page, ['user', 'list']);
 
 // Event capture
 await events.captureEmitted(page, 'wpk.resource.user.created');
+```
+
+### DataView helpers
+
+```typescript
+// Interact with ResourceDataView surfaces
+const dataview = kernel.dataview({ resource: 'job' });
+
+await dataview.waitForLoaded();
+await dataview.search('engineer');
+await dataview.selectRow('Engineering Manager');
+await dataview.runBulkAction('Publish');
+
+expect(await dataview.getSelectedCount()).toBeGreaterThan(0);
 ```
 
 ## Validation Strategy

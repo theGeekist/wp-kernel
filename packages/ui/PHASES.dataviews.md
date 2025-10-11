@@ -37,7 +37,7 @@
 
 - **Testing:** Jest unit tests (preferences precedence, event bus usage).
 
-- **Status Log:** _TBD_
+- **Status Log:** Completed (see table below).
 
 ---
 
