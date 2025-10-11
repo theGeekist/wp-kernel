@@ -35,6 +35,7 @@ interface TestResourceConfig {
 		| { type: 'number'; param?: 'id' }
 		| { type: 'string'; param?: 'id' | 'slug' | 'uuid' };
 	storage?: Record<string, unknown>;
+	ui?: unknown;
 }
 
 interface TestConfig {
@@ -118,6 +119,47 @@ describe('validateKernelConfig', () => {
 				original: 'Valid Namespace',
 				sanitized: 'valid-namespace',
 			})
+		);
+	});
+
+	it('accepts DataViews UI metadata on resources', () => {
+		const { reporter } = createMockReporter();
+		const config = createValidConfig();
+		config.resources.thing.ui = {
+			admin: {
+				view: 'dataviews',
+				dataviews: {
+					fields: [{ id: 'title', label: 'Title' }],
+					defaultView: {
+						type: 'table',
+						fields: ['title'],
+					},
+					screen: {
+						component: 'ThingAdminScreen',
+						route: '/admin/things',
+						menu: {
+							slug: 'thing-admin',
+							title: 'Things',
+							capability: 'manage_options',
+						},
+					},
+				},
+			},
+		};
+
+		const result = validateKernelConfig(config, {
+			reporter,
+			origin: 'kernel.config.ts',
+			sourcePath: '/tmp/kernel.config.ts',
+		});
+
+		const resource = result.config.resources.thing;
+		expect(resource.ui?.admin?.view).toBe('dataviews');
+		expect(resource.ui?.admin?.dataviews?.fields).toEqual([
+			{ id: 'title', label: 'Title' },
+		]);
+		expect(resource.ui?.admin?.dataviews?.screen?.menu?.slug).toBe(
+			'thing-admin'
 		);
 	});
 
