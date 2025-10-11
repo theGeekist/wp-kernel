@@ -39,6 +39,10 @@
   observed (e.g., lazy-loaded plugins). Components won't auto-rerender on late
   registration but will observe new policies on their next render triggered by
   other state changes.
+- Auto-registered `ResourceDataView` controllers now re-resolve policy runtime
+  accessors so that actions gated by policies unlock once `definePolicy()`
+  registers the runtime, avoiding the need for a full refresh when the UI
+  attached before policies were available.
 
 ### Migration Guide
 

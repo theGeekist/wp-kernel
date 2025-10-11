@@ -440,6 +440,35 @@ describe('attachUIBindings', () => {
 		);
 	});
 
+	it('updates auto-registered controllers when policy runtime becomes available', () => {
+		const events = new KernelEventBus();
+		const registry = createPreferencesRegistry();
+		const kernel = createKernel(events, undefined, registry);
+		const resource = createResourceWithDataView();
+
+		mockGetRegisteredResources.mockReturnValueOnce([
+			{ resource, namespace: 'tests' } as ResourceDefinedEvent,
+		]);
+
+		const runtime = attachUIBindings(kernel);
+		const dataviews = runtime.dataviews!;
+		const controller = dataviews.controllers.get('jobs') as {
+			policies?: KernelUIRuntime['policies'];
+		};
+
+		expect(controller).toBeDefined();
+		expect(controller?.policies).toBeUndefined();
+
+		const policy = { can: jest.fn() };
+		(
+			globalThis as {
+				__WP_KERNEL_ACTION_RUNTIME__?: { policy?: unknown };
+			}
+		).__WP_KERNEL_ACTION_RUNTIME__ = { policy };
+
+		expect(controller?.policies).toEqual({ policy });
+	});
+
 	it('auto-registers DataViews controllers for future resources', () => {
 		const events = new KernelEventBus();
 		const registry = createPreferencesRegistry();
