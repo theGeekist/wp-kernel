@@ -33,4 +33,9 @@ export type {
 	ListResponse,
 	ResourceClient,
 	ResourceObject,
+	ResourceUIConfig,
+	ResourceAdminUIConfig,
+	ResourceDataViewsUIConfig,
+	ResourceDataViewsScreenConfig,
+	ResourceDataViewsMenuConfig,
 } from './types';

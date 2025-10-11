@@ -178,6 +178,7 @@ async function buildResources(
 			identity: resourceConfig.identity,
 			storage: resourceConfig.storage,
 			queryParams,
+			ui: resourceConfig.ui,
 			hash: hashCanonical({
 				name: resourceConfig.name,
 				schemaKey: schemaResolution.schemaKey,
@@ -191,6 +192,7 @@ async function buildResources(
 				identity: resourceConfig.identity ?? null,
 				storage: resourceConfig.storage ?? null,
 				queryParams: queryParams ?? null,
+				ui: resourceConfig.ui ?? null,
 			}),
 		};
 

@@ -309,8 +309,55 @@ export type ResourceConfig<
 	/**
 	 * Optional UI metadata surfaced to runtime integrations (e.g., DataViews).
 	 */
-	ui?: Record<string, unknown>;
+	ui?: ResourceUIConfig<T, TQuery>;
 };
+
+export interface ResourceDataViewsMenuConfig {
+	slug: string;
+	title: string;
+	capability?: string;
+	parent?: string;
+	position?: number;
+	[key: string]: unknown;
+}
+
+export interface ResourceDataViewsScreenConfig {
+	component?: string;
+	route?: string;
+	resourceImport?: string;
+	resourceSymbol?: string;
+	kernelImport?: string;
+	kernelSymbol?: string;
+	menu?: ResourceDataViewsMenuConfig;
+	[key: string]: unknown;
+}
+
+export interface ResourceDataViewsUIConfig<TItem = unknown, TQuery = unknown> {
+	fields?: ReadonlyArray<Record<string, unknown>>;
+	defaultView?: Record<string, unknown>;
+	actions?: ReadonlyArray<Record<string, unknown>>;
+	mapQuery?: (viewState: Record<string, unknown>) => TQuery;
+	search?: boolean;
+	searchLabel?: string;
+	getItemId?: (item: TItem) => string;
+	empty?: unknown;
+	perPageSizes?: number[];
+	defaultLayouts?: Record<string, unknown>;
+	preferencesKey?: string;
+	screen?: ResourceDataViewsScreenConfig;
+	[key: string]: unknown;
+}
+
+export interface ResourceAdminUIConfig<TItem = unknown, TQuery = unknown> {
+	view?: 'dataviews' | string;
+	dataviews?: ResourceDataViewsUIConfig<TItem, TQuery>;
+	[key: string]: unknown;
+}
+
+export interface ResourceUIConfig<TItem = unknown, TQuery = unknown> {
+	admin?: ResourceAdminUIConfig<TItem, TQuery>;
+	[key: string]: unknown;
+}
 
 /**
  * List response with pagination metadata
@@ -392,7 +439,7 @@ export type ResourceClient<T = unknown, TQuery = unknown> = {
 	/**
 	 * Optional UI metadata carried over from ResourceConfig.ui.
 	 */
-	ui?: Record<string, unknown>;
+	ui?: ResourceUIConfig<T, TQuery>;
 };
 
 /**

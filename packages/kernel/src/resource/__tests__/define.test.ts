@@ -244,6 +244,39 @@ describe('defineResource - integration', () => {
 		});
 	});
 
+	describe('ui metadata', () => {
+		it('preserves admin dataview metadata on the resource object', () => {
+			const dataviewConfig = {
+				fields: [{ id: 'title', label: 'Title' }],
+				defaultView: {
+					type: 'table',
+					fields: ['title'],
+				},
+				search: true,
+				preferencesKey: 'demo/dataviews/job',
+				screen: {
+					component: 'JobsAdminScreen',
+					route: '/admin/jobs',
+				},
+			} as const;
+
+			const resource = defineResource<Thing>({
+				name: 'thing',
+				routes: {
+					list: { path: '/my-plugin/v1/things', method: 'GET' },
+				},
+				ui: {
+					admin: {
+						view: 'dataviews',
+						dataviews: dataviewConfig,
+					},
+				},
+			});
+
+			expect(resource.ui?.admin?.dataviews).toEqual(dataviewConfig);
+		});
+	});
+
 	describe('client methods', () => {
 		let mockApiFetch: jest.Mock;
 		let mockDoAction: jest.Mock;
