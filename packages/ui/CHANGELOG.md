@@ -14,6 +14,11 @@
     - Comprehensive test fixtures for DataViews integration (`packages/ui/fixtures/dataviews/`)
 - **DataViews Phase 3**: `configureKernel` auto-registers resource DataViews configs, wiring runtime events and integration
   tests across kernel/UI packages.
+- **DataViews Phase 5**: Complete documentation, showcase integration, and E2E utilities
+    - Comprehensive DataViews guide (`docs/guide/dataviews.md`) with setup, usage patterns, and migration notes
+    - Showcase app JobsList migrated to `ResourceDataView` demonstrating real-world usage
+    - Enhanced `ResourceDataView` with better error handling and loading states
+    - Updated UI package docs with DataViews API reference and examples
 
 ### Breaking Changes
 

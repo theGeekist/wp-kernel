@@ -20,12 +20,91 @@ describe('createKernelUtils', () => {
 	let mockEditor: jest.Mocked<Editor>;
 	let mockPageUtils: jest.Mocked<PageUtils>;
 	let fixtures: WordPressFixtures;
+	let searchLocator: {
+		fill: jest.Mock;
+		press: jest.Mock;
+		first: jest.Mock;
+	};
+	let checkboxLocator: {
+		click: jest.Mock;
+		first: jest.Mock;
+	};
+	let rowsLocator: {
+		filter: jest.Mock;
+	};
+	let bulkButtonsLocator: {
+		filter: jest.Mock;
+	};
+	let bulkActionClick: jest.Mock;
+	let bulkCountLocator: {
+		innerText: jest.Mock;
+		first: jest.Mock;
+	};
 
 	beforeEach(() => {
 		// Mock Page
+		searchLocator = {
+			fill: jest.fn().mockResolvedValue(undefined),
+			press: jest.fn().mockResolvedValue(undefined),
+			first: jest.fn(() => searchLocator),
+		};
+		checkboxLocator = {
+			click: jest.fn().mockResolvedValue(undefined),
+			first: jest.fn(() => checkboxLocator),
+		};
+		const rowFilterLocator = {
+			locator: jest.fn(() => checkboxLocator),
+			first: jest.fn(() => rowFilterLocator),
+		};
+		rowsLocator = {
+			filter: jest.fn(() => rowFilterLocator),
+		};
+		bulkActionClick = jest.fn().mockResolvedValue(undefined);
+		const bulkFilterResult = {
+			first: () => ({ click: bulkActionClick }),
+		};
+		bulkButtonsLocator = {
+			filter: jest.fn(() => bulkFilterResult),
+		};
+		bulkCountLocator = {
+			innerText: jest.fn().mockResolvedValue('3 items selected'),
+			first: jest.fn(() => bulkCountLocator),
+		};
+
+		const rootLocator = {
+			locator: jest.fn((selector: string) => {
+				if (selector === '.dataviews-search input') {
+					return searchLocator;
+				}
+				if (selector === '.dataviews-view-table__row') {
+					return rowsLocator;
+				}
+				if (
+					selector ===
+					'.dataviews-bulk-actions-footer__action-buttons button'
+				) {
+					return bulkButtonsLocator;
+				}
+				if (selector === '.dataviews-bulk-actions-footer__item-count') {
+					return bulkCountLocator;
+				}
+				return rootLocator;
+			}),
+			getAttribute: jest.fn().mockResolvedValue('5'),
+		};
+
 		mockPage = {
 			evaluate: jest.fn(),
 			waitForTimeout: jest.fn(),
+			waitForFunction: jest.fn().mockResolvedValue(undefined),
+			locator: jest.fn((selector: string) => {
+				if (selector === '[data-wpk-dataview="jobs"]') {
+					return rootLocator as unknown as ReturnType<
+						Page['locator']
+					>;
+				}
+				return rootLocator as unknown as ReturnType<Page['locator']>;
+			}) as jest.Mock,
 		} as unknown as jest.Mocked<Page>;
 
 		// Mock RequestUtils
@@ -179,6 +258,41 @@ describe('createKernelUtils', () => {
 				expect.any(Function),
 				{ filterPattern: pattern.source, eventPattern: 'wpk.*' }
 			);
+		});
+	});
+
+	describe('dataview helper', () => {
+		it('provides convenience helpers for DataViews interactions', async () => {
+			const kernel = createKernelUtils(fixtures);
+			const helper = kernel.dataview({ resource: 'jobs' });
+
+			await helper.waitForLoaded();
+			expect(mockPage.waitForFunction).toHaveBeenCalledWith(
+				expect.any(Function),
+				'[data-wpk-dataview="jobs"]'
+			);
+
+			await helper.search('engineer');
+			expect(searchLocator.fill).toHaveBeenCalledWith('engineer');
+			expect(searchLocator.press).toHaveBeenCalledWith('Enter');
+
+			await helper.clearSearch();
+			expect(searchLocator.fill).toHaveBeenCalledWith('');
+
+			await helper.selectRow('Engineer');
+			expect(rowsLocator.filter).toHaveBeenCalledWith({
+				hasText: 'Engineer',
+			});
+			expect(checkboxLocator.click).toHaveBeenCalled();
+
+			await helper.runBulkAction('Publish');
+			expect(bulkButtonsLocator.filter).toHaveBeenCalledWith({
+				hasText: 'Publish',
+			});
+			expect(bulkActionClick).toHaveBeenCalled();
+
+			await expect(helper.getTotalCount()).resolves.toBe(5);
+			await expect(helper.getSelectedCount()).resolves.toBe(3);
 		});
 	});
 

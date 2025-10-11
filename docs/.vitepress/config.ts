@@ -123,6 +123,7 @@ export default withMermaid(
 								text: 'Interactivity',
 								link: '/guide/interactivity',
 							},
+							{ text: 'DataViews', link: '/guide/dataviews' },
 							{ text: 'Jobs', link: '/guide/jobs' },
 						],
 					},

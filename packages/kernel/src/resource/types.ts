@@ -333,9 +333,9 @@ export interface ResourceDataViewsScreenConfig {
 }
 
 export interface ResourceDataViewsUIConfig<TItem = unknown, TQuery = unknown> {
-	fields?: ReadonlyArray<Record<string, unknown>>;
-	defaultView?: Record<string, unknown>;
-	actions?: ReadonlyArray<Record<string, unknown>>;
+	fields?: unknown[] | readonly unknown[];
+	defaultView?: unknown;
+	actions?: unknown[];
 	mapQuery?: (viewState: Record<string, unknown>) => TQuery;
 	search?: boolean;
 	searchLabel?: string;
