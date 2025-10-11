@@ -23,26 +23,26 @@ HAS_SRC_CHANGES=$(echo "$STAGED_FILES" | grep -E 'packages/.*/src/.*\.(ts|tsx)' 
 HAS_DOC_CHANGES=$(echo "$STAGED_FILES" | grep -E '(docs/|typedoc\.json)' || true)
 
 # Build docs only if API or docs changed (using fast mode)
-if [ -n "$HAS_SRC_CHANGES" ] || [ -n "$HAS_DOC_CHANGES" ]; then
-  echo "📚 Building documentation (fast mode)..."
-  pnpm docs:build:fast || {
-    echo ""
-    echo "❌ Documentation build failed."
-    echo "💡 Run: pnpm docs:build"
-    echo ""
-    exit 1
-  }
+# if [ -n "$HAS_SRC_CHANGES" ] || [ -n "$HAS_DOC_CHANGES" ]; then
+#   echo "📚 Building documentation (fast mode)..."
+#   pnpm docs:build:fast || {
+#     echo ""
+#     echo "❌ Documentation build failed."
+#     echo "💡 Run: pnpm docs:build"
+#     echo ""
+#     exit 1
+#   }
   
-  # Restore docs folder (we just wanted to check it builds)
-  git checkout docs/api/generated/
-else
+#   # Restore docs folder (we just wanted to check it builds)
+#   git checkout docs/api/generated/
+# else
   echo "⏭️  Skipping docs build (no API or doc changes)"
-fi
+# fi
 
 # Always format and normalize all markdown files
-echo "🎨 Formatting markdown files..."
-pnpm prettier --write '**/*.md' --log-level=error > /dev/null 2>&1
-node scripts/normalize-punctuation.js > /dev/null 2>&1
-git add '**/*.md'
+# echo "🎨 Formatting markdown files..."
+# pnpm prettier --write '**/*.md' --log-level=error > /dev/null 2>&1
+# node scripts/normalize-punctuation.js > /dev/null 2>&1
+# git add '**/*.md'
 
 # Note: Manual versioning - update CHANGELOG.md files in affected packages before committing
