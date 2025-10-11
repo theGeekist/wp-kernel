@@ -305,6 +305,11 @@ export type ResourceConfig<
 	 * reporter instead of creating a child reporter from the kernel instance.
 	 */
 	reporter?: Reporter;
+
+	/**
+	 * Optional UI metadata surfaced to runtime integrations (e.g., DataViews).
+	 */
+	ui?: Record<string, unknown>;
 };
 
 /**
@@ -383,6 +388,11 @@ export type ResourceClient<T = unknown, TQuery = unknown> = {
 	 * @throws ServerError on REST API error (including 404)
 	 */
 	remove?: (id: string | number) => Promise<void | T>;
+
+	/**
+	 * Optional UI metadata carried over from ResourceConfig.ui.
+	 */
+	ui?: Record<string, unknown>;
 };
 
 /**

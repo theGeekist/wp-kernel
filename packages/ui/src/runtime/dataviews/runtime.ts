@@ -129,10 +129,6 @@ export function createKernelDataViewsRuntime(
 }
 
 declare module '@geekist/wp-kernel/data' {
-	interface UIIntegrationOptions {
-		dataviews?: DataViewsRuntimeOptions;
-	}
-
 	interface KernelUIRuntime {
 		dataviews?: KernelDataViewsRuntime;
 	}
