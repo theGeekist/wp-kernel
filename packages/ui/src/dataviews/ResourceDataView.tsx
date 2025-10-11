@@ -213,9 +213,17 @@ function useActionDecisions(
 			| undefined;
 
 		if (!can) {
+			// Policy runtime not available yet - disable all actions that have policy gates
+			// Actions without policy requirements are still allowed
 			const next = new Map<string, ActionDecision>();
 			actions.forEach((action) => {
-				next.set(action.id, { allowed: true, loading: false });
+				if (action.policy) {
+					// Has policy requirement but no runtime - disable until runtime is available
+					next.set(action.id, { allowed: false, loading: false });
+				} else {
+					// No policy requirement, allow the action
+					next.set(action.id, { allowed: true, loading: false });
+				}
 			});
 			setDecisions(next);
 			return () => {
@@ -291,7 +299,7 @@ function useActionDecisions(
 		return () => {
 			cancelled = true;
 		};
-	}, [controller, controller.config.actions]);
+	}, [controller, controller.config.actions, controller.policies]);
 
 	return decisions;
 }

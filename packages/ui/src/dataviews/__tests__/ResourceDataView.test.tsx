@@ -900,6 +900,65 @@ describe('ResourceDataView', () => {
 		expect(props.actions?.[0]?.disabled).toBe(false);
 	});
 
+	it('disables policy-gated actions when policy runtime is not available', () => {
+		const runtime = createKernelRuntime();
+		// No policy runtime set - simulates UI attached before definePolicy()
+		runtime.policies = undefined;
+
+		const resource = {
+			name: 'jobs',
+			useList: jest.fn(() => ({
+				data: { items: [{ id: 1 }], total: 1 },
+				isLoading: false,
+				error: undefined,
+			})),
+			prefetchList: jest.fn(),
+			invalidate: jest.fn(),
+			key: jest.fn(() => ['jobs', 'list']),
+		} as unknown as ResourceObject<{ id: number }, { search?: string }>;
+
+		const config: ResourceDataViewConfig<
+			{ id: number },
+			{ search?: string }
+		> = {
+			fields: [{ id: 'title', label: 'Title' }],
+			defaultView: {
+				type: 'table',
+				fields: ['title'],
+				perPage: 10,
+				page: 1,
+			} as View,
+			mapQuery: (state) => ({ search: state.search }),
+			actions: [
+				{
+					id: 'delete',
+					policy: 'can:delete',
+					disabledWhenDenied: true, // Keep the action visible but disabled
+					action: Object.assign(async () => undefined, {
+						actionName: 'jobs.delete',
+						options: {
+							scope: 'crossTab' as const,
+							bridged: true as const,
+						},
+					}) as DefinedAction<unknown, unknown>,
+					label: 'Delete',
+					supportsBulk: true,
+					getActionArgs: ({ selection }) => selection,
+				},
+			],
+		};
+
+		renderWithProvider(
+			<ResourceDataView resource={resource} config={config} />,
+			runtime
+		);
+
+		const props = DataViewsMock.mock.calls.at(-1)?.[0];
+		expect(props.actions).toHaveLength(1);
+		// Action should be disabled because policy runtime is not available
+		expect(props.actions?.[0]?.disabled).toBe(true);
+	});
+
 	it('keeps policy-free actions enabled even with policy runtime present', () => {
 		const runtime = createKernelRuntime();
 		runtime.policies = {
