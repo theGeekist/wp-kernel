@@ -1,4 +1,5 @@
 import type { View } from '@wordpress/dataviews';
+import type { KernelUIPolicyRuntime } from '@geekist/wp-kernel/data';
 import type { Reporter } from '@geekist/wp-kernel/reporter';
 import { createResourceDataViewController } from '../resource-controller';
 import { DataViewsControllerError } from '../../runtime/dataviews/errors';
@@ -143,5 +144,27 @@ describe('createResourceDataViewController', () => {
 				sort: { field: 'title', direction: 'desc' },
 			},
 		});
+	});
+
+	it('resolves policies using accessor function', () => {
+		const runtime = createRuntime();
+		const policyRuntime: { current?: KernelUIPolicyRuntime } = {};
+
+		const controller = createResourceDataViewController({
+			resourceName: 'jobs',
+			config,
+			runtime,
+			namespace: 'tests',
+			policies: () => policyRuntime.current,
+		});
+
+		expect(controller.policies).toBeUndefined();
+
+		const policies = {
+			policy: { can: jest.fn() },
+		} as unknown as KernelUIPolicyRuntime;
+		policyRuntime.current = policies;
+
+		expect(controller.policies).toBe(policies);
 	});
 });
