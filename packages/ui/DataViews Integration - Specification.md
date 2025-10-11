@@ -106,6 +106,21 @@ export type DataViewActionTriggeredPayload = {
     			defaultView: DataViewViewState;
     			actions?: DataViewActionConfig[];
     			preferencesKey?: string;
+    			screen?: {
+    				component?: string;
+    				route?: string;
+    				resourceImport?: string;
+    				resourceSymbol?: string;
+    				kernelImport?: string;
+    				kernelSymbol?: string;
+    				menu?: {
+    					slug: string;
+    					title: string;
+    					capability?: string;
+    					parent?: string;
+    					position?: number;
+    				};
+    			};
     		};
     	};
     };
@@ -116,9 +131,9 @@ export type DataViewActionTriggeredPayload = {
 - Generator contract for `wpk generate admin-page`:
     - **Inputs:** resource with `ui.admin.dataviews` metadata, optional `--route` and `--screen` flags.
     - **Outputs:**
-        - `app/<resource>/admin/<Screen>.tsx` rendering `<ResourceDataView resource={resource} config={resource.ui?.admin?.dataviews} runtime={useKernelUI()} />`.
-        - Optional menu registration (when flagged) emitted to `.generated/php/Admin/Menu_<Screen>.php`.
-        - Story/fixture under `packages/ui/fixtures/dataviews/<resource>.ts` consuming the same config.
+        - `.generated/ui/app/<resource>/admin/<Screen>.tsx` rendering `<ResourceDataView resource={resource} config={resource.ui?.admin?.dataviews} runtime={useKernelUI()} />` with imports derived from `screen.resourceImport`/`screen.kernelImport` metadata.
+        - Optional menu registration (when `screen.menu` is provided) emitted to `.generated/php/Admin/Menu_<Screen>.php`.
+        - Fixture under `.generated/ui/fixtures/dataviews/<resource>.ts` serialising the declarative metadata for Storybook/tests.
 - Validation note: reiterate route ↔ identity alignment-if `identity.param` is declared the corresponding route MUST include `:${param}`; generator errors should reuse existing `KernelError('ValidationError')` messaging.
 
 ### 4.3 Query & Data Orchestration

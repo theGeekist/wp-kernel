@@ -28,6 +28,14 @@ const httpMethodValidator = t.isEnum([
 	'DELETE',
 ] as const);
 
+const functionValidator = t.makeValidator<
+	unknown,
+	(...args: unknown[]) => unknown
+>({
+	test: (value): value is (...args: unknown[]) => unknown =>
+		typeof value === 'function',
+});
+
 const resourceRouteValidator = t.isObject(
 	{
 		path: t.isString(),
@@ -186,6 +194,63 @@ const adaptersValidator = t.isObject(
 	{ extra: t.isRecord(t.isUnknown()) }
 );
 
+const resourceDataViewsMenuValidator = t.isObject(
+	{
+		slug: t.isString(),
+		title: t.isString(),
+		capability: t.isOptional(t.isString()),
+		parent: t.isOptional(t.isString()),
+		position: t.isOptional(t.isNumber()),
+	},
+	{ extra: t.isRecord(t.isUnknown()) }
+);
+
+const resourceDataViewsScreenValidator = t.isObject(
+	{
+		component: t.isOptional(t.isString()),
+		route: t.isOptional(t.isString()),
+		resourceImport: t.isOptional(t.isString()),
+		resourceSymbol: t.isOptional(t.isString()),
+		kernelImport: t.isOptional(t.isString()),
+		kernelSymbol: t.isOptional(t.isString()),
+		menu: t.isOptional(resourceDataViewsMenuValidator),
+	},
+	{ extra: t.isRecord(t.isUnknown()) }
+);
+
+const resourceDataViewsConfigValidator = t.isObject(
+	{
+		fields: t.isOptional(t.isArray(t.isRecord(t.isUnknown()))),
+		defaultView: t.isOptional(t.isRecord(t.isUnknown())),
+		actions: t.isOptional(t.isArray(t.isRecord(t.isUnknown()))),
+		mapQuery: t.isOptional(functionValidator),
+		search: t.isOptional(t.isBoolean()),
+		searchLabel: t.isOptional(t.isString()),
+		getItemId: t.isOptional(functionValidator),
+		empty: t.isOptional(t.isUnknown()),
+		perPageSizes: t.isOptional(t.isArray(t.isNumber())),
+		defaultLayouts: t.isOptional(t.isRecord(t.isUnknown())),
+		preferencesKey: t.isOptional(t.isString()),
+		screen: t.isOptional(resourceDataViewsScreenValidator),
+	},
+	{ extra: t.isRecord(t.isUnknown()) }
+);
+
+const resourceAdminUIValidator = t.isObject(
+	{
+		view: t.isOptional(t.isString()),
+		dataviews: t.isOptional(resourceDataViewsConfigValidator),
+	},
+	{ extra: t.isRecord(t.isUnknown()) }
+);
+
+const resourceUIValidator = t.isObject(
+	{
+		admin: t.isOptional(resourceAdminUIValidator),
+	},
+	{ extra: t.isRecord(t.isUnknown()) }
+);
+
 const resourceConfigValidator = t.isObject(
 	{
 		name: t.isString(),
@@ -200,6 +265,7 @@ const resourceConfigValidator = t.isObject(
 		namespace: t.isOptional(t.isString()),
 		schema: t.isOptional(t.isUnknown()),
 		reporter: t.isOptional(t.isUnknown()),
+		ui: t.isOptional(resourceUIValidator),
 	},
 	{ extra: t.isRecord(t.isUnknown()) }
 );

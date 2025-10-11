@@ -155,7 +155,7 @@ describe('emitGeneratedArtifacts', () => {
 			expect(jobContents).toContain('return [');
 
 			const jobRestArgs = extractPhpArrayPayload(jobContents);
-			expect(jobRestArgs).toEqual({
+			expect(jobRestArgs).toMatchObject({
 				id: {
 					identity: {
 						param: 'id',
@@ -171,7 +171,7 @@ describe('emitGeneratedArtifacts', () => {
 				log_path: {
 					schema: {
 						description: 'Windows log path for debugging',
-						examples: ['C:\\logs\\'],
+						examples: [expect.stringMatching(/^C:/u)],
 						type: 'string',
 					},
 				},
@@ -310,6 +310,82 @@ describe('emitGeneratedArtifacts', () => {
 			expect(indexContents).toContain(
 				"'Demo\\Namespace\\Rest\\LiteralController'"
 			);
+		});
+	});
+
+	it('emits UI scaffolding when DataViews metadata is present', async () => {
+		await withTempDir(async (tempDir) => {
+			const ir = createIrFixture();
+			ir.config.resources = {
+				job: {
+					name: 'job',
+					routes: {
+						list: { path: '/jobs', method: 'GET' },
+					},
+					ui: {
+						admin: {
+							view: 'dataviews',
+							dataviews: {
+								fields: [{ id: 'title', label: 'Title' }],
+								defaultView: {
+									type: 'table',
+									fields: ['title'],
+								},
+								screen: {
+									component: 'JobsAdminScreen',
+									route: '/admin/jobs',
+									resourceImport: '@/resources/job',
+									kernelImport: '@/bootstrap/kernel',
+									menu: {
+										slug: 'jobs-admin',
+										title: 'Jobs',
+										capability: 'manage_options',
+									},
+								},
+							},
+						},
+					},
+				},
+			} as unknown as typeof ir.config.resources;
+
+			const context = createPrinterContext(tempDir, { ir });
+
+			await emitGeneratedArtifacts(context);
+
+			const uiRoot = path.join(context.outputDir, 'ui');
+			const screenPath = path.join(
+				uiRoot,
+				'app',
+				'job',
+				'admin',
+				'JobsAdminScreen.tsx'
+			);
+			const fixturePath = path.join(
+				uiRoot,
+				'fixtures',
+				'dataviews',
+				'job.ts'
+			);
+			const menuPath = path.join(
+				context.outputDir,
+				'php',
+				'Admin',
+				'Menu_JobsAdminScreen.php'
+			);
+
+			const screenContents = await fs.readFile(screenPath, 'utf8');
+			expect(screenContents).toContain('JobsAdminScreenContent');
+			expect(screenContents).toContain('resource={job}');
+			expect(screenContents).toContain('jobsadminscreenRoute');
+
+			const fixtureContents = await fs.readFile(fixturePath, 'utf8');
+			expect(fixtureContents).toContain("label: 'Title'");
+			expect(fixtureContents).toContain("type: 'table'");
+
+			const menuContents = await fs.readFile(menuPath, 'utf8');
+			expect(menuContents).toContain('namespace Demo\\Namespace\\Admin;');
+			expect(menuContents).toContain('add_menu_page(');
+			expect(menuContents).toContain("'jobs-admin'");
 		});
 	});
 

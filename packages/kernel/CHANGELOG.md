@@ -26,6 +26,9 @@
 - **DataViews Phase 3**: `configureKernel` preserves resource UI metadata,
   forwards DataViews options to UI attachments, and emits `ui:dataviews:*`
   events end-to-end with new integration coverage.
+- **DataViews Phase 4**: `ResourceConfig`/`ResourceObject` expose typed
+  `ui.admin.dataviews` metadata (screen + menu), keeping CLI/kernel parity for
+  declarative DataViews scaffolding.
 - Cache invalidation helpers and the transport layer accept reporter metadata,
   emitting `cache.invalidate.*` and `transport.*` events with kernel-scoped
   defaults so cache/REST lifecycles share correlation IDs.
