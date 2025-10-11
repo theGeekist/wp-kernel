@@ -70,8 +70,9 @@ export function JobsList(): JSX.Element {
 	);
 
 	const controller = controllerFactory();
-	const dataViewConfig = kernelConfig.resources.job.ui?.admin?.dataviews as
-		| unknown as ResourceDataViewConfig<Job, JobListParams>
+	const dataViewConfig = kernelConfig.resources.job.ui?.admin
+		?.dataviews as unknown as
+		| ResourceDataViewConfig<Job, JobListParams>
 		| undefined;
 
 	const handleSubmit = useCallback(
