@@ -635,7 +635,7 @@ function useResolvedController<TItem, TQuery>(
 			runtime: context.dataviews,
 			namespace: context.namespace,
 			invalidate: context.invalidate,
-			policies: context.policies,
+			policies: () => context.policies,
 			fetchList,
 			prefetchList: resource.prefetchList,
 		});

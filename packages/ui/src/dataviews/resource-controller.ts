@@ -216,7 +216,13 @@ export function createResourceDataViewController<TItem, TQuery>(
 		namespace: options.namespace,
 		preferencesKey,
 		invalidate: options.invalidate,
-		policies: options.policies,
+		get policies() {
+			const source = options.policies;
+			if (typeof source === 'function') {
+				return source() ?? undefined;
+			}
+			return source;
+		},
 		fetchList: options.fetchList,
 		prefetchList: options.prefetchList,
 		mapViewToQuery,

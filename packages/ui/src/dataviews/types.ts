@@ -124,6 +124,10 @@ export interface ResourceDataViewConfig<TItem, TQuery> {
 	defaultLayouts?: Record<string, unknown>;
 }
 
+export type KernelUIPolicyRuntimeSource =
+	| KernelUIPolicyRuntime
+	| (() => KernelUIPolicyRuntime | undefined);
+
 export interface ResourceDataViewControllerOptions<TItem, TQuery> {
 	resource?: ResourceObject<TItem, TQuery>;
 	resourceName?: string;
@@ -132,7 +136,7 @@ export interface ResourceDataViewControllerOptions<TItem, TQuery> {
 	runtime: DataViewsControllerRuntime;
 	namespace: string;
 	invalidate?: (patterns: CacheKeyPattern | CacheKeyPattern[]) => void;
-	policies?: KernelUIPolicyRuntime;
+	policies?: KernelUIPolicyRuntimeSource;
 	preferencesKey?: string;
 	fetchList?: (query: TQuery) => Promise<ListResponse<TItem>>;
 	prefetchList?: (query: TQuery) => Promise<void>;
