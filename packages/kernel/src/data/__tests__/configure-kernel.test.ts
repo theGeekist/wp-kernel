@@ -3,15 +3,23 @@ import { createReporter } from '../../reporter';
 import type { Reporter } from '../../reporter';
 import { invalidate as invalidateCache } from '../../resource/cache';
 import { KernelError } from '../../error/KernelError';
-import type { KernelRegistry, KernelUIRuntime } from '../types';
+import type {
+	KernelInstance,
+	KernelRegistry,
+	KernelUIRuntime,
+	KernelUIAttach,
+	UIIntegrationOptions,
+} from '../types';
 import {
 	KernelEventBus,
 	getKernelEventBus,
 	setKernelEventBus,
+	type CustomKernelEvent,
 } from '../../events/bus';
 import { createActionMiddleware } from '../../actions/middleware';
 import { kernelEventsPlugin } from '../plugins/events';
 import { getNamespace as detectNamespace } from '../../namespace/detect';
+import type { ResourceConfig } from '../../resource/types';
 
 jest.mock('../../actions/middleware', () => ({
 	createActionMiddleware: jest.fn(() =>
@@ -438,6 +446,170 @@ describe('configureKernel', () => {
 
 		expect(resource.storeKey).toBe('custom/thing');
 		expect(resource.events?.created).toBe('custom.thing.created');
+	});
+
+	it('wires DataViews options through configureKernel for auto-registration and events', () => {
+		const controllers = new Map<string, unknown>();
+		const registryEntries = new Map<string, unknown>();
+		const customEvents: CustomKernelEvent[] = [];
+		const attach = jest.fn(
+			(kernel: KernelInstance, options?: UIIntegrationOptions) => {
+				const runtime: KernelUIRuntime = {
+					kernel,
+					namespace: kernel.getNamespace(),
+					reporter: kernel.getReporter(),
+					events: kernel.events,
+					options,
+					invalidate: kernel.invalidate.bind(kernel),
+					dataviews: {
+						registry: registryEntries,
+						controllers,
+						preferences: {
+							adapter: {
+								get: jest.fn(),
+								set: jest.fn(),
+							},
+							get: jest.fn(),
+							set: jest.fn(),
+							getScopeOrder: jest
+								.fn()
+								.mockReturnValue(['user', 'role', 'site']),
+						},
+						events: {
+							registered: (payload: unknown) =>
+								kernel.emit('ui:dataviews:registered', payload),
+							unregistered: (payload: unknown) =>
+								kernel.emit(
+									'ui:dataviews:unregistered',
+									payload
+								),
+							viewChanged: (payload: unknown) =>
+								kernel.emit(
+									'ui:dataviews:view-changed',
+									payload
+								),
+							actionTriggered: (payload: unknown) =>
+								kernel.emit(
+									'ui:dataviews:action-triggered',
+									payload
+								),
+						},
+						reporter: kernel.getReporter(),
+						options: {
+							enable: true,
+							autoRegisterResources: true,
+						},
+						getResourceReporter: () => kernel.getReporter(),
+					},
+				} as unknown as KernelUIRuntime;
+
+				kernel.events.on('resource:defined', ({ resource }) => {
+					const metadata = (
+						resource as {
+							ui?: {
+								admin?: { dataviews?: Record<string, unknown> };
+							};
+						}
+					).ui?.admin?.dataviews;
+
+					if (!metadata) {
+						return;
+					}
+
+					controllers.set(resource.name, metadata);
+					registryEntries.set(resource.name, {
+						resource: resource.name,
+						preferencesKey: `${kernel.getNamespace()}/dataviews/${resource.name}`,
+					});
+				});
+
+				kernel.events.on(
+					'custom:event',
+					(payload: CustomKernelEvent) => {
+						customEvents.push(payload);
+					}
+				);
+
+				return runtime;
+			}
+		);
+
+		const kernel = configureKernel({
+			namespace: 'acme',
+			ui: {
+				enable: true,
+				attach: attach as unknown as KernelUIAttach,
+				options: {
+					dataviews: {
+						enable: true,
+						autoRegisterResources: true,
+					},
+				},
+			},
+		});
+
+		expect(attach).toHaveBeenCalledWith(
+			kernel,
+			expect.objectContaining({
+				dataviews: expect.objectContaining({ enable: true }),
+			})
+		);
+
+		const resourceDefinition = {
+			name: 'job',
+			routes: { list: { path: '/acme/v1/jobs', method: 'GET' } },
+			ui: {
+				admin: {
+					dataviews: {
+						fields: [{ id: 'title', label: 'Title' }],
+						defaultView: { type: 'table', fields: ['title'] },
+						mapQuery: () => ({ search: undefined }),
+					},
+				},
+			},
+		};
+
+		const resource = kernel.defineResource(
+			resourceDefinition as unknown as ResourceConfig<
+				unknown,
+				{ search?: string }
+			>
+		);
+
+		expect((resource as { ui?: unknown }).ui).toBeDefined();
+		expect(controllers.get('job')).toBe(
+			resourceDefinition.ui.admin.dataviews
+		);
+		expect(registryEntries.get('job')).toEqual(
+			expect.objectContaining({ resource: 'job' })
+		);
+
+		const [firstCall] = attach.mock.results;
+
+		expect(firstCall).toBeDefined();
+
+		const runtimeWithDataViews = firstCall!.value as KernelUIRuntime & {
+			dataviews?: { events: { viewChanged: (payload: unknown) => void } };
+		};
+
+		const dataviewsRuntime = runtimeWithDataViews.dataviews;
+
+		expect(dataviewsRuntime).toBeDefined();
+
+		dataviewsRuntime!.events.viewChanged({
+			resource: 'job',
+			viewState: {
+				fields: ['title'],
+				page: 1,
+				perPage: 20,
+			},
+		});
+
+		expect(customEvents).toContainEqual(
+			expect.objectContaining({
+				eventName: 'ui:dataviews:view-changed',
+			})
+		);
 	});
 
 	it('respects namespace embedded within resource name shorthand', () => {
