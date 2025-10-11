@@ -98,7 +98,7 @@ function registerResourceDataView<TItem, TQuery>(
 			runtime: dataviews,
 			namespace: runtime.namespace,
 			invalidate: runtime.invalidate,
-			policies: runtime.policies,
+			policies: () => runtime.policies,
 			preferencesKey: metadata.preferencesKey,
 			fetchList: resource.fetchList,
 			prefetchList: resource.prefetchList,
