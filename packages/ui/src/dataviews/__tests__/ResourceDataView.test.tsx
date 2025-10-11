@@ -762,6 +762,50 @@ describe('ResourceDataView', () => {
 		);
 	});
 
+	it('exposes wrapper metadata for E2E helpers', () => {
+		const runtime = createKernelRuntime();
+		const resource = {
+			name: 'jobs',
+			useList: jest.fn(() => ({
+				data: { items: [{ id: 1 }], total: 1 },
+				isLoading: false,
+				error: undefined,
+			})),
+			prefetchList: jest.fn(),
+			invalidate: jest.fn(),
+			key: jest.fn(() => ['jobs', 'list']),
+		} as unknown as ResourceObject<{ id: number }, { search?: string }>;
+
+		const config: ResourceDataViewConfig<
+			{ id: number },
+			{ search?: string }
+		> = {
+			fields: [{ id: 'title', label: 'Title' }],
+			defaultView: {
+				type: 'table',
+				fields: ['title'],
+				perPage: 10,
+				page: 1,
+			} as View,
+			mapQuery: (state) => ({ search: state.search }),
+		};
+
+		const { container } = renderWithProvider(
+			<ResourceDataView resource={resource} config={config} />,
+			runtime
+		);
+
+		const wrapper = container.querySelector('[data-wpk-dataview="jobs"]');
+		expect(wrapper).not.toBeNull();
+		expect(wrapper?.getAttribute('data-wpk-dataview-namespace')).toBe(
+			'tests'
+		);
+		expect(wrapper?.getAttribute('data-wpk-dataview-loading')).toBe(
+			'false'
+		);
+		expect(wrapper?.getAttribute('data-wpk-dataview-total')).toBe('1');
+	});
+
 	it('merges default layouts and honours search configuration', () => {
 		const runtime = createKernelRuntime();
 		const resource = {

@@ -738,6 +738,8 @@ export function ResourceDataView<TItem, TQuery>({
 		};
 	}, [totalItems, viewState.perPage]);
 
+	const isLoading = Boolean(listResult.isLoading);
+
 	const dataViewsProps: ComponentProps<typeof DataViews> = {
 		data: items,
 		view,
@@ -764,5 +766,15 @@ export function ResourceDataView<TItem, TQuery>({
 		empty: emptyState,
 	};
 
-	return <DataViews {...dataViewsProps} />;
+	return (
+		<div
+			className="wpk-dataview"
+			data-wpk-dataview={controller.resourceName}
+			data-wpk-dataview-namespace={context.namespace}
+			data-wpk-dataview-loading={isLoading ? 'true' : 'false'}
+			data-wpk-dataview-total={String(totalItems)}
+		>
+			<DataViews {...dataViewsProps} />
+		</div>
+	);
 }
