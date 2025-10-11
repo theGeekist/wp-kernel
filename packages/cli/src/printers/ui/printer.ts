@@ -182,6 +182,13 @@ function serializeForTs(value: unknown, indent = 0): string {
 		return 'null';
 	}
 
+	if (typeof value === 'function') {
+		return serializeFunction(
+			value as (...args: unknown[]) => unknown,
+			indent
+		);
+	}
+
 	const primitive = serializePrimitive(value);
 	if (primitive !== null) {
 		return primitive;
@@ -198,6 +205,22 @@ function serializeForTs(value: unknown, indent = 0): string {
 	return JSON.stringify(value);
 }
 
+function serializeFunction(
+	value: (...args: unknown[]) => unknown,
+	indent: number
+): string {
+	const source = value.toString();
+	if (!source.includes('\n')) {
+		return source;
+	}
+
+	const indentation = ' '.repeat(indent);
+	return source
+		.split('\n')
+		.map((line, index) => (index === 0 ? line : `${indentation}${line}`))
+		.join('\n');
+}
+
 function serializePrimitive(value: unknown): string | null {
 	if (typeof value === 'string') {
 		return `'${value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")}'`;
@@ -211,10 +234,8 @@ function serializePrimitive(value: unknown): string | null {
 		return 'undefined';
 	}
 
-	if (typeof value === 'function' || typeof value === 'symbol') {
-		throw new Error(
-			'Cannot serialise functions or symbols in DataViews metadata.'
-		);
+	if (typeof value === 'symbol') {
+		throw new Error('Cannot serialise symbols in DataViews metadata.');
 	}
 
 	return null;
