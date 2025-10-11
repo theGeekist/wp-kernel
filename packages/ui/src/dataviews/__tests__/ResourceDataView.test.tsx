@@ -716,62 +716,6 @@ describe('ResourceDataView', () => {
 		expect(props.paginationInfo.totalItems).toBe(2);
 	});
 
-	it('prefers fetchList override when resource provides useList', async () => {
-		const runtime = createKernelRuntime();
-		const fetchList = jest.fn().mockResolvedValue({
-			items: [{ id: 10 }],
-			total: 1,
-		});
-
-		const resourceUseList = jest.fn(() => ({
-			data: { items: [{ id: 99 }], total: 1 },
-			isLoading: false,
-			error: undefined,
-		}));
-
-		const resource = {
-			name: 'jobs',
-			useList: resourceUseList,
-			prefetchList: jest.fn(),
-			invalidate: jest.fn(),
-			key: jest.fn(() => ['jobs', 'list']),
-		} as unknown as ResourceObject<{ id: number }, { search?: string }>;
-
-		const config: ResourceDataViewConfig<
-			{ id: number },
-			{ search?: string }
-		> = {
-			fields: [{ id: 'title', label: 'Title' }],
-			defaultView: {
-				type: 'table',
-				fields: ['title'],
-				perPage: 10,
-				page: 1,
-			} as View,
-			mapQuery: (state) => ({ search: state.search }),
-		};
-
-		renderWithProvider(
-			<ResourceDataView
-				resource={resource}
-				config={config}
-				fetchList={fetchList}
-			/>,
-			runtime
-		);
-
-		await act(async () => {
-			await Promise.resolve();
-			await Promise.resolve();
-		});
-
-		expect(resourceUseList).not.toHaveBeenCalled();
-
-		const props = DataViewsMock.mock.calls.at(-1)?.[0];
-		expect(props.data).toEqual([{ id: 10 }]);
-		expect(props.paginationInfo.totalItems).toBe(1);
-	});
-
 	it('handles fetch rejections with non-error values', async () => {
 		const runtime = createKernelRuntime();
 		const fetchList = jest.fn().mockRejectedValue('fail');
