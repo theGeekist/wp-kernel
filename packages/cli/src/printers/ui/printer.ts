@@ -27,7 +27,7 @@ export async function emitUIArtifacts(context: PrinterContext): Promise<void> {
 
 		await emitScreen(context, resourceConfig.name, dataviews);
 		await emitFixture(context, resourceConfig.name, dataviews, resourceKey);
-		await emitMenuRegistration(context, dataviews);
+		await emitMenuRegistration(context, resourceConfig.name, dataviews);
 	}
 }
 
@@ -113,6 +113,7 @@ export const ${identifier}: ResourceDataViewConfig<unknown, unknown> = ${seriali
 
 async function emitMenuRegistration(
 	context: PrinterContext,
+	resourceName: string,
 	dataviews: ResourceDataViewsUIConfig
 ): Promise<void> {
 	const menu = dataviews.screen?.menu;
@@ -121,7 +122,9 @@ async function emitMenuRegistration(
 	}
 
 	const namespace = context.ir.meta.sanitizedNamespace;
-	const componentName = dataviews.screen?.component ?? 'AdminScreen';
+	const componentName =
+		dataviews.screen?.component ??
+		`${toPascalCase(resourceName)}AdminScreen`;
 	const phpDir = path.join(context.outputDir, 'php', 'Admin');
 	await context.ensureDirectory(phpDir);
 	const menuPath = path.join(phpDir, `Menu_${componentName}.php`);

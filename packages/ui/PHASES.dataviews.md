@@ -111,14 +111,14 @@
 **Goal:** Final polish for MVP: documentation, example screens, and Playwright regression coverage; log accessibility follow-up tasks for the dedicated sprint.
 
 - **Scope:**
-    - Update `docs/packages/ui.md`, create a dedicated DataViews guide, and add showcase example using `ResourceDataView`.
+    - Update `docs/packages/ui.md`, create a dedicated DataViews guide, and ensure the showcase app demonstrates the new `ResourceDataView`.
     - Add Playwright scenario exercising list interactions, filters, bulk actions, and DataForm edit.
     - Document migration guidance (Phase 0 snapshot, compat data provider) in `/docs/`.
     - Create accessibility backlog items referencing the roadmap sprint (link in doc/Status Log).
 
 - **Deliverables:** documentation updates, Playwright specs under `e2e/`, migration notes, backlog references.
 
-- **DoD:** `pnpm test` (full suite) passes including Playwright (`pnpm --filter @geekist/wp-kernel-e2e test`); docs published locally via `pnpm docs:dev` smoke test; Accessibility tasks logged; Status Log summarises coverage results.
+- **DoD:** `pnpm test` (full suite) passes including Playwright (`pnpm --filter @geekist/wp-kernel-e2e test`); docs published locally via `pnpm docs:dev` smoke test; showcase example updated; Accessibility tasks logged; Status Log summarises coverage results.
 
 - **Testing:** Playwright E2E, doc build (`pnpm docs:build`) smoke test.
 
