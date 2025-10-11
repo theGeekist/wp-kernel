@@ -191,7 +191,10 @@ function createKernel(
 			isEnabled: () => false,
 			options,
 		},
-		events,
+		events: Object.assign(events, {
+			on: jest.spyOn(events, 'on'),
+			emit: jest.spyOn(events, 'emit'),
+		}),
 		defineResource: jest.fn(),
 	};
 
@@ -427,6 +430,14 @@ describe('attachUIBindings', () => {
 				preferencesKey: controller?.preferencesKey,
 			})
 		);
+
+		expect(kernel.emit).toHaveBeenCalledWith(
+			DATA_VIEWS_EVENT_REGISTERED,
+			expect.objectContaining({
+				resource: 'jobs',
+				preferencesKey: controller?.preferencesKey,
+			})
+		);
 	});
 
 	it('auto-registers DataViews controllers for future resources', () => {
@@ -441,7 +452,18 @@ describe('attachUIBindings', () => {
 			namespace: 'tests',
 		});
 
-		expect(runtime.dataviews?.controllers.get('jobs')).toBeDefined();
+		const controller = runtime.dataviews?.controllers.get('jobs') as
+			| { preferencesKey: string }
+			| undefined;
+
+		expect(controller).toBeDefined();
+		expect(kernel.emit).toHaveBeenCalledWith(
+			DATA_VIEWS_EVENT_REGISTERED,
+			expect.objectContaining({
+				resource: 'jobs',
+				preferencesKey: controller?.preferencesKey,
+			})
+		);
 	});
 
 	it('skips auto-registration when disabled via options', () => {
