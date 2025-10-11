@@ -77,6 +77,10 @@ Bindings connect WordPress blocks to your data. Instead of hard-coded `InnerBloc
 
 The Interactivity API adds behaviour without shipping custom JavaScript bundles per feature. It consumes the same stores and Actions you already defined, which means front-end interactions stay in sync with the editor. [Read the full guide →](/guide/interactivity)
 
+### DataViews
+
+DataViews provide WordPress 6.7+ admin surfaces powered by kernel controllers. Define metadata on your resources, let `configureKernel()` auto-register the controllers, and render `ResourceDataView` so policies, actions, and preferences stay consistent. [Read the full guide →](/guide/dataviews)
+
 ### Prefetching
 
 Strategies for warming caches from user interactions using `usePrefetcher` and

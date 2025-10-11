@@ -21,10 +21,10 @@ WordPress-native UI components that integrate seamlessly with WP Kernel patterns
 
 **Key Features:**
 
+- DataViews controllers (`ResourceDataView`, `createResourceDataViewController`)
 - Action-triggered buttons and forms
 - Resource-aware data components
-- Block binding utilities
-- Interactivity API helpers
+- Block binding utilities and Interactivity helpers
 
 ### [@geekist/wp-kernel-cli](/packages/cli)
 
