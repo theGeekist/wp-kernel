@@ -1,187 +1,142 @@
-import { useEffect, useMemo, useState } from '@wordpress/element';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 import { Flex, FlexItem, Notice } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { KernelError } from '@geekist/wp-kernel/error';
+import type { DefinedAction } from '@geekist/wp-kernel/actions';
+import { useKernelUI } from '@geekist/wp-kernel-ui';
+import {
+	ResourceDataView,
+	createDataFormController,
+	ensureControllerRuntime,
+	type DataViewsRuntimeContext,
+	type ResourceDataViewConfig,
+} from '@geekist/wp-kernel-ui/dataviews';
+import type { ResourceObject } from '@geekist/wp-kernel/resource';
 import { job } from '../../resources';
 import type { Job } from '../../../.generated/types/job';
-import type { JobListParams } from '../../resources';
+import { kernelConfig, type JobListParams } from '../../kernel.config';
 import { JobCreatePanel } from '../../views/jobs/JobCreatePanel';
-import { JobFilters, type JobFiltersState } from '../../views/jobs/JobFilters';
-import { JobListTable } from '../../views/jobs/JobListTable';
 import { CreateJob, type CreateJobInput } from '../../actions/jobs/CreateJob';
-import { ShowcaseActionError } from '../../errors/ShowcaseActionError';
 
-type DebuggableWindow = Window &
-	typeof globalThis & {
-		wp?: {
-			data?: {
-				select: (storeKey: string) => unknown;
-			};
-		};
-		__wpkKernelDebug?: unknown;
-		__wpkKernelSelectors?: unknown;
-	};
+type CreateFeedback = { type: 'success' | 'error'; message: string } | null;
 
-const defaultFilters: JobFiltersState = {
-	search: '',
-	status: 'all',
-};
-
-const filterJobs = (jobs: Job[], filters: JobFiltersState): Job[] => {
-	if (!filters.search.trim()) {
-		return jobs;
+function useDataViewsRuntimeContext(): DataViewsRuntimeContext {
+	const runtime = useKernelUI();
+	if (!runtime?.dataviews) {
+		throw new KernelError('DeveloperError', {
+			message:
+				'Kernel UI runtime is missing DataViews support. Ensure attachUIBindings configured DataViews.',
+		});
 	}
 
-	const searchLower = filters.search.trim().toLowerCase();
-	return jobs.filter((jobItem) => {
-		const matchesStatus =
-			filters.status === 'all' || jobItem.status === filters.status;
+	return {
+		namespace: runtime.namespace,
+		dataviews: ensureControllerRuntime(runtime.dataviews),
+		policies: runtime.policies,
+		invalidate: runtime.invalidate,
+		registry: runtime.registry,
+		reporter: runtime.reporter,
+		kernel: runtime.kernel,
+	} satisfies DataViewsRuntimeContext;
+}
 
-		if (!matchesStatus) {
-			return false;
-		}
+const SUCCESS_MESSAGE = __('Job created successfully.', 'wp-kernel-showcase');
+const ERROR_FALLBACK = __(
+	'Unable to create the job. Please try again.',
+	'wp-kernel-showcase'
+);
 
-		const haystacks = [
-			jobItem.title,
-			jobItem.department || '',
-			jobItem.location || '',
-		];
-		return haystacks.some((value) =>
-			value.toLowerCase().includes(searchLower)
-		);
-	});
-};
+const createJobAction: DefinedAction<CreateJobInput, Job> = Object.assign(
+	(input: CreateJobInput) => CreateJob(input),
+	{
+		actionName: 'Jobs.Create',
+		options: { scope: 'crossTab', bridged: true } as const,
+	}
+);
 
-/**
- * JobsList renders a lean admin experience for managing job postings.
- */
 export function JobsList(): JSX.Element {
-	const [filters, setFilters] = useState<JobFiltersState>(defaultFilters);
-	const [feedback, setFeedback] = useState<{
-		type: 'success' | 'error';
-		message: string;
-	} | null>(null);
-	const [isSubmitting, setIsSubmitting] = useState(false);
+	const runtimeContext = useDataViewsRuntimeContext();
+	const [feedback, setFeedback] = useState<CreateFeedback>(null);
 
-	const query = useMemo<JobListParams | undefined>(
+	const controllerFactory = useMemo(
 		() =>
-			filters.status === 'all' ? undefined : { status: filters.status },
-		[filters.status]
+			createDataFormController<CreateJobInput, Job, JobListParams>({
+				action: createJobAction,
+				runtime: runtimeContext,
+				resource: job as ResourceObject<unknown, JobListParams>,
+				resourceName: job.name,
+			}),
+		[runtimeContext]
 	);
 
-	const listResult = job.useList?.(query);
+	const controller = controllerFactory();
+	const dataViewConfig = kernelConfig.resources.job.ui?.admin
+		?.dataviews as unknown as
+		| ResourceDataViewConfig<Job, JobListParams>
+		| undefined;
 
-	useEffect(() => {
-		if (typeof window === 'undefined') {
-			return;
-		}
+	const handleSubmit = useCallback(
+		async (input: CreateJobInput) => {
+			setFeedback(null);
 
-		const debugWindow = window as DebuggableWindow;
-
-		if (!debugWindow.wp?.data) {
-			return;
-		}
-
-		debugWindow.__wpkKernelSelectors = debugWindow.wp.data.select(
-			job.storeKey
-		);
-	}, []);
-
-	useEffect(() => {
-		if (!listResult || typeof window === 'undefined') {
-			return;
-		}
-
-		const debugWindow = window as DebuggableWindow;
-
-		debugWindow.__wpkKernelDebug = {
-			query,
-			isLoading: listResult.isLoading,
-			error: listResult.error,
-			items: listResult.data?.items?.length ?? 0,
-		};
-	}, [listResult, query]);
-
-	const visibleJobs = useMemo(() => {
-		const jobs = listResult?.data?.items ?? [];
-		return filterJobs(jobs, filters);
-	}, [listResult?.data?.items, filters]);
-
-	const handleCreate = async (input: CreateJobInput) => {
-		console.log('[JobsList] handleCreate START', { input, isSubmitting });
-		setFeedback(null);
-		setIsSubmitting(true);
-		console.log('[JobsList] isSubmitting set to TRUE');
-
-		try {
-			console.log('[JobsList] About to call CreateJob');
-			await CreateJob(input);
-			console.log('[JobsList] CreateJob SUCCESS - job created');
-
-			setFeedback({
-				type: 'success',
-				message: __('Job created successfully.', 'wp-kernel-showcase'),
-			});
-
-			console.log('[JobsList] About to invalidate cache', { query });
-			job.cache.invalidate.list();
-			console.log('[JobsList] Cache invalidated');
-			// Trigger refetch in background (don't await - let it run async)
-			if (job.prefetchList) {
-				job.prefetchList(query).catch((err) => {
-					console.warn('[JobsList] Background prefetch failed:', err);
-				});
-				console.log('[JobsList] Started background prefetch');
+			try {
+				await controller.submit(input);
+				setFeedback({ type: 'success', message: SUCCESS_MESSAGE });
+				controller.reset();
+			} catch (error) {
+				const message = KernelError.isKernelError(error)
+					? error.message
+					: ERROR_FALLBACK;
+				setFeedback({ type: 'error', message });
 			}
-		} catch (error) {
-			console.error('[JobsList] Error in handleCreate:', error);
-			const wrapped = ShowcaseActionError.fromUnknown(error, {
-				context: {
-					actionName: 'Jobs.Create',
-					resourceName: job.storeKey,
-				},
-			});
+		},
+		[controller]
+	);
 
-			setFeedback({
-				type: 'error',
-				message: wrapped.message,
-			});
-		} finally {
-			console.log(
-				'[JobsList] FINALLY block - setting isSubmitting to FALSE'
-			);
-			setIsSubmitting(false);
-			console.log('[JobsList] handleCreate END', { isSubmitting });
-		}
-	};
+	const isSubmitting = controller.state.status === 'running';
+
+	const emptyState = useMemo(
+		() => (
+			<Notice status="info" isDismissible={false}>
+				{__(
+					'No jobs found yet. Create one to get started.',
+					'wp-kernel-showcase'
+				)}
+			</Notice>
+		),
+		[]
+	);
+
+	if (!dataViewConfig) {
+		return (
+			<div className="jobs-admin" data-testid="jobs-admin-root">
+				<Notice status="warning" isDismissible={false}>
+					{__(
+						'Jobs resource is missing DataViews configuration. Check kernel.config.ts.',
+						'wp-kernel-showcase'
+					)}
+				</Notice>
+			</div>
+		);
+	}
 
 	return (
 		<div className="jobs-admin" data-testid="jobs-admin-root">
 			<h1>{__('Careers showcase', 'wp-kernel-showcase')}</h1>
 
-			{listResult?.error && (
-				<Notice
-					status="error"
-					isDismissible={false}
-					data-testid="jobs-prefetch-error"
-				>
-					{listResult.error}
-				</Notice>
-			)}
-
 			<Flex align="flex-start" wrap style={{ gap: '32px' }}>
 				<FlexItem style={{ flex: '0 0 320px', minWidth: '280px' }}>
 					<JobCreatePanel
-						onSubmit={handleCreate}
+						onSubmit={handleSubmit}
 						isSubmitting={isSubmitting}
 						feedback={feedback}
 					/>
 				</FlexItem>
-				<FlexItem style={{ flex: '1 1 480px', minWidth: '320px' }}>
-					<JobFilters value={filters} onChange={setFilters} />
-					<JobListTable
-						jobs={visibleJobs}
-						isLoading={Boolean(listResult?.isLoading)}
-						errorMessage={listResult?.error ?? null}
+				<FlexItem style={{ flex: '1 1 520px', minWidth: '320px' }}>
+					<ResourceDataView<Job, JobListParams>
+						resource={job}
+						config={dataViewConfig}
+						emptyState={emptyState}
 					/>
 				</FlexItem>
 			</Flex>

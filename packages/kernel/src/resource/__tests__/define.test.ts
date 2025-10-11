@@ -5,7 +5,7 @@
 import { defineResource } from '../define';
 import { KernelError } from '../../error';
 import { resetNamespaceCache } from '../../namespace';
-import type { ResourceStore } from '../types';
+import type { ResourceStore, ResourceDataViewsUIConfig } from '../types';
 
 // Use global types for window.wp
 
@@ -241,6 +241,40 @@ describe('defineResource - integration', () => {
 					delete windowWithWp.wp;
 				}
 			}
+		});
+	});
+
+	describe('ui metadata', () => {
+		it('preserves admin dataview metadata on the resource object', () => {
+			const dataviewConfig: ResourceDataViewsUIConfig<Thing, ThingQuery> =
+				{
+					fields: [{ id: 'title', label: 'Title' }],
+					defaultView: {
+						type: 'table',
+						fields: ['title'],
+					},
+					search: true,
+					preferencesKey: 'demo/dataviews/job',
+					screen: {
+						component: 'JobsAdminScreen',
+						route: '/admin/jobs',
+					},
+				};
+
+			const resource = defineResource<Thing>({
+				name: 'thing',
+				routes: {
+					list: { path: '/my-plugin/v1/things', method: 'GET' },
+				},
+				ui: {
+					admin: {
+						view: 'dataviews',
+						dataviews: dataviewConfig,
+					},
+				},
+			});
+
+			expect(resource.ui?.admin?.dataviews).toEqual(dataviewConfig);
 		});
 	});
 

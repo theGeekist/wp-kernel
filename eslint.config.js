@@ -46,6 +46,7 @@ export default [
 			'**/dist/**',
 			'**/build/**',
 			'**/node_modules/**',
+			'**/vendor/**',
 			'packages/ui/vendor/**',
 			'**/.wordpress-cache/**',
 			'**/information/**',

@@ -11,6 +11,8 @@ import { extractPathParams, interpolatePath } from '@geekist/wp-kernel';
 import type { Page } from '@playwright/test';
 import type { RequestUtils } from '@wordpress/e2e-test-utils-playwright';
 import type {
+	DataViewHelper,
+	DataViewHelperOptions,
 	EventRecorder,
 	EventRecorderOptions,
 	KernelUtils,
@@ -89,6 +91,14 @@ export function createKernelUtils(fixtures: WordPressFixtures): KernelUtils {
 			options?: EventRecorderOptions
 		): Promise<EventRecorder<P>> => {
 			return createEventHelper<P>(page, options);
+		},
+
+		/**
+		 * Convenience helper for interacting with ResourceDataView surfaces.
+		 * @param options
+		 */
+		dataview: (options: DataViewHelperOptions): DataViewHelper => {
+			return createDataViewHelper(page, options);
 		},
 	};
 }
@@ -313,6 +323,102 @@ export function createResourceHelper<T>(
 				})
 			);
 		},
+	};
+}
+
+function buildDataViewSelector(options: DataViewHelperOptions): string {
+	const base = `[data-wpk-dataview="${options.resource}"]`;
+	if (options.namespace) {
+		return `${base}[data-wpk-dataview-namespace="${options.namespace}"]`;
+	}
+	return base;
+}
+
+function createDataViewHelper(
+	page: Page,
+	options: DataViewHelperOptions
+): DataViewHelper {
+	const selector = buildDataViewSelector(options);
+	const combinedSelector = options.within
+		? `${options.within} ${selector}`
+		: selector;
+
+	const root = (): ReturnType<Page['locator']> => {
+		if (options.within) {
+			return page.locator(options.within).locator(selector);
+		}
+		return page.locator(selector);
+	};
+
+	const waitForLoaded = async () => {
+		await page.waitForFunction((target) => {
+			const node = document.querySelector(target);
+			return node?.getAttribute('data-wpk-dataview-loading') === 'false';
+		}, combinedSelector);
+	};
+
+	const search = async (value: string) => {
+		const input = root().locator('.dataviews-search input').first();
+		await input.fill(value);
+		await input.press('Enter');
+	};
+
+	const clearSearch = async () => search('');
+
+	const getRow = (text: string) =>
+		root()
+			.locator('.dataviews-view-table__row')
+			.filter({ hasText: text })
+			.first();
+
+	const selectRow = async (text: string) => {
+		const row = getRow(text);
+		await row
+			.locator('.dataviews-selection-checkbox input')
+			.first()
+			.click();
+	};
+
+	const runBulkAction = async (label: string) => {
+		await root()
+			.locator('.dataviews-bulk-actions-footer__action-buttons button')
+			.filter({ hasText: label })
+			.first()
+			.click();
+	};
+
+	const getSelectedCount = async () => {
+		try {
+			const text = await root()
+				.locator('.dataviews-bulk-actions-footer__item-count')
+				.first()
+				.innerText();
+			const match = text.match(/\d+/);
+			return match ? Number(match[0]) : 0;
+		} catch (_error) {
+			return 0;
+		}
+	};
+
+	const getTotalCount = async () => {
+		const value = await root().getAttribute('data-wpk-dataview-total');
+		if (!value) {
+			return 0;
+		}
+		const parsed = Number(value);
+		return Number.isNaN(parsed) ? 0 : parsed;
+	};
+
+	return {
+		root,
+		waitForLoaded,
+		search,
+		clearSearch,
+		getRow,
+		selectRow,
+		runBulkAction,
+		getSelectedCount,
+		getTotalCount,
 	};
 }
 

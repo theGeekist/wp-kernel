@@ -1,6 +1,6 @@
 # DataViews Integration – Phased Delivery
 
-> Roadmap aligned with [`DataViews Integration – Specification`](../DataViews%20Integration%20-%20Specification.md). Each phase references relevant sections to keep implementation contextual and auditable for the cloud agent. Phase deliverables assume the Gutenberg snapshot lives under [`packages/ui/vendor/dataviews-snapshot/`](vendor/dataviews-snapshot/README.md), while runtime imports continue to use the published `@wordpress/dataviews` package (`node_modules`). For feature reference, see [`packages/ui/wp-dataviews.md`](wp-dataviews.md).
+> Roadmap aligned with [`DataViews Integration - Specification.md`](./DataViews%20Integration%20-%20Specification.md). Each phase references relevant sections to keep implementation contextual and auditable for the cloud agent. Phase deliverables assume the Gutenberg snapshot lives under [`packages/ui/vendor/dataviews-snapshot/`](vendor/dataviews-snapshot/README.md), while runtime imports continue to use the published `@wordpress/dataviews` package (`node_modules`). For feature reference, see [`packages/ui/wp-dataviews.md`](wp-dataviews.md).
 
 ---
 
@@ -13,6 +13,8 @@
 - Integration/E2E tests should live under `packages/ui/__tests__/integration` or the Playwright suite (`@geekist/wp-kernel-e2e`) as appropriate; include fixtures under `packages/ui/fixtures`.
 - Update the Status Log entry within each phase section before completion (include Completed/Outstanding/Risks).
 - Respect the declared `@wordpress/dataviews` peer range (`^N.M.0`). CI runs must cover WordPress stable−1, stable, and Gutenberg nightly; log a reporter warning when versions drift.
+
+**The precommit hook will run test --coverage and will fail if you don't meet the coverage criteria** So its best your write code that aids testing, test branch logic and run `pnpm test --coverage` before attempting to commit so you save time
 
 ---
 
@@ -35,7 +37,7 @@
 
 - **Testing:** Jest unit tests (preferences precedence, event bus usage).
 
-- **Status Log:** _TBD_
+- **Status Log:** Completed (see table below).
 
 ---
 
@@ -90,6 +92,7 @@
     - Extend `ResourceConfig` and `ResourceObject` types with `ui.admin.dataviews`.
     - Update CLI validators (`validate-kernel-config`) and loader to accept new metadata.
     - Ensure generated code (e.g., `wpk generate admin-page`) emits scaffolding referencing `ResourceDataView`, optional menu registration, and fixture files per the spec.
+    - Carry forward Phase 3 follow-ups: document the controller registry contract and expose any additional metadata the CLI needs for auto-registration.
     - Add CLI unit tests verifying validation, metadata propagation, and generator outputs (golden fixtures).
 
 - **Deliverables:** kernel type updates, CLI schema updates/tests, generator fixture updates, documentation refresh (`docs/packages/ui.md`, CLI docs).
@@ -108,14 +111,15 @@
 **Goal:** Final polish for MVP: documentation, example screens, and Playwright regression coverage; log accessibility follow-up tasks for the dedicated sprint.
 
 - **Scope:**
-    - Update `docs/packages/ui.md`, create a dedicated DataViews guide, and add showcase example using `ResourceDataView`.
-    - Add Playwright scenario exercising list interactions, filters, bulk actions, and DataForm edit.
+    - Update `docs/packages/ui.md`, create a dedicated DataViews guide, and ensure the showcase app demonstrates the new `ResourceDataView`.
+    - Update the showcase app to use `ResourceDataView` and `createDataFormController` for at least one resource screen, replacing any legacy table implementation.
+    - Extend `@geekist/wp-kernel-e2e-utils` (or add test fixtures under `packages/ui/fixtures/dataviews`) with helpers that make writing Playwright specs straightforward; do **not** add new Playwright specs in-cloud, just ship the helpers and document usage.
     - Document migration guidance (Phase 0 snapshot, compat data provider) in `/docs/`.
     - Create accessibility backlog items referencing the roadmap sprint (link in doc/Status Log).
 
 - **Deliverables:** documentation updates, Playwright specs under `e2e/`, migration notes, backlog references.
 
-- **DoD:** `pnpm test` (full suite) passes including Playwright (`pnpm --filter @geekist/wp-kernel-e2e test`); docs published locally via `pnpm docs:dev` smoke test; Accessibility tasks logged; Status Log summarises coverage results.
+- **DoD:** `pnpm test` (full suite) passes including Playwright (`pnpm --filter @geekist/wp-kernel-e2e test`); docs published locally via `pnpm docs:dev` smoke test; showcase example updated; Accessibility tasks logged; Status Log summarises coverage results.
 
 - **Testing:** Playwright E2E, doc build (`pnpm docs:build`) smoke test.
 
@@ -125,10 +129,10 @@
 
 ### Status Log Template
 
-| Phase | Completed Deliverables | Outstanding Work | Risks / Notes |
-| ----- | ---------------------- | ---------------- | ------------- |
-| P1    |                        |                  |               |
-| P2    |                        |                  |               |
-| P3    |                        |                  |               |
-| P4    |                        |                  |               |
-| P5    |                        |                  |               |
+| Phase | Completed Deliverables                                                                                                                                             | Outstanding Work                                                                    | Risks / Notes                                                                                                         |
+| ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| P1    | Kernel UI runtime exposes DataViews namespace with preferences adapter, events, errors, and snapshot updater script.                                               | None                                                                                | Snapshot script depends on local Gutenberg checkout; ensure `GUTENBERG_PATH` is set in environments without the repo. |
+| P2    | Resource DataView controller, DataForm controller, React wrapper, and fixtures implemented with unit coverage for query mapping, persistence, and action dispatch. | Document standalone runtime usage guidance and extend integration tests in Phase 3. | DataViews snapshot remains reference-only; ensure runtime imports continue to resolve from `node_modules`.            |
+| P3    | configureKernel auto-wires DataViews runtime options, registering controllers on `resource:defined` and bridging `ui:dataviews:*` events.                          | None                                                                                | Kernel + UI integration tests cover resource replay, live registration, and event emission.                           |
+| P4    | Resource metadata typed for DataViews; CLI validation/IR propagate it and generators emit `.generated/ui` screens, fixtures, and optional PHP menus.               | None                                                                                | CLI outputs require declarative metadata (functions are rejected during serialisation).                               |
+| P5    | -                                                                                                                                                                  | -                                                                                   | -                                                                                                                     |

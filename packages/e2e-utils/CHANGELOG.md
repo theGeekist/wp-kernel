@@ -5,6 +5,12 @@
 ### Changes
 
 - Version bump to align with monorepo
+- **DataViews Phase 5**: Enhanced E2E utilities for kernel resource testing
+    - `createKernelUtils()` provides resource, store, and event testing helpers
+    - Resource utilities: `seed()`, `seedMany()`, `remove()`, `deleteAll()` for test data management
+    - Store utilities for WordPress Data registry interactions
+    - Event utilities for kernel event bus testing
+    - Comprehensive unit tests validating utility functions
 
 ## 0.2.0
 
