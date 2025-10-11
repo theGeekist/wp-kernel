@@ -6,6 +6,12 @@
 
 - Introduced `attachUIBindings`, `KernelUIProvider`, and runtime context so hooks
   consume configuration explicitly instead of relying on global side effects.
+- **DataViews Phase 2**: Added `ResourceDataView` component with resource/action controllers
+    - `createResourceDataViewController` for DataViews state → resource query mapping
+    - `createDataFormController` for DataForm → kernel action integration with cache invalidation
+    - `ResourceDataView` React component bridging kernel resources/actions with WordPress DataViews UI
+    - Policy-gated actions with error normalization
+    - Comprehensive test fixtures for DataViews integration (`packages/ui/fixtures/dataviews/`)
 
 ### Breaking Changes
 
