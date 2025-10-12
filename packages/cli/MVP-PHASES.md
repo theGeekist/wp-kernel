@@ -71,19 +71,26 @@ Finally you find that imports from other packages are sometimes missing, it usua
 
 ## Phase 1B – Block Discovery in IR
 
-**Spec references:** [MVP Spec §4 (Blocks subsection)](./mvp-cli-spec.md#4-printers)
+**Spec references:** [MVP Spec §4 (Blocks subsection)](./mvp-cli-spec.md#4-printers) | [Block Inference Model](./BLOCK_INFERENCE_MODEL.md)
 
 **Scope:**
 
-- Create `src/ir/block-discovery.ts` that scans for `block.json` files.
-- Check for `render.php` in same directory to set `ssr: true/false`.
-- Populate `ir.blocks` with `{ name, directory, ssr, manifestSource }`.
+- Create `src/ir/block-discovery.ts` that scans for existing `block.json` files.
+- Check for `render.php` in same directory to set `hasRender: true/false`.
+- Populate `ir.blocks` with `{ key, directory, hasRender, manifestSource }`.
 - Respect workspace boundaries; ignore `.generated/`, `node_modules/`.
 - Test with temp directories covering SSR, JS-only, and mixed scenarios.
 
+**Purpose in Block Inference Model:**
+This phase implements the **discovery layer** that identifies manually-created blocks. These discovered blocks will serve as **overrides** in Phase 3, where the CLI will:
+
+1. Infer blocks from resources in `kernel.config.ts`
+2. Respect any discovered manual blocks (from this phase) as overrides
+3. Generate scaffolding only for blocks that don't already exist
+
 **Deliverables:** Block discovery module + IR wiring + tests.
 
-**DoD:** `buildIr` on fixtures correctly populates `ir.blocks`; tests cover SSR detection.
+**DoD:** `buildIr` on fixtures correctly populates `ir.blocks`; tests cover SSR detection; discovered blocks correctly identify manual overrides.
 
 **Dependencies:** Phase 1A.
 
@@ -154,20 +161,33 @@ Finally you find that imports from other packages are sometimes missing, it usua
 
 ---
 
-## Phase 3A – JS-Only Block Printer
+## Phase 3A – Block Inference & JS-Only Printer
 
-**Spec references:** [MVP Spec §4.4](./mvp-cli-spec.md#44-block-printers-new)
+**Spec references:** [MVP Spec §4.4](./mvp-cli-spec.md#44-block-printers-new) | [Block Inference Model](./BLOCK_INFERENCE_MODEL.md)
 
 **Scope:**
 
-- Create `src/printers/blocks/` consuming `ir.blocks` where `ssr === false`.
-- Generate `src/blocks/auto-register.ts` with `registerBlockType()` calls and relative imports.
-- Wire into `emitGeneratedArtifacts` after UI output.
-- Use existing TS formatter.
+- **Block Inference Layer**:
+    - Analyze resources in `kernel.config.ts` to infer block requirements
+    - Determine block type (SSR vs JS-only) from storage + route locality
+    - Generate `block.json` metadata from resource schema, identity, and display config
+    - Scaffold `src/blocks/<name>/index.tsx` edit components if they don't exist
+    - Merge inferred blocks with discovered blocks (Phase 1B) - respecting manual overrides
 
-**Deliverables:** Block printer module + integration tests.
+- **JS-Only Block Printer**:
+    - Create `src/printers/blocks/` consuming `ir.blocks` where `ssr === false`
+    - Generate `src/blocks/auto-register.ts` with `registerBlockType()` calls and relative imports
+    - Wire into `emitGeneratedArtifacts` after UI output
+    - Use existing TS formatter
 
-**DoD:** JS-only blocks produce auto-register module with correct imports.
+**Deliverables:** Block inference module + JS-only printer + integration tests.
+
+**DoD:**
+
+- Blocks are correctly inferred from resources
+- Manual blocks (discovered in Phase 1B) override inferred blocks
+- JS-only blocks produce auto-register module with correct imports
+- Scaffolded edit components follow established patterns
 
 **Dependencies:** Phase 1B.
 
@@ -175,19 +195,30 @@ Finally you find that imports from other packages are sometimes missing, it usua
 
 ---
 
-## Phase 3B – SSR Block Manifest & Registrar
+## Phase 3B – SSR Block Scaffold & Manifest
 
-**Spec references:** [MVP Spec §4.4](./mvp-cli-spec.md#44-block-printers-new)
+**Spec references:** [MVP Spec §4.4](./mvp-cli-spec.md#44-block-printers-new) | [Block Inference Model](./BLOCK_INFERENCE_MODEL.md)
 
 **Scope:**
 
-- For `ir.blocks` where `ssr === true`, generate `build/blocks-manifest.php`.
-- Generate `inc/Blocks/Register.php` that reads manifest and calls `register_block_type()`.
-- Ensure PSR-4 compliance and proper PHP formatting.
+- **SSR Block Scaffolding**:
+    - For inferred SSR blocks, scaffold `src/blocks/<name>/render.php` if not present
+    - Generate render logic based on resource storage and identity patterns
+    - Respect manual `render.php` files (discovered in Phase 1B)
 
-**Deliverables:** Extended block printer + tests.
+- **SSR Block Printer**:
+    - For `ir.blocks` where `ssr === true`, generate `build/blocks-manifest.php`
+    - Generate `inc/Blocks/Register.php` that reads manifest and calls `register_block_type()`
+    - Ensure PSR-4 compliance and proper PHP formatting
 
-**DoD:** SSR blocks generate manifest + registrar; tests cover mixed SSR/JS-only.
+**Deliverables:** SSR scaffold generator + extended block printer + tests.
+
+**DoD:**
+
+- SSR blocks generate manifest + registrar
+- Scaffolded render.php files follow WordPress best practices
+- Tests cover mixed SSR/JS-only scenarios
+- Manual SSR blocks override generated ones
 
 **Dependencies:** Phase 3A.
 
