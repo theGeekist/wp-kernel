@@ -47,7 +47,8 @@ export function warnOnMissingPolicies(options: {
 	const { reporter, resource, routes } = options;
 
 	for (const route of routes) {
-		if (!isWriteRoute(route.method) || route.policy) {
+		const missingPolicy = isWriteRoute(route.method) && !route.policy;
+		if (!missingPolicy) {
 			continue;
 		}
 
