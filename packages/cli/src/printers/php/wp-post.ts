@@ -1065,6 +1065,10 @@ function collectCanonicalBasePaths(
 		...normalizedNonParamPaths.map((path) => getPathSegments(path).length)
 	);
 
+	if (minimalSegmentCount > 1) {
+		return basePaths;
+	}
+
 	for (const path of normalizedNonParamPaths) {
 		if (getPathSegments(path).length === minimalSegmentCount) {
 			basePaths.add(path);
