@@ -6,6 +6,7 @@ import {
 	PHP_INDENT,
 	type PhpMethodBodyBuilder,
 } from './template';
+import { escapeSingleQuotes, toPascalCase } from './utils';
 
 type WpPostStorage = Extract<
 	NonNullable<IRResource['storage']>,
@@ -1210,14 +1211,6 @@ function resolveIdentityConfig(resource: IRResource): {
 	return { type: identity.type, param };
 }
 
-function toPascalCase(value: string): string {
-	return value
-		.split(/[^a-zA-Z0-9]+/u)
-		.filter(Boolean)
-		.map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
-		.join('');
-}
-
 function toSnakeCase(value: string): string {
 	return value
 		.replace(/[^a-zA-Z0-9]+/g, '_')
@@ -1225,10 +1218,6 @@ function toSnakeCase(value: string): string {
 		.toLowerCase()
 		.replace(/^_+|_+$/g, '')
 		.replace(/_+/g, '_');
-}
-
-function escapeSingleQuotes(value: string): string {
-	return value.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 }
 
 function isNonEmptyString(value: unknown): value is string {
