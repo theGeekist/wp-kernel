@@ -94,7 +94,12 @@ describe('GenerateCommand', () => {
 
 			expect(exitCode).toBe(0);
 			expect(dryRunCommand.summary?.dryRun).toBe(true);
-			expect(dryRunCommand.summary?.counts.skipped).toBeGreaterThan(0);
+			const counts = dryRunCommand.summary?.counts ?? {
+				skipped: 0,
+				unchanged: 0,
+				written: 0,
+			};
+			expect(counts.skipped + counts.unchanged).toBeGreaterThan(0);
 
 			const afterDryRun = await fs.readFile(baseControllerPath, 'utf8');
 			expect(afterDryRun).toBe(baseline);

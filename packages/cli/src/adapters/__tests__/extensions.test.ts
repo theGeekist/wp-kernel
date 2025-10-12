@@ -225,6 +225,30 @@ describe('runAdapterExtensions', () => {
 		}
 	});
 
+	it('records dry-run statuses for unchanged and skipped files', async () => {
+		const outputDir = await fs.mkdtemp(TMP_OUTPUT);
+		const writer = new FileWriter({ dryRun: true });
+
+		try {
+			const unchangedPath = path.join(outputDir, 'same.txt');
+			await fs.writeFile(unchangedPath, 'stable\n', 'utf8');
+			const skippedPath = path.join(outputDir, 'different.txt');
+			await fs.writeFile(skippedPath, 'before\n', 'utf8');
+
+			const statusUnchanged = await writer.write(unchangedPath, 'stable');
+			expect(statusUnchanged).toBe('unchanged');
+
+			const statusSkipped = await writer.write(skippedPath, 'after');
+			expect(statusSkipped).toBe('skipped');
+
+			const summary = writer.summarise();
+			expect(summary.counts.unchanged).toBe(1);
+			expect(summary.counts.skipped).toBe(1);
+		} finally {
+			await fs.rm(outputDir, { recursive: true, force: true });
+		}
+	});
+
 	it('sanitises IR clones before invoking extensions', async () => {
 		const outputDir = await fs.mkdtemp(TMP_OUTPUT);
 		const reporter = createReporterMock();
