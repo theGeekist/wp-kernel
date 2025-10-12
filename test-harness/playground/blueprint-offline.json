@@ -1,0 +1,43 @@
+{
+	"$schema": "https://playground.wordpress.net/blueprint-schema.json",
+	"landingPage": "/wp-admin/",
+	"preferredVersions": {
+		"php": "8.3",
+		"wp": "6.7.4"
+	},
+	"features": {
+		"networking": false
+	},
+	"steps": [
+		{
+			"step": "defineWpConfigConsts",
+			"consts": {
+				"WP_DEBUG": true,
+				"WP_DEBUG_LOG": true,
+				"WP_DEBUG_DISPLAY": false
+			}
+		},
+		{
+			"step": "runPHP",
+			"code": "error_log('=== DEBUGGING PLUGIN PATH ==='); error_log('Plugin dir: ' . WP_PLUGIN_DIR); error_log('Plugins available: ' . print_r(array_keys(get_plugins()), true)); error_log('Showcase plugin file: ' . (file_exists(WP_PLUGIN_DIR . '/showcase-plugin/showcase-plugin.php') ? 'EXISTS' : 'NOT FOUND')); error_log('=== END DEBUG ===');"
+		},
+		{
+			"step": "setSiteOptions",
+			"options": {
+				"permalink_structure": "/%postname%/"
+			}
+		},
+		{
+			"step": "runPHP",
+			"code": "flush_rewrite_rules();"
+		},
+		{
+			"step": "runPHP",
+			"code": "update_option('users_can_register', 0); delete_option('playground_auto_login_already_happened');"
+		},
+		{
+			"step": "activatePlugin",
+			"pluginPath": "showcase-plugin/showcase-plugin.php"
+		}
+	]
+}

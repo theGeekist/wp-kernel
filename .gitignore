@@ -79,6 +79,9 @@ wp-content/cache/
 
 # Playground
 .wp-playground/
+test-harness/playground-cache/
+.playground-offline.pid
+playground-offline.log
 
 # TypeScript
 *.tsbuildinfo

@@ -41,6 +41,17 @@ This document provides operational guidance for coding agents (Codex, etc.) work
 - When running agents (Codex, Co-Pilot, etc.) inside private containers or CI, set `CI=1` before running any `git` commands to ensure non-interactive behavior.
 - The pre-commit hook will take some time. PLease allow it to finish!
 
+## E2E Testing with wp playground
+
+**For your CI/cloud container after `pnpm install`, run:**
+
+```bash
+pnpm playground:offline         # Starts server in background on port 9400
+pnpm playground:offline:stop    # Stops server in background (zero network)
+```
+
+**It mounts the showcase app so we can test it with playwrite**
+
 ## Quality & Coverage
 
 - Maintain ≥95% statements/lines and ≥98% functions coverage globally.
