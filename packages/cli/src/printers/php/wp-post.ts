@@ -761,6 +761,43 @@ class WpPostControllerGenerator {
 					);
 					body.line('                        return $post;');
 					body.line('                }');
+					body.line(
+						`                $statuses = $this->get${this.pascalName}Statuses();`
+					);
+					body.line('                if ( empty( $statuses ) ) {');
+					body.line("                        $statuses = 'any';");
+					body.line('                }');
+					body.line('                $results = get_posts(');
+					body.line('                        array(');
+					body.line(
+						"                                'name' => $candidate,"
+					);
+					body.line(
+						"                                'post_type' => $post_type,"
+					);
+					body.line(
+						"                                'post_status' => $statuses,"
+					);
+					body.line(
+						"                                'posts_per_page' => 1,"
+					);
+					body.line('                        )');
+					body.line('                );');
+					body.line('                if ( ! empty( $results ) ) {');
+					body.line('                        $post = $results[0];');
+					body.line(
+						'                        if ( ! ( $post instanceof WP_Post ) ) {'
+					);
+					body.line(
+						'                                $post = get_post( $post );'
+					);
+					body.line('                        }');
+					body.line(
+						'                        if ( $post instanceof WP_Post ) {'
+					);
+					body.line('                                return $post;');
+					body.line('                        }');
+					body.line('                }');
 					if (this.identityParam === 'uuid') {
 						body.line('                $results = get_posts(');
 						body.line('                        array(');
