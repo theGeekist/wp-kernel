@@ -163,3 +163,8 @@ export function useVisiblePrefetch(
 		};
 	}, [fnRef, marginBox, onceRef, ref, rootMarginValue]);
 }
+
+export const __TESTING__ = {
+	parseRootMargin,
+	isVisibleWithinMargin,
+};
