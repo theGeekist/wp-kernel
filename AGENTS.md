@@ -48,6 +48,7 @@ This document provides operational guidance for coding agents (Codex, etc.) work
 - Keep core modules (error, http, resource) near 100% coverage.
 - Defensive branches that are hard to reach are acceptable if documented.
 - Avoid flaky tests; use serial mode or improved selectors/cleanup instead of sleeps.
+- Try to keep code and test files <=500 SLOC for ease of debugging and maintanence.
 
 ## Workflow & Policies
 

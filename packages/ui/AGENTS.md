@@ -22,6 +22,7 @@ This file supplements the root [AGENTS.md](../../AGENTS.md) with agent guideline
 - Accessibility is mandatory: semantic HTML, ARIA roles, keyboard nav, focus management.
 - Use `@wordpress/i18n` for all user-facing strings.
 - No internal theming engine; respect WP admin/editor CSS vars and dark mode.
+- Try to keep code and test files <=500 SLOC for ease of debugging and maintanence.
 
 ---
 

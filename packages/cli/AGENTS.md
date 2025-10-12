@@ -8,10 +8,10 @@ Focus on scaffolding commands, code generation, and DX utilities. Keep the CLI a
 
 ### Build & Test
 
-Run `pnpm test --filter @geekist/wp-kernel-cli` and `pnpm build --filter @geekist/wp-kernel-cli` before committing. If commands generate files, add fixture-based tests to ensure output stays in sync with framework conventions.
+Run `pnpm --filter @geekist/wp-kernel-cli test:coverage` before committing. If commands generate files, add fixture-based tests to ensure output stays in sync with framework conventions.
 
 ### Conventions
 
-Respect package boundaries: consume kernel APIs through public exports, never deep imports. When adding commands that touch documentation or specs, coordinate the updates so generated output references the latest guidance.
+Respect package boundaries: consume kernel APIs through public exports, never deep imports. When adding commands that touch documentation or specs, coordinate the updates so generated output references the latest guidance. Try to keep code and test files <=500 SLOC for ease of debugging and maintanence
 
-Refer to `PHASES.md` in this package for the current roadmap, DoD, and testing expectations before extending the CLI.
+Refer to `MVP-PHASES.md` in this package for the current roadmap, DoD, and testing expectations before extending the CLI.
