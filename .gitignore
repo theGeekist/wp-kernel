@@ -79,7 +79,9 @@ wp-content/cache/
 
 # Playground
 .wp-playground/
+.playground/
 test-harness/playground-cache/
+test-harness/playground/*.zip
 .playground-offline.pid
 playground-offline.log
 
