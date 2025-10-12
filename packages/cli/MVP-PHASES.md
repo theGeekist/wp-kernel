@@ -48,9 +48,9 @@ Finally you find that imports from other packages are sometimes missing, it usua
 
 ---
 
-## Phase 1A – IR Enhancements (Route Classification & Policy Hints)
+## Phase 1A - IR Enhancements (Route Classification & Policy Hints)
 
-**Spec references:** [MVP Spec §3–4](./mvp-cli-spec.md#3-intermediate-representation-ir)
+**Spec references:** [MVP Spec §3-4](./mvp-cli-spec.md#3-intermediate-representation-ir)
 
 **Scope:**
 
@@ -67,11 +67,11 @@ Finally you find that imports from other packages are sometimes missing, it usua
 
 **DoD:** Tests pass; IR golden files updated with transport/identity/postType metadata.
 
-**Status Log:** Started 2025-02-14 – Completed 2025-02-14
+**Status Log:** Started 2025-02-14 - Completed 2025-02-14
 
 ---
 
-## Phase 1B – Block Discovery in IR
+## Phase 1B - Block Discovery in IR
 
 **Spec references:** [MVP Spec §4 (Blocks subsection)](./mvp-cli-spec.md#4-printers)
 
@@ -91,11 +91,11 @@ Finally you find that imports from other packages are sometimes missing, it usua
 
 **Dependencies:** Phase 1A.
 
-**Status Log:** Started 2025-02-14 – Completed 2025-02-14
+**Status Log:** Started 2025-02-14 - Completed 2025-02-14
 
 ---
 
-## Phase 2A – PHP Printer Foundations
+## Phase 2A - PHP Printer Foundations
 
 **Spec references:** [MVP Spec §4.3](./mvp-cli-spec.md#43-php-printer-delta)
 
@@ -115,11 +115,11 @@ Finally you find that imports from other packages are sometimes missing, it usua
 
 **Dependencies:** Phase 1A.
 
-**Status Log:** Started 2025-02-14 – Completed 2025-02-14 (PR #TBD)
+**Status Log:** Started 2025-02-14 - Completed 2025-02-14
 
 ---
 
-## Phase 2B – `wp-post` Storage Implementation
+## Phase 2B - `wp-post` Storage Implementation
 
 **Spec references:** [MVP Spec §4.3](./mvp-cli-spec.md#43-php-printer-delta)
 
@@ -147,7 +147,7 @@ Finally you find that imports from other packages are sometimes missing, it usua
 
 ---
 
-## Phase 2C – Remaining Storage Modes
+## Phase 2C - Remaining Storage Modes
 
 **Spec references:** [MVP Spec §4.3](./mvp-cli-spec.md#43-php-printer-delta)
 
@@ -170,7 +170,7 @@ Finally you find that imports from other packages are sometimes missing, it usua
 
 ---
 
-## Phase 3A – JS-Only Block Printer
+## Phase 3A - JS-Only Block Printer
 
 **Spec references:** [MVP Spec §4.4](./mvp-cli-spec.md#44-block-printers-new)
 
@@ -193,7 +193,7 @@ Finally you find that imports from other packages are sometimes missing, it usua
 
 ---
 
-## Phase 3B – SSR Block Manifest & Registrar
+## Phase 3B - SSR Block Manifest & Registrar
 
 **Spec references:** [MVP Spec §4.4](./mvp-cli-spec.md#44-block-printers-new)
 
@@ -215,7 +215,7 @@ Finally you find that imports from other packages are sometimes missing, it usua
 
 ---
 
-## Phase 4 – ESLint Plugin Extensions
+## Phase 4 - ESLint Plugin Extensions
 
 **Spec references:** [MVP Spec §6](./mvp-cli-spec.md#6-blocks-of-authoring-safety)
 
@@ -236,7 +236,7 @@ Finally you find that imports from other packages are sometimes missing, it usua
 
 ---
 
-## Phase 5A – `wpk init` Scaffolding
+## Phase 5A - `wpk init` Scaffolding
 
 **Spec references:** [MVP Spec §7.1](./mvp-cli-spec.md#7-cli-commands)
 
@@ -255,9 +255,9 @@ Finally you find that imports from other packages are sometimes missing, it usua
 
 ---
 
-## Phase 5B – Pipeline Integration & Docs Refresh
+## Phase 5B - Pipeline Integration & Docs Refresh
 
-**Spec references:** [MVP Spec §7–10](./mvp-cli-spec.md#7-cli-commands)
+**Spec references:** [MVP Spec §7-10](./mvp-cli-spec.md#7-cli-commands)
 
 **Scope:**
 
@@ -270,7 +270,7 @@ Finally you find that imports from other packages are sometimes missing, it usua
 
 **DoD:** End-to-end workflow succeeds; docs reflect current behavior.
 
-**Dependencies:** Phases 2–4, 5A.
+**Dependencies:** Phases 2-4, 5A.
 
 **Status Log:** _Pending_
 
@@ -278,7 +278,7 @@ Finally you find that imports from other packages are sometimes missing, it usua
 
 ---
 
-## Phase 6 – Block-Aware Apply Enhancements
+## Phase 6 - Block-Aware Apply Enhancements
 
 **Spec references:** [MVP Spec §7.3](./mvp-cli-spec.md#7-cli-commands)
 
@@ -300,7 +300,7 @@ Finally you find that imports from other packages are sometimes missing, it usua
 
 ---
 
-## Phase 7 – Policy Map Integration
+## Phase 7 - Policy Map Integration
 
 **Spec references:** [MVP Spec §5](./mvp-cli-spec.md#5-policy-integration)
 
@@ -316,7 +316,7 @@ Finally you find that imports from other packages are sometimes missing, it usua
 
 **DoD:** Controllers use policy helper; CLI warns on missing policies/map.
 
-**Dependencies:** Phases 1A, 2B–2C.
+**Dependencies:** Phases 1A, 2B-2C.
 
 **Status Log:** _Pending_
 
@@ -324,7 +324,7 @@ Finally you find that imports from other packages are sometimes missing, it usua
 
 ---
 
-## Phase 8 – Final QA & Adoption
+## Phase 8 - Final QA & Adoption
 
 **Spec references:** Entire MVP spec
 
@@ -352,7 +352,7 @@ Finally you find that imports from other packages are sometimes missing, it usua
 
 | Phase | Focus                  | Dependencies |
 | ----- | ---------------------- | ------------ |
-| 1A    | IR route + policy meta | –            |
+| 1A    | IR route + policy meta | -            |
 | 1B    | Block discovery        | 1A           |
 | 2A    | PHP printer stubs      | 1A           |
 | 2B    | `wp-post` CRUD         | 2A           |
@@ -360,8 +360,8 @@ Finally you find that imports from other packages are sometimes missing, it usua
 | 3A    | JS-only blocks         | 1B           |
 | 3B    | SSR blocks             | 3A           |
 | 4     | ESLint rules           | 1A           |
-| 5A    | Init scaffolding       | –            |
-| 5B    | Pipeline + docs        | 2–4, 5A      |
+| 5A    | Init scaffolding       | -            |
+| 5B    | Pipeline + docs        | 2-4, 5A      |
 | 6     | Block-aware apply      | 3B, 5B       |
-| 7     | Policy integration     | 1A, 2B–2C    |
+| 7     | Policy integration     | 1A, 2B-2C    |
 | 8     | Final QA               | All          |
