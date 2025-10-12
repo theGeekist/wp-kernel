@@ -237,3 +237,13 @@ export function createResourceDataViewController<TItem, TQuery>(
 		getReporter: () => reporter,
 	} satisfies ResourceDataViewController<TItem, TQuery>;
 }
+
+export const __TESTING__ = {
+	toRecord,
+	mergeLayouts,
+	mergeViews,
+	ensurePositive,
+	deriveViewState,
+	ensureQueryMapping,
+	resolveRuntime,
+};
