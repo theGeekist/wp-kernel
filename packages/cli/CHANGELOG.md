@@ -4,6 +4,10 @@
 
 ### Added
 
+- **ESLint Plugin**: 4 kernel config validation rules (`@kernel/config-consistency`, `@kernel/cache-keys-valid`, `@kernel/policy-hints`, `@kernel/doc-links`)
+    - Educational error messages explaining framework contracts, runtime behavior, and concrete fixes
+    - Inline documentation above each rule enforcement explaining the "why" behind constraints
+    - JSDoc with @typedef for complex parameter objects and exported utilities
 - IR inference for route transport classification (`local` vs `remote`)
 - Identity field inference from route placeholders (`:id`, `:slug`, `:uuid`)
 - Schema default to `'auto'` when storage exists but schema undefined
@@ -13,6 +17,7 @@
 
 ### Changed
 
+- Enhanced ESLint rule messages to explain: (1) what we inferred, (2) why the framework cares, (3) runtime consequences, (4) how to fix with examples
 - Refactored monolithic `build-ir.ts` into focused modules (schema, routes, resource-builder, block-discovery, cache-keys, policies, php, ordering, canonical)
 - Split IR test suite into focused spec files (core, defaults, validation, blocks, php)
 

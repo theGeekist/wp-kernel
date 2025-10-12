@@ -54,7 +54,11 @@ export default {
 		hasSuggestions: true,
 		messages: {
 			missingDocComment:
-				'Add a documentation reference comment for kernelConfig. Developers resolving lint diagnostics should review {{docUrl}}.',
+				'kernel.config.ts is missing a documentation reference comment. ' +
+				'This file defines the contract between your application and the framework—resources, routes, storage, and policies. ' +
+				"A @see link helps your team understand the framework's expectations and quickly reference the spec during code reviews. " +
+				'Fix: Add /** @see {{docUrl}} */ above the kernelConfig export. ' +
+				'The CLI generators preserve these comments in scaffolded code.',
 			addDocComment: 'Insert CLI docs link comment.',
 		},
 		schema: [],
@@ -82,6 +86,10 @@ export default {
 					return;
 				}
 
+				// Framework best practice: kernel.config.ts should link to framework documentation.
+				// This file is the central contract defining resources, routes, storage, and policies.
+				// A @see comment helps developers understand the framework's expectations during code
+				// reviews and makes it easier to onboard new team members. CLI generators preserve these.
 				context.report({
 					node: statement,
 					messageId: 'missingDocComment',

@@ -25,6 +25,10 @@ function reportMissingIdentity(context, resourceName, param, property) {
 		property?.propertyNode ??
 		property?.keyNode;
 
+	// Framework constraint: Identity parameters must appear in at least one route path.
+	// The framework generates RESTful routes from identity (e.g., :id → /jobs/:id).
+	// Missing identity parameters in routes means GET/UPDATE/DELETE operations for individual
+	// items will fail at runtime because WordPress can't match the route pattern.
 	context.report({
 		node,
 		messageId: 'missingIdentityRoute',
@@ -42,6 +46,10 @@ function reportDuplicateRoute(context, resourceName, method, path, property) {
 		property?.propertyNode ??
 		property?.keyNode;
 
+	// Framework constraint: Each route must have a unique {method, path} combination.
+	// WordPress REST API only registers the last route when duplicates exist, making earlier
+	// routes unreachable. This causes unpredictable behavior where operations silently fail.
+	// Users expect all defined routes to work, but only the last duplicate actually registers.
 	context.report({
 		node,
 		messageId: 'duplicateRoute',
@@ -60,6 +68,10 @@ function reportMissingPostType(context, resourceName, property) {
 		property?.propertyNode ??
 		property?.keyNode;
 
+	// Framework constraint: wp-post storage requires storage.postType for PHP generation.
+	// The PHP generators create register_post_type() calls from this value. Without postType,
+	// the custom post type won't be registered in WordPress, causing all database operations
+	// (CREATE, UPDATE, DELETE) to fail silently. Data appears to save but never persists.
 	context.report({
 		node,
 		messageId: 'missingPostType',
@@ -151,11 +163,23 @@ export default {
 		},
 		messages: {
 			missingIdentityRoute:
-				'Resource "{{resource}}" identity parameter ":{{param}}" is not present in any configured route. See {{docUrl}}.',
+				'Resource "{{resource}}" declares identity parameter ":{{param}}" but it doesn\'t appear in any route path. ' +
+				'The framework uses identity parameters to generate RESTful routes like /wp-json/app/v1/{{resource}}/:{{param}}. ' +
+				'Without a matching route, GET/UPDATE/DELETE operations for individual items will fail at runtime. ' +
+				'Fix: Add a route with path containing ":{{param}}" (e.g., { method: "GET", path: "/{{resource}}/:{{param}}" }) or remove the identity parameter. ' +
+				'See {{docUrl}}.',
 			duplicateRoute:
-				'Resource "{{resource}}" defines duplicate REST route for {{method}} {{path}}. Adjust routes or consolidate methods. See {{docUrl}}.',
+				'Resource "{{resource}}" defines duplicate REST route for {{method}} {{path}}. ' +
+				'WordPress REST API only registers the last duplicate route, causing the first to be unreachable. ' +
+				'This creates unpredictable routing behavior where some operations silently fail. ' +
+				'Fix: Consolidate operations into one route, use different paths, or change HTTP methods. ' +
+				'See {{docUrl}}.',
 			missingPostType:
-				'Resource "{{resource}}" uses wp-post storage but is missing a postType. Add storage.postType to align with generators. See {{docUrl}}.',
+				'Resource "{{resource}}" uses wp-post storage (storage.type = "wp-post") but is missing storage.postType. ' +
+				'The PHP generators require postType to create the custom post type registration in WordPress. ' +
+				"Without it, your resource won't persist to the database and all CREATE/UPDATE operations will fail silently. " +
+				'Fix: Add storage.postType (e.g., storage: { type: "wp-post", postType: "job_listing" }). Use lowercase with underscores. ' +
+				'See {{docUrl}}.',
 		},
 		schema: [],
 	},

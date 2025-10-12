@@ -60,7 +60,11 @@ export default {
 		},
 		messages: {
 			missingPolicy:
-				'Route "{{resource}}.{{routeKey}}" uses method {{method}} but does not define a policy. Add route.policy to enforce permission mapping. See {{docUrl}}.',
+				'Route "{{resource}}.{{routeKey}}" uses write method {{method}} but has no policy defined. ' +
+				'Without a policy, this endpoint is publicly accessible—any visitor can create, modify, or delete data. ' +
+				'The framework maps policies to WordPress capabilities for authorization checks at runtime. ' +
+				'Fix: Add policy to the route (e.g., { method: "{{method}}", path: "...", policy: { capability: "edit_posts" } }) or make the route explicitly public with policy: { public: true }. ' +
+				'See {{docUrl}}.',
 		},
 		schema: [],
 	},
@@ -113,6 +117,11 @@ function validateRoutePolicy(context, resource, route) {
 
 	const node =
 		route.property.propertyNode?.value ?? route.property.propertyNode;
+	// Framework constraint: Write operations should define policies for authorization.
+	// Without a policy, this endpoint is publicly accessible—any visitor can modify data.
+	// The framework maps policy.capability to WordPress current_user_can() checks at runtime.
+	// Missing policies are a common security vulnerability. Either add a capability check
+	// or explicitly mark the route as public with policy: { public: true }.
 	context.report({
 		node,
 		messageId: 'missingPolicy',

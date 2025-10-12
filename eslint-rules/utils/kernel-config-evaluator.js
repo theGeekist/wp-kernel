@@ -2,6 +2,11 @@ import path from 'path';
 
 const KERNEL_CONFIG_FILENAME = 'kernel.config.ts';
 
+/**
+ * Checks if a file path represents kernel.config.ts.
+ * @param {string} filename - File path to check
+ * @return {boolean} True if the file is kernel.config.ts
+ */
 function isKernelConfigFile(filename) {
 	if (!filename) {
 		return false;
@@ -10,6 +15,14 @@ function isKernelConfigFile(filename) {
 	return path.basename(filename) === KERNEL_CONFIG_FILENAME;
 }
 
+/**
+ * Creates a property representation for config evaluation.
+ * @param {string}                key          - Property key name
+ * @param {*}                     value        - Evaluated property value
+ * @param {import('estree').Node} propertyNode - AST node for the property
+ * @param {import('estree').Node} keyNode      - AST node for the property key
+ * @return {{key: string, value: any, propertyNode: Node, keyNode: Node}} Property object
+ */
 function createProperty(key, value, propertyNode, keyNode) {
 	return {
 		key,
@@ -62,6 +75,12 @@ function isPrimitive(result) {
 	return result?.kind === 'primitive';
 }
 
+/**
+ * Unwraps TypeScript type assertion and parenthesized expressions to get the underlying expression.
+ * Useful for handling `(expr)`, `expr as Type`, `expr satisfies Type`, `expr!`.
+ * @param {import('estree').Node} node - AST node to unwrap
+ * @return {import('estree').Node} Unwrapped expression node
+ */
 function unwrapToExpression(node) {
 	switch (node.type) {
 		case 'ParenthesizedExpression':
@@ -75,6 +94,14 @@ function unwrapToExpression(node) {
 	}
 }
 
+/**
+ * Creates a kernel config evaluator that can statically analyze kernel.config.ts.
+ * The evaluator performs partial evaluation of the AST to extract resource definitions,
+ * routes, storage configuration, and other kernel metadata without executing code.
+ *
+ * @param {import('eslint').Rule.RuleContext} context - ESLint rule context
+ * @return {{isKernelConfig: boolean, getKernelConfig?: Function}} Evaluator object
+ */
 export function createKernelConfigEvaluator(context) {
 	const sourceCode = context.getSourceCode();
 	const program = sourceCode.ast;
@@ -326,6 +353,11 @@ export function getObjectProperty(evaluatedObject, propertyName) {
 	return evaluatedObject.properties.get(propertyName) ?? null;
 }
 
+/**
+ * Extracts a string value from an evaluated primitive value.
+ * @param {*} evaluatedValue - Evaluated value from config evaluation
+ * @return {string|null} String value if primitive string, otherwise null
+ */
 export function getStringValue(evaluatedValue) {
 	if (
 		isPrimitive(evaluatedValue) &&
@@ -337,6 +369,13 @@ export function getStringValue(evaluatedValue) {
 	return null;
 }
 
+/**
+ * Extracts all resource definitions from an evaluated kernel config.
+ * Each resource includes its name, property metadata, and evaluated value.
+ *
+ * @param {*} kernelConfig - Evaluated kernel config object
+ * @return {Array<{name: string, property: Object, value: any}>} Array of resource definitions
+ */
 export function getResourcesFromConfig(kernelConfig) {
 	const resourcesProperty = getObjectProperty(kernelConfig, 'resources');
 	if (!resourcesProperty || !isObjectLike(resourcesProperty.value)) {
@@ -358,10 +397,22 @@ export function getResourcesFromConfig(kernelConfig) {
 	return resources;
 }
 
+/**
+ * Unwraps TypeScript and parenthesized expressions (re-export of internal utility).
+ * @param {import('estree').Node} node - AST node to unwrap
+ * @return {import('estree').Node} Unwrapped expression
+ */
 export function unwrapExpression(node) {
 	return unwrapToExpression(node);
 }
 
+/**
+ * Extracts all string-valued properties from an evaluated object.
+ * Useful for getting route paths, method names, or other string-based config values.
+ *
+ * @param {*} evaluatedObject - Evaluated object from config evaluation
+ * @return {Map<string, string>} Map of property names to string values
+ */
 export function getStringProperties(evaluatedObject) {
 	if (!isObjectLike(evaluatedObject)) {
 		return new Map();
@@ -380,9 +431,3 @@ export function getStringProperties(evaluatedObject) {
 
 	return entries;
 }
-
-export const evaluatorUtils = {
-	isObjectLike,
-	isArrayLike,
-	isPrimitive,
-};
