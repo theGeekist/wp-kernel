@@ -155,10 +155,7 @@ describe('emitGeneratedArtifacts', () => {
 				'utf8'
 			);
 			expect(autoRegisterContents).toContain(
-				"registerBlockType('demo-namespace/literal'"
-			);
-			expect(autoRegisterContents).toContain(
-				"registerBlockType('demo-namespace/remote'"
+				'No JS-only blocks require auto-registration.'
 			);
 
 			const editorContents = await fs.readFile(literalEditorPath, 'utf8');

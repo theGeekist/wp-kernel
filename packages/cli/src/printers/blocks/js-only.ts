@@ -45,60 +45,35 @@ export async function generateJSOnlyBlocks(
 
 	const autoRegisterPath = path.join(options.outputDir, 'auto-register.ts');
 
-	const imports: string[] = [];
-	const registrations: string[] = [];
-	const warnings: string[] = [];
-	const stubFiles: BlockPrinterResult['files'] = [];
-
-	for (const block of blocks.sort((a, b) => a.key.localeCompare(b.key))) {
-		const manifestPath = path.resolve(
-			options.projectRoot,
-			block.manifestSource
-		);
-
-		let manifest: unknown;
-		try {
-			const raw = await fs.readFile(manifestPath, 'utf8');
-			manifest = JSON.parse(raw);
-		} catch (error) {
-			warnings.push(
-				`Unable to read manifest for block "${block.key}" at ${block.manifestSource}: ${String(
-					error
-				)}`
-			);
-			continue;
-		}
-
-		const manifestWarnings = validateBlockManifest(manifest, block);
-		warnings.push(
-			...manifestWarnings.map(
-				(message) => `Block "${block.key}": ${message}`
+	const blockResults = await Promise.all(
+		blocks
+			.sort((a, b) => a.key.localeCompare(b.key))
+			.map((block) =>
+				processBlockForAutoRegister({
+					block,
+					autoRegisterPath,
+					projectRoot: options.projectRoot,
+				})
 			)
-		);
+	);
 
-		if (manifest && typeof manifest === 'object') {
-			const manifestData = manifest as Record<string, unknown>;
-			const stubs = await generateBlockStubs({
-				block,
-				manifest: manifestData,
-				projectRoot: options.projectRoot,
-			});
-			stubFiles.push(...stubs);
-		}
+	const warnings = blockResults.flatMap((result) => result.warnings);
+	const stubFiles = blockResults.flatMap((result) => result.stubFiles);
+	const imports = blockResults
+		.map((result) => result.importStatement)
+		.filter(isPresent);
+	const registrations = blockResults
+		.map((result) => result.registrationStatement)
+		.filter(isPresent);
+	const processedManifest = blockResults.some(
+		(result) => result.processedManifest
+	);
 
-		const importPath = generateBlockImportPath(
-			manifestPath,
-			autoRegisterPath
-		);
-		const variableName = formatBlockVariableName(block.key);
-
-		imports.push(`import ${variableName} from '${importPath}';`);
-		registrations.push(
-			`registerBlockType('${block.key}', ${variableName});`
-		);
-	}
-
-	if (imports.length === 0) {
+	if (
+		!processedManifest &&
+		stubFiles.length === 0 &&
+		registrations.length === 0
+	) {
 		return { files: [], warnings };
 	}
 
@@ -109,28 +84,118 @@ export async function generateJSOnlyBlocks(
 		' */',
 	];
 
-	const contents = [
-		...banner,
-		"import { registerBlockType } from '@wordpress/blocks';",
-		...imports,
-		'',
-		'export function registerGeneratedBlocks(): void {',
-		...registrations.map((line) => `        ${line}`),
-		'}',
-		'',
-		'registerGeneratedBlocks();',
-		'',
-	].join('\n');
+	const files: BlockPrinterResult['files'] = [...stubFiles];
+
+	const contents: string[] = [...banner];
+
+	if (registrations.length > 0) {
+		contents.push(
+			"import { registerBlockType } from '@wordpress/blocks';",
+			...imports,
+			'',
+			'export function registerGeneratedBlocks(): void {',
+			...registrations.map((line) => `        ${line}`),
+			'}',
+			'',
+			'registerGeneratedBlocks();',
+			''
+		);
+	} else {
+		contents.push(
+			'export function registerGeneratedBlocks(): void {',
+			'        // No JS-only blocks require auto-registration.',
+			'}',
+			'',
+			'registerGeneratedBlocks();',
+			''
+		);
+	}
+
+	files.push({
+		path: autoRegisterPath,
+		content: contents.join('\n'),
+	});
 
 	return {
-		files: [
-			...stubFiles,
-			{
-				path: autoRegisterPath,
-				content: contents,
-			},
-		],
+		files,
 		warnings,
+	};
+}
+
+interface BlockAutoRegisterResult {
+	warnings: string[];
+	stubFiles: BlockPrinterResult['files'];
+	processedManifest: boolean;
+	importStatement?: string;
+	registrationStatement?: string;
+}
+
+async function processBlockForAutoRegister(options: {
+	block: JSOnlyBlockOptions['blocks'][number];
+	autoRegisterPath: string;
+	projectRoot: string;
+}): Promise<BlockAutoRegisterResult> {
+	const { block, autoRegisterPath, projectRoot } = options;
+	const manifestPath = path.resolve(projectRoot, block.manifestSource);
+	const warnings: string[] = [];
+	const stubFiles: BlockPrinterResult['files'] = [];
+
+	let manifest: unknown;
+	try {
+		const raw = await fs.readFile(manifestPath, 'utf8');
+		manifest = JSON.parse(raw);
+	} catch (error) {
+		warnings.push(
+			`Unable to read manifest for block "${block.key}" at ${block.manifestSource}: ${String(
+				error
+			)}`
+		);
+
+		return {
+			warnings,
+			stubFiles,
+			processedManifest: false,
+		};
+	}
+
+	const manifestWarnings = validateBlockManifest(manifest, block);
+	warnings.push(
+		...manifestWarnings.map((message) => `Block "${block.key}": ${message}`)
+	);
+
+	if (!manifest || typeof manifest !== 'object') {
+		return {
+			warnings,
+			stubFiles,
+			processedManifest: false,
+		};
+	}
+
+	const manifestData = manifest as Record<string, unknown>;
+	const stubs = await generateBlockStubs({
+		block,
+		manifest: manifestData,
+		projectRoot,
+	});
+	stubFiles.push(...stubs);
+
+	if (blockRegistersViaFileModule(manifestData)) {
+		return {
+			warnings,
+			stubFiles,
+			processedManifest: true,
+		};
+	}
+
+	const importPath = generateBlockImportPath(manifestPath, autoRegisterPath);
+	const variableName = formatBlockVariableName(block.key);
+
+	return {
+		warnings,
+		stubFiles,
+		processedManifest: true,
+		importStatement: `import ${variableName} from '${importPath}';`,
+		registrationStatement: `registerBlockType('${block.key}', ${variableName});`,
 	};
 }
 
@@ -200,6 +265,26 @@ function shouldEmitViewStub(relativePath: string): boolean {
 function normalizeRelative(candidate: string): string {
 	const normalized = candidate.replace(/^\.\//u, '');
 	return normalized.replace(/\\/gu, '/');
+}
+
+function blockRegistersViaFileModule(
+	manifest: Record<string, unknown>
+): boolean {
+	return (
+		usesFileModule(manifest.editorScriptModule) ||
+		usesFileModule(manifest.editorScript)
+	);
+}
+
+function usesFileModule(candidate: unknown): boolean {
+	return (
+		typeof candidate === 'string' &&
+		candidate.trim().toLowerCase().startsWith('file:')
+	);
+}
+
+function isPresent<T>(value: T | undefined | null): value is T {
+	return value !== undefined && value !== null;
 }
 
 async function fileExists(filePath: string): Promise<boolean> {
