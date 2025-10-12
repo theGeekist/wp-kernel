@@ -8,6 +8,8 @@ export type {
 	IRPhpProject,
 	IRResourceCacheKey,
 	SchemaProvenance,
+	IRWarning,
+	IRRouteTransport,
 	BuildIrOptions,
 } from './types';
 

@@ -37,7 +37,7 @@ Phase 0 audit outcomes are captured in [`docs/mvp-phase-0-checklist.md`](./docs/
 
 **Deliverables:** Updated `src/ir/build-ir.ts`, block discovery utilities, associated tests/fixtures.  
 **DoD:** `pnpm test --filter @geekist/wp-kernel-cli` passes with new assertions; IR JSON golden files updated including block entries.  
-**Status Log:** _Pending_.
+**Status Log:** Started 2025-10-12 – Completed 2025-10-12 (gpt-5-codex).
 
 ---
 
