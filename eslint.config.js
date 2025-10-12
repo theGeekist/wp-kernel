@@ -19,6 +19,10 @@ import { fileURLToPath } from 'url';
 import noManualTestGlobals from './eslint-rules/no-manual-test-globals.js';
 import noConsoleInKernel from './eslint-rules/no-console-in-kernel.js';
 import noHardcodedNamespaceStrings from './eslint-rules/no-hardcoded-namespace-strings.js';
+import configConsistency from './eslint-rules/config-consistency.js';
+import cacheKeysValid from './eslint-rules/cache-keys-valid.js';
+import policyHints from './eslint-rules/policy-hints.js';
+import docLinks from './eslint-rules/doc-links.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -28,6 +32,10 @@ const kernelPlugin = {
 		'no-manual-test-globals': noManualTestGlobals,
 		'no-console-in-kernel': noConsoleInKernel,
 		'no-hardcoded-namespace-strings': noHardcodedNamespaceStrings,
+		'config-consistency': configConsistency,
+		'cache-keys-valid': cacheKeysValid,
+		'policy-hints': policyHints,
+		'doc-links': docLinks,
 	},
 };
 
@@ -150,6 +158,10 @@ export default [
 
 			'@kernel/no-console-in-kernel': 'error',
 			'@kernel/no-hardcoded-namespace-strings': 'error',
+			'@kernel/config-consistency': 'error',
+			'@kernel/cache-keys-valid': 'error',
+			'@kernel/policy-hints': 'error',
+			'@kernel/doc-links': 'warn',
 		},
 	}, // WordPress Script Modules - runtime-resolved imports
 	{

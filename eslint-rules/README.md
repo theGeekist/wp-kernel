@@ -1,269 +1,293 @@
-# ESLint Rule: no-hardcoded-namespace-strings
+# ESLint Rules for WordPress Kernel Development
 
-## Purpose
+This document outlines the custom ESLint rules designed to enforce best practices, maintain naming consistency, and ensure configuration correctness across the Kernel codebase.
 
-Prevents namespace drift by enforcing usage of centralized namespace constants instead of hardcoded strings like `'wpk'`, `'wpk.action.start'`, `'kernel.policy'`, etc.
+---
 
-## Why This Matters
+## `@kernel/no-hardcoded-namespace-strings`
 
-During Sprint 4.5, we discovered hardcoded namespace strings scattered across the codebase:
+### Purpose
 
-- Public API event names (`'wpk.action.start'`, `'wpk.resource.request'`, etc.)
-- Subsystem namespaces (`'wpk.policy'`, `'kernel.policy'`)
-- Infrastructure identifiers (`'wpk.actions'` BroadcastChannel)
-- Namespace prefixes in string operations (`'wpk/'`, `'wpk.'`)
+Prevents namespace drift by enforcing the use of **centralised constants** instead of hardcoded namespace strings such as `'wpk'`, `'wpk.action.start'`, or `'kernel.policy'`.
 
-**Problems with hardcoded strings:**
+### Why It Matters
 
-1. Namespace drift when conventions change
-2. Difficult refactoring (must search/replace all occurrences)
-3. Unclear public API contract
-4. Risk of typos
-5. Inconsistent naming between modules
+Hardcoding namespace strings introduces risk and inconsistency:
 
-## What It Catches
+- **Namespace drift** when conventions evolve
+- **Painful refactoring** across scattered literals
+- **Ambiguous API contracts** without standard references
+- **Typos and silent failures**
+- **Inconsistent naming** across modules
 
-### ✓ Detects
+### Detects
 
-**Event Names (Public API):**
+#### Event Names
 
-```typescript
+```ts
 // ✗ BAD
 hooks.doAction('wpk.action.start', event);
-hooks.doAction('wpk.resource.response', data);
-hooks.doAction('wpk.cache.invalidated', { keys });
 
 // ✓ GOOD
 import { WPK_EVENTS } from '../namespace/constants';
 hooks.doAction(WPK_EVENTS.ACTION_START, event);
-hooks.doAction(WPK_EVENTS.RESOURCE_RESPONSE, data);
-hooks.doAction(WPK_EVENTS.CACHE_INVALIDATED, { keys });
 ```
 
-**Subsystem Namespaces:**
+#### Subsystem Namespaces
 
-```typescript
+```ts
 // ✗ BAD
-const reporter = createReporter({ namespace: 'wpk.policy' });
-const logger = createReporter({ namespace: 'kernel.policy' }); // Legacy
+createReporter({ namespace: 'kernel.policy' });
 
 // ✓ GOOD
 import { WPK_SUBSYSTEM_NAMESPACES } from '../namespace/constants';
-const reporter = createReporter({
-	namespace: WPK_SUBSYSTEM_NAMESPACES.POLICY,
-});
+createReporter({ namespace: WPK_SUBSYSTEM_NAMESPACES.POLICY });
 ```
 
-**Infrastructure Identifiers:**
+#### Infrastructure Identifiers
 
-```typescript
+```ts
 // ✗ BAD
-const channel = new BroadcastChannel('wpk.actions');
-channel.postMessage({ type: 'wpk.action.lifecycle', event });
+new BroadcastChannel('wpk.actions');
 
 // ✓ GOOD
 import { WPK_INFRASTRUCTURE } from '../namespace/constants';
-const channel = new BroadcastChannel(WPK_INFRASTRUCTURE.ACTIONS_CHANNEL);
-channel.postMessage({
-	type: WPK_INFRASTRUCTURE.ACTIONS_MESSAGE_TYPE_LIFECYCLE,
-	event,
-});
+new BroadcastChannel(WPK_INFRASTRUCTURE.ACTIONS_CHANNEL);
 ```
 
-**Namespace Prefixes:**
+#### Namespace Prefixes
 
-```typescript
+```ts
 // ✗ BAD
-if (moduleId.startsWith('wpk/')) {
-	return moduleId.slice(4); // Magic number!
-}
+if (id.startsWith('wpk/')) id = id.slice(4);
 
 // ✓ GOOD
 import { WPK_NAMESPACE } from '../namespace/constants';
 const prefix = `${WPK_NAMESPACE}/`;
-if (moduleId.startsWith(prefix)) {
-	return moduleId.slice(prefix.length);
-}
+if (id.startsWith(prefix)) id = id.slice(prefix.length);
 ```
 
-### ⏭️ Skips
+### Skips
 
-1. **The constants file itself** (`packages/kernel/src/namespace/constants.ts`)
-    - Where constants are defined
+- `namespace/constants.ts`
+- Tests (`__tests__/**`, `*.test.ts`, `*.spec.ts`)
+- Markdown files
+- Comments and JSDoc
 
-2. **Test files** (`__tests__/**`, `*.test.ts`, `*.spec.ts`)
-    - Tests verify actual string values
-
-3. **Markdown files** (`*.md`, `README.md`, `CHANGELOG.md`)
-    - Documentation shows actual event names
-
-4. **Comments and JSDoc**
-    - Documentation references are allowed
-
-## Error Messages
-
-The rule provides specific suggestions based on what it finds:
+### Example Diagnostic
 
 ```
 Hardcoded namespace string "wpk.action.start" found.
 Use WPK_EVENTS.ACTION_START from namespace/constants.ts instead.
 ```
 
+### Implementation Highlights
+
+- Detects both `Literal` and `TemplateLiteral` nodes.
+- Ignores comments and documentation.
+- Checks for patterns like `'wpk.'`, `'wpk/'`, and legacy `'kernel.'`.
+
+### Benefits
+
+- **Single Source of Truth** for all identifiers
+- **Type-safe autocompletion** via constants
+- **Seamless refactoring** from one location
+- **Explicit, documented API surface**
+
+---
+
+## `@kernel/config-consistency`
+
+### Purpose
+
+Ensures structural consistency across resource configuration objects in `kernel.config.ts`.
+
+### What It Checks
+
+1. **Identity Parameter Matching** – `identity.param` must match route parameters.
+2. **Duplicate Route Detection** – Prevents duplicate `method` + `path` combos.
+3. **Post Type Validation** – `wp-post` mode must declare a `postType`.
+
+### Example
+
+```ts
+// ✗ FAILS
+identity: {
+	param: 'id';
+}
+routes: {
+	get: {
+		path: '/demo/v1/things/:slug';
+	}
+}
+
+// ✓ GOOD
+identity: {
+	param: 'slug';
+}
 ```
-Hardcoded namespace string "wpk.policy" found.
-Use WPK_SUBSYSTEM_NAMESPACES.POLICY from namespace/constants.ts instead.
-```
+
+**Diagnostic**
 
 ```
-Hardcoded namespace string "wpk/" found.
-Use `${WPK_NAMESPACE}/` or WPK_NAMESPACE constant from namespace/constants.ts instead.
+Resource 'job' references identity param 'id' but routes use ':slug'
 ```
 
-## Implementation Details
+---
 
-### Detection Patterns
+## `@kernel/cache-keys-valid`
 
-**Exact String Matches:**
+### Purpose
 
-- All values in `WPK_EVENTS`
-- All values in `WPK_SUBSYSTEM_NAMESPACES`
-- All values in `WPK_INFRASTRUCTURE`
-- Legacy `'kernel.policy'`
+Ensures cache key functions are valid, serialisable, and predictable.
 
-**Prefix Patterns:**
+### What It Checks
 
-- `'wpk/'` (module IDs, path prefixes)
-- `'wpk.'` (event name prefixes)
-- `'kernel.'` (legacy subsystem prefixes)
+1. **Return Type** – Must return an **array**.
+2. **Array Elements** – Must be **primitive values**.
+3. **Query Param References** – Must match declared `queryParams`.
+4. **Allowed Function Calls** – Only safe coercion helpers (`normalizeKeyValue`, `String`, `Number`, `Boolean`).
 
-### AST Node Types
+### Examples
 
-1. **`Literal` nodes** - String literals in code
-2. **`TemplateLiteral` nodes** - Template string static parts
+```ts
+// ✗ BAD
+cacheKeys: {
+	list: (params) => 'thing';
+}
 
-### Comment Handling
-
-The rule checks if string literals fall within comment ranges and skips them:
-
-```typescript
-// ✓ Allowed in comments
-/**
- * Emits wpk.action.start event before execution
- */
-
-// ✗ Not allowed in code
-hooks.doAction('wpk.action.start', event);
+// ✓ GOOD
+cacheKeys: {
+	list: (params) => ['thing', params?.search ?? null];
+}
 ```
 
-## Configuration
+**Diagnostics**
 
-### In `eslint.config.js`:
+```
+Cache key function for 'list' must return an array, got string
+Cache key references unknown query param 'serch' (did you mean 'search'?)
+```
 
-```javascript
+### Why It Matters
+
+- Prevents inconsistent cache lookups
+- Guarantees serialisability for Redis/Memcached
+- Enforces predictable equality semantics
+
+---
+
+## `@kernel/policy-hints`
+
+### Purpose
+
+Encourages **explicit policy declarations** for all write operations.
+
+### What It Checks
+
+- Flags write routes (`POST`, `PUT`, `PATCH`, `DELETE`) missing a `policy` field.
+- Read (`GET`) routes are exempt but encouraged.
+
+### Example
+
+```ts
+// ✗ FAILS
+routes: { create: { method: 'POST' } };
+
+// ✓ GOOD
+routes: { create: { method: 'POST', policy: 'things.create' } };
+```
+
+**Diagnostic**
+
+```
+Write route 'create' should declare a policy identifier
+```
+
+---
+
+## `@kernel/doc-links`
+
+### Purpose
+
+Encourages self-documenting `kernel.config.ts` files by linking to official CLI spec documentation.
+
+### What It Checks
+
+- Detects missing documentation link comments before `kernelConfig` exports.
+- Offers auto-fix insertion.
+
+### Example
+
+```ts
+// ✗ WARN
+export const kernelConfig = { version: 1, namespace: 'demo' };
+
+// ✓ GOOD
+// For CLI config guidance see https://github.com/theGeekist/wp-kernel/blob/main/packages/cli/mvp-cli-spec.md#6-blocks-of-authoring-safety
+export const kernelConfig = { version: 1, namespace: 'demo' };
+```
+
+**Diagnostic**
+
+```
+Add a documentation reference comment for kernelConfig. Developers resolving lint diagnostics should review <doc-url>.
+```
+
+---
+
+## Integration
+
+### ESLint Configuration
+
+```js
 import noHardcodedNamespaceStrings from './eslint-rules/no-hardcoded-namespace-strings.js';
+import configConsistency from './eslint-rules/config-consistency.js';
+import cacheKeysValid from './eslint-rules/cache-keys-valid.js';
+import policyHints from './eslint-rules/policy-hints.js';
+import docLinks from './eslint-rules/doc-links.js';
 
 const kernelPlugin = {
 	rules: {
 		'no-hardcoded-namespace-strings': noHardcodedNamespaceStrings,
+		'config-consistency': configConsistency,
+		'cache-keys-valid': cacheKeysValid,
+		'policy-hints': policyHints,
+		'doc-links': docLinks,
 	},
 };
 
 export default [
 	{
-		plugins: {
-			'@kernel': kernelPlugin,
-		},
+		plugins: { '@kernel': kernelPlugin },
 		rules: {
 			'@kernel/no-hardcoded-namespace-strings': 'error',
+			'@kernel/config-consistency': 'error',
+			'@kernel/cache-keys-valid': 'error',
+			'@kernel/policy-hints': 'error',
+			'@kernel/doc-links': 'warn', // auto-fixable
 		},
 	},
 ];
 ```
 
-## Benefits
-
-1. **Single Source of Truth** - All namespace strings defined in one place
-2. **TypeScript Autocomplete** - IDE suggests available constants
-3. **Easy Refactoring** - Change once in constants.ts, affects everywhere
-4. **Clear Public API** - WPK_EVENTS documents official event names
-5. **Prevents Typos** - No more `'wpk.acton.start'` vs `'wpk.action.start'`
-6. **Better Documentation** - Constants serve as API documentation
-
-## Future Improvements
-
-### Potential Auto-fix
-
-Could add `fixable: 'code'` with transformation logic:
-
-```javascript
-meta: {
-    fixable: 'code',
-},
-
-// In the report:
-fix(fixer) {
-    const replacement = getConstantReplacement(node.value);
-    return fixer.replaceText(node, replacement);
-}
-```
-
-### Additional Patterns
-
-Could extend to catch:
-
-- Hook namespace patterns in WordPress `add_action()` calls
-- REST API route prefixes
-- Custom namespace conventions in plugins
+---
 
 ## Testing
 
-### Manual Test
-
-Create a file with violations:
-
-```typescript
-// test-namespace-violations.ts
-export function bad() {
-	hooks.doAction('wpk.action.start', {});
-	const ns = 'wpk.policy';
-	if (id.startsWith('wpk/')) return true;
-}
-```
-
-Run ESLint:
+Each rule includes full coverage under `packages/cli/__tests__/eslint-rules`.
 
 ```bash
-pnpm lint test-namespace-violations.ts
+pnpm --filter @geekist/wp-kernel-cli test
 ```
 
-Expected output:
+Tests use ESLint’s `RuleTester` with `@typescript-eslint/parser`, covering valid/invalid cases, edge scenarios, and auto-fix validation.
 
-```
-error  Hardcoded namespace string "wpk.action.start" found.
-       Use WPK_EVENTS.ACTION_START from namespace/constants.ts instead.
+---
 
-error  Hardcoded namespace string "wpk.policy" found.
-       Use WPK_SUBSYSTEM_NAMESPACES.POLICY from namespace/constants.ts instead.
+## References
 
-error  Hardcoded namespace string "wpk/" found.
-       Use `${WPK_NAMESPACE}/` or WPK_NAMESPACE constant from namespace/constants.ts instead.
-```
-
-### Integration Test
-
-The rule caught real violations during implementation:
-
-- `actions/context.ts`: `'wpk.action.lifecycle'`, `'wpk.action.event'`
-- `policy/context.ts`: `'kernel.policy'`
-- `namespace/detect.ts`: `'wpk/'`
-- `http/fetch.ts`: `'wpk.resource.request/response/error'`
-- `resource/cache.ts`: `'wpk.cache.invalidated'`
-
-All violations were fixed by using appropriate constants.
-
-## Related
-
-- **Constants File**: `packages/kernel/src/namespace/constants.ts`
-- **PR**: #[number] - Centralize namespace constants
-- **Issue**: Namespace drift discovered in Sprint 4.5 audit
-- **Documentation**: Event taxonomy in `information/Event Taxonomy.md`
+- **Constants**: `packages/kernel/src/namespace/constants.ts`
+- **Evaluator Utils**: `eslint-rules/utils/kernel-config-evaluator.js`
+- **CLI Spec**: [MVP CLI Spec §6 - Authoring Safety](../packages/cli/mvp-cli-spec.md#6-blocks-of-authoring-safety)
+- **PR**: [#112 – ESLint Plugin Extensions](https://github.com/theGeekist/wp-kernel/pull/112)
