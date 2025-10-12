@@ -65,7 +65,7 @@ Finally you find that imports from other packages are sometimes missing, it usua
 
 **DoD:** Tests pass; IR golden files updated with transport/identity/postType metadata.
 
-**Status Log:** _Pending_
+**Status Log:** Started 2025-10-12 – Completed 2025-10-12 (PR #110)
 
 ---
 
@@ -87,7 +87,7 @@ Finally you find that imports from other packages are sometimes missing, it usua
 
 **Dependencies:** Phase 1A.
 
-**Status Log:** _Pending_
+**Status Log:** Completed with Phase 1A (PR #110)
 
 ---
 
