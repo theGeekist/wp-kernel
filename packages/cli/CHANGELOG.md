@@ -2,7 +2,21 @@
 
 ## 0.4.0 [Unreleased]
 
-### Changes
+### Added
+
+- IR inference for route transport classification (`local` vs `remote`)
+- Identity field inference from route placeholders (`:id`, `:slug`, `:uuid`)
+- Schema default to `'auto'` when storage exists but schema undefined
+- Inferred `storage.postType` for `wp-post` resources
+- Workspace-aware block discovery with SSR detection
+- Warning system for route transport mismatches and naming collisions
+
+### Changed
+
+- Refactored monolithic `build-ir.ts` into focused modules (schema, routes, resource-builder, block-discovery, cache-keys, policies, php, ordering, canonical)
+- Split IR test suite into focused spec files (core, defaults, validation, blocks, php)
+
+### Previous Changes
 
 - Version bump to align with monorepo
 - DataViews Phase 4: CLI now validates `ui.admin.dataviews` metadata and emits
