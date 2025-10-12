@@ -429,6 +429,228 @@ describe('createWpPostHandlers', () => {
 		expect(output).toContain('private function getJobPostType(): string');
 	});
 
+	it('emits stubs for custom CRUD-like routes', () => {
+		const builder = new PhpFileBuilder('Demo\\Namespace\\Rest', {
+			kind: 'resource-controller',
+			name: 'job',
+		});
+
+		const resource: IRResource = {
+			name: 'job',
+			schemaKey: 'job',
+			schemaProvenance: 'manual',
+			routes: createRoutes([
+				['GET', '/jobs'],
+				['GET', '/jobs/:slug'],
+				['POST', '/jobs'],
+				['GET', '/jobs/stats'],
+				['POST', '/jobs/:slug/publish'],
+			]),
+			cacheKeys: {
+				list: {
+					segments: Object.freeze(['job', 'list']),
+					source: 'config',
+				},
+				get: {
+					segments: Object.freeze(['job', 'get', '__wpk_id__']),
+					source: 'default',
+				},
+				create: {
+					segments: Object.freeze(['job', 'create']),
+					source: 'config',
+				},
+				update: {
+					segments: Object.freeze(['job', 'update']),
+					source: 'config',
+				},
+				remove: {
+					segments: Object.freeze(['job', 'remove']),
+					source: 'config',
+				},
+			},
+			identity: { type: 'string', param: 'slug' },
+			storage: {
+				mode: 'wp-post',
+				postType: 'demo_job',
+			},
+			queryParams: {},
+			ui: undefined,
+			hash: 'resource-job',
+			warnings: [],
+		} as unknown as IRResource;
+
+		const context = createPrinterContext();
+		const methods = createWpPostHandlers({
+			builder,
+			context,
+			resource,
+			routes: createRouteDefinitions(resource.routes, context),
+		});
+
+		for (const method of methods) {
+			for (const line of method) {
+				builder.appendStatement(line);
+			}
+		}
+
+		const output = builder.getStatements().join('\n');
+
+		expect(output).toContain(
+			'// TODO: Implement handler for [GET] /jobs/stats.'
+		);
+		expect(output).toContain(
+			'// TODO: Implement handler for [POST] /jobs/:slug/publish.'
+		);
+		expect(output).not.toContain(
+			'// TODO: Implement handler for [GET] /jobs.'
+		);
+		expect(output).toContain(
+			'public function getJobs( WP_REST_Request $request )'
+		);
+	});
+
+	it('derives canonical base paths when routes use the root path', () => {
+		const builder = new PhpFileBuilder('Demo\\Namespace\\Rest', {
+			kind: 'resource-controller',
+			name: 'landing',
+		});
+
+		const resource: IRResource = {
+			name: 'landing',
+			schemaKey: 'landing',
+			schemaProvenance: 'manual',
+			routes: createRoutes([
+				['GET', '/'],
+				['POST', '/'],
+			]),
+			cacheKeys: {
+				list: {
+					segments: Object.freeze(['landing', 'list']),
+					source: 'config',
+				},
+				get: {
+					segments: Object.freeze(['landing', 'get', '__wpk_id__']),
+					source: 'default',
+				},
+				create: {
+					segments: Object.freeze(['landing', 'create']),
+					source: 'config',
+				},
+			},
+			identity: { type: 'number', param: 'id' },
+			storage: {
+				mode: 'wp-post',
+				postType: 'landing_page',
+			},
+			queryParams: {},
+			ui: undefined,
+			hash: 'resource-landing',
+			warnings: [],
+		} as unknown as IRResource;
+
+		const context = createPrinterContext();
+		const methods = createWpPostHandlers({
+			builder,
+			context,
+			resource,
+			routes: createRouteDefinitions(resource.routes, context),
+		});
+
+		for (const method of methods) {
+			for (const line of method) {
+				builder.appendStatement(line);
+			}
+		}
+
+		const output = builder.getStatements().join('\n');
+
+		expect(output).toContain(
+			'public function getRoute( WP_REST_Request $request )'
+		);
+		expect(output).toContain(
+			'public function postRoute( WP_REST_Request $request )'
+		);
+		expect(output).not.toContain('// TODO: Implement handler for [GET] /.');
+	});
+
+	it('returns stubs when canonical base paths cannot be resolved', () => {
+		const builder = new PhpFileBuilder('Demo\\Namespace\\Rest', {
+			kind: 'resource-controller',
+			name: 'job',
+		});
+
+		const resource: IRResource = {
+			name: 'job',
+			schemaKey: 'job',
+			schemaProvenance: 'manual',
+			routes: createRoutes([['POST', '/jobs/:slug/publish']]),
+			cacheKeys: {},
+			identity: { type: 'string', param: 'slug' },
+			storage: {
+				mode: 'wp-post',
+				postType: 'demo_job',
+			},
+			queryParams: {},
+			ui: undefined,
+			hash: 'resource-job-publish',
+			warnings: [],
+		} as unknown as IRResource;
+
+		const context = createPrinterContext();
+		const methods = createWpPostHandlers({
+			builder,
+			context,
+			resource,
+			routes: createRouteDefinitions(resource.routes, context),
+		});
+
+		const output = methods.flat().join('\n');
+
+		expect(output).toContain(
+			'// TODO: Implement handler for [POST] /jobs/:slug/publish.'
+		);
+	});
+
+	it('treats nested dynamic identity routes as unsupported', () => {
+		const builder = new PhpFileBuilder('Demo\\Namespace\\Rest', {
+			kind: 'resource-controller',
+			name: 'job',
+		});
+
+		const resource: IRResource = {
+			name: 'job',
+			schemaKey: 'job',
+			schemaProvenance: 'manual',
+			routes: createRoutes([
+				['GET', '/companies/:companyId/jobs/:jobId'],
+			]),
+			cacheKeys: {},
+			identity: { type: 'string', param: 'jobId' },
+			storage: {
+				mode: 'wp-post',
+				postType: 'demo_job',
+			},
+			queryParams: {},
+			ui: undefined,
+			hash: 'resource-job-nested',
+			warnings: [],
+		} as unknown as IRResource;
+
+		const context = createPrinterContext();
+		const methods = createWpPostHandlers({
+			builder,
+			context,
+			resource,
+			routes: createRouteDefinitions(resource.routes, context),
+		});
+
+		const output = methods.flat().join('\n');
+
+		expect(output).toContain(
+			'// TODO: Implement handler for [GET] /companies/:companyId/jobs/:jobId.'
+		);
+	});
+
 	it('falls back to default identifiers and post types when omitted', () => {
 		const builder = new PhpFileBuilder('Demo\\Namespace\\Rest', {
 			kind: 'resource-controller',
