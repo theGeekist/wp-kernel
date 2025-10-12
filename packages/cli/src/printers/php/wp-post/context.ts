@@ -1,7 +1,12 @@
 import type { PrinterContext } from '../../types';
 import type { IRResource } from '../../../ir';
 import type { PhpFileBuilder } from '../builder';
-import { toPascalCase } from '../utils';
+import {
+	createErrorCodeFactory,
+	isNonEmptyString,
+	toPascalCase,
+} from '../utils';
+import { resolveIdentityConfig } from '../identity';
 import {
 	type IdentityConfig,
 	type WpPostMetaDescriptor,
@@ -10,7 +15,6 @@ import {
 	type WpPostTaxonomyDescriptor,
 } from './types';
 import { collectCanonicalBasePaths } from './routes';
-import { isNonEmptyString, toSnakeCase } from './utils';
 
 export interface WpPostContext {
 	builder: PhpFileBuilder;
@@ -64,8 +68,7 @@ export function createWpPostContext(
 	options.builder.addUse('WP_Query');
 	options.builder.addUse('WP_REST_Request');
 
-	const errorCode = (suffix: string): string =>
-		`wpk_${toSnakeCase(options.resource.name)}_${suffix}`;
+	const errorCode = createErrorCodeFactory(options.resource.name);
 
 	const titleCaseName = (): string => pascalName;
 
@@ -85,16 +88,4 @@ export function createWpPostContext(
 		errorCode,
 		titleCaseName,
 	};
-}
-
-export function resolveIdentityConfig(resource: IRResource): IdentityConfig {
-	const identity = resource.identity;
-	if (!identity) {
-		return { type: 'number', param: 'id' };
-	}
-
-	const param =
-		identity.param ?? (identity.type === 'number' ? 'id' : 'slug');
-
-	return { type: identity.type, param };
 }

@@ -1,4 +1,5 @@
 import type { IRResource, IRRoute } from '../../../ir';
+import type { ResolvedIdentity } from '../identity';
 
 export type WpPostStorage = Extract<
 	NonNullable<IRResource['storage']>,
@@ -23,7 +24,4 @@ export type WpPostTaxonomyDescriptor = {
 
 export type RouteKind = 'list' | 'get' | 'create' | 'update' | 'remove';
 
-export interface IdentityConfig {
-	type: 'number' | 'string';
-	param: string;
-}
+export type IdentityConfig = ResolvedIdentity;

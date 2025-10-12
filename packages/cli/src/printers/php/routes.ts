@@ -5,6 +5,9 @@ import { type PhpFileBuilder } from './builder';
 import { createMethodTemplate, PHP_INDENT } from './template';
 import { toPascalCase } from './utils';
 import { createWpPostHandlers } from './wp-post';
+import { createWpTaxonomyHandlers } from './wp-taxonomy';
+import { createWpOptionHandlers } from './wp-option';
+import { createTransientHandlers } from './transient';
 
 export function createRouteHandlers(options: {
 	builder: PhpFileBuilder;
@@ -12,21 +15,43 @@ export function createRouteHandlers(options: {
 	resource: IRResource;
 	routes: IRRoute[];
 }): string[][] {
-	if (options.resource.storage?.mode === 'wp-post') {
-		const routeDefinitions = options.routes.map((route) => ({
-			route,
-			methodName: createRouteMethodName(route, options.context),
-		}));
+	const routeDefinitions = options.routes.map((route) => ({
+		route,
+		methodName: createRouteMethodName(route, options.context),
+	}));
 
-		return createWpPostHandlers({
-			builder: options.builder,
-			context: options.context,
-			resource: options.resource,
-			routes: routeDefinitions,
-		});
+	switch (options.resource.storage?.mode) {
+		case 'wp-post':
+			return createWpPostHandlers({
+				builder: options.builder,
+				context: options.context,
+				resource: options.resource,
+				routes: routeDefinitions,
+			});
+		case 'wp-taxonomy':
+			return createWpTaxonomyHandlers({
+				builder: options.builder,
+				context: options.context,
+				resource: options.resource,
+				routes: routeDefinitions,
+			});
+		case 'wp-option':
+			return createWpOptionHandlers({
+				builder: options.builder,
+				context: options.context,
+				resource: options.resource,
+				routes: routeDefinitions,
+			});
+		case 'transient':
+			return createTransientHandlers({
+				builder: options.builder,
+				context: options.context,
+				resource: options.resource,
+				routes: routeDefinitions,
+			});
+		default:
+			return createRouteStubs(options);
 	}
-
-	return createRouteStubs(options);
 }
 
 export function createRouteMethodName(

@@ -1,6 +1,6 @@
 import type { PhpMethodBodyBuilder } from '../template';
 import type { WpPostContext } from './context';
-import { toSnakeCase } from './utils';
+import { toSnakeCase } from '../utils';
 
 export function appendTaxonomyQueryBuilder(
 	context: WpPostContext,
