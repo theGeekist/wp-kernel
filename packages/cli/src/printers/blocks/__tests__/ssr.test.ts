@@ -97,6 +97,10 @@ describe('generateSSRBlocks', () => {
 			expect(registrarContent).toContain(
 				'register_block_type_from_metadata'
 			);
+			expect(registrarContent).toContain(
+				"'render_callback' => static function"
+			);
+			expect(registrarContent).toContain('self::build_render_arguments');
 		});
 	});
 

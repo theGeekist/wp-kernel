@@ -422,6 +422,19 @@ function renderRegistrarFile(options: {
 				body.line('        }');
 				body.blank();
 				body.line(
+					'$render_path = self::resolve_render_path( $plugin_root, $config );'
+				);
+				body.line('        if ( $render_path ) {');
+				body.line('                register_block_type_from_metadata(');
+				body.line('                        $metadata_path,');
+				body.line(
+					'                        self::build_render_arguments( $render_path )'
+				);
+				body.line('                );');
+				body.line('                continue;');
+				body.line('        }');
+				body.blank();
+				body.line(
 					'        register_block_type_from_metadata( $metadata_path );'
 				);
 				body.line('}');
@@ -447,6 +460,71 @@ function renderRegistrarFile(options: {
 				body.line('}');
 				body.blank();
 				body.line('return $path;');
+			},
+		}),
+		createMethodTemplate({
+			signature:
+				'private static function resolve_render_path( string $root, array $config ): ?string',
+			indentLevel: 1,
+			indentUnit: PHP_INDENT,
+			body: (body) => {
+				body.line(
+					"$path = self::resolve_config_path( $root, $config, 'render' );"
+				);
+				body.line('if ( $path ) {');
+				body.line('        return $path;');
+				body.line('}');
+				body.blank();
+				body.line(
+					'$directory = self::resolve_directory_fallback( $root, $config );'
+				);
+				body.line('if ( ! $directory ) {');
+				body.line('        return null;');
+				body.line('}');
+				body.blank();
+				body.line(
+					"$candidate = $directory . DIRECTORY_SEPARATOR . 'render.php';"
+				);
+				body.line('if ( ! file_exists( $candidate ) ) {');
+				body.line('        return null;');
+				body.line('}');
+				body.blank();
+				body.line('return $candidate;');
+			},
+		}),
+		createMethodTemplate({
+			signature:
+				'private static function build_render_arguments( string $render_path ): array',
+			indentLevel: 1,
+			indentUnit: PHP_INDENT,
+			body: (body) => {
+				body.line('return [');
+				body.line("        'render_callback' => static function (");
+				body.line('                array $attributes = [],');
+				body.line("                string $content = '',");
+				body.line('                ?\\WP_Block $block = null');
+				body.line('        ): string {');
+				body.line(
+					'                return self::render_template( $render_path, $attributes, $content, $block );'
+				);
+				body.line('        },');
+				body.line('];');
+			},
+		}),
+		createMethodTemplate({
+			signature:
+				'private static function render_template( string $render_path, array $attributes, string $content, ?\\WP_Block $block = null ): string',
+			indentLevel: 1,
+			indentUnit: PHP_INDENT,
+			body: (body) => {
+				body.line('if ( ! file_exists( $render_path ) ) {');
+				body.line('        return $content;');
+				body.line('}');
+				body.blank();
+				body.line('ob_start();');
+				body.line('require $render_path;');
+				body.blank();
+				body.line('return (string) ob_get_clean();');
 			},
 		}),
 		createMethodTemplate({
