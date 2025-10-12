@@ -259,4 +259,11 @@ export default [
 			'import/no-duplicates': 'off',
 		},
 	},
+
+	{
+		files: ['packages/cli/**/*.{js,ts,tsx}'],
+		rules: {
+			'import/no-extraneous-dependencies': 'off',
+		},
+	},
 ];
