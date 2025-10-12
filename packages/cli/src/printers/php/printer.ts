@@ -2,10 +2,11 @@ import path from 'node:path';
 import { createNoopReporter } from '@geekist/wp-kernel';
 import type { Reporter } from '@geekist/wp-kernel';
 import type { AdapterContext } from '../../config/types';
-import type { IRResource, IRSchema } from '../../ir';
+import type { IRResource, IRRoute, IRSchema } from '../../ir';
 import type { PrinterContext } from '../types';
 import { PhpFileBuilder } from './builder';
 import { renderPhpFile } from './render';
+import { createMethodTemplate, PHP_INDENT } from './template';
 import type { PhpFileMetadata } from './types';
 
 const DEFAULT_DOC_HEADER = [
@@ -13,13 +14,15 @@ const DEFAULT_DOC_HEADER = [
 	'Edits between WPK:BEGIN AUTO and WPK:END AUTO will be overwritten.',
 ];
 
-const INDENT = '        ';
+const INDENT = PHP_INDENT;
 
 export async function emitPhpArtifacts(context: PrinterContext): Promise<void> {
 	const phpRoot = path.resolve(context.outputDir, 'php');
 	await context.ensureDirectory(phpRoot);
 
 	const namespaceRoot = context.ir.php.namespace;
+	const reporter =
+		ensureAdapterContext(context).reporter.child('printers.php');
 
 	const baseControllerPath = path.join(phpRoot, 'Rest', 'BaseController.php');
 	const baseControllerBuilder = new PhpFileBuilder(`${namespaceRoot}\\Rest`, {
@@ -31,6 +34,16 @@ export async function emitPhpArtifacts(context: PrinterContext): Promise<void> {
 	const resourceEntries: { className: string; path: string }[] = [];
 
 	for (const resource of context.ir.resources) {
+		const localRoutes = resource.routes.filter(
+			(route) => route.transport === 'local'
+		);
+
+		if (localRoutes.length === 0) {
+			continue;
+		}
+
+		warnOnMissingPolicies({ reporter, resource, routes: localRoutes });
+
 		const className = toPascalCase(resource.name);
 		const metadata: PhpFileMetadata = {
 			kind: 'resource-controller',
@@ -38,7 +51,7 @@ export async function emitPhpArtifacts(context: PrinterContext): Promise<void> {
 		};
 
 		const builder = new PhpFileBuilder(`${namespaceRoot}\\Rest`, metadata);
-		initialiseResourceController(builder, resource, context);
+		initialiseResourceController(builder, resource, localRoutes, context);
 
 		const filePath = path.join(
 			phpRoot,
@@ -91,24 +104,39 @@ function initialiseBaseController(
 		`Source: ${context.ir.meta.origin} → resources (namespace: ${context.ir.meta.sanitizedNamespace})`
 	);
 
-	const statements = [
-		'abstract class BaseController',
-		'{',
-		`${INDENT}public function get_namespace(): string`,
-		`${INDENT}{`,
-		`${INDENT}${INDENT}return '${escapeSingleQuotes(context.ir.meta.sanitizedNamespace)}';`,
-		`${INDENT}}`,
-		'}',
+	builder.appendStatement('abstract class BaseController');
+	builder.appendStatement('{');
+
+	const methods = [
+		createMethodTemplate({
+			signature: 'public function get_namespace(): string',
+			indentLevel: 1,
+			indentUnit: INDENT,
+			body: (body) => {
+				body.line(
+					`return '${escapeSingleQuotes(context.ir.meta.sanitizedNamespace)}';`
+				);
+			},
+		}),
 	];
 
-	for (const statement of statements) {
-		builder.appendStatement(statement);
+	for (const [index, method] of methods.entries()) {
+		for (const line of method) {
+			builder.appendStatement(line);
+		}
+
+		if (index < methods.length - 1) {
+			builder.appendStatement('');
+		}
 	}
+
+	builder.appendStatement('}');
 }
 
 function initialiseResourceController(
 	builder: PhpFileBuilder,
 	resource: IRResource,
+	routes: IRRoute[],
 	context: PrinterContext
 ): void {
 	const schema = context.ir.schemas.find(
@@ -124,7 +152,7 @@ function initialiseResourceController(
 		`Schema: ${resource.schemaKey} (${resource.schemaProvenance})`
 	);
 
-	for (const route of resource.routes) {
+	for (const route of routes) {
 		builder.appendDocblock(`Route: [${route.method}] ${route.path}`);
 	}
 
@@ -132,40 +160,69 @@ function initialiseResourceController(
 	builder.appendStatement(`class ${className} extends BaseController`);
 	builder.appendStatement('{');
 
-	builder.appendStatement(
-		`${INDENT}public function get_resource_name(): string`
-	);
-	builder.appendStatement(`${INDENT}{`);
-	builder.appendStatement(
-		`${INDENT}${INDENT}return '${escapeSingleQuotes(resource.name)}';`
-	);
-	builder.appendStatement(`${INDENT}}`);
+	const methods: string[][] = [];
 
-	builder.appendStatement('');
-	builder.appendStatement(
-		`${INDENT}public function get_schema_key(): string`
+	methods.push(
+		createMethodTemplate({
+			signature: 'public function get_resource_name(): string',
+			indentLevel: 1,
+			indentUnit: INDENT,
+			body: (body) => {
+				body.line(`return '${escapeSingleQuotes(resource.name)}';`);
+			},
+		})
 	);
-	builder.appendStatement(`${INDENT}{`);
-	builder.appendStatement(
-		`${INDENT}${INDENT}return '${escapeSingleQuotes(resource.schemaKey)}';`
+
+	methods.push(
+		createMethodTemplate({
+			signature: 'public function get_schema_key(): string',
+			indentLevel: 1,
+			indentUnit: INDENT,
+			body: (body) => {
+				body.line(
+					`return '${escapeSingleQuotes(resource.schemaKey)}';`
+				);
+			},
+		})
 	);
-	builder.appendStatement(`${INDENT}}`);
 
-	builder.appendStatement('');
-	builder.appendStatement(`${INDENT}public function get_rest_args(): array`);
-	builder.appendStatement(`${INDENT}{`);
+	methods.push(
+		createMethodTemplate({
+			signature: 'public function get_rest_args(): array',
+			indentLevel: 1,
+			indentUnit: INDENT,
+			body: (body) => {
+				if (schema) {
+					const restArgs = buildRestArgsPayload(schema, resource);
+					const payloadLines = renderPhpReturn(restArgs, 2);
+					for (const line of payloadLines) {
+						body.raw(line);
+					}
+				} else {
+					body.line('return [];');
+				}
+			},
+		})
+	);
 
-	if (schema) {
-		const restArgs = buildRestArgsPayload(schema, resource);
-		const payloadLines = renderPhpReturn(restArgs, 2);
-		for (const line of payloadLines) {
+	const stubMethods = createRouteStubs({
+		builder,
+		context,
+		resource,
+		routes,
+	});
+	methods.push(...stubMethods);
+
+	for (const [index, method] of methods.entries()) {
+		for (const line of method) {
 			builder.appendStatement(line);
 		}
-	} else {
-		builder.appendStatement(`${INDENT}${INDENT}return [];`);
+
+		if (index < methods.length - 1) {
+			builder.appendStatement('');
+		}
 	}
 
-	builder.appendStatement(`${INDENT}}`);
 	builder.appendStatement('}');
 }
 
@@ -500,6 +557,154 @@ function toPascalCase(value: string): string {
 			)
 			.join('') || 'Resource'
 	);
+}
+
+function createRouteStubs(options: {
+	builder: PhpFileBuilder;
+	context: PrinterContext;
+	resource: IRResource;
+	routes: IRRoute[];
+}): string[][] {
+	const { builder, resource, routes } = options;
+
+	builder.addUse('WP_Error');
+	builder.addUse('WP_REST_Request');
+
+	const methodTemplates: string[][] = [];
+
+	for (const route of routes) {
+		methodTemplates.push(
+			createMethodTemplate({
+				signature: `public function ${createRouteMethodName(
+					route,
+					options.context
+				)}( WP_REST_Request $request )`,
+				indentLevel: 1,
+				indentUnit: INDENT,
+				docblock: [`Handle [${route.method}] ${route.path}.`],
+				body: (body) => {
+					if (routeUsesIdentity(route, resource.identity)) {
+						const param = resource.identity?.param ?? 'id';
+						body.line(
+							`$${param} = $request->get_param( '${param}' );`
+						);
+						body.blank();
+					}
+
+					body.line(
+						`// TODO: Implement handler for [${route.method}] ${route.path}.`
+					);
+					body.line("return new WP_Error( 501, 'Not Implemented' );");
+				},
+			})
+		);
+	}
+
+	return methodTemplates;
+}
+
+function createRouteMethodName(
+	route: IRRoute,
+	context: PrinterContext
+): string {
+	const method = route.method.toLowerCase();
+	const segments = deriveRouteSegments(route.path, context);
+	const suffix = segments.map(toPascalCase).join('') || 'Route';
+	return `${method}${suffix}`;
+}
+
+function deriveRouteSegments(
+	routePath: string,
+	context: PrinterContext
+): string[] {
+	const trimmed = routePath.replace(/^\/+/, '');
+	if (!trimmed) {
+		return [];
+	}
+
+	const segments = trimmed
+		.split('/')
+		.filter(Boolean)
+		.map((segment) => segment.replace(/^:/, ''));
+
+	const namespaceVariants = new Set(
+		[
+			context.ir.meta.namespace,
+			context.ir.meta.namespace.replace(/\\/g, '/'),
+			context.ir.meta.sanitizedNamespace,
+			context.ir.meta.sanitizedNamespace.replace(/\\/g, '/'),
+		]
+			.map((value) =>
+				value
+					.split('/')
+					.filter(Boolean)
+					.map((segment) => segment.toLowerCase())
+			)
+			.map((variant) => variant.join('/'))
+	);
+
+	const normalisedSegments = segments.map((segment) => segment.toLowerCase());
+
+	for (const variant of namespaceVariants) {
+		const variantSegments = variant.split('/');
+		let matches = true;
+		for (let index = 0; index < variantSegments.length; index += 1) {
+			if (normalisedSegments[index] !== variantSegments[index]) {
+				matches = false;
+				break;
+			}
+		}
+
+		if (matches) {
+			return segments.slice(variantSegments.length);
+		}
+	}
+
+	return segments;
+}
+
+function routeUsesIdentity(
+	route: IRRoute,
+	identity: IRResource['identity']
+): boolean {
+	if (!identity?.param) {
+		return false;
+	}
+
+	const placeholder = `:${identity.param.toLowerCase()}`;
+	return route.path.toLowerCase().includes(placeholder);
+}
+
+function warnOnMissingPolicies(options: {
+	reporter: Reporter;
+	resource: IRResource;
+	routes: IRRoute[];
+}): void {
+	const { reporter, resource, routes } = options;
+
+	for (const route of routes) {
+		if (!isWriteRoute(route.method) || route.policy) {
+			continue;
+		}
+
+		reporter.warn('Write route missing policy.', {
+			resource: resource.name,
+			method: route.method,
+			path: route.path,
+		});
+	}
+}
+
+function isWriteRoute(method: string): boolean {
+	switch (method) {
+		case 'POST':
+		case 'PUT':
+		case 'PATCH':
+		case 'DELETE':
+			return true;
+		default:
+			return false;
+	}
 }
 
 function escapeSingleQuotes(value: string): string {
