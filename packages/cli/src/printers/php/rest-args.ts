@@ -74,7 +74,7 @@ function applyQueryParamsToRestArgs(
 			existing.description = descriptor.description;
 		}
 
-		if (!descriptor.optional) {
+		if (descriptor.optional === false) {
 			existing.required = true;
 		}
 

@@ -53,6 +53,29 @@ describe('buildRestArgsPayload', () => {
 		});
 		expect(result.status).toEqual({
 			schema: { type: 'string', enum: ['draft', 'published'] },
+		});
+	});
+
+	it('marks query parameters as required when optional is false', () => {
+		const resource = createResource({
+			queryParams: {
+				status: {
+					type: 'enum',
+					enum: ['draft', 'published'],
+					optional: false,
+				},
+			},
+		});
+
+		const schema: IRSchema = {
+			key: 'job',
+			schema: { type: 'object', properties: {} },
+			source: 'config',
+		} as unknown as IRSchema;
+
+		const result = buildRestArgsPayload(schema, resource);
+		expect(result.status).toEqual({
+			schema: { type: 'string', enum: ['draft', 'published'] },
 			required: true,
 		});
 	});
