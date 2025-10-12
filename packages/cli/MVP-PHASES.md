@@ -67,7 +67,7 @@ Finally you find that imports from other packages are sometimes missing, it usua
 
 **DoD:** Tests pass; IR golden files updated with transport/identity/postType metadata.
 
-**Status Log:** Started 2025-02-14 - Completed 2025-02-14
+**Status Log:** Started 2025-10-12 - Completed 2025-10-13
 
 ---
 
@@ -91,7 +91,7 @@ Finally you find that imports from other packages are sometimes missing, it usua
 
 **Dependencies:** Phase 1A.
 
-**Status Log:** Started 2025-02-14 - Completed 2025-02-14
+**Status Log:** Started 2025-10-12 - Completed 2025-10-13
 
 ---
 
@@ -115,7 +115,7 @@ Finally you find that imports from other packages are sometimes missing, it usua
 
 **Dependencies:** Phase 1A.
 
-**Status Log:** Started 2025-02-14 - Completed 2025-02-14
+**Status Log:** Started 2025-10-12 - Completed 2025-10-13
 
 ---
 
@@ -141,7 +141,7 @@ Finally you find that imports from other packages are sometimes missing, it usua
 
 **Dependencies:** Phase 2A.
 
-**Status Log:** Started 2025-02-14 - Completed 2025-02-14 | **Refactored:** 2025-10-12 - Completed 2025-10-13
+**Status Log:** Started 2025-10-12 - Completed 2025-10-13
 
 **Refactoring Note (Oct 2025):** The original monolithic `wp-post.ts` (1,236 lines) was decomposed into a composable architecture to enable Phase 2C implementation without code duplication. The refactor produced:
 
@@ -196,10 +196,11 @@ All modes properly return 501 for unsupported operations and leverage shared inf
 
 **Scope:**
 
-- Create `src/printers/blocks/` consuming `ir.blocks` where `ssr === false`.
+- Create `src/printers/blocks/` consuming `ir.blocks` where `hasRender === false`.
 - Generate `src/blocks/auto-register.ts` with `registerBlockType()` calls and relative imports.
 - Wire into `emitGeneratedArtifacts` after UI output.
 - Use existing TS formatter.
+- Keep modules under 500 SLOC (guideline, not hard rule).
 
 **Deliverables:** Block printer module + integration tests.
 
@@ -207,9 +208,25 @@ All modes properly return 501 for unsupported operations and leverage shared inf
 
 **Dependencies:** Phase 1B.
 
-**Status Log:** _Pending_
+**Status Log:** Scaffolded 2025-10-13 - Implementation pending
 
-**Reference files:** new emitters under `packages/cli/src/printers/blocks/js-only.ts` (or similar) with fixtures in `packages/cli/tests/fixtures/blocks/js-only/**` and integration tests in `packages/cli/src/printers/__tests__/blocks-js.test.ts`.
+**File Structure:**
+
+```
+packages/cli/src/printers/blocks/
+├── index.ts                     # Public API exports
+├── types.ts                     # Shared type definitions (~70 lines)
+├── js-only.ts                   # JS-only block registration (Phase 3A stub)
+├── ssr.ts                       # SSR manifest & registrar (Phase 3B stub)
+├── shared/
+│   └── template-helpers.ts      # Shared formatting utilities
+└── __tests__/
+    ├── js-only.test.ts          # Phase 3A tests
+    ├── ssr.test.ts              # Phase 3B tests
+    └── integration.test.ts      # Mixed SSR/JS-only scenarios
+```
+
+**Reference files:** Modular structure follows Phase 2C patterns Stub files created with JSDoc headers and TODO markers for implementation.
 
 ---
 
@@ -219,9 +236,11 @@ All modes properly return 501 for unsupported operations and leverage shared inf
 
 **Scope:**
 
-- For `ir.blocks` where `ssr === true`, generate `build/blocks-manifest.php`.
+- For `ir.blocks` where `hasRender === true`, generate `build/blocks-manifest.php`.
 - Generate `inc/Blocks/Register.php` that reads manifest and calls `register_block_type()`.
 - Ensure PSR-4 compliance and proper PHP formatting.
+- Reuse helpers from Phase 3A where possible.
+- Try to keep modules & tsts under 500 SLOC
 
 **Deliverables:** Extended block printer + tests.
 
@@ -229,9 +248,9 @@ All modes properly return 501 for unsupported operations and leverage shared inf
 
 **Dependencies:** Phase 3A.
 
-**Status Log:** _Pending_
+**Status Log:** Scaffolded 2025-10-13 - Implementation pending
 
-**Reference files:** SSR emitters under `packages/cli/src/printers/blocks/ssr.ts`, manifest fixtures in `packages/cli/tests/fixtures/blocks/ssr/**`, and tests in `packages/cli/src/printers/__tests__/blocks-ssr.test.ts`.
+**Reference files:** Builds on Phase 3A infrastructure. SSR-specific logic in `ssr.ts`, shared utilities in `shared/` subdirectory. Test coverage includes integration scenarios with mixed block types.
 
 ---
 
