@@ -25,6 +25,12 @@ interface RenderResolution {
 
 type GeneratedFile = { path: string; content: string };
 
+interface RenderOutcome {
+	files: GeneratedFile[];
+	warnings: string[];
+	renderPath?: string;
+}
+
 /**
  * Generate SSR block manifest and registrar.
  *
@@ -197,20 +203,18 @@ async function processBlock(options: {
 		return { files, warnings };
 	}
 
-	if (entryResult.renderInfo && !entryResult.renderInfo.exists) {
-		if (entryResult.renderInfo.declared) {
-			files.push({
-				path: entryResult.renderInfo.absolutePath,
-				content: createRenderStub({ block, manifest }),
-			});
-			warnings.push(
-				`Block "${block.key}": render file declared in manifest was missing; created stub at ${entryResult.renderInfo.relativePath}.`
-			);
-		} else {
-			warnings.push(
-				`Block "${block.key}": expected render template at ${entryResult.renderInfo.relativePath} but it was not found.`
-			);
-		}
+	const renderOutcome = await ensureRenderTemplate({
+		block,
+		manifest,
+		projectRoot,
+		renderInfo: entryResult.renderInfo,
+	});
+
+	files.push(...renderOutcome.files);
+	warnings.push(...renderOutcome.warnings);
+
+	if (renderOutcome.renderPath && !entryResult.entry.render) {
+		entryResult.entry.render = renderOutcome.renderPath;
 	}
 
 	if (entryResult.warnings.length > 0) {
@@ -270,6 +274,79 @@ async function resolveRenderPath(options: {
 		relativePath: toPosix(path.relative(options.projectRoot, fallback)),
 		exists,
 		declared: false,
+	};
+}
+
+async function ensureRenderTemplate(options: {
+	block: IRBlock;
+	manifest: unknown;
+	projectRoot: string;
+	renderInfo?: RenderResolution;
+}): Promise<RenderOutcome> {
+	if (options.renderInfo) {
+		if (!options.renderInfo.exists && options.renderInfo.declared) {
+			return {
+				files: [
+					{
+						path: options.renderInfo.absolutePath,
+						content: createRenderStub({
+							block: options.block,
+							manifest: options.manifest,
+						}),
+					},
+				],
+				warnings: [
+					`Block "${options.block.key}": render file declared in manifest was missing; created stub at ${options.renderInfo.relativePath}.`,
+				],
+				renderPath: options.renderInfo.relativePath,
+			};
+		}
+
+		if (!options.renderInfo.exists) {
+			return {
+				files: [],
+				warnings: [
+					`Block "${options.block.key}": expected render template at ${options.renderInfo.relativePath} but it was not found.`,
+				],
+				renderPath: options.renderInfo.relativePath,
+			};
+		}
+
+		return {
+			files: [],
+			warnings: [],
+			renderPath: options.renderInfo.relativePath,
+		};
+	}
+
+	const fallbackAbsolute = path.resolve(
+		options.projectRoot,
+		options.block.directory,
+		'render.php'
+	);
+	const fallbackRelative = toPosix(
+		path.relative(options.projectRoot, fallbackAbsolute)
+	);
+	const exists = await fileExists(fallbackAbsolute);
+
+	if (exists) {
+		return { files: [], warnings: [], renderPath: fallbackRelative };
+	}
+
+	return {
+		files: [
+			{
+				path: fallbackAbsolute,
+				content: createRenderStub({
+					block: options.block,
+					manifest: options.manifest,
+				}),
+			},
+		],
+		warnings: [
+			`Block "${options.block.key}": render template was not declared and none was found; created stub at ${fallbackRelative}.`,
+		],
+		renderPath: fallbackRelative,
 	};
 }
 
