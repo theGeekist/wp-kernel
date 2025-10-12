@@ -53,7 +53,10 @@ function createBlockDiscoveryState(workspaceRoot: string): BlockDiscoveryState {
 	};
 }
 
-function isOutsideWorkspace(workspaceRoot: string, candidate: string): boolean {
+export function isOutsideWorkspace(
+	workspaceRoot: string,
+	candidate: string
+): boolean {
 	const relative = path.relative(workspaceRoot, candidate);
 	return relative.startsWith('..');
 }
@@ -105,7 +108,7 @@ function enqueueChildDirectories(options: {
 	}
 }
 
-function shouldSkipEntry(entry: Dirent): boolean {
+export function shouldSkipEntry(entry: Dirent): boolean {
 	if (entry.isSymbolicLink()) {
 		return true;
 	}
@@ -117,7 +120,7 @@ function shouldSkipEntry(entry: Dirent): boolean {
 	return IGNORED_DIRECTORIES.has(entry.name);
 }
 
-async function loadBlockEntry(
+export async function loadBlockEntry(
 	manifestPath: string,
 	directory: string,
 	workspaceRoot: string
@@ -171,7 +174,7 @@ async function loadBlockEntry(
 	};
 }
 
-async function fileExists(candidate: string): Promise<boolean> {
+export async function fileExists(candidate: string): Promise<boolean> {
 	try {
 		const stat = await fs.stat(candidate);
 		return stat.isFile();
