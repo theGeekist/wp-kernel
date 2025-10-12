@@ -8,12 +8,22 @@ import { sanitizeJson } from '../php/utils.js';
 import { renderPhpReturn } from '../php/value-renderer.js';
 import type { SSRBlockOptions, BlockPrinterResult } from './types.js';
 import { validateBlockManifest } from './shared/template-helpers.js';
+import type { IRBlock } from '../../ir/types.js';
 
 interface ManifestEntry {
 	directory: string;
 	manifest: string;
 	render?: string;
 }
+
+interface RenderResolution {
+	absolutePath: string;
+	relativePath: string;
+	exists: boolean;
+	declared: boolean;
+}
+
+type GeneratedFile = { path: string; content: string };
 
 /**
  * Generate SSR block manifest and registrar.
@@ -37,61 +47,30 @@ export async function generateSSRBlocks(
 
 	const manifestEntries: Record<string, ManifestEntry> = {};
 	const warnings: string[] = [];
+	const generatedFiles: GeneratedFile[] = [];
 
 	const sortedBlocks = [...blocks].sort((a, b) => a.key.localeCompare(b.key));
 
 	for (const block of sortedBlocks) {
-		const manifestPath = path.resolve(
-			options.projectRoot,
-			block.manifestSource
-		);
-
-		let manifest: unknown;
-		try {
-			const raw = await fs.readFile(manifestPath, 'utf8');
-			manifest = JSON.parse(raw);
-		} catch (error) {
-			warnings.push(
-				`Unable to read manifest for block "${block.key}" at ${block.manifestSource}: ${String(
-					error
-				)}`
-			);
-			continue;
-		}
-
-		warnings.push(
-			...validateBlockManifest(manifest, block).map(
-				(message) => `Block "${block.key}": ${message}`
-			)
-		);
-
-		const entryResult = await createManifestEntry({
-			blockDirectory: block.directory,
-			manifestSource: block.manifestSource,
-			manifest,
+		const {
+			entry,
+			files: blockFiles,
+			warnings: blockWarnings,
+		} = await processBlock({
+			block,
 			projectRoot: options.projectRoot,
 		});
 
-		if (!entryResult) {
-			warnings.push(
-				`Block "${block.key}" is marked as SSR but could not be processed.`
-			);
-			continue;
+		if (entry) {
+			manifestEntries[block.key] = entry;
 		}
 
-		if (entryResult.warnings.length > 0) {
-			warnings.push(
-				...entryResult.warnings.map(
-					(message) => `Block "${block.key}": ${message}`
-				)
-			);
-		}
-
-		manifestEntries[block.key] = entryResult.entry;
+		generatedFiles.push(...blockFiles);
+		warnings.push(...blockWarnings);
 	}
 
 	if (Object.keys(manifestEntries).length === 0) {
-		return { files: [], warnings };
+		return { files: generatedFiles, warnings };
 	}
 
 	const manifestPath = path.join(
@@ -116,11 +95,13 @@ export async function generateSSRBlocks(
 		source: options.source ?? 'project config',
 	});
 
+	generatedFiles.push(
+		{ path: manifestPath, content: manifestContent },
+		{ path: registrarPath, content: registrarContent }
+	);
+
 	return {
-		files: [
-			{ path: manifestPath, content: manifestContent },
-			{ path: registrarPath, content: registrarContent },
-		],
+		files: generatedFiles,
 		warnings,
 	};
 }
@@ -130,65 +111,166 @@ async function createManifestEntry(options: {
 	manifestSource: string;
 	manifest: unknown;
 	projectRoot: string;
-}): Promise<{ entry: ManifestEntry; warnings: string[] } | undefined> {
+}): Promise<
+	| {
+			entry: ManifestEntry;
+			warnings: string[];
+			renderInfo?: RenderResolution;
+	  }
+	| undefined
+> {
 	const directory = toPosix(options.blockDirectory);
 	const manifest = toPosix(options.manifestSource);
 
-	const { path: renderPath, warning } = await resolveRenderPath(options);
+	const renderInfo = await resolveRenderPath({
+		manifest: options.manifest,
+		manifestSource: options.manifestSource,
+		projectRoot: options.projectRoot,
+	});
 
 	const entry: ManifestEntry = {
 		directory,
 		manifest,
 	};
 
-	if (renderPath) {
-		entry.render = toPosix(path.relative(options.projectRoot, renderPath));
+	if (renderInfo) {
+		entry.render = renderInfo.relativePath;
 	}
 
-	const warnings = warning ? [warning] : [];
+	return { entry, warnings: [], renderInfo };
+}
 
-	return { entry, warnings };
+async function processBlock(options: {
+	block: IRBlock;
+	projectRoot: string;
+}): Promise<{
+	entry?: ManifestEntry;
+	files: GeneratedFile[];
+	warnings: string[];
+}> {
+	const { block, projectRoot } = options;
+	const manifestPath = path.resolve(projectRoot, block.manifestSource);
+	const files: GeneratedFile[] = [];
+	const warnings: string[] = [];
+
+	let raw: string;
+	try {
+		raw = await fs.readFile(manifestPath, 'utf8');
+	} catch (error) {
+		warnings.push(
+			`Block "${block.key}": Unable to read manifest at ${block.manifestSource}: ${String(
+				error
+			)}`
+		);
+		return { files, warnings };
+	}
+
+	let manifest: unknown;
+	try {
+		manifest = JSON.parse(raw);
+	} catch (error) {
+		warnings.push(
+			`Block "${block.key}": Invalid JSON in block manifest ${block.manifestSource}: ${String(
+				error
+			)}`
+		);
+		return { files, warnings };
+	}
+
+	warnings.push(
+		...validateBlockManifest(manifest, block).map(
+			(message) => `Block "${block.key}": ${message}`
+		)
+	);
+
+	const entryResult = await createManifestEntry({
+		blockDirectory: block.directory,
+		manifestSource: block.manifestSource,
+		manifest,
+		projectRoot,
+	});
+
+	if (!entryResult) {
+		warnings.push(
+			`Block "${block.key}" is marked as SSR but could not be processed.`
+		);
+		return { files, warnings };
+	}
+
+	if (entryResult.renderInfo && !entryResult.renderInfo.exists) {
+		if (entryResult.renderInfo.declared) {
+			files.push({
+				path: entryResult.renderInfo.absolutePath,
+				content: createRenderStub({ block, manifest }),
+			});
+			warnings.push(
+				`Block "${block.key}": render file declared in manifest was missing; created stub at ${entryResult.renderInfo.relativePath}.`
+			);
+		} else {
+			warnings.push(
+				`Block "${block.key}": expected render template at ${entryResult.renderInfo.relativePath} but it was not found.`
+			);
+		}
+	}
+
+	if (entryResult.warnings.length > 0) {
+		warnings.push(
+			...entryResult.warnings.map(
+				(message) => `Block "${block.key}": ${message}`
+			)
+		);
+	}
+
+	return { entry: entryResult.entry, files, warnings };
 }
 
 async function resolveRenderPath(options: {
 	manifest: unknown;
 	manifestSource: string;
 	projectRoot: string;
-	blockDirectory: string;
-}): Promise<{ path?: string; warning?: string }> {
+}): Promise<RenderResolution | undefined> {
 	const manifestDir = path.resolve(
 		options.projectRoot,
 		path.dirname(options.manifestSource)
 	);
 
-	const manifest = options.manifest;
-	if (manifest && typeof manifest === 'object') {
-		const data = manifest as Record<string, unknown>;
+	if (options.manifest && typeof options.manifest === 'object') {
+		const data = options.manifest as Record<string, unknown>;
 		const render = data.render;
-		if (typeof render === 'string' && render.startsWith('file:')) {
+		if (typeof render === 'string') {
+			if (!render.startsWith('file:')) {
+				return undefined;
+			}
+
 			const relative = render.slice('file:'.length).trim();
 			const normalized = relative.startsWith('./')
 				? relative.slice(2)
 				: relative;
 			const absolute = path.resolve(manifestDir, normalized);
-			if (await fileExists(absolute)) {
-				return { path: absolute };
-			}
-
+			const exists = await fileExists(absolute);
 			return {
-				warning: `render file declared in manifest was not found at ${toPosix(
+				absolutePath: absolute,
+				relativePath: toPosix(
 					path.relative(options.projectRoot, absolute)
-				)}.`,
+				),
+				exists,
+				declared: true,
 			};
 		}
 	}
 
 	const fallback = path.resolve(manifestDir, 'render.php');
-	if (await fileExists(fallback)) {
-		return { path: fallback };
+	const exists = await fileExists(fallback);
+	if (!exists) {
+		return undefined;
 	}
 
-	return {};
+	return {
+		absolutePath: fallback,
+		relativePath: toPosix(path.relative(options.projectRoot, fallback)),
+		exists,
+		declared: false,
+	};
 }
 
 function renderManifestFile(options: {
@@ -219,7 +301,7 @@ function renderRegistrarFile(options: {
 		`Source: ${options.source} → blocks.ssr.register`,
 	]);
 
-	builder.addUse('function register_block_type');
+	builder.addUse('function register_block_type_from_metadata');
 
 	builder.appendStatement('final class Register');
 	builder.appendStatement('{');
@@ -251,18 +333,20 @@ function renderRegistrarFile(options: {
 				body.line('        }');
 				body.blank();
 				body.line(
-					"$metadata = self::resolve_config_path( $plugin_root, $config, 'manifest' );"
+					"$metadata_path = self::resolve_config_path( $plugin_root, $config, 'manifest' );"
 				);
-				body.line('        if ( ! $metadata ) {');
+				body.line('        if ( ! $metadata_path ) {');
 				body.line(
-					'$metadata = self::resolve_directory_fallback( $plugin_root, $config );'
+					'$metadata_path = self::resolve_directory_fallback( $plugin_root, $config );'
 				);
 				body.line('        }');
-				body.line('        if ( ! $metadata ) {');
+				body.line('        if ( ! $metadata_path ) {');
 				body.line('                continue;');
 				body.line('        }');
 				body.blank();
-				body.line('        register_block_type( $metadata );');
+				body.line(
+					'        register_block_type_from_metadata( $metadata_path );'
+				);
 				body.line('}');
 			},
 		}),
@@ -348,6 +432,81 @@ function formatNamespace(candidate: string): string {
 
 function toPosix(candidate: string): string {
 	return candidate.split(path.sep).join('/');
+}
+
+function createRenderStub(options: {
+	block: IRBlock;
+	manifest: unknown;
+}): string {
+	const manifest = isRecord(options.manifest) ? options.manifest : undefined;
+
+	const title = deriveTitle(options.block, manifest);
+	const textdomain = deriveTextdomain(options.block, manifest);
+	const message = `${title} – hello from a dynamic block!`;
+
+	const escapedMessage = escapeForSingleQuotedPhp(message);
+	const escapedDomain = escapeForSingleQuotedPhp(textdomain);
+
+	return `<?php
+/**
+ * AUTO-GENERATED WPK STUB: safe to edit.
+ *
+ * @see https://github.com/WordPress/gutenberg/blob/trunk/docs/reference-guides/block-api/block-metadata.md#render
+ */
+?>
+<p <?php echo get_block_wrapper_attributes(); ?>>
+\t<?php esc_html_e( '${escapedMessage}', '${escapedDomain}' ); ?>
+</p>
+`;
+}
+
+function deriveTitle(
+	block: IRBlock,
+	manifest: Record<string, unknown> | undefined
+): string {
+	const title =
+		typeof manifest?.title === 'string' ? manifest.title.trim() : '';
+	if (title.length > 0) {
+		return title;
+	}
+
+	const [, slug] = block.key.split('/');
+	if (!slug) {
+		return 'Block';
+	}
+
+	return slug
+		.split(/[^A-Za-z0-9]+/u)
+		.filter(Boolean)
+		.map(
+			(segment) =>
+				segment.charAt(0).toUpperCase() + segment.slice(1).toLowerCase()
+		)
+		.join(' ');
+}
+
+function deriveTextdomain(
+	block: IRBlock,
+	manifest: Record<string, unknown> | undefined
+): string {
+	const candidate =
+		typeof manifest?.textdomain === 'string'
+			? manifest.textdomain.trim()
+			: '';
+	if (candidate.length > 0) {
+		return candidate;
+	}
+
+	const [namespace] = block.key.split('/');
+	return namespace && namespace.length > 0 ? namespace : 'messages';
+}
+
+function escapeForSingleQuotedPhp(value: string): string {
+	return value.replace(/\\/gu, '\\\\').replace(/'/gu, "\\'");
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+	return typeof value === 'object' && value !== null;
 }
 
 async function fileExists(filePath: string): Promise<boolean> {

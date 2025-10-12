@@ -94,7 +94,9 @@ describe('generateSSRBlocks', () => {
 			expect(registrarContent).toContain(
 				'public static function register(): void'
 			);
-			expect(registrarContent).toContain('register_block_type');
+			expect(registrarContent).toContain(
+				'register_block_type_from_metadata'
+			);
 		});
 	});
 
@@ -133,16 +135,22 @@ describe('generateSSRBlocks', () => {
 				phpNamespace: 'Demo\\Plugin',
 			});
 
-			expect(result.files).toHaveLength(2);
+			expect(result.files).toHaveLength(3);
 			expect(result.warnings).toHaveLength(1);
 			expect(result.warnings[0]).toContain(
-				'render file declared in manifest'
+				'render file declared in manifest was missing'
 			);
 
 			const manifestFile = result.files.find((file) =>
 				file.path.endsWith('blocks-manifest.php')
 			);
-			expect(manifestFile?.content).not.toContain("'render'");
+			expect(manifestFile?.content).toContain("'render'");
+
+			const stubFile = result.files.find((file) =>
+				file.path.endsWith('does-not-exist.php')
+			);
+			expect(stubFile?.content).toContain('AUTO-GENERATED WPK STUB');
+			expect(stubFile?.content).toContain('esc_html_e');
 		});
 	});
 
