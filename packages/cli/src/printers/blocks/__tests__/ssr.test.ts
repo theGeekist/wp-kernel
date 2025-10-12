@@ -154,6 +154,60 @@ describe('generateSSRBlocks', () => {
 		});
 	});
 
+	it('creates a fallback render stub when manifest omits render entry', async () => {
+		await withTempDir(async (tempDir) => {
+			const blockDir = path.join(tempDir, 'src', 'blocks', 'fallback');
+			await fs.mkdir(blockDir, { recursive: true });
+
+			const manifestPath = path.join(blockDir, 'block.json');
+			await fs.writeFile(
+				manifestPath,
+				JSON.stringify({
+					name: 'demo/fallback',
+					title: 'Fallback',
+					category: 'widgets',
+					icon: 'smiley',
+					editorScriptModule: 'file:./index.tsx',
+				}),
+				'utf8'
+			);
+
+			const blocks: IRBlock[] = [
+				{
+					key: 'demo/fallback',
+					directory: 'src/blocks/fallback',
+					hasRender: true,
+					manifestSource: path.relative(tempDir, manifestPath),
+				},
+			];
+
+			const result = await generateSSRBlocks({
+				blocks,
+				outputDir: path.join(tempDir, '.generated'),
+				projectRoot: tempDir,
+				phpNamespace: 'Demo\\Plugin',
+			});
+
+			expect(result.warnings).toHaveLength(1);
+			expect(result.warnings[0]).toContain(
+				'render template was not declared'
+			);
+
+			const stubPath = path.join(blockDir, 'render.php');
+			const stubFile = result.files.find(
+				(file) => file.path === stubPath
+			);
+			expect(stubFile?.content).toContain('AUTO-GENERATED WPK STUB');
+
+			const manifestFile = result.files.find((file) =>
+				file.path.endsWith('blocks-manifest.php')
+			);
+			expect(manifestFile?.content).toContain(
+				"'render' => 'src/blocks/fallback/render.php'"
+			);
+		});
+	});
+
 	it('returns empty result when no SSR blocks are provided', async () => {
 		const result = await generateSSRBlocks({
 			blocks: [],
