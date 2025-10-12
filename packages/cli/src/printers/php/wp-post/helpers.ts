@@ -1,8 +1,7 @@
 import { createMethodTemplate, PHP_INDENT } from '../template';
-import { escapeSingleQuotes } from '../utils';
+import { escapeSingleQuotes, toSnakeCase } from '../utils';
 import type { WpPostContext } from './context';
 import { appendMetaSanitizer } from './meta';
-import { toSnakeCase } from './utils';
 
 export function createHelperMethods(context: WpPostContext): string[][] {
 	const helpers: string[][] = [];

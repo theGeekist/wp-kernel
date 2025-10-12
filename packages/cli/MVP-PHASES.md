@@ -164,7 +164,7 @@ Finally you find that imports from other packages are sometimes missing, it usua
 
 **Dependencies:** Phase 2B.
 
-**Status Log:** _Pending_
+**Status Log:** Started 2025-02-15 - Completed 2025-02-15
 
 **Reference files:** extend `packages/cli/src/printers/php/printer.ts` plus dedicated fixtures/tests (e.g., `packages/cli/src/printers/__tests__/php-printer.taxonomy.test.ts`).
 

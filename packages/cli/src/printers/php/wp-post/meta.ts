@@ -1,7 +1,7 @@
 import type { PhpMethodBodyBuilder } from '../template';
 import type { WpPostContext } from './context';
 import type { WpPostMetaDescriptor } from './types';
-import { toSnakeCase } from './utils';
+import { toSnakeCase } from '../utils';
 
 export function appendMetaQueryBuilder(
 	context: WpPostContext,
