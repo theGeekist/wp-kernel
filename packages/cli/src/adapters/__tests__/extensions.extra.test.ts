@@ -168,7 +168,13 @@ describe('runAdapterExtensions extra branches', () => {
 
 			const extension = {
 				name: 'within',
-				async apply({ queueFile, outputDir: dir }) {
+				async apply({
+					queueFile,
+					outputDir: dir,
+				}: {
+					queueFile: (path: string, content: string) => Promise<void>;
+					outputDir: string;
+				}) {
 					await queueFile(path.join(dir, 'link', 'ok.txt'), 'inside');
 				},
 			};
@@ -216,7 +222,13 @@ describe('runAdapterExtensions extra branches', () => {
 
 			const extension = {
 				name: 'create',
-				async apply({ queueFile, outputDir: dir }) {
+				async apply({
+					queueFile,
+					outputDir: dir,
+				}: {
+					queueFile: (path: string, content: string) => Promise<void>;
+					outputDir: string;
+				}) {
 					await queueFile(path.join(dir, 'generated.json'), '{}');
 				},
 			};
@@ -259,9 +271,10 @@ describe('runAdapterExtensions extra branches', () => {
 			const shared: Record<string, unknown> = {};
 			const circular = { ref: shared };
 			shared.loop = circular;
-			(ir as Record<string, unknown>).resources = [shared as unknown];
+			(ir as unknown as Record<string, unknown>).resources = [
+				shared as unknown,
+			];
 			const adapterContext = createAdapterContext(reporter, ir);
-
 			const extension = {
 				name: 'circular',
 				async apply() {

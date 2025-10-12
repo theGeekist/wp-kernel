@@ -3,8 +3,7 @@
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
 		"rootDir": "./src",
-		"noEmit": true,
-		"skipLibCheck": false
+		"noEmit": true
 	},
 	"include": ["src/**/*.test.ts", "src/**/*.test.tsx"],
 	"references": [{ "path": "../kernel" }]

@@ -4,7 +4,7 @@ import fs from 'node:fs/promises';
 import { execFile as execFileCallback } from 'node:child_process';
 import { promisify } from 'node:util';
 import { Writable } from 'node:stream';
-import type { Command } from 'clipanion';
+import type { BaseContext } from 'clipanion';
 import { ApplyCommand } from '../apply';
 
 const TMP_PREFIX = path.join(os.tmpdir(), 'wpk-apply-command-');
@@ -367,7 +367,7 @@ return 'manual';
 			const rawLog = await fs.readFile(logPath, 'utf8');
 			const lines = rawLog.trim().split('\n');
 			expect(lines).toHaveLength(1);
-			const entry = JSON.parse(lines[0]);
+			const entry = JSON.parse(lines[0]!);
 
 			expect(entry.result).toBe('success');
 			expect(entry.flags).toEqual({
@@ -408,7 +408,7 @@ return 'manual';
 			const rawLog = await fs.readFile(logPath, 'utf8');
 			const lines = rawLog.trim().split('\n');
 			expect(lines).toHaveLength(1);
-			const entry = JSON.parse(lines[0]);
+			const entry = JSON.parse(lines[0]!);
 
 			expect(entry.result).toBe('failure');
 			expect(entry.error).toMatchObject({ code: 'ValidationError' });
@@ -507,7 +507,8 @@ function createCommand(workspace: string): ApplyCommand {
 		stdin: process.stdin,
 		env: process.env,
 		cwd: () => workspace,
-	} as Command.Context;
+		colorDepth: 1,
+	} as BaseContext;
 
 	command.yes = false;
 	command.backup = false;
@@ -528,7 +529,7 @@ class MemoryStream extends Writable {
 		callback();
 	}
 
-	toString(): string {
+	override toString(): string {
 		return this.chunks.join('');
 	}
 }

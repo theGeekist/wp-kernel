@@ -2,6 +2,7 @@ import { EventEmitter } from 'node:events';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { Writable } from 'node:stream';
+import type { FSWatcher } from 'chokidar';
 import { DevCommand, detectTier, prioritiseQueued, type Trigger } from '../dev';
 import { runGenerate } from '../run-generate';
 import chokidar from 'chokidar';
@@ -21,7 +22,9 @@ describe('DevCommand', () => {
 			exitCode: 0,
 			output: '[summary]\n',
 		});
-		watchMock.mockImplementation(() => new FakeWatcher());
+		watchMock.mockImplementation(
+			() => new FakeWatcher() as unknown as FSWatcher
+		);
 		mockedFs.access.mockResolvedValue(undefined);
 		mockedFs.mkdir.mockResolvedValue(undefined);
 		mockedFs.cp.mockResolvedValue(undefined);
@@ -33,7 +36,7 @@ describe('DevCommand', () => {
 	});
 
 	it('performs initial generation and responds to fast changes', async () => {
-		const watcher = new FakeWatcher();
+		const watcher = new FakeWatcher() as unknown as FSWatcher;
 		watchMock.mockReturnValue(watcher);
 
 		const command = createCommand();
@@ -63,7 +66,7 @@ describe('DevCommand', () => {
 	});
 
 	it('uses slow debounce for schema changes and overrides fast triggers', async () => {
-		const watcher = new FakeWatcher();
+		const watcher = new FakeWatcher() as unknown as FSWatcher;
 		watchMock.mockReturnValue(watcher);
 
 		const command = createCommand();
@@ -92,7 +95,7 @@ describe('DevCommand', () => {
 	});
 
 	it('handles watcher errors without crashing', async () => {
-		const watcher = new FakeWatcher();
+		const watcher = new FakeWatcher() as unknown as FSWatcher;
 		watchMock.mockReturnValue(watcher);
 
 		const command = createCommand();
@@ -112,7 +115,7 @@ describe('DevCommand', () => {
 	});
 
 	it('auto-applies PHP artifacts when enabled', async () => {
-		const watcher = new FakeWatcher();
+		const watcher = new FakeWatcher() as unknown as FSWatcher;
 		watchMock.mockReturnValue(watcher);
 		runGenerateMock.mockResolvedValue({ exitCode: 0, output: '' });
 
@@ -137,7 +140,7 @@ describe('DevCommand', () => {
 	});
 
 	it('skips auto-apply when PHP artifacts are missing', async () => {
-		const watcher = new FakeWatcher();
+		const watcher = new FakeWatcher() as unknown as FSWatcher;
 		watchMock.mockReturnValue(watcher);
 		mockedFs.access.mockRejectedValueOnce(new Error('missing output'));
 
@@ -155,7 +158,7 @@ describe('DevCommand', () => {
 	});
 
 	it('queues additional changes while a run is in progress', async () => {
-		const watcher = new FakeWatcher();
+		const watcher = new FakeWatcher() as unknown as FSWatcher;
 		watchMock.mockReturnValue(watcher);
 
 		let resolveFirstRun: (() => void) | undefined;
@@ -194,7 +197,7 @@ describe('DevCommand', () => {
 	});
 
 	it('clears pending timers when shutting down with queued triggers', async () => {
-		const watcher = new FakeWatcher();
+		const watcher = new FakeWatcher() as unknown as FSWatcher;
 		watchMock.mockReturnValue(watcher);
 
 		const command = createCommand();
@@ -211,7 +214,7 @@ describe('DevCommand', () => {
 	});
 
 	it('restarts debounce timers when repeated fast events arrive', async () => {
-		const watcher = new FakeWatcher();
+		const watcher = new FakeWatcher() as unknown as FSWatcher;
 		watchMock.mockReturnValue(watcher);
 
 		const command = createCommand();
@@ -237,7 +240,7 @@ describe('DevCommand', () => {
 	});
 
 	it('only resolves shutdown once when multiple signals are received', async () => {
-		const watcher = new FakeWatcher();
+		const watcher = new FakeWatcher() as unknown as FSWatcher;
 		watchMock.mockReturnValue(watcher);
 
 		const command = createCommand();
@@ -254,7 +257,7 @@ describe('DevCommand', () => {
 	});
 
 	it('passes verbose flag through to the generation pipeline', async () => {
-		const watcher = new FakeWatcher();
+		const watcher = new FakeWatcher() as unknown as FSWatcher;
 		watchMock.mockReturnValue(watcher);
 
 		const command = createCommand();
@@ -273,8 +276,10 @@ describe('DevCommand', () => {
 	});
 
 	it('warns when watcher close fails', async () => {
-		const watcher = new FakeWatcher();
-		watcher.close.mockRejectedValueOnce(new Error('close failure'));
+		const watcher = new FakeWatcher() as unknown as FSWatcher;
+		(watcher as unknown as FakeWatcher).close.mockRejectedValueOnce(
+			new Error('close failure')
+		);
 		watchMock.mockReturnValue(watcher);
 
 		const command = createCommand();
@@ -288,7 +293,7 @@ describe('DevCommand', () => {
 	});
 
 	it('skips auto-apply when generation fails', async () => {
-		const watcher = new FakeWatcher();
+		const watcher = new FakeWatcher() as unknown as FSWatcher;
 		watchMock.mockReturnValue(watcher);
 		runGenerateMock
 			.mockResolvedValueOnce({ exitCode: 1, output: '' })
@@ -314,7 +319,7 @@ describe('DevCommand', () => {
 	});
 
 	it('warns when auto-apply copy fails', async () => {
-		const watcher = new FakeWatcher();
+		const watcher = new FakeWatcher() as unknown as FSWatcher;
 		watchMock.mockReturnValue(watcher);
 		mockedFs.cp.mockRejectedValueOnce(new Error('copy failed'));
 		runGenerateMock.mockResolvedValue({ exitCode: 0, output: '' });
@@ -338,7 +343,7 @@ describe('DevCommand', () => {
 	});
 
 	it('logs generation errors when the pipeline rejects', async () => {
-		const watcher = new FakeWatcher();
+		const watcher = new FakeWatcher() as unknown as FSWatcher;
 		watchMock.mockReturnValue(watcher);
 		runGenerateMock
 			.mockImplementationOnce(() => Promise.reject(new Error('boom')))
@@ -408,6 +413,7 @@ function createCommand(): DevCommand {
 		stdin: process.stdin,
 		env: process.env,
 		cwd: () => process.cwd(),
+		colorDepth: 1,
 	} as DevCommand['context'];
 
 	return command;
@@ -425,7 +431,7 @@ class MemoryStream extends Writable {
 		callback();
 	}
 
-	toString(): string {
+	override toString(): string {
 		return this.chunks.join('');
 	}
 }
