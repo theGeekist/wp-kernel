@@ -170,6 +170,70 @@ describe('emitGeneratedArtifacts', () => {
 		});
 	});
 
+	it('produces SSR manifest and registrar when SSR blocks exist', async () => {
+		await withTempDir(async (tempDir) => {
+			const context = createPrinterContext(tempDir);
+			const ssrBlockDir = path.join(
+				tempDir,
+				'src',
+				'blocks',
+				'ssr-block'
+			);
+			await fs.mkdir(ssrBlockDir, { recursive: true });
+
+			const manifestPath = path.join(ssrBlockDir, 'block.json');
+			await fs.writeFile(
+				manifestPath,
+				JSON.stringify({
+					name: 'demo-namespace/ssr-block',
+					title: 'SSR Block',
+					icon: 'database',
+					category: 'widgets',
+					render: 'file:./render.php',
+				}),
+				'utf8'
+			);
+			await fs.writeFile(
+				path.join(ssrBlockDir, 'render.php'),
+				'<?php echo "SSR";'
+			);
+
+			context.ir.blocks = [
+				...context.ir.blocks,
+				{
+					key: 'demo-namespace/ssr-block',
+					directory: path.join('src', 'blocks', 'ssr-block'),
+					hasRender: true,
+					manifestSource: path.relative(tempDir, manifestPath),
+				},
+			];
+
+			await emitGeneratedArtifacts(context);
+
+			const manifestFile = path.join(
+				context.outputDir,
+				'build',
+				'blocks-manifest.php'
+			);
+			const registrarFile = path.join(
+				context.outputDir,
+				'inc',
+				'Blocks',
+				'Register.php'
+			);
+
+			const manifestContents = await fs.readFile(manifestFile, 'utf8');
+			expect(manifestContents).toContain("'demo-namespace/ssr-block'");
+			expect(manifestContents).toContain(
+				"'render' => 'src/blocks/ssr-block/render.php'"
+			);
+
+			const registrarContents = await fs.readFile(registrarFile, 'utf8');
+			expect(registrarContents).toContain('final class Register');
+			expect(registrarContents).toContain('register_block_type');
+		});
+	});
+
 	it('emits PHP controllers, persistence registry, and index', async () => {
 		await withTempDir(async (tempDir) => {
 			const context = createPrinterContext(tempDir);
