@@ -11,6 +11,7 @@ import path from 'node:path';
 import type { PrinterContext } from '../types.js';
 import type { IRBlock, IRResource, IRSchema } from '../../ir/types.js';
 import { generateJSOnlyBlocks } from './js-only.js';
+import { generateSSRBlocks } from './ssr.js';
 import type { BlockPrinterResult } from './types.js';
 
 export * from './types.js';
@@ -69,6 +70,18 @@ export async function emitBlockArtifacts(
 
 	await writeGeneratedFiles(jsResult, context);
 	reportWarnings(jsResult, context);
+
+	const ssrBlocks = context.ir.blocks.filter((block) => block.hasRender);
+	const ssrResult = await generateSSRBlocks({
+		blocks: ssrBlocks,
+		outputDir: context.outputDir,
+		projectRoot,
+		source: context.ir.meta.origin,
+		phpNamespace: context.ir.php.namespace,
+	});
+
+	await writeGeneratedFiles(ssrResult, context);
+	reportWarnings(ssrResult, context);
 }
 
 function compareBlocks(a: IRBlock, b: IRBlock): number {
@@ -416,11 +429,12 @@ async function writeGeneratedFiles(
 ): Promise<void> {
 	for (const file of result.files) {
 		await context.ensureDirectory(path.dirname(file.path));
-		const shouldFormat =
-			file.path.endsWith('.ts') || file.path.endsWith('.tsx');
-		const formatted = shouldFormat
-			? await context.formatTs(file.path, file.content)
-			: file.content;
+		let formatted = file.content;
+		if (file.path.endsWith('.ts') || file.path.endsWith('.tsx')) {
+			formatted = await context.formatTs(file.path, file.content);
+		} else if (file.path.endsWith('.php')) {
+			formatted = await context.formatPhp(file.path, file.content);
+		}
 		await context.writeFile(file.path, formatted);
 	}
 }
