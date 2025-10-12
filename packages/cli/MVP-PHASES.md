@@ -141,7 +141,7 @@ Finally you find that imports from other packages are sometimes missing, it usua
 
 **Dependencies:** Phase 2A.
 
-**Status Log:** Started 2025-02-14 – Completed 2025-02-14 (PR #TBD)
+**Status Log:** Started 2025-02-14 – Completed 2025-02-14 (PR #TBD, wp-post CRUD emitted)
 
 **Reference files:** same printer module (`packages/cli/src/printers/php/printer.ts`), storage helpers, and fixtures under `packages/cli/src/printers/__tests__/php-printer.wp-post.test.ts`.
 

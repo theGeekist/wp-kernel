@@ -7,6 +7,7 @@ import type { PrinterContext } from '../types';
 import { PhpFileBuilder } from './builder';
 import { renderPhpFile } from './render';
 import { createMethodTemplate, PHP_INDENT } from './template';
+import { createWpPostHandlers } from './wp-post';
 import type { PhpFileMetadata } from './types';
 
 const DEFAULT_DOC_HEADER = [
@@ -205,13 +206,13 @@ function initialiseResourceController(
 		})
 	);
 
-	const stubMethods = createRouteStubs({
+	const routeMethods = createRouteHandlers({
 		builder,
 		context,
 		resource,
 		routes,
 	});
-	methods.push(...stubMethods);
+	methods.push(...routeMethods);
 
 	for (const [index, method] of methods.entries()) {
 		for (const line of method) {
@@ -397,7 +398,46 @@ function buildRestArgsPayload(schema: IRSchema, resource: IRResource): unknown {
 		restArgs[key] = payload;
 	}
 
+	if (resource.queryParams) {
+		applyQueryParamsToRestArgs(restArgs, resource.queryParams);
+	}
+
 	return restArgs;
+}
+
+function applyQueryParamsToRestArgs(
+	restArgs: Record<string, unknown>,
+	queryParams: NonNullable<IRResource['queryParams']>
+): void {
+	for (const [param, descriptor] of Object.entries(queryParams)) {
+		const existing = isRecord(restArgs[param])
+			? { ...(restArgs[param] as Record<string, unknown>) }
+			: {};
+
+		const schemaPayload = isRecord(existing.schema)
+			? { ...(existing.schema as Record<string, unknown>) }
+			: {};
+
+		if (descriptor.type === 'enum') {
+			schemaPayload.type = 'string';
+			if (descriptor.enum) {
+				schemaPayload.enum = Array.from(descriptor.enum);
+			}
+		} else {
+			schemaPayload.type = descriptor.type;
+		}
+
+		if (descriptor.description) {
+			existing.description = descriptor.description;
+		}
+
+		if (!descriptor.optional) {
+			existing.required = true;
+		}
+
+		existing.schema = sanitizeJson(schemaPayload);
+		restArgs[param] = sanitizeJson(existing);
+	}
 }
 
 function buildPersistencePayload(context: PrinterContext): unknown {
@@ -557,6 +597,29 @@ function toPascalCase(value: string): string {
 			)
 			.join('') || 'Resource'
 	);
+}
+
+function createRouteHandlers(options: {
+	builder: PhpFileBuilder;
+	context: PrinterContext;
+	resource: IRResource;
+	routes: IRRoute[];
+}): string[][] {
+	if (options.resource.storage?.mode === 'wp-post') {
+		const routeDefinitions = options.routes.map((route) => ({
+			route,
+			methodName: createRouteMethodName(route, options.context),
+		}));
+
+		return createWpPostHandlers({
+			builder: options.builder,
+			context: options.context,
+			resource: options.resource,
+			routes: routeDefinitions,
+		});
+	}
+
+	return createRouteStubs(options);
 }
 
 function createRouteStubs(options: {
