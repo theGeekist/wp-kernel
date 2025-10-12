@@ -157,6 +157,7 @@ describe('createDataViewsRuntime', () => {
 
 		expect(isDataViewsRuntime(runtime)).toBe(true);
 		expect(isDataViewsRuntime({})).toBe(false);
+		expect(isDataViewsRuntime(null)).toBe(false);
 		expect(() => ensureControllerRuntime({} as never)).toThrow(
 			DataViewsConfigurationError
 		);
