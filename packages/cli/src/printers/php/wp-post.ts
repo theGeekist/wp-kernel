@@ -583,6 +583,38 @@ class WpPostControllerGenerator {
 		descriptor: WpPostMetaDescriptor,
 		indent: string
 	): void {
+		if (descriptor.single === false && descriptor.type !== 'array') {
+			body.line(`${indent}if ( ! is_array( ${variable} ) ) {`);
+			body.line(`${indent}${indent}${variable} = array( ${variable} );`);
+			body.line(`${indent}}`);
+			body.line(
+				`${indent}${variable} = array_values( (array) ${variable} );`
+			);
+			body.line(
+				`${indent}foreach ( ${variable} as $meta_index => $meta_value ) {`
+			);
+			this.appendMetaSanitizerValue(
+				body,
+				'$meta_value',
+				descriptor,
+				`${indent}${indent}`
+			);
+			body.line(
+				`${indent}${indent}${variable}[ $meta_index ] = $meta_value;`
+			);
+			body.line(`${indent}}`);
+			return;
+		}
+
+		this.appendMetaSanitizerValue(body, variable, descriptor, indent);
+	}
+
+	private appendMetaSanitizerValue(
+		body: PhpMethodBodyBuilder,
+		variable: string,
+		descriptor: WpPostMetaDescriptor,
+		indent: string
+	): void {
 		switch (descriptor.type) {
 			case 'integer':
 				body.line(
@@ -614,15 +646,6 @@ class WpPostControllerGenerator {
 					`${indent}${variable} = is_string( ${variable} ) ? ${variable} : (string) ${variable};`
 				);
 				break;
-		}
-
-		if (descriptor.single === false && descriptor.type !== 'array') {
-			body.line(`${indent}if ( ! is_array( ${variable} ) ) {`);
-			body.line(`${indent}${indent}${variable} = array( ${variable} );`);
-			body.line(`${indent}}`);
-			body.line(
-				`${indent}${variable} = array_values( (array) ${variable} );`
-			);
 		}
 	}
 

@@ -282,6 +282,13 @@ describe('createWpPostHandlers', () => {
 		expect(output).toContain(
 			'$labelsMeta = array_values( (array) $labelsMeta );'
 		);
+		expect(output).toContain(
+			'foreach ( $labelsMeta as $meta_index => $meta_value ) {'
+		);
+		expect(output).toContain(
+			'$meta_value = is_string( $meta_value ) ? $meta_value : (string) $meta_value;'
+		);
+		expect(output).toContain('$labelsMeta[ $meta_index ] = $meta_value;');
 		expect(output).toContain("$post_data['post_excerpt'] = $excerpt;");
 	});
 
