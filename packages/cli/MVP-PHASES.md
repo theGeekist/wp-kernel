@@ -116,7 +116,7 @@ This phase implements the **discovery layer** that identifies manually-created b
 
 **Dependencies:** Phase 1A.
 
-**Status Log:** _Pending_
+**Status Log:** Started 2025-02-14 – Completed 2025-02-14 (PR #TBD)
 
 ---
 
@@ -136,7 +136,7 @@ This phase implements the **discovery layer** that identifies manually-created b
 
 **Dependencies:** Phase 2A.
 
-**Status Log:** _Pending_
+**Status Log:** Started 2025-02-14 – Completed 2025-02-14 (PR #TBD)
 
 ---
 
@@ -245,7 +245,7 @@ Extend `eslint-rules/@kernel` with:
 
 **Dependencies:** Phase 1A.
 
-**Status Log:** _Pending_
+**Status Log:** Started 2025-02-14 – Completed 2025-02-14 (PR #TBD)
 
 ---
 
