@@ -141,7 +141,9 @@ describe('emitBlockArtifacts – integration', () => {
 			);
 
 			const autoRegister = await fs.readFile(autoRegisterPath, 'utf8');
-			expect(autoRegister).toContain("registerBlockType('demo/js-only'");
+			expect(autoRegister).toContain(
+				'No JS-only blocks require auto-registration.'
+			);
 
 			const jsStub = await fs.readFile(jsStubPath, 'utf8');
 			expect(jsStub).toContain('AUTO-GENERATED WPK STUB');

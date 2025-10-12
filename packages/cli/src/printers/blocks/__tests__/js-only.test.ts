@@ -65,13 +65,13 @@ describe('generateJSOnlyBlocks', () => {
 			expect(filesByPath.has(autoRegisterPath)).toBe(true);
 			const autoRegisterContent = filesByPath.get(autoRegisterPath)!;
 			expect(autoRegisterContent).toContain(
-				"import { registerBlockType } from '@wordpress/blocks';"
+				'export function registerGeneratedBlocks(): void {'
 			);
 			expect(autoRegisterContent).toContain(
+				'No JS-only blocks require auto-registration.'
+			);
+			expect(autoRegisterContent).not.toContain(
 				"registerBlockType('demo/example'"
-			);
-			expect(autoRegisterContent).toContain(
-				"import demoExample from '../blocks/example/block.json'"
 			);
 
 			const editorStubPath = path.join(blockDir, 'index.tsx');
@@ -83,6 +83,64 @@ describe('generateJSOnlyBlocks', () => {
 			const viewStubPath = path.join(blockDir, 'view.ts');
 			expect(filesByPath.has(viewStubPath)).toBe(true);
 			expect(filesByPath.get(viewStubPath)).toContain('initBlockView');
+		});
+	});
+
+	it('auto-registers blocks without file-backed editor modules', async () => {
+		await withTempDir(async (tempDir) => {
+			const blockDir = path.join(tempDir, 'blocks', 'legacy');
+			await fs.mkdir(blockDir, { recursive: true });
+			const manifestPath = path.join(blockDir, 'block.json');
+			await fs.writeFile(
+				manifestPath,
+				JSON.stringify({
+					name: 'demo/legacy',
+					title: 'Legacy',
+					category: 'widgets',
+					icon: 'admin-site',
+					editorScript: 'legacy-editor-handle',
+					viewScript: 'legacy-view-handle',
+				}),
+				'utf8'
+			);
+
+			const blocks: IRBlock[] = [
+				{
+					key: 'demo/legacy',
+					directory: 'blocks/legacy',
+					hasRender: false,
+					manifestSource: path.relative(tempDir, manifestPath),
+				},
+			];
+
+			const result = await generateJSOnlyBlocks({
+				blocks,
+				outputDir: path.join(tempDir, 'generated'),
+				projectRoot: tempDir,
+			});
+
+			expect(result.warnings).toEqual([]);
+
+			const filesByPath = new Map(
+				result.files.map((file) => [file.path, file.content])
+			);
+
+			const autoRegisterPath = path.join(
+				tempDir,
+				'generated',
+				'auto-register.ts'
+			);
+			expect(filesByPath.has(autoRegisterPath)).toBe(true);
+			const autoRegisterContent = filesByPath.get(autoRegisterPath)!;
+			expect(autoRegisterContent).toContain(
+				"import { registerBlockType } from '@wordpress/blocks';"
+			);
+			expect(autoRegisterContent).toContain(
+				"import demoLegacy from '../blocks/legacy/block.json'"
+			);
+			expect(autoRegisterContent).toContain(
+				"registerBlockType('demo/legacy'"
+			);
 		});
 	});
 
