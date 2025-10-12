@@ -154,7 +154,7 @@ describe('emitBlockArtifacts – integration', () => {
 
 			const registrar = await fs.readFile(registrarPath, 'utf8');
 			expect(registrar).toContain('final class Register');
-			expect(registrar).toContain('register_block_type');
+			expect(registrar).toContain('register_block_type_from_metadata');
 		});
 	});
 });

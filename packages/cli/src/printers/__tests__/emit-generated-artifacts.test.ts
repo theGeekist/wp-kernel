@@ -230,7 +230,9 @@ describe('emitGeneratedArtifacts', () => {
 
 			const registrarContents = await fs.readFile(registrarFile, 'utf8');
 			expect(registrarContents).toContain('final class Register');
-			expect(registrarContents).toContain('register_block_type');
+			expect(registrarContents).toContain(
+				'register_block_type_from_metadata'
+			);
 		});
 	});
 
