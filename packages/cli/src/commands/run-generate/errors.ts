@@ -1,4 +1,4 @@
-import { KernelError } from '@geekist/wp-kernel';
+import { KernelError } from '@geekist/wp-kernel/error';
 import type { Reporter } from '@geekist/wp-kernel';
 import { serialiseError } from './reporting';
 import type { ExitCode } from './types';

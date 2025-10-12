@@ -1,6 +1,6 @@
 import { execFile as execFileCallback } from 'node:child_process';
 import { promisify } from 'node:util';
-import { KernelError } from '@geekist/wp-kernel';
+import { KernelError } from '@geekist/wp-kernel/error';
 import type { Reporter } from '@geekist/wp-kernel';
 import { toWorkspaceRelative } from '../../utils';
 import { serialiseError } from './errors';
