@@ -90,14 +90,18 @@ export function renderWithProvider(
 	ui: React.ReactElement,
 	runtime: KernelUIRuntime
 ): RenderResult {
-	let result: RenderResult;
+	let result: RenderResult | undefined;
 	act(() => {
 		result = render(
 			<KernelUIProvider runtime={runtime}>{ui}</KernelUIProvider>
 		);
 	});
 
-	return result!;
+	if (!result) {
+		throw new Error('Failed to render with KernelUIProvider');
+	}
+
+	return result;
 }
 
 export function createAction(
