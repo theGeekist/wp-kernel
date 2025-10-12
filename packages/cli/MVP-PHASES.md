@@ -1,237 +1,339 @@
+# WP Kernel CLI - MVP Implementation Phases
+
 > Workstream aligned with the [MVP CLI Spec](./mvp-cli-spec.md). Each phase is narrowly scoped so a single agent iteration can complete it without inventing new patterns. Always reference the cited sections before coding.
 
-Test harness: `app/test-the-cli/kernel.config.ts` is a minimal project used for CLI smoke tests. Treat it as throw-away-adjust the config as needed during development but avoid committing transient changes.
+Test harness: `app/test-the-cli/kernel.config.ts` is a minimal project used for CLI smoke tests. Treat it as throw-away; adjust the config as needed during development but avoid committing transient changes.
 
 Phase 0 audit outcomes are captured in [`docs/mvp-phase-0-checklist.md`](./docs/mvp-phase-0-checklist.md); remaining work begins at Phase 1A below.
 
 ---
 
-#### Shared Deliverable Expectations
+## Implementation Guidance
 
-- Update this file’s Status Log for the active phase when the work begins and ends.
-- Keep CLI coverage healthy: run `pnpm --filter @geekist/wp-kernel-cli test --coverage` and ensure branch coverage stays ≥ 89% before closing a phase or the pre-commit hook will fail, and you'd have to do it again.
+For PR Summary, this is the **"MVP Sprint"**.
+
+**Scope & Focus:**
+
+It is important you understand your scope for the task you are assigned. The best way to do this is to read all the phases and understand what happens in later phases so you can stay focused on your delivery and not do more.
+
+**Code Quality & Maintenance:**
+
+Please do not extend a module or test file beyond 500 SLOC. It is better to break up the files for better maintenance and ease of debugging but please don't overdo the refactoring bit. Something as simple as a `utils.ts` for helper functions will more than suffice. Focus on the task instead.
+
+**Quality Checks:**
+
+It is prudent to run these checks beforehand, so you don't get stuck. For example, `pnpm --filter @geekist/wp-kernel-cli test --coverage` is very helpful to give you a baseline. If branch coverage drops below 89%, the pre-commit hook will fail it :(
+
+Statistically, your patience pays off, but generally if you write code with low complexity, excellent branch coverage and you meet all the requirements, you wouldn't even have to come to this state.
+
+The hook cycles through `pnpm typecheck` and `pnpm typecheck:tests` and then `pnpm lint --fix`, among other things ensures low functional complexity.
+
+Monitor the output and if it fails, feel free to run the individual commands above to verify your fixes before trying to commit again.
+
+**Commit Process:**
+
+When completed, don't run `git commit --no-verify`, just run `CI=1 git commit ...` and wait for the pre-commit hook to finish.
+
+**Imports & Dependencies:**
+
+Finally you find that imports from other packages are sometimes missing, it usually means you'd have to re-run `pnpm --filter <the dependent package> build` so exports are updated. But this is only when you update other packages and may not be relevant for your task.
+
+**Phase Deliverables:**
+
+- Update this file's Status Log for the active phase when the work begins and ends.
 - Run `pnpm --filter @geekist/wp-kernel-cli build` after changes (TypeScript + Vite) to catch regressions.
-- Never bypass pre-commit hooks (`CI=1 git commit …`, wait for completion). If a hook fails, rerun the failed command locally, fix issues, and retry.
 - Honour repo invariants (no deep imports, no plain `Error`, etc.) listed in `AGENTS.md`.
 - When a phase extends or creates documentation, keep specs (`mvp-cli-spec.md`, discussion notes) in sync.
-- **CLI smoke test:** before signing off a phase that touches generation, printers, apply, or command wiring, run the CLI against `app/test-the-cli/kernel.config.ts`:
-    1. `pnpm --filter @geekist/wp-kernel build && pnpm --filter @geekist/wp-kernel-cli build`
-    2. `cd app/test-the-cli`
-    3. `node ../../packages/cli/bin/wpk.js generate --dry-run`
-    4. `node ../../packages/cli/bin/wpk.js generate`
-
-### Phase 1A – IR Enhancements (Route Classification & Policy Hints)
-
-**Spec references:** [MVP Spec §3–4](./mvp-cli-spec.md#3-intermediate-representation-ir) \n**Scope:**
-
-- Extend `buildIr` to tag each route with a `transport` hint (`'local'` vs `'remote'`) based on path analysis (absolute URLs, namespace mismatch).
-- Infer identity defaults when authors omit `resource.identity`, using route placeholders (`:slug`, `:uuid`, `:id`) with fallback warnings.
-- Default `schema` to `'auto'` when `storage` is present but no schema is provided; ensure provenance recorded.
-- Default cache key segments when `cacheKeys` is missing, mirroring runtime behaviour.
-- Populate inferred `storage.postType` for `wp-post` resources lacking an explicit value (warn on truncation or collisions).
-- Collect policy identifiers into `ir.policies`, including source metadata for diagnostics.
-- Add unit tests ensuring duplicate routes, reserved prefixes, missing policies, and inference fallbacks surface actionable `KernelError`s or warnings.
-- Update IR snapshots/fixtures to include the new metadata (keep deterministic ordering).
-
-**Deliverables:** Updated `src/ir/build-ir.ts`, associated tests/fixtures. \n**DoD:** `pnpm test --filter @geekist/wp-kernel-cli` passes with new assertions; IR JSON golden files updated. \n**Status Log:** _Pending_.
+- **CLI smoke test:** before signing off a phase that touches generation, printers, apply, or command wiring, run the CLI against `app/test-the-cli/kernel.config.ts`: 1. `pnpm --filter @geekist/wp-kernel build && pnpm --filter @geekist/wp-kernel-cli build` 2. `cd app/test-the-cli` 3. `node ../../packages/cli/bin/wpk.js generate --dry-run` 4. `node ../../packages/cli/bin/wpk.js generate`
 
 ---
 
-### Phase 1B – Block Discovery in IR
+## Phase 1A – IR Enhancements (Route Classification & Policy Hints)
 
-**Spec references:** [MVP Spec §4 (Blocks subsection)](./mvp-cli-spec.md#4-printers) \n**Scope:**
+**Spec references:** [MVP Spec §3–4](./mvp-cli-spec.md#3-intermediate-representation-ir)
 
-- Introduce a block discovery helper that scans workspace-relative directories for `block.json` and optional `render.php`.
-- Populate `ir.blocks` with entries `{ key, directory, hasRender, manifestSource }`.
-- Ensure discovery obeys workspace/write rules (no traversal outside project root) and ignores `.generated`/`node_modules`.
-- Surface per-block provenance so printers can choose SSR vs client-only behaviour.
-- Add tests using temp directories validating SSR vs JS-only detection.
-
-**Deliverables:** Block discovery module + IR wiring + tests. \n**DoD:** Running `buildIr` on fixtures captures block entries; tests cover SSR vs JS-only/missing render cases. \n**Dependencies:** Phase 1A (IR baseline) should be complete. \n**Status Log:** _Pending_.
-
----
-
-### Phase 2A – PHP Printer Foundations
-
-**Spec references:** [MVP Spec §4.3](./mvp-cli-spec.md#43-php-printer-delta) \n**Scope:**
-
-- Refactor `packages/cli/src/printers/php/printer.ts` to emit controllers through a dedicated template builder capable of inserting method bodies.
-- Integrate inferred identity metadata so route handlers resolve parameters consistently (e.g., `slug`/`uuid` lookups) even in stub mode.
-- Generate guarded stubs for every local route (methods return `WP_Error( 501, 'Not Implemented' )`) while skipping remote routes entirely.
-- Ensure bootstrap/registration files only register resources with at least one local route.
-- Use inferred/default permission callbacks (warn on writes without policies) even in stub mode.
-- Update fixtures/tests to reflect stub output (no real CRUD yet).
-
-**Deliverables:** Updated printer, template utilities, updated tests (ensure coverage). \n**DoD:** Showcase regeneration produces stubs for local routes and omits remote-only resources; tests assert stub structure. \n**Dependencies:** Phase 1A. \n**Status Log:** _Pending_.
-
----
-
-### Phase 2B – `wp-post` Storage Implementation
-
-**Spec references:** [MVP Spec §4.3](./mvp-cli-spec.md#43-php-printer-delta) \n**Scope:**
-
-- Implement CRUD method bodies for resources with `storage.mode === 'wp-post'`:
-    - `list` → `WP_Query` scaffolding, respecting query params (including inferred identity + pagination keys).
-    - `get` → `get_post` with identity resolution based on inferred metadata.
-    - `create/update/remove` using appropriate `wp_insert_post`, `wp_update_post`, `wp_delete_post` and applying meta/taxonomy registration from storage config.
-- Generate REST argument arrays from schema + query params.
-- Ensure post type defaults inferred in Phase 1A are honoured, and warn when authors override conflicting values.
-- Add unit/golden tests verifying emitted PHP for a representative resource.
-
-**Deliverables:** PHP printer updates + fixtures + docs snippet showing emitted code. \n**DoD:** Generated controllers include real implementations for `wp-post` resources; tests assert method bodies. \n**Dependencies:** Phase 2A. \n**Status Log:** _Pending_.
-
----
-
-### Phase 2C – Remaining Storage Modes (`wp-taxonomy`, `wp-option`, `transient`)
-
-**Spec references:** [MVP Spec §4.3](./mvp-cli-spec.md#43-php-printer-delta) \n**Scope:**
-
-- Generate CRUD implementations for non-post storage modes per spec guidance (taxonomy term CRUD, option get/update, transient get/set).
-- Ensure unsupported operations (e.g., `create` on transient) return explicit `WP_Error( 501, 'Not Implemented' )`.
-- Apply inferred identity and permission defaults consistently across modes.
-- Update fixtures covering at least one resource per mode.
-
-**Deliverables:** Printer extensions + tests. \n**DoD:** Each storage mode covered; tests demonstrate correct method bodies or guarded errors. \n**Dependencies:** Phase 2B. \n**Status Log:** _Pending_.
-
----
-
-### Phase 3A – JS-Only Block Printer
-
-**Spec references:** [MVP Spec §4.4](./mvp-cli-spec.md#44-block-printers-new) \n**Scope:**
-
-- Implement a printer that consumes `ir.blocks` entries without `render.php`, emitting `src/blocks/auto-register.ts` and ensuring it’s formatted via existing TS formatter.
-- Add fixtures verifying generated module content and relative import paths.
-- Update `emitGeneratedArtifacts` to call the block printer after UI output.
-
-**Deliverables:** New printer module + integration tests (temp dir). \n**DoD:** JS-only blocks produce an auto-register module; integration test regenerates expected files. \n**Dependencies:** Phase 1B. \n**Status Log:** _Pending_.
-
----
-
-### Phase 3B – SSR Block Manifest & Registrar
-
-**Spec references:** [MVP Spec §4.4](./mvp-cli-spec.md#44-block-printers-new) \n**Scope:**
-
-- Extend the block printer to create `build/blocks-manifest.php` and `inc/Blocks/Register.php` for entries flagged `hasRender`.
-- Ensure manifest includes relative paths suitable for runtime registration.
-- Add fixtures/tests validating PHP formatting and manifest contents.
-
-**Deliverables:** Extended block printer + tests. \n**DoD:** SSR blocks generate both manifest and registrar; regression tests cover multiple blocks. \n**Dependencies:** Phase 3A. \n**Status Log:** _Pending_.
-
----
-
-### Phase 4 – ESLint Plugin Extensions
-
-**Spec references:** [MVP Spec §6](./mvp-cli-spec.md#6-blocks-of-authoring-safety)  
 **Scope:**
 
-- Add rules to the in-repo `@kernel` plugin (`eslint-rules/`) implementing `wpk/config-consistency`, `wpk/cache-keys-valid`, `wpk/policy-hints`, and `wpk/doc-links`.
-- Integrate rules into `eslint.config.js` with sensible defaults for the monorepo.
-- Provide documentation snippets and unit tests using ESLint’s `RuleTester`.
+- Add `transport: 'local' | 'remote'` field to `IRRoute`-classify routes based on absolute URLs or namespace mismatch.
+- Infer `resource.identity` from route placeholders (`:id`, `:slug`, `:uuid`) when omitted; emit warnings.
+- Default `schema` to `'auto'` when `storage` exists but schema is undefined; record provenance.
+- Populate inferred `storage.postType` for `wp-post` resources (format: `namespace-resourceName`); warn on truncation/collisions.
+- Add unit tests for route classification, identity inference, schema defaults, and postType warnings.
+- Update IR snapshots with new metadata.
 
-**Deliverables:** Rule implementations + tests + updated lint config/docs.  
-**DoD:** ESLint runs surface new diagnostics on crafted fixtures; documentation explains how rules tie back to `kernel.config.ts`.  
-**Dependencies:** Phase 1 (rules rely on IR conventions established earlier).  
-**Status Log:** _Pending_.
+**Deliverables:** Updated `src/ir/types.ts`, `src/ir/build-ir.ts`, tests/fixtures.
+
+**DoD:** Tests pass; IR golden files updated with transport/identity/postType metadata.
+
+**Status Log:** _Pending_
 
 ---
 
-### Phase 5A – `wpk init` Scaffolding
+## Phase 1B – Block Discovery in IR
 
-**Spec references:** [MVP Spec §7.1](./mvp-cli-spec.md#7-cli-commands)  
+**Spec references:** [MVP Spec §4 (Blocks subsection)](./mvp-cli-spec.md#4-printers)
+
 **Scope:**
 
-- Replace the stub init command with scaffolding logic that creates:
-    - `kernel.config.ts` template (as per Appendix A of the spec),
-    - `src/index.ts` bootstrap calling `configureKernel`,
-    - `tsconfig.json` (with `@kernel-config` alias),
-    - ESLint config pointing to the repo preset,
-    - package scripts (`wpk generate`, `wpk apply`, `wpk dev`).
-- Respect `--force` and detect pre-existing files safely.
+- Create `src/ir/block-discovery.ts` that scans for `block.json` files.
+- Check for `render.php` in same directory to set `ssr: true/false`.
+- Populate `ir.blocks` with `{ name, directory, ssr, manifestSource }`.
+- Respect workspace boundaries; ignore `.generated/`, `node_modules/`.
+- Test with temp directories covering SSR, JS-only, and mixed scenarios.
 
-**Deliverables:** Updated `init` command + templates + tests (temp dir).  
-**DoD:** Running `wpk init` in a temp workspace yields expected files; tests ensure rerunning without `--force` aborts safely.  
-**Status Log:** _Pending_.
+**Deliverables:** Block discovery module + IR wiring + tests.
+
+**DoD:** `buildIr` on fixtures correctly populates `ir.blocks`; tests cover SSR detection.
+
+**Dependencies:** Phase 1A.
+
+**Status Log:** _Pending_
 
 ---
 
-### Phase 5B – Pipeline Integration & Docs Refresh
+## Phase 2A – PHP Printer Foundations
 
-**Spec references:** [MVP Spec §7–10](./mvp-cli-spec.md#7-cli-commands)  
+**Spec references:** [MVP Spec §4.3](./mvp-cli-spec.md#43-php-printer-delta)
+
 **Scope:**
 
-- Wire new printers into `wpk generate` and `wpk apply` (blocks, PHP, types) ensuring the order matches spec guidance.
-- Update CLI README and relevant docs to reflect new workflow (single root config, block handling, lint rules).
-- Provide a “from init to generate/apply” smoke test in documentation or scripts.
+- Refactor `printers/php/printer.ts` with template builder for method body insertion.
+- Generate `WP_Error(501, 'Not Implemented')` stubs for `local` routes; skip `remote` routes.
+- Use inferred identity for parameter resolution in stubs.
+- Bootstrap only registers resources with ≥1 local route.
+- Warn on write routes without policies.
 
-**Deliverables:** Pipeline adjustments, doc updates, smoke test instructions.  
-**DoD:** End-to-end run (`init` → modify config → `generate` → `apply`) succeeds in a temp workspace; docs describe the flow.  
-**Dependencies:** Phases 2–4 must be complete.  
-**Status Log:** _Pending_.
+**Deliverables:** Updated printer + template utilities + tests.
+
+**DoD:** Showcase regeneration produces stubs for local routes; remote-only resources omitted.
+
+**Dependencies:** Phase 1A.
+
+**Status Log:** _Pending_
 
 ---
 
-### Phase 6 – Block-Aware Apply Enhancements
+## Phase 2B – `wp-post` Storage Implementation
 
-**Spec references:** [MVP Spec §7.3](./mvp-cli-spec.md#7-cli-commands)  
+**Spec references:** [MVP Spec §4.3](./mvp-cli-spec.md#43-php-printer-delta)
+
 **Scope:**
 
-- Teach `wpk apply` to copy block manifests/JS artefacts alongside PHP outputs, with fence checks where applicable.
-- Extend `.wpk-apply.log` to record block deployment details.
-- Update integration tests covering apply with mixed resource + block output.
+- Replace stubs with working CRUD for `storage.mode === 'wp-post'`: - `list` → `WP_Query` with query params, pagination, identity - `get` → `get_post()` with identity resolution - `create/update/remove` → `wp_insert_post()`, `wp_update_post()`, `wp_delete_post()` + meta/taxonomy
+- Generate REST `args` arrays from schema + query params.
+- Honor inferred postType from Phase 1A.
 
-**Deliverables:** Apply command updates, tests, and documentation note.  
-**DoD:** Apply summary lists block artefacts; tests confirm copied files and log entries.  
-**Dependencies:** Phase 3B, Phase 5B.  
-**Status Log:** _Pending_.
+**Deliverables:** PHP printer updates + fixtures + doc snippet.
+
+**DoD:** Generated controllers have working wp-post implementations; tests verify method bodies.
+
+**Dependencies:** Phase 2A.
+
+**Status Log:** _Pending_
 
 ---
 
-### Phase 7 – Policy Map Integration
+## Phase 2C – Remaining Storage Modes
 
-**Spec references:** [MVP Spec §5](./mvp-cli-spec.md#5-policy-integration)  
+**Spec references:** [MVP Spec §4.3](./mvp-cli-spec.md#43-php-printer-delta)
+
 **Scope:**
 
-- Define the contract for project-level policy maps (TS export or JSON) and implement detection.
-- Emit PHP helpers wiring REST `permission_callback` to generated policy checks; fall back to safe defaults with warnings.
-- Add tests demonstrating success, missing policies, and fallback paths.
+- `wp-taxonomy`: term CRUD via `get_terms()`, `wp_insert_term()`, etc.
+- `wp-option`: `get_option()`, `update_option()`; unsupported ops return 501
+- `transient`: `get_transient()`, `set_transient()`; unsupported ops return 501
+- Apply identity/permission defaults consistently.
 
-**Deliverables:** Policy integration modules, printer updates, docs.  
-**DoD:** Generated controllers call the policy helper; CLI warns when policies are missing; tests cover map discovery.  
-**Dependencies:** Phases 1A, 2B–2C.  
-**Status Log:** _Pending_.
+**Deliverables:** Printer extensions + tests.
+
+**DoD:** Each mode has fixtures; unsupported ops properly guarded.
+
+**Dependencies:** Phase 2B.
+
+**Status Log:** _Pending_
 
 ---
 
-### Phase 8 – Final QA & Adoption
+## Phase 3A – JS-Only Block Printer
 
-**Spec references:** Entire MVP spec  
+**Spec references:** [MVP Spec §4.4](./mvp-cli-spec.md#44-block-printers-new)
+
 **Scope:**
 
-- Regenerate artefacts for the showcase (or sample project) using the new pipeline; capture diffs.
-- Ensure documentation, lint rules, and command help are aligned.
-- Prepare release notes summarising MVP capabilities.
+- Create `src/printers/blocks/` consuming `ir.blocks` where `ssr === false`.
+- Generate `src/blocks/auto-register.ts` with `registerBlockType()` calls and relative imports.
+- Wire into `emitGeneratedArtifacts` after UI output.
+- Use existing TS formatter.
 
-**Deliverables:** QA report, regenerated fixtures, release note draft.  
-**DoD:** All phases above marked complete; QA notes reviewed; ready for release planning.  
-**Dependencies:** Phases 0–7.  
-**Status Log:** _Pending_.
+**Deliverables:** Block printer module + integration tests.
+
+**DoD:** JS-only blocks produce auto-register module with correct imports.
+
+**Dependencies:** Phase 1B.
+
+**Status Log:** _Pending_
 
 ---
 
-#### Quick Reference Table
+## Phase 3B – SSR Block Manifest & Registrar
 
-| Phase | Focus                       | Dependencies |
-| ----- | --------------------------- | ------------ |
-| 1A    | IR route + policy metadata  | –            |
-| 1B    | Block discovery             | 1A           |
-| 2A    | PHP printer stubs           | 1A           |
-| 2B    | `wp-post` CRUD              | 2A           |
-| 2C    | Remaining storage modes     | 2B           |
-| 3A    | JS-only block printer       | 1B           |
-| 3B    | SSR block manifest          | 3A           |
-| 4     | ESLint plugin rules         | 1A, 1B       |
-| 5A    | Init scaffolding            | –            |
-| 5B    | Pipeline integration + docs | 2–4, 5A      |
-| 6     | Block-aware apply           | 3B, 5B       |
-| 7     | Policy map integration      | 1A, 2B, 2C   |
-| 8     | Final QA                    | All prior    |
+**Spec references:** [MVP Spec §4.4](./mvp-cli-spec.md#44-block-printers-new)
+
+**Scope:**
+
+- For `ir.blocks` where `ssr === true`, generate `build/blocks-manifest.php`.
+- Generate `inc/Blocks/Register.php` that reads manifest and calls `register_block_type()`.
+- Ensure PSR-4 compliance and proper PHP formatting.
+
+**Deliverables:** Extended block printer + tests.
+
+**DoD:** SSR blocks generate manifest + registrar; tests cover mixed SSR/JS-only.
+
+**Dependencies:** Phase 3A.
+
+**Status Log:** _Pending_
+
+---
+
+## Phase 4 – ESLint Plugin Extensions
+
+**Spec references:** [MVP Spec §6](./mvp-cli-spec.md#6-blocks-of-authoring-safety)
+
+**Scope:**
+
+Extend `eslint-rules/@kernel` with:
+
+- `wpk/config-consistency`-identity/route param matching, duplicate detection, postType validation
+- `wpk/cache-keys-valid`-validate cache key functions and query param references
+- `wpk/policy-hints`-flag write routes without policies
+- `wpk/doc-links`-attach docs URLs to diagnostics
+
+**Deliverables:** Four rules + RuleTester tests + integration into `eslint.config.js`.
+
+**DoD:** Rules surface diagnostics on fixtures; docs explain integration.
+
+**Dependencies:** Phase 1A.
+
+**Status Log:** _Pending_
+
+---
+
+## Phase 5A – `wpk init` Scaffolding
+
+**Spec references:** [MVP Spec §7.1](./mvp-cli-spec.md#7-cli-commands)
+
+**Scope:**
+
+- Replace stub with scaffolding creating: `kernel.config.ts`, `src/index.ts`, `tsconfig.json`, ESLint config, package scripts.
+- Respect `--force` flag; abort safely when files exist.
+
+**Deliverables:** Updated `init` command + templates + tests.
+
+**DoD:** `wpk init` creates expected files; tests verify `--force` behavior.
+
+**Status Log:** _Pending_
+
+---
+
+## Phase 5B – Pipeline Integration & Docs Refresh
+
+**Spec references:** [MVP Spec §7–10](./mvp-cli-spec.md#7-cli-commands)
+
+**Scope:**
+
+- Wire printers into `wpk generate`: Types → PHP → UI → Blocks.
+- Wire block artifacts into `wpk apply`.
+- Update CLI README with new workflow (single root config, blocks, lint rules).
+- Document init → generate → apply flow.
+
+**Deliverables:** Pipeline updates + doc refresh + smoke test docs.
+
+**DoD:** End-to-end workflow succeeds; docs reflect current behavior.
+
+**Dependencies:** Phases 2–4, 5A.
+
+**Status Log:** _Pending_
+
+---
+
+## Phase 6 – Block-Aware Apply Enhancements
+
+**Spec references:** [MVP Spec §7.3](./mvp-cli-spec.md#7-cli-commands)
+
+**Scope:**
+
+- Copy block manifests, registrar, JS outputs via `wpk apply` with fence checks.
+- Extend `.wpk-apply.log` to record block deployment.
+- Show block counts in apply summary.
+
+**Deliverables:** Apply updates + tests.
+
+**DoD:** Apply copies block artifacts; tests cover mixed resource + block scenarios.
+
+**Dependencies:** Phases 3B, 5B.
+
+**Status Log:** _Pending_
+
+---
+
+## Phase 7 – Policy Map Integration
+
+**Spec references:** [MVP Spec §5](./mvp-cli-spec.md#5-policy-integration)
+
+**Scope:**
+
+- Define contract for `src/policy-map.ts` (string capabilities or functions).
+- Detect and validate policy map during IR build.
+- Generate `inc/Policy/Policy.php` helper wiring `permission_callback`.
+- Fallback to safe defaults with warnings when map missing.
+- Diagnostic for undefined/unused policies.
+
+**Deliverables:** Policy discovery + PHP helper + printer integration + tests.
+
+**DoD:** Controllers use policy helper; CLI warns on missing policies/map.
+
+**Dependencies:** Phases 1A, 2B–2C.
+
+**Status Log:** _Pending_
+
+---
+
+## Phase 8 – Final QA & Adoption
+
+**Spec references:** Entire MVP spec
+
+**Scope:**
+
+- Regenerate showcase artifacts; capture diffs.
+- Audit test coverage across all phases.
+- Review documentation alignment (commands, lint rules, examples).
+- Integration test: `init` → configure → `generate` → `apply` → verify runtime.
+- Prepare CHANGELOG and release notes.
+
+**Deliverables:** QA report + regenerated fixtures + release notes.
+
+**DoD:** All phases complete; docs aligned; ready for release.
+
+**Dependencies:** All prior phases.
+
+**Status Log:** _Pending_
+
+---
+
+## Quick Reference
+
+| Phase | Focus                  | Dependencies |
+| ----- | ---------------------- | ------------ |
+| 1A    | IR route + policy meta | –            |
+| 1B    | Block discovery        | 1A           |
+| 2A    | PHP printer stubs      | 1A           |
+| 2B    | `wp-post` CRUD         | 2A           |
+| 2C    | Other storage modes    | 2B           |
+| 3A    | JS-only blocks         | 1B           |
+| 3B    | SSR blocks             | 3A           |
+| 4     | ESLint rules           | 1A           |
+| 5A    | Init scaffolding       | –            |
+| 5B    | Pipeline + docs        | 2–4, 5A      |
+| 6     | Block-aware apply      | 3B, 5B       |
+| 7     | Policy integration     | 1A, 2B–2C    |
+| 8     | Final QA               | All          |
