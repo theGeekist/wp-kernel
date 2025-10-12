@@ -20,6 +20,15 @@ export default {
 				},
 			},
 		],
+		'^(?:.+/)?eslint-rules/.+\\.js$': [
+			'ts-jest',
+			{
+				tsconfig: {
+					allowJs: true,
+					esModuleInterop: true,
+				},
+			},
+		],
 	},
 
 	// Module resolution - packages will need to override this
@@ -27,6 +36,10 @@ export default {
 	moduleNameMapper: {
 		// Strip .js extensions for Jest (TypeScript source files are .ts)
 		'^(\\.{1,2}/.*)\\.js$': '$1',
+		'^@eslint/eslintrc/universal$':
+			'<rootDir>/node_modules/@eslint/eslintrc/universal.js',
+		'^@eslint/eslintrc$':
+			'<rootDir>/node_modules/@eslint/eslintrc/universal.js',
 	},
 
 	// Test file patterns
