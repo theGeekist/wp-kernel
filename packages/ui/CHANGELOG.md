@@ -71,6 +71,9 @@ createRoot(node).render(
   registry on demand-no global caching on `window`.
 - Resource hooks attach via the runtime’s `attachResourceHooks()` callback when
   the adapter is provided.
+- Refactored `ResourceDataView` into focused hooks/utilities with shared test
+  helpers, reducing file size and improving maintainability for DataViews
+  integrations.
 - TypeScript strict mode with full type safety
 
 ### Documentation
