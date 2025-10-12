@@ -749,14 +749,18 @@ class WpPostControllerGenerator {
 					body.line(
 						`$post_type = $this->get${this.pascalName}PostType();`
 					);
-					body.line('if ( is_numeric( $identity ) ) {');
-					body.line('        $post = get_post( (int) $identity );');
-					body.line(
-						'        if ( $post instanceof WP_Post && $post->post_type === $post_type ) {'
-					);
-					body.line('                return $post;');
-					body.line('        }');
-					body.line('}');
+					if (this.identityType === 'number') {
+						body.line('if ( is_numeric( $identity ) ) {');
+						body.line(
+							'        $post = get_post( (int) $identity );'
+						);
+						body.line(
+							'        if ( $post instanceof WP_Post && $post->post_type === $post_type ) {'
+						);
+						body.line('                return $post;');
+						body.line('        }');
+						body.line('}');
+					}
 					body.line('if ( is_string( $identity ) ) {');
 					body.line(
 						'        $candidate = trim( (string) $identity );'

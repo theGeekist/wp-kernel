@@ -110,6 +110,7 @@ describe('createWpPostHandlers', () => {
 		expect(output).toContain(
 			'private function resolveJobPost( $identity ): ?WP_Post'
 		);
+		expect(output).not.toContain('if ( is_numeric( $identity ) ) {');
 		expect(output).toContain('private function getJobStatuses(): array');
 		expect(output).toContain(
 			'private function prepareJobResponse( WP_Post $post, WP_REST_Request $request ): array'
@@ -570,6 +571,7 @@ describe('createWpPostHandlers', () => {
 		expect(output).toContain(
 			'public function postRoute( WP_REST_Request $request )'
 		);
+		expect(output).toContain('if ( is_numeric( $identity ) ) {');
 		expect(output).not.toContain('// TODO: Implement handler for [GET] /.');
 	});
 
