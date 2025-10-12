@@ -100,3 +100,7 @@ export function createDataFormController<TInput, TResult, TQuery>(
 		};
 	};
 }
+
+export const __TESTING__ = {
+	defaultInvalidate,
+};
