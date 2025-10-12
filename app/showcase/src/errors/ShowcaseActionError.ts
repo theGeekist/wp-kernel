@@ -1,5 +1,9 @@
-import { KernelError } from '@geekist/wp-kernel';
-import type { ErrorCode, ErrorContext, ErrorData } from '@geekist/wp-kernel';
+import { KernelError } from '@geekist/wp-kernel/error';
+import type {
+	ErrorCode,
+	ErrorContext,
+	ErrorData,
+} from '@geekist/wp-kernel/error';
 
 type ShowcaseActionErrorOptions = {
 	message?: string;
