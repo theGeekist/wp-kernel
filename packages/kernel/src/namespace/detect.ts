@@ -64,11 +64,31 @@ const RESERVED_NAMESPACES = [
 	'www',
 ] as const;
 
-const namespaceReporter = createReporter({
-	namespace: WPK_SUBSYSTEM_NAMESPACES.NAMESPACE,
-	channel: 'all',
-	level: 'warn',
-});
+/**
+ * Lazy-initialized reporter for namespace warnings.
+ * Only creates the reporter instance when dev warnings are actually emitted,
+ * allowing tree-shaking when importing namespace utilities without side effects.
+ *
+ * @internal
+ */
+let namespaceReporter: ReturnType<typeof createReporter> | null = null;
+
+/**
+ * Get or create the namespace reporter instance.
+ * Lazy initialization prevents module-level side effects that block tree-shaking.
+ *
+ * @internal
+ */
+function getNamespaceReporter(): ReturnType<typeof createReporter> {
+	if (!namespaceReporter) {
+		namespaceReporter = createReporter({
+			namespace: WPK_SUBSYSTEM_NAMESPACES.NAMESPACE,
+			channel: 'all',
+			level: 'warn',
+		});
+	}
+	return namespaceReporter;
+}
 
 /**
  * Check if we're in development mode
@@ -101,12 +121,14 @@ function emitDevWarning(source: string, namespace: string): void {
 		return;
 	}
 
+	const reporter = getNamespaceReporter();
+
 	if (source === 'fallback') {
-		namespaceReporter.warn(
+		reporter.warn(
 			`🔧 WP Kernel: Using fallback namespace "${namespace}". For deterministic behavior, set __WPK_NAMESPACE__ (build-time) or wpKernelData.textDomain (runtime). See: https://github.com/theGeekist/wp-kernel/docs/namespace-detection`
 		);
 	} else if (source === 'package-json') {
-		namespaceReporter.warn(
+		reporter.warn(
 			`📦 WP Kernel: Using package.json name for namespace "${namespace}". For WordPress-native behavior, set wpKernelData.textDomain or __WPK_NAMESPACE__. See: https://github.com/theGeekist/wp-kernel/docs/namespace-detection`
 		);
 	}
