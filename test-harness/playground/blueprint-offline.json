@@ -18,22 +18,11 @@
 			}
 		},
 		{
-			"step": "runPHP",
-			"code": "error_log('=== DEBUGGING PLUGIN PATH ==='); error_log('Plugin dir: ' . WP_PLUGIN_DIR); error_log('Plugins available: ' . print_r(array_keys(get_plugins()), true)); error_log('Showcase plugin file: ' . (file_exists(WP_PLUGIN_DIR . '/showcase-plugin/showcase-plugin.php') ? 'EXISTS' : 'NOT FOUND')); error_log('=== END DEBUG ===');"
-		},
-		{
 			"step": "setSiteOptions",
 			"options": {
-				"permalink_structure": "/%postname%/"
+				"permalink_structure": "/%postname%/",
+				"users_can_register": 0
 			}
-		},
-		{
-			"step": "runPHP",
-			"code": "flush_rewrite_rules();"
-		},
-		{
-			"step": "runPHP",
-			"code": "update_option('users_can_register', 0); delete_option('playground_auto_login_already_happened');"
 		},
 		{
 			"step": "activatePlugin",

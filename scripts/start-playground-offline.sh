@@ -42,8 +42,12 @@ echo "📂 Using cached WordPress from: test-harness/playground-cache/wordpress"
 echo "📝 Logging to: $LOG_FILE"
 echo ""
 
-# Start playground in background
-wp-playground-cli server \
+# Start playground in background  
+# Set PLAYGROUND_URL to empty to prevent network requests to playground.wordpress.net
+# Let Playground install WordPress (creates database) but use mounted files (no download)
+PLAYGROUND_URL="" pnpm wp-playground-cli server \
+  --wp=6.7.4 \
+  --php=8.3 \
   --mount-before-install=./test-harness/playground-cache/wordpress:/wordpress \
   --mount=./app/showcase:/wordpress/wp-content/plugins/showcase-plugin \
   --blueprint=./test-harness/playground/blueprint-offline.json \
