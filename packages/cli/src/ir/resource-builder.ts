@@ -149,7 +149,7 @@ function collectWarnings(options: {
 	return sortWarnings(warnings);
 }
 
-function sortWarnings(warnings: IRWarning[]): IRWarning[] {
+export function sortWarnings(warnings: IRWarning[]): IRWarning[] {
 	return warnings.slice().sort((a, b) => {
 		const codeComparison = a.code.localeCompare(b.code);
 		if (codeComparison !== 0) {
@@ -160,7 +160,7 @@ function sortWarnings(warnings: IRWarning[]): IRWarning[] {
 	});
 }
 
-function normaliseQueryParams(
+export function normaliseQueryParams(
 	params: ResourceConfig['queryParams'] | undefined
 ): ResourceConfig['queryParams'] | undefined {
 	if (!params) {
@@ -170,7 +170,7 @@ function normaliseQueryParams(
 	return sortObject(params);
 }
 
-function recordPostTypeCollision(options: {
+export function recordPostTypeCollision(options: {
 	resourceKey: string;
 	registry: Map<string, string>;
 	storageResult: ReturnType<typeof prepareStorage>;
@@ -203,7 +203,7 @@ function recordPostTypeCollision(options: {
 	return [];
 }
 
-function inferIdentity(options: {
+export function inferIdentity(options: {
 	resourceKey: string;
 	provided: ResourceConfig['identity'];
 	routes: IRResource['routes'];
@@ -246,7 +246,7 @@ function inferIdentity(options: {
 	};
 }
 
-function pickRoutePlaceholder(
+export function pickRoutePlaceholder(
 	routes: IRResource['routes']
 ): string | undefined {
 	const priority = ['id', 'slug', 'uuid'];
@@ -273,7 +273,7 @@ function pickRoutePlaceholder(
 	return first;
 }
 
-function createIdentityFromPlaceholder(
+export function createIdentityFromPlaceholder(
 	placeholder: string
 ): ResourceConfig['identity'] | undefined {
 	switch (placeholder) {
@@ -288,7 +288,7 @@ function createIdentityFromPlaceholder(
 	}
 }
 
-function prepareStorage(options: {
+export function prepareStorage(options: {
 	resourceKey: string;
 	storage: ResourceConfig['storage'];
 	sanitizedNamespace: string;
@@ -330,7 +330,7 @@ function prepareStorage(options: {
 	};
 }
 
-function inferPostType(options: {
+export function inferPostType(options: {
 	resourceKey: string;
 	sanitizedNamespace: string;
 }): { postType: string; warnings: IRWarning[] } {
@@ -362,7 +362,7 @@ function inferPostType(options: {
 	return { postType: trimmed, warnings };
 }
 
-function hashResource(options: {
+export function hashResource(options: {
 	resourceConfig: ResourceConfig;
 	schemaKey: string;
 	schemaProvenance: SchemaProvenance;
