@@ -9,6 +9,12 @@ import {
 const DOC_URL =
 	'https://github.com/theGeekist/wp-kernel/blob/main/packages/cli/mvp-cli-spec.md#6-blocks-of-authoring-safety';
 
+/**
+ * Functions permitted in cache key expressions.
+ * - normalizeKeyValue: Framework utility for consistent value normalization
+ * - String, Number, Boolean: Built-in constructors for safe type coercion to primitives
+ * Other function calls are flagged as they may produce non-serializable or unpredictable cache keys.
+ */
 const ALLOWED_CALL_IDENTIFIERS = new Set([
 	'normalizeKeyValue',
 	'String',
@@ -305,6 +311,23 @@ function getMemberPropertyName(node) {
 	return null;
 }
 
+/**
+ * @typedef {Object} CacheKeyValidationContext
+ * @property {import('eslint').Rule.RuleContext} context         - ESLint rule context for reporting errors
+ * @property {string}                            resourceName    - Name of the resource being validated (e.g., 'Job', 'Application')
+ * @property {string}                            operation       - Operation name being validated (e.g., 'list', 'get', 'update')
+ * @property {import('estree').Node}             fnNode          - AST node representing the cache key function expression
+ * @property {Set<string>}                       queryParamNames - Set of declared query parameter names from resources[name].queryParams
+ */
+
+/**
+ * Validates a cache key function for a resource operation.
+ * Ensures the function returns an array literal containing only primitives, query parameter accesses,
+ * or safe coercion calls (String/Number/Boolean/normalizeKeyValue).
+ * All query parameters referenced must be declared in the resource's queryParams.
+ *
+ * @param {CacheKeyValidationContext} params - Validation context
+ */
 function validateCacheKeyFunction({
 	context,
 	resourceName,
@@ -355,6 +378,10 @@ function reportNonArrayReturn({
 	fnNode,
 	offendingNode,
 }) {
+	// Framework constraint: Cache keys must be array literals for React Query serialization.
+	// The framework passes cache keys to React Query's queryKey, which compares them across renders
+	// using deep equality. Non-array returns (objects, strings, computed values) can't be serialized
+	// deterministically, causing cache invalidation failures and stale data issues.
 	context.report({
 		node: offendingNode ?? fnNode,
 		messageId: 'nonArrayReturn',
@@ -383,6 +410,10 @@ function analyzeArrayElements({
 		const accesses = [];
 		const ok = analyzeExpression(element, aliases, accesses);
 		if (!ok) {
+			// Framework constraint: Cache key array elements must be primitives or safe coercions.
+			// Objects/functions in cache keys can't serialize to stable strings. This causes React Query
+			// to treat identical queries as different, leading to duplicate requests and cache misses.
+			// Only allow: literals (42, "draft"), query param accesses (query.id), or coercions (String(query.id)).
 			context.report({
 				node: element,
 				messageId: 'nonPrimitiveElement',
@@ -422,6 +453,10 @@ function reportUnknownParams({
 	unknownParams,
 }) {
 	for (const [param, node] of unknownParams.entries()) {
+		// Framework constraint: All query parameters used in cache keys must be declared in queryParams.
+		// The framework generates TypeScript types, validation, and REST endpoint bindings from queryParams.
+		// Undeclared parameters won't be typed, validated at runtime, or passed to the PHP handler correctly.
+		// This causes cache keys to reference undefined/null values, breaking cache invalidation logic.
 		context.report({
 			node,
 			messageId: 'unknownQueryParam',
@@ -465,11 +500,23 @@ export default {
 		},
 		messages: {
 			nonArrayReturn:
-				'Cache key "{{resource}}.{{operation}}" must return an array literal. See {{docUrl}}.',
+				'Cache key "{{resource}}.{{operation}}" must return an array literal of primitives. ' +
+				'The framework serializes cache keys for React Query to compare across renders. ' +
+				'Non-array returns cannot be serialized deterministically. ' +
+				'Fix: return [query.id, query.status] or return [String(query.id)]. ' +
+				'See {{docUrl}}.',
 			nonPrimitiveElement:
-				'Cache key "{{resource}}.{{operation}}" contains non-primitive element "{{expression}}". Only literals or parameter accessors are allowed. See {{docUrl}}.',
+				'Cache key "{{resource}}.{{operation}}" contains non-primitive element "{{expression}}". ' +
+				"Cache keys must serialize to stable strings for React Query's key comparison. " +
+				'Objects, functions, and computed values produce unpredictable cache keys, causing stale data or cache misses. ' +
+				'Fix: use only literals (42, "draft"), query parameter accesses (query.id), or safe coercions (String(query.id)). ' +
+				'See {{docUrl}}.',
 			unknownQueryParam:
-				'Cache key "{{resource}}.{{operation}}" references unknown query parameter "{{param}}". Define it under queryParams to keep cache keys deterministic. See {{docUrl}}.',
+				'Cache key "{{resource}}.{{operation}}" references unknown query parameter "{{param}}". ' +
+				'The framework requires all query parameters used in cache keys to be declared in queryParams. ' +
+				"Undeclared parameters won't be typed, validated, or passed correctly to the endpoint at runtime. " +
+				'Fix: Add "{{param}}" to resources.{{resource}}.queryParams with its type (e.g., { {{param}}: { type: "string" } }). ' +
+				'See {{docUrl}}.',
 		},
 		schema: [],
 	},
