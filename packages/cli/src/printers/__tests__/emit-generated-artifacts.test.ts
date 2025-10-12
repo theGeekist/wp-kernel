@@ -204,14 +204,12 @@ describe('emitGeneratedArtifacts', () => {
 					},
 				},
 				status: {
-					required: true,
 					schema: {
 						enum: ['draft', 'published'],
 						type: 'string',
 					},
 				},
 				state: {
-					required: true,
 					schema: {
 						enum: ['draft', 'published'],
 						type: 'string',

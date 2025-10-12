@@ -1,4 +1,4 @@
-import { KernelError } from '@geekist/wp-kernel';
+import { KernelError } from '@geekist/wp-kernel/error';
 import type {
 	ResourceConfig,
 	ResourceRoute,

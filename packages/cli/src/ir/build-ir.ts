@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { sanitizeNamespace } from '@geekist/wp-kernel/namespace';
+import { KernelError } from '@geekist/wp-kernel/error';
 import type { BuildIrOptions, IRv1 } from './types';
 import { toWorkspaceRelative } from '../utils';
 import { createSchemaAccumulator, loadConfiguredSchemas } from './schema';
@@ -13,7 +14,6 @@ import {
 } from './ordering';
 import { discoverBlocks } from './block-discovery';
 import { createPhpNamespace } from './php';
-import { KernelError } from '@geekist/wp-kernel';
 
 export async function buildIr(options: BuildIrOptions): Promise<IRv1> | never {
 	const sanitizedNamespace = sanitizeNamespace(options.namespace);

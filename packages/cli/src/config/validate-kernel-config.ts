@@ -1,6 +1,7 @@
-import { KernelError, type Reporter } from '@geekist/wp-kernel';
+import type { Reporter } from '@geekist/wp-kernel/reporter';
 import type { ResourceConfig } from '@geekist/wp-kernel/resource';
 import { sanitizeNamespace } from '@geekist/wp-kernel/namespace';
+import { KernelError } from '@geekist/wp-kernel/error';
 import * as t from 'typanion';
 import type { KernelConfigV1, KernelConfigVersion } from './types';
 
