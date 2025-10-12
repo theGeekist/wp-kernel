@@ -94,6 +94,28 @@ Replace current skeleton emission with behaviour driven entirely by the IR:
 | Local routes + no storage                         | Stub methods returning `WP_Error( 501, 'Not Implemented' )` with TODO comment.                        |
 | Routes pointing outside namespace / absolute URLs | Skip PHP emission for those routes (client-only).                                                     |
 
+Example generated fragment for a `wp-post` resource:
+
+```php
+$query = new WP_Query( $args );
+$items = array();
+foreach ( $query->posts as $post_item ) {
+        $post_object = get_post( $post_item );
+        if ( ! ( $post_object instanceof WP_Post ) ) {
+                continue;
+        }
+
+        $items[] = $this->format_post_response( $post_object );
+}
+
+return rest_ensure_response( array(
+        'items'      => $items,
+        'total'      => (int) $query->found_posts,
+        'hasMore'    => $query->max_num_pages > $page,
+        'nextCursor' => $query->max_num_pages > $page ? (string) ( $page + 1 ) : null,
+) );
+```
+
 Additional responsibilities:
 
 - Build a `rest_api_init` bootstrap registering only the routes that require controllers.

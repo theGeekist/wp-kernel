@@ -148,6 +148,7 @@ describe('emitGeneratedArtifacts', () => {
 
 			const jobContents = await fs.readFile(jobControllerPath, 'utf8');
 			expect(jobContents).toContain('use WP_Error;');
+			expect(jobContents).toContain('use WP_Post;');
 			expect(jobContents).toContain('use WP_REST_Request;');
 			expect(jobContents).toContain(
 				'class JobController extends BaseController'
@@ -161,11 +162,21 @@ describe('emitGeneratedArtifacts', () => {
 			expect(jobContents).toContain(
 				'public function postJobs( WP_REST_Request $request )'
 			);
+			expect(jobContents).toContain('$query = new WP_Query( $args );');
 			expect(jobContents).toContain(
-				'// TODO: Implement handler for [POST] /jobs.'
+				'$post_id = wp_insert_post( $post_data, true );'
 			);
 			expect(jobContents).toContain(
-				"return new WP_Error( 501, 'Not Implemented' );"
+				'return rest_ensure_response( $response );'
+			);
+			expect(jobContents).toContain(
+				'return rest_ensure_response( $this->format_post_response( $post ) );'
+			);
+			expect(jobContents).toContain(
+				'private function find_post_for_request'
+			);
+			expect(jobContents).toContain(
+				'private function prepare_post_payload'
 			);
 
 			const jobRestArgs = extractPhpArrayPayload(jobContents);
@@ -234,10 +245,10 @@ describe('emitGeneratedArtifacts', () => {
 				},
 			});
 			expect(taskContents).toContain(
-				"$slug = $request->get_param( 'slug' );"
+				'return rest_ensure_response( $this->format_post_response( $post ) );'
 			);
 			expect(taskContents).toContain(
-				'// TODO: Implement handler for [GET] /tasks/:slug.'
+				'private function find_post_for_request'
 			);
 
 			const orphanContents = await fs.readFile(

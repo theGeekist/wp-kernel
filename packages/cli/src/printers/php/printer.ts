@@ -205,13 +205,13 @@ function initialiseResourceController(
 		})
 	);
 
-	const stubMethods = createRouteStubs({
+	const routeMethods = createRouteMethods({
 		builder,
 		context,
 		resource,
 		routes,
 	});
-	methods.push(...stubMethods);
+	methods.push(...routeMethods);
 
 	for (const [index, method] of methods.entries()) {
 		for (const line of method) {
@@ -559,7 +559,20 @@ function toPascalCase(value: string): string {
 	);
 }
 
-function createRouteStubs(options: {
+function createRouteMethods(options: {
+	builder: PhpFileBuilder;
+	context: PrinterContext;
+	resource: IRResource;
+	routes: IRRoute[];
+}): string[][] {
+	if (options.resource.storage?.mode === 'wp-post') {
+		return createWpPostRouteMethods(options);
+	}
+
+	return createStubRouteMethods(options);
+}
+
+function createStubRouteMethods(options: {
 	builder: PhpFileBuilder;
 	context: PrinterContext;
 	resource: IRResource;
@@ -601,6 +614,1091 @@ function createRouteStubs(options: {
 	}
 
 	return methodTemplates;
+}
+
+function createWpPostRouteMethods(options: {
+	builder: PhpFileBuilder;
+	context: PrinterContext;
+	resource: IRResource;
+	routes: IRRoute[];
+}): string[][] {
+	const { builder, resource, routes, context } = options;
+	const storage = resource.storage;
+
+	if (!storage || storage.mode !== 'wp-post') {
+		return createStubRouteMethods(options);
+	}
+
+	builder.addUse('WP_Error');
+	builder.addUse('WP_Post');
+	builder.addUse('WP_Query');
+	builder.addUse('WP_REST_Request');
+
+	const identityInfo = resolveIdentityInfo(resource);
+	const postType = storage.postType ?? resource.name;
+	const statuses = buildUniqueArray(['publish', ...(storage.statuses ?? [])]);
+	const supports = new Set(storage.supports ?? []);
+	const metaEntries = Object.entries(storage.meta ?? {}).map(
+		([key, descriptor]) => ({
+			key,
+			descriptor,
+		})
+	);
+	const taxonomyEntries = Object.entries(storage.taxonomies ?? {}).map(
+		([param, descriptor]) => ({
+			param,
+			taxonomy: descriptor.taxonomy,
+		})
+	);
+	const queryParams = resource.queryParams ?? {};
+	const hasCursorParam = Object.prototype.hasOwnProperty.call(
+		queryParams,
+		'cursor'
+	);
+	const hasStatusFilter = Object.prototype.hasOwnProperty.call(
+		queryParams,
+		'status'
+	);
+	const searchParam = pickSearchParam(queryParams);
+	const supportsTitle = supports.has('title');
+	const supportsEditor = supports.has('editor');
+	const supportsExcerpt = supports.has('excerpt');
+
+	const methodTemplates = routes.map((route) => {
+		const template = resolveWpPostRouteTemplate({
+			builder,
+			context,
+			route,
+			resource,
+			postType,
+			statuses,
+			metaEntries,
+			taxonomyEntries,
+			hasCursorParam,
+			hasStatusFilter,
+			searchParam,
+			identityInfo,
+		});
+
+		if (template) {
+			return template;
+		}
+
+		return createStubRouteMethods({
+			builder,
+			context,
+			resource,
+			routes: [route],
+		})[0]!;
+	});
+
+	return [
+		...methodTemplates,
+		...createWpPostHelperMethods({
+			postType,
+			statuses,
+			supports: {
+				title: supportsTitle,
+				editor: supportsEditor,
+				excerpt: supportsExcerpt,
+			},
+			metaEntries,
+			taxonomyEntries,
+			identityInfo,
+		}),
+	];
+}
+
+function resolveWpPostRouteTemplate(options: {
+	builder: PhpFileBuilder;
+	context: PrinterContext;
+	route: IRRoute;
+	resource: IRResource;
+	postType: string;
+	statuses: string[];
+	metaEntries: Array<{ key: string; descriptor: unknown }>;
+	taxonomyEntries: Array<{ param: string; taxonomy: string }>;
+	hasCursorParam: boolean;
+	hasStatusFilter: boolean;
+	searchParam?: string;
+	identityInfo?: ReturnType<typeof resolveIdentityInfo>;
+}): string[] | undefined {
+	const { route, resource } = options;
+
+	if (route.method === 'GET') {
+		if (routeUsesIdentity(route, resource.identity)) {
+			return createWpPostGetMethod({
+				context: options.context,
+				route,
+				resource,
+				postType: options.postType,
+				identityInfo: options.identityInfo,
+			});
+		}
+
+		return createWpPostListMethod({
+			context: options.context,
+			route,
+			resource,
+			postType: options.postType,
+			statuses: options.statuses,
+			metaEntries: options.metaEntries,
+			taxonomyEntries: options.taxonomyEntries,
+			hasCursorParam: options.hasCursorParam,
+			searchParam: options.searchParam,
+			hasStatusFilter: options.hasStatusFilter,
+		});
+	}
+
+	switch (route.method) {
+		case 'POST':
+			return createWpPostCreateMethod({
+				context: options.context,
+				route,
+				resource,
+				identityInfo: options.identityInfo,
+			});
+		case 'PUT':
+		case 'PATCH':
+			return createWpPostUpdateMethod({
+				context: options.context,
+				route,
+				resource,
+				identityInfo: options.identityInfo,
+			});
+		case 'DELETE':
+			return createWpPostDeleteMethod({
+				context: options.context,
+				route,
+				resource,
+				identityInfo: options.identityInfo,
+			});
+		default:
+			return undefined;
+	}
+}
+
+function createWpPostListMethod(options: {
+	context: PrinterContext;
+	route: IRRoute;
+	resource: IRResource;
+	postType: string;
+	statuses: string[];
+	metaEntries: Array<{ key: string; descriptor: unknown }>;
+	taxonomyEntries: Array<{ param: string; taxonomy: string }>;
+	hasCursorParam: boolean;
+	searchParam?: string;
+	hasStatusFilter: boolean;
+}): string[] {
+	const methodName = createRouteMethodName(options.route, options.context);
+
+	return createMethodTemplate({
+		signature: `public function ${methodName}( WP_REST_Request $request )`,
+		indentLevel: 1,
+		indentUnit: INDENT,
+		docblock: [`Handle [${options.route.method}] ${options.route.path}.`],
+		body: (body) => {
+			body.line('$post_type = $this->get_post_type();');
+			body.line('$post_statuses = $this->get_post_statuses();');
+
+			if (options.hasCursorParam) {
+				body.line("$cursor = $request->get_param( 'cursor' );");
+				body.line('$page = is_numeric( $cursor ) ? (int) $cursor : 1;');
+			} else {
+				body.line("$page = (int) $request->get_param( 'page' );");
+			}
+
+			body.line('if ( $page < 1 ) {');
+			body.line(`${INDENT.repeat(2)}$page = 1;`);
+			body.line(`${INDENT}}`);
+			body.blank();
+
+			body.line("$per_page = (int) $request->get_param( 'per_page' );");
+			body.line('if ( $per_page <= 0 ) {');
+			body.line(`${INDENT.repeat(2)}$per_page = 10;`);
+			body.line(`${INDENT}}`);
+			body.blank();
+
+			body.line('$args = array(');
+			body.line("        'post_type' => $post_type,");
+			body.line("        'post_status' => $post_statuses,");
+			body.line("        'paged' => $page,");
+			body.line("        'posts_per_page' => $per_page,");
+			body.line("        'no_found_rows' => false,");
+			body.line(');');
+			body.blank();
+
+			if (options.searchParam) {
+				body.line(
+					`$search = $request->get_param( '${options.searchParam}' );`
+				);
+				body.line(
+					"if ( is_string( $search ) && '' !== trim( $search ) ) {"
+				);
+				body.line(
+					`${INDENT}$args['s'] = sanitize_text_field( $search );`
+				);
+				body.line('}');
+				body.blank();
+			}
+
+			if (options.hasStatusFilter) {
+				body.line("$status = $request->get_param( 'status' );");
+				body.line(
+					'if ( is_string( $status ) && in_array( $status, $post_statuses, true ) ) {'
+				);
+				body.line(`${INDENT}$args['post_status'] = array( $status );`);
+				body.line('}');
+				body.blank();
+			}
+
+			if (options.metaEntries.length > 0) {
+				body.line('$meta_query = array();');
+				for (const entry of options.metaEntries) {
+					const variable = toPhpVariableName(`meta_${entry.key}`);
+					body.line(
+						`$${variable} = $request->get_param( '${entry.key}' );`
+					);
+					body.line(`if ( null !== $${variable} ) {`);
+					body.line(`${INDENT}$${variable}_values = array();`);
+					body.line(
+						`${INDENT}foreach ( (array) $${variable} as $${variable}_candidate ) {`
+					);
+					body.line(
+						`${INDENT.repeat(2)}if ( is_scalar( $${variable}_candidate ) ) {`
+					);
+					body.line(
+						`${INDENT.repeat(3)}$${variable}_values[] = sanitize_text_field( (string) $${variable}_candidate );`
+					);
+					body.line(`${INDENT.repeat(2)}}`);
+					body.line(`${INDENT}}`);
+					body.line(
+						`${INDENT}if ( ! empty( $${variable}_values ) ) {`
+					);
+					body.line(`${INDENT.repeat(2)}$meta_query[] = array(`);
+					body.line(
+						`${INDENT.repeat(3)}'key' => '${escapeSingleQuotes(entry.key)}',`
+					);
+					body.line(
+						`${INDENT.repeat(3)}'value' => $${variable}_values,`
+					);
+					body.line(`${INDENT.repeat(3)}'compare' => 'IN',`);
+					body.line(`${INDENT.repeat(2)});`);
+					body.line(`${INDENT}}`);
+					body.line('}');
+				}
+				body.line('if ( ! empty( $meta_query ) ) {');
+				body.line(`${INDENT}$args['meta_query'] = $meta_query;`);
+				body.line('}');
+				body.blank();
+			}
+
+			if (options.taxonomyEntries.length > 0) {
+				body.line('$tax_query = array();');
+				for (const entry of options.taxonomyEntries) {
+					const variable = toPhpVariableName(`tax_${entry.param}`);
+					body.line(
+						`$${variable} = $request->get_param( '${entry.param}' );`
+					);
+					body.line(`if ( null !== $${variable} ) {`);
+					body.line(`${INDENT}$${variable}_terms = array();`);
+					body.line(
+						`${INDENT}foreach ( (array) $${variable} as $${variable}_candidate ) {`
+					);
+					body.line(
+						`${INDENT.repeat(2)}if ( ! is_string( $${variable}_candidate ) ) {`
+					);
+					body.line(`${INDENT.repeat(3)}continue;`);
+					body.line(`${INDENT.repeat(2)}}`);
+					body.line(
+						`${INDENT.repeat(2)}$sanitized = sanitize_title( $${variable}_candidate );`
+					);
+					body.line(`${INDENT.repeat(2)}if ( '' === $sanitized ) {`);
+					body.line(`${INDENT.repeat(3)}continue;`);
+					body.line(`${INDENT.repeat(2)}}`);
+					body.line(
+						`${INDENT.repeat(2)}$${variable}_terms[] = $sanitized;`
+					);
+					body.line(`${INDENT}}`);
+					body.line(
+						`${INDENT}if ( ! empty( $${variable}_terms ) ) {`
+					);
+					body.line(`${INDENT.repeat(2)}$tax_query[] = array(`);
+					body.line(
+						`${INDENT.repeat(3)}'taxonomy' => '${escapeSingleQuotes(entry.taxonomy)}',`
+					);
+					body.line(`${INDENT.repeat(3)}'field' => 'slug',`);
+					body.line(
+						`${INDENT.repeat(3)}'terms' => $${variable}_terms,`
+					);
+					body.line(`${INDENT.repeat(2)});`);
+					body.line(`${INDENT}}`);
+					body.line('}');
+				}
+				body.line('if ( ! empty( $tax_query ) ) {');
+				body.line(`${INDENT}$args['tax_query'] = $tax_query;`);
+				body.line('}');
+				body.blank();
+			}
+
+			body.line('$query = new WP_Query( $args );');
+			body.blank();
+			body.line('$items = array();');
+			body.line('foreach ( $query->posts as $post_item ) {');
+			body.line(`${INDENT}$post_object = get_post( $post_item );`);
+			body.line(
+				`${INDENT}if ( ! ( $post_object instanceof WP_Post ) ) {`
+			);
+			body.line(`${INDENT.repeat(2)}continue;`);
+			body.line(`${INDENT}}`);
+			body.line(
+				`${INDENT}$items[] = $this->format_post_response( $post_object );`
+			);
+			body.line('}');
+			body.blank();
+
+			body.line('$response = array(');
+			body.line("        'items' => $items,");
+			body.line("        'total' => (int) $query->found_posts,");
+			body.line("        'hasMore' => $query->max_num_pages > $page,");
+			body.line(
+				"        'nextCursor' => $query->max_num_pages > $page ? (string) ( $page + 1 ) : null,"
+			);
+			body.line(');');
+			body.blank();
+			body.line('return rest_ensure_response( $response );');
+		},
+	});
+}
+
+function createWpPostGetMethod(options: {
+	context: PrinterContext;
+	route: IRRoute;
+	resource: IRResource;
+	postType: string;
+	identityInfo?: ReturnType<typeof resolveIdentityInfo>;
+}): string[] {
+	const methodName = createRouteMethodName(options.route, options.context);
+	const errorCode = `wpk_${sanitizeForErrorCode(options.resource.name)}_not_found`;
+	const errorMessage = `Resource "${escapeSingleQuotes(options.resource.name)}" not found.`;
+
+	return createMethodTemplate({
+		signature: `public function ${methodName}( WP_REST_Request $request )`,
+		indentLevel: 1,
+		indentUnit: INDENT,
+		docblock: [`Handle [${options.route.method}] ${options.route.path}.`],
+		body: (body) => {
+			body.line('$post = $this->find_post_for_request( $request );');
+			body.line('if ( ! $post ) {');
+			body.line(
+				`${INDENT}return new WP_Error( '${errorCode}', '${errorMessage}', 404 );`
+			);
+			body.line('}');
+			body.blank();
+			body.line(
+				'return rest_ensure_response( $this->format_post_response( $post ) );'
+			);
+		},
+	});
+}
+
+function createWpPostCreateMethod(options: {
+	context: PrinterContext;
+	route: IRRoute;
+	resource: IRResource;
+	identityInfo?: ReturnType<typeof resolveIdentityInfo>;
+}): string[] {
+	const methodName = createRouteMethodName(options.route, options.context);
+	const loadErrorCode = `wpk_${sanitizeForErrorCode(options.resource.name)}_load_failed`;
+	const loadErrorMessage = `Failed to load resource "${escapeSingleQuotes(options.resource.name)}" after creation.`;
+
+	return createMethodTemplate({
+		signature: `public function ${methodName}( WP_REST_Request $request )`,
+		indentLevel: 1,
+		indentUnit: INDENT,
+		docblock: [`Handle [${options.route.method}] ${options.route.path}.`],
+		body: (body) => {
+			body.line('$payload = $this->prepare_post_payload( $request );');
+			body.line('if ( is_wp_error( $payload ) ) {');
+			body.line(`${INDENT}return $payload;`);
+			body.line('}');
+			body.blank();
+			body.line("$post_data = $payload['post_data'];");
+			body.line("$meta = $payload['meta'];");
+			body.line("$taxonomies = $payload['taxonomies'];");
+			body.blank();
+			body.line('$post_id = wp_insert_post( $post_data, true );');
+			body.line('if ( is_wp_error( $post_id ) ) {');
+			body.line(`${INDENT}return $post_id;`);
+			body.line('}');
+			body.line('$post_id = (int) $post_id;');
+			body.blank();
+			body.line('$this->sync_meta( $post_id, $meta );');
+			body.line('$this->sync_taxonomies( $post_id, $taxonomies );');
+			body.blank();
+			body.line('$post = get_post( $post_id );');
+			body.line('if ( ! ( $post instanceof WP_Post ) ) {');
+			body.line(
+				`${INDENT}return new WP_Error( '${loadErrorCode}', '${loadErrorMessage}', 500 );`
+			);
+			body.line('}');
+			body.blank();
+			body.line(
+				'return rest_ensure_response( $this->format_post_response( $post ) );'
+			);
+		},
+	});
+}
+
+function createWpPostUpdateMethod(options: {
+	context: PrinterContext;
+	route: IRRoute;
+	resource: IRResource;
+	identityInfo?: ReturnType<typeof resolveIdentityInfo>;
+}): string[] {
+	const methodName = createRouteMethodName(options.route, options.context);
+	const notFoundCode = `wpk_${sanitizeForErrorCode(options.resource.name)}_not_found`;
+	const notFoundMessage = `Resource "${escapeSingleQuotes(options.resource.name)}" not found.`;
+	const loadErrorCode = `wpk_${sanitizeForErrorCode(options.resource.name)}_load_failed`;
+	const loadErrorMessage = `Failed to load resource "${escapeSingleQuotes(options.resource.name)}" after update.`;
+
+	return createMethodTemplate({
+		signature: `public function ${methodName}( WP_REST_Request $request )`,
+		indentLevel: 1,
+		indentUnit: INDENT,
+		docblock: [`Handle [${options.route.method}] ${options.route.path}.`],
+		body: (body) => {
+			body.line('$post = $this->find_post_for_request( $request );');
+			body.line('if ( ! $post ) {');
+			body.line(
+				`${INDENT}return new WP_Error( '${notFoundCode}', '${notFoundMessage}', 404 );`
+			);
+			body.line('}');
+			body.blank();
+			body.line('$payload = $this->prepare_post_payload( $request );');
+			body.line('if ( is_wp_error( $payload ) ) {');
+			body.line(`${INDENT}return $payload;`);
+			body.line('}');
+			body.blank();
+			body.line("$post_data = $payload['post_data'];");
+			body.line("$meta = $payload['meta'];");
+			body.line("$taxonomies = $payload['taxonomies'];");
+			body.line("$post_data['ID'] = (int) $post->ID;");
+			body.blank();
+			body.line('$result = wp_update_post( $post_data, true );');
+			body.line('if ( is_wp_error( $result ) ) {');
+			body.line(`${INDENT}return $result;`);
+			body.line('}');
+			body.blank();
+			body.line('$this->sync_meta( (int) $post->ID, $meta );');
+			body.line(
+				'$this->sync_taxonomies( (int) $post->ID, $taxonomies );'
+			);
+			body.blank();
+			body.line('$updated = get_post( (int) $post->ID );');
+			body.line('if ( ! ( $updated instanceof WP_Post ) ) {');
+			body.line(
+				`${INDENT}return new WP_Error( '${loadErrorCode}', '${loadErrorMessage}', 500 );`
+			);
+			body.line('}');
+			body.blank();
+			body.line(
+				'return rest_ensure_response( $this->format_post_response( $updated ) );'
+			);
+		},
+	});
+}
+
+function createWpPostDeleteMethod(options: {
+	context: PrinterContext;
+	route: IRRoute;
+	resource: IRResource;
+	identityInfo?: ReturnType<typeof resolveIdentityInfo>;
+}): string[] {
+	const methodName = createRouteMethodName(options.route, options.context);
+	const notFoundCode = `wpk_${sanitizeForErrorCode(options.resource.name)}_not_found`;
+	const notFoundMessage = `Resource "${escapeSingleQuotes(options.resource.name)}" not found.`;
+	const deleteErrorCode = `wpk_${sanitizeForErrorCode(options.resource.name)}_delete_failed`;
+	const deleteErrorMessage = `Failed to delete resource "${escapeSingleQuotes(options.resource.name)}".`;
+
+	return createMethodTemplate({
+		signature: `public function ${methodName}( WP_REST_Request $request )`,
+		indentLevel: 1,
+		indentUnit: INDENT,
+		docblock: [`Handle [${options.route.method}] ${options.route.path}.`],
+		body: (body) => {
+			body.line('$post = $this->find_post_for_request( $request );');
+			body.line('if ( ! $post ) {');
+			body.line(
+				`${INDENT}return new WP_Error( '${notFoundCode}', '${notFoundMessage}', 404 );`
+			);
+			body.line('}');
+			body.blank();
+			body.line('$previous = $this->format_post_response( $post );');
+			body.line('$deleted = wp_delete_post( (int) $post->ID, true );');
+			body.line('if ( ! $deleted ) {');
+			body.line(
+				`${INDENT}return new WP_Error( '${deleteErrorCode}', '${deleteErrorMessage}', 500 );`
+			);
+			body.line('}');
+			body.blank();
+			body.line('return rest_ensure_response( array(');
+			body.line("        'deleted' => true,");
+			body.line("        'previous' => $previous,");
+			body.line(') );');
+		},
+	});
+}
+
+function createWpPostHelperMethods(options: {
+	postType: string;
+	statuses: string[];
+	supports: { title: boolean; editor: boolean; excerpt: boolean };
+	metaEntries: Array<{ key: string; descriptor: unknown }>;
+	taxonomyEntries: Array<{ param: string; taxonomy: string }>;
+	identityInfo?: ReturnType<typeof resolveIdentityInfo>;
+}): string[][] {
+	const methods: string[][] = [];
+
+	methods.push(
+		createMethodTemplate({
+			signature: 'private function get_post_type(): string',
+			indentLevel: 1,
+			indentUnit: INDENT,
+			body: (body) => {
+				const lines = renderPhpReturn(options.postType, 2);
+				for (const line of lines) {
+					body.raw(line);
+				}
+			},
+		})
+	);
+
+	methods.push(
+		createMethodTemplate({
+			signature: 'private function get_post_statuses(): array',
+			indentLevel: 1,
+			indentUnit: INDENT,
+			body: (body) => {
+				const lines = renderPhpReturn(options.statuses, 2);
+				for (const line of lines) {
+					body.raw(line);
+				}
+			},
+		})
+	);
+
+	const metaMap: Record<string, Record<string, unknown>> = {};
+	for (const entry of options.metaEntries) {
+		if (!entry.descriptor || typeof entry.descriptor !== 'object') {
+			continue;
+		}
+
+		const descriptor = entry.descriptor as Record<string, unknown>;
+		const payload: Record<string, unknown> = {};
+		if (descriptor.type) {
+			payload.type = descriptor.type;
+		}
+		if (typeof descriptor.single === 'boolean') {
+			payload.single = descriptor.single;
+		}
+		metaMap[entry.key] = payload;
+	}
+
+	methods.push(
+		createMethodTemplate({
+			signature: 'private function get_meta_map(): array',
+			indentLevel: 1,
+			indentUnit: INDENT,
+			body: (body) => {
+				const lines = renderPhpReturn(metaMap, 2);
+				for (const line of lines) {
+					body.raw(line);
+				}
+			},
+		})
+	);
+
+	const taxonomyMap: Record<string, string> = {};
+	for (const entry of options.taxonomyEntries) {
+		taxonomyMap[entry.param] = entry.taxonomy;
+	}
+
+	methods.push(
+		createMethodTemplate({
+			signature: 'private function get_taxonomy_map(): array',
+			indentLevel: 1,
+			indentUnit: INDENT,
+			body: (body) => {
+				const lines = renderPhpReturn(taxonomyMap, 2);
+				for (const line of lines) {
+					body.raw(line);
+				}
+			},
+		})
+	);
+
+	methods.push(
+		createMethodTemplate({
+			signature:
+				'private function find_post_for_request( WP_REST_Request $request ): ?WP_Post',
+			indentLevel: 1,
+			indentUnit: INDENT,
+			body: (body) => {
+				body.line('$post_type = $this->get_post_type();');
+
+				if (options.identityInfo) {
+					const { param, type } = options.identityInfo;
+					if (param === 'slug') {
+						body.line("$slug = $request->get_param( 'slug' );");
+						body.line('if ( ! is_string( $slug ) ) {');
+						body.line(`${INDENT}return null;`);
+						body.line('}');
+						body.line('$slug = trim( $slug );');
+						body.line("if ( '' === $slug ) {");
+						body.line(`${INDENT}return null;`);
+						body.line('}');
+						body.line(
+							'$post = get_page_by_path( $slug, OBJECT, array( $post_type ) );'
+						);
+						body.line('if ( ! ( $post instanceof WP_Post ) ) {');
+						body.line(`${INDENT}return null;`);
+						body.line('}');
+						body.line('return $post;');
+					} else if (param === 'uuid') {
+						body.line("$uuid = $request->get_param( 'uuid' );");
+						body.line('if ( ! is_string( $uuid ) ) {');
+						body.line(`${INDENT}return null;`);
+						body.line('}');
+						body.line('$uuid = trim( $uuid );');
+						body.line("if ( '' === $uuid ) {");
+						body.line(`${INDENT}return null;`);
+						body.line('}');
+						body.line('$query = new WP_Query( array(');
+						body.line("        'post_type' => $post_type,");
+						body.line("        'meta_key' => 'uuid',");
+						body.line("        'meta_value' => $uuid,");
+						body.line("        'posts_per_page' => 1,");
+						body.line("        'no_found_rows' => true,");
+						body.line("        'fields' => 'ids',");
+						body.line(') );');
+						body.line('$post_id = $query->posts[0] ?? null;');
+						body.line('if ( ! $post_id ) {');
+						body.line(`${INDENT}return null;`);
+						body.line('}');
+						body.line('$post = get_post( (int) $post_id );');
+						body.line('if ( ! ( $post instanceof WP_Post ) ) {');
+						body.line(`${INDENT}return null;`);
+						body.line('}');
+						body.line('if ( $post->post_type !== $post_type ) {');
+						body.line(`${INDENT}return null;`);
+						body.line('}');
+						body.line('return $post;');
+					} else {
+						const paramName = param ?? 'id';
+
+						if (type === 'number') {
+							body.line(
+								`$value = $request->get_param( '${paramName}' );`
+							);
+							body.line('if ( null === $value ) {');
+							body.line(`${INDENT}return null;`);
+							body.line('}');
+							body.line('$post_id = (int) $value;');
+							body.line('if ( $post_id <= 0 ) {');
+							body.line(`${INDENT}return null;`);
+							body.line('}');
+							body.line('$post = get_post( $post_id );');
+							body.line(
+								'if ( ! ( $post instanceof WP_Post ) ) {'
+							);
+							body.line(`${INDENT}return null;`);
+							body.line('}');
+							body.line(
+								'if ( $post->post_type !== $post_type ) {'
+							);
+							body.line(`${INDENT}return null;`);
+							body.line('}');
+							body.line('return $post;');
+						} else {
+							const variable = toPhpVariableName(paramName);
+							const reference = `$${variable}`;
+							body.line(
+								`${reference} = $request->get_param( '${paramName}' );`
+							);
+							body.line(`if ( ! is_string( ${reference} ) ) {`);
+							body.line(`${INDENT}return null;`);
+							body.line('}');
+							body.line(`${reference} = trim( ${reference} );`);
+							body.line(`if ( '' === ${reference} ) {`);
+							body.line(`${INDENT}return null;`);
+							body.line('}');
+							body.line(
+								`$post = get_page_by_path( ${reference}, OBJECT, array( $post_type ) );`
+							);
+							body.line(
+								'if ( ! ( $post instanceof WP_Post ) ) {'
+							);
+							body.line(`${INDENT}return null;`);
+							body.line('}');
+							body.line('return $post;');
+						}
+					}
+				} else {
+					body.line('return null;');
+				}
+			},
+		})
+	);
+
+	methods.push(
+		createMethodTemplate({
+			signature:
+				'private function prepare_post_payload( WP_REST_Request $request )',
+			indentLevel: 1,
+			indentUnit: INDENT,
+			body: (body) => {
+				body.line('$params = $request->get_json_params();');
+				body.line('if ( ! is_array( $params ) ) {');
+				body.line(`${INDENT}$params = array();`);
+				body.line('}');
+				body.blank();
+				body.line('$post_statuses = $this->get_post_statuses();');
+				body.line('if ( empty( $post_statuses ) ) {');
+				body.line(`${INDENT}$post_statuses = array( 'publish' );`);
+				body.line('}');
+				body.line('$default_status = $post_statuses[0];');
+				body.blank();
+				body.line('$post_data = array(');
+				body.line("        'post_type' => $this->get_post_type(),");
+				body.line("        'post_status' => $default_status,");
+				body.line(');');
+				body.blank();
+				body.line("$status = $params['status'] ?? null;");
+				body.line('if ( is_string( $status ) ) {');
+				body.line(
+					`${INDENT}$sanitized_status = sanitize_text_field( $status );`
+				);
+				body.line(
+					`${INDENT}if ( in_array( $sanitized_status, $post_statuses, true ) ) {`
+				);
+				body.line(
+					`${INDENT.repeat(2)}$post_data['post_status'] = $sanitized_status;`
+				);
+				body.line(`${INDENT}}`);
+				body.line('}');
+				body.blank();
+
+				if (options.supports.title) {
+					body.line(
+						"if ( isset( $params['title'] ) && is_string( $params['title'] ) ) {"
+					);
+					body.line(
+						`${INDENT}$post_data['post_title'] = sanitize_text_field( $params['title'] );`
+					);
+					body.line('}');
+					body.blank();
+				}
+
+				if (options.supports.editor) {
+					body.line(
+						"if ( isset( $params['content'] ) && is_string( $params['content'] ) ) {"
+					);
+					body.line(
+						`${INDENT}$post_data['post_content'] = wp_kses_post( $params['content'] );`
+					);
+					body.line('}');
+					body.blank();
+				}
+
+				if (options.supports.excerpt) {
+					body.line(
+						"if ( isset( $params['excerpt'] ) && is_string( $params['excerpt'] ) ) {"
+					);
+					body.line(
+						`${INDENT}$post_data['post_excerpt'] = sanitize_text_field( $params['excerpt'] );`
+					);
+					body.line('}');
+					body.blank();
+				}
+
+				body.line(
+					"if ( isset( $params['slug'] ) && is_string( $params['slug'] ) ) {"
+				);
+				body.line(
+					`${INDENT}$post_data['post_name'] = sanitize_title( $params['slug'] );`
+				);
+				body.line('}');
+				body.blank();
+
+				body.line('$meta = array();');
+				body.line('$meta_map = $this->get_meta_map();');
+				body.line(
+					'foreach ( $meta_map as $meta_key => $descriptor ) {'
+				);
+				body.line(
+					`${INDENT}if ( ! array_key_exists( $meta_key, $params ) ) {`
+				);
+				body.line(`${INDENT.repeat(2)}continue;`);
+				body.line(`${INDENT}}`);
+				body.line(`${INDENT}$value = $params[ $meta_key ];`);
+				body.line(
+					`${INDENT}$schema = array( 'type' => $descriptor['type'] ?? 'string' );`
+				);
+				body.line(
+					`${INDENT}$validation = rest_validate_value_from_schema( $value, $schema, $meta_key );`
+				);
+				body.line(`${INDENT}if ( is_wp_error( $validation ) ) {`);
+				body.line(`${INDENT.repeat(2)}return $validation;`);
+				body.line(`${INDENT}}`);
+				body.line(
+					`${INDENT}$sanitized = rest_sanitize_value_from_schema( $value, $schema );`
+				);
+				body.line(
+					`${INDENT}if ( isset( $descriptor['single'] ) && true === $descriptor['single'] ) {`
+				);
+				body.line(`${INDENT.repeat(2)}if ( is_array( $sanitized ) ) {`);
+				body.line(
+					`${INDENT.repeat(3)}$sanitized = array_values( $sanitized );`
+				);
+				body.line(
+					`${INDENT.repeat(3)}$meta[ $meta_key ] = $sanitized[0] ?? null;`
+				);
+				body.line(`${INDENT.repeat(2)}} else {`);
+				body.line(
+					`${INDENT.repeat(3)}$meta[ $meta_key ] = $sanitized;`
+				);
+				body.line(`${INDENT.repeat(2)}}`);
+				body.line(`${INDENT}continue;`);
+				body.line(`${INDENT}}`);
+				body.line(`${INDENT}if ( null === $sanitized ) {`);
+				body.line(`${INDENT.repeat(2)}$meta[ $meta_key ] = null;`);
+				body.line(`${INDENT}} elseif ( is_array( $sanitized ) ) {`);
+				body.line(
+					`${INDENT.repeat(2)}$meta[ $meta_key ] = array_values( $sanitized );`
+				);
+				body.line(`${INDENT}} else {`);
+				body.line(
+					`${INDENT.repeat(2)}$meta[ $meta_key ] = array( $sanitized );`
+				);
+				body.line(`${INDENT}}`);
+				body.line('}');
+				body.blank();
+
+				body.line('$taxonomies = array();');
+				body.line('$taxonomy_map = $this->get_taxonomy_map();');
+				body.line('foreach ( $taxonomy_map as $param => $taxonomy ) {');
+				body.line(
+					`${INDENT}if ( ! array_key_exists( $param, $params ) ) {`
+				);
+				body.line(`${INDENT.repeat(2)}continue;`);
+				body.line(`${INDENT}}`);
+				body.line(`${INDENT}$value = $params[ $param ];`);
+				body.line(`${INDENT}$terms = array();`);
+				body.line(`${INDENT}foreach ( (array) $value as $term ) {`);
+				body.line(`${INDENT.repeat(2)}if ( ! is_string( $term ) ) {`);
+				body.line(`${INDENT.repeat(3)}continue;`);
+				body.line(`${INDENT.repeat(2)}}`);
+				body.line(
+					`${INDENT.repeat(2)}$sanitized = sanitize_title( $term );`
+				);
+				body.line(`${INDENT.repeat(2)}if ( '' === $sanitized ) {`);
+				body.line(`${INDENT.repeat(3)}continue;`);
+				body.line(`${INDENT.repeat(2)}}`);
+				body.line(`${INDENT.repeat(2)}$terms[] = $sanitized;`);
+				body.line(`${INDENT}}`);
+				body.line(`${INDENT}$taxonomies[ $taxonomy ] = $terms;`);
+				body.line('}');
+				body.blank();
+
+				body.line('return array(');
+				body.line("        'post_data' => $post_data,");
+				body.line("        'meta' => $meta,");
+				body.line("        'taxonomies' => $taxonomies,");
+				body.line(');');
+			},
+		})
+	);
+
+	methods.push(
+		createMethodTemplate({
+			signature:
+				'private function sync_meta( int $post_id, array $meta ): void',
+			indentLevel: 1,
+			indentUnit: INDENT,
+			body: (body) => {
+				body.line('if ( empty( $meta ) ) {');
+				body.line(`${INDENT}return;`);
+				body.line('}');
+				body.line('foreach ( $meta as $meta_key => $value ) {');
+				body.line('        if ( null === $value ) {');
+				body.line(
+					'                delete_post_meta( $post_id, $meta_key );'
+				);
+				body.line('                continue;');
+				body.line('        }');
+				body.line(
+					'        update_post_meta( $post_id, $meta_key, $value );'
+				);
+				body.line('}');
+			},
+		})
+	);
+
+	methods.push(
+		createMethodTemplate({
+			signature:
+				'private function sync_taxonomies( int $post_id, array $taxonomies ): void',
+			indentLevel: 1,
+			indentUnit: INDENT,
+			body: (body) => {
+				body.line('if ( empty( $taxonomies ) ) {');
+				body.line(`${INDENT}return;`);
+				body.line('}');
+				body.line('foreach ( $taxonomies as $taxonomy => $terms ) {');
+				body.line(
+					'        wp_set_post_terms( $post_id, array_values( (array) $terms ), $taxonomy, false );'
+				);
+				body.line('}');
+			},
+		})
+	);
+
+	methods.push(
+		createMethodTemplate({
+			signature:
+				'private function format_post_response( WP_Post $post ): array',
+			indentLevel: 1,
+			indentUnit: INDENT,
+			body: (body) => {
+				body.line('$data = array(');
+				body.line("        'id' => (int) $post->ID,");
+				body.line("        'type' => $post->post_type,");
+				body.line("        'status' => $post->post_status,");
+				body.line("        'slug' => $post->post_name,");
+				body.line("        'link' => get_permalink( $post ),");
+				body.line(');');
+
+				if (options.supports.title) {
+					body.line("$data['title'] = get_the_title( $post );");
+				}
+
+				if (options.supports.editor) {
+					body.line("$data['content'] = $post->post_content;");
+				}
+
+				if (options.supports.excerpt) {
+					body.line("$data['excerpt'] = $post->post_excerpt;");
+				}
+
+				if (options.metaEntries.length > 0) {
+					body.line('$meta = array();');
+					body.line('$meta_map = $this->get_meta_map();');
+					body.line(
+						'foreach ( $meta_map as $meta_key => $descriptor ) {'
+					);
+					body.line(
+						`${INDENT}if ( isset( $descriptor['single'] ) && true === $descriptor['single'] ) {`
+					);
+					body.line(
+						`${INDENT.repeat(2)}$meta[ $meta_key ] = get_post_meta( $post->ID, $meta_key, true );`
+					);
+					body.line(`${INDENT.repeat(2)}continue;`);
+					body.line(`${INDENT}}`);
+					body.line(
+						`${INDENT}$meta[ $meta_key ] = get_post_meta( $post->ID, $meta_key, false );`
+					);
+					body.line('}');
+					body.line("$data['meta'] = $meta;");
+				}
+
+				if (options.taxonomyEntries.length > 0) {
+					body.line('$taxonomy_map = $this->get_taxonomy_map();');
+					body.line('$taxonomies = array();');
+					body.line(
+						'foreach ( $taxonomy_map as $param => $taxonomy ) {'
+					);
+					body.line(
+						`${INDENT}$terms = wp_get_post_terms( $post->ID, $taxonomy, array( 'fields' => 'slugs' ) );`
+					);
+					body.line(`${INDENT}if ( is_wp_error( $terms ) ) {`);
+					body.line(
+						`${INDENT.repeat(2)}$taxonomies[ $param ] = array();`
+					);
+					body.line(`${INDENT.repeat(2)}continue;`);
+					body.line(`${INDENT}}`);
+					body.line(
+						`${INDENT}$taxonomies[ $param ] = array_map( static function( $term ): string {`
+					);
+					body.line(`${INDENT.repeat(2)}return (string) $term;`);
+					body.line(`${INDENT}} , (array) $terms );`);
+					body.line('}');
+					body.line("$data['taxonomies'] = $taxonomies;");
+				}
+
+				body.line('return $data;');
+			},
+		})
+	);
+
+	return methods;
+}
+
+function resolveIdentityInfo(
+	resource: IRResource
+): { param: string; type: 'number' | 'string' } | undefined {
+	if (!resource.identity) {
+		return undefined;
+	}
+
+	const param =
+		resource.identity.param ??
+		(resource.identity.type === 'number' ? 'id' : 'slug');
+
+	return { param, type: resource.identity.type };
+}
+
+function buildUniqueArray(values: string[]): string[] {
+	const result: string[] = [];
+	for (const value of values) {
+		if (!value) {
+			continue;
+		}
+
+		if (!result.includes(value)) {
+			result.push(value);
+		}
+	}
+
+	return result;
+}
+
+function pickSearchParam(
+	params: IRResource['queryParams']
+): string | undefined {
+	if (!params) {
+		return undefined;
+	}
+
+	const candidates = ['search', 'q', 'query'];
+	for (const candidate of candidates) {
+		if (Object.prototype.hasOwnProperty.call(params, candidate)) {
+			return candidate;
+		}
+	}
+
+	return undefined;
+}
+
+function sanitizeForErrorCode(value: string): string {
+	const candidate = value.replace(/[^a-zA-Z0-9]+/g, '_');
+	return candidate.replace(/_+/g, '_').replace(/^_+|_+$/g, '') || 'resource';
+}
+
+function toPhpVariableName(value: string): string {
+	const sanitized = value.replace(/[^a-zA-Z0-9_]+/g, '_');
+	const prefixed = sanitized.replace(/^([0-9])/, '_$1');
+	return prefixed || 'value';
 }
 
 function createRouteMethodName(
