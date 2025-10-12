@@ -64,6 +64,7 @@ declare global {
 
 	namespace jest {
 		interface Matchers<R> {
+			toHaveErrored(): R;
 			toHaveWarned(): R;
 			toHaveWarnedWith(...expected: unknown[]): R;
 			toHaveErroredWith(...expected: unknown[]): R;

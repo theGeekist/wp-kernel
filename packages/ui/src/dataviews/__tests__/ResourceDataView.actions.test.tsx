@@ -10,6 +10,21 @@ import {
 } from '../test-support/ResourceDataView.test-support';
 import { act } from 'react';
 import { ResourceDataView } from '../ResourceDataView';
+import { KernelError } from '@geekist/wp-kernel/error';
+import type { CacheKeyPattern } from '@geekist/wp-kernel/resource/cache';
+
+type DataViewActionMock = {
+	callback: (
+		items: Array<{ id: number }>,
+		context: { onActionPerformed?: jest.Mock }
+	) => Promise<unknown>;
+	disabled?: boolean;
+};
+
+function getActionMocks(): DataViewActionMock[] {
+	const props = getLastDataViewsProps();
+	return (props.actions ?? []) as unknown as DataViewActionMock[];
+}
 
 describe('ResourceDataView actions', () => {
 	beforeEach(() => {
@@ -119,9 +134,9 @@ describe('ResourceDataView actions', () => {
 			await Promise.resolve();
 		});
 
-		const props = getLastDataViewsProps();
-		expect(props.actions).toHaveLength(1);
-		expect(props.actions?.[0]?.disabled).toBe(true);
+		const actions = getActionMocks();
+		expect(actions).toHaveLength(1);
+		expect(actions[0]?.disabled).toBe(true);
 		expect(policyCan).toHaveBeenCalledWith('jobs.delete');
 	});
 
@@ -358,9 +373,11 @@ describe('ResourceDataView actions', () => {
 			runtime
 		);
 
-		const props = getLastDataViewsProps();
-		expect(props.actions).toHaveLength(1);
-		expect(props.actions?.[0]?.disabled).toBe(true);
+		const actions = getActionMocks();
+		expect(actions).toHaveLength(1);
+		const [firstAction] = actions;
+		expect(firstAction).toBeDefined();
+		expect(firstAction!.disabled).toBe(true);
 	});
 
 	it('disables policy-gated actions when policy runtime is not available', () => {
@@ -409,9 +426,13 @@ describe('ResourceDataView actions', () => {
 			runtime
 		);
 
-		const props = getLastDataViewsProps();
-		expect(props.actions?.[0]?.disabled).toBe(true);
-		expect(props.actions?.[1]?.disabled).toBe(true);
+		const actions = getActionMocks();
+		expect(actions).toHaveLength(2);
+		const [firstAction, secondAction] = actions;
+		expect(firstAction).toBeDefined();
+		expect(secondAction).toBeDefined();
+		expect(firstAction!.disabled).toBe(true);
+		expect(secondAction!.disabled).toBe(true);
 	});
 
 	it('keeps policy-free actions enabled even with policy runtime present', async () => {
@@ -465,9 +486,395 @@ describe('ResourceDataView actions', () => {
 			await Promise.resolve();
 		});
 
-		const props = getLastDataViewsProps();
-		expect(props.actions).toHaveLength(2);
-		expect(props.actions?.[0]?.disabled).toBe(false);
-		expect(props.actions?.[1]?.disabled).toBe(false);
+		const actions = getActionMocks();
+		expect(actions).toHaveLength(2);
+		const [firstAction, secondAction] = actions;
+		expect(firstAction).toBeDefined();
+		expect(secondAction).toBeDefined();
+		expect(firstAction!.disabled).toBe(false);
+		expect(secondAction!.disabled).toBe(false);
+	});
+
+	it('emits a pending event while policy resolution is in progress', async () => {
+		const runtime = createKernelRuntime();
+		let resolvePolicy: ((value: boolean) => void) | undefined;
+		runtime.policies = {
+			policy: {
+				can: jest.fn(
+					() =>
+						new Promise<boolean>((resolve) => {
+							resolvePolicy = resolve;
+						})
+				),
+			},
+		} as unknown as RuntimeWithDataViews['policies'];
+
+		const actionImpl = jest.fn();
+		const resource = createResource<{ id: number }, { search?: string }>({
+			useList: jest.fn(() => ({
+				data: { items: [{ id: 1 }], total: 1 },
+				isLoading: false,
+				error: undefined,
+			})),
+		});
+
+		const config = createConfig<{ id: number }, { search?: string }>({
+			actions: [
+				{
+					id: 'delete',
+					action: createAction(actionImpl, {
+						scope: 'crossTab',
+						bridged: true,
+					}),
+					label: 'Delete',
+					supportsBulk: true,
+					disabledWhenDenied: true,
+					policy: 'jobs.delete',
+					getActionArgs: ({ selection }) => ({ selection }),
+				},
+			],
+		});
+
+		renderWithProvider(
+			<ResourceDataView resource={resource} config={config} />,
+			runtime
+		);
+
+		const [pendingAction] = getActionMocks();
+		expect(pendingAction).toBeDefined();
+
+		await act(async () => {
+			await pendingAction!.callback([{ id: 1 }], {
+				onActionPerformed: jest.fn(),
+			});
+		});
+
+		expect(runtime.dataviews.events.actionTriggered).toHaveBeenCalledWith(
+			expect.objectContaining({
+				actionId: 'delete',
+				permitted: false,
+				reason: 'policy-pending',
+			})
+		);
+		expect(actionImpl).not.toHaveBeenCalled();
+
+		resolvePolicy?.(true);
+		await act(async () => {
+			await Promise.resolve();
+		});
+	});
+
+	it('warns when executing a denied policy-gated action', async () => {
+		const runtime = createKernelRuntime();
+		runtime.policies = {
+			policy: {
+				can: jest.fn(() => Promise.resolve(false)),
+			},
+		} as unknown as RuntimeWithDataViews['policies'];
+
+		const actionImpl = jest.fn();
+		const resource = createResource<{ id: number }, { search?: string }>({
+			useList: jest.fn(() => ({
+				data: { items: [{ id: 1 }], total: 1 },
+				isLoading: false,
+				error: undefined,
+			})),
+		});
+
+		const config = createConfig<{ id: number }, { search?: string }>({
+			actions: [
+				{
+					id: 'delete',
+					action: createAction(actionImpl, {
+						scope: 'crossTab',
+						bridged: true,
+					}),
+					label: 'Delete',
+					supportsBulk: true,
+					disabledWhenDenied: true,
+					policy: 'jobs.delete',
+					getActionArgs: ({ selection }) => ({ selection }),
+				},
+			],
+		});
+
+		renderWithProvider(
+			<ResourceDataView resource={resource} config={config} />,
+			runtime
+		);
+
+		await act(async () => {
+			await Promise.resolve();
+		});
+
+		const [deniedAction] = getActionMocks();
+
+		await act(async () => {
+			await deniedAction!.callback([{ id: 1 }], {
+				onActionPerformed: jest.fn(),
+			});
+		});
+
+		expect(runtime.dataviews.events.actionTriggered).toHaveBeenCalledWith(
+			expect.objectContaining({
+				actionId: 'delete',
+				permitted: false,
+				reason: 'policy-denied',
+			})
+		);
+		expect(runtime.dataviews.reporter.warn).toHaveBeenCalledWith(
+			'DataViews action blocked by policy',
+			expect.objectContaining({ actionId: 'delete' })
+		);
+		expect(actionImpl).not.toHaveBeenCalled();
+	});
+
+	it('emits an empty-selection action event', async () => {
+		const runtime = createKernelRuntime();
+
+		const resource = createResource<{ id: number }, { search?: string }>({
+			useList: jest.fn(() => ({
+				data: { items: [{ id: 1 }], total: 1 },
+				isLoading: false,
+				error: undefined,
+			})),
+		});
+
+		const config = createConfig<{ id: number }, { search?: string }>({
+			actions: [
+				{
+					id: 'delete',
+					action: createAction(jest.fn(), {
+						scope: 'crossTab',
+						bridged: true,
+					}),
+					label: 'Delete',
+					supportsBulk: true,
+					getActionArgs: ({ selection }) => ({ selection }),
+				},
+			],
+		});
+
+		renderWithProvider(
+			<ResourceDataView resource={resource} config={config} />,
+			runtime
+		);
+
+		const [actionEntry] = getActionMocks();
+
+		await act(async () => {
+			await actionEntry!.callback([], {
+				onActionPerformed: jest.fn(),
+			});
+		});
+
+		expect(runtime.dataviews.events.actionTriggered).toHaveBeenCalledWith(
+			expect.objectContaining({
+				actionId: 'delete',
+				permitted: false,
+				reason: 'empty-selection',
+			})
+		);
+	});
+
+	it('normalizes unexpected errors thrown by action callbacks', async () => {
+		const runtime = createKernelRuntime();
+
+		const actionImpl = jest.fn().mockRejectedValue(new Error('boom'));
+		const resource = createResource<{ id: number }, { search?: string }>({
+			useList: jest.fn(() => ({
+				data: { items: [{ id: 1 }], total: 1 },
+				isLoading: false,
+				error: undefined,
+			})),
+		});
+
+		const config = createConfig<{ id: number }, { search?: string }>({
+			actions: [
+				{
+					id: 'delete',
+					action: createAction(actionImpl, {
+						scope: 'crossTab',
+						bridged: true,
+					}),
+					label: 'Delete',
+					supportsBulk: true,
+					getActionArgs: ({ selection }) => ({ selection }),
+				},
+			],
+		});
+
+		renderWithProvider(
+			<ResourceDataView resource={resource} config={config} />,
+			runtime
+		);
+
+		const [actionEntry] = getActionMocks();
+
+		const rejection = await actionEntry!
+			.callback([{ id: 1 }], {
+				onActionPerformed: jest.fn(),
+			})
+			.catch((error: unknown) => error);
+
+		expect(rejection).toBeInstanceOf(KernelError);
+		expect((rejection as KernelError).code).toBe('UnknownError');
+		expect(runtime.dataviews.reporter.error).toHaveBeenCalledWith(
+			'Unhandled error thrown by DataViews action',
+			expect.objectContaining({ selection: ['1'] })
+		);
+	});
+
+	it('invalidates custom cache patterns returned by actions', async () => {
+		const runtime = createKernelRuntime();
+		const actionImpl = jest.fn().mockResolvedValue({ ok: true });
+		const resource = createResource<{ id: number }, { search?: string }>({
+			useList: jest.fn(() => ({
+				data: { items: [{ id: 1 }], total: 1 },
+				isLoading: false,
+				error: undefined,
+			})),
+		});
+
+		const customPatterns: CacheKeyPattern[] = [['jobs', 'custom']];
+		const config = createConfig<{ id: number }, { search?: string }>({
+			actions: [
+				{
+					id: 'delete',
+					action: createAction(actionImpl, {
+						scope: 'crossTab',
+						bridged: true,
+					}),
+					label: 'Delete',
+					supportsBulk: true,
+					getActionArgs: ({ selection }) => ({ selection }),
+					invalidateOnSuccess: () => customPatterns,
+				},
+			],
+		});
+
+		renderWithProvider(
+			<ResourceDataView resource={resource} config={config} />,
+			runtime
+		);
+
+		const [actionEntry] = getActionMocks();
+
+		await act(async () => {
+			await actionEntry!.callback([{ id: 1 }], {
+				onActionPerformed: jest.fn(),
+			});
+		});
+
+		expect(runtime.invalidate).toHaveBeenCalledWith(customPatterns);
+		expect(resource.invalidate).toHaveBeenCalledWith(customPatterns);
+	});
+
+	it('ignores policy resolution when component unmounts before completion', async () => {
+		const runtime = createKernelRuntime();
+		let resolvePolicy: ((value: boolean) => void) | undefined;
+		runtime.policies = {
+			policy: {
+				can: jest.fn(
+					() =>
+						new Promise<boolean>((resolve) => {
+							resolvePolicy = resolve;
+						})
+				),
+			},
+		} as unknown as RuntimeWithDataViews['policies'];
+
+		const resource = createResource<{ id: number }, { search?: string }>({
+			useList: jest.fn(() => ({
+				data: { items: [{ id: 1 }], total: 1 },
+				isLoading: false,
+				error: undefined,
+			})),
+		});
+
+		const config = createConfig<{ id: number }, { search?: string }>({
+			actions: [
+				{
+					id: 'delete',
+					action: createAction(jest.fn(), {
+						scope: 'crossTab',
+						bridged: true,
+					}),
+					label: 'Delete',
+					supportsBulk: true,
+					disabledWhenDenied: true,
+					policy: 'jobs.delete',
+					getActionArgs: ({ selection }) => ({ selection }),
+				},
+			],
+		});
+
+		const { unmount } = renderWithProvider(
+			<ResourceDataView resource={resource} config={config} />,
+			runtime
+		);
+
+		unmount();
+		resolvePolicy?.(true);
+
+		await act(async () => {
+			await Promise.resolve();
+		});
+
+		expect(runtime.dataviews.reporter.warn).not.toHaveBeenCalled();
+	});
+
+	it('ignores policy rejections after unmount', async () => {
+		const runtime = createKernelRuntime();
+		let rejectPolicy: ((reason?: unknown) => void) | undefined;
+		runtime.policies = {
+			policy: {
+				can: jest.fn(
+					() =>
+						new Promise<boolean>((_, reject) => {
+							rejectPolicy = reject;
+						})
+				),
+			},
+		} as unknown as RuntimeWithDataViews['policies'];
+
+		const resource = createResource<{ id: number }, { search?: string }>({
+			useList: jest.fn(() => ({
+				data: { items: [{ id: 1 }], total: 1 },
+				isLoading: false,
+				error: undefined,
+			})),
+		});
+
+		const config = createConfig<{ id: number }, { search?: string }>({
+			actions: [
+				{
+					id: 'delete',
+					action: createAction(jest.fn(), {
+						scope: 'crossTab',
+						bridged: true,
+					}),
+					label: 'Delete',
+					supportsBulk: true,
+					disabledWhenDenied: true,
+					policy: 'jobs.delete',
+					getActionArgs: ({ selection }) => ({ selection }),
+				},
+			],
+		});
+
+		const { unmount } = renderWithProvider(
+			<ResourceDataView resource={resource} config={config} />,
+			runtime
+		);
+
+		unmount();
+		rejectPolicy?.(new Error('denied'));
+
+		await act(async () => {
+			await Promise.resolve();
+		});
+
+		expect(runtime.dataviews.reporter.warn).not.toHaveBeenCalled();
 	});
 });

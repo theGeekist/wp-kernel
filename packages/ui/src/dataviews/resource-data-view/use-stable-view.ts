@@ -58,8 +58,12 @@ export function useStableView(
 					mergeViewWithDefaults(controller.config.defaultView, stored)
 				);
 			})
-			.catch(() => {
-				// loadStoredView already logs via reporter when it fails
+			.catch((error) => {
+				controller
+					.getReporter()
+					.debug?.('Failed to restore DataViews view state', {
+						error,
+					});
 			});
 
 		return () => {
@@ -79,10 +83,12 @@ export function useStableView(
 				next
 			);
 			setView(normalized);
-			controller.saveView(normalized).catch(() => {
+			controller.saveView(normalized).catch((error) => {
 				controller
 					.getReporter()
-					.warn?.('Failed to persist DataViews view state');
+					.warn?.('Failed to persist DataViews view state', {
+						error,
+					});
 			});
 			controller.emitViewChange(normalized);
 		},
