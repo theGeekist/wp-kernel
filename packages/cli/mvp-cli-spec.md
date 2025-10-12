@@ -102,15 +102,30 @@ Additional responsibilities:
 
 ### 4.4 Block Printers (New)
 
-Add a dedicated printer that reads `ir.blocks`:
+> **See:** [Block Inference Model](./BLOCK_INFERENCE_MODEL.md) for complete context on how blocks are derived from resources.
 
-- **SSR blocks** (directory contains `block.json` with `"render"` or `render.php` file):
+Add a dedicated printer that reads `ir.blocks` (populated from **both** inferred and discovered blocks):
+
+#### Block Inference (Phase 3 - Core)
+
+For each resource in `kernel.config.ts`:
+
+- **Infer block existence** from UI config, public routes, or storage
+- **Determine block type** (SSR vs JS-only) from storage + route locality
+- **Generate `block.json`** with metadata derived from resource schema, identity, and display config
+- **Scaffold edit components** (`src/blocks/<name>/index.tsx`) if they don't exist
+- **Scaffold SSR render** (`src/blocks/<name>/render.php`) for SSR blocks if not present
+- **Respect manual overrides** - if `block.json` already exists (discovered in Phase 1B), use it instead of generating
+
+#### Block Registration Output
+
+- **SSR blocks** (inferred or discovered with `"render"` or `render.php` file):
     - Generate `build/blocks-manifest.php` mapping block folders to registration metadata.
     - Generate `inc/Blocks/Register.php` (or similar) that reads the manifest and calls `register_block_type`.
-- **JS-only blocks**:
-    - Generate `src/blocks/auto-register.ts` exporting a module that calls `registerBlockType` for each discovered block.
+- **JS-only blocks** (inferred or discovered):
+    - Generate `src/blocks/auto-register.ts` exporting a module that calls `registerBlockType` for each block.
 
-Detection strategy: allow configuration (future) but start with convention-based auto-discovery triggered from CLI output directory.
+**Key principle**: Blocks are **inferred from resources first**, then **discovery (Phase 1B) identifies manual overrides**. This eliminates the need for `@wordpress/create-block` entirely.
 
 ---
 
