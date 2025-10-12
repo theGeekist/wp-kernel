@@ -138,15 +138,22 @@ export function getConfigOrigin(
 	throw new KernelError('DeveloperError', { message });
 }
 
-function createTsLoader() {
-	const defaultTsLoader = defaultLoaders['.ts'];
-
+export function createTsLoader({
+	defaultLoader = defaultLoaders['.ts'],
+	tsImportLoader = getTsImport,
+}: {
+	defaultLoader?: (
+		filepath: string,
+		content: string
+	) => unknown | Promise<unknown>;
+	tsImportLoader?: () => Promise<TsImport>;
+} = {}) {
 	return async (filepath: string, content: string) => {
 		try {
-			return await defaultTsLoader(filepath, content);
+			return await defaultLoader(filepath, content);
 		} catch (_defaultError) {
 			try {
-				const tsImport = await getTsImport();
+				const tsImport = await tsImportLoader();
 				const absPath = path.resolve(filepath);
 				const moduleExports = await tsImport(absPath, {
 					parentURL: pathToFileURL(absPath).href,
@@ -168,10 +175,15 @@ function createTsLoader() {
 	};
 }
 
-function createJsLoader() {
+export function createJsLoader(
+	importModule: (specifier: string) => Promise<unknown> = (specifier) =>
+		import(specifier)
+) {
 	return async (filepath: string) => {
 		try {
-			const moduleExports = await import(pathToFileURL(filepath).href);
+			const moduleExports = await importModule(
+				pathToFileURL(filepath).href
+			);
 			return resolveConfigValue(moduleExports);
 		} catch (error) {
 			const message = `Failed to import ${filepath}: ${formatError(error)}`;
@@ -222,7 +234,7 @@ export async function resolveConfigValue(value: unknown): Promise<unknown> {
 	return current;
 }
 
-async function validateComposerAutoload(
+export async function validateComposerAutoload(
 	startDir: string,
 	namespace: string,
 	validationReporter: Reporter
@@ -259,7 +271,7 @@ async function validateComposerAutoload(
 	return 'ok';
 }
 
-async function readComposerJson(
+export async function readComposerJson(
 	composerPath: string,
 	validationReporter: Reporter
 ): Promise<unknown> {
@@ -278,7 +290,7 @@ async function readComposerJson(
 	}
 }
 
-function getComposerAutoloadMap(
+export function getComposerAutoloadMap(
 	composerJson: unknown,
 	composerPath: string,
 	validationReporter: Reporter
@@ -309,7 +321,7 @@ function getComposerAutoloadMap(
 	return autoload;
 }
 
-function assertIncMapping(
+export function assertIncMapping(
 	autoload: Record<string, unknown>,
 	composerPath: string,
 	validationReporter: Reporter
@@ -338,7 +350,7 @@ function assertIncMapping(
 	});
 }
 
-async function findUp(
+export async function findUp(
 	startDir: string,
 	fileName: string
 ): Promise<string | null> {
@@ -357,7 +369,7 @@ async function findUp(
 	return findUp(parent, fileName);
 }
 
-async function fileExists(filePath: string): Promise<boolean> {
+export async function fileExists(filePath: string): Promise<boolean> {
 	try {
 		await fs.access(filePath);
 		return true;
@@ -377,7 +389,7 @@ function isPromise(value: unknown): value is Promise<unknown> {
 	);
 }
 
-async function getTsImport(): Promise<TsImport> {
+export async function getTsImport(): Promise<TsImport> {
 	if (!cachedTsImport) {
 		// Dynamically load the `tsx` ESM loader when needed. This keeps the
 		// dependency optional for consumers that never load TS kernel configs.
@@ -387,6 +399,10 @@ async function getTsImport(): Promise<TsImport> {
 	}
 
 	return cachedTsImport;
+}
+
+export function setCachedTsImport(value: Promise<TsImport> | null): void {
+	cachedTsImport = value;
 }
 
 /**

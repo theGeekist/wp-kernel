@@ -107,7 +107,7 @@ export async function resolveResourceSchema(
 	return { schemaKey: schema, provenance: irSchema.provenance };
 }
 
-function inferSchemaSetting(
+export function inferSchemaSetting(
 	resource: ResourceConfig
 ): ResourceConfig['schema'] | 'auto' {
 	if (resource.schema) {
@@ -121,7 +121,7 @@ function inferSchemaSetting(
 	return resource.schema;
 }
 
-async function resolveSchemaPath(
+export async function resolveSchemaPath(
 	schemaPath: string,
 	configPath: string
 ): Promise<string> {
@@ -148,7 +148,7 @@ async function resolveSchemaPath(
 	});
 }
 
-async function ensureFileExists(filePath: string): Promise<void> {
+export async function ensureFileExists(filePath: string): Promise<void> {
 	if (!(await fileExists(filePath))) {
 		throw new KernelError('ValidationError', {
 			message: `Schema file "${filePath}" does not exist.`,
@@ -157,7 +157,7 @@ async function ensureFileExists(filePath: string): Promise<void> {
 	}
 }
 
-async function fileExists(candidate: string): Promise<boolean> {
+export async function fileExists(candidate: string): Promise<boolean> {
 	try {
 		const stats = await fs.stat(candidate);
 		return stats.isFile();
@@ -170,7 +170,10 @@ async function fileExists(candidate: string): Promise<boolean> {
 	}
 }
 
-async function loadJsonSchema(filePath: string, key: string): Promise<unknown> {
+export async function loadJsonSchema(
+	filePath: string,
+	key: string
+): Promise<unknown> {
 	try {
 		const raw = await fs.readFile(filePath, 'utf8');
 		return JSON.parse(raw);
@@ -183,7 +186,7 @@ async function loadJsonSchema(filePath: string, key: string): Promise<unknown> {
 	}
 }
 
-function synthesiseSchema(
+export function synthesiseSchema(
 	resource: ResourceConfig,
 	sanitizedNamespace: string
 ): Record<string, unknown> {
@@ -212,7 +215,7 @@ function synthesiseSchema(
 	return sortObject(baseSchema);
 }
 
-function createSchemaFromPostMeta(
+export function createSchemaFromPostMeta(
 	descriptor: ResourcePostMetaDescriptor
 ): Record<string, unknown> {
 	const type = descriptor.type;
@@ -226,7 +229,7 @@ function createSchemaFromPostMeta(
 	return { type };
 }
 
-function toTitleCase(value: string): string {
+export function toTitleCase(value: string): string {
 	return value
 		.split(/[-_:]/)
 		.filter(Boolean)
