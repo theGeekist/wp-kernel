@@ -113,6 +113,8 @@ For each resource in `kernel.config.ts`:
 - **Infer block existence** from UI config, public routes, or storage
 - **Determine block type** (SSR vs JS-only) from storage + route locality
 - **Generate `block.json`** with metadata derived from resource schema, identity, and display config
+    - Generated files validated against WordPress's canonical `block.json` schema ([`block.schema.json`](./block.schema.json))
+    - Schema defines **what fields are valid**; inference logic determines **which values to generate** (see [Block Inference Model](./BLOCK_INFERENCE_MODEL.md))
 - **Scaffold edit components** (`src/blocks/<name>/index.tsx`) if they don't exist
 - **Scaffold SSR render** (`src/blocks/<name>/render.php`) for SSR blocks if not present
 - **Respect manual overrides** - if `block.json` already exists (discovered in Phase 1B), use it instead of generating
