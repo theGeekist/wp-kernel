@@ -402,4 +402,13 @@ describe('useVisiblePrefetch', () => {
 		removeListenerSpy.mockRestore();
 		windowWithObserver.IntersectionObserver = originalObserver;
 	});
+
+	it('ignores observer entries that are not intersecting', () => {
+		const { callback, trigger, unmount } = setupComponent();
+		act(() => {
+			trigger({ isIntersecting: false });
+		});
+		expect(callback).not.toHaveBeenCalled();
+		unmount();
+	});
 });

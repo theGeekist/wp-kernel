@@ -100,6 +100,12 @@ export function normalizeDataViewsOptions(
 	return normalized;
 }
 
+export const __TESTING__ = {
+	isPlainObject,
+	isPreferencesAdapter,
+	childReporter,
+};
+
 export function createKernelDataViewsRuntime(
 	kernel: KernelInstance,
 	runtime: KernelUIRuntime,
