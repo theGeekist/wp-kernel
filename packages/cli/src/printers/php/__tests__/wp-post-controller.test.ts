@@ -105,6 +105,8 @@ describe('createWpPostHandlers', () => {
 		);
 		expect(output).toContain("delete_post_meta( $post_id, 'tags' );");
 		expect(output).toContain("add_post_meta( $post_id, 'tags', $value );");
+		expect(output).toContain('$statuses = $this->getJobStatuses();');
+		expect(output).toContain("'post_status' => $statuses");
 		expect(output).toContain(
 			'private function resolveJobPost( $identity ): ?WP_Post'
 		);
