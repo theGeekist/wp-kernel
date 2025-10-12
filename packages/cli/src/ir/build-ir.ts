@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { sanitizeNamespace } from '@geekist/wp-kernel/namespace';
 import type { BuildIrOptions, IRv1 } from './types';
 import { toWorkspaceRelative } from '../utils';
@@ -32,7 +33,8 @@ export async function buildIr(options: BuildIrOptions): Promise<IRv1> | never {
 		sanitizedNamespace
 	);
 	const policies = collectPolicyHints(resources);
-	const blocks = await discoverBlocks(process.cwd());
+	const workspaceRoot = path.dirname(options.sourcePath);
+	const blocks = await discoverBlocks(workspaceRoot);
 
 	const ir: IRv1 = {
 		meta: {
