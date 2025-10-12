@@ -3,7 +3,6 @@ import fs from 'node:fs/promises';
 import type { Dirent } from 'node:fs';
 import { KernelError } from '@geekist/wp-kernel';
 import type { IRBlock } from './types';
-import { toWorkspaceRelative } from '../utils';
 
 const IGNORED_DIRECTORIES = new Set(['node_modules', '.generated', '.git']);
 
@@ -74,7 +73,11 @@ async function handleBlockDirectory(options: {
 		options.directory,
 		options.manifestEntry.name
 	);
-	const block = await loadBlockEntry(manifestPath, options.directory);
+	const block = await loadBlockEntry(
+		manifestPath,
+		options.directory,
+		options.state.workspaceRoot
+	);
 
 	const existing = options.state.seenKeys.get(block.key);
 	if (existing && existing !== block.directory) {
@@ -116,7 +119,8 @@ function shouldSkipEntry(entry: Dirent): boolean {
 
 async function loadBlockEntry(
 	manifestPath: string,
-	directory: string
+	directory: string,
+	workspaceRoot: string
 ): Promise<IRBlock> {
 	let raw: string;
 	try {
@@ -156,11 +160,14 @@ async function loadBlockEntry(
 			(await fileExists(path.join(directory, 'render.php')))
 	);
 
+	const relativeDirectory = path.relative(workspaceRoot, directory);
+	const relativeManifestPath = path.relative(workspaceRoot, manifestPath);
+
 	return {
 		key,
-		directory: toWorkspaceRelative(directory),
+		directory: relativeDirectory,
 		hasRender,
-		manifestSource: toWorkspaceRelative(manifestPath),
+		manifestSource: relativeManifestPath,
 	};
 }
 
