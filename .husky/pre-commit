@@ -6,13 +6,35 @@ STAGED_FILES=$(git diff --cached --name-only)
 # Run lint-staged (formats and lints staged files)
 pnpm lint-staged
 
-# TypeCheck source code (always - matches CI)
-echo "🔍 Type checking source code..."
-pnpm typecheck
 
-# TypeCheck test files (always - matches CI)
-echo "🔍 Type checking test files..."
-pnpm typecheck:tests
+# Smarter typecheck logic based on staged changes
+echo "🔍 Checking which packages changed for typecheck..."
+HAS_KERNEL_CHANGES=$(echo "$STAGED_FILES" | grep -E '^packages/kernel/' || true)
+HAS_UI_CHANGES=$(echo "$STAGED_FILES" | grep -E '^packages/ui/' || true)
+HAS_CLI_CHANGES=$(echo "$STAGED_FILES" | grep -E '^packages/cli/' || true)
+HAS_SHOWCASE_CHANGES=$(echo "$STAGED_FILES" | grep -E '^app/showcase/' || true)
+
+if [ -n "$HAS_KERNEL_CHANGES" ]; then
+  echo "🔍 Kernel changes detected: running typecheck and typecheck:tests for all packages..."
+  pnpm typecheck
+  pnpm typecheck:tests
+elif [ -n "$HAS_UI_CHANGES" ]; then
+  echo "🔍 UI changes detected: running typecheck and typecheck:tests for UI and CLI..."
+  pnpm --filter @geekist/wp-kernel-ui typecheck
+  pnpm --filter @geekist/wp-kernel-ui typecheck:tests
+  pnpm --filter @geekist/wp-kernel-cli typecheck
+  pnpm --filter @geekist/wp-kernel-cli typecheck:tests
+elif [ -n "$HAS_CLI_CHANGES" ]; then
+  echo "🔍 CLI changes detected: running typecheck and typecheck:tests for CLI only..."
+  pnpm --filter @geekist/wp-kernel-cli typecheck
+  pnpm --filter @geekist/wp-kernel-cli typecheck:tests
+elif [ -n "$HAS_SHOWCASE_CHANGES" ]; then
+  echo "🔍 Showcase changes detected: running typecheck and typecheck:tests for Showcase only..."
+  pnpm --filter wp-kernel-showcase typecheck
+  pnpm --filter wp-kernel-showcase typecheck:tests
+else
+  echo "⏭️  No package changes detected: skipping typecheck and typecheck:tests."
+fi
 
 # Run tests with coverage (always - matches CI)
 echo "🧪 Running tests with coverage..."
