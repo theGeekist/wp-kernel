@@ -1,11 +1,11 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
-import { KernelError } from '@geekist/wp-kernel';
+import { KernelError } from '@geekist/wp-kernel/error';
+import { WPK_NAMESPACE } from '@geekist/wp-kernel/namespace/constants';
 import type {
 	ResourceConfig,
 	ResourcePostMetaDescriptor,
 } from '@geekist/wp-kernel/resource';
-import { WPK_NAMESPACE } from '@geekist/wp-kernel/namespace/constants';
 import type { BuildIrOptions, IRSchema, SchemaProvenance } from './types';
 import { resolveFromWorkspace, toWorkspaceRelative } from '../utils';
 import { hashCanonical, sortObject } from './canonical';

@@ -14,7 +14,7 @@ import {
 	normaliseError,
 	assertValidExtension,
 } from '../extensions';
-import { KernelError } from '@geekist/wp-kernel';
+import { KernelError } from '@geekist/wp-kernel/error';
 import type { AdapterContext } from '../../config/types';
 import type { IRv1 } from '../../ir';
 import type { Reporter } from '@geekist/wp-kernel';
