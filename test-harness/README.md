@@ -22,21 +22,23 @@ The `wp:start` command now includes automatic setup that:
 ### Playground (Faster)
 
 ```bash
+# Online mode (requires network):
 # Terminal 1 - Start server:
 pnpm playground
 
 # Terminal 2 - Run tests (after "WordPress is running" message):
 pnpm e2e:playground
+
+# Offline mode (for CI/restricted networks):
+pnpm playground:setup    # Run once: downloads WordPress cache (requires network)
+pnpm playground:offline  # Start in background, zero network required
+pnpm e2e:playground      # Run tests
+pnpm playground:offline:stop  # Stop server
 ```
 
-Playground is configured via `test-harness/playground/blueprint.json` which:
+Playground is configured via `test-harness/playground/blueprint.json` (online) or `blueprint-offline.json` (offline).
 
-- Sets pretty permalinks
-- Flushes rewrite rules
-- Activates showcase plugin
-- Disables auto-login
-
-**Restart Playground** (Ctrl+C, then `pnpm playground`) if you change the blueprint.
+**For CI/Docker:** Use offline mode. See `PLAYGROUND_OFFLINE_SETUP.md` for details.
 
 ## Available Commands
 
