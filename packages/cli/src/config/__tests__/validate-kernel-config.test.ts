@@ -1,6 +1,12 @@
 import { KernelError } from '@geekist/wp-kernel';
 import type { Reporter } from '@geekist/wp-kernel';
-import { validateKernelConfig } from '../validate-kernel-config';
+import {
+	validateKernelConfig,
+	resourceRoutesValidator,
+	normalizeVersion,
+	runResourceChecks,
+	formatValidationErrors,
+} from '../validate-kernel-config';
 
 interface TestResourceConfig {
 	name: string;
@@ -293,5 +299,69 @@ describe('validateKernelConfig', () => {
 			})
 		).toThrow(KernelError);
 		expect(child.error).toHaveBeenCalled();
+	});
+});
+
+describe('validateKernelConfig helpers', () => {
+	it('requires at least one resource route when validating', () => {
+		const state = { errors: [] as string[] };
+
+		const result = resourceRoutesValidator(
+			{ list: undefined, get: undefined } as never,
+			state as never
+		);
+
+		expect(result).toBe(false);
+		expect(state.errors).toContain(
+			'resources[].routes must define at least one operation.'
+		);
+	});
+
+	it('normalizes missing versions and reports errors for unsupported ones', () => {
+		const { reporter } = createMockReporter();
+		const normalized = normalizeVersion(
+			undefined,
+			reporter,
+			'/tmp/config.ts'
+		);
+		expect(normalized).toBe(1);
+		expect(
+			(reporter as unknown as { warn: jest.Mock }).warn
+		).toHaveBeenCalled();
+
+		expect(() =>
+			normalizeVersion(2 as never, reporter, '/tmp/config.ts')
+		).toThrow(KernelError);
+	});
+
+	it('warns when identity metadata exists without routes', () => {
+		const { child } = createMockReporter();
+
+		runResourceChecks(
+			'thing',
+			{
+				name: 'thing',
+				identity: { type: 'number', param: 'id' },
+				routes: {} as never,
+			} as unknown as TestResourceConfig,
+			child as unknown as Reporter
+		);
+
+		expect(child.warn).toHaveBeenCalledWith(
+			expect.stringContaining('defines identity metadata but no routes'),
+			expect.objectContaining({ resourceName: 'thing' })
+		);
+	});
+
+	it('formats validation errors into human readable strings', () => {
+		const message = formatValidationErrors(
+			['first', 'second'],
+			'/tmp/config.ts',
+			'kernel.config.ts'
+		);
+
+		expect(message).toMatch('Invalid kernel config discovered');
+		expect(message).toContain('first');
+		expect(message).toContain('second');
 	});
 });
