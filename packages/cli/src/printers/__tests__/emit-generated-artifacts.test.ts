@@ -125,6 +125,12 @@ describe('emitGeneratedArtifacts', () => {
 				'block.json'
 			);
 			const autoRegisterPath = path.join(blocksRoot, 'auto-register.ts');
+			const literalEditorPath = path.join(
+				blocksRoot,
+				'literal',
+				'index.tsx'
+			);
+			const literalViewPath = path.join(blocksRoot, 'literal', 'view.ts');
 
 			const literalManifest = JSON.parse(
 				await fs.readFile(literalManifestPath, 'utf8')
@@ -154,6 +160,13 @@ describe('emitGeneratedArtifacts', () => {
 			expect(autoRegisterContents).toContain(
 				"registerBlockType('demo-namespace/remote'"
 			);
+
+			const editorContents = await fs.readFile(literalEditorPath, 'utf8');
+			expect(editorContents).toContain('AUTO-GENERATED WPK STUB');
+			expect(editorContents).toContain('registerBlockType');
+
+			const viewContents = await fs.readFile(literalViewPath, 'utf8');
+			expect(viewContents).toContain('initBlockView');
 		});
 	});
 
