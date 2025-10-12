@@ -10,7 +10,8 @@ import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import { cosmiconfig, defaultLoaders } from 'cosmiconfig';
-import { createReporter, KernelError, type Reporter } from '@geekist/wp-kernel';
+import { createReporter, type Reporter } from '@geekist/wp-kernel/reporter';
+import { KernelError } from '@geekist/wp-kernel/error';
 import {
 	WPK_CONFIG_SOURCES,
 	WPK_NAMESPACE,

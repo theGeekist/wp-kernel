@@ -1,5 +1,5 @@
 import type { CacheKeyFn, CacheKeys } from '@geekist/wp-kernel/resource';
-import { KernelError } from '@geekist/wp-kernel';
+import { KernelError } from '@geekist/wp-kernel/error';
 import type { IRResource, IRResourceCacheKey } from './types';
 
 export function deriveCacheKeys(
