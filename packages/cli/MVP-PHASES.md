@@ -61,40 +61,37 @@ Finally you find that imports from other packages are sometimes missing, it usua
 - Add unit tests for route classification, identity inference, schema defaults, and postType warnings.
 - Update IR snapshots with new metadata.
 
+**Reference files:** `packages/cli/src/ir/build-ir.ts`, helpers in `packages/cli/src/ir/routes.ts` and the new `packages/cli/src/ir/block-discovery.ts`, with fixtures/tests under `packages/cli/src/ir/__tests__/`.
+
 **Deliverables:** Updated `src/ir/types.ts`, `src/ir/build-ir.ts`, tests/fixtures.
 
 **DoD:** Tests pass; IR golden files updated with transport/identity/postType metadata.
 
-**Status Log:** Started 2025-10-12 – Completed 2025-10-12 (PR #110)
+**Status Log:** COMPLETED
 
 ---
 
 ## Phase 1B – Block Discovery in IR
 
-**Spec references:** [MVP Spec §4 (Blocks subsection)](./mvp-cli-spec.md#4-printers) | [Block Inference Model](./BLOCK_INFERENCE_MODEL.md)
+**Spec references:** [MVP Spec §4 (Blocks subsection)](./mvp-cli-spec.md#4-printers)
 
 **Scope:**
 
-- Create `src/ir/block-discovery.ts` that scans for existing `block.json` files.
-- Check for `render.php` in same directory to set `hasRender: true/false`.
-- Populate `ir.blocks` with `{ key, directory, hasRender, manifestSource }`.
+- Create `src/ir/block-discovery.ts` that scans for `block.json` files.
+- Check for `render.php` in same directory to set `ssr: true/false`.
+- Populate `ir.blocks` with `{ name, directory, ssr, manifestSource }`.
 - Respect workspace boundaries; ignore `.generated/`, `node_modules/`.
 - Test with temp directories covering SSR, JS-only, and mixed scenarios.
 
-**Purpose in Block Inference Model:**
-This phase implements the **discovery layer** that identifies manually-created blocks. These discovered blocks will serve as **overrides** in Phase 3, where the CLI will:
-
-1. Infer blocks from resources in `kernel.config.ts`
-2. Respect any discovered manual blocks (from this phase) as overrides
-3. Generate scaffolding only for blocks that don't already exist
+**Reference files:** `packages/cli/src/ir/block-discovery.ts` (new) with tests in `packages/cli/src/ir/__tests__/block-discovery.test.ts` (or similar fixture-backed files).
 
 **Deliverables:** Block discovery module + IR wiring + tests.
 
-**DoD:** `buildIr` on fixtures correctly populates `ir.blocks`; tests cover SSR detection; discovered blocks correctly identify manual overrides.
+**DoD:** `buildIr` on fixtures correctly populates `ir.blocks`; tests cover SSR detection.
 
 **Dependencies:** Phase 1A.
 
-**Status Log:** Completed with Phase 1A (PR #110)
+**Status Log:** COMPLETED
 
 ---
 
@@ -110,6 +107,8 @@ This phase implements the **discovery layer** that identifies manually-created b
 - Bootstrap only registers resources with ≥1 local route.
 - Warn on write routes without policies.
 
+**Reference files:** `packages/cli/src/printers/php/printer.ts` (template builder + stub emitter) with assertions in `packages/cli/src/printers/__tests__/php-printer.stubs.test.ts` (or equivalent).
+
 **Deliverables:** Updated printer + template utilities + tests.
 
 **DoD:** Showcase regeneration produces stubs for local routes; remote-only resources omitted.
@@ -124,19 +123,27 @@ This phase implements the **discovery layer** that identifies manually-created b
 
 **Spec references:** [MVP Spec §4.3](./mvp-cli-spec.md#43-php-printer-delta)
 
+**Purpose:** Replace Phase 2A's 501 stubs with working implementations for `wp-post` storage (the most common mode). Showcase's Job resource provides the reference pattern.
+
 **Scope:**
 
-- Replace stubs with working CRUD for `storage.mode === 'wp-post'`: - `list` → `WP_Query` with query params, pagination, identity - `get` → `get_post()` with identity resolution - `create/update/remove` → `wp_insert_post()`, `wp_update_post()`, `wp_delete_post()` + meta/taxonomy
+- Replace stubs with working CRUD for `storage.mode === 'wp-post'`:
+    - `list` → `WP_Query` with query params, pagination, identity
+    - `get` → `get_post()` with identity resolution
+    - `create/update/remove` → `wp_insert_post()`, `wp_update_post()`, `wp_delete_post()` + meta/taxonomy
 - Generate REST `args` arrays from schema + query params.
-- Honor inferred postType from Phase 1A.
+- Honor inferred `postType` from Phase 1A.
+- Use Phase 2A's template builder to inject method bodies while preserving structure.
 
 **Deliverables:** PHP printer updates + fixtures + doc snippet.
 
-**DoD:** Generated controllers have working wp-post implementations; tests verify method bodies.
+**DoD:** Generated controllers have working wp-post implementations; tests verify method bodies; showcase regenerates successfully.
 
 **Dependencies:** Phase 2A.
 
 **Status Log:** _Pending_
+
+**Reference files:** same printer module (`packages/cli/src/printers/php/printer.ts`), storage helpers, and fixtures under `packages/cli/src/printers/__tests__/php-printer.wp-post.test.ts`.
 
 ---
 
@@ -159,70 +166,52 @@ This phase implements the **discovery layer** that identifies manually-created b
 
 **Status Log:** _Pending_
 
+**Reference files:** extend `packages/cli/src/printers/php/printer.ts` plus dedicated fixtures/tests (e.g., `packages/cli/src/printers/__tests__/php-printer.taxonomy.test.ts`).
+
 ---
 
-## Phase 3A – Block Inference & JS-Only Printer
+## Phase 3A – JS-Only Block Printer
 
-**Spec references:** [MVP Spec §4.4](./mvp-cli-spec.md#44-block-printers-new) | [Block Inference Model](./BLOCK_INFERENCE_MODEL.md)
+**Spec references:** [MVP Spec §4.4](./mvp-cli-spec.md#44-block-printers-new)
 
 **Scope:**
 
-- **Block Inference Layer**:
-    - Analyze resources in `kernel.config.ts` to infer block requirements
-    - Determine block type (SSR vs JS-only) from storage + route locality
-    - Generate `block.json` metadata from resource schema, identity, and display config
-    - Scaffold `src/blocks/<name>/index.tsx` edit components if they don't exist
-    - Merge inferred blocks with discovered blocks (Phase 1B) - respecting manual overrides
+- Create `src/printers/blocks/` consuming `ir.blocks` where `ssr === false`.
+- Generate `src/blocks/auto-register.ts` with `registerBlockType()` calls and relative imports.
+- Wire into `emitGeneratedArtifacts` after UI output.
+- Use existing TS formatter.
 
-- **JS-Only Block Printer**:
-    - Create `src/printers/blocks/` consuming `ir.blocks` where `ssr === false`
-    - Generate `src/blocks/auto-register.ts` with `registerBlockType()` calls and relative imports
-    - Wire into `emitGeneratedArtifacts` after UI output
-    - Use existing TS formatter
+**Deliverables:** Block printer module + integration tests.
 
-**Deliverables:** Block inference module + JS-only printer + integration tests.
-
-**DoD:**
-
-- Blocks are correctly inferred from resources
-- Manual blocks (discovered in Phase 1B) override inferred blocks
-- JS-only blocks produce auto-register module with correct imports
-- Scaffolded edit components follow established patterns
+**DoD:** JS-only blocks produce auto-register module with correct imports.
 
 **Dependencies:** Phase 1B.
 
 **Status Log:** _Pending_
 
+**Reference files:** new emitters under `packages/cli/src/printers/blocks/js-only.ts` (or similar) with fixtures in `packages/cli/tests/fixtures/blocks/js-only/**` and integration tests in `packages/cli/src/printers/__tests__/blocks-js.test.ts`.
+
 ---
 
-## Phase 3B – SSR Block Scaffold & Manifest
+## Phase 3B – SSR Block Manifest & Registrar
 
-**Spec references:** [MVP Spec §4.4](./mvp-cli-spec.md#44-block-printers-new) | [Block Inference Model](./BLOCK_INFERENCE_MODEL.md)
+**Spec references:** [MVP Spec §4.4](./mvp-cli-spec.md#44-block-printers-new)
 
 **Scope:**
 
-- **SSR Block Scaffolding**:
-    - For inferred SSR blocks, scaffold `src/blocks/<name>/render.php` if not present
-    - Generate render logic based on resource storage and identity patterns
-    - Respect manual `render.php` files (discovered in Phase 1B)
+- For `ir.blocks` where `ssr === true`, generate `build/blocks-manifest.php`.
+- Generate `inc/Blocks/Register.php` that reads manifest and calls `register_block_type()`.
+- Ensure PSR-4 compliance and proper PHP formatting.
 
-- **SSR Block Printer**:
-    - For `ir.blocks` where `ssr === true`, generate `build/blocks-manifest.php`
-    - Generate `inc/Blocks/Register.php` that reads manifest and calls `register_block_type()`
-    - Ensure PSR-4 compliance and proper PHP formatting
+**Deliverables:** Extended block printer + tests.
 
-**Deliverables:** SSR scaffold generator + extended block printer + tests.
-
-**DoD:**
-
-- SSR blocks generate manifest + registrar
-- Scaffolded render.php files follow WordPress best practices
-- Tests cover mixed SSR/JS-only scenarios
-- Manual SSR blocks override generated ones
+**DoD:** SSR blocks generate manifest + registrar; tests cover mixed SSR/JS-only.
 
 **Dependencies:** Phase 3A.
 
 **Status Log:** _Pending_
+
+**Reference files:** SSR emitters under `packages/cli/src/printers/blocks/ssr.ts`, manifest fixtures in `packages/cli/tests/fixtures/blocks/ssr/**`, and tests in `packages/cli/src/printers/__tests__/blocks-ssr.test.ts`.
 
 ---
 
@@ -232,18 +221,16 @@ This phase implements the **discovery layer** that identifies manually-created b
 
 **Scope:**
 
-Extend `eslint-rules/@kernel` with:
+- Extend `eslint-rules/@kernel` with:`wpk/config-consistency`, `wpk/cache-keys-valid`, `wpk/policy-hints`, and `wpk/doc-links`.
+- Exercise each rule against CLI-focused fixtures (e.g., generated plugin layouts) stored under `packages/cli/tests/**`; do **not** rely on workspace-root files.
+- Integrate the rules into `eslint.config.js` with sensible defaults for the monorepo.
+- Document usage and provide ESLint `RuleTester` suites ensuring diagnostics include documentation URLs.
 
-- `wpk/config-consistency`-identity/route param matching, duplicate detection, postType validation
-- `wpk/cache-keys-valid`-validate cache key functions and query param references
-- `wpk/policy-hints`-flag write routes without policies
-- `wpk/doc-links`-attach docs URLs to diagnostics
+**Deliverables:** Rule implementations, fixture-backed tests, updated lint config/docs.
 
-**Deliverables:** Four rules + RuleTester tests + integration into `eslint.config.js`.
+**DoD:** Running ESLint against the fixtures surfaces the expected diagnostics; docs explain how the rules relate to `kernel.config.ts`.
 
-**DoD:** Rules surface diagnostics on fixtures; docs explain integration.
-
-**Dependencies:** Phase 1A.
+**Dependencies:** Phase 1A, 1B.
 
 **Status Log:** _Pending_
 
@@ -263,6 +250,8 @@ Extend `eslint-rules/@kernel` with:
 **DoD:** `wpk init` creates expected files; tests verify `--force` behavior.
 
 **Status Log:** _Pending_
+
+**Reference files:** `packages/cli/src/commands/init.ts`, template assets under `packages/cli/templates/**`, and tests in `packages/cli/src/commands/__tests__/init-command.test.ts` (or new fixture-backed suites).
 
 ---
 
@@ -285,6 +274,8 @@ Extend `eslint-rules/@kernel` with:
 
 **Status Log:** _Pending_
 
+**Reference files:** CLI entrypoints (`packages/cli/src/commands/generate.ts`, `apply.ts`, `dev.ts`), documentation in `packages/cli/README.md`, and smoke-test fixtures under `packages/cli/tests/pipeline/**`.
+
 ---
 
 ## Phase 6 – Block-Aware Apply Enhancements
@@ -304,6 +295,8 @@ Extend `eslint-rules/@kernel` with:
 **Dependencies:** Phases 3B, 5B.
 
 **Status Log:** _Pending_
+
+**Reference files:** `packages/cli/src/commands/apply.ts`, test harness in `packages/cli/src/commands/__tests__/apply-command.test.ts`, and new fixtures under `packages/cli/tests/fixtures/apply-blocks/**`.
 
 ---
 
@@ -327,6 +320,8 @@ Extend `eslint-rules/@kernel` with:
 
 **Status Log:** _Pending_
 
+**Reference files:** policy detection in `packages/cli/src/ir/build-ir.ts` (new helpers), PHP helper printer additions alongside `packages/cli/src/printers/php/printer.ts`, and fixtures/tests in `packages/cli/tests/policy-map/**`.
+
 ---
 
 ## Phase 8 – Final QA & Adoption
@@ -346,6 +341,8 @@ Extend `eslint-rules/@kernel` with:
 **DoD:** All phases complete; docs aligned; ready for release.
 
 **Dependencies:** All prior phases.
+
+**Reference files:** Showcase fixtures under `app/showcase`, smoke test project `app/test-the-cli`, CLI docs in `packages/cli/README.md`, and CHANGELOG updates in `packages/cli/CHANGELOG.md`.
 
 **Status Log:** _Pending_
 
