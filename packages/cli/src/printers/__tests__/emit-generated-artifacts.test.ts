@@ -147,12 +147,26 @@ describe('emitGeneratedArtifacts', () => {
 			expect(baseContents).toContain('// WPK:BEGIN AUTO');
 
 			const jobContents = await fs.readFile(jobControllerPath, 'utf8');
+			expect(jobContents).toContain('use WP_Error;');
+			expect(jobContents).toContain('use WP_REST_Request;');
 			expect(jobContents).toContain(
 				'class JobController extends BaseController'
 			);
 			expect(jobContents).toContain("return 'job';");
 			expect(jobContents).toContain('Route: [GET] /jobs');
 			expect(jobContents).toContain('return [');
+			expect(jobContents).toContain(
+				'public function getJobs( WP_REST_Request $request )'
+			);
+			expect(jobContents).toContain(
+				'public function postJobs( WP_REST_Request $request )'
+			);
+			expect(jobContents).toContain(
+				'// TODO: Implement handler for [POST] /jobs.'
+			);
+			expect(jobContents).toContain(
+				"return new WP_Error( 501, 'Not Implemented' );"
+			);
 
 			const jobRestArgs = extractPhpArrayPayload(jobContents);
 			expect(jobRestArgs).toMatchObject({
@@ -219,12 +233,21 @@ describe('emitGeneratedArtifacts', () => {
 					},
 				},
 			});
+			expect(taskContents).toContain(
+				"$slug = $request->get_param( 'slug' );"
+			);
+			expect(taskContents).toContain(
+				'// TODO: Implement handler for [GET] /tasks/:slug.'
+			);
 
 			const orphanContents = await fs.readFile(
 				orphanControllerPath,
 				'utf8'
 			);
 			expect(orphanContents).toContain('return [];');
+			expect(orphanContents).toContain(
+				"return new WP_Error( 501, 'Not Implemented' );"
+			);
 
 			const literalControllerPath = path.join(
 				phpRoot,
@@ -238,9 +261,19 @@ describe('emitGeneratedArtifacts', () => {
 			expect(literalContents).toContain(
 				'class LiteralController extends BaseController'
 			);
+			expect(literalContents).toContain(
+				'// TODO: Implement handler for [GET] /demo-namespace/literal.'
+			);
 
 			const literalRestArgs = extractPhpArrayPayload(literalContents);
 			expect(literalRestArgs).toEqual([]);
+
+			const remoteControllerPath = path.join(
+				phpRoot,
+				'Rest',
+				'RemoteController.php'
+			);
+			await expect(fs.stat(remoteControllerPath)).rejects.toThrow();
 
 			const persistenceContents = await fs.readFile(
 				persistencePath,
@@ -309,6 +342,9 @@ describe('emitGeneratedArtifacts', () => {
 			);
 			expect(indexContents).toContain(
 				"'Demo\\Namespace\\Rest\\LiteralController'"
+			);
+			expect(indexContents).not.toContain(
+				"'Demo\\Namespace\\Rest\\RemoteController'"
 			);
 		});
 	});
@@ -386,6 +422,81 @@ describe('emitGeneratedArtifacts', () => {
 			expect(menuContents).toContain('namespace Demo\\Namespace\\Admin;');
 			expect(menuContents).toContain('add_menu_page(');
 			expect(menuContents).toContain("'jobs-admin'");
+		});
+	});
+
+	it('warns when write routes are missing policies', async () => {
+		await withTempDir(async (tempDir) => {
+			const policyContext = createPrinterContext(tempDir);
+			const job = policyContext.ir.resources.find(
+				(resource) => resource.name === 'job'
+			);
+
+			if (!job) {
+				throw new Error('Expected job resource in IR fixture');
+			}
+
+			for (const route of job.routes) {
+				if (route.method !== 'POST') {
+					continue;
+				}
+				delete route.policy;
+			}
+
+			const warnings: Array<{
+				message: string;
+				context?: unknown;
+			}> = [];
+			const baseReporter = createNoopReporter();
+			const capturingReporter = {
+				info: baseReporter.info,
+				warn: (message: string, context?: unknown) => {
+					warnings.push({ message, context });
+					baseReporter.warn(message, context);
+				},
+				error: baseReporter.error,
+				debug: baseReporter.debug,
+				child: () => capturingReporter,
+			} satisfies AdapterContext['reporter'];
+
+			policyContext.adapterContext = {
+				config: policyContext.ir.config,
+				reporter: capturingReporter,
+				namespace: policyContext.ir.meta.sanitizedNamespace,
+				ir: policyContext.ir,
+			};
+
+			await emitGeneratedArtifacts(policyContext);
+
+			expect(warnings).toContainEqual({
+				message: 'Write route missing policy.',
+				context: expect.objectContaining({
+					resource: 'job',
+					method: 'POST',
+					path: '/jobs',
+				}),
+			});
+		});
+	});
+
+	it('generates controllers when namespace sanitises to empty string', async () => {
+		await withTempDir(async (tempDir) => {
+			const emptyNamespaceContext = createPrinterContext(tempDir);
+			emptyNamespaceContext.ir.meta.namespace = '';
+			emptyNamespaceContext.ir.meta.sanitizedNamespace = '';
+
+			await emitGeneratedArtifacts(emptyNamespaceContext);
+
+			const jobControllerPath = path.join(
+				emptyNamespaceContext.outputDir,
+				'php',
+				'Rest',
+				'JobController.php'
+			);
+			const jobContents = await fs.readFile(jobControllerPath, 'utf8');
+			expect(jobContents).toContain(
+				'class JobController extends BaseController'
+			);
 		});
 	});
 
@@ -778,12 +889,18 @@ function createIrFixture(): IRv1 {
 		schemaKey: 'job',
 		schemaProvenance: 'manual',
 		routes: [
-			{ method: 'GET', path: '/jobs', hash: 'route-job-list' },
+			{
+				method: 'GET',
+				path: '/jobs',
+				hash: 'route-job-list',
+				transport: 'local',
+			},
 			{
 				method: 'POST',
 				path: '/jobs',
 				hash: 'route-job-create',
 				policy: 'jobs.create',
+				transport: 'local',
 			},
 		],
 		cacheKeys: {
@@ -810,7 +927,14 @@ function createIrFixture(): IRv1 {
 		name: 'task',
 		schemaKey: 'auto:task',
 		schemaProvenance: 'auto',
-		routes: [{ method: 'GET', path: '/tasks', hash: 'route-task-list' }],
+		routes: [
+			{
+				method: 'GET',
+				path: '/tasks/:slug',
+				hash: 'route-task-list',
+				transport: 'local',
+			},
+		],
 		cacheKeys: {
 			list: {
 				segments: Object.freeze(['task', 'list']),
@@ -846,7 +970,12 @@ function createIrFixture(): IRv1 {
 		schemaKey: 'literal',
 		schemaProvenance: 'manual',
 		routes: [
-			{ method: 'GET', path: '/literal', hash: 'route-literal-get' },
+			{
+				method: 'GET',
+				path: '/demo-namespace/literal',
+				hash: 'route-literal-get',
+				transport: 'local',
+			},
 		],
 		cacheKeys: {
 			list: {
@@ -868,7 +997,12 @@ function createIrFixture(): IRv1 {
 		schemaKey: 'missing',
 		schemaProvenance: 'manual',
 		routes: [
-			{ method: 'GET', path: '/orphans', hash: 'route-orphan-list' },
+			{
+				method: 'GET',
+				path: '/orphans',
+				hash: 'route-orphan-list',
+				transport: 'local',
+			},
 		],
 		cacheKeys: {
 			list: {
@@ -886,6 +1020,34 @@ function createIrFixture(): IRv1 {
 		hash: 'resource-orphan',
 	};
 
+	const remoteResource: IRResource = {
+		name: 'remote',
+		schemaKey: 'job',
+		schemaProvenance: 'manual',
+		routes: [
+			{
+				method: 'GET',
+				path: 'https://api.example.com/jobs',
+				hash: 'route-remote-list',
+				transport: 'remote',
+			},
+		],
+		cacheKeys: {
+			list: {
+				segments: Object.freeze(['remote', 'list']),
+				source: 'config',
+			},
+			get: {
+				segments: Object.freeze(['remote', 'get', '__wpk_id__']),
+				source: 'default',
+			},
+		},
+		identity: undefined,
+		storage: undefined,
+		queryParams: undefined,
+		hash: 'resource-remote',
+	};
+
 	const ir: IRv1 = {
 		meta: {
 			version: 1,
@@ -896,7 +1058,13 @@ function createIrFixture(): IRv1 {
 		},
 		config,
 		schemas: [jobSchema, taskSchema, literalSchema, fallbackSchema],
-		resources: [jobResource, taskResource, literalResource, orphanResource],
+		resources: [
+			jobResource,
+			taskResource,
+			literalResource,
+			orphanResource,
+			remoteResource,
+		],
 		policies: [],
 		blocks: [],
 		php: {
