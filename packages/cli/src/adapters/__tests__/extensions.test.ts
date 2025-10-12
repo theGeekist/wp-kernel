@@ -461,16 +461,11 @@ describe('runAdapterExtensions', () => {
 					writable: true,
 				} as PropertyDescriptor);
 			} else {
-				delete (
-					globalThis as typeof globalThis & {
-						structuredClone?: typeof structuredClone;
-					}
-				).structuredClone;
+				Reflect.deleteProperty(globalThis, 'structuredClone');
 			}
 			await fs.rm(outputDir, { recursive: true, force: true });
 		}
 	});
-
 	it('rejects writes outside the output directory', async () => {
 		const outputDir = await fs.mkdtemp(TMP_OUTPUT);
 		const reporter = createReporterMock();
@@ -529,7 +524,7 @@ function createIr(): IRv1 {
 		php: {
 			namespace: 'Demo\\Namespace',
 			autoload: 'inc/',
-			directories: { controllers: 'Rest', registration: 'Registration' },
+			outputDir: '/fake/path',
 		},
 	};
 }

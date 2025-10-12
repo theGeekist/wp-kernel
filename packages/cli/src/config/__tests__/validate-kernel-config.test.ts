@@ -38,8 +38,8 @@ interface TestResourceConfig {
 		};
 	};
 	identity?:
-		| { type: 'number'; param?: 'id' }
-		| { type: 'string'; param?: 'id' | 'slug' | 'uuid' };
+	| { type: 'number'; param?: 'id' }
+	| { type: 'string'; param?: 'id' | 'slug' | 'uuid' };
 	storage?: Record<string, unknown>;
 	ui?: unknown;
 }
@@ -60,7 +60,7 @@ interface TestConfig {
 }
 
 interface ReporterSpy {
-	child: jest.Mock;
+	child: jest.Mock<ReporterSpy>;
 	error: jest.Mock;
 	warn: jest.Mock;
 	info: jest.Mock;
@@ -75,7 +75,7 @@ function createMockReporter() {
 
 function createReporterSpy(child?: ReporterSpy): ReporterSpy {
 	const reporter: ReporterSpy = {
-		child: jest.fn(),
+		child: jest.fn(() => child ?? reporter),
 		error: jest.fn(),
 		warn: jest.fn(),
 		info: jest.fn(),
@@ -139,7 +139,7 @@ describe('validateKernelConfig', () => {
 	it('accepts DataViews UI metadata on resources', () => {
 		const { reporter } = createMockReporter();
 		const config = createValidConfig();
-		config.resources.thing.ui = {
+		config.resources.thing!.ui = {
 			admin: {
 				view: 'dataviews',
 				dataviews: {
@@ -167,7 +167,7 @@ describe('validateKernelConfig', () => {
 			sourcePath: '/tmp/kernel.config.ts',
 		});
 
-		const resource = result.config.resources.thing;
+		const resource = result.config.resources.thing!;
 		expect(resource.ui?.admin?.view).toBe('dataviews');
 		expect(resource.ui?.admin?.dataviews?.fields).toEqual([
 			{ id: 'title', label: 'Title' },
@@ -246,7 +246,7 @@ describe('validateKernelConfig', () => {
 	it('throws when identity param does not exist in routes', () => {
 		const { reporter, child } = createMockReporter();
 		const config = createValidConfig();
-		config.resources.thing.identity = { type: 'string', param: 'slug' };
+		config.resources.thing!.identity = { type: 'string', param: 'slug' };
 
 		expect(() =>
 			validateKernelConfig(config, {
@@ -267,11 +267,11 @@ describe('validateKernelConfig', () => {
 	it('warns when wp-post storage omits postType', () => {
 		const { reporter, child } = createMockReporter();
 		const config = createValidConfig();
-		config.resources.thing.routes.list = {
+		config.resources.thing!.routes.list = {
 			path: '/valid/v1/things',
 			method: 'GET',
 		};
-		config.resources.thing.storage = {
+		config.resources.thing!.storage = {
 			mode: 'wp-post',
 		};
 
@@ -281,7 +281,7 @@ describe('validateKernelConfig', () => {
 			sourcePath: '/tmp/kernel.config.js',
 		});
 
-		expect(result.config.resources.thing.storage).toEqual(
+		expect(result.config.resources.thing!.storage).toEqual(
 			expect.objectContaining({ mode: 'wp-post' })
 		);
 		expect(child.warn).toHaveBeenCalledWith(
@@ -291,7 +291,6 @@ describe('validateKernelConfig', () => {
 			expect.objectContaining({ resourceName: 'thing' })
 		);
 	});
-
 	it('throws when adapters.php is not a function', () => {
 		const { reporter, child } = createMockReporter();
 		const config = createValidConfig();
@@ -350,7 +349,7 @@ describe('validateKernelConfig helpers', () => {
 			{
 				name: 'thing',
 				identity: { type: 'number', param: 'id' },
-				routes: {},
+				routes: {} as never,
 			} as ResourceConfig,
 			child as unknown as Reporter
 		);

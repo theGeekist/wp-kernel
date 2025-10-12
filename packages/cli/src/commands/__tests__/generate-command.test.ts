@@ -2,7 +2,7 @@ import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { Writable } from 'node:stream';
-import type { Command } from 'clipanion';
+import type { BaseContext } from 'clipanion';
 import { GenerateCommand } from '../generate';
 import * as printers from '../../printers';
 import * as ir from '../../ir';
@@ -393,7 +393,8 @@ function createCommand(workspace: string): GenerateCommand {
 		stdin: process.stdin,
 		env: process.env,
 		cwd: () => workspace,
-	} as Command.Context;
+		colorDepth: 1,
+	} as BaseContext;
 
 	command.dryRun = false;
 	command.verbose = false;

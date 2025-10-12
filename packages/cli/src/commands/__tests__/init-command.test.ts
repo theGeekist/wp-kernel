@@ -1,7 +1,7 @@
 import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import type { Command } from 'clipanion';
+import type { BaseContext } from 'clipanion';
 import { InitCommand } from '../init';
 
 const TMP_PREFIX = path.join(os.tmpdir(), 'wpk-init-command-');
@@ -62,7 +62,8 @@ function createCommand(workspace: string): InitCommand {
 		stdin: process.stdin,
 		env: process.env,
 		cwd: () => workspace,
-	} as Command.Context;
+		colorDepth: 1,
+	} as BaseContext;
 	return command;
 }
 
