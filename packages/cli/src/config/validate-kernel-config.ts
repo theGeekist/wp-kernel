@@ -45,7 +45,7 @@ const resourceRouteValidator = t.isObject(
 	{ extra: t.isRecord(t.isUnknown()) }
 );
 
-const resourceRoutesValidator = t.cascade(
+export const resourceRoutesValidator = t.cascade(
 	t.isObject(
 		{
 			list: t.isOptional(resourceRouteValidator),
@@ -366,7 +366,7 @@ export function validateKernelConfig(
 	};
 }
 
-function normalizeVersion(
+export function normalizeVersion(
 	version: KernelConfigVersion | undefined,
 	reporter: Reporter,
 	sourcePath: string
@@ -394,7 +394,7 @@ function normalizeVersion(
 	return version;
 }
 
-function runResourceChecks(
+export function runResourceChecks(
 	resourceName: string,
 	resource: ResourceConfig,
 	reporter: Reporter
@@ -442,7 +442,7 @@ function runResourceChecks(
 	}
 }
 
-function formatValidationErrors(
+export function formatValidationErrors(
 	errors: string[] | undefined,
 	sourcePath: string,
 	origin: string
