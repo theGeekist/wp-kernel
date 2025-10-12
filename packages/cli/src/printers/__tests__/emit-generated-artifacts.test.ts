@@ -107,6 +107,56 @@ describe('emitGeneratedArtifacts', () => {
 		});
 	});
 
+	it('generates block manifests and auto-register for JS-only resources', async () => {
+		await withTempDir(async (tempDir) => {
+			const context = createPrinterContext(tempDir);
+
+			await emitGeneratedArtifacts(context);
+
+			const blocksRoot = path.join(context.outputDir, 'blocks');
+			const literalManifestPath = path.join(
+				blocksRoot,
+				'literal',
+				'block.json'
+			);
+			const remoteManifestPath = path.join(
+				blocksRoot,
+				'remote',
+				'block.json'
+			);
+			const autoRegisterPath = path.join(blocksRoot, 'auto-register.ts');
+
+			const literalManifest = JSON.parse(
+				await fs.readFile(literalManifestPath, 'utf8')
+			);
+			expect(literalManifest).toMatchObject({
+				name: 'demo-namespace/literal',
+				apiVersion: 3,
+				editorScriptModule: 'file:./index.tsx',
+				viewScriptModule: 'file:./view.ts',
+			});
+
+			const remoteManifest = JSON.parse(
+				await fs.readFile(remoteManifestPath, 'utf8')
+			);
+			expect(remoteManifest.attributes).toMatchObject({
+				id: expect.objectContaining({ type: 'integer' }),
+				title: expect.objectContaining({ type: 'string' }),
+			});
+
+			const autoRegisterContents = await fs.readFile(
+				autoRegisterPath,
+				'utf8'
+			);
+			expect(autoRegisterContents).toContain(
+				"registerBlockType('demo-namespace/literal'"
+			);
+			expect(autoRegisterContents).toContain(
+				"registerBlockType('demo-namespace/remote'"
+			);
+		});
+	});
+
 	it('emits PHP controllers, persistence registry, and index', async () => {
 		await withTempDir(async (tempDir) => {
 			const context = createPrinterContext(tempDir);
