@@ -1,12 +1,12 @@
 import fs from 'node:fs/promises';
 import type { PrinterContext } from '../../printers';
-import { ensurePrettierLoaded } from './prettier';
+import { ensurePhpPluginLoaded, ensurePrettierLoaded } from './prettier';
 
 export async function formatTs(
 	contents: string,
 	filePath: string
 ): Promise<string> {
-	const { prettier } = await ensurePrettierLoaded();
+	const prettier = await ensurePrettierLoaded();
 	const formatted = await prettier.format(contents, { filepath: filePath });
 	return ensureTrailingNewline(formatted);
 }
@@ -15,7 +15,10 @@ export async function formatPhp(
 	contents: string,
 	filePath: string
 ): Promise<string> {
-	const { prettier, phpPlugin } = await ensurePrettierLoaded();
+	const [prettier, phpPlugin] = await Promise.all([
+		ensurePrettierLoaded(),
+		ensurePhpPluginLoaded(),
+	]);
 	const formatted = await prettier.format(contents, {
 		filepath: filePath,
 		parser: 'php',
