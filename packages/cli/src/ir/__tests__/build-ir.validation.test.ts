@@ -45,6 +45,51 @@ describe('buildIr – validation', () => {
 		).rejects.toBeInstanceOf(KernelError);
 	});
 
+	it('allows duplicate routes when both are remote', async () => {
+		const config = createBaseConfig();
+		config.resources = {
+			first: {
+				name: 'first',
+				schema: 'auto',
+				routes: {
+					list: {
+						path: 'https://api.example.com/items',
+						method: 'GET',
+					},
+				},
+			},
+			second: {
+				name: 'second',
+				schema: 'auto',
+				routes: {
+					list: {
+						path: 'https://api.example.com/items',
+						method: 'GET',
+					},
+				},
+			},
+		} as unknown as KernelConfigV1['resources'];
+
+		const ir = await buildIr({
+			config,
+			sourcePath: FIXTURE_CONFIG_PATH,
+			origin: 'kernel.config.ts',
+			namespace: config.namespace,
+		});
+
+		expect(ir.resources).toHaveLength(2);
+		expect(ir.resources[0].routes[0]).toMatchObject({
+			method: 'GET',
+			path: 'https://api.example.com/items',
+			transport: 'remote',
+		});
+		expect(ir.resources[1].routes[0]).toMatchObject({
+			method: 'GET',
+			path: 'https://api.example.com/items',
+			transport: 'remote',
+		});
+	});
+
 	it('rejects reserved route prefixes', async () => {
 		const config = createBaseConfig();
 		config.resources = {

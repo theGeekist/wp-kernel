@@ -40,23 +40,27 @@ export function normaliseRoutes(options: {
 			sanitizedNamespace,
 		});
 
-		const duplicateKey = `${method} ${analysis.normalisedPath}`;
-		if (duplicateDetector.has(duplicateKey)) {
-			const existing = duplicateDetector.get(duplicateKey)!;
-			throw new KernelError('ValidationError', {
-				message: `Duplicate route detected for ${method} ${analysis.normalisedPath}.`,
-				context: {
-					resource: resourceKey,
-					route: routeKey,
-					conflict: existing,
-				},
+		// Only check for duplicates on local routes - remote routes can be reused
+		// across resources as they don't collide within the WordPress namespace
+		if (analysis.transport === 'local') {
+			const duplicateKey = `${method} ${analysis.normalisedPath}`;
+			if (duplicateDetector.has(duplicateKey)) {
+				const existing = duplicateDetector.get(duplicateKey)!;
+				throw new KernelError('ValidationError', {
+					message: `Duplicate route detected for ${method} ${analysis.normalisedPath}.`,
+					context: {
+						resource: resourceKey,
+						route: routeKey,
+						conflict: existing,
+					},
+				});
+			}
+
+			duplicateDetector.set(duplicateKey, {
+				resource: resourceKey,
+				route: routeKey,
 			});
 		}
-
-		duplicateDetector.set(duplicateKey, {
-			resource: resourceKey,
-			route: routeKey,
-		});
 
 		if (analysis.warnings.length > 0) {
 			warnings.push(...analysis.warnings);
