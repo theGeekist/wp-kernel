@@ -20,16 +20,25 @@ export interface IRSchema {
 	};
 }
 
+export type IRRouteTransport = 'local' | 'remote';
+
 export interface IRRoute {
 	method: string;
 	path: string;
 	policy?: string;
 	hash: string;
+	transport: IRRouteTransport;
 }
 
 export interface IRResourceCacheKey {
 	segments: readonly unknown[];
 	source: 'default' | 'config';
+}
+
+export interface IRWarning {
+	code: string;
+	message: string;
+	context?: Record<string, unknown>;
 }
 
 export interface IRResource {
@@ -49,17 +58,24 @@ export interface IRResource {
 	queryParams?: ResourceQueryParams;
 	ui?: ResourceUIConfig;
 	hash: string;
+	warnings: IRWarning[];
 }
 
 export interface IRPolicyHint {
 	key: string;
 	source: 'resource' | 'config';
+	references: Array<{
+		resource: string;
+		route: string;
+		transport: IRRouteTransport;
+	}>;
 }
 
 export interface IRBlock {
-	name: string;
+	key: string;
 	directory: string;
-	ssr?: boolean;
+	hasRender: boolean;
+	manifestSource: string;
 }
 
 export interface IRPhpProject {
