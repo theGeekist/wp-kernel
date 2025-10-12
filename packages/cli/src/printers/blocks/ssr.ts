@@ -119,10 +119,10 @@ async function createManifestEntry(options: {
 	projectRoot: string;
 }): Promise<
 	| {
-			entry: ManifestEntry;
-			warnings: string[];
-			renderInfo?: RenderResolution;
-	  }
+		entry: ManifestEntry;
+		warnings: string[];
+		renderInfo?: RenderResolution;
+	}
 	| undefined
 > {
 	const directory = toPosix(options.blockDirectory);
