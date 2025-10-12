@@ -416,7 +416,9 @@ async function writeGeneratedFiles(
 ): Promise<void> {
 	for (const file of result.files) {
 		await context.ensureDirectory(path.dirname(file.path));
-		const formatted = file.path.endsWith('.ts')
+		const shouldFormat =
+			file.path.endsWith('.ts') || file.path.endsWith('.tsx');
+		const formatted = shouldFormat
 			? await context.formatTs(file.path, file.content)
 			: file.content;
 		await context.writeFile(file.path, formatted);

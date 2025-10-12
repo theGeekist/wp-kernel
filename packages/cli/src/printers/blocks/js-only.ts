@@ -48,6 +48,7 @@ export async function generateJSOnlyBlocks(
 	const imports: string[] = [];
 	const registrations: string[] = [];
 	const warnings: string[] = [];
+	const stubFiles: BlockPrinterResult['files'] = [];
 
 	for (const block of blocks.sort((a, b) => a.key.localeCompare(b.key))) {
 		const manifestPath = path.resolve(
@@ -74,6 +75,16 @@ export async function generateJSOnlyBlocks(
 				(message) => `Block "${block.key}": ${message}`
 			)
 		);
+
+		if (manifest && typeof manifest === 'object') {
+			const manifestData = manifest as Record<string, unknown>;
+			const stubs = await generateBlockStubs({
+				block,
+				manifest: manifestData,
+				projectRoot: options.projectRoot,
+			});
+			stubFiles.push(...stubs);
+		}
 
 		const importPath = generateBlockImportPath(
 			manifestPath,
@@ -113,6 +124,7 @@ export async function generateJSOnlyBlocks(
 
 	return {
 		files: [
+			...stubFiles,
 			{
 				path: autoRegisterPath,
 				content: contents,
@@ -120,4 +132,113 @@ export async function generateJSOnlyBlocks(
 		],
 		warnings,
 	};
+}
+
+async function generateBlockStubs(options: {
+	block: { directory: string };
+	manifest: Record<string, unknown>;
+	projectRoot: string;
+}): Promise<BlockPrinterResult['files']> {
+	const { block, manifest, projectRoot } = options;
+	const blockDir = path.resolve(projectRoot, block.directory);
+	const files: BlockPrinterResult['files'] = [];
+
+	const editorModule =
+		extractFileModulePath(manifest.editorScriptModule) ??
+		extractFileModulePath(manifest.editorScript);
+	if (editorModule && shouldEmitEditorStub(editorModule)) {
+		const editorPath = path.resolve(blockDir, editorModule);
+		if (!(await fileExists(editorPath))) {
+			files.push({
+				path: editorPath,
+				content: createEditorStub(),
+			});
+		}
+	}
+
+	const viewModule =
+		extractFileModulePath(manifest.viewScriptModule) ??
+		extractFileModulePath(manifest.viewScript);
+	if (viewModule && shouldEmitViewStub(viewModule)) {
+		const viewPath = path.resolve(blockDir, viewModule);
+		if (!(await fileExists(viewPath))) {
+			files.push({
+				path: viewPath,
+				content: createViewStub(),
+			});
+		}
+	}
+
+	return files;
+}
+
+function extractFileModulePath(value: unknown): string | undefined {
+	if (typeof value !== 'string' || !value.startsWith('file:')) {
+		return undefined;
+	}
+
+	const relativePath = value.slice('file:'.length).trim();
+	if (!relativePath) {
+		return undefined;
+	}
+
+	if (relativePath.startsWith('./')) {
+		return relativePath.slice(2);
+	}
+
+	return relativePath;
+}
+
+function shouldEmitEditorStub(relativePath: string): boolean {
+	return normalizeRelative(relativePath) === 'index.tsx';
+}
+
+function shouldEmitViewStub(relativePath: string): boolean {
+	return normalizeRelative(relativePath) === 'view.ts';
+}
+
+function normalizeRelative(candidate: string): string {
+	const normalized = candidate.replace(/^\.\//u, '');
+	return normalized.replace(/\\/gu, '/');
+}
+
+async function fileExists(filePath: string): Promise<boolean> {
+	try {
+		await fs.stat(filePath);
+		return true;
+	} catch {
+		return false;
+	}
+}
+
+function createEditorStub(): string {
+	return [
+		'/* AUTO-GENERATED WPK STUB: safe to edit. */',
+		"import { registerBlockType } from '@wordpress/blocks';",
+		'// Vite/tsconfig should allow JSON imports (.d.ts for JSON can be global)',
+		"import metadata from './block.json';",
+		'',
+		'function Edit() {',
+		"  return <div>{ metadata.title || 'Block' } (edit)</div>;",
+		'}',
+		'',
+		'// Saved HTML is final for JS-only blocks:',
+		'const save = () => null;',
+		'',
+		'registerBlockType(metadata as any, { edit: Edit, save });',
+		'',
+	].join('\n');
+}
+
+function createViewStub(): string {
+	return [
+		'/* AUTO-GENERATED WPK STUB: safe to edit.',
+		' * Runs on the front-end when the block appears.',
+		' */',
+		'export function initBlockView(root: HTMLElement) {',
+		'  // Optional: hydrate interactivity',
+		"  // console.log('Init view for', root);",
+		'}',
+		'',
+	].join('\n');
 }
