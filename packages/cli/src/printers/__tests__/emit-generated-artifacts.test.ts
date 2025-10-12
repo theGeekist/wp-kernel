@@ -148,25 +148,33 @@ describe('emitGeneratedArtifacts', () => {
 
 			const jobContents = await fs.readFile(jobControllerPath, 'utf8');
 			expect(jobContents).toContain('use WP_Error;');
+			expect(jobContents).toContain('use WP_Post;');
 			expect(jobContents).toContain('use WP_REST_Request;');
+			expect(jobContents).toContain('use WP_Query;');
 			expect(jobContents).toContain(
 				'class JobController extends BaseController'
 			);
 			expect(jobContents).toContain("return 'job';");
 			expect(jobContents).toContain('Route: [GET] /jobs');
-			expect(jobContents).toContain('return [');
 			expect(jobContents).toContain(
 				'public function getJobs( WP_REST_Request $request )'
 			);
 			expect(jobContents).toContain(
 				'public function postJobs( WP_REST_Request $request )'
 			);
+			expect(jobContents).toContain('new WP_Query( $query_args )');
+			expect(jobContents).toContain('wp_insert_post( $post_data, true )');
+			expect(jobContents).toContain('return array(');
 			expect(jobContents).toContain(
-				'// TODO: Implement handler for [POST] /jobs.'
+				'$this->prepareJobResponse( $post, $request );'
 			);
 			expect(jobContents).toContain(
-				"return new WP_Error( 501, 'Not Implemented' );"
+				'$this->syncJobMeta( $post_id, $request );'
 			);
+			expect(jobContents).toContain(
+				'$this->syncJobTaxonomies( $post_id, $request );'
+			);
+			expect(jobContents).not.toContain('Not Implemented');
 
 			const jobRestArgs = extractPhpArrayPayload(jobContents);
 			expect(jobRestArgs).toMatchObject({
@@ -189,7 +197,20 @@ describe('emitGeneratedArtifacts', () => {
 						type: 'string',
 					},
 				},
+				search: {
+					description: 'Search term',
+					schema: {
+						type: 'string',
+					},
+				},
 				status: {
+					required: true,
+					schema: {
+						enum: ['draft', 'published'],
+						type: 'string',
+					},
+				},
+				state: {
 					required: true,
 					schema: {
 						enum: ['draft', 'published'],
@@ -205,6 +226,16 @@ describe('emitGeneratedArtifacts', () => {
 			});
 
 			const taskContents = await fs.readFile(taskControllerPath, 'utf8');
+			expect(taskContents).toContain(
+				'public function getTasksSlug( WP_REST_Request $request )'
+			);
+			expect(taskContents).toContain('$this->resolveTaskPost( $slug )');
+			expect(taskContents).toContain(
+				"return new WP_Error( 'wpk_task_not_found'"
+			);
+			expect(taskContents).toContain(
+				'$this->prepareTaskResponse( $post, $request );'
+			);
 			const taskRestArgs = extractPhpArrayPayload(taskContents);
 			expect(taskRestArgs).toEqual({
 				slug: {
@@ -236,9 +267,7 @@ describe('emitGeneratedArtifacts', () => {
 			expect(taskContents).toContain(
 				"$slug = $request->get_param( 'slug' );"
 			);
-			expect(taskContents).toContain(
-				'// TODO: Implement handler for [GET] /tasks/:slug.'
-			);
+			expect(taskContents).toContain('return array(');
 
 			const orphanContents = await fs.readFile(
 				orphanControllerPath,
@@ -919,7 +948,17 @@ function createIrFixture(): IRv1 {
 			postType: 'job',
 			cacheTtl: 900,
 		} as IRResource['storage'],
-		queryParams: undefined,
+		queryParams: {
+			search: {
+				type: 'string',
+				description: 'Search term',
+				optional: true,
+			},
+			state: {
+				type: 'enum',
+				enum: ['draft', 'published'],
+			},
+		},
 		hash: 'resource-job',
 	};
 
