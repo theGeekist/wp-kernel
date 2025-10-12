@@ -4,7 +4,7 @@
 	"compilerOptions": {
 		"rootDir": "./src",
 		"noEmit": true,
-		"skipLibCheck": true
+		"skipLibCheck": false
 	},
 	"include": ["src/**/*.test.ts", "src/**/*.test.tsx"],
 	"references": [{ "path": "../kernel" }]
