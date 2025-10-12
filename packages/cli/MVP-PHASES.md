@@ -141,9 +141,16 @@ Finally you find that imports from other packages are sometimes missing, it usua
 
 **Dependencies:** Phase 2A.
 
-**Status Log:** Started 2025-02-14 - Completed 2025-02-14
+**Status Log:** Started 2025-02-14 - Completed 2025-02-14 | **Refactored:** 2025-10-12 - Completed 2025-10-13
 
-**Reference files:** same printer module (`packages/cli/src/printers/php/printer.ts`), storage helpers, and fixtures under `packages/cli/src/printers/__tests__/php-printer.wp-post.test.ts`.
+**Refactoring Note (Oct 2025):** The original monolithic `wp-post.ts` (1,236 lines) was decomposed into a composable architecture to enable Phase 2C implementation without code duplication. The refactor produced:
+
+- Modular `wp-post/` directory (17 files, 1,350 lines total) with focused generators for each CRUD operation
+- Shared PHP printer utilities (rest-args, routes, templates, builders, value-renderer, etc.)
+- ~1,750 lines saved across Phase 2C storage modes by reusing shared infrastructure
+- Pattern established for future storage mode additions
+
+**Reference files:** `packages/cli/src/printers/php/wp-post/*` (modular structure), shared utilities in `packages/cli/src/printers/php/*.ts`, and comprehensive test suite under `packages/cli/src/printers/php/__tests__/wp-post/*.test.ts`.
 
 ---
 
@@ -164,9 +171,22 @@ Finally you find that imports from other packages are sometimes missing, it usua
 
 **Dependencies:** Phase 2B.
 
-**Status Log:** Started 2025-02-15 - Completed 2025-02-15
+**Status Log:** Started 2025-10-12 - Completed 2025-10-13
 
-**Reference files:** extend `packages/cli/src/printers/php/printer.ts` plus dedicated fixtures/tests (e.g., `packages/cli/src/printers/__tests__/php-printer.taxonomy.test.ts`).
+**Implementation Note:** Built on the refactored PHP printer architecture from Phase 2B. Each storage mode follows the composable pattern with focused modules:
+
+- **wp-taxonomy**: ~450 lines across 8 files (context, handlers, methods/\*, helpers, routes, types)
+- **wp-option**: 247 lines single file (simple key-value storage)
+- **transient**: 233 lines single file (TTL-aware key-value storage)
+
+All modes properly return 501 for unsupported operations and leverage shared infrastructure (REST args, templates, route classification).
+
+**Reference files:**
+
+- `packages/cli/src/printers/php/wp-taxonomy/*` (modular term CRUD)
+- `packages/cli/src/printers/php/wp-option.ts` (option storage)
+- `packages/cli/src/printers/php/transient.ts` (transient storage)
+- Tests: `packages/cli/src/printers/php/__tests__/wp-taxonomy-controller.test.ts`, `wp-option-controller.test.ts`, `transient-controller.test.ts`
 
 ---
 
