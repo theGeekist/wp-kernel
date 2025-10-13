@@ -61,3 +61,9 @@ This audit reviews the runtime kernel package through an accessibility and API-s
 - Publish developer-facing guides and reference implementations showing how CLI, UI, and E2E packages consume the shared constants.
 - Provide sample middleware/adapters (e.g., instrumentation hooks) that demonstrate safe composition patterns for other teams.
 - Schedule follow-up audits to ensure downstream packages use the kernel contracts without diverging, maintaining parity across the monorepo.
+
+## Development References
+
+- [README § Overview](README.md#overview) – recap the kernel’s architectural responsibilities before modifying runtime contracts.
+- [README § Quick Start](README.md#quick-start) – follow the bootstrapping path when validating namespace overrides or lifecycle helpers locally.
+- [README § Key Patterns](README.md#key-patterns) – consult examples of resources, actions, and jobs when aligning new accessibility contracts with existing naming conventions.

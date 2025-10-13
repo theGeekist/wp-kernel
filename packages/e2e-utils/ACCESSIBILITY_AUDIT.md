@@ -60,3 +60,9 @@ Evaluate the end-to-end utilities package for discoverability of fixtures, consi
 - Extend TypeScript utility types so resource configs infer helper signatures without manual generics, relying on the shared kernel definitions.
 - Add configurable reporter/logging adapters that emit structured telemetry compatible with the monorepo observability contract.
 - Publish example Playwright tests showcasing the modular helpers and demonstrating safe composition under the shared contracts.
+
+## Development References
+
+- [README § Overview](README.md#overview) – understand the fixture ecosystem and optional nature of the package before planning accessibility changes.
+- [README § Key Features](README.md#key-features) – map utilities to the shared contracts (auth, db, store) when expanding fixtures or adopting new error semantics.
+- [README § Validation Strategy](README.md#validation-strategy) – follow the recommended verification approach to confirm new helpers behave correctly inside real WordPress environments.

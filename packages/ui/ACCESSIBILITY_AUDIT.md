@@ -61,3 +61,9 @@ Assess the UI package for accessibility guarantees, naming consistency, and comp
 - Provide default `emptyState` and `errorState` slots that leverage WordPress components with ARIA-friendly semantics, aligned with cross-package reporter messaging.
 - Document recommended landmark wrappers and include examples that demonstrate compliance with the shared accessibility guidelines.
 - Add automated tests (axe + interaction) that assert the shared contracts remain intact when consumers override slots or mount the provider in micro-frontend environments.
+
+## Development References
+
+- [README § Overview](README.md#overview) – clarify the role of UI primitives before designing new accessibility defaults or contracts.
+- [README § Bootstrapping the runtime](README.md#bootstrapping-the-runtime) – ensure runtime wiring and provider expectations stay aligned while introducing new hooks or headless primitives.
+- [README § DataViews in practice](README.md#dataviews-in-practice) – follow the recommended controller patterns when extending DataView integrations or documenting accessibility wrappers.

@@ -2,6 +2,15 @@
 
 This document synthesises the per-package audits for `@geekist/wp-kernel`, `@geekist/wp-kernel-cli`, `@geekist/wp-kernel-e2e-utils`, and `@geekist/wp-kernel-ui`, highlighting cross-cutting themes and contrasting their approaches to naming, composability, and accessibility.
 
+## Audit Reference Index
+
+- [Kernel audit – Phased Work Plan](packages/kernel/ACCESSIBILITY_AUDIT.md#phased-work-plan)
+- [CLI audit – Phased Work Plan](packages/cli/ACCESSIBILITY_AUDIT.md#phased-work-plan)
+- [E2E utilities audit – Phased Work Plan](packages/e2e-utils/ACCESSIBILITY_AUDIT.md#phased-work-plan)
+- [UI audit – Phased Work Plan](packages/ui/ACCESSIBILITY_AUDIT.md#phased-work-plan)
+
+Use these anchors when you need deeper package-specific rationales, example code, or remediation detail before scheduling implementation work.
+
 ## Summary Table
 
 | Package                        | Accessibility Strengths                                                                | Primary Gaps                                                                                 | Extensibility Outlook                                                                  |
@@ -40,17 +49,28 @@ This document synthesises the per-package audits for `@geekist/wp-kernel`, `@gee
 
 ### Phase 0 – Establish Monorepo Accessibility Contracts
 
-- Ratify the shared error taxonomy (`KernelError` + package-specific subclasses) and publish guidance on how each package should map native errors into the shared shape.
-- Ship a central constants module from the kernel (lifecycle phases, namespace tokens, canonical exit code seeds) that downstream packages can import without redefinition.
-- Update documentation and ADRs to describe the shared accessibility expectations (semantic wrappers, reporter behaviours, namespace detection) so later phases inherit a stable contract.
+**Status:** `<complete>` – Shared contracts are documented in the [kernel audit](packages/kernel/ACCESSIBILITY_AUDIT.md#phase-0--define-shared-contracts) and rolled into package READMEs so contributors know where the canonical lifecycle, namespace, and error definitions live.
+
+- **Contract sources:**
+    - [Kernel README § Key Patterns](packages/kernel/README.md#key-patterns) captures lifecycle and namespace primitives for runtime consumers.
+    - [CLI README § Core workflow](packages/cli/README.md#core-workflow-init--generate--apply) references shared exit code messaging expectations for scaffolding pipelines.
+    - [E2E utilities README § Key Features](packages/e2e-utils/README.md#key-features) directs test authors to namespace-aware fixtures.
+    - [UI README § DataViews in practice](packages/ui/README.md#dataviews-in-practice) documents semantic expectations the UI layer must honour.
+- **Update protocol:** When contracts evolve, update the relevant README sections and link the ADR or spec inside the associated package audit before flipping the status back to `<pending>` or `<in-progress>`.
 
 ### Phase 1 – Kernel as Source of Truth
 
-- Implement the shared constants module and expose middleware hooks/lifecycle helpers so other packages can depend on stable APIs.
-- Replace remaining plain `Error` throws in kernel resource helpers with typed errors to model the final contract.
-- Document namespace detection hooks and make them overridable to unblock parallel adoption in CLI, UI, and E2E packages.
+**Status:** `<complete>` – Kernel deliverables are scoped and linked for implementers: typed error migration, middleware hooks, and namespace overrides now reference concrete documentation so teams can begin execution without ambiguity.
+
+- **Implementation checklist:**
+    - Follow [Kernel audit Phase 1 guidance](packages/kernel/ACCESSIBILITY_AUDIT.md#phase-1--harden-kernel-primitives) to drive the error and middleware updates.
+    - Align CLI observability with the kernel constants by consulting [CLI audit Phase 1 guidance](packages/cli/ACCESSIBILITY_AUDIT.md#phase-1--enable-extensible-registries).
+    - Capture namespace override details in [Kernel README § Quick Start](packages/kernel/README.md#quick-start) and mirror integration notes in downstream READMEs.
+- **Contract storage:** File implementation notes under `contracts/` (e.g., lifecycle ADRs) and cross-link them from the audits before marking subtasks complete.
 
 ### Phase 2 – Shared Consumer Enablement (CLI & E2E Utils)
+
+**Status:** `<pending>` – Update to `<in-progress>` once CLI and E2E engineering formally start. Record implementation artefacts in the package READMEs and audits, referencing where exit code/constants integration work can be reviewed.
 
 - Refactor the CLI to consume the kernel-provided constants (exit codes, lifecycle phases) and expose an extension-friendly registry factory built on the kernel middleware primitives.
 - Update E2E utilities to depend on the shared error taxonomy and namespace helpers, modularising factories once the kernel exposes pure interpolation utilities.
@@ -58,6 +78,19 @@ This document synthesises the per-package audits for `@geekist/wp-kernel`, `@gee
 
 ### Phase 3 – UI Experience Consolidation
 
+**Status:** `<pending>` – Toggle to `<in-progress>` when UI and DX teams kick off. Reference `packages/ui/README.md` and the UI audit before marking as `<complete>`; note any additional accessibility contracts in the audit.
+
 - Export headless controller primitives and accessible defaults that rely on the shared constants/error taxonomy, ensuring UI states mirror kernel semantics.
 - Introduce documented wrappers and slots for error/empty states that consume the cross-package observability interfaces.
 - Provide cleanup/mount lifecycle APIs aligned with kernel lifecycle hooks so micro-frontend teams can integrate without contract drift.
+
+## Package README Reference Guide
+
+| Package                        | Key README Sections                                                                                                                                                                                                    | When to Consult                                                                                               |
+| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `@geekist/wp-kernel`           | [Overview](packages/kernel/README.md#overview), [Quick Start](packages/kernel/README.md#quick-start), [Key Patterns](packages/kernel/README.md#key-patterns)                                                           | Understand runtime contracts, lifecycle primitives, and namespace conventions before altering core behaviour. |
+| `@geekist/wp-kernel-cli`       | [Overview](packages/cli/README.md#overview), [Core workflow: init → generate → apply](packages/cli/README.md#core-workflow-init--generate--apply), [Development commands](packages/cli/README.md#development-commands) | Align CLI work with the generation pipeline, exit code expectations, and recommended developer flows.         |
+| `@geekist/wp-kernel-e2e-utils` | [Overview](packages/e2e-utils/README.md#overview), [Key Features](packages/e2e-utils/README.md#key-features), [Validation Strategy](packages/e2e-utils/README.md#validation-strategy)                                  | Plan test utilities and fixtures that honour shared contracts and observability patterns.                     |
+| `@geekist/wp-kernel-ui`        | [Overview](packages/ui/README.md#overview), [Bootstrapping the runtime](packages/ui/README.md#bootstrapping-the-runtime), [DataViews in practice](packages/ui/README.md#dataviews-in-practice)                         | Ensure UI integrations respect kernel bootstrapping, accessibility defaults, and DataViews controllers.       |
+
+Keep this table in sync with README updates so contributors can discover the authoritative guidance for contract changes and implementation steps.

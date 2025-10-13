@@ -60,3 +60,9 @@ This report inspects the CLI package with attention to the discoverability of co
 - Expand help/usage output to highlight the shared contracts, exit codes, and accessibility expectations defined in earlier phases.
 - Add integration tests/examples that demonstrate extending the CLI with custom commands using the new registry factory and shared reporters.
 - Establish regression checks that ensure new commands continue to emit structured errors/events compatible with the cross-package observability contract.
+
+## Development References
+
+- [README § Overview](README.md#overview) – orient new contributors on the CLI mission and supported pipelines before touching command surfaces.
+- [README § Core workflow: init → generate → apply](README.md#core-workflow-init--generate--apply) – understand how generation, reporters, and exit codes interact when designing accessibility improvements.
+- [README § Development commands](README.md#development-commands) – follow the recommended local workflows when validating new contracts, middleware hooks, or reporter changes.
