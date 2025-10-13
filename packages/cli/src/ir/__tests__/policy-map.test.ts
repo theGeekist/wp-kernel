@@ -108,6 +108,49 @@ describe('policy map integration', () => {
 			}
 		);
 	});
+
+	it('rejects descriptors with invalid appliesTo scope', async () => {
+		await withTempWorkspace(
+			async (workspace) => {
+				await fs.writeFile(
+					path.join(workspace, 'kernel.config.ts'),
+					'export const kernelConfig = {};',
+					'utf8'
+				);
+				await fs.mkdir(path.join(workspace, 'src'), {
+					recursive: true,
+				});
+				await fs.writeFile(
+					path.join(workspace, 'src', 'policy-map.cjs'),
+					[
+						'module.exports = {',
+						'        policyMap: {',
+						"                'demo.create': 'manage_options',",
+						"                'demo.get': { capability: 'edit_post', appliesTo: 'objectt' },",
+						'        },',
+						'};',
+					].join('\n'),
+					'utf8'
+				);
+			},
+			async (workspace) => {
+				const config = createPolicyConfig();
+
+				await expect(
+					buildIr({
+						config,
+						sourcePath: path.join(workspace, 'kernel.config.ts'),
+						origin: 'kernel.config.ts',
+						namespace: config.namespace,
+					})
+				).rejects.toMatchObject({
+					code: 'ValidationError',
+					context: expect.objectContaining({ policy: 'demo.get' }),
+					message: expect.stringContaining('invalid appliesTo scope'),
+				});
+			}
+		);
+	});
 });
 
 function createPolicyConfig(): KernelConfigV1 {

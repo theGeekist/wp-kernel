@@ -303,6 +303,8 @@ function coerceDescriptor(
 	}
 
 	if (isPolicyCapabilityDescriptor(candidate)) {
+		assertValidPolicyScope(candidate.appliesTo, options);
+
 		return {
 			capability: candidate.capability,
 			appliesTo: candidate.appliesTo ?? 'resource',
@@ -328,6 +330,28 @@ function normaliseBinding(binding: unknown): string | undefined {
 
 	const trimmed = binding.trim();
 	return trimmed.length > 0 ? trimmed : undefined;
+}
+
+function assertValidPolicyScope(
+	scope: unknown,
+	options: { key: string; origin: string }
+): asserts scope is IRPolicyScope | undefined {
+	if (scope === undefined || scope === 'resource' || scope === 'object') {
+		return;
+	}
+
+	const message =
+		`Policy map entry "${options.key}" has invalid appliesTo scope "${String(scope)}". ` +
+		'Expected "resource" or "object".';
+
+	throw new KernelError('ValidationError', {
+		message,
+		context: {
+			policy: options.key,
+			policyMapPath: options.origin,
+			appliesTo: scope,
+		},
+	});
 }
 
 function deriveBinding(options: {
