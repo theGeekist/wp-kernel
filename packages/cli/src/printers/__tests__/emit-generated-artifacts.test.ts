@@ -601,7 +601,7 @@ describe('emitGeneratedArtifacts', () => {
 				context?: unknown;
 			}> = [];
 			const baseReporter = createNoopReporter();
-			const capturingReporter = {
+			const capturingReporter: AdapterContext['reporter'] = {
 				info: baseReporter.info,
 				warn: (message: string, context?: unknown) => {
 					warnings.push({ message, context });
@@ -610,7 +610,7 @@ describe('emitGeneratedArtifacts', () => {
 				error: baseReporter.error,
 				debug: baseReporter.debug,
 				child: () => capturingReporter,
-			} satisfies AdapterContext['reporter'];
+			};
 
 			policyContext.adapterContext = {
 				config: policyContext.ir.config,
@@ -1084,6 +1084,7 @@ function createIrFixture(): IRv1 {
 			},
 		},
 		hash: 'resource-job',
+		warnings: [],
 	};
 
 	const taskResource: IRResource = {
@@ -1126,6 +1127,7 @@ function createIrFixture(): IRv1 {
 		} as unknown as IRResource['storage'],
 		queryParams: undefined,
 		hash: 'resource-task',
+		warnings: [],
 	};
 
 	const literalResource: IRResource = {
@@ -1153,6 +1155,7 @@ function createIrFixture(): IRv1 {
 		identity: { type: 'string', param: 'uuid' } as IRResource['identity'],
 		queryParams: undefined,
 		hash: 'resource-literal',
+		warnings: [],
 	};
 
 	const orphanResource: IRResource = {
@@ -1181,6 +1184,7 @@ function createIrFixture(): IRv1 {
 		storage: undefined,
 		queryParams: undefined,
 		hash: 'resource-orphan',
+		warnings: [],
 	};
 
 	const remoteResource: IRResource = {
@@ -1209,6 +1213,7 @@ function createIrFixture(): IRv1 {
 		storage: undefined,
 		queryParams: undefined,
 		hash: 'resource-remote',
+		warnings: [],
 	};
 
 	const ir: IRv1 = {
