@@ -1,11 +1,10 @@
-import type { Reporter } from '@geekist/wp-kernel';
+import type { Reporter } from '@geekist/wp-kernel/reporter';
 import { runGenerate } from '../run-generate';
 
 import { loadKernelConfig } from '../../config';
 import { buildIr } from '../../ir';
 import { emitGeneratedArtifacts } from '../../printers';
 import { runAdapterExtensions } from '../../adapters';
-import { createReporter } from '@geekist/wp-kernel/reporter';
 import type { WPKConfigSource } from '@geekist/wp-kernel/namespace/constants';
 
 jest.mock('../../config');
@@ -85,9 +84,6 @@ const emitGeneratedArtifactsMock =
 const runAdapterExtensionsMock = runAdapterExtensions as jest.MockedFunction<
 	typeof runAdapterExtensions
 >;
-const createReporterMockFn = createReporter as jest.MockedFunction<
-	typeof createReporter
->;
 
 function createReporterMock(): Reporter {
 	const reporter = {
@@ -164,12 +160,20 @@ describe('runGenerate', () => {
 			throw new Error('extension failure');
 		});
 
-		const result = await runGenerate({ dryRun: true });
+		// Create and inject a local reporter so we can inspect child calls
+		const reporter = createReporterMock();
+
+		const result = await runGenerate({ dryRun: true, reporter });
 
 		expect(result.exitCode).toBe(3);
-		// Find any child reporter's error call
-		const reporter = createReporterMockFn.mock.results[0]!.value;
-		const errorCalls = reporter.child('adapter').error.mock.calls;
+
+		// Cast to jest.Mocked to access mock.calls
+		const mockedReporter = reporter as unknown as jest.Mocked<Reporter>;
+		const childAdapter = mockedReporter.child(
+			'adapter'
+		) as unknown as jest.Mocked<Reporter>;
+		const errorCalls = childAdapter.error.mock.calls;
+
 		expect(
 			errorCalls.some(
 				(call: any) =>
@@ -203,13 +207,21 @@ describe('runGenerate', () => {
 			rollback,
 		} as never);
 
-		const result = await runGenerate({ dryRun: true });
+		// Create and inject a local reporter so we can inspect child calls
+		const reporter = createReporterMock();
+
+		const result = await runGenerate({ dryRun: true, reporter });
 
 		expect(result.exitCode).toBe(3);
 		expect(commit).toHaveBeenCalledTimes(1);
 		expect(rollback).toHaveBeenCalledTimes(1);
-		const reporter = createReporterMockFn.mock.results[0]!.value;
-		const errorCalls = reporter.child('adapter').error.mock.calls;
+
+		const mockedReporter = reporter as unknown as jest.Mocked<Reporter>;
+		const childAdapter = mockedReporter.child(
+			'adapter'
+		) as unknown as jest.Mocked<Reporter>;
+		const errorCalls = childAdapter.error.mock.calls;
+
 		expect(
 			errorCalls.some(
 				(call: any) =>
