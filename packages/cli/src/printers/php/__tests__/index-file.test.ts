@@ -13,6 +13,12 @@ describe('createPhpIndexFile', () => {
 			'Rest',
 			'BaseController.php'
 		);
+		const policyHelperPath = path.resolve(
+			'/tmp',
+			'php',
+			'Policy',
+			'Policy.php'
+		);
 		const persistencePath = path.resolve(
 			'/tmp',
 			'php',
@@ -24,6 +30,7 @@ describe('createPhpIndexFile', () => {
 			indexPath,
 			namespaceRoot,
 			baseControllerPath,
+			policyHelperPath,
 			resourceEntries: [
 				{
 					className: `${namespaceRoot}\\Rest\\JobController`,
@@ -51,6 +58,9 @@ describe('createPhpIndexFile', () => {
 		expect(result).toMatch(
 			new RegExp(`'${formattedNamespace}\\\\Rest\\\\BaseController'`)
 		);
+		expect(result).toMatch(
+			new RegExp(`'${formattedNamespace}\\\\Policy\\\\Policy'`)
+		);
 	});
 });
 
@@ -66,6 +76,17 @@ function createPrinterContext(): PrinterContext {
 			schemas: [],
 			resources: [],
 			config: {},
+			policyMap: {
+				sourcePath: undefined,
+				definitions: [],
+				fallback: {
+					capability: 'manage_options',
+					appliesTo: 'resource',
+				},
+				missing: [],
+				unused: [],
+				warnings: [],
+			},
 		},
 	} as unknown as PrinterContext;
 }

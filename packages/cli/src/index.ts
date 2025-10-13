@@ -22,6 +22,14 @@ export type {
 	LoadedKernelConfig,
 } from './config';
 
+export {
+	definePolicyMap,
+	type PolicyCapabilityDescriptor,
+	type PolicyMapDefinition,
+	type PolicyMapEntry,
+	type PolicyMapScope,
+} from './policy-map';
+
 export type {
 	IRv1,
 	IRSchema,

@@ -7,6 +7,7 @@ import { createPersistenceRegistryBuilder } from './persistence-registry';
 import { createPhpIndexFile } from './index-file';
 import { writePhpArtifact } from './writer';
 import { warnOnMissingPolicies } from './routes';
+import { createPolicyHelperBuilder } from './policy-helper';
 
 export async function emitPhpArtifacts(context: PrinterContext): Promise<void> {
 	const phpRoot = path.resolve(context.outputDir, 'php');
@@ -22,6 +23,13 @@ export async function emitPhpArtifacts(context: PrinterContext): Promise<void> {
 		context
 	);
 	await writePhpArtifact(baseControllerPath, baseControllerBuilder, context);
+
+	const policyHelperPath = path.join(phpRoot, 'Policy', 'Policy.php');
+	const policyHelperBuilder = createPolicyHelperBuilder(
+		namespaceRoot,
+		context
+	);
+	await writePhpArtifact(policyHelperPath, policyHelperBuilder, context);
 
 	const resourceEntries: { className: string; path: string }[] = [];
 
@@ -73,6 +81,7 @@ export async function emitPhpArtifacts(context: PrinterContext): Promise<void> {
 		indexPath,
 		namespaceRoot,
 		baseControllerPath,
+		policyHelperPath,
 		resourceEntries,
 		persistencePath,
 		context,

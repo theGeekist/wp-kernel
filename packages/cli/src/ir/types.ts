@@ -71,6 +71,28 @@ export interface IRPolicyHint {
 	}>;
 }
 
+export type IRPolicyScope = 'resource' | 'object';
+
+export interface IRPolicyDefinition {
+	key: string;
+	capability: string;
+	appliesTo: IRPolicyScope;
+	binding?: string;
+	source: 'map' | 'fallback';
+}
+
+export interface IRPolicyMap {
+	sourcePath?: string;
+	definitions: IRPolicyDefinition[];
+	fallback: {
+		capability: string;
+		appliesTo: IRPolicyScope;
+	};
+	missing: string[];
+	unused: string[];
+	warnings: IRWarning[];
+}
+
 export interface IRBlock {
 	key: string;
 	directory: string;
@@ -96,6 +118,7 @@ export interface IRv1 {
 	schemas: IRSchema[];
 	resources: IRResource[];
 	policies: IRPolicyHint[];
+	policyMap: IRPolicyMap;
 	blocks: IRBlock[];
 	php: IRPhpProject;
 }

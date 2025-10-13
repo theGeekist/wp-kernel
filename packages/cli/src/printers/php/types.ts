@@ -4,7 +4,8 @@ export interface PhpFileMetadata {
 		| 'resource-controller'
 		| 'persistence-registry'
 		| 'block-manifest'
-		| 'block-registrar';
+		| 'block-registrar'
+		| 'policy-helper';
 	name?: string;
 }
 

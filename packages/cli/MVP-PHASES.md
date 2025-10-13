@@ -277,7 +277,7 @@ packages/cli/src/printers/blocks/
 
 **Dependencies:** Phase 1A, 1B.
 
-**Status Log:** Started 2025-02-14 - Completed 2025-02-14
+**Status Log:** Started 2025-10-13 - Completed 2025-10-13
 
 **Reference files:** Rule sources in `eslint-rules/`, wiring in `eslint.config.js`, and fixtures/tests in `packages/cli/tests/eslint/`.
 
@@ -296,7 +296,7 @@ packages/cli/src/printers/blocks/
 
 **DoD:** `wpk init` creates expected files; tests verify `--force` behavior.
 
-**Status Log:** Started 2025-02-15 - Completed 2025-02-15
+**Status Log:** Started 2025-10-13 - Completed 2025-10-13
 
 **Reference files:** `packages/cli/src/commands/init.ts`, template assets under `packages/cli/templates/**`, and tests in `packages/cli/src/commands/__tests__/init-command.test.ts` (or new fixture-backed suites).
 
@@ -319,7 +319,7 @@ packages/cli/src/printers/blocks/
 
 **Dependencies:** Phases 2-4, 5A.
 
-**Status Log:** Started 2025-02-16 - Completed 2025-02-16
+**Status Log:** Started 2025-10-13 - Completed 2025-10-13
 
 **Reference files:** CLI entrypoints (`packages/cli/src/commands/generate.ts`, `apply.ts`, `start.ts`, `build.ts`), documentation in `packages/cli/README.md`, and smoke-test fixtures under `packages/cli/tests/pipeline/**`.
 
@@ -369,7 +369,7 @@ packages/cli/src/printers/blocks/
 
 **Dependencies:** Phases 3B, 5B.
 
-**Status Log:** Started 2025-02-17 - Completed 2025-02-17
+**Status Log:** Started 2025-10-13 - Completed 2025-10-13
 
 **Reference files:** `packages/cli/src/commands/apply.ts`, test harness in `packages/cli/src/commands/__tests__/apply-command.test.ts`, and new fixtures under `packages/cli/tests/fixtures/apply-blocks/**`.
 
