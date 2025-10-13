@@ -11,7 +11,7 @@ import {
 import { act } from 'react';
 import { ResourceDataView } from '../ResourceDataView';
 import { KernelError } from '@geekist/wp-kernel/error';
-import type { CacheKeyPattern } from '@geekist/wp-kernel/resource/cache';
+import type { CacheKeyPattern } from '@geekist/wp-kernel/resource';
 
 type DataViewActionMock = {
 	callback: (
