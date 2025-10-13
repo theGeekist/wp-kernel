@@ -50,6 +50,8 @@ export default {
 		'!packages/cli/src/printers/**', // File printers (tested indirectly via IR tests)
 		'!packages/cli/src/version.ts', // Auto-generated version constant
 		'!packages/cli/src/ir/__fixtures__/**', // Test fixtures
+		// Exclude dataviews test-support helpers from coverage
+		'!<rootDir>/packages/ui/src/dataviews/test-support/**',
 		// Exclude type definitions and tests
 		'!packages/*/src/**/*.d.ts',
 		'!app/*/src/**/*.d.ts',
