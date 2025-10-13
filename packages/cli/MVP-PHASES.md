@@ -347,7 +347,7 @@ packages/cli/src/printers/blocks/
 
 **Dependencies:** Phase 5B (pipeline integration) and Phase 6A (integration harness) for testing support.
 
-**Status Log:** Started 2025-02-18 - Completed 2025-02-18
+**Status Log:** Started 2025-10-13 - Completed 2025-10-13
 
 **Reference files:** `packages/cli/src/commands/start.ts`, `build.ts`, existing helpers (`run-generate.ts`, `apply.ts`), scaffolding templates, README/docs.
 
@@ -430,7 +430,7 @@ packages/cli/src/printers/blocks/
 
 **Dependencies:** Phases 1A, 2B-2C.
 
-**Status Log:** Started 2025-10-19 - Completed 2025-10-20
+**Status Log:** Started 2025-10-13 - Completed 2025-10-13
 
 **Reference files:** policy detection in `packages/cli/src/ir/build-ir.ts` (new helpers), PHP helper printer additions alongside `packages/cli/src/printers/php/printer.ts`, and fixtures/tests in `packages/cli/tests/policy-map/**`.
 
@@ -447,6 +447,7 @@ packages/cli/src/printers/blocks/
 - Update consuming packages to import from those subpath exports instead of the package root or deep relative paths into `src/`.
 - Update CLI bundling (Vite/Rollup) to externalise peer dependencies (e.g., `@wordpress/*`, `chokidar`) and lazy-load where beneficial.
 - Add regression checks/lints preventing reintroduction of root/deep-relative imports or bundled externals.
+- Update changelogs with deltas from this documents deliverables in the relevant packages
 
 **Deliverables:** Revised source exports, import updates, documentation scripts, bundler config changes, and associated tests.
 
