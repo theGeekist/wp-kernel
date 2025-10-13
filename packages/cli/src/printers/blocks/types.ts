@@ -26,6 +26,11 @@ export interface BlockPrinterOptions {
 	 * Project root directory
 	 */
 	projectRoot: string;
+
+	/**
+	 * Source description used in generated banners
+	 */
+	source?: string;
 }
 
 /**
