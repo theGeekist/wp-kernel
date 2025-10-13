@@ -430,13 +430,41 @@ packages/cli/src/printers/blocks/
 
 **Dependencies:** Phases 1A, 2B-2C.
 
-**Status Log:** _Pending_
+**Status Log:** Started 2025-10-19 - Completed 2025-10-20
 
 **Reference files:** policy detection in `packages/cli/src/ir/build-ir.ts` (new helpers), PHP helper printer additions alongside `packages/cli/src/printers/php/printer.ts`, and fixtures/tests in `packages/cli/tests/policy-map/**`.
 
 ---
 
-## Phase 8 - Final QA & Adoption
+## Phase 8A – Documentation, Exports & Bundler Hygiene
+
+**Spec references:** [MVP Spec §11](./mvp-cli-spec.md#11-documentation-exports--bundler-hygiene)
+
+**Scope:**
+
+- Harmonise API documentation across packages (kernel, CLI, UI) using consistent JSDoc-driven generation.
+- Introduce barrel exports (`index.ts`) for kernel subdirectories and expose them via package `exports` entries (e.g., `@geekist/wp-kernel/events`).
+- Update consuming packages to import from those subpath exports instead of the package root or deep relative paths into `src/`.
+- Update CLI bundling (Vite/Rollup) to externalise peer dependencies (e.g., `@wordpress/*`, `chokidar`) and lazy-load where beneficial.
+- Add regression checks/lints preventing reintroduction of root/deep-relative imports or bundled externals.
+
+**Deliverables:** Revised source exports, import updates, documentation scripts, bundler config changes, and associated tests.
+
+**DoD:**
+
+- `pnpm --filter @geekist/wp-kernel build` succeeds with new export surface; lint/tests pass without deep import warnings.
+- Updated docs published via existing pipelines cover CLI/UI/kernels consistently.
+- CLI bundle excludes designated externals; before/after stats captured in docs or changelog.
+
+**Dependencies:** Phase 7.
+
+**Status Log:** _Pending_
+
+**Reference files:** `packages/kernel/src/**/index.ts`, package `package.json` exports, doc scripts under `docs/` or `scripts/`, CLI bundler config (`packages/cli/vite.config.ts`).
+
+---
+
+## Phase 8B - Final QA & Adoption
 
 **Spec references:** Entire MVP spec
 
@@ -452,7 +480,7 @@ packages/cli/src/printers/blocks/
 
 **DoD:** All phases complete; docs aligned; ready for release.
 
-**Dependencies:** All prior phases.
+**Dependencies:** All prior phases including 8A.
 
 **Reference files:** Showcase fixtures under `app/showcase`, smoke test project `app/test-the-cli`, CLI docs in `packages/cli/README.md`, and CHANGELOG updates in `packages/cli/CHANGELOG.md`.
 
@@ -462,18 +490,21 @@ packages/cli/src/printers/blocks/
 
 ## Quick Reference
 
-| Phase | Focus                  | Dependencies |
-| ----- | ---------------------- | ------------ |
-| 1A    | IR route + policy meta | -            |
-| 1B    | Block discovery        | 1A           |
-| 2A    | PHP printer stubs      | 1A           |
-| 2B    | `wp-post` CRUD         | 2A           |
-| 2C    | Other storage modes    | 2B           |
-| 3A    | JS-only blocks         | 1B           |
-| 3B    | SSR blocks             | 3A           |
-| 4     | ESLint rules           | 1A           |
-| 5A    | Init scaffolding       | -            |
-| 5B    | Pipeline + docs        | 2-4, 5A      |
-| 6     | Block-aware apply      | 3B, 5B       |
-| 7     | Policy integration     | 1A, 2B-2C    |
-| 8     | Final QA               | All          |
+| Phase | Focus                        | Dependencies |
+| ----- | ---------------------------- | ------------ |
+| 1A    | IR route + policy meta       | -            |
+| 1B    | Block discovery              | 1A           |
+| 2A    | PHP printer stubs            | 1A           |
+| 2B    | `wp-post` CRUD               | 2A           |
+| 2C    | Other storage modes          | 2B           |
+| 3A    | JS-only blocks               | 1B           |
+| 3B    | SSR blocks                   | 3A           |
+| 4     | ESLint rules                 | 1A           |
+| 5A    | Init scaffolding             | -            |
+| 5B    | Pipeline + docs              | 2-4, 5A      |
+| 5C    | Command surface refresh      | 5B, 6A       |
+| 6     | Block-aware apply            | 3B, 5B       |
+| 6A    | CLI integration harness      | 5B           |
+| 7     | Policy integration           | 1A, 2B-2C    |
+| 8A    | Docs/exports/bundler hygiene | 7            |
+| 8B    | Final QA & adoption          | All prior    |
