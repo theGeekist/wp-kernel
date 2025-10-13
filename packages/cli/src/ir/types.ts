@@ -20,16 +20,25 @@ export interface IRSchema {
 	};
 }
 
+export type IRRouteTransport = 'local' | 'remote';
+
 export interface IRRoute {
 	method: string;
 	path: string;
 	policy?: string;
 	hash: string;
+	transport: IRRouteTransport;
 }
 
 export interface IRResourceCacheKey {
 	segments: readonly unknown[];
 	source: 'default' | 'config';
+}
+
+export interface IRWarning {
+	code: string;
+	message: string;
+	context?: Record<string, unknown>;
 }
 
 export interface IRResource {
@@ -49,17 +58,46 @@ export interface IRResource {
 	queryParams?: ResourceQueryParams;
 	ui?: ResourceUIConfig;
 	hash: string;
+	warnings: IRWarning[];
 }
 
 export interface IRPolicyHint {
 	key: string;
 	source: 'resource' | 'config';
+	references: Array<{
+		resource: string;
+		route: string;
+		transport: IRRouteTransport;
+	}>;
+}
+
+export type IRPolicyScope = 'resource' | 'object';
+
+export interface IRPolicyDefinition {
+	key: string;
+	capability: string;
+	appliesTo: IRPolicyScope;
+	binding?: string;
+	source: 'map' | 'fallback';
+}
+
+export interface IRPolicyMap {
+	sourcePath?: string;
+	definitions: IRPolicyDefinition[];
+	fallback: {
+		capability: string;
+		appliesTo: IRPolicyScope;
+	};
+	missing: string[];
+	unused: string[];
+	warnings: IRWarning[];
 }
 
 export interface IRBlock {
-	name: string;
+	key: string;
 	directory: string;
-	ssr?: boolean;
+	hasRender: boolean;
+	manifestSource: string;
 }
 
 export interface IRPhpProject {
@@ -80,6 +118,7 @@ export interface IRv1 {
 	schemas: IRSchema[];
 	resources: IRResource[];
 	policies: IRPolicyHint[];
+	policyMap: IRPolicyMap;
 	blocks: IRBlock[];
 	php: IRPhpProject;
 }

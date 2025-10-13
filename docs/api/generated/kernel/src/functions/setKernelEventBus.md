@@ -1,0 +1,21 @@
+[**WP Kernel API v0.3.0**](../../../README.md)
+
+---
+
+[WP Kernel API](../../../README.md) / [kernel/src](../README.md) / setKernelEventBus
+
+# Function: setKernelEventBus()
+
+```ts
+function setKernelEventBus(bus): void;
+```
+
+## Parameters
+
+### bus
+
+[`KernelEventBus`](../classes/KernelEventBus.md)
+
+## Returns
+
+`void`

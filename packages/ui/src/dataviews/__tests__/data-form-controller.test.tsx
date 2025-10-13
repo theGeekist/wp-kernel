@@ -1,11 +1,18 @@
 import { act } from 'react';
 import type { DefinedAction } from '@geekist/wp-kernel/actions';
 import { KernelError } from '@geekist/wp-kernel/error';
-import type { ResourceObject } from '@geekist/wp-kernel/resource';
+import type {
+	ResourceObject,
+	CacheKeyPattern,
+} from '@geekist/wp-kernel/resource';
+import * as errorUtils from '../error-utils';
 import type { KernelUIRuntime } from '@geekist/wp-kernel/data';
 import { KernelUIProvider } from '../../runtime/context';
 import { createRoot } from 'react-dom/client';
-import { createDataFormController } from '../data-form-controller';
+import {
+	__TESTING__ as dataFormTesting,
+	createDataFormController,
+} from '../data-form-controller';
 import type { DataViewsRuntimeContext } from '../types';
 
 jest.mock('../../hooks/useAction', () => ({
@@ -193,5 +200,67 @@ describe('createDataFormController', () => {
 				await result.current.submit({});
 			})
 		).rejects.toThrow('Invalid data');
+	});
+
+	it('computes default invalidation patterns', () => {
+		const { defaultInvalidate } = dataFormTesting;
+		const noResourceInvalidate = defaultInvalidate(undefined);
+		expect(noResourceInvalidate({}, {})).toBe(false);
+
+		const resource = {
+			key: jest.fn(() => ['jobs', 'list'] as CacheKeyPattern),
+		} as unknown as ResourceObject<unknown, unknown>;
+		const invalidate = defaultInvalidate(resource);
+		expect(invalidate({}, {})).toEqual([['jobs', 'list']]);
+	});
+
+	it('falls back to unknown action name when missing', async () => {
+		const runtime = createRuntime();
+		const kernelError = new KernelError('ValidationError', {
+			message: 'Failure',
+		});
+		useActionMock.mockImplementation(() => ({
+			run: jest.fn(async () => {
+				throw kernelError;
+			}),
+			status: 'idle',
+			error: undefined,
+			inFlight: 0,
+			cancel: jest.fn(),
+			reset: jest.fn(),
+			result: undefined,
+		}));
+
+		const normalizeSpy = jest.spyOn(errorUtils, 'normalizeActionError');
+
+		const action = Object.assign(async () => undefined, {
+			actionName: undefined as unknown as string,
+			options: { scope: 'crossTab', bridged: true },
+		}) as DefinedAction<Record<string, unknown>, void>;
+
+		const controllerFactory = createDataFormController({
+			action,
+			runtime: runtime as unknown as DataViewsRuntimeContext,
+			resourceName: 'jobs',
+		});
+
+		const { result } = renderHookWithProvider(controllerFactory, runtime);
+
+		await expect(
+			act(async () => {
+				await result.current.submit({});
+			})
+		).rejects.toThrow('Failure');
+
+		expect(normalizeSpy).toHaveBeenCalledWith(
+			kernelError,
+			expect.objectContaining({
+				actionId: 'unknown.action',
+				resource: 'jobs',
+			}),
+			runtime.reporter
+		);
+
+		normalizeSpy.mockRestore();
 	});
 });

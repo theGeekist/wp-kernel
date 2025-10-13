@@ -12,7 +12,9 @@
 		"dist",
 		"vendor",
 		"**/*.test.ts",
-		"**/*.test.tsx"
+		"**/*.test.tsx",
+		"**/*.test-support.ts",
+		"**/*.test-support.tsx"
 	],
 	"references": [{ "path": "../kernel" }]
 }

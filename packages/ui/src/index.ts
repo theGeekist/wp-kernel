@@ -1,9 +1,9 @@
 /**
  * WP Kernel UI - Component Library Package
  *
- * Reusable UI components for WP Kernel
+ * Reusable UI components for WP Kernel.
  *
- * @module
+ * @module @geekist/wp-kernel-ui
  */
 
 /**

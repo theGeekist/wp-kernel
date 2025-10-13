@@ -58,6 +58,8 @@ export default {
 		'!<rootDir>/packages/ui/src/index.ts',
 		// Exclude testing utilities (test helpers, not production code)
 		'!<rootDir>/packages/ui/src/hooks/testing/**',
+		// Exclude dataviews test-support helpers from coverage
+		'!<rootDir>/packages/ui/src/dataviews/test-support/**',
 	],
 
 	// Coverage thresholds for this package

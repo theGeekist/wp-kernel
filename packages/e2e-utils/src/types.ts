@@ -11,7 +11,7 @@ import type {
 	PageUtils,
 	RequestUtils,
 } from '@wordpress/e2e-test-utils-playwright';
-import type { ResourceConfig } from '@geekist/wp-kernel';
+import type { ResourceConfig } from '@geekist/wp-kernel/resource';
 
 export type KernelResourceConfig = ResourceConfig<unknown, unknown>;
 

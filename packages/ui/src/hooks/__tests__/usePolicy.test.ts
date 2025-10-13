@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { usePolicy } from '../usePolicy';
 import { KernelUIProvider } from '../../runtime';
 import type { KernelUIRuntime } from '@geekist/wp-kernel/data';
-import { KernelEventBus } from '@geekist/wp-kernel';
+import { KernelEventBus } from '@geekist/wp-kernel/events';
 import type { Reporter } from '@geekist/wp-kernel/reporter';
 import {
 	createPolicyCache,
