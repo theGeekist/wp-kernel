@@ -1,5 +1,10 @@
 export interface PhpFileMetadata {
-	kind: 'base-controller' | 'resource-controller' | 'persistence-registry';
+	kind:
+		| 'base-controller'
+		| 'resource-controller'
+		| 'persistence-registry'
+		| 'block-manifest'
+		| 'block-registrar';
 	name?: string;
 }
 

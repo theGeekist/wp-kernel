@@ -107,6 +107,132 @@ describe('emitGeneratedArtifacts', () => {
 		});
 	});
 
+	it('generates block manifests and auto-register for JS-only resources', async () => {
+		await withTempDir(async (tempDir) => {
+			const context = createPrinterContext(tempDir);
+
+			await emitGeneratedArtifacts(context);
+
+			const blocksRoot = path.join(context.outputDir, 'blocks');
+			const literalManifestPath = path.join(
+				blocksRoot,
+				'literal',
+				'block.json'
+			);
+			const remoteManifestPath = path.join(
+				blocksRoot,
+				'remote',
+				'block.json'
+			);
+			const autoRegisterPath = path.join(blocksRoot, 'auto-register.ts');
+			const literalEditorPath = path.join(
+				blocksRoot,
+				'literal',
+				'index.tsx'
+			);
+			const literalViewPath = path.join(blocksRoot, 'literal', 'view.ts');
+
+			const literalManifest = JSON.parse(
+				await fs.readFile(literalManifestPath, 'utf8')
+			);
+			expect(literalManifest).toMatchObject({
+				name: 'demo-namespace/literal',
+				apiVersion: 3,
+				editorScriptModule: 'file:./index.tsx',
+				viewScriptModule: 'file:./view.ts',
+			});
+
+			const remoteManifest = JSON.parse(
+				await fs.readFile(remoteManifestPath, 'utf8')
+			);
+			expect(remoteManifest.attributes).toMatchObject({
+				id: expect.objectContaining({ type: 'integer' }),
+				title: expect.objectContaining({ type: 'string' }),
+			});
+
+			const autoRegisterContents = await fs.readFile(
+				autoRegisterPath,
+				'utf8'
+			);
+			expect(autoRegisterContents).toContain(
+				'No JS-only blocks require auto-registration.'
+			);
+
+			const editorContents = await fs.readFile(literalEditorPath, 'utf8');
+			expect(editorContents).toContain('AUTO-GENERATED WPK STUB');
+			expect(editorContents).toContain('registerBlockType');
+
+			const viewContents = await fs.readFile(literalViewPath, 'utf8');
+			expect(viewContents).toContain('initBlockView');
+		});
+	});
+
+	it('produces SSR manifest and registrar when SSR blocks exist', async () => {
+		await withTempDir(async (tempDir) => {
+			const context = createPrinterContext(tempDir);
+			const ssrBlockDir = path.join(
+				tempDir,
+				'src',
+				'blocks',
+				'ssr-block'
+			);
+			await fs.mkdir(ssrBlockDir, { recursive: true });
+
+			const manifestPath = path.join(ssrBlockDir, 'block.json');
+			await fs.writeFile(
+				manifestPath,
+				JSON.stringify({
+					name: 'demo-namespace/ssr-block',
+					title: 'SSR Block',
+					icon: 'database',
+					category: 'widgets',
+					render: 'file:./render.php',
+				}),
+				'utf8'
+			);
+			await fs.writeFile(
+				path.join(ssrBlockDir, 'render.php'),
+				'<?php echo "SSR";'
+			);
+
+			context.ir.blocks = [
+				...context.ir.blocks,
+				{
+					key: 'demo-namespace/ssr-block',
+					directory: path.join('src', 'blocks', 'ssr-block'),
+					hasRender: true,
+					manifestSource: path.relative(tempDir, manifestPath),
+				},
+			];
+
+			await emitGeneratedArtifacts(context);
+
+			const manifestFile = path.join(
+				context.outputDir,
+				'build',
+				'blocks-manifest.php'
+			);
+			const registrarFile = path.join(
+				context.outputDir,
+				'inc',
+				'Blocks',
+				'Register.php'
+			);
+
+			const manifestContents = await fs.readFile(manifestFile, 'utf8');
+			expect(manifestContents).toContain("'demo-namespace/ssr-block'");
+			expect(manifestContents).toContain(
+				"'render' => 'src/blocks/ssr-block/render.php'"
+			);
+
+			const registrarContents = await fs.readFile(registrarFile, 'utf8');
+			expect(registrarContents).toContain('final class Register');
+			expect(registrarContents).toContain(
+				'register_block_type_from_metadata'
+			);
+		});
+	});
+
 	it('emits PHP controllers, persistence registry, and index', async () => {
 		await withTempDir(async (tempDir) => {
 			const context = createPrinterContext(tempDir);
