@@ -1,5 +1,6 @@
 import { KernelError } from '@geekist/wp-kernel/error';
-import type { Reporter, SerializedError } from '@geekist/wp-kernel';
+import type { Reporter } from '@geekist/wp-kernel/reporter';
+import type { SerializedError } from '@geekist/wp-kernel/error';
 
 export function determineExitCode(error: unknown): number {
 	if (KernelError.isKernelError(error)) {

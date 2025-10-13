@@ -1,7 +1,7 @@
 import { execFile as execFileCallback } from 'node:child_process';
 import { promisify } from 'node:util';
 import { KernelError } from '@geekist/wp-kernel/error';
-import type { Reporter } from '@geekist/wp-kernel';
+import type { Reporter } from '@geekist/wp-kernel/reporter';
 import { toWorkspaceRelative } from '../../utils';
 import { serialiseError } from './errors';
 import { statIfExists } from './fs-utils';

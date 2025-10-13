@@ -406,7 +406,7 @@ packages/cli/src/printers/blocks/
 
 **Dependencies:** Phase 5B (pipeline integration). Complements Phase 6.
 
-**Status Log:** _Pending_
+**Status Log:** Started 2025-10-13 - Completed 2025-10-13
 
 **Reference files:** `packages/e2e-utils/` (new helpers), `packages/cli/tests/integration/**` (fixtures + suites), existing command tests in `packages/cli/src/commands/__tests__/`.
 
@@ -459,7 +459,7 @@ packages/cli/src/printers/blocks/
 
 **Dependencies:** Phase 7.
 
-**Status Log:** _Pending_
+**Status Log:** Started 2025-10-13 - Completed 2025-10-13
 
 **Reference files:** `packages/kernel/src/**/index.ts`, package `package.json` exports, doc scripts under `docs/` or `scripts/`, CLI bundler config (`packages/cli/vite.config.ts`).
 

@@ -11,7 +11,7 @@ import {
 	KernelEventBus,
 	type ResourceDefinedEvent,
 	getRegisteredResources,
-} from '@geekist/wp-kernel';
+} from '@geekist/wp-kernel/events';
 import { attachUIBindings } from '../attachUIBindings';
 import { attachResourceHooks } from '../../hooks/resource-hooks';
 import type { DataViewPreferencesAdapter } from '../dataviews/preferences';
@@ -28,8 +28,8 @@ jest.mock('../../hooks/resource-hooks', () => ({
 	attachResourceHooks: jest.fn((resource) => resource),
 }));
 
-jest.mock('@geekist/wp-kernel', () => {
-	const actual = jest.requireActual('@geekist/wp-kernel');
+jest.mock('@geekist/wp-kernel/events', () => {
+	const actual = jest.requireActual('@geekist/wp-kernel/events');
 	return {
 		...actual,
 		getRegisteredResources: jest.fn(),

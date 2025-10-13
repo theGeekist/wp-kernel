@@ -1,5 +1,5 @@
 import fs from 'node:fs/promises';
-import type { Reporter } from '@geekist/wp-kernel';
+import type { Reporter } from '@geekist/wp-kernel/reporter';
 import { toWorkspaceRelative } from '../../utils';
 import type { ApplyLogEntry } from './types';
 import { serialiseError } from './errors';

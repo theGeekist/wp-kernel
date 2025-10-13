@@ -40,6 +40,20 @@ prefetch flows.
 Thin React wrapper over kernel Actions with concurrency controls, deduping,
 and automatic cache invalidation.
 
+## CLI Reference
+
+The CLI package now ships with the same JSDoc-driven reference used for the
+kernel. Browse the generated Markdown under `/api/generated` to explore
+`runCli`, command classes, policy-map helpers, and typed configuration
+artifacts for `@geekist/wp-kernel-cli`.
+
+## UI Reference
+
+Typed documentation for `@geekist/wp-kernel-ui` is published alongside the
+kernel and CLI references. The generated pages cover runtime attachment
+helpers, hooks, and DataViews integration utilities so the three packages
+share a consistent API narrative.
+
 ## Coming Soon
 
 The following modules are planned for future sprints:

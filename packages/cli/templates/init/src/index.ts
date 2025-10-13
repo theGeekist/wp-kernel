@@ -1,5 +1,5 @@
-import { configureKernel } from '@geekist/wp-kernel';
-import type { KernelInstance } from '@geekist/wp-kernel';
+import { configureKernel } from '@geekist/wp-kernel/data';
+import type { KernelInstance } from '@geekist/wp-kernel/data';
 import { kernelConfig } from '../kernel.config';
 
 /**
