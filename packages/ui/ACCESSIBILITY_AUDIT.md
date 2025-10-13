@@ -46,8 +46,8 @@ Assess the UI package for accessibility guarantees, naming consistency, and comp
 
 ### Phase 0 – Synchronise with Global Contracts
 
-- Adopt the shared error taxonomy and lifecycle constants from the kernel to drive UI state messaging and async boundaries.
-- Update UI documentation to reflect the monorepo accessibility contract, including expectations for semantic wrappers and observability hooks.
+- Adopt the shared error taxonomy and lifecycle constants from `@geekist/wp-kernel/contracts` to drive UI state messaging and async boundaries.
+- Update UI documentation to reflect the monorepo accessibility contract, including expectations for semantic wrappers and observability hooks described in [Accessibility & Observability Contracts](../../contracts/ACCESSIBILITY_CONTRACTS.md).
 - Ensure provider/runtime code surfaces the shared namespace helpers so UI integrations validate configuration consistently with other packages.
 
 ### Phase 1 – Decompose & Expose Headless Primitives
@@ -67,3 +67,5 @@ Assess the UI package for accessibility guarantees, naming consistency, and comp
 - [README § Overview](README.md#overview) – clarify the role of UI primitives before designing new accessibility defaults or contracts.
 - [README § Bootstrapping the runtime](README.md#bootstrapping-the-runtime) – ensure runtime wiring and provider expectations stay aligned while introducing new hooks or headless primitives.
 - [README § DataViews in practice](README.md#dataviews-in-practice) – follow the recommended controller patterns when extending DataView integrations or documenting accessibility wrappers.
+- [README § Accessibility contracts & constants](README.md#accessibility-contracts--constants) – reuse the shared lifecycle, namespace, and error contracts when building headless primitives or slots.
+- [Accessibility & Observability Contracts](../../contracts/ACCESSIBILITY_CONTRACTS.md) – authoritative definitions that UI components must honour when surfacing telemetry and error messaging.

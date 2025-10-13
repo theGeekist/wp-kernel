@@ -109,6 +109,12 @@ expect(await dataview.getSelectedCount()).toBeGreaterThan(0);
 - **[E2E Testing Guide](https://thegeekist.github.io/wp-kernel/guide/testing)** - Testing patterns and best practices
 - **[API Reference](https://thegeekist.github.io/wp-kernel/api/e2e-utils)** - Complete utility documentation
 
+## Accessibility contracts & constants
+
+- Review the cross-package expectations in [Accessibility & Observability Contracts](../../contracts/ACCESSIBILITY_CONTRACTS.md) before extending fixtures.
+- Import lifecycle hooks, namespace helpers, and exit codes from `@geekist/wp-kernel/contracts` when asserting telemetry or error states in tests.
+- When new assertions require additional constants, land them in the kernel contract module first and update this README so test authors can track the change.
+
 ## Requirements
 
 - **WordPress**: 6.7+

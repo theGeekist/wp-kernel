@@ -154,6 +154,12 @@ await dataview.runBulkAction('Publish');
 
 See the [DataViews guide](../../docs/guide/dataviews.md) for a full walkthrough covering configuration, CLI scaffolding, runtime integration, migration strategy, and accessibility follow-ups.
 
+## Accessibility contracts & constants
+
+- Consult [Accessibility & Observability Contracts](../../contracts/ACCESSIBILITY_CONTRACTS.md) before shipping new controllers or slots.
+- Import lifecycle hooks, namespace helpers, and error codes from `@geekist/wp-kernel/contracts` so UI components surface the same telemetry and messaging as the runtime.
+- Extend the kernel contract module first when adding new states or observability hooks, then update this README and the UI audit to keep guidance in sync.
+
 ## Additional resources
 
 - [DataViews Integration – Specification](./DataViews%20Integration%20-%20Specification.md)

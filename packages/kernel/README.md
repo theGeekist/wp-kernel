@@ -149,6 +149,12 @@ import { defineResource } from '@geekist/wp-kernel';
 - **[API Reference](https://thegeekist.github.io/wp-kernel/api/)** - Complete API documentation
 - **[Contracts Reference](https://thegeekist.github.io/wp-kernel/reference/contracts)** - Events, errors, cache keys
 
+## Accessibility contracts & constants
+
+- Read the monorepo contract source: [Accessibility & Observability Contracts](../../contracts/ACCESSIBILITY_CONTRACTS.md).
+- Import lifecycle phases, namespace values, error codes, and CLI exit codes from `@geekist/wp-kernel/contracts` instead of hard-coding literals.
+- When extending the contract, update both the Markdown reference and [`packages/kernel/src/contracts/index.ts`](./src/contracts/index.ts) before rolling changes into downstream packages.
+
 ## Requirements
 
 - **WordPress**: 6.7+ (Script Modules API required)

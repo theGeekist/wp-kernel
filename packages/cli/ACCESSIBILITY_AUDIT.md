@@ -45,8 +45,8 @@ This report inspects the CLI package with attention to the discoverability of co
 
 ### Phase 0 – Adopt Monorepo Contracts
 
-- Consume the shared lifecycle, namespace, and exit code constants published by the kernel once Phase 0 work lands there.
-- Update CLI documentation to reference the cross-package accessibility expectations (error handling, reporter structure, semantic messaging).
+- Consume the shared lifecycle, namespace, and exit code constants exported by `@geekist/wp-kernel/contracts` once Phase 0 work lands there.
+- Update CLI documentation to reference the cross-package accessibility expectations (error handling, reporter structure, semantic messaging) captured in [Accessibility & Observability Contracts](../../contracts/ACCESSIBILITY_CONTRACTS.md).
 - Ensure reporters map CLI error states into the shared `KernelError` taxonomy so downstream tooling observes consistent metadata.
 
 ### Phase 1 – Enable Extensible Registries
@@ -66,3 +66,5 @@ This report inspects the CLI package with attention to the discoverability of co
 - [README § Overview](README.md#overview) – orient new contributors on the CLI mission and supported pipelines before touching command surfaces.
 - [README § Core workflow: init → generate → apply](README.md#core-workflow-init--generate--apply) – understand how generation, reporters, and exit codes interact when designing accessibility improvements.
 - [README § Development commands](README.md#development-commands) – follow the recommended local workflows when validating new contracts, middleware hooks, or reporter changes.
+- [README § Accessibility contracts & constants](README.md#accessibility-contracts--constants) – reuse the shared lifecycle, namespace, and exit-code exports when extending commands.
+- [Accessibility & Observability Contracts](../../contracts/ACCESSIBILITY_CONTRACTS.md) – cross-package norms that must stay in sync with CLI reporters and help output.

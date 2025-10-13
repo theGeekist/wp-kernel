@@ -56,6 +56,7 @@ export * as actions from './actions/index.js';
 export * as policy from './policy/index.js';
 export * as data from './data/index.js';
 export * as events from './events/index.js';
+export * as contracts from './contracts/index.js';
 
 // ============================================================================
 // Flat Exports (Convenience aliases)
@@ -231,3 +232,19 @@ export type {
 	NamespaceDetectionMode,
 	NamespaceRuntimeContext,
 } from './namespace/detect.js';
+
+// Accessibility & observability contracts
+export {
+	ACTION_LIFECYCLE_PHASES,
+	ACTION_LIFECYCLE_EVENT_HOOKS,
+	ACTION_LIFECYCLE_BUS_EVENTS,
+	KERNEL_ERROR_CODES,
+	KERNEL_NAMESPACE_CONTRACT,
+	KERNEL_OBSERVABILITY_CHANNELS,
+	KERNEL_EXIT_CODES,
+} from './contracts/index.js';
+export type {
+	ActionLifecyclePhase,
+	KernelErrorCode,
+	KernelExitCode,
+} from './contracts/index.js';

@@ -46,8 +46,8 @@ This audit reviews the runtime kernel package through an accessibility and API-s
 
 ### Phase 0 – Define Shared Contracts
 
-- Finalise the canonical lifecycle phase, namespace, and error taxonomy constants that downstream packages will import.
-- Document how kernel errors should wrap lower-level exceptions so CLI, UI, and E2E tooling can adopt identical semantics.
+- Finalise the canonical lifecycle phase, namespace, and error taxonomy constants in [`packages/kernel/src/contracts/index.ts`](./src/contracts/index.ts) so downstream packages can import them.
+- Document how kernel errors should wrap lower-level exceptions so CLI, UI, and E2E tooling can adopt identical semantics in [Accessibility & Observability Contracts](../../contracts/ACCESSIBILITY_CONTRACTS.md).
 - Update specs (`configureKernel - Specification.md`, `Architecture Cohesion Proposal.md`) to capture the shared accessibility obligations before consumers depend on them.
 
 ### Phase 1 – Harden Kernel Primitives
@@ -67,3 +67,5 @@ This audit reviews the runtime kernel package through an accessibility and API-s
 - [README § Overview](README.md#overview) – recap the kernel’s architectural responsibilities before modifying runtime contracts.
 - [README § Quick Start](README.md#quick-start) – follow the bootstrapping path when validating namespace overrides or lifecycle helpers locally.
 - [README § Key Patterns](README.md#key-patterns) – consult examples of resources, actions, and jobs when aligning new accessibility contracts with existing naming conventions.
+- [README § Accessibility contracts & constants](README.md#accessibility-contracts--constants) – confirm which exported constants must be reused or extended during remediation.
+- [Accessibility & Observability Contracts](../../contracts/ACCESSIBILITY_CONTRACTS.md) – authoritative definitions for lifecycle phases, namespaces, errors, and exit codes.

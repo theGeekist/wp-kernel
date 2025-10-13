@@ -49,24 +49,25 @@ Use these anchors when you need deeper package-specific rationales, example code
 
 ### Phase 0 – Establish Monorepo Accessibility Contracts
 
-**Status:** `<complete>` – Shared contracts are documented in the [kernel audit](packages/kernel/ACCESSIBILITY_AUDIT.md#phase-0--define-shared-contracts) and rolled into package READMEs so contributors know where the canonical lifecycle, namespace, and error definitions live.
+**Status:** `<complete>` – Shared constants are codified in [contracts/ACCESSIBILITY_CONTRACTS.md](contracts/ACCESSIBILITY_CONTRACTS.md) and exported via [`@geekist/wp-kernel/contracts`](packages/kernel/src/contracts/index.ts). Package READMEs now expose dedicated “Accessibility contracts & constants” sections so contributors know where to find lifecycle, namespace, error, and exit-code definitions before beginning work.
 
 - **Contract sources:**
-    - [Kernel README § Key Patterns](packages/kernel/README.md#key-patterns) captures lifecycle and namespace primitives for runtime consumers.
-    - [CLI README § Core workflow](packages/cli/README.md#core-workflow-init--generate--apply) references shared exit code messaging expectations for scaffolding pipelines.
-    - [E2E utilities README § Key Features](packages/e2e-utils/README.md#key-features) directs test authors to namespace-aware fixtures.
-    - [UI README § DataViews in practice](packages/ui/README.md#dataviews-in-practice) documents semantic expectations the UI layer must honour.
-- **Update protocol:** When contracts evolve, update the relevant README sections and link the ADR or spec inside the associated package audit before flipping the status back to `<pending>` or `<in-progress>`.
+    - [Accessibility & Observability Contracts](contracts/ACCESSIBILITY_CONTRACTS.md) – normative reference and change protocol.
+    - [Kernel README § Accessibility contracts & constants](packages/kernel/README.md#accessibility-contracts--constants) – how runtime developers should consume the exports.
+    - [CLI README § Accessibility contracts & constants](packages/cli/README.md#accessibility-contracts--constants) – guidance for scaffolding and reporter integrations.
+    - [E2E utilities README § Accessibility contracts & constants](packages/e2e-utils/README.md#accessibility-contracts--constants) – instructions for Playwright fixtures and assertions.
+    - [UI README § Accessibility contracts & constants](packages/ui/README.md#accessibility-contracts--constants) – expectations for UI controllers and semantic defaults.
+- **Update protocol:** When contracts evolve, update both the Markdown reference and `@geekist/wp-kernel/contracts` exports. Leave this phase at `<pending>` until each README and audit cross-links the new contract details.
 
 ### Phase 1 – Kernel as Source of Truth
 
-**Status:** `<complete>` – Kernel deliverables are scoped and linked for implementers: typed error migration, middleware hooks, and namespace overrides now reference concrete documentation so teams can begin execution without ambiguity.
+**Status:** `<complete>` – The kernel publishes lifecycle, namespace, error, and exit-code constants from [`packages/kernel/src/contracts/index.ts`](packages/kernel/src/contracts/index.ts) so downstream packages can import a single source of truth. Readmes and audits instruct teams to rely on these exports before extending middleware or observability hooks.
 
 - **Implementation checklist:**
-    - Follow [Kernel audit Phase 1 guidance](packages/kernel/ACCESSIBILITY_AUDIT.md#phase-1--harden-kernel-primitives) to drive the error and middleware updates.
-    - Align CLI observability with the kernel constants by consulting [CLI audit Phase 1 guidance](packages/cli/ACCESSIBILITY_AUDIT.md#phase-1--enable-extensible-registries).
-    - Capture namespace override details in [Kernel README § Quick Start](packages/kernel/README.md#quick-start) and mirror integration notes in downstream READMEs.
-- **Contract storage:** File implementation notes under `contracts/` (e.g., lifecycle ADRs) and cross-link them from the audits before marking subtasks complete.
+    - Follow [Kernel audit Phase 1 guidance](packages/kernel/ACCESSIBILITY_AUDIT.md#phase-1--harden-kernel-primitives) and import the contract exports when refactoring lifecycle or namespace code.
+    - Align CLI observability with the kernel constants by consulting [CLI audit Phase 1 guidance](packages/cli/ACCESSIBILITY_AUDIT.md#phase-1--enable-extensible-registries) and consuming `KERNEL_EXIT_CODES`.
+    - Capture namespace override details in [Kernel README § Accessibility contracts & constants](packages/kernel/README.md#accessibility-contracts--constants) before mirroring integration notes in downstream READMEs.
+- **Contract storage:** Keep living specifications in `contracts/` and reference them from package audits whenever new middleware or observability hooks are proposed.
 
 ### Phase 2 – Shared Consumer Enablement (CLI & E2E Utils)
 
@@ -86,11 +87,11 @@ Use these anchors when you need deeper package-specific rationales, example code
 
 ## Package README Reference Guide
 
-| Package                        | Key README Sections                                                                                                                                                                                                    | When to Consult                                                                                               |
-| ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| `@geekist/wp-kernel`           | [Overview](packages/kernel/README.md#overview), [Quick Start](packages/kernel/README.md#quick-start), [Key Patterns](packages/kernel/README.md#key-patterns)                                                           | Understand runtime contracts, lifecycle primitives, and namespace conventions before altering core behaviour. |
-| `@geekist/wp-kernel-cli`       | [Overview](packages/cli/README.md#overview), [Core workflow: init → generate → apply](packages/cli/README.md#core-workflow-init--generate--apply), [Development commands](packages/cli/README.md#development-commands) | Align CLI work with the generation pipeline, exit code expectations, and recommended developer flows.         |
-| `@geekist/wp-kernel-e2e-utils` | [Overview](packages/e2e-utils/README.md#overview), [Key Features](packages/e2e-utils/README.md#key-features), [Validation Strategy](packages/e2e-utils/README.md#validation-strategy)                                  | Plan test utilities and fixtures that honour shared contracts and observability patterns.                     |
-| `@geekist/wp-kernel-ui`        | [Overview](packages/ui/README.md#overview), [Bootstrapping the runtime](packages/ui/README.md#bootstrapping-the-runtime), [DataViews in practice](packages/ui/README.md#dataviews-in-practice)                         | Ensure UI integrations respect kernel bootstrapping, accessibility defaults, and DataViews controllers.       |
+| Package                        | Key README Sections                                                                                                                                                                                                                                                                                                      | When to Consult                                                                                               |
+| ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------- |
+| `@geekist/wp-kernel`           | [Overview](packages/kernel/README.md#overview), [Quick Start](packages/kernel/README.md#quick-start), [Key Patterns](packages/kernel/README.md#key-patterns), [Accessibility contracts & constants](packages/kernel/README.md#accessibility-contracts--constants)                                                        | Understand runtime contracts, lifecycle primitives, and namespace conventions before altering core behaviour. |
+| `@geekist/wp-kernel-cli`       | [Overview](packages/cli/README.md#overview), [Core workflow: init → generate → apply](packages/cli/README.md#core-workflow-init--generate--apply), [Development commands](packages/cli/README.md#development-commands), [Accessibility contracts & constants](packages/cli/README.md#accessibility-contracts--constants) | Align CLI work with the generation pipeline, exit code expectations, and recommended developer flows.         |
+| `@geekist/wp-kernel-e2e-utils` | [Overview](packages/e2e-utils/README.md#overview), [Key Features](packages/e2e-utils/README.md#key-features), [Validation Strategy](packages/e2e-utils/README.md#validation-strategy), [Accessibility contracts & constants](packages/e2e-utils/README.md#accessibility-contracts--constants)                            | Plan test utilities and fixtures that honour shared contracts and observability patterns.                     |
+| `@geekist/wp-kernel-ui`        | [Overview](packages/ui/README.md#overview), [Bootstrapping the runtime](packages/ui/README.md#bootstrapping-the-runtime), [DataViews in practice](packages/ui/README.md#dataviews-in-practice), [Accessibility contracts & constants](packages/ui/README.md#accessibility-contracts--constants)                          | Ensure UI integrations respect kernel bootstrapping, accessibility defaults, and DataViews controllers.       |
 
 Keep this table in sync with README updates so contributors can discover the authoritative guidance for contract changes and implementation steps.

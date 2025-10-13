@@ -45,8 +45,8 @@ Evaluate the end-to-end utilities package for discoverability of fixtures, consi
 
 ### Phase 0 – Align with Global Contracts
 
-- Adopt the shared error taxonomy and namespace constants delivered by the kernel, ensuring fixtures throw/report consistent metadata.
-- Update package docs to explain how Playwright tests should consume the cross-package accessibility and observability contracts.
+- Adopt the shared error taxonomy and namespace constants exported by `@geekist/wp-kernel/contracts`, ensuring fixtures throw/report consistent metadata.
+- Update package docs to explain how Playwright tests should consume the cross-package accessibility and observability contracts defined in [Accessibility & Observability Contracts](../../contracts/ACCESSIBILITY_CONTRACTS.md).
 - Coordinate with kernel and CLI teams to align reporter output so CI tooling can aggregate results without bespoke adapters.
 
 ### Phase 1 – Modularise Core Helpers
@@ -66,3 +66,5 @@ Evaluate the end-to-end utilities package for discoverability of fixtures, consi
 - [README § Overview](README.md#overview) – understand the fixture ecosystem and optional nature of the package before planning accessibility changes.
 - [README § Key Features](README.md#key-features) – map utilities to the shared contracts (auth, db, store) when expanding fixtures or adopting new error semantics.
 - [README § Validation Strategy](README.md#validation-strategy) – follow the recommended verification approach to confirm new helpers behave correctly inside real WordPress environments.
+- [README § Accessibility contracts & constants](README.md#accessibility-contracts--constants) – confirm Playwright helpers import the kernel contract exports before asserting lifecycle telemetry.
+- [Accessibility & Observability Contracts](../../contracts/ACCESSIBILITY_CONTRACTS.md) – definitive guidance on lifecycle phases, namespaces, errors, and exit codes for test authors.

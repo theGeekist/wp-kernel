@@ -60,6 +60,12 @@ The `start` command replaces `wpk dev`; the latter remains as a deprecated alias
 - **[MVP CLI Spec](./mvp-cli-spec.md)** – authoritative reference for the pipeline
 - **[Kernel docs](https://thegeekist.github.io/wp-kernel/)** – framework guides and configuration reference
 
+## Accessibility contracts & constants
+
+- Start with the shared reference: [Accessibility & Observability Contracts](../../contracts/ACCESSIBILITY_CONTRACTS.md).
+- Import lifecycle phases, namespace helpers, and exit codes from `@geekist/wp-kernel/contracts` when wiring reporters or command registries.
+- Extend the shared constants in the kernel first, then update CLI command docs and reporters to reflect the new contract before shipping.
+
 ## Requirements
 
 - Node.js 20+
