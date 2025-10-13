@@ -1,4 +1,4 @@
-import { defineResource } from '@geekist/wp-kernel';
+import { defineResource } from '@geekist/wp-kernel/resource';
 import type { Job } from '../../.generated/types/job';
 import { kernelConfig, type JobListParams } from '../../kernel.config';
 

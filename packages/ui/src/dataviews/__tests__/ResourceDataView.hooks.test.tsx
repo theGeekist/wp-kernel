@@ -181,6 +181,9 @@ describe('useResolvedController', () => {
 	it('throws when resource or config are missing', () => {
 		const runtime = createKernelRuntime();
 		const { context } = resolveRuntime(undefined, runtime);
+		const errorSpy = jest
+			.spyOn(console, 'error')
+			.mockImplementation(() => {});
 
 		expect(() =>
 			render(
@@ -192,11 +195,12 @@ describe('useResolvedController', () => {
 				/>
 			)
 		).toThrow(/requires a resource and config/);
-		expect(console).toHaveErrored();
-		const errorMock = console.error as unknown as jest.Mock;
-		expect(String(errorMock.mock.calls[0]?.[0])).toContain(
+		expect(errorSpy).toHaveBeenCalled();
+		expect(String(errorSpy.mock.calls[0]?.[0])).toContain(
 			'ResourceDataView requires a resource and config when controller is not provided.'
 		);
+
+		errorSpy.mockRestore();
 	});
 });
 

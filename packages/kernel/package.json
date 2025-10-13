@@ -4,6 +4,7 @@
 	"description": "Rails-like framework for building modern WordPress products",
 	"license": "EUPL-1.2",
 	"type": "module",
+	"sideEffects": false,
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/theGeekist/wp-kernel.git",
@@ -107,14 +108,13 @@
 		"@wordpress/api-fetch": ">=7.0.0",
 		"@wordpress/data": ">=10.0.0",
 		"@wordpress/element": ">=6.0.0",
-		"@wordpress/hooks": ">=4.0.0"
+		"@wordpress/hooks": ">=4.0.0",
+		"loglayer": ">=6.7.2",
+		"@loglayer/shared": ">=2.4.0",
+		"@loglayer/transport": ">=2.3.0"
 	},
 	"publishConfig": {
 		"access": "public"
 	},
-	"dependencies": {
-		"@loglayer/shared": "^2.4.0",
-		"@loglayer/transport": "^2.3.0",
-		"loglayer": "^6.7.2"
-	}
+	"dependencies": {}
 }
