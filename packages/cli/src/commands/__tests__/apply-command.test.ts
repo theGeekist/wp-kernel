@@ -209,6 +209,11 @@ return 'manual';
 
 	it('refuses to overwrite block manifests without guard markers', async () => {
 		await withWorkspace(async (workspace) => {
+			await writeGeneratedFile(
+				workspace,
+				'Rest/BaseController.php',
+				GUARDED_SOURCE
+			);
 			await writeGeneratedBuildFile(
 				workspace,
 				'blocks-manifest.php',
@@ -235,6 +240,67 @@ return ['demo/block'];
 
 			const contents = await fs.readFile(target, 'utf8');
 			expect(contents).toBe(baseline);
+		});
+	});
+
+	it('records applied PHP artifacts when block deployment fails', async () => {
+		await withWorkspace(async (workspace) => {
+			await writeGeneratedFile(
+				workspace,
+				'Rest/BaseController.php',
+				GUARDED_SOURCE
+			);
+			await writeGeneratedBuildFile(
+				workspace,
+				'blocks-manifest.php',
+				GUARDED_BLOCK_MANIFEST
+			);
+
+			const blockTarget = path.join(
+				workspace,
+				'build/blocks-manifest.php'
+			);
+			await ensureDirectory(path.dirname(blockTarget));
+			await fs.writeFile(
+				blockTarget,
+				`<?php\nreturn ['demo/block'];\n`,
+				'utf8'
+			);
+
+			const command = createCommand(workspace);
+			const exitCode = await command.execute();
+
+			expect(exitCode).toBe(1);
+
+			const phpTarget = path.join(
+				workspace,
+				'inc/Rest/BaseController.php'
+			);
+			const phpContents = await fs.readFile(phpTarget, 'utf8');
+			expect(phpContents).toBe(GUARDED_SOURCE);
+
+			const logPath = path.join(workspace, '.wpk-apply.log');
+			const rawLog = await fs.readFile(logPath, 'utf8');
+			const lines = rawLog.trim().split('\n');
+			expect(lines).toHaveLength(1);
+			const entry = JSON.parse(lines[0]!);
+
+			expect(entry.result).toBe('failure');
+			expect(entry.summary).toEqual({
+				created: 1,
+				updated: 0,
+				skipped: 0,
+			});
+			expect(entry.files).toEqual([
+				expect.objectContaining({
+					status: 'created',
+					target: 'inc/Rest/BaseController.php',
+				}),
+			]);
+			expect(entry.php).toMatchObject({
+				summary: { created: 1, updated: 0, skipped: 0 },
+			});
+			expect(entry.blocks).toBeUndefined();
 		});
 	});
 
