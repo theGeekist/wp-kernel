@@ -71,15 +71,22 @@ export interface UseResourceListResult<T> {
 /**
  * Resolve WordPress global in a SSR-safe way
  *
+ * @param source
  * @internal
  * @return WordPress global object or undefined if not available
  */
-function resolveWpGlobal(): WPGlobal['wp'] | undefined {
-	if (typeof window === 'undefined') {
+function resolveWpGlobalFromSource(
+	source?: (Window & WPGlobal) | undefined
+): WPGlobal['wp'] | undefined {
+	if (!source) {
 		return undefined;
 	}
+	return source.wp;
+}
 
-	return (window as Window & WPGlobal).wp;
+function resolveWpGlobal(): WPGlobal['wp'] | undefined {
+	const candidate = (globalThis as { window?: Window & WPGlobal }).window;
+	return resolveWpGlobalFromSource(candidate);
 }
 
 /**
@@ -270,3 +277,15 @@ function shouldShowLoadingState<T, TQuery>(
 
 	return false;
 }
+
+export const __TESTING__ = {
+	resolveWpGlobal,
+	resolveWpGlobalFromSource,
+	ensureUseSelect,
+	computeItemLoading,
+	computeListLoading,
+	isItemResolving,
+	isItemAwaitingResolution,
+	isListResolving,
+	shouldShowLoadingState,
+};

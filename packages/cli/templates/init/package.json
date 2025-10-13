@@ -1,0 +1,12 @@
+{
+	"name": "__WPK_PACKAGE_NAME__",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"start": "wpk start",
+		"build": "wpk build",
+		"generate": "wpk generate",
+		"apply": "wpk apply"
+	}
+}

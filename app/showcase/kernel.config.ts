@@ -293,6 +293,7 @@ const schemaRegistry: Record<string, SchemaConfig> = {
 	},
 };
 
+// For CLI config guidance see https://github.com/theGeekist/wp-kernel/blob/main/packages/cli/mvp-cli-spec.md#6-blocks-of-authoring-safety
 export const kernelConfig = {
 	version: 1,
 	namespace: 'wp-kernel-showcase',

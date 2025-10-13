@@ -19,6 +19,10 @@ import { fileURLToPath } from 'url';
 import noManualTestGlobals from './eslint-rules/no-manual-test-globals.js';
 import noConsoleInKernel from './eslint-rules/no-console-in-kernel.js';
 import noHardcodedNamespaceStrings from './eslint-rules/no-hardcoded-namespace-strings.js';
+import configConsistency from './eslint-rules/config-consistency.js';
+import cacheKeysValid from './eslint-rules/cache-keys-valid.js';
+import policyHints from './eslint-rules/policy-hints.js';
+import docLinks from './eslint-rules/doc-links.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -28,6 +32,10 @@ const kernelPlugin = {
 		'no-manual-test-globals': noManualTestGlobals,
 		'no-console-in-kernel': noConsoleInKernel,
 		'no-hardcoded-namespace-strings': noHardcodedNamespaceStrings,
+		'config-consistency': configConsistency,
+		'cache-keys-valid': cacheKeysValid,
+		'policy-hints': policyHints,
+		'doc-links': docLinks,
 	},
 };
 
@@ -150,6 +158,10 @@ export default [
 
 			'@kernel/no-console-in-kernel': 'error',
 			'@kernel/no-hardcoded-namespace-strings': 'error',
+			'@kernel/config-consistency': 'error',
+			'@kernel/cache-keys-valid': 'error',
+			'@kernel/policy-hints': 'error',
+			'@kernel/doc-links': 'warn',
 		},
 	}, // WordPress Script Modules - runtime-resolved imports
 	{
@@ -245,6 +257,42 @@ export default [
 			],
 			// Allow multiple imports from packages with subpath exports (e.g., @kucrut/vite-for-wp and @kucrut/vite-for-wp/plugins)
 			'import/no-duplicates': 'off',
+		},
+	},
+
+	{
+		files: [
+			'packages/cli/**/*.{js,ts,tsx}',
+			'packages/ui/**/*.{js,ts,tsx}',
+			'packages/e2e-utils/**/*.{js,ts,tsx}',
+		],
+		rules: {
+			'no-restricted-imports': [
+				'error',
+				{
+					paths: [
+						{
+							name: '@geekist/wp-kernel',
+							message:
+								'Use scoped module entry points like @geekist/wp-kernel/reporter to avoid bundling unused surface area.',
+						},
+					],
+					patterns: [
+						{
+							group: ['**/packages/*/src/**'],
+							message:
+								'Deep package imports are forbidden. Use public entry points like @geekist/wp-kernel instead.',
+						},
+					],
+				},
+			],
+		},
+	},
+
+	{
+		files: ['packages/cli/**/*.{js,ts,tsx}'],
+		rules: {
+			'import/no-extraneous-dependencies': 'off',
 		},
 	},
 ];

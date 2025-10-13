@@ -174,3 +174,12 @@ export function ensureControllerRuntime(
 		'Invalid DataViews runtime supplied to controller.'
 	);
 }
+
+export const __TESTING__ = {
+	childReporter,
+	toPreferencesRuntime,
+	createStandaloneEventEmitter,
+	createRuntimeSkeleton,
+	cloneRuntime,
+	DEFAULT_OPTIONS,
+};

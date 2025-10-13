@@ -1,4 +1,4 @@
-import type { ResourceObject } from '@geekist/wp-kernel';
+import type { ResourceObject } from '@geekist/wp-kernel/resource';
 import { renderHook } from '../testing/test-utils';
 import { usePrefetcher } from '../usePrefetcher';
 

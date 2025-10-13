@@ -1,11 +1,11 @@
+// docs/.vitepress/config.ts
 import { defineConfig } from 'vitepress';
 import { withMermaid } from 'vitepress-plugin-mermaid';
 
 // Fast mode for pre-commit hooks (MPA mode + no minification)
-// MPA is experimental but safe for pre-commit validation (CI uses full build)
 const FAST = process.env.DOCS_FAST === '1';
+const PROD = process.env.NODE_ENV === 'production';
 
-// https://vitepress.dev/reference/site-config
 export default withMermaid(
 	defineConfig({
 		title: 'WP Kernel',
@@ -14,40 +14,79 @@ export default withMermaid(
 		base: '/wp-kernel/',
 		lastUpdated: true,
 		sitemap: { hostname: 'https://thegeekist.github.io' },
-		// Strict link checking always on so it still fails locally if links break
+
+		// Keep wp-env localhost URLs valid (any port + path)
 		ignoreDeadLinks: [
-			// Ignore localhost URLs (environment-specific)
-			/^http:\/\/localhost:\d+/,
+			/^https?:\/\/localhost(?::\d+)?(?:\/|$)/,
+			/^https?:\/\/127\.0\.0\.1(?::\d+)?(?:\/|$)/,
 		],
 
-		// Fast path: no client hydration, less bundling (experimental but faster)
-		// Only used in pre-commit for speed; CI uses full SPA build
-		mpa: FAST,
+		// Fast path for pre-commit; set to true for PROD if you can live without SPA nav
+		mpa: FAST, // <-- set to (FAST || PROD) if you want minimal JS in production too
+
+		// Big win: limit Shiki languages (reduces client+server bundle a lot)
+		markdown: {
+			theme: { light: 'github-light', dark: 'github-dark' },
+		},
+
+		// Exclude heavy generated API pages from local search index (keeps render, shrinks search)
+		transformPageData(page) {
+			if (page.filePath?.includes('/docs/api/generated/')) {
+				page.frontmatter ||= {};
+				page.frontmatter.search = false;
+			}
+		},
 
 		vite: {
-			// Persist caches so repeated builds are faster
 			cacheDir: 'node_modules/.vite-docs',
-			// Minify is expensive; disable in fast mode for pre-commit speed
+
 			build: FAST
 				? {
-						minify: false, // Skip terser/esbuild minification
-						cssMinify: false, // Skip CSS minification
-						reportCompressedSize: false, // Skip gzip size calculation
-						sourcemap: false, // Skip sourcemap generation
+						minify: false,
+						cssMinify: false,
+						reportCompressedSize: false,
+						sourcemap: false,
 					}
-				: {},
+				: {
+						reportCompressedSize: false,
+						// split the usual suspects so main stays slim
+						rollupOptions: {
+							output: {
+								manualChunks(id) {
+									if (id.includes('mermaid'))
+										return 'mermaid';
+									if (id.includes('shiki')) return 'shiki';
+									if (
+										id.includes('fuse') ||
+										id.includes('mini-search')
+									)
+										return 'search';
+									if (
+										id.includes('/@vitepress/') ||
+										id.includes('/vitepress/')
+									)
+										return 'vp';
+									if (id.includes('/vue/')) return 'vue';
+								},
+							},
+						},
+						// warning threshold only (we're splitting sensibly above)
+						chunkSizeWarningLimit: 2000,
+					},
+
+			resolve: { dedupe: ['vue'] },
+			optimizeDeps: {
+				include: ['mermaid'], // speeds dev HMR for pages with diagrams
+			},
 		},
 
 		themeConfig: {
-			// https://vitepress.dev/reference/default-theme-config
 			logo: '/logo.png',
-
 			editLink: {
 				pattern:
 					'https://github.com/theGeekist/wp-kernel/edit/main/docs/:path',
 				text: 'Edit this page on GitHub',
 			},
-
 			externalLinkIcon: true,
 
 			nav: [
@@ -65,10 +104,7 @@ export default withMermaid(
 						text: 'Getting Started',
 						collapsed: false,
 						items: [
-							{
-								text: 'Introduction',
-								link: '/getting-started/',
-							},
+							{ text: 'Introduction', link: '/getting-started/' },
 							{
 								text: 'Installation',
 								link: '/getting-started/installation',
@@ -83,10 +119,7 @@ export default withMermaid(
 						text: 'Next Steps',
 						collapsed: true,
 						items: [
-							{
-								text: 'Core Concepts',
-								link: '/guide/',
-							},
+							{ text: 'Core Concepts', link: '/guide/' },
 							{
 								text: 'Repository Handbook',
 								link: '/guide/repository-handbook',
@@ -95,10 +128,7 @@ export default withMermaid(
 								text: 'Showcase Plugin',
 								link: '/guide/showcase',
 							},
-							{
-								text: 'Roadmap',
-								link: '/contributing/roadmap',
-							},
+							{ text: 'Roadmap', link: '/contributing/roadmap' },
 						],
 					},
 				],
@@ -188,16 +218,16 @@ export default withMermaid(
 						collapsed: true,
 						items: [
 							{
-								text: 'Resources',
-								link: '/api/generated/resource/README',
+								text: '@geekist/wp-kernel',
+								link: '/api/generated/kernel/src/README',
 							},
 							{
-								text: 'Errors',
-								link: '/api/generated/errors/README',
+								text: '@geekist/wp-kernel-cli',
+								link: '/api/generated/@geekist/wp-kernel-cli/README',
 							},
 							{
-								text: 'Transport',
-								link: '/api/generated/transport/README',
+								text: '@geekist/wp-kernel-ui',
+								link: '/api/generated/@geekist/wp-kernel-ui/README',
 							},
 						],
 					},
@@ -238,15 +268,11 @@ export default withMermaid(
 					link: 'https://github.com/theGeekist/wp-kernel',
 				},
 			],
-
-			search: {
-				provider: 'local',
-			},
-
+			search: { provider: 'local' },
 			footer: {
 				message: 'Released under the EUPL-1.2 License.',
 				copyright:
-					'Made with ❤️ by <a href="https://geekist.co" target="_blank" rel="noopener noreferrer">Geekist</a>',
+					'Made with ❤️ by <a href="https://geekist.co" target="_blank">Geekist</a>',
 			},
 		},
 	})

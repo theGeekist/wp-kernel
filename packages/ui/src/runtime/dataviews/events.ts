@@ -63,6 +63,10 @@ function emitEvent(
 	}
 }
 
+export const __TESTING__ = {
+	emitEvent,
+};
+
 export function createDataViewsEventEmitter(
 	kernel: KernelInstance,
 	reporter: Reporter

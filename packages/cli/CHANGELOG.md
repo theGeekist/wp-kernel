@@ -2,7 +2,46 @@
 
 ## 0.4.0 [Unreleased]
 
-### Changes
+### Added
+
+- **Phase 2C Storage Modes**: wp-taxonomy, wp-option, and transient storage implementations
+    - `wp-taxonomy`: Full term CRUD via `get_terms()`, `wp_insert_term()`, `wp_update_term()`, `wp_delete_term()`
+    - `wp-option`: Key-value storage via `get_option()`, `add_option()`, `update_option()`, `delete_option()` (returns 501 for list operations)
+    - `transient`: TTL-aware storage via `get_transient()`, `set_transient()`, `delete_transient()` (returns 501 for list operations)
+    - All modes follow composable pattern with proper identity resolution and permission defaults
+- **PHP Printer Refactor**: Decomposed monolithic 1,236-line wp-post generator into composable architecture
+    - Modular `wp-post/` directory (17 files) with focused generators for each CRUD operation
+    - Shared utilities: REST args builder, route classification, template engine, value renderer, docblock generator
+    - Main orchestrator reduced from 775 lines to 83 lines
+    - Saves ~1,750 lines across Phase 2C by reusing infrastructure (~36% reduction)
+    - Established pattern for future storage mode additions
+- **ESLint Plugin**: 4 kernel config validation rules (`@kernel/config-consistency`, `@kernel/cache-keys-valid`, `@kernel/policy-hints`, `@kernel/doc-links`)
+    - Educational error messages explaining framework contracts, runtime behavior, and concrete fixes
+    - Inline documentation above each rule enforcement explaining the "why" behind constraints
+    - JSDoc with @typedef for complex parameter objects and exported utilities
+- IR inference for route transport classification (`local` vs `remote`)
+- Identity field inference from route placeholders (`:id`, `:slug`, `:uuid`)
+- Schema default to `'auto'` when storage exists but schema undefined
+- Inferred `storage.postType` for `wp-post` resources
+- Workspace-aware block discovery with SSR detection
+- Warning system for route transport mismatches and naming collisions
+
+### Changed
+
+- **Major PHP Printer Refactor**: Transformed monolithic architecture into composable generators
+    - `wp-post.ts` (1,236 lines) → modular `wp-post/` directory (17 focused modules)
+    - Main printer orchestrator reduced from 775 lines to 83 lines
+    - Extracted shared utilities for REST args, routes, templates, builders, and value rendering
+    - Enables clean addition of new storage modes without code duplication
+    - Comprehensive test suite reorganized into focused spec files (basic, identity, meta, routes, stubs)
+- Enhanced ESLint rule messages to explain: (1) what we inferred, (2) why the framework cares, (3) runtime consequences, (4) how to fix with examples
+- Refactored monolithic `build-ir.ts` into focused modules (schema, routes, resource-builder, block-discovery, cache-keys, policies, php, ordering, canonical)
+- Split IR test suite into focused spec files (core, defaults, validation, blocks, php)
+- Externalised runtime-only dependencies (`chokidar`, `clipanion`, `cosmiconfig`,
+  `typanion`) from the Vite build and lazy-loaded filesystem watching so the CLI
+  bundle matches peer dependency expectations.
+
+### Previous Changes
 
 - Version bump to align with monorepo
 - DataViews Phase 4: CLI now validates `ui.admin.dataviews` metadata and emits

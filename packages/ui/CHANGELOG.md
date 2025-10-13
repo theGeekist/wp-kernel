@@ -43,6 +43,9 @@
   accessors so that actions gated by policies unlock once `definePolicy()`
   registers the runtime, avoiding the need for a full refresh when the UI
   attached before policies were available.
+- Migrated all kernel imports to the new `@geekist/wp-kernel/events` and
+  `@geekist/wp-kernel/resource/*` barrels so UI bundles no longer rely on the
+  package root.
 
 ### Migration Guide
 
@@ -71,6 +74,9 @@ createRoot(node).render(
   registry on demand-no global caching on `window`.
 - Resource hooks attach via the runtime’s `attachResourceHooks()` callback when
   the adapter is provided.
+- Refactored `ResourceDataView` into focused hooks/utilities with shared test
+  helpers, reducing file size and improving maintainability for DataViews
+  integrations.
 - TypeScript strict mode with full type safety
 
 ### Documentation

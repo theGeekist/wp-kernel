@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { KernelError, type CacheKeyPattern } from '@geekist/wp-kernel';
+import { KernelError } from '@geekist/wp-kernel/error';
+import type { CacheKeyPattern } from '@geekist/wp-kernel/resource';
 import {
 	invokeAction,
 	type ActionEnvelope,

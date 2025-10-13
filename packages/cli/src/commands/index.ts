@@ -8,5 +8,7 @@
 export { GenerateCommand } from './generate';
 export { InitCommand } from './init';
 export { DoctorCommand } from './doctor';
+export { StartCommand } from './start';
 export { DevCommand } from './dev';
+export { BuildCommand } from './build';
 export { ApplyCommand } from './apply';

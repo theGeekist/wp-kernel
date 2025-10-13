@@ -2,7 +2,7 @@ import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { runAdapterExtensions } from '..';
-import { KernelError } from '@geekist/wp-kernel';
+import { KernelError } from '@geekist/wp-kernel/error';
 import type {
 	AdapterContext,
 	AdapterExtension,
@@ -10,7 +10,7 @@ import type {
 } from '../../config/types';
 import type { IRv1 } from '../../ir';
 import { FileWriter } from '../../utils/file-writer';
-import type { Reporter } from '@geekist/wp-kernel';
+import type { Reporter } from '@geekist/wp-kernel/reporter';
 
 const TMP_OUTPUT = path.join(os.tmpdir(), 'wpk-extension-output-');
 
@@ -220,6 +220,30 @@ describe('runAdapterExtensions', () => {
 			expect(JSON.parse(contents)).toEqual({ enabled: true });
 			const summary = writer.summarise();
 			expect(summary.counts.written).toBe(1);
+		} finally {
+			await fs.rm(outputDir, { recursive: true, force: true });
+		}
+	});
+
+	it('records dry-run statuses for unchanged and skipped files', async () => {
+		const outputDir = await fs.mkdtemp(TMP_OUTPUT);
+		const writer = new FileWriter({ dryRun: true });
+
+		try {
+			const unchangedPath = path.join(outputDir, 'same.txt');
+			await fs.writeFile(unchangedPath, 'stable\n', 'utf8');
+			const skippedPath = path.join(outputDir, 'different.txt');
+			await fs.writeFile(skippedPath, 'before\n', 'utf8');
+
+			const statusUnchanged = await writer.write(unchangedPath, 'stable');
+			expect(statusUnchanged).toBe('unchanged');
+
+			const statusSkipped = await writer.write(skippedPath, 'after');
+			expect(statusSkipped).toBe('skipped');
+
+			const summary = writer.summarise();
+			expect(summary.counts.unchanged).toBe(1);
+			expect(summary.counts.skipped).toBe(1);
 		} finally {
 			await fs.rm(outputDir, { recursive: true, force: true });
 		}
@@ -437,16 +461,11 @@ describe('runAdapterExtensions', () => {
 					writable: true,
 				} as PropertyDescriptor);
 			} else {
-				delete (
-					globalThis as typeof globalThis & {
-						structuredClone?: typeof structuredClone;
-					}
-				).structuredClone;
+				Reflect.deleteProperty(globalThis, 'structuredClone');
 			}
 			await fs.rm(outputDir, { recursive: true, force: true });
 		}
 	});
-
 	it('rejects writes outside the output directory', async () => {
 		const outputDir = await fs.mkdtemp(TMP_OUTPUT);
 		const reporter = createReporterMock();
@@ -505,7 +524,7 @@ function createIr(): IRv1 {
 		php: {
 			namespace: 'Demo\\Namespace',
 			autoload: 'inc/',
-			directories: { controllers: 'Rest', registration: 'Registration' },
+			outputDir: '/fake/path',
 		},
 	};
 }
