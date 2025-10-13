@@ -14,6 +14,7 @@ import {
 } from './ordering';
 import { discoverBlocks } from './block-discovery';
 import { createPhpNamespace } from './php';
+import { resolvePolicyMap } from './policy-map';
 
 export async function buildIr(options: BuildIrOptions): Promise<IRv1> | never {
 	const sanitizedNamespace = sanitizeNamespace(options.namespace);
@@ -35,6 +36,11 @@ export async function buildIr(options: BuildIrOptions): Promise<IRv1> | never {
 	const policies = collectPolicyHints(resources);
 	const workspaceRoot = path.dirname(options.sourcePath);
 	const blocks = await discoverBlocks(workspaceRoot);
+	const policyMap = await resolvePolicyMap({
+		workspaceRoot,
+		hints: policies,
+		resources,
+	});
 
 	const ir: IRv1 = {
 		meta: {
@@ -48,6 +54,7 @@ export async function buildIr(options: BuildIrOptions): Promise<IRv1> | never {
 		schemas: sortSchemas(schemaAccumulator.entries),
 		resources: sortResources(resources),
 		policies: sortPolicies(policies),
+		policyMap,
 		blocks: sortBlocks(blocks),
 		php: {
 			namespace: createPhpNamespace(sanitizedNamespace),

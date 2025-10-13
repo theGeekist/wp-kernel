@@ -31,6 +31,8 @@ export function createResourceControllerArtifact(
 		...routes.map((route) => `Route: [${route.method}] ${route.path}`),
 	]);
 
+	builder.addUse(`${namespaceRoot}\\Policy\\Policy`);
+
 	const className = `${toPascalCase(resource.name)}Controller`;
 	builder.appendStatement(`class ${className} extends BaseController`);
 	builder.appendStatement('{');

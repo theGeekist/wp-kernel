@@ -19,6 +19,17 @@ export function createPrinterContext(): PrinterContext {
 				namespace: 'DemoNamespace',
 				sanitizedNamespace: 'DemoNamespace',
 			},
+			policyMap: {
+				sourcePath: undefined,
+				definitions: [],
+				fallback: {
+					capability: 'manage_options',
+					appliesTo: 'resource',
+				},
+				missing: [],
+				unused: [],
+				warnings: [],
+			},
 		},
 	} as unknown as PrinterContext;
 }
