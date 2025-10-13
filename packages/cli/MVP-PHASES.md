@@ -321,7 +321,35 @@ packages/cli/src/printers/blocks/
 
 **Status Log:** Started 2025-02-16 - Completed 2025-02-16
 
-**Reference files:** CLI entrypoints (`packages/cli/src/commands/generate.ts`, `apply.ts`, `dev.ts`), documentation in `packages/cli/README.md`, and smoke-test fixtures under `packages/cli/tests/pipeline/**`.
+**Reference files:** CLI entrypoints (`packages/cli/src/commands/generate.ts`, `apply.ts`, `start.ts`, `build.ts`), documentation in `packages/cli/README.md`, and smoke-test fixtures under `packages/cli/tests/pipeline/**`.
+
+---
+
+## Phase 5C - Command Surface Refresh
+
+**Spec references:** [MVP Spec §7](./mvp-cli-spec.md#7-cli-commands)
+
+**Scope:**
+
+- Rename the existing `dev` command to `start`, maintaining a deprecation warning or alias as needed.
+- Implement a new `build` command orchestrating `generate` → Vite production build → `apply --yes`, with a `--no-apply` escape hatch.
+- Ensure `wpk start` runs generate in watch mode, launches the Vite dev server, and never auto-applies artefacts by default.
+- Update CLI reporter output for both commands to keep logs concise and structured.
+- Refresh scaffolding templates (`package.json` scripts) and documentation to highlight the new command surface.
+
+**Deliverables:** Updated Clipanion handlers (`packages/cli/src/commands/start.ts`, `build.ts`, shared helpers), template/script updates under `packages/cli/templates/**`, documentation changes, and command-level tests in `packages/cli/src/commands/__tests__/`.
+
+**DoD:**
+
+- `wpk start` triggers generate-on-change and launches Vite; integration harness (Phase 6A) covers the workflow.
+- `wpk build` produces a runnable plugin (with default pipeline and `--no-apply` variant).
+- Scaffolding/README reflect the new commands and recommended scripts.
+
+**Dependencies:** Phase 5B (pipeline integration) and Phase 6A (integration harness) for testing support.
+
+**Status Log:** _Pending_
+
+**Reference files:** `packages/cli/src/commands/start.ts`, `build.ts`, existing helpers (`run-generate.ts`, `apply.ts`), scaffolding templates, README/docs.
 
 ---
 
