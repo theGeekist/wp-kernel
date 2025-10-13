@@ -265,6 +265,7 @@ describe('emitGeneratedArtifacts', () => {
 				'Registration',
 				'PersistenceRegistry.php'
 			);
+			const policyHelperPath = path.join(phpRoot, 'Policy', 'Policy.php');
 			const indexPath = path.join(phpRoot, 'index.php');
 
 			const baseContents = await fs.readFile(baseControllerPath, 'utf8');
@@ -273,6 +274,9 @@ describe('emitGeneratedArtifacts', () => {
 			expect(baseContents).toContain('// WPK:BEGIN AUTO');
 
 			const jobContents = await fs.readFile(jobControllerPath, 'utf8');
+			expect(jobContents).toContain(
+				'use Demo\\Namespace\\Policy\\Policy;'
+			);
 			expect(jobContents).toContain('use WP_Error;');
 			expect(jobContents).toContain('use WP_Post;');
 			expect(jobContents).toContain('use WP_REST_Request;');
@@ -287,6 +291,9 @@ describe('emitGeneratedArtifacts', () => {
 			);
 			expect(jobContents).toContain(
 				'public function postJobs( WP_REST_Request $request )'
+			);
+			expect(jobContents).toContain(
+				"Policy::enforce( 'jobs.create', $request );"
 			);
 			expect(jobContents).toContain('new WP_Query( $query_args )');
 			expect(jobContents).toContain('wp_insert_post( $post_data, true )');
@@ -421,6 +428,16 @@ describe('emitGeneratedArtifacts', () => {
 			const literalRestArgs = extractPhpArrayPayload(literalContents);
 			expect(literalRestArgs).toEqual([]);
 
+			const policyHelperContents = await fs.readFile(
+				policyHelperPath,
+				'utf8'
+			);
+			expect(policyHelperContents).toContain('class Policy');
+			expect(policyHelperContents).toContain('private const POLICY_MAP');
+			expect(policyHelperContents).toContain(
+				'public static function enforce( string $policy_key, WP_REST_Request $request )'
+			);
+
 			const remoteControllerPath = path.join(
 				phpRoot,
 				'Rest',
@@ -495,6 +512,9 @@ describe('emitGeneratedArtifacts', () => {
 			);
 			expect(indexContents).toContain(
 				"'Demo\\Namespace\\Rest\\LiteralController'"
+			);
+			expect(indexContents).toContain(
+				"'Demo\\Namespace\\Policy\\Policy'"
 			);
 			expect(indexContents).not.toContain(
 				"'Demo\\Namespace\\Rest\\RemoteController'"
@@ -1234,6 +1254,24 @@ function createIrFixture(): IRv1 {
 			remoteResource,
 		],
 		policies: [],
+		policyMap: {
+			sourcePath: 'src/policy-map.ts',
+			definitions: [
+				{
+					key: 'jobs.create',
+					capability: 'manage_options',
+					appliesTo: 'resource',
+					source: 'map',
+				},
+			],
+			fallback: {
+				capability: 'manage_options',
+				appliesTo: 'resource',
+			},
+			missing: [],
+			unused: [],
+			warnings: [],
+		},
 		blocks: [],
 		php: {
 			namespace: 'Demo\\Namespace',

@@ -3,7 +3,7 @@ import type { IRResource, IRRoute } from '../../ir';
 import type { PrinterContext } from '../types';
 import { type PhpFileBuilder } from './builder';
 import { createMethodTemplate, PHP_INDENT } from './template';
-import { toPascalCase } from './utils';
+import { escapeSingleQuotes, toPascalCase } from './utils';
 import { createWpPostHandlers } from './wp-post';
 import { createWpTaxonomyHandlers } from './wp-taxonomy';
 import { createWpOptionHandlers } from './wp-option';
@@ -19,39 +19,50 @@ export function createRouteHandlers(options: {
 		route,
 		methodName: createRouteMethodName(route, options.context),
 	}));
+	let methods: string[][];
 
 	switch (options.resource.storage?.mode) {
 		case 'wp-post':
-			return createWpPostHandlers({
+			methods = createWpPostHandlers({
 				builder: options.builder,
 				context: options.context,
 				resource: options.resource,
 				routes: routeDefinitions,
 			});
+			break;
 		case 'wp-taxonomy':
-			return createWpTaxonomyHandlers({
+			methods = createWpTaxonomyHandlers({
 				builder: options.builder,
 				context: options.context,
 				resource: options.resource,
 				routes: routeDefinitions,
 			});
+			break;
 		case 'wp-option':
-			return createWpOptionHandlers({
+			methods = createWpOptionHandlers({
 				builder: options.builder,
 				context: options.context,
 				resource: options.resource,
 				routes: routeDefinitions,
 			});
+			break;
 		case 'transient':
-			return createTransientHandlers({
+			methods = createTransientHandlers({
 				builder: options.builder,
 				context: options.context,
 				resource: options.resource,
 				routes: routeDefinitions,
 			});
+			break;
 		default:
-			return createRouteStubs(options);
+			methods = createRouteStubs(options);
+			break;
 	}
+
+	return applyPolicyGuards({
+		methods,
+		routeDefinitions,
+	});
 }
 
 export function createRouteMethodName(
@@ -119,6 +130,49 @@ function createRouteStubs(options: {
 			},
 		})
 	);
+}
+
+function applyPolicyGuards(options: {
+	methods: string[][];
+	routeDefinitions: Array<{ route: IRRoute }>;
+}): string[][] {
+	const guarded: string[][] = [];
+	const routeCount = options.routeDefinitions.length;
+
+	for (let index = 0; index < options.methods.length; index += 1) {
+		const methodLines = options.methods[index]!;
+		if (index < routeCount) {
+			const route = options.routeDefinitions[index]!.route;
+			guarded.push(injectPolicyGuard(methodLines, route));
+		} else {
+			guarded.push(methodLines);
+		}
+	}
+
+	return guarded;
+}
+
+function injectPolicyGuard(methodLines: string[], route: IRRoute): string[] {
+	if (!route.policy) {
+		return methodLines;
+	}
+
+	const openIndex = methodLines.findIndex((line) => line.trim() === '{');
+	if (openIndex === -1) {
+		return methodLines;
+	}
+
+	const guardLines = [
+		`${PHP_INDENT.repeat(2)}$permission = Policy::enforce( '${escapeSingleQuotes(route.policy)}', $request );`,
+		`${PHP_INDENT.repeat(2)}if ( is_wp_error( $permission ) ) {`,
+		`${PHP_INDENT.repeat(3)}return $permission;`,
+		`${PHP_INDENT.repeat(2)}}`,
+		'',
+	];
+
+	const next = [...methodLines];
+	next.splice(openIndex + 1, 0, ...guardLines);
+	return next;
 }
 
 function deriveRouteSegments(
