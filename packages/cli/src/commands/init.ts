@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { Command, Option } from 'clipanion';
 import type { BaseContext } from 'clipanion';
 import { KernelError } from '@geekist/wp-kernel/error';
@@ -12,7 +13,10 @@ interface ScaffoldFile {
 
 type FileStatus = 'created' | 'updated';
 
-const INIT_TEMPLATE_ROOT = path.resolve(__dirname, '../../templates/init');
+const INIT_TEMPLATE_ROOT = path.resolve(
+	path.dirname(fileURLToPath(getModuleUrl())),
+	'../../templates/init'
+);
 
 const PACKAGE_DEFAULT_VERSION = '0.1.0';
 const PACKAGE_DEFAULT_TYPE = 'module';
@@ -23,6 +27,14 @@ const SCRIPT_RECOMMENDATIONS: Record<string, string> = {
 	'wpk:apply': 'wpk apply',
 	'wpk:dev': 'wpk dev',
 };
+
+function getModuleUrl(): string {
+	try {
+		return Function('return import.meta.url')() as string;
+	} catch (_error) {
+		return pathToFileURL(__filename).href;
+	}
+}
 
 const KERNEL_CONFIG_FILENAME = ['kernel', 'config.ts'].join('.');
 const SRC_INDEX_PATH = path.join('src', 'index.ts');
