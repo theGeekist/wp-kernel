@@ -136,10 +136,16 @@ describe('generateJSOnlyBlocks', () => {
 				"import { registerBlockType } from '@wordpress/blocks';"
 			);
 			expect(autoRegisterContent).toContain(
+				"import { createElement } from '@wordpress/element';"
+			);
+			expect(autoRegisterContent).toContain(
 				"import demoLegacy from '../blocks/legacy/block.json'"
 			);
 			expect(autoRegisterContent).toContain(
-				"registerBlockType('demo/legacy'"
+				'function createGeneratedBlockSettings(metadata: { title?: string })'
+			);
+			expect(autoRegisterContent).toContain(
+				'registerBlockType(demoLegacy as any, createGeneratedBlockSettings(demoLegacy));'
 			);
 		});
 	});
