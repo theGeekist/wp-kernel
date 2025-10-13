@@ -2,7 +2,12 @@ import { Command, Option } from 'clipanion';
 import { createReporter } from '@geekist/wp-kernel';
 import { WPK_NAMESPACE } from '@geekist/wp-kernel/namespace/constants';
 import { resolveFromWorkspace, toWorkspaceRelative } from '../../utils';
-import type { ApplySummary, ApplyFlags } from './types';
+import type {
+	ApplyLogEntry,
+	ApplyResult,
+	ApplySummary,
+	ApplyFlags,
+} from './types';
 import { appendApplyLog } from './apply-log';
 import { applyGeneratedPhpArtifacts } from './apply-generated-php-artifacts';
 import { applyGeneratedBlockArtifacts } from './apply-block-artifacts';
@@ -51,6 +56,9 @@ export class ApplyCommand extends Command {
 			flags,
 		});
 
+		let phpResult: ApplyResult | null = null;
+		let blockResult: ApplyResult | null = null;
+
 		try {
 			await ensureGeneratedPhpClean({
 				reporter,
@@ -58,14 +66,14 @@ export class ApplyCommand extends Command {
 				yes: flags.yes,
 			});
 
-			const phpResult = await applyGeneratedPhpArtifacts({
+			phpResult = await applyGeneratedPhpArtifacts({
 				reporter,
 				sourceDir: sourcePhpDir,
 				targetDir: targetPhpDir,
 				backup: flags.backup,
 				force: flags.force,
 			});
-			const blockResult = await applyGeneratedBlockArtifacts({
+			blockResult = await applyGeneratedBlockArtifacts({
 				reporter,
 				sourceDir: sourceBuildDir,
 				targetDir: targetBuildDir,
@@ -117,12 +125,13 @@ export class ApplyCommand extends Command {
 			);
 			await appendApplyLog(
 				logPath,
-				{
+				createFailureLogEntry({
 					timestamp,
 					flags,
-					result: 'failure',
 					error: serialiseError(error),
-				},
+					phpResult,
+					blockResult,
+				}),
 				reporter
 			);
 			return exitCode;
@@ -144,15 +153,124 @@ export class ApplyCommand extends Command {
 	}
 }
 
-function combineSummaries(
-	left: ApplySummary,
-	right: ApplySummary
-): ApplySummary {
+function createFailureLogEntry({
+	timestamp,
+	flags,
+	error,
+	phpResult,
+	blockResult,
+}: {
+	timestamp: string;
+	flags: ApplyFlags;
+	error: ReturnType<typeof serialiseError>;
+	phpResult: ApplyResult | null;
+	blockResult: ApplyResult | null;
+}): ApplyLogEntry {
+	const summary = combineOptionalSummaries(
+		phpResult?.summary,
+		blockResult?.summary
+	);
+	const files = [
+		...(phpResult?.records ?? []),
+		...(blockResult?.records ?? []),
+	];
+
+	let entry = createBaseFailureLogEntry({ timestamp, flags, error });
+	entry = applyOptionalSummary(entry, summary);
+	entry = applyOptionalFiles(entry, files);
+	entry = applyOptionalSection(entry, 'php', phpResult);
+	entry = applyOptionalSection(entry, 'blocks', blockResult);
+
+	return entry;
+}
+
+function createBaseFailureLogEntry({
+	timestamp,
+	flags,
+	error,
+}: {
+	timestamp: string;
+	flags: ApplyFlags;
+	error: ReturnType<typeof serialiseError>;
+}): ApplyLogEntry {
 	return {
-		created: left.created + right.created,
-		updated: left.updated + right.updated,
-		skipped: left.skipped + right.skipped,
+		timestamp,
+		flags,
+		result: 'failure',
+		error,
 	};
+}
+
+function applyOptionalSummary(
+	entry: ApplyLogEntry,
+	summary: ApplySummary | null
+): ApplyLogEntry {
+	if (!summary) {
+		return entry;
+	}
+
+	return {
+		...entry,
+		summary,
+	};
+}
+
+function applyOptionalFiles(
+	entry: ApplyLogEntry,
+	files: ReadonlyArray<ApplyResult['records'][number]>
+): ApplyLogEntry {
+	if (files.length === 0) {
+		return entry;
+	}
+
+	return {
+		...entry,
+		files: [...files],
+	};
+}
+
+function applyOptionalSection(
+	entry: ApplyLogEntry,
+	key: 'php' | 'blocks',
+	result: ApplyResult | null
+): ApplyLogEntry {
+	if (!result) {
+		return entry;
+	}
+
+	return {
+		...entry,
+		[key]: {
+			summary: result.summary,
+			files: result.records,
+		},
+	};
+}
+
+function combineSummaries(...summaries: readonly ApplySummary[]): ApplySummary {
+	return summaries.reduce<ApplySummary>(
+		(accumulator, summary) => ({
+			created: accumulator.created + summary.created,
+			updated: accumulator.updated + summary.updated,
+			skipped: accumulator.skipped + summary.skipped,
+		}),
+		{ created: 0, updated: 0, skipped: 0 }
+	);
+}
+
+function combineOptionalSummaries(
+	...summaries: ReadonlyArray<ApplySummary | null | undefined>
+): ApplySummary | null {
+	const defined = summaries.filter(
+		(summary): summary is ApplySummary =>
+			summary !== null && summary !== undefined
+	);
+
+	if (defined.length === 0) {
+		return null;
+	}
+
+	return combineSummaries(...defined);
 }
 
 function formatSummaryOutput({
