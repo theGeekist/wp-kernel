@@ -7,7 +7,7 @@ import type {
 import {
 	getRegisteredResources,
 	type ResourceDefinedEvent,
-} from '@geekist/wp-kernel';
+} from '@geekist/wp-kernel/events';
 import type { ResourceObject } from '@geekist/wp-kernel/resource';
 import { attachResourceHooks } from '../hooks/resource-hooks';
 import {

@@ -9,7 +9,7 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { pathToFileURL } from 'node:url';
-import { cosmiconfig, defaultLoaders } from 'cosmiconfig';
+import type * as cosmiconfigNamespace from 'cosmiconfig';
 import { createReporter, type Reporter } from '@geekist/wp-kernel/reporter';
 import { KernelError } from '@geekist/wp-kernel/error';
 import {
@@ -20,14 +20,16 @@ import type { WPKConfigSource } from '@geekist/wp-kernel/namespace/constants';
 import { validateKernelConfig } from './validate-kernel-config';
 import type { LoadedKernelConfig } from './types';
 
+type CosmiconfigModule = typeof cosmiconfigNamespace;
 type CosmiconfigResult = Awaited<
-	ReturnType<ReturnType<typeof cosmiconfig>['search']>
+	ReturnType<ReturnType<CosmiconfigModule['cosmiconfig']>['search']>
 >;
 type TsImport = (
 	path: string,
 	parent?: string | { parentURL: string }
 ) => Promise<unknown>;
 
+let cosmiconfigModulePromise: Promise<CosmiconfigModule> | null = null;
 let cachedTsImport: Promise<TsImport> | null = null;
 
 const reporter = createReporter({
@@ -35,6 +37,35 @@ const reporter = createReporter({
 	level: 'info',
 	enabled: process.env.NODE_ENV !== 'test',
 });
+
+async function loadCosmiconfigModule(): Promise<CosmiconfigModule> {
+	if (!cosmiconfigModulePromise) {
+		cosmiconfigModulePromise = import(
+			'cosmiconfig'
+		) as Promise<CosmiconfigModule>;
+	}
+
+	return cosmiconfigModulePromise;
+}
+
+async function loadDefaultLoader<
+	TExtension extends keyof CosmiconfigModule['defaultLoaders'],
+>(
+	extension: TExtension
+): Promise<NonNullable<CosmiconfigModule['defaultLoaders'][TExtension]>> {
+	const module = await loadCosmiconfigModule();
+	const loader = module.defaultLoaders[extension];
+
+	if (!loader) {
+		throw new KernelError('DeveloperError', {
+			message: `No cosmiconfig loader registered for ${extension}.`,
+		});
+	}
+
+	return loader as NonNullable<
+		CosmiconfigModule['defaultLoaders'][TExtension]
+	>;
+}
 
 /**
  * Locate and load the project's kernel configuration.
@@ -48,7 +79,8 @@ const reporter = createReporter({
  * @throws KernelError when discovery, parsing or validation fails.
  */
 export async function loadKernelConfig(): Promise<LoadedKernelConfig> {
-	const explorer = cosmiconfig('wpk', {
+	const cosmiconfigModule = await loadCosmiconfigModule();
+	const explorer = cosmiconfigModule.cosmiconfig('wpk', {
 		searchPlaces: [
 			WPK_CONFIG_SOURCES.KERNEL_CONFIG_TS,
 			WPK_CONFIG_SOURCES.KERNEL_CONFIG_JS,
@@ -56,7 +88,7 @@ export async function loadKernelConfig(): Promise<LoadedKernelConfig> {
 		],
 		packageProp: 'wpk',
 		loaders: {
-			...defaultLoaders,
+			...cosmiconfigModule.defaultLoaders,
 			'.ts': createTsLoader(),
 			'.js': createJsLoader(),
 			'.mjs': createJsLoader(),
@@ -140,7 +172,10 @@ export function getConfigOrigin(
 }
 
 export function createTsLoader({
-	defaultLoader = defaultLoaders['.ts'],
+	defaultLoader = async (filepath: string, content: string) => {
+		const loader = await loadDefaultLoader('.ts');
+		return loader(filepath, content);
+	},
 	tsImportLoader = getTsImport,
 }: {
 	defaultLoader?: (

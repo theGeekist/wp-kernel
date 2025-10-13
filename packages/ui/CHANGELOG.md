@@ -43,6 +43,9 @@
   accessors so that actions gated by policies unlock once `definePolicy()`
   registers the runtime, avoiding the need for a full refresh when the UI
   attached before policies were available.
+- Migrated all kernel imports to the new `@geekist/wp-kernel/events` and
+  `@geekist/wp-kernel/resource/*` barrels so UI bundles no longer rely on the
+  package root.
 
 ### Migration Guide
 

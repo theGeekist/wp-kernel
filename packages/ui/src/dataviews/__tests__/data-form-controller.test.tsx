@@ -1,8 +1,10 @@
 import { act } from 'react';
 import type { DefinedAction } from '@geekist/wp-kernel/actions';
 import { KernelError } from '@geekist/wp-kernel/error';
-import type { ResourceObject } from '@geekist/wp-kernel/resource';
-import type { CacheKeyPattern } from '@geekist/wp-kernel/resource/cache';
+import type {
+	ResourceObject,
+	CacheKeyPattern,
+} from '@geekist/wp-kernel/resource';
 import * as errorUtils from '../error-utils';
 import type { KernelUIRuntime } from '@geekist/wp-kernel/data';
 import { KernelUIProvider } from '../../runtime/context';

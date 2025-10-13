@@ -12,7 +12,7 @@ import type {
 	RunGenerateResult,
 	GenerationSummary,
 } from './types';
-import type { Reporter } from '@geekist/wp-kernel';
+import type { Reporter } from '@geekist/wp-kernel/reporter';
 
 export async function runGenerate(
 	options: RunGenerateOptions = {}

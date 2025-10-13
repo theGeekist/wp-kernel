@@ -1,5 +1,5 @@
 import { Command, Option } from 'clipanion';
-import { createReporter } from '@geekist/wp-kernel';
+import { createReporter } from '@geekist/wp-kernel/reporter';
 import { WPK_NAMESPACE } from '@geekist/wp-kernel/namespace/constants';
 import { resolveFromWorkspace, toWorkspaceRelative } from '../../utils';
 import type {

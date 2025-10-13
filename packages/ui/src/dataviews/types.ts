@@ -4,8 +4,9 @@ import type { DefinedAction } from '@geekist/wp-kernel/actions';
 import type {
 	CacheKeyPattern,
 	InvalidateOptions,
-} from '@geekist/wp-kernel/resource/cache';
-import type { ResourceObject, ListResponse } from '@geekist/wp-kernel/resource';
+	ResourceObject,
+	ListResponse,
+} from '@geekist/wp-kernel/resource';
 import type { KernelUIPolicyRuntime } from '@geekist/wp-kernel/data';
 import type { Reporter } from '@geekist/wp-kernel/reporter';
 import type {
