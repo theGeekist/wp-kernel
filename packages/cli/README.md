@@ -19,7 +19,7 @@ cd my-plugin
 pnpm install
 ```
 
-This scaffolds a Vite-ready plugin with kernel config, TypeScript/ESLint setup, and package scripts wired to the CLI (`wpk:init`, `wpk:generate`, `wpk:apply`).
+This scaffolds a Vite-ready plugin with kernel config, TypeScript/ESLint setup, and package scripts wired to the CLI (`start`, `build`, `generate`, `apply`).
 
 ## Core workflow: init → generate → apply
 
@@ -47,6 +47,13 @@ This scaffolds a Vite-ready plugin with kernel config, TypeScript/ESLint setup, 
     wpk apply --force            # overwrite files missing guard markers
     ```
     `wpk apply` merges guarded PHP files into `inc/`, copies block registrars, and synchronises `.generated/build/**` (e.g. `blocks-manifest.php`) into `build/`. A `.wpk-apply.log` file records every run for auditability.
+
+## Development commands
+
+- `wpk start` watches kernel sources, regenerates artefacts on change, and launches the Vite dev server. Use `--verbose` for additional logging and `--auto-apply-php` to opt into the best-effort PHP copy used by the legacy `wpk dev` command.
+- `wpk build` performs a production pipeline in one go: `generate` → Vite `build` → `apply --yes`. Pass `--no-apply` when you want to review `.generated/**` + Vite output without touching `inc/`.
+
+The `start` command replaces `wpk dev`; the latter remains as a deprecated alias for backwards compatibility and prints a warning when invoked.
 
 ## Documentation
 

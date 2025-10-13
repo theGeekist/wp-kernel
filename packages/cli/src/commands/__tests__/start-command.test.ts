@@ -1,21 +1,23 @@
 import { EventEmitter } from 'node:events';
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import { Writable } from 'node:stream';
+import { PassThrough, Writable } from 'node:stream';
 import type { FSWatcher } from 'chokidar';
-import { DevCommand, detectTier, prioritiseQueued, type Trigger } from '../dev';
+import {
+	StartCommand,
+	detectTier,
+	prioritiseQueued,
+	type Trigger,
+} from '../start';
+import { DevCommand } from '../dev';
 import { runGenerate } from '../run-generate';
 import chokidar from 'chokidar';
 
-describe('DevCommand', () => {
-	const runGenerateMock = runGenerate as jest.MockedFunction<
-		typeof runGenerate
-	>;
-	const watchMock = chokidar.watch as jest.MockedFunction<
-		typeof chokidar.watch
-	>;
-	const mockedFs = fs as jest.Mocked<typeof fs>;
+const runGenerateMock = runGenerate as jest.MockedFunction<typeof runGenerate>;
+const watchMock = chokidar.watch as jest.MockedFunction<typeof chokidar.watch>;
+const mockedFs = fs as jest.Mocked<typeof fs>;
 
+describe('StartCommand', () => {
 	beforeEach(() => {
 		jest.useFakeTimers();
 		runGenerateMock.mockResolvedValue({
@@ -39,7 +41,7 @@ describe('DevCommand', () => {
 		const watcher = new FakeWatcher() as unknown as FSWatcher;
 		watchMock.mockReturnValue(watcher);
 
-		const command = createCommand();
+		const { command } = createStartCommand();
 		const executePromise = command.execute();
 
 		await flushAsync();
@@ -58,6 +60,7 @@ describe('DevCommand', () => {
 		expect(runGenerateMock).toHaveBeenCalledTimes(2);
 
 		process.emit('SIGINT');
+		await flushAsync();
 		await executePromise;
 
 		expect(watcher.close).toHaveBeenCalledTimes(1);
@@ -69,7 +72,7 @@ describe('DevCommand', () => {
 		const watcher = new FakeWatcher() as unknown as FSWatcher;
 		watchMock.mockReturnValue(watcher);
 
-		const command = createCommand();
+		const { command } = createStartCommand();
 		const executePromise = command.execute();
 
 		await flushAsync();
@@ -91,6 +94,7 @@ describe('DevCommand', () => {
 		expect(runGenerateMock).toHaveBeenCalledTimes(2);
 
 		process.emit('SIGINT');
+		await flushAsync();
 		await executePromise;
 	});
 
@@ -98,7 +102,7 @@ describe('DevCommand', () => {
 		const watcher = new FakeWatcher() as unknown as FSWatcher;
 		watchMock.mockReturnValue(watcher);
 
-		const command = createCommand();
+		const { command } = createStartCommand();
 		const executePromise = command.execute();
 
 		await flushAsync();
@@ -111,6 +115,7 @@ describe('DevCommand', () => {
 		expect(runGenerateMock).toHaveBeenCalledTimes(2);
 
 		process.emit('SIGINT');
+		await flushAsync();
 		await executePromise;
 	});
 
@@ -119,23 +124,28 @@ describe('DevCommand', () => {
 		watchMock.mockReturnValue(watcher);
 		runGenerateMock.mockResolvedValue({ exitCode: 0, output: '' });
 
-		const command = createCommand();
+		const { command } = createStartCommand();
 		command.autoApplyPhp = true;
 
 		const executePromise = command.execute();
 
 		await flushAsync();
 		expect(mockedFs.mkdir).toHaveBeenCalledTimes(1);
-		expect(mockedFs.cp).toHaveBeenCalledTimes(1);
+		await expectEventually(() => {
+			expect(mockedFs.cp).toHaveBeenCalledTimes(1);
+		});
 
 		watcher.emit('all', 'change', 'kernel.config.ts');
 		await jest.advanceTimersByTimeAsync(FAST_DEBOUNCE_MS + 1);
 		await flushAsync();
 
 		expect(runGenerateMock).toHaveBeenCalledTimes(2);
-		expect(mockedFs.cp).toHaveBeenCalledTimes(2);
+		await expectEventually(() => {
+			expect(mockedFs.cp).toHaveBeenCalledTimes(2);
+		});
 
 		process.emit('SIGINT');
+		await flushAsync();
 		await executePromise;
 	});
 
@@ -144,7 +154,7 @@ describe('DevCommand', () => {
 		watchMock.mockReturnValue(watcher);
 		mockedFs.access.mockRejectedValueOnce(new Error('missing output'));
 
-		const command = createCommand();
+		const { command } = createStartCommand();
 		command.autoApplyPhp = true;
 
 		const executePromise = command.execute();
@@ -154,6 +164,7 @@ describe('DevCommand', () => {
 		expect(mockedFs.cp).not.toHaveBeenCalled();
 
 		process.emit('SIGINT');
+		await flushAsync();
 		await executePromise;
 	});
 
@@ -172,7 +183,7 @@ describe('DevCommand', () => {
 			)
 			.mockResolvedValue({ exitCode: 0, output: '' });
 
-		const command = createCommand();
+		const { command } = createStartCommand();
 		const executePromise = command.execute();
 
 		await flushAsync();
@@ -193,6 +204,7 @@ describe('DevCommand', () => {
 
 		process.emit('SIGINT');
 		process.emit('SIGINT');
+		await flushAsync();
 		await executePromise;
 	});
 
@@ -200,7 +212,7 @@ describe('DevCommand', () => {
 		const watcher = new FakeWatcher() as unknown as FSWatcher;
 		watchMock.mockReturnValue(watcher);
 
-		const command = createCommand();
+		const { command } = createStartCommand();
 		const executePromise = command.execute();
 
 		await flushAsync();
@@ -208,6 +220,7 @@ describe('DevCommand', () => {
 		await flushAsync();
 
 		process.emit('SIGINT');
+		await flushAsync();
 		await executePromise;
 
 		expect(runGenerateMock).toHaveBeenCalledTimes(1);
@@ -217,7 +230,7 @@ describe('DevCommand', () => {
 		const watcher = new FakeWatcher() as unknown as FSWatcher;
 		watchMock.mockReturnValue(watcher);
 
-		const command = createCommand();
+		const { command } = createStartCommand();
 		const executePromise = command.execute();
 
 		await flushAsync();
@@ -236,6 +249,7 @@ describe('DevCommand', () => {
 		expect(runGenerateMock).toHaveBeenCalledTimes(2);
 
 		process.emit('SIGINT');
+		await flushAsync();
 		await executePromise;
 	});
 
@@ -243,13 +257,14 @@ describe('DevCommand', () => {
 		const watcher = new FakeWatcher() as unknown as FSWatcher;
 		watchMock.mockReturnValue(watcher);
 
-		const command = createCommand();
+		const { command } = createStartCommand();
 		const executePromise = command.execute();
 
 		await flushAsync();
 		process.emit('SIGINT');
 		process.emit('SIGTERM');
 
+		await flushAsync();
 		await executePromise;
 
 		expect(runGenerateMock).toHaveBeenCalledTimes(1);
@@ -260,7 +275,7 @@ describe('DevCommand', () => {
 		const watcher = new FakeWatcher() as unknown as FSWatcher;
 		watchMock.mockReturnValue(watcher);
 
-		const command = createCommand();
+		const { command } = createStartCommand();
 		command.verbose = true;
 
 		const executePromise = command.execute();
@@ -272,6 +287,7 @@ describe('DevCommand', () => {
 		);
 
 		process.emit('SIGINT');
+		await flushAsync();
 		await executePromise;
 	});
 
@@ -282,11 +298,12 @@ describe('DevCommand', () => {
 		);
 		watchMock.mockReturnValue(watcher);
 
-		const command = createCommand();
+		const { command } = createStartCommand();
 		const executePromise = command.execute();
 
 		await flushAsync();
 		process.emit('SIGINT');
+		await flushAsync();
 		await executePromise;
 
 		expect(watcher.close).toHaveBeenCalledTimes(1);
@@ -299,7 +316,7 @@ describe('DevCommand', () => {
 			.mockResolvedValueOnce({ exitCode: 1, output: '' })
 			.mockResolvedValue({ exitCode: 0, output: '' });
 
-		const command = createCommand();
+		const { command } = createStartCommand();
 		command.autoApplyPhp = true;
 
 		const executePromise = command.execute();
@@ -312,9 +329,12 @@ describe('DevCommand', () => {
 		await flushAsync();
 
 		expect(runGenerateMock).toHaveBeenCalledTimes(2);
-		expect(mockedFs.cp).toHaveBeenCalledTimes(1);
+		await expectEventually(() => {
+			expect(mockedFs.cp).toHaveBeenCalledTimes(1);
+		});
 
 		process.emit('SIGINT');
+		await flushAsync();
 		await executePromise;
 	});
 
@@ -324,7 +344,7 @@ describe('DevCommand', () => {
 		mockedFs.cp.mockRejectedValueOnce(new Error('copy failed'));
 		runGenerateMock.mockResolvedValue({ exitCode: 0, output: '' });
 
-		const command = createCommand();
+		const { command } = createStartCommand();
 		command.autoApplyPhp = true;
 
 		const executePromise = command.execute();
@@ -339,6 +359,7 @@ describe('DevCommand', () => {
 		expect(mockedFs.cp).toHaveBeenCalledTimes(2);
 
 		process.emit('SIGINT');
+		await flushAsync();
 		await executePromise;
 	});
 
@@ -349,7 +370,7 @@ describe('DevCommand', () => {
 			.mockImplementationOnce(() => Promise.reject(new Error('boom')))
 			.mockResolvedValue({ exitCode: 0, output: '' });
 
-		const command = createCommand();
+		const { command } = createStartCommand();
 		const executePromise = command.execute();
 
 		await flushAsync();
@@ -360,7 +381,49 @@ describe('DevCommand', () => {
 		expect(runGenerateMock).toHaveBeenCalledTimes(2);
 
 		process.emit('SIGINT');
+		await flushAsync();
 		await executePromise;
+	});
+
+	it('stops the Vite dev server on shutdown', async () => {
+		const watcher = new FakeWatcher() as unknown as FSWatcher;
+		watchMock.mockReturnValue(watcher);
+
+		const { command, viteProcess } = createStartCommand();
+		const executePromise = command.execute();
+
+		await flushAsync();
+		process.emit('SIGINT');
+		await flushAsync();
+		await executePromise;
+
+		expect(viteProcess.kill).toHaveBeenCalledWith('SIGINT');
+	});
+
+	it('returns error exit code when Vite fails to launch', async () => {
+		const command = new StartCommand();
+		const stdout = new MemoryStream();
+		const stderr = new MemoryStream();
+		command.context = {
+			stdout,
+			stderr,
+			stdin: process.stdin,
+			env: process.env,
+			cwd: () => process.cwd(),
+			colorDepth: 1,
+		} as StartCommand['context'];
+
+		jest.spyOn(
+			command as unknown as StartCommand,
+			'createViteDevProcess'
+		).mockImplementation(() => {
+			throw new Error('spawn failure');
+		});
+
+		const exitCode = await command.execute();
+
+		expect(exitCode).toBe(1);
+		expect(watchMock).not.toHaveBeenCalled();
 	});
 
 	it('detects slow tiers for contract and schema paths', () => {
@@ -396,13 +459,92 @@ describe('DevCommand', () => {
 	});
 });
 
+describe('DevCommand alias', () => {
+	beforeEach(() => {
+		jest.useFakeTimers();
+		watchMock.mockImplementation(
+			() => new FakeWatcher() as unknown as FSWatcher
+		);
+		runGenerateMock.mockResolvedValue({ exitCode: 0, output: '' });
+	});
+
+	afterEach(() => {
+		jest.useRealTimers();
+		jest.resetAllMocks();
+	});
+
+	it('emits a deprecation warning and delegates to StartCommand', async () => {
+		const { command } = createDevCommand();
+		const executePromise = command.execute();
+
+		await flushAsync();
+
+		const stderr = command.context.stderr as MemoryStream;
+		expect(stderr.toString()).toContain('deprecated');
+
+		process.emit('SIGINT');
+		await flushAsync();
+		await executePromise;
+	});
+});
+
 class FakeWatcher extends EventEmitter {
 	close = jest.fn(async () => {
 		this.emit('close');
 	});
 }
 
-function createCommand(): DevCommand {
+class FakeChildProcess extends EventEmitter {
+	stdout = new PassThrough();
+	stderr = new PassThrough();
+	kill = jest.fn((signal?: NodeJS.Signals) => {
+		if (this.killed) {
+			return false;
+		}
+		this.killed = true;
+		queueMicrotask(() => {
+			this.emit('exit', 0, signal ?? null);
+		});
+		return true;
+	});
+
+	killed = false;
+}
+
+function createStartCommand(): {
+	command: StartCommand;
+	viteProcess: FakeChildProcess;
+} {
+	const command = new StartCommand();
+	const stdout = new MemoryStream();
+	const stderr = new MemoryStream();
+
+	command.context = {
+		stdout,
+		stderr,
+		stdin: process.stdin,
+		env: process.env,
+		cwd: () => process.cwd(),
+		colorDepth: 1,
+	} as StartCommand['context'];
+
+	const viteProcess = new FakeChildProcess();
+	jest.spyOn(
+		command as unknown as StartCommand,
+		'createViteDevProcess'
+	).mockReturnValue(
+		viteProcess as unknown as ReturnType<
+			StartCommand['createViteDevProcess']
+		>
+	);
+
+	return { command, viteProcess };
+}
+
+function createDevCommand(): {
+	command: DevCommand;
+	viteProcess: FakeChildProcess;
+} {
 	const command = new DevCommand();
 	const stdout = new MemoryStream();
 	const stderr = new MemoryStream();
@@ -416,7 +558,17 @@ function createCommand(): DevCommand {
 		colorDepth: 1,
 	} as DevCommand['context'];
 
-	return command;
+	const viteProcess = new FakeChildProcess();
+	jest.spyOn(
+		command as unknown as DevCommand,
+		'createViteDevProcess'
+	).mockReturnValue(
+		viteProcess as unknown as ReturnType<
+			StartCommand['createViteDevProcess']
+		>
+	);
+
+	return { command, viteProcess };
 }
 
 class MemoryStream extends Writable {
@@ -439,6 +591,21 @@ class MemoryStream extends Writable {
 async function flushAsync(): Promise<void> {
 	await Promise.resolve();
 	await Promise.resolve();
+	await jest.advanceTimersByTimeAsync(0);
+}
+
+async function expectEventually(assertion: () => void): Promise<void> {
+	for (let attempt = 0; attempt < 5; attempt += 1) {
+		try {
+			assertion();
+			return;
+		} catch (error) {
+			if (attempt === 4) {
+				throw error;
+			}
+			await flushAsync();
+		}
+	}
 }
 
 const FAST_DEBOUNCE_MS = 200;
