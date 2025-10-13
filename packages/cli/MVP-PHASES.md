@@ -341,7 +341,7 @@ packages/cli/src/printers/blocks/
 
 **Dependencies:** Phases 3B, 5B.
 
-**Status Log:** _Pending_
+**Status Log:** Started 2025-02-17 - Completed 2025-02-17
 
 **Reference files:** `packages/cli/src/commands/apply.ts`, test harness in `packages/cli/src/commands/__tests__/apply-command.test.ts`, and new fixtures under `packages/cli/tests/fixtures/apply-blocks/**`.
 

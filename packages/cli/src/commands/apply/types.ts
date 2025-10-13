@@ -19,6 +19,11 @@ export interface ApplyResult {
 	records: ApplyFileRecord[];
 }
 
+export interface ApplyLogSection {
+	summary: ApplySummary;
+	files: ApplyFileRecord[];
+}
+
 export interface ApplyFlags {
 	yes: boolean;
 	backup: boolean;
@@ -40,4 +45,6 @@ export interface ApplyLogEntry {
 	summary?: ApplySummary;
 	files?: ApplyFileRecord[];
 	error?: SerializedError | Record<string, unknown>;
+	php?: ApplyLogSection;
+	blocks?: ApplyLogSection;
 }
