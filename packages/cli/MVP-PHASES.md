@@ -38,6 +38,12 @@ When completed, don't run `git commit --no-verify`, just run `CI=1 git commit ..
 
 Finally you find that imports from other packages are sometimes missing, it usually means you'd have to re-run `pnpm --filter <the dependent package> build` so exports are updated. But this is only when you update other packages and may not be relevant for your task.
 
+**Non-goals / Deferred Work:**
+
+- Dedicated policy helper emission lives in Phase 7 alongside the policy-map contract.
+- UI/DataViews scaffolding beyond the existing printers is showcase-specific and not part of the MVP sprint.
+- Resource-driven block scaffolding flags (`resource.blocks?.scaffold`, etc.) remain future enhancements; Phase 3 only covers discovery + derived defaults.
+
 **Phase Deliverables:**
 
 - Update this file's Status Log for the active phase when the work begins and ends.
@@ -272,6 +278,8 @@ packages/cli/src/printers/blocks/
 **Dependencies:** Phase 1A, 1B.
 
 **Status Log:** Started 2025-02-14 - Completed 2025-02-14
+
+**Reference files:** Rule sources in `eslint-rules/`, wiring in `eslint.config.js`, and fixtures/tests in `packages/cli/tests/eslint/`.
 
 ---
 

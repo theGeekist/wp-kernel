@@ -5,7 +5,8 @@ import { loadKernelConfig } from '../../config';
 import { buildIr } from '../../ir';
 import { emitGeneratedArtifacts } from '../../printers';
 import { runAdapterExtensions } from '../../adapters';
-import { createReporter } from '@geekist/wp-kernel';
+import { createReporter } from '@geekist/wp-kernel/reporter';
+import type { WPKConfigSource } from '@geekist/wp-kernel/namespace/constants';
 
 jest.mock('../../config');
 jest.mock('../../ir');
@@ -103,16 +104,16 @@ function createReporterMock(): Reporter {
 function createKernelConfig(overrides: Partial<Record<string, unknown>> = {}) {
 	return {
 		config: {
-			version: 1,
+			version: 1 as const,
 			namespace: 'demo',
 			schemas: {},
 			resources: {},
 			adapters: {},
-			...overrides.config,
+			...(overrides.config ?? {}),
 		},
 		sourcePath: '/workspace/kernel.config.js',
-		configOrigin: 'kernel.config.js',
-		composerCheck: 'ok',
+		configOrigin: 'file' as WPKConfigSource,
+		composerCheck: 'ok' as 'ok' | 'mismatch',
 		namespace: 'demo',
 		...overrides,
 	};
@@ -166,11 +167,16 @@ describe('runGenerate', () => {
 		const result = await runGenerate({ dryRun: true });
 
 		expect(result.exitCode).toBe(3);
+		// Find any child reporter's error call
 		const reporter = createReporterMockFn.mock.results[0]!.value;
-		expect(reporter.error).toHaveBeenCalledWith(
-			'Adapter extension failure.',
-			expect.objectContaining({ message: 'extension failure' })
-		);
+		const errorCalls = reporter.child('adapter').error.mock.calls;
+		expect(
+			errorCalls.some(
+				(call: any) =>
+					call[0] === 'Adapter extension failure.' &&
+					call[1].message === 'extension failure'
+			)
+		).toBe(true);
 	});
 
 	it('returns exit code 3 when committing extensions fails and rolls back', async () => {
@@ -203,9 +209,13 @@ describe('runGenerate', () => {
 		expect(commit).toHaveBeenCalledTimes(1);
 		expect(rollback).toHaveBeenCalledTimes(1);
 		const reporter = createReporterMockFn.mock.results[0]!.value;
-		expect(reporter.error).toHaveBeenCalledWith(
-			'Adapter extension commit failed.',
-			expect.objectContaining({ message: 'commit failure' })
-		);
+		const errorCalls = reporter.child('adapter').error.mock.calls;
+		expect(
+			errorCalls.some(
+				(call: any) =>
+					call[0] === 'Adapter extension commit failed.' &&
+					call[1].message === 'commit failure'
+			)
+		).toBe(true);
 	});
 });
