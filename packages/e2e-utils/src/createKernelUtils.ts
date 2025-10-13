@@ -7,7 +7,10 @@
  * @module
  */
 
-import { extractPathParams, interpolatePath } from '@geekist/wp-kernel';
+import {
+	extractPathParams,
+	interpolatePath,
+} from '@geekist/wp-kernel/resource/cache';
 import type { Page } from '@playwright/test';
 import type { RequestUtils } from '@wordpress/e2e-test-utils-playwright';
 import type {

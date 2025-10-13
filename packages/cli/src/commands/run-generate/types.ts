@@ -1,4 +1,4 @@
-import type { Reporter } from '@geekist/wp-kernel';
+import type { Reporter } from '@geekist/wp-kernel/reporter';
 import type { FileWriterSummary } from '../../utils';
 
 type ExitCodeSuccess = 0;

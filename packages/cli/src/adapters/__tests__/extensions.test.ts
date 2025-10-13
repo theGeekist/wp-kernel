@@ -10,7 +10,7 @@ import type {
 } from '../../config/types';
 import type { IRv1 } from '../../ir';
 import { FileWriter } from '../../utils/file-writer';
-import type { Reporter } from '@geekist/wp-kernel';
+import type { Reporter } from '@geekist/wp-kernel/reporter';
 
 const TMP_OUTPUT = path.join(os.tmpdir(), 'wpk-extension-output-');
 

@@ -1,6 +1,6 @@
-import { createReporter } from '@geekist/wp-kernel';
+import { createReporter } from '@geekist/wp-kernel/reporter';
 import { WPK_NAMESPACE } from '@geekist/wp-kernel/namespace/constants';
-import type { Reporter } from '@geekist/wp-kernel';
+import type { Reporter } from '@geekist/wp-kernel/reporter';
 import { loadKernelConfig } from '../../config';
 import { buildIr } from '../../ir';
 import type { IRv1 } from '../../ir';

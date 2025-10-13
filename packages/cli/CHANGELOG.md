@@ -37,6 +37,9 @@
 - Enhanced ESLint rule messages to explain: (1) what we inferred, (2) why the framework cares, (3) runtime consequences, (4) how to fix with examples
 - Refactored monolithic `build-ir.ts` into focused modules (schema, routes, resource-builder, block-discovery, cache-keys, policies, php, ordering, canonical)
 - Split IR test suite into focused spec files (core, defaults, validation, blocks, php)
+- Externalised runtime-only dependencies (`chokidar`, `clipanion`, `cosmiconfig`,
+  `typanion`) from the Vite build and lazy-loaded filesystem watching so the CLI
+  bundle matches peer dependency expectations.
 
 ### Previous Changes
 

@@ -10,7 +10,7 @@ import type {
 import type { IRv1 } from '../../ir';
 import type { PrinterContext } from '../../printers';
 import { GENERATED_ROOT } from '../../internal';
-import type { Reporter } from '@geekist/wp-kernel';
+import type { Reporter } from '@geekist/wp-kernel/reporter';
 import { runAdapterExtensions } from '../../adapters';
 import type { AdapterExtensionRunResult } from '../../adapters';
 import { formatPhp, formatTs, createEnsureDirectory } from './formatters';

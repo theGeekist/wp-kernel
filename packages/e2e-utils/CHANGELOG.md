@@ -11,6 +11,8 @@
     - Store utilities for WordPress Data registry interactions
     - Event utilities for kernel event bus testing
     - Comprehensive unit tests validating utility functions
+- Updated kernel imports to consume the new resource cache barrels, keeping
+  the utilities aligned with the public package exports.
 
 ## 0.2.0
 

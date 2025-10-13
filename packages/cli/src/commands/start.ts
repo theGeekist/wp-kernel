@@ -1,10 +1,11 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
-import chokidar from 'chokidar';
 import { Command, Option } from 'clipanion';
-import { createReporter } from '@geekist/wp-kernel';
-import type { Reporter } from '@geekist/wp-kernel';
+import type * as chokidarModule from 'chokidar';
+import { createReporter } from '@geekist/wp-kernel/reporter';
+import type { Reporter } from '@geekist/wp-kernel/reporter';
+import { KernelError } from '@geekist/wp-kernel/error';
 import {
 	WPK_CONFIG_SOURCES,
 	WPK_NAMESPACE,
@@ -53,6 +54,40 @@ type ViteHandle = {
 	exit: Promise<void>;
 };
 
+type WatchFn = typeof chokidarModule.watch;
+
+let chokidarModulePromise: Promise<typeof chokidarModule> | null = null;
+
+async function loadChokidarModule(): Promise<typeof chokidarModule> {
+	if (!chokidarModulePromise) {
+		chokidarModulePromise = import('chokidar');
+	}
+
+	return chokidarModulePromise;
+}
+
+async function loadChokidarWatch(): Promise<WatchFn> {
+	const module = await loadChokidarModule();
+	if (typeof module.watch === 'function') {
+		return module.watch;
+	}
+
+	if (module.default) {
+		const candidate = module.default as unknown;
+		if (typeof candidate === 'function') {
+			return candidate as WatchFn;
+		}
+
+		if (typeof (candidate as { watch?: unknown }).watch === 'function') {
+			return (candidate as { watch: WatchFn }).watch;
+		}
+	}
+
+	throw new KernelError('DeveloperError', {
+		message: 'Unable to resolve chokidar.watch for CLI start command.',
+	});
+}
+
 /**
  * File system change metadata tracked by the start command.
  */
@@ -84,7 +119,7 @@ export class StartCommand extends Command {
 	verbose = Option.Boolean('--verbose', false);
 	autoApplyPhp = Option.Boolean('--auto-apply-php', false);
 
-	protected watchFactory: typeof chokidar.watch = chokidar.watch;
+	protected watchFactory: () => Promise<WatchFn> = loadChokidarWatch;
 
 	override async execute(): Promise<ExitCode> {
 		const reporter = createReporter({
@@ -100,7 +135,8 @@ export class StartCommand extends Command {
 			return 1;
 		}
 
-		const watcher = this.watchFactory(WATCH_PATTERNS, {
+		const watch = await this.watchFactory();
+		const watcher = watch(WATCH_PATTERNS, {
 			cwd: process.cwd(),
 			ignoreInitial: true,
 			ignored: IGNORED_PATTERNS,
