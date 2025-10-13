@@ -1,0 +1,21 @@
+[**WP Kernel API v0.3.0**](../../../README.md)
+
+---
+
+[WP Kernel API](../../../README.md) / [kernel/src](../README.md) / createReporter
+
+# Function: createReporter()
+
+```ts
+function createReporter(options): Reporter;
+```
+
+## Parameters
+
+### options
+
+[`ReporterOptions`](../type-aliases/ReporterOptions.md) = `{}`
+
+## Returns
+
+[`Reporter`](../type-aliases/Reporter.md)

@@ -237,4 +237,4 @@ For complete event taxonomy, payload contracts, PHP bridge mapping, and versioni
 ## Related
 
 - [Events Guide](/guide/events) - Usage patterns and examples
-- [HTTP Transport API](/api/generated/http/README) - Transport implementation
+- [HTTP Transport API](/api/generated/kernel/src/namespaces/http/README) - Transport implementation

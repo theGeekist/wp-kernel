@@ -21,11 +21,11 @@ Structured logging via LogLayer with console and WordPress hook transports.
 Registry utilities (`registerKernelStore`) and notice bridging for `@wordpress/data` stores. `configureKernel()`
 is the bootstrap function available from `@geekist/wp-kernel`.
 
-### [Errors](/api/generated/error/README)
+### [Errors](/api/generated/kernel/src/namespaces/error/README)
 
 Error types and handling primitives.
 
-### [HTTP Transport](/api/generated/http/README)
+### [HTTP Transport](/api/generated/kernel/src/namespaces/http/README)
 
 ## UI Hooks
 

@@ -1,0 +1,23 @@
+[**WP Kernel API v0.3.0**](../../../README.md)
+
+---
+
+[WP Kernel API](../../../README.md) / [kernel/src](../README.md) / KernelUIPolicyRuntime
+
+# Interface: KernelUIPolicyRuntime
+
+## Properties
+
+### policy?
+
+```ts
+optional policy: Partial<PolicyHelpers<Record<string, unknown>>> & object;
+```
+
+#### Type Declaration
+
+##### cache?
+
+```ts
+optional cache: PolicyCache;
+```
