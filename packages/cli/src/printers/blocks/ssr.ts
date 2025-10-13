@@ -283,6 +283,10 @@ async function ensureRenderTemplate(options: {
 	projectRoot: string;
 	renderInfo?: RenderResolution;
 }): Promise<RenderOutcome> {
+	if (manifestDeclaresRenderCallback(options.manifest)) {
+		return { files: [], warnings: [] };
+	}
+
 	if (options.renderInfo) {
 		if (!options.renderInfo.exists && options.renderInfo.declared) {
 			return {
@@ -348,6 +352,27 @@ async function ensureRenderTemplate(options: {
 		],
 		renderPath: fallbackRelative,
 	};
+}
+
+function manifestDeclaresRenderCallback(manifest: unknown): boolean {
+	if (!manifest || typeof manifest !== 'object') {
+		return false;
+	}
+
+	const data = manifest as Record<string, unknown>;
+	const render = data.render;
+
+	if (typeof render !== 'string') {
+		return false;
+	}
+
+	const trimmed = render.trim();
+
+	if (trimmed.length === 0) {
+		return false;
+	}
+
+	return !trimmed.startsWith('file:');
 }
 
 function renderManifestFile(options: {
