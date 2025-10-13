@@ -68,6 +68,9 @@ export async function generateJSOnlyBlocks(
 	const processedManifest = blockResults.some(
 		(result) => result.processedManifest
 	);
+	const requiresSettingsHelper = blockResults.some(
+		(result) => result.requiresSettingsHelper
+	);
 
 	if (
 		!processedManifest &&
@@ -89,10 +92,31 @@ export async function generateJSOnlyBlocks(
 	const contents: string[] = [...banner];
 
 	if (registrations.length > 0) {
+		contents.push("import { registerBlockType } from '@wordpress/blocks';");
+		if (requiresSettingsHelper) {
+			contents.push(
+				"import { createElement } from '@wordpress/element';"
+			);
+		}
+
+		contents.push(...imports, '');
+
+		if (requiresSettingsHelper) {
+			contents.push(
+				'function createGeneratedBlockSettings(metadata: { title?: string }) {',
+				"        const title = metadata?.title ?? 'Block';",
+				'        return {',
+				'                edit: () =>',
+				"                        createElement('div', null, `${title} (edit)`),",
+				'                save: () =>',
+				"                        createElement('div', null, `${title} (save)`),",
+				'        };',
+				'}',
+				''
+			);
+		}
+
 		contents.push(
-			"import { registerBlockType } from '@wordpress/blocks';",
-			...imports,
-			'',
 			'export function registerGeneratedBlocks(): void {',
 			...registrations.map((line) => `        ${line}`),
 			'}',
@@ -128,6 +152,7 @@ interface BlockAutoRegisterResult {
 	processedManifest: boolean;
 	importStatement?: string;
 	registrationStatement?: string;
+	requiresSettingsHelper?: boolean;
 }
 
 async function processBlockForAutoRegister(options: {
@@ -195,7 +220,8 @@ async function processBlockForAutoRegister(options: {
 		stubFiles,
 		processedManifest: true,
 		importStatement: `import ${variableName} from '${importPath}';`,
-		registrationStatement: `registerBlockType('${block.key}', ${variableName});`,
+		registrationStatement: `registerBlockType(${variableName} as any, createGeneratedBlockSettings(${variableName}));`,
+		requiresSettingsHelper: true,
 	};
 }
 
