@@ -188,16 +188,16 @@ export default withMermaid(
 						collapsed: true,
 						items: [
 							{
-								text: 'Resources',
-								link: '/api/generated/resource/README',
+								text: '@geekist/wp-kernel',
+								link: '/api/generated/kernel/src/README',
 							},
 							{
-								text: 'Errors',
-								link: '/api/generated/errors/README',
+								text: '@geekist/wp-kernel-cli',
+								link: '/api/generated/@geekist/wp-kernel-cli/README',
 							},
 							{
-								text: 'Transport',
-								link: '/api/generated/transport/README',
+								text: '@geekist/wp-kernel-ui',
+								link: '/api/generated/@geekist/wp-kernel-ui/README',
 							},
 						],
 					},
