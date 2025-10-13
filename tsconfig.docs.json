@@ -1,0 +1,16 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig",
+	"extends": "./tsconfig.base.json",
+	"compilerOptions": {
+		"composite": false,
+		"rootDir": ".",
+		"outDir": "./dist",
+		"noEmit": true
+	},
+	"include": [
+		"packages/kernel/src/**/*",
+		"packages/ui/src/**/*",
+		"packages/cli/src/**/*",
+		"types/**/*.d.ts"
+	]
+}

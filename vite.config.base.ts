@@ -11,9 +11,15 @@ import { wp_globals } from '@kucrut/vite-for-wp/utils';
  * @param entries     - Entry point mapping (e.g., { index: 'src/index.ts', http: 'src/http/index.ts' })
  * @return Vite configuration object
  */
+type KernelLibConfigOptions = {
+	/** Additional Rollup externals specific to the package. */
+	external?: Array<string | RegExp>;
+};
+
 export const createKernelLibConfig = (
 	packageName: string,
-	entries: Record<string, string>
+	entries: Record<string, string>,
+	options: KernelLibConfigOptions = {}
 ): UserConfig =>
 	defineConfig({
 		build: {
@@ -58,6 +64,7 @@ export const createKernelLibConfig = (
 					'process',
 					'v8',
 					'net',
+					...(options.external ?? []),
 				],
 				output: {
 					exports: 'named',

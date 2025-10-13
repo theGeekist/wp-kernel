@@ -3,7 +3,8 @@ import { createDeferred, renderHook } from '../testing/test-utils';
 import { useAction } from '../useAction';
 import type { UseActionOptions } from '../useAction';
 import type { ActionEnvelope, DefinedAction } from '@geekist/wp-kernel/actions';
-import { KernelError, KernelEventBus } from '@geekist/wp-kernel';
+import { KernelError } from '@geekist/wp-kernel/error';
+import { KernelEventBus } from '@geekist/wp-kernel/events';
 import * as kernelData from '@geekist/wp-kernel/data';
 import { KernelUIProvider } from '../../runtime';
 import type {

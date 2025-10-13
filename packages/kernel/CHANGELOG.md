@@ -20,6 +20,8 @@
   a typed subscription interface while continuing to bridge into `wp.hooks`.
   Action and cache events now emit through the bus, enabling UI runtimes and
   adapters to subscribe without global shims.
+- Published a dedicated `@geekist/wp-kernel/events` barrel export so consumers
+  can rely on the event bus without importing from the package root.
 - Resource reporters inherit from the kernel instance. Client methods and store
   resolvers emit structured `debug`/`info`/`error` logs and every resource now
   exposes a `reporter` property for custom instrumentation.
