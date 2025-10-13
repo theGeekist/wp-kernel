@@ -23,9 +23,10 @@ const PACKAGE_DEFAULT_TYPE = 'module';
 const PACKAGE_DEFAULT_PRIVATE = true;
 
 const SCRIPT_RECOMMENDATIONS: Record<string, string> = {
-	'wpk:generate': 'wpk generate',
-	'wpk:apply': 'wpk apply',
-	'wpk:dev': 'wpk dev',
+	start: 'wpk start',
+	build: 'wpk build',
+	generate: 'wpk generate',
+	apply: 'wpk apply',
 };
 
 function getModuleUrl(): string {

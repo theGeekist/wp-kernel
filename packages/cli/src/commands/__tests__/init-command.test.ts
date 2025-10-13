@@ -54,9 +54,10 @@ describe('InitCommand', () => {
 				private: true,
 				type: 'module',
 				scripts: {
-					'wpk:generate': 'wpk generate',
-					'wpk:apply': 'wpk apply',
-					'wpk:dev': 'wpk dev',
+					start: 'wpk start',
+					build: 'wpk build',
+					generate: 'wpk generate',
+					apply: 'wpk apply',
 				},
 			});
 		});
@@ -106,7 +107,7 @@ describe('InitCommand', () => {
 					{
 						name: 'custom-package',
 						scripts: {
-							'wpk:generate': 'custom generate',
+							generate: 'custom generate',
 							lint: 'eslint .',
 						},
 					},
@@ -134,9 +135,10 @@ describe('InitCommand', () => {
 			expect(packageJson).toMatchObject({
 				name: 'jobs-plugin',
 				scripts: {
-					'wpk:generate': 'wpk generate',
-					'wpk:apply': 'wpk apply',
-					'wpk:dev': 'wpk dev',
+					start: 'wpk start',
+					build: 'wpk build',
+					generate: 'wpk generate',
+					apply: 'wpk apply',
 					lint: 'eslint .',
 				},
 			});

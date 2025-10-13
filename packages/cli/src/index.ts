@@ -39,6 +39,8 @@ export {
 	GenerateCommand,
 	InitCommand,
 	DoctorCommand,
+	StartCommand,
 	DevCommand,
+	BuildCommand,
 	ApplyCommand,
 } from './commands';
