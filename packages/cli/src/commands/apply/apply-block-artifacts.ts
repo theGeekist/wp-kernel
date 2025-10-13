@@ -10,6 +10,7 @@ import type {
 } from './types';
 import { isNotFoundError, statIfExists } from './fs-utils';
 import { serialiseError } from './errors';
+import { applyGeneratedPhpArtifacts } from './apply-generated-php-artifacts';
 
 interface ApplyFileOutcome {
 	status: keyof ApplySummary;
@@ -21,8 +22,11 @@ export async function applyGeneratedBlockArtifacts({
 	sourceDir,
 	targetDir,
 	backup,
+	force,
 }: ApplyOptions): Promise<ApplyResult> {
 	try {
+		await fs.mkdir(targetDir, { recursive: true });
+
 		const files = await collectGeneratedFiles(sourceDir);
 
 		if (files.length === 0) {
@@ -35,10 +39,26 @@ export async function applyGeneratedBlockArtifacts({
 			};
 		}
 
+		const nonPhpFiles = files.filter((file) => !file.endsWith('.php'));
 		const summary: ApplySummary = { created: 0, updated: 0, skipped: 0 };
 		const records: ApplyFileRecord[] = [];
 
-		for (const file of files) {
+		if (nonPhpFiles.length !== files.length) {
+			const phpResult = await applyGeneratedPhpArtifacts({
+				reporter,
+				sourceDir,
+				targetDir,
+				backup,
+				force,
+			});
+
+			summary.created += phpResult.summary.created;
+			summary.updated += phpResult.summary.updated;
+			summary.skipped += phpResult.summary.skipped;
+			records.push(...phpResult.records);
+		}
+
+		for (const file of nonPhpFiles) {
 			const relative = path.relative(sourceDir, file);
 			const destination = path.join(targetDir, relative);
 			const destinationDir = path.dirname(destination);
@@ -62,7 +82,7 @@ export async function applyGeneratedBlockArtifacts({
 				? await fs.readFile(destination)
 				: null;
 
-			const outcome = await applyFile({
+			const outcome = await applyBinaryFile({
 				destination,
 				generated,
 				existing,
@@ -143,7 +163,7 @@ async function collectGeneratedFiles(root: string): Promise<string[]> {
 	return files.sort((a, b) => a.localeCompare(b));
 }
 
-async function applyFile({
+async function applyBinaryFile({
 	destination,
 	generated,
 	existing,

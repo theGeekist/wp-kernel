@@ -23,6 +23,8 @@ export class ApplyCommand extends Command {
 	force = Option.Boolean('--force', false);
 
 	public summary: ApplySummary | null = null;
+	public phpSummary: ApplySummary | null = null;
+	public blockSummary: ApplySummary | null = null;
 
 	override async execute(): Promise<number> {
 		const reporter = createReporter({
@@ -71,18 +73,19 @@ export class ApplyCommand extends Command {
 				force: flags.force,
 			});
 
-			const summary = combineSummaries(
-				phpResult.summary,
-				blockResult.summary
-			);
+			const phpSummary = phpResult.summary;
+			const blockSummary = blockResult.summary;
+			const summary = combineSummaries(phpSummary, blockSummary);
 			const records = [...phpResult.records, ...blockResult.records];
 
 			this.summary = summary;
+			this.phpSummary = phpSummary;
+			this.blockSummary = blockSummary;
 			reporter.info('Apply completed.', {
 				summary,
 				breakdown: {
-					php: phpResult.summary,
-					blocks: blockResult.summary,
+					php: phpSummary,
+					blocks: blockSummary,
 				},
 				flags,
 			});
@@ -94,6 +97,14 @@ export class ApplyCommand extends Command {
 					result: 'success',
 					summary,
 					files: records,
+					php: {
+						summary: phpSummary,
+						files: phpResult.records,
+					},
+					blocks: {
+						summary: blockSummary,
+						files: blockResult.records,
+					},
 				},
 				reporter
 			);
@@ -118,10 +129,15 @@ export class ApplyCommand extends Command {
 		}
 
 		const summary = this.summary!;
-		const { created, updated, skipped } = summary;
+		const phpSummary = this.phpSummary!;
+		const blockSummary = this.blockSummary!;
 
 		this.context.stdout.write(
-			`Apply summary (PHP + blocks): created ${created}, updated ${updated}, skipped ${skipped}\n`
+			formatSummaryOutput({
+				total: summary,
+				php: phpSummary,
+				blocks: blockSummary,
+			})
 		);
 
 		return 0;
@@ -137,4 +153,23 @@ function combineSummaries(
 		updated: left.updated + right.updated,
 		skipped: left.skipped + right.skipped,
 	};
+}
+
+function formatSummaryOutput({
+	php,
+	blocks,
+	total,
+}: {
+	php: ApplySummary;
+	blocks: ApplySummary;
+	total: ApplySummary;
+}): string {
+	const lines = [
+		'Apply summary:',
+		`  PHP: created ${php.created}, updated ${php.updated}, skipped ${php.skipped}`,
+		`  Blocks: created ${blocks.created}, updated ${blocks.updated}, skipped ${blocks.skipped}`,
+		`  Total: created ${total.created}, updated ${total.updated}, skipped ${total.skipped}`,
+	];
+
+	return `${lines.join('\n')}\n`;
 }
