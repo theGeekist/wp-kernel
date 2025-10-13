@@ -100,8 +100,8 @@ wpk generate job SendNotification
 **Start development server:**
 
 ```bash
-wpk dev
-# Starts Vite in watch mode + wp-env
+wpk start
+# Watches kernel inputs, regenerates on change, and proxies the Vite dev server
 ```
 
 **Build for production:**
@@ -635,7 +635,7 @@ wpk generate resource User \
 
 ```bash
 # Start development environment
-wpk dev
+wpk start
 
 # Generate new feature
 wpk generate resource Product

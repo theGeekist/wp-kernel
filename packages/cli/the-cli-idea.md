@@ -167,12 +167,15 @@ Exit codes:
 5. Write `.wpk-apply.log` summarizing actions and PSR-4 validation.
 6. Reporter output includes diff hints (old hash → new hash) and post-apply status.
 
-### `wpk dev`
+### `wpk start`
 
 1. Watch `kernel.config.ts`, `contracts/**`, `src/resources/**`, `blocks/**`.
 2. Watcher must ignore `.git`, `node_modules`, `build`, `.generated` to avoid infinite loops.
-3. On change, rerun generate pipeline with debounce tiers (fast path for config/routes, slow path for schema updates); auto-apply JS artifacts, with PHP auto-apply behind `--auto-apply-php`.
-4. Re-evaluate adapters each cycle; respect reporter throttling and handle graceful shutdown.
+3. On change, rerun generate pipeline with debounce tiers (fast path for config/routes, slow path for schema updates); optional PHP auto-apply via `--auto-apply-php` mirrors the legacy behaviour.
+4. Launch the Vite dev server (`pnpm exec vite`) and pipe stdout/stderr through the reporter; ensure graceful shutdown on SIGINT/SIGTERM by signalling the child process.
+5. Re-evaluate adapters each cycle; respect reporter throttling and handle graceful shutdown.
+
+> `wpk dev` remains as a deprecated alias that forwards to `wpk start` while printing a warning.
 
 ### Future commands
 

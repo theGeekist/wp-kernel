@@ -534,7 +534,9 @@ Authoring workflow that turns `kernel.config.*` into generated TypeScript/PHP ar
 - **Commands**
     - `wpk generate [--dry-run] [--verbose]` – runs loader → IR → printers, summarises hash-based writes, exits 0/1/2/3 for success/validation/printer/adapter errors.
     - `wpk apply [--yes] [--backup] [--force]` – enforces clean `.generated/php`, merges `WPK:BEGIN/END AUTO` blocks, writes `.wpk-apply.log` audit entries with flags and per-file metadata.
-    - `wpk dev [--verbose] [--auto-apply-php]` – chokidar watch with fast/slow debounce tiers, queued triggers, optional best-effort PHP copy, graceful SIGINT handling.
+    - `wpk start [--verbose] [--auto-apply-php]` – chokidar watch with fast/slow debounce tiers, queued triggers, optional best-effort PHP copy, and an embedded Vite dev server without implicit apply.
+    - `wpk build [--no-apply] [--verbose]` – orchestrates `generate` → `pnpm exec vite build` → `apply --yes`, with `--no-apply` for inspection workflows.
+    - `wpk dev` – deprecated alias that forwards to `wpk start` while printing a warning for legacy scripts.
     - `wpk init`, `wpk doctor` – placeholders slated for adapter/diagnostic work once Phase 7a/8 land.
 
 ### Kernel Config (`kernel.config.ts`)
@@ -718,7 +720,7 @@ function PostList() {
 2. **Generate**: `wpk generate [--dry-run]` runs loader → IR → printers. Inspect the SHA-256-based summary before committing.
 3. **Commit** `.generated/**` to capture the canonical codegen state (required before apply).
 4. **Apply**: `wpk apply [--backup][--force][--yes]` merges guarded PHP into `inc/**`, writes `.wpk-apply.log`, and enforces clean `.generated/php`.
-5. **Watch** (optional): `wpk dev [--auto-apply-php]` for chokidar-based regeneration during development.
+5. **Watch** (optional): `wpk start [--auto-apply-php]` for chokidar-based regeneration during development.
 6. **Tests**: Follow the repo policy - `pnpm lint --fix && pnpm typecheck && pnpm typecheck:tests && pnpm test`.
 7. **Showcase parity**: Running generate/apply inside `app/showcase` keeps the reference plugin aligned.
 8. **Extensions**: Adapter factories can queue additional generated files or mutate IR; they run inside temp sandboxes and commit atomically after printers.

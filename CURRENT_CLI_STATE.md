@@ -2,7 +2,7 @@
 
 **Last Updated:** 10 October 2025  
 **Version:** 0.3.0 (monorepo snapshot)  
-**Status:** Core runtime stable; CLI roadmap phases 0–6 landed (5C/7/7a/8 pending)
+**Status:** Core runtime stable; CLI roadmap phases 0–6 landed (7/7a/8 pending)
 
 ---
 
@@ -10,18 +10,18 @@
 
 - WP Kernel is a JavaScript-first WordPress framework: UI talks to resources and actions, transport access stays inside the kernel, and every failure is expressed as a typed `KernelError`.
 - The architecture overhaul for the core runtime, UI bindings, and showcase plugin is complete. The CLI now ships the full config → IR → printers → apply → watch workflow across Phases 0–6.
-- Completed CLI phases: Baseline audit, config loader & validation, deterministic IR, type & PHP printers, `wpk generate`, guarded apply, apply safety & logging, and `wpk dev` watch mode.
-- Pending work (tracked in `packages/cli/PHASES.md`): Phase 5C (PHP printer DX upgrade), Phase 7/7a (adapter slots + recipe tooling), and Phase 8 (documentation/adoption sweep).
+- Completed CLI phases: Baseline audit, config loader & validation, deterministic IR, type & PHP printers, `wpk generate`, guarded apply, apply safety & logging, plus the refreshed command surface with `wpk start`/`wpk build`.
+- Pending work (tracked in `packages/cli/PHASES.md`): Phase 7/7a (adapter slots + recipe tooling) and Phase 8 (documentation/adoption sweep).
 
 ### Packages at a Glance
 
-| Package                        | Role               | Highlights                                                                                                                                                                                                                                |
-| ------------------------------ | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@geekist/wp-kernel`           | Core runtime       | `configureKernel`, `defineResource`, `defineAction`, `definePolicy`, typed `KernelEventBus`, canonical `wpk.*` events, cache helpers, namespace utilities, `KernelError` family                                                           |
-| `@geekist/wp-kernel-ui`        | React adapter      | `attachUIBindings`, `<KernelUIProvider>`, `useAction`, `usePolicy`, resource `useGet`/`useList`, prefetch helpers; subscribes to runtime events instead of globals                                                                        |
-| `@geekist/wp-kernel-cli`       | Authoring workflow | `loadKernelConfig` (cosmiconfig + Typanion), deterministic IR builder, printers for TS types & guarded PHP, `FileWriter` with SHA-256 dedupe, adapter extension runner, commands `generate`, `apply`, `dev`; `init`/`doctor` placeholders |
-| `@geekist/wp-kernel-e2e-utils` | Playwright helpers | Boots kernel-aware fixtures for showcase and downstream tests                                                                                                                                                                             |
-| `app/showcase`                 | Reference plugin   | Demonstrates resources/actions/policies, consumes CLI codegen, and uses guarded apply to keep manual PHP outside AUTO blocks                                                                                                              |
+| Package                        | Role               | Highlights                                                                                                                                                                                                                                                              |
+| ------------------------------ | ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@geekist/wp-kernel`           | Core runtime       | `configureKernel`, `defineResource`, `defineAction`, `definePolicy`, typed `KernelEventBus`, canonical `wpk.*` events, cache helpers, namespace utilities, `KernelError` family                                                                                         |
+| `@geekist/wp-kernel-ui`        | React adapter      | `attachUIBindings`, `<KernelUIProvider>`, `useAction`, `usePolicy`, resource `useGet`/`useList`, prefetch helpers; subscribes to runtime events instead of globals                                                                                                      |
+| `@geekist/wp-kernel-cli`       | Authoring workflow | `loadKernelConfig` (cosmiconfig + Typanion), deterministic IR builder, printers for TS types & guarded PHP, `FileWriter` with SHA-256 dedupe, adapter extension runner, commands `generate`, `apply`, `start`, `build` (`dev` alias), plus `init`/`doctor` placeholders |
+| `@geekist/wp-kernel-e2e-utils` | Playwright helpers | Boots kernel-aware fixtures for showcase and downstream tests                                                                                                                                                                                                           |
+| `app/showcase`                 | Reference plugin   | Demonstrates resources/actions/policies, consumes CLI codegen, and uses guarded apply to keep manual PHP outside AUTO blocks                                                                                                                                            |
 
 ---
 
@@ -36,7 +36,7 @@
 | 4 – `wpk generate`             | Clipanion command wrapping loader → IR → printers with content-hash-aware `FileWriter` and reporter summary                                                       | Options: `--dry-run`, `--verbose`; exit codes `0` success, `1` validation/developer error, `2` printer/runtime failure, `3` adapter extension failure |
 | 5A – Guarded Apply             | `wpk apply` copies `.generated/php/**` into `inc/**`, merging only `WPK:BEGIN/END AUTO` sections and reporting `created/updated/skipped`                          | Reporter summaries and tests ensure manual code outside guards is preserved                                                                           |
 | 5B – Apply Safety & Logging    | Clean-state enforcement (git porcelain), `--yes` override, `--backup`, `--force`, `.wpk-apply.log` JSONL audit, exit codes `0/1/2`                                | Errors surface as `KernelError`; log entries capture timestamp, flags, summary, per-file metadata, and backup paths                                   |
-| 6 – Watch Mode                 | `wpk dev` chokidar watcher with fast/slow debounce tiers, initial run, queued triggers, optional `--auto-apply-php` copy step, structured reporter output         | Ignores `.git`, `node_modules`, `.generated`, `build`; handles SIGINT/SIGTERM gracefully and continues after generation warnings                      |
+| 6 – Watch Mode                 | `wpk start` chokidar watcher with fast/slow debounce tiers, queued triggers, initial generate run, optional `--auto-apply-php`, plus embedded Vite dev server     | Ignores `.git`, `node_modules`, `.generated`, `build`; handles SIGINT/SIGTERM gracefully and keeps running after generation warnings                  |
 
 ### Adapter Extensions
 
@@ -50,7 +50,9 @@
 
 - `wpk generate [--dry-run] [--verbose]` → runs the full pipeline, prints a summary table, and writes `.generated/**` using SHA-256 dedupe.
 - `wpk apply [--yes] [--backup] [--force]` → enforces clean `.generated/php`, writes backups when requested, logs every run to `.wpk-apply.log`, and never overwrites manual code outside guard sections without `--force`.
-- `wpk dev [--verbose] [--auto-apply-php]` → watches config/resources/schemas/blocks, coalesces triggers, and reuses the generation pipeline; optional PHP auto-apply performs a best-effort `fs.cp`.
+- `wpk start [--verbose] [--auto-apply-php]` → watches config/resources/schemas/blocks, debounces triggers, re-runs generate, and proxies the Vite dev server output without auto-applying by default.
+- `wpk build [--no-apply] [--verbose]` → orchestrates `generate` → `pnpm exec vite build` → `apply --yes`, with `--no-apply` as an escape hatch for inspecting `.generated/**`.
+- `wpk dev` → deprecated alias that forwards to `wpk start` while printing a warning.
 - `wpk init [--name] [--template]` → stub that prints invocation details; scaffolding will arrive after adapter slot/recipe work.
 - `wpk doctor` → stub reporting placeholder diagnostics; real environment checks are scheduled for Phase 8.
 
@@ -79,7 +81,7 @@
 3. Execute `wpk generate` → review the `FileWriter` summary and diff `.generated/**`.
 4. Commit `.generated/**` (required before applying).
 5. Run `wpk apply` with backups as needed → inspect `.wpk-apply.log`.
-6. Optionally run `wpk dev` during active work for continuous regeneration.
+6. Optionally run `wpk start` during active work for continuous regeneration.
 7. Before merging: `pnpm lint --fix && pnpm typecheck && pnpm typecheck:tests && pnpm test`.
 8. Showcase plugin (`app/showcase`) stays in sync by running `wpk generate && wpk apply`; custom PHP lives outside guard rails.
 
@@ -105,8 +107,8 @@
 
 ## Upcoming Focus
 
-- **Phase 5C:** Replace PHP `json_decode` payloads with native arrays and refresh fixtures/docs.
-- **Phase 7 / 7a:** Ship adapter recipe/slot system, PHP analyser, and adapter scaffolding/test commands.
+- **Phase 6A:** Ship the CLI integration harness for disposable workspace smoke tests covering `generate`, `apply`, `start`, and `build`.
+- **Phase 7 / 7a:** Deliver adapter recipe/slot system, PHP analyser, and adapter scaffolding/test commands.
 - **Phase 8:** Complete documentation/migration guides and add showcase “golden run” CI automation.
 - **Doctor / Init:** Upgrade the placeholder commands once adapter work lands (real health checks + scaffolding).
 
