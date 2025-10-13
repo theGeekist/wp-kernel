@@ -4,7 +4,7 @@
  * Initializes the Kernel runtime and mounts admin UI.
  */
 
-import { configureKernel } from '@geekist/wp-kernel';
+import { configureKernel } from '@geekist/wp-kernel/data';
 import type { KernelRegistry } from '@geekist/wp-kernel';
 import { attachUIBindings } from '@geekist/wp-kernel-ui';
 import { mountAdmin } from './admin';

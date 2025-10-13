@@ -16,7 +16,6 @@
  * - Fallback in getNamespace() detection cascade
  * - Prefix for framework public APIs (events, hooks, storage)
  *
- * @constant
  */
 export const WPK_NAMESPACE = 'wpk';
 

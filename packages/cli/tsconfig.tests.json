@@ -3,7 +3,8 @@
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
 		"rootDir": "./src",
-		"noEmit": true
+		"outDir": "./dist-tests",
+		"composite": true
 	},
 	"include": ["src/**/*.test.ts", "src/**/*.test.tsx"],
 	"references": [{ "path": "../kernel" }]
