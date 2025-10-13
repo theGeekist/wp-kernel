@@ -201,6 +201,42 @@ Future wrappers (`wpk lint`, `wpk typecheck`) remain out of scope for MVP.
 - **Policy helper PHP file**: Dedicated helper generation is planned for Phase 7 alongside the policy-map contract.
 - **UI/DataViews scaffolding**: Present in the showcase but not part of the core CLI MVP roadmap; future phases may broaden coverage.
 - **Resource-driven block scaffolding flags**: Optional features such as `resource.blocks?.scaffold` remain future work; current MVP focuses on discovery + derivation.
+
+---
+
+## 10. Integration Harness & Testing Strategy (Phase 6A)
+
+Objective: provide first-class CLI integration tests that exercise command pipelines against disposable plugin workspaces, without requiring browser automation.
+
+### Tooling additions
+
+- Add an integration harness to `packages/e2e-utils/` (e.g., `createCliWorkspace`) that can:
+    - Materialise a temporary plugin workspace from fixtures (copy under `/tests/fixtures/**`).
+    - Run CLI commands (`wpk generate`, `apply`, `start`, `build`) via `execa`/`child_process` with consistent logging.
+    - Expose helpers to inspect resulting filesystem trees, `.wpk-apply.log`, and command stdout/stderr.
+- Provide fixture templates under `packages/cli/tests/integration/fixtures/**` covering canonical cases (empty plugin, block-heavy plugin, storage-mode plugin).
+
+### Integration test scope
+
+- Create a Jest suite under `packages/cli/tests/integration/cli-smoke.test.ts` (or similar) that orchestrates end-to-end flows:
+    1. `wpk generate` → assert `.generated/**` contents match expectations (types, PHP, blocks, UI).
+    2. `wpk apply` → verify `inc/**`, `build/**`, and `.wpk-apply.log` updates; confirm fences honoured.
+    3. `wpk build` → ensure pipeline runs (generate → Vite build → apply) with `--no-apply` and default variants.
+    4. Optional: `wpk start` smoke (ensure watcher spins up; this may use a lightweight stub for Vite during tests).
+- Tests should reset workspaces per case and produce reproducible snapshots/hashes to keep assertion burden low.
+
+### Deliverables
+
+- Integration harness utilities in `packages/e2e-utils/src/cli-workspace.ts` (or similar).
+- Integration test fixtures under `packages/cli/tests/integration/fixtures/**`.
+- CLI integration Jest suite under `packages/cli/tests/integration/**`.
+- Documentation updates referencing the new harness (README / contributing guide).
+
+### Success criteria
+
+- Running `pnpm --filter @geekist/wp-kernel-cli test -- --runInBand integration` executes the smoke suite reliably.
+- Harness utilities are reusable by future browser-based e2e (optional) without coupling to Playwright.
+- Provides confidence between unit tests and full browser e2e by validating CLI behaviour against real workspaces.
 - Adapters operate inside sandboxed directories with commit/rollback semantics (already implemented).
 
 ---

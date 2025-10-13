@@ -325,7 +325,7 @@ packages/cli/src/printers/blocks/
 
 ---
 
-## Phase 6 - Block-Aware Apply Enhancements
+## Phase 6 – Block-Aware Apply Enhancements
 
 **Spec references:** [MVP Spec §7.3](./mvp-cli-spec.md#7-cli-commands)
 
@@ -347,7 +347,44 @@ packages/cli/src/printers/blocks/
 
 ---
 
-## Phase 7 - Policy Map Integration
+## Phase 6A – CLI Integration Harness
+
+**Spec references:** [MVP Spec §10](./mvp-cli-spec.md#10-integration-harness--testing-strategy)
+
+**Objective:** Provide first-class command-level integration tests using disposable plugin workspaces (no browser automation required).
+
+**Scope:**
+
+- Add an integration harness helper to `packages/e2e-utils/` (e.g., `createCliWorkspace`) that can:
+    - Create temporary workspaces from fixture templates.
+    - Execute CLI commands (`wpk generate`, `apply`, `start`, `build`) via child process utilities with predictable logging.
+    - Inspect resulting filesystem state (`.generated/**`, `inc/**`, `build/**`, `.wpk-apply.log`).
+- Introduce fixture templates under `packages/cli/tests/integration/fixtures/**` representing canonical plugin scenarios (empty plugin, storage-centric, block-heavy).
+- Author a Jest suite under `packages/cli/tests/integration/**` that exercises:
+    1. `wpk generate` → asserts `.generated/**` contents.
+    2. `wpk apply` → verifies `inc/**`, `build/**`, log output, and fence behaviour.
+    3. `wpk build` → confirms generate → Vite build → apply pipeline (with `--no-apply` variant).
+    4. Optional: lightweight check that `wpk start` boots watcher/Vite (may stub Vite entry).
+- Ensure harness utilities clean up workspaces after tests and support future e2e scenarios.
+
+**Deliverables:**
+
+- `packages/e2e-utils/src/cli-workspace.ts` (or similar) providing helper API.
+- Integration fixtures under `packages/cli/tests/integration/fixtures/**`.
+- Jest integration suite `packages/cli/tests/integration/cli-smoke.test.ts` (or equivalent).
+- README / contributing note explaining the new harness and how to run the tests.
+
+**DoD:** Running `pnpm --filter @geekist/wp-kernel-cli test -- --runInBand integration` (or documented command) executes the smoke suite successfully; harness utilities are reusable for future high-level tests.
+
+**Dependencies:** Phase 5B (pipeline integration). Complements Phase 6.
+
+**Status Log:** _Pending_
+
+**Reference files:** `packages/e2e-utils/` (new helpers), `packages/cli/tests/integration/**` (fixtures + suites), existing command tests in `packages/cli/src/commands/__tests__/`.
+
+---
+
+## Phase 7 – Policy Map Integration
 
 **Spec references:** [MVP Spec §5](./mvp-cli-spec.md#5-policy-integration)
 
