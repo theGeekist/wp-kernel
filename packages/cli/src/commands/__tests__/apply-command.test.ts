@@ -160,6 +160,30 @@ return 'manual';
 		});
 	});
 
+	it('applies block build artifacts into the build directory', async () => {
+		await withWorkspace(async (workspace) => {
+			await writeGeneratedBuildFile(
+				workspace,
+				'blocks-manifest.php',
+				"<?php return ['demo'];"
+			);
+
+			const command = createCommand(workspace);
+			const exitCode = await command.execute();
+
+			expect(exitCode).toBe(0);
+			expect(command.summary).toEqual({
+				created: 1,
+				updated: 0,
+				skipped: 0,
+			});
+
+			const target = path.join(workspace, 'build/blocks-manifest.php');
+			const contents = await fs.readFile(target, 'utf8');
+			expect(contents).toBe("<?php return ['demo'];");
+		});
+	});
+
 	it('ignores generated PHP paths that are files', async () => {
 		await withWorkspace(async (workspace) => {
 			const filePath = path.join(workspace, '.generated/php');
@@ -488,6 +512,16 @@ async function writeGeneratedFile(
 	contents: string
 ): Promise<void> {
 	const filePath = path.join(workspace, '.generated/php', relativePath);
+	await ensureDirectory(path.dirname(filePath));
+	await fs.writeFile(filePath, contents, 'utf8');
+}
+
+async function writeGeneratedBuildFile(
+	workspace: string,
+	relativePath: string,
+	contents: string
+): Promise<void> {
+	const filePath = path.join(workspace, '.generated/build', relativePath);
 	await ensureDirectory(path.dirname(filePath));
 	await fs.writeFile(filePath, contents, 'utf8');
 }
