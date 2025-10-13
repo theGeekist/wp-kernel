@@ -135,7 +135,7 @@ describe('emitBlockArtifacts – integration', () => {
 			);
 			const registrarPath = path.join(
 				outputDir,
-				'inc',
+				'php',
 				'Blocks',
 				'Register.php'
 			);

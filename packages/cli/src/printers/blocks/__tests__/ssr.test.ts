@@ -72,7 +72,7 @@ describe('generateSSRBlocks', () => {
 			const registrarFile = path.join(
 				tempDir,
 				'.generated',
-				'inc',
+				'php',
 				'Blocks',
 				'Register.php'
 			);

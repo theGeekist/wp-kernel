@@ -86,7 +86,7 @@ export async function generateSSRBlocks(
 	);
 	const registrarPath = path.join(
 		options.outputDir,
-		'inc',
+		'php',
 		'Blocks',
 		'Register.php'
 	);

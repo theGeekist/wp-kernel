@@ -11,7 +11,7 @@ export async function emitGeneratedArtifacts(
 	context: PrinterContext
 ): Promise<void> {
 	await emitTypeDefinitions(context);
+	await emitPhpArtifacts(context);
 	await emitUIArtifacts(context);
 	await emitBlockArtifacts(context);
-	await emitPhpArtifacts(context);
 }

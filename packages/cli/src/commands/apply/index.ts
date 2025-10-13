@@ -7,3 +7,4 @@ export type {
 } from './types';
 export { applyGeneratedPhpArtifacts } from './apply-generated-php-artifacts';
 export { ensureGeneratedPhpClean } from './ensure-generated-php-clean';
+export { applyGeneratedBlockArtifacts } from './apply-block-artifacts';
