@@ -38,8 +38,8 @@ interface TestResourceConfig {
 		};
 	};
 	identity?:
-	| { type: 'number'; param?: 'id' }
-	| { type: 'string'; param?: 'id' | 'slug' | 'uuid' };
+		| { type: 'number'; param?: 'id' }
+		| { type: 'string'; param?: 'id' | 'slug' | 'uuid' };
 	storage?: Record<string, unknown>;
 	ui?: unknown;
 }
