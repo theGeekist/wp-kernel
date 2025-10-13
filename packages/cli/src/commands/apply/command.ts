@@ -5,6 +5,7 @@ import { resolveFromWorkspace, toWorkspaceRelative } from '../../utils';
 import type { ApplySummary, ApplyFlags } from './types';
 import { appendApplyLog } from './apply-log';
 import { applyGeneratedPhpArtifacts } from './apply-generated-php-artifacts';
+import { applyGeneratedBlockArtifacts } from './apply-block-artifacts';
 import { ensureGeneratedPhpClean } from './ensure-generated-php-clean';
 import { determineExitCode, reportFailure, serialiseError } from './errors';
 
@@ -30,8 +31,10 @@ export class ApplyCommand extends Command {
 			enabled: process.env.NODE_ENV !== 'test',
 		});
 
-		const sourceDir = resolveFromWorkspace('.generated/php');
-		const targetDir = resolveFromWorkspace('inc');
+		const sourcePhpDir = resolveFromWorkspace('.generated/php');
+		const targetPhpDir = resolveFromWorkspace('inc');
+		const sourceBuildDir = resolveFromWorkspace('.generated/build');
+		const targetBuildDir = resolveFromWorkspace('build');
 		const logPath = resolveFromWorkspace('.wpk-apply.log');
 		const flags: ApplyFlags = {
 			yes: this.yes === true,
@@ -41,28 +44,46 @@ export class ApplyCommand extends Command {
 		const timestamp = new Date().toISOString();
 
 		reporter.info('Applying generated PHP artifacts.', {
-			sourceDir: toWorkspaceRelative(sourceDir),
-			targetDir: toWorkspaceRelative(targetDir),
+			sourceDir: toWorkspaceRelative(sourcePhpDir),
+			targetDir: toWorkspaceRelative(targetPhpDir),
 			flags,
 		});
 
 		try {
 			await ensureGeneratedPhpClean({
 				reporter,
-				sourceDir,
+				sourceDir: sourcePhpDir,
 				yes: flags.yes,
 			});
 
-			const result = await applyGeneratedPhpArtifacts({
+			const phpResult = await applyGeneratedPhpArtifacts({
 				reporter,
-				sourceDir,
-				targetDir,
+				sourceDir: sourcePhpDir,
+				targetDir: targetPhpDir,
 				backup: flags.backup,
 				force: flags.force,
 			});
-			this.summary = result.summary;
+			const blockResult = await applyGeneratedBlockArtifacts({
+				reporter,
+				sourceDir: sourceBuildDir,
+				targetDir: targetBuildDir,
+				backup: flags.backup,
+				force: flags.force,
+			});
+
+			const summary = combineSummaries(
+				phpResult.summary,
+				blockResult.summary
+			);
+			const records = [...phpResult.records, ...blockResult.records];
+
+			this.summary = summary;
 			reporter.info('Apply completed.', {
-				summary: result.summary,
+				summary,
+				breakdown: {
+					php: phpResult.summary,
+					blocks: blockResult.summary,
+				},
 				flags,
 			});
 			await appendApplyLog(
@@ -71,8 +92,8 @@ export class ApplyCommand extends Command {
 					timestamp,
 					flags,
 					result: 'success',
-					summary: result.summary,
-					files: result.records,
+					summary,
+					files: records,
 				},
 				reporter
 			);
@@ -100,9 +121,20 @@ export class ApplyCommand extends Command {
 		const { created, updated, skipped } = summary;
 
 		this.context.stdout.write(
-			`PHP apply summary: created ${created}, updated ${updated}, skipped ${skipped}\n`
+			`Apply summary (PHP + blocks): created ${created}, updated ${updated}, skipped ${skipped}\n`
 		);
 
 		return 0;
 	}
+}
+
+function combineSummaries(
+	left: ApplySummary,
+	right: ApplySummary
+): ApplySummary {
+	return {
+		created: left.created + right.created,
+		updated: left.updated + right.updated,
+		skipped: left.skipped + right.skipped,
+	};
 }
