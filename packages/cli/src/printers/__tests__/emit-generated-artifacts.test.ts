@@ -214,7 +214,7 @@ describe('emitGeneratedArtifacts', () => {
 			);
 			const registrarFile = path.join(
 				context.outputDir,
-				'inc',
+				'php',
 				'Blocks',
 				'Register.php'
 			);

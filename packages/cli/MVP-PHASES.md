@@ -296,7 +296,7 @@ packages/cli/src/printers/blocks/
 
 **DoD:** `wpk init` creates expected files; tests verify `--force` behavior.
 
-**Status Log:** _Pending_
+**Status Log:** Started 2025-02-15 - Completed 2025-02-15
 
 **Reference files:** `packages/cli/src/commands/init.ts`, template assets under `packages/cli/templates/**`, and tests in `packages/cli/src/commands/__tests__/init-command.test.ts` (or new fixture-backed suites).
 
@@ -319,7 +319,7 @@ packages/cli/src/printers/blocks/
 
 **Dependencies:** Phases 2-4, 5A.
 
-**Status Log:** _Pending_
+**Status Log:** Started 2025-02-16 - Completed 2025-02-16
 
 **Reference files:** CLI entrypoints (`packages/cli/src/commands/generate.ts`, `apply.ts`, `dev.ts`), documentation in `packages/cli/README.md`, and smoke-test fixtures under `packages/cli/tests/pipeline/**`.
 
