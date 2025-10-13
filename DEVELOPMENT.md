@@ -223,7 +223,13 @@ pnpm build  # One-shot build of all packages
 Alternative to wp-env for quick testing:
 
 ```bash
-pnpm playground  # Browser-based WordPress (WASM)
+# Online mode (requires network)
+pnpm playground
+
+# Offline mode (for CI/restricted networks)
+pnpm playground:setup      # Run once: downloads WordPress cache
+pnpm playground:offline    # Start in background, uses cache
+pnpm playground:offline:stop  # Stop background server
 ```
 
 **When to use:**
@@ -231,6 +237,7 @@ pnpm playground  # Browser-based WordPress (WASM)
 - Quick demos without Docker
 - Sharing with non-technical users
 - Testing in different environments
+- **CI/Docker**: Use offline mode (see `PLAYGROUND_OFFLINE_SETUP.md`)
 
 ## 🚨 Common Issues & Solutions
 
@@ -238,10 +245,6 @@ pnpm playground  # Browser-based WordPress (WASM)
 
 ```bash
 # Usually means packages aren't built
-pnpm build
-
-# Or dependencies are out of sync
-pnpm install
 ```
 
 ### **E2E tests failing**

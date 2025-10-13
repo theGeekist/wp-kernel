@@ -604,18 +604,17 @@ class JobsController extends Controller {
 	/**
 	 * Prepare a job post for response.
 	 *
-	 * @param WP_Post         $post    Job post object.
+	 * @param WP_Post         $item    Job post object.
 	 * @param WP_REST_Request $request Request object.
 	 * @param int             $status  Response status code.
 	 */
-	public function prepare_item_for_response( $post, $request, $status = 200 ) {
+	public function prepare_item_for_response( $post, $request ) {
 		$data = $this->filter_response_by_fields(
-			$this->prepare_item_data( $post ),
+			$this->prepare_item_data( $item ),
 			$request
 		);
 
 		$response = rest_ensure_response( $data );
-		$response->set_status( $status );
 
 		return $response;
 	}
