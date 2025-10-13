@@ -40,3 +40,23 @@ Evaluate the end-to-end utilities package for discoverability of fixtures, consi
 2. Document namespace detection expectations and provide a helper (`assertNamespace`) to aid debugging.
 3. Consider modularising `createKernelUtils` into smaller focused files (resource/store/events/dataview) to reduce coupling and encourage reuse.
 4. Enrich type exports so generics infer concrete resource item/query shapes without manual casting.
+
+## Phased Work Plan
+
+### Phase 0 – Align with Global Contracts
+
+- Adopt the shared error taxonomy and namespace constants delivered by the kernel, ensuring fixtures throw/report consistent metadata.
+- Update package docs to explain how Playwright tests should consume the cross-package accessibility and observability contracts.
+- Coordinate with kernel and CLI teams to align reporter output so CI tooling can aggregate results without bespoke adapters.
+
+### Phase 1 – Modularise Core Helpers
+
+- Refactor `createKernelUtils` to source interpolation, namespace, and lifecycle helpers from the kernel’s shared modules.
+- Split resource/store/event/dataview helpers into focused modules that expose the same contract while enabling independent testing.
+- Provide an `assertNamespace` helper and other pure utilities that wrap the shared constants for test authors.
+
+### Phase 2 – Strengthen Type & Fixture Ergonomics
+
+- Extend TypeScript utility types so resource configs infer helper signatures without manual generics, relying on the shared kernel definitions.
+- Add configurable reporter/logging adapters that emit structured telemetry compatible with the monorepo observability contract.
+- Publish example Playwright tests showcasing the modular helpers and demonstrating safe composition under the shared contracts.

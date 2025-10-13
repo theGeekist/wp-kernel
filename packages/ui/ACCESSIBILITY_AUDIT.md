@@ -41,3 +41,23 @@ Assess the UI package for accessibility guarantees, naming consistency, and comp
 2. Expose error rendering hooks or props so components can present screen-reader friendly feedback when fetches fail.
 3. Consider decomposing `ResourceDataView` into smaller composable primitives to reduce prop overload and ease custom layouts.
 4. Add dev-mode warnings when identifier inference falls back to `item.id` to help developers surface resource config issues early.
+
+## Phased Work Plan
+
+### Phase 0 – Synchronise with Global Contracts
+
+- Adopt the shared error taxonomy and lifecycle constants from the kernel to drive UI state messaging and async boundaries.
+- Update UI documentation to reflect the monorepo accessibility contract, including expectations for semantic wrappers and observability hooks.
+- Ensure provider/runtime code surfaces the shared namespace helpers so UI integrations validate configuration consistently with other packages.
+
+### Phase 1 – Decompose & Expose Headless Primitives
+
+- Break `ResourceDataView` into headless controllers and presentational components that rely on the shared contracts for state and error handling.
+- Export hooks/components that mirror the kernel lifecycle constants, enabling other design systems to reuse the logic without DOM coupling.
+- Introduce dev-mode warnings and instrumentation powered by the shared middleware/events published by the kernel.
+
+### Phase 2 – Deliver Accessible Defaults
+
+- Provide default `emptyState` and `errorState` slots that leverage WordPress components with ARIA-friendly semantics, aligned with cross-package reporter messaging.
+- Document recommended landmark wrappers and include examples that demonstrate compliance with the shared accessibility guidelines.
+- Add automated tests (axe + interaction) that assert the shared contracts remain intact when consumers override slots or mount the provider in micro-frontend environments.

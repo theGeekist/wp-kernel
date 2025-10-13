@@ -40,3 +40,23 @@ This report inspects the CLI package with attention to the discoverability of co
 2. Consolidate exit code constants into a shared module exported for other commands and documentation.
 3. Expand command usage metadata with richer examples and option descriptions to improve first-run accessibility.
 4. Align module exports on named exports to keep surfaces explicit and easier to tree-shake.
+
+## Phased Work Plan
+
+### Phase 0 – Adopt Monorepo Contracts
+
+- Consume the shared lifecycle, namespace, and exit code constants published by the kernel once Phase 0 work lands there.
+- Update CLI documentation to reference the cross-package accessibility expectations (error handling, reporter structure, semantic messaging).
+- Ensure reporters map CLI error states into the shared `KernelError` taxonomy so downstream tooling observes consistent metadata.
+
+### Phase 1 – Enable Extensible Registries
+
+- Refactor `runCli` into a `createCli` factory that can accept injected command registries while preloading the default set.
+- Centralise exit codes into a shared module that re-exports the kernel-defined constants and add typed enums for CLI-specific cases.
+- Provide hooks/middleware points (aligned with kernel middleware APIs) so commands can insert analytics or validation without forking core logic.
+
+### Phase 2 – Enhance Developer Experience
+
+- Expand help/usage output to highlight the shared contracts, exit codes, and accessibility expectations defined in earlier phases.
+- Add integration tests/examples that demonstrate extending the CLI with custom commands using the new registry factory and shared reporters.
+- Establish regression checks that ensure new commands continue to emit structured errors/events compatible with the cross-package observability contract.

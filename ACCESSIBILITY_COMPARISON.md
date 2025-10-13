@@ -35,3 +35,29 @@ This document synthesises the per-package audits for `@geekist/wp-kernel`, `@gee
 2. **Publish Shared Constants:** Provide canonical lifecycle phase, exit code, and namespace constants from the kernel package for reuse in CLI, UI, and E2E layers.
 3. **Document Accessibility Contracts:** Expand documentation to explain responsibilities at each layer (e.g., UI consumers must supply semantic wrappers, CLI commands should document exit codes).
 4. **Invest in Middleware/Headless APIs:** Prioritise composable primitives so future teams can extend functionality without duplicating orchestration logic.
+
+## Cross-Package Phased Roadmap
+
+### Phase 0 – Establish Monorepo Accessibility Contracts
+
+- Ratify the shared error taxonomy (`KernelError` + package-specific subclasses) and publish guidance on how each package should map native errors into the shared shape.
+- Ship a central constants module from the kernel (lifecycle phases, namespace tokens, canonical exit code seeds) that downstream packages can import without redefinition.
+- Update documentation and ADRs to describe the shared accessibility expectations (semantic wrappers, reporter behaviours, namespace detection) so later phases inherit a stable contract.
+
+### Phase 1 – Kernel as Source of Truth
+
+- Implement the shared constants module and expose middleware hooks/lifecycle helpers so other packages can depend on stable APIs.
+- Replace remaining plain `Error` throws in kernel resource helpers with typed errors to model the final contract.
+- Document namespace detection hooks and make them overridable to unblock parallel adoption in CLI, UI, and E2E packages.
+
+### Phase 2 – Shared Consumer Enablement (CLI & E2E Utils)
+
+- Refactor the CLI to consume the kernel-provided constants (exit codes, lifecycle phases) and expose an extension-friendly registry factory built on the kernel middleware primitives.
+- Update E2E utilities to depend on the shared error taxonomy and namespace helpers, modularising factories once the kernel exposes pure interpolation utilities.
+- Align reporter and logging outputs across both packages using the cross-package observability contract from Phase 0.
+
+### Phase 3 – UI Experience Consolidation
+
+- Export headless controller primitives and accessible defaults that rely on the shared constants/error taxonomy, ensuring UI states mirror kernel semantics.
+- Introduce documented wrappers and slots for error/empty states that consume the cross-package observability interfaces.
+- Provide cleanup/mount lifecycle APIs aligned with kernel lifecycle hooks so micro-frontend teams can integrate without contract drift.

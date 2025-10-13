@@ -41,3 +41,23 @@ This audit reviews the runtime kernel package through an accessibility and API-s
 2. Replace plain `Error` throws in resource helpers with `KernelError` instances to maintain consistent error semantics.
 3. Document or expose namespace detection hooks so hosts can override resolution in multi-site environments.
 4. Introduce a middleware registration API that allows packages to compose action side effects (e.g., instrumentation) without forking `defineAction`.
+
+## Phased Work Plan
+
+### Phase 0 – Define Shared Contracts
+
+- Finalise the canonical lifecycle phase, namespace, and error taxonomy constants that downstream packages will import.
+- Document how kernel errors should wrap lower-level exceptions so CLI, UI, and E2E tooling can adopt identical semantics.
+- Update specs (`configureKernel - Specification.md`, `Architecture Cohesion Proposal.md`) to capture the shared accessibility obligations before consumers depend on them.
+
+### Phase 1 – Harden Kernel Primitives
+
+- Replace remaining plain `Error` throws in resource/cache helpers with typed errors derived from `KernelError`.
+- Extract lifecycle emission utilities and middleware registration points into public helpers that mirror the documented contracts.
+- Expose namespace detection hooks (and optional overrides) so other packages can rely on a stable interface.
+
+### Phase 2 – Enable Downstream Adoption
+
+- Publish developer-facing guides and reference implementations showing how CLI, UI, and E2E packages consume the shared constants.
+- Provide sample middleware/adapters (e.g., instrumentation hooks) that demonstrate safe composition patterns for other teams.
+- Schedule follow-up audits to ensure downstream packages use the kernel contracts without diverging, maintaining parity across the monorepo.
