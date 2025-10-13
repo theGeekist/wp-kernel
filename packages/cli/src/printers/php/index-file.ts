@@ -7,6 +7,7 @@ export function createPhpIndexFile(options: {
 	indexPath: string;
 	namespaceRoot: string;
 	baseControllerPath: string;
+	policyHelperPath: string;
 	resourceEntries: { className: string; path: string }[];
 	persistencePath: string;
 	context: PrinterContext;
@@ -17,6 +18,10 @@ export function createPhpIndexFile(options: {
 		{
 			className: `${options.namespaceRoot}\\Rest\\BaseController`,
 			path: options.baseControllerPath,
+		},
+		{
+			className: `${options.namespaceRoot}\\Policy\\Policy`,
+			path: options.policyHelperPath,
 		},
 		...options.resourceEntries,
 		{
