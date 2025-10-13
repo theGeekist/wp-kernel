@@ -212,6 +212,55 @@ describe('generateSSRBlocks', () => {
 		});
 	});
 
+	it('preserves manifest render callbacks without generating stubs', async () => {
+		await withTempDir(async (tempDir) => {
+			const blockDir = path.join(tempDir, 'src', 'blocks', 'callback');
+			await fs.mkdir(blockDir, { recursive: true });
+
+			const manifestPath = path.join(blockDir, 'block.json');
+			await fs.writeFile(
+				manifestPath,
+				JSON.stringify({
+					name: 'demo/callback',
+					title: 'Callback Block',
+					category: 'widgets',
+					icon: 'smiley',
+					editorScriptModule: 'file:./index.tsx',
+					render: 'Demo\\\\Plugin\\\\render_block',
+				}),
+				'utf8'
+			);
+
+			const blocks: IRBlock[] = [
+				{
+					key: 'demo/callback',
+					directory: 'src/blocks/callback',
+					hasRender: true,
+					manifestSource: path.relative(tempDir, manifestPath),
+				},
+			];
+
+			const result = await generateSSRBlocks({
+				blocks,
+				outputDir: path.join(tempDir, '.generated'),
+				projectRoot: tempDir,
+				phpNamespace: 'Demo\\Plugin',
+			});
+
+			expect(result.warnings).toEqual([]);
+			expect(
+				result.files.some((file) =>
+					file.path.endsWith(path.join('callback', 'render.php'))
+				)
+			).toBe(false);
+
+			const manifestFile = result.files.find((file) =>
+				file.path.endsWith('blocks-manifest.php')
+			);
+			expect(manifestFile?.content).not.toContain("'render' =>");
+		});
+	});
+
 	it('returns empty result when no SSR blocks are provided', async () => {
 		const result = await generateSSRBlocks({
 			blocks: [],
