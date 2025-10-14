@@ -457,7 +457,7 @@ function buildPhpNamespace(namespace: string): string {
 		.map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1));
 
 	const base = segments.length > 0 ? segments.join('') : 'WpKernelProject';
-	return `${base}\\`;
+	return `${base}\\\\`;
 }
 
 function buildComposerPackageName(namespace: string): string {

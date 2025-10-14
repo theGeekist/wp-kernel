@@ -109,6 +109,108 @@ describe('policy map integration', () => {
 		);
 	});
 
+	it('warns when bindings cannot be inferred for object-scoped policies', async () => {
+		await withTempWorkspace(
+			async (workspace) => {
+				await fs.writeFile(
+					path.join(workspace, 'kernel.config.ts'),
+					'export const kernelConfig = {};',
+					'utf8'
+				);
+				await fs.mkdir(path.join(workspace, 'src'), {
+					recursive: true,
+				});
+				await fs.writeFile(
+					path.join(workspace, 'src', 'policy-map.cjs'),
+					[
+						'module.exports = {',
+						'        policyMap: {',
+						"                'demo.create': 'manage_options',",
+						"                'demo.get': { capability: 'edit_post', appliesTo: 'object' },",
+						'        },',
+						'};',
+					].join('\n'),
+					'utf8'
+				);
+			},
+			async (workspace) => {
+				const config = createPolicyConfig();
+				(config.resources as Record<string, unknown>).secondary = {
+					name: 'secondary',
+					schema: 'auto',
+					identity: { type: 'number', param: 'postId' },
+					routes: {
+						get: {
+							path: '/test/v1/secondary/:postId',
+							method: 'GET',
+							policy: 'demo.get',
+						},
+					},
+				};
+
+				const ir = await buildIr({
+					config,
+					sourcePath: path.join(workspace, 'kernel.config.ts'),
+					origin: 'kernel.config.ts',
+					namespace: config.namespace,
+				});
+
+				const demoGet = ir.policyMap.definitions.find(
+					(entry) => entry.key === 'demo.get'
+				);
+				expect(demoGet?.binding).toBeUndefined();
+				expect(
+					ir.policyMap.warnings.map((warning) => warning.code)
+				).toContain('policy-map.binding.missing');
+			}
+		);
+	});
+
+	it('rejects policy map entries that resolve to unsupported values', async () => {
+		await withTempWorkspace(
+			async (workspace) => {
+				await fs.writeFile(
+					path.join(workspace, 'kernel.config.ts'),
+					'export const kernelConfig = {};',
+					'utf8'
+				);
+				await fs.mkdir(path.join(workspace, 'src'), {
+					recursive: true,
+				});
+				await fs.writeFile(
+					path.join(workspace, 'src', 'policy-map.cjs'),
+					[
+						'module.exports = {',
+						'        policyMap: {',
+						"                'demo.create': () => 42,",
+						"                'demo.get': async () => 'edit_post',",
+						'        },',
+						'};',
+					].join('\n'),
+					'utf8'
+				);
+			},
+			async (workspace) => {
+				const config = createPolicyConfig();
+
+				await expect(
+					buildIr({
+						config,
+						sourcePath: path.join(workspace, 'kernel.config.ts'),
+						origin: 'kernel.config.ts',
+						namespace: config.namespace,
+					})
+				).rejects.toMatchObject({
+					code: 'ValidationError',
+					context: expect.objectContaining({ policy: 'demo.create' }),
+					message: expect.stringContaining(
+						'must resolve to a capability string'
+					),
+				});
+			}
+		);
+	});
+
 	it('rejects descriptors with invalid appliesTo scope', async () => {
 		await withTempWorkspace(
 			async (workspace) => {
