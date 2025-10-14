@@ -1,6 +1,6 @@
 import type { LogLayerTransportParams } from '@loglayer/transport';
 import { createTransports } from '../transports';
-import { WPK_NAMESPACE } from '../../namespace/constants';
+import { WPK_NAMESPACE } from '../../contracts';
 import { ensureWpData } from '@test-utils/wp';
 
 type TransportWithShipToLogger = {

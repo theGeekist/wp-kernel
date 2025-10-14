@@ -6,6 +6,7 @@
  * other scripts.
  */
 import { Cli, Command } from 'clipanion';
+import { WPK_NAMESPACE } from '@wpkernel/core/contracts';
 import {
 	GenerateCommand,
 	InitCommand,
@@ -27,14 +28,14 @@ class RootCommand extends Command {
 
 	override async execute(): Promise<number | void> {
 		this.context.stdout.write(
-			`WP Kernel CLI v${VERSION}\nUse \"wpk --help\" to list commands.\n`
+			`WP Kernel CLI v${VERSION}\nUse \"${WPK_NAMESPACE} --help\" to list commands.\n`
 		);
 		return undefined;
 	}
 }
 
 const cli = new Cli({
-	binaryName: 'wpk',
+	binaryName: WPK_NAMESPACE,
 	binaryLabel: 'WP Kernel CLI',
 	binaryVersion: VERSION,
 });

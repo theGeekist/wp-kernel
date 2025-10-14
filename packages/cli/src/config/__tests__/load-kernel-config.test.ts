@@ -14,7 +14,7 @@ import {
 	getTsImport,
 	setCachedTsImport,
 } from '../load-kernel-config';
-import { WPK_CONFIG_SOURCES } from '@wpkernel/core/namespace/constants';
+import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
 import { KernelError } from '@wpkernel/core/error';
 
 const TMP_PREFIX = 'wpk-cli-config-loader-';

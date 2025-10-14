@@ -1,6 +1,10 @@
 import { Command, Option } from 'clipanion';
 import { createReporter } from '@wpkernel/core/reporter';
-import { WPK_NAMESPACE } from '@wpkernel/core/namespace/constants';
+import {
+	WPK_EXIT_CODES,
+	WPK_NAMESPACE,
+	type WPKExitCode,
+} from '@wpkernel/core/contracts';
 import { resolveFromWorkspace, toWorkspaceRelative } from '../../utils';
 import type {
 	ApplyLogEntry,
@@ -31,7 +35,7 @@ export class ApplyCommand extends Command {
 	public phpSummary: ApplySummary | null = null;
 	public blockSummary: ApplySummary | null = null;
 
-	override async execute(): Promise<number> {
+	override async execute(): Promise<WPKExitCode> {
 		const reporter = createReporter({
 			namespace: `${WPK_NAMESPACE}.cli.apply`,
 			level: 'info',
@@ -149,7 +153,7 @@ export class ApplyCommand extends Command {
 			})
 		);
 
-		return 0;
+		return WPK_EXIT_CODES.SUCCESS;
 	}
 }
 

@@ -226,10 +226,17 @@ addAction('acme-blog.cache.invalidated', 'acme-blog/debug', (payload) => {
 ### Listen to Framework Events
 
 ```typescript
-// Framework events use 'wpk' namespace
-addAction('wpk.system.error', 'acme-blog/system-monitor', (payload) => {
-	console.log('Framework error:', payload.error);
-});
+import { addAction } from '@wordpress/hooks';
+import { WPK_NAMESPACE } from '@wpkernel/core/contracts';
+
+// Framework events use the kernel namespace constant
+addAction(
+	`${WPK_NAMESPACE}.system.error`,
+	'acme-blog/system-monitor',
+	(payload) => {
+		console.log('Framework error:', payload.error);
+	}
+);
 ```
 
 ### Access Resource Event Names

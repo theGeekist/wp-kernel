@@ -6,7 +6,7 @@ import type {
 } from '../../actions/types';
 import type { Reporter } from '../../reporter';
 import type { KernelRegistry } from '../types';
-import { WPK_EVENTS } from '../../namespace/constants';
+import { WPK_EVENTS } from '../../contracts/index.js';
 import type { KernelEventBus, KernelEventMap } from '../../events/bus';
 
 export type NoticeStatus = 'success' | 'info' | 'warning' | 'error';

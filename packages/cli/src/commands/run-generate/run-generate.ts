@@ -7,10 +7,11 @@ import {
 import { runPrinters } from './printer-runner';
 import { commitExtensions } from './extensions';
 import { renderSummary } from './summary';
-import type {
-	RunGenerateOptions,
-	RunGenerateResult,
-	GenerationSummary,
+import {
+	EXIT_CODES,
+	type RunGenerateOptions,
+	type RunGenerateResult,
+	type GenerationSummary,
 } from './types';
 import type { Reporter } from '@wpkernel/core/reporter';
 
@@ -49,7 +50,7 @@ export async function runGenerate(
 
 	const commitError = await commitExtensions(extensionsRun, reporter);
 	if (commitError) {
-		return { exitCode: 3, error: commitError };
+		return { exitCode: EXIT_CODES.ADAPTER_ERROR, error: commitError };
 	}
 
 	const summary = writer.summarise();
@@ -63,7 +64,7 @@ export async function runGenerate(
 	reporter.debug('Generated files.', { files: summary.entries });
 
 	return {
-		exitCode: 0,
+		exitCode: EXIT_CODES.SUCCESS,
 		summary: generationSummary,
 		output: renderSummary(summary, dryRun, verbose),
 	};

@@ -9,7 +9,7 @@ import type {
 	ReporterLevel,
 	ReporterLogMetadata,
 } from './types';
-import { WPK_NAMESPACE } from '../namespace/constants';
+import { WPK_NAMESPACE, KernelError } from '../contracts/index.js';
 
 function isReporterLevel(level: LogLevelType): level is ReporterLevel {
 	return (
@@ -172,7 +172,12 @@ export function createTransports(
 		case 'all':
 			return [new ConsoleTransport(level), new HooksTransport(level)];
 		case 'bridge':
-			throw new Error('Bridge transport is planned for a future sprint');
+			throw new KernelError('NotImplementedError', {
+				message: 'Bridge transport is planned for a future sprint',
+				context: {
+					channel: 'bridge',
+				},
+			});
 		default:
 			return new ConsoleTransport(level);
 	}

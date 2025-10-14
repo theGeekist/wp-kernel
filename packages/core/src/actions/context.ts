@@ -17,7 +17,7 @@ import { invalidate as invalidateCache } from '../resource/cache';
 import { getNamespace } from '../namespace/detect';
 import { createPolicyProxy } from '../policy/context';
 import { createReporter as createKernelReporter } from '../reporter';
-import { WPK_INFRASTRUCTURE, WPK_EVENTS } from '../namespace/constants';
+import { WPK_EVENTS, WPK_INFRASTRUCTURE } from '../contracts/index.js';
 import { getKernelEventBus } from '../events/bus';
 import type {
 	ActionContext,

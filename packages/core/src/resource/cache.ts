@@ -4,7 +4,7 @@ import {
 	getKernelReporter,
 } from '../reporter';
 import type { Reporter } from '../reporter';
-import { WPK_EVENTS, WPK_SUBSYSTEM_NAMESPACES } from '../namespace/constants';
+import { WPK_EVENTS, WPK_SUBSYSTEM_NAMESPACES } from '../contracts/index.js';
 import { getKernelEventBus } from '../events/bus';
 import type { KernelRegistry } from '../data/types';
 import { getHooks as getActionHooks } from '../actions/context';

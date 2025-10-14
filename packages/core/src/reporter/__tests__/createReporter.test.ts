@@ -1,5 +1,5 @@
 import { createReporter } from '../index';
-import { WPK_NAMESPACE } from '../../namespace/constants';
+import { WPK_NAMESPACE } from '../../contracts';
 
 describe('createReporter', () => {
 	const originalInfo = console.info;

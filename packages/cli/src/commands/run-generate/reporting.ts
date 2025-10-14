@@ -1,4 +1,8 @@
-import { KernelError } from '@wpkernel/core/error';
+import {
+	KernelError,
+	serializeKernelError,
+	type SerializedError,
+} from '@wpkernel/core/contracts';
 import type { Reporter } from '@wpkernel/core/reporter';
 
 export function reportError(
@@ -10,23 +14,19 @@ export function reportError(
 	reporter.child(channel).error(message, serialiseError(error));
 }
 
-export function serialiseError(error: unknown): Record<string, unknown> {
+export function serialiseError(error: unknown): SerializedError {
 	if (KernelError.isKernelError(error)) {
-		return {
-			code: error.code,
-			message: error.message,
-			context: error.context,
-			data: error.data,
-		};
+		return serializeKernelError(error);
 	}
 
 	if (error instanceof Error) {
-		return {
-			name: error.name,
-			message: error.message,
-			stack: error.stack,
-		};
+		return serializeKernelError(KernelError.wrap(error));
 	}
 
-	return { value: error };
+	return serializeKernelError(
+		new KernelError('UnknownError', {
+			message: 'Unexpected error occurred.',
+			data: { value: error },
+		})
+	);
 }

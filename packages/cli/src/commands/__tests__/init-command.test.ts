@@ -3,6 +3,7 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import type { BaseContext } from 'clipanion';
 import { InitCommand } from '../init';
+import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
 
 const TMP_PREFIX = path.join(os.tmpdir(), 'wpk-init-command-');
 
@@ -14,7 +15,7 @@ describe('InitCommand', () => {
 
 			const exit = await command.execute();
 
-			expect(exit).toBe(0);
+			expect(exit).toBe(WPK_EXIT_CODES.SUCCESS);
 			const stdout = command.context.stdout.toString();
 			expect(stdout).toContain('created plugin scaffold for jobs-plugin');
 			expect(stdout).toContain('created kernel.config.ts');
@@ -76,7 +77,7 @@ describe('InitCommand', () => {
 
 			const exit = await command.execute();
 
-			expect(exit).toBe(1);
+			expect(exit).toBe(WPK_EXIT_CODES.VALIDATION_ERROR);
 			const stderr = command.context.stderr.toString();
 			expect(stderr).toContain('Refusing to overwrite existing files');
 			expect(stderr).toContain('kernel.config.ts');
@@ -118,7 +119,7 @@ describe('InitCommand', () => {
 
 			const exit = await command.execute();
 
-			expect(exit).toBe(0);
+			expect(exit).toBe(WPK_EXIT_CODES.SUCCESS);
 			const stdout = command.context.stdout.toString();
 			expect(stdout).toContain('updated kernel.config.ts');
 			expect(stdout).toContain('updated package.json');
@@ -158,7 +159,7 @@ describe('InitCommand', () => {
 
 			const exit = await command.execute();
 
-			expect(exit).toBe(1);
+			expect(exit).toBe(WPK_EXIT_CODES.VALIDATION_ERROR);
 			const stderr = command.context.stderr.toString();
 			expect(stderr).toContain('package.json is not valid JSON.');
 			expect(stderr).toContain('package.json');
