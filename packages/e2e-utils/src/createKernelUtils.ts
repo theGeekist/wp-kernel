@@ -366,7 +366,7 @@ function buildDataViewSelector(options: DataViewHelperOptions): string {
 	return base;
 }
 
-function createDataViewHelper(
+export function createDataViewHelper(
 	page: Page,
 	options: DataViewHelperOptions
 ): DataViewHelper {

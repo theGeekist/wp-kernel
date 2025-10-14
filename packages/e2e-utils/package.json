@@ -30,6 +30,20 @@
 			"import": "./dist/index.js",
 			"default": "./dist/index.js"
 		},
+		"./createKernelUtils": {
+			"types": "./dist/createKernelUtils.d.ts",
+			"import": "./dist/createKernelUtils.js",
+			"default": "./dist/createKernelUtils.js"
+		},
+		"./helpers": {
+			"types": "./dist/createKernelUtils.d.ts",
+			"import": "./dist/createKernelUtils.js",
+			"default": "./dist/createKernelUtils.js"
+		},
+		"./types": {
+			"types": "./dist/types.d.ts",
+			"default": "./dist/types.d.ts"
+		},
 		"./package.json": "./package.json"
 	},
 	"files": [
@@ -39,7 +53,7 @@
 	],
 	"scripts": {
 		"dev": "tsc --build --watch",
-		"build": "tsc --build",
+		"build": "vite build && tsc --noEmit",
 		"clean": "rm -rf dist *.tsbuildinfo",
 		"lint": "eslint src/",
 		"lint:fix": "eslint src/ --fix",
