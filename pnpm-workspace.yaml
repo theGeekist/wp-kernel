@@ -1,4 +1,4 @@
 packages:
     - 'packages/*'
-    - 'app/*'
+    - 'examples/*'
     - 'test-harness/*'

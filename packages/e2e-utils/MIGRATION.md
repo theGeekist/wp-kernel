@@ -27,7 +27,7 @@ test('should access admin', async ({ page }) => {
 ## After: WP Kernel E2E Utils
 
 ```typescript
-import { test, expect } from '@geekist/wp-kernel-e2e-utils';
+import { test, expect } from '@wpkernel/e2e-utils';
 
 test('should access admin', async ({ admin, page }) => {
 	// WordPress fixtures handle login automatically
@@ -38,7 +38,7 @@ test('should access admin', async ({ admin, page }) => {
 
 ## Available Fixtures
 
-When you import `test` from `@geekist/wp-kernel-e2e-utils`, you get:
+When you import `test` from `@wpkernel/e2e-utils`, you get:
 
 ### WordPress Fixtures (from `@wordpress/e2e-test-utils-playwright`)
 
@@ -101,10 +101,12 @@ test('should wait for store state', async ({ kernel, admin }) => {
 ### Event Utilities
 
 ```typescript
+import { WPK_NAMESPACE } from '@wpkernel/core/contracts';
+
 test('should capture events', async ({ kernel, page, admin }) => {
-	// Start recording wpk.* events
+	// Start recording kernel namespace events
 	const recorder = kernel.events({
-		namespace: 'wpk',
+		namespace: WPK_NAMESPACE,
 		includePayload: true,
 	});
 
@@ -115,7 +117,7 @@ test('should capture events', async ({ kernel, page, admin }) => {
 	await page.click('button[aria-label="Add New Job"]');
 
 	// Verify events were captured
-	const created = await recorder.find('wpk.job.created');
+	const created = await recorder.find(`${WPK_NAMESPACE}.job.created`);
 	expect(created).toBeDefined();
 	expect(created?.payload).toMatchObject({ title: 'New Job' });
 
@@ -133,7 +135,7 @@ For advanced users who need custom configuration:
 
 ```typescript
 import { test as base, expect } from '@wordpress/e2e-test-utils-playwright';
-import { createKernelUtils } from '@geekist/wp-kernel-e2e-utils';
+import { createKernelUtils } from '@wpkernel/e2e-utils';
 
 export const test = base.extend({
 	kernel: async ({ page, requestUtils, admin, editor, pageUtils }, use) => {
@@ -146,7 +148,7 @@ export const test = base.extend({
 		});
 
 		// Add custom setup here
-		await kernel.events({ namespace: 'wpk' }).start();
+		await kernel.events({ namespace: WPK_NAMESPACE }).start();
 
 		await use(kernel);
 

@@ -1,4 +1,4 @@
-# @geekist/wp-kernel-ui
+# @wpkernel/ui
 
 > WordPress-native UI primitives that stay aligned with WP Kernel resources, actions, and events.
 
@@ -17,7 +17,7 @@ All runtime imports come from published packages (`@wordpress/dataviews`, `@word
 ## Installation
 
 ```bash
-pnpm add @geekist/wp-kernel-ui @geekist/wp-kernel
+pnpm add @wpkernel/ui @wpkernel/core
 ```
 
 Peer dependencies (React 18+, WordPress 6.7+) must be installed alongside.
@@ -25,8 +25,8 @@ Peer dependencies (React 18+, WordPress 6.7+) must be installed alongside.
 ## Bootstrapping the runtime
 
 ```tsx
-import { configureKernel } from '@geekist/wp-kernel';
-import { attachUIBindings, KernelUIProvider } from '@geekist/wp-kernel-ui';
+import { configureKernel } from '@wpkernel/core';
+import { attachUIBindings, KernelUIProvider } from '@wpkernel/ui';
 import { job } from '@/resources/job';
 
 const kernel = configureKernel({
@@ -88,7 +88,7 @@ export const job = defineResource<Job, JobQuery>({
 2. **Create the controller** (the CLI will scaffold this for you):
 
 ```ts
-import { createResourceDataViewController } from '@geekist/wp-kernel-ui/dataviews';
+import { createResourceDataViewController } from '@wpkernel/ui/dataviews';
 import { job } from '@/resources/job';
 
 export const jobDataView = createResourceDataViewController({
@@ -103,7 +103,7 @@ export const jobDataView = createResourceDataViewController({
 import {
 	ResourceDataView,
 	createDataFormController,
-} from '@geekist/wp-kernel-ui/dataviews';
+} from '@wpkernel/ui/dataviews';
 import { jobDataView } from '@/dataviews/jobDataView';
 import { createJob } from '@/actions/Job.Create';
 
@@ -138,11 +138,11 @@ Running `wpk generate admin-page job` consumes the metadata above and emits:
 - `.generated/php/Admin/Menu_JobsAdminScreen.php` when menu metadata is provided.
 - `.generated/ui/fixtures/dataviews/job.ts` for tests and documentation.
 
-The showcase application (`app/showcase`) mounts the generated screen to demonstrate best practices end-to-end.
+The showcase application (`examples/showcase`) mounts the generated screen to demonstrate best practices end-to-end.
 
 ## Testing & E2E helpers
 
-Unit tests live alongside the controllers and components (`packages/ui/src/dataviews/__tests__`). For end-to-end coverage, `@geekist/wp-kernel-e2e-utils` exposes `kernel.dataview()` helpers that build on the DOM attributes emitted by `ResourceDataView`.
+Unit tests live alongside the controllers and components (`packages/ui/src/dataviews/__tests__`). For end-to-end coverage, `@wpkernel/e2e-utils` exposes `kernel.dataview()` helpers that build on the DOM attributes emitted by `ResourceDataView`.
 
 ```ts
 const dataview = kernel.dataview({ resource: 'job' });

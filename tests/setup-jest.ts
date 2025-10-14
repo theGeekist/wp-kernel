@@ -198,7 +198,7 @@ beforeEach(() => {
 	}
 
 	// Implement getWPData globally for tests
-	// This provides the same implementation as packages/kernel/src/index.ts
+	// This provides the same implementation as packages/core/src/index.ts
 	(globalThis as { getWPData?: () => unknown }).getWPData = () => {
 		if (typeof window === 'undefined') {
 			return undefined;

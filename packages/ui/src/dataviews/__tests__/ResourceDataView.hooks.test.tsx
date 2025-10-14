@@ -9,7 +9,7 @@ import type {
 	DataViewsRuntimeContext,
 	ResourceDataViewController,
 } from '../types';
-import type { ListResponse } from '@geekist/wp-kernel/resource';
+import type { ListResponse } from '@wpkernel/core/resource';
 import {
 	createConfig,
 	createKernelRuntime,

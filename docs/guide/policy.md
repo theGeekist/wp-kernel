@@ -31,7 +31,7 @@ rule functions. Rules receive a `PolicyContext` that exposes reporters,
 adapters, and the shared cache.
 
 ```ts
-import { definePolicy } from '@geekist/wp-kernel/policy';
+import { definePolicy } from '@wpkernel/core/policy';
 
 type JobPolicies = {
 	'jobs.manage': void;
@@ -88,7 +88,7 @@ The policy helpers automatically attach to the Action runtime. Inside an
 Action’s implementation you can synchronously or asynchronously gate behaviour:
 
 ```ts
-import { defineAction } from '@geekist/wp-kernel/actions';
+import { defineAction } from '@wpkernel/core/actions';
 import { policy } from '@/policy';
 
 export const DeleteJob = defineAction({
@@ -119,7 +119,7 @@ Policies double as UI hints through the `usePolicy()` hook. The hook subscribes
 to the shared cache so components stay in sync with Action checks.
 
 ```tsx
-import { usePolicy } from '@geekist/wp-kernel-ui';
+import { usePolicy } from '@wpkernel/ui';
 
 type PolicyKeys = Parameters<typeof policy.can>[0];
 

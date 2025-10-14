@@ -8,8 +8,8 @@ import {
 	type ReactNode,
 } from 'react';
 import { DataViews } from '@wordpress/dataviews';
-import type { KernelUIRuntime } from '@geekist/wp-kernel/data';
-import type { ListResponse, ResourceObject } from '@geekist/wp-kernel/resource';
+import type { KernelUIRuntime } from '@wpkernel/core/data';
+import type { ListResponse, ResourceObject } from '@wpkernel/core/resource';
 import { useOptionalKernelUI } from '../runtime/context';
 import type {
 	DataViewsRuntimeContext,

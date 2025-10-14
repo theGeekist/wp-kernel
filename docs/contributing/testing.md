@@ -69,9 +69,9 @@ describe('Thing Resource', () => {
 #### Mock Transport Layer
 
 ```typescript
-import * as http from '@geekist/wp-kernel/http';
+import * as http from '@wpkernel/core/http';
 
-jest.mock('@geekist/wp-kernel/http', () => ({
+jest.mock('@wpkernel/core/http', () => ({
 	fetch: jest.fn(),
 }));
 
@@ -145,7 +145,7 @@ pnpm test --watch
 pnpm test:coverage
 
 # Specific file
-pnpm test packages/kernel/src/__tests__/index.test.ts
+pnpm test packages/core/src/__tests__/index.test.ts
 
 # Specific test
 pnpm test --testNamePattern="should create a thing"
@@ -368,11 +368,11 @@ test.afterEach(async ({ page }) => {
 Actions are the core orchestration layer. Test them thoroughly:
 
 ```typescript
-import { CreateThing } from '@/app/actions/Thing/Create';
-import { thing } from '@/app/resources/Thing';
-import { events } from '@geekist/wp-kernel/events';
+import { CreateThing } from '@/actions/Thing/Create';
+import { thing } from '@/resources/Thing';
+import { events } from '@wpkernel/core/events';
 
-jest.mock('@/app/resources/Thing');
+jest.mock('@/resources/Thing');
 jest.mock('@wordpress/hooks');
 
 describe('CreateThing Action', () => {
@@ -425,10 +425,10 @@ describe('CreateThing Action', () => {
 Resources integrate with REST and store. Mock the HTTP layer:
 
 ```typescript
-import { thing } from '@/app/resources/Thing';
-import * as http from '@geekist/wp-kernel/http';
+import { thing } from '@/resources/Thing';
+import * as http from '@wpkernel/core/http';
 
-jest.mock('@geekist/wp-kernel/http', () => ({
+jest.mock('@wpkernel/core/http', () => ({
 	fetch: jest.fn(),
 }));
 
@@ -487,8 +487,8 @@ describe('Thing Resource', () => {
 Test error scenarios:
 
 ```typescript
-import * as http from '@geekist/wp-kernel/http';
-import { KernelError } from '@geekist/wp-kernel/error';
+import * as http from '@wpkernel/core/http';
+import { KernelError } from '@wpkernel/core/error';
 
 describe('Error Handling', () => {
 	it('should throw ValidationError for invalid data', async () => {

@@ -1,4 +1,4 @@
-# @geekist/wp-kernel-cli
+# @wpkernel/cli
 
 > Rails-like generators and developer tooling for WP Kernel projects.
 
@@ -14,7 +14,7 @@ The CLI turns a single `kernel.config.ts` into everything a WP Kernel plugin nee
 ## Quick start
 
 ```bash
-pnpm dlx @geekist/wp-kernel-cli init my-plugin
+pnpm dlx @wpkernel/cli init my-plugin
 cd my-plugin
 pnpm install
 ```

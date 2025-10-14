@@ -2,8 +2,9 @@ import path from 'node:path';
 import type {
 	ResourceDataViewsUIConfig,
 	ResourceUIConfig,
-} from '@geekist/wp-kernel/resource';
+} from '@wpkernel/core/resource';
 import type { PrinterContext } from '../types';
+import { KernelError } from '@wpkernel/core/contracts';
 
 interface ResourceConfigWithUI {
 	name: string;
@@ -56,8 +57,8 @@ async function emitScreen(
 		? `export const ${toCamelCase(componentName)}Route = '${screenConfig.route}';\n\n`
 		: '';
 
-	const contents = `${routeExport}import { KernelUIProvider, useKernelUI } from '@geekist/wp-kernel-ui';
-import { ResourceDataView } from '@geekist/wp-kernel-ui/dataviews';
+	const contents = `${routeExport}import { KernelUIProvider, useKernelUI } from '@wpkernel/ui';
+import { ResourceDataView } from '@wpkernel/ui/dataviews';
 import { ${kernelImportSymbol} } from '${kernelImportPath}';
 import { ${resourceImportSymbol} } from '${resourceImportPath}';
 
@@ -75,7 +76,10 @@ function ${contentComponentName}() {
 export function ${componentName}() {
         const runtime = ${kernelImportSymbol}.getUIRuntime?.();
         if (!runtime) {
-                throw new Error('UI runtime not attached.');
+                throw new KernelError('DeveloperError', {
+                        message: 'UI runtime not attached.',
+                        context: { resourceName },
+                });
         }
 
         return (
@@ -103,7 +107,7 @@ async function emitFixture(
 	const identifier = `${toCamelCase(resourceName)}DataViewConfig`;
 	const fixturePath = path.join(fixturesDir, `${resourceKey}.ts`);
 	const serialized = serializeForTs(dataviews);
-	const contents = `import type { ResourceDataViewConfig } from '@geekist/wp-kernel-ui/dataviews';
+	const contents = `import type { ResourceDataViewConfig } from '@wpkernel/ui/dataviews';
 
 export const ${identifier}: ResourceDataViewConfig<unknown, unknown> = ${serialized};
 `;
@@ -238,7 +242,9 @@ function serializePrimitive(value: unknown): string | null {
 	}
 
 	if (typeof value === 'symbol') {
-		throw new Error('Cannot serialise symbols in DataViews metadata.');
+		throw new KernelError('DeveloperError', {
+			message: 'Cannot serialise symbols in DataViews metadata.',
+		});
 	}
 
 	return null;

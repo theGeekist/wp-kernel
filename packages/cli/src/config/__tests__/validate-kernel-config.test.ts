@@ -1,6 +1,6 @@
-import { KernelError } from '@geekist/wp-kernel/error';
-import type { Reporter } from '@geekist/wp-kernel/reporter';
-import type { ResourceConfig } from '@geekist/wp-kernel/resource';
+import { KernelError } from '@wpkernel/core/error';
+import type { Reporter } from '@wpkernel/core/reporter';
+import type { ResourceConfig } from '@wpkernel/core/resource';
 import {
 	validateKernelConfig,
 	resourceRoutesValidator,

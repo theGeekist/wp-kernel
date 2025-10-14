@@ -1,18 +1,23 @@
-import { KernelError } from '@geekist/wp-kernel/error';
-import type { Reporter } from '@geekist/wp-kernel/reporter';
-import type { SerializedError } from '@geekist/wp-kernel/error';
+import {
+	KernelError,
+	WPK_EXIT_CODES,
+	serializeKernelError,
+	type WPKExitCode,
+	type SerializedError,
+} from '@wpkernel/core/contracts';
+import type { Reporter } from '@wpkernel/core/reporter';
 
-export function determineExitCode(error: unknown): number {
+export function determineExitCode(error: unknown): WPKExitCode {
 	if (KernelError.isKernelError(error)) {
 		if (error.code === 'ValidationError') {
-			return 1;
+			return WPK_EXIT_CODES.VALIDATION_ERROR;
 		}
 
 		/* istanbul ignore next - default exit path */
-		return 2;
+		return WPK_EXIT_CODES.UNEXPECTED_ERROR;
 	}
 
-	return 2;
+	return WPK_EXIT_CODES.UNEXPECTED_ERROR;
 }
 
 export function reportFailure(
@@ -23,21 +28,20 @@ export function reportFailure(
 	reporter.error(message, serialiseError(error));
 }
 
-export function serialiseError(
-	error: unknown
-): SerializedError | Record<string, unknown> {
+export function serialiseError(error: unknown): SerializedError {
 	if (KernelError.isKernelError(error)) {
-		return error.toJSON();
+		return serializeKernelError(error);
 	}
 
 	if (error instanceof Error) {
-		return {
-			name: error.name,
-			message: error.message,
-			stack: error.stack,
-		};
+		return serializeKernelError(KernelError.wrap(error));
 	}
 
 	/* istanbul ignore next - serialise arbitrary error shapes */
-	return { value: error };
+	return serializeKernelError(
+		new KernelError('UnknownError', {
+			message: 'Unexpected error occurred.',
+			data: { value: error },
+		})
+	);
 }

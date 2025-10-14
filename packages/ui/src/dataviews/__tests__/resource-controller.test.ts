@@ -1,6 +1,6 @@
 import type { View } from '@wordpress/dataviews';
-import type { KernelUIPolicyRuntime } from '@geekist/wp-kernel/data';
-import type { Reporter } from '@geekist/wp-kernel/reporter';
+import type { KernelUIPolicyRuntime } from '@wpkernel/core/data';
+import type { Reporter } from '@wpkernel/core/reporter';
 import { createResourceDataViewController } from '../resource-controller';
 import { DataViewsControllerError } from '../../runtime/dataviews/errors';
 import type {

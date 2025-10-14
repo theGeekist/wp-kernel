@@ -120,8 +120,8 @@
 		"wordpress"
 	],
 	"intelephense.environment.includePaths": [
-		"${workspaceFolder}/app/showcase/vendor/php-stubs/wordpress-stubs",
-		"${workspaceFolder}/app/showcase/vendor/php-stubs/wp-cli-stubs"
+		"${workspaceFolder}/examples/showcase/vendor/php-stubs/wordpress-stubs",
+		"${workspaceFolder}/examples/showcase/vendor/php-stubs/wp-cli-stubs"
 	],
 
 	// JSON

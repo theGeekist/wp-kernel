@@ -10,8 +10,8 @@ import {
 } from '../test-support/ResourceDataView.test-support';
 import { act } from 'react';
 import { ResourceDataView } from '../ResourceDataView';
-import { KernelError } from '@geekist/wp-kernel/error';
-import type { CacheKeyPattern } from '@geekist/wp-kernel/resource';
+import { KernelError } from '@wpkernel/core/error';
+import type { CacheKeyPattern } from '@wpkernel/core/resource';
 
 type DataViewActionMock = {
 	callback: (

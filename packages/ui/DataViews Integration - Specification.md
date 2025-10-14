@@ -138,7 +138,7 @@ export type DataViewActionTriggeredPayload = {
 
 ### 4.3 Query & Data Orchestration
 
-- Introduce a `createResourceDataViewController(resource, config)` helper in `@geekist/wp-kernel-ui/dataviews`.
+- Introduce a `createResourceDataViewController(resource, config)` helper in `@wpkernel/ui/dataviews`.
     - Maps DataViews state (`search`, `filters`, `sort`, `pagination`) to the resource's query shape.
     - Relies on `resource.useList` for reactive data and `resource.prefetchList` for optimistic UI paths.
     - Handles cache invalidation and refresh via `kernel.invalidate` after bulk actions or mutations complete.
@@ -256,7 +256,7 @@ export function defaultPreferencesKey(
 
 - `ResourceConfig['ui']` (runtime + CLI schema updates).
 - `ResourceObject.ui?.admin?.dataviews` metadata emitted by `defineResource`.
-- New exports from `@geekist/wp-kernel-ui/dataviews`:
+- New exports from `@wpkernel/ui/dataviews`:
     - `ResourceDataView`, `createResourceDataViewController`, `createDataFormController`
     - `DataViewPreferencesAdapter`, `createDataViewsRuntime`
     - Type helpers (`DataViewFieldConfig`, `DataViewViewState`, `DataViewActionConfig`)
@@ -272,8 +272,8 @@ export function defaultPreferencesKey(
 
 ```ts
 // app/bootstrap/kernel.ts
-import { configureKernel } from '@geekist/wp-kernel';
-import { attachUIBindings } from '@geekist/wp-kernel-ui';
+import { configureKernel } from '@wpkernel/core';
+import { attachUIBindings } from '@wpkernel/ui';
 
 export const kernel = configureKernel({
 	namespace: 'my-plugin',
@@ -296,7 +296,7 @@ export const kernel = configureKernel({
 
 ```ts
 // kernel.config.ts
-import type { KernelConfigV1 } from '@geekist/wp-kernel-cli/config';
+import type { KernelConfigV1 } from '@wpkernel/cli/config';
 
 export default {
 	version: 1,
@@ -348,8 +348,8 @@ export default {
 
 ```tsx
 // app/screens/jobs/AdminJobs.tsx
-import { KernelUIProvider, useKernelUI } from '@geekist/wp-kernel-ui';
-import { ResourceDataView } from '@geekist/wp-kernel-ui/dataviews';
+import { KernelUIProvider, useKernelUI } from '@wpkernel/ui';
+import { ResourceDataView } from '@wpkernel/ui/dataviews';
 import { job } from '@/resources/job';
 import { kernel } from '@/bootstrap/kernel';
 
@@ -387,8 +387,8 @@ import {
 	createDataViewsRuntime,
 	createResourceDataViewController,
 	ResourceDataView,
-} from '@geekist/wp-kernel-ui/dataviews';
-import { createReporter } from '@geekist/wp-kernel';
+} from '@wpkernel/ui/dataviews';
+import { createReporter } from '@wpkernel/core';
 import { useMemo } from 'react';
 
 const fetchList = async (viewState) => {
@@ -445,7 +445,7 @@ export function StandaloneDataView() {
 1. **Runtime groundwork**
     - Extend `KernelUIRuntime` types, update `attachUIBindings`, and wire event emissions.
     - Implement `DataViewPreferencesAdapter` default (core/preferences) and plumbing.
-    - Provide `packages/ui/scripts/update-dataviews-snapshot.ts` that syncs the vendor snapshot, runs `pnpm --filter @geekist/wp-kernel-ui typecheck`, and logs `SUCCESS: snapshot synchronized to <git sha>`; abort when the synced version falls outside the declared peer range.
+    - Provide `packages/ui/scripts/update-dataviews-snapshot.ts` that syncs the vendor snapshot, runs `pnpm --filter @wpkernel/ui typecheck`, and logs `SUCCESS: snapshot synchronized to <git sha>`; abort when the synced version falls outside the declared peer range.
 2. **Controllers and components**
     - Implement `createResourceDataViewController`, `ResourceDataView`, and bulk-action bridge.
     - Implement `createDataFormController` for DataForm integration.
@@ -456,7 +456,7 @@ export function StandaloneDataView() {
     - Document lightweight migration path (`wpk generate admin-page`) and provide a compat data provider for incremental adoption; defer automated migrations to a future RFC.
 4. **Documentation & samples**
     - Update `docs/packages/ui.md`, add dedicated guide for DataViews.
-    - Provide example resource + admin screen in `app/showcase`.
+    - Provide example resource + admin screen in `examples/showcase`.
 5. **Testing**
     - Unit tests for controller transformation logic (filters, sorting, pagination mapping).
     - Integration tests exercising configureKernel auto-registration.

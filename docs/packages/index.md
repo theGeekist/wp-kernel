@@ -4,7 +4,7 @@ WP Kernel is organized into focused packages that work together to provide a com
 
 ## Core Packages
 
-### [@geekist/wp-kernel](/packages/kernel)
+### [@wpkernel/core](/packages/core)
 
 The foundation package containing resources, actions, events, and jobs. This is the core framework that other packages build upon.
 
@@ -15,7 +15,7 @@ The foundation package containing resources, actions, events, and jobs. This is 
 - Canonical event system
 - Background job processing
 
-### [@geekist/wp-kernel-ui](/packages/ui)
+### [@wpkernel/ui](/packages/ui)
 
 WordPress-native UI components that integrate seamlessly with WP Kernel patterns and `@wordpress/components`.
 
@@ -26,7 +26,7 @@ WordPress-native UI components that integrate seamlessly with WP Kernel patterns
 - Resource-aware data components
 - Block binding utilities and Interactivity helpers
 
-### [@geekist/wp-kernel-cli](/packages/cli)
+### [@wpkernel/cli](/packages/cli)
 
 Command-line tools for scaffolding and managing WP Kernel projects, following Rails-like conventions.
 
@@ -37,7 +37,7 @@ Command-line tools for scaffolding and managing WP Kernel projects, following Ra
 - Development workflow automation
 - TypeScript and build tooling setup
 
-### [@geekist/wp-kernel-e2e-utils](/packages/e2e-utils)
+### [@wpkernel/e2e-utils](/packages/e2e-utils)
 
 Testing utilities built on `@wordpress/e2e-test-utils-playwright` with kernel-specific helpers for comprehensive E2E testing.
 
@@ -72,13 +72,13 @@ Each package follows the same conventions:
 ### Complete Framework
 
 ```bash
-pnpm add @geekist/wp-kernel @geekist/wp-kernel-ui
+pnpm add @wpkernel/core @wpkernel/ui
 ```
 
 ### Development Tools
 
 ```bash
-pnpm add -D @geekist/wp-kernel-cli @geekist/wp-kernel-e2e-utils
+pnpm add -D @wpkernel/cli @wpkernel/e2e-utils
 ```
 
 ### Individual Packages

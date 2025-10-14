@@ -1,5 +1,5 @@
-import { createNoopReporter } from '@geekist/wp-kernel/reporter';
-import type { Reporter } from '@geekist/wp-kernel/reporter';
+import { createNoopReporter } from '@wpkernel/core/reporter';
+import type { Reporter } from '@wpkernel/core/reporter';
 import type { AdapterContext } from '../../config/types';
 import type { PrinterContext } from '../types';
 

@@ -56,7 +56,7 @@ builder.registration.ensurePostType('wpk_job', {
 builder
 	.controller('JobsController')
 	.permission.for('get_item', { policy: 'jobs.read', objectParam: '$id' })
-	.errors.wrap('get_item', { transport: 'wpk' })
+	.errors.wrap('get_item', { transport: WPK_NAMESPACE })
 	.method('get_item')
 	.before('$id = $this->resolveId($request);');
 
@@ -262,8 +262,8 @@ No adapter ever manipulates low-level AST nodes directly.
 
 ### Error recipes
 
-- `errors.wrap(method, { transport: 'wpk' })` - wrap a single method
-- `errors.wrapAll({ transport: 'wpk' })` - wrap common methods (`get_item`, `get_items`, `create_item`, `update_item`, `delete_item`) idempotently
+- `errors.wrap(method, { transport: WPK_NAMESPACE })` - wrap a single method
+- `errors.wrapAll({ transport: WPK_NAMESPACE })` - wrap common methods (`get_item`, `get_items`, `create_item`, `update_item`, `delete_item`) idempotently
 
 ### REST args
 
@@ -287,7 +287,7 @@ No adapter ever manipulates low-level AST nodes directly.
 ## 8. Example Adapter (Recipe-Only)
 
 ```ts
-import type { PhpAdapter } from '@geekist/wp-kernel-cli';
+import type { PhpAdapter } from '@wpkernel/cli';
 
 export const myCompanyAdapter: PhpAdapter = {
 	name: 'my-company',
@@ -302,7 +302,7 @@ export const myCompanyAdapter: PhpAdapter = {
 				objectParam: '$id',
 			});
 
-			controller.errors.wrap('get_item', { transport: 'wpk' });
+			controller.errors.wrap('get_item', { transport: WPK_NAMESPACE });
 		}
 
 		for (const resource of ir.resources) {

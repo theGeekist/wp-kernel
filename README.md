@@ -50,16 +50,16 @@ To **build your WordPress plugin** with WP Kernel:
 
 ```bash
 # In your plugin directory
-npm install @geekist/wp-kernel
+npm install @wpkernel/core
 # or
-pnpm add @geekist/wp-kernel
+pnpm add @wpkernel/core
 ```
 
 **Bootstrap the runtime:**
 
 ```ts
-import { configureKernel } from '@geekist/wp-kernel';
-import { attachUIBindings } from '@geekist/wp-kernel-ui';
+import { configureKernel } from '@wpkernel/core';
+import { attachUIBindings } from '@wpkernel/ui';
 
 const kernel = configureKernel({
 	registry: window.wp.data,
@@ -74,7 +74,7 @@ Mount the UI runtime so React hooks can subscribe to resources and actions throu
 
 ```tsx
 import { createRoot } from 'react-dom/client';
-import { KernelUIProvider } from '@geekist/wp-kernel-ui';
+import { KernelUIProvider } from '@wpkernel/ui';
 
 const runtime = kernel.getUIRuntime();
 
@@ -86,6 +86,8 @@ createRoot(document.getElementById('app')!).render(
 ```
 
 `configureKernel()` installs the registry middleware and returns a shared instance so you can access the namespace, reporter, cache helpers, and the typed `kernel.events` bus.
+
+> ℹ️ Import lifecycle phases, namespace constants, and CLI exit codes from `@wpkernel/core/contracts` to stay aligned with the framework's canonical contract.
 
 **See the [Getting Started Guide](https://theGeekist.github.io/wp-kernel/getting-started/)** for creating your first WP Kernel plugin.
 
@@ -180,9 +182,9 @@ WP Kernel supports three flexible import patterns. Choose what fits your project
 Tree-shakeable, clear module boundaries. Best for production apps.
 
 ```typescript
-import { fetch } from '@geekist/wp-kernel/http';
-import { defineResource, invalidate } from '@geekist/wp-kernel/resource';
-import { KernelError } from '@geekist/wp-kernel/error';
+import { fetch } from '@wpkernel/core/http';
+import { defineResource, invalidate } from '@wpkernel/core/resource';
+import { KernelError } from '@wpkernel/core/error';
 ```
 
 ### 2. Namespace Imports
@@ -190,7 +192,7 @@ import { KernelError } from '@geekist/wp-kernel/error';
 Organized by module. Good for mid-sized projects.
 
 ```typescript
-import { http, resource, error } from '@geekist/wp-kernel';
+import { http, resource, error } from '@wpkernel/core';
 
 await http.fetch({ path: '/wpk/v1/things' });
 const thing = resource.defineResource({ name: 'thing', routes: {...} });
@@ -202,7 +204,7 @@ throw new error.KernelError('ValidationError', {...});
 Quick and simple. Good for prototyping.
 
 ```typescript
-import { fetch, defineResource, KernelError } from '@geekist/wp-kernel';
+import { fetch, defineResource, KernelError } from '@wpkernel/core';
 ```
 
 All patterns work identically - pick what you prefer. The framework doesn't care.
@@ -211,12 +213,12 @@ All patterns work identically - pick what you prefer. The framework doesn't care
 
 ## 📦 Packages
 
-| Package                                            | Description                                              | Version |
-| -------------------------------------------------- | -------------------------------------------------------- | ------- |
-| [@geekist/wp-kernel](packages/kernel)              | Core framework (Resources, Actions, Events, Jobs)        | 0.1.0   |
-| [@geekist/wp-kernel-ui](packages/ui)               | Accessible UI components (wraps @wordpress/components)   | 0.1.0   |
-| [@geekist/wp-kernel-cli](packages/cli)             | Scaffolding CLI (generators)                             | 0.1.0   |
-| [@geekist/wp-kernel-e2e-utils](packages/e2e-utils) | Playwright test utilities _(optional - for E2E testing)_ | 0.1.0   |
+| Package                                   | Description                                              | Version |
+| ----------------------------------------- | -------------------------------------------------------- | ------- |
+| [@wpkernel/core](packages/core)           | Core framework (Resources, Actions, Events, Jobs)        | 0.1.0   |
+| [@wpkernel/ui](packages/ui)               | Accessible UI components (wraps @wordpress/components)   | 0.1.0   |
+| [@wpkernel/cli](packages/cli)             | Scaffolding CLI (generators)                             | 0.1.0   |
+| [@wpkernel/e2e-utils](packages/e2e-utils) | Playwright test utilities _(optional - for E2E testing)_ | 0.1.0   |
 
 ---
 
@@ -304,7 +306,7 @@ pnpm typecheck      # TypeScript check
 
 ```typescript
 // app/resources/Thing.ts
-import { defineResource } from '@geekist/wp-kernel/resource';
+import { defineResource } from '@wpkernel/core/resource';
 
 export const thing = defineResource<Thing>({
 	name: 'thing', // Namespace auto-detected from plugin context
@@ -370,7 +372,7 @@ pnpm e2e            # Run E2E tests
 
 ### Framework: EUPL-1.2
 
-The WP Kernel framework (packages: `@geekist/wp-kernel`, `@geekist/wp-kernel-ui`, `@geekist/wp-kernel-cli`, `@geekist/wp-kernel-e2e-utils`) is licensed under **EUPL-1.2** (European Union Public License v1.2).
+The WP Kernel framework (packages: `@wpkernel/core`, `@wpkernel/ui`, `@wpkernel/cli`, `@wpkernel/e2e-utils`) is licensed under **EUPL-1.2** (European Union Public License v1.2).
 
 **This means you CAN**:
 ✓ Build commercial plugins and themes  
@@ -384,7 +386,7 @@ The WP Kernel framework (packages: `@geekist/wp-kernel`, `@geekist/wp-kernel-ui`
 
 ### Showcase App: GPL-2.0-or-later
 
-The showcase WordPress plugin (`app/showcase`) is licensed under **GPL-2.0-or-later** to comply with WordPress.org requirements. This is example/reference code meant to demonstrate framework usage.
+The showcase WordPress plugin (`examples/showcase`) is licensed under **GPL-2.0-or-later** to comply with WordPress.org requirements. This is example/reference code meant to demonstrate framework usage.
 
 ### 📖 Full Licensing Guide
 

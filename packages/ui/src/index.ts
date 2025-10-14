@@ -3,7 +3,7 @@
  *
  * Reusable UI components for WP Kernel.
  *
- * @module @geekist/wp-kernel-ui
+ * @module @wpkernel/ui
  */
 
 /**

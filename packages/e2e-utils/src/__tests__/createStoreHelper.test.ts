@@ -22,8 +22,8 @@ describe('createStoreHelper', () => {
 
 			// First poll returns undefined, second poll returns value
 			mockPage.evaluate
-				.mockResolvedValueOnce(undefined)
-				.mockResolvedValueOnce(5);
+				.mockResolvedValueOnce({ value: undefined })
+				.mockResolvedValueOnce({ value: 5 });
 
 			const helper = createStoreHelper(storeKey, mockPage);
 			const result = await helper.wait(selector, 1000);
@@ -35,7 +35,7 @@ describe('createStoreHelper', () => {
 		it('should return immediately if first poll succeeds', async () => {
 			const selector = (state: any) => state.ready;
 
-			mockPage.evaluate.mockResolvedValueOnce(true);
+			mockPage.evaluate.mockResolvedValueOnce({ value: true });
 
 			const helper = createStoreHelper(storeKey, mockPage);
 			const result = await helper.wait(selector, 1000);
@@ -48,7 +48,7 @@ describe('createStoreHelper', () => {
 		it('should timeout if selector never returns truthy value', async () => {
 			const selector = (state: any) => state.missing;
 
-			mockPage.evaluate.mockResolvedValue(undefined);
+			mockPage.evaluate.mockResolvedValue({ value: undefined });
 
 			const helper = createStoreHelper(storeKey, mockPage);
 
@@ -69,7 +69,7 @@ describe('createStoreHelper', () => {
 		it('should use default timeout of 5000ms', async () => {
 			const selector = (state: any) => state.missing;
 
-			mockPage.evaluate.mockResolvedValue(undefined);
+			mockPage.evaluate.mockResolvedValue({ value: undefined });
 
 			const helper = createStoreHelper(storeKey, mockPage);
 
@@ -102,10 +102,10 @@ describe('createStoreHelper', () => {
 			const selector = (state: any) => state.value;
 
 			mockPage.evaluate
-				.mockResolvedValueOnce(false)
-				.mockResolvedValueOnce(0)
-				.mockResolvedValueOnce('')
-				.mockResolvedValueOnce('success');
+				.mockResolvedValueOnce({ value: false })
+				.mockResolvedValueOnce({ value: 0 })
+				.mockResolvedValueOnce({ value: '' })
+				.mockResolvedValueOnce({ value: 'success' });
 
 			const helper = createStoreHelper(storeKey, mockPage);
 			const result = await helper.wait(selector, 500);
@@ -117,7 +117,7 @@ describe('createStoreHelper', () => {
 		it('should call page.evaluate with correct arguments', async () => {
 			const selector = (state: any) => state.jobs;
 
-			mockPage.evaluate.mockResolvedValueOnce([{ id: 1 }]);
+			mockPage.evaluate.mockResolvedValueOnce({ value: [{ id: 1 }] });
 
 			const helper = createStoreHelper(storeKey, mockPage);
 			await helper.wait(selector, 1000);
@@ -131,7 +131,7 @@ describe('createStoreHelper', () => {
 
 	describe('invalidate()', () => {
 		it('should call store invalidateResolution', async () => {
-			mockPage.evaluate.mockResolvedValue(undefined);
+			mockPage.evaluate.mockResolvedValue({ status: 'ok' });
 
 			const helper = createStoreHelper(storeKey, mockPage);
 			await helper.invalidate();
@@ -143,9 +143,9 @@ describe('createStoreHelper', () => {
 		});
 
 		it('should throw error if store not found', async () => {
-			mockPage.evaluate.mockRejectedValue(
-				new Error(`Store "${storeKey}" not found`)
-			);
+			mockPage.evaluate.mockResolvedValue({
+				error: { message: `Store "${storeKey}" not found` },
+			});
 
 			const helper = createStoreHelper(storeKey, mockPage);
 
@@ -165,7 +165,7 @@ describe('createStoreHelper', () => {
 				loading: false,
 			};
 
-			mockPage.evaluate.mockResolvedValue(mockState);
+			mockPage.evaluate.mockResolvedValue({ value: mockState });
 
 			const helper = createStoreHelper(storeKey, mockPage);
 			const result = await helper.getState();
@@ -178,7 +178,7 @@ describe('createStoreHelper', () => {
 		});
 
 		it('should handle undefined state', async () => {
-			mockPage.evaluate.mockResolvedValue(undefined);
+			mockPage.evaluate.mockResolvedValue({ value: undefined });
 
 			const helper = createStoreHelper(storeKey, mockPage);
 			const result = await helper.getState();
@@ -187,9 +187,9 @@ describe('createStoreHelper', () => {
 		});
 
 		it('should throw error if store does not exist', async () => {
-			mockPage.evaluate.mockRejectedValue(
-				new Error(`Store "${storeKey}" not found`)
-			);
+			mockPage.evaluate.mockResolvedValue({
+				error: { message: `Store "${storeKey}" not found` },
+			});
 
 			const helper = createStoreHelper(storeKey, mockPage);
 
@@ -207,8 +207,10 @@ describe('createStoreHelper', () => {
 			}
 
 			mockPage.evaluate.mockResolvedValue({
-				jobs: [{ id: 1, title: 'Engineer' }],
-				loading: false,
+				value: {
+					jobs: [{ id: 1, title: 'Engineer' }],
+					loading: false,
+				},
 			});
 
 			const helper = createStoreHelper<JobState>(storeKey, mockPage);
@@ -224,10 +226,12 @@ describe('createStoreHelper', () => {
 				jobs: Array<{ id: number; title: string }>;
 			}
 
-			mockPage.evaluate.mockResolvedValue([
-				{ id: 1, title: 'Engineer' },
-				{ id: 2, title: 'Designer' },
-			]);
+			mockPage.evaluate.mockResolvedValue({
+				value: [
+					{ id: 1, title: 'Engineer' },
+					{ id: 2, title: 'Designer' },
+				],
+			});
 
 			const helper = createStoreHelper<JobState>(storeKey, mockPage);
 

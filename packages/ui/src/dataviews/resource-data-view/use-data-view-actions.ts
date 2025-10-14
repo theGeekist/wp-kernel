@@ -3,7 +3,7 @@ import type {
 	Action as DataViewAction,
 	ActionButton,
 } from '@wordpress/dataviews';
-import type { CacheKeyPattern } from '@geekist/wp-kernel/resource';
+import type { CacheKeyPattern } from '@wpkernel/core/resource';
 import { normalizeActionError } from '../error-utils';
 import type {
 	ResourceDataViewActionConfig,

@@ -183,19 +183,19 @@ export default withMermaid(
 						items: [
 							{ text: 'Overview', link: '/packages/' },
 							{
-								text: '@geekist/wp-kernel',
-								link: '/packages/kernel',
+								text: '@wpkernel/core',
+								link: '/packages/core',
 							},
 							{
-								text: '@geekist/wp-kernel-ui',
+								text: '@wpkernel/ui',
 								link: '/packages/ui',
 							},
 							{
-								text: '@geekist/wp-kernel-cli',
+								text: '@wpkernel/cli',
 								link: '/packages/cli',
 							},
 							{
-								text: '@geekist/wp-kernel-e2e-utils',
+								text: '@wpkernel/e2e-utils',
 								link: '/packages/e2e-utils',
 							},
 						],
@@ -218,16 +218,16 @@ export default withMermaid(
 						collapsed: true,
 						items: [
 							{
-								text: '@geekist/wp-kernel',
+								text: '@wpkernel/core',
 								link: '/api/generated/kernel/src/README',
 							},
 							{
-								text: '@geekist/wp-kernel-cli',
-								link: '/api/generated/@geekist/wp-kernel-cli/README',
+								text: '@wpkernel/cli',
+								link: '/api/generated/@wpkernel/cli/README',
 							},
 							{
-								text: '@geekist/wp-kernel-ui',
-								link: '/api/generated/@geekist/wp-kernel-ui/README',
+								text: '@wpkernel/ui',
+								link: '/api/generated/@wpkernel/ui/README',
 							},
 						],
 					},

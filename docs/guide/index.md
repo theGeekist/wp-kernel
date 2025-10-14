@@ -118,7 +118,7 @@ Read operations travel from views to bindings to store selectors and finally to 
 Events are part of the public contract. Use the versioned registry to ensure names stay stable:
 
 ```typescript
-import { events } from '@geekist/wp-kernel/events';
+import { events } from '@wpkernel/core/events';
 
 CreateThing.emit(events.thing.created, { id });
 ```

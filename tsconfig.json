@@ -3,13 +3,13 @@
 	"extends": "./tsconfig.base.json",
 	"files": [],
 	"references": [
-		{ "path": "./packages/kernel" },
+		{ "path": "./packages/core" },
 		{ "path": "./packages/ui" },
-		{ "path": "./packages/kernel/tsconfig.tests.json" },
+		{ "path": "./packages/core/tsconfig.tests.json" },
 		{ "path": "./packages/ui/tsconfig.tests.json" },
 		{ "path": "./packages/cli" },
 		{ "path": "./packages/cli/tsconfig.tests.json" },
 		{ "path": "./packages/e2e-utils" },
-		{ "path": "./app/showcase" }
+		{ "path": "./examples/showcase" }
 	]
 }

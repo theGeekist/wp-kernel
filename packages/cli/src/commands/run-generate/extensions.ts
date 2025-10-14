@@ -1,5 +1,5 @@
 import type { AdapterExtensionRunResult } from '../../adapters';
-import type { Reporter } from '@geekist/wp-kernel/reporter';
+import type { Reporter } from '@wpkernel/core/reporter';
 import { reportError, serialiseError } from './reporting';
 
 export async function commitExtensions(

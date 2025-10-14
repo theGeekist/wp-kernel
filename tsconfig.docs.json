@@ -8,7 +8,7 @@
 		"noEmit": true
 	},
 	"include": [
-		"packages/kernel/src/**/*",
+		"packages/core/src/**/*",
 		"packages/ui/src/**/*",
 		"packages/cli/src/**/*",
 		"types/**/*.d.ts"

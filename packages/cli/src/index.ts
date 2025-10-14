@@ -1,11 +1,11 @@
 /**
- * Top-level exports for the `@geekist/wp-kernel-cli` package.
+ * Top-level exports for the `@wpkernel/cli` package.
  *
  * This module re-exports the public surface of the CLI package so
  * documentation generators can build consistent API pages alongside the
  * kernel and UI packages.
  *
- * @module @geekist/wp-kernel-cli
+ * @module @wpkernel/cli
  */
 export { VERSION } from './version';
 export { runCli } from './cli/run';

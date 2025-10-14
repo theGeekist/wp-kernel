@@ -1,4 +1,4 @@
-# @geekist/wp-kernel-ui
+# @wpkernel/ui
 
 ## 0.4.0 [Unreleased]
 
@@ -24,7 +24,7 @@
 
 - Removed the legacy global queue (`__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__` /
   `__WP_KERNEL_UI_PROCESS_PENDING_RESOURCES__`). Importing
-  `@geekist/wp-kernel-ui` no longer auto-attaches hooks.
+  `@wpkernel/ui` no longer auto-attaches hooks.
 - Resource hook attachment now listens to `kernel.events` (`resource:defined`)
   and replays the kernel registry instead of mutating globals, so UI bundles can
   subscribe deterministically regardless of load order.
@@ -43,15 +43,15 @@
   accessors so that actions gated by policies unlock once `definePolicy()`
   registers the runtime, avoiding the need for a full refresh when the UI
   attached before policies were available.
-- Migrated all kernel imports to the new `@geekist/wp-kernel/events` and
-  `@geekist/wp-kernel/resource/*` barrels so UI bundles no longer rely on the
+- Migrated all kernel imports to the new `@wpkernel/core/events` and
+  `@wpkernel/core/resource/*` barrels so UI bundles no longer rely on the
   package root.
 
 ### Migration Guide
 
 ```tsx
-import { configureKernel } from '@geekist/wp-kernel';
-import { attachUIBindings, KernelUIProvider } from '@geekist/wp-kernel-ui';
+import { configureKernel } from '@wpkernel/core';
+import { attachUIBindings, KernelUIProvider } from '@wpkernel/ui';
 
 const kernel = configureKernel({
 	namespace: 'my-plugin',
@@ -91,7 +91,7 @@ createRoot(node).render(
 
 - Internal monorepo improvements
 - Updated dependencies
-    - @geekist/wp-kernel@0.2.0
+    - @wpkernel/core@0.2.0
 
 ## 0.1.0
 
@@ -104,7 +104,7 @@ createRoot(node).render(
     **Monorepo Structure**:
     - pnpm workspaces with 4 packages (kernel, ui, cli, e2e-utils)
     - TypeScript 5.9.2 strict mode with composite builds
-    - Path aliases configured (@geekist/\*)
+    - Path aliases configured (@wpkernel/\*)
 
     **Build & Tooling**:
     - ESLint 9.36.0 flat config (zero deprecated dependencies)
@@ -130,10 +130,10 @@ createRoot(node).render(
     - `pnpm wp:*` commands for all WordPress workflows
 
     **Package Contents**:
-    - **@geekist/wp-kernel**: Core framework APIs (placeholder structure)
-    - **@geekist/wp-kernel-ui**: UI components (placeholder structure)
-    - **@geekist/wp-kernel-cli**: Code generator CLI (placeholder structure)
-    - **@geekist/wp-kernel-e2e-utils**: E2E testing utilities (placeholder structure)
+    - **@wpkernel/core**: Core framework APIs (placeholder structure)
+    - **@wpkernel/ui**: UI components (placeholder structure)
+    - **@wpkernel/cli**: Code generator CLI (placeholder structure)
+    - **@wpkernel/e2e-utils**: E2E testing utilities (placeholder structure)
 
     **Known Limitations**:
     - API implementations are placeholder structures only
@@ -196,4 +196,4 @@ createRoot(node).render(
 
 - Updated dependencies
 - Updated dependencies
-    - @geekist/wp-kernel@0.1.0
+    - @wpkernel/core@0.1.0

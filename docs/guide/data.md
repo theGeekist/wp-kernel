@@ -9,7 +9,7 @@ Core primitives-resources, actions, cache helpers-continue to work without any b
 `configureKernel()` accepts a small configuration object and returns a `KernelInstance`. The instance exposes shared services such as the namespace, reporter, cache helpers, and `KernelEventBus` (`kernel.events`) so you can subscribe to lifecycle updates without touching globals.
 
 ```ts
-import { configureKernel } from '@geekist/wp-kernel';
+import { configureKernel } from '@wpkernel/core';
 
 const kernel = configureKernel({
 	namespace: 'acme',
@@ -71,7 +71,7 @@ Actions retain their full `ActionContext` (policy enforcement, cache invalidatio
 ### Minimal bootstrap (plugin entry point)
 
 ```ts
-import { configureKernel, registerKernelStore } from '@geekist/wp-kernel';
+import { configureKernel, registerKernelStore } from '@wpkernel/core';
 
 export function bootstrap(registry) {
 	const kernel = configureKernel({
@@ -119,7 +119,7 @@ export async function createItem(payload) {
 ### Dispatch kernel actions via Redux store (requires middleware)
 
 ```ts
-import { invokeAction } from '@geekist/wp-kernel/actions';
+import { invokeAction } from '@wpkernel/core/actions';
 import { CreateItem } from './actions/CreateItem';
 
 export async function createItemViaStore(store, payload) {
@@ -158,7 +158,7 @@ configureKernel({
 ### Custom reporter
 
 ```ts
-import { configureKernel, createReporter } from '@geekist/wp-kernel';
+import { configureKernel, createReporter } from '@wpkernel/core';
 
 const reporter = createReporter({
 	namespace: 'my-plugin',

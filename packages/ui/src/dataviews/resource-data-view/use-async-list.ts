@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import type { ListResponse } from '@geekist/wp-kernel/resource';
+import type { ListResponse } from '@wpkernel/core/resource';
 import type { DataViewsRuntimeContext } from '../types';
 
 type AsyncListState<TItem> = {

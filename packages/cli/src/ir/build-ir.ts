@@ -1,6 +1,6 @@
 import path from 'node:path';
-import { sanitizeNamespace } from '@geekist/wp-kernel/namespace';
-import { KernelError } from '@geekist/wp-kernel/error';
+import { sanitizeNamespace } from '@wpkernel/core/namespace';
+import { KernelError } from '@wpkernel/core/error';
 import type { BuildIrOptions, IRv1 } from './types';
 import { toWorkspaceRelative } from '../utils';
 import { createSchemaAccumulator, loadConfiguredSchemas } from './schema';
