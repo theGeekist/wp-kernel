@@ -57,7 +57,7 @@ export default defineConfig(async (_env): Promise<UserConfig> => {
 					'@wordpress/interactivity',
 				],
 				output: {
-					format: 'es',
+					format: 'iife',
 					name: 'WPKernelShowcase',
 					entryFileNames: '[name].js',
 					chunkFileNames: '[name]-[hash].js',
