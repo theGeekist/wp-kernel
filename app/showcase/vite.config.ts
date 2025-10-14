@@ -16,8 +16,15 @@ import { defineConfig, type UserConfig } from 'vite';
 import { resolve } from 'path';
 import { v4wp } from '@kucrut/vite-for-wp';
 import { wp_scripts as wpScripts } from '@kucrut/vite-for-wp/plugins';
+import pkg from './package.json';
 
 export default defineConfig(async (_env): Promise<UserConfig> => {
+	// Modes:
+	// - development / production → ESM build for Script Modules (default)
+	// - classic → IIFE build for legacy classic enqueue (globals required)
+	const mode = _env.mode ?? 'development';
+	const isProd = mode === 'production';
+
 	const wpScriptsPlugins = await wpScripts({
 		extraScripts: {
 			'@wordpress/interactivity': 'wp.interactivity',
@@ -39,16 +46,44 @@ export default defineConfig(async (_env): Promise<UserConfig> => {
 
 		build: {
 			rollupOptions: {
+				external: [
+					...Object.keys(pkg.peerDependencies || {}),
+					'@wordpress/dataviews',
+					'@wordpress/data',
+					'@wordpress/components',
+					'@wordpress/element',
+					'@wordpress/hooks',
+					'@wordpress/i18n',
+					'@wordpress/interactivity',
+				],
 				output: {
-					format: 'iife',
+					format: 'es',
 					name: 'WPKernelShowcase',
 					entryFileNames: '[name].js',
 					chunkFileNames: '[name]-[hash].js',
 					assetFileNames: '[name]-[hash][extname]',
+					globals: {
+						// Dynamically map all peerDependencies to wp globals
+						...Object.fromEntries(
+							Object.keys(pkg.peerDependencies || {}).map(
+								(dep) => {
+									const wpName = dep.replace(
+										/^@wordpress\//,
+										''
+									);
+									return [dep, `wp.${wpName}`];
+								}
+							)
+						),
+						// Explicitly add any additional globals needed
+						'@wordpress/hooks': 'wp.hooks',
+						'@wordpress/i18n': 'wp.i18n',
+						'@wordpress/interactivity': 'wp.interactivity',
+					},
 				},
 			},
 			// Enable sourcemaps for development
-			sourcemap: true,
+			sourcemap: !isProd,
 			// Don't minify in dev
 			minify: process.env.NODE_ENV === 'production',
 		},

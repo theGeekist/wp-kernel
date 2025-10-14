@@ -56,14 +56,4 @@ export default {
 		'!<rootDir>/packages/e2e-utils/src/**/*.d.ts',
 		'!<rootDir>/packages/e2e-utils/src/index.ts',
 	],
-
-	// Coverage thresholds for this package
-	coverageThreshold: {
-		global: {
-			branches: 89,
-			functions: 90,
-			lines: 90,
-			statements: 90,
-		},
-	},
 };

@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import type { ResourceObject } from '@geekist/wp-kernel';
+import type { ResourceObject } from '@geekist/wp-kernel/resource';
 import { useStableCallback } from './internal/useStableCallback';
 import { usePrefetcher } from './usePrefetcher';
 

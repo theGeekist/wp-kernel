@@ -1,8 +1,10 @@
 import { useCallback } from 'react';
 import type { DefinedAction } from '@geekist/wp-kernel/actions';
 import type { KernelError } from '@geekist/wp-kernel/error';
-import type { CacheKeyPattern } from '@geekist/wp-kernel/resource/cache';
-import type { ResourceObject } from '@geekist/wp-kernel/resource';
+import type {
+	CacheKeyPattern,
+	ResourceObject,
+} from '@geekist/wp-kernel/resource';
 import { useAction } from '../hooks/useAction';
 import type { DataViewsRuntimeContext } from './types';
 import { normalizeActionError } from './error-utils';
@@ -100,3 +102,7 @@ export function createDataFormController<TInput, TResult, TQuery>(
 		};
 	};
 }
+
+export const __TESTING__ = {
+	defaultInvalidate,
+};

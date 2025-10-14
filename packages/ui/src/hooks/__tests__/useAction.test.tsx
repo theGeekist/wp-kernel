@@ -3,7 +3,8 @@ import { createDeferred, renderHook } from '../testing/test-utils';
 import { useAction } from '../useAction';
 import type { UseActionOptions } from '../useAction';
 import type { ActionEnvelope, DefinedAction } from '@geekist/wp-kernel/actions';
-import { KernelError, KernelEventBus } from '@geekist/wp-kernel';
+import { KernelError } from '@geekist/wp-kernel/error';
+import { KernelEventBus } from '@geekist/wp-kernel/events';
 import * as kernelData from '@geekist/wp-kernel/data';
 import { KernelUIProvider } from '../../runtime';
 import type {
@@ -121,6 +122,34 @@ function resetActionStoreMarker() {
 }
 
 describe('useAction', () => {
+	// Suppress WordPress data store "already registered" console errors which
+	// are logged by @wordpress/data before it throws. Tests intentionally
+	// re-register the same store key and we only want to silence the known
+	// message to avoid noisy test output.
+	let originalConsoleError: (message?: any, ...optionalParams: any[]) => void;
+
+	beforeAll(() => {
+		originalConsoleError = console.error;
+		console.error = (...args: unknown[]) => {
+			try {
+				const msg = String(args[0] ?? '');
+				if (
+					msg.includes('A store with name') &&
+					msg.includes('is already registered')
+				) {
+					// Known WP data registration message — ignore
+					return;
+				}
+			} catch {
+				// fallthrough to original handler
+			}
+			return originalConsoleError(...(args as [any, ...any[]]));
+		};
+	});
+
+	afterAll(() => {
+		console.error = originalConsoleError;
+	});
 	afterEach(() => {
 		jest.clearAllMocks();
 	});

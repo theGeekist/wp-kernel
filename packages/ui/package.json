@@ -4,6 +4,7 @@
 	"description": "UI component library for WP Kernel",
 	"license": "EUPL-1.2",
 	"type": "module",
+	"sideEffects": false,
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/theGeekist/wp-kernel.git",
@@ -89,6 +90,7 @@
 	"peerDependencies": {
 		"@geekist/wp-kernel": "workspace:*",
 		"@testing-library/react": ">=16.3.0",
+		"@wordpress/dataviews": ">=9.1.0",
 		"@wordpress/components": ">=28.0.0",
 		"@wordpress/data": ">=10.0.0",
 		"@wordpress/element": ">=6.0.0",

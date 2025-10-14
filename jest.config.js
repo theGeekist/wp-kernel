@@ -43,6 +43,16 @@ export default {
 		'!packages/e2e-utils/src/**',
 		// Exclude testing utilities (test helpers, not production code)
 		'!packages/ui/src/hooks/testing/**',
+		// Exclude CLI package files that can't be unit tested in isolation
+		'!packages/cli/src/cli/**', // CLI entry points (require process, filesystem)
+		'!packages/cli/src/commands/**', // Command implementations (file I/O, tested integration-style)
+		'!packages/cli/src/internal/**', // Internal constants (trivial)
+		'!packages/cli/src/printers/**', // File printers (tested indirectly via IR tests)
+		'!packages/cli/src/version.ts', // Auto-generated version constant
+		'!packages/cli/src/ir/__fixtures__/**', // Test fixtures
+		// Exclude dataviews test-support helpers from coverage
+		'!<rootDir>/packages/ui/src/dataviews/test-support/**',
+		// Exclude type definitions and tests
 		'!packages/*/src/**/*.d.ts',
 		'!app/*/src/**/*.d.ts',
 		'!packages/*/src/**/__tests__/**',
@@ -50,6 +60,7 @@ export default {
 		// Exclude entry point index files (trivial re-exports)
 		'!packages/*/src/index.ts',
 		'!packages/kernel/src/*/index.ts',
+		'!packages/cli/src/ir/index.ts',
 	],
 	coverageThreshold: {
 		global: {

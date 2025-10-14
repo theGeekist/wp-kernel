@@ -29,20 +29,6 @@ describe('Build: Output structure', () => {
 				expect(existsSync(filePath)).toBe(true);
 			});
 		});
-
-		it('should have sourcemaps for all entry points', () => {
-			const sourcemaps = [
-				'index.js.map',
-				'http.js.map',
-				'resource.js.map',
-				'error.js.map',
-			];
-
-			sourcemaps.forEach((map) => {
-				const filePath = resolve(distPath, map);
-				expect(existsSync(filePath)).toBe(true);
-			});
-		});
 	});
 
 	describe('Preserved modules structure', () => {

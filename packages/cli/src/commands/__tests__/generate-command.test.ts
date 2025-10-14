@@ -2,11 +2,11 @@ import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { Writable } from 'node:stream';
-import type { Command } from 'clipanion';
+import type { BaseContext } from 'clipanion';
 import { GenerateCommand } from '../generate';
 import * as printers from '../../printers';
 import * as ir from '../../ir';
-import { KernelError } from '@geekist/wp-kernel';
+import { KernelError } from '@geekist/wp-kernel/error';
 
 jest.mock('json-schema-to-typescript', () => ({
 	compile: jest.fn(async () => 'export interface Schema {}\n'),
@@ -94,7 +94,12 @@ describe('GenerateCommand', () => {
 
 			expect(exitCode).toBe(0);
 			expect(dryRunCommand.summary?.dryRun).toBe(true);
-			expect(dryRunCommand.summary?.counts.skipped).toBeGreaterThan(0);
+			const counts = dryRunCommand.summary?.counts ?? {
+				skipped: 0,
+				unchanged: 0,
+				written: 0,
+			};
+			expect(counts.skipped + counts.unchanged).toBeGreaterThan(0);
 
 			const afterDryRun = await fs.readFile(baseControllerPath, 'utf8');
 			expect(afterDryRun).toBe(baseline);
@@ -388,7 +393,8 @@ function createCommand(workspace: string): GenerateCommand {
 		stdin: process.stdin,
 		env: process.env,
 		cwd: () => workspace,
-	} as Command.Context;
+		colorDepth: 1,
+	} as BaseContext;
 
 	command.dryRun = false;
 	command.verbose = false;

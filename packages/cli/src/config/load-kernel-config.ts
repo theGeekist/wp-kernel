@@ -9,8 +9,9 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { pathToFileURL } from 'node:url';
-import { cosmiconfig, defaultLoaders } from 'cosmiconfig';
-import { createReporter, KernelError, type Reporter } from '@geekist/wp-kernel';
+import type * as cosmiconfigNamespace from 'cosmiconfig';
+import { createReporter, type Reporter } from '@geekist/wp-kernel/reporter';
+import { KernelError } from '@geekist/wp-kernel/error';
 import {
 	WPK_CONFIG_SOURCES,
 	WPK_NAMESPACE,
@@ -19,14 +20,16 @@ import type { WPKConfigSource } from '@geekist/wp-kernel/namespace/constants';
 import { validateKernelConfig } from './validate-kernel-config';
 import type { LoadedKernelConfig } from './types';
 
+type CosmiconfigModule = typeof cosmiconfigNamespace;
 type CosmiconfigResult = Awaited<
-	ReturnType<ReturnType<typeof cosmiconfig>['search']>
+	ReturnType<ReturnType<CosmiconfigModule['cosmiconfig']>['search']>
 >;
 type TsImport = (
 	path: string,
 	parent?: string | { parentURL: string }
 ) => Promise<unknown>;
 
+let cosmiconfigModulePromise: Promise<CosmiconfigModule> | null = null;
 let cachedTsImport: Promise<TsImport> | null = null;
 
 const reporter = createReporter({
@@ -34,6 +37,35 @@ const reporter = createReporter({
 	level: 'info',
 	enabled: process.env.NODE_ENV !== 'test',
 });
+
+async function loadCosmiconfigModule(): Promise<CosmiconfigModule> {
+	if (!cosmiconfigModulePromise) {
+		cosmiconfigModulePromise = import(
+			'cosmiconfig'
+		) as Promise<CosmiconfigModule>;
+	}
+
+	return cosmiconfigModulePromise;
+}
+
+async function loadDefaultLoader<
+	TExtension extends keyof CosmiconfigModule['defaultLoaders'],
+>(
+	extension: TExtension
+): Promise<NonNullable<CosmiconfigModule['defaultLoaders'][TExtension]>> {
+	const module = await loadCosmiconfigModule();
+	const loader = module.defaultLoaders[extension];
+
+	if (!loader) {
+		throw new KernelError('DeveloperError', {
+			message: `No cosmiconfig loader registered for ${extension}.`,
+		});
+	}
+
+	return loader as NonNullable<
+		CosmiconfigModule['defaultLoaders'][TExtension]
+	>;
+}
 
 /**
  * Locate and load the project's kernel configuration.
@@ -47,7 +79,8 @@ const reporter = createReporter({
  * @throws KernelError when discovery, parsing or validation fails.
  */
 export async function loadKernelConfig(): Promise<LoadedKernelConfig> {
-	const explorer = cosmiconfig('wpk', {
+	const cosmiconfigModule = await loadCosmiconfigModule();
+	const explorer = cosmiconfigModule.cosmiconfig('wpk', {
 		searchPlaces: [
 			WPK_CONFIG_SOURCES.KERNEL_CONFIG_TS,
 			WPK_CONFIG_SOURCES.KERNEL_CONFIG_JS,
@@ -55,7 +88,7 @@ export async function loadKernelConfig(): Promise<LoadedKernelConfig> {
 		],
 		packageProp: 'wpk',
 		loaders: {
-			...defaultLoaders,
+			...cosmiconfigModule.defaultLoaders,
 			'.ts': createTsLoader(),
 			'.js': createJsLoader(),
 			'.mjs': createJsLoader(),
@@ -138,15 +171,25 @@ export function getConfigOrigin(
 	throw new KernelError('DeveloperError', { message });
 }
 
-function createTsLoader() {
-	const defaultTsLoader = defaultLoaders['.ts'];
-
+export function createTsLoader({
+	defaultLoader = async (filepath: string, content: string) => {
+		const loader = await loadDefaultLoader('.ts');
+		return loader(filepath, content);
+	},
+	tsImportLoader = getTsImport,
+}: {
+	defaultLoader?: (
+		filepath: string,
+		content: string
+	) => unknown | Promise<unknown>;
+	tsImportLoader?: () => Promise<TsImport>;
+} = {}) {
 	return async (filepath: string, content: string) => {
 		try {
-			return await defaultTsLoader(filepath, content);
+			return await defaultLoader(filepath, content);
 		} catch (_defaultError) {
 			try {
-				const tsImport = await getTsImport();
+				const tsImport = await tsImportLoader();
 				const absPath = path.resolve(filepath);
 				const moduleExports = await tsImport(absPath, {
 					parentURL: pathToFileURL(absPath).href,
@@ -168,10 +211,15 @@ function createTsLoader() {
 	};
 }
 
-function createJsLoader() {
+export function createJsLoader(
+	importModule: (specifier: string) => Promise<unknown> = (specifier) =>
+		import(specifier)
+) {
 	return async (filepath: string) => {
 		try {
-			const moduleExports = await import(pathToFileURL(filepath).href);
+			const moduleExports = await importModule(
+				pathToFileURL(filepath).href
+			);
 			return resolveConfigValue(moduleExports);
 		} catch (error) {
 			const message = `Failed to import ${filepath}: ${formatError(error)}`;
@@ -222,7 +270,7 @@ export async function resolveConfigValue(value: unknown): Promise<unknown> {
 	return current;
 }
 
-async function validateComposerAutoload(
+export async function validateComposerAutoload(
 	startDir: string,
 	namespace: string,
 	validationReporter: Reporter
@@ -259,7 +307,7 @@ async function validateComposerAutoload(
 	return 'ok';
 }
 
-async function readComposerJson(
+export async function readComposerJson(
 	composerPath: string,
 	validationReporter: Reporter
 ): Promise<unknown> {
@@ -278,7 +326,7 @@ async function readComposerJson(
 	}
 }
 
-function getComposerAutoloadMap(
+export function getComposerAutoloadMap(
 	composerJson: unknown,
 	composerPath: string,
 	validationReporter: Reporter
@@ -309,7 +357,7 @@ function getComposerAutoloadMap(
 	return autoload;
 }
 
-function assertIncMapping(
+export function assertIncMapping(
 	autoload: Record<string, unknown>,
 	composerPath: string,
 	validationReporter: Reporter
@@ -338,7 +386,7 @@ function assertIncMapping(
 	});
 }
 
-async function findUp(
+export async function findUp(
 	startDir: string,
 	fileName: string
 ): Promise<string | null> {
@@ -357,7 +405,7 @@ async function findUp(
 	return findUp(parent, fileName);
 }
 
-async function fileExists(filePath: string): Promise<boolean> {
+export async function fileExists(filePath: string): Promise<boolean> {
 	try {
 		await fs.access(filePath);
 		return true;
@@ -377,7 +425,7 @@ function isPromise(value: unknown): value is Promise<unknown> {
 	);
 }
 
-async function getTsImport(): Promise<TsImport> {
+export async function getTsImport(): Promise<TsImport> {
 	if (!cachedTsImport) {
 		// Dynamically load the `tsx` ESM loader when needed. This keeps the
 		// dependency optional for consumers that never load TS kernel configs.
@@ -387,6 +435,10 @@ async function getTsImport(): Promise<TsImport> {
 	}
 
 	return cachedTsImport;
+}
+
+export function setCachedTsImport(value: Promise<TsImport> | null): void {
+	cachedTsImport = value;
 }
 
 /**

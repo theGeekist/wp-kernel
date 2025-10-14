@@ -1,38 +1,167 @@
 import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import type { Command } from 'clipanion';
+import type { BaseContext } from 'clipanion';
 import { InitCommand } from '../init';
 
 const TMP_PREFIX = path.join(os.tmpdir(), 'wpk-init-command-');
 
 describe('InitCommand', () => {
-	it('prints default project information when no options supplied', async () => {
+	it('scaffolds project files with recommended defaults', async () => {
 		await withWorkspace(async (workspace) => {
 			const command = createCommand(workspace);
-			command.name = undefined as unknown as string;
-			command.template = undefined as unknown as string;
+			command.name = 'jobs-plugin';
+
 			const exit = await command.execute();
 
-			expect(exit).toBeUndefined();
-			expect(command.context.stdout.toString()).toContain(
-				'[wpk] init(wp-kernel-project) using template "default" :: stub'
+			expect(exit).toBe(0);
+			const stdout = command.context.stdout.toString();
+			expect(stdout).toContain('created plugin scaffold for jobs-plugin');
+			expect(stdout).toContain('created kernel.config.ts');
+			expect(stdout).toContain('created src/index.ts');
+			expect(stdout).toContain('created tsconfig.json');
+			expect(stdout).toContain('created eslint.config.js');
+			expect(stdout).toContain('created package.json');
+
+			const kernelConfig = await fs.readFile(
+				path.join(workspace, 'kernel.config.ts'),
+				'utf8'
 			);
+			expect(kernelConfig).toContain("namespace: 'jobs-plugin'");
+			expect(kernelConfig).toContain(
+				'Kernel configuration for your project.'
+			);
+
+			const indexFile = await fs.readFile(
+				path.join(workspace, 'src/index.ts'),
+				'utf8'
+			);
+			expect(indexFile).toContain('bootstrapKernel');
+
+			const tsconfig = JSON.parse(
+				await fs.readFile(path.join(workspace, 'tsconfig.json'), 'utf8')
+			);
+			expect(tsconfig.compilerOptions).toMatchObject({
+				moduleResolution: 'Bundler',
+				strict: true,
+			});
+
+			const packageJson = JSON.parse(
+				await fs.readFile(path.join(workspace, 'package.json'), 'utf8')
+			);
+			expect(packageJson).toMatchObject({
+				name: 'jobs-plugin',
+				private: true,
+				type: 'module',
+				scripts: {
+					start: 'wpk start',
+					build: 'wpk build',
+					generate: 'wpk generate',
+					apply: 'wpk apply',
+				},
+			});
 		});
 	});
 
-	it('uses provided project name and template when options are set', async () => {
+	it('aborts when scaffold targets already exist without --force', async () => {
 		await withWorkspace(async (workspace) => {
 			const command = createCommand(workspace);
-			command.name = 'awesome-app';
-			command.template = 'react';
+			command.name = 'jobs-plugin';
+
+			await fs.writeFile(
+				path.join(workspace, 'kernel.config.ts'),
+				'// existing config',
+				'utf8'
+			);
 
 			const exit = await command.execute();
 
-			expect(exit).toBeUndefined();
-			expect(command.context.stdout.toString()).toContain(
-				'[wpk] init(awesome-app) using template "react" :: stub'
+			expect(exit).toBe(1);
+			const stderr = command.context.stderr.toString();
+			expect(stderr).toContain('Refusing to overwrite existing files');
+			expect(stderr).toContain('kernel.config.ts');
+
+			const kernelConfig = await fs.readFile(
+				path.join(workspace, 'kernel.config.ts'),
+				'utf8'
 			);
+			expect(kernelConfig).toBe('// existing config');
+		});
+	});
+
+	it('overwrites files and scripts when --force is provided', async () => {
+		await withWorkspace(async (workspace) => {
+			const command = createCommand(workspace);
+			command.name = 'jobs-plugin';
+			command.force = true;
+
+			await fs.writeFile(
+				path.join(workspace, 'kernel.config.ts'),
+				'// stale config',
+				'utf8'
+			);
+
+			await fs.writeFile(
+				path.join(workspace, 'package.json'),
+				JSON.stringify(
+					{
+						name: 'custom-package',
+						scripts: {
+							generate: 'custom generate',
+							lint: 'eslint .',
+						},
+					},
+					null,
+					2
+				)
+			);
+
+			const exit = await command.execute();
+
+			expect(exit).toBe(0);
+			const stdout = command.context.stdout.toString();
+			expect(stdout).toContain('updated kernel.config.ts');
+			expect(stdout).toContain('updated package.json');
+
+			const kernelConfig = await fs.readFile(
+				path.join(workspace, 'kernel.config.ts'),
+				'utf8'
+			);
+			expect(kernelConfig).toContain("namespace: 'jobs-plugin'");
+
+			const packageJson = JSON.parse(
+				await fs.readFile(path.join(workspace, 'package.json'), 'utf8')
+			);
+			expect(packageJson).toMatchObject({
+				name: 'jobs-plugin',
+				scripts: {
+					start: 'wpk start',
+					build: 'wpk build',
+					generate: 'wpk generate',
+					apply: 'wpk apply',
+					lint: 'eslint .',
+				},
+			});
+		});
+	});
+
+	it('reports invalid package.json', async () => {
+		await withWorkspace(async (workspace) => {
+			const command = createCommand(workspace);
+			command.name = 'jobs-plugin';
+
+			await fs.writeFile(
+				path.join(workspace, 'package.json'),
+				'{ invalid json',
+				'utf8'
+			);
+
+			const exit = await command.execute();
+
+			expect(exit).toBe(1);
+			const stderr = command.context.stderr.toString();
+			expect(stderr).toContain('package.json is not valid JSON.');
+			expect(stderr).toContain('package.json');
 		});
 	});
 });
@@ -62,7 +191,8 @@ function createCommand(workspace: string): InitCommand {
 		stdin: process.stdin,
 		env: process.env,
 		cwd: () => workspace,
-	} as Command.Context;
+		colorDepth: 1,
+	} as BaseContext;
 	return command;
 }
 

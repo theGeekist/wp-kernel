@@ -1,9 +1,11 @@
 /**
  * Top-level exports for the `@geekist/wp-kernel-cli` package.
  *
- * This module re-exports the small, public surface of the CLI package so
- * documentation generators (VitePress) can build clear API pages. Each
- * exported symbol is documented in its source module.
+ * This module re-exports the public surface of the CLI package so
+ * documentation generators can build consistent API pages alongside the
+ * kernel and UI packages.
+ *
+ * @module @geekist/wp-kernel-cli
  */
 export { VERSION } from './version';
 export { runCli } from './cli/run';
@@ -22,6 +24,14 @@ export type {
 	LoadedKernelConfig,
 } from './config';
 
+export {
+	definePolicyMap,
+	type PolicyCapabilityDescriptor,
+	type PolicyMapDefinition,
+	type PolicyMapEntry,
+	type PolicyMapScope,
+} from './policy-map';
+
 export type {
 	IRv1,
 	IRSchema,
@@ -39,6 +49,8 @@ export {
 	GenerateCommand,
 	InitCommand,
 	DoctorCommand,
+	StartCommand,
 	DevCommand,
+	BuildCommand,
 	ApplyCommand,
 } from './commands';

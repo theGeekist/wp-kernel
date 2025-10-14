@@ -4,65 +4,106 @@ import dts from 'vite-plugin-dts';
 // eslint-disable-next-line camelcase
 import { wp_globals } from '@kucrut/vite-for-wp/utils';
 
+// Accept array OR predicate for externals
+type ExternalOpt = Array<string | RegExp> | ((id: string) => boolean);
+
+type KernelLibConfigOptions = {
+	/** Additional Rollup externals specific to the package. */
+	external?: ExternalOpt;
+	/** Enable production console/debugger drop (default: true) */
+	dropConsoleInProd?: boolean;
+};
+
 /**
- * Create a Vite configuration for WP Kernel library packages
+ * Create a Vite configuration for WP Kernel library packages.
  *
  * @param packageName - The package name (e.g., '@geekist/wp-kernel')
- * @param entries     - Entry point mapping (e.g., { index: 'src/index.ts', http: 'src/http/index.ts' })
- * @return Vite configuration object
+ * @param entries     - Entry points (e.g., { index: 'src/index.ts', http: 'src/http/index.ts' })
+ * @param options
  */
 export const createKernelLibConfig = (
 	packageName: string,
-	entries: Record<string, string>
-): UserConfig =>
-	defineConfig({
+	entries: Record<string, string>,
+	options: KernelLibConfigOptions = {}
+): UserConfig => {
+	const mode = process.env.NODE_ENV ?? 'development';
+	const isProd = mode === 'production';
+
+	// WordPress “module ids” known to WP (via vite-for-wp utils)
+	const wpIds = Object.keys(wp_globals());
+
+	// Normalise externals to Rollup’s accepted shapes (array OR function)
+	const userExternal = options.external;
+
+	// Default external policy:
+	// - All WP ids (incl. any @wordpress/*)
+	// - React bits (just in case something imports jsx-runtime)
+	// - Other kernel packages (avoid circular bundling across workspace)
+	// - Node built-ins (string & 'node:' resolver)
+	// - A few heavy tools used by CLI/plugins (left external on purpose)
+	const defaultExternalArray: Array<string | RegExp> = [
+		...wpIds,
+		'react',
+		'react-dom',
+		'react/jsx-runtime',
+		/^@geekist\/wp-kernel(\/.*)?$/,
+		/^node:/,
+		'fs',
+		'fs/promises',
+		'path',
+		'url',
+		'crypto',
+		'util',
+		'module',
+		'os',
+		'tty',
+		'worker_threads',
+		'child_process',
+		'assert',
+		'process',
+		'v8',
+		'net',
+		'prettier',
+		'prettier/standalone',
+		'@prettier/plugin-php',
+		'tsx',
+		'tsx/esm/api',
+	];
+
+	const rollupExternal: ExternalOpt =
+		typeof userExternal === 'function'
+			? (id: string) =>
+					// honour user predicate first
+					userExternal(id) ||
+					// then our defaults
+					defaultExternalArray.some((pat) =>
+						typeof pat === 'string' ? pat === id : pat.test(id)
+					)
+			: [...defaultExternalArray, ...(userExternal ?? [])];
+
+	return defineConfig({
 		build: {
 			lib: {
 				entry: Object.fromEntries(
-					Object.entries(entries).map(([name, path]) => [
+					Object.entries(entries).map(([name, p]) => [
 						name,
-						resolve(process.cwd(), path),
+						resolve(process.cwd(), p),
 					])
 				),
 				formats: ['es'], // ESM only
-				fileName: (format, entryName) => `${entryName}.js`,
+				fileName: (_format, entryName) => `${entryName}.js`,
 			},
+			target: 'es2022', // better DCE & smaller helpers
 			outDir: 'dist',
-			sourcemap: true,
+			sourcemap: !isProd, // small prod artefacts
 			emptyOutDir: true,
+			minify: isProd ? 'esbuild' : false,
 			rollupOptions: {
-				// Don't bundle WordPress packages or React
-				external: [
-					...Object.keys(wp_globals()),
-					'react',
-					'react-dom',
-					/^@geekist\/wp-kernel/, // Don't bundle other kernel packages
-					/^node:/,
-					'fs',
-					'fs/promises',
-					'path',
-					'prettier',
-					'prettier/standalone',
-					'@prettier/plugin-php',
-					'tsx',
-					'tsx/esm/api',
-					'url',
-					'crypto',
-					'util',
-					'module',
-					'os',
-					'tty',
-					'worker_threads',
-					'child_process',
-					'assert',
-					'process',
-					'v8',
-					'net',
-				],
+				// Don’t bundle peers/WP/Node/etc.
+				external: rollupExternal,
 				output: {
 					exports: 'named',
-					// Preserve module structure for proper .js extensions
-					preserveModules: true,
+					preserveModules: true, // keep module graph; plays well with TS paths
 					preserveModulesRoot: 'src',
 					entryFileNames: '[name].js',
 					banner: `/**
@@ -70,18 +111,38 @@ export const createKernelLibConfig = (
  * @license EUPL-1.2
  */`,
 				},
+				treeshake: {
+					moduleSideEffects: false,
+					propertyReadSideEffects: false,
+					tryCatchDeoptimization: false,
+					unknownGlobalSideEffects: false,
+				},
 			},
 		},
+
+		// Help DCE across dependencies that check NODE_ENV
+		define: {
+			'process.env.NODE_ENV': JSON.stringify(
+				isProd ? 'production' : 'development'
+			),
+		},
+
+		// Optional prod trimming; safe for libs
+		esbuild:
+			isProd && (options.dropConsoleInProd ?? true)
+				? { drop: ['console', 'debugger'] }
+				: undefined,
+
 		plugins: [
 			dts({
-				// Generate TypeScript declarations
 				include: [
 					'src/**/*.ts',
 					'src/**/*.tsx',
 					'../../types/**/*.d.ts',
 				],
 				outDir: 'dist',
-				rollupTypes: false, // Don't bundle types (avoids TS version mismatch warning)
+				rollupTypes: false, // avoid TS version mismatch warnings
 			}),
 		],
 	});
+};

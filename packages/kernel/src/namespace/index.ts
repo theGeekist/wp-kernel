@@ -4,7 +4,6 @@
  * Provides intelligent auto-detection of plugin/product namespaces
  * for the WP Kernel framework.
  *
- * @package
  */
 
 export {
