@@ -26,6 +26,10 @@
 				"permalink_structure": "/%postname%/",
 				"users_can_register": 0
 			}
+		},
+		{
+			"step": "activatePlugin",
+			"pluginPath": "/wordpress/wp-content/plugins/showcase"
 		}
 	]
 }
