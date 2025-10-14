@@ -10,7 +10,9 @@ import {
 	GenerateCommand,
 	InitCommand,
 	DoctorCommand,
+	StartCommand,
 	DevCommand,
+	BuildCommand,
 	ApplyCommand,
 } from '../commands';
 import { VERSION } from '../version';
@@ -41,6 +43,8 @@ cli.register(RootCommand);
 cli.register(GenerateCommand);
 cli.register(InitCommand);
 cli.register(DoctorCommand);
+cli.register(StartCommand);
+cli.register(BuildCommand);
 cli.register(DevCommand);
 cli.register(ApplyCommand);
 

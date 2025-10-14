@@ -7,9 +7,15 @@ import {
 	getConfigOrigin,
 	resolveConfigValue,
 	formatError,
+	createTsLoader,
+	createJsLoader,
+	findUp,
+	fileExists,
+	getTsImport,
+	setCachedTsImport,
 } from '../load-kernel-config';
 import { WPK_CONFIG_SOURCES } from '@geekist/wp-kernel/namespace/constants';
-import { KernelError } from '@geekist/wp-kernel';
+import { KernelError } from '@geekist/wp-kernel/error';
 
 const TMP_PREFIX = 'wpk-cli-config-loader-';
 
@@ -484,6 +490,91 @@ describe('loadKernelConfig helpers', () => {
 
 	it('stringifies unknown errors in formatError', () => {
 		expect(formatError(42)).toBe('42');
+	});
+
+	it('falls back to tsImport when default loader fails', async () => {
+		const defaultLoader = jest
+			.fn()
+			.mockRejectedValue(new Error('default failed'));
+		const tsImport = jest.fn().mockResolvedValue({
+			default: {
+				kernelConfig: {
+					config: { version: 1 },
+				},
+			},
+		});
+
+		const loader = createTsLoader({
+			defaultLoader,
+			tsImportLoader: async () => tsImport,
+		});
+
+		const result = await loader('/tmp/kernel.config.ts', '');
+
+		expect(defaultLoader).toHaveBeenCalled();
+		expect(tsImport).toHaveBeenCalled();
+		expect(result).toEqual({ version: 1 });
+	});
+
+	it('wraps dynamic import failures in createJsLoader', async () => {
+		const loader = createJsLoader(async () => {
+			throw new Error('dynamic import boom');
+		});
+
+		await expect(loader('/tmp/kernel.config.js')).rejects.toMatchObject({
+			code: 'DeveloperError',
+		});
+	});
+
+	it('searches upwards for files until the filesystem root', async () => {
+		const workspaceRoot = await fs.mkdtemp(
+			path.join(os.tmpdir(), TMP_PREFIX)
+		);
+		try {
+			await fs.writeFile(
+				path.join(workspaceRoot, 'composer.json'),
+				createComposerJson('inc/'),
+				'utf8'
+			);
+			const nested = path.join(workspaceRoot, 'nested', 'dir');
+			await fs.mkdir(nested, { recursive: true });
+
+			const found = await findUp(nested, 'composer.json');
+			expect(found && path.basename(found)).toBe('composer.json');
+
+			const missing = await findUp(nested, 'nonexistent.json');
+			expect(missing).toBeNull();
+		} finally {
+			await fs.rm(workspaceRoot, { recursive: true, force: true });
+		}
+	});
+
+	it('checks for file existence using fs access semantics', async () => {
+		const workspaceRoot = await fs.mkdtemp(
+			path.join(os.tmpdir(), TMP_PREFIX)
+		);
+		try {
+			const filePath = path.join(workspaceRoot, 'test.txt');
+			await fs.writeFile(filePath, 'hello', 'utf8');
+
+			await expect(fileExists(filePath)).resolves.toBe(true);
+			await expect(
+				fileExists(path.join(workspaceRoot, 'missing.txt'))
+			).resolves.toBe(false);
+		} finally {
+			await fs.rm(workspaceRoot, { recursive: true, force: true });
+		}
+	});
+
+	it('reuses cached tsImport loaders when preset', async () => {
+		const cached = Promise.resolve(jest.fn());
+		setCachedTsImport(cached);
+
+		const loader = await getTsImport();
+		const resolved = await cached;
+		expect(loader).toBe(resolved);
+
+		setCachedTsImport(null);
 	});
 });
 

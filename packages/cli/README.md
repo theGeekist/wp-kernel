@@ -1,70 +1,69 @@
 # @geekist/wp-kernel-cli
 
-> Rails-like generators and development tools for WP Kernel projects (Sprint 7 - Planned)
+> Rails-like generators and developer tooling for WP Kernel projects.
 
 ## Overview
 
-Command-line tools that will accelerate WordPress development with kernel patterns:
+The CLI turns a single `kernel.config.ts` into everything a WP Kernel plugin needs:
 
-- **Project scaffolding** - Complete plugin/theme setup with build tooling
-- **Code generators** - Resources, actions, admin interfaces, and tests
-- **Development server** - Hot reload with wp-env integration
-- **Custom templates** - Reusable patterns for your organization
+- **Project scaffolding** via `wpk init`
+- **Deterministic generation** of TypeScript contracts, UI entrypoints, PHP bridges, and block registrars
+- **Safe apply** workflows that merge generated PHP back into `inc/` and copy build artefacts for blocks
+- **Adapter extensions** that participate in the pipeline without mutating project sources directly
 
-**Status**: 🚧 **Planned for Sprint 7** - CLI architecture designed, implementation in progress
-
-## Planned Features
-
-**📖 [CLI Strategy Document](../../information/CLI%20&%20Build%20Tooling%20Strategy.md)**
-
-### Project Setup (Planned)
+## Quick start
 
 ```bash
-wpk init my-plugin --template=plugin    # WordPress plugin
-wpk init my-theme --template=theme      # Block theme
-wpk init my-app --template=headless     # Headless WordPress
+pnpm dlx @geekist/wp-kernel-cli init my-plugin
+cd my-plugin
+pnpm install
 ```
 
-### Code Generation (Planned)
+This scaffolds a Vite-ready plugin with kernel config, TypeScript/ESLint setup, and package scripts wired to the CLI (`start`, `build`, `generate`, `apply`).
 
-```bash
-# Individual components
-wpk generate resource Post              # Resource definition
-wpk generate action CreatePost          # Action orchestrator
-wpk generate admin-page PostsList       # DataViews admin table
+## Core workflow: init → generate → apply
 
-# Complete features
-wpk generate feature Job \
-  --with=resource,admin-table,actions,tests,php-bridge
-```
+1. **Initialise** a project once with `wpk init`.
+2. **Generate** artefacts whenever `kernel.config.ts` changes:
 
-### Development Tools (Planned)
+    ```bash
+    wpk generate           # writes to .generated/**
+    wpk generate --dry-run # report-only mode
+    wpk generate --verbose # verbose reporter output
+    ```
 
-```bash
-wpk dev                                 # Start dev server + wp-env
-wpk build                              # Production build
-wpk test                               # Run tests + typecheck
-```
+    The pipeline executes in this order:
+    1. Type definitions (`.generated/types/**`)
+    2. PHP controllers and registries (`.generated/php/**`)
+    3. UI bootstrap files (`.generated/ui/**`)
+    4. Block artefacts (`.generated/blocks/**`, `.generated/build/**`)
 
-## Current Status
+    Block printers derive manifests for SSR blocks, generate auto-registration stubs for JS-only blocks, and emit PSR-4 block registrars alongside resource controllers.
 
-- ✓ CLI architecture designed
-- ✓ Template system specification complete
-- 🚧 Core generator implementation
-- ⏳ Integration with build tooling (Vite 7)
-- ⏳ WordPress-specific generators
+3. **Apply** once the `.generated/` snapshot looks correct:
+    ```bash
+    wpk apply --yes              # skip clean checks
+    wpk apply --backup           # keep .bak copies of overwritten files
+    wpk apply --force            # overwrite files missing guard markers
+    ```
+    `wpk apply` merges guarded PHP files into `inc/`, copies block registrars, and synchronises `.generated/build/**` (e.g. `blocks-manifest.php`) into `build/`. A `.wpk-apply.log` file records every run for auditability.
 
-**Available Now**: Use manual scaffolding via `@wordpress/create-block` and WP Kernel's documented patterns
+## Development commands
+
+- `wpk start` watches kernel sources, regenerates artefacts on change, and launches the Vite dev server. Use `--verbose` for additional logging and `--auto-apply-php` to opt into the best-effort PHP copy used by the legacy `wpk dev` command.
+- `wpk build` performs a production pipeline in one go: `generate` → Vite `build` → `apply --yes`. Pass `--no-apply` when you want to review `.generated/**` + Vite output without touching `inc/`.
+
+The `start` command replaces `wpk dev`; the latter remains as a deprecated alias for backwards compatibility and prints a warning when invoked.
 
 ## Documentation
 
-- **[Getting Started](https://thegeekist.github.io/wp-kernel/getting-started/)** - Manual project setup (current approach)
-- **[CLI Strategy](../../information/CLI%20&%20Build%20Tooling%20Strategy.md)** - Planned features and architecture
+- **[MVP CLI Spec](./mvp-cli-spec.md)** – authoritative reference for the pipeline
+- **[Kernel docs](https://thegeekist.github.io/wp-kernel/)** – framework guides and configuration reference
 
 ## Requirements
 
-- **Node.js**: 20+ LTS
-- **pnpm**: 9+ (recommended) or npm
+- Node.js 20+
+- pnpm 9+ (recommended)
 
 ## Adapter extensions
 
@@ -100,7 +99,3 @@ See the [main repository](https://github.com/theGeekist/wp-kernel) for contribut
 ## License
 
 EUPL-1.2 © [The Geekist](https://github.com/theGeekist)
-
-```
-
-```

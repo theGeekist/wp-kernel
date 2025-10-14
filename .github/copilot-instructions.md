@@ -80,13 +80,20 @@ WordPress plugin demonstrating a complete jobs & applications system that exerci
 
 ### File Size Guidelines
 
-- **Target**: Keep individual files (modules and tests) under **500 lines**
-- **General limit**: Files should ideally never exceed 500 lines
-- **Refactoring indicators**: When approaching 500 lines, consider:
-    - De-duplication of repeated patterns
-    - Extracting utility functions or interfaces
-    - Splitting into logical modules
-- **Process**: Check with user before major file splits or refactoring
+- **Target**: Keep individual code and test files under **500 lines** (SLOC - source lines of code)
+- **Guideline, not rule**: This is a maintainability target to aid debugging and comprehension, not a hard limit
+- **When approaching 500 lines**, consider:
+    - Extracting shared utilities or helper functions
+    - Splitting related concerns into focused modules
+    - De-duplicating repeated patterns
+- **Acceptable exceptions**:
+    - Complex components with significant UI logic (e.g., `ResourceDataView.tsx` at 788 lines)
+    - Well-structured files with clear section boundaries
+    - Files where splitting would harm readability
+- **Process**: Check with user before major file splits or refactoring that would exceed normal PR scope
+- **Examples of good modularity**:
+    - CLI Phase 2C: wp-post refactored from 1,237 lines → 8 focused modules (~150-250 lines each)
+    - CLI Phase 4: ESLint rules with shared `utils/` (largest file: 569 lines, well-structured)
 
 ## Key Patterns
 

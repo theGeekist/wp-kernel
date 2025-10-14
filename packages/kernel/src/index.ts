@@ -55,6 +55,7 @@ export * as namespace from './namespace/index.js';
 export * as actions from './actions/index.js';
 export * as policy from './policy/index.js';
 export * as data from './data/index.js';
+export * as events from './events/index.js';
 
 // ============================================================================
 // Flat Exports (Convenience aliases)
@@ -192,7 +193,7 @@ export {
 	getRegisteredActions,
 	clearRegisteredResources,
 	clearRegisteredActions,
-} from './events/bus';
+} from './events/index.js';
 export type {
 	KernelEventMap,
 	ResourceDefinedEvent,
@@ -200,7 +201,7 @@ export type {
 	ActionDomainEvent,
 	CacheInvalidatedEvent,
 	CustomKernelEvent,
-} from './events/bus';
+} from './events/index.js';
 
 // Reporter
 export {

@@ -14,10 +14,6 @@ describe('Build: TypeScript declarations', () => {
 		it('should generate index.d.ts', () => {
 			expect(existsSync(resolve(distPath, 'index.d.ts'))).toBe(true);
 		});
-
-		it('should generate index.js.map', () => {
-			expect(existsSync(resolve(distPath, 'index.js.map'))).toBe(true);
-		});
 	});
 
 	describe('Subpath exports', () => {

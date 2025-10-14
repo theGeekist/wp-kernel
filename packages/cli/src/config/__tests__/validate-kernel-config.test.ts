@@ -1,6 +1,13 @@
-import { KernelError } from '@geekist/wp-kernel';
-import type { Reporter } from '@geekist/wp-kernel';
-import { validateKernelConfig } from '../validate-kernel-config';
+import { KernelError } from '@geekist/wp-kernel/error';
+import type { Reporter } from '@geekist/wp-kernel/reporter';
+import type { ResourceConfig } from '@geekist/wp-kernel/resource';
+import {
+	validateKernelConfig,
+	resourceRoutesValidator,
+	normalizeVersion,
+	runResourceChecks,
+	formatValidationErrors,
+} from '../validate-kernel-config';
 
 interface TestResourceConfig {
 	name: string;
@@ -53,14 +60,22 @@ interface TestConfig {
 	adapters?: { php?: unknown };
 }
 
+interface ReporterSpy {
+	child: jest.Mock<ReporterSpy>;
+	error: jest.Mock;
+	warn: jest.Mock;
+	info: jest.Mock;
+	debug: jest.Mock;
+}
+
 function createMockReporter() {
 	const childReporter = createReporterSpy();
 	const reporter = createReporterSpy(childReporter);
 	return { reporter: reporter as unknown as Reporter, child: childReporter };
 }
 
-function createReporterSpy(child?: ReturnType<typeof createReporterSpy>) {
-	const reporter = {
+function createReporterSpy(child?: ReporterSpy): ReporterSpy {
+	const reporter: ReporterSpy = {
 		child: jest.fn(() => child ?? reporter),
 		error: jest.fn(),
 		warn: jest.fn(),
@@ -125,7 +140,7 @@ describe('validateKernelConfig', () => {
 	it('accepts DataViews UI metadata on resources', () => {
 		const { reporter } = createMockReporter();
 		const config = createValidConfig();
-		config.resources.thing.ui = {
+		config.resources.thing!.ui = {
 			admin: {
 				view: 'dataviews',
 				dataviews: {
@@ -153,7 +168,7 @@ describe('validateKernelConfig', () => {
 			sourcePath: '/tmp/kernel.config.ts',
 		});
 
-		const resource = result.config.resources.thing;
+		const resource = result.config.resources.thing!;
 		expect(resource.ui?.admin?.view).toBe('dataviews');
 		expect(resource.ui?.admin?.dataviews?.fields).toEqual([
 			{ id: 'title', label: 'Title' },
@@ -232,7 +247,7 @@ describe('validateKernelConfig', () => {
 	it('throws when identity param does not exist in routes', () => {
 		const { reporter, child } = createMockReporter();
 		const config = createValidConfig();
-		config.resources.thing.identity = { type: 'string', param: 'slug' };
+		config.resources.thing!.identity = { type: 'string', param: 'slug' };
 
 		expect(() =>
 			validateKernelConfig(config, {
@@ -253,11 +268,11 @@ describe('validateKernelConfig', () => {
 	it('warns when wp-post storage omits postType', () => {
 		const { reporter, child } = createMockReporter();
 		const config = createValidConfig();
-		config.resources.thing.routes.list = {
+		config.resources.thing!.routes.list = {
 			path: '/valid/v1/things',
 			method: 'GET',
 		};
-		config.resources.thing.storage = {
+		config.resources.thing!.storage = {
 			mode: 'wp-post',
 		};
 
@@ -267,7 +282,7 @@ describe('validateKernelConfig', () => {
 			sourcePath: '/tmp/kernel.config.js',
 		});
 
-		expect(result.config.resources.thing.storage).toEqual(
+		expect(result.config.resources.thing!.storage).toEqual(
 			expect.objectContaining({ mode: 'wp-post' })
 		);
 		expect(child.warn).toHaveBeenCalledWith(
@@ -277,7 +292,6 @@ describe('validateKernelConfig', () => {
 			expect.objectContaining({ resourceName: 'thing' })
 		);
 	});
-
 	it('throws when adapters.php is not a function', () => {
 		const { reporter, child } = createMockReporter();
 		const config = createValidConfig();
@@ -293,5 +307,163 @@ describe('validateKernelConfig', () => {
 			})
 		).toThrow(KernelError);
 		expect(child.error).toHaveBeenCalled();
+	});
+});
+
+describe('validateKernelConfig helpers', () => {
+	it('requires at least one resource route when validating', () => {
+		const state = { errors: [] as string[] };
+
+		const result = resourceRoutesValidator(
+			{ list: undefined, get: undefined } as never,
+			state as never
+		);
+
+		expect(result).toBe(false);
+		expect(state.errors).toContain(
+			'resources[].routes must define at least one operation.'
+		);
+	});
+
+	it('normalizes missing versions and reports errors for unsupported ones', () => {
+		const { reporter } = createMockReporter();
+		const normalized = normalizeVersion(
+			undefined,
+			reporter,
+			'/tmp/config.ts'
+		);
+		expect(normalized).toBe(1);
+		expect(
+			(reporter as unknown as { warn: jest.Mock }).warn
+		).toHaveBeenCalled();
+
+		expect(() =>
+			normalizeVersion(2 as never, reporter, '/tmp/config.ts')
+		).toThrow(KernelError);
+	});
+
+	it('warns when identity metadata exists without routes', () => {
+		const { child } = createMockReporter();
+
+		runResourceChecks(
+			'thing',
+			{
+				name: 'thing',
+				identity: { type: 'number', param: 'id' },
+				routes: {} as never,
+			} as ResourceConfig,
+			child as unknown as Reporter
+		);
+
+		expect(child.warn).toHaveBeenCalledWith(
+			expect.stringContaining('defines identity metadata but no routes'),
+			expect.objectContaining({ resourceName: 'thing' })
+		);
+	});
+
+	it('formats validation errors into human readable strings', () => {
+		const message = formatValidationErrors(
+			['first', 'second'],
+			'/tmp/config.ts',
+			'kernel.config.ts'
+		);
+
+		expect(message).toMatch('Invalid kernel config discovered');
+		expect(message).toContain('first');
+		expect(message).toContain('second');
+	});
+
+	it('throws when resource has duplicate routes', () => {
+		const { child } = createMockReporter();
+
+		expect(() =>
+			runResourceChecks(
+				'thing',
+				{
+					name: 'thing',
+					routes: {
+						list: {
+							path: '/things',
+							method: 'GET',
+						},
+						get: {
+							path: '/things',
+							method: 'GET',
+						},
+					},
+				} as ResourceConfig,
+				child as unknown as Reporter
+			)
+		).toThrow(KernelError);
+
+		expect(child.error).toHaveBeenCalledWith(
+			expect.stringContaining('duplicate route'),
+			expect.objectContaining({
+				resourceName: 'thing',
+				method: 'GET',
+				path: '/things',
+			})
+		);
+	});
+
+	it('warns when write routes lack policy', () => {
+		const { child } = createMockReporter();
+
+		runResourceChecks(
+			'thing',
+			{
+				name: 'thing',
+				routes: {
+					create: {
+						path: '/things',
+						method: 'POST',
+					},
+					update: {
+						path: '/things/:id',
+						method: 'PUT',
+					},
+				},
+			} as ResourceConfig,
+			child as unknown as Reporter
+		);
+
+		expect(child.warn).toHaveBeenCalledTimes(2);
+		expect(child.warn).toHaveBeenCalledWith(
+			expect.stringContaining('write method but has no policy'),
+			expect.objectContaining({
+				resourceName: 'thing',
+				routeKey: 'create',
+				method: 'POST',
+			})
+		);
+		expect(child.warn).toHaveBeenCalledWith(
+			expect.stringContaining('write method but has no policy'),
+			expect.objectContaining({
+				resourceName: 'thing',
+				routeKey: 'update',
+				method: 'PUT',
+			})
+		);
+	});
+
+	it('does not warn when write routes have policy', () => {
+		const { child } = createMockReporter();
+
+		runResourceChecks(
+			'thing',
+			{
+				name: 'thing',
+				routes: {
+					create: {
+						path: '/things',
+						method: 'POST',
+						policy: 'create_things',
+					},
+				},
+			} as ResourceConfig,
+			child as unknown as Reporter
+		);
+
+		expect(child.warn).not.toHaveBeenCalled();
 	});
 });

@@ -6,12 +6,12 @@ import {
 import {
 	clearRegisteredResources,
 	type ResourceDefinedEvent,
-} from '@geekist/wp-kernel';
+} from '@geekist/wp-kernel/events';
 import {
 	attachResourceHooks,
 	type UseResourceListResult,
 } from '../resource-hooks';
-import { KernelEventBus } from '@geekist/wp-kernel';
+import { KernelEventBus } from '@geekist/wp-kernel/events';
 import type { Reporter } from '@geekist/wp-kernel/reporter';
 import { attachUIBindings, KernelUIProvider } from '../../runtime';
 import type {

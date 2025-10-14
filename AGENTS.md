@@ -60,6 +60,15 @@ pnpm playground:offline:stop    # Stops server in background (zero network)
 - Defensive branches that are hard to reach are acceptable if documented.
 - Avoid flaky tests; use serial mode or improved selectors/cleanup instead of sleeps.
 
+## File Size Guidelines
+
+- **Target**: Keep individual code and test files under **500 lines** (SLOC - source lines of code).
+- **Guideline**: This is a maintainability target to aid debugging and comprehension
+- **When approaching 500 lines**, consider:
+    - Extracting shared utilities or helper functions
+    - Splitting related concerns into focused modules
+    - De-duplicating repeated patterns
+
 ## Workflow & Policies
 
 - Definition of Done (DoD):
@@ -93,7 +102,7 @@ pnpm playground:offline:stop    # Stops server in background (zero network)
 
 ## Docs & Spec Coordination
 
-- Architectural specs live alongside code (`configureKernel - Specification.md`, `UI Package Architecture Fix - Specification.md`, `Architecture Cohesion Proposal.md`). Update them before mirroring changes into `/docs`.
+- Always update `/docs`, `CHANGELOG.md`, `README.md` and if needed `MIGRATION.md`.
 - For documentation-only work, see `docs/AGENTS.md`; mention affected pages in PR descriptions to avoid drift.
 
 ## What NOT to do

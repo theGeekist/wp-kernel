@@ -2,7 +2,7 @@ import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import type { Stats } from 'node:fs';
-import { KernelError } from '@geekist/wp-kernel';
+import { KernelError } from '@geekist/wp-kernel/error';
 import type {
 	AdapterContext,
 	AdapterExtension,

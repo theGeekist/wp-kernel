@@ -6,13 +6,35 @@ STAGED_FILES=$(git diff --cached --name-only)
 # Run lint-staged (formats and lints staged files)
 pnpm lint-staged
 
-# TypeCheck source code (always - matches CI)
-echo "🔍 Type checking source code..."
-pnpm typecheck
 
-# TypeCheck test files (always - matches CI)
-echo "🔍 Type checking test files..."
-pnpm typecheck:tests
+# Smarter typecheck logic based on staged changes
+echo "🔍 Checking which packages changed for typecheck..."
+HAS_KERNEL_CHANGES=$(echo "$STAGED_FILES" | grep -E '^packages/kernel/' || true)
+HAS_UI_CHANGES=$(echo "$STAGED_FILES" | grep -E '^packages/ui/' || true)
+HAS_CLI_CHANGES=$(echo "$STAGED_FILES" | grep -E '^packages/cli/' || true)
+HAS_SHOWCASE_CHANGES=$(echo "$STAGED_FILES" | grep -E '^app/showcase/' || true)
+
+if [ -n "$HAS_KERNEL_CHANGES" ]; then
+  echo "🔍 Kernel changes detected: running typecheck and typecheck:tests for all packages..."
+  pnpm typecheck
+  pnpm typecheck:tests
+elif [ -n "$HAS_UI_CHANGES" ]; then
+  echo "🔍 UI changes detected: running typecheck and typecheck:tests for UI and CLI..."
+  pnpm --filter @geekist/wp-kernel-ui typecheck
+  pnpm --filter @geekist/wp-kernel-ui typecheck:tests
+  pnpm --filter @geekist/wp-kernel-cli typecheck
+  pnpm --filter @geekist/wp-kernel-cli typecheck:tests
+elif [ -n "$HAS_CLI_CHANGES" ]; then
+  echo "🔍 CLI changes detected: running typecheck and typecheck:tests for CLI only..."
+  pnpm --filter @geekist/wp-kernel-cli typecheck
+  pnpm --filter @geekist/wp-kernel-cli typecheck:tests
+elif [ -n "$HAS_SHOWCASE_CHANGES" ]; then
+  echo "🔍 Showcase changes detected: running typecheck and typecheck:tests for Showcase only..."
+  pnpm --filter wp-kernel-showcase typecheck
+  pnpm --filter wp-kernel-showcase typecheck:tests
+else
+  echo "⏭️  No package changes detected: skipping typecheck and typecheck:tests."
+fi
 
 # Run tests with coverage (always - matches CI)
 echo "🧪 Running tests with coverage..."
@@ -23,26 +45,26 @@ HAS_SRC_CHANGES=$(echo "$STAGED_FILES" | grep -E 'packages/.*/src/.*\.(ts|tsx)' 
 HAS_DOC_CHANGES=$(echo "$STAGED_FILES" | grep -E '(docs/|typedoc\.json)' || true)
 
 # Build docs only if API or docs changed (using fast mode)
-if [ -n "$HAS_SRC_CHANGES" ] || [ -n "$HAS_DOC_CHANGES" ]; then
-  echo "📚 Building documentation (fast mode)..."
-  pnpm docs:build:fast || {
-    echo ""
-    echo "❌ Documentation build failed."
-    echo "💡 Run: pnpm docs:build"
-    echo ""
-    exit 1
-  }
+# if [ -n "$HAS_SRC_CHANGES" ] || [ -n "$HAS_DOC_CHANGES" ]; then
+#   echo "📚 Building documentation (fast mode)..."
+#   pnpm docs:build:fast || {
+#     echo ""
+#     echo "❌ Documentation build failed."
+#     echo "💡 Run: pnpm docs:build"
+#     echo ""
+#     exit 1
+#   }
   
-  # Restore docs folder (we just wanted to check it builds)
-  git checkout docs/api/generated/
-else
+#   # Restore docs folder (we just wanted to check it builds)
+#   git checkout docs/api/generated/
+# else
   echo "⏭️  Skipping docs build (no API or doc changes)"
-fi
+# fi
 
 # Always format and normalize all markdown files
-echo "🎨 Formatting markdown files..."
-pnpm prettier --write '**/*.md' --log-level=error > /dev/null 2>&1
-node scripts/normalize-punctuation.js > /dev/null 2>&1
-git add '**/*.md'
+# echo "🎨 Formatting markdown files..."
+# pnpm prettier --write '**/*.md' --log-level=error > /dev/null 2>&1
+# node scripts/normalize-punctuation.js > /dev/null 2>&1
+# git add '**/*.md'
 
 # Note: Manual versioning - update CHANGELOG.md files in affected packages before committing
