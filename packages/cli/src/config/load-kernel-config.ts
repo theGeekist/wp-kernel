@@ -15,8 +15,8 @@ import { KernelError } from '@wpkernel/core/error';
 import {
 	WPK_CONFIG_SOURCES,
 	WPK_NAMESPACE,
-} from '@wpkernel/core/namespace/constants';
-import type { WPKConfigSource } from '@wpkernel/core/namespace/constants';
+	type WPKConfigSource,
+} from '@wpkernel/core/contracts';
 import { validateKernelConfig } from './validate-kernel-config';
 import type { LoadedKernelConfig } from './types';
 
@@ -80,13 +80,13 @@ async function loadDefaultLoader<
  */
 export async function loadKernelConfig(): Promise<LoadedKernelConfig> {
 	const cosmiconfigModule = await loadCosmiconfigModule();
-	const explorer = cosmiconfigModule.cosmiconfig('wpk', {
+	const explorer = cosmiconfigModule.cosmiconfig(WPK_NAMESPACE, {
 		searchPlaces: [
-			WPK_CONFIG_SOURCES.KERNEL_CONFIG_TS,
-			WPK_CONFIG_SOURCES.KERNEL_CONFIG_JS,
+			WPK_CONFIG_SOURCES.WPK_CONFIG_TS,
+			WPK_CONFIG_SOURCES.WPK_CONFIG_JS,
 			'package.json',
 		],
-		packageProp: 'wpk',
+		packageProp: WPK_NAMESPACE,
 		loaders: {
 			...cosmiconfigModule.defaultLoaders,
 			'.ts': createTsLoader(),
@@ -154,12 +154,12 @@ export function getConfigOrigin(
 ): WPKConfigSource {
 	const fileName = path.basename(result.filepath);
 
-	if (fileName === WPK_CONFIG_SOURCES.KERNEL_CONFIG_TS) {
-		return WPK_CONFIG_SOURCES.KERNEL_CONFIG_TS;
+	if (fileName === WPK_CONFIG_SOURCES.WPK_CONFIG_TS) {
+		return WPK_CONFIG_SOURCES.WPK_CONFIG_TS;
 	}
 
-	if (fileName === WPK_CONFIG_SOURCES.KERNEL_CONFIG_JS) {
-		return WPK_CONFIG_SOURCES.KERNEL_CONFIG_JS;
+	if (fileName === WPK_CONFIG_SOURCES.WPK_CONFIG_JS) {
+		return WPK_CONFIG_SOURCES.WPK_CONFIG_JS;
 	}
 
 	if (fileName === 'package.json') {

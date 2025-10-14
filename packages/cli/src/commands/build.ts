@@ -2,11 +2,12 @@ import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import { Command, Option } from 'clipanion';
 import { createReporter } from '@wpkernel/core/reporter';
 import type { Reporter } from '@wpkernel/core/reporter';
-import { WPK_NAMESPACE } from '@wpkernel/core/namespace/constants';
+import { WPK_NAMESPACE } from '@wpkernel/core/contracts';
 import { runGenerate, type ExitCode } from './run-generate';
 import { serialiseError } from './run-generate';
 import { forwardProcessOutput } from './process-output';
 import { ApplyCommand } from './apply';
+import { EXIT_CODES } from './run-generate/types';
 
 export class BuildCommand extends Command {
 	static override paths = [['build']];
@@ -46,7 +47,7 @@ export class BuildCommand extends Command {
 			this.context.stdout.write(generateResult.output);
 		}
 
-		if (generateResult.exitCode !== 0) {
+		if (generateResult.exitCode !== EXIT_CODES.SUCCESS) {
 			reporter.error('Generation failed. Aborting build.', {
 				exitCode: generateResult.exitCode,
 			});
@@ -54,7 +55,7 @@ export class BuildCommand extends Command {
 		}
 
 		const viteExitCode = await this.runViteBuild(reporter.child('vite'));
-		if (viteExitCode !== 0) {
+		if (viteExitCode !== EXIT_CODES.SUCCESS) {
 			reporter.error('Vite build failed.', { exitCode: viteExitCode });
 			return viteExitCode;
 		}
@@ -64,17 +65,17 @@ export class BuildCommand extends Command {
 				reason: '--no-apply',
 			});
 			reporter.info('Build pipeline completed.', { applied: false });
-			return 0;
+			return EXIT_CODES.SUCCESS;
 		}
 
 		const applyExitCode = await this.runApplyStep(reporter.child('apply'));
-		if (applyExitCode !== 0) {
+		if (applyExitCode !== EXIT_CODES.SUCCESS) {
 			reporter.error('Apply failed.', { exitCode: applyExitCode });
 			return applyExitCode;
 		}
 
 		reporter.info('Build pipeline completed.', { applied: true });
-		return 0;
+		return EXIT_CODES.SUCCESS;
 	}
 
 	protected createViteBuildProcess(): ChildProcessWithoutNullStreams {
@@ -98,7 +99,7 @@ export class BuildCommand extends Command {
 			reporter.error('Failed to start Vite build.', {
 				error: serialiseError(error),
 			});
-			return 1;
+			return EXIT_CODES.UNEXPECTED_ERROR;
 		}
 
 		forwardProcessOutput({
@@ -120,13 +121,14 @@ export class BuildCommand extends Command {
 				reporter.error('Vite build encountered an error.', {
 					error: serialiseError(error),
 				});
-				resolveOnce(1 as ExitCode);
+				resolveOnce(EXIT_CODES.UNEXPECTED_ERROR as ExitCode);
 			});
 
 			child.once('exit', (code, signal) => {
-				const finalCode = (code ?? 1) as ExitCode;
+				const finalCode = (code ??
+					EXIT_CODES.UNEXPECTED_ERROR) as ExitCode;
 				const payload = { exitCode: finalCode, signal };
-				if (finalCode === 0) {
+				if (finalCode === EXIT_CODES.SUCCESS) {
 					reporter.info('Vite build completed.', payload);
 				} else {
 					reporter.warn('Vite build exited with errors.', payload);
@@ -149,7 +151,7 @@ export class BuildCommand extends Command {
 
 		const exitCode = (await applyCommand.execute()) as ExitCode;
 
-		if (exitCode === 0 && applyCommand.summary) {
+		if (exitCode === EXIT_CODES.SUCCESS && applyCommand.summary) {
 			reporter.info('Apply completed.', {
 				summary: applyCommand.summary,
 				breakdown: {

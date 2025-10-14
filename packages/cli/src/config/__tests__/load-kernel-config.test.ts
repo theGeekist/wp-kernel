@@ -14,7 +14,7 @@ import {
 	getTsImport,
 	setCachedTsImport,
 } from '../load-kernel-config';
-import { WPK_CONFIG_SOURCES } from '@wpkernel/core/namespace/constants';
+import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
 import { KernelError } from '@wpkernel/core/error';
 
 const TMP_PREFIX = 'wpk-cli-config-loader-';
@@ -74,7 +74,7 @@ describe('loadKernelConfig', () => {
 				expect(result.namespace).toBe('valid-namespace');
 				expect(result.config.namespace).toBe('valid-namespace');
 				expect(result.configOrigin).toBe(
-					WPK_CONFIG_SOURCES.KERNEL_CONFIG_JS
+					WPK_CONFIG_SOURCES.WPK_CONFIG_JS
 				);
 				// macOS may return tmpdir paths with a "/private" prefix;
 				// canonicalize both sides using realpathSync for stable equality.
@@ -379,7 +379,7 @@ describe('loadKernelConfig', () => {
 					expect(result.namespace).toBe('ts-namespace');
 					expect(result.config.namespace).toBe('ts-namespace');
 					expect(result.configOrigin).toBe(
-						WPK_CONFIG_SOURCES.KERNEL_CONFIG_TS
+						WPK_CONFIG_SOURCES.WPK_CONFIG_TS
 					);
 				});
 				jest.resetModules();

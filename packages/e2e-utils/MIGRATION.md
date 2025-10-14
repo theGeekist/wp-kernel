@@ -101,10 +101,12 @@ test('should wait for store state', async ({ kernel, admin }) => {
 ### Event Utilities
 
 ```typescript
+import { WPK_NAMESPACE } from '@wpkernel/core/contracts';
+
 test('should capture events', async ({ kernel, page, admin }) => {
-	// Start recording wpk.* events
+	// Start recording kernel namespace events
 	const recorder = kernel.events({
-		namespace: 'wpk',
+		namespace: WPK_NAMESPACE,
 		includePayload: true,
 	});
 
@@ -115,7 +117,7 @@ test('should capture events', async ({ kernel, page, admin }) => {
 	await page.click('button[aria-label="Add New Job"]');
 
 	// Verify events were captured
-	const created = await recorder.find('wpk.job.created');
+	const created = await recorder.find(`${WPK_NAMESPACE}.job.created`);
 	expect(created).toBeDefined();
 	expect(created?.payload).toMatchObject({ title: 'New Job' });
 
@@ -146,7 +148,7 @@ export const test = base.extend({
 		});
 
 		// Add custom setup here
-		await kernel.events({ namespace: 'wpk' }).start();
+		await kernel.events({ namespace: WPK_NAMESPACE }).start();
 
 		await use(kernel);
 

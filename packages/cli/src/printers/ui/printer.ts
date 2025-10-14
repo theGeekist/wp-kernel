@@ -4,6 +4,7 @@ import type {
 	ResourceUIConfig,
 } from '@wpkernel/core/resource';
 import type { PrinterContext } from '../types';
+import { KernelError } from '@wpkernel/core/contracts';
 
 interface ResourceConfigWithUI {
 	name: string;
@@ -75,7 +76,10 @@ function ${contentComponentName}() {
 export function ${componentName}() {
         const runtime = ${kernelImportSymbol}.getUIRuntime?.();
         if (!runtime) {
-                throw new Error('UI runtime not attached.');
+                throw new KernelError('DeveloperError', {
+                        message: 'UI runtime not attached.',
+                        context: { resourceName },
+                });
         }
 
         return (
@@ -238,7 +242,9 @@ function serializePrimitive(value: unknown): string | null {
 	}
 
 	if (typeof value === 'symbol') {
-		throw new Error('Cannot serialise symbols in DataViews metadata.');
+		throw new KernelError('DeveloperError', {
+			message: 'Cannot serialise symbols in DataViews metadata.',
+		});
 	}
 
 	return null;

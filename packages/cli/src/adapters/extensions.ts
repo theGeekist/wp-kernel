@@ -2,7 +2,7 @@ import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import type { Stats } from 'node:fs';
-import { KernelError } from '@wpkernel/core/error';
+import { KernelError } from '@wpkernel/core/contracts';
 import type {
 	AdapterContext,
 	AdapterExtension,
@@ -218,9 +218,10 @@ async function scheduleFile(
 	const relativeTarget = path.relative(outputDir, targetPath);
 
 	if (relativeTarget.startsWith('..') || path.isAbsolute(relativeTarget)) {
-		throw new Error(
-			`Adapter extensions must write inside ${outputDir}. Received: ${filePath}`
-		);
+		throw new KernelError('DeveloperError', {
+			message: `Adapter extensions must write inside ${outputDir}. Received: ${filePath}`,
+			context: { outputDir, filePath },
+		});
 	}
 
 	await validateSandboxTarget({
@@ -348,9 +349,10 @@ export async function assertWithinOutput(
 		return;
 	}
 
-	throw new Error(
-		`Adapter extensions must not escape ${root}. Received: ${resolvedPath}`
-	);
+	throw new KernelError('DeveloperError', {
+		message: `Adapter extensions must not escape ${root}. Received: ${resolvedPath}`,
+		context: { resolvedPath, root },
+	});
 }
 
 /**
@@ -488,7 +490,7 @@ export function normaliseError(error: unknown): Error {
 		return error;
 	}
 
-	return new Error(String(error));
+	return new KernelError('UnknownError', { message: String(error) });
 }
 
 /**
@@ -501,14 +503,20 @@ export function assertValidExtension(
 	extension: AdapterExtension | undefined | null
 ): asserts extension is AdapterExtension {
 	if (!extension) {
-		throw new Error('Invalid adapter extension returned from factory.');
+		throw new KernelError('DeveloperError', {
+			message: 'Invalid adapter extension returned from factory.',
+		});
 	}
 
 	if (typeof extension.name !== 'string' || extension.name.trim() === '') {
-		throw new Error('Adapter extensions must provide a non-empty name.');
+		throw new KernelError('DeveloperError', {
+			message: 'Adapter extensions must provide a non-empty name.',
+		});
 	}
 
 	if (typeof extension.apply !== 'function') {
-		throw new Error('Adapter extensions must define an apply() function.');
+		throw new KernelError('DeveloperError', {
+			message: 'Adapter extensions must define an apply() function.',
+		});
 	}
 }

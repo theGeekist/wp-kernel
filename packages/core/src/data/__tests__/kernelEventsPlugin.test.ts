@@ -8,7 +8,7 @@ import { kernelEventsPlugin } from '../plugins/events';
 import type { Reporter } from '../../reporter';
 import type { KernelRegistry } from '../types';
 import { KernelEventBus } from '../../events/bus';
-import { WPK_EVENTS } from '../../namespace/constants';
+import { WPK_EVENTS } from '../../contracts';
 
 type WordPressHooks = {
 	doAction: jest.Mock;

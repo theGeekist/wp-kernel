@@ -5,29 +5,27 @@ import { Command, Option } from 'clipanion';
 import type * as chokidarModule from 'chokidar';
 import { createReporter } from '@wpkernel/core/reporter';
 import type { Reporter } from '@wpkernel/core/reporter';
-import { KernelError } from '@wpkernel/core/error';
 import {
+	KernelError,
 	WPK_CONFIG_SOURCES,
 	WPK_NAMESPACE,
-} from '@wpkernel/core/namespace/constants';
+} from '@wpkernel/core/contracts';
 import { runGenerate, type ExitCode } from './run-generate';
 import { serialiseError } from './run-generate';
 import { forwardProcessOutput } from './process-output';
 import { toWorkspaceRelative } from '../utils';
+import { EXIT_CODES } from './run-generate/types';
 
-const KERNEL_CONFIG_BASE = WPK_CONFIG_SOURCES.KERNEL_CONFIG_TS.replace(
-	/\.ts$/,
-	''
-);
+const WPK_CONFIG_BASE = WPK_CONFIG_SOURCES.WPK_CONFIG_TS.replace(/\.ts$/, '');
 
 const WATCH_PATTERNS = [
-	WPK_CONFIG_SOURCES.KERNEL_CONFIG_TS,
-	WPK_CONFIG_SOURCES.KERNEL_CONFIG_JS,
-	`${KERNEL_CONFIG_BASE}.cjs`,
-	`${KERNEL_CONFIG_BASE}.mjs`,
-	`${KERNEL_CONFIG_BASE}.mts`,
-	`${KERNEL_CONFIG_BASE}.cts`,
-	`${KERNEL_CONFIG_BASE}.json`,
+	WPK_CONFIG_SOURCES.WPK_CONFIG_TS,
+	WPK_CONFIG_SOURCES.WPK_CONFIG_JS,
+	`${WPK_CONFIG_BASE}.cjs`,
+	`${WPK_CONFIG_BASE}.mjs`,
+	`${WPK_CONFIG_BASE}.mts`,
+	`${WPK_CONFIG_BASE}.cts`,
+	`${WPK_CONFIG_BASE}.json`,
 	'contracts/**/*',
 	'schemas/**/*',
 	'src/resources/**/*',
@@ -132,7 +130,7 @@ export class StartCommand extends Command {
 
 		const viteHandle = await this.launchViteDevServer(viteReporter);
 		if (!viteHandle) {
-			return 1;
+			return EXIT_CODES.UNEXPECTED_ERROR;
 		}
 
 		const watch = await this.watchFactory();
@@ -190,7 +188,7 @@ export class StartCommand extends Command {
 				await this.stopViteDevServer(viteHandle, viteReporter);
 
 				cleanupSignals();
-				resolveOnce(0);
+				resolveOnce(EXIT_CODES.SUCCESS);
 			};
 
 			const signalHandler = () => {
@@ -293,7 +291,7 @@ export class StartCommand extends Command {
 			queueRun({
 				tier: 'slow',
 				event: 'initial',
-				file: KERNEL_CONFIG_BASE,
+				file: WPK_CONFIG_BASE,
 			});
 		});
 
@@ -411,7 +409,7 @@ export class StartCommand extends Command {
 			this.context.stdout.write(result.output);
 		}
 
-		if (result.exitCode !== 0) {
+		if (result.exitCode !== EXIT_CODES.SUCCESS) {
 			reporter.warn('Generation completed with errors.', {
 				exitCode: result.exitCode,
 			});

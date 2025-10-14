@@ -1,6 +1,6 @@
 import { Command, Option } from 'clipanion';
 import { createReporter } from '@wpkernel/core/reporter';
-import { WPK_NAMESPACE } from '@wpkernel/core/namespace/constants';
+import { WPK_NAMESPACE } from '@wpkernel/core/contracts';
 import {
 	runGenerate,
 	type ExitCode,

@@ -11,7 +11,7 @@
  */
 
 import { KernelError } from '../error/KernelError';
-import { WPK_EVENTS } from '../namespace/constants';
+import { WPK_EVENTS } from '../contracts/index.js';
 import { createNoopReporter, getKernelReporter } from '../reporter';
 import type { Reporter } from '../reporter';
 import type {

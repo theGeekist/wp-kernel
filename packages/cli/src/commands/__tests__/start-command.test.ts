@@ -11,6 +11,7 @@ import {
 } from '../start';
 import { DevCommand } from '../dev';
 import { runGenerate } from '../run-generate';
+import { EXIT_CODES } from '../run-generate/types';
 import chokidar from 'chokidar';
 
 const runGenerateMock = runGenerate as jest.MockedFunction<typeof runGenerate>;
@@ -21,7 +22,7 @@ describe('StartCommand', () => {
 	beforeEach(() => {
 		jest.useFakeTimers();
 		runGenerateMock.mockResolvedValue({
-			exitCode: 0,
+			exitCode: EXIT_CODES.SUCCESS,
 			output: '[summary]\n',
 		});
 		watchMock.mockImplementation(
@@ -422,7 +423,7 @@ describe('StartCommand', () => {
 
 		const exitCode = await command.execute();
 
-		expect(exitCode).toBe(1);
+		expect(exitCode).toBe(EXIT_CODES.UNEXPECTED_ERROR);
 		expect(watchMock).not.toHaveBeenCalled();
 	});
 
