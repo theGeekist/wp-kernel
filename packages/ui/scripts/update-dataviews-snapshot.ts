@@ -2,6 +2,7 @@ import { cp, mkdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import process from 'node:process';
 import { spawn } from 'node:child_process';
+import { KernelError } from '@wpkernel/core/contracts';
 
 const SNAPSHOT_DIR = path.resolve(
 	process.cwd(),
@@ -58,15 +59,20 @@ async function assertDirectory(dir: string): Promise<void> {
 	try {
 		const stats = await stat(dir);
 		if (!stats.isDirectory()) {
-			throw new Error(`${dir} is not a directory`);
+			throw new KernelError('DeveloperError', {
+				message: `${dir} is not a directory`,
+				context: { path: dir },
+			});
 		}
 	} catch (error) {
 		const err = error as NodeJS.ErrnoException;
 		if (err.code === 'ENOENT') {
-			throw new Error(
-				`DataViews source directory not found: ${dir}. ` +
-					'Provide --source or set GUTENBERG_PATH.'
-			);
+			throw new KernelError('DeveloperError', {
+				message:
+					`DataViews source directory not found: ${dir}. ` +
+					'Provide --source or set GUTENBERG_PATH.',
+				context: { path: dir },
+			});
 		}
 		throw error;
 	}
@@ -77,7 +83,9 @@ function parseVersion(input: string): VersionTuple {
 		.split('.')
 		.map((part) => Number.parseInt(part, 10));
 	if (Number.isNaN(major) || Number.isNaN(minor) || Number.isNaN(patch)) {
-		throw new Error(`Invalid semantic version: ${input}`);
+		throw new KernelError('DeveloperError', {
+			message: `Invalid semantic version: ${input}`,
+		});
 	}
 	return { major, minor, patch };
 }
@@ -85,7 +93,9 @@ function parseVersion(input: string): VersionTuple {
 function satisfiesCaretRange(range: string, version: string): boolean {
 	const normalizedRange = range.trim();
 	if (!normalizedRange.startsWith('^')) {
-		throw new Error(`Unsupported peer range format: ${range}`);
+		throw new KernelError('DeveloperError', {
+			message: `Unsupported peer range format: ${range}`,
+		});
 	}
 
 	const base = parseVersion(normalizedRange.slice(1));
@@ -120,9 +130,10 @@ async function runCommand(command: string, args: string[]): Promise<void> {
 				resolve();
 			} else {
 				reject(
-					new Error(
-						`${command} ${args.join(' ')} exited with code ${code}`
-					)
+					new KernelError('DeveloperError', {
+						message: `${command} ${args.join(' ')} exited with code ${code}`,
+						context: { command, args, exitCode: code ?? undefined },
+					})
 				);
 			}
 		});
@@ -186,7 +197,11 @@ async function updateSnapshot(sourceDir: string): Promise<void> {
 					commit = output.trim();
 					resolve();
 				} else {
-					reject(new Error('git rev-parse failed'));
+					reject(
+						new KernelError('UnknownError', {
+							message: 'git rev-parse failed',
+						})
+					);
 				}
 			});
 			child.on('error', reject);
@@ -205,14 +220,15 @@ async function updateSnapshot(sourceDir: string): Promise<void> {
 	}>(path.resolve('packages/ui/package.json'));
 	const peerRange = uiPackage.peerDependencies['@wordpress/dataviews'];
 	if (!peerRange) {
-		throw new Error(
-			'Peer dependency for @wordpress/dataviews not declared.'
-		);
+		throw new KernelError('DeveloperError', {
+			message: 'Peer dependency for @wordpress/dataviews not declared.',
+		});
 	}
 	if (!satisfiesCaretRange(peerRange, sourcePackage.version)) {
-		throw new Error(
-			`Snapshot version ${sourcePackage.version} is outside peer range ${peerRange}.`
-		);
+		throw new KernelError('DeveloperError', {
+			message: `Snapshot version ${sourcePackage.version} is outside peer range ${peerRange}.`,
+			context: { peerRange, version: sourcePackage.version },
+		});
 	}
 
 	await runCommand('pnpm', ['--filter', '@wpkernel/ui', 'typecheck']);
