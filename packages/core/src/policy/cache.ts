@@ -17,9 +17,9 @@
 import { getNamespace } from '../namespace/detect';
 import { createReporter } from '../reporter';
 import {
-	WPK_SUBSYSTEM_NAMESPACES,
 	WPK_INFRASTRUCTURE,
-} from '../namespace/constants';
+	WPK_SUBSYSTEM_NAMESPACES,
+} from '../contracts/index.js';
 import type { PolicyCache, PolicyCacheOptions } from './types';
 
 const DEFAULT_TTL_MS = 60_000;

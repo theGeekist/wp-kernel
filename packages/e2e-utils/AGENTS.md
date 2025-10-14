@@ -13,3 +13,5 @@ Run `pnpm build --filter @wpkernel/e2e-utils` followed by `pnpm test --filter @w
 ### Conventions
 
 Keep helpers composable: expose utilities through the main factory rather than inventing parallel APIs. Preserve alignment with the WordPress Playwright patterns-fixtures should be extended, not replaced. Update `MIGRATION.md` and `README.md` whenever author-facing behaviour changes.
+
+Use `@wpkernel/core/contracts` for namespaces or lifecycle constants inside helpers so browser code matches the framework contract.

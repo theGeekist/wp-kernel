@@ -56,10 +56,24 @@ export * as actions from './actions/index.js';
 export * as policy from './policy/index.js';
 export * as data from './data/index.js';
 export * as events from './events/index.js';
+export * as contracts from './contracts/index.js';
 
 // ============================================================================
 // Flat Exports (Convenience aliases)
 // ============================================================================
+
+// Contracts
+export {
+	ACTION_LIFECYCLE_PHASES,
+	WPK_CONFIG_SOURCES,
+	WPK_EVENTS,
+	WPK_EXIT_CODES,
+	WPK_INFRASTRUCTURE,
+	WPK_NAMESPACE,
+	WPK_SUBSYSTEM_NAMESPACES,
+	serializeKernelError,
+} from './contracts/index.js';
+export type { ActionLifecyclePhase, WPKExitCode } from './contracts/index.js';
 
 // Error classes
 export { KernelError, TransportError, ServerError } from './error/index.js';

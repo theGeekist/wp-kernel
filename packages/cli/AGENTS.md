@@ -15,3 +15,5 @@ Run `pnpm --filter @wpkernel/cli test:coverage` before committing. If commands g
 Respect package boundaries: consume kernel APIs through public exports, never deep imports. When adding commands that touch documentation or specs, coordinate the updates so generated output references the latest guidance. Try to keep code and test files <=500 SLOC for ease of debugging and maintanence
 
 Refer to `MVP-PHASES.md` in this package for the current roadmap, DoD, and testing expectations before extending the CLI.
+
+Always import CLI exit codes and namespace constants from `@wpkernel/core/contracts` to ensure parity with the framework.

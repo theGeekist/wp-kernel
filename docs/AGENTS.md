@@ -6,6 +6,8 @@ The documentation tree mirrors the state of the framework. Treat the material he
 
 Documentation follows the cadence of the WordPress Developer blog. Favour short paragraphs over bullet lists, and use headings to break up long topics so that readers can scan and land exactly where they need. Code samples should be purposeful and align with the exported TypeScript definitions-run the relevant tests or playground snippets after updating examples to ensure they still compile.
 
+When referencing lifecycle phases, namespaces, or exit codes, link to `@wpkernel/core/contracts` rather than repeating literal values.
+
 ### Navigation and linking
 
 Whenever you add or rename a page, update the navigation indices that reference it (for example `docs/index.md`, `docs/packages/index.md`, or guide landing pages). Prefer relative links (`../guide/actions.md`) so the site builds cleanly in all environments. If you surface a new concept in `/docs`, cross-reference the canonical source (such as `configureKernel - Specification.md`) so readers know where to dive deeper.

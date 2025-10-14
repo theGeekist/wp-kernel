@@ -23,6 +23,7 @@ export default createKernelLibConfig(
 		data: 'src/data/index.ts',
 		policy: 'src/policy/index.ts',
 		reporter: 'src/reporter/index.ts',
+		contracts: 'src/contracts/index.ts',
 	},
 	{
 		external,

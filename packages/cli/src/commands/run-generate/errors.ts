@@ -1,7 +1,12 @@
-import { KernelError } from '@wpkernel/core/error';
+import { KernelError, serializeKernelError } from '@wpkernel/core/contracts';
 import type { Reporter } from '@wpkernel/core/reporter';
 import { serialiseError } from './reporting';
-import type { ExitCode } from './types';
+import { EXIT_CODES, type ExitCode } from './types';
+
+const VALIDATION_EXIT_CODES = new Set<KernelError['code']>([
+	'ValidationError',
+	'DeveloperError',
+]);
 
 export function handleFailure(
 	error: unknown,
@@ -9,10 +14,10 @@ export function handleFailure(
 	defaultExitCode: ExitCode
 ): ExitCode {
 	if (KernelError.isKernelError(error)) {
-		reporter.error(error.message, error.toJSON());
+		reporter.error(error.message, serializeKernelError(error));
 
-		if (error.code === 'ValidationError') {
-			return 1;
+		if (VALIDATION_EXIT_CODES.has(error.code)) {
+			return EXIT_CODES.VALIDATION_ERROR;
 		}
 
 		return defaultExitCode;

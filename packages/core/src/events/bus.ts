@@ -5,7 +5,7 @@ import type {
 } from '../actions/types';
 import type { ResourceObject } from '../resource/types';
 import { createReporter } from '../reporter';
-import { WPK_SUBSYSTEM_NAMESPACES } from '../namespace/constants';
+import { WPK_SUBSYSTEM_NAMESPACES } from '../contracts/index.js';
 
 export type ResourceDefinedEvent = {
 	resource: ResourceObject<unknown, unknown>;

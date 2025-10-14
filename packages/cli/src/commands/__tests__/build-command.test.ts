@@ -1,9 +1,11 @@
 import { Writable } from 'node:stream';
 import { BuildCommand } from '../build';
 import { runGenerate } from '../run-generate';
+import { EXIT_CODES } from '../run-generate/types';
+import type { WPKExitCode } from '@wpkernel/core/contracts';
 
 const runGenerateMock = runGenerate as jest.MockedFunction<typeof runGenerate>;
-const applyExecuteMock = jest.fn<Promise<number>, [unknown]>();
+const applyExecuteMock = jest.fn<Promise<WPKExitCode>, [unknown]>();
 const applyInstances: unknown[] = [];
 
 jest.mock('../run-generate', () => ({
@@ -28,7 +30,7 @@ jest.mock('../apply', () => ({
 			applyInstances.push(this);
 		}
 
-		async execute(): Promise<number> {
+		async execute(): Promise<WPKExitCode> {
 			return applyExecuteMock(this);
 		}
 	},
@@ -37,8 +39,11 @@ jest.mock('../apply', () => ({
 describe('BuildCommand', () => {
 	beforeEach(() => {
 		jest.useFakeTimers();
-		runGenerateMock.mockResolvedValue({ exitCode: 0, output: '' });
-		applyExecuteMock.mockResolvedValue(0);
+		runGenerateMock.mockResolvedValue({
+			exitCode: EXIT_CODES.SUCCESS,
+			output: '',
+		});
+		applyExecuteMock.mockResolvedValue(EXIT_CODES.SUCCESS);
 		applyInstances.length = 0;
 	});
 
@@ -49,24 +54,24 @@ describe('BuildCommand', () => {
 
 	it('runs generate, vite build, and apply', async () => {
 		runGenerateMock.mockResolvedValue({
-			exitCode: 0,
+			exitCode: EXIT_CODES.SUCCESS,
 			output: '[summary]\n',
 		});
 		applyExecuteMock.mockImplementation(async (instance: any) => {
 			instance.summary = { files: 1 };
 			instance.phpSummary = { files: 1 };
 			instance.blockSummary = { files: 0 };
-			return 0;
+			return EXIT_CODES.SUCCESS;
 		});
 
 		const { command, runViteBuildMock } = createCommand();
-		runViteBuildMock.mockResolvedValue(0);
+		runViteBuildMock.mockResolvedValue(EXIT_CODES.SUCCESS);
 		const executePromise = command.execute();
 
 		await flushAsync();
 		const exitCode = await executePromise;
 
-		expect(exitCode).toBe(0);
+		expect(exitCode).toBe(EXIT_CODES.SUCCESS);
 		expect(runGenerateMock).toHaveBeenCalledTimes(1);
 		expect(runViteBuildMock).toHaveBeenCalledTimes(1);
 		expect(applyInstances).toHaveLength(1);
@@ -89,46 +94,49 @@ describe('BuildCommand', () => {
 		await flushAsync();
 		const exitCode = await executePromise;
 
-		expect(exitCode).toBe(0);
+		expect(exitCode).toBe(EXIT_CODES.SUCCESS);
 		expect(runViteBuildMock).toHaveBeenCalledTimes(1);
 		expect(applyInstances).toHaveLength(0);
 		expect(applyExecuteMock).not.toHaveBeenCalled();
 	});
 
 	it('returns generate exit code on failure', async () => {
-		runGenerateMock.mockResolvedValue({ exitCode: 3, output: '' });
+		runGenerateMock.mockResolvedValue({
+			exitCode: EXIT_CODES.ADAPTER_ERROR,
+			output: '',
+		});
 
 		const { command } = createCommand();
 		const exitCode = await command.execute();
 
-		expect(exitCode).toBe(3);
+		expect(exitCode).toBe(EXIT_CODES.ADAPTER_ERROR);
 		expect(applyExecuteMock).not.toHaveBeenCalled();
 	});
 
 	it('returns vite exit code on failure', async () => {
 		const { command, runViteBuildMock } = createCommand();
-		runViteBuildMock.mockResolvedValue(2);
+		runViteBuildMock.mockResolvedValue(EXIT_CODES.UNEXPECTED_ERROR);
 		const executePromise = command.execute();
 
 		await flushAsync();
 		const exitCode = await executePromise;
 
-		expect(exitCode).toBe(2);
+		expect(exitCode).toBe(EXIT_CODES.UNEXPECTED_ERROR);
 		expect(runViteBuildMock).toHaveBeenCalledTimes(1);
 		expect(applyExecuteMock).not.toHaveBeenCalled();
 	});
 
 	it('returns error when apply fails', async () => {
-		applyExecuteMock.mockResolvedValue(5);
+		applyExecuteMock.mockResolvedValue(EXIT_CODES.ADAPTER_ERROR);
 
 		const { command, runViteBuildMock } = createCommand();
-		runViteBuildMock.mockResolvedValue(0);
+		runViteBuildMock.mockResolvedValue(EXIT_CODES.SUCCESS);
 		const executePromise = command.execute();
 
 		await flushAsync();
 		const exitCode = await executePromise;
 
-		expect(exitCode).toBe(5);
+		expect(exitCode).toBe(EXIT_CODES.ADAPTER_ERROR);
 	});
 
 	it('handles Vite spawn failures', async () => {
@@ -154,7 +162,7 @@ describe('BuildCommand', () => {
 
 		const exitCode = await command.execute();
 
-		expect(exitCode).toBe(1);
+		expect(exitCode).toBe(EXIT_CODES.UNEXPECTED_ERROR);
 		expect(applyExecuteMock).not.toHaveBeenCalled();
 	});
 });

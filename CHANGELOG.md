@@ -50,6 +50,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **P1: Resource Hook Timing** - Resources defined before UI loads can now bind React hooks when UI initializes
 - **P1: Queue Cancellation** - Fixed queue concurrency mode to properly prevent cancelled actions from executing
 
+### Changed
+
+- Consolidated lifecycle phases, namespace constants, and CLI exit codes under `@wpkernel/core/contracts`, updating all packages, tooling, and docs to import from the shared contract, normalising error serialization, and restoring the canonical `WPK_*` contract names.
+- Dropped the transitional `KERNEL_*` alias exports from the contracts barrel to keep the pre-release surface focused on the preferred WPK naming.
+
 ### Testing
 
 - Added 28 new test cases across 9 test files

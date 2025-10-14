@@ -131,18 +131,22 @@ export const job = defineResource<Job, JobQuery>({
 **Kernel solution:**
 
 ```typescript
+import { WPK_NAMESPACE } from '@wpkernel/core/contracts';
+
 // Block Bindings (read path)
-registerBindingSource('wpk', {
-	'job.title': (attrs) => select('wpk/job').getById(attrs.id)?.title,
-	'job.location': (attrs) => select('wpk/job').getById(attrs.id)?.location,
+registerBindingSource(WPK_NAMESPACE, {
+	'job.title': (attrs) =>
+		select(`${WPK_NAMESPACE}/job`).getById(attrs.id)?.title,
+	'job.location': (attrs) =>
+		select(`${WPK_NAMESPACE}/job`).getById(attrs.id)?.location,
 	'job.salary_range': (attrs) => {
-		const job = select('wpk/job').getById(attrs.id);
+		const job = select(`${WPK_NAMESPACE}/job`).getById(attrs.id);
 		return `$${job.salary_min} - $${job.salary_max}`;
 	},
 });
 
 // Interactivity (filters)
-defineInteraction('wpk/job-filters', {
+defineInteraction(`${WPK_NAMESPACE}/job-filters`, {
 	state: () => ({
 		department: null,
 		location: null,

@@ -1,11 +1,11 @@
 import { createReporter } from '@wpkernel/core/reporter';
-import { WPK_NAMESPACE } from '@wpkernel/core/namespace/constants';
+import { WPK_NAMESPACE } from '@wpkernel/core/contracts';
 import type { Reporter } from '@wpkernel/core/reporter';
 import { loadKernelConfig } from '../../config';
 import { buildIr } from '../../ir';
 import type { IRv1 } from '../../ir';
 import { handleFailure } from './errors';
-import type { ExitCode } from './types';
+import { EXIT_CODES, type ExitCode } from './types';
 
 export interface LoadedConfig {
 	loadedConfig: Awaited<ReturnType<typeof loadKernelConfig>>;
@@ -30,7 +30,11 @@ export async function loadConfigAndIr(
 
 		return { loadedConfig, ir };
 	} catch (error) {
-		const exitCode = handleFailure(error, reporter, 1);
+		const exitCode = handleFailure(
+			error,
+			reporter,
+			EXIT_CODES.UNEXPECTED_ERROR
+		);
 		return { exitCode, error };
 	}
 }

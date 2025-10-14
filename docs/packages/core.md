@@ -104,9 +104,10 @@ Subscribe to canonical events with type safety:
 
 ```typescript
 import { events } from '@wpkernel/core/events';
+import { WPK_NAMESPACE } from '@wpkernel/core/contracts';
 
-// Framework events always use 'wpk' namespace
-events.on('wpk.resource.request', (payload) => {
+// Framework events always use the kernel namespace constant
+events.on(`${WPK_NAMESPACE}.resource.request`, (payload) => {
 	console.log('Request started:', payload.requestId);
 });
 

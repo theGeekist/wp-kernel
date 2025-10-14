@@ -8,6 +8,7 @@
  */
 
 import { extractPathParams, interpolatePath } from '@wpkernel/core/resource';
+import { WPK_NAMESPACE } from '@wpkernel/core/contracts';
 import type { Page } from '@playwright/test';
 import type { RequestUtils } from '@wordpress/e2e-test-utils-playwright';
 import type {
@@ -572,7 +573,8 @@ export function createStoreHelper<T>(
 				const result = await page.evaluate(
 					({ key, path }) => {
 						// Auto-detect namespace
-						const namespace = window.wpKernelNamespace || 'wpk';
+						const namespace =
+							window.wpKernelNamespace || WPK_NAMESPACE;
 						const { select } = window.wp.data;
 
 						// Try namespace-aware key first, fallback to original
@@ -628,7 +630,7 @@ export function createStoreHelper<T>(
 		invalidate: async (): Promise<void> => {
 			await page.evaluate((key) => {
 				// Auto-detect namespace
-				const namespace = window.wpKernelNamespace || 'wpk';
+				const namespace = window.wpKernelNamespace || WPK_NAMESPACE;
 				const { dispatch } = window.wp.data;
 
 				// Try namespace-aware key first, fallback to original
@@ -653,7 +655,7 @@ export function createStoreHelper<T>(
 		getState: async (): Promise<T> => {
 			const state = await page.evaluate((key) => {
 				// Auto-detect namespace
-				const namespace = window.wpKernelNamespace || 'wpk';
+				const namespace = window.wpKernelNamespace || WPK_NAMESPACE;
 				const { select } = window.wp.data;
 
 				// Try namespace-aware key first, fallback to original
@@ -689,7 +691,7 @@ export async function createEventHelper<P>(
 ): Promise<EventRecorder<P>> {
 	const pattern = options?.pattern;
 
-	// Auto-detect namespace from browser context or default to 'wpk'
+	// Auto-detect namespace from browser context or default to WPK_NAMESPACE
 	// This maintains backward compatibility while enabling namespace support
 	const namespace = await page.evaluate(() => {
 		// Try to detect namespace from various sources
@@ -698,7 +700,7 @@ export async function createEventHelper<P>(
 			return win.wpKernelNamespace;
 		}
 		// Could add other detection methods here in the future
-		return 'wpk'; // Default fallback
+		return WPK_NAMESPACE; // Default fallback
 	});
 
 	const listenPattern = `${namespace}.*`;

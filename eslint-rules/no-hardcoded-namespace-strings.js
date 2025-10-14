@@ -22,6 +22,14 @@ const CONSTANTS_FILE = path.join(
 	'constants.ts'
 );
 
+const CONTRACTS_FILE = path.join(
+	'packages',
+	'core',
+	'src',
+	'contracts',
+	'index.ts'
+);
+
 // Patterns that indicate hardcoded namespace strings
 const NAMESPACE_PATTERNS = {
 	// Event names (public API)
@@ -89,7 +97,10 @@ function isDocumentationFile(filename) {
 }
 
 function shouldIgnoreFile(filename) {
-	if (filename.includes(CONSTANTS_FILE)) {
+	if (
+		filename.includes(CONSTANTS_FILE) ||
+		filename.includes(CONTRACTS_FILE)
+	) {
 		return true;
 	}
 
@@ -233,7 +244,7 @@ function getConstantSuggestion(value) {
 		return 'WPK_SUBSYSTEM_NAMESPACES constants';
 	}
 
-	return 'appropriate constant from namespace/constants.ts';
+	return 'appropriate constant from @wpkernel/core/contracts';
 }
 
 export default {
@@ -244,13 +255,13 @@ export default {
 				'Enforce usage of namespace constants instead of hardcoded strings',
 			category: 'Best Practices',
 			recommended: true,
-			url: 'https://github.com/theGeekist/wp-kernel/blob/main/packages/core/src/namespace/constants.ts',
+			url: 'https://github.com/theGeekist/wp-kernel/blob/main/packages/core/src/contracts/index.ts',
 		},
 		messages: {
 			hardcodedNamespace:
-				'Hardcoded namespace string "{{value}}" found. Use {{suggestion}} from namespace/constants.ts instead.',
+				'Hardcoded namespace string "{{value}}" found. Use {{suggestion}} from @wpkernel/core/contracts instead.',
 			hardcodedNamespaceGeneric:
-				'Hardcoded namespace string "{{value}}" found. Import and use constants from namespace/constants.ts to prevent namespace drift.',
+				'Hardcoded namespace string "{{value}}" found. Import and use constants from @wpkernel/core/contracts to prevent namespace drift.',
 		},
 		fixable: null, // Could add auto-fix in the future
 		schema: [],
