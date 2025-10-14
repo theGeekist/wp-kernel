@@ -16,16 +16,16 @@ These filenames/keys are consumed by the CLI and runtime config loaders.
 
 ## Type Declaration
 
-### KERNEL_CONFIG_TS
+### WPK_CONFIG_TS
 
 ```ts
-readonly KERNEL_CONFIG_TS: "kernel.config.ts" = 'kernel.config.ts';
+readonly WPK_CONFIG_TS: "kernel.config.ts" = 'kernel.config.ts';
 ```
 
-### KERNEL_CONFIG_JS
+### WPK_CONFIG_JS
 
 ```ts
-readonly KERNEL_CONFIG_JS: "kernel.config.js" = 'kernel.config.js';
+readonly WPK_CONFIG_JS: "kernel.config.js" = 'kernel.config.js';
 ```
 
 ### PACKAGE_JSON_WPK

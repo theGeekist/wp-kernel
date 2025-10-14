@@ -37,7 +37,7 @@ function getModuleUrl(): string {
 	}
 }
 
-const KERNEL_CONFIG_FILENAME = ['kernel', 'config.ts'].join('.');
+const WPK_CONFIG_FILENAME = ['kernel', 'config.ts'].join('.');
 const SRC_INDEX_PATH = path.join('src', 'index.ts');
 const ESLINT_CONFIG_FILENAME = 'eslint.config.js';
 const TSCONFIG_FILENAME = 'tsconfig.json';
@@ -83,8 +83,8 @@ export class InitCommand extends Command {
 
 		const files: ScaffoldFile[] = [
 			{
-				relativePath: KERNEL_CONFIG_FILENAME,
-				templatePath: KERNEL_CONFIG_FILENAME,
+				relativePath: WPK_CONFIG_FILENAME,
+				templatePath: WPK_CONFIG_FILENAME,
 				replacements: {
 					__WPK_NAMESPACE__: namespace,
 				},

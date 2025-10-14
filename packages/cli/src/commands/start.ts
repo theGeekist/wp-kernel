@@ -16,14 +16,11 @@ import { forwardProcessOutput } from './process-output';
 import { toWorkspaceRelative } from '../utils';
 import { EXIT_CODES } from './run-generate/types';
 
-const WPK_CONFIG_BASE = WPK_CONFIG_SOURCES.KERNEL_CONFIG_TS.replace(
-	/\.ts$/,
-	''
-);
+const WPK_CONFIG_BASE = WPK_CONFIG_SOURCES.WPK_CONFIG_TS.replace(/\.ts$/, '');
 
 const WATCH_PATTERNS = [
-	WPK_CONFIG_SOURCES.KERNEL_CONFIG_TS,
-	WPK_CONFIG_SOURCES.KERNEL_CONFIG_JS,
+	WPK_CONFIG_SOURCES.WPK_CONFIG_TS,
+	WPK_CONFIG_SOURCES.WPK_CONFIG_JS,
 	`${WPK_CONFIG_BASE}.cjs`,
 	`${WPK_CONFIG_BASE}.mjs`,
 	`${WPK_CONFIG_BASE}.mts`,
