@@ -2,17 +2,14 @@ import React, { act, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import { usePolicy } from '../usePolicy';
 import { KernelUIProvider } from '../../runtime';
-import type { KernelUIRuntime } from '@geekist/wp-kernel/data';
-import { KernelEventBus } from '@geekist/wp-kernel/events';
-import type { Reporter } from '@geekist/wp-kernel/reporter';
-import {
-	createPolicyCache,
-	createPolicyCacheKey,
-} from '@geekist/wp-kernel/policy';
-import type { PolicyHelpers, UsePolicyResult } from '@geekist/wp-kernel/policy';
-import { KernelError } from '@geekist/wp-kernel/error';
+import type { KernelUIRuntime } from '@wpkernel/core/data';
+import { KernelEventBus } from '@wpkernel/core/events';
+import type { Reporter } from '@wpkernel/core/reporter';
+import { createPolicyCache, createPolicyCacheKey } from '@wpkernel/core/policy';
+import type { PolicyHelpers, UsePolicyResult } from '@wpkernel/core/policy';
+import { KernelError } from '@wpkernel/core/error';
 
-jest.mock('@geekist/wp-kernel/namespace', () => ({
+jest.mock('@wpkernel/core/namespace', () => ({
 	getNamespace: () => 'acme',
 }));
 

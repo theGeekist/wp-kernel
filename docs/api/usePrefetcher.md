@@ -5,16 +5,16 @@ React helpers that wrap the resource prefetch utilities exposed by
 without doing any bespoke store plumbing or duplicating cache keys.
 
 These hooks delegate to the resource runtime implemented in
-`packages/kernel/src/resource/define.ts` and the cache helpers in
-`packages/kernel/src/resource/cache.ts`. They do **not** bypass any of the
+`packages/core/src/resource/define.ts` and the cache helpers in
+`packages/core/src/resource/cache.ts`. They do **not** bypass any of the
 rules enforced there; the hooks simply stabilise the callback references so
 you can attach them to events.
 
 ## `usePrefetcher(resource)`
 
 ```ts
-import type { ResourceObject } from '@geekist/wp-kernel';
-import { usePrefetcher } from '@geekist/wp-kernel-ui';
+import type { ResourceObject } from '@wpkernel/core';
+import { usePrefetcher } from '@wpkernel/ui';
 
 function usePrefetcher<TRecord>(resource: ResourceObject<TRecord>): {
 	prefetchGet: (id: string | number) => void;
@@ -31,7 +31,7 @@ function usePrefetcher<TRecord>(resource: ResourceObject<TRecord>): {
 
 ```tsx
 import { useRef } from 'react';
-import { usePrefetcher, useHoverPrefetch } from '@geekist/wp-kernel-ui';
+import { usePrefetcher, useHoverPrefetch } from '@wpkernel/ui';
 import { job } from '@/resources/job';
 
 export function JobLink({ id }: { id: number }) {
@@ -52,7 +52,7 @@ export function JobLink({ id }: { id: number }) {
 
 ```tsx
 import { useRef } from 'react';
-import { usePrefetcher, useVisiblePrefetch } from '@geekist/wp-kernel-ui';
+import { usePrefetcher, useVisiblePrefetch } from '@wpkernel/ui';
 import { testimonial } from '@/resources/testimonial';
 
 export function TestimonialsSummary() {
@@ -141,5 +141,5 @@ useNextPagePrefetch(job, currentQuery, {
 
 ## References
 
-- Resource runtime – [`packages/kernel/src/resource/define.ts`](../packages/kernel/src/resource/define.ts)
-- Cache helpers – [`packages/kernel/src/resource/cache.ts`](../packages/kernel/src/resource/cache.ts)
+- Resource runtime – [`packages/core/src/resource/define.ts`](../packages/core/src/resource/define.ts)
+- Cache helpers – [`packages/core/src/resource/cache.ts`](../packages/core/src/resource/cache.ts)

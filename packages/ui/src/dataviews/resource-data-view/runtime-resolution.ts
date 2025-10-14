@@ -1,4 +1,4 @@
-import type { KernelUIRuntime } from '@geekist/wp-kernel/data';
+import type { KernelUIRuntime } from '@wpkernel/core/data';
 import { DataViewsControllerError } from '../../runtime/dataviews/errors';
 import { ensureControllerRuntime, isDataViewsRuntime } from '../runtime';
 import type { DataViewsRuntimeContext } from '../types';

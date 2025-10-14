@@ -143,7 +143,7 @@ async function writeSnapshotReadme(commit: string): Promise<void> {
 - **Commit:** \`${commit}\`
 - **Synced:** ${date}
 
-This snapshot is provided for reference only; **runtime code in \`@geekist/wp-kernel-ui\` must import from \`@wordpress/dataviews\` (installed dependency)**, _not_ from this directory.
+This snapshot is provided for reference only; **runtime code in \`@wpkernel/ui\` must import from \`@wordpress/dataviews\` (installed dependency)**, _not_ from this directory.
 It exists so offline/cloud agents can inspect the latest core implementation while working
 on the DataViews integration phases.
 
@@ -215,11 +215,7 @@ async function updateSnapshot(sourceDir: string): Promise<void> {
 		);
 	}
 
-	await runCommand('pnpm', [
-		'--filter',
-		'@geekist/wp-kernel-ui',
-		'typecheck',
-	]);
+	await runCommand('pnpm', ['--filter', '@wpkernel/ui', 'typecheck']);
 
 	console.log(`SUCCESS: snapshot synchronized to ${commit}`);
 }

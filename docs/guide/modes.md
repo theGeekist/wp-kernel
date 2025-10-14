@@ -93,7 +93,7 @@ export default defineKernelConfig({
 **Client setup:**
 
 ```typescript
-import { configure } from '@geekist/wp-kernel';
+import { configure } from '@wpkernel/core';
 
 configure({
 	rootURL: process.env.WP_API_ROOT, // e.g., https://cms.example.com
@@ -175,7 +175,7 @@ const jobs = await job.list(); // Build error!
 Declare modes in `wpk.config.ts`:
 
 ```typescript
-import { defineKernelConfig } from '@geekist/wp-kernel/config';
+import { defineKernelConfig } from '@wpkernel/core/config';
 
 export default defineKernelConfig({
 	project: {
@@ -318,7 +318,7 @@ Kernel enforces mode constraints at three stages:
 ```javascript
 // .eslintrc.js
 module.exports = {
-	extends: ['@geekist/eslint-config-wp-kernel'],
+	extends: ['@wpkernel/eslint-config-wp-kernel'],
 	settings: {
 		wpKernel: {
 			mode: 'static', // From wpk.config.ts
@@ -350,7 +350,7 @@ this.state.open = !this.state.open;
 
 ```typescript
 // vite.config.ts
-import { wpKernelBuildGuard } from '@geekist/wp-kernel/build';
+import { wpKernelBuildGuard } from '@wpkernel/core/build';
 
 export default defineConfig({
 	plugins: [
@@ -565,7 +565,7 @@ STATIC=1 node build/generate-pages.ts
 
 ```typescript
 // src/index.ts (entry point)
-import { configure } from '@geekist/wp-kernel';
+import { configure } from '@wpkernel/core';
 
 configure({
 	rootURL: process.env.NEXT_PUBLIC_WP_URL,
@@ -575,7 +575,7 @@ configure({
 ### Pattern 2: Authenticated Requests
 
 ```typescript
-import { configure } from '@geekist/wp-kernel';
+import { configure } from '@wpkernel/core';
 
 // Get nonce from auth endpoint
 const { nonce } = await fetch('/api/auth/wp-nonce').then((r) => r.json());

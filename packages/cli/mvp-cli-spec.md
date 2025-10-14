@@ -8,9 +8,9 @@
 ## 1. Canonical Inputs
 
 - **Configuration**: `kernel.config.ts` in the project root exporting a `KernelConfigV1` object. No alternative surfaces. All authoring guidance, linting, and CLI behaviour target this file.
-- **Types**: Reuse definitions from `@geekist/wp-kernel/resource` (`ResourceConfig`, `ResourceStorageConfig`, etc.). The CLI must never introduce divergent shapes. For reference, see `packages/kernel/src/resource/types.ts` for the canonical runtime contract that inference is layered upon.
+- **Types**: Reuse definitions from `@wpkernel/core/resource` (`ResourceConfig`, `ResourceStorageConfig`, etc.). The CLI must never introduce divergent shapes. For reference, see `packages/core/src/resource/types.ts` for the canonical runtime contract that inference is layered upon.
 - **Schema Sources**: JSON Schemas may be local files, auto synthesised from storage metadata, or provided inline. Generated `.d.ts` files are convenience outputs and not authoritative.
-- **Namespace**: Sanitised via `@geekist/wp-kernel/namespace`. The sanitised value is recorded in the IR and used for all PHP artefacts.
+- **Namespace**: Sanitised via `@wpkernel/core/namespace`. The sanitised value is recorded in the IR and used for all PHP artefacts.
 
 ---
 
@@ -51,7 +51,7 @@ Enhance the current IR builder to capture everything required for generation:
 - `blocks`: **NEW** – discovery result for block directories (SSR vs JS-only) based on `block.json` + optional `render.php`.
 - `php`: defaults (`namespace`, `autoload`, `outputDir`) with room for adapter overrides.
 
-Inference rules are derived from the canonical runtime types in `packages/kernel/src/resource/types.ts` and applied uniformly during IR construction:
+Inference rules are derived from the canonical runtime types in `packages/core/src/resource/types.ts` and applied uniformly during IR construction:
 
 - Identity defaults (`id`/`slug`/`uuid`) are inferred from route placeholders when authors omit `resource.identity`.
 - `schema` falls back to `'auto'` whenever storage metadata is present and no explicit schema is supplied.
@@ -257,7 +257,7 @@ Objective: provide first-class CLI integration tests that exercise command pipel
 
 ### Success criteria
 
-- Running `pnpm --filter @geekist/wp-kernel-cli test -- --runInBand integration` executes the smoke suite reliably.
+- Running `pnpm --filter @wpkernel/cli test -- --runInBand integration` executes the smoke suite reliably.
 - Harness utilities are reusable by future browser-based e2e (optional) without coupling to Playwright.
 - Provides confidence between unit tests and full browser e2e by validating CLI behaviour against real workspaces.
 
@@ -274,13 +274,13 @@ Objective: provide first-class CLI integration tests that exercise command pipel
 ### Tasks
 
 1. **Documentation alignment**
-    - Ensure `packages/kernel` continues to emit API docs from existing JSDoc (no ad-hoc Markdown copies).
+    - Ensure `packages/core` continues to emit API docs from existing JSDoc (no ad-hoc Markdown copies).
     - Expand JSDoc coverage for public CLI/UI exports; regenerate docs via the existing tooling (or enhance scripts under `docs/`).
     - Update contributing docs to describe how to regenerate API references.
 2. **Export hygiene**
-    - Introduce `index.ts` re-export barrels for kernel subdirectories (e.g., `packages/kernel/src/events/index.ts`) so every public module has a stable entry point.
-    - Update each package’s `package.json` `exports` map with those subpaths (e.g., `@geekist/wp-kernel/events`).
-    - Replace consumer imports that either hit the package root (`@geekist/wp-kernel`) or deep relative paths (`../../src/...`) with the new subpath exports.
+    - Introduce `index.ts` re-export barrels for kernel subdirectories (e.g., `packages/core/src/events/index.ts`) so every public module has a stable entry point.
+    - Update each package’s `package.json` `exports` map with those subpaths (e.g., `@wpkernel/core/events`).
+    - Replace consumer imports that either hit the package root (`@wpkernel/core`) or deep relative paths (`../../src/...`) with the new subpath exports.
     - Add lint/tests preventing future use of root/deep relative imports in favour of the explicit subpaths.
 3. **Bundler externals**
     - Review CLI build output; externalise libraries such as `@wordpress/*`, `chokidar`, etc., where runtime expects them as peer deps.
@@ -324,7 +324,7 @@ Objective: provide first-class CLI integration tests that exercise command pipel
 ## Appendix A – KernelConfig Template Sketch
 
 ```ts
-import type { KernelConfigV1 } from '@geekist/wp-kernel-cli/config';
+import type { KernelConfigV1 } from '@wpkernel/cli/config';
 
 /**
  * Kernel Config v1

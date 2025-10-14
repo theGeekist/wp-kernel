@@ -15,16 +15,14 @@
 		// Path Aliases
 		"baseUrl": ".",
 		"paths": {
-			"@geekist/wp-kernel": ["./packages/kernel/src/index.ts"],
-			"@geekist/wp-kernel/*": ["./packages/kernel/src/*"],
-			"@geekist/wp-kernel-ui": ["./packages/ui/src/index.ts"],
-			"@geekist/wp-kernel-ui/*": ["./packages/ui/src/*"],
-			"@geekist/wp-kernel-cli": ["./packages/cli/src/index.ts"],
-			"@geekist/wp-kernel-cli/*": ["./packages/cli/src/*"],
-			"@geekist/wp-kernel-e2e-utils": [
-				"./packages/e2e-utils/src/index.ts"
-			],
-			"@geekist/wp-kernel-e2e-utils/*": ["./packages/e2e-utils/src/*"],
+			"@wpkernel/core": ["./packages/core/src/index.ts"],
+			"@wpkernel/core/*": ["./packages/core/src/*"],
+			"@wpkernel/ui": ["./packages/ui/src/index.ts"],
+			"@wpkernel/ui/*": ["./packages/ui/src/*"],
+			"@wpkernel/cli": ["./packages/cli/src/index.ts"],
+			"@wpkernel/cli/*": ["./packages/cli/src/*"],
+			"@wpkernel/e2e-utils": ["./packages/e2e-utils/src/index.ts"],
+			"@wpkernel/e2e-utils/*": ["./packages/e2e-utils/src/*"],
 			"@test-utils/*": ["./tests/test-utils/*"]
 		},
 

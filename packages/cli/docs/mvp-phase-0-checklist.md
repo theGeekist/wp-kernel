@@ -38,15 +38,15 @@ Touchpoints align with the spec; future phases hook into the same modules.
 
 ## 4. Smoke Test Verification
 
-Sample project: `app/test-the-cli`
+Sample project: `examples/test-the-cli`
 
 Commands executed:
 
 ```bash
-pnpm --filter @geekist/wp-kernel build
-pnpm --filter @geekist/wp-kernel-cli build
+pnpm --filter @wpkernel/core build
+pnpm --filter @wpkernel/cli build
 
-cd app/test-the-cli
+cd examples/test-the-cli
 node ../../packages/cli/bin/wpk.js --help
 node ../../packages/cli/bin/wpk.js generate --dry-run
 node ../../packages/cli/bin/wpk.js generate

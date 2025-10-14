@@ -6,7 +6,7 @@ import type { BaseContext } from 'clipanion';
 import { GenerateCommand } from '../generate';
 import * as printers from '../../printers';
 import * as ir from '../../ir';
-import { KernelError } from '@geekist/wp-kernel/error';
+import { KernelError } from '@wpkernel/core/error';
 
 jest.mock('json-schema-to-typescript', () => ({
 	compile: jest.fn(async () => 'export interface Schema {}\n'),

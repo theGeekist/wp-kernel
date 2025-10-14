@@ -2,7 +2,7 @@ import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { runAdapterExtensions } from '..';
-import { KernelError } from '@geekist/wp-kernel/error';
+import { KernelError } from '@wpkernel/core/error';
 import type {
 	AdapterContext,
 	AdapterExtension,
@@ -10,7 +10,7 @@ import type {
 } from '../../config/types';
 import type { IRv1 } from '../../ir';
 import { FileWriter } from '../../utils/file-writer';
-import type { Reporter } from '@geekist/wp-kernel/reporter';
+import type { Reporter } from '@wpkernel/core/reporter';
 
 const TMP_OUTPUT = path.join(os.tmpdir(), 'wpk-extension-output-');
 

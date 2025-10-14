@@ -93,8 +93,8 @@ function detectNamespace(explicit?: string): string {
 \`\`\`
 
 ## Files to Create/Update
-- \`packages/kernel/src/namespace/detect.ts\`
-- \`packages/kernel/src/namespace/__tests__/detect.test.ts\`
+- \`packages/core/src/namespace/detect.ts\`
+- \`packages/core/src/namespace/__tests__/detect.test.ts\`
 
 ## Dependencies
 None (foundational)
@@ -145,9 +145,9 @@ export function defineResource<T>(config: ResourceConfig<T>) {
 \`\`\`
 
 ## Files to Update
-- \`packages/kernel/src/resource/define.ts\`
-- \`packages/kernel/src/resource/__tests__/define.test.ts\`
-- \`packages/kernel/src/resource/types.ts\`
+- \`packages/core/src/resource/define.ts\`
+- \`packages/core/src/resource/__tests__/define.test.ts\`
+- \`packages/core/src/resource/types.ts\`
 
 ## Dependencies
 - Task 2: Namespace Detection Implementation
@@ -219,9 +219,9 @@ Audit and update framework code to eliminate hardcoded \`wpk\` assumptions and e
 - Clear separation between framework and application events
 
 ## Files to Audit
-- \`packages/kernel/src/resource/\`
-- \`packages/kernel/src/http/\`
-- \`packages/kernel/src/error/\`
+- \`packages/core/src/resource/\`
+- \`packages/core/src/http/\`
+- \`packages/core/src/error/\`
 - All test files for hardcoded references
 
 ## Dependencies
@@ -302,8 +302,8 @@ const handleBulkSeed = async () => {
 \`\`\`
 
 ## Files to Update
-- \`app/showcase/src/admin/pages/JobsList.tsx\`
-- \`app/showcase/src/components/\` (loading components)
+- \`examples/showcase/src/admin/pages/JobsList.tsx\`
+- \`examples/showcase/src/components/\` (loading components)
 
 ## Test Target
 - Re-enable test: \"should seed multiple jobs and verify count\"
@@ -348,8 +348,8 @@ export function initializeApp() {
 \`\`\`
 
 ## Files to Update
-- \`app/showcase/src/index.ts\`
-- \`app/showcase/src/stores/\` (store registration)
+- \`examples/showcase/src/index.ts\`
+- \`examples/showcase/src/stores/\` (store registration)
 
 ## Test Target
 - Re-enable test: \"should wait for store to resolve job data\"

@@ -18,7 +18,7 @@ The Jobs & Applications showcase plugin is a comprehensive example of building m
 
 The plugin bootstraps with `configureKernel()` to install middleware, publishes the runtime through `KernelUIProvider`, and leans on the kernel event bus for every UI attachment. What you see in this guide mirrors the production architecture: no global shims, no positional function signatures, and a single source of truth for telemetry, caching, and extensibility.
 
-**Repository:** [View source code](https://github.com/theGeekist/wp-kernel/tree/main/app/showcase)
+**Repository:** [View source code](https://github.com/theGeekist/wp-kernel/tree/main/examples/showcase)
 
 ---
 
@@ -98,8 +98,8 @@ This section shows how each product feature leverages specific kernel primitives
 **Kernel solution:**
 
 ```typescript
-// app/showcase/src/resources/job.ts
-import { defineResource } from '@geekist/wp-kernel/resource';
+// examples/showcase/src/resources/job.ts
+import { defineResource } from '@wpkernel/core/resource';
 
 export const job = defineResource<Job, JobQuery>({
 	name: 'job',
@@ -268,7 +268,7 @@ defineInteraction('wpk/apply-form', {
 
 ```typescript
 // Admin Surface mount
-import { AdminSurface } from '@geekist/wp-kernel/admin';
+import { AdminSurface } from '@wpkernel/core/admin';
 import { PipelineBoard } from './components/PipelineBoard';
 
 AdminSurface.mount('wpk-applications-pipeline', {
@@ -496,7 +496,7 @@ register_binding_source('wpk-server', [
 
 ```typescript
 // Client-side policy (UI hints)
-import { definePolicy } from '@geekist/wp-kernel/policies';
+import { definePolicy } from '@wpkernel/core/policies';
 
 export const jobPolicies = definePolicy({
 	'jobs.manage': () => userCan('manage_jobs'),
@@ -632,7 +632,7 @@ add_action('wpk.bridge.application.created', 'external-crm', function (
 ## Code Structure
 
 ```
-app/showcase/
+examples/showcase/
 ├── contracts/              # JSON Schema definitions
 │   ├── job.schema.json
 │   └── application.schema.json
@@ -731,8 +731,8 @@ The showcase includes seed scripts for testing:
 pnpm wp:seed
 
 # Or manually via WP-CLI
-pnpm wp-env run cli wp eval-file app/showcase/seeds/jobs.php
-pnpm wp-env run cli wp eval-file app/showcase/seeds/applications.php
+pnpm wp-env run cli wp eval-file examples/showcase/seeds/jobs.php
+pnpm wp-env run cli wp eval-file examples/showcase/seeds/applications.php
 ```
 
 **Seeded data:**
@@ -803,7 +803,7 @@ pnpm wp-env run cli wp eval-file app/showcase/seeds/applications.php
 
 ## Next Steps
 
-- **Study the code:** [Browse showcase source](https://github.com/theGeekist/wp-kernel/tree/main/app/showcase)
+- **Study the code:** [Browse showcase source](https://github.com/theGeekist/wp-kernel/tree/main/examples/showcase)
 - **Run the tests:** See E2E patterns in action
 - **Adapt for your product:** Use showcase as a template
 - **Read the guides:**

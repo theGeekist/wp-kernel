@@ -1,5 +1,5 @@
 {
-	"name": "@geekist/wp-kernel-cli",
+	"name": "@wpkernel/cli",
 	"version": "0.4.0",
 	"description": "CLI for scaffolding and managing WP Kernel projects",
 	"license": "EUPL-1.2",
@@ -57,7 +57,7 @@
 		"test:coverage": "jest --passWithNoTests --coverage"
 	},
 	"peerDependencies": {
-		"@geekist/wp-kernel": "workspace:*",
+		"@wpkernel/core": "workspace:*",
 		"@prettier/plugin-php": ">=0.24.0",
 		"json-schema-to-typescript": ">=15.0.4",
 		"prettier": ">=3.6.0",

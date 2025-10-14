@@ -1,4 +1,4 @@
-# `@geekist/wp-kernel-ui` - Package-specific Agent Rules
+# `@wpkernel/ui` - Package-specific Agent Rules
 
 This file supplements the root [AGENTS.md](../../AGENTS.md) with agent guidelines specific to the UI package.
 

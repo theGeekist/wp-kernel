@@ -1,5 +1,5 @@
 /**
- * Jest configuration for @geekist/wp-kernel-cli package
+ * Jest configuration for @wpkernel/cli package
  * Extends base configuration from monorepo root
  */
 
@@ -16,7 +16,7 @@ export default {
 	...baseConfig,
 
 	// Set display name for this project
-	displayName: '@geekist/wp-kernel-cli',
+	displayName: '@wpkernel/cli',
 
 	// Root directory for this package
 	rootDir: monorepoRoot,
@@ -34,15 +34,14 @@ export default {
 		...baseConfig.moduleNameMapper,
 		'^@test-utils/(.*)\\.js$': '<rootDir>/tests/test-utils/$1',
 		'^@test-utils/(.*)$': '<rootDir>/tests/test-utils/$1',
-		'^@geekist/wp-kernel$': '<rootDir>/packages/kernel/src',
-		'^@geekist/wp-kernel/(.*)$': '<rootDir>/packages/kernel/src/$1',
-		'^@geekist/wp-kernel-ui$': '<rootDir>/packages/ui/src',
-		'^@geekist/wp-kernel-ui/(.*)$': '<rootDir>/packages/ui/src/$1',
-		'^@geekist/wp-kernel-cli$': '<rootDir>/packages/cli/src',
-		'^@geekist/wp-kernel-cli/(.*)$': '<rootDir>/packages/cli/src/$1',
-		'^@geekist/wp-kernel-e2e-utils$': '<rootDir>/packages/e2e-utils/src',
-		'^@geekist/wp-kernel-e2e-utils/(.*)$':
-			'<rootDir>/packages/e2e-utils/src/$1',
+		'^@wpkernel/core$': '<rootDir>/packages/core/src',
+		'^@wpkernel/core/(.*)$': '<rootDir>/packages/core/src/$1',
+		'^@wpkernel/ui$': '<rootDir>/packages/ui/src',
+		'^@wpkernel/ui/(.*)$': '<rootDir>/packages/ui/src/$1',
+		'^@wpkernel/cli$': '<rootDir>/packages/cli/src',
+		'^@wpkernel/cli/(.*)$': '<rootDir>/packages/cli/src/$1',
+		'^@wpkernel/e2e-utils$': '<rootDir>/packages/e2e-utils/src',
+		'^@wpkernel/e2e-utils/(.*)$': '<rootDir>/packages/e2e-utils/src/$1',
 	},
 
 	// Setup files
@@ -55,7 +54,7 @@ export default {
 
 	// Only collect coverage for this package's source files. This prevents
 	// coverage from including other workspace packages (for example
-	// @geekist/wp-kernel) which would dilute the package's reported
+	// @wpkernel/core) which would dilute the package's reported
 	// coverage and make per-package targets hard to achieve.
 	collectCoverageFrom: [
 		'<rootDir>/packages/cli/src/**/*.{ts,tsx}',

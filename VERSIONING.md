@@ -89,7 +89,7 @@ After reaching `1.0.0`:
 
 - Cache strategies, transport middleware, store internals
 - If you're using documented public APIs, you're safe
-- Deep imports (`@geekist/wp-kernel/src/internal/...`) are not supported
+- Deep imports (`@wpkernel/core/src/internal/...`) are not supported
 
 ⚠️ **Default Values**
 
@@ -163,7 +163,7 @@ For common API changes, we provide automated migration scripts:
 
 ```bash
 # Example: Migrate from 0.5 → 0.6 API changes
-npx @geekist/wp-kernel-codemod migrate-0.6
+npx @wpkernel/core-codemod migrate-0.6
 ```
 
 Codemods use [jscodeshift](https://github.com/facebook/jscodeshift) to transform your codebase automatically.
@@ -234,12 +234,12 @@ Once we reach v1.0.0:
 
 WP Kernel is a monorepo with multiple packages. They share version numbers:
 
-| Package                        | Current Version | Sync'd with |
-| ------------------------------ | --------------- | ----------- |
-| `@geekist/wp-kernel`           | 0.3.0           | Monorepo    |
-| `@geekist/wp-kernel-ui`        | 0.3.0           | Monorepo    |
-| `@geekist/wp-kernel-cli`       | 0.3.0           | Monorepo    |
-| `@geekist/wp-kernel-e2e-utils` | 0.3.0           | Monorepo    |
+| Package               | Current Version | Sync'd with |
+| --------------------- | --------------- | ----------- |
+| `@wpkernel/core`      | 0.3.0           | Monorepo    |
+| `@wpkernel/ui`        | 0.3.0           | Monorepo    |
+| `@wpkernel/cli`       | 0.3.0           | Monorepo    |
+| `@wpkernel/e2e-utils` | 0.3.0           | Monorepo    |
 
 **Why synchronized versions?**
 

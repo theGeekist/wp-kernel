@@ -7,10 +7,7 @@
  * @module
  */
 
-import {
-	extractPathParams,
-	interpolatePath,
-} from '@geekist/wp-kernel/resource';
+import { extractPathParams, interpolatePath } from '@wpkernel/core/resource';
 import type { Page } from '@playwright/test';
 import type { RequestUtils } from '@wordpress/e2e-test-utils-playwright';
 import type {
@@ -52,7 +49,7 @@ declare global {
  *
  * @example
  * ```typescript
- * import { test, expect } from '@geekist/wp-kernel-e2e-utils';
+ * import { test, expect } from '@wpkernel/e2e-utils';
  *
  * test('job workflow', async ({ page, admin, requestUtils, kernel }) => {
  *   const job = kernel.resource({ name: 'job', routes: {...} });

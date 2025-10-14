@@ -41,7 +41,7 @@ export const test = base.extend<{ kernel: KernelUtils }>({
 ### Primary Usage (Recommended)
 
 ```typescript
-import { test, expect } from '@geekist/wp-kernel-e2e-utils';
+import { test, expect } from '@wpkernel/e2e-utils';
 
 test('my test', async ({ admin, kernel, page }) => {
 	// WordPress fixtures + kernel fixture all available
@@ -51,7 +51,7 @@ test('my test', async ({ admin, kernel, page }) => {
 ### Advanced Usage
 
 ```typescript
-import { createKernelUtils } from '@geekist/wp-kernel-e2e-utils';
+import { createKernelUtils } from '@wpkernel/e2e-utils';
 import { test as base } from '@wordpress/e2e-test-utils-playwright';
 
 // Custom fixture setup

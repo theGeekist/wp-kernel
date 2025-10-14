@@ -57,10 +57,10 @@ Attach visuals for UI-facing changes.
 
 Tick any public packages this PR changes functionally.
 
-- [ ] `@geekist/wp-kernel`
-- [ ] `@geekist/wp-kernel-ui`
-- [ ] `@geekist/wp-kernel-cli`
-- [ ] `@geekist/wp-kernel-e2e-utils`
+- [ ] `@wpkernel/core`
+- [ ] `@wpkernel/ui`
+- [ ] `@wpkernel/cli`
+- [ ] `@wpkernel/e2e-utils`
 
 ## Release
 

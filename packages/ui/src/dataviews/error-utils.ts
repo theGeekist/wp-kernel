@@ -1,5 +1,5 @@
-import { KernelError } from '@geekist/wp-kernel/error';
-import type { Reporter } from '@geekist/wp-kernel/reporter';
+import { KernelError } from '@wpkernel/core/error';
+import type { Reporter } from '@wpkernel/core/reporter';
 import { DataViewsActionError } from '../runtime/dataviews/errors';
 
 interface ErrorContext {

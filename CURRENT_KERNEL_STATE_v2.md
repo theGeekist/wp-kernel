@@ -12,15 +12,15 @@ WP Kernel is a Rails-like framework for WordPress where JavaScript is the source
 
 ### Package Roles
 
-- **`@geekist/wp-kernel`** - Core framework: actions, resources, data integration, policy, reporter, namespace detection, HTTP transport, error types, event bus
-- **`@geekist/wp-kernel-ui`** - React integration: hooks, runtime adapter, context provider for UI primitives
-- **`@geekist/wp-kernel-e2e-utils`** - End-to-end test helpers and fixtures for Playwright/Jest
-- **`@geekist/wp-kernel-cli`** - Authoring workflow: `loadKernelConfig`, deterministic IR builder, printers for TypeScript/PHP, adapter extension runner, commands (`generate`, `apply`, `dev`, placeholder `init`/`doctor`)
-- **`app/showcase`** - Example plugin demonstrating real-world usage (jobs & applications system)
+- **`@wpkernel/core`** - Core framework: actions, resources, data integration, policy, reporter, namespace detection, HTTP transport, error types, event bus
+- **`@wpkernel/ui`** - React integration: hooks, runtime adapter, context provider for UI primitives
+- **`@wpkernel/e2e-utils`** - End-to-end test helpers and fixtures for Playwright/Jest
+- **`@wpkernel/cli`** - Authoring workflow: `loadKernelConfig`, deterministic IR builder, printers for TypeScript/PHP, adapter extension runner, commands (`generate`, `apply`, `dev`, placeholder `init`/`doctor`)
+- **`examples/showcase`** - Example plugin demonstrating real-world usage (jobs & applications system)
 
 ---
 
-## `@geekist/wp-kernel` - Core Framework
+## `@wpkernel/core` - Core Framework
 
 ### Namespace Exports
 
@@ -36,7 +36,7 @@ import {
 	policy,
 	data,
 	reporter,
-} from '@geekist/wp-kernel';
+} from '@wpkernel/core';
 ```
 
 - **`http`** - REST API transport (`fetch`)
@@ -207,7 +207,7 @@ interface KernelInstance {
 **Basic Usage:**
 
 ```typescript
-import { configureKernel } from '@geekist/wp-kernel';
+import { configureKernel } from '@wpkernel/core';
 
 const kernel = configureKernel({
 	namespace: 'my-plugin',
@@ -331,7 +331,7 @@ Domain events follow the pattern `{namespace}.{resource}.{verb}`:
 
 ---
 
-## `@geekist/wp-kernel-ui` - React Integration
+## `@wpkernel/ui` - React Integration
 
 ### Core Exports
 
@@ -360,8 +360,8 @@ The UI package uses an **adapter-driven architecture**. Instead of side-effect i
 
 ```typescript
 // 1. Import adapter from UI package
-import { attachUIBindings, KernelUIProvider } from '@geekist/wp-kernel-ui';
-import { configureKernel } from '@geekist/wp-kernel';
+import { attachUIBindings, KernelUIProvider } from '@wpkernel/ui';
+import { configureKernel } from '@wpkernel/core';
 
 // 2. Configure kernel with UI adapter
 const kernel = configureKernel({
@@ -395,7 +395,7 @@ const kernel = configureKernel({
 });
 
 // Later, when UI bundle loads
-import { attachUIBindings } from '@geekist/wp-kernel-ui';
+import { attachUIBindings } from '@wpkernel/ui';
 const runtime = kernel.attachUIBindings(attachUIBindings);
 ```
 
@@ -515,7 +515,7 @@ function PostActions({ postId }) {
 
 ## Other Packages
 
-### `@geekist/wp-kernel-e2e-utils`
+### `@wpkernel/e2e-utils`
 
 E2E testing utilities for Playwright/Jest integration:
 
@@ -523,7 +523,7 @@ E2E testing utilities for Playwright/Jest integration:
 - `createKernelUtils(fixtures)` - Factory for resource helpers, store utilities, event monitoring
 - Validated via showcase app E2E tests (not unit tested in isolation)
 
-### `@geekist/wp-kernel-cli`
+### `@wpkernel/cli`
 
 Authoring workflow that turns `kernel.config.*` into generated TypeScript/PHP artifacts and keeps `inc/` in sync.
 
@@ -570,7 +570,7 @@ interface KernelConfigV1 {
 The core primitives work without any bootstrap:
 
 ```typescript
-import { defineResource, defineAction } from '@geekist/wp-kernel';
+import { defineResource, defineAction } from '@wpkernel/core';
 
 // Resources auto-register stores with wp.data
 const Posts = defineResource<Post>({
@@ -612,8 +612,8 @@ function PostList() {
 Call `configureKernel()` at bootstrap for production-ready integration:
 
 ```typescript
-import { configureKernel, defineResource, defineAction } from '@geekist/wp-kernel';
-import { attachUIBindings, KernelUIProvider, useAction } from '@geekist/wp-kernel-ui';
+import { configureKernel, defineResource, defineAction } from '@wpkernel/core';
+import { attachUIBindings, KernelUIProvider, useAction } from '@wpkernel/ui';
 import { createRoot } from '@wordpress/element';
 
 // 1. Configure kernel with UI adapter
@@ -722,7 +722,7 @@ function PostList() {
 4. **Apply**: `wpk apply [--backup][--force][--yes]` merges guarded PHP into `inc/**`, writes `.wpk-apply.log`, and enforces clean `.generated/php`.
 5. **Watch** (optional): `wpk start [--auto-apply-php]` for chokidar-based regeneration during development.
 6. **Tests**: Follow the repo policy - `pnpm lint --fix && pnpm typecheck && pnpm typecheck:tests && pnpm test`.
-7. **Showcase parity**: Running generate/apply inside `app/showcase` keeps the reference plugin aligned.
+7. **Showcase parity**: Running generate/apply inside `examples/showcase` keeps the reference plugin aligned.
 8. **Extensions**: Adapter factories can queue additional generated files or mutate IR; they run inside temp sandboxes and commit atomically after printers.
 
 ---
@@ -744,7 +744,7 @@ interface ActionRuntime {
 
 **Current Usage:**
 
-- **Policy runtime** (`packages/kernel/src/policy/context.ts`) - Reads `policy` from this global
+- **Policy runtime** (`packages/core/src/policy/context.ts`) - Reads `policy` from this global
 - **UI runtime** (`attachUIBindings`) - Reads `policy` to provide `usePolicy()` hook
 - **Not used by actions** - Actions receive reporter/namespace via their execution context
 
@@ -867,7 +867,7 @@ All errors become `KernelError` instances with:
 - ✗ UI hooks relied on `__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__` global
 - ✗ Pending resource queue for late UI loading
 - ✗ Cached action dispatcher in global scope
-- ✗ Side-effect imports (`import '@geekist/wp-kernel-ui'`)
+- ✗ Side-effect imports (`import '@wpkernel/ui'`)
 
 ### After (Current):
 
@@ -914,8 +914,8 @@ const policies = definePolicy<PolicyMap>({
 ### Bootstrap
 
 ```typescript
-import { configureKernel } from '@geekist/wp-kernel';
-import { attachUIBindings, KernelUIProvider } from '@geekist/wp-kernel-ui';
+import { configureKernel } from '@wpkernel/core';
+import { attachUIBindings, KernelUIProvider } from '@wpkernel/ui';
 
 const kernel = configureKernel({
   namespace: 'my-plugin',

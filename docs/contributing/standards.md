@@ -96,7 +96,7 @@ export const CreateThing = defineAction({ name: 'Thing.Create', handler: async (
 export const UpdateThing = defineAction({ name: 'Thing.Update', handler: async (ctx, input) => { /* ... */ } });
 
 // Events: use canonical registry
-import { events } from '@geekist/wp-kernel/events';
+import { events } from '@wpkernel/core/events';
 action.emit(events.thing.created, payload);
 ```
 
@@ -165,8 +165,8 @@ import { addAction } from '@wordpress/hooks';
 import { select } from '@wordpress/data';
 
 // 3. Internal (path aliases)
-import { thing } from '@/app/resources/Thing';
-import { CreateThing } from '@/app/actions/Thing/Create';
+import { thing } from '@/resources/Thing';
+import { CreateThing } from '@/actions/Thing/Create';
 
 // 4. Relative
 import { formatDate } from './utils';
@@ -182,7 +182,7 @@ Use configured path aliases:
 import { thing } from '../../../resources/Thing';
 
 // ✓ CORRECT
-import { thing } from '@/app/resources/Thing';
+import { thing } from '@/resources/Thing';
 ```
 
 ### Export Patterns
@@ -220,7 +220,7 @@ Extends `@wordpress/eslint-plugin`:
 ```
 
 Kernel packages ship custom rules. Notably, `@kernel/no-console-in-kernel` forbids `console.*` calls inside
-`packages/kernel/src`-use the reporter module instead.
+`packages/core/src`-use the reporter module instead.
 
 ### Prettier
 
@@ -334,7 +334,7 @@ const thing = getThing(id);
 ### Always Use KernelError
 
 ```typescript
-import { KernelError } from '@geekist/wp-kernel/error';
+import { KernelError } from '@wpkernel/core/error';
 
 // ✓ CORRECT
 throw new KernelError('ValidationError', {
@@ -382,7 +382,7 @@ const handleSubmit = async () => {
 ### 2. Use Canonical Events
 
 ```typescript
-import { events } from '@geekist/wp-kernel/events';
+import { events } from '@wpkernel/core/events';
 
 // ✓ CORRECT
 action.emit(events.thing.created, { id });
@@ -406,10 +406,10 @@ invalidate(['thing', 'get', id]);
 
 ```typescript
 // ✗ WRONG
-import { foo } from '@geekist/wp-kernel/src/internal/foo';
+import { foo } from '@wpkernel/core/src/internal/foo';
 
 // ✓ CORRECT
-import { foo } from '@geekist/wp-kernel';
+import { foo } from '@wpkernel/core';
 ```
 
 ## Testing Patterns
@@ -442,7 +442,7 @@ describe('CreateThing', () => {
 ```typescript
 import { useState } from '@wordpress/element';
 import { Button } from '@wordpress/components';
-import type { Thing } from '@/app/resources/Thing';
+import type { Thing } from '@/resources/Thing';
 
 interface ThingFormProps {
   onSubmit: (thing: Thing) => void;
@@ -521,7 +521,7 @@ export function createThing(data: Partial<Thing>) {
 ### Emit Deprecation Events
 
 ```typescript
-import { events } from '@geekist/wp-kernel/events';
+import { events } from '@wpkernel/core/events';
 
 deprecated('oldFunction', { ... });
 emit(events.deprecated, {

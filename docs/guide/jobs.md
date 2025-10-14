@@ -9,7 +9,7 @@ Queue long-running tasks from Actions. Client can poll for status updates.
 ## Quick Reference
 
 ```typescript
-import { defineJob } from '@geekist/wp-kernel/jobs';
+import { defineJob } from '@wpkernel/core/jobs';
 
 export const IndexTestimonial = defineJob({
 	name: 'IndexTestimonial',

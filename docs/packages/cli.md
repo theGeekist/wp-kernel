@@ -1,4 +1,4 @@
-# @geekist/wp-kernel-cli
+# @wpkernel/cli
 
 Command-line interface for scaffolding and managing WP Kernel projects with Rails-like conventions and WordPress best practices.
 
@@ -27,17 +27,17 @@ graph TD
 ### Global Installation (Recommended)
 
 ```bash
-npm install -g @geekist/wp-kernel-cli
+npm install -g @wpkernel/cli
 # or
-pnpm add -g @geekist/wp-kernel-cli
+pnpm add -g @wpkernel/cli
 ```
 
 ### One-time Usage
 
 ```bash
-npx @geekist/wp-kernel-cli init my-project
+npx @wpkernel/cli init my-project
 # or
-pnpm dlx @geekist/wp-kernel-cli init my-project
+pnpm dlx @wpkernel/cli init my-project
 ```
 
 ## Commands
@@ -215,7 +215,7 @@ wpk generate resource Product \
 
 ```typescript
 // src/resources/product.ts
-import { defineResource } from '@geekist/wp-kernel/resource';
+import { defineResource } from '@wpkernel/core/resource';
 
 export interface Product {
 	id: number;
@@ -264,7 +264,7 @@ import {
         createResourceDataViewController,
         createDataFormController,
         ResourceDataView,
-} from '@geekist/wp-kernel-ui/dataviews';
+} from '@wpkernel/ui/dataviews';
 import { product } from '../../resources/product';
 import { CreateProduct } from '../../actions/product';
 
@@ -308,11 +308,11 @@ wpk generate action CreateProduct \
 
 ```typescript
 // src/actions/CreateProduct.ts
-import { defineAction } from '@geekist/wp-kernel/actions';
+import { defineAction } from '@wpkernel/core/actions';
 import { product } from '../resources/product';
-import { KernelError } from '@geekist/wp-kernel/error';
-import { events } from '@geekist/wp-kernel/events';
-import { jobs } from '@geekist/wp-kernel/jobs';
+import { KernelError } from '@wpkernel/core/error';
+import { events } from '@wpkernel/core/events';
+import { jobs } from '@wpkernel/core/jobs';
 
 export const CreateProduct = defineAction(
 	'CreateProduct',
@@ -569,7 +569,7 @@ Creates:
 ### Project Config (`wpk.config.ts`)
 
 ```typescript
-import { defineConfig } from '@geekist/wp-kernel-cli';
+import { defineConfig } from '@wpkernel/cli';
 
 export default defineConfig({
 	namespace: 'my-plugin',
@@ -619,7 +619,7 @@ wpk generate resource User \
 
 - Jest for unit tests
 - Playwright for E2E tests
-- @geekist/wp-kernel-e2e-utils integration
+- @wpkernel/e2e-utils integration
 - Coverage reporting
 
 ### WordPress Integration
@@ -692,7 +692,7 @@ Extend the CLI with custom generators:
 
 ```typescript
 // generators/custom-generator.ts
-import { defineGenerator } from '@geekist/wp-kernel-cli/generator';
+import { defineGenerator } from '@wpkernel/cli/generator';
 
 export default defineGenerator({
   name: 'custom',

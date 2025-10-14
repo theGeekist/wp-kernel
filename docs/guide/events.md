@@ -14,7 +14,7 @@ between the bus (typed subscriptions) or WordPress hooks (legacy interoperabilit
 without losing coverage.
 
 ```ts
-import { configureKernel } from '@geekist/wp-kernel';
+import { configureKernel } from '@wpkernel/core';
 
 const kernel = configureKernel({ namespace: 'acme' });
 
@@ -247,7 +247,7 @@ console.log(thing.events.removed); // 'your-plugin.thing.removed'
 ### Emit Events from Actions
 
 ```typescript
-import { defineAction } from '@geekist/wp-kernel';
+import { defineAction } from '@wpkernel/core';
 import { thing } from './resources/thing';
 
 export const CreateThing = defineAction(

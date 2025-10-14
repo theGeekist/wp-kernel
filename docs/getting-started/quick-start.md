@@ -46,7 +46,7 @@ export interface Thing {
 Once the shape is in place, pull in `defineResource` and wire the REST endpoints you expect the server to expose:
 
 ```typescript
-import { defineResource } from '@geekist/wp-kernel/resource';
+import { defineResource } from '@wpkernel/core/resource';
 
 export const thing = defineResource<Thing, { q?: string }>({
 	name: 'thing',
@@ -92,10 +92,10 @@ Run `pnpm types:generate` to regenerate the resource typings. Whenever schema ch
 Create `app/actions/Thing/Create.ts` with the planned API:
 
 ```typescript
-import { defineAction } from '@geekist/wp-kernel/actions';
-import { events } from '@geekist/wp-kernel/events';
-import { invalidate } from '@geekist/wp-kernel';
-import { thing, Thing } from '@/app/resources/Thing';
+import { defineAction } from '@wpkernel/core/actions';
+import { events } from '@wpkernel/core/events';
+import { invalidate } from '@wpkernel/core';
+import { thing, Thing } from '@/resources/Thing';
 ```
 
 With the imports ready, describe the orchestration logic:
@@ -122,13 +122,13 @@ The planned file captures three responsibilities in plain English: send the writ
 
 ## Step 4: Bind data to the UI
 
-Views consume the generated hooks and call Actions; they never talk to transport directly. Import `@geekist/wp-kernel-ui` once in your bootstrap code to register the hooks before rendering. A small form is enough to demonstrate the pattern. Create `app/views/Thing/Form.tsx` and start with imports and local state:
+Views consume the generated hooks and call Actions; they never talk to transport directly. Import `@wpkernel/ui` once in your bootstrap code to register the hooks before rendering. A small form is enough to demonstrate the pattern. Create `app/views/Thing/Form.tsx` and start with imports and local state:
 
 ```tsx
 import { useState } from '@wordpress/element';
 import { Button, Notice, TextControl } from '@wordpress/components';
-import { thing } from '@/app/resources/Thing';
-import { CreateThing } from '@/app/actions/Thing/Create';
+import { thing } from '@/resources/Thing';
+import { CreateThing } from '@/actions/Thing/Create';
 
 export function ThingForm() {
         const { data: list, isLoading } = thing.useList();

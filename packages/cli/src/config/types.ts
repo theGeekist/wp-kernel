@@ -1,6 +1,6 @@
-import type { Reporter } from '@geekist/wp-kernel/reporter';
-import type { ResourceConfig } from '@geekist/wp-kernel/resource';
-import type { WPKConfigSource } from '@geekist/wp-kernel/namespace/constants';
+import type { Reporter } from '@wpkernel/core/reporter';
+import type { ResourceConfig } from '@wpkernel/core/resource';
+import type { WPKConfigSource } from '@wpkernel/core/namespace/constants';
 import type { IRv1 } from '../ir/types';
 import type { PhpAstBuilder } from '../printers/php/types';
 

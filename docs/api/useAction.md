@@ -2,25 +2,25 @@
 
 React hook that wraps kernel actions with predictable state, concurrency
 policies, and cache invalidation helpers. It dispatches Actions through the
-kernel middleware (`packages/kernel/src/actions/middleware.ts`), so you keep all
+kernel middleware (`packages/core/src/actions/middleware.ts`), so you keep all
 the lifecycle instrumentation provided by `defineAction`
-(`packages/kernel/src/actions/define.ts`) while gaining a first-class React
+(`packages/core/src/actions/define.ts`) while gaining a first-class React
 interface.
 
-The hook lives in `@geekist/wp-kernel-ui` and expects a `KernelUIRuntime` to be
+The hook lives in `@wpkernel/ui` and expects a `KernelUIRuntime` to be
 available via `KernelUIProvider`. Attach the runtime during
 `configureKernel({ ui: { attach: attachUIBindings } })` and wrap your React tree
 with `KernelUIProvider` so hooks can resolve the registry and action dispatcher.
 `useAction()` does **not** reimplement actions-everything still flows through
 `invokeAction` and the runtime declared in
-`packages/kernel/src/actions/types.ts`.
+`packages/core/src/actions/types.ts`.
 
 ## Signature
 
 ```ts
-import type { DefinedAction } from '@geekist/wp-kernel/actions';
-import type { CacheKeyPattern } from '@geekist/wp-kernel';
-import { useAction } from '@geekist/wp-kernel-ui';
+import type { DefinedAction } from '@wpkernel/core/actions';
+import type { CacheKeyPattern } from '@wpkernel/core';
+import { useAction } from '@wpkernel/ui';
 
 function useAction<TInput, TResult>(
 	action: DefinedAction<TInput, TResult>,
@@ -45,11 +45,11 @@ function useAction<TInput, TResult>(
 
 ### Options
 
-| Option           | Description                                                                                                                     |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `concurrency`    | How to treat overlapping calls. Defaults to `parallel`.                                                                         |
-| `dedupeKey`      | Return a string key to share a single in-flight promise (useful for search boxes).                                              |
-| `autoInvalidate` | Return cache key patterns to invalidate after a successful run. Uses `invalidate` from `packages/kernel/src/resource/cache.ts`. |
+| Option           | Description                                                                                                                   |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `concurrency`    | How to treat overlapping calls. Defaults to `parallel`.                                                                       |
+| `dedupeKey`      | Return a string key to share a single in-flight promise (useful for search boxes).                                            |
+| `autoInvalidate` | Return cache key patterns to invalidate after a successful run. Uses `invalidate` from `packages/core/src/resource/cache.ts`. |
 
 ### Concurrency modes
 
@@ -62,7 +62,7 @@ function useAction<TInput, TResult>(
 ## Example: basic form submission
 
 ```tsx
-import { useAction } from '@geekist/wp-kernel-ui';
+import { useAction } from '@wpkernel/ui';
 import { CreateJob } from '@/actions/job/CreateJob';
 
 export function JobForm() {
@@ -162,7 +162,7 @@ available.
 
 ## References
 
-- Action definition – [`packages/kernel/src/actions/define.ts`](../packages/kernel/src/actions/define.ts)
-- Middleware/dispatch – [`packages/kernel/src/actions/middleware.ts`](../packages/kernel/src/actions/middleware.ts)
-- Action context types – [`packages/kernel/src/actions/types.ts`](../packages/kernel/src/actions/types.ts)
-- Cache helpers used by `autoInvalidate` – [`packages/kernel/src/resource/cache.ts`](../packages/kernel/src/resource/cache.ts)
+- Action definition – [`packages/core/src/actions/define.ts`](../packages/core/src/actions/define.ts)
+- Middleware/dispatch – [`packages/core/src/actions/middleware.ts`](../packages/core/src/actions/middleware.ts)
+- Action context types – [`packages/core/src/actions/types.ts`](../packages/core/src/actions/types.ts)
+- Cache helpers used by `autoInvalidate` – [`packages/core/src/resource/cache.ts`](../packages/core/src/resource/cache.ts)

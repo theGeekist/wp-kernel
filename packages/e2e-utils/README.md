@@ -1,4 +1,4 @@
-# @geekist/wp-kernel-e2e-utils
+# @wpkernel/e2e-utils
 
 > End-to-end testing utilities for WordPress + WP Kernel applications (Optional)
 
@@ -17,12 +17,12 @@ Playwright-based testing utilities designed for WordPress environments:
 ## Quick Start
 
 ```bash
-npm install -D @geekist/wp-kernel-e2e-utils playwright
+npm install -D @wpkernel/e2e-utils playwright
 ```
 
 ```typescript
 import { test } from '@playwright/test';
-import { auth, db, store } from '@geekist/wp-kernel-e2e-utils';
+import { auth, db, store } from '@wpkernel/e2e-utils';
 
 test('admin can create posts', async ({ page }) => {
 	// WordPress auth
@@ -46,18 +46,14 @@ test('admin can create posts', async ({ page }) => {
 
 ```typescript
 // Scoped imports (recommended)
-import { login } from '@geekist/wp-kernel-e2e-utils/auth';
-import { seedPosts } from '@geekist/wp-kernel-e2e-utils/db';
+import { login } from '@wpkernel/e2e-utils/auth';
+import { seedPosts } from '@wpkernel/e2e-utils/db';
 
 // Namespace imports
-import { auth, db, store } from '@geekist/wp-kernel-e2e-utils';
+import { auth, db, store } from '@wpkernel/e2e-utils';
 
 // Flat imports
-import {
-	login,
-	seedPosts,
-	waitForResource,
-} from '@geekist/wp-kernel-e2e-utils';
+import { login, seedPosts, waitForResource } from '@wpkernel/e2e-utils';
 ```
 
 ### WordPress Integration
@@ -113,7 +109,7 @@ expect(await dataview.getSelectedCount()).toBeGreaterThan(0);
 
 - **WordPress**: 6.7+
 - **Playwright**: 1.45+
-- **@geekist/wp-kernel**: For kernel-aware fixtures
+- **@wpkernel/core**: For kernel-aware fixtures
 
 ## Contributing
 
@@ -137,12 +133,12 @@ Sprint 2 will transform this setup by:
 ## Installation
 
 ```bash
-pnpm add -D @geekist/wp-kernel-e2e-utils
+pnpm add -D @wpkernel/e2e-utils
 ```
 
 ## Peer Dependencies
 
-- `@geekist/wp-kernel` (core framework)
+- `@wpkernel/core` (core framework)
 - `@playwright/test` (Playwright test runner)
 - `@wordpress/e2e-test-utils-playwright` (WordPress E2E helpers)
 
@@ -155,7 +151,7 @@ After Sprint 2 implementation, tests will use the single factory pattern:
 ### Basic Test with Kernel Fixtures
 
 ```typescript
-import { test, expect } from '@geekist/wp-kernel-e2e-utils';
+import { test, expect } from '@wpkernel/e2e-utils';
 
 test('should load jobs', async ({ page, admin, kernel }) => {
 	// ✓ Use WordPress fixture for login
@@ -196,7 +192,7 @@ The `kernel` fixture is created by a single factory that extends WordPress fixtu
 
 ```typescript
 import { test as base } from '@wordpress/e2e-test-utils-playwright';
-import { createKernelUtils } from '@geekist/wp-kernel-e2e-utils';
+import { createKernelUtils } from '@wpkernel/e2e-utils';
 
 export const test = base.extend({
 	kernel: async ({ page, requestUtils, admin, editor, pageUtils }, use) => {
@@ -335,7 +331,7 @@ test('jobs page works', async ({ page }) => {
 ### After (Post-Sprint 2 - WordPress + kernel fixtures)
 
 ```typescript
-import { test, expect } from '@geekist/wp-kernel-e2e-utils';
+import { test, expect } from '@wpkernel/e2e-utils';
 
 test('jobs page works', async ({ admin, page, kernel }) => {
 	// ✓ Use WordPress fixture (no manual login)

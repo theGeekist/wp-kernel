@@ -7,7 +7,7 @@ and cross-tab synchronisation.
 ## `definePolicy`
 
 ```ts
-import { definePolicy } from '@geekist/wp-kernel/policy';
+import { definePolicy } from '@wpkernel/core/policy';
 ```
 
 ### Signature
@@ -17,7 +17,7 @@ import type {
 	PolicyMap,
 	PolicyOptions,
 	PolicyHelpers,
-} from '@geekist/wp-kernel/policy';
+} from '@wpkernel/core/policy';
 
 declare function definePolicy<K extends Record<string, unknown>>(
 	map: PolicyMap<K>,
@@ -115,7 +115,7 @@ interface PolicyCacheOptions {
 ## `usePolicy`
 
 ```ts
-import { usePolicy } from '@geekist/wp-kernel-ui';
+import { usePolicy } from '@wpkernel/ui';
 ```
 
 ### Signature

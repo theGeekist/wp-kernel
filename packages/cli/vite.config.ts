@@ -14,7 +14,7 @@ const external = [
 ];
 
 export default createKernelLibConfig(
-	'@geekist/wp-kernel-cli',
+	'@wpkernel/cli',
 	{
 		index: 'src/index.ts',
 	},

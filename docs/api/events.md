@@ -209,7 +209,7 @@ See the [Event Taxonomy Quick Reference](https://github.com/theGeekist/wp-kernel
 **Status**: ✓ Available now via `resource.events.*` properties.
 
 ```typescript
-import { defineAction } from '@geekist/wp-kernel';
+import { defineAction } from '@wpkernel/core';
 import { thing } from './resources/thing';
 
 export const CreateThing = defineAction(
@@ -237,4 +237,4 @@ For complete event taxonomy, payload contracts, PHP bridge mapping, and versioni
 ## Related
 
 - [Events Guide](/guide/events) - Usage patterns and examples
-- [HTTP Transport API](/api/generated/kernel/src/namespaces/http/README) - Transport implementation
+- [HTTP Transport API](/api/generated/core/src/namespaces/http/README) - Transport implementation

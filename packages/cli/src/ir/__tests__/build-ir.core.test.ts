@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { KernelError } from '@geekist/wp-kernel/error';
+import { KernelError } from '@wpkernel/core/error';
 import type { KernelConfigV1 } from '../../config/types';
 import { buildIr } from '../build-ir';
 import {

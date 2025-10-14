@@ -13,7 +13,7 @@ jest.mock('../../utils', () => ({
 jest.mock('prettier', () => ({ format: jest.fn() }));
 jest.mock('@prettier/plugin-php', () => ({}));
 
-import { KernelError } from '@geekist/wp-kernel/error';
+import { KernelError } from '@wpkernel/core/error';
 import { serialiseError } from '../run-generate';
 
 describe('serialiseError', () => {

@@ -1,6 +1,6 @@
 /**
  * ESLint rule: prefer-submodule-import
- * Flags imports from main package entrypoints (e.g. '@geekist/wp-kernel') and suggests using submodule imports (e.g. '@geekist/wp-kernel/resource').
+ * Flags imports from main package entrypoints (e.g. '@wpkernel/core') and suggests using submodule imports (e.g. '@wpkernel/core/resource').
  */
 
 export default {
@@ -21,10 +21,10 @@ export default {
 	create(context) {
 		// List main entrypoints to flag
 		const mainEntrypoints = new Set([
-			'@geekist/wp-kernel',
-			'@geekist/wp-kernel-ui',
-			'@geekist/wp-kernel-cli',
-			'@geekist/wp-kernel-e2e-utils',
+			'@wpkernel/core',
+			'@wpkernel/ui',
+			'@wpkernel/cli',
+			'@wpkernel/e2e-utils',
 		]);
 
 		function reportIfMain(source, node) {

@@ -19,13 +19,13 @@ Structured logging via LogLayer with console and WordPress hook transports.
 ### [Data Helpers](/guide/data)
 
 Registry utilities (`registerKernelStore`) and notice bridging for `@wordpress/data` stores. `configureKernel()`
-is the bootstrap function available from `@geekist/wp-kernel`.
+is the bootstrap function available from `@wpkernel/core`.
 
-### [Errors](/api/generated/kernel/src/namespaces/error/README)
+### [Errors](/api/generated/core/src/namespaces/error/README)
 
 Error types and handling primitives.
 
-### [HTTP Transport](/api/generated/kernel/src/namespaces/http/README)
+### [HTTP Transport](/api/generated/core/src/namespaces/http/README)
 
 ## UI Hooks
 
@@ -45,11 +45,11 @@ and automatic cache invalidation.
 The CLI package now ships with the same JSDoc-driven reference used for the
 kernel. Browse the generated Markdown under `/api/generated` to explore
 `runCli`, command classes, policy-map helpers, and typed configuration
-artifacts for `@geekist/wp-kernel-cli`.
+artifacts for `@wpkernel/cli`.
 
 ## UI Reference
 
-Typed documentation for `@geekist/wp-kernel-ui` is published alongside the
+Typed documentation for `@wpkernel/ui` is published alongside the
 kernel and CLI references. The generated pages cover runtime attachment
 helpers, hooks, and DataViews integration utilities so the three packages
 share a consistent API narrative.
@@ -65,9 +65,9 @@ The following modules are planned for future sprints:
 ## Usage
 
 ```typescript
-import { defineResource, invalidate } from '@geekist/wp-kernel';
-import { KernelError, ServerError } from '@geekist/wp-kernel/error';
-import { fetch } from '@geekist/wp-kernel/http';
+import { defineResource, invalidate } from '@wpkernel/core';
+import { KernelError, ServerError } from '@wpkernel/core/error';
+import { fetch } from '@wpkernel/core/http';
 ```
 
 For detailed examples and tutorials, see the [Guide](/guide/).

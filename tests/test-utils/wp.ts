@@ -7,7 +7,7 @@
  */
 
 // Import resetNamespaceCache for test cleanup
-import { resetNamespaceCache } from '@geekist/wp-kernel/namespace';
+import { resetNamespaceCache } from '@wpkernel/core/namespace';
 
 /**
  * Ensure wp.data is available and return it with proper typing

@@ -46,9 +46,9 @@ To use WP Kernel in your WordPress plugin:
 
 ```bash
 # In your plugin directory
-npm install @geekist/wp-kernel
+npm install @wpkernel/core
 # or
-pnpm add @geekist/wp-kernel
+pnpm add @wpkernel/core
 ```
 
 See the [Quick Start guide](/getting-started/quick-start) to build your first feature.
@@ -91,7 +91,7 @@ pnpm install
 
 This installs dependencies for:
 
-- Core packages (`@geekist/wp-kernel`, `@geekist/wp-kernel-ui`)
+- Core packages (`@wpkernel/core`, `@wpkernel/ui`)
 - E2E testing utilities
 - Showcase plugin
 - Development tooling

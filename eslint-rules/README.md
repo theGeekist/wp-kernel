@@ -278,7 +278,7 @@ export default [
 Each rule includes full coverage under `packages/cli/__tests__/eslint-rules`.
 
 ```bash
-pnpm --filter @geekist/wp-kernel-cli test
+pnpm --filter @wpkernel/cli test
 ```
 
 Tests use ESLint’s `RuleTester` with `@typescript-eslint/parser`, covering valid/invalid cases, edge scenarios, and auto-fix validation.
@@ -287,7 +287,7 @@ Tests use ESLint’s `RuleTester` with `@typescript-eslint/parser`, covering val
 
 ## References
 
-- **Constants**: `packages/kernel/src/namespace/constants.ts`
+- **Constants**: `packages/core/src/namespace/constants.ts`
 - **Evaluator Utils**: `eslint-rules/utils/kernel-config-evaluator.js`
 - **CLI Spec**: [MVP CLI Spec §6 - Authoring Safety](../packages/cli/mvp-cli-spec.md#6-blocks-of-authoring-safety)
 - **PR**: [#112 – ESLint Plugin Extensions](https://github.com/theGeekist/wp-kernel/pull/112)

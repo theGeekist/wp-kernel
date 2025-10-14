@@ -10,13 +10,13 @@ import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import type * as cosmiconfigNamespace from 'cosmiconfig';
-import { createReporter, type Reporter } from '@geekist/wp-kernel/reporter';
-import { KernelError } from '@geekist/wp-kernel/error';
+import { createReporter, type Reporter } from '@wpkernel/core/reporter';
+import { KernelError } from '@wpkernel/core/error';
 import {
 	WPK_CONFIG_SOURCES,
 	WPK_NAMESPACE,
-} from '@geekist/wp-kernel/namespace/constants';
-import type { WPKConfigSource } from '@geekist/wp-kernel/namespace/constants';
+} from '@wpkernel/core/namespace/constants';
+import type { WPKConfigSource } from '@wpkernel/core/namespace/constants';
 import { validateKernelConfig } from './validate-kernel-config';
 import type { LoadedKernelConfig } from './types';
 

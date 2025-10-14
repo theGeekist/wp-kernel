@@ -16,7 +16,7 @@ import path from 'path';
 // Allowed file: where namespace constants are defined
 const CONSTANTS_FILE = path.join(
 	'packages',
-	'kernel',
+	'core',
 	'src',
 	'namespace',
 	'constants.ts'
@@ -63,6 +63,107 @@ const ALL_HARDCODED_STRINGS = [
 	...NAMESPACE_PATTERNS.SUBSYSTEM_NAMESPACES,
 	...NAMESPACE_PATTERNS.INFRASTRUCTURE,
 ];
+
+const TEST_FILE_SUFFIXES = ['.test.ts', '.test.tsx', '.spec.ts'];
+
+const DOC_PATH_SEGMENTS = [
+	path.join('docs', 'api'),
+	'README.md',
+	'CHANGELOG.md',
+];
+
+function isTestFile(filename) {
+	if (filename.includes('__tests__')) {
+		return true;
+	}
+
+	return TEST_FILE_SUFFIXES.some((suffix) => filename.endsWith(suffix));
+}
+
+function isDocumentationFile(filename) {
+	if (filename.endsWith('.md')) {
+		return true;
+	}
+
+	return DOC_PATH_SEGMENTS.some((segment) => filename.includes(segment));
+}
+
+function shouldIgnoreFile(filename) {
+	if (filename.includes(CONSTANTS_FILE)) {
+		return true;
+	}
+
+	if (filename.includes('eslint-rules')) {
+		return true;
+	}
+
+	if (isTestFile(filename)) {
+		return true;
+	}
+
+	return isDocumentationFile(filename);
+}
+
+function literalInComment(node, context) {
+	const sourceCode = context.getSourceCode();
+	const comments = sourceCode.getAllComments();
+
+	return comments.some(
+		(comment) =>
+			node.range[0] >= comment.range[0] &&
+			node.range[1] <= comment.range[1]
+	);
+}
+
+function reportLiteralIfNeeded(context, node) {
+	if (typeof node.value !== 'string') {
+		return;
+	}
+
+	if (literalInComment(node, context)) {
+		return;
+	}
+
+	if (!containsHardcodedNamespace(node.value)) {
+		return;
+	}
+
+	const suggestion = getConstantSuggestion(node.value);
+
+	context.report({
+		node,
+		messageId: 'hardcodedNamespace',
+		data: {
+			value: node.value,
+			suggestion,
+		},
+	});
+}
+
+function reportTemplateLiteralIfNeeded(context, node) {
+	for (const quasi of node.quasis) {
+		const value = quasi.value.raw;
+
+		for (const prefix of NAMESPACE_PATTERNS.PREFIX_PATTERNS) {
+			if (!value.includes(prefix)) {
+				continue;
+			}
+
+			const suggestion = getConstantSuggestion(prefix);
+
+			context.report({
+				node: quasi,
+				messageId: 'hardcodedNamespace',
+				data: {
+					value: prefix,
+					suggestion,
+				},
+			});
+
+			break;
+		}
+	}
+}
 
 /**
  * Check if a string literal contains a hardcoded namespace
@@ -143,7 +244,7 @@ export default {
 				'Enforce usage of namespace constants instead of hardcoded strings',
 			category: 'Best Practices',
 			recommended: true,
-			url: 'https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/src/namespace/constants.ts',
+			url: 'https://github.com/theGeekist/wp-kernel/blob/main/packages/core/src/namespace/constants.ts',
 		},
 		messages: {
 			hardcodedNamespace:
@@ -158,98 +259,17 @@ export default {
 	create(context) {
 		const filename = context.getFilename();
 
-		// Skip the constants file itself
-		if (filename.includes(CONSTANTS_FILE)) {
-			return {};
-		}
-
-		// Skip ESLint rule files (they define the patterns)
-		if (filename.includes('eslint-rules')) {
-			return {};
-		}
-
-		// Skip test files
-		if (
-			filename.includes('__tests__') ||
-			filename.endsWith('.test.ts') ||
-			filename.endsWith('.test.tsx') ||
-			filename.endsWith('.spec.ts')
-		) {
-			return {};
-		}
-
-		// Skip documentation files (JSDoc examples showing API usage)
-		// But DO check actual e2e-utils implementation code
-		if (
-			filename.includes(path.join('docs', 'api')) ||
-			filename.includes('README.md') ||
-			filename.includes('CHANGELOG.md') ||
-			filename.endsWith('.md')
-		) {
+		if (shouldIgnoreFile(filename)) {
 			return {};
 		}
 
 		return {
-			// Check string literals
 			Literal(node) {
-				// Only check string literals
-				if (typeof node.value !== 'string') {
-					return;
-				}
-
-				// Skip if this is a JSDoc comment or appears to be in a comment context
-				// (ESLint doesn't parse comments as nodes, but we can check parent context)
-				const sourceCode = context.getSourceCode();
-				const comments = sourceCode.getAllComments();
-
-				// Check if this literal is within a comment range
-				for (const comment of comments) {
-					if (
-						node.range[0] >= comment.range[0] &&
-						node.range[1] <= comment.range[1]
-					) {
-						return; // Skip - it's in a comment
-					}
-				}
-
-				// Check for hardcoded namespace
-				if (containsHardcodedNamespace(node.value)) {
-					const suggestion = getConstantSuggestion(node.value);
-
-					context.report({
-						node,
-						messageId: 'hardcodedNamespace',
-						data: {
-							value: node.value,
-							suggestion,
-						},
-					});
-				}
+				reportLiteralIfNeeded(context, node);
 			},
 
-			// Check template literals (e.g., `wpk/${something}`)
 			TemplateLiteral(node) {
-				// Check quasis (static parts of template literal)
-				for (const quasi of node.quasis) {
-					const value = quasi.value.raw;
-
-					// Check for namespace prefixes
-					for (const prefix of NAMESPACE_PATTERNS.PREFIX_PATTERNS) {
-						if (value.includes(prefix)) {
-							const suggestion = getConstantSuggestion(prefix);
-
-							context.report({
-								node: quasi,
-								messageId: 'hardcodedNamespace',
-								data: {
-									value: prefix,
-									suggestion,
-								},
-							});
-							break; // Only report once per quasi
-						}
-					}
-				}
+				reportTemplateLiteralIfNeeded(context, node);
 			},
 		};
 	},

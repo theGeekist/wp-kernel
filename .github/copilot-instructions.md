@@ -10,12 +10,12 @@ WP Kernel is a Rails-like, opinionated framework for building modern WordPress p
 
 ### Packages (`packages/*`)
 
-- **`@geekist/wp-kernel`** - Core framework (resources, actions, events, jobs)
-- **`@geekist/wp-kernel-ui`** - UI components and design system
-- **`@geekist/wp-kernel-cli`** - CLI tools for scaffolding and development
-- **`@geekist/wp-kernel-e2e-utils`** - E2E testing utilities and fixtures (validated via showcase app e2e tests, not unit tests)
+- **`@wpkernel/core`** - Core framework (resources, actions, events, jobs)
+- **`@wpkernel/ui`** - UI components and design system
+- **`@wpkernel/cli`** - CLI tools for scaffolding and development
+- **`@wpkernel/e2e-utils`** - E2E testing utilities and fixtures (validated via showcase app e2e tests, not unit tests)
 
-### Showcase App (`app/showcase`)
+### Showcase App (`examples/showcase`)
 
 WordPress plugin demonstrating a complete jobs & applications system that exercises all kernel capabilities:
 
@@ -23,7 +23,7 @@ WordPress plugin demonstrating a complete jobs & applications system that exerci
 - **Admin**: Job management, application pipeline (kanban), email templates, reporting
 - **Integration**: Webhooks, Slack notifications, privacy compliance (GDPR)
 - **Built incrementally** as sprint tasks are completed, showcasing real-world patterns
-- **E2E validation**: The showcase app's e2e tests validate that `@geekist/wp-kernel-e2e-utils` work correctly in real browser environments (e2e-utils can't be unit tested in isolation)
+- **E2E validation**: The showcase app's e2e tests validate that `@wpkernel/e2e-utils` work correctly in real browser environments (e2e-utils can't be unit tested in isolation)
 
 ## Documentation
 
@@ -103,7 +103,7 @@ UI components NEVER call transport directly. Always route writes through Actions
 
 ```typescript
 // ✅ CORRECT
-import { CreateThing } from '@/app/actions/Thing/Create';
+import { CreateThing } from '@/actions/Thing/Create';
 await CreateThing({ data: formData });
 ```
 
@@ -121,8 +121,10 @@ All errors are typed `KernelError` subclasses (never plain `Error`).
 
 ## Folder Conventions
 
+Example plugins live under `examples/<slug>/src/` and follow a predictable structure:
+
 ```
-app/
+examples/<slug>/src/
   resources/     # defineResource() definitions
   actions/       # defineAction() orchestrators
   views/         # Block bindings + Interactivity

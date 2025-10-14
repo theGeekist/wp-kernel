@@ -9,9 +9,9 @@
  * @see Product Specification § 4.1 Resources
  * @module resource-hooks
  */
-import { KernelError } from '@geekist/wp-kernel/error';
-import type { ResourceObject, ListResponse } from '@geekist/wp-kernel/resource';
-import type { KernelUIRuntime } from '@geekist/wp-kernel/data';
+import { KernelError } from '@wpkernel/core/error';
+import type { ResourceObject, ListResponse } from '@wpkernel/core/resource';
+import type { KernelUIRuntime } from '@wpkernel/core/data';
 import { useKernelUI } from '../runtime/context';
 
 /**

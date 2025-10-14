@@ -43,7 +43,7 @@ jobs:
                   path: |
                       node_modules
                       packages/*/node_modules
-                      app/*/node_modules
+                      examples/*/node_modules
                   key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
                   restore-keys: |
                       node-modules-${{ runner.os }}-
@@ -78,7 +78,7 @@ jobs:
                   path: |
                       node_modules
                       packages/*/node_modules
-                      app/*/node_modules
+                      examples/*/node_modules
                   key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
                   fail-on-cache-miss: true
 
@@ -88,9 +88,9 @@ jobs:
                   path: |
                       packages/*/dist
                       packages/*/*.tsbuildinfo
-                      app/*/build
-                      app/*/dist
-                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**', 'app/*/src/**', 'tsconfig*.json', 'pnpm-lock.yaml') }}
+                      examples/*/build
+                      examples/*/dist
+                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**', 'examples/*/src/**', 'tsconfig*.json', 'pnpm-lock.yaml') }}
                   fail-on-cache-miss: true
 
             - name: Run ESLint
@@ -127,7 +127,7 @@ jobs:
                   path: |
                       node_modules
                       packages/*/node_modules
-                      app/*/node_modules
+                      examples/*/node_modules
                   key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
                   fail-on-cache-miss: true
 
@@ -138,9 +138,9 @@ jobs:
                   path: |
                       packages/*/dist
                       packages/*/*.tsbuildinfo
-                      app/*/build
-                      app/*/dist
-                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**', 'app/*/src/**', 'tsconfig*.json', 'pnpm-lock.yaml') }}
+                      examples/*/build
+                      examples/*/dist
+                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**', 'examples/*/src/**', 'tsconfig*.json', 'pnpm-lock.yaml') }}
                   restore-keys: |
                       build-${{ runner.os }}-
 
@@ -155,7 +155,7 @@ jobs:
                   name: dist
                   path: |
                       packages/*/dist
-                      app/*/build
+                      examples/*/build
                   retention-days: 1
 
     # Unit Tests: Run Jest tests
@@ -183,7 +183,7 @@ jobs:
                   path: |
                       node_modules
                       packages/*/node_modules
-                      app/*/node_modules
+                      examples/*/node_modules
                   key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
                   fail-on-cache-miss: true
 
@@ -193,9 +193,9 @@ jobs:
                   path: |
                       packages/*/dist
                       packages/*/*.tsbuildinfo
-                      app/*/build
-                      app/*/dist
-                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**', 'app/*/src/**', 'tsconfig*.json', 'pnpm-lock.yaml') }}
+                      examples/*/build
+                      examples/*/dist
+                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**', 'examples/*/src/**', 'tsconfig*.json', 'pnpm-lock.yaml') }}
                   fail-on-cache-miss: true
 
             - name: Run unit tests with coverage
@@ -234,7 +234,7 @@ jobs:
     #               path: |
     #                   node_modules
     #                   packages/*/node_modules
-    #                   app/*/node_modules
+    #                   examples/*/node_modules
     #               key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
     #               fail-on-cache-miss: true
 
@@ -272,9 +272,9 @@ jobs:
     #               path: |
     #                   packages/*/dist
     #                   packages/*/*.tsbuildinfo
-    #                   app/*/build
-    #                   app/*/dist
-    #               key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**', 'app/*/src/**', 'tsconfig*.json', 'pnpm-lock.yaml') }}
+    #                   examples/*/build
+    #                   examples/*/dist
+    #               key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**', 'examples/*/src/**', 'tsconfig*.json', 'pnpm-lock.yaml') }}
     #               fail-on-cache-miss: true
 
     #         - name: Start WordPress (wp-env)

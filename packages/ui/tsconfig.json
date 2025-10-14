@@ -16,5 +16,5 @@
 		"**/*.test-support.ts",
 		"**/*.test-support.tsx"
 	],
-	"references": [{ "path": "../kernel" }]
+	"references": [{ "path": "../core" }]
 }

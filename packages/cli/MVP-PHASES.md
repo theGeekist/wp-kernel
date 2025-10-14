@@ -2,7 +2,7 @@
 
 > Workstream aligned with the [MVP CLI Spec](./mvp-cli-spec.md). Each phase is narrowly scoped so a single agent iteration can complete it without inventing new patterns. Always reference the cited sections before coding.
 
-Test harness: `app/test-the-cli/kernel.config.ts` is a minimal project used for CLI smoke tests. Treat it as throw-away; adjust the config as needed during development but avoid committing transient changes.
+Test harness: `examples/test-the-cli/kernel.config.ts` is a minimal project used for CLI smoke tests. Treat it as throw-away; adjust the config as needed during development but avoid committing transient changes.
 
 Phase 0 audit outcomes are captured in [`docs/mvp-phase-0-checklist.md`](./docs/mvp-phase-0-checklist.md); remaining work begins at Phase 1A below.
 
@@ -22,7 +22,7 @@ Please do not extend a module or test file beyond 500 SLOC. It is better to brea
 
 **Quality Checks:**
 
-It is prudent to run these checks beforehand, so you don't get stuck. For example, `pnpm --filter @geekist/wp-kernel-cli test --coverage` is very helpful to give you a baseline. If branch coverage drops below 89%, the pre-commit hook will fail it :(
+It is prudent to run these checks beforehand, so you don't get stuck. For example, `pnpm --filter @wpkernel/cli test --coverage` is very helpful to give you a baseline. If branch coverage drops below 89%, the pre-commit hook will fail it :(
 
 Statistically, your patience pays off, but generally if you write code with low complexity, excellent branch coverage and you meet all the requirements, you wouldn't even have to come to this state.
 
@@ -47,10 +47,10 @@ Finally you find that imports from other packages are sometimes missing, it usua
 **Phase Deliverables:**
 
 - Update this file's Status Log for the active phase when the work begins and ends.
-- Run `pnpm --filter @geekist/wp-kernel-cli build` after changes (TypeScript + Vite) to catch regressions.
+- Run `pnpm --filter @wpkernel/cli build` after changes (TypeScript + Vite) to catch regressions.
 - Honour repo invariants (no deep imports, no plain `Error`, etc.) listed in `AGENTS.md`.
 - When a phase extends or creates documentation, keep specs (`mvp-cli-spec.md`, discussion notes) in sync.
-- **CLI smoke test:** before signing off a phase that touches generation, printers, apply, or command wiring, run the CLI against `app/test-the-cli/kernel.config.ts`: 1. `pnpm --filter @geekist/wp-kernel build && pnpm --filter @geekist/wp-kernel-cli build` 2. `cd app/test-the-cli` 3. `node ../../packages/cli/bin/wpk.js generate --dry-run` 4. `node ../../packages/cli/bin/wpk.js generate`
+- **CLI smoke test:** before signing off a phase that touches generation, printers, apply, or command wiring, run the CLI against `examples/test-the-cli/kernel.config.ts`: 1. `pnpm --filter @wpkernel/core build && pnpm --filter @wpkernel/cli build` 2. `cd examples/test-the-cli` 3. `node ../../packages/cli/bin/wpk.js generate --dry-run` 4. `node ../../packages/cli/bin/wpk.js generate`
 
 ---
 
@@ -402,7 +402,7 @@ packages/cli/src/printers/blocks/
 - Jest integration suite `packages/cli/tests/integration/cli-smoke.test.ts` (or equivalent).
 - README / contributing note explaining the new harness and how to run the tests.
 
-**DoD:** Running `pnpm --filter @geekist/wp-kernel-cli test -- --runInBand integration` (or documented command) executes the smoke suite successfully; harness utilities are reusable for future high-level tests.
+**DoD:** Running `pnpm --filter @wpkernel/cli test -- --runInBand integration` (or documented command) executes the smoke suite successfully; harness utilities are reusable for future high-level tests.
 
 **Dependencies:** Phase 5B (pipeline integration). Complements Phase 6.
 
@@ -443,7 +443,7 @@ packages/cli/src/printers/blocks/
 **Scope:**
 
 - Harmonise API documentation across packages (kernel, CLI, UI) using consistent JSDoc-driven generation.
-- Introduce barrel exports (`index.ts`) for kernel subdirectories and expose them via package `exports` entries (e.g., `@geekist/wp-kernel/events`).
+- Introduce barrel exports (`index.ts`) for kernel subdirectories and expose them via package `exports` entries (e.g., `@wpkernel/core/events`).
 - Update consuming packages to import from those subpath exports instead of the package root or deep relative paths into `src/`.
 - Update CLI bundling (Vite/Rollup) to externalise peer dependencies (e.g., `@wordpress/*`, `chokidar`) and lazy-load where beneficial.
 - Add regression checks/lints preventing reintroduction of root/deep-relative imports or bundled externals.
@@ -453,7 +453,7 @@ packages/cli/src/printers/blocks/
 
 **DoD:**
 
-- `pnpm --filter @geekist/wp-kernel build` succeeds with new export surface; lint/tests pass without deep import warnings.
+- `pnpm --filter @wpkernel/core build` succeeds with new export surface; lint/tests pass without deep import warnings.
 - Updated docs published via existing pipelines cover CLI/UI/kernels consistently.
 - CLI bundle excludes designated externals; before/after stats captured in docs or changelog.
 
@@ -461,7 +461,7 @@ packages/cli/src/printers/blocks/
 
 **Status Log:** Started 2025-10-13 - Completed 2025-10-13
 
-**Reference files:** `packages/kernel/src/**/index.ts`, package `package.json` exports, doc scripts under `docs/` or `scripts/`, CLI bundler config (`packages/cli/vite.config.ts`).
+**Reference files:** `packages/core/src/**/index.ts`, package `package.json` exports, doc scripts under `docs/` or `scripts/`, CLI bundler config (`packages/cli/vite.config.ts`).
 
 ---
 
@@ -483,7 +483,7 @@ packages/cli/src/printers/blocks/
 
 **Dependencies:** All prior phases including 8A.
 
-**Reference files:** Showcase fixtures under `app/showcase`, smoke test project `app/test-the-cli`, CLI docs in `packages/cli/README.md`, and CHANGELOG updates in `packages/cli/CHANGELOG.md`.
+**Reference files:** Showcase fixtures under `examples/showcase`, smoke test project `examples/test-the-cli`, CLI docs in `packages/cli/README.md`, and CHANGELOG updates in `packages/cli/CHANGELOG.md`.
 
 **Status Log:** _Pending_
 

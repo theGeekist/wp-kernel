@@ -1,5 +1,5 @@
-import type { ResourceObject } from '@geekist/wp-kernel/resource';
-import { KernelError } from '@geekist/wp-kernel/error';
+import type { ResourceObject } from '@wpkernel/core/resource';
+import { KernelError } from '@wpkernel/core/error';
 import { __TESTING__ as resourceHookUtils } from '../resource-hooks';
 
 describe('resource hook utilities', () => {

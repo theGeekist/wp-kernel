@@ -2,17 +2,17 @@ import { act, type ReactNode } from 'react';
 import { createDeferred, renderHook } from '../testing/test-utils';
 import { useAction } from '../useAction';
 import type { UseActionOptions } from '../useAction';
-import type { ActionEnvelope, DefinedAction } from '@geekist/wp-kernel/actions';
-import { KernelError } from '@geekist/wp-kernel/error';
-import { KernelEventBus } from '@geekist/wp-kernel/events';
-import * as kernelData from '@geekist/wp-kernel/data';
+import type { ActionEnvelope, DefinedAction } from '@wpkernel/core/actions';
+import { KernelError } from '@wpkernel/core/error';
+import { KernelEventBus } from '@wpkernel/core/events';
+import * as kernelData from '@wpkernel/core/data';
 import { KernelUIProvider } from '../../runtime';
 import type {
 	KernelUIRuntime,
 	KernelRegistry,
 	KernelInstance,
-} from '@geekist/wp-kernel/data';
-import type { Reporter } from '@geekist/wp-kernel/reporter';
+} from '@wpkernel/core/data';
+import type { Reporter } from '@wpkernel/core/reporter';
 
 const ACTION_STORE_KEY = 'wp-kernel/ui/actions';
 

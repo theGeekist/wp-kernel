@@ -110,7 +110,7 @@ function SaveButton() {
 
 **Rule**: All events use registered names from a stable, versioned registry-no ad-hoc strings.
 
-> **What "canonical" means here**: Event names are predefined and versioned in a central registry. Instead of components inventing event names like `"post-saved"` or `"cache-cleared"`, they import stable identifiers from `@geekist/wp-kernel/events`. This guarantees integrations won't break when event names change, and makes the event contract discoverable.
+> **What "canonical" means here**: Event names are predefined and versioned in a central registry. Instead of components inventing event names like `"post-saved"` or `"cache-cleared"`, they import stable identifiers from `@wpkernel/core/events`. This guarantees integrations won't break when event names change, and makes the event contract discoverable.
 
 ```mermaid
 graph TD

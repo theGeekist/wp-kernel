@@ -26,7 +26,7 @@
 
 ```
 ✓ AGENTS.md: replaced 1 em dash(es)
-✓ packages/kernel/src/policy/Policy Spec.md: replaced 2 em dash(es)
+✓ packages/core/src/policy/Policy Spec.md: replaced 2 em dash(es)
 
 Total: 3 em dash(es) normalized to hyphens
 ```

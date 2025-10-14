@@ -47,7 +47,7 @@
 			"label": "Build: Kernel",
 			"type": "shell",
 			"command": "pnpm",
-			"args": ["--filter", "@geekist/wp-kernel", "build"],
+			"args": ["--filter", "@wpkernel/core", "build"],
 			"group": "build",
 			"problemMatcher": ["$tsc"]
 		},
@@ -55,7 +55,7 @@
 			"label": "Build: UI",
 			"type": "shell",
 			"command": "pnpm",
-			"args": ["--filter", "@geekist/wp-kernel-ui", "build"],
+			"args": ["--filter", "@wpkernel/ui", "build"],
 			"group": "build",
 			"problemMatcher": ["$tsc"]
 		},
@@ -63,7 +63,7 @@
 			"label": "Build: CLI",
 			"type": "shell",
 			"command": "pnpm",
-			"args": ["--filter", "@geekist/wp-kernel-cli", "build"],
+			"args": ["--filter", "@wpkernel/cli", "build"],
 			"group": "build",
 			"problemMatcher": ["$tsc"]
 		},
@@ -71,7 +71,7 @@
 			"label": "Build: E2E Utils",
 			"type": "shell",
 			"command": "pnpm",
-			"args": ["--filter", "@geekist/wp-kernel-e2e-utils", "build"],
+			"args": ["--filter", "@wpkernel/e2e-utils", "build"],
 			"group": "build",
 			"problemMatcher": ["$tsc"]
 		},
@@ -105,7 +105,7 @@
 			"label": "Lint: Kernel",
 			"type": "shell",
 			"command": "pnpm",
-			"args": ["--filter", "@geekist/wp-kernel", "lint"],
+			"args": ["--filter", "@wpkernel/core", "lint"],
 			"group": "build",
 			"problemMatcher": ["$eslint-stylish"]
 		},
@@ -113,7 +113,7 @@
 			"label": "Lint: UI",
 			"type": "shell",
 			"command": "pnpm",
-			"args": ["--filter", "@geekist/wp-kernel-ui", "lint"],
+			"args": ["--filter", "@wpkernel/ui", "lint"],
 			"group": "build",
 			"problemMatcher": ["$eslint-stylish"]
 		},
@@ -121,7 +121,7 @@
 			"label": "Lint: CLI",
 			"type": "shell",
 			"command": "pnpm",
-			"args": ["--filter", "@geekist/wp-kernel-cli", "lint"],
+			"args": ["--filter", "@wpkernel/cli", "lint"],
 			"group": "build",
 			"problemMatcher": ["$eslint-stylish"]
 		},
@@ -129,7 +129,7 @@
 			"label": "Lint: E2E Utils",
 			"type": "shell",
 			"command": "pnpm",
-			"args": ["--filter", "@geekist/wp-kernel-e2e-utils", "lint"],
+			"args": ["--filter", "@wpkernel/e2e-utils", "lint"],
 			"group": "build",
 			"problemMatcher": ["$eslint-stylish"]
 		},
@@ -177,7 +177,7 @@
 			"label": "TypeCheck: Kernel",
 			"type": "shell",
 			"command": "pnpm",
-			"args": ["--filter", "@geekist/wp-kernel", "typecheck"],
+			"args": ["--filter", "@wpkernel/core", "typecheck"],
 			"group": "build",
 			"problemMatcher": ["$tsc"]
 		},
@@ -185,7 +185,7 @@
 			"label": "TypeCheck: UI",
 			"type": "shell",
 			"command": "pnpm",
-			"args": ["--filter", "@geekist/wp-kernel-ui", "typecheck"],
+			"args": ["--filter", "@wpkernel/ui", "typecheck"],
 			"group": "build",
 			"problemMatcher": ["$tsc"]
 		},
@@ -193,7 +193,7 @@
 			"label": "TypeCheck: CLI",
 			"type": "shell",
 			"command": "pnpm",
-			"args": ["--filter", "@geekist/wp-kernel-cli", "typecheck"],
+			"args": ["--filter", "@wpkernel/cli", "typecheck"],
 			"group": "build",
 			"problemMatcher": ["$tsc"]
 		},
@@ -201,7 +201,7 @@
 			"label": "TypeCheck: E2E Utils",
 			"type": "shell",
 			"command": "pnpm",
-			"args": ["--filter", "@geekist/wp-kernel-e2e-utils", "typecheck"],
+			"args": ["--filter", "@wpkernel/e2e-utils", "typecheck"],
 			"group": "build",
 			"problemMatcher": ["$tsc"]
 		},
@@ -244,7 +244,7 @@
 			"label": "Test: Kernel",
 			"type": "shell",
 			"command": "pnpm",
-			"args": ["--filter", "@geekist/wp-kernel", "test"],
+			"args": ["--filter", "@wpkernel/core", "test"],
 			"group": "test",
 			"problemMatcher": []
 		},
@@ -252,7 +252,7 @@
 			"label": "Test: E2E Utils",
 			"type": "shell",
 			"command": "pnpm",
-			"args": ["--filter", "@geekist/wp-kernel-e2e-utils", "test"],
+			"args": ["--filter", "@wpkernel/e2e-utils", "test"],
 			"group": "test",
 			"problemMatcher": []
 		},
@@ -350,7 +350,7 @@
 		{
 			"label": "Clean: node_modules",
 			"type": "shell",
-			"command": "rm -rf node_modules packages/*/node_modules app/*/node_modules && pnpm install",
+			"command": "rm -rf node_modules packages/*/node_modules examples/*/node_modules && pnpm install",
 			"problemMatcher": [],
 			"presentation": {
 				"reveal": "always"

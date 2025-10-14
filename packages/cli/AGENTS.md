@@ -1,4 +1,4 @@
-# `@geekist/wp-kernel-cli` – Package Guide for Agents
+# `@wpkernel/cli` – Package Guide for Agents
 
 The CLI package ships developer tooling for the framework. Use this guide alongside the root policies in `../../AGENTS.md`.
 
@@ -8,7 +8,7 @@ Focus on scaffolding commands, code generation, and DX utilities. Keep the CLI a
 
 ### Build & Test
 
-Run `pnpm --filter @geekist/wp-kernel-cli test:coverage` before committing. If commands generate files, add fixture-based tests to ensure output stays in sync with framework conventions.
+Run `pnpm --filter @wpkernel/cli test:coverage` before committing. If commands generate files, add fixture-based tests to ensure output stays in sync with framework conventions.
 
 ### Conventions
 

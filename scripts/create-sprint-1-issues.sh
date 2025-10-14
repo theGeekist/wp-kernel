@@ -42,10 +42,10 @@ Ensure KernelError path is hooked in transport. Normalize TransportError/ServerE
 - [ ] Add unit tests for serialization/deserialization
 
 ## Files
-- \`packages/kernel/src/errors/KernelError.ts\`
-- \`packages/kernel/src/errors/TransportError.ts\`
-- \`packages/kernel/src/errors/ServerError.ts\`
-- \`packages/kernel/src/errors/types.ts\`
+- \`packages/core/src/errors/KernelError.ts\`
+- \`packages/core/src/errors/TransportError.ts\`
+- \`packages/core/src/errors/ServerError.ts\`
+- \`packages/core/src/errors/types.ts\`
 
 ## Estimate
 2 hours
@@ -68,9 +68,9 @@ Input validation, normalize routes, attach cacheKeys, expose client + storeKey.
 - [ ] Unit tests for config validation and route interpolation
 
 ## Files
-- \`packages/kernel/src/resource/defineResource.ts\`
-- \`packages/kernel/src/resource/types.ts\`
-- \`packages/kernel/src/resource/interpolate.ts\`
+- \`packages/core/src/resource/defineResource.ts\`
+- \`packages/core/src/resource/types.ts\`
+- \`packages/core/src/resource/interpolate.ts\`
 
 ## Estimate
 6 hours
@@ -94,8 +94,8 @@ Create namespaced @wordpress/data store with selectors/resolvers/actions; wire e
 - [ ] Unit tests with mocked @wordpress/data
 
 ## Files
-- \`packages/kernel/src/resource/createStore.ts\`
-- \`packages/kernel/src/resource/storeConfig.ts\`
+- \`packages/core/src/resource/createStore.ts\`
+- \`packages/core/src/resource/storeConfig.ts\`
 
 ## Estimate
 1 day (8 hours)
@@ -117,8 +117,8 @@ gh issue create \
 - [ ] Unit tests for matching and invalidation
 
 ## Files
-- \`packages/kernel/src/resource/invalidate.ts\`
-- \`packages/kernel/src/resource/cacheKeys.ts\`
+- \`packages/core/src/resource/invalidate.ts\`
+- \`packages/core/src/resource/cacheKeys.ts\`
 
 ## Estimate
 2 hours
@@ -138,7 +138,7 @@ When route.fields exists, add \`?_fields=a,b,c\` to GET requests.
 - [ ] Unit tests for query param handling
 
 ## Files
-- \`packages/kernel/src/transport/fetch.ts\`
+- \`packages/core/src/transport/fetch.ts\`
 
 ## Estimate
 1 hour
@@ -211,8 +211,8 @@ PHP routes in showcase plugin: list, get, create.
 - [ ] Test with \`wp-env run cli wp rest-api list\`
 
 ## Files
-- \`app/showcase/includes/class-rest-controller.php\`
-- \`app/showcase/includes/rest/class-jobs-controller.php\`
+- \`examples/showcase/includes/class-rest-controller.php\`
+- \`examples/showcase/includes/rest/class-jobs-controller.php\`
 
 ## Estimate
 3 hours
@@ -234,7 +234,7 @@ Define job resource using defineResource.
 - [ ] Export from plugin entry point
 
 ## Files
-- \`app/showcase/src/resources/job.ts\`
+- \`examples/showcase/src/resources/job.ts\`
 
 ## Estimate
 1 hour
@@ -258,7 +258,7 @@ Mount admin page with list display and create form.
 - [ ] Build and test in wp-env
 
 ## Files
-- \`app/showcase/src/admin/pages/JobsList.tsx\`
+- \`examples/showcase/src/admin/pages/JobsList.tsx\`
 
 ## Estimate
 4 hours
@@ -285,7 +285,7 @@ Unit tests for cache keys, resolvers, _fields, errors, events.
 60%+ for new code
 
 ## Files
-- \`packages/kernel/src/**/__tests__/\`
+- \`packages/core/src/**/__tests__/\`
 
 ## Estimate
 4 hours
@@ -308,7 +308,7 @@ Mock REST endpoints; ensure events emitted and store populated.
 - [ ] Test error handling
 
 ## Files
-- \`packages/kernel/src/__tests__/integration/\`
+- \`packages/core/src/__tests__/integration/\`
 
 ## Estimate
 3 hours

@@ -3,12 +3,12 @@ import type {
 	KernelUIRuntime,
 	KernelUIAttach,
 	UIIntegrationOptions,
-} from '@geekist/wp-kernel/data';
+} from '@wpkernel/core/data';
 import {
 	getRegisteredResources,
 	type ResourceDefinedEvent,
-} from '@geekist/wp-kernel/events';
-import type { ResourceObject } from '@geekist/wp-kernel/resource';
+} from '@wpkernel/core/events';
+import type { ResourceObject } from '@wpkernel/core/resource';
 import { attachResourceHooks } from '../hooks/resource-hooks';
 import {
 	createKernelDataViewsRuntime,

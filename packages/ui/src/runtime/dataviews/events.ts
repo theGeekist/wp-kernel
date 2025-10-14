@@ -1,5 +1,5 @@
-import type { KernelInstance } from '@geekist/wp-kernel/data';
-import type { Reporter } from '@geekist/wp-kernel/reporter';
+import type { KernelInstance } from '@wpkernel/core/data';
+import type { Reporter } from '@wpkernel/core/reporter';
 
 export const DATA_VIEWS_EVENT_PREFIX = 'ui:dataviews';
 export const DATA_VIEWS_EVENT_REGISTERED = `${DATA_VIEWS_EVENT_PREFIX}:registered`;

@@ -3,7 +3,7 @@ import type {
 	ResourceQueryParams,
 	ResourceStorageConfig,
 	ResourceUIConfig,
-} from '@geekist/wp-kernel/resource';
+} from '@wpkernel/core/resource';
 import type { KernelConfigV1 } from '../config/types';
 
 export type SchemaProvenance = 'manual' | 'auto';
