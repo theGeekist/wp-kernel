@@ -29,12 +29,23 @@ const SCRIPT_RECOMMENDATIONS: Record<string, string> = {
 	apply: 'wpk apply',
 };
 
+declare global {
+	var __WPK_CLI_MODULE_URL__: string | undefined;
+}
+
 function getModuleUrl(): string {
-	try {
-		return Function('return import.meta.url')() as string;
-	} catch (_error) {
+	const moduleUrl = globalThis.__WPK_CLI_MODULE_URL__;
+	if (typeof moduleUrl === 'string') {
+		return moduleUrl;
+	}
+
+	if (typeof __filename === 'string') {
 		return pathToFileURL(__filename).href;
 	}
+
+	throw new KernelError('DeveloperError', {
+		message: 'Unable to resolve CLI module URL for init command.',
+	});
 }
 
 const WPK_CONFIG_FILENAME = ['kernel', 'config.ts'].join('.');

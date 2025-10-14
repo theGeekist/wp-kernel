@@ -6,9 +6,10 @@
  * Main executable entry point
  */
 
-import { runCli } from '../dist/cli/run.js';
+globalThis.__WPK_CLI_MODULE_URL__ = import.meta.url;
 
 try {
+	const { runCli } = await import('../dist/cli/run.js');
 	await runCli(process.argv.slice(2));
 } catch (error) {
 	console.error('[wpk] fatal', error);
