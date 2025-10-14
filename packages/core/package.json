@@ -35,28 +35,28 @@
 		},
 		"./http": {
 			"types": "./dist/http/index.d.ts",
-			"import": "./dist/http/index.js",
-			"default": "./dist/http/index.js"
+			"import": "./dist/http.js",
+			"default": "./dist/http.js"
 		},
 		"./resource": {
 			"types": "./dist/resource/index.d.ts",
-			"import": "./dist/resource/index.js",
-			"default": "./dist/resource/index.js"
+			"import": "./dist/resource.js",
+			"default": "./dist/resource.js"
 		},
 		"./error": {
 			"types": "./dist/error/index.d.ts",
-			"import": "./dist/error/index.js",
-			"default": "./dist/error/index.js"
+			"import": "./dist/error.js",
+			"default": "./dist/error.js"
 		},
 		"./actions": {
 			"types": "./dist/actions/index.d.ts",
-			"import": "./dist/actions/index.js",
-			"default": "./dist/actions/index.js"
+			"import": "./dist/actions.js",
+			"default": "./dist/actions.js"
 		},
 		"./data": {
 			"types": "./dist/data/index.d.ts",
-			"import": "./dist/data/index.js",
-			"default": "./dist/data/index.js"
+			"import": "./dist/data.js",
+			"default": "./dist/data.js"
 		},
 		"./events": {
 			"types": "./dist/events/index.d.ts",
@@ -65,13 +65,13 @@
 		},
 		"./policy": {
 			"types": "./dist/policy/index.d.ts",
-			"import": "./dist/policy/index.js",
-			"default": "./dist/policy/index.js"
+			"import": "./dist/policy.js",
+			"default": "./dist/policy.js"
 		},
 		"./reporter": {
 			"types": "./dist/reporter/index.d.ts",
-			"import": "./dist/reporter/index.js",
-			"default": "./dist/reporter/index.js"
+			"import": "./dist/reporter.js",
+			"default": "./dist/reporter.js"
 		},
 		"./namespace": {
 			"types": "./dist/namespace/index.d.ts",
