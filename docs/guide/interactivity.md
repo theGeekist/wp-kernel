@@ -9,7 +9,7 @@ Use for client-side interactions that don't need React. Always route writes thro
 ## Quick Reference
 
 ```typescript
-import { defineInteraction } from '@geekist/wp-kernel/interactivity';
+import { defineInteraction } from '@wpkernel/core/interactivity';
 import { CreateTestimonial } from '@/actions/Testimonial/Create';
 
 export const useTestimonialForm = defineInteraction('wpk/testimonial-form', {

@@ -127,7 +127,7 @@ export default [
 						{
 							group: ['**/packages/*/src/**'],
 							message:
-								'Deep package imports are forbidden. Use public entry points like @geekist/wp-kernel instead.',
+								'Deep package imports are forbidden. Use public entry points like @wpkernel/core instead.',
 						},
 					],
 				},
@@ -150,7 +150,7 @@ export default [
 						'^globals$',
 						'^@wordpress/',
 						'^@kernel/',
-						'^@geekist/wp-kernel',
+						'^@wpkernel/core',
 						'^@loglayer/',
 					],
 				},
@@ -165,7 +165,7 @@ export default [
 		},
 	}, // WordPress Script Modules - runtime-resolved imports
 	{
-		files: ['app/*/src/**/*.js', 'app/*/src/**/*.jsx'],
+		files: ['examples/*/src/**/*.js', 'examples/*/src/**/*.jsx'],
 		rules: {
 			'import/no-unresolved': [
 				'error',
@@ -272,16 +272,16 @@ export default [
 				{
 					paths: [
 						{
-							name: '@geekist/wp-kernel',
+							name: '@wpkernel/core',
 							message:
-								'Use scoped module entry points like @geekist/wp-kernel/reporter to avoid bundling unused surface area.',
+								'Use scoped module entry points like @wpkernel/core/reporter to avoid bundling unused surface area.',
 						},
 					],
 					patterns: [
 						{
 							group: ['**/packages/*/src/**'],
 							message:
-								'Deep package imports are forbidden. Use public entry points like @geekist/wp-kernel instead.',
+								'Deep package imports are forbidden. Use public entry points like @wpkernel/core instead.',
 						},
 					],
 				},

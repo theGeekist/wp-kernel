@@ -6,6 +6,7 @@ import { promisify } from 'node:util';
 import { Writable } from 'node:stream';
 import type { BaseContext } from 'clipanion';
 import { ApplyCommand } from '../apply';
+import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
 
 const TMP_PREFIX = path.join(os.tmpdir(), 'wpk-apply-command-');
 
@@ -59,7 +60,7 @@ describe('ApplyCommand', () => {
 			const command = createCommand(workspace);
 			const exitCode = await command.execute();
 
-			expect(exitCode).toBe(0);
+			expect(exitCode).toBe(WPK_EXIT_CODES.SUCCESS);
 			expect(command.summary).toEqual({
 				created: 1,
 				updated: 0,
@@ -87,7 +88,7 @@ describe('ApplyCommand', () => {
 			const command = createCommand(workspace);
 			const exitCode = await command.execute();
 
-			expect(exitCode).toBe(0);
+			expect(exitCode).toBe(WPK_EXIT_CODES.SUCCESS);
 			expect(command.summary).toEqual({
 				created: 0,
 				updated: 1,
@@ -129,7 +130,7 @@ return 'manual';
 			const command = createCommand(workspace);
 			const exitCode = await command.execute();
 
-			expect(exitCode).toBe(1);
+			expect(exitCode).toBe(WPK_EXIT_CODES.VALIDATION_ERROR);
 			expect(command.summary).toBeNull();
 
 			const contents = await fs.readFile(target, 'utf8');
@@ -152,7 +153,7 @@ return 'manual';
 			const command = createCommand(workspace);
 			const exitCode = await command.execute();
 
-			expect(exitCode).toBe(0);
+			expect(exitCode).toBe(WPK_EXIT_CODES.SUCCESS);
 			expect(command.summary).toEqual({
 				created: 0,
 				updated: 0,
@@ -169,7 +170,7 @@ return 'manual';
 			const command = createCommand(workspace);
 			const exitCode = await command.execute();
 
-			expect(exitCode).toBe(0);
+			expect(exitCode).toBe(WPK_EXIT_CODES.SUCCESS);
 			expect(command.summary).toEqual({
 				created: 0,
 				updated: 0,
@@ -189,7 +190,7 @@ return 'manual';
 			const command = createCommand(workspace);
 			const exitCode = await command.execute();
 
-			expect(exitCode).toBe(0);
+			expect(exitCode).toBe(WPK_EXIT_CODES.SUCCESS);
 			expect(command.summary).toEqual({
 				created: 1,
 				updated: 0,
@@ -235,7 +236,7 @@ return ['demo/block'];
 			const command = createCommand(workspace);
 			const exitCode = await command.execute();
 
-			expect(exitCode).toBe(1);
+			expect(exitCode).toBe(WPK_EXIT_CODES.VALIDATION_ERROR);
 			expect(command.summary).toBeNull();
 
 			const contents = await fs.readFile(target, 'utf8');
@@ -270,7 +271,7 @@ return ['demo/block'];
 			const command = createCommand(workspace);
 			const exitCode = await command.execute();
 
-			expect(exitCode).toBe(1);
+			expect(exitCode).toBe(WPK_EXIT_CODES.VALIDATION_ERROR);
 
 			const phpTarget = path.join(
 				workspace,
@@ -313,7 +314,7 @@ return ['demo/block'];
 			const command = createCommand(workspace);
 			const exitCode = await command.execute();
 
-			expect(exitCode).toBe(0);
+			expect(exitCode).toBe(WPK_EXIT_CODES.SUCCESS);
 			expect(command.summary).toEqual({
 				created: 0,
 				updated: 0,
@@ -339,7 +340,7 @@ return 'manual';
 			const command = createCommand(workspace);
 			const exitCode = await command.execute();
 
-			expect(exitCode).toBe(0);
+			expect(exitCode).toBe(WPK_EXIT_CODES.SUCCESS);
 			expect(command.summary).toEqual({
 				created: 0,
 				updated: 1,
@@ -362,7 +363,7 @@ return 'manual';
 			const command = createCommand(workspace);
 			const exitCode = await command.execute();
 
-			expect(exitCode).toBe(0);
+			expect(exitCode).toBe(WPK_EXIT_CODES.SUCCESS);
 			expect(command.summary).toEqual({
 				created: 0,
 				updated: 0,
@@ -384,7 +385,7 @@ return 'manual';
 			const command = createCommand(workspace);
 			const exitCode = await command.execute();
 
-			expect(exitCode).toBe(1);
+			expect(exitCode).toBe(WPK_EXIT_CODES.VALIDATION_ERROR);
 			expect(command.summary).toBeNull();
 		});
 	});
@@ -401,7 +402,7 @@ return 'manual';
 			const command = createCommand(workspace);
 			const exitCode = await command.execute();
 
-			expect(exitCode).toBe(1);
+			expect(exitCode).toBe(WPK_EXIT_CODES.VALIDATION_ERROR);
 			expect(command.summary).toBeNull();
 		});
 	});
@@ -420,7 +421,7 @@ return 'manual';
 
 			const exitCode = await command.execute();
 
-			expect(exitCode).toBe(0);
+			expect(exitCode).toBe(WPK_EXIT_CODES.SUCCESS);
 			expect(command.summary).toEqual({
 				created: 1,
 				updated: 0,
@@ -450,7 +451,7 @@ return 'manual';
 
 			const exitCode = await command.execute();
 
-			expect(exitCode).toBe(0);
+			expect(exitCode).toBe(WPK_EXIT_CODES.SUCCESS);
 
 			const backupPath = `${target}.bak`;
 			const backupContents = await fs.readFile(backupPath, 'utf8');
@@ -482,7 +483,7 @@ return 'manual';
 
 			const exitCode = await command.execute();
 
-			expect(exitCode).toBe(0);
+			expect(exitCode).toBe(WPK_EXIT_CODES.SUCCESS);
 			expect(command.summary).toEqual({
 				created: 0,
 				updated: 1,
@@ -505,7 +506,7 @@ return 'manual';
 			const command = createCommand(workspace);
 			const exitCode = await command.execute();
 
-			expect(exitCode).toBe(0);
+			expect(exitCode).toBe(WPK_EXIT_CODES.SUCCESS);
 
 			const logPath = path.join(workspace, '.wpk-apply.log');
 			const rawLog = await fs.readFile(logPath, 'utf8');
@@ -552,7 +553,7 @@ return 'manual';
 			const command = createCommand(workspace);
 			const exitCode = await command.execute();
 
-			expect(exitCode).toBe(1);
+			expect(exitCode).toBe(WPK_EXIT_CODES.VALIDATION_ERROR);
 
 			const logPath = path.join(workspace, '.wpk-apply.log');
 			const rawLog = await fs.readFile(logPath, 'utf8');
@@ -582,7 +583,7 @@ return 'manual';
 
 			appendSpy.mockRestore();
 
-			expect(exitCode).toBe(0);
+			expect(exitCode).toBe(WPK_EXIT_CODES.SUCCESS);
 			expect(command.summary).toEqual({
 				created: 1,
 				updated: 0,
@@ -608,7 +609,7 @@ return 'manual';
 
 			mkdirSpy.mockRestore();
 
-			expect(exitCode).toBe(2);
+			expect(exitCode).toBe(WPK_EXIT_CODES.UNEXPECTED_ERROR);
 			expect(command.summary).toBeNull();
 		});
 	});

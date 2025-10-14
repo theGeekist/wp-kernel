@@ -15,7 +15,7 @@ Resources are the foundation of WP Kernel. They define typed REST endpoints with
 ## Quick Example
 
 ```typescript
-import { defineResource } from '@geekist/wp-kernel';
+import { defineResource } from '@wpkernel/core';
 
 interface Thing {
 	id: number;
@@ -46,7 +46,7 @@ thing.reporter.debug('Fetched Thing list from settings panel');
 
 ## Full API Reference
 
-For complete type signatures and all exported functions, see the [auto-generated API documentation](/api/generated/kernel/src/namespaces/resource/README).
+For complete type signatures and all exported functions, see the [auto-generated API documentation](/api/generated/core/src/namespaces/resource/README).
 
 ## Learn More
 

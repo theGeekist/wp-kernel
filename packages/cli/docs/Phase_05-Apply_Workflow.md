@@ -26,7 +26,7 @@ _Purpose_: Break the large Phase 5/5a scope into three incremental, testable pha
 
 ### Definition of Done
 
-- `pnpm --filter @geekist/wp-kernel-cli test` and lint/typecheck suite pass.
+- `pnpm --filter @wpkernel/cli test` and lint/typecheck suite pass.
 - Applying on the sample workspace doesn’t disturb manual scaffolding outside AUTO blocks.
 
 ---
@@ -94,5 +94,5 @@ _Purpose_: Break the large Phase 5/5a scope into three incremental, testable pha
 ## Shared Expectations
 
 - Align deliverables with the guiding sections in `the-cli-idea.md` (linked above) and cross-reference this document when updating `packages/cli/PHASES.md`.
-- Each phase must finish with `pnpm typecheck`, `pnpm typecheck:tests`, `pnpm lint --fix`, `pnpm format`, and `pnpm --filter @geekist/wp-kernel-cli test` passing.
+- Each phase must finish with `pnpm typecheck`, `pnpm typecheck:tests`, `pnpm lint --fix`, `pnpm format`, and `pnpm --filter @wpkernel/cli test` passing.
 - Keep commits scoped to the active sub-phase (A/B/C).

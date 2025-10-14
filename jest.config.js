@@ -12,7 +12,7 @@ export default {
 	...baseConfig,
 
 	// Test file locations
-	roots: ['<rootDir>/packages', '<rootDir>/app', '<rootDir>/tests'],
+	roots: ['<rootDir>/packages', '<rootDir>/examples', '<rootDir>/tests'],
 
 	// Module resolution for monorepo root
 	moduleNameMapper: {
@@ -23,22 +23,21 @@ export default {
 		// Ensure automatic JSX runtime resolves during tests
 		'^@wordpress/element/jsx-runtime$': 'react/jsx-runtime',
 		// Workspace package aliases
-		'^@geekist/wp-kernel$': '<rootDir>/packages/kernel/src',
-		'^@geekist/wp-kernel/(.*)$': '<rootDir>/packages/kernel/src/$1',
-		'^@geekist/wp-kernel-ui$': '<rootDir>/packages/ui/src',
-		'^@geekist/wp-kernel-ui/(.*)$': '<rootDir>/packages/ui/src/$1',
-		'^@geekist/wp-kernel-cli$': '<rootDir>/packages/cli/src',
-		'^@geekist/wp-kernel-cli/(.*)$': '<rootDir>/packages/cli/src/$1',
-		'^@geekist/wp-kernel-e2e-utils$': '<rootDir>/packages/e2e-utils/src',
-		'^@geekist/wp-kernel-e2e-utils/(.*)$':
-			'<rootDir>/packages/e2e-utils/src/$1',
+		'^@wpkernel/core$': '<rootDir>/packages/core/src',
+		'^@wpkernel/core/(.*)$': '<rootDir>/packages/core/src/$1',
+		'^@wpkernel/ui$': '<rootDir>/packages/ui/src',
+		'^@wpkernel/ui/(.*)$': '<rootDir>/packages/ui/src/$1',
+		'^@wpkernel/cli$': '<rootDir>/packages/cli/src',
+		'^@wpkernel/cli/(.*)$': '<rootDir>/packages/cli/src/$1',
+		'^@wpkernel/e2e-utils$': '<rootDir>/packages/e2e-utils/src',
+		'^@wpkernel/e2e-utils/(.*)$': '<rootDir>/packages/e2e-utils/src/$1',
 	},
 
 	// Coverage configuration
 	collectCoverageFrom: [
 		'packages/*/src/**/*.{ts,tsx}',
 		// Exclude showcase app (example/demo code, not framework code)
-		'!app/showcase/src/**',
+		'!examples/showcase/src/**',
 		// Exclude e2e-utils (browser-only code, can't be unit tested in JSDOM)
 		'!packages/e2e-utils/src/**',
 		// Exclude testing utilities (test helpers, not production code)
@@ -54,12 +53,12 @@ export default {
 		'!<rootDir>/packages/ui/src/dataviews/test-support/**',
 		// Exclude type definitions and tests
 		'!packages/*/src/**/*.d.ts',
-		'!app/*/src/**/*.d.ts',
+		'!examples/*/src/**/*.d.ts',
 		'!packages/*/src/**/__tests__/**',
-		'!app/*/src/**/__tests__/**',
+		'!examples/*/src/**/__tests__/**',
 		// Exclude entry point index files (trivial re-exports)
 		'!packages/*/src/index.ts',
-		'!packages/kernel/src/*/index.ts',
+		'!packages/core/src/*/index.ts',
 		'!packages/cli/src/ir/index.ts',
 	],
 	coverageThreshold: {

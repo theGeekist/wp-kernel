@@ -1,6 +1,6 @@
 # E2E Testing Guide
 
-End-to-end testing guide for WP Kernel with `@geekist/wp-kernel-e2e-utils`.
+End-to-end testing guide for WP Kernel with `@wpkernel/e2e-utils`.
 
 ## Overview
 
@@ -30,15 +30,15 @@ See [Testing Guide](/contributing/testing) for unit test patterns.
 ### Installation
 
 ```bash
-npm install -D @geekist/wp-kernel-e2e-utils
+npm install -D @wpkernel/e2e-utils
 # or
-pnpm add -D @geekist/wp-kernel-e2e-utils
+pnpm add -D @wpkernel/e2e-utils
 ```
 
 ### Basic Test
 
 ```typescript
-import { test, expect } from '@geekist/wp-kernel-e2e-utils';
+import { test, expect } from '@wpkernel/e2e-utils';
 
 test.describe('Jobs Admin', () => {
 	test.beforeEach(async ({ kernel, page }) => {
@@ -90,7 +90,7 @@ The package supports three import styles:
 ### 1. Namespace Import (Recommended for Tests)
 
 ```typescript
-import { test, expect } from '@geekist/wp-kernel-e2e-utils';
+import { test, expect } from '@wpkernel/e2e-utils';
 
 test('example', async ({ kernel, page }) => {
 	await kernel.auth.login(page);
@@ -104,9 +104,9 @@ test('example', async ({ kernel, page }) => {
 ### 2. Scoped Import (Recommended for Utilities)
 
 ```typescript
-import { login } from '@geekist/wp-kernel-e2e-utils/auth';
-import { seed, seedMany } from '@geekist/wp-kernel-e2e-utils/rest';
-import { wait } from '@geekist/wp-kernel-e2e-utils/store';
+import { login } from '@wpkernel/e2e-utils/auth';
+import { seed, seedMany } from '@wpkernel/e2e-utils/rest';
+import { wait } from '@wpkernel/e2e-utils/store';
 
 export async function setupJobTest(page, requestUtils) {
 	await seed(requestUtils, 'job', { title: 'Test Job' });
@@ -117,12 +117,7 @@ export async function setupJobTest(page, requestUtils) {
 ### 3. Flat Alias Import (Convenience)
 
 ```typescript
-import {
-	login,
-	seed,
-	waitForSelector,
-	restoreDb,
-} from '@geekist/wp-kernel-e2e-utils';
+import { login, seed, waitForSelector, restoreDb } from '@wpkernel/e2e-utils';
 ```
 
 ---
@@ -478,7 +473,7 @@ test.describe('Stateful Tests', () => {
 ### Directory Structure
 
 ```
-app/showcase/
+examples/showcase/
   tests/
     e2e/              # Domain E2E tests
       jobs/
@@ -507,7 +502,7 @@ packages/e2e-utils/
 - Validate kernel integration
 - No domain logic
 
-**Domain Tests** (`app/showcase/tests/e2e/*`)
+**Domain Tests** (`examples/showcase/tests/e2e/*`)
 
 - Test product features
 - Use utilities as helpers
@@ -595,7 +590,7 @@ Tests run against wp-env (configured in `.wp-env.json`):
 ```json
 {
 	"core": "WordPress/WordPress#6.7.4",
-	"plugins": ["./app/showcase"],
+	"plugins": ["./examples/showcase"],
 	"port": 8888,
 	"testsPort": 8889
 }
@@ -714,6 +709,6 @@ console.log(response.headers);
 ## See Also
 
 - [Testing Guide](/contributing/testing) - Unit testing patterns
-- [Showcase Tests](https://github.com/theGeekist/wp-kernel/tree/main/app/showcase/tests/e2e) - Real-world examples
+- [Showcase Tests](https://github.com/theGeekist/wp-kernel/tree/main/examples/showcase/tests/e2e) - Real-world examples
 - [Playwright Docs](https://playwright.dev/) - Official Playwright documentation
 - [@wordpress/e2e-test-utils-playwright](https://developer.wordpress.org/block-editor/reference-guides/packages/packages-e2e-test-utils-playwright/) - WordPress E2E utilities

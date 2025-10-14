@@ -69,17 +69,17 @@ git branch --show-current
 
 ```bash
 # Stage changes
-git add packages/kernel/src/errors/KernelError.ts
+git add packages/core/src/errors/KernelError.ts
 
 # Commit with conventional commit format
 git commit -m "feat(errors): add KernelError base class"
 
 # Continue working...
-git add packages/kernel/src/errors/TransportError.ts
+git add packages/core/src/errors/TransportError.ts
 git commit -m "feat(errors): add TransportError subclass"
 
 # Add tests
-git add packages/kernel/src/errors/__tests__/
+git add packages/core/src/errors/__tests__/
 git commit -m "test(errors): add error serialization tests"
 ```
 

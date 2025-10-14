@@ -4,15 +4,15 @@ import {
 	useState,
 	useSyncExternalStore,
 } from '@wordpress/element';
-import { KernelError } from '@geekist/wp-kernel/error';
-import { createPolicyCacheKey } from '@geekist/wp-kernel/policy';
+import { KernelError } from '@wpkernel/core/error';
+import { createPolicyCacheKey } from '@wpkernel/core/policy';
 import type {
 	ParamsOf,
 	PolicyHelpers,
 	UsePolicyResult,
-} from '@geekist/wp-kernel/policy';
+} from '@wpkernel/core/policy';
 import { useKernelUI } from '../runtime/context';
-import type { KernelUIRuntime } from '@geekist/wp-kernel/data';
+import type { KernelUIRuntime } from '@wpkernel/core/data';
 
 type PolicyLike<K extends Record<string, unknown>> =
 	| PolicyHelpers<K>

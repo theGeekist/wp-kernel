@@ -1,15 +1,15 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { KernelError } from '@geekist/wp-kernel/error';
-import type { CacheKeyPattern } from '@geekist/wp-kernel/resource';
+import { KernelError } from '@wpkernel/core/error';
+import type { CacheKeyPattern } from '@wpkernel/core/resource';
 import {
 	invokeAction,
 	type ActionEnvelope,
 	type DefinedAction,
-} from '@geekist/wp-kernel/actions';
-import { registerKernelStore } from '@geekist/wp-kernel/data';
+} from '@wpkernel/core/actions';
+import { registerKernelStore } from '@wpkernel/core/data';
 import { useLatest, useStableCallback } from './internal/useStableCallback';
 import { useKernelUI } from '../runtime/context';
-import type { KernelUIRuntime } from '@geekist/wp-kernel/data';
+import type { KernelUIRuntime } from '@wpkernel/core/data';
 
 interface WPDataLike {
 	dispatch?: (store: string) => unknown;

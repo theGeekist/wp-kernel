@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { ListResponse, ResourceObject } from '@geekist/wp-kernel/resource';
+import type { ListResponse, ResourceObject } from '@wpkernel/core/resource';
 import { createResourceDataViewController } from '../resource-controller';
 import { DataViewsControllerError } from '../../runtime/dataviews/errors';
 import type {

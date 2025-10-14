@@ -16,7 +16,7 @@ wp-kernel/
 │   ├── ui/            # UI components
 │   ├── cli/           # CLI tools
 │   └── e2e-utils/     # E2E testing utilities
-├── app/showcase/      # Demo plugin (validates framework)
+├── examples/showcase/      # Demo plugin (validates framework)
 └── test-harness/      # Development infrastructure
     ├── playground/    # WordPress Playground config
     └── wp-env/        # wp-env setup & database seeding
@@ -29,6 +29,8 @@ wp-kernel/
 | **Kernel packages** | Reusable primitives (resources, actions, events, jobs)   | Framework code only - no business logic                   |
 | **Showcase app**    | Business/domain demo plugin (jobs & applications system) | Real-world patterns that exercise all kernel capabilities |
 | **e2e-utils**       | Testing utilities (validated via showcase)               | Browser-only code, can't be unit tested in isolation      |
+
+- Import lifecycle phases, namespace constants, and CLI exit codes from `@wpkernel/core/contracts`; never hardcode `wpk` or numeric exit codes in tooling.
 
 ## 🚀 Essential Workflow
 
@@ -69,7 +71,7 @@ pnpm wp:start
 pnpm test
 
 # E2E tests (Playwright) - requires wp-env running
-# ✓ Can run from root OR app/showcase directory
+# ✓ Can run from root OR examples/showcase directory
 pnpm e2e
 
 # E2E with UI for debugging
@@ -138,7 +140,7 @@ pnpm wp:fresh       # Start WordPress + seed (one command)
 | **E2E Tests (Playwright)** | `playwright-report/index.html`    | Interactive test report with traces                      |
 | **E2E Failures**           | `test-results/[test-name]/`       | Screenshots (`test-failed-*.png`), videos (`video.webm`) |
 | **Build Outputs**          | `packages/*/dist/`                | Framework package builds                                 |
-| **Showcase Build**         | `app/showcase/build/`             | WordPress plugin assets                                  |
+| **Showcase Build**         | `examples/showcase/build/`        | WordPress plugin assets                                  |
 
 > **🔍 Debugging Tip**: Always check `playwright-report/index.html` first - it shows test execution traces and failure points.
 
@@ -156,13 +158,13 @@ When running commands on specific packages, **always put `--filter` BEFORE the c
 
 ```bash
 # ✓ CORRECT - filter first, then command
-pnpm --filter @geekist/wp-kernel build
-pnpm --filter @geekist/wp-kernel-ui test
-pnpm --filter @geekist/wp-kernel typecheck
+pnpm --filter @wpkernel/core build
+pnpm --filter @wpkernel/ui test
+pnpm --filter @wpkernel/core typecheck
 
 # ✗ WRONG - command first will pass --filter through to package scripts
-pnpm build --filter @geekist/wp-kernel      # Causes "Unknown compiler option '--filter'"
-pnpm test --filter @geekist/wp-kernel-ui    # Will fail with unexpected flags
+pnpm build --filter @wpkernel/core      # Causes "Unknown compiler option '--filter'"
+pnpm test --filter @wpkernel/ui    # Will fail with unexpected flags
 ```
 
 **Why this matters:**
@@ -180,7 +182,7 @@ pnpm test --filter @geekist/wp-kernel-ui    # Will fail with unexpected flags
 pnpm add -D new-dev-dependency
 
 # Add to specific package (rare)
-cd packages/kernel && pnpm add new-runtime-dep
+cd packages/core && pnpm add new-runtime-dep
 ```
 
 ### **Peer Dependencies**
@@ -212,11 +214,11 @@ pnpm build  # One-shot build of all packages
 
 **Build order matters:**
 
-1. `packages/kernel` (core)
+1. `packages/core` (core)
 2. `packages/ui` (depends on kernel)
 3. `packages/cli` (standalone)
 4. `packages/e2e-utils` (standalone)
-5. `app/showcase` (depends on all packages)
+5. `examples/showcase` (depends on all packages)
 
 ## 🎮 WordPress Playground
 
@@ -268,7 +270,7 @@ cd /Users/jasonnathan/Repos/wp-kernel
 pnpm e2e --project chromium
 
 # From showcase directory
-cd /Users/jasonnathan/Repos/wp-kernel/app/showcase
+cd /Users/jasonnathan/Repos/wp-kernel/examples/showcase
 pnpm e2e --project chromium  # Delegates to root config
 ```
 

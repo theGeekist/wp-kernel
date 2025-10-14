@@ -73,9 +73,9 @@ const cachedList = select(testimonial.store).select.list({ rating: 5 });
 
 ## React Hooks (`use.*`)
 
-**Note:** React hooks are provided by `@geekist/wp-kernel-ui` package. The thin-flat API (`useGet`, `useList`) is recommended.
+**Note:** React hooks are provided by `@wpkernel/ui` package. The thin-flat API (`useGet`, `useList`) is recommended.
 
-### `useGet(id)` (from @geekist/wp-kernel-ui)
+### `useGet(id)` (from @wpkernel/ui)
 
 React hook for fetching a single item with loading states.
 
@@ -90,7 +90,7 @@ function TestimonialView({ id }: { id: number }) {
 }
 ```
 
-### `useList(query?)` (from @geekist/wp-kernel-ui)
+### `useList(query?)` (from @wpkernel/ui)
 
 React hook for fetching a list with loading states.
 
@@ -421,15 +421,15 @@ The thin-flat API provides direct access to resource methods:
 
 | Task          | API                                | Package                       |
 | ------------- | ---------------------------------- | ----------------------------- |
-| Fetch item    | `testimonial.useGet(id)`           | @geekist/wp-kernel-ui         |
-| Fetch list    | `testimonial.useList(query)`       | @geekist/wp-kernel-ui         |
-| Create        | `testimonial.create(data)`         | @geekist/wp-kernel            |
-| Update        | `testimonial.update(id, data)`     | @geekist/wp-kernel            |
-| Delete        | `testimonial.remove(id)`           | @geekist/wp-kernel            |
-| Prefetch item | `testimonial.prefetchGet(id)`      | @geekist/wp-kernel            |
-| Prefetch list | `testimonial.prefetchList(query)`  | @geekist/wp-kernel            |
-| Invalidate    | `testimonial.invalidate(patterns)` | @geekist/wp-kernel            |
-| Cache key     | `testimonial.key(op, params)`      | @geekist/wp-kernel            |
+| Fetch item    | `testimonial.useGet(id)`           | @wpkernel/ui                  |
+| Fetch list    | `testimonial.useList(query)`       | @wpkernel/ui                  |
+| Create        | `testimonial.create(data)`         | @wpkernel/core                |
+| Update        | `testimonial.update(id, data)`     | @wpkernel/core                |
+| Delete        | `testimonial.remove(id)`           | @wpkernel/core                |
+| Prefetch item | `testimonial.prefetchGet(id)`      | @wpkernel/core                |
+| Prefetch list | `testimonial.prefetchList(query)`  | @wpkernel/core                |
+| Invalidate    | `testimonial.invalidate(patterns)` | @wpkernel/core                |
+| Cache key     | `testimonial.key(op, params)`      | @wpkernel/core                |
 | Check cache   | N/A                                | `testimonial.select.item(id)` |
 | Force fetch   | N/A                                | `testimonial.fetch.item(id)`  |
 

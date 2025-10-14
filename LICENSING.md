@@ -8,7 +8,7 @@ WP Kernel uses a **dual licensing structure** to balance business needs with Wor
 
 ### What's Covered
 
-- `packages/kernel` - Core framework
+- `packages/core` - Core framework
 - `packages/ui` - UI components
 - `packages/cli` - Command-line tools
 - `packages/e2e-utils` - Testing utilities
@@ -57,7 +57,7 @@ your-plugin/
 
 ### What's Covered
 
-- `app/showcase` - Example WordPress plugin
+- `examples/showcase` - Example WordPress plugin
 
 ### Why GPL-2.0-or-later?
 
@@ -169,7 +169,7 @@ function my_plugin_init() {
 
 ```javascript
 // Your SaaS application code (any license)
-import { defineResource } from '@geekist/wp-kernel'; // EUPL-1.2
+import { defineResource } from '@wpkernel/core'; // EUPL-1.2
 
 // Your proprietary business logic
 export class MySaaSFeature {
@@ -187,7 +187,7 @@ See: [`LICENSE`](./LICENSE)
 
 ### Showcase App (GPL-2.0-or-later)
 
-See: [`app/showcase/LICENSE-GPL.txt`](./app/showcase/LICENSE-GPL.txt)
+See: [`examples/showcase/LICENSE-GPL.txt`](./examples/showcase/LICENSE-GPL.txt)
 
 ---
 

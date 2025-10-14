@@ -262,8 +262,8 @@ interface WindowWithWp extends Window {{
 
 def split_store_tests():
     """Split store.test.ts into multiple files"""
-    source_file = "packages/kernel/src/resource/__tests__/store.test.ts"
-    out_dir = "packages/kernel/src/resource/__tests__/store"
+    source_file = "packages/core/src/resource/__tests__/store.test.ts"
+    out_dir = "packages/core/src/resource/__tests__/store"
     
     with open(source_file, 'r') as f:
         lines = f.readlines()
@@ -294,8 +294,8 @@ def split_store_tests():
 
 def split_cache_tests():
     """Split cache.test.ts into multiple files"""
-    source_file = "packages/kernel/src/resource/__tests__/cache.test.ts"
-    out_dir = "packages/kernel/src/resource/__tests__/cache"
+    source_file = "packages/core/src/resource/__tests__/cache.test.ts"
+    out_dir = "packages/core/src/resource/__tests__/cache"
     
     with open(source_file, 'r') as f:
         lines = f.readlines()
@@ -325,4 +325,4 @@ if __name__ == "__main__":
     print("\n=== Cache Tests ===")
     split_cache_tests()
     
-    print("\n✅ Done! Run 'pnpm test packages/kernel/src/resource' to verify.")
+    print("\n✅ Done! Run 'pnpm test packages/core/src/resource' to verify.")

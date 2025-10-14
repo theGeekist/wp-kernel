@@ -7,7 +7,7 @@ Jobs handle background work with polling support.
 ## Planned API
 
 ```typescript
-import { defineJob, jobs } from '@geekist/wp-kernel/jobs';
+import { defineJob, jobs } from '@wpkernel/core/jobs';
 
 export const IndexThing = defineJob('IndexThing', {
 	enqueue: (params: { id: number }) => {

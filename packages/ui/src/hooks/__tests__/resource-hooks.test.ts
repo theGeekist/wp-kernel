@@ -1,24 +1,21 @@
 import { createElement, type ReactNode } from 'react';
-import {
-	defineResource,
-	type ResourceObject,
-} from '@geekist/wp-kernel/resource';
+import { defineResource, type ResourceObject } from '@wpkernel/core/resource';
 import {
 	clearRegisteredResources,
 	type ResourceDefinedEvent,
-} from '@geekist/wp-kernel/events';
+} from '@wpkernel/core/events';
 import {
 	attachResourceHooks,
 	type UseResourceListResult,
 } from '../resource-hooks';
-import { KernelEventBus } from '@geekist/wp-kernel/events';
-import type { Reporter } from '@geekist/wp-kernel/reporter';
+import { KernelEventBus } from '@wpkernel/core/events';
+import type { Reporter } from '@wpkernel/core/reporter';
 import { attachUIBindings, KernelUIProvider } from '../../runtime';
 import type {
 	KernelInstance,
 	KernelUIRuntime,
 	KernelRegistry,
-} from '@geekist/wp-kernel/data';
+} from '@wpkernel/core/data';
 import { renderHook } from '../testing/test-utils';
 
 interface MockThing {

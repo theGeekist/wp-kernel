@@ -29,7 +29,7 @@ Hardcoding namespace strings introduces risk and inconsistency:
 hooks.doAction('wpk.action.start', event);
 
 // ✓ GOOD
-import { WPK_EVENTS } from '../namespace/constants';
+import { WPK_EVENTS } from '../contracts';
 hooks.doAction(WPK_EVENTS.ACTION_START, event);
 ```
 
@@ -40,7 +40,7 @@ hooks.doAction(WPK_EVENTS.ACTION_START, event);
 createReporter({ namespace: 'kernel.policy' });
 
 // ✓ GOOD
-import { WPK_SUBSYSTEM_NAMESPACES } from '../namespace/constants';
+import { WPK_SUBSYSTEM_NAMESPACES } from '../contracts';
 createReporter({ namespace: WPK_SUBSYSTEM_NAMESPACES.POLICY });
 ```
 
@@ -51,7 +51,7 @@ createReporter({ namespace: WPK_SUBSYSTEM_NAMESPACES.POLICY });
 new BroadcastChannel('wpk.actions');
 
 // ✓ GOOD
-import { WPK_INFRASTRUCTURE } from '../namespace/constants';
+import { WPK_INFRASTRUCTURE } from '../contracts';
 new BroadcastChannel(WPK_INFRASTRUCTURE.ACTIONS_CHANNEL);
 ```
 
@@ -62,14 +62,14 @@ new BroadcastChannel(WPK_INFRASTRUCTURE.ACTIONS_CHANNEL);
 if (id.startsWith('wpk/')) id = id.slice(4);
 
 // ✓ GOOD
-import { WPK_NAMESPACE } from '../namespace/constants';
+import { WPK_NAMESPACE } from '../contracts';
 const prefix = `${WPK_NAMESPACE}/`;
 if (id.startsWith(prefix)) id = id.slice(prefix.length);
 ```
 
 ### Skips
 
-- `namespace/constants.ts`
+- `contracts/index.ts`
 - Tests (`__tests__/**`, `*.test.ts`, `*.spec.ts`)
 - Markdown files
 - Comments and JSDoc
@@ -78,7 +78,7 @@ if (id.startsWith(prefix)) id = id.slice(prefix.length);
 
 ```
 Hardcoded namespace string "wpk.action.start" found.
-Use WPK_EVENTS.ACTION_START from namespace/constants.ts instead.
+Use WPK_EVENTS.ACTION_START from contracts/index.ts instead.
 ```
 
 ### Implementation Highlights
@@ -278,7 +278,7 @@ export default [
 Each rule includes full coverage under `packages/cli/__tests__/eslint-rules`.
 
 ```bash
-pnpm --filter @geekist/wp-kernel-cli test
+pnpm --filter @wpkernel/cli test
 ```
 
 Tests use ESLint’s `RuleTester` with `@typescript-eslint/parser`, covering valid/invalid cases, edge scenarios, and auto-fix validation.
@@ -287,7 +287,7 @@ Tests use ESLint’s `RuleTester` with `@typescript-eslint/parser`, covering val
 
 ## References
 
-- **Constants**: `packages/kernel/src/namespace/constants.ts`
+- **Constants**: `packages/core/src/contracts/index.ts`
 - **Evaluator Utils**: `eslint-rules/utils/kernel-config-evaluator.js`
 - **CLI Spec**: [MVP CLI Spec §6 - Authoring Safety](../packages/cli/mvp-cli-spec.md#6-blocks-of-authoring-safety)
 - **PR**: [#112 – ESLint Plugin Extensions](https://github.com/theGeekist/wp-kernel/pull/112)

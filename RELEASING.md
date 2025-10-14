@@ -22,10 +22,10 @@
 
 All public packages use **fixed versioning** (same version number):
 
-- `@geekist/wp-kernel`
-- `@geekist/wp-kernel-ui`
-- `@geekist/wp-kernel-cli`
-- `@geekist/wp-kernel-e2e-utils`
+- `@wpkernel/core`
+- `@wpkernel/ui`
+- `@wpkernel/cli`
+- `@wpkernel/e2e-utils`
 
 ### Bump Types
 
@@ -95,7 +95,7 @@ Every Sprint PR must link to:
 4. **Build and publish**:
     ```bash
     pnpm build
-    npm publish --workspace packages/kernel
+    npm publish --workspace packages/core
     npm publish --workspace packages/ui
     npm publish --workspace packages/cli
     npm publish --workspace packages/e2e-utils
@@ -157,7 +157,7 @@ For Beta testing phases (e.g., Sprint 5 → 0.5.0-beta.1):
 2. Build and publish with `--tag beta`:
     ```bash
     pnpm build
-    npm publish --workspace packages/kernel --tag beta
+    npm publish --workspace packages/core --tag beta
     npm publish --workspace packages/ui --tag beta
     npm publish --workspace packages/cli --tag beta
     npm publish --workspace packages/e2e-utils --tag beta
@@ -168,7 +168,7 @@ For Beta testing phases (e.g., Sprint 5 → 0.5.0-beta.1):
 **Install beta versions:**
 
 ```bash
-npm install @geekist/wp-kernel@beta
+npm install @wpkernel/core@beta
 ```
 
 ---

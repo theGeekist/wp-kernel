@@ -1,5 +1,5 @@
 import type { ChildProcessWithoutNullStreams } from 'node:child_process';
-import type { Reporter } from '@geekist/wp-kernel/reporter';
+import type { Reporter } from '@wpkernel/core/reporter';
 
 export function forwardProcessOutput({
 	child,

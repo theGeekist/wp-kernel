@@ -1,5 +1,5 @@
 /**
- * Jest configuration for @geekist/wp-kernel-e2e-utils package
+ * Jest configuration for @wpkernel/e2e-utils package
  * Extends base configuration from monorepo root
  */
 
@@ -16,7 +16,7 @@ export default {
 	...baseConfig,
 
 	// Set display name for this project
-	displayName: '@geekist/wp-kernel-e2e-utils',
+	displayName: '@wpkernel/e2e-utils',
 
 	// Root directory for this package
 	rootDir: monorepoRoot,
@@ -34,15 +34,14 @@ export default {
 		...baseConfig.moduleNameMapper,
 		'^@test-utils/(.*)\\.js$': '<rootDir>/tests/test-utils/$1',
 		'^@test-utils/(.*)$': '<rootDir>/tests/test-utils/$1',
-		'^@geekist/wp-kernel$': '<rootDir>/packages/kernel/src',
-		'^@geekist/wp-kernel/(.*)$': '<rootDir>/packages/kernel/src/$1',
-		'^@geekist/wp-kernel-ui$': '<rootDir>/packages/ui/src',
-		'^@geekist/wp-kernel-ui/(.*)$': '<rootDir>/packages/ui/src/$1',
-		'^@geekist/wp-kernel-cli$': '<rootDir>/packages/cli/src',
-		'^@geekist/wp-kernel-cli/(.*)$': '<rootDir>/packages/cli/src/$1',
-		'^@geekist/wp-kernel-e2e-utils$': '<rootDir>/packages/e2e-utils/src',
-		'^@geekist/wp-kernel-e2e-utils/(.*)$':
-			'<rootDir>/packages/e2e-utils/src/$1',
+		'^@wpkernel/core$': '<rootDir>/packages/core/src',
+		'^@wpkernel/core/(.*)$': '<rootDir>/packages/core/src/$1',
+		'^@wpkernel/ui$': '<rootDir>/packages/ui/src',
+		'^@wpkernel/ui/(.*)$': '<rootDir>/packages/ui/src/$1',
+		'^@wpkernel/cli$': '<rootDir>/packages/cli/src',
+		'^@wpkernel/cli/(.*)$': '<rootDir>/packages/cli/src/$1',
+		'^@wpkernel/e2e-utils$': '<rootDir>/packages/e2e-utils/src',
+		'^@wpkernel/e2e-utils/(.*)$': '<rootDir>/packages/e2e-utils/src/$1',
 	},
 
 	// Setup files

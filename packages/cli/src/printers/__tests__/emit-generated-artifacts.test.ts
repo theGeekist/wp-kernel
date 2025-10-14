@@ -2,7 +2,7 @@ import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { emitGeneratedArtifacts } from '..';
-import { createNoopReporter } from '@geekist/wp-kernel/reporter';
+import { createNoopReporter } from '@wpkernel/core/reporter';
 import type { AdapterContext, KernelConfigV1 } from '../../config/types';
 import type { IRResource, IRSchema, IRv1 } from '../../ir';
 import type { PrinterContext } from '../types';

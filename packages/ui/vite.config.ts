@@ -10,7 +10,7 @@ const external = [
 ];
 
 export default createKernelLibConfig(
-	'@geekist/wp-kernel-ui',
+	'@wpkernel/ui',
 	{
 		index: 'src/index.ts',
 	},

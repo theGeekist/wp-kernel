@@ -14,7 +14,7 @@ namespaces, levels, and context metadata.
 ## Creating a reporter
 
 ```typescript
-import { createReporter } from '@geekist/wp-kernel/reporter';
+import { createReporter } from '@wpkernel/core/reporter';
 
 const reporter = createReporter({ namespace: 'showcase', channel: 'all' });
 
@@ -66,7 +66,7 @@ Without `debug`, the policy reporter becomes a no-op and avoids console noise.
 `configureKernel()` wires kernel middleware into an `@wordpress/data` registry:
 
 ```typescript
-import { configureKernel } from '@geekist/wp-kernel';
+import { configureKernel } from '@wpkernel/core';
 
 const registry = createRegistry();
 const kernel = configureKernel({
@@ -96,7 +96,7 @@ actions and policies.
 
 ## Linting: no console in kernel
 
-`console.*` calls are forbidden in `packages/kernel/src` outside the reporter module. Use the reporter everywhere else. The ESLint
+`console.*` calls are forbidden in `packages/core/src` outside the reporter module. Use the reporter everywhere else. The ESLint
 rule runs automatically, so commits that bypass the reporter will fail linting.
 
 ## Migration tips

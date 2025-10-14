@@ -13,7 +13,7 @@ jest.mock('../../utils', () => ({
 jest.mock('prettier', () => ({ format: jest.fn() }));
 jest.mock('@prettier/plugin-php', () => ({}));
 
-import { KernelError } from '@geekist/wp-kernel/error';
+import { KernelError } from '@wpkernel/core/contracts';
 import { serialiseError } from '../run-generate';
 
 describe('serialiseError', () => {
@@ -24,12 +24,10 @@ describe('serialiseError', () => {
 			data: { expected: 'string' },
 		});
 
-		expect(serialiseError(error)).toEqual({
-			code: 'ValidationError',
-			message: 'Invalid configuration',
-			context: { field: 'namespace' },
-			data: { expected: 'string' },
-		});
+		const result = serialiseError(error);
+
+		expect(result).toEqual(error.toJSON());
+		expect(result.context).toEqual({ field: 'namespace' });
 	});
 
 	it('serialises native Error objects', () => {
@@ -37,16 +35,23 @@ describe('serialiseError', () => {
 		const result = serialiseError(error);
 
 		expect(result).toMatchObject({
-			name: 'Error',
+			name: 'KernelError',
+			code: 'UnknownError',
 			message: 'boom',
+			data: expect.objectContaining({ originalError: error }),
 		});
-		expect(
-			typeof result.stack === 'string' ||
-				typeof result.stack === 'undefined'
-		).toBe(true);
+		expect(result.stack).toEqual(expect.any(String));
 	});
 
 	it('wraps non-error values', () => {
-		expect(serialiseError('oops')).toEqual({ value: 'oops' });
+		const result = serialiseError('oops');
+
+		expect(result).toMatchObject({
+			name: 'KernelError',
+			code: 'UnknownError',
+			message: 'Unexpected error occurred.',
+			data: { value: 'oops' },
+		});
+		expect(result.stack).toEqual(expect.any(String));
 	});
 });

@@ -1,10 +1,9 @@
-import type { Reporter } from '@geekist/wp-kernel/reporter';
+import { WPK_EXIT_CODES, type WPKExitCode } from '@wpkernel/core/contracts';
+import type { Reporter } from '@wpkernel/core/reporter';
 import type { FileWriterSummary } from '../../utils';
 
-type ExitCodeSuccess = 0;
-type ExitCodeFailure = 1 | 2 | 3;
-
-export type ExitCode = ExitCodeSuccess | ExitCodeFailure;
+export type ExitCode = WPKExitCode;
+export const EXIT_CODES = WPK_EXIT_CODES;
 
 export interface GenerationSummary extends FileWriterSummary {
 	dryRun: boolean;

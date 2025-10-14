@@ -7,10 +7,10 @@
 ### Shared Deliverable Expectations
 
 - Set `CI=1` before running git commands inside automation, and never bypass pre-commit hooks.
-- For UI work, run `pnpm --filter @geekist/wp-kernel-ui lint --fix`, `pnpm --filter @geekist/wp-kernel-ui typecheck`, and `pnpm --filter @geekist/wp-kernel-ui test --coverage` before marking a phase complete. Maintain ≥95% statements/lines and ≥98% functions coverage for the package.
-- When phases touch kernel or CLI packages, run the corresponding filtered commands (`pnpm --filter @geekist/wp-kernel typecheck`, `pnpm --filter @geekist/wp-kernel-cli test`) to catch cross-package regressions.
+- For UI work, run `pnpm --filter @wpkernel/ui lint --fix`, `pnpm --filter @wpkernel/ui typecheck`, and `pnpm --filter @wpkernel/ui test --coverage` before marking a phase complete. Maintain ≥95% statements/lines and ≥98% functions coverage for the package.
+- When phases touch kernel or CLI packages, run the corresponding filtered commands (`pnpm --filter @wpkernel/core typecheck`, `pnpm --filter @wpkernel/cli test`) to catch cross-package regressions.
 - Add/update documentation alongside code (spec references, README snippets, docs/ guide pages). Note any doc drift in the status log.
-- Integration/E2E tests should live under `packages/ui/__tests__/integration` or the Playwright suite (`@geekist/wp-kernel-e2e`) as appropriate; include fixtures under `packages/ui/fixtures`.
+- Integration/E2E tests should live under `packages/ui/__tests__/integration` or the Playwright suite (`@wpkernel/core-e2e`) as appropriate; include fixtures under `packages/ui/fixtures`.
 - Update the Status Log entry within each phase section before completion (include Completed/Outstanding/Risks).
 - Respect the declared `@wordpress/dataviews` peer range (`^N.M.0`). CI runs must cover WordPress stable−1, stable, and Gutenberg nightly; log a reporter warning when versions drift.
 
@@ -28,12 +28,12 @@
     - Implement default `DataViewPreferencesAdapter` (user scope via `core/preferences`) with user→role→site resolution plumbing (role/site temporarily no-op).
     - Emit typed kernel events (`ui:dataviews:*`) from the runtime scaffold.
     - Add reporter child namespace helpers and error classes (`DataViewsConfigurationError`, etc.).
-    - Provide a maintenance script (`packages/ui/scripts/update-dataviews-snapshot.ts`) to refresh the vendor snapshot from Gutenberg, run `pnpm --filter @geekist/wp-kernel-ui typecheck`, verify the snapshot version satisfies the peer range, and log `SUCCESS: snapshot synchronized to <git sha>`.
+    - Provide a maintenance script (`packages/ui/scripts/update-dataviews-snapshot.ts`) to refresh the vendor snapshot from Gutenberg, run `pnpm --filter @wpkernel/ui typecheck`, verify the snapshot version satisfies the peer range, and log `SUCCESS: snapshot synchronized to <git sha>`.
     - Unit tests for adapter precedence, event emission, and error paths.
 
 - **Deliverables:** updated runtime modules (`packages/ui/src/runtime/**`), new adapter utilities, error classes, tests under `packages/ui/src/runtime/__tests__`.
 
-- **DoD:** UI package unit tests + coverage pass; no integration code yet; Status Log notes reporter/event coverage. `pnpm --filter @geekist/wp-kernel-ui test --coverage` ≥95/98.
+- **DoD:** UI package unit tests + coverage pass; no integration code yet; Status Log notes reporter/event coverage. `pnpm --filter @wpkernel/ui test --coverage` ≥95/98.
 
 - **Testing:** Jest unit tests (preferences precedence, event bus usage).
 
@@ -71,11 +71,11 @@
     - Extend `ConfigureKernelOptions.ui.options` to accept DataViews flags/adapters.
     - Update `configureKernel` to initialise DataViews runtime when enabled and to honour `autoRegisterResources`.
     - Listen to `resource:defined` events to register controllers derived from `resource.ui?.admin?.dataviews`.
-    - Add integration tests under `packages/kernel/src/data/__tests__/` mocking UI attach to confirm controllers register and emit events.
+    - Add integration tests under `packages/core/src/data/__tests__/` mocking UI attach to confirm controllers register and emit events.
 
 - **Deliverables:** kernel runtime updates, integration fixtures, additional coverage for event flows.
 
-- **DoD:** `pnpm --filter @geekist/wp-kernel typecheck` and unit/integration tests pass; UI package tests still green; Status Log records integration scenarios executed.
+- **DoD:** `pnpm --filter @wpkernel/core typecheck` and unit/integration tests pass; UI package tests still green; Status Log records integration scenarios executed.
 
 - **Testing:** Jest integration tests covering configureKernel + runtime interplay (including teardown) plus snapshot tests for emitted events.
 
@@ -113,13 +113,13 @@
 - **Scope:**
     - Update `docs/packages/ui.md`, create a dedicated DataViews guide, and ensure the showcase app demonstrates the new `ResourceDataView`.
     - Update the showcase app to use `ResourceDataView` and `createDataFormController` for at least one resource screen, replacing any legacy table implementation.
-    - Extend `@geekist/wp-kernel-e2e-utils` (or add test fixtures under `packages/ui/fixtures/dataviews`) with helpers that make writing Playwright specs straightforward; do **not** add new Playwright specs in-cloud, just ship the helpers and document usage.
+    - Extend `@wpkernel/e2e-utils` (or add test fixtures under `packages/ui/fixtures/dataviews`) with helpers that make writing Playwright specs straightforward; do **not** add new Playwright specs in-cloud, just ship the helpers and document usage.
     - Document migration guidance (Phase 0 snapshot, compat data provider) in `/docs/`.
     - Create accessibility backlog items referencing the roadmap sprint (link in doc/Status Log).
 
 - **Deliverables:** documentation updates, Playwright specs under `e2e/`, migration notes, backlog references.
 
-- **DoD:** `pnpm test` (full suite) passes including Playwright (`pnpm --filter @geekist/wp-kernel-e2e test`); docs published locally via `pnpm docs:dev` smoke test; showcase example updated; Accessibility tasks logged; Status Log summarises coverage results.
+- **DoD:** `pnpm test` (full suite) passes including Playwright (`pnpm --filter @wpkernel/core-e2e test`); docs published locally via `pnpm docs:dev` smoke test; showcase example updated; Accessibility tasks logged; Status Log summarises coverage results.
 
 - **Testing:** Playwright E2E, doc build (`pnpm docs:build`) smoke test.
 

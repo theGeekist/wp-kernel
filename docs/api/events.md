@@ -11,8 +11,8 @@ Canonical event taxonomy for observability and extensibility. All events use Wor
 Events follow the pattern: `{namespace}.{category}.{event}` where:
 
 - **namespace**:
-    - Framework events: Always `wpk` (core kernel events)
-    - Resource events: Auto-detected from environment or explicitly configured (fallback: 'wpk')
+    - Framework events: Always `WPK_NAMESPACE` from `@wpkernel/core/contracts` (core kernel events)
+    - Resource events: Auto-detected from environment or explicitly configured (fallback: that same constant)
 - **category**: Type of event (resource, action, job, etc.)
 - **event**: Specific event name
 
@@ -22,7 +22,7 @@ All events below are **available now** and can be subscribed to using `addAction
 
 ### Resource Transport Events
 
-Emitted by the HTTP transport layer during resource operations. These are **framework events** that always use the `wpk` namespace:
+Emitted by the HTTP transport layer during resource operations. These are **framework events** that always use the `WPK_NAMESPACE` constant:
 
 #### `wpk.resource.request`
 
@@ -30,8 +30,9 @@ Fired before making a REST request.
 
 ```typescript
 import { addAction } from '@wordpress/hooks';
+import { WPK_NAMESPACE } from '@wpkernel/core/contracts';
 
-addAction('wpk.resource.request', 'my-plugin', (event) => {
+addAction(`${WPK_NAMESPACE}.resource.request`, 'my-plugin', (event) => {
 	console.log(`Request ${event.requestId}: ${event.method} ${event.path}`);
 });
 ```
@@ -209,7 +210,7 @@ See the [Event Taxonomy Quick Reference](https://github.com/theGeekist/wp-kernel
 **Status**: ✓ Available now via `resource.events.*` properties.
 
 ```typescript
-import { defineAction } from '@geekist/wp-kernel';
+import { defineAction } from '@wpkernel/core';
 import { thing } from './resources/thing';
 
 export const CreateThing = defineAction(
@@ -237,4 +238,4 @@ For complete event taxonomy, payload contracts, PHP bridge mapping, and versioni
 ## Related
 
 - [Events Guide](/guide/events) - Usage patterns and examples
-- [HTTP Transport API](/api/generated/kernel/src/namespaces/http/README) - Transport implementation
+- [HTTP Transport API](/api/generated/core/src/namespaces/http/README) - Transport implementation

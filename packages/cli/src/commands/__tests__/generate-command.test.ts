@@ -6,7 +6,8 @@ import type { BaseContext } from 'clipanion';
 import { GenerateCommand } from '../generate';
 import * as printers from '../../printers';
 import * as ir from '../../ir';
-import { KernelError } from '@geekist/wp-kernel/error';
+import { EXIT_CODES } from '../run-generate/types';
+import { KernelError } from '@wpkernel/core/contracts';
 
 jest.mock('json-schema-to-typescript', () => ({
 	compile: jest.fn(async () => 'export interface Schema {}\n'),
@@ -26,7 +27,7 @@ describe('GenerateCommand', () => {
 			const command = createCommand(workspace);
 			const exitCode = await command.execute();
 
-			expect(exitCode).toBe(0);
+			expect(exitCode).toBe(EXIT_CODES.SUCCESS);
 			expect(command.summary?.counts.written).toBeGreaterThan(0);
 
 			const baseControllerPath = path.join(
@@ -47,7 +48,7 @@ describe('GenerateCommand', () => {
 		await withWorkspace(async (workspace) => {
 			const command = createCommand(workspace);
 			const firstExitCode = await command.execute();
-			expect(firstExitCode).toBe(0);
+			expect(firstExitCode).toBe(EXIT_CODES.SUCCESS);
 
 			const baseControllerPath = path.join(
 				workspace,
@@ -59,7 +60,7 @@ describe('GenerateCommand', () => {
 
 			const secondCommand = createCommand(workspace);
 			const exitCode = await secondCommand.execute();
-			expect(exitCode).toBe(0);
+			expect(exitCode).toBe(EXIT_CODES.SUCCESS);
 			expect(secondCommand.summary?.counts.unchanged).toBeGreaterThan(0);
 
 			const secondStat = await fs.stat(baseControllerPath);
@@ -71,7 +72,7 @@ describe('GenerateCommand', () => {
 		await withWorkspace(async (workspace) => {
 			const command = createCommand(workspace);
 			const firstExitCode = await command.execute();
-			expect(firstExitCode).toBe(0);
+			expect(firstExitCode).toBe(EXIT_CODES.SUCCESS);
 
 			const baseControllerPath = path.join(
 				workspace,
@@ -92,7 +93,7 @@ describe('GenerateCommand', () => {
 			dryRunCommand.dryRun = true;
 			const exitCode = await dryRunCommand.execute();
 
-			expect(exitCode).toBe(0);
+			expect(exitCode).toBe(EXIT_CODES.SUCCESS);
 			expect(dryRunCommand.summary?.dryRun).toBe(true);
 			const counts = dryRunCommand.summary?.counts ?? {
 				skipped: 0,
@@ -114,7 +115,7 @@ describe('GenerateCommand', () => {
 
 			const command = createCommand(workspace);
 			const exitCode = await command.execute();
-			expect(exitCode).toBe(1);
+			expect(exitCode).toBe(EXIT_CODES.VALIDATION_ERROR);
 		});
 	});
 
@@ -128,7 +129,7 @@ describe('GenerateCommand', () => {
 		await withWorkspace(async (workspace) => {
 			const command = createCommand(workspace);
 			const exitCode = await command.execute();
-			expect(exitCode).toBe(1);
+			expect(exitCode).toBe(EXIT_CODES.VALIDATION_ERROR);
 		});
 
 		buildSpy.mockRestore();
@@ -143,7 +144,7 @@ describe('GenerateCommand', () => {
 
 				const command = createCommand(workspace);
 				const exitCode = await command.execute();
-				expect(exitCode).toBe(3);
+				expect(exitCode).toBe(EXIT_CODES.ADAPTER_ERROR);
 			},
 			{ withDefaultConfig: false }
 		);
@@ -169,7 +170,7 @@ describe('GenerateCommand', () => {
 
 				const command = createCommand(workspace);
 				const exitCode = await command.execute();
-				expect(exitCode).toBe(0);
+				expect(exitCode).toBe(EXIT_CODES.SUCCESS);
 
 				const telemetryPath = path.join(
 					workspace,
@@ -204,7 +205,7 @@ describe('GenerateCommand', () => {
 
 				const command = createCommand(workspace);
 				const exitCode = await command.execute();
-				expect(exitCode).toBe(3);
+				expect(exitCode).toBe(EXIT_CODES.ADAPTER_ERROR);
 
 				await expect(
 					fs.stat(path.join(workspace, '.generated', 'broken.txt'))
@@ -223,7 +224,7 @@ describe('GenerateCommand', () => {
 
 				const command = createCommand(workspace);
 				const exitCode = await command.execute();
-				expect(exitCode).toBe(3);
+				expect(exitCode).toBe(EXIT_CODES.ADAPTER_ERROR);
 			},
 			{ withDefaultConfig: false }
 		);
@@ -244,7 +245,7 @@ describe('GenerateCommand', () => {
 
 				const command = createCommand(workspace);
 				const exitCode = await command.execute();
-				expect(exitCode).toBe(3);
+				expect(exitCode).toBe(EXIT_CODES.ADAPTER_ERROR);
 			},
 			{ withDefaultConfig: false }
 		);
@@ -259,7 +260,7 @@ describe('GenerateCommand', () => {
 
 				const command = createCommand(workspace);
 				const exitCode = await command.execute();
-				expect(exitCode).toBe(0);
+				expect(exitCode).toBe(EXIT_CODES.SUCCESS);
 			},
 			{ withDefaultConfig: false }
 		);
@@ -274,7 +275,7 @@ describe('GenerateCommand', () => {
 
 				const command = createCommand(workspace);
 				const exitCode = await command.execute();
-				expect(exitCode).toBe(3);
+				expect(exitCode).toBe(EXIT_CODES.ADAPTER_ERROR);
 			},
 			{ withDefaultConfig: false }
 		);
@@ -289,7 +290,7 @@ describe('GenerateCommand', () => {
 
 				const command = createCommand(workspace);
 				const exitCode = await command.execute();
-				expect(exitCode).toBe(3);
+				expect(exitCode).toBe(EXIT_CODES.ADAPTER_ERROR);
 			},
 			{ withDefaultConfig: false }
 		);
@@ -303,7 +304,7 @@ describe('GenerateCommand', () => {
 		await withWorkspace(async (workspace) => {
 			const command = createCommand(workspace);
 			const exitCode = await command.execute();
-			expect(exitCode).toBe(2);
+			expect(exitCode).toBe(EXIT_CODES.UNEXPECTED_ERROR);
 		});
 
 		emitSpy.mockRestore();
@@ -317,7 +318,7 @@ describe('GenerateCommand', () => {
 		await withWorkspace(async (workspace) => {
 			const command = createCommand(workspace);
 			const exitCode = await command.execute();
-			expect(exitCode).toBe(2);
+			expect(exitCode).toBe(EXIT_CODES.UNEXPECTED_ERROR);
 		});
 
 		emitSpy.mockRestore();
@@ -329,7 +330,7 @@ describe('GenerateCommand', () => {
 			command.verbose = true;
 
 			const exitCode = await command.execute();
-			expect(exitCode).toBe(0);
+			expect(exitCode).toBe(EXIT_CODES.SUCCESS);
 
 			const stdout = (command.context.stdout as MemoryStream).toString();
 			expect(stdout).toContain('files:');
@@ -345,7 +346,7 @@ describe('GenerateCommand', () => {
 
 				const command = createCommand(workspace);
 				const exitCode = await command.execute();
-				expect(exitCode).toBe(0);
+				expect(exitCode).toBe(EXIT_CODES.SUCCESS);
 			},
 			{ withDefaultConfig: false }
 		);

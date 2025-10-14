@@ -100,10 +100,10 @@ Builds all packages once for production.
 
 ```bash
 # Build only kernel package
-pnpm --filter @geekist/wp-kernel build
+pnpm --filter @wpkernel/core build
 
 # Build only UI package
-pnpm --filter @geekist/wp-kernel-ui build
+pnpm --filter @wpkernel/ui build
 ```
 
 ### Clean Build
@@ -131,7 +131,7 @@ pnpm test --watch
 pnpm test:coverage
 
 # Specific file
-pnpm test packages/kernel/src/__tests__/index.test.ts
+pnpm test packages/core/src/__tests__/index.test.ts
 ```
 
 ### E2E Tests
@@ -584,7 +584,7 @@ WordPress as backend API, external frontend.
 > **✓ Available**: Sprint 4.5 - Unified Reporting (shipped in v0.1.0)
 
 ```typescript
-import { configure } from '@geekist/wp-kernel';
+import { configure } from '@wpkernel/core';
 
 configure({
 	reporter: {

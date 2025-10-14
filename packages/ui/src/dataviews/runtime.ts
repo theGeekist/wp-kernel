@@ -1,4 +1,4 @@
-import type { Reporter } from '@geekist/wp-kernel/reporter';
+import type { Reporter } from '@wpkernel/core/reporter';
 import {
 	createPreferencesRuntime,
 	type DataViewPreferencesRuntime,

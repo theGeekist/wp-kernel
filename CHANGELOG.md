@@ -13,12 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Breaking Changes
 
-- **Moved and renamed `useKernel` → `withKernel`** - Bootstrap function moved from `@geekist/wp-kernel-ui` to `@geekist/wp-kernel`
+- **Moved and renamed `useKernel` → `withKernel`** - Bootstrap function moved from `@wpkernel/ui` to `@wpkernel/core`
     - Function renamed to better reflect its purpose (it's not a React hook)
-    - Import from `@geekist/wp-kernel` instead of `@geekist/wp-kernel-ui`
+    - Import from `@wpkernel/core` instead of `@wpkernel/ui`
     - All functionality remains the same
 
-#### New Hooks (`@geekist/wp-kernel-ui`)
+#### New Hooks (`@wpkernel/ui`)
 
 - **`useAction()`** - Complete action dispatch system with WordPress data integration
     - 4 concurrency modes: `parallel`, `switch`, `queue`, `drop`
@@ -36,7 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `useHoverPrefetch()` - Hover-triggered prefetching
     - `useNextPagePrefetch()` - Pagination-aware prefetching
 
-#### Kernel Changes (`@geekist/wp-kernel`)
+#### Kernel Changes (`@wpkernel/core`)
 
 - Emitted typed events from `defineResource()` so UI bindings attach deterministically without queues.
 - Replayed registered resources through the kernel instance, allowing UI packages to hydrate hooks on demand.
@@ -49,6 +49,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **P1: Resource Hook Timing** - Resources defined before UI loads can now bind React hooks when UI initializes
 - **P1: Queue Cancellation** - Fixed queue concurrency mode to properly prevent cancelled actions from executing
+
+### Changed
+
+- Consolidated lifecycle phases, namespace constants, and CLI exit codes under `@wpkernel/core/contracts`, updating all packages, tooling, and docs to import from the shared contract, normalising error serialization, and restoring the canonical `WPK_*` contract names.
+- Dropped the transitional `KERNEL_*` alias exports from the contracts barrel to keep the pre-release surface focused on the preferred WPK naming.
 
 ### Testing
 
@@ -88,7 +93,7 @@ This release marks the completion of the foundation, resources, E2E utilities, p
 
 ### Added - Sprint 4.5: Unified Reporting
 
-#### Reporter System (`@geekist/wp-kernel`)
+#### Reporter System (`@wpkernel/core`)
 
 - **`createReporter()`** - Pluggable transport system for logging and monitoring
 - **Consolidated logging** - Single reporter interface used across all packages
@@ -111,7 +116,7 @@ This release marks the completion of the foundation, resources, E2E utilities, p
 
 ### Added - Sprint 4: Actions & WordPress Data Integration
 
-#### Actions System (`@geekist/wp-kernel/actions`)
+#### Actions System (`@wpkernel/core/actions`)
 
 - **`defineAction()`** - Write-path orchestration with typed handlers
 - **Action middleware** - `createActionMiddleware()` for @wordpress/data stores
@@ -123,7 +128,7 @@ This release marks the completion of the foundation, resources, E2E utilities, p
 - **Event emission** - Domain events (resource.events.created/updated/removed)
 - **Job integration** - Background work queuing from actions
 
-#### WordPress Data Integration (`@geekist/wp-kernel/data`)
+#### WordPress Data Integration (`@wpkernel/core/data`)
 
 - **`withKernel(registry)`** - Registry plugin with kernel middleware (renamed from useKernel)
 - **`registerKernelStore()`** - Store wrapper with actions DSL
@@ -143,7 +148,7 @@ This release marks the completion of the foundation, resources, E2E utilities, p
 
 ### Added - Sprint 3: Policies (Complete Implementation)
 
-#### Policy System (`@geekist/wp-kernel/policy`)
+#### Policy System (`@wpkernel/core/policy`)
 
 - **`definePolicy()`** - Capability checking with WordPress integration
 - **`can()` / `assert()`** - Helper functions for policy checks
@@ -166,7 +171,7 @@ This release marks the completion of the foundation, resources, E2E utilities, p
 
 ### Added - Sprint 2: E2E Utils Package
 
-#### Test Utilities (`@geekist/wp-kernel-e2e-utils`)
+#### Test Utilities (`@wpkernel/e2e-utils`)
 
 - **Namespaced API** - `auth`, `rest`, `store`, `events`, `db`, `project` modules
 - **Three import styles** - Scoped (`/auth`), namespace (`{ auth }`), flat (`{ login }`)
@@ -215,7 +220,7 @@ This release marks the completion of the foundation, resources, E2E utilities, p
 
 ### Added - Sprint 1: Resources & Stores (V1)
 
-#### Resource System (`@geekist/wp-kernel/resource`)
+#### Resource System (`@wpkernel/core/resource`)
 
 - **`defineResource()`** - Typed REST contracts with automatic store generation
 - **Dual-surface API** - Thin-flat methods + grouped namespaces (select, use, fetch, mutate, cache, store, events)
@@ -226,7 +231,7 @@ This release marks the completion of the foundation, resources, E2E utilities, p
 - **Event emission** - Resource lifecycle events (created, updated, removed)
 - **Type generation** - From JSON Schema contracts
 
-#### HTTP Transport (`@geekist/wp-kernel/http`)
+#### HTTP Transport (`@wpkernel/core/http`)
 
 - **`fetch()` wrapper** - Standardized REST calls with error handling
 - **@wordpress/api-fetch integration** - WordPress nonce and rootURL middleware
@@ -234,7 +239,7 @@ This release marks the completion of the foundation, resources, E2E utilities, p
 - **Retry logic** - Automatic exponential backoff for transient failures
 - **Error standardization** - All errors extend `KernelError`
 
-#### Error System (`@geekist/wp-kernel/error`)
+#### Error System (`@wpkernel/core/error`)
 
 - **`KernelError` base class** - Structured errors with serialization
 - **`TransportError`** - Network/fetch failures
@@ -346,16 +351,16 @@ See [0.1.0] release notes for complete Sprint 0 details including:
 
 #### Phase 2: Package Scaffolding ✓
 
-- `@geekist/wp-kernel` - Core framework package with Resource, Action, Event, Job APIs
-- `@geekist/wp-kernel-ui` - UI components package
-- `@geekist/wp-kernel-cli` - Code generator CLI (`wpk` command)
-- `@geekist/wp-kernel-e2e-utils` - E2E testing utilities for Playwright
+- `@wpkernel/core` - Core framework package with Resource, Action, Event, Job APIs
+- `@wpkernel/ui` - UI components package
+- `@wpkernel/cli` - Code generator CLI (`wpk` command)
+- `@wpkernel/e2e-utils` - E2E testing utilities for Playwright
 
 All packages:
 
 - TypeScript strict mode enabled
 - ES2022 target with ESNext modules
-- Path aliases configured (`@geekist/*`)
+- Path aliases configured (`@wpkernel/*`)
 - Build outputs to `dist/` with declarations
 - README with API documentation
 

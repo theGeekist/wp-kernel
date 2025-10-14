@@ -14,7 +14,7 @@ between the bus (typed subscriptions) or WordPress hooks (legacy interoperabilit
 without losing coverage.
 
 ```ts
-import { configureKernel } from '@geekist/wp-kernel';
+import { configureKernel } from '@wpkernel/core';
 
 const kernel = configureKernel({ namespace: 'acme' });
 
@@ -226,10 +226,17 @@ addAction('acme-blog.cache.invalidated', 'acme-blog/debug', (payload) => {
 ### Listen to Framework Events
 
 ```typescript
-// Framework events use 'wpk' namespace
-addAction('wpk.system.error', 'acme-blog/system-monitor', (payload) => {
-	console.log('Framework error:', payload.error);
-});
+import { addAction } from '@wordpress/hooks';
+import { WPK_NAMESPACE } from '@wpkernel/core/contracts';
+
+// Framework events use the kernel namespace constant
+addAction(
+	`${WPK_NAMESPACE}.system.error`,
+	'acme-blog/system-monitor',
+	(payload) => {
+		console.log('Framework error:', payload.error);
+	}
+);
 ```
 
 ### Access Resource Event Names
@@ -247,7 +254,7 @@ console.log(thing.events.removed); // 'your-plugin.thing.removed'
 ### Emit Events from Actions
 
 ```typescript
-import { defineAction } from '@geekist/wp-kernel';
+import { defineAction } from '@wpkernel/core';
 import { thing } from './resources/thing';
 
 export const CreateThing = defineAction(

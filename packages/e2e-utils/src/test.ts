@@ -22,7 +22,7 @@ import type { KernelUtils } from './types.js';
  *
  * @example
  * ```typescript
- * import { test, expect } from '@geekist/wp-kernel-e2e-utils';
+ * import { test, expect } from '@wpkernel/e2e-utils';
  *
  * test('job workflow', async ({ admin, kernel, page }) => {
  *   await admin.visitAdminPage('admin.php', 'page=my-plugin-jobs');

@@ -12,10 +12,11 @@ This document provides operational guidance for coding agents (Codex, etc.) work
     - UI never calls transport directly; **all writes flow through Actions**.
     - Use only **canonical registry event names**; no ad-hoc events.
     - Errors must be typed `KernelError` subclasses; never throw plain `Error`.
+    - Lifecycle phases, namespaces, and CLI exit codes come from `@wpkernel/core/contracts`-never inline the kernel namespace or exit code numbers.
 
 ## Project Structure & Module Organisation
 
-- The repo is a monorepo with multiple packages under `packages/`.
+- The repo is a monorepo with multiple packages under `packages/` and example plugins under `examples/`.
 - Each package uses `src/` for source code, `tests/` for tests, and `types/` for TypeScript definitions.
 - Modules have clear separation of concerns and minimal cross-package dependencies.
 - Avoid deep imports across packages (e.g., no direct imports from `packages/*/src/**`).
@@ -26,7 +27,7 @@ This document provides operational guidance for coding agents (Codex, etc.) work
 - Node v20.x LTS or higher (required for Vite 7).
 - WordPress 6.7+ (Script Modules API required).
 - Development environments: `wp-env` (Docker + PHP 8.1+) or WordPress Playground (WASM, no Docker).
-- E2E testing is optional; uses Playwright and `@geekist/wp-kernel-e2e-utils`.
+- E2E testing is optional; uses Playwright and `@wpkernel/e2e-utils`.
 - Commands:
   **NOTE the correct usage of the `--filter` flag is to always precede it with `pnpm`**
   `pnpm build|test|lint --filter <workspace>` = WRONG

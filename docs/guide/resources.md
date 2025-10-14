@@ -15,7 +15,7 @@ Resources define your typed REST contracts. One definition gives you:
 ## Quick Start
 
 ```typescript
-import { defineResource } from '@geekist/wp-kernel/resource';
+import { defineResource } from '@wpkernel/core/resource';
 
 interface TestimonialPost {
 	id: number;
@@ -186,7 +186,7 @@ reporter (or create a console reporter when no kernel is active). Provide a cust
 reporter to forward logs to external tooling:
 
 ```typescript
-import { createReporter } from '@geekist/wp-kernel';
+import { createReporter } from '@wpkernel/core';
 
 const testimonial = defineResource<TestimonialPost>({
 	name: 'testimonial',
@@ -365,7 +365,7 @@ await testimonial.remove(123);
 
 ### React Hooks
 
-React hooks for data fetching with automatic loading states and re-fetching. Importing `@geekist/wp-kernel-ui`
+React hooks for data fetching with automatic loading states and re-fetching. Importing `@wpkernel/ui`
 automatically registers the hooks for resources defined with `defineResource()`.
 
 #### useGet(id)
@@ -537,7 +537,7 @@ For power users, resources provide a **grouped API** with namespaced methods:
 ```typescript
 // Grouped API (power users)
 const cached = testimonial.select.item(123); // Pure selector (no fetch)
-const { data } = testimonial.useGet(123); // React hook (from @geekist/wp-kernel-ui)
+const { data } = testimonial.useGet(123); // React hook (from @wpkernel/ui)
 await testimonial.fetch.item(123); // Explicit fetch (bypass cache)
 await testimonial.mutate.create(data); // Write operation
 await testimonial.cache.prefetch.item(123); // Prefetch
@@ -550,7 +550,7 @@ See [Advanced Resources Guide](./resources-advanced.md) for complete grouped API
 
 ```typescript
 // app/resources/Testimonial.ts
-import { defineResource } from '@geekist/wp-kernel/resource';
+import { defineResource } from '@wpkernel/core/resource';
 
 export interface TestimonialPost {
 	id: number;
@@ -594,9 +594,9 @@ export const testimonial = defineResource<TestimonialPost, TestimonialQuery>({
 
 ```typescript
 // app/actions/Testimonial/Create.ts
-import { defineAction } from '@geekist/wp-kernel/actions';
+import { defineAction } from '@wpkernel/core/actions';
 import { testimonial } from '@/resources/Testimonial';
-import { events } from '@geekist/wp-kernel/events';
+import { events } from '@wpkernel/core/events';
 
 export const CreateTestimonial = defineAction(
 	'Testimonial.Create',

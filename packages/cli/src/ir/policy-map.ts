@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { KernelError } from '@geekist/wp-kernel/error';
+import { KernelError } from '@wpkernel/core/error';
 import type {
 	PolicyCapabilityDescriptor,
 	PolicyMapDefinition,

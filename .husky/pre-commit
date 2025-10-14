@@ -9,10 +9,10 @@ pnpm lint-staged
 
 # Smarter typecheck logic based on staged changes
 echo "🔍 Checking which packages changed for typecheck..."
-HAS_KERNEL_CHANGES=$(echo "$STAGED_FILES" | grep -E '^packages/kernel/' || true)
+HAS_KERNEL_CHANGES=$(echo "$STAGED_FILES" | grep -E '^packages/core/' || true)
 HAS_UI_CHANGES=$(echo "$STAGED_FILES" | grep -E '^packages/ui/' || true)
 HAS_CLI_CHANGES=$(echo "$STAGED_FILES" | grep -E '^packages/cli/' || true)
-HAS_SHOWCASE_CHANGES=$(echo "$STAGED_FILES" | grep -E '^app/showcase/' || true)
+HAS_SHOWCASE_CHANGES=$(echo "$STAGED_FILES" | grep -E '^examples/showcase/' || true)
 
 if [ -n "$HAS_KERNEL_CHANGES" ]; then
   echo "🔍 Kernel changes detected: running typecheck and typecheck:tests for all packages..."
@@ -20,14 +20,14 @@ if [ -n "$HAS_KERNEL_CHANGES" ]; then
   pnpm typecheck:tests
 elif [ -n "$HAS_UI_CHANGES" ]; then
   echo "🔍 UI changes detected: running typecheck and typecheck:tests for UI and CLI..."
-  pnpm --filter @geekist/wp-kernel-ui typecheck
-  pnpm --filter @geekist/wp-kernel-ui typecheck:tests
-  pnpm --filter @geekist/wp-kernel-cli typecheck
-  pnpm --filter @geekist/wp-kernel-cli typecheck:tests
+  pnpm --filter @wpkernel/ui typecheck
+  pnpm --filter @wpkernel/ui typecheck:tests
+  pnpm --filter @wpkernel/cli typecheck
+  pnpm --filter @wpkernel/cli typecheck:tests
 elif [ -n "$HAS_CLI_CHANGES" ]; then
   echo "🔍 CLI changes detected: running typecheck and typecheck:tests for CLI only..."
-  pnpm --filter @geekist/wp-kernel-cli typecheck
-  pnpm --filter @geekist/wp-kernel-cli typecheck:tests
+  pnpm --filter @wpkernel/cli typecheck
+  pnpm --filter @wpkernel/cli typecheck:tests
 elif [ -n "$HAS_SHOWCASE_CHANGES" ]; then
   echo "🔍 Showcase changes detected: running typecheck and typecheck:tests for Showcase only..."
   pnpm --filter wp-kernel-showcase typecheck

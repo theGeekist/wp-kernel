@@ -6,7 +6,7 @@ console output, WordPress hooks, and future transports share the same formatting
 ## Import
 
 ```typescript
-import { createReporter } from '@geekist/wp-kernel/reporter';
+import { createReporter } from '@wpkernel/core/reporter';
 ```
 
 ## `createReporter(options)`
@@ -71,7 +71,7 @@ policyReporter.warn('Rule denied', { rule: 'posts.delete' });
 
 - **Actions** – the kernel automatically creates a reporter per namespace when actions execute.
 - **Policies** – `definePolicy()` uses a reporter when `debug: true` is provided.
-- **Registry** – `configureKernel()` (from `@geekist/wp-kernel`) accepts a reporter override when wiring `@wordpress/data`.
+- **Registry** – `configureKernel()` (from `@wpkernel/core`) accepts a reporter override when wiring `@wordpress/data`.
 
-Every console call inside `packages/kernel/src` now routes through this module. The custom ESLint rule
+Every console call inside `packages/core/src` now routes through this module. The custom ESLint rule
 `@kernel/no-console-in-kernel` enforces the policy.

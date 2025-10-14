@@ -137,7 +137,7 @@ Example changeset:
 
 ```markdown
 ---
-'@geekist/wp-kernel': minor
+'@wpkernel/core': minor
 ---
 
 Add support for custom cache invalidation strategies in Resources.

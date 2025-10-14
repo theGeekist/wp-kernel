@@ -1,10 +1,10 @@
-import type { Reporter } from '@geekist/wp-kernel/reporter';
+import type { Reporter } from '@wpkernel/core/reporter';
 import { emitGeneratedArtifacts } from '../../printers';
 import type { PrinterContext } from '../../printers';
 import type { AdapterExtensionRunResult } from '../../adapters';
 import { AdapterEvaluationError, rollbackExtensions } from './extensions';
 import { reportError } from './reporting';
-import type { RunGenerateResult } from './types';
+import { EXIT_CODES, type RunGenerateResult } from './types';
 
 export type PrinterRunResult = RunGenerateResult | null;
 
@@ -22,12 +22,18 @@ export async function runPrinters(
 		}
 
 		if (error instanceof AdapterEvaluationError) {
-			return { exitCode: 3, error: error.original };
+			return {
+				exitCode: EXIT_CODES.ADAPTER_ERROR,
+				error: error.original,
+			};
 		}
 
 		const printerError =
 			error instanceof Error ? error : new Error(String(error));
 		reportError(reporter, 'Printer failure.', printerError, 'printer');
-		return { exitCode: 2, error: printerError };
+		return {
+			exitCode: EXIT_CODES.UNEXPECTED_ERROR,
+			error: printerError,
+		};
 	}
 }

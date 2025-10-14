@@ -6,6 +6,6 @@
 
 ## Modules
 
-- [kernel/src](kernel/src/README.md)
-- [@geekist/wp-kernel-cli](@geekist/wp-kernel-cli/README.md)
-- [@geekist/wp-kernel-ui](@geekist/wp-kernel-ui/README.md)
+- [@wpkernel/cli](@wpkernel/cli/README.md)
+- [core/src](core/src/README.md)
+- [@wpkernel/ui](@wpkernel/ui/README.md)

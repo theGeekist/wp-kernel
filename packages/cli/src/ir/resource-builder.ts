@@ -1,4 +1,4 @@
-import type { ResourceConfig } from '@geekist/wp-kernel/resource';
+import type { ResourceConfig } from '@wpkernel/core/resource';
 import { hashCanonical, sortObject } from './canonical';
 import type {
 	BuildIrOptions,

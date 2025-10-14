@@ -1,11 +1,12 @@
-import type { Reporter } from '@geekist/wp-kernel/reporter';
+import type { Reporter } from '@wpkernel/core/reporter';
 import { runGenerate } from '../run-generate';
+import { EXIT_CODES } from '../run-generate/types';
 
 import { loadKernelConfig } from '../../config';
 import { buildIr } from '../../ir';
 import { emitGeneratedArtifacts } from '../../printers';
 import { runAdapterExtensions } from '../../adapters';
-import type { WPKConfigSource } from '@geekist/wp-kernel/namespace/constants';
+import type { WPKConfigSource } from '@wpkernel/core/contracts';
 
 jest.mock('../../config');
 jest.mock('../../ir');
@@ -41,7 +42,7 @@ jest.mock('prettier', () => ({
 
 jest.mock('@prettier/plugin-php', () => ({}));
 
-jest.mock('@geekist/wp-kernel', () => {
+jest.mock('@wpkernel/core', () => {
 	class KernelError extends Error {
 		public readonly code: string;
 		public readonly context?: Record<string, unknown>;
@@ -165,7 +166,7 @@ describe('runGenerate', () => {
 
 		const result = await runGenerate({ dryRun: true, reporter });
 
-		expect(result.exitCode).toBe(3);
+		expect(result.exitCode).toBe(EXIT_CODES.ADAPTER_ERROR);
 
 		// Cast to jest.Mocked to access mock.calls
 		const mockedReporter = reporter as unknown as jest.Mocked<Reporter>;
@@ -212,7 +213,7 @@ describe('runGenerate', () => {
 
 		const result = await runGenerate({ dryRun: true, reporter });
 
-		expect(result.exitCode).toBe(3);
+		expect(result.exitCode).toBe(EXIT_CODES.ADAPTER_ERROR);
 		expect(commit).toHaveBeenCalledTimes(1);
 		expect(rollback).toHaveBeenCalledTimes(1);
 

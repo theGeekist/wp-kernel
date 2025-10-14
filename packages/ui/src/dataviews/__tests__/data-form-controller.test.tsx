@@ -1,12 +1,9 @@
 import { act } from 'react';
-import type { DefinedAction } from '@geekist/wp-kernel/actions';
-import { KernelError } from '@geekist/wp-kernel/error';
-import type {
-	ResourceObject,
-	CacheKeyPattern,
-} from '@geekist/wp-kernel/resource';
+import type { DefinedAction } from '@wpkernel/core/actions';
+import { KernelError } from '@wpkernel/core/error';
+import type { ResourceObject, CacheKeyPattern } from '@wpkernel/core/resource';
 import * as errorUtils from '../error-utils';
-import type { KernelUIRuntime } from '@geekist/wp-kernel/data';
+import type { KernelUIRuntime } from '@wpkernel/core/data';
 import { KernelUIProvider } from '../../runtime/context';
 import { createRoot } from 'react-dom/client';
 import {

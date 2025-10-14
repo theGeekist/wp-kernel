@@ -1,5 +1,5 @@
 {
-	"name": "@geekist/wp-kernel-e2e-utils",
+	"name": "@wpkernel/e2e-utils",
 	"version": "0.4.0",
 	"description": "E2E testing utilities for WP Kernel projects",
 	"license": "EUPL-1.2",
@@ -52,7 +52,7 @@
 		"test:coverage": "jest --coverage"
 	},
 	"peerDependencies": {
-		"@geekist/wp-kernel": "workspace:*",
+		"@wpkernel/core": "workspace:*",
 		"@playwright/test": ">=1.40.0",
 		"@wordpress/e2e-test-utils-playwright": ">=1.0.0"
 	},

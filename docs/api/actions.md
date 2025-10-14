@@ -6,13 +6,13 @@ policy checks, cache invalidation, lifecycle events, and background job hooks.
 ## `defineAction`
 
 ```ts
-import { defineAction } from '@geekist/wp-kernel/actions';
+import { defineAction } from '@wpkernel/core/actions';
 ```
 
 ### Signature
 
 ```ts
-import type { ActionContext } from '@geekist/wp-kernel/actions';
+import type { ActionContext } from '@wpkernel/core/actions';
 
 function defineAction<TArgs, TResult>(
 	actionName: string,
@@ -27,8 +27,8 @@ function defineAction<TArgs, TResult>(
 ### Usage
 
 ```ts
-import { defineAction } from '@geekist/wp-kernel/actions';
-import { defineResource } from '@geekist/wp-kernel/resource';
+import { defineAction } from '@wpkernel/core/actions';
+import { defineResource } from '@wpkernel/core/resource';
 
 const testimonial = defineResource<Testimonial>({
 	name: 'testimonial',
@@ -86,10 +86,7 @@ within the current tab; tab-local actions never bridge to PHP even when
 ## Redux middleware helper
 
 ```ts
-import {
-	createActionMiddleware,
-	invokeAction,
-} from '@geekist/wp-kernel/actions';
+import { createActionMiddleware, invokeAction } from '@wpkernel/core/actions';
 ```
 
 The middleware helper lets you dispatch kernel actions through any Redux-like
