@@ -1,7 +1,3 @@
-Got it - we’ll stay at the **printer layer only** (no command wiring), and spell out exactly **what each printer must infer from `kernel.config.ts` and emit**. This is the contract your implementers can code against right now.
-
----
-
 # Printers - Scope, Inputs, Decisions, Outputs
 
 All printers take a **fully-validated IR** (Phase 1A/1B) and a `FS` helper (read/write, exists, glob) and return a list of emitted files with content (no side-effects). Command orchestration (`wpk build/dev/apply`) is out-of-scope here.
@@ -280,5 +276,3 @@ return function( array $attributes, string $content, array $context ) {
 - **Blocks**: from discovery - emit `auto-register.ts` for JS-only; emit a registrar PHP that expects a **build-time** manifest for SSR.
 - **UI**: DataViews screen + fixtures + PHP menu shim when present.
 - **All decisions are **inferred** from the IR/config; no new author flags.**
-
-This gives your team everything needed to implement the printers now, while keeping the later command orchestration (dev/build/apply) straightforward.
