@@ -8,6 +8,7 @@
  */
 
 import { extractPathParams, interpolatePath } from '@wpkernel/core/resource';
+import { KernelError, WPK_NAMESPACE } from '@wpkernel/core/contracts';
 import type { Page } from '@playwright/test';
 import type { RequestUtils } from '@wordpress/e2e-test-utils-playwright';
 import type {
@@ -22,6 +23,18 @@ import type {
 	WordPressFixtures,
 	CapturedEvent,
 } from './types.js';
+
+type EvaluationErrorPayload = {
+	message: string;
+	context?: Record<string, unknown>;
+	data?: Record<string, unknown>;
+};
+
+type EvaluationResult<T> = {
+	value?: T;
+	status?: string;
+	error?: EvaluationErrorPayload;
+};
 
 // Extend window type for namespace detection
 declare global {
@@ -143,9 +156,17 @@ export function createResourceHelper<T>(
 					? error.message
 					: 'Unknown interpolation error';
 
-			throw new Error(
-				`Failed to interpolate remove path for resource "${config.name}": ${message}`
-			);
+			throw new KernelError('DeveloperError', {
+				message: `Failed to interpolate remove path for resource "${config.name}": ${message}`,
+				context: {
+					resourceName: config.name,
+					template: routes.remove.path,
+				},
+				data:
+					error instanceof Error
+						? { originalError: error }
+						: undefined,
+			});
 		}
 	};
 
@@ -175,9 +196,10 @@ export function createResourceHelper<T>(
 			data: Partial<T>
 		): Promise<T & { id: string | number }> => {
 			if (!routes.create) {
-				throw new Error(
-					`Resource "${config.name}" does not have a create route configured`
-				);
+				throw new KernelError('DeveloperError', {
+					message: `Resource "${config.name}" does not have a create route configured`,
+					context: { resourceName: config.name },
+				});
 			}
 
 			const response = await requestUtils.rest({
@@ -191,16 +213,18 @@ export function createResourceHelper<T>(
 			});
 
 			if (!response || typeof response !== 'object') {
-				throw new Error(
-					`Failed to seed resource "${config.name}": Invalid response`
-				);
+				throw new KernelError('UnknownError', {
+					message: `Failed to seed resource "${config.name}": Invalid response`,
+					context: { resourceName: config.name },
+				});
 			}
 
 			const identifier = resolveIdentifier(response);
 			if (identifier === undefined) {
-				throw new Error(
-					`Failed to seed resource "${config.name}": Missing identifier`
-				);
+				throw new KernelError('DeveloperError', {
+					message: `Failed to seed resource "${config.name}": Missing identifier`,
+					context: { resourceName: config.name },
+				});
 			}
 
 			return { ...(response as T), id: identifier } as T & {
@@ -212,9 +236,10 @@ export function createResourceHelper<T>(
 			items: Partial<T>[]
 		): Promise<Array<T & { id: string | number }>> => {
 			if (!routes.create) {
-				throw new Error(
-					`Resource "${config.name}" does not have a create route configured`
-				);
+				throw new KernelError('DeveloperError', {
+					message: `Resource "${config.name}" does not have a create route configured`,
+					context: { resourceName: config.name },
+				});
 			}
 
 			const createRoute = routes.create;
@@ -232,16 +257,18 @@ export function createResourceHelper<T>(
 					});
 
 					if (!response || typeof response !== 'object') {
-						throw new Error(
-							`Failed to seed resource "${config.name}": Invalid response`
-						);
+						throw new KernelError('UnknownError', {
+							message: `Failed to seed resource "${config.name}": Invalid response`,
+							context: { resourceName: config.name },
+						});
 					}
 
 					const identifier = resolveIdentifier(response);
 					if (identifier === undefined) {
-						throw new Error(
-							`Failed to seed resource "${config.name}": Missing identifier`
-						);
+						throw new KernelError('DeveloperError', {
+							message: `Failed to seed resource "${config.name}": Missing identifier`,
+							context: { resourceName: config.name },
+						});
 					}
 
 					return { ...(response as T), id: identifier } as T & {
@@ -255,17 +282,19 @@ export function createResourceHelper<T>(
 
 		remove: async (id: string | number): Promise<void> => {
 			if (!routes.remove) {
-				throw new Error(
-					`Resource "${config.name}" does not have a remove route configured`
-				);
+				throw new KernelError('DeveloperError', {
+					message: `Resource "${config.name}" does not have a remove route configured`,
+					context: { resourceName: config.name },
+				});
 			}
 
 			const path = buildRemovePath(id);
 
 			if (!path) {
-				throw new Error(
-					`Resource "${config.name}" does not have a remove route configured`
-				);
+				throw new KernelError('DeveloperError', {
+					message: `Resource "${config.name}" does not have a remove route configured`,
+					context: { resourceName: config.name },
+				});
 			}
 
 			await requestUtils.rest({
@@ -280,9 +309,10 @@ export function createResourceHelper<T>(
 
 		deleteAll: async (): Promise<void> => {
 			if (!routes.list || !routes.remove) {
-				throw new Error(
-					`Resource "${config.name}" must have both list and remove routes for deleteAll()`
-				);
+				throw new KernelError('DeveloperError', {
+					message: `Resource "${config.name}" must have both list and remove routes for deleteAll()`,
+					context: { resourceName: config.name },
+				});
 			}
 
 			const response = await requestUtils.rest({
@@ -291,9 +321,10 @@ export function createResourceHelper<T>(
 			});
 
 			if (!Array.isArray(response)) {
-				throw new Error(
-					`Failed to list resources "${config.name}": Expected array response`
-				);
+				throw new KernelError('UnknownError', {
+					message: `Failed to list resources "${config.name}": Expected array response`,
+					context: { resourceName: config.name },
+				});
 			}
 
 			const removeRoute = routes.remove;
@@ -307,9 +338,10 @@ export function createResourceHelper<T>(
 
 					const path = buildRemovePath(identifier);
 					if (!path) {
-						throw new Error(
-							`Resource "${config.name}" does not have a remove route configured`
-						);
+						throw new KernelError('DeveloperError', {
+							message: `Resource "${config.name}" does not have a remove route configured`,
+							context: { resourceName: config.name },
+						});
 					}
 
 					await requestUtils.rest({
@@ -470,16 +502,18 @@ function extractSelectorPath<T>(selector: (state: T) => unknown): string[] {
 		: extractFunctionExpression(source);
 
 	if (!expression) {
-		throw new Error(
-			'Invalid selector: Only simple property access is supported'
-		);
+		throw new KernelError('DeveloperError', {
+			message:
+				'Invalid selector: Only simple property access is supported',
+		});
 	}
 
 	const candidate = expression.replace(/;$/, '');
 	if (!SAFE_SELECTOR_PATTERN.test(candidate)) {
-		throw new Error(
-			'Invalid selector: Only simple property access is supported'
-		);
+		throw new KernelError('DeveloperError', {
+			message:
+				'Invalid selector: Only simple property access is supported',
+		});
 	}
 
 	const path =
@@ -489,9 +523,10 @@ function extractSelectorPath<T>(selector: (state: T) => unknown): string[] {
 
 	for (const segment of path) {
 		if (FORBIDDEN_PROPS.has(segment)) {
-			throw new Error(
-				`Security violation: Property "${segment}" is not allowed`
-			);
+			throw new KernelError('DeveloperError', {
+				message: `Security violation: Property "${segment}" is not allowed`,
+				context: { property: segment },
+			});
 		}
 	}
 
@@ -569,10 +604,14 @@ export function createStoreHelper<T>(
 			const propertyPath = extractSelectorPath(selector);
 
 			while (true) {
-				const result = await page.evaluate(
+				const evaluation = await page.evaluate<
+					EvaluationResult<unknown>,
+					{ key: string; path: string[] }
+				>(
 					({ key, path }) => {
 						// Auto-detect namespace
-						const namespace = window.wpKernelNamespace || 'wpk';
+						const namespace =
+							window.wpKernelNamespace || WPK_NAMESPACE;
 						const { select } = window.wp.data;
 
 						// Try namespace-aware key first, fallback to original
@@ -582,43 +621,73 @@ export function createStoreHelper<T>(
 						const store = select(namespacedKey) || select(key);
 
 						if (!store) {
-							throw new Error(
-								`Store "${namespacedKey}" not found`
-							);
+							return {
+								error: {
+									message: `Store "${namespacedKey}" not found`,
+									context: { namespacedKey },
+								},
+							};
 						}
 
 						// SECURITY FIX: Use safe eval instead of new Function()
 						try {
-							return path.reduce<unknown>((current, segment) => {
-								if (
-									current &&
-									typeof current === 'object' &&
-									segment in current
-								) {
-									return (current as Record<string, unknown>)[
-										segment
-									];
-								}
-								return undefined;
-							}, store as unknown);
-						} catch (error) {
-							// Fallback for complex selectors - disable for security
-							throw new Error(
-								`Selector evaluation failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+							const value = path.reduce<unknown>(
+								(current: unknown, segment: string) => {
+									if (
+										current &&
+										typeof current === 'object' &&
+										segment in current
+									) {
+										return (
+											current as Record<string, unknown>
+										)[segment];
+									}
+									return undefined;
+								},
+								store as unknown
 							);
+
+							return { value };
+						} catch (error) {
+							return {
+								error: {
+									message: `Selector evaluation failed: ${
+										error instanceof Error
+											? error.message
+											: 'Unknown error'
+									}`,
+									data:
+										error instanceof Error
+											? { stack: error.stack }
+											: undefined,
+								},
+							};
 						}
 					},
 					{ key: storeKey, path: propertyPath }
 				);
 
+				if (evaluation?.error) {
+					throw new KernelError('DeveloperError', {
+						message: evaluation.error.message,
+						context: {
+							storeKey,
+							...evaluation.error.context,
+						},
+						data: evaluation.error.data,
+					});
+				}
+
+				const result = evaluation?.value;
 				if (result) {
 					return result as R;
 				}
 
 				if (Date.now() - startTime > timeout) {
-					throw new Error(
-						`Timeout waiting for store "${storeKey}" selector after ${timeout}ms`
-					);
+					throw new KernelError('TimeoutError', {
+						message: `Timeout waiting for store "${storeKey}" selector after ${timeout}ms`,
+						context: { storeKey, timeout },
+					});
 				}
 
 				await page.waitForTimeout(100);
@@ -626,9 +695,12 @@ export function createStoreHelper<T>(
 		},
 
 		invalidate: async (): Promise<void> => {
-			await page.evaluate((key) => {
+			const evaluation = await page.evaluate<
+				EvaluationResult<void>,
+				string
+			>((key) => {
 				// Auto-detect namespace
-				const namespace = window.wpKernelNamespace || 'wpk';
+				const namespace = window.wpKernelNamespace || WPK_NAMESPACE;
 				const { dispatch } = window.wp.data;
 
 				// Try namespace-aware key first, fallback to original
@@ -638,7 +710,12 @@ export function createStoreHelper<T>(
 				const store = dispatch(namespacedKey) || dispatch(key);
 
 				if (!store) {
-					throw new Error(`Store "${namespacedKey}" not found`);
+					return {
+						error: {
+							message: `Store "${namespacedKey}" not found`,
+							context: { namespacedKey },
+						},
+					};
 				}
 
 				if ('invalidateResolution' in store) {
@@ -647,13 +724,28 @@ export function createStoreHelper<T>(
 					) => void;
 					invalidateFn();
 				}
+
+				return { status: 'ok' };
 			}, storeKey);
+
+			if (evaluation?.error) {
+				throw new KernelError('DeveloperError', {
+					message: evaluation.error.message,
+					context: {
+						storeKey,
+						...evaluation.error.context,
+					},
+				});
+			}
 		},
 
 		getState: async (): Promise<T> => {
-			const state = await page.evaluate((key) => {
+			const evaluation = await page.evaluate<
+				EvaluationResult<unknown>,
+				string
+			>((key) => {
 				// Auto-detect namespace
-				const namespace = window.wpKernelNamespace || 'wpk';
+				const namespace = window.wpKernelNamespace || WPK_NAMESPACE;
 				const { select } = window.wp.data;
 
 				// Try namespace-aware key first, fallback to original
@@ -663,13 +755,28 @@ export function createStoreHelper<T>(
 				const store = select(namespacedKey) || select(key);
 
 				if (!store) {
-					throw new Error(`Store "${namespacedKey}" not found`);
+					return {
+						error: {
+							message: `Store "${namespacedKey}" not found`,
+							context: { namespacedKey },
+						},
+					};
 				}
 
-				return store;
+				return { value: store };
 			}, storeKey);
 
-			return state as T;
+			if (evaluation?.error) {
+				throw new KernelError('DeveloperError', {
+					message: evaluation.error.message,
+					context: {
+						storeKey,
+						...evaluation.error.context,
+					},
+				});
+			}
+
+			return evaluation?.value as T;
 		},
 	};
 }
@@ -689,7 +796,7 @@ export async function createEventHelper<P>(
 ): Promise<EventRecorder<P>> {
 	const pattern = options?.pattern;
 
-	// Auto-detect namespace from browser context or default to 'wpk'
+	// Auto-detect namespace from browser context or default to WPK_NAMESPACE
 	// This maintains backward compatibility while enabling namespace support
 	const namespace = await page.evaluate(() => {
 		// Try to detect namespace from various sources
@@ -698,7 +805,7 @@ export async function createEventHelper<P>(
 			return win.wpKernelNamespace;
 		}
 		// Could add other detection methods here in the future
-		return 'wpk'; // Default fallback
+		return WPK_NAMESPACE; // Default fallback
 	});
 
 	const listenPattern = `${namespace}.*`;

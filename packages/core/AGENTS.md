@@ -13,3 +13,5 @@ Run `pnpm --filter @wpkernel/core test` after edits, followed by `pnpm typecheck
 ### Conventions
 
 Maintain namespace and event naming consistency-use helpers from `namespace/` and publish lifecycle updates via the typed event bus. Throw `KernelError` or an existing subclass (`TransportError`, `ServerError`, etc.); when introducing new errors, derive from `KernelError` so behaviour remains consistent. Keep exports surface-driven: no deep imports from `src/**` in other packages.
+
+Always source namespaces, lifecycle phases, and exit codes from `@wpkernel/core/contracts` to avoid drift.

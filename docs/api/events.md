@@ -11,8 +11,8 @@ Canonical event taxonomy for observability and extensibility. All events use Wor
 Events follow the pattern: `{namespace}.{category}.{event}` where:
 
 - **namespace**:
-    - Framework events: Always `wpk` (core kernel events)
-    - Resource events: Auto-detected from environment or explicitly configured (fallback: 'wpk')
+    - Framework events: Always `WPK_NAMESPACE` from `@wpkernel/core/contracts` (core kernel events)
+    - Resource events: Auto-detected from environment or explicitly configured (fallback: that same constant)
 - **category**: Type of event (resource, action, job, etc.)
 - **event**: Specific event name
 
@@ -22,7 +22,7 @@ All events below are **available now** and can be subscribed to using `addAction
 
 ### Resource Transport Events
 
-Emitted by the HTTP transport layer during resource operations. These are **framework events** that always use the `wpk` namespace:
+Emitted by the HTTP transport layer during resource operations. These are **framework events** that always use the `WPK_NAMESPACE` constant:
 
 #### `wpk.resource.request`
 
@@ -30,8 +30,9 @@ Fired before making a REST request.
 
 ```typescript
 import { addAction } from '@wordpress/hooks';
+import { WPK_NAMESPACE } from '@wpkernel/core/contracts';
 
-addAction('wpk.resource.request', 'my-plugin', (event) => {
+addAction(`${WPK_NAMESPACE}.resource.request`, 'my-plugin', (event) => {
 	console.log(`Request ${event.requestId}: ${event.method} ${event.path}`);
 });
 ```

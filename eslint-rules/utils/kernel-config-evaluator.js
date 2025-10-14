@@ -1,6 +1,6 @@
 import path from 'path';
 
-const KERNEL_CONFIG_FILENAME = 'kernel.config.ts';
+const WPK_CONFIG_FILENAME = 'kernel.config.ts';
 
 /**
  * Checks if a file path represents kernel.config.ts.
@@ -12,7 +12,7 @@ function isKernelConfigFile(filename) {
 		return false;
 	}
 
-	return path.basename(filename) === KERNEL_CONFIG_FILENAME;
+	return path.basename(filename) === WPK_CONFIG_FILENAME;
 }
 
 /**

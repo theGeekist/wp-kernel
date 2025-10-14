@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
 import { KernelError } from '@wpkernel/core/error';
-import { WPK_NAMESPACE } from '@wpkernel/core/namespace/constants';
+import { WPK_NAMESPACE } from '@wpkernel/core/contracts';
 import type {
 	ResourceConfig,
 	ResourcePostMetaDescriptor,

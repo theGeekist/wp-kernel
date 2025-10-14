@@ -2,7 +2,7 @@ import { type PolicyDeniedError } from '../../error/PolicyDeniedError';
 import { withPolicyRequestContext } from '../context';
 import type { ActionRuntime } from '../../actions/types';
 import type { PolicyHelpers, PolicyMap, PolicyOptions } from '../types';
-import { WPK_SUBSYSTEM_NAMESPACES } from '../../namespace/constants';
+import { WPK_SUBSYSTEM_NAMESPACES } from '../../contracts';
 
 type DefinePolicy = <K extends Record<string, unknown>>(
 	map: PolicyMap<K>,

@@ -13,6 +13,8 @@ WP Kernel is the foundation package that provides:
 
 Built on WordPress primitives: Script Modules, Block Bindings, Interactivity API, @wordpress/data.
 
+> Contracts for lifecycle phases, namespaces, and exit codes live under `@wpkernel/core/contracts` so every package consumes the same source of truth.
+
 ## Quick Start
 
 ```bash

@@ -3,12 +3,12 @@ import os from 'node:os';
 import fs from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import type { KernelConfigV1 } from '../config/types';
-import { WPK_CONFIG_SOURCES } from '@wpkernel/core/namespace/constants';
+import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
 
 export const FIXTURE_ROOT = path.join(__dirname, '__fixtures__');
 export const FIXTURE_CONFIG_PATH = path.join(
 	FIXTURE_ROOT,
-	WPK_CONFIG_SOURCES.KERNEL_CONFIG_TS
+	WPK_CONFIG_SOURCES.WPK_CONFIG_TS
 );
 const TMP_PREFIX = path.join(os.tmpdir(), 'wpk-ir-test-');
 

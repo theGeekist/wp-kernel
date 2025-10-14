@@ -4,7 +4,7 @@ import type * as WPData from '@wordpress/data';
 import type * as WPHooks from '@wordpress/hooks';
 import type { PolicyDeniedError } from '../../error/PolicyDeniedError';
 import type { PolicyContext } from '../types';
-import { WPK_SUBSYSTEM_NAMESPACES } from '../../namespace/constants';
+import { WPK_SUBSYSTEM_NAMESPACES } from '../../contracts';
 
 type PolicyModuleType = typeof PolicyModule;
 

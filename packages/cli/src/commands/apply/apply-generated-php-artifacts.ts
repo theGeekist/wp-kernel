@@ -1,6 +1,6 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import { KernelError } from '@wpkernel/core/error';
+import { KernelError } from '@wpkernel/core/contracts';
 import { toWorkspaceRelative } from '../../utils';
 import type {
 	ApplyOptions,
@@ -210,7 +210,10 @@ function locateGuardSegment(contents: string): GuardSegment {
 
 	if (beginIndex === -1 || endIndex === -1) {
 		/* istanbul ignore next - guard markers validated before merge */
-		throw new Error('Guard markers not found in PHP file.');
+		throw new KernelError('DeveloperError', {
+			message: 'Guard markers not found in PHP file.',
+			context: { beginMarker: BEGIN_MARKER, endMarker: END_MARKER },
+		});
 	}
 
 	const start = Math.max(contents.lastIndexOf('\n', beginIndex - 1) + 1, 0);

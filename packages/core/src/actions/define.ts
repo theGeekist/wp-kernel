@@ -252,7 +252,7 @@ function createLifecycleEvent(
  *
  * ```typescript
  * defineAction('TestAction', async (ctx, args) => {
- *   throw new Error('Something broke');  // Auto-wrapped as KernelError
+ *   throw new KernelError('DeveloperError', { message: 'Something broke' });
  * });
  * ```
  *

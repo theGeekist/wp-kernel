@@ -204,7 +204,7 @@ describe('createKernelUtils', () => {
 			const kernel = createKernelUtils(fixtures);
 			const store = kernel.store('wpk/test');
 
-			mockPage.evaluate.mockResolvedValue({ test: 'state' });
+			mockPage.evaluate.mockResolvedValue({ value: { test: 'state' } });
 
 			const state = await store.getState();
 
@@ -571,7 +571,7 @@ describe('createKernelUtils', () => {
 			it('should wait for selector to return truthy value', async () => {
 				const mockState = { items: [{ id: 1 }] };
 
-				mockPage.evaluate.mockResolvedValue(mockState.items);
+				mockPage.evaluate.mockResolvedValue({ value: mockState.items });
 
 				const result = await store.wait((state: any) => state.items);
 
@@ -581,9 +581,9 @@ describe('createKernelUtils', () => {
 
 			it('should poll until data appears', async () => {
 				mockPage.evaluate
-					.mockResolvedValueOnce(null)
-					.mockResolvedValueOnce(null)
-					.mockResolvedValueOnce([{ id: 1 }]);
+					.mockResolvedValueOnce({ value: null })
+					.mockResolvedValueOnce({ value: null })
+					.mockResolvedValueOnce({ value: [{ id: 1 }] });
 
 				mockPage.waitForTimeout.mockResolvedValue(undefined);
 
@@ -594,7 +594,7 @@ describe('createKernelUtils', () => {
 			});
 
 			it('should timeout after specified duration', async () => {
-				mockPage.evaluate.mockResolvedValue(null);
+				mockPage.evaluate.mockResolvedValue({ value: null });
 				mockPage.waitForTimeout.mockResolvedValue(undefined);
 
 				// Mock Date.now to simulate timeout
@@ -635,7 +635,7 @@ describe('createKernelUtils', () => {
 					loading: false,
 				};
 
-				mockPage.evaluate.mockResolvedValue(mockState);
+				mockPage.evaluate.mockResolvedValue({ value: mockState });
 
 				const state = await store.getState();
 

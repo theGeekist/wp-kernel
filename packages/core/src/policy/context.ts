@@ -17,7 +17,7 @@
 import { KernelError } from '../error/KernelError';
 import type { ActionRuntime } from '../actions/types';
 import { createReporter } from '../reporter';
-import { WPK_SUBSYSTEM_NAMESPACES } from '../namespace/constants';
+import { WPK_SUBSYSTEM_NAMESPACES } from '../contracts/index.js';
 import type { PolicyHelpers } from './types';
 
 export type PolicyProxyOptions = {

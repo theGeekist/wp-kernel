@@ -19,9 +19,9 @@ import { KernelError } from '../error/KernelError';
 import { PolicyDeniedError } from '../error/PolicyDeniedError';
 import { getNamespace } from '../namespace/detect';
 import {
-	WPK_SUBSYSTEM_NAMESPACES,
 	WPK_INFRASTRUCTURE,
-} from '../namespace/constants';
+	WPK_SUBSYSTEM_NAMESPACES,
+} from '../contracts/index.js';
 import {
 	createReporter as createKernelReporter,
 	createNoopReporter,

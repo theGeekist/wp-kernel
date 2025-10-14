@@ -15,7 +15,7 @@ import { runAdapterExtensions } from '../../adapters';
 import type { AdapterExtensionRunResult } from '../../adapters';
 import { formatPhp, formatTs, createEnsureDirectory } from './formatters';
 import { reportError } from './reporting';
-import type { ExitCode } from './types';
+import { EXIT_CODES, type ExitCode } from './types';
 import type { LoadedConfig } from './load-config';
 import { AdapterEvaluationError, rollbackExtensions } from './extensions';
 
@@ -77,7 +77,10 @@ export async function prepareGeneration({
 		);
 
 		if (extensionsResult instanceof Error) {
-			return { exitCode: 3, error: extensionsResult };
+			return {
+				exitCode: EXIT_CODES.ADAPTER_ERROR,
+				error: extensionsResult,
+			};
 		}
 
 		extensionsRun = extensionsResult;
@@ -105,13 +108,19 @@ export async function prepareGeneration({
 		}
 
 		if (error instanceof AdapterEvaluationError) {
-			return { exitCode: 3, error: error.original };
+			return {
+				exitCode: EXIT_CODES.ADAPTER_ERROR,
+				error: error.original,
+			};
 		}
 
 		const printerError =
 			error instanceof Error ? error : new Error(String(error));
 		reportError(reporter, 'Printer failure.', printerError, 'printer');
-		return { exitCode: 2, error: printerError };
+		return {
+			exitCode: EXIT_CODES.UNEXPECTED_ERROR,
+			error: printerError,
+		};
 	}
 }
 

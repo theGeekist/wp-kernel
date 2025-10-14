@@ -1,5 +1,5 @@
 import { createPolicyCache, createPolicyCacheKey } from '../cache';
-import { WPK_SUBSYSTEM_NAMESPACES } from '../../namespace/constants';
+import { WPK_SUBSYSTEM_NAMESPACES } from '../../contracts';
 
 jest.mock('../../namespace/detect', () => ({
 	getNamespace: () => 'acme',

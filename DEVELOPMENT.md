@@ -30,6 +30,8 @@ wp-kernel/
 | **Showcase app**    | Business/domain demo plugin (jobs & applications system) | Real-world patterns that exercise all kernel capabilities |
 | **e2e-utils**       | Testing utilities (validated via showcase)               | Browser-only code, can't be unit tested in isolation      |
 
+- Import lifecycle phases, namespace constants, and CLI exit codes from `@wpkernel/core/contracts`; never hardcode `wpk` or numeric exit codes in tooling.
+
 ## 🚀 Essential Workflow
 
 ### 1. **First Setup**

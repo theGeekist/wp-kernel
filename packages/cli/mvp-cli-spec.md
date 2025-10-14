@@ -10,7 +10,7 @@
 - **Configuration**: `kernel.config.ts` in the project root exporting a `KernelConfigV1` object. No alternative surfaces. All authoring guidance, linting, and CLI behaviour target this file.
 - **Types**: Reuse definitions from `@wpkernel/core/resource` (`ResourceConfig`, `ResourceStorageConfig`, etc.). The CLI must never introduce divergent shapes. For reference, see `packages/core/src/resource/types.ts` for the canonical runtime contract that inference is layered upon.
 - **Schema Sources**: JSON Schemas may be local files, auto synthesised from storage metadata, or provided inline. Generated `.d.ts` files are convenience outputs and not authoritative.
-- **Namespace**: Sanitised via `@wpkernel/core/namespace`. The sanitised value is recorded in the IR and used for all PHP artefacts.
+- **Namespace**: Sanitised via `@wpkernel/core/contracts`. The sanitised value is recorded in the IR and used for all PHP artefacts.
 
 ---
 

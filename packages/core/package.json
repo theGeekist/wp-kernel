@@ -83,6 +83,11 @@
 			"import": "./dist/namespace/constants.js",
 			"default": "./dist/namespace/constants.js"
 		},
+		"./contracts": {
+			"types": "./dist/contracts/index.d.ts",
+			"import": "./dist/contracts.js",
+			"default": "./dist/contracts.js"
+		},
 		"./package.json": "./package.json"
 	},
 	"files": [

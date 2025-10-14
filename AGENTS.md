@@ -12,6 +12,7 @@ This document provides operational guidance for coding agents (Codex, etc.) work
     - UI never calls transport directly; **all writes flow through Actions**.
     - Use only **canonical registry event names**; no ad-hoc events.
     - Errors must be typed `KernelError` subclasses; never throw plain `Error`.
+    - Lifecycle phases, namespaces, and CLI exit codes come from `@wpkernel/core/contracts`-never inline the kernel namespace or exit code numbers.
 
 ## Project Structure & Module Organisation
 

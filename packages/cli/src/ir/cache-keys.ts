@@ -1,5 +1,5 @@
 import type { CacheKeyFn, CacheKeys } from '@wpkernel/core/resource';
-import { KernelError } from '@wpkernel/core/error';
+import { KernelError } from '@wpkernel/core/contracts';
 import type { IRResource, IRResourceCacheKey } from './types';
 
 export function deriveCacheKeys(
@@ -24,7 +24,15 @@ export function deriveCacheKeys(
 			const result =
 				typeof placeholder === 'undefined' ? fn() : fn(placeholder);
 			if (!Array.isArray(result)) {
-				throw new Error('Cache key function must return an array.');
+				throw new KernelError('ValidationError', {
+					message: `cacheKeys.${String(
+						key
+					)} for resource "${resourceName}" must return an array.`,
+					context: {
+						resourceName,
+						cacheKey: String(key),
+					},
+				});
 			}
 
 			return {
@@ -32,9 +40,17 @@ export function deriveCacheKeys(
 				segments: Object.freeze(result.map((value) => value)),
 			};
 		} catch (error) {
+			if (KernelError.isKernelError(error)) {
+				throw error;
+			}
+
 			const message = `Failed to evaluate cacheKeys.${String(key)} for resource "${resourceName}".`;
 			throw new KernelError('ValidationError', {
 				message,
+				context: {
+					resourceName,
+					cacheKey: String(key),
+				},
 				data:
 					error instanceof Error
 						? { originalError: error }
