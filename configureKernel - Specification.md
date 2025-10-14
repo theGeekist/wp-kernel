@@ -29,7 +29,7 @@ Based on `CURRENT_STATE.md`, the kernel exposes several independent configuratio
 
 - Eliminates duplicate namespace configuration across resources, actions, policies, and jobs.
 - Ensures cache keys, store names, and event payloads share a consistent namespace.
-- Leverages `@geekist/wp-kernel/namespace` utilities (`detectNamespace`,
+- Leverages `@wpkernel/core/namespace` utilities (`detectNamespace`,
   `sanitizeNamespace`, `WPK_NAMESPACE`, etc.) to provide sensible defaults and
   explicit overrides when a namespace is not supplied.
 
@@ -61,7 +61,7 @@ Based on `CURRENT_STATE.md`, the kernel exposes several independent configuratio
 ### 2.7 UI Integration Runtime
 
 - Establishes a `KernelUIRuntime` that coordinates hooks, components, and other UI primitives with the configured kernel instance.
-- Eliminates side-effect imports from `@geekist/wp-kernel-ui` by driving attachment through explicit configuration.
+- Eliminates side-effect imports from `@wpkernel/ui` by driving attachment through explicit configuration.
 - Ensures adapters (e.g., `attachUIBindings`) subscribe to `kernel.events` for resource/action definitions-no `__WP_KERNEL_UI_*` globals participate in runtime setup.
 
 ### 2.8 Event Bus
@@ -81,19 +81,19 @@ function configureKernel(config: KernelConfig): KernelInstance;
 
 ### 3.1 Input Configuration
 
-| Property                    | Type                                                          | Required | Description                                                                                           |
-| --------------------------- | ------------------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------------- |
-| `namespace`                 | `string`                                                      | Yes      | Plugin/theme namespace used for stores, cache keys, events, and reporters.                            |
-| `registry`                  | `KernelRegistry`                                              | No       | WordPress Data registry instance. Defaults to `window.wp.data` when available.                        |
-| `reporter`                  | `Reporter`                                                    | No       | Existing reporter to reuse. Defaults to `createReporter({ namespace, level: 'debug' })`.              |
-| `middleware`                | `ReduxMiddleware[]`                                           | No       | Custom middleware appended after kernel middleware.                                                   |
-| `enableReduxMiddleware`     | `boolean`                                                     | No       | Enables Redux envelopes for actions (default `true`).                                                 |
-| `enableRegistryIntegration` | `boolean`                                                     | No       | Enables the error bridge and `wp.hooks` bridge (default `true`).                                      |
-| `ui`                        | `{ attach?: KernelUIAttach; options?: UIIntegrationOptions }` | No       | Optional adapter function for UI integration (e.g., `attachUIBindings` from `@geekist/wp-kernel-ui`). |
-| `policies`                  | `PolicyMap<Record<string, unknown>>`                          | No       | Initial policy map registration (optional convenience).                                               |
-| `autoBootstrap`             | `boolean`                                                     | No       | If `true`, automatically installs registry integration and middleware. Defaults to `true`.            |
+| Property                    | Type                                                          | Required | Description                                                                                  |
+| --------------------------- | ------------------------------------------------------------- | -------- | -------------------------------------------------------------------------------------------- |
+| `namespace`                 | `string`                                                      | Yes      | Plugin/theme namespace used for stores, cache keys, events, and reporters.                   |
+| `registry`                  | `KernelRegistry`                                              | No       | WordPress Data registry instance. Defaults to `window.wp.data` when available.               |
+| `reporter`                  | `Reporter`                                                    | No       | Existing reporter to reuse. Defaults to `createReporter({ namespace, level: 'debug' })`.     |
+| `middleware`                | `ReduxMiddleware[]`                                           | No       | Custom middleware appended after kernel middleware.                                          |
+| `enableReduxMiddleware`     | `boolean`                                                     | No       | Enables Redux envelopes for actions (default `true`).                                        |
+| `enableRegistryIntegration` | `boolean`                                                     | No       | Enables the error bridge and `wp.hooks` bridge (default `true`).                             |
+| `ui`                        | `{ attach?: KernelUIAttach; options?: UIIntegrationOptions }` | No       | Optional adapter function for UI integration (e.g., `attachUIBindings` from `@wpkernel/ui`). |
+| `policies`                  | `PolicyMap<Record<string, unknown>>`                          | No       | Initial policy map registration (optional convenience).                                      |
+| `autoBootstrap`             | `boolean`                                                     | No       | If `true`, automatically installs registry integration and middleware. Defaults to `true`.   |
 
-`UIIntegrationOptions` mirrors the contract defined in `UI Package Architecture Fix - Specification.md` and controls UI-specific features (e.g., suspense boundaries, notices, devtools). The kernel never imports UI code directly; callers either supply a `KernelUIAttach` adapter during configuration or attach bindings later by invoking `kernel.attachUIBindings()` with the adapter exported from `@geekist/wp-kernel-ui`.
+`UIIntegrationOptions` mirrors the contract defined in `UI Package Architecture Fix - Specification.md` and controls UI-specific features (e.g., suspense boundaries, notices, devtools). The kernel never imports UI code directly; callers either supply a `KernelUIAttach` adapter during configuration or attach bindings later by invoking `kernel.attachUIBindings()` with the adapter exported from `@wpkernel/ui`.
 
 ### 3.2 Output Instance
 
@@ -241,7 +241,7 @@ Positional signatures (`defineAction(name, handler, options)`, etc.) remain temp
 
 1. Single call to `configureKernel()` replaces current multi-step bootstrap.
 2. Namespace, reporter, registry, middleware, and policy runtime stay consistent across all APIs.
-3. UI integration (hooks, components, primitives) no longer relies on `import '@geekist/wp-kernel-ui'` side effects and instead flows through the `KernelUIRuntime`.
+3. UI integration (hooks, components, primitives) no longer relies on `import '@wpkernel/ui'` side effects and instead flows through the `KernelUIRuntime`.
 4. Migration path from `withKernel` and legacy helpers is documented with deprecation warnings.
 5. Specification is clear enough to implement without ambiguity.
 6. No runtime configuration happens outside the returned instance.
@@ -285,8 +285,8 @@ Positional signatures (`defineAction(name, handler, options)`, etc.) remain temp
 **Current workflow (problematic):**
 
 ```typescript
-import '@geekist/wp-kernel-ui'; // required side effect
-import { configureKernel, defineResource } from '@geekist/wp-kernel';
+import '@wpkernel/ui'; // required side effect
+import { configureKernel, defineResource } from '@wpkernel/core';
 
 configureKernel({ registry: wp.data });
 
@@ -299,9 +299,9 @@ Issues: hidden side-effects, load order dependencies, larger bundles, and easy-t
 **New workflow (explicit):**
 
 ```typescript
-import { configureKernel } from '@geekist/wp-kernel';
+import { configureKernel } from '@wpkernel/core';
 
-import { attachUIBindings } from '@geekist/wp-kernel-ui';
+import { attachUIBindings } from '@wpkernel/ui';
 
 const kernel = configureKernel({
 	namespace: 'showcase',
@@ -326,7 +326,7 @@ Benefits: explicit opt-in, no load-order coupling, no forced UI bundle, and clea
 
 ```typescript
 // app/index.ts
-import { configureKernel } from '@geekist/wp-kernel';
+import { configureKernel } from '@wpkernel/core';
 
 const kernel = configureKernel({
 	namespace: 'my-plugin',
@@ -342,7 +342,7 @@ import { CreatePost } from './actions/CreatePost';
 
 ```typescript
 // app/kernel.config.ts
-import { configureKernel, createReporter } from '@geekist/wp-kernel';
+import { configureKernel, createReporter } from '@wpkernel/core';
 
 configureKernel({
 	namespace: 'acme-store',
@@ -358,7 +358,7 @@ configureKernel({
 ### 12.3 Enabling UI Integration on Demand
 
 ```typescript
-import { KernelUIProvider, attachUIBindings } from '@geekist/wp-kernel-ui';
+import { KernelUIProvider, attachUIBindings } from '@wpkernel/ui';
 
 const kernel = configureKernel({
   namespace: 'analytics',
@@ -397,13 +397,13 @@ createRoot(appNode).render(
 - `docs/guide/actions.md` – Reflect the config-object action signature and lifecycle guarantees.
 - `docs/api/useAction.md` – Document reliance on `KernelUIRuntime` for dispatch and state management.
 - `docs/guide/reporting.md` – Note reporter onboarding through `configureKernel()` and child reporter helpers.
-- `docs/packages/kernel.md` – Capture the canonical exports (`configureKernel`, `KernelEventBus`, instance helpers).
+- `docs/packages/core.md` – Capture the canonical exports (`configureKernel`, `KernelEventBus`, instance helpers).
 - `docs/packages/ui.md` – Describe `KernelUIRuntime`, `KernelUIProvider`, and the adapter pattern for attaching bindings.
 - `docs/contributing/roadmap.md` – Align roadmap milestones with the unified bootstrap strategy.
 
 ## 14. Test Impact
 
-- Update kernel integration tests (e.g., `packages/kernel/src/data/__tests__`) to exercise config-object signatures and event bus helpers.
+- Update kernel integration tests (e.g., `packages/core/src/data/__tests__`) to exercise config-object signatures and event bus helpers.
 - Adjust UI hook tests to attach via `KernelUIRuntime` rather than globals while preserving coverage baselines.
 - Review end-to-end fixtures to bootstrap with `configureKernel()` and enable UI integration explicitly when required.
 

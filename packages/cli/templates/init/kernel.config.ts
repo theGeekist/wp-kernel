@@ -1,4 +1,4 @@
-import type { KernelConfigV1 } from '@geekist/wp-kernel-cli/config';
+import type { KernelConfigV1 } from '@wpkernel/cli/config';
 
 /**
  * Kernel configuration for your project.

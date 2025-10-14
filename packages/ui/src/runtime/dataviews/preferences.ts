@@ -7,8 +7,8 @@
  * @module
  */
 
-import type { KernelRegistry, KernelUIRuntime } from '@geekist/wp-kernel/data';
-import type { Reporter } from '@geekist/wp-kernel/reporter';
+import type { KernelRegistry, KernelUIRuntime } from '@wpkernel/core/data';
+import type { Reporter } from '@wpkernel/core/reporter';
 import { DataViewsConfigurationError } from './errors';
 
 /**
@@ -370,7 +370,7 @@ export function createPreferencesRuntime(
  * @throws DataViewsConfigurationError If WordPress registry or core/preferences store is unavailable
  * @example
  * ```typescript
- * import { createDefaultDataViewPreferencesAdapter } from '@geekist/wp-kernel-ui';
+ * import { createDefaultDataViewPreferencesAdapter } from '@wpkernel/ui';
  *
  * const adapter = createDefaultDataViewPreferencesAdapter(
  *   { namespace: 'my-plugin', registry: wp.data },

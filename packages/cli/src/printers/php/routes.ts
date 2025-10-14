@@ -1,4 +1,4 @@
-import type { Reporter } from '@geekist/wp-kernel/reporter';
+import type { Reporter } from '@wpkernel/core/reporter';
 import type { IRResource, IRRoute } from '../../ir';
 import type { PrinterContext } from '../types';
 import { type PhpFileBuilder } from './builder';

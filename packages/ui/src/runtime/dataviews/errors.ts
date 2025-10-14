@@ -1,5 +1,5 @@
-import { KernelError } from '@geekist/wp-kernel/error';
-import type { ErrorCode, ErrorContext } from '@geekist/wp-kernel/error';
+import { KernelError } from '@wpkernel/core/error';
+import type { ErrorCode, ErrorContext } from '@wpkernel/core/error';
 
 abstract class BaseDataViewsError extends KernelError {
 	protected constructor(

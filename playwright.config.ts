@@ -34,7 +34,7 @@ const config = ENV_CONFIG[TEST_ENV];
  */
 export default defineConfig({
 	// Test directory - showcase e2e tests
-	testDir: './app/showcase/__tests__/e2e',
+	testDir: './examples/showcase/__tests__/e2e',
 
 	// Only pick up Playwright-style specs (avoid Jest-style *.test.ts files)
 	testMatch: /.*\.spec\.[jt]sx?$/,

@@ -1,7 +1,7 @@
 /* @jsxImportSource react */
 import { createContext, useContext, type ReactNode } from 'react';
-import { KernelError } from '@geekist/wp-kernel/error';
-import type { KernelUIRuntime } from '@geekist/wp-kernel/data';
+import { KernelError } from '@wpkernel/core/error';
+import type { KernelUIRuntime } from '@wpkernel/core/data';
 
 const KernelUIContext = createContext<KernelUIRuntime | null>(null);
 

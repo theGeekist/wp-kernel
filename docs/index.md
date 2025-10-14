@@ -87,7 +87,7 @@ export const CreateThing = defineAction({
 Finally, your UI calls the Action. No component reaches into transport APIs directly, which keeps retries and analytics consistent across the application.
 
 ```typescript
-import { CreateThing } from '@/app/actions/Thing/Create';
+import { CreateThing } from '@/actions/Thing/Create';
 
 const handleSubmit = async () => {
 	await CreateThing({ data: formData });
@@ -97,7 +97,7 @@ const handleSubmit = async () => {
 When React enters the picture, mount the runtime with `KernelUIProvider` so hooks can subscribe to the kernel event bus without legacy globals.
 
 ```tsx
-import { KernelUIProvider } from '@geekist/wp-kernel-ui';
+import { KernelUIProvider } from '@wpkernel/ui';
 
 createRoot(node).render(
 	<KernelUIProvider runtime={kernel.getUIRuntime()}>
@@ -108,7 +108,7 @@ createRoot(node).render(
 
 ## What ships in the repository
 
-The monorepo includes the core `@geekist/wp-kernel` package for resources, Actions, events, and jobs; `@geekist/wp-kernel-ui` for DataViews controllers, forms, and bindings; `@geekist/wp-kernel-e2e-utils` for Playwright helpers; and a showcase application that exercises the full stack. Tooling for linting, testing, and CI/CD is already configured so new contributors can focus on product work from day one.
+The monorepo includes the core `@wpkernel/core` package for resources, Actions, events, and jobs; `@wpkernel/ui` for DataViews controllers, forms, and bindings; `@wpkernel/e2e-utils` for Playwright helpers; and a showcase application that exercises the full stack. Tooling for linting, testing, and CI/CD is already configured so new contributors can focus on product work from day one.
 
 ## Ready to start?
 

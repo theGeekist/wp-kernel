@@ -303,7 +303,7 @@ Added optional `shouldInvalidate` function to resource config that receives acti
 
 ## Testing
 
-See new unit tests in `packages/kernel/src/__tests__/resource.test.ts`.
+See new unit tests in `packages/core/src/__tests__/resource.test.ts`.
 
 ## Breaking Changes
 
@@ -347,7 +347,7 @@ Retry logic was duplicated across resource methods. Extracting improves maintain
 
 ## How
 
-Created `packages/kernel/src/transport/retry.ts` with exponential backoff implementation. Updated all resource methods to use it.
+Created `packages/core/src/transport/retry.ts` with exponential backoff implementation. Updated all resource methods to use it.
 
 ## Testing
 

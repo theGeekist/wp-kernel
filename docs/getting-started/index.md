@@ -39,7 +39,7 @@ const handleSubmit = async () => {
 };
 
 // ✓ CORRECT - UI calls Action
-import { CreateThing } from '@/app/actions/Thing/Create';
+import { CreateThing } from '@/actions/Thing/Create';
 const handleSubmit = async () => {
 	await CreateThing({ data: formData });
 };

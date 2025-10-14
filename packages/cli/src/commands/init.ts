@@ -3,7 +3,7 @@ import { promises as fs } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { Command, Option } from 'clipanion';
 import type { BaseContext } from 'clipanion';
-import { KernelError } from '@geekist/wp-kernel/error';
+import { KernelError } from '@wpkernel/core/error';
 
 interface ScaffoldFile {
 	relativePath: string;

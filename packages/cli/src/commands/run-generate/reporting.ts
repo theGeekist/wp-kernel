@@ -1,5 +1,5 @@
-import { KernelError } from '@geekist/wp-kernel/error';
-import type { Reporter } from '@geekist/wp-kernel/reporter';
+import { KernelError } from '@wpkernel/core/error';
+import type { Reporter } from '@wpkernel/core/reporter';
 
 export function reportError(
 	reporter: Reporter,

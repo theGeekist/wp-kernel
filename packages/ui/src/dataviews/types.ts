@@ -1,14 +1,14 @@
 import type { ReactNode } from 'react';
 import type { Action, Field, View } from '@wordpress/dataviews';
-import type { DefinedAction } from '@geekist/wp-kernel/actions';
+import type { DefinedAction } from '@wpkernel/core/actions';
 import type {
 	CacheKeyPattern,
 	InvalidateOptions,
 	ResourceObject,
 	ListResponse,
-} from '@geekist/wp-kernel/resource';
-import type { KernelUIPolicyRuntime } from '@geekist/wp-kernel/data';
-import type { Reporter } from '@geekist/wp-kernel/reporter';
+} from '@wpkernel/core/resource';
+import type { KernelUIPolicyRuntime } from '@wpkernel/core/data';
+import type { Reporter } from '@wpkernel/core/reporter';
 import type {
 	DataViewChangedPayload,
 	DataViewsEventEmitter,

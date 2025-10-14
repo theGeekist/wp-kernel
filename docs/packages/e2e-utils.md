@@ -1,4 +1,4 @@
-# @geekist/wp-kernel-e2e-utils
+# @wpkernel/e2e-utils
 
 End-to-end testing utilities for WP Kernel projects, built on `@wordpress/e2e-test-utils-playwright` with kernel-specific helpers and fixtures.
 
@@ -29,16 +29,16 @@ graph TD
 ## Installation
 
 ```bash
-npm install -D @geekist/wp-kernel-e2e-utils
+npm install -D @wpkernel/e2e-utils
 # or
-pnpm add -D @geekist/wp-kernel-e2e-utils
+pnpm add -D @wpkernel/e2e-utils
 ```
 
 ### Peer Dependencies
 
 - `@playwright/test` - Playwright testing framework
 - `@wordpress/e2e-test-utils-playwright` - WordPress E2E utilities
-- `@geekist/wp-kernel` - Core framework for fixtures
+- `@wpkernel/core` - Core framework for fixtures
 
 ## Key Features
 
@@ -48,7 +48,7 @@ pnpm add -D @geekist/wp-kernel-e2e-utils
 
 ```typescript
 import { test as base } from '@playwright/test';
-import { kernel } from '@geekist/wp-kernel-e2e-utils';
+import { kernel } from '@wpkernel/e2e-utils';
 
 const test = base.extend({
 	kernel,
@@ -64,15 +64,15 @@ Import utilities using three flexible patterns:
 **Scoped Imports:**
 
 ```typescript
-import { login } from '@geekist/wp-kernel-e2e-utils/auth';
-import { seedPosts } from '@geekist/wp-kernel-e2e-utils/db';
-import { waitForResource } from '@geekist/wp-kernel-e2e-utils/store';
+import { login } from '@wpkernel/e2e-utils/auth';
+import { seedPosts } from '@wpkernel/e2e-utils/db';
+import { waitForResource } from '@wpkernel/e2e-utils/store';
 ```
 
 **Namespace Imports:**
 
 ```typescript
-import { auth, db, store } from '@geekist/wp-kernel-e2e-utils';
+import { auth, db, store } from '@wpkernel/e2e-utils';
 
 await auth.login(page, 'admin', 'password');
 await db.seedPosts(requestUtils, posts);
@@ -82,11 +82,7 @@ await store.waitForResource(page, 'post', { id: 123 });
 **Flat Imports:**
 
 ```typescript
-import {
-	login,
-	seedPosts,
-	waitForResource,
-} from '@geekist/wp-kernel-e2e-utils';
+import { login, seedPosts, waitForResource } from '@wpkernel/e2e-utils';
 ```
 
 ## Core Utilities
@@ -309,7 +305,7 @@ test.describe('Post resource', () => {
 ```typescript
 // playwright.config.ts
 import { defineConfig } from '@playwright/test';
-import { kernel } from '@geekist/wp-kernel-e2e-utils';
+import { kernel } from '@wpkernel/e2e-utils';
 
 export default defineConfig({
 	testDir: './tests/e2e',
@@ -337,7 +333,7 @@ export default defineConfig({
 ```typescript
 // test-utils.ts
 import { test as base, expect } from '@playwright/test';
-import { kernel } from '@geekist/wp-kernel-e2e-utils';
+import { kernel } from '@wpkernel/e2e-utils';
 
 export const test = base.extend({
 	kernel: kernel({
@@ -369,7 +365,7 @@ This package validates WP Kernel functionality through real browser testing:
 
 ## Validation Strategy
 
-Unlike traditional unit testing, `@geekist/wp-kernel-e2e-utils` is **validated through usage** in the showcase app's E2E tests. This ensures the utilities work in real WordPress environments.
+Unlike traditional unit testing, `@wpkernel/e2e-utils` is **validated through usage** in the showcase app's E2E tests. This ensures the utilities work in real WordPress environments.
 
 ## TypeScript Support
 

@@ -22,10 +22,10 @@
  * @see {@link https://github.com/theGeekist/wp-kernel/blob/main/packages/cli/mvp-cli-spec.md#2-loader--validation-expectations}
  */
 
-import type { Reporter } from '@geekist/wp-kernel/reporter';
-import type { ResourceConfig } from '@geekist/wp-kernel/resource';
-import { sanitizeNamespace } from '@geekist/wp-kernel/namespace';
-import { KernelError } from '@geekist/wp-kernel/error';
+import type { Reporter } from '@wpkernel/core/reporter';
+import type { ResourceConfig } from '@wpkernel/core/resource';
+import { sanitizeNamespace } from '@wpkernel/core/namespace';
+import { KernelError } from '@wpkernel/core/error';
 import * as t from 'typanion';
 import type { KernelConfigV1, KernelConfigVersion } from './types';
 

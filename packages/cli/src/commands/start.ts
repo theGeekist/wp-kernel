@@ -3,13 +3,13 @@ import fs from 'node:fs/promises';
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import { Command, Option } from 'clipanion';
 import type * as chokidarModule from 'chokidar';
-import { createReporter } from '@geekist/wp-kernel/reporter';
-import type { Reporter } from '@geekist/wp-kernel/reporter';
-import { KernelError } from '@geekist/wp-kernel/error';
+import { createReporter } from '@wpkernel/core/reporter';
+import type { Reporter } from '@wpkernel/core/reporter';
+import { KernelError } from '@wpkernel/core/error';
 import {
 	WPK_CONFIG_SOURCES,
 	WPK_NAMESPACE,
-} from '@geekist/wp-kernel/namespace/constants';
+} from '@wpkernel/core/namespace/constants';
 import { runGenerate, type ExitCode } from './run-generate';
 import { serialiseError } from './run-generate';
 import { forwardProcessOutput } from './process-output';

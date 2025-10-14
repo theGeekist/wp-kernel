@@ -1,11 +1,11 @@
-import type { Reporter } from '@geekist/wp-kernel/reporter';
+import type { Reporter } from '@wpkernel/core/reporter';
 import { runGenerate } from '../run-generate';
 
 import { loadKernelConfig } from '../../config';
 import { buildIr } from '../../ir';
 import { emitGeneratedArtifacts } from '../../printers';
 import { runAdapterExtensions } from '../../adapters';
-import type { WPKConfigSource } from '@geekist/wp-kernel/namespace/constants';
+import type { WPKConfigSource } from '@wpkernel/core/namespace/constants';
 
 jest.mock('../../config');
 jest.mock('../../ir');
@@ -41,7 +41,7 @@ jest.mock('prettier', () => ({
 
 jest.mock('@prettier/plugin-php', () => ({}));
 
-jest.mock('@geekist/wp-kernel', () => {
+jest.mock('@wpkernel/core', () => {
 	class KernelError extends Error {
 		public readonly code: string;
 		public readonly context?: Record<string, unknown>;

@@ -29,7 +29,7 @@ echo ""
 # Start playground in background, let it fully initialize
 wp-playground-cli server \
   --blueprint=./test-harness/playground/blueprint.json \
-  --mount=./app/showcase:/wordpress/wp-content/plugins/showcase-plugin \
+  --mount=./examples/showcase:/wordpress/wp-content/plugins/showcase-plugin \
   --port=9401 &
 
 PLAYGROUND_PID=$!
@@ -62,7 +62,7 @@ echo "🔨 Step 4: Creating snapshot archive..."
 # Use the build-snapshot command instead
 wp-playground-cli build-snapshot \
   --blueprint=./test-harness/playground/blueprint.json \
-  --mount=./app/showcase:/wordpress/wp-content/plugins/showcase-plugin \
+  --mount=./examples/showcase:/wordpress/wp-content/plugins/showcase-plugin \
   --outfile="${SNAPSHOT_FILE}"
 
 if [ -f "${SNAPSHOT_FILE}" ]; then

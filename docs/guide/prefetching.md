@@ -31,7 +31,7 @@ caching layers.
   run it after the list finishes loading.
 
 All of the helpers delegate to the resource runtime in
-[`packages/kernel/src/resource/define.ts`](../packages/kernel/src/resource/define.ts),
+[`packages/core/src/resource/define.ts`](../packages/core/src/resource/define.ts),
 which means dedupe and store registration behave exactly like the imperative
 prefetch utilities.
 
@@ -39,7 +39,7 @@ prefetch utilities.
 
 ```tsx
 import { useRef } from 'react';
-import { usePrefetcher, useHoverPrefetch } from '@geekist/wp-kernel-ui';
+import { usePrefetcher, useHoverPrefetch } from '@wpkernel/ui';
 import { job } from '@/resources/job';
 
 export function JobRow({ jobId, title }: { jobId: number; title: string }) {
@@ -64,7 +64,7 @@ export function JobRow({ jobId, title }: { jobId: number; title: string }) {
 ## Example: infinite scroll backed by list prefetch
 
 ```tsx
-import { usePrefetcher, useNextPagePrefetch } from '@geekist/wp-kernel-ui';
+import { usePrefetcher, useNextPagePrefetch } from '@wpkernel/ui';
 import { job } from '@/resources/job';
 
 export function JobsList({
@@ -109,5 +109,5 @@ running prefetch hooks during SSR, just like any other browser-side effect.
 ## Further reading
 
 - API reference – [`usePrefetcher`](/api/usePrefetcher)
-- Resource runtime – [`packages/kernel/src/resource/define.ts`](../packages/kernel/src/resource/define.ts)
-- Cache helpers – [`packages/kernel/src/resource/cache.ts`](../packages/kernel/src/resource/cache.ts)
+- Resource runtime – [`packages/core/src/resource/define.ts`](../packages/core/src/resource/define.ts)
+- Cache helpers – [`packages/core/src/resource/cache.ts`](../packages/core/src/resource/cache.ts)

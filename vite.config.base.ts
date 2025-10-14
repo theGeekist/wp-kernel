@@ -17,7 +17,7 @@ type KernelLibConfigOptions = {
 /**
  * Create a Vite configuration for WP Kernel library packages.
  *
- * @param packageName - The package name (e.g., '@geekist/wp-kernel')
+ * @param packageName - The package name (e.g., '@wpkernel/core')
  * @param entries     - Entry points (e.g., { index: 'src/index.ts', http: 'src/http/index.ts' })
  * @param options
  */
@@ -46,7 +46,7 @@ export const createKernelLibConfig = (
 		'react',
 		'react-dom',
 		'react/jsx-runtime',
-		/^@geekist\/wp-kernel(\/.*)?$/,
+		/^@wpkernel\/core(\/.*)?$/,
 		/^node:/,
 		'fs',
 		'fs/promises',

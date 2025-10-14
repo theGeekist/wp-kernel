@@ -61,7 +61,7 @@ Let's build up an action step by step to see how it all fits together:
 ### 1. Basic Structure
 
 ```typescript
-import { defineAction } from '@geekist/wp-kernel/actions';
+import { defineAction } from '@wpkernel/core/actions';
 
 export const CreatePost = defineAction({
 	name: 'Post.Create',
@@ -74,7 +74,7 @@ export const CreatePost = defineAction({
 ### 2. Add Resource Integration
 
 ```typescript
-import { defineAction } from '@geekist/wp-kernel/actions';
+import { defineAction } from '@wpkernel/core/actions';
 import { post } from '@/resources/post';
 
 export const CreatePost = defineAction({
@@ -91,7 +91,7 @@ export const CreatePost = defineAction({
 ### 3. Add Event Emission
 
 ```typescript
-import { defineAction } from '@geekist/wp-kernel/actions';
+import { defineAction } from '@wpkernel/core/actions';
 import { post } from '@/resources/post';
 
 export const CreatePost = defineAction({
@@ -113,7 +113,7 @@ export const CreatePost = defineAction({
 ### 4. Add Cache Invalidation
 
 ```typescript
-import { defineAction } from '@geekist/wp-kernel/actions';
+import { defineAction } from '@wpkernel/core/actions';
 import { post } from '@/resources/post';
 
 export const CreatePost = defineAction({
@@ -137,7 +137,7 @@ export const CreatePost = defineAction({
 ### 5. Add Background Jobs
 
 ```typescript
-import { defineAction } from '@geekist/wp-kernel/actions';
+import { defineAction } from '@wpkernel/core/actions';
 import { post } from '@/resources/post';
 
 export const CreatePost = defineAction({
@@ -167,9 +167,9 @@ export const CreatePost = defineAction({
 ### 6. Add Error Handling & Validation
 
 ```typescript
-import { defineAction } from '@geekist/wp-kernel/actions';
+import { defineAction } from '@wpkernel/core/actions';
 import { post } from '@/resources/post';
-import { KernelError } from '@geekist/wp-kernel/error';
+import { KernelError } from '@wpkernel/core/error';
 
 export const CreatePost = defineAction({
 	name: 'Post.Create',
@@ -231,7 +231,7 @@ Once you have an action, using it is simple and consistent:
 ### In React Components
 
 ```typescript
-import { useAction } from '@geekist/wp-kernel-ui';
+import { useAction } from '@wpkernel/ui';
 import { CreatePost } from '@/actions/CreatePost';
 
 function PostForm() {
@@ -418,7 +418,7 @@ For complex admin UIs or block editor environments using `@wordpress/data`, acti
 import {
 	createActionMiddleware,
 	invokeAction,
-} from '@geekist/wp-kernel/actions';
+} from '@wpkernel/core/actions';
 import { createReduxStore, register } from '@wordpress/data';
 import { CreatePost } from '@/actions/CreatePost';
 

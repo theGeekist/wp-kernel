@@ -1,0 +1,141 @@
+/**
+ * Vite configuration for WP Kernel Showcase Plugin
+ *
+ * Uses @kucrut/vite-for-wp to build WordPress assets with proper externals.
+ * Outputs ESM modules for WordPress Script Modules API.
+ *
+ * IMPORTANT: The wp_scripts helper requires these peer dependencies:
+ * - rollup-plugin-external-globals@^0.13
+ * - vite-plugin-external@^6
+ *
+ * Without these, WordPress packages will be bundled instead of externalized,
+ * causing duplicate registries and store access failures.
+ */
+
+import { defineConfig, type UserConfig } from 'vite';
+import { resolve } from 'path';
+import { v4wp } from '@kucrut/vite-for-wp';
+import { wp_scripts as wpScripts } from '@kucrut/vite-for-wp/plugins';
+import pkg from './package.json';
+
+export default defineConfig(async (_env): Promise<UserConfig> => {
+	// Modes:
+	// - development / production → ESM build for Script Modules (default)
+	// - classic → IIFE build for legacy classic enqueue (globals required)
+	const mode = _env.mode ?? 'development';
+	const isProd = mode === 'production';
+
+	const wpScriptsPlugins = await wpScripts({
+		extraScripts: {
+			'@wordpress/interactivity': 'wp.interactivity',
+		},
+	});
+
+	const config: UserConfig = {
+		plugins: [
+			v4wp({
+				// Input files (Script Modules entry points)
+				input: {
+					index: 'src/index.ts',
+				},
+				// Output directory
+				outDir: 'build',
+			}),
+			...wpScriptsPlugins,
+		],
+
+		build: {
+			rollupOptions: {
+				external: [
+					...Object.keys(pkg.peerDependencies || {}),
+					'@wordpress/dataviews',
+					'@wordpress/data',
+					'@wordpress/components',
+					'@wordpress/element',
+					'@wordpress/hooks',
+					'@wordpress/i18n',
+					'@wordpress/interactivity',
+				],
+				output: {
+					format: 'es',
+					name: 'WPKernelShowcase',
+					entryFileNames: '[name].js',
+					chunkFileNames: '[name]-[hash].js',
+					assetFileNames: '[name]-[hash][extname]',
+					globals: {
+						// Dynamically map all peerDependencies to wp globals
+						...Object.fromEntries(
+							Object.keys(pkg.peerDependencies || {}).map(
+								(dep) => {
+									const wpName = dep.replace(
+										/^@wordpress\//,
+										''
+									);
+									return [dep, `wp.${wpName}`];
+								}
+							)
+						),
+						// Explicitly add any additional globals needed
+						'@wordpress/hooks': 'wp.hooks',
+						'@wordpress/i18n': 'wp.i18n',
+						'@wordpress/interactivity': 'wp.interactivity',
+					},
+				},
+			},
+			// Enable sourcemaps for development
+			sourcemap: !isProd,
+			// Don't minify in dev
+			minify: process.env.NODE_ENV === 'production',
+		},
+
+		// Resolve workspace packages
+		resolve: {
+			alias: [
+				{
+					find: /^@wpkernel\/core$/,
+					replacement: resolve(
+						__dirname,
+						'../../packages/core/src/index.ts'
+					),
+				},
+				{
+					find: /^@wpkernel\/core\//,
+					replacement: `${resolve(
+						__dirname,
+						'../../packages/core/src'
+					)}/`,
+				},
+				{
+					find: /^@wpkernel\/ui$/,
+					replacement: resolve(
+						__dirname,
+						'../../packages/ui/src/index.ts'
+					),
+				},
+				{
+					find: /^@wpkernel\/ui\//,
+					replacement: `${resolve(
+						__dirname,
+						'../../packages/ui/src'
+					)}/`,
+				},
+			],
+		},
+
+		optimizeDeps: {
+			exclude: [
+				'react',
+				'react-dom',
+				'react/jsx-runtime',
+				'@wordpress/components',
+				'@wordpress/data',
+				'@wordpress/element',
+				'@wordpress/hooks',
+				'@wordpress/i18n',
+				'@wordpress/interactivity',
+			],
+		},
+	};
+
+	return config;
+});

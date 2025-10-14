@@ -1,5 +1,5 @@
-import type { Reporter } from '@geekist/wp-kernel/reporter';
-import type { SerializedError } from '@geekist/wp-kernel/error';
+import type { Reporter } from '@wpkernel/core/reporter';
+import type { SerializedError } from '@wpkernel/core/error';
 
 export interface ApplySummary {
 	created: number;

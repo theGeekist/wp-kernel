@@ -1,10 +1,7 @@
 import { useCallback } from 'react';
-import type { DefinedAction } from '@geekist/wp-kernel/actions';
-import type { KernelError } from '@geekist/wp-kernel/error';
-import type {
-	CacheKeyPattern,
-	ResourceObject,
-} from '@geekist/wp-kernel/resource';
+import type { DefinedAction } from '@wpkernel/core/actions';
+import type { KernelError } from '@wpkernel/core/error';
+import type { CacheKeyPattern, ResourceObject } from '@wpkernel/core/resource';
 import { useAction } from '../hooks/useAction';
 import type { DataViewsRuntimeContext } from './types';
 import { normalizeActionError } from './error-utils';

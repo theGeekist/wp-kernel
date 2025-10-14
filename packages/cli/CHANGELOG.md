@@ -1,4 +1,4 @@
-# @geekist/wp-kernel-cli
+# @wpkernel/cli
 
 ## 0.4.0 [Unreleased]
 
@@ -54,7 +54,7 @@
 
 - Internal monorepo improvements
 - Updated dependencies
-    - @geekist/wp-kernel@0.2.0
+    - @wpkernel/core@0.2.0
 
 ## 0.1.0
 
@@ -67,7 +67,7 @@
     **Monorepo Structure**:
     - pnpm workspaces with 4 packages (kernel, ui, cli, e2e-utils)
     - TypeScript 5.9.2 strict mode with composite builds
-    - Path aliases configured (@geekist/\*)
+    - Path aliases configured (@wpkernel/\*)
 
     **Build & Tooling**:
     - ESLint 9.36.0 flat config (zero deprecated dependencies)
@@ -91,10 +91,10 @@
     - `pnpm wp:*` commands for all WordPress workflows
 
     **Package Contents**:
-    - **@geekist/wp-kernel**: Core framework APIs (placeholder structure)
-    - **@geekist/wp-kernel-ui**: UI components (placeholder structure)
-    - **@geekist/wp-kernel-cli**: Code generator CLI (placeholder structure)
-    - **@geekist/wp-kernel-e2e-utils**: E2E testing utilities (placeholder structure)
+    - **@wpkernel/core**: Core framework APIs (placeholder structure)
+    - **@wpkernel/ui**: UI components (placeholder structure)
+    - **@wpkernel/cli**: Code generator CLI (placeholder structure)
+    - **@wpkernel/e2e-utils**: E2E testing utilities (placeholder structure)
 
     **Known Limitations**:
     - API implementations are placeholder structures only
@@ -157,4 +157,4 @@
 
 - Updated dependencies
 - Updated dependencies
-    - @geekist/wp-kernel@0.1.0
+    - @wpkernel/core@0.1.0

@@ -54,7 +54,7 @@ Domain events are defined by your resources and use your plugin's namespace:
 **Example:**
 
 ```typescript
-import { defineResource } from '@geekist/wp-kernel';
+import { defineResource } from '@wpkernel/core';
 
 const job = defineResource<Job>({
 	name: 'job',
@@ -162,7 +162,7 @@ new PolicyDeniedError({
 ### Error Handling
 
 ```typescript
-import { CreateJob } from '@/app/actions/Job/Create';
+import { CreateJob } from '@/actions/Job/Create';
 
 try {
 	await CreateJob({ data: formData });
@@ -210,7 +210,7 @@ Cache keys follow WordPress data store conventions: `[storeName, operation, ...p
 ### Cache Lifecycle Helpers
 
 ```typescript
-import { thing } from '@/app/resources/thing';
+import { thing } from '@/resources/thing';
 
 // Invalidate specific key
 thing.invalidate(['thing', 'list']);
@@ -233,8 +233,8 @@ thing.cache.delete(['thing', 'item', 123]);
 ### Cache Coordination in Actions
 
 ```typescript
-import { defineAction } from '@geekist/wp-kernel/actions';
-import { job } from '@/app/resources/job';
+import { defineAction } from '@wpkernel/core/actions';
+import { job } from '@/resources/job';
 
 export const CreateJob = defineAction({
 	name: 'Job.Create',

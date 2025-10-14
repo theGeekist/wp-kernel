@@ -1,4 +1,4 @@
-import type { ListResponse } from '@geekist/wp-kernel/resource';
+import type { ListResponse } from '@wpkernel/core/resource';
 import type {
 	DataViewsRuntimeContext,
 	ResourceDataViewController,

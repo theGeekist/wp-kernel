@@ -17,7 +17,7 @@ Monorepo infrastructure, TypeScript strict mode, Vite 7 builds, testing harness 
 
 ### E2E Utils (Sprint 2)
 
-`@geekist/wp-kernel-e2e-utils` package with namespaced API, Playwright fixture, test helpers (auth, rest, store, events, db, project), utility unit tests separated from domain E2E tests. Full fixture integration.
+`@wpkernel/e2e-utils` package with namespaced API, Playwright fixture, test helpers (auth, rest, store, events, db, project), utility unit tests separated from domain E2E tests. Full fixture integration.
 
 ### Policies (Sprint 3)
 

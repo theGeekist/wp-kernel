@@ -20,19 +20,19 @@ The files linked above are the single source of truth. This page summarises them
 
 Each package ships with its own README. Review them when you work inside that package:
 
-| Package                        | Highlights                                                | Canonical Source                                                                                               |
-| ------------------------------ | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `@geekist/wp-kernel`           | Resource API, namespace detection, cache invalidation     | [packages/kernel/README.md](https://github.com/theGeekist/wp-kernel/blob/main/packages/kernel/README.md)       |
-| `@geekist/wp-kernel-ui`        | Component inventory, design tokens, storybook conventions | [packages/ui/README.md](https://github.com/theGeekist/wp-kernel/blob/main/packages/ui/README.md)               |
-| `@geekist/wp-kernel-cli`       | Scaffolds, command usage, templates                       | [packages/cli/README.md](https://github.com/theGeekist/wp-kernel/blob/main/packages/cli/README.md)             |
-| `@geekist/wp-kernel-e2e-utils` | Playwright helpers, fixtures, testing patterns            | [packages/e2e-utils/README.md](https://github.com/theGeekist/wp-kernel/blob/main/packages/e2e-utils/README.md) |
+| Package               | Highlights                                                | Canonical Source                                                                                               |
+| --------------------- | --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `@wpkernel/core`      | Resource API, namespace detection, cache invalidation     | [packages/core/README.md](https://github.com/theGeekist/wp-kernel/blob/main/packages/core/README.md)           |
+| `@wpkernel/ui`        | Component inventory, design tokens, storybook conventions | [packages/ui/README.md](https://github.com/theGeekist/wp-kernel/blob/main/packages/ui/README.md)               |
+| `@wpkernel/cli`       | Scaffolds, command usage, templates                       | [packages/cli/README.md](https://github.com/theGeekist/wp-kernel/blob/main/packages/cli/README.md)             |
+| `@wpkernel/e2e-utils` | Playwright helpers, fixtures, testing patterns            | [packages/e2e-utils/README.md](https://github.com/theGeekist/wp-kernel/blob/main/packages/e2e-utils/README.md) |
 
 ## Additional Guides
 
 - [AGENTS.md](https://github.com/theGeekist/wp-kernel/blob/main/AGENTS.md) - execution policy for automation agents
 - [LICENSING.md](https://github.com/theGeekist/wp-kernel/blob/main/LICENSING.md) - rationale behind dual licensing choices
 - [information/Roadmap](https://github.com/theGeekist/wp-kernel/blob/main/information/Roadmap%20PO%20%E2%80%A2%20v1.0.md) - product roadmap with sprint-by-sprint milestones
-- [app/showcase README](https://github.com/theGeekist/wp-kernel/blob/main/app/showcase/README.md) - walkthrough of the example plugin
+- [examples/showcase README](https://github.com/theGeekist/wp-kernel/blob/main/examples/showcase/README.md) - walkthrough of the example plugin
 
 ## Keeping Docs in Sync
 

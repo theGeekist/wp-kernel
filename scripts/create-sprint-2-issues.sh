@@ -98,7 +98,7 @@ Extend WordPress's \`test\` fixture with the factory and export public API.
 ## Acceptance Criteria
 - [ ] \`test.extend()\` adds \`kernel\` fixture
 - [ ] All WordPress fixtures exposed: \`requestUtils\`, \`admin\`, \`editor\`, \`pageUtils\`, \`page\`
-- [ ] \`@geekist/wp-kernel-e2e-utils\` exports \`test\`, \`expect\`
+- [ ] \`@wpkernel/e2e-utils\` exports \`test\`, \`expect\`
 - [ ] TypeScript types exported: \`KernelFixtures\`, \`KernelUtils\`
 - [ ] Package.json configured correctly
 - [ ] Integration test with WordPress fixtures

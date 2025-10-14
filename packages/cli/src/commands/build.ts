@@ -1,8 +1,8 @@
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import { Command, Option } from 'clipanion';
-import { createReporter } from '@geekist/wp-kernel/reporter';
-import type { Reporter } from '@geekist/wp-kernel/reporter';
-import { WPK_NAMESPACE } from '@geekist/wp-kernel/namespace/constants';
+import { createReporter } from '@wpkernel/core/reporter';
+import type { Reporter } from '@wpkernel/core/reporter';
+import { WPK_NAMESPACE } from '@wpkernel/core/namespace/constants';
 import { runGenerate, type ExitCode } from './run-generate';
 import { serialiseError } from './run-generate';
 import { forwardProcessOutput } from './process-output';

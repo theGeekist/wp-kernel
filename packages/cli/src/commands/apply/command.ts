@@ -1,6 +1,6 @@
 import { Command, Option } from 'clipanion';
-import { createReporter } from '@geekist/wp-kernel/reporter';
-import { WPK_NAMESPACE } from '@geekist/wp-kernel/namespace/constants';
+import { createReporter } from '@wpkernel/core/reporter';
+import { WPK_NAMESPACE } from '@wpkernel/core/namespace/constants';
 import { resolveFromWorkspace, toWorkspaceRelative } from '../../utils';
 import type {
 	ApplyLogEntry,

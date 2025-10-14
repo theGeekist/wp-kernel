@@ -27,7 +27,7 @@ test('should access admin', async ({ page }) => {
 ## After: WP Kernel E2E Utils
 
 ```typescript
-import { test, expect } from '@geekist/wp-kernel-e2e-utils';
+import { test, expect } from '@wpkernel/e2e-utils';
 
 test('should access admin', async ({ admin, page }) => {
 	// WordPress fixtures handle login automatically
@@ -38,7 +38,7 @@ test('should access admin', async ({ admin, page }) => {
 
 ## Available Fixtures
 
-When you import `test` from `@geekist/wp-kernel-e2e-utils`, you get:
+When you import `test` from `@wpkernel/e2e-utils`, you get:
 
 ### WordPress Fixtures (from `@wordpress/e2e-test-utils-playwright`)
 
@@ -133,7 +133,7 @@ For advanced users who need custom configuration:
 
 ```typescript
 import { test as base, expect } from '@wordpress/e2e-test-utils-playwright';
-import { createKernelUtils } from '@geekist/wp-kernel-e2e-utils';
+import { createKernelUtils } from '@wpkernel/e2e-utils';
 
 export const test = base.extend({
 	kernel: async ({ page, requestUtils, admin, editor, pageUtils }, use) => {

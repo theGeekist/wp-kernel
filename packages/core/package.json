@@ -1,0 +1,120 @@
+{
+	"name": "@wpkernel/core",
+	"version": "0.4.0",
+	"description": "Rails-like framework for building modern WordPress products",
+	"license": "EUPL-1.2",
+	"type": "module",
+	"sideEffects": false,
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/theGeekist/wp-kernel.git",
+		"directory": "packages/core"
+	},
+	"homepage": "https://github.com/theGeekist/wp-kernel#readme",
+	"bugs": {
+		"url": "https://github.com/theGeekist/wp-kernel/issues"
+	},
+	"keywords": [
+		"wordpress",
+		"framework",
+		"blocks",
+		"gutenberg",
+		"interactivity",
+		"actions",
+		"resources",
+		"rest-api"
+	],
+	"main": "./dist/index.js",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js",
+			"default": "./dist/index.js"
+		},
+		"./http": {
+			"types": "./dist/http/index.d.ts",
+			"import": "./dist/http/index.js",
+			"default": "./dist/http/index.js"
+		},
+		"./resource": {
+			"types": "./dist/resource/index.d.ts",
+			"import": "./dist/resource/index.js",
+			"default": "./dist/resource/index.js"
+		},
+		"./error": {
+			"types": "./dist/error/index.d.ts",
+			"import": "./dist/error/index.js",
+			"default": "./dist/error/index.js"
+		},
+		"./actions": {
+			"types": "./dist/actions/index.d.ts",
+			"import": "./dist/actions/index.js",
+			"default": "./dist/actions/index.js"
+		},
+		"./data": {
+			"types": "./dist/data/index.d.ts",
+			"import": "./dist/data/index.js",
+			"default": "./dist/data/index.js"
+		},
+		"./events": {
+			"types": "./dist/events/index.d.ts",
+			"import": "./dist/events/index.js",
+			"default": "./dist/events/index.js"
+		},
+		"./policy": {
+			"types": "./dist/policy/index.d.ts",
+			"import": "./dist/policy/index.js",
+			"default": "./dist/policy/index.js"
+		},
+		"./reporter": {
+			"types": "./dist/reporter/index.d.ts",
+			"import": "./dist/reporter/index.js",
+			"default": "./dist/reporter/index.js"
+		},
+		"./namespace": {
+			"types": "./dist/namespace/index.d.ts",
+			"import": "./dist/namespace/index.js",
+			"default": "./dist/namespace/index.js"
+		},
+		"./namespace/constants": {
+			"types": "./dist/namespace/constants.d.ts",
+			"import": "./dist/namespace/constants.js",
+			"default": "./dist/namespace/constants.js"
+		},
+		"./package.json": "./package.json"
+	},
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE"
+	],
+	"scripts": {
+		"dev": "vite build --watch",
+		"build": "vite build && tsc --noEmit",
+		"clean": "rm -rf dist *.tsbuildinfo",
+		"lint": "eslint src/",
+		"lint:fix": "eslint src/ --fix",
+		"format": "prettier --write 'src/**/*.{js,ts,tsx,json,md}'",
+		"format:check": "prettier --check 'src/**/*.{js,ts,tsx,json,md}'",
+		"typecheck": "tsc --noEmit",
+		"typecheck:tests": "tsc --project tsconfig.tests.json --noEmit",
+		"test": "jest --passWithNoTests",
+		"test:watch": "jest --watch",
+		"test:coverage": "jest --coverage"
+	},
+	"peerDependencies": {
+		"@wordpress/api-fetch": ">=7.0.0",
+		"@wordpress/data": ">=10.0.0",
+		"@wordpress/element": ">=6.0.0",
+		"@wordpress/hooks": ">=4.0.0",
+		"loglayer": ">=6.7.2",
+		"@loglayer/shared": ">=2.4.0",
+		"@loglayer/transport": ">=2.3.0"
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"dependencies": {}
+}

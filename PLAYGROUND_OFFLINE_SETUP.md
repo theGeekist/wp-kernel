@@ -128,8 +128,8 @@ Replace the `playground` script with:
 ```json
 {
 	"scripts": {
-		"playground:online": "wp-playground-cli server --blueprint=./test-harness/playground/blueprint.json --mount=./app/showcase:/wordpress/wp-content/plugins/showcase-plugin --port=9400",
-		"playground:offline": "wp-playground-cli server --skip-wordpress-setup --mount-before-install=./test-harness/playground-cache/wordpress:/wordpress --mount=./app/showcase:/wordpress/wp-content/plugins/showcase-plugin --blueprint=./test-harness/playground/blueprint-offline.json --port=9400",
+		"playground:online": "wp-playground-cli server --blueprint=./test-harness/playground/blueprint.json --mount=./examples/showcase:/wordpress/wp-content/plugins/showcase-plugin --port=9400",
+		"playground:offline": "wp-playground-cli server --skip-wordpress-setup --mount-before-install=./test-harness/playground-cache/wordpress:/wordpress --mount=./examples/showcase:/wordpress/wp-content/plugins/showcase-plugin --blueprint=./test-harness/playground/blueprint-offline.json --port=9400",
 		"playground:setup": "bash scripts/offline-playground-setup.sh",
 		"playground": "npm-run-all --silent playground:setup playground:offline"
 	}
@@ -193,7 +193,7 @@ All assets loaded from:
 
 - PHP binaries: `node_modules/@php-wasm/node/`
 - WordPress: `test-harness/playground-cache/wordpress/`
-- Your plugin: `app/showcase/` (mounted)
+- Your plugin: `examples/showcase/` (mounted)
 
 ## Testing the Offline Setup
 
@@ -263,7 +263,7 @@ For ultimate offline control, build a complete snapshot:
 ```bash
 wp-playground-cli build-snapshot \
   --blueprint=./test-harness/playground/blueprint.json \
-  --mount=./app/showcase:/wordpress/wp-content/plugins/showcase-plugin \
+  --mount=./examples/showcase:/wordpress/wp-content/plugins/showcase-plugin \
   --outfile=test-harness/playground-cache/wordpress-snapshot.zip
 
 # Then use it:

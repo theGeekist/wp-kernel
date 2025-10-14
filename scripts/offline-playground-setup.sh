@@ -11,7 +11,7 @@ pnpm wp-playground-cli build-snapshot \
   --wp=6.7.4 \
   --php=8.2 \
   --blueprint=./test-harness/playground/blueprint-setup.json \
-  --mount="$(pwd)/app/showcase:/wordpress/wp-content/plugins/showcase-plugin" \
+  --mount="$(pwd)/examples/showcase:/wordpress/wp-content/plugins/showcase-plugin" \
   --outfile=.playground/wp-6.7.4-php-8.2.snapshot.zip
 
 echo ""

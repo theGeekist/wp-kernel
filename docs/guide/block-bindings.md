@@ -7,7 +7,7 @@ Bind core WordPress blocks to your store data. No custom blocks needed for read 
 ## Quick Reference
 
 ```typescript
-import { registerBindingSource } from '@geekist/wp-kernel/bindings';
+import { registerBindingSource } from '@wpkernel/core/bindings';
 import { select } from '@wordpress/data';
 
 registerBindingSource('gk', {

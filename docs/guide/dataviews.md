@@ -7,8 +7,8 @@ Modern admin tables in WP Kernel build on the upstream `@wordpress/dataviews` co
 ## Prerequisites
 
 - WordPress 6.7+ (DataViews + Script Modules).
-- `@geekist/wp-kernel` configured with `configureKernel()`.
-- `@geekist/wp-kernel-ui` attached via `attachUIBindings()`.
+- `@wpkernel/core` configured with `configureKernel()`.
+- `@wpkernel/ui` attached via `attachUIBindings()`.
 - Resources that describe their REST contract and optional policies/actions.
 
 ## 1. Describe the admin view in your resource
@@ -16,7 +16,7 @@ Modern admin tables in WP Kernel build on the upstream `@wordpress/dataviews` co
 Add a `ui.admin.dataviews` block to your resource definition. This metadata drives both runtime auto-registration and CLI generators.
 
 ```ts
-import { defineResource } from '@geekist/wp-kernel/resource';
+import { defineResource } from '@wpkernel/core/resource';
 import type { Job, JobQuery } from '@/contracts/job';
 
 export const job = defineResource<Job, JobQuery>({
@@ -80,8 +80,8 @@ export const job = defineResource<Job, JobQuery>({
 Opt in to DataViews when calling `configureKernel()` and share the runtime with React.
 
 ```ts
-import { configureKernel } from '@geekist/wp-kernel';
-import { attachUIBindings, KernelUIProvider } from '@geekist/wp-kernel-ui';
+import { configureKernel } from '@wpkernel/core';
+import { attachUIBindings, KernelUIProvider } from '@wpkernel/ui';
 
 export const kernel = configureKernel({
 	namespace: 'demo',
@@ -117,7 +117,7 @@ import {
 	createResourceDataViewController,
 	createDataFormController,
 	ResourceDataView,
-} from '@geekist/wp-kernel-ui/dataviews';
+} from '@wpkernel/ui/dataviews';
 import { job } from '@/resources/job';
 import { createJob } from '@/actions/Job.Create';
 
@@ -201,7 +201,7 @@ Outputs include:
 
 Unit tests: see `packages/ui/src/dataviews/__tests__/` for patterns covering query mapping, preference persistence, and policy gating.
 
-Playwright helpers: `@geekist/wp-kernel-e2e-utils` exposes a `kernel.dataview()` factory.
+Playwright helpers: `@wpkernel/e2e-utils` exposes a `kernel.dataview()` factory.
 
 ```ts
 test('filter jobs by department', async ({ page, kernel }) => {
@@ -217,7 +217,7 @@ Helpers rely on the DOM attributes emitted by `ResourceDataView`. Keep those sel
 
 ## Migration guidance
 
-- **Snapshot reference** – `packages/ui/vendor/dataviews-snapshot/` contains a checked-in copy of the Gutenberg sources for offline inspection. Refresh it with `pnpm --filter @geekist/wp-kernel-ui update:dataviews-snapshot -- --source <path>`.
+- **Snapshot reference** – `packages/ui/vendor/dataviews-snapshot/` contains a checked-in copy of the Gutenberg sources for offline inspection. Refresh it with `pnpm --filter @wpkernel/ui update:dataviews-snapshot -- --source <path>`.
 - **Compat provider** – For WordPress versions prior to 6.7 wrap your screens with the compatibility helpers in `packages/ui/src/compat/dataviews.ts` to fall back to legacy tables.
 - **Generated code** – CLI fixtures emit function bodies verbatim. Review generated files before committing to keep long-term maintenance manageable.
 

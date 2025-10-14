@@ -2,10 +2,10 @@ import { act, type ComponentProps } from 'react';
 import { render, type RenderResult } from '@testing-library/react';
 import { DataViews } from '@wordpress/dataviews';
 import { KernelUIProvider } from '../../runtime/context';
-import type { KernelUIRuntime } from '@geekist/wp-kernel/data';
-import type { DefinedAction } from '@geekist/wp-kernel/actions';
-import type { Reporter } from '@geekist/wp-kernel/reporter';
-import type { ResourceObject } from '@geekist/wp-kernel/resource';
+import type { KernelUIRuntime } from '@wpkernel/core/data';
+import type { DefinedAction } from '@wpkernel/core/actions';
+import type { Reporter } from '@wpkernel/core/reporter';
+import type { ResourceObject } from '@wpkernel/core/resource';
 import type { ResourceDataViewConfig } from '../types';
 
 jest.mock('@wordpress/dataviews', () => {

@@ -2,8 +2,8 @@ import type {
 	KernelInstance,
 	KernelUIRuntime,
 	UIIntegrationOptions,
-} from '@geekist/wp-kernel/data';
-import type { Reporter } from '@geekist/wp-kernel/reporter';
+} from '@wpkernel/core/data';
+import type { Reporter } from '@wpkernel/core/reporter';
 import {
 	createDataViewsEventEmitter,
 	type DataViewsEventEmitter,
@@ -134,7 +134,7 @@ export function createKernelDataViewsRuntime(
 	};
 }
 
-declare module '@geekist/wp-kernel/data' {
+declare module '@wpkernel/core/data' {
 	interface KernelUIRuntime {
 		dataviews?: KernelDataViewsRuntime;
 	}

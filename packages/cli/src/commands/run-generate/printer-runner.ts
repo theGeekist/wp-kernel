@@ -1,4 +1,4 @@
-import type { Reporter } from '@geekist/wp-kernel/reporter';
+import type { Reporter } from '@wpkernel/core/reporter';
 import { emitGeneratedArtifacts } from '../../printers';
 import type { PrinterContext } from '../../printers';
 import type { AdapterExtensionRunResult } from '../../adapters';

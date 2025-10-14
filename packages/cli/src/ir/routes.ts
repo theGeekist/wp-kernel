@@ -1,8 +1,5 @@
-import { KernelError } from '@geekist/wp-kernel/error';
-import type {
-	ResourceConfig,
-	ResourceRoute,
-} from '@geekist/wp-kernel/resource';
+import { KernelError } from '@wpkernel/core/error';
+import type { ResourceConfig, ResourceRoute } from '@wpkernel/core/resource';
 import type { IRRoute, IRWarning } from './types';
 import { hashCanonical } from './canonical';
 

@@ -287,7 +287,7 @@ No adapter ever manipulates low-level AST nodes directly.
 ## 8. Example Adapter (Recipe-Only)
 
 ```ts
-import type { PhpAdapter } from '@geekist/wp-kernel-cli';
+import type { PhpAdapter } from '@wpkernel/cli';
 
 export const myCompanyAdapter: PhpAdapter = {
 	name: 'my-company',

@@ -1,7 +1,7 @@
 {
 	"core": "WordPress/WordPress#6.7.4",
 	"phpVersion": "8.1",
-	"plugins": ["./app/showcase"],
+	"plugins": ["./examples/showcase"],
 	"themes": [
 		"https://downloads.wordpress.org/theme/twentytwentyfour.1.3.zip"
 	],
@@ -30,7 +30,7 @@
 		}
 	},
 	"mappings": {
-		"wp-content/plugins/wp-kernel": "./packages/kernel",
+		"wp-content/plugins/wp-kernel": "./packages/core",
 		"wp-content/plugins/wp-kernel-ui": "./packages/ui"
 	}
 }

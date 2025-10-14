@@ -2,7 +2,7 @@ import path from 'node:path';
 import type {
 	ResourceDataViewsUIConfig,
 	ResourceUIConfig,
-} from '@geekist/wp-kernel/resource';
+} from '@wpkernel/core/resource';
 import type { PrinterContext } from '../types';
 
 interface ResourceConfigWithUI {
@@ -56,8 +56,8 @@ async function emitScreen(
 		? `export const ${toCamelCase(componentName)}Route = '${screenConfig.route}';\n\n`
 		: '';
 
-	const contents = `${routeExport}import { KernelUIProvider, useKernelUI } from '@geekist/wp-kernel-ui';
-import { ResourceDataView } from '@geekist/wp-kernel-ui/dataviews';
+	const contents = `${routeExport}import { KernelUIProvider, useKernelUI } from '@wpkernel/ui';
+import { ResourceDataView } from '@wpkernel/ui/dataviews';
 import { ${kernelImportSymbol} } from '${kernelImportPath}';
 import { ${resourceImportSymbol} } from '${resourceImportPath}';
 
@@ -103,7 +103,7 @@ async function emitFixture(
 	const identifier = `${toCamelCase(resourceName)}DataViewConfig`;
 	const fixturePath = path.join(fixturesDir, `${resourceKey}.ts`);
 	const serialized = serializeForTs(dataviews);
-	const contents = `import type { ResourceDataViewConfig } from '@geekist/wp-kernel-ui/dataviews';
+	const contents = `import type { ResourceDataViewConfig } from '@wpkernel/ui/dataviews';
 
 export const ${identifier}: ResourceDataViewConfig<unknown, unknown> = ${serialized};
 `;
