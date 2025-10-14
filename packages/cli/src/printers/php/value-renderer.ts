@@ -1,3 +1,4 @@
+import { KernelError } from '@wpkernel/core/contracts';
 import { PHP_INDENT } from './template';
 import { escapeSingleQuotes, isRecord } from './utils';
 
@@ -93,7 +94,10 @@ function renderPhpScalar(value: unknown, indent: string): string[] {
 
 	if (typeof value === 'number') {
 		if (!Number.isFinite(value)) {
-			throw new Error('Cannot render non-finite numbers in PHP output.');
+			throw new KernelError('DeveloperError', {
+				message: 'Cannot render non-finite numbers in PHP output.',
+				context: { value },
+			});
 		}
 
 		return [`${indent}${value}`];
@@ -111,5 +115,8 @@ function renderPhpScalar(value: unknown, indent: string): string[] {
 		return [`${indent}null`];
 	}
 
-	throw new Error(`Unsupported PHP value: ${String(value)}`);
+	throw new KernelError('DeveloperError', {
+		message: `Unsupported PHP value: ${String(value)}`,
+		context: { value },
+	});
 }

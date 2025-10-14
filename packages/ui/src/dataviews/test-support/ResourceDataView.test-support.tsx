@@ -7,6 +7,7 @@ import type { DefinedAction } from '@wpkernel/core/actions';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { ResourceObject } from '@wpkernel/core/resource';
 import type { ResourceDataViewConfig } from '../types';
+import { KernelError } from '@wpkernel/core/contracts';
 
 jest.mock('@wordpress/dataviews', () => {
 	const mockComponent = jest.fn(() => null);
@@ -98,7 +99,9 @@ export function renderWithProvider(
 	});
 
 	if (!result) {
-		throw new Error('Failed to render with KernelUIProvider');
+		throw new KernelError('DeveloperError', {
+			message: 'Failed to render with KernelUIProvider',
+		});
 	}
 
 	return result;
@@ -151,7 +154,9 @@ export function createConfig<TItem, TQuery>(
 export function getLastDataViewsProps(): ComponentProps<typeof DataViews> {
 	const lastCall = DataViewsMock.mock.calls.at(-1);
 	if (!lastCall) {
-		throw new Error('DataViews was not rendered');
+		throw new KernelError('DeveloperError', {
+			message: 'DataViews was not rendered',
+		});
 	}
 	return lastCall[0] as ComponentProps<typeof DataViews>;
 }

@@ -8,6 +8,7 @@
 
 // Import resetNamespaceCache for test cleanup
 import { resetNamespaceCache } from '@wpkernel/core/namespace';
+import { KernelError } from '@wpkernel/core/contracts';
 
 /**
  * Ensure wp.data is available and return it with proper typing
@@ -18,14 +19,16 @@ import { resetNamespaceCache } from '@wpkernel/core/namespace';
  */
 export function ensureWpData(): any {
 	if (!window.wp) {
-		throw new Error(
-			'window.wp not initialized. Ensure tests/setup-jest.ts is loaded via setupFilesAfterEnv'
-		);
+		throw new KernelError('DeveloperError', {
+			message:
+				'window.wp not initialized. Ensure tests/setup-jest.ts is loaded via setupFilesAfterEnv',
+		});
 	}
 	if (!window.wp.data) {
-		throw new Error(
-			'window.wp.data not initialized. Ensure tests/setup-jest.ts is loaded via setupFilesAfterEnv'
-		);
+		throw new KernelError('DeveloperError', {
+			message:
+				'window.wp.data not initialized. Ensure tests/setup-jest.ts is loaded via setupFilesAfterEnv',
+		});
 	}
 	return window.wp.data;
 }
