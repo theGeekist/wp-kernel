@@ -3,14 +3,19 @@
  *
  * E2E testing helpers for WP Kernel projects
  *
- * @module
  */
 
 // Export extended test fixture (primary usage)
 export { test, expect } from './test.js';
 
 // Export factory for advanced users
-export { createKernelUtils } from './createKernelUtils.js';
+export {
+	createKernelUtils,
+	createResourceHelper,
+	createStoreHelper,
+	createEventHelper,
+	createDataViewHelper,
+} from './createKernelUtils.js';
 
 // Export all types
 export type {
