@@ -3,8 +3,7 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import crypto from 'node:crypto';
-import { spawn } from 'node:child_process';
-import { once } from 'node:events';
+import { spawn, type ChildProcess } from 'node:child_process';
 import type { EphemeralRegistry, RegistryPublishSummary } from './types.js';
 
 interface CreateRegistryOptions {
@@ -150,18 +149,15 @@ async function packWorkspacePackage(
 	destination: string,
 	pnpmBinary: string
 ): Promise<PublishedPackage> {
-	const pack = spawn(
-		pnpmBinary,
-		['pack', '--pack-destination', destination, '--silent'],
-		{
-			cwd: directory,
-			env: {
-				...process.env,
-				npm_config_ignore_scripts: 'true',
-			},
-			stdio: ['ignore', 'pipe', 'pipe'],
-		}
-	);
+	const args = ['pack', '--pack-destination', destination, '--silent'];
+	const pack = spawn(pnpmBinary, args, {
+		cwd: directory,
+		env: {
+			...process.env,
+			npm_config_ignore_scripts: 'true',
+		},
+		stdio: ['ignore', 'pipe', 'pipe'],
+	});
 
 	const stdoutChunks: Buffer[] = [];
 	const stderrChunks: Buffer[] = [];
@@ -169,13 +165,22 @@ async function packWorkspacePackage(
 	pack.stdout?.on('data', (chunk: Buffer) => stdoutChunks.push(chunk));
 	pack.stderr?.on('data', (chunk: Buffer) => stderrChunks.push(chunk));
 
-	const [code] = (await once(pack, 'exit')) as [
-		number | null,
-		NodeJS.Signals | null,
-	];
+	const outcome = await waitForProcessCompletion(pack);
+	const stderr = Buffer.concat(stderrChunks).toString('utf8');
 
-	if (code !== 0) {
-		const stderr = Buffer.concat(stderrChunks).toString('utf8');
+	if (outcome.type === 'error') {
+		const failureMessage = formatSpawnError(
+			pnpmBinary,
+			args,
+			outcome.error
+		);
+		const details = stderr
+			? `${stderr}\n${failureMessage}`
+			: failureMessage;
+		throw new Error(`Failed to pack package at ${directory}: ${details}`);
+	}
+
+	if (outcome.code !== 0) {
 		throw new Error(`Failed to pack package at ${directory}: ${stderr}`);
 	}
 
@@ -208,6 +213,49 @@ async function packWorkspacePackage(
 		summary,
 		tarballFileName: path.basename(tarballFullPath),
 	};
+}
+
+type ProcessOutcome =
+	| { type: 'exit'; code: number | null; signal: NodeJS.Signals | null }
+	| { type: 'error'; error: NodeJS.ErrnoException };
+
+function waitForProcessCompletion(
+	child: ChildProcess
+): Promise<ProcessOutcome> {
+	return new Promise<ProcessOutcome>((resolve) => {
+		const handleExit = (
+			code: number | null,
+			signal: NodeJS.Signals | null
+		) => {
+			cleanup();
+			resolve({ type: 'exit', code, signal });
+		};
+
+		const handleError = (error: NodeJS.ErrnoException) => {
+			cleanup();
+			resolve({ type: 'error', error });
+		};
+
+		const cleanup = () => {
+			child.removeListener('exit', handleExit);
+			child.removeListener('error', handleError);
+		};
+
+		child.once('exit', handleExit);
+		child.once('error', handleError);
+	});
+}
+
+function formatSpawnError(
+	command: string,
+	args: string[],
+	error: NodeJS.ErrnoException
+): string {
+	const fullCommand = [command, ...args].join(' ').trim();
+	const details = error.code
+		? `${error.code}: ${error.message}`
+		: error.message;
+	return `Failed to spawn command "${fullCommand}"${details ? ` - ${details}` : ''}`;
 }
 
 function handleMetadataRequest(
