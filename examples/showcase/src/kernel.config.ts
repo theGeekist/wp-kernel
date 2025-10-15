@@ -7,7 +7,16 @@
  * re-export that forwards to the real file. This keeps authoring at the
  * repo root while keeping per-package builds and editors working.
  */
-export { kernelConfig } from '../kernel.config';
+export {
+	kernelConfig,
+	jobCreationFields,
+	jobCreationForm,
+	jobDataViewsConfig,
+} from '../kernel.config';
 
 // Re-export commonly used types so downstream imports remain inside `src`
-export type { JobListParams, ShowcaseKernelConfig } from '../kernel.config';
+export type {
+	Job,
+	JobListParams,
+	ShowcaseKernelConfig,
+} from '../kernel.config';

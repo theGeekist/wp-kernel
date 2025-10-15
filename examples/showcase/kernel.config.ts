@@ -8,8 +8,9 @@ import type {
 	ResourceQueryParamDescriptor,
 	ResourceDataViewsUIConfig,
 } from '@wpkernel/core/resource';
+import type { Form } from '@wordpress/dataviews';
 import type { ResourceDataViewConfig } from '@wpkernel/ui/dataviews';
-import type { Job } from './.generated/types/job';
+import type { JobResource } from './.generated/types/job';
 
 /**
  * Showcase kernel configuration
@@ -26,13 +27,26 @@ export type JobListParams = {
 	per_page?: number;
 };
 
-export interface SchemaConfig {
-	path: string;
-	generated: {
-		types: string;
-	};
+export type Job = Omit<
+	JobResource,
+	'seniority' | 'job_type' | 'remote_policy'
+> & {
+	id: number;
+	title: string;
+	slug?: string;
+	status: 'draft' | 'publish' | 'closed';
 	description?: string;
-}
+	seniority?: 'Junior' | 'Mid' | 'Senior' | 'Lead' | 'Principal';
+	job_type?:
+		| 'Full-time'
+		| 'Part-time'
+		| 'Contract'
+		| 'Internship'
+		| 'Temporary';
+	remote_policy?: 'on-site' | 'remote' | 'hybrid';
+	created_at: string;
+	updated_at?: string;
+};
 
 const identity: ResourceIdentityConfig = {
 	type: 'number',
@@ -143,6 +157,12 @@ const jobStatusLabels: Record<'draft' | 'publish' | 'closed', string> = {
 	closed: 'Closed',
 };
 
+const jobStatusOptions = (
+	Object.entries(jobStatusLabels) as Array<
+		[keyof typeof jobStatusLabels, string]
+	>
+).map(([value, label]) => ({ value, label }));
+
 const toTrimmedString = (value: unknown): string | undefined => {
 	if (typeof value !== 'string') {
 		return undefined;
@@ -205,19 +225,30 @@ const jobDataViewFields: ResourceDataViewConfig<Job, JobListParams>['fields'] =
 		{
 			id: 'title',
 			label: 'Title',
+			type: 'text',
 			enableSorting: true,
+			enableGlobalSearch: true,
+			isValid: { required: true },
 		},
-		{ id: 'department', label: 'Department' },
-		{ id: 'location', label: 'Location' },
+		{
+			id: 'department',
+			label: 'Department',
+			type: 'text',
+			enableGlobalSearch: true,
+		},
+		{
+			id: 'location',
+			label: 'Location',
+			type: 'text',
+			enableGlobalSearch: true,
+		},
 		{
 			id: 'status',
 			label: 'Status',
-			elements: (
-				Object.entries(jobStatusLabels) as Array<
-					[keyof typeof jobStatusLabels, string]
-				>
-			).map(([value, label]) => ({ value, label })),
+			type: 'text',
+			elements: jobStatusOptions,
 			filterBy: { operators: ['isAny'] },
+			isValid: { required: true },
 			getValue: ({ item }) =>
 				jobStatusLabels[
 					(item.status as keyof typeof jobStatusLabels) ?? 'draft'
@@ -226,8 +257,15 @@ const jobDataViewFields: ResourceDataViewConfig<Job, JobListParams>['fields'] =
 				'',
 		},
 		{
+			id: 'description',
+			label: 'Description',
+			type: 'text',
+			Edit: { control: 'textarea', rows: 6 },
+		},
+		{
 			id: 'updated_at',
 			label: 'Updated',
+			type: 'datetime',
 			enableSorting: true,
 			getValue: ({ item }) => {
 				const timestamp = item.updated_at ?? item.created_at;
@@ -243,6 +281,30 @@ const jobDataViewFields: ResourceDataViewConfig<Job, JobListParams>['fields'] =
 		},
 	];
 
+const jobCreationFieldIds = [
+	'title',
+	'department',
+	'location',
+	'status',
+	'description',
+] as const;
+
+export const jobCreationFields = jobDataViewFields
+	.filter((field) =>
+		jobCreationFieldIds.includes(
+			field.id as (typeof jobCreationFieldIds)[number]
+		)
+	)
+	.map((field) => ({ ...field })) satisfies ResourceDataViewConfig<
+	Job,
+	JobListParams
+>['fields'];
+
+export const jobCreationForm: Form = {
+	layout: { type: 'panel', labelPosition: 'side' },
+	fields: [...jobCreationFieldIds],
+};
+
 export const jobDataViewsConfig: ResourceDataViewConfig<Job, JobListParams> &
 	ResourceDataViewsUIConfig<Job, JobListParams> = {
 	fields: jobDataViewFields,
@@ -257,6 +319,15 @@ export const jobDataViewsConfig: ResourceDataViewConfig<Job, JobListParams> &
 	search: true,
 	searchLabel: 'Search jobs',
 	perPageSizes: [10, 20, 50],
+	screen: {
+		component: 'JobsAdminScreen',
+		route: '/admin.php?page=wpk-jobs',
+		menu: {
+			slug: 'wpk-jobs',
+			title: 'Jobs',
+			capability: 'manage_options',
+		},
+	},
 };
 
 const jobResource: ResourceConfig<Job, JobListParams> = {
@@ -270,48 +341,32 @@ const jobResource: ResourceConfig<Job, JobListParams> = {
 		admin: {
 			view: 'dataviews',
 			dataviews: jobDataViewsConfig,
-			screen: {
-				component: 'JobsAdminScreen',
-				route: '/admin.php?page=wpk-jobs',
-				menu: {
-					slug: 'wpk-jobs',
-					title: 'Jobs',
-					capability: 'manage_options',
-				},
-			},
 		},
 	},
 };
 
-const schemaRegistry: Record<string, SchemaConfig> = {
-	job: {
-		path: './contracts/job.schema.json',
-		generated: {
-			types: './.generated/types/job.d.ts',
-		},
-		description: 'Primary job resource schema used for generation.',
-	},
+type ShowcaseResources = {
+	job: ResourceConfig<Job, JobListParams> & { schema: string | 'auto' };
+};
+
+type ShowcaseKernelConfigShape = {
+	version: 1;
+	namespace: string;
+	schemas: Record<string, unknown>;
+	resources: ShowcaseResources;
 };
 
 // For CLI config guidance see https://github.com/theGeekist/wp-kernel/blob/main/packages/cli/mvp-cli-spec.md#6-blocks-of-authoring-safety
 export const kernelConfig = {
 	version: 1,
 	namespace: 'wp-kernel-showcase',
-	schemas: schemaRegistry,
+	schemas: {},
 	resources: {
 		job: {
 			...jobResource,
-			schema: 'job',
+			schema: 'auto',
 		},
 	},
-} satisfies {
-	version: 1;
-	namespace: string;
-	schemas: Record<string, SchemaConfig>;
-	resources: Record<
-		string,
-		ResourceConfig<Job, JobListParams> & { schema: string | 'auto' }
-	>;
-};
+} satisfies ShowcaseKernelConfigShape;
 
 export type ShowcaseKernelConfig = typeof kernelConfig;

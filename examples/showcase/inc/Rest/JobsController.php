@@ -1,6 +1,9 @@
 <?php
 /**
- * Jobs REST Controller
+ * AUTO-GENERATED FILE. DO NOT EDIT BY HAND.
+ *
+ * Source: kernelConfig.resources.job (src/kernel.config.ts)
+ * Target: inc/Rest/JobsController.php
  *
  * Handles REST API endpoints for Job Postings in the WP Kernel Showcase.
  *
@@ -10,92 +13,29 @@
 namespace WPKernel\Showcase\Rest;
 
 use WP_Error;
-use WP_Post;
-use WP_Query;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
+use WPKernel\Showcase\Rest\Controller;
 
 /**
  * Jobs REST controller generated from the `kernelConfig.resources.job` definition.
- * This working copy mirrors the generator output; customise behaviour here as needed.
  *
- * Provides endpoints for listing, retrieving, and managing job postings using the
- * custom post type registered by the showcase plugin.
+ * Provides endpoints for listing, retrieving, and managing job postings.
  */
 class JobsController extends Controller {
 	/**
-	 * REST base for resources.
+	 * Resource name.
 	 *
 	 * @var string
 	 */
 	protected $rest_base = 'jobs';
 
 	/**
-	 * Registered post type slug.
-	 *
-	 * @var string
-	 */
-	private string $post_type = 'wpk_job';
-
-	/**
-	 * Post meta fields that are persisted for jobs.
-	 *
-	 * @var array<string, string>
-	 */
-	private array $meta_fields = array(
-		'department'     => 'string',
-		'location'       => 'string',
-		'remote_policy'  => 'string',
-		'job_type'       => 'string',
-		'seniority'      => 'string',
-		'salary_min'     => 'integer',
-		'salary_max'     => 'integer',
-		'currency'       => 'string',
-		'apply_deadline' => 'string',
-	);
-
-	/**
-	 * Mapping of request parameters to taxonomies.
-	 *
-	 * @var array<string, string>
-	 */
-	private array $taxonomy_map = array(
-		'department' => 'wpk_job_department',
-		'location'   => 'wpk_job_location',
-	);
-
-	/**
-	 * Map of exposed status values to WordPress post statuses.
-	 *
-	 * @var array<string, string>
-	 */
-	private array $status_map = array(
-		'draft'   => 'draft',
-		'publish' => 'publish',
-		'closed'  => 'wpk_job_closed',
-	);
-
-	/**
-	 * Policy capability definitions keyed by policy identifier.
-	 *
-	 * @var array<string, array{capability:string, appliesTo?:string}>
-	 */
-	private array $policy_caps;
-
-	/**
-	 * Constructor.
-	 *
-	 * @param array<string, array{capability:string, appliesTo?:string}> $policy_caps Policy map from kernel config.
-	 */
-	public function __construct( array $policy_caps = array() ) {
-		$this->policy_caps = $policy_caps;
-	}
-
-	/**
 	 * Register the routes for job postings.
 	 */
 	public function register_routes() {
+		// List jobs: GET /wp-kernel-showcase/v1/jobs
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base,
@@ -110,12 +50,12 @@ class JobsController extends Controller {
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'create_item' ),
 					'permission_callback' => array( $this, 'create_item_permissions_check' ),
-					'args'                => $this->get_endpoint_args_for_item_schema( WP_REST_Server::CREATABLE ),
 				),
 				'schema' => array( $this, 'get_public_item_schema' ),
 			)
 		);
 
+		// Single job: GET /wp-kernel-showcase/v1/jobs/:id
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base . '/(?P<id>[\d]+)',
@@ -136,38 +76,15 @@ class JobsController extends Controller {
 					'methods'             => WP_REST_Server::EDITABLE,
 					'callback'            => array( $this, 'update_item' ),
 					'permission_callback' => array( $this, 'update_item_permissions_check' ),
-					'args'                => $this->get_update_args(),
 				),
 				array(
 					'methods'             => WP_REST_Server::DELETABLE,
 					'callback'            => array( $this, 'delete_item' ),
 					'permission_callback' => array( $this, 'delete_item_permissions_check' ),
-					'args'                => array(
-						'id' => array(
-							'description' => __( 'Unique identifier for the job posting.', 'wp-kernel-showcase' ),
-							'type'        => 'integer',
-							'required'    => true,
-						),
-					),
 				),
 				'schema' => array( $this, 'get_public_item_schema' ),
 			)
 		);
-	}
-
-	/**
-	 * Collection params merged into route args.
-	 *
-	 * @return array
-	 */
-	private function get_update_args(): array {
-		$args           = $this->get_endpoint_args_for_item_schema( WP_REST_Server::EDITABLE );
-		$args['id']     = array(
-			'description' => __( 'Unique identifier for the job posting.', 'wp-kernel-showcase' ),
-			'type'        => 'integer',
-			'required'    => true,
-		);
-		return $args;
 	}
 
 	/**
@@ -177,120 +94,23 @@ class JobsController extends Controller {
 	 * @return WP_REST_Response|WP_Error Response object or error.
 	 */
 	public function get_items( $request ) {
-		$per_page = (int) $request->get_param( 'per_page' );
-		if ( $per_page <= 0 ) {
-			$per_page = 10;
-		} elseif ( $per_page > 50 ) {
-			$per_page = 50;
+		// Get jobs from transient (created via REST API).
+		$jobs = get_transient( 'wpk_showcase_jobs' );
+		
+		// Fall back to sample data if no jobs in transient.
+		if ( false === $jobs || empty( $jobs ) ) {
+			$jobs = $this->get_sample_jobs();
 		}
 
-		$paged = (int) $request->get_param( 'cursor' );
-		if ( $paged <= 0 ) {
-			$paged = 1;
-		}
-
-		$args = array(
-			'post_type'      => $this->post_type,
-			'post_status'    => $this->resolve_statuses_for_query( $request->get_param( 'status' ) ),
-			'posts_per_page' => $per_page,
-			'paged'          => $paged,
-			'orderby'        => 'date',
-			'order'          => 'DESC',
-			'fields'         => 'ids',
+		// Apply _fields filtering.
+		$filtered_jobs = array_map(
+			function ( $job ) use ( $request ) {
+				return $this->filter_response_by_fields( $job, $request );
+			},
+			$jobs
 		);
 
-		$search = $request->get_param( 'q' );
-		if ( is_string( $search ) && '' !== trim( $search ) ) {
-			$args['s'] = sanitize_text_field( $search );
-		}
-
-		$tax_query = array();
-		foreach ( $this->taxonomy_map as $param => $taxonomy ) {
-			$value = $request->get_param( $param );
-			if ( ! is_string( $value ) || '' === trim( $value ) ) {
-				continue;
-			}
-
-			$tax_query[] = array(
-				'taxonomy' => $taxonomy,
-				'field'    => 'slug',
-				'terms'    => sanitize_title( $value ),
-			);
-		}
-
-		if ( ! empty( $tax_query ) ) {
-			$args['tax_query'] = $tax_query;
-		}
-
-		$query = new WP_Query( $args );
-
-		$items = array();
-
-		foreach ( $query->posts as $post_id ) {
-			$post = get_post( (int) $post_id );
-			if ( ! $post ) {
-				continue;
-			}
-
-			$items[] = $this->filter_response_by_fields(
-				$this->prepare_item_data( $post ),
-				$request
-			);
-		}
-
-		$response = array(
-			'items'      => $items,
-			'total'      => (int) $query->found_posts,
-			'hasMore'    => $query->max_num_pages > $paged,
-			'nextCursor' => $query->max_num_pages > $paged ? (string) ( $paged + 1 ) : null,
-		);
-
-	return rest_ensure_response( $response );
-}
-
-	/**
-	 * Verify a capability defined in the kernel configuration.
-	 *
-	 * @param string   $policy_key Policy identifier.
-	 * @param int|null $object_id  Related object identifier (if applicable).
-	 * @return bool|WP_Error
-	 */
-	private function check_capability( string $policy_key, ?int $object_id = null ) {
-		if ( ! isset( $this->policy_caps[ $policy_key ] ) ) {
-			return true;
-		}
-
-		$definition = $this->policy_caps[ $policy_key ];
-		$capability = $definition['capability'] ?? '';
-		$scope      = $definition['appliesTo'] ?? 'resource';
-
-		if ( '' === $capability ) {
-			return true;
-		}
-
-		$allowed = ( 'object' === $scope && null !== $object_id )
-			? current_user_can( $capability, $object_id )
-			: current_user_can( $capability );
-
-		if ( ! $allowed ) {
-			return $this->get_error(
-				'forbidden',
-				__( 'You are not allowed to perform this action.', 'wp-kernel-showcase' ),
-				403
-			);
-		}
-
-		return true;
-	}
-
-	/**
-	 * Permissions check for creating job postings.
-	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @return bool|WP_Error
-	 */
-	public function create_item_permissions_check( $request ) {
-		return $this->check_capability( 'jobs.create' );
+		return new WP_REST_Response( $filtered_jobs, 200 );
 	}
 
 	/**
@@ -300,9 +120,26 @@ class JobsController extends Controller {
 	 * @return WP_REST_Response|WP_Error Response object or error.
 	 */
 	public function get_item( $request ) {
-		$post = $this->get_job_post( (int) $request->get_param( 'id' ) );
+		$id = (int) $request->get_param( 'id' );
 
-		if ( ! $post ) {
+		// Get jobs from transient first.
+		$jobs = get_transient( 'wpk_showcase_jobs' );
+		
+		// Fall back to sample data if no jobs in transient.
+		if ( false === $jobs || empty( $jobs ) ) {
+			$jobs = $this->get_sample_jobs();
+		}
+
+		$job = null;
+
+		foreach ( $jobs as $item ) {
+			if ( $item['id'] === $id ) {
+				$job = $item;
+				break;
+			}
+		}
+
+		if ( ! $job ) {
 			return $this->get_error(
 				'job_not_found',
 				__( 'Job posting not found.', 'wp-kernel-showcase' ),
@@ -310,215 +147,203 @@ class JobsController extends Controller {
 			);
 		}
 
-		return $this->prepare_item_for_response( $post, $request );
+		// Apply _fields filtering.
+		$filtered_job = $this->filter_response_by_fields( $job, $request );
+
+		return new WP_REST_Response( $filtered_job, 200 );
 	}
 
 	/**
 	 * Create a new job posting.
 	 *
+	 * Creates a new job and stores it in transients for demonstration purposes.
+	 * In production, this would store to a database table or custom post type.
+	 *
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function create_item( $request ) {
-		$prepared = $this->prepare_post_data( $request );
-
-		if ( is_wp_error( $prepared ) ) {
-			return $prepared;
+		// Get existing jobs from transient.
+		$jobs = get_transient( 'wpk_showcase_jobs' );
+		if ( false === $jobs ) {
+			$jobs = array();
 		}
 
-		list( $post_data, $meta, $taxonomies ) = $prepared;
-
-		$post_id = wp_insert_post( $post_data, true );
-
-		if ( is_wp_error( $post_id ) ) {
-			return $post_id;
+		// Generate new ID.
+		$max_id = 0;
+		foreach ( $jobs as $job ) {
+			if ( $job['id'] > $max_id ) {
+				$max_id = $job['id'];
+			}
 		}
+		$new_id = $max_id + 1;
 
-		$this->update_meta( $post_id, $meta );
-		$this->sync_taxonomies( $post_id, $taxonomies );
+		// Build the new job object.
+		$now = gmdate( 'Y-m-d\TH:i:s\Z' );
+		$new_job = array(
+			'id'             => $new_id,
+			'title'          => $request->get_param( 'title' ) ?? '',
+			'description'    => $request->get_param( 'description' ) ?? '',
+			'department'     => $request->get_param( 'department' ) ?? '',
+			'location'       => $request->get_param( 'location' ) ?? '',
+			'remote_policy'  => $request->get_param( 'remote_policy' ) ?? 'office',
+			'job_type'       => $request->get_param( 'job_type' ) ?? 'full-time',
+			'seniority'      => $request->get_param( 'seniority' ) ?? 'mid',
+			'salary_min'     => $request->get_param( 'salary_min' ) ?? null,
+			'salary_max'     => $request->get_param( 'salary_max' ) ?? null,
+			'currency'       => $request->get_param( 'currency' ) ?? 'USD',
+			'apply_deadline' => $request->get_param( 'apply_deadline' ) ?? null,
+			'status'         => $request->get_param( 'status' ) ?? 'draft',
+			'created_at'     => $now,
+			'updated_at'     => $now,
+		);
 
-		$post = get_post( $post_id );
+		// Add to jobs array.
+		$jobs[] = $new_job;
 
-		if ( ! $post ) {
-			return $this->get_error(
-				'post_create_failed',
-				__( 'Job posting could not be retrieved after creation.', 'wp-kernel-showcase' ),
-				500
-			);
-		}
+		// Save to transient (expires in 1 hour, good for testing).
+		set_transient( 'wpk_showcase_jobs', $jobs, HOUR_IN_SECONDS );
 
-		return $this->prepare_item_for_response( $post, $request, 201 );
+		// Return the new job.
+		return new \WP_REST_Response( $new_job, 201 );
 	}
 
 	/**
 	 * Update an existing job posting.
 	 *
+	 * Updates a job stored in transients for demonstration purposes.
+	 * In production, this would update a database table or custom post type.
+	 *
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function update_item( $request ) {
-		$post = $this->get_job_post( (int) $request->get_param( 'id' ) );
+		$id = $request->get_param( 'id' );
 
-		if ( ! $post ) {
+		// Get existing jobs from transient.
+		$jobs = get_transient( 'wpk_showcase_jobs' );
+		if ( false === $jobs ) {
+			$jobs = array();
+		}
+
+		// Find the job to update.
+		$job_index = null;
+		foreach ( $jobs as $index => $job ) {
+			if ( $job['id'] === (int) $id ) {
+				$job_index = $index;
+				break;
+			}
+		}
+
+		if ( null === $job_index ) {
 			return $this->get_error(
-				'job_not_found',
+				'not_found',
 				__( 'Job posting not found.', 'wp-kernel-showcase' ),
 				404
 			);
 		}
 
-		$prepared = $this->prepare_post_data( $request, (int) $post->ID );
+		// Update the job (merge with existing data).
+		$updated_job = array_merge(
+			$jobs[ $job_index ],
+			array_filter(
+				array(
+					'title'          => $request->get_param( 'title' ),
+					'description'    => $request->get_param( 'description' ),
+					'department'     => $request->get_param( 'department' ),
+					'location'       => $request->get_param( 'location' ),
+					'remote_policy'  => $request->get_param( 'remote_policy' ),
+					'job_type'       => $request->get_param( 'job_type' ),
+					'seniority'      => $request->get_param( 'seniority' ),
+					'salary_min'     => $request->get_param( 'salary_min' ),
+					'salary_max'     => $request->get_param( 'salary_max' ),
+					'currency'       => $request->get_param( 'currency' ),
+					'apply_deadline' => $request->get_param( 'apply_deadline' ),
+					'status'         => $request->get_param( 'status' ),
+				),
+				fn( $value ) => null !== $value
+			)
+		);
 
-		if ( is_wp_error( $prepared ) ) {
-			return $prepared;
-		}
+		$updated_job['updated_at'] = gmdate( 'Y-m-d\TH:i:s\Z' );
 
-		list( $post_data, $meta, $taxonomies ) = $prepared;
+		$jobs[ $job_index ] = $updated_job;
 
-		$result = wp_update_post( $post_data, true );
+		// Save to transient.
+		set_transient( 'wpk_showcase_jobs', $jobs, HOUR_IN_SECONDS );
 
-		if ( is_wp_error( $result ) ) {
-			return $result;
-		}
-
-		$this->update_meta( $post->ID, $meta );
-		$this->sync_taxonomies( $post->ID, $taxonomies );
-
-		$updated = $this->get_job_post( (int) $post->ID );
-
-		if ( ! $updated ) {
-			return $this->get_error(
-				'post_update_failed',
-				__( 'Job posting could not be retrieved after update.', 'wp-kernel-showcase' ),
-				500
-			);
-		}
-
-		return $this->prepare_item_for_response( $updated, $request );
+		// Return the updated job.
+		return new \WP_REST_Response( $updated_job, 200 );
 	}
 
 	/**
 	 * Delete a job posting.
 	 *
+	 * Deletes a job from transients for demonstration purposes.
+	 * In production, this would delete from a database table or custom post type.
+	 *
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response|WP_Error Response object on success, or WP_Error object on failure.
 	 */
 	public function delete_item( $request ) {
-		$post = $this->get_job_post( (int) $request->get_param( 'id' ) );
+		$id = $request->get_param( 'id' );
 
-		if ( ! $post ) {
+		// Get existing jobs from transient.
+		$jobs = get_transient( 'wpk_showcase_jobs' );
+		if ( false === $jobs ) {
+			$jobs = array();
+		}
+
+		// Find the job to delete.
+		$job_index = null;
+		$deleted_job = null;
+		foreach ( $jobs as $index => $job ) {
+			if ( $job['id'] === (int) $id ) {
+				$job_index = $index;
+				$deleted_job = $job;
+				break;
+			}
+		}
+
+		if ( null === $job_index ) {
 			return $this->get_error(
-				'job_not_found',
+				'not_found',
 				__( 'Job posting not found.', 'wp-kernel-showcase' ),
 				404
 			);
 		}
 
-		$previous = $this->prepare_item_data( $post );
+		// Remove the job.
+		array_splice( $jobs, $job_index, 1 );
 
-		$result = wp_delete_post( $post->ID, true );
+		// Save to transient.
+		set_transient( 'wpk_showcase_jobs', $jobs, HOUR_IN_SECONDS );
 
-		if ( ! $result ) {
-			return $this->get_error(
-				'delete_failed',
-				__( 'Failed to delete job posting.', 'wp-kernel-showcase' ),
-				500
-			);
-		}
-
-		$response = array(
-			'deleted'  => true,
-			'previous' => $this->filter_response_by_fields( $previous, $request ),
-		);
-
-		return rest_ensure_response( $response );
+		// Return the deleted job with 200 status.
+		return new \WP_REST_Response( $deleted_job, 200 );
 	}
 
 	/**
-	 * Permissions check for updating job postings.
+	 * Get collection parameters for list endpoint.
 	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @return bool|WP_Error
+	 * @return array Collection parameters.
 	 */
-	public function update_item_permissions_check( $request ) {
-		$post = $this->get_job_post( (int) $request->get_param( 'id' ) );
-
-		if ( ! $post ) {
-			return $this->get_error(
-				'job_not_found',
-				__( 'Job posting not found.', 'wp-kernel-showcase' ),
-				404
-			);
-		}
-
-	return $this->check_capability( 'jobs.update', (int) $post->ID );
-	}
-
-	/**
-	 * Permissions check for deleting job postings.
-	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @return bool|WP_Error
-	 */
-	public function delete_item_permissions_check( $request ) {
-		$post = $this->get_job_post( (int) $request->get_param( 'id' ) );
-
-		if ( ! $post ) {
-			return $this->get_error(
-				'job_not_found',
-				__( 'Job posting not found.', 'wp-kernel-showcase' ),
-				404
-			);
-		}
-
-	return $this->check_capability( 'jobs.delete', (int) $post->ID );
-	}
-
-	/**
-	 * Prepare collection parameters.
-	 */
-	public function get_collection_params() {
+	public function get_collection_params(): array {
 		return array(
-			'_fields'    => array(
+			'_fields' => array(
 				'description' => __( 'Limit response to specific fields. Supports dot notation for nested fields.', 'wp-kernel-showcase' ),
 				'type'        => 'string',
-			),
-			'q'          => array(
-				'description' => __( 'Full-text search query.', 'wp-kernel-showcase' ),
-				'type'        => 'string',
-				'sanitize_callback' => 'sanitize_text_field',
-			),
-			'department' => array(
-				'description' => __( 'Department filter derived from taxonomy.', 'wp-kernel-showcase' ),
-				'type'        => 'string',
-			),
-			'location'   => array(
-				'description' => __( 'Location filter derived from taxonomy.', 'wp-kernel-showcase' ),
-				'type'        => 'string',
-			),
-			'status'     => array(
-				'description' => __( 'Filter jobs by publishing status.', 'wp-kernel-showcase' ),
-				'type'        => 'string',
-				'enum'        => array( 'draft', 'publish', 'closed' ),
-			),
-			'cursor'     => array(
-				'description' => __( 'Cursor for pagination (1-indexed).', 'wp-kernel-showcase' ),
-				'type'        => 'string',
-			),
-			'per_page'   => array(
-				'description' => __( 'Number of items to return per page (max 50).', 'wp-kernel-showcase' ),
-				'type'        => 'integer',
-				'default'     => 10,
-				'minimum'     => 1,
-				'maximum'     => 50,
 			),
 		);
 	}
 
 	/**
 	 * Get the job posting schema.
+	 *
+	 * @return array Item schema.
 	 */
-	public function get_item_schema() {
+	public function get_item_schema(): array {
+		// TODO: Load from contracts/job.schema.json in Sprint 3.
 		return array(
 			'$schema'    => 'http://json-schema.org/draft-07/schema#',
 			'title'      => 'Job Posting',
@@ -581,7 +406,7 @@ class JobsController extends Controller {
 				'status'         => array(
 					'description' => __( 'Publishing status.', 'wp-kernel-showcase' ),
 					'type'        => 'string',
-					'enum'        => array( 'draft', 'publish', 'closed' ),
+					'enum'        => array( 'draft', 'open', 'closed', 'filled' ),
 					'default'     => 'draft',
 				),
 				'created_at'     => array(
@@ -597,341 +422,103 @@ class JobsController extends Controller {
 					'readonly'    => true,
 				),
 			),
-			'required'   => array( 'title' ),
 		);
 	}
 
 	/**
-	 * Prepare a job post for response.
+	 * Get sample job postings for Sprint 1 demonstration.
 	 *
-	 * @param WP_Post         $item    Job post object.
-	 * @param WP_REST_Request $request Request object.
-	 * @param int             $status  Response status code.
-	 */
-	public function prepare_item_for_response( $post, $request ) {
-		$data = $this->filter_response_by_fields(
-			$this->prepare_item_data( $item ),
-			$request
-		);
-
-		$response = rest_ensure_response( $data );
-
-		return $response;
-	}
-
-	/**
-	 * Build response data array for a job post.
+	 * This is temporary data - will be replaced with database queries in Sprint 3.
 	 *
-	 * @param WP_Post $post Job post object.
-	 * @return array<string, mixed>
+	 * @return array Array of sample job postings.
 	 */
-	private function prepare_item_data( WP_Post $post ): array {
-		$meta = array();
-
-		foreach ( array_keys( $this->meta_fields ) as $key ) {
-			$meta[ $key ] = get_post_meta( $post->ID, $key, true );
-		}
-
-		foreach ( $this->taxonomy_map as $param => $taxonomy ) {
-			if ( empty( $meta[ $param ] ) ) {
-				$term = $this->get_taxonomy_value( $post->ID, $taxonomy );
-				if ( $term ) {
-					$meta[ $param ] = $term;
-				}
-			}
-		}
-
+	private function get_sample_jobs(): array {
 		return array(
-			'id'             => (int) $post->ID,
-			'title'          => get_the_title( $post ),
-			'description'    => $post->post_content,
-			'department'     => $meta['department'] ?: null,
-			'location'       => $meta['location'] ?: null,
-			'remote_policy'  => $meta['remote_policy'] ?: null,
-			'job_type'       => $meta['job_type'] ?: null,
-			'seniority'      => $meta['seniority'] ?: null,
-			'salary_min'     => $meta['salary_min'] !== '' ? (int) $meta['salary_min'] : null,
-			'salary_max'     => $meta['salary_max'] !== '' ? (int) $meta['salary_max'] : null,
-			'currency'       => $meta['currency'] ?: 'USD',
-			'apply_deadline' => $meta['apply_deadline'] ?: null,
-			'status'         => $this->normalize_status_output( $post->post_status ),
-			'created_at'     => $this->format_datetime( $post->post_date_gmt ?: $post->post_date ),
-			'updated_at'     => $this->format_datetime( $post->post_modified_gmt ?: $post->post_modified ),
-		);
-	}
-
-	/**
-	 * Prepare data for insert/update.
-	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @param int|null        $post_id Existing post ID when updating.
-	 * @return array|WP_Error
-	 */
-	private function prepare_post_data( WP_REST_Request $request, ?int $post_id = null ) {
-		$schema = $this->get_item_schema();
-
-		$post_data = array(
-			'post_type' => $this->post_type,
-		);
-
-		if ( null !== $post_id ) {
-			$post_data['ID'] = $post_id;
-		}
-
-		$title = $request->get_param( 'title' );
-		if ( null !== $title ) {
-			$field_schema = $schema['properties']['title'] ?? null;
-
-			if ( $field_schema ) {
-				$check = rest_validate_value_from_schema( $title, $field_schema, 'title' );
-				if ( is_wp_error( $check ) ) {
-					return $check;
-				}
-
-				$sanitized_title = rest_sanitize_value_from_schema( $title, $field_schema );
-				$post_data['post_title'] = sanitize_text_field( (string) $sanitized_title );
-			} else {
-				$post_data['post_title'] = sanitize_text_field( (string) $title );
-			}
-		} elseif ( null === $post_id ) {
-			return $this->get_error(
-				'invalid_title',
-				__( 'The job title is required.', 'wp-kernel-showcase' ),
-				400
-			);
-		}
-
-		$description = $request->get_param( 'description' );
-		if ( null !== $description ) {
-			$field_schema = $schema['properties']['description'] ?? null;
-
-			if ( $field_schema ) {
-				$check = rest_validate_value_from_schema( $description, $field_schema, 'description' );
-				if ( is_wp_error( $check ) ) {
-					return $check;
-				}
-
-				$sanitized_description = rest_sanitize_value_from_schema( $description, $field_schema );
-				$post_data['post_content'] = wp_kses_post( (string) $sanitized_description );
-			} else {
-				$post_data['post_content'] = wp_kses_post( (string) $description );
-			}
-		} elseif ( null === $post_id ) {
-			$post_data['post_content'] = '';
-		}
-
-		$status_param = $request->get_param( 'status' );
-		$status       = $this->normalize_status_input( $status_param, null === $post_id ? 'draft' : null );
-
-		if ( null === $status && null !== $status_param ) {
-			return $this->get_error(
-				'invalid_status',
-				__( 'Invalid job status.', 'wp-kernel-showcase' ),
-				400
-			);
-		}
-
-		if ( null !== $status ) {
-			$post_data['post_status'] = $status;
-		}
-
-		$meta = array();
-		foreach ( array_keys( $this->meta_fields ) as $key ) {
-			if ( ! $request->offsetExists( $key ) ) {
-				continue;
-			}
-
-			$value        = $request->get_param( $key );
-			$field_schema = $schema['properties'][ $key ] ?? null;
-
-			if ( $field_schema ) {
-				$check = rest_validate_value_from_schema( $value, $field_schema, $key );
-				if ( is_wp_error( $check ) ) {
-					return $check;
-				}
-
-				$sanitized = rest_sanitize_value_from_schema( $value, $field_schema );
-			} else {
-				$sanitized = is_scalar( $value ) ? sanitize_text_field( (string) $value ) : null;
-			}
-
-			if ( null === $sanitized || '' === $sanitized ) {
-				$meta[ $key ] = null;
-			} else {
-				$meta[ $key ] = $sanitized;
-			}
-		}
-
-		if ( ! array_key_exists( 'currency', $meta ) && null === $post_id ) {
-			$meta['currency'] = 'USD';
-		}
-
-		if ( ! array_key_exists( 'remote_policy', $meta ) && null === $post_id ) {
-			$meta['remote_policy'] = 'office';
-		}
-
-		$tax_input = array();
-		foreach ( $this->taxonomy_map as $param => $taxonomy ) {
-			if ( ! $request->offsetExists( $param ) ) {
-				continue;
-			}
-
-			$value = $request->get_param( $param );
-			$value = is_scalar( $value ) ? sanitize_text_field( (string) $value ) : null;
-
-			$tax_input[ $taxonomy ] = $value;
-
-			if ( null !== $value && ! array_key_exists( $param, $meta ) ) {
-				$meta[ $param ] = $value;
-			}
-		}
-
-		return array( $post_data, $meta, $tax_input );
-	}
-
-	/**
-	 * Update post meta values.
-	 *
-	 * @param int                  $post_id Post ID.
-	 * @param array<string, mixed> $meta    Meta values.
-	 */
-	private function update_meta( int $post_id, array $meta ): void {
-		foreach ( $meta as $key => $value ) {
-			if ( null === $value || '' === $value ) {
-				delete_post_meta( $post_id, $key );
-				continue;
-			}
-
-			update_post_meta( $post_id, $key, $value );
-		}
-	}
-
-	/**
-	 * Synchronise taxonomy terms based on request input.
-	 *
-	 * @param int                  $post_id    Post ID.
-	 * @param array<string, mixed> $taxonomies Taxonomy values keyed by taxonomy slug.
-	 */
-	private function sync_taxonomies( int $post_id, array $taxonomies ): void {
-		foreach ( $this->taxonomy_map as $param => $taxonomy ) {
-			if ( ! array_key_exists( $taxonomy, $taxonomies ) ) {
-				continue;
-			}
-
-			$value = $taxonomies[ $taxonomy ];
-
-			if ( null === $value || '' === $value ) {
-				wp_set_object_terms( $post_id, array(), $taxonomy, false );
-				continue;
-			}
-
-			wp_set_object_terms( $post_id, array( $value ), $taxonomy, false );
-		}
-	}
-
-	/**
-	 * Retrieve a job post by ID ensuring the post type matches.
-	 *
-	 * @param int $post_id Post ID.
-	 * @return WP_Post|null
-	 */
-	private function get_job_post( int $post_id ): ?WP_Post {
-		$post = get_post( $post_id );
-
-		if ( ! $post || $post->post_type !== $this->post_type ) {
-			return null;
-		}
-
-		return $post;
-	}
-
-	/**
-	 * Resolve requested status values for WP_Query.
-	 *
-	 * @param mixed $value User supplied status.
-	 * @return array
-	 */
-	private function resolve_statuses_for_query( $value ): array {
-		if ( ! is_string( $value ) || '' === $value ) {
-			return array_values( $this->status_map );
-		}
-
-		$normalized = $this->normalize_status_input( $value );
-
-		if ( null === $normalized ) {
-			return array_values( $this->status_map );
-		}
-
-		return array( $normalized );
-	}
-
-	/**
-	 * Normalise an exposed status value to a stored post status.
-	 *
-	 * @param mixed       $value   Provided status value.
-	 * @param string|null $default Default when no value provided.
-	 * @return string|null
-	 */
-	private function normalize_status_input( $value, ?string $default = null ): ?string {
-		if ( null === $value ) {
-			return $default;
-		}
-
-		if ( ! is_string( $value ) ) {
-			return $default;
-		}
-
-		$lower = strtolower( trim( $value ) );
-
-		return $this->status_map[ $lower ] ?? $default;
-	}
-
-	/**
-	 * Convert a stored post status to the exposed status value.
-	 *
-	 * @param string $status Stored post status.
-	 * @return string
-	 */
-	private function normalize_status_output( string $status ): string {
-		$lookup = array_flip( $this->status_map );
-
-		return $lookup[ $status ] ?? 'draft';
-	}
-
-	/**
-	 * Retrieve a taxonomy value as a string.
-	 *
-	 * @param int    $post_id  Post ID.
-	 * @param string $taxonomy Taxonomy slug.
-	 * @return string|null
-	 */
-	private function get_taxonomy_value( int $post_id, string $taxonomy ): ?string {
-		$terms = wp_get_post_terms(
-			$post_id,
-			$taxonomy,
 			array(
-				'fields' => 'names',
-			)
+				'id'             => 1,
+				'title'          => 'Senior WordPress Developer',
+				'description'    => 'Build cutting-edge WordPress products using modern JavaScript frameworks.',
+				'department'     => 'Engineering',
+				'location'       => 'San Francisco, CA',
+				'remote_policy'  => 'hybrid',
+				'job_type'       => 'full-time',
+				'seniority'      => 'senior',
+				'salary_min'     => 12000000, // $120,000
+				'salary_max'     => 16000000, // $160,000
+				'currency'       => 'USD',
+				'apply_deadline' => '2025-12-31T23:59:59Z',
+				'status'         => 'publish',
+				'created_at'     => '2025-01-15T10:00:00Z',
+				'updated_at'     => '2025-01-15T10:00:00Z',
+			),
+			array(
+				'id'             => 2,
+				'title'          => 'Junior Frontend Engineer',
+				'description'    => 'Join our team to build beautiful, accessible interfaces using React and Gutenberg.',
+				'department'     => 'Engineering',
+				'location'       => 'Remote',
+				'remote_policy'  => 'remote-first',
+				'job_type'       => 'full-time',
+				'seniority'      => 'junior',
+				'salary_min'     => 7000000, // $70,000
+				'salary_max'     => 9000000, // $90,000
+				'currency'       => 'USD',
+				'apply_deadline' => '2025-11-30T23:59:59Z',
+				'status'         => 'publish',
+				'created_at'     => '2025-01-10T14:30:00Z',
+				'updated_at'     => '2025-01-10T14:30:00Z',
+			),
+			array(
+				'id'             => 3,
+				'title'          => 'Lead Product Manager',
+				'description'    => 'Define product strategy and work with engineering to deliver value to customers.',
+				'department'     => 'Product',
+				'location'       => 'New York, NY',
+				'remote_policy'  => 'hybrid',
+				'job_type'       => 'full-time',
+				'seniority'      => 'lead',
+				'salary_min'     => 15000000, // $150,000
+				'salary_max'     => 20000000, // $200,000
+				'currency'       => 'USD',
+				'apply_deadline' => '2025-10-31T23:59:59Z',
+				'status'         => 'publish',
+				'created_at'     => '2025-01-05T09:15:00Z',
+				'updated_at'     => '2025-01-12T16:45:00Z',
+			),
+			array(
+				'id'             => 4,
+				'title'          => 'DevOps Engineer',
+				'description'    => 'Build and maintain our CI/CD pipeline and cloud infrastructure.',
+				'department'     => 'Engineering',
+				'location'       => 'Austin, TX',
+				'remote_policy'  => 'remote',
+				'job_type'       => 'full-time',
+				'seniority'      => 'mid',
+				'salary_min'     => 10000000, // $100,000
+				'salary_max'     => 14000000, // $140,000
+				'currency'       => 'USD',
+				'apply_deadline' => '2025-09-30T23:59:59Z',
+				'status'         => 'publish',
+				'created_at'     => '2025-01-08T11:20:00Z',
+				'updated_at'     => '2025-01-08T11:20:00Z',
+			),
+			array(
+				'id'             => 5,
+				'title'          => 'UX Designer',
+				'description'    => 'Design intuitive user experiences for our WordPress products.',
+				'department'     => 'Design',
+				'location'       => 'Seattle, WA',
+				'remote_policy'  => 'hybrid',
+				'job_type'       => 'full-time',
+				'seniority'      => 'mid',
+				'salary_min'     => 9000000, // $90,000
+				'salary_max'     => 12000000, // $120,000
+				'currency'       => 'USD',
+				'apply_deadline' => '2025-08-31T23:59:59Z',
+				'status'         => 'publish',
+				'created_at'     => '2025-01-12T13:45:00Z',
+				'updated_at'     => '2025-01-12T13:45:00Z',
+			),
 		);
-
-		if ( is_wp_error( $terms ) || empty( $terms ) ) {
-			return null;
-		}
-
-		return (string) $terms[0];
-	}
-
-	/**
-	 * Format MySQL datetime for responses.
-	 *
-	 * @param string $datetime Datetime string.
-	 * @return string|null
-	 */
-	private function format_datetime( string $datetime ): ?string {
-		if ( '' === $datetime ) {
-			return null;
-		}
-
-		return mysql2date( 'c', $datetime, false );
 	}
 }

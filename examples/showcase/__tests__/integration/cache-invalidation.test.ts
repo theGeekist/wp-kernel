@@ -9,7 +9,7 @@
 import { defineResource } from '@wpkernel/core/resource';
 import type { ResourceObject } from '@wpkernel/core/resource';
 import * as wpData from '@wordpress/data';
-import type { Job } from '../../.generated/types/job';
+import type { Job } from '../../kernel.config';
 
 type WordPressWindow = Window &
 	typeof globalThis & {

@@ -8,11 +8,11 @@ declare(strict_types=1);
  */
 
 return [
-    "WPKernel\Showcase\Rest\BaseController" =>
+    "WP\Kernel\Showcase\Rest\BaseController" =>
         __DIR__ . "/Rest/BaseController.php",
-    "WPKernel\Showcase\Policy\Policy" => __DIR__ . "/Policy/Policy.php",
-    "WPKernel\Showcase\Rest\JobController" =>
+    "WP\Kernel\Showcase\Policy\Policy" => __DIR__ . "/Policy/Policy.php",
+    "WP\Kernel\Showcase\Rest\JobController" =>
         __DIR__ . "/Rest/JobController.php",
-    "WPKernel\Showcase\Registration\PersistenceRegistry" =>
+    "WP\Kernel\Showcase\Registration\PersistenceRegistry" =>
         __DIR__ . "/Registration/PersistenceRegistry.php",
 ];

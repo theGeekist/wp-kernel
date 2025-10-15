@@ -152,7 +152,7 @@ function resolveEnvironmentEnabled(): boolean {
 		return true;
 	}
 
-	const env = process.env.NODE_ENV;
+	const env = process.env?.NODE_ENV;
 	if (!env) {
 		return true;
 	}

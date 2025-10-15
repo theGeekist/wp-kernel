@@ -92,6 +92,10 @@ export default defineConfig(async (_env): Promise<UserConfig> => {
 		resolve: {
 			alias: [
 				{
+					find: /^@\//,
+					replacement: `${resolve(__dirname, 'src')}/`,
+				},
+				{
 					find: /^@wpkernel\/core$/,
 					replacement: resolve(
 						__dirname,

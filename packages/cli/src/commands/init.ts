@@ -13,9 +13,8 @@ interface ScaffoldFile {
 
 type FileStatus = 'created' | 'updated';
 
-const INIT_TEMPLATE_ROOT = path.resolve(
-	path.dirname(fileURLToPath(getModuleUrl())),
-	'../../templates/init'
+const INIT_TEMPLATE_ROOT = fileURLToPath(
+	new URL('../../templates/init', getModuleUrl())
 );
 
 const PACKAGE_DEFAULT_VERSION = '0.1.0';
@@ -29,12 +28,23 @@ const SCRIPT_RECOMMENDATIONS: Record<string, string> = {
 	apply: 'wpk apply',
 };
 
+declare global {
+	var __WPK_CLI_MODULE_URL__: string | undefined;
+}
+
 function getModuleUrl(): string {
-	try {
-		return Function('return import.meta.url')() as string;
-	} catch (_error) {
+	const moduleUrl = globalThis.__WPK_CLI_MODULE_URL__;
+	if (typeof moduleUrl === 'string') {
+		return moduleUrl;
+	}
+
+	if (typeof __filename === 'string') {
 		return pathToFileURL(__filename).href;
 	}
+
+	throw new KernelError('DeveloperError', {
+		message: 'Unable to resolve CLI module URL for init command.',
+	});
 }
 
 const WPK_CONFIG_FILENAME = ['kernel', 'config.ts'].join('.');
@@ -42,6 +52,7 @@ const SRC_INDEX_PATH = path.join('src', 'index.ts');
 const ESLINT_CONFIG_FILENAME = 'eslint.config.js';
 const TSCONFIG_FILENAME = 'tsconfig.json';
 const PACKAGE_JSON_FILENAME = 'package.json';
+const COMPOSER_JSON_FILENAME = 'composer.json';
 
 /**
  * `wpk init` - initialize a WP Kernel project in the current directory.
@@ -80,6 +91,8 @@ export class InitCommand extends Command {
 		);
 		const packageName = namespace;
 		const force = this.force === true;
+		const phpNamespace = buildPhpNamespace(namespace);
+		const composerPackage = buildComposerPackageName(namespace);
 
 		const files: ScaffoldFile[] = [
 			{
@@ -88,6 +101,19 @@ export class InitCommand extends Command {
 				replacements: {
 					__WPK_NAMESPACE__: namespace,
 				},
+			},
+			{
+				relativePath: COMPOSER_JSON_FILENAME,
+				templatePath: COMPOSER_JSON_FILENAME,
+				replacements: {
+					__WPK_NAMESPACE__: namespace,
+					__WPK_COMPOSER_PACKAGE_NAME__: composerPackage,
+					__WPK_PHP_NAMESPACE__: phpNamespace,
+				},
+			},
+			{
+				relativePath: path.join('inc', '.gitkeep'),
+				templatePath: path.join('inc', '.gitkeep'),
 			},
 			{
 				relativePath: SRC_INDEX_PATH,
@@ -422,6 +448,21 @@ async function ensureParentDirectory(filePath: string): Promise<void> {
 
 function ensureTrailingNewline(contents: string): string {
 	return contents.endsWith('\n') ? contents : `${contents}\n`;
+}
+
+function buildPhpNamespace(namespace: string): string {
+	const segments = slugify(namespace)
+		.split('-')
+		.filter((segment) => segment.length > 0)
+		.map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1));
+
+	const base = segments.length > 0 ? segments.join('') : 'WpKernelProject';
+	return `${base}\\\\`;
+}
+
+function buildComposerPackageName(namespace: string): string {
+	const slug = slugify(namespace);
+	return `${slug}/${slug}`;
 }
 
 async function loadTemplate(relativePath: string): Promise<string> {

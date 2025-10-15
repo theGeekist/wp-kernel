@@ -1,0 +1,9 @@
+{
+	"name": "__WPK_COMPOSER_PACKAGE_NAME__",
+	"type": "project",
+	"autoload": {
+		"psr-4": {
+			"__WPK_PHP_NAMESPACE__": "inc/"
+		}
+	}
+}
