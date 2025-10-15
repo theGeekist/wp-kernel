@@ -308,7 +308,7 @@ class JobController extends BaseController
             $departmentTerms = array_filter(
                 array_map("intval", (array) $departmentTerms),
             );
-            if (empty(${variable})) {
+            if (empty($departmentTerms)) {
                 continue;
             }
             $tax_query[] = [
@@ -325,7 +325,7 @@ class JobController extends BaseController
             $locationTerms = array_filter(
                 array_map("intval", (array) $locationTerms),
             );
-            if (empty(${variable})) {
+            if (empty($locationTerms)) {
                 continue;
             }
             $tax_query[] = [

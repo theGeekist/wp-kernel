@@ -8,16 +8,16 @@
 		"jsx": "react-jsx",
 		"jsxImportSource": "react",
 		"paths": {
-			"@/*": ["./examples/showcase/src/*"],
-			"@wpkernel/core": ["./packages/core/src/index.ts"],
-			"@wpkernel/core/*": ["./packages/core/src/*"],
-			"@wpkernel/ui": ["./packages/ui/src/index.ts"],
-			"@wpkernel/ui/*": ["./packages/ui/src/*"],
-			"@wpkernel/cli": ["./packages/cli/src/index.ts"],
-			"@wpkernel/cli/*": ["./packages/cli/src/*"],
-			"@wpkernel/e2e-utils": ["./packages/e2e-utils/src/index.ts"],
-			"@wpkernel/e2e-utils/*": ["./packages/e2e-utils/src/*"],
-			"@test-utils/*": ["./tests/test-utils/*"]
+			"@/*": ["./src/*"],
+			"@wpkernel/core": ["../../packages/core/src/index.ts"],
+			"@wpkernel/core/*": ["../../packages/core/src/*"],
+			"@wpkernel/ui": ["../../packages/ui/src/index.ts"],
+			"@wpkernel/ui/*": ["../../packages/ui/src/*"],
+			"@wpkernel/cli": ["../../packages/cli/src/index.ts"],
+			"@wpkernel/cli/*": ["../../packages/cli/src/*"],
+			"@wpkernel/e2e-utils": ["../../packages/e2e-utils/src/index.ts"],
+			"@wpkernel/e2e-utils/*": ["../../packages/e2e-utils/src/*"],
+			"@test-utils/*": ["../../tests/test-utils/*"]
 		}
 	},
 	"include": [
