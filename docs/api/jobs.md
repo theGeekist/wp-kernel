@@ -1,6 +1,6 @@
 # Jobs API
 
-> **Status**: 🚧 Coming in Sprint 2
+> **Status**: 🚧 Coming in a future release
 
 Jobs handle background work with polling support.
 

@@ -168,7 +168,7 @@ Target coverage thresholds:
 }
 ```
 
-Currently set to 0% during Sprint 0. Will increase as implementation grows.
+Currently set to 0% while the framework stabilises. The target will increase as implementation grows.
 
 ## E2E Tests
 

@@ -2,7 +2,7 @@
 
 > **Status**: ✓ **Fully Implemented** - JavaScript event system complete. Events work via `@wordpress/hooks` (`addAction`, `doAction`).
 >
-> **PHP Bridge**: 🚧 Planned for Sprint 9 (not yet available).
+> **PHP Bridge**: 🚧 Planned for a future release (not yet available).
 
 Canonical event taxonomy for observability and extensibility. All events use WordPress hooks and auto-namespace based on your plugin context.
 
@@ -189,9 +189,9 @@ addAction('acme-blog.testimonial.created', 'my-plugin', (payload) => {
 - `wpk.job.completed` - Job completes successfully
 - `wpk.job.failed` - Job execution fails
 
-## Future: PHP Bridge (Sprint 9)
+## Future: PHP Bridge
 
-> **⚠️ NOT YET IMPLEMENTED**: PHP event bridge is planned for Sprint 9.
+> **⚠️ NOT YET IMPLEMENTED**: PHP event bridge is planned for a future release.
 
 The PHP bridge will mirror selected JavaScript events to WordPress `do_action()` hooks for legacy plugin integrations. When implemented:
 

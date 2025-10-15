@@ -44,7 +44,7 @@ Context objects are passed through LogLayer metadata. They remain structured whe
 
 ### Transports
 
-Sprint 4.5 ships two transports with unified formatting:
+The unified reporter ships with two transports:
 
 - **Console** – writes `[namespace] message` to the developer console (skipped in production builds).
 - **Hooks** – emits `doAction('{namespace}.reporter.{level}', { message, context, timestamp })`.
