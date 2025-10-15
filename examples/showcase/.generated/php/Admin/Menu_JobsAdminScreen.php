@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace WP\Kernel\Showcase\Admin;
+namespace WPKernel\Showcase\Admin;
 
 use function add_menu_page;
 

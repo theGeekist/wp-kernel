@@ -7,7 +7,7 @@ declare(strict_types=1);
  * Source: kernel.config.ts → resources (storage + identity metadata)
  */
 
-namespace WP\Kernel\Showcase\Registration;
+namespace WPKernel\Showcase\Registration;
 
 // WPK:BEGIN AUTO
 final class PersistenceRegistry

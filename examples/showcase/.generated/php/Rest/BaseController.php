@@ -7,7 +7,7 @@ declare(strict_types=1);
  * Source: kernel.config.ts → resources (namespace: wp-kernel-showcase)
  */
 
-namespace WP\Kernel\Showcase\Rest;
+namespace WPKernel\Showcase\Rest;
 
 // WPK:BEGIN AUTO
 abstract class BaseController

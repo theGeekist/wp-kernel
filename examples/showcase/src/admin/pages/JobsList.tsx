@@ -1,5 +1,15 @@
+import type { FormEvent } from 'react';
 import { useCallback, useMemo, useState } from '@wordpress/element';
-import { Flex, FlexItem, Notice } from '@wordpress/components';
+import {
+	Button,
+	Card,
+	CardBody,
+	CardHeader,
+	Flex,
+	FlexItem,
+	Notice,
+} from '@wordpress/components';
+import { DataForm } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
 import { KernelError } from '@wpkernel/core/error';
 import type { DefinedAction } from '@wpkernel/core/actions';
@@ -14,14 +24,32 @@ import type { ResourceObject } from '@wpkernel/core/resource';
 import { job } from '../../resources';
 import {
 	kernelConfig,
+	jobCreationFields,
+	jobCreationForm,
 	jobDataViewsConfig,
 	type Job,
 	type JobListParams,
 } from '../../kernel.config';
-import { JobCreatePanel } from '../../views/jobs/JobCreatePanel';
 import { CreateJob, type CreateJobInput } from '../../actions/jobs/CreateJob';
 
 type CreateFeedback = { type: 'success' | 'error'; message: string } | null;
+
+const DEFAULT_STATUS: CreateJobInput['status'] = 'draft';
+
+const createDefaultFormState = (): CreateJobInput => ({
+	title: '',
+	department: '',
+	location: '',
+	description: '',
+	status: DEFAULT_STATUS,
+});
+
+const normalizeStatus = (value: unknown): CreateJobInput['status'] => {
+	if (value === 'publish' || value === 'closed' || value === 'draft') {
+		return value;
+	}
+	return DEFAULT_STATUS;
+};
 
 function useDataViewsRuntimeContext(): DataViewsRuntimeContext {
 	const runtime = useKernelUI();
@@ -60,6 +88,9 @@ const createJobAction: DefinedAction<CreateJobInput, Job> = Object.assign(
 export function JobsList(): JSX.Element {
 	const runtimeContext = useDataViewsRuntimeContext();
 	const [feedback, setFeedback] = useState<CreateFeedback>(null);
+	const [formState, setFormState] = useState<CreateJobInput>(
+		createDefaultFormState()
+	);
 
 	const controllerFactory = useMemo(
 		() =>
@@ -77,13 +108,54 @@ export function JobsList(): JSX.Element {
 		kernelConfig.resources.job.ui?.admin?.dataviews
 	);
 
+	const handleFormChange = useCallback((updates: Record<string, unknown>) => {
+		setFeedback(null);
+		setFormState((previous) => {
+			const next: CreateJobInput = { ...previous };
+
+			if ('title' in updates) {
+				next.title =
+					typeof updates.title === 'string' ? updates.title : '';
+			}
+
+			if ('department' in updates) {
+				next.department =
+					typeof updates.department === 'string'
+						? updates.department
+						: '';
+			}
+
+			if ('location' in updates) {
+				next.location =
+					typeof updates.location === 'string'
+						? updates.location
+						: '';
+			}
+
+			if ('description' in updates) {
+				next.description =
+					typeof updates.description === 'string'
+						? updates.description
+						: '';
+			}
+
+			if ('status' in updates) {
+				next.status = normalizeStatus(updates.status);
+			}
+
+			return next;
+		});
+	}, []);
+
 	const handleSubmit = useCallback(
-		async (input: CreateJobInput) => {
+		async (event: FormEvent<HTMLFormElement>) => {
+			event.preventDefault();
 			setFeedback(null);
 
 			try {
-				await controller.submit(input);
+				await controller.submit(formState);
 				setFeedback({ type: 'success', message: SUCCESS_MESSAGE });
+				setFormState(createDefaultFormState());
 				controller.reset();
 			} catch (error) {
 				const message = KernelError.isKernelError(error)
@@ -92,7 +164,7 @@ export function JobsList(): JSX.Element {
 				setFeedback({ type: 'error', message });
 			}
 		},
-		[controller]
+		[controller, formState]
 	);
 
 	const isSubmitting = controller.state.status === 'running';
@@ -128,11 +200,57 @@ export function JobsList(): JSX.Element {
 
 			<Flex align="flex-start" wrap style={{ gap: '32px' }}>
 				<FlexItem style={{ flex: '0 0 320px', minWidth: '280px' }}>
-					<JobCreatePanel
-						onSubmit={handleSubmit}
-						isSubmitting={isSubmitting}
-						feedback={feedback}
-					/>
+					<Card data-testid="job-create-panel">
+						<CardHeader>
+							<h2>
+								{__('Add a job posting', 'wp-kernel-showcase')}
+							</h2>
+						</CardHeader>
+						<CardBody>
+							{feedback && (
+								<div data-testid="job-create-feedback">
+									<Notice
+										status={
+											feedback.type === 'success'
+												? 'success'
+												: 'error'
+										}
+										isDismissible={false}
+									>
+										{feedback.message}
+									</Notice>
+								</div>
+							)}
+							<form
+								onSubmit={handleSubmit}
+								data-testid="job-create-form"
+							>
+								<DataForm
+									data={formState as unknown as Job}
+									fields={jobCreationFields}
+									form={jobCreationForm}
+									onChange={handleFormChange}
+								/>
+								<Button
+									type="submit"
+									variant="primary"
+									isBusy={isSubmitting}
+									disabled={isSubmitting}
+									data-testid="job-submit-button"
+								>
+									{isSubmitting
+										? __(
+												'Creating job…',
+												'wp-kernel-showcase'
+											)
+										: __(
+												'Create job',
+												'wp-kernel-showcase'
+											)}
+								</Button>
+							</form>
+						</CardBody>
+					</Card>
 				</FlexItem>
 				<FlexItem style={{ flex: '1 1 520px', minWidth: '320px' }}>
 					<ResourceDataView<Job, JobListParams>

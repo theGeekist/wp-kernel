@@ -8,6 +8,7 @@ import type {
 	ResourceQueryParamDescriptor,
 	ResourceDataViewsUIConfig,
 } from '@wpkernel/core/resource';
+import type { Form } from '@wordpress/dataviews';
 import type { ResourceDataViewConfig } from '@wpkernel/ui/dataviews';
 import type { JobResource } from './.generated/types/job';
 
@@ -156,6 +157,12 @@ const jobStatusLabels: Record<'draft' | 'publish' | 'closed', string> = {
 	closed: 'Closed',
 };
 
+const jobStatusOptions = (
+	Object.entries(jobStatusLabels) as Array<
+		[keyof typeof jobStatusLabels, string]
+	>
+).map(([value, label]) => ({ value, label }));
+
 const toTrimmedString = (value: unknown): string | undefined => {
 	if (typeof value !== 'string') {
 		return undefined;
@@ -218,19 +225,30 @@ const jobDataViewFields: ResourceDataViewConfig<Job, JobListParams>['fields'] =
 		{
 			id: 'title',
 			label: 'Title',
+			type: 'text',
 			enableSorting: true,
+			enableGlobalSearch: true,
+			isValid: { required: true },
 		},
-		{ id: 'department', label: 'Department' },
-		{ id: 'location', label: 'Location' },
+		{
+			id: 'department',
+			label: 'Department',
+			type: 'text',
+			enableGlobalSearch: true,
+		},
+		{
+			id: 'location',
+			label: 'Location',
+			type: 'text',
+			enableGlobalSearch: true,
+		},
 		{
 			id: 'status',
 			label: 'Status',
-			elements: (
-				Object.entries(jobStatusLabels) as Array<
-					[keyof typeof jobStatusLabels, string]
-				>
-			).map(([value, label]) => ({ value, label })),
+			type: 'text',
+			elements: jobStatusOptions,
 			filterBy: { operators: ['isAny'] },
+			isValid: { required: true },
 			getValue: ({ item }) =>
 				jobStatusLabels[
 					(item.status as keyof typeof jobStatusLabels) ?? 'draft'
@@ -239,8 +257,15 @@ const jobDataViewFields: ResourceDataViewConfig<Job, JobListParams>['fields'] =
 				'',
 		},
 		{
+			id: 'description',
+			label: 'Description',
+			type: 'text',
+			Edit: { control: 'textarea', rows: 6 },
+		},
+		{
 			id: 'updated_at',
 			label: 'Updated',
+			type: 'datetime',
 			enableSorting: true,
 			getValue: ({ item }) => {
 				const timestamp = item.updated_at ?? item.created_at;
@@ -255,6 +280,30 @@ const jobDataViewFields: ResourceDataViewConfig<Job, JobListParams>['fields'] =
 			},
 		},
 	];
+
+const jobCreationFieldIds = [
+	'title',
+	'department',
+	'location',
+	'status',
+	'description',
+] as const;
+
+export const jobCreationFields = jobDataViewFields
+	.filter((field) =>
+		jobCreationFieldIds.includes(
+			field.id as (typeof jobCreationFieldIds)[number]
+		)
+	)
+	.map((field) => ({ ...field })) satisfies ResourceDataViewConfig<
+	Job,
+	JobListParams
+>['fields'];
+
+export const jobCreationForm: Form = {
+	layout: { type: 'panel', labelPosition: 'side' },
+	fields: [...jobCreationFieldIds],
+};
 
 export const jobDataViewsConfig: ResourceDataViewConfig<Job, JobListParams> &
 	ResourceDataViewsUIConfig<Job, JobListParams> = {
