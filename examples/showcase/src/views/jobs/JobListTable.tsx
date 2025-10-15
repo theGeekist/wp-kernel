@@ -6,7 +6,7 @@ import {
 	Spinner,
 } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import type { Job } from '../../../.generated/types/job';
+import type { Job } from '../../kernel.config';
 
 type JobListTableProps = {
 	jobs: Job[];

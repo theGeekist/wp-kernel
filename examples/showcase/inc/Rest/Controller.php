@@ -1,6 +1,9 @@
 <?php
 /**
- * Base REST Controller for WP Kernel Showcase
+ * AUTO-GENERATED FILE. DO NOT EDIT BY HAND.
+ *
+ * Source: src/kernel.config.ts (via kernelConfig.resources.*)
+ * Target: inc/Rest/Controller.php
  *
  * Provides common functionality for all REST controllers, including _fields parameter support.
  *
@@ -16,10 +19,7 @@ use WP_REST_Response;
 use WP_REST_Server;
 
 /**
- * Base REST controller scaffolding copied from the generated template.
- *
- * Originates from `src/kernel.config.ts` via the kernel generator. You may add
- * custom logic below while retaining PSR-4 compatibility.
+ * Base REST controller scaffolding.
  */
 abstract class Controller extends WP_REST_Controller {
 	/**
