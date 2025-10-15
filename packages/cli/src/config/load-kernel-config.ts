@@ -186,27 +186,29 @@ export function createTsLoader({
 } = {}) {
 	return async (filepath: string, content: string) => {
 		try {
-			return await defaultLoader(filepath, content);
-		} catch (_defaultError) {
-			try {
-				const tsImport = await tsImportLoader();
-				const absPath = path.resolve(filepath);
-				const moduleExports = await tsImport(absPath, {
-					parentURL: pathToFileURL(absPath).href,
-				});
-				return resolveConfigValue(moduleExports);
-			} catch (tsxError) {
-				const message = `Failed to execute ${filepath}: ${formatError(tsxError)}`;
-				reporter.error(message, { filepath, error: tsxError });
-				const underlying =
-					tsxError instanceof Error ? tsxError : undefined;
-				throw new KernelError('DeveloperError', {
-					message,
-					data: underlying
-						? { originalError: underlying }
-						: undefined,
-				});
+			const result = await defaultLoader(filepath, content);
+			if (typeof result !== 'undefined') {
+				return result;
 			}
+		} catch (_defaultError) {
+			// fall through to the tsImport loader
+		}
+
+		try {
+			const tsImport = await tsImportLoader();
+			const absPath = path.resolve(filepath);
+			const moduleExports = await tsImport(absPath, {
+				parentURL: pathToFileURL(absPath).href,
+			});
+			return resolveConfigValue(moduleExports);
+		} catch (tsxError) {
+			const message = `Failed to execute ${filepath}: ${formatError(tsxError)}`;
+			reporter.error(message, { filepath, error: tsxError });
+			const underlying = tsxError instanceof Error ? tsxError : undefined;
+			throw new KernelError('DeveloperError', {
+				message,
+				data: underlying ? { originalError: underlying } : undefined,
+			});
 		}
 	};
 }

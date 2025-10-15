@@ -18,4 +18,10 @@ describe('createPhpNamespace', () => {
 	it('formats single segment slugs', () => {
 		expect(createPhpNamespace('solo')).toBe('Solo');
 	});
+
+	it('collapses wp-kernel prefix into a single namespace segment', () => {
+		expect(createPhpNamespace('wp-kernel-showcase')).toBe(
+			'WPKernel\\Showcase'
+		);
+	});
 });

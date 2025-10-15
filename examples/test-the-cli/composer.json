@@ -1,0 +1,8 @@
+{
+	"name": "wpkernel/test-the-cli",
+	"autoload": {
+		"psr-4": {
+			"WpKernelCliSample\\": "inc/"
+		}
+	}
+}

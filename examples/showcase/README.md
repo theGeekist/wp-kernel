@@ -30,6 +30,7 @@ examples/showcase/
 ├── contracts/          # JSON Schema definitions
 │   └── job.schema.json # Job entity schema
 ├── src/                # Source code
+│   ├── bootstrap/      # Kernel bootstrap + CLI runtime wiring
 │   ├── resources/      # defineResource() definitions
 │   ├── actions/        # defineAction() orchestrators
 │   ├── views/          # Block bindings + Interactivity
@@ -40,33 +41,14 @@ examples/showcase/
 └── __tests__/         # Unit tests
 ```
 
-## JSON Schema & Type Generation
+## Kernel Config & Generated Artifacts
 
-The plugin uses JSON Schema to define entity contracts, which are then used to generate TypeScript types automatically.
+`kernel.config.ts` is the single source of truth for showcase resources. Running `pnpm generate` (an alias for `wpk generate`) reads that config, synthesises schemas, and writes artefacts into `.generated/`:
 
-### Schema Location
+- `types/` – TypeScript declarations inferred from the resource definition (`schema: 'auto'`).
+- `php/`, `rest-args/`, `validators/`, `helpers/` – Working copies that `pnpm apply` promotes into `inc/`.
 
-Domain-specific schemas live in `contracts/` (within the showcase plugin, not the framework):
-
-- `contracts/job.schema.json` - Job Posting entity
-
-### Type Generation
-
-TypeScript types are automatically generated from JSON Schema files using `json-schema-to-typescript`. Outputs live under `.generated/types/` so downstream tooling and generators can consume the same artifacts that power runtime imports.
-
-**Generate types manually:**
-
-```bash
-pnpm types:generate
-```
-
-**Types are auto-generated during build:**
-
-```bash
-pnpm build  # Runs types:generate first
-```
-
-Generated files are written to `.generated/types/job.d.ts`.
+The legacy JSON schema in `contracts/job.schema.json` remains for documentation and tests, but day-to-day development relies on the CLI’s auto-generated output.
 
 ### PHP Bridge Scaffolding
 
@@ -130,13 +112,20 @@ These are already declared in `package.json`. Without them, WordPress packages (
 - Externals: `window.wp.*` globals
 
 ```bash
-pnpm build  # Generates types + builds JS bundles
+pnpm build  # Runs wpk build (generate + Vite build + apply)
+```
+
+Run the generators without building assets:
+
+```bash
+pnpm generate  # Updates .generated/ artefacts
+pnpm apply     # Copies generated PHP/UI into inc/
 ```
 
 ### Watch Mode
 
 ```bash
-pnpm dev  # Watch for changes and rebuild
+pnpm start  # Runs wpk start (watch generate + Vite dev server)
 ```
 
 ### Testing
@@ -189,7 +178,7 @@ The Job entity schema (`contracts/job.schema.json`) defines:
 Once types are generated, import and use them in your code:
 
 ```typescript
-import type { Job } from '../.generated/types/job';
+import type { Job } from '../kernel.config';
 
 // Fully typed Job entity
 const job: Job = {
