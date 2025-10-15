@@ -7,7 +7,7 @@ declare(strict_types=1);
  * Source: kernel.config.ts → policy-map ([fallback])
  */
 
-namespace WP\Kernel\Showcase\Policy;
+namespace WPKernel\Showcase\Policy;
 
 use WP_Error;
 use WP_REST_Request;

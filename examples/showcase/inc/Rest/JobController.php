@@ -13,13 +13,13 @@ declare(strict_types=1);
  * Route: [PUT] /wp-kernel-showcase/v1/jobs/:id
  */
 
-namespace WP\Kernel\Showcase\Rest;
+namespace WPKernel\Showcase\Rest;
 
 use WP_Error;
 use WP_Post;
 use WP_Query;
 use WP_REST_Request;
-use WP\Kernel\Showcase\Policy\Policy;
+use WPKernel\Showcase\Policy\Policy;
 
 // WPK:BEGIN AUTO
 class JobController extends BaseController

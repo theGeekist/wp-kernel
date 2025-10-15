@@ -4,13 +4,27 @@ export function createPhpNamespace(namespace: string): string {
 		return 'WPKernel';
 	}
 
-	const converted = segments.map((segment) => {
-		if (segment.toLowerCase() === 'wp') {
-			return 'WP';
+	const converted: string[] = [];
+	for (let index = 0; index < segments.length; index += 1) {
+		const current = segments[index]!;
+		const next = segments[index + 1];
+
+		if (
+			current.toLowerCase() === 'wp' &&
+			next?.toLowerCase() === 'kernel'
+		) {
+			converted.push('WPKernel');
+			index += 1;
+			continue;
 		}
 
-		return segment.charAt(0).toUpperCase() + segment.slice(1);
-	});
+		if (current.toLowerCase() === 'wp') {
+			converted.push('WP');
+			continue;
+		}
+
+		converted.push(current.charAt(0).toUpperCase() + current.slice(1));
+	}
 
 	if (converted.length === 1) {
 		return converted[0]!;
