@@ -33,6 +33,36 @@
 			"import": "./dist/index.js",
 			"default": "./dist/index.js"
 		},
+		"./commands": {
+			"types": "./dist/commands/index.d.ts",
+			"import": "./dist/commands/index.js",
+			"default": "./dist/commands/index.js"
+		},
+		"./config": {
+			"types": "./dist/config/index.d.ts",
+			"import": "./dist/config/index.js",
+			"default": "./dist/config/index.js"
+		},
+		"./ir": {
+			"types": "./dist/ir/index.d.ts",
+			"import": "./dist/ir/index.js",
+			"default": "./dist/ir/index.js"
+		},
+		"./printers": {
+			"types": "./dist/printers/index.d.ts",
+			"import": "./dist/printers/index.js",
+			"default": "./dist/printers/index.js"
+		},
+		"./policy-map": {
+			"types": "./dist/policy-map.d.ts",
+			"import": "./dist/policy-map.js",
+			"default": "./dist/policy-map.js"
+		},
+		"./version": {
+			"types": "./dist/version.d.ts",
+			"import": "./dist/version.js",
+			"default": "./dist/version.js"
+		},
 		"./package.json": "./package.json"
 	},
 	"files": [

@@ -1,6 +1,185 @@
-# Printers - Scope, Inputs, Decisions, Outputs
+# WP Kernel CLI Command Matrix
 
-All printers take a **fully-validated IR** (Phase 1A/1B) and a `FS` helper (read/write, exists, glob) and return a list of emitted files with content (no side-effects). Command orchestration (`wpk build/dev/apply`) is out-of-scope here.
+This document summarizes the responsibilities and outputs of the core CLI commands (`init`, `generate`, `apply`) as implemented in the `@wpkernel/cli` package, and validates their alignment with the decision matrix for printers and build orchestration.
+
+---
+
+## Command Responsibilities Overview
+
+| Command    | Scope & Responsibility                                                           | Output Locations     | Runs Printers? |
+| ---------- | -------------------------------------------------------------------------------- | -------------------- | -------------- |
+| `init`     | Scaffolds project structure, config, entrypoint, linting presets.                | Project root, `src/` | No             |
+| `generate` | Runs all printers, emits source artifacts, surfaces all matrix warnings/errors.  | `.generated/**`      | Yes            |
+| `apply`    | Copies/moves generated artifacts to runtime locations, orchestrates build steps. | `inc/`, `build/`     | No             |
+
+---
+
+## Global Invariants (apply to all sections)
+
+- **Command boundaries are strict:** `init` scaffolds only; `generate` runs printers only; `apply` copies/orchestrates only. No cross‑over.
+- **Printer write scope:** printers may write **only** under `.generated/**` (unless explicitly whitelisted in Outputs); runtime paths (`inc/`, `build/`) are handled by `apply`.
+- **Formatting:** TS via Prettier; PHP via Prettier PHP. Generated PHP wraps mutable regions in `WPK:BEGIN/END AUTO`.
+- **Production‑mimic deps:** generated projects reference `@wpkernel/*` as `"latest"`; actual registry resolution is environmental (`.npmrc`, CI setup).
+- **Version source of truth:** supported versions for React/ReactDOM/Vite/TypeScript and key `@wordpress/*` are maintained in a **single central map** consumed by `init` and any templates.
+- **No samples here:** this document captures **contracts and decisions**. Any illustrative examples live in the showcase.
+
+## Authoritative Path Map (this repository)
+
+- **CLI entry & runtime:** `bin/wpk.js`, `src/cli/index.ts`, `src/cli/run.ts`
+- **CLI bundled versions manifest:** `dist/cli/versions.json` (build-time generated; consumed by `init` when running stand-alone).
+- **Commands (source of truth):** `src/commands/*.ts`
+    - Notable: `src/commands/init.ts`, `src/commands/generate.ts`, `src/commands/apply.ts`
+- **IR (builder + types + helpers):** `src/ir/**`
+    - Notable: `src/ir/build-ir.ts`, `src/ir/types.ts`, `src/ir/block-discovery.ts`
+- **Policy map resolver (author code entry):** `src/policy-map.ts`
+- **Printers (all):** `src/printers/**`
+    - Blocks: `src/printers/blocks/{js-only,ssr,derived-blocks}.ts`
+    - PHP: `src/printers/php/**`
+    - Types: `src/printers/types/printer.ts`
+    - UI: `src/printers/ui/printer.ts`
+- **Scaffold templates for `init`:** `templates/init/**`
+    - Provides initial `package.json`, `tsconfig.json`, `kernel.config.ts`, `eslint.config.js`, `src/index.ts`, and PHP `inc/` placeholders.
+- **Build output (compiled distribution):** `dist/**`
+- **Tests:** `src/**/__tests__/**`, plus integration tests under printer-specific `__tests__` folders.
+
+## 1. `init` Command
+
+- **Purpose:** Scaffolds a new WP Kernel project (config, entrypoint, linting, etc.).
+- **Outputs:** Project files in root and `src/`.
+- **Does NOT:** Run printers, emit `.generated/**` artifacts, or perform build/copy steps.
+
+## 2. `generate` Command
+
+- **Purpose:** Runs all printers (Types, PHP, Blocks, UI) using IR/config.
+- **Outputs:** Source artifacts under `.generated/**` only.
+- **Validation:** Surfaces all warnings/errors as described in the decision matrix (policy gaps, identity, function serialization, etc.).
+- **Does NOT:** Copy/move files to runtime locations, run build steps, or scaffold project structure.
+
+## 3. `apply` Command
+
+- **Purpose:** Moves/copies generated artifacts from `.generated/**` to runtime locations (`inc/`, `build/`).
+- **Outputs:** Runtime files for WordPress and build pipeline.
+- **Validation:** Ensures cleanliness, can backup/force, logs the operation, orchestrates build-time steps (e.g., block manifest).
+- **Does NOT:** Run printers or scaffold project structure.
+
+## 1a. `init` - Decisions & Implementation Contract (Global)
+
+**Scope (unchanged):** Bootstraps a minimal project; does **not** run printers. Designed to mimic production dependency shape.
+
+**CLI shape**
+
+- Positional name: `init <name>` (drop `--name`).
+- Validate/sanitise `<name>` to a valid npm package name.
+- Fail if target directory exists (unless `--force`).
+
+**Artifacts (must create)**
+
+- `package.json` seeded from `<name>`:
+    - `dependencies`: `@wpkernel/*` set to `"latest"` (prod-mimic; actual registry resolution is environmental).
+    - WordPress/React deps declared per **Dependency Policy** (below).
+    - Minimal scripts (`build`, `dev`, `typecheck`) aligned with the showcase.
+- `vite.config.*` with externals/globals for React and `@wordpress/*` (no bundling of WP globals).
+- `tsconfig.*` with sane defaults (ES modules, JSX, strict).
+- Minimal source skeleton (`src/` entrypoint).
+- _(Optional)_ `.npmrc` to pin a scoped registry only when an explicit flag is provided (environmental `.npmrc` takes precedence).
+
+**Dependency Policy**
+
+- **Required:** `@wpkernel/*` pinned to `"latest"`.
+- **Supported strategies for WP/React (either is valid):**
+    1. **Peers + DevDeps (DX-friendly default):** declare `react`, `react-dom`, and required `@wordpress/*` in `peerDependencies`, and also in `devDependencies` to satisfy local builds and types.
+    2. **Peers-only (stricter parity):** declare only in `peerDependencies`; relies on ambient types/shims for local builds.
+- Implementation MUST keep a **single source of truth** for supported versions (React/ReactDOM/Vite/TypeScript and key `@wordpress/*`) that the scaffold reads from.
+
+**Version Resolution for WP/React (deterministic)**
+
+- **Peers first:** All `@wordpress/*`, `react`, and `react-dom` MUST appear in `peerDependencies` (devDependencies may also include them for DX).
+- **Resolution order (what the CLI reads to pick versions):**
+    1. **Local framework context (preferred):** if `@wpkernel/core` is resolvable from CWD, read its `peerDependencies` for `@wordpress/*`, `react`, `react-dom` using `require.resolve('@wpkernel/core/package.json')`.
+    2. **Bundled manifest (stand-alone safe):** read `@wpkernel/cli`’s **build-time manifest** at **`dist/cli/versions.json`** (packaged in the published tarball). Generated during the CLI build from the repo’s `@wpkernel/core` on the same commit. Shape:
+        - `generatedAt` (ISO8601), `coreVersion` (semver), and `peers` (map of `@wordpress/*`, `react`, `react-dom`).
+        - If the manifest is **missing**, treat it as a scope-of-work: the build must generate it; until then, proceed to the next step.
+    3. **Registry introspection (opt-in):** if `WPK_PREFER_REGISTRY_VERSIONS=1` or `--prefer-registry-versions` is set, query `${REGISTRY_URL or https://registry.npmjs.org}/@wpkernel/core`, resolve the `dist-tags.latest`, and read that version’s `peerDependencies`. Network errors fall back to prior steps.
+    4. **Template defaults:** fall back to `templates/init/package.json` for any remaining unresolved keys.
+    5. **Fail safe:** if any required peer remains unresolved after the above, **abort** with `init.versions.missing` and guidance to set a versions file or install `@wpkernel/core`.
+- **Overrides:**
+    - `--wp-versions <path>` or `WPK_VERSIONS_FILE` → JSON file with `{ peers: { "@wordpress/element": "...", "react": "...", ... } }` to fully override.
+    - `REGISTRY_URL` → registry host used when step (3) is enabled (defaults to npm; CI may point to `https://registry.geekist.co/`).
+    - `WPK_PREFER_REGISTRY_VERSIONS=1` or `--prefer-registry-versions` → prefer live registry data over the bundled manifest when local `core` is absent.
+
+**Out-of-band test orchestration (context)**
+
+- A separate Cloud Task can provide a **prod‑mimic registry shim** so `"latest"` resolves to private builds during CI/dev:
+    - Redirect scope `@wpkernel` to a private registry.
+    - Publish current workspace packages under the `latest` dist‑tag.
+    - Keep generator code unchanged.
+
+**Acceptance checks**
+
+- `init` produces all artifacts above without invoking printers and without writing to runtime paths (`inc/`, `build/`).
+- In CI: `pnpm -C <name> install` and `pnpm -C <name> build` succeed when the environment maps `@wpkernel` to a registry that serves `latest`.
+- Build output must not inline React or `@wordpress/*` (externals respected).
+
+**Notes**
+
+- No samples embedded here; see showcase for patterns.
+- Installation is performed by CI/task orchestration; a future `--install` flag MAY trigger install, but default behaviour is scaffold‑only.
+
+---
+
+## Printer Scope & Enforcement
+
+- Printers are only invoked by the `generate` command.
+- `init` and `apply` never run printers.
+- `apply` only moves/copies and orchestrates build, never generates code.
+
+---
+
+## Validation Checklist
+
+- [x] Each command’s scope is enforced in code.
+- [x] All warnings/errors from the decision matrix are surfaced during `generate`.
+- [x] No command oversteps its responsibility.
+- [x] All commands are implemented in the `@wpkernel/cli` package.
+
+---
+
+## Implementation Status & Validation (Current)
+
+### IR Validation
+
+- **IR construction (`build-ir.ts`)** assembles all required fields: `meta`, `schemas`, `resources`, `policies`, `policyMap`, `blocks`, `php`; performs discovery for schemas/resources/blocks/policy hints; resolves the policy map with fallback + missing/unused warnings; and ensures shapes match this matrix.
+- **IR types (`types.ts`)** define `IRSchema`, `IRResource`, `IRBlock`, `IRPolicyMap`, etc., with all resource fields (`identity`, `storage`, `routes`, `queryParams`, `ui`, `warnings`) and block/policy structures (SSR vs JS-only) aligned; warnings/errors are represented for downstream printers.
+
+### Printer Validation
+
+- **Types printer** iterates `ir.schemas[]`, emits one `.d.ts` per schema, supports custom output path + index re-exports, includes a content-hash banner, and errors on duplicate output targets.
+- **Blocks printer (JS-only)** filters `ir.blocks[]` for `!hasRender`, emits the auto-register source, and skips when empty.
+- **PHP printer** composes policy helpers (fallback + map; resource/object scopes; `current_user_can` wiring), builds REST args (threads `identity` + `queryParams`), enforces method visibility, handles identity resolution, and surfaces policy/identity warnings as specified.
+- **UI printer** consumes `resource.ui.admin.dataviews` + `ir.meta.namespace`, emitting a screen wrapper, serialized fixtures, and a PHP menu shim.
+
+### Matrix Compliance (summary)
+
+- **Inputs:** All printers consume IR with the required fields.
+- **Decisions:** Filtering, output paths, fallbacks, and warning/error surfacing match this decision matrix.
+- **Outputs:** All printer outputs are scoped under `.generated/**` only.
+- **Scope:** Printers don’t overstep; command orchestration remains with `init`, `generate`, `apply`.
+
+> Conclusion: Current IR and printers conform to this matrix. This document remains the validation point for future changes.
+
+## References
+
+- CLI source (commands): `src/commands/`
+- CLI entry/runtime: `bin/wpk.js`, `src/cli/`
+- IR builder & types: `src/ir/`
+- Printers (by category): `src/printers/**`
+- CLI versions manifest (peer versions for scaffold): `dist/cli/versions.json`: generated during CLI build;
+- Scaffolded dependency defaults (current source of truth for `init`): `templates/init/package.json`, `templates/init/tsconfig.json`  
+  _(Future consolidation: hoist versions to a single module imported by `init`.)_
+
+This matrix ensures the CLI implementation matches the architectural and operational guarantees described in the decision matrix.
+
+# Printers - Scope, Inputs, Decisions, Outputs
 
 **Common guarantees from IR:**
 
@@ -69,6 +248,20 @@ Formatting: TS via Prettier; PHP via Prettier PHP. All PHP files include **WPK:B
     - If a route has a `policy` hint, wire `permission_callback` to `wpk_check_policy( 'key', [args] )`.
     - If missing on **writes** (create/update/remove), warn and default to `current_user_can( 'manage_options' )`.
 
+#### Policy map resolution
+
+- The policy map is discovered at `src/policy-map.{ts,js,mjs,cjs}` (first match wins).
+- The module may export either the map object directly or an object containing `{ policyMap: <map> }`.
+- Each policy map entry may be:
+    - a **string** capability (assumed `{ appliesTo: 'resource' }`);
+    - a **descriptor** `{ capability, appliesTo?: 'resource' | 'object', binding?: string }`;
+    - or a **function** (sync/async) that resolves to either of the above.
+- The field `appliesTo` must be `"resource"` or `"object"`; invalid values raise a `ValidationError`.
+- For `"object"` scope, if no binding is declared, the resolver tries to infer a request parameter name from referenced resources’ `identity.param`.
+    - If exactly one unique param is inferred, it is used.
+    - Otherwise, a warning `policy-map.binding.missing` is emitted (helper may default to `"id"`).
+- If no map file is found or referenced policies are absent, the system falls back to `"manage_options"` and emits warnings.
+
 - **REST arg arrays**:
     - Use schema’s `required` + `type` to build sanitize/validate arrays.
     - Thread `queryParams` (from IR) into the list route’s args.
@@ -88,79 +281,13 @@ Two sub-printers; both act from **IR** + file system helpers. No command wiring 
 
 ### 3.1 JS-only blocks (no `render.php`)
 
-**Inputs:** `ir.blocks[]` filtered where `hasRender === false`.
-
-**Decisions:**
-
-- Emit a single source entry that **auto-registers** discovered client-only blocks (helpful baseline; authors can still import individually).
-
-**Outputs:**
-
-- `.generated/blocks/auto-register.ts` containing:
-
-```ts
-/* AUTO-GENERATED by WPK */
-import { registerBlockType } from '@wordpress/blocks';
-
-// Each discovered block.json under blocks/** (source) gets an import
-// e.g. import * as JobBlock from '../../blocks/job/block.json';
-${ir.blocks.filter(b => !b.hasRender).map(b =>
-  `import * as ${camel(b.key)} from ${relImportToSource(b.directory)}/block.json;`
-).join('\n')}
-
-const blocks = [${ir.blocks.filter(b => !b.hasRender).map(b => camel(b.key)).join(', ')}];
-blocks.forEach( (meta) => registerBlockType(meta as any) );
-```
-
-**Notes:**
-
-- This file is a **source artifact** (to be bundled by Vite).
-- If no JS-only blocks exist, skip emitting.
+- **Outputs:** `.generated/blocks/auto-register.ts`.
+- **Contract:** Must import each discovered `blocks/**/block.json` (JS-only) and call `registerBlockType` for each. No output if the filtered set is empty. No side effects beyond registration. Formatting via project Prettier.
 
 ### 3.2 SSR blocks (have `render.php`)
 
-**Inputs:** `ir.blocks[]` filtered where `hasRender === true`.
-
-**Decisions:**
-
-- The **manifest** must reflect the **built** layout (`build/blocks/**/block.json`). Since we’re only scoping printers, split responsibilities:
-    - **Source-time printer** (now): emit the **registrar stub** that expects a manifest at runtime.
-    - **Build-time emitter** (later in command orchestration): scan `build/blocks/**/block.json` and write `build/blocks-manifest.php`.
-
-**Outputs (source-time):**
-
-- `.generated/php/Blocks/Register.php`:
-
-```php
-<?php
-/**
- * AUTO-GENERATED by WPK.
- * Registers SSR blocks using a build manifest.
- */
-namespace ${PhpNs}\Blocks;
-
-defined( 'ABSPATH' ) || exit;
-
-// WPK:BEGIN AUTO
-function register_ssr_blocks() {
-    $manifest_path = plugin_dir_path( __FILE__ ) . '../../build/blocks-manifest.php';
-    if ( file_exists( $manifest_path ) ) {
-        $blocks = require $manifest_path;
-        foreach ( $blocks as $dir => $metadata ) {
-            register_block_type( plugin_dir_path( __FILE__ ) . "../../build/$dir", $metadata );
-        }
-    }
-}
-add_action( 'init', __NAMESPACE__ . '\\register_ssr_blocks' );
-// WPK:END AUTO
-```
-
-- **(No manifest file here.)** The manifest is a **build artifact** to be created by the build pipeline later.
-
-**Validation/notes:**
-
-- If no SSR blocks are discovered, skip emitting the registrar.
-- If both SSR and JS-only exist, both printers run (registrar + auto-register.ts).
+- **Outputs:** `.generated/php/Blocks/Register.php`.
+- **Contract:** Registrar loads a **build-time manifest** from `build/blocks-manifest.php`, iterates entries, and calls `register_block_type()` for each SSR block directory and metadata. The manifest itself is not emitted by printers. Namespacing must follow `ir.meta.namespace`. Hook on `init`. Generated regions should be wrapped in `WPK:BEGIN/END AUTO`.
 
 ---
 
@@ -188,65 +315,14 @@ add_action( 'init', __NAMESPACE__ . '\\register_ssr_blocks' );
 
 This is optional **block scaffolding** from a resource. If the IR includes a `resource.blocks?.scaffold` flag (future), the Blocks printer can emit a **minimal block** coupled to that resource:
 
-**Inferences:**
+**Outputs (if scaffold enabled):**
 
-- `apiVersion`: **3**
-- `name`: `${namespace}/${resource.name}`
-- `title`: PascalCase of resource name (or `resource.ui.title` if present)
-- `category`: `widgets` (default) or `resource.ui.category`
-- `textdomain`: `${namespace}`
-- Modules:
-    - `editorScriptModule`: `'file:./index.tsx'` (always; edit UI)
-    - `viewScriptModule`: present **only** if the resource has **GET/list** routes **and** no `render.php` (i.e., dynamic client view logic); else omit.
+- `blocks/<resource>/block.json` - minimal manifest per inferences above.
+- `blocks/<resource>/index.tsx` - editor entry; minimal edit UI; no external side effects.
+- `blocks/<resource>/view.ts` - only when `viewScriptModule` chosen; front-end bootstrap stub.
+- `blocks/<resource>/render.php` - only when SSR chosen; returns a callable render function placeholder.
 
-- SSR:
-    - If the scaffold asks for SSR, include `"render": "file:./render.php"`; else omit.
-
-- Supports: default to a sane starter `{ "html": false }`.
-
-**Minimal block stubs to emit (source):**
-
-- `blocks/<resource>/block.json` (as above)
-- `blocks/<resource>/index.tsx`:
-
-```ts
-import { registerBlockType } from '@wordpress/blocks';
-import { useSelect } from '@wordpress/data';
-import metadata from './block.json';
-
-registerBlockType(metadata.name, {
-  edit() {
-    // Minimal editor chrome
-    return <div>{metadata.title}</div>;
-  }
-});
-```
-
-- If `viewScriptModule` chosen: `blocks/<resource>/view.ts`:
-
-```ts
-// Runs on the front-end when the block is rendered.
-// For dynamic client behaviour (e.g., hydrate from REST).
-export default function () {
-	// TODO: fetch/hydrate via resource routes if needed
-}
-```
-
-- If SSR: `blocks/<resource>/render.php` (empty template with docblock):
-
-```php
-<?php
-/**
- * Server render callback for the block.
- * Use resource REST routes or WP primitives as needed.
- */
-return function( array $attributes, string $content, array $context ) {
-    // TODO: output markup
-    return $content ?: '';
-};
-```
-
-**Note:** this “scaffold from resource” is optional and can be added later. The core Block printers (3.1, 3.2) work purely from discovered block folders.
+**Contract:** Scaffolded files must be minimal, compile without additional project code, and defer all business logic to authors. No code examples embedded in this document; see showcase for reference.
 
 ---
 
@@ -257,6 +333,16 @@ return function( array $attributes, string $content, array $context ) {
 - **Policy gaps**: write routes without `policy` → warn; permission_callback defaults to `manage_options`.
 - **Function serialization** (UI printer): detect captured variables and warn that stringified functions must be pure.
 - **Block registrar without build**: N/A at printer time (registrar only expects a path); orchestration will check at apply/build.
+
+- **Policy map warnings (from resolver):**
+    - `policy-map.missing` – No `src/policy-map.*` found; using fallback capability for referenced policies.
+    - `policy-map.entries.missing` – Policies referenced by routes are not defined in the policy map.
+    - `policy-map.entries.unused` – Policies defined in the map are not referenced by any route.
+    - `policy-map.binding.missing` – Policy targets an object but a request parameter couldn’t be inferred (helper may default to `id`).
+- **Policy map errors (fail build):**
+    - Invalid `appliesTo` scope (must be `"resource"` or `"object"`).
+    - Policy map module failed to load or didn’t export a policy map object.
+    - Policy map entry function threw during evaluation.
 
 ---
 
