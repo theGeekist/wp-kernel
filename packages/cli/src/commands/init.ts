@@ -79,6 +79,8 @@ export class InitCommand extends Command {
 		const force = this.force === true;
 		const phpNamespace = buildPhpNamespace(namespace);
 		const composerPackage = buildComposerPackageName(namespace);
+		const tsconfigReplacements =
+			await createTsconfigReplacements(workspace);
 
 		const files: ScaffoldFile[] = [
 			{
@@ -108,6 +110,7 @@ export class InitCommand extends Command {
 			{
 				relativePath: TSCONFIG_FILENAME,
 				templatePath: 'tsconfig.json',
+				replacements: tsconfigReplacements,
 			},
 			{
 				relativePath: ESLINT_CONFIG_FILENAME,
@@ -566,6 +569,138 @@ function applyReplacements(
 		result = result.replaceAll(token, value);
 	}
 	return result;
+}
+
+async function createTsconfigReplacements(
+	workspace: string
+): Promise<Record<string, string>> {
+	const entries: Array<[string, string[]]> = [['@/*', ['./src/*']]];
+
+	const repoRoot = await findRepoRoot(workspace);
+
+	if (repoRoot) {
+		const repoEntries: Array<{
+			alias: string;
+			check: string[];
+			target: string[];
+		}> = [
+			{
+				alias: '@wpkernel/core',
+				check: ['packages', 'core', 'src', 'index.ts'],
+				target: ['packages', 'core', 'src', 'index.ts'],
+			},
+			{
+				alias: '@wpkernel/core/*',
+				check: ['packages', 'core', 'src'],
+				target: ['packages', 'core', 'src', '*'],
+			},
+			{
+				alias: '@wpkernel/ui',
+				check: ['packages', 'ui', 'src', 'index.ts'],
+				target: ['packages', 'ui', 'src', 'index.ts'],
+			},
+			{
+				alias: '@wpkernel/ui/*',
+				check: ['packages', 'ui', 'src'],
+				target: ['packages', 'ui', 'src', '*'],
+			},
+			{
+				alias: '@wpkernel/cli',
+				check: ['packages', 'cli', 'src', 'index.ts'],
+				target: ['packages', 'cli', 'src', 'index.ts'],
+			},
+			{
+				alias: '@wpkernel/cli/*',
+				check: ['packages', 'cli', 'src'],
+				target: ['packages', 'cli', 'src', '*'],
+			},
+			{
+				alias: '@wpkernel/e2e-utils',
+				check: ['packages', 'e2e-utils', 'src', 'index.ts'],
+				target: ['packages', 'e2e-utils', 'src', 'index.ts'],
+			},
+			{
+				alias: '@wpkernel/e2e-utils/*',
+				check: ['packages', 'e2e-utils', 'src'],
+				target: ['packages', 'e2e-utils', 'src', '*'],
+			},
+			{
+				alias: '@test-utils/*',
+				check: ['tests', 'test-utils'],
+				target: ['tests', 'test-utils', '*'],
+			},
+		];
+
+		for (const entry of repoEntries) {
+			const checkPath = path.join(repoRoot, ...entry.check);
+			if (!(await pathExists(checkPath))) {
+				continue;
+			}
+
+			const targetPath = path.join(repoRoot, ...entry.target);
+			const relative = path.relative(workspace, targetPath);
+			entries.push([entry.alias, [normaliseRelativePath(relative)]]);
+		}
+	}
+
+	return {
+		'"__WPK_TSCONFIG_PATHS__"': formatPathsForTemplate(entries),
+	};
+}
+
+async function findRepoRoot(start: string): Promise<string | null> {
+	let current = start;
+
+	while (true) {
+		if (await pathExists(path.join(current, 'pnpm-workspace.yaml'))) {
+			return current;
+		}
+
+		const parent = path.dirname(current);
+		if (parent === current) {
+			return null;
+		}
+
+		current = parent;
+	}
+}
+
+function formatPathsForTemplate(entries: Array<[string, string[]]>): string {
+	if (entries.length === 0) {
+		return '{\n                }';
+	}
+
+	const indent = '                ';
+	const innerIndent = `${indent}        `;
+	const ordered = [...entries].sort((a, b) => {
+		if (a[0] === '@/*') {
+			return -1;
+		}
+		if (b[0] === '@/*') {
+			return 1;
+		}
+		return a[0].localeCompare(b[0]);
+	});
+	const lines: string[] = ['{'];
+
+	ordered.forEach(([alias, targets], index) => {
+		const serialisedTargets = JSON.stringify(targets);
+		const suffix = index < ordered.length - 1 ? ',' : '';
+		lines.push(`${innerIndent}"${alias}": ${serialisedTargets}${suffix}`);
+	});
+
+	lines.push(`${indent}}`);
+	return lines.join('\n');
+}
+
+function normaliseRelativePath(value: string): string {
+	const posixValue = value.split(path.sep).join('/');
+
+	if (posixValue.startsWith('.') || posixValue.startsWith('/')) {
+		return posixValue;
+	}
+
+	return `./${posixValue}`;
 }
 
 function isRecordOfStrings(value: unknown): value is Record<string, string> {

@@ -55,7 +55,17 @@ describe('InitCommand', () => {
 			expect(tsconfig.compilerOptions).toMatchObject({
 				moduleResolution: 'Bundler',
 				strict: true,
+				jsxImportSource: 'react',
 			});
+			expect(tsconfig.compilerOptions.paths).toEqual({
+				'@/*': ['./src/*'],
+			});
+			expect(tsconfig.include).toEqual([
+				'src/**/*',
+				'.generated/types/**/*.d.ts',
+				'kernel.config.ts',
+			]);
+			expect(tsconfig.exclude).toEqual(['node_modules', 'dist']);
 
 			const packageJson = JSON.parse(
 				await fs.readFile(path.join(workspace, 'package.json'), 'utf8')
@@ -111,6 +121,66 @@ describe('InitCommand', () => {
 			);
 			expect(viteConfig).toContain('defineConfig');
 			expect(viteConfig).toContain("'react/jsx-runtime'");
+		});
+	});
+
+	it('maps workspace source paths when run inside a pnpm monorepo', async () => {
+		await withWorkspace(async (root) => {
+			const repoRoot = path.join(root, 'monorepo');
+			const workspace = path.join(repoRoot, 'examples', 'showcase');
+
+			await fs.mkdir(workspace, { recursive: true });
+			await fs.writeFile(
+				path.join(repoRoot, 'pnpm-workspace.yaml'),
+				'packages:\n  - packages/*\n',
+				'utf8'
+			);
+
+			const packageNames = ['core', 'ui', 'cli', 'e2e-utils'];
+			for (const packageName of packageNames) {
+				const sourceDir = path.join(
+					repoRoot,
+					'packages',
+					packageName,
+					'src'
+				);
+				await fs.mkdir(sourceDir, { recursive: true });
+				await fs.writeFile(
+					path.join(sourceDir, 'index.ts'),
+					'export {};\n',
+					'utf8'
+				);
+			}
+
+			await fs.mkdir(path.join(repoRoot, 'tests', 'test-utils'), {
+				recursive: true,
+			});
+
+			const command = await createCommand(workspace);
+			command.name = 'showcase-demo';
+
+			const exit = await command.execute();
+
+			expect(exit).toBe(WPK_EXIT_CODES.SUCCESS);
+
+			const tsconfig = JSON.parse(
+				await fs.readFile(path.join(workspace, 'tsconfig.json'), 'utf8')
+			);
+
+			expect(tsconfig.compilerOptions.paths).toEqual({
+				'@/*': ['./src/*'],
+				'@test-utils/*': ['../../tests/test-utils/*'],
+				'@wpkernel/cli': ['../../packages/cli/src/index.ts'],
+				'@wpkernel/cli/*': ['../../packages/cli/src/*'],
+				'@wpkernel/core': ['../../packages/core/src/index.ts'],
+				'@wpkernel/core/*': ['../../packages/core/src/*'],
+				'@wpkernel/e2e-utils': [
+					'../../packages/e2e-utils/src/index.ts',
+				],
+				'@wpkernel/e2e-utils/*': ['../../packages/e2e-utils/src/*'],
+				'@wpkernel/ui': ['../../packages/ui/src/index.ts'],
+				'@wpkernel/ui/*': ['../../packages/ui/src/*'],
+			});
 		});
 	});
 
