@@ -28,6 +28,7 @@ describe('InitCommand', () => {
 			expect(stdout).toContain('created kernel.config.ts');
 			expect(stdout).toContain('created src/index.ts');
 			expect(stdout).toContain('created tsconfig.json');
+			expect(stdout).toContain('created jsconfig.json');
 			expect(stdout).toContain('created eslint.config.js');
 			expect(stdout).toContain('created vite.config.ts');
 			expect(stdout).toContain('created package.json');
@@ -66,6 +67,22 @@ describe('InitCommand', () => {
 				'kernel.config.ts',
 			]);
 			expect(tsconfig.exclude).toEqual(['node_modules', 'dist']);
+
+			const jsconfig = JSON.parse(
+				await fs.readFile(path.join(workspace, 'jsconfig.json'), 'utf8')
+			);
+			expect(jsconfig.compilerOptions).toMatchObject({
+				baseUrl: '.',
+				moduleResolution: 'Bundler',
+			});
+			expect(jsconfig.compilerOptions.paths).toEqual({
+				'@/*': ['./src/*'],
+			});
+			expect(jsconfig.include).toEqual([
+				'src/**/*',
+				'.generated/types/**/*.d.ts',
+				'kernel.config.ts',
+			]);
 
 			const packageJson = JSON.parse(
 				await fs.readFile(path.join(workspace, 'package.json'), 'utf8')
@@ -181,6 +198,13 @@ describe('InitCommand', () => {
 				'@wpkernel/ui': ['../../packages/ui/src/index.ts'],
 				'@wpkernel/ui/*': ['../../packages/ui/src/*'],
 			});
+
+			const jsconfig = JSON.parse(
+				await fs.readFile(path.join(workspace, 'jsconfig.json'), 'utf8')
+			);
+			expect(jsconfig.compilerOptions.paths).toEqual(
+				tsconfig.compilerOptions.paths
+			);
 		});
 	});
 

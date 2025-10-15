@@ -1,12 +1,16 @@
 import type { Reporter } from '@wpkernel/core/reporter';
 import { runGenerate } from '../run-generate';
 import { EXIT_CODES } from '../run-generate/types';
+import { validateGeneratedImports } from '../run-generate/validation';
 
 import { loadKernelConfig } from '../../config';
 import { buildIr } from '../../ir';
 import { emitGeneratedArtifacts } from '../../printers';
 import { runAdapterExtensions } from '../../adapters';
-import type { WPKConfigSource } from '@wpkernel/core/contracts';
+import {
+	KernelError as CoreKernelError,
+	type WPKConfigSource,
+} from '@wpkernel/core/contracts';
 
 jest.mock('../../config');
 jest.mock('../../ir');
@@ -41,6 +45,10 @@ jest.mock('prettier', () => ({
 }));
 
 jest.mock('@prettier/plugin-php', () => ({}));
+
+jest.mock('../run-generate/validation', () => ({
+	validateGeneratedImports: jest.fn(async () => undefined),
+}));
 
 jest.mock('@wpkernel/core', () => {
 	class KernelError extends Error {
@@ -85,6 +93,10 @@ const emitGeneratedArtifactsMock =
 const runAdapterExtensionsMock = runAdapterExtensions as jest.MockedFunction<
 	typeof runAdapterExtensions
 >;
+const validateGeneratedImportsMock =
+	validateGeneratedImports as jest.MockedFunction<
+		typeof validateGeneratedImports
+	>;
 
 function createReporterMock(): Reporter {
 	const reporter = {
@@ -142,6 +154,7 @@ describe('runGenerate', () => {
 		buildIrMock.mockResolvedValue(DEFAULT_IR as never);
 		emitGeneratedArtifactsMock.mockResolvedValue(undefined);
 		runAdapterExtensionsMock.mockResolvedValue(undefined as never);
+		validateGeneratedImportsMock.mockResolvedValue(undefined);
 	});
 
 	it('returns exit code 3 when adapter extensions fail', async () => {
@@ -231,4 +244,15 @@ describe('runGenerate', () => {
 			)
 		).toBe(true);
 	});
+});
+it('returns exit code 1 when validation fails', async () => {
+	validateGeneratedImportsMock.mockRejectedValueOnce(
+		new CoreKernelError('ValidationError', { message: 'invalid imports' })
+	);
+
+	const reporter = createReporterMock();
+	const result = await runGenerate({ reporter });
+
+	expect(result.exitCode).toBe(EXIT_CODES.VALIDATION_ERROR);
+	expect(validateGeneratedImportsMock).toHaveBeenCalled();
 });
