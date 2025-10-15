@@ -66,6 +66,11 @@
 			"import": "./dist/hooks/useNextPagePrefetch.js",
 			"default": "./dist/hooks/useNextPagePrefetch.js"
 		},
+		"./dataviews": {
+			"types": "./dist/dataviews/index.d.ts",
+			"import": "./dist/dataviews/index.js",
+			"default": "./dist/dataviews/index.js"
+		},
 		"./package.json": "./package.json"
 	},
 	"files": [
