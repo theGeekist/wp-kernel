@@ -421,7 +421,8 @@ async function linkKernelPackages(workspace: string): Promise<void> {
 		await fs.mkdir(path.dirname(target), { recursive: true });
 
 		try {
-			await fs.symlink(source, target, 'dir');
+			const linkType = process.platform === 'win32' ? 'junction' : 'dir';
+			await fs.symlink(source, target, linkType);
 		} catch (error) {
 			if (error && typeof error === 'object' && 'code' in error) {
 				const code = (error as { code?: string }).code;
