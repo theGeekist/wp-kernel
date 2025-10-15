@@ -53,6 +53,7 @@ This document summarizes the responsibilities and outputs of the core CLI comman
 - **Purpose:** Runs all printers (Types, PHP, Blocks, UI) using IR/config.
 - **Outputs:** Source artifacts under `.generated/**` only.
 - **Validation:** Surfaces all warnings/errors as described in the decision matrix (policy gaps, identity, function serialization, etc.).
+- After printers complete, the CLI validates that the generated imports resolve against the current workspace and installed packages; failures surface as `ValidationError` with the formatted TypeScript diagnostics.
 - **Does NOT:** Copy/move files to runtime locations, run build steps, or scaffold project structure.
 
 ## 3. `apply` Command
