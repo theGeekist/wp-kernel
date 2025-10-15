@@ -227,7 +227,7 @@ export default withMermaid(
 								text: '@wpkernel/ui',
 								link: '/api/@wpkernel/ui/',
 							},
-							{ text: '@wpkernel/core', link: '/api/core/' },
+							{ text: '@wpkernel/core', link: '/api/core/src/' },
 						],
 					},
 				],
