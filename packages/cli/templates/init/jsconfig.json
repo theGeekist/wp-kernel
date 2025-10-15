@@ -1,0 +1,11 @@
+{
+	"$schema": "https://json.schemastore.org/jsconfig",
+	"compilerOptions": {
+		"baseUrl": ".",
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"paths": "__WPK_JSCONFIG_PATHS__"
+	},
+	"include": ["src/**/*", ".generated/types/**/*.d.ts", "kernel.config.ts"],
+	"exclude": ["node_modules", "dist"]
+}

@@ -7,6 +7,7 @@ import {
 import { runPrinters } from './printer-runner';
 import { commitExtensions } from './extensions';
 import { renderSummary } from './summary';
+import { validateGeneratedImports } from './validation';
 import {
 	EXIT_CODES,
 	type RunGenerateOptions,
@@ -14,6 +15,7 @@ import {
 	type GenerationSummary,
 } from './types';
 import type { Reporter } from '@wpkernel/core/reporter';
+import { handleFailure } from './errors';
 
 export async function runGenerate(
 	options: RunGenerateOptions = {}
@@ -62,6 +64,21 @@ export async function runGenerate(
 	});
 
 	reporter.debug('Generated files.', { files: summary.entries });
+
+	try {
+		await validateGeneratedImports({
+			projectRoot: process.cwd(),
+			summary: generationSummary,
+			reporter,
+		});
+	} catch (error) {
+		const exitCode = handleFailure(
+			error,
+			reporter,
+			EXIT_CODES.UNEXPECTED_ERROR
+		);
+		return { exitCode, error };
+	}
 
 	return {
 		exitCode: EXIT_CODES.SUCCESS,
