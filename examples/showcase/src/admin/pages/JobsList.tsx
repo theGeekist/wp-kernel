@@ -9,12 +9,15 @@ import {
 	createDataFormController,
 	ensureControllerRuntime,
 	type DataViewsRuntimeContext,
-	type ResourceDataViewConfig,
 } from '@wpkernel/ui/dataviews';
 import type { ResourceObject } from '@wpkernel/core/resource';
 import { job } from '../../resources';
-import type { Job } from '../../../.generated/types/job';
-import { kernelConfig, type JobListParams } from '../../kernel.config';
+import {
+	kernelConfig,
+	jobDataViewsConfig,
+	type Job,
+	type JobListParams,
+} from '../../kernel.config';
 import { JobCreatePanel } from '../../views/jobs/JobCreatePanel';
 import { CreateJob, type CreateJobInput } from '../../actions/jobs/CreateJob';
 
@@ -70,10 +73,9 @@ export function JobsList(): JSX.Element {
 	);
 
 	const controller = controllerFactory();
-	const dataViewConfig = kernelConfig.resources.job.ui?.admin
-		?.dataviews as unknown as
-		| ResourceDataViewConfig<Job, JobListParams>
-		| undefined;
+	const hasConfiguredDataViews = Boolean(
+		kernelConfig.resources.job.ui?.admin?.dataviews
+	);
 
 	const handleSubmit = useCallback(
 		async (input: CreateJobInput) => {
@@ -107,7 +109,7 @@ export function JobsList(): JSX.Element {
 		[]
 	);
 
-	if (!dataViewConfig) {
+	if (!hasConfiguredDataViews) {
 		return (
 			<div className="jobs-admin" data-testid="jobs-admin-root">
 				<Notice status="warning" isDismissible={false}>
@@ -135,7 +137,7 @@ export function JobsList(): JSX.Element {
 				<FlexItem style={{ flex: '1 1 520px', minWidth: '320px' }}>
 					<ResourceDataView<Job, JobListParams>
 						resource={job}
-						config={dataViewConfig}
+						config={jobDataViewsConfig}
 						emptyState={emptyState}
 					/>
 				</FlexItem>

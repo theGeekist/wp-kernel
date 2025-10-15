@@ -559,6 +559,9 @@ describe('emitGeneratedArtifacts', () => {
 
 			const context = createPrinterContext(tempDir, { ir });
 
+			ir.meta.sanitizedNamespace = 'demo-namespace';
+			ir.php.namespace = 'Demo\\Namespace';
+
 			await emitGeneratedArtifacts(context);
 
 			const uiRoot = path.join(context.outputDir, 'ui');

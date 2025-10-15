@@ -125,7 +125,8 @@ async function emitMenuRegistration(
 		return;
 	}
 
-	const namespace = context.ir.meta.sanitizedNamespace;
+	const namespace =
+		context.ir.php?.namespace ?? context.ir.meta.sanitizedNamespace;
 	const componentName =
 		dataviews.screen?.component ??
 		`${toPascalCase(resourceName)}AdminScreen`;

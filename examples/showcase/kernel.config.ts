@@ -9,7 +9,7 @@ import type {
 	ResourceDataViewsUIConfig,
 } from '@wpkernel/core/resource';
 import type { ResourceDataViewConfig } from '@wpkernel/ui/dataviews';
-import type { Job } from './.generated/types/job';
+import type { JobResource } from './.generated/types/job';
 
 /**
  * Showcase kernel configuration
@@ -26,13 +26,26 @@ export type JobListParams = {
 	per_page?: number;
 };
 
-export interface SchemaConfig {
-	path: string;
-	generated: {
-		types: string;
-	};
+export type Job = Omit<
+	JobResource,
+	'seniority' | 'job_type' | 'remote_policy'
+> & {
+	id: number;
+	title: string;
+	slug?: string;
+	status: 'draft' | 'publish' | 'closed';
 	description?: string;
-}
+	seniority?: 'Junior' | 'Mid' | 'Senior' | 'Lead' | 'Principal';
+	job_type?:
+		| 'Full-time'
+		| 'Part-time'
+		| 'Contract'
+		| 'Internship'
+		| 'Temporary';
+	remote_policy?: 'on-site' | 'remote' | 'hybrid';
+	created_at: string;
+	updated_at?: string;
+};
 
 const identity: ResourceIdentityConfig = {
 	type: 'number',
@@ -257,6 +270,15 @@ export const jobDataViewsConfig: ResourceDataViewConfig<Job, JobListParams> &
 	search: true,
 	searchLabel: 'Search jobs',
 	perPageSizes: [10, 20, 50],
+	screen: {
+		component: 'JobsAdminScreen',
+		route: '/admin.php?page=wpk-jobs',
+		menu: {
+			slug: 'wpk-jobs',
+			title: 'Jobs',
+			capability: 'manage_options',
+		},
+	},
 };
 
 const jobResource: ResourceConfig<Job, JobListParams> = {
@@ -270,48 +292,32 @@ const jobResource: ResourceConfig<Job, JobListParams> = {
 		admin: {
 			view: 'dataviews',
 			dataviews: jobDataViewsConfig,
-			screen: {
-				component: 'JobsAdminScreen',
-				route: '/admin.php?page=wpk-jobs',
-				menu: {
-					slug: 'wpk-jobs',
-					title: 'Jobs',
-					capability: 'manage_options',
-				},
-			},
 		},
 	},
 };
 
-const schemaRegistry: Record<string, SchemaConfig> = {
-	job: {
-		path: './contracts/job.schema.json',
-		generated: {
-			types: './.generated/types/job.d.ts',
-		},
-		description: 'Primary job resource schema used for generation.',
-	},
+type ShowcaseResources = {
+	job: ResourceConfig<Job, JobListParams> & { schema: string | 'auto' };
+};
+
+type ShowcaseKernelConfigShape = {
+	version: 1;
+	namespace: string;
+	schemas: Record<string, unknown>;
+	resources: ShowcaseResources;
 };
 
 // For CLI config guidance see https://github.com/theGeekist/wp-kernel/blob/main/packages/cli/mvp-cli-spec.md#6-blocks-of-authoring-safety
 export const kernelConfig = {
 	version: 1,
 	namespace: 'wp-kernel-showcase',
-	schemas: schemaRegistry,
+	schemas: {},
 	resources: {
 		job: {
 			...jobResource,
-			schema: 'job',
+			schema: 'auto',
 		},
 	},
-} satisfies {
-	version: 1;
-	namespace: string;
-	schemas: Record<string, SchemaConfig>;
-	resources: Record<
-		string,
-		ResourceConfig<Job, JobListParams> & { schema: string | 'auto' }
-	>;
-};
+} satisfies ShowcaseKernelConfigShape;
 
 export type ShowcaseKernelConfig = typeof kernelConfig;
