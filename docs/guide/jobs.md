@@ -1,6 +1,6 @@
 # Jobs
 
-> **Status**: 🚧 This page will be expanded in Sprint 1+
+> **Status**: 🚧 This page will be expanded in a future update
 
 Background work with polling support.
 
