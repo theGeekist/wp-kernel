@@ -294,7 +294,7 @@ Launches WordPress in a WebAssembly environment (no Docker required).
 
 ## Versioning
 
-### Update CHANGELOG for Sprint
+### Update CHANGELOG for the current work
 
 Update CHANGELOG.md files in affected packages:
 
@@ -303,7 +303,7 @@ Update CHANGELOG.md files in affected packages:
 
 ### Added
 
-- Sprint 5: Bindings & Interactivity
+- Bindings & Interactivity
 
 ### Fixed
 
@@ -316,8 +316,8 @@ Update CHANGELOG.md files in affected packages:
 
 **Bump types:**
 
-- **minor** (0.x.0) - Feature sprints (default)
-- **patch** (0.x.1) - Alignment/polish sprints
+- **minor** updates - Feature initiatives (default)
+- **patch** updates - Alignment/polish initiatives
 - **major** (x.0.0) - Breaking changes (rare pre-1.0)
 
 > Direct commits to `main` (infra/docs only) do **not** trigger releases.
@@ -550,7 +550,7 @@ docker exec -it <container-id> tail -f /var/www/html/wp-content/debug.log
 
 ## Deployment Modes
 
-> **🚧 Roadmap**: Sprints 10-13 • See [Modes Guide](../guide/modes.md) for complete specification
+> **🚧 Roadmap**: upcoming initiatives • See [Modes Guide](../guide/modes.md) for complete specification
 
 WP Kernel supports three deployment modes: Dynamic WordPress, Headless, and Static Export. Each mode has specific build and deployment requirements.
 
@@ -572,7 +572,7 @@ pnpm build
 
 ### Headless WordPress
 
-> **🚧 Requires**: `configure()` API • Sprint 12
+> **🚧 Requires**: `configure()` API • future release
 
 WordPress as backend API, external frontend.
 
@@ -581,7 +581,7 @@ WordPress as backend API, external frontend.
 ````typescript
 #### Configure Reporter Transport
 
-> **✓ Available**: Sprint 4.5 - Unified Reporting (shipped in v0.1.0)
+> **✓ Available**: Unified Reporting (shipped in v0.1.0)
 
 ```typescript
 import { configure } from '@wpkernel/core';
@@ -630,7 +630,7 @@ add_action('rest_api_init', function () {
 
 ### Static Export (CDN)
 
-> **🚧 Requires**: `defineKernelConfig()` API, build guards • Sprints 12-13
+> **🚧 Requires**: `defineKernelConfig()` API, build guards • upcoming initiative
 
 Pre-rendered HTML for CDN deployment.
 

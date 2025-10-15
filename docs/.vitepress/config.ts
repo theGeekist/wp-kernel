@@ -31,7 +31,10 @@ export default withMermaid(
 
 		// Exclude heavy generated API pages from local search index (keeps render, shrinks search)
 		transformPageData(page) {
-			if (page.filePath?.includes('/docs/api/generated/')) {
+			if (
+				page.filePath?.includes('/docs/api/@wpkernel/') ||
+				page.filePath?.includes('/docs/api/core/')
+			) {
 				page.frontmatter ||= {};
 				page.frontmatter.search = false;
 			}
@@ -93,7 +96,8 @@ export default withMermaid(
 				{ text: 'Home', link: '/' },
 				{ text: 'Getting Started', link: '/getting-started/' },
 				{ text: 'Guide', link: '/guide/' },
-				{ text: 'Packages', link: '/packages/' },
+				{ text: 'Examples', link: '/examples/' },
+				{ text: 'Reference', link: '/reference/contracts' },
 				{ text: 'API', link: '/api/' },
 				{ text: 'Contributing', link: '/contributing/' },
 			],
@@ -116,17 +120,13 @@ export default withMermaid(
 						],
 					},
 					{
-						text: 'Next Steps',
+						text: 'Explore',
 						collapsed: true,
 						items: [
-							{ text: 'Core Concepts', link: '/guide/' },
+							{ text: 'Examples', link: '/examples/' },
 							{
-								text: 'Repository Handbook',
-								link: '/guide/repository-handbook',
-							},
-							{
-								text: 'Showcase Plugin',
-								link: '/guide/showcase',
+								text: 'Decision Matrix',
+								link: '/reference/decision-matrix',
 							},
 							{ text: 'Roadmap', link: '/contributing/roadmap' },
 						],
@@ -145,58 +145,58 @@ export default withMermaid(
 							{ text: 'Resources', link: '/guide/resources' },
 							{ text: 'Actions', link: '/guide/actions' },
 							{ text: 'Events', link: '/guide/events' },
-							{
-								text: 'Block Bindings',
-								link: '/guide/block-bindings',
-							},
+							{ text: 'Blocks', link: '/guide/blocks' },
 							{
 								text: 'Interactivity',
 								link: '/guide/interactivity',
 							},
 							{ text: 'DataViews', link: '/guide/dataviews' },
 							{ text: 'Jobs', link: '/guide/jobs' },
+							{ text: 'Policy', link: '/guide/policy' },
 						],
 					},
 					{
-						text: 'Advanced',
+						text: 'Deep dives',
 						collapsed: true,
 						items: [
+							{ text: 'Modes', link: '/guide/modes' },
+							{ text: 'Prefetching', link: '/guide/prefetching' },
+							{ text: 'Reporting', link: '/guide/reporting' },
+							{ text: 'Data Utilities', link: '/guide/data' },
+						],
+					},
+				],
+				'/examples/': [
+					{
+						text: 'Examples',
+						collapsed: false,
+						items: [
+							{ text: 'Overview', link: '/examples/' },
+							{ text: 'Showcase', link: '/examples/showcase' },
 							{
-								text: 'Resources Deep Dive',
-								link: '/guide/resources-advanced',
-							},
-							{
-								text: 'Modes (Static/Headless/WP)',
-								link: '/guide/modes',
-							},
-							{
-								text: 'Showcase Plugin',
-								link: '/guide/showcase',
+								text: 'Test the CLI',
+								link: '/examples/test-the-cli',
 							},
 						],
 					},
 				],
-				'/packages/': [
+				'/reference/': [
 					{
-						text: 'Packages',
+						text: 'Reference',
 						collapsed: false,
 						items: [
-							{ text: 'Overview', link: '/packages/' },
+							{ text: 'Contracts', link: '/reference/contracts' },
 							{
-								text: '@wpkernel/core',
-								link: '/packages/core',
+								text: 'Kernel Config',
+								link: '/reference/kernel-config',
 							},
 							{
-								text: '@wpkernel/ui',
-								link: '/packages/ui',
+								text: 'Decision Matrix',
+								link: '/reference/decision-matrix',
 							},
 							{
-								text: '@wpkernel/cli',
-								link: '/packages/cli',
-							},
-							{
-								text: '@wpkernel/e2e-utils',
-								link: '/packages/e2e-utils',
+								text: 'CLI Commands',
+								link: '/reference/cli-commands',
 							},
 						],
 					},
@@ -211,24 +211,23 @@ export default withMermaid(
 							{ text: 'Actions', link: '/api/actions' },
 							{ text: 'Events', link: '/api/events' },
 							{ text: 'Jobs', link: '/api/jobs' },
+							{ text: 'Reporter', link: '/api/reporter' },
+							{ text: 'Policy', link: '/api/policy' },
 						],
 					},
 					{
-						text: 'Generated Docs',
+						text: 'Typedoc output',
 						collapsed: true,
 						items: [
 							{
-								text: '@wpkernel/core',
-								link: '/api/generated/kernel/src/README',
-							},
-							{
 								text: '@wpkernel/cli',
-								link: '/api/generated/@wpkernel/cli/README',
+								link: '/api/@wpkernel/cli/',
 							},
 							{
 								text: '@wpkernel/ui',
-								link: '/api/generated/@wpkernel/ui/README',
+								link: '/api/@wpkernel/ui/',
 							},
+							{ text: '@wpkernel/core', link: '/api/core/src/' },
 						],
 					},
 				],

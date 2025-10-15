@@ -1,115 +1,44 @@
 ---
-layout: home
-
-hero:
-    name: 'WP Kernel'
-    tagline: Modern WordPress Framework - A Rails-like, opinionated framework for building WordPress products where JavaScript is the source of truth
-    actions:
-        - theme: brand
-          text: Get Started
-          link: /getting-started/
-        - theme: alt
-          text: View on GitHub
-          link: https://github.com/theGeekist/wp-kernel
-
-features:
-    - icon: 🎯
-      title: Actions-First Architecture
-      details: UI components never call transport directly. All writes route through Actions that orchestrate writes, emit events, invalidate caches, and queue jobs.
-
-    - icon: 📦
-      title: Typed Resources
-      details: Define REST contracts once, get typed client + store + cache keys + events. One definition for your entire data layer.
-
-    - icon: 🗂️
-      title: Admin DataViews
-      details: Generate WordPress 6.7+ DataViews screens powered by kernel controllers, policies, and persisted preferences.
-
-    - icon: 🔌
-      title: Block Bindings & Interactivity
-      details: Bind core WordPress blocks to your data. Add behavior with the Interactivity API. No custom blocks needed for most use cases.
-
-    - icon: 🎪
-      title: Stable Event Registry
-      details: Versioned event system with predefined names. JS hooks are authoritative, PHP bridge mirrors selected events only. No ad-hoc strings.
-
-    - icon: ⚡
-      title: Background Jobs
-      details: Enqueue long-running tasks with polling support. Built-in status tracking and automatic retries with exponential backoff.
-
-    - icon: 🛡️
-      title: Type-Safe & Tested
-      details: TypeScript strict mode, JSON Schema validation, structured error handling (KernelError), and comprehensive E2E tests.
+title: WP Kernel
 ---
 
-## Why WP Kernel?
+# Build modern WordPress plugins from one source of truth
 
-WordPress already gives us powerful primitives-blocks, Interactivity, script modules, and a reliable REST API. What teams still lack is a shared frame for turning those primitives into products without re-solving the same architecture on every build. WP Kernel steps in as that frame. It keeps JavaScript in the driver's seat while asking PHP to focus on capabilities and transport, so you deliver features faster without forking away from Core.
+WP Kernel gives WordPress developers a predictable workflow. Describe resources and policies in `kernel.config.ts`, run the CLI, and let the framework emit typed REST clients, PHP controllers, and admin UI scaffolding that follow the same contract. When you opt into DataViews metadata or block manifests, the generator adds those pieces too.
 
-### Built for people shipping features
+<div class="cta-buttons">
+<a class="vp-button" href="/getting-started/quick-start">Quick Start</a>
+<a class="vp-button" href="/examples/">See Examples</a>
+<a class="vp-button" href="/guide/">Core Concepts</a>
+</div>
 
-Developers get consistent patterns for data fetching, mutation, and error handling. Product teams see shorter feedback loops because the guardrails prevent accidental tight coupling. Business stakeholders gain confidence that every feature emits canonical events, making analytics, integrations, and audits first-class rather than afterthoughts.
+## Conventions over glue code
 
-## The golden path
+`defineResource` provides REST helpers, cache keys, React hooks, and grouped APIs in one place. `wpk generate` turns that config into `.generated/` TypeScript declarations and PHP controllers, and `wpk apply` moves the PHP layer into `inc/`. You can review the printers in [`packages/cli/src/printers`](../packages/cli/src/printers) to see exactly what is produced.
 
-A typical feature follows four beats. Start by defining a Resource so the contract between client and server is explicit. Wrap writes in an Action that manages permissions, retries, events, and cache invalidation. Bind data into blocks or React components using the generated hooks, then extend behaviour through the Interactivity API. Because every team walks the same path, documentation stays in sync with the actual code.
+```ts
+// src/index.ts
+import { configureKernel } from '@wpkernel/core/data';
+import type { KernelInstance } from '@wpkernel/core/data';
+import { kernelConfig } from '../kernel.config';
 
-## A guided example
+export function bootstrapKernel(): KernelInstance {
+	return configureKernel({
+		namespace: kernelConfig.namespace,
+	});
+}
 
-To make the flow tangible, consider the smallest slice of functionality: creating and listing “things.”
-
-```typescript
-// 1. Define a resource
-export const thing = defineResource<Thing>({
-	name: 'thing',
-	routes: {
-		list: { path: '/wpk/v1/things', method: 'GET' },
-		create: { path: '/wpk/v1/things', method: 'POST' },
-	},
-	schema: import('../../contracts/thing.schema.json'),
-});
+export const kernel = bootstrapKernel();
 ```
 
-That declaration generates a typed client, cache helpers, and store selectors. An Action then centralises the write path and emits canonical events:
+## Works with the WordPress runtime
 
-```typescript
-export const CreateThing = defineAction({
-	name: 'Thing.Create',
-	handler: async (ctx, { data }) => {
-		const created = await thing.create(data);
-		ctx.emit(thing.events.created, { id: created.id });
-		ctx.invalidate([thing.key('list')]);
-		return created;
-	},
-});
-```
+The kernel integrates with WordPress data stores and emits public events through `@wordpress/hooks`. Generated PHP controllers honour storage modes (`wp-post`, `wp-option`, `transient`) and fall back to `WP_Error(501, 'Not Implemented')` when you mark routes as local but omit storage. When you provide DataViews metadata in the config the CLI creates React screens under `.generated/ui/app/**` and admin menu shims under `.generated/php/Admin/**` so you can enqueue them immediately.【F:packages/cli/src/printers/php/printer.ts†L1-L73】【F:packages/cli/src/printers/ui/printer.ts†L1-L120】
 
-Finally, your UI calls the Action. No component reaches into transport APIs directly, which keeps retries and analytics consistent across the application.
+## Three ways to dive in
 
-```typescript
-import { CreateThing } from '@/actions/Thing/Create';
+- **Getting Started** – Install the CLI and walk the golden path from `wpk init` through `wpk start`.
+- **Guide** – Learn how resources, actions, policies, and UI bindings work together.
+- **API Reference** – Browse the generated Typedoc for `@wpkernel/cli`, `@wpkernel/core`, and `@wpkernel/ui`.
 
-const handleSubmit = async () => {
-	await CreateThing({ data: formData });
-};
-```
-
-When React enters the picture, mount the runtime with `KernelUIProvider` so hooks can subscribe to the kernel event bus without legacy globals.
-
-```tsx
-import { KernelUIProvider } from '@wpkernel/ui';
-
-createRoot(node).render(
-	<KernelUIProvider runtime={kernel.getUIRuntime()}>
-		<App />
-	</KernelUIProvider>
-);
-```
-
-## What ships in the repository
-
-The monorepo includes the core `@wpkernel/core` package for resources, Actions, events, and jobs; `@wpkernel/ui` for DataViews controllers, forms, and bindings; `@wpkernel/e2e-utils` for Playwright helpers; and a showcase application that exercises the full stack. Tooling for linting, testing, and CI/CD is already configured so new contributors can focus on product work from day one.
-
-## Ready to start?
-
-Head to the [Getting Started guide](/getting-started/) for installation and the narrated quick start. If you prefer to skim before coding, the [Core Concepts section](/guide/) explains how resources, Actions, events, bindings, and jobs work together. When you want to explore the wider project documentation, the [Repository Handbook](/guide/repository-handbook) points directly to `DEVELOPMENT.md`, `BRANCHING_STRATEGY.md`, and other living references.
+When you are ready, begin with the [Quick Start](/getting-started/quick-start) or explore the [Showcase plugin](/examples/showcase) to see a full workflow in action.【F:docs/getting-started/quick-start.md†L1-L72】【F:examples/showcase/kernel.config.ts†L1-L115】

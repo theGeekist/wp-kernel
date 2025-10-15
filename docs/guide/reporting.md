@@ -1,6 +1,6 @@
 # Reporting & Observability
 
-Sprint 4.5 introduces a unified reporter so every kernel module emits structured telemetry through LogLayer. Instead of
+The unified reporter ensures every kernel module emits structured telemetry through LogLayer. Instead of
 sprinkling `console.log` calls across the codebase, you now create reporters and route messages through transports that understand
 namespaces, levels, and context metadata.
 
