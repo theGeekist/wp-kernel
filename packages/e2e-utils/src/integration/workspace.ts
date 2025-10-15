@@ -114,7 +114,15 @@ function normaliseEnv(
 }
 
 function resolveWorkspaceCwd(root: string, override?: string): string {
-	return override ? path.resolve(override) : root;
+	if (!override) {
+		return root;
+	}
+
+	if (path.isAbsolute(override)) {
+		return path.resolve(override);
+	}
+
+	return path.resolve(root, override);
 }
 
 function composeWorkspaceEnv(
