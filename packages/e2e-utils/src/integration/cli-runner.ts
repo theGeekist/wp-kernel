@@ -1,6 +1,5 @@
 import path from 'node:path';
 import { spawn, type ChildProcess } from 'node:child_process';
-import { once } from 'node:events';
 import type {
 	CliCommand,
 	CliCommandOptions,
@@ -57,10 +56,11 @@ export function captureTranscript(
 	child.stdout?.on('data', (chunk: Buffer) => stdoutChunks.push(chunk));
 	child.stderr?.on('data', (chunk: Buffer) => stderrChunks.push(chunk));
 
-	const completion = once(child, 'exit');
-
-	return completion.then(([code]) => {
+	return waitForChildCompletion(child).then((outcome) => {
 		const completedAt = new Date();
+		const stdout = Buffer.concat(stdoutChunks).toString('utf8');
+		const stderr = buildStderr(context, outcome, stderrChunks);
+
 		return {
 			command: context.command,
 			args: context.args,
@@ -68,9 +68,9 @@ export function captureTranscript(
 			startedAt: context.startedAt.toISOString(),
 			completedAt: completedAt.toISOString(),
 			durationMs: completedAt.getTime() - context.startedAt.getTime(),
-			exitCode: code ?? -1,
-			stdout: Buffer.concat(stdoutChunks).toString('utf8'),
-			stderr: Buffer.concat(stderrChunks).toString('utf8'),
+			exitCode: outcome.type === 'exit' ? (outcome.code ?? -1) : -1,
+			stdout,
+			stderr,
 			env: normaliseEnv(context.env),
 		} satisfies CliTranscript;
 	});
@@ -116,4 +116,68 @@ function normaliseEnv(
 	const entries = Object.entries(env);
 	entries.sort(([a], [b]) => a.localeCompare(b));
 	return Object.fromEntries(entries);
+}
+
+type ProcessOutcome =
+	| { type: 'exit'; code: number | null; signal: NodeJS.Signals | null }
+	| { type: 'error'; error: NodeJS.ErrnoException };
+
+function waitForChildCompletion(child: ChildProcess): Promise<ProcessOutcome> {
+	return new Promise<ProcessOutcome>((resolve) => {
+		const handleExit = (
+			code: number | null,
+			signal: NodeJS.Signals | null
+		) => {
+			cleanup();
+			resolve({ type: 'exit', code, signal });
+		};
+
+		const handleError = (error: NodeJS.ErrnoException) => {
+			cleanup();
+			resolve({ type: 'error', error });
+		};
+
+		const cleanup = () => {
+			child.removeListener('exit', handleExit);
+			child.removeListener('error', handleError);
+		};
+
+		child.once('exit', handleExit);
+		child.once('error', handleError);
+	});
+}
+
+function buildStderr(
+	context: {
+		command: string;
+		args: string[];
+	},
+	outcome: ProcessOutcome,
+	stderrChunks: Buffer[]
+): string {
+	const stderr = Buffer.concat(stderrChunks).toString('utf8');
+
+	if (outcome.type !== 'error') {
+		return stderr;
+	}
+
+	const failureMessage = formatSpawnError(
+		context.command,
+		context.args,
+		outcome.error
+	);
+
+	return stderr ? `${stderr}\n${failureMessage}` : failureMessage;
+}
+
+function formatSpawnError(
+	command: string,
+	args: string[],
+	error: NodeJS.ErrnoException
+): string {
+	const fullCommand = [command, ...args].join(' ').trim();
+	const details = error.code
+		? `${error.code}: ${error.message}`
+		: error.message;
+	return `Failed to spawn command "${fullCommand}"${details ? ` - ${details}` : ''}`;
 }
