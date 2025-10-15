@@ -5,19 +5,29 @@ export const jobDataViewConfig: ResourceDataViewConfig<unknown, unknown> = {
 		{
 			id: 'title',
 			label: 'Title',
+			type: 'text',
 			enableSorting: true,
+			enableGlobalSearch: true,
+			isValid: {
+				required: true,
+			},
 		},
 		{
 			id: 'department',
 			label: 'Department',
+			type: 'text',
+			enableGlobalSearch: true,
 		},
 		{
 			id: 'location',
 			label: 'Location',
+			type: 'text',
+			enableGlobalSearch: true,
 		},
 		{
 			id: 'status',
 			label: 'Status',
+			type: 'text',
 			elements: [
 				{
 					value: 'draft',
@@ -35,12 +45,25 @@ export const jobDataViewConfig: ResourceDataViewConfig<unknown, unknown> = {
 			filterBy: {
 				operators: ['isAny'],
 			},
+			isValid: {
+				required: true,
+			},
 			getValue: ({ item }) =>
 				jobStatusLabels[item.status ?? 'draft'] ?? item.status ?? '',
 		},
 		{
+			id: 'description',
+			label: 'Description',
+			type: 'text',
+			Edit: {
+				control: 'textarea',
+				rows: 6,
+			},
+		},
+		{
 			id: 'updated_at',
 			label: 'Updated',
+			type: 'datetime',
 			enableSorting: true,
 			getValue: ({ item }) => {
 				const timestamp = item.updated_at ?? item.created_at;
