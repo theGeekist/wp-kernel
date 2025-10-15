@@ -1,6 +1,6 @@
 # Interactivity API
 
-> **Status**: 🚧 This page will be expanded in Sprint 1+
+> **Status**: 🚧 This page will be expanded in a future update
 
 Add front-end behavior to blocks without custom JavaScript.
 

@@ -1,73 +1,25 @@
-# API Reference
+# API reference
 
-Complete API documentation for WP Kernel.
+Dive deep into the generated Typedoc for each package. Conceptual guides live under [Guide](/guide/); this section focuses on concrete APIs and types.
 
-## Core Modules
+## Package overviews
 
-### [Resources](/api/resources)
+- [`/api/@wpkernel/cli/`](./@wpkernel/cli/) - CLI commands, printer contracts, kernel config loaders.
+- [`/api/core/`](./core/) - runtime helpers, error taxonomy, HTTP transport, and resource utilities.
+- [`/api/@wpkernel/ui/`](./@wpkernel/ui/) - UI runtime, DataViews helpers, block bindings, and React hooks.
 
-Define typed REST resources with automatic client generation, store integration, and cache management.
+The generated pages are excluded from local search to keep the index lean. Use your browser search or the sidebar tree to jump directly to an interface or type alias.
 
-### [Policies](/api/policy)
+## Hand-written guides
 
-Declarative capability rules with caching, denial events, and React helpers for UI gating.
+Some APIs benefit from narrative explanations before you open Typedoc:
 
-### [Reporter](/api/reporter)
+- [Resources](/guide/resources) - defining REST contracts, cache keys, and policy hints.
+- [Actions](/guide/actions) - orchestrating writes and invalidation.
+- [Interactivity](/guide/interactivity) - binding stateful behaviour to blocks and views.
+- [Blocks](/guide/blocks) - manifests, bindings, and SSR.
+- [Reporting](/guide/reporting) - working with the kernel reporter.
 
-Structured logging via LogLayer with console and WordPress hook transports.
+## Staying in sync
 
-### [Data Helpers](/guide/data)
-
-Registry utilities (`registerKernelStore`) and notice bridging for `@wordpress/data` stores. `configureKernel()`
-is the bootstrap function available from `@wpkernel/core`.
-
-### [Errors](/api/generated/core/src/namespaces/error/README)
-
-Error types and handling primitives.
-
-### [HTTP Transport](/api/generated/core/src/namespaces/http/README)
-
-## UI Hooks
-
-### [`usePrefetcher`](/api/usePrefetcher)
-
-React adapters around resource prefetching helpers (`prefetchGet` /
-`prefetchList`) plus utility hooks for hover, visibility, and pagination
-prefetch flows.
-
-### [`useAction`](/api/useAction)
-
-Thin React wrapper over kernel Actions with concurrency controls, deduping,
-and automatic cache invalidation.
-
-## CLI Reference
-
-The CLI package now ships with the same JSDoc-driven reference used for the
-kernel. Browse the generated Markdown under `/api/generated` to explore
-`runCli`, command classes, policy-map helpers, and typed configuration
-artifacts for `@wpkernel/cli`.
-
-## UI Reference
-
-Typed documentation for `@wpkernel/ui` is published alongside the
-kernel and CLI references. The generated pages cover runtime attachment
-helpers, hooks, and DataViews integration utilities so the three packages
-share a consistent API narrative.
-
-## Coming Soon
-
-The following modules are planned for future sprints:
-
-- [**Actions**](/api/actions) - Write operation orchestration (Sprint 3)
-- [**Jobs**](/api/jobs) - Background task management (Sprint 2)
-- [**Events**](/api/events) - Hook system integration (Sprint 2)
-
-## Usage
-
-```typescript
-import { defineResource, invalidate } from '@wpkernel/core';
-import { KernelError, ServerError } from '@wpkernel/core/error';
-import { fetch } from '@wpkernel/core/http';
-```
-
-For detailed examples and tutorials, see the [Guide](/guide/).
+Whenever you regenerate Typedoc, ensure the output lands under `docs/api/*` (not `api/generated`). Update this index if you add new packages or move modules so readers have a stable entry point.

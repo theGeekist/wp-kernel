@@ -1,853 +1,97 @@
 # Resources
 
-> **Status**: ✓ Core API implemented in Sprint 1 (A2: defineResource, A3: Store & Transport, A4: Cache Invalidation)
+Resources describe how your plugin talks to WordPress. A single call to `defineResource` gives you REST clients, grouped APIs, cache helpers, store selectors, React hooks, and canonical events that share the same namespace.【F:packages/core/src/resource/define.ts†L115-L390】
 
-Resources define your typed REST contracts. One definition gives you:
+## Anatomy of a resource
 
-- Typed REST client with automatic method generation
-- WordPress data store integration (`@wordpress/data`)
-- Automatic cache management and invalidation
-- React hooks for data fetching
-- Full TypeScript type safety
-
-**Two API surfaces**: Resources provide both a **thin-flat API** (recommended for most cases) and a **grouped API** (power users). See [Advanced Resources Guide](./resources-advanced.md) for grouped API patterns.
-
-## Quick Start
-
-```typescript
+```ts
 import { defineResource } from '@wpkernel/core/resource';
 
-interface TestimonialPost {
+interface Job {
 	id: number;
 	title: string;
-	content: string;
-	author: string;
-	rating: number;
+	status: 'draft' | 'open' | 'closed';
 }
 
-interface TestimonialQuery {
-	search?: string;
-	rating?: number;
-	page?: number;
-}
+type JobQuery = { status?: Job['status']; search?: string };
 
-export const testimonial = defineResource<TestimonialPost, TestimonialQuery>({
-	name: 'testimonial',                    // Namespace auto-detected from plugin context
+export const job = defineResource<Job, JobQuery>({
+	name: 'job',
 	routes: {
-		list: { path: '/acme-blog/v1/testimonials', method: 'GET' },
-		get: { path: '/acme-blog/v1/testimonials/:id', method: 'GET' },
-		create: { path: '/acme-blog/v1/testimonials', method: 'POST' },
-		update: { path: '/acme-blog/v1/testimonials/:id', method: 'PUT' },
-		remove: { path: '/acme-blog/v1/testimonials/:id', method: 'DELETE' },
+		list: { path: '/acme/v1/jobs', method: 'GET' },
+		get: { path: '/acme/v1/jobs/:id', method: 'GET' },
+		create: { path: '/acme/v1/jobs', method: 'POST' },
 	},
+	schema: 'auto',
+	identity: { type: 'number', param: 'id' },
 	cacheKeys: {
-		list: (q) => ['testimonial', 'list', q?.search, q?.rating, q?.page],
-		get: (id) => ['testimonial', 'get', id],
+		list: (query) => [
+			'job',
+			'list',
+			query?.status ?? null,
+			query?.search ?? null,
+		],
+		get: (id) => ['job', 'get', id],
+	},
+	policyHints: {
+		create: 'jobs.create',
 	},
 });
-
-// Events use auto-detected namespace (e.g., plugin slug: "acme-blog")
-console.log(testimonial.events.created); // 'acme-blog.testimonial.created'
-console.log(testimonial.storeKey);       // 'acme-blog/testimonial'
-
-// Override namespace when needed
-export const enterpriseTestimonial = defineResource<TestimonialPost>({
-	name: 'testimonial',
-	namespace: 'enterprise-suite',          // Explicit override
-	routes: { /* ... */ }
-});
-console.log(enterpriseTestimonial.events.created); // 'enterprise-suite.testimonial.created'
-
-// ✓ Use in Actions (write path - orchestrated)
-import { CreateTestimonial } from '@/actions/Testimonial/Create';
-await CreateTestimonial({ data: { title: 'Great service!', rating: 5 } });
-
-// ✓ Use React hooks (read path)
-function TestimonialList() {
-        const { data, isLoading } = testimonial.useList({ rating: 5 });
-
-        if (isLoading) return <Spinner />;
-        return <ul>{data?.items.map(item => <li key={item.id}>{item.title}</li>)}</ul>;
-}
 ```
 
-> ℹ️ Hook access (`useList`, `useGet`) requires a configured `KernelUIRuntime`.
-> Call `configureKernel({ ui: { attach: attachUIBindings } })` and wrap your React
-> tree with `KernelUIProvider` to make the runtime available.
+The resource above gives you:
 
-### Reporter inheritance
+- **REST client methods** – `job.fetchList(query)`, `job.fetch(id)`, `job.create(data)`, `job.update(id, data)`, and `job.remove(id)` when the corresponding routes exist.【F:packages/core/src/resource/client.ts†L41-L230】
+- **React hooks** – `job.useList(query)` and `job.useGet(id)` become available after you call `attachUIBindings(kernel)` in your UI bundle.【F:packages/ui/src/hooks/resource-hooks.ts†L1-L160】【F:packages/ui/src/runtime/attachUIBindings.ts†L1-L120】
+- **Grouped APIs** – selectors under `job.select.*`, cache helpers under `job.cache.*`, and fetch methods under `job.get.*` and `job.fetch*` for advanced orchestration.【F:packages/core/src/resource/grouped-api.ts†L1-L170】
+- **Events** – `job.events.created`, `job.events.updated`, and `job.events.removed` emit through the kernel event bus with your namespace baked in.【F:packages/core/src/resource/define.ts†L390-L430】
+- **Cache helpers** – `job.cache.key('list')`, `job.prefetchList(query)`, and `job.prefetchGet(id)` wrap the WordPress data store’s selectors and resolvers.【F:packages/core/src/resource/types.ts†L459-L620】
 
-Every resource carries a reporter so fetches, mutations, and store resolvers emit
-structured telemetry. When you define a resource through `configureKernel()` the
-reporter is created as a child of the kernel instance (`resource.{name}`). Standalone
-resources fall back to a deterministic console reporter so local development still
-surfaces debug output. You can access the reporter via `resource.reporter` or supply
-your own implementation through the `reporter` option.
+## Namespaces
 
-Cache utilities participate in the same hierarchy. Calling `resource.invalidate()` or
-the grouped `cache.invalidate.*` helpers emits `cache.invalidate.request` and
-`cache.invalidate.summary` messages (plus match/miss debug logs) using the resource's
-reporter, giving you visibility into which cache keys were touched. Transport requests
-inherit the reporter too, so every `fetchList`, `fetch`, `create`, and `remove` call
-produces `transport.request`, `transport.response`, or `transport.error` entries with
-correlation IDs that downstream observability tooling can consume.
+If you omit `namespace`, the runtime detects it from your plugin headers. You can override it per resource, or use shorthand `namespace:name` syntax when you want the resource to live under a different prefix. The namespace shapes store keys (`{namespace}/{resource}`) and domain events (`{namespace}.{resource}.created`).【F:packages/core/src/resource/define.ts†L151-L210】
 
-## Configuration
+## Schemas keep clients honest
 
-### Required Properties
+Passing `'auto'` tells the CLI to derive JSON Schema from your TypeScript types. Alternatively you can import a schema file via the config. Either way the schema feeds `json-schema-to-typescript` for `.d.ts` generation and the PHP printer for REST argument metadata.【F:packages/cli/src/printers/types/printer.ts†L1-L80】【F:packages/cli/src/printers/php/resource-controller.ts†L1-L70】
 
-#### `name` \<string\>
+## Cache and invalidation
 
-Unique resource name (lowercase, kebab-case recommended).
+Every route can define a cache key helper. Actions typically call `ctx.invalidate([job.cache.key('list')])` or one of the grouped helpers (`job.cache.invalidate.list(query)`) after mutations. The resource runtime records keys and uses `@wordpress/data` resolvers to keep list and item caches consistent.【F:packages/core/src/resource/cache.ts†L1-L760】【F:packages/core/src/resource/store.ts†L430-L560】
 
-- Used for store keys (`wpk/{name}`)
-- Used for event names
-- Must match `/^[a-z][a-z0-9-]*$/`
+## Policies and capability checks
 
-```typescript
-// ✓ Good
-name: 'testimonial';
-name: 'team-member';
-name: 'portfolio-item';
+`policyHints` bridge frontend intent with backend enforcement. When you provide a hint for a write route, the PHP printer wires `permission_callback` to `Policy::enforce('jobs.create', $request)`. Missing hints trigger a warning and fall back to `current_user_can('manage_options')`, which is surfaced in the generation summary.【F:packages/cli/src/printers/php/routes.ts†L80-L170】【F:packages/cli/src/printers/php/printer.ts†L24-L65】
 
-// ✗ Bad - throws DeveloperError
-name: 'Testimonial'; // uppercase
-name: 'my_testimonial'; // underscores
-name: 'my testimonial'; // spaces
-```
+## Using resources from the UI
 
-#### `routes` \<object\>
+```tsx
+import { job } from '@/resources/job';
 
-REST route definitions. At least one route must be defined.
+export function JobList() {
+	const { data, isLoading, error } = job.useList({ status: 'open' });
 
-Each route has:
-
-- `path` (string) - REST endpoint path with optional `:param` placeholders
-- `method` (HttpMethod) - `GET`, `POST`, `PUT`, `PATCH`, or `DELETE`
-
-```typescript
-routes: {
-  list: { path: '/wpk/v1/testimonials', method: 'GET' },
-  get: { path: '/wpk/v1/testimonials/:id', method: 'GET' },
-  create: { path: '/wpk/v1/testimonials', method: 'POST' },
-  update: { path: '/wpk/v1/testimonials/:id', method: 'PUT' },
-  remove: { path: '/wpk/v1/testimonials/:id', method: 'DELETE' }
-}
-```
-
-**Path Parameters**: Multi-segment paths with multiple parameters are fully supported:
-
-```typescript
-// Single parameter
-'/wpk/v1/testimonials/:id'; // → /wpk/v1/testimonials/123
-
-// Multiple parameters
-'/wpk/v1/testimonials/:id/comments/:commentId'; // → /wpk/v1/testimonials/42/comments/99
-
-// Supported patterns: :id, :slug, :userId, :_id, :$id
-```
-
-::: tip Multi-Parameter Support
-Multi-parameter interpolation is fully supported. All path parameters are type-safe and validated at runtime.
-:::
-
-### Optional Properties
-
-#### `cacheKeys` \<object\>
-
-Functions to generate cache keys for each operation. Defaults to sensible keys if omitted.
-
-```typescript
-cacheKeys: {
-  list: (query) => ['testimonial', 'list', query?.search, query?.rating],
-  get: (id) => ['testimonial', 'get', id],
-  create: (data) => ['testimonial', 'create'],
-  update: (id) => ['testimonial', 'update', id],
-  remove: (id) => ['testimonial', 'remove', id]
-}
-```
-
-::: warning Avoid Timestamps in Cache Keys
-Don't use `Date.now()` or timestamps in cache keys-it makes invalidation impossible. Use timestamps only for specific time-sensitive use cases (see Advanced Patterns).
-:::
-
-#### `schema` \<Promise\<unknown\>\>
-
-JSON Schema for runtime validation (coming in future sprints).
-
-```typescript
-schema: import('../../contracts/testimonial.schema.json');
-```
-
-#### `reporter` \<Reporter\>
-
-Override the reporter used for observability. By default resources inherit the kernel
-reporter (or create a console reporter when no kernel is active). Provide a custom
-reporter to forward logs to external tooling:
-
-```typescript
-import { createReporter } from '@wpkernel/core';
-
-const testimonial = defineResource<TestimonialPost>({
-	name: 'testimonial',
-	routes: {
-		/* ... */
-	},
-	reporter: createReporter({
-		namespace: 'acme.telemetry',
-		channel: 'all',
-	}),
-});
-```
-
-### TypeScript Generics
-
-Resources accept two generic type parameters:
-
-```typescript
-defineResource<T, TQuery>({...})
-//              ^  ^^^^^^
-//              |  Query parameters type (for list)
-//              Resource entity type
-```
-
-#### `T` - Resource Entity Type
-
-```typescript
-interface TestimonialPost {
-	id: number;
-	title: string;
-	content: string;
-	author: string;
-	rating: number;
-}
-
-const testimonial = defineResource<TestimonialPost>({ ... });
-
-// Methods are fully typed
-const item: TestimonialPost = await testimonial.fetch(123);
-```
-
-#### `TQuery` - List Query Parameters
-
-```typescript
-interface TestimonialQuery {
-	search?: string;
-	rating?: number;
-	page?: number;
-}
-
-const testimonial = defineResource<TestimonialPost, TestimonialQuery>({ ... });
-
-// Query types are enforced
-await testimonial.fetchList({ search: 'great', page: 1 }); // ✓
-await testimonial.fetchList({ invalid: 'param' });          // ✗ TypeScript error
-```
-
-### Validation
-
-`defineResource` validates configuration at dev-time and throws `DeveloperError` for issues:
-
-```typescript
-// ✗ Missing name
-defineResource({ routes: { ... } });
-// DeveloperError: Resource config must have a valid "name" property
-
-// ✗ Invalid name format
-defineResource({ name: 'My_Testimonial', routes: { ... } });
-// DeveloperError: Resource name must be lowercase with hyphens only
-
-// ✗ No routes
-defineResource({ name: 'testimonial', routes: {} });
-// DeveloperError: Resource "testimonial" must define at least one route
-
-// ✗ Invalid HTTP method
-defineResource({ name: 'testimonial', routes: { list: { path: '/api', method: 'FETCH' } } });
-// DeveloperError: Invalid HTTP method "FETCH"
-```
-
-defineResource({ name: 'My_Thing', routes: { ... } });
-// DeveloperError: Resource name must be lowercase with hyphens only
-
-// ✗ No routes
-
-## Thin-Flat API (Recommended)
-
-The thin-flat API provides direct access to common operations without nesting. This is the **recommended API** for most use cases.
-
-### Direct Client Methods
-
-::: warning Actions-First Architecture
-**Never call write methods (`create`, `update`, `remove`) directly from UI components.** Always route through Actions for proper event emission, cache invalidation, and job orchestration.
-
-```typescript
-// ✗ BAD - Direct write from UI
-async function handleSubmit() {
-	await testimonial.create(formData); // Bypasses Actions layer!
-}
-
-// ✓ GOOD - Route through Action
-import { CreateTestimonial } from '@/actions/Testimonial/Create';
-async function handleSubmit() {
-	await CreateTestimonial({ data: formData });
-}
-```
-
-**Read methods (`fetchList`, `fetch`) are safe** to call directly for non-UI use cases (data migration, CLI tools, etc.).
-:::
-
-#### fetchList(query?)
-
-Fetch a collection of resources. **Always destructure the response** to access items and metadata.
-
-```typescript
-const { items, total, hasMore, nextCursor } = await testimonial.fetchList({
-	search: 'excellent',
-	rating: 5,
-	page: 1,
-});
-```
-
-**Returns**: `Promise<ListResponse<T>>`
-
-- `items: T[]` - Array of resources
-- `total?: number` - Total count (if available)
-- `hasMore?: boolean` - Whether more pages exist
-- `nextCursor?: string` - Pagination cursor
-
-#### fetch(id)
-
-Fetch a single resource by ID.
-
-```typescript
-const item: TestimonialPost = await testimonial.fetch(123);
-```
-
-**Returns**: `Promise<T>`
-
-#### create(data)
-
-Create a new resource. **Use only from Actions, never from UI.**
-
-```typescript
-// In an Action
-const created = await testimonial.create({
-	title: 'Amazing product!',
-	content: 'Best purchase ever...',
-	author: 'Jane Doe',
-	rating: 5,
-});
-```
-
-**Returns**: `Promise<T>`
-
-#### update(id, data)
-
-Update an existing resource. **Use only from Actions, never from UI.**
-
-```typescript
-// In an Action
-const updated = await testimonial.update(123, { rating: 4 });
-```
-
-**Returns**: `Promise<T>`
-
-#### remove(id)
-
-Delete a resource. **Use only from Actions, never from UI.**
-
-```typescript
-// In an Action
-await testimonial.remove(123);
-```
-
-**Returns**: `Promise<void>`
-
-### React Hooks
-
-React hooks for data fetching with automatic loading states and re-fetching. Importing `@wpkernel/ui`
-automatically registers the hooks for resources defined with `defineResource()`.
-
-#### useGet(id)
-
-Fetch and watch a single item. Automatically handles loading states.
-
-```typescript
-function TestimonialView({ id }: { id: number }) {
-	const { data: testimonial, isLoading, error } = testimonial.useGet(id);
-
-	if (isLoading) return <Spinner />;
-	if (error) return <Notice status="error">{error}</Notice>;
-
-	return (
-		<div>
-			<h2>{testimonial.title}</h2>
-			<p>{testimonial.content}</p>
-			<Rating value={testimonial.rating} />
-		</div>
-	);
-}
-```
-
-**Returns**: `{ data: T | undefined, isLoading: boolean, error: string | undefined }`
-
-#### useList(query?)
-
-Fetch and watch a list of items. Automatically handles loading states.
-
-```typescript
-function TestimonialList({ rating }: { rating?: number }) {
-	const { data, isLoading, error } = testimonial.useList({ rating });
-
-	if (isLoading) return <Spinner />;
-	if (error) return <Notice status="error">{error}</Notice>;
+	if (isLoading) return <p>Loading…</p>;
+	if (error) return <p role="alert">{error}</p>;
 
 	return (
 		<ul>
-			{data?.items.map(item => (
-				<li key={item.id}>
-					{item.title} - {item.author}
-				</li>
+			{data?.items.map((item) => (
+				<li key={item.id}>{item.title}</li>
 			))}
 		</ul>
 	);
 }
 ```
 
-**Returns**: `{ data: ListResponse<T> | undefined, isLoading: boolean, error: string | undefined }`
+Hooks draw from the same store keys as the grouped selectors. They throw a `KernelError` if `@wordpress/data` is not present, which protects you during SSR or early bootstrap.【F:packages/ui/src/hooks/resource-hooks.ts†L40-L140】
 
-### Prefetch Methods
+## Surfacing data in admin screens
 
-Load data into cache without rendering. Useful for optimistic loading.
+When your kernel config includes `ui.admin.dataviews`, the CLI emits `.generated/ui/app/<resource>/admin/<Component>.tsx` and DataViews fixtures. The generated screen uses the resource’s `job.useList()` hook and automatically registers a controller with the UI runtime, so rendering `<ResourceDataView>` is enough to display the list.【F:packages/cli/src/printers/ui/printer.ts†L1-L120】【F:packages/ui/src/dataviews/resource-controller.ts†L1-L180】
 
-#### prefetchGet(id)
+## Where to go next
 
-Prefetch a single item before navigation or on hover.
-
-```typescript
-function TestimonialCard({ id }: { id: number }) {
-	return (
-		<Link
-			to={`/testimonials/${id}`}
-			onMouseEnter={() => testimonial.prefetchGet(id)}
-		>
-			View Testimonial
-		</Link>
-	);
-}
-```
-
-**Returns**: `Promise<void>`
-
-#### prefetchList(query?)
-
-Prefetch a list on app mount or route change.
-
-```typescript
-function TestimonialPage() {
-	useEffect(() => {
-		// Preload featured testimonials
-		testimonial.prefetchList({ rating: 5 });
-	}, []);
-
-	return <TestimonialList />;
-}
-```
-
-**Returns**: `Promise<void>`
-
-### Cache Management
-
-#### invalidate(patterns)
-
-Invalidate cached data for this resource. Scoped to the resource's store.
-
-```typescript
-// In an Action after creating
-await testimonial.create(data);
-testimonial.invalidate([['testimonial', 'list']]); // Invalidate all lists
-
-// In an Action after updating
-await testimonial.update(id, data);
-testimonial.invalidate([
-	['testimonial', 'get', id], // Invalidate specific item
-	['testimonial', 'list'], // Invalidate all lists
-]);
-
-// In an Action after deleting
-await testimonial.remove(id);
-testimonial.invalidate([
-	['testimonial', 'get', id],
-	['testimonial', 'list'],
-]);
-```
-
-**Parameters**: `patterns: (string | number | boolean | null | undefined)[][]`
-
-#### key(operation, params?)
-
-Generate a cache key for manual cache operations or debugging.
-
-```typescript
-const listKey = testimonial.key('list', { rating: 5 });
-// => ['testimonial', 'list', '{"rating":5}']
-
-const getKey = testimonial.key('get', 123);
-// => ['testimonial', 'get', 123]
-```
-
-**Returns**: `(string | number | boolean)[]`
-
-## Store Integration
-
-Each resource provides a lazy-loaded `@wordpress/data` store. The store is automatically registered on first access.
-
-### Direct Store Access
-
-```typescript
-import { select, dispatch } from '@wordpress/data';
-
-// Access store (auto-registers on first use)
-const store = testimonial.store; // Returns store descriptor
-const storeKey = testimonial.storeKey; // 'wpk/testimonial'
-
-// Use with selectors (advanced - prefer hooks)
-const item = select(store).getItem(123);
-const items = select(store).getItems({ rating: 5 });
-```
-
-::: tip Prefer React Hooks
-Use `testimonial.useGet()` and `testimonial.useList()` instead of direct store access in React components. Direct store access is for advanced patterns only.
-:::
-
-## Resource Events
-
-Resources automatically emit events during transport operations:
-
-- `wpk.resource.request` - Before REST call
-- `wpk.resource.response` - After successful response
-- `wpk.resource.error` - On request failure
-
-See [Events Guide](./events.md) for full event taxonomy and hooking patterns.
-
-## Grouped API
-
-For power users, resources provide a **grouped API** with namespaced methods:
-
-```typescript
-// Grouped API (power users)
-const cached = testimonial.select.item(123); // Pure selector (no fetch)
-const { data } = testimonial.useGet(123); // React hook (from @wpkernel/ui)
-await testimonial.fetch.item(123); // Explicit fetch (bypass cache)
-await testimonial.mutate.create(data); // Write operation
-await testimonial.cache.prefetch.item(123); // Prefetch
-testimonial.cache.invalidate.all(); // Invalidate all
-```
-
-See [Advanced Resources Guide](./resources-advanced.md) for complete grouped API documentation.
-
-## Complete Example
-
-```typescript
-// app/resources/Testimonial.ts
-import { defineResource } from '@wpkernel/core/resource';
-
-export interface TestimonialPost {
-	id: number;
-	title: string;
-	content: string;
-	author: string;
-	rating: number;
-	featured: boolean;
-	createdAt: string;
-}
-
-export interface TestimonialQuery {
-	search?: string;
-	rating?: number;
-	featured?: boolean;
-	page?: number;
-}
-
-export const testimonial = defineResource<TestimonialPost, TestimonialQuery>({
-	name: 'testimonial',
-	routes: {
-		list: { path: '/wpk/v1/testimonials', method: 'GET' },
-		get: { path: '/wpk/v1/testimonials/:id', method: 'GET' },
-		create: { path: '/wpk/v1/testimonials', method: 'POST' },
-		update: { path: '/wpk/v1/testimonials/:id', method: 'PUT' },
-		remove: { path: '/wpk/v1/testimonials/:id', method: 'DELETE' },
-	},
-	cacheKeys: {
-		list: (q) => [
-			'testimonial',
-			'list',
-			q?.search,
-			q?.rating,
-			q?.featured,
-			q?.page,
-		],
-		get: (id) => ['testimonial', 'get', id],
-	},
-});
-```
-
-```typescript
-// app/actions/Testimonial/Create.ts
-import { defineAction } from '@wpkernel/core/actions';
-import { testimonial } from '@/resources/Testimonial';
-import { events } from '@wpkernel/core/events';
-
-export const CreateTestimonial = defineAction(
-	'Testimonial.Create',
-	async ({ data }: { data: Partial<TestimonialPost> }) => {
-		// Permission check
-		if (!currentUserCan('create_testimonials')) {
-			throw new PolicyDenied('testimonials.create');
-		}
-
-		// Create via resource
-		const created = await testimonial.create(data);
-
-		// Emit event
-		CreateTestimonial.emit(events.testimonial.created, {
-			id: created.id,
-			data: created,
-		});
-
-		// Invalidate cache
-		testimonial.invalidate([['testimonial', 'list']]);
-
-		// Queue job if needed
-		if (data.featured) {
-			await jobs.enqueue('NotifyFeaturedTestimonial', { id: created.id });
-		}
-
-		return created;
-	}
-);
-```
-
-```typescript
-// app/views/TestimonialList.tsx
-import { testimonial } from '@/resources/Testimonial';
-import { CreateTestimonial } from '@/actions/Testimonial/Create';
-
-export function TestimonialList() {
-	const { data, isLoading, error } = testimonial.useList({
-		featured: true,
-		rating: 5
-	});
-
-	if (isLoading) return <Spinner />;
-	if (error) return <Notice status="error">{error}</Notice>;
-
-	return (
-		<div>
-			<h2>Featured Testimonials ({data?.total})</h2>
-			<ul>
-				{data?.items.map(item => (
-					<li key={item.id}>
-						<h3>{item.title}</h3>
-						<p>{item.content}</p>
-						<Rating value={item.rating} />
-						<cite>- {item.author}</cite>
-					</li>
-				))}
-			</ul>
-			{data?.hasMore && (
-				<Button onClick={() => loadMore()}>Load More</Button>
-			)}
-		</div>
-	);
-}
-
-async function handleCreate(formData: Partial<TestimonialPost>) {
-	// ✓ CORRECT - Route through Action
-	await CreateTestimonial({ data: formData });
-}
-```
-
-## Best Practices
-
-### 1. Actions-First for Writes
-
-**Never call write methods directly from UI components.** Always route through Actions.
-
-```typescript
-// ✗ BAD - Direct write from UI
-await testimonial.create(data);
-
-// ✓ GOOD - Route through Action
-await CreateTestimonial({ data });
-```
-
-### 2. Co-locate Resources with Types
-
-```typescript
-// app/resources/Testimonial.ts
-export interface TestimonialPost {
-	id: number;
-	title: string;
-	// ...
-}
-
-export interface TestimonialQuery {
-	search?: string;
-	rating?: number;
-}
-
-export const testimonial = defineResource<TestimonialPost, TestimonialQuery>({ ... });
-```
-
-### 3. Use Consistent Naming
-
-Match resource names to REST endpoints (lowercase, singular):
-
-```typescript
-// Custom REST: /wpk/v1/testimonials
-name: 'testimonial';
-
-// WordPress Core REST: /wp/v2/posts
-name: 'post';
-```
-
-### 4. Define Granular Cache Keys
-
-More specific keys = better invalidation control:
-
-```typescript
-// ✗ Too broad - invalidates ALL lists
-cacheKeys: {
-	list: () => ['testimonial', 'list'];
-}
-
-// ✓ Granular - invalidate by rating/featured status
-cacheKeys: {
-	list: (q) => ['testimonial', 'list', q?.rating, q?.featured, q?.page];
-}
-```
-
-### 5. Always Type Your Queries
-
-```typescript
-// ✓ Typed - enforces query parameters
-defineResource<TestimonialPost, TestimonialQuery>({ ... })
-
-// ✗ Untyped - accepts any query
-defineResource<TestimonialPost>({ ... })
-```
-
-### 6. Use React Hooks, Not Direct Calls
-
-```typescript
-// ✗ Don't fetch directly in components
-function MyComponent() {
-	const [items, setItems] = useState([]);
-	useEffect(() => {
-		testimonial.fetchList().then(setItems);
-	}, []);
-}
-
-// ✓ Use hooks (auto-caching, auto-loading)
-function MyComponent() {
-	const { data, isLoading } = testimonial.useList();
-}
-```
-
-### 7. Invalidate After Writes (in Actions)
-
-Always invalidate affected caches in your Actions:
-
-```typescript
-// In Action
-await testimonial.update(id, data);
-testimonial.invalidate([
-	['testimonial', 'get', id],
-	['testimonial', 'list'],
-]);
-```
-
-## Advanced Patterns
-
-### Partial Resource Definitions
-
-You don't need all CRUD operations:
-
-```typescript
-// Read-only resource
-const testimonial = defineResource<TestimonialPost>({
-	name: 'testimonial',
-	routes: {
-		list: { path: '/wpk/v1/testimonials', method: 'GET' },
-		get: { path: '/wpk/v1/testimonials/:id', method: 'GET' },
-	},
-});
-
-// Write methods are undefined
-testimonial.fetchList(); // ✓ Available
-testimonial.fetch(1); // ✓ Available
-testimonial.create; // undefined
-```
-
-### Custom HTTP Methods
-
-Use `PATCH` for partial updates:
-
-```typescript
-routes: {
-	update: { path: '/wpk/v1/testimonials/:id', method: 'PATCH' }
-}
-```
-
-### Nested Resources
-
-Define resources with multi-parameter paths:
-
-```typescript
-const comment = defineResource<Comment>({
-	name: 'comment',
-	routes: {
-		list: {
-			path: '/wpk/v1/testimonials/:testimonialId/comments',
-			method: 'GET',
-		},
-		get: {
-			path: '/wpk/v1/testimonials/:testimonialId/comments/:id',
-			method: 'GET',
-		},
-	},
-});
-
-// Pass parameters as object with named keys
-await comment.list({ testimonialId: 42 });
-// → /wpk/v1/testimonials/42/comments
-
-await comment.get({ testimonialId: 42, id: 7 });
-// → /wpk/v1/testimonials/42/comments/7
-```
-
-### Custom Cache Strategy
-
-```typescript
-cacheKeys: {
-	// Include user context
-	get: (id) => ['testimonial', 'get', id, currentUserId],
-
-	// Conditional keys based on query
-	list: (q) => {
-		const parts = ['testimonial', 'list'];
-		if (q?.rating) parts.push('rating', q.rating);
-		if (q?.featured) parts.push('featured', q.featured);
-		return parts;
-	}
-}
-```
-
-## See Also
-
-- [Advanced Resources Guide](./resources-advanced.md) - Grouped API, power patterns
-- [Actions Guide](./actions.md) - Using resources in actions
-- [Events Guide](./events.md) - Resource-related events
-- [API Reference](/api/resources) - Complete API documentation
-- [Product Spec § 4.1](https://github.com/theGeekist/wp-kernel/blob/main/information/Product%20Specification%20PO%20Draft%20•%20v1.0.md#41-resources-model--client) - Design rationale
+- Read the [Decision Matrix](/reference/decision-matrix) to see which printers react to specific resource options.
+- Browse the [Showcase kernel config](/examples/showcase) for a production-scale example.
+- Explore the generated Typedoc under [`/api/core/`](../api/) to inspect every helper exposed by the resource runtime.
