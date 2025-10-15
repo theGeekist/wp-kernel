@@ -259,6 +259,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/e2e-utils
 
+  examples/smoke-test: {}
+
   packages/cli:
     dependencies:
       '@prettier/plugin-php':

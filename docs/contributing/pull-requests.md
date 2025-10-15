@@ -77,14 +77,14 @@ pnpm typecheck
 
 ### 3. Update CHANGELOG
 
-**For Sprint PRs**, update CHANGELOG.md files in affected packages:
+**For feature PRs**, update CHANGELOG.md files in affected packages:
 
 ```markdown
 ## 0.x.0 [Unreleased]
 
 ### Added
 
-- Sprint 5: Bindings & Interactivity (Block Bindings, Interactivity API, Providers)
+- Bindings & Interactivity (Block Bindings, Interactivity API, Providers)
 
 ### Fixed
 
@@ -120,7 +120,7 @@ Then open a PR on GitHub **using the PR template** (`.github/PULL_REQUEST_TEMPLA
 
 **Always use** `.github/PULL_REQUEST_TEMPLATE.md` when creating PRs. The template includes:
 
-- Sprint/scope identification
+- Scope identification
 - Roadmap and sprint doc links (please include)
 - Release type selection (minor/patch/major)
 - CHANGELOG.md confirmation checklist
@@ -128,7 +128,7 @@ Then open a PR on GitHub **using the PR template** (`.github/PULL_REQUEST_TEMPLA
 
 ### Required Sections
 
-1. **Sprint Metadata** – Sprint number, type (feature/alignment/norms)
+1. **Upcoming work** – describe the focus (feature/alignment/norms)
 2. **Scope** – Brief description of changes
 3. **Context** – Links to roadmap, sprint doc, and related PRs/issues
 4. **Testing** – How to test the changes
@@ -482,7 +482,7 @@ git checkout -b feature/my-feature
 # While working
 pnpm test
 pnpm lint
-pnpm cs:new:minor "Sprint X: Description"
+pnpm cs:new:minor "Feature: Description"
 
 # Before pushing
 git add .

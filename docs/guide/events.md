@@ -3,7 +3,7 @@
 > **Status**: ✓ **Fully Implemented** – JavaScript event system now flows through
 > `KernelEventBus` with a WordPress hooks bridge.
 >
-> **PHP Bridge**: 🚧 Planned for Sprint 9 (legacy plugin integrations).
+> **PHP Bridge**: 🚧 Planned for a future release (legacy plugin integrations).
 
 Stable, versioned event registry with predictable names. All events come from a
 central registry-no ad-hoc strings. `KernelEventBus` is the authoritative
@@ -280,9 +280,9 @@ export const CreateThing = defineAction(
 );
 ```
 
-## Future: PHP Bridge (Sprint 9)
+## Future: PHP Bridge
 
-> **⚠️ NOT YET IMPLEMENTED**: PHP event bridge is planned for Sprint 9.
+> **⚠️ NOT YET IMPLEMENTED**: PHP event bridge is planned for a future release.
 
 The PHP bridge will mirror selected JavaScript events to WordPress `do_action()` hooks for legacy plugin integrations:
 
@@ -309,10 +309,10 @@ For the complete event taxonomy, payload contracts, PHP bridge planning, version
 
 **[Event Taxonomy Quick Reference](https://github.com/theGeekist/wp-kernel/blob/main/information/Event%20Taxonomy%20Quick%20Reference.md)**
 
-This is the authoritative specification for the entire event system. The JavaScript implementation is complete; PHP bridge is planned for Sprint 9.
+This is the authoritative specification for the entire event system. The JavaScript implementation is complete; PHP bridge is planned for a future release.
 
 ## See Also
 
 - [Resources Guide](/guide/resources) - Resource transport and caching
-- [Actions Guide](/guide/actions) - Write path orchestration (Sprint 4)
+- [Actions Guide](/guide/actions) - Write path orchestration
 - [API Reference](/api/events) - Complete API docs

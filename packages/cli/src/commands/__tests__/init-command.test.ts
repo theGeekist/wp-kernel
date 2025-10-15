@@ -29,6 +29,7 @@ describe('InitCommand', () => {
 			expect(stdout).toContain('created src/index.ts');
 			expect(stdout).toContain('created tsconfig.json');
 			expect(stdout).toContain('created eslint.config.js');
+			expect(stdout).toContain('created vite.config.ts');
 			expect(stdout).toContain('created package.json');
 			expect(stdout).toContain('created composer.json');
 			expect(stdout).toContain('created inc/.gitkeep');
@@ -69,7 +70,24 @@ describe('InitCommand', () => {
 					generate: 'wpk generate',
 					apply: 'wpk apply',
 				},
+				dependencies: {
+					'@wpkernel/core': 'latest',
+					'@wpkernel/ui': 'latest',
+				},
 			});
+			expect(packageJson.peerDependencies).toMatchObject({
+				react: expect.any(String),
+				'react-dom': expect.any(String),
+				'@wordpress/api-fetch': expect.any(String),
+			});
+			expect(packageJson.devDependencies).toEqual(
+				expect.objectContaining({
+					typescript: expect.any(String),
+					vite: expect.any(String),
+					'@types/react': expect.any(String),
+					'@types/react-dom': expect.any(String),
+				})
+			);
 
 			const composerJson = JSON.parse(
 				await fs.readFile(path.join(workspace, 'composer.json'), 'utf8')
@@ -86,6 +104,13 @@ describe('InitCommand', () => {
 			await expect(
 				fs.access(path.join(workspace, 'inc/.gitkeep'))
 			).resolves.toBeUndefined();
+
+			const viteConfig = await fs.readFile(
+				path.join(workspace, 'vite.config.ts'),
+				'utf8'
+			);
+			expect(viteConfig).toContain('defineConfig');
+			expect(viteConfig).toContain("'react/jsx-runtime'");
 		});
 	});
 
@@ -167,7 +192,53 @@ describe('InitCommand', () => {
 					apply: 'wpk apply',
 					lint: 'eslint .',
 				},
+				devDependencies: expect.objectContaining({
+					vite: expect.any(String),
+				}),
 			});
+		});
+	});
+
+	it('preserves custom peer dependency versions unless --force is provided', async () => {
+		await withWorkspace(async (workspace) => {
+			const command = await createCommand(workspace);
+			command.name = 'jobs-plugin';
+
+			await fs.writeFile(
+				path.join(workspace, 'package.json'),
+				JSON.stringify(
+					{
+						name: 'jobs-plugin',
+						peerDependencies: {
+							react: '^19.0.0-alpha',
+							'@wordpress/data': 'canary-range',
+						},
+						devDependencies: {
+							react: '^19.0.0-alpha',
+							'@wordpress/data': 'canary-range',
+						},
+					},
+					null,
+					2
+				)
+			);
+
+			const exit = await command.execute();
+
+			expect(exit).toBe(WPK_EXIT_CODES.SUCCESS);
+
+			const packageJson = JSON.parse(
+				await fs.readFile(path.join(workspace, 'package.json'), 'utf8')
+			);
+
+			expect(packageJson.peerDependencies.react).toBe('^19.0.0-alpha');
+			expect(packageJson.peerDependencies['@wordpress/data']).toBe(
+				'canary-range'
+			);
+			expect(packageJson.devDependencies.react).toBe('^19.0.0-alpha');
+			expect(packageJson.devDependencies['@wordpress/data']).toBe(
+				'canary-range'
+			);
 		});
 	});
 
@@ -247,6 +318,70 @@ describe('InitCommand', () => {
 			expect(stdout).toContain('created kernel.config.ts');
 		});
 	});
+
+	it('logs dependency resolution source when verbose and honours registry env flag', async () => {
+		await withWorkspace(async (workspace) => {
+			const originalEnv = process.env.WPK_PREFER_REGISTRY_VERSIONS;
+			const originalRegistry = process.env.REGISTRY_URL;
+			process.env.WPK_PREFER_REGISTRY_VERSIONS = '1';
+			process.env.REGISTRY_URL = 'https://registry.example.com';
+
+			let dependencySpy: jest.SpyInstance | undefined;
+
+			try {
+				const command = await createCommand(workspace, {
+					resetModules: true,
+					beforeImport: async () => {
+						const dependencyModule = await import(
+							'../init/dependency-versions'
+						);
+						dependencySpy = jest
+							.spyOn(
+								dependencyModule,
+								'resolveDependencyVersions'
+							)
+							.mockResolvedValue({
+								dependencies: {
+									'@wpkernel/core': 'latest',
+									'@wpkernel/ui': 'latest',
+								},
+								devDependencies: {},
+								peerDependencies: {},
+								source: 'registry',
+								sources: ['fallback', 'registry'],
+							});
+					},
+				});
+
+				command.verbose = true;
+
+				const exit = await command.execute();
+
+				expect(exit).toBe(WPK_EXIT_CODES.SUCCESS);
+				expect(command.context.stdout.toString()).toContain(
+					'[wpk] init dependency versions resolved from registry'
+				);
+
+				expect(dependencySpy).toBeDefined();
+				expect(dependencySpy?.mock.calls[0][1]).toMatchObject({
+					preferRegistryVersions: true,
+					registryUrl: 'https://registry.example.com',
+				});
+			} finally {
+				dependencySpy?.mockRestore();
+				if (originalEnv === undefined) {
+					delete process.env.WPK_PREFER_REGISTRY_VERSIONS;
+				} else {
+					process.env.WPK_PREFER_REGISTRY_VERSIONS = originalEnv;
+				}
+				if (originalRegistry === undefined) {
+					delete process.env.REGISTRY_URL;
+				} else {
+					process.env.REGISTRY_URL = originalRegistry;
+				}
+			}
+		});
+	});
 });
 
 async function withWorkspace(
@@ -268,10 +403,17 @@ async function withWorkspace(
 
 async function createCommand(
 	workspace: string,
-	options: { resetModules?: boolean } = {}
+	options: {
+		resetModules?: boolean;
+		beforeImport?: () => Promise<void> | void;
+	} = {}
 ): Promise<InitCommand> {
 	if (options.resetModules === true) {
 		jest.resetModules();
+	}
+
+	if (typeof options.beforeImport === 'function') {
+		await options.beforeImport();
 	}
 
 	const { InitCommand } = await import('../init');
