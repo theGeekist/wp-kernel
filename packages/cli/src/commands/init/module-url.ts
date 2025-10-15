@@ -20,8 +20,10 @@ export function getModuleUrl(): string {
 		return importMetaUrl;
 	}
 
-	if (typeof __filename === 'string') {
-		return pathToFileURL(__filename).href;
+	const moduleFilename = resolveModuleFilename();
+
+	if (moduleFilename) {
+		return pathToFileURL(moduleFilename).href;
 	}
 
 	throw new KernelError('DeveloperError', {
@@ -34,21 +36,29 @@ function resolveImportMetaUrl(): string | undefined {
 		return Function(
 			'return (function(){ try { return eval("import.meta.url"); } catch (error) { return undefined; } })();'
 		)();
-	} catch (error) {
-		if (!isImportMetaSyntaxError(error)) {
-			throw error;
-		}
+	} catch (_error) {
+		// Some environments (notably CommonJS transpilation targets) throw a syntax error when
+		// evaluating `import.meta`. Treat those as an expected absence and fall back to other
+		// resolution strategies instead of surfacing the error.
 		return undefined;
 	}
 }
 
-function isImportMetaSyntaxError(error: unknown): boolean {
-	if (!error || typeof error !== 'object') {
-		return false;
+function resolveModuleFilename(): string | undefined {
+	if (typeof __filename === 'string' && __filename.length > 0) {
+		return __filename;
 	}
 
-	const message = String((error as { message?: unknown }).message ?? '');
-	return message.includes('import') && message.includes('module');
+	if (
+		typeof module === 'object' &&
+		module !== null &&
+		'filename' in module &&
+		typeof (module as NodeModule).filename === 'string'
+	) {
+		return (module as NodeModule).filename;
+	}
+
+	return undefined;
 }
 
 export function getCliPackageRoot(): string {
