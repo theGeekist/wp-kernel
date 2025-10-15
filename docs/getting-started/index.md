@@ -1,12 +1,16 @@
 # Introduction
 
-WP Kernel is a Rails-like, opinionated framework for building modern WordPress products where **JavaScript remains the source of truth** and **PHP provides a focused contract** for transport and capabilities. Instead of wiring the same state and networking layer on every project, you inherit a set of conventions that already know how the pieces should work together.
+WP Kernel is an opinionated framework for WordPress plugins. JavaScript stays in charge of data flow through `defineResource`, actions coordinate every write, and generated PHP controllers keep WordPress in sync without manual glue. Instead of wiring state, REST clients, and admin pages on every project, you describe the shape of your plugin once and let the tooling follow through.
 
-## What this is (in plain language)
+## What ships out of the box
 
-Think of WP Kernel as a small backbone for 2025-era WordPress development. Blocks, bindings, and the Interactivity API power the UI. Actions coordinate every write. Resources speak REST with types and caching baked in. The PHP bridge exposes only the endpoints you need for legacy compatibility. You focus on product behaviour; the kernel keeps the plumbing predictable.
+- **Resources** provide typed REST clients, cache helpers, grouped APIs, and React hooks as soon as you call `defineResource` in your project.【F:packages/core/src/resource/define.ts†L115-L390】
+- **Actions** wrap every write. They surface reporters, cache invalidation, job helpers, and policy assertions through the action context so UIs never call transports directly.【F:packages/core/src/actions/define.ts†L160-L322】
+- **CLI printers** live under `.generated/`. `wpk generate` emits TypeScript declarations for schemas, PHP controllers for local routes, optional DataViews scaffolding, and block registration code based on the manifests it discovers.【F:packages/cli/src/printers/index.ts†L1-L16】
 
-### Orientation map
+When you configure adapters, the CLI can extend generation-for example the default PHP adapter writes controllers into `.generated/php` and produces a policy helper for capability checks.【F:packages/cli/src/printers/php/printer.ts†L1-L73】
+
+## Orientation map
 
 ```mermaid
 journey
@@ -16,7 +20,7 @@ journey
       Skim architecture overview : 4
     section Prepare
       Follow Installation guide : 5
-      Review Repository Handbook : 3
+      Review project docs : 3
     section Build
       Complete Quick Start : 5
     section Deepen
@@ -24,66 +28,42 @@ journey
       Tour Showcase plugin : 3
 ```
 
-Move through the materials in that order: orient yourself, set up the environment, build something small, then deepen your understanding with the guides.
+Move through the materials in that order: orient yourself, set up tooling, build something small, then deepen your understanding with the guides.
 
-## Core philosophy
+## Reads vs writes
 
-### Actions-first rule
+On the read path, resources register selectors with the WordPress data store. React hooks such as `job.useList()` and `job.useGet()` call through to those selectors and keep loading and error state in sync with the cache.【F:packages/ui/src/hooks/resource-hooks.ts†L1-L120】 On the write path, actions call the resource client (`job.create`, `job.update`), emit canonical events, invalidate cache keys, and optionally enqueue background jobs. Keeping the paths separate makes instrumentation and retries consistent.
 
-User interfaces never call transport directly. Every mutation passes through an Action that can validate permissions, coordinate retries, emit events, and invalidate caches. Compare the two approaches below; the first creates invisible data debt, the second leaves a clear audit trail.
+```ts
+import { defineAction } from '@wpkernel/core/actions';
+import { job } from '@/resources/job';
 
-```typescript
-// ✗ WRONG - UI calling resource directly
-const handleSubmit = async () => {
-	await thing.create(formData); // Lint error + runtime warning
-};
-
-// ✓ CORRECT - UI calls Action
-import { CreateThing } from '@/actions/Thing/Create';
-const handleSubmit = async () => {
-	await CreateThing({ data: formData });
-};
-```
-
-### Read path vs write path
-
-On the read side, views ask bindings for data, bindings reach into the store, and resources populate the cache. On the write side, the same views trigger Actions, which call resources, emit events from a stable registry (so integrations know what to expect), and handle invalidation. Keeping the paths distinct is what allows WP Kernel to add logging, retries, and job queues without touching your components.
-
-```typescript
-// Client-side binding
-registerBindingSource('gk', {
-	'thing.title': (attrs) => select('wpk/thing').getById(attrs.id)?.title,
-});
-```
-
-```typescript
-export const CreateThing = defineAction({
-	name: 'Thing.Create',
+export const CreateJob = defineAction({
+	name: 'Job.Create',
 	handler: async (ctx, { data }) => {
-		const created = await thing.create(data);
-		ctx.emit(thing.events.created, { id: created.id });
-		ctx.invalidate([thing.key('list')]);
+		const created = await job.create(data);
+		ctx.emit(job.events.created, { id: created.id });
+		ctx.invalidate([job.cache.key('list')]);
 		return created;
 	},
 });
 ```
 
-## Who benefits
+## UI integration
 
-Developers get a single mental model across the editor, front end, and admin. Agencies and product teams gain delivery discipline without hand-written boilerplate. Business owners see faster iteration because the architecture already accounts for extensibility, telemetry, and background processing.
+Call `configureKernel` once during bootstrap, then hand the instance to `attachUIBindings` from `@wpkernel/ui`. That attaches resource hooks, optional DataViews runtime support, and policy bridges to the kernel instance.【F:packages/ui/src/runtime/attachUIBindings.ts†L1-L120】
 
-## What it enables
+```ts
+import { configureKernel } from '@wpkernel/core/data';
+import { attachUIBindings } from '@wpkernel/ui';
+import { kernelConfig } from '../kernel.config';
 
-Imagine the kickoff task: "Add an Apply button that creates an application, shows a toast, and moves a card on the admin board." With WP Kernel you scaffold an `application` resource, implement an `Application.Submit` Action that handles permissions and emits the canonical event, bind a button to the Action in the block editor, and-if required-mirror the event in PHP so downstream systems can react. The boring decisions are already made, which shortens time to value from days to minutes.
+export const kernel = configureKernel({ namespace: kernelConfig.namespace });
+export const ui = attachUIBindings(kernel);
+```
 
-## How it fits with WordPress Core
-
-Nothing here fights core WordPress. WP Kernel leans on Script Modules for ESM, `@wordpress/data` for state, Block Bindings for content, the Interactivity API for behaviour, and `@wordpress/hooks` for events. By staying close to Core, you invest in skills and APIs that the broader ecosystem shares.
-
-## Key guarantees
-
-Actions remain the only sanctioned write path. JavaScript hooks are the authoritative source of truth-events fire here first and propagate everywhere-while the PHP bridge mirrors only selected events for legacy integrations. Resources derive their types from JSON Schema, which keeps the contracts honest. Event names stay stable across major versions, cache invalidation is explicit, and every error extends `KernelError` so logging and telemetry see a consistent structure.
+Once attached, React components can call `job.useList()` or render `<ResourceDataView>` when DataViews metadata exists in the config.【F:packages/ui/src/dataviews/resource-controller.ts†L1-L140】
 
 ## Next steps
 
-When you are ready to dive in, start with the [installation guide](/getting-started/installation) to prepare your tooling. Move on to the [Quick Start](/getting-started/quick-start) to build a feature end to end. The [Repository Handbook](/guide/repository-handbook) points you to project-level documents like `DEVELOPMENT.md`, and the broader [Core Concepts](/guide/) section unpacks Actions, resources, events, bindings, and jobs in depth.
+Start with the [installation guide](/getting-started/installation) to prepare your environment, then follow the [Quick Start](/getting-started/quick-start) for the end-to-end workflow. The [Guide section](/guide/) breaks down each subsystem-resources, actions, jobs, policies, reporting-so you can dig deeper once the basics are clear.

@@ -432,7 +432,7 @@ test('should emit events on job creation', async ({ page, kernel }) => {
 	expect(events.map((e) => e.name)).toEqual([
 		'wpk.resource.request',
 		'wpk.resource.response',
-		'wpk.job.created', // Emitted by Action in Sprint 4
+		'wpk.job.created', // Emitted by Action after the reporting upgrade
 		'wpk.cache.invalidated',
 	]);
 
