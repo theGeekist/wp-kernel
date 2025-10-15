@@ -74,7 +74,7 @@
 	],
 	"scripts": {
 		"dev": "vite build --watch",
-		"build": "vite build && tsc --noEmit",
+		"build": "vite build && node ./scripts/generate-versions.mjs && tsc --noEmit",
 		"clean": "rm -rf dist *.tsbuildinfo",
 		"lint": "eslint src/",
 		"lint:fix": "eslint src/ --fix",

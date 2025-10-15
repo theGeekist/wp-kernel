@@ -1,9 +1,10 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
-import { fileURLToPath, pathToFileURL } from 'node:url';
 import { Command, Option } from 'clipanion';
 import type { BaseContext } from 'clipanion';
 import { KernelError } from '@wpkernel/core/error';
+import { getCliPackageRoot } from './init/module-url';
+import { resolveDependencyVersions } from './init/dependency-versions';
 
 interface ScaffoldFile {
 	relativePath: string;
@@ -13,9 +14,8 @@ interface ScaffoldFile {
 
 type FileStatus = 'created' | 'updated';
 
-const INIT_TEMPLATE_ROOT = fileURLToPath(
-	new URL('../../templates/init', getModuleUrl())
-);
+const INIT_TEMPLATE_ROOT = path.join(getCliPackageRoot(), 'templates', 'init');
+const INIT_VITE_CONFIG = 'vite.config.ts';
 
 const PACKAGE_DEFAULT_VERSION = '0.1.0';
 const PACKAGE_DEFAULT_TYPE = 'module';
@@ -27,25 +27,6 @@ const SCRIPT_RECOMMENDATIONS: Record<string, string> = {
 	generate: 'wpk generate',
 	apply: 'wpk apply',
 };
-
-declare global {
-	var __WPK_CLI_MODULE_URL__: string | undefined;
-}
-
-function getModuleUrl(): string {
-	const moduleUrl = globalThis.__WPK_CLI_MODULE_URL__;
-	if (typeof moduleUrl === 'string') {
-		return moduleUrl;
-	}
-
-	if (typeof __filename === 'string') {
-		return pathToFileURL(__filename).href;
-	}
-
-	throw new KernelError('DeveloperError', {
-		message: 'Unable to resolve CLI module URL for init command.',
-	});
-}
 
 const WPK_CONFIG_FILENAME = ['kernel', 'config.ts'].join('.');
 const SRC_INDEX_PATH = path.join('src', 'index.ts');
@@ -80,6 +61,11 @@ export class InitCommand extends Command {
 	});
 
 	force = Option.Boolean('--force', false);
+	verbose = Option.Boolean('--verbose', false);
+	preferRegistryVersions = Option.Boolean(
+		'--prefer-registry-versions',
+		false
+	);
 
 	override async execute(): Promise<number> {
 		const context = this.context as BaseContext & { cwd?: () => string };
@@ -127,17 +113,38 @@ export class InitCommand extends Command {
 				relativePath: ESLINT_CONFIG_FILENAME,
 				templatePath: 'eslint.config.js',
 			},
+			{
+				relativePath: INIT_VITE_CONFIG,
+				templatePath: INIT_VITE_CONFIG,
+			},
 		];
 
 		try {
 			const packageState = await loadPackageJson(workspace);
+			const dependencyVersions = await resolveDependencyVersions(
+				workspace,
+				{
+					preferRegistryVersions: shouldPreferRegistryVersions({
+						cliFlag: this.preferRegistryVersions,
+						env: process.env.WPK_PREFER_REGISTRY_VERSIONS,
+					}),
+					registryUrl: process.env.REGISTRY_URL,
+				}
+			);
 			await ensureNoCollisions(workspace, files, force);
+
+			if (this.verbose) {
+				this.context.stdout.write(
+					`[wpk] init dependency versions resolved from ${dependencyVersions.source}\n`
+				);
+			}
 
 			const fileSummaries = await scaffoldProjectFiles(workspace, files);
 
 			const packageStatus = await writePackageJson(packageState, {
 				packageName,
 				force,
+				dependencyVersions,
 			});
 
 			const summaries =
@@ -220,14 +227,22 @@ async function loadPackageJson(workspace: string): Promise<PackageState> {
 
 async function writePackageJson(
 	state: PackageState,
-	options: { packageName: string; force: boolean }
+	options: {
+		packageName: string;
+		force: boolean;
+		dependencyVersions: Awaited<
+			ReturnType<typeof resolveDependencyVersions>
+		>;
+	}
 ): Promise<FileStatus | null> {
 	if (state.type === 'missing') {
-		const template = await loadTemplate(PACKAGE_JSON_FILENAME);
-		const rendered = applyReplacements(template, {
-			__WPK_PACKAGE_NAME__: options.packageName,
-		});
-		await fs.writeFile(state.path, ensureTrailingNewline(rendered), 'utf8');
+		const { next } = applyPackageDefaults({}, options);
+		const serialised = JSON.stringify(next, null, 2);
+		await fs.writeFile(
+			state.path,
+			ensureTrailingNewline(serialised),
+			'utf8'
+		);
 		return 'created';
 	}
 
@@ -244,7 +259,13 @@ async function writePackageJson(
 
 function applyPackageDefaults(
 	pkg: PackageJson,
-	options: { packageName: string; force: boolean }
+	options: {
+		packageName: string;
+		force: boolean;
+		dependencyVersions: Awaited<
+			ReturnType<typeof resolveDependencyVersions>
+		>;
+	}
 ): { changed: boolean; next: PackageJson } {
 	const next: PackageJson = { ...pkg };
 	let changed = false;
@@ -275,6 +296,39 @@ function applyPackageDefaults(
 	}
 
 	next.scripts = scripts;
+
+	if (
+		applyDependencyDefaults(
+			next,
+			'dependencies',
+			options.dependencyVersions.dependencies,
+			options.force
+		)
+	) {
+		changed = true;
+	}
+
+	if (
+		applyDependencyDefaults(
+			next,
+			'peerDependencies',
+			options.dependencyVersions.peerDependencies,
+			options.force
+		)
+	) {
+		changed = true;
+	}
+
+	if (
+		applyDependencyDefaults(
+			next,
+			'devDependencies',
+			options.dependencyVersions.devDependencies,
+			options.force
+		)
+	) {
+		changed = true;
+	}
 
 	return { changed, next };
 }
@@ -346,6 +400,39 @@ function applyScriptDefaults(
 	}
 
 	return { scripts: nextScripts, changed };
+}
+
+function applyDependencyDefaults(
+	target: PackageJson,
+	key: DependencyKey,
+	desired: Record<string, string>,
+	force: boolean
+): boolean {
+	if (Object.keys(desired).length === 0) {
+		return false;
+	}
+
+	const current = isRecordOfStrings(target[key]) ? { ...target[key] } : {};
+	let changed = false;
+
+	for (const [dep, version] of Object.entries(desired)) {
+		const existing = current[dep];
+		if (existing === version) {
+			continue;
+		}
+
+		if (existing === undefined || force) {
+			current[dep] = version;
+			changed = true;
+		}
+	}
+
+	if (!changed) {
+		return false;
+	}
+
+	target[key] = sortDependencyMap(current);
+	return true;
 }
 
 function formatSummary({
@@ -481,6 +568,22 @@ function applyReplacements(
 	return result;
 }
 
+function isRecordOfStrings(value: unknown): value is Record<string, string> {
+	if (!value || typeof value !== 'object') {
+		return false;
+	}
+
+	return Object.values(value).every((entry) => typeof entry === 'string');
+}
+
+function sortDependencyMap(
+	map: Record<string, string>
+): Record<string, string> {
+	return Object.fromEntries(
+		Object.entries(map).sort(([a], [b]) => a.localeCompare(b))
+	);
+}
+
 function isENOENT(error: unknown): error is { code: string } {
 	return Boolean(
 		error &&
@@ -496,6 +599,9 @@ type PackageJson = {
 	private?: boolean;
 	type?: string;
 	scripts?: Record<string, string>;
+	dependencies?: Record<string, string>;
+	peerDependencies?: Record<string, string>;
+	devDependencies?: Record<string, string>;
 	[key: string]: unknown;
 };
 
@@ -504,3 +610,24 @@ type PackageState =
 	| { type: 'existing'; path: string; data: PackageJson };
 
 type PackageJsonStringKey = 'name' | 'version' | 'type';
+
+type DependencyKey = 'dependencies' | 'peerDependencies' | 'devDependencies';
+
+function shouldPreferRegistryVersions({
+	cliFlag,
+	env,
+}: {
+	cliFlag: boolean;
+	env: string | undefined;
+}): boolean {
+	if (cliFlag) {
+		return true;
+	}
+
+	if (!env) {
+		return false;
+	}
+
+	const normalised = env.trim().toLowerCase();
+	return normalised === '1' || normalised === 'true';
+}
