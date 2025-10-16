@@ -13,7 +13,8 @@ import { DevCommand } from '../dev';
 import { runGenerate } from '../run-generate';
 import { EXIT_CODES } from '../run-generate/types';
 import chokidar from 'chokidar';
-import { MemoryStream } from '../../../tests/memory-stream.test-support';
+import { assignCommandContext } from '../../../tests/cli-command.test-support';
+import { flushAsync } from '../../../tests/async.test-support';
 
 const runGenerateMock = runGenerate as jest.MockedFunction<typeof runGenerate>;
 const watchMock = chokidar.watch as jest.MockedFunction<typeof chokidar.watch>;
@@ -43,31 +44,30 @@ describe('StartCommand', () => {
 		const watcher = new FakeWatcher() as unknown as FSWatcher;
 		watchMock.mockReturnValue(watcher);
 
-		const { command } = createStartCommand();
+		const { command, stdout } = createStartCommand();
 		const executePromise = command.execute();
 
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		expect(runGenerateMock).toHaveBeenCalledTimes(1);
 
 		watcher.emit('all', 'change', 'kernel.config.ts');
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		expect(runGenerateMock).toHaveBeenCalledTimes(1);
 
 		jest.advanceTimersByTime(FAST_DEBOUNCE_MS - 1);
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		expect(runGenerateMock).toHaveBeenCalledTimes(1);
 
 		jest.advanceTimersByTime(1);
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		expect(runGenerateMock).toHaveBeenCalledTimes(2);
 
 		process.emit('SIGINT');
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		await executePromise;
 
 		expect(watcher.close).toHaveBeenCalledTimes(1);
-		const stdout = (command.context.stdout as MemoryStream).toString();
-		expect(stdout).toContain('[summary]');
+		expect(stdout.toString()).toContain('[summary]');
 	});
 
 	it('uses slow debounce for schema changes and overrides fast triggers', async () => {
@@ -77,7 +77,7 @@ describe('StartCommand', () => {
 		const { command } = createStartCommand();
 		const executePromise = command.execute();
 
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		expect(runGenerateMock).toHaveBeenCalledTimes(1);
 
 		watcher.emit('all', 'change', 'kernel.config.ts');
@@ -88,15 +88,15 @@ describe('StartCommand', () => {
 		);
 
 		jest.advanceTimersByTime(FAST_DEBOUNCE_MS);
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		expect(runGenerateMock).toHaveBeenCalledTimes(1);
 
 		jest.advanceTimersByTime(SLOW_DEBOUNCE_MS);
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		expect(runGenerateMock).toHaveBeenCalledTimes(2);
 
 		process.emit('SIGINT');
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		await executePromise;
 	});
 
@@ -107,17 +107,17 @@ describe('StartCommand', () => {
 		const { command } = createStartCommand();
 		const executePromise = command.execute();
 
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		watcher.emit('error', new Error('watcher failure'));
 
 		watcher.emit('all', 'change', 'kernel.config.ts');
 		await jest.advanceTimersByTimeAsync(FAST_DEBOUNCE_MS + 1);
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 
 		expect(runGenerateMock).toHaveBeenCalledTimes(2);
 
 		process.emit('SIGINT');
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		await executePromise;
 	});
 
@@ -131,7 +131,7 @@ describe('StartCommand', () => {
 
 		const executePromise = command.execute();
 
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		expect(mockedFs.mkdir).toHaveBeenCalledTimes(1);
 		await expectEventually(() => {
 			expect(mockedFs.cp).toHaveBeenCalledTimes(1);
@@ -139,7 +139,7 @@ describe('StartCommand', () => {
 
 		watcher.emit('all', 'change', 'kernel.config.ts');
 		await jest.advanceTimersByTimeAsync(FAST_DEBOUNCE_MS + 1);
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 
 		expect(runGenerateMock).toHaveBeenCalledTimes(2);
 		await expectEventually(() => {
@@ -147,7 +147,7 @@ describe('StartCommand', () => {
 		});
 
 		process.emit('SIGINT');
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		await executePromise;
 	});
 
@@ -161,12 +161,12 @@ describe('StartCommand', () => {
 
 		const executePromise = command.execute();
 
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 
 		expect(mockedFs.cp).not.toHaveBeenCalled();
 
 		process.emit('SIGINT');
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		await executePromise;
 	});
 
@@ -188,25 +188,25 @@ describe('StartCommand', () => {
 		const { command } = createStartCommand();
 		const executePromise = command.execute();
 
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		expect(runGenerateMock).toHaveBeenCalledTimes(1);
 
 		watcher.emit('all', 'change', 'kernel.config.ts');
 		await jest.advanceTimersByTimeAsync(FAST_DEBOUNCE_MS + 1);
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 
 		expect(runGenerateMock).toHaveBeenCalledTimes(1);
 
 		resolveFirstRun?.();
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		await jest.advanceTimersByTimeAsync(FAST_DEBOUNCE_MS + 1);
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 
 		expect(runGenerateMock).toHaveBeenCalledTimes(2);
 
 		process.emit('SIGINT');
 		process.emit('SIGINT');
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		await executePromise;
 	});
 
@@ -217,12 +217,12 @@ describe('StartCommand', () => {
 		const { command } = createStartCommand();
 		const executePromise = command.execute();
 
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		watcher.emit('all', 'change', 'kernel.config.ts');
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 
 		process.emit('SIGINT');
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		await executePromise;
 
 		expect(runGenerateMock).toHaveBeenCalledTimes(1);
@@ -235,23 +235,23 @@ describe('StartCommand', () => {
 		const { command } = createStartCommand();
 		const executePromise = command.execute();
 
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		watcher.emit('all', 'change', 'kernel.config.ts');
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 
 		watcher.emit('all', 'change', 'kernel.config.ts');
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 
 		await jest.advanceTimersByTimeAsync(FAST_DEBOUNCE_MS - 1);
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		expect(runGenerateMock).toHaveBeenCalledTimes(1);
 
 		await jest.advanceTimersByTimeAsync(1);
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		expect(runGenerateMock).toHaveBeenCalledTimes(2);
 
 		process.emit('SIGINT');
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		await executePromise;
 	});
 
@@ -262,11 +262,11 @@ describe('StartCommand', () => {
 		const { command } = createStartCommand();
 		const executePromise = command.execute();
 
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		process.emit('SIGINT');
 		process.emit('SIGTERM');
 
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		await executePromise;
 
 		expect(runGenerateMock).toHaveBeenCalledTimes(1);
@@ -282,14 +282,14 @@ describe('StartCommand', () => {
 
 		const executePromise = command.execute();
 
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 
 		expect(runGenerateMock).toHaveBeenCalledWith(
 			expect.objectContaining({ verbose: true })
 		);
 
 		process.emit('SIGINT');
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		await executePromise;
 	});
 
@@ -303,9 +303,9 @@ describe('StartCommand', () => {
 		const { command } = createStartCommand();
 		const executePromise = command.execute();
 
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		process.emit('SIGINT');
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		await executePromise;
 
 		expect(watcher.close).toHaveBeenCalledTimes(1);
@@ -323,12 +323,12 @@ describe('StartCommand', () => {
 
 		const executePromise = command.execute();
 
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		expect(mockedFs.cp).toHaveBeenCalledTimes(0);
 
 		watcher.emit('all', 'change', 'kernel.config.ts');
 		await jest.advanceTimersByTimeAsync(FAST_DEBOUNCE_MS + 1);
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 
 		expect(runGenerateMock).toHaveBeenCalledTimes(2);
 		await expectEventually(() => {
@@ -336,7 +336,7 @@ describe('StartCommand', () => {
 		});
 
 		process.emit('SIGINT');
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		await executePromise;
 	});
 
@@ -351,17 +351,17 @@ describe('StartCommand', () => {
 
 		const executePromise = command.execute();
 
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		expect(mockedFs.cp).toHaveBeenCalledTimes(1);
 
 		watcher.emit('all', 'change', 'kernel.config.ts');
 		await jest.advanceTimersByTimeAsync(FAST_DEBOUNCE_MS + 1);
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 
 		expect(mockedFs.cp).toHaveBeenCalledTimes(2);
 
 		process.emit('SIGINT');
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		await executePromise;
 	});
 
@@ -375,15 +375,15 @@ describe('StartCommand', () => {
 		const { command } = createStartCommand();
 		const executePromise = command.execute();
 
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		watcher.emit('all', 'change', 'kernel.config.ts');
 		await jest.advanceTimersByTimeAsync(FAST_DEBOUNCE_MS + 1);
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 
 		expect(runGenerateMock).toHaveBeenCalledTimes(2);
 
 		process.emit('SIGINT');
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		await executePromise;
 	});
 
@@ -394,9 +394,9 @@ describe('StartCommand', () => {
 		const { command, viteProcess } = createStartCommand();
 		const executePromise = command.execute();
 
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		process.emit('SIGINT');
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		await executePromise;
 
 		expect(viteProcess.kill).toHaveBeenCalledWith('SIGINT');
@@ -404,16 +404,7 @@ describe('StartCommand', () => {
 
 	it('returns error exit code when Vite fails to launch', async () => {
 		const command = new StartCommand();
-		const stdout = new MemoryStream();
-		const stderr = new MemoryStream();
-		command.context = {
-			stdout,
-			stderr,
-			stdin: process.stdin,
-			env: process.env,
-			cwd: () => process.cwd(),
-			colorDepth: 1,
-		} as StartCommand['context'];
+		assignCommandContext(command);
 
 		jest.spyOn(
 			command as unknown as StartCommand,
@@ -476,16 +467,15 @@ describe('DevCommand alias', () => {
 	});
 
 	it('emits a deprecation warning and delegates to StartCommand', async () => {
-		const { command } = createDevCommand();
+		const { command, stderr } = createDevCommand();
 		const executePromise = command.execute();
 
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 
-		const stderr = command.context.stderr as MemoryStream;
 		expect(stderr.toString()).toContain('deprecated');
 
 		process.emit('SIGINT');
-		await flushAsync();
+		await flushAsync({ runAllTimers: true });
 		await executePromise;
 	});
 });
@@ -516,19 +506,11 @@ class FakeChildProcess extends EventEmitter {
 function createStartCommand(): {
 	command: StartCommand;
 	viteProcess: FakeChildProcess;
+	stdout: ReturnType<typeof assignCommandContext>['stdout'];
+	stderr: ReturnType<typeof assignCommandContext>['stderr'];
 } {
 	const command = new StartCommand();
-	const stdout = new MemoryStream();
-	const stderr = new MemoryStream();
-
-	command.context = {
-		stdout,
-		stderr,
-		stdin: process.stdin,
-		env: process.env,
-		cwd: () => process.cwd(),
-		colorDepth: 1,
-	} as StartCommand['context'];
+	const { stdout, stderr } = assignCommandContext(command);
 
 	const viteProcess = new FakeChildProcess();
 	jest.spyOn(
@@ -540,25 +522,17 @@ function createStartCommand(): {
 		>
 	);
 
-	return { command, viteProcess };
+	return { command, viteProcess, stdout, stderr };
 }
 
 function createDevCommand(): {
 	command: DevCommand;
 	viteProcess: FakeChildProcess;
+	stdout: ReturnType<typeof assignCommandContext>['stdout'];
+	stderr: ReturnType<typeof assignCommandContext>['stderr'];
 } {
 	const command = new DevCommand();
-	const stdout = new MemoryStream();
-	const stderr = new MemoryStream();
-
-	command.context = {
-		stdout,
-		stderr,
-		stdin: process.stdin,
-		env: process.env,
-		cwd: () => process.cwd(),
-		colorDepth: 1,
-	} as DevCommand['context'];
+	const { stdout, stderr } = assignCommandContext(command);
 
 	const viteProcess = new FakeChildProcess();
 	jest.spyOn(
@@ -570,13 +544,7 @@ function createDevCommand(): {
 		>
 	);
 
-	return { command, viteProcess };
-}
-
-async function flushAsync(): Promise<void> {
-	await Promise.resolve();
-	await Promise.resolve();
-	await jest.advanceTimersByTimeAsync(0);
+	return { command, viteProcess, stdout, stderr };
 }
 
 async function expectEventually(assertion: () => void): Promise<void> {
@@ -588,7 +556,7 @@ async function expectEventually(assertion: () => void): Promise<void> {
 			if (attempt === 4) {
 				throw error;
 			}
-			await flushAsync();
+			await flushAsync({ runAllTimers: true });
 		}
 	}
 }

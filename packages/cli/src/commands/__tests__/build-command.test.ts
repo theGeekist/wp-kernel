@@ -2,7 +2,8 @@ import { BuildCommand } from '../build';
 import { runGenerate } from '../run-generate';
 import { EXIT_CODES } from '../run-generate/types';
 import type { WPKExitCode } from '@wpkernel/core/contracts';
-import { MemoryStream } from '../../../tests/memory-stream.test-support';
+import { assignCommandContext } from '../../../tests/cli-command.test-support';
+import { flushAsync } from '../../../tests/async.test-support';
 
 const runGenerateMock = runGenerate as jest.MockedFunction<typeof runGenerate>;
 const applyExecuteMock = jest.fn<Promise<WPKExitCode>, [unknown]>();
@@ -64,7 +65,7 @@ describe('BuildCommand', () => {
 			return EXIT_CODES.SUCCESS;
 		});
 
-		const { command, runViteBuildMock } = createCommand();
+		const { command, runViteBuildMock, stdout } = createCommand();
 		runViteBuildMock.mockResolvedValue(EXIT_CODES.SUCCESS);
 		const executePromise = command.execute();
 
@@ -82,8 +83,7 @@ describe('BuildCommand', () => {
 		expect(applyInstance.backup).toBe(false);
 		expect(applyInstance.force).toBe(false);
 
-		const stdout = (command.context.stdout as MemoryStream).toString();
-		expect(stdout).toContain('[summary]');
+		expect(stdout.toString()).toContain('[summary]');
 	});
 
 	it('skips apply when --no-apply is provided', async () => {
@@ -141,17 +141,7 @@ describe('BuildCommand', () => {
 
 	it('handles Vite spawn failures', async () => {
 		const command = new BuildCommand();
-		const stdout = new MemoryStream();
-		const stderr = new MemoryStream();
-
-		command.context = {
-			stdout,
-			stderr,
-			stdin: process.stdin,
-			env: process.env,
-			cwd: () => process.cwd(),
-			colorDepth: 1,
-		} as BuildCommand['context'];
+		assignCommandContext(command);
 
 		jest.spyOn(
 			command as unknown as BuildCommand,
@@ -170,29 +160,15 @@ describe('BuildCommand', () => {
 function createCommand(): {
 	command: BuildCommand;
 	runViteBuildMock: jest.SpyInstance<Promise<number>, [unknown]>;
+	stdout: ReturnType<typeof assignCommandContext>['stdout'];
 } {
 	const command = new BuildCommand();
-	const stdout = new MemoryStream();
-	const stderr = new MemoryStream();
-
-	command.context = {
-		stdout,
-		stderr,
-		stdin: process.stdin,
-		env: process.env,
-		cwd: () => process.cwd(),
-		colorDepth: 1,
-	} as BuildCommand['context'];
+	const { stdout } = assignCommandContext(command);
 	command.noApply = false;
 
 	const runViteBuildMock = jest
 		.spyOn(command as unknown as BuildCommand, 'runViteBuild')
 		.mockResolvedValue(0);
 
-	return { command, runViteBuildMock };
-}
-
-async function flushAsync(): Promise<void> {
-	await Promise.resolve();
-	await Promise.resolve();
+	return { command, runViteBuildMock, stdout };
 }

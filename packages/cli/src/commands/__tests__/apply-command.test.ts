@@ -3,10 +3,10 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import { execFile as execFileCallback } from 'node:child_process';
 import { promisify } from 'node:util';
-import type { BaseContext } from 'clipanion';
 import { ApplyCommand } from '../apply';
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
-import { MemoryStream } from '../../../tests/memory-stream.test-support';
+import { assignCommandContext } from '../../../tests/cli-command.test-support';
+import { withWorkspace as withTemporaryWorkspace } from '../../../tests/workspace.test-support';
 
 const TMP_PREFIX = path.join(os.tmpdir(), 'wpk-apply-command-');
 
@@ -618,19 +618,7 @@ return 'manual';
 async function withWorkspace(
 	run: (workspace: string) => Promise<void>
 ): Promise<void> {
-	const workspace = await fs.mkdtemp(TMP_PREFIX);
-
-	try {
-		const originalCwd = process.cwd();
-		process.chdir(workspace);
-		try {
-			await run(workspace);
-		} finally {
-			process.chdir(originalCwd);
-		}
-	} finally {
-		await fs.rm(workspace, { recursive: true, force: true });
-	}
+	await withTemporaryWorkspace(run, { prefix: TMP_PREFIX });
 }
 
 async function writeGeneratedFile(
@@ -659,17 +647,7 @@ async function ensureDirectory(directory: string): Promise<void> {
 
 function createCommand(workspace: string): ApplyCommand {
 	const command = new ApplyCommand();
-	const stdout = new MemoryStream();
-	const stderr = new MemoryStream();
-
-	command.context = {
-		stdout,
-		stderr,
-		stdin: process.stdin,
-		env: process.env,
-		cwd: () => workspace,
-		colorDepth: 1,
-	} as BaseContext;
+	assignCommandContext(command, { cwd: workspace });
 
 	command.yes = false;
 	command.backup = false;
