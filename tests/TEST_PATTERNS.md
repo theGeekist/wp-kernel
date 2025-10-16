@@ -4,8 +4,8 @@
 
 ## Core Principle
 
-**Never manually mock WordPress globals or browser APIs in test files.**  
-All stubs are centralized in `tests/setup-jest.ts` and utilities in `tests/test-utils/` (notably `wp.test-support.ts`).
+**Never manually mock WordPress globals or browser APIs in test files.**
+All stubs are centralized in `tests/setup-jest.ts` and utilities in `@wpkernel/test-utils/wp` (also re-exported through `tests/test-utils/`).
 
 ---
 
@@ -15,7 +15,7 @@ All stubs are centralized in `tests/setup-jest.ts` and utilities in `tests/test-
 
 ```typescript
 // ✓ CORRECT: Use pre-configured window.wp
-import { ensureWpData } from '../../../tests/test-utils/wp.test-support';
+import { ensureWpData } from '@wpkernel/test-utils/wp';
 
 const wpData = ensureWpData();
 wpData.select.mockReturnValue({ getItems: () => [...] });
@@ -30,10 +30,7 @@ window.wp!.hooks!.doAction = jest.fn();
 
 ```typescript
 // ✓ CORRECT: Use test utilities
-import {
-	setKernelPackage,
-	setWpPluginData,
-} from '../../../tests/test-utils/wp.test-support';
+import { setKernelPackage, setWpPluginData } from '@wpkernel/test-utils/wp';
 
 setKernelPackage({ name: '@acme/plugin' });
 setWpPluginData({ name: 'acme-plugin', slug: 'acme' });
@@ -123,7 +120,7 @@ global.sessionStorage = {
 
 ```typescript
 // ✓ CORRECT
-import { ensureWpData } from '../../../tests/test-utils/wp.test-support';
+import { ensureWpData } from '@wpkernel/test-utils/wp';
 
 const doAction = jest.fn();
 window.wp!.hooks!.doAction = doAction;
@@ -154,7 +151,7 @@ channel.close();
 
 ```typescript
 // ✓ CORRECT
-import { ensureWpData } from '../../../tests/test-utils/wp.test-support';
+import { ensureWpData } from '@wpkernel/test-utils/wp';
 
 const mockCanUser = jest.fn().mockReturnValue(true);
 ensureWpData().select.mockReturnValue({
@@ -204,7 +201,7 @@ it('handles missing BroadcastChannel', () => {
 If the existing stubs don't cover your use case:
 
 1. **First**: Check if jsdom already provides it (BroadcastChannel, storage APIs)
-2. **Second**: Add to `tests/test-utils/wp.test-support.ts` as a reusable helper
+2. **Second**: Add to `@wpkernel/test-utils/wp` (or the legacy re-export in `tests/test-utils/wp.test-support.ts`) as a reusable helper
 3. **Third**: Update `tests/setup-jest.ts` if it needs global setup
 4. **Last Resort**: File-local mocking (document why in comments)
 
@@ -214,6 +211,6 @@ If the existing stubs don't cover your use case:
 
 - `tests/test-globals.d.ts` - TypeScript global types
 - `tests/setup-jest.ts` - Jest global setup with wpData/wpHooks stubs, BroadcastChannel mock
-- `tests/test-utils/wp.test-support.ts` - Reusable test utilities
+- `@wpkernel/test-utils/wp` - Reusable test utilities (with a legacy shim in `tests/test-utils/wp.test-support.ts`)
 - `eslint.config.js` - Enforcement rules (see `@kernel/no-manual-test-globals`)
 - `eslint-rules/no-manual-test-globals.js` - Custom ESLint rule implementation
