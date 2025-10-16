@@ -10,6 +10,7 @@ import type {
 	DataViewsRuntimeContext,
 	ResourceDataViewConfig,
 	ResourceDataViewController,
+	ResourceDataViewActionConfig,
 } from '../types';
 import { KernelError } from '@wpkernel/core/contracts';
 import { ResourceDataView } from '../ResourceDataView';
@@ -146,6 +147,63 @@ export function createResource<TItem, TQuery>(
 	return resource;
 }
 
+type IdentifiableItem = { id: string | number };
+
+export type DefaultActionInput = { selection: Array<string | number> };
+
+export function buildListResource<
+	TItem extends IdentifiableItem,
+	TQuery = Record<string, unknown>,
+>(
+	items: TItem[] = [{ id: 1 } as unknown as TItem],
+	overrides: Partial<ResourceObject<TItem, TQuery>> = {}
+): ResourceObject<TItem, TQuery> {
+	const { useList, ...rest } = overrides;
+	const listResolver =
+		useList ??
+		jest.fn(() => ({
+			data: { items, total: items.length },
+			isLoading: false,
+			error: undefined,
+		}));
+
+	return createResource<TItem, TQuery>({
+		...rest,
+		useList: listResolver as ResourceObject<TItem, TQuery>['useList'],
+	});
+}
+
+export function buildActionConfig<
+	TItem extends IdentifiableItem,
+	TInput extends DefaultActionInput = DefaultActionInput,
+	TResult = unknown,
+>(
+	overrides: Partial<
+		ResourceDataViewActionConfig<TItem, TInput, TResult>
+	> = {}
+): ResourceDataViewActionConfig<TItem, TInput, TResult> {
+	const baseConfig: ResourceDataViewActionConfig<TItem, TInput, TResult> = {
+		id: 'delete',
+		action: createAction(jest.fn(), {
+			scope: 'crossTab',
+			bridged: true,
+		}) as ResourceDataViewActionConfig<TItem, TInput, TResult>['action'],
+		label: 'Delete',
+		supportsBulk: true,
+		getActionArgs: (({ selection }) =>
+			({ selection }) as TInput) as ResourceDataViewActionConfig<
+			TItem,
+			TInput,
+			TResult
+		>['getActionArgs'],
+	};
+
+	return {
+		...baseConfig,
+		...overrides,
+	};
+}
+
 export function createConfig<TItem, TQuery>(
 	overrides: Partial<ResourceDataViewConfig<TItem, TQuery>>
 ): ResourceDataViewConfig<TItem, TQuery> {
@@ -190,7 +248,7 @@ interface RenderResourceDataViewOptions<TItem, TQuery> {
 	props?: Partial<ResourceDataViewTestProps<TItem, TQuery>>;
 }
 
-type RenderResourceDataViewResult<TItem, TQuery> = {
+export type RenderResourceDataViewResult<TItem, TQuery> = {
 	runtime: RuntimeWithDataViews;
 	resource: ResourceObject<TItem, TQuery>;
 	config: ResourceDataViewConfig<TItem, TQuery>;
@@ -252,5 +310,96 @@ export function renderResourceDataView<TItem, TQuery>(
 		rerender,
 		renderResult,
 		getDataViewProps: () => getLastDataViewsProps(),
+	};
+}
+
+export type RenderActionScenarioOptions<
+	TItem extends IdentifiableItem,
+	TQuery,
+	TInput extends DefaultActionInput = DefaultActionInput,
+	TResult = unknown,
+> = {
+	runtime?: RuntimeWithDataViews;
+	items?: TItem[];
+	resource?: ResourceObject<TItem, TQuery>;
+	resourceOverrides?: Partial<ResourceObject<TItem, TQuery>>;
+	action?: Partial<ResourceDataViewActionConfig<TItem, TInput, TResult>>;
+	actions?: Array<ResourceDataViewActionConfig<TItem, TInput, TResult>>;
+	configOverrides?: Partial<ResourceDataViewConfig<TItem, TQuery>>;
+	props?: Partial<ResourceDataViewTestProps<TItem, TQuery>>;
+};
+
+export type DataViewActionEntry<TItem> = {
+	callback: (
+		items: TItem[],
+		context: { onActionPerformed?: jest.Mock }
+	) => Promise<unknown>;
+	disabled?: boolean;
+};
+
+function getActionEntries<TItem>(
+	getDataViewProps: () => { actions?: unknown }
+): DataViewActionEntry<TItem>[] {
+	const props = getDataViewProps();
+	return (props.actions ?? []) as unknown as DataViewActionEntry<TItem>[];
+}
+
+export type RenderActionScenarioResult<
+	TItem extends IdentifiableItem,
+	TQuery,
+	TInput extends DefaultActionInput = DefaultActionInput,
+	TResult = unknown,
+> = RenderResourceDataViewResult<TItem, TQuery> & {
+	runtime: RuntimeWithDataViews;
+	resource: ResourceObject<TItem, TQuery>;
+	config: ResourceDataViewConfig<TItem, TQuery>;
+	actions: Array<ResourceDataViewActionConfig<TItem, TInput, TResult>>;
+	getActionEntries: () => DataViewActionEntry<TItem>[];
+};
+
+export function renderActionScenario<
+	TItem extends IdentifiableItem,
+	TQuery = Record<string, unknown>,
+	TInput extends DefaultActionInput = DefaultActionInput,
+	TResult = unknown,
+>(
+	options: RenderActionScenarioOptions<TItem, TQuery, TInput, TResult> = {}
+): RenderActionScenarioResult<TItem, TQuery, TInput, TResult> {
+	const runtime = options.runtime ?? createKernelRuntime();
+	const resource =
+		options.resource ??
+		buildListResource<TItem, TQuery>(
+			options.items,
+			options.resourceOverrides ?? {}
+		);
+	const scenarioActions = options.actions ?? [
+		buildActionConfig<TItem, TInput, TResult>({
+			...(options.action as Partial<
+				ResourceDataViewActionConfig<TItem, TInput, TResult>
+			>),
+		}),
+	];
+	const config = createConfig<TItem, TQuery>({
+		actions: scenarioActions as Array<
+			ResourceDataViewActionConfig<TItem, unknown, unknown>
+		>,
+		...(options.configOverrides as Partial<
+			ResourceDataViewConfig<TItem, TQuery>
+		>),
+	});
+	const view = renderResourceDataView<TItem, TQuery>({
+		runtime,
+		resource,
+		config,
+		props: options.props,
+	});
+
+	return {
+		...view,
+		runtime,
+		resource,
+		config,
+		actions: scenarioActions,
+		getActionEntries: () => getActionEntries<TItem>(view.getDataViewProps),
 	};
 }
