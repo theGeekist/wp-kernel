@@ -5,6 +5,7 @@ import { pathToFileURL } from 'node:url';
 import type { BaseContext } from 'clipanion';
 import type { InitCommand } from '../init';
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
+import { MemoryStream } from '../../../tests/memory-stream.test-support';
 
 const TMP_PREFIX = path.join(os.tmpdir(), 'wpk-init-command-');
 
@@ -521,16 +522,4 @@ async function createCommand(
 		colorDepth: 1,
 	} as BaseContext;
 	return command;
-}
-
-class MemoryStream {
-	private readonly chunks: string[] = [];
-
-	write(chunk: string): void {
-		this.chunks.push(chunk);
-	}
-
-	toString(): string {
-		return this.chunks.join('');
-	}
 }

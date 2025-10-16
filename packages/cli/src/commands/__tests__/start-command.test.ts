@@ -1,7 +1,7 @@
 import { EventEmitter } from 'node:events';
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import { PassThrough, Writable } from 'node:stream';
+import { PassThrough } from 'node:stream';
 import type { FSWatcher } from 'chokidar';
 import {
 	StartCommand,
@@ -13,6 +13,7 @@ import { DevCommand } from '../dev';
 import { runGenerate } from '../run-generate';
 import { EXIT_CODES } from '../run-generate/types';
 import chokidar from 'chokidar';
+import { MemoryStream } from '../../../tests/memory-stream.test-support';
 
 const runGenerateMock = runGenerate as jest.MockedFunction<typeof runGenerate>;
 const watchMock = chokidar.watch as jest.MockedFunction<typeof chokidar.watch>;
@@ -570,23 +571,6 @@ function createDevCommand(): {
 	);
 
 	return { command, viteProcess };
-}
-
-class MemoryStream extends Writable {
-	private readonly chunks: string[] = [];
-
-	override _write(
-		chunk: string | Buffer,
-		_encoding: BufferEncoding,
-		callback: (error?: Error | null) => void
-	): void {
-		this.chunks.push(chunk.toString());
-		callback();
-	}
-
-	override toString(): string {
-		return this.chunks.join('');
-	}
 }
 
 async function flushAsync(): Promise<void> {
