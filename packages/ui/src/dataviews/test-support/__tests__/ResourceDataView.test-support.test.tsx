@@ -9,6 +9,9 @@ import {
 	buildActionConfig,
 	flushDataViews,
 	createAction,
+	renderResourceDataView,
+	createDataViewsTestController,
+	buildListResource,
 } from '../ResourceDataView.test-support';
 import { act } from 'react';
 
@@ -95,5 +98,39 @@ describe('ResourceDataView test support helpers', () => {
 		expect(entries).toHaveLength(2);
 		expect(entries[0]).toBeDefined();
 		expect(entries[1]).toBeDefined();
+	});
+
+	it('drives DataViews state via the interaction controller', () => {
+		const view = renderResourceDataView({
+			resource: buildListResource([{ id: 1 }, { id: 2 }]),
+		});
+
+		const controller = createDataViewsTestController(view);
+
+		controller.setSelectionFromItems([{ id: 2 }]);
+		expect(controller.getProps().selection).toEqual(['2']);
+
+		controller.setSelection([3, '4']);
+		expect(controller.getProps().selection).toEqual(['3', '4']);
+
+		controller.clearSelection();
+		expect(controller.getProps().selection).toEqual([]);
+
+		controller.updateView({ page: 2 });
+		expect(controller.getProps().view).toEqual(
+			expect.objectContaining({ page: 2 })
+		);
+
+		controller.updateView((current) => ({
+			...current,
+			perPage: 25,
+		}));
+
+		expect(controller.getProps().view).toEqual(
+			expect.objectContaining({
+				page: 2,
+				perPage: 25,
+			})
+		);
 	});
 });

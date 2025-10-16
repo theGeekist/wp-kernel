@@ -403,3 +403,88 @@ export function renderActionScenario<
 		getActionEntries: () => getActionEntries<TItem>(view.getDataViewProps),
 	};
 }
+
+type ExtractDataViewView = ComponentProps<typeof DataViews>['view'];
+
+type ViewUpdater =
+	| Partial<ExtractDataViewView>
+	| ((current: ExtractDataViewView) => ExtractDataViewView);
+
+export type DataViewsTestController<TItem> = {
+	getProps: () => ComponentProps<typeof DataViews>;
+	setSelection: (ids: Array<string | number>) => void;
+	setSelectionFromItems: (items: TItem[]) => void;
+	clearSelection: () => void;
+	updateView: (updater: ViewUpdater) => void;
+};
+
+function ensureHandler<T>(handler: T | undefined, name: string): T {
+	if (!handler) {
+		throw new KernelError('DeveloperError', {
+			message: `Expected ${name} to be provided by DataViews mock`,
+		});
+	}
+	return handler;
+}
+
+function resolveNextView(
+	current: ExtractDataViewView,
+	updater: ViewUpdater
+): ExtractDataViewView {
+	if (typeof updater === 'function') {
+		return updater(current);
+	}
+	return { ...current, ...updater } as ExtractDataViewView;
+}
+
+export function createDataViewsTestController<TItem, TQuery>(
+	result: RenderResourceDataViewResult<TItem, TQuery>
+): DataViewsTestController<TItem> {
+	const getProps = result.getDataViewProps;
+
+	const updateView = (updater: ViewUpdater) => {
+		const { view, onChangeView } = getProps();
+		const handler = ensureHandler(onChangeView, 'onChangeView');
+		const nextView = resolveNextView(view, updater);
+		act(() => {
+			handler(nextView);
+		});
+	};
+
+	const applySelection = (selection: string[]) => {
+		const { onChangeSelection } = getProps();
+		const handler = ensureHandler(onChangeSelection, 'onChangeSelection');
+		act(() => {
+			handler(selection);
+		});
+	};
+
+	const setSelection = (ids: Array<string | number>) => {
+		applySelection(ids.map((id) => String(id)));
+	};
+
+	const setSelectionFromItems = (items: TItem[]) => {
+		const { getItemId } = getProps();
+		const toId = (item: TItem) => {
+			if (getItemId) {
+				const value = getItemId(item);
+				return typeof value === 'undefined' ? '' : String(value);
+			}
+			const fallback = (item as unknown as { id?: string | number }).id;
+			return typeof fallback === 'undefined' ? '' : String(fallback);
+		};
+		setSelection(items.map(toId));
+	};
+
+	const clearSelection = () => {
+		applySelection([]);
+	};
+
+	return {
+		getProps,
+		setSelection,
+		setSelectionFromItems,
+		clearSelection,
+		updateView,
+	};
+}
