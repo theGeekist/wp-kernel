@@ -7,7 +7,7 @@ Audience: core contributors iterating on the new `packages/cli/src/next` namespa
 
 - **Runtime pipeline** – `runtime/createPipeline.ts` executes registered fragment and builder helpers with dependency-aware ordering and step diagnostics.
 - **Helper utilities** – `next/helper.ts` codifies the shared helper signature used by both fragments and builders.
-- **Workspace adapter** – `next/workspace/filesystem.ts` provides transactional filesystem utilities, git helpers, and JSON writers reused by builders.
+- **Workspace adapter** – `next/workspace/filesystem.ts` provides transactional filesystem utilities, dry-run support, and JSON helpers; git integrations will be added alongside the apply driver.
 - **IR construction** – `next/ir/createIr.ts` and fragment helpers build the intermediate representation before builders run.
 - **Builder surface** – `next/builders/*` exposes PHP, TypeScript, bundler, and patcher builders backed by the shared helper contract.
 
@@ -21,8 +21,30 @@ Audience: core contributors iterating on the new `packages/cli/src/next` namespa
 
 ## Problem Context
 
-- See `examples/showcase/SHOWCASE_GENERATED_PROBLEMS.md` for the catalogue of defects in the generated showcase plugin (PHP syntax failures, TS gaps, missing tests). This document exists to address those systemic issues.
-- Mirror established WordPress primitives where possible (e.g., surface deprecations via `@wordpress/deprecation`), rather than creating bespoke implementations.
+- See `examples/showcase/SHOWCASE_GENERATED_PROBLEMS.md` for the catalogue of defects that motivated this rewrite (PHP syntax failures, TypeScript alias/import gaps, missing tests, bundler drift, and more). Every task below should be framed as “close those gaps”, not merely “recreate the old behaviour”.
+- Mirror established WordPress primitives where possible (e.g., surface deprecations via `@wordpress/deprecation`) so fixes remain compatible with core expectations.
+
+### Desired Apply Behaviour
+
+- Avoid wholesale rewrites of user-land PHP/JSX. Generated code should live under `.generated/` and user files should primarily extend/import the generated implementations. For empty projects we can seed the minimal scaffolding required to reference `.generated/` classes/modules.
+- The apply pipeline should compute the delta and delegate the heavy lifting to `git apply -3` (or equivalent) so we get proper three-way merges and conflict markers only when necessary. User customisations outside the generated markers must be preserved.
+- Every generated controller/module should originate from a JSON AST → nikic `PrettyPrinter` pass. When a user edits a file, we read it back into PHP AST → JSON (via nikic’s `JsonDecoder`) so we can diff the semantic structure, detect call-site changes, and decide whether to regenerate `.generated/` output or produce a minimal shim update.
+- Small, contextual patches make future regeneration safe. For example, instead of rewriting the entire controller we should apply changes like:
+
+```diff
+ // WPK:BEGIN AUTO
+-class JobController extends BaseController {
+-    // Generated implementation ...
+-}
++require_once __DIR__ . '/../../.generated/php/Rest/JobController.php';
++
++class JobController extends \WPKernel\Showcase\Generated\Rest\JobController {
++    // Custom hooks live here.
++}
+ // WPK:END AUTO
+```
+
+That approach keeps user code tiny and allows regeneration without unexpected churn.
 
 ## Existing Foundations to Reuse
 
@@ -248,51 +270,43 @@ Reuse the existing helper suites to implement the parity tests above:
     - Phases: core `'init' | 'generate' | 'apply'`, plus open-ended `custom:<name>` entries; builders list phases they handle. Unknown phases are skipped.
     - Deprecation: builders call `reporter.deprecate({ since, removeIn, message })`; runtime aggregates and can `--fail-on-deprecation`.
 
-4. **Workspace handle interface**
-    - Provide atomic, observable filesystem/git's ops with manifests and dry-run support:
-        ```ts
-        export interface Workspace {
-        	root: string;
-        	cwd(): string;
-        	read(file: string): Promise<Buffer | null>;
-        	readText(file: string): Promise<string | null>;
-        	write(
-        		file: string,
-        		data: Buffer | string,
-        		opts?: { mode?: number; ensureDir?: boolean }
-        	): Promise<void>;
-        	writeJson<T>(
-        		file: string,
-        		obj: T,
-        		opts?: { pretty?: boolean }
-        	): Promise<void>;
-        	exists(path: string): Promise<boolean>;
-        	rm(path: string, opts?: { recursive?: boolean }): Promise<void>;
-        	glob(pattern: string | string[]): Promise<string[]>;
-        	threeWayMerge(
-        		file: string,
-        		base: string,
-        		current: string,
-        		incoming: string,
-        		opts?: { markers?: { start: string; mid: string; end: string } }
-        	): Promise<'clean' | 'conflict'>;
-        	git?: {
-        		isRepo(): Promise<boolean>;
-        		add(paths: string | string[]): Promise<void>;
-        		commit(message: string): Promise<void>;
-        		currentBranch(): Promise<string>;
-        	};
-        	begin(label?: string): void;
-        	commit(label?: string): Promise<FileManifest>;
-        	rollback(label?: string): Promise<void>;
-        	dryRun<T>(
-        		fn: () => Promise<T>
-        	): Promise<{ result: T; manifest: FileManifest }>;
-        	tmpDir(prefix?: string): Promise<string>;
-        	resolve(...parts: string[]): string;
-        }
-        ```
-    - Back the implementation with the existing test-utils so parity tests remain simple.
+4. **Workspace handle interface** - Provide atomic, observable filesystem ops with manifests and dry-run support (git helpers will come with the apply driver):
+   `ts
+    export interface Workspace {
+    	root: string;
+    	cwd(): string;
+    	read(file: string): Promise<Buffer | null>;
+    	readText(file: string): Promise<string | null>;
+    	write(
+    		file: string,
+    		data: Buffer | string,
+    		opts?: { mode?: number; ensureDir?: boolean }
+    	): Promise<void>;
+    	writeJson<T>(
+    		file: string,
+    		obj: T,
+    		opts?: { pretty?: boolean }
+    	): Promise<void>;
+    	exists(path: string): Promise<boolean>;
+    	rm(path: string, opts?: { recursive?: boolean }): Promise<void>;
+    	glob(pattern: string | string[]): Promise<string[]>;
+threeWayMerge(
+	file: string,
+	base: string,
+	current: string,
+	incoming: string,
+	opts?: { markers?: { start: string; mid: string; end: string } }
+): Promise<'clean' | 'conflict'>;
+begin(label?: string): void;
+    	commit(label?: string): Promise<FileManifest>;
+    	rollback(label?: string): Promise<void>;
+    	dryRun<T>(
+    		fn: () => Promise<T>
+    	): Promise<{ result: T; manifest: FileManifest }>;
+    	tmpDir(prefix?: string): Promise<string>;
+    	resolve(...parts: string[]): string;
+    }
+    ` - Back the implementation with the existing test-utils so parity tests remain simple.
 
 ## Core Builders (mapping to the current CLI)
 
@@ -347,14 +361,14 @@ export function createFooExtension() {
 
 ## Phase One: Foundations
 
-Deliverables (tracked independently so cloud agents can contribute without conflict):
+Deliverables (tracked independently; each bullet lists the current state, known gaps from the showcase audit, and concrete references so follow-up work remains aligned):
 
-1. **Scaffold the `next/` namespace** – committed: helper contract (`helper.ts`), pipeline runtime (`runtime/createPipeline.ts`), IR fragments, workspace abstraction, and smoke tests for helper shapes. (_Status: done_)
+1. **Scaffold the `next/` namespace** – helper contract (`helper.ts`), pipeline runtime (`runtime/createPipeline.ts`), IR fragments (`ir/fragments/*`), workspace abstraction (`workspace/filesystem.ts`), and smoke tests have landed. (_Status: done_)
 2. **Port IR fragments** – fragments under `ir/fragments/*` now recreate `buildIr` behaviour; continue layering diagnostics and extension hooks. (_Status: in progress_)
 3. **Runtime plumbing** – dependency graph + conflict diagnostics are live; next iteration exposes a public `pipeline.graph()` for tooling. (_Status: in progress_)
 4. **Workspace & reporter integration** – filesystem-backed workspace (`workspace/filesystem.ts`) landed; git helpers + deprecation forwarding still to come. (_Status: in progress_)
-5. **Builder stubs** – placeholder builders (`bundler`, `php`, `ts`, `patcher`) register successfully and log debug output. They will be swapped with real drivers in subsequent workstreams. (_Status: done as scaffolds_)
-6. **Parity scaffolding** – IR golden tests exist (`ir/__tests__/createIr.test.ts`); artifact parity is deferred until real builders land. (_Status: foundations done_)
+5. **Builder stubs** – placeholder builders (`bundler`, `php`, `ts`, `patcher`) currently log debug output only. They exist so specialised drivers can be dropped in without structural churn. (_Status: done as scaffolds; real drivers tracked in Phase Two_)
+6. **Parity scaffolding** – IR golden tests exist (`ir/__tests__/createIr.test.ts`) so that once the new drivers fix the defects we can prevent regressions; artifact parity for the builders will be enabled after those fixes land. (_Status: foundations done_)
 7. **Documentation & ADRs** – helper contract and conflict rules documented here; ADR-00X will memorialise the pipeline semantics. (_Status: in progress_)
 
 ### Phase One implementation snapshot
@@ -372,28 +386,35 @@ Exit criteria:
 - Workspace dry-run manifests drive the first parity tests for PHP/TS outputs (even if builders still no-op).
 - ADR and doc updates reflect any deviations from the plan.
 
+> ✓ When you complete any Phase One task above, update the status bullets so the next contributor has accurate context.
+
 ## Parallel Workstreams (Phase Two & beyond)
 
-Each stream is designed to be tackled independently (ideal for parallel work). When a stream reaches a milestone, update the bullets below with the latest state or follow-up tasks.
+Each stream is designed for parallel ownership. **Before you start a stream, review `examples/showcase/SHOWCASE_GENERATED_PROBLEMS.md` to understand the end-user bugs we must eliminate. After you finish a stream, update the bullets below with “done”/“in progress” notes, links to PRs, and any follow-up tasks.**
 
-1. **PHP driver bridge**
-    - _Current_: `createPhpDriverInstaller` installs `nikic/php-parser` via `composer install` when `vendor/autoload.php` is missing (see `packages/cli/src/next/builders/phpDriver.ts`, noop if exist (safe to use); dependency declared in `packages/cli/composer.json`).
-    - _Next_: build the JSON ↔ nikic/PHP-Parser bridge for pretty-printing PHP; update this entry once live.
-2. **TypeScript driver**
-    - _Current_: `createTsBuilder` logs a stub message.
-    - _Next_: implement the `ts-morph` builder that emits JS + declaration maps and record progress here.
-3. **Bundler evolution**
-    - _Current_: `createBundler` placeholder.
-    - _Next_: align with `wordpress-build.templfile` (Rollup externals, asset metadata) and note completion in this doc.
-4. **Apply driver**
-    - _Current_: `createPatcher` stub; workspace merge helpers exist.
-    - _Next_: implement git-backed three-way merge + manifest logging and capture status here.
-5. **CLI commands**
-    - _Current_: legacy `wpk init/generate/apply` only.
-    - _Next_: add `wpk create <name>` (positional) that detects the package manager, invokes the init pipeline, and queues an install builder. Update this section when done.
+1. **PHP driver bridge** (see [Foundational Helper Contract](#foundational-helper-contract) and [Core Fragment Expectations](#core-fragment-expectations))
+    - _Current_: `createPhpDriverInstaller` (packages/cli/src/next/builders/phpDriver.ts) installs `nikic/php-parser` when `vendor/autoload.php` is missing and otherwise no-ops. Controllers are still rendered by the legacy path, so the showcase PHP syntax issues remain.
+    - _Why_: Those showcase failures stem from invalid controllers. Guaranteeing the dependency is step one; wiring a renderer that emits correct PHP (using nikic’s `PrettyPrinter`) is step two.
+    - _Next tasks_: add the renderer helper, prove it fixes the showcase cases (unit + integration tests), and update this entry once the PHP pipeline passes.
+2. **TypeScript driver** (see [Proposed Folder Layout](#proposed-folder-layout-packages-clisrcnext) and [Core Fragment Expectations](#core-fragment-expectations))
+    - _Current_: `createTsBuilder` (packages/cli/src/next/builders/ts.ts) only logs, so TS assets are still generated by the legacy path.
+    - _Why_: Showcase TS/TSX issues (missing imports, alias problems) were called out in the audit-we must rebuild TS generation on top of the new pipeline to fix them.
+    - _Next tasks_: implement a `ts-morph` builder that emits JS + declaration maps while fixing the showcase defects, add targeted tests capturing those scenarios, and document the migration/results here.
+3. **Bundler evolution** (see [Proposed Folder Layout](#proposed-folder-layout-packages-clisrcnext))
+    - _Current_: `createBundler` remains a no-op stub. Nothing mirrors WordPress’ esbuild/Rollup conventions yet.
+    - _Why_: The showcase build currently hits runtime aliasing/externals issues; aligning with `templates/wordpress-build.templfile` is critical to close those gaps.
+    - _Next tasks_: implement the Rollup driver (externals, asset metadata, sourcemap rules) and add regression tests referencing the showcase failures.
+4. **Apply driver** (see [Workspace handle interface](#workspace-handle-interface))
+    - _Current_: `createPatcher` is a stub. Workspace merge helpers are in place but unused; git convenience methods will be added when the driver lands.
+    - _Why_: Showcase incidents include failed PHP apply/merge steps. We need a git-backed three-way patcher to avoid those errors.
+    - _Next tasks_: implement the merge workflow (compute the delta, call out to `git apply -3` for the merge, capture conflicts in manifests), cover it with regression tests, and ensure the resulting patches follow the “Generated class + thin user shim” pattern shown in the example above.
+5. **CLI commands** (see [Foundational Helper Contract](#foundational-helper-contract))
+    - _Current_: only `wpk init/generate/apply` exist; `wpk create` (the future npm-style entry point) is not implemented.
+    - _Why_: We need `wpk create <name>` (positional argument) that calls init, then automatically installs the appropriate dependencies (package manager detection, install builder).
+    - _Next tasks_: build the command, share readable tests, and update this bullet once usable.
 6. **Extensions & tooling**
-    - _Goal_: publish extension docs (`pipeline.group`, capability negotiation, workspace contract) plus a sample extension package. Track progress here.
+    - _Goal_: Document `pipeline.group`, capability negotiation, workspace APIs, and ship a sample extension package to prove the surface works end-to-end.
 7. **Migration playbook**
-    - _Goal_: prepare feature flags, changelog entries, rollout checklist for enabling the next-gen CLI by default. Update as milestones land.
+    - _Goal_: Prepare feature flags, changelog entries, and a rollout checklist for enabling the new CLI by default-include coverage expectations and user comms.
 
 This document will continue to evolve alongside ADRs and the code landing under `packages/cli/src/next`.

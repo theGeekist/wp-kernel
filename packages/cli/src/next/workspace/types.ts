@@ -3,13 +3,6 @@ export interface FileManifest {
 	readonly deletes: readonly string[];
 }
 
-export interface WorkspaceGitHandle {
-	isRepo: () => Promise<boolean>;
-	add: (paths: string | readonly string[]) => Promise<void>;
-	commit: (message: string) => Promise<void>;
-	currentBranch: () => Promise<string>;
-}
-
 export interface WriteOptions {
 	readonly mode?: number;
 	readonly ensureDir?: boolean;
@@ -58,7 +51,6 @@ export interface Workspace {
 		incoming: string,
 		options?: MergeOptions
 	) => Promise<'clean' | 'conflict'>;
-	readonly git?: WorkspaceGitHandle;
 	begin: (label?: string) => void;
 	commit: (label?: string) => Promise<FileManifest>;
 	rollback: (label?: string) => Promise<FileManifest>;
