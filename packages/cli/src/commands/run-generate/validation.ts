@@ -53,7 +53,11 @@ export async function validateGeneratedImports({
 		return;
 	}
 
-	const ts = await loadTypeScript();
+	const ts = await loadTypeScript(reporter);
+
+	if (!ts) {
+		return;
+	}
 	const compilerOptions = await loadCompilerOptions(ts, projectRoot);
 	compilerOptions.noEmit = true;
 
@@ -129,10 +133,19 @@ export async function validateGeneratedImports({
 	});
 }
 
-async function loadTypeScript(): Promise<TypeScriptModule> {
+async function loadTypeScript(
+	reporter: Reporter
+): Promise<TypeScriptModule | null> {
 	try {
 		return await import('typescript');
 	} catch (error) {
+		if (isMissingTypeScriptError(error)) {
+			reporter.warn(
+				'Skipping generated import validation because TypeScript is not installed. Install it to enable validation.'
+			);
+			return null;
+		}
+
 		throw new KernelError('DeveloperError', {
 			message:
 				'TypeScript is required to validate generated imports. Install it as a development dependency.',
@@ -148,11 +161,9 @@ async function loadCompilerOptions(
 	ts: TypeScriptModule,
 	projectRoot: string
 ): Promise<CompilerOptions> {
-	const configPath = ts.findConfigFile(
-		projectRoot,
-		ts.sys.fileExists,
-		'tsconfig.json'
-	);
+	const configPath =
+		findProjectConfigPath(ts, projectRoot, 'tsconfig.json') ??
+		findProjectConfigPath(ts, projectRoot, 'jsconfig.json');
 
 	if (!configPath) {
 		return applyCompilerOptionDefaults(ts, projectRoot, {});
@@ -172,7 +183,7 @@ async function loadCompilerOptions(
 		);
 
 		throw new KernelError('DeveloperError', {
-			message: 'Unable to read tsconfig.json for validation.',
+			message: `Unable to read ${path.basename(configPath)} for validation.`,
 			data: { diagnostics: formatted },
 		});
 	}
@@ -195,12 +206,22 @@ async function loadCompilerOptions(
 		);
 
 		throw new KernelError('DeveloperError', {
-			message: 'tsconfig.json contains errors that block validation.',
+			message: `${path.basename(configPath)} contains errors that block validation.`,
 			data: { diagnostics: formatted },
 		});
 	}
 
 	return applyCompilerOptionDefaults(ts, projectRoot, parsed.options);
+}
+
+function findProjectConfigPath(
+	ts: TypeScriptModule,
+	projectRoot: string,
+	fileName: string
+): string | undefined {
+	return (
+		ts.findConfigFile(projectRoot, ts.sys.fileExists, fileName) ?? undefined
+	);
 }
 
 function applyCompilerOptionDefaults(
@@ -230,11 +251,45 @@ function applyCompilerOptionDefaults(
 		}
 	}
 
-	if (resolved.baseUrl === undefined) {
-		resolved.baseUrl = projectRoot;
+	const normalisedProjectRoot = path.resolve(projectRoot);
+	const resolvedBaseUrl = resolveBaseUrl(resolved.baseUrl);
+
+	if (
+		!resolvedBaseUrl ||
+		!isPathWithin(normalisedProjectRoot, resolvedBaseUrl)
+	) {
+		resolved.baseUrl = normalisedProjectRoot;
 	}
 
 	return resolved;
+}
+
+function resolveBaseUrl(
+	baseUrl: CompilerOptions['baseUrl']
+): string | undefined {
+	if (typeof baseUrl !== 'string') {
+		return undefined;
+	}
+
+	try {
+		return path.resolve(baseUrl);
+	} catch (_error) {
+		return undefined;
+	}
+}
+
+function isPathWithin(root: string, candidate: string): boolean {
+	const normalisedRoot = root.endsWith(path.sep)
+		? root
+		: `${root}${path.sep}`;
+	const normalisedCandidate = candidate.endsWith(path.sep)
+		? candidate
+		: `${candidate}${path.sep}`;
+
+	return (
+		normalisedCandidate === normalisedRoot ||
+		normalisedCandidate.startsWith(normalisedRoot)
+	);
 }
 
 function isRelevantDiagnostic(
@@ -345,4 +400,24 @@ function shouldValidateModule(specifier: string): boolean {
 	}
 
 	return false;
+}
+
+function isMissingTypeScriptError(error: unknown): boolean {
+	if (!error || typeof error !== 'object') {
+		return false;
+	}
+
+	const code = (error as { code?: unknown }).code;
+
+	if (code === 'MODULE_NOT_FOUND' || code === 'ERR_MODULE_NOT_FOUND') {
+		const message = String(
+			(error as { message?: unknown }).message ?? ''
+		).toLowerCase();
+		return message.includes('typescript');
+	}
+
+	const message = String(
+		(error as { message?: unknown }).message ?? ''
+	).toLowerCase();
+	return message.includes("cannot find package 'typescript'");
 }
