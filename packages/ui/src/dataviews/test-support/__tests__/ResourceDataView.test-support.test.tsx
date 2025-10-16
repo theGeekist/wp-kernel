@@ -26,6 +26,9 @@ describe('ResourceDataView test support helpers', () => {
 		const runtime = createKernelRuntime();
 		const result = renderWithProvider(<div>hello</div>, runtime);
 		expect(result.getByText('hello')).toBeTruthy();
+
+		result.rerenderWithProvider(<div>world</div>);
+		expect(result.getByText('world')).toBeTruthy();
 	});
 
 	it('throws when DataViews was never rendered', () => {

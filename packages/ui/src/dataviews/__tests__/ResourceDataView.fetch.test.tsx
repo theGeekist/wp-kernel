@@ -1,13 +1,10 @@
 import {
 	DataViewsMock,
-	createKernelRuntime,
-	renderWithProvider,
 	createResource,
 	createConfig,
-	getLastDataViewsProps,
+	renderResourceDataView,
+	flushDataViews,
 } from '../test-support/ResourceDataView.test-support';
-import { act } from 'react';
-import { ResourceDataView } from '../ResourceDataView';
 
 describe('ResourceDataView fetch integration', () => {
 	beforeEach(() => {
@@ -15,7 +12,6 @@ describe('ResourceDataView fetch integration', () => {
 	});
 
 	it('logs fetch errors when fetchList rejects', async () => {
-		const runtime = createKernelRuntime();
 		const fetchList = jest.fn().mockRejectedValue(new Error('Network'));
 
 		const resource = createResource<{ id: number }, { search?: string }>({
@@ -24,21 +20,15 @@ describe('ResourceDataView fetch integration', () => {
 
 		const config = createConfig<{ id: number }, { search?: string }>({});
 
-		renderWithProvider(
-			<ResourceDataView
-				resource={resource}
-				config={config}
-				fetchList={fetchList}
-			/>,
-			runtime
-		);
-
-		await act(async () => {
-			await Promise.resolve();
-			await Promise.resolve();
+		const { runtime, getDataViewProps } = renderResourceDataView({
+			resource,
+			config,
+			props: { fetchList },
 		});
 
-		const props = getLastDataViewsProps();
+		await flushDataViews(2);
+
+		const props = getDataViewProps();
 		expect(props.isLoading).toBe(false);
 		expect(props.data).toEqual([]);
 		expect(runtime.dataviews.reporter.error).toHaveBeenCalledWith(
@@ -48,7 +38,6 @@ describe('ResourceDataView fetch integration', () => {
 	});
 
 	it('renders fetchList results when resource has no list hook', async () => {
-		const runtime = createKernelRuntime();
 		const fetchList = jest.fn().mockResolvedValue({
 			items: [{ id: 1 }],
 			total: 1,
@@ -60,26 +49,20 @@ describe('ResourceDataView fetch integration', () => {
 
 		const config = createConfig<{ id: number }, { search?: string }>({});
 
-		renderWithProvider(
-			<ResourceDataView
-				resource={resource}
-				config={config}
-				fetchList={fetchList}
-			/>,
-			runtime
-		);
-
-		await act(async () => {
-			await Promise.resolve();
+		const { getDataViewProps } = renderResourceDataView({
+			resource,
+			config,
+			props: { fetchList },
 		});
 
-		const props = getLastDataViewsProps();
+		await flushDataViews();
+
+		const props = getDataViewProps();
 		expect(props.data).toEqual([{ id: 1 }]);
 		expect(props.paginationInfo.totalItems).toBe(1);
 	});
 
 	it('handles fetch rejections with non-error values', async () => {
-		const runtime = createKernelRuntime();
 		const fetchList = jest.fn().mockRejectedValue('nope');
 
 		const resource = createResource<{ id: number }, { search?: string }>({
@@ -88,21 +71,15 @@ describe('ResourceDataView fetch integration', () => {
 
 		const config = createConfig<{ id: number }, { search?: string }>({});
 
-		renderWithProvider(
-			<ResourceDataView
-				resource={resource}
-				config={config}
-				fetchList={fetchList}
-			/>,
-			runtime
-		);
-
-		await act(async () => {
-			await Promise.resolve();
-			await Promise.resolve();
+		const { runtime, getDataViewProps } = renderResourceDataView({
+			resource,
+			config,
+			props: { fetchList },
 		});
 
-		const props = getLastDataViewsProps();
+		await flushDataViews(2);
+
+		const props = getDataViewProps();
 		expect(props.isLoading).toBe(false);
 		expect(runtime.dataviews.reporter.error).toHaveBeenCalledWith(
 			'Standalone DataViews fetch failed',

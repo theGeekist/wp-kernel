@@ -142,7 +142,7 @@ The showcase application (`examples/showcase`) mounts the generated screen to de
 
 ## Testing & E2E helpers
 
-Unit tests live alongside the controllers and components (`packages/ui/src/dataviews/__tests__`). For unit/integration coverage inside this package, use the shared helpers in `tests/ui-harness.test-support.ts` and `tests/dom-observer.test-support.ts`. For end-to-end coverage, `@wpkernel/e2e-utils` exposes `kernel.dataview()` helpers that build on the DOM attributes emitted by `ResourceDataView`.
+Unit tests live alongside the controllers and components (`packages/ui/src/dataviews/__tests__`). For unit/integration coverage inside this package, use the shared helpers in `tests/ui-harness.test-support.ts`, `tests/dom-observer.test-support.ts`, and `src/dataviews/test-support/ResourceDataView.test-support.tsx`. The DataView harness exports `renderResourceDataView`, `flushDataViews`, and action/config builders so suites share runtime setup, rerender control, and assertion accessors instead of recreating bespoke wiring. For end-to-end coverage, `@wpkernel/e2e-utils` exposes `kernel.dataview()` helpers that build on the DOM attributes emitted by `ResourceDataView`.
 
 ```ts
 const dataview = kernel.dataview({ resource: 'job' });

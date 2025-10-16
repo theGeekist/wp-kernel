@@ -15,6 +15,7 @@ import {
 	createKernelRuntime,
 	createResource,
 	createReporter,
+	flushDataViews,
 } from '../test-support/ResourceDataView.test-support';
 
 type TestItem = { id: number };
@@ -298,9 +299,7 @@ describe('useStableView', () => {
 			/>
 		);
 
-		await act(async () => {
-			await Promise.resolve();
-		});
+		await flushDataViews();
 
 		const latest = onChange.mock.calls.at(-1)?.[0]?.view;
 		expect(latest?.perPage).toBe(25);
@@ -328,9 +327,7 @@ describe('useStableView', () => {
 			/>
 		);
 
-		await act(async () => {
-			await Promise.resolve();
-		});
+		await flushDataViews();
 
 		expect(reporter.debug).toHaveBeenCalledWith(
 			'Failed to restore DataViews view state',
@@ -359,21 +356,19 @@ describe('useStableView', () => {
 			/>
 		);
 
-		await act(async () => {
-			await Promise.resolve();
-		});
+		await flushDataViews();
 
 		const latest = onChange.mock.calls.at(-1)?.[0];
 		expect(latest?.setView).toBeInstanceOf(Function);
 		const { setView } = latest!;
 
-		await act(async () => {
+		act(() => {
 			setView({
 				...controller.config.defaultView,
 				perPage: 50,
 			});
-			await Promise.resolve();
 		});
+		await flushDataViews();
 
 		expect(reporter.warn).toHaveBeenCalledWith(
 			'Failed to persist DataViews view state',
