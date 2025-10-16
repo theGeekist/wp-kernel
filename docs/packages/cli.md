@@ -8,3 +8,7 @@ For a narrative overview of the workflow, start with:
 - [Kernel config reference](/reference/kernel-config)
 - [Decision matrix](/reference/decision-matrix)
 - [CLI commands](/reference/cli-commands)
+
+## Testing helpers
+
+- `tests/rule-tester.test-support.ts` – `createRuleTester()` with canonical parser + fixture builders, plus `buildKernelConfigFixture()` for golden snippets.

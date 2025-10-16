@@ -1,11 +1,40 @@
 import { RuleTester } from 'eslint';
 import * as tsParser from '@typescript-eslint/parser';
 
+type SupportedEcmaVersion =
+	| 3
+	| 5
+	| 6
+	| 7
+	| 8
+	| 9
+	| 10
+	| 11
+	| 12
+	| 13
+	| 14
+	| 15
+	| 16
+	| 17
+	| 2015
+	| 2016
+	| 2017
+	| 2018
+	| 2019
+	| 2020
+	| 2021
+	| 2022
+	| 2023
+	| 2024
+	| 2025
+	| 2026
+	| 'latest';
+
 export const DEFAULT_DOC_URL =
 	'https://github.com/theGeekist/wp-kernel/blob/main/packages/cli/mvp-cli-spec.md#6-blocks-of-authoring-safety';
 
 export interface RuleTesterConfig {
-	ecmaVersion?: number;
+	ecmaVersion?: SupportedEcmaVersion;
 	sourceType?: 'script' | 'module';
 }
 
@@ -32,7 +61,7 @@ export function createRuleTester(config: RuleTesterConfig = {}): RuleTester {
 		languageOptions: {
 			parser: tsParser,
 			parserOptions: {
-				ecmaVersion: config.ecmaVersion ?? 2022,
+				ecmaVersion: config.ecmaVersion ?? 'latest',
 				sourceType: config.sourceType ?? 'module',
 			},
 		},

@@ -1,3 +1,4 @@
+import type { Reporter } from '../../src/reporter/types.js';
 import {
 	applyActionRuntimeOverrides,
 	withActionRuntimeOverrides,
@@ -8,6 +9,18 @@ import {
 } from '../wp-environment.test-support.js';
 
 describe('@wpkernel/core test-support helpers', () => {
+	const createReporterStub = (): Reporter => {
+		const reporter: Reporter = {
+			info: jest.fn(),
+			warn: jest.fn(),
+			error: jest.fn(),
+			debug: jest.fn(),
+			child: jest.fn<Reporter, [string]>(() => reporter),
+		};
+
+		return reporter;
+	};
+
 	afterEach(() => {
 		delete (window as { wp?: unknown }).wp;
 		delete (globalThis as { __WP_KERNEL_ACTION_RUNTIME__?: unknown })
@@ -22,15 +35,18 @@ describe('@wpkernel/core test-support helpers', () => {
 		expect(ensureWpData()).toBe(harness.data);
 
 		harness.reset();
-		expect(jest.mocked(harness.wp.apiFetch).mock.calls).toHaveLength(0);
+		const apiFetchMock = harness.wp.apiFetch as unknown as jest.Mock;
+		expect(apiFetchMock.mock.calls).toHaveLength(0);
 
 		harness.teardown();
 		expect(window.wp).toBe(originalWp);
 	});
 
 	it('restores the action runtime after overrides', () => {
+		const reporter = createReporterStub();
+
 		const cleanup = applyActionRuntimeOverrides({
-			runtime: { reporter: { log: jest.fn() } as never },
+			runtime: { reporter },
 		});
 
 		expect(globalThis.__WP_KERNEL_ACTION_RUNTIME__).toBeDefined();
@@ -40,14 +56,16 @@ describe('@wpkernel/core test-support helpers', () => {
 	});
 
 	it('executes callbacks with temporary runtime overrides', async () => {
-		const log = jest.fn();
+		const reporter = createReporterStub();
+
+		const infoSpy = reporter.info as jest.Mock;
 
 		await withActionRuntimeOverrides(
-			{ runtime: { reporter: { log } as never } },
+			{ runtime: { reporter } },
 			async () => {
 				expect(
-					globalThis.__WP_KERNEL_ACTION_RUNTIME__?.reporter?.log
-				).toBe(log);
+					globalThis.__WP_KERNEL_ACTION_RUNTIME__?.reporter?.info
+				).toBe(infoSpy);
 			}
 		);
 
