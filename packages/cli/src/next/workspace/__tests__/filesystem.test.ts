@@ -1,11 +1,7 @@
-import { execFile } from 'node:child_process';
 import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import { promisify } from 'node:util';
 import { createWorkspace } from '../filesystem';
-
-const execFileAsync = promisify(execFile);
 
 async function withWorkspace<T>(run: (root: string) => Promise<T>): Promise<T> {
 	const root = await fs.mkdtemp(path.join(os.tmpdir(), 'workspace-test-'));
@@ -112,13 +108,11 @@ describe('filesystem workspace', () => {
 		});
 	});
 
-	it('provides tmpDir helpers and git metadata', async () => {
+	it('provides tmpDir helpers', async () => {
 		await withWorkspace(async (root) => {
 			const workspace = createWorkspace(root);
 			const tmp = await workspace.tmpDir('next-workspace-');
 			expect(tmp.startsWith(path.join(root, '.tmp'))).toBe(true);
-			expect(await workspace.git?.isRepo()).toBe(false);
-			expect(await workspace.git?.currentBranch()).toBe('');
 		});
 	});
 
@@ -158,33 +152,6 @@ describe('filesystem workspace', () => {
 			await expect(
 				workspace.rm('does-not-exist.txt')
 			).resolves.toBeUndefined();
-		});
-	});
-
-	it('exposes git helpers when operating inside a repository', async () => {
-		await withWorkspace(async (root) => {
-			await execFileAsync('git', ['init'], { cwd: root });
-			await execFileAsync(
-				'git',
-				['config', 'user.email', 'test@example.com'],
-				{
-					cwd: root,
-				}
-			);
-			await execFileAsync('git', ['config', 'user.name', 'Tester'], {
-				cwd: root,
-			});
-			await fs.writeFile(path.join(root, 'initial.txt'), 'seed');
-			const workspace = createWorkspace(root);
-
-			await expect(workspace.git?.add([])).resolves.toBeUndefined();
-			await workspace.git?.add('initial.txt');
-			expect(await workspace.git?.isRepo()).toBe(true);
-			await workspace.write('tracked.txt', 'content');
-			await workspace.git?.add('tracked.txt');
-			await workspace.git?.commit('chore: add tracked file');
-			const branch = await workspace.git?.currentBranch();
-			expect(typeof branch).toBe('string');
 		});
 	});
 

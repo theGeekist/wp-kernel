@@ -1,15 +1,12 @@
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { execFile } from 'node:child_process';
-import { promisify } from 'node:util';
 import { KernelError } from '@wpkernel/core/error';
 import type {
 	FileManifest,
 	MergeOptions,
 	RemoveOptions,
 	Workspace,
-	WorkspaceGitHandle,
 	WriteJsonOptions,
 	WriteOptions,
 } from './types';
@@ -127,65 +124,6 @@ async function cleanupOriginal(original: TransactionOriginal): Promise<void> {
 	}
 }
 
-const execFileAsync = promisify(execFile);
-
-async function runGitCommand(root: string, args: string[]): Promise<string> {
-	try {
-		const { stdout } = await execFileAsync('git', args, {
-			cwd: root,
-		});
-		return stdout.trim();
-	} catch (error) {
-		throw new KernelError('ValidationError', {
-			message: `Git command failed: git ${args.join(' ')}`,
-			data:
-				error instanceof Error ? { message: error.message } : undefined,
-		});
-	}
-}
-
-function createGitHandle(root: string): WorkspaceGitHandle {
-	return {
-		async isRepo(): Promise<boolean> {
-			try {
-				await runGitCommand(root, [
-					'rev-parse',
-					'--is-inside-work-tree',
-				]);
-				return true;
-			} catch (error) {
-				if (error instanceof KernelError) {
-					return false;
-				}
-
-				return false;
-			}
-		},
-		async add(paths): Promise<void> {
-			const entries = Array.isArray(paths) ? [...paths] : [paths];
-			if (entries.length === 0) {
-				return;
-			}
-
-			await runGitCommand(root, ['add', ...entries]);
-		},
-		async commit(message: string): Promise<void> {
-			await runGitCommand(root, ['commit', '-m', message]);
-		},
-		async currentBranch(): Promise<string> {
-			try {
-				return await runGitCommand(root, [
-					'rev-parse',
-					'--abbrev-ref',
-					'HEAD',
-				]);
-			} catch {
-				return '';
-			}
-		},
-	};
-}
-
 async function recordOriginal(
 	absolute: string,
 	originals: Map<string, TransactionOriginal>,
@@ -232,20 +170,14 @@ function createManifest(record: TransactionRecord): FileManifest {
 
 class FilesystemWorkspace implements Workspace {
 	readonly #root: string;
-	readonly #git: WorkspaceGitHandle;
 	readonly #transactions: TransactionRecord[] = [];
 
 	constructor(root: string) {
 		this.#root = root;
-		this.#git = createGitHandle(root);
 	}
 
 	get root(): string {
 		return this.#root;
-	}
-
-	get git(): WorkspaceGitHandle {
-		return this.#git;
 	}
 
 	cwd(): string {

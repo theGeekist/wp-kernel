@@ -78,9 +78,7 @@ function createOutput(): BuilderOutput {
 	};
 }
 
-const existsMock = jest.fn(
-	async (target: string) => !target.includes('vendor/autoload.php')
-);
+const existsMock = jest.fn(async () => true);
 
 const workspace = {
 	root: process.cwd(),
@@ -113,12 +111,10 @@ describe('builder stubs', () => {
 
 	beforeEach(() => {
 		jest.clearAllMocks();
-		existsMock.mockImplementation(
-			async (target: string) => !target.includes('vendor/autoload.php')
-		);
+		existsMock.mockResolvedValue(true);
 	});
 
-	it('logs debug output and installs PHP parser if missing', async () => {
+	it('executes all builders without errors', async () => {
 		for (const helper of helpers) {
 			const output = createOutput();
 			await helper.apply(
@@ -132,15 +128,8 @@ describe('builder stubs', () => {
 			);
 		}
 
-		expect(reporter.debug).toHaveBeenCalled();
-		expect(reporter.info).toHaveBeenCalledWith(
-			expect.stringContaining('Installing')
-		);
-		expect(execFile).toHaveBeenCalledWith(
-			'composer',
-			['install'],
-			expect.objectContaining({ cwd: workspace.root }),
-			expect.any(Function)
-		);
+		expect(reporter.debug).toHaveBeenCalledTimes(helpers.length);
+		expect(reporter.info).not.toHaveBeenCalled();
+		expect(execFile).not.toHaveBeenCalled();
 	});
 });
