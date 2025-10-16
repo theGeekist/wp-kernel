@@ -14,6 +14,7 @@
 		"tests/**/*",
 		"../core/tests/**/*",
 		"../../tests/**/*",
+		"../../packages/test-utils/src/**/*",
 		"../../types/**/*.d.ts"
 	],
 	"exclude": ["node_modules", "dist", "dist-tests", "vendor"],

@@ -11,6 +11,7 @@
 		"packages/core/src/**/*",
 		"packages/ui/src/**/*",
 		"packages/cli/src/**/*",
+		"packages/test-utils/src/**/*",
 		"types/**/*.d.ts"
 	]
 }

@@ -14,7 +14,12 @@
 		"skipLibCheck": true,
 		"strict": false
 	},
-	"include": ["**/*", "package.json", "../../tests/**/*"],
+	"include": [
+		"**/*",
+		"package.json",
+		"../../tests/**/*",
+		"../../packages/test-utils/src/**/*"
+	],
 	"exclude": ["node_modules", "dist", "dist-tests", "build"],
 	"references": [
 		{ "path": "../../packages/core" },

@@ -1,0 +1,75 @@
+{
+	"name": "@wpkernel/test-utils",
+	"version": "0.1.0",
+	"description": "Shared testing utilities for WP Kernel packages",
+	"license": "EUPL-1.2",
+	"type": "module",
+	"sideEffects": false,
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/theGeekist/wp-kernel.git",
+		"directory": "packages/test-utils"
+	},
+	"homepage": "https://github.com/theGeekist/wp-kernel#readme",
+	"bugs": {
+		"url": "https://github.com/theGeekist/wp-kernel/issues"
+	},
+	"keywords": [
+		"wordpress",
+		"testing",
+		"harness",
+		"cli",
+		"integration"
+	],
+	"main": "./dist/index.js",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js",
+			"default": "./dist/index.js"
+		},
+		"./wp": {
+			"types": "./dist/wp/index.d.ts",
+			"import": "./dist/wp/index.js",
+			"default": "./dist/wp/index.js"
+		},
+		"./integration": {
+			"types": "./dist/integration/index.d.ts",
+			"import": "./dist/integration/index.js",
+			"default": "./dist/integration/index.js"
+		},
+		"./integration/workspace": {
+			"types": "./dist/integration/workspace.d.ts",
+			"import": "./dist/integration/workspace.js",
+			"default": "./dist/integration/workspace.js"
+		},
+		"./package.json": "./package.json"
+	},
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE"
+	],
+	"scripts": {
+		"dev": "tsc --project tsconfig.json --watch",
+		"build": "tsc --project tsconfig.json",
+		"clean": "rm -rf dist *.tsbuildinfo",
+		"lint": "eslint src/",
+		"lint:fix": "eslint src/ --fix",
+		"format": "prettier --write 'src/**/*.{ts,tsx}'",
+		"format:check": "prettier --check 'src/**/*.{ts,tsx}'",
+		"typecheck": "tsc --project tsconfig.json --noEmit",
+		"typecheck:tests": "tsc --project tsconfig.tests.json --noEmit",
+		"test": "jest --passWithNoTests",
+		"test:watch": "jest --watch",
+		"test:coverage": "jest --passWithNoTests --coverage"
+	},
+	"peerDependencies": {
+		"@wpkernel/core": "workspace:*"
+	},
+	"publishConfig": {
+		"access": "public"
+	}
+}

@@ -3,7 +3,7 @@
 	"extends": "../../../tsconfig.base.json",
 	"compilerOptions": {
 		"baseUrl": "../../../",
-		"rootDir": "./",
+		"rootDir": "../../../",
 		"outDir": "../dist-test-support",
 		"composite": false,
 		"types": ["jest", "node"]
