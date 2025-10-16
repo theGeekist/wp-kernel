@@ -536,7 +536,6 @@ Authoring workflow that turns `kernel.config.*` into generated TypeScript/PHP ar
     - `wpk apply [--yes] [--backup] [--force]` – enforces clean `.generated/php`, merges `WPK:BEGIN/END AUTO` blocks, writes `.wpk-apply.log` audit entries with flags and per-file metadata.
     - `wpk start [--verbose] [--auto-apply-php]` – chokidar watch with fast/slow debounce tiers, queued triggers, optional best-effort PHP copy, and an embedded Vite dev server without implicit apply.
     - `wpk build [--no-apply] [--verbose]` – orchestrates `generate` → `pnpm exec vite build` → `apply --yes`, with `--no-apply` for inspection workflows.
-    - `wpk dev` – deprecated alias that forwards to `wpk start` while printing a warning for legacy scripts.
     - `wpk init`, `wpk doctor` – placeholders slated for adapter/diagnostic work once Phase 7a/8 land.
 
 ### Kernel Config (`kernel.config.ts`)

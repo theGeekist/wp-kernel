@@ -50,10 +50,8 @@ This scaffolds a Vite-ready plugin with kernel config, TypeScript/ESLint setup, 
 
 ## Development commands
 
-- `wpk start` watches kernel sources, regenerates artefacts on change, and launches the Vite dev server. Use `--verbose` for additional logging and `--auto-apply-php` to opt into the best-effort PHP copy used by the legacy `wpk dev` command.
+- `wpk start` watches kernel sources, regenerates artefacts on change, and launches the Vite dev server. Use `--verbose` for additional logging and `--auto-apply-php` to opt into the best-effort PHP copy pipeline when you also want PHP artefacts updated automatically.
 - `wpk build` performs a production pipeline in one go: `generate` → Vite `build` → `apply --yes`. Pass `--no-apply` when you want to review `.generated/**` + Vite output without touching `inc/`.
-
-The `start` command replaces `wpk dev`; the latter remains as a deprecated alias for backwards compatibility and prints a warning when invoked.
 
 ## Documentation
 

@@ -9,7 +9,6 @@ import {
 	prioritiseQueued,
 	type Trigger,
 } from '../start';
-import { DevCommand } from '../dev';
 import { runGenerate } from '../run-generate';
 import { EXIT_CODES } from '../run-generate/types';
 import chokidar from 'chokidar';
@@ -362,30 +361,6 @@ describe('StartCommand', () => {
 	});
 });
 
-describe('DevCommand alias', () => {
-	beforeEach(() => {
-		jest.useFakeTimers();
-		watchMock.mockImplementation(
-			() => new FakeWatcher() as unknown as FSWatcher
-		);
-		runGenerateMock.mockResolvedValue({ exitCode: 0, output: '' });
-	});
-
-	afterEach(() => {
-		jest.useRealTimers();
-		jest.resetAllMocks();
-	});
-
-	it('emits a deprecation warning and delegates to StartCommand', async () => {
-		const { command, stderr } = createDevCommand();
-		const { executePromise } = await runCommand(command);
-
-		expect(stderr.toString()).toContain('deprecated');
-
-		await shutdown(executePromise);
-	});
-});
-
 class FakeWatcher extends EventEmitter {
 	close = jest.fn(async () => {
 		this.emit('close');
@@ -447,28 +422,6 @@ function createStartCommand(): {
 	const viteProcess = new FakeChildProcess();
 	jest.spyOn(
 		command as unknown as StartCommand,
-		'createViteDevProcess'
-	).mockReturnValue(
-		viteProcess as unknown as ReturnType<
-			StartCommand['createViteDevProcess']
-		>
-	);
-
-	return { command, viteProcess, stdout, stderr };
-}
-
-function createDevCommand(): {
-	command: DevCommand;
-	viteProcess: FakeChildProcess;
-	stdout: ReturnType<typeof assignCommandContext>['stdout'];
-	stderr: ReturnType<typeof assignCommandContext>['stderr'];
-} {
-	const command = new DevCommand();
-	const { stdout, stderr } = assignCommandContext(command);
-
-	const viteProcess = new FakeChildProcess();
-	jest.spyOn(
-		command as unknown as DevCommand,
 		'createViteDevProcess'
 	).mockReturnValue(
 		viteProcess as unknown as ReturnType<
