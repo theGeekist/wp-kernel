@@ -1,123 +1,15 @@
 import {
 	DataViewsMock,
 	createKernelRuntime,
-	createResource,
-	createAction,
 	type RuntimeWithDataViews,
-	createConfig,
-	renderResourceDataView,
 	flushDataViews,
-	type ResourceDataViewTestProps,
+	buildActionConfig,
+	renderActionScenario,
+	createAction,
 } from '../test-support/ResourceDataView.test-support';
 import { act } from 'react';
 import { KernelError } from '@wpkernel/core/error';
-import type { CacheKeyPattern, ResourceObject } from '@wpkernel/core/resource';
-import type {
-	ResourceDataViewActionConfig,
-	ResourceDataViewConfig,
-} from '../types';
-
-type ListItem = { id: number };
-type ListQuery = { search?: string };
-
-type TestActionConfig = ResourceDataViewActionConfig<
-	ListItem,
-	unknown,
-	unknown
->;
-
-const defaultItems: ListItem[] = [{ id: 1 }];
-
-function buildListResource(
-	items: ListItem[] = defaultItems,
-	overrides: Partial<ResourceObject<ListItem, ListQuery>> = {}
-): ResourceObject<ListItem, ListQuery> {
-	const { useList, ...rest } = overrides;
-	const listResolver =
-		useList ??
-		jest.fn(() => ({
-			data: { items, total: items.length },
-			isLoading: false,
-			error: undefined,
-		}));
-
-	return createResource<ListItem, ListQuery>({
-		useList: listResolver as ResourceObject<ListItem, ListQuery>['useList'],
-		...rest,
-	});
-}
-
-function buildActionConfig(
-	overrides: Partial<TestActionConfig> = {}
-): TestActionConfig {
-	return {
-		id: 'delete',
-		action: createAction(jest.fn(), {
-			scope: 'crossTab',
-			bridged: true,
-		}),
-		label: 'Delete',
-		supportsBulk: true,
-		getActionArgs: ({ selection }) => ({ selection }),
-		...overrides,
-	} as TestActionConfig;
-}
-
-interface RenderActionScenarioOptions {
-	runtime?: RuntimeWithDataViews;
-	items?: ListItem[];
-	resource?: ResourceObject<ListItem, ListQuery>;
-	resourceOverrides?: Partial<ResourceObject<ListItem, ListQuery>>;
-	action?: Partial<TestActionConfig>;
-	actions?: TestActionConfig[];
-	configOverrides?: Partial<ResourceDataViewConfig<ListItem, ListQuery>>;
-	props?: Partial<ResourceDataViewTestProps<ListItem, ListQuery>>;
-}
-
-function renderActionScenario(options: RenderActionScenarioOptions = {}) {
-	const runtime = options.runtime ?? createKernelRuntime();
-	const resource =
-		options.resource ??
-		buildListResource(options.items, options.resourceOverrides ?? {});
-	const actions = options.actions ?? [
-		buildActionConfig(options.action ?? {}),
-	];
-	const config = createConfig<ListItem, ListQuery>({
-		actions,
-		...(options.configOverrides as Partial<
-			ResourceDataViewConfig<ListItem, ListQuery>
-		>),
-	});
-	const view = renderResourceDataView<ListItem, ListQuery>({
-		runtime,
-		resource,
-		config,
-		props: options.props,
-	});
-
-	return {
-		...view,
-		runtime,
-		resource,
-		config,
-		getActionEntries: () => getActionMocks(view.getDataViewProps),
-	};
-}
-
-type DataViewActionMock = {
-	callback: (
-		items: Array<{ id: number }>,
-		context: { onActionPerformed?: jest.Mock }
-	) => Promise<unknown>;
-	disabled?: boolean;
-};
-
-function getActionMocks(
-	getDataViewProps: () => { actions?: unknown }
-): DataViewActionMock[] {
-	const props = getDataViewProps();
-	return (props.actions ?? []) as unknown as DataViewActionMock[];
-}
+import type { CacheKeyPattern } from '@wpkernel/core/resource';
 
 describe('ResourceDataView actions', () => {
 	beforeEach(() => {
