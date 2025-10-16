@@ -5,8 +5,14 @@ import {
 	renderResourceDataView,
 	flushDataViews,
 	createDataViewsTestController,
+	createKernelRuntime,
 	type ResourceDataViewTestProps,
+	type RuntimeWithDataViews,
 } from '../test-support/ResourceDataView.test-support';
+import type {
+	ResourceDataViewConfig,
+	ResourceDataViewController,
+} from '../types';
 
 type Item = { id: number };
 
@@ -39,6 +45,70 @@ function renderStandaloneFetchScenario(options: FetchScenarioOptions = {}) {
 			props: { fetchList, ...(props ?? {}) },
 		}),
 		fetchList,
+	};
+}
+
+function createRawPerPageController(
+	runtime: RuntimeWithDataViews,
+	config: ResourceDataViewConfig<Item, Query>
+): ResourceDataViewController<Item, Query> {
+	const mapViewToQuery: ResourceDataViewController<
+		Item,
+		Query
+	>['mapViewToQuery'] = (view) =>
+		({
+			page: view.page as number | undefined,
+			perPage: view.perPage as number | undefined,
+		}) as Query;
+
+	const queryMapping: ResourceDataViewController<
+		Item,
+		Query
+	>['queryMapping'] = (state) =>
+		({
+			page: state.page,
+			perPage: state.perPage as unknown as number | undefined,
+		}) as Query;
+
+	const deriveViewState: ResourceDataViewController<
+		Item,
+		Query
+	>['deriveViewState'] = (view) => {
+		const perPage = view.perPage as number | undefined;
+		return {
+			fields: (view.fields ??
+				config.defaultView.fields ??
+				[]) as string[],
+			sort: view.sort,
+			search: view.search,
+			filters: undefined,
+			page:
+				typeof view.page === 'number' && view.page > 0 ? view.page : 1,
+			perPage: perPage as unknown as number,
+		};
+	};
+
+	return {
+		resource: undefined,
+		resourceName: 'items',
+		config,
+		queryMapping,
+		runtime: runtime.dataviews,
+		namespace: runtime.namespace,
+		preferencesKey: 'tests::items',
+		invalidate: runtime.invalidate,
+		policies: undefined,
+		fetchList: undefined,
+		prefetchList: undefined,
+		mapViewToQuery,
+		deriveViewState,
+		loadStoredView: jest.fn().mockResolvedValue(undefined),
+		saveView: jest.fn().mockResolvedValue(undefined),
+		emitViewChange: jest.fn(),
+		emitRegistered: jest.fn(),
+		emitUnregistered: jest.fn(),
+		emitAction: jest.fn(),
+		getReporter: jest.fn(() => runtime.reporter),
 	};
 }
 
@@ -148,5 +218,69 @@ describe('ResourceDataView fetch integration', () => {
 		props = controller.getProps();
 		expect(props.view.page).toBe(2);
 		expect(props.data).toEqual([{ id: 6 }]);
+	});
+
+	it('falls back to a single page when perPage is zero or undefined', async () => {
+		const fetchList = jest
+			.fn<Promise<{ items: Item[]; total: number }>, [Query]>()
+			.mockResolvedValue({
+				items: [{ id: 1 }],
+				total: 25,
+			});
+
+		const runtime = createKernelRuntime();
+		const config = createConfig<Item, Query>({
+			defaultView: {
+				type: 'table',
+				fields: ['title'],
+				perPage: 0,
+				page: 1,
+			},
+			mapQuery: ({ page, perPage }) => ({
+				page,
+				perPage,
+			}),
+		});
+
+		const view = renderResourceDataView<Item, Query>({
+			runtime,
+			config,
+			props: {
+				controller: createRawPerPageController(runtime, config),
+				fetchList,
+			},
+		});
+
+		const controller = createDataViewsTestController(view);
+
+		await flushDataViews(2);
+
+		expect(fetchList).toHaveBeenNthCalledWith(1, {
+			page: 1,
+			perPage: 0,
+		});
+
+		let props = controller.getProps();
+		expect(props.paginationInfo.totalItems).toBe(25);
+		expect(props.paginationInfo.totalPages).toBe(1);
+		expect(props.view.perPage).toBe(0);
+
+		controller.updateView((viewState) => ({
+			...viewState,
+			page: 2,
+			perPage: undefined,
+		}));
+
+		await flushDataViews(2);
+
+		expect(fetchList).toHaveBeenLastCalledWith({
+			page: 2,
+			perPage: undefined,
+		});
+
+		props = controller.getProps();
+		expect(props.view.page).toBe(2);
+		expect(props.paginationInfo.totalPages).toBe(1);
+		expect(props.paginationInfo.totalItems).toBe(25);
 	});
 });
