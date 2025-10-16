@@ -46,6 +46,16 @@ import { ActionButton } from '@wpkernel/ui';
 <ActionButton action={CreatePost}>Create Post</ActionButton>
 ```
 
+## Testing Helpers
+
+- `@wpkernel/test-utils/core` exposes the WordPress harness family
+  (`createWordPressTestHarness()`, `withWordPressData()`,
+  `createApiFetchHarness()`) plus `applyActionRuntimeOverrides()` and
+  `withActionRuntimeOverrides()` so suites can mutate
+  `__WP_KERNEL_ACTION_RUNTIME__` without leaking global state.
+- `@wpkernel/test-utils/wp` still provides the base globals when you need to
+  assert against the canonical harness directly.
+
 ## Key Patterns
 
 **📖 [Complete Documentation →](../../docs/packages/core.md)**

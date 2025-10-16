@@ -10,6 +10,14 @@ Work in this package focuses on resources, actions, policies, registry integrati
 
 Run `pnpm --filter @wpkernel/core test` after edits, followed by `pnpm typecheck` and `pnpm typecheck:tests`. When modifying transport or registry code, run the showcase Playwright suite to ensure end-to-end flows remain stable.
 
+Shared test helpers now live in `@wpkernel/test-utils/core`:
+
+- Import WordPress harness utilities (`createWordPressTestHarness`, `withWordPressData`, `createApiFetchHarness`) from the shared package so suites stop depending on relative paths.
+- Use `applyActionRuntimeOverrides` / `withActionRuntimeOverrides` from the same entry point when you need to mutate `__WP_KERNEL_ACTION_RUNTIME__` in tests.
+- Continue sourcing raw globals from `@wpkernel/test-utils/wp` when you need to assert against the base harness.
+
+`*.test-support.ts` helpers are excluded from the published build; run `pnpm --filter @wpkernel/core typecheck:tests` after touching them to keep the tests project in sync.
+
 ### Conventions
 
 Maintain namespace and event naming consistency-use helpers from `namespace/` and publish lifecycle updates via the typed event bus. Throw `KernelError` or an existing subclass (`TransportError`, `ServerError`, etc.); when introducing new errors, derive from `KernelError` so behaviour remains consistent. Keep exports surface-driven: no deep imports from `src/**` in other packages.

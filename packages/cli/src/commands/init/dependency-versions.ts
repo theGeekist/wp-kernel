@@ -1,7 +1,6 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
-import { createRequire } from 'node:module';
-import { getCliPackageRoot, getModuleUrl } from './module-url';
+import { getCliPackageRoot } from './module-url';
 
 export type DependencyVersionSource =
 	| 'fallback'
@@ -128,20 +127,19 @@ export async function resolveDependencyVersions(
 async function loadPeersFromLocalCore(
 	workspace: string
 ): Promise<Record<string, string>> {
-	const requireFromCli = createRequire(getModuleUrl());
-
 	try {
-		const resolved = requireFromCli.resolve('@wpkernel/core/package.json', {
-			paths: [workspace],
-		});
-		if (!isPathWithinWorkspace(resolved, workspace)) {
+		const manifest = await readWorkspacePackageManifest(
+			workspace,
+			'@wpkernel/core'
+		);
+
+		if (!manifest) {
 			return {};
 		}
-		const raw = await fs.readFile(resolved, 'utf8');
-		const pkg = JSON.parse(raw) as {
-			peerDependencies?: Record<string, string>;
-		};
-		return pkg.peerDependencies ?? {};
+
+		const peers = manifest.peerDependencies;
+
+		return peers && typeof peers === 'object' ? peers : {};
 	} catch (error) {
 		if (isModuleNotFound(error, '@wpkernel/core')) {
 			return {};
@@ -343,26 +341,79 @@ async function resolveWorkspacePackageVersion(
 	workspace: string,
 	specifier: string
 ): Promise<string | undefined> {
-	const requireFromCli = createRequire(getModuleUrl());
-
 	try {
-		const resolved = requireFromCli.resolve(`${specifier}/package.json`, {
-			paths: [workspace],
-		});
+		const manifest = await readWorkspacePackageManifest(
+			workspace,
+			specifier
+		);
 
-		if (!isPathWithinWorkspace(resolved, workspace)) {
+		if (!manifest) {
 			return undefined;
 		}
 
-		const raw = await fs.readFile(resolved, 'utf8');
-		const pkg = JSON.parse(raw) as { version?: string };
-		return typeof pkg.version === 'string' ? pkg.version : undefined;
+		return typeof manifest.version === 'string'
+			? manifest.version
+			: undefined;
 	} catch (error) {
 		if (isModuleNotFound(error, specifier)) {
 			return undefined;
 		}
 		throw error;
 	}
+}
+
+async function readWorkspacePackageManifest(
+	workspace: string,
+	specifier: string
+): Promise<
+	{ version?: string; peerDependencies?: Record<string, string> } | undefined
+> {
+	const manifestPath = resolveWorkspacePackageManifestPath(
+		workspace,
+		specifier
+	);
+
+	if (!manifestPath) {
+		return undefined;
+	}
+
+	try {
+		const raw = await fs.readFile(manifestPath, 'utf8');
+		const manifest = JSON.parse(raw) as {
+			version?: string;
+			peerDependencies?: Record<string, string>;
+		};
+		return manifest;
+	} catch (error) {
+		if (isENOENT(error)) {
+			return undefined;
+		}
+
+		if (isModuleNotFound(error, specifier)) {
+			return undefined;
+		}
+
+		throw error;
+	}
+}
+
+function resolveWorkspacePackageManifestPath(
+	workspace: string,
+	specifier: string
+): string | undefined {
+	const segments = specifier.split('/');
+	const manifestPath = path.join(
+		workspace,
+		'node_modules',
+		...segments,
+		'package.json'
+	);
+
+	if (!isPathWithinWorkspace(manifestPath, workspace)) {
+		return undefined;
+	}
+
+	return manifestPath;
 }
 
 function sortDependencies(map: Record<string, string>): Record<string, string> {

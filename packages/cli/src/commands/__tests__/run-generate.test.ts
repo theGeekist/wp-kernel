@@ -1,4 +1,3 @@
-import type { Reporter } from '@wpkernel/core/reporter';
 import { runGenerate } from '../run-generate';
 import { EXIT_CODES } from '../run-generate/types';
 import { validateGeneratedImports } from '../run-generate/validation';
@@ -11,6 +10,7 @@ import {
 	KernelError as CoreKernelError,
 	type WPKConfigSource,
 } from '@wpkernel/core/contracts';
+import { createReporterMock } from '@wpkernel/test-utils/cli';
 
 jest.mock('../../config');
 jest.mock('../../ir');
@@ -98,18 +98,6 @@ const validateGeneratedImportsMock =
 		typeof validateGeneratedImports
 	>;
 
-function createReporterMock(): Reporter {
-	const reporter = {
-		info: jest.fn(),
-		debug: jest.fn(),
-		error: jest.fn(),
-		warn: jest.fn(),
-		child: jest.fn(() => reporter),
-	} as unknown as Reporter;
-
-	return reporter;
-}
-
 function createKernelConfig(overrides: Partial<Record<string, unknown>> = {}) {
 	return {
 		config: {
@@ -182,10 +170,7 @@ describe('runGenerate', () => {
 		expect(result.exitCode).toBe(EXIT_CODES.ADAPTER_ERROR);
 
 		// Cast to jest.Mocked to access mock.calls
-		const mockedReporter = reporter as unknown as jest.Mocked<Reporter>;
-		const childAdapter = mockedReporter.child(
-			'adapter'
-		) as unknown as jest.Mocked<Reporter>;
+		const childAdapter = reporter.child('adapter');
 		const errorCalls = childAdapter.error.mock.calls;
 
 		expect(
@@ -230,10 +215,7 @@ describe('runGenerate', () => {
 		expect(commit).toHaveBeenCalledTimes(1);
 		expect(rollback).toHaveBeenCalledTimes(1);
 
-		const mockedReporter = reporter as unknown as jest.Mocked<Reporter>;
-		const childAdapter = mockedReporter.child(
-			'adapter'
-		) as unknown as jest.Mocked<Reporter>;
+		const childAdapter = reporter.child('adapter');
 		const errorCalls = childAdapter.error.mock.calls;
 
 		expect(

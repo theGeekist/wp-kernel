@@ -288,6 +288,9 @@ importers:
       typanion:
         specifier: ^3.14.0
         version: 3.14.0
+      typescript:
+        specifier: '>=5.0.0'
+        version: 5.9.3
     devDependencies:
       lodash:
         specifier: ^4.17.21
@@ -328,6 +331,21 @@ importers:
       '@wpkernel/core':
         specifier: workspace:*
         version: link:../core
+      '@wpkernel/test-utils':
+        specifier: workspace:*
+        version: link:../test-utils
+
+  packages/test-utils:
+    dependencies:
+      '@wpkernel/core':
+        specifier: workspace:*
+        version: link:../core
+      '@wpkernel/ui':
+        specifier: workspace:*
+        version: link:../ui
+      react:
+        specifier: ^18.3.1
+        version: 18.3.1
 
   packages/ui:
     dependencies:

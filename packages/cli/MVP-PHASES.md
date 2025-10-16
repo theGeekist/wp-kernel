@@ -331,7 +331,7 @@ packages/cli/src/printers/blocks/
 
 **Scope:**
 
-- Rename the existing `dev` command to `start`, maintaining a deprecation warning or alias as needed.
+- Rename the existing `dev` command to `start`, removing the legacy alias once downstream consumers have migrated.
 - Implement a new `build` command orchestrating `generate` → Vite production build → `apply --yes`, with a `--no-apply` escape hatch.
 - Ensure `wpk start` runs generate in watch mode, launches the Vite dev server, and never auto-applies artefacts by default.
 - Update CLI reporter output for both commands to keep logs concise and structured.

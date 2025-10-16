@@ -1,143 +1,164 @@
 /* @jsxImportSource react */
-import { act, createRef } from 'react';
+import { act, createRef, type RefObject } from 'react';
 import { createRoot } from 'react-dom/client';
 import { useVisiblePrefetch } from '../useVisiblePrefetch';
+import type {
+	IntersectionObserverController,
+	RequestAnimationFrameController,
+} from '../../../tests/dom-observer.test-support';
+import {
+	createIntersectionObserverMock,
+	installRequestAnimationFrameMock,
+} from '../../../tests/dom-observer.test-support';
 
 (
 	globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
 ).IS_REACT_ACT_ENVIRONMENT = true;
 
-type IOInstance = {
-	callback: IntersectionObserverCallback;
-	options?: IntersectionObserverInit;
-	observe: jest.Mock;
-	disconnect: jest.Mock;
-};
+type VisiblePrefetchOptions = Parameters<typeof useVisiblePrefetch>[2];
 
-function setupComponent(options?: Parameters<typeof useVisiblePrefetch>[2]): {
-	element: HTMLElement;
+type RenderTarget = (ref: RefObject<HTMLDivElement>) => JSX.Element;
+
+interface RenderResult {
+	element?: HTMLDivElement | null;
 	callback: jest.Mock;
-	trigger: (entry: Partial<IntersectionObserverEntry>) => void;
+	trigger: (entry?: Partial<IntersectionObserverEntry>) => void;
 	unmount: () => void;
-	observer?: IOInstance;
-} {
-	const container = document.createElement('div');
-	const root = createRoot(container);
-	const callback = jest.fn();
-	const ref = createRef<HTMLDivElement>();
-
-	function TestComponent() {
-		useVisiblePrefetch(ref, callback, options);
-		return <div ref={ref}>Target</div>;
-	}
-
-	act(() => {
-		root.render(<TestComponent />);
-	});
-
-	const instance = (
-		window.IntersectionObserver as unknown as jest.Mock
-	).mock.results.at(-1)?.value as IOInstance | undefined;
-
-	const trigger = (entry: Partial<IntersectionObserverEntry>) => {
-		if (!instance) {
-			throw new Error('No IntersectionObserver instance captured');
-		}
-		instance.callback(
-			[
-				{
-					isIntersecting: true,
-					target: ref.current!,
-					intersectionRatio: 1,
-					time: Date.now(),
-					boundingClientRect: ref.current!.getBoundingClientRect(),
-					intersectionRect: ref.current!.getBoundingClientRect(),
-					rootBounds: null,
-					...entry,
-				} as IntersectionObserverEntry,
-			],
-			{} as IntersectionObserver
-		);
-	};
-
-	return {
-		element: ref.current!,
-		callback,
-		trigger,
-		unmount: () => act(() => root.unmount()),
-		observer: instance,
-	};
+	observer?: jest.Mocked<IntersectionObserver>;
+	invokeObserver?: (entry?: Partial<IntersectionObserverEntry>) => void;
 }
 
 describe('useVisiblePrefetch', () => {
-	const originalIO = window.IntersectionObserver;
-	const originalRAF = window.requestAnimationFrame;
-	const originalCancelRAF = window.cancelAnimationFrame;
+	let observerController: IntersectionObserverController | undefined;
+	let rafController: RequestAnimationFrameController | undefined;
 
 	beforeEach(() => {
-		window.IntersectionObserver = jest.fn(
-			(
-				callback: IntersectionObserverCallback,
-				options?: IntersectionObserverInit
-			) => {
-				return {
-					callback,
-					options,
-					observe: jest.fn(),
-					disconnect: jest.fn(),
-				} as unknown as IntersectionObserver;
-			}
-		) as unknown as typeof IntersectionObserver;
+		observerController = createIntersectionObserverMock();
 	});
 
 	afterEach(() => {
-		window.IntersectionObserver = originalIO;
-		window.requestAnimationFrame = originalRAF;
-		window.cancelAnimationFrame = originalCancelRAF;
+		observerController?.restore();
+		observerController = undefined;
+		rafController?.restore();
+		rafController = undefined;
 	});
 
-	it('invokes callback when IntersectionObserver reports visibility', () => {
-		const { callback, trigger, unmount } = setupComponent();
-		act(() => {
-			trigger({ isIntersecting: true });
-		});
-		expect(callback).toHaveBeenCalledTimes(1);
-		callback.mockClear();
-		unmount();
-	});
-
-	it('falls back to scroll listener when IntersectionObserver is unavailable', async () => {
-		delete (
-			window as {
-				IntersectionObserver?: unknown;
-			}
-		).IntersectionObserver;
-
-		window.requestAnimationFrame = ((cb: FrameRequestCallback) => {
-			cb(performance.now());
-			return 1;
-		}) as typeof window.requestAnimationFrame;
-		window.cancelAnimationFrame = jest.fn();
-
+	function renderVisiblePrefetchInstance(
+		options?: VisiblePrefetchOptions,
+		renderTarget: RenderTarget = (ref) => <div ref={ref}>Target</div>
+	): RenderResult {
 		const container = document.createElement('div');
 		const root = createRoot(container);
 		const callback = jest.fn();
 		const ref = createRef<HTMLDivElement>();
 
-		function Component() {
-			useVisiblePrefetch(ref, callback, {
-				rootMargin: '100px',
-				once: false,
-			});
-			return <div ref={ref}>Content</div>;
+		function TestComponent() {
+			useVisiblePrefetch(ref, callback, options);
+			return renderTarget(ref);
 		}
 
 		act(() => {
-			root.render(<Component />);
+			root.render(<TestComponent />);
 		});
 
-		const element = ref.current!;
-		const rectSpy = jest.spyOn(element, 'getBoundingClientRect');
+		const observerResult = observerController?.mock.mock.results.at(-1);
+		const observer = observerResult?.value as
+			| jest.Mocked<IntersectionObserver>
+			| undefined;
+		const observerCallback = observerController?.mock.mock.calls.at(
+			-1
+		)?.[0] as IntersectionObserverCallback | undefined;
+
+		return {
+			element: ref.current,
+			callback,
+			trigger: (entry = {}) => {
+				if (!observerController) {
+					throw new Error('IntersectionObserver mock not installed');
+				}
+				if (!ref.current) {
+					throw new Error('Ref not attached to an element');
+				}
+				observerController.trigger({
+					target: ref.current,
+					...entry,
+				});
+			},
+			unmount: () => {
+				act(() => {
+					root.unmount();
+				});
+			},
+			observer,
+			invokeObserver: (entry = {}) => {
+				if (!observerCallback) {
+					throw new Error(
+						'No IntersectionObserver callback registered'
+					);
+				}
+				const target = ref.current ?? document.createElement('div');
+				observerCallback(
+					[
+						{
+							isIntersecting: true,
+							target,
+							intersectionRatio: 1,
+							time: performance.now(),
+							boundingClientRect: target.getBoundingClientRect(),
+							intersectionRect: target.getBoundingClientRect(),
+							rootBounds: null,
+							...entry,
+						} as IntersectionObserverEntry,
+					],
+					observer ?? ({} as IntersectionObserver)
+				);
+			},
+		};
+	}
+
+	function disableIntersectionObserver() {
+		const originalObserver = window.IntersectionObserver;
+		observerController?.restore();
+		observerController = undefined;
+		Reflect.deleteProperty(window, 'IntersectionObserver');
+
+		return () => {
+			if (originalObserver) {
+				window.IntersectionObserver = originalObserver;
+			} else {
+				Reflect.deleteProperty(window, 'IntersectionObserver');
+			}
+		};
+	}
+
+	it('invokes callback when IntersectionObserver reports visibility', () => {
+		const { callback, trigger, unmount } = renderVisiblePrefetchInstance();
+
+		act(() => {
+			trigger();
+		});
+
+		expect(callback).toHaveBeenCalledTimes(1);
+
+		unmount();
+	});
+
+	it('falls back to scroll listener when IntersectionObserver is unavailable', () => {
+		const restoreObserver = disableIntersectionObserver();
+
+		const raf = (rafController = installRequestAnimationFrameMock());
+
+		const { callback, element, unmount } = renderVisiblePrefetchInstance({
+			rootMargin: '100px',
+			once: false,
+		});
+
+		expect(element).toBeTruthy();
+		const target = element as HTMLDivElement;
+
+		const rectSpy = jest.spyOn(target, 'getBoundingClientRect');
+		raf.flush();
+		callback.mockClear();
 		rectSpy.mockReturnValue({
 			top: 50,
 			left: 0,
@@ -148,16 +169,15 @@ describe('useVisiblePrefetch', () => {
 			x: 0,
 			y: 50,
 			toJSON: () => ({}),
-		});
+		} as DOMRect);
 
 		act(() => {
 			window.dispatchEvent(new Event('scroll'));
 		});
-		await act(async () => {
-			await Promise.resolve();
-		});
+		raf.flush();
 
 		expect(callback).toHaveBeenCalledTimes(1);
+		callback.mockClear();
 
 		rectSpy.mockReturnValue({
 			top: 20,
@@ -169,106 +189,94 @@ describe('useVisiblePrefetch', () => {
 			x: 0,
 			y: 20,
 			toJSON: () => ({}),
-		});
+		} as DOMRect);
 
 		act(() => {
 			window.dispatchEvent(new Event('resize'));
 		});
-		await act(async () => {
-			await Promise.resolve();
-		});
+		raf.flush();
 
 		expect(callback).toHaveBeenCalledTimes(1);
 
-		act(() => {
-			root.unmount();
-		});
+		rectSpy.mockRestore();
+		unmount();
+		restoreObserver();
 	});
 
 	it('only triggers once by default even with repeated intersections', () => {
-		const { callback, trigger, observer, unmount } = setupComponent();
+		const { callback, trigger, invokeObserver, observer, unmount } =
+			renderVisiblePrefetchInstance();
+
 		act(() => {
-			trigger({ isIntersecting: true });
-			trigger({ isIntersecting: true });
+			trigger();
+			invokeObserver?.();
 		});
 
 		expect(callback).toHaveBeenCalledTimes(1);
-		expect(observer?.disconnect).toHaveBeenCalled();
+		expect(observer).toBeDefined();
+		expect(observer!.disconnect).toHaveBeenCalled();
+
 		unmount();
 	});
 
 	it('allows repeated triggers when once=false', () => {
-		const { callback, trigger, observer, unmount } = setupComponent({
-			once: false,
-		});
+		const { callback, trigger, observer, unmount } =
+			renderVisiblePrefetchInstance({ once: false });
 
 		act(() => {
-			trigger({ isIntersecting: true });
-			trigger({ isIntersecting: true });
+			trigger();
+			trigger();
 		});
 
 		expect(callback).toHaveBeenCalledTimes(2);
-		expect(observer?.disconnect).toHaveBeenCalledTimes(0);
+		expect(observer).toBeDefined();
+		expect(observer!.disconnect).not.toHaveBeenCalled();
+
 		unmount();
 	});
 
-	it('passes root margin options to IntersectionObserver', () => {
-		const { observer, unmount } = setupComponent({
-			rootMargin: '10px 20px 30px 40px',
-		});
+	describe('rootMargin handling', () => {
+		const cases: Array<
+			[string, VisiblePrefetchOptions | undefined, string]
+		> = [
+			['default margin', undefined, '200px'],
+			['empty string', { rootMargin: '' }, ''],
+			['whitespace', { rootMargin: '   ' }, '   '],
+			['single value', { rootMargin: '50px' }, '50px'],
+			['two values', { rootMargin: '10px 20px' }, '10px 20px'],
+			[
+				'three values',
+				{ rootMargin: '10px 20px 30px' },
+				'10px 20px 30px',
+			],
+			[
+				'four values',
+				{ rootMargin: '10px 20px 30px 40px' },
+				'10px 20px 30px 40px',
+			],
+			['arbitrary string', { rootMargin: 'invalid' }, 'invalid'],
+		];
 
-		expect(observer?.options?.rootMargin).toBe('10px 20px 30px 40px');
-		unmount();
+		it.each(cases)('applies %s', (_, options, expected) => {
+			const { unmount } = renderVisiblePrefetchInstance(options);
+			const lastCall = observerController?.mock.mock.calls.at(-1);
+
+			expect(lastCall?.[1]?.rootMargin).toBe(expected);
+
+			unmount();
+		});
 	});
 
 	it('disconnects observers on unmount', () => {
-		const { observer, unmount } = setupComponent({ once: false });
-
-		unmount();
-
-		expect(observer?.disconnect).toHaveBeenCalled();
-	});
-
-	it('handles empty rootMargin string', () => {
-		const { unmount } = setupComponent({ rootMargin: '' });
-		// Should not throw and use default margins
-		unmount();
-	});
-
-	it('handles rootMargin as passed through', () => {
-		const { observer, unmount } = setupComponent({ rootMargin: '   ' });
-		// Mock passes through value as-is
-		expect(observer?.options?.rootMargin).toBe('   ');
-		unmount();
-	});
-
-	it('passes single rootMargin value', () => {
-		const { observer, unmount } = setupComponent({ rootMargin: '50px' });
-		expect(observer?.options?.rootMargin).toBe('50px');
-		unmount();
-	});
-
-	it('passes two rootMargin values', () => {
-		const { observer, unmount } = setupComponent({
-			rootMargin: '10px 20px',
+		const { observer, unmount } = renderVisiblePrefetchInstance({
+			once: false,
 		});
-		expect(observer?.options?.rootMargin).toBe('10px 20px');
-		unmount();
-	});
 
-	it('passes three rootMargin values', () => {
-		const { observer, unmount } = setupComponent({
-			rootMargin: '10px 20px 30px',
-		});
-		expect(observer?.options?.rootMargin).toBe('10px 20px 30px');
-		unmount();
-	});
+		expect(observer).toBeDefined();
 
-	it('handles any rootMargin string value', () => {
-		const { observer, unmount } = setupComponent({ rootMargin: 'invalid' });
-		// Mock passes through value as-is
-		expect(observer?.options?.rootMargin).toBe('invalid');
 		unmount();
+
+		expect(observer!.disconnect).toHaveBeenCalled();
 	});
 
 	it('handles SSR environment without window', () => {
@@ -297,7 +305,6 @@ describe('useVisiblePrefetch', () => {
 			return <div ref={ref}>Target</div>;
 		}
 
-		// Should not throw during SSR
 		expect(() => {
 			act(() => {
 				root.render(<TestComponent />);
@@ -315,60 +322,26 @@ describe('useVisiblePrefetch', () => {
 	});
 
 	it('handles null ref.current', () => {
-		const container = document.createElement('div');
-		const root = createRoot(container);
-		const callback = jest.fn();
-		const ref = createRef<HTMLDivElement>();
+		let instance: RenderResult | undefined;
 
-		function TestComponent() {
-			useVisiblePrefetch(ref, callback);
-			return <div>No ref assigned</div>;
-		}
-
-		// Should not throw with null ref
 		expect(() => {
-			act(() => {
-				root.render(<TestComponent />);
-			});
+			instance = renderVisiblePrefetchInstance(undefined, () => (
+				<div>No ref assigned</div>
+			));
 		}).not.toThrow();
 
-		act(() => {
-			root.unmount();
-		});
+		instance?.unmount();
 	});
 
 	it('removes fallback listeners after triggering once', () => {
-		const originalObserver = window.IntersectionObserver;
-		const rafSpy = jest
-			.spyOn(window, 'requestAnimationFrame')
-			.mockImplementation((callback: FrameRequestCallback) => {
-				callback(0);
-				return 1;
-			});
+		const restoreObserver = disableIntersectionObserver();
+
+		const raf = (rafController = installRequestAnimationFrameMock());
 		const addListenerSpy = jest.spyOn(window, 'addEventListener');
 		const removeListenerSpy = jest.spyOn(window, 'removeEventListener');
-		const windowWithObserver = window as typeof window & {
-			IntersectionObserver?: typeof IntersectionObserver;
-		};
-		windowWithObserver.IntersectionObserver =
-			undefined as unknown as typeof IntersectionObserver;
 
-		const container = document.createElement('div');
-		const root = createRoot(container);
-		const callback = jest.fn();
-		const ref = createRef<HTMLDivElement>();
-
-		function TestComponent() {
-			useVisiblePrefetch(ref, callback, { once: true });
-			return (
-				<div ref={ref} style={{ height: '10px' }}>
-					Target
-				</div>
-			);
-		}
-
-		act(() => {
-			root.render(<TestComponent />);
+		const { callback, unmount } = renderVisiblePrefetchInstance({
+			once: true,
 		});
 
 		expect(addListenerSpy).toHaveBeenCalledWith(
@@ -380,6 +353,7 @@ describe('useVisiblePrefetch', () => {
 		act(() => {
 			window.dispatchEvent(new Event('scroll'));
 		});
+		raf.flush();
 
 		expect(callback).toHaveBeenCalled();
 		expect(removeListenerSpy).toHaveBeenCalledWith(
@@ -393,22 +367,34 @@ describe('useVisiblePrefetch', () => {
 			true
 		);
 
-		act(() => {
-			root.unmount();
-		});
-
-		rafSpy.mockRestore();
 		addListenerSpy.mockRestore();
 		removeListenerSpy.mockRestore();
-		windowWithObserver.IntersectionObserver = originalObserver;
+		unmount();
+		restoreObserver();
+	});
+
+	it('cancels pending animation frames during fallback cleanup', () => {
+		const restoreObserver = disableIntersectionObserver();
+
+		const raf = (rafController = installRequestAnimationFrameMock());
+		const { unmount } = renderVisiblePrefetchInstance({ once: false });
+
+		unmount();
+
+		expect(raf.cancel).toHaveBeenCalled();
+
+		restoreObserver();
 	});
 
 	it('ignores observer entries that are not intersecting', () => {
-		const { callback, trigger, unmount } = setupComponent();
+		const { callback, trigger, unmount } = renderVisiblePrefetchInstance();
+
 		act(() => {
 			trigger({ isIntersecting: false });
 		});
+
 		expect(callback).not.toHaveBeenCalled();
+
 		unmount();
 	});
 });

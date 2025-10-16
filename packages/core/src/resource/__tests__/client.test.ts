@@ -3,6 +3,10 @@
  */
 
 import { defineResource } from '../define';
+import {
+	createApiFetchHarness,
+	type ApiFetchHarness,
+} from '../../../tests/resource.test-support';
 
 interface Thing {
 	id: number;
@@ -117,39 +121,16 @@ describe('defineResource - client methods', () => {
 
 	describe('client write methods (create/update/remove)', () => {
 		let mockApiFetch: jest.Mock;
-		let originalWp: Window['wp'];
+		let apiHarness: ApiFetchHarness;
 
 		beforeEach(() => {
 			// Mock @wordpress/api-fetch
-			mockApiFetch = jest.fn();
-
-			// Save original wp object
-			originalWp = global.window?.wp;
-
-			// Setup global wp object
-			if (typeof global.window !== 'undefined') {
-				global.window.wp = {
-					...global.window.wp,
-					apiFetch: mockApiFetch,
-					hooks: {
-						doAction: jest.fn(),
-					},
-				} as typeof global.window.wp & {
-					apiFetch: jest.Mock;
-					hooks: { doAction: jest.Mock };
-				};
-			}
+			apiHarness = createApiFetchHarness();
+			mockApiFetch = apiHarness.apiFetch;
 		});
 
 		afterEach(() => {
-			// Restore original wp object
-			if (typeof global.window !== 'undefined') {
-				if (originalWp) {
-					global.window.wp = originalWp;
-				} else {
-					delete global.window.wp;
-				}
-			}
+			apiHarness.harness.teardown();
 		});
 
 		it('should call transportFetch when create is called', async () => {

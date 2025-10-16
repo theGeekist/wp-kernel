@@ -5,6 +5,11 @@
  */
 
 import { defineResource } from '../define';
+import {
+	createResourceDataHarness,
+	withWordPressData,
+	type ResourceHarnessSetup,
+} from '../../../tests/resource.test-support';
 
 // Mock resource for testing
 interface MockThing {
@@ -18,62 +23,47 @@ interface MockThingQuery {
 	status?: string;
 }
 
-// Use global types for window.wp
-
 describe('defineResource - Prefetch Methods', () => {
-	let mockWpData: any;
-	let originalWp: Window['wp'];
+	let harnessSetup: ResourceHarnessSetup;
+	let mockResolveSelect: jest.Mock;
+	let mockDispatch: jest.Mock;
 
 	beforeEach(() => {
-		// Store original window.wp
-		const windowWithWp = global.window as Window & { wp?: any };
-		originalWp = windowWithWp?.wp;
+		harnessSetup = createResourceDataHarness();
+		mockResolveSelect = harnessSetup.resolveSelect;
+		mockDispatch = harnessSetup.dispatch;
 
-		// Create mock wp.data
-		const mockResolveSelect = jest.fn().mockReturnValue({
+		mockResolveSelect.mockReturnValue({
 			getItem: jest.fn().mockResolvedValue(undefined),
 			getList: jest.fn().mockResolvedValue(undefined),
 		});
-
-		mockWpData = {
-			dispatch: jest.fn().mockReturnValue({
-				getItem: jest.fn(),
-				getList: jest.fn(),
-			}),
-			resolveSelect: mockResolveSelect,
-		};
-
-		// Setup window.wp.data
-		if (windowWithWp) {
-			windowWithWp.wp = {
-				data: mockWpData,
-			};
-		}
+		mockDispatch.mockReturnValue({
+			getItem: jest.fn(),
+			getList: jest.fn(),
+		});
 	});
 
 	afterEach(() => {
-		// Restore original window.wp
-		const windowWithWp = global.window as Window & { wp?: any };
-		if (windowWithWp) {
-			windowWithWp.wp = originalWp;
-		}
+		harnessSetup.harness.teardown();
 	});
 
 	describe('prefetchGet method', () => {
 		it('should throw error if @wordpress/data is not loaded', async () => {
-			// Remove wp.data
-			(global.window as Window & { wp?: any }).wp = undefined;
+			await withWordPressData({ wp: null }, async () => {
+				const resource = defineResource<MockThing, MockThingQuery>({
+					name: 'thing',
+					routes: {
+						get: {
+							path: '/my-plugin/v1/things/:id',
+							method: 'GET',
+						},
+					},
+				});
 
-			const resource = defineResource<MockThing, MockThingQuery>({
-				name: 'thing',
-				routes: {
-					get: { path: '/my-plugin/v1/things/:id', method: 'GET' },
-				},
+				await expect(resource.prefetchGet!(1)).rejects.toThrow(
+					'prefetchGet requires @wordpress/data to be loaded'
+				);
 			});
-
-			await expect(resource.prefetchGet!(1)).rejects.toThrow(
-				'prefetchGet requires @wordpress/data to be loaded'
-			);
 		});
 
 		it('should call resolveSelect to trigger prefetch', async () => {
@@ -85,13 +75,13 @@ describe('defineResource - Prefetch Methods', () => {
 			});
 
 			const mockGetItem = jest.fn().mockResolvedValue(undefined);
-			mockWpData.resolveSelect = jest.fn().mockReturnValue({
+			mockResolveSelect.mockReturnValue({
 				getItem: mockGetItem,
 			});
 
 			await resource.prefetchGet!(1);
 
-			expect(mockWpData.resolveSelect).toHaveBeenCalledWith('wpk/thing');
+			expect(mockResolveSelect).toHaveBeenCalledWith('wpk/thing');
 			expect(mockGetItem).toHaveBeenCalledWith(1);
 		});
 
@@ -103,13 +93,9 @@ describe('defineResource - Prefetch Methods', () => {
 				},
 			});
 
-			// Mock dispatch to return object without getItem
-			mockWpData.dispatch = jest.fn().mockReturnValue({});
-			mockWpData.resolveSelect = jest.fn().mockReturnValue({
-				// No getItem method
-			});
+			mockDispatch.mockReturnValue({});
+			mockResolveSelect.mockReturnValue({});
 
-			// Should not throw
 			await expect(resource.prefetchGet!(1)).resolves.toBeUndefined();
 		});
 
@@ -134,7 +120,7 @@ describe('defineResource - Prefetch Methods', () => {
 			});
 
 			const mockGetItem = jest.fn().mockResolvedValue(undefined);
-			mockWpData.resolveSelect = jest.fn().mockReturnValue({
+			mockResolveSelect.mockReturnValue({
 				getItem: mockGetItem,
 			});
 
@@ -146,19 +132,18 @@ describe('defineResource - Prefetch Methods', () => {
 
 	describe('prefetchList method', () => {
 		it('should throw error if @wordpress/data is not loaded', async () => {
-			// Remove wp.data
-			(global.window as Window & { wp?: any }).wp = undefined;
+			await withWordPressData({ data: null }, async () => {
+				const resource = defineResource<MockThing, MockThingQuery>({
+					name: 'thing',
+					routes: {
+						list: { path: '/my-plugin/v1/things', method: 'GET' },
+					},
+				});
 
-			const resource = defineResource<MockThing, MockThingQuery>({
-				name: 'thing',
-				routes: {
-					list: { path: '/my-plugin/v1/things', method: 'GET' },
-				},
+				await expect(resource.prefetchList!()).rejects.toThrow(
+					'prefetchList requires @wordpress/data to be loaded'
+				);
 			});
-
-			await expect(resource.prefetchList!()).rejects.toThrow(
-				'prefetchList requires @wordpress/data to be loaded'
-			);
 		});
 
 		it('should call resolveSelect to trigger prefetch', async () => {
@@ -170,13 +155,13 @@ describe('defineResource - Prefetch Methods', () => {
 			});
 
 			const mockGetList = jest.fn().mockResolvedValue(undefined);
-			mockWpData.resolveSelect = jest.fn().mockReturnValue({
+			mockResolveSelect.mockReturnValue({
 				getList: mockGetList,
 			});
 
 			await resource.prefetchList!();
 
-			expect(mockWpData.resolveSelect).toHaveBeenCalledWith('wpk/thing');
+			expect(mockResolveSelect).toHaveBeenCalledWith('wpk/thing');
 			expect(mockGetList).toHaveBeenCalledWith(undefined);
 		});
 
@@ -190,7 +175,7 @@ describe('defineResource - Prefetch Methods', () => {
 
 			const query: MockThingQuery = { status: 'active' };
 			const mockGetList = jest.fn().mockResolvedValue(undefined);
-			mockWpData.resolveSelect = jest.fn().mockReturnValue({
+			mockResolveSelect.mockReturnValue({
 				getList: mockGetList,
 			});
 
@@ -207,13 +192,11 @@ describe('defineResource - Prefetch Methods', () => {
 				},
 			});
 
-			// Mock dispatch to return object without getList
-			mockWpData.dispatch = jest.fn().mockReturnValue({});
-			mockWpData.resolveSelect = jest.fn().mockReturnValue({
+			mockDispatch.mockReturnValue({});
+			mockResolveSelect.mockReturnValue({
 				getList: jest.fn().mockResolvedValue(undefined),
 			});
 
-			// Should resolve to undefined
 			await expect(resource.prefetchList!()).resolves.toBeUndefined();
 		});
 

@@ -16,7 +16,6 @@ kernel and UI packages.
 
 - [ApplyCommand](classes/ApplyCommand.md)
 - [BuildCommand](classes/BuildCommand.md)
-- [DevCommand](classes/DevCommand.md)
 - [DoctorCommand](classes/DoctorCommand.md)
 - [GenerateCommand](classes/GenerateCommand.md)
 - [InitCommand](classes/InitCommand.md)

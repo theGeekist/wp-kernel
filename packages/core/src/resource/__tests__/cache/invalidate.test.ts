@@ -7,34 +7,28 @@ import { invalidate, registerStoreKey } from '../../cache';
 import { setKernelEventBus, KernelEventBus } from '../../../events/bus';
 import { setKernelReporter, clearKernelReporter } from '../../../reporter';
 import type { Reporter } from '../../../reporter';
-
-// Use global types for window.wp
+import {
+	createResourceDataHarness,
+	withWordPressData,
+	type ResourceHarnessSetup,
+} from '../../../../tests/resource.test-support';
 
 describe('invalidate', () => {
 	let mockDispatch: jest.Mock;
 	let mockSelect: jest.Mock;
+	let harnessSetup: ResourceHarnessSetup;
 	let bus: KernelEventBus;
 	let cacheListener: jest.Mock;
-	let originalWp: Window['wp'];
 
 	beforeEach(() => {
-		// Store original window.wp
-		const windowWithWp = global.window as Window & { wp?: any };
-		originalWp = windowWithWp?.wp;
-
-		// Create mocks
 		mockDispatch = jest.fn();
 		mockSelect = jest.fn();
-
-		// Setup window.wp mock
-		if (windowWithWp) {
-			windowWithWp.wp = {
-				data: {
-					dispatch: mockDispatch,
-					select: mockSelect,
-				},
-			};
-		}
+		harnessSetup = createResourceDataHarness({
+			data: {
+				dispatch: mockDispatch,
+				select: mockSelect,
+			},
+		});
 
 		bus = new KernelEventBus();
 		setKernelEventBus(bus);
@@ -48,14 +42,10 @@ describe('invalidate', () => {
 	});
 
 	afterEach(() => {
-		// Restore original window.wp
-		const windowWithWp = global.window as Window & { wp?: any };
-		if (windowWithWp && originalWp) {
-			windowWithWp.wp = originalWp;
-		}
 		setKernelEventBus(new KernelEventBus());
 		jest.clearAllMocks();
 		clearKernelReporter();
+		harnessSetup.harness.teardown();
 	});
 
 	function createReporterSpy(): { reporter: Reporter; logs: LogEntry[] } {
@@ -441,45 +431,22 @@ describe('invalidate', () => {
 			}).not.toThrow();
 		});
 
-		it('should handle missing window.wp gracefully', () => {
-			// Remove wp from window
-			const windowWithWp = global.window as Window & { wp?: any };
-			const savedWp = windowWithWp?.wp;
-			if (windowWithWp) {
-				delete windowWithWp.wp;
-			}
-
-			// Should not throw
-			expect(() => {
-				invalidate(['thing', 'list']);
-			}).not.toThrow();
-
-			// Restore
-			if (windowWithWp && savedWp) {
-				windowWithWp.wp = savedWp;
-			}
+		it('should handle missing window.wp gracefully', async () => {
+			await withWordPressData({ wp: null }, () => {
+				expect(() => {
+					invalidate(['thing', 'list']);
+				}).not.toThrow();
+			});
 		});
 	});
 
 	describe('Node/test environment', () => {
-		it('should handle undefined window', () => {
-			// This test doesn't really apply in jsdom environment
-			// Just verify the function handles null gracefully
-			const windowWithWp = global.window as Window & { wp?: any };
-			const savedWp = windowWithWp?.wp;
-			if (windowWithWp) {
-				delete windowWithWp.wp;
-			}
-
-			// Should not throw
-			expect(() => {
-				invalidate(['thing', 'list']);
-			}).not.toThrow();
-
-			// Restore
-			if (windowWithWp && savedWp) {
-				windowWithWp.wp = savedWp;
-			}
+		it('should handle undefined window', async () => {
+			await withWordPressData({ wp: null }, () => {
+				expect(() => {
+					invalidate(['thing', 'list']);
+				}).not.toThrow();
+			});
 		});
 	});
 

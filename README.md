@@ -243,12 +243,15 @@ pnpm playground     # Launch WordPress Playground (WASM, no Docker)
 pnpm test           # Unit tests (Jest)
 pnpm e2e            # E2E tests (Playwright - requires wp-env or Playground)
 pnpm test:watch     # Watch mode for unit tests
+pnpm typecheck:tests # Type-check shared `.test-support.ts` helpers across packages
 
 # Code Quality
 pnpm lint           # ESLint
 pnpm format         # Prettier
 pnpm typecheck      # TypeScript check
 ```
+
+Shared testing helpers live under `@wpkernel/test-utils/wp` (WordPress globals) and `@wpkernel/test-utils/integration` (workspace scaffolding), with package-level `*.test-support.ts` barrels documented in each package README. See `tests/TEST_PATTERNS.md` for canonical setup, teardown, and global stubbing guidance.
 
 ---
 
