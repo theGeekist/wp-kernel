@@ -45,6 +45,51 @@
 			"import": "./dist/integration/workspace.js",
 			"default": "./dist/integration/workspace.js"
 		},
+		"./cli": {
+			"types": "./dist/cli/index.d.ts",
+			"import": "./dist/cli/index.js",
+			"default": "./dist/cli/index.js"
+		},
+		"./cli/command-context": {
+			"types": "./dist/cli/command-context.d.ts",
+			"import": "./dist/cli/command-context.js",
+			"default": "./dist/cli/command-context.js"
+		},
+		"./cli/reporter": {
+			"types": "./dist/cli/reporter.d.ts",
+			"import": "./dist/cli/reporter.js",
+			"default": "./dist/cli/reporter.js"
+		},
+		"./cli/memory-stream": {
+			"types": "./dist/cli/memory-stream.d.ts",
+			"import": "./dist/cli/memory-stream.js",
+			"default": "./dist/cli/memory-stream.js"
+		},
+		"./core": {
+			"types": "./dist/core/index.d.ts",
+			"import": "./dist/core/index.js",
+			"default": "./dist/core/index.js"
+		},
+		"./core/wp-harness": {
+			"types": "./dist/core/wp-harness.d.ts",
+			"import": "./dist/core/wp-harness.js",
+			"default": "./dist/core/wp-harness.js"
+		},
+		"./core/action-runtime": {
+			"types": "./dist/core/action-runtime.d.ts",
+			"import": "./dist/core/action-runtime.js",
+			"default": "./dist/core/action-runtime.js"
+		},
+		"./ui": {
+			"types": "./dist/ui/index.d.ts",
+			"import": "./dist/ui/index.js",
+			"default": "./dist/ui/index.js"
+		},
+		"./ui/kernel-ui-harness": {
+			"types": "./dist/ui/kernel-ui-harness.d.ts",
+			"import": "./dist/ui/kernel-ui-harness.js",
+			"default": "./dist/ui/kernel-ui-harness.js"
+		},
 		"./package.json": "./package.json"
 	},
 	"files": [
@@ -67,7 +112,9 @@
 		"test:coverage": "jest --passWithNoTests --coverage"
 	},
 	"peerDependencies": {
-		"@wpkernel/core": "workspace:*"
+		"@wpkernel/core": "workspace:*",
+		"@wpkernel/ui": "workspace:*",
+		"react": ">=18.0.0"
 	},
 	"publishConfig": {
 		"access": "public"

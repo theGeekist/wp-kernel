@@ -48,48 +48,25 @@
 
 **Next Steps**
 (1) ✓ Scaffolded `packages/test-utils` with shared WordPress and workspace primitives behind domain-specific entry points and updated monorepo tooling to recognise the new package.
-(2) Update CLI, Core, UI, and e2e packages to consume the new surfaces, leaving compatibility re-exports until downstream branches land.
-(3) Refresh root + package AGENTS/README guidance to point at `@wpkernel/test-utils`, then retire direct relative imports.
+(2) ✓ Expanded `@wpkernel/test-utils` to host CLI, Core, and UI helper domains while maintaining temporary shims inside each package.
+(3) Migrate package consumers and documentation to the shared surfaces, then retire the compatibility layers once adoption is complete.
 
 ### Step (1) implementation blueprint: Scaffold `@wpkernel/test-utils`
 
-**Package shape**
-
-- Create `packages/test-utils` with standard scaffolding (`package.json`, `tsconfig.json`, `tsconfig.tests.json`, `src/`, `tests/`, `CHANGELOG.md`) mirroring the existing package conventions so that build, typecheck, and lint pipelines pick it up without bespoke wiring.【F:package.json†L18-L33】【F:tsconfig.base.json†L16-L54】
-- Publish domain-specific barrels under `src/index.ts` that re-export focused entry points:
-
-    | Domain                 | New entry point                    | Source helpers to migrate                                                                                                                                                                                                                                                                                 |
-    | ---------------------- | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-    | WordPress globals      | `@wpkernel/test-utils/wp`          | `tests/test-utils/wp.test-support.ts` (namespace reset, env controls, API fetch harness).【F:tests/test-utils/wp.test-support.ts†L1-L140】                                                                                                                                                                |
-    | Core adapters          | `@wpkernel/test-utils/core`        | Action/runtime overrides and resource factories currently in `packages/core/tests/*.test-support.ts`.【F:packages/core/tests/action-runtime.test-support.ts†L1-L67】【F:packages/core/tests/resource.test-support.ts†L1-L210】                                                                            |
-    | CLI harness            | `@wpkernel/test-utils/cli`         | Command context helpers, workspace runner, reporter mocks from the CLI package tests.【F:packages/cli/tests/cli-command.test-support.ts†L1-L62】【F:packages/cli/tests/workspace.test-support.ts†L13-L90】【F:packages/cli/tests/reporter.test-support.ts†L25-L41】                                       |
-    | Integration primitives | `@wpkernel/test-utils/integration` | Workspace factory, CLI runner, and manifest utilities now rooted in `@wpkernel/e2e-utils` integration helpers.【F:packages/e2e-utils/src/integration/workspace.ts†L26-L189】【F:packages/e2e-utils/src/integration/cli-runner.ts†L1-L183】【F:packages/e2e-utils/src/integration/fs-manifest.ts†L1-L113】 |
-
-- Maintain backwards compatibility by keeping `tests/test-utils/wp.ts` (and the `.test-support` barrel) as thin re-exports to the new package until every consumer flips to `@wpkernel/test-utils/wp`.【F:tests/test-utils/wp.ts†L1-L1】
-
-**Configuration touchpoints**
-
-- Extend path aliases and module maps so TypeScript, Jest, and docs builds resolve `@wpkernel/test-utils` without falling back to relative imports: add aliases in `tsconfig.base.json`, moduleNameMapper entries in root + package Jest configs, and include the new package in `tsconfig.json` references and `tsconfig.docs.json` include globs.【F:tsconfig.base.json†L16-L26】【F:jest.config.js†L17-L33】【F:tsconfig.json†L1-L13】【F:tsconfig.docs.json†L8-L14】
-- Register the package with release automation (`release-please-config.json`) and API docs (`typedoc.json`) so version bumps and documentation builds account for the new surface.【F:release-please-config.json†L3-L22】【F:typedoc.json†L3-L11】
-- Verify workspace discovery (pnpm, lint, typecheck scripts) already matches `packages/*`, requiring no additional glob tweaks but ensuring the new package exports pass the existing pipelines.【F:pnpm-workspace.yaml†L1-L4】【F:package.json†L18-L35】
-
-**Extraction guardrails**
-
-- Move helpers incrementally, keeping re-exports inside `@wpkernel/e2e-utils` for the integration layer to avoid breaking external consumers while the migration is underway.【F:packages/e2e-utils/src/integration/workspace.ts†L26-L189】【F:packages/e2e-utils/src/integration/cli-runner.ts†L1-L183】
-- Validate that existing environment utilities remain fully typed by running the package `typecheck` and `typecheck:tests` commands once scaffolding lands, ensuring no regressions in `@test-utils` alias consumers before packages flip to the new entry points.【F:tests/test-utils/wp.test-support.ts†L69-L140】【F:jest.config.js†L17-L33】
+STATUS: **COMPLETED**
 
 ### Step (2) implementation blueprint: Expand `@wpkernel/test-utils` domains before migrating consumers
 
 **Package surface expansion**
 
-- Create a `packages/test-utils/src/cli/` entry point that lifts `createCommandContext`, `assignCommandContext`, and the reporter mock into the shared package, keeping the implementations grounded in their existing sources until the move is complete.【F:packages/cli/tests/cli-command.test-support.ts†L1-L49】【F:packages/cli/tests/reporter.test-support.ts†L1-L42】
-- Add a `packages/test-utils/src/core/` module that extracts the WordPress harness extensions (`createWordPressTestHarness`, `withWordPressData`, `createApiFetchHarness`) and action/runtime adapters from Core so downstream packages stop depending on relative paths.【F:packages/core/tests/wp-environment.test-support.ts†L1-L210】【F:packages/core/tests/action-runtime.test-support.ts†L1-L67】
-- Introduce a `packages/test-utils/src/ui/` namespace for the UI runtime harness and reporter wiring currently implemented directly in UI tests, delegating its WordPress setup to the new core exports to avoid circular imports.【F:packages/ui/tests/ui-harness.test-support.ts†L1-L129】
-- Update `packages/test-utils/src/index.ts` to re-export the new domains and add targeted barrel files (`src/cli/index.ts`, `src/core/index.ts`, `src/ui/index.ts`) so consumers have stable import paths.
+- Create a `packages/test-utils/src/cli/` entry point that lifts `createCommandContext`, `assignCommandContext`, the memory stream, and the reporter mock into the shared package.【F:packages/test-utils/src/cli/index.ts†L1-L3】【F:packages/test-utils/src/cli/command-context.ts†L1-L58】【F:packages/test-utils/src/cli/memory-stream.ts†L1-L25】【F:packages/test-utils/src/cli/reporter.ts†L1-L42】
+- Add a `packages/test-utils/src/core/` module that extracts the WordPress harness extensions (`createWordPressTestHarness`, `withWordPressData`, `createApiFetchHarness`) and action/runtime adapters from Core so downstream packages stop depending on relative paths.【F:packages/test-utils/src/core/index.ts†L1-L2】【F:packages/test-utils/src/core/wp-harness.ts†L1-L253】【F:packages/test-utils/src/core/action-runtime.ts†L1-L67】
+- Introduce a `packages/test-utils/src/ui/` namespace for the UI runtime harness and reporter wiring currently implemented directly in UI tests, delegating its WordPress setup to the new core exports to avoid circular imports.【F:packages/test-utils/src/ui/index.ts†L1-L1】【F:packages/test-utils/src/ui/kernel-ui-harness.ts†L1-L147】
+- Update `packages/test-utils/src/index.ts` to re-export the new domains and add targeted barrel files (`src/cli/index.ts`, `src/core/index.ts`, `src/ui/index.ts`) so consumers have stable import paths.【F:packages/test-utils/src/index.ts†L1-L5】
 
 **Compatibility shims**
 
-- Replace the implementation of the original helper files with re-exports from `@wpkernel/test-utils` while the migration is underway: `packages/cli/tests/cli-command.test-support.ts`, `packages/cli/tests/reporter.test-support.ts`, `packages/core/tests/wp-environment.test-support.ts`, and `packages/ui/tests/ui-harness.test-support.ts` should all forward to the shared package after the helpers move.
+- Replace the implementation of the original helper files with re-exports from `@wpkernel/test-utils` while the migration is underway so existing imports continue to resolve.【F:packages/cli/tests/cli-command.test-support.ts†L1-L1】【F:packages/cli/tests/memory-stream.test-support.ts†L1-L1】【F:packages/cli/tests/reporter.test-support.ts†L1-L1】【F:packages/core/tests/wp-environment.test-support.ts†L1-L11】【F:packages/core/tests/action-runtime.test-support.ts†L1-L6】【F:packages/ui/tests/ui-harness.test-support.ts†L1-L16】
 - Keep the existing `tests/test-utils/wp.test-support.ts` and `tests/test-utils/wp.ts` shims in place until every package has flipped to the new entry points, then mark them deprecated ahead of removal.【F:tests/test-utils/wp.test-support.ts†L1-L6】【F:tests/test-utils/wp.ts†L1-L1】
 
 **Consumer migration staging**
@@ -101,3 +78,34 @@
 **Verification**
 
 - After each helper extraction, run the corresponding lint/typecheck/test commands for both the origin package and `@wpkernel/test-utils` to confirm the shared modules compile in isolation and that consumers retain their previous behaviour.
+
+### Step (3) implementation blueprint: Migrate consumers & update guidance
+
+**CLI adoption**
+
+- Swap remaining test imports to `@wpkernel/test-utils/cli` (for example, the rule harnesses under `packages/cli/tests/__tests__`) and delete forwarding files like `cli-command.test-support.ts` once the tree builds against the shared module.【F:packages/cli/tests/cli-command.test-support.ts†L1-L1】【F:packages/test-utils/src/cli/index.ts†L1-L3】
+- Re-run `pnpm --filter @wpkernel/cli typecheck:tests` and a representative Jest run to ensure Clipanion command contexts keep their expected shape after the direct dependency flip.
+
+**Core migration**
+
+- Update unit and integration suites (cache, resource, action flow) to import WordPress harness helpers from `@wpkernel/test-utils/core` rather than the local shim, then remove the compatibility barrel once no consumers remain.【F:packages/core/tests/wp-environment.test-support.ts†L1-L11】【F:packages/core/tests/resource.test-support.ts†L10-L18】
+- Verify the shared helpers still satisfy the Kernel contracts by running `pnpm --filter @wpkernel/core test -- --runInBand` and `pnpm --filter @wpkernel/core typecheck:tests`.
+
+**UI migration**
+
+- Point UI harness consumers (unit hooks, dataview fixtures, runtime stories) at `@wpkernel/test-utils/ui`, passing the package `KernelUIProvider` explicitly so the shared harness can enforce provider wiring.【F:packages/test-utils/src/ui/kernel-ui-harness.ts†L92-L147】【F:packages/ui/tests/ui-harness.test-support.ts†L1-L16】
+- Confirm React-specific peer dependencies are satisfied by running `pnpm --filter @wpkernel/ui typecheck:tests` and the relevant Jest suites.
+
+**Integration & e2e**
+
+- Ensure `@wpkernel/e2e-utils` re-exports the shared workspace helpers and drop any duplicated implementations once downstream consumers adopt the shared entry points.【F:packages/test-utils/src/integration/workspace.ts†L1-L73】
+- Update manifest/runner helpers to consume `@wpkernel/test-utils/integration` directly and document any intentional shims left behind for compatibility.
+
+**Documentation**
+
+- Revise root and package AGENTS/README files to reference the new `@wpkernel/test-utils/{wp,cli,core,ui}` paths, call out the UI provider requirement, and remove guidance that points to package-private helpers.
+- Announce the migration timeline in contributor docs so teams switch their imports before the compatibility files are retired.
+
+**Verification**
+
+- After each package migration, execute the standard lint/typecheck/test matrix for that package plus `pnpm --filter @wpkernel/test-utils typecheck` to verify the shared helpers compile on their own.
