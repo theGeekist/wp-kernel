@@ -1,7 +1,7 @@
 # WPK CLI Next-Gen Architecture
 
-Status: draft – capturing direction for the upcoming CLI rewrite before code lands.  
-Audience: core contributors building the new `packages/cli/src/next` namespace.
+Status: Phase One (foundations) in progress – helper contracts, the pipeline runtime, IR fragments, and workspace scaffolding now live in `packages/cli/src/next`.
+Audience: core contributors iterating on the new CLI runtime and planning the next milestones.
 
 ## Objectives
 
@@ -18,12 +18,11 @@ Audience: core contributors building the new `packages/cli/src/next` namespace.
 
 ## Existing Foundations to Reuse
 
-- **Core reporter & error types** – `packages/core/src/reporter` already wraps `loglayer` with namespaced reporters; `packages/core/src/error` exposes `KernelError` and structured serialization helpers. The CLI should build on these instead of inventing new logging/error plumbing.
-- **Event bus** – `packages/core/src/events` exports the kernel event bus; CLI drivers can emit lifecycle events through the same surface so extensions share semantics with the runtime.
-- **Policy/resource contracts** – current IR-producing modules (`packages/core/src/policy`, `resource`, `data`) provide type safety we can import into the new fragments.
-- **Gutenberg CLI patterns** – the Gutenberg repo’s `bin/packages` (e.g., `build.mjs`, `dependency-graph.js`) demonstrates CLI ergonomics (chalk, ora spinners, yargs command runners) and deterministic dependency ordering. Where feasible, mirror these conventions so WPK CLI feels native to WordPress tooling.
-- **WordPress warnings/deprecations** – packages like `@wordpress/deprecated` and `@wordpress/warning` give us canonical logging behaviour (hooks integrations, deduplication); our reporters should delegate to them for parity.
-- **CLI references** – `packages/cli/templates/wordpress-*.templfile` contains read-only copies of Gutenberg’s CLI scripts (`build.mjs`, `dependency-graph.js`, etc.) so we can study WordPress’ workflows even when the symlinked repo isn’t available.
+- **Core reporter & error types** – `packages/core/src/reporter` wraps `loglayer`; `packages/core/src/error` exports `KernelError`. The new runtime already consumes these.
+- **Event bus** – `packages/core/src/events` powers canonical event hooks. Helpers should emit lifecycle events through the same bus.
+- **Policy/resource contracts** – existing IR contracts in `packages/core/src/resource`, `policy`, and `data` back the new fragment helpers.
+- **Gutenberg CLI patterns** – Gutenberg’s `bin/packages/*` scripts (copied under `packages/cli/templates/wordpress-*.templfile`) model build ergonomics we can mirror.
+- **WordPress warnings/deprecations** – packages like `@wordpress/deprecated` / `@wordpress/warning` provide established logging semantics; our reporters should defer to them where applicable.
 
 ## Proposed Folder Layout (`packages/cli/src/next`)
 
@@ -69,7 +68,7 @@ Mirror the structure under `packages/cli/tests/next/` with unit + integration co
     - `context` – immutable environment (workspace handle, config paths, helper registry, shared services).
     - `input` – phase-specific payload (e.g., config + current IR for fragments, composed IR for builders).
     - `output` – controlled accumulator/writer (merge IR nodes, queue file writes, emit bundles).
-    - `reporter` – namespaced reporter; helpers can call `reporter.child(key)` for sub-sections. Cross-cutting instrumentation (timing, tracing) wraps helpers via the foundational utility.
+- `reporter` – namespaced reporter; helpers can call `reporter.child(key)` for sub-sections. Cross-cutting instrumentation (timing, tracing) wraps helpers via the foundational utility.
 - `apply` receives an optional `next` function so helpers can wrap composition chains (e.g., `await next()`), enabling `reduceRight`-style pipelines for cross-cutting behaviour.
 - Extensions call specialised helpers (e.g., `createResourcesFragment`) that internally delegate to `createHelper`, keeping plumbing consistent and simplifying testing (easy to inject fake `context/input/output`).
 - Helper implementations must remain **pure** (no hidden state or side effects outside `output`), avoid nested helper definitions, and favour small, single-purpose functions with low cyclomatic complexity. Shared utilities live alongside helpers in reusable modules.
@@ -137,6 +136,7 @@ Mirror the structure under `packages/cli/tests/next/` with unit + integration co
 
     pipeline.builders.use(createBundler());
     pipeline.builders.use(createPhpBuilder());
+    pipeline.builders.use(createPhpDriverInstaller());
     pipeline.builders.use(createTsBuilder());
     pipeline.builders.use(createPatcher());
 
@@ -155,7 +155,7 @@ Mirror the structure under `packages/cli/tests/next/` with unit + integration co
     		key: 'builder.generate.php.core',
     		kind: 'builder',
     		apply({ context, input, output, reporter }) {
-    			// use nikic/PHP-Parser to emit artifacts under .generated/php
+    			// bridged by createPhpDriverInstaller once nikic/PHP-Parser is available
     		},
     	});
     }
@@ -180,31 +180,23 @@ Mirror the structure under `packages/cli/tests/next/` with unit + integration co
 
 Each fragment is registered via `createHelper` with a unique key (e.g., `ir.policy-map.core`) so extensions can override or augment them.
 
-## Refinement Opportunities
+## Refinement Opportunities (tracked work items)
 
-These concepts are only partially (or not at all) present in the current CLI; we should treat them as first-class requirements in the next-gen runtime.
+1. **Explicit Step Registry (runtime)**
+    - _Goal_: expose `pipeline.graph()` output for tooling/visualisation and enforce deterministic ordering (dependsOn → priority → key → registration order).
+    - _Status_: adjacency/indegree graph exists internally; expose diagnostics + CLI hook.
 
-1. **Explicit Step Registry**
-    - _Current state_: commands wire helpers manually (e.g., `prepareGeneration` builds a `PrinterContext`, adapters mutate IR, then printers run in sequence). No metadata exists for visualising or reordering steps.
-    - _Target_: registering a helper produces a `Step` descriptor `{ key, phase, dependsOn, apply }`. The runtime can enumerate steps, skip them (for debugging), or output dependency graphs. This directly replaces the implicit ordering baked into `emitGeneratedArtifacts` and similar functions.
+2. **IR Normalisation Contracts (docs + enforcement)**
+    - _Goal_: document which IR keys are version-locked vs extension-owned and enforce writes under `ir.extensions` for custom data.
 
-2. **IR Normalisation Contracts**
-    - _Current state_: `IRv1` is stable but undocumented; extensions mutate it freely (see `runAdapterExtensions`).
-    - _Target_: document the IR schema alongside version-locked keys vs extension namespaces. The pipeline should expose helpers like `context.ir.schemaVersion` and enforce that extensions only write under `ir.extensions['my.namespace']`.
+3. **Structured Error Propagation**
+    - _Goal_: ensure `apply()` wrappers attach `{ helper, phase, cause, context }` metadata before rethrowing, plumbing through reporter output.
 
-3. **Error Context Propagation**
-    - _Current state_: errors bubble up with ad-hoc wrapping (`AdapterEvaluationError`, `KernelError`), and reporters log generic messages.
-    - _Target_: every `apply()` invocation wraps throwables in `{ helper: key, phase, cause, contextFragment }`. Reporters can then emit structured error logs (helper key, phase, stack) making debugging predictable.
+4. **Driver Facades**
+    - _Goal_: provide `context.drivers.php` / `context.drivers.ts` abstractions so builders don’t reach into implementation details, allowing adapter swapping.
 
-4. **Cross-language Driver Bridges**
-    - _Current state_: builders talk directly to nikic/ts-morph via bespoke glue (e.g., `emitPhpArtifacts` constructs builders manually).
-    - _Target_: surface driver facades (`PhpDriver`, `TsDriver`, etc.) so helpers call `context.drivers.php.compile(...)`. This keeps our internal choices (nikic, ts-morph) swappable and lets community drivers plug in alternate engines.
-
-5. **Testing Guidance**
-    - _Current state_: integration tests exist, but there’s no explicit “golden IR” contract.
-    - _Target_: document that every new fragment/builder must have:
-        - **IR parity tests** – given config X, the next-gen `createIr` output matches the legacy IR byte-for-byte (use the new workspace helpers for fixtures).
-        - **Builder parity tests** – generated artifacts from next-gen builders match the legacy printers (optionally via golden file manifests).
+5. **Golden Testing Guidance**
+    - _Goal_: codify IR parity + artifact parity requirements in contributor docs and enforce via tests once real builders land.
 
 ## Testing Tooling
 
@@ -345,24 +337,17 @@ export function createFooExtension() {
 }
 ```
 
-## Open Questions
-
-- Error handling strategy for fragment conflicts (warn vs throw).
-- Whether we expose helper shortcuts (`pipeline.use(...)`) or stick with explicit `pipeline.ir` / `pipeline.builders`.
-- Versioning strategy for builders (e.g., allow future `phase` names without breaking core).
-- Interface for the workspace handle (likely wraps the new integration helpers from `@wpkernel/test-utils`).
-
 ## Phase One: Foundations
 
-Deliverables:
+Deliverables (tracked independently so cloud agents can contribute without conflict):
 
-1. **Scaffold the `next/` namespace** – commit modules for `createHelper`, `createPipeline`, fragment/builder registries, and the workspace abstraction. Use placeholder functions/stubs where implementation is pending (avoid empty/dummy tests that will fail linting).
-2. **Port IR fragments** – move current IR logic into helper fragments (`meta`, `schemas`, `resources`, `policies`, `policyMap`, `blocks`, `ordering`, `validation`) wired through `createIr`.
-3. **Implement runtime plumbing** – wire `createPipeline` with registries, dependency sorting, conflict diagnostics, and the `apply(next)` composition contract.
-4. **Workspace & reporter integration** – surface the new workspace handle backed by `@wpkernel/test-utils` helpers and ensure reporters bridge to `packages/core/src/reporter` + `@wordpress/deprecation`/`warning`.
-5. **Builder stubs** – add placeholder builders (`createBundler`, `createPhpBuilder`, `createTsBuilder`, `createPatcher`) that currently no-op but register via the new helper pipeline, ready for incremental implementation.
-6. **Golden tests** – introduce parity suites that snapshot legacy IR output and generated artifacts (using the testing tooling above) once implementations exist; until then, favour placeholders over failing smoke tests.
-7. **Documentation & ADRs** – codify the helper contract, conflict rules, workspace API, and version-negotiation design (ADR-00X) while updating this doc when gaps are discovered.
+1. **Scaffold the `next/` namespace** – committed: helper contract (`helper.ts`), pipeline runtime (`runtime/createPipeline.ts`), IR fragments, workspace abstraction, and smoke tests for helper shapes. (_Status: done_)
+2. **Port IR fragments** – fragments under `ir/fragments/*` now recreate `buildIr` behaviour; continue layering diagnostics and extension hooks. (_Status: in progress_)
+3. **Runtime plumbing** – dependency graph + conflict diagnostics are live; next iteration exposes a public `pipeline.graph()` for tooling. (_Status: in progress_)
+4. **Workspace & reporter integration** – filesystem-backed workspace (`workspace/filesystem.ts`) landed; git helpers + deprecation forwarding still to come. (_Status: in progress_)
+5. **Builder stubs** – placeholder builders (`bundler`, `php`, `ts`, `patcher`) register successfully and log debug output. They will be swapped with real drivers in subsequent workstreams. (_Status: done as scaffolds_)
+6. **Parity scaffolding** – IR golden tests exist (`ir/__tests__/createIr.test.ts`); artifact parity is deferred until real builders land. (_Status: foundations done_)
+7. **Documentation & ADRs** – helper contract and conflict rules documented here; ADR-00X will memorialise the pipeline semantics. (_Status: in progress_)
 
 Exit criteria:
 
@@ -371,4 +356,28 @@ Exit criteria:
 - Workspace dry-run manifests drive the first parity tests for PHP/TS outputs (even if builders still no-op).
 - ADR and doc updates reflect any deviations from the plan.
 
-This document will evolve as implementation details solidify-update it alongside ADRs and the new code under `next/`.
+## Parallel Workstreams (Phase Two & beyond)
+
+Each stream is designed to be tackled independently (ideal for parallel work). When a stream reaches a milestone, update the bullets below with the latest state or follow-up tasks.
+
+1. **PHP driver bridge**
+    - _Current_: `createPhpDriverInstaller` installs `nikic/php-parser` via `composer install` when `vendor/autoload.php` is missing (see `packages/cli/src/next/builders/phpDriver.ts`, noop if exist (safe to use); dependency declared in `packages/cli/composer.json`).
+    - _Next_: build the JSON ↔ nikic/PHP-Parser bridge for pretty-printing PHP; update this entry once live.
+2. **TypeScript driver**
+    - _Current_: `createTsBuilder` logs a stub message.
+    - _Next_: implement the `ts-morph` builder that emits JS + declaration maps and record progress here.
+3. **Bundler evolution**
+    - _Current_: `createBundler` placeholder.
+    - _Next_: align with `wordpress-build.templfile` (Rollup externals, asset metadata) and note completion in this doc.
+4. **Apply driver**
+    - _Current_: `createPatcher` stub; workspace merge helpers exist.
+    - _Next_: implement git-backed three-way merge + manifest logging and capture status here.
+5. **CLI commands**
+    - _Current_: legacy `wpk init/generate/apply` only.
+    - _Next_: add `wpk create <name>` (positional) that detects the package manager, invokes the init pipeline, and queues an install builder. Update this section when done.
+6. **Extensions & tooling**
+    - _Goal_: publish extension docs (`pipeline.group`, capability negotiation, workspace contract) plus a sample extension package. Track progress here.
+7. **Migration playbook**
+    - _Goal_: prepare feature flags, changelog entries, rollout checklist for enabling the next-gen CLI by default. Update as milestones land.
+
+This document will continue to evolve alongside ADRs and the code landing under `packages/cli/src/next`.
