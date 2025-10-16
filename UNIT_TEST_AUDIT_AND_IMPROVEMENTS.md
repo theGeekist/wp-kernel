@@ -1,0 +1,13 @@
+# Monorepo Unit Test Audit & Consolidated Plan
+
+## Cross-Package Themes
+
+- Environment bootstrapping is duplicated across suites, especially when stubbing WordPress globals or browser APIs in `@wpkernel/core` and `@wpkernel/ui`, increasing drift risk whenever platform contracts change.【F:packages/core/src/**tests**/integration/action-flow.test.ts†L26-L52】【F:packages/ui/src/hooks/**tests**/useAction.test.tsx†L27-L122】【F:packages/ui/src/hooks/**tests**/useVisiblePrefetch.test.tsx†L17-L198】
+- Tests often rely on manual cleanup of globals or temporary directories, which can leak state if assertions fail; this affects action runtime overrides, UI symbol markers, and e2e workspace utilities.【F:packages/core/src/**tests**/integration/action-flow.test.ts†L165-L188】【F:packages/ui/src/hooks/**tests**/useAction.test.tsx†L124-L155】【F:packages/e2e-utils/src/**tests**/integration-workspace.test.ts†L5-L72】
+- Coverage skews toward happy-path flows, with limited scenario matrices for failure handling (CLI command errors, cache resolver fallbacks, workspace failures), leaving critical diagnostics under-tested.【F:packages/cli/src/**tests**/version.test.ts†L1-L8】【F:packages/core/src/**tests**/integration/cache-invalidation.test.ts†L29-L136】【F:packages/e2e-utils/src/**tests**/integration-cli-runner.test.ts†L3-L71】
+
+## Actionable Next Steps
+
+1. Stand up shared harness modules (`packages/core/src/__tests__/helpers`, `packages/ui/src/hooks/testing/harness.ts`, `packages/e2e-utils/src/__tests__/helpers`) that expose setup/teardown primitives for WordPress globals, React providers, and disposable workspaces. Roll existing suites onto these helpers incrementally to trim duplication.【F:packages/core/UNIT_TEST_AUDIT_AND_IMPROVEMENTS.md†L10-L13】【F:packages/ui/UNIT_TEST_AUDIT_AND_IMPROVEMENTS.md†L10-L13】【F:packages/e2e-utils/UNIT_TEST_AUDIT_AND_IMPROVEMENTS.md†L10-L13】
+2. Introduce scenario tables and negative-path fixtures across packages to exercise retries, policy failures, CLI error codes, and workspace faults, reducing reliance on single-path integration tests.【F:packages/core/UNIT_TEST_AUDIT_AND_IMPROVEMENTS.md†L13】【F:packages/cli/UNIT_TEST_AUDIT_AND_IMPROVEMENTS.md†L9-L12】【F:packages/e2e-utils/UNIT_TEST_AUDIT_AND_IMPROVEMENTS.md†L13】
+3. Add golden-file and snapshot-based assertions for generated assets (CLI templates, manifest diffs) while using fixture builders to describe expected structures declaratively, improving readability and regression coverage.【F:packages/cli/UNIT_TEST_AUDIT_AND_IMPROVEMENTS.md†L11-L12】【F:packages/e2e-utils/UNIT_TEST_AUDIT_AND_IMPROVEMENTS.md†L11-L12】
