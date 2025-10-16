@@ -5,8 +5,10 @@
 	"references": [
 		{ "path": "./packages/core" },
 		{ "path": "./packages/ui" },
+		{ "path": "./packages/test-utils" },
 		{ "path": "./packages/core/tsconfig.tests.json" },
 		{ "path": "./packages/ui/tsconfig.tests.json" },
+		{ "path": "./packages/test-utils/tsconfig.tests.json" },
 		{ "path": "./packages/cli" },
 		{ "path": "./packages/cli/tsconfig.tests.json" },
 		{ "path": "./packages/e2e-utils" },

@@ -1,1 +1,1 @@
-export * from './wp.test-support.js';
+export * from '@wpkernel/test-utils/wp';
