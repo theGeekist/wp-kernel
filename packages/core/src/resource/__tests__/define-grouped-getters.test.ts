@@ -6,6 +6,10 @@
  */
 
 import { defineResource } from '../define';
+import {
+	createResourceDataHarness,
+	type ResourceHarnessSetup,
+} from '../../../tests/resource.test-support';
 
 // Mock types for testing
 interface MockThing {
@@ -17,38 +21,15 @@ interface MockThingQuery {
 	q?: string;
 }
 
-// Use global types for window.wp
-
 describe('defineResource - grouped API getters and cache.key()', () => {
-	let mockWpData: any;
-	let originalWp: Window['wp'];
+	let harnessSetup: ResourceHarnessSetup;
 
 	beforeEach(() => {
-		// Store original window.wp
-		const windowWithWp = global.window as Window & { wp?: any };
-		originalWp = windowWithWp?.wp;
-
-		// Create mock wp.data
-		mockWpData = {
-			registerStore: jest.fn(),
-			select: jest.fn(),
-			dispatch: jest.fn(),
-		};
-
-		// Setup window.wp.data
-		if (windowWithWp) {
-			windowWithWp.wp = {
-				data: mockWpData,
-			};
-		}
+		harnessSetup = createResourceDataHarness();
 	});
 
 	afterEach(() => {
-		// Restore original window.wp
-		const windowWithWp = global.window as Window & { wp?: any };
-		if (windowWithWp) {
-			windowWithWp.wp = originalWp;
-		}
+		harnessSetup.harness.teardown();
 	});
 
 	// ===================================================================

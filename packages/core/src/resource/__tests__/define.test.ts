@@ -6,6 +6,10 @@ import { defineResource } from '../define';
 import { KernelError } from '../../error';
 import { resetNamespaceCache } from '../../namespace';
 import type { ResourceStore, ResourceDataViewsUIConfig } from '../types';
+import {
+	createApiFetchHarness,
+	withWordPressData,
+} from '../../../tests/resource.test-support';
 
 // Use global types for window.wp
 
@@ -161,86 +165,66 @@ describe('defineResource - integration', () => {
 			);
 		});
 
-		it('should not register store when window.wp.data is undefined', () => {
-			// Mock scenario where window.wp is not available
-			const windowWithWp = global.window as Window & { wp?: any };
-			const originalWp = windowWithWp?.wp;
-			if (windowWithWp) {
-				delete windowWithWp.wp;
-			}
+		it('should not register store when window.wp.data is undefined', async () => {
+			await withWordPressData({ wp: null }, () => {
+				const resource = defineResource<Thing>({
+					name: 'thing',
+					routes: {
+						list: { path: '/my-plugin/v1/things', method: 'GET' },
+					},
+				});
 
-			const resource = defineResource<Thing>({
-				name: 'thing',
-				routes: {
-					list: { path: '/my-plugin/v1/things', method: 'GET' },
-				},
+				// Should still return store descriptor without throwing
+				const store = resource.store as ResourceStore<
+					Thing,
+					ThingQuery
+				>;
+				expect(store).toHaveProperty('storeKey');
 			});
-
-			// Should still return store descriptor without throwing
-			const store = resource.store as ResourceStore<Thing, ThingQuery>;
-			expect(store).toHaveProperty('storeKey');
-
-			// Restore
-			if (windowWithWp && originalWp) {
-				windowWithWp.wp = originalWp;
-			}
 		});
 
-		it('should register store when window.wp.data.register is available', () => {
-			// Mock window.wp.data.createReduxStore and register
+		it('should register store when window.wp.data.register is available', async () => {
 			const mockCreatedStore = { name: 'mock-redux-store' };
 			const mockCreateReduxStore = jest
 				.fn()
 				.mockReturnValue(mockCreatedStore);
 			const mockRegister = jest.fn();
-			const windowWithWp = global.window as Window & { wp?: any };
-			const originalWp = windowWithWp?.wp;
 
-			if (windowWithWp) {
-				windowWithWp.wp = {
-					...windowWithWp.wp,
-					...windowWithWp.wp,
+			await withWordPressData(
+				{
 					data: {
-						...windowWithWp.wp?.data,
 						createReduxStore: mockCreateReduxStore,
 						register: mockRegister,
 					},
-				};
-			}
-
-			const resource = defineResource<Thing>({
-				name: 'thing-with-register',
-				routes: {
-					list: { path: '/my-plugin/v1/things', method: 'GET' },
 				},
-			});
+				() => {
+					const resource = defineResource<Thing>({
+						name: 'thing-with-register',
+						routes: {
+							list: {
+								path: '/my-plugin/v1/things',
+								method: 'GET',
+							},
+						},
+					});
 
-			// Access store to trigger registration
-			void resource.store;
+					// Access store to trigger registration
+					void resource.store;
 
-			if (windowWithWp?.wp?.data?.register) {
-				expect(mockCreateReduxStore).toHaveBeenCalledTimes(1);
-				expect(mockCreateReduxStore).toHaveBeenCalledWith(
-					'wpk/thing-with-register',
-					expect.objectContaining({
-						reducer: expect.any(Function),
-						actions: expect.any(Object),
-						selectors: expect.any(Object),
-						resolvers: expect.any(Object),
-					})
-				);
-				expect(mockRegister).toHaveBeenCalledTimes(1);
-				expect(mockRegister).toHaveBeenCalledWith(mockCreatedStore);
-			}
-
-			// Restore
-			if (windowWithWp) {
-				if (originalWp) {
-					windowWithWp.wp = originalWp;
-				} else {
-					delete windowWithWp.wp;
+					expect(mockCreateReduxStore).toHaveBeenCalledTimes(1);
+					expect(mockCreateReduxStore).toHaveBeenCalledWith(
+						'wpk/thing-with-register',
+						expect.objectContaining({
+							reducer: expect.any(Function),
+							actions: expect.any(Object),
+							selectors: expect.any(Object),
+							resolvers: expect.any(Object),
+						})
+					);
+					expect(mockRegister).toHaveBeenCalledTimes(1);
+					expect(mockRegister).toHaveBeenCalledWith(mockCreatedStore);
 				}
-			}
+			);
 		});
 	});
 
@@ -280,30 +264,15 @@ describe('defineResource - integration', () => {
 
 	describe('client methods', () => {
 		let mockApiFetch: jest.Mock;
-		let mockDoAction: jest.Mock;
+		let apiFetchHarness: ReturnType<typeof createApiFetchHarness>;
 
 		beforeEach(() => {
-			// Mock @wordpress/api-fetch and hooks
-			mockApiFetch = jest.fn();
-			mockDoAction = jest.fn();
-
-			const windowWithWp = global.window;
-
-			if (windowWithWp) {
-				windowWithWp.wp = {
-					...windowWithWp.wp,
-					apiFetch: mockApiFetch,
-					hooks: {
-						doAction: mockDoAction,
-					},
-					data: {
-						register: jest.fn(),
-					} as any, // Mock for testing - needs to match WPGlobal type
-				} as unknown as Window['wp'];
-			}
+			apiFetchHarness = createApiFetchHarness();
+			mockApiFetch = apiFetchHarness.apiFetch;
 		});
 
 		afterEach(() => {
+			apiFetchHarness.harness.teardown();
 			jest.restoreAllMocks();
 		});
 
@@ -465,31 +434,14 @@ describe('defineResource - integration', () => {
 	});
 
 	describe('namespace support', () => {
-		let mockApiFetch: jest.Mock;
-		let mockDoAction: jest.Mock;
+		let apiFetchHarness: ReturnType<typeof createApiFetchHarness>;
 
 		beforeEach(() => {
-			// Mock @wordpress/api-fetch and hooks
-			mockApiFetch = jest.fn();
-			mockDoAction = jest.fn();
-
-			const windowWithWp = global.window;
-
-			if (windowWithWp) {
-				windowWithWp.wp = {
-					...windowWithWp.wp,
-					apiFetch: mockApiFetch,
-					hooks: {
-						doAction: mockDoAction,
-					},
-					data: {
-						register: jest.fn(),
-					} as any,
-				} as unknown as Window['wp'];
-			}
+			apiFetchHarness = createApiFetchHarness();
 		});
 
 		afterEach(() => {
+			apiFetchHarness.harness.teardown();
 			jest.restoreAllMocks();
 			// Clear namespace cache for clean tests
 			resetNamespaceCache();

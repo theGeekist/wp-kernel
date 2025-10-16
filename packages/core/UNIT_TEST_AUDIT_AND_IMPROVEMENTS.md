@@ -1,16 +1,24 @@
-# Unit Test Audit & Improvement Plan
+# Core Test Audit – Harness Consolidation
 
-## Key Observations
+## Coverage Snapshot
 
-- Integration suites repeatedly stub `window.wp` objects, duplicating `apiFetch`, `hooks.doAction`, and data store mocks across files even though `tests/test-globals.d.ts`, `tests/test-utils/wp.test-support.ts`, and the legacy barrel `tests/test-utils/wp.ts` already expose canonical globals. The drift grows whenever WordPress APIs change.【F:packages/core/src/**tests**/integration/action-flow.test.ts†L26-L52】【F:packages/core/src/**tests**/integration/resource-flow.test.ts†L23-L71】【F:tests/test-utils/wp.test-support.ts†L1-L115】【F:tests/test-utils/wp.ts†L1-L1】【F:tests/test-globals.d.ts†L1-L66】
-- Several tests mutate globals (e.g., `__WP_KERNEL_ACTION_RUNTIME__`) to inject policies or background job state, creating hidden coupling between cases and requiring manual cleanup that `tests/TEST_PATTERNS.md` warns about but does not yet automate for core packages.【F:packages/core/src/**tests**/integration/action-flow.test.ts†L165-L188】【F:tests/TEST_PATTERNS.md†L123-L166】
-- Cache invalidation coverage exercises real `@wordpress/data` stores and includes conditional skips to accommodate missing resolver hooks, signalling an unreliable fixture surface and slow execution path.【F:packages/core/src/**tests**/integration/cache-invalidation.test.ts†L29-L136】
-- Build verification suites focus on high-level flows but lack targeted assertions for edge cases like concurrent invalidations or transport retry semantics, making regressions hard to localise (no dedicated unit focus beyond integration harness).
+- `pnpm --filter @wpkernel/core test:coverage` → 97.68% statements, 91.42% branches, 99.42% functions, 97.72% lines.【b448a2†L1-L45】
 
-## Actionable Improvements
+## Current Test Surface Highlights
 
-- [x] **Shared WordPress harness in place.** `tests/wp-environment.test-support.ts` now wraps the repo-level `@test-utils/wp` helpers, exposes `createWordPressTestHarness()`, and is documented in the package README/AGENT so suites can opt in without cloning fixtures.【F:packages/core/tests/wp-environment.test-support.ts†L1-L111】【F:packages/core/README.md†L47-L58】【F:packages/core/AGENTS.md†L14-L21】
-- [x] **Scoped action runtime overrides.** `tests/action-runtime.test-support.ts` provides `applyActionRuntimeOverrides()`/`withActionRuntimeOverrides()` with teardown safety and colocated tests to keep coverage healthy while eliminating ad-hoc global mutation.【F:packages/core/tests/action-runtime.test-support.ts†L1-L63】【F:packages/core/tests/**tests**/test-support.test.ts†L5-L62】
-- [ ] **Cache helper unit specs.** Add lightweight suites for cache internals (`resource/cache`, invalidation queues) so integration suites focus on orchestration and no longer rely on conditional guards.【F:packages/core/src/**tests**/integration/cache-invalidation.test.ts†L29-L136】
-- [ ] **Scenario matrices for resource/action flows.** Expand existing integration suites with `describe.each` coverage for retries, policy failures, and cross-tab scoping, leaning on the new harness utilities for setup reuse.【F:packages/core/src/**tests**/integration/action-flow.test.ts†L26-L188】
-- [x] **Documented helper conventions.** README and AGENT guidance now point contributors to the `.test-support.ts` helpers and repo-level globals to keep imports consistent with `tests/TEST_PATTERNS.md`.【F:packages/core/README.md†L47-L58】【F:packages/core/AGENTS.md†L14-L21】【F:tests/TEST_PATTERNS.md†L1-L122】
+- **WordPress data harness** – `createResourceDataHarness()` now provisions typed `dispatch`, `select`, `register`, `createReduxStore`, and `resolveSelect` mocks so suites can opt into a consistent `wp.data` façade without duplicating scaffolding.【F:packages/core/tests/resource.test-support.ts†L1-L210】
+- **WordPress globals scoping** – `withWordPressData()` scopes `window.wp` overrides for cache and definition suites, eliminating bespoke delete/restore blocks while guaranteeing teardown symmetry in each spec.【F:packages/core/tests/resource.test-support.ts†L285-L318】【F:packages/core/src/resource/**tests**/define-prefetch.test.ts†L11-L64】【F:packages/core/src/resource/**tests**/cache/invalidate.test.ts†L8-L167】
+- **API fetch harness** – `createApiFetchHarness()` provisions `apiFetch` and hook spies via the shared WordPress harness so client and transport tests can assert error channels without duplicating setup plumbing.【F:packages/core/tests/resource.test-support.ts†L320-L346】【F:packages/core/src/http/**tests**/fetch.test.ts†L1-L210】【F:packages/core/src/resource/**tests**/client.test.ts†L5-L220】
+- **Resource prefetch suites** – `define-prefetch.test.ts` bootstraps the shared harness, tears down globals when asserting missing `wp.data`, and reuses the same fixture for happy-path and guard clauses, reducing bespoke setup while preserving the legacy error expectations.【F:packages/core/src/resource/**tests**/define-prefetch.test.ts†L7-L200】
+- **Cache invalidation coverage** – The invalidate, invalidate-all, and edge-case suites now install the harness with overrideable dispatch/select mocks, keeping resolver assertions and reporter expectations while avoiding manual global bookkeeping.【F:packages/core/src/resource/**tests**/cache/invalidate.test.ts†L6-L118】【F:packages/core/src/resource/**tests**/cache/invalidate-all.test.ts†L6-L82】【F:packages/core/src/resource/**tests**/cache/edge-cases.test.ts†L29-L160】
+- **Client transport exercises** – The client API spec wires `createWordPressTestHarness()` for `apiFetch` and hook spies so transport assertions run against the canonical mock surface rather than ad-hoc `window.wp` shims.【F:packages/core/src/resource/**tests**/client.test.ts†L5-L160】
+- **Grouped API regression guard** – The grouped-store API suite leans on the harness to simulate resolver behavior, letting the table-driven expectations cover real selector fallbacks without permanent global mutations.【F:packages/core/src/resource/**tests**/store/grouped-api.test.ts†L7-L157】
+
+## Risks & Opportunities
+
+- **Ad-hoc CommonJS require** – The grouped API suite still falls back to `require('../../define')` to avoid circular imports when instantiating a real resource for regression checks. Converting this to an ESM-safe helper would tighten module boundaries and remove the lint suppression.【F:packages/core/src/resource/**tests**/store/grouped-api.test.ts†L57-L86】
+- **Hooks passthrough ergonomics** – `createApiFetchHarness()` wraps hook overrides in jest mocks; if future tests need the raw WordPress hook signatures, an explicit type-safe adapter could make the relationship clearer.【F:packages/core/tests/wp-environment.test-support.ts†L207-L346】
+
+## Recommended Follow-Ups
+
+- Replace the remaining `require()` usage in grouped API tests with an ESM-compatible helper exported from the resource module to keep linting and module resolution uniform.【F:packages/core/src/resource/**tests**/store/grouped-api.test.ts†L57-L86】
