@@ -2,10 +2,10 @@ import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
-import type { BaseContext } from 'clipanion';
 import type { InitCommand } from '../init';
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
-import { MemoryStream } from '../../../tests/memory-stream.test-support';
+import { assignCommandContext } from '../../../tests/cli-command.test-support';
+import { withWorkspace as withTemporaryWorkspace } from '../../../tests/workspace.test-support';
 
 const TMP_PREFIX = path.join(os.tmpdir(), 'wpk-init-command-');
 
@@ -18,23 +18,25 @@ describe('InitCommand', () => {
 
 	it('scaffolds project files with recommended defaults', async () => {
 		await withWorkspace(async (workspace) => {
-			const command = await createCommand(workspace);
+			const { command, stdout } = await createCommand(workspace);
 			command.name = 'jobs-plugin';
 
 			const exit = await command.execute();
 
 			expect(exit).toBe(WPK_EXIT_CODES.SUCCESS);
-			const stdout = command.context.stdout.toString();
-			expect(stdout).toContain('created plugin scaffold for jobs-plugin');
-			expect(stdout).toContain('created kernel.config.ts');
-			expect(stdout).toContain('created src/index.ts');
-			expect(stdout).toContain('created tsconfig.json');
-			expect(stdout).toContain('created jsconfig.json');
-			expect(stdout).toContain('created eslint.config.js');
-			expect(stdout).toContain('created vite.config.ts');
-			expect(stdout).toContain('created package.json');
-			expect(stdout).toContain('created composer.json');
-			expect(stdout).toContain('created inc/.gitkeep');
+			const summary = stdout.toString();
+			expect(summary).toContain(
+				'created plugin scaffold for jobs-plugin'
+			);
+			expect(summary).toContain('created kernel.config.ts');
+			expect(summary).toContain('created src/index.ts');
+			expect(summary).toContain('created tsconfig.json');
+			expect(summary).toContain('created jsconfig.json');
+			expect(summary).toContain('created eslint.config.js');
+			expect(summary).toContain('created vite.config.ts');
+			expect(summary).toContain('created package.json');
+			expect(summary).toContain('created composer.json');
+			expect(summary).toContain('created inc/.gitkeep');
 
 			const kernelConfig = await fs.readFile(
 				path.join(workspace, 'kernel.config.ts'),
@@ -174,7 +176,7 @@ describe('InitCommand', () => {
 				recursive: true,
 			});
 
-			const command = await createCommand(workspace);
+			const { command } = await createCommand(workspace);
 			command.name = 'showcase-demo';
 
 			const exit = await command.execute();
@@ -211,7 +213,7 @@ describe('InitCommand', () => {
 
 	it('aborts when scaffold targets already exist without --force', async () => {
 		await withWorkspace(async (workspace) => {
-			const command = await createCommand(workspace);
+			const { command, stderr } = await createCommand(workspace);
 			command.name = 'jobs-plugin';
 
 			await fs.writeFile(
@@ -223,9 +225,9 @@ describe('InitCommand', () => {
 			const exit = await command.execute();
 
 			expect(exit).toBe(WPK_EXIT_CODES.VALIDATION_ERROR);
-			const stderr = command.context.stderr.toString();
-			expect(stderr).toContain('Refusing to overwrite existing files');
-			expect(stderr).toContain('kernel.config.ts');
+			const errors = stderr.toString();
+			expect(errors).toContain('Refusing to overwrite existing files');
+			expect(errors).toContain('kernel.config.ts');
 
 			const kernelConfig = await fs.readFile(
 				path.join(workspace, 'kernel.config.ts'),
@@ -237,7 +239,7 @@ describe('InitCommand', () => {
 
 	it('overwrites files and scripts when --force is provided', async () => {
 		await withWorkspace(async (workspace) => {
-			const command = await createCommand(workspace);
+			const { command, stdout } = await createCommand(workspace);
 			command.name = 'jobs-plugin';
 			command.force = true;
 
@@ -265,9 +267,9 @@ describe('InitCommand', () => {
 			const exit = await command.execute();
 
 			expect(exit).toBe(WPK_EXIT_CODES.SUCCESS);
-			const stdout = command.context.stdout.toString();
-			expect(stdout).toContain('updated kernel.config.ts');
-			expect(stdout).toContain('updated package.json');
+			const summary = stdout.toString();
+			expect(summary).toContain('updated kernel.config.ts');
+			expect(summary).toContain('updated package.json');
 
 			const kernelConfig = await fs.readFile(
 				path.join(workspace, 'kernel.config.ts'),
@@ -296,7 +298,7 @@ describe('InitCommand', () => {
 
 	it('preserves custom peer dependency versions unless --force is provided', async () => {
 		await withWorkspace(async (workspace) => {
-			const command = await createCommand(workspace);
+			const { command } = await createCommand(workspace);
 			command.name = 'jobs-plugin';
 
 			await fs.writeFile(
@@ -339,7 +341,7 @@ describe('InitCommand', () => {
 
 	it('reports invalid package.json', async () => {
 		await withWorkspace(async (workspace) => {
-			const command = await createCommand(workspace);
+			const { command, stderr } = await createCommand(workspace);
 			command.name = 'jobs-plugin';
 
 			await fs.writeFile(
@@ -351,9 +353,9 @@ describe('InitCommand', () => {
 			const exit = await command.execute();
 
 			expect(exit).toBe(WPK_EXIT_CODES.VALIDATION_ERROR);
-			const stderr = command.context.stderr.toString();
-			expect(stderr).toContain('package.json is not valid JSON.');
-			expect(stderr).toContain('package.json');
+			const errors = stderr.toString();
+			expect(errors).toContain('package.json is not valid JSON.');
+			expect(errors).toContain('package.json');
 		});
 	});
 
@@ -362,7 +364,7 @@ describe('InitCommand', () => {
 			const workspace = path.join(root, 'Fancy Plugin Suite');
 			await fs.mkdir(workspace, { recursive: true });
 
-			const command = await createCommand(workspace);
+			const { command } = await createCommand(workspace);
 
 			const exit = await command.execute();
 
@@ -402,15 +404,15 @@ describe('InitCommand', () => {
 				globalThis as { __WPK_CLI_MODULE_URL__?: string }
 			).__WPK_CLI_MODULE_URL__ = moduleUrl;
 
-			const command = await createCommand(workspace, {
+			const { command, stdout } = await createCommand(workspace, {
 				resetModules: true,
 			});
 
 			const exit = await command.execute();
 
 			expect(exit).toBe(WPK_EXIT_CODES.SUCCESS);
-			const stdout = command.context.stdout.toString();
-			expect(stdout).toContain('created kernel.config.ts');
+			const summary = stdout.toString();
+			expect(summary).toContain('created kernel.config.ts');
 		});
 	});
 
@@ -424,7 +426,7 @@ describe('InitCommand', () => {
 			let dependencySpy: jest.SpyInstance | undefined;
 
 			try {
-				const command = await createCommand(workspace, {
+				const { command, stdout } = await createCommand(workspace, {
 					resetModules: true,
 					beforeImport: async () => {
 						const dependencyModule = await import(
@@ -453,7 +455,7 @@ describe('InitCommand', () => {
 				const exit = await command.execute();
 
 				expect(exit).toBe(WPK_EXIT_CODES.SUCCESS);
-				expect(command.context.stdout.toString()).toContain(
+				expect(stdout.toString()).toContain(
 					'[wpk] init dependency versions resolved from registry'
 				);
 
@@ -482,18 +484,7 @@ describe('InitCommand', () => {
 async function withWorkspace(
 	run: (workspace: string) => Promise<void>
 ): Promise<void> {
-	const workspace = await fs.mkdtemp(TMP_PREFIX);
-	try {
-		const original = process.cwd();
-		process.chdir(workspace);
-		try {
-			await run(workspace);
-		} finally {
-			process.chdir(original);
-		}
-	} finally {
-		await fs.rm(workspace, { recursive: true, force: true });
-	}
+	await withTemporaryWorkspace(run, { prefix: TMP_PREFIX });
 }
 
 async function createCommand(
@@ -502,7 +493,11 @@ async function createCommand(
 		resetModules?: boolean;
 		beforeImport?: () => Promise<void> | void;
 	} = {}
-): Promise<InitCommand> {
+): Promise<{
+	command: InitCommand;
+	stdout: ReturnType<typeof assignCommandContext>['stdout'];
+	stderr: ReturnType<typeof assignCommandContext>['stderr'];
+}> {
 	if (options.resetModules === true) {
 		jest.resetModules();
 	}
@@ -513,13 +508,8 @@ async function createCommand(
 
 	const { InitCommand } = await import('../init');
 	const command = new InitCommand();
-	command.context = {
-		stdout: new MemoryStream(),
-		stderr: new MemoryStream(),
-		stdin: process.stdin,
-		env: process.env,
-		cwd: () => workspace,
-		colorDepth: 1,
-	} as BaseContext;
-	return command;
+	const { stdout, stderr } = assignCommandContext(command, {
+		cwd: workspace,
+	});
+	return { command, stdout, stderr };
 }

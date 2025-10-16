@@ -1,13 +1,13 @@
 import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import type { BaseContext } from 'clipanion';
 import { GenerateCommand } from '../generate';
 import * as printers from '../../printers';
 import * as ir from '../../ir';
 import { EXIT_CODES } from '../run-generate/types';
 import { KernelError } from '@wpkernel/core/contracts';
-import { MemoryStream } from '../../../tests/memory-stream.test-support';
+import { assignCommandContext } from '../../../tests/cli-command.test-support';
+import { withWorkspace as withTemporaryWorkspace } from '../../../tests/workspace.test-support';
 
 jest.mock('json-schema-to-typescript', () => ({
 	compile: jest.fn(async () => 'export interface Schema {}\n'),
@@ -24,7 +24,7 @@ const TMP_PREFIX = path.join(os.tmpdir(), 'wpk-generate-command-');
 describe('GenerateCommand', () => {
 	it('writes generated artifacts and records summary', async () => {
 		await withWorkspace(async (workspace) => {
-			const command = createCommand(workspace);
+			const { command } = createCommand(workspace);
 			const exitCode = await command.execute();
 
 			expect(exitCode).toBe(EXIT_CODES.SUCCESS);
@@ -44,7 +44,7 @@ describe('GenerateCommand', () => {
 
 	it('skips unchanged files on subsequent runs', async () => {
 		await withWorkspace(async (workspace) => {
-			const command = createCommand(workspace);
+			const { command } = createCommand(workspace);
 			const firstExitCode = await command.execute();
 			expect(firstExitCode).toBe(EXIT_CODES.SUCCESS);
 
@@ -56,7 +56,7 @@ describe('GenerateCommand', () => {
 
 			await new Promise((resolve) => setTimeout(resolve, 10));
 
-			const secondCommand = createCommand(workspace);
+			const { command: secondCommand } = createCommand(workspace);
 			const exitCode = await secondCommand.execute();
 			expect(exitCode).toBe(EXIT_CODES.SUCCESS);
 			expect(secondCommand.summary?.counts.unchanged).toBeGreaterThan(0);
@@ -68,7 +68,7 @@ describe('GenerateCommand', () => {
 
 	it('performs dry-run without writing artifacts', async () => {
 		await withWorkspace(async (workspace) => {
-			const command = createCommand(workspace);
+			const { command } = createCommand(workspace);
 			const firstExitCode = await command.execute();
 			expect(firstExitCode).toBe(EXIT_CODES.SUCCESS);
 
@@ -87,7 +87,7 @@ describe('GenerateCommand', () => {
 				'utf8'
 			);
 
-			const dryRunCommand = createCommand(workspace);
+			const { command: dryRunCommand } = createCommand(workspace);
 			dryRunCommand.dryRun = true;
 			const exitCode = await dryRunCommand.execute();
 
@@ -111,7 +111,7 @@ describe('GenerateCommand', () => {
 				autoload: { 'psr-4': { 'Demo\\Plugin\\': 'src/' } },
 			});
 
-			const command = createCommand(workspace);
+			const { command } = createCommand(workspace);
 			const exitCode = await command.execute();
 			expect(exitCode).toBe(EXIT_CODES.VALIDATION_ERROR);
 		});
@@ -125,7 +125,7 @@ describe('GenerateCommand', () => {
 		);
 
 		await withWorkspace(async (workspace) => {
-			const command = createCommand(workspace);
+			const { command } = createCommand(workspace);
 			const exitCode = await command.execute();
 			expect(exitCode).toBe(EXIT_CODES.VALIDATION_ERROR);
 		});
@@ -140,7 +140,7 @@ describe('GenerateCommand', () => {
 					phpAdapter: '() => { throw new Error("adapter boom"); }',
 				});
 
-				const command = createCommand(workspace);
+				const { command } = createCommand(workspace);
 				const exitCode = await command.execute();
 				expect(exitCode).toBe(EXIT_CODES.ADAPTER_ERROR);
 			},
@@ -166,7 +166,7 @@ describe('GenerateCommand', () => {
 					],
 				});
 
-				const command = createCommand(workspace);
+				const { command } = createCommand(workspace);
 				const exitCode = await command.execute();
 				expect(exitCode).toBe(EXIT_CODES.SUCCESS);
 
@@ -201,7 +201,7 @@ describe('GenerateCommand', () => {
 					],
 				});
 
-				const command = createCommand(workspace);
+				const { command } = createCommand(workspace);
 				const exitCode = await command.execute();
 				expect(exitCode).toBe(EXIT_CODES.ADAPTER_ERROR);
 
@@ -220,7 +220,7 @@ describe('GenerateCommand', () => {
 					extensions: [`() => { throw new Error('factory boom'); }`],
 				});
 
-				const command = createCommand(workspace);
+				const { command } = createCommand(workspace);
 				const exitCode = await command.execute();
 				expect(exitCode).toBe(EXIT_CODES.ADAPTER_ERROR);
 			},
@@ -241,7 +241,7 @@ describe('GenerateCommand', () => {
 					],
 				});
 
-				const command = createCommand(workspace);
+				const { command } = createCommand(workspace);
 				const exitCode = await command.execute();
 				expect(exitCode).toBe(EXIT_CODES.ADAPTER_ERROR);
 			},
@@ -256,7 +256,7 @@ describe('GenerateCommand', () => {
 					extensions: [`() => { return; }`, `() => []`],
 				});
 
-				const command = createCommand(workspace);
+				const { command } = createCommand(workspace);
 				const exitCode = await command.execute();
 				expect(exitCode).toBe(EXIT_CODES.SUCCESS);
 			},
@@ -271,7 +271,7 @@ describe('GenerateCommand', () => {
 					extensions: [`() => [null]`],
 				});
 
-				const command = createCommand(workspace);
+				const { command } = createCommand(workspace);
 				const exitCode = await command.execute();
 				expect(exitCode).toBe(EXIT_CODES.ADAPTER_ERROR);
 			},
@@ -286,7 +286,7 @@ describe('GenerateCommand', () => {
 					extensions: [`() => ({ name: 'invalid' })`],
 				});
 
-				const command = createCommand(workspace);
+				const { command } = createCommand(workspace);
 				const exitCode = await command.execute();
 				expect(exitCode).toBe(EXIT_CODES.ADAPTER_ERROR);
 			},
@@ -300,7 +300,7 @@ describe('GenerateCommand', () => {
 			.mockRejectedValue(new Error('printer boom'));
 
 		await withWorkspace(async (workspace) => {
-			const command = createCommand(workspace);
+			const { command } = createCommand(workspace);
 			const exitCode = await command.execute();
 			expect(exitCode).toBe(EXIT_CODES.UNEXPECTED_ERROR);
 		});
@@ -314,7 +314,7 @@ describe('GenerateCommand', () => {
 			.mockRejectedValue('printer boom');
 
 		await withWorkspace(async (workspace) => {
-			const command = createCommand(workspace);
+			const { command } = createCommand(workspace);
 			const exitCode = await command.execute();
 			expect(exitCode).toBe(EXIT_CODES.UNEXPECTED_ERROR);
 		});
@@ -324,14 +324,13 @@ describe('GenerateCommand', () => {
 
 	it('prints verbose summaries with file listings', async () => {
 		await withWorkspace(async (workspace) => {
-			const command = createCommand(workspace);
+			const { command, stdout } = createCommand(workspace);
 			command.verbose = true;
 
 			const exitCode = await command.execute();
 			expect(exitCode).toBe(EXIT_CODES.SUCCESS);
 
-			const stdout = (command.context.stdout as MemoryStream).toString();
-			expect(stdout).toContain('files:');
+			expect(stdout.toString()).toContain('files:');
 		});
 	});
 
@@ -342,7 +341,7 @@ describe('GenerateCommand', () => {
 					phpAdapter: '() => null',
 				});
 
-				const command = createCommand(workspace);
+				const { command } = createCommand(workspace);
 				const exitCode = await command.execute();
 				expect(exitCode).toBe(EXIT_CODES.SUCCESS);
 			},
@@ -419,52 +418,42 @@ async function withWorkspace(
 	run: (workspace: string) => Promise<void>,
 	options: { withDefaultConfig?: boolean } = {}
 ): Promise<void> {
-	const workspace = await fs.mkdtemp(TMP_PREFIX);
 	const { withDefaultConfig = true } = options;
 
-	try {
-		await fs.mkdir(path.join(workspace, 'schemas'), { recursive: true });
-
-		await writeComposerJson(workspace);
-
-		if (withDefaultConfig) {
-			await writeKernelConfig(workspace);
-		}
-
-		await linkKernelPackages(workspace);
-
-		await writeSchema(workspace);
-
-		const originalCwd = process.cwd();
-		process.chdir(workspace);
-		try {
+	await withTemporaryWorkspace(
+		async (workspace) => {
 			await run(workspace);
-		} finally {
-			process.chdir(originalCwd);
+		},
+		{
+			prefix: TMP_PREFIX,
+			setup: async (workspace) => {
+				await fs.mkdir(path.join(workspace, 'schemas'), {
+					recursive: true,
+				});
+				await writeComposerJson(workspace);
+
+				if (withDefaultConfig) {
+					await writeKernelConfig(workspace);
+				}
+
+				await linkKernelPackages(workspace);
+				await writeSchema(workspace);
+			},
 		}
-	} finally {
-		await fs.rm(workspace, { recursive: true, force: true });
-	}
+	);
 }
 
-function createCommand(workspace: string): GenerateCommand {
+function createCommand(workspace: string): {
+	command: GenerateCommand;
+	stdout: ReturnType<typeof assignCommandContext>['stdout'];
+} {
 	const command = new GenerateCommand();
-	const stdout = new MemoryStream();
-	const stderr = new MemoryStream();
-
-	command.context = {
-		stdout,
-		stderr,
-		stdin: process.stdin,
-		env: process.env,
-		cwd: () => workspace,
-		colorDepth: 1,
-	} as BaseContext;
+	const { stdout } = assignCommandContext(command, { cwd: workspace });
 
 	command.dryRun = false;
 	command.verbose = false;
 
-	return command;
+	return { command, stdout };
 }
 
 async function linkKernelPackages(workspace: string): Promise<void> {

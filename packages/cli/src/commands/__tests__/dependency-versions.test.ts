@@ -4,6 +4,7 @@ import fs from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import { resolveDependencyVersions } from '../init/dependency-versions';
 import { getCliPackageRoot } from '../init/module-url';
+import { withWorkspace as withTemporaryWorkspace } from '../../../tests/workspace.test-support';
 
 describe('resolveDependencyVersions', () => {
 	afterEach(() => {
@@ -242,12 +243,8 @@ describe('resolveDependencyVersions', () => {
 async function withWorkspace(
 	run: (workspace: string) => Promise<void>
 ): Promise<void> {
-	const workspace = await fs.mkdtemp(
-		path.join(os.tmpdir(), 'wpk-init-deps-')
-	);
-	try {
-		await run(workspace);
-	} finally {
-		await fs.rm(workspace, { recursive: true, force: true });
-	}
+	await withTemporaryWorkspace(run, {
+		prefix: path.join(os.tmpdir(), 'wpk-init-deps-'),
+		chdir: false,
+	});
 }

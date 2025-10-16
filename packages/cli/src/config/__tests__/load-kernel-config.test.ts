@@ -16,6 +16,7 @@ import {
 } from '../load-kernel-config';
 import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
 import { KernelError } from '@wpkernel/core/error';
+import { withWorkspace as withTemporaryWorkspace } from '../../../tests/workspace.test-support';
 
 const TMP_PREFIX = 'wpk-cli-config-loader-';
 
@@ -24,27 +25,10 @@ describe('loadKernelConfig', () => {
 		files: Record<string, string>,
 		run: (workspace: string) => Promise<void>
 	) {
-		const workspaceRoot = await fs.mkdtemp(
-			path.join(os.tmpdir(), TMP_PREFIX)
-		);
-
-		await Promise.all(
-			Object.entries(files).map(async ([relativePath, contents]) => {
-				const absolutePath = path.join(workspaceRoot, relativePath);
-				await fs.mkdir(path.dirname(absolutePath), { recursive: true });
-				await fs.writeFile(absolutePath, contents);
-			})
-		);
-
-		const previousCwd = process.cwd();
-		process.chdir(workspaceRoot);
-
-		try {
-			await run(workspaceRoot);
-		} finally {
-			process.chdir(previousCwd);
-			await fs.rm(workspaceRoot, { recursive: true, force: true });
-		}
+		await withTemporaryWorkspace(run, {
+			prefix: path.join(os.tmpdir(), TMP_PREFIX),
+			files,
+		});
 	}
 
 	it('loads a kernel config and validates composer autoload', async () => {
