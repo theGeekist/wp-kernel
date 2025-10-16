@@ -1,9 +1,9 @@
 import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import type { Reporter } from '@wpkernel/core/reporter';
 import type * as validationModule from '../validation';
 import type { GenerationSummary } from '../types';
+import { createReporterMock } from '@wpkernel/test-utils/cli';
 
 type ValidationModule = typeof validationModule;
 
@@ -195,18 +195,6 @@ function createSummary({
 		counts,
 		entries,
 	};
-}
-
-function createReporterMock(): Reporter {
-	const reporter: Reporter = {
-		info: jest.fn(),
-		debug: jest.fn(),
-		error: jest.fn(),
-		warn: jest.fn(),
-		child: jest.fn(() => reporter),
-	} as unknown as Reporter;
-
-	return reporter;
 }
 
 async function importValidationModule({

@@ -23,6 +23,8 @@
 			"@wpkernel/cli/*": ["./packages/cli/src/*"],
 			"@wpkernel/e2e-utils": ["./packages/e2e-utils/src/index.ts"],
 			"@wpkernel/e2e-utils/*": ["./packages/e2e-utils/src/*"],
+			"@wpkernel/test-utils": ["./packages/test-utils/src/index.ts"],
+			"@wpkernel/test-utils/*": ["./packages/test-utils/src/*"],
 			"@test-utils/*": ["./tests/test-utils/*"]
 		},
 

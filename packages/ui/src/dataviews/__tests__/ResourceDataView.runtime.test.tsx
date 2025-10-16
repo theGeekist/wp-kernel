@@ -1,10 +1,9 @@
 import {
 	DataViewsMock,
 	createKernelRuntime,
-	renderWithProvider,
 	createResource,
 	createConfig,
-	getLastDataViewsProps,
+	renderResourceDataView,
 } from '../test-support/ResourceDataView.test-support';
 import { act } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -17,7 +16,6 @@ describe('ResourceDataView runtime integration', () => {
 	});
 
 	it('maps view changes through query mapping', () => {
-		const runtime = createKernelRuntime();
 		const useList = jest.fn(() => ({
 			data: { items: [], total: 0 },
 			isLoading: false,
@@ -31,14 +29,14 @@ describe('ResourceDataView runtime integration', () => {
 
 		const config = createConfig<{ id: number }, { search?: string }>({});
 
-		renderWithProvider(
-			<ResourceDataView resource={resource} config={config} />,
-			runtime
-		);
+		const { getDataViewProps } = renderResourceDataView({
+			resource,
+			config,
+		});
 
 		expect(useList).toHaveBeenCalledWith({ search: undefined });
 
-		const props = getLastDataViewsProps();
+		const props = getDataViewProps();
 		act(() => {
 			props.onChangeView({
 				...config.defaultView,
@@ -102,7 +100,6 @@ describe('ResourceDataView runtime integration', () => {
 	});
 
 	it('exposes wrapper metadata for E2E helpers', () => {
-		const runtime = createKernelRuntime();
 		const resource = createResource<{ id: number }, { search?: string }>({
 			useList: jest.fn(() => ({
 				data: { items: [], total: 0 },
@@ -113,10 +110,12 @@ describe('ResourceDataView runtime integration', () => {
 
 		const config = createConfig<{ id: number }, { search?: string }>({});
 
-		const { container } = renderWithProvider(
-			<ResourceDataView resource={resource} config={config} />,
-			runtime
-		);
+		const { renderResult } = renderResourceDataView({
+			resource,
+			config,
+		});
+
+		const { container } = renderResult;
 
 		const wrapper = container.querySelector('[data-wpk-dataview="jobs"]');
 		expect(wrapper).toBeTruthy();
@@ -128,7 +127,6 @@ describe('ResourceDataView runtime integration', () => {
 	});
 
 	it('merges default layouts and honours search configuration', () => {
-		const runtime = createKernelRuntime();
 		const resource = createResource<{ id: number }, { search?: string }>({
 			useList: jest.fn(() => ({
 				data: { items: [{ id: 1 }], total: 1 },
@@ -151,12 +149,12 @@ describe('ResourceDataView runtime integration', () => {
 			search: false,
 		});
 
-		renderWithProvider(
-			<ResourceDataView resource={resource} config={config} />,
-			runtime
-		);
+		const { getDataViewProps } = renderResourceDataView({
+			resource,
+			config,
+		});
 
-		const props = getLastDataViewsProps();
+		const props = getDataViewProps();
 		expect(props.defaultLayouts).toEqual({ table: { density: 'compact' } });
 		expect(props.search).toBe(false);
 	});

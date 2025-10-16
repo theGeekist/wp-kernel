@@ -9,6 +9,11 @@
 import { defineResource } from '../../resource/define';
 import type { ResourceObject } from '../../resource/types';
 import * as wpData from '@wordpress/data';
+import {
+	createWordPressTestHarness,
+	type WordPressHarnessOverrides,
+	type WordPressTestHarness,
+} from '@wpkernel/test-utils/core';
 
 type TestItem = {
 	id: number;
@@ -19,24 +24,16 @@ type TestItem = {
 	updated_at: string;
 };
 
-type WordPressWindow = Window &
-	typeof globalThis & {
-		wp?: {
-			data: typeof wpData;
-		};
-	};
-
 describe('Resource cache invalidation integration', () => {
+	let harness: WordPressTestHarness;
 	let resource: ResourceObject<TestItem, void>;
 	let storeKey: string;
 
 	beforeEach(() => {
-		// Setup WordPress data in window
-		(window as WordPressWindow).wp = {
-			data: wpData,
-		};
+		harness = createWordPressTestHarness({
+			data: wpData as unknown as WordPressHarnessOverrides['data'],
+		});
 
-		// Define the resource with a unique namespace to avoid conflicts
 		const uniqueNamespace = `test-${Date.now()}`;
 		resource = defineResource<TestItem, void>({
 			name: 'testitem',
@@ -47,8 +44,6 @@ describe('Resource cache invalidation integration', () => {
 		});
 
 		storeKey = resource.storeKey;
-
-		// Trigger store registration
 		void resource.store;
 	});
 
@@ -65,7 +60,7 @@ describe('Resource cache invalidation integration', () => {
 			// Ignore errors
 		}
 
-		// window.wp is reset by setup-jest.ts afterEach
+		harness.teardown();
 	});
 
 	it('should clear cached list data when invalidate.list() is called', () => {

@@ -16,7 +16,7 @@ import {
 	setWpPluginData,
 	setProcessEnv,
 	clearNamespaceState,
-} from '../../../../../tests/test-utils/wp.js';
+} from '@wpkernel/test-utils/wp';
 
 // Clear state before each test to prevent cache pollution
 beforeEach(() => {

@@ -96,6 +96,19 @@ await dataview.runBulkAction('Publish');
 expect(await dataview.getSelectedCount()).toBeGreaterThan(0);
 ```
 
+## Test Support Helpers
+
+- `withIsolatedWorkspace()` (re-exporting `@wpkernel/test-utils/integration` workspace helpers) ensures temporary workspaces are
+  disposed safely and exposes `writeWorkspaceFiles()` for declarative fixture creation.
+- `collectManifestState()` / `compareManifestStates()` snapshot filesystem
+  state and return diffs so manifest tests describe intent instead of mutating
+  files manually.
+- `runNodeSnippet()` executes inline Node.js scripts through the same transcript
+  surface as CLI runs, making it easy to capture stdout/stderr in tests.
+
+Unused helpers should be deleted rather than left exported-keep the catalogue
+focused on fixtures that power active test suites.
+
 ## Validation Strategy
 
 **Real-world validation** - This package is tested through actual usage in the showcase app's E2E tests rather than isolated unit tests, ensuring utilities work correctly in live WordPress environments.

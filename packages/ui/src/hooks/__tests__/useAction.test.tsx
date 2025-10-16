@@ -1,63 +1,39 @@
-import { act, type ReactNode } from 'react';
+import { act } from 'react';
 import { createDeferred, renderHook } from '../testing/test-utils';
 import { useAction } from '../useAction';
-import type { UseActionOptions } from '../useAction';
+import type { UseActionOptions, UseActionResult } from '../useAction';
 import type { ActionEnvelope, DefinedAction } from '@wpkernel/core/actions';
 import { KernelError } from '@wpkernel/core/error';
-import { KernelEventBus } from '@wpkernel/core/events';
 import * as kernelData from '@wpkernel/core/data';
-import { KernelUIProvider } from '../../runtime';
+import { KernelEventBus } from '@wpkernel/core/events';
 import type {
 	KernelUIRuntime,
 	KernelRegistry,
 	KernelInstance,
 } from '@wpkernel/core/data';
 import type { Reporter } from '@wpkernel/core/reporter';
+import { KernelUIProvider } from '@wpkernel/ui';
+import {
+	createKernelUITestHarness,
+	type KernelUITestHarness,
+} from '@wpkernel/test-utils/ui';
 
 const ACTION_STORE_KEY = 'wp-kernel/ui/actions';
-
-const noopReporter: Reporter = {
-	info: jest.fn(),
-	warn: jest.fn(),
-	error: jest.fn(),
-	debug: jest.fn(),
-	child: jest.fn(),
-};
-
-function createRuntime(
-	overrides: Partial<KernelUIRuntime> = {}
-): KernelUIRuntime {
-	return {
-		namespace: 'tests',
-		reporter: overrides.reporter ?? noopReporter,
-		registry:
-			overrides.registry ??
-			(globalThis.window?.wp?.data as KernelRegistry | undefined) ??
-			undefined,
-		events: overrides.events ?? new KernelEventBus(),
-		invalidate: overrides.invalidate ?? jest.fn(),
-		kernel: overrides.kernel,
-		policies: overrides.policies,
-		options: overrides.options,
-	};
-}
-
-function createWrapper(runtime: KernelUIRuntime) {
-	return function Wrapper({ children }: { children: ReactNode }) {
-		return (
-			<KernelUIProvider runtime={runtime}>{children}</KernelUIProvider>
-		);
-	};
-}
 
 function renderUseActionHook<TInput, TResult>(
 	action: DefinedAction<TInput, TResult>,
 	options?: UseActionOptions<TInput, TResult>,
 	runtimeOverrides?: Partial<KernelUIRuntime>
 ) {
-	const runtime = createRuntime(runtimeOverrides ?? {});
+	if (!harness) {
+		throw new Error('Kernel UI harness not initialised');
+	}
+	const runtime = harness.createRuntime(runtimeOverrides ?? {});
+	if (runtimeOverrides) {
+		Object.assign(runtime, runtimeOverrides);
+	}
 	const renderResult = renderHook(() => useAction(action, options ?? {}), {
-		wrapper: createWrapper(runtime),
+		wrapper: harness.createWrapper(runtime),
 	});
 
 	return { ...renderResult, runtime };
@@ -84,10 +60,11 @@ function makeDefinedAction<TInput, TResult>(
 function prepareWpData(
 	invokeImpl?: (envelope: ActionEnvelope<unknown, unknown>) => unknown
 ) {
-	const wpData = window.wp?.data;
-	if (!wpData) {
-		throw new Error('wp.data stub not initialised');
+	if (!harness) {
+		throw new Error('Kernel UI harness not initialised');
 	}
+
+	const wpData = harness.wordpress.data;
 
 	(wpData.createReduxStore as jest.Mock).mockReset();
 	(wpData.register as jest.Mock).mockReset();
@@ -114,94 +91,213 @@ function prepareWpData(
 	return invoke as jest.Mock;
 }
 
-function resetActionStoreMarker() {
-	const marker = Symbol.for('wpKernelUIActionStoreRegistered');
-	if (window.wp?.data) {
-		delete (window.wp.data as { [key: symbol]: unknown })[marker];
-	}
+let harness: KernelUITestHarness | undefined;
+
+const noopReporter: Reporter = {
+	info: jest.fn(),
+	warn: jest.fn(),
+	error: jest.fn(),
+	debug: jest.fn(),
+	child: jest.fn(() => noopReporter),
+};
+
+type GenericUseActionResult = UseActionResult<unknown, unknown>;
+
+interface StateMatrixCase {
+	label: string;
+	arrange: () => {
+		action: DefinedAction<any, any>;
+		options?: UseActionOptions<any, any>;
+		runtimeOverrides?: Partial<KernelUIRuntime>;
+		execute: (result: { current: GenericUseActionResult }) => Promise<void>;
+		assert: (state: GenericUseActionResult) => void;
+	};
 }
 
 describe('useAction', () => {
-	// Suppress WordPress data store "already registered" console errors which
-	// are logged by @wordpress/data before it throws. Tests intentionally
-	// re-register the same store key and we only want to silence the known
-	// message to avoid noisy test output.
-	let originalConsoleError: (message?: any, ...optionalParams: any[]) => void;
-
 	beforeAll(() => {
-		originalConsoleError = console.error;
-		console.error = (...args: unknown[]) => {
+		harness = createKernelUITestHarness({
+			provider: KernelUIProvider,
+		});
+		harness.suppressConsoleError((args) => {
 			try {
-				const msg = String(args[0] ?? '');
-				if (
-					msg.includes('A store with name') &&
-					msg.includes('is already registered')
-				) {
-					// Known WP data registration message — ignore
-					return;
-				}
+				const message = String(args[0] ?? '');
+				return (
+					message.includes('A store with name') &&
+					message.includes('is already registered')
+				);
 			} catch {
-				// fallthrough to original handler
+				return false;
 			}
-			return originalConsoleError(...(args as [any, ...any[]]));
-		};
+		});
 	});
 
 	afterAll(() => {
-		console.error = originalConsoleError;
+		harness?.restoreConsoleError();
+		harness?.teardown();
+		harness = undefined;
 	});
+
+	beforeEach(() => {
+		harness?.wordpress.reset();
+		harness?.resetActionStoreRegistration();
+	});
+
 	afterEach(() => {
 		jest.clearAllMocks();
 	});
 
-	it('executes actions and updates state on success', async () => {
-		prepareWpData((envelope) =>
-			envelope.payload.action(envelope.payload.args)
-		);
+	const stateMatrixCases: StateMatrixCase[] = [
+		{
+			label: 'success after action resolves',
+			arrange: () => {
+				prepareWpData((envelope) =>
+					envelope.payload.action(envelope.payload.args)
+				);
+				const payload = { id: 123 };
+				const expected = { ...payload, ok: true };
+				const action = makeDefinedAction(async () => expected);
 
-		const action = makeDefinedAction(async (input: { id: number }) => ({
-			...input,
-			ok: true,
-		}));
-
-		const { result } = renderUseActionHook(action);
-
-		await act(async () => {
-			const payload = { id: 123 };
-			const response = await result.current.run(payload);
-			expect(response).toEqual({ id: 123, ok: true });
-		});
-
-		expect(result.current.status).toBe('success');
-		expect(result.current.result).toEqual({ id: 123, ok: true });
-		expect(result.current.inFlight).toBe(0);
-	});
-
-	it('records errors and exposes KernelError state', async () => {
-		const kernelError = new KernelError('ValidationError', {
-			message: 'Invalid',
-		});
-		prepareWpData((envelope) =>
-			envelope.payload
-				.action(envelope.payload.args)
-				.then((_value: unknown) => {
+				return {
+					action,
+					async execute(result) {
+						await act(async () => {
+							const response = await result.current.run(payload);
+							expect(response).toEqual(expected);
+						});
+					},
+					assert(state) {
+						expect(state.status).toBe('success');
+						expect(state.result).toEqual(expected);
+						expect(state.error).toBeUndefined();
+						expect(state.inFlight).toBe(0);
+					},
+				};
+			},
+		},
+		{
+			label: 'error state when action rejects with KernelError',
+			arrange: () => {
+				const kernelError = new KernelError('ValidationError', {
+					message: 'Invalid',
+				});
+				prepareWpData((envelope) =>
+					envelope.payload.action(envelope.payload.args)
+				);
+				const action = makeDefinedAction(async () => {
 					throw kernelError;
-				})
-		);
+				});
 
-		const action = makeDefinedAction(async () => {
-			return Promise.reject(kernelError);
+				return {
+					action,
+					async execute(result) {
+						await act(async () => {
+							await expect(
+								result.current.run({} as never)
+							).rejects.toBe(kernelError);
+						});
+					},
+					assert(state) {
+						expect(state.status).toBe('error');
+						expect(state.error).toBe(kernelError);
+						expect(state.result).toBeUndefined();
+						expect(state.inFlight).toBe(0);
+					},
+				};
+			},
+		},
+		{
+			label: 'idle state after cancel clears in-flight request',
+			arrange: () => {
+				const deferred = createDeferred<string>();
+				prepareWpData((envelope) =>
+					envelope.payload.action(envelope.payload.args)
+				);
+				const action = makeDefinedAction(async () => deferred.promise);
+
+				return {
+					action,
+					async execute(result) {
+						let promise!: Promise<unknown>;
+						act(() => {
+							promise = result.current.run('start');
+						});
+						expect(result.current.status).toBe('running');
+
+						act(() => {
+							result.current.cancel();
+						});
+
+						expect(result.current.status).toBe('idle');
+
+						await act(async () => {
+							deferred.resolve('ignored');
+							await promise;
+						});
+					},
+					assert(state) {
+						expect(state.status).toBe('idle');
+						expect(state.result).toBeUndefined();
+						expect(state.error).toBeUndefined();
+						expect(state.inFlight).toBe(0);
+					},
+				};
+			},
+		},
+		{
+			label: 'success after reset while request resolves',
+			arrange: () => {
+				const deferred = createDeferred<string>();
+				const finalValue = 'complete';
+				prepareWpData((envelope) =>
+					envelope.payload.action(envelope.payload.args)
+				);
+				const action = makeDefinedAction(async () => deferred.promise);
+
+				return {
+					action,
+					async execute(result) {
+						let promise!: Promise<unknown>;
+						act(() => {
+							promise = result.current.run('value');
+						});
+
+						act(() => {
+							result.current.reset();
+						});
+
+						expect(result.current.status).toBe('idle');
+
+						await act(async () => {
+							deferred.resolve(finalValue);
+							await promise;
+						});
+					},
+					assert(state) {
+						expect(state.status).toBe('success');
+						expect(state.result).toBe(finalValue);
+						expect(state.error).toBeUndefined();
+						expect(state.inFlight).toBe(0);
+					},
+				};
+			},
+		},
+	];
+
+	describe('state matrix', () => {
+		it.each(stateMatrixCases)('%s', async ({ arrange }) => {
+			const { action, options, runtimeOverrides, execute, assert } =
+				arrange();
+			const { result } = renderUseActionHook(
+				action,
+				options,
+				runtimeOverrides
+			);
+
+			await execute(result);
+
+			assert(result.current);
 		});
-
-		const { result } = renderUseActionHook(action);
-
-		await act(async () => {
-			await expect(result.current.run({})).rejects.toBe(kernelError);
-		});
-
-		expect(result.current.status).toBe('error');
-		expect(result.current.error).toBe(kernelError);
-		expect(result.current.inFlight).toBe(0);
 	});
 
 	it('deduplicates in-flight executions when dedupeKey matches', async () => {
@@ -237,37 +333,6 @@ describe('useAction', () => {
 		expect(result.current.status).toBe('success');
 		expect(result.current.result).toEqual({ value: 'done' });
 		expect(result.current.inFlight).toBe(0);
-	});
-
-	it('cancels local state tracking when cancel() is called', async () => {
-		const deferred = createDeferred<string>();
-		prepareWpData((envelope) =>
-			envelope.payload.action(envelope.payload.args)
-		);
-
-		const action = makeDefinedAction(async () => deferred.promise);
-		const { result } = renderUseActionHook(action);
-
-		let promise!: Promise<string>;
-		act(() => {
-			promise = result.current.run('start');
-		});
-		expect(result.current.status).toBe('running');
-		expect(result.current.inFlight).toBe(1);
-
-		act(() => {
-			result.current.cancel();
-		});
-		expect(result.current.status).toBe('idle');
-		expect(result.current.inFlight).toBe(0);
-
-		await act(async () => {
-			deferred.resolve('ignored');
-			await promise;
-		});
-
-		expect(result.current.status).toBe('idle');
-		expect(result.current.result).toBeUndefined();
 	});
 
 	it('switch concurrency cancels previous calls', async () => {
@@ -401,35 +466,6 @@ describe('useAction', () => {
 		expect(runtime.invalidate).toHaveBeenCalledWith(patterns);
 	});
 
-	it('reset clears state without cancelling in-flight requests', async () => {
-		const deferred = createDeferred<string>();
-		prepareWpData((envelope) =>
-			envelope.payload.action(envelope.payload.args)
-		);
-		const action = makeDefinedAction(async () => deferred.promise);
-
-		const { result } = renderUseActionHook(action);
-		let promise!: Promise<string>;
-		act(() => {
-			promise = result.current.run('value');
-		});
-
-		act(() => {
-			result.current.reset();
-		});
-
-		expect(result.current.status).toBe('idle');
-		expect(result.current.error).toBeUndefined();
-		expect(result.current.result).toBeUndefined();
-
-		await act(async () => {
-			deferred.resolve('complete');
-			await promise;
-		});
-
-		expect(result.current.status).toBe('success');
-	});
-
 	it('allows multiple hook instances without sharing state', async () => {
 		prepareWpData((envelope) =>
 			envelope.payload.action(envelope.payload.args)
@@ -525,11 +561,14 @@ describe('useAction', () => {
 	});
 	it('throws when WordPress data registry dispatch API is unavailable', () => {
 		const action = makeDefinedAction(async () => 'noop');
-		const dispatchMock = window.wp?.data?.dispatch as jest.Mock;
-		dispatchMock.mockReset();
-		dispatchMock.mockImplementation(() => ({}));
+		const registry = {
+			...harness!.wordpress.data,
+			dispatch: jest.fn(() => ({})),
+		} as unknown as KernelRegistry;
 
-		const { result } = renderUseActionHook(action);
+		const { result } = renderUseActionHook(action, undefined, {
+			registry,
+		});
 
 		expect(() => result.current.run({} as never)).toThrow(
 			expect.objectContaining({
@@ -540,12 +579,10 @@ describe('useAction', () => {
 				),
 			})
 		);
-
-		dispatchMock.mockReset();
 	});
 
 	it('ignores duplicate store registration errors', async () => {
-		resetActionStoreMarker();
+		harness?.resetActionStoreRegistration();
 		const registerSpy = jest
 			.spyOn(kernelData, 'registerKernelStore')
 			.mockImplementation(() => {
@@ -573,7 +610,7 @@ describe('useAction', () => {
 	});
 
 	it('propagates unexpected store registration errors', async () => {
-		resetActionStoreMarker();
+		harness?.resetActionStoreRegistration();
 		const registerSpy = jest
 			.spyOn(kernelData, 'registerKernelStore')
 			.mockImplementation(() => {
@@ -618,7 +655,7 @@ describe('useAction', () => {
 	});
 
 	it('does not invalidate cache when autoInvalidate returns falsey values', async () => {
-		resetActionStoreMarker();
+		harness?.resetActionStoreRegistration();
 		const registerSpy = jest
 			.spyOn(kernelData, 'registerKernelStore')
 			.mockReturnValue({
@@ -718,12 +755,11 @@ describe('useAction', () => {
 	});
 
 	it('throws when WordPress data is missing entirely', () => {
-		const windowWithWp = global.window as Window & { wp?: any };
-		const originalWp = windowWithWp.wp;
-		windowWithWp.wp = undefined;
-
 		const action = makeDefinedAction(async () => 'noop');
-		const { result } = renderUseActionHook(action);
+		const { result } = renderUseActionHook(action, undefined, {
+			registry: undefined,
+			kernel: undefined,
+		});
 
 		expect(() => result.current.run({} as never)).toThrow(
 			expect.objectContaining({
@@ -734,8 +770,6 @@ describe('useAction', () => {
 				),
 			})
 		);
-
-		windowWithWp.wp = originalWp;
 	});
 
 	it('handles Error instances in normaliseToKernelError', async () => {
@@ -803,7 +837,7 @@ describe('useAction', () => {
 	});
 
 	it('registers invoke action for the kernel store', async () => {
-		resetActionStoreMarker();
+		harness?.resetActionStoreRegistration();
 		let registeredInvoke:
 			| ((envelope: ActionEnvelope<any, any>) => ActionEnvelope<any, any>)
 			| null = null;
@@ -857,7 +891,7 @@ describe('useAction', () => {
 	});
 
 	it('cancels active deduped requests and clears the dedupe map', async () => {
-		resetActionStoreMarker();
+		harness?.resetActionStoreRegistration();
 		const first = createDeferred<string>();
 		const second = createDeferred<string>();
 		prepareWpData((envelope) =>
@@ -903,7 +937,7 @@ describe('useAction', () => {
 	});
 
 	it('falls back to kernel.invalidate when runtime invalidate is unavailable', async () => {
-		resetActionStoreMarker();
+		harness?.resetActionStoreRegistration();
 		const invalidate = jest.fn();
 		prepareWpData((envelope) =>
 			envelope.payload.action(envelope.payload.args)
@@ -933,7 +967,7 @@ describe('useAction', () => {
 	});
 
 	it('throws a descriptive error when queued calls are cancelled before execution', async () => {
-		resetActionStoreMarker();
+		harness?.resetActionStoreRegistration();
 		const first = createDeferred<void>();
 		prepareWpData((envelope) =>
 			envelope.payload.action(envelope.payload.args)

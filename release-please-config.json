@@ -20,6 +20,11 @@
 			"package-name": "@wpkernel/e2e-utils",
 			"component": "e2e-utils",
 			"changelog-path": "CHANGELOG.md"
+		},
+		"packages/test-utils": {
+			"package-name": "@wpkernel/test-utils",
+			"component": "test-utils",
+			"changelog-path": "CHANGELOG.md"
 		}
 	},
 	"release-type": "node",

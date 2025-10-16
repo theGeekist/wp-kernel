@@ -3,6 +3,8 @@ import pkg from './package.json';
 
 const external = [
 	...Object.keys(pkg.peerDependencies || {}),
+	...Object.keys(pkg.dependencies || {}),
+	/^@wpkernel\/test-utils(\/.*)?$/,
 	// Add any additional externals specific to e2e-utils here if needed
 ];
 

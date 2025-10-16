@@ -18,6 +18,7 @@ import { KernelError } from '@wpkernel/core/error';
 import type { AdapterContext } from '../../config/types';
 import type { IRv1 } from '../../ir';
 import type { Reporter } from '@wpkernel/core/reporter';
+import { createReporterMock } from '@wpkernel/test-utils/cli';
 
 const TMP_OUTPUT = path.join(os.tmpdir(), 'wpk-extension-output-');
 
@@ -49,18 +50,6 @@ function createAdapterContext(reporter: Reporter, ir: IRv1): AdapterContext {
 		reporter,
 		ir,
 	} as unknown as AdapterContext;
-}
-
-function createReporterMock(): Reporter {
-	const reporter: Reporter = {
-		info: jest.fn(),
-		warn: jest.fn(),
-		error: jest.fn(),
-		debug: jest.fn(),
-		child: jest.fn(() => reporter),
-	} as unknown as Reporter;
-
-	return reporter;
 }
 
 describe('runAdapterExtensions extra branches', () => {

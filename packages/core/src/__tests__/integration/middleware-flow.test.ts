@@ -9,9 +9,17 @@
  */
 
 import { defineAction } from '../../actions/define';
-import type { ActionConfig, ActionOptions } from '../../actions/types';
+import type {
+	ActionConfig,
+	ActionOptions,
+	ReduxDispatch,
+} from '../../actions/types';
 import { createActionMiddleware, invokeAction } from '../../actions/middleware';
 import { defineResource } from '../../resource/define';
+import {
+	createWordPressTestHarness,
+	type WordPressTestHarness,
+} from '@wpkernel/test-utils/core';
 
 function createAction<TArgs = void, TResult = void>(
 	name: string,
@@ -27,45 +35,32 @@ type TestItem = {
 };
 
 describe('Redux Middleware Integration', () => {
+	let harness: WordPressTestHarness;
 	let mockApiFetch: jest.Mock;
 	let mockDoAction: jest.Mock;
-	let mockNext: jest.Mock;
-	let middleware: any;
+	let next: jest.MockedFunction<ReduxDispatch>;
+	let middleware: ReduxDispatch;
 
 	beforeEach(() => {
-		mockApiFetch = jest.fn();
-		mockDoAction = jest.fn();
-		mockNext = jest.fn((action) => action);
+		harness = createWordPressTestHarness({
+			apiFetch: jest.fn(),
+			hooks: { doAction: jest.fn() },
+		});
 
-		// Setup WordPress globals
-		const windowWithWp = window as Window & {
-			wp?: {
-				data?: unknown;
-				apiFetch?: jest.Mock;
-				hooks?: { doAction: jest.Mock };
-			};
-		};
+		mockApiFetch = harness.wp.apiFetch as unknown as jest.Mock;
+		mockDoAction = harness.wp.hooks?.doAction as unknown as jest.Mock;
+		next = jest
+			.fn((action: unknown) => action)
+			.mockName('next') as jest.MockedFunction<ReduxDispatch>;
 
-		const existingWp = windowWithWp.wp || {};
-		(window as unknown as { wp?: unknown }).wp = {
-			...existingWp,
-			data: existingWp.data,
-			apiFetch: mockApiFetch as unknown,
-			hooks: { doAction: mockDoAction } as unknown,
-		};
-
-		// Create middleware
-		const actionMiddleware = createActionMiddleware();
-		const middlewareAPI = {
+		middleware = createActionMiddleware()({
 			dispatch: jest.fn(),
 			getState: jest.fn(),
-		};
-		middleware = actionMiddleware(middlewareAPI)(mockNext);
+		})(next) as ReduxDispatch;
 	});
 
 	afterEach(() => {
-		jest.clearAllMocks();
-		// window.wp is reset by setup-jest.ts afterEach
+		harness.teardown();
 	});
 
 	it('intercepts and executes action envelopes', async () => {
@@ -122,7 +117,7 @@ describe('Redux Middleware Integration', () => {
 		expect(mockDoAction).toHaveBeenCalledWith('item.created', { id: 1 });
 
 		// Verify next was NOT called (middleware intercepted)
-		expect(mockNext).not.toHaveBeenCalled();
+		expect(next).not.toHaveBeenCalled();
 	});
 
 	it('allows standard Redux actions to pass through unchanged', () => {
@@ -135,7 +130,7 @@ describe('Redux Middleware Integration', () => {
 		const result = middleware(standardAction);
 
 		// Verify it was passed to next middleware
-		expect(mockNext).toHaveBeenCalledWith(standardAction);
+		expect(next).toHaveBeenCalledWith(standardAction);
 		expect(result).toBe(standardAction);
 	});
 

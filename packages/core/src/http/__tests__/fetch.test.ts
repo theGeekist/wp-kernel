@@ -5,34 +5,22 @@ import { fetch } from '../fetch';
 import { KernelError } from '../../error/index';
 import type { Reporter } from '../../reporter';
 import { setKernelReporter, clearKernelReporter } from '../../reporter';
+import {
+	createApiFetchHarness,
+	withWordPressData,
+} from '@wpkernel/test-utils/core';
 
 describe('transport/fetch', () => {
 	let mockApiFetch: jest.Mock;
 	let mockDoAction: jest.Mock;
-	let originalWp: unknown;
+	let apiHarness: ReturnType<typeof createApiFetchHarness>;
 	let nowSpy: jest.SpyInstance<number, []>;
 
 	beforeEach(() => {
 		// Mock @wordpress/api-fetch
-		mockApiFetch = jest.fn();
-		mockDoAction = jest.fn();
-
-		// Save original wp object
-		originalWp = global.window?.wp;
-
-		// Setup global wp object (don't replace window, just wp)
-		if (typeof global.window !== 'undefined') {
-			global.window.wp = {
-				...global.window.wp,
-				apiFetch: mockApiFetch,
-				hooks: {
-					doAction: mockDoAction,
-				},
-			} as typeof global.window.wp & {
-				apiFetch: jest.Mock;
-				hooks: { doAction: jest.Mock };
-			};
-		}
+		apiHarness = createApiFetchHarness();
+		mockApiFetch = apiHarness.apiFetch;
+		mockDoAction = apiHarness.doAction;
 
 		// Mock performance.now
 		nowSpy = jest.spyOn(performance, 'now').mockReturnValue(1000);
@@ -40,14 +28,7 @@ describe('transport/fetch', () => {
 
 	afterEach(() => {
 		jest.restoreAllMocks();
-		// Restore original wp object
-		if (typeof (global as { window?: unknown }).window !== 'undefined') {
-			if (originalWp) {
-				(global as { window: { wp: unknown } }).window.wp = originalWp;
-			} else {
-				delete (global as { window: { wp?: unknown } }).window.wp;
-			}
-		}
+		apiHarness.harness.teardown();
 		clearKernelReporter();
 	});
 
@@ -350,29 +331,26 @@ describe('transport/fetch', () => {
 		});
 
 		it('should throw DeveloperError if @wordpress/api-fetch not available', async () => {
-			// Remove apiFetch from global
-			(
-				global as { window: { wp: { apiFetch?: unknown } } }
-			).window.wp.apiFetch = undefined;
+			await withWordPressData({ apiFetch: null }, async () => {
+				await expect(
+					fetch({
+						path: '/my-plugin/v1/things',
+						method: 'GET',
+					})
+				).rejects.toThrow(KernelError);
 
-			await expect(
-				fetch({
-					path: '/my-plugin/v1/things',
-					method: 'GET',
-				})
-			).rejects.toThrow(KernelError);
-
-			try {
-				await fetch({
-					path: '/my-plugin/v1/things',
-					method: 'GET',
-				});
-			} catch (error) {
-				expect((error as KernelError).code).toBe('DeveloperError');
-				expect((error as KernelError).message).toContain(
-					'@wordpress/api-fetch is not available'
-				);
-			}
+				try {
+					await fetch({
+						path: '/my-plugin/v1/things',
+						method: 'GET',
+					});
+				} catch (error) {
+					expect((error as KernelError).code).toBe('DeveloperError');
+					expect((error as KernelError).message).toContain(
+						'@wordpress/api-fetch is not available'
+					);
+				}
+			});
 		});
 
 		it('should handle unknown error types with string conversion', async () => {
@@ -416,53 +394,29 @@ describe('transport/fetch', () => {
 
 	describe('environment handling', () => {
 		it('should handle missing window (Node.js environment)', async () => {
-			// Temporarily remove wp object to simulate Node environment
-			const savedWp = (global as { window?: { wp?: unknown } }).window
-				?.wp;
-			if (
-				typeof (global as { window?: unknown }).window !== 'undefined'
-			) {
-				delete (global as { window: { wp?: unknown } }).window.wp;
-			}
-
-			// Should throw DeveloperError since apiFetch won't be available
-			await expect(
-				fetch({
-					path: '/my-plugin/v1/things',
-					method: 'GET',
-				})
-			).rejects.toThrow('not available');
-
-			// Restore
-			if (
-				typeof (global as { window?: unknown }).window !==
-					'undefined' &&
-				savedWp
-			) {
-				(global as { window: { wp: unknown } }).window.wp = savedWp;
-			}
+			await withWordPressData({ wp: null }, async () => {
+				await expect(
+					fetch({
+						path: '/my-plugin/v1/things',
+						method: 'GET',
+					})
+				).rejects.toThrow('not available');
+			});
 		});
 
 		it('should handle missing hooks (no event emission)', async () => {
-			// Setup apiFetch without hooks
-			if (
-				typeof (global as { window?: unknown }).window !== 'undefined'
-			) {
-				(global as { window: { wp: unknown } }).window.wp = {
-					apiFetch: mockApiFetch,
-					// No hooks object
-				};
-			}
-			mockApiFetch.mockResolvedValue({ id: 1 });
+			await withWordPressData({ hooks: null }, async () => {
+				mockApiFetch.mockResolvedValue({ id: 1 });
 
-			// Should complete successfully without emitting events
-			const response = await fetch({
-				path: '/my-plugin/v1/things/1',
-				method: 'GET',
+				// Should complete successfully without emitting events
+				const response = await fetch({
+					path: '/my-plugin/v1/things/1',
+					method: 'GET',
+				});
+
+				expect(response.data).toEqual({ id: 1 });
+				expect(mockDoAction).not.toHaveBeenCalled();
 			});
-
-			expect(response.data).toEqual({ id: 1 });
-			expect(mockDoAction).not.toHaveBeenCalled();
 		});
 	});
 

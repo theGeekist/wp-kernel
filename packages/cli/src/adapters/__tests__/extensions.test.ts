@@ -11,6 +11,7 @@ import type {
 import type { IRv1 } from '../../ir';
 import { FileWriter } from '../../utils/file-writer';
 import type { Reporter } from '@wpkernel/core/reporter';
+import { createReporterMock } from '@wpkernel/test-utils/cli';
 
 const TMP_OUTPUT = path.join(os.tmpdir(), 'wpk-extension-output-');
 
@@ -549,16 +550,4 @@ function createConfig(): KernelConfigV1 {
 			extensions: [() => ({ name: 'noop', apply: () => undefined })],
 		},
 	};
-}
-
-function createReporterMock(): Reporter {
-	const reporter: Reporter = {
-		info: jest.fn(),
-		warn: jest.fn(),
-		error: jest.fn(),
-		debug: jest.fn(),
-		child: jest.fn(() => reporter),
-	};
-
-	return reporter;
 }
