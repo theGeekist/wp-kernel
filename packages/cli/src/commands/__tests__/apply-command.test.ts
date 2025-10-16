@@ -6,9 +6,11 @@ import { promisify } from 'node:util';
 import { ApplyCommand } from '../apply';
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
 import { assignCommandContext } from '../../../tests/cli-command.test-support';
-import { withWorkspace as withTemporaryWorkspace } from '../../../tests/workspace.test-support';
+import { createWorkspaceRunner } from '../../../tests/workspace.test-support';
 
 const TMP_PREFIX = path.join(os.tmpdir(), 'wpk-apply-command-');
+
+const withWorkspace = createWorkspaceRunner({ prefix: TMP_PREFIX });
 
 const GUARDED_SOURCE = `<?php
 // WPK:BEGIN AUTO
@@ -614,12 +616,6 @@ return 'manual';
 		});
 	});
 });
-
-async function withWorkspace(
-	run: (workspace: string) => Promise<void>
-): Promise<void> {
-	await withTemporaryWorkspace(run, { prefix: TMP_PREFIX });
-}
 
 async function writeGeneratedFile(
 	workspace: string,

@@ -1,6 +1,10 @@
 import fs from 'node:fs/promises';
+import os from 'node:os';
 import path from 'node:path';
-import { withWorkspace } from '../workspace.test-support';
+import {
+	createWorkspaceRunner,
+	withWorkspace,
+} from '../workspace.test-support';
 
 describe('withWorkspace', () => {
 	it('creates and tears down a temporary workspace', async () => {
@@ -54,5 +58,46 @@ describe('withWorkspace', () => {
 		expect(visited[0]).toMatch(/^setup:/);
 		expect(visited[1]).toBe('run');
 		expect(visited[2]).toMatch(/^teardown:/);
+	});
+});
+
+describe('createWorkspaceRunner', () => {
+	it('applies default options and merges overrides', async () => {
+		const runWithWorkspace = createWorkspaceRunner({
+			chdir: false,
+			files: { 'defaults.txt': 'default' },
+		});
+
+		await runWithWorkspace(
+			async (workspace) => {
+				const defaultContents = await fs.readFile(
+					path.join(workspace, 'defaults.txt'),
+					'utf8'
+				);
+				const overrideContents = await fs.readFile(
+					path.join(workspace, 'overrides.txt'),
+					'utf8'
+				);
+
+				expect(defaultContents).toBe('default');
+				expect(overrideContents).toBe('override');
+			},
+			{ files: { 'overrides.txt': 'override' } }
+		);
+	});
+
+	it('respects the provided prefix', async () => {
+		const prefix = path.join(os.tmpdir(), 'workspace-runner-');
+		const runWithWorkspace = createWorkspaceRunner({
+			chdir: false,
+			prefix,
+		});
+
+		await runWithWorkspace(async (workspace) => {
+			expect(
+				path.basename(workspace).startsWith('workspace-runner-')
+			).toBe(true);
+			expect(path.dirname(workspace)).toBe(path.dirname(prefix));
+		});
 	});
 });

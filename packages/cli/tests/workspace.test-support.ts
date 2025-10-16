@@ -61,3 +61,30 @@ export async function withWorkspace(
 		await fs.rm(workspace, { recursive: true, force: true });
 	}
 }
+
+export function createWorkspaceRunner(
+	defaultOptions: WorkspaceOptions = {}
+): (
+	run: (workspace: string) => Promise<void>,
+	overrides?: WorkspaceOptions
+) => Promise<void> {
+	return async (run, overrides: WorkspaceOptions = {}): Promise<void> => {
+		const { files: defaultFiles, ...baseDefaults } = defaultOptions;
+		const { files: overrideFiles, ...baseOverrides } = overrides;
+
+		let files: WorkspaceOptions['files'];
+		if (overrideFiles === undefined) {
+			files = defaultFiles;
+		} else if (defaultFiles === undefined) {
+			files = overrideFiles;
+		} else {
+			files = { ...defaultFiles, ...overrideFiles };
+		}
+
+		await withWorkspace(run, {
+			...baseDefaults,
+			...baseOverrides,
+			files,
+		});
+	};
+}
