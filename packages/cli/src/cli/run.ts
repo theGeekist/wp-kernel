@@ -12,7 +12,6 @@ import {
 	InitCommand,
 	DoctorCommand,
 	StartCommand,
-	DevCommand,
 	BuildCommand,
 	ApplyCommand,
 } from '../commands';
@@ -46,7 +45,6 @@ cli.register(InitCommand);
 cli.register(DoctorCommand);
 cli.register(StartCommand);
 cli.register(BuildCommand);
-cli.register(DevCommand);
 cli.register(ApplyCommand);
 
 /**

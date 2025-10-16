@@ -3,12 +3,14 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import { execFile as execFileCallback } from 'node:child_process';
 import { promisify } from 'node:util';
-import { Writable } from 'node:stream';
-import type { BaseContext } from 'clipanion';
 import { ApplyCommand } from '../apply';
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
+import { assignCommandContext } from '../../../tests/cli-command.test-support';
+import { createWorkspaceRunner } from '../../../tests/workspace.test-support';
 
 const TMP_PREFIX = path.join(os.tmpdir(), 'wpk-apply-command-');
+
+const withWorkspace = createWorkspaceRunner({ prefix: TMP_PREFIX });
 
 const GUARDED_SOURCE = `<?php
 // WPK:BEGIN AUTO
@@ -615,24 +617,6 @@ return 'manual';
 	});
 });
 
-async function withWorkspace(
-	run: (workspace: string) => Promise<void>
-): Promise<void> {
-	const workspace = await fs.mkdtemp(TMP_PREFIX);
-
-	try {
-		const originalCwd = process.cwd();
-		process.chdir(workspace);
-		try {
-			await run(workspace);
-		} finally {
-			process.chdir(originalCwd);
-		}
-	} finally {
-		await fs.rm(workspace, { recursive: true, force: true });
-	}
-}
-
 async function writeGeneratedFile(
 	workspace: string,
 	relativePath: string,
@@ -659,40 +643,13 @@ async function ensureDirectory(directory: string): Promise<void> {
 
 function createCommand(workspace: string): ApplyCommand {
 	const command = new ApplyCommand();
-	const stdout = new MemoryStream();
-	const stderr = new MemoryStream();
-
-	command.context = {
-		stdout,
-		stderr,
-		stdin: process.stdin,
-		env: process.env,
-		cwd: () => workspace,
-		colorDepth: 1,
-	} as BaseContext;
+	assignCommandContext(command, { cwd: workspace });
 
 	command.yes = false;
 	command.backup = false;
 	command.force = false;
 
 	return command;
-}
-
-class MemoryStream extends Writable {
-	private readonly chunks: string[] = [];
-
-	override _write(
-		chunk: string | Buffer,
-		_encoding: BufferEncoding,
-		callback: (error?: Error | null) => void
-	): void {
-		this.chunks.push(chunk.toString());
-		callback();
-	}
-
-	override toString(): string {
-		return this.chunks.join('');
-	}
 }
 
 async function initGitRepository(): Promise<void> {

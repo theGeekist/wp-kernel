@@ -50,10 +50,8 @@ This scaffolds a Vite-ready plugin with kernel config, TypeScript/ESLint setup, 
 
 ## Development commands
 
-- `wpk start` watches kernel sources, regenerates artefacts on change, and launches the Vite dev server. Use `--verbose` for additional logging and `--auto-apply-php` to opt into the best-effort PHP copy used by the legacy `wpk dev` command.
+- `wpk start` watches kernel sources, regenerates artefacts on change, and launches the Vite dev server. Use `--verbose` for additional logging and `--auto-apply-php` to opt into the best-effort PHP copy pipeline when you also want PHP artefacts updated automatically.
 - `wpk build` performs a production pipeline in one go: `generate` → Vite `build` → `apply --yes`. Pass `--no-apply` when you want to review `.generated/**` + Vite output without touching `inc/`.
-
-The `start` command replaces `wpk dev`; the latter remains as a deprecated alias for backwards compatibility and prints a warning when invoked.
 
 ## Documentation
 
@@ -65,6 +63,18 @@ The `start` command replaces `wpk dev`; the latter remains as a deprecated alias
 - `tests/rule-tester.test-support.ts` exports `createRuleTester()` and fixture
   builders that keep ESLint rule suites aligned with the TypeScript parser and
   canonical config snippets.
+- `tests/reporter.test-support.ts` exposes `createReporterMock()` so suites can
+  assert reporter output without re-implementing Clipanion mocks.
+- `tests/memory-stream.test-support.ts` provides an in-memory writable stream
+  used by CLI command contexts.
+- `tests/async.test-support.ts` ships `flushAsync()` for draining queued tasks
+  and timers during async command assertions.
+- `tests/cli-command.test-support.ts` offers `createCommandContext()` plus
+  `assignCommandContext()` to wire stdout/stderr and env overrides onto
+  Clipanion commands.
+- `tests/workspace.test-support.ts` includes `withWorkspace()` for disposable
+  filesystem scaffolds and `createWorkspaceRunner()` to preconfigure prefixes or
+  default file layouts per suite.
 - Integration specs can import `runNodeSnippet()` from `@wpkernel/e2e-utils`
   to exercise CLI failure paths without maintaining bespoke process runners.
 
