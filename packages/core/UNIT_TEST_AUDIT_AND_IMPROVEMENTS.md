@@ -12,13 +12,12 @@
 - **Resource prefetch suites** – `define-prefetch.test.ts` bootstraps the shared harness, tears down globals when asserting missing `wp.data`, and reuses the same fixture for happy-path and guard clauses, reducing bespoke setup while preserving the legacy error expectations.【F:packages/core/src/resource/**tests**/define-prefetch.test.ts†L7-L200】
 - **Cache invalidation coverage** – The invalidate, invalidate-all, and edge-case suites now install the harness with overrideable dispatch/select mocks, keeping resolver assertions and reporter expectations while avoiding manual global bookkeeping.【F:packages/core/src/resource/**tests**/cache/invalidate.test.ts†L6-L118】【F:packages/core/src/resource/**tests**/cache/invalidate-all.test.ts†L6-L82】【F:packages/core/src/resource/**tests**/cache/edge-cases.test.ts†L29-L160】
 - **Client transport exercises** – The client API spec wires `createWordPressTestHarness()` for `apiFetch` and hook spies so transport assertions run against the canonical mock surface rather than ad-hoc `window.wp` shims.【F:packages/core/src/resource/**tests**/client.test.ts†L5-L160】
-- **Grouped API regression guard** – The grouped-store API suite leans on the harness to simulate resolver behavior, letting the table-driven expectations cover real selector fallbacks without permanent global mutations.【F:packages/core/src/resource/**tests**/store/grouped-api.test.ts†L7-L157】
+- **Grouped API regression guard** – The grouped-store API suite leans on the harness to simulate resolver behavior, letting the table-driven expectations cover real selector fallbacks without permanent global mutations, and now instantiates a real resource via the shared `defineTestResource()` helper to keep imports fully ESM-compliant.【F:packages/core/tests/resource.test-support.ts†L1-L118】【F:packages/core/src/resource/**tests**/store/grouped-api.test.ts†L7-L97】
 
 ## Risks & Opportunities
 
-- **Ad-hoc CommonJS require** – The grouped API suite still falls back to `require('../../define')` to avoid circular imports when instantiating a real resource for regression checks. Converting this to an ESM-safe helper would tighten module boundaries and remove the lint suppression.【F:packages/core/src/resource/**tests**/store/grouped-api.test.ts†L57-L86】
 - **Hooks passthrough ergonomics** – `createApiFetchHarness()` wraps hook overrides in jest mocks; if future tests need the raw WordPress hook signatures, an explicit type-safe adapter could make the relationship clearer.【F:packages/core/tests/wp-environment.test-support.ts†L207-L346】
 
 ## Recommended Follow-Ups
 
-- Replace the remaining `require()` usage in grouped API tests with an ESM-compatible helper exported from the resource module to keep linting and module resolution uniform.【F:packages/core/src/resource/**tests**/store/grouped-api.test.ts†L57-L86】
+- _None – audit items tracked above are complete._

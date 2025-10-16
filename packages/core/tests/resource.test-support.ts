@@ -1,6 +1,11 @@
 import { WPK_NAMESPACE } from '../src/contracts';
 import { createNoopReporter } from '../src/reporter';
-import type { ResourceObject, ListResponse } from '../src/resource/types';
+import type {
+	ResourceObject,
+	ListResponse,
+	ResourceConfig,
+} from '../src/resource/types';
+import { defineResource } from '../src/resource/define';
 import {
 	createWordPressTestHarness,
 	type WordPressHarnessOverrides,
@@ -41,6 +46,10 @@ export interface ResourceHarnessSetup {
 	createReduxStore: jest.Mock;
 	resolveSelect: jest.Mock;
 }
+
+export const defineTestResource = <T, TQuery>(
+	config: ResourceConfig<T, TQuery>
+) => defineResource<T, TQuery>(config);
 
 const clone = <T>(value: T): T => {
 	if (Array.isArray(value)) {
