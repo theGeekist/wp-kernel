@@ -6,10 +6,13 @@ import {
 	buildActionConfig,
 	renderActionScenario,
 	createAction,
+	createDataViewsTestController,
+	type DefaultActionInput,
 } from '../test-support/ResourceDataView.test-support';
 import { act } from 'react';
 import { KernelError } from '@wpkernel/core/error';
 import type { CacheKeyPattern } from '@wpkernel/core/resource';
+import type { ResourceDataViewActionConfig } from '../types';
 
 describe('ResourceDataView actions', () => {
 	beforeEach(() => {
@@ -372,6 +375,129 @@ describe('ResourceDataView actions', () => {
 				reason: 'empty-selection',
 			})
 		);
+	});
+
+	it('normalizes mixed selection flows via the controller helper', async () => {
+		type MixedItem = {
+			id: string | number;
+			slug?: string;
+			legacyId?: number;
+		};
+
+		const items: MixedItem[] = [
+			{ id: 1, slug: 'alpha' },
+			{ id: 2, slug: 'beta', legacyId: 22 },
+			{ id: 0 },
+			{ id: 'custom-3' },
+			{ id: 4, legacyId: 99 },
+			{ id: 5 },
+		];
+
+		const runtime = createKernelRuntime();
+		const actionImpl = jest.fn().mockResolvedValue({ ok: true });
+
+		type MixedActionConfig = ResourceDataViewActionConfig<
+			MixedItem,
+			DefaultActionInput,
+			unknown
+		>;
+
+		const buildMetaImpl = jest.fn(
+			({
+				selection,
+			}: Parameters<NonNullable<MixedActionConfig['buildMeta']>>[0]) => ({
+				selectionCount: selection.length,
+			})
+		);
+
+		const scenario = renderActionScenario<MixedItem>({
+			runtime,
+			items,
+			configOverrides: {
+				getItemId: (item: MixedItem) => {
+					if (item.slug) {
+						return `${item.slug}-slug`;
+					}
+					if (typeof item.legacyId === 'number') {
+						return `legacy-${item.legacyId}`;
+					}
+					if (typeof item.id === 'number') {
+						if (item.id === 5) {
+							return '';
+						}
+						return `num-${item.id}`;
+					}
+					if (typeof item.id === 'string') {
+						return item.id;
+					}
+					return '';
+				},
+			},
+			action: {
+				action: createAction(actionImpl, {
+					scope: 'crossTab',
+					bridged: true,
+				}),
+				buildMeta: ((context) =>
+					buildMetaImpl(context)) as MixedActionConfig['buildMeta'],
+			},
+		});
+
+		const controller = createDataViewsTestController(scenario);
+
+		const first = items[0]!;
+		const second = items[1]!;
+		const third = items[2]!;
+		const fourth = items[3]!;
+		const fifth = items[4]!;
+		const sixth = items[5]!;
+
+		controller.setSelection(['manual-only']);
+		controller.setSelectionFromItems([third, sixth]);
+
+		const mixedSelection = controller.getProps().selection ?? [];
+
+		controller.setSelection(['manual-only', ...mixedSelection, '42']);
+
+		await flushDataViews();
+
+		const [entry] = scenario.getActionEntries();
+		const onActionPerformed = jest.fn();
+
+		const selectedItems = [first, second, third, fourth, fifth, sixth];
+
+		await act(async () => {
+			await entry!.callback(selectedItems, {
+				onActionPerformed,
+			});
+		});
+
+		const expectedSelection = [
+			'alpha-slug',
+			'beta-slug',
+			'num-0',
+			'custom-3',
+			'legacy-99',
+		];
+
+		expect(actionImpl).toHaveBeenCalledWith({
+			selection: expectedSelection,
+		});
+		expect(buildMetaImpl).toHaveBeenCalledWith({
+			selection: expectedSelection,
+			items: selectedItems,
+		});
+		expect(
+			runtime.dataviews.events.actionTriggered
+		).toHaveBeenLastCalledWith(
+			expect.objectContaining({
+				actionId: 'delete',
+				permitted: true,
+				selection: expectedSelection,
+				meta: { selectionCount: expectedSelection.length },
+			})
+		);
+		expect(onActionPerformed).toHaveBeenCalledWith(selectedItems);
 	});
 
 	it('normalizes unexpected errors thrown by action callbacks', async () => {

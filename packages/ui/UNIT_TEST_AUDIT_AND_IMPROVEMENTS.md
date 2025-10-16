@@ -7,6 +7,7 @@
 - **Hooks exercise state matrices.** `useAction` relies on the kernel UI harness and a table-driven matrix to assert success, error, idle, and cancellation behaviour with consistent teardown between cases.【F:packages/ui/src/hooks/**tests**/useAction.test.tsx†L105-L218】
 - **Docs point contributors to the helpers.** The README and package AGENT call out the UI harness, DOM observer helper, and DataView test support so new suites adopt the shared surface by default.【F:packages/ui/README.md†L143-L155】【F:packages/ui/AGENTS.md†L9-L14】
 - **DataView interaction controller exported.** `createDataViewsTestController` now ships with the harness so future suites can mutate selection and view state without bespoke callback plumbing when covering mixed selection or pagination flows.【F:packages/ui/src/dataviews/test-support/ResourceDataView.test-support.tsx†L360-L461】【F:packages/ui/src/dataviews/test-support/**tests**/ResourceDataView.test-support.test.tsx†L76-L116】
+- **Mixed selection flows covered through the action harness.** The ResourceDataView action suite now drives selection via `createDataViewsTestController`, mixing manual and item-driven updates to assert action args, metadata, and event payloads stay normalized even when the UI selection contains stale identifiers.【F:packages/ui/src/dataviews/**tests**/ResourceDataView.actions.test.tsx†L1-L229】
 
 ## Quality signals
 
@@ -16,5 +17,4 @@
 
 ## Opportunities
 
-- **Expand scenario coverage for mixed selection flows.** Future suites could use the shared scenario helpers to simulate per-item metadata or staged bulk selections so branch coverage stays high as new features land.【F:packages/ui/src/dataviews/test-support/ResourceDataView.test-support.tsx†L162-L253】
 - **Expand fetch coverage beyond single-page cases.** Current fetch specs focus on direct resolve/reject flows with `useList` undefined; layering pagination or retry scenarios would exercise more branches if needed later.【F:packages/ui/src/dataviews/**tests**/ResourceDataView.fetch.test.tsx†L14-L88】
