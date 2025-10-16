@@ -7,7 +7,7 @@ import {
 	setProcessEnv,
 	setWpPluginData,
 	type WordPressData,
-} from '../wp.test-support.js';
+} from '../index.js';
 
 describe('test-utils/wp.test-support', () => {
 	const originalEnv = { ...process.env };

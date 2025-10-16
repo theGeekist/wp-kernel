@@ -14,10 +14,6 @@
 		"../../tests/**/*",
 		"../../packages/test-utils/src/**/*"
 	],
-	"files": [
-		"../../tests/test-utils/wp.test-support.ts",
-		"../../tests/test-utils/wp.ts"
-	],
 	"exclude": [
 		"node_modules",
 		"dist",
