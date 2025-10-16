@@ -1,7 +1,7 @@
 import type { LogLayerTransportParams } from '@loglayer/transport';
 import { createTransports } from '../transports';
 import { WPK_NAMESPACE } from '../../contracts';
-import { ensureWpData } from '@test-utils/wp';
+import { ensureWpData } from '@wpkernel/test-utils/wp';
 
 type TransportWithShipToLogger = {
 	shipToLogger: (p: LogLayerTransportParams) => unknown[];

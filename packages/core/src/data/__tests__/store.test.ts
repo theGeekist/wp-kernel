@@ -1,5 +1,5 @@
 import { registerKernelStore } from '../store';
-import { ensureWpData } from '@test-utils/wp';
+import { ensureWpData } from '@wpkernel/test-utils/wp';
 
 type TestState = { value: number };
 
