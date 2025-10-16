@@ -5,38 +5,44 @@
  * This is critical for WordPress compatibility - we must use window.wp.* globals.
  */
 
-import { readFileSync, existsSync } from 'fs';
+import { existsSync, readFileSync } from 'fs';
 import { resolve } from 'path';
 
-describe('Build: WordPress externals', () => {
-	const distPath = resolve(__dirname, '../../../dist');
+const distPath = resolve(__dirname, '../../../dist');
 
-	it('should have built the dist folder', () => {
+const requireDistFile = (relativePath: string) => {
+	const fullPath = resolve(distPath, relativePath);
+	if (!existsSync(fullPath)) {
+		throw new Error(`Missing dist/${relativePath} - run pnpm build first`);
+	}
+	return fullPath;
+};
+
+describe('Build: WordPress externals', () => {
+	let indexBundle: string;
+
+	beforeAll(() => {
+		const indexPath = requireDistFile('index.js');
+		indexBundle = readFileSync(indexPath, 'utf-8');
+	});
+
+	it('produces a dist folder', () => {
 		expect(existsSync(distPath)).toBe(true);
 	});
 
-	it('should not bundle @wordpress/* packages in index.js', () => {
-		const indexPath = resolve(distPath, 'index.js');
-		if (!existsSync(indexPath)) {
-			throw new Error('dist/index.js not found - run pnpm build first');
+	it.each([
+		'@wordpress/api-fetch',
+		'@wordpress/data',
+		'@wordpress/element',
+		'@wordpress/hooks',
+	])('keeps %s as an external dependency', (packageName) => {
+		expect(indexBundle).not.toContain(packageName);
+	});
+
+	it.each(['react-dom', 'createElement'])(
+		'does not inline %s APIs',
+		(symbol) => {
+			expect(indexBundle).not.toContain(symbol);
 		}
-
-		const indexBundle = readFileSync(indexPath, 'utf-8');
-
-		// These package contents should NOT appear in our bundle
-		// (we reference them as externals instead)
-		expect(indexBundle).not.toContain('@wordpress/api-fetch');
-		expect(indexBundle).not.toContain('@wordpress/data');
-		expect(indexBundle).not.toContain('@wordpress/element');
-		expect(indexBundle).not.toContain('@wordpress/hooks');
-	});
-
-	it('should not bundle React in index.js', () => {
-		const indexPath = resolve(distPath, 'index.js');
-		const indexBundle = readFileSync(indexPath, 'utf-8');
-
-		// React should also be external
-		expect(indexBundle).not.toContain('react-dom');
-		expect(indexBundle).not.toContain('createElement');
-	});
+	);
 });

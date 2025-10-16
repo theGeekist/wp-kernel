@@ -3,9 +3,12 @@ import { createReporter } from '../../reporter';
 import { kernelEventsPlugin } from '../../data/plugins/events';
 import { registerKernelStore } from '../../data/store';
 import type { KernelRegistry } from '../../data/types';
-import { ensureWpData } from '@test-utils/wp';
 import type { ActionErrorEvent } from '../../actions/types';
 import { KernelEventBus } from '../../events/bus';
+import {
+	createWordPressTestHarness,
+	type WordPressTestHarness,
+} from '../../../tests/wp-environment.test-support';
 
 function createActionErrorEvent(
 	overrides: Partial<ActionErrorEvent> = {}
@@ -24,38 +27,15 @@ function createActionErrorEvent(
 	};
 }
 
-describe('Integration: Kernel error reporting flow', () => {
-	let createNotice: jest.Mock;
-	let recordedHooks: Record<string, unknown[]>;
-	let actionHandlers: Map<
+function createRecordingHooks() {
+	const recordedHooks: Record<string, unknown[]> = {};
+	const actionHandlers = new Map<
 		string,
 		Map<string, (payload: ActionErrorEvent) => void>
-	>;
-	let originalConsoleError: typeof console.error;
+	>();
 
-	beforeEach(() => {
-		const wpData = ensureWpData();
-		createNotice = jest.fn();
-		wpData.createReduxStore.mockReturnValue({
-			name: 'wpk/integration-store',
-		});
-		wpData.dispatch.mockImplementation((storeName: string) => {
-			if (storeName === 'core/notices') {
-				return { createNotice };
-			}
-			return {};
-		});
-
-		recordedHooks = {};
-		actionHandlers = new Map();
-
-		if (!window.wp?.hooks) {
-			throw new Error(
-				'window.wp.hooks not initialized for integration test'
-			);
-		}
-
-		window.wp.hooks.addAction = jest
+	const hooks = {
+		addAction: jest
 			.fn()
 			.mockImplementation(
 				(
@@ -68,9 +48,8 @@ describe('Integration: Kernel error reporting flow', () => {
 					namespaceMap.set(namespace, handler);
 					actionHandlers.set(hookName, namespaceMap);
 				}
-			);
-
-		window.wp.hooks.removeAction = jest
+			),
+		removeAction: jest
 			.fn()
 			.mockImplementation((hookName: string, namespace: string) => {
 				const namespaceMap = actionHandlers.get(hookName);
@@ -81,9 +60,8 @@ describe('Integration: Kernel error reporting flow', () => {
 				if (namespaceMap.size === 0) {
 					actionHandlers.delete(hookName);
 				}
-			});
-
-		window.wp.hooks.doAction = jest
+			}),
+		doAction: jest
 			.fn()
 			.mockImplementation((hookName: string, payload: unknown) => {
 				const namespaceMap = actionHandlers.get(hookName);
@@ -93,7 +71,35 @@ describe('Integration: Kernel error reporting flow', () => {
 					);
 				}
 				(recordedHooks[hookName] ||= []).push(payload);
-			});
+			}),
+	} satisfies Partial<NonNullable<Window['wp']>['hooks']>;
+
+	return { hooks, recordedHooks };
+}
+
+describe('Integration: Kernel error reporting flow', () => {
+	let harness: WordPressTestHarness;
+	let createNotice: jest.Mock;
+	let recordedHooks: Record<string, unknown[]>;
+	let originalConsoleError: typeof console.error;
+
+	beforeEach(() => {
+		const recording = createRecordingHooks();
+		recordedHooks = recording.recordedHooks;
+
+		harness = createWordPressTestHarness({ hooks: recording.hooks });
+
+		const wpData = harness.data;
+		createNotice = jest.fn();
+		wpData.createReduxStore.mockReturnValue({
+			name: 'wpk/integration-store',
+		});
+		wpData.dispatch.mockImplementation((storeName: string) => {
+			if (storeName === 'core/notices') {
+				return { createNotice };
+			}
+			return {};
+		});
 
 		originalConsoleError = console.error;
 		console.error = jest.fn();
@@ -102,10 +108,11 @@ describe('Integration: Kernel error reporting flow', () => {
 	afterEach(() => {
 		console.error = originalConsoleError;
 		jest.restoreAllMocks();
+		harness.teardown();
 	});
 
 	it('creates notices and reporter output when action errors are emitted', () => {
-		const registry = ensureWpData() as unknown as KernelRegistry;
+		const registry = harness.data as unknown as KernelRegistry;
 
 		type IntegrationState = Record<string, never>;
 		type IntegrationActions = {

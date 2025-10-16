@@ -4,87 +4,70 @@
  * Ensures the build output has the expected structure and file organization.
  */
 
-import { statSync, existsSync } from 'fs';
+import { existsSync, statSync } from 'fs';
 import { resolve } from 'path';
 
-describe('Build: Output structure', () => {
-	const distPath = resolve(__dirname, '../../../dist');
+const distPath = resolve(__dirname, '../../../dist');
 
-	it('should have dist folder', () => {
-		expect(existsSync(distPath)).toBe(true);
-		expect(statSync(distPath).isDirectory()).toBe(true);
+const expectPathExists = (relativePath: string) => {
+	const fullPath = resolve(distPath, relativePath);
+	expect(existsSync(fullPath)).toBe(true);
+	return fullPath;
+};
+
+const expectDirectory = (relativePath: string) => {
+	const fullPath = expectPathExists(relativePath);
+	expect(statSync(fullPath).isDirectory()).toBe(true);
+};
+
+describe('Build: Output structure', () => {
+	it('creates the dist directory', () => {
+		expectDirectory('.');
 	});
 
 	describe('Entry points', () => {
-		it('should have all entry point files', () => {
-			const entryPoints = [
-				'index.js',
-				'http.js',
-				'resource.js',
-				'error.js',
-			];
-
-			entryPoints.forEach((entry) => {
-				const filePath = resolve(distPath, entry);
-				expect(existsSync(filePath)).toBe(true);
-			});
-		});
+		it.each(['index.js', 'http.js', 'resource.js', 'error.js'])(
+			'includes %s',
+			(entryPoint) => {
+				expectPathExists(entryPoint);
+			}
+		);
 	});
 
-	describe('Preserved modules structure', () => {
-		it('should have resource subdirectory', () => {
-			const resourceDir = resolve(distPath, 'resource');
-			expect(existsSync(resourceDir)).toBe(true);
-			expect(statSync(resourceDir).isDirectory()).toBe(true);
-		});
+	describe('Preserved module structure', () => {
+		it.each(['resource', 'error', 'http'])(
+			'keeps %s directory',
+			(directory) => {
+				expectDirectory(directory);
+			}
+		);
 
-		it('should have error subdirectory', () => {
-			const errorDir = resolve(distPath, 'error');
-			expect(existsSync(errorDir)).toBe(true);
-			expect(statSync(errorDir).isDirectory()).toBe(true);
-		});
-
-		it('should have http subdirectory', () => {
-			const httpDir = resolve(distPath, 'http');
-			expect(existsSync(httpDir)).toBe(true);
-			expect(statSync(httpDir).isDirectory()).toBe(true);
-		});
-
-		it('should preserve internal module files', () => {
-			const internalFiles = [
-				'resource/define.js',
-				'resource/store.js',
-				'resource/cache.js',
-				'error/KernelError.js',
-				'http/fetch.js',
-			];
-
-			internalFiles.forEach((file) => {
-				const filePath = resolve(distPath, file);
-				expect(existsSync(filePath)).toBe(true);
-			});
+		it.each([
+			'resource/define.js',
+			'resource/store.js',
+			'resource/cache.js',
+			'error/KernelError.js',
+			'http/fetch.js',
+		])('keeps %s file', (filePath) => {
+			expectPathExists(filePath);
 		});
 	});
 
 	describe('Package.json compliance', () => {
-		it('should match exports paths from package.json', () => {
-			// Check main export
-			expect(existsSync(resolve(distPath, 'index.js'))).toBe(true);
-			expect(existsSync(resolve(distPath, 'index.d.ts'))).toBe(true);
-
-			// Check subpath exports (accounting for /index.js in exports map)
-			expect(
-				existsSync(resolve(distPath, 'http')) ||
-					existsSync(resolve(distPath, 'http.js'))
-			).toBe(true);
-			expect(
-				existsSync(resolve(distPath, 'resource')) ||
-					existsSync(resolve(distPath, 'resource.js'))
-			).toBe(true);
-			expect(
-				existsSync(resolve(distPath, 'error')) ||
-					existsSync(resolve(distPath, 'error.js'))
-			).toBe(true);
+		it('ships main entry points and declarations', () => {
+			expectPathExists('index.js');
+			expectPathExists('index.d.ts');
 		});
+
+		it.each(['http', 'resource', 'error'])(
+			'exposes %s subpath export',
+			(subpath) => {
+				const directory = resolve(distPath, subpath);
+				const file = `${subpath}.js`;
+				expect(
+					existsSync(directory) || existsSync(resolve(distPath, file))
+				).toBe(true);
+			}
+		);
 	});
 });

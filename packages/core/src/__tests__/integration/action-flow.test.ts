@@ -12,8 +12,17 @@
 
 import { defineAction } from '../../actions/define';
 import type { ActionConfig, ActionOptions } from '../../actions/types';
+import {
+	withActionRuntimeOverrides,
+	type ActionRuntimeOverrides,
+} from '../../../tests/action-runtime.test-support';
+import {
+	createWordPressTestHarness,
+	type WordPressTestHarness,
+} from '../../../tests/wp-environment.test-support';
 import { defineResource } from '../../resource/define';
 import * as cache from '../../resource/cache';
+import { KernelError } from '../../error/index';
 
 function createAction<TArgs = void, TResult = void>(
 	name: string,
@@ -24,32 +33,144 @@ function createAction<TArgs = void, TResult = void>(
 }
 
 describe('Action Flow Integration', () => {
+	let harness: WordPressTestHarness;
 	let mockApiFetch: jest.Mock;
 	let mockDoAction: jest.Mock;
 
 	beforeEach(() => {
-		mockApiFetch = jest.fn();
-		mockDoAction = jest.fn();
+		harness = createWordPressTestHarness({
+			apiFetch: jest.fn(),
+			hooks: { doAction: jest.fn() },
+		});
 
-		const windowWithWp = window as Window & {
-			wp?: {
-				data?: unknown;
-				apiFetch?: jest.Mock;
-				hooks?: { doAction: jest.Mock };
-			};
-		};
-
-		const existingWp = windowWithWp.wp || {};
-		(window as unknown as { wp?: unknown }).wp = {
-			...existingWp,
-			data: existingWp.data,
-			apiFetch: mockApiFetch as unknown,
-			hooks: { doAction: mockDoAction } as unknown,
-		};
+		mockApiFetch = harness.wp.apiFetch as unknown as jest.Mock;
+		mockDoAction = harness.wp.hooks?.doAction as unknown as jest.Mock;
 	});
 
 	afterEach(() => {
-		jest.clearAllMocks();
+		harness.teardown();
+	});
+
+	describe('scope resolution matrix', () => {
+		const originalBroadcastChannel = global.BroadcastChannel;
+		const originalWindowBroadcastChannel = window.BroadcastChannel;
+
+		afterEach(() => {
+			global.BroadcastChannel = originalBroadcastChannel;
+			if (originalWindowBroadcastChannel === undefined) {
+				delete (
+					window as { BroadcastChannel?: typeof BroadcastChannel }
+				).BroadcastChannel;
+			} else {
+				window.BroadcastChannel = originalWindowBroadcastChannel;
+			}
+		});
+
+		const scenarios: Array<{
+			title: string;
+			options?: ActionOptions;
+			expectBridge: boolean;
+			expectScope: 'crossTab' | 'tabLocal';
+			expectBroadcast: boolean;
+		}> = [
+			{
+				title: 'defaults to cross-tab bridged actions',
+				options: undefined,
+				expectBridge: true,
+				expectScope: 'crossTab',
+				expectBroadcast: true,
+			},
+			{
+				title: 'supports cross-tab scope without bridging',
+				options: { scope: 'crossTab', bridged: false },
+				expectBridge: false,
+				expectScope: 'crossTab',
+				expectBroadcast: false,
+			},
+			{
+				title: 'keeps tab-local actions unbridged',
+				options: { scope: 'tabLocal' },
+				expectBridge: false,
+				expectScope: 'tabLocal',
+				expectBroadcast: false,
+			},
+		];
+
+		it.each(scenarios)(
+			'%s',
+			async ({ options, expectBridge, expectScope, expectBroadcast }) => {
+				const channelInstances: Array<{
+					postMessage: jest.Mock;
+					close: jest.Mock;
+				}> = [];
+				const broadcastFactory = jest.fn(() => {
+					const instance = {
+						postMessage: jest.fn(),
+						close: jest.fn(),
+					};
+					channelInstances.push(instance);
+					return instance;
+				});
+				global.BroadcastChannel =
+					broadcastFactory as unknown as typeof global.BroadcastChannel;
+				window.BroadcastChannel =
+					broadcastFactory as unknown as typeof window.BroadcastChannel;
+
+				const resource = defineResource<{ id: number; title: string }>({
+					name: 'thing',
+					routes: {
+						create: { path: '/wpk/v1/things', method: 'POST' },
+					},
+				});
+
+				const createdThing = { id: 42, title: 'Created' };
+				mockApiFetch.mockResolvedValue(createdThing);
+
+				const CreateThing = createAction<
+					{ data: { title: string } },
+					{ id: number; title: string }
+				>(
+					'Thing.Create.Scope',
+					async (ctx, { data }) => {
+						const created = await resource.create!(data);
+						ctx.emit(resource.events!.created, {
+							id: created.id,
+						});
+						return created;
+					},
+					options
+				);
+
+				await CreateThing({ data: { title: 'Created' } });
+
+				expect(mockDoAction).toHaveBeenCalledWith(
+					'wpk.action.start',
+					expect.objectContaining({
+						actionName: 'Thing.Create.Scope',
+						scope: expectScope,
+						bridged: expectBridge,
+					})
+				);
+
+				const domainEvent = mockDoAction.mock.calls.find(
+					([eventName]) => eventName === resource.events!.created
+				);
+				expect(domainEvent).toBeDefined();
+
+				if (expectBroadcast) {
+					expect(broadcastFactory).toHaveBeenCalled();
+					expect(
+						channelInstances[0]?.postMessage
+					).toHaveBeenCalledWith(
+						expect.objectContaining({
+							event: resource.events!.created,
+						})
+					);
+				} else {
+					expect(broadcastFactory).not.toHaveBeenCalled();
+				}
+			}
+		);
 	});
 
 	it('executes resource create flow and emits canonical events', async () => {
@@ -144,47 +265,94 @@ describe('Action Flow Integration', () => {
 		);
 	});
 
-	it('integrates with policy enforcement', async () => {
-		const resource = defineResource<{ id: number; title: string }>({
-			name: 'thing',
-			routes: {
-				update: { path: '/wpk/v1/things/:id', method: 'PUT' },
+	describe('policy enforcement matrix', () => {
+		const scenarios: Array<{
+			title: string;
+			overrides: ActionRuntimeOverrides;
+			expectRejection: boolean;
+		}> = [
+			{
+				title: 'allows action when runtime grants capability',
+				overrides: {
+					policy: {
+						assert: jest.fn(),
+						can: jest.fn().mockResolvedValue(true),
+					},
+				},
+				expectRejection: false,
 			},
-		});
-
-		let policyCalled = false;
-		const mockPolicy = {
-			assert: (capability: string) => {
-				policyCalled = true;
-				expect(capability).toBe('edit_things');
-				// Don't throw - allow the action to proceed
+			{
+				title: 'surfaces denial when runtime throws',
+				overrides: {
+					policy: {
+						assert: jest.fn(() => {
+							throw new KernelError('PolicyDenied', {
+								message: 'denied',
+							});
+						}),
+						can: jest.fn().mockResolvedValue(false),
+					},
+				},
+				expectRejection: true,
 			},
-			can: () => true,
-		};
+		];
 
-		// Set up runtime with custom policy
-		(globalThis as any).__WP_KERNEL_ACTION_RUNTIME__ = {
-			policy: mockPolicy,
-		};
+		it.each(scenarios)('%s', async ({ overrides, expectRejection }) => {
+			const resource = defineResource<{ id: number; title: string }>({
+				name: 'thing',
+				routes: {
+					update: { path: '/wpk/v1/things/:id', method: 'PUT' },
+				},
+			});
 
-		mockApiFetch.mockResolvedValue({ id: 1, title: 'Updated' });
+			const UpdateThing = createAction<
+				{ id: number; updates: { title: string } },
+				{ id: number; title: string }
+			>('Thing.Update.Policy', async (ctx, { id, updates }) => {
+				ctx.policy.assert('edit_things', undefined);
+				const result = await resource.update!(id, updates);
+				ctx.invalidate([`thing:${id}`, 'list']);
+				return result;
+			});
 
-		const UpdateThing = createAction<
-			{ id: number; updates: { title: string } },
-			{ id: number; title: string }
-		>('Thing.Update', async (ctx, { id, updates }) => {
-			ctx.policy.assert('edit_things', undefined);
-			const result = await resource.update!(id, updates);
-			ctx.invalidate([`thing:${id}`, 'list']);
-			return result;
+			mockApiFetch.mockResolvedValue({ id: 1, title: 'Updated' });
+
+			const invocation = withActionRuntimeOverrides(overrides, () =>
+				UpdateThing({ id: 1, updates: { title: 'Updated' } })
+			);
+
+			if (expectRejection) {
+				await expect(invocation).rejects.toMatchObject({
+					message: 'denied',
+				});
+				expect(mockApiFetch).not.toHaveBeenCalled();
+				expect(mockDoAction).toHaveBeenCalledWith(
+					'wpk.action.error',
+					expect.objectContaining({
+						actionName: 'Thing.Update.Policy',
+						phase: 'error',
+					})
+				);
+			} else {
+				await expect(invocation).resolves.toEqual({
+					id: 1,
+					title: 'Updated',
+				});
+				expect(mockApiFetch).toHaveBeenCalledWith({
+					path: '/wpk/v1/things/1',
+					method: 'PUT',
+					data: { title: 'Updated' },
+					parse: true,
+				});
+				expect(mockDoAction).toHaveBeenCalledWith(
+					'wpk.action.complete',
+					expect.objectContaining({
+						actionName: 'Thing.Update.Policy',
+						result: { id: 1, title: 'Updated' },
+					})
+				);
+			}
 		});
-
-		await UpdateThing({ id: 1, updates: { title: 'Updated' } });
-
-		expect(policyCalled).toBe(true);
-
-		// Cleanup
-		delete (globalThis as any).__WP_KERNEL_ACTION_RUNTIME__;
 	});
 
 	it('integrates with background jobs', async () => {
@@ -195,19 +363,18 @@ describe('Action Flow Integration', () => {
 			},
 		});
 
-		let jobEnqueued = false;
-		const mockJobs = {
-			enqueue: async (jobName: string, payload: any) => {
-				jobEnqueued = true;
-				expect(jobName).toBe('ProcessNewThing');
-				expect(payload).toEqual({ thingId: 42 });
-			},
-			wait: async () => ({}),
-		};
+		const enqueueJob = jest.fn(async (jobName: string, payload: any) => {
+			expect(jobName).toBe('ProcessNewThing');
+			expect(payload).toEqual({ thingId: 42 });
+		});
 
-		// Set up runtime with custom jobs
-		(globalThis as any).__WP_KERNEL_ACTION_RUNTIME__ = {
-			jobs: mockJobs,
+		const overrides: ActionRuntimeOverrides = {
+			runtime: {
+				jobs: {
+					enqueue: enqueueJob,
+					wait: jest.fn().mockResolvedValue({}),
+				},
+			},
 		};
 
 		const createdThing = { id: 42, title: 'Created' };
@@ -222,47 +389,12 @@ describe('Action Flow Integration', () => {
 			return created;
 		});
 
-		await CreateThing({ data: { title: 'Created' } });
+		await withActionRuntimeOverrides(overrides, () =>
+			CreateThing({ data: { title: 'Created' } })
+		);
 
-		expect(jobEnqueued).toBe(true);
-
-		// Cleanup
-		delete (globalThis as any).__WP_KERNEL_ACTION_RUNTIME__;
-	});
-
-	it('respects tab-local scope configuration', async () => {
-		const resource = defineResource<{ id: number; title: string }>({
-			name: 'thing',
-			routes: {
-				create: { path: '/wpk/v1/things', method: 'POST' },
-			},
+		expect(enqueueJob).toHaveBeenCalledWith('ProcessNewThing', {
+			thingId: 42,
 		});
-
-		const createdThing = { id: 42, title: 'Created' };
-		mockApiFetch.mockResolvedValue(createdThing);
-
-		const CreateThing = createAction<
-			{ data: { title: string } },
-			{ id: number; title: string }
-		>(
-			'Thing.CreateLocal',
-			async (_ctx, { data }) => {
-				const created = await resource.create!(data);
-				return created;
-			},
-			{ scope: 'tabLocal' }
-		);
-
-		await CreateThing({ data: { title: 'Created' } });
-
-		// Verify lifecycle events still emitted
-		expect(mockDoAction).toHaveBeenCalledWith(
-			'wpk.action.start',
-			expect.objectContaining({
-				actionName: 'Thing.CreateLocal',
-				scope: 'tabLocal',
-				bridged: false, // tab-local actions are not bridged by default
-			})
-		);
 	});
 });
