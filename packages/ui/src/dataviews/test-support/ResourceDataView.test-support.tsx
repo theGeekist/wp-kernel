@@ -1,13 +1,18 @@
-import { act, type ComponentProps } from 'react';
+import { act, type ComponentProps, type ReactNode } from 'react';
 import { render, type RenderResult } from '@testing-library/react';
 import { DataViews } from '@wordpress/dataviews';
 import { KernelUIProvider } from '../../runtime/context';
 import type { KernelUIRuntime } from '@wpkernel/core/data';
 import type { DefinedAction } from '@wpkernel/core/actions';
 import type { Reporter } from '@wpkernel/core/reporter';
-import type { ResourceObject } from '@wpkernel/core/resource';
-import type { ResourceDataViewConfig } from '../types';
+import type { ListResponse, ResourceObject } from '@wpkernel/core/resource';
+import type {
+	DataViewsRuntimeContext,
+	ResourceDataViewConfig,
+	ResourceDataViewController,
+} from '../types';
 import { KernelError } from '@wpkernel/core/contracts';
+import { ResourceDataView } from '../ResourceDataView';
 
 jest.mock('@wordpress/dataviews', () => {
 	const mockComponent = jest.fn(() => null);
@@ -90,7 +95,7 @@ export function createKernelRuntime(): RuntimeWithDataViews {
 export function renderWithProvider(
 	ui: React.ReactElement,
 	runtime: KernelUIRuntime
-): RenderResult {
+): RenderResult & { rerenderWithProvider: (next: React.ReactElement) => void } {
 	let result: RenderResult | undefined;
 	act(() => {
 		result = render(
@@ -104,7 +109,15 @@ export function renderWithProvider(
 		});
 	}
 
-	return result;
+	const rerenderWithProvider = (next: React.ReactElement) => {
+		act(() => {
+			result!.rerender(
+				<KernelUIProvider runtime={runtime}>{next}</KernelUIProvider>
+			);
+		});
+	};
+
+	return Object.assign(result, { rerenderWithProvider });
 }
 
 export function createAction(
@@ -159,4 +172,85 @@ export function getLastDataViewsProps(): ComponentProps<typeof DataViews> {
 		});
 	}
 	return lastCall[0] as ComponentProps<typeof DataViews>;
+}
+
+export type ResourceDataViewTestProps<TItem, TQuery> = {
+	resource?: ResourceObject<TItem, TQuery>;
+	config?: ResourceDataViewConfig<TItem, TQuery>;
+	controller?: ResourceDataViewController<TItem, TQuery>;
+	runtime?: KernelUIRuntime | DataViewsRuntimeContext;
+	fetchList?: (query: TQuery) => Promise<ListResponse<TItem>>;
+	emptyState?: ReactNode;
+};
+
+interface RenderResourceDataViewOptions<TItem, TQuery> {
+	runtime?: RuntimeWithDataViews;
+	resource?: ResourceObject<TItem, TQuery>;
+	config?: ResourceDataViewConfig<TItem, TQuery>;
+	props?: Partial<ResourceDataViewTestProps<TItem, TQuery>>;
+}
+
+type RenderResourceDataViewResult<TItem, TQuery> = {
+	runtime: RuntimeWithDataViews;
+	resource: ResourceObject<TItem, TQuery>;
+	config: ResourceDataViewConfig<TItem, TQuery>;
+	props: ResourceDataViewTestProps<TItem, TQuery>;
+	rerender: (
+		nextProps?: Partial<ResourceDataViewTestProps<TItem, TQuery>>
+	) => void;
+	renderResult: ReturnType<typeof renderWithProvider>;
+	getDataViewProps: () => ComponentProps<typeof DataViews>;
+};
+
+export async function flushDataViews(iterations = 1) {
+	await act(async () => {
+		for (let index = 0; index < iterations; index += 1) {
+			await Promise.resolve();
+		}
+	});
+}
+
+export function renderResourceDataView<TItem, TQuery>(
+	options: RenderResourceDataViewOptions<TItem, TQuery> = {}
+): RenderResourceDataViewResult<TItem, TQuery> {
+	const runtime = options.runtime ?? createKernelRuntime();
+	const resource = (options.resource ??
+		createResource<TItem, TQuery>({})) as ResourceObject<TItem, TQuery>;
+	const config = (options.config ??
+		createConfig<TItem, TQuery>({})) as ResourceDataViewConfig<
+		TItem,
+		TQuery
+	>;
+
+	const baseProps: ResourceDataViewTestProps<TItem, TQuery> = {
+		resource,
+		config,
+		...(options.props as
+			| ResourceDataViewTestProps<TItem, TQuery>
+			| undefined),
+	};
+
+	const renderResult = renderWithProvider(
+		<ResourceDataView {...baseProps} />,
+		runtime
+	);
+
+	const rerender = (
+		nextProps?: Partial<ResourceDataViewTestProps<TItem, TQuery>>
+	) => {
+		if (nextProps) {
+			Object.assign(baseProps, nextProps);
+		}
+		renderResult.rerenderWithProvider(<ResourceDataView {...baseProps} />);
+	};
+
+	return {
+		runtime,
+		resource,
+		config,
+		props: baseProps,
+		rerender,
+		renderResult,
+		getDataViewProps: () => getLastDataViewsProps(),
+	};
 }

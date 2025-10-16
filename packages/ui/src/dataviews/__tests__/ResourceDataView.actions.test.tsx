@@ -1,17 +1,108 @@
 import {
 	DataViewsMock,
 	createKernelRuntime,
-	renderWithProvider,
 	createResource,
 	createAction,
 	type RuntimeWithDataViews,
 	createConfig,
-	getLastDataViewsProps,
+	renderResourceDataView,
+	flushDataViews,
+	type ResourceDataViewTestProps,
 } from '../test-support/ResourceDataView.test-support';
 import { act } from 'react';
-import { ResourceDataView } from '../ResourceDataView';
 import { KernelError } from '@wpkernel/core/error';
-import type { CacheKeyPattern } from '@wpkernel/core/resource';
+import type { CacheKeyPattern, ResourceObject } from '@wpkernel/core/resource';
+import type {
+	ResourceDataViewActionConfig,
+	ResourceDataViewConfig,
+} from '../types';
+
+type ListItem = { id: number };
+type ListQuery = { search?: string };
+
+type TestActionConfig = ResourceDataViewActionConfig<
+	ListItem,
+	unknown,
+	unknown
+>;
+
+const defaultItems: ListItem[] = [{ id: 1 }];
+
+function buildListResource(
+	items: ListItem[] = defaultItems,
+	overrides: Partial<ResourceObject<ListItem, ListQuery>> = {}
+): ResourceObject<ListItem, ListQuery> {
+	const { useList, ...rest } = overrides;
+	const listResolver =
+		useList ??
+		jest.fn(() => ({
+			data: { items, total: items.length },
+			isLoading: false,
+			error: undefined,
+		}));
+
+	return createResource<ListItem, ListQuery>({
+		useList: listResolver as ResourceObject<ListItem, ListQuery>['useList'],
+		...rest,
+	});
+}
+
+function buildActionConfig(
+	overrides: Partial<TestActionConfig> = {}
+): TestActionConfig {
+	return {
+		id: 'delete',
+		action: createAction(jest.fn(), {
+			scope: 'crossTab',
+			bridged: true,
+		}),
+		label: 'Delete',
+		supportsBulk: true,
+		getActionArgs: ({ selection }) => ({ selection }),
+		...overrides,
+	} as TestActionConfig;
+}
+
+interface RenderActionScenarioOptions {
+	runtime?: RuntimeWithDataViews;
+	items?: ListItem[];
+	resource?: ResourceObject<ListItem, ListQuery>;
+	resourceOverrides?: Partial<ResourceObject<ListItem, ListQuery>>;
+	action?: Partial<TestActionConfig>;
+	actions?: TestActionConfig[];
+	configOverrides?: Partial<ResourceDataViewConfig<ListItem, ListQuery>>;
+	props?: Partial<ResourceDataViewTestProps<ListItem, ListQuery>>;
+}
+
+function renderActionScenario(options: RenderActionScenarioOptions = {}) {
+	const runtime = options.runtime ?? createKernelRuntime();
+	const resource =
+		options.resource ??
+		buildListResource(options.items, options.resourceOverrides ?? {});
+	const actions = options.actions ?? [
+		buildActionConfig(options.action ?? {}),
+	];
+	const config = createConfig<ListItem, ListQuery>({
+		actions,
+		...(options.configOverrides as Partial<
+			ResourceDataViewConfig<ListItem, ListQuery>
+		>),
+	});
+	const view = renderResourceDataView<ListItem, ListQuery>({
+		runtime,
+		resource,
+		config,
+		props: options.props,
+	});
+
+	return {
+		...view,
+		runtime,
+		resource,
+		config,
+		getActionEntries: () => getActionMocks(view.getDataViewProps),
+	};
+}
 
 type DataViewActionMock = {
 	callback: (
@@ -21,8 +112,10 @@ type DataViewActionMock = {
 	disabled?: boolean;
 };
 
-function getActionMocks(): DataViewActionMock[] {
-	const props = getLastDataViewsProps();
+function getActionMocks(
+	getDataViewProps: () => { actions?: unknown }
+): DataViewActionMock[] {
+	const props = getDataViewProps();
 	return (props.actions ?? []) as unknown as DataViewActionMock[];
 }
 
@@ -32,46 +125,20 @@ describe('ResourceDataView actions', () => {
 	});
 
 	it('executes actions and invalidates caches', async () => {
-		const runtime = createKernelRuntime();
 		const actionImpl = jest.fn().mockResolvedValue({ ok: true });
-		const deleteAction = createAction(actionImpl, {
-			scope: 'crossTab',
-			bridged: true,
-		});
-
 		const resourceInvalidate = jest.fn();
-		const resource = createResource<{ id: number }, { search?: string }>({
-			useList: jest.fn(() => ({
-				data: { items: [{ id: 1 }, { id: 2 }], total: 2 },
-				isLoading: false,
-				error: undefined,
-			})),
-			invalidate: resourceInvalidate,
+		const { runtime, getActionEntries } = renderActionScenario({
+			items: [{ id: 1 }, { id: 2 }],
+			action: {
+				action: createAction(actionImpl, {
+					scope: 'crossTab',
+					bridged: true,
+				}),
+			},
+			resourceOverrides: { invalidate: resourceInvalidate },
 		});
 
-		const config = createConfig<{ id: number }, { search?: string }>({
-			actions: [
-				{
-					id: 'delete',
-					action: deleteAction,
-					label: 'Delete',
-					supportsBulk: true,
-					getActionArgs: ({ selection }) => ({ selection }),
-				},
-			],
-		});
-
-		renderWithProvider(
-			<ResourceDataView resource={resource} config={config} />,
-			runtime
-		);
-
-		const props = getLastDataViewsProps();
-		const actions = props.actions as unknown as Array<{
-			callback: (items: unknown[], context: unknown) => Promise<unknown>;
-		}>;
-		expect(actions).toHaveLength(1);
-		const [firstAction] = actions;
+		const [firstAction] = getActionEntries();
 		expect(firstAction).toBeDefined();
 
 		await act(async () => {
@@ -100,41 +167,17 @@ describe('ResourceDataView actions', () => {
 			},
 		} as unknown as RuntimeWithDataViews['policies'];
 
-		const resource = createResource<{ id: number }, { search?: string }>({
-			useList: jest.fn(() => ({
-				data: { items: [{ id: 1 }], total: 1 },
-				isLoading: false,
-				error: undefined,
-			})),
+		const { getActionEntries } = renderActionScenario({
+			runtime,
+			action: {
+				policy: 'jobs.delete',
+				disabledWhenDenied: true,
+			},
 		});
 
-		const config = createConfig<{ id: number }, { search?: string }>({
-			actions: [
-				{
-					id: 'delete',
-					action: createAction(jest.fn(), {
-						scope: 'crossTab',
-						bridged: true,
-					}),
-					label: 'Delete',
-					supportsBulk: true,
-					disabledWhenDenied: true,
-					policy: 'jobs.delete',
-					getActionArgs: ({ selection }) => ({ selection }),
-				},
-			],
-		});
+		await flushDataViews();
 
-		renderWithProvider(
-			<ResourceDataView resource={resource} config={config} />,
-			runtime
-		);
-
-		await act(async () => {
-			await Promise.resolve();
-		});
-
-		const actions = getActionMocks();
+		const actions = getActionEntries();
 		expect(actions).toHaveLength(1);
 		expect(actions[0]?.disabled).toBe(true);
 		expect(policyCan).toHaveBeenCalledWith('jobs.delete');
@@ -148,41 +191,17 @@ describe('ResourceDataView actions', () => {
 			},
 		} as unknown as RuntimeWithDataViews['policies'];
 
-		const resource = createResource<{ id: number }, { search?: string }>({
-			useList: jest.fn(() => ({
-				data: { items: [{ id: 1 }], total: 1 },
-				isLoading: false,
-				error: undefined,
-			})),
+		const { getDataViewProps } = renderActionScenario({
+			runtime,
+			action: {
+				policy: 'jobs.delete',
+				disabledWhenDenied: false,
+			},
 		});
 
-		const config = createConfig<{ id: number }, { search?: string }>({
-			actions: [
-				{
-					id: 'delete',
-					action: createAction(jest.fn(), {
-						scope: 'crossTab',
-						bridged: true,
-					}),
-					label: 'Delete',
-					supportsBulk: true,
-					policy: 'jobs.delete',
-					getActionArgs: ({ selection }) => ({ selection }),
-				},
-			],
-		});
+		await flushDataViews();
 
-		renderWithProvider(
-			<ResourceDataView resource={resource} config={config} />,
-			runtime
-		);
-
-		await act(async () => {
-			await Promise.resolve();
-		});
-
-		const props = getLastDataViewsProps();
-		expect(props.actions).toEqual([]);
+		expect(getDataViewProps().actions).toEqual([]);
 	});
 
 	it('warns when policy evaluation promise rejects', async () => {
@@ -194,40 +213,15 @@ describe('ResourceDataView actions', () => {
 			},
 		} as unknown as RuntimeWithDataViews['policies'];
 
-		const resource = createResource<{ id: number }, { search?: string }>({
-			useList: jest.fn(() => ({
-				data: { items: [{ id: 1 }], total: 1 },
-				isLoading: false,
-				error: undefined,
-			})),
+		renderActionScenario({
+			runtime,
+			action: {
+				policy: 'jobs.delete',
+				disabledWhenDenied: true,
+			},
 		});
 
-		const config = createConfig<{ id: number }, { search?: string }>({
-			actions: [
-				{
-					id: 'delete',
-					action: createAction(jest.fn(), {
-						scope: 'crossTab',
-						bridged: true,
-					}),
-					label: 'Delete',
-					supportsBulk: true,
-					disabledWhenDenied: true,
-					policy: 'jobs.delete',
-					getActionArgs: ({ selection }) => ({ selection }),
-				},
-			],
-		});
-
-		renderWithProvider(
-			<ResourceDataView resource={resource} config={config} />,
-			runtime
-		);
-
-		await act(async () => {
-			await Promise.resolve();
-			await Promise.resolve();
-		});
+		await flushDataViews(2);
 
 		expect(warnSpy).toHaveBeenCalledWith(
 			'Policy evaluation failed for DataViews action',
@@ -246,34 +240,12 @@ describe('ResourceDataView actions', () => {
 			},
 		} as unknown as RuntimeWithDataViews['policies'];
 
-		const resource = createResource<{ id: number }, { search?: string }>({
-			useList: jest.fn(() => ({
-				data: { items: [{ id: 1 }], total: 1 },
-				isLoading: false,
-				error: undefined,
-			})),
+		renderActionScenario({
+			runtime,
+			action: {
+				policy: 'jobs.delete',
+			},
 		});
-
-		const config = createConfig<{ id: number }, { search?: string }>({
-			actions: [
-				{
-					id: 'delete',
-					action: createAction(jest.fn(), {
-						scope: 'crossTab',
-						bridged: true,
-					}),
-					label: 'Delete',
-					supportsBulk: true,
-					policy: 'jobs.delete',
-					getActionArgs: ({ selection }) => ({ selection }),
-				},
-			],
-		});
-
-		renderWithProvider(
-			<ResourceDataView resource={resource} config={config} />,
-			runtime
-		);
 
 		expect(errorSpy).toHaveBeenCalledWith(
 			'Policy evaluation threw an error',
@@ -287,46 +259,23 @@ describe('ResourceDataView actions', () => {
 	it('respects invalidateOnSuccess overrides', async () => {
 		const runtime = createKernelRuntime();
 		const actionImpl = jest.fn().mockResolvedValue({ ok: true });
-		const deleteAction = createAction(actionImpl, {
-			scope: 'crossTab',
-			bridged: true,
-		});
-
 		const resourceInvalidate = jest.fn();
 		const invalidate = jest.fn();
-		const resource = createResource<{ id: number }, { search?: string }>({
-			useList: jest.fn(() => ({
-				data: { items: [{ id: 1 }, { id: 2 }], total: 2 },
-				isLoading: false,
-				error: undefined,
-			})),
-			invalidate: resourceInvalidate,
-		});
 		runtime.invalidate = invalidate;
 
-		const config = createConfig<{ id: number }, { search?: string }>({
-			actions: [
-				{
-					id: 'delete',
-					action: deleteAction,
-					label: 'Delete',
-					supportsBulk: true,
-					getActionArgs: ({ selection }) => ({ selection }),
-					invalidateOnSuccess: () => false,
-				},
-			],
+		const { getActionEntries } = renderActionScenario({
+			runtime,
+			action: {
+				action: createAction(actionImpl, {
+					scope: 'crossTab',
+					bridged: true,
+				}),
+				invalidateOnSuccess: () => false,
+			},
+			resourceOverrides: { invalidate: resourceInvalidate },
 		});
 
-		renderWithProvider(
-			<ResourceDataView resource={resource} config={config} />,
-			runtime
-		);
-
-		const props = getLastDataViewsProps();
-		const actions = props.actions as unknown as Array<{
-			callback: (items: unknown[], context: unknown) => Promise<unknown>;
-		}>;
-		const [firstAction] = actions;
+		const [firstAction] = getActionEntries();
 		expect(firstAction).toBeDefined();
 
 		await act(async () => {
@@ -343,37 +292,15 @@ describe('ResourceDataView actions', () => {
 		const runtime = createKernelRuntime();
 		runtime.policies = undefined;
 
-		const resource = createResource<{ id: number }, { search?: string }>({
-			useList: jest.fn(() => ({
-				data: { items: [{ id: 1 }], total: 1 },
-				isLoading: false,
-				error: undefined,
-			})),
+		const { getActionEntries } = renderActionScenario({
+			runtime,
+			action: {
+				policy: 'jobs.delete',
+				disabledWhenDenied: true,
+			},
 		});
 
-		const config = createConfig<{ id: number }, { search?: string }>({
-			actions: [
-				{
-					id: 'delete',
-					action: createAction(jest.fn(), {
-						scope: 'crossTab',
-						bridged: true,
-					}),
-					label: 'Delete',
-					supportsBulk: true,
-					policy: 'jobs.delete',
-					disabledWhenDenied: true,
-					getActionArgs: ({ selection }) => ({ selection }),
-				},
-			],
-		});
-
-		renderWithProvider(
-			<ResourceDataView resource={resource} config={config} />,
-			runtime
-		);
-
-		const actions = getActionMocks();
+		const actions = getActionEntries();
 		expect(actions).toHaveLength(1);
 		const [firstAction] = actions;
 		expect(firstAction).toBeDefined();
@@ -384,49 +311,23 @@ describe('ResourceDataView actions', () => {
 		const runtime = createKernelRuntime();
 		runtime.policies = undefined;
 
-		const resource = createResource<{ id: number }, { search?: string }>({
-			useList: jest.fn(() => ({
-				data: { items: [{ id: 1 }], total: 1 },
-				isLoading: false,
-				error: undefined,
-			})),
-		});
-
-		const config = createConfig<{ id: number }, { search?: string }>({
+		const { getActionEntries } = renderActionScenario({
+			runtime,
 			actions: [
-				{
-					id: 'delete',
-					action: createAction(jest.fn(), {
-						scope: 'crossTab',
-						bridged: true,
-					}),
-					label: 'Delete',
-					supportsBulk: true,
+				buildActionConfig({
 					policy: 'jobs.delete',
-					getActionArgs: ({ selection }) => ({ selection }),
 					disabledWhenDenied: true,
-				},
-				{
+				}),
+				buildActionConfig({
 					id: 'edit',
-					action: createAction(jest.fn(), {
-						scope: 'crossTab',
-						bridged: true,
-					}),
 					label: 'Edit',
-					supportsBulk: true,
 					policy: 'jobs.edit',
-					getActionArgs: ({ selection }) => ({ selection }),
 					disabledWhenDenied: true,
-				},
+				}),
 			],
 		});
 
-		renderWithProvider(
-			<ResourceDataView resource={resource} config={config} />,
-			runtime
-		);
-
-		const actions = getActionMocks();
+		const actions = getActionEntries();
 		expect(actions).toHaveLength(2);
 		const [firstAction, secondAction] = actions;
 		expect(firstAction).toBeDefined();
@@ -443,50 +344,20 @@ describe('ResourceDataView actions', () => {
 			},
 		} as unknown as RuntimeWithDataViews['policies'];
 
-		const resource = createResource<{ id: number }, { search?: string }>({
-			useList: jest.fn(() => ({
-				data: { items: [{ id: 1 }], total: 1 },
-				isLoading: false,
-				error: undefined,
-			})),
-		});
-
-		const config = createConfig<{ id: number }, { search?: string }>({
+		const { getActionEntries } = renderActionScenario({
+			runtime,
 			actions: [
-				{
-					id: 'delete',
-					action: createAction(jest.fn(), {
-						scope: 'crossTab',
-						bridged: true,
-					}),
-					label: 'Delete',
-					supportsBulk: true,
-					policy: 'jobs.delete',
-					getActionArgs: ({ selection }) => ({ selection }),
-				},
-				{
+				buildActionConfig({ policy: 'jobs.delete' }),
+				buildActionConfig({
 					id: 'view',
-					action: createAction(jest.fn(), {
-						scope: 'crossTab',
-						bridged: true,
-					}),
 					label: 'View',
-					supportsBulk: true,
-					getActionArgs: ({ selection }) => ({ selection }),
-				},
+				}),
 			],
 		});
 
-		renderWithProvider(
-			<ResourceDataView resource={resource} config={config} />,
-			runtime
-		);
+		await flushDataViews();
 
-		await act(async () => {
-			await Promise.resolve();
-		});
-
-		const actions = getActionMocks();
+		const actions = getActionEntries();
 		expect(actions).toHaveLength(2);
 		const [firstAction, secondAction] = actions;
 		expect(firstAction).toBeDefined();
@@ -510,37 +381,19 @@ describe('ResourceDataView actions', () => {
 		} as unknown as RuntimeWithDataViews['policies'];
 
 		const actionImpl = jest.fn();
-		const resource = createResource<{ id: number }, { search?: string }>({
-			useList: jest.fn(() => ({
-				data: { items: [{ id: 1 }], total: 1 },
-				isLoading: false,
-				error: undefined,
-			})),
+		const { getActionEntries } = renderActionScenario({
+			runtime,
+			action: {
+				action: createAction(actionImpl, {
+					scope: 'crossTab',
+					bridged: true,
+				}),
+				policy: 'jobs.delete',
+				disabledWhenDenied: true,
+			},
 		});
 
-		const config = createConfig<{ id: number }, { search?: string }>({
-			actions: [
-				{
-					id: 'delete',
-					action: createAction(actionImpl, {
-						scope: 'crossTab',
-						bridged: true,
-					}),
-					label: 'Delete',
-					supportsBulk: true,
-					disabledWhenDenied: true,
-					policy: 'jobs.delete',
-					getActionArgs: ({ selection }) => ({ selection }),
-				},
-			],
-		});
-
-		renderWithProvider(
-			<ResourceDataView resource={resource} config={config} />,
-			runtime
-		);
-
-		const [pendingAction] = getActionMocks();
+		const [pendingAction] = getActionEntries();
 		expect(pendingAction).toBeDefined();
 
 		await act(async () => {
@@ -559,9 +412,7 @@ describe('ResourceDataView actions', () => {
 		expect(actionImpl).not.toHaveBeenCalled();
 
 		resolvePolicy?.(true);
-		await act(async () => {
-			await Promise.resolve();
-		});
+		await flushDataViews();
 	});
 
 	it('warns when executing a denied policy-gated action', async () => {
@@ -573,41 +424,21 @@ describe('ResourceDataView actions', () => {
 		} as unknown as RuntimeWithDataViews['policies'];
 
 		const actionImpl = jest.fn();
-		const resource = createResource<{ id: number }, { search?: string }>({
-			useList: jest.fn(() => ({
-				data: { items: [{ id: 1 }], total: 1 },
-				isLoading: false,
-				error: undefined,
-			})),
+		const { getActionEntries } = renderActionScenario({
+			runtime,
+			action: {
+				action: createAction(actionImpl, {
+					scope: 'crossTab',
+					bridged: true,
+				}),
+				policy: 'jobs.delete',
+				disabledWhenDenied: true,
+			},
 		});
 
-		const config = createConfig<{ id: number }, { search?: string }>({
-			actions: [
-				{
-					id: 'delete',
-					action: createAction(actionImpl, {
-						scope: 'crossTab',
-						bridged: true,
-					}),
-					label: 'Delete',
-					supportsBulk: true,
-					disabledWhenDenied: true,
-					policy: 'jobs.delete',
-					getActionArgs: ({ selection }) => ({ selection }),
-				},
-			],
-		});
+		await flushDataViews();
 
-		renderWithProvider(
-			<ResourceDataView resource={resource} config={config} />,
-			runtime
-		);
-
-		await act(async () => {
-			await Promise.resolve();
-		});
-
-		const [deniedAction] = getActionMocks();
+		const [deniedAction] = getActionEntries();
 
 		await act(async () => {
 			await deniedAction!.callback([{ id: 1 }], {
@@ -632,35 +463,9 @@ describe('ResourceDataView actions', () => {
 	it('emits an empty-selection action event', async () => {
 		const runtime = createKernelRuntime();
 
-		const resource = createResource<{ id: number }, { search?: string }>({
-			useList: jest.fn(() => ({
-				data: { items: [{ id: 1 }], total: 1 },
-				isLoading: false,
-				error: undefined,
-			})),
-		});
+		const { getActionEntries } = renderActionScenario({ runtime });
 
-		const config = createConfig<{ id: number }, { search?: string }>({
-			actions: [
-				{
-					id: 'delete',
-					action: createAction(jest.fn(), {
-						scope: 'crossTab',
-						bridged: true,
-					}),
-					label: 'Delete',
-					supportsBulk: true,
-					getActionArgs: ({ selection }) => ({ selection }),
-				},
-			],
-		});
-
-		renderWithProvider(
-			<ResourceDataView resource={resource} config={config} />,
-			runtime
-		);
-
-		const [actionEntry] = getActionMocks();
+		const [actionEntry] = getActionEntries();
 
 		await act(async () => {
 			await actionEntry!.callback([], {
@@ -681,35 +486,17 @@ describe('ResourceDataView actions', () => {
 		const runtime = createKernelRuntime();
 
 		const actionImpl = jest.fn().mockRejectedValue(new Error('boom'));
-		const resource = createResource<{ id: number }, { search?: string }>({
-			useList: jest.fn(() => ({
-				data: { items: [{ id: 1 }], total: 1 },
-				isLoading: false,
-				error: undefined,
-			})),
+		const { getActionEntries } = renderActionScenario({
+			runtime,
+			action: {
+				action: createAction(actionImpl, {
+					scope: 'crossTab',
+					bridged: true,
+				}),
+			},
 		});
 
-		const config = createConfig<{ id: number }, { search?: string }>({
-			actions: [
-				{
-					id: 'delete',
-					action: createAction(actionImpl, {
-						scope: 'crossTab',
-						bridged: true,
-					}),
-					label: 'Delete',
-					supportsBulk: true,
-					getActionArgs: ({ selection }) => ({ selection }),
-				},
-			],
-		});
-
-		renderWithProvider(
-			<ResourceDataView resource={resource} config={config} />,
-			runtime
-		);
-
-		const [actionEntry] = getActionMocks();
+		const [actionEntry] = getActionEntries();
 
 		const rejection = await actionEntry!
 			.callback([{ id: 1 }], {
@@ -728,37 +515,20 @@ describe('ResourceDataView actions', () => {
 	it('invalidates custom cache patterns returned by actions', async () => {
 		const runtime = createKernelRuntime();
 		const actionImpl = jest.fn().mockResolvedValue({ ok: true });
-		const resource = createResource<{ id: number }, { search?: string }>({
-			useList: jest.fn(() => ({
-				data: { items: [{ id: 1 }], total: 1 },
-				isLoading: false,
-				error: undefined,
-			})),
-		});
 
 		const customPatterns: CacheKeyPattern[] = [['jobs', 'custom']];
-		const config = createConfig<{ id: number }, { search?: string }>({
-			actions: [
-				{
-					id: 'delete',
-					action: createAction(actionImpl, {
-						scope: 'crossTab',
-						bridged: true,
-					}),
-					label: 'Delete',
-					supportsBulk: true,
-					getActionArgs: ({ selection }) => ({ selection }),
-					invalidateOnSuccess: () => customPatterns,
-				},
-			],
+		const { getActionEntries, resource } = renderActionScenario({
+			runtime,
+			action: {
+				action: createAction(actionImpl, {
+					scope: 'crossTab',
+					bridged: true,
+				}),
+				invalidateOnSuccess: () => customPatterns,
+			},
 		});
 
-		renderWithProvider(
-			<ResourceDataView resource={resource} config={config} />,
-			runtime
-		);
-
-		const [actionEntry] = getActionMocks();
+		const [actionEntry] = getActionEntries();
 
 		await act(async () => {
 			await actionEntry!.callback([{ id: 1 }], {
@@ -784,42 +554,18 @@ describe('ResourceDataView actions', () => {
 			},
 		} as unknown as RuntimeWithDataViews['policies'];
 
-		const resource = createResource<{ id: number }, { search?: string }>({
-			useList: jest.fn(() => ({
-				data: { items: [{ id: 1 }], total: 1 },
-				isLoading: false,
-				error: undefined,
-			})),
+		const { renderResult } = renderActionScenario({
+			runtime,
+			action: {
+				policy: 'jobs.delete',
+				disabledWhenDenied: true,
+			},
 		});
 
-		const config = createConfig<{ id: number }, { search?: string }>({
-			actions: [
-				{
-					id: 'delete',
-					action: createAction(jest.fn(), {
-						scope: 'crossTab',
-						bridged: true,
-					}),
-					label: 'Delete',
-					supportsBulk: true,
-					disabledWhenDenied: true,
-					policy: 'jobs.delete',
-					getActionArgs: ({ selection }) => ({ selection }),
-				},
-			],
-		});
-
-		const { unmount } = renderWithProvider(
-			<ResourceDataView resource={resource} config={config} />,
-			runtime
-		);
-
-		unmount();
+		renderResult.unmount();
 		resolvePolicy?.(true);
 
-		await act(async () => {
-			await Promise.resolve();
-		});
+		await flushDataViews();
 
 		expect(runtime.dataviews.reporter.warn).not.toHaveBeenCalled();
 	});
@@ -838,42 +584,18 @@ describe('ResourceDataView actions', () => {
 			},
 		} as unknown as RuntimeWithDataViews['policies'];
 
-		const resource = createResource<{ id: number }, { search?: string }>({
-			useList: jest.fn(() => ({
-				data: { items: [{ id: 1 }], total: 1 },
-				isLoading: false,
-				error: undefined,
-			})),
+		const { renderResult: rejectionRender } = renderActionScenario({
+			runtime,
+			action: {
+				policy: 'jobs.delete',
+				disabledWhenDenied: true,
+			},
 		});
 
-		const config = createConfig<{ id: number }, { search?: string }>({
-			actions: [
-				{
-					id: 'delete',
-					action: createAction(jest.fn(), {
-						scope: 'crossTab',
-						bridged: true,
-					}),
-					label: 'Delete',
-					supportsBulk: true,
-					disabledWhenDenied: true,
-					policy: 'jobs.delete',
-					getActionArgs: ({ selection }) => ({ selection }),
-				},
-			],
-		});
-
-		const { unmount } = renderWithProvider(
-			<ResourceDataView resource={resource} config={config} />,
-			runtime
-		);
-
-		unmount();
+		rejectionRender.unmount();
 		rejectPolicy?.(new Error('denied'));
 
-		await act(async () => {
-			await Promise.resolve();
-		});
+		await flushDataViews();
 
 		expect(runtime.dataviews.reporter.warn).not.toHaveBeenCalled();
 	});

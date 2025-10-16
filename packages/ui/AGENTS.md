@@ -10,6 +10,7 @@ This file supplements the root [AGENTS.md](../../AGENTS.md) with agent guideline
 - Test: `pnpm test`
 - Verify no `@wordpress/*` packages are bundled; all are peer dependencies.
 - Shared helpers: use `tests/ui-harness.test-support.ts` for runtime + provider setup and `tests/dom-observer.test-support.ts` for `IntersectionObserver`/`requestAnimationFrame` mocks.
+- DataView specs should import from `src/dataviews/test-support/ResourceDataView.test-support.tsx` for `renderResourceDataView`, `flushDataViews`, and action/config builders instead of recreating runtime wiring.
 - Run `pnpm --filter @wpkernel/ui typecheck:tests` after editing `.test-support.ts` helpers; they are omitted from the production build but validated via the tests TypeScript project.
 
 ---
