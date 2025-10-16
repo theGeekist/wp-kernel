@@ -2,121 +2,120 @@ import { promises as fs } from 'node:fs';
 import path from 'node:path';
 import http from 'node:http';
 import https from 'node:https';
-import { createIsolatedWorkspace } from '../integration/workspace.js';
 import { createEphemeralRegistry } from '../integration/registry.js';
+import {
+	withIsolatedWorkspace,
+	writeWorkspaceFiles,
+} from '../test-support/isolated-workspace.test-support.js';
 
 describe('createEphemeralRegistry', () => {
 	it('serves packed workspace packages', async () => {
-		const workspace = await createIsolatedWorkspace();
-		const pkgDir = path.join(workspace.root, 'packages', 'sample');
-		await fs.mkdir(pkgDir, { recursive: true });
+		await withIsolatedWorkspace(async (workspace) => {
+			const pkgJson = {
+				name: '@wpkernel/sample',
+				version: '0.1.0-test',
+				main: 'index.js',
+				files: ['index.js'],
+			};
 
-		const ignoredDir = path.join(workspace.root, 'packages', 'ignored');
-		await fs.mkdir(ignoredDir, { recursive: true });
-		await fs.writeFile(
-			path.join(ignoredDir, 'package.json'),
-			JSON.stringify({ name: 'not-wpk', version: '1.0.0' }),
-			'utf8'
-		);
+			await writeWorkspaceFiles(workspace, {
+				'packages/ignored/package.json': JSON.stringify({
+					name: 'not-wpk',
+					version: '1.0.0',
+				}),
+				'packages/sample/package.json': JSON.stringify(
+					pkgJson,
+					null,
+					2
+				),
+				'packages/sample/index.js': "module.exports = 'sample';\n",
+			});
 
-		const pkgJson = {
-			name: '@wpkernel/sample',
-			version: '0.1.0-test',
-			main: 'index.js',
-			files: ['index.js'],
-		};
+			const registry = await createEphemeralRegistry({
+				workspaceRoot: workspace.root,
+			});
 
-		await fs.writeFile(
-			path.join(pkgDir, 'package.json'),
-			JSON.stringify(pkgJson, null, 2),
-			'utf8'
-		);
-		await fs.writeFile(
-			path.join(pkgDir, 'index.js'),
-			"module.exports = 'sample';\n",
-			'utf8'
-		);
+			try {
+				const metadata = (await requestJson(
+					`${registry.url}/@wpkernel%2Fsample`
+				)) as {
+					'dist-tags': { latest: string };
+					versions: Record<string, { dist: { tarball: string } }>;
+				};
 
-		const registry = await createEphemeralRegistry({
-			workspaceRoot: workspace.root,
-		});
+				expect(metadata['dist-tags'].latest).toBe('0.1.0-test');
+				const tarballUrl = metadata.versions['0.1.0-test'].dist.tarball;
+				const tarballBuffer = await requestBuffer(tarballUrl);
+				expect(tarballBuffer.length).toBeGreaterThan(0);
 
-		const metadata = (await requestJson(
-			`${registry.url}/@wpkernel%2Fsample`
-		)) as {
-			'dist-tags': { latest: string };
-			versions: Record<string, { dist: { tarball: string } }>;
-		};
+				const distTags = (await requestJson(
+					`${registry.url}/-/package/@wpkernel%2Fsample/dist-tags`
+				)) as { latest: string };
+				expect(distTags.latest).toBe('0.1.0-test');
 
-		expect(metadata['dist-tags'].latest).toBe('0.1.0-test');
-		const tarballUrl = metadata.versions['0.1.0-test'].dist.tarball;
-		const tarballBuffer = await requestBuffer(tarballUrl);
-		expect(tarballBuffer.length).toBeGreaterThan(0);
+				const versions = (await requestJson(
+					`${registry.url}/-/package/@wpkernel%2Fsample/versions`
+				)) as { versions: string[] };
+				expect(versions.versions).toContain('0.1.0-test');
 
-		const distTags = (await requestJson(
-			`${registry.url}/-/package/@wpkernel%2Fsample/dist-tags`
-		)) as { latest: string };
-		expect(distTags.latest).toBe('0.1.0-test');
+				await registry.writeNpmRc(workspace.root);
+				const npmrc = await fs.readFile(
+					path.join(workspace.root, '.npmrc'),
+					'utf8'
+				);
+				expect(npmrc).toContain(registry.url);
 
-		const versions = (await requestJson(
-			`${registry.url}/-/package/@wpkernel%2Fsample/versions`
-		)) as { versions: string[] };
-		expect(versions.versions).toContain('0.1.0-test');
+				const missing = await requestRaw(
+					`${registry.url}/@wpkernel%2Fmissing`
+				);
+				expect(missing.statusCode).toBe(404);
 
-		await registry.writeNpmRc(workspace.root);
-		const npmrc = await fs.readFile(
-			path.join(workspace.root, '.npmrc'),
-			'utf8'
-		);
-		expect(npmrc).toContain(registry.url);
+				const methodNotAllowed = await requestRaw(
+					`${registry.url}/@wpkernel%2Fsample`,
+					{
+						method: 'POST',
+					}
+				);
+				expect(methodNotAllowed.statusCode).toBe(405);
 
-		const missing = await requestRaw(`${registry.url}/@wpkernel%2Fmissing`);
-		expect(missing.statusCode).toBe(404);
+				const missingDistTags = await requestRaw(
+					`${registry.url}/-/package/@wpkernel%2Fmissing/dist-tags`
+				);
+				expect(missingDistTags.statusCode).toBe(404);
 
-		const methodNotAllowed = await requestRaw(
-			`${registry.url}/@wpkernel%2Fsample`,
-			{
-				method: 'POST',
+				const missingVersions = await requestRaw(
+					`${registry.url}/-/package/@wpkernel%2Fmissing/versions`
+				);
+				expect(missingVersions.statusCode).toBe(404);
+
+				const unsupportedEndpoint = await requestRaw(
+					`${registry.url}/-/package/@wpkernel%2Fsample/unsupported`
+				);
+				expect(unsupportedEndpoint.statusCode).toBe(404);
+
+				const tarballPath = registry.packages[0].tarballPath;
+				await fs.unlink(tarballPath);
+				const missingTarball = await requestRaw(tarballUrl);
+				expect(missingTarball.statusCode).toBe(500);
+
+				const missingTarballPackage = await requestRaw(
+					`${registry.url}/@wpkernel%2Fmissing/-/missing-1.0.0.tgz`
+				);
+				expect(missingTarballPackage.statusCode).toBe(404);
+
+				const invalidPackageMeta = await requestRaw(
+					`${registry.url}/@invalid-scope`
+				);
+				expect(invalidPackageMeta.statusCode).toBe(404);
+
+				const invalidTarballStructure = await requestRaw(
+					`${registry.url}/invalid/-/file.tgz`
+				);
+				expect(invalidTarballStructure.statusCode).toBe(404);
+			} finally {
+				await registry.dispose();
 			}
-		);
-		expect(methodNotAllowed.statusCode).toBe(405);
-
-		const missingDistTags = await requestRaw(
-			`${registry.url}/-/package/@wpkernel%2Fmissing/dist-tags`
-		);
-		expect(missingDistTags.statusCode).toBe(404);
-
-		const missingVersions = await requestRaw(
-			`${registry.url}/-/package/@wpkernel%2Fmissing/versions`
-		);
-		expect(missingVersions.statusCode).toBe(404);
-
-		const unsupportedEndpoint = await requestRaw(
-			`${registry.url}/-/package/@wpkernel%2Fsample/unsupported`
-		);
-		expect(unsupportedEndpoint.statusCode).toBe(404);
-
-		await fs.unlink(registry.packages[0].tarballPath);
-		const missingTarball = await requestRaw(tarballUrl);
-		expect(missingTarball.statusCode).toBe(500);
-
-		const missingTarballPackage = await requestRaw(
-			`${registry.url}/@wpkernel%2Fmissing/-/missing-1.0.0.tgz`
-		);
-		expect(missingTarballPackage.statusCode).toBe(404);
-
-		const invalidPackageMeta = await requestRaw(
-			`${registry.url}/@invalid-scope`
-		);
-		expect(invalidPackageMeta.statusCode).toBe(404);
-
-		const invalidTarballStructure = await requestRaw(
-			`${registry.url}/invalid/-/file.tgz`
-		);
-		expect(invalidTarballStructure.statusCode).toBe(404);
-
-		await registry.dispose();
-		await workspace.dispose();
+		});
 	}, 30000);
 });
 

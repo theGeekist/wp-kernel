@@ -12,6 +12,8 @@ Run `pnpm --filter @wpkernel/cli test:coverage` before committing. If commands g
 Run `pnpm --filter @wpkernel/cli typecheck:tests` after touching `.test-support.ts` helpers; they are excluded from the production build but must pass the tests TypeScript project.
 Shared lint helper: use `tests/rule-tester.test-support.ts` to create configured ESLint `RuleTester` instances and canonical kernel config fixtures.
 
+Reuse the CLI transcript helpers from `@wpkernel/e2e-utils` when writing integration coverage; delete bespoke runners once tests migrate to the shared utilities.
+
 ### Conventions
 
 Respect package boundaries: consume kernel APIs through public exports, never deep imports. When adding commands that touch documentation or specs, coordinate the updates so generated output references the latest guidance. Try to keep code and test files <=500 SLOC for ease of debugging and maintanence
