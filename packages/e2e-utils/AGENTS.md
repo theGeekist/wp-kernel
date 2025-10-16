@@ -12,7 +12,10 @@ Run `pnpm build --filter @wpkernel/e2e-utils` followed by `pnpm test --filter @w
 New test-support exports live under `src/test-support/*.test-support.ts` and are re-exported from `src/index.ts`/`package.json`:
 
 - `withIsolatedWorkspace` + `writeWorkspaceFiles` for workspace lifecycle management
+- `collectManifestState` + `compareManifestStates` for declarative filesystem diffing in manifest specs
 - `runNodeSnippet` for capturing Node CLI transcripts in tests
+
+Prune helpers aggressively-if a helper is no longer referenced by a test suite, delete it instead of keeping dead exports around.
 
 ### Conventions
 

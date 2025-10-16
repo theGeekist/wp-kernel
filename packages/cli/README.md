@@ -65,6 +65,8 @@ The `start` command replaces `wpk dev`; the latter remains as a deprecated alias
 - `tests/rule-tester.test-support.ts` exports `createRuleTester()` and fixture
   builders that keep ESLint rule suites aligned with the TypeScript parser and
   canonical config snippets.
+- Integration specs can import `runNodeSnippet()` from `@wpkernel/e2e-utils`
+  to exercise CLI failure paths without maintaining bespoke process runners.
 
 ## Requirements
 
