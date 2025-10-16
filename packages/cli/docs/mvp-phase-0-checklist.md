@@ -13,7 +13,7 @@ Owner: Codex agent
 | §4.4 (Block printers)                        | ✗ Not implemented.                                                                                                 | Phases 3A–3B cover the missing functionality.                                                      |
 | §5 (Policy integration)                      | ✗ Not implemented.                                                                                                 | Phase 7 will add policy map support.                                                               |
 | §6 (Lint rules)                              | ⚠️ Core ESLint config present (`eslint.config.js`) with `@kernel` plugin; new rules absent.                        | Phase 4 will extend the plugin.                                                                    |
-| §7–8 (Commands)                              | ✓ `wpk generate`/`apply`/`dev` exist; `init` is stubbed.                                                           | Phase 5A upgrades `init`; 5B integrates new printers.                                              |
+| §7–8 (Commands)                              | ✓ `wpk generate`/`apply`/`start` exist; `init` is stubbed.                                                         | Phase 5A upgrades `init`; 5B integrates new printers.                                              |
 | §9–10 (Testing/adoption)                     | ✓ Jest + docs infrastructure exist.                                                                                | No additional action beyond future phases.                                                         |
 
 ## 2. KernelConfig Usage Trace
@@ -22,7 +22,7 @@ Owner: Codex agent
 - Validation → `config/validate-kernel-config.ts`
 - IR → `ir/build-ir.ts`
 - Printers → `printers/index.ts`, `printers/php/printer.ts`, `printers/types/printer.ts`, `printers/ui/printer.ts`
-- Commands → `commands/run-generate.ts`, `commands/apply.ts`, `commands/dev.ts`, `commands/init.ts`
+- Commands → `commands/run-generate.ts`, `commands/apply.ts`, `commands/start.ts`, `commands/init.ts`
 
 Touchpoints align with the spec; future phases hook into the same modules.
 

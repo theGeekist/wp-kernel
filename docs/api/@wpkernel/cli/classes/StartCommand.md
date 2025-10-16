@@ -13,10 +13,6 @@ launches the Vite dev server for UI development.
 
 - `Command`
 
-## Extended by
-
-- [`DevCommand`](DevCommand.md)
-
 ## Constructors
 
 ### Constructor
