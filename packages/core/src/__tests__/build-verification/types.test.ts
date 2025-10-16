@@ -7,71 +7,55 @@
 import { existsSync } from 'fs';
 import { resolve } from 'path';
 
+const distPath = resolve(__dirname, '../../../dist');
+
+const expectArtifacts = (artifacts: string[]) => {
+	for (const artifact of artifacts) {
+		expect(existsSync(resolve(distPath, artifact))).toBe(true);
+	}
+};
+
 describe('Build: TypeScript declarations', () => {
-	const distPath = resolve(__dirname, '../../../dist');
-
-	describe('Main exports', () => {
-		it('should generate index.d.ts', () => {
-			expect(existsSync(resolve(distPath, 'index.d.ts'))).toBe(true);
-		});
+	it('generates root declarations', () => {
+		expectArtifacts(['index.d.ts']);
 	});
 
-	describe('Subpath exports', () => {
-		it('should generate http entry and types', () => {
-			// Entry point re-export
-			expect(existsSync(resolve(distPath, 'http.js'))).toBe(true);
-			// Internal module types
-			expect(existsSync(resolve(distPath, 'http/index.d.ts'))).toBe(true);
-		});
-
-		it('should generate resource entry and types', () => {
-			// Entry point re-export
-			expect(existsSync(resolve(distPath, 'resource.js'))).toBe(true);
-			// Internal module types
-			expect(existsSync(resolve(distPath, 'resource/index.d.ts'))).toBe(
-				true
-			);
-		});
-
-		it('should generate error entry and types', () => {
-			// Entry point re-export
-			expect(existsSync(resolve(distPath, 'error.js'))).toBe(true);
-			// Internal module types
-			expect(existsSync(resolve(distPath, 'error/index.d.ts'))).toBe(
-				true
-			);
-		});
+	it.each([
+		{
+			entry: 'http',
+			artifacts: ['http.js', 'http/index.d.ts'],
+		},
+		{
+			entry: 'resource',
+			artifacts: ['resource.js', 'resource/index.d.ts'],
+		},
+		{
+			entry: 'error',
+			artifacts: ['error.js', 'error/index.d.ts'],
+		},
+	])('generates %s entry types', ({ artifacts }) => {
+		expectArtifacts(artifacts);
 	});
 
-	describe('Internal module types', () => {
-		it('should generate types for resource internals', () => {
-			// With preserveModules, internal files should have types
-			expect(existsSync(resolve(distPath, 'resource/define.d.ts'))).toBe(
-				true
-			);
-			expect(existsSync(resolve(distPath, 'resource/store.d.ts'))).toBe(
-				true
-			);
-			expect(existsSync(resolve(distPath, 'resource/cache.d.ts'))).toBe(
-				true
-			);
-		});
-
-		it('should generate types for error internals', () => {
-			expect(
-				existsSync(resolve(distPath, 'error/KernelError.d.ts'))
-			).toBe(true);
-			expect(
-				existsSync(resolve(distPath, 'error/TransportError.d.ts'))
-			).toBe(true);
-			expect(
-				existsSync(resolve(distPath, 'error/ServerError.d.ts'))
-			).toBe(true);
-		});
-
-		it('should generate types for http internals', () => {
-			expect(existsSync(resolve(distPath, 'http/fetch.d.ts'))).toBe(true);
-			expect(existsSync(resolve(distPath, 'http/types.d.ts'))).toBe(true);
-		});
+	it.each([
+		[
+			'resource internals',
+			[
+				'resource/define.d.ts',
+				'resource/store.d.ts',
+				'resource/cache.d.ts',
+			],
+		],
+		[
+			'error internals',
+			[
+				'error/KernelError.d.ts',
+				'error/TransportError.d.ts',
+				'error/ServerError.d.ts',
+			],
+		],
+		['http internals', ['http/fetch.d.ts', 'http/types.d.ts']],
+	])('includes %s', (_label, artifacts: string[]) => {
+		expectArtifacts(artifacts);
 	});
 });

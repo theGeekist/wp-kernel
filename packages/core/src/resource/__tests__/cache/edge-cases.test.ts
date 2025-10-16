@@ -7,8 +7,11 @@ import { invalidate, invalidateAll, normalizeCacheKey } from '../../cache';
 import { KernelEventBus, setKernelEventBus } from '../../../events/bus';
 import { setKernelReporter, clearKernelReporter } from '../../../reporter';
 import type { Reporter } from '../../../reporter';
-
-// Use global types for window.wp
+import {
+	createResourceDataHarness,
+	withWordPressData,
+	type ResourceHarnessSetup,
+} from '../../../../tests/resource.test-support';
 
 describe('cache helper functions', () => {
 	describe('normalizeCacheKey', () => {
@@ -27,17 +30,15 @@ describe('cache helper functions', () => {
 describe('invalidate edge cases', () => {
 	let mockDispatch: jest.Mock;
 	let mockSelect: jest.Mock;
+	let harnessSetup: ResourceHarnessSetup;
 	let bus: KernelEventBus;
 	let cacheListener: jest.Mock;
-	let originalWp: Window['wp'];
 	let originalNodeEnv: string | undefined;
 	let reporterLogs: LogEntry[];
 	let reporter: Reporter;
 
 	beforeEach(() => {
 		// Store originals
-		const windowWithWp = global.window as Window & { wp?: any };
-		originalWp = windowWithWp?.wp;
 		originalNodeEnv = process.env.NODE_ENV;
 
 		({ reporter, logs: reporterLogs } = createReporterSpy());
@@ -51,23 +52,16 @@ describe('invalidate edge cases', () => {
 		cacheListener = jest.fn();
 		bus.on('cache:invalidated', cacheListener);
 
-		// Setup window.wp mock
-		if (windowWithWp) {
-			windowWithWp.wp = {
-				data: {
-					dispatch: mockDispatch,
-					select: mockSelect,
-				},
-			};
-		}
+		harnessSetup = createResourceDataHarness({
+			data: {
+				dispatch: mockDispatch,
+				select: mockSelect,
+			},
+		});
 	});
 
 	afterEach(() => {
 		// Restore originals
-		const windowWithWp = global.window as Window & { wp?: any };
-		if (windowWithWp && originalWp) {
-			windowWithWp.wp = originalWp;
-		}
 		if (originalNodeEnv) {
 			process.env.NODE_ENV = originalNodeEnv;
 		} else {
@@ -77,6 +71,7 @@ describe('invalidate edge cases', () => {
 		clearKernelReporter();
 		setKernelEventBus(new KernelEventBus());
 		jest.clearAllMocks();
+		harnessSetup.harness.teardown();
 	});
 
 	type LogEntry = {
@@ -276,31 +271,28 @@ describe('invalidate edge cases', () => {
 			expect(cacheListener).not.toHaveBeenCalled();
 		});
 
-		it('should handle missing window.wp.hooks gracefully', () => {
-			const windowWithWp = global.window as Window & { wp?: any };
-			if (windowWithWp && windowWithWp.wp) {
-				delete windowWithWp.wp.hooks;
-			}
+		it('should handle missing window.wp.hooks gracefully', async () => {
+			await withWordPressData({ hooks: null }, () => {
+				const mockStoreDispatch = {
+					invalidate: jest.fn(),
+				};
 
-			const mockStoreDispatch = {
-				invalidate: jest.fn(),
-			};
+				const mockStoreSelect = {
+					getState: jest.fn().mockReturnValue({
+						lists: { 'thing:list': [1, 2] },
+						listMeta: {},
+						errors: {},
+					}),
+				};
 
-			const mockStoreSelect = {
-				getState: jest.fn().mockReturnValue({
-					lists: { 'thing:list': [1, 2] },
-					listMeta: {},
-					errors: {},
-				}),
-			};
+				mockDispatch.mockReturnValue(mockStoreDispatch);
+				mockSelect.mockReturnValue(mockStoreSelect);
 
-			mockDispatch.mockReturnValue(mockStoreDispatch);
-			mockSelect.mockReturnValue(mockStoreSelect);
-
-			// Should not throw when hooks is undefined
-			expect(() => {
-				invalidate(['thing', 'list'], { storeKey: 'wpk/thing' });
-			}).not.toThrow();
+				// Should not throw when hooks is undefined
+				expect(() => {
+					invalidate(['thing', 'list'], { storeKey: 'wpk/thing' });
+				}).not.toThrow();
+			});
 		});
 	});
 
