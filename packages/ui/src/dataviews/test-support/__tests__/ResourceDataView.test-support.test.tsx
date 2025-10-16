@@ -5,7 +5,15 @@ import {
 	createKernelRuntime,
 	renderWithProvider,
 	getLastDataViewsProps,
+	renderActionScenario,
+	buildActionConfig,
+	flushDataViews,
+	createAction,
+	renderResourceDataView,
+	createDataViewsTestController,
+	buildListResource,
 } from '../ResourceDataView.test-support';
+import { act } from 'react';
 
 describe('ResourceDataView test support helpers', () => {
 	it('persists preferences through adapter helpers', async () => {
@@ -26,6 +34,9 @@ describe('ResourceDataView test support helpers', () => {
 		const runtime = createKernelRuntime();
 		const result = renderWithProvider(<div>hello</div>, runtime);
 		expect(result.getByText('hello')).toBeTruthy();
+
+		result.rerenderWithProvider(<div>world</div>);
+		expect(result.getByText('world')).toBeTruthy();
 	});
 
 	it('throws when DataViews was never rendered', () => {
@@ -45,5 +56,81 @@ describe('ResourceDataView test support helpers', () => {
 			</KernelUIProvider>
 		);
 		expect(getLastDataViewsProps()).toEqual({ data: [] });
+	});
+
+	it('exposes action entries via the renderActionScenario helper', async () => {
+		const actionImpl = jest.fn().mockResolvedValue({ ok: true });
+
+		const { getActionEntries } = renderActionScenario({
+			action: {
+				action: createAction(actionImpl, {
+					scope: 'crossTab',
+					bridged: true,
+				}),
+			},
+		});
+
+		await flushDataViews();
+
+		const [entry] = getActionEntries();
+		expect(entry).toBeDefined();
+
+		await act(async () => {
+			await entry!.callback([{ id: 1 }], {
+				onActionPerformed: jest.fn(),
+			});
+		});
+
+		expect(actionImpl).toHaveBeenCalledWith({ selection: ['1'] });
+	});
+
+	it('allows multiple actions to be provided', async () => {
+		const first = buildActionConfig({ id: 'first' });
+		const second = buildActionConfig({ id: 'second' });
+
+		const { getActionEntries } = renderActionScenario({
+			actions: [first, second],
+		});
+
+		await flushDataViews();
+
+		const entries = getActionEntries();
+		expect(entries).toHaveLength(2);
+		expect(entries[0]).toBeDefined();
+		expect(entries[1]).toBeDefined();
+	});
+
+	it('drives DataViews state via the interaction controller', () => {
+		const view = renderResourceDataView({
+			resource: buildListResource([{ id: 1 }, { id: 2 }]),
+		});
+
+		const controller = createDataViewsTestController(view);
+
+		controller.setSelectionFromItems([{ id: 2 }]);
+		expect(controller.getProps().selection).toEqual(['2']);
+
+		controller.setSelection([3, '4']);
+		expect(controller.getProps().selection).toEqual(['3', '4']);
+
+		controller.clearSelection();
+		expect(controller.getProps().selection).toEqual([]);
+
+		controller.updateView({ page: 2 });
+		expect(controller.getProps().view).toEqual(
+			expect.objectContaining({ page: 2 })
+		);
+
+		controller.updateView((current) => ({
+			...current,
+			perPage: 25,
+		}));
+
+		expect(controller.getProps().view).toEqual(
+			expect.objectContaining({
+				page: 2,
+				perPage: 25,
+			})
+		);
 	});
 });

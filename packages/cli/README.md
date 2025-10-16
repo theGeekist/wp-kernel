@@ -75,6 +75,8 @@ This scaffolds a Vite-ready plugin with kernel config, TypeScript/ESLint setup, 
 - `tests/workspace.test-support.ts` includes `withWorkspace()` for disposable
   filesystem scaffolds and `createWorkspaceRunner()` to preconfigure prefixes or
   default file layouts per suite.
+- Integration specs can import `runNodeSnippet()` from `@wpkernel/e2e-utils`
+  to exercise CLI failure paths without maintaining bespoke process runners.
 
 ## Requirements
 

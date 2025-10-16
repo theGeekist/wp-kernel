@@ -13,6 +13,8 @@ Run `pnpm --filter @wpkernel/cli typecheck:tests` after touching `.test-support.
 Shared lint helper: use `tests/rule-tester.test-support.ts` to create configured ESLint `RuleTester` instances and canonical kernel config fixtures.
 Command suites should import the shared harnesses in `tests/cli-command.test-support.ts`, `tests/async.test-support.ts`, and `tests/workspace.test-support.ts` (via `createWorkspaceRunner`) instead of reimplementing streams, flush helpers, or temp directory setup.
 
+Reuse the CLI transcript helpers from `@wpkernel/e2e-utils` when writing integration coverage; delete bespoke runners once tests migrate to the shared utilities.
+
 ### Conventions
 
 Respect package boundaries: consume kernel APIs through public exports, never deep imports. When adding commands that touch documentation or specs, coordinate the updates so generated output references the latest guidance. Try to keep code and test files <=500 SLOC for ease of debugging and maintanence

@@ -21,6 +21,10 @@ import {
 } from '../grouped-api';
 import type { ResourceConfig, ResourceObject, CacheKeys } from '../types';
 import { createNoopReporter } from '../../reporter';
+import {
+	createResourceDataHarness,
+	type ResourceHarnessSetup,
+} from '../../../tests/resource.test-support';
 
 // Mock types for testing
 interface TestItem {
@@ -38,8 +42,7 @@ describe('grouped-api namespace factories', () => {
 	let mockConfig: ResourceConfig<TestItem, TestQuery>;
 	let mockResourceObject: ResourceObject<TestItem, TestQuery>;
 	let mockCacheKeys: Required<CacheKeys<TestQuery>>;
-	let mockWpData: any;
-	let originalWp: Window['wp'];
+	let harnessSetup: ResourceHarnessSetup;
 
 	beforeEach(() => {
 		// Setup mock config
@@ -71,22 +74,7 @@ describe('grouped-api namespace factories', () => {
 			remove: (id?: string | number) => ['test-resource', 'remove', id],
 		};
 
-		// Setup mock @wordpress/data
-		mockWpData = {
-			select: jest.fn(),
-			dispatch: jest.fn(),
-		};
-
-		// Store original window.wp
-		const windowWithWp = global.window as Window & { wp?: any };
-		originalWp = windowWithWp?.wp;
-
-		// Mock window.wp.data
-		if (windowWithWp) {
-			windowWithWp.wp = {
-				data: mockWpData,
-			};
-		}
+		harnessSetup = createResourceDataHarness();
 
 		// Setup mock resource object
 		mockResourceObject = {
@@ -113,11 +101,7 @@ describe('grouped-api namespace factories', () => {
 	});
 
 	afterEach(() => {
-		// Restore original window.wp
-		const windowWithWp = global.window as Window & { wp?: any };
-		if (windowWithWp) {
-			windowWithWp.wp = originalWp;
-		}
+		harnessSetup.harness.teardown();
 	});
 
 	// ===================================================================
@@ -144,7 +128,7 @@ describe('grouped-api namespace factories', () => {
 			const mockStoreSelect = {
 				getItem: jest.fn().mockReturnValue(mockItem),
 			};
-			mockWpData.select.mockReturnValue(mockStoreSelect);
+			harnessSetup.select.mockReturnValue(mockStoreSelect);
 
 			const getter = createSelectGetter<TestItem, TestQuery>(mockConfig);
 			const selectNamespace = getter.call(mockResourceObject);
@@ -153,15 +137,14 @@ describe('grouped-api namespace factories', () => {
 			const item = selectNamespace!.item(1);
 
 			expect(item).toEqual(mockItem);
-			expect(mockWpData.select).toHaveBeenCalledWith('wpk/test-resource');
+			expect(harnessSetup.select).toHaveBeenCalledWith(
+				'wpk/test-resource'
+			);
 			expect(mockStoreSelect.getItem).toHaveBeenCalledWith(1);
 		});
 
 		it('should return undefined from item selector when @wordpress/data not loaded', () => {
-			const windowWithWp = global.window as Window & { wp?: any };
-			if (windowWithWp.wp) {
-				windowWithWp.wp.data = undefined;
-			}
+			harnessSetup.harness.teardown();
 
 			const getter = createSelectGetter<TestItem, TestQuery>(mockConfig);
 			const selectNamespace = getter.call(mockResourceObject);
@@ -183,7 +166,7 @@ describe('grouped-api namespace factories', () => {
 					},
 				}),
 			};
-			mockWpData.select.mockReturnValue(mockStoreSelect);
+			harnessSetup.select.mockReturnValue(mockStoreSelect);
 
 			const getter = createSelectGetter<TestItem, TestQuery>(mockConfig);
 			const selectNamespace = getter.call(mockResourceObject);
@@ -198,7 +181,7 @@ describe('grouped-api namespace factories', () => {
 			const mockStoreSelect = {
 				getState: jest.fn().mockReturnValue({ items: {} }),
 			};
-			mockWpData.select.mockReturnValue(mockStoreSelect);
+			harnessSetup.select.mockReturnValue(mockStoreSelect);
 
 			const getter = createSelectGetter<TestItem, TestQuery>(mockConfig);
 			const selectNamespace = getter.call(mockResourceObject);
@@ -209,10 +192,7 @@ describe('grouped-api namespace factories', () => {
 		});
 
 		it('should return empty array from items selector when @wordpress/data not loaded', () => {
-			const windowWithWp = global.window as Window & { wp?: any };
-			if (windowWithWp.wp) {
-				windowWithWp.wp.data = undefined;
-			}
+			harnessSetup.harness.teardown();
 
 			const getter = createSelectGetter<TestItem, TestQuery>(mockConfig);
 			const selectNamespace = getter.call(mockResourceObject);
@@ -229,7 +209,7 @@ describe('grouped-api namespace factories', () => {
 			const mockStoreSelect = {
 				getItems: jest.fn().mockReturnValue(mockList),
 			};
-			mockWpData.select.mockReturnValue(mockStoreSelect);
+			harnessSetup.select.mockReturnValue(mockStoreSelect);
 
 			const getter = createSelectGetter<TestItem, TestQuery>(mockConfig);
 			const selectNamespace = getter.call(mockResourceObject);
@@ -244,7 +224,7 @@ describe('grouped-api namespace factories', () => {
 
 		it('should return empty array from list selector when method not available', () => {
 			const mockStoreSelect = {};
-			mockWpData.select.mockReturnValue(mockStoreSelect);
+			harnessSetup.select.mockReturnValue(mockStoreSelect);
 
 			const getter = createSelectGetter<TestItem, TestQuery>(mockConfig);
 			const selectNamespace = getter.call(mockResourceObject);
