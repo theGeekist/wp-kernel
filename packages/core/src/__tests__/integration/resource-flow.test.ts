@@ -11,7 +11,7 @@ import { TransportError } from '../../error/TransportError';
 import {
 	createWordPressTestHarness,
 	type WordPressTestHarness,
-} from '../../../tests/wp-environment.test-support';
+} from '@wpkernel/test-utils/core';
 
 // Use global types instead of local interface
 

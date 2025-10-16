@@ -10,7 +10,7 @@ import {
 	KernelError as CoreKernelError,
 	type WPKConfigSource,
 } from '@wpkernel/core/contracts';
-import { createReporterMock } from '../../../tests/reporter.test-support';
+import { createReporterMock } from '@wpkernel/test-utils/cli';
 
 jest.mock('../../config');
 jest.mock('../../ir');

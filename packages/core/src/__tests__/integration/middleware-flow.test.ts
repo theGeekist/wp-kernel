@@ -19,7 +19,7 @@ import { defineResource } from '../../resource/define';
 import {
 	createWordPressTestHarness,
 	type WordPressTestHarness,
-} from '../../../tests/wp-environment.test-support';
+} from '@wpkernel/test-utils/core';
 
 function createAction<TArgs = void, TResult = void>(
 	name: string,

@@ -5,7 +5,7 @@ import { execFile as execFileCallback } from 'node:child_process';
 import { promisify } from 'node:util';
 import { ApplyCommand } from '../apply';
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
-import { assignCommandContext } from '../../../tests/cli-command.test-support';
+import { assignCommandContext } from '@wpkernel/test-utils/cli';
 import { createWorkspaceRunner } from '../../../tests/workspace.test-support';
 
 const TMP_PREFIX = path.join(os.tmpdir(), 'wpk-apply-command-');

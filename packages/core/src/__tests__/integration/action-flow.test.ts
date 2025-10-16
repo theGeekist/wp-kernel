@@ -15,11 +15,9 @@ import type { ActionConfig, ActionOptions } from '../../actions/types';
 import {
 	withActionRuntimeOverrides,
 	type ActionRuntimeOverrides,
-} from '../../../tests/action-runtime.test-support';
-import {
 	createWordPressTestHarness,
 	type WordPressTestHarness,
-} from '../../../tests/wp-environment.test-support';
+} from '@wpkernel/test-utils/core';
 import { defineResource } from '../../resource/define';
 import * as cache from '../../resource/cache';
 import { KernelError } from '../../error/index';

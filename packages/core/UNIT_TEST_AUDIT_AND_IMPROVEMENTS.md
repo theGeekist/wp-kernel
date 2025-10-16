@@ -16,7 +16,7 @@
 
 ## Risks & Opportunities
 
-- **Hooks passthrough ergonomics** – `createApiFetchHarness()` wraps hook overrides in jest mocks; if future tests need the raw WordPress hook signatures, an explicit type-safe adapter could make the relationship clearer.【F:packages/core/tests/wp-environment.test-support.ts†L207-L346】
+- **Hooks passthrough ergonomics** – `createApiFetchHarness()` wraps hook overrides in jest mocks; if future tests need the raw WordPress hook signatures, an explicit type-safe adapter could make the relationship clearer.【F:packages/test-utils/src/core/wp-harness.ts†L142-L253】
 
 ## Recommended Follow-Ups
 

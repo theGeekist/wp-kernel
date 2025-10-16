@@ -6,7 +6,7 @@ import * as printers from '../../printers';
 import * as ir from '../../ir';
 import { EXIT_CODES } from '../run-generate/types';
 import { KernelError } from '@wpkernel/core/contracts';
-import { assignCommandContext } from '../../../tests/cli-command.test-support';
+import { assignCommandContext } from '@wpkernel/test-utils/cli';
 import { createWorkspaceRunner } from '../../../tests/workspace.test-support';
 
 jest.mock('json-schema-to-typescript', () => ({

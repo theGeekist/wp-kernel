@@ -12,10 +12,11 @@ import type {
 	KernelInstance,
 } from '@wpkernel/core/data';
 import type { Reporter } from '@wpkernel/core/reporter';
+import { KernelUIProvider } from '@wpkernel/ui';
 import {
 	createKernelUITestHarness,
 	type KernelUITestHarness,
-} from '../../../tests/ui-harness.test-support';
+} from '@wpkernel/test-utils/ui';
 
 const ACTION_STORE_KEY = 'wp-kernel/ui/actions';
 
@@ -115,7 +116,9 @@ interface StateMatrixCase {
 
 describe('useAction', () => {
 	beforeAll(() => {
-		harness = createKernelUITestHarness();
+		harness = createKernelUITestHarness({
+			provider: KernelUIProvider,
+		});
 		harness.suppressConsoleError((args) => {
 			try {
 				const message = String(args[0] ?? '');

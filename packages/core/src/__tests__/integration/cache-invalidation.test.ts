@@ -13,7 +13,7 @@ import {
 	createWordPressTestHarness,
 	type WordPressHarnessOverrides,
 	type WordPressTestHarness,
-} from '../../../tests/wp-environment.test-support';
+} from '@wpkernel/test-utils/core';
 
 type TestItem = {
 	id: number;

@@ -2,7 +2,7 @@ import { BuildCommand } from '../build';
 import { runGenerate } from '../run-generate';
 import { EXIT_CODES } from '../run-generate/types';
 import type { WPKExitCode } from '@wpkernel/core/contracts';
-import { assignCommandContext } from '../../../tests/cli-command.test-support';
+import { assignCommandContext } from '@wpkernel/test-utils/cli';
 import { flushAsync } from '../../../tests/async.test-support';
 
 const runGenerateMock = runGenerate as jest.MockedFunction<typeof runGenerate>;

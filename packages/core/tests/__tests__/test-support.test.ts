@@ -2,11 +2,9 @@ import type { Reporter } from '../../src/reporter/types.js';
 import {
 	applyActionRuntimeOverrides,
 	withActionRuntimeOverrides,
-} from '../action-runtime.test-support.js';
-import {
 	createWordPressTestHarness,
 	ensureWpData,
-} from '../wp-environment.test-support.js';
+} from '@wpkernel/test-utils/core';
 
 describe('@wpkernel/core test-support helpers', () => {
 	const createReporterStub = (): Reporter => {

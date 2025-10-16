@@ -11,6 +11,7 @@ import {
 	createWordPressTestHarness,
 	type WordPressTestHarness,
 } from '../core/wp-harness.js';
+import { createReporterMock } from '../shared/reporter.js';
 
 type KernelUIProviderComponent = (props: {
 	runtime: KernelUIRuntime;
@@ -39,31 +40,14 @@ export interface KernelUITestHarness {
 	teardown: () => void;
 }
 
-function createReporter(overrides: Partial<Reporter> = {}): Reporter {
-	const childMock = jest.fn<Reporter, []>();
-
-	const reporter: Reporter = {
-		info: jest.fn(),
-		warn: jest.fn(),
-		error: jest.fn(),
-		debug: jest.fn(),
-		child: overrides.child ?? (childMock as unknown as Reporter['child']),
-		...overrides,
-	};
-
-	if (!overrides.child) {
-		childMock.mockReturnValue(reporter);
-	}
-
-	return reporter;
-}
-
 function buildRuntime(
 	registry: KernelRegistry | undefined,
 	options: KernelUITestHarnessOptions,
 	overrides: Partial<KernelUIRuntime> = {}
 ): KernelUIRuntime {
-	const reporter = createReporter(options.reporter);
+	const reporter = createReporterMock({
+		overrides: options.reporter,
+	});
 
 	return {
 		namespace: options.namespace ?? 'tests',

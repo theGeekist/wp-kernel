@@ -8,7 +8,7 @@ import { KernelEventBus } from '../../events/bus';
 import {
 	createWordPressTestHarness,
 	type WordPressTestHarness,
-} from '../../../tests/wp-environment.test-support';
+} from '@wpkernel/test-utils/core';
 
 function createActionErrorEvent(
 	overrides: Partial<ActionErrorEvent> = {}
