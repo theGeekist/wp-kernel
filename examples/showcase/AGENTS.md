@@ -33,6 +33,11 @@ Provides **proof of concept** for new kernel features as they are developed.
 - [ ] **Seeds updated** if new data requirements arise.
 - [ ] **No hidden kernel logic**-do not let framework fixes live only in showcase.
 
+## Generated Artifacts Policy
+
+- All files emitted by `wpk init`, `wpk generate`, and `wpk apply` **must be committed** in this repository.
+- Regenerate and re-apply after dependency bumps (e.g. `@wpkernel/core`, `@wpkernel/ui`) to surface drift. Commit the resulting diffs so CI can spot printer/scaffold regressions.
+
 ## Patterns
 
 - Prefer using block.json `viewScriptModule`/`editorScriptModule` for mounting wherever possible.
