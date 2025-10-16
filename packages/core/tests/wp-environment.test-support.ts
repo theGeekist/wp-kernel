@@ -68,11 +68,11 @@ export function createWordPressTestHarness(
 	const hooks = createDefaultHooks(overrides.hooks);
 	const apiFetch = overrides.apiFetch ?? jest.fn();
 
-	const wp: NonNullable<Window['wp']> = {
+	const wp = {
 		data,
 		apiFetch,
 		hooks,
-	};
+	} as unknown as NonNullable<Window['wp']>;
 
 	window.wp = wp;
 

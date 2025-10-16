@@ -1,14 +1,14 @@
 export interface IntersectionObserverController {
 	trigger: (entry?: Partial<IntersectionObserverEntry>) => void;
 	restore: () => void;
-	mock: jest.MockedFunction<typeof IntersectionObserver>;
+	mock: jest.MockedClass<typeof IntersectionObserver>;
 }
 
 export function createIntersectionObserverMock(): IntersectionObserverController {
 	const originalObserver = window.IntersectionObserver;
 	const observers = new Set<IntersectionObserverCallback>();
 
-	const mock = jest.fn(
+	const mock = jest.fn<IntersectionObserver, [IntersectionObserverCallback]>(
 		(callback: IntersectionObserverCallback): IntersectionObserver => {
 			observers.add(callback);
 			return {
@@ -18,7 +18,7 @@ export function createIntersectionObserverMock(): IntersectionObserverController
 				takeRecords: jest.fn().mockReturnValue([]),
 			} as unknown as IntersectionObserver;
 		}
-	) as unknown as jest.MockedFunction<typeof IntersectionObserver>;
+	) as unknown as jest.MockedClass<typeof IntersectionObserver>;
 
 	window.IntersectionObserver =
 		mock as unknown as typeof IntersectionObserver;

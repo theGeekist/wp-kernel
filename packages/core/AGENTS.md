@@ -15,6 +15,8 @@ Shared test helpers live under `tests/*.test-support.ts`:
 - `tests/wp-environment.test-support.ts` - install/reset WordPress globals via `createWordPressTestHarness()`.
 - `tests/action-runtime.test-support.ts` - scoped helpers for overriding `__WP_KERNEL_ACTION_RUNTIME__`.
 
+`*.test-support.ts` helpers are excluded from the published build; run `pnpm --filter @wpkernel/core typecheck:tests` after touching them to keep the tests project in sync.
+
 ### Conventions
 
 Maintain namespace and event naming consistency-use helpers from `namespace/` and publish lifecycle updates via the typed event bus. Throw `KernelError` or an existing subclass (`TransportError`, `ServerError`, etc.); when introducing new errors, derive from `KernelError` so behaviour remains consistent. Keep exports surface-driven: no deep imports from `src/**` in other packages.

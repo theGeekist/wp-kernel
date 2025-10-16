@@ -81,7 +81,7 @@
 		"format": "prettier --write 'src/**/*.{js,ts,tsx,json,md}'",
 		"format:check": "prettier --check 'src/**/*.{js,ts,tsx,json,md}'",
 		"typecheck": "tsc --noEmit",
-		"typecheck:tests": "tsc --project tsconfig.tests.json --noEmit",
+		"typecheck:tests": "tsc --project tsconfig.tests.json --noEmit && tsc --project tests/tsconfig.json --noEmit",
 		"test": "jest --passWithNoTests",
 		"test:watch": "jest --watch",
 		"test:coverage": "jest --passWithNoTests --coverage"

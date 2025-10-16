@@ -8,6 +8,12 @@
 		"composite": true,
 		"types": ["jest", "node"]
 	},
-	"include": ["src/**/*", "../../tests/**/*"],
-	"exclude": ["node_modules", "dist", "dist-tests"]
+	"include": ["src/**/*", "tests/**/*", "../../tests/**/*"],
+	"exclude": [
+		"node_modules",
+		"dist",
+		"dist-tests",
+		"**/dist",
+		"**/*.test-support.d.ts"
+	]
 }

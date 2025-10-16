@@ -74,7 +74,7 @@ function buildRuntime(
 
 function createWrapper(runtime: KernelUIRuntime) {
 	return function Wrapper({ children }: { children: ReactNode }) {
-		return createElement(KernelUIProvider, { runtime }, children);
+		return createElement(KernelUIProvider, { runtime, children });
 	};
 }
 
