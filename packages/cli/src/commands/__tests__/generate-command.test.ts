@@ -1,13 +1,13 @@
 import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import { Writable } from 'node:stream';
 import type { BaseContext } from 'clipanion';
 import { GenerateCommand } from '../generate';
 import * as printers from '../../printers';
 import * as ir from '../../ir';
 import { EXIT_CODES } from '../run-generate/types';
 import { KernelError } from '@wpkernel/core/contracts';
+import { MemoryStream } from '../../../tests/memory-stream.test-support';
 
 jest.mock('json-schema-to-typescript', () => ({
 	compile: jest.fn(async () => 'export interface Schema {}\n'),
@@ -535,21 +535,4 @@ async function writeSchema(workspace: string): Promise<void> {
 		JSON.stringify(schema, null, 2),
 		'utf8'
 	);
-}
-
-class MemoryStream extends Writable {
-	private readonly chunks: string[] = [];
-
-	override _write(
-		chunk: string | Buffer,
-		_encoding: BufferEncoding,
-		callback: (error?: Error | null) => void
-	): void {
-		this.chunks.push(chunk.toString());
-		callback();
-	}
-
-	toString(): string {
-		return this.chunks.join('');
-	}
 }

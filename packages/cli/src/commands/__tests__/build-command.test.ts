@@ -1,8 +1,8 @@
-import { Writable } from 'node:stream';
 import { BuildCommand } from '../build';
 import { runGenerate } from '../run-generate';
 import { EXIT_CODES } from '../run-generate/types';
 import type { WPKExitCode } from '@wpkernel/core/contracts';
+import { MemoryStream } from '../../../tests/memory-stream.test-support';
 
 const runGenerateMock = runGenerate as jest.MockedFunction<typeof runGenerate>;
 const applyExecuteMock = jest.fn<Promise<WPKExitCode>, [unknown]>();
@@ -190,23 +190,6 @@ function createCommand(): {
 		.mockResolvedValue(0);
 
 	return { command, runViteBuildMock };
-}
-
-class MemoryStream extends Writable {
-	private readonly chunks: string[] = [];
-
-	override _write(
-		chunk: string | Buffer,
-		_encoding: BufferEncoding,
-		callback: (error?: Error | null) => void
-	): void {
-		this.chunks.push(chunk.toString());
-		callback();
-	}
-
-	override toString(): string {
-		return this.chunks.join('');
-	}
 }
 
 async function flushAsync(): Promise<void> {

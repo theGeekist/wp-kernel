@@ -2,6 +2,10 @@ import { KernelError } from '@wpkernel/core/error';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { ResourceConfig } from '@wpkernel/core/resource';
 import {
+	createReporterMock,
+	type ReporterMock,
+} from '../../../tests/reporter.test-support';
+import {
 	validateKernelConfig,
 	resourceRoutesValidator,
 	normalizeVersion,
@@ -60,30 +64,13 @@ interface TestConfig {
 	adapters?: { php?: unknown };
 }
 
-interface ReporterSpy {
-	child: jest.Mock<ReporterSpy>;
-	error: jest.Mock;
-	warn: jest.Mock;
-	info: jest.Mock;
-	debug: jest.Mock;
-}
-
-function createMockReporter() {
-	const childReporter = createReporterSpy();
-	const reporter = createReporterSpy(childReporter);
-	return { reporter: reporter as unknown as Reporter, child: childReporter };
-}
-
-function createReporterSpy(child?: ReporterSpy): ReporterSpy {
-	const reporter: ReporterSpy = {
-		child: jest.fn(() => child ?? reporter),
-		error: jest.fn(),
-		warn: jest.fn(),
-		info: jest.fn(),
-		debug: jest.fn(),
-	};
-	reporter.child.mockImplementation(() => child ?? reporter);
-	return reporter;
+function createMockReporter(): {
+	reporter: Reporter;
+	child: ReporterMock;
+} {
+	const child = createReporterMock();
+	const reporter = createReporterMock({ childFactory: () => child });
+	return { reporter: reporter as unknown as Reporter, child };
 }
 
 describe('validateKernelConfig', () => {
