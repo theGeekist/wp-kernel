@@ -9,6 +9,7 @@ import {
 	createMockResource,
 	type MockThing,
 	type MockThingQuery,
+	defineTestResource,
 } from '../../../../tests/resource.test-support';
 import { createWordPressTestHarness } from '../../../../tests/wp-environment.test-support';
 
@@ -55,10 +56,6 @@ describe('createStore - Grouped API', () => {
 			});
 
 			it('select.list should return empty array when getItems returns falsy', () => {
-				// Import defineResource to test with real implementation
-				// eslint-disable-next-line @typescript-eslint/no-require-imports
-				const { defineResource } = require('../../define');
-
 				// Mock window.wp.data.select to return a store with getItems that returns null
 				const mockGetItems = jest.fn().mockReturnValue(null);
 				const harness = createWordPressTestHarness({
@@ -70,7 +67,7 @@ describe('createStore - Grouped API', () => {
 				});
 
 				// Create a real resource
-				const realResource = defineResource({
+				const realResource = defineTestResource({
 					name: 'test',
 					routes: {
 						list: { path: '/wpk/v1/test', method: 'GET' },
