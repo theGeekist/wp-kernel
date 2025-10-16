@@ -6,17 +6,32 @@ export interface IntersectionObserverController {
 
 export function createIntersectionObserverMock(): IntersectionObserverController {
 	const originalObserver = window.IntersectionObserver;
-	const observers = new Set<IntersectionObserverCallback>();
+	const observers = new Map<
+		IntersectionObserverCallback,
+		{
+			instance: jest.Mocked<IntersectionObserver>;
+			options?: IntersectionObserverInit;
+		}
+	>();
 
-	const mock = jest.fn<IntersectionObserver, [IntersectionObserverCallback]>(
-		(callback: IntersectionObserverCallback): IntersectionObserver => {
-			observers.add(callback);
-			return {
+	const mock = jest.fn<
+		IntersectionObserver,
+		[IntersectionObserverCallback, IntersectionObserverInit | undefined]
+	>(
+		(
+			callback: IntersectionObserverCallback,
+			options?: IntersectionObserverInit
+		): IntersectionObserver => {
+			const instance = {
 				observe: jest.fn(),
 				unobserve: jest.fn(() => observers.delete(callback)),
 				disconnect: jest.fn(() => observers.delete(callback)),
 				takeRecords: jest.fn().mockReturnValue([]),
-			} as unknown as IntersectionObserver;
+			} as unknown as jest.Mocked<IntersectionObserver>;
+
+			observers.set(callback, { instance, options });
+
+			return instance as unknown as IntersectionObserver;
 		}
 	) as unknown as jest.MockedClass<typeof IntersectionObserver>;
 
@@ -36,8 +51,8 @@ export function createIntersectionObserverMock(): IntersectionObserverController
 				...entry,
 			} as IntersectionObserverEntry;
 
-			for (const callback of observers) {
-				callback([payload], mock as unknown as IntersectionObserver);
+			for (const [callback, { instance }] of observers) {
+				callback([payload], instance);
 			}
 		},
 		restore: () => {
