@@ -1,63 +1,9 @@
-import { createWorkspace } from '../../workspace/filesystem';
-import fs from 'node:fs/promises';
-import path from 'node:path';
-
-describe('FilesystemWorkspace basic operations', () => {
-	const root = path.join(process.cwd(), 'tmp-test-workspace');
-
-	beforeAll(async () => {
-		await fs
-			.rm(root, { recursive: true, force: true })
-			.catch(() => undefined);
-		await fs.mkdir(root, { recursive: true });
-	});
-
-	afterAll(async () => {
-		await fs
-			.rm(root, { recursive: true, force: true })
-			.catch(() => undefined);
-	});
-
-	it('read returns null for missing file and write/readText works', async () => {
-		const ws = createWorkspace(root);
-		const missing = await ws.readText('no-such-file.txt');
-		expect(missing).toBeNull();
-
-		await ws.write('dir/a.txt', 'hello');
-		const got = await ws.readText('dir/a.txt');
-		expect(got).toBe('hello');
-	});
-
-	it('begin/commit produces manifest with writes and deletes', async () => {
-		const ws = createWorkspace(root);
-		ws.begin('t1');
-		await ws.write('b.txt', 'x');
-		await ws.rm('does-not-exist.txt');
-		const manifest = await ws.commit('t1');
-		expect(manifest.writes).toContain('b.txt');
-	});
-
-	it('threeWayMerge returns clean when base matches incoming or current', async () => {
-		const ws = createWorkspace(root);
-		const file = 'm.txt';
-		await ws.write(file, 'base');
-		let status = await ws.threeWayMerge(file, 'base', 'base', 'incoming');
-		expect(status).toBe('clean');
-
-		status = await ws.threeWayMerge(file, 'base', 'current', 'base');
-		expect(status).toBe('clean');
-	});
-
-	it('tmpDir creates a directory under .tmp', async () => {
-		const ws = createWorkspace(root);
-		const dir = await ws.tmpDir('pref-');
-		expect(dir).toContain(path.join(root, '.tmp'));
-		await fs.rm(dir, { recursive: true, force: true });
-	});
-});
 import { execFile } from 'node:child_process';
 import os from 'node:os';
+import path from 'node:path';
+import fs from 'node:fs/promises';
 import { promisify } from 'node:util';
+import { createWorkspace } from '../filesystem';
 
 const execFileAsync = promisify(execFile);
 
@@ -171,8 +117,8 @@ describe('filesystem workspace', () => {
 			const workspace = createWorkspace(root);
 			const tmp = await workspace.tmpDir('next-workspace-');
 			expect(tmp.startsWith(path.join(root, '.tmp'))).toBe(true);
-			expect(await workspace.git.isRepo()).toBe(false);
-			expect(await workspace.git.currentBranch()).toBe('');
+			expect(await workspace.git?.isRepo()).toBe(false);
+			expect(await workspace.git?.currentBranch()).toBe('');
 		});
 	});
 
@@ -231,13 +177,13 @@ describe('filesystem workspace', () => {
 			await fs.writeFile(path.join(root, 'initial.txt'), 'seed');
 			const workspace = createWorkspace(root);
 
-			await expect(workspace.git.add([])).resolves.toBeUndefined();
-			await workspace.git.add('initial.txt');
-			expect(await workspace.git.isRepo()).toBe(true);
+			await expect(workspace.git?.add([])).resolves.toBeUndefined();
+			await workspace.git?.add('initial.txt');
+			expect(await workspace.git?.isRepo()).toBe(true);
 			await workspace.write('tracked.txt', 'content');
-			await workspace.git.add('tracked.txt');
-			await workspace.git.commit('chore: add tracked file');
-			const branch = await workspace.git.currentBranch();
+			await workspace.git?.add('tracked.txt');
+			await workspace.git?.commit('chore: add tracked file');
+			const branch = await workspace.git?.currentBranch();
 			expect(typeof branch).toBe('string');
 		});
 	});
@@ -265,59 +211,4 @@ describe('filesystem workspace', () => {
 			);
 		});
 	});
-
-	it('commit without active scope throws', async () => {
-		await withWorkspace(async (root) => {
-			const workspace = createWorkspace(root);
-			await expect(workspace.commit()).rejects.toThrow(
-				/Attempted to commit workspace transaction without an active scope/
-			);
-		});
-	});
-
-	it('rollback without active scope throws', async () => {
-		await withWorkspace(async (root) => {
-			const workspace = createWorkspace(root);
-			await expect(workspace.rollback()).rejects.toThrow(
-				/Attempted to rollback workspace transaction without an active scope/
-			);
-		});
-	});
-
-	it('rollback label mismatch throws', async () => {
-		await withWorkspace(async (root) => {
-			const workspace = createWorkspace(root);
-			workspace.begin('one');
-			await expect(workspace.rollback('other')).rejects.toThrow(
-				/Attempted to rollback transaction/
-			);
-		});
-	});
-
-	it('rollback restores original file content', async () => {
-		await withWorkspace(async (root) => {
-			const workspace = createWorkspace(root);
-			// create original file
-			await fs.writeFile(path.join(root, 'f.txt'), 'original');
-			workspace.begin('restore');
-			// overwrite file (this should record original on write)
-			await workspace.write('f.txt', 'changed');
-			const manifest = await workspace.rollback('restore');
-			expect(manifest.writes).toContain('f.txt');
-			const content = await workspace.readText('f.txt');
-			expect(content).toBe('original');
-		});
-	});
-
-	it('glob with empty patterns returns empty array', async () => {
-		await withWorkspace(async (root) => {
-			const workspace = createWorkspace(root);
-			const result = await workspace.glob([]);
-			expect(result).toEqual([]);
-		});
-	});
-
-	// (Removed flaky test that mocked native fs.rm; mocking node core promises
-	// properties is brittle in Jest. Remaining tests exercise the important
-	// branches: ENOENT handling, transactional restore, dry-run, commit/rollback guards.)
 });

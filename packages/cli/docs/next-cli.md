@@ -1,7 +1,15 @@
 # WPK CLI Next-Gen Architecture
 
-Status: Phase One (foundations) in progress – helper contracts, the pipeline runtime, IR fragments, and workspace scaffolding now live in `packages/cli/src/next`.
-Audience: core contributors iterating on the new CLI runtime and planning the next milestones.
+Status: Phase One complete – runtime helpers, workspace drivers, and IR fragments now ship under `packages/cli/src/next`.
+Audience: core contributors iterating on the new `packages/cli/src/next` namespace.
+
+## Phase One Deliverables
+
+- **Runtime pipeline** – `runtime/createPipeline.ts` executes registered fragment and builder helpers with dependency-aware ordering and step diagnostics.
+- **Helper utilities** – `next/helper.ts` codifies the shared helper signature used by both fragments and builders.
+- **Workspace adapter** – `next/workspace/filesystem.ts` provides transactional filesystem utilities, git helpers, and JSON writers reused by builders.
+- **IR construction** – `next/ir/createIr.ts` and fragment helpers build the intermediate representation before builders run.
+- **Builder surface** – `next/builders/*` exposes PHP, TypeScript, bundler, and patcher builders backed by the shared helper contract.
 
 ## Objectives
 
@@ -348,6 +356,14 @@ Deliverables (tracked independently so cloud agents can contribute without confl
 5. **Builder stubs** – placeholder builders (`bundler`, `php`, `ts`, `patcher`) register successfully and log debug output. They will be swapped with real drivers in subsequent workstreams. (_Status: done as scaffolds_)
 6. **Parity scaffolding** – IR golden tests exist (`ir/__tests__/createIr.test.ts`); artifact parity is deferred until real builders land. (_Status: foundations done_)
 7. **Documentation & ADRs** – helper contract and conflict rules documented here; ADR-00X will memorialise the pipeline semantics. (_Status: in progress_)
+
+### Phase One implementation snapshot
+
+The first milestone now lives under `packages/cli/src/next`. The `createHelper` utility standardises helper metadata and powers the new `createPipeline` runtime, which performs dependency-aware ordering, conflict detection, and middleware-style chaining across fragments and builders. Core IR behaviour has been ported into dedicated helpers in `ir/fragments`, and `createIr` composes them to reproduce the legacy IR (`buildIr`) byte-for-byte for the showcase fixtures. Builder surfaces ship as debuggable no-ops so future work can focus on parity without breaking command execution.
+
+Runtime plumbing is exercised through Jest suites in `packages/cli/src/next/**/__tests__`, including a golden test that asserts the next-gen IR matches the existing implementation. The filesystem-backed workspace handle (`createWorkspace`) wraps atomic writes, dry-run manifests, and simple three-way merges so forthcoming builders can queue file operations deterministically. Reporter integration leans on the core `createNoopReporter` until richer transports are wired in.
+
+These foundations unblock follow-on work: parity builders can incrementally land behind the new pipeline while additional diagnostics, ADRs, and documentation flesh out the extension story.
 
 Exit criteria:
 
