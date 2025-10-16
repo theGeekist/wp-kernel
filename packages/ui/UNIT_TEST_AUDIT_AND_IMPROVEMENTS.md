@@ -9,6 +9,7 @@
 - **DataView interaction controller exported.** `createDataViewsTestController` now ships with the harness so future suites can mutate selection and view state without bespoke callback plumbing when covering mixed selection or pagination flows.【F:packages/ui/src/dataviews/test-support/ResourceDataView.test-support.tsx†L360-L461】【F:packages/ui/src/dataviews/test-support/**tests**/ResourceDataView.test-support.test.tsx†L76-L116】
 - **Mixed selection flows covered through the action harness.** The ResourceDataView action suite now drives selection via `createDataViewsTestController`, mixing manual and item-driven updates to assert action args, metadata, and event payloads stay normalized even when the UI selection contains stale identifiers.【F:packages/ui/src/dataviews/**tests**/ResourceDataView.actions.test.tsx†L1-L229】
 - **Standalone fetch specs exercise paginated view changes.** The fetch suite now renders through a shared standalone scenario helper and drives pagination via the DataView controller to verify multi-page refetching, total page computation, and data replacement when navigating between pages.【F:packages/ui/src/dataviews/**tests**/ResourceDataView.fetch.test.tsx†L1-L153】
+- **Pagination guards are exercised through standalone fetch scenarios.** Dedicated tests now cover zero and undefined `perPage` values to ensure pagination fallback logic continues to clamp totals to a single page during rerenders.【F:packages/ui/src/dataviews/**tests**/ResourceDataView.fetch.test.tsx†L220-L282】
 
 ## Quality signals
 
@@ -18,4 +19,4 @@
 
 ## Opportunities
 
-- **Exercise pagination fallback guards.** `ResourceDataView` normalizes zero or undefined `perPage` values when computing total pages; dedicated tests could confirm the fetch integration preserves those safeguards during pagination-driven rerenders.【F:packages/ui/src/dataviews/ResourceDataView.tsx†L26-L40】
+- _No outstanding items._ Continue monitoring pagination edge cases as the DataView surface evolves.【F:packages/ui/src/dataviews/ResourceDataView.tsx†L26-L40】
