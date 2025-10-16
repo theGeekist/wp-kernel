@@ -32,6 +32,7 @@ const WPK_CONFIG_FILENAME = ['kernel', 'config.ts'].join('.');
 const SRC_INDEX_PATH = path.join('src', 'index.ts');
 const ESLINT_CONFIG_FILENAME = 'eslint.config.js';
 const TSCONFIG_FILENAME = 'tsconfig.json';
+const JSCONFIG_FILENAME = 'jsconfig.json';
 const PACKAGE_JSON_FILENAME = 'package.json';
 const COMPOSER_JSON_FILENAME = 'composer.json';
 
@@ -79,8 +80,14 @@ export class InitCommand extends Command {
 		const force = this.force === true;
 		const phpNamespace = buildPhpNamespace(namespace);
 		const composerPackage = buildComposerPackageName(namespace);
-		const tsconfigReplacements =
-			await createTsconfigReplacements(workspace);
+		const pathEntries = await resolvePathAliasEntries(workspace);
+		const formattedPaths = formatPathsForTemplate(pathEntries);
+		const tsconfigReplacements = {
+			'"__WPK_TSCONFIG_PATHS__"': formattedPaths,
+		};
+		const jsconfigReplacements = {
+			'"__WPK_JSCONFIG_PATHS__"': formattedPaths,
+		};
 
 		const files: ScaffoldFile[] = [
 			{
@@ -111,6 +118,11 @@ export class InitCommand extends Command {
 				relativePath: TSCONFIG_FILENAME,
 				templatePath: 'tsconfig.json',
 				replacements: tsconfigReplacements,
+			},
+			{
+				relativePath: JSCONFIG_FILENAME,
+				templatePath: 'jsconfig.json',
+				replacements: jsconfigReplacements,
 			},
 			{
 				relativePath: ESLINT_CONFIG_FILENAME,
@@ -571,81 +583,81 @@ function applyReplacements(
 	return result;
 }
 
-async function createTsconfigReplacements(
+async function resolvePathAliasEntries(
 	workspace: string
-): Promise<Record<string, string>> {
+): Promise<Array<[string, string[]]>> {
 	const entries: Array<[string, string[]]> = [['@/*', ['./src/*']]];
 
 	const repoRoot = await findRepoRoot(workspace);
 
-	if (repoRoot) {
-		const repoEntries: Array<{
-			alias: string;
-			check: string[];
-			target: string[];
-		}> = [
-			{
-				alias: '@wpkernel/core',
-				check: ['packages', 'core', 'src', 'index.ts'],
-				target: ['packages', 'core', 'src', 'index.ts'],
-			},
-			{
-				alias: '@wpkernel/core/*',
-				check: ['packages', 'core', 'src'],
-				target: ['packages', 'core', 'src', '*'],
-			},
-			{
-				alias: '@wpkernel/ui',
-				check: ['packages', 'ui', 'src', 'index.ts'],
-				target: ['packages', 'ui', 'src', 'index.ts'],
-			},
-			{
-				alias: '@wpkernel/ui/*',
-				check: ['packages', 'ui', 'src'],
-				target: ['packages', 'ui', 'src', '*'],
-			},
-			{
-				alias: '@wpkernel/cli',
-				check: ['packages', 'cli', 'src', 'index.ts'],
-				target: ['packages', 'cli', 'src', 'index.ts'],
-			},
-			{
-				alias: '@wpkernel/cli/*',
-				check: ['packages', 'cli', 'src'],
-				target: ['packages', 'cli', 'src', '*'],
-			},
-			{
-				alias: '@wpkernel/e2e-utils',
-				check: ['packages', 'e2e-utils', 'src', 'index.ts'],
-				target: ['packages', 'e2e-utils', 'src', 'index.ts'],
-			},
-			{
-				alias: '@wpkernel/e2e-utils/*',
-				check: ['packages', 'e2e-utils', 'src'],
-				target: ['packages', 'e2e-utils', 'src', '*'],
-			},
-			{
-				alias: '@test-utils/*',
-				check: ['tests', 'test-utils'],
-				target: ['tests', 'test-utils', '*'],
-			},
-		];
-
-		for (const entry of repoEntries) {
-			const checkPath = path.join(repoRoot, ...entry.check);
-			if (!(await pathExists(checkPath))) {
-				continue;
-			}
-
-			const targetPath = path.join(repoRoot, ...entry.target);
-			const relative = path.relative(workspace, targetPath);
-			entries.push([entry.alias, [normaliseRelativePath(relative)]]);
-		}
+	if (!repoRoot) {
+		return entries;
 	}
 
-	return {
-		'"__WPK_TSCONFIG_PATHS__"': formatPathsForTemplate(entries),
-	};
+	const repoEntries: Array<{
+		alias: string;
+		check: string[];
+		target: string[];
+	}> = [
+		{
+			alias: '@wpkernel/core',
+			check: ['packages', 'core', 'src', 'index.ts'],
+			target: ['packages', 'core', 'src', 'index.ts'],
+		},
+		{
+			alias: '@wpkernel/core/*',
+			check: ['packages', 'core', 'src'],
+			target: ['packages', 'core', 'src', '*'],
+		},
+		{
+			alias: '@wpkernel/ui',
+			check: ['packages', 'ui', 'src', 'index.ts'],
+			target: ['packages', 'ui', 'src', 'index.ts'],
+		},
+		{
+			alias: '@wpkernel/ui/*',
+			check: ['packages', 'ui', 'src'],
+			target: ['packages', 'ui', 'src', '*'],
+		},
+		{
+			alias: '@wpkernel/cli',
+			check: ['packages', 'cli', 'src', 'index.ts'],
+			target: ['packages', 'cli', 'src', 'index.ts'],
+		},
+		{
+			alias: '@wpkernel/cli/*',
+			check: ['packages', 'cli', 'src'],
+			target: ['packages', 'cli', 'src', '*'],
+		},
+		{
+			alias: '@wpkernel/e2e-utils',
+			check: ['packages', 'e2e-utils', 'src', 'index.ts'],
+			target: ['packages', 'e2e-utils', 'src', 'index.ts'],
+		},
+		{
+			alias: '@wpkernel/e2e-utils/*',
+			check: ['packages', 'e2e-utils', 'src'],
+			target: ['packages', 'e2e-utils', 'src', '*'],
+		},
+		{
+			alias: '@test-utils/*',
+			check: ['tests', 'test-utils'],
+			target: ['tests', 'test-utils', '*'],
+		},
+	];
+
+	for (const entry of repoEntries) {
+		const checkPath = path.join(repoRoot, ...entry.check);
+		if (!(await pathExists(checkPath))) {
+			continue;
+		}
+
+		const targetPath = path.join(repoRoot, ...entry.target);
+		const relative = path.relative(workspace, targetPath);
+		entries.push([entry.alias, [normaliseRelativePath(relative)]]);
+	}
+
+	return entries;
 }
 
 async function findRepoRoot(start: string): Promise<string | null> {

@@ -369,6 +369,8 @@ async function withWorkspace(
 			await writeKernelConfig(workspace);
 		}
 
+		await linkKernelPackages(workspace);
+
 		await writeSchema(workspace);
 
 		const originalCwd = process.cwd();
@@ -401,6 +403,37 @@ function createCommand(workspace: string): GenerateCommand {
 	command.verbose = false;
 
 	return command;
+}
+
+async function linkKernelPackages(workspace: string): Promise<void> {
+	const packagesRoot = path.resolve(__dirname, '..', '..', '..', '..');
+	const mappings: Record<string, string> = {
+		'@wpkernel/core': path.join(packagesRoot, 'core'),
+		'@wpkernel/ui': path.join(packagesRoot, 'ui'),
+	};
+
+	for (const [specifier, source] of Object.entries(mappings)) {
+		const target = path.join(
+			workspace,
+			'node_modules',
+			...specifier.split('/')
+		);
+		await fs.mkdir(path.dirname(target), { recursive: true });
+
+		try {
+			const linkType = process.platform === 'win32' ? 'junction' : 'dir';
+			await fs.symlink(source, target, linkType);
+		} catch (error) {
+			if (error && typeof error === 'object' && 'code' in error) {
+				const code = (error as { code?: string }).code;
+				if (code === 'EEXIST') {
+					continue;
+				}
+			}
+
+			throw error;
+		}
+	}
 }
 
 async function writeKernelConfig(

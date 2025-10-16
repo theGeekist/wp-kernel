@@ -11,6 +11,7 @@ const external = [
 	'@wordpress/data',
 	'@wordpress/components',
 	'@wordpress/element',
+	'typescript',
 ];
 
 export default createKernelLibConfig(
