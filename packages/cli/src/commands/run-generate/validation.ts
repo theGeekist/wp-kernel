@@ -251,11 +251,45 @@ function applyCompilerOptionDefaults(
 		}
 	}
 
-	if (resolved.baseUrl === undefined) {
-		resolved.baseUrl = projectRoot;
+	const normalisedProjectRoot = path.resolve(projectRoot);
+	const resolvedBaseUrl = resolveBaseUrl(resolved.baseUrl);
+
+	if (
+		!resolvedBaseUrl ||
+		!isPathWithin(normalisedProjectRoot, resolvedBaseUrl)
+	) {
+		resolved.baseUrl = normalisedProjectRoot;
 	}
 
 	return resolved;
+}
+
+function resolveBaseUrl(
+	baseUrl: CompilerOptions['baseUrl']
+): string | undefined {
+	if (typeof baseUrl !== 'string') {
+		return undefined;
+	}
+
+	try {
+		return path.resolve(baseUrl);
+	} catch (_error) {
+		return undefined;
+	}
+}
+
+function isPathWithin(root: string, candidate: string): boolean {
+	const normalisedRoot = root.endsWith(path.sep)
+		? root
+		: `${root}${path.sep}`;
+	const normalisedCandidate = candidate.endsWith(path.sep)
+		? candidate
+		: `${candidate}${path.sep}`;
+
+	return (
+		normalisedCandidate === normalisedRoot ||
+		normalisedCandidate.startsWith(normalisedRoot)
+	);
 }
 
 function isRelevantDiagnostic(
