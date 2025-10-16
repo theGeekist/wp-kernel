@@ -50,3 +50,30 @@
 (1) Scaffold `packages/test-utils` with WordPress + workspace primitives migrated under domain-specific entry points. Ensure monorepo configs are updated to recognise this new package
 (2) Update CLI, Core, UI, and e2e packages to consume the new surfaces, leaving compatibility re-exports until downstream branches land.
 (3) Refresh root + package AGENTS/README guidance to point at `@wpkernel/test-utils`, then retire direct relative imports.
+
+### Step (1) implementation blueprint: Scaffold `@wpkernel/test-utils`
+
+**Package shape**
+
+- Create `packages/test-utils` with standard scaffolding (`package.json`, `tsconfig.json`, `tsconfig.tests.json`, `src/`, `tests/`, `CHANGELOG.md`) mirroring the existing package conventions so that build, typecheck, and lint pipelines pick it up without bespoke wiring.【F:package.json†L18-L33】【F:tsconfig.base.json†L16-L54】
+- Publish domain-specific barrels under `src/index.ts` that re-export focused entry points:
+
+    | Domain                 | New entry point                    | Source helpers to migrate                                                                                                                                                                                                                                                                                 |
+    | ---------------------- | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+    | WordPress globals      | `@wpkernel/test-utils/wp`          | `tests/test-utils/wp.test-support.ts` (namespace reset, env controls, API fetch harness).【F:tests/test-utils/wp.test-support.ts†L1-L140】                                                                                                                                                                |
+    | Core adapters          | `@wpkernel/test-utils/core`        | Action/runtime overrides and resource factories currently in `packages/core/tests/*.test-support.ts`.【F:packages/core/tests/action-runtime.test-support.ts†L1-L67】【F:packages/core/tests/resource.test-support.ts†L1-L210】                                                                            |
+    | CLI harness            | `@wpkernel/test-utils/cli`         | Command context helpers, workspace runner, reporter mocks from the CLI package tests.【F:packages/cli/tests/cli-command.test-support.ts†L1-L62】【F:packages/cli/tests/workspace.test-support.ts†L13-L90】【F:packages/cli/tests/reporter.test-support.ts†L25-L41】                                       |
+    | Integration primitives | `@wpkernel/test-utils/integration` | Workspace factory, CLI runner, and manifest utilities now rooted in `@wpkernel/e2e-utils` integration helpers.【F:packages/e2e-utils/src/integration/workspace.ts†L26-L189】【F:packages/e2e-utils/src/integration/cli-runner.ts†L1-L183】【F:packages/e2e-utils/src/integration/fs-manifest.ts†L1-L113】 |
+
+- Maintain backwards compatibility by keeping `tests/test-utils/wp.ts` (and the `.test-support` barrel) as thin re-exports to the new package until every consumer flips to `@wpkernel/test-utils/wp`.【F:tests/test-utils/wp.ts†L1-L1】
+
+**Configuration touchpoints**
+
+- Extend path aliases and module maps so TypeScript, Jest, and docs builds resolve `@wpkernel/test-utils` without falling back to relative imports: add aliases in `tsconfig.base.json`, moduleNameMapper entries in root + package Jest configs, and include the new package in `tsconfig.json` references and `tsconfig.docs.json` include globs.【F:tsconfig.base.json†L16-L26】【F:jest.config.js†L17-L33】【F:tsconfig.json†L1-L13】【F:tsconfig.docs.json†L8-L14】
+- Register the package with release automation (`release-please-config.json`) and API docs (`typedoc.json`) so version bumps and documentation builds account for the new surface.【F:release-please-config.json†L3-L22】【F:typedoc.json†L3-L11】
+- Verify workspace discovery (pnpm, lint, typecheck scripts) already matches `packages/*`, requiring no additional glob tweaks but ensuring the new package exports pass the existing pipelines.【F:pnpm-workspace.yaml†L1-L4】【F:package.json†L18-L35】
+
+**Extraction guardrails**
+
+- Move helpers incrementally, keeping re-exports inside `@wpkernel/e2e-utils` for the integration layer to avoid breaking external consumers while the migration is underway.【F:packages/e2e-utils/src/integration/workspace.ts†L26-L189】【F:packages/e2e-utils/src/integration/cli-runner.ts†L1-L183】
+- Validate that existing environment utilities remain fully typed by running the package `typecheck` and `typecheck:tests` commands once scaffolding lands, ensuring no regressions in `@test-utils` alias consumers before packages flip to the new entry points.【F:tests/test-utils/wp.test-support.ts†L69-L140】【F:jest.config.js†L17-L33】
