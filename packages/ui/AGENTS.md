@@ -9,6 +9,7 @@ This file supplements the root [AGENTS.md](../../AGENTS.md) with agent guideline
 - Build: `pnpm build`
 - Test: `pnpm test`
 - Verify no `@wordpress/*` packages are bundled; all are peer dependencies.
+- Shared helpers: use `tests/ui-harness.test-support.ts` for runtime + provider setup and `tests/dom-observer.test-support.ts` for `IntersectionObserver`/`requestAnimationFrame` mocks.
 
 ---
 

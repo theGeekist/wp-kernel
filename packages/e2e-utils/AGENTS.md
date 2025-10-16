@@ -9,6 +9,10 @@ Focus on Playwright fixture extensions (`test.ts`), the consolidated `createKern
 ### Build & Test
 
 Run `pnpm build --filter @wpkernel/e2e-utils` followed by `pnpm test --filter @wpkernel/e2e-utils`. If fixtures change, rerun the showcase Playwright suite to ensure integration parity.
+New test-support exports live under `src/test-support/*.test-support.ts` and are re-exported from `src/index.ts`/`package.json`:
+
+- `withIsolatedWorkspace` + `writeWorkspaceFiles` for workspace lifecycle management
+- `runNodeSnippet` for capturing Node CLI transcripts in tests
 
 ### Conventions
 

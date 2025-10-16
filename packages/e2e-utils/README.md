@@ -96,6 +96,13 @@ await dataview.runBulkAction('Publish');
 expect(await dataview.getSelectedCount()).toBeGreaterThan(0);
 ```
 
+## Test Support Helpers
+
+- `withIsolatedWorkspace()` ensures temporary workspaces are disposed safely and
+  exposes `writeWorkspaceFiles()` for declarative fixture creation.
+- `runNodeSnippet()` executes inline Node.js scripts through the same transcript
+  surface as CLI runs, making it easy to capture stdout/stderr in tests.
+
 ## Validation Strategy
 
 **Real-world validation** - This package is tested through actual usage in the showcase app's E2E tests rather than isolated unit tests, ensuring utilities work correctly in live WordPress environments.

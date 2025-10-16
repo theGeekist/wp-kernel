@@ -40,6 +40,16 @@
 			"import": "./dist/createKernelUtils.js",
 			"default": "./dist/createKernelUtils.js"
 		},
+		"./test-support/isolated-workspace": {
+			"types": "./dist/test-support/isolated-workspace.test-support.d.ts",
+			"import": "./dist/test-support/isolated-workspace.test-support.js",
+			"default": "./dist/test-support/isolated-workspace.test-support.js"
+		},
+		"./test-support/cli-runner": {
+			"types": "./dist/test-support/cli-runner.test-support.d.ts",
+			"import": "./dist/test-support/cli-runner.test-support.js",
+			"default": "./dist/test-support/cli-runner.test-support.js"
+		},
 		"./types": {
 			"types": "./dist/types.d.ts",
 			"default": "./dist/types.d.ts"

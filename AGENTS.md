@@ -38,7 +38,7 @@ This document provides operational guidance for coding agents (Codex, etc.) work
     - Typecheck tests: `pnpm typecheck:tests`
     - Test all: `pnpm test` (do not use `--filter`)
     - Build: `pnpm build` (if needed)
-- We have `types/globals.d.ts`, `tests/test-globals.d.ts`, and stubs in `tests/test-utils/wp.ts` for typing and testing support. Use these and update incrementally as needed.
+- We have `types/globals.d.ts`, `tests/test-globals.d.ts`, and shared helpers in `tests/test-utils/wp.test-support.ts` (re-exported via `tests/test-utils/wp.ts`) for typing and testing support. Use these and update incrementally as needed. Package-specific helpers live under `packages/*/tests/**.test-support.ts` and are documented in each package's `AGENTS.md`.
 - When running agents (Codex, Co-Pilot, etc.) inside private containers or CI, set `CI=1` before running any `git` commands to ensure non-interactive behavior.
 - The pre-commit hook will take some time. PLease allow it to finish!
 
