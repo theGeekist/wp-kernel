@@ -60,6 +60,12 @@ The `start` command replaces `wpk dev`; the latter remains as a deprecated alias
 - **[MVP CLI Spec](./mvp-cli-spec.md)** – authoritative reference for the pipeline
 - **[Kernel docs](https://thegeekist.github.io/wp-kernel/)** – framework guides and configuration reference
 
+## Testing Helpers
+
+- `tests/rule-tester.test-support.ts` exports `createRuleTester()` and fixture
+  builders that keep ESLint rule suites aligned with the TypeScript parser and
+  canonical config snippets.
+
 ## Requirements
 
 - Node.js 20+

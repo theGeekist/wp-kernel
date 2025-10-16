@@ -35,3 +35,9 @@ export type {
  * Current version of WP Kernel E2E Utils
  */
 export const VERSION = '1.0.0';
+
+export {
+	withIsolatedWorkspace,
+	writeWorkspaceFiles,
+} from './test-support/isolated-workspace.test-support.js';
+export { runNodeSnippet } from './test-support/cli-runner.test-support.js';
