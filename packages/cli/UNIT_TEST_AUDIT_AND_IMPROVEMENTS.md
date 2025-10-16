@@ -1,18 +1,62 @@
-# Unit Test Audit & Improvement Plan
+# @wpkernel/cli – Unit Test Audit (2024 refresh)
 
-## Key Observations
+## Snapshot
 
-- Current coverage is limited to config surfacing and the version export; there are no assertions around command parsing, project scaffolding, or error handling pathways.【F:packages/cli/src/**tests**/bundler-config.test.ts†L1-L31】【F:packages/cli/src/**tests**/version.test.ts†L1-L8】
-- ESLint rule suites re-create `RuleTester` instances, parser configuration, and shared source headers for every rule grouping, leading to verbose fixtures that are difficult to extend consistently even though we already document reusable setup expectations in `tests/TEST_PATTERNS.md` and support reuse via the shared `tests/test-utils/wp.test-support.ts` exports.【F:packages/cli/**tests**/eslint-rules/kernel-config-rules.test.ts†L1-L125】【F:tests/TEST_PATTERNS.md†L78-L122】【F:tests/test-utils/wp.test-support.ts†L1-L115】
-- Tests rely on inline template strings for generated config files, so real template drift or CLI output regressions are not automatically caught.
+- Package coverage remains high (≈97% statements / 90% branches) with focused
+  suites around command execution, printers, and config loaders. The shared
+  harness utilities introduced over the last refactors keep this bar steady by
+  eliminating per-suite boilerplate.
+- Core helpers now live under `packages/cli/tests`: reporters, memory streams,
+  Clipanion contexts, async flushing, and disposable workspaces. Each ships its
+  own unit coverage so behaviour changes surface immediately.
+- Generator output continues to be asserted via golden fixtures, ensuring drift
+  in templates or printer pipelines is caught without duplicative inline
+  snapshots.
 
-## Actionable Improvements
+## Strengths
 
-- [ ] **Workspace-level CLI integration tests.** Execute `bin/wpkernel` against isolated temp workspaces (leveraging `@wpkernel/e2e-utils`) to assert scaffold flows, help output, and failure messaging end-to-end.
-- [x] **Rule tester helper extracted.** `tests/rule-tester.test-support.ts` centralises ESLint parser options plus fixture builders, ships self-tests, and is documented in the AGENT/README for discoverability.【F:packages/cli/tests/rule-tester.test-support.ts†L1-L105】【F:packages/cli/tests/**tests**/rule-tester.test.ts†L1-L40】【F:packages/cli/AGENTS.md†L12-L16】【F:packages/cli/README.md†L44-L48】
-- [x] **Reporter mock helper shared.** `tests/reporter.test-support.ts` now supplies the canonical reporter mock used across adapter and command suites, replacing bespoke implementations and shipping dedicated unit coverage so future tweaks remain safe.【F:packages/cli/tests/reporter.test-support.ts†L1-L32】【F:packages/cli/tests/**tests**/reporter.test.ts†L1-L24】【F:packages/cli/src/adapters/**tests**/extensions.test.ts†L1-L24】【F:packages/cli/src/commands/**tests**/run-generate.test.ts†L1-L15】
-- [x] **Stream harness shared.** `tests/memory-stream.test-support.ts` now centralises the writable stream used by CLI command suites, removing the per-file `MemoryStream` implementations and pairing the helper with focused unit tests.【F:packages/cli/tests/memory-stream.test-support.ts†L1-L25】【F:packages/cli/tests/**tests**/memory-stream.test.ts†L1-L21】【F:packages/cli/src/commands/**tests**/build-command.test.ts†L1-L104】【F:packages/cli/src/commands/**tests**/start-command.test.ts†L1-L120】
-- [x] **Golden-file assertions for generators.** Generator suites snapshot `.generated` output against committed fixtures, ensuring template drift is surfaced through focused assertions.【F:packages/cli/src/commands/**tests**/**fixtures**/default.json†L1-L12】【F:packages/cli/src/commands/**tests**/generate-command.test.ts†L20-L68】
-- [x] **Printer and adapter coverage.** UI printer suite now exercises screen, fixture, and menu emission through mocked filesystem boundaries while asserting serialisation failures bubble as kernel errors, rounding out adapter/printer behaviour coverage.【F:packages/cli/src/printers/ui/**tests**/printer.test.ts†L1-L200】
-- [x] **Consistent helper naming & docs.** `.test-support.ts` naming is enforced for new utilities, with guidance published alongside links back to `tests/TEST_PATTERNS.md` to keep imports consistent across packages.【F:packages/cli/tests/rule-tester.test-support.ts†L1-L105】【F:tests/TEST_PATTERNS.md†L1-L122】
-- [x] **Command harness & workspace utilities.** Shared helpers now attach CLI command contexts, async flush behaviour, and disposable workspaces so suites stop reimplementing boilerplate setup/teardown logic, cutting duplication across command/config tests while documenting behaviour through dedicated unit coverage.【F:packages/cli/tests/cli-command.test-support.ts†L1-L43】【F:packages/cli/tests/async.test-support.ts†L1-L26】【F:packages/cli/tests/workspace.test-support.ts†L1-L46】【F:packages/cli/tests/**tests**/cli-command.test.ts†L1-L32】【F:packages/cli/tests/**tests**/async.test.ts†L1-L38】【F:packages/cli/tests/**tests**/workspace.test.ts†L1-L38】【F:packages/cli/src/commands/**tests**/build-command.test.ts†L1-L107】【F:packages/cli/src/commands/**tests**/start-command.test.ts†L1-L220】【F:packages/cli/src/commands/**tests**/init-command.test.ts†L1-L200】【F:packages/cli/src/config/**tests**/load-kernel-config.test.ts†L1-L60】
+1. **Unified command harness.** All command suites rely on the shared
+   `assignCommandContext`, `flushAsync`, and `createWorkspaceRunner`
+   helpers, which keeps stdout/stderr capture, async settling, and temp
+   workspace management consistent while dramatically shrinking fixture noise.
+2. **Golden-file coverage.** `generate-command` asserts its full output against
+   committed fixtures, so template updates or new printers surface as diff noise
+   rather than brittle string expectations.
+3. **Printer resiliency.** UI printer suites exercise success and failure paths
+   (including symbol serialisation errors) with mocked FS + formatters, covering
+   real-world error propagation scenarios.
+4. **Workspace abstraction.** `createWorkspaceRunner` allows suites to opt into
+   bespoke prefixes/default file graphs without redeclaring wrappers, further
+   reducing duplication.
+
+## Gaps & Opportunities
+
+- **No top-level CLI invocation tests.** We still lack a suite that executes the
+  published `bin/wpkernel` binary against disposable workspaces to validate help
+  output, flag parsing, and exit codes end-to-end. This would complement the
+  unit-level command coverage.
+- **Adapter extension scenarios.** Extensions are covered for basic reporting,
+  but there is room to simulate more complex extension chains (multiple
+  extensions mutating IR, failure ordering) to harden the adapter contract.
+- **Start command integration.** The refactored unit suite now has lighter
+  helpers, yet we still rely on heavy timer orchestration. A future enhancement
+  could substitute the mocked watcher with a thin façade around `FakeTimers` to
+  more directly assert debounce scheduling semantics or to cover platform
+  signals beyond `SIGINT/SIGTERM`.
+- **Workspace builder ergonomics.** `createWorkspaceRunner` merges default and
+  override file maps, but there is no convenience API for common project
+  skeletons (e.g. init/generate pipeline). A small layer of named presets could
+  simplify future suites.
+
+## Suggested Next Steps
+
+1. Add a CLI integration harness (likely under `packages/cli/__tests__`) that
+   shells out to `bin/wpkernel` for `--help`, `init`, and failure cases, using
+   the shared workspace utilities.
+2. Expand adapter/extension tests to simulate multiple queued extensions and IR
+   mutations, ensuring order and error handling remain deterministic.
+3. Investigate a higher-level debounce helper for the `start` command tests so
+   timer choreography is expressed declaratively (e.g. `triggerFastChange()`),
+   reducing manual `advanceTimersByTimeAsync` calls.
+4. Consider adding reusable workspace presets (init scaffold, generated
+   artifact set, etc.) atop `createWorkspaceRunner` to keep future suites terse.

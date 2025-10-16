@@ -20,6 +20,8 @@ const runGenerateMock = runGenerate as jest.MockedFunction<typeof runGenerate>;
 const watchMock = chokidar.watch as jest.MockedFunction<typeof chokidar.watch>;
 const mockedFs = fs as jest.Mocked<typeof fs>;
 
+const flushTimers = () => flushAsync({ runAllTimers: true });
+
 describe('StartCommand', () => {
 	beforeEach(() => {
 		jest.useFakeTimers();
@@ -41,44 +43,32 @@ describe('StartCommand', () => {
 	});
 
 	it('performs initial generation and responds to fast changes', async () => {
-		const watcher = new FakeWatcher() as unknown as FSWatcher;
-		watchMock.mockReturnValue(watcher);
-
 		const { command, stdout } = createStartCommand();
-		const executePromise = command.execute();
+		const { watcher, executePromise } = await runCommand(command);
 
-		await flushAsync({ runAllTimers: true });
 		expect(runGenerateMock).toHaveBeenCalledTimes(1);
 
 		watcher.emit('all', 'change', 'kernel.config.ts');
-		await flushAsync({ runAllTimers: true });
+		await flushTimers();
 		expect(runGenerateMock).toHaveBeenCalledTimes(1);
 
 		jest.advanceTimersByTime(FAST_DEBOUNCE_MS - 1);
-		await flushAsync({ runAllTimers: true });
+		await flushTimers();
 		expect(runGenerateMock).toHaveBeenCalledTimes(1);
 
 		jest.advanceTimersByTime(1);
-		await flushAsync({ runAllTimers: true });
+		await flushTimers();
 		expect(runGenerateMock).toHaveBeenCalledTimes(2);
 
-		process.emit('SIGINT');
-		await flushAsync({ runAllTimers: true });
-		await executePromise;
+		await shutdown(executePromise);
 
 		expect(watcher.close).toHaveBeenCalledTimes(1);
 		expect(stdout.toString()).toContain('[summary]');
 	});
 
 	it('uses slow debounce for schema changes and overrides fast triggers', async () => {
-		const watcher = new FakeWatcher() as unknown as FSWatcher;
-		watchMock.mockReturnValue(watcher);
-
 		const { command } = createStartCommand();
-		const executePromise = command.execute();
-
-		await flushAsync({ runAllTimers: true });
-		expect(runGenerateMock).toHaveBeenCalledTimes(1);
+		const { watcher, executePromise } = await runCommand(command);
 
 		watcher.emit('all', 'change', 'kernel.config.ts');
 		watcher.emit(
@@ -88,50 +78,39 @@ describe('StartCommand', () => {
 		);
 
 		jest.advanceTimersByTime(FAST_DEBOUNCE_MS);
-		await flushAsync({ runAllTimers: true });
+		await flushTimers();
 		expect(runGenerateMock).toHaveBeenCalledTimes(1);
 
 		jest.advanceTimersByTime(SLOW_DEBOUNCE_MS);
-		await flushAsync({ runAllTimers: true });
+		await flushTimers();
 		expect(runGenerateMock).toHaveBeenCalledTimes(2);
 
-		process.emit('SIGINT');
-		await flushAsync({ runAllTimers: true });
-		await executePromise;
+		await shutdown(executePromise);
 	});
 
 	it('handles watcher errors without crashing', async () => {
-		const watcher = new FakeWatcher() as unknown as FSWatcher;
-		watchMock.mockReturnValue(watcher);
-
 		const { command } = createStartCommand();
-		const executePromise = command.execute();
+		const { watcher, executePromise } = await runCommand(command);
 
-		await flushAsync({ runAllTimers: true });
 		watcher.emit('error', new Error('watcher failure'));
 
 		watcher.emit('all', 'change', 'kernel.config.ts');
 		await jest.advanceTimersByTimeAsync(FAST_DEBOUNCE_MS + 1);
-		await flushAsync({ runAllTimers: true });
+		await flushTimers();
 
 		expect(runGenerateMock).toHaveBeenCalledTimes(2);
 
-		process.emit('SIGINT');
-		await flushAsync({ runAllTimers: true });
-		await executePromise;
+		await shutdown(executePromise);
 	});
 
 	it('auto-applies PHP artifacts when enabled', async () => {
-		const watcher = new FakeWatcher() as unknown as FSWatcher;
-		watchMock.mockReturnValue(watcher);
 		runGenerateMock.mockResolvedValue({ exitCode: 0, output: '' });
 
 		const { command } = createStartCommand();
 		command.autoApplyPhp = true;
 
-		const executePromise = command.execute();
+		const { watcher, executePromise } = await runCommand(command);
 
-		await flushAsync({ runAllTimers: true });
 		expect(mockedFs.mkdir).toHaveBeenCalledTimes(1);
 		await expectEventually(() => {
 			expect(mockedFs.cp).toHaveBeenCalledTimes(1);
@@ -139,41 +118,30 @@ describe('StartCommand', () => {
 
 		watcher.emit('all', 'change', 'kernel.config.ts');
 		await jest.advanceTimersByTimeAsync(FAST_DEBOUNCE_MS + 1);
-		await flushAsync({ runAllTimers: true });
+		await flushTimers();
 
 		expect(runGenerateMock).toHaveBeenCalledTimes(2);
 		await expectEventually(() => {
 			expect(mockedFs.cp).toHaveBeenCalledTimes(2);
 		});
 
-		process.emit('SIGINT');
-		await flushAsync({ runAllTimers: true });
-		await executePromise;
+		await shutdown(executePromise);
 	});
 
 	it('skips auto-apply when PHP artifacts are missing', async () => {
-		const watcher = new FakeWatcher() as unknown as FSWatcher;
-		watchMock.mockReturnValue(watcher);
 		mockedFs.access.mockRejectedValueOnce(new Error('missing output'));
 
 		const { command } = createStartCommand();
 		command.autoApplyPhp = true;
 
-		const executePromise = command.execute();
-
-		await flushAsync({ runAllTimers: true });
+		const { executePromise } = await runCommand(command);
 
 		expect(mockedFs.cp).not.toHaveBeenCalled();
 
-		process.emit('SIGINT');
-		await flushAsync({ runAllTimers: true });
-		await executePromise;
+		await shutdown(executePromise);
 	});
 
 	it('queues additional changes while a run is in progress', async () => {
-		const watcher = new FakeWatcher() as unknown as FSWatcher;
-		watchMock.mockReturnValue(watcher);
-
 		let resolveFirstRun: (() => void) | undefined;
 		runGenerateMock
 			.mockImplementationOnce(
@@ -186,134 +154,95 @@ describe('StartCommand', () => {
 			.mockResolvedValue({ exitCode: 0, output: '' });
 
 		const { command } = createStartCommand();
-		const executePromise = command.execute();
-
-		await flushAsync({ runAllTimers: true });
+		const { watcher, executePromise } = await runCommand(command);
 		expect(runGenerateMock).toHaveBeenCalledTimes(1);
 
 		watcher.emit('all', 'change', 'kernel.config.ts');
 		await jest.advanceTimersByTimeAsync(FAST_DEBOUNCE_MS + 1);
-		await flushAsync({ runAllTimers: true });
+		await flushTimers();
 
 		expect(runGenerateMock).toHaveBeenCalledTimes(1);
 
 		resolveFirstRun?.();
-		await flushAsync({ runAllTimers: true });
+		await flushTimers();
 		await jest.advanceTimersByTimeAsync(FAST_DEBOUNCE_MS + 1);
-		await flushAsync({ runAllTimers: true });
+		await flushTimers();
 
 		expect(runGenerateMock).toHaveBeenCalledTimes(2);
 
-		process.emit('SIGINT');
-		process.emit('SIGINT');
-		await flushAsync({ runAllTimers: true });
-		await executePromise;
+		await shutdown(executePromise, ['SIGINT', 'SIGINT']);
 	});
 
 	it('clears pending timers when shutting down with queued triggers', async () => {
-		const watcher = new FakeWatcher() as unknown as FSWatcher;
-		watchMock.mockReturnValue(watcher);
-
 		const { command } = createStartCommand();
-		const executePromise = command.execute();
+		const { watcher, executePromise } = await runCommand(command);
 
-		await flushAsync({ runAllTimers: true });
 		watcher.emit('all', 'change', 'kernel.config.ts');
-		await flushAsync({ runAllTimers: true });
+		await flushTimers();
 
-		process.emit('SIGINT');
-		await flushAsync({ runAllTimers: true });
-		await executePromise;
+		await shutdown(executePromise);
 
 		expect(runGenerateMock).toHaveBeenCalledTimes(1);
 	});
 
 	it('restarts debounce timers when repeated fast events arrive', async () => {
-		const watcher = new FakeWatcher() as unknown as FSWatcher;
-		watchMock.mockReturnValue(watcher);
-
 		const { command } = createStartCommand();
-		const executePromise = command.execute();
-
-		await flushAsync({ runAllTimers: true });
-		watcher.emit('all', 'change', 'kernel.config.ts');
-		await flushAsync({ runAllTimers: true });
+		const { watcher, executePromise } = await runCommand(command);
 
 		watcher.emit('all', 'change', 'kernel.config.ts');
-		await flushAsync({ runAllTimers: true });
+		await flushTimers();
+
+		watcher.emit('all', 'change', 'kernel.config.ts');
+		await flushTimers();
 
 		await jest.advanceTimersByTimeAsync(FAST_DEBOUNCE_MS - 1);
-		await flushAsync({ runAllTimers: true });
+		await flushTimers();
 		expect(runGenerateMock).toHaveBeenCalledTimes(1);
 
 		await jest.advanceTimersByTimeAsync(1);
-		await flushAsync({ runAllTimers: true });
+		await flushTimers();
 		expect(runGenerateMock).toHaveBeenCalledTimes(2);
 
-		process.emit('SIGINT');
-		await flushAsync({ runAllTimers: true });
-		await executePromise;
+		await shutdown(executePromise);
 	});
 
 	it('only resolves shutdown once when multiple signals are received', async () => {
-		const watcher = new FakeWatcher() as unknown as FSWatcher;
-		watchMock.mockReturnValue(watcher);
-
 		const { command } = createStartCommand();
-		const executePromise = command.execute();
+		const { watcher, executePromise } = await runCommand(command);
 
-		await flushAsync({ runAllTimers: true });
-		process.emit('SIGINT');
-		process.emit('SIGTERM');
-
-		await flushAsync({ runAllTimers: true });
-		await executePromise;
+		await shutdown(executePromise, ['SIGINT', 'SIGTERM']);
 
 		expect(runGenerateMock).toHaveBeenCalledTimes(1);
 		expect(watcher.close).toHaveBeenCalledTimes(2);
 	});
 
 	it('passes verbose flag through to the generation pipeline', async () => {
-		const watcher = new FakeWatcher() as unknown as FSWatcher;
-		watchMock.mockReturnValue(watcher);
-
 		const { command } = createStartCommand();
 		command.verbose = true;
 
-		const executePromise = command.execute();
-
-		await flushAsync({ runAllTimers: true });
+		const { executePromise } = await runCommand(command);
 
 		expect(runGenerateMock).toHaveBeenCalledWith(
 			expect.objectContaining({ verbose: true })
 		);
 
-		process.emit('SIGINT');
-		await flushAsync({ runAllTimers: true });
-		await executePromise;
+		await shutdown(executePromise);
 	});
 
 	it('warns when watcher close fails', async () => {
-		const watcher = new FakeWatcher() as unknown as FSWatcher;
-		(watcher as unknown as FakeWatcher).close.mockRejectedValueOnce(
-			new Error('close failure')
-		);
-		watchMock.mockReturnValue(watcher);
+		const watcher = new FakeWatcher();
+		watcher.close.mockRejectedValueOnce(new Error('close failure'));
 
 		const { command } = createStartCommand();
-		const executePromise = command.execute();
+		const { executePromise } = await runCommand(command, watcher);
 
-		await flushAsync({ runAllTimers: true });
-		process.emit('SIGINT');
-		await flushAsync({ runAllTimers: true });
-		await executePromise;
+		await shutdown(executePromise);
 
 		expect(watcher.close).toHaveBeenCalledTimes(1);
 	});
 
 	it('skips auto-apply when generation fails', async () => {
-		const watcher = new FakeWatcher() as unknown as FSWatcher;
-		watchMock.mockReturnValue(watcher);
+		const watcher = new FakeWatcher();
 		runGenerateMock
 			.mockResolvedValueOnce({ exitCode: 1, output: '' })
 			.mockResolvedValue({ exitCode: 0, output: '' });
@@ -321,83 +250,64 @@ describe('StartCommand', () => {
 		const { command } = createStartCommand();
 		command.autoApplyPhp = true;
 
-		const executePromise = command.execute();
-
-		await flushAsync({ runAllTimers: true });
+		const { executePromise } = await runCommand(command, watcher);
 		expect(mockedFs.cp).toHaveBeenCalledTimes(0);
 
 		watcher.emit('all', 'change', 'kernel.config.ts');
 		await jest.advanceTimersByTimeAsync(FAST_DEBOUNCE_MS + 1);
-		await flushAsync({ runAllTimers: true });
+		await flushTimers();
 
 		expect(runGenerateMock).toHaveBeenCalledTimes(2);
 		await expectEventually(() => {
 			expect(mockedFs.cp).toHaveBeenCalledTimes(1);
 		});
 
-		process.emit('SIGINT');
-		await flushAsync({ runAllTimers: true });
-		await executePromise;
+		await shutdown(executePromise);
 	});
 
 	it('warns when auto-apply copy fails', async () => {
-		const watcher = new FakeWatcher() as unknown as FSWatcher;
-		watchMock.mockReturnValue(watcher);
+		const watcher = new FakeWatcher();
 		mockedFs.cp.mockRejectedValueOnce(new Error('copy failed'));
 		runGenerateMock.mockResolvedValue({ exitCode: 0, output: '' });
 
 		const { command } = createStartCommand();
 		command.autoApplyPhp = true;
 
-		const executePromise = command.execute();
+		const { executePromise } = await runCommand(command, watcher);
 
-		await flushAsync({ runAllTimers: true });
 		expect(mockedFs.cp).toHaveBeenCalledTimes(1);
 
 		watcher.emit('all', 'change', 'kernel.config.ts');
 		await jest.advanceTimersByTimeAsync(FAST_DEBOUNCE_MS + 1);
-		await flushAsync({ runAllTimers: true });
+		await flushTimers();
 
 		expect(mockedFs.cp).toHaveBeenCalledTimes(2);
 
-		process.emit('SIGINT');
-		await flushAsync({ runAllTimers: true });
-		await executePromise;
+		await shutdown(executePromise);
 	});
 
 	it('logs generation errors when the pipeline rejects', async () => {
-		const watcher = new FakeWatcher() as unknown as FSWatcher;
-		watchMock.mockReturnValue(watcher);
+		const watcher = new FakeWatcher();
 		runGenerateMock
 			.mockImplementationOnce(() => Promise.reject(new Error('boom')))
 			.mockResolvedValue({ exitCode: 0, output: '' });
 
 		const { command } = createStartCommand();
-		const executePromise = command.execute();
-
-		await flushAsync({ runAllTimers: true });
+		const { executePromise } = await runCommand(command, watcher);
 		watcher.emit('all', 'change', 'kernel.config.ts');
 		await jest.advanceTimersByTimeAsync(FAST_DEBOUNCE_MS + 1);
-		await flushAsync({ runAllTimers: true });
+		await flushTimers();
 
 		expect(runGenerateMock).toHaveBeenCalledTimes(2);
 
-		process.emit('SIGINT');
-		await flushAsync({ runAllTimers: true });
-		await executePromise;
+		await shutdown(executePromise);
 	});
 
 	it('stops the Vite dev server on shutdown', async () => {
-		const watcher = new FakeWatcher() as unknown as FSWatcher;
-		watchMock.mockReturnValue(watcher);
-
 		const { command, viteProcess } = createStartCommand();
-		const executePromise = command.execute();
+		const { executePromise } = await runCommand(command);
 
-		await flushAsync({ runAllTimers: true });
-		process.emit('SIGINT');
-		await flushAsync({ runAllTimers: true });
-		await executePromise;
+		await shutdown(executePromise);
 
 		expect(viteProcess.kill).toHaveBeenCalledWith('SIGINT');
 	});
@@ -468,15 +378,11 @@ describe('DevCommand alias', () => {
 
 	it('emits a deprecation warning and delegates to StartCommand', async () => {
 		const { command, stderr } = createDevCommand();
-		const executePromise = command.execute();
-
-		await flushAsync({ runAllTimers: true });
+		const { executePromise } = await runCommand(command);
 
 		expect(stderr.toString()).toContain('deprecated');
 
-		process.emit('SIGINT');
-		await flushAsync({ runAllTimers: true });
-		await executePromise;
+		await shutdown(executePromise);
 	});
 });
 
@@ -501,6 +407,32 @@ class FakeChildProcess extends EventEmitter {
 	});
 
 	killed = false;
+}
+
+type ExecuteResult = ReturnType<StartCommand['execute']>;
+
+async function runCommand<T extends { execute: StartCommand['execute'] }>(
+	command: T,
+	watcher: FakeWatcher = new FakeWatcher()
+): Promise<{
+	watcher: FakeWatcher;
+	executePromise: ExecuteResult;
+}> {
+	watchMock.mockReturnValue(watcher as unknown as FSWatcher);
+	const executePromise = command.execute();
+	await flushTimers();
+	return { watcher, executePromise };
+}
+
+async function shutdown(
+	executePromise: ExecuteResult,
+	signals: NodeJS.Signals[] = ['SIGINT']
+): Promise<void> {
+	for (const signal of signals) {
+		process.emit(signal);
+	}
+	await flushTimers();
+	await executePromise;
 }
 
 function createStartCommand(): {
@@ -556,7 +488,7 @@ async function expectEventually(assertion: () => void): Promise<void> {
 			if (attempt === 4) {
 				throw error;
 			}
-			await flushAsync({ runAllTimers: true });
+			await flushTimers();
 		}
 	}
 }

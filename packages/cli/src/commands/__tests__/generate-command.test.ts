@@ -7,7 +7,7 @@ import * as ir from '../../ir';
 import { EXIT_CODES } from '../run-generate/types';
 import { KernelError } from '@wpkernel/core/contracts';
 import { assignCommandContext } from '../../../tests/cli-command.test-support';
-import { withWorkspace as withTemporaryWorkspace } from '../../../tests/workspace.test-support';
+import { createWorkspaceRunner } from '../../../tests/workspace.test-support';
 
 jest.mock('json-schema-to-typescript', () => ({
 	compile: jest.fn(async () => 'export interface Schema {}\n'),
@@ -20,6 +20,8 @@ jest.mock('prettier', () => ({
 jest.mock('@prettier/plugin-php', () => ({}));
 
 const TMP_PREFIX = path.join(os.tmpdir(), 'wpk-generate-command-');
+
+const runWorkspace = createWorkspaceRunner({ prefix: TMP_PREFIX });
 
 describe('GenerateCommand', () => {
 	it('writes generated artifacts and records summary', async () => {
@@ -420,12 +422,11 @@ async function withWorkspace(
 ): Promise<void> {
 	const { withDefaultConfig = true } = options;
 
-	await withTemporaryWorkspace(
+	await runWorkspace(
 		async (workspace) => {
 			await run(workspace);
 		},
 		{
-			prefix: TMP_PREFIX,
 			setup: async (workspace) => {
 				await fs.mkdir(path.join(workspace, 'schemas'), {
 					recursive: true,

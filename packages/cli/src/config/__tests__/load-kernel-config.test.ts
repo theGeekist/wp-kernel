@@ -16,19 +16,20 @@ import {
 } from '../load-kernel-config';
 import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
 import { KernelError } from '@wpkernel/core/error';
-import { withWorkspace as withTemporaryWorkspace } from '../../../tests/workspace.test-support';
+import { createWorkspaceRunner } from '../../../tests/workspace.test-support';
 
 const TMP_PREFIX = 'wpk-cli-config-loader-';
+
+const runWorkspace = createWorkspaceRunner({
+	prefix: path.join(os.tmpdir(), TMP_PREFIX),
+});
 
 describe('loadKernelConfig', () => {
 	async function withWorkspace(
 		files: Record<string, string>,
 		run: (workspace: string) => Promise<void>
 	) {
-		await withTemporaryWorkspace(run, {
-			prefix: path.join(os.tmpdir(), TMP_PREFIX),
-			files,
-		});
+		await runWorkspace(run, { files });
 	}
 
 	it('loads a kernel config and validates composer autoload', async () => {

@@ -65,6 +65,18 @@ The `start` command replaces `wpk dev`; the latter remains as a deprecated alias
 - `tests/rule-tester.test-support.ts` exports `createRuleTester()` and fixture
   builders that keep ESLint rule suites aligned with the TypeScript parser and
   canonical config snippets.
+- `tests/reporter.test-support.ts` exposes `createReporterMock()` so suites can
+  assert reporter output without re-implementing Clipanion mocks.
+- `tests/memory-stream.test-support.ts` provides an in-memory writable stream
+  used by CLI command contexts.
+- `tests/async.test-support.ts` ships `flushAsync()` for draining queued tasks
+  and timers during async command assertions.
+- `tests/cli-command.test-support.ts` offers `createCommandContext()` plus
+  `assignCommandContext()` to wire stdout/stderr and env overrides onto
+  Clipanion commands.
+- `tests/workspace.test-support.ts` includes `withWorkspace()` for disposable
+  filesystem scaffolds and `createWorkspaceRunner()` to preconfigure prefixes or
+  default file layouts per suite.
 
 ## Requirements
 
