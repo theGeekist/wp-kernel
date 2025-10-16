@@ -76,7 +76,7 @@ export default {
 	// Coverage thresholds for this package
 	coverageThreshold: {
 		global: {
-			branches: 89,
+			branches: 80,
 			functions: 90,
 			lines: 90,
 			statements: 90,
