@@ -251,7 +251,7 @@ pnpm format         # Prettier
 pnpm typecheck      # TypeScript check
 ```
 
-Shared testing helpers live in `tests/test-utils/wp.test-support.ts` and the package-level `*.test-support.ts` barrels documented in each package README. See `tests/TEST_PATTERNS.md` for canonical setup, teardown, and global stubbing guidance.
+Shared testing helpers live under `@wpkernel/test-utils/wp` (WordPress globals) and `@wpkernel/test-utils/integration` (workspace scaffolding), with package-level `*.test-support.ts` barrels documented in each package README. See `tests/TEST_PATTERNS.md` for canonical setup, teardown, and global stubbing guidance.
 
 ---
 

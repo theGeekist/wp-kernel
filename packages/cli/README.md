@@ -72,9 +72,10 @@ This scaffolds a Vite-ready plugin with kernel config, TypeScript/ESLint setup, 
 - `tests/cli-command.test-support.ts` offers `createCommandContext()` plus
   `assignCommandContext()` to wire stdout/stderr and env overrides onto
   Clipanion commands.
-- `tests/workspace.test-support.ts` includes `withWorkspace()` for disposable
+- `@wpkernel/test-utils/integration` includes `withWorkspace()` for disposable
   filesystem scaffolds and `createWorkspaceRunner()` to preconfigure prefixes or
-  default file layouts per suite.
+  default file layouts per suite (the local `tests/workspace.test-support.ts`
+  re-exports these helpers during the migration).
 - Integration specs can import `runNodeSnippet()` from `@wpkernel/e2e-utils`
   to exercise CLI failure paths without maintaining bespoke process runners.
 

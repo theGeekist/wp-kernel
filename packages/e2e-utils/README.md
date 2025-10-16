@@ -98,8 +98,8 @@ expect(await dataview.getSelectedCount()).toBeGreaterThan(0);
 
 ## Test Support Helpers
 
-- `withIsolatedWorkspace()` ensures temporary workspaces are disposed safely and
-  exposes `writeWorkspaceFiles()` for declarative fixture creation.
+- `withIsolatedWorkspace()` (re-exporting `@wpkernel/test-utils/integration` workspace helpers) ensures temporary workspaces are
+  disposed safely and exposes `writeWorkspaceFiles()` for declarative fixture creation.
 - `collectManifestState()` / `compareManifestStates()` snapshot filesystem
   state and return diffs so manifest tests describe intent instead of mutating
   files manually.

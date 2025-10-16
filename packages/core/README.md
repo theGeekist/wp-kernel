@@ -48,8 +48,9 @@ import { ActionButton } from '@wpkernel/ui';
 
 ## Testing Helpers
 
-- `tests/wp-environment.test-support.ts` provisions a fully mocked `window.wp`
-  environment and exports `createWordPressTestHarness()` for use in
+- `@wpkernel/test-utils/wp` provisions a fully mocked `window.wp`
+  environment (the local `tests/wp-environment.test-support.ts` re-exports the
+  shared helpers) and exports `createWordPressTestHarness()` for use in
   integration suites.
 - `tests/action-runtime.test-support.ts` exposes scoped helpers for overriding
   `__WP_KERNEL_ACTION_RUNTIME__` without leaking global state between cases.

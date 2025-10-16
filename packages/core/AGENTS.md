@@ -12,7 +12,7 @@ Run `pnpm --filter @wpkernel/core test` after edits, followed by `pnpm typecheck
 
 Shared test helpers live under `tests/*.test-support.ts`:
 
-- `tests/wp-environment.test-support.ts` - install/reset WordPress globals via `createWordPressTestHarness()`.
+- WordPress globals should be imported from `@wpkernel/test-utils/wp` (the local `tests/wp-environment.test-support.ts` simply re-exports the shared harness).
 - `tests/action-runtime.test-support.ts` - scoped helpers for overriding `__WP_KERNEL_ACTION_RUNTIME__`.
 
 `*.test-support.ts` helpers are excluded from the published build; run `pnpm --filter @wpkernel/core typecheck:tests` after touching them to keep the tests project in sync.
