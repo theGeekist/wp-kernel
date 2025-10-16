@@ -3,7 +3,7 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import type * as validationModule from '../validation';
 import type { GenerationSummary } from '../types';
-import { createReporterMock } from '../../../../tests/reporter.test-support';
+import { createReporterMock } from '@wpkernel/test-utils/cli';
 
 type ValidationModule = typeof validationModule;
 

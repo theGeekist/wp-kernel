@@ -8,7 +8,7 @@ import { setKernelReporter, clearKernelReporter } from '../../reporter';
 import {
 	createApiFetchHarness,
 	withWordPressData,
-} from '../../../tests/wp-environment.test-support';
+} from '@wpkernel/test-utils/core';
 
 describe('transport/fetch', () => {
 	let mockApiFetch: jest.Mock;

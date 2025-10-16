@@ -11,7 +11,7 @@ import {
 	type MockThingQuery,
 	defineTestResource,
 } from '../../../../tests/resource.test-support';
-import { createWordPressTestHarness } from '../../../../tests/wp-environment.test-support';
+import { createWordPressTestHarness } from '@wpkernel/test-utils/core';
 
 describe('createStore - Grouped API', () => {
 	let mockResource: ResourceObject<MockThing, MockThingQuery>;

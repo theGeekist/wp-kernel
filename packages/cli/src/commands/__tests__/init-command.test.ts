@@ -4,7 +4,7 @@ import fs from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import type { InitCommand } from '../init';
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
-import { assignCommandContext } from '../../../tests/cli-command.test-support';
+import { assignCommandContext } from '@wpkernel/test-utils/cli';
 import { createWorkspaceRunner } from '../../../tests/workspace.test-support';
 
 const TMP_PREFIX = path.join(os.tmpdir(), 'wpk-init-command-');

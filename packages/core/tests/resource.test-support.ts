@@ -15,7 +15,7 @@ import {
 	type ApiFetchHarnessOptions,
 	createApiFetchHarness,
 	withWordPressData,
-} from './wp-environment.test-support';
+} from '@wpkernel/test-utils/core';
 
 type CacheOperation = 'list' | 'get' | 'create' | 'update' | 'remove';
 

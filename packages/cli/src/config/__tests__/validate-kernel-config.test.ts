@@ -4,7 +4,7 @@ import type { ResourceConfig } from '@wpkernel/core/resource';
 import {
 	createReporterMock,
 	type ReporterMock,
-} from '../../../tests/reporter.test-support';
+} from '@wpkernel/test-utils/cli';
 import {
 	validateKernelConfig,
 	resourceRoutesValidator,

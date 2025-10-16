@@ -75,6 +75,9 @@
 		"test:watch": "jest --watch",
 		"test:coverage": "jest --coverage"
 	},
+	"dependencies": {
+		"@wpkernel/test-utils": "workspace:*"
+	},
 	"peerDependencies": {
 		"@wpkernel/core": "workspace:*",
 		"@playwright/test": ">=1.40.0",

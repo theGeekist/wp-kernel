@@ -41,6 +41,10 @@ export {
 	writeWorkspaceFiles,
 } from './test-support/isolated-workspace.test-support.js';
 export {
+	withWorkspace,
+	createWorkspaceRunner,
+} from '@wpkernel/test-utils/integration';
+export {
 	collectManifestState,
 	compareManifestStates,
 } from './test-support/fs-manifest.test-support.js';
