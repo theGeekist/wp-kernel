@@ -40,4 +40,8 @@ export {
 	withIsolatedWorkspace,
 	writeWorkspaceFiles,
 } from './test-support/isolated-workspace.test-support.js';
+export {
+	collectManifestState,
+	compareManifestStates,
+} from './test-support/fs-manifest.test-support.js';
 export { runNodeSnippet } from './test-support/cli-runner.test-support.js';

@@ -1,4 +1,22 @@
+import type {
+	CliCommand,
+	CliCommandOptions,
+	CliTranscript,
+} from '../integration/types.js';
 import { createCliRunner } from '../integration/cli-runner.js';
+
+type FailureTranscript = Pick<
+	CliTranscript,
+	'exitCode' | 'stderr' | 'stdout' | 'command' | 'args' | 'env' | 'durationMs'
+>;
+
+interface FailureScenario {
+	readonly name: string;
+	readonly command: CliCommand;
+	readonly options?: CliCommandOptions;
+	readonly baseEnv?: NodeJS.ProcessEnv;
+	readonly assert: (transcript: FailureTranscript) => void;
+}
 
 describe('createCliRunner', () => {
 	it('captures stdout, stderr, and env metadata', async () => {
@@ -69,5 +87,73 @@ describe('createCliRunner', () => {
 		);
 
 		expect(transcript.stdout).toBe('baseextra');
+	});
+
+	describe('failure diagnostics', () => {
+		const scenarios: FailureScenario[] = [
+			{
+				name: 'non-zero exits surface stderr output',
+				command: {
+					command: process.execPath,
+					args: [
+						'-e',
+						[
+							"console.error('runner failure');",
+							'process.exit(3);',
+						].join('\n'),
+					],
+				},
+				assert: (transcript) => {
+					expect(transcript.exitCode).toBe(3);
+					expect(transcript.stderr).toContain('runner failure');
+					expect(transcript.command).toBe(process.execPath);
+					expect(transcript.args).toEqual([
+						'-e',
+						[
+							"console.error('runner failure');",
+							'process.exit(3);',
+						].join('\n'),
+					]);
+				},
+			},
+			{
+				name: 'spawn errors attach failure summaries',
+				command: {
+					command: 'nonexistent-runner-command',
+				},
+				baseEnv: { RUNNER_ENV: 'base' },
+				assert: (transcript) => {
+					expect(transcript.exitCode).toBe(-1);
+					expect(transcript.stderr).toContain(
+						'Failed to spawn command "nonexistent-runner-command"'
+					);
+					expect(transcript.stderr).toMatch(/ENOENT/);
+					expect(transcript.env.RUNNER_ENV).toBe('base');
+				},
+			},
+			{
+				name: 'timeouts interrupt hanging processes',
+				command: {
+					command: process.execPath,
+					args: ['-e', 'setTimeout(() => {}, 200);'],
+				},
+				options: { timeoutMs: 50 },
+				assert: (transcript) => {
+					expect(transcript.exitCode).toBe(-1);
+					expect(transcript.stderr).toBe('');
+					expect(transcript.durationMs).toBeLessThan(200);
+				},
+			},
+		];
+
+		it.each(scenarios)('handles %s', async (scenario) => {
+			const runner = createCliRunner(scenario.baseEnv);
+			const transcript = await runner.run(
+				scenario.command,
+				scenario.options
+			);
+
+			scenario.assert(transcript);
+		});
 	});
 });
