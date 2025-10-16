@@ -6,6 +6,7 @@
 - **Action suites run through a shared scenario helper.** `renderActionScenario`, `buildListResource`, and `buildActionConfig` now live in the DataView test-support harness, keeping runtime wiring, invalidation paths, and policy gating centralised across specs.【F:packages/ui/src/dataviews/test-support/ResourceDataView.test-support.tsx†L110-L253】【F:packages/ui/src/dataviews/**tests**/ResourceDataView.actions.test.tsx†L23-L377】
 - **Hooks exercise state matrices.** `useAction` relies on the kernel UI harness and a table-driven matrix to assert success, error, idle, and cancellation behaviour with consistent teardown between cases.【F:packages/ui/src/hooks/**tests**/useAction.test.tsx†L105-L218】
 - **Docs point contributors to the helpers.** The README and package AGENT call out the UI harness, DOM observer helper, and DataView test support so new suites adopt the shared surface by default.【F:packages/ui/README.md†L143-L155】【F:packages/ui/AGENTS.md†L9-L14】
+- **DataView interaction controller exported.** `createDataViewsTestController` now ships with the harness so future suites can mutate selection and view state without bespoke callback plumbing when covering mixed selection or pagination flows.【F:packages/ui/src/dataviews/test-support/ResourceDataView.test-support.tsx†L360-L461】【F:packages/ui/src/dataviews/test-support/**tests**/ResourceDataView.test-support.test.tsx†L76-L116】
 
 ## Quality signals
 
