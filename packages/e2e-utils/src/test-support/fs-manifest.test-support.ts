@@ -36,12 +36,6 @@ export interface ManifestComparisonDefinition {
 	ignore?: Array<string | RegExp>;
 }
 
-export interface ManifestComparisonResult {
-	before: FileManifest;
-	after: FileManifest;
-	diff: FileManifestDiff;
-}
-
 export async function collectManifestState(
 	workspace: IsolatedWorkspace,
 	definition: ManifestStateDefinition
@@ -55,7 +49,11 @@ export async function collectManifestState(
 export async function compareManifestStates(
 	workspace: IsolatedWorkspace,
 	definition: ManifestComparisonDefinition
-): Promise<ManifestComparisonResult> {
+): Promise<{
+	before: FileManifest;
+	after: FileManifest;
+	diff: FileManifestDiff;
+}> {
 	await applyFileDefinitions(workspace, definition.before);
 	const before = await collectFileManifest(workspace.root, {
 		ignore: definition.ignore,
