@@ -87,8 +87,8 @@
 		"test:coverage": "jest --passWithNoTests --coverage"
 	},
 	"peerDependencies": {
-		"@wpkernel/core": "workspace:*",
 		"@prettier/plugin-php": ">=0.24.0",
+		"@wpkernel/core": "workspace:*",
 		"json-schema-to-typescript": ">=15.0.4",
 		"prettier": ">=3.6.0",
 		"tsx": ">=4.20.6",
@@ -98,6 +98,7 @@
 		"chokidar": "^4.0.3",
 		"clipanion": "4.0.0-rc.4",
 		"cosmiconfig": "^9.0.0",
+		"ts-morph": "^27.0.2",
 		"typanion": "^3.14.0"
 	},
 	"publishConfig": {

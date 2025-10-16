@@ -72,6 +72,7 @@ Mirror the structure under `packages/cli/tests/next/` with unit + integration co
     - `reporter` – namespaced reporter; helpers can call `reporter.child(key)` for sub-sections. Cross-cutting instrumentation (timing, tracing) wraps helpers via the foundational utility.
 - `apply` receives an optional `next` function so helpers can wrap composition chains (e.g., `await next()`), enabling `reduceRight`-style pipelines for cross-cutting behaviour.
 - Extensions call specialised helpers (e.g., `createResourcesFragment`) that internally delegate to `createHelper`, keeping plumbing consistent and simplifying testing (easy to inject fake `context/input/output`).
+- Helper implementations must remain **pure** (no hidden state or side effects outside `output`), avoid nested helper definitions, and favour small, single-purpose functions with low cyclomatic complexity. Shared utilities live alongside helpers in reusable modules.
 
 ## IR Extensibility (`createIr`)
 
@@ -355,12 +356,12 @@ export function createFooExtension() {
 
 Deliverables:
 
-1. **Scaffold the `next/` namespace** – commit empty modules for `createHelper`, `createPipeline`, fragment/builder registries, and the workspace abstraction with accompanying unit-test shells.
+1. **Scaffold the `next/` namespace** – commit modules for `createHelper`, `createPipeline`, fragment/builder registries, and the workspace abstraction. Use placeholder functions/stubs where implementation is pending (avoid empty/dummy tests that will fail linting).
 2. **Port IR fragments** – move current IR logic into helper fragments (`meta`, `schemas`, `resources`, `policies`, `policyMap`, `blocks`, `ordering`, `validation`) wired through `createIr`.
 3. **Implement runtime plumbing** – wire `createPipeline` with registries, dependency sorting, conflict diagnostics, and the `apply(next)` composition contract.
 4. **Workspace & reporter integration** – surface the new workspace handle backed by `@wpkernel/test-utils` helpers and ensure reporters bridge to `packages/core/src/reporter` + `@wordpress/deprecation`/`warning`.
-5. **Builder stubs** – add placeholder builders (`createBundler`, `createPhpBuilder`, `createTsBuilder`, `createPatcher`) that no-op but register via the new helper pipeline, ready for incremental implementation.
-6. **Golden tests** – introduce parity suites that snapshot legacy IR output and generated artifacts (using the testing tooling above) to ensure the new fragments/builders behave identically under a feature flag.
+5. **Builder stubs** – add placeholder builders (`createBundler`, `createPhpBuilder`, `createTsBuilder`, `createPatcher`) that currently no-op but register via the new helper pipeline, ready for incremental implementation.
+6. **Golden tests** – introduce parity suites that snapshot legacy IR output and generated artifacts (using the testing tooling above) once implementations exist; until then, favour placeholders over failing smoke tests.
 7. **Documentation & ADRs** – codify the helper contract, conflict rules, workspace API, and version-negotiation design (ADR-00X) while updating this doc when gaps are discovered.
 
 Exit criteria:
