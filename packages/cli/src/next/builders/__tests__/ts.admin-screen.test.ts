@@ -114,13 +114,96 @@ describe('createTsBuilder – admin screen creator', () => {
 		});
 	});
 
+	it('uses the resource key when resolving default imports', async () => {
+		await withWorkspace(async ({ workspace, root }) => {
+			await workspace.write(
+				'src/bootstrap/kernel.ts',
+				'export const kernel = { getUIRuntime: () => ({}) };\n'
+			);
+			await workspace.write(
+				'src/resources/job-board.ts',
+				'export const jobBoard = { ui: { admin: { dataviews: {} } } };\n'
+			);
+
+			const dataviews = createDataViewsConfig({
+				screen: { component: 'JobBoardAdminScreen' },
+			});
+			const configSource = createKernelConfigSource({
+				resourceKey: 'job-board',
+				resourceName: 'Job Board',
+				dataviews: { screen: { component: 'JobBoardAdminScreen' } },
+			});
+			await workspace.write('kernel.config.ts', configSource);
+
+			const { ir, options } = createBuilderArtifacts({
+				resourceKey: 'job-board',
+				resourceName: 'Job Board',
+				dataviews,
+				sourcePath: path.join(root, 'kernel.config.ts'),
+			});
+
+			const reporter = createReporter();
+			const output = createOutput();
+			const builder = createTsBuilder({
+				creators: [createAdminScreenCreator()],
+			});
+
+			await builder.apply(
+				{
+					context: {
+						workspace,
+						phase: 'generate',
+						reporter,
+					},
+					input: {
+						phase: 'generate',
+						options,
+						ir,
+					},
+					output,
+					reporter,
+				},
+				undefined
+			);
+
+			const screenPath = path.join(
+				'.generated',
+				'ui',
+				'app',
+				'Job Board',
+				'admin',
+				'JobBoardAdminScreen.tsx'
+			);
+			const screenContents = await workspace.readText(screenPath);
+
+			const expectedResourceImport = normalise(
+				path
+					.relative(
+						path.dirname(workspace.resolve(screenPath)),
+						workspace.resolve('src/resources/job-board.ts')
+					)
+					.replace(/\.(ts|tsx|js|jsx|mjs|cjs)$/u, '')
+			);
+
+			expect(screenContents).toContain(
+				`import { jobBoard } from '${prefixRelative(expectedResourceImport)}';`
+			);
+			expect(screenContents).not.toContain('@/resources/Job Board');
+		});
+	});
+
 	it('falls back to configured aliases when imports cannot be resolved', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
-			const configSource = createKernelConfigSource();
+			const configSource = createKernelConfigSource({
+				resourceKey: 'job-board',
+				resourceName: 'Job Board',
+			});
 			await workspace.write('kernel.config.ts', configSource);
 
 			const dataviews = createDataViewsConfig();
 			const { ir, options } = createBuilderArtifacts({
+				resourceKey: 'job-board',
+				resourceName: 'Job Board',
 				dataviews,
 				sourcePath: path.join(root, 'kernel.config.ts'),
 			});
@@ -151,14 +234,14 @@ describe('createTsBuilder – admin screen creator', () => {
 				'.generated',
 				'ui',
 				'app',
-				'job',
+				'Job Board',
 				'admin',
 				'JobsAdminScreen.tsx'
 			);
 			const screenContents = await workspace.readText(screenPath);
 
 			expect(screenContents).toContain(
-				"import { job } from '@/resources/job';"
+				"import { jobBoard } from '@/resources/job-board';"
 			);
 			expect(screenContents).toContain(
 				"import { kernel } from '@/bootstrap/kernel';"
