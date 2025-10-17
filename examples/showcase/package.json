@@ -8,7 +8,7 @@
 	"scripts": {
 		"start": "node ../../packages/cli/bin/wpk.js start",
 		"dev": "pnpm start",
-		"build": "node ../../packages/cli/bin/wpk.js build",
+		"build": "node ../../packages/cli/bin/wpk.js build && pnpm format",
 		"generate": "node ../../packages/cli/bin/wpk.js generate",
 		"apply": "node ../../packages/cli/bin/wpk.js apply",
 		"clean": "rm -rf build types",
