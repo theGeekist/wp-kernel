@@ -401,9 +401,9 @@ Each stream is designed for parallel ownership. **Before you start a stream, rev
     - _Why_: Showcase TS/TSX issues (missing imports, alias problems) were called out in the audit-we must rebuild TS generation on top of the new pipeline to fix them.
     - _Next tasks_: extend the builder to cover declaration map output and golden parity tests for resource helpers, then document the migration/results here.
 3. **Bundler evolution** (see [Proposed Folder Layout](#proposed-folder-layout-packages-clisrcnext))
-    - _Current_: `createBundler` remains a no-op stub. Nothing mirrors WordPress’ esbuild/Rollup conventions yet.
+    - _Current_: `createBundler` now emits a Rollup driver configuration under `.wpk/bundler/`, including WordPress externals, globals, asset manifests, and sourcemap defaults.
     - _Why_: The showcase build currently hits runtime aliasing/externals issues; aligning with `templates/wordpress-build.templfile` is critical to close those gaps.
-    - _Next tasks_: implement the Rollup driver (externals, asset metadata, sourcemap rules) and add regression tests referencing the showcase failures.
+    - _Next tasks_: wire the driver into a real bundling command (Rollup/Vite invocation + `.asset.php` generation) and extend regression tests with bundle inspection snapshots.
 4. **Apply driver** (see [Workspace handle interface](#workspace-handle-interface))
     - _Current_: `createPatcher` is a stub. Workspace merge helpers are in place but unused; git convenience methods will be added when the driver lands.
     - _Why_: Showcase incidents include failed PHP apply/merge steps. We need a git-backed three-way patcher to avoid those errors.
