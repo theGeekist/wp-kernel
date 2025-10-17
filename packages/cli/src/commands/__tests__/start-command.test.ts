@@ -12,8 +12,7 @@ import {
 import { runGenerate } from '../run-generate';
 import { EXIT_CODES } from '../run-generate/types';
 import chokidar from 'chokidar';
-import { assignCommandContext } from '@wpkernel/test-utils/cli';
-import { flushAsync } from '../../../tests/async.test-support';
+import { assignCommandContext, flushAsync } from '@wpkernel/test-utils/cli';
 
 const runGenerateMock = runGenerate as jest.MockedFunction<typeof runGenerate>;
 const watchMock = chokidar.watch as jest.MockedFunction<typeof chokidar.watch>;

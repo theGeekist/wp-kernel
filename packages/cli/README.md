@@ -64,11 +64,9 @@ This scaffolds a Vite-ready plugin with kernel config, TypeScript/ESLint setup, 
   builders that keep ESLint rule suites aligned with the TypeScript parser and
   canonical config snippets.
 - `@wpkernel/test-utils/cli` exposes `createCommandContext()`,
-  `assignCommandContext()`, `createReporterMock()`, and `createMemoryStream()`
-  so suites can share Clipanion wiring without re-implementing mocks or
-  streams.
-- `tests/async.test-support.ts` ships `flushAsync()` for draining queued tasks
-  and timers during async command assertions.
+  `assignCommandContext()`, `createReporterMock()`, `createMemoryStream()`,
+  and `flushAsync()` so suites can share Clipanion wiring without
+  re-implementing mocks, streams, or async drains.
 - `@wpkernel/test-utils/integration` includes `withWorkspace()` for disposable
   filesystem scaffolds and `createWorkspaceRunner()` to preconfigure prefixes or
   default file layouts per suite (the local `tests/workspace.test-support.ts`

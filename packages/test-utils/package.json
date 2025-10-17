@@ -65,6 +65,11 @@
 			"import": "./dist/cli/memory-stream.js",
 			"default": "./dist/cli/memory-stream.js"
 		},
+		"./cli/flush": {
+			"types": "./dist/cli/flush.d.ts",
+			"import": "./dist/cli/flush.js",
+			"default": "./dist/cli/flush.js"
+		},
 		"./core": {
 			"types": "./dist/core/index.d.ts",
 			"import": "./dist/core/index.js",
