@@ -2,7 +2,6 @@ import path from 'node:path';
 import { execFile } from 'node:child_process';
 import { createBundler } from '../bundler';
 import { createPhpBuilder } from '../php';
-import { createTsBuilder } from '../ts';
 import { createPatcher } from '../patcher';
 import { createPhpDriverInstaller } from '../phpDriver';
 import type { BuildIrOptions, IRv1 } from '../../../ir/types';
@@ -89,7 +88,6 @@ const workspace = {
 const helpers = [
 	createBundler(),
 	createPhpBuilder(),
-	createTsBuilder(),
 	createPatcher(),
 	createPhpDriverInstaller(),
 ];
