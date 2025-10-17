@@ -12,6 +12,7 @@ const external = [
 	'@wordpress/components',
 	'@wordpress/element',
 	'typescript',
+	'ts-morph',
 ];
 
 export default createKernelLibConfig(

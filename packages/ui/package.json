@@ -89,6 +89,7 @@
 		"typecheck": "tsc --noEmit",
 		"typecheck:tests": "tsc --project tsconfig.tests.json --noEmit",
 		"test": "jest --passWithNoTests",
+		"test:ci": "jest --passWithNoTests --watchman=false",
 		"test:watch": "jest --watch",
 		"test:coverage": "jest --coverage"
 	},
