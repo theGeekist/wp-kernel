@@ -166,8 +166,10 @@ _Update the relevant workstream below when scope changes or a milestone closes. 
     - Only `NextApplyCommand` exported; no next equivalents for `init`, `generate`, `start`, `build`, `doctor`.
 - **Tasks**
     1. Port helpers like `ensureGeneratedPhpClean`, `ensureCleanDirectory`, and prompt utilities into the next workspace layer.
-    2. Implement `createInitCommand`, `createGenerateCommand`, `createStartCommand`, `createBuildCommand`, and `createDoctorCommand` under `packages/cli/src/next/commands`, mirroring legacy behaviour via the new helpers.
+    2. Implement `createInitCommand`, `createGenerateCommand`, `createStartCommand`, and `createDoctorCommand` under `packages/cli/src/next/commands`, mirroring legacy behaviour via the new helpers while the legacy `build` workflow remains in place.
     3. Export the new commands through `packages/cli/src/next/index.ts` and update docs/tests accordingly.
+
+_Status update:_ Workspace helpers for git hygiene, directory safety, and confirmations now live under `next/workspace/utilities.ts`, and the next command surface exports factory wrappers for init, generate, start, and doctor while `build` remains a legacy-only workflow for now.
 
 ### Workstream 5 – Quality, Testing & Documentation
 
