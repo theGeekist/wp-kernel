@@ -22,7 +22,6 @@ export async function writePhpArtifact(
 		const { code, ast: parsedAst } = await driver.prettyPrint({
 			filePath,
 			code: renderPhpFile(ast),
-			legacyAst: ast,
 		});
 
 		await context.ensureDirectory(path.dirname(filePath));

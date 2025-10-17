@@ -44,7 +44,6 @@ export function createPhpPrettyPrinter(
 		const input = JSON.stringify({
 			file: payload.filePath,
 			ast: payload.ast ?? null,
-			legacyAst: payload.legacyAst ?? null,
 			code: payload.code ?? null,
 		});
 

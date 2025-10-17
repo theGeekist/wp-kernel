@@ -40,7 +40,6 @@ if (!is_array($payload)) {
 $statements = null;
 $decoder = new JsonDecoder();
 $astPayload = $payload['ast'] ?? null;
-$legacyAst = $payload['legacyAst'] ?? null;
 
 if (is_string($astPayload) || is_array($astPayload)) {
     $astJson = is_string($astPayload) ? $astPayload : json_encode($astPayload);
@@ -66,16 +65,6 @@ if (is_string($astPayload) || is_array($astPayload)) {
     }
 }
 
-$codeFromLegacyAst = null;
-if ($legacyAst !== null) {
-    if (!is_array($legacyAst)) {
-        fwrite(STDERR, "Invalid legacy AST payload for {$targetFile}.\n");
-        exit(1);
-    }
-
-    $codeFromLegacyAst = buildCodeFromLegacyAst($legacyAst);
-}
-
 $codeFromPayload = null;
 if (isset($payload['code']) && is_string($payload['code'])) {
     $codeFromPayload = $payload['code'];
@@ -83,14 +72,14 @@ if (isset($payload['code']) && is_string($payload['code'])) {
 
 $debugPath = getenv('WPK_PHP_PRINTER_DEBUG');
 if (is_string($debugPath) && $debugPath !== '') {
-    $debugSource = $codeFromPayload ?? $codeFromLegacyAst;
+    $debugSource = $codeFromPayload;
     if (is_string($debugSource)) {
         file_put_contents($debugPath, $debugSource);
     }
 }
 
 if ($statements === null) {
-    $sourceCode = $codeFromPayload ?? $codeFromLegacyAst;
+    $sourceCode = $codeFromPayload;
 
     if (!is_string($sourceCode) || $sourceCode === '') {
         fwrite(STDERR, "No PHP source provided for {$targetFile}.\n");
@@ -109,13 +98,6 @@ if ($statements === null) {
     if ($statements === null) {
         fwrite(STDERR, "Parser returned null statements for {$targetFile}.\n");
         exit(1);
-    }
-
-    if ($codeFromPayload !== null && $codeFromLegacyAst !== null) {
-        if (normaliseWhitespace($codeFromPayload) !== normaliseWhitespace($codeFromLegacyAst)) {
-            fwrite(STDERR, "Legacy AST payload did not match provided code for {$targetFile}.\n");
-            exit(1);
-        }
     }
 }
 
@@ -151,63 +133,7 @@ if ($resultJson === false) {
 
 echo $resultJson . "\n";
 
-/**
- * @param array{namespace?: string, docblock?: array<int, string>, uses?: array<int, string>, statements?: array<int, string>} $ast
- */
-function buildCodeFromLegacyAst(array $ast): string
-{
-    $lines = ['<?php', 'declare(strict_types=1);', ''];
-
-    $docblock = $ast['docblock'] ?? [];
-    if (is_array($docblock) && count($docblock) > 0) {
-        $lines[] = '/**';
-        foreach ($docblock as $line) {
-            $lines[] = ' * ' . rtrim((string) $line);
-        }
-        $lines[] = ' */';
-        $lines[] = '';
-    }
-
-    $namespace = isset($ast['namespace']) ? normaliseNamespace((string) $ast['namespace']) : '';
-    if ($namespace !== '') {
-        $lines[] = 'namespace ' . $namespace . ';';
-        $lines[] = '';
-    }
-
-    $uses = $ast['uses'] ?? [];
-    if (is_array($uses) && count($uses) > 0) {
-        foreach ($uses as $use) {
-            $lines[] = 'use ' . normaliseNamespace((string) $use) . ';';
-        }
-        $lines[] = '';
-    }
-
-    $lines[] = '// WPK:BEGIN AUTO';
-
-    $statements = $ast['statements'] ?? [];
-    if (is_array($statements)) {
-        foreach ($statements as $statement) {
-            $lines[] = (string) $statement;
-        }
-    }
-
-    $lines[] = '// WPK:END AUTO';
-    $lines[] = '';
-
-    return implode("\n", $lines);
-}
-
 function ensureTrailingNewline(string $value): string
 {
     return str_ends_with($value, "\n") ? $value : $value . "\n";
-}
-
-function normaliseWhitespace(string $value): string
-{
-    return trim(str_replace(["\r\n", "\r"], "\n", $value));
-}
-
-function normaliseNamespace(string $value): string
-{
-    return trim(str_replace('\\\\', '\\', $value));
 }
