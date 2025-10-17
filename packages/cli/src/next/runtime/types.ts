@@ -4,7 +4,12 @@ import type { Helper, HelperDescriptor } from '../helper';
 import type { MutableIr } from '../ir/types';
 import type { Workspace } from '../workspace/types';
 
-export type PipelinePhase = 'init' | 'generate' | 'apply' | `custom:${string}`;
+export type PipelinePhase =
+	| 'init'
+	| 'generate'
+	| 'build'
+	| 'apply'
+	| `custom:${string}`;
 
 export interface PipelineContext {
 	readonly workspace: Workspace;

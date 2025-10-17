@@ -25,6 +25,7 @@
 - Inferred `storage.postType` for `wp-post` resources
 - Workspace-aware block discovery with SSR detection
 - Warning system for route transport mismatches and naming collisions
+- Next-gen CLI builders now emit block registrars/auto-registration, UI stores/bootstrap/storybook scaffolds, hashed bundler assets, and validate generated imports after generation
 
 ### Changed
 

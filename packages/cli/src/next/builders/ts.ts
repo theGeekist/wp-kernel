@@ -79,6 +79,10 @@ export function createTsBuilder(
 	const creators = options.creators?.slice() ?? [
 		createAdminScreenCreator(),
 		createDataViewFixtureCreator(),
+		createStoreCreator(),
+		createBootstrapEntryCreator(),
+		createStorybookCreator(),
+		createBlockScriptCreator(),
 	];
 	const projectFactory = options.projectFactory ?? createProject;
 	const lifecycleHooks = options.hooks ?? {};
@@ -353,6 +357,326 @@ export function createDataViewFixtureCreator(): TsBuilderCreator {
 			});
 
 			await context.emit({ filePath: fixturePath, sourceFile });
+		},
+	};
+}
+
+export function createStoreCreator(): TsBuilderCreator {
+	return {
+		key: 'builder.generate.ts.store.core',
+		async create(context) {
+			const { descriptor } = context;
+			const storePath = path.join(
+				GENERATED_ROOT,
+				'ui',
+				'stores',
+				`${descriptor.key}.ts`
+			);
+
+			const resourceImport = await resolveResourceImport({
+				workspace: context.workspace,
+				from: storePath,
+				configured:
+					descriptor.config.ui?.admin?.dataviews?.screen
+						?.resourceImport,
+				resourceKey: descriptor.key,
+			});
+
+			const resourceSymbol = descriptor.dataviews.screen?.resourceSymbol
+				? descriptor.dataviews.screen.resourceSymbol
+				: toCamelCase(descriptor.name);
+
+			const sourceFile = context.project.createSourceFile(storePath, '', {
+				overwrite: true,
+			});
+
+			sourceFile.addStatements([
+				'/**',
+				' * AUTO-GENERATED store bridge.',
+				' * Keeps the resource symbol available for runtime wiring.',
+				' */',
+			]);
+
+			sourceFile.addImportDeclaration({
+				moduleSpecifier: resourceImport,
+				namedImports: [{ name: resourceSymbol }],
+			});
+
+			sourceFile.addVariableStatement({
+				isExported: true,
+				declarationKind: VariableDeclarationKind.Const,
+				declarations: [
+					{
+						name: `${toCamelCase(descriptor.name)}Store`,
+						initializer: resourceSymbol,
+					},
+				],
+			});
+
+			await context.emit({ filePath: storePath, sourceFile });
+		},
+	};
+}
+
+export function createBootstrapEntryCreator(): TsBuilderCreator {
+	return {
+		key: 'builder.generate.ts.bootstrap.core',
+		async create(context) {
+			const { descriptor } = context;
+			const screenConfig = descriptor.dataviews.screen ?? {};
+			const componentName =
+				screenConfig.component ??
+				`${toPascalCase(descriptor.name)}AdminScreen`;
+
+			const bootstrapPath = path.join(
+				GENERATED_ROOT,
+				'ui',
+				'bootstrap',
+				`${componentName}.tsx`
+			);
+
+			const appTarget = path.join(
+				GENERATED_ROOT,
+				'ui',
+				'app',
+				descriptor.name,
+				'admin',
+				`${componentName}.tsx`
+			);
+			const appImport = createModuleSpecifier({
+				workspace: context.workspace,
+				from: bootstrapPath,
+				target: appTarget,
+			});
+
+			const autoRegisterImport = createModuleSpecifier({
+				workspace: context.workspace,
+				from: bootstrapPath,
+				target: path.join(GENERATED_ROOT, 'blocks', 'auto-register.ts'),
+			});
+
+			const sourceFile = context.project.createSourceFile(
+				bootstrapPath,
+				'',
+				{
+					overwrite: true,
+				}
+			);
+
+			sourceFile.addStatements(
+				'/** @jsxImportSource @wordpress/element */'
+			);
+			sourceFile.addImportDeclaration({
+				moduleSpecifier: '@wpkernel/ui',
+				namedImports: ['KernelUIProvider'],
+			});
+			sourceFile.addImportDeclaration({
+				moduleSpecifier: '@wordpress/element',
+				namedImports: ['render'],
+			});
+			sourceFile.addImportDeclaration({
+				moduleSpecifier: appImport,
+				namedImports: [{ name: componentName }],
+			});
+			sourceFile.addImportDeclaration({
+				moduleSpecifier: autoRegisterImport,
+				namedImports: ['registerGeneratedBlocks'],
+			});
+			sourceFile.addImportDeclaration({
+				moduleSpecifier: '@wpkernel/ui',
+				namedImports: [{ name: 'KernelUIRuntime', isTypeOnly: true }],
+			});
+
+			sourceFile.addFunction({
+				name: `bootstrap${componentName}`,
+				isExported: true,
+				parameters: [
+					{ name: 'target', type: 'HTMLElement' },
+					{ name: 'runtime', type: 'KernelUIRuntime' },
+				],
+				statements: (writer) => {
+					writer.writeLine('registerGeneratedBlocks();');
+					writer.writeLine('render(');
+					writer.indent(() => {
+						writer.writeLine(
+							'<KernelUIProvider runtime={runtime}>'
+						);
+						writer.indent(() => {
+							writer.writeLine(`<${componentName} />`);
+						});
+						writer.writeLine('</KernelUIProvider>');
+					});
+					writer.writeLine(', target);');
+				},
+			});
+
+			await context.emit({ filePath: bootstrapPath, sourceFile });
+		},
+	};
+}
+
+export function createStorybookCreator(): TsBuilderCreator {
+	return {
+		key: 'builder.generate.ts.storybook.core',
+		async create(context) {
+			const { descriptor } = context;
+			const screenConfig = descriptor.dataviews.screen ?? {};
+			const componentName =
+				screenConfig.component ??
+				`${toPascalCase(descriptor.name)}AdminScreen`;
+
+			const storiesPath = path.join(
+				GENERATED_ROOT,
+				'ui',
+				'storybook',
+				`${componentName}.stories.tsx`
+			);
+
+			const appTarget = path.join(
+				GENERATED_ROOT,
+				'ui',
+				'app',
+				descriptor.name,
+				'admin',
+				`${componentName}.tsx`
+			);
+			const fixtureTarget = path.join(
+				GENERATED_ROOT,
+				'ui',
+				'fixtures',
+				'dataviews',
+				`${descriptor.key}.ts`
+			);
+
+			const appImport = createModuleSpecifier({
+				workspace: context.workspace,
+				from: storiesPath,
+				target: appTarget,
+			});
+			const fixtureImport = createModuleSpecifier({
+				workspace: context.workspace,
+				from: storiesPath,
+				target: fixtureTarget,
+			});
+			const fixtureIdentifier = `${toCamelCase(descriptor.name)}DataViewConfig`;
+
+			const sourceFile = context.project.createSourceFile(
+				storiesPath,
+				'',
+				{
+					overwrite: true,
+				}
+			);
+
+			sourceFile.addStatements(
+				'/** @jsxImportSource @wordpress/element */'
+			);
+			sourceFile.addImportDeclaration({
+				moduleSpecifier: '@wpkernel/ui',
+				namedImports: ['KernelUIProvider'],
+			});
+			sourceFile.addImportDeclaration({
+				moduleSpecifier: appImport,
+				namedImports: [{ name: componentName }],
+			});
+			sourceFile.addImportDeclaration({
+				moduleSpecifier: fixtureImport,
+				namedImports: [{ name: fixtureIdentifier }],
+			});
+
+			sourceFile.addVariableStatement({
+				isExported: true,
+				declarationKind: VariableDeclarationKind.Const,
+				declarations: [
+					{
+						name: 'meta',
+						initializer: (writer) => {
+							writer.write('{\n');
+							writer.indent(() => {
+								writer.writeLine(
+									`title: 'Generated/${componentName}',`
+								);
+								writer.writeLine(
+									`component: ${componentName},`
+								);
+							});
+							writer.write('} as const');
+						},
+					},
+				],
+			});
+
+			sourceFile.addExportAssignment({ expression: 'meta' });
+
+			sourceFile.addFunction({
+				name: 'Default',
+				isExported: true,
+				statements: (writer) => {
+					writer.writeLine('return (');
+					writer.indent(() => {
+						writer.writeLine(
+							'<KernelUIProvider runtime={{} as any}>'
+						);
+						writer.indent(() => {
+							writer.writeLine(
+								`<div data-fixture={JSON.stringify(${fixtureIdentifier})}>`
+							);
+							writer.indent(() => {
+								writer.writeLine(`<${componentName} />`);
+							});
+							writer.writeLine('</div>');
+						});
+						writer.writeLine('</KernelUIProvider>');
+					});
+					writer.writeLine(');');
+				},
+			});
+
+			await context.emit({ filePath: storiesPath, sourceFile });
+		},
+	};
+}
+
+export function createBlockScriptCreator(): TsBuilderCreator {
+	return {
+		key: 'builder.generate.ts.blocks.core',
+		async create(context) {
+			const scriptPath = path.join(
+				GENERATED_ROOT,
+				'ui',
+				'blocks',
+				`${context.descriptor.key}.ts`
+			);
+
+			const autoRegisterImport = createModuleSpecifier({
+				workspace: context.workspace,
+				from: scriptPath,
+				target: path.join(GENERATED_ROOT, 'blocks', 'auto-register.ts'),
+			});
+
+			const sourceFile = context.project.createSourceFile(
+				scriptPath,
+				'',
+				{
+					overwrite: true,
+				}
+			);
+
+			sourceFile.addImportDeclaration({
+				moduleSpecifier: autoRegisterImport,
+				namedImports: ['registerGeneratedBlocks'],
+			});
+
+			const functionName = `register${toPascalCase(context.descriptor.name)}Blocks`;
+			sourceFile.addFunction({
+				name: functionName,
+				isExported: true,
+				statements: (writer) => {
+					writer.writeLine('registerGeneratedBlocks();');
+				},
+			});
+
+			await context.emit({ filePath: scriptPath, sourceFile });
 		},
 	};
 }

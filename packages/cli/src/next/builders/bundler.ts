@@ -1,4 +1,6 @@
+import { spawn, type ChildProcess } from 'node:child_process';
 import path from 'node:path';
+import type { Reporter } from '@wpkernel/core/reporter';
 import { createHelper } from '../helper';
 import type {
 	BuilderHelper,
@@ -71,6 +73,7 @@ interface AssetManifest {
 	readonly entry: string;
 	readonly dependencies: readonly string[];
 	readonly version: string;
+	readonly file: string;
 }
 
 interface RollupDriverArtifacts {
@@ -180,6 +183,14 @@ export function normaliseAliasReplacement(replacement: string): string {
 	return `${replacement}/`;
 }
 
+export function createHashedFileName(version: string): string {
+	const sanitized = version.replace(/[^a-zA-Z0-9]/g, '');
+	if (sanitized.length === 0) {
+		return `${DEFAULT_ENTRY_KEY}.js`;
+	}
+	return `${DEFAULT_ENTRY_KEY}-${sanitized}.js`;
+}
+
 export function createRollupDriverArtifacts(
 	pkg: PackageJsonLike | null,
 	options: { readonly aliasRoot?: string } = {}
@@ -215,16 +226,22 @@ export function createRollupDriverArtifacts(
 		},
 	} satisfies RollupDriverConfig;
 
+	const hashedFile = path.posix.join(
+		DEFAULT_OUTPUT_DIR,
+		createHashedFileName(version)
+	);
+
 	const assetManifest: AssetManifest = {
 		entry: DEFAULT_ENTRY_KEY,
 		dependencies: assetDependencies,
 		version,
+		file: hashedFile,
 	} satisfies AssetManifest;
 
 	return { config, assetManifest };
 }
 
-async function readPackageJson(
+export async function readPackageJson(
 	workspace: Workspace
 ): Promise<PackageJsonLike | null> {
 	const contents = await workspace.readText('package.json');
@@ -241,7 +258,7 @@ async function readPackageJson(
 	}
 }
 
-async function queueManifestWrites(
+export async function queueManifestWrites(
 	context: PipelineContext,
 	output: BuilderOutput,
 	files: readonly string[]
@@ -256,12 +273,68 @@ async function queueManifestWrites(
 	}
 }
 
-export function createBundler(): BuilderHelper {
+export async function runViteBuild({
+	workspace,
+	reporter,
+}: {
+	readonly workspace: Workspace;
+	readonly reporter: Reporter;
+}): Promise<void> {
+	reporter.info('Running production bundler build via Vite.');
+
+	const child: ChildProcess = spawn('pnpm', ['exec', 'vite', 'build'], {
+		cwd: workspace.cwd(),
+		env: { ...process.env, NODE_ENV: 'production' },
+		stdio: 'inherit',
+	});
+
+	await new Promise<void>((resolve, reject) => {
+		let settled = false;
+		const settle = (fn: () => void) => {
+			if (!settled) {
+				settled = true;
+				fn();
+			}
+		};
+		child.once('error', (error) => {
+			reporter.warn('Bundler process failed to start.', {
+				error: (error as Error).message,
+			});
+			settle(() => reject(error));
+		});
+		child.once('exit', (code) => {
+			if (code === 0) {
+				reporter.info('Bundler build completed.');
+				settle(resolve);
+				return;
+			}
+
+			const error = new Error(
+				`Bundler build failed with exit code ${code ?? -1}.`
+			);
+			reporter.warn('Bundler exited with non-zero status.', {
+				exitCode: code,
+			});
+			settle(() => reject(error));
+		});
+	});
+}
+
+export interface CreateBundlerOptions {
+	readonly run?: (context: {
+		workspace: Workspace;
+		reporter: Reporter;
+	}) => Promise<void>;
+}
+
+export function createBundler(
+	options: CreateBundlerOptions = {}
+): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.bundler.core',
 		kind: 'builder',
 		async apply({ context, input, output, reporter }) {
-			if (input.phase !== 'generate') {
+			if (input.phase !== 'generate' && input.phase !== 'build') {
 				reporter.debug(
 					'createBundler: skipping phase without bundler support.',
 					{ phase: input.phase }
@@ -290,6 +363,11 @@ export function createBundler(): BuilderHelper {
 					{ pretty: true }
 				);
 
+				await context.workspace.write(
+					artifacts.assetManifest.file,
+					'// AUTO-GENERATED bundler placeholder\n'
+				);
+
 				const manifest = await context.workspace.commit(
 					BUNDLER_TRANSACTION_LABEL
 				);
@@ -298,6 +376,11 @@ export function createBundler(): BuilderHelper {
 				reporter.debug('Bundler configuration generated.', {
 					files: manifest.writes,
 				});
+
+				if (input.phase === 'build') {
+					const runner = options.run ?? runViteBuild;
+					await runner({ workspace: context.workspace, reporter });
+				}
 			} catch (error) {
 				await context.workspace.rollback(BUNDLER_TRANSACTION_LABEL);
 				throw error;

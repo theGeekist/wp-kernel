@@ -1,6 +1,4 @@
-import os from 'node:os';
 import path from 'node:path';
-import fs from 'node:fs/promises';
 import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type {
@@ -10,9 +8,12 @@ import type {
 } from '@wpkernel/core/resource';
 import type { KernelConfigV1 } from '../../../config/types';
 import type { BuildIrOptions, IRResource, IRv1 } from '../../../ir/types';
-import { createWorkspace } from '../../workspace';
 import type { Workspace } from '../../workspace/types';
 import type { BuilderOutput } from '../../runtime/types';
+import {
+	withBuilderWorkspace,
+	type BuilderWorkspaceOptions,
+} from './workspace.test-support';
 
 export interface BuilderHarnessContext {
 	readonly workspace: Workspace;
@@ -20,15 +21,10 @@ export interface BuilderHarnessContext {
 }
 
 export async function withWorkspace(
-	run: (context: BuilderHarnessContext) => Promise<void>
+	run: (context: BuilderHarnessContext) => Promise<void>,
+	options: BuilderWorkspaceOptions = {}
 ): Promise<void> {
-	const root = await fs.mkdtemp(path.join(os.tmpdir(), 'ts-builder-'));
-	try {
-		const workspace = createWorkspace(root);
-		await run({ workspace, root });
-	} finally {
-		await fs.rm(root, { recursive: true, force: true });
-	}
+	await withBuilderWorkspace(run, options);
 }
 
 export interface KernelConfigSourceOptions {

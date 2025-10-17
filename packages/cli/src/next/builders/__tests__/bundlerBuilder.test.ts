@@ -1,34 +1,33 @@
-import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import { createNoopReporter } from '@wpkernel/core/reporter';
-import { createWorkspace } from '../../workspace';
-import type { BuilderOutput } from '../../runtime/types';
+import * as childProcess from 'node:child_process';
 import {
 	createAssetDependencies,
 	createBundler,
+	createHashedFileName,
 	createExternalList,
 	createGlobals,
 	createRollupDriverArtifacts,
 	normaliseAliasReplacement,
+	queueManifestWrites,
+	runViteBuild,
 	toWordPressGlobal,
 	toWordPressHandle,
 } from '../bundler';
+import { withBuilderWorkspace } from '../tests/workspace.test-support';
+import { createReporter, createOutput } from '../tests/ts.test-support';
+
+jest.mock('node:child_process', () => ({
+	spawn: jest.fn(),
+}));
+
+afterEach(() => {
+	const spawnMock = childProcess.spawn as jest.Mock;
+	spawnMock.mockReset();
+	jest.clearAllMocks();
+});
 
 describe('createBundler', () => {
-	async function withWorkspace<T>(
-		run: (root: string) => Promise<T>
-	): Promise<T> {
-		const root = await fs.mkdtemp(
-			path.join(os.tmpdir(), 'bundler-builder-')
-		);
-		try {
-			return await run(root);
-		} finally {
-			await fs.rm(root, { recursive: true, force: true });
-		}
-	}
-
 	function createBuilderInput({
 		namespace,
 		sanitizedNamespace,
@@ -38,7 +37,7 @@ describe('createBundler', () => {
 		namespace: string;
 		sanitizedNamespace: string;
 		workspaceRoot: string;
-		phase: 'generate' | 'apply';
+		phase: 'generate' | 'apply' | 'build';
 	}) {
 		return {
 			phase,
@@ -92,8 +91,7 @@ describe('createBundler', () => {
 	}
 
 	it('writes rollup driver configuration and asset metadata', async () => {
-		await withWorkspace(async (workspaceRoot) => {
-			const workspace = createWorkspace(workspaceRoot);
+		await withBuilderWorkspace(async ({ workspace, root }) => {
 			await workspace.writeJson(
 				'package.json',
 				{
@@ -111,16 +109,13 @@ describe('createBundler', () => {
 			);
 
 			const builder = createBundler();
-			const reporter = createNoopReporter();
-			const output: BuilderOutput = {
-				actions: [],
-				queueWrite: jest.fn(),
-			};
+			const reporter = createReporter();
+			const output = createOutput();
 
 			const input = createBuilderInput({
 				namespace: 'bundler-plugin',
 				sanitizedNamespace: 'BundlerPlugin',
-				workspaceRoot,
+				workspaceRoot: root,
 				phase: 'generate',
 			});
 
@@ -139,13 +134,13 @@ describe('createBundler', () => {
 			);
 
 			const configPath = path.join(
-				workspaceRoot,
+				root,
 				'.wpk',
 				'bundler',
 				'config.json'
 			);
 			const assetPath = path.join(
-				workspaceRoot,
+				root,
 				'.wpk',
 				'bundler',
 				'assets',
@@ -186,6 +181,7 @@ describe('createBundler', () => {
 				entry: 'index',
 				version: '1.2.3',
 			});
+			expect(assetManifest.file).toBe('build/index-123.js');
 			expect(assetManifest.dependencies).toEqual(
 				expect.arrayContaining([
 					'wp-data',
@@ -199,8 +195,13 @@ describe('createBundler', () => {
 				])
 			);
 
+			const hashedFilePath = path.join(root, assetManifest.file);
+			await expect(
+				fs.readFile(hashedFilePath, 'utf8')
+			).resolves.toContain('AUTO-GENERATED bundler placeholder');
+
 			expect(output.queueWrite).toHaveBeenCalled();
-			const queuedFiles = output.queueWrite.mock.calls.map(
+			const queuedFiles = (output.queueWrite as jest.Mock).mock.calls.map(
 				([action]) => action.file
 			);
 			expect(queuedFiles).toEqual(
@@ -212,26 +213,39 @@ describe('createBundler', () => {
 						'assets',
 						'index.asset.json'
 					),
+					assetManifest.file,
 				])
+			);
+
+			expect(reporter.debug).toHaveBeenCalledWith(
+				'Bundler configuration generated.',
+				{
+					files: expect.arrayContaining([
+						path.posix.join('.wpk', 'bundler', 'config.json'),
+						path.posix.join(
+							'.wpk',
+							'bundler',
+							'assets',
+							'index.asset.json'
+						),
+						assetManifest.file,
+					]),
+				}
 			);
 		});
 	});
 
 	it('rolls back workspace writes when package.json cannot be parsed', async () => {
-		await withWorkspace(async (workspaceRoot) => {
-			const workspace = createWorkspace(workspaceRoot);
+		await withBuilderWorkspace(async ({ workspace, root }) => {
 			await workspace.write('package.json', '{ invalid json');
 
 			const builder = createBundler();
-			const reporter = createNoopReporter();
-			const output: BuilderOutput = {
-				actions: [],
-				queueWrite: jest.fn(),
-			};
+			const reporter = createReporter();
+			const output = createOutput();
 			const input = createBuilderInput({
 				namespace: 'bundler-plugin',
 				sanitizedNamespace: 'BundlerPlugin',
-				workspaceRoot,
+				workspaceRoot: root,
 				phase: 'generate',
 			});
 
@@ -259,6 +273,49 @@ describe('createBundler', () => {
 		});
 	});
 
+	it('uses default artifact metadata when package.json is absent', async () => {
+		await withBuilderWorkspace(async ({ workspace, root }) => {
+			const builder = createBundler();
+			const reporter = createReporter();
+			const output = createOutput();
+
+			const input = createBuilderInput({
+				namespace: 'missing-plugin',
+				sanitizedNamespace: 'MissingPlugin',
+				workspaceRoot: root,
+				phase: 'generate',
+			});
+
+			await builder.apply(
+				{
+					context: { workspace, reporter, phase: 'generate' },
+					input,
+					output,
+					reporter,
+				},
+				undefined
+			);
+
+			const assetManifestPath = path.join(
+				root,
+				'.wpk',
+				'bundler',
+				'assets',
+				'index.asset.json'
+			);
+
+			const assetManifest = JSON.parse(
+				await fs.readFile(assetManifestPath, 'utf8')
+			);
+
+			expect(assetManifest.version).toBe('0.0.0');
+			expect(assetManifest.file).toBe('build/index-000.js');
+			expect(
+				(output.queueWrite as jest.Mock).mock.calls.length
+			).toBeGreaterThan(0);
+		});
+	});
+
 	it('derives driver artifacts with sane defaults when package.json is missing', () => {
 		const artifacts = createRollupDriverArtifacts(null);
 		expect(artifacts.config.external).toEqual(
@@ -283,19 +340,15 @@ describe('createBundler', () => {
 	});
 
 	it('skips generation outside the generate phase', async () => {
-		await withWorkspace(async (workspaceRoot) => {
-			const workspace = createWorkspace(workspaceRoot);
+		await withBuilderWorkspace(async ({ workspace, root }) => {
 			const builder = createBundler();
-			const reporter = createNoopReporter();
-			const output: BuilderOutput = {
-				actions: [],
-				queueWrite: jest.fn(),
-			};
+			const reporter = createReporter();
+			const output = createOutput();
 
 			const input = createBuilderInput({
 				namespace: 'skip-plugin',
 				sanitizedNamespace: 'SkipPlugin',
-				workspaceRoot,
+				workspaceRoot: root,
 				phase: 'apply',
 			});
 
@@ -318,6 +371,44 @@ describe('createBundler', () => {
 			);
 			expect(configExists).toBe(false);
 			expect(output.queueWrite).not.toHaveBeenCalled();
+			expect(reporter.debug).toHaveBeenCalledWith(
+				'createBundler: skipping phase without bundler support.',
+				{ phase: 'apply' }
+			);
+		});
+	});
+
+	it('runs the bundler workflow when phase is build', async () => {
+		await withBuilderWorkspace(async ({ workspace, root }) => {
+			await workspace.writeJson(
+				'package.json',
+				{ name: 'bundler-plugin', version: '0.1.0' },
+				{ pretty: true }
+			);
+
+			const run = jest.fn(async () => undefined);
+			const builder = createBundler({ run });
+			const reporter = createReporter();
+			const output = createOutput();
+
+			const input = createBuilderInput({
+				namespace: 'bundler-plugin',
+				sanitizedNamespace: 'BundlerPlugin',
+				workspaceRoot: root,
+				phase: 'build',
+			});
+
+			await builder.apply(
+				{
+					context: { workspace, reporter, phase: 'build' },
+					input,
+					output,
+					reporter,
+				},
+				undefined
+			);
+
+			expect(run).toHaveBeenCalledWith({ workspace, reporter });
 		});
 	});
 });
@@ -388,5 +479,119 @@ describe('bundler helper exports', () => {
 
 		expect(normaliseAliasReplacement('./src')).toBe('./src/');
 		expect(normaliseAliasReplacement('./src/')).toBe('./src/');
+	});
+
+	it('falls back to the default hashed file name when version lacks alphanumeric characters', () => {
+		const fileName = createHashedFileName('???');
+		expect(fileName).toBe('index.js');
+	});
+
+	it('queues manifest writes only for files that exist', async () => {
+		const output = createOutput();
+		const read = jest
+			.fn()
+			.mockResolvedValueOnce(Buffer.from('data'))
+			.mockResolvedValueOnce(null);
+		await queueManifestWrites(
+			{ workspace: { read } } as unknown as Parameters<
+				typeof queueManifestWrites
+			>[0],
+			output,
+			['existing', 'missing']
+		);
+
+		expect(output.queueWrite).toHaveBeenCalledTimes(1);
+		expect((output.queueWrite as jest.Mock).mock.calls[0][0]).toEqual({
+			file: 'existing',
+			contents: expect.any(Buffer),
+		});
+	});
+
+	it('runs the Vite build workflow and resolves on success', async () => {
+		const listeners: Record<string, (value?: unknown) => void> = {};
+		const spawnMock = childProcess.spawn as jest.Mock;
+		spawnMock.mockImplementation(() => {
+			const child = {
+				once: jest.fn(
+					(event: string, handler: (value?: unknown) => void) => {
+						listeners[event] = handler;
+						return child;
+					}
+				),
+			} as unknown as childProcess.ChildProcess;
+			return child;
+		});
+
+		const reporter = createReporter();
+		const workspace = { cwd: () => '/tmp/workspace' } as const;
+		const promise = runViteBuild({ workspace: workspace as any, reporter });
+		listeners.exit?.(0);
+
+		await expect(promise).resolves.toBeUndefined();
+		expect(reporter.info).toHaveBeenCalledWith(
+			'Running production bundler build via Vite.'
+		);
+		expect(reporter.info).toHaveBeenCalledWith('Bundler build completed.');
+		expect(spawnMock).toHaveBeenCalledWith(
+			'pnpm',
+			['exec', 'vite', 'build'],
+			expect.objectContaining({ cwd: '/tmp/workspace' })
+		);
+	});
+
+	it('reports failures when the bundler process exits with an error', async () => {
+		const listeners: Record<string, (value?: unknown) => void> = {};
+		const spawnMock = childProcess.spawn as jest.Mock;
+		spawnMock.mockImplementation(() => {
+			const child = {
+				once: jest.fn(
+					(event: string, handler: (value?: unknown) => void) => {
+						listeners[event] = handler;
+						return child;
+					}
+				),
+			} as unknown as childProcess.ChildProcess;
+			return child;
+		});
+
+		const reporter = createReporter();
+		const workspace = { cwd: () => '/tmp/workspace' } as const;
+		const promise = runViteBuild({ workspace: workspace as any, reporter });
+		listeners.exit?.(2);
+
+		await expect(promise).rejects.toThrow(
+			'Bundler build failed with exit code 2.'
+		);
+		expect(reporter.warn).toHaveBeenCalledWith(
+			'Bundler exited with non-zero status.',
+			{ exitCode: 2 }
+		);
+	});
+
+	it('warns when the bundler process cannot be spawned', async () => {
+		const listeners: Record<string, (value?: unknown) => void> = {};
+		const spawnMock = childProcess.spawn as jest.Mock;
+		spawnMock.mockImplementation(() => {
+			const child = {
+				once: jest.fn(
+					(event: string, handler: (value?: unknown) => void) => {
+						listeners[event] = handler;
+						return child;
+					}
+				),
+			} as unknown as childProcess.ChildProcess;
+			return child;
+		});
+
+		const reporter = createReporter();
+		const workspace = { cwd: () => '/tmp/workspace' } as const;
+		const promise = runViteBuild({ workspace: workspace as any, reporter });
+		listeners.error?.(new Error('spawn failed'));
+
+		await expect(promise).rejects.toThrow('spawn failed');
+		expect(reporter.warn).toHaveBeenCalledWith(
+			'Bundler process failed to start.',
+			{ error: 'spawn failed' }
+		);
 	});
 });

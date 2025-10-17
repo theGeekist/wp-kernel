@@ -213,8 +213,8 @@ describe('createTsBuilder – orchestration', () => {
 				undefined
 			);
 
-			expect(hooks.onBeforeCreate).toHaveBeenCalledTimes(2);
-			expect(hooks.onAfterCreate).toHaveBeenCalledTimes(2);
+			expect(hooks.onBeforeCreate).toHaveBeenCalledTimes(6);
+			expect(hooks.onAfterCreate).toHaveBeenCalledTimes(6);
 			expect(hooks.onBeforeCreate).toHaveBeenCalledWith(
 				expect.objectContaining({
 					descriptor: expect.objectContaining({ key: 'job' }),
@@ -234,6 +234,10 @@ describe('createTsBuilder – orchestration', () => {
 				expect.arrayContaining([
 					'.generated/ui/app/job/admin/JobsAdminScreen.tsx',
 					'.generated/ui/fixtures/dataviews/job.ts',
+					'.generated/ui/stores/job.ts',
+					'.generated/ui/bootstrap/JobsAdminScreen.tsx',
+					'.generated/ui/storybook/JobsAdminScreen.stories.tsx',
+					'.generated/ui/blocks/job.ts',
 				])
 			);
 		});
@@ -334,38 +338,89 @@ describe('createTsBuilder – orchestration', () => {
 					)
 				)
 			).resolves.toBe(true);
-			expect(output.actions.map((action) => action.file)).toEqual([
-				path.join(
-					'.generated',
-					'ui',
-					'app',
-					'Job',
-					'admin',
-					'JobsAdminScreen.tsx'
-				),
-				path.join(
-					'.generated',
-					'ui',
-					'fixtures',
-					'dataviews',
-					'job.ts'
-				),
-				path.join(
-					'.generated',
-					'ui',
-					'app',
-					'Task',
-					'admin',
-					'TasksAdminScreen.tsx'
-				),
-				path.join(
-					'.generated',
-					'ui',
-					'fixtures',
-					'dataviews',
-					'task.ts'
-				),
-			]);
+			const generatedFiles = output.actions
+				.map((action) => action.file.replace(/\\/g, '/'))
+				.sort();
+			expect(generatedFiles).toEqual(
+				expect.arrayContaining([
+					'.generated/ui/app/Job/admin/JobsAdminScreen.tsx',
+					'.generated/ui/fixtures/dataviews/job.ts',
+					'.generated/ui/stores/job.ts',
+					'.generated/ui/bootstrap/JobsAdminScreen.tsx',
+					'.generated/ui/storybook/JobsAdminScreen.stories.tsx',
+					'.generated/ui/blocks/job.ts',
+					'.generated/ui/app/Task/admin/TasksAdminScreen.tsx',
+					'.generated/ui/fixtures/dataviews/task.ts',
+					'.generated/ui/stores/task.ts',
+					'.generated/ui/bootstrap/TasksAdminScreen.tsx',
+					'.generated/ui/storybook/TasksAdminScreen.stories.tsx',
+					'.generated/ui/blocks/task.ts',
+				])
+			);
+		});
+	});
+
+	it('generates stores, bootstrap entrypoints, storybook scaffolds, and block scripts', async () => {
+		await withWorkspace(async ({ workspace, root }) => {
+			await workspace.write(
+				'src/resources/job.ts',
+				'export const job = { ui: { admin: { dataviews: {} } } };\n'
+			);
+			await workspace.write(
+				'src/bootstrap/kernel.ts',
+				'export const kernel = { getUIRuntime: () => ({}) };\n'
+			);
+
+			const dataviews = createDataViewsConfig();
+			const { ir, options } = createBuilderArtifacts({
+				dataviews,
+				sourcePath: path.join(root, 'kernel.config.ts'),
+			});
+
+			const reporter = createReporter();
+			const output = createOutput();
+			const builder = createTsBuilder();
+
+			await builder.apply(
+				{
+					context: { workspace, reporter, phase: 'generate' },
+					input: { phase: 'generate', options, ir },
+					output,
+					reporter,
+				},
+				undefined
+			);
+
+			await expect(
+				workspace.readText(
+					path.join('.generated', 'ui', 'stores', 'job.ts')
+				)
+			).resolves.toContain('jobStore');
+			await expect(
+				workspace.readText(
+					path.join(
+						'.generated',
+						'ui',
+						'bootstrap',
+						'JobsAdminScreen.tsx'
+					)
+				)
+			).resolves.toContain('bootstrapJobsAdminScreen');
+			await expect(
+				workspace.readText(
+					path.join(
+						'.generated',
+						'ui',
+						'storybook',
+						'JobsAdminScreen.stories.tsx'
+					)
+				)
+			).resolves.toContain('KernelUIProvider');
+			await expect(
+				workspace.readText(
+					path.join('.generated', 'ui', 'blocks', 'job.ts')
+				)
+			).resolves.toContain('registerJobBlocks');
 		});
 	});
 });
