@@ -104,7 +104,7 @@
 	],
 	"scripts": {
 		"dev": "tsc --project tsconfig.json --watch",
-		"build": "tsc --project tsconfig.json",
+		"build": "vite build && tsc --project tsconfig.json",
 		"clean": "rm -rf dist *.tsbuildinfo",
 		"lint": "eslint src/",
 		"lint:fix": "eslint src/ --fix",

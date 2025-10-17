@@ -133,6 +133,7 @@
 		"vite": "^7.1.9",
 		"vite-plugin-dts": "^4.5.4",
 		"vite-plugin-external": "^6.2.2",
+		"vite-tsconfig-paths": "^5.1.4",
 		"vitepress": "^1.6.4",
 		"vitepress-plugin-mermaid": "^2.0.17"
 	},
