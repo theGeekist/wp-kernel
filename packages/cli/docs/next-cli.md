@@ -393,9 +393,9 @@ Exit criteria:
 Each stream is designed for parallel ownership. **Before you start a stream, review `examples/showcase/SHOWCASE_GENERATED_PROBLEMS.md` to understand the end-user bugs we must eliminate. After you finish a stream, update the bullets below with “done”/“in progress” notes, links to PRs, and any follow-up tasks.**
 
 1. **PHP driver bridge** (see [Foundational Helper Contract](#foundational-helper-contract) and [Core Fragment Expectations](#core-fragment-expectations))
-    - _Current_: `createPhpDriverInstaller` (packages/cli/src/next/builders/phpDriver.ts) installs `nikic/php-parser` when `vendor/autoload.php` is missing and otherwise no-ops. Controllers are still rendered by the legacy path, so the showcase PHP syntax issues remain.
+    - _Current_: `createPhpBuilder` now depends on `createPhpDriverInstaller`, runs the legacy printers through the workspace transaction API, and queues generated artifacts for downstream apply steps. Meta/taxonomy filters no longer emit bare `continue;` statements, unblocking `php -l` for the showcase fixtures. Coverage captured via `packages/cli/src/next/builders/__tests__/phpBuilder.test.ts` and updated wp-post suites.
     - _Why_: Those showcase failures stem from invalid controllers. Guaranteeing the dependency is step one; wiring a renderer that emits correct PHP (using nikic’s `PrettyPrinter`) is step two.
-    - _Next tasks_: add the renderer helper, prove it fixes the showcase cases (unit + integration tests), and update this entry once the PHP pipeline passes.
+    - _Next tasks_: replace the legacy printer bridge with a nikic `PrettyPrinter` driver and extend the tests with `php -l` / golden snapshots so the new pipeline enforces syntax parity.
 2. **TypeScript driver** (see [Proposed Folder Layout](#proposed-folder-layout-packages-clisrcnext) and [Core Fragment Expectations](#core-fragment-expectations))
     - _Current_: `createTsBuilder` (packages/cli/src/next/builders/ts.ts) orchestrates a shared `ts-morph` project and composes deterministic creators for admin screens and DataViews fixtures, allowing extensions to register additional artifact creators while keeping import resolution and formatting consistent.
     - _Why_: Showcase TS/TSX issues (missing imports, alias problems) were called out in the audit-we must rebuild TS generation on top of the new pipeline to fix them.
