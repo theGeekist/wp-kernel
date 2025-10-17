@@ -393,21 +393,49 @@ Exit criteria:
 Each stream is designed for parallel ownership. **Before you start a stream, review `examples/showcase/SHOWCASE_GENERATED_PROBLEMS.md` to understand the end-user bugs we must eliminate. After you finish a stream, update the bullets below with “done”/“in progress” notes, links to PRs, and any follow-up tasks.**
 
 1. **PHP driver bridge** (see [Foundational Helper Contract](#foundational-helper-contract) and [Core Fragment Expectations](#core-fragment-expectations))
-    - _Current_: `createPhpBuilder` shells out to a PHP bridge backed by `nikic/PHP-Parser`. Builders emit JSON payloads describing the generated AST, the bridge re-renders the code via `PrettyPrinter\Standard`, and the workspace manifest queues the resulting files for downstream apply steps. Tests install the composer driver, run the builder end-to-end, and assert `php -l` passes for the generated controllers (`packages/cli/src/next/builders/__tests__/phpBuilder.test.ts`). The bridge now echoes the parsed PhpParser AST back to the Node runtime so builders persist `.ast.json` siblings for each generated artifact, enabling deterministic diffing during future apply runs. Legacy printer validation has been removed from the next-gen pipeline so the PHP builder is the single source of truth for emission.
+    - _Current_: `createPhpBuilder` now routes all emission through `createPhpPrettyPrinter` (`packages/cli/src/next/builders/phpBridge.ts`), which shells out to `packages/cli/php/pretty-print.php` and `nikic/PHP-Parser`. The bridge normalises code with `PrettyPrinter\Standard`, returns the parsed AST, and the builder persists both `.php` and `.ast.json` artifacts via the workspace manifest. E2E coverage in `phpBuilder.test.ts` exercises a Composer install, verifies `php -l`, and asserts AST payloads, while `phpBridge.test.ts` and `phpBuilder.unit.test.ts` lock down error handling and manifest queuing.
     - _Why_: Those showcase failures stem from invalid controllers. Validating output through the PHP parser ensures syntax correctness before artifacts are queued for apply.
-    - _Next tasks_: extend the suite with golden snapshots for representative controllers and cover driver error reporting when the parser rejects invalid payloads.
+    - _Next tasks_: extend the suite with golden snapshots for representative controllers, surface configurable PHP binary/script paths, and document how the returned AST will feed the apply diffing pipeline.
 2. **TypeScript driver** (see [Proposed Folder Layout](#proposed-folder-layout-packages-clisrcnext) and [Core Fragment Expectations](#core-fragment-expectations))
-    - _Current_: `createTsBuilder` (packages/cli/src/next/builders/ts.ts) orchestrates a shared `ts-morph` project and composes deterministic creators for admin screens and DataViews fixtures, allowing extensions to register additional artifact creators while keeping import resolution and formatting consistent.
+    - _Current_: `createTsBuilder` (packages/cli/src/next/builders/ts.ts) spins up a shared in-memory `ts-morph` project, walks resource DataViews metadata, and composes creators for admin screens plus DataView fixtures. Imports are resolved against the workspace when possible, falling back to `@/` aliases, and emitted sources are formatted before being queued. The orchestration/extension hooks are covered in `ts.builder.test.ts`, while `ts.admin-screen.test.ts` and `ts.dataview-fixture.test.ts` assert import resolution, custom symbols, and emitted fixtures.
     - _Why_: Showcase TS/TSX issues (missing imports, alias problems) were called out in the audit-we must rebuild TS generation on top of the new pipeline to fix them.
-    - _Next tasks_: extend the builder to cover declaration map output and golden parity tests for resource helpers, then document the migration/results here.
+    - _Next tasks_: add declaration-map/typings emission, capture golden outputs for showcase resources, and tighten error reporting when creators fail so extension authors get actionable feedback.
 3. **Bundler evolution** (see [Proposed Folder Layout](#proposed-folder-layout-packages-clisrcnext))
-    - _Current_: `createBundler` now emits a Rollup driver configuration under `.wpk/bundler/`, including WordPress externals, globals, asset manifests, and sourcemap defaults.
+    - _Current_: `createBundler` now writes `.wpk/bundler/config.json` and `.wpk/bundler/assets/index.asset.json`, deriving externals/globals from workspace dependencies, normalising alias roots, and queueing the manifest for downstream apply. Helper utilities (`createExternalList`, `createGlobals`, `createAssetDependencies`, etc.) back the config and are all exercised in `bundlerBuilder.test.ts`, which also covers rollback on malformed `package.json` input.
     - _Why_: The showcase build currently hits runtime aliasing/externals issues; aligning with `templates/wordpress-build.templfile` is critical to close those gaps.
-    - _Next tasks_: wire the driver into a real bundling command (Rollup/Vite invocation + `.asset.php` generation) and extend regression tests with bundle inspection snapshots.
-4. **Apply driver** (see [Workspace handle interface](#workspace-handle-interface))
-    - _Current_: `createPatcher` is a stub. Workspace merge helpers are in place but unused; git convenience methods will be added when the driver lands.
-    - _Why_: Showcase incidents include failed PHP apply/merge steps. We need a git-backed three-way patcher to avoid those errors.
-    - _Next tasks_: implement the merge workflow (compute the delta, call out to `git apply -3` for the merge, capture conflicts in manifests), cover it with regression tests, and ensure the resulting patches follow the “Generated class + thin user shim” pattern shown in the example above.
+    - _Next tasks_: wire the driver into an executable bundling command (Rollup/Vite invocation + `.asset.php` generation), validate hashed assets against the manifest, and document the expected hand-off to the CLI `build` command.
+4. **Apply driver** (see [Workspace handle interface](#workspace-handle-interface)) - _Current_: `createPatcher` is a stub. Workspace merge helpers are in place but unused; git convenience methods will be added when the driver lands. - _Why_: Showcase incidents include failed PHP apply/merge steps. We need a git-backed three-way patcher to avoid those errors. - _Next tasks_: implement the merge workflow (compute the delta, call out to `git apply -3` for the merge, capture conflicts in manifests), cover it with regression tests, and ensure the resulting patches follow the “Generated class + thin user shim” pattern shown in the example above.
+   For example:
+
+```
+(cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF'
+diff --git a/examples/showcase/demo.test.ts b/examples/showcase/demo.test.ts
+index 123abc1..456def2 100644
+--- a/examples/showcase/demo.test.ts
++++ b/examples/showcase/demo.test.ts
+@@ -1 +1,2 @@
+ import path from 'node:path';
++console.log('patched!');
+EOF
+)
+```
+
+```
+(cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF'
+diff --git a/examples/showcase/demo.php b/examples/showcase/demo.php
+index 123abc1..456def2 100644
+--- a/examples/showcase/demo.php
++++ b/examples/showcase/demo.php
+@@ -1 +1,3 @@
+ <?php
++echo "patched!";
++?>
+EOF
+)
+```
+
+Use the existing next/\* js and php ast printers to compute as discussed above
+
 5. **CLI commands** (see [Foundational Helper Contract](#foundational-helper-contract))
     - _Current_: only `wpk init/generate/apply` exist; `wpk create` (the future npm-style entry point) is not implemented.
     - _Why_: We need `wpk create <name>` (positional argument) that calls init, then automatically installs the appropriate dependencies (package manager detection, install builder).
