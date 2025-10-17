@@ -8,8 +8,7 @@ import {
 	type WPKExitCode,
 } from '@wpkernel/core/contracts';
 import type { BuilderOutput } from '../runtime/types';
-import type { IRv1 } from '../../ir/types';
-import type { KernelConfigV1, LoadedKernelConfig } from '../../config/types';
+import type { LoadedKernelConfig } from '../../config/types';
 import { loadKernelConfig } from '../../config';
 import { createWorkspace, type Workspace } from '../workspace';
 import { createPatcher } from '../builders';
@@ -49,47 +48,6 @@ export function createBuilderOutput(): BuilderOutput {
 			actions.push(action);
 		},
 	};
-}
-
-export function createPolicyMap(): IRv1['policyMap'] {
-	return {
-		sourcePath: undefined,
-		definitions: [],
-		fallback: { capability: 'manage_options', appliesTo: 'resource' },
-		missing: [],
-		unused: [],
-		warnings: [],
-	};
-}
-
-export function createPhpProject(namespace: string): IRv1['php'] {
-	return {
-		namespace,
-		autoload: 'inc/',
-		outputDir: '.generated/php',
-	};
-}
-
-export function createIrStub(
-	config: KernelConfigV1,
-	loaded: LoadedKernelConfig
-): IRv1 {
-	return {
-		meta: {
-			version: 1,
-			namespace: loaded.namespace,
-			sanitizedNamespace: loaded.namespace,
-			origin: loaded.configOrigin,
-			sourcePath: loaded.sourcePath,
-		},
-		config,
-		schemas: [],
-		resources: [],
-		policies: [],
-		policyMap: createPolicyMap(),
-		blocks: [],
-		php: createPhpProject(loaded.namespace),
-	} satisfies IRv1;
 }
 
 export async function readManifest(
@@ -198,8 +156,6 @@ export class NextApplyCommand extends Command {
 			const builder = createPatcher();
 			const output = createBuilderOutput();
 
-			const ir = createIrStub(loaded.config, loaded);
-
 			await builder.apply(
 				{
 					context: {
@@ -215,7 +171,7 @@ export class NextApplyCommand extends Command {
 							origin: loaded.configOrigin,
 							sourcePath: loaded.sourcePath,
 						},
-						ir,
+						ir: null,
 					},
 					output,
 					reporter,

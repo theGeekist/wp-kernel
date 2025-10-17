@@ -1,5 +1,4 @@
 import path from 'node:path';
-import os from 'node:os';
 import fs from 'node:fs/promises';
 import { createNoopReporter } from '@wpkernel/core/reporter';
 import * as reporterExports from '@wpkernel/core/reporter';
@@ -13,6 +12,7 @@ import {
 import { createWorkspace } from '../../workspace';
 import * as workspaceExports from '../../workspace';
 import { createIr } from '../createIr';
+import { withWorkspace } from '../../../../tests/workspace.test-support';
 
 jest.mock('../../builders', () => {
 	const { createHelper } = jest.requireActual('../../helper');
@@ -82,38 +82,87 @@ describe('createIr', () => {
 			},
 		} as KernelConfigV1;
 
-		const workspaceRoot = await fs.mkdtemp(
-			path.join(os.tmpdir(), 'php-ir-workspace-')
+		await withWorkspace(
+			async (workspaceRoot) => {
+				await fs.cp(FIXTURE_ROOT, workspaceRoot, { recursive: true });
+
+				const copiedConfigPath = path.join(
+					workspaceRoot,
+					path.basename(FIXTURE_CONFIG_PATH)
+				);
+
+				const options = {
+					config,
+					namespace: config.namespace,
+					origin: 'typescript',
+					sourcePath: copiedConfigPath,
+				} as const;
+
+				const workspace = createWorkspace(workspaceRoot);
+				const [legacy, next] = await Promise.all([
+					buildIr(options),
+					createIr(options, {
+						workspace,
+						reporter: createNoopReporter(),
+					}),
+				]);
+
+				const legacyWithDiagnostics = legacy as typeof next;
+				const { diagnostics: legacyDiagnostics, ...legacyRest } =
+					legacyWithDiagnostics;
+				const { diagnostics: nextDiagnostics, ...nextRest } = next;
+
+				expect(legacyDiagnostics).toBeUndefined();
+				expect(nextRest).toEqual(legacyRest);
+				expect(nextDiagnostics).toBeDefined();
+			},
+			{ chdir: false }
 		);
+	});
 
-		try {
-			await fs.cp(FIXTURE_ROOT, workspaceRoot, { recursive: true });
+	it('collects diagnostics generated during IR construction', async () => {
+		const config = createBaseConfig();
+		config.resources = {
+			remote: {
+				name: 'remote',
+				schema: 'auto',
+				routes: {
+					list: {
+						path: '/external/items',
+						method: 'GET',
+					},
+				},
+			},
+		} as KernelConfigV1['resources'];
 
-			const copiedConfigPath = path.join(
-				workspaceRoot,
-				path.basename(FIXTURE_CONFIG_PATH)
-			);
+		await withWorkspace(
+			async (workspaceRoot) => {
+				const options = {
+					config,
+					namespace: config.namespace,
+					origin: 'typescript',
+					sourcePath: path.join(workspaceRoot, 'kernel.config.ts'),
+				} as const;
 
-			const options = {
-				config,
-				namespace: config.namespace,
-				origin: 'typescript',
-				sourcePath: copiedConfigPath,
-			} as const;
-
-			const workspace = createWorkspace(workspaceRoot);
-			const [legacy, next] = await Promise.all([
-				buildIr(options),
-				createIr(options, {
+				const workspace = createWorkspace(workspaceRoot);
+				const ir = await createIr(options, {
 					workspace,
 					reporter: createNoopReporter(),
-				}),
-			]);
+				});
 
-			expect(next).toEqual(legacy);
-		} finally {
-			await fs.rm(workspaceRoot, { recursive: true, force: true });
-		}
+				expect(ir.diagnostics).toEqual(
+					expect.arrayContaining([
+						expect.objectContaining({
+							key: expect.stringContaining(
+								'ir.diagnostics.core:resource:remote:route.remote.namespace'
+							),
+							severity: 'warn',
+						}),
+					])
+				);
+			},
+			{ chdir: false }
+		);
 	});
 
 	it('uses provided pipeline, environment workspace and reporter overrides', async () => {
@@ -131,6 +180,7 @@ describe('createIr', () => {
 		const pipeline = {
 			ir: { use: jest.fn() },
 			builders: { use: jest.fn() },
+			extensions: { use: jest.fn() },
 			run: jest.fn(async (input) => {
 				expect(input.phase).toBe('validate');
 				expect(input.workspace).toBe(workspace);
@@ -159,8 +209,9 @@ describe('createIr', () => {
 		});
 
 		expect(ir).toBe(pipelineRunResult.ir);
-		expect(pipeline.ir.use).toHaveBeenCalledTimes(8);
+		expect(pipeline.ir.use).toHaveBeenCalledTimes(9);
 		expect(pipeline.builders.use).toHaveBeenCalledTimes(4);
+		expect(pipeline.extensions.use).toHaveBeenCalledTimes(1);
 		expect(pipeline.run).toHaveBeenCalledTimes(1);
 	});
 
@@ -199,6 +250,7 @@ describe('createIr', () => {
 		const pipeline = {
 			ir: { use: jest.fn() },
 			builders: { use: jest.fn() },
+			extensions: { use: jest.fn() },
 			run: jest.fn(async (input) => {
 				expect(input.workspace).toBe(createdWorkspace);
 				expect(input.reporter).toBe(createdReporter);
@@ -213,8 +265,9 @@ describe('createIr', () => {
 		const ir = await createIr(options, { pipeline: pipeline as never });
 
 		expect(ir).toBe(pipelineRunResult.ir);
-		expect(pipeline.ir.use).toHaveBeenCalledTimes(8);
+		expect(pipeline.ir.use).toHaveBeenCalledTimes(9);
 		expect(pipeline.builders.use).toHaveBeenCalledTimes(4);
+		expect(pipeline.extensions.use).toHaveBeenCalledTimes(1);
 		expect(pipeline.run).toHaveBeenCalledTimes(1);
 		expect(workspaceSpy).toHaveBeenCalledWith(
 			path.dirname(options.sourcePath)

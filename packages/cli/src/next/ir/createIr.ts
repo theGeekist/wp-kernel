@@ -12,6 +12,7 @@ import { createResourcesFragment } from './fragments/resources';
 import { createPoliciesFragment } from './fragments/policies';
 import { createPolicyMapFragment } from './fragments/policy-map';
 import { createBlocksFragment } from './fragments/blocks';
+import { createDiagnosticsFragment } from './fragments/diagnostics';
 import { createOrderingFragment } from './fragments/ordering';
 import { createValidationFragment } from './fragments/validation';
 import {
@@ -20,6 +21,7 @@ import {
 	createPhpBuilder,
 	createTsBuilder,
 } from '../builders';
+import { createAdapterExtensionsExtension } from '../runtime/adapterExtensions';
 
 export interface CreateIrEnvironment {
 	readonly workspace?: Workspace;
@@ -34,6 +36,7 @@ function registerCoreFragments(pipeline: Pipeline): void {
 	pipeline.ir.use(createResourcesFragment());
 	pipeline.ir.use(createPoliciesFragment());
 	pipeline.ir.use(createPolicyMapFragment());
+	pipeline.ir.use(createDiagnosticsFragment());
 	pipeline.ir.use(createBlocksFragment());
 	pipeline.ir.use(createOrderingFragment());
 	pipeline.ir.use(createValidationFragment());
@@ -53,6 +56,7 @@ export async function createIr(
 	const pipeline = environment.pipeline ?? createPipeline();
 	registerCoreFragments(pipeline);
 	registerCoreBuilders(pipeline);
+	pipeline.extensions.use(createAdapterExtensionsExtension());
 
 	const workspace =
 		environment.workspace ??

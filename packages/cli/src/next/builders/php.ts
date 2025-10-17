@@ -1,5 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { KernelError } from '@wpkernel/core/error';
 import { createHelper } from '../helper';
 import { emitPhpArtifacts } from '../../printers/php/printer';
 import type { PrinterContext } from '../../printers';
@@ -38,6 +39,13 @@ async function buildPhpArtifacts(
 		context,
 		input: { ir, options: buildOptions },
 	} = options;
+
+	if (!ir) {
+		throw new KernelError('ValidationError', {
+			message:
+				'createPhpBuilder requires an IR instance during execution.',
+		});
+	}
 
 	const outputRoot = path.dirname(ir.php.outputDir);
 	const prettyPrinter = createPhpPrettyPrinter({
@@ -79,13 +87,27 @@ export function createPhpBuilder(): BuilderHelper {
 		kind: 'builder',
 		dependsOn: ['builder.generate.php.driver'],
 		async apply({ context, input, output, reporter }) {
+			if (input.phase !== 'generate') {
+				reporter.debug('createPhpBuilder: skipping phase.', {
+					phase: input.phase,
+				});
+				return;
+			}
+
+			if (!input.ir) {
+				throw new KernelError('ValidationError', {
+					message:
+						'createPhpBuilder requires an IR instance during execution.',
+				});
+			}
+
 			const label = 'builder.generate.php.core';
 			context.workspace.begin(label);
 
 			try {
 				await buildPhpArtifacts({
 					context,
-					input,
+					input: { ...input, ir: input.ir },
 					output,
 				});
 				const manifest = await context.workspace.commit(label);

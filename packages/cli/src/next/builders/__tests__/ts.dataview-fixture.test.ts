@@ -12,6 +12,10 @@ import {
 	normalise,
 } from '../tests/ts.test-support';
 
+jest.mock('../../../commands/run-generate/validation', () => ({
+	validateGeneratedImports: jest.fn().mockResolvedValue(undefined),
+}));
+
 describe('createTsBuilder – DataView fixture creator', () => {
 	it('generates fixtures referencing the kernel config via a relative path', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
