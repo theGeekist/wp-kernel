@@ -2,6 +2,7 @@ import path from 'node:path';
 import { execFile } from 'node:child_process';
 import { createBundler } from '../bundler';
 import { createPhpBuilder } from '../php';
+import { createTsBuilder } from '../ts';
 import { createPatcher } from '../patcher';
 import { createPhpDriverInstaller } from '../phpDriver';
 import type { BuildIrOptions, IRv1 } from '../../../ir/types';
@@ -85,9 +86,10 @@ const workspace = {
 	exists: existsMock,
 } as unknown as Workspace;
 
-const helpers = [
+const stubHelpers = [
 	createBundler(),
 	createPhpBuilder(),
+	createTsBuilder(),
 	createPatcher(),
 	createPhpDriverInstaller(),
 ];
@@ -112,8 +114,8 @@ describe('builder stubs', () => {
 		existsMock.mockResolvedValue(true);
 	});
 
-	it('executes all builders without errors', async () => {
-		for (const helper of helpers) {
+	it('executes stub builders without errors', async () => {
+		for (const helper of stubHelpers) {
 			const output = createOutput();
 			await helper.apply(
 				{
@@ -126,7 +128,7 @@ describe('builder stubs', () => {
 			);
 		}
 
-		expect(reporter.debug).toHaveBeenCalledTimes(helpers.length);
+		expect(reporter.debug).toHaveBeenCalledTimes(stubHelpers.length);
 		expect(reporter.info).not.toHaveBeenCalled();
 		expect(execFile).not.toHaveBeenCalled();
 	});
