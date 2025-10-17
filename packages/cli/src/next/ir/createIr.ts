@@ -15,6 +15,7 @@ import { createBlocksFragment } from './fragments/blocks';
 import { createOrderingFragment } from './fragments/ordering';
 import { createValidationFragment } from './fragments/validation';
 import {
+	createBlocksBuilder,
 	createBundler,
 	createPatcher,
 	createPhpBuilder,
@@ -41,6 +42,7 @@ function registerCoreFragments(pipeline: Pipeline): void {
 
 function registerCoreBuilders(pipeline: Pipeline): void {
 	pipeline.builders.use(createBundler());
+	pipeline.builders.use(createBlocksBuilder());
 	pipeline.builders.use(createPhpBuilder());
 	pipeline.builders.use(createTsBuilder());
 	pipeline.builders.use(createPatcher());

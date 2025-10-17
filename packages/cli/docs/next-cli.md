@@ -148,15 +148,10 @@ _Update the relevant workstream below when scope changes or a milestone closes. 
 ### Workstream 3 – Builder Parity (PHP / Blocks / TS / Bundler)
 
 - **Context:** Gap Analysis → Block printers, TypeScript/UI builders, Bundler/build workflows.
-- **Current gaps**
-    - Block printers are not wired (no manifests/registrars/`render.php`).
-    - TypeScript builders emit only DataView scaffolds.
-    - Bundler helper writes JSON but never drives Rollup/Vite or validates assets.
-- **Tasks**
-    1. Implement `createBlocksBuilder` in `packages/cli/src/next/builders` that wraps `generateSSRBlocks`/`generateJSOnlyBlocks` and enqueues files through workspace transactions.
-    2. Extend `createTsBuilder` with creators for stores, bootstrap entrypoints, Storybook scaffolds, and block scripts using logic from `packages/cli/src/printers/ui/` and `packages/cli/src/printers/blocks/js-only.ts`.
-    3. Provide a bundler workflow (either inside `createBundler` or via a dedicated command) that runs Vite/Rollup, produces hashed assets, and surfaces warnings; reuse legacy behaviour from `wpk build`.
-    4. After builders run, call `validateGeneratedImports` to detect stale TS imports.
+- **Status:** ✓ Core builders now emit PHP block manifests/registrars via `createBlocksBuilder`, generate JS auto-registration alongside UI stores/bootstrap/storybook scaffolds through `createTsBuilder`, persist hashed build artefacts from `createBundler`, and run `validateGeneratedImports` after generation to surface stale module references.
+- **Follow-ups**
+    - Harden hashed asset validation by comparing against actual Vite manifests when the CLI grows a dedicated `build` command.
+    - Extend Storybook scaffolds with real runtime harnesses once the shared UI testing surface lands.
 
 ### Workstream 4 – Workspace Utilities & Command Surface
 

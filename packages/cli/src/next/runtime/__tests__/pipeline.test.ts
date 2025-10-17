@@ -10,6 +10,16 @@ import type { KernelConfigV1 } from '../../../config/types';
 import { FIXTURE_CONFIG_PATH } from '../../../ir/test-helpers';
 import { createWorkspace } from '../../workspace';
 
+jest.mock('../../../commands/run-generate/validation', () => ({
+	validateGeneratedImports: jest.fn(async () => undefined),
+}));
+
+const { validateGeneratedImports } = jest.requireMock(
+	'../../../commands/run-generate/validation'
+) as {
+	validateGeneratedImports: jest.Mock;
+};
+
 function createPolicyMap(): IRPolicyMap {
 	return {
 		sourcePath: undefined,
@@ -22,6 +32,10 @@ function createPolicyMap(): IRPolicyMap {
 }
 
 describe('createPipeline', () => {
+	beforeEach(() => {
+		validateGeneratedImports.mockClear();
+	});
+
 	const config: KernelConfigV1 = {
 		version: 1,
 		namespace: 'test-namespace',
@@ -146,6 +160,99 @@ describe('createPipeline', () => {
 				'ir.validation.test',
 				'builder.test',
 			]);
+		});
+	});
+
+	it('validates generated imports when builders enqueue files', async () => {
+		await withWorkspace(async (workspaceRoot) => {
+			const pipeline = createPipeline();
+
+			const metaHelper = createHelper({
+				key: 'ir.meta.validation',
+				kind: 'fragment',
+				mode: 'override',
+				apply({ output }) {
+					output.assign({
+						meta: {
+							version: 1,
+							namespace: 'validation',
+							sanitizedNamespace: 'validation',
+							origin: 'typescript',
+							sourcePath: 'config.ts',
+						},
+						php: {
+							namespace: 'Validation',
+							autoload: 'inc/',
+							outputDir: '.generated/php',
+						},
+					});
+				},
+			});
+
+			const collectionHelper = createHelper({
+				key: 'ir.collection.validation',
+				kind: 'fragment',
+				dependsOn: ['ir.meta.validation'],
+				apply({ output }) {
+					output.assign({
+						schemas: [],
+						resources: [],
+						policies: [],
+						blocks: [],
+					});
+				},
+			});
+
+			const policyHelper = createHelper({
+				key: 'ir.policy-map.validation',
+				kind: 'fragment',
+				dependsOn: ['ir.collection.validation'],
+				apply({ output }) {
+					output.assign({ policyMap: createPolicyMap() });
+				},
+			});
+
+			const builderHelper = createHelper({
+				key: 'builder.validation',
+				kind: 'builder',
+				apply({ output }) {
+					output.queueWrite({
+						file: path.posix.join('.generated', 'ts', 'index.ts'),
+						contents: 'export const value = 1;\n',
+					});
+				},
+			});
+
+			pipeline.ir.use(metaHelper);
+			pipeline.ir.use(collectionHelper);
+			pipeline.ir.use(policyHelper);
+			pipeline.builders.use(builderHelper);
+
+			const workspace = createWorkspace(workspaceRoot);
+			await pipeline.run({
+				phase: 'generate',
+				config,
+				namespace: 'validation',
+				origin: 'typescript',
+				sourcePath: FIXTURE_CONFIG_PATH,
+				workspace,
+				reporter: createNoopReporter(),
+			});
+
+			expect(validateGeneratedImports).toHaveBeenCalledWith(
+				expect.objectContaining({
+					projectRoot: workspaceRoot,
+					summary: expect.objectContaining({
+						counts: expect.objectContaining({ written: 1 }),
+						entries: expect.arrayContaining([
+							expect.objectContaining({
+								path: '.generated/ts/index.ts',
+								status: 'written',
+							}),
+						]),
+					}),
+				})
+			);
 		});
 	});
 

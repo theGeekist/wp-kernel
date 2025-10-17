@@ -1,4 +1,7 @@
+import { createHash } from 'node:crypto';
 import { KernelError } from '@wpkernel/core/error';
+import type { GenerationSummary } from '../../commands/run-generate/types';
+import { validateGeneratedImports } from '../../commands/run-generate/validation';
 import type { BuildIrOptions, IRv1 } from '../../ir/types';
 import {
 	createIrDraft,
@@ -282,6 +285,57 @@ function createBuilderArgs(
 	};
 }
 
+function hashActionContents(contents: Buffer | string): string {
+	const buffer =
+		typeof contents === 'string' ? Buffer.from(contents) : contents;
+	return createHash('sha256').update(buffer).digest('hex');
+}
+
+function createGenerationSummaryFromOutputs(
+	outputs: BuilderOutput[]
+): GenerationSummary | null {
+	const entries = outputs.flatMap((output) =>
+		output.actions.map((action) => ({
+			path: action.file.replace(/\\/g, '/'),
+			status: 'written' as const,
+			hash: hashActionContents(action.contents),
+		}))
+	);
+
+	if (entries.length === 0) {
+		return null;
+	}
+
+	return {
+		counts: {
+			written: entries.length,
+			unchanged: 0,
+			skipped: 0,
+		},
+		entries,
+		dryRun: false,
+	} satisfies GenerationSummary;
+}
+
+async function validateBuilderOutputs({
+	context,
+	outputs,
+}: {
+	readonly context: PipelineContext;
+	readonly outputs: BuilderOutput[];
+}): Promise<void> {
+	const summary = createGenerationSummaryFromOutputs(outputs);
+	if (!summary) {
+		return;
+	}
+
+	await validateGeneratedImports({
+		projectRoot: context.workspace.root,
+		summary,
+		reporter: context.reporter,
+	});
+}
+
 export function createPipeline(): Pipeline {
 	const fragmentEntries: RegisteredHelper<FragmentHelper>[] = [];
 	const builderEntries: RegisteredHelper<BuilderHelper>[] = [];
@@ -408,10 +462,15 @@ export function createPipeline(): Pipeline {
 			const ir = finalizeIrDraft(draft);
 
 			const builderOrder = buildDependencyGraph(builderEntries).order;
+			const builderOutputs: BuilderOutput[] = [];
 
 			await executeHelpers(
 				builderOrder,
-				() => createBuilderArgs(context, buildOptions, ir),
+				() => {
+					const args = createBuilderArgs(context, buildOptions, ir);
+					builderOutputs.push(args.output);
+					return args;
+				},
 				async (helper, args, next) => {
 					await helper.apply(args, next);
 				},
@@ -428,6 +487,13 @@ export function createPipeline(): Pipeline {
 					});
 				}
 			);
+
+			if (context.phase === 'generate') {
+				await validateBuilderOutputs({
+					context,
+					outputs: builderOutputs,
+				});
+			}
 
 			return {
 				ir,
