@@ -1,8 +1,8 @@
 import path from 'node:path';
 import { Command, Option } from 'clipanion';
 import { createReporter } from '@wpkernel/core/reporter';
-import { KernelError } from '@wpkernel/core/error';
 import {
+	KernelError,
 	WPK_NAMESPACE,
 	WPK_EXIT_CODES,
 	type WPKExitCode,
