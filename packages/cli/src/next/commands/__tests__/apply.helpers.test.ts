@@ -1,0 +1,174 @@
+import {
+	PATCH_MANIFEST_PATH,
+	createBuilderOutput,
+	createIrStub,
+	createPhpProject,
+	createPolicyMap,
+	formatManifest,
+	readManifest,
+	resolveWorkspaceRoot,
+} from '../apply';
+import type { KernelConfigV1, LoadedKernelConfig } from '../../../config/types';
+import type { Workspace } from '../../workspace';
+
+const kernelConfig: KernelConfigV1 = {
+	version: 1,
+	namespace: 'Demo',
+	schemas: {},
+	resources: {},
+};
+
+const loadedConfig: LoadedKernelConfig = {
+	config: kernelConfig,
+	namespace: 'Demo',
+	sourcePath: '/path/to/workspace/kernel.config.ts',
+	configOrigin: 'kernel.config.ts',
+	composerCheck: 'ok',
+};
+
+describe('apply command helpers', () => {
+	it('creates a builder output queue', () => {
+		const output = createBuilderOutput();
+		expect(output.actions).toEqual([]);
+
+		output.queueWrite({
+			file: 'file.ts',
+			contents: 'content',
+		});
+
+		expect(output.actions).toHaveLength(1);
+	});
+
+	it('produces a default policy map', () => {
+		const policyMap = createPolicyMap();
+
+		expect(policyMap).toMatchObject({
+			fallback: { capability: 'manage_options', appliesTo: 'resource' },
+			definitions: [],
+			missing: [],
+			unused: [],
+			warnings: [],
+		});
+		expect(policyMap.sourcePath).toBeUndefined();
+	});
+
+	it('creates a php project stub using the namespace', () => {
+		expect(createPhpProject('DemoNamespace')).toEqual({
+			namespace: 'DemoNamespace',
+			autoload: 'inc/',
+			outputDir: '.generated/php',
+		});
+	});
+
+	it('generates a minimal IR stub', () => {
+		const ir = createIrStub(kernelConfig, loadedConfig);
+
+		expect(ir.meta).toMatchObject({
+			version: 1,
+			namespace: 'Demo',
+			sanitizedNamespace: 'Demo',
+			origin: 'kernel.config.ts',
+			sourcePath: '/path/to/workspace/kernel.config.ts',
+		});
+		expect(ir.config).toBe(kernelConfig);
+		expect(ir.policyMap).toEqual(createPolicyMap());
+		expect(ir.resources).toEqual([]);
+		expect(ir.php).toEqual(createPhpProject('Demo'));
+	});
+
+	it('returns null when no manifest content is present', async () => {
+		const workspace: Pick<Workspace, 'readText'> = {
+			readText: jest.fn().mockResolvedValue(null),
+		} as unknown as Workspace;
+
+		await expect(readManifest(workspace)).resolves.toBeNull();
+	});
+
+	it('parses manifest content and normalises values', async () => {
+		const workspace: Pick<Workspace, 'readText'> = {
+			readText: jest.fn().mockResolvedValue(
+				JSON.stringify({
+					summary: { applied: '2', conflicts: '0', skipped: 1 },
+					records: [
+						{
+							file: 'app/file.ts',
+							status: 'applied',
+							description: 'Patched file',
+							details: { conflict: false },
+						},
+						{
+							file: null,
+							status: undefined,
+							description: 123,
+							details: 'not-object',
+						},
+					],
+				})
+			),
+		} as unknown as Workspace;
+
+		const manifest = await readManifest(workspace);
+
+		expect(manifest).toEqual({
+			summary: { applied: 2, conflicts: 0, skipped: 1 },
+			records: [
+				{
+					file: 'app/file.ts',
+					status: 'applied',
+					description: 'Patched file',
+					details: { conflict: false },
+				},
+				{
+					file: '',
+					status: 'skipped',
+					description: undefined,
+					details: undefined,
+				},
+			],
+		});
+	});
+
+	it('throws a kernel error when manifest cannot be parsed', async () => {
+		const workspace: Pick<Workspace, 'readText'> = {
+			readText: jest.fn().mockResolvedValue('invalid-json'),
+		} as unknown as Workspace;
+
+		await expect(readManifest(workspace)).rejects.toMatchObject({
+			code: 'DeveloperError',
+		});
+	});
+
+	it('formats manifest summaries including records', () => {
+		const text = formatManifest({
+			summary: { applied: 1, conflicts: 0, skipped: 0 },
+			records: [
+				{
+					file: 'php/file.php',
+					status: 'applied',
+					description: 'Updated file',
+				},
+			],
+		});
+
+		expect(text).toContain('Apply summary:');
+		expect(text).toContain('Applied: 1');
+		expect(text).toContain('- [applied] php/file.php — Updated file');
+	});
+
+	it('formats manifest summaries when no records exist', () => {
+		const text = formatManifest({
+			summary: { applied: 0, conflicts: 0, skipped: 0 },
+			records: [],
+		});
+
+		expect(text).toContain('No files were patched.');
+	});
+
+	it('resolves workspace root using the loaded config source path', () => {
+		expect(resolveWorkspaceRoot(loadedConfig)).toBe('/path/to/workspace');
+	});
+
+	it('exposes the manifest path constant', () => {
+		expect(PATCH_MANIFEST_PATH).toBe('.wpk/apply/manifest.json');
+	});
+});
