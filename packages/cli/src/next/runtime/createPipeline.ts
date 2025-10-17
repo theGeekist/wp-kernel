@@ -49,22 +49,28 @@ async function runExtensionHooks(
 	let ir = initialIr;
 	const results: PipelineExtensionHookResult[] = [];
 
-	for (const entry of hooks) {
-		const result = await entry.hook({
-			context,
-			options: buildOptions,
-			ir,
-		});
+	try {
+		for (const entry of hooks) {
+			const result = await entry.hook({
+				context,
+				options: buildOptions,
+				ir,
+			});
 
-		if (!result) {
-			continue;
+			if (!result) {
+				continue;
+			}
+
+			if (result.ir) {
+				ir = result.ir;
+			}
+
+			results.push(result);
 		}
+	} catch (error) {
+		await rollbackExtensionResults(results, hooks, context.reporter);
 
-		if (result.ir) {
-			ir = result.ir;
-		}
-
-		results.push(result);
+		throw error;
 	}
 
 	return { ir, results };
