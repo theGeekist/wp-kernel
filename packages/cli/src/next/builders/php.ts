@@ -4,6 +4,7 @@ import { createHelper } from '../helper';
 import { emitPhpArtifacts } from '../../printers/php/printer';
 import type { PrinterContext } from '../../printers';
 import type { BuilderHelper, BuilderOutput } from '../runtime/types';
+import { createPhpPrettyPrinter } from './phpBridge';
 
 interface BuildPhpArtifactsOptions {
 	readonly context: Parameters<BuilderHelper['apply']>[0]['context'];
@@ -39,11 +40,21 @@ async function buildPhpArtifacts(
 	} = options;
 
 	const outputRoot = path.dirname(ir.php.outputDir);
+	const prettyPrinter = createPhpPrettyPrinter({
+		workspace: context.workspace,
+	});
+
 	const printerContext: PrinterContext = {
 		ir,
 		outputDir: context.workspace.resolve(outputRoot),
 		configDirectory: path.dirname(buildOptions.sourcePath),
-		formatPhp: (filePath, contents) => formatPhpFile(filePath, contents),
+		formatPhp: async (filePath, contents) => {
+			const result = await prettyPrinter.prettyPrint({
+				filePath,
+				code: contents,
+			});
+			return result.code;
+		},
 		// TS formatting is not required for the PHP builder bridge.
 		formatTs: async (_filePath, contents) => contents,
 		writeFile: async (filePath, contents) => {
@@ -54,20 +65,12 @@ async function buildPhpArtifacts(
 		ensureDirectory: async (directoryPath) => {
 			await fs.mkdir(directoryPath, { recursive: true });
 		},
-	} as PrinterContext;
+		phpDriver: {
+			prettyPrint: (payload) => prettyPrinter.prettyPrint(payload),
+		},
+	} satisfies PrinterContext;
 
 	await emitPhpArtifacts(printerContext);
-}
-
-function ensureTrailingNewline(value: string): string {
-	return value.endsWith('\n') ? value : `${value}\n`;
-}
-
-async function formatPhpFile(
-	_filePath: string,
-	contents: string
-): Promise<string> {
-	return ensureTrailingNewline(contents);
 }
 
 export function createPhpBuilder(): BuilderHelper {

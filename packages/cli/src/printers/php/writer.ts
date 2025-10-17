@@ -16,6 +16,26 @@ export async function writePhpArtifact(
 	}
 
 	const ast = builder.toAst();
+	const driver = context.phpDriver;
+
+	if (driver?.prettyPrint) {
+		const { code, ast: parsedAst } = await driver.prettyPrint({
+			filePath,
+			code: renderPhpFile(ast),
+		});
+
+		await context.ensureDirectory(path.dirname(filePath));
+		await context.writeFile(filePath, code);
+
+		if (parsedAst) {
+			const astOutputPath = `${filePath}.ast.json`;
+			const serialisedAst = `${JSON.stringify(parsedAst, null, 2)}\n`;
+			await context.writeFile(astOutputPath, serialisedAst);
+		}
+
+		return;
+	}
+
 	const rendered = renderPhpFile(ast);
 	const formatted = await context.formatPhp(filePath, rendered);
 	await context.ensureDirectory(path.dirname(filePath));

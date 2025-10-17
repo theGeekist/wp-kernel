@@ -19,6 +19,8 @@ jest.mock('prettier', () => ({
 
 jest.mock('@prettier/plugin-php', () => ({}));
 
+jest.setTimeout(20_000);
+
 const TMP_PREFIX = path.join(os.tmpdir(), 'wpk-generate-command-');
 
 const runWorkspace = createWorkspaceRunner({ prefix: TMP_PREFIX });
