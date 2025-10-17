@@ -18,3 +18,11 @@ export interface PhpAstBuilder {
 	getStatements: () => readonly string[];
 	getMetadata: () => PhpFileMetadata;
 }
+
+export interface PhpJsonNode {
+	readonly nodeType: string;
+	readonly attributes: Record<string, unknown>;
+	readonly [key: string]: unknown;
+}
+
+export type PhpJsonAst = readonly PhpJsonNode[];

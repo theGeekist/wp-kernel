@@ -25,27 +25,28 @@ export function appendMetaQueryBuilder(
 			);
 			body.line("                return '' !== trim( (string) $value );");
 			body.line('        } );');
-			body.line(`        if ( empty( ${variable} ) ) {`);
-			body.line('                continue;');
+			body.line(`        if ( ! empty( ${variable} ) ) {`);
+			body.line('                $meta_query[] = array(');
+			body.line(`                        'key' => '${key}',`);
+			body.line("                        'compare' => 'IN',");
+			body.line(`                        'value' => ${variable},`);
+			body.line('                );');
 			body.line('        }');
-			body.line('        $meta_query[] = array(');
-			body.line(`                'key' => '${key}',`);
-			body.line("                'compare' => 'IN',");
-			body.line(`                'value' => ${variable},`);
-			body.line('        );');
 		} else {
-			body.line(`        if ( ! is_scalar( ${variable} ) ) {`);
-			body.line('                continue;');
+			body.line(`        if ( is_scalar( ${variable} ) ) {`);
+			body.line(
+				`                ${variable} = trim( (string) ${variable} );`
+			);
+			body.line(`                if ( '' !== ${variable} ) {`);
+			body.line('                        $meta_query[] = array(');
+			body.line(`                                'key' => '${key}',`);
+			body.line("                                'compare' => '=',");
+			body.line(
+				`                                'value' => ${variable},`
+			);
+			body.line('                        );');
+			body.line('                }');
 			body.line('        }');
-			body.line(`        ${variable} = trim( (string) ${variable} );`);
-			body.line(`        if ( '' === ${variable} ) {`);
-			body.line('                continue;');
-			body.line('        }');
-			body.line('        $meta_query[] = array(');
-			body.line(`                'key' => '${key}',`);
-			body.line("                'compare' => '=',");
-			body.line(`                'value' => ${variable},`);
-			body.line('        );');
 		}
 		body.line('}');
 	}

@@ -114,6 +114,7 @@ describe('createWpPostHandlers – basic controller generation', () => {
 		expect(output).toContain("return new WP_Error( 'wpk_job_not_found'");
 		expect(output).toContain('$this->syncJobMeta( $post->ID, $request );');
 		expect(output).toContain("'deleted' => true");
+		expect(output).toContain('if ( ! empty( $categoriesTerms ) ) {');
 	});
 
 	it('returns an empty result when storage mode is not wp-post', () => {
