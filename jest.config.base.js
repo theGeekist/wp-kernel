@@ -7,7 +7,7 @@
 export default {
 	preset: '@wordpress/jest-preset-default',
 	testEnvironment: 'jsdom',
-
+	// coverageProvider: 'v8',
 	// TypeScript transformation
 	transform: {
 		'^.+\\.tsx?$': [

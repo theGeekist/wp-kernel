@@ -2,15 +2,18 @@
 	"$schema": "https://json.schemastore.org/tsconfig",
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
-		"rootDir": "./src",
+		"rootDir": ".",
 		"outDir": "./dist-tests",
-		"composite": true
+		"composite": true,
+		"types": ["jest", "node"]
 	},
 	"include": [
 		"src/**/*.test.ts",
 		"src/**/*.test.tsx",
 		"src/next/**/*.test.ts",
-		"src/next/**/*.test.tsx"
+		"src/next/**/*.test.tsx",
+		"vite.config.ts"
 	],
-	"references": [{ "path": "../core" }]
+	"exclude": ["dist", "dist-tests", "node_modules"],
+	"references": [{ "path": "./tsconfig.json" }, { "path": "../core" }]
 }

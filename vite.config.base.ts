@@ -21,7 +21,7 @@ type KernelLibConfigOptions = {
  * @param entries     - Entry points (e.g., { index: 'src/index.ts', http: 'src/http/index.ts' })
  * @param options
  */
-export const createKernelLibConfig = (
+export const createWPKLibConfig = (
 	packageName: string,
 	entries: Record<string, string>,
 	options: KernelLibConfigOptions = {}
