@@ -1,6 +1,5 @@
 import path from 'node:path';
 import { execFile } from 'node:child_process';
-import { createBundler } from '../bundler';
 import { createTsBuilder } from '../ts';
 import { createPatcher } from '../patcher';
 import { createPhpDriverInstaller } from '../phpDriver';
@@ -86,7 +85,6 @@ const workspace = {
 } as unknown as Workspace;
 
 const stubHelpers = [
-	createBundler(),
 	createTsBuilder(),
 	createPatcher(),
 	createPhpDriverInstaller(),
