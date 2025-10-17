@@ -104,5 +104,8 @@ describe('createWpPostHandlers – meta handling', () => {
 		);
 		expect(output).toContain('$labelsMeta[ $meta_index ] = $meta_value;');
 		expect(output).toContain("$post_data['post_excerpt'] = $excerpt;");
+		expect(output).toContain('if ( is_scalar( $is_activeMeta ) ) {');
+		expect(output).toContain('if ( ! empty( $labelsMeta ) ) {');
+		expect(output).not.toContain('if ( ! is_scalar( $is_activeMeta ) ) {');
 	});
 });
