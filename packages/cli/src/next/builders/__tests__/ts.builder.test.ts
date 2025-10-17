@@ -162,8 +162,79 @@ describe('createTsBuilder – orchestration', () => {
 				),
 				customArtifactPath,
 			]);
-			expect(reporter.debug).toHaveBeenCalledWith(
-				'createTsBuilder: generated TypeScript artifacts.'
+			const debugCalls = (reporter.debug as jest.Mock).mock.calls;
+			const debugMessage = debugCalls[debugCalls.length - 1]?.[0];
+			expect(debugMessage).toContain(
+				'createTsBuilder: 3 files written ('
+			);
+			expect(debugMessage).toContain(
+				'.generated/ui/app/job/admin/JobsAdminScreen.tsx'
+			);
+			expect(debugMessage).toContain(
+				'.generated/ui/fixtures/dataviews/job.ts'
+			);
+			expect(debugMessage).toContain('.generated/ui/extras/job.ts');
+		});
+	});
+
+	it('invokes lifecycle hooks around creators', async () => {
+		await withWorkspace(async ({ workspace, root }) => {
+			const dataviews = createDataViewsConfig();
+			const { ir, options } = createBuilderArtifacts({
+				dataviews,
+				sourcePath: path.join(root, 'kernel.config.ts'),
+			});
+
+			const hooks = {
+				onBeforeCreate: jest.fn(),
+				onAfterCreate: jest.fn(),
+				onAfterEmit: jest.fn(),
+			};
+
+			const reporter = createReporter();
+			const output = createOutput();
+			const builder = createTsBuilder({ hooks });
+
+			await builder.apply(
+				{
+					context: {
+						workspace,
+						phase: 'generate',
+						reporter,
+					},
+					input: {
+						phase: 'generate',
+						options,
+						ir,
+					},
+					output,
+					reporter,
+				},
+				undefined
+			);
+
+			expect(hooks.onBeforeCreate).toHaveBeenCalledTimes(2);
+			expect(hooks.onAfterCreate).toHaveBeenCalledTimes(2);
+			expect(hooks.onBeforeCreate).toHaveBeenCalledWith(
+				expect.objectContaining({
+					descriptor: expect.objectContaining({ key: 'job' }),
+				})
+			);
+			expect(hooks.onAfterCreate).toHaveBeenCalledWith(
+				expect.objectContaining({
+					descriptor: expect.objectContaining({ key: 'job' }),
+				})
+			);
+
+			expect(hooks.onAfterEmit).toHaveBeenCalledTimes(1);
+			const emitted = hooks.onAfterEmit.mock.calls[0][0].map(
+				(file: string) => file.replace(/\\/g, '/')
+			);
+			expect(emitted).toEqual(
+				expect.arrayContaining([
+					'.generated/ui/app/job/admin/JobsAdminScreen.tsx',
+					'.generated/ui/fixtures/dataviews/job.ts',
+				])
 			);
 		});
 	});

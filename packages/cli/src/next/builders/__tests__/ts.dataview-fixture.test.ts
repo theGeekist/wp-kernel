@@ -1,3 +1,4 @@
+import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createTsBuilder } from '../ts';
 import {
@@ -121,6 +122,66 @@ describe('createTsBuilder – DataView fixture creator', () => {
 			expect(fixtureContents).toContain(
 				'export const jobBoardDataViewConfig: ResourceDataViewConfig<unknown, unknown>'
 			);
+		});
+	});
+
+	it('falls back to alias when kernel config path is outside the workspace root', async () => {
+		await withWorkspace(async ({ workspace, root }) => {
+			const externalDir = path.join(
+				path.dirname(root),
+				'external-kernel-config'
+			);
+			await fs.mkdir(externalDir, { recursive: true });
+			const externalConfigPath = path.join(
+				externalDir,
+				'kernel.config.ts'
+			);
+			await fs.writeFile(externalConfigPath, createKernelConfigSource());
+
+			try {
+				const dataviews = createDataViewsConfig();
+				const { ir, options } = createBuilderArtifacts({
+					dataviews,
+					sourcePath: externalConfigPath,
+				});
+
+				const reporter = createReporter();
+				const output = createOutput();
+				const builder = createTsBuilder();
+
+				await builder.apply(
+					{
+						context: {
+							workspace,
+							phase: 'generate',
+							reporter,
+						},
+						input: {
+							phase: 'generate',
+							options,
+							ir,
+						},
+						output,
+						reporter,
+					},
+					undefined
+				);
+
+				const fixturePath = path.join(
+					'.generated',
+					'ui',
+					'fixtures',
+					'dataviews',
+					'job.ts'
+				);
+				const fixtureContents = await workspace.readText(fixturePath);
+
+				expect(fixtureContents).toContain(
+					"import * as kernelConfigModule from '@/external-kernel-config/kernel.config';"
+				);
+			} finally {
+				await fs.rm(externalDir, { recursive: true, force: true });
+			}
 		});
 	});
 });

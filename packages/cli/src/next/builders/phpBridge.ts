@@ -28,16 +28,33 @@ export function createPhpPrettyPrinter(
 ): PhpPrettyPrinter {
 	const scriptPath = options.scriptPath ?? resolveDefaultScriptPath();
 	const phpBinary = options.phpBinary ?? 'php';
+	const defaultMemoryLimit = process.env.PHP_MEMORY_LIMIT ?? '512M';
 
 	async function prettyPrint(
 		payload: PhpPrettyPrintOptions
 	): Promise<PhpPrettyPrintResult> {
+		ensureValidPayload(payload);
+
 		const { workspace } = options;
+		const memoryLimit = resolveMemoryLimit(defaultMemoryLimit);
+
+		// `spawn` handles argument quoting for Windows executables, so no extra
+		// escaping is required when passing the PHP binary path.
 		const child = spawn(
 			phpBinary,
-			[scriptPath, workspace.root, payload.filePath],
+			[
+				'-d',
+				`memory_limit=${memoryLimit}`,
+				scriptPath,
+				workspace.root,
+				payload.filePath,
+			],
 			{
 				cwd: workspace.root,
+				env: {
+					...process.env,
+					PHP_MEMORY_LIMIT: memoryLimit,
+				},
 			}
 		);
 
@@ -61,11 +78,9 @@ export function createPhpPrettyPrinter(
 			stderr += chunk;
 		});
 
-		const exitCode: number = await new Promise((resolve, reject) => {
-			child.on('error', reject);
-			child.on('close', resolve);
-			child.stdin.on('error', reject);
-			child.stdin.end(input, 'utf8');
+		const exitCode = await waitForBridgeExit(child, input, {
+			phpBinary,
+			scriptPath,
 		});
 
 		if (exitCode !== 0) {
@@ -75,44 +90,145 @@ export function createPhpPrettyPrinter(
 					filePath: payload.filePath,
 					exitCode,
 					stderr,
+					stderrSummary: collectStderrSummary(stderr),
 				},
 			});
 		}
 
-		try {
-			const raw = JSON.parse(stdout) as {
-				code?: unknown;
-				ast?: unknown;
-			};
-
-			if (typeof raw.code !== 'string') {
-				throw new Error('Missing code payload');
-			}
-
-			const result: PhpPrettyPrintResult = {
-				code: raw.code,
-				ast: raw.ast as PhpPrettyPrintResult['ast'],
-			};
-
-			return result;
-		} catch (error) {
-			throw new KernelError('DeveloperError', {
-				message:
-					'Failed to parse pretty printer response for PHP artifacts.',
-				data: {
-					filePath: payload.filePath,
-					stderr,
-					stdout,
-					error:
-						error instanceof Error
-							? { message: error.message }
-							: undefined,
-				},
-			});
-		}
+		return parseBridgeOutput(stdout, {
+			filePath: payload.filePath,
+			stderr,
+		});
 	}
 
 	return {
 		prettyPrint,
 	};
+}
+
+function ensureValidPayload(payload: PhpPrettyPrintOptions): void {
+	const hasCode = typeof payload.code === 'string';
+	const hasAst = payload.ast !== undefined && payload.ast !== null;
+
+	if (Number(hasCode) + Number(hasAst) !== 1) {
+		throw new KernelError('DeveloperError', {
+			message:
+				'PHP pretty printer requires exactly one of code or AST payloads.',
+			data: {
+				filePath: payload.filePath,
+				hasCode,
+				hasAst,
+			},
+		});
+	}
+}
+
+function resolveMemoryLimit(defaultMemoryLimit: string): string {
+	const envLimit = process.env.PHP_MEMORY_LIMIT;
+	return typeof envLimit === 'string' && envLimit !== ''
+		? envLimit
+		: defaultMemoryLimit;
+}
+
+async function waitForBridgeExit(
+	child: ReturnType<typeof spawn>,
+	input: string,
+	meta: { phpBinary: string; scriptPath: string }
+): Promise<number> {
+	return new Promise((resolve, reject) => {
+		let settled = false;
+		const settleResolve = (value: number) => {
+			if (!settled) {
+				settled = true;
+				resolve(value);
+			}
+		};
+		const settleReject = (error: unknown) => {
+			if (!settled) {
+				settled = true;
+				reject(error);
+			}
+		};
+
+		child.on('error', (error) => {
+			if (
+				error &&
+				typeof error === 'object' &&
+				'code' in error &&
+				(error as NodeJS.ErrnoException).code === 'ENOENT'
+			) {
+				settleReject(
+					new KernelError('DeveloperError', {
+						message:
+							'PHP pretty printer is missing required dependencies.',
+						data: meta,
+					})
+				);
+				return;
+			}
+
+			settleReject(error);
+		});
+		child.on('close', (code) =>
+			settleResolve(typeof code === 'number' ? code : 1)
+		);
+
+		const stdin = child.stdin;
+		if (!stdin) {
+			settleReject(
+				new KernelError('DeveloperError', {
+					message:
+						'PHP pretty printer child process did not expose a writable stdin.',
+					data: meta,
+				})
+			);
+			return;
+		}
+
+		stdin.on('error', (error) => settleReject(error));
+		stdin.end(input, 'utf8');
+	});
+}
+
+function collectStderrSummary(stderr: string): string[] {
+	return stderr
+		.split(/\r?\n/u)
+		.map((line) => line.trim())
+		.filter(Boolean)
+		.slice(0, 3);
+}
+
+function parseBridgeOutput(
+	stdout: string,
+	context: { filePath: string; stderr: string }
+): PhpPrettyPrintResult {
+	try {
+		const raw = JSON.parse(stdout) as {
+			code?: unknown;
+			ast?: unknown;
+		};
+
+		if (typeof raw.code !== 'string') {
+			throw new Error('Missing code payload');
+		}
+
+		return {
+			code: raw.code,
+			ast: raw.ast as PhpPrettyPrintResult['ast'],
+		};
+	} catch (error) {
+		throw new KernelError('DeveloperError', {
+			message:
+				'Failed to parse pretty printer response for PHP artifacts.',
+			data: {
+				filePath: context.filePath,
+				stderr: context.stderr,
+				stdout,
+				error:
+					error instanceof Error
+						? { message: error.message }
+						: undefined,
+			},
+		});
+	}
 }
