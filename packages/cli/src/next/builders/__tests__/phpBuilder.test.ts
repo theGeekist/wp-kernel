@@ -7,11 +7,47 @@ import { createNoopReporter } from '@wpkernel/core/reporter';
 import type { IRv1 } from '../../../ir/types';
 import { createWorkspace } from '../../workspace';
 import { createPhpBuilder } from '../php';
-import type { BuilderOutput } from '../../runtime/types';
+import type { BuilderOutput, BuilderWriteAction } from '../../runtime/types';
+import type {
+	PhpPrettyPrintOptions,
+	PhpPrettyPrintResult,
+} from '../../../printers/types';
 
 const execFileAsync = promisify(execFile);
 
 jest.setTimeout(60000);
+
+jest.mock('../phpBridge', () => {
+	const prettyPrint = jest.fn(
+		async (
+			payload: PhpPrettyPrintOptions
+		): Promise<PhpPrettyPrintResult> => {
+			const code = typeof payload.code === 'string' ? payload.code : '';
+			const hasNamespace = /namespace\s+[^\s;]+;/u.test(code);
+
+			return {
+				code,
+				ast: hasNamespace
+					? [
+							{
+								nodeType: 'Stmt_Namespace',
+								attributes: {},
+								name: code.match(
+									/namespace\s+([^\s;]+);/u
+								)?.[1],
+							},
+						]
+					: [],
+			};
+		}
+	);
+
+	return {
+		createPhpPrettyPrinter: jest.fn(() => ({
+			prettyPrint,
+		})),
+	};
+});
 
 describe('createPhpBuilder', () => {
 	const builder = createPhpBuilder();
@@ -60,20 +96,6 @@ describe('createPhpBuilder', () => {
 		);
 
 		try {
-			const composerTemplate = await fs.readFile(
-				path.resolve(__dirname, '../../../../composer.json'),
-				'utf8'
-			);
-			await fs.writeFile(
-				path.join(root, 'composer.json'),
-				composerTemplate
-			);
-			await execFileAsync(
-				'composer',
-				['install', '--no-interaction', '--no-progress'],
-				{ cwd: root }
-			);
-
 			return await run(root);
 		} finally {
 			await fs.rm(root, { recursive: true, force: true });
@@ -82,11 +104,16 @@ describe('createPhpBuilder', () => {
 
 	it('writes PHP artifacts and records manifest entries', async () => {
 		await withWorkspace(async (workspaceRoot) => {
+			await fs.writeFile(
+				path.join(workspaceRoot, ir.meta.sourcePath),
+				'// config placeholder\n'
+			);
 			const workspace = createWorkspace(workspaceRoot);
 			const reporter = createNoopReporter();
+			const queueWrite = jest.fn<void, [BuilderWriteAction]>();
 			const output: BuilderOutput = {
 				actions: [],
-				queueWrite: jest.fn(),
+				queueWrite,
 			};
 
 			await builder.apply(
@@ -130,8 +157,8 @@ describe('createPhpBuilder', () => {
 
 			expect(controllerExists).toContain('class BaseController');
 			expect(controllerExists).toMatch(/declare\s*\(strict_types=1\);/);
-			expect(output.queueWrite).toHaveBeenCalled();
-			const queuedFiles = output.queueWrite.mock.calls.map(
+			expect(queueWrite).toHaveBeenCalled();
+			const queuedFiles = queueWrite.mock.calls.map(
 				([action]) => action.file
 			);
 			expect(queuedFiles).toContain(

@@ -178,4 +178,92 @@ describe('filesystem workspace', () => {
 			);
 		});
 	});
+
+	it('throws when committing or rolling back without an active transaction', async () => {
+		await withWorkspace(async (root) => {
+			const workspace = createWorkspace(root);
+
+			await expect(workspace.commit()).rejects.toThrow(
+				/Attempted to commit workspace transaction/
+			);
+			await expect(workspace.rollback()).rejects.toThrow(
+				/Attempted to rollback workspace transaction/
+			);
+		});
+	});
+
+	it('guards against mismatched rollback labels', async () => {
+		await withWorkspace(async (root) => {
+			const workspace = createWorkspace(root);
+			await workspace.write('data.txt', 'original');
+			workspace.begin('expected');
+			await workspace.write('data.txt', 'mutated');
+
+			await expect(workspace.rollback('other')).rejects.toThrow(
+				/Attempted to rollback transaction/
+			);
+
+			// File stays mutated because rollback is aborted.
+			const persisted = await workspace.readText('data.txt');
+			expect(persisted).toBe('mutated');
+		});
+	});
+
+	it('preserves original content when writing the same file multiple times in a transaction', async () => {
+		await withWorkspace(async (root) => {
+			const workspace = createWorkspace(root);
+			await workspace.write('repeat.txt', 'original');
+
+			workspace.begin('multi-write');
+			await workspace.write('repeat.txt', 'first-change');
+			await workspace.write('repeat.txt', 'second-change');
+			const manifest = await workspace.rollback('multi-write');
+
+			expect(manifest.writes).toEqual(['repeat.txt']);
+			const restored = await workspace.readText('repeat.txt');
+			expect(restored).toBe('original');
+		});
+	});
+
+	it('treats base equalities as clean outcomes in three-way merges', async () => {
+		await withWorkspace(async (root) => {
+			const workspace = createWorkspace(root);
+			await workspace.write('merge-base.txt', 'current');
+
+			const baseMatchesCurrent = await workspace.threeWayMerge(
+				'merge-base.txt',
+				'shared',
+				'shared',
+				'incoming'
+			);
+			expect(baseMatchesCurrent).toBe('clean');
+			expect(await workspace.readText('merge-base.txt')).toBe('incoming');
+
+			const baseMatchesIncoming = await workspace.threeWayMerge(
+				'merge-base.txt',
+				'incoming',
+				'retained',
+				'incoming'
+			);
+			expect(baseMatchesIncoming).toBe('clean');
+			expect(await workspace.readText('merge-base.txt')).toBe('retained');
+		});
+	});
+
+	it('treats trimmed matches as clean merges when whitespace differs', async () => {
+		await withWorkspace(async (root) => {
+			const workspace = createWorkspace(root);
+			await workspace.write('merge-trim.txt', 'value\n');
+
+			const status = await workspace.threeWayMerge(
+				'merge-trim.txt',
+				'base',
+				'value\n',
+				'value'
+			);
+
+			expect(status).toBe('clean');
+			expect(await workspace.readText('merge-trim.txt')).toBe('value\n');
+		});
+	});
 });

@@ -6,6 +6,11 @@
 		"outDir": "./dist-tests",
 		"composite": true
 	},
-	"include": ["src/**/*.test.ts", "src/**/*.test.tsx"],
+	"include": [
+		"src/**/*.test.ts",
+		"src/**/*.test.tsx",
+		"src/next/**/*.test.ts",
+		"src/next/**/*.test.tsx"
+	],
 	"references": [{ "path": "../core" }]
 }
