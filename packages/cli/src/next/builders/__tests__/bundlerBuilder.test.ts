@@ -273,6 +273,59 @@ describe('createBundler', () => {
 		});
 	});
 
+	it('rolls back generated artifacts when the build runner fails', async () => {
+		await withBuilderWorkspace(async ({ workspace, root }) => {
+			await workspace.writeJson(
+				'package.json',
+				{
+					name: 'bundler-plugin',
+					version: '1.0.0',
+				},
+				{ pretty: true }
+			);
+
+			const run = jest.fn(async () => {
+				throw new Error('runner failed');
+			});
+
+			const builder = createBundler({ run });
+			const reporter = createReporter();
+			const output = createOutput();
+			const input = createBuilderInput({
+				namespace: 'bundler-plugin',
+				sanitizedNamespace: 'BundlerPlugin',
+				workspaceRoot: root,
+				phase: 'build',
+			});
+
+			await expect(
+				builder.apply(
+					{
+						context: {
+							workspace,
+							reporter,
+							phase: 'build',
+						},
+						input,
+						output,
+						reporter,
+					},
+					undefined
+				)
+			).rejects.toThrow('runner failed');
+
+			expect(run).toHaveBeenCalledWith({
+				workspace,
+				reporter,
+			});
+
+			await expect(
+				workspace.exists(path.posix.join('build', 'index-100.js'))
+			).resolves.toBe(false);
+			expect(output.queueWrite).not.toHaveBeenCalled();
+		});
+	});
+
 	it('uses default artifact metadata when package.json is absent', async () => {
 		await withBuilderWorkspace(async ({ workspace, root }) => {
 			const builder = createBundler();

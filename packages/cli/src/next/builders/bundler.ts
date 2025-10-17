@@ -344,6 +344,8 @@ export function createBundler(
 
 			context.workspace.begin(BUNDLER_TRANSACTION_LABEL);
 
+			let committed = false;
+
 			try {
 				const pkg = await readPackageJson(context.workspace);
 				const artifacts = createRollupDriverArtifacts(pkg, {
@@ -368,21 +370,25 @@ export function createBundler(
 					'// AUTO-GENERATED bundler placeholder\n'
 				);
 
+				if (input.phase === 'build') {
+					const runner = options.run ?? runViteBuild;
+					await runner({ workspace: context.workspace, reporter });
+				}
 				const manifest = await context.workspace.commit(
 					BUNDLER_TRANSACTION_LABEL
 				);
+				committed = true;
 				await queueManifestWrites(context, output, manifest.writes);
 
 				reporter.debug('Bundler configuration generated.', {
 					files: manifest.writes,
 				});
-
-				if (input.phase === 'build') {
-					const runner = options.run ?? runViteBuild;
-					await runner({ workspace: context.workspace, reporter });
-				}
 			} catch (error) {
-				await context.workspace.rollback(BUNDLER_TRANSACTION_LABEL);
+				if (!committed) {
+					await context.workspace
+						.rollback(BUNDLER_TRANSACTION_LABEL)
+						.catch(() => undefined);
+				}
 				throw error;
 			}
 		},
