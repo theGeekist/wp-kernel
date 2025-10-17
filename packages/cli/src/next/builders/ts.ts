@@ -30,6 +30,16 @@ export interface TsBuilderEmitOptions {
 	readonly sourceFile: SourceFile;
 }
 
+export interface TsBuilderLifecycleHooks {
+	readonly onBeforeCreate?: (
+		context: Omit<TsBuilderCreatorContext, 'hooks'>
+	) => Promise<void>;
+	readonly onAfterCreate?: (
+		context: Omit<TsBuilderCreatorContext, 'hooks'>
+	) => Promise<void>;
+	readonly onAfterEmit?: (emitted: readonly string[]) => Promise<void>;
+}
+
 export interface TsBuilderCreatorContext {
 	readonly project: Project;
 	readonly workspace: Workspace;
@@ -49,6 +59,7 @@ export interface TsBuilderCreator {
 export interface CreateTsBuilderOptions {
 	readonly creators?: readonly TsBuilderCreator[];
 	readonly projectFactory?: () => Project;
+	readonly hooks?: TsBuilderLifecycleHooks;
 }
 
 type ResourceUiConfig = NonNullable<ResourceConfig['ui']>;
@@ -70,11 +81,13 @@ export function createTsBuilder(
 		createDataViewFixtureCreator(),
 	];
 	const projectFactory = options.projectFactory ?? createProject;
+	const lifecycleHooks = options.hooks ?? {};
 
 	return createHelper({
 		key: 'builder.generate.ts.core',
 		kind: 'builder',
 		async apply({ context, input, output, reporter }) {
+			const emittedFiles: string[] = [];
 			const descriptors = collectResourceDescriptors(
 				input.options.config.resources
 			);
@@ -85,7 +98,7 @@ export function createTsBuilder(
 			}
 
 			const project = projectFactory();
-			const emit = createEmitter(context.workspace, output);
+			const emit = createEmitter(context.workspace, output, emittedFiles);
 
 			for (const descriptor of descriptors) {
 				const creatorContext: TsBuilderCreatorContext = {
@@ -100,11 +113,34 @@ export function createTsBuilder(
 				};
 
 				for (const creator of creators) {
+					if (lifecycleHooks.onBeforeCreate) {
+						await lifecycleHooks.onBeforeCreate(creatorContext);
+					}
 					await creator.create(creatorContext);
+					if (lifecycleHooks.onAfterCreate) {
+						await lifecycleHooks.onAfterCreate(creatorContext);
+					}
 				}
 			}
 
-			reporter.debug('createTsBuilder: generated TypeScript artifacts.');
+			if (lifecycleHooks.onAfterEmit) {
+				await lifecycleHooks.onAfterEmit([...emittedFiles]);
+			}
+
+			if (emittedFiles.length === 0) {
+				reporter.debug(
+					'createTsBuilder: generated TypeScript artifacts.'
+				);
+			} else {
+				const previewList = emittedFiles
+					.slice(0, 3)
+					.map((file) => file.replace(/\\/g, '/'))
+					.join(', ');
+				const suffix = emittedFiles.length > 3 ? ', …' : '';
+				reporter.debug(
+					`createTsBuilder: ${emittedFiles.length} files written (${previewList}${suffix})`
+				);
+			}
 		},
 	});
 }
@@ -360,7 +396,8 @@ function createProject(): Project {
 
 function createEmitter(
 	workspace: Workspace,
-	output: BuilderOutput
+	output: BuilderOutput,
+	emittedFiles: string[]
 ): (options: TsBuilderEmitOptions) => Promise<void> {
 	return async ({ filePath, sourceFile }: TsBuilderEmitOptions) => {
 		sourceFile.formatText({ ensureNewLineAtEndOfFile: true });
@@ -368,6 +405,7 @@ function createEmitter(
 
 		await workspace.write(filePath, contents);
 		output.queueWrite({ file: filePath, contents });
+		emittedFiles.push(filePath);
 
 		sourceFile.forget();
 	};
@@ -450,6 +488,19 @@ function createModuleSpecifier({
 	const targetAbsolute = path.isAbsolute(target)
 		? target
 		: workspace.resolve(target);
+	const workspaceRoot = workspace.resolve('.');
+	const relativeToWorkspace = path.relative(workspaceRoot, targetAbsolute);
+
+	if (relativeToWorkspace.startsWith('..')) {
+		const aliasTarget = stripExtension(relativeToWorkspace)
+			.replace(/^(\.\.[\\/])+/, '')
+			.replace(/\\/g, '/');
+
+		const normalisedAlias =
+			aliasTarget.length > 0 ? aliasTarget.replace(/^\/+/u, '') : '';
+
+		return normalisedAlias.length > 0 ? `@/${normalisedAlias}` : '@/';
+	}
 
 	const relative = path.relative(path.dirname(fromAbsolute), targetAbsolute);
 	const withoutExtension = stripExtension(relative);
