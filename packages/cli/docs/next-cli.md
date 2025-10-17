@@ -115,6 +115,7 @@ Extensions follow the same pattern-export a `create*Extension` helper that recei
 - **Command surface** – Only `NextApplyCommand` is exported today; legacy exposes `init`, `generate`, `start`, `build`, `doctor`, etc.
 - **Testing & docs** – Legacy CLI ships golden artefacts, integration suites, CLI transcripts, and thorough JSDoc/docs. The next pipeline currently covers units only.
 - **Extensibility** – Legacy modules rely on bespoke wiring; the next pipeline intentionally surfaces `create*` helpers that need to be documented and kept stable.
+- **PHP AST parity** – We currently emit PHP via the legacy printer stack; see `packages/cli/docs/php-json-ast-migration.md` for the JSON AST migration blueprint. Update both that plan and this document’s status bullets when phases complete so contributors know the latest state.
 
 ---
 

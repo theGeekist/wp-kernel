@@ -7,7 +7,7 @@ import {
 	setProcessEnv,
 	setWpPluginData,
 	type WordPressData,
-} from '../index.js';
+} from '../index';
 
 describe('test-utils/wp.test-support', () => {
 	const originalEnv = { ...process.env };
@@ -35,9 +35,9 @@ describe('test-utils/wp.test-support', () => {
 			>['apiFetch'],
 			hooks: {
 				doAction: jest.fn(),
-			} as unknown,
+			},
 			...overrides,
-		} as unknown as NonNullable<Window['wp']>;
+		} as NonNullable<Window['wp']>;
 
 		window.wp = wpGlobal;
 
@@ -79,11 +79,11 @@ describe('test-utils/wp.test-support', () => {
 
 	it('maps plugin data for namespace detection', () => {
 		installWp();
-		setWpPluginData({ name: 'kernel', slug: 'wp-kernel' });
+		setWpPluginData({ name: 'kernel', slug: 'wpkernel' });
 
 		expect(window.wpKernelData).toEqual({
 			textDomain: 'kernel',
-			slug: 'wp-kernel',
+			slug: 'wpkernel',
 		});
 	});
 

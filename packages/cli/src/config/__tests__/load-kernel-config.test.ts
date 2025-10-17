@@ -153,17 +153,19 @@ describe('loadKernelConfig', () => {
 				const originalReadFile = fs.readFile;
 				const readSpy = jest
 					.spyOn(fs, 'readFile')
-					.mockImplementation(
-						async (filePath: string, encoding?: BufferEncoding) => {
-							if (filePath.endsWith('composer.json')) {
-								throw 'read-failure';
-							}
-							return originalReadFile(
-								filePath,
-								encoding as BufferEncoding
-							);
+					.mockImplementation(async (...args) => {
+						const [pathLike] = args;
+						if (
+							typeof pathLike === 'string' &&
+							pathLike.endsWith('composer.json')
+						) {
+							throw new Error('read-failure');
 						}
-					);
+
+						return originalReadFile(
+							...(args as Parameters<typeof fs.readFile>)
+						);
+					});
 
 				await expect(loadKernelConfig()).rejects.toMatchObject({
 					code: 'ValidationError',

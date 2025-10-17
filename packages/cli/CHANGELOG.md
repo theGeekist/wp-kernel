@@ -28,6 +28,7 @@
 
 ### Changed
 
+- CLI build now runs the PHP driver installer during Vite bundling so `nikic/php-parser` is available for integration tests and runtime tooling
 - **Major PHP Printer Refactor**: Transformed monolithic architecture into composable generators
     - `wp-post.ts` (1,236 lines) → modular `wp-post/` directory (17 focused modules)
     - Main printer orchestrator reduced from 775 lines to 83 lines
