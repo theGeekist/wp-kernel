@@ -18,14 +18,15 @@ export function appendTaxonomyQueryBuilder(
 		body.line(
 			`        ${variable} = array_filter( array_map( 'intval', (array) ${variable} ) );`
 		);
-		body.line(`        if ( empty( ${variable} ) ) {`);
-		body.line('                continue;');
+		body.line(`        if ( ! empty( ${variable} ) ) {`);
+		body.line('                $tax_query[] = array(');
+		body.line(
+			`                        'taxonomy' => '${descriptor.taxonomy}',`
+		);
+		body.line("                        'field' => 'term_id',");
+		body.line(`                        'terms' => ${variable},`);
+		body.line('                );');
 		body.line('        }');
-		body.line('        $tax_query[] = array(');
-		body.line(`                'taxonomy' => '${descriptor.taxonomy}',`);
-		body.line("                'field' => 'term_id',");
-		body.line(`                'terms' => ${variable},`);
-		body.line('        );');
 		body.line('}');
 	}
 

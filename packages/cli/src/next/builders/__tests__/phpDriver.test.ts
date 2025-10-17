@@ -128,4 +128,39 @@ describe('createPhpDriverInstaller', () => {
 
 		expect(reporter.error).toHaveBeenCalled();
 	});
+
+	it('normalizes non-Error failures from composer install', async () => {
+		existsMock.mockResolvedValue(false);
+		(execFile as unknown as jest.Mock).mockImplementationOnce(
+			(
+				_cmd: string,
+				_args: readonly string[],
+				_options: unknown,
+				callback?: (
+					error: unknown,
+					stdout: string,
+					stderr: string
+				) => void
+			) => {
+				callback?.('fatal', '', '');
+			}
+		);
+
+		await expect(
+			helper.apply(
+				{
+					context,
+					input: undefined as never,
+					output: undefined as never,
+					reporter,
+				},
+				undefined
+			)
+		).rejects.toMatchObject({ code: 'DeveloperError' });
+
+		expect(reporter.error).toHaveBeenCalledWith(
+			expect.stringContaining('Composer install failed'),
+			expect.objectContaining({ error: 'fatal' })
+		);
+	});
 });
