@@ -1,4 +1,5 @@
 import { KernelError } from '@wpkernel/core/error';
+import type { Reporter } from '@wpkernel/core/reporter';
 import type { BuildIrOptions, IRv1 } from '../../ir/types';
 import {
 	createIrDraft,
@@ -15,6 +16,8 @@ import type {
 	Pipeline,
 	PipelineContext,
 	PipelineDiagnostic,
+	PipelineExtensionHook,
+	PipelineExtensionHookResult,
 	PipelineRunOptions,
 	PipelineRunResult,
 	PipelineStep,
@@ -30,6 +33,74 @@ interface DependencyGraphState<T extends FragmentHelper | BuilderHelper> {
 	readonly adjacency: Map<string, Set<string>>;
 	readonly indegree: Map<string, number>;
 	readonly entryById: Map<string, RegisteredHelper<T>>;
+}
+
+interface ExtensionHookEntry {
+	readonly key: string;
+	readonly hook: PipelineExtensionHook;
+}
+
+async function runExtensionHooks(
+	hooks: readonly ExtensionHookEntry[],
+	context: PipelineContext,
+	buildOptions: BuildIrOptions,
+	initialIr: IRv1
+): Promise<{ ir: IRv1; results: PipelineExtensionHookResult[] }> {
+	let ir = initialIr;
+	const results: PipelineExtensionHookResult[] = [];
+
+	for (const entry of hooks) {
+		const result = await entry.hook({
+			context,
+			options: buildOptions,
+			ir,
+		});
+
+		if (!result) {
+			continue;
+		}
+
+		if (result.ir) {
+			ir = result.ir;
+		}
+
+		results.push(result);
+	}
+
+	return { ir, results };
+}
+
+async function commitExtensionResults(
+	results: readonly PipelineExtensionHookResult[]
+): Promise<void> {
+	for (const result of results) {
+		if (result.commit) {
+			await result.commit();
+		}
+	}
+}
+
+async function rollbackExtensionResults(
+	results: readonly PipelineExtensionHookResult[],
+	hooks: readonly ExtensionHookEntry[],
+	reporter: Reporter
+): Promise<void> {
+	const hookKeys = hooks.map((entry) => entry.key);
+
+	for (const result of [...results].reverse()) {
+		if (!result.rollback) {
+			continue;
+		}
+
+		try {
+			await result.rollback();
+		} catch (error) {
+			reporter.warn('Pipeline extension rollback failed.', {
+				error: (error as Error).message,
+				extensions: hookKeys,
+			});
+		}
+	}
 }
 
 function createHelperId(
@@ -286,6 +357,7 @@ export function createPipeline(): Pipeline {
 	const fragmentEntries: RegisteredHelper<FragmentHelper>[] = [];
 	const builderEntries: RegisteredHelper<BuilderHelper>[] = [];
 	const diagnostics: PipelineDiagnostic[] = [];
+	const extensionHooks: ExtensionHookEntry[] = [];
 
 	function registerFragment(helper: FragmentHelper): void {
 		if (helper.kind !== 'fragment') {
@@ -344,6 +416,33 @@ export function createPipeline(): Pipeline {
 		});
 	}
 
+	function registerExtensionHook(
+		key: string | undefined,
+		hook: PipelineExtensionHook
+	): void {
+		const resolvedKey =
+			key ?? `pipeline.extension#${extensionHooks.length + 1}`;
+		extensionHooks.push({
+			key: resolvedKey,
+			hook,
+		});
+	}
+
+	function handleExtensionRegisterResult(
+		extensionKey: string | undefined,
+		result: unknown
+	): unknown {
+		if (typeof result === 'function') {
+			registerExtensionHook(
+				extensionKey,
+				result as PipelineExtensionHook
+			);
+			return undefined;
+		}
+
+		return result;
+	}
+
 	const pipeline: Pipeline = {
 		ir: {
 			use(helper) {
@@ -357,7 +456,26 @@ export function createPipeline(): Pipeline {
 		},
 		extensions: {
 			use(extension) {
-				return extension.register(pipeline);
+				const registrationResult = extension.register(pipeline);
+
+				if (
+					registrationResult &&
+					typeof (registrationResult as Promise<unknown>)?.then ===
+						'function'
+				) {
+					return (registrationResult as Promise<unknown>).then(
+						(resolved) =>
+							handleExtensionRegisterResult(
+								extension.key,
+								resolved
+							)
+					);
+				}
+
+				return handleExtensionRegisterResult(
+					extension.key,
+					registrationResult
+				);
 			},
 		},
 		use(helper) {
@@ -384,6 +502,20 @@ export function createPipeline(): Pipeline {
 			const draft = createIrDraft(buildOptions);
 			const fragmentOrder = buildDependencyGraph(fragmentEntries).order;
 			const steps: PipelineStep[] = [];
+			const recordStep = (
+				entry: RegisteredHelper<FragmentHelper | BuilderHelper>
+			) => {
+				steps.push({
+					id: entry.id,
+					index: steps.length,
+					key: entry.helper.key,
+					kind: entry.helper.kind,
+					mode: entry.helper.mode,
+					priority: entry.helper.priority,
+					dependsOn: entry.helper.dependsOn,
+					origin: entry.helper.origin,
+				});
+			};
 
 			await executeHelpers(
 				fragmentOrder,
@@ -391,43 +523,40 @@ export function createPipeline(): Pipeline {
 				async (helper, args, next) => {
 					await helper.apply(args, next);
 				},
-				(entry) => {
-					steps.push({
-						id: entry.id,
-						index: steps.length,
-						key: entry.helper.key,
-						kind: entry.helper.kind,
-						mode: entry.helper.mode,
-						priority: entry.helper.priority,
-						dependsOn: entry.helper.dependsOn,
-						origin: entry.helper.origin,
-					});
-				}
+				recordStep
 			);
 
-			const ir = finalizeIrDraft(draft);
-
+			let ir = finalizeIrDraft(draft);
 			const builderOrder = buildDependencyGraph(builderEntries).order;
 
-			await executeHelpers(
-				builderOrder,
-				() => createBuilderArgs(context, buildOptions, ir),
-				async (helper, args, next) => {
-					await helper.apply(args, next);
-				},
-				(entry) => {
-					steps.push({
-						id: entry.id,
-						index: steps.length,
-						key: entry.helper.key,
-						kind: entry.helper.kind,
-						mode: entry.helper.mode,
-						priority: entry.helper.priority,
-						dependsOn: entry.helper.dependsOn,
-						origin: entry.helper.origin,
-					});
-				}
+			const extensionResult = await runExtensionHooks(
+				extensionHooks,
+				context,
+				buildOptions,
+				ir
 			);
+			ir = extensionResult.ir;
+
+			try {
+				await executeHelpers(
+					builderOrder,
+					() => createBuilderArgs(context, buildOptions, ir),
+					async (helper, args, next) => {
+						await helper.apply(args, next);
+					},
+					recordStep
+				);
+
+				await commitExtensionResults(extensionResult.results);
+			} catch (error) {
+				await rollbackExtensionResults(
+					extensionResult.results,
+					extensionHooks,
+					context.reporter
+				);
+
+				throw error;
+			}
 
 			return {
 				ir,

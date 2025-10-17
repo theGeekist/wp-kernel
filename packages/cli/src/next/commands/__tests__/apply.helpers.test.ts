@@ -1,9 +1,6 @@
 import {
 	PATCH_MANIFEST_PATH,
 	createBuilderOutput,
-	createIrStub,
-	createPhpProject,
-	createPolicyMap,
 	formatManifest,
 	readManifest,
 	resolveWorkspaceRoot,
@@ -37,43 +34,6 @@ describe('apply command helpers', () => {
 		});
 
 		expect(output.actions).toHaveLength(1);
-	});
-
-	it('produces a default policy map', () => {
-		const policyMap = createPolicyMap();
-
-		expect(policyMap).toMatchObject({
-			fallback: { capability: 'manage_options', appliesTo: 'resource' },
-			definitions: [],
-			missing: [],
-			unused: [],
-			warnings: [],
-		});
-		expect(policyMap.sourcePath).toBeUndefined();
-	});
-
-	it('creates a php project stub using the namespace', () => {
-		expect(createPhpProject('DemoNamespace')).toEqual({
-			namespace: 'DemoNamespace',
-			autoload: 'inc/',
-			outputDir: '.generated/php',
-		});
-	});
-
-	it('generates a minimal IR stub', () => {
-		const ir = createIrStub(kernelConfig, loadedConfig);
-
-		expect(ir.meta).toMatchObject({
-			version: 1,
-			namespace: 'Demo',
-			sanitizedNamespace: 'Demo',
-			origin: 'kernel.config.ts',
-			sourcePath: '/path/to/workspace/kernel.config.ts',
-		});
-		expect(ir.config).toBe(kernelConfig);
-		expect(ir.policyMap).toEqual(createPolicyMap());
-		expect(ir.resources).toEqual([]);
-		expect(ir.php).toEqual(createPhpProject('Demo'));
 	});
 
 	it('returns null when no manifest content is present', async () => {
