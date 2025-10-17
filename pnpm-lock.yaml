@@ -267,6 +267,9 @@ importers:
       '@wpkernel/core':
         specifier: workspace:*
         version: link:../core
+      '@wpkernel/test-utils':
+        specifier: workspace:*
+        version: link:../test-utils
       chokidar:
         specifier: ^4.0.3
         version: 4.0.3

@@ -8,7 +8,7 @@ import type {
 	AdapterExtension,
 	KernelConfigV1,
 } from '../../config/types';
-import type { IRv1 } from '../../ir';
+import type { IRPolicyScope, IRv1 } from '../../ir';
 import { FileWriter } from '../../utils/file-writer';
 import type { Reporter } from '@wpkernel/core/reporter';
 import { createReporterMock } from '@wpkernel/test-utils/cli';
@@ -521,6 +521,17 @@ function createIr(): IRv1 {
 		schemas: [],
 		resources: [],
 		policies: [],
+		policyMap: {
+			sourcePath: undefined,
+			definitions: [],
+			fallback: {
+				capability: 'manage_options',
+				appliesTo: 'resource' as IRPolicyScope,
+			},
+			missing: [],
+			unused: [],
+			warnings: [],
+		},
 		blocks: [],
 		php: {
 			namespace: 'Demo\\Namespace',

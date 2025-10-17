@@ -334,4 +334,162 @@ describe('createPipeline', () => {
 			);
 		});
 	});
+
+	it('orders builder helpers by priority, key, and registration order', async () => {
+		await withWorkspace(async (workspaceRoot) => {
+			const pipeline = createPipeline();
+			const builderOrder: string[] = [];
+
+			pipeline.ir.use(
+				createHelper({
+					key: 'ir.meta.priority',
+					kind: 'fragment',
+					mode: 'override',
+					apply({ output }) {
+						output.assign({
+							meta: {
+								version: 1,
+								namespace: 'priority',
+								sanitizedNamespace: 'Priority',
+								origin: 'typescript',
+								sourcePath: 'config.ts',
+							},
+							php: {
+								namespace: 'Priority',
+								autoload: 'inc/',
+								outputDir: '.generated/php',
+							},
+						});
+					},
+				})
+			);
+
+			pipeline.ir.use(
+				createHelper({
+					key: 'ir.collection.priority',
+					kind: 'fragment',
+					dependsOn: ['ir.meta.priority'],
+					apply({ output }) {
+						output.assign({
+							schemas: [],
+							resources: [],
+							policies: [],
+							blocks: [],
+						});
+					},
+				})
+			);
+
+			pipeline.ir.use(
+				createHelper({
+					key: 'ir.policy-map.priority',
+					kind: 'fragment',
+					dependsOn: ['ir.collection.priority'],
+					apply({ output }) {
+						output.assign({ policyMap: createPolicyMap() });
+					},
+				})
+			);
+
+			pipeline.ir.use(
+				createHelper({
+					key: 'ir.validation.priority',
+					kind: 'fragment',
+					dependsOn: ['ir.policy-map.priority'],
+					apply() {
+						// no-op validation stub
+					},
+				})
+			);
+
+			const builderHigh = createHelper({
+				key: 'builder.high-priority',
+				kind: 'builder',
+				priority: 5,
+				async apply({ reporter }, next) {
+					builderOrder.push('high');
+					reporter.debug('high priority builder executed');
+					await next?.();
+				},
+			});
+
+			const builderAlpha = createHelper({
+				key: 'builder.alpha',
+				kind: 'builder',
+				priority: 1,
+				async apply({ reporter }, next) {
+					builderOrder.push('alpha');
+					reporter.debug('alpha builder executed');
+					await next?.();
+					await next?.();
+				},
+			});
+
+			const builderBeta = createHelper({
+				key: 'builder.beta',
+				kind: 'builder',
+				priority: 1,
+				apply({ reporter }) {
+					builderOrder.push('beta');
+					reporter.debug('beta builder executed');
+				},
+			});
+
+			const duplicateFirst = createHelper({
+				key: 'builder.duplicate',
+				kind: 'builder',
+				async apply({ reporter }, next) {
+					builderOrder.push('duplicate-1');
+					reporter.debug('duplicate builder (first) executed');
+					await next?.();
+				},
+			});
+
+			const duplicateSecond = createHelper({
+				key: 'builder.duplicate',
+				kind: 'builder',
+				async apply({ reporter }, next) {
+					builderOrder.push('duplicate-2');
+					reporter.debug('duplicate builder (second) executed');
+					await next?.();
+				},
+			});
+
+			pipeline.builders.use(duplicateFirst);
+			pipeline.builders.use(builderBeta);
+			pipeline.builders.use(builderHigh);
+			pipeline.builders.use(duplicateSecond);
+			pipeline.builders.use(builderAlpha);
+
+			const workspace = createWorkspace(workspaceRoot);
+			const { steps } = await pipeline.run({
+				phase: 'generate',
+				config,
+				namespace: 'priority',
+				origin: 'typescript',
+				sourcePath: FIXTURE_CONFIG_PATH,
+				workspace,
+				reporter: createNoopReporter(),
+			});
+
+			expect(builderOrder).toEqual([
+				'high',
+				'alpha',
+				'beta',
+				'duplicate-1',
+				'duplicate-2',
+			]);
+
+			const builderSteps = steps.filter(
+				(step) => step.kind === 'builder'
+			);
+			expect(builderSteps.map((step) => step.key)).toEqual([
+				'builder.high-priority',
+				'builder.alpha',
+				'builder.beta',
+				'builder.duplicate',
+				'builder.duplicate',
+			]);
+		});
+	});
 });

@@ -1,8 +1,6 @@
 import path from 'node:path';
 import os from 'node:os';
 import fs from 'node:fs/promises';
-import { execFile } from 'node:child_process';
-import { promisify } from 'node:util';
 import { createNoopReporter } from '@wpkernel/core/reporter';
 import type { KernelConfigV1 } from '../../../config/types';
 import { buildIr } from '../../../ir';
@@ -10,7 +8,34 @@ import { FIXTURE_CONFIG_PATH, FIXTURE_ROOT } from '../../../ir/test-helpers';
 import { createWorkspace } from '../../workspace';
 import { createIr } from '../createIr';
 
-const execFileAsync = promisify(execFile);
+jest.mock('../../builders', () => {
+	const { createHelper } = jest.requireActual('../../helper');
+	const createStubBuilder = (key: string) =>
+		createHelper({
+			key,
+			kind: 'builder',
+			async apply() {
+				// Intentionally left blank for offline test execution.
+			},
+		});
+
+	return {
+		createBundler: jest.fn(() =>
+			createStubBuilder('builder.generate.stub.bundler')
+		),
+		createPatcher: jest.fn(() =>
+			createStubBuilder('builder.generate.stub.patcher')
+		),
+		createPhpBuilder: jest.fn(() =>
+			createStubBuilder('builder.generate.stub.php')
+		),
+		createTsBuilder: jest.fn(() =>
+			createStubBuilder('builder.generate.stub.ts')
+		),
+		createPhpDriverInstaller:
+			jest.requireActual('../../builders').createPhpDriverInstaller,
+	};
+});
 
 jest.setTimeout(60000);
 
@@ -57,19 +82,6 @@ describe('createIr', () => {
 
 		try {
 			await fs.cp(FIXTURE_ROOT, workspaceRoot, { recursive: true });
-			const composerTemplate = await fs.readFile(
-				path.resolve(__dirname, '../../../../composer.json'),
-				'utf8'
-			);
-			await fs.writeFile(
-				path.join(workspaceRoot, 'composer.json'),
-				composerTemplate
-			);
-			await execFileAsync(
-				'composer',
-				['install', '--no-interaction', '--no-progress'],
-				{ cwd: workspaceRoot }
-			);
 
 			const copiedConfigPath = path.join(
 				workspaceRoot,
