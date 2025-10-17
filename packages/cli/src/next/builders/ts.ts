@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import path from 'node:path';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { ResourceConfig } from '@wpkernel/core/resource';
@@ -9,11 +10,18 @@ import {
 	type SourceFile,
 	VariableDeclarationKind,
 } from 'ts-morph';
+import { KernelError } from '@wpkernel/core/error';
 import type { IRv1 } from '../../ir/types';
 import type { KernelConfigV1 } from '../../config/types';
 import { createHelper } from '../helper';
-import type { BuilderHelper, BuilderOutput } from '../runtime/types';
+import type {
+	BuilderHelper,
+	BuilderOutput,
+	PipelinePhase,
+} from '../runtime/types';
 import type { Workspace } from '../workspace/types';
+import { validateGeneratedImports } from '../../commands/run-generate/validation';
+import type { GenerationSummary } from '../../commands/run-generate/types';
 
 const SOURCE_EXTENSIONS = [
 	'.ts',
@@ -37,7 +45,15 @@ export interface TsBuilderLifecycleHooks {
 	readonly onAfterCreate?: (
 		context: Omit<TsBuilderCreatorContext, 'hooks'>
 	) => Promise<void>;
-	readonly onAfterEmit?: (emitted: readonly string[]) => Promise<void>;
+	readonly onAfterEmit?: (
+		options: TsBuilderAfterEmitOptions
+	) => Promise<void>;
+}
+
+export interface TsBuilderAfterEmitOptions {
+	readonly emitted: readonly string[];
+	readonly workspace: Workspace;
+	readonly reporter: Reporter;
 }
 
 export interface TsBuilderCreatorContext {
@@ -60,6 +76,19 @@ export interface CreateTsBuilderOptions {
 	readonly creators?: readonly TsBuilderCreator[];
 	readonly projectFactory?: () => Project;
 	readonly hooks?: TsBuilderLifecycleHooks;
+}
+
+export interface TsFormatterFormatOptions {
+	readonly filePath: string;
+	readonly contents: string;
+}
+
+export interface TsFormatter {
+	format: (options: TsFormatterFormatOptions) => Promise<string>;
+}
+
+export interface CreateTsFormatterOptions {
+	readonly projectFactory?: () => Project;
 }
 
 type ResourceUiConfig = NonNullable<ResourceConfig['ui']>;
@@ -87,6 +116,12 @@ export function createTsBuilder(
 		key: 'builder.generate.ts.core',
 		kind: 'builder',
 		async apply({ context, input, output, reporter }) {
+			if (!isGeneratePhase(input.phase, reporter)) {
+				return;
+			}
+
+			const ir = requireIr(input.ir);
+
 			const emittedFiles: string[] = [];
 			const descriptors = collectResourceDescriptors(
 				input.options.config.resources
@@ -100,47 +135,32 @@ export function createTsBuilder(
 			const project = projectFactory();
 			const emit = createEmitter(context.workspace, output, emittedFiles);
 
-			for (const descriptor of descriptors) {
-				const creatorContext: TsBuilderCreatorContext = {
-					project,
-					workspace: context.workspace,
-					descriptor,
-					config: input.options.config,
-					sourcePath: input.options.sourcePath,
-					ir: input.ir,
-					reporter,
-					emit,
-				};
+			await generateArtifacts({
+				descriptors,
+				creators,
+				project,
+				lifecycleHooks,
+				context,
+				input: { ...input, ir },
+				reporter,
+				emit,
+				emittedFiles,
+			});
 
-				for (const creator of creators) {
-					if (lifecycleHooks.onBeforeCreate) {
-						await lifecycleHooks.onBeforeCreate(creatorContext);
-					}
-					await creator.create(creatorContext);
-					if (lifecycleHooks.onAfterCreate) {
-						await lifecycleHooks.onAfterCreate(creatorContext);
-					}
-				}
-			}
+			await notifyAfterEmit({
+				hooks: lifecycleHooks,
+				emittedFiles,
+				workspace: context.workspace,
+				reporter,
+			});
 
-			if (lifecycleHooks.onAfterEmit) {
-				await lifecycleHooks.onAfterEmit([...emittedFiles]);
-			}
+			await runImportValidation({
+				emittedFiles,
+				workspace: context.workspace,
+				reporter,
+			});
 
-			if (emittedFiles.length === 0) {
-				reporter.debug(
-					'createTsBuilder: generated TypeScript artifacts.'
-				);
-			} else {
-				const previewList = emittedFiles
-					.slice(0, 3)
-					.map((file) => file.replace(/\\/g, '/'))
-					.join(', ');
-				const suffix = emittedFiles.length > 3 ? ', …' : '';
-				reporter.debug(
-					`createTsBuilder: ${emittedFiles.length} files written (${previewList}${suffix})`
-				);
-			}
+			logEmissionSummary(reporter, emittedFiles);
 		},
 	});
 }
@@ -394,6 +414,33 @@ function createProject(): Project {
 	});
 }
 
+export function createTsFormatter(
+	options: CreateTsFormatterOptions = {}
+): TsFormatter {
+	const projectFactory = options.projectFactory ?? createProject;
+	const project = projectFactory();
+
+	async function format(
+		formatOptions: TsFormatterFormatOptions
+	): Promise<string> {
+		const sourceFile = project.createSourceFile(
+			formatOptions.filePath,
+			formatOptions.contents,
+			{
+				overwrite: true,
+			}
+		);
+
+		sourceFile.formatText({ ensureNewLineAtEndOfFile: true });
+		const formatted = sourceFile.getFullText();
+		sourceFile.forget();
+
+		return formatted;
+	}
+
+	return { format };
+}
+
 function createEmitter(
 	workspace: Workspace,
 	output: BuilderOutput,
@@ -409,6 +456,164 @@ function createEmitter(
 
 		sourceFile.forget();
 	};
+}
+
+function isGeneratePhase(phase: PipelinePhase, reporter: Reporter): boolean {
+	if (phase === 'generate') {
+		return true;
+	}
+
+	reporter.debug('createTsBuilder: skipping phase.', { phase });
+	return false;
+}
+
+function requireIr(ir: IRv1 | null): IRv1 {
+	if (ir) {
+		return ir;
+	}
+
+	throw new KernelError('ValidationError', {
+		message: 'createTsBuilder requires an IR instance during execution.',
+	});
+}
+
+async function generateArtifacts(options: {
+	readonly descriptors: readonly ResourceDescriptor[];
+	readonly creators: readonly TsBuilderCreator[];
+	readonly project: Project;
+	readonly lifecycleHooks: TsBuilderLifecycleHooks;
+	readonly context: Parameters<BuilderHelper['apply']>[0]['context'];
+	readonly input: Parameters<BuilderHelper['apply']>[0]['input'] & {
+		ir: IRv1;
+	};
+	readonly reporter: Reporter;
+	readonly emit: (options: TsBuilderEmitOptions) => Promise<void>;
+	readonly emittedFiles: string[];
+}): Promise<void> {
+	const {
+		descriptors,
+		creators,
+		project,
+		lifecycleHooks,
+		context,
+		input,
+		reporter,
+		emit,
+	} = options;
+
+	for (const descriptor of descriptors) {
+		const creatorContext: TsBuilderCreatorContext = {
+			project,
+			workspace: context.workspace,
+			descriptor,
+			config: input.options.config,
+			sourcePath: input.options.sourcePath,
+			ir: input.ir,
+			reporter,
+			emit,
+		};
+
+		for (const creator of creators) {
+			if (lifecycleHooks.onBeforeCreate) {
+				await lifecycleHooks.onBeforeCreate(creatorContext);
+			}
+			await creator.create(creatorContext);
+			if (lifecycleHooks.onAfterCreate) {
+				await lifecycleHooks.onAfterCreate(creatorContext);
+			}
+		}
+	}
+}
+
+async function notifyAfterEmit(options: {
+	readonly hooks: TsBuilderLifecycleHooks;
+	readonly emittedFiles: readonly string[];
+	readonly workspace: Workspace;
+	readonly reporter: Reporter;
+}): Promise<void> {
+	if (!options.hooks.onAfterEmit) {
+		return;
+	}
+
+	await options.hooks.onAfterEmit({
+		emitted: [...options.emittedFiles],
+		workspace: options.workspace,
+		reporter: options.reporter,
+	});
+}
+
+function logEmissionSummary(
+	reporter: Reporter,
+	emittedFiles: readonly string[]
+): void {
+	if (emittedFiles.length === 0) {
+		reporter.debug('createTsBuilder: generated TypeScript artifacts.');
+		return;
+	}
+
+	const previewList = emittedFiles
+		.slice(0, 3)
+		.map((file) => file.replace(/\\/g, '/'))
+		.join(', ');
+	const suffix = emittedFiles.length > 3 ? ', …' : '';
+	reporter.debug(
+		`createTsBuilder: ${emittedFiles.length} files written (${previewList}${suffix})`
+	);
+}
+
+async function createGenerationSummary(
+	emittedFiles: readonly string[],
+	workspace: Workspace
+): Promise<GenerationSummary> {
+	const entries = [] as GenerationSummary['entries'];
+
+	for (const file of emittedFiles) {
+		const contents = await workspace.read(file);
+		const data = contents ? contents.toString('utf8') : '';
+		const hash = createHash('sha256').update(data).digest('hex');
+
+		entries.push({
+			path: file.replace(/\\/g, '/'),
+			status: 'written',
+			hash,
+		});
+	}
+
+	const counts = {
+		written: entries.length,
+		unchanged: 0,
+		skipped: 0,
+	} as GenerationSummary['counts'];
+
+	return {
+		dryRun: false,
+		counts,
+		entries,
+	};
+}
+
+async function runImportValidation(options: {
+	readonly emittedFiles: readonly string[];
+	readonly workspace: Workspace;
+	readonly reporter: Reporter;
+}): Promise<void> {
+	if (options.emittedFiles.length === 0) {
+		options.reporter.debug(
+			'createTsBuilder: no emitted TypeScript files to validate.'
+		);
+		return;
+	}
+
+	const summary = await createGenerationSummary(
+		options.emittedFiles,
+		options.workspace
+	);
+
+	await validateGeneratedImports({
+		projectRoot: options.workspace.root,
+		summary,
+		reporter: options.reporter,
+	});
 }
 
 async function resolveResourceImport({

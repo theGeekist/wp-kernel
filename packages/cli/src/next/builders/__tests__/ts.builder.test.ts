@@ -14,6 +14,15 @@ import {
 	createReporter,
 	createOutput,
 } from '../tests/ts.test-support';
+import { validateGeneratedImports } from '../../../commands/run-generate/validation';
+
+jest.mock('../../../commands/run-generate/validation', () => ({
+	validateGeneratedImports: jest.fn().mockResolvedValue(undefined),
+}));
+
+beforeEach(() => {
+	jest.clearAllMocks();
+});
 
 describe('createTsBuilder – orchestration', () => {
 	it('skips generation when no resources expose DataViews metadata', async () => {
@@ -52,6 +61,7 @@ describe('createTsBuilder – orchestration', () => {
 				'createTsBuilder: no resources registered.'
 			);
 			expect(output.actions).toHaveLength(0);
+			expect(validateGeneratedImports).not.toHaveBeenCalled();
 			await expect(
 				workspace.exists(
 					path.join(
@@ -227,10 +237,28 @@ describe('createTsBuilder – orchestration', () => {
 			);
 
 			expect(hooks.onAfterEmit).toHaveBeenCalledTimes(1);
-			const emitted = hooks.onAfterEmit.mock.calls[0][0].map(
-				(file: string) => file.replace(/\\/g, '/')
+			const afterEmitArg = hooks.onAfterEmit.mock.calls[0][0];
+			const emitted = afterEmitArg.emitted.map((file: string) =>
+				file.replace(/\\/g, '/')
 			);
 			expect(emitted).toEqual(
+				expect.arrayContaining([
+					'.generated/ui/app/job/admin/JobsAdminScreen.tsx',
+					'.generated/ui/fixtures/dataviews/job.ts',
+				])
+			);
+			expect(afterEmitArg.workspace).toBe(workspace);
+			expect(afterEmitArg.reporter).toBe(reporter);
+
+			expect(validateGeneratedImports).toHaveBeenCalledTimes(1);
+			const validationCall = (validateGeneratedImports as jest.Mock).mock
+				.calls[0]?.[0];
+			expect(validationCall.projectRoot).toBe(workspace.root);
+			expect(
+				validationCall.summary.entries.map(
+					(entry: { path: string }) => entry.path
+				)
+			).toEqual(
 				expect.arrayContaining([
 					'.generated/ui/app/job/admin/JobsAdminScreen.tsx',
 					'.generated/ui/fixtures/dataviews/job.ts',

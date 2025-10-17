@@ -3,6 +3,7 @@ import type { Reporter } from '@wpkernel/core/reporter';
 import type {
 	BuildIrOptions,
 	IRBlock,
+	IRDiagnostic,
 	IRPolicyHint,
 	IRPolicyMap,
 	IRPhpProject,
@@ -12,15 +13,6 @@ import type {
 } from '../../ir/types';
 import type { Helper, HelperApplyOptions } from '../helper';
 import type { PipelineContext } from '../runtime/types';
-
-export type IRDiagnosticSeverity = 'info' | 'warn' | 'error';
-
-export interface IRDiagnostic {
-	readonly key: string;
-	readonly message: string;
-	readonly severity: IRDiagnosticSeverity;
-	readonly context?: Record<string, unknown>;
-}
 
 export interface MutableIr {
 	meta: IRv1['meta'] | null;
@@ -72,6 +64,9 @@ export function finalizeIrDraft(draft: MutableIr): IRv1 {
 		});
 	}
 
+	const diagnostics =
+		draft.diagnostics.length > 0 ? draft.diagnostics.slice() : undefined;
+
 	return {
 		meta: draft.meta,
 		config: draft.config,
@@ -81,6 +76,7 @@ export function finalizeIrDraft(draft: MutableIr): IRv1 {
 		policyMap: draft.policyMap,
 		blocks: draft.blocks,
 		php: draft.php,
+		diagnostics,
 	};
 }
 
@@ -142,3 +138,5 @@ export type IrFragmentApplyOptions = HelperApplyOptions<
 > & {
 	reporter: Reporter;
 };
+
+export type { IRDiagnostic, IRDiagnosticSeverity } from '../../ir/types';
