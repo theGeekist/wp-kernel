@@ -788,6 +788,102 @@ describe('createPipeline', () => {
 		});
 	});
 
+	it('rolls back executed extension hooks when a later hook throws', async () => {
+		await runWithWorkspace(async (workspaceRoot) => {
+			const pipeline = createPipeline();
+			const commit = jest.fn();
+			const rollback = jest.fn();
+
+			pipeline.ir.use(
+				createHelper({
+					key: 'ir.meta.extension-failure',
+					kind: 'fragment',
+					mode: 'override',
+					apply({ output }) {
+						output.assign({
+							meta: {
+								version: 1,
+								namespace: 'extension-failure',
+								sanitizedNamespace: 'ExtensionFailure',
+								origin: 'typescript',
+								sourcePath: 'config.ts',
+							},
+							php: {
+								namespace: 'ExtensionFailure',
+								autoload: 'inc/',
+								outputDir: '.generated/php',
+							},
+						});
+					},
+				})
+			);
+			pipeline.ir.use(
+				createHelper({
+					key: 'ir.resources.extension-failure',
+					kind: 'fragment',
+					dependsOn: ['ir.meta.extension-failure'],
+					apply({ output }) {
+						output.assign({
+							schemas: [],
+							resources: [],
+							policies: [],
+							blocks: [],
+							policyMap: createPolicyMap(),
+						});
+					},
+				})
+			);
+			pipeline.ir.use(
+				createHelper({
+					key: 'ir.validation.extension-failure',
+					kind: 'fragment',
+					dependsOn: ['ir.resources.extension-failure'],
+					apply() {
+						return Promise.resolve();
+					},
+				})
+			);
+
+			pipeline.extensions.use({
+				key: 'extension.rollback-before-throw',
+				register() {
+					return async () => ({
+						commit,
+						rollback,
+					});
+				},
+			});
+
+			pipeline.extensions.use({
+				key: 'extension.throwing',
+				register() {
+					return async () => {
+						throw new Error('extension failure');
+					};
+				},
+			});
+
+			const workspace = createWorkspace(workspaceRoot);
+			const reporter = createReporterMock();
+
+			await expect(
+				pipeline.run({
+					phase: 'generate',
+					config,
+					namespace: 'extension-failure',
+					origin: 'typescript',
+					sourcePath: FIXTURE_CONFIG_PATH,
+					workspace,
+					reporter,
+				})
+			).rejects.toThrow('extension failure');
+
+			expect(commit).not.toHaveBeenCalled();
+			expect(rollback).toHaveBeenCalledTimes(1);
+			expect(reporter.warn).not.toHaveBeenCalled();
+		});
+	});
+
 	it('rolls back extension hooks when builders fail', async () => {
 		await runWithWorkspace(async (workspaceRoot) => {
 			const pipeline = createPipeline();
