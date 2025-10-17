@@ -136,7 +136,7 @@ export function createAdminScreenCreator(): TsBuilderCreator {
 					workspace: context.workspace,
 					from: screenPath,
 					configured: screenConfig.resourceImport,
-					resourceName: descriptor.name,
+					resourceKey: descriptor.key,
 				}),
 				resolveKernelImport({
 					workspace: context.workspace,
@@ -377,12 +377,12 @@ async function resolveResourceImport({
 	workspace,
 	from,
 	configured,
-	resourceName,
+	resourceKey,
 }: {
 	readonly workspace: Workspace;
 	readonly from: string;
 	readonly configured?: string;
-	readonly resourceName: string;
+	readonly resourceKey: string;
 }): Promise<string> {
 	if (configured) {
 		return configured;
@@ -390,13 +390,13 @@ async function resolveResourceImport({
 
 	const resolved = await findExistingModule(
 		workspace,
-		path.join('src', 'resources', resourceName)
+		path.join('src', 'resources', resourceKey)
 	);
 	if (resolved) {
 		return createModuleSpecifier({ workspace, from, target: resolved });
 	}
 
-	return `@/resources/${resourceName}`;
+	return `@/resources/${resourceKey}`;
 }
 
 async function resolveKernelImport({
