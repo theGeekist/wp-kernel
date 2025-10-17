@@ -2,9 +2,14 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import type { KernelConfigV1 } from '../../config/types';
 import { buildIr } from '../build-ir';
+import { setCachedTsImport } from '../../config/load-kernel-config';
 import { createBaseConfig, withTempWorkspace } from '../test-helpers';
 
 describe('policy map integration', () => {
+	afterEach(() => {
+		setCachedTsImport(null);
+	});
+
 	it('falls back to defaults when policy map is missing', async () => {
 		await withTempWorkspace(
 			async (workspace) => {
@@ -37,6 +42,47 @@ describe('policy map integration', () => {
 				expect(
 					ir.policyMap.warnings.map((warning) => warning.code)
 				).toContain('policy-map.missing');
+			}
+		);
+	});
+
+	it('warns when policy map omits referenced entries', async () => {
+		await withTempWorkspace(
+			async (workspace) => {
+				await fs.writeFile(
+					path.join(workspace, 'kernel.config.ts'),
+					'export const kernelConfig = {};',
+					'utf8'
+				);
+				await fs.mkdir(path.join(workspace, 'src'), {
+					recursive: true,
+				});
+				await fs.writeFile(
+					path.join(workspace, 'src', 'policy-map.cjs'),
+					[
+						'module.exports = {',
+						'        policyMap: {',
+						"                'demo.create': 'manage_options',",
+						'        },',
+						'};',
+					].join('\n'),
+					'utf8'
+				);
+			},
+			async (workspace) => {
+				const config = createPolicyConfig();
+
+				const ir = await buildIr({
+					config,
+					sourcePath: path.join(workspace, 'kernel.config.ts'),
+					origin: 'kernel.config.ts',
+					namespace: config.namespace,
+				});
+
+				expect(ir.policyMap.missing).toEqual(['demo.get']);
+				expect(
+					ir.policyMap.warnings.map((warning) => warning.code)
+				).toContain('policy-map.entries.missing');
 			}
 		);
 	});
@@ -279,3 +325,190 @@ function createPolicyConfig(): KernelConfigV1 {
 
 	return config;
 }
+it('resolves ts-based policy maps with async descriptors', async () => {
+	const tsModule = {
+		default: {
+			'demo.create': async () => 'manage_options',
+			'demo.get': async () => ({
+				capability: 'edit_post',
+				appliesTo: 'object',
+				binding: ' postId ',
+			}),
+		},
+	};
+
+	setCachedTsImport(Promise.resolve(async () => tsModule));
+
+	await withTempWorkspace(
+		async (workspace) => {
+			await fs.writeFile(
+				path.join(workspace, 'kernel.config.ts'),
+				'export const kernelConfig = {};',
+				'utf8'
+			);
+			await fs.mkdir(path.join(workspace, 'src'), {
+				recursive: true,
+			});
+			await fs.writeFile(
+				path.join(workspace, 'src', 'policy-map.ts'),
+				'// module handled via injected tsImport',
+				'utf8'
+			);
+		},
+		async (workspace) => {
+			const config = createPolicyConfig();
+
+			const ir = await buildIr({
+				config,
+				sourcePath: path.join(workspace, 'kernel.config.ts'),
+				origin: 'kernel.config.ts',
+				namespace: config.namespace,
+			});
+
+			const mapSource = ir.policyMap.sourcePath
+				?.replace(/\\/g, '/')
+				?.endsWith('src/policy-map.ts');
+			expect(mapSource).toBe(true);
+
+			const createDefinition = ir.policyMap.definitions.find(
+				(entry) => entry.key === 'demo.create'
+			);
+			expect(createDefinition).toEqual({
+				key: 'demo.create',
+				capability: 'manage_options',
+				appliesTo: 'resource',
+				source: 'map',
+			});
+
+			const getDefinition = ir.policyMap.definitions.find(
+				(entry) => entry.key === 'demo.get'
+			);
+			expect(getDefinition).toEqual({
+				key: 'demo.get',
+				capability: 'edit_post',
+				appliesTo: 'object',
+				binding: 'postId',
+				source: 'map',
+			});
+		}
+	);
+});
+
+it('propagates ts import errors as validation failures', async () => {
+	setCachedTsImport(Promise.reject(new Error('ts import failed')));
+
+	await withTempWorkspace(
+		async (workspace) => {
+			await fs.writeFile(
+				path.join(workspace, 'kernel.config.ts'),
+				'export const kernelConfig = {};',
+				'utf8'
+			);
+			await fs.mkdir(path.join(workspace, 'src'), {
+				recursive: true,
+			});
+			await fs.writeFile(
+				path.join(workspace, 'src', 'policy-map.ts'),
+				'// ts module placeholder',
+				'utf8'
+			);
+		},
+		async (workspace) => {
+			const config = createPolicyConfig();
+
+			await expect(
+				buildIr({
+					config,
+					sourcePath: path.join(workspace, 'kernel.config.ts'),
+					origin: 'kernel.config.ts',
+					namespace: config.namespace,
+				})
+			).rejects.toMatchObject({
+				code: 'ValidationError',
+				message: expect.stringContaining('Failed to load policy map'),
+			});
+		}
+	);
+});
+
+it('rejects modules that do not export a policy map object', async () => {
+	await withTempWorkspace(
+		async (workspace) => {
+			await fs.writeFile(
+				path.join(workspace, 'kernel.config.ts'),
+				'export const kernelConfig = {};',
+				'utf8'
+			);
+			await fs.mkdir(path.join(workspace, 'src'), {
+				recursive: true,
+			});
+			await fs.writeFile(
+				path.join(workspace, 'src', 'policy-map.cjs'),
+				['module.exports = {', '        policyMap: 42,', '};'].join(
+					'\n'
+				),
+				'utf8'
+			);
+		},
+		async (workspace) => {
+			const config = createPolicyConfig();
+
+			await expect(
+				buildIr({
+					config,
+					sourcePath: path.join(workspace, 'kernel.config.ts'),
+					origin: 'kernel.config.ts',
+					namespace: config.namespace,
+				})
+			).rejects.toMatchObject({
+				code: 'ValidationError',
+				message: expect.stringContaining(
+					'must export a policy map object'
+				),
+			});
+		}
+	);
+});
+
+it('rejects when a policy descriptor factory throws during evaluation', async () => {
+	await withTempWorkspace(
+		async (workspace) => {
+			await fs.writeFile(
+				path.join(workspace, 'kernel.config.ts'),
+				'export const kernelConfig = {};',
+				'utf8'
+			);
+			await fs.mkdir(path.join(workspace, 'src'), {
+				recursive: true,
+			});
+			await fs.writeFile(
+				path.join(workspace, 'src', 'policy-map.cjs'),
+				[
+					'module.exports = {',
+					'        policyMap: {',
+					"                'demo.create': 'manage_options',",
+					"                'demo.get': () => { throw new Error('boom'); },",
+					'        },',
+					'};',
+				].join('\n'),
+				'utf8'
+			);
+		},
+		async (workspace) => {
+			const config = createPolicyConfig();
+
+			await expect(
+				buildIr({
+					config,
+					sourcePath: path.join(workspace, 'kernel.config.ts'),
+					origin: 'kernel.config.ts',
+					namespace: config.namespace,
+				})
+			).rejects.toMatchObject({
+				code: 'ValidationError',
+				message: expect.stringContaining('threw during evaluation'),
+				context: expect.objectContaining({ policy: 'demo.get' }),
+			});
+		}
+	);
+});

@@ -62,6 +62,8 @@ export default {
 		'<rootDir>/packages/cli/src/**/*.{ts,tsx}',
 		// exclude tests, fixtures and intentional placeholders
 		'!<rootDir>/packages/cli/src/**/__tests__/**',
+		'!<rootDir>/packages/cli/src/**/__test-support__/**',
+		'!<rootDir>/packages/cli/src/**/*.test-support.ts',
 		'!<rootDir>/packages/cli/src/ir/__fixtures__/**',
 		'!<rootDir>/packages/cli/src/index.ts',
 		'!<rootDir>/packages/cli/src/version.ts',
