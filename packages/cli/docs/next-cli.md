@@ -105,7 +105,7 @@ Extensions follow the same pattern-export a `create*Extension` helper that recei
 ## Gap Analysis vs Legacy CLI
 
 - **Apply command** (legacy reference: `packages/cli/src/commands/apply/command.ts`) – Validates `.generated/php`, honours flags (`--yes/--backup/--force`), applies PHP _and_ block/build artefacts, and appends to `.wpk-apply.log`. `NextApplyCommand` proxies to `createPatcher` and only prints a summary.
-- **IR diagnostics (generate)** – Legacy fragments emit policy/schema warnings and run adapter extensions. The next pipeline mirrors them but skips diagnostics when `createIrStub` is used; the fix belongs inside the `generate` flow rather than apply.
+- **IR diagnostics (generate)** – Legacy fragments emit policy/schema warnings and run adapter extensions. The next pipeline now mirrors those behaviours during `generate`; keep the diagnostics surface and extension sandboxing in lockstep with legacy parity.
 - **Block printers** – Legacy printers in `packages/cli/src/printers/blocks/` produce manifests, registrars, JS-only auto-registration, and `render.php` stubs. The next pipeline never runs them because we lack a `createBlocksBuilder` helper.
 - **TypeScript/UI builders** – Legacy tooling emits stores, bootstrap entrypoints, Storybook scaffolds, and block scripts (see `packages/cli/src/printers/ui/` and `packages/cli/src/printers/blocks/js-only.ts`). `createTsBuilder` currently covers only DataView screens/fixtures.
 - **Bundler/build workflows** – Legacy `wpk build` orchestrates generate → Vite build → apply and validates hashed assets. The next bundler writes JSON but never drives Rollup/Vite.
@@ -139,11 +139,11 @@ _Update the relevant workstream below when scope changes or a milestone closes. 
 - **Context:** Gap Analysis → IR diagnostics (generate). Legacy reference: `packages/cli/src/commands/run-generate`.
 - **Current gaps**
     - Policy/schema diagnostics and adapter extensions don’t run in the next pipeline.
-    - `createIrStub` exists solely to satisfy the patcher helper.
+    - The patcher helper consumes builder input without relying on a synthetic IR stub.
 - **Tasks**
     1. Port policy/schema diagnostic logic into the next generate flow and reinstate `validateGeneratedImports`.
     2. Execute adapter extensions via the next runtime’s extension registry with sandbox → commit/rollback semantics.
-    3. Update the patcher helper contract so it no longer requires `createIrStub`, then delete the stub once builders are updated.
+    3. Keep the patcher helper contract stub-free so apply logic relies on real pipeline state.
 
 ### Workstream 3 – Builder Parity (PHP / Blocks / TS / Bundler)
 

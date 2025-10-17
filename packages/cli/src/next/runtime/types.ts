@@ -62,7 +62,7 @@ export interface FragmentOutput {
 export interface BuilderInput {
 	readonly phase: PipelinePhase;
 	readonly options: BuildIrOptions;
-	readonly ir: IRv1;
+	readonly ir: IRv1 | null;
 }
 
 export interface BuilderWriteAction {
@@ -81,9 +81,27 @@ export type BuilderHelper = Helper<
 	BuilderOutput
 >;
 
+export interface PipelineExtensionHookOptions {
+	readonly context: PipelineContext;
+	readonly options: BuildIrOptions;
+	readonly ir: IRv1;
+}
+
+export interface PipelineExtensionHookResult {
+	readonly ir?: IRv1;
+	readonly commit?: () => Promise<void>;
+	readonly rollback?: () => Promise<void>;
+}
+
+export type PipelineExtensionHook = (
+	options: PipelineExtensionHookOptions
+) => Promise<PipelineExtensionHookResult | void>;
+
 export interface PipelineExtension {
 	readonly key?: string;
-	register: (pipeline: Pipeline) => void | Promise<void>;
+	register: (
+		pipeline: Pipeline
+	) => void | PipelineExtensionHook | Promise<void | PipelineExtensionHook>;
 }
 
 export interface Pipeline {
@@ -94,7 +112,7 @@ export interface Pipeline {
 		use: (helper: BuilderHelper) => void;
 	};
 	readonly extensions: {
-		use: (extension: PipelineExtension) => void | Promise<void>;
+		use: (extension: PipelineExtension) => unknown | Promise<unknown>;
 	};
 	use: (helper: FragmentHelper | BuilderHelper) => void;
 	run: (options: PipelineRunOptions) => Promise<PipelineRunResult>;

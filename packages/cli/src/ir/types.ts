@@ -41,6 +41,15 @@ export interface IRWarning {
 	context?: Record<string, unknown>;
 }
 
+export type IRDiagnosticSeverity = 'info' | 'warn' | 'error';
+
+export interface IRDiagnostic {
+	key: string;
+	message: string;
+	severity: IRDiagnosticSeverity;
+	context?: Record<string, unknown>;
+}
+
 export interface IRResource {
 	name: string;
 	schemaKey: string;
@@ -121,6 +130,7 @@ export interface IRv1 {
 	policyMap: IRPolicyMap;
 	blocks: IRBlock[];
 	php: IRPhpProject;
+	diagnostics?: IRDiagnostic[];
 }
 
 export interface BuildIrOptions {

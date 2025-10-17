@@ -15,6 +15,10 @@ import {
 	prefixRelative,
 } from '../tests/ts.test-support';
 
+jest.mock('../../../commands/run-generate/validation', () => ({
+	validateGeneratedImports: jest.fn().mockResolvedValue(undefined),
+}));
+
 describe('createTsBuilder – admin screen creator', () => {
 	it('generates admin screens with resolved relative imports', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
