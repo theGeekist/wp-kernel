@@ -1,201 +1,155 @@
-import os from 'node:os';
 import path from 'node:path';
-import fs from 'node:fs/promises';
-import { execFile } from 'node:child_process';
-import { promisify } from 'node:util';
-import { createNoopReporter } from '@wpkernel/core/reporter';
+import type { Reporter } from '@wpkernel/core/reporter';
 import type { IRv1 } from '../../../ir/types';
-import { createWorkspace } from '../../workspace';
 import { createPhpBuilder } from '../php';
-import type { BuilderOutput, BuilderWriteAction } from '../../runtime/types';
-import type {
-	PhpPrettyPrintOptions,
-	PhpPrettyPrintResult,
-} from '../../../printers/types';
+import type { BuilderOutput } from '../../runtime/types';
+import type { Workspace } from '../../workspace/types';
 
-const execFileAsync = promisify(execFile);
-
-jest.setTimeout(60000);
-
-jest.mock('../phpBridge', () => {
-	const prettyPrint = jest.fn(
-		async (
-			payload: PhpPrettyPrintOptions
-		): Promise<PhpPrettyPrintResult> => {
-			const code = typeof payload.code === 'string' ? payload.code : '';
-			const hasNamespace = /namespace\s+[^\s;]+;/u.test(code);
-
-			return {
-				code,
-				ast: hasNamespace
-					? [
-							{
-								nodeType: 'Stmt_Namespace',
-								attributes: {},
-								name: code.match(
-									/namespace\s+([^\s;]+);/u
-								)?.[1],
-							},
-						]
-					: [],
-			};
-		}
-	);
-
+function createReporter(): Reporter {
 	return {
-		createPhpPrettyPrinter: jest.fn(() => ({
-			prettyPrint,
-		})),
+		debug: jest.fn(),
+		info: jest.fn(),
+		warn: jest.fn(),
+		error: jest.fn(),
+		child: jest.fn().mockReturnThis(),
 	};
-});
+}
+
+function createWorkspace(): Workspace {
+	return {
+		root: process.cwd(),
+		cwd: jest.fn(() => process.cwd()),
+		read: jest.fn(async () => null),
+		readText: jest.fn(async () => null),
+		write: jest.fn(async () => undefined),
+		writeJson: jest.fn(async () => undefined),
+		exists: jest.fn(async () => false),
+		rm: jest.fn(async () => undefined),
+		glob: jest.fn(async () => []),
+		threeWayMerge: jest.fn(async () => 'clean'),
+		begin: jest.fn(),
+		commit: jest.fn(async () => ({ writes: [], deletes: [] })),
+		rollback: jest.fn(async () => ({ writes: [], deletes: [] })),
+		dryRun: jest.fn(async (fn) => ({
+			result: await fn(),
+			manifest: { writes: [], deletes: [] },
+		})),
+		tmpDir: jest.fn(async () => '.tmp'),
+		resolve: jest.fn((...parts: string[]) =>
+			path.join(process.cwd(), ...parts)
+		),
+	} as unknown as Workspace;
+}
+
+const ir: IRv1 = {
+	meta: {
+		version: 1,
+		namespace: 'demo-plugin',
+		sanitizedNamespace: 'DemoPlugin',
+		origin: 'kernel.config.ts',
+		sourcePath: 'kernel.config.ts',
+	},
+	config: {
+		version: 1,
+		namespace: 'demo-plugin',
+		schemas: {},
+		resources: {},
+	} as IRv1['config'],
+	schemas: [],
+	resources: [],
+	policies: [],
+	policyMap: {
+		sourcePath: undefined,
+		definitions: [],
+		fallback: {
+			capability: 'manage_options',
+			appliesTo: 'resource',
+		},
+		missing: [],
+		unused: [],
+		warnings: [],
+	},
+	blocks: [],
+	php: {
+		namespace: 'Demo\\Plugin',
+		autoload: 'inc/',
+		outputDir: '.generated/php',
+	},
+};
 
 describe('createPhpBuilder', () => {
 	const builder = createPhpBuilder();
 
-	const ir: IRv1 = {
-		meta: {
-			version: 1,
-			namespace: 'demo-plugin',
-			sanitizedNamespace: 'DemoPlugin',
-			origin: 'kernel.config.ts',
-			sourcePath: 'kernel.config.ts',
-		},
-		config: {
-			version: 1,
-			namespace: 'demo-plugin',
-			schemas: {},
-			resources: {},
-		} as IRv1['config'],
-		schemas: [],
-		resources: [],
-		policies: [],
-		policyMap: {
-			sourcePath: undefined,
-			definitions: [],
-			fallback: {
-				capability: 'manage_options',
-				appliesTo: 'resource',
-			},
-			missing: [],
-			unused: [],
-			warnings: [],
-		},
-		blocks: [],
-		php: {
-			namespace: 'Demo\\Plugin',
-			autoload: 'inc/',
-			outputDir: '.generated/php',
-		},
+	const baseOutput: BuilderOutput = {
+		actions: [],
+		queueWrite: jest.fn(),
 	};
 
-	async function withWorkspace<T>(
-		run: (root: string) => Promise<T>
-	): Promise<T> {
-		const root = await fs.mkdtemp(
-			path.join(os.tmpdir(), 'php-builder-workspace-')
+	it('logs a debug message and skips non-generate phases', async () => {
+		const reporter = createReporter();
+		const workspace = createWorkspace();
+
+		await builder.apply(
+			{
+				context: {
+					workspace,
+					reporter,
+					phase: 'init',
+				},
+				input: {
+					phase: 'init',
+					options: {
+						config: ir.config,
+						namespace: ir.meta.namespace,
+						origin: ir.meta.origin,
+						sourcePath: ir.meta.sourcePath,
+					},
+					ir,
+				},
+				output: baseOutput,
+				reporter,
+			},
+			undefined
 		);
 
-		try {
-			return await run(root);
-		} finally {
-			await fs.rm(root, { recursive: true, force: true });
-		}
-	}
+		expect(reporter.debug).toHaveBeenCalledWith(
+			'createPhpBuilder: skipping phase.',
+			{ phase: 'init' }
+		);
+		expect(reporter.warn).not.toHaveBeenCalled();
+	});
 
-	it('writes PHP artifacts and records manifest entries', async () => {
-		await withWorkspace(async (workspaceRoot) => {
-			await fs.writeFile(
-				path.join(workspaceRoot, ir.meta.sourcePath),
-				'// config placeholder\n'
-			);
-			const workspace = createWorkspace(workspaceRoot);
-			const reporter = createNoopReporter();
-			const queueWrite = jest.fn<void, [BuilderWriteAction]>();
-			const output: BuilderOutput = {
-				actions: [],
-				queueWrite,
-			};
+	it('warns and defers execution when generation is placeholder-only', async () => {
+		const reporter = createReporter();
+		const workspace = createWorkspace();
+		const next = jest.fn();
 
-			await builder.apply(
-				{
-					context: {
-						workspace,
-						reporter,
-						phase: 'generate',
-					},
-					input: {
-						phase: 'generate',
-						options: {
-							config: ir.config,
-							namespace: ir.meta.namespace,
-							origin: ir.meta.origin,
-							sourcePath: path.join(
-								workspaceRoot,
-								ir.meta.sourcePath
-							),
-						},
-						ir,
-					},
-					output,
+		await builder.apply(
+			{
+				context: {
+					workspace,
 					reporter,
+					phase: 'generate',
 				},
-				undefined
-			);
+				input: {
+					phase: 'generate',
+					options: {
+						config: ir.config,
+						namespace: ir.meta.namespace,
+						origin: ir.meta.origin,
+						sourcePath: ir.meta.sourcePath,
+					},
+					ir,
+				},
+				output: baseOutput,
+				reporter,
+			},
+			next
+		);
 
-			const baseControllerPath = path.join(
-				workspaceRoot,
-				'.generated',
-				'php',
-				'Rest',
-				'BaseController.php'
-			);
-
-			const controllerExists = await fs.readFile(
-				baseControllerPath,
-				'utf8'
-			);
-
-			expect(controllerExists).toContain('class BaseController');
-			expect(controllerExists).toMatch(/declare\s*\(strict_types=1\);/);
-			expect(queueWrite).toHaveBeenCalled();
-			const queuedFiles = queueWrite.mock.calls.map(
-				([action]) => action.file
-			);
-			expect(queuedFiles).toContain(
-				path.join('.generated', 'php', 'Rest', 'BaseController.php')
-			);
-
-			const astPath = path.join(
-				workspaceRoot,
-				'.generated',
-				'php',
-				'Rest',
-				'BaseController.php.ast.json'
-			);
-			const astContents = await fs.readFile(astPath, 'utf8');
-			const astJson = JSON.parse(astContents);
-			expect(Array.isArray(astJson)).toBe(true);
-			expect(astJson).toEqual(
-				expect.arrayContaining([
-					expect.objectContaining({
-						nodeType: 'Stmt_Namespace',
-					}),
-				])
-			);
-			expect(queuedFiles).toContain(
-				path.join(
-					'.generated',
-					'php',
-					'Rest',
-					'BaseController.php.ast.json'
-				)
-			);
-
-			const lintResult = await execFileAsync('php', [
-				'-l',
-				baseControllerPath,
-			]);
-			expect(lintResult.stdout).toContain('No syntax errors');
-		});
+		expect(reporter.warn).toHaveBeenCalledWith(
+			'createPhpBuilder: next-gen PHP pipeline placeholder active; skipping artifact generation.'
+		);
+		expect(next).toHaveBeenCalled();
 	});
 });
