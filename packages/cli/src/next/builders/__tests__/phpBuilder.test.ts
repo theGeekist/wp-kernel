@@ -4,6 +4,21 @@ import type { IRv1 } from '../../../ir/types';
 import { createPhpBuilder } from '../php';
 import type { BuilderOutput } from '../../runtime/types';
 import type { Workspace } from '../../workspace/types';
+import { createPhpPrettyPrinter } from '../php/bridge';
+
+jest.mock('../php/bridge', () => ({
+	createPhpPrettyPrinter: jest.fn(() => ({
+		prettyPrint: jest.fn(async ({ ast }) => ({
+			code: '<?php\n// pretty printed base controller\n',
+			ast,
+		})),
+	})),
+}));
+
+const createPhpPrettyPrinterMock =
+	createPhpPrettyPrinter as jest.MockedFunction<
+		typeof createPhpPrettyPrinter
+	>;
 
 function createReporter(): Reporter {
 	return {
@@ -77,17 +92,28 @@ const ir: IRv1 = {
 	},
 };
 
-describe('createPhpBuilder', () => {
-	const builder = createPhpBuilder();
+function setupPrettyPrinterMock() {
+	const prettyPrint = jest.fn(async ({ ast }) => ({
+		code: '<?php\n// pretty printed base controller\n',
+		ast,
+	}));
+	createPhpPrettyPrinterMock.mockReturnValueOnce({ prettyPrint });
+	return prettyPrint;
+}
 
-	const baseOutput: BuilderOutput = {
-		actions: [],
-		queueWrite: jest.fn(),
-	};
+describe('createPhpBuilder', () => {
+	beforeEach(() => {
+		jest.clearAllMocks();
+	});
 
 	it('logs a debug message and skips non-generate phases', async () => {
+		const builder = createPhpBuilder();
 		const reporter = createReporter();
 		const workspace = createWorkspace();
+		const output: BuilderOutput = {
+			actions: [],
+			queueWrite: jest.fn(),
+		};
 
 		await builder.apply(
 			{
@@ -106,7 +132,7 @@ describe('createPhpBuilder', () => {
 					},
 					ir,
 				},
-				output: baseOutput,
+				output,
 				reporter,
 			},
 			undefined
@@ -116,13 +142,19 @@ describe('createPhpBuilder', () => {
 			'createPhpBuilder: skipping phase.',
 			{ phase: 'init' }
 		);
-		expect(reporter.warn).not.toHaveBeenCalled();
+		expect(reporter.info).not.toHaveBeenCalled();
+		expect(output.queueWrite).not.toHaveBeenCalled();
 	});
 
-	it('warns and defers execution when generation is placeholder-only', async () => {
+	it('generates base controller artifacts from the AST channel', async () => {
+		const builder = createPhpBuilder();
 		const reporter = createReporter();
 		const workspace = createWorkspace();
-		const next = jest.fn();
+		const prettyPrint = setupPrettyPrinterMock();
+		const output: BuilderOutput = {
+			actions: [],
+			queueWrite: jest.fn(),
+		};
 
 		await builder.apply(
 			{
@@ -141,15 +173,50 @@ describe('createPhpBuilder', () => {
 					},
 					ir,
 				},
-				output: baseOutput,
+				output,
 				reporter,
 			},
-			next
+			undefined
 		);
 
-		expect(reporter.warn).toHaveBeenCalledWith(
-			'createPhpBuilder: next-gen PHP pipeline placeholder active; skipping artifact generation.'
+		const baseControllerPath = workspace.resolve(
+			ir.php.outputDir,
+			'Rest',
+			'BaseController.php'
 		);
-		expect(next).toHaveBeenCalled();
+
+		expect(prettyPrint).toHaveBeenCalledTimes(1);
+		const prettyPrintPayload = prettyPrint.mock.calls[0][0];
+		expect(prettyPrintPayload.filePath).toBe(baseControllerPath);
+		expect(prettyPrintPayload.ast).toMatchSnapshot('base-controller-ast');
+
+		expect(workspace.write).toHaveBeenCalledWith(
+			baseControllerPath,
+			expect.any(String),
+			{
+				ensureDir: true,
+			}
+		);
+		const astPath = `${baseControllerPath}.ast.json`;
+		expect(workspace.write).toHaveBeenCalledWith(
+			astPath,
+			expect.any(String),
+			{
+				ensureDir: true,
+			}
+		);
+
+		expect(output.queueWrite).toHaveBeenCalledWith({
+			file: baseControllerPath,
+			contents: '<?php\n// pretty printed base controller\n',
+		});
+		expect(output.queueWrite).toHaveBeenCalledWith({
+			file: astPath,
+			contents: expect.stringMatching(/"Stmt_Class"/),
+		});
+
+		expect(reporter.info).toHaveBeenCalledWith(
+			'createPhpBuilder: PHP artifacts generated.'
+		);
 	});
 });

@@ -1,9 +1,9 @@
 import { DEFAULT_DOC_HEADER } from './constants';
 import { createDocComment, type PhpDocComment } from './nodes';
-import type { PhpFileBuilder } from './programBuilder';
+import type { PhpAstBuilderAdapter } from './programBuilder';
 
 export function appendGeneratedFileDocblock(
-	builder: PhpFileBuilder,
+	builder: PhpAstBuilderAdapter,
 	extraLines: Iterable<string>
 ): void {
 	for (const line of DEFAULT_DOC_HEADER) {

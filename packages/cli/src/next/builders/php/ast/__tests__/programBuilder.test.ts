@@ -1,0 +1,244 @@
+import path from 'node:path';
+import type { Reporter } from '@wpkernel/core/reporter';
+import type {
+	BuilderInput,
+	BuilderOutput,
+	PipelineContext,
+} from '../../../../runtime/types';
+import { appendClassTemplate, appendMethodTemplates } from '../append';
+import { appendGeneratedFileDocblock } from '../docblocks';
+import {
+	createClassTemplate,
+	createMethodTemplate,
+	PHP_INDENT,
+} from '../templates';
+import { createPhpFileBuilder, PhpFileBuilder } from '../programBuilder';
+import { createIdentifier, createStmtNop } from '../nodes';
+import {
+	PHP_CLASS_MODIFIER_ABSTRACT,
+	PHP_METHOD_MODIFIER_PUBLIC,
+} from '../modifiers';
+import {
+	getPhpBuilderChannel,
+	resetPhpBuilderChannel,
+} from '../../printers/channel';
+import { resetPhpAstChannel } from '../context';
+
+function createReporter(): Reporter {
+	return {
+		debug: jest.fn(),
+		info: jest.fn(),
+		warn: jest.fn(),
+		error: jest.fn(),
+		child: jest.fn().mockReturnThis(),
+	};
+}
+
+function createPipelineContext(): PipelineContext {
+	return {
+		workspace: {
+			root: '/workspace',
+			resolve: (...parts: string[]) => path.join('/workspace', ...parts),
+			cwd: () => '/workspace',
+			read: async () => null,
+			readText: async () => null,
+			write: async () => undefined,
+			writeJson: async () => undefined,
+			exists: async () => false,
+			rm: async () => undefined,
+			glob: async () => [],
+			threeWayMerge: async () => 'clean',
+			begin: () => undefined,
+			commit: async () => ({ writes: [], deletes: [] }),
+			rollback: async () => ({ writes: [], deletes: [] }),
+			dryRun: async (fn) => ({
+				result: await fn(),
+				manifest: { writes: [], deletes: [] },
+			}),
+			tmpDir: async () => '.tmp',
+		},
+		reporter: createReporter(),
+		phase: 'generate',
+	} as unknown as PipelineContext;
+}
+
+function createBuilderInput(): BuilderInput {
+	return {
+		phase: 'generate',
+		options: {
+			config: {} as never,
+			namespace: 'demo-plugin',
+			origin: 'kernel.config.ts',
+			sourcePath: 'kernel.config.ts',
+		},
+		ir: {
+			meta: {
+				version: 1,
+				namespace: 'demo-plugin',
+				sanitizedNamespace: 'DemoPlugin',
+				origin: 'kernel.config.ts',
+				sourcePath: 'kernel.config.ts',
+			},
+			config: {} as never,
+			schemas: [],
+			resources: [],
+			policies: [],
+			policyMap: {
+				sourcePath: undefined,
+				definitions: [],
+				fallback: {
+					capability: 'manage_options',
+					appliesTo: 'resource',
+				},
+				missing: [],
+				unused: [],
+				warnings: [],
+			},
+			blocks: [],
+			php: {
+				namespace: 'Demo\\Plugin',
+				autoload: 'inc/',
+				outputDir: '.generated/php',
+			},
+		} as unknown as BuilderInput['ir'],
+	};
+}
+
+describe('programBuilder helpers', () => {
+	it('collects namespace metadata and emits a PhpProgram', async () => {
+		const context = createPipelineContext();
+		const input = createBuilderInput();
+		const output: BuilderOutput = {
+			actions: [],
+			queueWrite: jest.fn(),
+		};
+
+		resetPhpBuilderChannel(context);
+		resetPhpAstChannel(context);
+
+		const helper = createPhpFileBuilder({
+			key: 'test-program',
+			filePath: '/workspace/.generated/php/Example.php',
+			namespace: 'Demo\\Example',
+			metadata: { kind: 'policy-helper' },
+			build: (builder) => {
+				appendGeneratedFileDocblock(builder, ['Example file']);
+				builder.addUse('Demo\\Contracts');
+				builder.addUse('Demo\\Helpers\\Foo', { kind: 'function' });
+				builder.addUse('Demo\\Contracts');
+				builder.appendStatement('// class declaration');
+
+				const method = createMethodTemplate({
+					signature: 'public function label(): string',
+					indentLevel: 1,
+					indentUnit: PHP_INDENT,
+					body: (body) => {
+						body.line("return 'demo';");
+					},
+					ast: {
+						flags: PHP_METHOD_MODIFIER_PUBLIC,
+						returnType: createIdentifier('string'),
+					},
+				});
+
+				const classTemplate = createClassTemplate({
+					name: 'Example',
+					flags: PHP_CLASS_MODIFIER_ABSTRACT,
+					methods: [method],
+				});
+
+				appendClassTemplate(builder, classTemplate);
+				builder.appendProgramStatement(createStmtNop());
+			},
+		});
+
+		await helper.apply(
+			{
+				context,
+				input,
+				output,
+				reporter: context.reporter,
+			},
+			undefined
+		);
+
+		const actions = getPhpBuilderChannel(context).pending();
+		expect(actions).toHaveLength(1);
+		const [action] = actions;
+		expect(action.file).toBe('/workspace/.generated/php/Example.php');
+		expect(action.metadata.kind).toBe('policy-helper');
+		expect(action.docblock).toContain('Example file');
+		expect(action.uses).toEqual([
+			'Demo\\Contracts',
+			'function Demo\\Helpers\\Foo',
+		]);
+		expect(action.statements).toContain('// class declaration');
+
+		const [declareNode, namespaceNode] = action.program;
+		expect(declareNode.nodeType).toBe('Stmt_Declare');
+		expect(namespaceNode.nodeType).toBe('Stmt_Namespace');
+		expect(namespaceNode.stmts?.[0]?.nodeType).toBe('Stmt_Use');
+		const classNode = namespaceNode.stmts?.find(
+			(stmt) => stmt.nodeType === 'Stmt_Class'
+		);
+		expect(classNode?.nodeType).toBe('Stmt_Class');
+		expect(classNode?.stmts?.[0]?.nodeType).toBe('Stmt_ClassMethod');
+		expect(namespaceNode.stmts?.at(-1)?.nodeType).toBe('Stmt_Nop');
+	});
+
+	it('PhpFileBuilder compatibility accumulates statements and AST output', () => {
+		const builder = new PhpFileBuilder('Demo\\Compat', {
+			kind: 'policy-helper',
+		});
+
+		builder.appendDocblock('Compat doc');
+		builder.addUse('Demo\\Compat\\Utils');
+		builder.appendStatement('// compat');
+		builder.appendProgramStatement(createStmtNop());
+		builder.setNamespace('Demo\\Compat\\Updated');
+
+		const program = builder.getProgramAst();
+		expect(builder.getNamespace()).toBe('Demo\\Compat\\Updated');
+		expect(builder.getStatements()).toEqual(['// compat']);
+		expect(program[0].nodeType).toBe('Stmt_Declare');
+		const namespaceNode = program[1];
+		expect(namespaceNode.nodeType).toBe('Stmt_Namespace');
+		expect(namespaceNode.stmts?.[1]?.nodeType).toBe('Stmt_Nop');
+	});
+
+	it('appendMethodTemplates inserts blank lines between methods', () => {
+		const builder = new PhpFileBuilder('Demo\\Blank', {
+			kind: 'policy-helper',
+		});
+
+		const first = createMethodTemplate({
+			signature: 'public function first()',
+			indentLevel: 1,
+			body: (body) => {
+				body.line('return 1;');
+			},
+			ast: {
+				flags: PHP_METHOD_MODIFIER_PUBLIC,
+				returnType: null,
+			},
+		});
+
+		const second = createMethodTemplate({
+			signature: 'public function second()',
+			indentLevel: 1,
+			body: (body) => {
+				body.line('return 2;');
+			},
+			ast: {
+				flags: PHP_METHOD_MODIFIER_PUBLIC,
+				returnType: null,
+			},
+		});
+
+		appendMethodTemplates(builder, [first, second]);
+
+		const statements = builder.getStatements();
+		const blankLines = statements.filter((line) => line === '');
+		expect(blankLines).toHaveLength(1);
+	});
+});
