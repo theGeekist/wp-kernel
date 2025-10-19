@@ -1,10 +1,10 @@
 import type { PhpStmt } from './nodes';
-import type { PhpFileBuilder } from './programBuilder';
+import type { PhpAstBuilderAdapter } from './programBuilder';
 import type { PhpPrintable } from './printables';
 import type { PhpClassTemplate, PhpMethodTemplate } from './templates';
 
 export function appendMethodTemplates(
-	builder: PhpFileBuilder,
+	builder: PhpAstBuilderAdapter,
 	methods: readonly PhpMethodTemplate[]
 ): void {
 	methods.forEach((method, index) => {
@@ -23,14 +23,14 @@ export function appendMethodTemplates(
 }
 
 export function appendClassTemplate(
-	builder: PhpFileBuilder,
+	builder: PhpAstBuilderAdapter,
 	template: PhpClassTemplate
 ): void {
 	appendPrintable(builder, template);
 }
 
 export function appendPrintable(
-	builder: PhpFileBuilder,
+	builder: PhpAstBuilderAdapter,
 	printable: PhpPrintable<PhpStmt>
 ): void {
 	printable.lines.forEach((line) => {

@@ -16,20 +16,11 @@ import {
 	createPhpResourceControllerHelper,
 } from './php/printers';
 
-export interface CreatePhpBuilderOptions {
-	/**
-	 * Optional message override to help differentiate environments (e.g. tests).
-	 */
-	readonly placeholderMessage?: string;
-}
+export type CreatePhpBuilderOptions = Record<string, never>;
 
 export function createPhpBuilder(
-	options: CreatePhpBuilderOptions = {}
+	_options: CreatePhpBuilderOptions = {}
 ): BuilderHelper {
-	const message =
-		options.placeholderMessage ??
-		'createPhpBuilder: next-gen PHP pipeline placeholder active; skipping artifact generation.';
-
 	return createHelper({
 		key: 'builder.generate.php.core',
 		kind: 'builder',
@@ -62,7 +53,7 @@ export function createPhpBuilder(
 			}
 
 			await runHelperSequence(helperPipeline, applyOptions);
-			reporter.warn(message);
+			reporter.info('createPhpBuilder: PHP artifacts generated.');
 			await next?.();
 		},
 	});
