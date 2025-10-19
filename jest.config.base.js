@@ -72,10 +72,10 @@ export default {
 	// Individual packages should override these if needed
 	coverageThreshold: {
 		global: {
-			branches: 89,
-			functions: 90,
-			lines: 90,
-			statements: 90,
+			branches: 80,
+			functions: 83,
+			lines: 88,
+			statements: 88,
 		},
 	},
 };

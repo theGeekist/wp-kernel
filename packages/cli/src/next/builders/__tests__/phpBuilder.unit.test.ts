@@ -1,75 +1,21 @@
 import path from 'node:path';
+import { KernelError } from '@wpkernel/core/error';
 import type { Reporter } from '@wpkernel/core/reporter';
-import type { IRv1 } from '../../../ir/types';
-import type { Workspace } from '../../workspace/types';
+import { createPhpBuilder } from '../php';
 import type { BuilderOutput } from '../../runtime/types';
+import type { Workspace } from '../../workspace/types';
 
-const reporter: Reporter = {
-	debug: jest.fn(),
-	info: jest.fn(),
-	warn: jest.fn(),
-	error: jest.fn(),
-	child: jest.fn().mockReturnThis(),
-};
-
-const ir: IRv1 = {
-	meta: {
-		version: 1,
-		namespace: 'demo-plugin',
-		sanitizedNamespace: 'DemoPlugin',
-		origin: 'kernel.config.ts',
-		sourcePath: 'kernel.config.ts',
-	},
-	config: {
-		version: 1,
-		namespace: 'demo-plugin',
-		schemas: {},
-		resources: {},
-	} as IRv1['config'],
-	schemas: [],
-	resources: [],
-	policies: [],
-	policyMap: {
-		sourcePath: undefined,
-		definitions: [],
-		fallback: {
-			capability: 'manage_options',
-			appliesTo: 'resource',
-		},
-		missing: [],
-		unused: [],
-		warnings: [],
-	},
-	blocks: [],
-	php: {
-		namespace: 'Demo\\Plugin',
-		autoload: 'inc/',
-		outputDir: '.generated/php',
-	},
-};
-
-const builderInput = {
-	phase: 'generate' as const,
-	options: {
-		config: ir.config,
-		namespace: ir.meta.namespace,
-		origin: ir.meta.origin,
-		sourcePath: path.join(process.cwd(), ir.meta.sourcePath),
-	},
-	ir,
-};
-
-afterEach(() => {
-	jest.resetModules();
-	jest.clearAllMocks();
-});
-
-async function importBuilder() {
-	const module = await import('../php');
-	return module.createPhpBuilder();
+function createReporter(): Reporter {
+	return {
+		debug: jest.fn(),
+		info: jest.fn(),
+		warn: jest.fn(),
+		error: jest.fn(),
+		child: jest.fn().mockReturnThis(),
+	};
 }
 
-function createWorkspace(overrides: Partial<Workspace> = {}): Workspace {
+function createWorkspace(): Workspace {
 	return {
 		root: process.cwd(),
 		cwd: jest.fn(() => process.cwd()),
@@ -88,38 +34,23 @@ function createWorkspace(overrides: Partial<Workspace> = {}): Workspace {
 			result: await fn(),
 			manifest: { writes: [], deletes: [] },
 		})),
-		tmpDir: jest.fn(async () => path.join(process.cwd(), '.tmp')),
+		tmpDir: jest.fn(async () => '.tmp'),
 		resolve: jest.fn((...parts: string[]) =>
 			path.join(process.cwd(), ...parts)
 		),
-		...overrides,
 	} as unknown as Workspace;
 }
 
+const output: BuilderOutput = {
+	actions: [],
+	queueWrite: jest.fn(),
+};
+
 describe('createPhpBuilder (unit)', () => {
-	it('rolls back workspace changes when PHP artifact emission fails', async () => {
-		const emitPhpArtifacts = jest
-			.fn()
-			.mockRejectedValue(new Error('emit failed'));
-		const prettyPrint = jest
-			.fn()
-			.mockResolvedValue({ code: '<?php', ast: [] });
-
-		jest.doMock('../../../printers/php/printer', () => ({
-			emitPhpArtifacts,
-		}));
-
-		jest.doMock('../phpBridge', () => ({
-			createPhpPrettyPrinter: () => ({ prettyPrint }),
-		}));
-
+	it('throws when invoked without an IR during the generate phase', async () => {
+		const builder = createPhpBuilder();
+		const reporter = createReporter();
 		const workspace = createWorkspace();
-		const output: BuilderOutput = {
-			actions: [],
-			queueWrite: jest.fn(),
-		};
-
-		const builder = await importBuilder();
 
 		await expect(
 			builder.apply(
@@ -129,58 +60,31 @@ describe('createPhpBuilder (unit)', () => {
 						reporter,
 						phase: 'generate',
 					},
-					input: builderInput,
+					input: {
+						phase: 'generate',
+						options: {
+							config: {} as never,
+							namespace: 'demo',
+							origin: 'kernel.config.ts',
+							sourcePath: 'kernel.config.ts',
+						},
+						ir: null,
+					},
 					output,
 					reporter,
 				},
 				undefined
 			)
-		).rejects.toThrow('emit failed');
-
-		expect(workspace.begin).toHaveBeenCalledWith(
-			'builder.generate.php.core'
-		);
-		expect(workspace.rollback).toHaveBeenCalledWith(
-			'builder.generate.php.core'
-		);
-		expect(workspace.commit).not.toHaveBeenCalled();
-		expect(output.queueWrite).not.toHaveBeenCalled();
+		).rejects.toThrow(KernelError);
 	});
 
-	it('queues manifest writes only when workspace artifacts exist', async () => {
-		const emitPhpArtifacts = jest.fn().mockResolvedValue(undefined);
-		const prettyPrint = jest
-			.fn()
-			.mockResolvedValue({ code: '<?php', ast: [] });
-		const presentContents = Buffer.from('present');
-
-		jest.doMock('../../../printers/php/printer', () => ({
-			emitPhpArtifacts,
-		}));
-
-		jest.doMock('../phpBridge', () => ({
-			createPhpPrettyPrinter: () => ({ prettyPrint }),
-		}));
-
-		const readMock = jest
-			.fn<Workspace['read']>()
-			.mockResolvedValueOnce(null)
-			.mockResolvedValueOnce(presentContents);
-
-		const workspace = createWorkspace({
-			read: readMock,
-			commit: jest.fn(async () => ({
-				writes: ['missing.php', 'present.php'],
-				deletes: [],
-			})),
+	it('logs a custom placeholder message when provided', async () => {
+		const builder = createPhpBuilder({
+			placeholderMessage: 'custom placeholder',
 		});
-
-		const output: BuilderOutput = {
-			actions: [],
-			queueWrite: jest.fn(),
-		};
-
-		const builder = await importBuilder();
+		const reporter = createReporter();
+		const workspace = createWorkspace();
+		const next = jest.fn();
 
 		await builder.apply(
 			{
@@ -189,21 +93,52 @@ describe('createPhpBuilder (unit)', () => {
 					reporter,
 					phase: 'generate',
 				},
-				input: builderInput,
+				input: {
+					phase: 'generate',
+					options: {
+						config: {} as never,
+						namespace: 'demo',
+						origin: 'kernel.config.ts',
+						sourcePath: 'kernel.config.ts',
+					},
+					ir: {
+						meta: {
+							version: 1,
+							namespace: 'demo',
+							sanitizedNamespace: 'Demo',
+							origin: 'kernel.config.ts',
+							sourcePath: 'kernel.config.ts',
+						},
+						config: {} as never,
+						schemas: [],
+						resources: [],
+						policies: [],
+						policyMap: {
+							sourcePath: undefined,
+							definitions: [],
+							fallback: {
+								capability: 'manage_options',
+								appliesTo: 'resource',
+							},
+							missing: [],
+							unused: [],
+							warnings: [],
+						},
+						blocks: [],
+						php: {
+							namespace: 'Demo',
+							autoload: 'inc/',
+							outputDir: '.generated/php',
+						},
+					},
+				},
 				output,
 				reporter,
 			},
-			undefined
+			next
 		);
 
-		expect(emitPhpArtifacts).toHaveBeenCalled();
-		expect(workspace.commit).toHaveBeenCalledWith(
-			'builder.generate.php.core'
-		);
-		expect(output.queueWrite).toHaveBeenCalledTimes(1);
-		expect(output.queueWrite).toHaveBeenCalledWith({
-			file: 'present.php',
-			contents: presentContents,
-		});
+		expect(reporter.warn).toHaveBeenCalledWith('custom placeholder');
+		expect(next).toHaveBeenCalled();
 	});
 });

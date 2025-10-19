@@ -9,7 +9,7 @@ export interface PhpPrettyPrintOptions {
 	 * Reserved for future use when next-gen generators emit PhpParser-compatible
 	 * JSON payloads directly from the TypeScript printers.
 	 */
-	ast?: PhpJsonAst;
+	ast?: PhpJsonAst | unknown;
 }
 
 export interface PhpPrettyPrintResult {
