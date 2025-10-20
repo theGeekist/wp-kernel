@@ -122,6 +122,14 @@ describe('createPhpResourceControllerHelper', () => {
 				expect.stringContaining(
 					"$slug = $request->get_param( 'slug' );"
 				),
+				expect.stringContaining(
+					"$per_page = (int) $request->get_param( 'per_page' );"
+				),
+				expect.stringContaining('$meta_query = array();'),
+				expect.stringContaining('$tax_query = array();'),
+				expect.stringContaining(
+					'return $this->prepareBooksResponse( $post, $request );'
+				),
 			])
 		);
 		expect(entry?.program).toMatchSnapshot('resource-controller-ast');
@@ -142,7 +150,19 @@ function createIr(): IRv1 {
 			remove: { segments: [], source: 'default' },
 		},
 		identity: { type: 'string' },
-		storage: undefined,
+		storage: {
+			mode: 'wp-post',
+			postType: 'book',
+			statuses: ['draft', 'publish'],
+			supports: ['title'],
+			meta: {
+				status: { type: 'string', single: true },
+				tags: { type: 'array', single: false },
+			},
+			taxonomies: {
+				genres: { taxonomy: 'book_genre' },
+			},
+		} as IRResource['storage'],
 		queryParams: undefined,
 		ui: undefined,
 		hash: 'resource-hash',
