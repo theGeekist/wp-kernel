@@ -1,3 +1,17 @@
+import { createHelper } from '../../../helper';
+import type { BuilderHelper, PipelineContext } from '../../../runtime/types';
+import {
+	appendDocblockLine,
+	appendProgramStatement,
+	appendStatementLine,
+	addUseEntry,
+	getPhpAstChannel,
+	resetPhpAstChannel,
+	setNamespaceParts,
+	type PhpAstContext,
+	type PhpAstContextEntry,
+	type ProgramUse,
+} from './context';
 import {
 	createComment,
 	createDeclare,
@@ -16,14 +30,7 @@ import {
 } from './nodes';
 import { AUTO_GUARD_BEGIN, AUTO_GUARD_END } from './constants';
 import type { PhpAstBuilder, PhpFileMetadata } from './types';
-
-interface ProgramUse {
-	readonly key: string;
-	readonly parts: readonly string[];
-	readonly alias: string | null;
-	readonly type: number;
-	readonly fullyQualified: boolean;
-}
+import { getPhpBuilderChannel } from '../printers/channel';
 
 type UseKind = 'normal' | 'function' | 'const';
 
@@ -33,11 +40,187 @@ const USE_KIND_TO_TYPE: Record<UseKind, number> = {
 	const: 3,
 };
 
-function normaliseNamespace(namespace: string): readonly string[] {
-	return namespace
-		.split('\\')
-		.map((part) => part.trim())
-		.filter((part) => part.length > 0);
+export interface PhpAstBuilderAdapter extends PhpAstBuilder {
+	readonly context: PhpAstContext;
+}
+
+export interface CreatePhpProgramBuilderOptions {
+	readonly key: string;
+	readonly filePath: string;
+	readonly namespace: string;
+	readonly metadata: PhpFileMetadata;
+	readonly build: (
+		builder: PhpAstBuilderAdapter,
+		entry: PhpAstContextEntry
+	) => Promise<void> | void;
+}
+
+export function createPhpProgramBuilder(
+	options: CreatePhpProgramBuilderOptions
+): BuilderHelper {
+	return createHelper({
+		key: `builder.generate.php.ast.program.${options.key}`,
+		kind: 'builder',
+		async apply(applyOptions, next) {
+			const { context, reporter } = applyOptions;
+			const astChannel = getPhpAstChannel(context);
+			const entry = astChannel.open({
+				key: options.key,
+				filePath: options.filePath,
+				namespace: options.namespace,
+				metadata: options.metadata,
+			});
+
+			const builder = createAdapter(entry);
+			await options.build(builder, entry);
+
+			const program = finaliseProgram(entry.context);
+			const metadata = entry.metadata;
+			getPhpBuilderChannel(context).queue({
+				file: options.filePath,
+				program,
+				metadata,
+				docblock: [...entry.context.docblockLines],
+				uses: Array.from(entry.context.uses.values()).map(
+					formatUseString
+				),
+				statements: [...entry.context.statementLines],
+			});
+
+			reporter.debug(
+				'createPhpProgramBuilder: queued program helper output.',
+				{
+					file: options.filePath,
+					namespace: builder.getNamespace(),
+				}
+			);
+
+			await next?.();
+		},
+	});
+}
+
+export interface CreatePhpFileBuilderOptions
+	extends Omit<CreatePhpProgramBuilderOptions, 'build'> {
+	readonly build: (
+		builder: PhpAstBuilderAdapter,
+		entry: PhpAstContextEntry
+	) => Promise<void> | void;
+}
+
+export function createPhpFileBuilder(
+	options: CreatePhpFileBuilderOptions
+): BuilderHelper {
+	return createPhpProgramBuilder(options);
+}
+
+function createAdapter(entry: PhpAstContextEntry): PhpAstBuilderAdapter {
+	const { context } = entry;
+
+	return {
+		context,
+		getNamespace() {
+			return formatNamespace(context.namespaceParts);
+		},
+		setNamespace(namespace: string) {
+			setNamespaceParts(context, namespace);
+		},
+		addUse(
+			statement: string,
+			options: { alias?: string | null; kind?: UseKind } = {}
+		) {
+			const parsed = normaliseUse(statement, options);
+			if (!parsed) {
+				return;
+			}
+
+			addUseEntry(context, parsed);
+		},
+		appendDocblock(line: string) {
+			appendDocblockLine(context, line);
+		},
+		appendStatement(statement: string) {
+			appendStatementLine(context, statement);
+		},
+		appendProgramStatement(statement: PhpStmt) {
+			appendProgramStatement(context, statement);
+		},
+		getStatements() {
+			return [...context.statementLines];
+		},
+		getMetadata() {
+			return entry.metadata;
+		},
+		getProgramAst() {
+			return finaliseProgram(context);
+		},
+		setMetadata(metadata: PhpFileMetadata) {
+			entry.metadata = metadata;
+		},
+	} satisfies PhpAstBuilderAdapter;
+}
+
+function finaliseProgram(context: PhpAstContext): PhpProgram {
+	const program: PhpStmt[] = [];
+
+	const strictTypes = createDeclare([
+		createDeclareItem('strict_types', createScalarInt(1)),
+	]);
+	program.push(strictTypes);
+
+	const namespaceAttributes = context.docblockLines.length
+		? { comments: [createDocComment(context.docblockLines)] }
+		: undefined;
+
+	const namespaceName = context.namespaceParts.length
+		? createNamespaceName(context.namespaceParts)
+		: null;
+
+	const namespaceStatements: PhpStmt[] = [];
+
+	for (const useEntry of getSortedUses(context)) {
+		const nameNode = useEntry.fullyQualified
+			? createFullyQualifiedName([...useEntry.parts])
+			: createName([...useEntry.parts]);
+		const useNode = createUse(useEntry.type, [
+			createUseUse(
+				nameNode,
+				useEntry.alias ? createIdentifier(useEntry.alias) : null
+			),
+		]);
+		namespaceStatements.push(useNode);
+	}
+
+	const beginGuard = createStmtNop({
+		comments: [createComment(`// ${AUTO_GUARD_BEGIN}`)],
+	});
+	namespaceStatements.push(beginGuard);
+
+	namespaceStatements.push(...context.statements);
+
+	const endGuard = createStmtNop({
+		comments: [createComment(`// ${AUTO_GUARD_END}`)],
+	});
+	namespaceStatements.push(endGuard);
+
+	const namespaceNode = createNamespace(
+		namespaceName,
+		namespaceStatements,
+		namespaceAttributes
+	);
+	program.push(namespaceNode);
+
+	return program;
+}
+
+function getSortedUses(context: PhpAstContext): readonly ProgramUse[] {
+	return Array.from(context.uses.values()).sort((a, b) => {
+		if (a.key === b.key) {
+			return 0;
+		}
+
+		return a.key < b.key ? -1 : 1;
+	});
 }
 
 function formatNamespace(parts: readonly string[]): string {
@@ -83,10 +266,7 @@ function normaliseUse(
 function extractUseKind(
 	value: string,
 	overrideKind?: UseKind
-): {
-	declaration: string;
-	kind: UseKind;
-} {
+): { declaration: string; kind: UseKind } {
 	const lower = value.toLowerCase();
 	if (lower.startsWith('function ')) {
 		return {
@@ -111,10 +291,7 @@ function extractUseKind(
 function extractAlias(
 	value: string,
 	providedAlias: string | null
-): {
-	namespace: string;
-	alias: string | null;
-} {
+): { namespace: string; alias: string | null } {
 	if (providedAlias) {
 		return {
 			namespace: value.trim(),
@@ -137,7 +314,7 @@ function extractAlias(
 	};
 }
 
-function createUseString(entry: ProgramUse): string {
+function formatUseString(entry: ProgramUse): string {
 	let prefix = '';
 	if (entry.type === USE_KIND_TO_TYPE.function) {
 		prefix = 'function ';
@@ -151,203 +328,19 @@ function createUseString(entry: ProgramUse): string {
 	return `${prefix}${base}${aliasSuffix}`;
 }
 
-export function createPhpProgramBuilder(namespace: string): PhpProgramBuilder {
-	return new PhpProgramBuilder(namespace);
-}
-
-export class PhpProgramBuilder {
-	private namespaceParts: readonly string[];
-
-	private readonly docblockLines: string[] = [];
-
-	private readonly uses = new Map<string, ProgramUse>();
-
-	private readonly statements: PhpStmt[] = [];
-
-	public constructor(namespace: string) {
-		this.namespaceParts = normaliseNamespace(namespace);
-	}
-
-	public getNamespace(): string {
-		return formatNamespace(this.namespaceParts);
-	}
-
-	public setNamespace(namespace: string): void {
-		this.namespaceParts = normaliseNamespace(namespace);
-	}
-
-	public appendDocblock(line: string): void {
-		this.docblockLines.push(line);
-	}
-
-	public getDocblock(): readonly string[] {
-		return [...this.docblockLines];
-	}
-
-	public addUse(
-		statement: string,
-		options: { alias?: string | null; kind?: UseKind } = {}
-	): void {
-		const parsed = normaliseUse(statement, options);
-		if (!parsed) {
-			return;
-		}
-
-		this.uses.set(parsed.key, parsed);
-	}
-
-	public getUses(): readonly string[] {
-		return this.getSortedUses().map(createUseString);
-	}
-
-	public appendStatement(node: PhpStmt): void {
-		this.statements.push(node);
-	}
-
-	public getStatements(): readonly PhpStmt[] {
-		return [...this.statements];
-	}
-
-	public toProgram(): PhpProgram {
-		const program: PhpStmt[] = [];
-
-		const strictTypes = createDeclare([
-			createDeclareItem('strict_types', createScalarInt(1)),
-		]);
-		program.push(strictTypes);
-
-		const namespaceAttributes = this.docblockLines.length
-			? { comments: [createDocComment(this.docblockLines)] }
-			: undefined;
-
-		const namespaceName = this.namespaceParts.length
-			? createNamespaceName(this.namespaceParts)
-			: null;
-
-		const namespaceStatements: PhpStmt[] = [];
-
-		for (const useEntry of this.getSortedUses()) {
-			const nameNode = useEntry.fullyQualified
-				? createFullyQualifiedName([...useEntry.parts])
-				: createName([...useEntry.parts]);
-			const useNode = createUse(useEntry.type, [
-				createUseUse(
-					nameNode,
-					useEntry.alias ? createIdentifier(useEntry.alias) : null
-				),
-			]);
-			namespaceStatements.push(useNode);
-		}
-
-		const beginGuard = createStmtNop({
-			comments: [createComment(`// ${AUTO_GUARD_BEGIN}`)],
-		});
-		namespaceStatements.push(beginGuard);
-
-		namespaceStatements.push(...this.statements);
-
-		const endGuard = createStmtNop({
-			comments: [createComment(`// ${AUTO_GUARD_END}`)],
-		});
-		namespaceStatements.push(endGuard);
-
-		const namespaceNode = createNamespace(
-			namespaceName,
-			namespaceStatements,
-			namespaceAttributes
-		);
-		program.push(namespaceNode);
-
-		return program;
-	}
-
-	private getSortedUses(): readonly ProgramUse[] {
-		return Array.from(this.uses.values()).sort((a, b) => {
-			if (a.key === b.key) {
-				return 0;
-			}
-
-			return a.key < b.key ? -1 : 1;
-		});
-	}
-}
-
 function createNamespaceName(
 	parts: readonly string[]
 ): ReturnType<typeof createName> {
 	return createName([...parts]);
 }
 
-type LegacyPhpFileAst = {
+export type PhpFileAst = {
 	namespace: string;
 	docblock: string[];
 	uses: string[];
 	statements: string[];
 };
 
-export type PhpFileAst = LegacyPhpFileAst;
-
-export class PhpFileBuilder implements PhpAstBuilder {
-	private readonly program: PhpProgramBuilder;
-
-	private readonly metadata: PhpFileMetadata;
-
-	private readonly legacyStatements: string[] = [];
-
-	public constructor(namespace: string, metadata: PhpFileMetadata) {
-		this.program = new PhpProgramBuilder(namespace);
-		this.metadata = metadata;
-	}
-
-	public getNamespace(): string {
-		return this.program.getNamespace();
-	}
-
-	public setNamespace(namespace: string): void {
-		this.program.setNamespace(namespace);
-	}
-
-	public addUse(statement: string): void {
-		this.program.addUse(statement);
-	}
-
-	public appendDocblock(line: string): void {
-		this.program.appendDocblock(line);
-	}
-
-	public appendStatement(statement: string): void {
-		this.legacyStatements.push(statement);
-	}
-
-	public appendProgramStatement(statement: PhpStmt): void {
-		this.program.appendStatement(statement);
-	}
-
-	public getStatements(): readonly string[] {
-		return [...this.legacyStatements];
-	}
-
-	public getMetadata(): PhpFileMetadata {
-		return this.metadata;
-	}
-
-	public getProgramAst(): PhpProgram {
-		return this.program.toProgram();
-	}
-
-	public toAst(): PhpFileAst {
-		return {
-			namespace: this.program.getNamespace(),
-			docblock: [...this.program.getDocblock()],
-			uses: [...this.program.getUses()],
-			statements: [...this.legacyStatements],
-		};
-	}
-}
-
-export function createPhpFileBuilder(
-	namespace: string,
-	metadata: PhpFileMetadata
-): PhpFileBuilder {
-	return new PhpFileBuilder(namespace, metadata);
+export function resetPhpProgramBuilderContext(context: PipelineContext): void {
+	resetPhpAstChannel(context);
 }

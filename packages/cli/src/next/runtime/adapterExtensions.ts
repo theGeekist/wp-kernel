@@ -13,7 +13,6 @@ import type {
 	PipelineExtensionHookOptions,
 	PipelineExtensionHookResult,
 } from './types';
-import { createPhpPrettyPrinter } from '../builders/phpBridge';
 import { createTsFormatter } from '../builders/ts';
 
 function invokeExtensionFactory(
@@ -134,9 +133,6 @@ async function runExtensions(
 	const outputDir = options.context.workspace.resolve(GENERATED_ROOT);
 	const configDirectory = path.dirname(options.options.sourcePath);
 
-	const prettyPrinter = createPhpPrettyPrinter({
-		workspace: options.context.workspace,
-	});
 	const tsFormatter = createTsFormatter();
 
 	const runResult = await runAdapterExtensions({
@@ -153,14 +149,7 @@ async function runExtensions(
 				ensureDir: true,
 			});
 		},
-		formatPhp: async (filePath, contents) => {
-			const result = await prettyPrinter.prettyPrint({
-				filePath,
-				code: contents,
-			});
-
-			return result.code;
-		},
+		formatPhp: async (_filePath, contents) => contents,
 		formatTs: (filePath, contents) =>
 			tsFormatter.format({ filePath, contents }),
 	});

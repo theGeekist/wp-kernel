@@ -5,7 +5,8 @@ export interface PhpFileMetadata {
 		| 'persistence-registry'
 		| 'block-manifest'
 		| 'block-registrar'
-		| 'policy-helper';
+		| 'policy-helper'
+		| 'index-file';
 	name?: string;
 }
 

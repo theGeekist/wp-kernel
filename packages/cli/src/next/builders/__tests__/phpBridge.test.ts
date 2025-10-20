@@ -83,13 +83,18 @@ describe('createPhpPrettyPrinter', () => {
 			})
 		);
 
-		const { createPhpPrettyPrinter } = await import('../phpBridge');
+		const { createPhpPrettyPrinter } = await import('../php/bridge');
 		const prettyPrinter = createPhpPrettyPrinter({ workspace });
 		process.env.PHP_MEMORY_LIMIT = '768M';
 
 		const result = await prettyPrinter.prettyPrint({
 			filePath: 'Rest/BaseController.php',
-			code: '<?php echo 1;',
+			program: [
+				{
+					nodeType: 'Stmt_Nop',
+					attributes: {},
+				},
+			],
 		});
 
 		expect(result).toEqual({
@@ -130,44 +135,56 @@ describe('createPhpPrettyPrinter', () => {
 			})
 		);
 
-		const { createPhpPrettyPrinter } = await import('../phpBridge');
+		const { createPhpPrettyPrinter } = await import('../php/bridge');
 		const prettyPrinter = createPhpPrettyPrinter({ workspace });
 
 		await expect(
 			prettyPrinter.prettyPrint({
 				filePath: 'Rest/BaseController.php',
-				code: '<?php echo 1;',
+				program: [
+					{
+						nodeType: 'Stmt_Nop',
+						attributes: {},
+					},
+				],
 			})
 		).rejects.toMatchObject({ code: 'DeveloperError' });
 	});
 
-	it('validates that exactly one of code or AST payloads is provided', async () => {
-		const { createPhpPrettyPrinter } = await import('../phpBridge');
+	it('validates the AST payload shape', async () => {
+		const { createPhpPrettyPrinter } = await import('../php/bridge');
 		const prettyPrinter = createPhpPrettyPrinter({ workspace });
 
 		await expect(
 			prettyPrinter.prettyPrint({
 				filePath: 'Rest/BaseController.php',
-				code: '<?php echo 1;',
-				ast: [{ nodeType: 'Stmt_Echo', expr: [], attributes: {} }],
+				// @ts-expect-error testing runtime validation
+				program: null,
 			})
 		).rejects.toMatchObject({
 			code: 'DeveloperError',
 			data: expect.objectContaining({
-				hasCode: true,
-				hasAst: true,
+				filePath: 'Rest/BaseController.php',
 			}),
 		});
 
 		await expect(
 			prettyPrinter.prettyPrint({
 				filePath: 'Rest/BaseController.php',
+				program: [
+					{
+						nodeType: undefined,
+						attributes: {},
+					} as unknown as {
+						nodeType: string;
+						attributes: Record<string, unknown>;
+					},
+				],
 			})
 		).rejects.toMatchObject({
 			code: 'DeveloperError',
 			data: expect.objectContaining({
-				hasCode: false,
-				hasAst: false,
+				invalidNodeIndex: 0,
 			}),
 		});
 
@@ -192,12 +209,17 @@ describe('createPhpPrettyPrinter', () => {
 			})
 		);
 
-		const { createPhpPrettyPrinter } = await import('../phpBridge');
+		const { createPhpPrettyPrinter } = await import('../php/bridge');
 		const prettyPrinter = createPhpPrettyPrinter({ workspace });
 
 		await prettyPrinter.prettyPrint({
 			filePath: 'Rest/BaseController.php',
-			code: '<?php echo 1;',
+			program: [
+				{
+					nodeType: 'Stmt_Nop',
+					attributes: {},
+				},
+			],
 		});
 
 		expect(spawnMock).toHaveBeenCalledWith(
@@ -230,13 +252,18 @@ describe('createPhpPrettyPrinter', () => {
 			})
 		);
 
-		const { createPhpPrettyPrinter } = await import('../phpBridge');
+		const { createPhpPrettyPrinter } = await import('../php/bridge');
 		const prettyPrinter = createPhpPrettyPrinter({ workspace });
 
 		await expect(
 			prettyPrinter.prettyPrint({
 				filePath: 'Rest/BaseController.php',
-				code: '<?php echo 1;',
+				program: [
+					{
+						nodeType: 'Stmt_Nop',
+						attributes: {},
+					},
+				],
 			})
 		).rejects.toMatchObject({
 			code: 'DeveloperError',
@@ -263,13 +290,18 @@ describe('createPhpPrettyPrinter', () => {
 			})
 		);
 
-		const { createPhpPrettyPrinter } = await import('../phpBridge');
+		const { createPhpPrettyPrinter } = await import('../php/bridge');
 		const prettyPrinter = createPhpPrettyPrinter({ workspace });
 
 		await expect(
 			prettyPrinter.prettyPrint({
 				filePath: 'Rest/BaseController.php',
-				code: '<?php echo 1;',
+				program: [
+					{
+						nodeType: 'Stmt_Nop',
+						attributes: {},
+					},
+				],
 			})
 		).rejects.toMatchObject({ code: 'DeveloperError' });
 	});
