@@ -20,5 +20,6 @@ Reuse the CLI transcript helpers from `@wpkernel/e2e-utils` when writing integra
 Respect package boundaries: consume kernel APIs through public exports, never deep imports. When adding commands that touch documentation or specs, coordinate the updates so generated output references the latest guidance. Try to keep code and test files <=500 SLOC for ease of debugging and maintanence
 
 Refer to `MVP-PHASES.md` in this package for the current roadmap, DoD, and testing expectations before extending the CLI.
+When you close out any phase from `docs/next-php-ast-parity-phases.md`, update the corresponding completion summary in that document within the same change.
 
 Always import CLI exit codes and namespace constants from `@wpkernel/core/contracts` to ensure parity with the framework.

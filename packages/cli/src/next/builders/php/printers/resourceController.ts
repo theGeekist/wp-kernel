@@ -37,6 +37,12 @@ import { createPhpReturn } from '../ast/valueRenderers';
 import { escapeSingleQuotes, sanitizeJson, toPascalCase } from '../ast/utils';
 import type { IRResource, IRRoute, IRSchema, IRv1 } from '../../../../ir/types';
 import type { PhpAstBuilderAdapter } from '../ast/programBuilder';
+import { resolveIdentityConfig, type ResolvedIdentity } from './identity';
+import {
+	collectCanonicalBasePaths,
+	determineRouteKind,
+	type ResourceRouteKind,
+} from './routes';
 
 export function createPhpResourceControllerHelper(): BuilderHelper {
 	return createHelper({
@@ -105,6 +111,11 @@ function buildResourceController(
 	options: BuildResourceControllerOptions
 ): void {
 	const { builder, ir, resource, className } = options;
+	const identity = resolveIdentityConfig(resource);
+	const canonicalBasePaths = collectCanonicalBasePaths(
+		resource.routes,
+		identity.param
+	);
 	appendGeneratedFileDocblock(builder, [
 		`Source: ${ir.meta.origin} → resources.${resource.name}`,
 		`Schema: ${resource.schemaKey} (${resource.schemaProvenance})`,
@@ -179,6 +190,12 @@ function buildResourceController(
 			ir,
 			resource,
 			route,
+			identity,
+			routeKind: determineRouteKind(
+				route,
+				identity.param,
+				canonicalBasePaths
+			),
 		})
 	);
 
@@ -198,6 +215,8 @@ interface RouteTemplateOptions {
 	readonly ir: IRv1;
 	readonly resource: IRResource;
 	readonly route: IRRoute;
+	readonly identity: ResolvedIdentity;
+	readonly routeKind: ResourceRouteKind | undefined;
 }
 
 function createRouteMethodTemplate(
@@ -207,6 +226,7 @@ function createRouteMethodTemplate(
 	const indentLevel = 1;
 	const docblock = [
 		`Handle [${options.route.method}] ${options.route.path}.`,
+		`@wp-kernel route-kind ${options.routeKind ?? 'custom'}`,
 	];
 
 	return createMethodTemplate({
@@ -217,8 +237,8 @@ function createRouteMethodTemplate(
 		body: (body) => {
 			const indent = PHP_INDENT.repeat(indentLevel + 1);
 
-			if (routeUsesIdentity(options.route, options.resource)) {
-				const param = options.resource.identity?.param ?? 'id';
+			if (routeUsesIdentity(options)) {
+				const param = options.identity.param;
 				const assign = createAssign(
 					createVariable(param),
 					createMethodCall(
@@ -309,14 +329,17 @@ function createRouteMethodTemplate(
 	});
 }
 
-function routeUsesIdentity(route: IRRoute, resource: IRResource): boolean {
-	const param = resource.identity?.param;
-	if (!param) {
-		return false;
+function routeUsesIdentity(options: RouteTemplateOptions): boolean {
+	if (
+		options.routeKind === 'get' ||
+		options.routeKind === 'update' ||
+		options.routeKind === 'remove'
+	) {
+		return true;
 	}
 
-	const placeholder = `:${param.toLowerCase()}`;
-	return route.path.toLowerCase().includes(placeholder);
+	const placeholder = `:${options.identity.param.toLowerCase()}`;
+	return options.route.path.toLowerCase().includes(placeholder);
 }
 
 function createRouteMethodName(route: IRRoute, ir: IRv1): string {
