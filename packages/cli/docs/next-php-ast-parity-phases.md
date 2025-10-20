@@ -59,14 +59,25 @@ Rebuilding the post controller starts with the non-mutating flows and the query 
 With read flows in place, port the mutating routes and the helper methods they require.
 
 - ⚠️ **Legacy guard:** mutations must be expressed entirely through AST helpers; avoid copying the legacy `createWpPostHandlers` templates or any inline PHP strings.【F:packages/cli/src/printers/php/wp-post/create.ts†L11-L68】【F:packages/cli/src/printers/php/wp-post/update.ts†L11-L85】【F:packages/cli/src/printers/php/wp-post/delete.ts†L10-L59】
-- Translate the create/update/delete handlers into AST nodes covering status validation, meta/taxonomy syncing, and cache priming exactly as the string printers did.【F:packages/cli/src/printers/php/wp-post/create.ts†L30-L68】【F:packages/cli/src/printers/php/wp-post/update.ts†L30-L85】【F:packages/cli/src/printers/php/wp-post/delete.ts†L29-L58】
-- Rebuild helper methods such as `sync${Pascal}Meta`, `sync${Pascal}Taxonomies`, and `prepare${Pascal}Response` so they can be invoked by the AST handlers, preserving behaviour like array meta resets and taxonomy loops.【F:packages/cli/src/printers/php/wp-post/helpers.ts†L6-L200】
-- Extend the metadata captured in Phase 1 to include mutation-specific artefacts (e.g., cache segment usage) when queueing programs, enabling downstream consumers to differentiate list vs. write flows.【F:packages/cli/src/printers/php/**tests**/wp-post/basic-controller.test.ts†L10-L118】
-- Update tests that currently assert string snippets to instead validate AST structure and metadata for create/update/delete scenarios, keeping verification lightweight enough to unblock rapid iterations.【F:packages/cli/src/printers/php/**tests**/wp-post/basic-controller.test.ts†L10-L118】
-- **Parallel track:** explore generating shared AST macros for try/catch-style error handling (used across mutations) so future storage domains can reuse them without reintroducing strings.【F:packages/cli/src/printers/php/wp-post/helpers.ts†L86-L184】
-- Discovery (Phase 2): The legacy resource client hard-codes HTTP verbs instead of honouring configured methods; schedule the fix while porting the next-branch client helpers so `createClient()` respects route metadata.【F:packages/core/src/resource/client.ts†L70-L205】
 
-**Expected outcome:** Post mutation routes and their helpers are emitted solely through AST builders, with channel-driven assertions proving parity while guarding against any string-based regression.
+Phase 3 now starts from the shared `ResourceMutationContract`, which fixes the mutation kinds, helper factory names, and metadata tags both tracks must respect. The contract sits alongside a placeholder `wpPost/mutations` module so each scope can land independently without fighting over ownership of the new builders.【F:packages/cli/src/next/builders/php/printers/resource/mutationContract.ts†L1-L44】【F:packages/cli/src/next/builders/php/printers/resource/wpPost/mutations/index.ts†L1-L9】
+
+### Scope 1 – Port `wp-post` mutation routes to the AST pipeline
+
+- Extend `handleRouteKind` so it recognises create, update, and delete routes instead of returning `false`, then dispatch to dedicated mutation builders that mirror the legacy control flow.【F:packages/cli/src/next/builders/php/printers/resourceController/routes/handleRouteKind.ts†L1-L62】【F:packages/cli/src/printers/php/wp-post/create.ts†L11-L68】【F:packages/cli/src/printers/php/wp-post/update.ts†L11-L85】【F:packages/cli/src/printers/php/wp-post/delete.ts†L10-L59】
+- Implement the mutation AST emitters under `packages/cli/src/next/builders/php/printers/resource/wpPost/mutations/`, covering status validation, cache priming, and taxonomy/meta synchronisation exactly as the string printers do today.【F:packages/cli/src/next/builders/php/printers/resource/wpPost/mutations/index.ts†L1-L9】【F:packages/cli/src/printers/php/wp-post/create.ts†L30-L68】【F:packages/cli/src/printers/php/wp-post/update.ts†L30-L85】【F:packages/cli/src/printers/php/wp-post/delete.ts†L29-L58】
+- Recreate helper methods such as `sync${Pascal}Meta`, `sync${Pascal}Taxonomies`, and `prepare${Pascal}Response` as reusable AST factories so the new builders keep parity with array resets, taxonomy loops, and response shaping from the legacy helpers.【F:packages/cli/src/printers/php/wp-post/helpers.ts†L6-L200】
+- Capture mutation-specific cache segments and channel metadata when queueing programs so downstream consumers can distinguish write flows during pipeline inspection.【F:packages/cli/src/next/builders/php/printers/resourceController/metadata.ts†L1-L34】【F:packages/cli/src/next/builders/php/printers/**tests**/resourceController.test.ts†L1-L118】
+- Rewrite the controller tests to run through `getPhpBuilderChannel(context).pending()` and snapshot the AST for create/update/delete routes, replacing any string assertions with structure-first checks.【F:packages/cli/src/next/builders/php/printers/**tests**/resourceController.test.ts†L1-L118】
+
+### Scope 2 – Shared mutation utilities and client transport alignment
+
+- Extract reusable try/catch-style macros and mutation guards under the `wpPost/mutations` scaffold so future storage domains inherit the same control-flow helpers without string fallbacks.【F:packages/cli/src/next/builders/php/printers/resource/wpPost/mutations/index.ts†L1-L9】【F:packages/cli/src/printers/php/wp-post/helpers.ts†L86-L188】
+- Backfill unit coverage for the shared helpers and macros to lock down the generated AST independently of the controller suites.【F:packages/cli/src/next/builders/php/printers/resource/wpPost/mutations/index.ts†L1-L9】
+- Update the resource client transport to read HTTP verbs from route metadata so create/update/remove calls honour the configured methods discovered in Phase 2.【F:packages/core/src/resource/client.ts†L70-L295】
+- Document the shared mutation contract and metadata expectations as part of the Phase 3 summary to keep the helper-first story string-free.【F:packages/cli/src/next/builders/php/printers/resource/mutationContract.ts†L1-L44】
+
+**Expected outcome:** Post mutation routes and their helpers are emitted solely through AST builders that honour the shared mutation contract, with channel-driven assertions proving parity while guarding against any string-based regression.【F:packages/cli/src/next/builders/php/printers/resource/mutationContract.ts†L1-L44】
 
 ## Phase 4 – `wp-taxonomy` read pipeline and pagination helpers
 
