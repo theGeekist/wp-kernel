@@ -40,8 +40,6 @@ const USE_KIND_TO_TYPE: Record<UseKind, number> = {
 	const: 3,
 };
 
-let compatibilityKey = 0;
-
 export interface PhpAstBuilderAdapter extends PhpAstBuilder {
 	readonly context: PhpAstContext;
 }
@@ -115,70 +113,6 @@ export function createPhpFileBuilder(
 	return createPhpProgramBuilder(options);
 }
 
-export class PhpFileBuilder implements PhpAstBuilderAdapter {
-	public readonly context: PhpAstContext;
-
-	private readonly entry: PhpAstContextEntry;
-
-	public constructor(namespace: string, metadata: PhpFileMetadata) {
-		this.entry = {
-			key: `compat:${compatibilityKey++}`,
-			filePath: '',
-			metadata,
-			context: createEmptyContext(namespace),
-		};
-		this.context = this.entry.context;
-	}
-
-	public getNamespace(): string {
-		return formatNamespace(this.context.namespaceParts);
-	}
-
-	public setNamespace(namespace: string): void {
-		setNamespaceParts(this.context, namespace);
-	}
-
-	public addUse(
-		statement: string,
-		options: { alias?: string | null; kind?: UseKind } = {}
-	): void {
-		const parsed = normaliseUse(statement, options);
-		if (!parsed) {
-			return;
-		}
-
-		addUseEntry(this.context, parsed);
-	}
-
-	public appendDocblock(line: string): void {
-		appendDocblockLine(this.context, line);
-	}
-
-	public appendStatement(statement: string): void {
-		appendStatementLine(this.context, statement);
-	}
-
-	public appendProgramStatement(statement: PhpStmt): void {
-		appendProgramStatement(this.context, statement);
-	}
-
-	public getStatements(): readonly string[] {
-		return [...this.context.statementLines];
-	}
-
-	public getMetadata(): PhpFileMetadata {
-		return this.entry.metadata;
-	}
-
-	public getProgramAst(): PhpProgram {
-		return finaliseProgram(this.context);
-	}
-
-	public getNamespaceParts(): readonly string[] {
-		return [...this.context.namespaceParts];
-	}
-}
-
 function createAdapter(entry: PhpAstContextEntry): PhpAstBuilderAdapter {
 	const { context } = entry;
 
@@ -220,19 +154,6 @@ function createAdapter(entry: PhpAstContextEntry): PhpAstBuilderAdapter {
 			return finaliseProgram(context);
 		},
 	} satisfies PhpAstBuilderAdapter;
-}
-
-function createEmptyContext(namespace: string): PhpAstContext {
-	return {
-		namespaceParts: namespace
-			.split('\\')
-			.map((part) => part.trim())
-			.filter((part) => part.length > 0),
-		docblockLines: [],
-		uses: new Map<string, ProgramUse>(),
-		statements: [],
-		statementLines: [],
-	};
 }
 
 function finaliseProgram(context: PhpAstContext): PhpProgram {

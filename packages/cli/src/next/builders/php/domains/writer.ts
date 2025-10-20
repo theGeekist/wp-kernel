@@ -1,12 +1,12 @@
 import path from 'node:path';
-import type { PhpFileBuilder } from '@wpkernel/cli/next/builders/php/ast/programBuilder';
+import type { PhpAstBuilderAdapter } from '@wpkernel/cli/next/builders/php/ast/programBuilder';
 import type { PrinterContext } from '../../../../printers/types';
 import { ensureAdapterContext } from '../../../../printers/php/context';
 import { KernelError } from '@wpkernel/core/error';
 
 export async function writePhpArtifact(
 	filePath: string,
-	builder: PhpFileBuilder,
+	builder: PhpAstBuilderAdapter,
 	context: PrinterContext
 ): Promise<void> {
 	const adapterContext = ensureAdapterContext(context);
