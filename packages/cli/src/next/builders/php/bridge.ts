@@ -3,20 +3,15 @@ import { spawn } from 'node:child_process';
 import { KernelError } from '@wpkernel/core/error';
 import type { Workspace } from '../../workspace/types';
 import type {
-	PhpPrettyPrintOptions,
+	PhpPrettyPrintPayload,
 	PhpPrettyPrintResult,
-} from '../../../printers/types';
+	PhpPrettyPrinter,
+} from './bridgeTypes';
 
 interface CreatePhpPrettyPrinterOptions {
 	readonly workspace: Workspace;
 	readonly phpBinary?: string;
 	readonly scriptPath?: string;
-}
-
-interface PhpPrettyPrinter {
-	prettyPrint: (
-		payload: PhpPrettyPrintOptions
-	) => Promise<PhpPrettyPrintResult>;
 }
 
 function resolveDefaultScriptPath(): string {
@@ -31,7 +26,7 @@ export function createPhpPrettyPrinter(
 	const defaultMemoryLimit = process.env.PHP_MEMORY_LIMIT ?? '512M';
 
 	async function prettyPrint(
-		payload: PhpPrettyPrintOptions
+		payload: PhpPrettyPrintPayload
 	): Promise<PhpPrettyPrintResult> {
 		ensureValidPayload(payload);
 
@@ -60,7 +55,7 @@ export function createPhpPrettyPrinter(
 
 		const input = JSON.stringify({
 			file: payload.filePath,
-			ast: payload.ast,
+			ast: payload.program,
 		});
 
 		let stdout = '';
@@ -105,10 +100,10 @@ export function createPhpPrettyPrinter(
 	};
 }
 
-function ensureValidPayload(payload: PhpPrettyPrintOptions): void {
-	const { ast } = payload;
+function ensureValidPayload(payload: PhpPrettyPrintPayload): void {
+	const { program } = payload;
 
-	if (!Array.isArray(ast)) {
+	if (!Array.isArray(program)) {
 		throw new KernelError('DeveloperError', {
 			message: 'PHP pretty printer requires an AST payload.',
 			data: {
@@ -117,7 +112,7 @@ function ensureValidPayload(payload: PhpPrettyPrintOptions): void {
 		});
 	}
 
-	ast.forEach((node, index) => {
+	program.forEach((node, index) => {
 		if (!node || typeof node !== 'object') {
 			throw createInvalidNodeError(payload.filePath, index);
 		}

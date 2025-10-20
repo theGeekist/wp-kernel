@@ -17,9 +17,9 @@ import {
 
 jest.mock('../php/bridge', () => ({
 	createPhpPrettyPrinter: jest.fn(() => ({
-		prettyPrint: jest.fn(async ({ ast }) => ({
+		prettyPrint: jest.fn(async ({ program }) => ({
 			code: '<?php\n// pretty printed base controller\n',
-			ast,
+			ast: program,
 		})),
 	})),
 }));
@@ -102,9 +102,9 @@ const ir: IRv1 = {
 };
 
 function setupPrettyPrinterMock() {
-	const prettyPrint = jest.fn(async ({ ast }) => ({
+	const prettyPrint = jest.fn(async ({ program }) => ({
 		code: '<?php\n// pretty printed base controller\n',
-		ast,
+		ast: program,
 	}));
 	createPhpPrettyPrinterMock.mockReturnValueOnce({ prettyPrint });
 	return prettyPrint;
@@ -267,7 +267,7 @@ describe('createPhpBuilder', () => {
 			([payload]) => payload.filePath === baseControllerPath
 		);
 		expect(baseControllerCall).toBeDefined();
-		expect(baseControllerCall?.[0].ast).toMatchSnapshot(
+		expect(baseControllerCall?.[0].program).toMatchSnapshot(
 			'base-controller-ast'
 		);
 

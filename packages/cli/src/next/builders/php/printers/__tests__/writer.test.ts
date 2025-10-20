@@ -13,9 +13,9 @@ import { createPhpPrettyPrinter } from '../../bridge';
 
 jest.mock('../../bridge', () => ({
 	createPhpPrettyPrinter: jest.fn(() => ({
-		prettyPrint: jest.fn(async ({ ast }) => ({
+		prettyPrint: jest.fn(async ({ program }) => ({
 			code: '<?php\n// generated\n',
-			ast,
+			ast: program,
 		})),
 	})),
 }));
@@ -110,7 +110,7 @@ describe('createPhpProgramWriterHelper', () => {
 		const prettyPrinter = createPhpPrettyPrinterMock.mock.results[0].value;
 		expect(prettyPrinter.prettyPrint).toHaveBeenCalledWith({
 			filePath: '/workspace/.generated/php/Writer.php',
-			ast: program,
+			program,
 		});
 
 		expect(context.workspace.write).toHaveBeenCalledWith(

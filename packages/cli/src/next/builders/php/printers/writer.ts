@@ -26,7 +26,7 @@ export function createPhpProgramWriterHelper(): BuilderHelper {
 			for (const action of pending) {
 				const { code, ast } = await prettyPrinter.prettyPrint({
 					filePath: action.file,
-					ast: action.program,
+					program: action.program,
 				});
 
 				const finalAst = ast ?? action.program;
