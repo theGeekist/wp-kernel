@@ -14,6 +14,23 @@ export interface ResourceControllerMetadata {
 		readonly param: string;
 	};
 	readonly routes: readonly ResourceControllerRouteMetadata[];
+	readonly cache?: ResourceControllerCacheMetadata;
+}
+
+export type ResourceControllerCacheScope =
+	ResourceControllerRouteMetadata['kind'];
+
+export type ResourceControllerCacheOperation = 'read' | 'prime' | 'invalidate';
+
+export interface ResourceControllerCacheEvent {
+	readonly scope: ResourceControllerCacheScope;
+	readonly operation: ResourceControllerCacheOperation;
+	readonly segments: readonly string[];
+	readonly description?: string;
+}
+
+export interface ResourceControllerCacheMetadata {
+	readonly events: readonly ResourceControllerCacheEvent[];
 }
 
 export interface GenericPhpFileMetadata {
