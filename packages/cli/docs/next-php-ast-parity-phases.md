@@ -45,7 +45,9 @@ Before we reimplement controllers, the AST helpers need the same normalisation s
 Rebuilding the post controller starts with the non-mutating flows and the query helpers they depend on.
 
 - ⚠️ **Legacy guard:** do not introduce any string concatenation or revive the legacy `buildWpPostMethods` printer; all route logic must flow through `createPhpFileBuilder` helpers and the shared AST context.【F:packages/cli/src/printers/php/wp-post/handlers.ts†L12-L55】
-- Recreate the shared query builders (query arg normalisation, cache key derivation, identity lookup) as AST-focused utilities so list/get routes can reuse them without pulling in the string templates.【F:packages/cli/src/printers/php/wp-post/list.ts†L1-L86】【F:packages/cli/src/printers/php/wp-post/get.ts†L1-L47】
+- Recreate the shared query builders (query arg normalisation, cache key derivation, identity lookup) as AST-focused utilities so list/get routes can reuse them without pulling in the string templates.【F:packages/cli/src/printers/php/wp-post/list.ts†L1-L86】【F:packages/cli/src/printers/php/wp-post/get.ts†L1-L47】 Introduce these helpers under the general-purpose `packages/cli/src/next/builders/php/printers/resource/` namespace-`createQueryArgsAssignment`, `createPaginationNormalisation`, `createPageExpression`, and `createWpQueryExecution`-so future controllers can share pagination maths, request normalisation, and cache metadata wiring without reinventing `wp-post`-specific scaffolding.
+- Extract meta and taxonomy query assembly plus list population into reusable helpers under `packages/cli/src/next/builders/php/printers/resource/wpPost/` so the controller bodies consume a single AST implementation instead of repeating inline builders while keeping the pipeline string-free.
+- Introduce shared identity validation and error-response helpers so controllers reuse a common AST surface for `WP_Error` branches and identifier guards instead of re-encoding the legacy string templates.
 - Implement AST versions of the list and get route handlers (`createListMethod`, `createGetMethod`) that cover pagination, filtering, and cache invalidation exactly as the legacy templates do.【F:packages/cli/src/printers/php/wp-post/list.ts†L11-L86】【F:packages/cli/src/printers/php/wp-post/get.ts†L10-L47】
 - Convert the associated tests to exercise the helper pipeline: feed IR into `createResourceControllerHelper`, pull programs from `getPhpBuilderChannel(context).pending()`, and snapshot the AST to prove the read flows are string-free.【F:packages/cli/src/printers/php/**tests**/wp-post/basic-controller.test.ts†L10-L118】
 - **Parallel track:** build reusable AST factories for `WP_Query` construction and cache metadata mutation so subsequent phases can focus on behaviour rather than boilerplate.【F:packages/cli/src/printers/php/wp-post/list.ts†L44-L84】
@@ -62,6 +64,7 @@ With read flows in place, port the mutating routes and the helper methods they r
 - Extend the metadata captured in Phase 1 to include mutation-specific artefacts (e.g., cache segment usage) when queueing programs, enabling downstream consumers to differentiate list vs. write flows.【F:packages/cli/src/printers/php/**tests**/wp-post/basic-controller.test.ts†L10-L118】
 - Update tests that currently assert string snippets to instead validate AST structure and metadata for create/update/delete scenarios, keeping verification lightweight enough to unblock rapid iterations.【F:packages/cli/src/printers/php/**tests**/wp-post/basic-controller.test.ts†L10-L118】
 - **Parallel track:** explore generating shared AST macros for try/catch-style error handling (used across mutations) so future storage domains can reuse them without reintroducing strings.【F:packages/cli/src/printers/php/wp-post/helpers.ts†L86-L184】
+- Discovery (Phase 2): The legacy resource client hard-codes HTTP verbs instead of honouring configured methods; schedule the fix while porting the next-branch client helpers so `createClient()` respects route metadata.【F:packages/core/src/resource/client.ts†L70-L205】
 
 **Expected outcome:** Post mutation routes and their helpers are emitted solely through AST builders, with channel-driven assertions proving parity while guarding against any string-based regression.
 
@@ -118,7 +121,7 @@ Once every domain helper emits AST with parity, the legacy string builders can f
 Document the status of each phase once completed, emphasising that the helper-first AST pipeline remained string-free throughout the work:
 
 - **Phase 1 summary:** Resolved identity defaults and canonical route classification within the helper pipeline, recording route metadata on queued programs and updating tests to inspect queued AST programs while keeping the branch free of any legacy string-based PHP generation.【F:packages/cli/docs/next-php-ast-parity-phases.md†L37-L58】【F:packages/cli/src/next/builders/php/printers/resourceController.ts†L203-L307】
-- **Phase 2 summary:** _Pending_
+- **Phase 2 summary:** Implemented wp-post list/get handlers in the AST pipeline using the shared resource query helpers for pagination, filter normalisation, identity validation, and cache metadata, keeping the new builders string-free while matching the legacy behaviour.【F:packages/cli/src/next/builders/php/printers/resourceController.ts†L520-L870】【F:packages/cli/src/next/builders/php/printers/resource/query.ts†L1-L214】
 - **Phase 3 summary:** _Pending_
 - **Phase 4 summary:** _Pending_
 - **Phase 5 summary:** _Pending_
