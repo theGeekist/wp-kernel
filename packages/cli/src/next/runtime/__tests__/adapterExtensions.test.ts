@@ -10,28 +10,15 @@ import type {
 import { createAdapterExtensionsExtension } from '../adapterExtensions';
 import { runAdapterExtensions } from '../../../adapters';
 import { mkdir } from 'node:fs/promises';
-import { createPhpPrettyPrinter } from '../../builders/phpBridge';
 import { createTsFormatter } from '../../builders/ts';
 
 jest.mock('../../../adapters', () => ({
 	runAdapterExtensions: jest.fn(),
 }));
 
-const prettyPrintMock = jest.fn(
-	async (payload: { filePath: string; code: string }) => ({
-		code: payload.code,
-	})
-);
-
 const tsFormatterFormatMock = jest.fn(
 	async (options: { filePath: string; contents: string }) => options.contents
 );
-
-jest.mock('../../builders/phpBridge', () => ({
-	createPhpPrettyPrinter: jest.fn(() => ({
-		prettyPrint: prettyPrintMock,
-	})),
-}));
 
 jest.mock('../../builders/ts', () => ({
 	createTsFormatter: jest.fn(() => ({
@@ -47,10 +34,6 @@ const runAdapterExtensionsMock = runAdapterExtensions as jest.MockedFunction<
 	typeof runAdapterExtensions
 >;
 const mkdirMock = mkdir as jest.MockedFunction<typeof mkdir>;
-const createPhpPrettyPrinterMock =
-	createPhpPrettyPrinter as jest.MockedFunction<
-		typeof createPhpPrettyPrinter
-	>;
 const createTsFormatterMock = createTsFormatter as jest.MockedFunction<
 	typeof createTsFormatter
 >;
@@ -131,7 +114,6 @@ function createHook(config: KernelConfigV1): {
 
 beforeEach(() => {
 	jest.clearAllMocks();
-	prettyPrintMock.mockClear();
 	tsFormatterFormatMock.mockClear();
 });
 
@@ -271,7 +253,6 @@ describe('createAdapterExtensionsExtension', () => {
 			{ ensureDir: true }
 		);
 
-		expect(prettyPrintMock).not.toHaveBeenCalled();
 		expect(tsFormatterFormatMock).not.toHaveBeenCalled();
 	});
 
@@ -386,16 +367,13 @@ describe('createAdapterExtensionsExtension', () => {
 		await hook(options);
 
 		const args = runAdapterExtensionsMock.mock.calls[0]?.[0];
-		await args?.formatPhp('file.php', '<?php echo 1; ?>');
+		const formattedPhp = await args?.formatPhp(
+			'file.php',
+			'<?php echo 1; ?>'
+		);
 		await args?.formatTs('file.ts', 'export const value = 1;');
 
-		expect(createPhpPrettyPrinterMock).toHaveBeenCalledWith({
-			workspace: options.context.workspace,
-		});
-		expect(prettyPrintMock).toHaveBeenCalledWith({
-			filePath: 'file.php',
-			code: '<?php echo 1; ?>',
-		});
+		expect(formattedPhp).toBe('<?php echo 1; ?>');
 		expect(createTsFormatterMock).toHaveBeenCalledTimes(1);
 		expect(tsFormatterFormatMock).toHaveBeenCalledWith({
 			filePath: 'file.ts',
