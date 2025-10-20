@@ -12,6 +12,7 @@ import {
 	type PhpStmt,
 	type PhpStmtClass,
 	type PhpStmtClassMethod,
+	type PhpClassStmt,
 	type PhpType,
 } from './nodes';
 import { createPrintable, type PhpPrintable } from './printables';
@@ -216,6 +217,7 @@ export interface PhpClassTemplateOptions {
 	readonly extends?: PhpName | string | readonly string[] | null;
 	readonly implements?: ReadonlyArray<PhpName | string | readonly string[]>;
 	readonly methods?: readonly PhpMethodTemplate[];
+	readonly members?: readonly PhpPrintable<PhpClassStmt>[];
 	readonly attrGroups?: readonly PhpAttrGroup[];
 	readonly attributes?: PhpAttributes;
 }
@@ -235,15 +237,21 @@ export function createClassTemplate(
 		.map(normaliseName)
 		.filter((name): name is PhpName => Boolean(name));
 
+	const classMembers = options.members ?? [];
 	const classNode = createClass(
 		createIdentifier(options.name),
 		{
 			flags: options.flags ?? 0,
 			extends: extendsName,
 			implements: implementsNames,
-			stmts: methods
-				.map((method) => method.node)
-				.filter((node): node is PhpStmtClassMethod => Boolean(node)),
+			stmts: [
+				...classMembers.map((member) => member.node),
+				...methods
+					.map((method) => method.node)
+					.filter((node): node is PhpStmtClassMethod =>
+						Boolean(node)
+					),
+			],
 			attrGroups: options.attrGroups ? [...options.attrGroups] : [],
 		},
 		classAttributes
@@ -272,6 +280,16 @@ export function createClassTemplate(
 
 	lines.push(signature);
 	lines.push('{');
+
+	classMembers.forEach((member, index) => {
+		member.lines.forEach((line) => lines.push(line));
+
+		const needsSpacing =
+			index < classMembers.length - 1 || methods.length > 0;
+		if (needsSpacing && member.lines[member.lines.length - 1] !== '') {
+			lines.push('');
+		}
+	});
 
 	methods.forEach((method, index) => {
 		method.forEach((line) => lines.push(line));

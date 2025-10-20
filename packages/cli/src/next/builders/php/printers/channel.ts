@@ -1,11 +1,16 @@
 import type { PipelineContext } from '../../../runtime/types';
 import type { PhpProgram } from '../ast/nodes';
+import type { PhpFileMetadata } from '../ast/types';
 
 const PHP_CHANNEL_SYMBOL = Symbol('@wpkernel/next/php/channel');
 
 export interface PhpProgramAction {
 	readonly file: string;
 	readonly program: PhpProgram;
+	readonly metadata: PhpFileMetadata;
+	readonly docblock: readonly string[];
+	readonly uses: readonly string[];
+	readonly statements: readonly string[];
 }
 
 export interface PhpBuilderChannel {

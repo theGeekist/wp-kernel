@@ -1,15 +1,35 @@
 import type { PhpNode, PhpProgram, PhpStmt } from './nodes';
 
-export interface PhpFileMetadata {
-	kind:
+export interface ResourceControllerRouteMetadata {
+	readonly method: string;
+	readonly path: string;
+	readonly kind: 'list' | 'get' | 'create' | 'update' | 'remove' | 'custom';
+}
+
+export interface ResourceControllerMetadata {
+	readonly kind: 'resource-controller';
+	readonly name: string;
+	readonly identity: {
+		readonly type: 'number' | 'string';
+		readonly param: string;
+	};
+	readonly routes: readonly ResourceControllerRouteMetadata[];
+}
+
+export interface GenericPhpFileMetadata {
+	readonly kind:
 		| 'base-controller'
-		| 'resource-controller'
 		| 'persistence-registry'
 		| 'block-manifest'
 		| 'block-registrar'
-		| 'policy-helper';
-	name?: string;
+		| 'policy-helper'
+		| 'index-file';
+	readonly name?: string;
 }
+
+export type PhpFileMetadata =
+	| GenericPhpFileMetadata
+	| ResourceControllerMetadata;
 
 export interface PhpAstBuilder {
 	getNamespace: () => string;
@@ -20,6 +40,7 @@ export interface PhpAstBuilder {
 	appendProgramStatement: (statement: PhpStmt) => void;
 	getStatements: () => readonly string[];
 	getMetadata: () => PhpFileMetadata;
+	setMetadata: (metadata: PhpFileMetadata) => void;
 	getProgramAst: () => PhpProgram;
 }
 
