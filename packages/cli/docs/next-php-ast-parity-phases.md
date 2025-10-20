@@ -40,47 +40,76 @@ Before we reimplement controllers, the AST helpers need the same normalisation s
 
 **Expected outcome:** Helper utilities resolve resource identity and route metadata inside the AST context, and the builder tests assert against the queued programs without adding any legacy string emitters.
 
-## Phase 2 – `wp-post` domain helpers
+## Phase 2 – `wp-post` read pipeline and shared query utilities
 
-The WordPress post controller remains the largest gap-today every REST route just returns “Not Implemented.”
+Rebuilding the post controller starts with the non-mutating flows and the query helpers they depend on.
 
-- ⚠️ **Legacy guard:** controllers must be rebuilt purely with `createPhpFileBuilder` helpers; never recreate the legacy string templates or reuse any string concatenation snippets.
-- Translate `createWpPostHandlers` and its method builders (`createListMethod`, `createCreateMethod`, etc.) into AST-producing helpers that run inside `createPhpFileBuilder` so each CRUD route emits the same control flow, meta/taxonomy synchronisation, and cache handling as before.【F:packages/cli/src/printers/php/wp-post/handlers.ts†L13-L44】【F:packages/cli/src/printers/php/wp-post/create.ts†L11-L68】
-- Carry over the helper methods (status normalisation, identity resolution, taxonomy syncing) so the generated classes match the expectations encoded in the legacy assertions.【F:packages/cli/src/printers/php/**tests**/wp-post/basic-controller.test.ts†L11-L118】
-- Replace the string-based tests with AST assertions: feed the same IR into the helper pipeline, collect the pending programs from the channel, and snapshot the resulting nodes so we can diff behaviour safely during follow-up refactors.
+- ⚠️ **Legacy guard:** do not introduce any string concatenation or revive the legacy `buildWpPostMethods` printer; all route logic must flow through `createPhpFileBuilder` helpers and the shared AST context.【F:packages/cli/src/printers/php/wp-post/handlers.ts†L12-L55】
+- Recreate the shared query builders (query arg normalisation, cache key derivation, identity lookup) as AST-focused utilities so list/get routes can reuse them without pulling in the string templates.【F:packages/cli/src/printers/php/wp-post/list.ts†L1-L86】【F:packages/cli/src/printers/php/wp-post/get.ts†L1-L47】
+- Implement AST versions of the list and get route handlers (`createListMethod`, `createGetMethod`) that cover pagination, filtering, and cache invalidation exactly as the legacy templates do.【F:packages/cli/src/printers/php/wp-post/list.ts†L11-L86】【F:packages/cli/src/printers/php/wp-post/get.ts†L10-L47】
+- Convert the associated tests to exercise the helper pipeline: feed IR into `createResourceControllerHelper`, pull programs from `getPhpBuilderChannel(context).pending()`, and snapshot the AST to prove the read flows are string-free.【F:packages/cli/src/printers/php/**tests**/wp-post/basic-controller.test.ts†L10-L118】
+- **Parallel track:** build reusable AST factories for `WP_Query` construction and cache metadata mutation so subsequent phases can focus on behaviour rather than boilerplate.【F:packages/cli/src/printers/php/wp-post/list.ts†L44-L84】
 
-**Expected outcome:** Post controllers queue fully populated `PhpProgram` ASTs matching the legacy behaviour, validated through channel-driven snapshots, with zero reliance on string printers.
+**Expected outcome:** List and get handlers emit complete `PhpProgram` ASTs with shared query utilities, and the channel-based tests confirm parity without any reliance on string printers.
 
-## Phase 3 – `wp-taxonomy` domain helpers
+## Phase 3 – `wp-post` mutation pipeline and helper methods
 
-Taxonomy controllers handle pagination, query argument merging, and term preparation, none of which exist in the new helper yet.
+With read flows in place, port the mutating routes and the helper methods they require.
 
-- ⚠️ **Legacy guard:** do not backslide into string concatenation for taxonomy responses; all pagination, validation, and term preparation must be expressed as AST nodes produced by helper stages.
-- Port the taxonomy-specific method builders (list/create/update/delete) so they emit AST blocks that mirror the loop and validation logic from the legacy templates.【F:packages/cli/src/printers/php/wp-taxonomy/methods/list.ts†L4-L72】
-- Recreate the shared helpers (`prepare${Pascal}TermResponse`, capability guards, etc.) inside the AST context to maintain parity with the legacy pipelines’ behaviour.
-- Migrate the taxonomy test suite to build programs through `createPhpResourceControllerHelper` and assert against the channel output, ensuring pagination math and guard rails survive the conversion.
+- ⚠️ **Legacy guard:** mutations must be expressed entirely through AST helpers; avoid copying the legacy `createWpPostHandlers` templates or any inline PHP strings.【F:packages/cli/src/printers/php/wp-post/create.ts†L11-L68】【F:packages/cli/src/printers/php/wp-post/update.ts†L11-L85】【F:packages/cli/src/printers/php/wp-post/delete.ts†L10-L59】
+- Translate the create/update/delete handlers into AST nodes covering status validation, meta/taxonomy syncing, and cache priming exactly as the string printers did.【F:packages/cli/src/printers/php/wp-post/create.ts†L30-L68】【F:packages/cli/src/printers/php/wp-post/update.ts†L30-L85】【F:packages/cli/src/printers/php/wp-post/delete.ts†L29-L58】
+- Rebuild helper methods such as `sync${Pascal}Meta`, `sync${Pascal}Taxonomies`, and `prepare${Pascal}Response` so they can be invoked by the AST handlers, preserving behaviour like array meta resets and taxonomy loops.【F:packages/cli/src/printers/php/wp-post/helpers.ts†L6-L200】
+- Extend the metadata captured in Phase 1 to include mutation-specific artefacts (e.g., cache segment usage) when queueing programs, enabling downstream consumers to differentiate list vs. write flows.【F:packages/cli/src/printers/php/**tests**/wp-post/basic-controller.test.ts†L10-L118】
+- Update tests that currently assert string snippets to instead validate AST structure and metadata for create/update/delete scenarios, keeping verification lightweight enough to unblock rapid iterations.【F:packages/cli/src/printers/php/**tests**/wp-post/basic-controller.test.ts†L10-L118】
+- **Parallel track:** explore generating shared AST macros for try/catch-style error handling (used across mutations) so future storage domains can reuse them without reintroducing strings.【F:packages/cli/src/printers/php/wp-post/helpers.ts†L86-L184】
 
-**Expected outcome:** Taxonomy helpers reproduce the legacy pagination and validation logic entirely through AST builders, with tests confirming parity and no string renderers present.
+**Expected outcome:** Post mutation routes and their helpers are emitted solely through AST builders, with channel-driven assertions proving parity while guarding against any string-based regression.
 
-## Phase 4 – Option and transient storage helpers
+## Phase 4 – `wp-taxonomy` read pipeline and pagination helpers
+
+Taxonomy controllers require list/get flows with pagination, query merging, and term shaping.
+
+- ⚠️ **Legacy guard:** keep pagination, capability checks, and term preparation within AST helpers; no string fallbacks or legacy template reuse is permitted.【F:packages/cli/src/printers/php/wp-taxonomy/methods/list.ts†L4-L73】【F:packages/cli/src/printers/php/wp-taxonomy/methods/get.ts†L4-L88】
+- Port the taxonomy list/get handlers to AST, including pagination bounds, parameter filtering, and term response shaping mirroring the string templates.【F:packages/cli/src/printers/php/wp-taxonomy/methods/list.ts†L4-L73】【F:packages/cli/src/printers/php/wp-taxonomy/methods/get.ts†L4-L88】
+- Recreate shared helpers such as `prepare${Pascal}TermResponse` and capability guards as AST utilities so they can be shared with the mutation routes.【F:packages/cli/src/printers/php/wp-taxonomy/helpers.ts†L6-L188】
+- Shift taxonomy read tests to the helper pipeline, snapshotting the queued AST programs to confirm pagination math and response shaping remain intact.【F:packages/cli/src/printers/php/**tests**/wp-taxonomy-controller.test.ts†L6-L95】
+- **Parallel track:** document reusable AST helpers (pagination maths, term transformation) for other storage modes to consume later.【F:packages/cli/src/printers/php/wp-taxonomy/helpers.ts†L120-L188】
+
+**Expected outcome:** Taxonomy list/get handlers emit accurate AST, supported by helper-based pagination utilities and channel assertions, with no string-based generation anywhere in `next/*`.
+
+## Phase 5 – `wp-taxonomy` mutation pipeline and shared term helpers
+
+After the read routes, complete taxonomy parity by porting mutations and their supporting utilities.
+
+- ⚠️ **Legacy guard:** mutations must use AST nodes for validation, insertion, and deletion; string concatenation remains prohibited throughout the branch.【F:packages/cli/src/printers/php/wp-taxonomy/methods/create.ts†L4-L124】【F:packages/cli/src/printers/php/wp-taxonomy/methods/update.ts†L4-L146】【F:packages/cli/src/printers/php/wp-taxonomy/methods/delete.ts†L4-L110】
+- Translate create/update/delete term handlers to AST, including capability checks, slug uniqueness, and error propagation mirroring the legacy implementations.【F:packages/cli/src/printers/php/wp-taxonomy/methods/create.ts†L30-L124】【F:packages/cli/src/printers/php/wp-taxonomy/methods/update.ts†L28-L146】【F:packages/cli/src/printers/php/wp-taxonomy/methods/delete.ts†L26-L110】
+- Implement AST helpers for taxonomy mutation workflows (e.g., `resolve${Pascal}Term`, term meta syncing) so controllers can reuse them without string templates.【F:packages/cli/src/printers/php/wp-taxonomy/helpers.ts†L86-L188】
+- Update mutation-focused tests to consume `getPhpBuilderChannel(context).pending()` and assert that the queued AST matches expectations for error branches and success responses.【F:packages/cli/src/printers/php/**tests**/wp-taxonomy-controller.test.ts†L6-L95】
+- **Parallel track:** coordinate with Phase 6 contributors to share error-handling AST macros and response helpers across storage domains.【F:packages/cli/src/printers/php/wp-taxonomy/helpers.ts†L86-L188】
+
+**Expected outcome:** Taxonomy mutation routes and helpers generate complete AST programs with behaviour identical to the string printers, validated through channel-based assertions and firmly free of legacy string builders.
+
+## Phase 6 – Option and transient storage helpers
 
 Resources backed by options and transients still rely on the legacy printer to generate getters, setters, and helper utilities.
 
-- ⚠️ **Legacy guard:** option and transient helpers must emit AST for every storage interaction; introducing string fallbacks or legacy helper invocations is prohibited.
-- Port `createWpOptionHandlers` so option-backed routes expose the same get/update/unsupported flow, including autoload normalisation and error codes.【F:packages/cli/src/printers/php/wp-option.ts†L31-L190】
-- Port `createTransientHandlers` with its transient key derivation, expiration handling, and error fallbacks.【F:packages/cli/src/printers/php/transient.ts†L28-L204】
-- Update the associated tests to execute through the helper pipeline and assert the AST captures `get_option`, `set_transient`, and related calls just as the legacy string snapshots do.【F:packages/cli/src/printers/php/**tests**/wp-option-controller.test.ts†L6-L74】【F:packages/cli/src/printers/php/**tests**/transient-controller.test.ts†L6-L69】
+- ⚠️ **Legacy guard:** option and transient helpers must emit AST for every storage interaction; introducing string fallbacks or legacy helper invocations is prohibited.【F:packages/cli/src/printers/php/wp-option.ts†L31-L190】【F:packages/cli/src/printers/php/transient.ts†L28-L184】
+- Port `createWpOptionHandlers` so option-backed routes expose the same get/update/unsupported flow, including autoload normalisation and error codes, as AST builders.【F:packages/cli/src/printers/php/wp-option.ts†L31-L190】
+- Port `createTransientHandlers` with its transient key derivation, expiration handling, and error fallbacks, producing AST nodes for every branch.【F:packages/cli/src/printers/php/transient.ts†L28-L184】
+- Update the associated tests to execute through the helper pipeline and assert the AST captures `get_option`, `set_transient`, and related calls just as the legacy string snapshots do.【F:packages/cli/src/printers/php/**tests**/wp-option-controller.test.ts†L6-L74】【F:packages/cli/src/printers/php/**tests**/transient-controller.test.ts†L6-L70】
+- **Parallel track:** extract reusable AST helpers for error code construction and autoload/expiration normalisation so other storage types can adopt them without duplicating strings.【F:packages/cli/src/printers/php/wp-option.ts†L45-L170】【F:packages/cli/src/printers/php/transient.ts†L42-L162】
 
 **Expected outcome:** Option and transient controllers are emitted exclusively via AST helpers with full behavioural parity, verified through channel assertions and without any string-based builders.
 
-## Phase 5 – Decommission the legacy printers
+## Phase 7 – Decommission the legacy printers
 
 Once every domain helper emits AST with parity, the legacy string builders can finally disappear.
 
-- ⚠️ **Legacy guard:** the decommissioning work must physically remove string printer modules and prevent them from being re-imported anywhere under `next/*`.
-- Remove the remaining exports under `packages/cli/src/printers/php/**` and reroute any callers to the helper-first modules, keeping only the pieces still needed for golden comparisons.
-- Delete the string-based fixtures after migrating each suite to `getPhpBuilderChannel(context).pending()` so coverage focuses on AST output instead of rendered PHP.
+- ⚠️ **Legacy guard:** the decommissioning work must physically remove string printer modules and prevent them from being re-imported anywhere under `next/*`.【F:packages/cli/src/printers/php/wp-post/handlers.ts†L12-L55】
+- Remove the remaining exports under `packages/cli/src/printers/php/**` and reroute any callers to the helper-first modules, keeping only the pieces still needed for golden comparisons.【F:packages/cli/src/printers/php/wp-post/handlers.ts†L12-L55】
+- Delete the string-based fixtures after migrating each suite to `getPhpBuilderChannel(context).pending()` so coverage focuses on AST output instead of rendered PHP.【F:packages/cli/src/printers/php/**tests**/wp-post/basic-controller.test.ts†L10-L118】
 - Finish by regenerating the end-to-end fixtures (AST JSON and pretty-printed PHP) through the helper pipeline to prove the parity work is complete.
+- **Parallel track:** coordinate with documentation owners to update migration guides and ensure no developer workflow references the removed string printers.【F:packages/cli/docs/next-php-ast-parity-phases.md†L5-L33】
 
 **Expected outcome:** The repository no longer contains string-based PHP printers; all artefacts flow through AST helpers, and the build/test suites rely solely on the helper-first pipeline.
 
@@ -88,8 +117,10 @@ Once every domain helper emits AST with parity, the legacy string builders can f
 
 Document the status of each phase once completed, emphasising that the helper-first AST pipeline remained string-free throughout the work:
 
-- **Phase 1 summary:** Resolved identity defaults and canonical route classification within the helper pipeline, recording route metadata on queued programs and updating tests to inspect queued AST programs while keeping the branch free of any legacy string-based PHP generation.
+- **Phase 1 summary:** Resolved identity defaults and canonical route classification within the helper pipeline, recording route metadata on queued programs and updating tests to inspect queued AST programs while keeping the branch free of any legacy string-based PHP generation.【F:packages/cli/docs/next-php-ast-parity-phases.md†L37-L58】【F:packages/cli/src/next/builders/php/printers/resourceController.ts†L203-L307】
 - **Phase 2 summary:** _Pending_
 - **Phase 3 summary:** _Pending_
 - **Phase 4 summary:** _Pending_
 - **Phase 5 summary:** _Pending_
+- **Phase 6 summary:** _Pending_
+- **Phase 7 summary:** _Pending_
