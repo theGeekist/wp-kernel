@@ -12,7 +12,7 @@ import {
 	createMethodTemplate,
 	PHP_INDENT,
 } from '../templates';
-import { createPhpFileBuilder, PhpFileBuilder } from '../programBuilder';
+import { createPhpFileBuilder } from '../programBuilder';
 import { createIdentifier, createStmtNop } from '../nodes';
 import {
 	PHP_CLASS_MODIFIER_ABSTRACT,
@@ -186,58 +186,64 @@ describe('programBuilder helpers', () => {
 		expect(namespaceNode.stmts?.at(-1)?.nodeType).toBe('Stmt_Nop');
 	});
 
-	it('PhpFileBuilder compatibility accumulates statements and AST output', () => {
-		const builder = new PhpFileBuilder('Demo\\Compat', {
-			kind: 'policy-helper',
-		});
+	it('appendMethodTemplates inserts blank lines between methods', async () => {
+		const context = createPipelineContext();
+		const input = createBuilderInput();
+		const output: BuilderOutput = {
+			actions: [],
+			queueWrite: jest.fn(),
+		};
 
-		builder.appendDocblock('Compat doc');
-		builder.addUse('Demo\\Compat\\Utils');
-		builder.appendStatement('// compat');
-		builder.appendProgramStatement(createStmtNop());
-		builder.setNamespace('Demo\\Compat\\Updated');
+		const helper = createPhpFileBuilder({
+			key: 'blank-methods',
+			filePath: '/workspace/.generated/php/Blank.php',
+			namespace: 'Demo\\Blank',
+			metadata: { kind: 'policy-helper' },
+			build: (builder) => {
+				const first = createMethodTemplate({
+					signature: 'public function first()',
+					indentLevel: 1,
+					body: (body) => {
+						body.line('return 1;');
+					},
+					ast: {
+						flags: PHP_METHOD_MODIFIER_PUBLIC,
+						returnType: null,
+					},
+				});
 
-		const program = builder.getProgramAst();
-		expect(builder.getNamespace()).toBe('Demo\\Compat\\Updated');
-		expect(builder.getStatements()).toEqual(['// compat']);
-		expect(program[0].nodeType).toBe('Stmt_Declare');
-		const namespaceNode = program[1];
-		expect(namespaceNode.nodeType).toBe('Stmt_Namespace');
-		expect(namespaceNode.stmts?.[1]?.nodeType).toBe('Stmt_Nop');
-	});
+				const second = createMethodTemplate({
+					signature: 'public function second()',
+					indentLevel: 1,
+					body: (body) => {
+						body.line('return 2;');
+					},
+					ast: {
+						flags: PHP_METHOD_MODIFIER_PUBLIC,
+						returnType: null,
+					},
+				});
 
-	it('appendMethodTemplates inserts blank lines between methods', () => {
-		const builder = new PhpFileBuilder('Demo\\Blank', {
-			kind: 'policy-helper',
-		});
-
-		const first = createMethodTemplate({
-			signature: 'public function first()',
-			indentLevel: 1,
-			body: (body) => {
-				body.line('return 1;');
-			},
-			ast: {
-				flags: PHP_METHOD_MODIFIER_PUBLIC,
-				returnType: null,
-			},
-		});
-
-		const second = createMethodTemplate({
-			signature: 'public function second()',
-			indentLevel: 1,
-			body: (body) => {
-				body.line('return 2;');
-			},
-			ast: {
-				flags: PHP_METHOD_MODIFIER_PUBLIC,
-				returnType: null,
+				appendMethodTemplates(builder, [first, second]);
 			},
 		});
 
-		appendMethodTemplates(builder, [first, second]);
+		resetPhpBuilderChannel(context);
+		resetPhpAstChannel(context);
 
-		const statements = builder.getStatements();
+		await helper.apply(
+			{
+				context,
+				input,
+				output,
+				reporter: context.reporter,
+			},
+			undefined
+		);
+
+		const pending = getPhpBuilderChannel(context).pending();
+		expect(pending).toHaveLength(1);
+		const statements = pending[0]!.statements;
 		const blankLines = statements.filter((line) => line === '');
 		expect(blankLines).toHaveLength(1);
 	});
