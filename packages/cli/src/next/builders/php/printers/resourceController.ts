@@ -1,6 +1,7 @@
 import { createHelper } from '../../../helper';
 import type { BuilderHelper } from '../../../runtime/types';
 import { createPhpFileBuilder } from '../ast/programBuilder';
+import type { PhpAstBuilderAdapter } from '../ast/programBuilder';
 import { appendGeneratedFileDocblock } from '../ast/docblocks';
 import { appendClassTemplate } from '../ast/append';
 import {
@@ -13,7 +14,6 @@ import {
 	createIdentifier,
 	createName,
 	createReturn,
-	createScalarInt,
 	createScalarString,
 	createStaticCall,
 	createAssign,
@@ -24,9 +24,6 @@ import {
 	createArg,
 	createNode,
 	type PhpStmtIf,
-	type PhpExprNew,
-	createStmtNop,
-	createComment,
 } from '../ast/nodes';
 import { createPrintable } from '../ast/printables';
 import {
@@ -34,19 +31,24 @@ import {
 	PHP_METHOD_MODIFIER_PUBLIC,
 } from '../ast/modifiers';
 import { createPhpReturn } from '../ast/valueRenderers';
-import { escapeSingleQuotes, sanitizeJson, toPascalCase } from '../ast/utils';
-import type { IRResource, IRRoute, IRSchema, IRv1 } from '../../../../ir/types';
-import type { PhpAstBuilderAdapter } from '../ast/programBuilder';
-import { resolveIdentityConfig, type ResolvedIdentity } from './identity';
 import {
-	collectCanonicalBasePaths,
-	determineRouteKind,
-	type ResourceRouteKind,
-} from './routes';
-import type {
-	ResourceControllerMetadata,
-	ResourceControllerRouteMetadata,
-} from '../ast/types';
+	createErrorCodeFactory,
+	escapeSingleQuotes,
+	toPascalCase,
+} from '../ast/utils';
+import type { IRResource, IRRoute, IRv1 } from '../../../../ir/types';
+import { resolveIdentityConfig, type ResolvedIdentity } from './identity';
+import { collectCanonicalBasePaths } from './routes';
+import type { ResourceMetadataHost } from '../ast/factories/cacheMetadata';
+import { buildRestArgs } from './resourceController/restArgs';
+import {
+	createRouteMetadata,
+	type RouteMetadataKind,
+} from './resourceController/metadata';
+import { createRouteMethodName } from './resourceController/routeNaming';
+import { routeUsesIdentity } from './resourceController/routeIdentity';
+import { appendNotImplementedStub } from './resourceController/stubs';
+import { handleRouteKind } from './resourceController/routes/handleRouteKind';
 
 export function createPhpResourceControllerHelper(): BuilderHelper {
 	return createHelper({
@@ -120,6 +122,12 @@ function buildResourceController(
 	options: BuildResourceControllerOptions
 ): void {
 	const { builder, ir, resource, className, identity } = options;
+	const pascalName = toPascalCase(resource.name);
+	const errorCodeFactory = createErrorCodeFactory(resource.name);
+	const metadataHost: ResourceMetadataHost = {
+		getMetadata: () => builder.getMetadata(),
+		setMetadata: (metadata) => builder.setMetadata(metadata),
+	};
 	const canonicalBasePaths = collectCanonicalBasePaths(
 		resource.routes,
 		identity.param
@@ -141,6 +149,11 @@ function buildResourceController(
 	builder.addUse('WP_Error');
 	builder.addUse('WP_REST_Request');
 	builder.addUse('function is_wp_error');
+
+	if (resource.storage?.mode === 'wp-post') {
+		builder.addUse('WP_Post');
+		builder.addUse('WP_Query');
+	}
 
 	const methods: PhpMethodTemplate[] = [];
 
@@ -200,10 +213,14 @@ function buildResourceController(
 
 	const routeMethods = resource.routes.map((route: IRRoute, index) =>
 		createRouteMethodTemplate({
+			builder,
 			ir,
 			resource,
 			route,
 			identity,
+			pascalName,
+			errorCodeFactory,
+			metadataHost,
 			routeKind: routeMetadata[index]?.kind ?? 'custom',
 		})
 	);
@@ -228,14 +245,16 @@ function buildResourceController(
 }
 
 interface RouteTemplateOptions {
+	readonly builder: PhpAstBuilderAdapter;
 	readonly ir: IRv1;
 	readonly resource: IRResource;
 	readonly route: IRRoute;
 	readonly identity: ResolvedIdentity;
+	readonly pascalName: string;
+	readonly errorCodeFactory: (suffix: string) => string;
+	readonly metadataHost: ResourceMetadataHost;
 	readonly routeKind: RouteMetadataKind;
 }
-
-type RouteMetadataKind = ResourceRouteKind | 'custom';
 
 function createRouteMethodTemplate(
 	options: RouteTemplateOptions
@@ -255,7 +274,13 @@ function createRouteMethodTemplate(
 		body: (body) => {
 			const indent = PHP_INDENT.repeat(indentLevel + 1);
 
-			if (routeUsesIdentity(options)) {
+			if (
+				routeUsesIdentity({
+					route: options.route,
+					routeKind: options.routeKind,
+					identity: options.identity,
+				})
+			) {
 				const param = options.identity.param;
 				const assign = createAssign(
 					createVariable(param),
@@ -318,215 +343,44 @@ function createRouteMethodTemplate(
 				body.blank();
 			}
 
-			const todoPrintable = createPrintable(
-				createStmtNop({
-					comments: [
-						createComment(
-							`// TODO: Implement handler for [${options.route.method}] ${options.route.path}.`
-						),
-					],
-				}),
-				[
-					`${indent}// TODO: Implement handler for [${options.route.method}] ${options.route.path}.`,
-				]
-			);
-			body.statement(todoPrintable);
-
-			const errorExpr = createNode<PhpExprNew>('Expr_New', {
-				class: createName(['WP_Error']),
-				args: [
-					createArg(createScalarInt(501)),
-					createArg(createScalarString('Not Implemented')),
-				],
+			const handled = handleRouteKind({
+				body,
+				indentLevel: indentLevel + 1,
+				resource: options.resource,
+				identity: options.identity,
+				pascalName: options.pascalName,
+				errorCodeFactory: options.errorCodeFactory,
+				metadataHost: options.metadataHost,
+				cacheSegments: resolveCacheSegments(
+					options.routeKind,
+					options.resource
+				),
+				routeKind: options.routeKind,
 			});
-			const returnPrintable = createPrintable(createReturn(errorExpr), [
-				`${indent}return new WP_Error( 501, 'Not Implemented' );`,
-			]);
-			body.statement(returnPrintable);
+
+			if (handled) {
+				return;
+			}
+
+			appendNotImplementedStub({
+				body,
+				indent,
+				route: options.route,
+			});
 		},
 	});
 }
 
-function routeUsesIdentity(options: RouteTemplateOptions): boolean {
-	if (
-		options.routeKind === 'get' ||
-		options.routeKind === 'update' ||
-		options.routeKind === 'remove'
-	) {
-		return true;
-	}
-
-	const placeholder = `:${options.identity.param.toLowerCase()}`;
-	return options.route.path.toLowerCase().includes(placeholder);
-}
-
-interface CreateRouteMetadataOptions {
-	readonly routes: readonly IRRoute[];
-	readonly identity: ResolvedIdentity;
-	readonly canonicalBasePaths: Set<string>;
-}
-
-function createRouteMetadata(
-	options: CreateRouteMetadataOptions
-): ResourceControllerMetadata['routes'] {
-	const { routes, identity, canonicalBasePaths } = options;
-
-	return routes.map<ResourceControllerRouteMetadata>((route) => {
-		const kind =
-			determineRouteKind(route, identity.param, canonicalBasePaths) ??
-			'custom';
-
-		return {
-			method: route.method,
-			path: route.path,
-			kind,
-		};
-	});
-}
-
-function createRouteMethodName(route: IRRoute, ir: IRv1): string {
-	const method = route.method.toLowerCase();
-	const segments = deriveRouteSegments(route.path, ir);
-	const suffix = segments.map(toPascalCase).join('') || 'Route';
-	return `${method}${suffix}`;
-}
-
-function deriveRouteSegments(path: string, ir: IRv1): string[] {
-	const trimmed = path.replace(/^\/+/, '');
-	if (!trimmed) {
-		return [];
-	}
-
-	const segments = trimmed
-		.split('/')
-		.filter((segment): segment is string => segment.length > 0)
-		.map((segment: string) => segment.replace(/^:/, ''));
-
-	const namespaceVariants = new Set<string>(
-		[
-			ir.meta.namespace,
-			ir.meta.namespace.replace(/\\/g, '/'),
-			ir.meta.sanitizedNamespace,
-			ir.meta.sanitizedNamespace.replace(/\\/g, '/'),
-		]
-			.map((value) =>
-				value
-					.split('/')
-					.filter((segment): segment is string => segment.length > 0)
-					.map((segment: string) => segment.toLowerCase())
-			)
-			.map((variant: string[]) => variant.join('/'))
-	);
-
-	const normalisedSegments = segments.map((segment: string) =>
-		segment.toLowerCase()
-	);
-
-	for (const variant of namespaceVariants) {
-		const variantSegments = variant.split('/');
-		let matches = true;
-		for (let index = 0; index < variantSegments.length; index += 1) {
-			if (normalisedSegments[index] !== variantSegments[index]) {
-				matches = false;
-				break;
-			}
-		}
-
-		if (matches) {
-			return segments.slice(variantSegments.length);
-		}
-	}
-
-	return segments;
-}
-
-function buildRestArgs(
-	schemas: readonly IRSchema[],
+function resolveCacheSegments(
+	routeKind: RouteMetadataKind,
 	resource: IRResource
-): Record<string, unknown> {
-	const schema = schemas.find((entry) => entry.key === resource.schemaKey);
-	if (!schema) {
-		return {};
+): readonly unknown[] {
+	switch (routeKind) {
+		case 'list':
+			return resource.cacheKeys.list.segments;
+		case 'get':
+			return resource.cacheKeys.get.segments;
+		default:
+			return [];
 	}
-
-	const schemaValue = schema.schema;
-	if (!isRecord(schemaValue)) {
-		return {};
-	}
-
-	const required = new Set(
-		Array.isArray(schemaValue.required)
-			? (schemaValue.required as string[])
-			: []
-	);
-
-	const properties = isRecord(schemaValue.properties)
-		? (schemaValue.properties as Record<string, unknown>)
-		: {};
-
-	const restArgs: Record<string, unknown> = {};
-	for (const [key, descriptor] of Object.entries(properties)) {
-		const payload: Record<string, unknown> = {
-			schema: sanitizeJson(descriptor),
-		};
-
-		if (required.has(key)) {
-			payload.required = true;
-		}
-
-		if (resource.identity?.param === key) {
-			payload.identity = resource.identity;
-		}
-
-		restArgs[key] = payload;
-	}
-
-	if (resource.queryParams) {
-		applyQueryParams(restArgs, resource.queryParams);
-	}
-
-	return restArgs;
-}
-
-function applyQueryParams(
-	restArgs: Record<string, unknown>,
-	queryParams: NonNullable<IRResource['queryParams']>
-): void {
-	const entries = Object.entries(queryParams) as Array<
-		[string, NonNullable<IRResource['queryParams']>[string]]
-	>;
-
-	for (const [param, descriptor] of entries) {
-		const existing = isRecord(restArgs[param])
-			? { ...(restArgs[param] as Record<string, unknown>) }
-			: {};
-
-		const schemaPayload = isRecord(existing.schema)
-			? { ...(existing.schema as Record<string, unknown>) }
-			: {};
-
-		if (descriptor.type === 'enum') {
-			schemaPayload.type = 'string';
-			if (descriptor.enum) {
-				schemaPayload.enum = Array.from(descriptor.enum);
-			}
-		} else {
-			schemaPayload.type = descriptor.type;
-		}
-
-		if (descriptor.description) {
-			existing.description = descriptor.description;
-		}
-
-		if (descriptor.optional === false) {
-			existing.required = true;
-		}
-
-		existing.schema = sanitizeJson(schemaPayload);
-		restArgs[param] = sanitizeJson(existing);
-	}
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-	return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }
