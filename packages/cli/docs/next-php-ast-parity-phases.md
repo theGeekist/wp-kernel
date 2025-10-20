@@ -88,7 +88,7 @@ Once every domain helper emits AST with parity, the legacy string builders can f
 
 Document the status of each phase once completed, emphasising that the helper-first AST pipeline remained string-free throughout the work:
 
-- **Phase 1 summary:** Resolved identity defaults and canonical route classification within the helper pipeline, updating tests to inspect queued AST programs while keeping the branch free of any legacy string-based PHP generation.
+- **Phase 1 summary:** Resolved identity defaults and canonical route classification within the helper pipeline, recording route metadata on queued programs and updating tests to inspect queued AST programs while keeping the branch free of any legacy string-based PHP generation.
 - **Phase 2 summary:** _Pending_
 - **Phase 3 summary:** _Pending_
 - **Phase 4 summary:** _Pending_
