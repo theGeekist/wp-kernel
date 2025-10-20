@@ -1023,8 +1023,12 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                             "unpack": false,
                             "value": {
                               "attributes": {},
-                              "name": "tagsMeta",
-                              "nodeType": "Expr_Variable",
+                              "expr": {
+                                "attributes": {},
+                                "name": "tagsMeta",
+                                "nodeType": "Expr_Variable",
+                              },
+                              "nodeType": "Expr_Cast_Array",
                             },
                           },
                         ],
@@ -1061,106 +1065,6 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                             "unpack": false,
                             "value": {
                               "attributes": {},
-                              "nodeType": "Scalar_String",
-                              "value": "strval",
-                            },
-                          },
-                          {
-                            "attributes": {},
-                            "byRef": false,
-                            "name": null,
-                            "nodeType": "Arg",
-                            "unpack": false,
-                            "value": {
-                              "attributes": {},
-                              "name": "tagsMeta",
-                              "nodeType": "Expr_Variable",
-                            },
-                          },
-                        ],
-                        "attributes": {},
-                        "name": {
-                          "attributes": {},
-                          "nodeType": "Name",
-                          "parts": [
-                            "array_map",
-                          ],
-                        },
-                        "nodeType": "Expr_FuncCall",
-                      },
-                      "nodeType": "Expr_Assign",
-                      "var": {
-                        "attributes": {},
-                        "name": "tagsMeta",
-                        "nodeType": "Expr_Variable",
-                      },
-                    },
-                    "nodeType": "Stmt_Expression",
-                  },
-                  {
-                    "attributes": {},
-                    "expr": {
-                      "attributes": {},
-                      "expr": {
-                        "args": [
-                          {
-                            "attributes": {},
-                            "byRef": false,
-                            "name": null,
-                            "nodeType": "Arg",
-                            "unpack": false,
-                            "value": {
-                              "attributes": {},
-                              "nodeType": "Scalar_String",
-                              "value": "trim",
-                            },
-                          },
-                          {
-                            "attributes": {},
-                            "byRef": false,
-                            "name": null,
-                            "nodeType": "Arg",
-                            "unpack": false,
-                            "value": {
-                              "attributes": {},
-                              "name": "tagsMeta",
-                              "nodeType": "Expr_Variable",
-                            },
-                          },
-                        ],
-                        "attributes": {},
-                        "name": {
-                          "attributes": {},
-                          "nodeType": "Name",
-                          "parts": [
-                            "array_map",
-                          ],
-                        },
-                        "nodeType": "Expr_FuncCall",
-                      },
-                      "nodeType": "Expr_Assign",
-                      "var": {
-                        "attributes": {},
-                        "name": "tagsMeta",
-                        "nodeType": "Expr_Variable",
-                      },
-                    },
-                    "nodeType": "Stmt_Expression",
-                  },
-                  {
-                    "attributes": {},
-                    "expr": {
-                      "attributes": {},
-                      "expr": {
-                        "args": [
-                          {
-                            "attributes": {},
-                            "byRef": false,
-                            "name": null,
-                            "nodeType": "Arg",
-                            "unpack": false,
-                            "value": {
-                              "attributes": {},
                               "name": "tagsMeta",
                               "nodeType": "Expr_Variable",
                             },
@@ -1172,9 +1076,74 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                             "nodeType": "Arg",
                             "unpack": false,
                             "value": {
+                              "attrGroups": [],
                               "attributes": {},
-                              "nodeType": "Scalar_String",
-                              "value": "strlen",
+                              "byRef": false,
+                              "nodeType": "Expr_Closure",
+                              "params": [
+                                {
+                                  "attrGroups": [],
+                                  "attributes": {},
+                                  "byRef": false,
+                                  "default": null,
+                                  "flags": 0,
+                                  "nodeType": "Param",
+                                  "type": null,
+                                  "var": {
+                                    "attributes": {},
+                                    "name": "value",
+                                    "nodeType": "Expr_Variable",
+                                  },
+                                  "variadic": false,
+                                },
+                              ],
+                              "returnType": null,
+                              "static": true,
+                              "stmts": [
+                                {
+                                  "attributes": {},
+                                  "expr": {
+                                    "attributes": {},
+                                    "left": {
+                                      "args": [
+                                        {
+                                          "attributes": {},
+                                          "byRef": false,
+                                          "name": null,
+                                          "nodeType": "Arg",
+                                          "unpack": false,
+                                          "value": {
+                                            "attributes": {},
+                                            "expr": {
+                                              "attributes": {},
+                                              "name": "value",
+                                              "nodeType": "Expr_Variable",
+                                            },
+                                            "nodeType": "Expr_Cast_String",
+                                          },
+                                        },
+                                      ],
+                                      "attributes": {},
+                                      "name": {
+                                        "attributes": {},
+                                        "nodeType": "Name",
+                                        "parts": [
+                                          "trim",
+                                        ],
+                                      },
+                                      "nodeType": "Expr_FuncCall",
+                                    },
+                                    "nodeType": "Expr_BinaryOp_NotIdentical",
+                                    "right": {
+                                      "attributes": {},
+                                      "nodeType": "Scalar_String",
+                                      "value": "",
+                                    },
+                                  },
+                                  "nodeType": "Stmt_Return",
+                                },
+                              ],
+                              "uses": [],
                             },
                           },
                         ],

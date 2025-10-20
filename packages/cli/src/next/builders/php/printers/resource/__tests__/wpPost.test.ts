@@ -1,10 +1,14 @@
-import { collectMetaQueryEntries } from '../wpPost/metaQuery';
+import {
+	appendMetaQueryBuilder,
+	collectMetaQueryEntries,
+} from '../wpPost/metaQuery';
 import { collectTaxonomyQueryEntries } from '../wpPost/taxonomyQuery';
 import {
 	createListForeachPrintable,
 	createListItemsInitialiser,
 } from '../wpPost/list';
 import { createIdentityValidationPrintables } from '../wpPost/identity';
+import { PhpMethodBodyBuilder, PHP_INDENT } from '../../../ast/templates';
 
 describe('wpPost query helpers', () => {
 	it('collects meta query entries', () => {
@@ -19,6 +23,29 @@ describe('wpPost query helpers', () => {
 			['genre', { single: false }],
 			['subtitle', undefined],
 		]);
+	});
+
+	it('normalises multi-value meta queries without coercing retained values', () => {
+		const body = new PhpMethodBodyBuilder(PHP_INDENT, 1);
+
+		appendMetaQueryBuilder({
+			body,
+			indentLevel: 1,
+			entries: [['genre', { single: false }]],
+		});
+
+		const lines = body.toLines();
+		expect(lines).toContain(
+			'                $genreMeta = array_values( (array) $genreMeta );'
+		);
+		expect(lines).toContain(
+			'                $genreMeta = array_filter( $genreMeta, static function ( $value ) {'
+		);
+		expect(lines).toContain(
+			"                        return '' !== trim( (string) $value );"
+		);
+		expect(lines).not.toContain("array_map( 'strval'");
+		expect(lines).not.toContain("array_map( 'trim'");
 	});
 
 	it('collects taxonomy query entries', () => {

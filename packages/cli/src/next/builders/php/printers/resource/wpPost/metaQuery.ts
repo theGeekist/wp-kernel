@@ -10,6 +10,8 @@ import {
 	createName,
 	createNode,
 	createNull,
+	createParam,
+	createReturn,
 	createScalarInt,
 	createScalarString,
 	createVariable,
@@ -134,49 +136,40 @@ export function appendMetaQueryBuilder(
 				})
 			);
 
-			const normalisers: Array<{ text: string; expr: PhpExpr }> = [
-				{
-					text: `${childIndent}$${variableName} = array_values( $${variableName} );`,
-					expr: createFuncCall(createName(['array_values']), [
-						createArg(createVariable(variableName)),
-					]),
-				},
-				{
-					text: `${childIndent}$${variableName} = array_map( 'strval', $${variableName} );`,
-					expr: createFuncCall(createName(['array_map']), [
-						createArg(createScalarString('strval')),
-						createArg(createVariable(variableName)),
-					]),
-				},
-				{
-					text: `${childIndent}$${variableName} = array_map( 'trim', $${variableName} );`,
-					expr: createFuncCall(createName(['array_map']), [
-						createArg(createScalarString('trim')),
-						createArg(createVariable(variableName)),
-					]),
-				},
-				{
-					text: `${childIndent}$${variableName} = array_filter( $${variableName}, 'strlen' );`,
-					expr: createFuncCall(createName(['array_filter']), [
-						createArg(createVariable(variableName)),
-						createArg(createScalarString('strlen')),
-					]),
-				},
-			];
-
-			for (const normaliser of normalisers) {
-				innerStatements.push(
-					createPrintable(
-						createExpressionStatement(
-							createAssign(
-								createVariable(variableName),
-								normaliser.expr
-							)
-						),
-						[normaliser.text]
+			const normalisePrintable = createPrintable(
+				createExpressionStatement(
+					createAssign(
+						createVariable(variableName),
+						createFuncCall(createName(['array_values']), [
+							createArg(
+								createArrayCast(createVariable(variableName))
+							),
+						])
 					)
-				);
-			}
+				),
+				[
+					`${childIndent}$${variableName} = array_values( (array) $${variableName} );`,
+				]
+			);
+
+			const filterPrintable = createPrintable(
+				createExpressionStatement(
+					createAssign(
+						createVariable(variableName),
+						createFuncCall(createName(['array_filter']), [
+							createArg(createVariable(variableName)),
+							createArg(createStaticTrimFilterClosure()),
+						])
+					)
+				),
+				[
+					`${childIndent}$${variableName} = array_filter( $${variableName}, static function ( $value ) {`,
+					`${childIndent}${PHP_INDENT}return '' !== trim( (string) $value );`,
+					`${childIndent}} );`,
+				]
+			);
+
+			innerStatements.push(normalisePrintable, filterPrintable);
 
 			const nestedIndent = PHP_INDENT.repeat(childIndentLevel + 1);
 			const pushPrintable = createPrintable(
@@ -337,4 +330,31 @@ function createBooleanNot(expr: PhpExpr): PhpExprBooleanNot {
 	return createNode<PhpExprBooleanNot>('Expr_BooleanNot', {
 		expr,
 	});
+}
+
+function createArrayCast(expr: PhpExpr): PhpExpr {
+	return createNode('Expr_Cast_Array', { expr }) as unknown as PhpExpr;
+}
+
+function createStaticTrimFilterClosure(): PhpExpr {
+	const parameter = createParam(createVariable('value'));
+	const returnStatement = createReturn(
+		createBinaryOperation(
+			'NotIdentical',
+			createFuncCall(createName(['trim']), [
+				createArg(createScalarCast('string', createVariable('value'))),
+			]),
+			createScalarString('')
+		)
+	);
+
+	return createNode('Expr_Closure', {
+		static: true,
+		byRef: false,
+		params: [parameter],
+		uses: [],
+		returnType: null,
+		stmts: [returnStatement],
+		attrGroups: [],
+	}) as unknown as PhpExpr;
 }
