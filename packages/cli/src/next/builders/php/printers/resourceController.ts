@@ -43,6 +43,10 @@ import {
 	determineRouteKind,
 	type ResourceRouteKind,
 } from './routes';
+import type {
+	ResourceControllerMetadata,
+	ResourceControllerRouteMetadata,
+} from '../ast/types';
 
 export function createPhpResourceControllerHelper(): BuilderHelper {
 	return createHelper({
@@ -73,6 +77,7 @@ export function createPhpResourceControllerHelper(): BuilderHelper {
 					'Rest',
 					`${className}.php`
 				);
+				const identity = resolveIdentityConfig(resource);
 
 				const helper = createPhpFileBuilder({
 					key: `resource-controller.${resource.name}`,
@@ -81,6 +86,8 @@ export function createPhpResourceControllerHelper(): BuilderHelper {
 					metadata: {
 						kind: 'resource-controller',
 						name: resource.name,
+						identity,
+						routes: [],
 					},
 					build: (builder) => {
 						buildResourceController({
@@ -88,6 +95,7 @@ export function createPhpResourceControllerHelper(): BuilderHelper {
 							ir,
 							resource,
 							className,
+							identity,
 						});
 					},
 				});
@@ -105,17 +113,22 @@ interface BuildResourceControllerOptions {
 	readonly ir: IRv1;
 	readonly resource: IRResource;
 	readonly className: string;
+	readonly identity: ResolvedIdentity;
 }
 
 function buildResourceController(
 	options: BuildResourceControllerOptions
 ): void {
-	const { builder, ir, resource, className } = options;
-	const identity = resolveIdentityConfig(resource);
+	const { builder, ir, resource, className, identity } = options;
 	const canonicalBasePaths = collectCanonicalBasePaths(
 		resource.routes,
 		identity.param
 	);
+	const routeMetadata = createRouteMetadata({
+		routes: resource.routes,
+		identity,
+		canonicalBasePaths,
+	});
 	appendGeneratedFileDocblock(builder, [
 		`Source: ${ir.meta.origin} → resources.${resource.name}`,
 		`Schema: ${resource.schemaKey} (${resource.schemaProvenance})`,
@@ -185,17 +198,13 @@ function buildResourceController(
 		})
 	);
 
-	const routeMethods = resource.routes.map((route: IRRoute) =>
+	const routeMethods = resource.routes.map((route: IRRoute, index) =>
 		createRouteMethodTemplate({
 			ir,
 			resource,
 			route,
 			identity,
-			routeKind: determineRouteKind(
-				route,
-				identity.param,
-				canonicalBasePaths
-			),
+			routeKind: routeMetadata[index]?.kind ?? 'custom',
 		})
 	);
 
@@ -209,6 +218,13 @@ function buildResourceController(
 	});
 
 	appendClassTemplate(builder, classTemplate);
+
+	builder.setMetadata({
+		kind: 'resource-controller',
+		name: resource.name,
+		identity,
+		routes: routeMetadata,
+	});
 }
 
 interface RouteTemplateOptions {
@@ -216,8 +232,10 @@ interface RouteTemplateOptions {
 	readonly resource: IRResource;
 	readonly route: IRRoute;
 	readonly identity: ResolvedIdentity;
-	readonly routeKind: ResourceRouteKind | undefined;
+	readonly routeKind: RouteMetadataKind;
 }
+
+type RouteMetadataKind = ResourceRouteKind | 'custom';
 
 function createRouteMethodTemplate(
 	options: RouteTemplateOptions
@@ -226,7 +244,7 @@ function createRouteMethodTemplate(
 	const indentLevel = 1;
 	const docblock = [
 		`Handle [${options.route.method}] ${options.route.path}.`,
-		`@wp-kernel route-kind ${options.routeKind ?? 'custom'}`,
+		`@wp-kernel route-kind ${options.routeKind}`,
 	];
 
 	return createMethodTemplate({
@@ -340,6 +358,30 @@ function routeUsesIdentity(options: RouteTemplateOptions): boolean {
 
 	const placeholder = `:${options.identity.param.toLowerCase()}`;
 	return options.route.path.toLowerCase().includes(placeholder);
+}
+
+interface CreateRouteMetadataOptions {
+	readonly routes: readonly IRRoute[];
+	readonly identity: ResolvedIdentity;
+	readonly canonicalBasePaths: Set<string>;
+}
+
+function createRouteMetadata(
+	options: CreateRouteMetadataOptions
+): ResourceControllerMetadata['routes'] {
+	const { routes, identity, canonicalBasePaths } = options;
+
+	return routes.map<ResourceControllerRouteMetadata>((route) => {
+		const kind =
+			determineRouteKind(route, identity.param, canonicalBasePaths) ??
+			'custom';
+
+		return {
+			method: route.method,
+			path: route.path,
+			kind,
+		};
+	});
 }
 
 function createRouteMethodName(route: IRRoute, ir: IRv1): string {

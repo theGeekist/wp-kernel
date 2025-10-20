@@ -21,7 +21,7 @@ export interface PhpAstContext {
 export interface PhpAstContextEntry {
 	readonly key: string;
 	readonly filePath: string;
-	readonly metadata: PhpFileMetadata;
+	metadata: PhpFileMetadata;
 	readonly context: PhpAstContext;
 }
 

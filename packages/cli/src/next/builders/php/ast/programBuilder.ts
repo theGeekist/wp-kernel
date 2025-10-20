@@ -75,10 +75,11 @@ export function createPhpProgramBuilder(
 			await options.build(builder, entry);
 
 			const program = finaliseProgram(entry.context);
+			const metadata = entry.metadata;
 			getPhpBuilderChannel(context).queue({
 				file: options.filePath,
 				program,
-				metadata: options.metadata,
+				metadata,
 				docblock: [...entry.context.docblockLines],
 				uses: Array.from(entry.context.uses.values()).map(
 					formatUseString
@@ -152,6 +153,9 @@ function createAdapter(entry: PhpAstContextEntry): PhpAstBuilderAdapter {
 		},
 		getProgramAst() {
 			return finaliseProgram(context);
+		},
+		setMetadata(metadata: PhpFileMetadata) {
+			entry.metadata = metadata;
 		},
 	} satisfies PhpAstBuilderAdapter;
 }

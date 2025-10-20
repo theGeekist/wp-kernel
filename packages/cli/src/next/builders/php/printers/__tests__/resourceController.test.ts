@@ -91,6 +91,24 @@ describe('createPhpResourceControllerHelper', () => {
 			);
 
 		expect(entry).toBeDefined();
+		expect(entry?.metadata).toMatchObject({
+			kind: 'resource-controller',
+			identity: { type: 'string', param: 'slug' },
+		});
+		if (entry?.metadata.kind === 'resource-controller') {
+			expect(entry.metadata.routes).toEqual([
+				{
+					method: 'GET',
+					path: '/kernel/v1/books',
+					kind: 'list',
+				},
+				{
+					method: 'GET',
+					path: '/kernel/v1/books/:slug',
+					kind: 'get',
+				},
+			]);
+		}
 		expect(entry?.docblock).toEqual(
 			expect.arrayContaining([
 				expect.stringContaining('Route: [GET] /kernel/v1/books'),
@@ -106,6 +124,7 @@ describe('createPhpResourceControllerHelper', () => {
 				),
 			])
 		);
+		expect(entry?.program).toMatchSnapshot('resource-controller-ast');
 	});
 });
 
