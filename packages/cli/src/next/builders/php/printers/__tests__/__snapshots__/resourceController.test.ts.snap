@@ -6637,19 +6637,39 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                   "expr": {
                     "attributes": {},
                     "expr": {
-                      "args": [],
+                      "args": [
+                        {
+                          "attributes": {},
+                          "byRef": false,
+                          "name": null,
+                          "nodeType": "Arg",
+                          "unpack": false,
+                          "value": {
+                            "args": [],
+                            "attributes": {},
+                            "name": {
+                              "attributes": {},
+                              "name": "get_terms",
+                              "nodeType": "Identifier",
+                            },
+                            "nodeType": "Expr_MethodCall",
+                            "var": {
+                              "attributes": {},
+                              "name": "term_query",
+                              "nodeType": "Expr_Variable",
+                            },
+                          },
+                        },
+                      ],
                       "attributes": {},
                       "name": {
                         "attributes": {},
-                        "name": "get_total",
-                        "nodeType": "Identifier",
+                        "nodeType": "Name",
+                        "parts": [
+                          "count",
+                        ],
                       },
-                      "nodeType": "Expr_MethodCall",
-                      "var": {
-                        "attributes": {},
-                        "name": "term_query",
-                        "nodeType": "Expr_Variable",
-                      },
+                      "nodeType": "Expr_FuncCall",
                     },
                     "nodeType": "Expr_Cast_Int",
                   },
@@ -8364,7 +8384,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
   "                        }",
   "                }",
   "",
-  "                $total = (int) $term_query->get_total();",
+  "                $total = (int) count( $term_query->get_terms() );",
   "                $pages = (int) ceil( $total / max( 1, $per_page ) );",
   "",
   "                return array(",

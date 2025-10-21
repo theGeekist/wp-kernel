@@ -226,15 +226,19 @@ export function buildWpTaxonomyListRouteBody(
 				createVariable('total'),
 				buildScalarCast(
 					'int',
-					createMethodCall(
-						createVariable('term_query'),
-						createIdentifier('get_total'),
-						[]
-					)
+					createFuncCall(createName(['count']), [
+						createArg(
+							createMethodCall(
+								createVariable('term_query'),
+								createIdentifier('get_terms'),
+								[]
+							)
+						),
+					])
 				)
 			)
 		),
-		[`${indent}$total = (int) $term_query->get_total();`]
+		[`${indent}$total = (int) count( $term_query->get_terms() );`]
 	);
 	options.body.statement(totalAssign);
 
