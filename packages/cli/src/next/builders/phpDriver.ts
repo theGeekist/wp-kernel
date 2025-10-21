@@ -6,6 +6,7 @@ import type { BuilderHelper } from '../runtime/types';
 
 const REQUIRED_PACKAGE = 'nikic/php-parser';
 const VENDOR_AUTOLOAD = 'vendor/autoload.php';
+const COMPOSER_MANIFEST = 'composer.json';
 
 const execFileAsync = promisify(execFile);
 
@@ -15,6 +16,16 @@ export function createPhpDriverInstaller(): BuilderHelper {
 		kind: 'builder',
 		async apply({ context, reporter }) {
 			const { workspace } = context;
+			const composerManifestPath = workspace.resolve(COMPOSER_MANIFEST);
+			const hasComposerManifest =
+				await workspace.exists(composerManifestPath);
+
+			if (!hasComposerManifest) {
+				reporter.debug(
+					'createPhpDriverInstaller: composer.json missing, skipping installer.'
+				);
+				return;
+			}
 			const vendorAutoloadPath = workspace.resolve(VENDOR_AUTOLOAD);
 			const hasVendorAutoload =
 				await workspace.exists(vendorAutoloadPath);
