@@ -3,6 +3,17 @@ import type { ResolvedIdentity } from '../../identity';
 import type { RouteMetadataKind } from '../metadata';
 import type { ResourceMetadataHost } from '../../../ast/factories/cacheMetadata';
 import type { IRResource } from '../../../../../../ir/types';
+import {
+	buildCreateRouteBody,
+	buildUpdateRouteBody,
+	buildDeleteRouteBody as buildRemoveRouteBody,
+	WP_POST_MUTATION_CONTRACT,
+} from '../../resource/wpPost/mutations';
+import type {
+	BuildCreateRouteBodyOptions,
+	BuildUpdateRouteBodyOptions,
+	BuildDeleteRouteBodyOptions as BuildRemoveRouteBodyOptions,
+} from '../../resource/wpPost/mutations/routes';
 import type { BuildGetRouteBodyOptions } from './get';
 import { buildGetRouteBody } from './get';
 import type { BuildListRouteBodyOptions } from './list';
@@ -23,17 +34,26 @@ export interface HandleRouteKindOptions {
 export function handleRouteKind(options: HandleRouteKindOptions): boolean {
 	switch (options.routeKind) {
 		case 'list': {
-			return buildListRouteBody(createListOptions(options));
+			return buildListRouteBody(buildListOptions(options));
 		}
 		case 'get': {
-			return buildGetRouteBody(createGetOptions(options));
+			return buildGetRouteBody(buildGetOptions(options));
+		}
+		case 'create': {
+			return buildCreateRouteBody(buildCreateOptions(options));
+		}
+		case 'update': {
+			return buildUpdateRouteBody(buildUpdateOptions(options));
+		}
+		case 'remove': {
+			return buildRemoveRouteBody(buildRemoveOptions(options));
 		}
 		default:
 			return false;
 	}
 }
 
-function createListOptions(
+function buildListOptions(
 	options: HandleRouteKindOptions
 ): BuildListRouteBodyOptions {
 	return {
@@ -46,7 +66,7 @@ function createListOptions(
 	};
 }
 
-function createGetOptions(
+function buildGetOptions(
 	options: HandleRouteKindOptions
 ): BuildGetRouteBodyOptions {
 	return {
@@ -58,5 +78,43 @@ function createGetOptions(
 		errorCodeFactory: options.errorCodeFactory,
 		metadataHost: options.metadataHost,
 		cacheSegments: options.cacheSegments,
+	};
+}
+
+function buildCreateOptions(
+	options: HandleRouteKindOptions
+): BuildCreateRouteBodyOptions {
+	return {
+		body: options.body,
+		indentLevel: options.indentLevel,
+		resource: options.resource,
+		pascalName: options.pascalName,
+		metadataKeys: WP_POST_MUTATION_CONTRACT.metadataKeys,
+	};
+}
+
+function buildUpdateOptions(
+	options: HandleRouteKindOptions
+): BuildUpdateRouteBodyOptions {
+	return {
+		body: options.body,
+		indentLevel: options.indentLevel,
+		resource: options.resource,
+		pascalName: options.pascalName,
+		metadataKeys: WP_POST_MUTATION_CONTRACT.metadataKeys,
+		identity: options.identity,
+	};
+}
+
+function buildRemoveOptions(
+	options: HandleRouteKindOptions
+): BuildRemoveRouteBodyOptions {
+	return {
+		body: options.body,
+		indentLevel: options.indentLevel,
+		resource: options.resource,
+		pascalName: options.pascalName,
+		metadataKeys: WP_POST_MUTATION_CONTRACT.metadataKeys,
+		identity: options.identity,
 	};
 }

@@ -6,16 +6,15 @@ import {
 	createMethodCall,
 	createReturn,
 	createVariable,
-	createNode,
-	type PhpExprBooleanNot,
 } from '../../../ast/nodes';
 import { createPrintable } from '../../../ast/printables';
 import { PHP_INDENT, type PhpMethodBodyBuilder } from '../../../ast/templates';
 import {
 	appendResourceCacheEvent,
+	buildBooleanNot,
 	createIdentityValidationPrintables,
-	createIfPrintable,
-	createInstanceof,
+	buildIfPrintable,
+	buildInstanceof,
 	createWpErrorReturn,
 } from '../../resource';
 import type { ResourceMetadataHost } from '../../../ast/factories/cacheMetadata';
@@ -91,9 +90,9 @@ export function buildGetRouteBody(options: BuildGetRouteBodyOptions): boolean {
 		status: 404,
 	});
 
-	const notFoundIf = createIfPrintable({
+	const notFoundIf = buildIfPrintable({
 		indentLevel,
-		condition: createBooleanNot(createInstanceof('post', 'WP_Post')),
+		condition: buildBooleanNot(buildInstanceof('post', 'WP_Post')),
 		conditionText: `${indent}if ( ! $post instanceof WP_Post ) {`,
 		statements: [notFoundReturn],
 	});
@@ -118,10 +117,4 @@ export function buildGetRouteBody(options: BuildGetRouteBodyOptions): boolean {
 	options.body.statement(returnPrintable);
 
 	return true;
-}
-
-function createBooleanNot(expr: ReturnType<typeof createInstanceof>) {
-	return createNode<PhpExprBooleanNot>('Expr_BooleanNot', {
-		expr,
-	});
 }

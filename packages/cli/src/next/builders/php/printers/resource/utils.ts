@@ -7,6 +7,7 @@ import {
 	type PhpExpr,
 	type PhpExprBase,
 	type PhpExprBinaryOp,
+	type PhpExprBooleanNot,
 	type PhpStmt,
 	type PhpStmtIf,
 } from '../../ast/nodes';
@@ -63,7 +64,7 @@ interface PhpExprCast extends PhpExprBase {
 	readonly expr: PhpExpr;
 }
 
-export function createScalarCast(kind: ScalarCastKind, expr: PhpExpr): PhpExpr {
+export function buildScalarCast(kind: ScalarCastKind, expr: PhpExpr): PhpExpr {
 	const nodeType = CAST_NODE_MAP[kind];
 	return createNode<PhpExprCast>(nodeType, { expr }) as PhpExpr;
 }
@@ -85,7 +86,7 @@ export type BinaryOperator =
 	| 'Identical'
 	| 'NotIdentical';
 
-export function createBinaryOperation(
+export function buildBinaryOperation(
 	operator: BinaryOperator,
 	left: PhpExpr,
 	right: PhpExpr
@@ -113,7 +114,7 @@ export interface IfPrintableOptions {
 	readonly statements: readonly PhpPrintable<PhpStmt>[];
 }
 
-export function createIfPrintable(
+export function buildIfPrintable(
 	options: IfPrintableOptions
 ): PhpPrintable<PhpStmtIf> {
 	const indent = PHP_INDENT.repeat(options.indentLevel);
@@ -137,7 +138,7 @@ export function createIfPrintable(
 	return createPrintable(node, lines);
 }
 
-export function createArrayDimFetch(
+export function buildArrayDimFetch(
 	target: string,
 	dim: PhpExpr | null
 ): PhpExpr {
@@ -147,16 +148,20 @@ export function createArrayDimFetch(
 	}) as unknown as PhpExpr;
 }
 
-export function createPropertyFetch(target: string, property: string): PhpExpr {
+export function buildPropertyFetch(target: string, property: string): PhpExpr {
 	return createNode('Expr_PropertyFetch', {
 		var: createVariable(target),
 		name: createIdentifier(property),
 	}) as unknown as PhpExpr;
 }
 
-export function createInstanceof(subject: string, className: string): PhpExpr {
+export function buildInstanceof(subject: string, className: string): PhpExpr {
 	return createNode('Expr_Instanceof', {
 		expr: createVariable(subject),
 		class: createName([className]),
 	}) as unknown as PhpExpr;
+}
+
+export function buildBooleanNot(expr: PhpExpr): PhpExprBooleanNot {
+	return createNode<PhpExprBooleanNot>('Expr_BooleanNot', { expr });
 }

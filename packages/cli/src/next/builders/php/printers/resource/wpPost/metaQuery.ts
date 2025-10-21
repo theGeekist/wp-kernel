@@ -16,16 +16,16 @@ import {
 	createScalarString,
 	createVariable,
 	type PhpExpr,
-	type PhpExprBooleanNot,
 	type PhpStmt,
 } from '../../../ast/nodes';
 import { createPrintable, type PhpPrintable } from '../../../ast/printables';
 import { PHP_INDENT } from '../../../ast/templates';
 import {
-	createArrayDimFetch,
-	createBinaryOperation,
-	createIfPrintable,
-	createScalarCast,
+	buildArrayDimFetch,
+	buildBinaryOperation,
+	buildBooleanNot,
+	buildIfPrintable,
+	buildScalarCast,
 } from '../utils';
 import { escapeSingleQuotes, toSnakeCase } from '../../../ast/utils';
 import type { PhpMethodBodyBuilder } from '../../../ast/templates';
@@ -108,9 +108,9 @@ export function appendMetaQueryBuilder(
 
 		if (descriptor?.single === false) {
 			innerStatements.push(
-				createIfPrintable({
+				buildIfPrintable({
 					indentLevel: childIndentLevel,
-					condition: createBooleanNot(
+					condition: buildBooleanNot(
 						createFuncCall(createName(['is_array']), [
 							createArg(createVariable(variableName)),
 						])
@@ -175,7 +175,7 @@ export function appendMetaQueryBuilder(
 			const pushPrintable = createPrintable(
 				createExpressionStatement(
 					createAssign(
-						createArrayDimFetch('meta_query', null),
+						buildArrayDimFetch('meta_query', null),
 						createArray([
 							createArrayItem(createScalarString(key), {
 								key: createScalarString('key'),
@@ -199,9 +199,9 @@ export function appendMetaQueryBuilder(
 			);
 
 			innerStatements.push(
-				createIfPrintable({
+				buildIfPrintable({
 					indentLevel: childIndentLevel,
-					condition: createBinaryOperation(
+					condition: buildBinaryOperation(
 						'Greater',
 						createFuncCall(createName(['count']), [
 							createArg(createVariable(variableName)),
@@ -219,7 +219,7 @@ export function appendMetaQueryBuilder(
 						createVariable(variableName),
 						createFuncCall(createName(['trim']), [
 							createArg(
-								createScalarCast(
+								buildScalarCast(
 									'string',
 									createVariable(variableName)
 								)
@@ -235,7 +235,7 @@ export function appendMetaQueryBuilder(
 			const pushPrintable = createPrintable(
 				createExpressionStatement(
 					createAssign(
-						createArrayDimFetch('meta_query', null),
+						buildArrayDimFetch('meta_query', null),
 						createArray([
 							createArrayItem(createScalarString(key), {
 								key: createScalarString('key'),
@@ -259,7 +259,7 @@ export function appendMetaQueryBuilder(
 			);
 
 			innerStatements.push(
-				createIfPrintable({
+				buildIfPrintable({
 					indentLevel: childIndentLevel,
 					condition: createFuncCall(createName(['is_scalar']), [
 						createArg(createVariable(variableName)),
@@ -267,9 +267,9 @@ export function appendMetaQueryBuilder(
 					conditionText: `${childIndent}if ( is_scalar( $${variableName} ) ) {`,
 					statements: [
 						trimPrintable,
-						createIfPrintable({
+						buildIfPrintable({
 							indentLevel: childIndentLevel + 1,
-							condition: createBinaryOperation(
+							condition: buildBinaryOperation(
 								'NotIdentical',
 								createVariable(variableName),
 								createScalarString('')
@@ -283,9 +283,9 @@ export function appendMetaQueryBuilder(
 		}
 
 		options.body.statement(
-			createIfPrintable({
+			buildIfPrintable({
 				indentLevel,
-				condition: createBinaryOperation(
+				condition: buildBinaryOperation(
 					'NotIdentical',
 					createVariable(variableName),
 					createNull()
@@ -299,7 +299,7 @@ export function appendMetaQueryBuilder(
 	const assignPrintable = createPrintable(
 		createExpressionStatement(
 			createAssign(
-				createArrayDimFetch(
+				buildArrayDimFetch(
 					'query_args',
 					createScalarString('meta_query')
 				),
@@ -310,9 +310,9 @@ export function appendMetaQueryBuilder(
 	);
 
 	options.body.statement(
-		createIfPrintable({
+		buildIfPrintable({
 			indentLevel,
-			condition: createBinaryOperation(
+			condition: buildBinaryOperation(
 				'Greater',
 				createFuncCall(createName(['count']), [
 					createArg(createVariable('meta_query')),
@@ -326,12 +326,6 @@ export function appendMetaQueryBuilder(
 	options.body.blank();
 }
 
-function createBooleanNot(expr: PhpExpr): PhpExprBooleanNot {
-	return createNode<PhpExprBooleanNot>('Expr_BooleanNot', {
-		expr,
-	});
-}
-
 function createArrayCast(expr: PhpExpr): PhpExpr {
 	return createNode('Expr_Cast_Array', { expr }) as unknown as PhpExpr;
 }
@@ -339,10 +333,10 @@ function createArrayCast(expr: PhpExpr): PhpExpr {
 function createStaticTrimFilterClosure(): PhpExpr {
 	const parameter = createParam(createVariable('value'));
 	const returnStatement = createReturn(
-		createBinaryOperation(
+		buildBinaryOperation(
 			'NotIdentical',
 			createFuncCall(createName(['trim']), [
-				createArg(createScalarCast('string', createVariable('value'))),
+				createArg(buildScalarCast('string', createVariable('value'))),
 			]),
 			createScalarString('')
 		)
