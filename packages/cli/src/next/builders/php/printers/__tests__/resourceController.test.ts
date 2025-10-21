@@ -110,30 +110,32 @@ describe('createPhpResourceControllerHelper', () => {
 					path: '/kernel/v1/books/:slug',
 					kind: 'get',
 				},
+				{
+					method: 'POST',
+					path: '/kernel/v1/books',
+					kind: 'create',
+					cacheSegments: ['books', 'create'],
+					tags: { 'resource.wpPost.mutation': 'create' },
+				},
+				{
+					method: 'PUT',
+					path: '/kernel/v1/books/:slug',
+					kind: 'update',
+					cacheSegments: ['books', 'update'],
+					tags: { 'resource.wpPost.mutation': 'update' },
+				},
+				{
+					method: 'DELETE',
+					path: '/kernel/v1/books/:slug',
+					kind: 'remove',
+					cacheSegments: ['books', 'remove'],
+					tags: { 'resource.wpPost.mutation': 'delete' },
+				},
 			]);
 		}
-		expect(entry?.docblock).toEqual(
-			expect.arrayContaining([
-				expect.stringContaining('Route: [GET] /kernel/v1/books'),
-				expect.stringContaining('Route: [GET] /kernel/v1/books/:slug'),
-			])
-		);
-		expect(entry?.statements).toEqual(
-			expect.arrayContaining([
-				expect.stringContaining('@wp-kernel route-kind list'),
-				expect.stringContaining('@wp-kernel route-kind get'),
-				expect.stringContaining(
-					"$slug = $request->get_param( 'slug' );"
-				),
-				expect.stringContaining(
-					"$per_page = (int) $request->get_param( 'per_page' );"
-				),
-				expect.stringContaining('$meta_query = array();'),
-				expect.stringContaining('$tax_query = array();'),
-				expect.stringContaining(
-					'return $this->prepareBooksResponse( $post, $request );'
-				),
-			])
+		expect(entry?.docblock).toMatchSnapshot('resource-controller-docblock');
+		expect(entry?.statements).toMatchSnapshot(
+			'resource-controller-statements'
 		);
 		expect(entry?.program).toMatchSnapshot('resource-controller-ast');
 	});
@@ -148,11 +150,11 @@ describe('createRouteMetadata', () => {
 			schemaProvenance: 'manual',
 			routes: [],
 			cacheKeys: {
-				list: { segments: ['list'], source: 'default' },
-				get: { segments: ['get'], source: 'default' },
-				create: { segments: ['create'], source: 'default' },
-				update: { segments: ['update'], source: 'default' },
-				remove: { segments: ['remove'], source: 'default' },
+				list: { segments: ['books', 'list'], source: 'default' },
+				get: { segments: ['books', 'get'], source: 'default' },
+				create: { segments: ['books', 'create'], source: 'default' },
+				update: { segments: ['books', 'update'], source: 'default' },
+				remove: { segments: ['books', 'remove'], source: 'default' },
 			},
 			identity,
 			storage: {
@@ -209,21 +211,21 @@ describe('createRouteMetadata', () => {
 				method: 'POST',
 				path: '/kernel/v1/books',
 				kind: 'create',
-				cacheSegments: ['create'],
+				cacheSegments: ['books', 'create'],
 				tags: { 'resource.wpPost.mutation': 'create' },
 			},
 			{
 				method: 'PUT',
 				path: '/kernel/v1/books/:slug',
 				kind: 'update',
-				cacheSegments: ['update'],
+				cacheSegments: ['books', 'update'],
 				tags: { 'resource.wpPost.mutation': 'update' },
 			},
 			{
 				method: 'DELETE',
 				path: '/kernel/v1/books/:slug',
 				kind: 'remove',
-				cacheSegments: ['remove'],
+				cacheSegments: ['books', 'remove'],
 				tags: { 'resource.wpPost.mutation': 'delete' },
 			},
 		]);
@@ -390,11 +392,11 @@ function createIr(): IRv1 {
 		schemaProvenance: 'manual',
 		routes: createRoutes(),
 		cacheKeys: {
-			list: { segments: [], source: 'default' },
-			get: { segments: [], source: 'default' },
-			create: { segments: [], source: 'default' },
-			update: { segments: [], source: 'default' },
-			remove: { segments: [], source: 'default' },
+			list: { segments: ['books', 'list'], source: 'default' },
+			get: { segments: ['books', 'get'], source: 'default' },
+			create: { segments: ['books', 'create'], source: 'default' },
+			update: { segments: ['books', 'update'], source: 'default' },
+			remove: { segments: ['books', 'remove'], source: 'default' },
 		},
 		identity: { type: 'string' },
 		storage: {
@@ -467,6 +469,27 @@ function createRoutes(): IRRoute[] {
 			path: '/kernel/v1/books/:slug',
 			policy: undefined,
 			hash: 'get',
+			transport: 'local',
+		},
+		{
+			method: 'POST',
+			path: '/kernel/v1/books',
+			policy: undefined,
+			hash: 'create',
+			transport: 'local',
+		},
+		{
+			method: 'PUT',
+			path: '/kernel/v1/books/:slug',
+			policy: undefined,
+			hash: 'update',
+			transport: 'local',
+		},
+		{
+			method: 'DELETE',
+			path: '/kernel/v1/books/:slug',
+			policy: undefined,
+			hash: 'remove',
 			transport: 'local',
 		},
 	];
