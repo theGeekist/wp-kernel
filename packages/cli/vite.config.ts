@@ -1,24 +1,18 @@
-import { fileURLToPath } from 'node:url';
+import { resolve as resolvePath } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import type { PluginOption } from 'vite';
 import type { Reporter } from '@wpkernel/core/reporter';
-import { createPhpDriverInstaller } from './src/next/builders/phpDriver';
 import { createWorkspace } from './src/next/workspace';
 import { createWPKLibConfig } from '../../vite.config.base';
 import pkg from './package.json';
 
-const external = [
-	...Object.keys(pkg.peerDependencies || {}),
-	'chokidar',
-	'clipanion',
-	'cosmiconfig',
-	'typanion',
-	'@wordpress/dataviews',
-	'@wordpress/data',
-	'@wordpress/components',
-	'@wordpress/element',
-	'typescript',
-	'ts-morph',
-];
+interface DriverInstallerHelper {
+	key: string;
+	kind: 'builder';
+	apply: (...args: readonly unknown[]) => Promise<void> | void;
+}
+
+type PhpDriverInstallerFactory = () => DriverInstallerHelper;
 
 function resolveCliRoot(): string {
 	if (typeof __dirname === 'string') {
@@ -34,6 +28,61 @@ function resolveCliRoot(): string {
 }
 
 const CLI_ROOT = resolveCliRoot();
+
+let cachedPhpDriverInstaller: PhpDriverInstallerFactory | null = null;
+
+async function loadPhpDriverInstaller(): Promise<PhpDriverInstallerFactory> {
+	if (cachedPhpDriverInstaller) {
+		return cachedPhpDriverInstaller;
+	}
+
+	const distEntryPath = resolvePath(
+		CLI_ROOT,
+		'dist/next/builders/php/index.js'
+	);
+	const srcEntryPath = resolvePath(
+		CLI_ROOT,
+		'src/next/builders/php/index.ts'
+	);
+	const distEntryUrl = pathToFileURL(distEntryPath).href;
+	const srcEntryUrl = pathToFileURL(srcEntryPath).href;
+
+	try {
+		const module = (await import(distEntryUrl)) as {
+			createPhpDriverInstaller: PhpDriverInstallerFactory;
+		};
+		cachedPhpDriverInstaller = module.createPhpDriverInstaller;
+	} catch {
+		const tsx = (await import('tsx/esm/api')) as {
+			tsImport: (
+				modulePath: string,
+				parent?: string | { parentURL: string }
+			) => Promise<{
+				createPhpDriverInstaller: PhpDriverInstallerFactory;
+			}>;
+		};
+		const exports = await tsx.tsImport(srcEntryPath, {
+			parentURL: srcEntryUrl,
+		});
+		cachedPhpDriverInstaller = exports.createPhpDriverInstaller;
+	}
+
+	return cachedPhpDriverInstaller;
+}
+
+const external = [
+	...Object.keys(pkg.peerDependencies || {}),
+	'chokidar',
+	'clipanion',
+	'cosmiconfig',
+	'typanion',
+	'@wordpress/dataviews',
+	'@wordpress/data',
+	'@wordpress/components',
+	'@wordpress/element',
+	'typescript',
+	'ts-morph',
+];
 
 function createConsoleReporter(): Reporter {
 	const log = (
@@ -107,7 +156,8 @@ function phpDriverInstallerPlugin(): PluginOption {
 
 			hasRun = true;
 
-			const helper = createPhpDriverInstaller();
+			const factory = await loadPhpDriverInstaller();
+			const helper = factory();
 			const reporter = createConsoleReporter();
 			const workspace = createWorkspace(CLI_ROOT);
 
@@ -143,5 +193,30 @@ const existingPlugins = config.plugins ?? [];
 config.plugins = Array.isArray(existingPlugins)
 	? [...existingPlugins, phpDriverInstallerPlugin()]
 	: [existingPlugins, phpDriverInstallerPlugin()];
+
+const cliSrcRoot = resolvePath(CLI_ROOT, 'src');
+const existingAlias = config.resolve?.alias;
+const aliasEntries = Array.isArray(existingAlias)
+	? existingAlias.slice()
+	: Object.entries(existingAlias ?? {}).map(([find, replacement]) => ({
+			find,
+			replacement,
+		}));
+
+aliasEntries.push(
+	{
+		find: /^@wpkernel\/cli$/,
+		replacement: resolvePath(cliSrcRoot, 'index.ts'),
+	},
+	{
+		find: /^@wpkernel\/cli\//,
+		replacement: `${cliSrcRoot}/`,
+	}
+);
+
+config.resolve = {
+	...(config.resolve ?? {}),
+	alias: aliasEntries,
+};
 
 export default config;

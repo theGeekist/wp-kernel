@@ -55,7 +55,15 @@ describe('createPhpDriverInstaller', () => {
 	});
 
 	it('runs composer install when vendor autoload is missing', async () => {
-		existsMock.mockResolvedValue(false);
+		existsMock.mockImplementation(async (target) => {
+			if (target.endsWith('composer.json')) {
+				return true;
+			}
+			if (target.endsWith('vendor/autoload.php')) {
+				return false;
+			}
+			return false;
+		});
 
 		await helper.apply(
 			{
@@ -79,7 +87,15 @@ describe('createPhpDriverInstaller', () => {
 	});
 
 	it('logs debug when dependency already present', async () => {
-		existsMock.mockResolvedValue(true);
+		existsMock.mockImplementation(async (target) => {
+			if (target.endsWith('composer.json')) {
+				return true;
+			}
+			if (target.endsWith('vendor/autoload.php')) {
+				return true;
+			}
+			return false;
+		});
 
 		await helper.apply(
 			{
@@ -98,7 +114,15 @@ describe('createPhpDriverInstaller', () => {
 	});
 
 	it('throws KernelError when composer install fails', async () => {
-		existsMock.mockResolvedValue(false);
+		existsMock.mockImplementation(async (target) => {
+			if (target.endsWith('composer.json')) {
+				return true;
+			}
+			if (target.endsWith('vendor/autoload.php')) {
+				return false;
+			}
+			return false;
+		});
 		(execFile as unknown as jest.Mock).mockImplementationOnce(
 			(
 				_cmd: string,
@@ -130,7 +154,15 @@ describe('createPhpDriverInstaller', () => {
 	});
 
 	it('normalizes non-Error failures from composer install', async () => {
-		existsMock.mockResolvedValue(false);
+		existsMock.mockImplementation(async (target) => {
+			if (target.endsWith('composer.json')) {
+				return true;
+			}
+			if (target.endsWith('vendor/autoload.php')) {
+				return false;
+			}
+			return false;
+		});
 		(execFile as unknown as jest.Mock).mockImplementationOnce(
 			(
 				_cmd: string,

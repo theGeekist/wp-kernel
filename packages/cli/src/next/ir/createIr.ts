@@ -19,6 +19,7 @@ import {
 	createBundler,
 	createPatcher,
 	createPhpBuilder,
+	createPhpDriverInstaller,
 	createTsBuilder,
 } from '../builders';
 import { createAdapterExtensionsExtension } from '../runtime/adapterExtensions';
@@ -44,6 +45,7 @@ function registerCoreFragments(pipeline: Pipeline): void {
 
 function registerCoreBuilders(pipeline: Pipeline): void {
 	pipeline.builders.use(createBundler());
+	pipeline.builders.use(createPhpDriverInstaller());
 	pipeline.builders.use(createPhpBuilder());
 	pipeline.builders.use(createTsBuilder());
 	pipeline.builders.use(createPatcher());
