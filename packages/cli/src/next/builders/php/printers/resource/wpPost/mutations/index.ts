@@ -17,3 +17,14 @@ export {
 	createPropertyExpression,
 	type MacroExpression,
 } from './macros';
+export {
+	buildCreateRouteBody,
+	buildUpdateRouteBody,
+	buildDeleteRouteBody,
+} from './routes';
+export {
+	syncWpPostMeta,
+	syncWpPostTaxonomies,
+	prepareWpPostResponse,
+	type MutationHelperOptions,
+} from './helpers';
