@@ -11,6 +11,7 @@ import {
 	createNode,
 	createReturn,
 	createScalarBool,
+	createScalarInt,
 	createScalarString,
 	createVariable,
 	type PhpExprBooleanNot,
@@ -136,6 +137,25 @@ export function buildCreateRouteBody(
 		statements: [insertReturn],
 	});
 	options.body.statement(insertGuard);
+
+	const insertFailedReturn = createWpErrorReturn({
+		indentLevel: indentLevel + 1,
+		code: errorCodeFactory('create_failed'),
+		message: `Unable to create ${options.pascalName}.`,
+		status: 500,
+	});
+
+	const insertFailureGuard = createIfPrintable({
+		indentLevel,
+		condition: createBinaryOperation(
+			'Identical',
+			createScalarInt(0),
+			createVariable('post_id')
+		),
+		conditionText: `${indent}if ( 0 === $post_id ) {`,
+		statements: [insertFailedReturn],
+	});
+	options.body.statement(insertFailureGuard);
 	options.body.blank();
 
 	appendSyncMetaMacro({
@@ -316,6 +336,25 @@ export function buildUpdateRouteBody(
 		statements: [resultReturn],
 	});
 	options.body.statement(resultGuard);
+
+	const updateFailedReturn = createWpErrorReturn({
+		indentLevel: indentLevel + 1,
+		code: errorCodeFactory('update_failed'),
+		message: `Unable to update ${options.pascalName}.`,
+		status: 500,
+	});
+
+	const updateFailureGuard = createIfPrintable({
+		indentLevel,
+		condition: createBinaryOperation(
+			'Identical',
+			createScalarInt(0),
+			createVariable('result')
+		),
+		conditionText: `${indent}if ( 0 === $result ) {`,
+		statements: [updateFailedReturn],
+	});
+	options.body.statement(updateFailureGuard);
 	options.body.blank();
 
 	appendSyncMetaMacro({
