@@ -6636,6 +6636,136 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                   "attributes": {},
                   "expr": {
                     "attributes": {},
+                    "name": "query_args",
+                    "nodeType": "Expr_Variable",
+                  },
+                  "nodeType": "Expr_Assign",
+                  "var": {
+                    "attributes": {},
+                    "name": "count_query_args",
+                    "nodeType": "Expr_Variable",
+                  },
+                },
+                "nodeType": "Stmt_Expression",
+              },
+              {
+                "attributes": {},
+                "expr": {
+                  "attributes": {},
+                  "expr": {
+                    "attributes": {},
+                    "name": {
+                      "attributes": {},
+                      "nodeType": "Name",
+                      "parts": [
+                        "true",
+                      ],
+                    },
+                    "nodeType": "Expr_ConstFetch",
+                  },
+                  "nodeType": "Expr_Assign",
+                  "var": {
+                    "attributes": {},
+                    "dim": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "count",
+                    },
+                    "nodeType": "Expr_ArrayDimFetch",
+                    "var": {
+                      "attributes": {},
+                      "name": "count_query_args",
+                      "nodeType": "Expr_Variable",
+                    },
+                  },
+                },
+                "nodeType": "Stmt_Expression",
+              },
+              {
+                "attributes": {},
+                "expr": {
+                  "attributes": {},
+                  "expr": {
+                    "attributes": {},
+                    "nodeType": "Scalar_LNumber",
+                    "value": 0,
+                  },
+                  "nodeType": "Expr_Assign",
+                  "var": {
+                    "attributes": {},
+                    "dim": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "number",
+                    },
+                    "nodeType": "Expr_ArrayDimFetch",
+                    "var": {
+                      "attributes": {},
+                      "name": "count_query_args",
+                      "nodeType": "Expr_Variable",
+                    },
+                  },
+                },
+                "nodeType": "Stmt_Expression",
+              },
+              {
+                "attributes": {},
+                "expr": {
+                  "attributes": {},
+                  "expr": {
+                    "attributes": {},
+                    "nodeType": "Scalar_LNumber",
+                    "value": 0,
+                  },
+                  "nodeType": "Expr_Assign",
+                  "var": {
+                    "attributes": {},
+                    "dim": {
+                      "attributes": {},
+                      "nodeType": "Scalar_String",
+                      "value": "offset",
+                    },
+                    "nodeType": "Expr_ArrayDimFetch",
+                    "var": {
+                      "attributes": {},
+                      "name": "count_query_args",
+                      "nodeType": "Expr_Variable",
+                    },
+                  },
+                },
+                "nodeType": "Stmt_Expression",
+              },
+              {
+                "attributes": {},
+                "expr": {
+                  "attributes": {},
+                  "expr": {
+                    "args": [],
+                    "attributes": {},
+                    "class": {
+                      "attributes": {},
+                      "nodeType": "Name",
+                      "parts": [
+                        "WP_Term_Query",
+                      ],
+                    },
+                    "nodeType": "Expr_New",
+                  },
+                  "nodeType": "Expr_Assign",
+                  "var": {
+                    "attributes": {},
+                    "name": "count_query",
+                    "nodeType": "Expr_Variable",
+                  },
+                },
+                "nodeType": "Stmt_Expression",
+              },
+              {
+                "attributes": {},
+                "expr": {
+                  "attributes": {},
+                  "expr": {
+                    "attributes": {},
                     "expr": {
                       "args": [
                         {
@@ -6645,31 +6775,24 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                           "nodeType": "Arg",
                           "unpack": false,
                           "value": {
-                            "args": [],
                             "attributes": {},
-                            "name": {
-                              "attributes": {},
-                              "name": "get_terms",
-                              "nodeType": "Identifier",
-                            },
-                            "nodeType": "Expr_MethodCall",
-                            "var": {
-                              "attributes": {},
-                              "name": "term_query",
-                              "nodeType": "Expr_Variable",
-                            },
+                            "name": "count_query_args",
+                            "nodeType": "Expr_Variable",
                           },
                         },
                       ],
                       "attributes": {},
                       "name": {
                         "attributes": {},
-                        "nodeType": "Name",
-                        "parts": [
-                          "count",
-                        ],
+                        "name": "query",
+                        "nodeType": "Identifier",
                       },
-                      "nodeType": "Expr_FuncCall",
+                      "nodeType": "Expr_MethodCall",
+                      "var": {
+                        "attributes": {},
+                        "name": "count_query",
+                        "nodeType": "Expr_Variable",
+                      },
                     },
                     "nodeType": "Expr_Cast_Int",
                   },
@@ -8384,7 +8507,13 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
   "                        }",
   "                }",
   "",
-  "                $total = (int) count( $term_query->get_terms() );",
+  "                $count_query_args = $query_args;",
+  "                $count_query_args['count'] = true;",
+  "                $count_query_args['number'] = 0;",
+  "                $count_query_args['offset'] = 0;",
+  "",
+  "                $count_query = new WP_Term_Query();",
+  "                $total = (int) $count_query->query( $count_query_args );",
   "                $pages = (int) ceil( $total / max( 1, $per_page ) );",
   "",
   "                return array(",

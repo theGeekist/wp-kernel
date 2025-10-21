@@ -220,25 +220,82 @@ export function buildWpTaxonomyListRouteBody(
 	options.body.statement(foreachPrintable);
 	options.body.blank();
 
+	const countQueryArgsAssign = createPrintable(
+		createExpressionStatement(
+			createAssign(
+				createVariable('count_query_args'),
+				createVariable('query_args')
+			)
+		),
+		[`${indent}$count_query_args = $query_args;`]
+	);
+	options.body.statement(countQueryArgsAssign);
+
+	const countFlagAssign = createPrintable(
+		createExpressionStatement(
+			createAssign(
+				buildArrayDimFetch(
+					'count_query_args',
+					createScalarString('count')
+				),
+				createScalarBool(true)
+			)
+		),
+		[`${indent}$count_query_args['count'] = true;`]
+	);
+	options.body.statement(countFlagAssign);
+
+	const countNumberAssign = createPrintable(
+		createExpressionStatement(
+			createAssign(
+				buildArrayDimFetch(
+					'count_query_args',
+					createScalarString('number')
+				),
+				createScalarInt(0)
+			)
+		),
+		[`${indent}$count_query_args['number'] = 0;`]
+	);
+	options.body.statement(countNumberAssign);
+
+	const countOffsetAssign = createPrintable(
+		createExpressionStatement(
+			createAssign(
+				buildArrayDimFetch(
+					'count_query_args',
+					createScalarString('offset')
+				),
+				createScalarInt(0)
+			)
+		),
+		[`${indent}$count_query_args['offset'] = 0;`]
+	);
+	options.body.statement(countOffsetAssign);
+	options.body.blank();
+
+	options.body.statement(
+		createWpTermQueryInstantiation({
+			target: 'count_query',
+			indentLevel,
+		})
+	);
+
 	const totalAssign = createPrintable(
 		createExpressionStatement(
 			createAssign(
 				createVariable('total'),
 				buildScalarCast(
 					'int',
-					createFuncCall(createName(['count']), [
-						createArg(
-							createMethodCall(
-								createVariable('term_query'),
-								createIdentifier('get_terms'),
-								[]
-							)
-						),
-					])
+					createMethodCall(
+						createVariable('count_query'),
+						createIdentifier('query'),
+						[createArg(createVariable('count_query_args'))]
+					)
 				)
 			)
 		),
-		[`${indent}$total = (int) count( $term_query->get_terms() );`]
+		[`${indent}$total = (int) $count_query->query( $count_query_args );`]
 	);
 	options.body.statement(totalAssign);
 
