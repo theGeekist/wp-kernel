@@ -14,10 +14,10 @@ import { createPrintable, type PhpPrintable } from '../../../ast/printables';
 import { PHP_INDENT } from '../../../ast/templates';
 import type { ResolvedIdentity } from '../../identity';
 import {
-	createBinaryOperation,
-	createBooleanNot,
-	createIfPrintable,
-	createScalarCast,
+	buildBinaryOperation,
+	buildBooleanNot,
+	buildIfPrintable,
+	buildScalarCast,
 	normaliseVariableReference,
 } from '../utils';
 import { createWpErrorReturn } from '../errors';
@@ -45,9 +45,9 @@ export function createIdentityValidationPrintables(
 			status: 400,
 		});
 		statements.push(
-			createIfPrintable({
+			buildIfPrintable({
 				indentLevel,
-				condition: createBinaryOperation(
+				condition: buildBinaryOperation(
 					'Identical',
 					createNull(),
 					createVariable(variable.raw)
@@ -62,7 +62,7 @@ export function createIdentityValidationPrintables(
 				createExpressionStatement(
 					createAssign(
 						createVariable(variable.raw),
-						createScalarCast('int', createVariable(variable.raw))
+						buildScalarCast('int', createVariable(variable.raw))
 					)
 				),
 				[`${indent}${variable.display} = (int) ${variable.display};`]
@@ -76,9 +76,9 @@ export function createIdentityValidationPrintables(
 			status: 400,
 		});
 		statements.push(
-			createIfPrintable({
+			buildIfPrintable({
 				indentLevel,
-				condition: createBinaryOperation(
+				condition: buildBinaryOperation(
 					'SmallerOrEqual',
 					createVariable(variable.raw),
 					createScalarInt(0)
@@ -98,14 +98,14 @@ export function createIdentityValidationPrintables(
 		status: 400,
 	});
 
-	const condition = createBinaryOperation(
+	const condition = buildBinaryOperation(
 		'BooleanOr',
-		createBooleanNot(
+		buildBooleanNot(
 			createFuncCall(createName(['is_string']), [
 				createArg(createVariable(variable.raw)),
 			])
 		),
-		createBinaryOperation(
+		buildBinaryOperation(
 			'Identical',
 			createScalarString(''),
 			createFuncCall(createName(['trim']), [
@@ -115,7 +115,7 @@ export function createIdentityValidationPrintables(
 	);
 
 	statements.push(
-		createIfPrintable({
+		buildIfPrintable({
 			indentLevel,
 			condition,
 			conditionText: `${indent}if ( ! is_string( ${variable.display} ) || '' === trim( ${variable.display} ) ) {`,
@@ -130,7 +130,7 @@ export function createIdentityValidationPrintables(
 					createVariable(variable.raw),
 					createFuncCall(createName(['trim']), [
 						createArg(
-							createScalarCast(
+							buildScalarCast(
 								'string',
 								createVariable(variable.raw)
 							)

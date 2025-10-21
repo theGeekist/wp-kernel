@@ -13,7 +13,7 @@ import {
 import { createPrintable, type PhpPrintable } from '../../ast/printables';
 import { PHP_INDENT } from '../../ast/templates';
 import {
-	createScalarCast,
+	buildScalarCast,
 	normaliseVariableReference,
 	type ScalarCastKind,
 } from './utils';
@@ -50,7 +50,7 @@ export function createRequestParamAssignment(
 	);
 
 	const expression: PhpExpr = cast
-		? createScalarCast(cast, methodCall)
+		? buildScalarCast(cast, methodCall)
 		: methodCall;
 
 	const assignment = createAssign(createVariable(target.raw), expression);

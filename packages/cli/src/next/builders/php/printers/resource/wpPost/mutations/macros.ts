@@ -26,12 +26,12 @@ import {
 } from '../../../../ast/templates';
 import { escapeSingleQuotes } from '../../../../ast/utils';
 import {
-	createArrayDimFetch,
-	createBinaryOperation,
-	createBooleanNot,
-	createIfPrintable,
-	createInstanceof,
-	createPropertyFetch,
+	buildArrayDimFetch,
+	buildBinaryOperation,
+	buildBooleanNot,
+	buildIfPrintable,
+	buildInstanceof,
+	buildPropertyFetch,
 } from '../../utils';
 import type { ResourceMutationContract } from '../../mutationContract';
 
@@ -53,7 +53,7 @@ export function createArrayDimExpression(
 ): MacroExpression {
 	const escapedKey = escapeSingleQuotes(key);
 	return {
-		expression: createArrayDimFetch(array, createScalarString(key)),
+		expression: buildArrayDimFetch(array, createScalarString(key)),
 		display: `$${array}['${escapedKey}']`,
 	};
 }
@@ -63,7 +63,7 @@ export function createPropertyExpression(
 	property: string
 ): MacroExpression {
 	return {
-		expression: createPropertyFetch(object, property),
+		expression: buildPropertyFetch(object, property),
 		display: `$${object}->${property}`,
 	};
 }
@@ -164,9 +164,9 @@ export function appendStatusValidationMacro(
 				`${childIndent}${options.target.display} = $this->normalise${options.pascalName}Status( ${statusVariable.display} );`,
 			]
 		);
-		const guard = createIfPrintable({
+		const guard = buildIfPrintable({
 			indentLevel: options.indentLevel,
-			condition: createBinaryOperation(
+			condition: buildBinaryOperation(
 				'NotIdentical',
 				createNull(),
 				statusVariable.expression
@@ -260,7 +260,7 @@ export function appendSyncTaxonomiesMacro(
 		createReturn(options.resultVariable.expression),
 		[`${childIndent}return ${options.resultVariable.display};`]
 	);
-	const guard = createIfPrintable({
+	const guard = buildIfPrintable({
 		indentLevel: options.indentLevel,
 		condition: createFuncCall(createName(['is_wp_error']), [
 			createArg(options.resultVariable.expression),
@@ -329,10 +329,10 @@ export function appendCachePrimingMacro(
 			options.failureMessage
 		)}', array( 'status' => 500 ) );`,
 	]);
-	const guard = createIfPrintable({
+	const guard = buildIfPrintable({
 		indentLevel: options.indentLevel,
-		condition: createBooleanNot(
-			createInstanceof(postVariableName, 'WP_Post')
+		condition: buildBooleanNot(
+			buildInstanceof(postVariableName, 'WP_Post')
 		),
 		conditionText: `${indent}if ( ! ${postVariable.display} instanceof WP_Post ) {`,
 		statements: [failureReturn],

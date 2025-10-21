@@ -17,10 +17,10 @@ import {
 import { createPrintable, type PhpPrintable } from '../../../ast/printables';
 import { PHP_INDENT } from '../../../ast/templates';
 import {
-	createArrayDimFetch,
-	createBooleanNot,
-	createInstanceof,
-	createPropertyFetch,
+	buildArrayDimFetch,
+	buildBooleanNot,
+	buildInstanceof,
+	buildPropertyFetch,
 } from '../utils';
 
 export interface ListItemsInitialiserOptions {
@@ -70,7 +70,7 @@ export function createListForeachPrintable(
 
 	const guard = createPrintable(
 		createNode<PhpStmtIf>('Stmt_If', {
-			cond: createBooleanNot(createInstanceof('post', 'WP_Post')),
+			cond: buildBooleanNot(buildInstanceof('post', 'WP_Post')),
 			stmts: [continuePrintable.node],
 			elseifs: [],
 			else: null,
@@ -85,7 +85,7 @@ export function createListForeachPrintable(
 	const pushPrintable = createPrintable(
 		createExpressionStatement(
 			createAssign(
-				createArrayDimFetch('items', null),
+				buildArrayDimFetch('items', null),
 				createMethodCall(
 					createVariable('this'),
 					createIdentifier(`prepare${options.pascalName}Response`),
@@ -102,7 +102,7 @@ export function createListForeachPrintable(
 	);
 
 	const foreachNode = createNode<PhpStmtForeach>('Stmt_Foreach', {
-		expr: createPropertyFetch('query', 'posts'),
+		expr: buildPropertyFetch('query', 'posts'),
 		valueVar: createVariable('post_id'),
 		keyVar: null,
 		byRef: false,
