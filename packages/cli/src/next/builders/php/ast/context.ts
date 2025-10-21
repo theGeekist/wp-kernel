@@ -16,6 +16,13 @@ export interface PhpAstContext {
 	readonly uses: Map<string, ProgramUse>;
 	readonly statements: PhpStmt[];
 	readonly statementLines: string[];
+	readonly statementEntries: PhpStatementEntry[];
+	readonly pendingStatementLines: string[];
+}
+
+export interface PhpStatementEntry {
+	readonly node: PhpStmt;
+	readonly lines: readonly string[];
 }
 
 export interface PhpAstContextEntry {
@@ -71,6 +78,8 @@ function createChannel(): PhpAstChannel {
 				uses: new Map<string, ProgramUse>(),
 				statements: [],
 				statementLines: [],
+				statementEntries: [],
+				pendingStatementLines: [],
 			};
 
 			const entry: PhpAstContextEntry = {
@@ -122,13 +131,19 @@ export function appendStatementLine(
 	line: string
 ): void {
 	context.statementLines.push(line);
+	context.pendingStatementLines.push(line);
 }
 
 export function appendProgramStatement(
 	context: PhpAstContext,
 	statement: PhpStmt
 ): void {
+	const lines = context.pendingStatementLines.length
+		? [...context.pendingStatementLines]
+		: [];
+	context.pendingStatementLines.length = 0;
 	context.statements.push(statement);
+	context.statementEntries.push({ node: statement, lines });
 }
 
 export type { ProgramUse };

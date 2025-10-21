@@ -63,7 +63,7 @@ describe('wpPost query helpers', () => {
 describe('wpPost list helpers', () => {
 	it('initialises the items array with indentation', () => {
 		const printable = createListItemsInitialiser({ indentLevel: 2 });
-		expect(printable.lines).toEqual(['                $items = array();']);
+		expect(printable.lines).toEqual(['                $items = [];']);
 	});
 
 	it('creates the foreach loop with guards and response push', () => {
@@ -97,7 +97,7 @@ describe('wpPost identity helpers', () => {
 		expect(statements).toHaveLength(3);
 		expect(statements[0]?.lines).toEqual([
 			'        if ( null === $book_id ) {',
-			"                return new WP_Error( 'book_missing_identifier', 'Missing identifier for Book.', array( 'status' => 400 ) );",
+			"                return new WP_Error( 'book_missing_identifier', 'Missing identifier for Book.', [ 'status' => 400 ] );",
 			'        }',
 		]);
 		expect(statements[1]?.lines).toEqual([
@@ -105,7 +105,7 @@ describe('wpPost identity helpers', () => {
 		]);
 		expect(statements[2]?.lines).toEqual([
 			'        if ( $book_id <= 0 ) {',
-			"                return new WP_Error( 'book_invalid_identifier', 'Invalid identifier for Book.', array( 'status' => 400 ) );",
+			"                return new WP_Error( 'book_invalid_identifier', 'Invalid identifier for Book.', [ 'status' => 400 ] );",
 			'        }',
 		]);
 	});
@@ -121,7 +121,7 @@ describe('wpPost identity helpers', () => {
 		expect(statements).toHaveLength(2);
 		expect(statements[0]?.lines).toEqual([
 			"        if ( ! is_string( $slug ) || '' === trim( $slug ) ) {",
-			"                return new WP_Error( 'book_missing_identifier', 'Missing identifier for Book.', array( 'status' => 400 ) );",
+			"                return new WP_Error( 'book_missing_identifier', 'Missing identifier for Book.', [ 'status' => 400 ] );",
 			'        }',
 		]);
 		expect(statements[1]?.lines).toEqual([

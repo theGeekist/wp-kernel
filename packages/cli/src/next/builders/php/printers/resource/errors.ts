@@ -45,7 +45,7 @@ export function createWpErrorReturn(
 	const returnNode = createReturn(errorExpr);
 	const line = `${indent}return new WP_Error( '${escapeSingleQuotes(
 		code
-	)}', '${escapeSingleQuotes(message)}', array( 'status' => ${status} ) );`;
+	)}', '${escapeSingleQuotes(message)}', [ 'status' => ${status} ] );`;
 
 	return createPrintable(returnNode, [line]);
 }

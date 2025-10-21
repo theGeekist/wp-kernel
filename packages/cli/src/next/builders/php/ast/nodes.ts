@@ -55,6 +55,29 @@ function normaliseAttributes(attributes?: PhpAttributes): PhpAttributes {
 	return keys.length === 0 ? EMPTY_ATTRIBUTES : { ...attributes };
 }
 
+export function mergeNodeAttributes<T extends PhpNode>(
+	node: T,
+	attributes?: PhpAttributes
+): T {
+	if (!attributes || attributes === node.attributes) {
+		return node;
+	}
+
+	const merged = normaliseAttributes({
+		...node.attributes,
+		...attributes,
+	});
+
+	if (merged === node.attributes) {
+		return node;
+	}
+
+	return {
+		...(node as Record<string, unknown>),
+		attributes: merged,
+	} as T;
+}
+
 export interface PhpNode {
 	readonly nodeType: string;
 	readonly attributes: PhpAttributes;
@@ -371,6 +394,12 @@ export interface PhpExprArrayItem extends PhpExprBase {
 	readonly unpack: boolean;
 }
 
+export interface PhpExprArrayDimFetch extends PhpExprBase {
+	readonly nodeType: 'Expr_ArrayDimFetch';
+	readonly var: PhpExpr;
+	readonly dim: PhpExpr | null;
+}
+
 export interface PhpExprVariable extends PhpExprBase {
 	readonly nodeType: 'Expr_Variable';
 	readonly name: string | PhpExpr;
@@ -410,6 +439,12 @@ export interface PhpExprConstFetch extends PhpExprBase {
 export interface PhpExprBooleanNot extends PhpExprBase {
 	readonly nodeType: 'Expr_BooleanNot';
 	readonly expr: PhpExpr;
+}
+
+export interface PhpExprInstanceof extends PhpExprBase {
+	readonly nodeType: 'Expr_Instanceof';
+	readonly expr: PhpExpr;
+	readonly class: PhpName | PhpExpr;
 }
 
 export interface PhpExprBinaryOp extends PhpExprBase {
@@ -494,10 +529,33 @@ export interface PhpExprClone extends PhpExprBase {
 	readonly expr: PhpExpr;
 }
 
+export interface PhpExprCastArray extends PhpExprBase {
+	readonly nodeType: 'Expr_Cast_Array';
+	readonly expr: PhpExpr;
+}
+
+export interface PhpClosureUse extends PhpNode {
+	readonly nodeType: 'ClosureUse' | 'Expr_ClosureUse';
+	readonly var: PhpExprVariable;
+	readonly byRef: boolean;
+}
+
+export interface PhpExprClosure extends PhpExprBase {
+	readonly nodeType: 'Expr_Closure';
+	readonly static: boolean;
+	readonly byRef: boolean;
+	readonly params: PhpParam[];
+	readonly uses: PhpClosureUse[];
+	readonly returnType: PhpType | null;
+	readonly stmts: PhpStmt[];
+	readonly attrGroups: PhpAttrGroup[];
+}
+
 export type PhpExpr =
 	| PhpExprAssign
 	| PhpExprArray
 	| PhpExprArrayItem
+	| PhpExprArrayDimFetch
 	| PhpExprVariable
 	| PhpExprMethodCall
 	| PhpExprStaticCall
@@ -505,6 +563,7 @@ export type PhpExpr =
 	| PhpExprNew
 	| PhpExprConstFetch
 	| PhpExprBooleanNot
+	| PhpExprInstanceof
 	| PhpExprBinaryOp
 	| PhpExprTernary
 	| PhpExprNullsafePropertyFetch
@@ -514,6 +573,8 @@ export type PhpExpr =
 	| PhpExprUnaryMinus
 	| PhpExprUnaryPlus
 	| PhpExprClone
+	| PhpExprCastArray
+	| PhpExprClosure
 	| PhpScalar
 	| PhpExprBase;
 
@@ -526,7 +587,8 @@ export type PhpNodeLike =
 	| PhpAttrGroup
 	| PhpParam
 	| PhpArg
-	| PhpConst;
+	| PhpConst
+	| PhpClosureUse;
 
 /**
  * Generic factory helper for node construction. Consumers should prefer the
@@ -859,6 +921,18 @@ export function createAssign(
 	);
 }
 
+export function createArrayDimFetch(
+	variable: PhpExpr,
+	dim: PhpExpr | null,
+	attributes?: PhpAttributes
+): PhpExprArrayDimFetch {
+	return createNode<PhpExprArrayDimFetch>(
+		'Expr_ArrayDimFetch',
+		{ var: variable, dim },
+		attributes
+	);
+}
+
 export function createMethodCall(
 	variable: PhpExpr,
 	name: PhpIdentifier | PhpExpr,
@@ -897,6 +971,30 @@ export function createFuncCall(
 	);
 }
 
+export function createPropertyFetch(
+	variable: PhpExpr,
+	name: PhpIdentifier | PhpExpr,
+	attributes?: PhpAttributes
+): PhpExprPropertyFetch {
+	return createNode<PhpExprPropertyFetch>(
+		'Expr_PropertyFetch',
+		{ var: variable, name },
+		attributes
+	);
+}
+
+export function createInstanceof(
+	expr: PhpExpr,
+	className: PhpName | PhpExpr,
+	attributes?: PhpAttributes
+): PhpExprInstanceof {
+	return createNode<PhpExprInstanceof>(
+		'Expr_Instanceof',
+		{ expr, class: className },
+		attributes
+	);
+}
+
 export function createArg(
 	value: PhpExpr,
 	options: {
@@ -913,6 +1011,56 @@ export function createArg(
 			byRef: options.byRef ?? false,
 			unpack: options.unpack ?? false,
 			name: options.name ?? null,
+		},
+		attributes
+	);
+}
+
+export function createArrayCast(
+	expr: PhpExpr,
+	attributes?: PhpAttributes
+): PhpExprCastArray {
+	return createNode<PhpExprCastArray>(
+		'Expr_Cast_Array',
+		{ expr },
+		attributes
+	);
+}
+
+export function createClosureUse(
+	variable: PhpExprVariable,
+	options: { byRef?: boolean } = {},
+	attributes?: PhpAttributes
+): PhpClosureUse {
+	return createNode<PhpClosureUse>(
+		'ClosureUse',
+		{ var: variable, byRef: options.byRef ?? false },
+		attributes
+	);
+}
+
+export function createClosure(
+	options: {
+		static?: boolean;
+		byRef?: boolean;
+		params?: PhpParam[];
+		uses?: PhpClosureUse[];
+		returnType?: PhpType | null;
+		stmts?: PhpStmt[];
+		attrGroups?: PhpAttrGroup[];
+	} = {},
+	attributes?: PhpAttributes
+): PhpExprClosure {
+	return createNode<PhpExprClosure>(
+		'Expr_Closure',
+		{
+			static: options.static ?? false,
+			byRef: options.byRef ?? false,
+			params: options.params ?? [],
+			uses: options.uses ?? [],
+			returnType: options.returnType ?? null,
+			stmts: options.stmts ?? [],
+			attrGroups: options.attrGroups ?? [],
 		},
 		attributes
 	);

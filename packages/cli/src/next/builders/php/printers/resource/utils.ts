@@ -1,8 +1,14 @@
 import { KernelError } from '@wpkernel/core/contracts';
 import {
+	createArray,
+	createArrayDimFetch,
+	createAssign,
 	createIdentifier,
+	createInstanceof,
 	createName,
 	createNode,
+	createExpressionStatement,
+	createPropertyFetch,
 	createVariable,
 	type PhpExpr,
 	type PhpExprBase,
@@ -142,26 +148,39 @@ export function buildArrayDimFetch(
 	target: string,
 	dim: PhpExpr | null
 ): PhpExpr {
-	return createNode('Expr_ArrayDimFetch', {
-		var: createVariable(target),
-		dim,
-	}) as unknown as PhpExpr;
+	return createArrayDimFetch(createVariable(target), dim);
 }
 
 export function buildPropertyFetch(target: string, property: string): PhpExpr {
-	return createNode('Expr_PropertyFetch', {
-		var: createVariable(target),
-		name: createIdentifier(property),
-	}) as unknown as PhpExpr;
+	return createPropertyFetch(
+		createVariable(target),
+		createIdentifier(property)
+	);
 }
 
 export function buildInstanceof(subject: string, className: string): PhpExpr {
-	return createNode('Expr_Instanceof', {
-		expr: createVariable(subject),
-		class: createName([className]),
-	}) as unknown as PhpExpr;
+	return createInstanceof(createVariable(subject), createName([className]));
 }
 
 export function buildBooleanNot(expr: PhpExpr): PhpExprBooleanNot {
 	return createNode<PhpExprBooleanNot>('Expr_BooleanNot', { expr });
+}
+
+export interface ArrayInitialiserOptions {
+	readonly variable: string;
+	readonly indentLevel: number;
+}
+
+export function buildArrayInitialiser(
+	options: ArrayInitialiserOptions
+): PhpPrintable<PhpStmt> {
+	const reference = normaliseVariableReference(options.variable);
+	const indent = PHP_INDENT.repeat(options.indentLevel);
+
+	return createPrintable(
+		createExpressionStatement(
+			createAssign(createVariable(reference.raw), createArray([]))
+		),
+		[`${indent}${reference.display} = [];`]
+	);
 }

@@ -62,7 +62,7 @@ describe('valueRenderers', () => {
 		expect(truthy.lines).toEqual(['true']);
 
 		const bigintPrintable = createPhpExpression(BigInt(99), 0);
-		expect(bigintPrintable.lines).toEqual(['99']);
+		expect(bigintPrintable.lines).toEqual(["'99'"]);
 	});
 
 	it('throws when encountering unsupported values', () => {

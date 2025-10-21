@@ -1,6 +1,5 @@
 import {
 	createArg,
-	createArray,
 	createAssign,
 	createExpressionStatement,
 	createFuncCall,
@@ -18,6 +17,7 @@ import { createPrintable, type PhpPrintable } from '../../../ast/printables';
 import { PHP_INDENT } from '../../../ast/templates';
 import {
 	buildArrayDimFetch,
+	buildArrayInitialiser,
 	buildBooleanNot,
 	buildInstanceof,
 	buildPropertyFetch,
@@ -30,13 +30,10 @@ export interface ListItemsInitialiserOptions {
 export function createListItemsInitialiser(
 	options: ListItemsInitialiserOptions
 ): PhpPrintable<PhpStmt> {
-	const indent = PHP_INDENT.repeat(options.indentLevel);
-	return createPrintable(
-		createExpressionStatement(
-			createAssign(createVariable('items'), createArray([]))
-		),
-		[`${indent}$items = array();`]
-	);
+	return buildArrayInitialiser({
+		variable: 'items',
+		indentLevel: options.indentLevel,
+	});
 }
 
 export interface ListForeachOptions {
