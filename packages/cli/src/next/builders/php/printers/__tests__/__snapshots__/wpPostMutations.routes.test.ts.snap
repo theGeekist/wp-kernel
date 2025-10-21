@@ -426,6 +426,98 @@ exports[`wp-post mutation route builders emits create route body with macros in 
                 ],
               },
               {
+                "attributes": {},
+                "cond": {
+                  "attributes": {},
+                  "left": {
+                    "attributes": {},
+                    "nodeType": "Scalar_LNumber",
+                    "value": 0,
+                  },
+                  "nodeType": "Expr_BinaryOp_Identical",
+                  "right": {
+                    "attributes": {},
+                    "name": "post_id",
+                    "nodeType": "Expr_Variable",
+                  },
+                },
+                "else": null,
+                "elseifs": [],
+                "nodeType": "Stmt_If",
+                "stmts": [
+                  {
+                    "attributes": {},
+                    "expr": {
+                      "args": [
+                        {
+                          "attributes": {},
+                          "byRef": false,
+                          "name": null,
+                          "nodeType": "Arg",
+                          "unpack": false,
+                          "value": {
+                            "attributes": {},
+                            "nodeType": "Scalar_String",
+                            "value": "wpk_book_create_failed",
+                          },
+                        },
+                        {
+                          "attributes": {},
+                          "byRef": false,
+                          "name": null,
+                          "nodeType": "Arg",
+                          "unpack": false,
+                          "value": {
+                            "attributes": {},
+                            "nodeType": "Scalar_String",
+                            "value": "Unable to create Book.",
+                          },
+                        },
+                        {
+                          "attributes": {},
+                          "byRef": false,
+                          "name": null,
+                          "nodeType": "Arg",
+                          "unpack": false,
+                          "value": {
+                            "attributes": {},
+                            "items": [
+                              {
+                                "attributes": {},
+                                "byRef": false,
+                                "key": {
+                                  "attributes": {},
+                                  "nodeType": "Scalar_String",
+                                  "value": "status",
+                                },
+                                "nodeType": "Expr_ArrayItem",
+                                "unpack": false,
+                                "value": {
+                                  "attributes": {},
+                                  "nodeType": "Scalar_LNumber",
+                                  "value": 500,
+                                },
+                              },
+                            ],
+                            "nodeType": "Expr_Array",
+                          },
+                        },
+                      ],
+                      "attributes": {},
+                      "class": {
+                        "attributes": {},
+                        "nodeType": "Name",
+                        "parts": [
+                          "WP_Error",
+                        ],
+                      },
+                      "nodeType": "Expr_New",
+                    },
+                    "nodeType": "Stmt_Return",
+                  },
+                ],
+              },
+              {
                 "attributes": {
                   "comments": [
                     {
@@ -2390,6 +2482,98 @@ exports[`wp-post mutation route builders emits update route body with guarded st
                       "attributes": {},
                       "name": "result",
                       "nodeType": "Expr_Variable",
+                    },
+                    "nodeType": "Stmt_Return",
+                  },
+                ],
+              },
+              {
+                "attributes": {},
+                "cond": {
+                  "attributes": {},
+                  "left": {
+                    "attributes": {},
+                    "nodeType": "Scalar_LNumber",
+                    "value": 0,
+                  },
+                  "nodeType": "Expr_BinaryOp_Identical",
+                  "right": {
+                    "attributes": {},
+                    "name": "result",
+                    "nodeType": "Expr_Variable",
+                  },
+                },
+                "else": null,
+                "elseifs": [],
+                "nodeType": "Stmt_If",
+                "stmts": [
+                  {
+                    "attributes": {},
+                    "expr": {
+                      "args": [
+                        {
+                          "attributes": {},
+                          "byRef": false,
+                          "name": null,
+                          "nodeType": "Arg",
+                          "unpack": false,
+                          "value": {
+                            "attributes": {},
+                            "nodeType": "Scalar_String",
+                            "value": "wpk_book_update_failed",
+                          },
+                        },
+                        {
+                          "attributes": {},
+                          "byRef": false,
+                          "name": null,
+                          "nodeType": "Arg",
+                          "unpack": false,
+                          "value": {
+                            "attributes": {},
+                            "nodeType": "Scalar_String",
+                            "value": "Unable to update Book.",
+                          },
+                        },
+                        {
+                          "attributes": {},
+                          "byRef": false,
+                          "name": null,
+                          "nodeType": "Arg",
+                          "unpack": false,
+                          "value": {
+                            "attributes": {},
+                            "items": [
+                              {
+                                "attributes": {},
+                                "byRef": false,
+                                "key": {
+                                  "attributes": {},
+                                  "nodeType": "Scalar_String",
+                                  "value": "status",
+                                },
+                                "nodeType": "Expr_ArrayItem",
+                                "unpack": false,
+                                "value": {
+                                  "attributes": {},
+                                  "nodeType": "Scalar_LNumber",
+                                  "value": 500,
+                                },
+                              },
+                            ],
+                            "nodeType": "Expr_Array",
+                          },
+                        },
+                      ],
+                      "attributes": {},
+                      "class": {
+                        "attributes": {},
+                        "nodeType": "Name",
+                        "parts": [
+                          "WP_Error",
+                        ],
+                      },
+                      "nodeType": "Expr_New",
                     },
                     "nodeType": "Stmt_Return",
                   },
