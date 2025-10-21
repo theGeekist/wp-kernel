@@ -23,9 +23,9 @@ import {
 	appendStatusValidationMacro,
 	appendSyncMetaMacro,
 	appendSyncTaxonomiesMacro,
-	createArrayDimExpression,
-	createPropertyExpression,
-	createVariableExpression,
+	buildArrayDimExpression,
+	buildPropertyExpression,
+	buildVariableExpression,
 } from '../macros';
 import {
 	buildBinaryOperation,
@@ -148,7 +148,7 @@ export function buildUpdateRouteBody(
 		indentLevel,
 		metadataKeys: options.metadataKeys,
 		pascalName: options.pascalName,
-		target: createArrayDimExpression('post_data', 'post_status'),
+		target: buildArrayDimExpression('post_data', 'post_status'),
 		guardWithNullCheck: true,
 	});
 	options.body.blank();
@@ -206,7 +206,7 @@ export function buildUpdateRouteBody(
 		indentLevel,
 		metadataKeys: options.metadataKeys,
 		pascalName: options.pascalName,
-		postId: createPropertyExpression('post', 'ID'),
+		postId: buildPropertyExpression('post', 'ID'),
 	});
 
 	appendSyncTaxonomiesMacro({
@@ -214,8 +214,8 @@ export function buildUpdateRouteBody(
 		indentLevel,
 		metadataKeys: options.metadataKeys,
 		pascalName: options.pascalName,
-		postId: createPropertyExpression('post', 'ID'),
-		resultVariable: createVariableExpression('taxonomy_result'),
+		postId: buildPropertyExpression('post', 'ID'),
+		resultVariable: buildVariableExpression('taxonomy_result'),
 	});
 
 	appendCachePrimingMacro({
@@ -223,7 +223,7 @@ export function buildUpdateRouteBody(
 		indentLevel,
 		metadataKeys: options.metadataKeys,
 		pascalName: options.pascalName,
-		postId: createPropertyExpression('post', 'ID'),
+		postId: buildPropertyExpression('post', 'ID'),
 		errorCode: errorCodeFactory('load_failed'),
 		failureMessage: `Unable to load updated ${options.pascalName}.`,
 		postVariableName: 'updated',

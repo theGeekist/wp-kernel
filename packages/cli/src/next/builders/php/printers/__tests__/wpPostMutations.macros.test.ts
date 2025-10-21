@@ -18,8 +18,8 @@ import {
 	appendStatusValidationMacro,
 	appendSyncMetaMacro,
 	appendSyncTaxonomiesMacro,
-	createArrayDimExpression,
-	createVariableExpression,
+	buildArrayDimExpression,
+	buildVariableExpression,
 	WP_POST_MUTATION_CONTRACT,
 } from '../resource/wpPost/mutations';
 import { getPhpBuilderChannel, resetPhpBuilderChannel } from '../channel';
@@ -150,7 +150,7 @@ describe('wp-post mutation macros', () => {
 					indentLevel: 2,
 					metadataKeys: CONTRACT.metadataKeys,
 					pascalName: 'Books',
-					target: createVariableExpression('post_status'),
+					target: buildVariableExpression('post_status'),
 				});
 			},
 			{
@@ -191,10 +191,7 @@ describe('wp-post mutation macros', () => {
 					indentLevel: 2,
 					metadataKeys: CONTRACT.metadataKeys,
 					pascalName: 'Books',
-					target: createArrayDimExpression(
-						'post_data',
-						'post_status'
-					),
+					target: buildArrayDimExpression('post_data', 'post_status'),
 					guardWithNullCheck: true,
 				});
 			},
@@ -221,7 +218,7 @@ describe('wp-post mutation macros', () => {
 		const { entry } = await queueMacroProgram(
 			'sync-mutations',
 			(body) => {
-				const postId = createVariableExpression('post_id');
+				const postId = buildVariableExpression('post_id');
 				appendSyncMetaMacro({
 					body,
 					indentLevel: 2,
@@ -235,7 +232,7 @@ describe('wp-post mutation macros', () => {
 					metadataKeys: CONTRACT.metadataKeys,
 					pascalName: 'Books',
 					postId,
-					resultVariable: createVariableExpression('taxonomy_result'),
+					resultVariable: buildVariableExpression('taxonomy_result'),
 				});
 			},
 			{
@@ -277,7 +274,7 @@ describe('wp-post mutation macros', () => {
 					indentLevel: 2,
 					metadataKeys: CONTRACT.metadataKeys,
 					pascalName: 'Books',
-					postId: createVariableExpression('post_id'),
+					postId: buildVariableExpression('post_id'),
 					errorCode: 'wpk_books_load_failed',
 					failureMessage: 'Unable to load created Book.',
 				});
