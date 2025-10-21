@@ -7,3 +7,13 @@
  */
 export { WP_POST_MUTATION_CONTRACT } from '../../mutationContract';
 export type { ResourceMutationContract } from '../../mutationContract';
+export {
+	appendStatusValidationMacro,
+	appendSyncMetaMacro,
+	appendSyncTaxonomiesMacro,
+	appendCachePrimingMacro,
+	createVariableExpression,
+	createArrayDimExpression,
+	createPropertyExpression,
+	type MacroExpression,
+} from './macros';
