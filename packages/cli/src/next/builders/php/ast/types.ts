@@ -4,6 +4,8 @@ export interface ResourceControllerRouteMetadata {
 	readonly method: string;
 	readonly path: string;
 	readonly kind: 'list' | 'get' | 'create' | 'update' | 'remove' | 'custom';
+	readonly cacheSegments?: readonly unknown[];
+	readonly tags?: Readonly<Record<string, string>>;
 }
 
 export interface ResourceControllerMetadata {
