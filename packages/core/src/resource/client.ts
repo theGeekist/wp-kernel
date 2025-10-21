@@ -178,18 +178,19 @@ export function createClient<T, TQuery>(
 
 	// Create method - POST new item
 	if (config.routes.create) {
+		const { path: createPath, method: createMethod } = config.routes.create;
 		client.create = async (data: Partial<T>): Promise<T> => {
 			const createReporter = clientReporter.child('create');
 			createReporter.debug(CLIENT_LOG_MESSAGES.createStart, {
 				resource: config.name,
 				data,
-				route: config.routes.create?.path,
+				route: createPath,
 			});
 
 			try {
 				const response = await transportFetch<T>({
-					path: config.routes.create!.path,
-					method: 'POST',
+					path: createPath,
+					method: createMethod,
 					data,
 					meta: transportMeta,
 				});
@@ -204,7 +205,7 @@ export function createClient<T, TQuery>(
 				createReporter.error(CLIENT_LOG_MESSAGES.createError, {
 					resource: config.name,
 					data,
-					route: config.routes.create?.path,
+					route: createPath,
 					error:
 						error instanceof Error ? error.message : String(error),
 				});
@@ -258,20 +259,21 @@ export function createClient<T, TQuery>(
 
 	// Remove method - DELETE item by ID
 	if (config.routes.remove) {
+		const { path: removePath, method: removeMethod } = config.routes.remove;
 		client.remove = async (id: string | number): Promise<void> => {
 			const removeReporter = clientReporter.child('remove');
 			removeReporter.debug(CLIENT_LOG_MESSAGES.removeStart, {
 				resource: config.name,
 				id,
-				route: config.routes.remove?.path,
+				route: removePath,
 			});
 
-			const path = interpolatePath(config.routes.remove!.path, { id });
+			const path = interpolatePath(removePath, { id });
 
 			try {
 				await transportFetch<void>({
 					path,
-					method: 'DELETE',
+					method: removeMethod,
 					meta: transportMeta,
 				});
 
@@ -283,7 +285,7 @@ export function createClient<T, TQuery>(
 				removeReporter.error(CLIENT_LOG_MESSAGES.removeError, {
 					resource: config.name,
 					id,
-					route: config.routes.remove?.path,
+					route: removePath,
 					error:
 						error instanceof Error ? error.message : String(error),
 				});

@@ -40,6 +40,7 @@ import type { IRResource, IRRoute, IRv1 } from '../../../../ir/types';
 import { resolveIdentityConfig, type ResolvedIdentity } from './identity';
 import { collectCanonicalBasePaths } from './routes';
 import type { ResourceMetadataHost } from '../ast/factories/cacheMetadata';
+import type { ResourceControllerRouteMetadata } from '../ast/types';
 import { buildRestArgs } from './resourceController/restArgs';
 import {
 	createRouteMetadata,
@@ -136,6 +137,7 @@ function buildResourceController(
 		routes: resource.routes,
 		identity,
 		canonicalBasePaths,
+		resource,
 	});
 	appendGeneratedFileDocblock(builder, [
 		`Source: ${ir.meta.origin} → resources.${resource.name}`,
@@ -222,6 +224,7 @@ function buildResourceController(
 			errorCodeFactory,
 			metadataHost,
 			routeKind: routeMetadata[index]?.kind ?? 'custom',
+			routeMetadata: routeMetadata[index],
 		})
 	);
 
@@ -254,6 +257,7 @@ interface RouteTemplateOptions {
 	readonly errorCodeFactory: (suffix: string) => string;
 	readonly metadataHost: ResourceMetadataHost;
 	readonly routeKind: RouteMetadataKind;
+	readonly routeMetadata?: ResourceControllerRouteMetadata;
 }
 
 function createRouteMethodTemplate(
@@ -264,6 +268,7 @@ function createRouteMethodTemplate(
 	const docblock = [
 		`Handle [${options.route.method}] ${options.route.path}.`,
 		`@wp-kernel route-kind ${options.routeKind}`,
+		...createRouteTagDocblock(options.routeMetadata?.tags),
 	];
 
 	return createMethodTemplate({
@@ -353,7 +358,8 @@ function createRouteMethodTemplate(
 				metadataHost: options.metadataHost,
 				cacheSegments: resolveCacheSegments(
 					options.routeKind,
-					options.resource
+					options.resource,
+					options.routeMetadata
 				),
 				routeKind: options.routeKind,
 			});
@@ -373,14 +379,51 @@ function createRouteMethodTemplate(
 
 function resolveCacheSegments(
 	routeKind: RouteMetadataKind,
+	resource: IRResource,
+	routeMetadata: ResourceControllerRouteMetadata | undefined
+): readonly unknown[] {
+	if (routeMetadata?.cacheSegments !== undefined) {
+		return routeMetadata.cacheSegments;
+	}
+
+	if (routeKind === 'list') {
+		return resource.cacheKeys.list.segments;
+	}
+
+	if (routeKind === 'get') {
+		return resource.cacheKeys.get.segments;
+	}
+
+	return resolveMutationCacheSegments(routeKind, resource);
+}
+
+function resolveMutationCacheSegments(
+	routeKind: RouteMetadataKind,
 	resource: IRResource
 ): readonly unknown[] {
-	switch (routeKind) {
-		case 'list':
-			return resource.cacheKeys.list.segments;
-		case 'get':
-			return resource.cacheKeys.get.segments;
-		default:
-			return [];
+	if (routeKind === 'create') {
+		return resource.cacheKeys.create?.segments ?? [];
 	}
+
+	if (routeKind === 'update') {
+		return resource.cacheKeys.update?.segments ?? [];
+	}
+
+	if (routeKind === 'remove') {
+		return resource.cacheKeys.remove?.segments ?? [];
+	}
+
+	return [];
+}
+
+function createRouteTagDocblock(
+	tags: ResourceControllerRouteMetadata['tags'] | undefined
+): string[] {
+	if (!tags) {
+		return [];
+	}
+
+	return Object.entries(tags)
+		.sort(([leftKey], [rightKey]) => leftKey.localeCompare(rightKey))
+		.map(([key, value]) => `@wp-kernel ${key} ${value}`);
 }

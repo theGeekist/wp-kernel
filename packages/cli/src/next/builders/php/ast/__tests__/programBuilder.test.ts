@@ -23,6 +23,7 @@ import {
 	resetPhpBuilderChannel,
 } from '../../printers/channel';
 import { resetPhpAstChannel } from '../context';
+import type { PhpFileMetadata } from '../types';
 
 function createReporter(): Reporter {
 	return {
@@ -246,5 +247,76 @@ describe('programBuilder helpers', () => {
 		const statements = pending[0]!.statements;
 		const blankLines = statements.filter((line) => line === '');
 		expect(blankLines).toHaveLength(1);
+	});
+
+	it('normalises use statements, namespace overrides, and metadata updates', async () => {
+		const context = createPipelineContext();
+		const input = createBuilderInput();
+		const output: BuilderOutput = {
+			actions: [],
+			queueWrite: jest.fn(),
+		};
+
+		const helper = createPhpFileBuilder({
+			key: 'normalised-uses',
+			filePath: '/workspace/.generated/php/Normalised.php',
+			namespace: 'Demo\\Original',
+			metadata: { kind: 'policy-helper' },
+			build: (builder) => {
+				builder.addUse('   ');
+				builder.addUse('\\');
+				builder.addUse('Demo\\Contracts as ContractAlias');
+				builder.addUse('function Demo\\Helpers\\foo');
+				builder.addUse('const Demo\\Constants\\BAR');
+				builder.addUse('\\Vendor\\Package\\Thing');
+				builder.addUse('Demo\\Special\\Name', {
+					alias: 'CustomAlias',
+				});
+
+				builder.appendDocblock('Example docblock');
+				builder.appendStatement('return 1;');
+				builder.appendProgramStatement(createStmtNop());
+
+				const overrideMetadata: PhpFileMetadata = {
+					kind: 'base-controller',
+				};
+				builder.setMetadata(overrideMetadata);
+				builder.setNamespace('Demo\\Override');
+
+				expect(builder.getNamespace()).toBe('Demo\\Override');
+				expect(builder.getStatements()).toContain('return 1;');
+				expect(builder.getMetadata()).toBe(overrideMetadata);
+				expect(builder.getProgramAst()[1]?.nodeType).toBe(
+					'Stmt_Namespace'
+				);
+			},
+		});
+
+		resetPhpBuilderChannel(context);
+		resetPhpAstChannel(context);
+
+		await helper.apply(
+			{
+				context,
+				input,
+				output,
+				reporter: context.reporter,
+			},
+			undefined
+		);
+
+		const actions = getPhpBuilderChannel(context).pending();
+		expect(actions).toHaveLength(1);
+		const [action] = actions;
+		expect(action.docblock).toContain('Example docblock');
+		expect(action.statements).toContain('return 1;');
+		expect(action.metadata.kind).toBe('base-controller');
+		expect(action.uses).toEqual([
+			'Demo\\Contracts as ContractAlias',
+			'function Demo\\Helpers\\foo',
+			'const Demo\\Constants\\BAR',
+			'\\Vendor\\Package\\Thing',
+			'Demo\\Special\\Name as CustomAlias',
+		]);
 	});
 });

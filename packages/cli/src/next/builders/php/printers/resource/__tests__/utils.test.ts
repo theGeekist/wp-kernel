@@ -1,7 +1,7 @@
 import { KernelError } from '@wpkernel/core/contracts';
 import {
-	createScalarCast,
-	createBinaryOperation,
+	buildScalarCast,
+	buildBinaryOperation,
 	indentLines,
 	normaliseVariableReference,
 } from '../utils';
@@ -31,12 +31,12 @@ describe('resource utils', () => {
 	});
 
 	it('creates scalar casts', () => {
-		const cast = createScalarCast('int', createVariable('value'));
+		const cast = buildScalarCast('int', createVariable('value'));
 		expect(cast).toMatchObject({ nodeType: 'Expr_Cast_Int' });
 	});
 
 	it('creates binary operations', () => {
-		const operation = createBinaryOperation(
+		const operation = buildBinaryOperation(
 			'Greater',
 			createVariable('left'),
 			createScalarInt(10)
