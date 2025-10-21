@@ -8,19 +8,18 @@ import {
 	createIdentifier,
 	createMethodCall,
 	createName,
-	createNode,
 	createNull,
 	createScalarInt,
 	createScalarString,
 	createVariable,
-	type PhpExprBooleanNot,
 } from '../../../ast/nodes';
 import { createPrintable } from '../../../ast/printables';
 import { PHP_INDENT } from '../../../ast/templates';
 import {
-	createArrayDimFetch,
-	createBinaryOperation,
-	createIfPrintable,
+	buildArrayDimFetch,
+	buildBinaryOperation,
+	buildBooleanNot,
+	buildIfPrintable,
 } from '../utils';
 import { escapeSingleQuotes, toSnakeCase } from '../../../ast/utils';
 import type { PhpMethodBodyBuilder } from '../../../ast/templates';
@@ -98,9 +97,9 @@ export function appendTaxonomyQueryBuilder(
 		const childIndentLevel = indentLevel + 1;
 		const childIndent = PHP_INDENT.repeat(childIndentLevel);
 
-		const ensureArray = createIfPrintable({
+		const ensureArray = buildIfPrintable({
 			indentLevel: childIndentLevel,
-			condition: createBooleanNot(
+			condition: buildBooleanNot(
 				createFuncCall(createName(['is_array']), [
 					createArg(createVariable(variableName)),
 				])
@@ -156,7 +155,7 @@ export function appendTaxonomyQueryBuilder(
 		const pushPrintable = createPrintable(
 			createExpressionStatement(
 				createAssign(
-					createArrayDimFetch('tax_query', null),
+					buildArrayDimFetch('tax_query', null),
 					createArray([
 						createArrayItem(
 							createScalarString(descriptor.taxonomy),
@@ -183,9 +182,9 @@ export function appendTaxonomyQueryBuilder(
 		);
 
 		options.body.statement(
-			createIfPrintable({
+			buildIfPrintable({
 				indentLevel,
-				condition: createBinaryOperation(
+				condition: buildBinaryOperation(
 					'NotIdentical',
 					createVariable(variableName),
 					createNull()
@@ -195,9 +194,9 @@ export function appendTaxonomyQueryBuilder(
 					ensureArray,
 					mapPrintable,
 					filterPrintable,
-					createIfPrintable({
+					buildIfPrintable({
 						indentLevel: childIndentLevel,
-						condition: createBinaryOperation(
+						condition: buildBinaryOperation(
 							'Greater',
 							createFuncCall(createName(['count']), [
 								createArg(createVariable(variableName)),
@@ -215,7 +214,7 @@ export function appendTaxonomyQueryBuilder(
 	const assignPrintable = createPrintable(
 		createExpressionStatement(
 			createAssign(
-				createArrayDimFetch(
+				buildArrayDimFetch(
 					'query_args',
 					createScalarString('tax_query')
 				),
@@ -226,9 +225,9 @@ export function appendTaxonomyQueryBuilder(
 	);
 
 	options.body.statement(
-		createIfPrintable({
+		buildIfPrintable({
 			indentLevel,
-			condition: createBinaryOperation(
+			condition: buildBinaryOperation(
 				'Greater',
 				createFuncCall(createName(['count']), [
 					createArg(createVariable('tax_query')),
@@ -240,12 +239,4 @@ export function appendTaxonomyQueryBuilder(
 		})
 	);
 	options.body.blank();
-}
-
-function createBooleanNot(
-	expr: ReturnType<typeof createFuncCall>
-): PhpExprBooleanNot {
-	return createNode<PhpExprBooleanNot>('Expr_BooleanNot', {
-		expr,
-	});
 }

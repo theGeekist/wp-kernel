@@ -34,26 +34,26 @@ export interface HandleRouteKindOptions {
 export function handleRouteKind(options: HandleRouteKindOptions): boolean {
 	switch (options.routeKind) {
 		case 'list': {
-			return buildListRouteBody(createListOptions(options));
+			return buildListRouteBody(buildListOptions(options));
 		}
 		case 'get': {
-			return buildGetRouteBody(createGetOptions(options));
+			return buildGetRouteBody(buildGetOptions(options));
 		}
 		case 'create': {
-			return buildCreateRouteBody(createCreateOptions(options));
+			return buildCreateRouteBody(buildCreateOptions(options));
 		}
 		case 'update': {
-			return buildUpdateRouteBody(createUpdateOptions(options));
+			return buildUpdateRouteBody(buildUpdateOptions(options));
 		}
 		case 'remove': {
-			return buildRemoveRouteBody(createRemoveOptions(options));
+			return buildRemoveRouteBody(buildRemoveOptions(options));
 		}
 		default:
 			return false;
 	}
 }
 
-function createListOptions(
+function buildListOptions(
 	options: HandleRouteKindOptions
 ): BuildListRouteBodyOptions {
 	return {
@@ -66,7 +66,7 @@ function createListOptions(
 	};
 }
 
-function createGetOptions(
+function buildGetOptions(
 	options: HandleRouteKindOptions
 ): BuildGetRouteBodyOptions {
 	return {
@@ -81,7 +81,7 @@ function createGetOptions(
 	};
 }
 
-function createCreateOptions(
+function buildCreateOptions(
 	options: HandleRouteKindOptions
 ): BuildCreateRouteBodyOptions {
 	return {
@@ -93,7 +93,7 @@ function createCreateOptions(
 	};
 }
 
-function createUpdateOptions(
+function buildUpdateOptions(
 	options: HandleRouteKindOptions
 ): BuildUpdateRouteBodyOptions {
 	return {
@@ -106,7 +106,7 @@ function createUpdateOptions(
 	};
 }
 
-function createRemoveOptions(
+function buildRemoveOptions(
 	options: HandleRouteKindOptions
 ): BuildRemoveRouteBodyOptions {
 	return {

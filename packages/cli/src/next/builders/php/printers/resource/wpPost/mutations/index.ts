@@ -1,9 +1,10 @@
 /**
- * Placeholder exports for the Phase 3 mutation builders.
+ * wp-post mutation surface for the AST pipeline.
  *
- * Scope 1 will replace these shims with the concrete AST emitters, while Scope 2
- * backfills the reusable macros. Keeping the contract import here makes the
- * module discoverable without forcing either effort to land first.
+ * The shared contract keeps Scope 1 (route builders + helpers) and Scope 2
+ * (macros) aligned on helper names, metadata keys, and mutation kinds so the
+ * controller can compose everything without pulling in the legacy string
+ * printers.
  */
 export { WP_POST_MUTATION_CONTRACT } from '../../mutationContract';
 export type { ResourceMutationContract } from '../../mutationContract';
@@ -12,11 +13,17 @@ export {
 	appendSyncMetaMacro,
 	appendSyncTaxonomiesMacro,
 	appendCachePrimingMacro,
-	createVariableExpression,
-	createArrayDimExpression,
-	createPropertyExpression,
+	buildVariableExpression,
+	buildArrayDimExpression,
+	buildPropertyExpression,
 	type MacroExpression,
 } from './macros';
+export type {
+	BuildCreateRouteBodyOptions,
+	BuildDeleteRouteBodyOptions,
+	BuildMutationRouteBodyBaseOptions,
+	BuildUpdateRouteBodyOptions,
+} from './routes';
 export {
 	buildCreateRouteBody,
 	buildUpdateRouteBody,
