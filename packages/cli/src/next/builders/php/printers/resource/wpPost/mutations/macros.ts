@@ -17,7 +17,6 @@ import {
 	createVariable,
 	createNull,
 	type PhpExpr,
-	type PhpExprBooleanNot,
 	type PhpExprNew,
 } from '../../../../ast/nodes';
 import { createPrintable } from '../../../../ast/printables';
@@ -29,6 +28,7 @@ import { escapeSingleQuotes } from '../../../../ast/utils';
 import {
 	createArrayDimFetch,
 	createBinaryOperation,
+	createBooleanNot,
 	createIfPrintable,
 	createInstanceof,
 	createPropertyFetch,
@@ -329,12 +329,11 @@ export function appendCachePrimingMacro(
 			options.failureMessage
 		)}', array( 'status' => 500 ) );`,
 	]);
-	const notInstanceof = createNode<PhpExprBooleanNot>('Expr_BooleanNot', {
-		expr: createInstanceof(postVariableName, 'WP_Post'),
-	});
 	const guard = createIfPrintable({
 		indentLevel: options.indentLevel,
-		condition: notInstanceof,
+		condition: createBooleanNot(
+			createInstanceof(postVariableName, 'WP_Post')
+		),
 		conditionText: `${indent}if ( ! ${postVariable.display} instanceof WP_Post ) {`,
 		statements: [failureReturn],
 	});

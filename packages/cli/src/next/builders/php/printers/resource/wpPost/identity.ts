@@ -4,21 +4,20 @@ import {
 	createExpressionStatement,
 	createFuncCall,
 	createName,
-	createNode,
 	createNull,
 	createScalarInt,
 	createScalarString,
 	createVariable,
-	type PhpExprBooleanNot,
 	type PhpStmt,
 } from '../../../ast/nodes';
 import { createPrintable, type PhpPrintable } from '../../../ast/printables';
 import { PHP_INDENT } from '../../../ast/templates';
 import type { ResolvedIdentity } from '../../identity';
 import {
+	createBinaryOperation,
+	createBooleanNot,
 	createIfPrintable,
 	createScalarCast,
-	createBinaryOperation,
 	normaliseVariableReference,
 } from '../utils';
 import { createWpErrorReturn } from '../errors';
@@ -101,11 +100,11 @@ export function createIdentityValidationPrintables(
 
 	const condition = createBinaryOperation(
 		'BooleanOr',
-		createNode<PhpExprBooleanNot>('Expr_BooleanNot', {
-			expr: createFuncCall(createName(['is_string']), [
+		createBooleanNot(
+			createFuncCall(createName(['is_string']), [
 				createArg(createVariable(variable.raw)),
-			]),
-		}),
+			])
+		),
 		createBinaryOperation(
 			'Identical',
 			createScalarString(''),
