@@ -7466,7 +7466,23 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
               "nodeType": "Identifier",
             },
             "nodeType": "Stmt_ClassMethod",
-            "params": [],
+            "params": [
+              {
+                "attrGroups": [],
+                "attributes": {},
+                "byRef": false,
+                "default": null,
+                "flags": 0,
+                "nodeType": "Param",
+                "type": null,
+                "var": {
+                  "attributes": {},
+                  "name": "identity",
+                  "nodeType": "Expr_Variable",
+                },
+                "variadic": false,
+              },
+            ],
             "returnType": {
               "attributes": {},
               "nodeType": "NullableType",
@@ -7954,7 +7970,23 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
               "nodeType": "Identifier",
             },
             "nodeType": "Stmt_ClassMethod",
-            "params": [],
+            "params": [
+              {
+                "attrGroups": [],
+                "attributes": {},
+                "byRef": false,
+                "default": null,
+                "flags": 0,
+                "nodeType": "Param",
+                "type": null,
+                "var": {
+                  "attributes": {},
+                  "name": "value",
+                  "nodeType": "Expr_Variable",
+                },
+                "variadic": false,
+              },
+            ],
             "returnType": null,
             "stmts": [
               {

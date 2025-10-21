@@ -343,6 +343,7 @@ function createResolveTermHelper(pascalName: string): PhpMethodTemplate {
 		},
 		ast: {
 			flags: PHP_METHOD_MODIFIER_PRIVATE,
+			params: [createParam(createVariable('identity'))],
 			returnType: createNode<PhpNullableType>('NullableType', {
 				type: createName(['WP_Term']),
 			}),
@@ -499,6 +500,7 @@ function createValidateIdentityHelper(
 		},
 		ast: {
 			flags: PHP_METHOD_MODIFIER_PRIVATE,
+			params: [createParam(createVariable('value'))],
 		},
 	});
 }
