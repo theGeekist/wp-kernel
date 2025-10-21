@@ -1,6 +1,9 @@
 import path from 'node:path';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { IRResource, IRRoute, IRv1 } from '../../../../ir/types';
+import { collectCanonicalBasePaths } from '../routes';
+import { createRouteMetadata } from '../resourceController/metadata';
+import type { ResolvedIdentity } from '../identity';
 import type { BuilderOutput } from '../../../runtime/types';
 import type { Workspace } from '../../../workspace/types';
 import {
@@ -133,6 +136,250 @@ describe('createPhpResourceControllerHelper', () => {
 			])
 		);
 		expect(entry?.program).toMatchSnapshot('resource-controller-ast');
+	});
+});
+
+describe('createRouteMetadata', () => {
+	it('annotates mutation routes with cache segments and contract tags', () => {
+		const identity: ResolvedIdentity = { type: 'string', param: 'slug' };
+		const resource: IRResource = {
+			name: 'books',
+			schemaKey: 'book',
+			schemaProvenance: 'manual',
+			routes: [],
+			cacheKeys: {
+				list: { segments: ['list'], source: 'default' },
+				get: { segments: ['get'], source: 'default' },
+				create: { segments: ['create'], source: 'default' },
+				update: { segments: ['update'], source: 'default' },
+				remove: { segments: ['remove'], source: 'default' },
+			},
+			identity,
+			storage: {
+				mode: 'wp-post',
+				postType: 'book',
+				statuses: [],
+				supports: [],
+				meta: {},
+				taxonomies: {},
+			} as IRResource['storage'],
+			queryParams: undefined,
+			ui: undefined,
+			hash: 'resource-hash',
+			warnings: [],
+		};
+
+		const routes: IRRoute[] = [
+			{
+				method: 'POST',
+				path: '/kernel/v1/books',
+				policy: undefined,
+				hash: 'create',
+				transport: 'local',
+			},
+			{
+				method: 'PUT',
+				path: '/kernel/v1/books/:slug',
+				policy: undefined,
+				hash: 'update',
+				transport: 'local',
+			},
+			{
+				method: 'DELETE',
+				path: '/kernel/v1/books/:slug',
+				policy: undefined,
+				hash: 'remove',
+				transport: 'local',
+			},
+		];
+
+		const canonicalBasePaths = collectCanonicalBasePaths(
+			routes,
+			identity.param
+		);
+		const metadata = createRouteMetadata({
+			routes,
+			identity,
+			canonicalBasePaths,
+			resource,
+		});
+
+		expect(metadata).toEqual([
+			{
+				method: 'POST',
+				path: '/kernel/v1/books',
+				kind: 'create',
+				cacheSegments: ['create'],
+				tags: { 'resource.wpPost.mutation': 'create' },
+			},
+			{
+				method: 'PUT',
+				path: '/kernel/v1/books/:slug',
+				kind: 'update',
+				cacheSegments: ['update'],
+				tags: { 'resource.wpPost.mutation': 'update' },
+			},
+			{
+				method: 'DELETE',
+				path: '/kernel/v1/books/:slug',
+				kind: 'remove',
+				cacheSegments: ['remove'],
+				tags: { 'resource.wpPost.mutation': 'delete' },
+			},
+		]);
+	});
+
+	it('omits mutation metadata when storage is not wp-post', () => {
+		const identity: ResolvedIdentity = { type: 'string', param: 'slug' };
+		const resource: IRResource = {
+			name: 'books',
+			schemaKey: 'book',
+			schemaProvenance: 'manual',
+			routes: [],
+			cacheKeys: {
+				list: { segments: ['list'], source: 'default' },
+				get: { segments: ['get'], source: 'default' },
+				create: { segments: ['create'], source: 'default' },
+				update: { segments: ['update'], source: 'default' },
+				remove: { segments: ['remove'], source: 'default' },
+			},
+			identity,
+			storage: undefined,
+			queryParams: undefined,
+			ui: undefined,
+			hash: 'resource-hash',
+			warnings: [],
+		};
+
+		const routes: IRRoute[] = [
+			{
+				method: 'POST',
+				path: '/kernel/v1/books',
+				policy: undefined,
+				hash: 'create',
+				transport: 'local',
+			},
+			{
+				method: 'GET',
+				path: '/kernel/v1/books',
+				policy: undefined,
+				hash: 'list',
+				transport: 'local',
+			},
+		];
+
+		const canonicalBasePaths = collectCanonicalBasePaths(
+			routes,
+			identity.param
+		);
+		const metadata = createRouteMetadata({
+			routes,
+			identity,
+			canonicalBasePaths,
+			resource,
+		});
+
+		expect(metadata).toEqual([
+			{
+				method: 'POST',
+				path: '/kernel/v1/books',
+				kind: 'custom',
+			},
+			{
+				method: 'GET',
+				path: '/kernel/v1/books',
+				kind: 'custom',
+			},
+		]);
+	});
+
+	it('falls back to empty segments when mutation cache keys are undefined', () => {
+		const identity: ResolvedIdentity = { type: 'string', param: 'slug' };
+		const resource: IRResource = {
+			name: 'books',
+			schemaKey: 'book',
+			schemaProvenance: 'manual',
+			routes: [],
+			cacheKeys: {
+				list: { segments: ['list'], source: 'default' },
+				get: { segments: ['get'], source: 'default' },
+				create: undefined,
+				update: undefined,
+				remove: undefined,
+			},
+			identity,
+			storage: {
+				mode: 'wp-post',
+				postType: 'book',
+				statuses: [],
+				supports: [],
+				meta: {},
+				taxonomies: {},
+			} as IRResource['storage'],
+			queryParams: undefined,
+			ui: undefined,
+			hash: 'resource-hash',
+			warnings: [],
+		};
+
+		const routes: IRRoute[] = [
+			{
+				method: 'POST',
+				path: '/kernel/v1/books',
+				policy: undefined,
+				hash: 'create',
+				transport: 'local',
+			},
+			{
+				method: 'PUT',
+				path: '/kernel/v1/books/:slug',
+				policy: undefined,
+				hash: 'update',
+				transport: 'local',
+			},
+			{
+				method: 'DELETE',
+				path: '/kernel/v1/books/:slug',
+				policy: undefined,
+				hash: 'remove',
+				transport: 'local',
+			},
+		];
+
+		const canonicalBasePaths = collectCanonicalBasePaths(
+			routes,
+			identity.param
+		);
+		const metadata = createRouteMetadata({
+			routes,
+			identity,
+			canonicalBasePaths,
+			resource,
+		});
+
+		expect(metadata).toEqual([
+			{
+				method: 'POST',
+				path: '/kernel/v1/books',
+				kind: 'create',
+				cacheSegments: [],
+				tags: { 'resource.wpPost.mutation': 'create' },
+			},
+			{
+				method: 'PUT',
+				path: '/kernel/v1/books/:slug',
+				kind: 'update',
+				cacheSegments: [],
+				tags: { 'resource.wpPost.mutation': 'update' },
+			},
+			{
+				method: 'DELETE',
+				path: '/kernel/v1/books/:slug',
+				kind: 'remove',
+				cacheSegments: [],
+				tags: { 'resource.wpPost.mutation': 'delete' },
+			},
+		]);
 	});
 });
 
