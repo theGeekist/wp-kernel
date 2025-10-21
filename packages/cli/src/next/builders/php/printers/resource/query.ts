@@ -31,9 +31,9 @@ import {
 	type PhpValueDescriptor,
 } from './phpValue';
 import {
-	createScalarCast,
+	buildScalarCast,
 	normaliseVariableReference,
-	createBinaryOperation,
+	buildBinaryOperation,
 } from './utils';
 import { createRequestParamAssignment } from './request';
 import { escapeSingleQuotes } from '../../ast/utils';
@@ -177,7 +177,7 @@ function createConditionalAssignment(
 	const indent = indentUnit.repeat(indentLevel);
 	const bodyIndent = indentUnit.repeat(indentLevel + 1);
 
-	const condition = createBinaryOperation(
+	const condition = buildBinaryOperation(
 		operator,
 		createVariable(variable.raw),
 		createScalarInt(comparison)
@@ -223,7 +223,7 @@ export function createPageExpression(
 		[createArg(createScalarString(param))]
 	);
 
-	const cast = createScalarCast('int', methodCall);
+	const cast = buildScalarCast('int', methodCall);
 	const funcCall = createFuncCall(createName(['max']), [
 		createArg(createScalarInt(minimum)),
 		createArg(cast),

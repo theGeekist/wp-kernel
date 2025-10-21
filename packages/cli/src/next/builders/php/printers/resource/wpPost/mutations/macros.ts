@@ -17,7 +17,6 @@ import {
 	createVariable,
 	createNull,
 	type PhpExpr,
-	type PhpExprBooleanNot,
 	type PhpExprNew,
 } from '../../../../ast/nodes';
 import { createPrintable } from '../../../../ast/printables';
@@ -27,11 +26,12 @@ import {
 } from '../../../../ast/templates';
 import { escapeSingleQuotes } from '../../../../ast/utils';
 import {
-	createArrayDimFetch,
-	createBinaryOperation,
-	createIfPrintable,
-	createInstanceof,
-	createPropertyFetch,
+	buildArrayDimFetch,
+	buildBinaryOperation,
+	buildBooleanNot,
+	buildIfPrintable,
+	buildInstanceof,
+	buildPropertyFetch,
 } from '../../utils';
 import type { ResourceMutationContract } from '../../mutationContract';
 
@@ -40,30 +40,30 @@ export interface MacroExpression {
 	readonly display: string;
 }
 
-export function createVariableExpression(name: string): MacroExpression {
+export function buildVariableExpression(name: string): MacroExpression {
 	return {
 		expression: createVariable(name),
 		display: `$${name}`,
 	};
 }
 
-export function createArrayDimExpression(
+export function buildArrayDimExpression(
 	array: string,
 	key: string
 ): MacroExpression {
 	const escapedKey = escapeSingleQuotes(key);
 	return {
-		expression: createArrayDimFetch(array, createScalarString(key)),
+		expression: buildArrayDimFetch(array, createScalarString(key)),
 		display: `$${array}['${escapedKey}']`,
 	};
 }
 
-export function createPropertyExpression(
+export function buildPropertyExpression(
 	object: string,
 	property: string
 ): MacroExpression {
 	return {
-		expression: createPropertyFetch(object, property),
+		expression: buildPropertyFetch(object, property),
 		display: `$${object}->${property}`,
 	};
 }
@@ -124,9 +124,9 @@ export function appendStatusValidationMacro(
 	);
 
 	const statusVariable =
-		options.statusVariable ?? createVariableExpression('status');
+		options.statusVariable ?? buildVariableExpression('status');
 	const requestVariable =
-		options.requestVariable ?? createVariableExpression('request');
+		options.requestVariable ?? buildVariableExpression('request');
 	const statusParam = options.statusParam ?? 'status';
 
 	const statusAssign = createPrintable(
@@ -164,9 +164,9 @@ export function appendStatusValidationMacro(
 				`${childIndent}${options.target.display} = $this->normalise${options.pascalName}Status( ${statusVariable.display} );`,
 			]
 		);
-		const guard = createIfPrintable({
+		const guard = buildIfPrintable({
 			indentLevel: options.indentLevel,
-			condition: createBinaryOperation(
+			condition: buildBinaryOperation(
 				'NotIdentical',
 				createNull(),
 				statusVariable.expression
@@ -201,7 +201,7 @@ export function appendSyncMetaMacro(options: SyncMetaMacroOptions): void {
 	appendMetadataComment(options, options.metadataKeys.syncMeta, 'update');
 
 	const requestVariable =
-		options.requestVariable ?? createVariableExpression('request');
+		options.requestVariable ?? buildVariableExpression('request');
 	const call = createMethodCall(
 		createVariable('this'),
 		createIdentifier(`sync${options.pascalName}Meta`),
@@ -234,7 +234,7 @@ export function appendSyncTaxonomiesMacro(
 	);
 
 	const requestVariable =
-		options.requestVariable ?? createVariableExpression('request');
+		options.requestVariable ?? buildVariableExpression('request');
 	const assign = createPrintable(
 		createExpressionStatement(
 			createAssign(
@@ -260,7 +260,7 @@ export function appendSyncTaxonomiesMacro(
 		createReturn(options.resultVariable.expression),
 		[`${childIndent}return ${options.resultVariable.display};`]
 	);
-	const guard = createIfPrintable({
+	const guard = buildIfPrintable({
 		indentLevel: options.indentLevel,
 		condition: createFuncCall(createName(['is_wp_error']), [
 			createArg(options.resultVariable.expression),
@@ -286,9 +286,9 @@ export function appendCachePrimingMacro(
 	appendMetadataComment(options, options.metadataKeys.cacheSegment, 'prime');
 
 	const requestVariable =
-		options.requestVariable ?? createVariableExpression('request');
+		options.requestVariable ?? buildVariableExpression('request');
 	const postVariableName = options.postVariableName ?? 'post';
-	const postVariable = createVariableExpression(postVariableName);
+	const postVariable = buildVariableExpression(postVariableName);
 
 	const loadPost = createPrintable(
 		createExpressionStatement(
@@ -329,12 +329,11 @@ export function appendCachePrimingMacro(
 			options.failureMessage
 		)}', array( 'status' => 500 ) );`,
 	]);
-	const notInstanceof = createNode<PhpExprBooleanNot>('Expr_BooleanNot', {
-		expr: createInstanceof(postVariableName, 'WP_Post'),
-	});
-	const guard = createIfPrintable({
+	const guard = buildIfPrintable({
 		indentLevel: options.indentLevel,
-		condition: notInstanceof,
+		condition: buildBooleanNot(
+			buildInstanceof(postVariableName, 'WP_Post')
+		),
 		conditionText: `${indent}if ( ! ${postVariable.display} instanceof WP_Post ) {`,
 		statements: [failureReturn],
 	});
