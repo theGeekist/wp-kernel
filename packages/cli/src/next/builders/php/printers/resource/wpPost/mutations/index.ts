@@ -18,6 +18,12 @@ export {
 	createPropertyExpression,
 	type MacroExpression,
 } from './macros';
+export type {
+	BuildCreateRouteBodyOptions,
+	BuildDeleteRouteBodyOptions,
+	BuildMutationRouteBodyBaseOptions,
+	BuildUpdateRouteBodyOptions,
+} from './routes';
 export {
 	buildCreateRouteBody,
 	buildUpdateRouteBody,

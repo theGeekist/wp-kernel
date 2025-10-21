@@ -20,9 +20,9 @@ import {
 	createListItemsInitialiser,
 	createPageExpression,
 	createPaginationNormalisation,
-	createPropertyFetch,
+	buildPropertyFetch,
 	createQueryArgsAssignment,
-	createScalarCast,
+	buildScalarCast,
 	createWpQueryExecution,
 	variable,
 } from '../../resource';
@@ -164,13 +164,13 @@ export function buildListRouteBody(
 	options.body.statement(foreachPrintable);
 	options.body.blank();
 
-	const totalFetch = createScalarCast(
+	const totalFetch = buildScalarCast(
 		'int',
-		createPropertyFetch('query', 'found_posts')
+		buildPropertyFetch('query', 'found_posts')
 	);
-	const pagesFetch = createScalarCast(
+	const pagesFetch = buildScalarCast(
 		'int',
-		createPropertyFetch('query', 'max_num_pages')
+		buildPropertyFetch('query', 'max_num_pages')
 	);
 
 	const returnPrintable = createPrintable(
