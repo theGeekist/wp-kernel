@@ -377,6 +377,8 @@ function appendExtraArgsMerge(options: {
 	const skipArray = createArray([
 		createArrayItem(createScalarString('page')),
 		createArrayItem(createScalarString('per_page')),
+		createArrayItem(createScalarString('taxonomy')),
+		createArrayItem(createScalarString('hide_empty')),
 	]);
 
 	const continuePrintable = createPrintable(
@@ -391,7 +393,7 @@ function appendExtraArgsMerge(options: {
 			createArg(skipArray),
 			createArg(createScalarBool(true)),
 		]),
-		conditionText: `${childIndent}if ( in_array( $key, array( 'page', 'per_page' ), true ) ) {`,
+		conditionText: `${childIndent}if ( in_array( $key, array( 'page', 'per_page', 'taxonomy', 'hide_empty' ), true ) ) {`,
 		statements: [continuePrintable],
 	});
 
@@ -415,7 +417,7 @@ function appendExtraArgsMerge(options: {
 
 	const foreachLines = [
 		`${indent}foreach ( $extra_args as $key => $value ) {`,
-		`${childIndent}if ( in_array( $key, array( 'page', 'per_page' ), true ) ) {`,
+		`${childIndent}if ( in_array( $key, array( 'page', 'per_page', 'taxonomy', 'hide_empty' ), true ) ) {`,
 		`${childIndent}${PHP_INDENT}continue;`,
 		`${childIndent}}`,
 		`${childIndent}$query_args[ $key ] = $value;`,
