@@ -13,9 +13,9 @@ export {
 	appendSyncMetaMacro,
 	appendSyncTaxonomiesMacro,
 	appendCachePrimingMacro,
-	createVariableExpression,
-	createArrayDimExpression,
-	createPropertyExpression,
+	buildVariableExpression,
+	buildArrayDimExpression,
+	buildPropertyExpression,
 	type MacroExpression,
 } from './macros';
 export type {

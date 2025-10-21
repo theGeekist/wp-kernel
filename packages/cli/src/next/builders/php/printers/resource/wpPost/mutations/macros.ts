@@ -40,14 +40,14 @@ export interface MacroExpression {
 	readonly display: string;
 }
 
-export function createVariableExpression(name: string): MacroExpression {
+export function buildVariableExpression(name: string): MacroExpression {
 	return {
 		expression: createVariable(name),
 		display: `$${name}`,
 	};
 }
 
-export function createArrayDimExpression(
+export function buildArrayDimExpression(
 	array: string,
 	key: string
 ): MacroExpression {
@@ -58,7 +58,7 @@ export function createArrayDimExpression(
 	};
 }
 
-export function createPropertyExpression(
+export function buildPropertyExpression(
 	object: string,
 	property: string
 ): MacroExpression {
@@ -124,9 +124,9 @@ export function appendStatusValidationMacro(
 	);
 
 	const statusVariable =
-		options.statusVariable ?? createVariableExpression('status');
+		options.statusVariable ?? buildVariableExpression('status');
 	const requestVariable =
-		options.requestVariable ?? createVariableExpression('request');
+		options.requestVariable ?? buildVariableExpression('request');
 	const statusParam = options.statusParam ?? 'status';
 
 	const statusAssign = createPrintable(
@@ -201,7 +201,7 @@ export function appendSyncMetaMacro(options: SyncMetaMacroOptions): void {
 	appendMetadataComment(options, options.metadataKeys.syncMeta, 'update');
 
 	const requestVariable =
-		options.requestVariable ?? createVariableExpression('request');
+		options.requestVariable ?? buildVariableExpression('request');
 	const call = createMethodCall(
 		createVariable('this'),
 		createIdentifier(`sync${options.pascalName}Meta`),
@@ -234,7 +234,7 @@ export function appendSyncTaxonomiesMacro(
 	);
 
 	const requestVariable =
-		options.requestVariable ?? createVariableExpression('request');
+		options.requestVariable ?? buildVariableExpression('request');
 	const assign = createPrintable(
 		createExpressionStatement(
 			createAssign(
@@ -286,9 +286,9 @@ export function appendCachePrimingMacro(
 	appendMetadataComment(options, options.metadataKeys.cacheSegment, 'prime');
 
 	const requestVariable =
-		options.requestVariable ?? createVariableExpression('request');
+		options.requestVariable ?? buildVariableExpression('request');
 	const postVariableName = options.postVariableName ?? 'post';
-	const postVariable = createVariableExpression(postVariableName);
+	const postVariable = buildVariableExpression(postVariableName);
 
 	const loadPost = createPrintable(
 		createExpressionStatement(

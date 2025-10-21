@@ -22,8 +22,8 @@ import {
 	appendStatusValidationMacro,
 	appendSyncMetaMacro,
 	appendSyncTaxonomiesMacro,
-	createArrayDimExpression,
-	createVariableExpression,
+	buildArrayDimExpression,
+	buildVariableExpression,
 } from '../macros';
 import { buildBinaryOperation, buildIfPrintable } from '../../../utils';
 import { createWpErrorReturn } from '../../../errors';
@@ -81,7 +81,7 @@ export function buildCreateRouteBody(
 		indentLevel,
 		metadataKeys: options.metadataKeys,
 		pascalName: options.pascalName,
-		target: createArrayDimExpression('post_data', 'post_status'),
+		target: buildArrayDimExpression('post_data', 'post_status'),
 	});
 	options.body.blank();
 
@@ -138,7 +138,7 @@ export function buildCreateRouteBody(
 		indentLevel,
 		metadataKeys: options.metadataKeys,
 		pascalName: options.pascalName,
-		postId: createVariableExpression('post_id'),
+		postId: buildVariableExpression('post_id'),
 	});
 
 	appendSyncTaxonomiesMacro({
@@ -146,8 +146,8 @@ export function buildCreateRouteBody(
 		indentLevel,
 		metadataKeys: options.metadataKeys,
 		pascalName: options.pascalName,
-		postId: createVariableExpression('post_id'),
-		resultVariable: createVariableExpression('taxonomy_result'),
+		postId: buildVariableExpression('post_id'),
+		resultVariable: buildVariableExpression('taxonomy_result'),
 	});
 
 	appendCachePrimingMacro({
@@ -155,7 +155,7 @@ export function buildCreateRouteBody(
 		indentLevel,
 		metadataKeys: options.metadataKeys,
 		pascalName: options.pascalName,
-		postId: createVariableExpression('post_id'),
+		postId: buildVariableExpression('post_id'),
 		errorCode: errorCodeFactory('load_failed'),
 		failureMessage: `Unable to load created ${options.pascalName}.`,
 	});
