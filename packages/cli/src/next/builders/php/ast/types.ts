@@ -33,6 +33,12 @@ export interface ResourceControllerCacheMetadata {
 	readonly events: readonly ResourceControllerCacheEvent[];
 }
 
+export interface ResourceMacroMetadata {
+	readonly kind: 'resource-macro';
+	readonly macro: string;
+	readonly tags: Readonly<Record<string, string>>;
+}
+
 export interface GenericPhpFileMetadata {
 	readonly kind:
 		| 'base-controller'
@@ -46,7 +52,8 @@ export interface GenericPhpFileMetadata {
 
 export type PhpFileMetadata =
 	| GenericPhpFileMetadata
-	| ResourceControllerMetadata;
+	| ResourceControllerMetadata
+	| ResourceMacroMetadata;
 
 export interface PhpAstBuilder {
 	getNamespace: () => string;
