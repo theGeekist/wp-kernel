@@ -143,7 +143,7 @@ Document the status of each phase once completed, emphasising that the helper-fi
 
 - **Phase 1 summary:** Resolved identity defaults and canonical route classification within the helper pipeline, recording route metadata on queued programs and updating tests to inspect queued AST programs while keeping the branch free of any legacy string-based PHP generation.【F:packages/cli/docs/next-php-ast-parity-phases.md†L37-L58】【F:packages/cli/src/next/builders/php/printers/resourceController.ts†L203-L307】
 - **Phase 2 summary:** Implemented wp-post list/get handlers in the AST pipeline using the shared resource query helpers for pagination, filter normalisation, identity validation, and cache metadata, keeping the new builders string-free while matching the legacy behaviour.【F:packages/cli/src/next/builders/php/printers/resourceController.ts†L520-L870】【F:packages/cli/src/next/builders/php/printers/resource/query.ts†L1-L214】
-- **Phase 3 summary:** Landed the shared wp-post mutation macros with metadata tags and snapshot coverage, and updated the resource client transport to honour the emitted HTTP verbs so the mutation pipeline stays string-free while matching legacy behaviour.
+- **Phase 3 summary:** Implemented the wp-post mutation macros, helper factories, and create/update/delete route builders in the AST pipeline, wired them behind the shared mutation contract for controller routing and metadata tagging, and expanded the channel-based integration tests plus coverage harness so the combined mutation surface matches the legacy behaviour without reintroducing string-based printers.
 - **Phase 4 summary:** _Pending_
 - **Phase 5 summary:** _Pending_
 - **Phase 6 summary:** _Pending_

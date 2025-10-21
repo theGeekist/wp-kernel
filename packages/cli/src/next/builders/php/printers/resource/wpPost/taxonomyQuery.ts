@@ -8,18 +8,17 @@ import {
 	createIdentifier,
 	createMethodCall,
 	createName,
-	createNode,
 	createNull,
 	createScalarInt,
 	createScalarString,
 	createVariable,
-	type PhpExprBooleanNot,
 } from '../../../ast/nodes';
 import { createPrintable } from '../../../ast/printables';
 import { PHP_INDENT } from '../../../ast/templates';
 import {
 	createArrayDimFetch,
 	createBinaryOperation,
+	createBooleanNot,
 	createIfPrintable,
 } from '../utils';
 import { escapeSingleQuotes, toSnakeCase } from '../../../ast/utils';
@@ -240,12 +239,4 @@ export function appendTaxonomyQueryBuilder(
 		})
 	);
 	options.body.blank();
-}
-
-function createBooleanNot(
-	expr: ReturnType<typeof createFuncCall>
-): PhpExprBooleanNot {
-	return createNode<PhpExprBooleanNot>('Expr_BooleanNot', {
-		expr,
-	});
 }

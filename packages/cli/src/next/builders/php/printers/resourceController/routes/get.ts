@@ -6,13 +6,12 @@ import {
 	createMethodCall,
 	createReturn,
 	createVariable,
-	createNode,
-	type PhpExprBooleanNot,
 } from '../../../ast/nodes';
 import { createPrintable } from '../../../ast/printables';
 import { PHP_INDENT, type PhpMethodBodyBuilder } from '../../../ast/templates';
 import {
 	appendResourceCacheEvent,
+	createBooleanNot,
 	createIdentityValidationPrintables,
 	createIfPrintable,
 	createInstanceof,
@@ -118,10 +117,4 @@ export function buildGetRouteBody(options: BuildGetRouteBodyOptions): boolean {
 	options.body.statement(returnPrintable);
 
 	return true;
-}
-
-function createBooleanNot(expr: ReturnType<typeof createInstanceof>) {
-	return createNode<PhpExprBooleanNot>('Expr_BooleanNot', {
-		expr,
-	});
 }
