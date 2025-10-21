@@ -139,6 +139,80 @@ describe('createPhpResourceControllerHelper', () => {
 		);
 		expect(entry?.program).toMatchSnapshot('resource-controller-ast');
 	});
+
+	it('queues taxonomy controllers with pagination helpers and term shaping', async () => {
+		const reporter = createReporter();
+		const workspace = createWorkspace();
+		const context = {
+			workspace,
+			reporter,
+			phase: 'generate' as const,
+		};
+		const output: BuilderOutput = {
+			actions: [],
+			queueWrite: jest.fn(),
+		};
+
+		const ir = createIr();
+
+		const applyOptions = {
+			context,
+			input: {
+				phase: 'generate' as const,
+				options: {
+					config: ir.config,
+					namespace: ir.meta.namespace,
+					origin: ir.meta.origin,
+					sourcePath: ir.meta.sourcePath,
+				},
+				ir,
+			},
+			output,
+			reporter,
+		};
+
+		await createPhpChannelHelper().apply(applyOptions, undefined);
+		await createPhpResourceControllerHelper().apply(
+			applyOptions,
+			undefined
+		);
+
+		const channel = getPhpBuilderChannel(context);
+		const taxonomyEntry = channel
+			.pending()
+			.find(
+				(candidate) =>
+					candidate.metadata.kind === 'resource-controller' &&
+					candidate.metadata.name === 'jobCategories'
+			);
+
+		expect(taxonomyEntry).toBeDefined();
+		expect(taxonomyEntry?.metadata).toMatchObject({
+			name: 'jobCategories',
+			routes: [
+				{
+					method: 'GET',
+					path: '/kernel/v1/job-categories',
+					kind: 'list',
+				},
+				{
+					method: 'GET',
+					path: '/kernel/v1/job-categories/:slug',
+					kind: 'get',
+				},
+			],
+		});
+
+		expect(taxonomyEntry?.docblock).toMatchSnapshot(
+			'taxonomy-controller-docblock'
+		);
+		expect(taxonomyEntry?.statements).toMatchSnapshot(
+			'taxonomy-controller-statements'
+		);
+		expect(taxonomyEntry?.program).toMatchSnapshot(
+			'taxonomy-controller-ast'
+		);
+	});
 });
 
 describe('createRouteMetadata', () => {
@@ -418,6 +492,45 @@ function createIr(): IRv1 {
 		warnings: [],
 	};
 
+	const taxonomyResource: IRResource = {
+		name: 'jobCategories',
+		schemaKey: 'jobCategory',
+		schemaProvenance: 'manual',
+		routes: [
+			{
+				method: 'GET',
+				path: '/kernel/v1/job-categories',
+				policy: undefined,
+				hash: 'taxonomy-list',
+				transport: 'local',
+			},
+			{
+				method: 'GET',
+				path: '/kernel/v1/job-categories/:slug',
+				policy: undefined,
+				hash: 'taxonomy-get',
+				transport: 'local',
+			},
+		],
+		cacheKeys: {
+			list: { segments: ['jobCategories', 'list'], source: 'default' },
+			get: { segments: ['jobCategories', 'get'], source: 'default' },
+			create: { segments: [], source: 'default' },
+			update: { segments: [], source: 'default' },
+			remove: { segments: [], source: 'default' },
+		},
+		identity: { type: 'string', param: 'slug' },
+		storage: {
+			mode: 'wp-taxonomy',
+			taxonomy: 'job_category',
+			hierarchical: true,
+		} as IRResource['storage'],
+		queryParams: undefined,
+		ui: undefined,
+		hash: 'taxonomy-resource',
+		warnings: [],
+	};
+
 	return {
 		meta: {
 			version: 1,
@@ -433,7 +546,7 @@ function createIr(): IRv1 {
 			resources: {},
 		} as IRv1['config'],
 		schemas: [],
-		resources: [resource],
+		resources: [resource, taxonomyResource],
 		policies: [],
 		policyMap: {
 			sourcePath: undefined,
