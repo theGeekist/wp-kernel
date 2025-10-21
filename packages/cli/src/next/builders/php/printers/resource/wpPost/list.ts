@@ -9,7 +9,6 @@ import {
 	createName,
 	createNode,
 	createVariable,
-	type PhpExprBooleanNot,
 	type PhpStmt,
 	type PhpStmtContinue,
 	type PhpStmtForeach,
@@ -19,6 +18,7 @@ import { createPrintable, type PhpPrintable } from '../../../ast/printables';
 import { PHP_INDENT } from '../../../ast/templates';
 import {
 	createArrayDimFetch,
+	createBooleanNot,
 	createInstanceof,
 	createPropertyFetch,
 } from '../utils';
@@ -70,9 +70,7 @@ export function createListForeachPrintable(
 
 	const guard = createPrintable(
 		createNode<PhpStmtIf>('Stmt_If', {
-			cond: createNode<PhpExprBooleanNot>('Expr_BooleanNot', {
-				expr: createInstanceof('post', 'WP_Post'),
-			}),
+			cond: createBooleanNot(createInstanceof('post', 'WP_Post')),
 			stmts: [continuePrintable.node],
 			elseifs: [],
 			else: null,
