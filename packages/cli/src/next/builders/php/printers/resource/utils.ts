@@ -7,6 +7,7 @@ import {
 	type PhpExpr,
 	type PhpExprBase,
 	type PhpExprBinaryOp,
+	type PhpExprBooleanNot,
 	type PhpStmt,
 	type PhpStmtIf,
 } from '../../ast/nodes';
@@ -159,4 +160,8 @@ export function createInstanceof(subject: string, className: string): PhpExpr {
 		expr: createVariable(subject),
 		class: createName([className]),
 	}) as unknown as PhpExpr;
+}
+
+export function createBooleanNot(expr: PhpExpr): PhpExprBooleanNot {
+	return createNode<PhpExprBooleanNot>('Expr_BooleanNot', { expr });
 }

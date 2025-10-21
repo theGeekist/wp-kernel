@@ -16,7 +16,6 @@ import {
 	createScalarString,
 	createVariable,
 	type PhpExpr,
-	type PhpExprBooleanNot,
 	type PhpStmt,
 } from '../../../ast/nodes';
 import { createPrintable, type PhpPrintable } from '../../../ast/printables';
@@ -24,6 +23,7 @@ import { PHP_INDENT } from '../../../ast/templates';
 import {
 	createArrayDimFetch,
 	createBinaryOperation,
+	createBooleanNot,
 	createIfPrintable,
 	createScalarCast,
 } from '../utils';
@@ -324,12 +324,6 @@ export function appendMetaQueryBuilder(
 		})
 	);
 	options.body.blank();
-}
-
-function createBooleanNot(expr: PhpExpr): PhpExprBooleanNot {
-	return createNode<PhpExprBooleanNot>('Expr_BooleanNot', {
-		expr,
-	});
 }
 
 function createArrayCast(expr: PhpExpr): PhpExpr {

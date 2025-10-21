@@ -8,13 +8,11 @@ import {
 	createIdentifier,
 	createMethodCall,
 	createName,
-	createNode,
 	createReturn,
 	createScalarBool,
 	createScalarInt,
 	createScalarString,
 	createVariable,
-	type PhpExprBooleanNot,
 } from '../../../../ast/nodes';
 import { createPrintable } from '../../../../ast/printables';
 import {
@@ -40,6 +38,7 @@ import {
 	createBinaryOperation,
 	createScalarCast,
 	createPropertyFetch,
+	createBooleanNot,
 } from '../../utils';
 import { createWpErrorReturn } from '../../errors';
 import type { ResourceMutationContract } from '../../mutationContract';
@@ -549,8 +548,4 @@ export function buildDeleteRouteBody(
 	options.body.statement(responsePrintable);
 
 	return true;
-}
-
-function createBooleanNot(expr: ReturnType<typeof createInstanceof>) {
-	return createNode<PhpExprBooleanNot>('Expr_BooleanNot', { expr });
 }
