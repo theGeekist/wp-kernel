@@ -17,6 +17,7 @@ import { createPrintable } from '../../../ast/printables';
 import { PHP_INDENT } from '../../../ast/templates';
 import {
 	buildArrayDimFetch,
+	buildArrayInitialiser,
 	buildBinaryOperation,
 	buildBooleanNot,
 	buildIfPrintable,
@@ -67,12 +68,10 @@ export function appendTaxonomyQueryBuilder(
 	const indentLevel = options.indentLevel;
 	const indent = PHP_INDENT.repeat(indentLevel);
 
-	const initPrintable = createPrintable(
-		createExpressionStatement(
-			createAssign(createVariable('tax_query'), createArray([]))
-		),
-		[`${indent}$tax_query = array();`]
-	);
+	const initPrintable = buildArrayInitialiser({
+		variable: 'tax_query',
+		indentLevel,
+	});
 	options.body.statement(initPrintable);
 
 	for (const [key, descriptor] of options.entries) {
@@ -116,7 +115,7 @@ export function appendTaxonomyQueryBuilder(
 						)
 					),
 					[
-						`${childIndent}${PHP_INDENT}$${variableName} = array( $${variableName} );`,
+						`${childIndent}${PHP_INDENT}$${variableName} = [ $${variableName} ];`,
 					]
 				),
 			],
@@ -173,11 +172,11 @@ export function appendTaxonomyQueryBuilder(
 				)
 			),
 			[
-				`${nestedIndent}$tax_query[] = array(`,
+				`${nestedIndent}$tax_query[] = [`,
 				`${nestedIndent}${PHP_INDENT}'taxonomy' => '${escapeSingleQuotes(descriptor.taxonomy)}',`,
 				`${nestedIndent}${PHP_INDENT}'field' => 'term_id',`,
 				`${nestedIndent}${PHP_INDENT}'terms' => $${variableName},`,
-				`${nestedIndent});`,
+				`${nestedIndent}];`,
 			]
 		);
 

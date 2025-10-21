@@ -25,6 +25,9 @@ import {
 	createStmtNop,
 	createUse,
 	createUseUse,
+	mergeNodeAttributes,
+	type PhpAttributes,
+	type PhpComment,
 	type PhpProgram,
 	type PhpStmt,
 } from './nodes';
@@ -160,17 +163,39 @@ function createAdapter(entry: PhpAstContextEntry): PhpAstBuilderAdapter {
 	} satisfies PhpAstBuilderAdapter;
 }
 
+interface LocationSnapshot {
+	readonly line: number;
+	readonly filePos: number;
+	readonly tokenPos: number;
+}
+
 function finaliseProgram(context: PhpAstContext): PhpProgram {
+	return buildProgramLayout(context);
+}
+
+function buildProgramLayout(context: PhpAstContext): PhpStmt[] {
+	const tracker = createLocationTracker();
 	const program: PhpStmt[] = [];
+
+	tracker.consumeLines(['<?php']);
+	tracker.consumeLines(['']);
 
 	const strictTypes = createDeclare([
 		createDeclareItem('strict_types', createScalarInt(1)),
 	]);
-	program.push(strictTypes);
+	const declareLocation = tracker.consumeNode(['declare(strict_types=1);']);
+	program.push(mergeNodeAttributes(strictTypes, declareLocation));
 
-	const namespaceAttributes = context.docblockLines.length
-		? { comments: [createDocComment(context.docblockLines)] }
-		: undefined;
+	tracker.consumeLines(['']);
+
+	let namespaceAttributes: { comments: PhpComment[] } | undefined;
+	if (context.docblockLines.length > 0) {
+		const docblockLines = formatDocblockLines(context.docblockLines);
+		const docLocation = tracker.consumeNode(docblockLines);
+		namespaceAttributes = {
+			comments: [createDocComment(context.docblockLines, docLocation)],
+		};
+	}
 
 	const namespaceName = context.namespaceParts.length
 		? createNamespaceName(context.namespaceParts)
@@ -178,39 +203,227 @@ function finaliseProgram(context: PhpAstContext): PhpProgram {
 
 	const namespaceStatements: PhpStmt[] = [];
 
-	for (const useEntry of getSortedUses(context)) {
-		const nameNode = useEntry.fullyQualified
-			? createFullyQualifiedName([...useEntry.parts])
-			: createName([...useEntry.parts]);
-		const useNode = createUse(useEntry.type, [
-			createUseUse(
-				nameNode,
-				useEntry.alias ? createIdentifier(useEntry.alias) : null
-			),
-		]);
-		namespaceStatements.push(useNode);
+	const namespaceStart = tracker.snapshot();
+
+	if (namespaceName) {
+		const namespaceLine = formatNamespaceLine(context.namespaceParts);
+		tracker.consumeNode([namespaceLine]);
+		tracker.consumeLines(['']);
+	}
+
+	const uses = getSortedUses(context);
+	if (uses.length > 0) {
+		for (const useEntry of uses) {
+			const nameNode = useEntry.fullyQualified
+				? createFullyQualifiedName([...useEntry.parts])
+				: createName([...useEntry.parts]);
+			const useNode = createUse(useEntry.type, [
+				createUseUse(
+					nameNode,
+					useEntry.alias ? createIdentifier(useEntry.alias) : null
+				),
+			]);
+			const useLine = `use ${formatUseString(useEntry)};`;
+			const useLocation = tracker.consumeNode([useLine]);
+			namespaceStatements.push(mergeNodeAttributes(useNode, useLocation));
+		}
+
+		tracker.consumeLines(['']);
 	}
 
 	const beginGuard = createStmtNop({
 		comments: [createComment(`// ${AUTO_GUARD_BEGIN}`)],
 	});
-	namespaceStatements.push(beginGuard);
+	const beginGuardText = `// ${AUTO_GUARD_BEGIN}`;
+	const beginGuardLocation = tracker.consumeNode([beginGuardText]);
+	namespaceStatements.push(
+		mergeNodeAttributes(beginGuard, beginGuardLocation)
+	);
 
-	namespaceStatements.push(...context.statements);
+	for (const entry of context.statementEntries) {
+		const location = tracker.consumeNode(
+			entry.lines.length > 0 ? entry.lines : ['']
+		);
+		namespaceStatements.push(mergeNodeAttributes(entry.node, location));
+	}
 
 	const endGuard = createStmtNop({
 		comments: [createComment(`// ${AUTO_GUARD_END}`)],
 	});
-	namespaceStatements.push(endGuard);
+	const endGuardText = `// ${AUTO_GUARD_END}`;
+	const endGuardLocation = tracker.consumeNode([endGuardText]);
+	namespaceStatements.push(mergeNodeAttributes(endGuard, endGuardLocation));
+
+	const namespaceEnd = tracker.snapshotPreviousLine();
 
 	const namespaceNode = createNamespace(
 		namespaceName,
 		namespaceStatements,
 		namespaceAttributes
 	);
-	program.push(namespaceNode);
+
+	const namespaceLocation = resolveNamespaceLocation(
+		namespaceStart,
+		namespaceEnd
+	);
+
+	program.push(mergeNodeAttributes(namespaceNode, namespaceLocation));
 
 	return program;
+}
+
+function formatNamespaceLine(parts: readonly string[]): string {
+	return `namespace ${parts.join('\\')};`;
+}
+
+function formatDocblockLines(lines: readonly string[]): string[] {
+	if (lines.length === 0) {
+		return [];
+	}
+
+	const formatted = ['/**'];
+	for (const line of lines) {
+		formatted.push(` * ${line}`);
+	}
+	formatted.push(' */');
+	return formatted;
+}
+
+function resolveNamespaceLocation(
+	start: LocationSnapshot,
+	end: LocationSnapshot
+): PhpAttributes {
+	return {
+		startLine: start.line,
+		endLine: end.line,
+		startFilePos:
+			end.filePos >= start.filePos ? start.filePos : end.filePos,
+		endFilePos: end.filePos,
+		startTokenPos:
+			end.tokenPos >= start.tokenPos ? start.tokenPos : end.tokenPos,
+		endTokenPos: end.tokenPos,
+	} satisfies PhpAttributes;
+}
+
+function createLocationTracker(): LocationTracker {
+	return new LocationTracker();
+}
+
+class LocationTracker {
+	private line = 1;
+
+	private filePos = 0;
+
+	private tokenPos = 0;
+
+	private previousLineSnapshot: LocationSnapshot = {
+		line: 1,
+		filePos: 0,
+		tokenPos: 0,
+	};
+
+	public consumeLines(lines: readonly string[]): void {
+		for (const line of lines) {
+			this.consumeLine(line);
+		}
+	}
+
+	public consumeNode(lines: readonly string[]): PhpAttributes {
+		if (lines.length === 0) {
+			return this.createZeroLengthLocation();
+		}
+
+		const initialLine = this.line;
+		const initialFilePos = this.filePos;
+		const initialTokenPos = this.tokenPos;
+
+		let startLine = initialLine;
+		let startFilePos = initialFilePos;
+		let startTokenPos = initialTokenPos;
+		let endLine = initialLine;
+		let endFilePos = initialFilePos;
+		let endTokenPos = initialTokenPos;
+
+		let firstContentCaptured = false;
+		let lastContentLine = initialLine;
+		let lastContentFilePos = initialFilePos;
+		let lastContentTokenPos = initialTokenPos;
+
+		for (const line of lines) {
+			const trimmed = line.trim();
+			const lineLength = line.length;
+
+			if (!firstContentCaptured && trimmed.length > 0) {
+				startLine = this.line;
+				startFilePos = this.filePos;
+				startTokenPos = this.tokenPos;
+				firstContentCaptured = true;
+			}
+
+			if (trimmed.length > 0) {
+				lastContentLine = this.line;
+				lastContentFilePos = this.filePos + lineLength;
+				lastContentTokenPos = this.tokenPos + lineLength;
+			}
+
+			endLine = this.line;
+			endFilePos = this.filePos + lineLength;
+			endTokenPos = this.tokenPos + lineLength;
+
+			this.consumeLine(line);
+		}
+
+		if (firstContentCaptured) {
+			endLine = lastContentLine;
+			endFilePos = lastContentFilePos;
+			endTokenPos = lastContentTokenPos;
+		}
+
+		return {
+			startLine,
+			endLine,
+			startFilePos,
+			endFilePos,
+			startTokenPos,
+			endTokenPos,
+		} satisfies PhpAttributes;
+	}
+
+	public snapshot(): LocationSnapshot {
+		return {
+			line: this.line,
+			filePos: this.filePos,
+			tokenPos: this.tokenPos,
+		};
+	}
+
+	public snapshotPreviousLine(): LocationSnapshot {
+		return { ...this.previousLineSnapshot };
+	}
+
+	private consumeLine(line: string): void {
+		const length = line.length;
+		this.previousLineSnapshot = {
+			line: this.line,
+			filePos: this.filePos + length,
+			tokenPos: this.tokenPos + length,
+		};
+
+		this.filePos += length + 1;
+		this.tokenPos += length + 1;
+		this.line += 1;
+	}
+
+	private createZeroLengthLocation(): PhpAttributes {
+		return {
+			startLine: this.line,
+			endLine: this.line,
+			startFilePos: this.filePos,
+			endFilePos: this.filePos,
+			startTokenPos: this.tokenPos,
+			endTokenPos: this.tokenPos,
+		} satisfies PhpAttributes;
+	}
 }
 
 function getSortedUses(context: PhpAstContext): readonly ProgramUse[] {

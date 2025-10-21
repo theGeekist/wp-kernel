@@ -2,13 +2,14 @@ import {
 	createArg,
 	createArray,
 	createArrayItem,
+	createArrayCast as createArrayCastNode,
 	createAssign,
+	createClosure,
 	createExpressionStatement,
 	createFuncCall,
 	createIdentifier,
 	createMethodCall,
 	createName,
-	createNode,
 	createNull,
 	createParam,
 	createReturn,
@@ -22,6 +23,7 @@ import { createPrintable, type PhpPrintable } from '../../../ast/printables';
 import { PHP_INDENT } from '../../../ast/templates';
 import {
 	buildArrayDimFetch,
+	buildArrayInitialiser,
 	buildBinaryOperation,
 	buildBooleanNot,
 	buildIfPrintable,
@@ -75,12 +77,10 @@ export function appendMetaQueryBuilder(
 	const indentLevel = options.indentLevel;
 	const indent = PHP_INDENT.repeat(indentLevel);
 
-	const initPrintable = createPrintable(
-		createExpressionStatement(
-			createAssign(createVariable('meta_query'), createArray([]))
-		),
-		[`${indent}$meta_query = array();`]
-	);
+	const initPrintable = buildArrayInitialiser({
+		variable: 'meta_query',
+		indentLevel,
+	});
 	options.body.statement(initPrintable);
 
 	for (const [key, descriptor] of options.entries) {
@@ -129,7 +129,7 @@ export function appendMetaQueryBuilder(
 								)
 							),
 							[
-								`${childIndent}${PHP_INDENT}$${variableName} = array( $${variableName} );`,
+								`${childIndent}${PHP_INDENT}$${variableName} = [ $${variableName} ];`,
 							]
 						),
 					],
@@ -142,7 +142,9 @@ export function appendMetaQueryBuilder(
 						createVariable(variableName),
 						createFuncCall(createName(['array_values']), [
 							createArg(
-								createArrayCast(createVariable(variableName))
+								createArrayCastNode(
+									createVariable(variableName)
+								)
 							),
 						])
 					)
@@ -190,11 +192,11 @@ export function appendMetaQueryBuilder(
 					)
 				),
 				[
-					`${nestedIndent}$meta_query[] = array(`,
+					`${nestedIndent}$meta_query[] = [`,
 					`${nestedIndent}${PHP_INDENT}'key' => '${escapeSingleQuotes(key)}',`,
 					`${nestedIndent}${PHP_INDENT}'compare' => 'IN',`,
 					`${nestedIndent}${PHP_INDENT}'value' => $${variableName},`,
-					`${nestedIndent});`,
+					`${nestedIndent}];`,
 				]
 			);
 
@@ -250,11 +252,11 @@ export function appendMetaQueryBuilder(
 					)
 				),
 				[
-					`${childIndent}${PHP_INDENT}$meta_query[] = array(`,
+					`${childIndent}${PHP_INDENT}$meta_query[] = [`,
 					`${childIndent}${PHP_INDENT}${PHP_INDENT}'key' => '${escapeSingleQuotes(key)}',`,
 					`${childIndent}${PHP_INDENT}${PHP_INDENT}'compare' => '=',`,
 					`${childIndent}${PHP_INDENT}${PHP_INDENT}'value' => $${variableName},`,
-					`${childIndent}${PHP_INDENT});`,
+					`${childIndent}${PHP_INDENT}];`,
 				]
 			);
 
@@ -326,10 +328,6 @@ export function appendMetaQueryBuilder(
 	options.body.blank();
 }
 
-function createArrayCast(expr: PhpExpr): PhpExpr {
-	return createNode('Expr_Cast_Array', { expr }) as unknown as PhpExpr;
-}
-
 function createStaticTrimFilterClosure(): PhpExpr {
 	const parameter = createParam(createVariable('value'));
 	const returnStatement = createReturn(
@@ -342,13 +340,9 @@ function createStaticTrimFilterClosure(): PhpExpr {
 		)
 	);
 
-	return createNode('Expr_Closure', {
+	return createClosure({
 		static: true,
-		byRef: false,
 		params: [parameter],
-		uses: [],
-		returnType: null,
 		stmts: [returnStatement],
-		attrGroups: [],
-	}) as unknown as PhpExpr;
+	});
 }

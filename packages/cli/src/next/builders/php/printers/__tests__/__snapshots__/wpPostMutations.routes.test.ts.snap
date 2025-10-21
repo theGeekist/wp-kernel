@@ -80,7 +80,14 @@ exports[`wp-post mutation helpers queues helpers in contract order with stable o
 exports[`wp-post mutation route builders emits create route body with macros in expected order: create-route 1`] = `
 [
   {
-    "attributes": {},
+    "attributes": {
+      "endFilePos": 31,
+      "endLine": 3,
+      "endTokenPos": 31,
+      "startFilePos": 7,
+      "startLine": 3,
+      "startTokenPos": 7,
+    },
     "declares": [
       {
         "attributes": {},
@@ -101,7 +108,14 @@ exports[`wp-post mutation route builders emits create route body with macros in 
     "stmts": null,
   },
   {
-    "attributes": {},
+    "attributes": {
+      "endFilePos": 1968,
+      "endLine": 49,
+      "endTokenPos": 1968,
+      "startFilePos": 33,
+      "startLine": 5,
+      "startTokenPos": 33,
+    },
     "name": {
       "attributes": {},
       "nodeType": "Name",
@@ -120,12 +134,25 @@ exports[`wp-post mutation route builders emits create route body with macros in 
               "text": "// WPK:BEGIN AUTO",
             },
           ],
+          "endFilePos": 72,
+          "endLine": 7,
+          "endTokenPos": 72,
+          "startFilePos": 55,
+          "startLine": 7,
+          "startTokenPos": 55,
         },
         "nodeType": "Stmt_Nop",
       },
       {
         "attrGroups": [],
-        "attributes": {},
+        "attributes": {
+          "endFilePos": 1952,
+          "endLine": 48,
+          "endTokenPos": 1952,
+          "startFilePos": 73,
+          "startLine": 8,
+          "startTokenPos": 73,
+        },
         "extends": null,
         "flags": 0,
         "implements": [],
@@ -925,6 +952,12 @@ exports[`wp-post mutation route builders emits create route body with macros in 
               "text": "// WPK:END AUTO",
             },
           ],
+          "endFilePos": 1968,
+          "endLine": 49,
+          "endTokenPos": 1968,
+          "startFilePos": 1953,
+          "startLine": 49,
+          "startTokenPos": 1953,
         },
         "nodeType": "Stmt_Nop",
       },
@@ -936,7 +969,14 @@ exports[`wp-post mutation route builders emits create route body with macros in 
 exports[`wp-post mutation route builders emits delete route body with previous response payload: delete-route 1`] = `
 [
   {
-    "attributes": {},
+    "attributes": {
+      "endFilePos": 31,
+      "endLine": 3,
+      "endTokenPos": 31,
+      "startFilePos": 7,
+      "startLine": 3,
+      "startTokenPos": 7,
+    },
     "declares": [
       {
         "attributes": {},
@@ -957,7 +997,14 @@ exports[`wp-post mutation route builders emits delete route body with previous r
     "stmts": null,
   },
   {
-    "attributes": {},
+    "attributes": {
+      "endFilePos": 1393,
+      "endLine": 39,
+      "endTokenPos": 1393,
+      "startFilePos": 33,
+      "startLine": 5,
+      "startTokenPos": 33,
+    },
     "name": {
       "attributes": {},
       "nodeType": "Name",
@@ -976,12 +1023,25 @@ exports[`wp-post mutation route builders emits delete route body with previous r
               "text": "// WPK:BEGIN AUTO",
             },
           ],
+          "endFilePos": 72,
+          "endLine": 7,
+          "endTokenPos": 72,
+          "startFilePos": 55,
+          "startLine": 7,
+          "startTokenPos": 55,
         },
         "nodeType": "Stmt_Nop",
       },
       {
         "attrGroups": [],
-        "attributes": {},
+        "attributes": {
+          "endFilePos": 1377,
+          "endLine": 38,
+          "endTokenPos": 1377,
+          "startFilePos": 73,
+          "startLine": 8,
+          "startTokenPos": 73,
+        },
         "extends": null,
         "flags": 0,
         "implements": [],
@@ -1704,6 +1764,12 @@ exports[`wp-post mutation route builders emits delete route body with previous r
               "text": "// WPK:END AUTO",
             },
           ],
+          "endFilePos": 1393,
+          "endLine": 39,
+          "endTokenPos": 1393,
+          "startFilePos": 1378,
+          "startLine": 39,
+          "startTokenPos": 1378,
         },
         "nodeType": "Stmt_Nop",
       },
@@ -1715,7 +1781,14 @@ exports[`wp-post mutation route builders emits delete route body with previous r
 exports[`wp-post mutation route builders emits update route body with guarded status macro: update-route 1`] = `
 [
   {
-    "attributes": {},
+    "attributes": {
+      "endFilePos": 31,
+      "endLine": 3,
+      "endTokenPos": 31,
+      "startFilePos": 7,
+      "startLine": 3,
+      "startTokenPos": 7,
+    },
     "declares": [
       {
         "attributes": {},
@@ -1736,7 +1809,14 @@ exports[`wp-post mutation route builders emits update route body with guarded st
     "stmts": null,
   },
   {
-    "attributes": {},
+    "attributes": {
+      "endFilePos": 2735,
+      "endLine": 64,
+      "endTokenPos": 2735,
+      "startFilePos": 33,
+      "startLine": 5,
+      "startTokenPos": 33,
+    },
     "name": {
       "attributes": {},
       "nodeType": "Name",
@@ -1755,12 +1835,25 @@ exports[`wp-post mutation route builders emits update route body with guarded st
               "text": "// WPK:BEGIN AUTO",
             },
           ],
+          "endFilePos": 72,
+          "endLine": 7,
+          "endTokenPos": 72,
+          "startFilePos": 55,
+          "startLine": 7,
+          "startTokenPos": 55,
         },
         "nodeType": "Stmt_Nop",
       },
       {
         "attrGroups": [],
-        "attributes": {},
+        "attributes": {
+          "endFilePos": 2719,
+          "endLine": 63,
+          "endTokenPos": 2719,
+          "startFilePos": 73,
+          "startLine": 8,
+          "startTokenPos": 73,
+        },
         "extends": null,
         "flags": 0,
         "implements": [],
@@ -3014,6 +3107,12 @@ exports[`wp-post mutation route builders emits update route body with guarded st
               "text": "// WPK:END AUTO",
             },
           ],
+          "endFilePos": 2735,
+          "endLine": 64,
+          "endTokenPos": 2735,
+          "startFilePos": 2720,
+          "startLine": 64,
+          "startTokenPos": 2720,
         },
         "nodeType": "Stmt_Nop",
       },

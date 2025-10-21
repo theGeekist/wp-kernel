@@ -294,7 +294,7 @@ describe('wp-post mutation macros', () => {
 				expect.stringContaining('$post = get_post( $post_id );'),
 				expect.stringContaining('if ( ! $post instanceof WP_Post ) {'),
 				expect.stringContaining(
-					"return new WP_Error( 'wpk_books_load_failed', 'Unable to load created Book.', array( 'status' => 500 ) );"
+					"return new WP_Error( 'wpk_books_load_failed', 'Unable to load created Book.', [ 'status' => 500 ] );"
 				),
 				expect.stringContaining(
 					'return $this->prepareBooksResponse( $post, $request );'
