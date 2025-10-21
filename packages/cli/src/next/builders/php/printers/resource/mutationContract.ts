@@ -19,6 +19,10 @@ export interface ResourceMutationContract {
 	readonly metadataKeys: {
 		readonly cacheSegment: string;
 		readonly channelTag: string;
+		readonly statusValidation: string;
+		readonly syncMeta: string;
+		readonly syncTaxonomies: string;
+		readonly cachePriming: string;
 	};
 }
 
@@ -40,5 +44,9 @@ export const WP_POST_MUTATION_CONTRACT: ResourceMutationContract = {
 	metadataKeys: {
 		cacheSegment: 'cache:wp-post',
 		channelTag: 'resource.wpPost.mutation',
+		statusValidation: 'mutation:status',
+		syncMeta: 'mutation:meta',
+		syncTaxonomies: 'mutation:taxonomies',
+		cachePriming: 'mutation:cache',
 	},
 } as const;
