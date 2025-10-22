@@ -64,3 +64,7 @@ Provides **proof of concept** for new kernel features as they are developed.
 ## Agent Policy
 
 Use showcase to **prove and pressure-test** kernel features. When gaps are discovered, fix them upstream. Showcase is the **integration battlefield**, not a side-channel fork of the framework.
+
+## Cross-package dependencies
+
+When regenerating showcase assets that depend on workspace packages, verify configuration changes against `docs/guide/adding-workspace-dependencies.md` so the demo continues to reflect the canonical wiring.

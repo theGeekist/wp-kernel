@@ -24,3 +24,7 @@ Refer to `MVP-PHASES.md` in this package for the current roadmap, DoD, and testi
 When you close out any phase from `docs/next-php-ast-parity-phases.md`, update the corresponding completion summary in that document within the same change and explicitly reaffirm that no legacy string-based PHP generation was introduced while delivering the phase.
 
 Always import CLI exit codes and namespace constants from `@wpkernel/core/contracts` to ensure parity with the framework.
+
+### Cross-package dependencies
+
+When adjusting CLI dependencies (tsconfig paths, package references, builder wiring), follow `docs/guide/adding-workspace-dependencies.md` to keep shared workspace configuration aligned.

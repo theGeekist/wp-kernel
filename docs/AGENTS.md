@@ -15,3 +15,7 @@ Whenever you add or rename a page, update the navigation indices that reference 
 ### Coordination
 
 Large documentation updates should mention the affected pages in `docs/guide/repository-handbook.md` and call out the coverage in the pull request description. When edits touch both code and docs, run the full documentation suite (`pnpm lint -- --fix` if applicable, plus `pnpm typecheck:tests` when code snippets are executable) before shipping. This keeps the public narrative, root specifications, and test suite aligned.
+
+### Cross-package dependencies
+
+If documentation work intersects with cross-package wiring (for example, guides about TypeScript paths or dependency setup), verify the steps against `docs/guide/adding-workspace-dependencies.md` so that the published guidance matches the repository practice.
