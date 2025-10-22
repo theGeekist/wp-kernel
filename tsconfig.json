@@ -12,6 +12,8 @@
 		{ "path": "./packages/cli" },
 		{ "path": "./packages/cli/tsconfig.tests.json" },
 		{ "path": "./packages/e2e-utils" },
+		{ "path": "./packages/php-json-ast" },
+		{ "path": "./packages/php-json-ast/tsconfig.tests.json" },
 		{ "path": "./examples/showcase" }
 	]
 }
