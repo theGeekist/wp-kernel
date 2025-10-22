@@ -6,6 +6,16 @@
 		"outDir": "./dist",
 		"composite": true,
 		"paths": {
+			"@wpkernel/core": ["./packages/core/src/index.ts"],
+			"@wpkernel/core/*": ["./packages/core/src/*"],
+			"@wpkernel/ui": ["./packages/ui/src/index.ts"],
+			"@wpkernel/ui/*": ["./packages/ui/src/*"],
+			"@wpkernel/cli": ["./packages/cli/src/index.ts"],
+			"@wpkernel/cli/*": ["./packages/cli/src/*"],
+			"@wpkernel/e2e-utils": ["./packages/e2e-utils/src/index.ts"],
+			"@wpkernel/e2e-utils/*": ["./packages/e2e-utils/src/*"],
+			"@wpkernel/test-utils": ["./packages/test-utils/src/index.ts"],
+			"@wpkernel/test-utils/*": ["./packages/test-utils/src/*"],
 			"@wpkernel/php-json-ast": [
 				"./packages/php-json-ast/dist/index.d.ts",
 				"./packages/php-json-ast/src/index.ts"
@@ -13,7 +23,8 @@
 			"@wpkernel/php-json-ast/*": [
 				"./packages/php-json-ast/dist/*",
 				"./packages/php-json-ast/src/*"
-			]
+			],
+			"@test-utils/*": ["./tests/test-utils/*"]
 		}
 	},
 	"include": ["src/**/*", "../../types/**/*.d.ts"],
