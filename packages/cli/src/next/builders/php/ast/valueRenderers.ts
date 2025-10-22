@@ -155,7 +155,9 @@ function renderPhpScalar(
 	if (typeof value === 'bigint') {
 		const literal = value.toString();
 		const node = createScalarString(literal);
-		return createPrintable(node, [`${indent}${literal}`]);
+		return createPrintable(node, [
+			`${indent}'${escapeSingleQuotes(literal)}'`,
+		]);
 	}
 
 	if (typeof value === 'boolean') {

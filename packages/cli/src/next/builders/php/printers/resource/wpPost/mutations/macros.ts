@@ -327,7 +327,7 @@ export function appendCachePrimingMacro(
 			options.errorCode
 		)}', '${escapeSingleQuotes(
 			options.failureMessage
-		)}', array( 'status' => 500 ) );`,
+		)}', [ 'status' => 500 ] );`,
 	]);
 	const guard = buildIfPrintable({
 		indentLevel: options.indentLevel,

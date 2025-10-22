@@ -3,7 +3,14 @@
 exports[`wp-post mutation macros appends status validation without guard: status-validation-macro 1`] = `
 [
   {
-    "attributes": {},
+    "attributes": {
+      "endFilePos": 31,
+      "endLine": 3,
+      "endTokenPos": 31,
+      "startFilePos": 7,
+      "startLine": 3,
+      "startTokenPos": 7,
+    },
     "declares": [
       {
         "attributes": {},
@@ -24,7 +31,14 @@ exports[`wp-post mutation macros appends status validation without guard: status
     "stmts": null,
   },
   {
-    "attributes": {},
+    "attributes": {
+      "endFilePos": 455,
+      "endLine": 18,
+      "endTokenPos": 455,
+      "startFilePos": 33,
+      "startLine": 5,
+      "startTokenPos": 33,
+    },
     "name": {
       "attributes": {},
       "nodeType": "Name",
@@ -43,12 +57,25 @@ exports[`wp-post mutation macros appends status validation without guard: status
               "text": "// WPK:BEGIN AUTO",
             },
           ],
+          "endFilePos": 72,
+          "endLine": 7,
+          "endTokenPos": 72,
+          "startFilePos": 55,
+          "startLine": 7,
+          "startTokenPos": 55,
         },
         "nodeType": "Stmt_Nop",
       },
       {
         "attrGroups": [],
-        "attributes": {},
+        "attributes": {
+          "endFilePos": 439,
+          "endLine": 17,
+          "endTokenPos": 439,
+          "startFilePos": 73,
+          "startLine": 8,
+          "startTokenPos": 73,
+        },
         "extends": null,
         "flags": 0,
         "implements": [],
@@ -190,6 +217,12 @@ exports[`wp-post mutation macros appends status validation without guard: status
               "text": "// WPK:END AUTO",
             },
           ],
+          "endFilePos": 455,
+          "endLine": 18,
+          "endTokenPos": 455,
+          "startFilePos": 440,
+          "startLine": 18,
+          "startTokenPos": 440,
         },
         "nodeType": "Stmt_Nop",
       },
@@ -201,7 +234,14 @@ exports[`wp-post mutation macros appends status validation without guard: status
 exports[`wp-post mutation macros guards status validation when null checks are enabled: status-validation-guarded-macro 1`] = `
 [
   {
-    "attributes": {},
+    "attributes": {
+      "endFilePos": 31,
+      "endLine": 3,
+      "endTokenPos": 31,
+      "startFilePos": 7,
+      "startLine": 3,
+      "startTokenPos": 7,
+    },
     "declares": [
       {
         "attributes": {},
@@ -222,7 +262,14 @@ exports[`wp-post mutation macros guards status validation when null checks are e
     "stmts": null,
   },
   {
-    "attributes": {},
+    "attributes": {
+      "endFilePos": 536,
+      "endLine": 20,
+      "endTokenPos": 536,
+      "startFilePos": 33,
+      "startLine": 5,
+      "startTokenPos": 33,
+    },
     "name": {
       "attributes": {},
       "nodeType": "Name",
@@ -241,12 +288,25 @@ exports[`wp-post mutation macros guards status validation when null checks are e
               "text": "// WPK:BEGIN AUTO",
             },
           ],
+          "endFilePos": 72,
+          "endLine": 7,
+          "endTokenPos": 72,
+          "startFilePos": 55,
+          "startLine": 7,
+          "startTokenPos": 55,
         },
         "nodeType": "Stmt_Nop",
       },
       {
         "attrGroups": [],
-        "attributes": {},
+        "attributes": {
+          "endFilePos": 520,
+          "endLine": 19,
+          "endTokenPos": 520,
+          "startFilePos": 73,
+          "startLine": 8,
+          "startTokenPos": 73,
+        },
         "extends": null,
         "flags": 0,
         "implements": [],
@@ -425,6 +485,12 @@ exports[`wp-post mutation macros guards status validation when null checks are e
               "text": "// WPK:END AUTO",
             },
           ],
+          "endFilePos": 536,
+          "endLine": 20,
+          "endTokenPos": 536,
+          "startFilePos": 521,
+          "startLine": 20,
+          "startTokenPos": 521,
         },
         "nodeType": "Stmt_Nop",
       },
@@ -436,7 +502,14 @@ exports[`wp-post mutation macros guards status validation when null checks are e
 exports[`wp-post mutation macros primes cache after mutations: cache-priming-macro 1`] = `
 [
   {
-    "attributes": {},
+    "attributes": {
+      "endFilePos": 31,
+      "endLine": 3,
+      "endTokenPos": 31,
+      "startFilePos": 7,
+      "startLine": 3,
+      "startTokenPos": 7,
+    },
     "declares": [
       {
         "attributes": {},
@@ -457,7 +530,14 @@ exports[`wp-post mutation macros primes cache after mutations: cache-priming-mac
     "stmts": null,
   },
   {
-    "attributes": {},
+    "attributes": {
+      "endFilePos": 678,
+      "endLine": 22,
+      "endTokenPos": 678,
+      "startFilePos": 33,
+      "startLine": 5,
+      "startTokenPos": 33,
+    },
     "name": {
       "attributes": {},
       "nodeType": "Name",
@@ -476,12 +556,25 @@ exports[`wp-post mutation macros primes cache after mutations: cache-priming-mac
               "text": "// WPK:BEGIN AUTO",
             },
           ],
+          "endFilePos": 72,
+          "endLine": 7,
+          "endTokenPos": 72,
+          "startFilePos": 55,
+          "startLine": 7,
+          "startTokenPos": 55,
         },
         "nodeType": "Stmt_Nop",
       },
       {
         "attrGroups": [],
-        "attributes": {},
+        "attributes": {
+          "endFilePos": 662,
+          "endLine": 21,
+          "endTokenPos": 662,
+          "startFilePos": 73,
+          "startLine": 8,
+          "startTokenPos": 73,
+        },
         "extends": null,
         "flags": 0,
         "implements": [],
@@ -732,6 +825,12 @@ exports[`wp-post mutation macros primes cache after mutations: cache-priming-mac
               "text": "// WPK:END AUTO",
             },
           ],
+          "endFilePos": 678,
+          "endLine": 22,
+          "endTokenPos": 678,
+          "startFilePos": 663,
+          "startLine": 22,
+          "startTokenPos": 663,
         },
         "nodeType": "Stmt_Nop",
       },
@@ -743,7 +842,14 @@ exports[`wp-post mutation macros primes cache after mutations: cache-priming-mac
 exports[`wp-post mutation macros syncs meta and taxonomies with metadata comments: sync-mutations-macro 1`] = `
 [
   {
-    "attributes": {},
+    "attributes": {
+      "endFilePos": 31,
+      "endLine": 3,
+      "endTokenPos": 31,
+      "startFilePos": 7,
+      "startLine": 3,
+      "startTokenPos": 7,
+    },
     "declares": [
       {
         "attributes": {},
@@ -764,7 +870,14 @@ exports[`wp-post mutation macros syncs meta and taxonomies with metadata comment
     "stmts": null,
   },
   {
-    "attributes": {},
+    "attributes": {
+      "endFilePos": 709,
+      "endLine": 23,
+      "endTokenPos": 709,
+      "startFilePos": 33,
+      "startLine": 5,
+      "startTokenPos": 33,
+    },
     "name": {
       "attributes": {},
       "nodeType": "Name",
@@ -783,12 +896,25 @@ exports[`wp-post mutation macros syncs meta and taxonomies with metadata comment
               "text": "// WPK:BEGIN AUTO",
             },
           ],
+          "endFilePos": 72,
+          "endLine": 7,
+          "endTokenPos": 72,
+          "startFilePos": 55,
+          "startLine": 7,
+          "startTokenPos": 55,
         },
         "nodeType": "Stmt_Nop",
       },
       {
         "attrGroups": [],
-        "attributes": {},
+        "attributes": {
+          "endFilePos": 693,
+          "endLine": 22,
+          "endTokenPos": 693,
+          "startFilePos": 73,
+          "startLine": 8,
+          "startTokenPos": 73,
+        },
         "extends": null,
         "flags": 0,
         "implements": [],
@@ -1009,6 +1135,12 @@ exports[`wp-post mutation macros syncs meta and taxonomies with metadata comment
               "text": "// WPK:END AUTO",
             },
           ],
+          "endFilePos": 709,
+          "endLine": 23,
+          "endTokenPos": 709,
+          "startFilePos": 694,
+          "startLine": 23,
+          "startTokenPos": 694,
         },
         "nodeType": "Stmt_Nop",
       },

@@ -1,11 +1,19 @@
 import { KernelError } from '@wpkernel/core/contracts';
 import {
+	createArray,
+	createArrayDimFetch,
+	createAssign,
+	createBooleanNot,
 	createIdentifier,
+	createIfStatement,
+	createInstanceof,
 	createName,
 	createNode,
+	createExpressionStatement,
+	createPropertyFetch,
+	createScalarCast,
 	createVariable,
 	type PhpExpr,
-	type PhpExprBase,
 	type PhpExprBinaryOp,
 	type PhpExprBooleanNot,
 	type PhpStmt,
@@ -47,26 +55,8 @@ export function normaliseVariableReference(
 
 export type ScalarCastKind = 'int' | 'float' | 'string' | 'bool';
 
-type CastNodeType =
-	| 'Expr_Cast_Int'
-	| 'Expr_Cast_Double'
-	| 'Expr_Cast_String'
-	| 'Expr_Cast_Bool';
-
-const CAST_NODE_MAP: Record<ScalarCastKind, CastNodeType> = {
-	int: 'Expr_Cast_Int',
-	float: 'Expr_Cast_Double',
-	string: 'Expr_Cast_String',
-	bool: 'Expr_Cast_Bool',
-};
-
-interface PhpExprCast extends PhpExprBase {
-	readonly expr: PhpExpr;
-}
-
 export function buildScalarCast(kind: ScalarCastKind, expr: PhpExpr): PhpExpr {
-	const nodeType = CAST_NODE_MAP[kind];
-	return createNode<PhpExprCast>(nodeType, { expr }) as PhpExpr;
+	return createScalarCast(kind, expr);
 }
 
 export type BinaryOperator =
@@ -128,12 +118,7 @@ export function buildIfPrintable(
 
 	lines.push(`${indent}}`);
 
-	const node = createNode<PhpStmtIf>('Stmt_If', {
-		cond: options.condition,
-		stmts,
-		elseifs: [],
-		else: null,
-	});
+	const node = createIfStatement(options.condition, stmts);
 
 	return createPrintable(node, lines);
 }
@@ -142,26 +127,39 @@ export function buildArrayDimFetch(
 	target: string,
 	dim: PhpExpr | null
 ): PhpExpr {
-	return createNode('Expr_ArrayDimFetch', {
-		var: createVariable(target),
-		dim,
-	}) as unknown as PhpExpr;
+	return createArrayDimFetch(createVariable(target), dim);
 }
 
 export function buildPropertyFetch(target: string, property: string): PhpExpr {
-	return createNode('Expr_PropertyFetch', {
-		var: createVariable(target),
-		name: createIdentifier(property),
-	}) as unknown as PhpExpr;
+	return createPropertyFetch(
+		createVariable(target),
+		createIdentifier(property)
+	);
 }
 
 export function buildInstanceof(subject: string, className: string): PhpExpr {
-	return createNode('Expr_Instanceof', {
-		expr: createVariable(subject),
-		class: createName([className]),
-	}) as unknown as PhpExpr;
+	return createInstanceof(createVariable(subject), createName([className]));
 }
 
 export function buildBooleanNot(expr: PhpExpr): PhpExprBooleanNot {
-	return createNode<PhpExprBooleanNot>('Expr_BooleanNot', { expr });
+	return createBooleanNot(expr);
+}
+
+export interface ArrayInitialiserOptions {
+	readonly variable: string;
+	readonly indentLevel: number;
+}
+
+export function buildArrayInitialiser(
+	options: ArrayInitialiserOptions
+): PhpPrintable<PhpStmt> {
+	const reference = normaliseVariableReference(options.variable);
+	const indent = PHP_INDENT.repeat(options.indentLevel);
+
+	return createPrintable(
+		createExpressionStatement(
+			createAssign(createVariable(reference.raw), createArray([]))
+		),
+		[`${indent}${reference.display} = [];`]
+	);
 }

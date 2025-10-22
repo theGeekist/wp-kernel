@@ -24,9 +24,15 @@ import {
 	createScalarInt,
 	createStmtNop,
 	createUse,
+	createGroupUse,
 	createUseUse,
+	mergeNodeAttributes,
+	type PhpAttributes,
+	type PhpComment,
 	type PhpProgram,
 	type PhpStmt,
+	type PhpStmtGroupUse,
+	type PhpStmtUse,
 } from './nodes';
 import { AUTO_GUARD_BEGIN, AUTO_GUARD_END } from './constants';
 import type { PhpAstBuilder, PhpFileMetadata } from './types';
@@ -39,6 +45,8 @@ const USE_KIND_TO_TYPE: Record<UseKind, number> = {
 	function: 2,
 	const: 3,
 };
+
+const USE_ITEM_TYPE_UNKNOWN = 0;
 
 export interface PhpAstBuilderAdapter extends PhpAstBuilder {
 	readonly context: PhpAstContext;
@@ -74,6 +82,7 @@ export function createPhpProgramBuilder(
 			const builder = createAdapter(entry);
 			await options.build(builder, entry);
 
+			const organisedUses = organiseUses(entry.context);
 			const program = finaliseProgram(entry.context);
 			const metadata = entry.metadata;
 			getPhpBuilderChannel(context).queue({
@@ -81,9 +90,7 @@ export function createPhpProgramBuilder(
 				program,
 				metadata,
 				docblock: [...entry.context.docblockLines],
-				uses: Array.from(entry.context.uses.values()).map(
-					formatUseString
-				),
+				uses: organisedUses.map(formatOrganisedUseString),
 				statements: [...entry.context.statementLines],
 			});
 
@@ -160,17 +167,39 @@ function createAdapter(entry: PhpAstContextEntry): PhpAstBuilderAdapter {
 	} satisfies PhpAstBuilderAdapter;
 }
 
+interface LocationSnapshot {
+	readonly line: number;
+	readonly filePos: number;
+	readonly tokenPos: number;
+}
+
 function finaliseProgram(context: PhpAstContext): PhpProgram {
+	return buildProgramLayout(context);
+}
+
+function buildProgramLayout(context: PhpAstContext): PhpStmt[] {
+	const tracker = createLocationTracker();
 	const program: PhpStmt[] = [];
+
+	tracker.consumeLines(['<?php']);
+	tracker.consumeLines(['']);
 
 	const strictTypes = createDeclare([
 		createDeclareItem('strict_types', createScalarInt(1)),
 	]);
-	program.push(strictTypes);
+	const declareLocation = tracker.consumeNode(['declare(strict_types=1);']);
+	program.push(mergeNodeAttributes(strictTypes, declareLocation));
 
-	const namespaceAttributes = context.docblockLines.length
-		? { comments: [createDocComment(context.docblockLines)] }
-		: undefined;
+	tracker.consumeLines(['']);
+
+	let namespaceAttributes: { comments: PhpComment[] } | undefined;
+	if (context.docblockLines.length > 0) {
+		const docblockLines = formatDocblockLines(context.docblockLines);
+		const docLocation = tracker.consumeNode(docblockLines);
+		namespaceAttributes = {
+			comments: [createDocComment(context.docblockLines, docLocation)],
+		};
+	}
 
 	const namespaceName = context.namespaceParts.length
 		? createNamespaceName(context.namespaceParts)
@@ -178,39 +207,212 @@ function finaliseProgram(context: PhpAstContext): PhpProgram {
 
 	const namespaceStatements: PhpStmt[] = [];
 
-	for (const useEntry of getSortedUses(context)) {
-		const nameNode = useEntry.fullyQualified
-			? createFullyQualifiedName([...useEntry.parts])
-			: createName([...useEntry.parts]);
-		const useNode = createUse(useEntry.type, [
-			createUseUse(
-				nameNode,
-				useEntry.alias ? createIdentifier(useEntry.alias) : null
-			),
-		]);
-		namespaceStatements.push(useNode);
+	const namespaceStart = tracker.snapshot();
+
+	if (namespaceName) {
+		const namespaceLine = formatNamespaceLine(context.namespaceParts);
+		tracker.consumeNode([namespaceLine]);
+		tracker.consumeLines(['']);
+	}
+
+	const organisedUses = organiseUses(context);
+	if (organisedUses.length > 0) {
+		appendOrganisedUses(organisedUses, tracker, namespaceStatements);
 	}
 
 	const beginGuard = createStmtNop({
 		comments: [createComment(`// ${AUTO_GUARD_BEGIN}`)],
 	});
-	namespaceStatements.push(beginGuard);
+	const beginGuardText = `// ${AUTO_GUARD_BEGIN}`;
+	const beginGuardLocation = tracker.consumeNode([beginGuardText]);
+	namespaceStatements.push(
+		mergeNodeAttributes(beginGuard, beginGuardLocation)
+	);
 
-	namespaceStatements.push(...context.statements);
+	for (const entry of context.statementEntries) {
+		const location = tracker.consumeNode(
+			entry.lines.length > 0 ? entry.lines : ['']
+		);
+		namespaceStatements.push(mergeNodeAttributes(entry.node, location));
+	}
 
 	const endGuard = createStmtNop({
 		comments: [createComment(`// ${AUTO_GUARD_END}`)],
 	});
-	namespaceStatements.push(endGuard);
+	const endGuardText = `// ${AUTO_GUARD_END}`;
+	const endGuardLocation = tracker.consumeNode([endGuardText]);
+	namespaceStatements.push(mergeNodeAttributes(endGuard, endGuardLocation));
+
+	const namespaceEnd = tracker.snapshotPreviousLine();
 
 	const namespaceNode = createNamespace(
 		namespaceName,
 		namespaceStatements,
 		namespaceAttributes
 	);
-	program.push(namespaceNode);
+
+	const namespaceLocation = resolveNamespaceLocation(
+		namespaceStart,
+		namespaceEnd
+	);
+
+	program.push(mergeNodeAttributes(namespaceNode, namespaceLocation));
 
 	return program;
+}
+
+function formatNamespaceLine(parts: readonly string[]): string {
+	return `namespace ${parts.join('\\')};`;
+}
+
+function formatDocblockLines(lines: readonly string[]): string[] {
+	if (lines.length === 0) {
+		return [];
+	}
+
+	const formatted = ['/**'];
+	for (const line of lines) {
+		formatted.push(` * ${line}`);
+	}
+	formatted.push(' */');
+	return formatted;
+}
+
+function resolveNamespaceLocation(
+	start: LocationSnapshot,
+	end: LocationSnapshot
+): PhpAttributes {
+	return {
+		startLine: start.line,
+		endLine: end.line,
+		startFilePos:
+			end.filePos >= start.filePos ? start.filePos : end.filePos,
+		endFilePos: end.filePos,
+		startTokenPos:
+			end.tokenPos >= start.tokenPos ? start.tokenPos : end.tokenPos,
+		endTokenPos: end.tokenPos,
+	} satisfies PhpAttributes;
+}
+
+function createLocationTracker(): LocationTracker {
+	return new LocationTracker();
+}
+
+class LocationTracker {
+	private line = 1;
+
+	private filePos = 0;
+
+	private tokenPos = 0;
+
+	private previousLineSnapshot: LocationSnapshot = {
+		line: 1,
+		filePos: 0,
+		tokenPos: 0,
+	};
+
+	public consumeLines(lines: readonly string[]): void {
+		for (const line of lines) {
+			this.consumeLine(line);
+		}
+	}
+
+	public consumeNode(lines: readonly string[]): PhpAttributes {
+		if (lines.length === 0) {
+			return this.createZeroLengthLocation();
+		}
+
+		const initialLine = this.line;
+		const initialFilePos = this.filePos;
+		const initialTokenPos = this.tokenPos;
+
+		let startLine = initialLine;
+		let startFilePos = initialFilePos;
+		let startTokenPos = initialTokenPos;
+		let endLine = initialLine;
+		let endFilePos = initialFilePos;
+		let endTokenPos = initialTokenPos;
+
+		let firstContentCaptured = false;
+		let lastContentLine = initialLine;
+		let lastContentFilePos = initialFilePos;
+		let lastContentTokenPos = initialTokenPos;
+
+		for (const line of lines) {
+			const trimmed = line.trim();
+			const lineLength = line.length;
+
+			if (!firstContentCaptured && trimmed.length > 0) {
+				startLine = this.line;
+				startFilePos = this.filePos;
+				startTokenPos = this.tokenPos;
+				firstContentCaptured = true;
+			}
+
+			if (trimmed.length > 0) {
+				lastContentLine = this.line;
+				lastContentFilePos = this.filePos + lineLength;
+				lastContentTokenPos = this.tokenPos + lineLength;
+			}
+
+			endLine = this.line;
+			endFilePos = this.filePos + lineLength;
+			endTokenPos = this.tokenPos + lineLength;
+
+			this.consumeLine(line);
+		}
+
+		if (firstContentCaptured) {
+			endLine = lastContentLine;
+			endFilePos = lastContentFilePos;
+			endTokenPos = lastContentTokenPos;
+		}
+
+		return {
+			startLine,
+			endLine,
+			startFilePos,
+			endFilePos,
+			startTokenPos,
+			endTokenPos,
+		} satisfies PhpAttributes;
+	}
+
+	public snapshot(): LocationSnapshot {
+		return {
+			line: this.line,
+			filePos: this.filePos,
+			tokenPos: this.tokenPos,
+		};
+	}
+
+	public snapshotPreviousLine(): LocationSnapshot {
+		return { ...this.previousLineSnapshot };
+	}
+
+	private consumeLine(line: string): void {
+		const length = line.length;
+		this.previousLineSnapshot = {
+			line: this.line,
+			filePos: this.filePos + length,
+			tokenPos: this.tokenPos + length,
+		};
+
+		this.filePos += length + 1;
+		this.tokenPos += length + 1;
+		this.line += 1;
+	}
+
+	private createZeroLengthLocation(): PhpAttributes {
+		return {
+			startLine: this.line,
+			endLine: this.line,
+			startFilePos: this.filePos,
+			endFilePos: this.filePos,
+			startTokenPos: this.tokenPos,
+			endTokenPos: this.tokenPos,
+		} satisfies PhpAttributes;
+	}
 }
 
 function getSortedUses(context: PhpAstContext): readonly ProgramUse[] {
@@ -221,6 +423,199 @@ function getSortedUses(context: PhpAstContext): readonly ProgramUse[] {
 
 		return a.key < b.key ? -1 : 1;
 	});
+}
+
+interface OrganisedUseSingle {
+	readonly kind: 'single';
+	readonly sortKey: string;
+	readonly type: number;
+	readonly fullyQualified: boolean;
+	readonly parts: readonly string[];
+	readonly alias: string | null;
+}
+
+interface OrganisedUseGroupItem {
+	readonly sortKey: string;
+	readonly parts: readonly string[];
+	readonly alias: string | null;
+	readonly type: number;
+}
+
+interface OrganisedUseGroup {
+	readonly kind: 'group';
+	readonly sortKey: string;
+	readonly type: number;
+	readonly fullyQualified: boolean;
+	readonly prefixParts: readonly string[];
+	readonly items: readonly OrganisedUseGroupItem[];
+}
+
+type OrganisedUse = OrganisedUseSingle | OrganisedUseGroup;
+
+interface UseGroupCandidateItem {
+	readonly use: ProgramUse;
+	readonly relativeParts: readonly string[];
+}
+
+interface UseGroupCandidate {
+	sortKey: string;
+	readonly prefixParts: readonly string[];
+	readonly fullyQualified: boolean;
+	readonly type: number;
+	readonly items: UseGroupCandidateItem[];
+}
+
+function organiseUses(context: PhpAstContext): readonly OrganisedUse[] {
+	const sorted = getSortedUses(context);
+	if (sorted.length === 0) {
+		return [];
+	}
+
+	const singles: OrganisedUseSingle[] = [];
+	const candidates = new Map<string, UseGroupCandidate>();
+
+	for (const use of sorted) {
+		const candidate = resolveUseGroupCandidate(use);
+		if (!candidate) {
+			singles.push(createSingleOrganisedUse(use));
+			continue;
+		}
+
+		let group = candidates.get(candidate.key);
+		if (!group) {
+			group = {
+				sortKey: use.key,
+				prefixParts: candidate.prefixParts,
+				fullyQualified: use.fullyQualified,
+				type: use.type,
+				items: [],
+			} satisfies UseGroupCandidate;
+			candidates.set(candidate.key, group);
+		}
+
+		group.items.push({
+			use,
+			relativeParts: candidate.relativeParts,
+		});
+	}
+
+	const groups: OrganisedUseGroup[] = [];
+
+	for (const candidate of candidates.values()) {
+		if (candidate.items.length < 2) {
+			const fallback = candidate.items[0];
+			if (fallback) {
+				singles.push(createSingleOrganisedUse(fallback.use));
+			}
+			continue;
+		}
+
+		const items = candidate.items
+			.map<OrganisedUseGroupItem>(({ use, relativeParts }) => ({
+				sortKey: use.key,
+				parts: relativeParts,
+				alias: use.alias,
+				type: USE_ITEM_TYPE_UNKNOWN,
+			}))
+			.sort(compareBySortKey);
+
+		groups.push({
+			kind: 'group',
+			sortKey: candidate.sortKey,
+			type: candidate.type,
+			fullyQualified: candidate.fullyQualified,
+			prefixParts: candidate.prefixParts,
+			items,
+		});
+	}
+
+	return [...singles, ...groups].sort(compareBySortKey);
+}
+
+function appendOrganisedUses(
+	organisedUses: readonly OrganisedUse[],
+	tracker: LocationTracker,
+	namespaceStatements: PhpStmt[]
+): void {
+	for (const useEntry of organisedUses) {
+		const useLine = `use ${formatOrganisedUseString(useEntry)};`;
+		const useLocation = tracker.consumeNode([useLine]);
+		const useNode = createOrganisedUseNode(useEntry);
+		namespaceStatements.push(mergeNodeAttributes(useNode, useLocation));
+	}
+
+	tracker.consumeLines(['']);
+}
+
+function createOrganisedUseNode(
+	entry: OrganisedUse
+): PhpStmtUse | PhpStmtGroupUse {
+	if (entry.kind === 'single') {
+		const nameNode = entry.fullyQualified
+			? createFullyQualifiedName([...entry.parts])
+			: createName([...entry.parts]);
+		const aliasNode = entry.alias ? createIdentifier(entry.alias) : null;
+		return createUse(entry.type, [
+			createUseUse(nameNode, aliasNode, {
+				type: USE_ITEM_TYPE_UNKNOWN,
+			}),
+		]);
+	}
+
+	const prefixNode = entry.fullyQualified
+		? createFullyQualifiedName([...entry.prefixParts])
+		: createName([...entry.prefixParts]);
+	const itemNodes = entry.items.map((item) => {
+		const itemName = createName([...item.parts]);
+		const aliasNode = item.alias ? createIdentifier(item.alias) : null;
+		return createUseUse(itemName, aliasNode, {
+			type: item.type,
+		});
+	});
+
+	return createGroupUse(entry.type, prefixNode, itemNodes);
+}
+
+function createSingleOrganisedUse(use: ProgramUse): OrganisedUseSingle {
+	return {
+		kind: 'single',
+		sortKey: use.key,
+		type: use.type,
+		fullyQualified: use.fullyQualified,
+		parts: use.parts,
+		alias: use.alias,
+	} satisfies OrganisedUseSingle;
+}
+
+function resolveUseGroupCandidate(use: ProgramUse): {
+	key: string;
+	prefixParts: readonly string[];
+	relativeParts: readonly string[];
+} | null {
+	const prefixParts = use.parts.slice(0, -1);
+	if (prefixParts.length === 0) {
+		return null;
+	}
+
+	const relativeParts = use.parts.slice(prefixParts.length);
+	if (relativeParts.length === 0) {
+		return null;
+	}
+
+	const qualifiedPrefix = use.fullyQualified
+		? `\\${prefixParts.join('\\')}`
+		: prefixParts.join('\\');
+	const key = `${use.type}:${qualifiedPrefix}`;
+
+	return { key, prefixParts, relativeParts };
+}
+
+function compareBySortKey<T extends { sortKey: string }>(a: T, b: T): number {
+	if (a.sortKey === b.sortKey) {
+		return 0;
+	}
+
+	return a.sortKey < b.sortKey ? -1 : 1;
 }
 
 function formatNamespace(parts: readonly string[]): string {
@@ -314,18 +709,37 @@ function extractAlias(
 	};
 }
 
-function formatUseString(entry: ProgramUse): string {
-	let prefix = '';
-	if (entry.type === USE_KIND_TO_TYPE.function) {
-		prefix = 'function ';
-	} else if (entry.type === USE_KIND_TO_TYPE.const) {
-		prefix = 'const ';
+function formatOrganisedUseString(entry: OrganisedUse): string {
+	if (entry.kind === 'single') {
+		const prefix = formatUsePrefix(entry.type);
+		const aliasSuffix = entry.alias ? ` as ${entry.alias}` : '';
+		const base = `${entry.fullyQualified ? '\\' : ''}${entry.parts.join('\\')}`;
+		return `${prefix}${base}${aliasSuffix}`;
 	}
 
-	const aliasSuffix = entry.alias ? ` as ${entry.alias}` : '';
-	const base = `${entry.fullyQualified ? '\\' : ''}${entry.parts.join('\\')}`;
+	const prefix = formatUsePrefix(entry.type);
+	const base = `${entry.fullyQualified ? '\\' : ''}${entry.prefixParts.join('\\')}`;
+	const items = entry.items
+		.map((item) => {
+			const aliasSuffix = item.alias ? ` as ${item.alias}` : '';
+			const itemPrefix = formatUsePrefix(item.type);
+			return `${itemPrefix}${item.parts.join('\\')}${aliasSuffix}`;
+		})
+		.join(', ');
 
-	return `${prefix}${base}${aliasSuffix}`;
+	return `${prefix}${base}\\{${items}}`;
+}
+
+function formatUsePrefix(type: number): string {
+	if (type === USE_KIND_TO_TYPE.function) {
+		return 'function ';
+	}
+
+	if (type === USE_KIND_TO_TYPE.const) {
+		return 'const ';
+	}
+
+	return '';
 }
 
 function createNamespaceName(

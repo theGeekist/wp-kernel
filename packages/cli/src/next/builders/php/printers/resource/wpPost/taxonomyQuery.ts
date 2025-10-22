@@ -1,7 +1,9 @@
 import {
 	createArg,
 	createArray,
+	createArrayCast,
 	createArrayItem,
+	createArrowFunction,
 	createAssign,
 	createExpressionStatement,
 	createFuncCall,
@@ -9,6 +11,7 @@ import {
 	createMethodCall,
 	createName,
 	createNull,
+	createParam,
 	createScalarInt,
 	createScalarString,
 	createVariable,
@@ -17,9 +20,10 @@ import { createPrintable } from '../../../ast/printables';
 import { PHP_INDENT } from '../../../ast/templates';
 import {
 	buildArrayDimFetch,
+	buildArrayInitialiser,
 	buildBinaryOperation,
-	buildBooleanNot,
 	buildIfPrintable,
+	buildScalarCast,
 } from '../utils';
 import { escapeSingleQuotes, toSnakeCase } from '../../../ast/utils';
 import type { PhpMethodBodyBuilder } from '../../../ast/templates';
@@ -67,12 +71,10 @@ export function appendTaxonomyQueryBuilder(
 	const indentLevel = options.indentLevel;
 	const indent = PHP_INDENT.repeat(indentLevel);
 
-	const initPrintable = createPrintable(
-		createExpressionStatement(
-			createAssign(createVariable('tax_query'), createArray([]))
-		),
-		[`${indent}$tax_query = array();`]
-	);
+	const initPrintable = buildArrayInitialiser({
+		variable: 'tax_query',
+		indentLevel,
+	});
 	options.body.statement(initPrintable);
 
 	for (const [key, descriptor] of options.entries) {
@@ -97,60 +99,6 @@ export function appendTaxonomyQueryBuilder(
 		const childIndentLevel = indentLevel + 1;
 		const childIndent = PHP_INDENT.repeat(childIndentLevel);
 
-		const ensureArray = buildIfPrintable({
-			indentLevel: childIndentLevel,
-			condition: buildBooleanNot(
-				createFuncCall(createName(['is_array']), [
-					createArg(createVariable(variableName)),
-				])
-			),
-			conditionText: `${childIndent}if ( ! is_array( $${variableName} ) ) {`,
-			statements: [
-				createPrintable(
-					createExpressionStatement(
-						createAssign(
-							createVariable(variableName),
-							createArray([
-								createArrayItem(createVariable(variableName)),
-							])
-						)
-					),
-					[
-						`${childIndent}${PHP_INDENT}$${variableName} = array( $${variableName} );`,
-					]
-				),
-			],
-		});
-
-		const mapPrintable = createPrintable(
-			createExpressionStatement(
-				createAssign(
-					createVariable(variableName),
-					createFuncCall(createName(['array_map']), [
-						createArg(createScalarString('intval')),
-						createArg(createVariable(variableName)),
-					])
-				)
-			),
-			[
-				`${childIndent}$${variableName} = array_map( 'intval', $${variableName} );`,
-			]
-		);
-
-		const filterPrintable = createPrintable(
-			createExpressionStatement(
-				createAssign(
-					createVariable(variableName),
-					createFuncCall(createName(['array_filter']), [
-						createArg(createVariable(variableName)),
-					])
-				)
-			),
-			[
-				`${childIndent}$${variableName} = array_filter( $${variableName} );`,
-			]
-		);
-
 		const nestedIndent = PHP_INDENT.repeat(childIndentLevel + 1);
 		const pushPrintable = createPrintable(
 			createExpressionStatement(
@@ -173,11 +121,11 @@ export function appendTaxonomyQueryBuilder(
 				)
 			),
 			[
-				`${nestedIndent}$tax_query[] = array(`,
+				`${nestedIndent}$tax_query[] = [`,
 				`${nestedIndent}${PHP_INDENT}'taxonomy' => '${escapeSingleQuotes(descriptor.taxonomy)}',`,
 				`${nestedIndent}${PHP_INDENT}'field' => 'term_id',`,
 				`${nestedIndent}${PHP_INDENT}'terms' => $${variableName},`,
-				`${nestedIndent});`,
+				`${nestedIndent}];`,
 			]
 		);
 
@@ -191,9 +139,71 @@ export function appendTaxonomyQueryBuilder(
 				),
 				conditionText: `${indent}if ( null !== $${variableName} ) {`,
 				statements: [
-					ensureArray,
-					mapPrintable,
-					filterPrintable,
+					createPrintable(
+						createExpressionStatement(
+							createAssign(
+								createVariable(variableName),
+								createFuncCall(createName(['array_filter']), [
+									createArg(
+										createFuncCall(
+											createName(['array_map']),
+											[
+												createArg(
+													createArrowFunction({
+														static: true,
+														params: [
+															createParam(
+																createVariable(
+																	'value'
+																)
+															),
+														],
+														expr: buildScalarCast(
+															'int',
+															createVariable(
+																'value'
+															)
+														),
+													})
+												),
+												createArg(
+													createArrayCast(
+														createVariable(
+															variableName
+														)
+													)
+												),
+											]
+										)
+									),
+									createArg(
+										createArrowFunction({
+											static: true,
+											params: [
+												createParam(
+													createVariable('value')
+												),
+											],
+											expr: buildBinaryOperation(
+												'Greater',
+												createVariable('value'),
+												createScalarInt(0)
+											),
+										})
+									),
+								])
+							)
+						),
+						[
+							`${childIndent}$${variableName} = array_filter(`,
+							`${childIndent}${PHP_INDENT}array_map(`,
+							`${childIndent}${PHP_INDENT}${PHP_INDENT}static fn ( $value ) => (int) $value,`,
+							`${childIndent}${PHP_INDENT}${PHP_INDENT}(array) $${variableName}`,
+							`${childIndent}${PHP_INDENT}),`,
+							`${childIndent}${PHP_INDENT}static fn ( $value ) => $value > 0`,
+							`${childIndent});`,
+						]
+					),
 					buildIfPrintable({
 						indentLevel: childIndentLevel,
 						condition: buildBinaryOperation(

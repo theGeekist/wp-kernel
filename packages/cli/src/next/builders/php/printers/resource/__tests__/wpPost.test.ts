@@ -2,7 +2,10 @@ import {
 	appendMetaQueryBuilder,
 	collectMetaQueryEntries,
 } from '../wpPost/metaQuery';
-import { collectTaxonomyQueryEntries } from '../wpPost/taxonomyQuery';
+import {
+	appendTaxonomyQueryBuilder,
+	collectTaxonomyQueryEntries,
+} from '../wpPost/taxonomyQuery';
 import {
 	createListForeachPrintable,
 	createListItemsInitialiser,
@@ -39,11 +42,10 @@ describe('wpPost query helpers', () => {
 			'                $genreMeta = array_values( (array) $genreMeta );'
 		);
 		expect(lines).toContain(
-			'                $genreMeta = array_filter( $genreMeta, static function ( $value ) {'
+			'                $genreMeta = array_filter( $genreMeta, static fn ( $value ) => match ( trim( (string) $value ) ) {'
 		);
-		expect(lines).toContain(
-			"                        return '' !== trim( (string) $value );"
-		);
+		expect(lines).toContain("                        '' => false,");
+		expect(lines).toContain('                        default => true,');
 		expect(lines).not.toContain("array_map( 'strval'");
 		expect(lines).not.toContain("array_map( 'trim'");
 	});
@@ -58,12 +60,38 @@ describe('wpPost query helpers', () => {
 
 		expect(entries).toEqual([['category', { taxonomy: 'category' }]]);
 	});
+
+	it('normalises taxonomy terms with arrow function callbacks', () => {
+		const body = new PhpMethodBodyBuilder(PHP_INDENT, 1);
+
+		appendTaxonomyQueryBuilder({
+			body,
+			indentLevel: 1,
+			entries: [['category', { taxonomy: 'category' }]],
+		});
+
+		const lines = body.toLines();
+		expect(lines).toContain(
+			'                $categoryTerms = array_filter('
+		);
+		expect(lines).toContain('                        array_map(');
+		expect(lines).toContain(
+			'                                static fn ( $value ) => (int) $value,'
+		);
+		expect(lines).toContain(
+			'                                (array) $categoryTerms'
+		);
+		expect(lines).toContain('                        ),');
+		expect(lines).toContain(
+			'                        static fn ( $value ) => $value > 0'
+		);
+	});
 });
 
 describe('wpPost list helpers', () => {
 	it('initialises the items array with indentation', () => {
 		const printable = createListItemsInitialiser({ indentLevel: 2 });
-		expect(printable.lines).toEqual(['                $items = array();']);
+		expect(printable.lines).toEqual(['                $items = [];']);
 	});
 
 	it('creates the foreach loop with guards and response push', () => {
@@ -97,7 +125,7 @@ describe('wpPost identity helpers', () => {
 		expect(statements).toHaveLength(3);
 		expect(statements[0]?.lines).toEqual([
 			'        if ( null === $book_id ) {',
-			"                return new WP_Error( 'book_missing_identifier', 'Missing identifier for Book.', array( 'status' => 400 ) );",
+			"                return new WP_Error( 'book_missing_identifier', 'Missing identifier for Book.', [ 'status' => 400 ] );",
 			'        }',
 		]);
 		expect(statements[1]?.lines).toEqual([
@@ -105,7 +133,7 @@ describe('wpPost identity helpers', () => {
 		]);
 		expect(statements[2]?.lines).toEqual([
 			'        if ( $book_id <= 0 ) {',
-			"                return new WP_Error( 'book_invalid_identifier', 'Invalid identifier for Book.', array( 'status' => 400 ) );",
+			"                return new WP_Error( 'book_invalid_identifier', 'Invalid identifier for Book.', [ 'status' => 400 ] );",
 			'        }',
 		]);
 	});
@@ -121,7 +149,7 @@ describe('wpPost identity helpers', () => {
 		expect(statements).toHaveLength(2);
 		expect(statements[0]?.lines).toEqual([
 			"        if ( ! is_string( $slug ) || '' === trim( $slug ) ) {",
-			"                return new WP_Error( 'book_missing_identifier', 'Missing identifier for Book.', array( 'status' => 400 ) );",
+			"                return new WP_Error( 'book_missing_identifier', 'Missing identifier for Book.', [ 'status' => 400 ] );",
 			'        }',
 		]);
 		expect(statements[1]?.lines).toEqual([

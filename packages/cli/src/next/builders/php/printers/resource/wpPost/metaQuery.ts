@@ -2,16 +2,19 @@ import {
 	createArg,
 	createArray,
 	createArrayItem,
+	createArrayCast as createArrayCastNode,
 	createAssign,
+	createArrowFunction,
 	createExpressionStatement,
 	createFuncCall,
 	createIdentifier,
+	createMatch,
+	createMatchArm,
 	createMethodCall,
 	createName,
-	createNode,
 	createNull,
 	createParam,
-	createReturn,
+	createScalarBool,
 	createScalarInt,
 	createScalarString,
 	createVariable,
@@ -22,6 +25,7 @@ import { createPrintable, type PhpPrintable } from '../../../ast/printables';
 import { PHP_INDENT } from '../../../ast/templates';
 import {
 	buildArrayDimFetch,
+	buildArrayInitialiser,
 	buildBinaryOperation,
 	buildBooleanNot,
 	buildIfPrintable,
@@ -75,12 +79,10 @@ export function appendMetaQueryBuilder(
 	const indentLevel = options.indentLevel;
 	const indent = PHP_INDENT.repeat(indentLevel);
 
-	const initPrintable = createPrintable(
-		createExpressionStatement(
-			createAssign(createVariable('meta_query'), createArray([]))
-		),
-		[`${indent}$meta_query = array();`]
-	);
+	const initPrintable = buildArrayInitialiser({
+		variable: 'meta_query',
+		indentLevel,
+	});
 	options.body.statement(initPrintable);
 
 	for (const [key, descriptor] of options.entries) {
@@ -129,7 +131,7 @@ export function appendMetaQueryBuilder(
 								)
 							),
 							[
-								`${childIndent}${PHP_INDENT}$${variableName} = array( $${variableName} );`,
+								`${childIndent}${PHP_INDENT}$${variableName} = [ $${variableName} ];`,
 							]
 						),
 					],
@@ -142,7 +144,9 @@ export function appendMetaQueryBuilder(
 						createVariable(variableName),
 						createFuncCall(createName(['array_values']), [
 							createArg(
-								createArrayCast(createVariable(variableName))
+								createArrayCastNode(
+									createVariable(variableName)
+								)
 							),
 						])
 					)
@@ -163,8 +167,9 @@ export function appendMetaQueryBuilder(
 					)
 				),
 				[
-					`${childIndent}$${variableName} = array_filter( $${variableName}, static function ( $value ) {`,
-					`${childIndent}${PHP_INDENT}return '' !== trim( (string) $value );`,
+					`${childIndent}$${variableName} = array_filter( $${variableName}, static fn ( $value ) => match ( trim( (string) $value ) ) {`,
+					`${childIndent}${PHP_INDENT}'' => false,`,
+					`${childIndent}${PHP_INDENT}default => true,`,
 					`${childIndent}} );`,
 				]
 			);
@@ -190,11 +195,11 @@ export function appendMetaQueryBuilder(
 					)
 				),
 				[
-					`${nestedIndent}$meta_query[] = array(`,
+					`${nestedIndent}$meta_query[] = [`,
 					`${nestedIndent}${PHP_INDENT}'key' => '${escapeSingleQuotes(key)}',`,
 					`${nestedIndent}${PHP_INDENT}'compare' => 'IN',`,
 					`${nestedIndent}${PHP_INDENT}'value' => $${variableName},`,
-					`${nestedIndent});`,
+					`${nestedIndent}];`,
 				]
 			);
 
@@ -213,22 +218,36 @@ export function appendMetaQueryBuilder(
 				})
 			);
 		} else {
-			const trimPrintable = createPrintable(
+			const sanitisePrintable = createPrintable(
 				createExpressionStatement(
 					createAssign(
 						createVariable(variableName),
-						createFuncCall(createName(['trim']), [
-							createArg(
-								buildScalarCast(
-									'string',
-									createVariable(variableName)
-								)
-							),
-						])
+						createMatch(
+							createFuncCall(createName(['is_scalar']), [
+								createArg(createVariable(variableName)),
+							]),
+							[
+								createMatchArm(
+									[createScalarBool(true)],
+									createFuncCall(createName(['trim']), [
+										createArg(
+											buildScalarCast(
+												'string',
+												createVariable(variableName)
+											)
+										),
+									])
+								),
+								createMatchArm(null, createNull()),
+							]
+						)
 					)
 				),
 				[
-					`${childIndent}$${variableName} = trim( (string) $${variableName} );`,
+					`${childIndent}$${variableName} = match ( is_scalar( $${variableName} ) ) {`,
+					`${childIndent}${PHP_INDENT}true => trim( (string) $${variableName} ),`,
+					`${childIndent}${PHP_INDENT}default => null,`,
+					`${childIndent}};`,
 				]
 			);
 
@@ -250,34 +269,33 @@ export function appendMetaQueryBuilder(
 					)
 				),
 				[
-					`${childIndent}${PHP_INDENT}$meta_query[] = array(`,
+					`${childIndent}${PHP_INDENT}$meta_query[] = [`,
 					`${childIndent}${PHP_INDENT}${PHP_INDENT}'key' => '${escapeSingleQuotes(key)}',`,
 					`${childIndent}${PHP_INDENT}${PHP_INDENT}'compare' => '=',`,
 					`${childIndent}${PHP_INDENT}${PHP_INDENT}'value' => $${variableName},`,
-					`${childIndent}${PHP_INDENT});`,
+					`${childIndent}${PHP_INDENT}];`,
 				]
 			);
 
 			innerStatements.push(
+				sanitisePrintable,
 				buildIfPrintable({
 					indentLevel: childIndentLevel,
-					condition: createFuncCall(createName(['is_scalar']), [
-						createArg(createVariable(variableName)),
-					]),
-					conditionText: `${childIndent}if ( is_scalar( $${variableName} ) ) {`,
-					statements: [
-						trimPrintable,
-						buildIfPrintable({
-							indentLevel: childIndentLevel + 1,
-							condition: buildBinaryOperation(
-								'NotIdentical',
-								createVariable(variableName),
-								createScalarString('')
-							),
-							conditionText: `${childIndent}${PHP_INDENT}if ( '' !== $${variableName} ) {`,
-							statements: [pushPrintable],
-						}),
-					],
+					condition: buildBinaryOperation(
+						'BooleanAnd',
+						buildBinaryOperation(
+							'NotIdentical',
+							createVariable(variableName),
+							createNull()
+						),
+						buildBinaryOperation(
+							'NotIdentical',
+							createVariable(variableName),
+							createScalarString('')
+						)
+					),
+					conditionText: `${childIndent}if ( null !== $${variableName} && '' !== $${variableName} ) {`,
+					statements: [pushPrintable],
 				})
 			);
 		}
@@ -326,29 +344,18 @@ export function appendMetaQueryBuilder(
 	options.body.blank();
 }
 
-function createArrayCast(expr: PhpExpr): PhpExpr {
-	return createNode('Expr_Cast_Array', { expr }) as unknown as PhpExpr;
-}
-
 function createStaticTrimFilterClosure(): PhpExpr {
 	const parameter = createParam(createVariable('value'));
-	const returnStatement = createReturn(
-		buildBinaryOperation(
-			'NotIdentical',
-			createFuncCall(createName(['trim']), [
-				createArg(buildScalarCast('string', createVariable('value'))),
-			]),
-			createScalarString('')
-		)
-	);
+	const trimmedValue = createFuncCall(createName(['trim']), [
+		createArg(buildScalarCast('string', createVariable('value'))),
+	]);
 
-	return createNode('Expr_Closure', {
+	return createArrowFunction({
 		static: true,
-		byRef: false,
 		params: [parameter],
-		uses: [],
-		returnType: null,
-		stmts: [returnStatement],
-		attrGroups: [],
-	}) as unknown as PhpExpr;
+		expr: createMatch(trimmedValue, [
+			createMatchArm([createScalarString('')], createScalarBool(false)),
+			createMatchArm(null, createScalarBool(true)),
+		]),
+	});
 }
