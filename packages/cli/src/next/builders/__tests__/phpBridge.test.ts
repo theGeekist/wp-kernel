@@ -14,9 +14,13 @@ interface MockChildProcessOptions {
 		readonly stdout: EventEmitter & { setEncoding: jest.Mock };
 		readonly stderr: EventEmitter & { setEncoding: jest.Mock };
 	}) => void;
+	readonly withStdin?: boolean;
 }
 
-function createMockChildProcess({ onEnd }: MockChildProcessOptions) {
+function createMockChildProcess({
+	onEnd,
+	withStdin = true,
+}: MockChildProcessOptions) {
 	const child = new EventEmitter();
 	const stdout = new EventEmitter() as EventEmitter & {
 		setEncoding: jest.Mock;
@@ -24,15 +28,18 @@ function createMockChildProcess({ onEnd }: MockChildProcessOptions) {
 	const stderr = new EventEmitter() as EventEmitter & {
 		setEncoding: jest.Mock;
 	};
-	const stdin = new EventEmitter() as EventEmitter & {
-		end: jest.Mock;
-	};
-
 	stdout.setEncoding = jest.fn();
 	stderr.setEncoding = jest.fn();
-	stdin.end = jest.fn((..._args: unknown[]) => {
-		onEnd({ child, stdout, stderr });
-	});
+
+	let stdin: (EventEmitter & { end: jest.Mock }) | undefined;
+	if (withStdin) {
+		stdin = new EventEmitter() as EventEmitter & {
+			end: jest.Mock;
+		};
+		stdin.end = jest.fn((..._args: unknown[]) => {
+			onEnd({ child, stdout, stderr });
+		});
+	}
 
 	Object.assign(child, { stdout, stderr, stdin });
 
@@ -188,6 +195,18 @@ describe('createPhpPrettyPrinter', () => {
 			}),
 		});
 
+		await expect(
+			prettyPrinter.prettyPrint({
+				filePath: 'Rest/BaseController.php',
+				program: [null as unknown as { nodeType: string }],
+			})
+		).rejects.toMatchObject({
+			code: 'DeveloperError',
+			data: expect.objectContaining({
+				invalidNodeIndex: 0,
+			}),
+		});
+
 		expect(spawnMock).not.toHaveBeenCalled();
 	});
 
@@ -304,5 +323,127 @@ describe('createPhpPrettyPrinter', () => {
 				],
 			})
 		).rejects.toMatchObject({ code: 'DeveloperError' });
+	});
+
+	it('propagates errors when the child process exposes no stdin writer', async () => {
+		spawnMock.mockImplementation(() =>
+			createMockChildProcess({
+				withStdin: false,
+				onEnd: ({ child }) => {
+					setImmediate(() => {
+						child.emit('close', 0);
+					});
+				},
+			})
+		);
+
+		const { createPhpPrettyPrinter } = await import('../php/bridge');
+		const prettyPrinter = createPhpPrettyPrinter({ workspace });
+
+		await expect(
+			prettyPrinter.prettyPrint({
+				filePath: 'Rest/BaseController.php',
+				program: [
+					{
+						nodeType: 'Stmt_Nop',
+						attributes: {},
+					},
+				],
+			})
+		).rejects.toMatchObject({
+			code: 'DeveloperError',
+			data: expect.objectContaining({
+				scriptPath: expect.any(String),
+			}),
+		});
+	});
+
+	it('fails fast when the bridge omits the AST payload', async () => {
+		spawnMock.mockImplementation(() =>
+			createMockChildProcess({
+				onEnd: ({ child, stdout }) => {
+					setImmediate(() => {
+						stdout.emit(
+							'data',
+							JSON.stringify({
+								code: '<?php echo 1;\n',
+							})
+						);
+						child.emit('close', 0);
+					});
+				},
+			})
+		);
+
+		const { createPhpPrettyPrinter } = await import('../php/bridge');
+		const prettyPrinter = createPhpPrettyPrinter({ workspace });
+
+		await expect(
+			prettyPrinter.prettyPrint({
+				filePath: 'Rest/BaseController.php',
+				program: [
+					{
+						nodeType: 'Stmt_Nop',
+						attributes: {},
+					},
+				],
+			})
+		).rejects.toMatchObject({ code: 'DeveloperError' });
+	});
+
+	it('bubbles up unexpected child process failures', async () => {
+		spawnMock.mockImplementation(() =>
+			createMockChildProcess({
+				onEnd: ({ child }) => {
+					setImmediate(() => {
+						child.emit('error', new Error('bridge exploded'));
+					});
+				},
+			})
+		);
+
+		const { createPhpPrettyPrinter } = await import('../php/bridge');
+		const prettyPrinter = createPhpPrettyPrinter({ workspace });
+
+		await expect(
+			prettyPrinter.prettyPrint({
+				filePath: 'Rest/BaseController.php',
+				program: [
+					{
+						nodeType: 'Stmt_Nop',
+						attributes: {},
+					},
+				],
+			})
+		).rejects.toThrow('bridge exploded');
+	});
+
+	it('ignores duplicate bridge events once the promise settles', async () => {
+		spawnMock.mockImplementation(() =>
+			createMockChildProcess({
+				onEnd: ({ child }) => {
+					setImmediate(() => {
+						child.emit('error', new Error('primary failure'));
+						child.emit('close', 0);
+						child.emit('error', new Error('secondary failure'));
+					});
+				},
+			})
+		);
+
+		const { createPhpPrettyPrinter } = await import('../php/bridge');
+		const prettyPrinter = createPhpPrettyPrinter({ workspace });
+
+		await expect(
+			prettyPrinter.prettyPrint({
+				filePath: 'Rest/BaseController.php',
+				program: [
+					{
+						nodeType: 'Stmt_Nop',
+						attributes: {},
+					},
+				],
+			})
+		).rejects.toThrow('primary failure');
 	});
 });
