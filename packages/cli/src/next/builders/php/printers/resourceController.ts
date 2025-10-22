@@ -50,6 +50,7 @@ import { createRouteMethodName } from './resourceController/routeNaming';
 import { routeUsesIdentity } from './resourceController/routeIdentity';
 import { appendNotImplementedStub } from './resourceController/stubs';
 import { handleRouteKind } from './resourceController/routes/handleRouteKind';
+import { createWpTaxonomyHelperMethods } from './resource/wpTaxonomy';
 
 export function createPhpResourceControllerHelper(): BuilderHelper {
 	return createHelper({
@@ -157,6 +158,11 @@ function buildResourceController(
 		builder.addUse('WP_Query');
 	}
 
+	if (resource.storage?.mode === 'wp-taxonomy') {
+		builder.addUse('WP_Term');
+		builder.addUse('WP_Term_Query');
+	}
+
 	const methods: PhpMethodTemplate[] = [];
 
 	methods.push(
@@ -229,6 +235,16 @@ function buildResourceController(
 	);
 
 	methods.push(...routeMethods);
+
+	if (resource.storage?.mode === 'wp-taxonomy') {
+		const taxonomyHelpers = createWpTaxonomyHelperMethods({
+			resource,
+			pascalName,
+			identity,
+			errorCodeFactory,
+		});
+		methods.push(...taxonomyHelpers);
+	}
 
 	const classTemplate = createClassTemplate({
 		name: className,

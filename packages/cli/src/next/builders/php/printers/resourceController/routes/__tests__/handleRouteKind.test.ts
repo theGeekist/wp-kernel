@@ -101,4 +101,24 @@ describe('handleRouteKind', () => {
 			false
 		);
 	});
+
+	it('delegates list/get routes for wp-taxonomy resources', () => {
+		const options = {
+			body: new PhpMethodBodyBuilder(PHP_INDENT, 1),
+			indentLevel: 1,
+			resource: createResource({
+				mode: 'wp-taxonomy',
+				taxonomy: 'book_genre',
+				hierarchical: false,
+			} as IRResource['storage']),
+			identity: { type: 'string', param: 'slug' } as const,
+			pascalName: 'BookGenre',
+			errorCodeFactory: (suffix: string) => `taxonomy_${suffix}`,
+			metadataHost: createMetadataHost(),
+			cacheSegments: [],
+		} as const;
+
+		expect(handleRouteKind({ ...options, routeKind: 'list' })).toBe(true);
+		expect(handleRouteKind({ ...options, routeKind: 'get' })).toBe(true);
+	});
 });

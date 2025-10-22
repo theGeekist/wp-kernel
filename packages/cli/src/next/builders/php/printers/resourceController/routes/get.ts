@@ -16,6 +16,7 @@ import {
 	buildIfPrintable,
 	buildInstanceof,
 	createWpErrorReturn,
+	buildWpTaxonomyGetRouteBody,
 } from '../../resource';
 import type { ResourceMetadataHost } from '../../../ast/factories/cacheMetadata';
 import type { ResolvedIdentity } from '../../identity';
@@ -34,7 +35,24 @@ export interface BuildGetRouteBodyOptions {
 
 export function buildGetRouteBody(options: BuildGetRouteBodyOptions): boolean {
 	const storage = options.resource.storage;
-	if (!storage || storage.mode !== 'wp-post') {
+	if (!storage) {
+		return false;
+	}
+
+	if (storage.mode === 'wp-taxonomy') {
+		return buildWpTaxonomyGetRouteBody({
+			body: options.body,
+			indentLevel: options.indentLevel,
+			resource: options.resource,
+			identity: options.identity,
+			pascalName: options.pascalName,
+			errorCodeFactory: options.errorCodeFactory,
+			metadataHost: options.metadataHost,
+			cacheSegments: options.cacheSegments,
+		});
+	}
+
+	if (storage.mode !== 'wp-post') {
 		return false;
 	}
 
