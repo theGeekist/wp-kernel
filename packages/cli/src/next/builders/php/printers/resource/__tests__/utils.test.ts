@@ -5,7 +5,7 @@ import {
 	indentLines,
 	normaliseVariableReference,
 } from '../utils';
-import { createVariable, createScalarInt } from '../../../ast/nodes';
+import { createVariable, createScalarInt } from '@wpkernel/php-json-ast/nodes';
 
 describe('resource utils', () => {
 	describe('normaliseVariableReference', () => {

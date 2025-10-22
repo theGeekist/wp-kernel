@@ -1,16 +1,26 @@
 import { createHelper } from '../../../helper';
-import type { BuilderHelper } from '../../../runtime/types';
+import type {
+	BuilderHelper,
+	BuilderInput,
+	BuilderOutput,
+	PipelineContext,
+} from '../../../runtime/types';
 import {
 	createPhpFileBuilder,
 	type PhpAstBuilderAdapter,
-} from '../ast/programBuilder';
-import { appendGeneratedFileDocblock } from '../ast/docblocks';
-import { appendClassTemplate } from '../ast/append';
+} from '@wpkernel/php-json-ast/builders';
+import {
+	appendGeneratedFileDocblock,
+	appendClassTemplate,
+	createPrintable,
+	createPhpReturn,
+	sanitizeJson,
+} from '@wpkernel/php-json-ast';
 import {
 	createClassTemplate,
 	createMethodTemplate,
 	PHP_INDENT,
-} from '../ast/templates';
+} from '@wpkernel/php-json-ast/templates';
 import {
 	createIdentifier,
 	createReturn,
@@ -21,16 +31,13 @@ import {
 	createName,
 	createArg,
 	type PhpExprNew,
-} from '../ast/nodes';
-import { createPrintable } from '../ast/printables';
-import { createPhpReturn } from '../ast/valueRenderers';
-import { sanitizeJson } from '../ast/utils';
+} from '@wpkernel/php-json-ast/nodes';
 import type { IRPolicyDefinition, IRv1 } from '../../../../ir/types';
 import {
 	PHP_CLASS_MODIFIER_FINAL,
 	PHP_METHOD_MODIFIER_PUBLIC,
 	PHP_METHOD_MODIFIER_STATIC,
-} from '../ast/modifiers';
+} from '@wpkernel/php-json-ast/modifiers';
 
 export function createPhpPolicyHelper(): BuilderHelper {
 	return createHelper({
@@ -51,7 +58,11 @@ export function createPhpPolicyHelper(): BuilderHelper {
 				'Policy.php'
 			);
 
-			const helper = createPhpFileBuilder({
+			const helper = createPhpFileBuilder<
+				PipelineContext,
+				BuilderInput,
+				BuilderOutput
+			>({
 				key: 'policy-helper',
 				filePath,
 				namespace,

@@ -4,7 +4,17 @@
 	"compilerOptions": {
 		"rootDir": "./src",
 		"outDir": "./dist",
-		"composite": true
+		"composite": true,
+		"paths": {
+			"@wpkernel/php-json-ast": [
+				"./packages/php-json-ast/dist/index.d.ts",
+				"./packages/php-json-ast/src/index.ts"
+			],
+			"@wpkernel/php-json-ast/*": [
+				"./packages/php-json-ast/dist/*",
+				"./packages/php-json-ast/src/*"
+			]
+		}
 	},
 	"include": ["src/**/*", "../../types/**/*.d.ts"],
 	"exclude": [

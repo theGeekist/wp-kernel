@@ -18,13 +18,12 @@ import {
 	createNull,
 	type PhpExpr,
 	type PhpExprNew,
-} from '../../../../ast/nodes';
-import { createPrintable } from '../../../../ast/printables';
+} from '@wpkernel/php-json-ast/nodes';
+import { createPrintable, escapeSingleQuotes } from '@wpkernel/php-json-ast';
 import {
 	PHP_INDENT,
 	type PhpMethodBodyBuilder,
-} from '../../../../ast/templates';
-import { escapeSingleQuotes } from '../../../../ast/utils';
+} from '@wpkernel/php-json-ast/templates';
 import {
 	buildArrayDimFetch,
 	buildBinaryOperation,

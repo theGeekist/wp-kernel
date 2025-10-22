@@ -1,5 +1,8 @@
-import { PHP_INDENT, PhpMethodBodyBuilder } from '../../../../ast/templates';
-import type { ResourceMetadataHost } from '../../../../ast/factories/cacheMetadata';
+import {
+	PHP_INDENT,
+	PhpMethodBodyBuilder,
+} from '@wpkernel/php-json-ast/templates';
+import type { ResourceMetadataHost } from '@wpkernel/php-json-ast/factories/cacheMetadata';
 import type { IRResource } from '../../../../../../../ir/types';
 import { handleRouteKind } from '../handleRouteKind';
 

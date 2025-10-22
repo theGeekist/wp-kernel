@@ -57,15 +57,15 @@ export interface BuilderOutput {
 export interface BuilderInput {
 	readonly phase: PipelinePhase;
 	// Simplified for php-json-ast - can be expanded when moved to core
-	readonly options: Record<string, unknown>;
+	readonly options: unknown;
 	readonly ir: unknown | null;
 }
 
-export type BuilderHelper = Helper<
-	PipelineContext,
-	BuilderInput,
-	BuilderOutput
->;
+export type BuilderHelper<
+	TContext extends PipelineContext = PipelineContext,
+	TInput extends BuilderInput = BuilderInput,
+	TOutput extends BuilderOutput = BuilderOutput,
+> = Helper<TContext, TInput, TOutput>;
 
 export interface CreateHelperOptions<TContext, TInput, TOutput> {
 	readonly key: string;
@@ -160,7 +160,14 @@ export interface PhpAstBuilderAdapter extends PhpAstBuilder {
 	readonly context: PhpAstContext;
 }
 
-export interface CreatePhpProgramBuilderOptions {
+export interface CreatePhpProgramBuilderOptions<
+	TContext extends PipelineContext = PipelineContext,
+	TInput extends BuilderInput = BuilderInput,
+	TOutput extends BuilderOutput = BuilderOutput,
+> extends Pick<
+		CreateHelperOptions<TContext, TInput, TOutput>,
+		'dependsOn' | 'mode' | 'priority' | 'origin'
+	> {
 	readonly key: string;
 	readonly filePath: string;
 	readonly namespace: string;
@@ -171,33 +178,53 @@ export interface CreatePhpProgramBuilderOptions {
 	) => Promise<void> | void;
 }
 
-export function createPhpProgramBuilder(
-	options: CreatePhpProgramBuilderOptions
-): BuilderHelper {
-	return createHelper({
-		key: options.key,
+export function createPhpProgramBuilder<
+	TContext extends PipelineContext = PipelineContext,
+	TInput extends BuilderInput = BuilderInput,
+	TOutput extends BuilderOutput = BuilderOutput,
+>(
+	options: CreatePhpProgramBuilderOptions<TContext, TInput, TOutput>
+): BuilderHelper<TContext, TInput, TOutput> {
+	const {
+		key,
+		filePath,
+		namespace,
+		metadata: initialMetadata,
+		build,
+		dependsOn,
+		mode,
+		priority,
+		origin,
+	} = options;
+
+	return createHelper<TContext, TInput, TOutput>({
+		key,
 		kind: 'builder',
+		dependsOn,
+		mode,
+		priority,
+		origin,
 		apply: async (helperOptions, next) => {
 			const { reporter, context } = helperOptions;
 			const astChannel = getPhpAstChannel(context);
 			const entry = astChannel.open({
-				key: options.key,
-				filePath: options.filePath,
-				namespace: options.namespace,
-				metadata: options.metadata,
+				key,
+				filePath,
+				namespace,
+				metadata: initialMetadata,
 			});
 
 			const builder = createAdapter(entry);
-			await options.build(builder, entry);
+			await build(builder, entry);
 
 			const organisedUses = organiseUses(entry.context);
 			const program = finaliseProgram(entry.context);
-			const metadata = entry.metadata;
+			const queuedMetadata = entry.metadata;
 
 			getPhpBuilderChannel(context).queue({
-				file: options.filePath,
+				file: filePath,
 				program,
-				metadata,
+				metadata: queuedMetadata,
 				docblock: [...entry.context.docblockLines],
 				uses: organisedUses.map(formatOrganisedUseString),
 				statements: [...entry.context.statementLines],
@@ -216,17 +243,27 @@ export function createPhpProgramBuilder(
 	});
 }
 
-export interface CreatePhpFileBuilderOptions
-	extends Omit<CreatePhpProgramBuilderOptions, 'build'> {
+export interface CreatePhpFileBuilderOptions<
+	TContext extends PipelineContext = PipelineContext,
+	TInput extends BuilderInput = BuilderInput,
+	TOutput extends BuilderOutput = BuilderOutput,
+> extends Omit<
+		CreatePhpProgramBuilderOptions<TContext, TInput, TOutput>,
+		'build'
+	> {
 	readonly build: (
 		builder: PhpAstBuilderAdapter,
 		entry: PhpAstContextEntry
 	) => Promise<void> | void;
 }
 
-export function createPhpFileBuilder(
-	options: CreatePhpFileBuilderOptions
-): BuilderHelper {
+export function createPhpFileBuilder<
+	TContext extends PipelineContext = PipelineContext,
+	TInput extends BuilderInput = BuilderInput,
+	TOutput extends BuilderOutput = BuilderOutput,
+>(
+	options: CreatePhpFileBuilderOptions<TContext, TInput, TOutput>
+): BuilderHelper<TContext, TInput, TOutput> {
 	return createPhpProgramBuilder(options);
 }
 

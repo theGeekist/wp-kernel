@@ -6,9 +6,12 @@ import {
 	createMethodCall,
 	createReturn,
 	createVariable,
-} from '../../../ast/nodes';
-import { createPrintable } from '../../../ast/printables';
-import { PHP_INDENT, type PhpMethodBodyBuilder } from '../../../ast/templates';
+} from '@wpkernel/php-json-ast/nodes';
+import { createPrintable } from '@wpkernel/php-json-ast';
+import {
+	PHP_INDENT,
+	type PhpMethodBodyBuilder,
+} from '@wpkernel/php-json-ast/templates';
 import {
 	appendResourceCacheEvent,
 	buildBooleanNot,
@@ -18,7 +21,7 @@ import {
 	createWpErrorReturn,
 	buildWpTaxonomyGetRouteBody,
 } from '../../resource';
-import type { ResourceMetadataHost } from '../../../ast/factories/cacheMetadata';
+import type { ResourceMetadataHost } from '@wpkernel/php-json-ast/factories/cacheMetadata';
 import type { ResolvedIdentity } from '../../identity';
 import type { IRResource } from '../../../../../../ir/types';
 

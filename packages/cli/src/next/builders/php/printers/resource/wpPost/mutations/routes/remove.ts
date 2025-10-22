@@ -12,10 +12,12 @@ import {
 	createScalarBool,
 	createScalarString,
 	createVariable,
-} from '../../../../../ast/nodes';
-import { createPrintable } from '../../../../../ast/printables';
-import { PHP_INDENT } from '../../../../../ast/templates';
-import { createErrorCodeFactory } from '../../../../../ast/utils';
+} from '@wpkernel/php-json-ast/nodes';
+import {
+	createPrintable,
+	createErrorCodeFactory,
+} from '@wpkernel/php-json-ast';
+import { PHP_INDENT } from '@wpkernel/php-json-ast/templates';
 import { createIdentityValidationPrintables } from '../../identity';
 import {
 	buildBinaryOperation,

@@ -10,3 +10,5 @@ export * from './types';
 export * from './utils';
 export * from './valueRenderers';
 export * from './factories';
+export * from './builders';
+export * from './channels';

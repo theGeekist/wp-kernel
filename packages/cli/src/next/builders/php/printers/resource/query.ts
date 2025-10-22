@@ -15,15 +15,15 @@ import {
 	type PhpExprBinaryOp,
 	type PhpStmtExpression,
 	type PhpStmtIf,
-} from '../../ast/nodes';
-import { createPrintable, type PhpPrintable } from '../../ast/printables';
-import { PHP_INDENT } from '../../ast/templates';
+} from '@wpkernel/php-json-ast/nodes';
+import { createPrintable, type PhpPrintable } from '@wpkernel/php-json-ast';
+import { PHP_INDENT } from '@wpkernel/php-json-ast/templates';
 import type {
 	ResourceControllerCacheOperation,
 	ResourceControllerCacheScope,
-} from '../../ast/types';
-import { createWpQueryInstantiation } from '../../ast/factories/wpQuery';
-import type { ResourceMetadataHost } from '../../ast/factories/cacheMetadata';
+} from '@wpkernel/php-json-ast/types';
+import { createWpQueryInstantiation } from '@wpkernel/php-json-ast/factories/wpQuery';
+import type { ResourceMetadataHost } from '@wpkernel/php-json-ast/factories/cacheMetadata';
 import { appendResourceCacheEvent } from './cache';
 import {
 	expression,
@@ -36,7 +36,7 @@ import {
 	buildBinaryOperation,
 } from './utils';
 import { createRequestParamAssignment } from './request';
-import { escapeSingleQuotes } from '../../ast/utils';
+import { escapeSingleQuotes } from '@wpkernel/php-json-ast';
 
 export interface QueryArgEntry {
 	readonly key: string;

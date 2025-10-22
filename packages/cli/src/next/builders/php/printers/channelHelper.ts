@@ -1,7 +1,7 @@
 import { createHelper } from '../../../helper';
 import type { BuilderHelper } from '../../../runtime/types';
 import { resetPhpBuilderChannel } from './channel';
-import { resetPhpAstChannel } from '../ast/context';
+import { resetPhpAstChannel } from '@wpkernel/php-json-ast/channels';
 
 export function createPhpChannelHelper(): BuilderHelper {
 	return createHelper({

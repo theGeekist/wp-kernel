@@ -1,4 +1,4 @@
-import type { PhpProgram } from './ast/nodes';
+import type { PhpProgram } from '@wpkernel/php-json-ast/nodes';
 
 export interface PhpPrettyPrintResult {
 	readonly code: string;

@@ -18,15 +18,14 @@ import {
 	createVariable,
 	createNull,
 	type PhpNullableType,
-} from '../../../ast/nodes';
-import { createPrintable } from '../../../ast/printables';
+} from '@wpkernel/php-json-ast/nodes';
+import { createPrintable, escapeSingleQuotes } from '@wpkernel/php-json-ast';
 import {
 	createMethodTemplate,
 	PHP_INDENT,
 	type PhpMethodTemplate,
-} from '../../../ast/templates';
-import { PHP_METHOD_MODIFIER_PRIVATE } from '../../../ast/modifiers';
-import { escapeSingleQuotes } from '../../../ast/utils';
+} from '@wpkernel/php-json-ast/templates';
+import { PHP_METHOD_MODIFIER_PRIVATE } from '@wpkernel/php-json-ast/modifiers';
 import type { IRResource } from '../../../../../../ir/types';
 import type { ResolvedIdentity } from '../../identity';
 import {

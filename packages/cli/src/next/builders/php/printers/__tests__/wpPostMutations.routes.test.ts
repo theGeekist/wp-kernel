@@ -5,14 +5,14 @@ import type {
 	BuilderOutput,
 	PipelineContext,
 } from '../../../runtime/types';
-import { createPhpProgramBuilder } from '../../ast/programBuilder';
-import { appendClassTemplate } from '../../ast/append';
+import { createPhpProgramBuilder } from '@wpkernel/php-json-ast/builders';
+import { appendClassTemplate } from '@wpkernel/php-json-ast';
 import {
 	createClassTemplate,
 	createMethodTemplate,
 	PHP_INDENT,
 	type PhpMethodBodyBuilder,
-} from '../../ast/templates';
+} from '@wpkernel/php-json-ast/templates';
 import {
 	WP_POST_MUTATION_CONTRACT,
 	buildCreateRouteBody,
@@ -23,7 +23,7 @@ import {
 	syncWpPostTaxonomies,
 } from '../resource/wpPost/mutations';
 import { getPhpBuilderChannel, resetPhpBuilderChannel } from '../channel';
-import { resetPhpAstChannel } from '../../ast/context';
+import { resetPhpAstChannel } from '@wpkernel/php-json-ast/channels';
 import type { IRResource } from '../../../../ir/types';
 
 const CONTRACT = WP_POST_MUTATION_CONTRACT;
@@ -128,7 +128,11 @@ async function queueRouteProgram(
 	resetPhpBuilderChannel(context);
 	resetPhpAstChannel(context);
 
-	const helper = createPhpProgramBuilder({
+	const helper = createPhpProgramBuilder<
+		PipelineContext,
+		BuilderInput,
+		BuilderOutput
+	>({
 		key: `mutation.route.${metadata.kind}`,
 		filePath: context.workspace.resolve(
 			'.generated',
@@ -184,7 +188,11 @@ async function queueHelperPrograms(): Promise<{
 	];
 
 	for (const helperFactory of helpers) {
-		const builderHelper = createPhpProgramBuilder({
+		const builderHelper = createPhpProgramBuilder<
+			PipelineContext,
+			BuilderInput,
+			BuilderOutput
+		>({
 			key: `mutation.helper.${helperFactory.key}`,
 			filePath: context.workspace.resolve(
 				'.generated',
