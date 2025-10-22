@@ -272,6 +272,9 @@ describe('programBuilder helpers', () => {
 				builder.addUse('Demo\\Special\\Name', {
 					alias: 'CustomAlias',
 				});
+				builder.addUse('function Demo\\Helpers\\bar');
+				builder.addUse('Demo\\Special\\Helper');
+				builder.addUse('const Demo\\Constants\\BAZ');
 
 				builder.appendDocblock('Example docblock');
 				builder.appendStatement('return 1;');
@@ -313,10 +316,20 @@ describe('programBuilder helpers', () => {
 		expect(action.metadata.kind).toBe('base-controller');
 		expect(action.uses).toEqual([
 			'Demo\\Contracts as ContractAlias',
-			'function Demo\\Helpers\\foo',
-			'const Demo\\Constants\\BAR',
+			'Demo\\Special\\{Helper, Name as CustomAlias}',
 			'\\Vendor\\Package\\Thing',
-			'Demo\\Special\\Name as CustomAlias',
+			'function Demo\\Helpers\\{bar, foo}',
+			'const Demo\\Constants\\{BAR, BAZ}',
 		]);
+		const namespaceNode = action.program.find(
+			(stmt) => stmt.nodeType === 'Stmt_Namespace'
+		);
+		const namespaceUses =
+			namespaceNode?.nodeType === 'Stmt_Namespace'
+				? namespaceNode.stmts.filter(
+						(stmt) => stmt.nodeType === 'Stmt_GroupUse'
+					)
+				: [];
+		expect(namespaceUses).toHaveLength(3);
 	});
 });

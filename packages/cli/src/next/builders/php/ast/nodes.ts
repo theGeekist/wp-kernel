@@ -161,10 +161,18 @@ export interface PhpStmtUse extends PhpStmtBase {
 	readonly uses: PhpStmtUseUse[];
 }
 
+export interface PhpStmtGroupUse extends PhpStmtBase {
+	readonly nodeType: 'Stmt_GroupUse';
+	readonly type: number;
+	readonly prefix: PhpName;
+	readonly uses: PhpStmtUseUse[];
+}
+
 export interface PhpStmtUseUse extends PhpStmtBase {
 	readonly nodeType: 'Stmt_UseUse';
 	readonly name: PhpName;
 	readonly alias: PhpIdentifier | null;
+	readonly type: number;
 }
 
 export interface PhpStmtClass extends PhpStmtBase {
@@ -345,6 +353,7 @@ export type PhpClassStmt =
 export type PhpStmt =
 	| PhpStmtNamespace
 	| PhpStmtUse
+	| PhpStmtGroupUse
 	| PhpStmtClass
 	| PhpStmtDeclare
 	| PhpStmtTraitUse
@@ -658,11 +667,25 @@ export function createUse(
 export function createUseUse(
 	name: PhpName,
 	alias: PhpIdentifier | null = null,
-	attributes?: PhpAttributes
+	options: { type?: number; attributes?: PhpAttributes } = {}
 ): PhpStmtUseUse {
+	const { type = 0, attributes } = options;
 	return createNode<PhpStmtUseUse>(
 		'Stmt_UseUse',
-		{ name, alias },
+		{ name, alias, type },
+		attributes
+	);
+}
+
+export function createGroupUse(
+	type: number,
+	prefix: PhpName,
+	uses: PhpStmtUseUse[],
+	attributes?: PhpAttributes
+): PhpStmtGroupUse {
+	return createNode<PhpStmtGroupUse>(
+		'Stmt_GroupUse',
+		{ type, prefix, uses },
 		attributes
 	);
 }
