@@ -1,12 +1,19 @@
 import { createHelper } from '../../../helper';
-import type { BuilderHelper } from '../../../runtime/types';
+import type {
+	BuilderHelper,
+	BuilderInput,
+	BuilderOutput,
+	PipelineContext,
+} from '../../../runtime/types';
 import {
 	createPhpFileBuilder,
 	type PhpAstBuilderAdapter,
-} from '../ast/programBuilder';
-import { appendGeneratedFileDocblock } from '../ast/docblocks';
-import { createPhpReturn } from '../ast/valueRenderers';
-import { toPascalCase } from '../ast/utils';
+} from '@wpkernel/php-json-ast/builders';
+import {
+	appendGeneratedFileDocblock,
+	createPhpReturn,
+	toPascalCase,
+} from '@wpkernel/php-json-ast';
 import type { IRv1 } from '../../../../ir/types';
 
 export function createPhpIndexFileHelper(): BuilderHelper {
@@ -22,7 +29,11 @@ export function createPhpIndexFileHelper(): BuilderHelper {
 
 			const ir = input.ir;
 
-			const helper = createPhpFileBuilder({
+			const helper = createPhpFileBuilder<
+				PipelineContext,
+				BuilderInput,
+				BuilderOutput
+			>({
 				key: 'php-index',
 				filePath: options.context.workspace.resolve(
 					ir.php.outputDir,

@@ -6,7 +6,7 @@ import {
 import type {
 	ResourceControllerMetadata,
 	ResourceControllerRouteMetadata,
-} from '../../ast/types';
+} from '@wpkernel/php-json-ast/types';
 import type { IRResource, IRRoute } from '../../../../../ir/types';
 import type { ResolvedIdentity } from '../identity';
 

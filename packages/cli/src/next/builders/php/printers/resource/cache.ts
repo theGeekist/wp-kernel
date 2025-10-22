@@ -1,10 +1,10 @@
-import { appendResourceControllerCacheEvent } from '../../ast/factories/cacheMetadata';
-import type { ResourceMetadataHost } from '../../ast/factories/cacheMetadata';
+import { appendResourceControllerCacheEvent } from '@wpkernel/php-json-ast/factories/cacheMetadata';
+import type { ResourceMetadataHost } from '@wpkernel/php-json-ast/factories/cacheMetadata';
 import type {
 	ResourceControllerCacheOperation,
 	ResourceControllerCacheScope,
-} from '../../ast/types';
-import { sanitizeJson } from '../../ast/utils';
+} from '@wpkernel/php-json-ast/types';
+import { sanitizeJson } from '@wpkernel/php-json-ast';
 
 export interface CacheEventOptions {
 	readonly host: ResourceMetadataHost;

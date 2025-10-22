@@ -1,9 +1,9 @@
 import type {
 	ResourceControllerMetadata,
 	ResourceControllerCacheMetadata,
-} from '../../../ast/types';
+} from '@wpkernel/php-json-ast/types';
 import { appendResourceCacheEvent, normaliseCacheSegments } from '../cache';
-import type { ResourceMetadataHost } from '../../../ast/factories/cacheMetadata';
+import type { ResourceMetadataHost } from '@wpkernel/php-json-ast/factories/cacheMetadata';
 
 describe('resource cache helpers', () => {
 	it('normalises primitive segments', () => {

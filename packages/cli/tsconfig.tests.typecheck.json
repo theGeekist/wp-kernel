@@ -20,6 +20,14 @@
 			"@wpkernel/e2e-utils/*": ["packages/e2e-utils/src/*"],
 			"@wpkernel/test-utils": ["packages/test-utils/src/index.ts"],
 			"@wpkernel/test-utils/*": ["packages/test-utils/src/*"],
+			"@wpkernel/php-json-ast": [
+				"packages/php-json-ast/dist/index.d.ts",
+				"packages/php-json-ast/src/index.ts"
+			],
+			"@wpkernel/php-json-ast/*": [
+				"packages/php-json-ast/dist/*",
+				"packages/php-json-ast/src/*"
+			],
 			"@test-utils/*": ["tests/test-utils/*"]
 		},
 		"strict": true,

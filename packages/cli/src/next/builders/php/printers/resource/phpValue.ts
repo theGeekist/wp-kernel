@@ -1,7 +1,7 @@
-import { createVariable, type PhpExpr } from '../../ast/nodes';
-import { createPrintable, type PhpPrintable } from '../../ast/printables';
-import { PHP_INDENT } from '../../ast/templates';
-import { createPhpExpression } from '../../ast/valueRenderers';
+import { createVariable, type PhpExpr } from '@wpkernel/php-json-ast/nodes';
+import { createPrintable, type PhpPrintable } from '@wpkernel/php-json-ast';
+import { PHP_INDENT } from '@wpkernel/php-json-ast/templates';
+import { createPhpExpression } from '@wpkernel/php-json-ast';
 import { indentLines, normaliseVariableReference } from './utils';
 
 type PhpPrintableExpr = PhpPrintable<PhpExpr>;

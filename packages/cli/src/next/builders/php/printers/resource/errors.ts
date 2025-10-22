@@ -9,10 +9,10 @@ import {
 	createScalarString,
 	type PhpExprNew,
 	type PhpStmtReturn,
-} from '../../ast/nodes';
-import { createPrintable, type PhpPrintable } from '../../ast/printables';
-import { PHP_INDENT } from '../../ast/templates';
-import { escapeSingleQuotes } from '../../ast/utils';
+} from '@wpkernel/php-json-ast/nodes';
+import { createPrintable, type PhpPrintable } from '@wpkernel/php-json-ast';
+import { PHP_INDENT } from '@wpkernel/php-json-ast/templates';
+import { escapeSingleQuotes } from '@wpkernel/php-json-ast';
 
 export interface WpErrorReturnOptions {
 	readonly indentLevel: number;
