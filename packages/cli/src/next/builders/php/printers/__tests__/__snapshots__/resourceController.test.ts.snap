@@ -54,9 +54,9 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
  */",
         },
       ],
-      "endFilePos": 12272,
-      "endLine": 300,
-      "endTokenPos": 12272,
+      "endFilePos": 12340,
+      "endLine": 302,
+      "endTokenPos": 12340,
       "startFilePos": 405,
       "startLine": 16,
       "startTokenPos": 405,
@@ -257,9 +257,9 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
       {
         "attrGroups": [],
         "attributes": {
-          "endFilePos": 12256,
-          "endLine": 299,
-          "endTokenPos": 12256,
+          "endFilePos": 12324,
+          "endLine": 301,
+          "endTokenPos": 12324,
           "startFilePos": 572,
           "startLine": 26,
           "startTokenPos": 572,
@@ -1604,7 +1604,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                 "stmts": [
                   {
                     "attributes": {},
-                    "cond": {
+                    "expr": {
                       "attributes": {},
                       "expr": {
                         "args": [
@@ -1615,127 +1615,120 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                             "nodeType": "Arg",
                             "unpack": false,
                             "value": {
+                              "args": [
+                                {
+                                  "attributes": {},
+                                  "byRef": false,
+                                  "name": null,
+                                  "nodeType": "Arg",
+                                  "unpack": false,
+                                  "value": {
+                                    "attrGroups": [],
+                                    "attributes": {},
+                                    "byRef": false,
+                                    "expr": {
+                                      "attributes": {},
+                                      "expr": {
+                                        "attributes": {},
+                                        "name": "value",
+                                        "nodeType": "Expr_Variable",
+                                      },
+                                      "nodeType": "Expr_Cast_Int",
+                                    },
+                                    "nodeType": "Expr_ArrowFunction",
+                                    "params": [
+                                      {
+                                        "attrGroups": [],
+                                        "attributes": {},
+                                        "byRef": false,
+                                        "default": null,
+                                        "flags": 0,
+                                        "nodeType": "Param",
+                                        "type": null,
+                                        "var": {
+                                          "attributes": {},
+                                          "name": "value",
+                                          "nodeType": "Expr_Variable",
+                                        },
+                                        "variadic": false,
+                                      },
+                                    ],
+                                    "returnType": null,
+                                    "static": true,
+                                  },
+                                },
+                                {
+                                  "attributes": {},
+                                  "byRef": false,
+                                  "name": null,
+                                  "nodeType": "Arg",
+                                  "unpack": false,
+                                  "value": {
+                                    "attributes": {},
+                                    "expr": {
+                                      "attributes": {},
+                                      "name": "genresTerms",
+                                      "nodeType": "Expr_Variable",
+                                    },
+                                    "nodeType": "Expr_Cast_Array",
+                                  },
+                                },
+                              ],
                               "attributes": {},
-                              "name": "genresTerms",
-                              "nodeType": "Expr_Variable",
+                              "name": {
+                                "attributes": {},
+                                "nodeType": "Name",
+                                "parts": [
+                                  "array_map",
+                                ],
+                              },
+                              "nodeType": "Expr_FuncCall",
                             },
                           },
-                        ],
-                        "attributes": {},
-                        "name": {
-                          "attributes": {},
-                          "nodeType": "Name",
-                          "parts": [
-                            "is_array",
-                          ],
-                        },
-                        "nodeType": "Expr_FuncCall",
-                      },
-                      "nodeType": "Expr_BooleanNot",
-                    },
-                    "else": null,
-                    "elseifs": [],
-                    "nodeType": "Stmt_If",
-                    "stmts": [
-                      {
-                        "attributes": {},
-                        "expr": {
-                          "attributes": {},
-                          "expr": {
+                          {
                             "attributes": {},
-                            "items": [
-                              {
+                            "byRef": false,
+                            "name": null,
+                            "nodeType": "Arg",
+                            "unpack": false,
+                            "value": {
+                              "attrGroups": [],
+                              "attributes": {},
+                              "byRef": false,
+                              "expr": {
                                 "attributes": {},
-                                "byRef": false,
-                                "key": null,
-                                "nodeType": "Expr_ArrayItem",
-                                "unpack": false,
-                                "value": {
+                                "left": {
                                   "attributes": {},
-                                  "name": "genresTerms",
+                                  "name": "value",
                                   "nodeType": "Expr_Variable",
                                 },
+                                "nodeType": "Expr_BinaryOp_Greater",
+                                "right": {
+                                  "attributes": {},
+                                  "nodeType": "Scalar_LNumber",
+                                  "value": 0,
+                                },
                               },
-                            ],
-                            "nodeType": "Expr_Array",
-                          },
-                          "nodeType": "Expr_Assign",
-                          "var": {
-                            "attributes": {},
-                            "name": "genresTerms",
-                            "nodeType": "Expr_Variable",
-                          },
-                        },
-                        "nodeType": "Stmt_Expression",
-                      },
-                    ],
-                  },
-                  {
-                    "attributes": {},
-                    "expr": {
-                      "attributes": {},
-                      "expr": {
-                        "args": [
-                          {
-                            "attributes": {},
-                            "byRef": false,
-                            "name": null,
-                            "nodeType": "Arg",
-                            "unpack": false,
-                            "value": {
-                              "attributes": {},
-                              "nodeType": "Scalar_String",
-                              "value": "intval",
-                            },
-                          },
-                          {
-                            "attributes": {},
-                            "byRef": false,
-                            "name": null,
-                            "nodeType": "Arg",
-                            "unpack": false,
-                            "value": {
-                              "attributes": {},
-                              "name": "genresTerms",
-                              "nodeType": "Expr_Variable",
-                            },
-                          },
-                        ],
-                        "attributes": {},
-                        "name": {
-                          "attributes": {},
-                          "nodeType": "Name",
-                          "parts": [
-                            "array_map",
-                          ],
-                        },
-                        "nodeType": "Expr_FuncCall",
-                      },
-                      "nodeType": "Expr_Assign",
-                      "var": {
-                        "attributes": {},
-                        "name": "genresTerms",
-                        "nodeType": "Expr_Variable",
-                      },
-                    },
-                    "nodeType": "Stmt_Expression",
-                  },
-                  {
-                    "attributes": {},
-                    "expr": {
-                      "attributes": {},
-                      "expr": {
-                        "args": [
-                          {
-                            "attributes": {},
-                            "byRef": false,
-                            "name": null,
-                            "nodeType": "Arg",
-                            "unpack": false,
-                            "value": {
-                              "attributes": {},
-                              "name": "genresTerms",
-                              "nodeType": "Expr_Variable",
+                              "nodeType": "Expr_ArrowFunction",
+                              "params": [
+                                {
+                                  "attrGroups": [],
+                                  "attributes": {},
+                                  "byRef": false,
+                                  "default": null,
+                                  "flags": 0,
+                                  "nodeType": "Param",
+                                  "type": null,
+                                  "var": {
+                                    "attributes": {},
+                                    "name": "value",
+                                    "nodeType": "Expr_Variable",
+                                  },
+                                  "variadic": false,
+                                },
+                              ],
+                              "returnType": null,
+                              "static": true,
                             },
                           },
                         ],
@@ -5464,12 +5457,12 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
               "text": "// WPK:END AUTO",
             },
           ],
-          "endFilePos": 12272,
-          "endLine": 300,
-          "endTokenPos": 12272,
-          "startFilePos": 12257,
-          "startLine": 300,
-          "startTokenPos": 12257,
+          "endFilePos": 12340,
+          "endLine": 302,
+          "endTokenPos": 12340,
+          "startFilePos": 12325,
+          "startLine": 302,
+          "startTokenPos": 12325,
         },
         "nodeType": "Stmt_Nop",
       },
@@ -5576,11 +5569,13 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
   "                $tax_query = [];",
   "                $genresTerms = $request->get_param( 'genres' );",
   "                if ( null !== $genresTerms ) {",
-  "                        if ( ! is_array( $genresTerms ) ) {",
-  "                                $genresTerms = [ $genresTerms ];",
-  "                        }",
-  "                        $genresTerms = array_map( 'intval', $genresTerms );",
-  "                        $genresTerms = array_filter( $genresTerms );",
+  "                        $genresTerms = array_filter(",
+  "                                array_map(",
+  "                                        static fn ( $value ) => (int) $value,",
+  "                                        (array) $genresTerms",
+  "                                ),",
+  "                                static fn ( $value ) => $value > 0",
+  "                        );",
   "                        if ( count( $genresTerms ) > 0 ) {",
   "                                $tax_query[] = [",
   "                                        'taxonomy' => 'book_genre',",
