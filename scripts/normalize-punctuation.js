@@ -5,7 +5,7 @@
  * This runs after Prettier to enforce consistent punctuation/symbols
  */
 
-import { readFileSync, writeFileSync } from 'fs';
+import { lstatSync, readFileSync, writeFileSync } from 'fs';
 import { globSync } from 'glob';
 
 // --- CONFIGURATION ARRAY ---
@@ -54,6 +54,12 @@ const totalReplacementCounts = {};
 
 files.forEach((file) => {
 	try {
+		const stats = lstatSync(file);
+
+		if (!stats.isFile()) {
+			return;
+		}
+
 		let content = readFileSync(file, 'utf8');
 		const originalContent = content; // Keep the initial content for comparison
 		const fileReplacements = [];
@@ -89,7 +95,18 @@ files.forEach((file) => {
 			console.log(`✓ ${file}: replaced ${logMessage}`);
 		}
 	} catch (err) {
-		console.error(`✗ ${file}: ${err.message}`);
+		if (
+			err &&
+			typeof err === 'object' &&
+			'code' in err &&
+			err.code === 'ENOENT'
+		) {
+			return;
+		}
+
+		console.error(
+			`✗ ${file}: ${err instanceof Error ? err.message : String(err)}`
+		);
 	}
 });
 

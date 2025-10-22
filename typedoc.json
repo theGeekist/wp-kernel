@@ -4,7 +4,8 @@
 		"packages/core/src/index.ts",
 		"packages/ui/src/index.ts",
 		"packages/cli/src/index.ts",
-		"packages/test-utils/src/index.ts"
+		"packages/test-utils/src/index.ts",
+		"packages/php-json-ast/src/index.ts"
 	],
 	"entryPointStrategy": "resolve",
 	"tsconfig": "tsconfig.docs.json",

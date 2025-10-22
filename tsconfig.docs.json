@@ -12,6 +12,7 @@
 		"packages/ui/src/**/*",
 		"packages/cli/src/**/*",
 		"packages/test-utils/src/**/*",
+		"packages/php-json-ast/src/**/*",
 		"types/**/*.d.ts"
 	]
 }
