@@ -421,6 +421,13 @@ export interface PhpExprMethodCall extends PhpExprBase {
 	readonly args: PhpArg[];
 }
 
+export interface PhpExprNullsafeMethodCall extends PhpExprBase {
+	readonly nodeType: 'Expr_NullsafeMethodCall';
+	readonly var: PhpExpr;
+	readonly name: PhpIdentifier | PhpExpr;
+	readonly args: PhpArg[];
+}
+
 export interface PhpExprStaticCall extends PhpExprBase {
 	readonly nodeType: 'Expr_StaticCall';
 	readonly class: PhpName | PhpExpr;
@@ -543,10 +550,36 @@ export interface PhpExprCastArray extends PhpExprBase {
 	readonly expr: PhpExpr;
 }
 
+export interface PhpExprCastInt extends PhpExprBase {
+	readonly nodeType: 'Expr_Cast_Int';
+	readonly expr: PhpExpr;
+}
+
+export interface PhpExprCastDouble extends PhpExprBase {
+	readonly nodeType: 'Expr_Cast_Double';
+	readonly expr: PhpExpr;
+}
+
+export interface PhpExprCastString extends PhpExprBase {
+	readonly nodeType: 'Expr_Cast_String';
+	readonly expr: PhpExpr;
+}
+
+export interface PhpExprCastBool extends PhpExprBase {
+	readonly nodeType: 'Expr_Cast_Bool';
+	readonly expr: PhpExpr;
+}
+
 export interface PhpClosureUse extends PhpNode {
 	readonly nodeType: 'ClosureUse' | 'Expr_ClosureUse';
 	readonly var: PhpExprVariable;
 	readonly byRef: boolean;
+}
+
+export interface PhpMatchArm extends PhpNode {
+	readonly nodeType: 'MatchArm';
+	readonly conds: PhpExpr[] | null;
+	readonly body: PhpExpr;
 }
 
 export interface PhpExprClosure extends PhpExprBase {
@@ -560,6 +593,27 @@ export interface PhpExprClosure extends PhpExprBase {
 	readonly attrGroups: PhpAttrGroup[];
 }
 
+export interface PhpExprArrowFunction extends PhpExprBase {
+	readonly nodeType: 'Expr_ArrowFunction';
+	readonly static: boolean;
+	readonly byRef: boolean;
+	readonly params: PhpParam[];
+	readonly returnType: PhpType | null;
+	readonly expr: PhpExpr;
+	readonly attrGroups: PhpAttrGroup[];
+}
+
+export interface PhpExprMatch extends PhpExprBase {
+	readonly nodeType: 'Expr_Match';
+	readonly cond: PhpExpr;
+	readonly arms: PhpMatchArm[];
+}
+
+export interface PhpExprThrow extends PhpExprBase {
+	readonly nodeType: 'Expr_Throw';
+	readonly expr: PhpExpr;
+}
+
 export type PhpExpr =
 	| PhpExprAssign
 	| PhpExprArray
@@ -567,6 +621,7 @@ export type PhpExpr =
 	| PhpExprArrayDimFetch
 	| PhpExprVariable
 	| PhpExprMethodCall
+	| PhpExprNullsafeMethodCall
 	| PhpExprStaticCall
 	| PhpExprFuncCall
 	| PhpExprNew
@@ -583,9 +638,19 @@ export type PhpExpr =
 	| PhpExprUnaryPlus
 	| PhpExprClone
 	| PhpExprCastArray
+	| PhpExprCastScalar
+	| PhpExprMatch
+	| PhpExprArrowFunction
+	| PhpExprThrow
 	| PhpExprClosure
 	| PhpScalar
 	| PhpExprBase;
+
+export type PhpExprCastScalar =
+	| PhpExprCastInt
+	| PhpExprCastDouble
+	| PhpExprCastString
+	| PhpExprCastBool;
 
 export type PhpNodeLike =
 	| PhpStmt
@@ -597,7 +662,8 @@ export type PhpNodeLike =
 	| PhpParam
 	| PhpArg
 	| PhpConst
-	| PhpClosureUse;
+	| PhpClosureUse
+	| PhpMatchArm;
 
 /**
  * Generic factory helper for node construction. Consumers should prefer the
@@ -820,6 +886,27 @@ export function createExpressionStatement(
 	);
 }
 
+export function createIfStatement(
+	cond: PhpExpr,
+	stmts: PhpStmt[],
+	options: {
+		elseifs?: PhpStmtElseIf[];
+		elseBranch?: PhpStmtElse | null;
+	} = {},
+	attributes?: PhpAttributes
+): PhpStmtIf {
+	return createNode<PhpStmtIf>(
+		'Stmt_If',
+		{
+			cond,
+			stmts,
+			elseifs: options.elseifs ?? [],
+			else: options.elseBranch ?? null,
+		},
+		attributes
+	);
+}
+
 export function createArray(
 	items: PhpExprArrayItem[],
 	attributes?: PhpAttributes
@@ -969,6 +1056,19 @@ export function createMethodCall(
 	);
 }
 
+export function createNullsafeMethodCall(
+	variable: PhpExpr,
+	name: PhpIdentifier | PhpExpr,
+	args: PhpArg[] = [],
+	attributes?: PhpAttributes
+): PhpExprNullsafeMethodCall {
+	return createNode<PhpExprNullsafeMethodCall>(
+		'Expr_NullsafeMethodCall',
+		{ var: variable, name, args },
+		attributes
+	);
+}
+
 export function createStaticCall(
 	className: PhpName | PhpExpr,
 	name: PhpIdentifier | PhpExpr,
@@ -1002,6 +1102,29 @@ export function createPropertyFetch(
 	return createNode<PhpExprPropertyFetch>(
 		'Expr_PropertyFetch',
 		{ var: variable, name },
+		attributes
+	);
+}
+
+export function createNullsafePropertyFetch(
+	variable: PhpExpr,
+	name: PhpIdentifier | PhpExpr,
+	attributes?: PhpAttributes
+): PhpExprNullsafePropertyFetch {
+	return createNode<PhpExprNullsafePropertyFetch>(
+		'Expr_NullsafePropertyFetch',
+		{ var: variable, name },
+		attributes
+	);
+}
+
+export function createBooleanNot(
+	expr: PhpExpr,
+	attributes?: PhpAttributes
+): PhpExprBooleanNot {
+	return createNode<PhpExprBooleanNot>(
+		'Expr_BooleanNot',
+		{ expr },
 		attributes
 	);
 }
@@ -1050,6 +1173,26 @@ export function createArrayCast(
 	);
 }
 
+export function createScalarCast(
+	kind: 'int' | 'float' | 'string' | 'bool',
+	expr: PhpExpr,
+	attributes?: PhpAttributes
+): PhpExprCastScalar {
+	const nodeType = (
+		{
+			int: 'Expr_Cast_Int',
+			float: 'Expr_Cast_Double',
+			string: 'Expr_Cast_String',
+			bool: 'Expr_Cast_Bool',
+		} satisfies Record<
+			'int' | 'float' | 'string' | 'bool',
+			PhpExprCastScalar['nodeType']
+		>
+	)[kind];
+
+	return createNode<PhpExprCastScalar>(nodeType, { expr }, attributes);
+}
+
 export function createClosureUse(
 	variable: PhpExprVariable,
 	options: { byRef?: boolean } = {},
@@ -1087,4 +1230,52 @@ export function createClosure(
 		},
 		attributes
 	);
+}
+
+export function createArrowFunction(
+	options: {
+		static?: boolean;
+		byRef?: boolean;
+		params?: PhpParam[];
+		returnType?: PhpType | null;
+		expr: PhpExpr;
+		attrGroups?: PhpAttrGroup[];
+	},
+	attributes?: PhpAttributes
+): PhpExprArrowFunction {
+	return createNode<PhpExprArrowFunction>(
+		'Expr_ArrowFunction',
+		{
+			static: options.static ?? false,
+			byRef: options.byRef ?? false,
+			params: options.params ?? [],
+			returnType: options.returnType ?? null,
+			expr: options.expr,
+			attrGroups: options.attrGroups ?? [],
+		},
+		attributes
+	);
+}
+
+export function createMatchArm(
+	conds: PhpExpr[] | null,
+	body: PhpExpr,
+	attributes?: PhpAttributes
+): PhpMatchArm {
+	return createNode<PhpMatchArm>('MatchArm', { conds, body }, attributes);
+}
+
+export function createMatch(
+	cond: PhpExpr,
+	arms: PhpMatchArm[],
+	attributes?: PhpAttributes
+): PhpExprMatch {
+	return createNode<PhpExprMatch>('Expr_Match', { cond, arms }, attributes);
+}
+
+export function createThrow(
+	expr: PhpExpr,
+	attributes?: PhpAttributes
+): PhpExprThrow {
+	return createNode<PhpExprThrow>('Expr_Throw', { expr }, attributes);
 }
