@@ -33,6 +33,9 @@ export default {
 		'^@wpkernel/e2e-utils/(.*)$': '<rootDir>/packages/e2e-utils/src/$1',
 		'^@wpkernel/test-utils$': '<rootDir>/packages/test-utils/src',
 		'^@wpkernel/test-utils/(.*)$': '<rootDir>/packages/test-utils/src/$1',
+		'^@wpkernel/php-json-ast$': '<rootDir>/packages/php-json-ast/src',
+		'^@wpkernel/php-json-ast/(.*)$':
+			'<rootDir>/packages/php-json-ast/src/$1',
 	},
 
 	// Coverage configuration
@@ -85,6 +88,7 @@ export default {
 		'/tests/test-globals.d.ts', // Exclude ambient type declarations
 		'/tests/setup-jest.ts', // Exclude setup file from being run as test
 		'.spec.ts$', // Exclude Playwright spec files
+		'testUtils\\.test-support\\.(js|ts|tsx)$', // Exclude test support utility files
 	],
 
 	// Setup files
