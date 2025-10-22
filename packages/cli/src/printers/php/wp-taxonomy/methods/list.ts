@@ -60,7 +60,7 @@ export function createListMethod(
 			body.line('        }');
 			body.line('}');
 			body.blank();
-			body.line('$total = (int) $term_query->get_total();');
+			body.line('$total = (int) count( $term_query->get_terms() );');
 			body.line('$pages = (int) ceil( $total / max( 1, $per_page ) );');
 			body.blank();
 			body.line('return array(');
