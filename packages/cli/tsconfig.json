@@ -17,12 +17,12 @@
 			"@wpkernel/test-utils": ["./packages/test-utils/src/index.ts"],
 			"@wpkernel/test-utils/*": ["./packages/test-utils/src/*"],
 			"@wpkernel/php-json-ast": [
-				"./packages/php-json-ast/dist/index.d.ts",
-				"./packages/php-json-ast/src/index.ts"
+				"./packages/php-json-ast/src/index.ts",
+				"./packages/php-json-ast/dist/index.d.ts"
 			],
 			"@wpkernel/php-json-ast/*": [
-				"./packages/php-json-ast/dist/*",
-				"./packages/php-json-ast/src/*"
+				"./packages/php-json-ast/src/*",
+				"./packages/php-json-ast/dist/*"
 			],
 			"@test-utils/*": ["./tests/test-utils/*"]
 		}
@@ -36,5 +36,5 @@
 		"**/*.test-support.ts",
 		"**/*.test-support.tsx"
 	],
-	"references": [{ "path": "../core" }]
+	"references": [{ "path": "../core" }, { "path": "../php-json-ast" }]
 }
