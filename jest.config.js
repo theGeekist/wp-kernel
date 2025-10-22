@@ -88,6 +88,7 @@ export default {
 		'/tests/test-globals.d.ts', // Exclude ambient type declarations
 		'/tests/setup-jest.ts', // Exclude setup file from being run as test
 		'.spec.ts$', // Exclude Playwright spec files
+		'testUtils\\.test-support\\.(js|ts|tsx)$', // Exclude test support utility files
 	],
 
 	// Setup files

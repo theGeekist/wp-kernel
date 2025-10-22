@@ -15,6 +15,10 @@ export default {
 		'<rootDir>/packages/php-json-ast/**/__tests__/**/*.test.ts',
 		'<rootDir>/packages/php-json-ast/**/__tests__/**/*.test.tsx',
 	],
+	testPathIgnorePatterns: [
+		...baseConfig.testPathIgnorePatterns,
+		'testUtils\\.test-support\\.(js|ts|tsx)$',
+	],
 	moduleNameMapper: {
 		...baseConfig.moduleNameMapper,
 		'^@test-utils/(.*)\\.js$': '<rootDir>/tests/test-utils/$1',

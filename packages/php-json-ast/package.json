@@ -54,5 +54,9 @@
 	"publishConfig": {
 		"access": "public"
 	},
+	"peerDependencies": {
+		"@wpkernel/core": "workspace:*",
+		"@wpkernel/test-utils": "workspace:*"
+	},
 	"dependencies": {}
 }
