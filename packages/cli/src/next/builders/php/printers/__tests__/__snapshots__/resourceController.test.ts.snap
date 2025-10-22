@@ -54,9 +54,9 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
  */",
         },
       ],
-      "endFilePos": 12141,
-      "endLine": 298,
-      "endTokenPos": 12141,
+      "endFilePos": 12272,
+      "endLine": 300,
+      "endTokenPos": 12272,
       "startFilePos": 405,
       "startLine": 16,
       "startTokenPos": 405,
@@ -257,9 +257,9 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
       {
         "attrGroups": [],
         "attributes": {
-          "endFilePos": 12125,
-          "endLine": 297,
-          "endTokenPos": 12125,
+          "endFilePos": 12256,
+          "endLine": 299,
+          "endTokenPos": 12256,
           "startFilePos": 572,
           "startLine": 26,
           "startTokenPos": 572,
@@ -788,30 +788,149 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                 "stmts": [
                   {
                     "attributes": {},
-                    "cond": {
-                      "args": [
-                        {
-                          "attributes": {},
-                          "byRef": false,
-                          "name": null,
-                          "nodeType": "Arg",
-                          "unpack": false,
-                          "value": {
-                            "attributes": {},
-                            "name": "statusMeta",
-                            "nodeType": "Expr_Variable",
-                          },
-                        },
-                      ],
+                    "expr": {
                       "attributes": {},
-                      "name": {
-                        "attributes": {},
-                        "nodeType": "Name",
-                        "parts": [
-                          "is_scalar",
+                      "expr": {
+                        "arms": [
+                          {
+                            "attributes": {},
+                            "body": {
+                              "args": [
+                                {
+                                  "attributes": {},
+                                  "byRef": false,
+                                  "name": null,
+                                  "nodeType": "Arg",
+                                  "unpack": false,
+                                  "value": {
+                                    "attributes": {},
+                                    "expr": {
+                                      "attributes": {},
+                                      "name": "statusMeta",
+                                      "nodeType": "Expr_Variable",
+                                    },
+                                    "nodeType": "Expr_Cast_String",
+                                  },
+                                },
+                              ],
+                              "attributes": {},
+                              "name": {
+                                "attributes": {},
+                                "nodeType": "Name",
+                                "parts": [
+                                  "trim",
+                                ],
+                              },
+                              "nodeType": "Expr_FuncCall",
+                            },
+                            "conds": [
+                              {
+                                "attributes": {},
+                                "name": {
+                                  "attributes": {},
+                                  "nodeType": "Name",
+                                  "parts": [
+                                    "true",
+                                  ],
+                                },
+                                "nodeType": "Expr_ConstFetch",
+                              },
+                            ],
+                            "nodeType": "MatchArm",
+                          },
+                          {
+                            "attributes": {},
+                            "body": {
+                              "attributes": {},
+                              "name": {
+                                "attributes": {},
+                                "nodeType": "Name",
+                                "parts": [
+                                  "null",
+                                ],
+                              },
+                              "nodeType": "Expr_ConstFetch",
+                            },
+                            "conds": null,
+                            "nodeType": "MatchArm",
+                          },
                         ],
+                        "attributes": {},
+                        "cond": {
+                          "args": [
+                            {
+                              "attributes": {},
+                              "byRef": false,
+                              "name": null,
+                              "nodeType": "Arg",
+                              "unpack": false,
+                              "value": {
+                                "attributes": {},
+                                "name": "statusMeta",
+                                "nodeType": "Expr_Variable",
+                              },
+                            },
+                          ],
+                          "attributes": {},
+                          "name": {
+                            "attributes": {},
+                            "nodeType": "Name",
+                            "parts": [
+                              "is_scalar",
+                            ],
+                          },
+                          "nodeType": "Expr_FuncCall",
+                        },
+                        "nodeType": "Expr_Match",
                       },
-                      "nodeType": "Expr_FuncCall",
+                      "nodeType": "Expr_Assign",
+                      "var": {
+                        "attributes": {},
+                        "name": "statusMeta",
+                        "nodeType": "Expr_Variable",
+                      },
+                    },
+                    "nodeType": "Stmt_Expression",
+                  },
+                  {
+                    "attributes": {},
+                    "cond": {
+                      "attributes": {},
+                      "left": {
+                        "attributes": {},
+                        "left": {
+                          "attributes": {},
+                          "name": "statusMeta",
+                          "nodeType": "Expr_Variable",
+                        },
+                        "nodeType": "Expr_BinaryOp_NotIdentical",
+                        "right": {
+                          "attributes": {},
+                          "name": {
+                            "attributes": {},
+                            "nodeType": "Name",
+                            "parts": [
+                              "null",
+                            ],
+                          },
+                          "nodeType": "Expr_ConstFetch",
+                        },
+                      },
+                      "nodeType": "Expr_BinaryOp_BooleanAnd",
+                      "right": {
+                        "attributes": {},
+                        "left": {
+                          "attributes": {},
+                          "name": "statusMeta",
+                          "nodeType": "Expr_Variable",
+                        },
+                        "nodeType": "Expr_BinaryOp_NotIdentical",
+                        "right": {
+                          "attributes": {},
+                          "nodeType": "Scalar_String",
+                          "value": "",
+                        },
+                      },
                     },
                     "else": null,
                     "elseifs": [],
@@ -822,136 +941,72 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                         "expr": {
                           "attributes": {},
                           "expr": {
-                            "args": [
+                            "attributes": {},
+                            "items": [
                               {
                                 "attributes": {},
                                 "byRef": false,
-                                "name": null,
-                                "nodeType": "Arg",
+                                "key": {
+                                  "attributes": {},
+                                  "nodeType": "Scalar_String",
+                                  "value": "key",
+                                },
+                                "nodeType": "Expr_ArrayItem",
                                 "unpack": false,
                                 "value": {
                                   "attributes": {},
-                                  "expr": {
-                                    "attributes": {},
-                                    "name": "statusMeta",
-                                    "nodeType": "Expr_Variable",
-                                  },
-                                  "nodeType": "Expr_Cast_String",
+                                  "nodeType": "Scalar_String",
+                                  "value": "status",
+                                },
+                              },
+                              {
+                                "attributes": {},
+                                "byRef": false,
+                                "key": {
+                                  "attributes": {},
+                                  "nodeType": "Scalar_String",
+                                  "value": "compare",
+                                },
+                                "nodeType": "Expr_ArrayItem",
+                                "unpack": false,
+                                "value": {
+                                  "attributes": {},
+                                  "nodeType": "Scalar_String",
+                                  "value": "=",
+                                },
+                              },
+                              {
+                                "attributes": {},
+                                "byRef": false,
+                                "key": {
+                                  "attributes": {},
+                                  "nodeType": "Scalar_String",
+                                  "value": "value",
+                                },
+                                "nodeType": "Expr_ArrayItem",
+                                "unpack": false,
+                                "value": {
+                                  "attributes": {},
+                                  "name": "statusMeta",
+                                  "nodeType": "Expr_Variable",
                                 },
                               },
                             ],
-                            "attributes": {},
-                            "name": {
-                              "attributes": {},
-                              "nodeType": "Name",
-                              "parts": [
-                                "trim",
-                              ],
-                            },
-                            "nodeType": "Expr_FuncCall",
+                            "nodeType": "Expr_Array",
                           },
                           "nodeType": "Expr_Assign",
                           "var": {
                             "attributes": {},
-                            "name": "statusMeta",
-                            "nodeType": "Expr_Variable",
+                            "dim": null,
+                            "nodeType": "Expr_ArrayDimFetch",
+                            "var": {
+                              "attributes": {},
+                              "name": "meta_query",
+                              "nodeType": "Expr_Variable",
+                            },
                           },
                         },
                         "nodeType": "Stmt_Expression",
-                      },
-                      {
-                        "attributes": {},
-                        "cond": {
-                          "attributes": {},
-                          "left": {
-                            "attributes": {},
-                            "name": "statusMeta",
-                            "nodeType": "Expr_Variable",
-                          },
-                          "nodeType": "Expr_BinaryOp_NotIdentical",
-                          "right": {
-                            "attributes": {},
-                            "nodeType": "Scalar_String",
-                            "value": "",
-                          },
-                        },
-                        "else": null,
-                        "elseifs": [],
-                        "nodeType": "Stmt_If",
-                        "stmts": [
-                          {
-                            "attributes": {},
-                            "expr": {
-                              "attributes": {},
-                              "expr": {
-                                "attributes": {},
-                                "items": [
-                                  {
-                                    "attributes": {},
-                                    "byRef": false,
-                                    "key": {
-                                      "attributes": {},
-                                      "nodeType": "Scalar_String",
-                                      "value": "key",
-                                    },
-                                    "nodeType": "Expr_ArrayItem",
-                                    "unpack": false,
-                                    "value": {
-                                      "attributes": {},
-                                      "nodeType": "Scalar_String",
-                                      "value": "status",
-                                    },
-                                  },
-                                  {
-                                    "attributes": {},
-                                    "byRef": false,
-                                    "key": {
-                                      "attributes": {},
-                                      "nodeType": "Scalar_String",
-                                      "value": "compare",
-                                    },
-                                    "nodeType": "Expr_ArrayItem",
-                                    "unpack": false,
-                                    "value": {
-                                      "attributes": {},
-                                      "nodeType": "Scalar_String",
-                                      "value": "=",
-                                    },
-                                  },
-                                  {
-                                    "attributes": {},
-                                    "byRef": false,
-                                    "key": {
-                                      "attributes": {},
-                                      "nodeType": "Scalar_String",
-                                      "value": "value",
-                                    },
-                                    "nodeType": "Expr_ArrayItem",
-                                    "unpack": false,
-                                    "value": {
-                                      "attributes": {},
-                                      "name": "statusMeta",
-                                      "nodeType": "Expr_Variable",
-                                    },
-                                  },
-                                ],
-                                "nodeType": "Expr_Array",
-                              },
-                              "nodeType": "Expr_Assign",
-                              "var": {
-                                "attributes": {},
-                                "dim": null,
-                                "nodeType": "Expr_ArrayDimFetch",
-                                "var": {
-                                  "attributes": {},
-                                  "name": "meta_query",
-                                  "nodeType": "Expr_Variable",
-                                },
-                              },
-                            },
-                            "nodeType": "Stmt_Expression",
-                          },
-                        ],
                       },
                     ],
                   },
@@ -1162,7 +1217,80 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                               "attrGroups": [],
                               "attributes": {},
                               "byRef": false,
-                              "nodeType": "Expr_Closure",
+                              "expr": {
+                                "arms": [
+                                  {
+                                    "attributes": {},
+                                    "body": {
+                                      "attributes": {},
+                                      "name": {
+                                        "attributes": {},
+                                        "nodeType": "Name",
+                                        "parts": [
+                                          "false",
+                                        ],
+                                      },
+                                      "nodeType": "Expr_ConstFetch",
+                                    },
+                                    "conds": [
+                                      {
+                                        "attributes": {},
+                                        "nodeType": "Scalar_String",
+                                        "value": "",
+                                      },
+                                    ],
+                                    "nodeType": "MatchArm",
+                                  },
+                                  {
+                                    "attributes": {},
+                                    "body": {
+                                      "attributes": {},
+                                      "name": {
+                                        "attributes": {},
+                                        "nodeType": "Name",
+                                        "parts": [
+                                          "true",
+                                        ],
+                                      },
+                                      "nodeType": "Expr_ConstFetch",
+                                    },
+                                    "conds": null,
+                                    "nodeType": "MatchArm",
+                                  },
+                                ],
+                                "attributes": {},
+                                "cond": {
+                                  "args": [
+                                    {
+                                      "attributes": {},
+                                      "byRef": false,
+                                      "name": null,
+                                      "nodeType": "Arg",
+                                      "unpack": false,
+                                      "value": {
+                                        "attributes": {},
+                                        "expr": {
+                                          "attributes": {},
+                                          "name": "value",
+                                          "nodeType": "Expr_Variable",
+                                        },
+                                        "nodeType": "Expr_Cast_String",
+                                      },
+                                    },
+                                  ],
+                                  "attributes": {},
+                                  "name": {
+                                    "attributes": {},
+                                    "nodeType": "Name",
+                                    "parts": [
+                                      "trim",
+                                    ],
+                                  },
+                                  "nodeType": "Expr_FuncCall",
+                                },
+                                "nodeType": "Expr_Match",
+                              },
+                              "nodeType": "Expr_ArrowFunction",
                               "params": [
                                 {
                                   "attrGroups": [],
@@ -1182,51 +1310,6 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                               ],
                               "returnType": null,
                               "static": true,
-                              "stmts": [
-                                {
-                                  "attributes": {},
-                                  "expr": {
-                                    "attributes": {},
-                                    "left": {
-                                      "args": [
-                                        {
-                                          "attributes": {},
-                                          "byRef": false,
-                                          "name": null,
-                                          "nodeType": "Arg",
-                                          "unpack": false,
-                                          "value": {
-                                            "attributes": {},
-                                            "expr": {
-                                              "attributes": {},
-                                              "name": "value",
-                                              "nodeType": "Expr_Variable",
-                                            },
-                                            "nodeType": "Expr_Cast_String",
-                                          },
-                                        },
-                                      ],
-                                      "attributes": {},
-                                      "name": {
-                                        "attributes": {},
-                                        "nodeType": "Name",
-                                        "parts": [
-                                          "trim",
-                                        ],
-                                      },
-                                      "nodeType": "Expr_FuncCall",
-                                    },
-                                    "nodeType": "Expr_BinaryOp_NotIdentical",
-                                    "right": {
-                                      "attributes": {},
-                                      "nodeType": "Scalar_String",
-                                      "value": "",
-                                    },
-                                  },
-                                  "nodeType": "Stmt_Return",
-                                },
-                              ],
-                              "uses": [],
                             },
                           },
                         ],
@@ -5381,12 +5464,12 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
               "text": "// WPK:END AUTO",
             },
           ],
-          "endFilePos": 12141,
-          "endLine": 298,
-          "endTokenPos": 12141,
-          "startFilePos": 12126,
-          "startLine": 298,
-          "startTokenPos": 12126,
+          "endFilePos": 12272,
+          "endLine": 300,
+          "endTokenPos": 12272,
+          "startFilePos": 12257,
+          "startLine": 300,
+          "startTokenPos": 12257,
         },
         "nodeType": "Stmt_Nop",
       },
@@ -5456,15 +5539,16 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
   "                $meta_query = [];",
   "                $statusMeta = $request->get_param( 'status' );",
   "                if ( null !== $statusMeta ) {",
-  "                        if ( is_scalar( $statusMeta ) ) {",
-  "                        $statusMeta = trim( (string) $statusMeta );",
-  "                                if ( '' !== $statusMeta ) {",
+  "                        $statusMeta = match ( is_scalar( $statusMeta ) ) {",
+  "                                true => trim( (string) $statusMeta ),",
+  "                                default => null,",
+  "                        };",
+  "                        if ( null !== $statusMeta && '' !== $statusMeta ) {",
   "                                $meta_query[] = [",
   "                                        'key' => 'status',",
   "                                        'compare' => '=',",
   "                                        'value' => $statusMeta,",
   "                                ];",
-  "                                }",
   "                        }",
   "                }",
   "                $tagsMeta = $request->get_param( 'tags' );",
@@ -5473,8 +5557,9 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
   "                                $tagsMeta = [ $tagsMeta ];",
   "                        }",
   "                        $tagsMeta = array_values( (array) $tagsMeta );",
-  "                        $tagsMeta = array_filter( $tagsMeta, static function ( $value ) {",
-  "                                return '' !== trim( (string) $value );",
+  "                        $tagsMeta = array_filter( $tagsMeta, static fn ( $value ) => match ( trim( (string) $value ) ) {",
+  "                                '' => false,",
+  "                                default => true,",
   "                        } );",
   "                        if ( count( $tagsMeta ) > 0 ) {",
   "                                $meta_query[] = [",

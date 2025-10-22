@@ -4,15 +4,17 @@ import {
 	createArrayItem,
 	createArrayCast as createArrayCastNode,
 	createAssign,
-	createClosure,
+	createArrowFunction,
 	createExpressionStatement,
 	createFuncCall,
 	createIdentifier,
+	createMatch,
+	createMatchArm,
 	createMethodCall,
 	createName,
 	createNull,
 	createParam,
-	createReturn,
+	createScalarBool,
 	createScalarInt,
 	createScalarString,
 	createVariable,
@@ -165,8 +167,9 @@ export function appendMetaQueryBuilder(
 					)
 				),
 				[
-					`${childIndent}$${variableName} = array_filter( $${variableName}, static function ( $value ) {`,
-					`${childIndent}${PHP_INDENT}return '' !== trim( (string) $value );`,
+					`${childIndent}$${variableName} = array_filter( $${variableName}, static fn ( $value ) => match ( trim( (string) $value ) ) {`,
+					`${childIndent}${PHP_INDENT}'' => false,`,
+					`${childIndent}${PHP_INDENT}default => true,`,
 					`${childIndent}} );`,
 				]
 			);
@@ -215,22 +218,36 @@ export function appendMetaQueryBuilder(
 				})
 			);
 		} else {
-			const trimPrintable = createPrintable(
+			const sanitisePrintable = createPrintable(
 				createExpressionStatement(
 					createAssign(
 						createVariable(variableName),
-						createFuncCall(createName(['trim']), [
-							createArg(
-								buildScalarCast(
-									'string',
-									createVariable(variableName)
-								)
-							),
-						])
+						createMatch(
+							createFuncCall(createName(['is_scalar']), [
+								createArg(createVariable(variableName)),
+							]),
+							[
+								createMatchArm(
+									[createScalarBool(true)],
+									createFuncCall(createName(['trim']), [
+										createArg(
+											buildScalarCast(
+												'string',
+												createVariable(variableName)
+											)
+										),
+									])
+								),
+								createMatchArm(null, createNull()),
+							]
+						)
 					)
 				),
 				[
-					`${childIndent}$${variableName} = trim( (string) $${variableName} );`,
+					`${childIndent}$${variableName} = match ( is_scalar( $${variableName} ) ) {`,
+					`${childIndent}${PHP_INDENT}true => trim( (string) $${variableName} ),`,
+					`${childIndent}${PHP_INDENT}default => null,`,
+					`${childIndent}};`,
 				]
 			);
 
@@ -261,25 +278,24 @@ export function appendMetaQueryBuilder(
 			);
 
 			innerStatements.push(
+				sanitisePrintable,
 				buildIfPrintable({
 					indentLevel: childIndentLevel,
-					condition: createFuncCall(createName(['is_scalar']), [
-						createArg(createVariable(variableName)),
-					]),
-					conditionText: `${childIndent}if ( is_scalar( $${variableName} ) ) {`,
-					statements: [
-						trimPrintable,
-						buildIfPrintable({
-							indentLevel: childIndentLevel + 1,
-							condition: buildBinaryOperation(
-								'NotIdentical',
-								createVariable(variableName),
-								createScalarString('')
-							),
-							conditionText: `${childIndent}${PHP_INDENT}if ( '' !== $${variableName} ) {`,
-							statements: [pushPrintable],
-						}),
-					],
+					condition: buildBinaryOperation(
+						'BooleanAnd',
+						buildBinaryOperation(
+							'NotIdentical',
+							createVariable(variableName),
+							createNull()
+						),
+						buildBinaryOperation(
+							'NotIdentical',
+							createVariable(variableName),
+							createScalarString('')
+						)
+					),
+					conditionText: `${childIndent}if ( null !== $${variableName} && '' !== $${variableName} ) {`,
+					statements: [pushPrintable],
 				})
 			);
 		}
@@ -330,19 +346,16 @@ export function appendMetaQueryBuilder(
 
 function createStaticTrimFilterClosure(): PhpExpr {
 	const parameter = createParam(createVariable('value'));
-	const returnStatement = createReturn(
-		buildBinaryOperation(
-			'NotIdentical',
-			createFuncCall(createName(['trim']), [
-				createArg(buildScalarCast('string', createVariable('value'))),
-			]),
-			createScalarString('')
-		)
-	);
+	const trimmedValue = createFuncCall(createName(['trim']), [
+		createArg(buildScalarCast('string', createVariable('value'))),
+	]);
 
-	return createClosure({
+	return createArrowFunction({
 		static: true,
 		params: [parameter],
-		stmts: [returnStatement],
+		expr: createMatch(trimmedValue, [
+			createMatchArm([createScalarString('')], createScalarBool(false)),
+			createMatchArm(null, createScalarBool(true)),
+		]),
 	});
 }

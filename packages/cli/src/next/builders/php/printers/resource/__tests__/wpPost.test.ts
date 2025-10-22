@@ -39,11 +39,10 @@ describe('wpPost query helpers', () => {
 			'                $genreMeta = array_values( (array) $genreMeta );'
 		);
 		expect(lines).toContain(
-			'                $genreMeta = array_filter( $genreMeta, static function ( $value ) {'
+			'                $genreMeta = array_filter( $genreMeta, static fn ( $value ) => match ( trim( (string) $value ) ) {'
 		);
-		expect(lines).toContain(
-			"                        return '' !== trim( (string) $value );"
-		);
+		expect(lines).toContain("                        '' => false,");
+		expect(lines).toContain('                        default => true,');
 		expect(lines).not.toContain("array_map( 'strval'");
 		expect(lines).not.toContain("array_map( 'trim'");
 	});
