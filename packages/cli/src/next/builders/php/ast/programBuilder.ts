@@ -343,9 +343,12 @@ class LocationTracker {
 			const lineLength = line.length;
 
 			if (!firstContentCaptured && trimmed.length > 0) {
+				const firstNonWhitespaceIndex = line.search(/\S/);
+				const offset =
+					firstNonWhitespaceIndex < 0 ? 0 : firstNonWhitespaceIndex;
 				startLine = this.line;
-				startFilePos = this.filePos;
-				startTokenPos = this.tokenPos;
+				startFilePos = this.filePos + offset;
+				startTokenPos = this.tokenPos + offset;
 				firstContentCaptured = true;
 			}
 
