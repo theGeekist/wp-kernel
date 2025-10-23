@@ -1,21 +1,21 @@
 import {
-	createArg,
-	createArray,
-	createArrayCast,
-	createArrayItem,
-	createArrowFunction,
-	createAssign,
-	createExpressionStatement,
-	createFuncCall,
-	createIdentifier,
-	createMethodCall,
-	createName,
-	createNull,
-	createParam,
-	createScalarInt,
-	createScalarString,
-	createVariable,
-	createPrintable,
+	buildArg,
+	buildArray,
+	buildArrayCast,
+	buildArrayItem,
+	buildArrowFunction,
+	buildAssign,
+	buildExpressionStatement,
+	buildFuncCall,
+	buildIdentifier,
+	buildMethodCall,
+	buildName,
+	buildNull,
+	buildParam,
+	buildScalarInt,
+	buildScalarString,
+	buildVariable,
+	buildPrintable,
 	PHP_INDENT,
 	escapeSingleQuotes,
 	toSnakeCase,
@@ -80,14 +80,14 @@ export function appendTaxonomyQueryBuilder(
 
 	for (const [key, descriptor] of options.entries) {
 		const variableName = `${toSnakeCase(key)}Terms`;
-		const requestPrintable = createPrintable(
-			createExpressionStatement(
-				createAssign(
-					createVariable(variableName),
-					createMethodCall(
-						createVariable('request'),
-						createIdentifier('get_param'),
-						[createArg(createScalarString(key))]
+		const requestPrintable = buildPrintable(
+			buildExpressionStatement(
+				buildAssign(
+					buildVariable(variableName),
+					buildMethodCall(
+						buildVariable('request'),
+						buildIdentifier('get_param'),
+						[buildArg(buildScalarString(key))]
 					)
 				)
 			),
@@ -100,42 +100,38 @@ export function appendTaxonomyQueryBuilder(
 		const childIndentLevel = indentLevel + 1;
 		const childIndent = PHP_INDENT.repeat(childIndentLevel);
 
-		const sanitisePrintable = createPrintable(
-			createExpressionStatement(
-				createAssign(
-					createVariable(variableName),
-					createFuncCall(createName(['array_filter']), [
-						createArg(
-							createFuncCall(createName(['array_map']), [
-								createArg(
-									createArrowFunction({
+		const sanitisePrintable = buildPrintable(
+			buildExpressionStatement(
+				buildAssign(
+					buildVariable(variableName),
+					buildFuncCall(buildName(['array_filter']), [
+						buildArg(
+							buildFuncCall(buildName(['array_map']), [
+								buildArg(
+									buildArrowFunction({
 										static: true,
 										params: [
-											createParam(
-												createVariable('value')
-											),
+											buildParam(buildVariable('value')),
 										],
 										expr: buildScalarCast(
 											'int',
-											createVariable('value')
+											buildVariable('value')
 										),
 									})
 								),
-								createArg(
-									createArrayCast(
-										createVariable(variableName)
-									)
+								buildArg(
+									buildArrayCast(buildVariable(variableName))
 								),
 							])
 						),
-						createArg(
-							createArrowFunction({
+						buildArg(
+							buildArrowFunction({
 								static: true,
-								params: [createParam(createVariable('value'))],
+								params: [buildParam(buildVariable('value'))],
 								expr: buildBinaryOperation(
 									'Greater',
-									createVariable('value'),
-									createScalarInt(0)
+									buildVariable('value'),
+									buildScalarInt(0)
 								),
 							})
 						),
@@ -154,22 +150,19 @@ export function appendTaxonomyQueryBuilder(
 		);
 
 		const nestedIndent = PHP_INDENT.repeat(childIndentLevel + 1);
-		const pushPrintable = createPrintable(
-			createExpressionStatement(
-				createAssign(
+		const pushPrintable = buildPrintable(
+			buildExpressionStatement(
+				buildAssign(
 					buildArrayDimFetch('tax_query', null),
-					createArray([
-						createArrayItem(
-							createScalarString(descriptor.taxonomy),
-							{
-								key: createScalarString('taxonomy'),
-							}
-						),
-						createArrayItem(createScalarString('term_id'), {
-							key: createScalarString('field'),
+					buildArray([
+						buildArrayItem(buildScalarString(descriptor.taxonomy), {
+							key: buildScalarString('taxonomy'),
 						}),
-						createArrayItem(createVariable(variableName), {
-							key: createScalarString('terms'),
+						buildArrayItem(buildScalarString('term_id'), {
+							key: buildScalarString('field'),
+						}),
+						buildArrayItem(buildVariable(variableName), {
+							key: buildScalarString('terms'),
 						}),
 					])
 				)
@@ -188,8 +181,8 @@ export function appendTaxonomyQueryBuilder(
 				indentLevel,
 				condition: buildBinaryOperation(
 					'NotIdentical',
-					createVariable(variableName),
-					createNull()
+					buildVariable(variableName),
+					buildNull()
 				),
 				conditionText: `${indent}if ( null !== $${variableName} ) {`,
 				statements: [
@@ -198,10 +191,10 @@ export function appendTaxonomyQueryBuilder(
 						indentLevel: childIndentLevel,
 						condition: buildBinaryOperation(
 							'Greater',
-							createFuncCall(createName(['count']), [
-								createArg(createVariable(variableName)),
+							buildFuncCall(buildName(['count']), [
+								buildArg(buildVariable(variableName)),
 							]),
-							createScalarInt(0)
+							buildScalarInt(0)
 						),
 						conditionText: `${childIndent}if ( count( $${variableName} ) > 0 ) {`,
 						statements: [pushPrintable],
@@ -211,14 +204,14 @@ export function appendTaxonomyQueryBuilder(
 		);
 	}
 
-	const assignPrintable = createPrintable(
-		createExpressionStatement(
-			createAssign(
+	const assignPrintable = buildPrintable(
+		buildExpressionStatement(
+			buildAssign(
 				buildArrayDimFetch(
 					'query_args',
-					createScalarString('tax_query')
+					buildScalarString('tax_query')
 				),
-				createVariable('tax_query')
+				buildVariable('tax_query')
 			)
 		),
 		[`${indent}${PHP_INDENT}$query_args['tax_query'] = $tax_query;`]
@@ -229,10 +222,10 @@ export function appendTaxonomyQueryBuilder(
 			indentLevel,
 			condition: buildBinaryOperation(
 				'Greater',
-				createFuncCall(createName(['count']), [
-					createArg(createVariable('tax_query')),
+				buildFuncCall(buildName(['count']), [
+					buildArg(buildVariable('tax_query')),
 				]),
-				createScalarInt(0)
+				buildScalarInt(0)
 			),
 			conditionText: `${indent}if ( count( $tax_query ) > 0 ) {`,
 			statements: [assignPrintable],

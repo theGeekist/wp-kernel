@@ -66,19 +66,19 @@ import {
 } from './context';
 import { getPhpBuilderChannel } from './builderChannel';
 import {
-	createComment,
-	createDeclare,
-	createDeclareItem,
-	createDocComment,
-	createFullyQualifiedName,
-	createIdentifier,
-	createName,
-	createNamespace,
-	createScalarInt,
-	createStmtNop,
-	createUse,
-	createGroupUse,
-	createUseUse,
+	buildComment,
+	buildDeclare,
+	buildDeclareItem,
+	buildDocComment,
+	buildFullyQualifiedName,
+	buildIdentifier,
+	buildName,
+	buildNamespace,
+	buildScalarInt,
+	buildStmtNop,
+	buildUse,
+	buildGroupUse,
+	buildUseUse,
 	mergeNodeAttributes,
 	type PhpAttributes,
 	type PhpComment,
@@ -272,8 +272,8 @@ function buildProgramLayout(context: PhpAstContext): PhpStmt[] {
 	tracker.consumeLines(['<?php']);
 	tracker.consumeLines(['']);
 
-	const strictTypes = createDeclare([
-		createDeclareItem('strict_types', createScalarInt(1)),
+	const strictTypes = buildDeclare([
+		buildDeclareItem('strict_types', buildScalarInt(1)),
 	]);
 	const declareLocation = tracker.consumeNode(['declare(strict_types=1);']);
 	program.push(mergeNodeAttributes(strictTypes, declareLocation));
@@ -285,12 +285,12 @@ function buildProgramLayout(context: PhpAstContext): PhpStmt[] {
 		const docblockLines = formatDocblockLines(context.docblockLines);
 		const docLocation = tracker.consumeNode(docblockLines);
 		namespaceAttributes = {
-			comments: [createDocComment(context.docblockLines, docLocation)],
+			comments: [buildDocComment(context.docblockLines, docLocation)],
 		};
 	}
 
 	const namespaceName = context.namespaceParts.length
-		? createNamespaceName(context.namespaceParts)
+		? buildNamespaceName(context.namespaceParts)
 		: null;
 
 	const namespaceStatements: PhpStmt[] = [];
@@ -308,8 +308,8 @@ function buildProgramLayout(context: PhpAstContext): PhpStmt[] {
 		appendOrganisedUses(organisedUses, tracker, namespaceStatements);
 	}
 
-	const beginGuard = createStmtNop({
-		comments: [createComment(`// ${AUTO_GUARD_BEGIN}`)],
+	const beginGuard = buildStmtNop({
+		comments: [buildComment(`// ${AUTO_GUARD_BEGIN}`)],
 	});
 	const beginGuardText = `// ${AUTO_GUARD_BEGIN}`;
 	const beginGuardLocation = tracker.consumeNode([beginGuardText]);
@@ -324,8 +324,8 @@ function buildProgramLayout(context: PhpAstContext): PhpStmt[] {
 		namespaceStatements.push(mergeNodeAttributes(entry.node, location));
 	}
 
-	const endGuard = createStmtNop({
-		comments: [createComment(`// ${AUTO_GUARD_END}`)],
+	const endGuard = buildStmtNop({
+		comments: [buildComment(`// ${AUTO_GUARD_END}`)],
 	});
 	const endGuardText = `// ${AUTO_GUARD_END}`;
 	const endGuardLocation = tracker.consumeNode([endGuardText]);
@@ -333,7 +333,7 @@ function buildProgramLayout(context: PhpAstContext): PhpStmt[] {
 
 	const namespaceEnd = tracker.snapshotPreviousLine();
 
-	const namespaceNode = createNamespace(
+	const namespaceNode = buildNamespace(
 		namespaceName,
 		namespaceStatements,
 		namespaceAttributes
@@ -568,7 +568,7 @@ function organiseUses(context: PhpAstContext): readonly OrganisedUse[] {
 	for (const use of sorted) {
 		const candidate = resolveUseGroupCandidate(use);
 		if (!candidate) {
-			singles.push(createSingleOrganisedUse(use));
+			singles.push(buildSingleOrganisedUse(use));
 			continue;
 		}
 
@@ -596,7 +596,7 @@ function organiseUses(context: PhpAstContext): readonly OrganisedUse[] {
 		if (candidate.items.length < 2) {
 			const fallback = candidate.items[0];
 			if (fallback) {
-				singles.push(createSingleOrganisedUse(fallback.use));
+				singles.push(buildSingleOrganisedUse(fallback.use));
 			}
 			continue;
 		}
@@ -631,43 +631,43 @@ function appendOrganisedUses(
 	for (const useEntry of organisedUses) {
 		const useLine = `use ${formatOrganisedUseString(useEntry)};`;
 		const useLocation = tracker.consumeNode([useLine]);
-		const useNode = createOrganisedUseNode(useEntry);
+		const useNode = buildOrganisedUseNode(useEntry);
 		namespaceStatements.push(mergeNodeAttributes(useNode, useLocation));
 	}
 
 	tracker.consumeLines(['']);
 }
 
-function createOrganisedUseNode(
+function buildOrganisedUseNode(
 	entry: OrganisedUse
 ): PhpStmtUse | PhpStmtGroupUse {
 	if (entry.kind === 'single') {
 		const nameNode = entry.fullyQualified
-			? createFullyQualifiedName([...entry.parts])
-			: createName([...entry.parts]);
-		const aliasNode = entry.alias ? createIdentifier(entry.alias) : null;
-		return createUse(entry.type, [
-			createUseUse(nameNode, aliasNode, {
+			? buildFullyQualifiedName([...entry.parts])
+			: buildName([...entry.parts]);
+		const aliasNode = entry.alias ? buildIdentifier(entry.alias) : null;
+		return buildUse(entry.type, [
+			buildUseUse(nameNode, aliasNode, {
 				type: USE_ITEM_TYPE_UNKNOWN,
 			}),
 		]);
 	}
 
 	const prefixNode = entry.fullyQualified
-		? createFullyQualifiedName([...entry.prefixParts])
-		: createName([...entry.prefixParts]);
+		? buildFullyQualifiedName([...entry.prefixParts])
+		: buildName([...entry.prefixParts]);
 	const itemNodes = entry.items.map((item) => {
-		const itemName = createName([...item.parts]);
-		const aliasNode = item.alias ? createIdentifier(item.alias) : null;
-		return createUseUse(itemName, aliasNode, {
+		const itemName = buildName([...item.parts]);
+		const aliasNode = item.alias ? buildIdentifier(item.alias) : null;
+		return buildUseUse(itemName, aliasNode, {
 			type: item.type,
 		});
 	});
 
-	return createGroupUse(entry.type, prefixNode, itemNodes);
+	return buildGroupUse(entry.type, prefixNode, itemNodes);
 }
 
-function createSingleOrganisedUse(use: ProgramUse): OrganisedUseSingle {
+function buildSingleOrganisedUse(use: ProgramUse): OrganisedUseSingle {
 	return {
 		kind: 'single',
 		sortKey: use.key,
@@ -833,10 +833,10 @@ function formatUsePrefix(type: number): string {
 	return '';
 }
 
-function createNamespaceName(
+function buildNamespaceName(
 	parts: readonly string[]
-): ReturnType<typeof createName> {
-	return createName([...parts]);
+): ReturnType<typeof buildName> {
+	return buildName([...parts]);
 }
 
 export type PhpFileAst = {

@@ -1,24 +1,24 @@
 import { KernelError } from '@wpkernel/core/contracts';
 import {
-	createArray,
-	createArrayDimFetch,
-	createAssign,
-	createBooleanNot,
-	createIdentifier,
-	createIfStatement,
-	createInstanceof,
-	createName,
-	createNode,
-	createExpressionStatement,
-	createPropertyFetch,
-	createScalarCast,
-	createVariable,
+	buildArray,
+	buildArrayDimFetch as buildArrayDimFetchNode,
+	buildAssign,
+	buildBooleanNot as buildBooleanNotExpr,
+	buildIdentifier,
+	buildIfStatement,
+	buildInstanceof as buildInstanceofExpr,
+	buildName,
+	buildNode,
+	buildExpressionStatement,
+	buildPropertyFetch as buildPropertyFetchNode,
+	buildScalarCast as buildScalarCastNode,
+	buildVariable,
 	type PhpExpr,
 	type PhpExprBinaryOp,
 	type PhpExprBooleanNot,
 	type PhpStmt,
 	type PhpStmtIf,
-	createPrintable,
+	buildPrintable,
 	type PhpPrintable,
 } from '@wpkernel/php-json-ast';
 import { PHP_INDENT } from '@wpkernel/php-json-ast';
@@ -57,7 +57,7 @@ export function normaliseVariableReference(
 export type ScalarCastKind = 'int' | 'float' | 'string' | 'bool';
 
 export function buildScalarCast(kind: ScalarCastKind, expr: PhpExpr): PhpExpr {
-	return createScalarCast(kind, expr);
+	return buildScalarCastNode(kind, expr);
 }
 
 export type BinaryOperator =
@@ -83,7 +83,7 @@ export function buildBinaryOperation(
 	right: PhpExpr
 ): PhpExprBinaryOp {
 	const nodeType = `Expr_BinaryOp_${operator}` as PhpExprBinaryOp['nodeType'];
-	return createNode<PhpExprBinaryOp>(nodeType, { left, right });
+	return buildNode<PhpExprBinaryOp>(nodeType, { left, right });
 }
 
 export function indentLines(
@@ -119,31 +119,31 @@ export function buildIfPrintable(
 
 	lines.push(`${indent}}`);
 
-	const node = createIfStatement(options.condition, stmts);
+	const node = buildIfStatement(options.condition, stmts);
 
-	return createPrintable(node, lines);
+	return buildPrintable(node, lines);
 }
 
 export function buildArrayDimFetch(
 	target: string,
 	dim: PhpExpr | null
 ): PhpExpr {
-	return createArrayDimFetch(createVariable(target), dim);
+	return buildArrayDimFetchNode(buildVariable(target), dim);
 }
 
 export function buildPropertyFetch(target: string, property: string): PhpExpr {
-	return createPropertyFetch(
-		createVariable(target),
-		createIdentifier(property)
+	return buildPropertyFetchNode(
+		buildVariable(target),
+		buildIdentifier(property)
 	);
 }
 
 export function buildInstanceof(subject: string, className: string): PhpExpr {
-	return createInstanceof(createVariable(subject), createName([className]));
+	return buildInstanceofExpr(buildVariable(subject), buildName([className]));
 }
 
 export function buildBooleanNot(expr: PhpExpr): PhpExprBooleanNot {
-	return createBooleanNot(expr);
+	return buildBooleanNotExpr(expr);
 }
 
 export interface ArrayInitialiserOptions {
@@ -157,9 +157,9 @@ export function buildArrayInitialiser(
 	const reference = normaliseVariableReference(options.variable);
 	const indent = PHP_INDENT.repeat(options.indentLevel);
 
-	return createPrintable(
-		createExpressionStatement(
-			createAssign(createVariable(reference.raw), createArray([]))
+	return buildPrintable(
+		buildExpressionStatement(
+			buildAssign(buildVariable(reference.raw), buildArray([]))
 		),
 		[`${indent}${reference.display} = [];`]
 	);

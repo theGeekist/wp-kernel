@@ -1,7 +1,7 @@
 import type { PrinterContext } from '../../types';
 import type { IRResource } from '../../../ir';
 import type { PhpFileBuilder } from '../builder';
-import { createErrorCodeFactory, toPascalCase } from '../utils';
+import { makeErrorCodeFactory, toPascalCase } from '../utils';
 import { resolveIdentityConfig } from '../identity';
 import type {
 	WpTaxonomyRouteDefinition,
@@ -22,7 +22,7 @@ export function createWpTaxonomyContext(
 	const storage = options.resource.storage as WpTaxonomyStorage;
 	const pascalName = toPascalCase(options.resource.name);
 	const identity = resolveIdentityConfig(options.resource);
-	const errorCode = createErrorCodeFactory(options.resource.name);
+	const errorCode = makeErrorCodeFactory(options.resource.name);
 
 	options.builder.addUse('WP_Error');
 	options.builder.addUse('WP_REST_Request');

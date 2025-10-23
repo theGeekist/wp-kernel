@@ -1,24 +1,24 @@
 import { KernelError } from '@wpkernel/core/contracts';
 import {
-	createArg,
-	createArray,
-	createArrayItem,
-	createAssign,
-	createExpressionStatement,
-	createFuncCall,
-	createIdentifier,
-	createMethodCall,
-	createName,
-	createNode,
-	createReturn,
-	createScalarBool,
-	createScalarInt,
-	createScalarString,
-	createVariable,
+	buildArg,
+	buildArray,
+	buildArrayItem,
+	buildAssign,
+	buildExpressionStatement,
+	buildFuncCall,
+	buildIdentifier,
+	buildMethodCall,
+	buildName,
+	buildNode,
+	buildReturn,
+	buildScalarBool,
+	buildScalarInt,
+	buildScalarString,
+	buildVariable,
 	type PhpStmt,
 	type PhpStmtContinue,
 	type PhpStmtForeach,
-	createPrintable,
+	buildPrintable,
 	type PhpPrintable,
 	PHP_INDENT,
 	type PhpMethodBodyBuilder,
@@ -39,7 +39,7 @@ import {
 	buildScalarCast,
 } from '../utils';
 import { createListItemsInitialiser } from '../wpPost/list';
-import { createWpTermQueryInstantiation } from '@wpkernel/php-json-ast';
+import { buildWpTermQueryInstantiation } from '@wpkernel/php-json-ast';
 import type { IRResource } from '../../../../../ir/types';
 
 type WpTaxonomyStorage = Extract<
@@ -74,13 +74,13 @@ export function buildWpTaxonomyListRouteBody(
 	const childIndent = PHP_INDENT.repeat(indentLevel + 1);
 
 	options.body.statement(
-		createPrintable(
-			createExpressionStatement(
-				createAssign(
-					createVariable('taxonomy'),
-					createMethodCall(
-						createVariable('this'),
-						createIdentifier(`get${options.pascalName}Taxonomy`),
+		buildPrintable(
+			buildExpressionStatement(
+				buildAssign(
+					buildVariable('taxonomy'),
+					buildMethodCall(
+						buildVariable('this'),
+						buildIdentifier(`get${options.pascalName}Taxonomy`),
 						[]
 					)
 				)
@@ -113,14 +113,14 @@ export function buildWpTaxonomyListRouteBody(
 		indentLevel,
 		condition: buildBinaryOperation(
 			'SmallerOrEqual',
-			createVariable('page'),
-			createScalarInt(0)
+			buildVariable('page'),
+			buildScalarInt(0)
 		),
 		conditionText: `${indent}if ( $page <= 0 ) {`,
 		statements: [
-			createPrintable(
-				createExpressionStatement(
-					createAssign(createVariable('page'), createScalarInt(1))
+			buildPrintable(
+				buildExpressionStatement(
+					buildAssign(buildVariable('page'), buildScalarInt(1))
 				),
 				[`${childIndent}$page = 1;`]
 			),
@@ -146,27 +146,27 @@ export function buildWpTaxonomyListRouteBody(
 		indentLevel,
 	});
 
-	const numberAssign = createPrintable(
-		createExpressionStatement(
-			createAssign(
-				buildArrayDimFetch('query_args', createScalarString('number')),
-				createVariable('per_page')
+	const numberAssign = buildPrintable(
+		buildExpressionStatement(
+			buildAssign(
+				buildArrayDimFetch('query_args', buildScalarString('number')),
+				buildVariable('per_page')
 			)
 		),
 		[`${indent}$query_args['number'] = $per_page;`]
 	);
-	const offsetAssign = createPrintable(
-		createExpressionStatement(
-			createAssign(
-				buildArrayDimFetch('query_args', createScalarString('offset')),
+	const offsetAssign = buildPrintable(
+		buildExpressionStatement(
+			buildAssign(
+				buildArrayDimFetch('query_args', buildScalarString('offset')),
 				buildBinaryOperation(
 					'Mul',
 					buildBinaryOperation(
 						'Minus',
-						createVariable('page'),
-						createScalarInt(1)
+						buildVariable('page'),
+						buildScalarInt(1)
 					),
-					createVariable('per_page')
+					buildVariable('per_page')
 				)
 			)
 		),
@@ -177,21 +177,21 @@ export function buildWpTaxonomyListRouteBody(
 	options.body.blank();
 
 	options.body.statement(
-		createWpTermQueryInstantiation({
+		buildWpTermQueryInstantiation({
 			target: 'term_query',
 			indentLevel,
 		})
 	);
 
 	options.body.statement(
-		createPrintable(
-			createExpressionStatement(
-				createAssign(
-					createVariable('results'),
-					createMethodCall(
-						createVariable('term_query'),
-						createIdentifier('query'),
-						[createArg(createVariable('query_args'))]
+		buildPrintable(
+			buildExpressionStatement(
+				buildAssign(
+					buildVariable('results'),
+					buildMethodCall(
+						buildVariable('term_query'),
+						buildIdentifier('query'),
+						[buildArg(buildVariable('query_args'))]
 					)
 				)
 			),
@@ -201,12 +201,12 @@ export function buildWpTaxonomyListRouteBody(
 
 	const errorGuard = buildIfPrintable({
 		indentLevel,
-		condition: createFuncCall(createName(['is_wp_error']), [
-			createArg(createVariable('results')),
+		condition: buildFuncCall(buildName(['is_wp_error']), [
+			buildArg(buildVariable('results')),
 		]),
 		conditionText: `${indent}if ( is_wp_error( $results ) ) {`,
 		statements: [
-			createPrintable(createReturn(createVariable('results')), [
+			buildPrintable(buildReturn(buildVariable('results')), [
 				`${childIndent}return $results;`,
 			]),
 		],
@@ -223,53 +223,53 @@ export function buildWpTaxonomyListRouteBody(
 	options.body.statement(foreachPrintable);
 	options.body.blank();
 
-	const countQueryArgsAssign = createPrintable(
-		createExpressionStatement(
-			createAssign(
-				createVariable('count_query_args'),
-				createVariable('query_args')
+	const countQueryArgsAssign = buildPrintable(
+		buildExpressionStatement(
+			buildAssign(
+				buildVariable('count_query_args'),
+				buildVariable('query_args')
 			)
 		),
 		[`${indent}$count_query_args = $query_args;`]
 	);
 	options.body.statement(countQueryArgsAssign);
 
-	const countFlagAssign = createPrintable(
-		createExpressionStatement(
-			createAssign(
+	const countFlagAssign = buildPrintable(
+		buildExpressionStatement(
+			buildAssign(
 				buildArrayDimFetch(
 					'count_query_args',
-					createScalarString('count')
+					buildScalarString('count')
 				),
-				createScalarBool(true)
+				buildScalarBool(true)
 			)
 		),
 		[`${indent}$count_query_args['count'] = true;`]
 	);
 	options.body.statement(countFlagAssign);
 
-	const countNumberAssign = createPrintable(
-		createExpressionStatement(
-			createAssign(
+	const countNumberAssign = buildPrintable(
+		buildExpressionStatement(
+			buildAssign(
 				buildArrayDimFetch(
 					'count_query_args',
-					createScalarString('number')
+					buildScalarString('number')
 				),
-				createScalarInt(0)
+				buildScalarInt(0)
 			)
 		),
 		[`${indent}$count_query_args['number'] = 0;`]
 	);
 	options.body.statement(countNumberAssign);
 
-	const countOffsetAssign = createPrintable(
-		createExpressionStatement(
-			createAssign(
+	const countOffsetAssign = buildPrintable(
+		buildExpressionStatement(
+			buildAssign(
 				buildArrayDimFetch(
 					'count_query_args',
-					createScalarString('offset')
+					buildScalarString('offset')
 				),
-				createScalarInt(0)
+				buildScalarInt(0)
 			)
 		),
 		[`${indent}$count_query_args['offset'] = 0;`]
@@ -278,22 +278,22 @@ export function buildWpTaxonomyListRouteBody(
 	options.body.blank();
 
 	options.body.statement(
-		createWpTermQueryInstantiation({
+		buildWpTermQueryInstantiation({
 			target: 'count_query',
 			indentLevel,
 		})
 	);
 
-	const totalAssign = createPrintable(
-		createExpressionStatement(
-			createAssign(
-				createVariable('total'),
+	const totalAssign = buildPrintable(
+		buildExpressionStatement(
+			buildAssign(
+				buildVariable('total'),
 				buildScalarCast(
 					'int',
-					createMethodCall(
-						createVariable('count_query'),
-						createIdentifier('query'),
-						[createArg(createVariable('count_query_args'))]
+					buildMethodCall(
+						buildVariable('count_query'),
+						buildIdentifier('query'),
+						[buildArg(buildVariable('count_query_args'))]
 					)
 				)
 			)
@@ -304,39 +304,39 @@ export function buildWpTaxonomyListRouteBody(
 
 	const pagesExpression = buildScalarCast(
 		'int',
-		createFuncCall(createName(['ceil']), [
-			createArg(
+		buildFuncCall(buildName(['ceil']), [
+			buildArg(
 				buildBinaryOperation(
 					'Div',
-					createVariable('total'),
-					createFuncCall(createName(['max']), [
-						createArg(createScalarInt(1)),
-						createArg(createVariable('per_page')),
+					buildVariable('total'),
+					buildFuncCall(buildName(['max']), [
+						buildArg(buildScalarInt(1)),
+						buildArg(buildVariable('per_page')),
 					])
 				)
 			),
 		])
 	);
-	const pagesAssign = createPrintable(
-		createExpressionStatement(
-			createAssign(createVariable('pages'), pagesExpression)
+	const pagesAssign = buildPrintable(
+		buildExpressionStatement(
+			buildAssign(buildVariable('pages'), pagesExpression)
 		),
 		[`${indent}$pages = (int) ceil( $total / max( 1, $per_page ) );`]
 	);
 	options.body.statement(pagesAssign);
 	options.body.blank();
 
-	const returnPrintable = createPrintable(
-		createReturn(
-			createArray([
-				createArrayItem(createVariable('items'), {
-					key: createScalarString('items'),
+	const returnPrintable = buildPrintable(
+		buildReturn(
+			buildArray([
+				buildArrayItem(buildVariable('items'), {
+					key: buildScalarString('items'),
 				}),
-				createArrayItem(createVariable('total'), {
-					key: createScalarString('total'),
+				buildArrayItem(buildVariable('total'), {
+					key: buildScalarString('total'),
 				}),
-				createArrayItem(createVariable('pages'), {
-					key: createScalarString('pages'),
+				buildArrayItem(buildVariable('pages'), {
+					key: buildScalarString('pages'),
 				}),
 			])
 		),
@@ -362,13 +362,13 @@ function appendExtraArgsMerge(options: {
 	const childIndent = PHP_INDENT.repeat(indentLevel + 1);
 
 	options.body.statement(
-		createPrintable(
-			createExpressionStatement(
-				createAssign(
-					createVariable('extra_args'),
-					createMethodCall(
-						createVariable('request'),
-						createIdentifier('get_params'),
+		buildPrintable(
+			buildExpressionStatement(
+				buildAssign(
+					buildVariable('extra_args'),
+					buildMethodCall(
+						buildVariable('request'),
+						buildIdentifier('get_params'),
 						[]
 					)
 				)
@@ -377,43 +377,43 @@ function appendExtraArgsMerge(options: {
 		)
 	);
 
-	const skipArray = createArray([
-		createArrayItem(createScalarString('page')),
-		createArrayItem(createScalarString('per_page')),
-		createArrayItem(createScalarString('taxonomy')),
-		createArrayItem(createScalarString('hide_empty')),
+	const skipArray = buildArray([
+		buildArrayItem(buildScalarString('page')),
+		buildArrayItem(buildScalarString('per_page')),
+		buildArrayItem(buildScalarString('taxonomy')),
+		buildArrayItem(buildScalarString('hide_empty')),
 	]);
 
-	const continuePrintable = createPrintable(
-		createNode<PhpStmtContinue>('Stmt_Continue', { num: null }),
+	const continuePrintable = buildPrintable(
+		buildNode<PhpStmtContinue>('Stmt_Continue', { num: null }),
 		[`${childIndent}${PHP_INDENT}continue;`]
 	);
 
 	const guard = buildIfPrintable({
 		indentLevel: indentLevel + 1,
-		condition: createFuncCall(createName(['in_array']), [
-			createArg(createVariable('key')),
-			createArg(skipArray),
-			createArg(createScalarBool(true)),
+		condition: buildFuncCall(buildName(['in_array']), [
+			buildArg(buildVariable('key')),
+			buildArg(skipArray),
+			buildArg(buildScalarBool(true)),
 		]),
 		conditionText: `${childIndent}if ( in_array( $key, array( 'page', 'per_page', 'taxonomy', 'hide_empty' ), true ) ) {`,
 		statements: [continuePrintable],
 	});
 
-	const assign = createPrintable(
-		createExpressionStatement(
-			createAssign(
-				buildArrayDimFetch('query_args', createVariable('key')),
-				createVariable('value')
+	const assign = buildPrintable(
+		buildExpressionStatement(
+			buildAssign(
+				buildArrayDimFetch('query_args', buildVariable('key')),
+				buildVariable('value')
 			)
 		),
 		[`${childIndent}$query_args[ $key ] = $value;`]
 	);
 
-	const foreachNode = createNode<PhpStmtForeach>('Stmt_Foreach', {
-		expr: createVariable('extra_args'),
-		valueVar: createVariable('value'),
-		keyVar: createVariable('key'),
+	const foreachNode = buildNode<PhpStmtForeach>('Stmt_Foreach', {
+		expr: buildVariable('extra_args'),
+		valueVar: buildVariable('value'),
+		keyVar: buildVariable('key'),
 		byRef: false,
 		stmts: [guard.node, assign.node],
 	});
@@ -427,7 +427,7 @@ function appendExtraArgsMerge(options: {
 		`${indent}}`,
 	];
 
-	options.body.statement(createPrintable(foreachNode, foreachLines));
+	options.body.statement(buildPrintable(foreachNode, foreachLines));
 	options.body.blank();
 }
 
@@ -444,16 +444,16 @@ function createResultsForeach(options: {
 		condition: buildInstanceof('term', 'WP_Term'),
 		conditionText: `${childIndent}if ( $term instanceof WP_Term ) {`,
 		statements: [
-			createPrintable(
-				createExpressionStatement(
-					createAssign(
+			buildPrintable(
+				buildExpressionStatement(
+					buildAssign(
 						buildArrayDimFetch('items', null),
-						createMethodCall(
-							createVariable('this'),
-							createIdentifier(
+						buildMethodCall(
+							buildVariable('this'),
+							buildIdentifier(
 								`prepare${options.pascalName}TermResponse`
 							),
-							[createArg(createVariable('term'))]
+							[buildArg(buildVariable('term'))]
 						)
 					)
 				),
@@ -464,9 +464,9 @@ function createResultsForeach(options: {
 		],
 	});
 
-	const foreachNode = createNode<PhpStmtForeach>('Stmt_Foreach', {
-		expr: createVariable('results'),
-		valueVar: createVariable('term'),
+	const foreachNode = buildNode<PhpStmtForeach>('Stmt_Foreach', {
+		expr: buildVariable('results'),
+		valueVar: buildVariable('term'),
 		keyVar: null,
 		byRef: false,
 		stmts: [guard.node],
@@ -480,7 +480,7 @@ function createResultsForeach(options: {
 		`${indent}}`,
 	];
 
-	return createPrintable(foreachNode, lines);
+	return buildPrintable(foreachNode, lines);
 }
 
 function ensureStorage(resource: IRResource): WpTaxonomyStorage {

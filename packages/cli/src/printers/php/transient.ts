@@ -1,9 +1,9 @@
 import type { IRResource, IRRoute } from '../../ir';
 import type { PrinterContext } from '../types';
 import type { PhpFileBuilder } from './builder';
-import { createMethodTemplate, PHP_INDENT } from './template';
+import { assembleMethodTemplate, PHP_INDENT } from './template';
 import {
-	createErrorCodeFactory,
+	makeErrorCodeFactory,
 	escapeSingleQuotes,
 	toPascalCase,
 	toSnakeCase,
@@ -45,7 +45,7 @@ function createContext(options: {
 	resource: IRResource;
 }): TransientContext {
 	const pascalName = toPascalCase(options.resource.name);
-	const errorCode = createErrorCodeFactory(options.resource.name);
+	const errorCode = makeErrorCodeFactory(options.resource.name);
 
 	options.builder.addUse('WP_Error');
 	options.builder.addUse('WP_REST_Request');
@@ -112,7 +112,7 @@ function createGetMethod(
 	context: TransientContext,
 	definition: RouteDefinition
 ): string[] {
-	return createMethodTemplate({
+	return assembleMethodTemplate({
 		signature: `public function ${definition.methodName}( WP_REST_Request $request )`,
 		indentLevel: 1,
 		indentUnit: PHP_INDENT,
@@ -135,7 +135,7 @@ function createSetMethod(
 	context: TransientContext,
 	definition: RouteDefinition
 ): string[] {
-	return createMethodTemplate({
+	return assembleMethodTemplate({
 		signature: `public function ${definition.methodName}( WP_REST_Request $request )`,
 		indentLevel: 1,
 		indentUnit: PHP_INDENT,
@@ -168,7 +168,7 @@ function createUnsupportedMethod(
 	context: TransientContext,
 	definition: RouteDefinition
 ): string[] {
-	return createMethodTemplate({
+	return assembleMethodTemplate({
 		signature: `public function ${definition.methodName}( WP_REST_Request $request )`,
 		indentLevel: 1,
 		indentUnit: PHP_INDENT,
@@ -187,7 +187,7 @@ function createHelperMethods(context: TransientContext): string[][] {
 	const helpers: string[][] = [];
 
 	helpers.push(
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature: `private function get${context.pascalName}TransientKey(): string`,
 			indentLevel: 1,
 			indentUnit: PHP_INDENT,
@@ -200,7 +200,7 @@ function createHelperMethods(context: TransientContext): string[][] {
 	);
 
 	helpers.push(
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature: `private function normalise${context.pascalName}Expiration( $value ): int`,
 			indentLevel: 1,
 			indentUnit: PHP_INDENT,

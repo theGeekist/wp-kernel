@@ -1,16 +1,16 @@
 import {
-	createClassMethod,
-	createDocComment,
-	createIdentifier,
-	createReturn,
-	createStmtNop,
+	buildClassMethod,
+	buildDocComment,
+	buildIdentifier,
+	buildReturn,
+	buildStmtNop,
 } from '../nodes';
-import { createPrintable } from '../printables';
+import { buildPrintable } from '../printables';
 import {
 	PHP_INDENT,
 	PhpMethodBodyBuilder,
-	createClassTemplate,
-	createMethodTemplate,
+	assembleClassTemplate,
+	assembleMethodTemplate,
 } from '../templates';
 import { PHP_CLASS_MODIFIER_FINAL } from '../modifiers';
 
@@ -20,12 +20,10 @@ describe('PhpMethodBodyBuilder', () => {
 		builder.line('echo 1;');
 		builder.line();
 
-		const printable = createPrintable(createStmtNop(), ['noop']);
+		const printable = buildPrintable(buildStmtNop(), ['noop']);
 		builder.statement(printable);
 
-		const returnPrintable = createPrintable(createReturn(null), [
-			'return;',
-		]);
+		const returnPrintable = buildPrintable(buildReturn(null), ['return;']);
 		builder.statement(returnPrintable, { applyIndent: true });
 
 		expect(builder.toLines()).toEqual([
@@ -38,23 +36,23 @@ describe('PhpMethodBodyBuilder', () => {
 	});
 });
 
-describe('createMethodTemplate', () => {
+describe('assembleMethodTemplate', () => {
 	it('builds method templates with docblocks and AST metadata', () => {
-		const template = createMethodTemplate({
+		const template = assembleMethodTemplate({
 			signature: 'public function example(): int',
 			indentLevel: 1,
 			docblock: ['Example description.'],
 			body: (body) => {
 				body.line('$value = 1;');
-				const printable = createPrintable(
-					createReturn(createIdentifier('value') as any),
+				const printable = buildPrintable(
+					buildReturn(buildIdentifier('value') as any),
 					['return $value;']
 				);
 				body.statement(printable, { applyIndent: true });
 			},
 			ast: {
 				name: 'example',
-				returnType: createIdentifier('int'),
+				returnType: buildIdentifier('int'),
 			},
 		});
 
@@ -73,7 +71,7 @@ describe('createMethodTemplate', () => {
 	});
 
 	it('merges docblock comments with existing attributes and custom indentation', () => {
-		const template = createMethodTemplate({
+		const template = assembleMethodTemplate({
 			signature: 'public function annotated()',
 			indentLevel: 0,
 			indentUnit: '\t',
@@ -81,7 +79,7 @@ describe('createMethodTemplate', () => {
 			body: () => undefined,
 			ast: {
 				attributes: {
-					comments: [createDocComment(['Existing comment.'])],
+					comments: [buildDocComment(['Existing comment.'])],
 				},
 			},
 		});
@@ -98,7 +96,7 @@ describe('createMethodTemplate', () => {
 	});
 
 	it('omits docblocks and body lines when none are provided', () => {
-		const template = createMethodTemplate({
+		const template = assembleMethodTemplate({
 			signature: 'public function empty()',
 			indentLevel: 0,
 			body: () => undefined,
@@ -108,27 +106,27 @@ describe('createMethodTemplate', () => {
 	});
 });
 
-describe('createClassTemplate', () => {
+describe('assembleClassTemplate', () => {
 	it('builds class templates with docblocks, inheritance, and methods', () => {
-		const method = createMethodTemplate({
+		const method = assembleMethodTemplate({
 			signature: 'public function demo()',
 			indentLevel: 1,
 			body: () => undefined,
 			ast: { name: 'demo' },
 		});
 
-		const helperNode = createClassMethod(createIdentifier('helper'));
-		const template = createClassTemplate({
+		const helperNode = buildClassMethod(buildIdentifier('helper'));
+		const template = assembleClassTemplate({
 			name: 'Sample',
 			flags: PHP_CLASS_MODIFIER_FINAL,
 			docblock: ['Class summary.'],
 			extends: '\\Vendor\\BaseClass',
 			implements: ['JsonSerializable', ['IteratorAggregate']],
 			attributes: {
-				comments: [createDocComment(['Existing class comment.'])],
+				comments: [buildDocComment(['Existing class comment.'])],
 			},
 			members: [
-				createPrintable(helperNode, [
+				buildPrintable(helperNode, [
 					'        public function helper() {}',
 				]),
 			],
@@ -154,7 +152,7 @@ describe('createClassTemplate', () => {
 	});
 
 	it('skips optional clauses when they are not provided', () => {
-		const template = createClassTemplate({
+		const template = assembleClassTemplate({
 			name: 'EmptyClass',
 			methods: [],
 			members: [],

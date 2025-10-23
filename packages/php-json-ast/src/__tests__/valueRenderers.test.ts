@@ -1,13 +1,13 @@
 import { KernelError } from '../KernelError';
 import {
-	createPhpReturn,
-	createPhpExpression,
+	buildPhpReturnPrintable,
+	buildPhpExpressionPrintable,
 	renderPhpReturn,
 } from '../valueRenderers';
 
 describe('valueRenderers', () => {
 	it('creates printable return statements for scalars', () => {
-		const printable = createPhpReturn('demo', 1);
+		const printable = buildPhpReturnPrintable('demo', 1);
 		expect(printable.lines).toEqual(["        return 'demo';"]);
 		expect(printable.node.expr).toMatchObject({
 			nodeType: 'Scalar_String',
@@ -18,7 +18,7 @@ describe('valueRenderers', () => {
 	});
 
 	it('renders indexed arrays with nested expressions', () => {
-		const printable = createPhpExpression([1, 'two', [false]], 0);
+		const printable = buildPhpExpressionPrintable([1, 'two', [false]], 0);
 		expect(printable.lines).toEqual([
 			'[',
 			'        1,',
@@ -32,7 +32,7 @@ describe('valueRenderers', () => {
 	});
 
 	it('renders associative arrays with escaped keys', () => {
-		const printable = createPhpExpression(
+		const printable = buildPhpExpressionPrintable(
 			{
 				label: 'demo',
 				"inner'value": { nested: null },
@@ -52,25 +52,25 @@ describe('valueRenderers', () => {
 	});
 
 	it('supports numeric and boolean scalars', () => {
-		const numeric = createPhpExpression(42, 0);
+		const numeric = buildPhpExpressionPrintable(42, 0);
 		expect(numeric.lines).toEqual(['42']);
 
-		const floating = createPhpExpression(3.14, 0);
+		const floating = buildPhpExpressionPrintable(3.14, 0);
 		expect(floating.lines).toEqual(['3.14']);
 
-		const truthy = createPhpExpression(true, 0);
+		const truthy = buildPhpExpressionPrintable(true, 0);
 		expect(truthy.lines).toEqual(['true']);
 
-		const bigintPrintable = createPhpExpression(BigInt(99), 0);
+		const bigintPrintable = buildPhpExpressionPrintable(BigInt(99), 0);
 		expect(bigintPrintable.lines).toEqual(["'99'"]);
 	});
 
 	it('throws when encountering unsupported values', () => {
-		expect(() => createPhpExpression(Symbol('demo'), 0)).toThrow(
+		expect(() => buildPhpExpressionPrintable(Symbol('demo'), 0)).toThrow(
 			KernelError
 		);
-		expect(() => createPhpExpression(Number.POSITIVE_INFINITY, 0)).toThrow(
-			KernelError
-		);
+		expect(() =>
+			buildPhpExpressionPrintable(Number.POSITIVE_INFINITY, 0)
+		).toThrow(KernelError);
 	});
 });

@@ -1,15 +1,15 @@
 import {
-	createArg,
-	createAssign,
-	createExpressionStatement,
-	createFuncCall,
-	createName,
-	createNull,
-	createScalarInt,
-	createScalarString,
-	createVariable,
+	buildArg,
+	buildAssign,
+	buildExpressionStatement,
+	buildFuncCall,
+	buildName,
+	buildNull,
+	buildScalarInt,
+	buildScalarString,
+	buildVariable,
 	type PhpStmt,
-	createPrintable,
+	buildPrintable,
 	type PhpPrintable,
 } from '@wpkernel/php-json-ast';
 import { PHP_INDENT } from '@wpkernel/php-json-ast';
@@ -50,8 +50,8 @@ export function createIdentityValidationPrintables(
 				indentLevel,
 				condition: buildBinaryOperation(
 					'Identical',
-					createNull(),
-					createVariable(variable.raw)
+					buildNull(),
+					buildVariable(variable.raw)
 				),
 				conditionText: `${indent}if ( null === ${variable.display} ) {`,
 				statements: [missingReturn],
@@ -59,11 +59,11 @@ export function createIdentityValidationPrintables(
 		);
 
 		statements.push(
-			createPrintable(
-				createExpressionStatement(
-					createAssign(
-						createVariable(variable.raw),
-						buildScalarCast('int', createVariable(variable.raw))
+			buildPrintable(
+				buildExpressionStatement(
+					buildAssign(
+						buildVariable(variable.raw),
+						buildScalarCast('int', buildVariable(variable.raw))
 					)
 				),
 				[`${indent}${variable.display} = (int) ${variable.display};`]
@@ -81,8 +81,8 @@ export function createIdentityValidationPrintables(
 				indentLevel,
 				condition: buildBinaryOperation(
 					'SmallerOrEqual',
-					createVariable(variable.raw),
-					createScalarInt(0)
+					buildVariable(variable.raw),
+					buildScalarInt(0)
 				),
 				conditionText: `${indent}if ( ${variable.display} <= 0 ) {`,
 				statements: [invalidReturn],
@@ -102,15 +102,15 @@ export function createIdentityValidationPrintables(
 	const condition = buildBinaryOperation(
 		'BooleanOr',
 		buildBooleanNot(
-			createFuncCall(createName(['is_string']), [
-				createArg(createVariable(variable.raw)),
+			buildFuncCall(buildName(['is_string']), [
+				buildArg(buildVariable(variable.raw)),
 			])
 		),
 		buildBinaryOperation(
 			'Identical',
-			createScalarString(''),
-			createFuncCall(createName(['trim']), [
-				createArg(createVariable(variable.raw)),
+			buildScalarString(''),
+			buildFuncCall(buildName(['trim']), [
+				buildArg(buildVariable(variable.raw)),
 			])
 		)
 	);
@@ -125,15 +125,15 @@ export function createIdentityValidationPrintables(
 	);
 
 	statements.push(
-		createPrintable(
-			createExpressionStatement(
-				createAssign(
-					createVariable(variable.raw),
-					createFuncCall(createName(['trim']), [
-						createArg(
+		buildPrintable(
+			buildExpressionStatement(
+				buildAssign(
+					buildVariable(variable.raw),
+					buildFuncCall(buildName(['trim']), [
+						buildArg(
 							buildScalarCast(
 								'string',
-								createVariable(variable.raw)
+								buildVariable(variable.raw)
 							)
 						),
 					])

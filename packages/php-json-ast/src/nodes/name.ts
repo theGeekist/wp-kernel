@@ -1,20 +1,20 @@
-import { createNode, type PhpAttributes, type PhpNode } from './base';
+import { buildNode, type PhpAttributes, type PhpNode } from './base';
 
 export interface PhpName extends PhpNode {
 	readonly nodeType: 'Name' | 'Name_FullyQualified' | 'Name_Relative';
 	readonly parts: string[];
 }
 
-export function createName(
+export function buildName(
 	parts: string[],
 	attributes?: PhpAttributes
 ): PhpName {
-	return createNode<PhpName>('Name', { parts }, attributes);
+	return buildNode<PhpName>('Name', { parts }, attributes);
 }
 
-export function createFullyQualifiedName(
+export function buildFullyQualifiedName(
 	parts: string[],
 	attributes?: PhpAttributes
 ): PhpName {
-	return createNode<PhpName>('Name_FullyQualified', { parts }, attributes);
+	return buildNode<PhpName>('Name_FullyQualified', { parts }, attributes);
 }

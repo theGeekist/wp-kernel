@@ -1,4 +1,4 @@
-import { createNode, type PhpAttributes, type PhpNode } from '../base';
+import { buildNode, type PhpAttributes, type PhpNode } from '../base';
 import type { PhpAttrGroup } from '../attributes';
 import type { PhpConst } from '../const';
 import type { PhpDeclareItem } from '../declareItem';
@@ -231,57 +231,57 @@ export type PhpStmt =
 
 export type PhpProgram = ReadonlyArray<PhpStmt>;
 
-export function createNamespace(
+export function buildNamespace(
 	name: PhpName | null,
 	stmts: PhpStmt[],
 	attributes?: PhpAttributes
 ): PhpStmtNamespace {
-	return createNode<PhpStmtNamespace>(
+	return buildNode<PhpStmtNamespace>(
 		'Stmt_Namespace',
 		{ name, stmts },
 		attributes
 	);
 }
 
-export function createStmtNop(attributes?: PhpAttributes): PhpStmtNop {
-	return createNode<PhpStmtNop>('Stmt_Nop', {}, attributes);
+export function buildStmtNop(attributes?: PhpAttributes): PhpStmtNop {
+	return buildNode<PhpStmtNop>('Stmt_Nop', {}, attributes);
 }
 
-export function createUse(
+export function buildUse(
 	type: number,
 	uses: PhpStmtUseUse[],
 	attributes?: PhpAttributes
 ): PhpStmtUse {
-	return createNode<PhpStmtUse>('Stmt_Use', { type, uses }, attributes);
+	return buildNode<PhpStmtUse>('Stmt_Use', { type, uses }, attributes);
 }
 
-export function createUseUse(
+export function buildUseUse(
 	name: PhpName,
 	alias: PhpIdentifier | null = null,
 	options: { type?: number; attributes?: PhpAttributes } = {}
 ): PhpStmtUseUse {
 	const { type = 0, attributes } = options;
-	return createNode<PhpStmtUseUse>(
+	return buildNode<PhpStmtUseUse>(
 		'Stmt_UseUse',
 		{ name, alias, type },
 		attributes
 	);
 }
 
-export function createGroupUse(
+export function buildGroupUse(
 	type: number,
 	prefix: PhpName,
 	uses: PhpStmtUseUse[],
 	attributes?: PhpAttributes
 ): PhpStmtGroupUse {
-	return createNode<PhpStmtGroupUse>(
+	return buildNode<PhpStmtGroupUse>(
 		'Stmt_GroupUse',
 		{ type, prefix, uses },
 		attributes
 	);
 }
 
-export function createClass(
+export function buildClass(
 	name: PhpIdentifier | null,
 	options: {
 		flags?: number;
@@ -293,7 +293,7 @@ export function createClass(
 	} = {},
 	attributes?: PhpAttributes
 ): PhpStmtClass {
-	return createNode<PhpStmtClass>(
+	return buildNode<PhpStmtClass>(
 		'Stmt_Class',
 		{
 			name,
@@ -308,12 +308,12 @@ export function createClass(
 	);
 }
 
-export function createDeclare(
+export function buildDeclare(
 	declares: PhpDeclareItem[],
 	options: { stmts?: PhpStmt[] | null } = {},
 	attributes?: PhpAttributes
 ): PhpStmtDeclare {
-	return createNode<PhpStmtDeclare>(
+	return buildNode<PhpStmtDeclare>(
 		'Stmt_Declare',
 		{
 			declares,
@@ -323,7 +323,7 @@ export function createDeclare(
 	);
 }
 
-export function createClassMethod(
+export function buildClassMethod(
 	name: PhpIdentifier,
 	options: {
 		byRef?: boolean;
@@ -335,7 +335,7 @@ export function createClassMethod(
 	} = {},
 	attributes?: PhpAttributes
 ): PhpStmtClassMethod {
-	return createNode<PhpStmtClassMethod>(
+	return buildNode<PhpStmtClassMethod>(
 		'Stmt_ClassMethod',
 		{
 			name,
@@ -350,25 +350,25 @@ export function createClassMethod(
 	);
 }
 
-export function createReturn(
+export function buildReturn(
 	expr: PhpExpr | null,
 	attributes?: PhpAttributes
 ): PhpStmtReturn {
-	return createNode<PhpStmtReturn>('Stmt_Return', { expr }, attributes);
+	return buildNode<PhpStmtReturn>('Stmt_Return', { expr }, attributes);
 }
 
-export function createExpressionStatement(
+export function buildExpressionStatement(
 	expr: PhpExpr,
 	attributes?: PhpAttributes
 ): PhpStmtExpression {
-	return createNode<PhpStmtExpression>(
+	return buildNode<PhpStmtExpression>(
 		'Stmt_Expression',
 		{ expr },
 		attributes
 	);
 }
 
-export function createIfStatement(
+export function buildIfStatement(
 	cond: PhpExpr,
 	stmts: PhpStmt[],
 	options: {
@@ -377,7 +377,7 @@ export function createIfStatement(
 	} = {},
 	attributes?: PhpAttributes
 ): PhpStmtIf {
-	return createNode<PhpStmtIf>(
+	return buildNode<PhpStmtIf>(
 		'Stmt_If',
 		{
 			cond,

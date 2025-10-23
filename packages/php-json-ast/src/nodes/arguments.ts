@@ -1,4 +1,4 @@
-import { createNode, type PhpAttributes, type PhpNode } from './base';
+import { buildNode, type PhpAttributes, type PhpNode } from './base';
 import type { PhpExpr } from './expressions';
 import type { PhpIdentifier } from './identifier';
 
@@ -10,7 +10,7 @@ export interface PhpArg extends PhpNode {
 	readonly name: PhpIdentifier | null;
 }
 
-export function createArg(
+export function buildArg(
 	value: PhpExpr,
 	options: {
 		byRef?: boolean;
@@ -19,7 +19,7 @@ export function createArg(
 	} = {},
 	attributes?: PhpAttributes
 ): PhpArg {
-	return createNode<PhpArg>(
+	return buildNode<PhpArg>(
 		'Arg',
 		{
 			value,

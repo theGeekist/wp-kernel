@@ -1,17 +1,17 @@
 import {
-	createComment,
-	createScalarInt,
-	createScalarString,
-	createStmtNop,
+	buildComment,
+	buildScalarInt,
+	buildScalarString,
+	buildStmtNop,
 	type PhpExprNew,
 	type PhpMethodBodyBuilder,
 } from '@wpkernel/php-json-ast';
 import {
-	createPrintable,
-	createNode,
-	createReturn,
-	createArg,
-	createName,
+	buildPrintable,
+	buildNode,
+	buildReturn,
+	buildArg,
+	buildName,
 } from '@wpkernel/php-json-ast';
 import type { IRRoute } from '../../../../ir/types';
 
@@ -24,10 +24,10 @@ export interface AppendNotImplementedStubOptions {
 export function appendNotImplementedStub(
 	options: AppendNotImplementedStubOptions
 ): void {
-	const todoPrintable = createPrintable(
-		createStmtNop({
+	const todoPrintable = buildPrintable(
+		buildStmtNop({
 			comments: [
-				createComment(
+				buildComment(
 					`// TODO: Implement handler for [${options.route.method}] ${options.route.path}.`
 				),
 			],
@@ -38,14 +38,14 @@ export function appendNotImplementedStub(
 	);
 	options.body.statement(todoPrintable);
 
-	const errorExpr = createNode<PhpExprNew>('Expr_New', {
-		class: createName(['WP_Error']),
+	const errorExpr = buildNode<PhpExprNew>('Expr_New', {
+		class: buildName(['WP_Error']),
 		args: [
-			createArg(createScalarInt(501)),
-			createArg(createScalarString('Not Implemented')),
+			buildArg(buildScalarInt(501)),
+			buildArg(buildScalarString('Not Implemented')),
 		],
 	});
-	const returnPrintable = createPrintable(createReturn(errorExpr), [
+	const returnPrintable = buildPrintable(buildReturn(errorExpr), [
 		`${options.indent}return new WP_Error( 501, 'Not Implemented' );`,
 	]);
 	options.body.statement(returnPrintable);

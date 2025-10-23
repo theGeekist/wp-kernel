@@ -1,11 +1,11 @@
-import { createMethodTemplate, PHP_INDENT } from '../../template';
+import { assembleMethodTemplate, PHP_INDENT } from '../../template';
 import type { WpTaxonomyContext, WpTaxonomyRouteDefinition } from '../types';
 
 export function createListMethod(
 	context: WpTaxonomyContext,
 	definition: WpTaxonomyRouteDefinition
 ): string[] {
-	return createMethodTemplate({
+	return assembleMethodTemplate({
 		signature: `public function ${definition.methodName}( WP_REST_Request $request )`,
 		indentLevel: 1,
 		indentUnit: PHP_INDENT,
