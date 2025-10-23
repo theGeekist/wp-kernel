@@ -1,26 +1,26 @@
 import {
-	createArg,
-	createArray,
-	createArrayItem,
-	createArrayCast as createArrayCastNode,
-	createAssign,
-	createArrowFunction,
-	createExpressionStatement,
-	createFuncCall,
-	createIdentifier,
-	createMatch,
-	createMatchArm,
-	createMethodCall,
-	createName,
-	createNull,
-	createParam,
-	createScalarBool,
-	createScalarInt,
-	createScalarString,
-	createVariable,
+	buildArg,
+	buildArray,
+	buildArrayItem,
+	buildArrayCast as buildArrayCastNode,
+	buildAssign,
+	buildArrowFunction,
+	buildExpressionStatement,
+	buildFuncCall,
+	buildIdentifier,
+	buildMatch,
+	buildMatchArm,
+	buildMethodCall,
+	buildName,
+	buildNull,
+	buildParam,
+	buildScalarBool,
+	buildScalarInt,
+	buildScalarString,
+	buildVariable,
 	type PhpExpr,
 	type PhpStmt,
-	createPrintable,
+	buildPrintable,
 	type PhpPrintable,
 	type PhpMethodBodyBuilder,
 } from '@wpkernel/php-json-ast';
@@ -91,14 +91,14 @@ export function appendMetaQueryBuilder(
 
 	for (const [key, descriptor] of options.entries) {
 		const variableName = `${toSnakeCase(key)}Meta`;
-		const requestPrintable = createPrintable(
-			createExpressionStatement(
-				createAssign(
-					createVariable(variableName),
-					createMethodCall(
-						createVariable('request'),
-						createIdentifier('get_param'),
-						[createArg(createScalarString(key))]
+		const requestPrintable = buildPrintable(
+			buildExpressionStatement(
+				buildAssign(
+					buildVariable(variableName),
+					buildMethodCall(
+						buildVariable('request'),
+						buildIdentifier('get_param'),
+						[buildArg(buildScalarString(key))]
 					)
 				)
 			),
@@ -117,19 +117,19 @@ export function appendMetaQueryBuilder(
 				buildIfPrintable({
 					indentLevel: childIndentLevel,
 					condition: buildBooleanNot(
-						createFuncCall(createName(['is_array']), [
-							createArg(createVariable(variableName)),
+						buildFuncCall(buildName(['is_array']), [
+							buildArg(buildVariable(variableName)),
 						])
 					),
 					conditionText: `${childIndent}if ( ! is_array( $${variableName} ) ) {`,
 					statements: [
-						createPrintable(
-							createExpressionStatement(
-								createAssign(
-									createVariable(variableName),
-									createArray([
-										createArrayItem(
-											createVariable(variableName)
+						buildPrintable(
+							buildExpressionStatement(
+								buildAssign(
+									buildVariable(variableName),
+									buildArray([
+										buildArrayItem(
+											buildVariable(variableName)
 										),
 									])
 								)
@@ -142,15 +142,13 @@ export function appendMetaQueryBuilder(
 				})
 			);
 
-			const normalisePrintable = createPrintable(
-				createExpressionStatement(
-					createAssign(
-						createVariable(variableName),
-						createFuncCall(createName(['array_values']), [
-							createArg(
-								createArrayCastNode(
-									createVariable(variableName)
-								)
+			const normalisePrintable = buildPrintable(
+				buildExpressionStatement(
+					buildAssign(
+						buildVariable(variableName),
+						buildFuncCall(buildName(['array_values']), [
+							buildArg(
+								buildArrayCastNode(buildVariable(variableName))
 							),
 						])
 					)
@@ -160,13 +158,13 @@ export function appendMetaQueryBuilder(
 				]
 			);
 
-			const filterPrintable = createPrintable(
-				createExpressionStatement(
-					createAssign(
-						createVariable(variableName),
-						createFuncCall(createName(['array_filter']), [
-							createArg(createVariable(variableName)),
-							createArg(createStaticTrimFilterClosure()),
+			const filterPrintable = buildPrintable(
+				buildExpressionStatement(
+					buildAssign(
+						buildVariable(variableName),
+						buildFuncCall(buildName(['array_filter']), [
+							buildArg(buildVariable(variableName)),
+							buildArg(createStaticTrimFilterClosure()),
 						])
 					)
 				),
@@ -181,19 +179,19 @@ export function appendMetaQueryBuilder(
 			innerStatements.push(normalisePrintable, filterPrintable);
 
 			const nestedIndent = PHP_INDENT.repeat(childIndentLevel + 1);
-			const pushPrintable = createPrintable(
-				createExpressionStatement(
-					createAssign(
+			const pushPrintable = buildPrintable(
+				buildExpressionStatement(
+					buildAssign(
 						buildArrayDimFetch('meta_query', null),
-						createArray([
-							createArrayItem(createScalarString(key), {
-								key: createScalarString('key'),
+						buildArray([
+							buildArrayItem(buildScalarString(key), {
+								key: buildScalarString('key'),
 							}),
-							createArrayItem(createScalarString('IN'), {
-								key: createScalarString('compare'),
+							buildArrayItem(buildScalarString('IN'), {
+								key: buildScalarString('compare'),
 							}),
-							createArrayItem(createVariable(variableName), {
-								key: createScalarString('value'),
+							buildArrayItem(buildVariable(variableName), {
+								key: buildScalarString('value'),
 							}),
 						])
 					)
@@ -212,37 +210,37 @@ export function appendMetaQueryBuilder(
 					indentLevel: childIndentLevel,
 					condition: buildBinaryOperation(
 						'Greater',
-						createFuncCall(createName(['count']), [
-							createArg(createVariable(variableName)),
+						buildFuncCall(buildName(['count']), [
+							buildArg(buildVariable(variableName)),
 						]),
-						createScalarInt(0)
+						buildScalarInt(0)
 					),
 					conditionText: `${childIndent}if ( count( $${variableName} ) > 0 ) {`,
 					statements: [pushPrintable],
 				})
 			);
 		} else {
-			const sanitisePrintable = createPrintable(
-				createExpressionStatement(
-					createAssign(
-						createVariable(variableName),
-						createMatch(
-							createFuncCall(createName(['is_scalar']), [
-								createArg(createVariable(variableName)),
+			const sanitisePrintable = buildPrintable(
+				buildExpressionStatement(
+					buildAssign(
+						buildVariable(variableName),
+						buildMatch(
+							buildFuncCall(buildName(['is_scalar']), [
+								buildArg(buildVariable(variableName)),
 							]),
 							[
-								createMatchArm(
-									[createScalarBool(true)],
-									createFuncCall(createName(['trim']), [
-										createArg(
+								buildMatchArm(
+									[buildScalarBool(true)],
+									buildFuncCall(buildName(['trim']), [
+										buildArg(
 											buildScalarCast(
 												'string',
-												createVariable(variableName)
+												buildVariable(variableName)
 											)
 										),
 									])
 								),
-								createMatchArm(null, createNull()),
+								buildMatchArm(null, buildNull()),
 							]
 						)
 					)
@@ -255,19 +253,19 @@ export function appendMetaQueryBuilder(
 				]
 			);
 
-			const pushPrintable = createPrintable(
-				createExpressionStatement(
-					createAssign(
+			const pushPrintable = buildPrintable(
+				buildExpressionStatement(
+					buildAssign(
 						buildArrayDimFetch('meta_query', null),
-						createArray([
-							createArrayItem(createScalarString(key), {
-								key: createScalarString('key'),
+						buildArray([
+							buildArrayItem(buildScalarString(key), {
+								key: buildScalarString('key'),
 							}),
-							createArrayItem(createScalarString('='), {
-								key: createScalarString('compare'),
+							buildArrayItem(buildScalarString('='), {
+								key: buildScalarString('compare'),
 							}),
-							createArrayItem(createVariable(variableName), {
-								key: createScalarString('value'),
+							buildArrayItem(buildVariable(variableName), {
+								key: buildScalarString('value'),
 							}),
 						])
 					)
@@ -289,13 +287,13 @@ export function appendMetaQueryBuilder(
 						'BooleanAnd',
 						buildBinaryOperation(
 							'NotIdentical',
-							createVariable(variableName),
-							createNull()
+							buildVariable(variableName),
+							buildNull()
 						),
 						buildBinaryOperation(
 							'NotIdentical',
-							createVariable(variableName),
-							createScalarString('')
+							buildVariable(variableName),
+							buildScalarString('')
 						)
 					),
 					conditionText: `${childIndent}if ( null !== $${variableName} && '' !== $${variableName} ) {`,
@@ -309,8 +307,8 @@ export function appendMetaQueryBuilder(
 				indentLevel,
 				condition: buildBinaryOperation(
 					'NotIdentical',
-					createVariable(variableName),
-					createNull()
+					buildVariable(variableName),
+					buildNull()
 				),
 				conditionText: `${indent}if ( null !== $${variableName} ) {`,
 				statements: innerStatements,
@@ -318,14 +316,14 @@ export function appendMetaQueryBuilder(
 		);
 	}
 
-	const assignPrintable = createPrintable(
-		createExpressionStatement(
-			createAssign(
+	const assignPrintable = buildPrintable(
+		buildExpressionStatement(
+			buildAssign(
 				buildArrayDimFetch(
 					'query_args',
-					createScalarString('meta_query')
+					buildScalarString('meta_query')
 				),
-				createVariable('meta_query')
+				buildVariable('meta_query')
 			)
 		),
 		[`${indent}${PHP_INDENT}$query_args['meta_query'] = $meta_query;`]
@@ -336,10 +334,10 @@ export function appendMetaQueryBuilder(
 			indentLevel,
 			condition: buildBinaryOperation(
 				'Greater',
-				createFuncCall(createName(['count']), [
-					createArg(createVariable('meta_query')),
+				buildFuncCall(buildName(['count']), [
+					buildArg(buildVariable('meta_query')),
 				]),
-				createScalarInt(0)
+				buildScalarInt(0)
 			),
 			conditionText: `${indent}if ( count( $meta_query ) > 0 ) {`,
 			statements: [assignPrintable],
@@ -349,17 +347,17 @@ export function appendMetaQueryBuilder(
 }
 
 function createStaticTrimFilterClosure(): PhpExpr {
-	const parameter = createParam(createVariable('value'));
-	const trimmedValue = createFuncCall(createName(['trim']), [
-		createArg(buildScalarCast('string', createVariable('value'))),
+	const parameter = buildParam(buildVariable('value'));
+	const trimmedValue = buildFuncCall(buildName(['trim']), [
+		buildArg(buildScalarCast('string', buildVariable('value'))),
 	]);
 
-	return createArrowFunction({
+	return buildArrowFunction({
 		static: true,
 		params: [parameter],
-		expr: createMatch(trimmedValue, [
-			createMatchArm([createScalarString('')], createScalarBool(false)),
-			createMatchArm(null, createScalarBool(true)),
+		expr: buildMatch(trimmedValue, [
+			buildMatchArm([buildScalarString('')], buildScalarBool(false)),
+			buildMatchArm(null, buildScalarBool(true)),
 		]),
 	});
 }

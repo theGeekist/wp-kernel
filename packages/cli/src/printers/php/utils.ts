@@ -46,7 +46,7 @@ export function isNonEmptyString(value: unknown): value is string {
 	return typeof value === 'string' && value.trim().length > 0;
 }
 
-export function createErrorCodeFactory(
+export function makeErrorCodeFactory(
 	resourceName: string
 ): (suffix: string) => string {
 	const base = toSnakeCase(resourceName) || 'resource';

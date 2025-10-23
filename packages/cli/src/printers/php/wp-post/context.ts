@@ -1,11 +1,7 @@
 import type { PrinterContext } from '../../types';
 import type { IRResource } from '../../../ir';
 import type { PhpFileBuilder } from '../builder';
-import {
-	createErrorCodeFactory,
-	isNonEmptyString,
-	toPascalCase,
-} from '../utils';
+import { makeErrorCodeFactory, isNonEmptyString, toPascalCase } from '../utils';
 import { resolveIdentityConfig } from '../identity';
 import {
 	type IdentityConfig,
@@ -68,7 +64,7 @@ export function createWpPostContext(
 	options.builder.addUse('WP_Query');
 	options.builder.addUse('WP_REST_Request');
 
-	const errorCode = createErrorCodeFactory(options.resource.name);
+	const errorCode = makeErrorCodeFactory(options.resource.name);
 
 	const titleCaseName = (): string => pascalName;
 

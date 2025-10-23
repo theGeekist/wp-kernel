@@ -39,7 +39,7 @@ export interface PhpMethodTemplateOptions {
 	body: (body: PhpMethodBodyBuilder) => void;
 }
 
-export function createMethodTemplate(
+export function assembleMethodTemplate(
 	options: PhpMethodTemplateOptions
 ): string[] {
 	const indentUnit = options.indentUnit ?? PHP_INDENT;

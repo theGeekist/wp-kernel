@@ -10,7 +10,7 @@ import type {
 import {
 	appendGeneratedFileDocblock,
 	createPhpFileBuilder,
-	createPhpReturn,
+	buildPhpReturnPrintable,
 	toPascalCase,
 	type PhpAstBuilderAdapter,
 } from '@wpkernel/php-json-ast';
@@ -56,7 +56,7 @@ function buildIndexFile(builder: PhpAstBuilderAdapter, ir: IRv1): void {
 	]);
 
 	const entries = createIndexEntries(ir);
-	const printable = createPhpReturn(entries, 1);
+	const printable = buildPhpReturnPrintable(entries, 1);
 	printable.lines.forEach((line) => builder.appendStatement(line));
 	builder.appendProgramStatement(printable.node);
 }

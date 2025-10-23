@@ -1,4 +1,4 @@
-import { createNode, type PhpAttributes, type PhpNode } from './base';
+import { buildNode, type PhpAttributes, type PhpNode } from './base';
 import type { PhpExpr } from './expressions';
 import type { PhpIdentifier } from './identifier';
 
@@ -8,10 +8,10 @@ export interface PhpConst extends PhpNode {
 	readonly value: PhpExpr;
 }
 
-export function createConst(
+export function buildConst(
 	name: PhpIdentifier,
 	value: PhpExpr,
 	attributes?: PhpAttributes
 ): PhpConst {
-	return createNode<PhpConst>('Const', { name, value }, attributes);
+	return buildNode<PhpConst>('Const', { name, value }, attributes);
 }

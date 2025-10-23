@@ -1,4 +1,4 @@
-import { createNode, type PhpAttributes, type PhpNode } from '../base';
+import { buildNode, type PhpAttributes, type PhpNode } from '../base';
 
 export interface PhpScalarBase extends PhpNode {
 	readonly nodeType: `Scalar_${string}`;
@@ -30,31 +30,23 @@ export type PhpScalar =
 	| PhpScalarMagicConst
 	| PhpScalarBase;
 
-export function createScalarString(
+export function buildScalarString(
 	value: string,
 	attributes?: PhpAttributes
 ): PhpScalarString {
-	return createNode<PhpScalarString>('Scalar_String', { value }, attributes);
+	return buildNode<PhpScalarString>('Scalar_String', { value }, attributes);
 }
 
-export function createScalarInt(
+export function buildScalarInt(
 	value: number,
 	attributes?: PhpAttributes
 ): PhpScalarLNumber {
-	return createNode<PhpScalarLNumber>(
-		'Scalar_LNumber',
-		{ value },
-		attributes
-	);
+	return buildNode<PhpScalarLNumber>('Scalar_LNumber', { value }, attributes);
 }
 
-export function createScalarFloat(
+export function buildScalarFloat(
 	value: number,
 	attributes?: PhpAttributes
 ): PhpScalarDNumber {
-	return createNode<PhpScalarDNumber>(
-		'Scalar_DNumber',
-		{ value },
-		attributes
-	);
+	return buildNode<PhpScalarDNumber>('Scalar_DNumber', { value }, attributes);
 }

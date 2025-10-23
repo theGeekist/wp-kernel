@@ -1,5 +1,5 @@
 import {
-	createMethodTemplate,
+	assembleMethodTemplate,
 	PHP_INDENT,
 	type PhpMethodBodyBuilder,
 } from '../template';
@@ -11,7 +11,7 @@ export function createDeleteMethod(
 	context: WpPostContext,
 	definition: WpPostRouteDefinition
 ): string[] {
-	return createMethodTemplate({
+	return assembleMethodTemplate({
 		signature: `public function ${definition.methodName}( WP_REST_Request $request )`,
 		indentLevel: 1,
 		indentUnit: PHP_INDENT,

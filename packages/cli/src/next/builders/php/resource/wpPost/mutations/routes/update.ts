@@ -1,21 +1,21 @@
 import {
-	createArg,
-	createArray,
-	createArrayItem,
-	createAssign,
-	createExpressionStatement,
-	createFuncCall,
-	createIdentifier,
-	createMethodCall,
-	createName,
-	createReturn,
-	createScalarBool,
-	createScalarInt,
-	createScalarString,
-	createVariable,
-	createPrintable,
+	buildArg,
+	buildArray,
+	buildArrayItem,
+	buildAssign,
+	buildExpressionStatement,
+	buildFuncCall,
+	buildIdentifier,
+	buildMethodCall,
+	buildName,
+	buildReturn,
+	buildScalarBool,
+	buildScalarInt,
+	buildScalarString,
+	buildVariable,
+	buildPrintable,
 	PHP_INDENT,
-	createErrorCodeFactory,
+	makeErrorCodeFactory,
 } from '@wpkernel/php-json-ast';
 import { createIdentityValidationPrintables } from '../../identity';
 import {
@@ -48,16 +48,16 @@ export function buildUpdateRouteBody(
 	const indentLevel = options.indentLevel;
 	const indent = PHP_INDENT.repeat(indentLevel);
 	const identityVar = options.identity.param;
-	const errorCodeFactory = createErrorCodeFactory(options.resource.name);
+	const errorCodeFactory = makeErrorCodeFactory(options.resource.name);
 
-	const identityPrintable = createPrintable(
-		createExpressionStatement(
-			createAssign(
-				createVariable(identityVar),
-				createMethodCall(
-					createVariable('request'),
-					createIdentifier('get_param'),
-					[createArg(createScalarString(identityVar))]
+	const identityPrintable = buildPrintable(
+		buildExpressionStatement(
+			buildAssign(
+				buildVariable(identityVar),
+				buildMethodCall(
+					buildVariable('request'),
+					buildIdentifier('get_param'),
+					[buildArg(buildScalarString(identityVar))]
 				)
 			)
 		),
@@ -80,14 +80,14 @@ export function buildUpdateRouteBody(
 		options.body.blank();
 	}
 
-	const resolvePrintable = createPrintable(
-		createExpressionStatement(
-			createAssign(
-				createVariable('post'),
-				createMethodCall(
-					createVariable('this'),
-					createIdentifier(`resolve${options.pascalName}Post`),
-					[createArg(createVariable(identityVar))]
+	const resolvePrintable = buildPrintable(
+		buildExpressionStatement(
+			buildAssign(
+				buildVariable('post'),
+				buildMethodCall(
+					buildVariable('this'),
+					buildIdentifier(`resolve${options.pascalName}Post`),
+					[buildArg(buildVariable(identityVar))]
 				)
 			)
 		),
@@ -113,23 +113,21 @@ export function buildUpdateRouteBody(
 	options.body.statement(notFoundGuard);
 	options.body.blank();
 
-	const postDataPrintable = createPrintable(
-		createExpressionStatement(
-			createAssign(
-				createVariable('post_data'),
-				createArray([
-					createArrayItem(buildPropertyFetch('post', 'ID'), {
-						key: createScalarString('ID'),
+	const postDataPrintable = buildPrintable(
+		buildExpressionStatement(
+			buildAssign(
+				buildVariable('post_data'),
+				buildArray([
+					buildArrayItem(buildPropertyFetch('post', 'ID'), {
+						key: buildScalarString('ID'),
 					}),
-					createArrayItem(
-						createMethodCall(
-							createVariable('this'),
-							createIdentifier(
-								`get${options.pascalName}PostType`
-							),
+					buildArrayItem(
+						buildMethodCall(
+							buildVariable('this'),
+							buildIdentifier(`get${options.pascalName}PostType`),
 							[]
 						),
-						{ key: createScalarString('post_type') }
+						{ key: buildScalarString('post_type') }
 					),
 				])
 			)
@@ -153,13 +151,13 @@ export function buildUpdateRouteBody(
 	});
 	options.body.blank();
 
-	const updatePrintable = createPrintable(
-		createExpressionStatement(
-			createAssign(
-				createVariable('result'),
-				createFuncCall(createName(['wp_update_post']), [
-					createArg(createVariable('post_data')),
-					createArg(createScalarBool(true)),
+	const updatePrintable = buildPrintable(
+		buildExpressionStatement(
+			buildAssign(
+				buildVariable('result'),
+				buildFuncCall(buildName(['wp_update_post']), [
+					buildArg(buildVariable('post_data')),
+					buildArg(buildScalarBool(true)),
 				])
 			)
 		),
@@ -167,14 +165,13 @@ export function buildUpdateRouteBody(
 	);
 	options.body.statement(updatePrintable);
 
-	const resultReturn = createPrintable(
-		createReturn(createVariable('result')),
-		[`${indent}${PHP_INDENT}return $result;`]
-	);
+	const resultReturn = buildPrintable(buildReturn(buildVariable('result')), [
+		`${indent}${PHP_INDENT}return $result;`,
+	]);
 	const resultGuard = buildIfPrintable({
 		indentLevel,
-		condition: createFuncCall(createName(['is_wp_error']), [
-			createArg(createVariable('result')),
+		condition: buildFuncCall(buildName(['is_wp_error']), [
+			buildArg(buildVariable('result')),
 		]),
 		conditionText: `${indent}if ( is_wp_error( $result ) ) {`,
 		statements: [resultReturn],
@@ -192,8 +189,8 @@ export function buildUpdateRouteBody(
 		indentLevel,
 		condition: buildBinaryOperation(
 			'Identical',
-			createScalarInt(0),
-			createVariable('result')
+			buildScalarInt(0),
+			buildVariable('result')
 		),
 		conditionText: `${indent}if ( 0 === $result ) {`,
 		statements: [updateFailedReturn],

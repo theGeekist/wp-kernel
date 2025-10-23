@@ -1,4 +1,4 @@
-import { createPrintable, createScalarInt } from '@wpkernel/php-json-ast';
+import { buildPrintable, buildScalarInt } from '@wpkernel/php-json-ast';
 import { expression, renderPhpValue, variable } from '../phpValue';
 
 describe('phpValue', () => {
@@ -9,7 +9,7 @@ describe('phpValue', () => {
 	});
 
 	it('renders expression descriptors with indentation', () => {
-		const printable = createPrintable(createScalarInt(5), ['5']);
+		const printable = buildPrintable(buildScalarInt(5), ['5']);
 		const rendered = renderPhpValue(expression(printable), 2);
 		expect(rendered.lines).toEqual(['                5']);
 	});

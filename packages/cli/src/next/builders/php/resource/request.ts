@@ -1,15 +1,15 @@
 import { KernelError } from '@wpkernel/core/contracts';
 import {
-	createArg,
-	createAssign,
-	createExpressionStatement,
-	createIdentifier,
-	createMethodCall,
-	createScalarString,
-	createVariable,
+	buildArg,
+	buildAssign,
+	buildExpressionStatement,
+	buildIdentifier,
+	buildMethodCall,
+	buildScalarString,
+	buildVariable,
 	type PhpExpr,
 	type PhpStmtExpression,
-	createPrintable,
+	buildPrintable,
 	type PhpPrintable,
 } from '@wpkernel/php-json-ast';
 import { PHP_INDENT } from '@wpkernel/php-json-ast';
@@ -44,23 +44,23 @@ export function createRequestParamAssignment(
 	const target = normaliseVariableReference(targetVariable);
 	const indent = indentUnit.repeat(indentLevel);
 
-	const methodCall = createMethodCall(
-		createVariable(request.raw),
-		createIdentifier('get_param'),
-		[createArg(createScalarString(param))]
+	const methodCall = buildMethodCall(
+		buildVariable(request.raw),
+		buildIdentifier('get_param'),
+		[buildArg(buildScalarString(param))]
 	);
 
 	const expression: PhpExpr = cast
 		? buildScalarCast(cast, methodCall)
 		: methodCall;
 
-	const assignment = createAssign(createVariable(target.raw), expression);
-	const statement = createExpressionStatement(assignment);
+	const assignment = buildAssign(buildVariable(target.raw), expression);
+	const statement = buildExpressionStatement(assignment);
 
 	const castPrefix = cast ? getCastPrefix(cast) : '';
 	const line = `${indent}${target.display} = ${castPrefix}${request.display}->get_param( '${param}' );`;
 
-	return createPrintable(statement, [line]);
+	return buildPrintable(statement, [line]);
 }
 
 function getCastPrefix(cast: ScalarCastKind): string {

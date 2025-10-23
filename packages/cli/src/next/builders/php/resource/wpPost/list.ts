@@ -1,18 +1,18 @@
 import {
-	createArg,
-	createAssign,
-	createExpressionStatement,
-	createFuncCall,
-	createIdentifier,
-	createMethodCall,
-	createName,
-	createNode,
-	createVariable,
+	buildArg,
+	buildAssign,
+	buildExpressionStatement,
+	buildFuncCall,
+	buildIdentifier,
+	buildMethodCall,
+	buildName,
+	buildNode,
+	buildVariable,
 	type PhpStmt,
 	type PhpStmtContinue,
 	type PhpStmtForeach,
 	type PhpStmtIf,
-	createPrintable,
+	buildPrintable,
 	type PhpPrintable,
 } from '@wpkernel/php-json-ast';
 import { PHP_INDENT } from '@wpkernel/php-json-ast';
@@ -49,25 +49,25 @@ export function createListForeachPrintable(
 	const childIndent = PHP_INDENT.repeat(options.indentLevel + 1);
 	const nestedIndent = PHP_INDENT.repeat(options.indentLevel + 2);
 
-	const assignment = createPrintable(
-		createExpressionStatement(
-			createAssign(
-				createVariable('post'),
-				createFuncCall(createName(['get_post']), [
-					createArg(createVariable('post_id')),
+	const assignment = buildPrintable(
+		buildExpressionStatement(
+			buildAssign(
+				buildVariable('post'),
+				buildFuncCall(buildName(['get_post']), [
+					buildArg(buildVariable('post_id')),
 				])
 			)
 		),
 		[`${childIndent}$post = get_post( $post_id );`]
 	);
 
-	const continuePrintable = createPrintable(
-		createNode<PhpStmtContinue>('Stmt_Continue', { num: null }),
+	const continuePrintable = buildPrintable(
+		buildNode<PhpStmtContinue>('Stmt_Continue', { num: null }),
 		[`${nestedIndent}continue;`]
 	);
 
-	const guard = createPrintable(
-		createNode<PhpStmtIf>('Stmt_If', {
+	const guard = buildPrintable(
+		buildNode<PhpStmtIf>('Stmt_If', {
 			cond: buildBooleanNot(buildInstanceof('post', 'WP_Post')),
 			stmts: [continuePrintable.node],
 			elseifs: [],
@@ -80,16 +80,16 @@ export function createListForeachPrintable(
 		]
 	);
 
-	const pushPrintable = createPrintable(
-		createExpressionStatement(
-			createAssign(
+	const pushPrintable = buildPrintable(
+		buildExpressionStatement(
+			buildAssign(
 				buildArrayDimFetch('items', null),
-				createMethodCall(
-					createVariable('this'),
-					createIdentifier(`prepare${options.pascalName}Response`),
+				buildMethodCall(
+					buildVariable('this'),
+					buildIdentifier(`prepare${options.pascalName}Response`),
 					[
-						createArg(createVariable('post')),
-						createArg(createVariable('request')),
+						buildArg(buildVariable('post')),
+						buildArg(buildVariable('request')),
 					]
 				)
 			)
@@ -99,9 +99,9 @@ export function createListForeachPrintable(
 		]
 	);
 
-	const foreachNode = createNode<PhpStmtForeach>('Stmt_Foreach', {
+	const foreachNode = buildNode<PhpStmtForeach>('Stmt_Foreach', {
 		expr: buildPropertyFetch('query', 'posts'),
-		valueVar: createVariable('post_id'),
+		valueVar: buildVariable('post_id'),
 		keyVar: null,
 		byRef: false,
 		stmts: [assignment.node, guard.node, pushPrintable.node],
@@ -116,5 +116,5 @@ export function createListForeachPrintable(
 		`${indent}}`,
 	];
 
-	return createPrintable(foreachNode, lines);
+	return buildPrintable(foreachNode, lines);
 }

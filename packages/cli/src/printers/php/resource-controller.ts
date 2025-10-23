@@ -3,7 +3,7 @@ import { appendMethodTemplates } from './builder-helpers';
 import { appendGeneratedFileDocblock } from './docblock';
 import type { PrinterContext } from '../types';
 import type { IRResource, IRRoute } from '../../ir';
-import { createMethodTemplate, PHP_INDENT } from './template';
+import { assembleMethodTemplate, PHP_INDENT } from './template';
 import { toPascalCase, escapeSingleQuotes } from './utils';
 import { buildRestArgsPayload } from './rest-args';
 import { renderPhpReturn } from './value-renderer';
@@ -42,7 +42,7 @@ export function createResourceControllerArtifact(
 	);
 
 	const methods: string[][] = [
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature: 'public function get_resource_name(): string',
 			indentLevel: 1,
 			indentUnit: PHP_INDENT,
@@ -50,7 +50,7 @@ export function createResourceControllerArtifact(
 				body.line(`return '${escapeSingleQuotes(resource.name)}';`);
 			},
 		}),
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature: 'public function get_schema_key(): string',
 			indentLevel: 1,
 			indentUnit: PHP_INDENT,
@@ -60,7 +60,7 @@ export function createResourceControllerArtifact(
 				);
 			},
 		}),
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature: 'public function get_rest_args(): array',
 			indentLevel: 1,
 			indentUnit: PHP_INDENT,

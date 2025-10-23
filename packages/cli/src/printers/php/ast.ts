@@ -482,7 +482,7 @@ export type PhpNodeLike =
  * @param props
  * @param attributes
  */
-export function createNode<T extends PhpNode>(
+export function buildNode<T extends PhpNode>(
 	nodeType: T['nodeType'],
 	props: Omit<T, 'nodeType' | 'attributes'>,
 	attributes?: PhpAttributes
@@ -494,60 +494,56 @@ export function createNode<T extends PhpNode>(
 	} as T;
 }
 
-export function createIdentifier(
+export function buildIdentifier(
 	name: string,
 	attributes?: PhpAttributes
 ): PhpIdentifier {
-	return createNode<PhpIdentifier>('Identifier', { name }, attributes);
+	return buildNode<PhpIdentifier>('Identifier', { name }, attributes);
 }
 
-export function createName(
+export function buildName(
 	parts: string[],
 	attributes?: PhpAttributes
 ): PhpName {
-	return createNode<PhpName>('Name', { parts }, attributes);
+	return buildNode<PhpName>('Name', { parts }, attributes);
 }
 
-export function createFullyQualifiedName(
+export function buildFullyQualifiedName(
 	parts: string[],
 	attributes?: PhpAttributes
 ): PhpName {
-	return createNode<PhpName>('Name_FullyQualified', { parts }, attributes);
+	return buildNode<PhpName>('Name_FullyQualified', { parts }, attributes);
 }
 
-export function createNamespace(
+export function buildNamespace(
 	name: PhpName | null,
 	stmts: PhpStmt[],
 	attributes?: PhpAttributes
 ): PhpStmtNamespace {
-	return createNode<PhpStmtNamespace>(
+	return buildNode<PhpStmtNamespace>(
 		'Stmt_Namespace',
 		{ name, stmts },
 		attributes
 	);
 }
 
-export function createUse(
+export function buildUse(
 	type: number,
 	uses: PhpStmtUseUse[],
 	attributes?: PhpAttributes
 ): PhpStmtUse {
-	return createNode<PhpStmtUse>('Stmt_Use', { type, uses }, attributes);
+	return buildNode<PhpStmtUse>('Stmt_Use', { type, uses }, attributes);
 }
 
-export function createUseUse(
+export function buildUseUse(
 	name: PhpName,
 	alias: PhpIdentifier | null = null,
 	attributes?: PhpAttributes
 ): PhpStmtUseUse {
-	return createNode<PhpStmtUseUse>(
-		'Stmt_UseUse',
-		{ name, alias },
-		attributes
-	);
+	return buildNode<PhpStmtUseUse>('Stmt_UseUse', { name, alias }, attributes);
 }
 
-export function createClass(
+export function buildClass(
 	name: PhpIdentifier | null,
 	options: {
 		flags?: number;
@@ -558,7 +554,7 @@ export function createClass(
 	} = {},
 	attributes?: PhpAttributes
 ): PhpStmtClass {
-	return createNode<PhpStmtClass>(
+	return buildNode<PhpStmtClass>(
 		'Stmt_Class',
 		{
 			name,
@@ -572,7 +568,7 @@ export function createClass(
 	);
 }
 
-export function createClassMethod(
+export function buildClassMethod(
 	name: PhpIdentifier,
 	options: {
 		byRef?: boolean;
@@ -584,7 +580,7 @@ export function createClassMethod(
 	} = {},
 	attributes?: PhpAttributes
 ): PhpStmtClassMethod {
-	return createNode<PhpStmtClassMethod>(
+	return buildNode<PhpStmtClassMethod>(
 		'Stmt_ClassMethod',
 		{
 			name,
@@ -599,7 +595,7 @@ export function createClassMethod(
 	);
 }
 
-export function createParam(
+export function buildParam(
 	variable: PhpExpr,
 	options: {
 		type?: PhpType | null;
@@ -611,7 +607,7 @@ export function createParam(
 	} = {},
 	attributes?: PhpAttributes
 ): PhpParam {
-	return createNode<PhpParam>(
+	return buildNode<PhpParam>(
 		'Param',
 		{
 			type: options.type ?? null,
@@ -626,32 +622,32 @@ export function createParam(
 	);
 }
 
-export function createReturn(
+export function buildReturn(
 	expr: PhpExpr | null,
 	attributes?: PhpAttributes
 ): PhpStmtReturn {
-	return createNode<PhpStmtReturn>('Stmt_Return', { expr }, attributes);
+	return buildNode<PhpStmtReturn>('Stmt_Return', { expr }, attributes);
 }
 
-export function createExpressionStatement(
+export function buildExpressionStatement(
 	expr: PhpExpr,
 	attributes?: PhpAttributes
 ): PhpStmtExpression {
-	return createNode<PhpStmtExpression>(
+	return buildNode<PhpStmtExpression>(
 		'Stmt_Expression',
 		{ expr },
 		attributes
 	);
 }
 
-export function createArray(
+export function buildArray(
 	items: PhpExprArrayItem[],
 	attributes?: PhpAttributes
 ): PhpExprArray {
-	return createNode<PhpExprArray>('Expr_Array', { items }, attributes);
+	return buildNode<PhpExprArray>('Expr_Array', { items }, attributes);
 }
 
-export function createArrayItem(
+export function buildArrayItem(
 	value: PhpExpr,
 	options: {
 		key?: PhpExpr | null;
@@ -660,7 +656,7 @@ export function createArrayItem(
 	} = {},
 	attributes?: PhpAttributes
 ): PhpExprArrayItem {
-	return createNode<PhpExprArrayItem>(
+	return buildNode<PhpExprArrayItem>(
 		'Expr_ArrayItem',
 		{
 			key: options.key ?? null,
@@ -672,116 +668,108 @@ export function createArrayItem(
 	);
 }
 
-export function createScalarString(
+export function buildScalarString(
 	value: string,
 	attributes?: PhpAttributes
 ): PhpScalarString {
-	return createNode<PhpScalarString>('Scalar_String', { value }, attributes);
+	return buildNode<PhpScalarString>('Scalar_String', { value }, attributes);
 }
 
-export function createScalarInt(
+export function buildScalarInt(
 	value: number,
 	attributes?: PhpAttributes
 ): PhpScalarLNumber {
-	return createNode<PhpScalarLNumber>(
-		'Scalar_LNumber',
-		{ value },
-		attributes
-	);
+	return buildNode<PhpScalarLNumber>('Scalar_LNumber', { value }, attributes);
 }
 
-export function createScalarFloat(
+export function buildScalarFloat(
 	value: number,
 	attributes?: PhpAttributes
 ): PhpScalarDNumber {
-	return createNode<PhpScalarDNumber>(
-		'Scalar_DNumber',
-		{ value },
-		attributes
-	);
+	return buildNode<PhpScalarDNumber>('Scalar_DNumber', { value }, attributes);
 }
 
-export function createScalarBool(
+export function buildScalarBool(
 	value: boolean,
 	attributes?: PhpAttributes
 ): PhpExprConstFetch {
-	return createNode<PhpExprConstFetch>(
+	return buildNode<PhpExprConstFetch>(
 		'Expr_ConstFetch',
 		{
-			name: createName(value ? ['true'] : ['false']),
+			name: buildName(value ? ['true'] : ['false']),
 		},
 		attributes
 	);
 }
 
-export function createNull(attributes?: PhpAttributes): PhpExprConstFetch {
-	return createNode<PhpExprConstFetch>(
+export function buildNull(attributes?: PhpAttributes): PhpExprConstFetch {
+	return buildNode<PhpExprConstFetch>(
 		'Expr_ConstFetch',
 		{
-			name: createName(['null']),
+			name: buildName(['null']),
 		},
 		attributes
 	);
 }
 
-export function createVariable(
+export function buildVariable(
 	name: string | PhpExpr,
 	attributes?: PhpAttributes
 ): PhpExprVariable {
-	return createNode<PhpExprVariable>('Expr_Variable', { name }, attributes);
+	return buildNode<PhpExprVariable>('Expr_Variable', { name }, attributes);
 }
 
-export function createAssign(
+export function buildAssign(
 	variable: PhpExpr,
 	expr: PhpExpr,
 	attributes?: PhpAttributes
 ): PhpExprAssign {
-	return createNode<PhpExprAssign>(
+	return buildNode<PhpExprAssign>(
 		'Expr_Assign',
 		{ var: variable, expr },
 		attributes
 	);
 }
 
-export function createMethodCall(
+export function buildMethodCall(
 	variable: PhpExpr,
 	name: PhpIdentifier | PhpExpr,
 	args: PhpArg[] = [],
 	attributes?: PhpAttributes
 ): PhpExprMethodCall {
-	return createNode<PhpExprMethodCall>(
+	return buildNode<PhpExprMethodCall>(
 		'Expr_MethodCall',
 		{ var: variable, name, args },
 		attributes
 	);
 }
 
-export function createStaticCall(
+export function buildStaticCall(
 	className: PhpName | PhpExpr,
 	name: PhpIdentifier | PhpExpr,
 	args: PhpArg[] = [],
 	attributes?: PhpAttributes
 ): PhpExprStaticCall {
-	return createNode<PhpExprStaticCall>(
+	return buildNode<PhpExprStaticCall>(
 		'Expr_StaticCall',
 		{ class: className, name, args },
 		attributes
 	);
 }
 
-export function createFuncCall(
+export function buildFuncCall(
 	name: PhpName | PhpExpr,
 	args: PhpArg[] = [],
 	attributes?: PhpAttributes
 ): PhpExprFuncCall {
-	return createNode<PhpExprFuncCall>(
+	return buildNode<PhpExprFuncCall>(
 		'Expr_FuncCall',
 		{ name, args },
 		attributes
 	);
 }
 
-export function createArg(
+export function buildArg(
 	value: PhpExpr,
 	options: {
 		byRef?: boolean;
@@ -790,7 +778,7 @@ export function createArg(
 	} = {},
 	attributes?: PhpAttributes
 ): PhpArg {
-	return createNode<PhpArg>(
+	return buildNode<PhpArg>(
 		'Arg',
 		{
 			value,

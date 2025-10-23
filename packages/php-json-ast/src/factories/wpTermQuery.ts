@@ -1,19 +1,19 @@
 import { KernelError } from '../KernelError';
 import {
-	createArg,
-	createAssign,
-	createExpressionStatement,
-	createName,
-	createNode,
-	createVariable,
+	buildArg,
+	buildAssign,
+	buildExpressionStatement,
+	buildName,
+	buildNode,
+	buildVariable,
 	type PhpExprNew,
 	type PhpStmtExpression,
 } from '../nodes';
-import { createPrintable, type PhpPrintable } from '../printables';
+import { buildPrintable, type PhpPrintable } from '../printables';
 
 const DEFAULT_INDENT_UNIT = '        ';
 
-export interface CreateWpTermQueryInstantiationOptions {
+export interface BuildWpTermQueryInstantiationOptions {
 	readonly target: string;
 	readonly argsVariable?: string;
 	readonly indentLevel?: number;
@@ -48,8 +48,8 @@ function normaliseVariableName(name: string): NormalisedVariableName {
 	return { raw: trimmed, display: `$${trimmed}` };
 }
 
-export function createWpTermQueryInstantiation(
-	options: CreateWpTermQueryInstantiationOptions
+export function buildWpTermQueryInstantiation(
+	options: BuildWpTermQueryInstantiationOptions
 ): PhpPrintable<PhpStmtExpression> {
 	const indentUnit = options.indentUnit ?? DEFAULT_INDENT_UNIT;
 	const indentLevel = options.indentLevel ?? 0;
@@ -60,18 +60,18 @@ export function createWpTermQueryInstantiation(
 		? normaliseVariableName(options.argsVariable)
 		: undefined;
 
-	const instantiation = createNode<PhpExprNew>('Expr_New', {
-		class: createName(['WP_Term_Query']),
-		args: args ? [createArg(createVariable(args.raw))] : [],
+	const instantiation = buildNode<PhpExprNew>('Expr_New', {
+		class: buildName(['WP_Term_Query']),
+		args: args ? [buildArg(buildVariable(args.raw))] : [],
 	});
 
-	const expression = createExpressionStatement(
-		createAssign(createVariable(target.raw), instantiation)
+	const expression = buildExpressionStatement(
+		buildAssign(buildVariable(target.raw), instantiation)
 	);
 
 	const line = args
 		? `${indent}${target.display} = new WP_Term_Query( ${args.display} );`
 		: `${indent}${target.display} = new WP_Term_Query();`;
 
-	return createPrintable(expression, [line]);
+	return buildPrintable(expression, [line]);
 }

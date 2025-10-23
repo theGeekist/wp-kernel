@@ -10,19 +10,19 @@ import type {
 import {
 	appendClassTemplate,
 	appendGeneratedFileDocblock,
-	createArg,
-	createClassTemplate,
-	createComment,
-	createIdentifier,
-	createMethodTemplate,
-	createName,
-	createNode,
+	buildArg,
+	assembleClassTemplate,
+	buildComment,
+	buildIdentifier,
+	assembleMethodTemplate,
+	buildName,
+	buildNode,
 	createPhpFileBuilder,
-	createPhpReturn,
-	createPrintable,
-	createReturn,
-	createScalarString,
-	createStmtNop,
+	buildPhpReturnPrintable,
+	buildPrintable,
+	buildReturn,
+	buildScalarString,
+	buildStmtNop,
 	PHP_CLASS_MODIFIER_FINAL,
 	PHP_INDENT,
 	PHP_METHOD_MODIFIER_PUBLIC,
@@ -83,33 +83,33 @@ function buildPolicyHelper(builder: PhpAstBuilderAdapter, ir: IRv1): void {
 	const fallback = sanitizeJson(ir.policyMap.fallback);
 
 	const methods = [
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature: 'public static function policy_map(): array',
 			indentLevel: 1,
 			indentUnit: PHP_INDENT,
 			body: (body) => {
-				const printable = createPhpReturn(policyMap, 2);
+				const printable = buildPhpReturnPrintable(policyMap, 2);
 				body.statement(printable);
 			},
 			ast: {
 				flags: PHP_METHOD_MODIFIER_PUBLIC + PHP_METHOD_MODIFIER_STATIC,
-				returnType: createIdentifier('array'),
+				returnType: buildIdentifier('array'),
 			},
 		}),
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature: 'public static function fallback(): array',
 			indentLevel: 1,
 			indentUnit: PHP_INDENT,
 			body: (body) => {
-				const printable = createPhpReturn(fallback, 2);
+				const printable = buildPhpReturnPrintable(fallback, 2);
 				body.statement(printable);
 			},
 			ast: {
 				flags: PHP_METHOD_MODIFIER_PUBLIC + PHP_METHOD_MODIFIER_STATIC,
-				returnType: createIdentifier('array'),
+				returnType: buildIdentifier('array'),
 			},
 		}),
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature:
 				'public static function callback( string $policy_key ): callable',
 			indentLevel: 1,
@@ -119,15 +119,15 @@ function buildPolicyHelper(builder: PhpAstBuilderAdapter, ir: IRv1): void {
 				'@todo Return a closure once enforcement is implemented.',
 			],
 			body: (body) => {
-				const printable = createPhpReturn('Policy::enforce', 2);
+				const printable = buildPhpReturnPrintable('Policy::enforce', 2);
 				body.statement(printable);
 			},
 			ast: {
 				flags: PHP_METHOD_MODIFIER_PUBLIC + PHP_METHOD_MODIFIER_STATIC,
-				returnType: createIdentifier('callable'),
+				returnType: buildIdentifier('callable'),
 			},
 		}),
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature:
 				'public static function enforce( string $policy_key, WP_REST_Request $request )',
 			indentLevel: 1,
@@ -137,32 +137,32 @@ function buildPolicyHelper(builder: PhpAstBuilderAdapter, ir: IRv1): void {
 				'@todo Wire kernel policy enforcement.',
 			],
 			body: (body) => {
-				const todo = createStmtNop({
+				const todo = buildStmtNop({
 					comments: [
-						createComment(
+						buildComment(
 							'// TODO: Implement policy enforcement logic.'
 						),
 					],
 				});
 				body.statement(
-					createPrintable(todo, [
+					buildPrintable(todo, [
 						`${PHP_INDENT.repeat(2)}// TODO: Implement policy enforcement logic.`,
 					])
 				);
 
-				const errorExpr = createNode<PhpExprNew>('Expr_New', {
-					class: createName(['WP_Error']),
+				const errorExpr = buildNode<PhpExprNew>('Expr_New', {
+					class: buildName(['WP_Error']),
 					args: [
-						createArg(createScalarString('wpk_policy_stub')),
-						createArg(
-							createScalarString(
+						buildArg(buildScalarString('wpk_policy_stub')),
+						buildArg(
+							buildScalarString(
 								'Policy enforcement is not yet implemented.'
 							)
 						),
 					],
 				});
 				body.statement(
-					createPrintable(createReturn(errorExpr), [
+					buildPrintable(buildReturn(errorExpr), [
 						`${PHP_INDENT.repeat(2)}return new WP_Error( 'wpk_policy_stub', 'Policy enforcement is not yet implemented.' );`,
 					])
 				);
@@ -174,7 +174,7 @@ function buildPolicyHelper(builder: PhpAstBuilderAdapter, ir: IRv1): void {
 		}),
 	];
 
-	const classTemplate = createClassTemplate({
+	const classTemplate = assembleClassTemplate({
 		name: 'Policy',
 		flags: PHP_CLASS_MODIFIER_FINAL,
 		methods,

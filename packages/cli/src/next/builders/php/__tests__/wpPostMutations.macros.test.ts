@@ -11,8 +11,8 @@ import {
 	resetPhpAstChannel,
 } from '@wpkernel/php-json-ast';
 import {
-	createClassTemplate,
-	createMethodTemplate,
+	assembleClassTemplate,
+	assembleMethodTemplate,
 	PHP_INDENT,
 	type PhpMethodBodyBuilder,
 } from '@wpkernel/php-json-ast';
@@ -142,7 +142,7 @@ async function queueMacroProgram(
 			tags,
 		},
 		async build(builder) {
-			const method = createMethodTemplate({
+			const method = assembleMethodTemplate({
 				signature:
 					'public function invoke( WP_REST_Request $request ): void',
 				indentLevel: 1,
@@ -151,7 +151,7 @@ async function queueMacroProgram(
 					build(body);
 				},
 			});
-			const classTemplate = createClassTemplate({
+			const classTemplate = assembleClassTemplate({
 				name: 'MacroHarness',
 				methods: [method],
 			});

@@ -1,5 +1,5 @@
 import { DEFAULT_DOC_HEADER } from './constants';
-import { createDocComment, type PhpDocComment } from './nodes';
+import { buildDocComment, type PhpDocComment } from './nodes';
 import type { PhpAstBuilderAdapter } from './programBuilder';
 
 export function appendGeneratedFileDocblock(
@@ -15,9 +15,9 @@ export function appendGeneratedFileDocblock(
 	}
 }
 
-export function createGeneratedFileDocComment(
+export function buildGeneratedFileDocComment(
 	extraLines: Iterable<string>
 ): PhpDocComment {
 	const lines = [...DEFAULT_DOC_HEADER, ...extraLines];
-	return createDocComment(lines);
+	return buildDocComment(lines);
 }

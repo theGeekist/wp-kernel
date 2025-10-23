@@ -1,12 +1,12 @@
 import {
-	createArg,
-	createAssign,
-	createExpressionStatement,
-	createIdentifier,
-	createMethodCall,
-	createReturn,
-	createVariable,
-	createPrintable,
+	buildArg,
+	buildAssign,
+	buildExpressionStatement,
+	buildIdentifier,
+	buildMethodCall,
+	buildReturn,
+	buildVariable,
+	buildPrintable,
 } from '@wpkernel/php-json-ast';
 import {
 	PHP_INDENT,
@@ -87,14 +87,14 @@ export function buildGetRouteBody(options: BuildGetRouteBodyOptions): boolean {
 		options.body.blank();
 	}
 
-	const resolvePrintable = createPrintable(
-		createExpressionStatement(
-			createAssign(
-				createVariable('post'),
-				createMethodCall(
-					createVariable('this'),
-					createIdentifier(`resolve${options.pascalName}Post`),
-					[createArg(createVariable(param))]
+	const resolvePrintable = buildPrintable(
+		buildExpressionStatement(
+			buildAssign(
+				buildVariable('post'),
+				buildMethodCall(
+					buildVariable('this'),
+					buildIdentifier(`resolve${options.pascalName}Post`),
+					[buildArg(buildVariable(param))]
 				)
 			)
 		),
@@ -120,14 +120,14 @@ export function buildGetRouteBody(options: BuildGetRouteBodyOptions): boolean {
 	options.body.statement(notFoundIf);
 	options.body.blank();
 
-	const returnPrintable = createPrintable(
-		createReturn(
-			createMethodCall(
-				createVariable('this'),
-				createIdentifier(`prepare${options.pascalName}Response`),
+	const returnPrintable = buildPrintable(
+		buildReturn(
+			buildMethodCall(
+				buildVariable('this'),
+				buildIdentifier(`prepare${options.pascalName}Response`),
 				[
-					createArg(createVariable('post')),
-					createArg(createVariable('request')),
+					buildArg(buildVariable('post')),
+					buildArg(buildVariable('request')),
 				]
 			)
 		),
