@@ -1,7 +1,20 @@
-import { createHelper, type Helper } from '@wpkernel/core/pipeline';
+import {
+	createHelper,
+	type CreateHelperOptions,
+	type Helper,
+} from '@wpkernel/core/pipeline';
+export { createHelper } from '@wpkernel/core/pipeline';
 import type { Reporter } from '@wpkernel/core/reporter';
 
-export type { HelperKind, HelperMode } from '@wpkernel/core/pipeline';
+export type {
+	CreateHelperOptions,
+	Helper,
+	HelperApplyFn,
+	HelperApplyOptions,
+	HelperDescriptor,
+	HelperKind,
+	HelperMode,
+} from '@wpkernel/core/pipeline';
 export type PipelinePhase = 'init' | 'generate' | 'apply' | `custom:${string}`;
 
 export interface Workspace {
@@ -32,11 +45,11 @@ export interface BuilderInput {
 	readonly ir: unknown | null;
 }
 
-export type BuilderHelper = Helper<
-	PipelineContext,
-	BuilderInput,
-	BuilderOutput
->;
+export type BuilderHelper<
+	TContext extends PipelineContext = PipelineContext,
+	TInput extends BuilderInput = BuilderInput,
+	TOutput extends BuilderOutput = BuilderOutput,
+> = Helper<TContext, TInput, TOutput>;
 type BuilderApplyOptions = Parameters<BuilderHelper['apply']>[0];
 type BuilderNext = Parameters<BuilderHelper['apply']>[1];
 import {
@@ -125,10 +138,6 @@ export function createPhpProgramBuilder<
 		namespace,
 		metadata: initialMetadata,
 		build,
-		dependsOn,
-		mode,
-		priority,
-		origin,
 	} = options;
 
 	return createHelper<TContext, TInput, TOutput>({

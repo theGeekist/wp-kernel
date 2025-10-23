@@ -1,8 +1,13 @@
 import { KernelError } from '@wpkernel/core/error';
 import { createPhpDriverInstaller } from '../installer/createPhpDriverInstaller';
+import type { WorkspaceLike } from '../types';
 
 type Logger = ReturnType<typeof createLogger>;
-type Workspace = ReturnType<typeof baseWorkspace>;
+
+type Workspace = WorkspaceLike & {
+	resolve: jest.Mock<string, [string]>;
+	exists: jest.Mock<Promise<boolean>, [string]>;
+};
 
 const execFileMock = jest.fn();
 
@@ -26,16 +31,16 @@ function createLogger() {
 	};
 }
 
-function baseWorkspace() {
+function baseWorkspace(): Workspace {
 	return {
 		root: '/workspace',
 		resolve: jest.fn((file: string) => `/workspace/${file}`),
-		exists: jest.fn(async () => true),
-	};
+		exists: jest.fn(async (_target: string) => true),
+	} satisfies Workspace;
 }
 
 function createWorkspace(overrides: Partial<Workspace> = {}): Workspace {
-	return { ...baseWorkspace(), ...overrides } as Workspace;
+	return { ...baseWorkspace(), ...overrides };
 }
 
 describe('createPhpDriverInstaller', () => {

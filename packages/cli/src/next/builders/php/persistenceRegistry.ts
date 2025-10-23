@@ -2,7 +2,10 @@ import { createHelper } from '@wpkernel/core/pipeline';
 import type {
 	BuilderApplyOptions,
 	BuilderHelper,
+	BuilderInput,
 	BuilderNext,
+	BuilderOutput,
+	PipelineContext,
 } from '../../runtime/types';
 import {
 	appendClassTemplate,

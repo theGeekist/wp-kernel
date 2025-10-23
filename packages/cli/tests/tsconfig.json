@@ -3,10 +3,15 @@
 	"extends": "../../../tsconfig.base.json",
 	"compilerOptions": {
 		"baseUrl": "../../../",
-		"rootDir": "../../../",
+		"rootDir": ".",
 		"outDir": "../dist-test-support",
 		"composite": false,
+		"noEmit": true,
 		"types": ["jest", "node"]
 	},
-	"include": ["./**/*.ts"]
+	"include": ["./**/*.ts"],
+	"references": [
+		{ "path": "../tsconfig.json" },
+		{ "path": "../../test-utils/tsconfig.json" }
+	]
 }

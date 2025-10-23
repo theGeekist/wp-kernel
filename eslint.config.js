@@ -221,6 +221,11 @@ export default [
 			'**/tests/**',
 			'**/testing/**',
 		],
+		languageOptions: {
+			globals: {
+				...globals.jest,
+			},
+		},
 		rules: {
 			complexity: 'off',
 			'max-depth': 'off',
