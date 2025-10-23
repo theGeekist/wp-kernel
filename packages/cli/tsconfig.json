@@ -24,6 +24,8 @@
 				"./packages/php-json-ast/src/*",
 				"./packages/php-json-ast/dist/*"
 			],
+			"@wpkernel/php-driver": ["./packages/php-driver/src/index.ts"],
+			"@wpkernel/php-driver/*": ["./packages/php-driver/src/*"],
 			"@test-utils/*": ["./tests/test-utils/*"]
 		}
 	},
@@ -36,5 +38,9 @@
 		"**/*.test-support.ts",
 		"**/*.test-support.tsx"
 	],
-	"references": [{ "path": "../core" }, { "path": "../php-json-ast" }]
+	"references": [
+		{ "path": "../core" },
+		{ "path": "../php-json-ast" },
+		{ "path": "../php-driver" }
+	]
 }

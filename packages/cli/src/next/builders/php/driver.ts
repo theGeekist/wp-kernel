@@ -1,52 +1,48 @@
-import { promisify } from 'node:util';
-import { execFile } from 'node:child_process';
-import { KernelError } from '@wpkernel/core/error';
+import {
+	createPhpDriverInstaller as createSharedPhpDriverInstaller,
+	type PhpDriverInstallLogger,
+} from '@wpkernel/php-driver';
 import { createHelper } from '../../helper';
 import type { BuilderHelper } from '../../runtime/types';
-
-const REQUIRED_PACKAGE = 'nikic/php-parser';
-const VENDOR_AUTOLOAD = 'vendor/autoload.php';
-
-const execFileAsync = promisify(execFile);
 
 export function createPhpDriverInstaller(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.php.driver',
 		kind: 'builder',
 		async apply({ context, reporter }) {
-			const { workspace } = context;
-			const vendorAutoloadPath = workspace.resolve(VENDOR_AUTOLOAD);
-			const hasVendorAutoload =
-				await workspace.exists(vendorAutoloadPath);
+			const installer = createSharedPhpDriverInstaller();
 
-			if (!hasVendorAutoload) {
-				reporter.info(
-					`Installing ${REQUIRED_PACKAGE} via composer (composer install).`
-				);
-				try {
-					await execFileAsync('composer', ['install'], {
-						cwd: workspace.root,
-					});
-					reporter.info(
-						`${REQUIRED_PACKAGE} installed successfully.`
-					);
-				} catch (error) {
-					reporter.error(
-						`Composer install failed while fetching ${REQUIRED_PACKAGE}.`,
-						{ error }
-					);
-					throw new KernelError('DeveloperError', {
-						message: 'Composer install failed.',
-						data:
-							error instanceof Error
-								? { message: error.message }
-								: undefined,
-					});
-				}
-				return;
-			}
+			const logger: PhpDriverInstallLogger = {
+				info(message: string, details?: unknown) {
+					if (typeof details === 'undefined') {
+						reporter.info(message);
+						return;
+					}
 
-			reporter.debug('PHP parser dependency detected via composer.');
+					reporter.info(message, details);
+				},
+				debug(message: string, details?: unknown) {
+					if (typeof details === 'undefined') {
+						reporter.debug(message);
+						return;
+					}
+
+					reporter.debug(message, details);
+				},
+				error(message: string, details?: unknown) {
+					if (typeof details === 'undefined') {
+						reporter.error(message);
+						return;
+					}
+
+					reporter.error(message, details);
+				},
+			};
+
+			await installer.install({
+				workspace: context.workspace,
+				logger,
+			});
 		},
 	});
 }

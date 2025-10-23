@@ -23,8 +23,7 @@
 	],
 	"references": [
 		{ "path": "./tsconfig.json" },
-		{ "path": "../core" },
-		{ "path": "../test-utils" },
-		{ "path": "../php-driver" }
+		{ "path": "../core/tsconfig.json" },
+		{ "path": "../test-utils/tsconfig.json" }
 	]
 }

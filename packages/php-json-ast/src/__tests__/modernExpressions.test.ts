@@ -2,6 +2,10 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import {
+	resolvePrettyPrintScriptPath,
+	type WorkspaceLike,
+} from '@wpkernel/php-driver';
+import {
 	createArg,
 	createArrowFunction,
 	createAssign,
@@ -17,15 +21,12 @@ import {
 	createVariable,
 	type PhpProgram,
 } from '../nodes';
-// Local interface to avoid cross-package dependency
-interface Workspace {
-	root: string;
+type Workspace = WorkspaceLike & {
 	cwd: () => string;
 	read: jest.Mock;
 	readText: jest.Mock;
 	write: jest.Mock;
 	writeJson: jest.Mock;
-	exists: jest.Mock;
 	rm: jest.Mock;
 	glob: jest.Mock;
 	threeWayMerge: jest.Mock;
@@ -34,8 +35,7 @@ interface Workspace {
 	rollback: jest.Mock;
 	dryRun: jest.Mock;
 	tmpDir: jest.Mock;
-	resolve: (...parts: string[]) => string;
-}
+};
 
 function resolveWorkspaceRoot(): string {
 	// Use current package root for php-json-ast standalone tests
@@ -166,11 +166,7 @@ describe('modern PHP expressions', () => {
 			ast: program,
 		});
 
-		const scriptPath = path.resolve(
-			workspace.root,
-			'php',
-			'pretty-print.php'
-		);
+		const scriptPath = resolvePrettyPrintScriptPath();
 
 		const result = spawnSync(
 			phpBinary,
