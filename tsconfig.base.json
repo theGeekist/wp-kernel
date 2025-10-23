@@ -25,6 +25,10 @@
 			"@wpkernel/e2e-utils/*": ["./packages/e2e-utils/src/*"],
 			"@wpkernel/test-utils": ["./packages/test-utils/src/index.ts"],
 			"@wpkernel/test-utils/*": ["./packages/test-utils/src/*"],
+			"@wpkernel/php-json-ast": ["./packages/php-json-ast/src/index.ts"],
+			"@wpkernel/php-json-ast/*": ["./packages/php-json-ast/src/*"],
+			"@wpkernel/php-driver": ["./packages/php-driver/src/index.ts"],
+			"@wpkernel/php-driver/*": ["./packages/php-driver/src/*"],
 			"@test-utils/*": ["./tests/test-utils/*"]
 		},
 

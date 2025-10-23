@@ -10,6 +10,7 @@ Focus on scaffolding commands, code generation, and DX utilities. Keep the CLI a
 
 Run `pnpm --filter @wpkernel/cli test:coverage` before committing. If commands generate files, add fixture-based tests to ensure output stays in sync with framework conventions.
 Run `pnpm --filter @wpkernel/cli typecheck:tests` after touching `.test-support.ts` helpers; they are excluded from the production build but must pass the tests TypeScript project.
+Update snapshots with `pnpm --filter @wpkernel/cli test -u`.
 Shared lint helper: use `tests/rule-tester.test-support.ts` to create configured ESLint `RuleTester` instances and canonical kernel config fixtures.
 Command suites should import command contexts, reporter mocks, memory streams, and async flush helpers from `@wpkernel/test-utils/cli`, and use the `@wpkernel/test-utils/integration` workspace helpers (re-exported via `tests/workspace.test-support.ts`) instead of reimplementing streams, flush helpers, or temp directory setup.
 
@@ -23,3 +24,7 @@ Refer to `MVP-PHASES.md` in this package for the current roadmap, DoD, and testi
 When you close out any phase from `docs/next-php-ast-parity-phases.md`, update the corresponding completion summary in that document within the same change and explicitly reaffirm that no legacy string-based PHP generation was introduced while delivering the phase.
 
 Always import CLI exit codes and namespace constants from `@wpkernel/core/contracts` to ensure parity with the framework.
+
+### Cross-package dependencies
+
+When adjusting CLI dependencies (tsconfig paths, package references, builder wiring), follow `docs/guide/adding-workspace-dependencies.md` to keep shared workspace configuration aligned.

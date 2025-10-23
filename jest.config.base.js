@@ -40,6 +40,11 @@ export default {
 			'<rootDir>/node_modules/@eslint/eslintrc/universal.js',
 		'^@eslint/eslintrc$':
 			'<rootDir>/node_modules/@eslint/eslintrc/universal.js',
+		'^@wpkernel/php-json-ast$': '<rootDir>/packages/php-json-ast/src',
+		'^@wpkernel/php-json-ast/(.*)$':
+			'<rootDir>/packages/php-json-ast/src/$1',
+		'^@wpkernel/php-driver$': '<rootDir>/packages/php-driver/src',
+		'^@wpkernel/php-driver/(.*)$': '<rootDir>/packages/php-driver/src/$1',
 	},
 
 	// Test file patterns

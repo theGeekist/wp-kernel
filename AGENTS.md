@@ -122,3 +122,7 @@ pnpm playground:offline:stop    # Stops server in background (zero network)
 - Skip cache invalidation after writes.
 - Ignore TypeScript errors or coverage regressions.
 - git commit --no-verify
+
+## Cross-package dependencies
+
+Before changing workspace dependency wiring (TypeScript paths, project references, package manifests), consult `docs/guide/adding-workspace-dependencies.md` and follow its checklist so sibling packages stay in sync.

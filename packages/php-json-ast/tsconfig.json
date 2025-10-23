@@ -1,0 +1,24 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig",
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"rootDir": "./src",
+		"outDir": "./dist",
+		"composite": true,
+		"moduleResolution": "node"
+	},
+	"include": ["src/**/*", "../../types/**/*.d.ts"],
+	"exclude": [
+		"node_modules",
+		"dist",
+		"**/*.test.ts",
+		"**/*.test.tsx",
+		"**/*.test-support.ts",
+		"**/*.test-support.tsx"
+	],
+	"references": [
+		{ "path": "../core/tsconfig.json" },
+		{ "path": "../test-utils/tsconfig.json" },
+		{ "path": "../php-driver/tsconfig.json" }
+	]
+}

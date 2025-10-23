@@ -106,8 +106,8 @@ async function runExtensions(
 	const adapterContext: AdapterContext = {
 		config: options.options.config,
 		reporter: adapterReporter,
-		namespace: options.ir.meta.sanitizedNamespace,
-		ir: options.ir,
+		namespace: options.artifact.meta.sanitizedNamespace,
+		ir: options.artifact,
 	};
 
 	const resolved = resolveAdapterExtensions(factories, adapterContext);
@@ -138,7 +138,7 @@ async function runExtensions(
 	const runResult = await runAdapterExtensions({
 		extensions: resolved,
 		adapterContext,
-		ir: options.ir,
+		ir: options.artifact,
 		outputDir,
 		configDirectory,
 		ensureDirectory: async (directoryPath) => {
@@ -161,7 +161,7 @@ async function runExtensions(
 	});
 
 	return {
-		ir: runResult.ir,
+		artifact: runResult.ir,
 		commit: runResult.commit,
 		rollback: runResult.rollback,
 	};

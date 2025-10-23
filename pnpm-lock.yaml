@@ -270,6 +270,12 @@ importers:
       '@wpkernel/core':
         specifier: workspace:*
         version: link:../core
+      '@wpkernel/php-driver':
+        specifier: workspace:*
+        version: link:../php-driver
+      '@wpkernel/php-json-ast':
+        specifier: workspace:*
+        version: link:../php-json-ast
       '@wpkernel/test-utils':
         specifier: workspace:*
         version: link:../test-utils
@@ -340,6 +346,27 @@ importers:
       '@wpkernel/core':
         specifier: workspace:*
         version: link:../core
+      '@wpkernel/test-utils':
+        specifier: workspace:*
+        version: link:../test-utils
+
+  packages/php-driver:
+    dependencies:
+      '@wpkernel/core':
+        specifier: workspace:*
+        version: link:../core
+      '@wpkernel/test-utils':
+        specifier: workspace:*
+        version: link:../test-utils
+
+  packages/php-json-ast:
+    dependencies:
+      '@wpkernel/core':
+        specifier: workspace:*
+        version: link:../core
+      '@wpkernel/php-driver':
+        specifier: workspace:*
+        version: link:../php-driver
       '@wpkernel/test-utils':
         specifier: workspace:*
         version: link:../test-utils

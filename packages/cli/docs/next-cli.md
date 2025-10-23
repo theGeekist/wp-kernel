@@ -11,7 +11,7 @@ Audience: maintainers and contributors migrating functionality from the legacy C
 ### Runtime & Helpers
 
 - `next/runtime/createPipeline.ts` orchestrates IR fragments/builders with dependency-aware execution.
-- `next/helper.ts` standardises the `create*` helper contract (metadata + shared signature) and powers the extensibility story.
+- `@wpkernel/core/pipeline` standardises the `create*` helper contract (metadata + shared signature) and powers the extensibility story across packages.
 
 ### Workspace & Filesystem
 
@@ -56,7 +56,6 @@ Keep planning focused on what is still missing.
 
 ```
 packages/cli/src/next/
-  helper.ts               # createHelper factory
   runtime/                # createPipeline, execution graph, diagnostics
   ir/                     # createIr + fragments (meta, schemas, resources, policies, blocks)
   builders/               # createPhpBuilder, createTsBuilder, createBundler, createPatcher

@@ -44,6 +44,11 @@ export default {
 		'^@wpkernel/e2e-utils/(.*)$': '<rootDir>/packages/e2e-utils/src/$1',
 		'^@wpkernel/test-utils$': '<rootDir>/packages/test-utils/src',
 		'^@wpkernel/test-utils/(.*)$': '<rootDir>/packages/test-utils/src/$1',
+		'^@wpkernel/php-json-ast$': '<rootDir>/packages/php-json-ast/src',
+		'^@wpkernel/php-json-ast/(.*)$':
+			'<rootDir>/packages/php-json-ast/src/$1',
+		'^@wpkernel/php-driver$': '<rootDir>/packages/php-driver/src',
+		'^@wpkernel/php-driver/(.*)$': '<rootDir>/packages/php-driver/src/$1',
 	},
 
 	// Setup files
