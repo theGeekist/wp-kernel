@@ -13,5 +13,5 @@ export {
 export type { PhpProgramAction, PhpBuilderChannel } from './printers';
 export {
 	createPhpDriverInstaller,
-	createPhpPrettyPrinter,
+	buildPhpPrettyPrinter,
 } from '@wpkernel/php-driver';
