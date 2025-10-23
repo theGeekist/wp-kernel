@@ -89,6 +89,7 @@
 	"peerDependencies": {
 		"@prettier/plugin-php": ">=0.24.0",
 		"@wpkernel/core": "workspace:*",
+		"@wpkernel/php-driver": "workspace:*",
 		"@wpkernel/php-json-ast": "workspace:*",
 		"@wpkernel/test-utils": "workspace:*",
 		"json-schema-to-typescript": ">=15.0.4",
