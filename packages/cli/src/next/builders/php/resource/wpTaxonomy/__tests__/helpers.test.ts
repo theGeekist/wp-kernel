@@ -1,4 +1,5 @@
 import { createWpTaxonomyHelperMethods } from '../helpers';
+import type { PhpStmt, PhpExprArray } from '@wpkernel/php-json-ast';
 import type { IRResource } from '../../../../../../ir/types';
 import type { ResolvedIdentity } from '../../../identity';
 
@@ -75,11 +76,7 @@ describe('createWpTaxonomyHelperMethods', () => {
 			nodeType: 'Name',
 			parts: ['WP_Term'],
 		});
-		expect(prepareHelper).toEqual(
-			expect.arrayContaining([
-				expect.stringContaining("'hierarchical' => true"),
-			])
-		);
+		expectHierarchicalFlag(prepareHelper, true);
 	});
 
 	it('exposes the identity candidate parameter when validating taxonomy identities', () => {
@@ -94,21 +91,73 @@ describe('createWpTaxonomyHelperMethods', () => {
 			nodeType: 'Expr_Variable',
 			name: 'value',
 		});
-		expect(validateHelper).toEqual(
-			expect.arrayContaining([
-				expect.stringContaining('return trim( (string) $value );'),
-			])
-		);
+		expectFinalReturnTrim(validateHelper);
 	});
 
 	it('toggles hierarchical output for non-hierarchical taxonomies', () => {
 		const helpers = createHelpers({ hierarchical: false });
 
 		const prepareHelper = helpers[1];
-		expect(prepareHelper).toEqual(
-			expect.arrayContaining([
-				expect.stringContaining("'hierarchical' => false"),
-			])
-		);
+		expectHierarchicalFlag(prepareHelper, false);
 	});
 });
+
+function expectHierarchicalFlag(
+	helper: ReturnType<typeof createHelpers>[number],
+	expected: boolean
+): void {
+	const methodNode = helper.node;
+	expect(methodNode).toBeDefined();
+	const returnStmt = findReturnStatement(methodNode?.stmts ?? []);
+	expect(returnStmt?.expr?.nodeType).toBe('Expr_Array');
+	const arrayExpr = returnStmt?.expr as PhpExprArray | undefined;
+	const hierarchicalItem = arrayExpr?.items.find((item) => {
+		if (!item || !item.key || item.key.nodeType !== 'Scalar_String') {
+			return false;
+		}
+		return item.key.value === 'hierarchical';
+	});
+	expect(hierarchicalItem?.value?.nodeType).toBe('Expr_ConstFetch');
+	const constFetch = hierarchicalItem?.value;
+	if (constFetch?.nodeType !== 'Expr_ConstFetch') {
+		throw new Error('Expected hierarchical entry to be a const fetch');
+	}
+	expect(constFetch.name.parts[0]).toBe(expected ? 'true' : 'false');
+}
+
+function expectFinalReturnTrim(
+	helper: ReturnType<typeof createHelpers>[number]
+): void {
+	const methodNode = helper.node;
+	expect(methodNode).toBeDefined();
+	const returnStmt = findReturnStatement(methodNode?.stmts ?? []);
+	expect(returnStmt?.expr?.nodeType).toBe('Expr_FuncCall');
+	const callExpr = returnStmt?.expr;
+	if (!callExpr || callExpr.nodeType !== 'Expr_FuncCall') {
+		throw new Error('Expected return expression to be a function call');
+	}
+	expect(callExpr.name).toMatchObject({ nodeType: 'Name', parts: ['trim'] });
+	expect(callExpr.args).toHaveLength(1);
+	const [arg] = callExpr.args;
+	expect(arg?.value?.nodeType.startsWith('Expr_Cast')).toBe(true);
+	const castExpr = arg?.value;
+	if (!castExpr || !castExpr.nodeType.startsWith('Expr_Cast')) {
+		throw new Error('Expected trim argument to be a cast expression');
+	}
+	expect((castExpr as { type?: string }).type ?? 'string').toBe('string');
+	expect(castExpr.expr).toMatchObject({
+		nodeType: 'Expr_Variable',
+		name: 'value',
+	});
+}
+
+function findReturnStatement(
+	statements: readonly PhpStmt[]
+): Extract<PhpStmt, { nodeType: 'Stmt_Return' }> | undefined {
+	return statements.find(
+		(
+			statement
+		): statement is Extract<PhpStmt, { nodeType: 'Stmt_Return' }> =>
+			statement.nodeType === 'Stmt_Return'
+	);
+}
