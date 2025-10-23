@@ -1,6 +1,6 @@
-import { createHelper } from '../../helper';
+import { createHelper } from '@wpkernel/core/pipeline';
 import type { IRDiagnostic, IRWarning } from '../../../ir/types';
-import type { IrFragment } from '../types';
+import type { IrFragment, IrFragmentApplyOptions } from '../types';
 
 const DIAGNOSTICS_FRAGMENT_KEY = 'ir.diagnostics.core';
 
@@ -43,7 +43,7 @@ export function createDiagnosticsFragment(): IrFragment {
 		key: DIAGNOSTICS_FRAGMENT_KEY,
 		kind: 'fragment',
 		dependsOn: ['ir.resources.core', 'ir.policy-map.core'],
-		async apply({ input, output }) {
+		async apply({ input, output }: IrFragmentApplyOptions) {
 			const diagnostics: IRDiagnostic[] = [];
 
 			for (const resource of input.draft.resources) {

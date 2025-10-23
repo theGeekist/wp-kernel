@@ -1,11 +1,8 @@
 import path from 'node:path';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { IRv1 } from '../../../ir/types';
-import { createPhpBuilder } from '../php';
-import type { BuilderOutput } from '../../runtime/types';
-import type { Workspace } from '../../workspace/types';
-import { createPhpPrettyPrinter } from '../php/bridge';
 import {
+	createPhpBuilder,
 	createPhpChannelHelper,
 	createPhpBaseControllerHelper,
 	createPhpResourceControllerHelper,
@@ -13,9 +10,12 @@ import {
 	createPhpPersistenceRegistryHelper,
 	createPhpIndexFileHelper,
 	getPhpBuilderChannel,
-} from '../php/printers';
+} from '../php';
+import type { BuilderOutput } from '../../runtime/types';
+import type { Workspace } from '../../workspace/types';
+import { createPhpPrettyPrinter } from '@wpkernel/php-driver';
 
-jest.mock('../php/bridge', () => ({
+jest.mock('@wpkernel/php-driver', () => ({
 	createPhpPrettyPrinter: jest.fn(() => ({
 		prettyPrint: jest.fn(async ({ program }) => ({
 			code: '<?php\n// pretty printed base controller\n',

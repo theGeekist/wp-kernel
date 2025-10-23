@@ -1,13 +1,13 @@
 import { KernelError } from '@wpkernel/core/error';
-import { createHelper } from '../../helper';
-import type { IrFragment } from '../types';
+import { createHelper } from '@wpkernel/core/pipeline';
+import type { IrFragment, IrFragmentApplyOptions } from '../types';
 
 export function createValidationFragment(): IrFragment {
 	return createHelper({
 		key: 'ir.validation.core',
 		kind: 'fragment',
 		dependsOn: ['ir.meta.core', 'ir.resources.core', 'ir.policy-map.core'],
-		async apply({ input }) {
+		async apply({ input }: IrFragmentApplyOptions) {
 			if (!input.draft.meta) {
 				throw new KernelError('ValidationError', {
 					message: 'IR meta was not initialised before validation.',

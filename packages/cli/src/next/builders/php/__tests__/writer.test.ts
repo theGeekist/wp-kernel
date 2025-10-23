@@ -1,0 +1,135 @@
+import path from 'node:path';
+import type { Reporter } from '@wpkernel/core/reporter';
+import type {
+	BuilderInput,
+	BuilderOutput,
+	PipelineContext,
+} from '../../../runtime/types';
+import { createPhpProgramWriterHelper } from '../writer';
+import { getPhpBuilderChannel, resetPhpBuilderChannel } from '../channel';
+import { resetPhpAstChannel, createStmtNop } from '@wpkernel/php-json-ast';
+import { createPhpPrettyPrinter } from '@wpkernel/php-driver';
+
+jest.mock('@wpkernel/php-driver', () => ({
+	createPhpPrettyPrinter: jest.fn(() => ({
+		prettyPrint: jest.fn(async ({ program }) => ({
+			code: '<?php\n// generated\n',
+			ast: program,
+		})),
+	})),
+}));
+
+const createPhpPrettyPrinterMock = jest.mocked(createPhpPrettyPrinter);
+
+function createReporter(): Reporter {
+	return {
+		debug: jest.fn(),
+		info: jest.fn(),
+		warn: jest.fn(),
+		error: jest.fn(),
+		child: jest.fn().mockReturnThis(),
+	};
+}
+
+function createPipelineContext(): PipelineContext {
+	return {
+		workspace: {
+			root: '/workspace',
+			resolve: (...parts: string[]) => path.join('/workspace', ...parts),
+			cwd: () => '/workspace',
+			read: async () => null,
+			readText: async () => null,
+			write: jest.fn(async () => undefined),
+			writeJson: jest.fn(async () => undefined),
+			exists: async () => false,
+			rm: async () => undefined,
+			glob: async () => [],
+			threeWayMerge: async () => 'clean',
+			begin: () => undefined,
+			commit: async () => ({ writes: [], deletes: [] }),
+			rollback: async () => ({ writes: [], deletes: [] }),
+			dryRun: async (fn) => ({
+				result: await fn(),
+				manifest: { writes: [], deletes: [] },
+			}),
+			tmpDir: async () => '.tmp',
+		},
+		reporter: createReporter(),
+		phase: 'generate',
+	} as unknown as PipelineContext;
+}
+
+function createBuilderInput(): BuilderInput {
+	return {
+		phase: 'generate',
+		options: {
+			config: {} as never,
+			namespace: 'demo-plugin',
+			origin: 'kernel.config.ts',
+			sourcePath: 'kernel.config.ts',
+		},
+		ir: null,
+	};
+}
+
+describe('createPhpProgramWriterHelper', () => {
+	it('writes queued programs using the pretty printer', async () => {
+		const context = createPipelineContext();
+		const input = createBuilderInput();
+		const output: BuilderOutput = {
+			actions: [],
+			queueWrite: jest.fn(),
+		};
+
+		resetPhpBuilderChannel(context);
+		resetPhpAstChannel(context);
+
+		const channel = getPhpBuilderChannel(context);
+		const program = [createStmtNop(), createStmtNop()];
+		channel.queue({
+			file: '/workspace/.generated/php/Writer.php',
+			metadata: { kind: 'policy-helper' },
+			docblock: ['Doc line'],
+			uses: ['Demo\\Contracts'],
+			statements: ['class Example {};'],
+			program,
+		});
+
+		const helper = createPhpProgramWriterHelper();
+		await helper.apply(
+			{
+				context,
+				input,
+				output,
+				reporter: context.reporter,
+			},
+			undefined
+		);
+
+		const prettyPrinter = createPhpPrettyPrinterMock.mock.results[0].value;
+		expect(prettyPrinter.prettyPrint).toHaveBeenCalledWith({
+			filePath: '/workspace/.generated/php/Writer.php',
+			program,
+		});
+
+		expect(context.workspace.write).toHaveBeenCalledWith(
+			'/workspace/.generated/php/Writer.php',
+			'<?php\n// generated\n',
+			{ ensureDir: true }
+		);
+		expect(context.workspace.write).toHaveBeenCalledWith(
+			'/workspace/.generated/php/Writer.php.ast.json',
+			expect.stringContaining('Stmt_Nop'),
+			{ ensureDir: true }
+		);
+
+		expect(output.queueWrite).toHaveBeenCalledWith({
+			file: '/workspace/.generated/php/Writer.php',
+			contents: '<?php\n// generated\n',
+		});
+		expect(output.queueWrite).toHaveBeenCalledWith({
+			file: '/workspace/.generated/php/Writer.php.ast.json',
+			contents: expect.stringContaining('Stmt_Nop'),
+		});
+	});
+});

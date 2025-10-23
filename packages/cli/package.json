@@ -89,6 +89,7 @@
 	"peerDependencies": {
 		"@prettier/plugin-php": ">=0.24.0",
 		"@wpkernel/core": "workspace:*",
+		"@wpkernel/php-json-ast": "workspace:*",
 		"@wpkernel/test-utils": "workspace:*",
 		"json-schema-to-typescript": ">=15.0.4",
 		"prettier": ">=3.6.0",
@@ -96,6 +97,8 @@
 		"typescript": ">=5.0.0"
 	},
 	"dependencies": {
+		"@wpkernel/php-driver": "workspace:*",
+		"@wpkernel/php-json-ast": "workspace:*",
 		"chokidar": "^4.0.3",
 		"clipanion": "4.0.0-rc.4",
 		"cosmiconfig": "^9.0.0",

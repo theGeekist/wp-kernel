@@ -24,6 +24,7 @@ export default createWPKLibConfig(
 		policy: 'src/policy/index.ts',
 		reporter: 'src/reporter/index.ts',
 		contracts: 'src/contracts/index.ts',
+		pipeline: 'src/pipeline/index.ts',
 	},
 	{
 		external,
