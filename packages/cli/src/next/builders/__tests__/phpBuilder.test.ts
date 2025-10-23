@@ -13,10 +13,10 @@ import {
 } from '../php';
 import type { BuilderOutput } from '../../runtime/types';
 import type { Workspace } from '../../workspace/types';
-import { createPhpPrettyPrinter } from '@wpkernel/php-driver';
+import { buildPhpPrettyPrinter } from '@wpkernel/php-driver';
 
 jest.mock('@wpkernel/php-driver', () => ({
-	createPhpPrettyPrinter: jest.fn(() => ({
+	buildPhpPrettyPrinter: jest.fn(() => ({
 		prettyPrint: jest.fn(async ({ program }) => ({
 			code: '<?php\n// pretty printed base controller\n',
 			ast: program,
@@ -24,10 +24,9 @@ jest.mock('@wpkernel/php-driver', () => ({
 	})),
 }));
 
-const createPhpPrettyPrinterMock =
-	createPhpPrettyPrinter as jest.MockedFunction<
-		typeof createPhpPrettyPrinter
-	>;
+const buildPhpPrettyPrinterMock = buildPhpPrettyPrinter as jest.MockedFunction<
+	typeof buildPhpPrettyPrinter
+>;
 
 function createReporter(): Reporter {
 	return {
@@ -106,7 +105,7 @@ function setupPrettyPrinterMock() {
 		code: '<?php\n// pretty printed base controller\n',
 		ast: program,
 	}));
-	createPhpPrettyPrinterMock.mockReturnValueOnce({ prettyPrint });
+	buildPhpPrettyPrinterMock.mockReturnValueOnce({ prettyPrint });
 	return prettyPrint;
 }
 

@@ -73,7 +73,7 @@ function resolveDefaultScriptPath(): string {
 	return resolvePrettyPrintScriptPath();
 }
 
-export function createPhpPrettyPrinter(
+export function buildPhpPrettyPrinter(
 	options: CreatePhpPrettyPrinterOptions
 ): PhpPrettyPrinter {
 	const scriptPath = options.scriptPath ?? resolveDefaultScriptPath();
@@ -167,17 +167,17 @@ function ensureValidPayload(payload: PhpPrettyPrintPayload): void {
 
 	program.forEach((node, index) => {
 		if (!node || typeof node !== 'object') {
-			throw createInvalidNodeError(payload.filePath, index);
+			throw makeInvalidNodeError(payload.filePath, index);
 		}
 
 		const nodeType = (node as { nodeType?: unknown }).nodeType;
 		if (typeof nodeType !== 'string' || nodeType.length === 0) {
-			throw createInvalidNodeError(payload.filePath, index);
+			throw makeInvalidNodeError(payload.filePath, index);
 		}
 	});
 }
 
-function createInvalidNodeError(filePath: string, index: number): KernelError {
+function makeInvalidNodeError(filePath: string, index: number): KernelError {
 	return new KernelError('DeveloperError', {
 		message:
 			'PHP pretty printer requires AST nodes with a string nodeType.',

@@ -3,7 +3,7 @@ import path from 'node:path';
 import { EventEmitter } from 'node:events';
 import type { WorkspaceLike } from '../workspace';
 import {
-	createPhpPrettyPrinter,
+	buildPhpPrettyPrinter,
 	resolvePrettyPrintScriptPath,
 	type PhpProgram,
 } from '../prettyPrinter/createPhpPrettyPrinter';
@@ -23,7 +23,7 @@ interface MockChildProcessOptions {
 	readonly withStdin?: boolean;
 }
 
-function createMockChildProcess({
+function makeMockChildProcess({
 	onEnd,
 	withStdin = true,
 }: MockChildProcessOptions) {
@@ -58,7 +58,7 @@ function createMockChildProcess({
 	};
 }
 
-describe('createPhpPrettyPrinter', () => {
+describe('buildPhpPrettyPrinter', () => {
 	const workspace: WorkspaceLike = {
 		root: '/workspace',
 		resolve: (...parts: string[]) => parts.join('/'),
@@ -90,7 +90,7 @@ describe('createPhpPrettyPrinter', () => {
 
 	it('invokes the PHP bridge and returns formatted code and AST payloads', async () => {
 		spawnMock.mockImplementation(() =>
-			createMockChildProcess({
+			makeMockChildProcess({
 				onEnd: ({ child, stdout }) => {
 					setImmediate(() => {
 						stdout.emit(
@@ -106,7 +106,7 @@ describe('createPhpPrettyPrinter', () => {
 			})
 		);
 
-		const prettyPrinter = createPhpPrettyPrinter({ workspace });
+		const prettyPrinter = buildPhpPrettyPrinter({ workspace });
 		process.env.PHP_MEMORY_LIMIT = '768M';
 
 		const result = await prettyPrinter.prettyPrint({
@@ -143,7 +143,7 @@ describe('createPhpPrettyPrinter', () => {
 
 	it('raises a DeveloperError error when PHP binary or bridge is not available', async () => {
 		spawnMock.mockImplementation(() =>
-			createMockChildProcess({
+			makeMockChildProcess({
 				onEnd: ({ child }) => {
 					setImmediate(() => {
 						const error = new Error(
@@ -156,7 +156,7 @@ describe('createPhpPrettyPrinter', () => {
 			})
 		);
 
-		const prettyPrinter = createPhpPrettyPrinter({ workspace });
+		const prettyPrinter = buildPhpPrettyPrinter({ workspace });
 
 		await expect(
 			prettyPrinter.prettyPrint({
@@ -171,7 +171,7 @@ describe('createPhpPrettyPrinter', () => {
 	});
 
 	it('validates the AST payload shape', async () => {
-		const prettyPrinter = createPhpPrettyPrinter({ workspace });
+		const prettyPrinter = buildPhpPrettyPrinter({ workspace });
 
 		await expect(
 			prettyPrinter.prettyPrint({
@@ -219,7 +219,7 @@ describe('createPhpPrettyPrinter', () => {
 
 	it('uses sane defaults for memory limit when unset', async () => {
 		spawnMock.mockImplementation(() =>
-			createMockChildProcess({
+			makeMockChildProcess({
 				onEnd: ({ child, stdout }) => {
 					setImmediate(() => {
 						stdout.emit(
@@ -235,7 +235,7 @@ describe('createPhpPrettyPrinter', () => {
 			})
 		);
 
-		const prettyPrinter = createPhpPrettyPrinter({ workspace });
+		const prettyPrinter = buildPhpPrettyPrinter({ workspace });
 
 		await prettyPrinter.prettyPrint({
 			filePath: 'Rest/BaseController.php',
@@ -266,7 +266,7 @@ describe('createPhpPrettyPrinter', () => {
 
 	it('throws a KernelError when the bridge exits with a non-zero code', async () => {
 		spawnMock.mockImplementation(() =>
-			createMockChildProcess({
+			makeMockChildProcess({
 				onEnd: ({ child, stderr }) => {
 					setImmediate(() => {
 						stderr.emit('data', 'parse error');
@@ -276,7 +276,7 @@ describe('createPhpPrettyPrinter', () => {
 			})
 		);
 
-		const prettyPrinter = createPhpPrettyPrinter({ workspace });
+		const prettyPrinter = buildPhpPrettyPrinter({ workspace });
 
 		await expect(
 			prettyPrinter.prettyPrint({
@@ -297,7 +297,7 @@ describe('createPhpPrettyPrinter', () => {
 
 	it('reports malformed responses from the PHP bridge', async () => {
 		spawnMock.mockImplementation(() =>
-			createMockChildProcess({
+			makeMockChildProcess({
 				onEnd: ({ child, stdout }) => {
 					setImmediate(() => {
 						stdout.emit(
@@ -312,7 +312,7 @@ describe('createPhpPrettyPrinter', () => {
 			})
 		);
 
-		const prettyPrinter = createPhpPrettyPrinter({ workspace });
+		const prettyPrinter = buildPhpPrettyPrinter({ workspace });
 
 		await expect(
 			prettyPrinter.prettyPrint({
@@ -328,7 +328,7 @@ describe('createPhpPrettyPrinter', () => {
 
 	it('propagates errors when the child process exposes no stdin writer', async () => {
 		spawnMock.mockImplementation(() =>
-			createMockChildProcess({
+			makeMockChildProcess({
 				withStdin: false,
 				onEnd: ({ child }) => {
 					setImmediate(() => {
@@ -338,7 +338,7 @@ describe('createPhpPrettyPrinter', () => {
 			})
 		);
 
-		const prettyPrinter = createPhpPrettyPrinter({ workspace });
+		const prettyPrinter = buildPhpPrettyPrinter({ workspace });
 
 		await expect(
 			prettyPrinter.prettyPrint({
@@ -359,7 +359,7 @@ describe('createPhpPrettyPrinter', () => {
 
 	it('fails fast when the bridge omits the AST payload', async () => {
 		spawnMock.mockImplementation(() =>
-			createMockChildProcess({
+			makeMockChildProcess({
 				onEnd: ({ child, stdout }) => {
 					setImmediate(() => {
 						stdout.emit(
@@ -374,7 +374,7 @@ describe('createPhpPrettyPrinter', () => {
 			})
 		);
 
-		const prettyPrinter = createPhpPrettyPrinter({ workspace });
+		const prettyPrinter = buildPhpPrettyPrinter({ workspace });
 
 		await expect(
 			prettyPrinter.prettyPrint({
@@ -390,7 +390,7 @@ describe('createPhpPrettyPrinter', () => {
 
 	it('bubbles up unexpected child process failures', async () => {
 		spawnMock.mockImplementation(() =>
-			createMockChildProcess({
+			makeMockChildProcess({
 				onEnd: ({ child }) => {
 					setImmediate(() => {
 						child.emit('error', new Error('bridge exploded'));
@@ -399,7 +399,7 @@ describe('createPhpPrettyPrinter', () => {
 			})
 		);
 
-		const prettyPrinter = createPhpPrettyPrinter({ workspace });
+		const prettyPrinter = buildPhpPrettyPrinter({ workspace });
 
 		await expect(
 			prettyPrinter.prettyPrint({
@@ -415,7 +415,7 @@ describe('createPhpPrettyPrinter', () => {
 
 	it('ignores duplicate bridge events once the promise settles', async () => {
 		spawnMock.mockImplementation(() =>
-			createMockChildProcess({
+			makeMockChildProcess({
 				onEnd: ({ child }) => {
 					setImmediate(() => {
 						child.emit('error', new Error('primary failure'));
@@ -426,7 +426,7 @@ describe('createPhpPrettyPrinter', () => {
 			})
 		);
 
-		const prettyPrinter = createPhpPrettyPrinter({ workspace });
+		const prettyPrinter = buildPhpPrettyPrinter({ workspace });
 
 		await expect(
 			prettyPrinter.prettyPrint({

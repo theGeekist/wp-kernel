@@ -38,8 +38,8 @@ jest.mock('../../builders', () => {
 		createTsBuilder: jest.fn(() =>
 			createStubBuilder('builder.generate.stub.ts')
 		),
-		createPhpDriverInstaller:
-			jest.requireActual('../../builders').createPhpDriverInstaller,
+		createPhpDriverInstallerHelper:
+			jest.requireActual('../../builders').createPhpDriverInstallerHelper,
 	};
 });
 

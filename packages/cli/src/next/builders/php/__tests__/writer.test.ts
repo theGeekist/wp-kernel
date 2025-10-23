@@ -8,10 +8,10 @@ import type {
 import { createPhpProgramWriterHelper } from '../writer';
 import { getPhpBuilderChannel, resetPhpBuilderChannel } from '../channel';
 import { resetPhpAstChannel, createStmtNop } from '@wpkernel/php-json-ast';
-import { createPhpPrettyPrinter } from '@wpkernel/php-driver';
+import { buildPhpPrettyPrinter } from '@wpkernel/php-driver';
 
 jest.mock('@wpkernel/php-driver', () => ({
-	createPhpPrettyPrinter: jest.fn(() => ({
+	buildPhpPrettyPrinter: jest.fn(() => ({
 		prettyPrint: jest.fn(async ({ program }) => ({
 			code: '<?php\n// generated\n',
 			ast: program,
@@ -19,7 +19,7 @@ jest.mock('@wpkernel/php-driver', () => ({
 	})),
 }));
 
-const createPhpPrettyPrinterMock = jest.mocked(createPhpPrettyPrinter);
+const buildPhpPrettyPrinterMock = jest.mocked(buildPhpPrettyPrinter);
 
 function createReporter(): Reporter {
 	return {
@@ -106,7 +106,7 @@ describe('createPhpProgramWriterHelper', () => {
 			undefined
 		);
 
-		const prettyPrinter = createPhpPrettyPrinterMock.mock.results[0].value;
+		const prettyPrinter = buildPhpPrettyPrinterMock.mock.results[0].value;
 		expect(prettyPrinter.prettyPrint).toHaveBeenCalledWith({
 			filePath: '/workspace/.generated/php/Writer.php',
 			program,
