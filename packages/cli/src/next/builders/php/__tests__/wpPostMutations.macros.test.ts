@@ -237,9 +237,9 @@ describe('wp-post mutation macros', () => {
 
 		expect(entry.statements).toEqual(
 			expect.arrayContaining([
-				expect.stringContaining(`if ( null !== $status ) {`),
+				expect.stringContaining(`if (null !== $status) {`),
 				expect.stringContaining(
-					"$post_data['post_status'] = $this->normaliseBooksStatus( $status );"
+					"$post_data['post_status'] = $this->normaliseBooksStatus($status);"
 				),
 			])
 		);
@@ -290,9 +290,7 @@ describe('wp-post mutation macros', () => {
 				expect.stringContaining(
 					'$taxonomy_result = $this->syncBooksTaxonomies( $post_id, $request );'
 				),
-				expect.stringContaining(
-					'if ( is_wp_error( $taxonomy_result ) ) {'
-				),
+				expect.stringContaining('if (is_wp_error($taxonomy_result)) {'),
 				expect.stringContaining('return $taxonomy_result;'),
 			])
 		);
@@ -320,21 +318,16 @@ describe('wp-post mutation macros', () => {
 			}
 		);
 
-		expect(entry.statements).toEqual(
-			expect.arrayContaining([
-				expect.stringContaining(
-					`// @wp-kernel ${CONTRACT.metadataKeys.cacheSegment} prime`
-				),
-				expect.stringContaining('$post = get_post( $post_id );'),
-				expect.stringContaining('if ( ! $post instanceof WP_Post ) {'),
-				expect.stringContaining(
-					"return new WP_Error( 'wpk_books_load_failed', 'Unable to load created Book.', [ 'status' => 500 ] );"
-				),
-				expect.stringContaining(
-					'return $this->prepareBooksResponse( $post, $request );'
-				),
-			])
+		const statements = entry.statements.join('\n');
+		expect(statements).toContain(
+			`// @wp-kernel ${CONTRACT.metadataKeys.cacheSegment} prime`
 		);
+		expect(statements).toContain('$post = get_post');
+		expect(statements).toContain('if (!$post instanceof WP_Post) {');
+		expect(statements).toContain(
+			"return new WP_Error('wpk_books_load_failed', 'Unable to load created Book.'"
+		);
+		expect(statements).toContain('return $this->prepareBooksResponse');
 		expect(entry.program).toMatchSnapshot('cache-priming-macro');
 	});
 });

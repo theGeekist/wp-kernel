@@ -121,7 +121,6 @@ export function appendMetaQueryBuilder(
 							buildArg(buildVariable(variableName)),
 						])
 					),
-					conditionText: `${childIndent}if ( ! is_array( $${variableName} ) ) {`,
 					statements: [
 						buildPrintable(
 							buildExpressionStatement(
@@ -215,7 +214,6 @@ export function appendMetaQueryBuilder(
 						]),
 						buildScalarInt(0)
 					),
-					conditionText: `${childIndent}if ( count( $${variableName} ) > 0 ) {`,
 					statements: [pushPrintable],
 				})
 			);
@@ -296,7 +294,6 @@ export function appendMetaQueryBuilder(
 							buildScalarString('')
 						)
 					),
-					conditionText: `${childIndent}if ( null !== $${variableName} && '' !== $${variableName} ) {`,
 					statements: [pushPrintable],
 				})
 			);
@@ -310,7 +307,6 @@ export function appendMetaQueryBuilder(
 					buildVariable(variableName),
 					buildNull()
 				),
-				conditionText: `${indent}if ( null !== $${variableName} ) {`,
 				statements: innerStatements,
 			})
 		);
@@ -339,7 +335,6 @@ export function appendMetaQueryBuilder(
 				]),
 				buildScalarInt(0)
 			),
-			conditionText: `${indent}if ( count( $meta_query ) > 0 ) {`,
 			statements: [assignPrintable],
 		})
 	);

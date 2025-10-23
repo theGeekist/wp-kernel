@@ -168,7 +168,6 @@ export function appendStatusValidationMacro(
 				buildNull(),
 				statusVariable.expression
 			),
-			conditionText: `${indent}if ( null !== ${statusVariable.display} ) {`,
 			statements: [guardedAssign],
 		});
 		options.body.statement(guard);
@@ -262,7 +261,6 @@ export function appendSyncTaxonomiesMacro(
 		condition: buildFuncCall(buildName(['is_wp_error']), [
 			buildArg(options.resultVariable.expression),
 		]),
-		conditionText: `${indent}if ( is_wp_error( ${options.resultVariable.display} ) ) {`,
 		statements: [returnPrintable],
 	});
 	options.body.statement(guard);
@@ -331,7 +329,6 @@ export function appendCachePrimingMacro(
 		condition: buildBooleanNot(
 			buildInstanceof(postVariableName, 'WP_Post')
 		),
-		conditionText: `${indent}if ( ! ${postVariable.display} instanceof WP_Post ) {`,
 		statements: [failureReturn],
 	});
 	options.body.statement(guard);

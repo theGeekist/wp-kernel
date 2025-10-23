@@ -107,7 +107,6 @@ export function buildCreateRouteBody(
 		condition: buildFuncCall(buildName(['is_wp_error']), [
 			buildArg(buildVariable('post_id')),
 		]),
-		conditionText: `${indent}if ( is_wp_error( $post_id ) ) {`,
 		statements: [insertReturn],
 	});
 	options.body.statement(insertGuard);
@@ -126,7 +125,6 @@ export function buildCreateRouteBody(
 			buildScalarInt(0),
 			buildVariable('post_id')
 		),
-		conditionText: `${indent}if ( 0 === $post_id ) {`,
 		statements: [insertFailedReturn],
 	});
 	options.body.statement(insertFailureGuard);

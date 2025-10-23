@@ -121,7 +121,17 @@ exports[`createPhpBuilder generates base controller artifacts from the AST chann
               "name": "string",
               "nodeType": "Identifier",
             },
-            "stmts": [],
+            "stmts": [
+              {
+                "attributes": {},
+                "expr": {
+                  "attributes": {},
+                  "nodeType": "Scalar_String",
+                  "value": "DemoPlugin",
+                },
+                "nodeType": "Stmt_Return",
+              },
+            ],
           },
         ],
       },

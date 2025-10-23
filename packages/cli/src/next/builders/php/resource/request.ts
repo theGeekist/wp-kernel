@@ -1,4 +1,3 @@
-import { KernelError } from '@wpkernel/core/contracts';
 import {
 	buildArg,
 	buildAssign,
@@ -18,6 +17,7 @@ import {
 	normaliseVariableReference,
 	type ScalarCastKind,
 } from './utils';
+import { formatStatement } from './printer';
 
 export interface RequestParamAssignmentOptions {
 	readonly requestVariable: string;
@@ -42,8 +42,6 @@ export function createRequestParamAssignment(
 
 	const request = normaliseVariableReference(requestVariable);
 	const target = normaliseVariableReference(targetVariable);
-	const indent = indentUnit.repeat(indentLevel);
-
 	const methodCall = buildMethodCall(
 		buildVariable(request.raw),
 		buildIdentifier('get_param'),
@@ -57,27 +55,7 @@ export function createRequestParamAssignment(
 	const assignment = buildAssign(buildVariable(target.raw), expression);
 	const statement = buildExpressionStatement(assignment);
 
-	const castPrefix = cast ? getCastPrefix(cast) : '';
-	const line = `${indent}${target.display} = ${castPrefix}${request.display}->get_param( '${param}' );`;
+	const lines = formatStatement(statement, indentLevel, indentUnit);
 
-	return buildPrintable(statement, [line]);
-}
-
-function getCastPrefix(cast: ScalarCastKind): string {
-	switch (cast) {
-		case 'int':
-			return '(int) ';
-		case 'float':
-			return '(float) ';
-		case 'string':
-			return '(string) ';
-		case 'bool':
-			return '(bool) ';
-		default:
-			throw new KernelError('DeveloperError', {
-				message:
-					'Unsupported cast kind for request parameter assignment.',
-				context: { cast },
-			});
-	}
+	return buildPrintable(statement, lines);
 }

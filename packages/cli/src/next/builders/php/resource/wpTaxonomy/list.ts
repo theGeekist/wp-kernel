@@ -116,7 +116,6 @@ export function buildWpTaxonomyListRouteBody(
 			buildVariable('page'),
 			buildScalarInt(0)
 		),
-		conditionText: `${indent}if ( $page <= 0 ) {`,
 		statements: [
 			buildPrintable(
 				buildExpressionStatement(
@@ -204,7 +203,6 @@ export function buildWpTaxonomyListRouteBody(
 		condition: buildFuncCall(buildName(['is_wp_error']), [
 			buildArg(buildVariable('results')),
 		]),
-		conditionText: `${indent}if ( is_wp_error( $results ) ) {`,
 		statements: [
 			buildPrintable(buildReturn(buildVariable('results')), [
 				`${childIndent}return $results;`,
@@ -396,7 +394,6 @@ function appendExtraArgsMerge(options: {
 			buildArg(skipArray),
 			buildArg(buildScalarBool(true)),
 		]),
-		conditionText: `${childIndent}if ( in_array( $key, array( 'page', 'per_page', 'taxonomy', 'hide_empty' ), true ) ) {`,
 		statements: [continuePrintable],
 	});
 
@@ -442,7 +439,6 @@ function createResultsForeach(options: {
 	const guard = buildIfPrintable({
 		indentLevel: indentLevel + 1,
 		condition: buildInstanceof('term', 'WP_Term'),
-		conditionText: `${childIndent}if ( $term instanceof WP_Term ) {`,
 		statements: [
 			buildPrintable(
 				buildExpressionStatement(
