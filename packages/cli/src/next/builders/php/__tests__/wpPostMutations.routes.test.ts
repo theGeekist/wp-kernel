@@ -257,6 +257,7 @@ describe('wp-post mutation route builders', () => {
 		expect(
 			source.indexOf(CONTRACT.metadataKeys.syncTaxonomies)
 		).toBeLessThan(source.indexOf(CONTRACT.metadataKeys.cachePriming));
+		expect(entry.statements).toMatchSnapshot('create-route-statements');
 		expect(entry.program).toMatchSnapshot('create-route');
 	});
 
@@ -277,11 +278,7 @@ describe('wp-post mutation route builders', () => {
 			{ kind: 'update' }
 		);
 
-		const statements = entry.statements.join('\n');
-		expect(statements).toContain('if (null !== $status) {');
-		expect(statements.indexOf(CONTRACT.metadataKeys.syncMeta)).toBeLessThan(
-			statements.indexOf(CONTRACT.metadataKeys.cachePriming)
-		);
+		expect(entry.statements).toMatchSnapshot('update-route-statements');
 		expect(entry.program).toMatchSnapshot('update-route');
 	});
 
@@ -302,8 +299,7 @@ describe('wp-post mutation route builders', () => {
 			{ kind: 'delete' }
 		);
 
-		const statements = entry.statements.join('\n');
-		expect(statements).toContain("'previous' => $previous");
+		expect(entry.statements).toMatchSnapshot('delete-route-statements');
 		expect(entry.program).toMatchSnapshot('delete-route');
 	});
 });

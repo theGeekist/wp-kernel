@@ -2,6 +2,7 @@ import { KernelError } from '@wpkernel/core/contracts';
 import {
 	buildArray,
 	buildArrayDimFetch as buildArrayDimFetchNode,
+	buildArrayItem,
 	buildAssign,
 	buildBooleanNot as buildBooleanNotExpr,
 	buildIdentifier,
@@ -12,12 +13,15 @@ import {
 	buildExpressionStatement,
 	buildPropertyFetch as buildPropertyFetchNode,
 	buildScalarCast as buildScalarCastNode,
+	buildArrayCast,
+	buildScalarString,
 	buildVariable,
 	type PhpExpr,
 	type PhpExprBinaryOp,
 	type PhpExprBooleanNot,
 	type PhpStmt,
 	type PhpStmtIf,
+	type PhpStmtForeach,
 	buildPrintable,
 	type PhpPrintable,
 } from '@wpkernel/php-json-ast';
@@ -55,9 +59,13 @@ export function normaliseVariableReference(
 	return { raw: trimmed, display: `$${trimmed}` };
 }
 
-export type ScalarCastKind = 'int' | 'float' | 'string' | 'bool';
+export type ScalarCastKind = 'int' | 'float' | 'string' | 'bool' | 'array';
 
 export function buildScalarCast(kind: ScalarCastKind, expr: PhpExpr): PhpExpr {
+	if (kind === 'array') {
+		return buildArrayCast(expr);
+	}
+
 	return buildScalarCastNode(kind, expr);
 }
 
@@ -143,4 +151,58 @@ export function buildArrayInitialiser(
 	const lines = formatStatement(statement, options.indentLevel, PHP_INDENT);
 
 	return buildPrintable(statement, lines);
+}
+
+export interface ArrayLiteralEntry {
+	readonly key?: string;
+	readonly value: PhpExpr;
+}
+
+export function buildArrayLiteral(
+	entries: readonly ArrayLiteralEntry[]
+): PhpExpr {
+	const items = entries.map((entry) =>
+		buildArrayItem(entry.value, {
+			key:
+				entry.key === undefined
+					? undefined
+					: buildScalarString(entry.key),
+		})
+	);
+
+	return buildArray(items);
+}
+
+export interface ForeachStatementOptions {
+	readonly iterable: PhpExpr;
+	readonly value: string | PhpExpr;
+	readonly statements: readonly PhpStmt[];
+	readonly key?: string | PhpExpr | null;
+	readonly byRef?: boolean;
+}
+
+export function buildForeachStatement(
+	options: ForeachStatementOptions
+): PhpStmtForeach {
+	let keyVar: PhpExpr | null;
+	if (options.key === undefined || options.key === null) {
+		keyVar = null;
+	} else if (typeof options.key === 'string') {
+		keyVar = buildVariable(options.key);
+	} else {
+		keyVar = options.key;
+	}
+
+	const valueVar =
+		typeof options.value === 'string'
+			? buildVariable(options.value)
+			: options.value;
+
+	return buildNode<PhpStmtForeach>('Stmt_Foreach', {
+		expr: options.iterable,
+		valueVar,
+		keyVar,
+		byRef: options.byRef ?? false,
+		stmts: [...options.statements],
+	});
 }
