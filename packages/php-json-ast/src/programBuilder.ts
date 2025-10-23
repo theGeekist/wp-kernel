@@ -1,10 +1,7 @@
-// Duplicated CLI helper architecture for standalone operation
-// This will be removed when createHelper + Pipeline move to @wpkernel/core
-
+import { createHelper, type Helper } from '@wpkernel/core/pipeline';
 import type { Reporter } from '@wpkernel/core/reporter';
 
-export type HelperKind = 'fragment' | 'builder';
-export type HelperMode = 'extend' | 'override' | 'merge';
+export type { HelperKind, HelperMode } from '@wpkernel/core/pipeline';
 export type PipelinePhase = 'init' | 'generate' | 'apply' | `custom:${string}`;
 
 export interface Workspace {
@@ -19,31 +16,6 @@ export interface PipelineContext {
 	readonly reporter: Reporter;
 }
 
-export interface HelperApplyOptions<TContext, TInput, TOutput> {
-	readonly context: TContext;
-	readonly input: TInput;
-	readonly output: TOutput;
-	readonly reporter: Reporter;
-}
-
-export type HelperApplyFn<TContext, TInput, TOutput> = (
-	options: HelperApplyOptions<TContext, TInput, TOutput>,
-	next?: () => Promise<void>
-) => Promise<void> | void;
-
-export interface HelperDescriptor {
-	readonly key: string;
-	readonly kind: HelperKind;
-	readonly mode: HelperMode;
-	readonly priority: number;
-	readonly dependsOn: readonly string[];
-	readonly origin?: string;
-}
-
-export interface Helper<TContext, TInput, TOutput> extends HelperDescriptor {
-	readonly apply: HelperApplyFn<TContext, TInput, TOutput>;
-}
-
 export interface BuilderWriteAction {
 	readonly file: string;
 	readonly contents: Buffer | string;
@@ -56,55 +28,17 @@ export interface BuilderOutput {
 
 export interface BuilderInput {
 	readonly phase: PipelinePhase;
-	// Simplified for php-json-ast - can be expanded when moved to core
 	readonly options: unknown;
 	readonly ir: unknown | null;
 }
 
-export type BuilderHelper<
-	TContext extends PipelineContext = PipelineContext,
-	TInput extends BuilderInput = BuilderInput,
-	TOutput extends BuilderOutput = BuilderOutput,
-> = Helper<TContext, TInput, TOutput>;
-
-export interface CreateHelperOptions<TContext, TInput, TOutput> {
-	readonly key: string;
-	readonly kind: HelperKind;
-	readonly mode?: HelperMode;
-	readonly priority?: number;
-	readonly dependsOn?: readonly string[];
-	readonly origin?: string;
-	readonly apply: HelperApplyFn<TContext, TInput, TOutput>;
-}
-
-export function createHelper<TContext, TInput, TOutput>(
-	options: CreateHelperOptions<TContext, TInput, TOutput>
-): Helper<TContext, TInput, TOutput> {
-	const {
-		key,
-		kind,
-		mode = 'extend',
-		priority = 0,
-		dependsOn = [],
-		origin,
-		apply,
-	} = options;
-
-	return Object.freeze({
-		key,
-		kind,
-		mode,
-		priority,
-		dependsOn: Array.from(dependsOn),
-		origin,
-		apply: async (
-			runtimeOptions: HelperApplyOptions<TContext, TInput, TOutput>,
-			next?: () => Promise<void>
-		) => {
-			await apply(runtimeOptions, next);
-		},
-	});
-}
+export type BuilderHelper = Helper<
+	PipelineContext,
+	BuilderInput,
+	BuilderOutput
+>;
+type BuilderApplyOptions = Parameters<BuilderHelper['apply']>[0];
+type BuilderNext = Parameters<BuilderHelper['apply']>[1];
 import {
 	appendDocblockLine,
 	appendProgramStatement,
@@ -200,11 +134,10 @@ export function createPhpProgramBuilder<
 	return createHelper<TContext, TInput, TOutput>({
 		key,
 		kind: 'builder',
-		dependsOn,
-		mode,
-		priority,
-		origin,
-		apply: async (helperOptions, next) => {
+		apply: async (
+			helperOptions: BuilderApplyOptions,
+			next?: BuilderNext
+		) => {
 			const { reporter, context } = helperOptions;
 			const astChannel = getPhpAstChannel(context);
 			const entry = astChannel.open({

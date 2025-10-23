@@ -3,8 +3,12 @@ import path from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { KernelError } from '@wpkernel/core/error';
-import { createHelper } from '../helper';
-import type { BuilderHelper, BuilderOutput } from '../runtime/types';
+import { createHelper } from '@wpkernel/core/pipeline';
+import type {
+	BuilderApplyOptions,
+	BuilderHelper,
+	BuilderOutput,
+} from '../runtime/types';
 import type { Workspace } from '../workspace/types';
 
 const execFileAsync = promisify(execFile);
@@ -57,7 +61,7 @@ interface ProcessInstructionOptions {
 	readonly instruction: PatchInstruction;
 	readonly manifest: PatchManifest;
 	readonly output: BuilderOutput;
-	readonly reporter: Parameters<BuilderHelper['apply']>[0]['reporter'];
+	readonly reporter: BuilderApplyOptions['reporter'];
 }
 
 async function readPlan(workspace: Workspace): Promise<PatchPlan | null> {
@@ -221,7 +225,7 @@ export function createPatcher(): BuilderHelper {
 	return createHelper({
 		key: 'builder.apply.patch.core',
 		kind: 'builder',
-		async apply({ context, input, output, reporter }) {
+		async apply({ context, input, output, reporter }: BuilderApplyOptions) {
 			if (input.phase !== 'apply') {
 				reporter.debug('createPatcher: skipping phase.', {
 					phase: input.phase,

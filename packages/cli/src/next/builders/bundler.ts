@@ -1,6 +1,7 @@
 import path from 'node:path';
-import { createHelper } from '../helper';
+import { createHelper } from '@wpkernel/core/pipeline';
 import type {
+	BuilderApplyOptions,
 	BuilderHelper,
 	BuilderOutput,
 	PipelineContext,
@@ -260,7 +261,7 @@ export function createBundler(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.bundler.core',
 		kind: 'builder',
-		async apply({ context, input, output, reporter }) {
+		async apply({ context, input, output, reporter }: BuilderApplyOptions) {
 			if (input.phase !== 'generate') {
 				reporter.debug(
 					'createBundler: skipping phase without bundler support.',

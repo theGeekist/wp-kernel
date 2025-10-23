@@ -57,6 +57,7 @@ export * as policy from './policy/index.js';
 export * as data from './data/index.js';
 export * as events from './events/index.js';
 export * as contracts from './contracts/index.js';
+export * as pipeline from './pipeline/index.js';
 
 // ============================================================================
 // Flat Exports (Convenience aliases)

@@ -11,7 +11,7 @@ import type {
 	IRSchema,
 	IRv1,
 } from '../../ir/types';
-import type { Helper, HelperApplyOptions } from '../helper';
+import type { Helper, HelperApplyOptions } from '@wpkernel/core/pipeline';
 import type { PipelineContext } from '../runtime/types';
 
 export interface MutableIr {

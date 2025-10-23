@@ -1,11 +1,11 @@
-import { createHelper } from '../../helper';
+import { createHelper } from '@wpkernel/core/pipeline';
 import {
 	sortBlocks,
 	sortPolicies,
 	sortResources,
 	sortSchemas,
 } from '../../../ir/ordering';
-import type { IrFragment } from '../types';
+import type { IrFragment, IrFragmentApplyOptions } from '../types';
 
 export function createOrderingFragment(): IrFragment {
 	return createHelper({
@@ -17,7 +17,7 @@ export function createOrderingFragment(): IrFragment {
 			'ir.policies.core',
 			'ir.blocks.core',
 		],
-		async apply({ input, output }) {
+		async apply({ input, output }: IrFragmentApplyOptions) {
 			output.assign({
 				schemas: sortSchemas(input.draft.schemas),
 				resources: sortResources(input.draft.resources),

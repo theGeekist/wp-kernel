@@ -1,5 +1,5 @@
 # @wpkernel/php-driver
 
-Shared PHP bridge utilities used by WP Kernel packages.
-
-> **Note:** This package is distributed as part of the wp-kernel monorepo. See the repository root for full documentation.
+Shared PhpParser driver orchestration for WP Kernel generators. This package exposes helpers for
+verifying Composer dependencies, spawning the PHP pretty printer bridge, and integrating with the
+pipeline runtime used by the CLI and other toolchains.

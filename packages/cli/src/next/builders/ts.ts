@@ -13,8 +13,9 @@ import {
 import { KernelError } from '@wpkernel/core/error';
 import type { IRv1 } from '../../ir/types';
 import type { KernelConfigV1 } from '../../config/types';
-import { createHelper } from '../helper';
+import { createHelper } from '@wpkernel/core/pipeline';
 import type {
+	BuilderApplyOptions,
 	BuilderHelper,
 	BuilderOutput,
 	PipelinePhase,
@@ -115,7 +116,7 @@ export function createTsBuilder(
 	return createHelper({
 		key: 'builder.generate.ts.core',
 		kind: 'builder',
-		async apply({ context, input, output, reporter }) {
+		async apply({ context, input, output, reporter }: BuilderApplyOptions) {
 			if (!isGeneratePhase(input.phase, reporter)) {
 				return;
 			}
