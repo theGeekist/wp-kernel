@@ -1,11 +1,12 @@
 import fs from 'node:fs';
-import { EventEmitter } from 'node:events';
 import path from 'node:path';
-import type { Workspace } from '../../workspace/types';
+import { EventEmitter } from 'node:events';
+import type { WorkspaceLike } from '../workspace';
 import {
 	createPhpPrettyPrinter,
 	resolvePrettyPrintScriptPath,
-} from '../php/bridge';
+	type PhpProgram,
+} from '../prettyPrinter/createPhpPrettyPrinter';
 
 const spawnMock = jest.fn();
 
@@ -58,9 +59,11 @@ function createMockChildProcess({
 }
 
 describe('createPhpPrettyPrinter', () => {
-	const workspace = {
-		root: path.join(process.cwd(), 'fixtures/workspace'),
-	} as Workspace;
+	const workspace: WorkspaceLike = {
+		root: '/workspace',
+		resolve: (...parts: string[]) => parts.join('/'),
+		exists: async () => false,
+	};
 	const ORIGINAL_PHP_MEMORY_LIMIT = process.env.PHP_MEMORY_LIMIT;
 
 	beforeEach(() => {
@@ -74,6 +77,15 @@ describe('createPhpPrettyPrinter', () => {
 		} else {
 			process.env.PHP_MEMORY_LIMIT = ORIGINAL_PHP_MEMORY_LIMIT;
 		}
+	});
+
+	it('resolves the default pretty print script path', () => {
+		const scriptPath = resolvePrettyPrintScriptPath();
+		const packageRoot = path.resolve(__dirname, '..', '..');
+		const expectedPath = path.join(packageRoot, 'php', 'pretty-print.php');
+
+		expect(scriptPath).toBe(expectedPath);
+		expect(fs.existsSync(scriptPath)).toBe(true);
 	});
 
 	it('invokes the PHP bridge and returns formatted code and AST payloads', async () => {
@@ -102,9 +114,8 @@ describe('createPhpPrettyPrinter', () => {
 			program: [
 				{
 					nodeType: 'Stmt_Nop',
-					attributes: {},
 				},
-			],
+			] as PhpProgram,
 		});
 
 		expect(result).toEqual({
@@ -117,7 +128,7 @@ describe('createPhpPrettyPrinter', () => {
 			[
 				'-d',
 				'memory_limit=768M',
-				expect.stringContaining(path.join('php', 'pretty-print.php')),
+				expect.stringContaining('php/pretty-print.php'),
 				workspace.root,
 				'Rest/BaseController.php',
 			],
@@ -128,27 +139,6 @@ describe('createPhpPrettyPrinter', () => {
 				}),
 			})
 		);
-	});
-
-	it('resolves the PHP bridge script relative to the package root', async () => {
-		const scriptPath = resolvePrettyPrintScriptPath();
-		const packagesRoot = path.resolve(
-			__dirname,
-			'..',
-			'..',
-			'..',
-			'..',
-			'..'
-		);
-		const expectedPath = path.join(
-			packagesRoot,
-			'php-driver',
-			'php',
-			'pretty-print.php'
-		);
-
-		expect(scriptPath).toBe(expectedPath);
-		expect(fs.existsSync(scriptPath)).toBe(true);
 	});
 
 	it('raises a DeveloperError error when PHP binary or bridge is not available', async () => {
@@ -174,9 +164,8 @@ describe('createPhpPrettyPrinter', () => {
 				program: [
 					{
 						nodeType: 'Stmt_Nop',
-						attributes: {},
 					},
-				],
+				] as PhpProgram,
 			})
 		).rejects.toMatchObject({ code: 'DeveloperError' });
 	});
@@ -203,11 +192,7 @@ describe('createPhpPrettyPrinter', () => {
 				program: [
 					{
 						nodeType: undefined,
-						attributes: {},
-					} as unknown as {
-						nodeType: string;
-						attributes: Record<string, unknown>;
-					},
+					} as unknown as { nodeType: string },
 				],
 			})
 		).rejects.toMatchObject({
@@ -257,9 +242,8 @@ describe('createPhpPrettyPrinter', () => {
 			program: [
 				{
 					nodeType: 'Stmt_Nop',
-					attributes: {},
 				},
-			],
+			] as PhpProgram,
 		});
 
 		expect(spawnMock).toHaveBeenCalledWith(
@@ -267,7 +251,7 @@ describe('createPhpPrettyPrinter', () => {
 			[
 				'-d',
 				'memory_limit=512M',
-				expect.stringContaining(path.join('php', 'pretty-print.php')),
+				expect.stringContaining('php/pretty-print.php'),
 				workspace.root,
 				'Rest/BaseController.php',
 			],
@@ -300,9 +284,8 @@ describe('createPhpPrettyPrinter', () => {
 				program: [
 					{
 						nodeType: 'Stmt_Nop',
-						attributes: {},
 					},
-				],
+				] as PhpProgram,
 			})
 		).rejects.toMatchObject({
 			code: 'DeveloperError',
@@ -337,9 +320,8 @@ describe('createPhpPrettyPrinter', () => {
 				program: [
 					{
 						nodeType: 'Stmt_Nop',
-						attributes: {},
 					},
-				],
+				] as PhpProgram,
 			})
 		).rejects.toMatchObject({ code: 'DeveloperError' });
 	});
@@ -364,9 +346,8 @@ describe('createPhpPrettyPrinter', () => {
 				program: [
 					{
 						nodeType: 'Stmt_Nop',
-						attributes: {},
 					},
-				],
+				] as PhpProgram,
 			})
 		).rejects.toMatchObject({
 			code: 'DeveloperError',
@@ -401,9 +382,8 @@ describe('createPhpPrettyPrinter', () => {
 				program: [
 					{
 						nodeType: 'Stmt_Nop',
-						attributes: {},
 					},
-				],
+				] as PhpProgram,
 			})
 		).rejects.toMatchObject({ code: 'DeveloperError' });
 	});
@@ -427,9 +407,8 @@ describe('createPhpPrettyPrinter', () => {
 				program: [
 					{
 						nodeType: 'Stmt_Nop',
-						attributes: {},
 					},
-				],
+				] as PhpProgram,
 			})
 		).rejects.toThrow('bridge exploded');
 	});
@@ -455,9 +434,8 @@ describe('createPhpPrettyPrinter', () => {
 				program: [
 					{
 						nodeType: 'Stmt_Nop',
-						attributes: {},
 					},
-				],
+				] as PhpProgram,
 			})
 		).rejects.toThrow('primary failure');
 	});

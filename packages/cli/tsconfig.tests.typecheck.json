@@ -28,6 +28,8 @@
 				"packages/php-json-ast/src/*",
 				"packages/php-json-ast/dist/*"
 			],
+			"@wpkernel/php-driver": ["packages/php-driver/src/index.ts"],
+			"@wpkernel/php-driver/*": ["packages/php-driver/src/*"],
 			"@test-utils/*": ["tests/test-utils/*"]
 		},
 		"strict": true,
@@ -61,6 +63,7 @@
 		{ "path": "./tsconfig.json" },
 		{ "path": "../core/tsconfig.json" },
 		{ "path": "../php-json-ast/tsconfig.json" },
+		{ "path": "../php-driver/tsconfig.json" },
 		{ "path": "../test-utils/tsconfig.json" },
 		{ "path": "../ui/tsconfig.json" },
 		{ "path": "../e2e-utils/tsconfig.json" }

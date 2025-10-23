@@ -7,13 +7,13 @@ const monorepoRoot = path.resolve(__dirname, '../..');
 
 export default {
 	...baseConfig,
-	displayName: '@wpkernel/php-json-ast',
+	displayName: '@wpkernel/php-driver',
 	rootDir: monorepoRoot,
 	testMatch: [
-		'<rootDir>/packages/php-json-ast/**/__tests__/**/*.ts',
-		'<rootDir>/packages/php-json-ast/**/__tests__/**/*.tsx',
-		'<rootDir>/packages/php-json-ast/**/__tests__/**/*.test.ts',
-		'<rootDir>/packages/php-json-ast/**/__tests__/**/*.test.tsx',
+		'<rootDir>/packages/php-driver/**/__tests__/**/*.ts',
+		'<rootDir>/packages/php-driver/**/__tests__/**/*.tsx',
+		'<rootDir>/packages/php-driver/**/__tests__/**/*.test.ts',
+		'<rootDir>/packages/php-driver/**/__tests__/**/*.test.tsx',
 	],
 	testPathIgnorePatterns: [
 		...baseConfig.testPathIgnorePatterns,
@@ -41,9 +41,9 @@ export default {
 	},
 	setupFilesAfterEnv: ['<rootDir>/tests/setup-jest.ts'],
 	collectCoverageFrom: [
-		'<rootDir>/packages/php-json-ast/src/**/*.{ts,tsx}',
-		'!<rootDir>/packages/php-json-ast/src/**/__tests__/**',
-		'!<rootDir>/packages/php-json-ast/src/**/*.d.ts',
-		'!<rootDir>/packages/php-json-ast/src/index.ts',
+		'<rootDir>/packages/php-driver/src/**/*.{ts,tsx}',
+		'!<rootDir>/packages/php-driver/src/**/__tests__/**',
+		'!<rootDir>/packages/php-driver/src/**/*.d.ts',
+		'!<rootDir>/packages/php-driver/src/index.ts',
 	],
 };
