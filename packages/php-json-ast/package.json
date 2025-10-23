@@ -96,8 +96,9 @@
 	},
 	"peerDependencies": {
 		"@wpkernel/core": "workspace:*",
-		"@wpkernel/test-utils": "workspace:*",
-		"@wpkernel/php-driver": "workspace:*"
+		"@wpkernel/test-utils": "workspace:*"
 	},
-	"dependencies": {}
+	"dependencies": {
+		"@wpkernel/php-driver": "workspace:*"
+	}
 }

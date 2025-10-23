@@ -1,6 +1,11 @@
+import fs from 'node:fs';
 import { EventEmitter } from 'node:events';
 import path from 'node:path';
 import type { Workspace } from '../../workspace/types';
+import {
+	createPhpPrettyPrinter,
+	resolvePrettyPrintScriptPath,
+} from '../php/bridge';
 
 const spawnMock = jest.fn();
 
@@ -60,7 +65,6 @@ describe('createPhpPrettyPrinter', () => {
 
 	beforeEach(() => {
 		spawnMock.mockReset();
-		jest.resetModules();
 		delete process.env.PHP_MEMORY_LIMIT;
 	});
 
@@ -90,7 +94,6 @@ describe('createPhpPrettyPrinter', () => {
 			})
 		);
 
-		const { createPhpPrettyPrinter } = await import('../php/bridge');
 		const prettyPrinter = createPhpPrettyPrinter({ workspace });
 		process.env.PHP_MEMORY_LIMIT = '768M';
 
@@ -127,6 +130,27 @@ describe('createPhpPrettyPrinter', () => {
 		);
 	});
 
+	it('resolves the PHP bridge script relative to the package root', async () => {
+		const scriptPath = resolvePrettyPrintScriptPath();
+		const packagesRoot = path.resolve(
+			__dirname,
+			'..',
+			'..',
+			'..',
+			'..',
+			'..'
+		);
+		const expectedPath = path.join(
+			packagesRoot,
+			'php-driver',
+			'php',
+			'pretty-print.php'
+		);
+
+		expect(scriptPath).toBe(expectedPath);
+		expect(fs.existsSync(scriptPath)).toBe(true);
+	});
+
 	it('raises a DeveloperError error when PHP binary or bridge is not available', async () => {
 		spawnMock.mockImplementation(() =>
 			createMockChildProcess({
@@ -142,7 +166,6 @@ describe('createPhpPrettyPrinter', () => {
 			})
 		);
 
-		const { createPhpPrettyPrinter } = await import('../php/bridge');
 		const prettyPrinter = createPhpPrettyPrinter({ workspace });
 
 		await expect(
@@ -159,7 +182,6 @@ describe('createPhpPrettyPrinter', () => {
 	});
 
 	it('validates the AST payload shape', async () => {
-		const { createPhpPrettyPrinter } = await import('../php/bridge');
 		const prettyPrinter = createPhpPrettyPrinter({ workspace });
 
 		await expect(
@@ -228,7 +250,6 @@ describe('createPhpPrettyPrinter', () => {
 			})
 		);
 
-		const { createPhpPrettyPrinter } = await import('../php/bridge');
 		const prettyPrinter = createPhpPrettyPrinter({ workspace });
 
 		await prettyPrinter.prettyPrint({
@@ -271,7 +292,6 @@ describe('createPhpPrettyPrinter', () => {
 			})
 		);
 
-		const { createPhpPrettyPrinter } = await import('../php/bridge');
 		const prettyPrinter = createPhpPrettyPrinter({ workspace });
 
 		await expect(
@@ -309,7 +329,6 @@ describe('createPhpPrettyPrinter', () => {
 			})
 		);
 
-		const { createPhpPrettyPrinter } = await import('../php/bridge');
 		const prettyPrinter = createPhpPrettyPrinter({ workspace });
 
 		await expect(
@@ -337,7 +356,6 @@ describe('createPhpPrettyPrinter', () => {
 			})
 		);
 
-		const { createPhpPrettyPrinter } = await import('../php/bridge');
 		const prettyPrinter = createPhpPrettyPrinter({ workspace });
 
 		await expect(
@@ -375,7 +393,6 @@ describe('createPhpPrettyPrinter', () => {
 			})
 		);
 
-		const { createPhpPrettyPrinter } = await import('../php/bridge');
 		const prettyPrinter = createPhpPrettyPrinter({ workspace });
 
 		await expect(
@@ -402,7 +419,6 @@ describe('createPhpPrettyPrinter', () => {
 			})
 		);
 
-		const { createPhpPrettyPrinter } = await import('../php/bridge');
 		const prettyPrinter = createPhpPrettyPrinter({ workspace });
 
 		await expect(
@@ -431,7 +447,6 @@ describe('createPhpPrettyPrinter', () => {
 			})
 		);
 
-		const { createPhpPrettyPrinter } = await import('../php/bridge');
 		const prettyPrinter = createPhpPrettyPrinter({ workspace });
 
 		await expect(
