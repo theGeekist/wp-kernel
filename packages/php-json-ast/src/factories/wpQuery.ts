@@ -1,19 +1,19 @@
 import { KernelError } from '../KernelError';
 import {
-	createArg,
-	createAssign,
-	createExpressionStatement,
-	createName,
-	createNode,
-	createVariable,
+	buildArg,
+	buildAssign,
+	buildExpressionStatement,
+	buildName,
+	buildNode,
+	buildVariable,
 	type PhpExprNew,
 	type PhpStmtExpression,
 } from '../nodes';
-import { createPrintable, type PhpPrintable } from '../printables';
+import { buildPrintable, type PhpPrintable } from '../printables';
 
 const DEFAULT_INDENT_UNIT = '        ';
 
-export interface CreateWpQueryInstantiationOptions {
+export interface BuildWpQueryInstantiationOptions {
 	readonly target: string;
 	readonly argsVariable: string;
 	readonly indentLevel?: number;
@@ -48,8 +48,8 @@ function normaliseVariableName(name: string): NormalisedVariableName {
 	return { raw: trimmed, display: `$${trimmed}` };
 }
 
-export function createWpQueryInstantiation(
-	options: CreateWpQueryInstantiationOptions
+export function buildWpQueryInstantiation(
+	options: BuildWpQueryInstantiationOptions
 ): PhpPrintable<PhpStmtExpression> {
 	const indentUnit = options.indentUnit ?? DEFAULT_INDENT_UNIT;
 	const indentLevel = options.indentLevel ?? 0;
@@ -57,17 +57,17 @@ export function createWpQueryInstantiation(
 	const target = normaliseVariableName(options.target);
 	const args = normaliseVariableName(options.argsVariable);
 
-	const expression = createExpressionStatement(
-		createAssign(
-			createVariable(target.raw),
-			createNode<PhpExprNew>('Expr_New', {
-				class: createName(['WP_Query']),
-				args: [createArg(createVariable(args.raw))],
+	const expression = buildExpressionStatement(
+		buildAssign(
+			buildVariable(target.raw),
+			buildNode<PhpExprNew>('Expr_New', {
+				class: buildName(['WP_Query']),
+				args: [buildArg(buildVariable(args.raw))],
 			})
 		)
 	);
 
 	const line = `${indent}${target.display} = new WP_Query( ${args.display} );`;
 
-	return createPrintable(expression, [line]);
+	return buildPrintable(expression, [line]);
 }

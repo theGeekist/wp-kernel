@@ -1,8 +1,8 @@
-import { createNode, type PhpAttributes, type PhpNode } from '../base';
+import { buildNode, type PhpAttributes, type PhpNode } from '../base';
 import type { PhpArg } from '../arguments';
 import type { PhpAttrGroup } from '../attributes';
 import type { PhpIdentifier } from '../identifier';
-import { createName, type PhpName } from '../name';
+import { buildName, type PhpName } from '../name';
 import type { PhpParam } from '../params';
 import type { PhpScalar } from '../scalar';
 import type { PhpStmt } from '../stmt';
@@ -250,14 +250,14 @@ export type PhpExprCastScalar =
 	| PhpExprCastString
 	| PhpExprCastBool;
 
-export function createArray(
+export function buildArray(
 	items: PhpExprArrayItem[],
 	attributes?: PhpAttributes
 ): PhpExprArray {
-	return createNode<PhpExprArray>('Expr_Array', { items }, attributes);
+	return buildNode<PhpExprArray>('Expr_Array', { items }, attributes);
 }
 
-export function createArrayItem(
+export function buildArrayItem(
 	value: PhpExpr,
 	options: {
 		key?: PhpExpr | null;
@@ -266,7 +266,7 @@ export function createArrayItem(
 	} = {},
 	attributes?: PhpAttributes
 ): PhpExprArrayItem {
-	return createNode<PhpExprArrayItem>(
+	return buildNode<PhpExprArrayItem>(
 		'Expr_ArrayItem',
 		{
 			key: options.key ?? null,
@@ -278,170 +278,166 @@ export function createArrayItem(
 	);
 }
 
-export function createScalarBool(
+export function buildScalarBool(
 	value: boolean,
 	attributes?: PhpAttributes
 ): PhpExprConstFetch {
-	return createNode<PhpExprConstFetch>(
+	return buildNode<PhpExprConstFetch>(
 		'Expr_ConstFetch',
 		{
-			name: createName(value ? ['true'] : ['false']),
+			name: buildName(value ? ['true'] : ['false']),
 		},
 		attributes
 	);
 }
 
-export function createNull(attributes?: PhpAttributes): PhpExprConstFetch {
-	return createNode<PhpExprConstFetch>(
+export function buildNull(attributes?: PhpAttributes): PhpExprConstFetch {
+	return buildNode<PhpExprConstFetch>(
 		'Expr_ConstFetch',
 		{
-			name: createName(['null']),
+			name: buildName(['null']),
 		},
 		attributes
 	);
 }
 
-export function createVariable(
+export function buildVariable(
 	name: string | PhpExpr,
 	attributes?: PhpAttributes
 ): PhpExprVariable {
-	return createNode<PhpExprVariable>('Expr_Variable', { name }, attributes);
+	return buildNode<PhpExprVariable>('Expr_Variable', { name }, attributes);
 }
 
-export function createAssign(
+export function buildAssign(
 	variable: PhpExpr,
 	expr: PhpExpr,
 	attributes?: PhpAttributes
 ): PhpExprAssign {
-	return createNode<PhpExprAssign>(
+	return buildNode<PhpExprAssign>(
 		'Expr_Assign',
 		{ var: variable, expr },
 		attributes
 	);
 }
 
-export function createArrayDimFetch(
+export function buildArrayDimFetch(
 	variable: PhpExpr,
 	dim: PhpExpr | null,
 	attributes?: PhpAttributes
 ): PhpExprArrayDimFetch {
-	return createNode<PhpExprArrayDimFetch>(
+	return buildNode<PhpExprArrayDimFetch>(
 		'Expr_ArrayDimFetch',
 		{ var: variable, dim },
 		attributes
 	);
 }
 
-export function createMethodCall(
+export function buildMethodCall(
 	variable: PhpExpr,
 	name: PhpIdentifier | PhpExpr,
 	args: PhpArg[] = [],
 	attributes?: PhpAttributes
 ): PhpExprMethodCall {
-	return createNode<PhpExprMethodCall>(
+	return buildNode<PhpExprMethodCall>(
 		'Expr_MethodCall',
 		{ var: variable, name, args },
 		attributes
 	);
 }
 
-export function createNullsafeMethodCall(
+export function buildNullsafeMethodCall(
 	variable: PhpExpr,
 	name: PhpIdentifier | PhpExpr,
 	args: PhpArg[] = [],
 	attributes?: PhpAttributes
 ): PhpExprNullsafeMethodCall {
-	return createNode<PhpExprNullsafeMethodCall>(
+	return buildNode<PhpExprNullsafeMethodCall>(
 		'Expr_NullsafeMethodCall',
 		{ var: variable, name, args },
 		attributes
 	);
 }
 
-export function createStaticCall(
+export function buildStaticCall(
 	className: PhpName | PhpExpr,
 	name: PhpIdentifier | PhpExpr,
 	args: PhpArg[] = [],
 	attributes?: PhpAttributes
 ): PhpExprStaticCall {
-	return createNode<PhpExprStaticCall>(
+	return buildNode<PhpExprStaticCall>(
 		'Expr_StaticCall',
 		{ class: className, name, args },
 		attributes
 	);
 }
 
-export function createFuncCall(
+export function buildFuncCall(
 	name: PhpName | PhpExpr,
 	args: PhpArg[] = [],
 	attributes?: PhpAttributes
 ): PhpExprFuncCall {
-	return createNode<PhpExprFuncCall>(
+	return buildNode<PhpExprFuncCall>(
 		'Expr_FuncCall',
 		{ name, args },
 		attributes
 	);
 }
 
-export function createPropertyFetch(
+export function buildPropertyFetch(
 	variable: PhpExpr,
 	name: PhpIdentifier | PhpExpr,
 	attributes?: PhpAttributes
 ): PhpExprPropertyFetch {
-	return createNode<PhpExprPropertyFetch>(
+	return buildNode<PhpExprPropertyFetch>(
 		'Expr_PropertyFetch',
 		{ var: variable, name },
 		attributes
 	);
 }
 
-export function createNullsafePropertyFetch(
+export function buildNullsafePropertyFetch(
 	variable: PhpExpr,
 	name: PhpIdentifier | PhpExpr,
 	attributes?: PhpAttributes
 ): PhpExprNullsafePropertyFetch {
-	return createNode<PhpExprNullsafePropertyFetch>(
+	return buildNode<PhpExprNullsafePropertyFetch>(
 		'Expr_NullsafePropertyFetch',
 		{ var: variable, name },
 		attributes
 	);
 }
 
-export function createBooleanNot(
+export function buildBooleanNot(
 	expr: PhpExpr,
 	attributes?: PhpAttributes
 ): PhpExprBooleanNot {
-	return createNode<PhpExprBooleanNot>(
+	return buildNode<PhpExprBooleanNot>(
 		'Expr_BooleanNot',
 		{ expr },
 		attributes
 	);
 }
 
-export function createInstanceof(
+export function buildInstanceof(
 	expr: PhpExpr,
 	className: PhpName | PhpExpr,
 	attributes?: PhpAttributes
 ): PhpExprInstanceof {
-	return createNode<PhpExprInstanceof>(
+	return buildNode<PhpExprInstanceof>(
 		'Expr_Instanceof',
 		{ expr, class: className },
 		attributes
 	);
 }
 
-export function createArrayCast(
+export function buildArrayCast(
 	expr: PhpExpr,
 	attributes?: PhpAttributes
 ): PhpExprCastArray {
-	return createNode<PhpExprCastArray>(
-		'Expr_Cast_Array',
-		{ expr },
-		attributes
-	);
+	return buildNode<PhpExprCastArray>('Expr_Cast_Array', { expr }, attributes);
 }
 
-export function createScalarCast(
+export function buildScalarCast(
 	kind: 'int' | 'float' | 'string' | 'bool',
 	expr: PhpExpr,
 	attributes?: PhpAttributes
@@ -458,22 +454,22 @@ export function createScalarCast(
 		>
 	)[kind];
 
-	return createNode<PhpExprCastScalar>(nodeType, { expr }, attributes);
+	return buildNode<PhpExprCastScalar>(nodeType, { expr }, attributes);
 }
 
-export function createClosureUse(
+export function buildClosureUse(
 	variable: PhpExprVariable,
 	options: { byRef?: boolean } = {},
 	attributes?: PhpAttributes
 ): PhpClosureUse {
-	return createNode<PhpClosureUse>(
+	return buildNode<PhpClosureUse>(
 		'ClosureUse',
 		{ var: variable, byRef: options.byRef ?? false },
 		attributes
 	);
 }
 
-export function createClosure(
+export function buildClosure(
 	options: {
 		static?: boolean;
 		byRef?: boolean;
@@ -485,7 +481,7 @@ export function createClosure(
 	} = {},
 	attributes?: PhpAttributes
 ): PhpExprClosure {
-	return createNode<PhpExprClosure>(
+	return buildNode<PhpExprClosure>(
 		'Expr_Closure',
 		{
 			static: options.static ?? false,
@@ -500,7 +496,7 @@ export function createClosure(
 	);
 }
 
-export function createArrowFunction(
+export function buildArrowFunction(
 	options: {
 		static?: boolean;
 		byRef?: boolean;
@@ -511,7 +507,7 @@ export function createArrowFunction(
 	},
 	attributes?: PhpAttributes
 ): PhpExprArrowFunction {
-	return createNode<PhpExprArrowFunction>(
+	return buildNode<PhpExprArrowFunction>(
 		'Expr_ArrowFunction',
 		{
 			static: options.static ?? false,
@@ -525,25 +521,25 @@ export function createArrowFunction(
 	);
 }
 
-export function createMatchArm(
+export function buildMatchArm(
 	conds: PhpExpr[] | null,
 	body: PhpExpr,
 	attributes?: PhpAttributes
 ): PhpMatchArm {
-	return createNode<PhpMatchArm>('MatchArm', { conds, body }, attributes);
+	return buildNode<PhpMatchArm>('MatchArm', { conds, body }, attributes);
 }
 
-export function createMatch(
+export function buildMatch(
 	cond: PhpExpr,
 	arms: PhpMatchArm[],
 	attributes?: PhpAttributes
 ): PhpExprMatch {
-	return createNode<PhpExprMatch>('Expr_Match', { cond, arms }, attributes);
+	return buildNode<PhpExprMatch>('Expr_Match', { cond, arms }, attributes);
 }
 
-export function createThrow(
+export function buildThrow(
 	expr: PhpExpr,
 	attributes?: PhpAttributes
 ): PhpExprThrow {
-	return createNode<PhpExprThrow>('Expr_Throw', { expr }, attributes);
+	return buildNode<PhpExprThrow>('Expr_Throw', { expr }, attributes);
 }

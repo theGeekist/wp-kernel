@@ -6,19 +6,19 @@ import {
 	type WorkspaceLike,
 } from '@wpkernel/php-driver';
 import {
-	createArg,
-	createArrowFunction,
-	createAssign,
-	createExpressionStatement,
-	createIdentifier,
-	createMatch,
-	createMatchArm,
-	createNullsafeMethodCall,
-	createParam,
-	createScalarInt,
-	createScalarString,
-	createThrow,
-	createVariable,
+	buildArg,
+	buildArrowFunction,
+	buildAssign,
+	buildExpressionStatement,
+	buildIdentifier,
+	buildMatch,
+	buildMatchArm,
+	buildNullsafeMethodCall,
+	buildParam,
+	buildScalarInt,
+	buildScalarString,
+	buildThrow,
+	buildVariable,
 	type PhpProgram,
 } from '../nodes';
 type Workspace = WorkspaceLike & {
@@ -119,29 +119,29 @@ describe('modern PHP expressions', () => {
 		expect(existsSync(phpBinary)).toBe(true);
 
 		const program: PhpProgram = [
-			createExpressionStatement(
-				createAssign(
-					createVariable('callback'),
-					createArrowFunction({
-						params: [createParam(createVariable('value'))],
-						expr: createMatch(createVariable('value'), [
-							createMatchArm(
-								[createScalarInt(0)],
-								createScalarString('zero')
+			buildExpressionStatement(
+				buildAssign(
+					buildVariable('callback'),
+					buildArrowFunction({
+						params: [buildParam(buildVariable('value'))],
+						expr: buildMatch(buildVariable('value'), [
+							buildMatchArm(
+								[buildScalarInt(0)],
+								buildScalarString('zero')
 							),
-							createMatchArm(null, createScalarString('other')),
+							buildMatchArm(null, buildScalarString('other')),
 						]),
 					})
 				)
 			),
-			createExpressionStatement(
-				createNullsafeMethodCall(
-					createVariable('repository'),
-					createIdentifier('find'),
-					[createArg(createScalarInt(42))]
+			buildExpressionStatement(
+				buildNullsafeMethodCall(
+					buildVariable('repository'),
+					buildIdentifier('find'),
+					[buildArg(buildScalarInt(42))]
 				)
 			),
-			createExpressionStatement(createThrow(createVariable('error'))),
+			buildExpressionStatement(buildThrow(buildVariable('error'))),
 		];
 
 		const versionCheck = spawnSync(phpBinary, ['-v'], { encoding: 'utf8' });

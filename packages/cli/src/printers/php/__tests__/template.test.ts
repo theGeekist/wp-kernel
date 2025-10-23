@@ -1,8 +1,8 @@
-import { createMethodTemplate, PHP_INDENT } from '../template';
+import { assembleMethodTemplate, PHP_INDENT } from '../template';
 
-describe('createMethodTemplate', () => {
+describe('assembleMethodTemplate', () => {
 	it('renders docblocks and indents body lines', () => {
-		const lines = createMethodTemplate({
+		const lines = assembleMethodTemplate({
 			signature: 'public function demo(): void',
 			indentLevel: 1,
 			docblock: ['Example docblock'],
@@ -27,7 +27,7 @@ describe('createMethodTemplate', () => {
 	});
 
 	it('omits docblocks and body when no lines are emitted', () => {
-		const lines = createMethodTemplate({
+		const lines = assembleMethodTemplate({
 			signature: 'public function empty(): void',
 			indentLevel: 0,
 			body: () => {

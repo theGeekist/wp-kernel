@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import { PhpFileBuilder } from '../php/builder.js';
 import { appendGeneratedFileDocblock } from '../php/docblock.js';
 import { renderPhpFile } from '../php/render.js';
-import { createMethodTemplate, PHP_INDENT } from '../php/template.js';
+import { assembleMethodTemplate, PHP_INDENT } from '../php/template.js';
 import { sanitizeJson } from '../php/utils.js';
 import { renderPhpReturn } from '../php/value-renderer.js';
 import type { SSRBlockOptions, BlockPrinterResult } from './types.js';
@@ -409,7 +409,7 @@ function renderRegistrarFile(options: {
 	builder.appendStatement('{');
 
 	const methods = [
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature: 'public static function register(): void',
 			indentLevel: 1,
 			indentUnit: PHP_INDENT,
@@ -465,7 +465,7 @@ function renderRegistrarFile(options: {
 				body.line('}');
 			},
 		}),
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature:
 				'private static function resolve_config_path( string $root, array $config, string $key ): ?string',
 			indentLevel: 1,
@@ -487,7 +487,7 @@ function renderRegistrarFile(options: {
 				body.line('return $path;');
 			},
 		}),
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature:
 				'private static function resolve_render_path( string $root, array $config ): ?string',
 			indentLevel: 1,
@@ -517,7 +517,7 @@ function renderRegistrarFile(options: {
 				body.line('return $candidate;');
 			},
 		}),
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature:
 				'private static function build_render_arguments( string $render_path ): array',
 			indentLevel: 1,
@@ -536,7 +536,7 @@ function renderRegistrarFile(options: {
 				body.line('];');
 			},
 		}),
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature:
 				'private static function render_template( string $render_path, array $attributes, string $content, ?\\WP_Block $block = null ): string',
 			indentLevel: 1,
@@ -552,7 +552,7 @@ function renderRegistrarFile(options: {
 				body.line('return (string) ob_get_clean();');
 			},
 		}),
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature:
 				'private static function resolve_directory_fallback( string $root, array $config ): ?string',
 			indentLevel: 1,
@@ -574,7 +574,7 @@ function renderRegistrarFile(options: {
 				body.line('return $path;');
 			},
 		}),
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature:
 				'private static function normalise_relative( string $root, string $relative ): string',
 			indentLevel: 1,

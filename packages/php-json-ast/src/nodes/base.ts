@@ -55,7 +55,7 @@ export function mergeNodeAttributes<T extends PhpNode>(
  * @param props
  * @param attributes
  */
-export function createNode<T extends PhpNode>(
+export function buildNode<T extends PhpNode>(
 	nodeType: T['nodeType'],
 	props: Omit<T, 'nodeType' | 'attributes'>,
 	attributes?: PhpAttributes

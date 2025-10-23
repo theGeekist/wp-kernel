@@ -3,7 +3,7 @@ import { PhpFileBuilder } from './builder';
 import { appendGeneratedFileDocblock } from './docblock';
 import { sanitizeJson } from './utils';
 import { renderPhpExpression } from './value-renderer';
-import { createMethodTemplate, PHP_INDENT } from './template';
+import { assembleMethodTemplate, PHP_INDENT } from './template';
 import type { IRPolicyDefinition } from '../../ir';
 
 export function createPolicyHelperBuilder(
@@ -26,11 +26,11 @@ export function createPolicyHelperBuilder(
 	builder.appendStatement('final class Policy');
 	builder.appendStatement('{');
 
-	const mapStatement = createConstStatement(
+	const mapStatement = buildConstStatement(
 		'POLICY_MAP',
 		buildPolicyMap(context)
 	);
-	const fallbackStatement = createConstStatement(
+	const fallbackStatement = buildConstStatement(
 		'FALLBACK',
 		sanitizeJson(context.ir.policyMap.fallback)
 	);
@@ -58,7 +58,7 @@ export function createPolicyHelperBuilder(
 	return builder;
 }
 
-function createConstStatement(name: string, value: unknown): string {
+function buildConstStatement(name: string, value: unknown): string {
 	const lines = renderPhpExpression(value, 1);
 	const indent = PHP_INDENT;
 	if (lines.length === 0) {
@@ -98,7 +98,7 @@ function createPolicyEntry(
 }
 
 function createCallbackMethod(): string[] {
-	return createMethodTemplate({
+	return assembleMethodTemplate({
 		signature:
 			'public static function callback( string $policy_key ): callable',
 		indentLevel: 1,
@@ -115,7 +115,7 @@ function createCallbackMethod(): string[] {
 }
 
 function createEnforceMethod(): string[] {
-	return createMethodTemplate({
+	return assembleMethodTemplate({
 		signature:
 			'public static function enforce( string $policy_key, WP_REST_Request $request )',
 		indentLevel: 1,
@@ -163,7 +163,7 @@ function createEnforceMethod(): string[] {
 }
 
 function createDefinitionMethod(): string[] {
-	return createMethodTemplate({
+	return assembleMethodTemplate({
 		signature:
 			'private static function get_definition( string $policy_key ): array',
 		indentLevel: 1,
@@ -180,7 +180,7 @@ function createDefinitionMethod(): string[] {
 }
 
 function createBindingMethod(): string[] {
-	return createMethodTemplate({
+	return assembleMethodTemplate({
 		signature:
 			'private static function get_binding( array $definition ): ?string',
 		indentLevel: 1,
@@ -198,7 +198,7 @@ function createBindingMethod(): string[] {
 }
 
 function createErrorMethod(): string[] {
-	return createMethodTemplate({
+	return assembleMethodTemplate({
 		signature:
 			'private static function create_error( string $code, string $message, array $context = array() ): WP_Error',
 		indentLevel: 1,

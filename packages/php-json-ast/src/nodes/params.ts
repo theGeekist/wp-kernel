@@ -1,4 +1,4 @@
-import { createNode, type PhpAttributes, type PhpNode } from './base';
+import { buildNode, type PhpAttributes, type PhpNode } from './base';
 import type { PhpAttrGroup } from './attributes';
 import type { PhpExpr } from './expressions';
 import type { PhpType } from './types';
@@ -14,7 +14,7 @@ export interface PhpParam extends PhpNode {
 	readonly attrGroups: PhpAttrGroup[];
 }
 
-export function createParam(
+export function buildParam(
 	variable: PhpExpr,
 	options: {
 		type?: PhpType | null;
@@ -26,7 +26,7 @@ export function createParam(
 	} = {},
 	attributes?: PhpAttributes
 ): PhpParam {
-	return createNode<PhpParam>(
+	return buildNode<PhpParam>(
 		'Param',
 		{
 			type: options.type ?? null,

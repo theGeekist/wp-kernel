@@ -1,5 +1,5 @@
 import type { PhpArg } from './arguments';
-import { createNode, type PhpAttributes, type PhpNode } from './base';
+import { buildNode, type PhpAttributes, type PhpNode } from './base';
 import type { PhpIdentifier } from './identifier';
 import type { PhpName } from './name';
 
@@ -14,17 +14,17 @@ export interface PhpAttribute extends PhpNode {
 	readonly args: PhpArg[];
 }
 
-export function createAttributeGroup(
+export function buildAttributeGroup(
 	attrs: PhpAttribute[],
 	attributes?: PhpAttributes
 ): PhpAttrGroup {
-	return createNode<PhpAttrGroup>('AttributeGroup', { attrs }, attributes);
+	return buildNode<PhpAttrGroup>('AttributeGroup', { attrs }, attributes);
 }
 
-export function createAttribute(
+export function buildAttribute(
 	name: PhpName | PhpIdentifier,
 	args: PhpArg[],
 	attributes?: PhpAttributes
 ): PhpAttribute {
-	return createNode<PhpAttribute>('Attribute', { name, args }, attributes);
+	return buildNode<PhpAttribute>('Attribute', { name, args }, attributes);
 }

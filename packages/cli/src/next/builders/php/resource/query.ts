@@ -1,21 +1,21 @@
 import {
-	createArg,
-	createAssign,
-	createArray,
-	createArrayItem,
-	createExpressionStatement,
-	createFuncCall,
-	createIdentifier,
-	createMethodCall,
-	createName,
-	createNode,
-	createScalarInt,
-	createScalarString,
-	createVariable,
+	buildArg,
+	buildAssign,
+	buildArray,
+	buildArrayItem,
+	buildExpressionStatement,
+	buildFuncCall,
+	buildIdentifier,
+	buildMethodCall,
+	buildName,
+	buildNode,
+	buildScalarInt,
+	buildScalarString,
+	buildVariable,
 	type PhpExprBinaryOp,
 	type PhpStmtExpression,
 	type PhpStmtIf,
-	createPrintable,
+	buildPrintable,
 	type PhpPrintable,
 	type ResourceControllerCacheOperation,
 	type ResourceControllerCacheScope,
@@ -23,7 +23,7 @@ import {
 } from '@wpkernel/php-json-ast';
 import {
 	PHP_INDENT,
-	createWpQueryInstantiation,
+	buildWpQueryInstantiation,
 	escapeSingleQuotes,
 } from '@wpkernel/php-json-ast';
 import { appendResourceCacheEvent } from './cache';
@@ -64,7 +64,7 @@ export function createQueryArgsAssignment(
 	const indent = indentUnit.repeat(indentLevel);
 	const childIndent = indentUnit.repeat(indentLevel + 1);
 
-	const items: ReturnType<typeof createArrayItem>[] = [];
+	const items: ReturnType<typeof buildArrayItem>[] = [];
 	const lines: string[] = [`${indent}${target.display} = [`];
 
 	for (const entry of entries) {
@@ -81,18 +81,18 @@ export function createQueryArgsAssignment(
 		childLines[lastIndex] = `${childLines[lastIndex]},`;
 		lines.push(...childLines);
 		items.push(
-			createArrayItem(rendered.node, {
-				key: createScalarString(entry.key),
+			buildArrayItem(rendered.node, {
+				key: buildScalarString(entry.key),
 			})
 		);
 	}
 
 	lines.push(`${indent}];`);
 
-	const assign = createAssign(createVariable(target.raw), createArray(items));
-	const statement = createExpressionStatement(assign);
+	const assign = buildAssign(buildVariable(target.raw), buildArray(items));
+	const statement = buildExpressionStatement(assign);
 
-	return createPrintable(statement, lines);
+	return buildPrintable(statement, lines);
 }
 
 export interface PaginationNormalisationOptions {
@@ -180,16 +180,16 @@ function createConditionalAssignment(
 
 	const condition = buildBinaryOperation(
 		operator,
-		createVariable(variable.raw),
-		createScalarInt(comparison)
+		buildVariable(variable.raw),
+		buildScalarInt(comparison)
 	);
 
-	const assign = createAssign(
-		createVariable(variable.raw),
-		createScalarInt(assignment)
+	const assign = buildAssign(
+		buildVariable(variable.raw),
+		buildScalarInt(assignment)
 	);
-	const statement = createExpressionStatement(assign);
-	const ifNode = createNode<PhpStmtIf>('Stmt_If', {
+	const statement = buildExpressionStatement(assign);
+	const ifNode = buildNode<PhpStmtIf>('Stmt_If', {
 		cond: condition as PhpExprBinaryOp,
 		stmts: [statement],
 		elseifs: [],
@@ -203,7 +203,7 @@ function createConditionalAssignment(
 		`${indent}}`,
 	];
 
-	return createPrintable(ifNode, lines);
+	return buildPrintable(ifNode, lines);
 }
 
 export interface PageExpressionOptions {
@@ -218,20 +218,20 @@ export function createPageExpression(
 	const { requestVariable, param = 'page', minimum = 1 } = options;
 	const request = normaliseVariableReference(requestVariable);
 
-	const methodCall = createMethodCall(
-		createVariable(request.raw),
-		createIdentifier('get_param'),
-		[createArg(createScalarString(param))]
+	const methodCall = buildMethodCall(
+		buildVariable(request.raw),
+		buildIdentifier('get_param'),
+		[buildArg(buildScalarString(param))]
 	);
 
 	const cast = buildScalarCast('int', methodCall);
-	const funcCall = createFuncCall(createName(['max']), [
-		createArg(createScalarInt(minimum)),
-		createArg(cast),
+	const funcCall = buildFuncCall(buildName(['max']), [
+		buildArg(buildScalarInt(minimum)),
+		buildArg(cast),
 	]);
 
 	const line = `max( ${minimum}, (int) ${request.display}->get_param( '${param}' ) )`;
-	return expression(createPrintable(funcCall, [line]));
+	return expression(buildPrintable(funcCall, [line]));
 }
 
 export interface ExecuteWpQueryOptions {
@@ -263,7 +263,7 @@ export function createWpQueryExecution(
 		});
 	}
 
-	return createWpQueryInstantiation({
+	return buildWpQueryInstantiation({
 		target,
 		argsVariable,
 		indentLevel,

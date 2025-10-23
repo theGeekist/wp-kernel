@@ -14,7 +14,7 @@ export interface PhpComment extends PhpCommentLocation {
 
 export type PhpDocComment = PhpComment & { readonly nodeType: 'Comment_Doc' };
 
-export function createComment(
+export function buildComment(
 	text: string,
 	location: PhpCommentLocation = {}
 ): PhpComment {
@@ -39,7 +39,7 @@ function formatDocblockText(lines: readonly string[]): string {
 	return ['/**', body, ' */'].join('\n');
 }
 
-export function createDocComment(
+export function buildDocComment(
 	lines: readonly string[],
 	location: PhpCommentLocation = {}
 ): PhpDocComment {

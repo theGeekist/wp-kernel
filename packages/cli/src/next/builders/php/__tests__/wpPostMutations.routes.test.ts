@@ -11,8 +11,8 @@ import {
 	resetPhpAstChannel,
 } from '@wpkernel/php-json-ast';
 import {
-	createClassTemplate,
-	createMethodTemplate,
+	assembleClassTemplate,
+	assembleMethodTemplate,
 	PHP_INDENT,
 	type PhpMethodBodyBuilder,
 } from '@wpkernel/php-json-ast';
@@ -148,13 +148,13 @@ async function queueRouteProgram(
 			tags: metadata,
 		},
 		async build(builder) {
-			const method = createMethodTemplate({
+			const method = assembleMethodTemplate({
 				signature: 'public function handle( WP_REST_Request $request )',
 				indentLevel: 1,
 				indentUnit: PHP_INDENT,
 				body: buildMethod,
 			});
-			const classTemplate = createClassTemplate({
+			const classTemplate = assembleClassTemplate({
 				name: 'MutationHarness',
 				methods: [method],
 			});
@@ -212,7 +212,7 @@ async function queueHelperPrograms(): Promise<{
 					pascalName: PASCALE_NAME,
 					identity: IDENTITY,
 				});
-				const classTemplate = createClassTemplate({
+				const classTemplate = assembleClassTemplate({
 					name: 'MutationHelpers',
 					methods: [method],
 				});

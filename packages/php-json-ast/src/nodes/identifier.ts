@@ -1,13 +1,13 @@
-import { createNode, type PhpAttributes, type PhpNode } from './base';
+import { buildNode, type PhpAttributes, type PhpNode } from './base';
 
 export interface PhpIdentifier extends PhpNode {
 	readonly nodeType: 'Identifier';
 	readonly name: string;
 }
 
-export function createIdentifier(
+export function buildIdentifier(
 	name: string,
 	attributes?: PhpAttributes
 ): PhpIdentifier {
-	return createNode<PhpIdentifier>('Identifier', { name }, attributes);
+	return buildNode<PhpIdentifier>('Identifier', { name }, attributes);
 }

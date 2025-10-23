@@ -1,8 +1,8 @@
-import { createWpTermQueryInstantiation } from '../factories/wpTermQuery';
+import { buildWpTermQueryInstantiation } from '../factories/wpTermQuery';
 
-describe('createWpTermQueryInstantiation', () => {
+describe('buildWpTermQueryInstantiation', () => {
 	it('creates a WP_Term_Query instantiation without arguments', () => {
-		const printable = createWpTermQueryInstantiation({
+		const printable = buildWpTermQueryInstantiation({
 			target: 'term_query',
 		});
 
@@ -18,7 +18,7 @@ describe('createWpTermQueryInstantiation', () => {
 	});
 
 	it('supports constructor arguments and indentation overrides', () => {
-		const printable = createWpTermQueryInstantiation({
+		const printable = buildWpTermQueryInstantiation({
 			target: '$query',
 			argsVariable: '$args',
 			indentLevel: 1,
@@ -39,7 +39,7 @@ describe('createWpTermQueryInstantiation', () => {
 
 	it('throws when provided with an empty variable name', () => {
 		expect(() =>
-			createWpTermQueryInstantiation({ target: '', argsVariable: 'args' })
+			buildWpTermQueryInstantiation({ target: '', argsVariable: 'args' })
 		).toThrow('Variable name must not be empty.');
 	});
 });

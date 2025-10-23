@@ -1,15 +1,15 @@
 import {
-	createArg,
-	createArray,
-	createArrayItem,
-	createName,
-	createNode,
-	createReturn,
-	createScalarInt,
-	createScalarString,
+	buildArg,
+	buildArray,
+	buildArrayItem,
+	buildName,
+	buildNode,
+	buildReturn,
+	buildScalarInt,
+	buildScalarString,
 	type PhpExprNew,
 	type PhpStmtReturn,
-	createPrintable,
+	buildPrintable,
 	type PhpPrintable,
 } from '@wpkernel/php-json-ast';
 import { PHP_INDENT, escapeSingleQuotes } from '@wpkernel/php-json-ast';
@@ -27,25 +27,25 @@ export function createWpErrorReturn(
 	const { indentLevel, code, message, status = 400 } = options;
 	const indent = PHP_INDENT.repeat(indentLevel);
 
-	const errorExpr = createNode<PhpExprNew>('Expr_New', {
-		class: createName(['WP_Error']),
+	const errorExpr = buildNode<PhpExprNew>('Expr_New', {
+		class: buildName(['WP_Error']),
 		args: [
-			createArg(createScalarString(code)),
-			createArg(createScalarString(message)),
-			createArg(
-				createArray([
-					createArrayItem(createScalarInt(status), {
-						key: createScalarString('status'),
+			buildArg(buildScalarString(code)),
+			buildArg(buildScalarString(message)),
+			buildArg(
+				buildArray([
+					buildArrayItem(buildScalarInt(status), {
+						key: buildScalarString('status'),
 					}),
 				])
 			),
 		],
 	});
 
-	const returnNode = createReturn(errorExpr);
+	const returnNode = buildReturn(errorExpr);
 	const line = `${indent}return new WP_Error( '${escapeSingleQuotes(
 		code
 	)}', '${escapeSingleQuotes(message)}', [ 'status' => ${status} ] );`;
 
-	return createPrintable(returnNode, [line]);
+	return buildPrintable(returnNode, [line]);
 }

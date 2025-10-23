@@ -1,20 +1,20 @@
 import {
-	createArg,
-	createAssign,
-	createArray,
-	createArrayItem,
-	createExpressionStatement,
-	createFuncCall,
-	createIdentifier,
-	createMethodCall,
-	createName,
-	createReturn,
-	createScalarBool,
-	createScalarString,
-	createVariable,
-	createPrintable,
+	buildArg,
+	buildAssign,
+	buildArray,
+	buildArrayItem,
+	buildExpressionStatement,
+	buildFuncCall,
+	buildIdentifier,
+	buildMethodCall,
+	buildName,
+	buildReturn,
+	buildScalarBool,
+	buildScalarString,
+	buildVariable,
+	buildPrintable,
 	PHP_INDENT,
-	createErrorCodeFactory,
+	makeErrorCodeFactory,
 } from '@wpkernel/php-json-ast';
 import { createIdentityValidationPrintables } from '../../identity';
 import {
@@ -39,16 +39,16 @@ export function buildDeleteRouteBody(
 	const indentLevel = options.indentLevel;
 	const indent = PHP_INDENT.repeat(indentLevel);
 	const identityVar = options.identity.param;
-	const errorCodeFactory = createErrorCodeFactory(options.resource.name);
+	const errorCodeFactory = makeErrorCodeFactory(options.resource.name);
 
-	const identityPrintable = createPrintable(
-		createExpressionStatement(
-			createAssign(
-				createVariable(identityVar),
-				createMethodCall(
-					createVariable('request'),
-					createIdentifier('get_param'),
-					[createArg(createScalarString(identityVar))]
+	const identityPrintable = buildPrintable(
+		buildExpressionStatement(
+			buildAssign(
+				buildVariable(identityVar),
+				buildMethodCall(
+					buildVariable('request'),
+					buildIdentifier('get_param'),
+					[buildArg(buildScalarString(identityVar))]
 				)
 			)
 		),
@@ -71,14 +71,14 @@ export function buildDeleteRouteBody(
 		options.body.blank();
 	}
 
-	const resolvePrintable = createPrintable(
-		createExpressionStatement(
-			createAssign(
-				createVariable('post'),
-				createMethodCall(
-					createVariable('this'),
-					createIdentifier(`resolve${options.pascalName}Post`),
-					[createArg(createVariable(identityVar))]
+	const resolvePrintable = buildPrintable(
+		buildExpressionStatement(
+			buildAssign(
+				buildVariable('post'),
+				buildMethodCall(
+					buildVariable('this'),
+					buildIdentifier(`resolve${options.pascalName}Post`),
+					[buildArg(buildVariable(identityVar))]
 				)
 			)
 		),
@@ -104,16 +104,16 @@ export function buildDeleteRouteBody(
 	options.body.statement(notFoundGuard);
 	options.body.blank();
 
-	const previousPrintable = createPrintable(
-		createExpressionStatement(
-			createAssign(
-				createVariable('previous'),
-				createMethodCall(
-					createVariable('this'),
-					createIdentifier(`prepare${options.pascalName}Response`),
+	const previousPrintable = buildPrintable(
+		buildExpressionStatement(
+			buildAssign(
+				buildVariable('previous'),
+				buildMethodCall(
+					buildVariable('this'),
+					buildIdentifier(`prepare${options.pascalName}Response`),
 					[
-						createArg(createVariable('post')),
-						createArg(createVariable('request')),
+						buildArg(buildVariable('post')),
+						buildArg(buildVariable('request')),
 					]
 				)
 			)
@@ -124,13 +124,13 @@ export function buildDeleteRouteBody(
 	);
 	options.body.statement(previousPrintable);
 
-	const deletePrintable = createPrintable(
-		createExpressionStatement(
-			createAssign(
-				createVariable('deleted'),
-				createFuncCall(createName(['wp_delete_post']), [
-					createArg(buildPropertyFetch('post', 'ID')),
-					createArg(createScalarBool(true)),
+	const deletePrintable = buildPrintable(
+		buildExpressionStatement(
+			buildAssign(
+				buildVariable('deleted'),
+				buildFuncCall(buildName(['wp_delete_post']), [
+					buildArg(buildPropertyFetch('post', 'ID')),
+					buildArg(buildScalarBool(true)),
 				])
 			)
 		),
@@ -149,8 +149,8 @@ export function buildDeleteRouteBody(
 		indentLevel,
 		condition: buildBinaryOperation(
 			'Identical',
-			createScalarBool(false),
-			createVariable('deleted')
+			buildScalarBool(false),
+			buildVariable('deleted')
 		),
 		conditionText: `${indent}if ( false === $deleted ) {`,
 		statements: [deleteReturn],
@@ -158,18 +158,18 @@ export function buildDeleteRouteBody(
 	options.body.statement(deleteGuard);
 	options.body.blank();
 
-	const responsePrintable = createPrintable(
-		createReturn(
-			createArray([
-				createArrayItem(createScalarBool(true), {
-					key: createScalarString('deleted'),
+	const responsePrintable = buildPrintable(
+		buildReturn(
+			buildArray([
+				buildArrayItem(buildScalarBool(true), {
+					key: buildScalarString('deleted'),
 				}),
-				createArrayItem(
+				buildArrayItem(
 					buildScalarCast('int', buildPropertyFetch('post', 'ID')),
-					{ key: createScalarString('id') }
+					{ key: buildScalarString('id') }
 				),
-				createArrayItem(createVariable('previous'), {
-					key: createScalarString('previous'),
+				buildArrayItem(buildVariable('previous'), {
+					key: buildScalarString('previous'),
 				}),
 			])
 		),

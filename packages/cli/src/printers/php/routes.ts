@@ -2,7 +2,7 @@ import type { Reporter } from '@wpkernel/core/reporter';
 import type { IRResource, IRRoute } from '../../ir';
 import type { PrinterContext } from '../types';
 import { type PhpFileBuilder } from './builder';
-import { createMethodTemplate, PHP_INDENT } from './template';
+import { assembleMethodTemplate, PHP_INDENT } from './template';
 import { escapeSingleQuotes, toPascalCase } from './utils';
 import { createWpPostHandlers } from './wp-post';
 import { createWpTaxonomyHandlers } from './wp-taxonomy';
@@ -108,7 +108,7 @@ function createRouteStubs(options: {
 	builder.addUse('WP_REST_Request');
 
 	return routes.map((route) =>
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature: `public function ${createRouteMethodName(
 				route,
 				options.context

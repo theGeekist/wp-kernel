@@ -1,27 +1,27 @@
 import {
-	createArg,
-	createArray,
-	createArrayItem,
-	createAssign,
-	createComment,
-	createExpressionStatement,
-	createFuncCall,
-	createIdentifier,
-	createMethodCall,
-	createName,
-	createNode,
-	createReturn,
-	createScalarInt,
-	createScalarString,
-	createStmtNop,
-	createVariable,
-	createNull,
+	buildArg,
+	buildArray,
+	buildArrayItem,
+	buildAssign,
+	buildComment,
+	buildExpressionStatement,
+	buildFuncCall,
+	buildIdentifier,
+	buildMethodCall,
+	buildName,
+	buildNode,
+	buildReturn,
+	buildScalarInt,
+	buildScalarString,
+	buildStmtNop,
+	buildVariable,
+	buildNull,
 	type PhpExpr,
 	type PhpExprNew,
 	PHP_INDENT,
 	type PhpMethodBodyBuilder,
 } from '@wpkernel/php-json-ast';
-import { createPrintable, escapeSingleQuotes } from '@wpkernel/php-json-ast';
+import { buildPrintable, escapeSingleQuotes } from '@wpkernel/php-json-ast';
 import {
 	buildArrayDimFetch,
 	buildBinaryOperation,
@@ -39,7 +39,7 @@ export interface MacroExpression {
 
 export function buildVariableExpression(name: string): MacroExpression {
 	return {
-		expression: createVariable(name),
+		expression: buildVariable(name),
 		display: `$${name}`,
 	};
 }
@@ -50,7 +50,7 @@ export function buildArrayDimExpression(
 ): MacroExpression {
 	const escapedKey = escapeSingleQuotes(key);
 	return {
-		expression: buildArrayDimFetch(array, createScalarString(key)),
+		expression: buildArrayDimFetch(array, buildScalarString(key)),
 		display: `$${array}['${escapedKey}']`,
 	};
 }
@@ -126,14 +126,14 @@ export function appendStatusValidationMacro(
 		options.requestVariable ?? buildVariableExpression('request');
 	const statusParam = options.statusParam ?? 'status';
 
-	const statusAssign = createPrintable(
-		createExpressionStatement(
-			createAssign(
+	const statusAssign = buildPrintable(
+		buildExpressionStatement(
+			buildAssign(
 				statusVariable.expression,
-				createMethodCall(
+				buildMethodCall(
 					requestVariable.expression,
-					createIdentifier('get_param'),
-					[createArg(createScalarString(statusParam))]
+					buildIdentifier('get_param'),
+					[buildArg(buildScalarString(statusParam))]
 				)
 			)
 		),
@@ -145,17 +145,17 @@ export function appendStatusValidationMacro(
 	);
 	options.body.statement(statusAssign);
 
-	const normalisedCall = createMethodCall(
-		createVariable('this'),
-		createIdentifier(`normalise${options.pascalName}Status`),
-		[createArg(statusVariable.expression)]
+	const normalisedCall = buildMethodCall(
+		buildVariable('this'),
+		buildIdentifier(`normalise${options.pascalName}Status`),
+		[buildArg(statusVariable.expression)]
 	);
 
 	if (options.guardWithNullCheck) {
 		const childIndent = indentUnit.repeat(options.indentLevel + 1);
-		const guardedAssign = createPrintable(
-			createExpressionStatement(
-				createAssign(options.target.expression, normalisedCall)
+		const guardedAssign = buildPrintable(
+			buildExpressionStatement(
+				buildAssign(options.target.expression, normalisedCall)
 			),
 			[
 				`${childIndent}${options.target.display} = $this->normalise${options.pascalName}Status( ${statusVariable.display} );`,
@@ -165,7 +165,7 @@ export function appendStatusValidationMacro(
 			indentLevel: options.indentLevel,
 			condition: buildBinaryOperation(
 				'NotIdentical',
-				createNull(),
+				buildNull(),
 				statusVariable.expression
 			),
 			conditionText: `${indent}if ( null !== ${statusVariable.display} ) {`,
@@ -175,9 +175,9 @@ export function appendStatusValidationMacro(
 		return;
 	}
 
-	const directAssign = createPrintable(
-		createExpressionStatement(
-			createAssign(options.target.expression, normalisedCall)
+	const directAssign = buildPrintable(
+		buildExpressionStatement(
+			buildAssign(options.target.expression, normalisedCall)
 		),
 		[
 			`${indent}${options.target.display} = $this->normalise${options.pascalName}Status( ${statusVariable.display} );`,
@@ -199,15 +199,15 @@ export function appendSyncMetaMacro(options: SyncMetaMacroOptions): void {
 
 	const requestVariable =
 		options.requestVariable ?? buildVariableExpression('request');
-	const call = createMethodCall(
-		createVariable('this'),
-		createIdentifier(`sync${options.pascalName}Meta`),
+	const call = buildMethodCall(
+		buildVariable('this'),
+		buildIdentifier(`sync${options.pascalName}Meta`),
 		[
-			createArg(options.postId.expression),
-			createArg(requestVariable.expression),
+			buildArg(options.postId.expression),
+			buildArg(requestVariable.expression),
 		]
 	);
-	const printable = createPrintable(createExpressionStatement(call), [
+	const printable = buildPrintable(buildExpressionStatement(call), [
 		`${indent}$this->sync${options.pascalName}Meta( ${options.postId.display}, ${requestVariable.display} );`,
 	]);
 	options.body.statement(printable);
@@ -232,16 +232,16 @@ export function appendSyncTaxonomiesMacro(
 
 	const requestVariable =
 		options.requestVariable ?? buildVariableExpression('request');
-	const assign = createPrintable(
-		createExpressionStatement(
-			createAssign(
+	const assign = buildPrintable(
+		buildExpressionStatement(
+			buildAssign(
 				options.resultVariable.expression,
-				createMethodCall(
-					createVariable('this'),
-					createIdentifier(`sync${options.pascalName}Taxonomies`),
+				buildMethodCall(
+					buildVariable('this'),
+					buildIdentifier(`sync${options.pascalName}Taxonomies`),
 					[
-						createArg(options.postId.expression),
-						createArg(requestVariable.expression),
+						buildArg(options.postId.expression),
+						buildArg(requestVariable.expression),
 					]
 				)
 			)
@@ -253,14 +253,14 @@ export function appendSyncTaxonomiesMacro(
 	options.body.statement(assign);
 
 	const childIndent = indentUnit.repeat(options.indentLevel + 1);
-	const returnPrintable = createPrintable(
-		createReturn(options.resultVariable.expression),
+	const returnPrintable = buildPrintable(
+		buildReturn(options.resultVariable.expression),
 		[`${childIndent}return ${options.resultVariable.display};`]
 	);
 	const guard = buildIfPrintable({
 		indentLevel: options.indentLevel,
-		condition: createFuncCall(createName(['is_wp_error']), [
-			createArg(options.resultVariable.expression),
+		condition: buildFuncCall(buildName(['is_wp_error']), [
+			buildArg(options.resultVariable.expression),
 		]),
 		conditionText: `${indent}if ( is_wp_error( ${options.resultVariable.display} ) ) {`,
 		statements: [returnPrintable],
@@ -287,12 +287,12 @@ export function appendCachePrimingMacro(
 	const postVariableName = options.postVariableName ?? 'post';
 	const postVariable = buildVariableExpression(postVariableName);
 
-	const loadPost = createPrintable(
-		createExpressionStatement(
-			createAssign(
+	const loadPost = buildPrintable(
+		buildExpressionStatement(
+			buildAssign(
 				postVariable.expression,
-				createFuncCall(createName(['get_post']), [
-					createArg(options.postId.expression),
+				buildFuncCall(buildName(['get_post']), [
+					buildArg(options.postId.expression),
 				])
 			)
 		),
@@ -303,23 +303,23 @@ export function appendCachePrimingMacro(
 	options.body.statement(loadPost);
 
 	const childIndent = indentUnit.repeat(options.indentLevel + 1);
-	const failureExpr = createNode<PhpExprNew>('Expr_New', {
-		class: createName(['WP_Error']),
+	const failureExpr = buildNode<PhpExprNew>('Expr_New', {
+		class: buildName(['WP_Error']),
 		args: [
-			createArg(createScalarString(options.errorCode)),
-			createArg(
-				createScalarString(escapeSingleQuotes(options.failureMessage))
+			buildArg(buildScalarString(options.errorCode)),
+			buildArg(
+				buildScalarString(escapeSingleQuotes(options.failureMessage))
 			),
-			createArg(
-				createArray([
-					createArrayItem(createScalarInt(500), {
-						key: createScalarString('status'),
+			buildArg(
+				buildArray([
+					buildArrayItem(buildScalarInt(500), {
+						key: buildScalarString('status'),
 					}),
 				])
 			),
 		],
 	});
-	const failureReturn = createPrintable(createReturn(failureExpr), [
+	const failureReturn = buildPrintable(buildReturn(failureExpr), [
 		`${childIndent}return new WP_Error( '${escapeSingleQuotes(
 			options.errorCode
 		)}', '${escapeSingleQuotes(
@@ -336,15 +336,15 @@ export function appendCachePrimingMacro(
 	});
 	options.body.statement(guard);
 
-	const responseCall = createMethodCall(
-		createVariable('this'),
-		createIdentifier(`prepare${options.pascalName}Response`),
+	const responseCall = buildMethodCall(
+		buildVariable('this'),
+		buildIdentifier(`prepare${options.pascalName}Response`),
 		[
-			createArg(postVariable.expression),
-			createArg(requestVariable.expression),
+			buildArg(postVariable.expression),
+			buildArg(requestVariable.expression),
 		]
 	);
-	const responsePrintable = createPrintable(createReturn(responseCall), [
+	const responsePrintable = buildPrintable(buildReturn(responseCall), [
 		`${indent}return $this->prepare${options.pascalName}Response( ${postVariable.display}, ${requestVariable.display} );`,
 	]);
 	options.body.statement(responsePrintable);
@@ -358,8 +358,8 @@ function appendMetadataComment(
 	const indentUnit = options.indentUnit ?? PHP_INDENT;
 	const indent = indentUnit.repeat(options.indentLevel);
 	const text = `// @wp-kernel ${key} ${value}`;
-	const printable = createPrintable(
-		createStmtNop({ comments: [createComment(text)] }),
+	const printable = buildPrintable(
+		buildStmtNop({ comments: [buildComment(text)] }),
 		[`${indent}${text}`]
 	);
 	options.body.statement(printable);
