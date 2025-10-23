@@ -112,7 +112,8 @@ function createPrepareTermHelper(
 				`${indent}${PHP_INDENT}'slug' => (string) $term->slug,`,
 				`${indent}${PHP_INDENT}'name' => (string) $term->name,`,
 				`${indent}${PHP_INDENT}'taxonomy' => (string) $term->taxonomy,`,
-				`${indent}${PHP_INDENT}'hierarchical' => ${hierarchical ? 'true' : 'false'
+				`${indent}${PHP_INDENT}'hierarchical' => ${
+					hierarchical ? 'true' : 'false'
 				},`,
 				`${indent}${PHP_INDENT}'description' => (string) $term->description,`,
 				`${indent}${PHP_INDENT}'parent' => (int) $term->parent,`,

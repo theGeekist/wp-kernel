@@ -1,15 +1,26 @@
 {
 	"$schema": "https://json.schemastore.org/tsconfig",
-	"extends": "./tsconfig.json",
+	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
-		"composite": false,
-		"noEmit": true,
-		"types": ["jest", "node"]
+		"rootDir": ".",
+		"outDir": "./dist-tests",
+		"composite": true,
+		"types": ["jest", "node"],
+		"moduleResolution": "node"
 	},
 	"include": [
-		"src/**/*",
-		"__tests__/**/*",
-		"../test-utils/**/*.d.ts",
-		"../../tests/test-globals.d.ts"
-	]
+		"src/**/__tests__/**/*.ts",
+		"src/**/__tests__/**/*.tsx",
+		"src/**/*.test.ts",
+		"src/**/*.test.tsx",
+		"tests/**/*"
+	],
+	"exclude": [
+		"node_modules",
+		"dist",
+		"dist-tests",
+		"**/dist",
+		"**/*.test-support.d.ts"
+	],
+	"references": [{ "path": "./tsconfig.json" }, { "path": "../core" }]
 }

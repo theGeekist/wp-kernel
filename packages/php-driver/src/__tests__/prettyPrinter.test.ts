@@ -1,4 +1,5 @@
 import { EventEmitter } from 'node:events';
+import type { ChildProcess } from 'node:child_process';
 import { KernelError } from '@wpkernel/core/error';
 import { createPhpPrettyPrinter } from '../prettyPrinter';
 import type { DriverWorkspace, PhpPrettyPrintPayload } from '../types';
@@ -30,7 +31,7 @@ function createMockedChildProcess({
 	exitCode = 0,
 	stdout = '',
 	stderr = '',
-} = {}) {
+} = {}): ChildProcess {
 	const child = new EventEmitter();
 	const stdoutStream = new EventEmitter() as EventEmitter & {
 		setEncoding: jest.Mock;
@@ -57,7 +58,7 @@ function createMockedChildProcess({
 		stdout: stdoutStream,
 		stderr: stderrStream,
 		stdin,
-	});
+	}) as unknown as ChildProcess;
 }
 
 describe('createPhpPrettyPrinter', () => {
