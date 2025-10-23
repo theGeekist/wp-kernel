@@ -1,4 +1,4 @@
-import { createHelper } from '../helper';
+import { createHelper } from '@wpkernel/core/pipeline';
 
 describe('createHelper', () => {
 	it('normalises defaults and clones dependencies', async () => {

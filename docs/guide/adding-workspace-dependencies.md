@@ -132,7 +132,7 @@ The steps above are deterministic but verbose. Useful automation ideas:
 
 ## 9. Next steps
 
-- Extract `createHelper` / pipeline primitives into `@wpkernel/core` so packages like `php-json-ast` and `cli` stop duplicating the helper layer.
+- ✓ Extract `createHelper` / pipeline primitives into `@wpkernel/core/pipeline` so packages like `php-json-ast` and `cli` stop duplicating the helper layer.
 - Publish shared testing utilities (e.g. reporter mocks, pipeline context builders) via `@wpkernel/test-utils` so packages don’t need ad-hoc stubs.
 - Add checks in CI to ensure every new package has references and peer dependency declarations before merging.
 - Document this process in the contributing guide (link to this file) so package authors know where to start.
