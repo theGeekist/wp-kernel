@@ -1,7 +1,7 @@
 import { EventEmitter } from 'node:events';
 import type { ChildProcess } from 'node:child_process';
 import { KernelError } from '@wpkernel/core/error';
-import { createPhpPrettyPrinter } from '../prettyPrinter';
+import { buildPhpPrettyPrinter } from '../prettyPrinter';
 import type { DriverWorkspace, PhpPrettyPrintPayload } from '../types';
 
 jest.mock('node:child_process', () => ({
@@ -12,7 +12,7 @@ import { spawn } from 'node:child_process';
 
 const spawnMock = jest.mocked(spawn);
 
-function createWorkspace(): DriverWorkspace {
+function makeWorkspace(): DriverWorkspace {
 	return {
 		root: '/workspace',
 		resolve: (...parts: string[]) => parts.join('/'),
@@ -20,14 +20,14 @@ function createWorkspace(): DriverWorkspace {
 	};
 }
 
-function createPayload(program: unknown): PhpPrettyPrintPayload {
+function makePayload(program: unknown): PhpPrettyPrintPayload {
 	return {
 		filePath: '/workspace/example.php',
 		program: program as never,
 	};
 }
 
-function createMockedChildProcess({
+function makeMockedChildProcess({
 	exitCode = 0,
 	stdout = '',
 	stderr = '',
@@ -61,46 +61,46 @@ function createMockedChildProcess({
 	}) as unknown as ChildProcess;
 }
 
-describe('createPhpPrettyPrinter', () => {
+describe('buildPhpPrettyPrinter', () => {
 	beforeEach(() => {
 		spawnMock.mockReset();
 	});
 
 	it('validates the AST payload before spawning', async () => {
-		const printer = createPhpPrettyPrinter({
-			workspace: createWorkspace(),
+		const printer = buildPhpPrettyPrinter({
+			workspace: makeWorkspace(),
 		});
 
-		await expect(printer.prettyPrint(createPayload(null))).rejects.toEqual(
+		await expect(printer.prettyPrint(makePayload(null))).rejects.toEqual(
 			expect.any(KernelError)
 		);
 	});
 
 	it('throws when AST nodes are missing nodeType', async () => {
-		const printer = createPhpPrettyPrinter({
-			workspace: createWorkspace(),
+		const printer = buildPhpPrettyPrinter({
+			workspace: makeWorkspace(),
 		});
 
 		await expect(
-			printer.prettyPrint(createPayload([{}]))
+			printer.prettyPrint(makePayload([{}]))
 		).rejects.toBeInstanceOf(KernelError);
 	});
 
 	it('propagates non-zero exit codes as KernelError', async () => {
 		spawnMock.mockReturnValue(
-			createMockedChildProcess({
+			makeMockedChildProcess({
 				exitCode: 1,
 				stdout: '',
 				stderr: 'boom',
 			})
 		);
 
-		const printer = createPhpPrettyPrinter({
-			workspace: createWorkspace(),
+		const printer = buildPhpPrettyPrinter({
+			workspace: makeWorkspace(),
 		});
 
 		await expect(
-			printer.prettyPrint(createPayload([{ nodeType: 'Stmt_Nop' }]))
+			printer.prettyPrint(makePayload([{ nodeType: 'Stmt_Nop' }]))
 		).rejects.toBeInstanceOf(KernelError);
 	});
 
@@ -110,18 +110,18 @@ describe('createPhpPrettyPrinter', () => {
 			ast: [{ nodeType: 'Stmt_Nop' }],
 		};
 		spawnMock.mockReturnValue(
-			createMockedChildProcess({
+			makeMockedChildProcess({
 				exitCode: 0,
 				stdout: `${JSON.stringify(result)}\n`,
 				stderr: '',
 			})
 		);
 
-		const printer = createPhpPrettyPrinter({
-			workspace: createWorkspace(),
+		const printer = buildPhpPrettyPrinter({
+			workspace: makeWorkspace(),
 		});
 		const output = await printer.prettyPrint(
-			createPayload([{ nodeType: 'Stmt_Nop' }])
+			makePayload([{ nodeType: 'Stmt_Nop' }])
 		);
 
 		expect(output).toEqual(result);

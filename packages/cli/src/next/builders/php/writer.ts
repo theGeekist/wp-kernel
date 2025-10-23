@@ -5,7 +5,7 @@ import type {
 	BuilderNext,
 } from '../../runtime/types';
 import { getPhpBuilderChannel } from './channel';
-import { createPhpPrettyPrinter } from '@wpkernel/php-driver';
+import { buildPhpPrettyPrinter } from '@wpkernel/php-driver';
 
 export function createPhpProgramWriterHelper(): BuilderHelper {
 	return createHelper({
@@ -23,7 +23,7 @@ export function createPhpProgramWriterHelper(): BuilderHelper {
 				return;
 			}
 
-			const prettyPrinter = createPhpPrettyPrinter({
+			const prettyPrinter = buildPhpPrettyPrinter({
 				workspace: options.context.workspace,
 			});
 
