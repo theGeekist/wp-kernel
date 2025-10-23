@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import { EventEmitter } from 'node:events';
 import path from 'node:path';
 import type { Workspace } from '../../workspace/types';
@@ -125,6 +126,19 @@ describe('createPhpPrettyPrinter', () => {
 				}),
 			})
 		);
+	});
+
+	it('resolves the PHP bridge script relative to the package root', async () => {
+		const { resolvePrettyPrintScriptPath } = await import('../php/bridge');
+
+		const scriptPath = resolvePrettyPrintScriptPath();
+		const expectedPath = path.resolve(
+			__dirname,
+			'../../../../../php-driver/php/pretty-print.php'
+		);
+
+		expect(scriptPath).toBe(expectedPath);
+		expect(fs.existsSync(scriptPath)).toBe(true);
 	});
 
 	it('raises a DeveloperError error when PHP binary or bridge is not available', async () => {

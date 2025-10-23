@@ -33,16 +33,32 @@ interface CreatePhpPrettyPrinterOptions {
 }
 
 export function resolvePrettyPrintScriptPath(): string {
-	if (typeof __dirname === 'string') {
-		return path.resolve(__dirname, '../php/pretty-print.php');
-	}
+	const packageRoot =
+		resolvePackageRootFromDirname() ?? resolvePackageRootFromModuleUrl();
 
-	const moduleUrl = getImportMetaUrl();
-	if (moduleUrl) {
-		return fileURLToPath(new URL('../php/pretty-print.php', moduleUrl));
+	if (packageRoot) {
+		return path.resolve(packageRoot, 'php', 'pretty-print.php');
 	}
 
 	return path.resolve(process.cwd(), 'php', 'pretty-print.php');
+}
+
+function resolvePackageRootFromDirname(): string | null {
+	if (typeof __dirname !== 'string') {
+		return null;
+	}
+
+	return path.resolve(__dirname, '..', '..');
+}
+
+function resolvePackageRootFromModuleUrl(): string | null {
+	const moduleUrl = getImportMetaUrl();
+	if (!moduleUrl) {
+		return null;
+	}
+
+	const modulePath = fileURLToPath(moduleUrl);
+	return path.resolve(path.dirname(modulePath), '..', '..');
 }
 
 function getImportMetaUrl(): string | null {
