@@ -15,9 +15,13 @@ import {
 	createScalarInt,
 	createScalarString,
 	createVariable,
-} from '../../../ast/nodes';
-import { createPrintable } from '../../../ast/printables';
-import { PHP_INDENT } from '../../../ast/templates';
+} from '@wpkernel/php-json-ast/nodes';
+import {
+	createPrintable,
+	escapeSingleQuotes,
+	toSnakeCase,
+} from '@wpkernel/php-json-ast';
+import { PHP_INDENT } from '@wpkernel/php-json-ast/templates';
 import {
 	buildArrayDimFetch,
 	buildArrayInitialiser,
@@ -25,8 +29,7 @@ import {
 	buildIfPrintable,
 	buildScalarCast,
 } from '../utils';
-import { escapeSingleQuotes, toSnakeCase } from '../../../ast/utils';
-import type { PhpMethodBodyBuilder } from '../../../ast/templates';
+import type { PhpMethodBodyBuilder } from '@wpkernel/php-json-ast/templates';
 
 export interface WpPostTaxonomyConfigEntry {
 	readonly taxonomy?: string | null;

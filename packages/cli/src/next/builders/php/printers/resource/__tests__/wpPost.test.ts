@@ -8,7 +8,10 @@ import {
 	createListItemsInitialiser,
 } from '../wpPost/list';
 import { createIdentityValidationPrintables } from '../wpPost/identity';
-import { PhpMethodBodyBuilder, PHP_INDENT } from '../../../ast/templates';
+import {
+	PhpMethodBodyBuilder,
+	PHP_INDENT,
+} from '@wpkernel/php-json-ast/templates';
 
 describe('wpPost query helpers', () => {
 	it('collects meta query entries', () => {

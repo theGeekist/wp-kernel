@@ -1,4 +1,7 @@
-import { PhpMethodBodyBuilder, PHP_INDENT } from '../../../ast/templates';
+import {
+	PhpMethodBodyBuilder,
+	PHP_INDENT,
+} from '@wpkernel/php-json-ast/templates';
 import { appendNotImplementedStub } from '../stubs';
 
 function createRoute() {

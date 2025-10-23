@@ -18,9 +18,9 @@ import {
 	type PhpExprBooleanNot,
 	type PhpStmt,
 	type PhpStmtIf,
-} from '../../ast/nodes';
-import { createPrintable, type PhpPrintable } from '../../ast/printables';
-import { PHP_INDENT } from '../../ast/templates';
+} from '@wpkernel/php-json-ast/nodes';
+import { createPrintable, type PhpPrintable } from '@wpkernel/php-json-ast';
+import { PHP_INDENT } from '@wpkernel/php-json-ast/templates';
 
 export interface NormalisedVariableReference {
 	readonly raw: string;

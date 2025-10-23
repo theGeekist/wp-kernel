@@ -44,5 +44,6 @@ This file supplements the root [AGENTS.md](../../AGENTS.md) with agent guideline
 
 - Coordinate with the kernel package when UI hooks depend on new instance APIs; specs must be updated in lockstep.
 - Mention affected docs (see `../../docs/AGENTS.md`) when publishing UI-facing API changes.
+- Align any cross-package dependency work (tsconfig updates, shared runtime wiring) with `docs/guide/adding-workspace-dependencies.md` so the UI build remains compatible with sibling packages.
 
 See [../../AGENTS.md](../../AGENTS.md) for shared monorepo agent policies.

@@ -54,15 +54,19 @@ interface ChannelHost {
 
 const PHP_AST_CHANNEL_SYMBOL = Symbol('@wpkernel/php-json-ast/context');
 
-export function getPhpAstChannel(context: PipelineContext): PhpAstChannel {
-	const host = context as PipelineContext & ChannelHost;
+export function getPhpAstChannel<TContext extends PipelineContext>(
+	context: TContext
+): PhpAstChannel {
+	const host = context as unknown as ChannelHost;
 	if (!host[PHP_AST_CHANNEL_SYMBOL]) {
 		host[PHP_AST_CHANNEL_SYMBOL] = createChannel();
 	}
 	return host[PHP_AST_CHANNEL_SYMBOL]!;
 }
 
-export function resetPhpAstChannel(context: PipelineContext): void {
+export function resetPhpAstChannel<TContext extends PipelineContext>(
+	context: TContext
+): void {
 	getPhpAstChannel(context).reset();
 }
 

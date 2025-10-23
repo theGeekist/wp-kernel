@@ -1,4 +1,4 @@
-import { sanitizeJson } from '../../ast/utils';
+import { sanitizeJson } from '@wpkernel/php-json-ast';
 import type { IRResource, IRSchema } from '../../../../../ir/types';
 
 function isRecord(value: unknown): value is Record<string, unknown> {

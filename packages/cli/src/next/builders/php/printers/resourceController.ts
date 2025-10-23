@@ -1,15 +1,27 @@
 import { createHelper } from '../../../helper';
-import type { BuilderHelper } from '../../../runtime/types';
-import { createPhpFileBuilder } from '../ast/programBuilder';
-import type { PhpAstBuilderAdapter } from '../ast/programBuilder';
-import { appendGeneratedFileDocblock } from '../ast/docblocks';
-import { appendClassTemplate } from '../ast/append';
+import type {
+	BuilderHelper,
+	BuilderInput,
+	BuilderOutput,
+	PipelineContext,
+} from '../../../runtime/types';
+import { createPhpFileBuilder } from '@wpkernel/php-json-ast/builders';
+import type { PhpAstBuilderAdapter } from '@wpkernel/php-json-ast/builders';
+import {
+	appendGeneratedFileDocblock,
+	appendClassTemplate,
+	createPrintable,
+	createPhpReturn,
+	createErrorCodeFactory,
+	escapeSingleQuotes,
+	toPascalCase,
+} from '@wpkernel/php-json-ast';
 import {
 	createClassTemplate,
 	createMethodTemplate,
 	PHP_INDENT,
 	type PhpMethodTemplate,
-} from '../ast/templates';
+} from '@wpkernel/php-json-ast/templates';
 import {
 	createIdentifier,
 	createName,
@@ -24,23 +36,16 @@ import {
 	createArg,
 	createNode,
 	type PhpStmtIf,
-} from '../ast/nodes';
-import { createPrintable } from '../ast/printables';
+} from '@wpkernel/php-json-ast/nodes';
 import {
 	PHP_CLASS_MODIFIER_FINAL,
 	PHP_METHOD_MODIFIER_PUBLIC,
-} from '../ast/modifiers';
-import { createPhpReturn } from '../ast/valueRenderers';
-import {
-	createErrorCodeFactory,
-	escapeSingleQuotes,
-	toPascalCase,
-} from '../ast/utils';
+} from '@wpkernel/php-json-ast/modifiers';
 import type { IRResource, IRRoute, IRv1 } from '../../../../ir/types';
 import { resolveIdentityConfig, type ResolvedIdentity } from './identity';
 import { collectCanonicalBasePaths } from './routes';
-import type { ResourceMetadataHost } from '../ast/factories/cacheMetadata';
-import type { ResourceControllerRouteMetadata } from '../ast/types';
+import type { ResourceMetadataHost } from '@wpkernel/php-json-ast/factories/cacheMetadata';
+import type { ResourceControllerRouteMetadata } from '@wpkernel/php-json-ast/types';
 import { buildRestArgs } from './resourceController/restArgs';
 import {
 	createRouteMetadata,
@@ -83,7 +88,11 @@ export function createPhpResourceControllerHelper(): BuilderHelper {
 				);
 				const identity = resolveIdentityConfig(resource);
 
-				const helper = createPhpFileBuilder({
+				const helper = createPhpFileBuilder<
+					PipelineContext,
+					BuilderInput,
+					BuilderOutput
+				>({
 					key: `resource-controller.${resource.name}`,
 					filePath,
 					namespace,

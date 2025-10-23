@@ -5,14 +5,14 @@ import type {
 	BuilderOutput,
 	PipelineContext,
 } from '../../../runtime/types';
-import { createPhpProgramBuilder } from '../../ast/programBuilder';
-import { appendClassTemplate } from '../../ast/append';
+import { createPhpProgramBuilder } from '@wpkernel/php-json-ast/builders';
+import { appendClassTemplate } from '@wpkernel/php-json-ast';
 import {
 	createClassTemplate,
 	createMethodTemplate,
 	PHP_INDENT,
 	type PhpMethodBodyBuilder,
-} from '../../ast/templates';
+} from '@wpkernel/php-json-ast/templates';
 import {
 	appendCachePrimingMacro,
 	appendStatusValidationMacro,
@@ -23,7 +23,7 @@ import {
 	WP_POST_MUTATION_CONTRACT,
 } from '../resource/wpPost/mutations';
 import { getPhpBuilderChannel, resetPhpBuilderChannel } from '../channel';
-import { resetPhpAstChannel } from '../../ast/context';
+import { resetPhpAstChannel } from '@wpkernel/php-json-ast/channels';
 
 const CONTRACT = WP_POST_MUTATION_CONTRACT;
 
@@ -94,7 +94,11 @@ async function queueMacroProgram(
 	resetPhpBuilderChannel(context);
 	resetPhpAstChannel(context);
 
-	const helper = createPhpProgramBuilder({
+	const helper = createPhpProgramBuilder<
+		PipelineContext,
+		BuilderInput,
+		BuilderOutput
+	>({
 		key: `macro.${macro}`,
 		filePath: context.workspace.resolve(
 			'.generated',

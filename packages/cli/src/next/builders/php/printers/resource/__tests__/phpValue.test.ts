@@ -1,5 +1,5 @@
-import { createPrintable } from '../../../ast/printables';
-import { createScalarInt } from '../../../ast/nodes';
+import { createPrintable } from '@wpkernel/php-json-ast';
+import { createScalarInt } from '@wpkernel/php-json-ast/nodes';
 import { expression, renderPhpValue, variable } from '../phpValue';
 
 describe('phpValue', () => {
