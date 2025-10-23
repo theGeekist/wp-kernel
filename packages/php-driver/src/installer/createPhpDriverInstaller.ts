@@ -67,7 +67,7 @@ export interface PhpDriverInstaller {
 	) => Promise<PhpDriverInstallResult>;
 }
 
-export function createPhpDriverInstallerHelper(
+export function createPhpDriverInstaller(
 	config: PhpDriverInstallerConfig = {}
 ): PhpDriverInstaller {
 	const {
@@ -127,7 +127,7 @@ async function detectSkipReason(
 
 	if (!hasComposerManifest) {
 		logger?.debug?.(
-			'createPhpDriverInstallerHelper: composer.json missing, skipping installer.'
+			'createPhpDriverInstaller: composer.json missing, skipping installer.'
 		);
 		return 'missing-manifest';
 	}

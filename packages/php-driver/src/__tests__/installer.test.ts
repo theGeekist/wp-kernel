@@ -1,5 +1,5 @@
 import { KernelError } from '@wpkernel/core/error';
-import { createPhpDriverInstallerHelper } from '../installer';
+import { createPhpDriverInstaller } from '../installer';
 
 type Reporter = ReturnType<typeof createReporter>;
 
@@ -39,7 +39,7 @@ function createWorkspace(overrides: Partial<Workspace> = {}): Workspace {
 	return { ...baseWorkspace(), ...overrides };
 }
 
-describe('createPhpDriverInstallerHelper', () => {
+describe('createPhpDriverInstaller', () => {
 	let reporter: Reporter;
 
 	beforeEach(() => {
@@ -48,7 +48,7 @@ describe('createPhpDriverInstallerHelper', () => {
 	});
 
 	it('skips installation when vendor autoload exists', async () => {
-		const helper = createPhpDriverInstallerHelper();
+		const helper = createPhpDriverInstaller();
 		const workspace = createWorkspace();
 
 		await helper.apply(
@@ -79,7 +79,7 @@ describe('createPhpDriverInstallerHelper', () => {
 	it('installs dependencies via composer when vendor autoload is missing', async () => {
 		execFileMock.mockResolvedValue({ stdout: '', stderr: '' });
 
-		const helper = createPhpDriverInstallerHelper();
+		const helper = createPhpDriverInstaller();
 		const workspace = createWorkspace({
 			exists: jest.fn(async (target: string) =>
 				target.endsWith('composer.json') ? true : false
@@ -112,7 +112,7 @@ describe('createPhpDriverInstallerHelper', () => {
 	it('wraps composer failures in a KernelError', async () => {
 		execFileMock.mockRejectedValue(new Error('composer failed'));
 
-		const helper = createPhpDriverInstallerHelper();
+		const helper = createPhpDriverInstaller();
 		const workspace = createWorkspace({
 			exists: jest.fn(async (target: string) =>
 				target.endsWith('composer.json') ? true : false
@@ -138,7 +138,7 @@ describe('createPhpDriverInstallerHelper', () => {
 	});
 
 	it('skips installation when composer manifest is missing', async () => {
-		const helper = createPhpDriverInstallerHelper();
+		const helper = createPhpDriverInstaller();
 		const workspace = createWorkspace({
 			exists: jest.fn(async (target: string) =>
 				target.endsWith('composer.json') ? false : false
@@ -156,7 +156,7 @@ describe('createPhpDriverInstallerHelper', () => {
 		);
 
 		expect(reporter.debug).toHaveBeenCalledWith(
-			'createPhpDriverInstallerHelper: composer.json missing, skipping installer.'
+			'createPhpDriverInstaller: composer.json missing, skipping installer.'
 		);
 		expect(execFileMock).not.toHaveBeenCalled();
 	});
