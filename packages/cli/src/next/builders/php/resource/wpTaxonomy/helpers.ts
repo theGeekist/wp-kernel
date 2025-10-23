@@ -187,7 +187,6 @@ function buildArrayTermResponse(
 
 function createResolveTermHelper(pascalName: string): PhpMethodTemplate {
 	const indentLevel = 1;
-	const indent = PHP_INDENT.repeat(indentLevel);
 	const childIndent = PHP_INDENT.repeat(indentLevel + 1);
 
 	return assembleMethodTemplate({
@@ -215,7 +214,6 @@ function createResolveTermHelper(pascalName: string): PhpMethodTemplate {
 				condition: buildFuncCall(buildName(['is_int']), [
 					buildArg(buildVariable('identity')),
 				]),
-				conditionText: `${indent}if ( is_int( $identity ) ) {`,
 				statements: [
 					buildPrintable(
 						buildExpressionStatement(
@@ -234,7 +232,6 @@ function createResolveTermHelper(pascalName: string): PhpMethodTemplate {
 					buildIfPrintable({
 						indentLevel: indentLevel + 1,
 						condition: buildInstanceof('term', 'WP_Term'),
-						conditionText: `${childIndent}if ( $term instanceof WP_Term ) {`,
 						statements: [
 							buildPrintable(buildReturn(buildVariable('term')), [
 								`${childIndent}${PHP_INDENT}return $term;`,
@@ -280,7 +277,6 @@ function createResolveTermHelper(pascalName: string): PhpMethodTemplate {
 			const slugGuard = buildIfPrintable({
 				indentLevel: indentLevel + 2,
 				condition: buildInstanceof('term', 'WP_Term'),
-				conditionText: `${lookupIndent}if ( $term instanceof WP_Term ) {`,
 				statements: [
 					buildPrintable(buildReturn(buildVariable('term')), [
 						`${lookupIndent}${PHP_INDENT}return $term;`,
@@ -306,7 +302,6 @@ function createResolveTermHelper(pascalName: string): PhpMethodTemplate {
 			const nameGuard = buildIfPrintable({
 				indentLevel: indentLevel + 2,
 				condition: buildInstanceof('term', 'WP_Term'),
-				conditionText: `${lookupIndent}if ( $term instanceof WP_Term ) {`,
 				statements: [
 					buildPrintable(buildReturn(buildVariable('term')), [
 						`${lookupIndent}${PHP_INDENT}return $term;`,
@@ -321,7 +316,6 @@ function createResolveTermHelper(pascalName: string): PhpMethodTemplate {
 					buildScalarString(''),
 					buildVariable('candidate')
 				),
-				conditionText: `${childIndent}if ( '' !== $candidate ) {`,
 				statements: [slugLookup, slugGuard, nameLookup, nameGuard],
 			});
 
@@ -330,7 +324,6 @@ function createResolveTermHelper(pascalName: string): PhpMethodTemplate {
 				condition: buildFuncCall(buildName(['is_string']), [
 					buildArg(buildVariable('identity')),
 				]),
-				conditionText: `${indent}if ( is_string( $identity ) ) {`,
 				statements: [candidateAssign, nonEmptyGuard],
 			});
 			body.statement(stringGuard);
@@ -356,7 +349,6 @@ function createValidateIdentityHelper(
 ): PhpMethodTemplate {
 	const { pascalName, identity, errorCodeFactory } = options;
 	const indentLevel = 1;
-	const indent = PHP_INDENT.repeat(indentLevel);
 	const childIndent = PHP_INDENT.repeat(indentLevel + 1);
 
 	return assembleMethodTemplate({
@@ -379,7 +371,6 @@ function createValidateIdentityHelper(
 						buildNull(),
 						buildVariable('value')
 					),
-					conditionText: `${indent}if ( null === $value ) {`,
 					statements: [missingReturn],
 				})
 			);
@@ -408,7 +399,6 @@ function createValidateIdentityHelper(
 								])
 							)
 						),
-						conditionText: `${indent}if ( is_string( $value ) && '' === trim( $value ) ) {`,
 						statements: [missingReturn],
 					})
 				);
@@ -421,7 +411,6 @@ function createValidateIdentityHelper(
 								buildArg(buildVariable('value')),
 							])
 						),
-						conditionText: `${indent}if ( ! is_numeric( $value ) ) {`,
 						statements: [invalidReturn],
 					})
 				);
@@ -446,7 +435,6 @@ function createValidateIdentityHelper(
 							buildVariable('value'),
 							buildScalarInt(0)
 						),
-						conditionText: `${indent}if ( $value <= 0 ) {`,
 						statements: [invalidReturn],
 					})
 				);
@@ -477,7 +465,6 @@ function createValidateIdentityHelper(
 							])
 						)
 					),
-					conditionText: `${indent}if ( ! is_string( $value ) || '' === trim( $value ) ) {`,
 					statements: [missingReturn],
 				})
 			);

@@ -9,7 +9,7 @@ describe('request helpers', () => {
 		});
 
 		expect(printable.lines).toEqual([
-			"        $slug = $request->get_param( 'slug' );",
+			"        $slug = $request->get_param('slug');",
 		]);
 	});
 
@@ -23,7 +23,7 @@ describe('request helpers', () => {
 		});
 
 		expect(printable.lines).toEqual([
-			"                $per_page = (int) $request->get_param( 'per_page' );",
+			"                $per_page = (int) $request->get_param('per_page');",
 		]);
 	});
 });

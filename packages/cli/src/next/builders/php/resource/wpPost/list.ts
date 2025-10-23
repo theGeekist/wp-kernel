@@ -11,9 +11,8 @@ import {
 	type PhpStmt,
 	type PhpStmtContinue,
 	type PhpStmtForeach,
-	type PhpStmtIf,
-	buildPrintable,
 	type PhpPrintable,
+	buildIfStatement,
 } from '@wpkernel/php-json-ast';
 import { PHP_INDENT } from '@wpkernel/php-json-ast';
 import {
@@ -23,6 +22,7 @@ import {
 	buildInstanceof,
 	buildPropertyFetch,
 } from '../utils';
+import { formatStatementPrintable } from '../printer';
 
 export interface ListItemsInitialiserOptions {
 	readonly indentLevel: number;
@@ -45,58 +45,36 @@ export interface ListForeachOptions {
 export function createListForeachPrintable(
 	options: ListForeachOptions
 ): PhpPrintable<PhpStmtForeach> {
-	const indent = PHP_INDENT.repeat(options.indentLevel);
-	const childIndent = PHP_INDENT.repeat(options.indentLevel + 1);
-	const nestedIndent = PHP_INDENT.repeat(options.indentLevel + 2);
+	const assignment = buildExpressionStatement(
+		buildAssign(
+			buildVariable('post'),
+			buildFuncCall(buildName(['get_post']), [
+				buildArg(buildVariable('post_id')),
+			])
+		)
+	);
 
-	const assignment = buildPrintable(
-		buildExpressionStatement(
-			buildAssign(
-				buildVariable('post'),
-				buildFuncCall(buildName(['get_post']), [
-					buildArg(buildVariable('post_id')),
-				])
+	const continueStatement = buildNode<PhpStmtContinue>('Stmt_Continue', {
+		num: null,
+	});
+
+	const guard = buildIfStatement(
+		buildBooleanNot(buildInstanceof('post', 'WP_Post')),
+		[continueStatement]
+	);
+
+	const pushStatement = buildExpressionStatement(
+		buildAssign(
+			buildArrayDimFetch('items', null),
+			buildMethodCall(
+				buildVariable('this'),
+				buildIdentifier(`prepare${options.pascalName}Response`),
+				[
+					buildArg(buildVariable('post')),
+					buildArg(buildVariable('request')),
+				]
 			)
-		),
-		[`${childIndent}$post = get_post( $post_id );`]
-	);
-
-	const continuePrintable = buildPrintable(
-		buildNode<PhpStmtContinue>('Stmt_Continue', { num: null }),
-		[`${nestedIndent}continue;`]
-	);
-
-	const guard = buildPrintable(
-		buildNode<PhpStmtIf>('Stmt_If', {
-			cond: buildBooleanNot(buildInstanceof('post', 'WP_Post')),
-			stmts: [continuePrintable.node],
-			elseifs: [],
-			else: null,
-		}),
-		[
-			`${childIndent}if ( ! $post instanceof WP_Post ) {`,
-			...continuePrintable.lines,
-			`${childIndent}}`,
-		]
-	);
-
-	const pushPrintable = buildPrintable(
-		buildExpressionStatement(
-			buildAssign(
-				buildArrayDimFetch('items', null),
-				buildMethodCall(
-					buildVariable('this'),
-					buildIdentifier(`prepare${options.pascalName}Response`),
-					[
-						buildArg(buildVariable('post')),
-						buildArg(buildVariable('request')),
-					]
-				)
-			)
-		),
-		[
-			`${childIndent}$items[] = $this->prepare${options.pascalName}Response( $post, $request );`,
-		]
+		)
 	);
 
 	const foreachNode = buildNode<PhpStmtForeach>('Stmt_Foreach', {
@@ -104,17 +82,10 @@ export function createListForeachPrintable(
 		valueVar: buildVariable('post_id'),
 		keyVar: null,
 		byRef: false,
-		stmts: [assignment.node, guard.node, pushPrintable.node],
+		stmts: [assignment, guard, pushStatement],
 	});
-
-	const lines = [
-		`${indent}foreach ( $query->posts as $post_id ) {`,
-		...assignment.lines,
-		...guard.lines,
-		'',
-		...pushPrintable.lines,
-		`${indent}}`,
-	];
-
-	return buildPrintable(foreachNode, lines);
+	return formatStatementPrintable(foreachNode, {
+		indentLevel: options.indentLevel,
+		indentUnit: PHP_INDENT,
+	});
 }

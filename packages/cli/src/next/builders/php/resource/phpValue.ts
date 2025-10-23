@@ -8,7 +8,8 @@ import {
 	PHP_INDENT,
 	buildPhpExpressionPrintable,
 } from '@wpkernel/php-json-ast';
-import { indentLines, normaliseVariableReference } from './utils';
+import { normaliseVariableReference } from './utils';
+import { formatExpression } from './printer';
 
 type PhpPrintableExpr = PhpPrintable<PhpExpr>;
 
@@ -58,7 +59,9 @@ export function renderPhpValue(
 		return renderExpression(value, indentLevel, indentUnit);
 	}
 
-	return buildPhpExpressionPrintable(value, indentLevel);
+	const printable = buildPhpExpressionPrintable(value, 0);
+	const lines = formatExpression(printable.node, indentLevel, indentUnit);
+	return buildPrintable(printable.node, lines);
 }
 
 function isVariableDescriptor(
@@ -89,10 +92,9 @@ function renderVariable(
 	indentUnit: string
 ): PhpPrintableExpr {
 	const reference = normaliseVariableReference(descriptor.name);
-	const indent = indentUnit.repeat(indentLevel);
-	return buildPrintable(buildVariable(reference.raw), [
-		`${indent}${reference.display}`,
-	]);
+	const variableExpression = buildVariable(reference.raw);
+	const lines = formatExpression(variableExpression, indentLevel, indentUnit);
+	return buildPrintable(variableExpression, lines);
 }
 
 function renderExpression(
@@ -100,7 +102,10 @@ function renderExpression(
 	indentLevel: number,
 	indentUnit: string
 ): PhpPrintableExpr {
-	const indent = indentUnit.repeat(indentLevel);
-	const lines = indentLines(descriptor.printable.lines, indent);
+	const lines = formatExpression(
+		descriptor.printable.node,
+		indentLevel,
+		indentUnit
+	);
 	return buildPrintable(descriptor.printable.node, lines);
 }

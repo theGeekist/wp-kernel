@@ -53,7 +53,6 @@ export function createIdentityValidationPrintables(
 					buildNull(),
 					buildVariable(variable.raw)
 				),
-				conditionText: `${indent}if ( null === ${variable.display} ) {`,
 				statements: [missingReturn],
 			})
 		);
@@ -84,7 +83,6 @@ export function createIdentityValidationPrintables(
 					buildVariable(variable.raw),
 					buildScalarInt(0)
 				),
-				conditionText: `${indent}if ( ${variable.display} <= 0 ) {`,
 				statements: [invalidReturn],
 			})
 		);
@@ -119,7 +117,6 @@ export function createIdentityValidationPrintables(
 		buildIfPrintable({
 			indentLevel,
 			condition,
-			conditionText: `${indent}if ( ! is_string( ${variable.display} ) || '' === trim( ${variable.display} ) ) {`,
 			statements: [missingReturn],
 		})
 	);
