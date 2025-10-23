@@ -68,7 +68,6 @@ describe('createPhpPrettyPrinter', () => {
 
 	beforeEach(() => {
 		spawnMock.mockReset();
-		jest.resetModules();
 		delete process.env.PHP_MEMORY_LIMIT;
 	});
 
@@ -82,10 +81,8 @@ describe('createPhpPrettyPrinter', () => {
 
 	it('resolves the default pretty print script path', () => {
 		const scriptPath = resolvePrettyPrintScriptPath();
-		const expectedPath = path.resolve(
-			__dirname,
-			'../../php/pretty-print.php'
-		);
+		const packageRoot = path.resolve(__dirname, '..', '..');
+		const expectedPath = path.join(packageRoot, 'php', 'pretty-print.php');
 
 		expect(scriptPath).toBe(expectedPath);
 		expect(fs.existsSync(scriptPath)).toBe(true);
