@@ -128,7 +128,7 @@ describe('wpPost identity helpers', () => {
 			'        }',
 		]);
 		expect(statements[1]?.lines).toEqual([
-			'        $slug = trim( (string) $slug );',
+			'        $slug = trim((string) $slug);',
 		]);
 	});
 });

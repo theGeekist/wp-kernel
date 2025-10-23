@@ -20,15 +20,10 @@ import {
 	buildVariable,
 	type PhpExpr,
 	type PhpStmt,
-	buildPrintable,
 	type PhpPrintable,
 	type PhpMethodBodyBuilder,
 } from '@wpkernel/php-json-ast';
-import {
-	PHP_INDENT,
-	escapeSingleQuotes,
-	toSnakeCase,
-} from '@wpkernel/php-json-ast';
+import { PHP_INDENT, toSnakeCase } from '@wpkernel/php-json-ast';
 import {
 	buildArrayDimFetch,
 	buildArrayInitialiser,
@@ -37,6 +32,7 @@ import {
 	buildIfPrintable,
 	buildScalarCast,
 } from '../utils';
+import { formatStatementPrintable } from '../printer';
 
 export interface WpPostMetaConfigEntry {
 	readonly single?: boolean | null;
@@ -80,18 +76,15 @@ export function appendMetaQueryBuilder(
 		return;
 	}
 
-	const indentLevel = options.indentLevel;
-	const indent = PHP_INDENT.repeat(indentLevel);
-
 	const initPrintable = buildArrayInitialiser({
 		variable: 'meta_query',
-		indentLevel,
+		indentLevel: options.indentLevel,
 	});
 	options.body.statement(initPrintable);
 
 	for (const [key, descriptor] of options.entries) {
 		const variableName = `${toSnakeCase(key)}Meta`;
-		const requestPrintable = buildPrintable(
+		const requestPrintable = formatStatementPrintable(
 			buildExpressionStatement(
 				buildAssign(
 					buildVariable(variableName),
@@ -102,14 +95,14 @@ export function appendMetaQueryBuilder(
 					)
 				)
 			),
-			[
-				`${indent}$${variableName} = $request->get_param( '${escapeSingleQuotes(key)}' );`,
-			]
+			{
+				indentLevel: options.indentLevel,
+				indentUnit: PHP_INDENT,
+			}
 		);
 		options.body.statement(requestPrintable);
 
-		const childIndentLevel = indentLevel + 1;
-		const childIndent = PHP_INDENT.repeat(childIndentLevel);
+		const childIndentLevel = options.indentLevel + 1;
 		const innerStatements: PhpPrintable<PhpStmt>[] = [];
 
 		if (descriptor?.single === false) {
@@ -122,7 +115,7 @@ export function appendMetaQueryBuilder(
 						])
 					),
 					statements: [
-						buildPrintable(
+						formatStatementPrintable(
 							buildExpressionStatement(
 								buildAssign(
 									buildVariable(variableName),
@@ -133,15 +126,16 @@ export function appendMetaQueryBuilder(
 									])
 								)
 							),
-							[
-								`${childIndent}${PHP_INDENT}$${variableName} = [ $${variableName} ];`,
-							]
+							{
+								indentLevel: childIndentLevel,
+								indentUnit: PHP_INDENT,
+							}
 						),
 					],
 				})
 			);
 
-			const normalisePrintable = buildPrintable(
+			const normalisePrintable = formatStatementPrintable(
 				buildExpressionStatement(
 					buildAssign(
 						buildVariable(variableName),
@@ -152,12 +146,13 @@ export function appendMetaQueryBuilder(
 						])
 					)
 				),
-				[
-					`${childIndent}$${variableName} = array_values( (array) $${variableName} );`,
-				]
+				{
+					indentLevel: childIndentLevel,
+					indentUnit: PHP_INDENT,
+				}
 			);
 
-			const filterPrintable = buildPrintable(
+			const filterPrintable = formatStatementPrintable(
 				buildExpressionStatement(
 					buildAssign(
 						buildVariable(variableName),
@@ -167,18 +162,15 @@ export function appendMetaQueryBuilder(
 						])
 					)
 				),
-				[
-					`${childIndent}$${variableName} = array_filter( $${variableName}, static fn ( $value ) => match ( trim( (string) $value ) ) {`,
-					`${childIndent}${PHP_INDENT}'' => false,`,
-					`${childIndent}${PHP_INDENT}default => true,`,
-					`${childIndent}} );`,
-				]
+				{
+					indentLevel: childIndentLevel,
+					indentUnit: PHP_INDENT,
+				}
 			);
 
 			innerStatements.push(normalisePrintable, filterPrintable);
 
-			const nestedIndent = PHP_INDENT.repeat(childIndentLevel + 1);
-			const pushPrintable = buildPrintable(
+			const pushPrintable = formatStatementPrintable(
 				buildExpressionStatement(
 					buildAssign(
 						buildArrayDimFetch('meta_query', null),
@@ -195,13 +187,10 @@ export function appendMetaQueryBuilder(
 						])
 					)
 				),
-				[
-					`${nestedIndent}$meta_query[] = [`,
-					`${nestedIndent}${PHP_INDENT}'key' => '${escapeSingleQuotes(key)}',`,
-					`${nestedIndent}${PHP_INDENT}'compare' => 'IN',`,
-					`${nestedIndent}${PHP_INDENT}'value' => $${variableName},`,
-					`${nestedIndent}];`,
-				]
+				{
+					indentLevel: childIndentLevel + 1,
+					indentUnit: PHP_INDENT,
+				}
 			);
 
 			innerStatements.push(
@@ -218,7 +207,7 @@ export function appendMetaQueryBuilder(
 				})
 			);
 		} else {
-			const sanitisePrintable = buildPrintable(
+			const sanitisePrintable = formatStatementPrintable(
 				buildExpressionStatement(
 					buildAssign(
 						buildVariable(variableName),
@@ -243,15 +232,13 @@ export function appendMetaQueryBuilder(
 						)
 					)
 				),
-				[
-					`${childIndent}$${variableName} = match ( is_scalar( $${variableName} ) ) {`,
-					`${childIndent}${PHP_INDENT}true => trim( (string) $${variableName} ),`,
-					`${childIndent}${PHP_INDENT}default => null,`,
-					`${childIndent}};`,
-				]
+				{
+					indentLevel: childIndentLevel,
+					indentUnit: PHP_INDENT,
+				}
 			);
 
-			const pushPrintable = buildPrintable(
+			const pushPrintable = formatStatementPrintable(
 				buildExpressionStatement(
 					buildAssign(
 						buildArrayDimFetch('meta_query', null),
@@ -268,13 +255,10 @@ export function appendMetaQueryBuilder(
 						])
 					)
 				),
-				[
-					`${childIndent}${PHP_INDENT}$meta_query[] = [`,
-					`${childIndent}${PHP_INDENT}${PHP_INDENT}'key' => '${escapeSingleQuotes(key)}',`,
-					`${childIndent}${PHP_INDENT}${PHP_INDENT}'compare' => '=',`,
-					`${childIndent}${PHP_INDENT}${PHP_INDENT}'value' => $${variableName},`,
-					`${childIndent}${PHP_INDENT}];`,
-				]
+				{
+					indentLevel: childIndentLevel + 1,
+					indentUnit: PHP_INDENT,
+				}
 			);
 
 			innerStatements.push(
@@ -301,7 +285,7 @@ export function appendMetaQueryBuilder(
 
 		options.body.statement(
 			buildIfPrintable({
-				indentLevel,
+				indentLevel: options.indentLevel,
 				condition: buildBinaryOperation(
 					'NotIdentical',
 					buildVariable(variableName),
@@ -312,7 +296,7 @@ export function appendMetaQueryBuilder(
 		);
 	}
 
-	const assignPrintable = buildPrintable(
+	const assignPrintable = formatStatementPrintable(
 		buildExpressionStatement(
 			buildAssign(
 				buildArrayDimFetch(
@@ -322,12 +306,15 @@ export function appendMetaQueryBuilder(
 				buildVariable('meta_query')
 			)
 		),
-		[`${indent}${PHP_INDENT}$query_args['meta_query'] = $meta_query;`]
+		{
+			indentLevel: options.indentLevel + 1,
+			indentUnit: PHP_INDENT,
+		}
 	);
 
 	options.body.statement(
 		buildIfPrintable({
-			indentLevel,
+			indentLevel: options.indentLevel,
 			condition: buildBinaryOperation(
 				'Greater',
 				buildFuncCall(buildName(['count']), [
