@@ -18,9 +18,12 @@ import {
 	type PhpStmt,
 	type PhpStmtContinue,
 	type PhpStmtForeach,
-} from '../../../ast/nodes';
-import { createPrintable, type PhpPrintable } from '../../../ast/printables';
-import { PHP_INDENT, type PhpMethodBodyBuilder } from '../../../ast/templates';
+} from '@wpkernel/php-json-ast/nodes';
+import { createPrintable, type PhpPrintable } from '@wpkernel/php-json-ast';
+import {
+	PHP_INDENT,
+	type PhpMethodBodyBuilder,
+} from '@wpkernel/php-json-ast/templates';
 import { appendResourceCacheEvent } from '../cache';
 import {
 	createPaginationNormalisation,
@@ -36,8 +39,8 @@ import {
 	buildScalarCast,
 } from '../utils';
 import { createListItemsInitialiser } from '../wpPost/list';
-import { createWpTermQueryInstantiation } from '../../../ast/factories/wpTermQuery';
-import type { ResourceMetadataHost } from '../../../ast/factories/cacheMetadata';
+import { createWpTermQueryInstantiation } from '@wpkernel/php-json-ast/factories/wpTermQuery';
+import type { ResourceMetadataHost } from '@wpkernel/php-json-ast/factories/cacheMetadata';
 import type { IRResource } from '../../../../../../ir/types';
 
 type WpTaxonomyStorage = Extract<

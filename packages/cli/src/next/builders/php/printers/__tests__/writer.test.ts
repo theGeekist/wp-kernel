@@ -7,8 +7,8 @@ import type {
 } from '../../../../runtime/types';
 import { createPhpProgramWriterHelper } from '../writer';
 import { getPhpBuilderChannel, resetPhpBuilderChannel } from '../channel';
-import { resetPhpAstChannel } from '../../ast/context';
-import { createStmtNop } from '../../ast/nodes';
+import { resetPhpAstChannel } from '@wpkernel/php-json-ast/channels';
+import { createStmtNop } from '@wpkernel/php-json-ast/nodes';
 import { createPhpPrettyPrinter } from '../../bridge';
 
 jest.mock('../../bridge', () => ({

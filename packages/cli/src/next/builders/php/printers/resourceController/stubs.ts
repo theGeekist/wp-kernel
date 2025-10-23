@@ -4,15 +4,15 @@ import {
 	createScalarString,
 	createStmtNop,
 	type PhpExprNew,
-} from '../../ast/nodes';
-import { createPrintable } from '../../ast/printables';
+} from '@wpkernel/php-json-ast/nodes';
+import { createPrintable } from '@wpkernel/php-json-ast';
 import {
 	createNode,
 	createReturn,
 	createArg,
 	createName,
-} from '../../ast/nodes';
-import type { PhpMethodBodyBuilder } from '../../ast/templates';
+} from '@wpkernel/php-json-ast/nodes';
+import type { PhpMethodBodyBuilder } from '@wpkernel/php-json-ast/templates';
 import type { IRRoute } from '../../../../../ir/types';
 
 export interface AppendNotImplementedStubOptions {

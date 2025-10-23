@@ -1,19 +1,26 @@
 import { createHelper } from '../../../helper';
-import type { BuilderHelper } from '../../../runtime/types';
-import { createPhpFileBuilder } from '../ast/programBuilder';
-import { appendGeneratedFileDocblock } from '../ast/docblocks';
-import { appendClassTemplate } from '../ast/append';
+import type {
+	BuilderHelper,
+	BuilderInput,
+	BuilderOutput,
+	PipelineContext,
+} from '../../../runtime/types';
+import { createPhpFileBuilder } from '@wpkernel/php-json-ast/builders';
+import {
+	appendGeneratedFileDocblock,
+	appendClassTemplate,
+	escapeSingleQuotes,
+} from '@wpkernel/php-json-ast';
 import {
 	createClassTemplate,
 	createMethodTemplate,
 	PHP_INDENT,
-} from '../ast/templates';
+} from '@wpkernel/php-json-ast/templates';
 import {
 	PHP_CLASS_MODIFIER_ABSTRACT,
 	PHP_METHOD_MODIFIER_PUBLIC,
-} from '../ast/modifiers';
-import { escapeSingleQuotes } from '../ast/utils';
-import { createIdentifier } from '../ast/nodes';
+} from '@wpkernel/php-json-ast/modifiers';
+import { createIdentifier } from '@wpkernel/php-json-ast/nodes';
 
 export function createPhpBaseControllerHelper(): BuilderHelper {
 	return createHelper({
@@ -34,7 +41,11 @@ export function createPhpBaseControllerHelper(): BuilderHelper {
 				'BaseController.php'
 			);
 
-			const builderHelper = createPhpFileBuilder({
+			const builderHelper = createPhpFileBuilder<
+				PipelineContext,
+				BuilderInput,
+				BuilderOutput
+			>({
 				key: 'base-controller',
 				filePath,
 				namespace,

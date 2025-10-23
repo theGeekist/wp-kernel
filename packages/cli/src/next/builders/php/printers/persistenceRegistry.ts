@@ -1,24 +1,31 @@
 import { createHelper } from '../../../helper';
-import type { BuilderHelper } from '../../../runtime/types';
+import type {
+	BuilderHelper,
+	BuilderInput,
+	BuilderOutput,
+	PipelineContext,
+} from '../../../runtime/types';
 import {
 	createPhpFileBuilder,
 	type PhpAstBuilderAdapter,
-} from '../ast/programBuilder';
-import { appendGeneratedFileDocblock } from '../ast/docblocks';
-import { appendClassTemplate } from '../ast/append';
+} from '@wpkernel/php-json-ast/builders';
+import {
+	appendGeneratedFileDocblock,
+	appendClassTemplate,
+	createPhpReturn,
+	sanitizeJson,
+} from '@wpkernel/php-json-ast';
 import {
 	createClassTemplate,
 	createMethodTemplate,
 	PHP_INDENT,
-} from '../ast/templates';
-import { createIdentifier } from '../ast/nodes';
+} from '@wpkernel/php-json-ast/templates';
+import { createIdentifier } from '@wpkernel/php-json-ast/nodes';
 import {
 	PHP_CLASS_MODIFIER_FINAL,
 	PHP_METHOD_MODIFIER_PUBLIC,
 	PHP_METHOD_MODIFIER_STATIC,
-} from '../ast/modifiers';
-import { createPhpReturn } from '../ast/valueRenderers';
-import { sanitizeJson } from '../ast/utils';
+} from '@wpkernel/php-json-ast/modifiers';
 import type { IRResource, IRv1 } from '../../../../ir/types';
 
 export function createPhpPersistenceRegistryHelper(): BuilderHelper {
@@ -40,7 +47,11 @@ export function createPhpPersistenceRegistryHelper(): BuilderHelper {
 				'PersistenceRegistry.php'
 			);
 
-			const helper = createPhpFileBuilder({
+			const helper = createPhpFileBuilder<
+				PipelineContext,
+				BuilderInput,
+				BuilderOutput
+			>({
 				key: 'persistence-registry',
 				filePath,
 				namespace,

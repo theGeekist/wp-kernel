@@ -1,4 +1,4 @@
-import type { PhpMethodBodyBuilder } from '../../../../../ast/templates';
+import type { PhpMethodBodyBuilder } from '@wpkernel/php-json-ast/templates';
 import type { IRResource } from '../../../../../../../../ir/types';
 import type { ResolvedIdentity } from '../../../../identity';
 import type { ResourceMutationContract } from '../../../mutationContract';

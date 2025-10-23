@@ -4,15 +4,15 @@ import {
 	createName,
 	createParam,
 	createVariable,
-} from '../../../../ast/nodes';
+} from '@wpkernel/php-json-ast/nodes';
 import {
 	createMethodTemplate,
 	PHP_INDENT,
 	type PhpMethodBodyBuilder,
 	type PhpMethodTemplate,
-} from '../../../../ast/templates';
-import { PHP_METHOD_MODIFIER_PRIVATE } from '../../../../ast/modifiers';
-import { escapeSingleQuotes, toSnakeCase } from '../../../../ast/utils';
+} from '@wpkernel/php-json-ast/templates';
+import { PHP_METHOD_MODIFIER_PRIVATE } from '@wpkernel/php-json-ast/modifiers';
+import { escapeSingleQuotes, toSnakeCase } from '@wpkernel/php-json-ast';
 import type { IRResource } from '../../../../../../../ir/types';
 import type { ResolvedIdentity } from '../../../identity';
 

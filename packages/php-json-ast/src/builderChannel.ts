@@ -27,17 +27,19 @@ interface ChannelHost {
 	[PHP_CHANNEL_SYMBOL]?: PhpBuilderChannel;
 }
 
-export function getPhpBuilderChannel(
-	context: PipelineContext
+export function getPhpBuilderChannel<TContext extends PipelineContext>(
+	context: TContext
 ): PhpBuilderChannel {
-	const host = context as PipelineContext & ChannelHost;
+	const host = context as unknown as ChannelHost;
 	if (!host[PHP_CHANNEL_SYMBOL]) {
 		host[PHP_CHANNEL_SYMBOL] = createChannel();
 	}
 	return host[PHP_CHANNEL_SYMBOL]!;
 }
 
-export function resetPhpBuilderChannel(context: PipelineContext): void {
+export function resetPhpBuilderChannel<TContext extends PipelineContext>(
+	context: TContext
+): void {
 	getPhpBuilderChannel(context).reset();
 }
 

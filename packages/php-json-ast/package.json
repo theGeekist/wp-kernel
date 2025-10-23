@@ -30,6 +30,46 @@
 			"import": "./dist/index.js",
 			"default": "./dist/index.js"
 		},
+		"./builders": {
+			"types": "./dist/builders.d.ts",
+			"import": "./dist/builders.js",
+			"default": "./dist/builders.js"
+		},
+		"./channels": {
+			"types": "./dist/channels.d.ts",
+			"import": "./dist/channels.js",
+			"default": "./dist/channels.js"
+		},
+		"./nodes": {
+			"types": "./dist/nodes.d.ts",
+			"import": "./dist/nodes.js",
+			"default": "./dist/nodes.js"
+		},
+		"./templates": {
+			"types": "./dist/templates.d.ts",
+			"import": "./dist/templates.js",
+			"default": "./dist/templates.js"
+		},
+		"./factories": {
+			"types": "./dist/factories.d.ts",
+			"import": "./dist/factories.js",
+			"default": "./dist/factories.js"
+		},
+		"./factories/*": {
+			"types": "./dist/factories/*.d.ts",
+			"import": "./dist/factories/*.js",
+			"default": "./dist/factories/*.js"
+		},
+		"./types": {
+			"types": "./dist/types.d.ts",
+			"import": "./dist/types.js",
+			"default": "./dist/types.js"
+		},
+		"./modifiers": {
+			"types": "./dist/modifiers.d.ts",
+			"import": "./dist/modifiers.js",
+			"default": "./dist/modifiers.js"
+		},
 		"./package.json": "./package.json"
 	},
 	"files": [

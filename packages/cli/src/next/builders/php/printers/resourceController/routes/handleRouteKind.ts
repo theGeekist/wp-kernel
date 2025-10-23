@@ -1,7 +1,7 @@
-import type { PhpMethodBodyBuilder } from '../../../ast/templates';
+import type { PhpMethodBodyBuilder } from '@wpkernel/php-json-ast/templates';
 import type { ResolvedIdentity } from '../../identity';
 import type { RouteMetadataKind } from '../metadata';
-import type { ResourceMetadataHost } from '../../../ast/factories/cacheMetadata';
+import type { ResourceMetadataHost } from '@wpkernel/php-json-ast/factories/cacheMetadata';
 import type { IRResource } from '../../../../../../ir/types';
 import {
 	buildCreateRouteBody,

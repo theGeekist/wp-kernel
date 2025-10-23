@@ -1,5 +1,5 @@
-import type { ResourceControllerMetadata } from '../../../ast/types';
-import type { ResourceMetadataHost } from '../../../ast/factories/cacheMetadata';
+import type { ResourceControllerMetadata } from '@wpkernel/php-json-ast/types';
+import type { ResourceMetadataHost } from '@wpkernel/php-json-ast/factories/cacheMetadata';
 import {
 	createPaginationNormalisation,
 	createQueryArgsAssignment,
