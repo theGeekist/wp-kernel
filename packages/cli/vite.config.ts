@@ -1,5 +1,5 @@
 import { resolve as resolvePath } from 'node:path';
-import { fileURLToPath, pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 import type { PluginOption } from 'vite';
 import type { Reporter } from '@wpkernel/core/reporter';
 import { createWorkspace } from './src/next/workspace';
@@ -32,39 +32,11 @@ const CLI_ROOT = resolveCliRoot();
 let cachedPhpDriverInstaller: PhpDriverInstallerFactory | null = null;
 
 async function loadPhpDriverInstaller(): Promise<PhpDriverInstallerFactory> {
-	if (cachedPhpDriverInstaller) {
-		return cachedPhpDriverInstaller;
-	}
-
-	const distEntryPath = resolvePath(
-		CLI_ROOT,
-		'dist/next/builders/php/index.js'
-	);
-	const srcEntryPath = resolvePath(
-		CLI_ROOT,
-		'src/next/builders/php/index.ts'
-	);
-	const distEntryUrl = pathToFileURL(distEntryPath).href;
-	const srcEntryUrl = pathToFileURL(srcEntryPath).href;
-
-	try {
-		const module = (await import(distEntryUrl)) as {
+	if (!cachedPhpDriverInstaller) {
+		const module = (await import('@wpkernel/php-driver')) as {
 			createPhpDriverInstaller: PhpDriverInstallerFactory;
 		};
 		cachedPhpDriverInstaller = module.createPhpDriverInstaller;
-	} catch {
-		const tsx = (await import('tsx/esm/api')) as {
-			tsImport: (
-				modulePath: string,
-				parent?: string | { parentURL: string }
-			) => Promise<{
-				createPhpDriverInstaller: PhpDriverInstallerFactory;
-			}>;
-		};
-		const exports = await tsx.tsImport(srcEntryPath, {
-			parentURL: srcEntryUrl,
-		});
-		cachedPhpDriverInstaller = exports.createPhpDriverInstaller;
 	}
 
 	return cachedPhpDriverInstaller;

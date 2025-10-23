@@ -68,6 +68,11 @@
 			"import": "./dist/policy.js",
 			"default": "./dist/policy.js"
 		},
+		"./pipeline": {
+			"types": "./dist/pipeline/index.d.ts",
+			"import": "./dist/pipeline.js",
+			"default": "./dist/pipeline.js"
+		},
 		"./reporter": {
 			"types": "./dist/reporter/index.d.ts",
 			"import": "./dist/reporter.js",

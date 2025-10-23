@@ -55,7 +55,7 @@ function createOptions(
 	};
 	const reporter = createReporterMock();
 
-	const ir = {
+	const artifact = {
 		meta: {
 			sanitizedNamespace: 'TestNamespace',
 			namespace: 'test',
@@ -77,7 +77,7 @@ function createOptions(
 			origin: 'typescript',
 			sourcePath: '/tmp/workspace/kernel.config.ts',
 		},
-		ir,
+		artifact,
 	};
 
 	return {
@@ -195,8 +195,8 @@ describe('createAdapterExtensionsExtension', () => {
 		const commit = jest.fn().mockResolvedValue(undefined);
 		const rollback = jest.fn().mockResolvedValue(undefined);
 		const nextIr = {
-			...options.ir,
-			meta: { ...options.ir.meta, namespace: 'next' },
+			...options.artifact,
+			meta: { ...options.artifact.meta, namespace: 'next' },
 		} as IRv1;
 		runAdapterExtensionsMock.mockResolvedValue({
 			ir: nextIr,
@@ -205,7 +205,7 @@ describe('createAdapterExtensionsExtension', () => {
 		});
 
 		const result = await hook(options);
-		expect(result).toEqual({ ir: nextIr, commit, rollback });
+		expect(result).toEqual({ artifact: nextIr, commit, rollback });
 
 		expect(factory).toHaveBeenCalledWith(
 			expect.objectContaining({ namespace: 'TestNamespace' })
@@ -359,7 +359,7 @@ describe('createAdapterExtensionsExtension', () => {
 		const { hook, options } = createHook(config);
 
 		runAdapterExtensionsMock.mockResolvedValue({
-			ir: options.ir,
+			ir: options.artifact,
 			commit: jest.fn(),
 			rollback: jest.fn(),
 		});
@@ -395,7 +395,7 @@ describe('createAdapterExtensionsExtension', () => {
 		const { hook, options } = createHook(config);
 
 		runAdapterExtensionsMock.mockResolvedValue({
-			ir: options.ir,
+			ir: options.artifact,
 			commit: jest.fn(),
 			rollback: jest.fn(),
 		});
