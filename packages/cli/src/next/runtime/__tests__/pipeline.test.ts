@@ -1,12 +1,17 @@
 import { createReporterMock } from '@wpkernel/test-utils/cli';
 import type { IRPolicyMap } from '../../../ir/types';
 import { KernelError } from '@wpkernel/core/error';
-import { createHelper } from '../../helper';
+import { createHelper } from '@wpkernel/core/pipeline';
 import { createPipeline } from '../createPipeline';
 import type { KernelConfigV1 } from '../../../config/types';
 import { FIXTURE_CONFIG_PATH } from '../../../ir/test-helpers';
 import { createWorkspace } from '../../workspace';
 import { withWorkspace } from '../../../../tests/workspace.test-support';
+import type {
+	BuilderApplyOptions,
+	BuilderNext,
+	FragmentApplyOptions,
+} from '../types';
 
 function createPolicyMap(): IRPolicyMap {
 	return {
@@ -40,7 +45,7 @@ describe('createPipeline', () => {
 				key: 'ir.meta.test',
 				kind: 'fragment',
 				mode: 'override',
-				apply({ output }) {
+				apply({ output }: FragmentApplyOptions) {
 					runOrder.push('meta');
 					output.assign({
 						meta: {
@@ -63,7 +68,7 @@ describe('createPipeline', () => {
 				key: 'ir.collection.test',
 				kind: 'fragment',
 				dependsOn: ['ir.meta.test'],
-				apply({ output }) {
+				apply({ output }: FragmentApplyOptions) {
 					runOrder.push('collection');
 					output.assign({
 						schemas: [],
@@ -78,7 +83,7 @@ describe('createPipeline', () => {
 				key: 'ir.policy-map.test',
 				kind: 'fragment',
 				dependsOn: ['ir.collection.test'],
-				apply({ output }) {
+				apply({ output }: FragmentApplyOptions) {
 					runOrder.push('policy');
 					output.assign({ policyMap: createPolicyMap() });
 				},
@@ -96,7 +101,7 @@ describe('createPipeline', () => {
 			const builderHelper = createHelper({
 				key: 'builder.test',
 				kind: 'builder',
-				apply({ reporter }, next) {
+				apply({ reporter }: BuilderApplyOptions, next?: BuilderNext) {
 					runOrder.push('builder');
 					reporter.debug('builder executed');
 					return next?.();
@@ -247,7 +252,7 @@ describe('createPipeline', () => {
 				key: 'ir.meta.inline',
 				kind: 'fragment',
 				mode: 'override',
-				apply({ output }) {
+				apply({ output }: FragmentApplyOptions) {
 					executionOrder.push('meta');
 					output.assign({
 						meta: {
@@ -270,7 +275,7 @@ describe('createPipeline', () => {
 				key: 'ir.policy-map.inline',
 				kind: 'fragment',
 				dependsOn: ['ir.meta.inline'],
-				apply({ output }) {
+				apply({ output }: FragmentApplyOptions) {
 					executionOrder.push('policy');
 					output.assign({ policyMap: createPolicyMap() });
 				},
@@ -279,7 +284,7 @@ describe('createPipeline', () => {
 			const builderHelper = createHelper({
 				key: 'builder.inline',
 				kind: 'builder',
-				apply({ reporter }) {
+				apply({ reporter }: BuilderApplyOptions) {
 					reporter.info('inline builder');
 					executionOrder.push('builder.inline');
 				},
@@ -339,7 +344,7 @@ describe('createPipeline', () => {
 					key: 'ir.meta.async',
 					kind: 'fragment',
 					mode: 'override',
-					apply({ output }) {
+					apply({ output }: FragmentApplyOptions) {
 						output.assign({
 							meta: {
 								version: 1,
@@ -363,7 +368,7 @@ describe('createPipeline', () => {
 					key: 'ir.resources.async',
 					kind: 'fragment',
 					dependsOn: ['ir.meta.async'],
-					apply({ output }) {
+					apply({ output }: FragmentApplyOptions) {
 						output.assign({
 							schemas: [],
 							resources: [],
@@ -390,7 +395,7 @@ describe('createPipeline', () => {
 				key: 'extension.async',
 				async register() {
 					return async (options) => {
-						hookSpy(options.ir.meta.namespace);
+						hookSpy(options.artifact.meta.namespace);
 						return { commit, rollback };
 					};
 				},
@@ -400,7 +405,10 @@ describe('createPipeline', () => {
 				createHelper({
 					key: 'builder.async',
 					kind: 'builder',
-					apply({ reporter }, next) {
+					apply(
+						{ reporter }: BuilderApplyOptions,
+						next?: BuilderNext
+					) {
 						reporter.debug('async builder executed');
 						return next?.();
 					},
@@ -437,7 +445,7 @@ describe('createPipeline', () => {
 					key: 'ir.meta.update',
 					kind: 'fragment',
 					mode: 'override',
-					apply({ output }) {
+					apply({ output }: FragmentApplyOptions) {
 						output.assign({
 							meta: {
 								version: 1,
@@ -461,7 +469,7 @@ describe('createPipeline', () => {
 					key: 'ir.collection.update',
 					kind: 'fragment',
 					dependsOn: ['ir.meta.update'],
-					apply({ output }) {
+					apply({ output }: FragmentApplyOptions) {
 						output.assign({
 							schemas: [],
 							resources: [],
@@ -487,11 +495,11 @@ describe('createPipeline', () => {
 			pipeline.extensions.use({
 				key: 'extension.ir-update',
 				register() {
-					return async ({ ir }) => ({
-						ir: {
-							...ir,
+					return async ({ artifact }) => ({
+						artifact: {
+							...artifact,
 							meta: {
-								...ir.meta,
+								...artifact.meta,
 								namespace: 'updated',
 								sanitizedNamespace: 'Updated',
 							},
@@ -505,7 +513,7 @@ describe('createPipeline', () => {
 				createHelper({
 					key: 'builder.writer',
 					kind: 'builder',
-					apply({ output }) {
+					apply({ output }: FragmentApplyOptions) {
 						output.queueWrite({
 							file: 'generated.txt',
 							contents: 'generated',
@@ -545,7 +553,7 @@ describe('createPipeline', () => {
 					key: 'ir.meta.priority',
 					kind: 'fragment',
 					mode: 'override',
-					apply({ output }) {
+					apply({ output }: FragmentApplyOptions) {
 						output.assign({
 							meta: {
 								version: 1,
@@ -569,7 +577,7 @@ describe('createPipeline', () => {
 					key: 'ir.collection.priority',
 					kind: 'fragment',
 					dependsOn: ['ir.meta.priority'],
-					apply({ output }) {
+					apply({ output }: FragmentApplyOptions) {
 						output.assign({
 							schemas: [],
 							resources: [],
@@ -585,7 +593,7 @@ describe('createPipeline', () => {
 					key: 'ir.policy-map.priority',
 					kind: 'fragment',
 					dependsOn: ['ir.collection.priority'],
-					apply({ output }) {
+					apply({ output }: FragmentApplyOptions) {
 						output.assign({ policyMap: createPolicyMap() });
 					},
 				})
@@ -606,7 +614,10 @@ describe('createPipeline', () => {
 				key: 'builder.high-priority',
 				kind: 'builder',
 				priority: 5,
-				async apply({ reporter }, next) {
+				async apply(
+					{ reporter }: BuilderApplyOptions,
+					next?: BuilderNext
+				) {
 					builderOrder.push('high');
 					reporter.debug('high priority builder executed');
 					await next?.();
@@ -617,7 +628,10 @@ describe('createPipeline', () => {
 				key: 'builder.alpha',
 				kind: 'builder',
 				priority: 1,
-				async apply({ reporter }, next) {
+				async apply(
+					{ reporter }: BuilderApplyOptions,
+					next?: BuilderNext
+				) {
 					builderOrder.push('alpha');
 					reporter.debug('alpha builder executed');
 					await next?.();
@@ -629,7 +643,7 @@ describe('createPipeline', () => {
 				key: 'builder.beta',
 				kind: 'builder',
 				priority: 1,
-				apply({ reporter }) {
+				apply({ reporter }: BuilderApplyOptions) {
 					builderOrder.push('beta');
 					reporter.debug('beta builder executed');
 				},
@@ -638,7 +652,10 @@ describe('createPipeline', () => {
 			const duplicateFirst = createHelper({
 				key: 'builder.duplicate',
 				kind: 'builder',
-				async apply({ reporter }, next) {
+				async apply(
+					{ reporter }: BuilderApplyOptions,
+					next?: BuilderNext
+				) {
 					builderOrder.push('duplicate-1');
 					reporter.debug('duplicate builder (first) executed');
 					await next?.();
@@ -648,7 +665,10 @@ describe('createPipeline', () => {
 			const duplicateSecond = createHelper({
 				key: 'builder.duplicate',
 				kind: 'builder',
-				async apply({ reporter }, next) {
+				async apply(
+					{ reporter }: BuilderApplyOptions,
+					next?: BuilderNext
+				) {
 					builderOrder.push('duplicate-2');
 					reporter.debug('duplicate builder (second) executed');
 					await next?.();
@@ -705,7 +725,7 @@ describe('createPipeline', () => {
 					key: 'ir.meta.commit',
 					kind: 'fragment',
 					mode: 'override',
-					apply({ output }) {
+					apply({ output }: FragmentApplyOptions) {
 						output.assign({
 							meta: {
 								version: 1,
@@ -728,7 +748,7 @@ describe('createPipeline', () => {
 					key: 'ir.resources.commit',
 					kind: 'fragment',
 					dependsOn: ['ir.meta.commit'],
-					apply({ output }) {
+					apply({ output }: FragmentApplyOptions) {
 						output.assign({
 							schemas: [],
 							resources: [],
@@ -799,7 +819,7 @@ describe('createPipeline', () => {
 					key: 'ir.meta.extension-failure',
 					kind: 'fragment',
 					mode: 'override',
-					apply({ output }) {
+					apply({ output }: FragmentApplyOptions) {
 						output.assign({
 							meta: {
 								version: 1,
@@ -822,7 +842,7 @@ describe('createPipeline', () => {
 					key: 'ir.resources.extension-failure',
 					kind: 'fragment',
 					dependsOn: ['ir.meta.extension-failure'],
-					apply({ output }) {
+					apply({ output }: FragmentApplyOptions) {
 						output.assign({
 							schemas: [],
 							resources: [],
@@ -895,7 +915,7 @@ describe('createPipeline', () => {
 					key: 'ir.meta.rollback',
 					kind: 'fragment',
 					mode: 'override',
-					apply({ output }) {
+					apply({ output }: FragmentApplyOptions) {
 						output.assign({
 							meta: {
 								version: 1,
@@ -918,7 +938,7 @@ describe('createPipeline', () => {
 					key: 'ir.resources.rollback',
 					kind: 'fragment',
 					dependsOn: ['ir.meta.rollback'],
-					apply({ output }) {
+					apply({ output }: FragmentApplyOptions) {
 						output.assign({
 							schemas: [],
 							resources: [],
@@ -991,7 +1011,7 @@ describe('createPipeline', () => {
 					key: 'ir.meta.rollback-missing',
 					kind: 'fragment',
 					mode: 'override',
-					apply({ output }) {
+					apply({ output }: FragmentApplyOptions) {
 						output.assign({
 							meta: {
 								version: 1,
@@ -1015,7 +1035,7 @@ describe('createPipeline', () => {
 					key: 'ir.resources.rollback-missing',
 					kind: 'fragment',
 					dependsOn: ['ir.meta.rollback-missing'],
-					apply({ output }) {
+					apply({ output }: FragmentApplyOptions) {
 						output.assign({
 							schemas: [],
 							resources: [],
@@ -1088,7 +1108,7 @@ describe('createPipeline', () => {
 					key: 'ir.meta.rollback-warning',
 					kind: 'fragment',
 					mode: 'override',
-					apply({ output }) {
+					apply({ output }: FragmentApplyOptions) {
 						output.assign({
 							meta: {
 								version: 1,
@@ -1112,7 +1132,7 @@ describe('createPipeline', () => {
 					key: 'ir.resources.rollback-warning',
 					kind: 'fragment',
 					dependsOn: ['ir.meta.rollback-warning'],
-					apply({ output }) {
+					apply({ output }: FragmentApplyOptions) {
 						output.assign({
 							schemas: [],
 							resources: [],

@@ -1,6 +1,6 @@
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { BuildIrOptions, IRv1 } from '../../ir/types';
-import type { Helper, HelperDescriptor } from '../helper';
+import type { Helper, HelperDescriptor } from '@wpkernel/core/pipeline';
 import type { MutableIr } from '../ir/types';
 import type { Workspace } from '../workspace/types';
 
@@ -84,11 +84,11 @@ export type BuilderHelper = Helper<
 export interface PipelineExtensionHookOptions {
 	readonly context: PipelineContext;
 	readonly options: BuildIrOptions;
-	readonly ir: IRv1;
+	readonly artifact: IRv1;
 }
 
 export interface PipelineExtensionHookResult {
-	readonly ir?: IRv1;
+	readonly artifact?: IRv1;
 	readonly commit?: () => Promise<void>;
 	readonly rollback?: () => Promise<void>;
 }
@@ -117,3 +117,8 @@ export interface Pipeline {
 	use: (helper: FragmentHelper | BuilderHelper) => void;
 	run: (options: PipelineRunOptions) => Promise<PipelineRunResult>;
 }
+
+export type FragmentApplyOptions = Parameters<FragmentHelper['apply']>[0];
+export type FragmentNext = Parameters<FragmentHelper['apply']>[1];
+export type BuilderApplyOptions = Parameters<BuilderHelper['apply']>[0];
+export type BuilderNext = Parameters<BuilderHelper['apply']>[1];

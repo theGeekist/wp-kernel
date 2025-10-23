@@ -4,8 +4,7 @@
 	"compilerOptions": {
 		"rootDir": "./src",
 		"outDir": "./dist",
-		"composite": true,
-		"moduleResolution": "node"
+		"composite": true
 	},
 	"include": ["src/**/*", "../../types/**/*.d.ts"],
 	"exclude": [
@@ -16,8 +15,5 @@
 		"**/*.test-support.ts",
 		"**/*.test-support.tsx"
 	],
-	"references": [
-		{ "path": "../core/tsconfig.json" },
-		{ "path": "../test-utils/tsconfig.json" }
-	]
+	"references": [{ "path": "../core" }, { "path": "../php-json-ast" }]
 }

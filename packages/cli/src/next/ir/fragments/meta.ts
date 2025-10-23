@@ -1,7 +1,7 @@
 import { sanitizeNamespace } from '@wpkernel/core/namespace';
 import { KernelError } from '@wpkernel/core/error';
-import { createHelper } from '../../helper';
-import type { IrFragment } from '../types';
+import { createHelper } from '@wpkernel/core/pipeline';
+import type { IrFragment, IrFragmentApplyOptions } from '../types';
 import { toWorkspaceRelative } from '../../../utils';
 import { createPhpNamespace } from '../../../ir/php';
 
@@ -12,7 +12,7 @@ export function createMetaFragment(): IrFragment {
 		key: 'ir.meta.core',
 		kind: 'fragment',
 		mode: 'override',
-		async apply({ input, output }) {
+		async apply({ input, output }: IrFragmentApplyOptions) {
 			const sanitizedNamespace = sanitizeNamespace(
 				input.options.namespace
 			);
