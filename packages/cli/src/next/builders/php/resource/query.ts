@@ -21,11 +21,7 @@ import {
 	type ResourceControllerCacheScope,
 	type ResourceMetadataHost,
 } from '@wpkernel/php-json-ast';
-import {
-	PHP_INDENT,
-	buildWpQueryInstantiation,
-	escapeSingleQuotes,
-} from '@wpkernel/php-json-ast';
+import { PHP_INDENT, buildWpQueryInstantiation } from '@wpkernel/php-json-ast';
 import { appendResourceCacheEvent } from './cache';
 import {
 	expression,
@@ -38,6 +34,7 @@ import {
 	buildBinaryOperation,
 } from './utils';
 import { createRequestParamAssignment } from './request';
+import { formatStatement, formatExpression } from './printer';
 
 export interface QueryArgEntry {
 	readonly key: string;
@@ -61,11 +58,7 @@ export function createQueryArgsAssignment(
 		indentUnit = PHP_INDENT,
 	} = options;
 	const target = normaliseVariableReference(targetVariable);
-	const indent = indentUnit.repeat(indentLevel);
-	const childIndent = indentUnit.repeat(indentLevel + 1);
-
 	const items: ReturnType<typeof buildArrayItem>[] = [];
-	const lines: string[] = [`${indent}${target.display} = [`];
 
 	for (const entry of entries) {
 		const rendered = renderPhpValue(
@@ -73,13 +66,6 @@ export function createQueryArgsAssignment(
 			indentLevel + 1,
 			indentUnit
 		);
-		const childLines = [...rendered.lines];
-		const firstLine = childLines[0] ?? `${childIndent}null`;
-		const remainder = firstLine.slice(childIndent.length);
-		childLines[0] = `${childIndent}'${escapeSingleQuotes(entry.key)}' => ${remainder}`;
-		const lastIndex = childLines.length - 1;
-		childLines[lastIndex] = `${childLines[lastIndex]},`;
-		lines.push(...childLines);
 		items.push(
 			buildArrayItem(rendered.node, {
 				key: buildScalarString(entry.key),
@@ -87,10 +73,9 @@ export function createQueryArgsAssignment(
 		);
 	}
 
-	lines.push(`${indent}];`);
-
 	const assign = buildAssign(buildVariable(target.raw), buildArray(items));
 	const statement = buildExpressionStatement(assign);
+	const lines = formatStatement(statement, indentLevel, indentUnit);
 
 	return buildPrintable(statement, lines);
 }
@@ -175,9 +160,6 @@ function createConditionalAssignment(
 		indentLevel,
 		indentUnit,
 	} = options;
-	const indent = indentUnit.repeat(indentLevel);
-	const bodyIndent = indentUnit.repeat(indentLevel + 1);
-
 	const condition = buildBinaryOperation(
 		operator,
 		buildVariable(variable.raw),
@@ -196,12 +178,7 @@ function createConditionalAssignment(
 		else: null,
 	});
 
-	const comparisonSymbol = operator === 'Greater' ? '>' : '<=';
-	const lines = [
-		`${indent}if ( ${variable.display} ${comparisonSymbol} ${comparison} ) {`,
-		`${bodyIndent}${variable.display} = ${assignment};`,
-		`${indent}}`,
-	];
+	const lines = formatStatement(ifNode, indentLevel, indentUnit);
 
 	return buildPrintable(ifNode, lines);
 }
@@ -230,8 +207,8 @@ export function createPageExpression(
 		buildArg(cast),
 	]);
 
-	const line = `max( ${minimum}, (int) ${request.display}->get_param( '${param}' ) )`;
-	return expression(buildPrintable(funcCall, [line]));
+	const lines = formatExpression(funcCall, 0, PHP_INDENT);
+	return expression(buildPrintable(funcCall, lines));
 }
 
 export interface ExecuteWpQueryOptions {

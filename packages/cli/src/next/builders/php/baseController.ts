@@ -14,11 +14,13 @@ import {
 	buildIdentifier,
 	assembleMethodTemplate,
 	createPhpFileBuilder,
-	escapeSingleQuotes,
 	PHP_CLASS_MODIFIER_ABSTRACT,
 	PHP_INDENT,
 	PHP_METHOD_MODIFIER_PUBLIC,
+	buildReturn,
+	buildScalarString,
 } from '@wpkernel/php-json-ast';
+import { formatStatementPrintable } from './resource/printer';
 
 export function createPhpBaseControllerHelper(): BuilderHelper {
 	return createHelper({
@@ -58,11 +60,18 @@ export function createPhpBaseControllerHelper(): BuilderHelper {
 						indentLevel: 1,
 						indentUnit: PHP_INDENT,
 						body: (body) => {
-							body.line(
-								`return '${escapeSingleQuotes(
-									ir.meta.sanitizedNamespace
-								)}';`
+							const returnPrintable = formatStatementPrintable(
+								buildReturn(
+									buildScalarString(
+										ir.meta.sanitizedNamespace
+									)
+								),
+								{
+									indentLevel: 2,
+									indentUnit: PHP_INDENT,
+								}
 							);
+							body.statement(returnPrintable);
 						},
 						ast: {
 							flags: PHP_METHOD_MODIFIER_PUBLIC,

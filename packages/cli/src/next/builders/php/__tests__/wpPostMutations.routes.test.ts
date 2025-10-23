@@ -278,7 +278,7 @@ describe('wp-post mutation route builders', () => {
 		);
 
 		const statements = entry.statements.join('\n');
-		expect(statements).toContain('if ( null !== $status ) {');
+		expect(statements).toContain('if (null !== $status) {');
 		expect(statements.indexOf(CONTRACT.metadataKeys.syncMeta)).toBeLessThan(
 			statements.indexOf(CONTRACT.metadataKeys.cachePriming)
 		);

@@ -107,7 +107,6 @@ export function buildUpdateRouteBody(
 	const notFoundGuard = buildIfPrintable({
 		indentLevel,
 		condition: buildBooleanNot(buildInstanceof('post', 'WP_Post')),
-		conditionText: `${indent}if ( ! $post instanceof WP_Post ) {`,
 		statements: [notFoundReturn],
 	});
 	options.body.statement(notFoundGuard);
@@ -173,7 +172,6 @@ export function buildUpdateRouteBody(
 		condition: buildFuncCall(buildName(['is_wp_error']), [
 			buildArg(buildVariable('result')),
 		]),
-		conditionText: `${indent}if ( is_wp_error( $result ) ) {`,
 		statements: [resultReturn],
 	});
 	options.body.statement(resultGuard);
@@ -192,7 +190,6 @@ export function buildUpdateRouteBody(
 			buildScalarInt(0),
 			buildVariable('result')
 		),
-		conditionText: `${indent}if ( 0 === $result ) {`,
 		statements: [updateFailedReturn],
 	});
 	options.body.statement(updateFailureGuard);

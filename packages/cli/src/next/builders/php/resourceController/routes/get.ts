@@ -114,7 +114,6 @@ export function buildGetRouteBody(options: BuildGetRouteBodyOptions): boolean {
 	const notFoundIf = buildIfPrintable({
 		indentLevel,
 		condition: buildBooleanNot(buildInstanceof('post', 'WP_Post')),
-		conditionText: `${indent}if ( ! $post instanceof WP_Post ) {`,
 		statements: [notFoundReturn],
 	});
 	options.body.statement(notFoundIf);

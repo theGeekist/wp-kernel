@@ -92,7 +92,6 @@ export function buildWpTaxonomyGetRouteBody(
 		condition: buildFuncCall(buildName(['is_wp_error']), [
 			buildArg(buildVariable('identity')),
 		]),
-		conditionText: `${indent}if ( is_wp_error( $identity ) ) {`,
 		statements: [
 			buildPrintable(buildReturn(buildVariable('identity')), [
 				`${childIndent}return $identity;`,
@@ -129,7 +128,6 @@ export function buildWpTaxonomyGetRouteBody(
 	const guard = buildIfPrintable({
 		indentLevel,
 		condition: buildBooleanNot(buildInstanceof('term', 'WP_Term')),
-		conditionText: `${indent}if ( ! ( $term instanceof WP_Term ) ) {`,
 		statements: [notFoundReturn],
 	});
 	options.body.statement(guard);

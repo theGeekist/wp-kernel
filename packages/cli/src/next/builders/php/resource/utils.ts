@@ -22,6 +22,7 @@ import {
 	type PhpPrintable,
 } from '@wpkernel/php-json-ast';
 import { PHP_INDENT } from '@wpkernel/php-json-ast';
+import { formatStatement } from './printer';
 
 export interface NormalisedVariableReference {
 	readonly raw: string;
@@ -86,41 +87,22 @@ export function buildBinaryOperation(
 	return buildNode<PhpExprBinaryOp>(nodeType, { left, right });
 }
 
-export function indentLines(
-	lines: readonly string[],
-	indent: string
-): string[] {
-	const prefix = indent ?? '';
-	if (prefix.length === 0) {
-		return [...lines];
-	}
-
-	return lines.map((line) => (line === '' ? '' : `${prefix}${line}`));
-}
-
 export interface IfPrintableOptions {
 	readonly indentLevel: number;
 	readonly condition: PhpExpr;
-	readonly conditionText: string;
 	readonly statements: readonly PhpPrintable<PhpStmt>[];
+	readonly indentUnit?: string;
 }
 
 export function buildIfPrintable(
 	options: IfPrintableOptions
 ): PhpPrintable<PhpStmtIf> {
-	const indent = PHP_INDENT.repeat(options.indentLevel);
-	const lines = [options.conditionText];
-	const stmts: PhpStmt[] = [];
-
-	for (const statement of options.statements) {
-		lines.push(...statement.lines);
-		stmts.push(statement.node);
-	}
-
-	lines.push(`${indent}}`);
-
+	const indentUnit = options.indentUnit ?? PHP_INDENT;
+	const stmts: PhpStmt[] = options.statements.map(
+		(statement) => statement.node
+	);
 	const node = buildIfStatement(options.condition, stmts);
-
+	const lines = formatStatement(node, options.indentLevel, indentUnit);
 	return buildPrintable(node, lines);
 }
 
@@ -155,12 +137,10 @@ export function buildArrayInitialiser(
 	options: ArrayInitialiserOptions
 ): PhpPrintable<PhpStmt> {
 	const reference = normaliseVariableReference(options.variable);
-	const indent = PHP_INDENT.repeat(options.indentLevel);
-
-	return buildPrintable(
-		buildExpressionStatement(
-			buildAssign(buildVariable(reference.raw), buildArray([]))
-		),
-		[`${indent}${reference.display} = [];`]
+	const statement = buildExpressionStatement(
+		buildAssign(buildVariable(reference.raw), buildArray([]))
 	);
+	const lines = formatStatement(statement, options.indentLevel, PHP_INDENT);
+
+	return buildPrintable(statement, lines);
 }
