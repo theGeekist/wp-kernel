@@ -1,3 +1,5 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import { EventEmitter } from 'node:events';
 import type { WorkspaceLike } from '../workspace';
 import {
@@ -66,7 +68,6 @@ describe('createPhpPrettyPrinter', () => {
 
 	beforeEach(() => {
 		spawnMock.mockReset();
-		jest.resetModules();
 		delete process.env.PHP_MEMORY_LIMIT;
 	});
 
@@ -80,7 +81,11 @@ describe('createPhpPrettyPrinter', () => {
 
 	it('resolves the default pretty print script path', () => {
 		const scriptPath = resolvePrettyPrintScriptPath();
-		expect(scriptPath.endsWith('php/pretty-print.php')).toBe(true);
+		const packageRoot = path.resolve(__dirname, '..', '..');
+		const expectedPath = path.join(packageRoot, 'php', 'pretty-print.php');
+
+		expect(scriptPath).toBe(expectedPath);
+		expect(fs.existsSync(scriptPath)).toBe(true);
 	});
 
 	it('invokes the PHP bridge and returns formatted code and AST payloads', async () => {
