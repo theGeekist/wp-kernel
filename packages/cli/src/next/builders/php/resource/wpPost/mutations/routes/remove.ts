@@ -98,7 +98,6 @@ export function buildDeleteRouteBody(
 	const notFoundGuard = buildIfPrintable({
 		indentLevel,
 		condition: buildBooleanNot(buildInstanceof('post', 'WP_Post')),
-		conditionText: `${indent}if ( ! $post instanceof WP_Post ) {`,
 		statements: [notFoundReturn],
 	});
 	options.body.statement(notFoundGuard);
@@ -152,7 +151,6 @@ export function buildDeleteRouteBody(
 			buildScalarBool(false),
 			buildVariable('deleted')
 		),
-		conditionText: `${indent}if ( false === $deleted ) {`,
 		statements: [deleteReturn],
 	});
 	options.body.statement(deleteGuard);

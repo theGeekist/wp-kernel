@@ -17,6 +17,7 @@ import {
 	buildExpressionStatement,
 	buildFuncCall,
 	buildIdentifier,
+	buildArray,
 	buildMethodCall,
 	assembleMethodTemplate,
 	buildName,
@@ -52,6 +53,7 @@ import { routeUsesIdentity } from './resourceController/routeIdentity';
 import { appendNotImplementedStub } from './resourceController/stubs';
 import { handleRouteKind } from './resourceController/routes/handleRouteKind';
 import { createWpTaxonomyHelperMethods } from './resource/wpTaxonomy';
+import { formatStatementPrintable } from './resource/printer';
 
 export function createPhpResourceControllerHelper(): BuilderHelper {
 	return createHelper({
@@ -176,7 +178,14 @@ function buildResourceController(
 			indentLevel: 1,
 			indentUnit: PHP_INDENT,
 			body: (body) => {
-				body.line(`return '${escapeSingleQuotes(resource.name)}';`);
+				const returnPrintable = formatStatementPrintable(
+					buildReturn(buildScalarString(resource.name)),
+					{
+						indentLevel: 2,
+						indentUnit: PHP_INDENT,
+					}
+				);
+				body.statement(returnPrintable);
 			},
 			ast: {
 				flags: PHP_METHOD_MODIFIER_PUBLIC,
@@ -191,9 +200,14 @@ function buildResourceController(
 			indentLevel: 1,
 			indentUnit: PHP_INDENT,
 			body: (body) => {
-				body.line(
-					`return '${escapeSingleQuotes(resource.schemaKey)}';`
+				const returnPrintable = formatStatementPrintable(
+					buildReturn(buildScalarString(resource.schemaKey)),
+					{
+						indentLevel: 2,
+						indentUnit: PHP_INDENT,
+					}
 				);
+				body.statement(returnPrintable);
 			},
 			ast: {
 				flags: PHP_METHOD_MODIFIER_PUBLIC,
@@ -210,7 +224,14 @@ function buildResourceController(
 			body: (body) => {
 				const payload = buildRestArgs(ir.schemas, resource);
 				if (Object.keys(payload).length === 0) {
-					body.line('return [];');
+					const returnPrintable = formatStatementPrintable(
+						buildReturn(buildArray([])),
+						{
+							indentLevel: 2,
+							indentUnit: PHP_INDENT,
+						}
+					);
+					body.statement(returnPrintable);
 					return;
 				}
 

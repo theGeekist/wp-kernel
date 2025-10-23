@@ -184,7 +184,6 @@ export function appendTaxonomyQueryBuilder(
 					buildVariable(variableName),
 					buildNull()
 				),
-				conditionText: `${indent}if ( null !== $${variableName} ) {`,
 				statements: [
 					sanitisePrintable,
 					buildIfPrintable({
@@ -196,7 +195,6 @@ export function appendTaxonomyQueryBuilder(
 							]),
 							buildScalarInt(0)
 						),
-						conditionText: `${childIndent}if ( count( $${variableName} ) > 0 ) {`,
 						statements: [pushPrintable],
 					}),
 				],
@@ -227,7 +225,6 @@ export function appendTaxonomyQueryBuilder(
 				]),
 				buildScalarInt(0)
 			),
-			conditionText: `${indent}if ( count( $tax_query ) > 0 ) {`,
 			statements: [assignPrintable],
 		})
 	);

@@ -2,7 +2,6 @@ import { KernelError } from '@wpkernel/core/contracts';
 import {
 	buildScalarCast,
 	buildBinaryOperation,
-	indentLines,
 	normaliseVariableReference,
 } from '../utils';
 import { buildVariable, buildScalarInt } from '@wpkernel/php-json-ast';
@@ -44,9 +43,5 @@ describe('resource utils', () => {
 		expect(operation).toMatchObject({
 			nodeType: 'Expr_BinaryOp_Greater',
 		});
-	});
-
-	it('indents lines', () => {
-		expect(indentLines(['line'], '        ')).toEqual(['        line']);
 	});
 });

@@ -31,7 +31,7 @@ describe('query helpers', () => {
 			'        $query_args = [',
 			"                'post_type' => $post_type,",
 			"                'fields' => 'ids',",
-			"                'paged' => max( 1, (int) $request->get_param( 'page' ) ),",
+			"                'paged' => max(1, (int) $request->get_param('page')),",
 			'        ];',
 		]);
 	});
@@ -44,15 +44,15 @@ describe('query helpers', () => {
 		});
 
 		expect(assign.lines).toEqual([
-			"        $per_page = (int) $request->get_param( 'per_page' );",
+			"        $per_page = (int) $request->get_param('per_page');",
 		]);
 		expect(ensurePositive.lines).toEqual([
-			'        if ( $per_page <= 0 ) {',
+			'        if ($per_page <= 0) {',
 			'                $per_page = 10;',
 			'        }',
 		]);
 		expect(clamp.lines).toEqual([
-			'        if ( $per_page > 100 ) {',
+			'        if ($per_page > 100) {',
 			'                $per_page = 100;',
 			'        }',
 		]);
@@ -64,7 +64,7 @@ describe('query helpers', () => {
 		});
 		const printable = renderPhpValue(descriptor, 0);
 		expect(printable.lines).toContain(
-			"max( 1, (int) $request->get_param( 'page' ) )"
+			"max(1, (int) $request->get_param('page'))"
 		);
 	});
 

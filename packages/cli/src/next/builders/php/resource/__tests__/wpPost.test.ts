@@ -36,13 +36,17 @@ describe('wpPost query helpers', () => {
 
 		const lines = body.toLines();
 		expect(lines).toContain(
-			'                $genreMeta = array_values( (array) $genreMeta );'
+			'                $genreMeta = array_values((array) $genreMeta);'
 		);
-		expect(lines).toContain(
-			'                $genreMeta = array_filter( $genreMeta, static fn ( $value ) => match ( trim( (string) $value ) ) {'
+		const filterLine = lines.find((line) =>
+			line.includes('$genreMeta = array_filter')
 		);
-		expect(lines).toContain("                        '' => false,");
-		expect(lines).toContain('                        default => true,');
+		expect(filterLine).toBeDefined();
+		expect(filterLine).toContain(
+			'static fn ($value) => match (trim((string) $value)) {'
+		);
+		expect(filterLine).toContain("'' => false");
+		expect(filterLine).toContain('default => true');
 		expect(lines).not.toContain("array_map( 'strval'");
 		expect(lines).not.toContain("array_map( 'trim'");
 	});
@@ -73,12 +77,12 @@ describe('wpPost list helpers', () => {
 
 		expect(printable.lines).toEqual([
 			'        foreach ( $query->posts as $post_id ) {',
-			'                $post = get_post( $post_id );',
-			'                if ( ! $post instanceof WP_Post ) {',
+			'                $post = get_post($post_id);',
+			'                if (!$post instanceof WP_Post) {',
 			'                        continue;',
 			'                }',
 			'',
-			'                $items[] = $this->prepareArticleResponse( $post, $request );',
+			'                $items[] = $this->prepareArticleResponse($post, $request);',
 			'        }',
 		]);
 	});
@@ -95,16 +99,16 @@ describe('wpPost identity helpers', () => {
 
 		expect(statements).toHaveLength(3);
 		expect(statements[0]?.lines).toEqual([
-			'        if ( null === $book_id ) {',
-			"                return new WP_Error( 'book_missing_identifier', 'Missing identifier for Book.', [ 'status' => 400 ] );",
+			'        if (null === $book_id) {',
+			"                return new WP_Error('book_missing_identifier', 'Missing identifier for Book.', [ 'status' => 400 ]);",
 			'        }',
 		]);
 		expect(statements[1]?.lines).toEqual([
 			'        $book_id = (int) $book_id;',
 		]);
 		expect(statements[2]?.lines).toEqual([
-			'        if ( $book_id <= 0 ) {',
-			"                return new WP_Error( 'book_invalid_identifier', 'Invalid identifier for Book.', [ 'status' => 400 ] );",
+			'        if ($book_id <= 0) {',
+			"                return new WP_Error('book_invalid_identifier', 'Invalid identifier for Book.', [ 'status' => 400 ]);",
 			'        }',
 		]);
 	});
@@ -119,8 +123,8 @@ describe('wpPost identity helpers', () => {
 
 		expect(statements).toHaveLength(2);
 		expect(statements[0]?.lines).toEqual([
-			"        if ( ! is_string( $slug ) || '' === trim( $slug ) ) {",
-			"                return new WP_Error( 'book_missing_identifier', 'Missing identifier for Book.', [ 'status' => 400 ] );",
+			"        if (!is_string($slug) || '' === trim($slug)) {",
+			"                return new WP_Error('book_missing_identifier', 'Missing identifier for Book.', [ 'status' => 400 ]);",
 			'        }',
 		]);
 		expect(statements[1]?.lines).toEqual([
