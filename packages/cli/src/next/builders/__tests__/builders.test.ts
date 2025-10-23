@@ -2,7 +2,7 @@ import path from 'node:path';
 import { execFile } from 'node:child_process';
 import { createTsBuilder } from '../ts';
 import { createPatcher } from '../patcher';
-import { createPhpDriverInstallerHelper } from '@wpkernel/php-driver';
+import { createPhpDriverInstaller } from '@wpkernel/php-driver';
 import type { BuildIrOptions, IRv1 } from '../../../ir/types';
 import type { BuilderOutput } from '../../runtime/types';
 import type { Workspace } from '../../workspace/types';
@@ -87,7 +87,7 @@ const workspace = {
 const stubHelpers = [
 	createTsBuilder(),
 	createPatcher(),
-	createPhpDriverInstallerHelper(),
+	createPhpDriverInstaller(),
 ];
 
 describe('builder stubs', () => {

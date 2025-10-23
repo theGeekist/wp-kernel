@@ -34,9 +34,9 @@ let cachedPhpDriverInstaller: PhpDriverInstallerFactory | null = null;
 async function loadPhpDriverInstaller(): Promise<PhpDriverInstallerFactory> {
 	if (!cachedPhpDriverInstaller) {
 		const module = (await import('@wpkernel/php-driver')) as {
-			createPhpDriverInstallerHelper: PhpDriverInstallerFactory;
+			createPhpDriverInstaller: PhpDriverInstallerFactory;
 		};
-		cachedPhpDriverInstaller = module.createPhpDriverInstallerHelper;
+		cachedPhpDriverInstaller = module.createPhpDriverInstaller;
 	}
 
 	return cachedPhpDriverInstaller;
