@@ -10,9 +10,9 @@ import type {
 import {
 	appendClassTemplate,
 	appendGeneratedFileDocblock,
-	createClassTemplate,
-	createIdentifier,
-	createMethodTemplate,
+	assembleClassTemplate,
+	buildIdentifier,
+	assembleMethodTemplate,
 	createPhpFileBuilder,
 	escapeSingleQuotes,
 	PHP_CLASS_MODIFIER_ABSTRACT,
@@ -53,7 +53,7 @@ export function createPhpBaseControllerHelper(): BuilderHelper {
 						`Source: ${ir.meta.origin} → resources (namespace: ${ir.meta.sanitizedNamespace})`,
 					]);
 
-					const getNamespaceMethod = createMethodTemplate({
+					const getNamespaceMethod = assembleMethodTemplate({
 						signature: 'public function get_namespace(): string',
 						indentLevel: 1,
 						indentUnit: PHP_INDENT,
@@ -66,11 +66,11 @@ export function createPhpBaseControllerHelper(): BuilderHelper {
 						},
 						ast: {
 							flags: PHP_METHOD_MODIFIER_PUBLIC,
-							returnType: createIdentifier('string'),
+							returnType: buildIdentifier('string'),
 						},
 					});
 
-					const classTemplate = createClassTemplate({
+					const classTemplate = assembleClassTemplate({
 						name: 'BaseController',
 						flags: PHP_CLASS_MODIFIER_ABSTRACT,
 						methods: [getNamespaceMethod],

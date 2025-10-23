@@ -5,7 +5,7 @@ import {
 	indentLines,
 	normaliseVariableReference,
 } from '../utils';
-import { createVariable, createScalarInt } from '@wpkernel/php-json-ast';
+import { buildVariable, buildScalarInt } from '@wpkernel/php-json-ast';
 
 describe('resource utils', () => {
 	describe('normaliseVariableReference', () => {
@@ -31,15 +31,15 @@ describe('resource utils', () => {
 	});
 
 	it('creates scalar casts', () => {
-		const cast = buildScalarCast('int', createVariable('value'));
+		const cast = buildScalarCast('int', buildVariable('value'));
 		expect(cast).toMatchObject({ nodeType: 'Expr_Cast_Int' });
 	});
 
 	it('creates binary operations', () => {
 		const operation = buildBinaryOperation(
 			'Greater',
-			createVariable('left'),
-			createScalarInt(10)
+			buildVariable('left'),
+			buildScalarInt(10)
 		);
 		expect(operation).toMatchObject({
 			nodeType: 'Expr_BinaryOp_Greater',

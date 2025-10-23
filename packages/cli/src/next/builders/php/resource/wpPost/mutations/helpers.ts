@@ -1,15 +1,15 @@
 import { KernelError } from '@wpkernel/core/contracts';
 import {
-	createIdentifier,
-	createName,
-	createParam,
-	createVariable,
+	buildIdentifier,
+	buildName,
+	buildParam,
+	buildVariable,
 	PHP_METHOD_MODIFIER_PRIVATE,
 	escapeSingleQuotes,
 	toSnakeCase,
 } from '@wpkernel/php-json-ast';
 import {
-	createMethodTemplate,
+	assembleMethodTemplate,
 	PHP_INDENT,
 	type PhpMethodBodyBuilder,
 	type PhpMethodTemplate,
@@ -41,7 +41,7 @@ export function syncWpPostMeta(
 		[string, WpPostMetaDescriptor]
 	>;
 
-	return createMethodTemplate({
+	return assembleMethodTemplate({
 		signature: `private function sync${options.pascalName}Meta( int $post_id, WP_REST_Request $request ): void`,
 		indentLevel: 1,
 		indentUnit: PHP_INDENT,
@@ -84,14 +84,14 @@ export function syncWpPostMeta(
 		ast: {
 			flags: PHP_METHOD_MODIFIER_PRIVATE,
 			params: [
-				createParam(createVariable('post_id'), {
-					type: createIdentifier('int'),
+				buildParam(buildVariable('post_id'), {
+					type: buildIdentifier('int'),
 				}),
-				createParam(createVariable('request'), {
-					type: createName(['WP_REST_Request']),
+				buildParam(buildVariable('request'), {
+					type: buildName(['WP_REST_Request']),
 				}),
 			],
-			returnType: createIdentifier('void'),
+			returnType: buildIdentifier('void'),
 		},
 	});
 }
@@ -104,7 +104,7 @@ export function syncWpPostTaxonomies(
 		[string, WpPostTaxonomyDescriptor]
 	>;
 
-	return createMethodTemplate({
+	return assembleMethodTemplate({
 		signature: `private function sync${options.pascalName}Taxonomies( int $post_id, WP_REST_Request $request )`,
 		indentLevel: 1,
 		indentUnit: PHP_INDENT,
@@ -150,11 +150,11 @@ export function syncWpPostTaxonomies(
 		ast: {
 			flags: PHP_METHOD_MODIFIER_PRIVATE,
 			params: [
-				createParam(createVariable('post_id'), {
-					type: createIdentifier('int'),
+				buildParam(buildVariable('post_id'), {
+					type: buildIdentifier('int'),
 				}),
-				createParam(createVariable('request'), {
-					type: createName(['WP_REST_Request']),
+				buildParam(buildVariable('request'), {
+					type: buildName(['WP_REST_Request']),
 				}),
 			],
 		},
@@ -173,7 +173,7 @@ export function prepareWpPostResponse(
 	>;
 	const supports = new Set(storage.supports ?? []);
 
-	return createMethodTemplate({
+	return assembleMethodTemplate({
 		signature: `private function prepare${options.pascalName}Response( WP_Post $post, WP_REST_Request $request ): array`,
 		indentLevel: 1,
 		indentUnit: PHP_INDENT,
@@ -233,14 +233,14 @@ export function prepareWpPostResponse(
 		ast: {
 			flags: PHP_METHOD_MODIFIER_PRIVATE,
 			params: [
-				createParam(createVariable('post'), {
-					type: createName(['WP_Post']),
+				buildParam(buildVariable('post'), {
+					type: buildName(['WP_Post']),
 				}),
-				createParam(createVariable('request'), {
-					type: createName(['WP_REST_Request']),
+				buildParam(buildVariable('request'), {
+					type: buildName(['WP_REST_Request']),
 				}),
 			],
-			returnType: createIdentifier('array'),
+			returnType: buildIdentifier('array'),
 		},
 	});
 }

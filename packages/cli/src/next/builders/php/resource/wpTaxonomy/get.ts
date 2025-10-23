@@ -1,16 +1,16 @@
 import { KernelError } from '@wpkernel/core/contracts';
 import {
-	createArg,
-	createAssign,
-	createExpressionStatement,
-	createIdentifier,
-	createMethodCall,
-	createReturn,
-	createVariable,
-	createFuncCall,
-	createName,
-	createScalarString,
-	createPrintable,
+	buildArg,
+	buildAssign,
+	buildExpressionStatement,
+	buildIdentifier,
+	buildMethodCall,
+	buildReturn,
+	buildVariable,
+	buildFuncCall,
+	buildName,
+	buildScalarString,
+	buildPrintable,
 } from '@wpkernel/php-json-ast';
 import {
 	PHP_INDENT,
@@ -56,21 +56,21 @@ export function buildWpTaxonomyGetRouteBody(
 	const indent = PHP_INDENT.repeat(indentLevel);
 	const childIndent = PHP_INDENT.repeat(indentLevel + 1);
 
-	const identityAssign = createPrintable(
-		createExpressionStatement(
-			createAssign(
-				createVariable('identity'),
-				createMethodCall(
-					createVariable('this'),
-					createIdentifier(`validate${options.pascalName}Identity`),
+	const identityAssign = buildPrintable(
+		buildExpressionStatement(
+			buildAssign(
+				buildVariable('identity'),
+				buildMethodCall(
+					buildVariable('this'),
+					buildIdentifier(`validate${options.pascalName}Identity`),
 					[
-						createArg(
-							createMethodCall(
-								createVariable('request'),
-								createIdentifier('get_param'),
+						buildArg(
+							buildMethodCall(
+								buildVariable('request'),
+								buildIdentifier('get_param'),
 								[
-									createArg(
-										createScalarString(
+									buildArg(
+										buildScalarString(
 											options.identity.param
 										)
 									),
@@ -89,12 +89,12 @@ export function buildWpTaxonomyGetRouteBody(
 
 	const errorGuard = buildIfPrintable({
 		indentLevel,
-		condition: createFuncCall(createName(['is_wp_error']), [
-			createArg(createVariable('identity')),
+		condition: buildFuncCall(buildName(['is_wp_error']), [
+			buildArg(buildVariable('identity')),
 		]),
 		conditionText: `${indent}if ( is_wp_error( $identity ) ) {`,
 		statements: [
-			createPrintable(createReturn(createVariable('identity')), [
+			buildPrintable(buildReturn(buildVariable('identity')), [
 				`${childIndent}return $identity;`,
 			]),
 		],
@@ -102,14 +102,14 @@ export function buildWpTaxonomyGetRouteBody(
 	options.body.statement(errorGuard);
 	options.body.blank();
 
-	const resolvePrintable = createPrintable(
-		createExpressionStatement(
-			createAssign(
-				createVariable('term'),
-				createMethodCall(
-					createVariable('this'),
-					createIdentifier(`resolve${options.pascalName}Term`),
-					[createArg(createVariable('identity'))]
+	const resolvePrintable = buildPrintable(
+		buildExpressionStatement(
+			buildAssign(
+				buildVariable('term'),
+				buildMethodCall(
+					buildVariable('this'),
+					buildIdentifier(`resolve${options.pascalName}Term`),
+					[buildArg(buildVariable('identity'))]
 				)
 			)
 		),
@@ -135,12 +135,12 @@ export function buildWpTaxonomyGetRouteBody(
 	options.body.statement(guard);
 	options.body.blank();
 
-	const returnPrintable = createPrintable(
-		createReturn(
-			createMethodCall(
-				createVariable('this'),
-				createIdentifier(`prepare${options.pascalName}TermResponse`),
-				[createArg(createVariable('term'))]
+	const returnPrintable = buildPrintable(
+		buildReturn(
+			buildMethodCall(
+				buildVariable('this'),
+				buildIdentifier(`prepare${options.pascalName}TermResponse`),
+				[buildArg(buildVariable('term'))]
 			)
 		),
 		[

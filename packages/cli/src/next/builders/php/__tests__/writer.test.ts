@@ -7,7 +7,7 @@ import type {
 } from '../../../runtime/types';
 import { createPhpProgramWriterHelper } from '../writer';
 import { getPhpBuilderChannel, resetPhpBuilderChannel } from '../channel';
-import { resetPhpAstChannel, createStmtNop } from '@wpkernel/php-json-ast';
+import { resetPhpAstChannel, buildStmtNop } from '@wpkernel/php-json-ast';
 import { buildPhpPrettyPrinter } from '@wpkernel/php-driver';
 
 jest.mock('@wpkernel/php-driver', () => ({
@@ -85,7 +85,7 @@ describe('createPhpProgramWriterHelper', () => {
 		resetPhpAstChannel(context);
 
 		const channel = getPhpBuilderChannel(context);
-		const program = [createStmtNop(), createStmtNop()];
+		const program = [buildStmtNop(), buildStmtNop()];
 		channel.queue({
 			file: '/workspace/.generated/php/Writer.php',
 			metadata: { kind: 'policy-helper' },

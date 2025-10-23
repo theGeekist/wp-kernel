@@ -1,29 +1,29 @@
 import { KernelError } from '@wpkernel/core/contracts';
 import {
-	createArg,
-	createArray,
-	createArrayItem,
-	createAssign,
-	createExpressionStatement,
-	createFuncCall,
-	createIdentifier,
-	createMethodCall,
-	createName,
-	createNode,
-	createParam,
-	createReturn,
-	createScalarBool,
-	createScalarInt,
-	createScalarString,
-	createVariable,
-	createNull,
+	buildArg,
+	buildArray,
+	buildArrayItem,
+	buildAssign,
+	buildExpressionStatement,
+	buildFuncCall,
+	buildIdentifier,
+	buildMethodCall,
+	buildName,
+	buildNode,
+	buildParam,
+	buildReturn,
+	buildScalarBool,
+	buildScalarInt,
+	buildScalarString,
+	buildVariable,
+	buildNull,
 	type PhpNullableType,
-	createMethodTemplate,
+	assembleMethodTemplate,
 	PHP_INDENT,
 	type PhpMethodTemplate,
 } from '@wpkernel/php-json-ast';
 import {
-	createPrintable,
+	buildPrintable,
 	PHP_METHOD_MODIFIER_PRIVATE,
 	escapeSingleQuotes,
 } from '@wpkernel/php-json-ast';
@@ -72,20 +72,20 @@ function createGetTaxonomyHelper(
 	const indentLevel = 1;
 	const indent = PHP_INDENT.repeat(indentLevel + 1);
 
-	return createMethodTemplate({
+	return assembleMethodTemplate({
 		signature: `private function get${pascalName}Taxonomy(): string`,
 		indentLevel,
 		indentUnit: PHP_INDENT,
 		body: (body) => {
-			const returnPrintable = createPrintable(
-				createReturn(createScalarString(storage.taxonomy)),
+			const returnPrintable = buildPrintable(
+				buildReturn(buildScalarString(storage.taxonomy)),
 				[`${indent}return '${taxonomy}';`]
 			);
 			body.statement(returnPrintable);
 		},
 		ast: {
 			flags: PHP_METHOD_MODIFIER_PRIVATE,
-			returnType: createIdentifier('string'),
+			returnType: buildIdentifier('string'),
 		},
 	});
 }
@@ -98,15 +98,15 @@ function createPrepareTermHelper(
 	const indent = PHP_INDENT.repeat(indentLevel + 1);
 	const hierarchical = storage.hierarchical === true;
 
-	return createMethodTemplate({
+	return assembleMethodTemplate({
 		signature: `private function prepare${pascalName}TermResponse( WP_Term $term ): array`,
 		indentLevel,
 		indentUnit: PHP_INDENT,
 		body: (body) => {
-			const responseArray = createReturn(
-				createArrayTermResponse(hierarchical)
+			const responseArray = buildReturn(
+				buildArrayTermResponse(hierarchical)
 			);
-			const printable = createPrintable(responseArray, [
+			const printable = buildPrintable(responseArray, [
 				`${indent}return array(`,
 				`${indent}${PHP_INDENT}'id' => (int) $term->term_id,`,
 				`${indent}${PHP_INDENT}'slug' => (string) $term->slug,`,
@@ -125,61 +125,61 @@ function createPrepareTermHelper(
 		ast: {
 			flags: PHP_METHOD_MODIFIER_PRIVATE,
 			params: [
-				createParam(createVariable('term'), {
-					type: createName(['WP_Term']),
+				buildParam(buildVariable('term'), {
+					type: buildName(['WP_Term']),
 				}),
 			],
-			returnType: createIdentifier('array'),
+			returnType: buildIdentifier('array'),
 		},
 	});
 }
 
-function createArrayTermResponse(
+function buildArrayTermResponse(
 	hierarchical: boolean
-): ReturnType<typeof createArray> {
-	return createArray([
-		createArrayItem(
+): ReturnType<typeof buildArray> {
+	return buildArray([
+		buildArrayItem(
 			buildScalarCast('int', buildPropertyFetch('term', 'term_id')),
 			{
-				key: createScalarString('id'),
+				key: buildScalarString('id'),
 			}
 		),
-		createArrayItem(
+		buildArrayItem(
 			buildScalarCast('string', buildPropertyFetch('term', 'slug')),
 			{
-				key: createScalarString('slug'),
+				key: buildScalarString('slug'),
 			}
 		),
-		createArrayItem(
+		buildArrayItem(
 			buildScalarCast('string', buildPropertyFetch('term', 'name')),
 			{
-				key: createScalarString('name'),
+				key: buildScalarString('name'),
 			}
 		),
-		createArrayItem(
+		buildArrayItem(
 			buildScalarCast('string', buildPropertyFetch('term', 'taxonomy')),
-			{ key: createScalarString('taxonomy') }
+			{ key: buildScalarString('taxonomy') }
 		),
-		createArrayItem(createScalarBool(hierarchical), {
-			key: createScalarString('hierarchical'),
+		buildArrayItem(buildScalarBool(hierarchical), {
+			key: buildScalarString('hierarchical'),
 		}),
-		createArrayItem(
+		buildArrayItem(
 			buildScalarCast(
 				'string',
 				buildPropertyFetch('term', 'description')
 			),
-			{ key: createScalarString('description') }
+			{ key: buildScalarString('description') }
 		),
-		createArrayItem(
+		buildArrayItem(
 			buildScalarCast('int', buildPropertyFetch('term', 'parent')),
 			{
-				key: createScalarString('parent'),
+				key: buildScalarString('parent'),
 			}
 		),
-		createArrayItem(
+		buildArrayItem(
 			buildScalarCast('int', buildPropertyFetch('term', 'count')),
 			{
-				key: createScalarString('count'),
+				key: buildScalarString('count'),
 			}
 		),
 	]);
@@ -190,18 +190,18 @@ function createResolveTermHelper(pascalName: string): PhpMethodTemplate {
 	const indent = PHP_INDENT.repeat(indentLevel);
 	const childIndent = PHP_INDENT.repeat(indentLevel + 1);
 
-	return createMethodTemplate({
+	return assembleMethodTemplate({
 		signature: `private function resolve${pascalName}Term( $identity ): ?WP_Term`,
 		indentLevel,
 		indentUnit: PHP_INDENT,
 		body: (body) => {
-			const taxonomyAssign = createPrintable(
-				createExpressionStatement(
-					createAssign(
-						createVariable('taxonomy'),
-						createMethodCall(
-							createVariable('this'),
-							createIdentifier(`get${pascalName}Taxonomy`),
+			const taxonomyAssign = buildPrintable(
+				buildExpressionStatement(
+					buildAssign(
+						buildVariable('taxonomy'),
+						buildMethodCall(
+							buildVariable('this'),
+							buildIdentifier(`get${pascalName}Taxonomy`),
 							[]
 						)
 					)
@@ -212,18 +212,18 @@ function createResolveTermHelper(pascalName: string): PhpMethodTemplate {
 
 			const numberGuard = buildIfPrintable({
 				indentLevel,
-				condition: createFuncCall(createName(['is_int']), [
-					createArg(createVariable('identity')),
+				condition: buildFuncCall(buildName(['is_int']), [
+					buildArg(buildVariable('identity')),
 				]),
 				conditionText: `${indent}if ( is_int( $identity ) ) {`,
 				statements: [
-					createPrintable(
-						createExpressionStatement(
-							createAssign(
-								createVariable('term'),
-								createFuncCall(createName(['get_term']), [
-									createArg(createVariable('identity')),
-									createArg(createVariable('taxonomy')),
+					buildPrintable(
+						buildExpressionStatement(
+							buildAssign(
+								buildVariable('term'),
+								buildFuncCall(buildName(['get_term']), [
+									buildArg(buildVariable('identity')),
+									buildArg(buildVariable('taxonomy')),
 								])
 							)
 						),
@@ -236,24 +236,23 @@ function createResolveTermHelper(pascalName: string): PhpMethodTemplate {
 						condition: buildInstanceof('term', 'WP_Term'),
 						conditionText: `${childIndent}if ( $term instanceof WP_Term ) {`,
 						statements: [
-							createPrintable(
-								createReturn(createVariable('term')),
-								[`${childIndent}${PHP_INDENT}return $term;`]
-							),
+							buildPrintable(buildReturn(buildVariable('term')), [
+								`${childIndent}${PHP_INDENT}return $term;`,
+							]),
 						],
 					}),
 				],
 			});
 			body.statement(numberGuard);
 
-			const candidateAssign = createPrintable(
-				createExpressionStatement(
-					createAssign(
-						createVariable('candidate'),
-						createFuncCall(createName(['trim']), [
-							createArg(
-								createFuncCall(createName(['strval']), [
-									createArg(createVariable('identity')),
+			const candidateAssign = buildPrintable(
+				buildExpressionStatement(
+					buildAssign(
+						buildVariable('candidate'),
+						buildFuncCall(buildName(['trim']), [
+							buildArg(
+								buildFuncCall(buildName(['strval']), [
+									buildArg(buildVariable('identity')),
 								])
 							),
 						])
@@ -263,14 +262,14 @@ function createResolveTermHelper(pascalName: string): PhpMethodTemplate {
 			);
 
 			const lookupIndent = PHP_INDENT.repeat(indentLevel + 2);
-			const slugLookup = createPrintable(
-				createExpressionStatement(
-					createAssign(
-						createVariable('term'),
-						createFuncCall(createName(['get_term_by']), [
-							createArg(createScalarString('slug')),
-							createArg(createVariable('candidate')),
-							createArg(createVariable('taxonomy')),
+			const slugLookup = buildPrintable(
+				buildExpressionStatement(
+					buildAssign(
+						buildVariable('term'),
+						buildFuncCall(buildName(['get_term_by']), [
+							buildArg(buildScalarString('slug')),
+							buildArg(buildVariable('candidate')),
+							buildArg(buildVariable('taxonomy')),
 						])
 					)
 				),
@@ -283,20 +282,20 @@ function createResolveTermHelper(pascalName: string): PhpMethodTemplate {
 				condition: buildInstanceof('term', 'WP_Term'),
 				conditionText: `${lookupIndent}if ( $term instanceof WP_Term ) {`,
 				statements: [
-					createPrintable(createReturn(createVariable('term')), [
+					buildPrintable(buildReturn(buildVariable('term')), [
 						`${lookupIndent}${PHP_INDENT}return $term;`,
 					]),
 				],
 			});
 
-			const nameLookup = createPrintable(
-				createExpressionStatement(
-					createAssign(
-						createVariable('term'),
-						createFuncCall(createName(['get_term_by']), [
-							createArg(createScalarString('name')),
-							createArg(createVariable('candidate')),
-							createArg(createVariable('taxonomy')),
+			const nameLookup = buildPrintable(
+				buildExpressionStatement(
+					buildAssign(
+						buildVariable('term'),
+						buildFuncCall(buildName(['get_term_by']), [
+							buildArg(buildScalarString('name')),
+							buildArg(buildVariable('candidate')),
+							buildArg(buildVariable('taxonomy')),
 						])
 					)
 				),
@@ -309,7 +308,7 @@ function createResolveTermHelper(pascalName: string): PhpMethodTemplate {
 				condition: buildInstanceof('term', 'WP_Term'),
 				conditionText: `${lookupIndent}if ( $term instanceof WP_Term ) {`,
 				statements: [
-					createPrintable(createReturn(createVariable('term')), [
+					buildPrintable(buildReturn(buildVariable('term')), [
 						`${lookupIndent}${PHP_INDENT}return $term;`,
 					]),
 				],
@@ -319,8 +318,8 @@ function createResolveTermHelper(pascalName: string): PhpMethodTemplate {
 				indentLevel: indentLevel + 1,
 				condition: buildBinaryOperation(
 					'NotIdentical',
-					createScalarString(''),
-					createVariable('candidate')
+					buildScalarString(''),
+					buildVariable('candidate')
 				),
 				conditionText: `${childIndent}if ( '' !== $candidate ) {`,
 				statements: [slugLookup, slugGuard, nameLookup, nameGuard],
@@ -328,8 +327,8 @@ function createResolveTermHelper(pascalName: string): PhpMethodTemplate {
 
 			const stringGuard = buildIfPrintable({
 				indentLevel,
-				condition: createFuncCall(createName(['is_string']), [
-					createArg(createVariable('identity')),
+				condition: buildFuncCall(buildName(['is_string']), [
+					buildArg(buildVariable('identity')),
 				]),
 				conditionText: `${indent}if ( is_string( $identity ) ) {`,
 				statements: [candidateAssign, nonEmptyGuard],
@@ -337,16 +336,16 @@ function createResolveTermHelper(pascalName: string): PhpMethodTemplate {
 			body.statement(stringGuard);
 
 			body.statement(
-				createPrintable(createReturn(createNull()), [
+				buildPrintable(buildReturn(buildNull()), [
 					`${childIndent}return null;`,
 				])
 			);
 		},
 		ast: {
 			flags: PHP_METHOD_MODIFIER_PRIVATE,
-			params: [createParam(createVariable('identity'))],
-			returnType: createNode<PhpNullableType>('NullableType', {
-				type: createName(['WP_Term']),
+			params: [buildParam(buildVariable('identity'))],
+			returnType: buildNode<PhpNullableType>('NullableType', {
+				type: buildName(['WP_Term']),
 			}),
 		},
 	});
@@ -360,7 +359,7 @@ function createValidateIdentityHelper(
 	const indent = PHP_INDENT.repeat(indentLevel);
 	const childIndent = PHP_INDENT.repeat(indentLevel + 1);
 
-	return createMethodTemplate({
+	return assembleMethodTemplate({
 		signature: `private function validate${pascalName}Identity( $value )`,
 		indentLevel,
 		indentUnit: PHP_INDENT,
@@ -377,8 +376,8 @@ function createValidateIdentityHelper(
 					indentLevel,
 					condition: buildBinaryOperation(
 						'Identical',
-						createNull(),
-						createVariable('value')
+						buildNull(),
+						buildVariable('value')
 					),
 					conditionText: `${indent}if ( null === $value ) {`,
 					statements: [missingReturn],
@@ -398,14 +397,14 @@ function createValidateIdentityHelper(
 						indentLevel,
 						condition: buildBinaryOperation(
 							'BooleanAnd',
-							createFuncCall(createName(['is_string']), [
-								createArg(createVariable('value')),
+							buildFuncCall(buildName(['is_string']), [
+								buildArg(buildVariable('value')),
 							]),
 							buildBinaryOperation(
 								'Identical',
-								createScalarString(''),
-								createFuncCall(createName(['trim']), [
-									createArg(createVariable('value')),
+								buildScalarString(''),
+								buildFuncCall(buildName(['trim']), [
+									buildArg(buildVariable('value')),
 								])
 							)
 						),
@@ -418,8 +417,8 @@ function createValidateIdentityHelper(
 					buildIfPrintable({
 						indentLevel,
 						condition: buildBooleanNot(
-							createFuncCall(createName(['is_numeric']), [
-								createArg(createVariable('value')),
+							buildFuncCall(buildName(['is_numeric']), [
+								buildArg(buildVariable('value')),
 							])
 						),
 						conditionText: `${indent}if ( ! is_numeric( $value ) ) {`,
@@ -428,11 +427,11 @@ function createValidateIdentityHelper(
 				);
 
 				body.statement(
-					createPrintable(
-						createExpressionStatement(
-							createAssign(
-								createVariable('value'),
-								buildScalarCast('int', createVariable('value'))
+					buildPrintable(
+						buildExpressionStatement(
+							buildAssign(
+								buildVariable('value'),
+								buildScalarCast('int', buildVariable('value'))
 							)
 						),
 						[`${childIndent}$value = (int) $value;`]
@@ -444,8 +443,8 @@ function createValidateIdentityHelper(
 						indentLevel,
 						condition: buildBinaryOperation(
 							'SmallerOrEqual',
-							createVariable('value'),
-							createScalarInt(0)
+							buildVariable('value'),
+							buildScalarInt(0)
 						),
 						conditionText: `${indent}if ( $value <= 0 ) {`,
 						statements: [invalidReturn],
@@ -453,7 +452,7 @@ function createValidateIdentityHelper(
 				);
 
 				body.statement(
-					createPrintable(createReturn(createVariable('value')), [
+					buildPrintable(buildReturn(buildVariable('value')), [
 						`${childIndent}return $value;`,
 					])
 				);
@@ -466,15 +465,15 @@ function createValidateIdentityHelper(
 					condition: buildBinaryOperation(
 						'BooleanOr',
 						buildBooleanNot(
-							createFuncCall(createName(['is_string']), [
-								createArg(createVariable('value')),
+							buildFuncCall(buildName(['is_string']), [
+								buildArg(buildVariable('value')),
 							])
 						),
 						buildBinaryOperation(
 							'Identical',
-							createScalarString(''),
-							createFuncCall(createName(['trim']), [
-								createArg(createVariable('value')),
+							buildScalarString(''),
+							buildFuncCall(buildName(['trim']), [
+								buildArg(buildVariable('value')),
 							])
 						)
 					),
@@ -484,13 +483,13 @@ function createValidateIdentityHelper(
 			);
 
 			body.statement(
-				createPrintable(
-					createReturn(
-						createFuncCall(createName(['trim']), [
-							createArg(
+				buildPrintable(
+					buildReturn(
+						buildFuncCall(buildName(['trim']), [
+							buildArg(
 								buildScalarCast(
 									'string',
-									createVariable('value')
+									buildVariable('value')
 								)
 							),
 						])
@@ -501,7 +500,7 @@ function createValidateIdentityHelper(
 		},
 		ast: {
 			flags: PHP_METHOD_MODIFIER_PRIVATE,
-			params: [createParam(createVariable('value'))],
+			params: [buildParam(buildVariable('value'))],
 		},
 	});
 }

@@ -1,4 +1,4 @@
-import { createMethodTemplate, PHP_INDENT } from '../template';
+import { assembleMethodTemplate, PHP_INDENT } from '../template';
 import { escapeSingleQuotes, toSnakeCase } from '../utils';
 import type { WpPostContext } from './context';
 import { appendMetaSanitizer } from './meta';
@@ -7,7 +7,7 @@ export function createHelperMethods(context: WpPostContext): string[][] {
 	const helpers: string[][] = [];
 
 	helpers.push(
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature: `private function get${context.pascalName}PostType(): string`,
 			indentLevel: 1,
 			indentUnit: PHP_INDENT,
@@ -22,7 +22,7 @@ export function createHelperMethods(context: WpPostContext): string[][] {
 	);
 
 	helpers.push(
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature: `private function get${context.pascalName}Statuses(): array`,
 			indentLevel: 1,
 			indentUnit: PHP_INDENT,
@@ -41,7 +41,7 @@ export function createHelperMethods(context: WpPostContext): string[][] {
 	);
 
 	helpers.push(
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature: `private function get${context.pascalName}DefaultStatus(): string`,
 			indentLevel: 1,
 			indentUnit: PHP_INDENT,
@@ -54,7 +54,7 @@ export function createHelperMethods(context: WpPostContext): string[][] {
 	);
 
 	helpers.push(
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature: `private function normalise${context.pascalName}Status( $status ): string`,
 			indentLevel: 1,
 			indentUnit: PHP_INDENT,
@@ -84,7 +84,7 @@ export function createHelperMethods(context: WpPostContext): string[][] {
 	);
 
 	helpers.push(
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature: `private function resolve${context.pascalName}Post( $identity ): ?WP_Post`,
 			indentLevel: 1,
 			indentUnit: PHP_INDENT,
@@ -187,7 +187,7 @@ export function createHelperMethods(context: WpPostContext): string[][] {
 	);
 
 	helpers.push(
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature: `private function prepare${context.pascalName}Response( WP_Post $post, WP_REST_Request $request ): array`,
 			indentLevel: 1,
 			indentUnit: PHP_INDENT,
@@ -247,7 +247,7 @@ export function createHelperMethods(context: WpPostContext): string[][] {
 	);
 
 	helpers.push(
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature: `private function sync${context.pascalName}Meta( int $post_id, WP_REST_Request $request ): void`,
 			indentLevel: 1,
 			indentUnit: PHP_INDENT,
@@ -286,7 +286,7 @@ export function createHelperMethods(context: WpPostContext): string[][] {
 	);
 
 	helpers.push(
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature: `private function sync${context.pascalName}Taxonomies( int $post_id, WP_REST_Request $request )`,
 			indentLevel: 1,
 			indentUnit: PHP_INDENT,

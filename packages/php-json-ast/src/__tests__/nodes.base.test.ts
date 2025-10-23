@@ -1,8 +1,8 @@
 import {
-	createAttribute,
-	createAttributeGroup,
-	createName,
-	createNode,
+	buildAttribute,
+	buildAttributeGroup,
+	buildName,
+	buildNode,
 	mergeNodeAttributes,
 } from '../nodes';
 
@@ -18,7 +18,7 @@ function createTestNode(
 	value: string,
 	attributes?: Record<string, unknown>
 ): TestNode {
-	return createNode<TestNode>(TEST_NODE_TYPE, { value }, attributes);
+	return buildNode<TestNode>(TEST_NODE_TYPE, { value }, attributes);
 }
 
 describe('PHP AST node helpers', () => {
@@ -71,9 +71,9 @@ describe('PHP AST node helpers', () => {
 	});
 
 	it('creates attribute nodes through the dedicated helpers', () => {
-		const attribute = createAttribute(createName(['Example']), []);
+		const attribute = buildAttribute(buildName(['Example']), []);
 
-		const group = createAttributeGroup([attribute]);
+		const group = buildAttributeGroup([attribute]);
 
 		expect(group).toMatchObject({
 			nodeType: 'AttributeGroup',

@@ -1,4 +1,4 @@
-import { createMethodTemplate, PHP_INDENT } from '../template';
+import { assembleMethodTemplate, PHP_INDENT } from '../template';
 import { escapeSingleQuotes } from '../utils';
 import type { WpTaxonomyContext } from './types';
 
@@ -6,7 +6,7 @@ export function createHelperMethods(context: WpTaxonomyContext): string[][] {
 	const helpers: string[][] = [];
 
 	helpers.push(
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature: `private function get${context.pascalName}Taxonomy(): string`,
 			indentLevel: 1,
 			indentUnit: PHP_INDENT,
@@ -17,7 +17,7 @@ export function createHelperMethods(context: WpTaxonomyContext): string[][] {
 	);
 
 	helpers.push(
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature: `private function prepare${context.pascalName}TermResponse( WP_Term $term ): array`,
 			indentLevel: 1,
 			indentUnit: PHP_INDENT,
@@ -41,7 +41,7 @@ export function createHelperMethods(context: WpTaxonomyContext): string[][] {
 	);
 
 	helpers.push(
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature: `private function resolve${context.pascalName}Term( $identity ): ?WP_Term`,
 			indentLevel: 1,
 			indentUnit: PHP_INDENT,
@@ -78,7 +78,7 @@ export function createHelperMethods(context: WpTaxonomyContext): string[][] {
 	);
 
 	helpers.push(
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature: `private function extract${context.pascalName}TermArgs( WP_REST_Request $request ): array`,
 			indentLevel: 1,
 			indentUnit: PHP_INDENT,
@@ -106,7 +106,7 @@ export function createHelperMethods(context: WpTaxonomyContext): string[][] {
 	);
 
 	helpers.push(
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature: `private function validate${context.pascalName}Identity( $value )`,
 			indentLevel: 1,
 			indentUnit: PHP_INDENT,

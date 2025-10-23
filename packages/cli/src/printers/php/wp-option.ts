@@ -1,9 +1,9 @@
 import type { IRResource, IRRoute } from '../../ir';
 import type { PrinterContext } from '../types';
 import type { PhpFileBuilder } from './builder';
-import { createMethodTemplate, PHP_INDENT } from './template';
+import { assembleMethodTemplate, PHP_INDENT } from './template';
 import {
-	createErrorCodeFactory,
+	makeErrorCodeFactory,
 	escapeSingleQuotes,
 	toPascalCase,
 } from './utils';
@@ -48,7 +48,7 @@ function createContext(options: {
 }): WpOptionContext {
 	const storage = options.resource.storage as WpOptionStorage;
 	const pascalName = toPascalCase(options.resource.name);
-	const errorCode = createErrorCodeFactory(options.resource.name);
+	const errorCode = makeErrorCodeFactory(options.resource.name);
 
 	options.builder.addUse('WP_Error');
 	options.builder.addUse('WP_REST_Request');
@@ -108,7 +108,7 @@ function createGetMethod(
 	context: WpOptionContext,
 	definition: RouteDefinition
 ): string[] {
-	return createMethodTemplate({
+	return assembleMethodTemplate({
 		signature: `public function ${definition.methodName}( WP_REST_Request $request )`,
 		indentLevel: 1,
 		indentUnit: PHP_INDENT,
@@ -133,7 +133,7 @@ function createUpdateMethod(
 	context: WpOptionContext,
 	definition: RouteDefinition
 ): string[] {
-	return createMethodTemplate({
+	return assembleMethodTemplate({
 		signature: `public function ${definition.methodName}( WP_REST_Request $request )`,
 		indentLevel: 1,
 		indentUnit: PHP_INDENT,
@@ -174,7 +174,7 @@ function createUnsupportedMethod(
 	context: WpOptionContext,
 	definition: RouteDefinition
 ): string[] {
-	return createMethodTemplate({
+	return assembleMethodTemplate({
 		signature: `public function ${definition.methodName}( WP_REST_Request $request )`,
 		indentLevel: 1,
 		indentUnit: PHP_INDENT,
@@ -193,7 +193,7 @@ function createHelperMethods(context: WpOptionContext): string[][] {
 	const helpers: string[][] = [];
 
 	helpers.push(
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature: `private function get${context.pascalName}OptionName(): string`,
 			indentLevel: 1,
 			indentUnit: PHP_INDENT,
@@ -206,7 +206,7 @@ function createHelperMethods(context: WpOptionContext): string[][] {
 	);
 
 	helpers.push(
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature: `private function normalise${context.pascalName}Autoload( $value ): ?string`,
 			indentLevel: 1,
 			indentUnit: PHP_INDENT,

@@ -1,25 +1,25 @@
 import { KernelError } from './KernelError';
 import {
-	createArray,
-	createArrayItem,
-	createReturn,
-	createScalarBool,
-	createScalarFloat,
-	createScalarInt,
-	createScalarString,
-	createNull,
+	buildArray,
+	buildArrayItem,
+	buildReturn,
+	buildScalarBool,
+	buildScalarFloat,
+	buildScalarInt,
+	buildScalarString,
+	buildNull,
 	type PhpExpr,
 	type PhpStmtReturn,
 } from './nodes';
-import { createPrintable, type PhpPrintable } from './printables';
+import { buildPrintable, type PhpPrintable } from './printables';
 import { PHP_INDENT } from './templates';
 import { escapeSingleQuotes, isRecord } from './utils';
 
-export function createPhpReturn(
+export function buildPhpReturnPrintable(
 	value: unknown,
 	indentLevel: number
 ): PhpPrintable<PhpStmtReturn> {
-	const expression = createPhpExpression(value, indentLevel);
+	const expression = buildPhpExpressionPrintable(value, indentLevel);
 	const indent = PHP_INDENT.repeat(indentLevel);
 
 	const lines = [...expression.lines];
@@ -30,14 +30,14 @@ export function createPhpReturn(
 	const lastIndex = lines.length - 1;
 	lines[lastIndex] = `${lines[lastIndex]};`;
 
-	return createPrintable(createReturn(expression.node), lines);
+	return buildPrintable(buildReturn(expression.node), lines);
 }
 
 export function renderPhpReturn(value: unknown, indentLevel: number): string[] {
-	return [...createPhpReturn(value, indentLevel).lines];
+	return [...buildPhpReturnPrintable(value, indentLevel).lines];
 }
 
-export function createPhpExpression(
+export function buildPhpExpressionPrintable(
 	value: unknown,
 	indentLevel: number
 ): PhpPrintable<PhpExpr> {
@@ -62,7 +62,7 @@ export function renderPhpExpression(
 	value: unknown,
 	indentLevel: number
 ): string[] {
-	return [...createPhpExpression(value, indentLevel).lines];
+	return [...buildPhpExpressionPrintable(value, indentLevel).lines];
 }
 
 function renderPhpList(
@@ -71,23 +71,23 @@ function renderPhpList(
 	indent: string
 ): PhpPrintable<PhpExpr> {
 	if (value.length === 0) {
-		return createPrintable(createArray([]), [`${indent}[]`]);
+		return buildPrintable(buildArray([]), [`${indent}[]`]);
 	}
 
 	const lines = [`${indent}[`];
-	const items: ReturnType<typeof createArrayItem>[] = [];
+	const items: ReturnType<typeof buildArrayItem>[] = [];
 
 	for (const entry of value) {
-		const rendered = createPhpExpression(entry, indentLevel + 1);
+		const rendered = buildPhpExpressionPrintable(entry, indentLevel + 1);
 		const childLines = [...rendered.lines];
 		const last = childLines.length - 1;
 		childLines[last] = `${childLines[last]},`;
 		lines.push(...childLines);
-		items.push(createArrayItem(rendered.node));
+		items.push(buildArrayItem(rendered.node));
 	}
 
 	lines.push(`${indent}]`);
-	return createPrintable(createArray(items), lines);
+	return buildPrintable(buildArray(items), lines);
 }
 
 function renderPhpAssociative(
@@ -97,15 +97,15 @@ function renderPhpAssociative(
 ): PhpPrintable<PhpExpr> {
 	const entries = Object.entries(value);
 	if (entries.length === 0) {
-		return createPrintable(createArray([]), [`${indent}[]`]);
+		return buildPrintable(buildArray([]), [`${indent}[]`]);
 	}
 
 	const lines = [`${indent}[`];
-	const items: ReturnType<typeof createArrayItem>[] = [];
+	const items: ReturnType<typeof buildArrayItem>[] = [];
 	const childIndent = PHP_INDENT.repeat(indentLevel + 1);
 
 	for (const [key, val] of entries) {
-		const rendered = createPhpExpression(val, indentLevel + 1);
+		const rendered = buildPhpExpressionPrintable(val, indentLevel + 1);
 		const childLines = [...rendered.lines];
 		const firstLine = childLines[0]!;
 		const remainder = firstLine.slice(childIndent.length);
@@ -116,14 +116,14 @@ function renderPhpAssociative(
 		lines.push(...childLines);
 
 		items.push(
-			createArrayItem(rendered.node, {
-				key: createScalarString(key),
+			buildArrayItem(rendered.node, {
+				key: buildScalarString(key),
 			})
 		);
 	}
 
 	lines.push(`${indent}]`);
-	return createPrintable(createArray(items), lines);
+	return buildPrintable(buildArray(items), lines);
 }
 
 function renderPhpScalar(
@@ -131,8 +131,8 @@ function renderPhpScalar(
 	indent: string
 ): PhpPrintable<PhpExpr> {
 	if (typeof value === 'string') {
-		const node = createScalarString(value);
-		return createPrintable(node, [
+		const node = buildScalarString(value);
+		return buildPrintable(node, [
 			`${indent}'${escapeSingleQuotes(value)}'`,
 		]);
 	}
@@ -146,27 +146,27 @@ function renderPhpScalar(
 		}
 
 		const node = Number.isInteger(value)
-			? createScalarInt(value)
-			: createScalarFloat(value);
+			? buildScalarInt(value)
+			: buildScalarFloat(value);
 
-		return createPrintable(node, [`${indent}${value}`]);
+		return buildPrintable(node, [`${indent}${value}`]);
 	}
 
 	if (typeof value === 'bigint') {
 		const literal = value.toString();
-		const node = createScalarString(literal);
-		return createPrintable(node, [
+		const node = buildScalarString(literal);
+		return buildPrintable(node, [
 			`${indent}'${escapeSingleQuotes(literal)}'`,
 		]);
 	}
 
 	if (typeof value === 'boolean') {
-		const node = createScalarBool(value);
-		return createPrintable(node, [`${indent}${value ? 'true' : 'false'}`]);
+		const node = buildScalarBool(value);
+		return buildPrintable(node, [`${indent}${value ? 'true' : 'false'}`]);
 	}
 
 	if (value === null) {
-		return createPrintable(createNull(), [`${indent}null`]);
+		return buildPrintable(buildNull(), [`${indent}null`]);
 	}
 
 	throw new KernelError('DeveloperError', {

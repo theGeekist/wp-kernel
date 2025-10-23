@@ -1,14 +1,14 @@
 import {
-	createArray,
-	createArrayItem,
-	createAssign,
-	createExpressionStatement,
-	createMethodCall,
-	createReturn,
-	createScalarString,
-	createVariable,
-	createIdentifier,
-	createPrintable,
+	buildArray,
+	buildArrayItem,
+	buildAssign,
+	buildExpressionStatement,
+	buildMethodCall,
+	buildReturn,
+	buildScalarString,
+	buildVariable,
+	buildIdentifier,
+	buildPrintable,
 	isNonEmptyString,
 } from '@wpkernel/php-json-ast';
 import {
@@ -69,13 +69,13 @@ export function buildListRouteBody(
 	const indentLevel = options.indentLevel;
 	const indent = PHP_INDENT.repeat(indentLevel);
 
-	const postTypePrintable = createPrintable(
-		createExpressionStatement(
-			createAssign(
-				createVariable('post_type'),
-				createMethodCall(
-					createVariable('this'),
-					createIdentifier(`get${options.pascalName}PostType`),
+	const postTypePrintable = buildPrintable(
+		buildExpressionStatement(
+			buildAssign(
+				buildVariable('post_type'),
+				buildMethodCall(
+					buildVariable('this'),
+					buildIdentifier(`get${options.pascalName}PostType`),
 					[]
 				)
 			)
@@ -100,13 +100,13 @@ export function buildListRouteBody(
 		: [];
 
 	if (statuses.length > 0) {
-		const statusesPrintable = createPrintable(
-			createExpressionStatement(
-				createAssign(
-					createVariable('statuses'),
-					createMethodCall(
-						createVariable('this'),
-						createIdentifier(`get${options.pascalName}Statuses`),
+		const statusesPrintable = buildPrintable(
+			buildExpressionStatement(
+				buildAssign(
+					buildVariable('statuses'),
+					buildMethodCall(
+						buildVariable('this'),
+						buildIdentifier(`get${options.pascalName}Statuses`),
 						[]
 					)
 				)
@@ -192,17 +192,17 @@ export function buildListRouteBody(
 		buildPropertyFetch('query', 'max_num_pages')
 	);
 
-	const returnPrintable = createPrintable(
-		createReturn(
-			createArray([
-				createArrayItem(createVariable('items'), {
-					key: createScalarString('items'),
+	const returnPrintable = buildPrintable(
+		buildReturn(
+			buildArray([
+				buildArrayItem(buildVariable('items'), {
+					key: buildScalarString('items'),
 				}),
-				createArrayItem(totalFetch, {
-					key: createScalarString('total'),
+				buildArrayItem(totalFetch, {
+					key: buildScalarString('total'),
 				}),
-				createArrayItem(pagesFetch, {
-					key: createScalarString('pages'),
+				buildArrayItem(pagesFetch, {
+					key: buildScalarString('pages'),
 				}),
 			])
 		),

@@ -7,12 +7,12 @@ type BuilderOutput = any;
 import { appendClassTemplate, appendMethodTemplates } from '../append';
 import { appendGeneratedFileDocblock } from '../docblocks';
 import {
-	createClassTemplate,
-	createMethodTemplate,
+	assembleClassTemplate,
+	assembleMethodTemplate,
 	PHP_INDENT,
 } from '../templates';
 import { createPhpFileBuilder } from '../programBuilder';
-import { createIdentifier, createStmtNop } from '../nodes';
+import { buildIdentifier, buildStmtNop } from '../nodes';
 import {
 	PHP_CLASS_MODIFIER_ABSTRACT,
 	PHP_METHOD_MODIFIER_PUBLIC,
@@ -128,7 +128,7 @@ describe('programBuilder helpers', () => {
 				builder.addUse('Demo\\Contracts');
 				builder.appendStatement('// class declaration');
 
-				const method = createMethodTemplate({
+				const method = assembleMethodTemplate({
 					signature: 'public function label(): string',
 					indentLevel: 1,
 					indentUnit: PHP_INDENT,
@@ -137,18 +137,18 @@ describe('programBuilder helpers', () => {
 					},
 					ast: {
 						flags: PHP_METHOD_MODIFIER_PUBLIC,
-						returnType: createIdentifier('string'),
+						returnType: buildIdentifier('string'),
 					},
 				});
 
-				const classTemplate = createClassTemplate({
+				const classTemplate = assembleClassTemplate({
 					name: 'Example',
 					flags: PHP_CLASS_MODIFIER_ABSTRACT,
 					methods: [method],
 				});
 
 				appendClassTemplate(builder, classTemplate);
-				builder.appendProgramStatement(createStmtNop());
+				builder.appendProgramStatement(buildStmtNop());
 			},
 		});
 
@@ -202,7 +202,7 @@ describe('programBuilder helpers', () => {
 			namespace: 'Demo\\Blank',
 			metadata: { kind: 'policy-helper' },
 			build: (builder) => {
-				const first = createMethodTemplate({
+				const first = assembleMethodTemplate({
 					signature: 'public function first()',
 					indentLevel: 1,
 					body: (body) => {
@@ -214,7 +214,7 @@ describe('programBuilder helpers', () => {
 					},
 				});
 
-				const second = createMethodTemplate({
+				const second = assembleMethodTemplate({
 					signature: 'public function second()',
 					indentLevel: 1,
 					body: (body) => {
@@ -276,7 +276,7 @@ describe('programBuilder helpers', () => {
 
 				builder.appendDocblock('Example docblock');
 				builder.appendStatement('return 1;');
-				builder.appendProgramStatement(createStmtNop());
+				builder.appendProgramStatement(buildStmtNop());
 
 				const overrideMetadata: PhpFileMetadata = {
 					kind: 'base-controller',

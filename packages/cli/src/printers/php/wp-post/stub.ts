@@ -1,4 +1,4 @@
-import { createMethodTemplate, PHP_INDENT } from '../template';
+import { assembleMethodTemplate, PHP_INDENT } from '../template';
 import type { WpPostContext } from './context';
 import type { WpPostRouteDefinition } from './types';
 
@@ -6,7 +6,7 @@ export function createStubMethod(
 	context: WpPostContext,
 	definition: WpPostRouteDefinition
 ): string[] {
-	return createMethodTemplate({
+	return assembleMethodTemplate({
 		signature: `public function ${definition.methodName}( WP_REST_Request $request )`,
 		indentLevel: 1,
 		indentUnit: PHP_INDENT,

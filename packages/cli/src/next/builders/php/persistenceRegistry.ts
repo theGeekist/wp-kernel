@@ -10,11 +10,11 @@ import type {
 import {
 	appendClassTemplate,
 	appendGeneratedFileDocblock,
-	createClassTemplate,
-	createIdentifier,
-	createMethodTemplate,
+	assembleClassTemplate,
+	buildIdentifier,
+	assembleMethodTemplate,
 	createPhpFileBuilder,
-	createPhpReturn,
+	buildPhpReturnPrintable,
 	PHP_CLASS_MODIFIER_FINAL,
 	PHP_INDENT,
 	PHP_METHOD_MODIFIER_PUBLIC,
@@ -72,22 +72,22 @@ function buildPersistenceRegistry(
 	const payload = buildPersistencePayload(ir.resources);
 
 	const methods = [
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature: 'public static function get_config(): array',
 			indentLevel: 1,
 			indentUnit: PHP_INDENT,
 			body: (body) => {
-				const printable = createPhpReturn(payload, 2);
+				const printable = buildPhpReturnPrintable(payload, 2);
 				body.statement(printable);
 			},
 			ast: {
 				flags: PHP_METHOD_MODIFIER_PUBLIC + PHP_METHOD_MODIFIER_STATIC,
-				returnType: createIdentifier('array'),
+				returnType: buildIdentifier('array'),
 			},
 		}),
 	];
 
-	const classTemplate = createClassTemplate({
+	const classTemplate = assembleClassTemplate({
 		name: 'PersistenceRegistry',
 		flags: PHP_CLASS_MODIFIER_FINAL,
 		methods,

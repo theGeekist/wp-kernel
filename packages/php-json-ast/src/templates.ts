@@ -1,10 +1,10 @@
 import {
-	createClass,
-	createClassMethod,
-	createDocComment,
-	createFullyQualifiedName,
-	createIdentifier,
-	createName,
+	buildClass,
+	buildClassMethod,
+	buildDocComment,
+	buildFullyQualifiedName,
+	buildIdentifier,
+	buildName,
 	type PhpAttrGroup,
 	type PhpAttributes,
 	type PhpName,
@@ -15,7 +15,7 @@ import {
 	type PhpClassStmt,
 	type PhpType,
 } from './nodes';
-import { createPrintable, type PhpPrintable } from './printables';
+import { buildPrintable, type PhpPrintable } from './printables';
 import { formatClassModifiers } from './modifiers';
 
 export const PHP_INDENT = '        ';
@@ -102,7 +102,7 @@ export interface PhpMethodTemplateOptions {
 	ast?: PhpMethodTemplateAstOptions;
 }
 
-export function createMethodTemplate(
+export function assembleMethodTemplate(
 	options: PhpMethodTemplateOptions
 ): PhpMethodTemplate {
 	const indentUnit = options.indentUnit ?? PHP_INDENT;
@@ -132,7 +132,7 @@ export function createMethodTemplate(
 
 	lines.push(`${indent}}`);
 
-	const methodNode = createMethodNode(options, bodyBuilder.toStatements());
+	const methodNode = buildMethodNode(options, bodyBuilder.toStatements());
 
 	const template = Object.assign([...lines], {
 		node: methodNode,
@@ -141,7 +141,7 @@ export function createMethodTemplate(
 	return template;
 }
 
-function createMethodNode(
+function buildMethodNode(
 	options: PhpMethodTemplateOptions,
 	bodyStatements: PhpStmt[]
 ): PhpStmtClassMethod {
@@ -154,8 +154,8 @@ function createMethodNode(
 		options.docblock
 	);
 
-	return createClassMethod(
-		createIdentifier(methodName),
+	return buildClassMethod(
+		buildIdentifier(methodName),
 		{
 			byRef: astOptions.byRef ?? false,
 			flags: astOptions.flags ?? 0,
@@ -176,7 +176,7 @@ function mergeAttributes(
 		return attributes;
 	}
 
-	const docComment = createDocComment(docblock);
+	const docComment = buildDocComment(docblock);
 
 	if (!attributes) {
 		return { comments: [docComment] };
@@ -224,7 +224,7 @@ export interface PhpClassTemplateOptions {
 
 export type PhpClassTemplate = PhpPrintable<PhpStmtClass>;
 
-export function createClassTemplate(
+export function assembleClassTemplate(
 	options: PhpClassTemplateOptions
 ): PhpClassTemplate {
 	const docblock = options.docblock ?? [];
@@ -238,8 +238,8 @@ export function createClassTemplate(
 		.filter((name): name is PhpName => Boolean(name));
 
 	const classMembers = options.members ?? [];
-	const classNode = createClass(
-		createIdentifier(options.name),
+	const classNode = buildClass(
+		buildIdentifier(options.name),
 		{
 			flags: options.flags ?? 0,
 			extends: extendsName,
@@ -301,7 +301,7 @@ export function createClassTemplate(
 
 	lines.push('}');
 
-	return createPrintable(classNode, lines);
+	return buildPrintable(classNode, lines);
 }
 
 function normaliseName(
@@ -324,10 +324,10 @@ function normaliseName(
 	}
 
 	if (typeof value === 'string' && value.startsWith('\\')) {
-		return createFullyQualifiedName([...parts]);
+		return buildFullyQualifiedName([...parts]);
 	}
 
-	return createName([...parts]);
+	return buildName([...parts]);
 }
 
 function formatExtendsClause(name: PhpName | null): string {

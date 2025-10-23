@@ -2,7 +2,7 @@ import { PhpFileBuilder } from './builder';
 import { appendMethodTemplates } from './builder-helpers';
 import { appendGeneratedFileDocblock } from './docblock';
 import type { PrinterContext } from '../types';
-import { createMethodTemplate, PHP_INDENT } from './template';
+import { assembleMethodTemplate, PHP_INDENT } from './template';
 import { escapeSingleQuotes } from './utils';
 
 export function createBaseControllerBuilder(
@@ -21,7 +21,7 @@ export function createBaseControllerBuilder(
 	builder.appendStatement('{');
 
 	const methods = [
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature: 'public function get_namespace(): string',
 			indentLevel: 1,
 			indentUnit: PHP_INDENT,

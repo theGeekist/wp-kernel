@@ -10,24 +10,24 @@ import type {
 import {
 	appendClassTemplate,
 	appendGeneratedFileDocblock,
-	createArg,
-	createAssign,
-	createClassTemplate,
-	createErrorCodeFactory,
-	createExpressionStatement,
-	createFuncCall,
-	createIdentifier,
-	createMethodCall,
-	createMethodTemplate,
-	createName,
-	createNode,
+	buildArg,
+	buildAssign,
+	assembleClassTemplate,
+	makeErrorCodeFactory,
+	buildExpressionStatement,
+	buildFuncCall,
+	buildIdentifier,
+	buildMethodCall,
+	assembleMethodTemplate,
+	buildName,
+	buildNode,
 	createPhpFileBuilder,
-	createPhpReturn,
-	createPrintable,
-	createReturn,
-	createScalarString,
-	createStaticCall,
-	createVariable,
+	buildPhpReturnPrintable,
+	buildPrintable,
+	buildReturn,
+	buildScalarString,
+	buildStaticCall,
+	buildVariable,
 	escapeSingleQuotes,
 	PHP_CLASS_MODIFIER_FINAL,
 	PHP_INDENT,
@@ -130,7 +130,7 @@ function buildResourceController(
 ): void {
 	const { builder, ir, resource, className, identity } = options;
 	const pascalName = toPascalCase(resource.name);
-	const errorCodeFactory = createErrorCodeFactory(resource.name);
+	const errorCodeFactory = makeErrorCodeFactory(resource.name);
 	const metadataHost: ResourceMetadataHost = {
 		getMetadata: () => builder.getMetadata(),
 		setMetadata: (metadata) => builder.setMetadata(metadata),
@@ -171,7 +171,7 @@ function buildResourceController(
 	const methods: PhpMethodTemplate[] = [];
 
 	methods.push(
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature: 'public function get_resource_name(): string',
 			indentLevel: 1,
 			indentUnit: PHP_INDENT,
@@ -180,13 +180,13 @@ function buildResourceController(
 			},
 			ast: {
 				flags: PHP_METHOD_MODIFIER_PUBLIC,
-				returnType: createIdentifier('string'),
+				returnType: buildIdentifier('string'),
 			},
 		})
 	);
 
 	methods.push(
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature: 'public function get_schema_key(): string',
 			indentLevel: 1,
 			indentUnit: PHP_INDENT,
@@ -197,13 +197,13 @@ function buildResourceController(
 			},
 			ast: {
 				flags: PHP_METHOD_MODIFIER_PUBLIC,
-				returnType: createIdentifier('string'),
+				returnType: buildIdentifier('string'),
 			},
 		})
 	);
 
 	methods.push(
-		createMethodTemplate({
+		assembleMethodTemplate({
 			signature: 'public function get_rest_args(): array',
 			indentLevel: 1,
 			indentUnit: PHP_INDENT,
@@ -214,12 +214,12 @@ function buildResourceController(
 					return;
 				}
 
-				const printable = createPhpReturn(payload, 2);
+				const printable = buildPhpReturnPrintable(payload, 2);
 				body.statement(printable);
 			},
 			ast: {
 				flags: PHP_METHOD_MODIFIER_PUBLIC,
-				returnType: createIdentifier('array'),
+				returnType: buildIdentifier('array'),
 			},
 		})
 	);
@@ -251,7 +251,7 @@ function buildResourceController(
 		methods.push(...taxonomyHelpers);
 	}
 
-	const classTemplate = createClassTemplate({
+	const classTemplate = assembleClassTemplate({
 		name: className,
 		flags: PHP_CLASS_MODIFIER_FINAL,
 		extends: 'BaseController',
@@ -292,7 +292,7 @@ function createRouteMethodTemplate(
 		...createRouteTagDocblock(options.routeMetadata?.tags),
 	];
 
-	return createMethodTemplate({
+	return assembleMethodTemplate({
 		signature: `public function ${methodName}( WP_REST_Request $request )`,
 		indentLevel,
 		indentUnit: PHP_INDENT,
@@ -308,16 +308,16 @@ function createRouteMethodTemplate(
 				})
 			) {
 				const param = options.identity.param;
-				const assign = createAssign(
-					createVariable(param),
-					createMethodCall(
-						createVariable('request'),
-						createIdentifier('get_param'),
-						[createArg(createScalarString(param))]
+				const assign = buildAssign(
+					buildVariable(param),
+					buildMethodCall(
+						buildVariable('request'),
+						buildIdentifier('get_param'),
+						[buildArg(buildScalarString(param))]
 					)
 				);
-				const assignPrintable = createPrintable(
-					createExpressionStatement(assign),
+				const assignPrintable = buildPrintable(
+					buildExpressionStatement(assign),
 					[
 						`${indent}$${param} = $request->get_param( '${escapeSingleQuotes(
 							param
@@ -329,19 +329,19 @@ function createRouteMethodTemplate(
 			}
 
 			if (options.route.policy) {
-				const policyAssign = createAssign(
-					createVariable('permission'),
-					createStaticCall(
-						createName(['Policy']),
-						createIdentifier('enforce'),
+				const policyAssign = buildAssign(
+					buildVariable('permission'),
+					buildStaticCall(
+						buildName(['Policy']),
+						buildIdentifier('enforce'),
 						[
-							createArg(createScalarString(options.route.policy)),
-							createArg(createVariable('request')),
+							buildArg(buildScalarString(options.route.policy)),
+							buildArg(buildVariable('request')),
 						]
 					)
 				);
-				const assignPrintable = createPrintable(
-					createExpressionStatement(policyAssign),
+				const assignPrintable = buildPrintable(
+					buildExpressionStatement(policyAssign),
 					[
 						`${indent}$permission = Policy::enforce( '${escapeSingleQuotes(
 							options.route.policy
@@ -350,17 +350,16 @@ function createRouteMethodTemplate(
 				);
 				body.statement(assignPrintable);
 
-				const isErrorCall = createFuncCall(
-					createName(['is_wp_error']),
-					[createArg(createVariable('permission'))]
-				);
-				const ifNode = createNode<PhpStmtIf>('Stmt_If', {
+				const isErrorCall = buildFuncCall(buildName(['is_wp_error']), [
+					buildArg(buildVariable('permission')),
+				]);
+				const ifNode = buildNode<PhpStmtIf>('Stmt_If', {
 					cond: isErrorCall,
-					stmts: [createReturn(createVariable('permission'))],
+					stmts: [buildReturn(buildVariable('permission'))],
 					elseifs: [],
 					else: null,
 				});
-				const ifPrintable = createPrintable(ifNode, [
+				const ifPrintable = buildPrintable(ifNode, [
 					`${indent}if ( is_wp_error( $permission ) ) {`,
 					`${indent}${PHP_INDENT}return $permission;`,
 					`${indent}}`,

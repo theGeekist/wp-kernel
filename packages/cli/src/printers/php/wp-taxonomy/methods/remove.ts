@@ -1,4 +1,4 @@
-import { createMethodTemplate, PHP_INDENT } from '../../template';
+import { assembleMethodTemplate, PHP_INDENT } from '../../template';
 import { escapeSingleQuotes } from '../../utils';
 import type { WpTaxonomyContext, WpTaxonomyRouteDefinition } from '../types';
 
@@ -7,7 +7,7 @@ export function createRemoveMethod(
 	definition: WpTaxonomyRouteDefinition
 ): string[] {
 	const identityParam = context.identity.param;
-	return createMethodTemplate({
+	return assembleMethodTemplate({
 		signature: `public function ${definition.methodName}( WP_REST_Request $request )`,
 		indentLevel: 1,
 		indentUnit: PHP_INDENT,
