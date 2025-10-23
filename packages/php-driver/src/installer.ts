@@ -25,7 +25,7 @@ export type DriverHelper = Helper<
 
 type DriverApplyOptions = Parameters<DriverHelper['apply']>[0];
 
-export function createPhpDriverInstaller(): DriverHelper {
+export function createPhpDriverInstallerHelper(): DriverHelper {
 	return createHelper<DriverContext, unknown, unknown, Reporter, 'builder'>({
 		key: 'builder.generate.php.driver',
 		kind: 'builder',
@@ -37,7 +37,7 @@ export function createPhpDriverInstaller(): DriverHelper {
 
 			if (!hasComposerManifest) {
 				reporter.debug(
-					'createPhpDriverInstaller: composer.json missing, skipping installer.'
+					'createPhpDriverInstallerHelper: composer.json missing, skipping installer.'
 				);
 				return;
 			}

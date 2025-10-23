@@ -1,5 +1,5 @@
 import { KernelError } from '@wpkernel/core/error';
-import { createPhpDriverInstaller } from '../installer/createPhpDriverInstaller';
+import { createPhpDriverInstallerHelper } from '../installer/createPhpDriverInstaller';
 import type { WorkspaceLike } from '../types';
 
 type Logger = ReturnType<typeof createLogger>;
@@ -43,7 +43,7 @@ function createWorkspace(overrides: Partial<Workspace> = {}): Workspace {
 	return { ...baseWorkspace(), ...overrides };
 }
 
-describe('createPhpDriverInstaller', () => {
+describe('createPhpDriverInstallerHelper', () => {
 	let logger: Logger;
 
 	beforeEach(() => {
@@ -53,7 +53,7 @@ describe('createPhpDriverInstaller', () => {
 
 	it('skips installation when vendor autoload exists', async () => {
 		const workspace = createWorkspace();
-		const installer = createPhpDriverInstaller();
+		const installer = createPhpDriverInstallerHelper();
 
 		const result = await installer.install({ workspace, logger });
 
@@ -88,7 +88,7 @@ describe('createPhpDriverInstaller', () => {
 				target.endsWith('composer.json')
 			),
 		});
-		const installer = createPhpDriverInstaller();
+		const installer = createPhpDriverInstallerHelper();
 
 		const result = await installer.install({ workspace, logger });
 
@@ -114,7 +114,7 @@ describe('createPhpDriverInstaller', () => {
 				target.endsWith('composer.json')
 			),
 		});
-		const installer = createPhpDriverInstaller();
+		const installer = createPhpDriverInstallerHelper();
 
 		await expect(
 			installer.install({ workspace, logger })
@@ -132,7 +132,7 @@ describe('createPhpDriverInstaller', () => {
 				target.endsWith('vendor/autoload.php')
 			),
 		});
-		const installer = createPhpDriverInstaller();
+		const installer = createPhpDriverInstallerHelper();
 
 		const result = await installer.install({ workspace, logger });
 
@@ -141,7 +141,7 @@ describe('createPhpDriverInstaller', () => {
 			skippedReason: 'missing-manifest',
 		});
 		expect(logger.debug).toHaveBeenCalledWith(
-			'createPhpDriverInstaller: composer.json missing, skipping installer.'
+			'createPhpDriverInstallerHelper: composer.json missing, skipping installer.'
 		);
 		expect(execFileMock).not.toHaveBeenCalled();
 	});
