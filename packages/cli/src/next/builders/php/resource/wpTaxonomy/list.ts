@@ -39,7 +39,7 @@ import {
 	buildInstanceof,
 	buildScalarCast,
 } from '../utils';
-import { createListItemsInitialiser } from '../wpPost/list';
+import { buildListItemsInitialiserStatement } from '../wpPost/list';
 import { buildWpTermQueryInstantiation } from '@wpkernel/php-json-ast';
 import type { IRResource } from '../../../../../ir/types';
 import { formatStatementPrintable } from '../printer';
@@ -199,7 +199,12 @@ export function buildWpTaxonomyListRouteBody(
 	options.body.statement(errorGuard);
 	options.body.blank();
 
-	options.body.statement(createListItemsInitialiser({ indentLevel }));
+	options.body.statement(
+		formatStatementPrintable(buildListItemsInitialiserStatement(), {
+			indentLevel,
+			indentUnit: PHP_INDENT,
+		})
+	);
 
 	const foreachPrintable = createResultsForeach({
 		pascalName: options.pascalName,

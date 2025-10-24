@@ -3,97 +3,82 @@ import {
 	buildAssign,
 	buildExpressionStatement,
 	buildFuncCall,
+	buildIfStatement,
 	buildName,
 	buildNull,
 	buildScalarInt,
 	buildScalarString,
 	buildVariable,
 	type PhpStmt,
-	type PhpPrintable,
 } from '@wpkernel/php-json-ast';
-import { PHP_INDENT } from '@wpkernel/php-json-ast';
 import type { ResolvedIdentity } from '../../identity';
 import {
 	buildBinaryOperation,
 	buildBooleanNot,
-	buildIfPrintable,
 	buildScalarCast,
 	normaliseVariableReference,
 } from '../utils';
-import { createWpErrorReturn } from '../errors';
-import { formatStatementPrintable } from '../printer';
+import { buildWpErrorReturn } from '../errors';
 
 export interface IdentityValidationOptions {
 	readonly identity: ResolvedIdentity;
-	readonly indentLevel: number;
 	readonly pascalName: string;
 	readonly errorCodeFactory: (suffix: string) => string;
 }
 
-export function createIdentityValidationPrintables(
+export function buildIdentityValidationStatements(
 	options: IdentityValidationOptions
-): PhpPrintable<PhpStmt>[] {
-	const { identity, indentLevel, pascalName, errorCodeFactory } = options;
+): PhpStmt[] {
+	const { identity, pascalName, errorCodeFactory } = options;
 	const variable = normaliseVariableReference(identity.param);
-	const statements: PhpPrintable<PhpStmt>[] = [];
+	const statements: PhpStmt[] = [];
 
 	if (identity.type === 'number') {
-		const missingReturn = createWpErrorReturn({
-			indentLevel: indentLevel + 1,
+		const missingReturn = buildWpErrorReturn({
 			code: errorCodeFactory('missing_identifier'),
 			message: `Missing identifier for ${pascalName}.`,
 			status: 400,
 		});
 		statements.push(
-			buildIfPrintable({
-				indentLevel,
-				condition: buildBinaryOperation(
+			buildIfStatement(
+				buildBinaryOperation(
 					'Identical',
 					buildNull(),
 					buildVariable(variable.raw)
 				),
-				statements: [missingReturn],
-			})
-		);
-
-		statements.push(
-			formatStatementPrintable(
-				buildExpressionStatement(
-					buildAssign(
-						buildVariable(variable.raw),
-						buildScalarCast('int', buildVariable(variable.raw))
-					)
-				),
-				{
-					indentLevel,
-					indentUnit: PHP_INDENT,
-				}
+				[missingReturn]
 			)
 		);
 
-		const invalidReturn = createWpErrorReturn({
-			indentLevel: indentLevel + 1,
+		statements.push(
+			buildExpressionStatement(
+				buildAssign(
+					buildVariable(variable.raw),
+					buildScalarCast('int', buildVariable(variable.raw))
+				)
+			)
+		);
+
+		const invalidReturn = buildWpErrorReturn({
 			code: errorCodeFactory('invalid_identifier'),
 			message: `Invalid identifier for ${pascalName}.`,
 			status: 400,
 		});
 		statements.push(
-			buildIfPrintable({
-				indentLevel,
-				condition: buildBinaryOperation(
+			buildIfStatement(
+				buildBinaryOperation(
 					'SmallerOrEqual',
 					buildVariable(variable.raw),
 					buildScalarInt(0)
 				),
-				statements: [invalidReturn],
-			})
+				[invalidReturn]
+			)
 		);
 
 		return statements;
 	}
 
-	const missingReturn = createWpErrorReturn({
-		indentLevel: indentLevel + 1,
+	const missingReturn = buildWpErrorReturn({
 		code: errorCodeFactory('missing_identifier'),
 		message: `Missing identifier for ${pascalName}.`,
 		status: 400,
@@ -115,33 +100,18 @@ export function createIdentityValidationPrintables(
 		)
 	);
 
-	statements.push(
-		buildIfPrintable({
-			indentLevel,
-			condition,
-			statements: [missingReturn],
-		})
-	);
+	statements.push(buildIfStatement(condition, [missingReturn]));
 
 	statements.push(
-		formatStatementPrintable(
-			buildExpressionStatement(
-				buildAssign(
-					buildVariable(variable.raw),
-					buildFuncCall(buildName(['trim']), [
-						buildArg(
-							buildScalarCast(
-								'string',
-								buildVariable(variable.raw)
-							)
-						),
-					])
-				)
-			),
-			{
-				indentLevel,
-				indentUnit: PHP_INDENT,
-			}
+		buildExpressionStatement(
+			buildAssign(
+				buildVariable(variable.raw),
+				buildFuncCall(buildName(['trim']), [
+					buildArg(
+						buildScalarCast('string', buildVariable(variable.raw))
+					),
+				])
+			)
 		)
 	);
 

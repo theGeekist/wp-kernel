@@ -15,7 +15,6 @@ import {
 	buildStmtNop,
 	buildVariable,
 	buildNull,
-	PHP_INDENT,
 	type PhpExpr,
 	type PhpExprNew,
 	type PhpMethodBodyBuilder,
@@ -296,7 +295,7 @@ function appendBodyStatement(
 	options.body.statement(
 		formatStatementPrintable(statement, {
 			indentLevel: options.indentLevel,
-			indentUnit: options.indentUnit ?? PHP_INDENT,
+			indentUnit: options.indentUnit ?? options.body.getIndentUnit(),
 		})
 	);
 }

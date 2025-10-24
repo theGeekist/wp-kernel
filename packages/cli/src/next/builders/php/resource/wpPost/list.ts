@@ -1,9 +1,11 @@
 import {
 	buildArg,
+	buildArray,
 	buildAssign,
 	buildExpressionStatement,
 	buildFuncCall,
 	buildIdentifier,
+	buildIfStatement,
 	buildMethodCall,
 	buildName,
 	buildNode,
@@ -11,40 +13,27 @@ import {
 	type PhpStmt,
 	type PhpStmtContinue,
 	type PhpStmtForeach,
-	type PhpPrintable,
-	buildIfStatement,
 } from '@wpkernel/php-json-ast';
-import { PHP_INDENT } from '@wpkernel/php-json-ast';
 import {
 	buildArrayDimFetch,
-	buildArrayInitialiser,
 	buildBooleanNot,
 	buildInstanceof,
 	buildPropertyFetch,
 } from '../utils';
-import { formatStatementPrintable } from '../printer';
 
-export interface ListItemsInitialiserOptions {
-	readonly indentLevel: number;
-}
-
-export function createListItemsInitialiser(
-	options: ListItemsInitialiserOptions
-): PhpPrintable<PhpStmt> {
-	return buildArrayInitialiser({
-		variable: 'items',
-		indentLevel: options.indentLevel,
-	});
+export function buildListItemsInitialiserStatement(): PhpStmt {
+	return buildExpressionStatement(
+		buildAssign(buildVariable('items'), buildArray([]))
+	);
 }
 
 export interface ListForeachOptions {
 	readonly pascalName: string;
-	readonly indentLevel: number;
 }
 
-export function createListForeachPrintable(
+export function buildListForeachStatement(
 	options: ListForeachOptions
-): PhpPrintable<PhpStmtForeach> {
+): PhpStmtForeach {
 	const assignment = buildExpressionStatement(
 		buildAssign(
 			buildVariable('post'),
@@ -77,15 +66,11 @@ export function createListForeachPrintable(
 		)
 	);
 
-	const foreachNode = buildNode<PhpStmtForeach>('Stmt_Foreach', {
+	return buildNode<PhpStmtForeach>('Stmt_Foreach', {
 		expr: buildPropertyFetch('query', 'posts'),
 		valueVar: buildVariable('post_id'),
 		keyVar: null,
 		byRef: false,
 		stmts: [assignment, guard, pushStatement],
-	});
-	return formatStatementPrintable(foreachNode, {
-		indentLevel: options.indentLevel,
-		indentUnit: PHP_INDENT,
 	});
 }

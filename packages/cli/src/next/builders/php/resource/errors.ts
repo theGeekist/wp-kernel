@@ -9,23 +9,26 @@ import {
 	buildScalarString,
 	type PhpExprNew,
 	type PhpStmtReturn,
-	buildPrintable,
 	type PhpPrintable,
+	PHP_INDENT,
 } from '@wpkernel/php-json-ast';
-import { PHP_INDENT, escapeSingleQuotes } from '@wpkernel/php-json-ast';
+import { formatStatementPrintable } from './printer';
 
-export interface WpErrorReturnOptions {
-	readonly indentLevel: number;
+export interface WpErrorReturnAstOptions {
 	readonly code: string;
 	readonly message: string;
 	readonly status?: number;
 }
 
-export function createWpErrorReturn(
-	options: WpErrorReturnOptions
-): PhpPrintable<PhpStmtReturn> {
-	const { indentLevel, code, message, status = 400 } = options;
-	const indent = PHP_INDENT.repeat(indentLevel);
+export interface WpErrorReturnOptions extends WpErrorReturnAstOptions {
+	readonly indentLevel: number;
+	readonly indentUnit?: string;
+}
+
+export function buildWpErrorReturn(
+	options: WpErrorReturnAstOptions
+): PhpStmtReturn {
+	const { code, message, status = 400 } = options;
 
 	const errorExpr = buildNode<PhpExprNew>('Expr_New', {
 		class: buildName(['WP_Error']),
@@ -42,10 +45,15 @@ export function createWpErrorReturn(
 		],
 	});
 
-	const returnNode = buildReturn(errorExpr);
-	const line = `${indent}return new WP_Error( '${escapeSingleQuotes(
-		code
-	)}', '${escapeSingleQuotes(message)}', [ 'status' => ${status} ] );`;
+	return buildReturn(errorExpr);
+}
 
-	return buildPrintable(returnNode, [line]);
+export function createWpErrorReturn(
+	options: WpErrorReturnOptions
+): PhpPrintable<PhpStmtReturn> {
+	const node = buildWpErrorReturn(options);
+	return formatStatementPrintable(node, {
+		indentLevel: options.indentLevel,
+		indentUnit: options.indentUnit ?? PHP_INDENT,
+	});
 }
