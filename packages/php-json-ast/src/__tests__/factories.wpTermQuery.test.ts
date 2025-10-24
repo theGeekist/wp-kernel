@@ -2,37 +2,46 @@ import { buildWpTermQueryInstantiation } from '../factories/wpTermQuery';
 
 describe('buildWpTermQueryInstantiation', () => {
 	it('creates a WP_Term_Query instantiation without arguments', () => {
-		const printable = buildWpTermQueryInstantiation({
+		const statement = buildWpTermQueryInstantiation({
 			target: 'term_query',
 		});
 
-		expect(printable.lines).toEqual(['$term_query = new WP_Term_Query();']);
-		expect(printable.node.expr).toMatchObject({
-			nodeType: 'Expr_Assign',
+		expect(statement).toMatchObject({
+			nodeType: 'Stmt_Expression',
 			expr: {
-				nodeType: 'Expr_New',
-				class: { parts: ['WP_Term_Query'] },
-				args: [],
+				nodeType: 'Expr_Assign',
+				var: { nodeType: 'Expr_Variable', name: 'term_query' },
+				expr: {
+					nodeType: 'Expr_New',
+					class: { parts: ['WP_Term_Query'] },
+					args: [],
+				},
 			},
 		});
 	});
 
-	it('supports constructor arguments and indentation overrides', () => {
-		const printable = buildWpTermQueryInstantiation({
+	it('supports constructor arguments', () => {
+		const statement = buildWpTermQueryInstantiation({
 			target: '$query',
 			argsVariable: '$args',
-			indentLevel: 1,
-			indentUnit: '    ',
 		});
 
-		expect(printable.lines).toEqual([
-			'    $query = new WP_Term_Query( $args );',
-		]);
-		expect(printable.node.expr).toMatchObject({
-			nodeType: 'Expr_Assign',
+		expect(statement).toMatchObject({
+			nodeType: 'Stmt_Expression',
 			expr: {
-				nodeType: 'Expr_New',
-				args: [expect.anything()],
+				nodeType: 'Expr_Assign',
+				var: { nodeType: 'Expr_Variable', name: 'query' },
+				expr: {
+					nodeType: 'Expr_New',
+					args: [
+						{
+							value: {
+								nodeType: 'Expr_Variable',
+								name: 'args',
+							},
+						},
+					],
+				},
 			},
 		});
 	});

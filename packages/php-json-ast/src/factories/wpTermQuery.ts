@@ -9,15 +9,10 @@ import {
 	type PhpExprNew,
 	type PhpStmtExpression,
 } from '../nodes';
-import { buildPrintable, type PhpPrintable } from '../printables';
-
-const DEFAULT_INDENT_UNIT = '        ';
 
 export interface BuildWpTermQueryInstantiationOptions {
 	readonly target: string;
 	readonly argsVariable?: string;
-	readonly indentLevel?: number;
-	readonly indentUnit?: string;
 }
 
 interface NormalisedVariableName {
@@ -50,10 +45,7 @@ function normaliseVariableName(name: string): NormalisedVariableName {
 
 export function buildWpTermQueryInstantiation(
 	options: BuildWpTermQueryInstantiationOptions
-): PhpPrintable<PhpStmtExpression> {
-	const indentUnit = options.indentUnit ?? DEFAULT_INDENT_UNIT;
-	const indentLevel = options.indentLevel ?? 0;
-	const indent = indentUnit.repeat(indentLevel);
+): PhpStmtExpression {
 	const target = normaliseVariableName(options.target);
 
 	const args = options.argsVariable
@@ -65,13 +57,7 @@ export function buildWpTermQueryInstantiation(
 		args: args ? [buildArg(buildVariable(args.raw))] : [],
 	});
 
-	const expression = buildExpressionStatement(
+	return buildExpressionStatement(
 		buildAssign(buildVariable(target.raw), instantiation)
 	);
-
-	const line = args
-		? `${indent}${target.display} = new WP_Term_Query( ${args.display} );`
-		: `${indent}${target.display} = new WP_Term_Query();`;
-
-	return buildPrintable(expression, [line]);
 }

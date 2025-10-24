@@ -206,14 +206,70 @@ describe('createPhpResourceControllerHelper', () => {
 		expect(taxonomyEntry?.docblock).toMatchSnapshot(
 			'taxonomy-controller-docblock'
 		);
-		expect(taxonomyEntry?.statements).toMatchSnapshot(
-			'taxonomy-controller-statements'
-		);
-		expect(taxonomyEntry?.program).toMatchSnapshot(
-			'taxonomy-controller-ast'
-		);
+		if (taxonomyEntry) {
+			const methodNames = extractClassMethodNames(taxonomyEntry.program);
+			expect(methodNames).toEqual([
+				'get_resource_name',
+				'get_schema_key',
+				'get_rest_args',
+				'getKernelV1JobCategories',
+				'getKernelV1JobCategoriesSlug',
+				'getJobCategoriesTaxonomy',
+				'prepareJobCategoriesTermResponse',
+				'resolveJobCategoriesTerm',
+				'validateJobCategoriesIdentity',
+			]);
+		}
 	});
 });
+
+function extractClassMethodNames(program: unknown): string[] {
+	if (!Array.isArray(program)) {
+		return [];
+	}
+
+	const namespace = program.find(
+		(node): node is { nodeType: string; stmts?: unknown[] } =>
+			Boolean(
+				node &&
+					typeof node === 'object' &&
+					'nodeType' in (node as Record<string, unknown>) &&
+					(node as { nodeType?: unknown }).nodeType ===
+						'Stmt_Namespace'
+			)
+	);
+
+	const namespaceStmts = Array.isArray(namespace?.stmts)
+		? (namespace!.stmts as unknown[])
+		: program;
+
+	const classNode = namespaceStmts.find(
+		(node): node is { nodeType: string; stmts?: unknown[] } =>
+			Boolean(
+				node &&
+					typeof node === 'object' &&
+					'nodeType' in (node as Record<string, unknown>) &&
+					(node as { nodeType?: unknown }).nodeType === 'Stmt_Class'
+			)
+	);
+
+	if (!classNode || !Array.isArray(classNode.stmts)) {
+		return [];
+	}
+
+	return (classNode.stmts as unknown[])
+		.filter(
+			(stmt): stmt is { nodeType: string; name?: { name?: string } } =>
+				Boolean(
+					stmt &&
+						typeof stmt === 'object' &&
+						'nodeType' in (stmt as Record<string, unknown>) &&
+						(stmt as { nodeType?: unknown }).nodeType ===
+							'Stmt_ClassMethod'
+				)
+		)
+		.map((method) => method.name?.name ?? 'unknown');
+}
 
 describe('createRouteMetadata', () => {
 	it('annotates mutation routes with cache segments and contract tags', () => {

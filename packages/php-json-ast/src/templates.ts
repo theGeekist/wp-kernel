@@ -82,6 +82,10 @@ export class PhpMethodBodyBuilder {
 		this.statements.push(printable.node);
 	}
 
+	public statementNode(statement: PhpStmt): void {
+		this.statements.push(statement);
+	}
+
 	public toLines(): string[] {
 		return [...this.lines];
 	}
