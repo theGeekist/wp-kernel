@@ -3,8 +3,10 @@ import {
 	buildScalarCast,
 	buildBinaryOperation,
 	normaliseVariableReference,
+	buildVariableAssignment,
+	printStatement,
 } from '../utils';
-import { buildVariable, buildScalarInt } from '@wpkernel/php-json-ast';
+import { buildScalarInt, buildVariable } from '@wpkernel/php-json-ast';
 
 describe('resource utils', () => {
 	describe('normaliseVariableReference', () => {
@@ -27,6 +29,10 @@ describe('resource utils', () => {
 				KernelError
 			);
 		});
+
+		it('throws for sigils without identifiers', () => {
+			expect(() => normaliseVariableReference('$')).toThrow(KernelError);
+		});
 	});
 
 	it('creates scalar casts', () => {
@@ -43,5 +49,28 @@ describe('resource utils', () => {
 		expect(operation).toMatchObject({
 			nodeType: 'Expr_BinaryOp_Greater',
 		});
+	});
+
+	it('builds assignment statements from raw identifiers', () => {
+		const reference = normaliseVariableReference('result');
+		const statement = buildVariableAssignment(reference, buildScalarInt(5));
+		const printable = printStatement(statement, 1);
+
+		expect(statement.expr).toMatchObject({
+			nodeType: 'Expr_Assign',
+		});
+		expect(printable.lines).toEqual(['        $result = 5;']);
+	});
+
+	it('builds assignment statements from normalised references', () => {
+		const reference = normaliseVariableReference('$items');
+		const statement = buildVariableAssignment(reference, buildScalarInt(3));
+		const printable = printStatement(statement, 0);
+
+		expect(statement.expr).toMatchObject({
+			nodeType: 'Expr_Assign',
+			var: { name: 'items' },
+		});
+		expect(printable.lines).toEqual(['$items = 3;']);
 	});
 });
