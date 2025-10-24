@@ -13,6 +13,8 @@ import {
 	type PhpName,
 	type PhpParam,
 	type PhpStmt,
+	type PhpStmtElse,
+	type PhpStmtElseIf,
 	type PhpStmtExpression,
 	type PhpStmtIf,
 	type PhpStmtReturn,
@@ -39,6 +41,7 @@ const INLINE_STATEMENT_NODE_TYPES: ReadonlySet<ExprNodeType> = new Set([
 	'Expr_ArrayDimFetch',
 	'Expr_MethodCall',
 	'Expr_FuncCall',
+	'Expr_StaticCall',
 	'Expr_New',
 	'Expr_PropertyFetch',
 	'Expr_Cast_Int',
@@ -66,6 +69,7 @@ const INLINE_STATEMENT_NODE_TYPES: ReadonlySet<ExprNodeType> = new Set([
 	'Expr_BinaryOp_NotEqual',
 	'Expr_BinaryOp_Identical',
 	'Expr_BinaryOp_NotIdentical',
+	'Expr_BinaryOp_Coalesce',
 	'Scalar_String',
 	'Scalar_LNumber',
 	'Scalar_DNumber',
@@ -95,6 +99,7 @@ const BINARY_OPERATOR_LABELS: Partial<Record<ExprNodeType, string>> = {
 	Expr_BinaryOp_NotEqual: '!=',
 	Expr_BinaryOp_Identical: '===',
 	Expr_BinaryOp_NotIdentical: '!==',
+	Expr_BinaryOp_Coalesce: '??',
 };
 
 const BOOLEAN_NOT_PAREN_NODES: ReadonlySet<ExprNodeType> = new Set([
@@ -148,6 +153,12 @@ const INLINE_FORMATTERS: Partial<Record<ExprNodeType, InlineFormatter>> = {
 		return `${formatInlineExpression(func.name)}(${formatArguments(
 			func.args
 		)})`;
+	},
+	Expr_StaticCall: (expr) => {
+		const call = expr as ExtractExpr<'Expr_StaticCall'>;
+		const target = formatInlineExpression(call.class);
+		const method = formatIdentifierOrExpr(call.name);
+		return `${target}::${method}(${formatArguments(call.args)})`;
 	},
 	Expr_New: (expr) => formatNewExpression(expr as ExtractExpr<'Expr_New'>),
 	Expr_Cast_Int: (expr) =>
@@ -212,6 +223,8 @@ const INLINE_FORMATTERS: Partial<Record<ExprNodeType, InlineFormatter>> = {
 		formatBinaryOp(expr as ExtractExpr<'Expr_BinaryOp_Identical'>),
 	Expr_BinaryOp_NotIdentical: (expr) =>
 		formatBinaryOp(expr as ExtractExpr<'Expr_BinaryOp_NotIdentical'>),
+	Expr_BinaryOp_Coalesce: (expr) =>
+		formatBinaryOp(expr as ExtractExpr<'Expr_BinaryOp_Coalesce'>),
 	Scalar_String: (expr) =>
 		`'${escapeSingleQuotes((expr as ExtractExpr<'Scalar_String'>).value)}'`,
 	Scalar_LNumber: (expr) =>
@@ -269,6 +282,20 @@ export function formatStatement(
 				indentLevel,
 				indentUnit
 			);
+		case 'Stmt_Nop': {
+			const nop = statement as PhpStmt & {
+				comments?: readonly { text: string }[];
+			};
+			const baseIndent = indent(indentLevel, indentUnit);
+			const comments = (nop.comments ?? []).map(
+				(comment) => `${baseIndent}${comment.text.trimEnd()}`
+			);
+			if (comments.length > 0) {
+				return comments;
+			}
+
+			return [baseIndent];
+		}
 		default:
 			throw new Error(
 				`Unsupported statement node for formatting: ${statement.nodeType}`
@@ -343,23 +370,139 @@ function formatIfStatement(
 	indentLevel: number,
 	indentUnit: string
 ): string[] {
-	const currentIndent = indent(indentLevel, indentUnit);
-	const condition = formatInlineExpression(statement.cond);
-	const lines = [`${currentIndent}if (${condition}) {`];
+	const context = createConditionalFormattingContext(indentLevel, indentUnit);
 
-	for (let index = 0; index < statement.stmts.length; index += 1) {
-		const child = statement.stmts[index]!;
-		const formatted = formatStatement(child, indentLevel + 1, indentUnit);
+	appendIfBlock({
+		context,
+		condition: statement.cond,
+		statements: statement.stmts,
+	});
+	appendElseIfBlocks({
+		context,
+		branches: statement.elseifs,
+	});
+	appendElseBlock({
+		context,
+		branch: statement.else,
+	});
+
+	return context.lines;
+}
+
+interface ConditionalFormattingContext {
+	readonly lines: string[];
+	readonly indentLevel: number;
+	readonly indentUnit: string;
+	readonly currentIndent: string;
+	readonly closingLine: string;
+}
+
+function createConditionalFormattingContext(
+	indentLevel: number,
+	indentUnit: string
+): ConditionalFormattingContext {
+	const currentIndent = indent(indentLevel, indentUnit);
+	return {
+		lines: [],
+		indentLevel,
+		indentUnit,
+		currentIndent,
+		closingLine: `${currentIndent}}`,
+	};
+}
+
+interface AppendIfBlockOptions {
+	readonly context: ConditionalFormattingContext;
+	readonly condition: PhpExpr;
+	readonly statements: readonly PhpStmt[];
+}
+
+function appendIfBlock(options: AppendIfBlockOptions): void {
+	const header = `${options.context.currentIndent}if (${formatInlineExpression(options.condition)}) {`;
+	appendConditionalBody({
+		context: options.context,
+		header,
+		statements: options.statements,
+	});
+}
+
+interface AppendElseIfBlocksOptions {
+	readonly context: ConditionalFormattingContext;
+	readonly branches: readonly PhpStmtElseIf[];
+}
+
+function appendElseIfBlocks(options: AppendElseIfBlocksOptions): void {
+	for (const branch of options.branches) {
+		const header = `${options.context.currentIndent}} elseif (${formatInlineExpression(branch.cond)}) {`;
+		replaceTrailingLine(options.context.lines, header);
+		pushFormattedStatements(
+			options.context.lines,
+			branch.stmts,
+			options.context.indentLevel + 1,
+			options.context.indentUnit
+		);
+		options.context.lines.push(options.context.closingLine);
+	}
+}
+
+interface AppendElseBlockOptions {
+	readonly context: ConditionalFormattingContext;
+	readonly branch: PhpStmtElse | null;
+}
+
+function appendElseBlock(options: AppendElseBlockOptions): void {
+	if (!options.branch) {
+		return;
+	}
+
+	const header = `${options.context.currentIndent}} else {`;
+	replaceTrailingLine(options.context.lines, header);
+	pushFormattedStatements(
+		options.context.lines,
+		options.branch.stmts,
+		options.context.indentLevel + 1,
+		options.context.indentUnit
+	);
+	options.context.lines.push(options.context.closingLine);
+}
+
+interface AppendConditionalBodyOptions {
+	readonly context: ConditionalFormattingContext;
+	readonly header: string;
+	readonly statements: readonly PhpStmt[];
+}
+
+function appendConditionalBody(options: AppendConditionalBodyOptions): void {
+	options.context.lines.push(options.header);
+	pushFormattedStatements(
+		options.context.lines,
+		options.statements,
+		options.context.indentLevel + 1,
+		options.context.indentUnit
+	);
+	options.context.lines.push(options.context.closingLine);
+}
+
+function replaceTrailingLine(lines: string[], replacement: string): void {
+	lines[lines.length - 1] = replacement;
+}
+
+function pushFormattedStatements(
+	lines: string[],
+	statements: readonly PhpStmt[],
+	indentLevel: number,
+	indentUnit: string
+): void {
+	for (let index = 0; index < statements.length; index += 1) {
+		const child = statements[index]!;
+		const formatted = formatStatement(child, indentLevel, indentUnit);
 		lines.push(...formatted);
 
-		const next = statement.stmts[index + 1];
+		const next = statements[index + 1];
 		if (next !== undefined && shouldInsertBlankLineBetween(child, next)) {
 			lines.push('');
 		}
 	}
-
-	lines.push(`${currentIndent}}`);
-	return lines;
 }
 
 function formatForeachStatement(

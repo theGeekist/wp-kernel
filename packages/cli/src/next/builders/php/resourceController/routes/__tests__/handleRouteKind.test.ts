@@ -1,4 +1,3 @@
-import { PHP_INDENT, PhpMethodBodyBuilder } from '@wpkernel/php-json-ast';
 import type { ResourceMetadataHost } from '@wpkernel/php-json-ast';
 import type { IRResource } from '../../../../../../ir/types';
 import { handleRouteKind } from '../handleRouteKind';
@@ -12,6 +11,29 @@ function createMetadataHost(): ResourceMetadataHost {
 			routes: [],
 		}),
 		setMetadata: jest.fn(),
+	};
+}
+
+interface MethodBodyStub {
+	readonly line: (content?: string) => void;
+	readonly raw: (content: string) => void;
+	readonly blank: () => void;
+	readonly statement: (
+		printable: unknown,
+		options?: { applyIndent?: boolean }
+	) => void;
+	readonly toLines: () => string[];
+	readonly toStatements: () => unknown[];
+}
+
+function createMethodBodyStub(): MethodBodyStub {
+	return {
+		line: jest.fn(),
+		raw: jest.fn(),
+		blank: jest.fn(),
+		statement: jest.fn(),
+		toLines: jest.fn(() => []),
+		toStatements: jest.fn(() => []),
 	};
 }
 
@@ -40,7 +62,7 @@ function createResource(storage: IRResource['storage']): IRResource {
 describe('handleRouteKind', () => {
 	it('delegates to mutation builders for wp-post resources', () => {
 		const options = {
-			body: new PhpMethodBodyBuilder(PHP_INDENT, 1),
+			body: createMethodBodyStub(),
 			indentLevel: 1,
 			resource: createResource({
 				mode: 'wp-post',
@@ -64,7 +86,7 @@ describe('handleRouteKind', () => {
 
 	it('returns false for mutation kinds when storage is unsupported', () => {
 		const options = {
-			body: new PhpMethodBodyBuilder(PHP_INDENT, 1),
+			body: createMethodBodyStub(),
 			indentLevel: 1,
 			resource: createResource(undefined),
 			identity: { type: 'number', param: 'id' } as const,
@@ -87,7 +109,7 @@ describe('handleRouteKind', () => {
 
 	it('returns false for unsupported kinds', () => {
 		const options = {
-			body: new PhpMethodBodyBuilder(PHP_INDENT, 1),
+			body: createMethodBodyStub(),
 			indentLevel: 1,
 			resource: createResource(undefined),
 			identity: { type: 'number', param: 'id' } as const,
@@ -104,7 +126,7 @@ describe('handleRouteKind', () => {
 
 	it('delegates list/get routes for wp-taxonomy resources', () => {
 		const options = {
-			body: new PhpMethodBodyBuilder(PHP_INDENT, 1),
+			body: createMethodBodyStub(),
 			indentLevel: 1,
 			resource: createResource({
 				mode: 'wp-taxonomy',

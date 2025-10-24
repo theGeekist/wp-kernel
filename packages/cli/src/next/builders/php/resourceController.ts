@@ -16,6 +16,7 @@ import {
 	makeErrorCodeFactory,
 	buildExpressionStatement,
 	buildFuncCall,
+	buildComment,
 	buildIdentifier,
 	buildArray,
 	buildMethodCall,
@@ -28,6 +29,7 @@ import {
 	buildReturn,
 	buildScalarString,
 	buildStaticCall,
+	buildStmtNop,
 	buildVariable,
 	escapeSingleQuotes,
 	PHP_CLASS_MODIFIER_FINAL,
@@ -35,6 +37,7 @@ import {
 	PHP_METHOD_MODIFIER_PUBLIC,
 	toPascalCase,
 	type PhpAstBuilderAdapter,
+	type PhpMethodBodyBuilder,
 	type PhpMethodTemplate,
 	type PhpStmtIf,
 	type ResourceControllerRouteMetadata,
@@ -50,7 +53,6 @@ import {
 } from './resourceController/metadata';
 import { createRouteMethodName } from './resourceController/routeNaming';
 import { routeUsesIdentity } from './resourceController/routeIdentity';
-import { appendNotImplementedStub } from './resourceController/stubs';
 import { handleRouteKind } from './resourceController/routes/handleRouteKind';
 import { createWpTaxonomyHelperMethods } from './resource/wpTaxonomy';
 import { formatStatementPrintable } from './resource/printer';
@@ -409,13 +411,36 @@ function createRouteMethodTemplate(
 				return;
 			}
 
-			appendNotImplementedStub({
+			appendRouteTodoComment({
 				body,
-				indent,
+				indentLevel: indentLevel + 1,
 				route: options.route,
 			});
 		},
 	});
+}
+
+interface AppendRouteTodoCommentOptions {
+	readonly body: PhpMethodBodyBuilder;
+	readonly indentLevel: number;
+	readonly route: IRRoute;
+}
+
+function appendRouteTodoComment(options: AppendRouteTodoCommentOptions): void {
+	const todo = buildStmtNop({
+		comments: [
+			buildComment(
+				`// TODO: Implement handler for [${options.route.method}] ${options.route.path}.`
+			),
+		],
+	});
+
+	const printable = formatStatementPrintable(todo, {
+		indentLevel: options.indentLevel,
+		indentUnit: PHP_INDENT,
+	});
+
+	options.body.statement(printable);
 }
 
 function resolveCacheSegments(
