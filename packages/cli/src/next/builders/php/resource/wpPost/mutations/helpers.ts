@@ -57,9 +57,6 @@ export interface MutationHelperOptions {
 	readonly identity: ResolvedIdentity;
 }
 
-const BODY_INDENT_LEVEL = 2;
-const BODY_INDENT_UNIT = PHP_INDENT;
-
 export function syncWpPostMeta(
 	options: MutationHelperOptions
 ): PhpMethodTemplate {
@@ -569,8 +566,8 @@ function appendStatement<T extends PhpStmt>(
 ): void {
 	body.statement(
 		formatStatementPrintable(statement, {
-			indentLevel: BODY_INDENT_LEVEL,
-			indentUnit: BODY_INDENT_UNIT,
+			indentLevel: body.getIndentLevel(),
+			indentUnit: body.getIndentUnit(),
 		})
 	);
 }

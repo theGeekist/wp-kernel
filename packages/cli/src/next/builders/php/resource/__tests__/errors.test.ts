@@ -10,7 +10,7 @@ describe('resource error helpers', () => {
 		});
 
 		expect(printable.lines).toEqual([
-			"                return new WP_Error( 'demo_error', 'Demo message.', [ 'status' => 418 ] );",
+			"                return new WP_Error('demo_error', 'Demo message.', [ 'status' => 418 ]);",
 		]);
 	});
 });

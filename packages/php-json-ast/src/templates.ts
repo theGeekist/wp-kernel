@@ -52,6 +52,14 @@ export class PhpMethodBodyBuilder {
 		this.lines.push('');
 	}
 
+	public getIndentUnit(): string {
+		return this.indentUnit;
+	}
+
+	public getIndentLevel(): number {
+		return this.indentLevel;
+	}
+
 	public statement(
 		printable: PhpPrintable<PhpStmt>,
 		options: { applyIndent?: boolean } = {}
