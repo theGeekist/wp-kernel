@@ -19,8 +19,9 @@ import {
 	buildIdentityValidationStatements,
 	buildIfPrintable,
 	buildInstanceof,
-	createWpErrorReturn,
+	buildWpErrorReturn,
 	buildWpTaxonomyGetRouteBody,
+	printStatement,
 } from '../../resource';
 import { formatStatementPrintable } from '../../resource/printer';
 import type { ResolvedIdentity } from '../../identity';
@@ -109,12 +110,14 @@ export function buildGetRouteBody(options: BuildGetRouteBodyOptions): boolean {
 	);
 	options.body.statement(resolvePrintable);
 
-	const notFoundReturn = createWpErrorReturn({
-		indentLevel: indentLevel + 1,
-		code: options.errorCodeFactory('not_found'),
-		message: `${options.pascalName} not found.`,
-		status: 404,
-	});
+	const notFoundReturn = printStatement(
+		buildWpErrorReturn({
+			code: options.errorCodeFactory('not_found'),
+			message: `${options.pascalName} not found.`,
+			status: 404,
+		}),
+		{ indentLevel: indentLevel + 1, indentUnit: PHP_INDENT }
+	);
 
 	const notFoundIf = buildIfPrintable({
 		indentLevel,

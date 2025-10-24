@@ -1,20 +1,19 @@
-import { createWpErrorReturn } from '../errors';
+import { buildWpErrorReturn } from '../errors';
 
 describe('resource error helpers', () => {
 	it('renders a WP_Error return with status metadata', () => {
-		const printable = createWpErrorReturn({
-			indentLevel: 2,
+		const statement = buildWpErrorReturn({
 			code: 'demo_error',
 			message: 'Demo message.',
 			status: 418,
 		});
 
-		expect(printable.node).toMatchObject({
+		expect(statement).toMatchObject({
 			nodeType: 'Stmt_Return',
 			expr: { nodeType: 'Expr_New', class: { parts: ['WP_Error'] } },
 		});
 
-		const args = printable.node.expr?.args ?? [];
+		const args = statement.expr?.args ?? [];
 		expect(args).toEqual(
 			expect.arrayContaining([
 				expect.objectContaining({
