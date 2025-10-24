@@ -1,22 +1,21 @@
 import {
 	buildArg,
-	buildArray,
-	buildArrayItem,
 	buildAssign,
 	buildExpressionStatement,
 	buildFuncCall,
 	buildIdentifier,
+	buildIfStatement,
 	buildMethodCall,
 	buildName,
 	buildReturn,
 	buildScalarBool,
 	buildScalarInt,
-	buildScalarString,
 	buildVariable,
-	buildPrintable,
 	PHP_INDENT,
 	makeErrorCodeFactory,
+	type PhpStmt,
 } from '@wpkernel/php-json-ast';
+import { formatStatementPrintable } from '../../../printer';
 import {
 	appendCachePrimingMacro,
 	appendStatusValidationMacro,
@@ -25,7 +24,7 @@ import {
 	buildArrayDimExpression,
 	buildVariableExpression,
 } from '../macros';
-import { buildBinaryOperation, buildIfPrintable } from '../../../utils';
+import { buildArrayLiteral, buildBinaryOperation } from '../../../utils';
 import { createWpErrorReturn } from '../../../errors';
 import type { BuildCreateRouteBodyOptions } from './types';
 
@@ -37,11 +36,10 @@ export function buildCreateRouteBody(
 		return false;
 	}
 
-	const indentLevel = options.indentLevel;
-	const indent = PHP_INDENT.repeat(indentLevel);
 	const errorCodeFactory = makeErrorCodeFactory(options.resource.name);
 
-	const postTypePrintable = buildPrintable(
+	appendStatement(
+		options,
 		buildExpressionStatement(
 			buildAssign(
 				buildVariable('post_type'),
@@ -51,41 +49,36 @@ export function buildCreateRouteBody(
 					[]
 				)
 			)
-		),
-		[`${indent}$post_type = $this->get${options.pascalName}PostType();`]
+		)
 	);
-	options.body.statement(postTypePrintable);
 	options.body.blank();
 
-	const postDataPrintable = buildPrintable(
+	appendStatement(
+		options,
 		buildExpressionStatement(
 			buildAssign(
 				buildVariable('post_data'),
-				buildArray([
-					buildArrayItem(buildVariable('post_type'), {
-						key: buildScalarString('post_type'),
-					}),
+				buildArrayLiteral([
+					{
+						key: 'post_type',
+						value: buildVariable('post_type'),
+					},
 				])
 			)
-		),
-		[
-			`${indent}$post_data = array(`,
-			`${indent}${PHP_INDENT}'post_type' => $post_type,`,
-			`${indent});`,
-		]
+		)
 	);
-	options.body.statement(postDataPrintable);
 
 	appendStatusValidationMacro({
 		body: options.body,
-		indentLevel,
+		indentLevel: options.indentLevel,
 		metadataKeys: options.metadataKeys,
 		pascalName: options.pascalName,
 		target: buildArrayDimExpression('post_data', 'post_status'),
 	});
 	options.body.blank();
 
-	const insertPrintable = buildPrintable(
+	appendStatement(
+		options,
 		buildExpressionStatement(
 			buildAssign(
 				buildVariable('post_id'),
@@ -94,45 +87,42 @@ export function buildCreateRouteBody(
 					buildArg(buildScalarBool(true)),
 				])
 			)
-		),
-		[`${indent}$post_id = wp_insert_post( $post_data, true );`]
+		)
 	);
-	options.body.statement(insertPrintable);
 
-	const insertReturn = buildPrintable(buildReturn(buildVariable('post_id')), [
-		`${indent}${PHP_INDENT}return $post_id;`,
-	]);
-	const insertGuard = buildIfPrintable({
-		indentLevel,
-		condition: buildFuncCall(buildName(['is_wp_error']), [
-			buildArg(buildVariable('post_id')),
-		]),
-		statements: [insertReturn],
-	});
-	options.body.statement(insertGuard);
+	appendStatement(
+		options,
+		buildIfStatement(
+			buildFuncCall(buildName(['is_wp_error']), [
+				buildArg(buildVariable('post_id')),
+			]),
+			[buildReturn(buildVariable('post_id'))]
+		)
+	);
 
 	const insertFailedReturn = createWpErrorReturn({
-		indentLevel: indentLevel + 1,
+		indentLevel: options.indentLevel + 1,
 		code: errorCodeFactory('create_failed'),
 		message: `Unable to create ${options.pascalName}.`,
 		status: 500,
 	});
 
-	const insertFailureGuard = buildIfPrintable({
-		indentLevel,
-		condition: buildBinaryOperation(
-			'Identical',
-			buildScalarInt(0),
-			buildVariable('post_id')
-		),
-		statements: [insertFailedReturn],
-	});
-	options.body.statement(insertFailureGuard);
+	appendStatement(
+		options,
+		buildIfStatement(
+			buildBinaryOperation(
+				'Identical',
+				buildScalarInt(0),
+				buildVariable('post_id')
+			),
+			[insertFailedReturn.node]
+		)
+	);
 	options.body.blank();
 
 	appendSyncMetaMacro({
 		body: options.body,
-		indentLevel,
+		indentLevel: options.indentLevel,
 		metadataKeys: options.metadataKeys,
 		pascalName: options.pascalName,
 		postId: buildVariableExpression('post_id'),
@@ -140,7 +130,7 @@ export function buildCreateRouteBody(
 
 	appendSyncTaxonomiesMacro({
 		body: options.body,
-		indentLevel,
+		indentLevel: options.indentLevel,
 		metadataKeys: options.metadataKeys,
 		pascalName: options.pascalName,
 		postId: buildVariableExpression('post_id'),
@@ -149,7 +139,7 @@ export function buildCreateRouteBody(
 
 	appendCachePrimingMacro({
 		body: options.body,
-		indentLevel,
+		indentLevel: options.indentLevel,
 		metadataKeys: options.metadataKeys,
 		pascalName: options.pascalName,
 		postId: buildVariableExpression('post_id'),
@@ -158,4 +148,16 @@ export function buildCreateRouteBody(
 	});
 
 	return true;
+}
+
+function appendStatement(
+	options: BuildCreateRouteBodyOptions,
+	statement: PhpStmt
+): void {
+	options.body.statement(
+		formatStatementPrintable(statement, {
+			indentLevel: options.indentLevel,
+			indentUnit: PHP_INDENT,
+		})
+	);
 }

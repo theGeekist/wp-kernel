@@ -75,10 +75,7 @@ describe('wp-post mutation helpers', () => {
 			identity: IDENTITY,
 		});
 
-		const output = template.join('\n');
-
-		expect(output).toContain('unset( $post_id, $request );');
-		expect(output).toContain('return;');
+		expect(template.join('\n')).toMatchSnapshot('meta-empty-output');
 	});
 
 	it('sanitises meta payloads for all supported descriptor types', () => {
@@ -90,24 +87,7 @@ describe('wp-post mutation helpers', () => {
 			identity: IDENTITY,
 		});
 
-		const output = template.join('\n');
-
-		expect(output).toContain(
-			'$ratingMeta = is_numeric( $ratingMeta ) ? (int) $ratingMeta : 0;'
-		);
-		expect(output).toContain(
-			'$popularityMeta = is_numeric( $popularityMeta ) ? (float) $popularityMeta : 0.0;'
-		);
-		expect(output).toContain(
-			'$featuredMeta = rest_sanitize_boolean( $featuredMeta );'
-		);
-		expect(output).toContain('if ( ! is_array( $authorMeta ) ) {');
-		expect(output).toContain(
-			'$tagsMeta = array_values( (array) $tagsMeta );'
-		);
-		expect(output).toContain(
-			'$metadataMeta = is_array( $metadataMeta ) ? $metadataMeta : array();'
-		);
+		expect(template.join('\n')).toMatchSnapshot('meta-sanitizers-output');
 	});
 
 	it('wraps taxonomy assignments with result checks', () => {
@@ -119,13 +99,7 @@ describe('wp-post mutation helpers', () => {
 			identity: IDENTITY,
 		});
 
-		const output = template.join('\n');
-
-		expect(output).toContain('$result = true;');
-		expect(output).toContain('if ( ! is_array( $genresTerms ) ) {');
-		expect(output).toContain('$result = wp_set_object_terms(');
-		expect(output).toContain('if ( is_wp_error( $result ) ) {');
-		expect(output).toContain('return $result;');
+		expect(template.join('\n')).toMatchSnapshot('taxonomy-sync-output');
 	});
 
 	it('returns early when no taxonomies are configured', () => {
@@ -137,10 +111,7 @@ describe('wp-post mutation helpers', () => {
 			identity: IDENTITY,
 		});
 
-		const output = template.join('\n');
-
-		expect(output).toContain('unset( $post_id, $request );');
-		expect(output).toContain('return true;');
+		expect(template.join('\n')).toMatchSnapshot('taxonomy-empty-output');
 	});
 
 	it('prepares mutation responses with supports, meta, and taxonomies', () => {
@@ -152,28 +123,7 @@ describe('wp-post mutation helpers', () => {
 			identity: IDENTITY,
 		});
 
-		const output = template.join('\n');
-
-		expect(output).toContain("'id' => (int) $post->ID");
-		expect(output).toContain("'slug' => (string) $post->post_name");
-		expect(output).toContain(
-			"$data['title'] = (string) $post->post_title;"
-		);
-		expect(output).toContain(
-			"$data['content'] = (string) $post->post_content;"
-		);
-		expect(output).toContain(
-			"$data['excerpt'] = (string) $post->post_excerpt;"
-		);
-		expect(output).toContain(
-			"$ratingMeta = get_post_meta( $post->ID, 'rating', true );"
-		);
-		expect(output).toContain("$data['rating'] = $ratingMeta;");
-		expect(output).toContain(
-			"$genresTerms = wp_get_object_terms( $post->ID, 'book_genre', array( 'fields' => 'ids' ) );"
-		);
-		expect(output).toContain('if ( is_wp_error( $genresTerms ) ) {');
-		expect(output).toContain("$data['genres'] = $genresTerms;");
+		expect(template.join('\n')).toMatchSnapshot('prepare-response-output');
 	});
 
 	it('omits slug and support-specific fields when not configured', () => {

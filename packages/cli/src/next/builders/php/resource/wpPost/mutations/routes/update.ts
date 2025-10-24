@@ -1,11 +1,10 @@
 import {
 	buildArg,
-	buildArray,
-	buildArrayItem,
 	buildAssign,
 	buildExpressionStatement,
 	buildFuncCall,
 	buildIdentifier,
+	buildIfStatement,
 	buildMethodCall,
 	buildName,
 	buildReturn,
@@ -13,10 +12,11 @@ import {
 	buildScalarInt,
 	buildScalarString,
 	buildVariable,
-	buildPrintable,
 	PHP_INDENT,
 	makeErrorCodeFactory,
+	type PhpStmt,
 } from '@wpkernel/php-json-ast';
+import { formatStatementPrintable } from '../../../printer';
 import { createIdentityValidationPrintables } from '../../identity';
 import {
 	appendCachePrimingMacro,
@@ -28,9 +28,9 @@ import {
 	buildVariableExpression,
 } from '../macros';
 import {
+	buildArrayLiteral,
 	buildBinaryOperation,
 	buildBooleanNot,
-	buildIfPrintable,
 	buildInstanceof,
 	buildPropertyFetch,
 } from '../../../utils';
@@ -45,12 +45,11 @@ export function buildUpdateRouteBody(
 		return false;
 	}
 
-	const indentLevel = options.indentLevel;
-	const indent = PHP_INDENT.repeat(indentLevel);
 	const identityVar = options.identity.param;
 	const errorCodeFactory = makeErrorCodeFactory(options.resource.name);
 
-	const identityPrintable = buildPrintable(
+	appendStatement(
+		options,
 		buildExpressionStatement(
 			buildAssign(
 				buildVariable(identityVar),
@@ -60,14 +59,12 @@ export function buildUpdateRouteBody(
 					[buildArg(buildScalarString(identityVar))]
 				)
 			)
-		),
-		[`${indent}$${identityVar} = $request->get_param( '${identityVar}' );`]
+		)
 	);
-	options.body.statement(identityPrintable);
 
 	const validationStatements = createIdentityValidationPrintables({
 		identity: options.identity,
-		indentLevel,
+		indentLevel: options.indentLevel,
 		pascalName: options.pascalName,
 		errorCodeFactory,
 	});
@@ -80,7 +77,8 @@ export function buildUpdateRouteBody(
 		options.body.blank();
 	}
 
-	const resolvePrintable = buildPrintable(
+	appendStatement(
+		options,
 		buildExpressionStatement(
 			buildAssign(
 				buildVariable('post'),
@@ -90,59 +88,50 @@ export function buildUpdateRouteBody(
 					[buildArg(buildVariable(identityVar))]
 				)
 			)
-		),
-		[
-			`${indent}$post = $this->resolve${options.pascalName}Post( $${identityVar} );`,
-		]
+		)
 	);
-	options.body.statement(resolvePrintable);
 
 	const notFoundReturn = createWpErrorReturn({
-		indentLevel: indentLevel + 1,
+		indentLevel: options.indentLevel + 1,
 		code: errorCodeFactory('not_found'),
 		message: `${options.pascalName} not found.`,
 		status: 404,
 	});
 
-	const notFoundGuard = buildIfPrintable({
-		indentLevel,
-		condition: buildBooleanNot(buildInstanceof('post', 'WP_Post')),
-		statements: [notFoundReturn],
-	});
-	options.body.statement(notFoundGuard);
+	appendStatement(
+		options,
+		buildIfStatement(buildBooleanNot(buildInstanceof('post', 'WP_Post')), [
+			notFoundReturn.node,
+		])
+	);
 	options.body.blank();
 
-	const postDataPrintable = buildPrintable(
+	appendStatement(
+		options,
 		buildExpressionStatement(
 			buildAssign(
 				buildVariable('post_data'),
-				buildArray([
-					buildArrayItem(buildPropertyFetch('post', 'ID'), {
-						key: buildScalarString('ID'),
-					}),
-					buildArrayItem(
-						buildMethodCall(
+				buildArrayLiteral([
+					{
+						key: 'ID',
+						value: buildPropertyFetch('post', 'ID'),
+					},
+					{
+						key: 'post_type',
+						value: buildMethodCall(
 							buildVariable('this'),
 							buildIdentifier(`get${options.pascalName}PostType`),
 							[]
 						),
-						{ key: buildScalarString('post_type') }
-					),
+					},
 				])
 			)
-		),
-		[
-			`${indent}$post_data = array(`,
-			`${indent}${PHP_INDENT}'ID' => $post->ID,`,
-			`${indent}${PHP_INDENT}'post_type' => $this->get${options.pascalName}PostType(),`,
-			`${indent});`,
-		]
+		)
 	);
-	options.body.statement(postDataPrintable);
 
 	appendStatusValidationMacro({
 		body: options.body,
-		indentLevel,
+		indentLevel: options.indentLevel,
 		metadataKeys: options.metadataKeys,
 		pascalName: options.pascalName,
 		target: buildArrayDimExpression('post_data', 'post_status'),
@@ -150,7 +139,8 @@ export function buildUpdateRouteBody(
 	});
 	options.body.blank();
 
-	const updatePrintable = buildPrintable(
+	appendStatement(
+		options,
 		buildExpressionStatement(
 			buildAssign(
 				buildVariable('result'),
@@ -159,45 +149,42 @@ export function buildUpdateRouteBody(
 					buildArg(buildScalarBool(true)),
 				])
 			)
-		),
-		[`${indent}$result = wp_update_post( $post_data, true );`]
+		)
 	);
-	options.body.statement(updatePrintable);
 
-	const resultReturn = buildPrintable(buildReturn(buildVariable('result')), [
-		`${indent}${PHP_INDENT}return $result;`,
-	]);
-	const resultGuard = buildIfPrintable({
-		indentLevel,
-		condition: buildFuncCall(buildName(['is_wp_error']), [
-			buildArg(buildVariable('result')),
-		]),
-		statements: [resultReturn],
-	});
-	options.body.statement(resultGuard);
+	appendStatement(
+		options,
+		buildIfStatement(
+			buildFuncCall(buildName(['is_wp_error']), [
+				buildArg(buildVariable('result')),
+			]),
+			[buildReturn(buildVariable('result'))]
+		)
+	);
 
 	const updateFailedReturn = createWpErrorReturn({
-		indentLevel: indentLevel + 1,
+		indentLevel: options.indentLevel + 1,
 		code: errorCodeFactory('update_failed'),
 		message: `Unable to update ${options.pascalName}.`,
 		status: 500,
 	});
 
-	const updateFailureGuard = buildIfPrintable({
-		indentLevel,
-		condition: buildBinaryOperation(
-			'Identical',
-			buildScalarInt(0),
-			buildVariable('result')
-		),
-		statements: [updateFailedReturn],
-	});
-	options.body.statement(updateFailureGuard);
+	appendStatement(
+		options,
+		buildIfStatement(
+			buildBinaryOperation(
+				'Identical',
+				buildScalarInt(0),
+				buildVariable('result')
+			),
+			[updateFailedReturn.node]
+		)
+	);
 	options.body.blank();
 
 	appendSyncMetaMacro({
 		body: options.body,
-		indentLevel,
+		indentLevel: options.indentLevel,
 		metadataKeys: options.metadataKeys,
 		pascalName: options.pascalName,
 		postId: buildPropertyExpression('post', 'ID'),
@@ -205,7 +192,7 @@ export function buildUpdateRouteBody(
 
 	appendSyncTaxonomiesMacro({
 		body: options.body,
-		indentLevel,
+		indentLevel: options.indentLevel,
 		metadataKeys: options.metadataKeys,
 		pascalName: options.pascalName,
 		postId: buildPropertyExpression('post', 'ID'),
@@ -214,7 +201,7 @@ export function buildUpdateRouteBody(
 
 	appendCachePrimingMacro({
 		body: options.body,
-		indentLevel,
+		indentLevel: options.indentLevel,
 		metadataKeys: options.metadataKeys,
 		pascalName: options.pascalName,
 		postId: buildPropertyExpression('post', 'ID'),
@@ -224,4 +211,16 @@ export function buildUpdateRouteBody(
 	});
 
 	return true;
+}
+
+function appendStatement(
+	options: BuildUpdateRouteBodyOptions,
+	statement: PhpStmt
+): void {
+	options.body.statement(
+		formatStatementPrintable(statement, {
+			indentLevel: options.indentLevel,
+			indentUnit: PHP_INDENT,
+		})
+	);
 }

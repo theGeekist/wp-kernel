@@ -201,6 +201,18 @@ const INLINE_FORMATTERS: Partial<Record<ExprNodeType, InlineFormatter>> = {
 	Expr_Cast_Array: (expr) =>
 		formatCastExpression(expr as ExtractExpr<'Expr_Cast_Array'>),
 	Expr_Array: (expr) => formatInlineArray(expr as ExtractExpr<'Expr_Array'>),
+	Expr_Ternary: (expr) => {
+		const ternary = expr as ExtractExpr<'Expr_Ternary'>;
+		const condition = formatInlineExpression(ternary.cond);
+		const trueBranch = ternary.if ? formatInlineExpression(ternary.if) : '';
+		const falseBranch = formatInlineExpression(ternary.else);
+
+		if (ternary.if) {
+			return `${condition} ? ${trueBranch} : ${falseBranch}`;
+		}
+
+		return `${condition} ?: ${falseBranch}`;
+	},
 	Expr_BooleanNot: (expr) => {
 		const booleanNot = expr as ExtractExpr<'Expr_BooleanNot'>;
 		const value = formatInlineExpression(booleanNot.expr);
@@ -295,6 +307,12 @@ export function formatStatement(
 				indentLevel,
 				indentUnit
 			);
+		case 'Stmt_Nop':
+			return formatNopStatement(
+				statement as Extract<PhpStmt, { nodeType: 'Stmt_Nop' }>,
+				indentLevel,
+				indentUnit
+			);
 		case 'Stmt_Foreach':
 			return formatForeachStatement(
 				statement as Extract<PhpStmt, { nodeType: 'Stmt_Foreach' }>,
@@ -332,6 +350,14 @@ export function formatExpression(
 	if (expression.nodeType === 'Expr_Array') {
 		return formatArrayExpression(
 			expression as ExtractExpr<'Expr_Array'>,
+			indentLevel,
+			indentUnit
+		);
+	}
+
+	if (expression.nodeType === 'Expr_Ternary') {
+		return formatTernaryExpression(
+			expression as ExtractExpr<'Expr_Ternary'>,
 			indentLevel,
 			indentUnit
 		);
@@ -432,6 +458,20 @@ function appendIfBranchStatements(
 	}
 }
 
+function formatNopStatement(
+	statement: Extract<PhpStmt, { nodeType: 'Stmt_Nop' }>,
+	indentLevel: number,
+	indentUnit: string
+): string[] {
+	const comments = extractCommentTexts(statement);
+	if (comments.length === 0) {
+		return [`${indent(indentLevel, indentUnit)};`];
+	}
+
+	const currentIndent = indent(indentLevel, indentUnit);
+	return comments.map((comment) => `${currentIndent}${comment}`);
+}
+
 function formatForeachStatement(
 	statement: Extract<PhpStmt, { nodeType: 'Stmt_Foreach' }>,
 	indentLevel: number,
@@ -505,6 +545,25 @@ function formatArrayExpression(
 
 	lines.push(`${indent(indentLevel, indentUnit)}]`);
 	return lines;
+}
+
+function formatTernaryExpression(
+	expression: ExtractExpr<'Expr_Ternary'>,
+	indentLevel: number,
+	indentUnit: string
+): string[] {
+	const baseIndent = indent(indentLevel, indentUnit);
+	const condition = formatInlineExpression(expression.cond);
+	const trueBranch = expression.if
+		? formatInlineExpression(expression.if)
+		: '';
+	const falseBranch = formatInlineExpression(expression.else);
+
+	if (expression.if) {
+		return [`${baseIndent}${condition} ? ${trueBranch} : ${falseBranch}`];
+	}
+
+	return [`${baseIndent}${condition} ?: ${falseBranch}`];
 }
 
 function formatArrayItem(
@@ -745,6 +804,22 @@ function indent(level: number, unit: string): string {
 	}
 
 	return unit.repeat(level);
+}
+
+function extractCommentTexts(statement: PhpStmt): string[] {
+	const attributes = statement.attributes as {
+		readonly comments?: ReadonlyArray<{ readonly text?: string }>;
+	};
+
+	if (!attributes?.comments || attributes.comments.length === 0) {
+		return [];
+	}
+
+	return attributes.comments
+		.map((comment) =>
+			typeof comment.text === 'string' ? comment.text : undefined
+		)
+		.filter((comment): comment is string => Boolean(comment));
 }
 
 function stripIndent(value: string, prefix: string): string {

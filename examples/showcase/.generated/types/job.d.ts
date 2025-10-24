@@ -6,12 +6,12 @@
  */
 
 export interface JobResource {
-	apply_deadline?: string;
-	department?: string;
-	job_type?: string;
-	location?: string;
-	remote_policy?: string;
-	salary_max?: number;
-	salary_min?: number;
-	seniority?: string;
+  apply_deadline?: string;
+  department?: string;
+  job_type?: string;
+  location?: string;
+  remote_policy?: string;
+  salary_max?: number;
+  salary_min?: number;
+  seniority?: string;
 }

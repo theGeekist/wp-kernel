@@ -32,9 +32,9 @@ exports[`wp-post mutation macros appends status validation without guard: status
   },
   {
     "attributes": {
-      "endFilePos": 455,
+      "endFilePos": 451,
       "endLine": 18,
-      "endTokenPos": 455,
+      "endTokenPos": 451,
       "startFilePos": 33,
       "startLine": 5,
       "startTokenPos": 33,
@@ -69,9 +69,9 @@ exports[`wp-post mutation macros appends status validation without guard: status
       {
         "attrGroups": [],
         "attributes": {
-          "endFilePos": 439,
+          "endFilePos": 435,
           "endLine": 17,
-          "endTokenPos": 439,
+          "endTokenPos": 435,
           "startFilePos": 73,
           "startLine": 8,
           "startTokenPos": 73,
@@ -217,17 +217,32 @@ exports[`wp-post mutation macros appends status validation without guard: status
               "text": "// WPK:END AUTO",
             },
           ],
-          "endFilePos": 455,
+          "endFilePos": 451,
           "endLine": 18,
-          "endTokenPos": 455,
-          "startFilePos": 440,
+          "endTokenPos": 451,
+          "startFilePos": 436,
           "startLine": 18,
-          "startTokenPos": 440,
+          "startTokenPos": 436,
         },
         "nodeType": "Stmt_Nop",
       },
     ],
   },
+]
+`;
+
+exports[`wp-post mutation macros appends status validation without guard: status-validation-statements 1`] = `
+[
+  "class MacroHarness",
+  "{",
+  "        public function invoke( WP_REST_Request $request ): void",
+  "        {",
+  "                // @wp-kernel resource.wpPost.mutation status-validation",
+  "                // @wp-kernel mutation:status normalise",
+  "                $status = $request->get_param('status');",
+  "                $post_status = $this->normaliseBooksStatus($status);",
+  "        }",
+  "}",
 ]
 `;
 
@@ -263,9 +278,9 @@ exports[`wp-post mutation macros guards status validation when null checks are e
   },
   {
     "attributes": {
-      "endFilePos": 532,
+      "endFilePos": 530,
       "endLine": 20,
-      "endTokenPos": 532,
+      "endTokenPos": 530,
       "startFilePos": 33,
       "startLine": 5,
       "startTokenPos": 33,
@@ -300,9 +315,9 @@ exports[`wp-post mutation macros guards status validation when null checks are e
       {
         "attrGroups": [],
         "attributes": {
-          "endFilePos": 516,
+          "endFilePos": 514,
           "endLine": 19,
-          "endTokenPos": 516,
+          "endTokenPos": 514,
           "startFilePos": 73,
           "startLine": 8,
           "startTokenPos": 73,
@@ -485,17 +500,34 @@ exports[`wp-post mutation macros guards status validation when null checks are e
               "text": "// WPK:END AUTO",
             },
           ],
-          "endFilePos": 532,
+          "endFilePos": 530,
           "endLine": 20,
-          "endTokenPos": 532,
-          "startFilePos": 517,
+          "endTokenPos": 530,
+          "startFilePos": 515,
           "startLine": 20,
-          "startTokenPos": 517,
+          "startTokenPos": 515,
         },
         "nodeType": "Stmt_Nop",
       },
     ],
   },
+]
+`;
+
+exports[`wp-post mutation macros guards status validation when null checks are enabled: status-validation-guarded-statements 1`] = `
+[
+  "class MacroHarness",
+  "{",
+  "        public function invoke( WP_REST_Request $request ): void",
+  "        {",
+  "                // @wp-kernel resource.wpPost.mutation status-validation",
+  "                // @wp-kernel mutation:status normalise",
+  "                $status = $request->get_param('status');",
+  "                if (null !== $status) {",
+  "                        $post_data['post_status'] = $this->normaliseBooksStatus($status);",
+  "                }",
+  "        }",
+  "}",
 ]
 `;
 
@@ -531,9 +563,9 @@ exports[`wp-post mutation macros primes cache after mutations: cache-priming-mac
   },
   {
     "attributes": {
-      "endFilePos": 673,
+      "endFilePos": 669,
       "endLine": 22,
-      "endTokenPos": 673,
+      "endTokenPos": 669,
       "startFilePos": 33,
       "startLine": 5,
       "startTokenPos": 33,
@@ -568,9 +600,9 @@ exports[`wp-post mutation macros primes cache after mutations: cache-priming-mac
       {
         "attrGroups": [],
         "attributes": {
-          "endFilePos": 657,
+          "endFilePos": 653,
           "endLine": 21,
-          "endTokenPos": 657,
+          "endTokenPos": 653,
           "startFilePos": 73,
           "startLine": 8,
           "startTokenPos": 73,
@@ -825,17 +857,36 @@ exports[`wp-post mutation macros primes cache after mutations: cache-priming-mac
               "text": "// WPK:END AUTO",
             },
           ],
-          "endFilePos": 673,
+          "endFilePos": 669,
           "endLine": 22,
-          "endTokenPos": 673,
-          "startFilePos": 658,
+          "endTokenPos": 669,
+          "startFilePos": 654,
           "startLine": 22,
-          "startTokenPos": 658,
+          "startTokenPos": 654,
         },
         "nodeType": "Stmt_Nop",
       },
     ],
   },
+]
+`;
+
+exports[`wp-post mutation macros primes cache after mutations: cache-priming-statements 1`] = `
+[
+  "class MacroHarness",
+  "{",
+  "        public function invoke( WP_REST_Request $request ): void",
+  "        {",
+  "                // @wp-kernel resource.wpPost.mutation cache-priming",
+  "                // @wp-kernel mutation:cache prime",
+  "                // @wp-kernel cache:wp-post prime",
+  "                $post = get_post($post_id);",
+  "                if (!$post instanceof WP_Post) {",
+  "                        return new WP_Error('wpk_books_load_failed', 'Unable to load created Book.', [ 'status' => 500 ]);",
+  "                }",
+  "                return $this->prepareBooksResponse($post, $request);",
+  "        }",
+  "}",
 ]
 `;
 
@@ -871,9 +922,9 @@ exports[`wp-post mutation macros syncs meta and taxonomies with metadata comment
   },
   {
     "attributes": {
-      "endFilePos": 705,
+      "endFilePos": 701,
       "endLine": 23,
-      "endTokenPos": 705,
+      "endTokenPos": 701,
       "startFilePos": 33,
       "startLine": 5,
       "startTokenPos": 33,
@@ -908,9 +959,9 @@ exports[`wp-post mutation macros syncs meta and taxonomies with metadata comment
       {
         "attrGroups": [],
         "attributes": {
-          "endFilePos": 689,
+          "endFilePos": 685,
           "endLine": 22,
-          "endTokenPos": 689,
+          "endTokenPos": 685,
           "startFilePos": 73,
           "startLine": 8,
           "startTokenPos": 73,
@@ -1135,16 +1186,36 @@ exports[`wp-post mutation macros syncs meta and taxonomies with metadata comment
               "text": "// WPK:END AUTO",
             },
           ],
-          "endFilePos": 705,
+          "endFilePos": 701,
           "endLine": 23,
-          "endTokenPos": 705,
-          "startFilePos": 690,
+          "endTokenPos": 701,
+          "startFilePos": 686,
           "startLine": 23,
-          "startTokenPos": 690,
+          "startTokenPos": 686,
         },
         "nodeType": "Stmt_Nop",
       },
     ],
   },
+]
+`;
+
+exports[`wp-post mutation macros syncs meta and taxonomies with metadata comments: sync-mutations-statements 1`] = `
+[
+  "class MacroHarness",
+  "{",
+  "        public function invoke( WP_REST_Request $request ): void",
+  "        {",
+  "                // @wp-kernel resource.wpPost.mutation sync-meta",
+  "                // @wp-kernel mutation:meta update",
+  "                $this->syncBooksMeta($post_id, $request);",
+  "                // @wp-kernel resource.wpPost.mutation sync-taxonomies",
+  "                // @wp-kernel mutation:taxonomies update",
+  "                $taxonomy_result = $this->syncBooksTaxonomies($post_id, $request);",
+  "                if (is_wp_error($taxonomy_result)) {",
+  "                        return $taxonomy_result;",
+  "                }",
+  "        }",
+  "}",
 ]
 `;
