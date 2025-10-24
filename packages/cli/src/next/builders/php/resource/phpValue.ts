@@ -1,15 +1,9 @@
 import {
+	buildPhpExpressionPrintable,
 	buildVariable,
 	type PhpExpr,
-	buildPrintable,
-	type PhpPrintable,
-	PHP_INDENT,
-	buildPhpExpressionPrintable,
 } from '@wpkernel/php-json-ast';
 import { normaliseVariableReference } from './utils';
-import { formatExpression } from './printer';
-
-type PhpPrintableExpr = PhpPrintable<PhpExpr>;
 
 export interface VariableValueDescriptor {
 	readonly kind: 'variable';
@@ -18,7 +12,7 @@ export interface VariableValueDescriptor {
 
 export interface ExpressionValueDescriptor {
 	readonly kind: 'expression';
-	readonly printable: PhpPrintableExpr;
+	readonly expr: PhpExpr;
 }
 
 export type StructuredPhpValue =
@@ -38,26 +32,21 @@ export function variable(name: string): VariableValueDescriptor {
 	return { kind: 'variable', name };
 }
 
-export function expression(
-	printable: PhpPrintableExpr
-): ExpressionValueDescriptor {
-	return { kind: 'expression', printable };
+export function expression(expr: PhpExpr): ExpressionValueDescriptor {
+	return { kind: 'expression', expr };
 }
 
-export function renderPhpValue(
-	value: PhpValueDescriptor,
-	indentLevel: number
-): PhpPrintableExpr {
+export function renderPhpValue(value: PhpValueDescriptor): PhpExpr {
 	if (isVariableDescriptor(value)) {
-		return renderVariable(value, indentLevel);
+		return renderVariable(value);
 	}
 
 	if (isExpressionDescriptor(value)) {
-		return renderExpression(value, indentLevel);
+		return renderExpression(value);
 	}
 
 	const printable = buildPhpExpressionPrintable(value, 0);
-	return renderPrintableExpression(printable.node, indentLevel);
+	return printable.node;
 }
 
 function isVariableDescriptor(
@@ -82,26 +71,11 @@ function isExpressionDescriptor(
 	);
 }
 
-function renderVariable(
-	descriptor: VariableValueDescriptor,
-	indentLevel: number
-): PhpPrintableExpr {
+function renderVariable(descriptor: VariableValueDescriptor): PhpExpr {
 	const reference = normaliseVariableReference(descriptor.name);
-	const variableExpression = buildVariable(reference.raw);
-	return renderPrintableExpression(variableExpression, indentLevel);
+	return buildVariable(reference.raw);
 }
 
-function renderExpression(
-	descriptor: ExpressionValueDescriptor,
-	indentLevel: number
-): PhpPrintableExpr {
-	return renderPrintableExpression(descriptor.printable.node, indentLevel);
-}
-
-function renderPrintableExpression(
-	expr: PhpExpr,
-	indentLevel: number
-): PhpPrintableExpr {
-	const lines = formatExpression(expr, indentLevel, PHP_INDENT);
-	return buildPrintable(expr, lines);
+function renderExpression(descriptor: ExpressionValueDescriptor): PhpExpr {
+	return descriptor.expr;
 }

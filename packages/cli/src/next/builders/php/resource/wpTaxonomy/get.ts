@@ -20,7 +20,8 @@ import {
 } from '@wpkernel/php-json-ast';
 import { appendResourceCacheEvent } from '../cache';
 import { createWpErrorReturn } from '../errors';
-import { buildInstanceof, buildBooleanNot, buildIfPrintable } from '../utils';
+import { buildInstanceof, buildBooleanNot } from '../utils';
+import { buildIfPrintable } from '../printable';
 import type { IRResource } from '../../../../../ir/types';
 import type { ResolvedIdentity } from '../../identity';
 import { formatStatementPrintable } from '../printer';

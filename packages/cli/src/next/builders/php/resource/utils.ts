@@ -1,35 +1,31 @@
 import { KernelError } from '@wpkernel/core/contracts';
 import {
 	buildArray,
+	buildArrayCast,
 	buildArrayDimFetch as buildArrayDimFetchNode,
 	buildArrayItem,
 	buildAssign,
 	buildBooleanNot as buildBooleanNotExpr,
+	buildExpressionStatement,
 	buildIdentifier,
 	buildIfStatement,
 	buildInstanceof as buildInstanceofExpr,
 	buildName,
 	buildNode,
-	buildExpressionStatement,
-	buildReturn,
 	buildPropertyFetch as buildPropertyFetchNode,
+	buildReturn,
 	buildScalarCast as buildScalarCastNode,
-	buildArrayCast,
 	buildScalarString,
 	buildVariable,
-	PHP_INDENT,
 	type PhpExpr,
 	type PhpExprBinaryOp,
 	type PhpExprBooleanNot,
 	type PhpStmt,
 	type PhpStmtExpression,
-	type PhpStmtIf,
 	type PhpStmtForeach,
+	type PhpStmtIf,
 	type PhpStmtReturn,
-	// buildPrintable,
-	type PhpPrintable,
 } from '@wpkernel/php-json-ast';
-import { formatStatementPrintable } from './printer';
 
 export interface NormalisedVariableReference {
 	readonly raw: string;
@@ -98,31 +94,13 @@ export function buildBinaryOperation(
 	return buildNode<PhpExprBinaryOp>(nodeType, { left, right });
 }
 
-export interface IfPrintableOptions {
-	readonly indentLevel: number;
+export interface IfStatementOptions {
 	readonly condition: PhpExpr;
-	readonly statements: readonly PhpPrintable<PhpStmt>[];
+	readonly statements: readonly PhpStmt[];
 }
 
-export function printStatement<T extends PhpStmt>(
-	statement: T,
-	indentLevel: number,
-	indentUnit: string = PHP_INDENT
-): PhpPrintable<T> {
-	return formatStatementPrintable(statement, {
-		indentLevel,
-		indentUnit,
-	});
-}
-
-export function buildIfPrintable(
-	options: IfPrintableOptions
-): PhpPrintable<PhpStmtIf> {
-	const stmts: PhpStmt[] = options.statements.map(
-		(statement) => statement.node
-	);
-	const node = buildIfStatement(options.condition, stmts);
-	return printStatement(node, options.indentLevel);
+export function buildIfStatementNode(options: IfStatementOptions): PhpStmtIf {
+	return buildIfStatement(options.condition, [...options.statements]);
 }
 
 export function buildArrayDimFetch(
@@ -166,20 +144,17 @@ export function buildVariableAssignment(
 
 // ─────────────────────────────────────────────
 
-export interface ArrayInitialiserOptions {
+export interface ArrayInitialiserStatementOptions {
 	readonly variable: string;
-	readonly indentLevel: number;
 }
 
-export function buildArrayInitialiser(
-	options: ArrayInitialiserOptions
-): PhpPrintable<PhpStmt> {
-	const statement = buildVariableAssignment(
+export function buildArrayInitialiserStatement(
+	options: ArrayInitialiserStatementOptions
+): PhpStmtExpression {
+	return buildVariableAssignment(
 		normaliseVariableReference(options.variable),
 		buildArray([])
 	);
-
-	return printStatement(statement, options.indentLevel);
 }
 
 export interface ArrayLiteralEntry {
