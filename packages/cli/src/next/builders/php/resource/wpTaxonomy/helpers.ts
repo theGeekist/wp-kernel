@@ -37,8 +37,8 @@ import {
 	buildPropertyFetch,
 	buildScalarCast,
 } from '../utils';
-import { buildIfPrintable } from '../printable';
-import { createWpErrorReturn } from '../errors';
+import { buildIfPrintable, printStatement } from '../printable';
+import { buildWpErrorReturn } from '../errors';
 import { formatStatementPrintable } from '../printer';
 
 type WpTaxonomyStorage = Extract<
@@ -328,12 +328,17 @@ function createValidateIdentityHelper(
 		indentLevel,
 		indentUnit: PHP_INDENT,
 		body: (body) => {
-			const missingReturn = createWpErrorReturn({
-				indentLevel: statementIndent + 1,
-				code: errorCodeFactory('missing_identifier'),
-				message: `Missing identifier for ${pascalName}.`,
-				status: 400,
-			});
+			const missingReturn = printStatement(
+				buildWpErrorReturn({
+					code: errorCodeFactory('missing_identifier'),
+					message: `Missing identifier for ${pascalName}.`,
+					status: 400,
+				}),
+				{
+					indentLevel: statementIndent + 1,
+					indentUnit: PHP_INDENT,
+				}
+			);
 
 			body.statement(
 				buildIfPrintable({
@@ -348,12 +353,17 @@ function createValidateIdentityHelper(
 			);
 
 			if (identity.type === 'number') {
-				const invalidReturn = createWpErrorReturn({
-					indentLevel: statementIndent + 1,
-					code: errorCodeFactory('invalid_identifier'),
-					message: `Invalid identifier for ${pascalName}.`,
-					status: 400,
-				});
+				const invalidReturn = printStatement(
+					buildWpErrorReturn({
+						code: errorCodeFactory('invalid_identifier'),
+						message: `Invalid identifier for ${pascalName}.`,
+						status: 400,
+					}),
+					{
+						indentLevel: statementIndent + 1,
+						indentUnit: PHP_INDENT,
+					}
+				);
 
 				body.statement(
 					buildIfPrintable({

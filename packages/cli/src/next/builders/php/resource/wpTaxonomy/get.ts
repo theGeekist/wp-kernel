@@ -19,9 +19,9 @@ import {
 	PHP_INDENT,
 } from '@wpkernel/php-json-ast';
 import { appendResourceCacheEvent } from '../cache';
-import { createWpErrorReturn } from '../errors';
+import { buildWpErrorReturn } from '../errors';
 import { buildInstanceof, buildBooleanNot } from '../utils';
-import { buildIfPrintable } from '../printable';
+import { buildIfPrintable, printStatement } from '../printable';
 import type { IRResource } from '../../../../../ir/types';
 import type { ResolvedIdentity } from '../../identity';
 import { formatStatementPrintable } from '../printer';
@@ -111,12 +111,14 @@ export function buildWpTaxonomyGetRouteBody(
 		)
 	);
 
-	const notFoundReturn = createWpErrorReturn({
-		indentLevel: indentLevel + 1,
-		code: options.errorCodeFactory('not_found'),
-		message: `Unable to locate ${options.pascalName} term.`,
-		status: 404,
-	});
+	const notFoundReturn = printStatement(
+		buildWpErrorReturn({
+			code: options.errorCodeFactory('not_found'),
+			message: `Unable to locate ${options.pascalName} term.`,
+			status: 404,
+		}),
+		{ indentLevel: indentLevel + 1, indentUnit: PHP_INDENT }
+	);
 
 	const guard = buildIfPrintable({
 		indentLevel,

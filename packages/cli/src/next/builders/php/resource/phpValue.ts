@@ -1,8 +1,15 @@
 import {
-	buildPhpExpressionPrintable,
+	buildArray,
+	buildArrayItem,
+	buildNull,
+	buildScalarBool,
+	buildScalarFloat,
+	buildScalarInt,
+	buildScalarString,
 	buildVariable,
 	type PhpExpr,
 } from '@wpkernel/php-json-ast';
+import { KernelError } from '@wpkernel/core/contracts';
 import { normaliseVariableReference } from './utils';
 
 export interface VariableValueDescriptor {
@@ -19,6 +26,7 @@ export type StructuredPhpValue =
 	| string
 	| number
 	| boolean
+	| bigint
 	| null
 	| readonly unknown[]
 	| Record<string, unknown>;
@@ -45,8 +53,7 @@ export function renderPhpValue(value: PhpValueDescriptor): PhpExpr {
 		return renderExpression(value);
 	}
 
-	const printable = buildPhpExpressionPrintable(value, 0);
-	return printable.node;
+	return renderStructuredPhpValue(value);
 }
 
 function isVariableDescriptor(
@@ -78,4 +85,57 @@ function renderVariable(descriptor: VariableValueDescriptor): PhpExpr {
 
 function renderExpression(descriptor: ExpressionValueDescriptor): PhpExpr {
 	return descriptor.expr;
+}
+
+function renderStructuredPhpValue(value: StructuredPhpValue): PhpExpr {
+	if (Array.isArray(value)) {
+		const items = value.map((entry) =>
+			buildArrayItem(renderPhpValue(entry as PhpValueDescriptor))
+		);
+		return buildArray(items);
+	}
+
+	if (value === null) {
+		return buildNull();
+	}
+
+	if (typeof value === 'object') {
+		const entries = Object.entries(value);
+		const items = entries.map(([key, val]) =>
+			buildArrayItem(renderPhpValue(val as PhpValueDescriptor), {
+				key: buildScalarString(key),
+			})
+		);
+		return buildArray(items);
+	}
+
+	if (typeof value === 'string') {
+		return buildScalarString(value);
+	}
+
+	if (typeof value === 'number') {
+		if (!Number.isFinite(value)) {
+			throw new KernelError('DeveloperError', {
+				message: 'Cannot render non-finite numbers in PHP output.',
+				context: { value },
+			});
+		}
+
+		return Number.isInteger(value)
+			? buildScalarInt(value)
+			: buildScalarFloat(value);
+	}
+
+	if (typeof value === 'bigint') {
+		return buildScalarString(value.toString());
+	}
+
+	if (typeof value === 'boolean') {
+		return buildScalarBool(value);
+	}
+
+	throw new KernelError('DeveloperError', {
+		message: `Unsupported PHP value: ${String(value)}`,
+		context: { value },
+	});
 }
