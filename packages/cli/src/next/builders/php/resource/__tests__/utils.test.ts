@@ -4,7 +4,6 @@ import {
 	buildBinaryOperation,
 	normaliseVariableReference,
 	buildVariableAssignment,
-	printStatement,
 } from '../utils';
 import { buildScalarInt, buildVariable } from '@wpkernel/php-json-ast';
 
@@ -54,23 +53,27 @@ describe('resource utils', () => {
 	it('builds assignment statements from raw identifiers', () => {
 		const reference = normaliseVariableReference('result');
 		const statement = buildVariableAssignment(reference, buildScalarInt(5));
-		const printable = printStatement(statement, 1);
 
-		expect(statement.expr).toMatchObject({
-			nodeType: 'Expr_Assign',
+		expect(statement).toMatchObject({
+			nodeType: 'Stmt_Expression',
+			expr: {
+				nodeType: 'Expr_Assign',
+				var: { nodeType: 'Expr_Variable', name: 'result' },
+				expr: { nodeType: 'Scalar_LNumber', value: 5 },
+			},
 		});
-		expect(printable.lines).toEqual(['        $result = 5;']);
 	});
 
 	it('builds assignment statements from normalised references', () => {
 		const reference = normaliseVariableReference('$items');
 		const statement = buildVariableAssignment(reference, buildScalarInt(3));
-		const printable = printStatement(statement, 0);
 
-		expect(statement.expr).toMatchObject({
-			nodeType: 'Expr_Assign',
-			var: { name: 'items' },
+		expect(statement).toMatchObject({
+			nodeType: 'Stmt_Expression',
+			expr: {
+				nodeType: 'Expr_Assign',
+				var: { nodeType: 'Expr_Variable', name: 'items' },
+			},
 		});
-		expect(printable.lines).toEqual(['$items = 3;']);
 	});
 });

@@ -6,13 +6,11 @@ import {
 	buildVariable,
 	type PhpExpr,
 	type PhpStmtExpression,
-	type PhpPrintable,
 } from '@wpkernel/php-json-ast';
 import {
 	buildScalarCast,
 	normaliseVariableReference,
 	buildVariableAssignment,
-	printStatement,
 	type ScalarCastKind,
 } from './utils';
 
@@ -21,19 +19,12 @@ export interface RequestParamAssignmentOptions {
 	readonly param: string;
 	readonly targetVariable?: string;
 	readonly cast?: ScalarCastKind;
-	readonly indentLevel?: number;
 }
 
-export function createRequestParamAssignment(
+export function createRequestParamAssignmentStatement(
 	options: RequestParamAssignmentOptions
-): PhpPrintable<PhpStmtExpression> {
-	const {
-		requestVariable,
-		param,
-		targetVariable = param,
-		cast,
-		indentLevel = 0,
-	} = options;
+): PhpStmtExpression {
+	const { requestVariable, param, targetVariable = param, cast } = options;
 
 	const request = normaliseVariableReference(requestVariable);
 	const target = normaliseVariableReference(targetVariable);
@@ -47,7 +38,5 @@ export function createRequestParamAssignment(
 		? buildScalarCast(cast, methodCall)
 		: methodCall;
 
-	const statement = buildVariableAssignment(target, expression);
-
-	return printStatement(statement, indentLevel);
+	return buildVariableAssignment(target, expression);
 }
