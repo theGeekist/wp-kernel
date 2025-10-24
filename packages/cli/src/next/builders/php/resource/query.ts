@@ -1,21 +1,19 @@
 import {
 	buildArg,
-	buildAssign,
 	buildArray,
 	buildArrayItem,
-	buildExpressionStatement,
 	buildFuncCall,
 	buildIdentifier,
+	buildIfStatement,
 	buildMethodCall,
 	buildName,
-	buildNode,
 	buildScalarInt,
 	buildScalarString,
 	buildVariable,
+	buildPrintable,
 	type PhpExprBinaryOp,
 	type PhpStmtExpression,
 	type PhpStmtIf,
-	buildPrintable,
 	type PhpPrintable,
 	type ResourceControllerCacheOperation,
 	type ResourceControllerCacheScope,
@@ -32,9 +30,11 @@ import {
 	buildScalarCast,
 	normaliseVariableReference,
 	buildBinaryOperation,
+	buildVariableAssignment,
+	printStatement,
 } from './utils';
 import { createRequestParamAssignment } from './request';
-import { formatStatement, formatExpression } from './printer';
+import { formatExpression } from './printer';
 
 export interface QueryArgEntry {
 	readonly key: string;
@@ -45,39 +45,23 @@ export interface QueryArgsAssignmentOptions {
 	readonly targetVariable: string;
 	readonly entries: readonly QueryArgEntry[];
 	readonly indentLevel?: number;
-	readonly indentUnit?: string;
 }
 
 export function createQueryArgsAssignment(
 	options: QueryArgsAssignmentOptions
 ): PhpPrintable<PhpStmtExpression> {
-	const {
-		targetVariable,
-		entries,
-		indentLevel = 0,
-		indentUnit = PHP_INDENT,
-	} = options;
+	const { targetVariable, entries, indentLevel = 0 } = options;
 	const target = normaliseVariableReference(targetVariable);
-	const items: ReturnType<typeof buildArrayItem>[] = [];
+	const items = entries.map((entry) => {
+		const rendered = renderPhpValue(entry.value, indentLevel + 1);
+		return buildArrayItem(rendered.node, {
+			key: buildScalarString(entry.key),
+		});
+	});
 
-	for (const entry of entries) {
-		const rendered = renderPhpValue(
-			entry.value,
-			indentLevel + 1,
-			indentUnit
-		);
-		items.push(
-			buildArrayItem(rendered.node, {
-				key: buildScalarString(entry.key),
-			})
-		);
-	}
+	const statement = buildVariableAssignment(target, buildArray(items));
 
-	const assign = buildAssign(buildVariable(target.raw), buildArray(items));
-	const statement = buildExpressionStatement(assign);
-	const lines = formatStatement(statement, indentLevel, indentUnit);
-
-	return buildPrintable(statement, lines);
+	return printStatement(statement, indentLevel);
 }
 
 export interface PaginationNormalisationOptions {
@@ -88,7 +72,6 @@ export interface PaginationNormalisationOptions {
 	readonly maximum?: number;
 	readonly nonPositiveGuard?: number;
 	readonly indentLevel?: number;
-	readonly indentUnit?: string;
 }
 
 export function createPaginationNormalisation(
@@ -106,7 +89,6 @@ export function createPaginationNormalisation(
 		maximum = 100,
 		nonPositiveGuard = 0,
 		indentLevel = 0,
-		indentUnit = PHP_INDENT,
 	} = options;
 
 	const target = normaliseVariableReference(targetVariable);
@@ -116,7 +98,6 @@ export function createPaginationNormalisation(
 		targetVariable,
 		cast: 'int',
 		indentLevel,
-		indentUnit,
 	});
 
 	const ensurePositive = createConditionalAssignment({
@@ -125,7 +106,6 @@ export function createPaginationNormalisation(
 		comparison: nonPositiveGuard,
 		assignment: defaultValue,
 		indentLevel,
-		indentUnit,
 	});
 
 	const clampMaximum = createConditionalAssignment({
@@ -134,7 +114,6 @@ export function createPaginationNormalisation(
 		comparison: maximum,
 		assignment: maximum,
 		indentLevel,
-		indentUnit,
 	});
 
 	return [assignment, ensurePositive, clampMaximum];
@@ -146,41 +125,27 @@ interface ConditionalAssignmentOptions {
 	readonly comparison: number;
 	readonly assignment: number;
 	readonly indentLevel: number;
-	readonly indentUnit: string;
 }
 
 function createConditionalAssignment(
 	options: ConditionalAssignmentOptions
 ): PhpPrintable<PhpStmtIf> {
-	const {
-		variable,
-		operator,
-		comparison,
-		assignment,
-		indentLevel,
-		indentUnit,
-	} = options;
+	const { variable, operator, comparison, assignment, indentLevel } = options;
 	const condition = buildBinaryOperation(
 		operator,
 		buildVariable(variable.raw),
 		buildScalarInt(comparison)
 	);
 
-	const assign = buildAssign(
-		buildVariable(variable.raw),
+	const assignStatement = buildVariableAssignment(
+		variable,
 		buildScalarInt(assignment)
 	);
-	const statement = buildExpressionStatement(assign);
-	const ifNode = buildNode<PhpStmtIf>('Stmt_If', {
-		cond: condition as PhpExprBinaryOp,
-		stmts: [statement],
-		elseifs: [],
-		else: null,
-	});
+	const ifNode = buildIfStatement(condition as PhpExprBinaryOp, [
+		assignStatement,
+	]);
 
-	const lines = formatStatement(ifNode, indentLevel, indentUnit);
-
-	return buildPrintable(ifNode, lines);
+	return printStatement(ifNode, indentLevel);
 }
 
 export interface PageExpressionOptions {
@@ -215,7 +180,6 @@ export interface ExecuteWpQueryOptions {
 	readonly target: string;
 	readonly argsVariable: string;
 	readonly indentLevel?: number;
-	readonly indentUnit?: string;
 	readonly cache?: {
 		readonly host: ResourceMetadataHost;
 		readonly scope: ResourceControllerCacheScope;
@@ -228,7 +192,7 @@ export interface ExecuteWpQueryOptions {
 export function createWpQueryExecution(
 	options: ExecuteWpQueryOptions
 ): PhpPrintable<PhpStmtExpression> {
-	const { target, argsVariable, indentLevel, indentUnit, cache } = options;
+	const { target, argsVariable, indentLevel, cache } = options;
 
 	if (cache) {
 		appendResourceCacheEvent({
@@ -244,6 +208,6 @@ export function createWpQueryExecution(
 		target,
 		argsVariable,
 		indentLevel,
-		indentUnit,
+		indentUnit: PHP_INDENT,
 	});
 }
