@@ -11,6 +11,7 @@ import {
 	buildName,
 	buildNode,
 	buildExpressionStatement,
+	buildReturn,
 	buildPropertyFetch as buildPropertyFetchNode,
 	buildScalarCast as buildScalarCastNode,
 	buildArrayCast,
@@ -22,6 +23,7 @@ import {
 	type PhpStmt,
 	type PhpStmtIf,
 	type PhpStmtForeach,
+	type PhpStmtReturn,
 	buildPrintable,
 	type PhpPrintable,
 } from '@wpkernel/php-json-ast';
@@ -134,6 +136,10 @@ export function buildInstanceof(subject: string, className: string): PhpExpr {
 
 export function buildBooleanNot(expr: PhpExpr): PhpExprBooleanNot {
 	return buildBooleanNotExpr(expr);
+}
+
+export function buildReturnVoid(): PhpStmtReturn {
+	return buildReturn(null);
 }
 
 export interface ArrayInitialiserOptions {
