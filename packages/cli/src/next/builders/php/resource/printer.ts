@@ -97,6 +97,46 @@ const BINARY_OPERATOR_LABELS: Partial<Record<ExprNodeType, string>> = {
 	Expr_BinaryOp_NotIdentical: '!==',
 };
 
+const BINARY_OPERATOR_PRECEDENCE: Partial<
+	Record<PhpExprBinaryOp['nodeType'], number>
+> = {
+	Expr_BinaryOp_Mul: 6,
+	Expr_BinaryOp_Div: 6,
+	Expr_BinaryOp_Mod: 6,
+	Expr_BinaryOp_Plus: 5,
+	Expr_BinaryOp_Minus: 5,
+	Expr_BinaryOp_Smaller: 4,
+	Expr_BinaryOp_SmallerOrEqual: 4,
+	Expr_BinaryOp_Greater: 4,
+	Expr_BinaryOp_GreaterOrEqual: 4,
+	Expr_BinaryOp_Equal: 3,
+	Expr_BinaryOp_NotEqual: 3,
+	Expr_BinaryOp_Identical: 3,
+	Expr_BinaryOp_NotIdentical: 3,
+	Expr_BinaryOp_BooleanAnd: 2,
+	Expr_BinaryOp_BooleanOr: 1,
+};
+
+const REQUIRE_RIGHT_ASSOCIATIVE_PARENS: ReadonlySet<
+	PhpExprBinaryOp['nodeType']
+> = new Set([
+	'Expr_BinaryOp_Plus',
+	'Expr_BinaryOp_Minus',
+	'Expr_BinaryOp_Mul',
+	'Expr_BinaryOp_Div',
+	'Expr_BinaryOp_Mod',
+	'Expr_BinaryOp_Smaller',
+	'Expr_BinaryOp_SmallerOrEqual',
+	'Expr_BinaryOp_Greater',
+	'Expr_BinaryOp_GreaterOrEqual',
+	'Expr_BinaryOp_Equal',
+	'Expr_BinaryOp_NotEqual',
+	'Expr_BinaryOp_Identical',
+	'Expr_BinaryOp_NotIdentical',
+	'Expr_BinaryOp_BooleanAnd',
+	'Expr_BinaryOp_BooleanOr',
+]);
+
 const BOOLEAN_NOT_PAREN_NODES: ReadonlySet<ExprNodeType> = new Set([
 	'Expr_BinaryOp_Plus',
 	'Expr_BinaryOp_Minus',
@@ -373,19 +413,49 @@ function formatIfStatement(
 	const condition = formatInlineExpression(statement.cond);
 	const lines = [`${currentIndent}if (${condition}) {`];
 
-	for (let index = 0; index < statement.stmts.length; index += 1) {
-		const child = statement.stmts[index]!;
-		const formatted = formatStatement(child, indentLevel + 1, indentUnit);
-		lines.push(...formatted);
+	appendIfBranchStatements(lines, statement.stmts, indentLevel, indentUnit);
 
-		const next = statement.stmts[index + 1];
-		if (next !== undefined && shouldInsertBlankLineBetween(child, next)) {
-			lines.push('');
-		}
+	for (const elseifBranch of statement.elseifs ?? []) {
+		const elseifCondition = formatInlineExpression(elseifBranch.cond);
+		lines.push(`${currentIndent}} elseif (${elseifCondition}) {`);
+		appendIfBranchStatements(
+			lines,
+			elseifBranch.stmts,
+			indentLevel,
+			indentUnit
+		);
+	}
+
+	if (statement.else) {
+		lines.push(`${currentIndent}} else {`);
+		appendIfBranchStatements(
+			lines,
+			statement.else.stmts,
+			indentLevel,
+			indentUnit
+		);
 	}
 
 	lines.push(`${currentIndent}}`);
 	return lines;
+}
+
+function appendIfBranchStatements(
+	lines: string[],
+	statements: readonly PhpStmt[],
+	indentLevel: number,
+	indentUnit: string
+): void {
+	for (let index = 0; index < statements.length; index += 1) {
+		const child = statements[index]!;
+		const formatted = formatStatement(child, indentLevel + 1, indentUnit);
+		lines.push(...formatted);
+
+		const next = statements[index + 1];
+		if (next !== undefined && shouldInsertBlankLineBetween(child, next)) {
+			lines.push('');
+		}
+	}
 }
 
 function formatNopStatement(
@@ -556,9 +626,20 @@ function formatIdentifierOrExpr(
 
 function formatBinaryOp(expression: PhpExprBinaryOp): string {
 	const operator = mapBinaryOperator(expression.nodeType);
-	return `${formatInlineExpression(expression.left)} ${operator} ${formatInlineExpression(
-		expression.right
-	)}`;
+	const precedence = getBinaryOperatorPrecedence(expression.nodeType);
+	const left = formatBinaryOperand(
+		expression.left,
+		precedence,
+		expression.nodeType,
+		'left'
+	);
+	const right = formatBinaryOperand(
+		expression.right,
+		precedence,
+		expression.nodeType,
+		'right'
+	);
+	return `${left} ${operator} ${right}`;
 }
 
 function mapBinaryOperator(nodeType: PhpExprBinaryOp['nodeType']): string {
@@ -566,6 +647,49 @@ function mapBinaryOperator(nodeType: PhpExprBinaryOp['nodeType']): string {
 		BINARY_OPERATOR_LABELS[nodeType] ??
 		nodeType.replace('Expr_BinaryOp_', '')
 	);
+}
+
+function getBinaryOperatorPrecedence(
+	nodeType: PhpExprBinaryOp['nodeType']
+): number {
+	const precedence = BINARY_OPERATOR_PRECEDENCE[nodeType];
+	if (precedence === undefined) {
+		throw new Error(
+			`Missing precedence mapping for binary operator: ${nodeType}`
+		);
+	}
+
+	return precedence;
+}
+
+function formatBinaryOperand(
+	operand: PhpExpr,
+	parentPrecedence: number,
+	parentType: PhpExprBinaryOp['nodeType'],
+	side: 'left' | 'right'
+): string {
+	const rendered = formatInlineExpression(operand);
+	if (!isBinaryOp(operand)) {
+		return rendered;
+	}
+
+	const childType = operand.nodeType as PhpExprBinaryOp['nodeType'];
+	const childPrecedence = getBinaryOperatorPrecedence(childType);
+	const requiresParens =
+		childPrecedence < parentPrecedence ||
+		(side === 'right' &&
+			childPrecedence === parentPrecedence &&
+			REQUIRE_RIGHT_ASSOCIATIVE_PARENS.has(parentType));
+
+	if (requiresParens) {
+		return `(${rendered})`;
+	}
+
+	return rendered;
+}
+
+function isBinaryOp(expr: PhpExpr): expr is PhpExprBinaryOp {
+	return expr.nodeType.startsWith('Expr_BinaryOp_');
 }
 
 function formatNewExpression(expr: PhpExprNew): string {

@@ -17,18 +17,19 @@ import {
 	buildArrayCast,
 	buildScalarString,
 	buildVariable,
+	PHP_INDENT,
 	type PhpExpr,
 	type PhpExprBinaryOp,
 	type PhpExprBooleanNot,
 	type PhpStmt,
+	type PhpStmtExpression,
 	type PhpStmtIf,
 	type PhpStmtForeach,
 	type PhpStmtReturn,
 	buildPrintable,
 	type PhpPrintable,
 } from '@wpkernel/php-json-ast';
-import { PHP_INDENT } from '@wpkernel/php-json-ast';
-import { formatStatement } from './printer';
+import { formatStatementPrintable } from './printer';
 
 export interface NormalisedVariableReference {
 	readonly raw: string;
@@ -101,19 +102,27 @@ export interface IfPrintableOptions {
 	readonly indentLevel: number;
 	readonly condition: PhpExpr;
 	readonly statements: readonly PhpPrintable<PhpStmt>[];
-	readonly indentUnit?: string;
+}
+
+export function printStatement<T extends PhpStmt>(
+	statement: T,
+	indentLevel: number,
+	indentUnit: string = PHP_INDENT
+): PhpPrintable<T> {
+	return formatStatementPrintable(statement, {
+		indentLevel,
+		indentUnit,
+	});
 }
 
 export function buildIfPrintable(
 	options: IfPrintableOptions
 ): PhpPrintable<PhpStmtIf> {
-	const indentUnit = options.indentUnit ?? PHP_INDENT;
 	const stmts: PhpStmt[] = options.statements.map(
 		(statement) => statement.node
 	);
 	const node = buildIfStatement(options.condition, stmts);
-	const lines = formatStatement(node, options.indentLevel, indentUnit);
-	return buildPrintable(node, lines);
+	return printStatement(node, options.indentLevel);
 }
 
 export function buildArrayDimFetch(
@@ -138,9 +147,24 @@ export function buildBooleanNot(expr: PhpExpr): PhpExprBooleanNot {
 	return buildBooleanNotExpr(expr);
 }
 
+// ─────────────────────────────────────────────
+// Both legacy + new paths preserved below
+// ─────────────────────────────────────────────
+
 export function buildReturnVoid(): PhpStmtReturn {
 	return buildReturn(null);
 }
+
+export function buildVariableAssignment(
+	target: NormalisedVariableReference,
+	expression: PhpExpr
+): PhpStmtExpression {
+	return buildExpressionStatement(
+		buildAssign(buildVariable(target.raw), expression)
+	);
+}
+
+// ─────────────────────────────────────────────
 
 export interface ArrayInitialiserOptions {
 	readonly variable: string;
@@ -150,13 +174,12 @@ export interface ArrayInitialiserOptions {
 export function buildArrayInitialiser(
 	options: ArrayInitialiserOptions
 ): PhpPrintable<PhpStmt> {
-	const reference = normaliseVariableReference(options.variable);
-	const statement = buildExpressionStatement(
-		buildAssign(buildVariable(reference.raw), buildArray([]))
+	const statement = buildVariableAssignment(
+		normaliseVariableReference(options.variable),
+		buildArray([])
 	);
-	const lines = formatStatement(statement, options.indentLevel, PHP_INDENT);
 
-	return buildPrintable(statement, lines);
+	return printStatement(statement, options.indentLevel);
 }
 
 export interface ArrayLiteralEntry {

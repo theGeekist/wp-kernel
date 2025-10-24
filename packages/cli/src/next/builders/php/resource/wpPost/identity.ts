@@ -9,7 +9,6 @@ import {
 	buildScalarString,
 	buildVariable,
 	type PhpStmt,
-	buildPrintable,
 	type PhpPrintable,
 } from '@wpkernel/php-json-ast';
 import { PHP_INDENT } from '@wpkernel/php-json-ast';
@@ -22,6 +21,7 @@ import {
 	normaliseVariableReference,
 } from '../utils';
 import { createWpErrorReturn } from '../errors';
+import { formatStatementPrintable } from '../printer';
 
 export interface IdentityValidationOptions {
 	readonly identity: ResolvedIdentity;
@@ -35,7 +35,6 @@ export function createIdentityValidationPrintables(
 ): PhpPrintable<PhpStmt>[] {
 	const { identity, indentLevel, pascalName, errorCodeFactory } = options;
 	const variable = normaliseVariableReference(identity.param);
-	const indent = PHP_INDENT.repeat(indentLevel);
 	const statements: PhpPrintable<PhpStmt>[] = [];
 
 	if (identity.type === 'number') {
@@ -58,14 +57,17 @@ export function createIdentityValidationPrintables(
 		);
 
 		statements.push(
-			buildPrintable(
+			formatStatementPrintable(
 				buildExpressionStatement(
 					buildAssign(
 						buildVariable(variable.raw),
 						buildScalarCast('int', buildVariable(variable.raw))
 					)
 				),
-				[`${indent}${variable.display} = (int) ${variable.display};`]
+				{
+					indentLevel,
+					indentUnit: PHP_INDENT,
+				}
 			)
 		);
 
@@ -122,7 +124,7 @@ export function createIdentityValidationPrintables(
 	);
 
 	statements.push(
-		buildPrintable(
+		formatStatementPrintable(
 			buildExpressionStatement(
 				buildAssign(
 					buildVariable(variable.raw),
@@ -136,9 +138,10 @@ export function createIdentityValidationPrintables(
 					])
 				)
 			),
-			[
-				`${indent}${variable.display} = trim( (string) ${variable.display} );`,
-			]
+			{
+				indentLevel,
+				indentUnit: PHP_INDENT,
+			}
 		)
 	);
 

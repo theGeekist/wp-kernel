@@ -1,23 +1,20 @@
 import {
 	buildArg,
-	buildAssign,
-	buildExpressionStatement,
 	buildIdentifier,
 	buildMethodCall,
 	buildScalarString,
 	buildVariable,
 	type PhpExpr,
 	type PhpStmtExpression,
-	buildPrintable,
 	type PhpPrintable,
 } from '@wpkernel/php-json-ast';
-import { PHP_INDENT } from '@wpkernel/php-json-ast';
 import {
 	buildScalarCast,
 	normaliseVariableReference,
+	buildVariableAssignment,
+	printStatement,
 	type ScalarCastKind,
 } from './utils';
-import { formatStatement } from './printer';
 
 export interface RequestParamAssignmentOptions {
 	readonly requestVariable: string;
@@ -25,7 +22,6 @@ export interface RequestParamAssignmentOptions {
 	readonly targetVariable?: string;
 	readonly cast?: ScalarCastKind;
 	readonly indentLevel?: number;
-	readonly indentUnit?: string;
 }
 
 export function createRequestParamAssignment(
@@ -37,7 +33,6 @@ export function createRequestParamAssignment(
 		targetVariable = param,
 		cast,
 		indentLevel = 0,
-		indentUnit = PHP_INDENT,
 	} = options;
 
 	const request = normaliseVariableReference(requestVariable);
@@ -52,10 +47,7 @@ export function createRequestParamAssignment(
 		? buildScalarCast(cast, methodCall)
 		: methodCall;
 
-	const assignment = buildAssign(buildVariable(target.raw), expression);
-	const statement = buildExpressionStatement(assignment);
+	const statement = buildVariableAssignment(target, expression);
 
-	const lines = formatStatement(statement, indentLevel, indentUnit);
-
-	return buildPrintable(statement, lines);
+	return printStatement(statement, indentLevel);
 }
