@@ -26,7 +26,7 @@ import {
 	type PhpStmtIf,
 	type PhpStmtForeach,
 	type PhpStmtReturn,
-	buildPrintable,
+	// buildPrintable,
 	type PhpPrintable,
 } from '@wpkernel/php-json-ast';
 import { formatStatementPrintable } from './printer';
