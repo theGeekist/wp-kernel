@@ -197,21 +197,8 @@ describe('wp-post mutation macros', () => {
 			kind: 'resource-macro',
 			macro: 'status-validation',
 		});
-		expect(entry.statements).toEqual(
-			expect.arrayContaining([
-				expect.stringContaining(
-					`// @wp-kernel ${CONTRACT.metadataKeys.channelTag} status-validation`
-				),
-				expect.stringContaining(
-					`// @wp-kernel ${CONTRACT.metadataKeys.statusValidation} normalise`
-				),
-				expect.stringContaining(
-					"$status = $request->get_param( 'status' );"
-				),
-				expect.stringContaining(
-					'$post_status = $this->normaliseBooksStatus( $status );'
-				),
-			])
+		expect(entry.statements).toMatchSnapshot(
+			'status-validation-statements'
 		);
 		expect(entry.program).toMatchSnapshot('status-validation-macro');
 	});
@@ -235,13 +222,8 @@ describe('wp-post mutation macros', () => {
 			}
 		);
 
-		expect(entry.statements).toEqual(
-			expect.arrayContaining([
-				expect.stringContaining(`if (null !== $status) {`),
-				expect.stringContaining(
-					"$post_data['post_status'] = $this->normaliseBooksStatus($status);"
-				),
-			])
+		expect(entry.statements).toMatchSnapshot(
+			'status-validation-guarded-statements'
 		);
 		expect(entry.program).toMatchSnapshot(
 			'status-validation-guarded-macro'
@@ -276,24 +258,7 @@ describe('wp-post mutation macros', () => {
 			}
 		);
 
-		expect(entry.statements).toEqual(
-			expect.arrayContaining([
-				expect.stringContaining(
-					`// @wp-kernel ${CONTRACT.metadataKeys.syncMeta} update`
-				),
-				expect.stringContaining(
-					'$this->syncBooksMeta( $post_id, $request );'
-				),
-				expect.stringContaining(
-					`// @wp-kernel ${CONTRACT.metadataKeys.syncTaxonomies} update`
-				),
-				expect.stringContaining(
-					'$taxonomy_result = $this->syncBooksTaxonomies( $post_id, $request );'
-				),
-				expect.stringContaining('if (is_wp_error($taxonomy_result)) {'),
-				expect.stringContaining('return $taxonomy_result;'),
-			])
-		);
+		expect(entry.statements).toMatchSnapshot('sync-mutations-statements');
 		expect(entry.program).toMatchSnapshot('sync-mutations-macro');
 	});
 
@@ -318,16 +283,7 @@ describe('wp-post mutation macros', () => {
 			}
 		);
 
-		const statements = entry.statements.join('\n');
-		expect(statements).toContain(
-			`// @wp-kernel ${CONTRACT.metadataKeys.cacheSegment} prime`
-		);
-		expect(statements).toContain('$post = get_post');
-		expect(statements).toContain('if (!$post instanceof WP_Post) {');
-		expect(statements).toContain(
-			"return new WP_Error('wpk_books_load_failed', 'Unable to load created Book.'"
-		);
-		expect(statements).toContain('return $this->prepareBooksResponse');
+		expect(entry.statements).toMatchSnapshot('cache-priming-statements');
 		expect(entry.program).toMatchSnapshot('cache-priming-macro');
 	});
 });

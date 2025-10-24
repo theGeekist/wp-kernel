@@ -1,0 +1,139 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`wp-post mutation helpers prepares mutation responses with supports, meta, and taxonomies: prepare-response-output 1`] = `
+"        private function prepareBookResponse( WP_Post $post, WP_REST_Request $request ): array
+        {
+                $data = [
+                        'id' => (int) $post->ID,
+                        'slug' => (string) $post->post_name,
+                        'status' => (string) $post->post_status,
+                ];
+                $data['title'] = (string) $post->post_title;
+                $data['content'] = (string) $post->post_content;
+                $data['excerpt'] = (string) $post->post_excerpt;
+                $ratingMeta = get_post_meta($post->ID, 'rating', true);
+                $ratingMeta = is_numeric($ratingMeta) ? (int) $ratingMeta : 0;
+                $data['rating'] = $ratingMeta;
+                $popularityMeta = get_post_meta($post->ID, 'popularity', true);
+                $popularityMeta = is_numeric($popularityMeta) ? (float) $popularityMeta : 0;
+                $data['popularity'] = $popularityMeta;
+                $featuredMeta = get_post_meta($post->ID, 'featured', true);
+                $featuredMeta = rest_sanitize_boolean($featuredMeta);
+                $data['featured'] = $featuredMeta;
+                $tagsMeta = get_post_meta($post->ID, 'tags', false);
+                $tagsMeta = array_values((array) $tagsMeta);
+                $data['tags'] = $tagsMeta;
+                $authorMeta = get_post_meta($post->ID, 'author', false);
+                if (!is_array($authorMeta)) {
+                        $authorMeta = [
+                                $authorMeta,
+                        ];
+                }
+                $authorMeta = array_values((array) $authorMeta);
+                foreach ( $authorMeta as $meta_index => $meta_value ) {
+                        $meta_value = is_string($meta_value) ? $meta_value : (string) $meta_value;
+                        $authorMeta[$meta_index] = $meta_value;
+                }
+                $data['author'] = $authorMeta;
+                $metadataMeta = get_post_meta($post->ID, 'metadata', true);
+                $metadataMeta = is_array($metadataMeta) ? $metadataMeta : [];
+                $data['metadata'] = $metadataMeta;
+                $genresTerms = wp_get_object_terms($post->ID, 'book_genre', [ 'fields' => 'ids' ]);
+                if (is_wp_error($genresTerms)) {
+                        $genresTerms = [];
+                }
+                $genresTerms = array_map('intval', (array) $genresTerms);
+                $data['genres'] = $genresTerms;
+                return $data;
+        }"
+`;
+
+exports[`wp-post mutation helpers returns early when no meta fields are configured: meta-empty-output 1`] = `
+"        private function syncBookMeta( int $post_id, WP_REST_Request $request ): void
+        {
+                unset($post_id, $request);
+                return;
+        }"
+`;
+
+exports[`wp-post mutation helpers returns early when no taxonomies are configured: taxonomy-empty-output 1`] = `
+"        private function syncBookTaxonomies( int $post_id, WP_REST_Request $request )
+        {
+                unset($post_id, $request);
+                return true;
+        }"
+`;
+
+exports[`wp-post mutation helpers sanitises meta payloads for all supported descriptor types: meta-sanitizers-output 1`] = `
+"        private function syncBookMeta( int $post_id, WP_REST_Request $request ): void
+        {
+                $ratingMeta = $request->get_param('rating');
+                if (null !== $ratingMeta) {
+                        $ratingMeta = is_numeric($ratingMeta) ? (int) $ratingMeta : 0;
+                        update_post_meta($post_id, 'rating', $ratingMeta);
+                }
+                $popularityMeta = $request->get_param('popularity');
+                if (null !== $popularityMeta) {
+                        $popularityMeta = is_numeric($popularityMeta) ? (float) $popularityMeta : 0;
+                        update_post_meta($post_id, 'popularity', $popularityMeta);
+                }
+                $featuredMeta = $request->get_param('featured');
+                if (null !== $featuredMeta) {
+                        $featuredMeta = rest_sanitize_boolean($featuredMeta);
+                        update_post_meta($post_id, 'featured', $featuredMeta);
+                }
+                $tagsMeta = $request->get_param('tags');
+                if (null !== $tagsMeta) {
+                        $tagsMeta = array_values((array) $tagsMeta);
+                        delete_post_meta($post_id, 'tags');
+                        foreach ( (array) $tagsMeta as $value ) {
+                                add_post_meta($post_id, 'tags', $value);
+                        }
+                }
+                $authorMeta = $request->get_param('author');
+                if (null !== $authorMeta) {
+                        if (!is_array($authorMeta)) {
+                                $authorMeta = [
+                                        $authorMeta,
+                                ];
+                        }
+
+                        $authorMeta = array_values((array) $authorMeta);
+                        foreach ( $authorMeta as $meta_index => $meta_value ) {
+                                $meta_value = is_string($meta_value) ? $meta_value : (string) $meta_value;
+                                $authorMeta[$meta_index] = $meta_value;
+                        }
+                        delete_post_meta($post_id, 'author');
+                        foreach ( (array) $authorMeta as $value ) {
+                                add_post_meta($post_id, 'author', $value);
+                        }
+                }
+                $metadataMeta = $request->get_param('metadata');
+                if (null !== $metadataMeta) {
+                        $metadataMeta = is_array($metadataMeta) ? $metadataMeta : [];
+                        update_post_meta($post_id, 'metadata', $metadataMeta);
+                }
+        }"
+`;
+
+exports[`wp-post mutation helpers wraps taxonomy assignments with result checks: taxonomy-sync-output 1`] = `
+"        private function syncBookTaxonomies( int $post_id, WP_REST_Request $request )
+        {
+                $result = true;
+                $genresTerms = $request->get_param('genres');
+                if (null !== $genresTerms) {
+                        if (!is_array($genresTerms)) {
+                                $genresTerms = [
+                                        $genresTerms,
+                                ];
+                        }
+
+                        $genresTerms = array_filter(array_map('intval', (array) $genresTerms));
+                        $result = wp_set_object_terms($post_id, $genresTerms, 'book_genre', false);
+                        if (is_wp_error($result)) {
+                                return $result;
+                        }
+                }
+                return $result;
+        }"
+`;

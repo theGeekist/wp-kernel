@@ -1,26 +1,26 @@
 import {
 	buildArg,
 	buildAssign,
-	buildArray,
-	buildArrayItem,
 	buildExpressionStatement,
 	buildFuncCall,
 	buildIdentifier,
+	buildIfStatement,
 	buildMethodCall,
 	buildName,
 	buildReturn,
 	buildScalarBool,
 	buildScalarString,
 	buildVariable,
-	buildPrintable,
 	PHP_INDENT,
 	makeErrorCodeFactory,
+	type PhpStmt,
 } from '@wpkernel/php-json-ast';
+import { formatStatementPrintable } from '../../../printer';
 import { createIdentityValidationPrintables } from '../../identity';
 import {
+	buildArrayLiteral,
 	buildBinaryOperation,
 	buildBooleanNot,
-	buildIfPrintable,
 	buildInstanceof,
 	buildPropertyFetch,
 	buildScalarCast,
@@ -36,12 +36,11 @@ export function buildDeleteRouteBody(
 		return false;
 	}
 
-	const indentLevel = options.indentLevel;
-	const indent = PHP_INDENT.repeat(indentLevel);
 	const identityVar = options.identity.param;
 	const errorCodeFactory = makeErrorCodeFactory(options.resource.name);
 
-	const identityPrintable = buildPrintable(
+	appendStatement(
+		options,
 		buildExpressionStatement(
 			buildAssign(
 				buildVariable(identityVar),
@@ -51,14 +50,12 @@ export function buildDeleteRouteBody(
 					[buildArg(buildScalarString(identityVar))]
 				)
 			)
-		),
-		[`${indent}$${identityVar} = $request->get_param( '${identityVar}' );`]
+		)
 	);
-	options.body.statement(identityPrintable);
 
 	const validationStatements = createIdentityValidationPrintables({
 		identity: options.identity,
-		indentLevel,
+		indentLevel: options.indentLevel,
 		pascalName: options.pascalName,
 		errorCodeFactory,
 	});
@@ -71,7 +68,8 @@ export function buildDeleteRouteBody(
 		options.body.blank();
 	}
 
-	const resolvePrintable = buildPrintable(
+	appendStatement(
+		options,
 		buildExpressionStatement(
 			buildAssign(
 				buildVariable('post'),
@@ -81,29 +79,26 @@ export function buildDeleteRouteBody(
 					[buildArg(buildVariable(identityVar))]
 				)
 			)
-		),
-		[
-			`${indent}$post = $this->resolve${options.pascalName}Post( $${identityVar} );`,
-		]
+		)
 	);
-	options.body.statement(resolvePrintable);
 
 	const notFoundReturn = createWpErrorReturn({
-		indentLevel: indentLevel + 1,
+		indentLevel: options.indentLevel + 1,
 		code: errorCodeFactory('not_found'),
 		message: `${options.pascalName} not found.`,
 		status: 404,
 	});
 
-	const notFoundGuard = buildIfPrintable({
-		indentLevel,
-		condition: buildBooleanNot(buildInstanceof('post', 'WP_Post')),
-		statements: [notFoundReturn],
-	});
-	options.body.statement(notFoundGuard);
+	appendStatement(
+		options,
+		buildIfStatement(buildBooleanNot(buildInstanceof('post', 'WP_Post')), [
+			notFoundReturn.node,
+		])
+	);
 	options.body.blank();
 
-	const previousPrintable = buildPrintable(
+	appendStatement(
+		options,
 		buildExpressionStatement(
 			buildAssign(
 				buildVariable('previous'),
@@ -116,14 +111,11 @@ export function buildDeleteRouteBody(
 					]
 				)
 			)
-		),
-		[
-			`${indent}$previous = $this->prepare${options.pascalName}Response( $post, $request );`,
-		]
+		)
 	);
-	options.body.statement(previousPrintable);
 
-	const deletePrintable = buildPrintable(
+	appendStatement(
+		options,
 		buildExpressionStatement(
 			buildAssign(
 				buildVariable('deleted'),
@@ -132,54 +124,63 @@ export function buildDeleteRouteBody(
 					buildArg(buildScalarBool(true)),
 				])
 			)
-		),
-		[`${indent}$deleted = wp_delete_post( $post->ID, true );`]
+		)
 	);
-	options.body.statement(deletePrintable);
 
 	const deleteReturn = createWpErrorReturn({
-		indentLevel: indentLevel + 1,
+		indentLevel: options.indentLevel + 1,
 		code: errorCodeFactory('delete_failed'),
 		message: `Unable to delete ${options.pascalName}.`,
 		status: 500,
 	});
 
-	const deleteGuard = buildIfPrintable({
-		indentLevel,
-		condition: buildBinaryOperation(
-			'Identical',
-			buildScalarBool(false),
-			buildVariable('deleted')
-		),
-		statements: [deleteReturn],
-	});
-	options.body.statement(deleteGuard);
+	appendStatement(
+		options,
+		buildIfStatement(
+			buildBinaryOperation(
+				'Identical',
+				buildScalarBool(false),
+				buildVariable('deleted')
+			),
+			[deleteReturn.node]
+		)
+	);
 	options.body.blank();
 
-	const responsePrintable = buildPrintable(
+	appendStatement(
+		options,
 		buildReturn(
-			buildArray([
-				buildArrayItem(buildScalarBool(true), {
-					key: buildScalarString('deleted'),
-				}),
-				buildArrayItem(
-					buildScalarCast('int', buildPropertyFetch('post', 'ID')),
-					{ key: buildScalarString('id') }
-				),
-				buildArrayItem(buildVariable('previous'), {
-					key: buildScalarString('previous'),
-				}),
+			buildArrayLiteral([
+				{
+					key: 'deleted',
+					value: buildScalarBool(true),
+				},
+				{
+					key: 'id',
+					value: buildScalarCast(
+						'int',
+						buildPropertyFetch('post', 'ID')
+					),
+				},
+				{
+					key: 'previous',
+					value: buildVariable('previous'),
+				},
 			])
-		),
-		[
-			`${indent}return array(`,
-			`${indent}${PHP_INDENT}'deleted' => true,`,
-			`${indent}${PHP_INDENT}'id' => (int) $post->ID,`,
-			`${indent}${PHP_INDENT}'previous' => $previous,`,
-			`${indent});`,
-		]
+		)
 	);
-	options.body.statement(responsePrintable);
 
 	return true;
+}
+
+function appendStatement(
+	options: BuildDeleteRouteBodyOptions,
+	statement: PhpStmt
+): void {
+	options.body.statement(
+		formatStatementPrintable(statement, {
+			indentLevel: options.indentLevel,
+			indentUnit: PHP_INDENT,
+		})
+	);
 }
