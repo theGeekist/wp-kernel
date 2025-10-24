@@ -3,6 +3,7 @@ export * from './phpValue';
 export * from './cache';
 export * from './request';
 export * from './query';
+export * from './printable';
 export * from './errors';
 export * from './mutationContract';
 export * from './wpPost/list';

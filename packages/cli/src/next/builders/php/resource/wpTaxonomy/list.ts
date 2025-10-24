@@ -29,13 +29,13 @@ import { appendResourceCacheEvent } from '../cache';
 import {
 	createPaginationNormalisation,
 	createQueryArgsAssignment,
-} from '../query';
+	createRequestParamAssignment,
+	buildIfPrintable,
+} from '../printable';
 import { variable } from '../phpValue';
-import { createRequestParamAssignment } from '../request';
 import {
 	buildArrayDimFetch,
 	buildBinaryOperation,
-	buildIfPrintable,
 	buildInstanceof,
 	buildScalarCast,
 } from '../utils';

@@ -1,22 +1,38 @@
-import { buildPrintable, buildScalarInt } from '@wpkernel/php-json-ast';
+import { buildScalarInt } from '@wpkernel/php-json-ast';
 import { expression, renderPhpValue, variable } from '../phpValue';
 
 describe('phpValue', () => {
 	it('renders variable descriptors', () => {
-		const rendered = renderPhpValue(variable('items'), 1);
-		expect(rendered.lines).toEqual(['        $items']);
-		expect(rendered.node).toMatchObject({ nodeType: 'Expr_Variable' });
+		const rendered = renderPhpValue(variable('items'));
+		expect(rendered).toMatchObject({
+			nodeType: 'Expr_Variable',
+			name: 'items',
+		});
 	});
 
 	it('renders expression descriptors with indentation', () => {
-		const printable = buildPrintable(buildScalarInt(5), ['5']);
-		const rendered = renderPhpValue(expression(printable), 2);
-		expect(rendered.lines).toEqual(['                5']);
+		const scalar = buildScalarInt(5);
+		const rendered = renderPhpValue(expression(scalar));
+		expect(rendered).toBe(scalar);
 	});
 
 	it('renders structured literals', () => {
-		const rendered = renderPhpValue({ key: 'value' }, 1);
-		expect(rendered.lines[0]).toBe('        [');
-		expect(rendered.lines[rendered.lines.length - 1]).toBe('        ]');
+		const rendered = renderPhpValue({ key: 'value' });
+		expect(rendered.nodeType).toBe('Expr_Array');
+		expect(rendered.items).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({
+					nodeType: 'Expr_ArrayItem',
+					key: expect.objectContaining({
+						nodeType: 'Scalar_String',
+						value: 'key',
+					}),
+					value: expect.objectContaining({
+						nodeType: 'Scalar_String',
+						value: 'value',
+					}),
+				}),
+			])
+		);
 	});
 });
