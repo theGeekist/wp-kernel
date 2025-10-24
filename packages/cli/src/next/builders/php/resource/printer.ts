@@ -20,7 +20,7 @@ import {
 	type PhpPrintable,
 	buildPrintable,
 } from '@wpkernel/php-json-ast';
-import { escapeSingleQuotes } from '@wpkernel/php-json-ast';
+import { escapeSingleQuotes, PHP_INDENT } from '@wpkernel/php-json-ast';
 
 type ExprNodeType = PhpExpr['nodeType'];
 type ExtractExpr<T extends ExprNodeType> = Extract<PhpExpr, { nodeType: T }>;
@@ -287,6 +287,14 @@ export function formatStatementPrintable<T extends PhpStmt>(
 		options.indentUnit
 	);
 	return buildPrintable(statement, lines);
+}
+
+export function formatStatementAtIndent<T extends PhpStmt>(
+	statement: T,
+	indentLevel: number,
+	indentUnit: string = PHP_INDENT
+): PhpPrintable<T> {
+	return formatStatementPrintable(statement, { indentLevel, indentUnit });
 }
 
 export function formatStatement(

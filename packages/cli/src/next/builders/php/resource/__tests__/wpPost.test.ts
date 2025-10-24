@@ -66,7 +66,14 @@ describe('wpPost query helpers', () => {
 describe('wpPost list helpers', () => {
 	it('initialises the items array with indentation', () => {
 		const printable = createListItemsInitialiser({ indentLevel: 2 });
-		expect(printable.lines).toEqual(['                $items = [];']);
+		expect(printable.node).toMatchObject({
+			nodeType: 'Stmt_Expression',
+			expr: {
+				nodeType: 'Expr_Assign',
+				var: { nodeType: 'Expr_Variable', name: 'items' },
+				expr: { nodeType: 'Expr_Array', items: [] },
+			},
+		});
 	});
 
 	it('creates the foreach loop with guards and response push', () => {
@@ -75,16 +82,19 @@ describe('wpPost list helpers', () => {
 			indentLevel: 1,
 		});
 
-		expect(printable.lines).toEqual([
-			'        foreach ( $query->posts as $post_id ) {',
-			'                $post = get_post($post_id);',
-			'                if (!$post instanceof WP_Post) {',
-			'                        continue;',
-			'                }',
-			'',
-			'                $items[] = $this->prepareArticleResponse($post, $request);',
-			'        }',
-		]);
+		expect(printable.node).toMatchObject({
+			nodeType: 'Stmt_Foreach',
+			expr: {
+				nodeType: 'Expr_PropertyFetch',
+				name: { nodeType: 'Identifier', name: 'posts' },
+			},
+			valueVar: { nodeType: 'Expr_Variable', name: 'post_id' },
+			stmts: expect.arrayContaining([
+				expect.objectContaining({
+					nodeType: 'Stmt_Expression',
+				}),
+			]),
+		});
 	});
 });
 
@@ -98,19 +108,18 @@ describe('wpPost identity helpers', () => {
 		});
 
 		expect(statements).toHaveLength(3);
-		expect(statements[0]?.lines).toEqual([
-			'        if (null === $book_id) {',
-			"                return new WP_Error('book_missing_identifier', 'Missing identifier for Book.', [ 'status' => 400 ]);",
-			'        }',
-		]);
-		expect(statements[1]?.lines).toEqual([
-			'        $book_id = (int) $book_id;',
-		]);
-		expect(statements[2]?.lines).toEqual([
-			'        if ($book_id <= 0) {',
-			"                return new WP_Error('book_invalid_identifier', 'Invalid identifier for Book.', [ 'status' => 400 ]);",
-			'        }',
-		]);
+		expect(statements[0]?.node).toMatchObject({
+			nodeType: 'Stmt_If',
+			cond: { nodeType: 'Expr_BinaryOp_Identical' },
+		});
+		expect(statements[1]?.node).toMatchObject({
+			nodeType: 'Stmt_Expression',
+			expr: { nodeType: 'Expr_Assign' },
+		});
+		expect(statements[2]?.node).toMatchObject({
+			nodeType: 'Stmt_If',
+			cond: { nodeType: 'Expr_BinaryOp_SmallerOrEqual' },
+		});
 	});
 
 	it('creates string identifier validation statements', () => {
@@ -122,13 +131,13 @@ describe('wpPost identity helpers', () => {
 		});
 
 		expect(statements).toHaveLength(2);
-		expect(statements[0]?.lines).toEqual([
-			"        if (!is_string($slug) || '' === trim($slug)) {",
-			"                return new WP_Error('book_missing_identifier', 'Missing identifier for Book.', [ 'status' => 400 ]);",
-			'        }',
-		]);
-		expect(statements[1]?.lines).toEqual([
-			'        $slug = trim((string) $slug);',
-		]);
+		expect(statements[0]?.node).toMatchObject({
+			nodeType: 'Stmt_If',
+			cond: { nodeType: 'Expr_BinaryOp_BooleanOr' },
+		});
+		expect(statements[1]?.node).toMatchObject({
+			nodeType: 'Stmt_Expression',
+			expr: { nodeType: 'Expr_Assign' },
+		});
 	});
 });

@@ -20,11 +20,10 @@ import {
 } from '@wpkernel/php-json-ast';
 import {
 	buildArrayDimFetch,
-	buildArrayInitialiser,
 	buildBinaryOperation,
-	buildIfPrintable,
 	buildScalarCast,
 } from '../utils';
+import { buildArrayInitialiser, buildIfPrintable } from '../printable';
 import { formatStatementPrintable } from '../printer';
 import type { PhpMethodBodyBuilder } from '@wpkernel/php-json-ast';
 

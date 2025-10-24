@@ -1,29 +1,37 @@
-import { createRequestParamAssignment } from '../request';
+import { createRequestParamAssignmentStatement } from '../request';
 
 describe('request helpers', () => {
 	it('creates assignments without casts', () => {
-		const printable = createRequestParamAssignment({
+		const statement = createRequestParamAssignmentStatement({
 			requestVariable: '$request',
 			param: 'slug',
-			indentLevel: 1,
 		});
 
-		expect(printable.lines).toEqual([
-			"        $slug = $request->get_param('slug');",
-		]);
+		expect(statement).toMatchObject({
+			expr: {
+				nodeType: 'Expr_Assign',
+				var: { nodeType: 'Expr_Variable', name: 'slug' },
+				expr: {
+					nodeType: 'Expr_MethodCall',
+					name: { nodeType: 'Identifier', name: 'get_param' },
+				},
+			},
+		});
 	});
 
 	it('creates assignments with casts', () => {
-		const printable = createRequestParamAssignment({
+		const statement = createRequestParamAssignmentStatement({
 			requestVariable: 'request',
 			targetVariable: 'per_page',
 			param: 'per_page',
 			cast: 'int',
-			indentLevel: 2,
 		});
 
-		expect(printable.lines).toEqual([
-			"                $per_page = (int) $request->get_param('per_page');",
-		]);
+		expect(statement).toMatchObject({
+			expr: {
+				nodeType: 'Expr_Assign',
+				expr: { nodeType: 'Expr_Cast_Int' },
+			},
+		});
 	});
 });

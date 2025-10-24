@@ -29,9 +29,22 @@ import {
 	buildForeachStatement,
 	buildVariableAssignment,
 	normaliseVariableReference,
-	printStatement,
 } from '../utils';
+import { printStatement } from '../printable';
 import { formatInlinePhpExpression, formatStatement } from '../printer';
+
+const formatStatementLines = (
+	statement: PhpStmt,
+	indentLevel: number
+): readonly string[] => formatStatement(statement, indentLevel, PHP_INDENT);
+
+const expectStatementFormat = (
+	statement: PhpStmt,
+	indentLevel: number,
+	expected: readonly string[]
+): void => {
+	expect(formatStatementLines(statement, indentLevel)).toEqual(expected);
+};
 
 describe('resource printer', () => {
 	it('formats ternary expressions with and without explicit true branches', () => {
@@ -197,8 +210,9 @@ describe('resource printer', () => {
 			buildScalarInt(42)
 		);
 
-		const printable = printStatement(assignment, 0);
-		expect(printable.lines).toEqual(['$result = 42;']);
+		const printable = printStatement(assignment, { indentLevel: 0 });
+		expect(printable.node).toBe(assignment);
+		expectStatementFormat(assignment, 0, ['$result = 42;']);
 	});
 
 	it('formats assignments to empty arrays without extra indentation', () => {
@@ -207,8 +221,9 @@ describe('resource printer', () => {
 			buildArray([])
 		);
 
-		const printable = printStatement(assignment, 0);
-		expect(printable.lines).toEqual(['$items = [];']);
+		const printable = printStatement(assignment, { indentLevel: 0 });
+		expect(printable.node).toBe(assignment);
+		expectStatementFormat(assignment, 0, ['$items = [];']);
 	});
 
 	it('formats if statements with else branches', () => {
@@ -230,8 +245,9 @@ describe('resource printer', () => {
 			elseBranch: elseNode,
 		});
 
-		const printable = printStatement(ifNode, 0);
-		expect(printable.lines).toEqual([
+		const printable = printStatement(ifNode, { indentLevel: 0 });
+		expect(printable.node).toBe(ifNode);
+		expectStatementFormat(ifNode, 0, [
 			'if ($flag) {',
 			'        $value = 1;',
 			'} else {',
@@ -260,8 +276,9 @@ describe('resource printer', () => {
 			stmts: [guard, appendResult],
 		});
 
-		const printable = printStatement(foreachNode, 0);
-		expect(printable.lines).toEqual([
+		const printable = printStatement(foreachNode, { indentLevel: 0 });
+		expect(printable.node).toBe(foreachNode);
+		expectStatementFormat(foreachNode, 0, [
 			'foreach ( $items as $key => &$item ) {',
 			'        if ($shouldSkip) {',
 			'                $value = 1;',
@@ -280,8 +297,10 @@ describe('resource printer', () => {
 			}),
 		]);
 
-		const printable = printStatement(buildReturn(arrayNode), 1);
-		expect(printable.lines).toEqual([
+		const returnStatement = buildReturn(arrayNode);
+		const printable = printStatement(returnStatement, { indentLevel: 1 });
+		expect(printable.node).toBe(returnStatement);
+		expectStatementFormat(returnStatement, 1, [
 			'        return [',
 			'                1,',
 			"                'two' => 2,",
@@ -290,8 +309,10 @@ describe('resource printer', () => {
 	});
 
 	it('formats return statements without expressions', () => {
-		const printable = printStatement(buildReturn(null), 0);
-		expect(printable.lines).toEqual(['return;']);
+		const returnStatement = buildReturn(null);
+		const printable = printStatement(returnStatement, { indentLevel: 0 });
+		expect(printable.node).toBe(returnStatement);
+		expectStatementFormat(returnStatement, 0, ['return;']);
 	});
 
 	it('formats inline arrow functions with typed parameters', () => {
@@ -398,7 +419,10 @@ describe('resource printer', () => {
 			)
 		);
 
-		const printable = printStatement(offsetAssignment, 0);
-		expect(printable.lines).toEqual(['$offset = ($page - 1) * $per_page;']);
+		const printable = printStatement(offsetAssignment, { indentLevel: 0 });
+		expect(printable.node).toBe(offsetAssignment);
+		expectStatementFormat(offsetAssignment, 0, [
+			'$offset = ($page - 1) * $per_page;',
+		]);
 	});
 });
