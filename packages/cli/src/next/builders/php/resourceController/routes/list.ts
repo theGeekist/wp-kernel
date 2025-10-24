@@ -21,8 +21,8 @@ import {
 	appendTaxonomyQueryBuilder,
 	collectMetaQueryEntries,
 	collectTaxonomyQueryEntries,
-	createListForeachPrintable,
-	createListItemsInitialiser,
+	buildListForeachStatement,
+	buildListItemsInitialiserStatement,
 	createPageExpression,
 	createPaginationNormalisationStatements,
 	buildPropertyFetch,
@@ -191,16 +191,19 @@ export function buildListRouteBody(
 		})
 	);
 
-	const itemsPrintable = createListItemsInitialiser({
-		indentLevel,
-	});
+	const itemsPrintable = formatStatementPrintable(
+		buildListItemsInitialiserStatement(),
+		{ indentLevel, indentUnit: PHP_INDENT }
+	);
 	options.body.statement(itemsPrintable);
 	options.body.blank();
 
-	const foreachPrintable = createListForeachPrintable({
-		pascalName: options.pascalName,
-		indentLevel,
-	});
+	const foreachPrintable = formatStatementPrintable(
+		buildListForeachStatement({
+			pascalName: options.pascalName,
+		}),
+		{ indentLevel, indentUnit: PHP_INDENT }
+	);
 	options.body.statement(foreachPrintable);
 	options.body.blank();
 

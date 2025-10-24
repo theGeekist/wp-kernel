@@ -4,10 +4,10 @@ import {
 } from '../wpPost/metaQuery';
 import { collectTaxonomyQueryEntries } from '../wpPost/taxonomyQuery';
 import {
-	createListForeachPrintable,
-	createListItemsInitialiser,
+	buildListForeachStatement,
+	buildListItemsInitialiserStatement,
 } from '../wpPost/list';
-import { createIdentityValidationPrintables } from '../wpPost/identity';
+import { buildIdentityValidationStatements } from '../wpPost/identity';
 import { PhpMethodBodyBuilder, PHP_INDENT } from '@wpkernel/php-json-ast';
 
 describe('wpPost query helpers', () => {
@@ -65,79 +65,208 @@ describe('wpPost query helpers', () => {
 
 describe('wpPost list helpers', () => {
 	it('initialises the items array with indentation', () => {
-		const printable = createListItemsInitialiser({ indentLevel: 2 });
-		expect(printable.node).toMatchObject({
+		const statement = buildListItemsInitialiserStatement();
+		expect(statement).toMatchObject({
 			nodeType: 'Stmt_Expression',
 			expr: {
 				nodeType: 'Expr_Assign',
-				var: { nodeType: 'Expr_Variable', name: 'items' },
-				expr: { nodeType: 'Expr_Array', items: [] },
+				var: {
+					nodeType: 'Expr_Variable',
+					name: 'items',
+				},
+				expr: {
+					nodeType: 'Expr_Array',
+					items: [],
+				},
 			},
 		});
 	});
 
 	it('creates the foreach loop with guards and response push', () => {
-		const printable = createListForeachPrintable({
+		const foreachNode = buildListForeachStatement({
 			pascalName: 'Article',
-			indentLevel: 1,
 		});
 
-		expect(printable.node).toMatchObject({
-			nodeType: 'Stmt_Foreach',
+		expect(foreachNode.nodeType).toBe('Stmt_Foreach');
+		expect(foreachNode.expr).toMatchObject({
+			nodeType: 'Expr_PropertyFetch',
+			var: { nodeType: 'Expr_Variable', name: 'query' },
+			name: { nodeType: 'Identifier', name: 'posts' },
+		});
+
+		const [assignment, guard, push] = foreachNode.stmts as const;
+		expect(assignment).toMatchObject({
+			nodeType: 'Stmt_Expression',
 			expr: {
-				nodeType: 'Expr_PropertyFetch',
-				name: { nodeType: 'Identifier', name: 'posts' },
+				nodeType: 'Expr_Assign',
+				var: { nodeType: 'Expr_Variable', name: 'post' },
+				expr: {
+					nodeType: 'Expr_FuncCall',
+					name: { parts: ['get_post'] },
+				},
 			},
-			valueVar: { nodeType: 'Expr_Variable', name: 'post_id' },
-			stmts: expect.arrayContaining([
-				expect.objectContaining({
-					nodeType: 'Stmt_Expression',
-				}),
-			]),
+		});
+		expect(guard).toMatchObject({
+			nodeType: 'Stmt_If',
+			cond: {
+				nodeType: 'Expr_BooleanNot',
+				expr: {
+					nodeType: 'Expr_Instanceof',
+					expr: { nodeType: 'Expr_Variable', name: 'post' },
+					class: { parts: ['WP_Post'] },
+				},
+			},
+			stmts: [{ nodeType: 'Stmt_Continue' }],
+		});
+		expect(push).toMatchObject({
+			nodeType: 'Stmt_Expression',
+			expr: {
+				nodeType: 'Expr_Assign',
+				var: {
+					nodeType: 'Expr_ArrayDimFetch',
+					var: { nodeType: 'Expr_Variable', name: 'items' },
+				},
+				expr: {
+					nodeType: 'Expr_MethodCall',
+					name: {
+						nodeType: 'Identifier',
+						name: 'prepareArticleResponse',
+					},
+				},
+			},
 		});
 	});
 });
 
 describe('wpPost identity helpers', () => {
 	it('creates numeric identifier validation statements', () => {
-		const statements = createIdentityValidationPrintables({
+		const statements = buildIdentityValidationStatements({
 			identity: { type: 'number', param: 'book_id' },
-			indentLevel: 1,
 			pascalName: 'Book',
 			errorCodeFactory: (suffix) => `book_${suffix}`,
 		});
 
 		expect(statements).toHaveLength(3);
-		expect(statements[0]?.node).toMatchObject({
-			nodeType: 'Stmt_If',
-			cond: { nodeType: 'Expr_BinaryOp_Identical' },
-		});
-		expect(statements[1]?.node).toMatchObject({
+		expect(statements[0]).toEqual(
+			expect.objectContaining({
+				nodeType: 'Stmt_If',
+				cond: expect.objectContaining({
+					nodeType: 'Expr_BinaryOp_Identical',
+					right: expect.objectContaining({
+						nodeType: 'Expr_Variable',
+						name: 'book_id',
+					}),
+				}),
+				stmts: expect.arrayContaining([
+					expect.objectContaining({
+						nodeType: 'Stmt_Return',
+						expr: expect.objectContaining({
+							nodeType: 'Expr_New',
+							args: expect.arrayContaining([
+								expect.objectContaining({
+									value: expect.objectContaining({
+										value: 'book_missing_identifier',
+									}),
+								}),
+								expect.objectContaining({
+									value: expect.objectContaining({
+										value: 'Missing identifier for Book.',
+									}),
+								}),
+							]),
+						}),
+					}),
+				]),
+			})
+		);
+		expect(statements[1]).toMatchObject({
 			nodeType: 'Stmt_Expression',
-			expr: { nodeType: 'Expr_Assign' },
+			expr: {
+				nodeType: 'Expr_Assign',
+				var: { nodeType: 'Expr_Variable', name: 'book_id' },
+				expr: { nodeType: 'Expr_Cast_Int' },
+			},
 		});
-		expect(statements[2]?.node).toMatchObject({
-			nodeType: 'Stmt_If',
-			cond: { nodeType: 'Expr_BinaryOp_SmallerOrEqual' },
-		});
+		expect(statements[2]).toEqual(
+			expect.objectContaining({
+				nodeType: 'Stmt_If',
+				cond: expect.objectContaining({
+					nodeType: 'Expr_BinaryOp_SmallerOrEqual',
+					left: expect.objectContaining({
+						nodeType: 'Expr_Variable',
+						name: 'book_id',
+					}),
+				}),
+				stmts: expect.arrayContaining([
+					expect.objectContaining({
+						nodeType: 'Stmt_Return',
+						expr: expect.objectContaining({
+							nodeType: 'Expr_New',
+							args: expect.arrayContaining([
+								expect.objectContaining({
+									value: expect.objectContaining({
+										value: 'book_invalid_identifier',
+									}),
+								}),
+								expect.objectContaining({
+									value: expect.objectContaining({
+										value: 'Invalid identifier for Book.',
+									}),
+								}),
+							]),
+						}),
+					}),
+				]),
+			})
+		);
 	});
 
 	it('creates string identifier validation statements', () => {
-		const statements = createIdentityValidationPrintables({
+		const statements = buildIdentityValidationStatements({
 			identity: { type: 'string', param: 'slug' },
-			indentLevel: 1,
 			pascalName: 'Book',
 			errorCodeFactory: (suffix) => `book_${suffix}`,
 		});
 
 		expect(statements).toHaveLength(2);
-		expect(statements[0]?.node).toMatchObject({
-			nodeType: 'Stmt_If',
-			cond: { nodeType: 'Expr_BinaryOp_BooleanOr' },
-		});
-		expect(statements[1]?.node).toMatchObject({
+		expect(statements[0]).toEqual(
+			expect.objectContaining({
+				nodeType: 'Stmt_If',
+				cond: expect.objectContaining({
+					nodeType: 'Expr_BinaryOp_BooleanOr',
+				}),
+				stmts: expect.arrayContaining([
+					expect.objectContaining({
+						nodeType: 'Stmt_Return',
+						expr: expect.objectContaining({
+							nodeType: 'Expr_New',
+							args: expect.arrayContaining([
+								expect.objectContaining({
+									value: expect.objectContaining({
+										value: 'book_missing_identifier',
+									}),
+								}),
+								expect.objectContaining({
+									value: expect.objectContaining({
+										value: 'Missing identifier for Book.',
+									}),
+								}),
+							]),
+						}),
+					}),
+				]),
+			})
+		);
+		expect(statements[1]).toMatchObject({
 			nodeType: 'Stmt_Expression',
-			expr: { nodeType: 'Expr_Assign' },
+			expr: {
+				nodeType: 'Expr_Assign',
+				var: { nodeType: 'Expr_Variable', name: 'slug' },
+				expr: {
+					nodeType: 'Expr_FuncCall',
+					name: { parts: ['trim'] },
+				},
+			},
 		});
 	});
 });

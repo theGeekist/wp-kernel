@@ -11,7 +11,6 @@ import {
 	buildScalarBool,
 	buildScalarInt,
 	buildVariable,
-	PHP_INDENT,
 	makeErrorCodeFactory,
 	type PhpStmt,
 } from '@wpkernel/php-json-ast';
@@ -25,7 +24,7 @@ import {
 	buildVariableExpression,
 } from '../macros';
 import { buildArrayLiteral, buildBinaryOperation } from '../../../utils';
-import { createWpErrorReturn } from '../../../errors';
+import { buildWpErrorReturn } from '../../../errors';
 import type { BuildCreateRouteBodyOptions } from './types';
 
 export function buildCreateRouteBody(
@@ -100,8 +99,7 @@ export function buildCreateRouteBody(
 		)
 	);
 
-	const insertFailedReturn = createWpErrorReturn({
-		indentLevel: options.indentLevel + 1,
+	const insertFailedReturn = buildWpErrorReturn({
 		code: errorCodeFactory('create_failed'),
 		message: `Unable to create ${options.pascalName}.`,
 		status: 500,
@@ -115,7 +113,7 @@ export function buildCreateRouteBody(
 				buildScalarInt(0),
 				buildVariable('post_id')
 			),
-			[insertFailedReturn.node]
+			[insertFailedReturn]
 		)
 	);
 	options.body.blank();
@@ -157,7 +155,7 @@ function appendStatement(
 	options.body.statement(
 		formatStatementPrintable(statement, {
 			indentLevel: options.indentLevel,
-			indentUnit: PHP_INDENT,
+			indentUnit: options.body.getIndentUnit(),
 		})
 	);
 }

@@ -12,12 +12,11 @@ import {
 	buildScalarInt,
 	buildScalarString,
 	buildVariable,
-	PHP_INDENT,
 	makeErrorCodeFactory,
 	type PhpStmt,
 } from '@wpkernel/php-json-ast';
 import { formatStatementPrintable } from '../../../printer';
-import { createIdentityValidationPrintables } from '../../identity';
+import { buildIdentityValidationStatements } from '../../identity';
 import {
 	appendCachePrimingMacro,
 	appendStatusValidationMacro,
@@ -34,7 +33,7 @@ import {
 	buildInstanceof,
 	buildPropertyFetch,
 } from '../../../utils';
-import { createWpErrorReturn } from '../../../errors';
+import { buildWpErrorReturn } from '../../../errors';
 import type { BuildUpdateRouteBodyOptions } from './types';
 
 export function buildUpdateRouteBody(
@@ -62,15 +61,14 @@ export function buildUpdateRouteBody(
 		)
 	);
 
-	const validationStatements = createIdentityValidationPrintables({
+	const validationStatements = buildIdentityValidationStatements({
 		identity: options.identity,
-		indentLevel: options.indentLevel,
 		pascalName: options.pascalName,
 		errorCodeFactory,
 	});
 
 	for (const statement of validationStatements) {
-		options.body.statement(statement);
+		appendStatement(options, statement);
 	}
 
 	if (validationStatements.length > 0) {
@@ -91,8 +89,7 @@ export function buildUpdateRouteBody(
 		)
 	);
 
-	const notFoundReturn = createWpErrorReturn({
-		indentLevel: options.indentLevel + 1,
+	const notFoundReturn = buildWpErrorReturn({
 		code: errorCodeFactory('not_found'),
 		message: `${options.pascalName} not found.`,
 		status: 404,
@@ -101,7 +98,7 @@ export function buildUpdateRouteBody(
 	appendStatement(
 		options,
 		buildIfStatement(buildBooleanNot(buildInstanceof('post', 'WP_Post')), [
-			notFoundReturn.node,
+			notFoundReturn,
 		])
 	);
 	options.body.blank();
@@ -162,8 +159,7 @@ export function buildUpdateRouteBody(
 		)
 	);
 
-	const updateFailedReturn = createWpErrorReturn({
-		indentLevel: options.indentLevel + 1,
+	const updateFailedReturn = buildWpErrorReturn({
 		code: errorCodeFactory('update_failed'),
 		message: `Unable to update ${options.pascalName}.`,
 		status: 500,
@@ -177,7 +173,7 @@ export function buildUpdateRouteBody(
 				buildScalarInt(0),
 				buildVariable('result')
 			),
-			[updateFailedReturn.node]
+			[updateFailedReturn]
 		)
 	);
 	options.body.blank();
@@ -220,7 +216,7 @@ function appendStatement(
 	options.body.statement(
 		formatStatementPrintable(statement, {
 			indentLevel: options.indentLevel,
-			indentUnit: PHP_INDENT,
+			indentUnit: options.body.getIndentUnit(),
 		})
 	);
 }
