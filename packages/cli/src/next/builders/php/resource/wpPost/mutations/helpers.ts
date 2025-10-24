@@ -35,6 +35,7 @@ import {
 	buildBinaryOperation,
 	buildBooleanNot,
 	buildForeachStatement,
+	buildReturnVoid,
 	buildPropertyFetch,
 	buildScalarCast,
 } from '../../utils';
@@ -82,7 +83,7 @@ export function syncWpPostMeta(
 						])
 					)
 				);
-				appendStatement(body, buildReturn(null));
+				appendStatement(body, buildReturnVoid());
 				return;
 			}
 
