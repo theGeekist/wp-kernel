@@ -10,22 +10,26 @@ import {
 	buildParam,
 	buildArray,
 	buildArrayItem,
-	buildArrowFunction,
 	buildBooleanNot,
 	buildReturn,
 	buildScalarInt,
 	buildScalarString,
 	buildVariable,
+	buildIdentifier,
 	PHP_INDENT,
 	type PhpExpr,
 	type PhpExprTernary,
 	type PhpStmt,
+	type PhpStmtElse,
+	type PhpStmtForeach,
 } from '@wpkernel/php-json-ast';
 import {
 	buildArrayLiteral,
 	buildBinaryOperation,
-	buildBooleanNot,
 	buildForeachStatement,
+	buildVariableAssignment,
+	normaliseVariableReference,
+	printStatement,
 } from '../utils';
 import { formatInlinePhpExpression, formatStatement } from '../printer';
 
@@ -68,7 +72,10 @@ describe('resource printer', () => {
 	it('inserts blank lines between nested if statements and following expressions', () => {
 		const nestedIf = buildIfStatement(buildVariable('innerCondition'), [
 			buildExpressionStatement(
-				buildMethodCall(buildVariable('service'), buildName(['handle']))
+				buildMethodCall(
+					buildVariable('service'),
+					buildIdentifier('handle')
+				)
 			),
 		]);
 
@@ -121,7 +128,7 @@ describe('resource printer', () => {
 				buildExpressionStatement(
 					buildMethodCall(
 						buildVariable('logger'),
-						buildName(['log']),
+						buildIdentifier('log'),
 						[buildArg(buildVariable('item'))]
 					)
 				),
@@ -159,22 +166,31 @@ describe('resource printer', () => {
 	});
 
 	it('formats parameter lists with types, references, and defaults', () => {
-	buildNode,
-	buildIfStatement,
-	buildIdentifier,
-	buildParam,
-	type PhpStmtElse,
-	type PhpStmtForeach,
-} from '@wpkernel/php-json-ast';
-import {
-	buildVariableAssignment,
-	normaliseVariableReference,
-	printStatement,
-	buildBinaryOperation,
-} from '../utils';
-import { formatInlinePhpExpression } from '../printer';
+		const arrowFunction = buildArrowFunction({
+			static: true,
+			byRef: true,
+			params: [
+				buildParam(buildVariable('value'), {
+					type: buildIdentifier('int'),
+					byRef: true,
+					variadic: true,
+					default: buildScalarInt(10),
+				}),
+			],
+			expr: buildBooleanNot(
+				buildBinaryOperation(
+					'Greater',
+					buildVariable('value'),
+					buildScalarInt(0)
+				)
+			),
+		});
 
-describe('resource printer helpers', () => {
+		expect(formatInlinePhpExpression(arrowFunction)).toEqual(
+			'static fn &(int &...$value = 10) => !($value > 0)'
+		);
+	});
+
 	it('formats assignment statements', () => {
 		const assignment = buildVariableAssignment(
 			normaliseVariableReference('result'),
@@ -288,9 +304,7 @@ describe('resource printer helpers', () => {
 					byRef: true,
 				}),
 				buildParam(buildVariable('context'), {
-					type: buildNode('NullableType', {
-						type: buildName(['array']),
-					}),
+					type: buildName(['array']),
 					default: buildArrayLiteral([]),
 				}),
 			],
@@ -298,7 +312,7 @@ describe('resource printer helpers', () => {
 		});
 
 		expect(formatInlinePhpExpression(arrowFunction)).toBe(
-			'static fn &(string &$value, ?array $context = []) => $value'
+			'static fn &(string &$value, array $context = []) => $value'
 		);
 	});
 
@@ -368,24 +382,6 @@ describe('resource printer helpers', () => {
 		expect(() =>
 			formatStatement(buildExpressionStatement(closure), 1, PHP_INDENT)
 		).toThrow(/Unsupported expression node/);
-					type: buildIdentifier('int'),
-					byRef: true,
-					variadic: true,
-					default: buildScalarInt(10),
-				}),
-			],
-			expr: buildBooleanNot(
-				buildBinaryOperation(
-					'Greater',
-					buildVariable('value'),
-					buildScalarInt(0)
-				)
-			),
-		});
-
-		expect(formatInlinePhpExpression(arrowFunction)).toEqual(
-			'static fn &(int &...$value = 10) => !($value > 0)'
-		);
 	});
 
 	it('preserves binary operator precedence for grouped expressions', () => {
