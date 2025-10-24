@@ -16,12 +16,13 @@ import {
 import {
 	appendResourceCacheEvent,
 	buildBooleanNot,
-	createIdentityValidationPrintables,
+	buildIdentityValidationStatements,
 	buildIfPrintable,
 	buildInstanceof,
 	createWpErrorReturn,
 	buildWpTaxonomyGetRouteBody,
 } from '../../resource';
+import { formatStatementPrintable } from '../../resource/printer';
 import type { ResolvedIdentity } from '../../identity';
 import type { IRResource } from '../../../../../ir/types';
 
@@ -72,15 +73,19 @@ export function buildGetRouteBody(options: BuildGetRouteBodyOptions): boolean {
 	const param = options.identity.param;
 	const variableName = `$${param}`;
 
-	const identityStatements = createIdentityValidationPrintables({
+	const identityStatements = buildIdentityValidationStatements({
 		identity: options.identity,
-		indentLevel,
 		pascalName: options.pascalName,
 		errorCodeFactory: options.errorCodeFactory,
 	});
 
 	for (const statement of identityStatements) {
-		options.body.statement(statement);
+		options.body.statement(
+			formatStatementPrintable(statement, {
+				indentLevel,
+				indentUnit: PHP_INDENT,
+			})
+		);
 	}
 
 	if (identityStatements.length > 0) {

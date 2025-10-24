@@ -11,12 +11,11 @@ import {
 	buildScalarBool,
 	buildScalarString,
 	buildVariable,
-	PHP_INDENT,
 	makeErrorCodeFactory,
 	type PhpStmt,
 } from '@wpkernel/php-json-ast';
 import { formatStatementPrintable } from '../../../printer';
-import { createIdentityValidationPrintables } from '../../identity';
+import { buildIdentityValidationStatements } from '../../identity';
 import {
 	buildArrayLiteral,
 	buildBinaryOperation,
@@ -25,7 +24,7 @@ import {
 	buildPropertyFetch,
 	buildScalarCast,
 } from '../../../utils';
-import { createWpErrorReturn } from '../../../errors';
+import { buildWpErrorReturn } from '../../../errors';
 import type { BuildDeleteRouteBodyOptions } from './types';
 
 export function buildDeleteRouteBody(
@@ -53,15 +52,14 @@ export function buildDeleteRouteBody(
 		)
 	);
 
-	const validationStatements = createIdentityValidationPrintables({
+	const validationStatements = buildIdentityValidationStatements({
 		identity: options.identity,
-		indentLevel: options.indentLevel,
 		pascalName: options.pascalName,
 		errorCodeFactory,
 	});
 
 	for (const statement of validationStatements) {
-		options.body.statement(statement);
+		appendStatement(options, statement);
 	}
 
 	if (validationStatements.length > 0) {
@@ -82,8 +80,7 @@ export function buildDeleteRouteBody(
 		)
 	);
 
-	const notFoundReturn = createWpErrorReturn({
-		indentLevel: options.indentLevel + 1,
+	const notFoundReturn = buildWpErrorReturn({
 		code: errorCodeFactory('not_found'),
 		message: `${options.pascalName} not found.`,
 		status: 404,
@@ -92,7 +89,7 @@ export function buildDeleteRouteBody(
 	appendStatement(
 		options,
 		buildIfStatement(buildBooleanNot(buildInstanceof('post', 'WP_Post')), [
-			notFoundReturn.node,
+			notFoundReturn,
 		])
 	);
 	options.body.blank();
@@ -127,8 +124,7 @@ export function buildDeleteRouteBody(
 		)
 	);
 
-	const deleteReturn = createWpErrorReturn({
-		indentLevel: options.indentLevel + 1,
+	const deleteReturn = buildWpErrorReturn({
 		code: errorCodeFactory('delete_failed'),
 		message: `Unable to delete ${options.pascalName}.`,
 		status: 500,
@@ -142,7 +138,7 @@ export function buildDeleteRouteBody(
 				buildScalarBool(false),
 				buildVariable('deleted')
 			),
-			[deleteReturn.node]
+			[deleteReturn]
 		)
 	);
 	options.body.blank();
@@ -180,7 +176,7 @@ function appendStatement(
 	options.body.statement(
 		formatStatementPrintable(statement, {
 			indentLevel: options.indentLevel,
-			indentUnit: PHP_INDENT,
+			indentUnit: options.body.getIndentUnit(),
 		})
 	);
 }
