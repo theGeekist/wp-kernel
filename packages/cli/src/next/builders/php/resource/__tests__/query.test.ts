@@ -36,6 +36,15 @@ describe('query helpers', () => {
 		]);
 	});
 
+	it('creates query arg assignments with no entries', () => {
+		const assignment = createQueryArgsAssignment({
+			targetVariable: 'query_args',
+			entries: [],
+		});
+
+		expect(assignment.lines).toEqual(['$query_args = [];']);
+	});
+
 	it('normalises pagination parameters', () => {
 		const [assign, ensurePositive, clamp] = createPaginationNormalisation({
 			requestVariable: '$request',
@@ -96,5 +105,14 @@ describe('query helpers', () => {
 
 		expect(printable.lines).toEqual(['$query = new WP_Query( $args );']);
 		expect(metadata.cache?.events).toHaveLength(1);
+	});
+
+	it('executes WP_Query without cache metadata when cache is omitted', () => {
+		const printable = createWpQueryExecution({
+			target: 'query',
+			argsVariable: 'args',
+		});
+
+		expect(printable.lines).toEqual(['$query = new WP_Query( $args );']);
 	});
 });

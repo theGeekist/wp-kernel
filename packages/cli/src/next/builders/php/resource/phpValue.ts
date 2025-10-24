@@ -3,8 +3,6 @@ import {
 	type PhpExpr,
 	buildPrintable,
 	type PhpPrintable,
-} from '@wpkernel/php-json-ast';
-import {
 	PHP_INDENT,
 	buildPhpExpressionPrintable,
 } from '@wpkernel/php-json-ast';
@@ -48,20 +46,18 @@ export function expression(
 
 export function renderPhpValue(
 	value: PhpValueDescriptor,
-	indentLevel: number,
-	indentUnit: string = PHP_INDENT
+	indentLevel: number
 ): PhpPrintableExpr {
 	if (isVariableDescriptor(value)) {
-		return renderVariable(value, indentLevel, indentUnit);
+		return renderVariable(value, indentLevel);
 	}
 
 	if (isExpressionDescriptor(value)) {
-		return renderExpression(value, indentLevel, indentUnit);
+		return renderExpression(value, indentLevel);
 	}
 
 	const printable = buildPhpExpressionPrintable(value, 0);
-	const lines = formatExpression(printable.node, indentLevel, indentUnit);
-	return buildPrintable(printable.node, lines);
+	return renderPrintableExpression(printable.node, indentLevel);
 }
 
 function isVariableDescriptor(
@@ -88,24 +84,24 @@ function isExpressionDescriptor(
 
 function renderVariable(
 	descriptor: VariableValueDescriptor,
-	indentLevel: number,
-	indentUnit: string
+	indentLevel: number
 ): PhpPrintableExpr {
 	const reference = normaliseVariableReference(descriptor.name);
 	const variableExpression = buildVariable(reference.raw);
-	const lines = formatExpression(variableExpression, indentLevel, indentUnit);
-	return buildPrintable(variableExpression, lines);
+	return renderPrintableExpression(variableExpression, indentLevel);
 }
 
 function renderExpression(
 	descriptor: ExpressionValueDescriptor,
-	indentLevel: number,
-	indentUnit: string
+	indentLevel: number
 ): PhpPrintableExpr {
-	const lines = formatExpression(
-		descriptor.printable.node,
-		indentLevel,
-		indentUnit
-	);
-	return buildPrintable(descriptor.printable.node, lines);
+	return renderPrintableExpression(descriptor.printable.node, indentLevel);
+}
+
+function renderPrintableExpression(
+	expr: PhpExpr,
+	indentLevel: number
+): PhpPrintableExpr {
+	const lines = formatExpression(expr, indentLevel, PHP_INDENT);
+	return buildPrintable(expr, lines);
 }

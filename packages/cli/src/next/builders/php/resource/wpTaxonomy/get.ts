@@ -10,18 +10,24 @@ import {
 	buildFuncCall,
 	buildName,
 	buildScalarString,
-	buildPrintable,
-} from '@wpkernel/php-json-ast';
-import {
-	PHP_INDENT,
+	type PhpStmtExpression,
+	type PhpStmtReturn,
+	type PhpPrintable,
 	type PhpMethodBodyBuilder,
 	type ResourceMetadataHost,
+	type PhpExpr,
+	PHP_INDENT,
 } from '@wpkernel/php-json-ast';
 import { appendResourceCacheEvent } from '../cache';
 import { createWpErrorReturn } from '../errors';
 import { buildInstanceof, buildBooleanNot, buildIfPrintable } from '../utils';
 import type { IRResource } from '../../../../../ir/types';
 import type { ResolvedIdentity } from '../../identity';
+import { formatStatementPrintable } from '../printer';
+import {
+	buildPrepareTaxonomyTermResponseCall,
+	buildResolveTaxonomyTermCall,
+} from './helpers';
 
 type WpTaxonomyStorage = Extract<
 	NonNullable<IRResource['storage']>,
@@ -53,11 +59,9 @@ export function buildWpTaxonomyGetRouteBody(
 	});
 
 	const indentLevel = options.indentLevel;
-	const indent = PHP_INDENT.repeat(indentLevel);
-	const childIndent = PHP_INDENT.repeat(indentLevel + 1);
 
-	const identityAssign = buildPrintable(
-		buildExpressionStatement(
+	options.body.statement(
+		createExpressionPrintable(
 			buildAssign(
 				buildVariable('identity'),
 				buildMethodCall(
@@ -79,13 +83,10 @@ export function buildWpTaxonomyGetRouteBody(
 						),
 					]
 				)
-			)
-		),
-		[
-			`${indent}$identity = $this->validate${options.pascalName}Identity( $request->get_param( '${options.identity.param}' ) );`,
-		]
+			),
+			indentLevel
+		)
 	);
-	options.body.statement(identityAssign);
 
 	const errorGuard = buildIfPrintable({
 		indentLevel,
@@ -93,30 +94,21 @@ export function buildWpTaxonomyGetRouteBody(
 			buildArg(buildVariable('identity')),
 		]),
 		statements: [
-			buildPrintable(buildReturn(buildVariable('identity')), [
-				`${childIndent}return $identity;`,
-			]),
+			createReturnPrintable(buildVariable('identity'), indentLevel + 1),
 		],
 	});
 	options.body.statement(errorGuard);
 	options.body.blank();
 
-	const resolvePrintable = buildPrintable(
-		buildExpressionStatement(
+	options.body.statement(
+		createExpressionPrintable(
 			buildAssign(
 				buildVariable('term'),
-				buildMethodCall(
-					buildVariable('this'),
-					buildIdentifier(`resolve${options.pascalName}Term`),
-					[buildArg(buildVariable('identity'))]
-				)
-			)
-		),
-		[
-			`${indent}$term = $this->resolve${options.pascalName}Term( $identity );`,
-		]
+				buildResolveTaxonomyTermCall(options.pascalName)
+			),
+			indentLevel
+		)
 	);
-	options.body.statement(resolvePrintable);
 
 	const notFoundReturn = createWpErrorReturn({
 		indentLevel: indentLevel + 1,
@@ -133,21 +125,36 @@ export function buildWpTaxonomyGetRouteBody(
 	options.body.statement(guard);
 	options.body.blank();
 
-	const returnPrintable = buildPrintable(
-		buildReturn(
-			buildMethodCall(
-				buildVariable('this'),
-				buildIdentifier(`prepare${options.pascalName}TermResponse`),
-				[buildArg(buildVariable('term'))]
-			)
-		),
-		[
-			`${indent}return $this->prepare${options.pascalName}TermResponse( $term );`,
-		]
+	options.body.statement(
+		createReturnPrintable(
+			buildPrepareTaxonomyTermResponseCall(options.pascalName, 'term'),
+			indentLevel
+		)
 	);
-	options.body.statement(returnPrintable);
 
 	return true;
+}
+
+function createExpressionPrintable(
+	expression: PhpExpr,
+	indentLevel: number
+): PhpPrintable<PhpStmtExpression> {
+	const statement = buildExpressionStatement(expression);
+	return formatStatementPrintable(statement, {
+		indentLevel,
+		indentUnit: PHP_INDENT,
+	});
+}
+
+function createReturnPrintable(
+	expression: PhpExpr | null,
+	indentLevel: number
+): PhpPrintable<PhpStmtReturn> {
+	const statement = buildReturn(expression);
+	return formatStatementPrintable(statement, {
+		indentLevel,
+		indentUnit: PHP_INDENT,
+	});
 }
 
 function ensureStorage(resource: IRResource): WpTaxonomyStorage {

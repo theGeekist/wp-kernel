@@ -15,9 +15,7 @@ import {
 	buildScalarInt,
 	buildScalarString,
 	buildVariable,
-	buildPrintable,
 	PHP_INDENT,
-	escapeSingleQuotes,
 	toSnakeCase,
 } from '@wpkernel/php-json-ast';
 import {
@@ -27,6 +25,7 @@ import {
 	buildIfPrintable,
 	buildScalarCast,
 } from '../utils';
+import { formatStatementPrintable } from '../printer';
 import type { PhpMethodBodyBuilder } from '@wpkernel/php-json-ast';
 
 export interface WpPostTaxonomyConfigEntry {
@@ -69,18 +68,15 @@ export function appendTaxonomyQueryBuilder(
 		return;
 	}
 
-	const indentLevel = options.indentLevel;
-	const indent = PHP_INDENT.repeat(indentLevel);
-
 	const initPrintable = buildArrayInitialiser({
 		variable: 'tax_query',
-		indentLevel,
+		indentLevel: options.indentLevel,
 	});
 	options.body.statement(initPrintable);
 
 	for (const [key, descriptor] of options.entries) {
 		const variableName = `${toSnakeCase(key)}Terms`;
-		const requestPrintable = buildPrintable(
+		const requestPrintable = formatStatementPrintable(
 			buildExpressionStatement(
 				buildAssign(
 					buildVariable(variableName),
@@ -91,16 +87,16 @@ export function appendTaxonomyQueryBuilder(
 					)
 				)
 			),
-			[
-				`${indent}$${variableName} = $request->get_param( '${escapeSingleQuotes(key)}' );`,
-			]
+			{
+				indentLevel: options.indentLevel,
+				indentUnit: PHP_INDENT,
+			}
 		);
 		options.body.statement(requestPrintable);
 
-		const childIndentLevel = indentLevel + 1;
-		const childIndent = PHP_INDENT.repeat(childIndentLevel);
+		const childIndentLevel = options.indentLevel + 1;
 
-		const sanitisePrintable = buildPrintable(
+		const sanitisePrintable = formatStatementPrintable(
 			buildExpressionStatement(
 				buildAssign(
 					buildVariable(variableName),
@@ -138,19 +134,13 @@ export function appendTaxonomyQueryBuilder(
 					])
 				)
 			),
-			[
-				`${childIndent}$${variableName} = array_filter(`,
-				`${childIndent}${PHP_INDENT}array_map(`,
-				`${childIndent}${PHP_INDENT}${PHP_INDENT}static fn ( $value ) => (int) $value,`,
-				`${childIndent}${PHP_INDENT}${PHP_INDENT}(array) $${variableName}`,
-				`${childIndent}${PHP_INDENT}),`,
-				`${childIndent}${PHP_INDENT}static fn ( $value ) => $value > 0`,
-				`${childIndent});`,
-			]
+			{
+				indentLevel: childIndentLevel,
+				indentUnit: PHP_INDENT,
+			}
 		);
 
-		const nestedIndent = PHP_INDENT.repeat(childIndentLevel + 1);
-		const pushPrintable = buildPrintable(
+		const pushPrintable = formatStatementPrintable(
 			buildExpressionStatement(
 				buildAssign(
 					buildArrayDimFetch('tax_query', null),
@@ -167,18 +157,15 @@ export function appendTaxonomyQueryBuilder(
 					])
 				)
 			),
-			[
-				`${nestedIndent}$tax_query[] = [`,
-				`${nestedIndent}${PHP_INDENT}'taxonomy' => '${escapeSingleQuotes(descriptor.taxonomy)}',`,
-				`${nestedIndent}${PHP_INDENT}'field' => 'term_id',`,
-				`${nestedIndent}${PHP_INDENT}'terms' => $${variableName},`,
-				`${nestedIndent}];`,
-			]
+			{
+				indentLevel: childIndentLevel + 1,
+				indentUnit: PHP_INDENT,
+			}
 		);
 
 		options.body.statement(
 			buildIfPrintable({
-				indentLevel,
+				indentLevel: options.indentLevel,
 				condition: buildBinaryOperation(
 					'NotIdentical',
 					buildVariable(variableName),
@@ -202,7 +189,7 @@ export function appendTaxonomyQueryBuilder(
 		);
 	}
 
-	const assignPrintable = buildPrintable(
+	const assignPrintable = formatStatementPrintable(
 		buildExpressionStatement(
 			buildAssign(
 				buildArrayDimFetch(
@@ -212,12 +199,15 @@ export function appendTaxonomyQueryBuilder(
 				buildVariable('tax_query')
 			)
 		),
-		[`${indent}${PHP_INDENT}$query_args['tax_query'] = $tax_query;`]
+		{
+			indentLevel: options.indentLevel + 1,
+			indentUnit: PHP_INDENT,
+		}
 	);
 
 	options.body.statement(
 		buildIfPrintable({
-			indentLevel,
+			indentLevel: options.indentLevel,
 			condition: buildBinaryOperation(
 				'Greater',
 				buildFuncCall(buildName(['count']), [
