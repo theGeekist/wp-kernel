@@ -19,7 +19,7 @@ import {
 	buildBooleanNot,
 	buildInstanceof,
 	buildPropertyFetch,
-	buildArrayInitialiserStatement,
+	// buildArrayInitialiserStatement,
 } from '../utils';
 
 export function buildListItemsInitialiserStatement(): PhpStmt {
