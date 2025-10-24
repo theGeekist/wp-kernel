@@ -16,10 +16,10 @@ import type { ResolvedIdentity } from '../../identity';
 import {
 	buildBinaryOperation,
 	buildBooleanNot,
-	buildIfPrintable,
 	buildScalarCast,
 	normaliseVariableReference,
 } from '../utils';
+import { buildIfPrintable } from '../printable';
 import { createWpErrorReturn } from '../errors';
 import { formatStatementPrintable } from '../printer';
 

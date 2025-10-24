@@ -3,18 +3,17 @@ import type {
 	ResourceMetadataHost,
 } from '@wpkernel/php-json-ast';
 import {
-	createPaginationNormalisation,
-	createQueryArgsAssignment,
+	createPaginationNormalisationStatements,
+	createQueryArgsAssignmentStatement,
 	createPageExpression,
-	createWpQueryExecution,
+	createWpQueryExecutionStatement,
 } from '../query';
 import { renderPhpValue, variable } from '../phpValue';
 
 describe('query helpers', () => {
 	it('creates query arg assignments', () => {
-		const assignment = createQueryArgsAssignment({
+		const assignment = createQueryArgsAssignmentStatement({
 			targetVariable: 'query_args',
-			indentLevel: 1,
 			entries: [
 				{ key: 'post_type', value: variable('post_type') },
 				{ key: 'fields', value: 'ids' },
@@ -27,53 +26,109 @@ describe('query helpers', () => {
 			],
 		});
 
-		expect(assignment.lines).toEqual([
-			'        $query_args = [',
-			"                'post_type' => $post_type,",
-			"                'fields' => 'ids',",
-			"                'paged' => max(1, (int) $request->get_param('page')),",
-			'        ];',
-		]);
+		expect(assignment.nodeType).toBe('Stmt_Expression');
+		expect(assignment.expr).toMatchObject({
+			nodeType: 'Expr_Assign',
+			var: { nodeType: 'Expr_Variable', name: 'query_args' },
+		});
+		const items = assignment.expr.expr?.items ?? [];
+		expect(items).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({
+					nodeType: 'Expr_ArrayItem',
+					key: expect.objectContaining({
+						nodeType: 'Scalar_String',
+						value: 'post_type',
+					}),
+				}),
+				expect.objectContaining({
+					nodeType: 'Expr_ArrayItem',
+					key: expect.objectContaining({
+						nodeType: 'Scalar_String',
+						value: 'fields',
+					}),
+				}),
+				expect.objectContaining({
+					nodeType: 'Expr_ArrayItem',
+					key: expect.objectContaining({
+						nodeType: 'Scalar_String',
+						value: 'paged',
+					}),
+				}),
+			])
+		);
 	});
 
 	it('creates query arg assignments with no entries', () => {
-		const assignment = createQueryArgsAssignment({
+		const assignment = createQueryArgsAssignmentStatement({
 			targetVariable: 'query_args',
 			entries: [],
 		});
 
-		expect(assignment.lines).toEqual(['$query_args = [];']);
+		expect(assignment).toMatchObject({
+			expr: {
+				expr: {
+					nodeType: 'Expr_Array',
+					items: [],
+				},
+			},
+		});
 	});
 
 	it('normalises pagination parameters', () => {
-		const [assign, ensurePositive, clamp] = createPaginationNormalisation({
-			requestVariable: '$request',
-			targetVariable: 'per_page',
-			indentLevel: 1,
-		});
+		const [assign, ensurePositive, clamp] =
+			createPaginationNormalisationStatements({
+				requestVariable: '$request',
+				targetVariable: 'per_page',
+			});
 
-		expect(assign.lines).toEqual([
-			"        $per_page = (int) $request->get_param('per_page');",
-		]);
-		expect(ensurePositive.lines).toEqual([
-			'        if ($per_page <= 0) {',
-			'                $per_page = 10;',
-			'        }',
-		]);
-		expect(clamp.lines).toEqual([
-			'        if ($per_page > 100) {',
-			'                $per_page = 100;',
-			'        }',
-		]);
+		expect(assign).toMatchObject({
+			expr: {
+				nodeType: 'Expr_Assign',
+				expr: { nodeType: 'Expr_Cast_Int' },
+			},
+		});
+		expect(ensurePositive).toMatchObject({
+			nodeType: 'Stmt_If',
+			cond: { nodeType: 'Expr_BinaryOp_SmallerOrEqual' },
+		});
+		expect(clamp).toMatchObject({
+			nodeType: 'Stmt_If',
+			cond: { nodeType: 'Expr_BinaryOp_Greater' },
+		});
 	});
 
 	it('creates page expression descriptors', () => {
 		const descriptor = createPageExpression({
 			requestVariable: '$request',
 		});
-		const printable = renderPhpValue(descriptor, 0);
-		expect(printable.lines).toContain(
-			"max(1, (int) $request->get_param('page'))"
+		const expr = renderPhpValue(descriptor);
+		expect(expr).toMatchObject({
+			nodeType: 'Expr_FuncCall',
+			name: { nodeType: 'Name', parts: ['max'] },
+		});
+		const args = expr.args ?? [];
+		expect(args).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({
+					value: expect.objectContaining({
+						nodeType: 'Scalar_LNumber',
+						value: 1,
+					}),
+				}),
+				expect.objectContaining({
+					value: expect.objectContaining({
+						nodeType: 'Expr_Cast_Int',
+						expr: expect.objectContaining({
+							nodeType: 'Expr_MethodCall',
+							name: expect.objectContaining({
+								nodeType: 'Identifier',
+								name: 'get_param',
+							}),
+						}),
+					}),
+				}),
+			])
 		);
 	});
 
@@ -92,7 +147,7 @@ describe('query helpers', () => {
 			},
 		};
 
-		const printable = createWpQueryExecution({
+		const statement = createWpQueryExecutionStatement({
 			target: 'query',
 			argsVariable: 'args',
 			cache: {
@@ -103,16 +158,26 @@ describe('query helpers', () => {
 			},
 		});
 
-		expect(printable.lines).toEqual(['$query = new WP_Query( $args );']);
+		expect(statement).toMatchObject({
+			expr: {
+				nodeType: 'Expr_Assign',
+				expr: { nodeType: 'Expr_New' },
+			},
+		});
 		expect(metadata.cache?.events).toHaveLength(1);
 	});
 
 	it('executes WP_Query without cache metadata when cache is omitted', () => {
-		const printable = createWpQueryExecution({
+		const statement = createWpQueryExecutionStatement({
 			target: 'query',
 			argsVariable: 'args',
 		});
 
-		expect(printable.lines).toEqual(['$query = new WP_Query( $args );']);
+		expect(statement).toMatchObject({
+			expr: {
+				nodeType: 'Expr_Assign',
+				expr: { nodeType: 'Expr_New' },
+			},
+		});
 	});
 });

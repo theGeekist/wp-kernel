@@ -17,10 +17,10 @@ import {
 import { PHP_INDENT } from '@wpkernel/php-json-ast';
 import {
 	buildArrayDimFetch,
-	buildArrayInitialiser,
 	buildBooleanNot,
 	buildInstanceof,
 	buildPropertyFetch,
+	buildArrayInitialiserStatement,
 } from '../utils';
 import { formatStatementPrintable } from '../printer';
 
@@ -31,9 +31,11 @@ export interface ListItemsInitialiserOptions {
 export function createListItemsInitialiser(
 	options: ListItemsInitialiserOptions
 ): PhpPrintable<PhpStmt> {
-	return buildArrayInitialiser({
-		variable: 'items',
+	const statement = buildArrayInitialiserStatement({ variable: 'items' });
+
+	return formatStatementPrintable(statement, {
 		indentLevel: options.indentLevel,
+		indentUnit: PHP_INDENT,
 	});
 }
 
