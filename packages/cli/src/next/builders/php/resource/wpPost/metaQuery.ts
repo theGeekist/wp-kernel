@@ -26,12 +26,11 @@ import {
 import { PHP_INDENT, toSnakeCase } from '@wpkernel/php-json-ast';
 import {
 	buildArrayDimFetch,
-	buildArrayInitialiser,
 	buildBinaryOperation,
 	buildBooleanNot,
-	buildIfPrintable,
 	buildScalarCast,
 } from '../utils';
+import { buildArrayInitialiser, buildIfPrintable } from '../printable';
 import { formatStatementPrintable } from '../printer';
 
 export interface WpPostMetaConfigEntry {

@@ -24,11 +24,11 @@ import {
 	buildListForeachStatement,
 	buildListItemsInitialiserStatement,
 	createPageExpression,
-	createPaginationNormalisation,
+	createPaginationNormalisationStatements,
 	buildPropertyFetch,
-	createQueryArgsAssignment,
+	createQueryArgsAssignmentStatement,
 	buildScalarCast,
-	createWpQueryExecution,
+	createWpQueryExecutionStatement,
 	variable,
 	buildWpTaxonomyListRouteBody,
 } from '../../resource';
@@ -86,14 +86,28 @@ export function buildListRouteBody(
 	options.body.statement(postTypePrintable);
 
 	const [perPageAssign, ensurePositive, clampMaximum] =
-		createPaginationNormalisation({
+		createPaginationNormalisationStatements({
 			requestVariable: '$request',
 			targetVariable: 'per_page',
-			indentLevel,
 		});
-	options.body.statement(perPageAssign);
-	options.body.statement(ensurePositive);
-	options.body.statement(clampMaximum);
+	options.body.statement(
+		formatStatementPrintable(perPageAssign, {
+			indentLevel,
+			indentUnit: PHP_INDENT,
+		})
+	);
+	options.body.statement(
+		formatStatementPrintable(ensurePositive, {
+			indentLevel,
+			indentUnit: PHP_INDENT,
+		})
+	);
+	options.body.statement(
+		formatStatementPrintable(clampMaximum, {
+			indentLevel,
+			indentUnit: PHP_INDENT,
+		})
+	);
 	options.body.blank();
 
 	const statuses = Array.isArray(storage.statuses)
@@ -135,11 +149,14 @@ export function buildListRouteBody(
 		{ key: 'posts_per_page', value: variable('per_page') },
 	] as const;
 
+	const queryArgsAssignment = createQueryArgsAssignmentStatement({
+		targetVariable: 'query_args',
+		entries: queryEntries,
+	});
 	options.body.statement(
-		createQueryArgsAssignment({
-			targetVariable: 'query_args',
-			entries: queryEntries,
+		formatStatementPrintable(queryArgsAssignment, {
 			indentLevel,
+			indentUnit: PHP_INDENT,
 		})
 	);
 	options.body.blank();
@@ -156,18 +173,21 @@ export function buildListRouteBody(
 		entries: taxonomyEntries,
 	});
 
+	const wpQueryExecution = createWpQueryExecutionStatement({
+		target: 'query',
+		argsVariable: 'query_args',
+		cache: {
+			host: options.metadataHost,
+			scope: 'list',
+			operation: 'read',
+			segments: options.cacheSegments,
+			description: 'List query',
+		},
+	});
 	options.body.statement(
-		createWpQueryExecution({
-			target: 'query',
-			argsVariable: 'query_args',
+		formatStatementPrintable(wpQueryExecution, {
 			indentLevel,
-			cache: {
-				host: options.metadataHost,
-				scope: 'list',
-				operation: 'read',
-				segments: options.cacheSegments,
-				description: 'List query',
-			},
+			indentUnit: PHP_INDENT,
 		})
 	);
 
