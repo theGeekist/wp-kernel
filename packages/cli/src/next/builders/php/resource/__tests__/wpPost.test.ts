@@ -1,5 +1,5 @@
 import {
-	appendMetaQueryBuilder,
+	buildMetaQueryStatements,
 	collectMetaQueryEntries,
 } from '../wpPost/metaQuery';
 import { collectTaxonomyQueryEntries } from '../wpPost/taxonomyQuery';
@@ -8,7 +8,7 @@ import {
 	buildListItemsInitialiserStatement,
 } from '../wpPost/list';
 import { buildIdentityValidationStatements } from '../wpPost/identity';
-import { PhpMethodBodyBuilder, PHP_INDENT } from '@wpkernel/php-json-ast';
+import type { PhpStmtIf } from '@wpkernel/php-json-ast';
 
 describe('wpPost query helpers', () => {
 	it('collects meta query entries', () => {
@@ -26,29 +26,63 @@ describe('wpPost query helpers', () => {
 	});
 
 	it('normalises multi-value meta queries without coercing retained values', () => {
-		const body = new PhpMethodBodyBuilder(PHP_INDENT, 1);
-
-		appendMetaQueryBuilder({
-			body,
-			indentLevel: 1,
+		const statements = buildMetaQueryStatements({
 			entries: [['genre', { single: false }]],
 		});
 
-		const lines = body.toLines();
-		expect(lines).toContain(
-			'                $genreMeta = array_values((array) $genreMeta);'
-		);
-		const filterLine = lines.find((line) =>
-			line.includes('$genreMeta = array_filter')
-		);
-		expect(filterLine).toBeDefined();
-		expect(filterLine).toContain(
-			'static fn ($value) => match (trim((string) $value)) {'
-		);
-		expect(filterLine).toContain("'' => false");
-		expect(filterLine).toContain('default => true');
-		expect(lines).not.toContain("array_map( 'strval'");
-		expect(lines).not.toContain("array_map( 'trim'");
+		expect(statements).toHaveLength(4);
+
+		const guard = statements[2] as PhpStmtIf;
+		expect(guard.nodeType).toBe('Stmt_If');
+
+		const [ensureArray, normalise, filter, ensureNonEmpty] =
+			guard.stmts as const;
+
+		expect(ensureArray).toMatchObject({ nodeType: 'Stmt_If' });
+		expect((ensureArray as PhpStmtIf).cond).toMatchObject({
+			nodeType: 'Expr_BooleanNot',
+			expr: expect.objectContaining({
+				nodeType: 'Expr_FuncCall',
+				name: expect.objectContaining({ parts: ['is_array'] }),
+			}),
+		});
+
+		expect(normalise).toMatchObject({ nodeType: 'Stmt_Expression' });
+		expect(
+			(normalise as { expr: { expr: { name: { parts: string[] } } } })
+				.expr.expr.name.parts
+		).toContain('array_values');
+
+		expect(filter).toMatchObject({ nodeType: 'Stmt_Expression' });
+		const filterCall = (
+			filter as {
+				expr: { expr: { name: { parts: string[] }; args: unknown[] } };
+			}
+		).expr.expr;
+		expect(filterCall.name.parts).toContain('array_filter');
+		expect(filterCall.args[0]).toMatchObject({
+			value: expect.objectContaining({
+				nodeType: 'Expr_Variable',
+				name: 'genreMeta',
+			}),
+		});
+		expect(filterCall.args[1]).toMatchObject({
+			value: expect.objectContaining({
+				nodeType: 'Expr_ArrowFunction',
+				expr: expect.objectContaining({
+					nodeType: 'Expr_Match',
+				}),
+			}),
+		});
+
+		expect(ensureNonEmpty).toMatchObject({ nodeType: 'Stmt_If' });
+		expect((ensureNonEmpty as PhpStmtIf).cond).toMatchObject({
+			nodeType: 'Expr_BinaryOp_Greater',
+			right: expect.objectContaining({
+				nodeType: expect.stringMatching(/^Scalar_/),
+				value: 0,
+			}),
+		});
 	});
 
 	it('collects taxonomy query entries', () => {

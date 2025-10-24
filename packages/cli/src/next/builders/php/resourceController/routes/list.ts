@@ -15,10 +15,11 @@ import {
 	PHP_INDENT,
 	type PhpMethodBodyBuilder,
 	type ResourceMetadataHost,
+	type PhpStmt,
 } from '@wpkernel/php-json-ast';
 import {
-	appendMetaQueryBuilder,
-	appendTaxonomyQueryBuilder,
+	buildMetaQueryStatements,
+	buildTaxonomyQueryStatements,
 	collectMetaQueryEntries,
 	collectTaxonomyQueryEntries,
 	buildListForeachStatement,
@@ -161,16 +162,20 @@ export function buildListRouteBody(
 	);
 	options.body.blank();
 
-	appendMetaQueryBuilder({
-		body: options.body,
-		indentLevel,
+	const metaQueryStatements = buildMetaQueryStatements({
 		entries: metaEntries,
 	});
-
-	appendTaxonomyQueryBuilder({
-		body: options.body,
+	appendPrintableStatements(options.body, metaQueryStatements, {
 		indentLevel,
+		indentUnit: PHP_INDENT,
+	});
+
+	const taxonomyStatements = buildTaxonomyQueryStatements({
 		entries: taxonomyEntries,
+	});
+	appendPrintableStatements(options.body, taxonomyStatements, {
+		indentLevel,
+		indentUnit: PHP_INDENT,
 	});
 
 	const wpQueryExecution = createWpQueryExecutionStatement({
@@ -241,4 +246,30 @@ export function buildListRouteBody(
 	options.body.statement(returnPrintable);
 
 	return true;
+}
+
+interface AppendPrintableOptions {
+	readonly indentLevel: number;
+	readonly indentUnit: string;
+}
+
+function appendPrintableStatements(
+	body: PhpMethodBodyBuilder,
+	statements: readonly PhpStmt[],
+	options: AppendPrintableOptions
+): void {
+	if (statements.length === 0) {
+		return;
+	}
+
+	for (const statement of statements) {
+		body.statement(
+			formatStatementPrintable(statement, {
+				indentLevel: options.indentLevel,
+				indentUnit: options.indentUnit,
+			})
+		);
+	}
+
+	body.blank();
 }
