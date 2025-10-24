@@ -1,33 +1,31 @@
 import { KernelError } from '@wpkernel/core/contracts';
 import {
 	buildArg,
-	buildAssign,
-	buildExpressionStatement,
+	buildFuncCall,
 	buildIdentifier,
 	buildMethodCall,
+	buildName,
 	buildReturn,
 	buildVariable,
-	buildFuncCall,
-	buildName,
 	buildScalarString,
-	type PhpStmtExpression,
-	type PhpStmtReturn,
-	type PhpPrintable,
 	type PhpMethodBodyBuilder,
 	type ResourceMetadataHost,
-	type PhpExpr,
-	PHP_INDENT,
 } from '@wpkernel/php-json-ast';
 import { appendResourceCacheEvent } from '../cache';
 import { buildWpErrorReturn } from '../errors';
-import { buildInstanceof, buildBooleanNot } from '../utils';
-import { buildIfPrintable, printStatement } from '../printable';
+import {
+	buildBooleanNot,
+	buildIfStatementNode,
+	buildInstanceof,
+	buildVariableAssignment,
+	normaliseVariableReference,
+} from '../utils';
 import type { IRResource } from '../../../../../ir/types';
 import type { ResolvedIdentity } from '../../identity';
-import { formatStatementPrintable } from '../printer';
 import {
 	buildPrepareTaxonomyTermResponseCall,
 	buildResolveTaxonomyTermCall,
+	createTaxonomyAssignmentStatement,
 } from './helpers';
 
 type WpTaxonomyStorage = Extract<
@@ -59,105 +57,73 @@ export function buildWpTaxonomyGetRouteBody(
 		description: 'Get term request',
 	});
 
-	const indentLevel = options.indentLevel;
+	const identityVar = normaliseVariableReference('identity');
 
-	options.body.statement(
-		createExpressionPrintable(
-			buildAssign(
-				buildVariable('identity'),
-				buildMethodCall(
-					buildVariable('this'),
-					buildIdentifier(`validate${options.pascalName}Identity`),
-					[
-						buildArg(
-							buildMethodCall(
-								buildVariable('request'),
-								buildIdentifier('get_param'),
-								[
-									buildArg(
-										buildScalarString(
-											options.identity.param
-										)
-									),
-								]
-							)
-						),
-					]
-				)
-			),
-			indentLevel
+	options.body.statementNode(
+		buildVariableAssignment(
+			identityVar,
+			buildMethodCall(
+				buildVariable('this'),
+				buildIdentifier(`validate${options.pascalName}Identity`),
+				[
+					buildArg(
+						buildMethodCall(
+							buildVariable('request'),
+							buildIdentifier('get_param'),
+							[
+								buildArg(
+									buildScalarString(options.identity.param)
+								),
+							]
+						)
+					),
+				]
+			)
 		)
 	);
 
-	const errorGuard = buildIfPrintable({
-		indentLevel,
-		condition: buildFuncCall(buildName(['is_wp_error']), [
-			buildArg(buildVariable('identity')),
-		]),
-		statements: [
-			createReturnPrintable(buildVariable('identity'), indentLevel + 1),
-		],
-	});
-	options.body.statement(errorGuard);
-	options.body.blank();
+	options.body.statementNode(
+		buildIfStatementNode({
+			condition: buildFuncCall(buildName(['is_wp_error']), [
+				buildArg(buildVariable(identityVar.raw)),
+			]),
+			statements: [buildReturn(buildVariable(identityVar.raw))],
+		})
+	);
 
-	options.body.statement(
-		createExpressionPrintable(
-			buildAssign(
-				buildVariable('term'),
-				buildResolveTaxonomyTermCall(options.pascalName)
-			),
-			indentLevel
+	options.body.statementNode(
+		createTaxonomyAssignmentStatement({
+			pascalName: options.pascalName,
+		})
+	);
+
+	options.body.statementNode(
+		buildVariableAssignment(
+			normaliseVariableReference('term'),
+			buildResolveTaxonomyTermCall(options.pascalName)
 		)
 	);
 
-	const notFoundReturn = printStatement(
-		buildWpErrorReturn({
-			code: options.errorCodeFactory('not_found'),
-			message: `Unable to locate ${options.pascalName} term.`,
-			status: 404,
-		}),
-		{ indentLevel: indentLevel + 1, indentUnit: PHP_INDENT }
+	const notFoundReturn = buildWpErrorReturn({
+		code: options.errorCodeFactory('not_found'),
+		message: `Unable to locate ${options.pascalName} term.`,
+		status: 404,
+	});
+
+	options.body.statementNode(
+		buildIfStatementNode({
+			condition: buildBooleanNot(buildInstanceof('term', 'WP_Term')),
+			statements: [notFoundReturn],
+		})
 	);
 
-	const guard = buildIfPrintable({
-		indentLevel,
-		condition: buildBooleanNot(buildInstanceof('term', 'WP_Term')),
-		statements: [notFoundReturn],
-	});
-	options.body.statement(guard);
-	options.body.blank();
-
-	options.body.statement(
-		createReturnPrintable(
-			buildPrepareTaxonomyTermResponseCall(options.pascalName, 'term'),
-			indentLevel
+	options.body.statementNode(
+		buildReturn(
+			buildPrepareTaxonomyTermResponseCall(options.pascalName, 'term')
 		)
 	);
 
 	return true;
-}
-
-function createExpressionPrintable(
-	expression: PhpExpr,
-	indentLevel: number
-): PhpPrintable<PhpStmtExpression> {
-	const statement = buildExpressionStatement(expression);
-	return formatStatementPrintable(statement, {
-		indentLevel,
-		indentUnit: PHP_INDENT,
-	});
-}
-
-function createReturnPrintable(
-	expression: PhpExpr | null,
-	indentLevel: number
-): PhpPrintable<PhpStmtReturn> {
-	const statement = buildReturn(expression);
-	return formatStatementPrintable(statement, {
-		indentLevel,
-		indentUnit: PHP_INDENT,
-	});
 }
 
 function ensureStorage(resource: IRResource): WpTaxonomyStorage {
