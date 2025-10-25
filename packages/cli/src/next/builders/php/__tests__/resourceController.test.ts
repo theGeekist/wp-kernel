@@ -134,9 +134,7 @@ describe('createPhpResourceControllerHelper', () => {
 			]);
 		}
 		expect(entry?.docblock).toMatchSnapshot('resource-controller-docblock');
-		expect(entry?.statements).toMatchSnapshot(
-			'resource-controller-statements'
-		);
+		expect(entry?.statements).toEqual([]);
 		expect(entry?.program).toMatchSnapshot('resource-controller-ast');
 	});
 
@@ -206,20 +204,10 @@ describe('createPhpResourceControllerHelper', () => {
 		expect(taxonomyEntry?.docblock).toMatchSnapshot(
 			'taxonomy-controller-docblock'
 		);
-		if (taxonomyEntry) {
-			const methodNames = extractClassMethodNames(taxonomyEntry.program);
-			expect(methodNames).toEqual([
-				'get_resource_name',
-				'get_schema_key',
-				'get_rest_args',
-				'getKernelV1JobCategories',
-				'getKernelV1JobCategoriesSlug',
-				'getJobCategoriesTaxonomy',
-				'prepareJobCategoriesTermResponse',
-				'resolveJobCategoriesTerm',
-				'validateJobCategoriesIdentity',
-			]);
-		}
+		expect(taxonomyEntry?.statements).toEqual([]);
+		expect(taxonomyEntry?.program).toMatchSnapshot(
+			'taxonomy-controller-ast'
+		);
 	});
 });
 

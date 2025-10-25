@@ -8,29 +8,31 @@ import type {
 	PipelineContext,
 } from '../../runtime/types';
 import {
-	appendClassTemplate,
 	appendGeneratedFileDocblock,
 	buildArg,
-	assembleClassTemplate,
+	buildClass,
+	buildClassMethod,
 	buildComment,
+	buildDocComment,
 	buildIdentifier,
-	assembleMethodTemplate,
 	buildName,
 	buildNode,
-	createPhpFileBuilder,
-	buildPhpReturnPrintable,
-	buildPrintable,
+	buildParam,
 	buildReturn,
 	buildScalarString,
 	buildStmtNop,
+	buildVariable,
+	createPhpFileBuilder,
 	PHP_CLASS_MODIFIER_FINAL,
-	PHP_INDENT,
 	PHP_METHOD_MODIFIER_PUBLIC,
 	PHP_METHOD_MODIFIER_STATIC,
 	sanitizeJson,
 	type PhpAstBuilderAdapter,
+	type PhpAttributes,
 	type PhpExprNew,
+	type PhpStmtClassMethod,
 } from '@wpkernel/php-json-ast';
+import { renderPhpValue } from './resource/phpValue';
 import type { IRPolicyDefinition, IRv1 } from '../../../ir/types';
 
 export function createPhpPolicyHelper(): BuilderHelper {
@@ -82,105 +84,111 @@ function buildPolicyHelper(builder: PhpAstBuilderAdapter, ir: IRv1): void {
 	const policyMap = buildPolicyMap(ir.policyMap.definitions);
 	const fallback = sanitizeJson(ir.policyMap.fallback);
 
-	const methods = [
-		assembleMethodTemplate({
-			signature: 'public static function policy_map(): array',
-			indentLevel: 1,
-			indentUnit: PHP_INDENT,
-			body: (body) => {
-				const printable = buildPhpReturnPrintable(policyMap, 2);
-				body.statement(printable);
-			},
-			ast: {
-				flags: PHP_METHOD_MODIFIER_PUBLIC + PHP_METHOD_MODIFIER_STATIC,
-				returnType: buildIdentifier('array'),
-			},
-		}),
-		assembleMethodTemplate({
-			signature: 'public static function fallback(): array',
-			indentLevel: 1,
-			indentUnit: PHP_INDENT,
-			body: (body) => {
-				const printable = buildPhpReturnPrintable(fallback, 2);
-				body.statement(printable);
-			},
-			ast: {
-				flags: PHP_METHOD_MODIFIER_PUBLIC + PHP_METHOD_MODIFIER_STATIC,
-				returnType: buildIdentifier('array'),
-			},
-		}),
-		assembleMethodTemplate({
-			signature:
-				'public static function callback( string $policy_key ): callable',
-			indentLevel: 1,
-			indentUnit: PHP_INDENT,
-			docblock: [
-				'Create a permission callback reference.',
-				'@todo Return a closure once enforcement is implemented.',
-			],
-			body: (body) => {
-				const printable = buildPhpReturnPrintable('Policy::enforce', 2);
-				body.statement(printable);
-			},
-			ast: {
-				flags: PHP_METHOD_MODIFIER_PUBLIC + PHP_METHOD_MODIFIER_STATIC,
-				returnType: buildIdentifier('callable'),
-			},
-		}),
-		assembleMethodTemplate({
-			signature:
-				'public static function enforce( string $policy_key, WP_REST_Request $request )',
-			indentLevel: 1,
-			indentUnit: PHP_INDENT,
-			docblock: [
-				'Evaluate a policy against the current user.',
-				'@todo Wire kernel policy enforcement.',
-			],
-			body: (body) => {
-				const todo = buildStmtNop({
-					comments: [
-						buildComment(
-							'// TODO: Implement policy enforcement logic.'
-						),
-					],
-				});
-				body.statement(
-					buildPrintable(todo, [
-						`${PHP_INDENT.repeat(2)}// TODO: Implement policy enforcement logic.`,
-					])
-				);
-
-				const errorExpr = buildNode<PhpExprNew>('Expr_New', {
-					class: buildName(['WP_Error']),
-					args: [
-						buildArg(buildScalarString('wpk_policy_stub')),
-						buildArg(
-							buildScalarString(
-								'Policy enforcement is not yet implemented.'
-							)
-						),
-					],
-				});
-				body.statement(
-					buildPrintable(buildReturn(errorExpr), [
-						`${PHP_INDENT.repeat(2)}return new WP_Error( 'wpk_policy_stub', 'Policy enforcement is not yet implemented.' );`,
-					])
-				);
-			},
-			ast: {
-				flags: PHP_METHOD_MODIFIER_PUBLIC + PHP_METHOD_MODIFIER_STATIC,
-				returnType: null,
-			},
-		}),
+	const methods: PhpStmtClassMethod[] = [
+		buildPolicyMapMethod(policyMap),
+		buildFallbackMethod(fallback),
+		buildCallbackMethod(),
+		buildEnforceMethod(),
 	];
 
-	const classTemplate = assembleClassTemplate({
-		name: 'Policy',
+	const classNode = buildClass(buildIdentifier('Policy'), {
 		flags: PHP_CLASS_MODIFIER_FINAL,
-		methods,
+		stmts: methods,
 	});
 
-	appendClassTemplate(builder, classTemplate);
+	builder.appendProgramStatement(classNode);
+}
+
+function buildPolicyMapMethod(
+	policyMap: Record<string, unknown>
+): PhpStmtClassMethod {
+	return buildClassMethod(buildIdentifier('policy_map'), {
+		flags: PHP_METHOD_MODIFIER_PUBLIC + PHP_METHOD_MODIFIER_STATIC,
+		returnType: buildIdentifier('array'),
+		stmts: [buildReturn(renderPhpValue(policyMap))],
+	});
+}
+
+function buildFallbackMethod(
+	fallback: Record<string, unknown>
+): PhpStmtClassMethod {
+	return buildClassMethod(buildIdentifier('fallback'), {
+		flags: PHP_METHOD_MODIFIER_PUBLIC + PHP_METHOD_MODIFIER_STATIC,
+		returnType: buildIdentifier('array'),
+		stmts: [buildReturn(renderPhpValue(fallback))],
+	});
+}
+
+function buildCallbackMethod(): PhpStmtClassMethod {
+	const docblock = [
+		'Create a permission callback reference.',
+		'@todo Return a closure once enforcement is implemented.',
+	];
+
+	return buildClassMethod(
+		buildIdentifier('callback'),
+		{
+			flags: PHP_METHOD_MODIFIER_PUBLIC + PHP_METHOD_MODIFIER_STATIC,
+			params: [
+				buildParam(buildVariable('policy_key'), {
+					type: buildIdentifier('string'),
+				}),
+			],
+			returnType: buildIdentifier('callable'),
+			stmts: [buildReturn(renderPhpValue('Policy::enforce'))],
+		},
+		createDocAttributes(docblock)
+	);
+}
+
+function buildEnforceMethod(): PhpStmtClassMethod {
+	const docblock = [
+		'Evaluate a policy against the current user.',
+		'@todo Wire kernel policy enforcement.',
+	];
+
+	const todo = buildStmtNop({
+		comments: [
+			buildComment('// TODO: Implement policy enforcement logic.'),
+		],
+	});
+
+	const errorExpr = buildNode<PhpExprNew>('Expr_New', {
+		class: buildName(['WP_Error']),
+		args: [
+			buildArg(buildScalarString('wpk_policy_stub')),
+			buildArg(
+				buildScalarString('Policy enforcement is not yet implemented.')
+			),
+		],
+	});
+
+	return buildClassMethod(
+		buildIdentifier('enforce'),
+		{
+			flags: PHP_METHOD_MODIFIER_PUBLIC + PHP_METHOD_MODIFIER_STATIC,
+			params: [
+				buildParam(buildVariable('policy_key'), {
+					type: buildIdentifier('string'),
+				}),
+				buildParam(buildVariable('request'), {
+					type: buildName(['WP_REST_Request']),
+				}),
+			],
+			stmts: [todo, buildReturn(errorExpr)],
+		},
+		createDocAttributes(docblock)
+	);
+}
+
+function createDocAttributes(
+	docblock: readonly string[]
+): PhpAttributes | undefined {
+	if (docblock.length === 0) {
+		return undefined;
+	}
+
+	return { comments: [buildDocComment(docblock)] };
 }
 
 function buildPolicyMap(

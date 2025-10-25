@@ -1,5 +1,5 @@
-import { PhpMethodBodyBuilder, PHP_INDENT } from '@wpkernel/php-json-ast';
-import { appendNotImplementedStub } from '../stubs';
+import type { PhpStmtReturn } from '@wpkernel/php-json-ast';
+import { buildNotImplementedStatements } from '../stubs';
 
 function createRoute() {
 	return {
@@ -11,21 +11,16 @@ function createRoute() {
 	};
 }
 
-describe('appendNotImplementedStub', () => {
-	it('appends a TODO comment and WP_Error return statement', () => {
-		const body = new PhpMethodBodyBuilder(PHP_INDENT, 1);
+describe('buildNotImplementedStatements', () => {
+	it('returns a TODO comment and WP_Error return statement', () => {
+		const statements = buildNotImplementedStatements(createRoute());
 
-		appendNotImplementedStub({
-			body,
-			indent: PHP_INDENT,
-			route: createRoute(),
-		});
+		expect(statements).toHaveLength(2);
+		expect(statements[0].nodeType).toBe('Stmt_Nop');
+		expect(statements[0].attributes?.comments).toHaveLength(1);
 
-		expect(body.toLines()).toEqual([
-			'        // TODO: Implement handler for [POST] /kernel/v1/books.',
-			"        return new WP_Error( 501, 'Not Implemented' );",
-		]);
-
-		expect(body.toStatements()).toHaveLength(2);
+		const returnStatement = statements[1] as PhpStmtReturn;
+		expect(returnStatement.nodeType).toBe('Stmt_Return');
+		expect(returnStatement.expr?.nodeType).toBe('Expr_New');
 	});
 });

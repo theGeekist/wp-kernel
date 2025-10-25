@@ -15,13 +15,12 @@ import {
 	makeErrorCodeFactory,
 	type PhpStmt,
 } from '@wpkernel/php-json-ast';
-import { formatStatementPrintable } from '../../../printer';
 import { buildIdentityValidationStatements } from '../../identity';
 import {
-	appendCachePrimingMacro,
-	appendStatusValidationMacro,
-	appendSyncMetaMacro,
-	appendSyncTaxonomiesMacro,
+	buildCachePrimingStatements,
+	buildStatusValidationStatements,
+	buildSyncMetaStatements,
+	buildSyncTaxonomiesStatements,
 	buildArrayDimExpression,
 	buildPropertyExpression,
 	buildVariableExpression,
@@ -34,21 +33,21 @@ import {
 	buildPropertyFetch,
 } from '../../../utils';
 import { buildWpErrorReturn } from '../../../errors';
-import type { BuildUpdateRouteBodyOptions } from './types';
+import type { BuildUpdateRouteStatementsOptions } from './types';
 
-export function buildUpdateRouteBody(
-	options: BuildUpdateRouteBodyOptions
-): boolean {
+export function buildUpdateRouteStatements(
+	options: BuildUpdateRouteStatementsOptions
+): PhpStmt[] | null {
 	const storage = options.resource.storage;
 	if (!storage || storage.mode !== 'wp-post') {
-		return false;
+		return null;
 	}
 
 	const identityVar = options.identity.param;
 	const errorCodeFactory = makeErrorCodeFactory(options.resource.name);
+	const statements: PhpStmt[] = [];
 
-	appendStatement(
-		options,
+	statements.push(
 		buildExpressionStatement(
 			buildAssign(
 				buildVariable(identityVar),
@@ -66,17 +65,9 @@ export function buildUpdateRouteBody(
 		pascalName: options.pascalName,
 		errorCodeFactory,
 	});
+	statements.push(...validationStatements);
 
-	for (const statement of validationStatements) {
-		appendStatement(options, statement);
-	}
-
-	if (validationStatements.length > 0) {
-		options.body.blank();
-	}
-
-	appendStatement(
-		options,
+	statements.push(
 		buildExpressionStatement(
 			buildAssign(
 				buildVariable('post'),
@@ -94,17 +85,13 @@ export function buildUpdateRouteBody(
 		message: `${options.pascalName} not found.`,
 		status: 404,
 	});
-
-	appendStatement(
-		options,
+	statements.push(
 		buildIfStatement(buildBooleanNot(buildInstanceof('post', 'WP_Post')), [
 			notFoundReturn,
 		])
 	);
-	options.body.blank();
 
-	appendStatement(
-		options,
+	statements.push(
 		buildExpressionStatement(
 			buildAssign(
 				buildVariable('post_data'),
@@ -126,18 +113,16 @@ export function buildUpdateRouteBody(
 		)
 	);
 
-	appendStatusValidationMacro({
-		body: options.body,
-		indentLevel: options.indentLevel,
-		metadataKeys: options.metadataKeys,
-		pascalName: options.pascalName,
-		target: buildArrayDimExpression('post_data', 'post_status'),
-		guardWithNullCheck: true,
-	});
-	options.body.blank();
+	statements.push(
+		...buildStatusValidationStatements({
+			metadataKeys: options.metadataKeys,
+			pascalName: options.pascalName,
+			target: buildArrayDimExpression('post_data', 'post_status'),
+			guardWithNullCheck: true,
+		})
+	);
 
-	appendStatement(
-		options,
+	statements.push(
 		buildExpressionStatement(
 			buildAssign(
 				buildVariable('result'),
@@ -149,8 +134,7 @@ export function buildUpdateRouteBody(
 		)
 	);
 
-	appendStatement(
-		options,
+	statements.push(
 		buildIfStatement(
 			buildFuncCall(buildName(['is_wp_error']), [
 				buildArg(buildVariable('result')),
@@ -164,9 +148,7 @@ export function buildUpdateRouteBody(
 		message: `Unable to update ${options.pascalName}.`,
 		status: 500,
 	});
-
-	appendStatement(
-		options,
+	statements.push(
 		buildIfStatement(
 			buildBinaryOperation(
 				'Identical',
@@ -176,47 +158,34 @@ export function buildUpdateRouteBody(
 			[updateFailedReturn]
 		)
 	);
-	options.body.blank();
 
-	appendSyncMetaMacro({
-		body: options.body,
-		indentLevel: options.indentLevel,
-		metadataKeys: options.metadataKeys,
-		pascalName: options.pascalName,
-		postId: buildPropertyExpression('post', 'ID'),
-	});
-
-	appendSyncTaxonomiesMacro({
-		body: options.body,
-		indentLevel: options.indentLevel,
-		metadataKeys: options.metadataKeys,
-		pascalName: options.pascalName,
-		postId: buildPropertyExpression('post', 'ID'),
-		resultVariable: buildVariableExpression('taxonomy_result'),
-	});
-
-	appendCachePrimingMacro({
-		body: options.body,
-		indentLevel: options.indentLevel,
-		metadataKeys: options.metadataKeys,
-		pascalName: options.pascalName,
-		postId: buildPropertyExpression('post', 'ID'),
-		errorCode: errorCodeFactory('load_failed'),
-		failureMessage: `Unable to load updated ${options.pascalName}.`,
-		postVariableName: 'updated',
-	});
-
-	return true;
-}
-
-function appendStatement(
-	options: BuildUpdateRouteBodyOptions,
-	statement: PhpStmt
-): void {
-	options.body.statement(
-		formatStatementPrintable(statement, {
-			indentLevel: options.indentLevel,
-			indentUnit: options.body.getIndentUnit(),
+	statements.push(
+		...buildSyncMetaStatements({
+			metadataKeys: options.metadataKeys,
+			pascalName: options.pascalName,
+			postId: buildPropertyExpression('post', 'ID'),
 		})
 	);
+
+	statements.push(
+		...buildSyncTaxonomiesStatements({
+			metadataKeys: options.metadataKeys,
+			pascalName: options.pascalName,
+			postId: buildPropertyExpression('post', 'ID'),
+			resultVariable: buildVariableExpression('taxonomy_result'),
+		})
+	);
+
+	statements.push(
+		...buildCachePrimingStatements({
+			metadataKeys: options.metadataKeys,
+			pascalName: options.pascalName,
+			postId: buildPropertyExpression('post', 'ID'),
+			errorCode: errorCodeFactory('load_failed'),
+			failureMessage: `Unable to load updated ${options.pascalName}.`,
+			postVariableName: 'updated',
+		})
+	);
+
+	return statements;
 }

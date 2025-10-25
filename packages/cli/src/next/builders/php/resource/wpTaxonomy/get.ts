@@ -8,7 +8,8 @@ import {
 	buildReturn,
 	buildVariable,
 	buildScalarString,
-	type PhpMethodBodyBuilder,
+	buildNode,
+	type PhpStmt,
 	type ResourceMetadataHost,
 } from '@wpkernel/php-json-ast';
 import { appendResourceCacheEvent } from '../cache';
@@ -17,8 +18,6 @@ import {
 	buildBooleanNot,
 	buildIfStatementNode,
 	buildInstanceof,
-	buildVariableAssignment,
-	normaliseVariableReference,
 } from '../utils';
 import type { IRResource } from '../../../../../ir/types';
 import type { ResolvedIdentity } from '../../identity';
@@ -33,9 +32,7 @@ type WpTaxonomyStorage = Extract<
 	{ mode: 'wp-taxonomy' }
 >;
 
-export interface BuildWpTaxonomyGetRouteBodyOptions {
-	readonly body: PhpMethodBodyBuilder;
-	readonly indentLevel: number;
+export interface BuildWpTaxonomyGetRouteStatementsOptions {
 	readonly resource: IRResource;
 	readonly identity: ResolvedIdentity;
 	readonly pascalName: string;
@@ -44,9 +41,9 @@ export interface BuildWpTaxonomyGetRouteBodyOptions {
 	readonly cacheSegments: readonly unknown[];
 }
 
-export function buildWpTaxonomyGetRouteBody(
-	options: BuildWpTaxonomyGetRouteBodyOptions
-): boolean {
+export function buildWpTaxonomyGetRouteStatements(
+	options: BuildWpTaxonomyGetRouteStatementsOptions
+): PhpStmt[] {
 	ensureStorage(options.resource);
 
 	appendResourceCacheEvent({
@@ -57,50 +54,50 @@ export function buildWpTaxonomyGetRouteBody(
 		description: 'Get term request',
 	});
 
-	const identityVar = normaliseVariableReference('identity');
+	const statements: PhpStmt[] = [];
 
-	options.body.statementNode(
-		buildVariableAssignment(
-			identityVar,
-			buildMethodCall(
-				buildVariable('this'),
-				buildIdentifier(`validate${options.pascalName}Identity`),
-				[
-					buildArg(
-						buildMethodCall(
-							buildVariable('request'),
-							buildIdentifier('get_param'),
-							[
-								buildArg(
-									buildScalarString(options.identity.param)
-								),
-							]
-						)
-					),
-				]
+	statements.push(
+		buildExpressionStatement(
+			buildAssign(
+				buildVariable('identity'),
+				buildMethodCall(
+					buildVariable('this'),
+					buildIdentifier(`validate${options.pascalName}Identity`),
+					[
+						buildArg(
+							buildMethodCall(
+								buildVariable('request'),
+								buildIdentifier('get_param'),
+								[
+									buildArg(
+										buildScalarString(
+											options.identity.param
+										)
+									),
+								]
+							)
+						),
+					]
+				)
 			)
 		)
 	);
 
-	options.body.statementNode(
-		buildIfStatementNode({
-			condition: buildFuncCall(buildName(['is_wp_error']), [
-				buildArg(buildVariable(identityVar.raw)),
-			]),
-			statements: [buildReturn(buildVariable(identityVar.raw))],
-		})
-	);
+	const errorGuard = buildIfStatementNode({
+		condition: buildFuncCall(buildName(['is_wp_error']), [
+			buildArg(buildVariable('identity')),
+		]),
+		statements: [buildReturn(buildVariable('identity'))],
+	});
+	statements.push(errorGuard);
+	statements.push(buildNode<PhpStmt>('Stmt_Nop', {}));
 
-	options.body.statementNode(
-		createTaxonomyAssignmentStatement({
-			pascalName: options.pascalName,
-		})
-	);
-
-	options.body.statementNode(
-		buildVariableAssignment(
-			normaliseVariableReference('term'),
-			buildResolveTaxonomyTermCall(options.pascalName)
+	statements.push(
+		buildExpressionStatement(
+			buildAssign(
+				buildVariable('term'),
+				buildResolveTaxonomyTermCall(options.pascalName)
+			)
 		)
 	);
 
@@ -110,20 +107,20 @@ export function buildWpTaxonomyGetRouteBody(
 		status: 404,
 	});
 
-	options.body.statementNode(
-		buildIfStatementNode({
-			condition: buildBooleanNot(buildInstanceof('term', 'WP_Term')),
-			statements: [notFoundReturn],
-		})
-	);
+	const guard = buildIfStatementNode({
+		condition: buildBooleanNot(buildInstanceof('term', 'WP_Term')),
+		statements: [notFoundReturn],
+	});
+	statements.push(guard);
+	statements.push(buildNode<PhpStmt>('Stmt_Nop', {}));
 
-	options.body.statementNode(
+	statements.push(
 		buildReturn(
 			buildPrepareTaxonomyTermResponseCall(options.pascalName, 'term')
 		)
 	);
 
-	return true;
+	return statements;
 }
 
 function ensureStorage(resource: IRResource): WpTaxonomyStorage {

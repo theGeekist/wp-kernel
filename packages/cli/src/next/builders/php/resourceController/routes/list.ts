@@ -3,17 +3,15 @@ import {
 	buildArrayItem,
 	buildAssign,
 	buildExpressionStatement,
+	buildIdentifier,
 	buildMethodCall,
 	buildReturn,
+	buildScalarCast,
 	buildScalarString,
+	buildStmtNop,
 	buildVariable,
-	buildIdentifier,
-	buildPrintable,
 	isNonEmptyString,
-} from '@wpkernel/php-json-ast';
-import {
-	PHP_INDENT,
-	type PhpMethodBodyBuilder,
+	type PhpStmt,
 	type ResourceMetadataHost,
 	type PhpStmt,
 } from '@wpkernel/php-json-ast';
@@ -28,35 +26,29 @@ import {
 	createPaginationNormalisationStatements,
 	buildPropertyFetch,
 	createQueryArgsAssignmentStatement,
-	buildScalarCast,
 	createWpQueryExecutionStatement,
 	variable,
-	buildWpTaxonomyListRouteBody,
+	buildWpTaxonomyListRouteStatements,
 } from '../../resource';
-import { formatStatementPrintable } from '../../resource/printer';
 import type { IRResource } from '../../../../../ir/types';
 
-export interface BuildListRouteBodyOptions {
-	readonly body: PhpMethodBodyBuilder;
-	readonly indentLevel: number;
+export interface BuildListRouteStatementsOptions {
 	readonly resource: IRResource;
 	readonly pascalName: string;
 	readonly metadataHost: ResourceMetadataHost;
 	readonly cacheSegments: readonly unknown[];
 }
 
-export function buildListRouteBody(
-	options: BuildListRouteBodyOptions
-): boolean {
+export function buildListRouteStatements(
+	options: BuildListRouteStatementsOptions
+): PhpStmt[] | null {
 	const storage = options.resource.storage;
 	if (!storage) {
-		return false;
+		return null;
 	}
 
 	if (storage.mode === 'wp-taxonomy') {
-		return buildWpTaxonomyListRouteBody({
-			body: options.body,
-			indentLevel: options.indentLevel,
+		return buildWpTaxonomyListRouteStatements({
 			resource: options.resource,
 			pascalName: options.pascalName,
 			metadataHost: options.metadataHost,
@@ -65,13 +57,12 @@ export function buildListRouteBody(
 	}
 
 	if (storage.mode !== 'wp-post') {
-		return false;
+		return null;
 	}
 
-	const indentLevel = options.indentLevel;
-	const indent = PHP_INDENT.repeat(indentLevel);
+	const statements: PhpStmt[] = [];
 
-	const postTypePrintable = buildPrintable(
+	statements.push(
 		buildExpressionStatement(
 			buildAssign(
 				buildVariable('post_type'),
@@ -81,42 +72,28 @@ export function buildListRouteBody(
 					[]
 				)
 			)
-		),
-		[`${indent}$post_type = $this->get${options.pascalName}PostType();`]
+		)
 	);
-	options.body.statement(postTypePrintable);
 
 	const [perPageAssign, ensurePositive, clampMaximum] =
 		createPaginationNormalisationStatements({
 			requestVariable: '$request',
 			targetVariable: 'per_page',
 		});
-	options.body.statement(
-		formatStatementPrintable(perPageAssign, {
-			indentLevel,
-			indentUnit: PHP_INDENT,
-		})
+
+	statements.push(
+		perPageAssign,
+		ensurePositive,
+		clampMaximum,
+		buildStmtNop()
 	);
-	options.body.statement(
-		formatStatementPrintable(ensurePositive, {
-			indentLevel,
-			indentUnit: PHP_INDENT,
-		})
-	);
-	options.body.statement(
-		formatStatementPrintable(clampMaximum, {
-			indentLevel,
-			indentUnit: PHP_INDENT,
-		})
-	);
-	options.body.blank();
 
 	const statuses = Array.isArray(storage.statuses)
 		? storage.statuses.filter(isNonEmptyString)
 		: [];
 
 	if (statuses.length > 0) {
-		const statusesPrintable = buildPrintable(
+		statements.push(
 			buildExpressionStatement(
 				buildAssign(
 					buildVariable('statuses'),
@@ -126,11 +103,9 @@ export function buildListRouteBody(
 						[]
 					)
 				)
-			),
-			[`${indent}$statuses = $this->get${options.pascalName}Statuses();`]
+			)
 		);
-		options.body.statement(statusesPrintable);
-		options.body.blank();
+		statements.push(buildStmtNop());
 	}
 
 	const metaEntries = collectMetaQueryEntries(storage);
@@ -148,69 +123,45 @@ export function buildListRouteBody(
 			value: createPageExpression({ requestVariable: '$request' }),
 		},
 		{ key: 'posts_per_page', value: variable('per_page') },
-	] as const;
+	];
 
 	const queryArgsAssignment = createQueryArgsAssignmentStatement({
 		targetVariable: 'query_args',
 		entries: queryEntries,
 	});
-	options.body.statement(
-		formatStatementPrintable(queryArgsAssignment, {
-			indentLevel,
-			indentUnit: PHP_INDENT,
+	statements.push(queryArgsAssignment, buildStmtNop());
+
+	appendSection(
+		statements,
+		buildMetaQueryStatements({ entries: metaEntries })
+	);
+	appendSection(
+		statements,
+		buildTaxonomyQueryStatements({ entries: taxonomyEntries })
+	);
+
+	statements.push(
+		createWpQueryExecutionStatement({
+			target: 'query',
+			argsVariable: 'query_args',
+			cache: {
+				host: options.metadataHost,
+				scope: 'list',
+				operation: 'read',
+				segments: options.cacheSegments,
+				description: 'List query',
+			},
 		})
 	);
-	options.body.blank();
+	statements.push(buildStmtNop());
 
-	const metaQueryStatements = buildMetaQueryStatements({
-		entries: metaEntries,
-	});
-	appendPrintableStatements(options.body, metaQueryStatements, {
-		indentLevel,
-		indentUnit: PHP_INDENT,
-	});
+	statements.push(buildListItemsInitialiserStatement());
+	statements.push(buildStmtNop());
 
-	const taxonomyStatements = buildTaxonomyQueryStatements({
-		entries: taxonomyEntries,
-	});
-	appendPrintableStatements(options.body, taxonomyStatements, {
-		indentLevel,
-		indentUnit: PHP_INDENT,
-	});
-
-	const wpQueryExecution = createWpQueryExecutionStatement({
-		target: 'query',
-		argsVariable: 'query_args',
-		cache: {
-			host: options.metadataHost,
-			scope: 'list',
-			operation: 'read',
-			segments: options.cacheSegments,
-			description: 'List query',
-		},
-	});
-	options.body.statement(
-		formatStatementPrintable(wpQueryExecution, {
-			indentLevel,
-			indentUnit: PHP_INDENT,
-		})
+	statements.push(
+		buildListForeachStatement({ pascalName: options.pascalName })
 	);
-
-	const itemsPrintable = formatStatementPrintable(
-		buildListItemsInitialiserStatement(),
-		{ indentLevel, indentUnit: PHP_INDENT }
-	);
-	options.body.statement(itemsPrintable);
-	options.body.blank();
-
-	const foreachPrintable = formatStatementPrintable(
-		buildListForeachStatement({
-			pascalName: options.pascalName,
-		}),
-		{ indentLevel, indentUnit: PHP_INDENT }
-	);
-	options.body.statement(foreachPrintable);
-	options.body.blank();
+	statements.push(buildStmtNop());
 
 	const totalFetch = buildScalarCast(
 		'int',
@@ -221,7 +172,7 @@ export function buildListRouteBody(
 		buildPropertyFetch('query', 'max_num_pages')
 	);
 
-	const returnPrintable = buildPrintable(
+	statements.push(
 		buildReturn(
 			buildArray([
 				buildArrayItem(buildVariable('items'), {
@@ -234,18 +185,23 @@ export function buildListRouteBody(
 					key: buildScalarString('pages'),
 				}),
 			])
-		),
-		[
-			`${indent}return array(`,
-			`${indent}${PHP_INDENT}'items' => $items,`,
-			`${indent}${PHP_INDENT}'total' => (int) $query->found_posts,`,
-			`${indent}${PHP_INDENT}'pages' => (int) $query->max_num_pages,`,
-			`${indent});`,
-		]
+		)
 	);
-	options.body.statement(returnPrintable);
 
-	return true;
+	return statements;
+}
+
+function appendSection(target: PhpStmt[], section: readonly PhpStmt[]): void {
+	if (section.length === 0) {
+		return;
+	}
+
+	target.push(...section);
+
+	const last = section[section.length - 1]!;
+	if (last.nodeType !== 'Stmt_Nop') {
+		target.push(buildStmtNop());
+	}
 }
 
 interface AppendPrintableOptions {
