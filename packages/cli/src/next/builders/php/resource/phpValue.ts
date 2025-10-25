@@ -10,7 +10,6 @@ import {
 	buildVariable,
 	type PhpExpr,
 } from '@wpkernel/php-json-ast';
-import { KernelError } from '@wpkernel/core/contracts';
 import { normaliseVariableReference } from './utils';
 
 export interface VariableValueDescriptor {
