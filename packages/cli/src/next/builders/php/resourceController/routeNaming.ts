@@ -1,7 +1,7 @@
-import { toPascalCase } from '@wpkernel/php-json-ast';
+import { toPascalCase } from '../utils';
 import type { IRRoute, IRv1 } from '../../../../ir/types';
 
-export function createRouteMethodName(route: IRRoute, ir: IRv1): string {
+export function buildRouteMethodName(route: IRRoute, ir: IRv1): string {
 	const method = route.method.toLowerCase();
 	const segments = deriveRouteSegments(route.path, ir);
 	const suffix = segments.map(toPascalCase).join('') || 'Route';

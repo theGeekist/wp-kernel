@@ -1,4 +1,4 @@
-import { createHelper } from '@wpkernel/core/pipeline';
+import { createHelper } from '../runtime';
 
 describe('createHelper', () => {
 	it('normalises defaults and clones dependencies', async () => {

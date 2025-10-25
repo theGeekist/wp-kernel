@@ -1,4 +1,4 @@
-import { createHelper } from '@wpkernel/core/pipeline';
+import { createHelper } from '../../runtime';
 import type { IRDiagnostic, IRWarning } from '../../../ir/types';
 import type { IrFragment, IrFragmentApplyOptions } from '../types';
 

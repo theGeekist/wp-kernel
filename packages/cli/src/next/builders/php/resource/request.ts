@@ -21,7 +21,7 @@ export interface RequestParamAssignmentOptions {
 	readonly cast?: ScalarCastKind;
 }
 
-export function createRequestParamAssignmentStatement(
+export function buildRequestParamAssignmentStatement(
 	options: RequestParamAssignmentOptions
 ): PhpStmtExpression {
 	const { requestVariable, param, targetVariable = param, cast } = options;

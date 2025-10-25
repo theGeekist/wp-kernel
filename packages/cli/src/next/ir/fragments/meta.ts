@@ -1,6 +1,6 @@
 import { sanitizeNamespace } from '@wpkernel/core/namespace';
 import { KernelError } from '@wpkernel/core/error';
-import { createHelper } from '@wpkernel/core/pipeline';
+import { createHelper } from '../../runtime';
 import type { IrFragment, IrFragmentApplyOptions } from '../types';
 import { toWorkspaceRelative } from '../../../utils';
 import { createPhpNamespace } from '../../../ir/php';

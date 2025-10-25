@@ -1,7 +1,7 @@
 export { buildWpTaxonomyListRouteStatements } from './list';
 export { buildWpTaxonomyGetRouteStatements } from './get';
 export {
-	createWpTaxonomyHelperMethods,
+	buildWpTaxonomyHelperMethods,
 	type TaxonomyHelperMethod,
 	type TaxonomyHelperOptions,
 	buildTaxonomyAssignmentStatement,

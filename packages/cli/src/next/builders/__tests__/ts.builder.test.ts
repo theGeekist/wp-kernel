@@ -2,17 +2,17 @@ import path from 'node:path';
 import type { ResourceConfig } from '@wpkernel/core/resource';
 import {
 	createTsBuilder,
-	createAdminScreenCreator,
-	createDataViewFixtureCreator,
+	buildAdminScreenCreator,
+	buildDataViewFixtureCreator,
 	type TsBuilderCreator,
 } from '../ts';
 import {
 	withWorkspace,
-	createKernelConfigSource,
-	createDataViewsConfig,
-	createBuilderArtifacts,
-	createReporter,
-	createOutput,
+	buildKernelConfigSource,
+	buildDataViewsConfig,
+	buildBuilderArtifacts,
+	buildReporter,
+	buildOutput,
 } from '../tests/ts.test-support';
 import { validateGeneratedImports } from '../../../commands/run-generate/validation';
 
@@ -27,16 +27,16 @@ beforeEach(() => {
 describe('createTsBuilder – orchestration', () => {
 	it('skips generation when no resources expose DataViews metadata', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
-			const configSource = createKernelConfigSource({ dataviews: null });
+			const configSource = buildKernelConfigSource({ dataviews: null });
 			await workspace.write('kernel.config.ts', configSource);
 
-			const { ir, options } = createBuilderArtifacts({
+			const { ir, options } = buildBuilderArtifacts({
 				dataviews: null,
 				sourcePath: path.join(root, 'kernel.config.ts'),
 			});
 
-			const reporter = createReporter();
-			const output = createOutput();
+			const reporter = buildReporter();
+			const output = buildOutput();
 			const builder = createTsBuilder();
 
 			await builder.apply(
@@ -84,17 +84,17 @@ describe('createTsBuilder – orchestration', () => {
 				'export const kernel = { getUIRuntime: () => ({}) };\n'
 			);
 
-			const dataviews = createDataViewsConfig();
-			const configSource = createKernelConfigSource();
+			const dataviews = buildDataViewsConfig();
+			const configSource = buildKernelConfigSource();
 			await workspace.write('kernel.config.ts', configSource);
 
-			const { ir, options } = createBuilderArtifacts({
+			const { ir, options } = buildBuilderArtifacts({
 				dataviews,
 				sourcePath: path.join(root, 'kernel.config.ts'),
 			});
 
-			const reporter = createReporter();
-			const output = createOutput();
+			const reporter = buildReporter();
+			const output = buildOutput();
 			const customCreator: TsBuilderCreator = {
 				key: 'builder.generate.ts.custom.test',
 				async create({ project, descriptor, emit }) {
@@ -120,8 +120,8 @@ describe('createTsBuilder – orchestration', () => {
 
 			const builder = createTsBuilder({
 				creators: [
-					createAdminScreenCreator(),
-					createDataViewFixtureCreator(),
+					buildAdminScreenCreator(),
+					buildDataViewFixtureCreator(),
 					customCreator,
 				],
 			});
@@ -189,8 +189,8 @@ describe('createTsBuilder – orchestration', () => {
 
 	it('invokes lifecycle hooks around creators', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
-			const dataviews = createDataViewsConfig();
-			const { ir, options } = createBuilderArtifacts({
+			const dataviews = buildDataViewsConfig();
+			const { ir, options } = buildBuilderArtifacts({
 				dataviews,
 				sourcePath: path.join(root, 'kernel.config.ts'),
 			});
@@ -201,8 +201,8 @@ describe('createTsBuilder – orchestration', () => {
 				onAfterEmit: jest.fn(),
 			};
 
-			const reporter = createReporter();
-			const output = createOutput();
+			const reporter = buildReporter();
+			const output = buildOutput();
 			const builder = createTsBuilder({ hooks });
 
 			await builder.apply(
@@ -278,15 +278,15 @@ describe('createTsBuilder – orchestration', () => {
 				'export const task = { ui: { admin: { dataviews: {} } } };\n'
 			);
 
-			const jobDataViews = createDataViewsConfig();
-			const { ir, options } = createBuilderArtifacts({
+			const jobDataViews = buildDataViewsConfig();
+			const { ir, options } = buildBuilderArtifacts({
 				dataviews: jobDataViews,
 				resourceKey: 'job',
 				resourceName: 'Job',
 				sourcePath: path.join(root, 'kernel.config.ts'),
 			});
 
-			const taskDataViews = createDataViewsConfig({
+			const taskDataViews = buildDataViewsConfig({
 				screen: {
 					component: 'TasksAdminScreen',
 					route: '/admin/tasks',
@@ -316,8 +316,8 @@ describe('createTsBuilder – orchestration', () => {
 				warnings: [],
 			});
 
-			const reporter = createReporter();
-			const output = createOutput();
+			const reporter = buildReporter();
+			const output = buildOutput();
 			const builder = createTsBuilder();
 
 			await builder.apply(

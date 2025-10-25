@@ -21,7 +21,7 @@ jest.mock('@wpkernel/php-driver', () => ({
 
 const buildPhpPrettyPrinterMock = jest.mocked(buildPhpPrettyPrinter);
 
-function createReporter(): Reporter {
+function buildReporter(): Reporter {
 	return {
 		debug: jest.fn(),
 		info: jest.fn(),
@@ -31,7 +31,7 @@ function createReporter(): Reporter {
 	};
 }
 
-function createPipelineContext(): PipelineContext {
+function buildPipelineContext(): PipelineContext {
 	return {
 		workspace: {
 			root: '/workspace',
@@ -54,12 +54,12 @@ function createPipelineContext(): PipelineContext {
 			}),
 			tmpDir: async () => '.tmp',
 		},
-		reporter: createReporter(),
+		reporter: buildReporter(),
 		phase: 'generate',
 	} as unknown as PipelineContext;
 }
 
-function createBuilderInput(): BuilderInput {
+function buildBuilderInput(): BuilderInput {
 	return {
 		phase: 'generate',
 		options: {
@@ -74,8 +74,8 @@ function createBuilderInput(): BuilderInput {
 
 describe('createPhpProgramWriterHelper', () => {
 	it('writes queued programs using the pretty printer', async () => {
-		const context = createPipelineContext();
-		const input = createBuilderInput();
+		const context = buildPipelineContext();
+		const input = buildBuilderInput();
 		const output: BuilderOutput = {
 			actions: [],
 			queueWrite: jest.fn(),

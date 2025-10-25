@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { createHelper } from '@wpkernel/core/pipeline';
+import { createHelper } from '../../runtime';
 import { resolvePolicyMap } from '../../../ir/policy-map';
 import type { IrFragment, IrFragmentApplyOptions } from '../types';
 

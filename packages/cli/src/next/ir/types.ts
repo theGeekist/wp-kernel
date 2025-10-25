@@ -27,7 +27,7 @@ export interface MutableIr {
 	extensions: Record<string, unknown>;
 }
 
-export function createIrDraft(options: BuildIrOptions): MutableIr {
+export function buildIrDraft(options: BuildIrOptions): MutableIr {
 	return {
 		meta: null,
 		config: options.config,
@@ -90,7 +90,7 @@ export interface IrFragmentOutput {
 	assign: (partial: Partial<MutableIr>) => void;
 }
 
-export function createIrFragmentOutput(draft: MutableIr): IrFragmentOutput {
+export function buildIrFragmentOutput(draft: MutableIr): IrFragmentOutput {
 	return {
 		draft,
 		assign(partial) {
@@ -128,13 +128,16 @@ export function createIrFragmentOutput(draft: MutableIr): IrFragmentOutput {
 export type IrFragment = Helper<
 	PipelineContext,
 	IrFragmentInput,
-	IrFragmentOutput
+	IrFragmentOutput,
+	PipelineContext['reporter'],
+	'fragment'
 >;
 
 export type IrFragmentApplyOptions = HelperApplyOptions<
 	PipelineContext,
 	IrFragmentInput,
-	IrFragmentOutput
+	IrFragmentOutput,
+	PipelineContext['reporter']
 > & {
 	reporter: Reporter;
 };

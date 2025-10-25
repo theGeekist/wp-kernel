@@ -13,7 +13,7 @@ import type {
 	PipelineExtensionHookOptions,
 	PipelineExtensionHookResult,
 } from './types';
-import { createTsFormatter } from '../builders/ts';
+import { buildTsFormatter } from '../builders/ts';
 
 function invokeExtensionFactory(
 	factory: AdapterExtensionFactory,
@@ -133,7 +133,7 @@ async function runExtensions(
 	const outputDir = options.context.workspace.resolve(GENERATED_ROOT);
 	const configDirectory = path.dirname(options.options.sourcePath);
 
-	const tsFormatter = createTsFormatter();
+	const tsFormatter = buildTsFormatter();
 
 	const runResult = await runAdapterExtensions({
 		extensions: resolved,
@@ -167,7 +167,7 @@ async function runExtensions(
 	};
 }
 
-export function createAdapterExtensionsExtension(): PipelineExtension {
+export function buildAdapterExtensionsExtension(): PipelineExtension {
 	return {
 		key: 'pipeline.extensions.adapters',
 		register() {

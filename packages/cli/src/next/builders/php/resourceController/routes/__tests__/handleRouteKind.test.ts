@@ -2,7 +2,7 @@ import type { ResourceMetadataHost } from '@wpkernel/php-json-ast';
 import type { IRResource } from '../../../../../../ir/types';
 import { buildRouteKindStatements } from '../handleRouteKind';
 
-function createMetadataHost(): ResourceMetadataHost {
+function buildMetadataHost(): ResourceMetadataHost {
 	return {
 		getMetadata: () => ({
 			kind: 'resource-controller',
@@ -14,7 +14,7 @@ function createMetadataHost(): ResourceMetadataHost {
 	};
 }
 
-function createResource(storage: IRResource['storage']): IRResource {
+function buildResource(storage: IRResource['storage']): IRResource {
 	return {
 		name: 'book',
 		schemaKey: 'book',
@@ -39,7 +39,7 @@ function createResource(storage: IRResource['storage']): IRResource {
 describe('handleRouteKind', () => {
 	it('delegates to mutation builders for wp-post resources', () => {
 		const options = {
-			resource: createResource({
+			resource: buildResource({
 				mode: 'wp-post',
 				postType: 'book',
 				statuses: [],
@@ -50,7 +50,7 @@ describe('handleRouteKind', () => {
 			identity: { type: 'number', param: 'id' } as const,
 			pascalName: 'Book',
 			errorCodeFactory: (suffix: string) => `book_${suffix}`,
-			metadataHost: createMetadataHost(),
+			metadataHost: buildMetadataHost(),
 			cacheSegments: [],
 		} as const;
 
@@ -76,11 +76,11 @@ describe('handleRouteKind', () => {
 
 	it('returns false for mutation kinds when storage is unsupported', () => {
 		const options = {
-			resource: createResource(undefined),
+			resource: buildResource(undefined),
 			identity: { type: 'number', param: 'id' } as const,
 			pascalName: 'Book',
 			errorCodeFactory: (suffix: string) => `book_${suffix}`,
-			metadataHost: createMetadataHost(),
+			metadataHost: buildMetadataHost(),
 			cacheSegments: [],
 		} as const;
 
@@ -106,11 +106,11 @@ describe('handleRouteKind', () => {
 
 	it('returns false for unsupported kinds', () => {
 		const options = {
-			resource: createResource(undefined),
+			resource: buildResource(undefined),
 			identity: { type: 'number', param: 'id' } as const,
 			pascalName: 'Book',
 			errorCodeFactory: (suffix: string) => `book_${suffix}`,
-			metadataHost: createMetadataHost(),
+			metadataHost: buildMetadataHost(),
 			cacheSegments: [],
 		} as const;
 
@@ -124,7 +124,7 @@ describe('handleRouteKind', () => {
 
 	it('delegates list/get routes for wp-taxonomy resources', () => {
 		const options = {
-			resource: createResource({
+			resource: buildResource({
 				mode: 'wp-taxonomy',
 				taxonomy: 'book_genre',
 				hierarchical: false,
@@ -132,7 +132,7 @@ describe('handleRouteKind', () => {
 			identity: { type: 'string', param: 'slug' } as const,
 			pascalName: 'BookGenre',
 			errorCodeFactory: (suffix: string) => `taxonomy_${suffix}`,
-			metadataHost: createMetadataHost(),
+			metadataHost: buildMetadataHost(),
 			cacheSegments: [],
 		} as const;
 

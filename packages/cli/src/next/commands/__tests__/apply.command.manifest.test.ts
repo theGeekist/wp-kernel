@@ -1,13 +1,13 @@
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
 import { assignCommandContext } from '@wpkernel/test-utils/cli';
-import { createWorkspaceRunner } from '../../../../tests/workspace.test-support';
+import { createWorkspaceRunner as buildWorkspaceRunner } from '../../../../tests/workspace.test-support';
 import * as ApplyModule from '../apply';
 import { loadKernelConfig } from '../../../config';
-import { createWorkspace } from '../../workspace';
+import { buildWorkspace } from '../../workspace';
 import { createPatcher } from '../../builders';
 import {
 	TMP_PREFIX,
-	createLoadedConfig,
+	buildLoadedConfig,
 } from '../__test-support__/apply.test-support';
 
 jest.mock('../../../config');
@@ -17,7 +17,7 @@ jest.mock('../../builders', () => ({
 	})),
 }));
 jest.mock('../../workspace', () => ({
-	createWorkspace: jest.fn(() => ({
+	buildWorkspace: jest.fn(() => ({
 		readText: jest.fn().mockResolvedValue('invalid-json'),
 	})),
 }));
@@ -26,20 +26,20 @@ const loadKernelConfigMock = loadKernelConfig as jest.MockedFunction<
 	typeof loadKernelConfig
 >;
 
-const withWorkspace = createWorkspaceRunner({ prefix: TMP_PREFIX });
+const withWorkspace = buildWorkspaceRunner({ prefix: TMP_PREFIX });
 
 const createPatcherMock = createPatcher as jest.MockedFunction<
 	typeof createPatcher
 >;
-const createWorkspaceMock = createWorkspace as jest.MockedFunction<
-	typeof createWorkspace
+const buildWorkspaceMock = buildWorkspace as jest.MockedFunction<
+	typeof buildWorkspace
 >;
 
 describe('NextApplyCommand manifest handling', () => {
 	beforeEach(() => {
 		jest.resetAllMocks();
 		createPatcherMock.mockClear();
-		createWorkspaceMock.mockClear();
+		buildWorkspaceMock.mockClear();
 	});
 
 	afterEach(() => {
@@ -49,7 +49,7 @@ describe('NextApplyCommand manifest handling', () => {
 	it('reports failure when manifest parsing fails', async () => {
 		await withWorkspace(async (workspace) => {
 			loadKernelConfigMock.mockResolvedValue(
-				createLoadedConfig(workspace)
+				buildLoadedConfig(workspace)
 			);
 
 			const command = new ApplyModule.NextApplyCommand();
@@ -57,7 +57,7 @@ describe('NextApplyCommand manifest handling', () => {
 
 			const exitCode = await command.execute();
 
-			expect(createWorkspaceMock).toHaveBeenCalledWith(workspace);
+			expect(buildWorkspaceMock).toHaveBeenCalledWith(workspace);
 			expect(createPatcherMock).toHaveBeenCalled();
 			expect(exitCode).toBe(WPK_EXIT_CODES.UNEXPECTED_ERROR);
 			expect(command.summary).toBeNull();

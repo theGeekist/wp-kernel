@@ -1,6 +1,6 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import { createNoopReporter } from '@wpkernel/core/reporter';
+import { createNoopReporter as buildNoopReporter } from '@wpkernel/core/reporter';
 import * as reporterExports from '@wpkernel/core/reporter';
 import type { KernelConfigV1 } from '../../../config/types';
 import { buildIr } from '../../../ir';
@@ -9,13 +9,13 @@ import {
 	FIXTURE_CONFIG_PATH,
 	FIXTURE_ROOT,
 } from '../../../ir/test-helpers';
-import { createWorkspace } from '../../workspace';
+import { buildWorkspace } from '../../workspace';
 import * as workspaceExports from '../../workspace';
 import { createIr } from '../createIr';
 import { withWorkspace } from '../../../../tests/workspace.test-support';
 
 jest.mock('../../builders', () => {
-	const { createHelper } = jest.requireActual('@wpkernel/core/pipeline');
+	const { createHelper } = jest.requireActual('../../runtime');
 	const createStubBuilder = (key: string) =>
 		createHelper({
 			key,
@@ -98,12 +98,12 @@ describe('createIr', () => {
 					sourcePath: copiedConfigPath,
 				} as const;
 
-				const workspace = createWorkspace(workspaceRoot);
+				const workspace = buildWorkspace(workspaceRoot);
 				const [legacy, next] = await Promise.all([
 					buildIr(options),
 					createIr(options, {
 						workspace,
-						reporter: createNoopReporter(),
+						reporter: buildNoopReporter(),
 					}),
 				]);
 
@@ -144,10 +144,10 @@ describe('createIr', () => {
 					sourcePath: path.join(workspaceRoot, 'kernel.config.ts'),
 				} as const;
 
-				const workspace = createWorkspace(workspaceRoot);
+				const workspace = buildWorkspace(workspaceRoot);
 				const ir = await createIr(options, {
 					workspace,
-					reporter: createNoopReporter(),
+					reporter: buildNoopReporter(),
 				});
 
 				expect(ir.diagnostics).toEqual(
@@ -198,7 +198,7 @@ describe('createIr', () => {
 			error: jest.fn(),
 			debug: jest.fn(),
 			child: reporterChild,
-		} as unknown as ReturnType<typeof createNoopReporter>;
+		} as unknown as ReturnType<typeof buildNoopReporter>;
 		reporterChild.mockReturnValue(reporter);
 
 		const ir = await createIr(options, {
@@ -238,7 +238,7 @@ describe('createIr', () => {
 		createdReporterChild.mockReturnValue(createdReporter);
 
 		const workspaceSpy = jest
-			.spyOn(workspaceExports, 'createWorkspace')
+			.spyOn(workspaceExports, 'buildWorkspace')
 			.mockReturnValue(createdWorkspace as never);
 		const reporterSpy = jest
 			.spyOn(reporterExports, 'createNoopReporter')

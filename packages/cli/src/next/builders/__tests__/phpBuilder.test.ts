@@ -28,7 +28,7 @@ const buildPhpPrettyPrinterMock = buildPhpPrettyPrinter as jest.MockedFunction<
 	typeof buildPhpPrettyPrinter
 >;
 
-function createReporter(): Reporter {
+function buildReporter(): Reporter {
 	return {
 		debug: jest.fn(),
 		info: jest.fn(),
@@ -38,7 +38,7 @@ function createReporter(): Reporter {
 	};
 }
 
-function createWorkspace(): Workspace {
+function buildWorkspace(): Workspace {
 	return {
 		root: process.cwd(),
 		cwd: jest.fn(() => process.cwd()),
@@ -115,8 +115,8 @@ describe('createPhpBuilder', () => {
 	});
 
 	it('queues helper programs in the channel before writing', async () => {
-		const workspace = createWorkspace();
-		const reporter = createReporter();
+		const workspace = buildWorkspace();
+		const reporter = buildReporter();
 		const context = {
 			workspace,
 			reporter,
@@ -222,8 +222,8 @@ describe('createPhpBuilder', () => {
 
 	it('logs a debug message and skips non-generate phases', async () => {
 		const builder = createPhpBuilder();
-		const reporter = createReporter();
-		const workspace = createWorkspace();
+		const reporter = buildReporter();
+		const workspace = buildWorkspace();
 		const output: BuilderOutput = {
 			actions: [],
 			queueWrite: jest.fn(),
@@ -262,8 +262,8 @@ describe('createPhpBuilder', () => {
 
 	it('generates base controller artifacts from the AST channel', async () => {
 		const builder = createPhpBuilder();
-		const reporter = createReporter();
-		const workspace = createWorkspace();
+		const reporter = buildReporter();
+		const workspace = buildWorkspace();
 		const prettyPrint = setupPrettyPrinterMock();
 		const output: BuilderOutput = {
 			actions: [],

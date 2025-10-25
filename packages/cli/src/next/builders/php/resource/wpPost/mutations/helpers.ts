@@ -19,7 +19,6 @@ import {
 	buildVariable,
 	buildNull,
 	PHP_METHOD_MODIFIER_PRIVATE,
-	toSnakeCase,
 	type PhpExpr,
 	type PhpExprTernary,
 	type PhpStmt,
@@ -34,11 +33,14 @@ import {
 	buildBinaryOperation,
 	buildBooleanNot,
 	buildForeachStatement,
+	buildFunctionCallAssignmentStatement,
 	buildReturnVoid,
 	buildPropertyFetch,
 	buildScalarCast,
 } from '../../utils';
+import { toSnakeCase } from '../../../utils';
 import type { ResolvedIdentity } from '../../../identity';
+import { buildReturnIfWpError, buildIsWpErrorGuard } from '../../errors';
 
 type WpPostStorage = Extract<
 	NonNullable<IRResource['storage']>,
@@ -109,7 +111,7 @@ export function syncWpPostMeta(
 		);
 
 		const branchStatements: PhpStmt[] = [
-			...createMetaSanitizerStatements(variableName, descriptor),
+			...buildMetaSanitizerStatements(variableName, descriptor),
 		];
 
 		if (descriptor?.single === false) {
@@ -274,23 +276,17 @@ export function syncWpPostTaxonomies(
 					])
 				)
 			),
-			buildExpressionStatement(
-				buildAssign(
-					buildVariable('result'),
-					buildFuncCall(buildName(['wp_set_object_terms']), [
-						buildArg(buildVariable('post_id')),
-						buildArg(buildVariable(variableName)),
-						buildArg(buildScalarString(descriptor.taxonomy)),
-						buildArg(buildScalarBool(false)),
-					])
-				)
-			),
-			buildIfStatement(
-				buildFuncCall(buildName(['is_wp_error']), [
-					buildArg(buildVariable('result')),
-				]),
-				[buildReturn(buildVariable('result'))]
-			),
+			buildFunctionCallAssignmentStatement({
+				variable: 'result',
+				functionName: 'wp_set_object_terms',
+				args: [
+					buildArg(buildVariable('post_id')),
+					buildArg(buildVariable(variableName)),
+					buildArg(buildScalarString(descriptor.taxonomy)),
+					buildArg(buildScalarBool(false)),
+				],
+			}),
+			buildReturnIfWpError(buildVariable('result')),
 		];
 
 		statements.push(
@@ -385,7 +381,7 @@ export function prepareWpPostResponse(
 		);
 
 		statements.push(
-			...createMetaSanitizerStatements(variableName, descriptor)
+			...buildMetaSanitizerStatements(variableName, descriptor)
 		);
 
 		statements.push(
@@ -422,19 +418,17 @@ export function prepareWpPostResponse(
 		);
 
 		statements.push(
-			buildIfStatement(
-				buildFuncCall(buildName(['is_wp_error']), [
-					buildArg(buildVariable(variableName)),
-				]),
-				[
+			buildIsWpErrorGuard({
+				expression: buildVariable(variableName),
+				statements: [
 					buildExpressionStatement(
 						buildAssign(
 							buildVariable(variableName),
 							buildArrayLiteral([])
 						)
 					),
-				]
-			)
+				],
+			})
 		);
 
 		statements.push(
@@ -540,7 +534,7 @@ function appendSupportAssignments(
 	}
 }
 
-function createMetaSanitizerStatements(
+function buildMetaSanitizerStatements(
 	variableName: string,
 	descriptor: WpPostMetaDescriptor
 ): PhpStmt[] {
@@ -575,7 +569,7 @@ function createMetaSanitizerStatements(
 		);
 
 		const foreachStatements: PhpStmt[] = [
-			...createMetaSanitizerValueAssignments('meta_value', descriptor),
+			...buildMetaSanitizerValueAssignments('meta_value', descriptor),
 			buildExpressionStatement(
 				buildAssign(
 					buildArrayDimFetch(
@@ -597,10 +591,10 @@ function createMetaSanitizerStatements(
 		return [ensureArray, normalize, foreach];
 	}
 
-	return createMetaSanitizerValueAssignments(variableName, descriptor);
+	return buildMetaSanitizerValueAssignments(variableName, descriptor);
 }
 
-function createMetaSanitizerValueAssignments(
+function buildMetaSanitizerValueAssignments(
 	variableName: string,
 	descriptor: WpPostMetaDescriptor
 ): PhpStmt[] {

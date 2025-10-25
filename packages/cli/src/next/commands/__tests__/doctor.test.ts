@@ -23,7 +23,7 @@ jest.mock('../../../commands/doctor', () => {
 import { Command } from 'clipanion';
 import { assignCommandContext } from '@wpkernel/test-utils/cli';
 import * as Delegate from '../internal/delegate';
-import { createDoctorCommand } from '../doctor';
+import { buildDoctorCommand } from '../doctor';
 import type { Command as ClipanionCommand } from 'clipanion';
 
 type MockedLegacyModule = {
@@ -37,7 +37,7 @@ function getMockLegacyDoctor(): MockedLegacyModule['DoctorCommand'] {
 		.DoctorCommand;
 }
 
-describe('createDoctorCommand', () => {
+describe('buildDoctorCommand', () => {
 	class FakeDoctorCommand extends Command {
 		public static readonly executeMock = jest.fn(async () => 7);
 
@@ -57,7 +57,7 @@ describe('createDoctorCommand', () => {
 	});
 
 	it('delegates execution to the legacy command and adopts the environment', async () => {
-		const Doctor = createDoctorCommand({ command: FakeDoctorCommand });
+		const Doctor = buildDoctorCommand({ command: FakeDoctorCommand });
 		const next = new Doctor();
 
 		assignCommandContext(next, { cwd: process.cwd() });
@@ -78,7 +78,7 @@ describe('createDoctorCommand', () => {
 
 	it('loads the legacy command once when using a loader', async () => {
 		const loadCommand = jest.fn(async () => FakeDoctorCommand);
-		const Doctor = createDoctorCommand({ loadCommand });
+		const Doctor = buildDoctorCommand({ loadCommand });
 
 		const first = new Doctor();
 		assignCommandContext(first, { cwd: process.cwd() });
@@ -93,13 +93,13 @@ describe('createDoctorCommand', () => {
 
 	it('falls back to the default loader when no overrides are provided', async () => {
 		const loader = jest.fn(async () => getMockLegacyDoctor());
-		jest.spyOn(Delegate, 'createLegacyCommandLoader').mockImplementation(
+		jest.spyOn(Delegate, 'buildLegacyCommandLoader').mockImplementation(
 			({ defaultLoad }) => {
 				return async () => loader(await defaultLoad());
 			}
 		);
 
-		const Doctor = createDoctorCommand();
+		const Doctor = buildDoctorCommand();
 		const next = new Doctor();
 		assignCommandContext(next, { cwd: process.cwd() });
 

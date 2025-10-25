@@ -1,17 +1,9 @@
 import {
 	buildArg,
-	buildAssign,
-	buildExpressionStatement,
-	buildFuncCall,
-	buildIdentifier,
 	buildIfStatement,
-	buildMethodCall,
-	buildName,
 	buildReturn,
 	buildScalarBool,
-	buildScalarString,
 	buildVariable,
-	makeErrorCodeFactory,
 	type PhpStmt,
 } from '@wpkernel/php-json-ast';
 import { buildIdentityValidationStatements } from '../../identity';
@@ -22,9 +14,13 @@ import {
 	buildInstanceof,
 	buildPropertyFetch,
 	buildScalarCast,
+	buildMethodCallAssignmentStatement,
+	buildFunctionCallAssignmentStatement,
 } from '../../../utils';
 import { buildWpErrorReturn } from '../../../errors';
+import { buildRequestParamAssignmentStatement } from '../../../request';
 import type { BuildDeleteRouteStatementsOptions } from './types';
+import { makeErrorCodeFactory } from '../../../../utils';
 
 export function buildDeleteRouteStatements(
 	options: BuildDeleteRouteStatementsOptions
@@ -39,16 +35,11 @@ export function buildDeleteRouteStatements(
 	const statements: PhpStmt[] = [];
 
 	statements.push(
-		buildExpressionStatement(
-			buildAssign(
-				buildVariable(identityVar),
-				buildMethodCall(
-					buildVariable('request'),
-					buildIdentifier('get_param'),
-					[buildArg(buildScalarString(identityVar))]
-				)
-			)
-		)
+		buildRequestParamAssignmentStatement({
+			requestVariable: 'request',
+			param: identityVar,
+			targetVariable: identityVar,
+		})
 	);
 
 	const validationStatements = buildIdentityValidationStatements({
@@ -59,16 +50,12 @@ export function buildDeleteRouteStatements(
 	statements.push(...validationStatements);
 
 	statements.push(
-		buildExpressionStatement(
-			buildAssign(
-				buildVariable('post'),
-				buildMethodCall(
-					buildVariable('this'),
-					buildIdentifier(`resolve${options.pascalName}Post`),
-					[buildArg(buildVariable(identityVar))]
-				)
-			)
-		)
+		buildMethodCallAssignmentStatement({
+			variable: 'post',
+			subject: 'this',
+			method: `resolve${options.pascalName}Post`,
+			args: [buildArg(buildVariable(identityVar))],
+		})
 	);
 
 	const notFoundReturn = buildWpErrorReturn({
@@ -83,31 +70,26 @@ export function buildDeleteRouteStatements(
 	);
 
 	statements.push(
-		buildExpressionStatement(
-			buildAssign(
-				buildVariable('previous'),
-				buildMethodCall(
-					buildVariable('this'),
-					buildIdentifier(`prepare${options.pascalName}Response`),
-					[
-						buildArg(buildVariable('post')),
-						buildArg(buildVariable('request')),
-					]
-				)
-			)
-		)
+		buildMethodCallAssignmentStatement({
+			variable: 'previous',
+			subject: 'this',
+			method: `prepare${options.pascalName}Response`,
+			args: [
+				buildArg(buildVariable('post')),
+				buildArg(buildVariable('request')),
+			],
+		})
 	);
 
 	statements.push(
-		buildExpressionStatement(
-			buildAssign(
-				buildVariable('deleted'),
-				buildFuncCall(buildName(['wp_delete_post']), [
-					buildArg(buildPropertyFetch('post', 'ID')),
-					buildArg(buildScalarBool(true)),
-				])
-			)
-		)
+		buildFunctionCallAssignmentStatement({
+			variable: 'deleted',
+			functionName: 'wp_delete_post',
+			args: [
+				buildArg(buildPropertyFetch('post', 'ID')),
+				buildArg(buildScalarBool(true)),
+			],
+		})
 	);
 
 	const deleteReturn = buildWpErrorReturn({

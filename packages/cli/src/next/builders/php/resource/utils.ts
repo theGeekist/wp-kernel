@@ -7,19 +7,25 @@ import {
 	buildAssign,
 	buildBooleanNot as buildBooleanNotExpr,
 	buildExpressionStatement,
+	buildFuncCall,
 	buildIdentifier,
 	buildIfStatement,
 	buildInstanceof as buildInstanceofExpr,
+	buildMethodCall,
 	buildName,
 	buildNode,
 	buildPropertyFetch as buildPropertyFetchNode,
 	buildReturn,
 	buildScalarCast as buildScalarCastNode,
 	buildScalarString,
+	buildStmtNop,
 	buildVariable,
+	type PhpArg,
 	type PhpExpr,
 	type PhpExprBinaryOp,
 	type PhpExprBooleanNot,
+	type PhpExprFuncCall,
+	type PhpExprMethodCall,
 	type PhpStmt,
 	type PhpStmtExpression,
 	type PhpStmtForeach,
@@ -140,6 +146,82 @@ export function buildVariableAssignment(
 	return buildExpressionStatement(
 		buildAssign(buildVariable(target.raw), expression)
 	);
+}
+
+export type MethodCallSubject = string | PhpExpr;
+
+export interface MethodCallExpressionOptions {
+	readonly subject: MethodCallSubject;
+	readonly method: string;
+	readonly args?: readonly PhpArg[];
+}
+
+export function buildMethodCallExpression(
+	options: MethodCallExpressionOptions
+): PhpExprMethodCall {
+	const receiver =
+		typeof options.subject === 'string'
+			? buildVariable(normaliseVariableReference(options.subject).raw)
+			: options.subject;
+
+	const args = options.args ? [...options.args] : [];
+
+	return buildMethodCall(receiver, buildIdentifier(options.method), args);
+}
+
+export interface MethodCallAssignmentOptions
+	extends MethodCallExpressionOptions {
+	readonly variable: string;
+}
+
+export function buildMethodCallAssignmentStatement(
+	options: MethodCallAssignmentOptions
+): PhpStmtExpression {
+	const { variable, ...callOptions } = options;
+	const expression = buildMethodCallExpression(callOptions);
+
+	return buildVariableAssignment(
+		normaliseVariableReference(variable),
+		expression
+	);
+}
+
+export function buildFunctionCall(
+	functionName: string,
+	args: readonly PhpArg[] = []
+): PhpExprFuncCall {
+	return buildFuncCall(buildName([functionName]), [...args]);
+}
+
+export interface FunctionCallAssignmentOptions {
+	readonly variable: string;
+	readonly functionName: string;
+	readonly args?: readonly PhpArg[];
+}
+
+export function buildFunctionCallAssignmentStatement(
+	options: FunctionCallAssignmentOptions
+): PhpStmtExpression {
+	return buildVariableAssignment(
+		normaliseVariableReference(options.variable),
+		buildFunctionCall(options.functionName, options.args ?? [])
+	);
+}
+
+export function appendStatementsWithSpacing(
+	target: PhpStmt[],
+	statements: readonly PhpStmt[]
+): void {
+	if (statements.length === 0) {
+		return;
+	}
+
+	target.push(...statements);
+
+	const last = statements[statements.length - 1]!;
+	if (last.nodeType !== 'Stmt_Nop') {
+		target.push(buildStmtNop());
+	}
 }
 
 // ─────────────────────────────────────────────

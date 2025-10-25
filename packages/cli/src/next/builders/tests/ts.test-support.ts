@@ -10,7 +10,7 @@ import type {
 } from '@wpkernel/core/resource';
 import type { KernelConfigV1 } from '../../../config/types';
 import type { BuildIrOptions, IRResource, IRv1 } from '../../../ir/types';
-import { createWorkspace } from '../../workspace';
+import { buildWorkspace } from '../../workspace';
 import type { Workspace } from '../../workspace/types';
 import type { BuilderOutput } from '../../runtime/types';
 
@@ -24,7 +24,7 @@ export async function withWorkspace(
 ): Promise<void> {
 	const root = await fs.mkdtemp(path.join(os.tmpdir(), 'ts-builder-'));
 	try {
-		const workspace = createWorkspace(root);
+		const workspace = buildWorkspace(root);
 		await run({ workspace, root });
 	} finally {
 		await fs.rm(root, { recursive: true, force: true });
@@ -40,7 +40,7 @@ export interface KernelConfigSourceOptions {
 	} | null;
 }
 
-export function createKernelConfigSource(
+export function buildKernelConfigSource(
 	options: KernelConfigSourceOptions = {}
 ): string {
 	const {
@@ -55,7 +55,7 @@ export function createKernelConfigSource(
 	const identifier = `${camelResourceKey}DataViewsConfig`;
 
 	const screenBlock = includeDataViews
-		? createScreenBlock(dataviews?.screen ?? {})
+		? buildScreenBlock(dataviews?.screen ?? {})
 		: undefined;
 
 	const dataViewsDeclaration = includeDataViews
@@ -109,7 +109,7 @@ export interface DataViewsConfigOverrides
 	readonly screen?: Partial<ResourceDataViewsScreenConfig> | null;
 }
 
-export function createDataViewsConfig(
+export function buildDataViewsConfig(
 	overrides: DataViewsConfigOverrides = {}
 ): ResourceDataViewsUIConfig {
 	const { screen: screenOverrides, ...rest } = overrides;
@@ -158,14 +158,14 @@ export interface BuilderArtifacts {
 	readonly options: BuildIrOptions;
 }
 
-export function createBuilderArtifacts(
+export function buildBuilderArtifacts(
 	options: BuilderArtifactOptions
 ): BuilderArtifacts {
 	const {
 		namespace = 'demo-namespace',
 		resourceKey = 'job',
 		resourceName = resourceKey,
-		dataviews = createDataViewsConfig(),
+		dataviews = buildDataViewsConfig(),
 		sourcePath,
 	} = options;
 
@@ -246,7 +246,7 @@ export function createBuilderArtifacts(
 	return { config, ir, options: buildOptions };
 }
 
-export function createReporter(): Reporter {
+export function buildReporter(): Reporter {
 	const reporter = {
 		debug: jest.fn(),
 		info: jest.fn(),
@@ -258,7 +258,7 @@ export function createReporter(): Reporter {
 	return reporter;
 }
 
-export function createOutput(): BuilderOutput {
+export function buildOutput(): BuilderOutput {
 	const actions: BuilderOutput['actions'] = [];
 	const queueWrite = jest.fn((action: BuilderOutput['actions'][number]) => {
 		actions.push(action);
@@ -278,7 +278,7 @@ export function prefixRelative(candidate: string): string {
 	return `./${candidate}`;
 }
 
-function createScreenBlock(
+function buildScreenBlock(
 	overrides: Partial<ResourceDataViewsScreenConfig>
 ): string {
 	const screen: ResourceDataViewsScreenConfig = {

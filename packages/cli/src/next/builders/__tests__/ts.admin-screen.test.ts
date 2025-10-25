@@ -1,16 +1,16 @@
 import path from 'node:path';
 import {
 	createTsBuilder,
-	createAdminScreenCreator,
-	createDataViewFixtureCreator,
+	buildAdminScreenCreator,
+	buildDataViewFixtureCreator,
 } from '../ts';
 import {
 	withWorkspace,
-	createKernelConfigSource,
-	createDataViewsConfig,
-	createBuilderArtifacts,
-	createReporter,
-	createOutput,
+	buildKernelConfigSource,
+	buildDataViewsConfig,
+	buildBuilderArtifacts,
+	buildReporter,
+	buildOutput,
 	normalise,
 	prefixRelative,
 } from '../tests/ts.test-support';
@@ -31,21 +31,21 @@ describe('createTsBuilder – admin screen creator', () => {
 				'export const job = { ui: { admin: { dataviews: {} } } };\n'
 			);
 
-			const configSource = createKernelConfigSource();
+			const configSource = buildKernelConfigSource();
 			await workspace.write('kernel.config.ts', configSource);
 
-			const dataviews = createDataViewsConfig();
-			const { ir, options } = createBuilderArtifacts({
+			const dataviews = buildDataViewsConfig();
+			const { ir, options } = buildBuilderArtifacts({
 				dataviews,
 				sourcePath: path.join(root, 'kernel.config.ts'),
 			});
 
-			const reporter = createReporter();
-			const output = createOutput();
+			const reporter = buildReporter();
+			const output = buildOutput();
 			const builder = createTsBuilder({
 				creators: [
-					createAdminScreenCreator(),
-					createDataViewFixtureCreator(),
+					buildAdminScreenCreator(),
+					buildDataViewFixtureCreator(),
 				],
 			});
 
@@ -129,27 +129,27 @@ describe('createTsBuilder – admin screen creator', () => {
 				'export const jobBoard = { ui: { admin: { dataviews: {} } } };\n'
 			);
 
-			const dataviews = createDataViewsConfig({
+			const dataviews = buildDataViewsConfig({
 				screen: { component: 'JobBoardAdminScreen' },
 			});
-			const configSource = createKernelConfigSource({
+			const configSource = buildKernelConfigSource({
 				resourceKey: 'job-board',
 				resourceName: 'Job Board',
 				dataviews: { screen: { component: 'JobBoardAdminScreen' } },
 			});
 			await workspace.write('kernel.config.ts', configSource);
 
-			const { ir, options } = createBuilderArtifacts({
+			const { ir, options } = buildBuilderArtifacts({
 				resourceKey: 'job-board',
 				resourceName: 'Job Board',
 				dataviews,
 				sourcePath: path.join(root, 'kernel.config.ts'),
 			});
 
-			const reporter = createReporter();
-			const output = createOutput();
+			const reporter = buildReporter();
+			const output = buildOutput();
 			const builder = createTsBuilder({
-				creators: [createAdminScreenCreator()],
+				creators: [buildAdminScreenCreator()],
 			});
 
 			await builder.apply(
@@ -198,22 +198,22 @@ describe('createTsBuilder – admin screen creator', () => {
 
 	it('falls back to configured aliases when imports cannot be resolved', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
-			const configSource = createKernelConfigSource({
+			const configSource = buildKernelConfigSource({
 				resourceKey: 'job-board',
 				resourceName: 'Job Board',
 			});
 			await workspace.write('kernel.config.ts', configSource);
 
-			const dataviews = createDataViewsConfig();
-			const { ir, options } = createBuilderArtifacts({
+			const dataviews = buildDataViewsConfig();
+			const { ir, options } = buildBuilderArtifacts({
 				resourceKey: 'job-board',
 				resourceName: 'Job Board',
 				dataviews,
 				sourcePath: path.join(root, 'kernel.config.ts'),
 			});
 
-			const reporter = createReporter();
-			const output = createOutput();
+			const reporter = buildReporter();
+			const output = buildOutput();
 			const builder = createTsBuilder();
 
 			await builder.apply(
@@ -255,7 +255,7 @@ describe('createTsBuilder – admin screen creator', () => {
 
 	it('respects custom screen metadata for imports and naming', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
-			const dataviews = createDataViewsConfig({
+			const dataviews = buildDataViewsConfig({
 				screen: {
 					component: 'JobsAdminCustomScreen',
 					route: '/custom/jobs',
@@ -266,7 +266,7 @@ describe('createTsBuilder – admin screen creator', () => {
 				},
 			});
 
-			const configSource = createKernelConfigSource({
+			const configSource = buildKernelConfigSource({
 				dataviews: {
 					screen: {
 						component: 'JobsAdminCustomScreen',
@@ -280,13 +280,13 @@ describe('createTsBuilder – admin screen creator', () => {
 			});
 			await workspace.write('kernel.config.ts', configSource);
 
-			const { ir, options } = createBuilderArtifacts({
+			const { ir, options } = buildBuilderArtifacts({
 				dataviews,
 				sourcePath: path.join(root, 'kernel.config.ts'),
 			});
 
-			const reporter = createReporter();
-			const output = createOutput();
+			const reporter = buildReporter();
+			const output = buildOutput();
 			const builder = createTsBuilder();
 
 			await builder.apply(
@@ -338,18 +338,18 @@ describe('createTsBuilder – admin screen creator', () => {
 
 	it('derives component naming from resource names when overrides are omitted', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
-			const dataviews = createDataViewsConfig();
+			const dataviews = buildDataViewsConfig();
 			delete (dataviews as { screen?: typeof dataviews.screen }).screen;
 
-			const { ir, options } = createBuilderArtifacts({
+			const { ir, options } = buildBuilderArtifacts({
 				dataviews,
 				resourceName: 'Job Board',
 				resourceKey: 'job-board',
 				sourcePath: path.join(root, 'kernel.config.ts'),
 			});
 
-			const reporter = createReporter();
-			const output = createOutput();
+			const reporter = buildReporter();
+			const output = buildOutput();
 			const builder = createTsBuilder();
 
 			await builder.apply(

@@ -1,10 +1,7 @@
 import { Command } from 'clipanion';
-import {
-	adoptCommandEnvironment,
-	createLegacyCommandLoader,
-} from '../delegate';
+import { adoptCommandEnvironment, buildLegacyCommandLoader } from '../delegate';
 
-describe('createLegacyCommandLoader', () => {
+describe('buildLegacyCommandLoader', () => {
 	class TestCommand extends Command {
 		override async execute(): Promise<number> {
 			return 0;
@@ -15,7 +12,7 @@ describe('createLegacyCommandLoader', () => {
 		const loadCommand = jest.fn();
 		const defaultLoad = jest.fn();
 
-		const load = createLegacyCommandLoader({
+		const load = buildLegacyCommandLoader({
 			command: TestCommand,
 			loadCommand,
 			defaultLoad,
@@ -31,7 +28,7 @@ describe('createLegacyCommandLoader', () => {
 	it('invokes the loader once and caches the resolved constructor', async () => {
 		const loadCommand = jest.fn(async () => TestCommand);
 
-		const load = createLegacyCommandLoader({
+		const load = buildLegacyCommandLoader({
 			command: undefined,
 			loadCommand,
 			defaultLoad: async () => TestCommand,

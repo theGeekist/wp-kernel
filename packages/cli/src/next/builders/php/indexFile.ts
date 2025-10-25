@@ -1,4 +1,4 @@
-import { createHelper } from '@wpkernel/core/pipeline';
+import { createHelper } from '../../runtime';
 import type {
 	BuilderApplyOptions,
 	BuilderHelper,
@@ -11,11 +11,11 @@ import {
 	appendGeneratedFileDocblock,
 	buildReturn,
 	createPhpFileBuilder,
-	toPascalCase,
 	type PhpAstBuilderAdapter,
 } from '@wpkernel/php-json-ast';
 import type { IRv1 } from '../../../ir/types';
 import { renderPhpValue } from './resource/phpValue';
+import { toPascalCase } from './utils';
 
 export function createPhpIndexFileHelper(): BuilderHelper {
 	return createHelper({
@@ -56,12 +56,12 @@ function buildIndexFile(builder: PhpAstBuilderAdapter, ir: IRv1): void {
 		`Source: ${ir.meta.origin} → php/index`,
 	]);
 
-	const entries = createIndexEntries(ir);
+	const entries = buildIndexEntries(ir);
 	const returnStatement = buildReturn(renderPhpValue(entries));
 	builder.appendProgramStatement(returnStatement);
 }
 
-function createIndexEntries(ir: IRv1): Record<string, string> {
+function buildIndexEntries(ir: IRv1): Record<string, string> {
 	const namespace = ir.php.namespace;
 	const baseDir = ir.php.outputDir;
 

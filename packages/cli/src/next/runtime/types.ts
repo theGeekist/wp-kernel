@@ -46,7 +46,9 @@ export interface PipelineRunResult {
 export type FragmentHelper = Helper<
 	PipelineContext,
 	FragmentInput,
-	FragmentOutput
+	FragmentOutput,
+	PipelineContext['reporter'],
+	'fragment'
 >;
 
 export interface FragmentInput {
@@ -78,7 +80,9 @@ export interface BuilderOutput {
 export type BuilderHelper = Helper<
 	PipelineContext,
 	BuilderInput,
-	BuilderOutput
+	BuilderOutput,
+	PipelineContext['reporter'],
+	'builder'
 >;
 
 export interface PipelineExtensionHookOptions {

@@ -1,4 +1,4 @@
-export { createWorkspace } from './filesystem';
+export { buildWorkspace } from './filesystem';
 export {
 	ensureGeneratedPhpClean,
 	ensureCleanDirectory,

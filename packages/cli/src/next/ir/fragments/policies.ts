@@ -1,4 +1,4 @@
-import { createHelper } from '@wpkernel/core/pipeline';
+import { createHelper } from '../../runtime';
 import { collectPolicyHints } from '../../../ir/policies';
 import type { IrFragment, IrFragmentApplyOptions } from '../types';
 

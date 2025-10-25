@@ -1,8 +1,8 @@
-import { createRequestParamAssignmentStatement } from '../request';
+import { buildRequestParamAssignmentStatement } from '../request';
 
 describe('request helpers', () => {
 	it('creates assignments without casts', () => {
-		const statement = createRequestParamAssignmentStatement({
+		const statement = buildRequestParamAssignmentStatement({
 			requestVariable: '$request',
 			param: 'slug',
 		});
@@ -20,7 +20,7 @@ describe('request helpers', () => {
 	});
 
 	it('creates assignments with casts', () => {
-		const statement = createRequestParamAssignmentStatement({
+		const statement = buildRequestParamAssignmentStatement({
 			requestVariable: 'request',
 			targetVariable: 'per_page',
 			param: 'per_page',

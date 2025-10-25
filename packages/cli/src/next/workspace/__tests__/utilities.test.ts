@@ -5,8 +5,8 @@ import { Readable, Writable } from 'node:stream';
 import { execFile as execFileCallback } from 'node:child_process';
 import { promisify } from 'node:util';
 import { KernelError } from '@wpkernel/core/error';
-import { createReporterMock } from '@wpkernel/test-utils/cli';
-import { createWorkspace } from '../filesystem';
+import { createReporterMock as buildReporterMock } from '@wpkernel/test-utils/cli';
+import { buildWorkspace } from '../filesystem';
 import {
 	ensureGeneratedPhpClean,
 	ensureCleanDirectory,
@@ -17,16 +17,16 @@ import {
 
 const execFile = promisify(execFileCallback);
 
-async function createWorkspaceRoot(prefix: string): Promise<string> {
+async function buildWorkspaceRoot(prefix: string): Promise<string> {
 	return await fs.mkdtemp(path.join(os.tmpdir(), prefix));
 }
 
 describe('workspace utilities', () => {
 	describe('ensureGeneratedPhpClean', () => {
 		it('skips git checks when --yes is provided', async () => {
-			const root = await createWorkspaceRoot('next-util-git-yes-');
-			const workspace = createWorkspace(root);
-			const reporter = createReporterMock();
+			const root = await buildWorkspaceRoot('next-util-git-yes-');
+			const workspace = buildWorkspace(root);
+			const reporter = buildReporterMock();
 
 			await ensureGeneratedPhpClean({
 				workspace,
@@ -41,9 +41,9 @@ describe('workspace utilities', () => {
 		});
 
 		it('skips when directory is missing', async () => {
-			const root = await createWorkspaceRoot('next-util-git-missing-');
-			const workspace = createWorkspace(root);
-			const reporter = createReporterMock();
+			const root = await buildWorkspaceRoot('next-util-git-missing-');
+			const workspace = buildWorkspace(root);
+			const reporter = buildReporterMock();
 
 			await ensureGeneratedPhpClean({
 				workspace,
@@ -56,11 +56,11 @@ describe('workspace utilities', () => {
 		});
 
 		it('does not throw in non-git workspaces', async () => {
-			const root = await createWorkspaceRoot('next-util-git-none-');
+			const root = await buildWorkspaceRoot('next-util-git-none-');
 			const generated = path.join(root, '.generated', 'php');
 			await fs.mkdir(generated, { recursive: true });
-			const workspace = createWorkspace(root);
-			const reporter = createReporterMock();
+			const workspace = buildWorkspace(root);
+			const reporter = buildReporterMock();
 
 			await ensureGeneratedPhpClean({
 				workspace,
@@ -74,7 +74,7 @@ describe('workspace utilities', () => {
 		});
 
 		it('throws when generated PHP contains uncommitted changes', async () => {
-			const root = await createWorkspaceRoot('next-util-git-dirty-');
+			const root = await buildWorkspaceRoot('next-util-git-dirty-');
 			await execFile('git', ['init'], { cwd: root });
 			const generated = path.join(root, '.generated', 'php');
 			await fs.mkdir(generated, { recursive: true });
@@ -83,8 +83,8 @@ describe('workspace utilities', () => {
 				'<?php echo 1;\n'
 			);
 
-			const workspace = createWorkspace(root);
-			const reporter = createReporterMock();
+			const workspace = buildWorkspace(root);
+			const reporter = buildReporterMock();
 
 			await expect(
 				ensureGeneratedPhpClean({
@@ -98,13 +98,13 @@ describe('workspace utilities', () => {
 		});
 
 		it('passes when git workspace is clean', async () => {
-			const root = await createWorkspaceRoot('next-util-git-clean-');
+			const root = await buildWorkspaceRoot('next-util-git-clean-');
 			await execFile('git', ['init'], { cwd: root });
 			const generated = path.join(root, '.generated', 'php');
 			await fs.mkdir(generated, { recursive: true });
 
-			const workspace = createWorkspace(root);
-			const reporter = createReporterMock();
+			const workspace = buildWorkspace(root);
+			const reporter = buildReporterMock();
 
 			await expect(
 				ensureGeneratedPhpClean({
@@ -118,9 +118,9 @@ describe('workspace utilities', () => {
 
 	describe('ensureCleanDirectory', () => {
 		it('creates the directory when missing', async () => {
-			const root = await createWorkspaceRoot('next-util-dir-create-');
-			const workspace = createWorkspace(root);
-			const reporter = createReporterMock();
+			const root = await buildWorkspaceRoot('next-util-dir-create-');
+			const workspace = buildWorkspace(root);
+			const reporter = buildReporterMock();
 			const target = path.join('build');
 
 			await ensureCleanDirectory({
@@ -134,10 +134,8 @@ describe('workspace utilities', () => {
 		});
 
 		it('skips creation when missing and create is false', async () => {
-			const root = await createWorkspaceRoot(
-				'next-util-dir-skip-create-'
-			);
-			const workspace = createWorkspace(root);
+			const root = await buildWorkspaceRoot('next-util-dir-skip-create-');
+			const workspace = buildWorkspace(root);
 
 			await ensureCleanDirectory({
 				workspace,
@@ -151,8 +149,8 @@ describe('workspace utilities', () => {
 		});
 
 		it('throws when directory is not empty and force is false', async () => {
-			const root = await createWorkspaceRoot('next-util-dir-dirty-');
-			const workspace = createWorkspace(root);
+			const root = await buildWorkspaceRoot('next-util-dir-dirty-');
+			const workspace = buildWorkspace(root);
 			const target = path.join('build');
 			await fs.mkdir(path.join(root, target), { recursive: true });
 			await fs.writeFile(
@@ -169,9 +167,9 @@ describe('workspace utilities', () => {
 		});
 
 		it('clears directory contents when force is true', async () => {
-			const root = await createWorkspaceRoot('next-util-dir-force-');
-			const workspace = createWorkspace(root);
-			const reporter = createReporterMock();
+			const root = await buildWorkspaceRoot('next-util-dir-force-');
+			const workspace = buildWorkspace(root);
+			const reporter = buildReporterMock();
 			const target = path.join('build');
 			await fs.mkdir(path.join(root, target), { recursive: true });
 			await fs.writeFile(
@@ -197,9 +195,9 @@ describe('workspace utilities', () => {
 		});
 
 		it('returns early for empty directories without logging', async () => {
-			const root = await createWorkspaceRoot('next-util-dir-empty-');
-			const workspace = createWorkspace(root);
-			const reporter = createReporterMock();
+			const root = await buildWorkspaceRoot('next-util-dir-empty-');
+			const workspace = buildWorkspace(root);
+			const reporter = buildReporterMock();
 			const target = path.join('empty-dir');
 			await fs.mkdir(path.join(root, target), { recursive: true });
 
@@ -213,9 +211,9 @@ describe('workspace utilities', () => {
 		});
 
 		it('throws when the target is not a directory', async () => {
-			const root = await createWorkspaceRoot('next-util-dir-file-');
-			const workspace = createWorkspace(root);
-			const reporter = createReporterMock();
+			const root = await buildWorkspaceRoot('next-util-dir-file-');
+			const workspace = buildWorkspace(root);
+			const reporter = buildReporterMock();
 			const target = path.join('not-a-directory');
 			await fs.writeFile(path.join(root, target), '');
 
@@ -306,8 +304,8 @@ describe('workspace utilities', () => {
 
 	describe('toWorkspaceRelative', () => {
 		it('normalises separators and handles root path', async () => {
-			const root = await createWorkspaceRoot('next-util-relative-');
-			const workspace = createWorkspace(root);
+			const root = await buildWorkspaceRoot('next-util-relative-');
+			const workspace = buildWorkspace(root);
 			const absolute = path.join(root, 'nested', 'file.txt');
 			const relative = toWorkspaceRelative(workspace, absolute);
 
@@ -356,8 +354,8 @@ describe('workspace utilities', () => {
 		});
 
 		it('normalises directories relative to the workspace root', async () => {
-			const root = await createWorkspaceRoot('next-util-normalise-');
-			const workspace = createWorkspace(root);
+			const root = await buildWorkspaceRoot('next-util-normalise-');
+			const workspace = buildWorkspace(root);
 
 			expect(__testing.normaliseDirectory(root, workspace)).toBe(root);
 			expect(__testing.normaliseDirectory('nested', workspace)).toBe(

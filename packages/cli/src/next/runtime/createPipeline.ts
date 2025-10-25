@@ -1,8 +1,8 @@
 import { createPipeline as createCorePipeline } from '@wpkernel/core/pipeline';
 import type { BuildIrOptions } from '../../ir/types';
 import {
-	createIrDraft,
-	createIrFragmentOutput,
+	buildIrDraft,
+	buildIrFragmentOutput,
 	finalizeIrDraft,
 	type MutableIr,
 } from '../ir/types';
@@ -21,7 +21,7 @@ import type {
 	PipelineRunResult,
 } from './types';
 
-function createBuilderOutput(): BuilderOutput {
+function buildBuilderOutput(): BuilderOutput {
 	const actions: BuilderOutput['actions'] = [];
 	return {
 		actions,
@@ -70,7 +70,7 @@ export function createPipeline(): Pipeline {
 			} satisfies PipelineContext;
 		},
 		createFragmentState({ buildOptions }) {
-			return createIrDraft(buildOptions);
+			return buildIrDraft(buildOptions);
 		},
 		createFragmentArgs({ context, buildOptions, draft }) {
 			return {
@@ -79,7 +79,7 @@ export function createPipeline(): Pipeline {
 					options: buildOptions,
 					draft,
 				},
-				output: createIrFragmentOutput(draft),
+				output: buildIrFragmentOutput(draft),
 				reporter: context.reporter,
 			} satisfies Parameters<FragmentHelper['apply']>[0];
 		},
@@ -94,7 +94,7 @@ export function createPipeline(): Pipeline {
 					options: buildOptions,
 					ir: artifact,
 				},
-				output: createBuilderOutput(),
+				output: buildBuilderOutput(),
 				reporter: context.reporter,
 			} satisfies Parameters<BuilderHelper['apply']>[0];
 		},

@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { createHash as buildHash } from 'node:crypto';
 import path from 'node:path';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { ResourceConfig } from '@wpkernel/core/resource';
@@ -13,7 +13,7 @@ import {
 import { KernelError } from '@wpkernel/core/error';
 import type { IRv1 } from '../../ir/types';
 import type { KernelConfigV1 } from '../../config/types';
-import { createHelper } from '@wpkernel/core/pipeline';
+import { createHelper } from '../runtime';
 import type {
 	BuilderApplyOptions,
 	BuilderHelper,
@@ -88,7 +88,7 @@ export interface TsFormatter {
 	format: (options: TsFormatterFormatOptions) => Promise<string>;
 }
 
-export interface CreateTsFormatterOptions {
+export interface BuildTsFormatterOptions {
 	readonly projectFactory?: () => Project;
 }
 
@@ -107,10 +107,10 @@ export function createTsBuilder(
 	options: CreateTsBuilderOptions = {}
 ): BuilderHelper {
 	const creators = options.creators?.slice() ?? [
-		createAdminScreenCreator(),
-		createDataViewFixtureCreator(),
+		buildAdminScreenCreator(),
+		buildDataViewFixtureCreator(),
 	];
-	const projectFactory = options.projectFactory ?? createProject;
+	const projectFactory = options.projectFactory ?? buildProject;
 	const lifecycleHooks = options.hooks ?? {};
 
 	return createHelper({
@@ -134,7 +134,7 @@ export function createTsBuilder(
 			}
 
 			const project = projectFactory();
-			const emit = createEmitter(context.workspace, output, emittedFiles);
+			const emit = buildEmitter(context.workspace, output, emittedFiles);
 
 			await generateArtifacts({
 				descriptors,
@@ -166,7 +166,7 @@ export function createTsBuilder(
 	});
 }
 
-export function createAdminScreenCreator(): TsBuilderCreator {
+export function buildAdminScreenCreator(): TsBuilderCreator {
 	return {
 		key: 'builder.generate.ts.adminScreen.core',
 		async create(context) {
@@ -315,7 +315,7 @@ export function createAdminScreenCreator(): TsBuilderCreator {
 	};
 }
 
-export function createDataViewFixtureCreator(): TsBuilderCreator {
+export function buildDataViewFixtureCreator(): TsBuilderCreator {
 	return {
 		key: 'builder.generate.ts.dataviewFixture.core',
 		async create(context) {
@@ -327,7 +327,7 @@ export function createDataViewFixtureCreator(): TsBuilderCreator {
 				'dataviews',
 				`${descriptor.key}.ts`
 			);
-			const configImport = createModuleSpecifier({
+			const configImport = buildModuleSpecifier({
 				workspace: context.workspace,
 				from: fixturePath,
 				target: context.sourcePath,
@@ -404,7 +404,7 @@ function collectResourceDescriptors(
 	return descriptors;
 }
 
-function createProject(): Project {
+function buildProject(): Project {
 	return new Project({
 		useInMemoryFileSystem: true,
 		manipulationSettings: {
@@ -415,10 +415,10 @@ function createProject(): Project {
 	});
 }
 
-export function createTsFormatter(
-	options: CreateTsFormatterOptions = {}
+export function buildTsFormatter(
+	options: BuildTsFormatterOptions = {}
 ): TsFormatter {
-	const projectFactory = options.projectFactory ?? createProject;
+	const projectFactory = options.projectFactory ?? buildProject;
 	const project = projectFactory();
 
 	async function format(
@@ -442,7 +442,7 @@ export function createTsFormatter(
 	return { format };
 }
 
-function createEmitter(
+function buildEmitter(
 	workspace: Workspace,
 	output: BuilderOutput,
 	emittedFiles: string[]
@@ -562,7 +562,7 @@ function logEmissionSummary(
 	);
 }
 
-async function createGenerationSummary(
+async function buildGenerationSummary(
 	emittedFiles: readonly string[],
 	workspace: Workspace
 ): Promise<GenerationSummary> {
@@ -571,7 +571,7 @@ async function createGenerationSummary(
 	for (const file of emittedFiles) {
 		const contents = await workspace.read(file);
 		const data = contents ? contents.toString('utf8') : '';
-		const hash = createHash('sha256').update(data).digest('hex');
+		const hash = buildHash('sha256').update(data).digest('hex');
 
 		entries.push({
 			path: file.replace(/\\/g, '/'),
@@ -605,7 +605,7 @@ async function runImportValidation(options: {
 		return;
 	}
 
-	const summary = await createGenerationSummary(
+	const summary = await buildGenerationSummary(
 		options.emittedFiles,
 		options.workspace
 	);
@@ -637,7 +637,7 @@ async function resolveResourceImport({
 		path.join('src', 'resources', resourceKey)
 	);
 	if (resolved) {
-		return createModuleSpecifier({ workspace, from, target: resolved });
+		return buildModuleSpecifier({ workspace, from, target: resolved });
 	}
 
 	return `@/resources/${resourceKey}`;
@@ -661,7 +661,7 @@ async function resolveKernelImport({
 		path.join('src', 'bootstrap', 'kernel')
 	);
 	if (resolved) {
-		return createModuleSpecifier({ workspace, from, target: resolved });
+		return buildModuleSpecifier({ workspace, from, target: resolved });
 	}
 
 	return '@/bootstrap/kernel';
@@ -681,7 +681,7 @@ async function findExistingModule(
 	return null;
 }
 
-function createModuleSpecifier({
+function buildModuleSpecifier({
 	workspace,
 	from,
 	target,
