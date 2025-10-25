@@ -3,23 +3,23 @@ import type {
 	ResourceMetadataHost,
 } from '@wpkernel/php-json-ast';
 import {
-	createPaginationNormalisationStatements,
-	createQueryArgsAssignmentStatement,
-	createPageExpression,
-	createWpQueryExecutionStatement,
+	buildPaginationNormalisationStatements,
+	buildQueryArgsAssignmentStatement,
+	buildPageExpression,
+	buildWpQueryExecutionStatement,
 } from '../query';
 import { renderPhpValue, variable } from '../phpValue';
 
 describe('query helpers', () => {
 	it('creates query arg assignments', () => {
-		const assignment = createQueryArgsAssignmentStatement({
+		const assignment = buildQueryArgsAssignmentStatement({
 			targetVariable: 'query_args',
 			entries: [
 				{ key: 'post_type', value: variable('post_type') },
 				{ key: 'fields', value: 'ids' },
 				{
 					key: 'paged',
-					value: createPageExpression({
+					value: buildPageExpression({
 						requestVariable: '$request',
 					}),
 				},
@@ -60,7 +60,7 @@ describe('query helpers', () => {
 	});
 
 	it('creates query arg assignments with no entries', () => {
-		const assignment = createQueryArgsAssignmentStatement({
+		const assignment = buildQueryArgsAssignmentStatement({
 			targetVariable: 'query_args',
 			entries: [],
 		});
@@ -77,7 +77,7 @@ describe('query helpers', () => {
 
 	it('normalises pagination parameters', () => {
 		const [assign, ensurePositive, clamp] =
-			createPaginationNormalisationStatements({
+			buildPaginationNormalisationStatements({
 				requestVariable: '$request',
 				targetVariable: 'per_page',
 			});
@@ -99,7 +99,7 @@ describe('query helpers', () => {
 	});
 
 	it('creates page expression descriptors', () => {
-		const descriptor = createPageExpression({
+		const descriptor = buildPageExpression({
 			requestVariable: '$request',
 		});
 		const expr = renderPhpValue(descriptor);
@@ -147,7 +147,7 @@ describe('query helpers', () => {
 			},
 		};
 
-		const statement = createWpQueryExecutionStatement({
+		const statement = buildWpQueryExecutionStatement({
 			target: 'query',
 			argsVariable: 'args',
 			cache: {
@@ -168,7 +168,7 @@ describe('query helpers', () => {
 	});
 
 	it('executes WP_Query without cache metadata when cache is omitted', () => {
-		const statement = createWpQueryExecutionStatement({
+		const statement = buildWpQueryExecutionStatement({
 			target: 'query',
 			argsVariable: 'args',
 		});

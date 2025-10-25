@@ -18,7 +18,7 @@ import {
 	buildFunctionCallAssignmentStatement,
 } from '../../../utils';
 import { buildWpErrorReturn } from '../../../errors';
-import { createRequestParamAssignmentStatement } from '../../../request';
+import { buildRequestParamAssignmentStatement } from '../../../request';
 import type { BuildDeleteRouteStatementsOptions } from './types';
 import { makeErrorCodeFactory } from '../../../../utils';
 
@@ -35,7 +35,7 @@ export function buildDeleteRouteStatements(
 	const statements: PhpStmt[] = [];
 
 	statements.push(
-		createRequestParamAssignmentStatement({
+		buildRequestParamAssignmentStatement({
 			requestVariable: 'request',
 			param: identityVar,
 			targetVariable: identityVar,

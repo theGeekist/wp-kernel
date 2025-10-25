@@ -29,7 +29,7 @@ import {
 	normaliseVariableReference,
 } from '../../../utils';
 import { buildWpErrorReturn, buildReturnIfWpError } from '../../../errors';
-import { createRequestParamAssignmentStatement } from '../../../request';
+import { buildRequestParamAssignmentStatement } from '../../../request';
 import type { BuildUpdateRouteStatementsOptions } from './types';
 import { makeErrorCodeFactory } from '../../../../utils';
 
@@ -46,7 +46,7 @@ export function buildUpdateRouteStatements(
 	const statements: PhpStmt[] = [];
 
 	statements.push(
-		createRequestParamAssignmentStatement({
+		buildRequestParamAssignmentStatement({
 			requestVariable: 'request',
 			param: identityVar,
 			targetVariable: identityVar,

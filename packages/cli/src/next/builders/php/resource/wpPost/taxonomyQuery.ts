@@ -90,7 +90,7 @@ export function buildTaxonomyQueryStatements(
 					buildVariable(variableName),
 					buildNull()
 				),
-				statements: createTaxonomyBranchStatements({
+				statements: buildTaxonomyBranchStatements({
 					variableName,
 					taxonomy: descriptor.taxonomy,
 				}),
@@ -129,7 +129,7 @@ interface TaxonomyBranchOptions {
 	readonly taxonomy: string;
 }
 
-function createTaxonomyBranchStatements(
+function buildTaxonomyBranchStatements(
 	options: TaxonomyBranchOptions
 ): readonly PhpStmt[] {
 	const sanitise = buildExpressionStatement(

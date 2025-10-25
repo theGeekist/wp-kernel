@@ -16,11 +16,11 @@ import {
 	collectTaxonomyQueryEntries,
 	buildListForeachStatement,
 	buildListItemsInitialiserStatement,
-	createPageExpression,
-	createPaginationNormalisationStatements,
+	buildPageExpression,
+	buildPaginationNormalisationStatements,
 	buildPropertyFetch,
-	createQueryArgsAssignmentStatement,
-	createWpQueryExecutionStatement,
+	buildQueryArgsAssignmentStatement,
+	buildWpQueryExecutionStatement,
 	buildMethodCallAssignmentStatement,
 	appendStatementsWithSpacing,
 	variable,
@@ -67,7 +67,7 @@ export function buildListRouteStatements(
 	);
 
 	const [perPageAssign, ensurePositive, clampMaximum] =
-		createPaginationNormalisationStatements({
+		buildPaginationNormalisationStatements({
 			requestVariable: '$request',
 			targetVariable: 'per_page',
 		});
@@ -104,12 +104,12 @@ export function buildListRouteStatements(
 		{ key: 'fields', value: 'ids' },
 		{
 			key: 'paged',
-			value: createPageExpression({ requestVariable: '$request' }),
+			value: buildPageExpression({ requestVariable: '$request' }),
 		},
 		{ key: 'posts_per_page', value: variable('per_page') },
 	];
 
-	const queryArgsAssignment = createQueryArgsAssignmentStatement({
+	const queryArgsAssignment = buildQueryArgsAssignmentStatement({
 		targetVariable: 'query_args',
 		entries: queryEntries,
 	});
@@ -125,7 +125,7 @@ export function buildListRouteStatements(
 	);
 
 	appendStatementsWithSpacing(statements, [
-		createWpQueryExecutionStatement({
+		buildWpQueryExecutionStatement({
 			target: 'query',
 			argsVariable: 'query_args',
 			cache: {
