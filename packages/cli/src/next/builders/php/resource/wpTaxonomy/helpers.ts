@@ -40,7 +40,7 @@ import {
 	type NormalisedVariableReference,
 } from '../utils';
 import { buildWpErrorReturn } from '../errors';
-import { createRequestParamAssignmentStatement } from '../request';
+import { buildRequestParamAssignmentStatement } from '../request';
 
 type WpTaxonomyStorage = Extract<
 	NonNullable<IRResource['storage']>,
@@ -59,21 +59,21 @@ export interface TaxonomyHelperMethod {
 	readonly signature: string;
 }
 
-export function createWpTaxonomyHelperMethods(
+export function buildWpTaxonomyHelperMethods(
 	options: TaxonomyHelperOptions
 ): TaxonomyHelperMethod[] {
 	const storage = ensureStorage(options.resource);
 
 	return [
-		createGetTaxonomyHelper(options.pascalName, storage),
-		createPrepareTermHelper(options.pascalName, storage),
-		createResolveTermHelper(options.pascalName),
-		createExtractTermArgsHelper(options.pascalName),
-		createValidateIdentityHelper(options),
+		buildGetTaxonomyHelper(options.pascalName, storage),
+		buildPrepareTermHelper(options.pascalName, storage),
+		buildResolveTermHelper(options.pascalName),
+		buildExtractTermArgsHelper(options.pascalName),
+		buildValidateIdentityHelper(options),
 	];
 }
 
-function createGetTaxonomyHelper(
+function buildGetTaxonomyHelper(
 	pascalName: string,
 	storage: WpTaxonomyStorage
 ): TaxonomyHelperMethod {
@@ -92,7 +92,7 @@ function createGetTaxonomyHelper(
 	};
 }
 
-function createPrepareTermHelper(
+function buildPrepareTermHelper(
 	pascalName: string,
 	storage: WpTaxonomyStorage
 ): TaxonomyHelperMethod {
@@ -169,7 +169,7 @@ function buildArrayTermResponse(
 	]);
 }
 
-function createResolveTermHelper(pascalName: string): TaxonomyHelperMethod {
+function buildResolveTermHelper(pascalName: string): TaxonomyHelperMethod {
 	const taxonomyVar = normaliseVariableReference('taxonomy');
 	const identityVar = normaliseVariableReference('identity');
 	const termVar = normaliseVariableReference('term');
@@ -237,7 +237,7 @@ function createResolveTermHelper(pascalName: string): TaxonomyHelperMethod {
 	};
 }
 
-function createExtractTermArgsHelper(pascalName: string): TaxonomyHelperMethod {
+function buildExtractTermArgsHelper(pascalName: string): TaxonomyHelperMethod {
 	const requestVar = normaliseVariableReference('request');
 	const argsVar = normaliseVariableReference('args');
 	const descriptionVar = normaliseVariableReference('description');
@@ -249,7 +249,7 @@ function createExtractTermArgsHelper(pascalName: string): TaxonomyHelperMethod {
 	statements.push(buildVariableAssignment(argsVar, buildArray([])));
 
 	statements.push(
-		createRequestParamAssignmentStatement({
+		buildRequestParamAssignmentStatement({
 			requestVariable: requestVar.display,
 			param: 'description',
 			targetVariable: descriptionVar.display,
@@ -276,7 +276,7 @@ function createExtractTermArgsHelper(pascalName: string): TaxonomyHelperMethod {
 	);
 
 	statements.push(
-		createRequestParamAssignmentStatement({
+		buildRequestParamAssignmentStatement({
 			requestVariable: requestVar.display,
 			param: 'slug',
 			targetVariable: slugVar.display,
@@ -315,7 +315,7 @@ function createExtractTermArgsHelper(pascalName: string): TaxonomyHelperMethod {
 	);
 
 	statements.push(
-		createRequestParamAssignmentStatement({
+		buildRequestParamAssignmentStatement({
 			requestVariable: requestVar.display,
 			param: 'parent',
 			targetVariable: parentVar.display,
@@ -436,7 +436,7 @@ function buildStringIdentityStatements(
 	return [assignCandidate, nonEmptyGuard];
 }
 
-function createValidateIdentityHelper(
+function buildValidateIdentityHelper(
 	options: TaxonomyHelperOptions
 ): TaxonomyHelperMethod {
 	const { pascalName, identity, errorCodeFactory } = options;

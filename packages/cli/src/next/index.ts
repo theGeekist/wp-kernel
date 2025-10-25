@@ -1,4 +1,4 @@
-export { createHelper } from '@wpkernel/core/pipeline';
+export { createHelper } from './runtime';
 export type {
 	Helper,
 	HelperApplyFn,

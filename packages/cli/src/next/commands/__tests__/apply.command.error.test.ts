@@ -1,13 +1,13 @@
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
 import { KernelError } from '@wpkernel/core/error';
 import { assignCommandContext } from '@wpkernel/test-utils/cli';
-import { createWorkspaceRunner } from '../../../../tests/workspace.test-support';
+import { createWorkspaceRunner as buildWorkspaceRunner } from '../../../../tests/workspace.test-support';
 import * as ApplyModule from '../apply';
 import { loadKernelConfig } from '../../../config';
 import { createPatcher } from '../../builders';
 import {
 	TMP_PREFIX,
-	createLoadedConfig,
+	buildLoadedConfig,
 } from '../__test-support__/apply.test-support';
 
 jest.mock('../../../config');
@@ -20,7 +20,7 @@ const loadKernelConfigMock = loadKernelConfig as jest.MockedFunction<
 	typeof loadKernelConfig
 >;
 
-const withWorkspace = createWorkspaceRunner({ prefix: TMP_PREFIX });
+const withWorkspace = buildWorkspaceRunner({ prefix: TMP_PREFIX });
 
 const createPatcherMock = createPatcher as jest.MockedFunction<
 	typeof createPatcher
@@ -44,7 +44,7 @@ describe('NextApplyCommand error handling', () => {
 			} as unknown as ReturnType<typeof createPatcher>);
 
 			loadKernelConfigMock.mockResolvedValue(
-				createLoadedConfig(workspace)
+				buildLoadedConfig(workspace)
 			);
 
 			const command = new ApplyModule.NextApplyCommand();

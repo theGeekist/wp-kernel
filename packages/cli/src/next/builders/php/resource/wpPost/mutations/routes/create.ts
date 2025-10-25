@@ -1,17 +1,9 @@
 import {
 	buildArg,
-	buildAssign,
-	buildExpressionStatement,
-	buildFuncCall,
-	buildIdentifier,
 	buildIfStatement,
-	buildMethodCall,
-	buildName,
-	buildReturn,
 	buildScalarBool,
 	buildScalarInt,
 	buildVariable,
-	makeErrorCodeFactory,
 	type PhpStmt,
 } from '@wpkernel/php-json-ast';
 import {
@@ -22,9 +14,17 @@ import {
 	buildArrayDimExpression,
 	buildVariableExpression,
 } from '../macros';
-import { buildArrayLiteral, buildBinaryOperation } from '../../../utils';
-import { buildWpErrorReturn } from '../../../errors';
+import {
+	buildArrayLiteral,
+	buildBinaryOperation,
+	buildMethodCallAssignmentStatement,
+	buildFunctionCallAssignmentStatement,
+	buildVariableAssignment,
+	normaliseVariableReference,
+} from '../../../utils';
+import { buildWpErrorReturn, buildReturnIfWpError } from '../../../errors';
 import type { BuildCreateRouteStatementsOptions } from './types';
+import { makeErrorCodeFactory } from '../../../../utils';
 
 export function buildCreateRouteStatements(
 	options: BuildCreateRouteStatementsOptions
@@ -39,29 +39,22 @@ export function buildCreateRouteStatements(
 	const statements: PhpStmt[] = [];
 
 	statements.push(
-		buildExpressionStatement(
-			buildAssign(
-				buildVariable('post_type'),
-				buildMethodCall(
-					buildVariable('this'),
-					buildIdentifier(`get${options.pascalName}PostType`),
-					[]
-				)
-			)
-		)
+		buildMethodCallAssignmentStatement({
+			variable: 'post_type',
+			subject: 'this',
+			method: `get${options.pascalName}PostType`,
+		})
 	);
 
 	statements.push(
-		buildExpressionStatement(
-			buildAssign(
-				buildVariable('post_data'),
-				buildArrayLiteral([
-					{
-						key: 'post_type',
-						value: buildVariable('post_type'),
-					},
-				])
-			)
+		buildVariableAssignment(
+			normaliseVariableReference('post_data'),
+			buildArrayLiteral([
+				{
+					key: 'post_type',
+					value: buildVariable('post_type'),
+				},
+			])
 		)
 	);
 
@@ -74,25 +67,17 @@ export function buildCreateRouteStatements(
 	);
 
 	statements.push(
-		buildExpressionStatement(
-			buildAssign(
-				buildVariable('post_id'),
-				buildFuncCall(buildName(['wp_insert_post']), [
-					buildArg(buildVariable('post_data')),
-					buildArg(buildScalarBool(true)),
-				])
-			)
-		)
+		buildFunctionCallAssignmentStatement({
+			variable: 'post_id',
+			functionName: 'wp_insert_post',
+			args: [
+				buildArg(buildVariable('post_data')),
+				buildArg(buildScalarBool(true)),
+			],
+		})
 	);
 
-	statements.push(
-		buildIfStatement(
-			buildFuncCall(buildName(['is_wp_error']), [
-				buildArg(buildVariable('post_id')),
-			]),
-			[buildReturn(buildVariable('post_id'))]
-		)
-	);
+	statements.push(buildReturnIfWpError(buildVariable('post_id')));
 
 	const insertFailedReturn = buildWpErrorReturn({
 		code: errorCodeFactory('create_failed'),

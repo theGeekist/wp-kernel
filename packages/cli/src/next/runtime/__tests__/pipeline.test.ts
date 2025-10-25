@@ -1,11 +1,11 @@
-import { createReporterMock } from '@wpkernel/test-utils/cli';
+import { createReporterMock as buildReporterMock } from '@wpkernel/test-utils/cli';
 import type { IRPolicyMap } from '../../../ir/types';
 import { KernelError } from '@wpkernel/core/error';
-import { createHelper } from '@wpkernel/core/pipeline';
+import { createHelper } from '../createHelper';
 import { createPipeline } from '../createPipeline';
 import type { KernelConfigV1 } from '../../../config/types';
 import { FIXTURE_CONFIG_PATH } from '../../../ir/test-helpers';
-import { createWorkspace } from '../../workspace';
+import { buildWorkspace } from '../../workspace';
 import { withWorkspace } from '../../../../tests/workspace.test-support';
 import type {
 	BuilderApplyOptions,
@@ -13,7 +13,7 @@ import type {
 	FragmentApplyOptions,
 } from '../types';
 
-function createPolicyMap(): IRPolicyMap {
+function buildPolicyMap(): IRPolicyMap {
 	return {
 		sourcePath: undefined,
 		definitions: [],
@@ -85,7 +85,7 @@ describe('createPipeline', () => {
 				dependsOn: ['ir.collection.test'],
 				apply({ output }: FragmentApplyOptions) {
 					runOrder.push('policy');
-					output.assign({ policyMap: createPolicyMap() });
+					output.assign({ policyMap: buildPolicyMap() });
 				},
 			});
 
@@ -114,8 +114,8 @@ describe('createPipeline', () => {
 			pipeline.ir.use(validationHelper);
 			pipeline.builders.use(builderHelper);
 
-			const workspace = createWorkspace(workspaceRoot);
-			const reporter = createReporterMock();
+			const workspace = buildWorkspace(workspaceRoot);
+			const reporter = buildReporterMock();
 			const { steps, ir } = await pipeline.run({
 				phase: 'generate',
 				config,
@@ -226,8 +226,8 @@ describe('createPipeline', () => {
 				})
 			);
 
-			const workspace = createWorkspace(workspaceRoot);
-			const reporter = createReporterMock();
+			const workspace = buildWorkspace(workspaceRoot);
+			const reporter = buildReporterMock();
 
 			await expect(
 				pipeline.run({
@@ -277,7 +277,7 @@ describe('createPipeline', () => {
 				dependsOn: ['ir.meta.inline'],
 				apply({ output }: FragmentApplyOptions) {
 					executionOrder.push('policy');
-					output.assign({ policyMap: createPolicyMap() });
+					output.assign({ policyMap: buildPolicyMap() });
 				},
 			});
 
@@ -310,8 +310,8 @@ describe('createPipeline', () => {
 
 			expect(extensionResult).toBe('registered');
 
-			const workspace = createWorkspace(workspaceRoot);
-			const reporter = createReporterMock();
+			const workspace = buildWorkspace(workspaceRoot);
+			const reporter = buildReporterMock();
 			const { steps } = await pipeline.run({
 				phase: 'generate',
 				config,
@@ -374,7 +374,7 @@ describe('createPipeline', () => {
 							resources: [],
 							policies: [],
 							blocks: [],
-							policyMap: createPolicyMap(),
+							policyMap: buildPolicyMap(),
 						});
 					},
 				})
@@ -415,8 +415,8 @@ describe('createPipeline', () => {
 				})
 			);
 
-			const workspace = createWorkspace(workspaceRoot);
-			const reporter = createReporterMock();
+			const workspace = buildWorkspace(workspaceRoot);
+			const reporter = buildReporterMock();
 
 			await pipeline.run({
 				phase: 'generate',
@@ -475,7 +475,7 @@ describe('createPipeline', () => {
 							resources: [],
 							policies: [],
 							blocks: [],
-							policyMap: createPolicyMap(),
+							policyMap: buildPolicyMap(),
 						});
 					},
 				})
@@ -513,7 +513,7 @@ describe('createPipeline', () => {
 				createHelper({
 					key: 'builder.writer',
 					kind: 'builder',
-					apply({ output }: FragmentApplyOptions) {
+					apply({ output }: BuilderApplyOptions) {
 						output.queueWrite({
 							file: 'generated.txt',
 							contents: 'generated',
@@ -523,8 +523,8 @@ describe('createPipeline', () => {
 				})
 			);
 
-			const workspace = createWorkspace(workspaceRoot);
-			const reporter = createReporterMock();
+			const workspace = buildWorkspace(workspaceRoot);
+			const reporter = buildReporterMock();
 
 			const result = await pipeline.run({
 				phase: 'generate',
@@ -594,7 +594,7 @@ describe('createPipeline', () => {
 					kind: 'fragment',
 					dependsOn: ['ir.collection.priority'],
 					apply({ output }: FragmentApplyOptions) {
-						output.assign({ policyMap: createPolicyMap() });
+						output.assign({ policyMap: buildPolicyMap() });
 					},
 				})
 			);
@@ -681,8 +681,8 @@ describe('createPipeline', () => {
 			pipeline.builders.use(duplicateSecond);
 			pipeline.builders.use(builderAlpha);
 
-			const workspace = createWorkspace(workspaceRoot);
-			const reporter = createReporterMock();
+			const workspace = buildWorkspace(workspaceRoot);
+			const reporter = buildReporterMock();
 			const { steps } = await pipeline.run({
 				phase: 'generate',
 				config,
@@ -754,7 +754,7 @@ describe('createPipeline', () => {
 							resources: [],
 							policies: [],
 							blocks: [],
-							policyMap: createPolicyMap(),
+							policyMap: buildPolicyMap(),
 						});
 					},
 				})
@@ -790,8 +790,8 @@ describe('createPipeline', () => {
 				},
 			});
 
-			const workspace = createWorkspace(workspaceRoot);
-			const reporter = createReporterMock();
+			const workspace = buildWorkspace(workspaceRoot);
+			const reporter = buildReporterMock();
 
 			await pipeline.run({
 				phase: 'generate',
@@ -848,7 +848,7 @@ describe('createPipeline', () => {
 							resources: [],
 							policies: [],
 							blocks: [],
-							policyMap: createPolicyMap(),
+							policyMap: buildPolicyMap(),
 						});
 					},
 				})
@@ -883,8 +883,8 @@ describe('createPipeline', () => {
 				},
 			});
 
-			const workspace = createWorkspace(workspaceRoot);
-			const reporter = createReporterMock();
+			const workspace = buildWorkspace(workspaceRoot);
+			const reporter = buildReporterMock();
 
 			await expect(
 				pipeline.run({
@@ -944,7 +944,7 @@ describe('createPipeline', () => {
 							resources: [],
 							policies: [],
 							blocks: [],
-							policyMap: createPolicyMap(),
+							policyMap: buildPolicyMap(),
 						});
 					},
 				})
@@ -980,8 +980,8 @@ describe('createPipeline', () => {
 				},
 			});
 
-			const workspace = createWorkspace(workspaceRoot);
-			const reporter = createReporterMock();
+			const workspace = buildWorkspace(workspaceRoot);
+			const reporter = buildReporterMock();
 
 			await expect(
 				pipeline.run({
@@ -1041,7 +1041,7 @@ describe('createPipeline', () => {
 							resources: [],
 							policies: [],
 							blocks: [],
-							policyMap: createPolicyMap(),
+							policyMap: buildPolicyMap(),
 						});
 					},
 				})
@@ -1075,8 +1075,8 @@ describe('createPipeline', () => {
 				},
 			});
 
-			const workspace = createWorkspace(workspaceRoot);
-			const reporter = createReporterMock();
+			const workspace = buildWorkspace(workspaceRoot);
+			const reporter = buildReporterMock();
 
 			await expect(
 				pipeline.run({
@@ -1138,7 +1138,7 @@ describe('createPipeline', () => {
 							resources: [],
 							policies: [],
 							blocks: [],
-							policyMap: createPolicyMap(),
+							policyMap: buildPolicyMap(),
 						});
 					},
 				})
@@ -1172,8 +1172,8 @@ describe('createPipeline', () => {
 				},
 			});
 
-			const workspace = createWorkspace(workspaceRoot);
-			const reporter = createReporterMock();
+			const workspace = buildWorkspace(workspaceRoot);
+			const reporter = buildReporterMock();
 
 			await expect(
 				pipeline.run({

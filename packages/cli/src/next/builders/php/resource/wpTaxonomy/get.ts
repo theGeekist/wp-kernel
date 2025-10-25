@@ -3,10 +3,8 @@ import {
 	buildArg,
 	buildAssign,
 	buildExpressionStatement,
-	buildFuncCall,
 	buildIdentifier,
 	buildMethodCall,
-	buildName,
 	buildReturn,
 	buildScalarString,
 	buildStmtNop,
@@ -15,7 +13,7 @@ import {
 	type ResourceMetadataHost,
 } from '@wpkernel/php-json-ast';
 import { appendResourceCacheEvent } from '../cache';
-import { buildWpErrorReturn } from '../errors';
+import { buildWpErrorReturn, buildReturnIfWpError } from '../errors';
 import {
 	buildBooleanNot,
 	buildIfStatementNode,
@@ -84,13 +82,7 @@ export function buildWpTaxonomyGetRouteStatements(
 		)
 	);
 
-	const errorGuard = buildIfStatementNode({
-		condition: buildFuncCall(buildName(['is_wp_error']), [
-			buildArg(buildVariable('identity')),
-		]),
-		statements: [buildReturn(buildVariable('identity'))],
-	});
-	statements.push(errorGuard);
+	statements.push(buildReturnIfWpError(buildVariable('identity')));
 	statements.push(buildStmtNop());
 
 	statements.push(

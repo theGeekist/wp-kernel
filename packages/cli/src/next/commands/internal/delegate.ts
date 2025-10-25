@@ -8,7 +8,7 @@ export interface LegacyCommandLoaderOptions<T extends Command> {
 	readonly defaultLoad: () => Promise<LegacyCommandConstructor<T>>;
 }
 
-export function createLegacyCommandLoader<T extends Command>({
+export function buildLegacyCommandLoader<T extends Command>({
 	command,
 	loadCommand,
 	defaultLoad,

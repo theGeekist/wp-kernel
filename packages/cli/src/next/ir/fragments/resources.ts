@@ -1,5 +1,5 @@
 import { KernelError } from '@wpkernel/core/error';
-import { createHelper } from '@wpkernel/core/pipeline';
+import { createHelper } from '../../runtime';
 import { buildResources } from '../../../ir/resource-builder';
 import type { SchemaAccumulator } from '../../../ir/schema';
 import type { IrFragment, IrFragmentApplyOptions } from '../types';

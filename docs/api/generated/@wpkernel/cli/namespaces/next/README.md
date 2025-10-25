@@ -69,4 +69,4 @@
 - [createSchemasFragment](functions/createSchemasFragment.md)
 - [createValidationFragment](functions/createValidationFragment.md)
 - [createPipeline](functions/createPipeline.md)
-- [createWorkspace](functions/createWorkspace.md)
+- [buildWorkspace](functions/buildWorkspace.md)

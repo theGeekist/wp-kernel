@@ -9,7 +9,7 @@ import {
 
 const IDENTITY: ResolvedIdentity = { type: 'string', param: 'slug' };
 
-function createResource(
+function buildResource(
 	overrides: Partial<IRResource['storage']> = {}
 ): IRResource {
 	return {
@@ -53,7 +53,7 @@ function createResource(
 describe('wp-post mutation helpers', () => {
 	it('throws a KernelError when the resource does not use wp-post storage', () => {
 		const resource: IRResource = {
-			...createResource(),
+			...buildResource(),
 			storage: undefined,
 		};
 
@@ -67,7 +67,7 @@ describe('wp-post mutation helpers', () => {
 	});
 
 	it('returns early when no meta fields are configured', () => {
-		const resource = createResource({ meta: {} });
+		const resource = buildResource({ meta: {} });
 
 		const method = syncWpPostMeta({
 			resource,
@@ -79,7 +79,7 @@ describe('wp-post mutation helpers', () => {
 	});
 
 	it('sanitises meta payloads for all supported descriptor types', () => {
-		const resource = createResource();
+		const resource = buildResource();
 
 		const method = syncWpPostMeta({
 			resource,
@@ -91,7 +91,7 @@ describe('wp-post mutation helpers', () => {
 	});
 
 	it('wraps taxonomy assignments with result checks', () => {
-		const resource = createResource();
+		const resource = buildResource();
 
 		const method = syncWpPostTaxonomies({
 			resource,
@@ -103,7 +103,7 @@ describe('wp-post mutation helpers', () => {
 	});
 
 	it('returns early when no taxonomies are configured', () => {
-		const resource = createResource({ taxonomies: {} });
+		const resource = buildResource({ taxonomies: {} });
 
 		const method = syncWpPostTaxonomies({
 			resource,
@@ -115,7 +115,7 @@ describe('wp-post mutation helpers', () => {
 	});
 
 	it('prepares mutation responses with supports, meta, and taxonomies', () => {
-		const resource = createResource();
+		const resource = buildResource();
 
 		const method = prepareWpPostResponse({
 			resource,
@@ -128,7 +128,7 @@ describe('wp-post mutation helpers', () => {
 
 	it('omits slug and support-specific fields when not configured', () => {
 		const resource: IRResource = {
-			...createResource({
+			...buildResource({
 				supports: [],
 				meta: {},
 				taxonomies: {},

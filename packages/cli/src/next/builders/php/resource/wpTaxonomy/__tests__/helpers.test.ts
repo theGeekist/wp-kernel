@@ -1,4 +1,4 @@
-import { createWpTaxonomyHelperMethods } from '../helpers';
+import { buildWpTaxonomyHelperMethods } from '../helpers';
 import type { PhpStmt, PhpExprArray } from '@wpkernel/php-json-ast';
 import type { IRResource } from '../../../../../../ir/types';
 import type { ResolvedIdentity } from '../../../identity';
@@ -8,7 +8,7 @@ type TaxonomyStorage = Extract<
 	{ mode: 'wp-taxonomy' }
 >;
 
-describe('createWpTaxonomyHelperMethods', () => {
+describe('buildWpTaxonomyHelperMethods', () => {
 	const identity: ResolvedIdentity = { type: 'string', param: 'slug' };
 	const storage: TaxonomyStorage = {
 		mode: 'wp-taxonomy',
@@ -36,8 +36,8 @@ describe('createWpTaxonomyHelperMethods', () => {
 		warnings: [],
 	};
 
-	function createHelpers(overrides: Partial<TaxonomyStorage> = {}) {
-		return createWpTaxonomyHelperMethods({
+	function buildHelpers(overrides: Partial<TaxonomyStorage> = {}) {
+		return buildWpTaxonomyHelperMethods({
 			resource: {
 				...resource,
 				storage: { ...storage, ...overrides },
@@ -49,7 +49,7 @@ describe('createWpTaxonomyHelperMethods', () => {
 	}
 
 	it('annotates resolve helper with the identity parameter and nullable WP_Term return type', () => {
-		const helpers = createHelpers();
+		const helpers = buildHelpers();
 
 		const resolveHelper = helpers[2];
 		expect(resolveHelper.node?.name.name).toBe('resolveJobCategoriesTerm');
@@ -65,7 +65,7 @@ describe('createWpTaxonomyHelperMethods', () => {
 	});
 
 	it('exposes a typed WP_Term parameter when preparing the taxonomy response', () => {
-		const helpers = createHelpers();
+		const helpers = buildHelpers();
 
 		const prepareHelper = helpers[1];
 		expect(prepareHelper.node?.name.name).toBe(
@@ -80,7 +80,7 @@ describe('createWpTaxonomyHelperMethods', () => {
 	});
 
 	it('extracts taxonomy term arguments from the request', () => {
-		const helpers = createHelpers();
+		const helpers = buildHelpers();
 
 		const extractHelper = helpers[3];
 		expect(extractHelper.node?.name.name).toBe(
@@ -115,7 +115,7 @@ describe('createWpTaxonomyHelperMethods', () => {
 	});
 
 	it('exposes the identity candidate parameter when validating taxonomy identities', () => {
-		const helpers = createHelpers();
+		const helpers = buildHelpers();
 
 		const validateHelper = helpers[4];
 		expect(validateHelper.node?.name.name).toBe(
@@ -130,7 +130,7 @@ describe('createWpTaxonomyHelperMethods', () => {
 	});
 
 	it('toggles hierarchical output for non-hierarchical taxonomies', () => {
-		const helpers = createHelpers({ hierarchical: false });
+		const helpers = buildHelpers({ hierarchical: false });
 
 		const prepareHelper = helpers[1];
 		expectHierarchicalFlag(prepareHelper, false);
@@ -138,7 +138,7 @@ describe('createWpTaxonomyHelperMethods', () => {
 });
 
 function expectHierarchicalFlag(
-	helper: ReturnType<typeof createHelpers>[number],
+	helper: ReturnType<typeof buildHelpers>[number],
 	expected: boolean
 ): void {
 	const methodNode = helper.node;
@@ -161,7 +161,7 @@ function expectHierarchicalFlag(
 }
 
 function expectFinalReturnTrim(
-	helper: ReturnType<typeof createHelpers>[number]
+	helper: ReturnType<typeof buildHelpers>[number]
 ): void {
 	const methodNode = helper.node;
 	expect(methodNode).toBeDefined();

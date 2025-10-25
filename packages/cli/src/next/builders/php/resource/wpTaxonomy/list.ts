@@ -24,10 +24,10 @@ import {
 } from '@wpkernel/php-json-ast';
 import { appendResourceCacheEvent } from '../cache';
 import {
-	createPaginationNormalisationStatements,
-	createQueryArgsAssignmentStatement,
+	buildPaginationNormalisationStatements,
+	buildQueryArgsAssignmentStatement,
 } from '../query';
-import { createRequestParamAssignmentStatement } from '../request';
+import { buildRequestParamAssignmentStatement } from '../request';
 import { variable } from '../phpValue';
 import {
 	buildArrayDimFetch,
@@ -36,6 +36,7 @@ import {
 	buildInstanceof,
 	buildScalarCast,
 } from '../utils';
+import { buildReturnIfWpError } from '../errors';
 import { buildListItemsInitialiserStatement } from '../wpPost/list';
 import type { IRResource } from '../../../../../ir/types';
 import {
@@ -77,14 +78,14 @@ export function buildWpTaxonomyListRouteStatements(
 	);
 
 	const [perPageAssign, ensurePositive, clampMaximum] =
-		createPaginationNormalisationStatements({
+		buildPaginationNormalisationStatements({
 			requestVariable: '$request',
 			targetVariable: 'per_page',
 		});
 	statements.push(perPageAssign, ensurePositive, clampMaximum);
 	statements.push(buildBlankStatement());
 
-	const pageAssign = createRequestParamAssignmentStatement({
+	const pageAssign = buildRequestParamAssignmentStatement({
 		requestVariable: '$request',
 		param: 'page',
 		targetVariable: 'page',
@@ -107,7 +108,7 @@ export function buildWpTaxonomyListRouteStatements(
 	statements.push(pageGuard);
 	statements.push(buildBlankStatement());
 
-	const queryArgsAssignment = createQueryArgsAssignmentStatement({
+	const queryArgsAssignment = buildQueryArgsAssignmentStatement({
 		targetVariable: 'query_args',
 		entries: [
 			{ key: 'taxonomy', value: variable('taxonomy') },
@@ -165,13 +166,7 @@ export function buildWpTaxonomyListRouteStatements(
 		)
 	);
 
-	const errorGuard = buildIfStatementNode({
-		condition: buildFuncCall(buildName(['is_wp_error']), [
-			buildArg(buildVariable('results')),
-		]),
-		statements: [buildReturn(buildVariable('results'))],
-	});
-	statements.push(errorGuard);
+	statements.push(buildReturnIfWpError(buildVariable('results')));
 	statements.push(buildBlankStatement());
 
 	statements.push(buildListItemsInitialiserStatement());

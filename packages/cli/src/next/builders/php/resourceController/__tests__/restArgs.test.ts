@@ -1,7 +1,7 @@
 import type { IRResource, IRSchema } from '../../../../../ir/types';
 import { buildRestArgs } from '../restArgs';
 
-function createResource(overrides: Partial<IRResource> = {}): IRResource {
+function buildResource(overrides: Partial<IRResource> = {}): IRResource {
 	return {
 		name: 'books',
 		schemaKey: 'book',
@@ -31,7 +31,7 @@ function createResource(overrides: Partial<IRResource> = {}): IRResource {
 	} as IRResource;
 }
 
-function createSchema(schema: unknown): IRSchema {
+function buildSchema(schema: unknown): IRSchema {
 	return {
 		key: 'book',
 		sourcePath: 'schema/book.json',
@@ -43,21 +43,21 @@ function createSchema(schema: unknown): IRSchema {
 
 describe('buildRestArgs', () => {
 	it('returns empty object when the schema cannot be resolved', () => {
-		const resource = createResource();
+		const resource = buildResource();
 
 		expect(buildRestArgs([], resource)).toEqual({});
 	});
 
 	it('returns empty object when the schema payload is not an object', () => {
-		const resource = createResource();
-		const schema = createSchema('not-a-record');
+		const resource = buildResource();
+		const schema = buildSchema('not-a-record');
 
 		expect(buildRestArgs([schema], resource)).toEqual({});
 	});
 
 	it('builds rest args from schema properties and honours required identity fields', () => {
-		const resource = createResource();
-		const schema = createSchema({
+		const resource = buildResource();
+		const schema = buildSchema({
 			required: ['title'],
 			properties: {
 				title: { type: 'string', minLength: 1 },
@@ -80,7 +80,7 @@ describe('buildRestArgs', () => {
 	});
 
 	it('merges query param descriptors while preserving schema-derived metadata', () => {
-		const resource = createResource({
+		const resource = buildResource({
 			queryParams: {
 				status: {
 					type: 'enum',
@@ -99,7 +99,7 @@ describe('buildRestArgs', () => {
 				},
 			},
 		});
-		const schema = createSchema({
+		const schema = buildSchema({
 			required: ['title'],
 			properties: {
 				slug: { type: 'string', pattern: '[a-z]+' },

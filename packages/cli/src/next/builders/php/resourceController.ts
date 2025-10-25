@@ -1,4 +1,4 @@
-import { createHelper } from '@wpkernel/core/pipeline';
+import { createHelper } from '../../runtime';
 import type {
 	BuilderApplyOptions,
 	BuilderHelper,
@@ -15,9 +15,7 @@ import {
 	buildClassMethod,
 	buildDocComment,
 	buildExpressionStatement,
-	buildFuncCall,
 	buildIdentifier,
-	buildMethodCall,
 	buildName,
 	buildParam,
 	buildReturn,
@@ -25,13 +23,9 @@ import {
 	buildStaticCall,
 	buildStmtNop,
 	buildVariable,
-	buildIfStatement,
 	createPhpFileBuilder,
-	makeErrorCodeFactory,
 	PHP_CLASS_MODIFIER_FINAL,
 	PHP_METHOD_MODIFIER_PUBLIC,
-	sanitizeJson,
-	toPascalCase,
 	type PhpAstBuilderAdapter,
 	type PhpAttributes,
 	type PhpStmt,
@@ -39,20 +33,23 @@ import {
 	type ResourceControllerRouteMetadata,
 	type ResourceMetadataHost,
 } from '@wpkernel/php-json-ast';
+import { makeErrorCodeFactory, sanitizeJson, toPascalCase } from './utils';
 import type { IRResource, IRRoute, IRv1 } from '../../../ir/types';
 import { resolveIdentityConfig, type ResolvedIdentity } from './identity';
 import { collectCanonicalBasePaths } from './routes';
 import { buildRestArgs } from './resourceController/restArgs';
 import {
-	createRouteMetadata,
+	buildRouteMetadata,
 	type RouteMetadataKind,
 } from './resourceController/metadata';
-import { createRouteMethodName } from './resourceController/routeNaming';
+import { buildRouteMethodName } from './resourceController/routeNaming';
 import { routeUsesIdentity } from './resourceController/routeIdentity';
 import { buildNotImplementedStatements } from './resourceController/stubs';
 import { buildRouteKindStatements } from './resourceController/routes/handleRouteKind';
-import { createWpTaxonomyHelperMethods } from './resource/wpTaxonomy';
+import { buildWpTaxonomyHelperMethods } from './resource/wpTaxonomy';
 import { renderPhpValue } from './resource/phpValue';
+import { buildRequestParamAssignmentStatement } from './resource/request';
+import { buildReturnIfWpError } from './resource/errors';
 
 export function createPhpResourceControllerHelper(): BuilderHelper {
 	return createHelper({
@@ -140,7 +137,7 @@ function buildResourceController(
 		resource.routes,
 		identity.param
 	);
-	const routeMetadata = createRouteMetadata({
+	const routeMetadata = buildRouteMetadata({
 		routes: resource.routes,
 		identity,
 		canonicalBasePaths,
@@ -171,12 +168,12 @@ function buildResourceController(
 
 	const methods: PhpStmtClassMethod[] = [];
 
-	methods.push(createGetResourceNameMethod(resource));
-	methods.push(createGetSchemaKeyMethod(resource));
-	methods.push(createGetRestArgsMethod(ir, resource));
+	methods.push(buildGetResourceNameMethod(resource));
+	methods.push(buildGetSchemaKeyMethod(resource));
+	methods.push(buildGetRestArgsMethod(ir, resource));
 
 	const routeMethods = resource.routes.map((route: IRRoute, index) =>
-		createRouteMethod({
+		buildRouteMethod({
 			builder,
 			ir,
 			resource,
@@ -193,7 +190,7 @@ function buildResourceController(
 	methods.push(...routeMethods);
 
 	if (resource.storage?.mode === 'wp-taxonomy') {
-		const taxonomyHelpers = createWpTaxonomyHelperMethods({
+		const taxonomyHelpers = buildWpTaxonomyHelperMethods({
 			resource,
 			pascalName,
 			identity,
@@ -218,7 +215,7 @@ function buildResourceController(
 	});
 }
 
-function createGetResourceNameMethod(resource: IRResource): PhpStmtClassMethod {
+function buildGetResourceNameMethod(resource: IRResource): PhpStmtClassMethod {
 	return buildClassMethod(buildIdentifier('get_resource_name'), {
 		flags: PHP_METHOD_MODIFIER_PUBLIC,
 		returnType: buildIdentifier('string'),
@@ -226,7 +223,7 @@ function createGetResourceNameMethod(resource: IRResource): PhpStmtClassMethod {
 	});
 }
 
-function createGetSchemaKeyMethod(resource: IRResource): PhpStmtClassMethod {
+function buildGetSchemaKeyMethod(resource: IRResource): PhpStmtClassMethod {
 	return buildClassMethod(buildIdentifier('get_schema_key'), {
 		flags: PHP_METHOD_MODIFIER_PUBLIC,
 		returnType: buildIdentifier('string'),
@@ -234,7 +231,7 @@ function createGetSchemaKeyMethod(resource: IRResource): PhpStmtClassMethod {
 	});
 }
 
-function createGetRestArgsMethod(
+function buildGetRestArgsMethod(
 	ir: IRv1,
 	resource: IRResource
 ): PhpStmtClassMethod {
@@ -261,12 +258,12 @@ interface RouteMethodOptions {
 	readonly routeMetadata?: ResourceControllerRouteMetadata;
 }
 
-function createRouteMethod(options: RouteMethodOptions): PhpStmtClassMethod {
-	const methodName = createRouteMethodName(options.route, options.ir);
+function buildRouteMethod(options: RouteMethodOptions): PhpStmtClassMethod {
+	const methodName = buildRouteMethodName(options.route, options.ir);
 	const docblock = [
 		`Handle [${options.route.method}] ${options.route.path}.`,
 		`@wp-kernel route-kind ${options.routeKind}`,
-		...createRouteTagDocblock(options.routeMetadata?.tags),
+		...buildRouteTagDocblock(options.routeMetadata?.tags),
 	];
 
 	const statements: PhpStmt[] = [];
@@ -279,15 +276,13 @@ function createRouteMethod(options: RouteMethodOptions): PhpStmtClassMethod {
 		})
 	) {
 		const param = options.identity.param;
-		const assign = buildAssign(
-			buildVariable(param),
-			buildMethodCall(
-				buildVariable('request'),
-				buildIdentifier('get_param'),
-				[buildArg(buildScalarString(param))]
-			)
+		statements.push(
+			buildRequestParamAssignmentStatement({
+				requestVariable: 'request',
+				param,
+				targetVariable: param,
+			})
 		);
-		statements.push(buildExpressionStatement(assign));
 		statements.push(buildStmtNop());
 	}
 
@@ -301,14 +296,7 @@ function createRouteMethod(options: RouteMethodOptions): PhpStmtClassMethod {
 		);
 		statements.push(buildExpressionStatement(policyAssign));
 
-		const isErrorCall = buildFuncCall(buildName(['is_wp_error']), [
-			buildArg(buildVariable('permission')),
-		]);
-		statements.push(
-			buildIfStatement(isErrorCall, [
-				buildReturn(buildVariable('permission')),
-			])
-		);
+		statements.push(buildReturnIfWpError(buildVariable('permission')));
 		statements.push(buildStmtNop());
 	}
 
@@ -332,7 +320,7 @@ function createRouteMethod(options: RouteMethodOptions): PhpStmtClassMethod {
 		statements.push(...buildNotImplementedStatements(options.route));
 	}
 
-	const attributes = createDocAttributes(docblock);
+	const attributes = buildDocAttributes(docblock);
 
 	return buildClassMethod(
 		buildIdentifier(methodName),
@@ -349,7 +337,7 @@ function createRouteMethod(options: RouteMethodOptions): PhpStmtClassMethod {
 	);
 }
 
-function createDocAttributes(
+function buildDocAttributes(
 	docblock: readonly string[]
 ): PhpAttributes | undefined {
 	if (docblock.length === 0) {
@@ -398,7 +386,7 @@ function resolveMutationCacheSegments(
 	return [];
 }
 
-function createRouteTagDocblock(
+function buildRouteTagDocblock(
 	tags: ResourceControllerRouteMetadata['tags'] | undefined
 ): string[] {
 	if (!tags) {

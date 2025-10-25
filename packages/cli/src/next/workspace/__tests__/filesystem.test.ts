@@ -1,7 +1,7 @@
 import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import { createWorkspace } from '../filesystem';
+import { buildWorkspace } from '../filesystem';
 
 async function withWorkspace<T>(run: (root: string) => Promise<T>): Promise<T> {
 	const root = await fs.mkdtemp(path.join(os.tmpdir(), 'workspace-test-'));
@@ -15,7 +15,7 @@ async function withWorkspace<T>(run: (root: string) => Promise<T>): Promise<T> {
 describe('filesystem workspace', () => {
 	it('reads and writes files relative to the workspace root', async () => {
 		await withWorkspace(async (root) => {
-			const workspace = createWorkspace(root);
+			const workspace = buildWorkspace(root);
 			await workspace.write('nested/file.txt', 'hello world');
 			const contents = await workspace.readText('nested/file.txt');
 			expect(contents).toBe('hello world');
@@ -25,7 +25,7 @@ describe('filesystem workspace', () => {
 
 	it('rolls back transactional changes', async () => {
 		await withWorkspace(async (root) => {
-			const workspace = createWorkspace(root);
+			const workspace = buildWorkspace(root);
 			workspace.begin('tx');
 			await workspace.write('rollback.txt', 'temporary');
 			const manifest = await workspace.rollback('tx');
@@ -37,7 +37,7 @@ describe('filesystem workspace', () => {
 
 	it('exposes dry-run manifests without persisting writes', async () => {
 		await withWorkspace(async (root) => {
-			const workspace = createWorkspace(root);
+			const workspace = buildWorkspace(root);
 			const { manifest } = await workspace.dryRun(async () => {
 				await workspace.write('one.txt', '1');
 				await workspace.write('two.txt', '2');
@@ -51,7 +51,7 @@ describe('filesystem workspace', () => {
 
 	it('performs simple three-way merges and signals conflicts', async () => {
 		await withWorkspace(async (root) => {
-			const workspace = createWorkspace(root);
+			const workspace = buildWorkspace(root);
 			await workspace.write('merge.txt', 'current');
 
 			const clean = await workspace.threeWayMerge(
@@ -77,7 +77,7 @@ describe('filesystem workspace', () => {
 
 	it('commits transactional changes and exposes manifests', async () => {
 		await withWorkspace(async (root) => {
-			const workspace = createWorkspace(root);
+			const workspace = buildWorkspace(root);
 			workspace.begin('commit-test');
 			await workspace.writeJson(
 				'data.json',
@@ -96,7 +96,7 @@ describe('filesystem workspace', () => {
 
 	it('removes directories recursively and restores them on rollback', async () => {
 		await withWorkspace(async (root) => {
-			const workspace = createWorkspace(root);
+			const workspace = buildWorkspace(root);
 			await workspace.write('nested/dir/file.txt', 'present');
 			workspace.begin('remove');
 			await workspace.rm('nested', { recursive: true });
@@ -110,7 +110,7 @@ describe('filesystem workspace', () => {
 
 	it('provides tmpDir helpers', async () => {
 		await withWorkspace(async (root) => {
-			const workspace = createWorkspace(root);
+			const workspace = buildWorkspace(root);
 			const tmp = await workspace.tmpDir('next-workspace-');
 			expect(tmp.startsWith(path.join(root, '.tmp'))).toBe(true);
 		});
@@ -118,7 +118,7 @@ describe('filesystem workspace', () => {
 
 	it('supports glob matching and resolution utilities', async () => {
 		await withWorkspace(async (root) => {
-			const workspace = createWorkspace(root);
+			const workspace = buildWorkspace(root);
 			await workspace.write('glob/target.txt', 'ok');
 			await workspace.write('glob/other.md', 'skip');
 
@@ -132,7 +132,7 @@ describe('filesystem workspace', () => {
 
 	it('writes buffers and respects ensureDir overrides', async () => {
 		await withWorkspace(async (root) => {
-			const workspace = createWorkspace(root);
+			const workspace = buildWorkspace(root);
 			const buffer = Buffer.from([0xde, 0xad, 0xbe, 0xef]);
 			await workspace.write('bin/file.dat', buffer);
 			const disk = await workspace.read('bin/file.dat');
@@ -148,7 +148,7 @@ describe('filesystem workspace', () => {
 
 	it('handles deletes for missing paths without throwing', async () => {
 		await withWorkspace(async (root) => {
-			const workspace = createWorkspace(root);
+			const workspace = buildWorkspace(root);
 			await expect(
 				workspace.rm('does-not-exist.txt')
 			).resolves.toBeUndefined();
@@ -157,7 +157,7 @@ describe('filesystem workspace', () => {
 
 	it('rolls back dry-run scopes when the callback throws', async () => {
 		await withWorkspace(async (root) => {
-			const workspace = createWorkspace(root);
+			const workspace = buildWorkspace(root);
 			await expect(
 				workspace.dryRun(async () => {
 					await workspace.write('transient.txt', 'temp');
@@ -171,7 +171,7 @@ describe('filesystem workspace', () => {
 
 	it('guards against mismatched commit labels', async () => {
 		await withWorkspace(async (root) => {
-			const workspace = createWorkspace(root);
+			const workspace = buildWorkspace(root);
 			workspace.begin('expected');
 			await expect(workspace.commit('other')).rejects.toThrow(
 				/Attempted to commit transaction/
@@ -181,7 +181,7 @@ describe('filesystem workspace', () => {
 
 	it('throws when committing or rolling back without an active transaction', async () => {
 		await withWorkspace(async (root) => {
-			const workspace = createWorkspace(root);
+			const workspace = buildWorkspace(root);
 
 			await expect(workspace.commit()).rejects.toThrow(
 				/Attempted to commit workspace transaction/
@@ -194,7 +194,7 @@ describe('filesystem workspace', () => {
 
 	it('guards against mismatched rollback labels', async () => {
 		await withWorkspace(async (root) => {
-			const workspace = createWorkspace(root);
+			const workspace = buildWorkspace(root);
 			await workspace.write('data.txt', 'original');
 			workspace.begin('expected');
 			await workspace.write('data.txt', 'mutated');
@@ -211,7 +211,7 @@ describe('filesystem workspace', () => {
 
 	it('preserves original content when writing the same file multiple times in a transaction', async () => {
 		await withWorkspace(async (root) => {
-			const workspace = createWorkspace(root);
+			const workspace = buildWorkspace(root);
 			await workspace.write('repeat.txt', 'original');
 
 			workspace.begin('multi-write');
@@ -227,7 +227,7 @@ describe('filesystem workspace', () => {
 
 	it('treats base equalities as clean outcomes in three-way merges', async () => {
 		await withWorkspace(async (root) => {
-			const workspace = createWorkspace(root);
+			const workspace = buildWorkspace(root);
 			await workspace.write('merge-base.txt', 'current');
 
 			const baseMatchesCurrent = await workspace.threeWayMerge(
@@ -252,7 +252,7 @@ describe('filesystem workspace', () => {
 
 	it('treats trimmed matches as clean merges when whitespace differs', async () => {
 		await withWorkspace(async (root) => {
-			const workspace = createWorkspace(root);
+			const workspace = buildWorkspace(root);
 			await workspace.write('merge-trim.txt', 'value\n');
 
 			const status = await workspace.threeWayMerge(

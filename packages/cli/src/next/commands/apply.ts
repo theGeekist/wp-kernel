@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { Command, Option } from 'clipanion';
-import { createReporter } from '@wpkernel/core/reporter';
+import { createReporter as buildReporter } from '@wpkernel/core/reporter';
 import {
 	KernelError,
 	WPK_NAMESPACE,
@@ -10,7 +10,7 @@ import {
 import type { BuilderOutput } from '../runtime/types';
 import type { LoadedKernelConfig } from '../../config/types';
 import { loadKernelConfig } from '../../config';
-import { createWorkspace, type Workspace } from '../workspace';
+import { buildWorkspace, type Workspace } from '../workspace';
 import { createPatcher } from '../builders';
 import { determineExitCode, reportFailure } from '../../commands/apply/errors';
 
@@ -40,7 +40,7 @@ export interface PatchManifest {
 	readonly records: PatchRecord[];
 }
 
-export function createBuilderOutput(): BuilderOutput {
+export function buildBuilderOutput(): BuilderOutput {
 	const actions: BuilderOutput['actions'] = [];
 	return {
 		actions,
@@ -121,7 +121,7 @@ export function resolveWorkspaceRoot(loaded: LoadedKernelConfig): string {
 	return path.dirname(loaded.sourcePath);
 }
 
-function createReporterNamespace(): string {
+function buildReporterNamespace(): string {
 	return `${WPK_NAMESPACE}.cli.next.apply`;
 }
 
@@ -143,8 +143,8 @@ export class NextApplyCommand extends Command {
 	public manifest: PatchManifest | null = null;
 
 	override async execute(): Promise<WPKExitCode> {
-		const reporter = createReporter({
-			namespace: createReporterNamespace(),
+		const reporter = buildReporter({
+			namespace: buildReporterNamespace(),
 			level: 'info',
 			enabled: process.env.NODE_ENV !== 'test',
 		});
@@ -152,9 +152,9 @@ export class NextApplyCommand extends Command {
 		try {
 			const loaded = await loadKernelConfig();
 			const workspaceRoot = resolveWorkspaceRoot(loaded);
-			const workspace = createWorkspace(workspaceRoot);
+			const workspace = buildWorkspace(workspaceRoot);
 			const builder = createPatcher();
-			const output = createBuilderOutput();
+			const output = buildBuilderOutput();
 
 			await builder.apply(
 				{

@@ -1,19 +1,14 @@
 import {
 	buildArray,
 	buildArrayItem,
-	buildAssign,
-	buildExpressionStatement,
-	buildIdentifier,
-	buildMethodCall,
 	buildReturn,
 	buildScalarCast,
 	buildScalarString,
-	buildStmtNop,
 	buildVariable,
-	isNonEmptyString,
 	type PhpStmt,
 	type ResourceMetadataHost,
 } from '@wpkernel/php-json-ast';
+import { isNonEmptyString } from '../../utils';
 import {
 	buildMetaQueryStatements,
 	buildTaxonomyQueryStatements,
@@ -21,11 +16,13 @@ import {
 	collectTaxonomyQueryEntries,
 	buildListForeachStatement,
 	buildListItemsInitialiserStatement,
-	createPageExpression,
-	createPaginationNormalisationStatements,
+	buildPageExpression,
+	buildPaginationNormalisationStatements,
 	buildPropertyFetch,
-	createQueryArgsAssignmentStatement,
-	createWpQueryExecutionStatement,
+	buildQueryArgsAssignmentStatement,
+	buildWpQueryExecutionStatement,
+	buildMethodCallAssignmentStatement,
+	appendStatementsWithSpacing,
 	variable,
 	buildWpTaxonomyListRouteStatements,
 } from '../../resource';
@@ -62,49 +59,37 @@ export function buildListRouteStatements(
 	const statements: PhpStmt[] = [];
 
 	statements.push(
-		buildExpressionStatement(
-			buildAssign(
-				buildVariable('post_type'),
-				buildMethodCall(
-					buildVariable('this'),
-					buildIdentifier(`get${options.pascalName}PostType`),
-					[]
-				)
-			)
-		)
+		buildMethodCallAssignmentStatement({
+			variable: 'post_type',
+			subject: 'this',
+			method: `get${options.pascalName}PostType`,
+		})
 	);
 
 	const [perPageAssign, ensurePositive, clampMaximum] =
-		createPaginationNormalisationStatements({
+		buildPaginationNormalisationStatements({
 			requestVariable: '$request',
 			targetVariable: 'per_page',
 		});
 
-	statements.push(
+	appendStatementsWithSpacing(statements, [
 		perPageAssign,
 		ensurePositive,
 		clampMaximum,
-		buildStmtNop()
-	);
+	]);
 
 	const statuses = Array.isArray(storage.statuses)
 		? storage.statuses.filter(isNonEmptyString)
 		: [];
 
 	if (statuses.length > 0) {
-		statements.push(
-			buildExpressionStatement(
-				buildAssign(
-					buildVariable('statuses'),
-					buildMethodCall(
-						buildVariable('this'),
-						buildIdentifier(`get${options.pascalName}Statuses`),
-						[]
-					)
-				)
-			)
-		);
-		statements.push(buildStmtNop());
+		appendStatementsWithSpacing(statements, [
+			buildMethodCallAssignmentStatement({
+				variable: 'statuses',
+				subject: 'this',
+				method: `get${options.pascalName}Statuses`,
+			}),
+		]);
 	}
 
 	const metaEntries = collectMetaQueryEntries(storage);
@@ -119,28 +104,28 @@ export function buildListRouteStatements(
 		{ key: 'fields', value: 'ids' },
 		{
 			key: 'paged',
-			value: createPageExpression({ requestVariable: '$request' }),
+			value: buildPageExpression({ requestVariable: '$request' }),
 		},
 		{ key: 'posts_per_page', value: variable('per_page') },
 	];
 
-	const queryArgsAssignment = createQueryArgsAssignmentStatement({
+	const queryArgsAssignment = buildQueryArgsAssignmentStatement({
 		targetVariable: 'query_args',
 		entries: queryEntries,
 	});
-	statements.push(queryArgsAssignment, buildStmtNop());
+	appendStatementsWithSpacing(statements, [queryArgsAssignment]);
 
-	appendSection(
+	appendStatementsWithSpacing(
 		statements,
 		buildMetaQueryStatements({ entries: metaEntries })
 	);
-	appendSection(
+	appendStatementsWithSpacing(
 		statements,
 		buildTaxonomyQueryStatements({ entries: taxonomyEntries })
 	);
 
-	statements.push(
-		createWpQueryExecutionStatement({
+	appendStatementsWithSpacing(statements, [
+		buildWpQueryExecutionStatement({
 			target: 'query',
 			argsVariable: 'query_args',
 			cache: {
@@ -150,17 +135,16 @@ export function buildListRouteStatements(
 				segments: options.cacheSegments,
 				description: 'List query',
 			},
-		})
-	);
-	statements.push(buildStmtNop());
+		}),
+	]);
 
-	statements.push(buildListItemsInitialiserStatement());
-	statements.push(buildStmtNop());
+	appendStatementsWithSpacing(statements, [
+		buildListItemsInitialiserStatement(),
+	]);
 
-	statements.push(
-		buildListForeachStatement({ pascalName: options.pascalName })
-	);
-	statements.push(buildStmtNop());
+	appendStatementsWithSpacing(statements, [
+		buildListForeachStatement({ pascalName: options.pascalName }),
+	]);
 
 	const totalFetch = buildScalarCast(
 		'int',
@@ -188,17 +172,4 @@ export function buildListRouteStatements(
 	);
 
 	return statements;
-}
-
-function appendSection(target: PhpStmt[], section: readonly PhpStmt[]): void {
-	if (section.length === 0) {
-		return;
-	}
-
-	target.push(...section);
-
-	const last = section[section.length - 1]!;
-	if (last.nodeType !== 'Stmt_Nop') {
-		target.push(buildStmtNop());
-	}
 }

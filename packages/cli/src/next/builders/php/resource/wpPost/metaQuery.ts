@@ -18,7 +18,6 @@ import {
 	buildScalarInt,
 	buildScalarString,
 	buildVariable,
-	toSnakeCase,
 	type PhpExpr,
 	type PhpStmt,
 	type PhpStmtExpression,
@@ -32,6 +31,7 @@ import {
 	buildIfStatementNode,
 	buildArrayInitialiserStatement,
 } from '../utils';
+import { toSnakeCase } from '../../utils';
 
 export interface WpPostMetaConfigEntry {
 	readonly single?: boolean | null;
@@ -79,7 +79,7 @@ export function buildMetaQueryStatements(
 
 	for (const [key, descriptor] of options.entries) {
 		const variableName = `${toSnakeCase(key)}Meta`;
-		statements.push(createMetaRequestAssignment(variableName, key));
+		statements.push(buildMetaRequestAssignment(variableName, key));
 		statements.push(
 			buildIfStatementNode({
 				condition: buildBinaryOperation(
@@ -87,7 +87,7 @@ export function buildMetaQueryStatements(
 					buildVariable(variableName),
 					buildNull()
 				),
-				statements: createMetaBranchStatements({
+				statements: buildMetaBranchStatements({
 					key,
 					variableName,
 					descriptor,
@@ -96,7 +96,7 @@ export function buildMetaQueryStatements(
 		);
 	}
 
-	statements.push(createMetaQueryAssignmentGuard());
+	statements.push(buildMetaQueryAssignmentGuard());
 
 	return statements;
 }
@@ -107,16 +107,16 @@ interface MetaBranchOptions {
 	readonly descriptor: { single?: boolean | null } | undefined;
 }
 
-function createMetaBranchStatements(
+function buildMetaBranchStatements(
 	options: MetaBranchOptions
 ): readonly PhpStmt[] {
 	const { key, variableName, descriptor } = options;
 
 	if (descriptor?.single === false) {
-		return createMultiValueMetaStatements({ key, variableName });
+		return buildMultiValueMetaStatements({ key, variableName });
 	}
 
-	return createSingleValueMetaStatements({ key, variableName });
+	return buildSingleValueMetaStatements({ key, variableName });
 }
 
 interface MetaStatementBaseOptions {
@@ -124,7 +124,7 @@ interface MetaStatementBaseOptions {
 	readonly variableName: string;
 }
 
-function createMultiValueMetaStatements(
+function buildMultiValueMetaStatements(
 	options: MetaStatementBaseOptions
 ): readonly PhpStmt[] {
 	const ensureArray = buildIfStatementNode({
@@ -161,7 +161,7 @@ function createMultiValueMetaStatements(
 			buildVariable(options.variableName),
 			buildFuncCall(buildName(['array_filter']), [
 				buildArg(buildVariable(options.variableName)),
-				buildArg(createStaticTrimFilterClosure()),
+				buildArg(buildStaticTrimFilterClosure()),
 			])
 		)
 	);
@@ -197,7 +197,7 @@ function createMultiValueMetaStatements(
 	return [ensureArray, normalise, filter, ensureNonEmpty];
 }
 
-function createSingleValueMetaStatements(
+function buildSingleValueMetaStatements(
 	options: MetaStatementBaseOptions
 ): readonly PhpStmt[] {
 	const sanitise = buildExpressionStatement(
@@ -262,7 +262,7 @@ function createSingleValueMetaStatements(
 	return [sanitise, nonEmptyGuard];
 }
 
-function createMetaRequestAssignment(
+function buildMetaRequestAssignment(
 	variableName: string,
 	key: string
 ): PhpStmtExpression {
@@ -278,7 +278,7 @@ function createMetaRequestAssignment(
 	);
 }
 
-function createMetaQueryAssignmentGuard(): PhpStmtIf {
+function buildMetaQueryAssignmentGuard(): PhpStmtIf {
 	return buildIfStatementNode({
 		condition: buildBinaryOperation(
 			'Greater',
@@ -301,7 +301,7 @@ function createMetaQueryAssignmentGuard(): PhpStmtIf {
 	});
 }
 
-function createStaticTrimFilterClosure(): PhpExpr {
+function buildStaticTrimFilterClosure(): PhpExpr {
 	const parameter = buildParam(buildVariable('value'));
 	const trimmedValue = buildFuncCall(buildName(['trim']), [
 		buildArg(buildScalarCast('string', buildVariable('value'))),

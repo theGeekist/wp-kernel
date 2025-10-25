@@ -1,4 +1,4 @@
-import { createHelper } from '@wpkernel/core/pipeline';
+import { createHelper } from '../../runtime';
 import type {
 	BuilderApplyOptions,
 	BuilderHelper,
@@ -17,11 +17,11 @@ import {
 	PHP_CLASS_MODIFIER_FINAL,
 	PHP_METHOD_MODIFIER_PUBLIC,
 	PHP_METHOD_MODIFIER_STATIC,
-	sanitizeJson,
 	type PhpAstBuilderAdapter,
 } from '@wpkernel/php-json-ast';
 import type { IRResource, IRv1 } from '../../../ir/types';
 import { renderPhpValue } from './resource/phpValue';
+import { sanitizeJson } from './utils';
 
 export function createPhpPersistenceRegistryHelper(): BuilderHelper {
 	return createHelper({

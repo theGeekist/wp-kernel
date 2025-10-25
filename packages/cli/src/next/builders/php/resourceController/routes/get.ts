@@ -1,11 +1,6 @@
 import {
 	buildArg,
-	buildAssign,
-	buildExpressionStatement,
-	buildIdentifier,
-	buildMethodCall,
 	buildReturn,
-	buildStmtNop,
 	buildVariable,
 	type PhpStmt,
 	type ResourceMetadataHost,
@@ -18,6 +13,9 @@ import {
 	buildInstanceof,
 	buildWpErrorReturn,
 	buildWpTaxonomyGetRouteStatements,
+	buildMethodCallAssignmentStatement,
+	buildMethodCallExpression,
+	appendStatementsWithSpacing,
 } from '../../resource';
 import type { ResolvedIdentity } from '../../identity';
 import type { IRResource } from '../../../../../ir/types';
@@ -70,24 +68,16 @@ export function buildGetRouteStatements(
 		errorCodeFactory: options.errorCodeFactory,
 	});
 
-	statements.push(...identityStatements);
-
-	if (identityStatements.length > 0) {
-		statements.push(buildStmtNop());
-	}
+	appendStatementsWithSpacing(statements, identityStatements);
 
 	const param = options.identity.param;
 	statements.push(
-		buildExpressionStatement(
-			buildAssign(
-				buildVariable('post'),
-				buildMethodCall(
-					buildVariable('this'),
-					buildIdentifier(`resolve${options.pascalName}Post`),
-					[buildArg(buildVariable(param))]
-				)
-			)
-		)
+		buildMethodCallAssignmentStatement({
+			variable: 'post',
+			subject: 'this',
+			method: `resolve${options.pascalName}Post`,
+			args: [buildArg(buildVariable(param))],
+		})
 	);
 
 	const notFoundReturn = buildWpErrorReturn({
@@ -96,25 +86,23 @@ export function buildGetRouteStatements(
 		status: 404,
 	});
 
-	statements.push(
+	appendStatementsWithSpacing(statements, [
 		buildIfStatementNode({
 			condition: buildBooleanNot(buildInstanceof('post', 'WP_Post')),
 			statements: [notFoundReturn],
-		})
-	);
-
-	statements.push(buildStmtNop());
+		}),
+	]);
 
 	statements.push(
 		buildReturn(
-			buildMethodCall(
-				buildVariable('this'),
-				buildIdentifier(`prepare${options.pascalName}Response`),
-				[
+			buildMethodCallExpression({
+				subject: 'this',
+				method: `prepare${options.pascalName}Response`,
+				args: [
 					buildArg(buildVariable('post')),
 					buildArg(buildVariable('request')),
-				]
-			)
+				],
+			})
 		)
 	);
 

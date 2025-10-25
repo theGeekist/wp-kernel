@@ -15,7 +15,6 @@ import {
 	buildScalarInt,
 	buildScalarString,
 	buildVariable,
-	toSnakeCase,
 	type PhpStmt,
 } from '@wpkernel/php-json-ast';
 import {
@@ -25,6 +24,7 @@ import {
 	buildIfStatementNode,
 	buildArrayInitialiserStatement,
 } from '../utils';
+import { toSnakeCase } from '../../utils';
 
 export interface WpPostTaxonomyConfigEntry {
 	readonly taxonomy?: string | null;
@@ -90,7 +90,7 @@ export function buildTaxonomyQueryStatements(
 					buildVariable(variableName),
 					buildNull()
 				),
-				statements: createTaxonomyBranchStatements({
+				statements: buildTaxonomyBranchStatements({
 					variableName,
 					taxonomy: descriptor.taxonomy,
 				}),
@@ -129,7 +129,7 @@ interface TaxonomyBranchOptions {
 	readonly taxonomy: string;
 }
 
-function createTaxonomyBranchStatements(
+function buildTaxonomyBranchStatements(
 	options: TaxonomyBranchOptions
 ): readonly PhpStmt[] {
 	const sanitise = buildExpressionStatement(

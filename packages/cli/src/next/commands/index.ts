@@ -1,6 +1,6 @@
 export { NextApplyCommand } from './apply';
-export { createInitCommand } from './init';
-export { createGenerateCommand } from './generate';
-export { createStartCommand } from './start';
-export { createDoctorCommand } from './doctor';
+export { buildInitCommand } from './init';
+export { buildGenerateCommand } from './generate';
+export { buildStartCommand } from './start';
+export { buildDoctorCommand } from './doctor';
 export type { PatchManifest, PatchRecord, PatchStatus } from './apply';

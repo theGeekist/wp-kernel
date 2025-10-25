@@ -2,7 +2,7 @@ import path from 'node:path';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { IRResource, IRRoute, IRv1 } from '../../../../ir/types';
 import { collectCanonicalBasePaths } from '../routes';
-import { createRouteMetadata } from '../resourceController/metadata';
+import { buildRouteMetadata } from '../resourceController/metadata';
 import type { ResolvedIdentity } from '../identity';
 import type { BuilderOutput } from '../../../runtime/types';
 import type { Workspace } from '../../workspace/types';
@@ -12,7 +12,7 @@ import {
 	getPhpBuilderChannel,
 } from '../index';
 
-function createReporter(): Reporter {
+function buildReporter(): Reporter {
 	return {
 		debug: jest.fn(),
 		info: jest.fn(),
@@ -22,7 +22,7 @@ function createReporter(): Reporter {
 	};
 }
 
-function createWorkspace(): Workspace {
+function buildWorkspace(): Workspace {
 	return {
 		root: process.cwd(),
 		cwd: jest.fn(() => process.cwd()),
@@ -50,8 +50,8 @@ function createWorkspace(): Workspace {
 
 describe('createPhpResourceControllerHelper', () => {
 	it('queues resource controllers with resolved identity and route kinds', async () => {
-		const reporter = createReporter();
-		const workspace = createWorkspace();
+		const reporter = buildReporter();
+		const workspace = buildWorkspace();
 		const context = {
 			workspace,
 			reporter,
@@ -62,7 +62,7 @@ describe('createPhpResourceControllerHelper', () => {
 			queueWrite: jest.fn(),
 		};
 
-		const ir = createIr();
+		const ir = buildIr();
 
 		const applyOptions = {
 			context,
@@ -139,8 +139,8 @@ describe('createPhpResourceControllerHelper', () => {
 	});
 
 	it('queues taxonomy controllers with pagination helpers and term shaping', async () => {
-		const reporter = createReporter();
-		const workspace = createWorkspace();
+		const reporter = buildReporter();
+		const workspace = buildWorkspace();
 		const context = {
 			workspace,
 			reporter,
@@ -151,7 +151,7 @@ describe('createPhpResourceControllerHelper', () => {
 			queueWrite: jest.fn(),
 		};
 
-		const ir = createIr();
+		const ir = buildIr();
 
 		const applyOptions = {
 			context,
@@ -211,55 +211,7 @@ describe('createPhpResourceControllerHelper', () => {
 	});
 });
 
-function extractClassMethodNames(program: unknown): string[] {
-	if (!Array.isArray(program)) {
-		return [];
-	}
-
-	const namespace = program.find(
-		(node): node is { nodeType: string; stmts?: unknown[] } =>
-			Boolean(
-				node &&
-					typeof node === 'object' &&
-					'nodeType' in (node as Record<string, unknown>) &&
-					(node as { nodeType?: unknown }).nodeType ===
-						'Stmt_Namespace'
-			)
-	);
-
-	const namespaceStmts = Array.isArray(namespace?.stmts)
-		? (namespace!.stmts as unknown[])
-		: program;
-
-	const classNode = namespaceStmts.find(
-		(node): node is { nodeType: string; stmts?: unknown[] } =>
-			Boolean(
-				node &&
-					typeof node === 'object' &&
-					'nodeType' in (node as Record<string, unknown>) &&
-					(node as { nodeType?: unknown }).nodeType === 'Stmt_Class'
-			)
-	);
-
-	if (!classNode || !Array.isArray(classNode.stmts)) {
-		return [];
-	}
-
-	return (classNode.stmts as unknown[])
-		.filter(
-			(stmt): stmt is { nodeType: string; name?: { name?: string } } =>
-				Boolean(
-					stmt &&
-						typeof stmt === 'object' &&
-						'nodeType' in (stmt as Record<string, unknown>) &&
-						(stmt as { nodeType?: unknown }).nodeType ===
-							'Stmt_ClassMethod'
-				)
-		)
-		.map((method) => method.name?.name ?? 'unknown');
-}
-
-describe('createRouteMetadata', () => {
+describe('buildRouteMetadata', () => {
 	it('annotates mutation routes with cache segments and contract tags', () => {
 		const identity: ResolvedIdentity = { type: 'string', param: 'slug' };
 		const resource: IRResource = {
@@ -317,7 +269,7 @@ describe('createRouteMetadata', () => {
 			routes,
 			identity.param
 		);
-		const metadata = createRouteMetadata({
+		const metadata = buildRouteMetadata({
 			routes,
 			identity,
 			canonicalBasePaths,
@@ -392,7 +344,7 @@ describe('createRouteMetadata', () => {
 			routes,
 			identity.param
 		);
-		const metadata = createRouteMetadata({
+		const metadata = buildRouteMetadata({
 			routes,
 			identity,
 			canonicalBasePaths,
@@ -470,7 +422,7 @@ describe('createRouteMetadata', () => {
 			routes,
 			identity.param
 		);
-		const metadata = createRouteMetadata({
+		const metadata = buildRouteMetadata({
 			routes,
 			identity,
 			canonicalBasePaths,
@@ -503,12 +455,12 @@ describe('createRouteMetadata', () => {
 	});
 });
 
-function createIr(): IRv1 {
+function buildIr(): IRv1 {
 	const resource: IRResource = {
 		name: 'books',
 		schemaKey: 'book',
 		schemaProvenance: 'manual',
-		routes: createRoutes(),
+		routes: buildRoutes(),
 		cacheKeys: {
 			list: { segments: ['books', 'list'], source: 'default' },
 			get: { segments: ['books', 'get'], source: 'default' },
@@ -612,7 +564,7 @@ function createIr(): IRv1 {
 	};
 }
 
-function createRoutes(): IRRoute[] {
+function buildRoutes(): IRRoute[] {
 	return [
 		{
 			method: 'GET',

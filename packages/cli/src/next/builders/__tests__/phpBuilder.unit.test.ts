@@ -5,7 +5,7 @@ import { createPhpBuilder } from '../php';
 import type { BuilderOutput } from '../../runtime/types';
 import type { Workspace } from '../../workspace/types';
 
-function createReporter(): Reporter {
+function buildReporter(): Reporter {
 	return {
 		debug: jest.fn(),
 		info: jest.fn(),
@@ -15,7 +15,7 @@ function createReporter(): Reporter {
 	};
 }
 
-function createWorkspace(): Workspace {
+function buildWorkspace(): Workspace {
 	return {
 		root: process.cwd(),
 		cwd: jest.fn(() => process.cwd()),
@@ -49,8 +49,8 @@ const output: BuilderOutput = {
 describe('createPhpBuilder (unit)', () => {
 	it('throws when invoked without an IR during the generate phase', async () => {
 		const builder = createPhpBuilder();
-		const reporter = createReporter();
-		const workspace = createWorkspace();
+		const reporter = buildReporter();
+		const workspace = buildWorkspace();
 
 		await expect(
 			builder.apply(
