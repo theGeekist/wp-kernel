@@ -1,7 +1,7 @@
 import { createReporterMock } from '@wpkernel/test-utils/cli';
 import type { IRPolicyMap } from '../../../ir/types';
 import { KernelError } from '@wpkernel/core/error';
-import { createHelper } from '@wpkernel/core/pipeline';
+import { createHelper } from '../createHelper';
 import { createPipeline } from '../createPipeline';
 import type { KernelConfigV1 } from '../../../config/types';
 import { FIXTURE_CONFIG_PATH } from '../../../ir/test-helpers';
@@ -513,7 +513,7 @@ describe('createPipeline', () => {
 				createHelper({
 					key: 'builder.writer',
 					kind: 'builder',
-					apply({ output }: FragmentApplyOptions) {
+					apply({ output }: BuilderApplyOptions) {
 						output.queueWrite({
 							file: 'generated.txt',
 							contents: 'generated',

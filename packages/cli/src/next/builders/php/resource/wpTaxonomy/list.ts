@@ -36,6 +36,7 @@ import {
 	buildInstanceof,
 	buildScalarCast,
 } from '../utils';
+import { buildReturnIfWpError } from '../errors';
 import { buildListItemsInitialiserStatement } from '../wpPost/list';
 import type { IRResource } from '../../../../../ir/types';
 import {
@@ -165,13 +166,7 @@ export function buildWpTaxonomyListRouteStatements(
 		)
 	);
 
-	const errorGuard = buildIfStatementNode({
-		condition: buildFuncCall(buildName(['is_wp_error']), [
-			buildArg(buildVariable('results')),
-		]),
-		statements: [buildReturn(buildVariable('results'))],
-	});
-	statements.push(errorGuard);
+	statements.push(buildReturnIfWpError(buildVariable('results')));
 	statements.push(buildBlankStatement());
 
 	statements.push(buildListItemsInitialiserStatement());

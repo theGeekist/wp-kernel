@@ -15,7 +15,7 @@ import { createIr } from '../createIr';
 import { withWorkspace } from '../../../../tests/workspace.test-support';
 
 jest.mock('../../builders', () => {
-	const { createHelper } = jest.requireActual('@wpkernel/core/pipeline');
+	const { createHelper } = jest.requireActual('../../runtime');
 	const createStubBuilder = (key: string) =>
 		createHelper({
 			key,

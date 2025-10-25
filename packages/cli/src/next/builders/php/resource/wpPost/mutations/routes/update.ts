@@ -1,18 +1,9 @@
 import {
 	buildArg,
-	buildAssign,
-	buildExpressionStatement,
-	buildFuncCall,
-	buildIdentifier,
 	buildIfStatement,
-	buildMethodCall,
-	buildName,
-	buildReturn,
 	buildScalarBool,
 	buildScalarInt,
-	buildScalarString,
 	buildVariable,
-	makeErrorCodeFactory,
 	type PhpStmt,
 } from '@wpkernel/php-json-ast';
 import { buildIdentityValidationStatements } from '../../identity';
@@ -31,9 +22,16 @@ import {
 	buildBooleanNot,
 	buildInstanceof,
 	buildPropertyFetch,
+	buildMethodCallAssignmentStatement,
+	buildFunctionCallAssignmentStatement,
+	buildMethodCallExpression,
+	buildVariableAssignment,
+	normaliseVariableReference,
 } from '../../../utils';
-import { buildWpErrorReturn } from '../../../errors';
+import { buildWpErrorReturn, buildReturnIfWpError } from '../../../errors';
+import { createRequestParamAssignmentStatement } from '../../../request';
 import type { BuildUpdateRouteStatementsOptions } from './types';
+import { makeErrorCodeFactory } from '../../../../utils';
 
 export function buildUpdateRouteStatements(
 	options: BuildUpdateRouteStatementsOptions
@@ -48,16 +46,11 @@ export function buildUpdateRouteStatements(
 	const statements: PhpStmt[] = [];
 
 	statements.push(
-		buildExpressionStatement(
-			buildAssign(
-				buildVariable(identityVar),
-				buildMethodCall(
-					buildVariable('request'),
-					buildIdentifier('get_param'),
-					[buildArg(buildScalarString(identityVar))]
-				)
-			)
-		)
+		createRequestParamAssignmentStatement({
+			requestVariable: 'request',
+			param: identityVar,
+			targetVariable: identityVar,
+		})
 	);
 
 	const validationStatements = buildIdentityValidationStatements({
@@ -68,16 +61,12 @@ export function buildUpdateRouteStatements(
 	statements.push(...validationStatements);
 
 	statements.push(
-		buildExpressionStatement(
-			buildAssign(
-				buildVariable('post'),
-				buildMethodCall(
-					buildVariable('this'),
-					buildIdentifier(`resolve${options.pascalName}Post`),
-					[buildArg(buildVariable(identityVar))]
-				)
-			)
-		)
+		buildMethodCallAssignmentStatement({
+			variable: 'post',
+			subject: 'this',
+			method: `resolve${options.pascalName}Post`,
+			args: [buildArg(buildVariable(identityVar))],
+		})
 	);
 
 	const notFoundReturn = buildWpErrorReturn({
@@ -92,24 +81,21 @@ export function buildUpdateRouteStatements(
 	);
 
 	statements.push(
-		buildExpressionStatement(
-			buildAssign(
-				buildVariable('post_data'),
-				buildArrayLiteral([
-					{
-						key: 'ID',
-						value: buildPropertyFetch('post', 'ID'),
-					},
-					{
-						key: 'post_type',
-						value: buildMethodCall(
-							buildVariable('this'),
-							buildIdentifier(`get${options.pascalName}PostType`),
-							[]
-						),
-					},
-				])
-			)
+		buildVariableAssignment(
+			normaliseVariableReference('post_data'),
+			buildArrayLiteral([
+				{
+					key: 'ID',
+					value: buildPropertyFetch('post', 'ID'),
+				},
+				{
+					key: 'post_type',
+					value: buildMethodCallExpression({
+						subject: 'this',
+						method: `get${options.pascalName}PostType`,
+					}),
+				},
+			])
 		)
 	);
 
@@ -123,25 +109,17 @@ export function buildUpdateRouteStatements(
 	);
 
 	statements.push(
-		buildExpressionStatement(
-			buildAssign(
-				buildVariable('result'),
-				buildFuncCall(buildName(['wp_update_post']), [
-					buildArg(buildVariable('post_data')),
-					buildArg(buildScalarBool(true)),
-				])
-			)
-		)
+		buildFunctionCallAssignmentStatement({
+			variable: 'result',
+			functionName: 'wp_update_post',
+			args: [
+				buildArg(buildVariable('post_data')),
+				buildArg(buildScalarBool(true)),
+			],
+		})
 	);
 
-	statements.push(
-		buildIfStatement(
-			buildFuncCall(buildName(['is_wp_error']), [
-				buildArg(buildVariable('result')),
-			]),
-			[buildReturn(buildVariable('result'))]
-		)
-	);
+	statements.push(buildReturnIfWpError(buildVariable('result')));
 
 	const updateFailedReturn = buildWpErrorReturn({
 		code: errorCodeFactory('update_failed'),

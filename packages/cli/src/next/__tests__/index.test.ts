@@ -12,16 +12,24 @@ describe('next index exports', () => {
 	it('re-exports builder factories and helpers', async () => {
 		jest.resetModules();
 
-		await jest.unstable_mockModule('../commands/init', () => ({
+		const { unstable_mockModule: unstableMockModule } =
+			jest as typeof jest & {
+				unstable_mockModule: (
+					moduleName: string,
+					factory: () => Record<string, unknown>
+				) => Promise<void>;
+			};
+
+		await unstableMockModule('../commands/init', () => ({
 			createInitCommand: () => createStubCommand('init'),
 		}));
-		await jest.unstable_mockModule('../commands/generate', () => ({
+		await unstableMockModule('../commands/generate', () => ({
 			createGenerateCommand: () => createStubCommand('generate'),
 		}));
-		await jest.unstable_mockModule('../commands/start', () => ({
+		await unstableMockModule('../commands/start', () => ({
 			createStartCommand: () => createStubCommand('start'),
 		}));
-		await jest.unstable_mockModule('../commands/doctor', () => ({
+		await unstableMockModule('../commands/doctor', () => ({
 			createDoctorCommand: () => createStubCommand('doctor'),
 		}));
 
