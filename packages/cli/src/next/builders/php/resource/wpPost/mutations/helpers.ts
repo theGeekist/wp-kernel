@@ -111,7 +111,7 @@ export function syncWpPostMeta(
 		);
 
 		const branchStatements: PhpStmt[] = [
-			...createMetaSanitizerStatements(variableName, descriptor),
+			...buildMetaSanitizerStatements(variableName, descriptor),
 		];
 
 		if (descriptor?.single === false) {
@@ -381,7 +381,7 @@ export function prepareWpPostResponse(
 		);
 
 		statements.push(
-			...createMetaSanitizerStatements(variableName, descriptor)
+			...buildMetaSanitizerStatements(variableName, descriptor)
 		);
 
 		statements.push(
@@ -534,7 +534,7 @@ function appendSupportAssignments(
 	}
 }
 
-function createMetaSanitizerStatements(
+function buildMetaSanitizerStatements(
 	variableName: string,
 	descriptor: WpPostMetaDescriptor
 ): PhpStmt[] {
@@ -569,7 +569,7 @@ function createMetaSanitizerStatements(
 		);
 
 		const foreachStatements: PhpStmt[] = [
-			...createMetaSanitizerValueAssignments('meta_value', descriptor),
+			...buildMetaSanitizerValueAssignments('meta_value', descriptor),
 			buildExpressionStatement(
 				buildAssign(
 					buildArrayDimFetch(
@@ -591,10 +591,10 @@ function createMetaSanitizerStatements(
 		return [ensureArray, normalize, foreach];
 	}
 
-	return createMetaSanitizerValueAssignments(variableName, descriptor);
+	return buildMetaSanitizerValueAssignments(variableName, descriptor);
 }
 
-function createMetaSanitizerValueAssignments(
+function buildMetaSanitizerValueAssignments(
 	variableName: string,
 	descriptor: WpPostMetaDescriptor
 ): PhpStmt[] {

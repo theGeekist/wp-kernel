@@ -10,7 +10,7 @@ import type {
 import type { IRResource, IRRoute } from '../../../../ir/types';
 import type { ResolvedIdentity } from '../identity';
 
-export interface CreateRouteMetadataOptions {
+export interface BuildRouteMetadataOptions {
 	readonly routes: readonly IRRoute[];
 	readonly identity: ResolvedIdentity;
 	readonly canonicalBasePaths: Set<string>;
@@ -19,8 +19,8 @@ export interface CreateRouteMetadataOptions {
 
 export type RouteMetadataKind = ResourceRouteKind | 'custom';
 
-export function createRouteMetadata(
-	options: CreateRouteMetadataOptions
+export function buildRouteMetadata(
+	options: BuildRouteMetadataOptions
 ): ResourceControllerMetadata['routes'] {
 	const { routes, identity, canonicalBasePaths, resource } = options;
 	const mutationContract = resolveMutationContract(resource);
@@ -46,7 +46,7 @@ export function createRouteMetadata(
 		}
 
 		const cacheSegments = resolveMutationCacheSegments(resource, kind);
-		const tags = createMutationTags(mutationContract, mutationKind);
+		const tags = buildMutationTags(mutationContract, mutationKind);
 
 		return {
 			...metadata,
@@ -98,7 +98,7 @@ function resolveMutationCacheSegments(
 	}
 }
 
-function createMutationTags(
+function buildMutationTags(
 	contract: MutationContract,
 	kind: MutationKind
 ): Readonly<Record<string, string>> {

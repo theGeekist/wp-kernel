@@ -31,7 +31,7 @@ import {
 	buildVariableAssignment,
 	buildIfStatementNode,
 } from './utils';
-import { createRequestParamAssignmentStatement } from './request';
+import { buildRequestParamAssignmentStatement } from './request';
 
 export interface QueryArgEntry {
 	readonly key: string;
@@ -43,7 +43,7 @@ export interface QueryArgsAssignmentOptions {
 	readonly entries: readonly QueryArgEntry[];
 }
 
-export function createQueryArgsAssignmentStatement(
+export function buildQueryArgsAssignmentStatement(
 	options: QueryArgsAssignmentOptions
 ): PhpStmtExpression {
 	const { targetVariable, entries } = options;
@@ -67,7 +67,7 @@ export interface PaginationNormalisationOptions {
 	readonly nonPositiveGuard?: number;
 }
 
-export function createPaginationNormalisationStatements(
+export function buildPaginationNormalisationStatements(
 	options: PaginationNormalisationOptions
 ): readonly [PhpStmtExpression, PhpStmtIf, PhpStmtIf] {
 	const {
@@ -80,21 +80,21 @@ export function createPaginationNormalisationStatements(
 	} = options;
 
 	const target = normaliseVariableReference(targetVariable);
-	const assignment = createRequestParamAssignmentStatement({
+	const assignment = buildRequestParamAssignmentStatement({
 		requestVariable,
 		param,
 		targetVariable,
 		cast: 'int',
 	});
 
-	const ensurePositive = createConditionalAssignment({
+	const ensurePositive = buildConditionalAssignment({
 		variable: target,
 		operator: 'SmallerOrEqual',
 		comparison: nonPositiveGuard,
 		assignment: defaultValue,
 	});
 
-	const clampMaximum = createConditionalAssignment({
+	const clampMaximum = buildConditionalAssignment({
 		variable: target,
 		operator: 'Greater',
 		comparison: maximum,
@@ -111,7 +111,7 @@ interface ConditionalAssignmentOptions {
 	readonly assignment: number;
 }
 
-function createConditionalAssignment(
+function buildConditionalAssignment(
 	options: ConditionalAssignmentOptions
 ): PhpStmtIf {
 	const { variable, operator, comparison, assignment } = options;
@@ -137,7 +137,7 @@ export interface PageExpressionOptions {
 	readonly minimum?: number;
 }
 
-export function createPageExpression(
+export function buildPageExpression(
 	options: PageExpressionOptions
 ): PhpValueDescriptor {
 	const { requestVariable, param = 'page', minimum = 1 } = options;
@@ -171,7 +171,7 @@ export interface ExecuteWpQueryOptions {
 	};
 }
 
-export function createWpQueryExecutionStatement(
+export function buildWpQueryExecutionStatement(
 	options: ExecuteWpQueryOptions
 ): PhpStmtExpression {
 	const { target, argsVariable, cache } = options;

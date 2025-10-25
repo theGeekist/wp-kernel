@@ -24,10 +24,10 @@ import {
 } from '@wpkernel/php-json-ast';
 import { appendResourceCacheEvent } from '../cache';
 import {
-	createPaginationNormalisationStatements,
-	createQueryArgsAssignmentStatement,
+	buildPaginationNormalisationStatements,
+	buildQueryArgsAssignmentStatement,
 } from '../query';
-import { createRequestParamAssignmentStatement } from '../request';
+import { buildRequestParamAssignmentStatement } from '../request';
 import { variable } from '../phpValue';
 import {
 	buildArrayDimFetch,
@@ -78,14 +78,14 @@ export function buildWpTaxonomyListRouteStatements(
 	);
 
 	const [perPageAssign, ensurePositive, clampMaximum] =
-		createPaginationNormalisationStatements({
+		buildPaginationNormalisationStatements({
 			requestVariable: '$request',
 			targetVariable: 'per_page',
 		});
 	statements.push(perPageAssign, ensurePositive, clampMaximum);
 	statements.push(buildBlankStatement());
 
-	const pageAssign = createRequestParamAssignmentStatement({
+	const pageAssign = buildRequestParamAssignmentStatement({
 		requestVariable: '$request',
 		param: 'page',
 		targetVariable: 'page',
@@ -108,7 +108,7 @@ export function buildWpTaxonomyListRouteStatements(
 	statements.push(pageGuard);
 	statements.push(buildBlankStatement());
 
-	const queryArgsAssignment = createQueryArgsAssignmentStatement({
+	const queryArgsAssignment = buildQueryArgsAssignmentStatement({
 		targetVariable: 'query_args',
 		entries: [
 			{ key: 'taxonomy', value: variable('taxonomy') },

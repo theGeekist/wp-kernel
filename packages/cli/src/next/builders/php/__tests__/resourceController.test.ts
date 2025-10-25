@@ -2,7 +2,7 @@ import path from 'node:path';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { IRResource, IRRoute, IRv1 } from '../../../../ir/types';
 import { collectCanonicalBasePaths } from '../routes';
-import { createRouteMetadata } from '../resourceController/metadata';
+import { buildRouteMetadata } from '../resourceController/metadata';
 import type { ResolvedIdentity } from '../identity';
 import type { BuilderOutput } from '../../../runtime/types';
 import type { Workspace } from '../../workspace/types';
@@ -211,7 +211,7 @@ describe('createPhpResourceControllerHelper', () => {
 	});
 });
 
-describe('createRouteMetadata', () => {
+describe('buildRouteMetadata', () => {
 	it('annotates mutation routes with cache segments and contract tags', () => {
 		const identity: ResolvedIdentity = { type: 'string', param: 'slug' };
 		const resource: IRResource = {
@@ -269,7 +269,7 @@ describe('createRouteMetadata', () => {
 			routes,
 			identity.param
 		);
-		const metadata = createRouteMetadata({
+		const metadata = buildRouteMetadata({
 			routes,
 			identity,
 			canonicalBasePaths,
@@ -344,7 +344,7 @@ describe('createRouteMetadata', () => {
 			routes,
 			identity.param
 		);
-		const metadata = createRouteMetadata({
+		const metadata = buildRouteMetadata({
 			routes,
 			identity,
 			canonicalBasePaths,
@@ -422,7 +422,7 @@ describe('createRouteMetadata', () => {
 			routes,
 			identity.param
 		);
-		const metadata = createRouteMetadata({
+		const metadata = buildRouteMetadata({
 			routes,
 			identity,
 			canonicalBasePaths,
