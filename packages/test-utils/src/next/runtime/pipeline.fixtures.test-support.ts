@@ -2,17 +2,19 @@
 import type { CreateHelperOptions } from '@wpkernel/core/pipeline';
 import {
 	createHelper,
-	type BuilderHelper,
 	type BuilderInput,
 	type BuilderOutput,
-	type FragmentHelper,
 	type FragmentInput,
 	type FragmentOutput,
+	type Pipeline,
 	type PipelineContext,
-	type PipelineExtension,
 } from '@wpkernel/cli/next/runtime';
 
 type Reporter = PipelineContext['reporter'];
+
+type FragmentHelper = Parameters<Pipeline['ir']['use']>[0];
+type BuilderHelper = Parameters<Pipeline['builders']['use']>[0];
+type PipelineExtension = Parameters<Pipeline['extensions']['use']>[0];
 
 type FragmentHelperOptions = Omit<
 	CreateHelperOptions<

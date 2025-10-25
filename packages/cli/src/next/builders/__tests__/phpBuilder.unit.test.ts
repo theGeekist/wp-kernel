@@ -31,10 +31,10 @@ function buildWorkspace(): Workspace {
 		begin: jest.fn(),
 		commit: jest.fn(async () => ({ writes: [], deletes: [] })),
 		rollback: jest.fn(async () => ({ writes: [], deletes: [] })),
-		dryRun: jest.fn(async (fn) => ({
+		dryRun: async <T>(fn: () => Promise<T>) => ({
 			result: await fn(),
 			manifest: { writes: [], deletes: [] },
-		})),
+		}),
 		tmpDir: jest.fn(async () => '.tmp'),
 		resolve: jest.fn((...parts: string[]) =>
 			path.join(process.cwd(), ...parts)

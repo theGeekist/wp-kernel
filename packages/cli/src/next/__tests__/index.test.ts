@@ -2,7 +2,11 @@ import { Command } from 'clipanion';
 
 function buildStubCommand(name: string) {
 	class Stub extends Command {
-		static override paths = [[name]] as const;
+		static override paths: string[][] = [[name]];
+
+		override async execute(): Promise<void> {
+			return undefined;
+		}
 	}
 
 	return Stub;
