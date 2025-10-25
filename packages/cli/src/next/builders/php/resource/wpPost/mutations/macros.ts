@@ -17,10 +17,8 @@ import {
 	buildNull,
 	type PhpExpr,
 	type PhpExprNew,
-	type PhpMethodBodyBuilder,
 	type PhpStmt,
 } from '@wpkernel/php-json-ast';
-import { formatStatementPrintable } from '../../printer';
 import {
 	buildArrayDimFetch,
 	buildArrayLiteral,
@@ -63,9 +61,6 @@ export function buildPropertyExpression(
 }
 
 interface MacroOptionsBase {
-	readonly body: PhpMethodBodyBuilder;
-	readonly indentLevel: number;
-	readonly indentUnit?: string;
 	readonly metadataKeys: ResourceMutationContract['metadataKeys'];
 }
 
@@ -100,19 +95,19 @@ export interface CachePrimingMacroOptions extends MacroOptionsBase {
 	readonly postVariableName?: string;
 }
 
-export function appendStatusValidationMacro(
+export function buildStatusValidationStatements(
 	options: StatusValidationMacroOptions
-): void {
-	appendMetadataComment(
-		options,
-		options.metadataKeys.channelTag,
-		'status-validation'
-	);
-	appendMetadataComment(
-		options,
-		options.metadataKeys.statusValidation,
-		'normalise'
-	);
+): PhpStmt[] {
+	const statements: PhpStmt[] = [
+		buildMetadataComment(
+			options.metadataKeys.channelTag,
+			'status-validation'
+		),
+		buildMetadataComment(
+			options.metadataKeys.statusValidation,
+			'normalise'
+		),
+	];
 
 	const statusVariable =
 		options.statusVariable ?? buildVariableExpression('status');
@@ -130,7 +125,7 @@ export function appendStatusValidationMacro(
 			)
 		)
 	);
-	appendBodyStatement(options, statusAssign);
+	statements.push(statusAssign);
 
 	const normalisedCall = buildMethodCall(
 		buildVariable('this'),
@@ -150,20 +145,21 @@ export function appendStatusValidationMacro(
 			),
 			[assignment]
 		);
-		appendBodyStatement(options, guard);
-		return;
+		statements.push(guard);
+		return statements;
 	}
 
-	appendBodyStatement(options, assignment);
+	statements.push(assignment);
+	return statements;
 }
 
-export function appendSyncMetaMacro(options: SyncMetaMacroOptions): void {
-	appendMetadataComment(
-		options,
-		options.metadataKeys.channelTag,
-		'sync-meta'
-	);
-	appendMetadataComment(options, options.metadataKeys.syncMeta, 'update');
+export function buildSyncMetaStatements(
+	options: SyncMetaMacroOptions
+): PhpStmt[] {
+	const statements: PhpStmt[] = [
+		buildMetadataComment(options.metadataKeys.channelTag, 'sync-meta'),
+		buildMetadataComment(options.metadataKeys.syncMeta, 'update'),
+	];
 
 	const requestVariable =
 		options.requestVariable ?? buildVariableExpression('request');
@@ -175,22 +171,20 @@ export function appendSyncMetaMacro(options: SyncMetaMacroOptions): void {
 			buildArg(requestVariable.expression),
 		]
 	);
-	appendBodyStatement(options, buildExpressionStatement(call));
+	statements.push(buildExpressionStatement(call));
+	return statements;
 }
 
-export function appendSyncTaxonomiesMacro(
+export function buildSyncTaxonomiesStatements(
 	options: SyncTaxonomiesMacroOptions
-): void {
-	appendMetadataComment(
-		options,
-		options.metadataKeys.channelTag,
-		'sync-taxonomies'
-	);
-	appendMetadataComment(
-		options,
-		options.metadataKeys.syncTaxonomies,
-		'update'
-	);
+): PhpStmt[] {
+	const statements: PhpStmt[] = [
+		buildMetadataComment(
+			options.metadataKeys.channelTag,
+			'sync-taxonomies'
+		),
+		buildMetadataComment(options.metadataKeys.syncTaxonomies, 'update'),
+	];
 
 	const requestVariable =
 		options.requestVariable ?? buildVariableExpression('request');
@@ -207,7 +201,7 @@ export function appendSyncTaxonomiesMacro(
 			)
 		)
 	);
-	appendBodyStatement(options, assign);
+	statements.push(assign);
 
 	const guard = buildIfStatement(
 		buildFuncCall(buildName(['is_wp_error']), [
@@ -215,27 +209,25 @@ export function appendSyncTaxonomiesMacro(
 		]),
 		[buildReturn(options.resultVariable.expression)]
 	);
-	appendBodyStatement(options, guard);
+	statements.push(guard);
+	return statements;
 }
 
-export function appendCachePrimingMacro(
+export function buildCachePrimingStatements(
 	options: CachePrimingMacroOptions
-): void {
-	appendMetadataComment(
-		options,
-		options.metadataKeys.channelTag,
-		'cache-priming'
-	);
-	appendMetadataComment(options, options.metadataKeys.cachePriming, 'prime');
-	appendMetadataComment(options, options.metadataKeys.cacheSegment, 'prime');
+): PhpStmt[] {
+	const statements: PhpStmt[] = [
+		buildMetadataComment(options.metadataKeys.channelTag, 'cache-priming'),
+		buildMetadataComment(options.metadataKeys.cachePriming, 'prime'),
+		buildMetadataComment(options.metadataKeys.cacheSegment, 'prime'),
+	];
 
 	const requestVariable =
 		options.requestVariable ?? buildVariableExpression('request');
 	const postVariableName = options.postVariableName ?? 'post';
 	const postVariable = buildVariableExpression(postVariableName);
 
-	appendBodyStatement(
-		options,
+	statements.push(
 		buildExpressionStatement(
 			buildAssign(
 				postVariable.expression,
@@ -265,7 +257,7 @@ export function appendCachePrimingMacro(
 		buildBooleanNot(buildInstanceof(postVariableName, 'WP_Post')),
 		[buildReturn(failureExpr)]
 	);
-	appendBodyStatement(options, failureGuard);
+	statements.push(failureGuard);
 
 	const responseCall = buildMethodCall(
 		buildVariable('this'),
@@ -275,27 +267,11 @@ export function appendCachePrimingMacro(
 			buildArg(requestVariable.expression),
 		]
 	);
-	appendBodyStatement(options, buildReturn(responseCall));
+	statements.push(buildReturn(responseCall));
+	return statements;
 }
 
-function appendMetadataComment(
-	options: MacroOptionsBase,
-	key: string,
-	value: string
-): void {
+function buildMetadataComment(key: string, value: string): PhpStmt {
 	const text = `// @wp-kernel ${key} ${value}`;
-	const statement = buildStmtNop({ comments: [buildComment(text)] });
-	appendBodyStatement(options, statement);
-}
-
-function appendBodyStatement(
-	options: MacroOptionsBase,
-	statement: PhpStmt
-): void {
-	options.body.statement(
-		formatStatementPrintable(statement, {
-			indentLevel: options.indentLevel,
-			indentUnit: options.indentUnit ?? options.body.getIndentUnit(),
-		})
-	);
+	return buildStmtNop({ comments: [buildComment(text)] });
 }

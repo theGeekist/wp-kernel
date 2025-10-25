@@ -174,7 +174,45 @@ describe('createPhpBuilder', () => {
 		const policyEntry = pending.find(
 			(entry) => entry.metadata.kind === 'policy-helper'
 		);
-		expect(policyEntry?.statements).toContain('final class Policy');
+		expect(policyEntry).toBeDefined();
+		expect(policyEntry?.statements).toHaveLength(0);
+
+		const namespaceNode = policyEntry?.program.find(
+			(stmt) => stmt?.nodeType === 'Stmt_Namespace'
+		) as { stmts?: unknown[] } | undefined;
+		expect(namespaceNode).toBeDefined();
+
+		const classNode = namespaceNode?.stmts?.find(
+			(stmt: any) => stmt?.nodeType === 'Stmt_Class'
+		) as { stmts?: unknown[]; name?: { name?: string } } | undefined;
+		expect(classNode?.name?.name).toBe('Policy');
+
+		const methodNames =
+			classNode?.stmts
+				?.filter((stmt: any) => stmt?.nodeType === 'Stmt_ClassMethod')
+				.map((method: any) => method?.name?.name) ?? [];
+		expect(methodNames).toEqual([
+			'policy_map',
+			'fallback',
+			'callback',
+			'enforce',
+		]);
+
+		const enforceMethod = classNode?.stmts?.find(
+			(stmt: any) =>
+				stmt?.nodeType === 'Stmt_ClassMethod' &&
+				stmt?.name?.name === 'enforce'
+		) as { stmts?: any[] } | undefined;
+		expect(enforceMethod?.stmts?.[0]?.nodeType).toBe('Stmt_Nop');
+		expect(
+			enforceMethod?.stmts?.[0]?.attributes?.comments?.[0]?.text
+		).toContain('TODO: Implement policy enforcement logic');
+
+		const enforceReturn = enforceMethod?.stmts?.find(
+			(stmt: any) => stmt?.nodeType === 'Stmt_Return'
+		);
+		expect(enforceReturn?.expr?.nodeType).toBe('Expr_New');
+		expect(enforceReturn?.expr?.class?.parts).toEqual(['WP_Error']);
 
 		const indexEntry = pending.find(
 			(entry) => entry.metadata.kind === 'index-file'

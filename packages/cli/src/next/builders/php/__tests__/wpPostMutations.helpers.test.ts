@@ -69,61 +69,61 @@ describe('wp-post mutation helpers', () => {
 	it('returns early when no meta fields are configured', () => {
 		const resource = createResource({ meta: {} });
 
-		const template = syncWpPostMeta({
+		const method = syncWpPostMeta({
 			resource,
 			pascalName: 'Book',
 			identity: IDENTITY,
 		});
 
-		expect(template.join('\n')).toMatchSnapshot('meta-empty-output');
+		expect(method).toMatchSnapshot('meta-empty-output');
 	});
 
 	it('sanitises meta payloads for all supported descriptor types', () => {
 		const resource = createResource();
 
-		const template = syncWpPostMeta({
+		const method = syncWpPostMeta({
 			resource,
 			pascalName: 'Book',
 			identity: IDENTITY,
 		});
 
-		expect(template.join('\n')).toMatchSnapshot('meta-sanitizers-output');
+		expect(method).toMatchSnapshot('meta-sanitizers-output');
 	});
 
 	it('wraps taxonomy assignments with result checks', () => {
 		const resource = createResource();
 
-		const template = syncWpPostTaxonomies({
+		const method = syncWpPostTaxonomies({
 			resource,
 			pascalName: 'Book',
 			identity: IDENTITY,
 		});
 
-		expect(template.join('\n')).toMatchSnapshot('taxonomy-sync-output');
+		expect(method).toMatchSnapshot('taxonomy-sync-output');
 	});
 
 	it('returns early when no taxonomies are configured', () => {
 		const resource = createResource({ taxonomies: {} });
 
-		const template = syncWpPostTaxonomies({
+		const method = syncWpPostTaxonomies({
 			resource,
 			pascalName: 'Book',
 			identity: IDENTITY,
 		});
 
-		expect(template.join('\n')).toMatchSnapshot('taxonomy-empty-output');
+		expect(method).toMatchSnapshot('taxonomy-empty-output');
 	});
 
 	it('prepares mutation responses with supports, meta, and taxonomies', () => {
 		const resource = createResource();
 
-		const template = prepareWpPostResponse({
+		const method = prepareWpPostResponse({
 			resource,
 			pascalName: 'Book',
 			identity: IDENTITY,
 		});
 
-		expect(template.join('\n')).toMatchSnapshot('prepare-response-output');
+		expect(method).toMatchSnapshot('prepare-response-output');
 	});
 
 	it('omits slug and support-specific fields when not configured', () => {
@@ -136,19 +136,36 @@ describe('wp-post mutation helpers', () => {
 			identity: { type: 'number', param: 'post_id' },
 		};
 
-		const template = prepareWpPostResponse({
+		const method = prepareWpPostResponse({
 			resource,
 			pascalName: 'Book',
 			identity: { type: 'number', param: 'post_id' },
 		});
 
-		const output = template.join('\n');
+		const assignedKeys = new Set(
+			method.stmts.flatMap((statement) => {
+				if (
+					statement.nodeType === 'Stmt_Expression' &&
+					statement.expr.nodeType === 'Expr_Assign'
+				) {
+					const { var: target } = statement.expr;
+					if (
+						target.nodeType === 'Expr_ArrayDimFetch' &&
+						target.var.nodeType === 'Expr_Variable' &&
+						target.var.name === 'data' &&
+						target.dim?.nodeType === 'Scalar_String'
+					) {
+						return [target.dim.value];
+					}
+				}
 
-		expect(output).toContain("'id' => (int) $post->ID");
-		expect(output).toContain("'status' => (string) $post->post_status");
-		expect(output).not.toContain('post_name');
-		expect(output).not.toContain("$data['title']");
-		expect(output).not.toContain("$data['content']");
-		expect(output).not.toContain("$data['excerpt']");
+				return [];
+			})
+		);
+
+		expect(assignedKeys.has('slug')).toBe(false);
+		expect(assignedKeys.has('title')).toBe(false);
+		expect(assignedKeys.has('content')).toBe(false);
+		expect(assignedKeys.has('excerpt')).toBe(false);
 	});
 });

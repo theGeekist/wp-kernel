@@ -15,8 +15,9 @@ import {
 	buildScalarInt,
 	buildScalarString,
 	buildVariable,
+	type PhpStmt,
 	type PhpStmtContinue,
-	type PhpMethodBodyBuilder,
+	type PhpStmtForeach,
 	type ResourceMetadataHost,
 } from '@wpkernel/php-json-ast';
 import { appendResourceCacheEvent } from '../cache';
@@ -25,22 +26,22 @@ import {
 	createQueryArgsAssignmentStatement,
 } from '../query';
 import { createRequestParamAssignmentStatement } from '../request';
+import { variable } from '../phpValue';
 import {
 	buildArrayDimFetch,
 	buildArrayInitialiserStatement,
 	buildBinaryOperation,
-	buildForeachStatement,
 	buildIfStatementNode,
 	buildInstanceof,
 	buildScalarCast,
 	buildVariableAssignment,
 	normaliseVariableReference,
 } from '../utils';
-import { variable } from '../phpValue';
+import { buildListItemsInitialiserStatement } from '../wpPost/list';
 import type { IRResource } from '../../../../../ir/types';
 import {
 	buildPrepareTaxonomyTermResponseCall,
-	createTaxonomyAssignmentStatement,
+	buildTaxonomyAssignmentStatement,
 } from './helpers';
 import { buildWpTermQueryInstantiation } from '@wpkernel/php-json-ast';
 
@@ -49,18 +50,16 @@ type WpTaxonomyStorage = Extract<
 	{ mode: 'wp-taxonomy' }
 >;
 
-export interface BuildWpTaxonomyListRouteBodyOptions {
-	readonly body: PhpMethodBodyBuilder;
-	readonly indentLevel: number;
+export interface BuildWpTaxonomyListRouteStatementsOptions {
 	readonly resource: IRResource;
 	readonly pascalName: string;
 	readonly metadataHost: ResourceMetadataHost;
 	readonly cacheSegments: readonly unknown[];
 }
 
-export function buildWpTaxonomyListRouteBody(
-	options: BuildWpTaxonomyListRouteBodyOptions
-): boolean {
+export function buildWpTaxonomyListRouteStatements(
+	options: BuildWpTaxonomyListRouteStatementsOptions
+): PhpStmt[] {
 	ensureStorage(options.resource);
 
 	appendResourceCacheEvent({
@@ -71,8 +70,10 @@ export function buildWpTaxonomyListRouteBody(
 		description: 'List terms query',
 	});
 
-	options.body.statementNode(
-		createTaxonomyAssignmentStatement({
+	const statements: PhpStmt[] = [];
+
+	statements.push(
+		buildTaxonomyAssignmentStatement({
 			pascalName: options.pascalName,
 		})
 	);
@@ -82,47 +83,45 @@ export function buildWpTaxonomyListRouteBody(
 			requestVariable: '$request',
 			targetVariable: 'per_page',
 		});
-	options.body.statementNode(perPageAssign);
-	options.body.statementNode(ensurePositive);
-	options.body.statementNode(clampMaximum);
+	statements.push(perPageAssign, ensurePositive, clampMaximum);
+	statements.push(buildBlankStatement());
 
-	options.body.statementNode(
-		createRequestParamAssignmentStatement({
-			requestVariable: '$request',
-			param: 'page',
-			targetVariable: 'page',
-			cast: 'int',
-		})
-	);
+	const pageAssign = createRequestParamAssignmentStatement({
+		requestVariable: '$request',
+		param: 'page',
+		targetVariable: 'page',
+		cast: 'int',
+	});
+	statements.push(pageAssign);
 
-	options.body.statementNode(
-		buildIfStatementNode({
-			condition: buildBinaryOperation(
-				'SmallerOrEqual',
-				buildVariable('page'),
-				buildScalarInt(0)
+	const pageGuard = buildIfStatementNode({
+		condition: buildBinaryOperation(
+			'SmallerOrEqual',
+			buildVariable('page'),
+			buildScalarInt(0)
+		),
+		statements: [
+			buildExpressionStatement(
+				buildAssign(buildVariable('page'), buildScalarInt(1))
 			),
-			statements: [
-				buildVariableAssignment(
-					normaliseVariableReference('page'),
-					buildScalarInt(1)
-				),
-			],
-		})
-	);
+		],
+	});
+	statements.push(pageGuard);
+	statements.push(buildBlankStatement());
 
-	const queryArgs = createQueryArgsAssignmentStatement({
+	const queryArgsAssignment = createQueryArgsAssignmentStatement({
 		targetVariable: 'query_args',
 		entries: [
 			{ key: 'taxonomy', value: variable('taxonomy') },
 			{ key: 'hide_empty', value: false },
 		],
 	});
-	options.body.statementNode(queryArgs);
+	statements.push(queryArgsAssignment);
+	statements.push(buildBlankStatement());
 
-	appendExtraArgsMerge(options);
+	statements.push(...buildExtraArgsMergeStatements());
 
-	options.body.statementNode(
+	statements.push(
 		buildExpressionStatement(
 			buildAssign(
 				buildArrayDimFetch('query_args', buildScalarString('number')),
@@ -130,59 +129,67 @@ export function buildWpTaxonomyListRouteBody(
 			)
 		)
 	);
-
-	const offsetExpression = buildBinaryOperation(
-		'Mul',
-		buildBinaryOperation('Minus', buildVariable('page'), buildScalarInt(1)),
-		buildVariable('per_page')
-	);
-	options.body.statementNode(
+	statements.push(
 		buildExpressionStatement(
 			buildAssign(
 				buildArrayDimFetch('query_args', buildScalarString('offset')),
-				offsetExpression
+				buildBinaryOperation(
+					'Mul',
+					buildBinaryOperation(
+						'Minus',
+						buildVariable('page'),
+						buildScalarInt(1)
+					),
+					buildVariable('per_page')
+				)
+			)
+		)
+	);
+	statements.push(buildBlankStatement());
+
+	statements.push(buildTermQueryInstantiation('term_query', 'query_args'));
+
+	statements.push(
+		buildExpressionStatement(
+			buildAssign(
+				buildVariable('results'),
+				buildMethodCall(
+					buildVariable('term_query'),
+					buildIdentifier('query'),
+					[buildArg(buildVariable('query_args'))]
+				)
 			)
 		)
 	);
 
-	options.body.statementNode(
-		buildWpTermQueryInstantiation({ target: 'term_query' })
-	);
+	const errorGuard = buildIfStatementNode({
+		condition: buildFuncCall(buildName(['is_wp_error']), [
+			buildArg(buildVariable('results')),
+		]),
+		statements: [buildReturn(buildVariable('results'))],
+	});
+	statements.push(errorGuard);
+	statements.push(buildBlankStatement());
 
-	options.body.statementNode(
-		buildVariableAssignment(
-			normaliseVariableReference('results'),
-			buildMethodCall(
-				buildVariable('term_query'),
-				buildIdentifier('query'),
-				[buildArg(buildVariable('query_args'))]
-			)
-		)
-	);
+	statements.push(buildListItemsInitialiserStatement());
 
-	options.body.statementNode(
-		buildIfStatementNode({
-			condition: buildFuncCall(buildName(['is_wp_error']), [
-				buildArg(buildVariable('results')),
-			]),
-			statements: [buildReturn(buildVariable('results'))],
+	statements.push(
+		buildResultsForeach({
+			pascalName: options.pascalName,
 		})
 	);
+	statements.push(buildBlankStatement());
 
-	options.body.statementNode(
-		buildArrayInitialiserStatement({ variable: 'items' })
-	);
-
-	options.body.statementNode(buildResultsForeach(options.pascalName));
-
-	options.body.statementNode(
-		buildVariableAssignment(
-			normaliseVariableReference('count_query_args'),
-			buildVariable('query_args')
+	statements.push(
+		buildExpressionStatement(
+			buildAssign(
+				buildVariable('count_query_args'),
+				buildVariable('query_args')
+			)
 		)
 	);
 
-	options.body.statementNode(
+	statements.push(
 		buildExpressionStatement(
 			buildAssign(
 				buildArrayDimFetch(
@@ -194,7 +201,7 @@ export function buildWpTaxonomyListRouteBody(
 		)
 	);
 
-	options.body.statementNode(
+	statements.push(
 		buildExpressionStatement(
 			buildAssign(
 				buildArrayDimFetch(
@@ -206,7 +213,7 @@ export function buildWpTaxonomyListRouteBody(
 		)
 	);
 
-	options.body.statementNode(
+	statements.push(
 		buildExpressionStatement(
 			buildAssign(
 				buildArrayDimFetch(
@@ -217,20 +224,23 @@ export function buildWpTaxonomyListRouteBody(
 			)
 		)
 	);
+	statements.push(buildBlankStatement());
 
-	options.body.statementNode(
-		buildWpTermQueryInstantiation({ target: 'count_query' })
+	statements.push(
+		buildTermQueryInstantiation('count_query', 'count_query_args')
 	);
 
-	options.body.statementNode(
-		buildVariableAssignment(
-			normaliseVariableReference('total'),
-			buildScalarCast(
-				'int',
-				buildMethodCall(
-					buildVariable('count_query'),
-					buildIdentifier('query'),
-					[buildArg(buildVariable('count_query_args'))]
+	statements.push(
+		buildExpressionStatement(
+			buildAssign(
+				buildVariable('total'),
+				buildScalarCast(
+					'int',
+					buildMethodCall(
+						buildVariable('count_query'),
+						buildIdentifier('query'),
+						[buildArg(buildVariable('count_query_args'))]
+					)
 				)
 			)
 		)
@@ -251,15 +261,14 @@ export function buildWpTaxonomyListRouteBody(
 			),
 		])
 	);
-
-	options.body.statementNode(
-		buildVariableAssignment(
-			normaliseVariableReference('pages'),
-			pagesExpression
+	statements.push(
+		buildExpressionStatement(
+			buildAssign(buildVariable('pages'), pagesExpression)
 		)
 	);
+	statements.push(buildBlankStatement());
 
-	options.body.statementNode(
+	statements.push(
 		buildReturn(
 			buildArray([
 				buildArrayItem(buildVariable('items'), {
@@ -275,19 +284,21 @@ export function buildWpTaxonomyListRouteBody(
 		)
 	);
 
-	return true;
+	return statements;
 }
 
-function appendExtraArgsMerge(options: {
-	readonly body: PhpMethodBodyBuilder;
-}): void {
-	options.body.statementNode(
-		buildVariableAssignment(
-			normaliseVariableReference('extra_args'),
-			buildMethodCall(
-				buildVariable('request'),
-				buildIdentifier('get_params'),
-				[]
+function buildExtraArgsMergeStatements(): PhpStmt[] {
+	const statements: PhpStmt[] = [];
+
+	statements.push(
+		buildExpressionStatement(
+			buildAssign(
+				buildVariable('extra_args'),
+				buildMethodCall(
+					buildVariable('request'),
+					buildIdentifier('get_params'),
+					[]
+				)
 			)
 		)
 	);
@@ -299,58 +310,84 @@ function appendExtraArgsMerge(options: {
 		buildArrayItem(buildScalarString('hide_empty')),
 	]);
 
-	const continueStatement = buildNode<PhpStmtContinue>('Stmt_Continue', {
+	const guard = buildIfStatementNode({
+		condition: buildFuncCall(buildName(['in_array']), [
+			buildArg(buildVariable('key')),
+			buildArg(skipArray),
+			buildArg(buildScalarBool(true)),
+		]),
+		statements: [buildContinueStatement()],
+	});
+
+	const assign = buildExpressionStatement(
+		buildAssign(
+			buildArrayDimFetch('query_args', buildVariable('key')),
+			buildVariable('value')
+		)
+	);
+
+	statements.push(
+		buildNode<PhpStmtForeach>('Stmt_Foreach', {
+			expr: buildVariable('extra_args'),
+			valueVar: buildVariable('value'),
+			keyVar: buildVariable('key'),
+			byRef: false,
+			stmts: [guard, assign],
+		})
+	);
+
+	statements.push(buildBlankStatement());
+
+	return statements;
+}
+
+function buildResultsForeach(options: {
+	readonly pascalName: string;
+}): PhpStmtForeach {
+	const appendStatement = buildExpressionStatement(
+		buildAssign(
+			buildArrayDimFetch('items', null),
+			buildPrepareTaxonomyTermResponseCall(options.pascalName, 'term')
+		)
+	);
+
+	const guard = buildIfStatementNode({
+		condition: buildInstanceof('term', 'WP_Term'),
+		statements: [appendStatement],
+	});
+
+	return buildNode<PhpStmtForeach>('Stmt_Foreach', {
+		expr: buildVariable('results'),
+		valueVar: buildVariable('term'),
+		keyVar: null,
+		byRef: false,
+		stmts: [guard],
+	});
+
+function buildTermQueryInstantiation(
+	target: string,
+	argsVariable?: string
+): PhpStmt {
+	return buildExpressionStatement(
+		buildAssign(
+			buildVariable(target),
+			buildNode('Expr_New', {
+				class: buildName(['WP_Term_Query']),
+				args: argsVariable
+					? [buildArg(buildVariable(argsVariable))]
+					: [],
+			})
+		)
+	);
+}
+
+function buildContinueStatement(): PhpStmtContinue {
+	return buildNode<PhpStmtContinue>('Stmt_Continue', {
 		num: null,
 	});
 
-	const foreach = buildForeachStatement({
-		iterable: buildVariable('extra_args'),
-		key: 'key',
-		value: 'value',
-		statements: [
-			buildIfStatementNode({
-				condition: buildFuncCall(buildName(['in_array']), [
-					buildArg(buildVariable('key')),
-					buildArg(skipArray),
-					buildArg(buildScalarBool(true)),
-				]),
-				statements: [continueStatement],
-			}),
-			buildExpressionStatement(
-				buildAssign(
-					buildArrayDimFetch('query_args', buildVariable('key')),
-					buildVariable('value')
-				)
-			),
-		],
-	});
-
-	options.body.statementNode(foreach);
-}
-
-function buildResultsForeach(pascalName: string) {
-	const foreach = buildForeachStatement({
-		iterable: buildVariable('results'),
-		value: 'term',
-		statements: [
-			buildIfStatementNode({
-				condition: buildInstanceof('term', 'WP_Term'),
-				statements: [
-					buildExpressionStatement(
-						buildAssign(
-							buildArrayDimFetch('items', null),
-							buildPrepareTaxonomyTermResponseCall(
-								pascalName,
-								'term'
-							)
-						)
-					),
-				],
-			}),
-		],
-	});
-
-	return foreach;
+function buildBlankStatement(): PhpStmt {
+	return buildNode<PhpStmt>('Stmt_Nop', {});
 }
 
 function ensureStorage(resource: IRResource): WpTaxonomyStorage {

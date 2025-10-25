@@ -14,31 +14,31 @@ import {
 	makeErrorCodeFactory,
 	type PhpStmt,
 } from '@wpkernel/php-json-ast';
-import { formatStatementPrintable } from '../../../printer';
 import {
-	appendCachePrimingMacro,
-	appendStatusValidationMacro,
-	appendSyncMetaMacro,
-	appendSyncTaxonomiesMacro,
+	buildCachePrimingStatements,
+	buildStatusValidationStatements,
+	buildSyncMetaStatements,
+	buildSyncTaxonomiesStatements,
 	buildArrayDimExpression,
 	buildVariableExpression,
 } from '../macros';
 import { buildArrayLiteral, buildBinaryOperation } from '../../../utils';
 import { buildWpErrorReturn } from '../../../errors';
-import type { BuildCreateRouteBodyOptions } from './types';
+import type { BuildCreateRouteStatementsOptions } from './types';
 
-export function buildCreateRouteBody(
-	options: BuildCreateRouteBodyOptions
-): boolean {
+export function buildCreateRouteStatements(
+	options: BuildCreateRouteStatementsOptions
+): PhpStmt[] | null {
 	const storage = options.resource.storage;
 	if (!storage || storage.mode !== 'wp-post') {
-		return false;
+		return null;
 	}
 
 	const errorCodeFactory = makeErrorCodeFactory(options.resource.name);
 
-	appendStatement(
-		options,
+	const statements: PhpStmt[] = [];
+
+	statements.push(
 		buildExpressionStatement(
 			buildAssign(
 				buildVariable('post_type'),
@@ -50,10 +50,8 @@ export function buildCreateRouteBody(
 			)
 		)
 	);
-	options.body.blank();
 
-	appendStatement(
-		options,
+	statements.push(
 		buildExpressionStatement(
 			buildAssign(
 				buildVariable('post_data'),
@@ -67,17 +65,15 @@ export function buildCreateRouteBody(
 		)
 	);
 
-	appendStatusValidationMacro({
-		body: options.body,
-		indentLevel: options.indentLevel,
-		metadataKeys: options.metadataKeys,
-		pascalName: options.pascalName,
-		target: buildArrayDimExpression('post_data', 'post_status'),
-	});
-	options.body.blank();
+	statements.push(
+		...buildStatusValidationStatements({
+			metadataKeys: options.metadataKeys,
+			pascalName: options.pascalName,
+			target: buildArrayDimExpression('post_data', 'post_status'),
+		})
+	);
 
-	appendStatement(
-		options,
+	statements.push(
 		buildExpressionStatement(
 			buildAssign(
 				buildVariable('post_id'),
@@ -89,8 +85,7 @@ export function buildCreateRouteBody(
 		)
 	);
 
-	appendStatement(
-		options,
+	statements.push(
 		buildIfStatement(
 			buildFuncCall(buildName(['is_wp_error']), [
 				buildArg(buildVariable('post_id')),
@@ -105,8 +100,7 @@ export function buildCreateRouteBody(
 		status: 500,
 	});
 
-	appendStatement(
-		options,
+	statements.push(
 		buildIfStatement(
 			buildBinaryOperation(
 				'Identical',
@@ -116,46 +110,33 @@ export function buildCreateRouteBody(
 			[insertFailedReturn]
 		)
 	);
-	options.body.blank();
 
-	appendSyncMetaMacro({
-		body: options.body,
-		indentLevel: options.indentLevel,
-		metadataKeys: options.metadataKeys,
-		pascalName: options.pascalName,
-		postId: buildVariableExpression('post_id'),
-	});
-
-	appendSyncTaxonomiesMacro({
-		body: options.body,
-		indentLevel: options.indentLevel,
-		metadataKeys: options.metadataKeys,
-		pascalName: options.pascalName,
-		postId: buildVariableExpression('post_id'),
-		resultVariable: buildVariableExpression('taxonomy_result'),
-	});
-
-	appendCachePrimingMacro({
-		body: options.body,
-		indentLevel: options.indentLevel,
-		metadataKeys: options.metadataKeys,
-		pascalName: options.pascalName,
-		postId: buildVariableExpression('post_id'),
-		errorCode: errorCodeFactory('load_failed'),
-		failureMessage: `Unable to load created ${options.pascalName}.`,
-	});
-
-	return true;
-}
-
-function appendStatement(
-	options: BuildCreateRouteBodyOptions,
-	statement: PhpStmt
-): void {
-	options.body.statement(
-		formatStatementPrintable(statement, {
-			indentLevel: options.indentLevel,
-			indentUnit: options.body.getIndentUnit(),
+	statements.push(
+		...buildSyncMetaStatements({
+			metadataKeys: options.metadataKeys,
+			pascalName: options.pascalName,
+			postId: buildVariableExpression('post_id'),
 		})
 	);
+
+	statements.push(
+		...buildSyncTaxonomiesStatements({
+			metadataKeys: options.metadataKeys,
+			pascalName: options.pascalName,
+			postId: buildVariableExpression('post_id'),
+			resultVariable: buildVariableExpression('taxonomy_result'),
+		})
+	);
+
+	statements.push(
+		...buildCachePrimingStatements({
+			metadataKeys: options.metadataKeys,
+			pascalName: options.pascalName,
+			postId: buildVariableExpression('post_id'),
+			errorCode: errorCodeFactory('load_failed'),
+			failureMessage: `Unable to load created ${options.pascalName}.`,
+		})
+	);
+
+	return statements;
 }

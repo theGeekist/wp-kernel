@@ -1,1221 +1,685 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`wp-post mutation macros appends status validation without guard: status-validation-macro 1`] = `
+exports[`wp-post mutation macros builds cache priming statements with failure guard: cache-priming 1`] = `
 [
   {
     "attributes": {
-      "endFilePos": 31,
-      "endLine": 3,
-      "endTokenPos": 31,
-      "startFilePos": 7,
-      "startLine": 3,
-      "startTokenPos": 7,
+      "comments": [
+        {
+          "nodeType": "Comment",
+          "text": "// @wp-kernel resource.wpPost.mutation cache-priming",
+        },
+      ],
     },
-    "declares": [
-      {
-        "attributes": {},
-        "key": {
-          "attributes": {},
-          "name": "strict_types",
-          "nodeType": "Identifier",
-        },
-        "nodeType": "DeclareItem",
-        "value": {
-          "attributes": {},
-          "nodeType": "Scalar_LNumber",
-          "value": 1,
-        },
-      },
-    ],
-    "nodeType": "Stmt_Declare",
-    "stmts": null,
+    "nodeType": "Stmt_Nop",
   },
   {
     "attributes": {
-      "endFilePos": 451,
-      "endLine": 18,
-      "endTokenPos": 451,
-      "startFilePos": 33,
-      "startLine": 5,
-      "startTokenPos": 33,
-    },
-    "name": {
-      "attributes": {},
-      "nodeType": "Name",
-      "parts": [
-        "Demo",
-        "Rest",
+      "comments": [
+        {
+          "nodeType": "Comment",
+          "text": "// @wp-kernel mutation:cache prime",
+        },
       ],
     },
-    "nodeType": "Stmt_Namespace",
-    "stmts": [
-      {
-        "attributes": {
-          "comments": [
-            {
-              "nodeType": "Comment",
-              "text": "// WPK:BEGIN AUTO",
-            },
-          ],
-          "endFilePos": 72,
-          "endLine": 7,
-          "endTokenPos": 72,
-          "startFilePos": 55,
-          "startLine": 7,
-          "startTokenPos": 55,
+    "nodeType": "Stmt_Nop",
+  },
+  {
+    "attributes": {
+      "comments": [
+        {
+          "nodeType": "Comment",
+          "text": "// @wp-kernel cache:wp-post prime",
         },
-        "nodeType": "Stmt_Nop",
-      },
-      {
-        "attrGroups": [],
-        "attributes": {
-          "endFilePos": 435,
-          "endLine": 17,
-          "endTokenPos": 435,
-          "startFilePos": 73,
-          "startLine": 8,
-          "startTokenPos": 73,
-        },
-        "extends": null,
-        "flags": 0,
-        "implements": [],
-        "name": {
-          "attributes": {},
-          "name": "MacroHarness",
-          "nodeType": "Identifier",
-        },
-        "namespacedName": null,
-        "nodeType": "Stmt_Class",
-        "stmts": [
+      ],
+    },
+    "nodeType": "Stmt_Nop",
+  },
+  {
+    "attributes": {},
+    "expr": {
+      "attributes": {},
+      "expr": {
+        "args": [
           {
-            "attrGroups": [],
             "attributes": {},
             "byRef": false,
-            "flags": 0,
-            "name": {
+            "name": null,
+            "nodeType": "Arg",
+            "unpack": false,
+            "value": {
               "attributes": {},
-              "name": "invoke",
-              "nodeType": "Identifier",
+              "name": "post_id",
+              "nodeType": "Expr_Variable",
             },
-            "nodeType": "Stmt_ClassMethod",
-            "params": [],
-            "returnType": null,
-            "stmts": [
-              {
-                "attributes": {
-                  "comments": [
-                    {
-                      "nodeType": "Comment",
-                      "text": "// @wp-kernel resource.wpPost.mutation status-validation",
-                    },
-                  ],
-                },
-                "nodeType": "Stmt_Nop",
-              },
-              {
-                "attributes": {
-                  "comments": [
-                    {
-                      "nodeType": "Comment",
-                      "text": "// @wp-kernel mutation:status normalise",
-                    },
-                  ],
-                },
-                "nodeType": "Stmt_Nop",
-              },
-              {
-                "attributes": {},
-                "expr": {
-                  "attributes": {},
-                  "expr": {
-                    "args": [
-                      {
-                        "attributes": {},
-                        "byRef": false,
-                        "name": null,
-                        "nodeType": "Arg",
-                        "unpack": false,
-                        "value": {
-                          "attributes": {},
-                          "nodeType": "Scalar_String",
-                          "value": "status",
-                        },
-                      },
-                    ],
-                    "attributes": {},
-                    "name": {
-                      "attributes": {},
-                      "name": "get_param",
-                      "nodeType": "Identifier",
-                    },
-                    "nodeType": "Expr_MethodCall",
-                    "var": {
-                      "attributes": {},
-                      "name": "request",
-                      "nodeType": "Expr_Variable",
-                    },
-                  },
-                  "nodeType": "Expr_Assign",
-                  "var": {
-                    "attributes": {},
-                    "name": "status",
-                    "nodeType": "Expr_Variable",
-                  },
-                },
-                "nodeType": "Stmt_Expression",
-              },
-              {
-                "attributes": {},
-                "expr": {
-                  "attributes": {},
-                  "expr": {
-                    "args": [
-                      {
-                        "attributes": {},
-                        "byRef": false,
-                        "name": null,
-                        "nodeType": "Arg",
-                        "unpack": false,
-                        "value": {
-                          "attributes": {},
-                          "name": "status",
-                          "nodeType": "Expr_Variable",
-                        },
-                      },
-                    ],
-                    "attributes": {},
-                    "name": {
-                      "attributes": {},
-                      "name": "normaliseBooksStatus",
-                      "nodeType": "Identifier",
-                    },
-                    "nodeType": "Expr_MethodCall",
-                    "var": {
-                      "attributes": {},
-                      "name": "this",
-                      "nodeType": "Expr_Variable",
-                    },
-                  },
-                  "nodeType": "Expr_Assign",
-                  "var": {
-                    "attributes": {},
-                    "name": "post_status",
-                    "nodeType": "Expr_Variable",
-                  },
-                },
-                "nodeType": "Stmt_Expression",
-              },
-            ],
           },
         ],
-      },
-      {
-        "attributes": {
-          "comments": [
-            {
-              "nodeType": "Comment",
-              "text": "// WPK:END AUTO",
-            },
-          ],
-          "endFilePos": 451,
-          "endLine": 18,
-          "endTokenPos": 451,
-          "startFilePos": 436,
-          "startLine": 18,
-          "startTokenPos": 436,
-        },
-        "nodeType": "Stmt_Nop",
-      },
-    ],
-  },
-]
-`;
-
-exports[`wp-post mutation macros appends status validation without guard: status-validation-statements 1`] = `
-[
-  "class MacroHarness",
-  "{",
-  "        public function invoke( WP_REST_Request $request ): void",
-  "        {",
-  "                // @wp-kernel resource.wpPost.mutation status-validation",
-  "                // @wp-kernel mutation:status normalise",
-  "                $status = $request->get_param('status');",
-  "                $post_status = $this->normaliseBooksStatus($status);",
-  "        }",
-  "}",
-]
-`;
-
-exports[`wp-post mutation macros guards status validation when null checks are enabled: status-validation-guarded-macro 1`] = `
-[
-  {
-    "attributes": {
-      "endFilePos": 31,
-      "endLine": 3,
-      "endTokenPos": 31,
-      "startFilePos": 7,
-      "startLine": 3,
-      "startTokenPos": 7,
-    },
-    "declares": [
-      {
         "attributes": {},
-        "key": {
-          "attributes": {},
-          "name": "strict_types",
-          "nodeType": "Identifier",
-        },
-        "nodeType": "DeclareItem",
-        "value": {
-          "attributes": {},
-          "nodeType": "Scalar_LNumber",
-          "value": 1,
-        },
-      },
-    ],
-    "nodeType": "Stmt_Declare",
-    "stmts": null,
-  },
-  {
-    "attributes": {
-      "endFilePos": 530,
-      "endLine": 20,
-      "endTokenPos": 530,
-      "startFilePos": 33,
-      "startLine": 5,
-      "startTokenPos": 33,
-    },
-    "name": {
-      "attributes": {},
-      "nodeType": "Name",
-      "parts": [
-        "Demo",
-        "Rest",
-      ],
-    },
-    "nodeType": "Stmt_Namespace",
-    "stmts": [
-      {
-        "attributes": {
-          "comments": [
-            {
-              "nodeType": "Comment",
-              "text": "// WPK:BEGIN AUTO",
-            },
-          ],
-          "endFilePos": 72,
-          "endLine": 7,
-          "endTokenPos": 72,
-          "startFilePos": 55,
-          "startLine": 7,
-          "startTokenPos": 55,
-        },
-        "nodeType": "Stmt_Nop",
-      },
-      {
-        "attrGroups": [],
-        "attributes": {
-          "endFilePos": 514,
-          "endLine": 19,
-          "endTokenPos": 514,
-          "startFilePos": 73,
-          "startLine": 8,
-          "startTokenPos": 73,
-        },
-        "extends": null,
-        "flags": 0,
-        "implements": [],
         "name": {
           "attributes": {},
-          "name": "MacroHarness",
-          "nodeType": "Identifier",
+          "nodeType": "Name",
+          "parts": [
+            "get_post",
+          ],
         },
-        "namespacedName": null,
-        "nodeType": "Stmt_Class",
-        "stmts": [
-          {
-            "attrGroups": [],
-            "attributes": {},
-            "byRef": false,
-            "flags": 0,
-            "name": {
+        "nodeType": "Expr_FuncCall",
+      },
+      "nodeType": "Expr_Assign",
+      "var": {
+        "attributes": {},
+        "name": "post",
+        "nodeType": "Expr_Variable",
+      },
+    },
+    "nodeType": "Stmt_Expression",
+  },
+  {
+    "attributes": {},
+    "cond": {
+      "attributes": {},
+      "expr": {
+        "attributes": {},
+        "class": {
+          "attributes": {},
+          "nodeType": "Name",
+          "parts": [
+            "WP_Post",
+          ],
+        },
+        "expr": {
+          "attributes": {},
+          "name": "post",
+          "nodeType": "Expr_Variable",
+        },
+        "nodeType": "Expr_Instanceof",
+      },
+      "nodeType": "Expr_BooleanNot",
+    },
+    "else": null,
+    "elseifs": [],
+    "nodeType": "Stmt_If",
+    "stmts": [
+      {
+        "attributes": {},
+        "expr": {
+          "args": [
+            {
               "attributes": {},
-              "name": "invoke",
-              "nodeType": "Identifier",
+              "byRef": false,
+              "name": null,
+              "nodeType": "Arg",
+              "unpack": false,
+              "value": {
+                "attributes": {},
+                "nodeType": "Scalar_String",
+                "value": "kernel_book_failed",
+              },
             },
-            "nodeType": "Stmt_ClassMethod",
-            "params": [],
-            "returnType": null,
-            "stmts": [
-              {
-                "attributes": {
-                  "comments": [
-                    {
-                      "nodeType": "Comment",
-                      "text": "// @wp-kernel resource.wpPost.mutation status-validation",
-                    },
-                  ],
-                },
-                "nodeType": "Stmt_Nop",
-              },
-              {
-                "attributes": {
-                  "comments": [
-                    {
-                      "nodeType": "Comment",
-                      "text": "// @wp-kernel mutation:status normalise",
-                    },
-                  ],
-                },
-                "nodeType": "Stmt_Nop",
-              },
-              {
+            {
+              "attributes": {},
+              "byRef": false,
+              "name": null,
+              "nodeType": "Arg",
+              "unpack": false,
+              "value": {
                 "attributes": {},
-                "expr": {
-                  "attributes": {},
-                  "expr": {
-                    "args": [
-                      {
-                        "attributes": {},
-                        "byRef": false,
-                        "name": null,
-                        "nodeType": "Arg",
-                        "unpack": false,
-                        "value": {
-                          "attributes": {},
-                          "nodeType": "Scalar_String",
-                          "value": "status",
-                        },
-                      },
-                    ],
-                    "attributes": {},
-                    "name": {
-                      "attributes": {},
-                      "name": "get_param",
-                      "nodeType": "Identifier",
-                    },
-                    "nodeType": "Expr_MethodCall",
-                    "var": {
-                      "attributes": {},
-                      "name": "request",
-                      "nodeType": "Expr_Variable",
-                    },
-                  },
-                  "nodeType": "Expr_Assign",
-                  "var": {
-                    "attributes": {},
-                    "name": "status",
-                    "nodeType": "Expr_Variable",
-                  },
-                },
-                "nodeType": "Stmt_Expression",
+                "nodeType": "Scalar_String",
+                "value": "Unable to load Book.",
               },
-              {
+            },
+            {
+              "attributes": {},
+              "byRef": false,
+              "name": null,
+              "nodeType": "Arg",
+              "unpack": false,
+              "value": {
                 "attributes": {},
-                "cond": {
-                  "attributes": {},
-                  "left": {
-                    "attributes": {},
-                    "name": {
-                      "attributes": {},
-                      "nodeType": "Name",
-                      "parts": [
-                        "null",
-                      ],
-                    },
-                    "nodeType": "Expr_ConstFetch",
-                  },
-                  "nodeType": "Expr_BinaryOp_NotIdentical",
-                  "right": {
-                    "attributes": {},
-                    "name": "status",
-                    "nodeType": "Expr_Variable",
-                  },
-                },
-                "else": null,
-                "elseifs": [],
-                "nodeType": "Stmt_If",
-                "stmts": [
+                "items": [
                   {
                     "attributes": {},
-                    "expr": {
+                    "byRef": false,
+                    "key": {
                       "attributes": {},
-                      "expr": {
-                        "args": [
-                          {
-                            "attributes": {},
-                            "byRef": false,
-                            "name": null,
-                            "nodeType": "Arg",
-                            "unpack": false,
-                            "value": {
-                              "attributes": {},
-                              "name": "status",
-                              "nodeType": "Expr_Variable",
-                            },
-                          },
-                        ],
-                        "attributes": {},
-                        "name": {
-                          "attributes": {},
-                          "name": "normaliseBooksStatus",
-                          "nodeType": "Identifier",
-                        },
-                        "nodeType": "Expr_MethodCall",
-                        "var": {
-                          "attributes": {},
-                          "name": "this",
-                          "nodeType": "Expr_Variable",
-                        },
-                      },
-                      "nodeType": "Expr_Assign",
-                      "var": {
-                        "attributes": {},
-                        "dim": {
-                          "attributes": {},
-                          "nodeType": "Scalar_String",
-                          "value": "post_status",
-                        },
-                        "nodeType": "Expr_ArrayDimFetch",
-                        "var": {
-                          "attributes": {},
-                          "name": "post_data",
-                          "nodeType": "Expr_Variable",
-                        },
-                      },
+                      "nodeType": "Scalar_String",
+                      "value": "status",
                     },
-                    "nodeType": "Stmt_Expression",
+                    "nodeType": "Expr_ArrayItem",
+                    "unpack": false,
+                    "value": {
+                      "attributes": {},
+                      "nodeType": "Scalar_LNumber",
+                      "value": 500,
+                    },
                   },
                 ],
+                "nodeType": "Expr_Array",
               },
-            ],
-          },
-        ],
-      },
-      {
-        "attributes": {
-          "comments": [
-            {
-              "nodeType": "Comment",
-              "text": "// WPK:END AUTO",
             },
           ],
-          "endFilePos": 530,
-          "endLine": 20,
-          "endTokenPos": 530,
-          "startFilePos": 515,
-          "startLine": 20,
-          "startTokenPos": 515,
+          "attributes": {},
+          "class": {
+            "attributes": {},
+            "nodeType": "Name",
+            "parts": [
+              "WP_Error",
+            ],
+          },
+          "nodeType": "Expr_New",
         },
-        "nodeType": "Stmt_Nop",
+        "nodeType": "Stmt_Return",
       },
     ],
   },
-]
-`;
-
-exports[`wp-post mutation macros guards status validation when null checks are enabled: status-validation-guarded-statements 1`] = `
-[
-  "class MacroHarness",
-  "{",
-  "        public function invoke( WP_REST_Request $request ): void",
-  "        {",
-  "                // @wp-kernel resource.wpPost.mutation status-validation",
-  "                // @wp-kernel mutation:status normalise",
-  "                $status = $request->get_param('status');",
-  "                if (null !== $status) {",
-  "                        $post_data['post_status'] = $this->normaliseBooksStatus($status);",
-  "                }",
-  "        }",
-  "}",
-]
-`;
-
-exports[`wp-post mutation macros primes cache after mutations: cache-priming-macro 1`] = `
-[
   {
-    "attributes": {
-      "endFilePos": 31,
-      "endLine": 3,
-      "endTokenPos": 31,
-      "startFilePos": 7,
-      "startLine": 3,
-      "startTokenPos": 7,
-    },
-    "declares": [
-      {
-        "attributes": {},
-        "key": {
+    "attributes": {},
+    "expr": {
+      "args": [
+        {
           "attributes": {},
-          "name": "strict_types",
-          "nodeType": "Identifier",
+          "byRef": false,
+          "name": null,
+          "nodeType": "Arg",
+          "unpack": false,
+          "value": {
+            "attributes": {},
+            "name": "post",
+            "nodeType": "Expr_Variable",
+          },
         },
-        "nodeType": "DeclareItem",
-        "value": {
+        {
           "attributes": {},
-          "nodeType": "Scalar_LNumber",
-          "value": 1,
+          "byRef": false,
+          "name": null,
+          "nodeType": "Arg",
+          "unpack": false,
+          "value": {
+            "attributes": {},
+            "name": "request",
+            "nodeType": "Expr_Variable",
+          },
         },
-      },
-    ],
-    "nodeType": "Stmt_Declare",
-    "stmts": null,
-  },
-  {
-    "attributes": {
-      "endFilePos": 669,
-      "endLine": 22,
-      "endTokenPos": 669,
-      "startFilePos": 33,
-      "startLine": 5,
-      "startTokenPos": 33,
-    },
-    "name": {
+      ],
       "attributes": {},
-      "nodeType": "Name",
-      "parts": [
-        "Demo",
-        "Rest",
+      "name": {
+        "attributes": {},
+        "name": "prepareBookResponse",
+        "nodeType": "Identifier",
+      },
+      "nodeType": "Expr_MethodCall",
+      "var": {
+        "attributes": {},
+        "name": "this",
+        "nodeType": "Expr_Variable",
+      },
+    },
+    "nodeType": "Stmt_Return",
+  },
+]
+`;
+
+exports[`wp-post mutation macros builds guarded status validation when requested: status-validation-guarded 1`] = `
+[
+  {
+    "attributes": {
+      "comments": [
+        {
+          "nodeType": "Comment",
+          "text": "// @wp-kernel resource.wpPost.mutation status-validation",
+        },
       ],
     },
-    "nodeType": "Stmt_Namespace",
-    "stmts": [
-      {
-        "attributes": {
-          "comments": [
-            {
-              "nodeType": "Comment",
-              "text": "// WPK:BEGIN AUTO",
-            },
-          ],
-          "endFilePos": 72,
-          "endLine": 7,
-          "endTokenPos": 72,
-          "startFilePos": 55,
-          "startLine": 7,
-          "startTokenPos": 55,
-        },
-        "nodeType": "Stmt_Nop",
-      },
-      {
-        "attrGroups": [],
-        "attributes": {
-          "endFilePos": 653,
-          "endLine": 21,
-          "endTokenPos": 653,
-          "startFilePos": 73,
-          "startLine": 8,
-          "startTokenPos": 73,
-        },
-        "extends": null,
-        "flags": 0,
-        "implements": [],
-        "name": {
-          "attributes": {},
-          "name": "MacroHarness",
-          "nodeType": "Identifier",
-        },
-        "namespacedName": null,
-        "nodeType": "Stmt_Class",
-        "stmts": [
-          {
-            "attrGroups": [],
-            "attributes": {},
-            "byRef": false,
-            "flags": 0,
-            "name": {
-              "attributes": {},
-              "name": "invoke",
-              "nodeType": "Identifier",
-            },
-            "nodeType": "Stmt_ClassMethod",
-            "params": [],
-            "returnType": null,
-            "stmts": [
-              {
-                "attributes": {
-                  "comments": [
-                    {
-                      "nodeType": "Comment",
-                      "text": "// @wp-kernel resource.wpPost.mutation cache-priming",
-                    },
-                  ],
-                },
-                "nodeType": "Stmt_Nop",
-              },
-              {
-                "attributes": {
-                  "comments": [
-                    {
-                      "nodeType": "Comment",
-                      "text": "// @wp-kernel mutation:cache prime",
-                    },
-                  ],
-                },
-                "nodeType": "Stmt_Nop",
-              },
-              {
-                "attributes": {
-                  "comments": [
-                    {
-                      "nodeType": "Comment",
-                      "text": "// @wp-kernel cache:wp-post prime",
-                    },
-                  ],
-                },
-                "nodeType": "Stmt_Nop",
-              },
-              {
-                "attributes": {},
-                "expr": {
-                  "attributes": {},
-                  "expr": {
-                    "args": [
-                      {
-                        "attributes": {},
-                        "byRef": false,
-                        "name": null,
-                        "nodeType": "Arg",
-                        "unpack": false,
-                        "value": {
-                          "attributes": {},
-                          "name": "post_id",
-                          "nodeType": "Expr_Variable",
-                        },
-                      },
-                    ],
-                    "attributes": {},
-                    "name": {
-                      "attributes": {},
-                      "nodeType": "Name",
-                      "parts": [
-                        "get_post",
-                      ],
-                    },
-                    "nodeType": "Expr_FuncCall",
-                  },
-                  "nodeType": "Expr_Assign",
-                  "var": {
-                    "attributes": {},
-                    "name": "post",
-                    "nodeType": "Expr_Variable",
-                  },
-                },
-                "nodeType": "Stmt_Expression",
-              },
-              {
-                "attributes": {},
-                "cond": {
-                  "attributes": {},
-                  "expr": {
-                    "attributes": {},
-                    "class": {
-                      "attributes": {},
-                      "nodeType": "Name",
-                      "parts": [
-                        "WP_Post",
-                      ],
-                    },
-                    "expr": {
-                      "attributes": {},
-                      "name": "post",
-                      "nodeType": "Expr_Variable",
-                    },
-                    "nodeType": "Expr_Instanceof",
-                  },
-                  "nodeType": "Expr_BooleanNot",
-                },
-                "else": null,
-                "elseifs": [],
-                "nodeType": "Stmt_If",
-                "stmts": [
-                  {
-                    "attributes": {},
-                    "expr": {
-                      "args": [
-                        {
-                          "attributes": {},
-                          "byRef": false,
-                          "name": null,
-                          "nodeType": "Arg",
-                          "unpack": false,
-                          "value": {
-                            "attributes": {},
-                            "nodeType": "Scalar_String",
-                            "value": "wpk_books_load_failed",
-                          },
-                        },
-                        {
-                          "attributes": {},
-                          "byRef": false,
-                          "name": null,
-                          "nodeType": "Arg",
-                          "unpack": false,
-                          "value": {
-                            "attributes": {},
-                            "nodeType": "Scalar_String",
-                            "value": "Unable to load created Book.",
-                          },
-                        },
-                        {
-                          "attributes": {},
-                          "byRef": false,
-                          "name": null,
-                          "nodeType": "Arg",
-                          "unpack": false,
-                          "value": {
-                            "attributes": {},
-                            "items": [
-                              {
-                                "attributes": {},
-                                "byRef": false,
-                                "key": {
-                                  "attributes": {},
-                                  "nodeType": "Scalar_String",
-                                  "value": "status",
-                                },
-                                "nodeType": "Expr_ArrayItem",
-                                "unpack": false,
-                                "value": {
-                                  "attributes": {},
-                                  "nodeType": "Scalar_LNumber",
-                                  "value": 500,
-                                },
-                              },
-                            ],
-                            "nodeType": "Expr_Array",
-                          },
-                        },
-                      ],
-                      "attributes": {},
-                      "class": {
-                        "attributes": {},
-                        "nodeType": "Name",
-                        "parts": [
-                          "WP_Error",
-                        ],
-                      },
-                      "nodeType": "Expr_New",
-                    },
-                    "nodeType": "Stmt_Return",
-                  },
-                ],
-              },
-              {
-                "attributes": {},
-                "expr": {
-                  "args": [
-                    {
-                      "attributes": {},
-                      "byRef": false,
-                      "name": null,
-                      "nodeType": "Arg",
-                      "unpack": false,
-                      "value": {
-                        "attributes": {},
-                        "name": "post",
-                        "nodeType": "Expr_Variable",
-                      },
-                    },
-                    {
-                      "attributes": {},
-                      "byRef": false,
-                      "name": null,
-                      "nodeType": "Arg",
-                      "unpack": false,
-                      "value": {
-                        "attributes": {},
-                        "name": "request",
-                        "nodeType": "Expr_Variable",
-                      },
-                    },
-                  ],
-                  "attributes": {},
-                  "name": {
-                    "attributes": {},
-                    "name": "prepareBooksResponse",
-                    "nodeType": "Identifier",
-                  },
-                  "nodeType": "Expr_MethodCall",
-                  "var": {
-                    "attributes": {},
-                    "name": "this",
-                    "nodeType": "Expr_Variable",
-                  },
-                },
-                "nodeType": "Stmt_Return",
-              },
-            ],
-          },
-        ],
-      },
-      {
-        "attributes": {
-          "comments": [
-            {
-              "nodeType": "Comment",
-              "text": "// WPK:END AUTO",
-            },
-          ],
-          "endFilePos": 669,
-          "endLine": 22,
-          "endTokenPos": 669,
-          "startFilePos": 654,
-          "startLine": 22,
-          "startTokenPos": 654,
-        },
-        "nodeType": "Stmt_Nop",
-      },
-    ],
-  },
-]
-`;
-
-exports[`wp-post mutation macros primes cache after mutations: cache-priming-statements 1`] = `
-[
-  "class MacroHarness",
-  "{",
-  "        public function invoke( WP_REST_Request $request ): void",
-  "        {",
-  "                // @wp-kernel resource.wpPost.mutation cache-priming",
-  "                // @wp-kernel mutation:cache prime",
-  "                // @wp-kernel cache:wp-post prime",
-  "                $post = get_post($post_id);",
-  "                if (!$post instanceof WP_Post) {",
-  "                        return new WP_Error('wpk_books_load_failed', 'Unable to load created Book.', [ 'status' => 500 ]);",
-  "                }",
-  "                return $this->prepareBooksResponse($post, $request);",
-  "        }",
-  "}",
-]
-`;
-
-exports[`wp-post mutation macros syncs meta and taxonomies with metadata comments: sync-mutations-macro 1`] = `
-[
-  {
-    "attributes": {
-      "endFilePos": 31,
-      "endLine": 3,
-      "endTokenPos": 31,
-      "startFilePos": 7,
-      "startLine": 3,
-      "startTokenPos": 7,
-    },
-    "declares": [
-      {
-        "attributes": {},
-        "key": {
-          "attributes": {},
-          "name": "strict_types",
-          "nodeType": "Identifier",
-        },
-        "nodeType": "DeclareItem",
-        "value": {
-          "attributes": {},
-          "nodeType": "Scalar_LNumber",
-          "value": 1,
-        },
-      },
-    ],
-    "nodeType": "Stmt_Declare",
-    "stmts": null,
+    "nodeType": "Stmt_Nop",
   },
   {
     "attributes": {
-      "endFilePos": 701,
-      "endLine": 23,
-      "endTokenPos": 701,
-      "startFilePos": 33,
-      "startLine": 5,
-      "startTokenPos": 33,
-    },
-    "name": {
-      "attributes": {},
-      "nodeType": "Name",
-      "parts": [
-        "Demo",
-        "Rest",
+      "comments": [
+        {
+          "nodeType": "Comment",
+          "text": "// @wp-kernel mutation:status normalise",
+        },
       ],
     },
-    "nodeType": "Stmt_Namespace",
-    "stmts": [
-      {
-        "attributes": {
-          "comments": [
-            {
-              "nodeType": "Comment",
-              "text": "// WPK:BEGIN AUTO",
-            },
-          ],
-          "endFilePos": 72,
-          "endLine": 7,
-          "endTokenPos": 72,
-          "startFilePos": 55,
-          "startLine": 7,
-          "startTokenPos": 55,
-        },
-        "nodeType": "Stmt_Nop",
-      },
-      {
-        "attrGroups": [],
-        "attributes": {
-          "endFilePos": 685,
-          "endLine": 22,
-          "endTokenPos": 685,
-          "startFilePos": 73,
-          "startLine": 8,
-          "startTokenPos": 73,
-        },
-        "extends": null,
-        "flags": 0,
-        "implements": [],
-        "name": {
-          "attributes": {},
-          "name": "MacroHarness",
-          "nodeType": "Identifier",
-        },
-        "namespacedName": null,
-        "nodeType": "Stmt_Class",
-        "stmts": [
+    "nodeType": "Stmt_Nop",
+  },
+  {
+    "attributes": {},
+    "expr": {
+      "attributes": {},
+      "expr": {
+        "args": [
           {
-            "attrGroups": [],
             "attributes": {},
             "byRef": false,
-            "flags": 0,
-            "name": {
+            "name": null,
+            "nodeType": "Arg",
+            "unpack": false,
+            "value": {
               "attributes": {},
-              "name": "invoke",
-              "nodeType": "Identifier",
+              "nodeType": "Scalar_String",
+              "value": "status",
             },
-            "nodeType": "Stmt_ClassMethod",
-            "params": [],
-            "returnType": null,
-            "stmts": [
-              {
-                "attributes": {
-                  "comments": [
-                    {
-                      "nodeType": "Comment",
-                      "text": "// @wp-kernel resource.wpPost.mutation sync-meta",
-                    },
-                  ],
-                },
-                "nodeType": "Stmt_Nop",
-              },
-              {
-                "attributes": {
-                  "comments": [
-                    {
-                      "nodeType": "Comment",
-                      "text": "// @wp-kernel mutation:meta update",
-                    },
-                  ],
-                },
-                "nodeType": "Stmt_Nop",
-              },
-              {
-                "attributes": {},
-                "expr": {
-                  "args": [
-                    {
-                      "attributes": {},
-                      "byRef": false,
-                      "name": null,
-                      "nodeType": "Arg",
-                      "unpack": false,
-                      "value": {
-                        "attributes": {},
-                        "name": "post_id",
-                        "nodeType": "Expr_Variable",
-                      },
-                    },
-                    {
-                      "attributes": {},
-                      "byRef": false,
-                      "name": null,
-                      "nodeType": "Arg",
-                      "unpack": false,
-                      "value": {
-                        "attributes": {},
-                        "name": "request",
-                        "nodeType": "Expr_Variable",
-                      },
-                    },
-                  ],
-                  "attributes": {},
-                  "name": {
-                    "attributes": {},
-                    "name": "syncBooksMeta",
-                    "nodeType": "Identifier",
-                  },
-                  "nodeType": "Expr_MethodCall",
-                  "var": {
-                    "attributes": {},
-                    "name": "this",
-                    "nodeType": "Expr_Variable",
-                  },
-                },
-                "nodeType": "Stmt_Expression",
-              },
-              {
-                "attributes": {
-                  "comments": [
-                    {
-                      "nodeType": "Comment",
-                      "text": "// @wp-kernel resource.wpPost.mutation sync-taxonomies",
-                    },
-                  ],
-                },
-                "nodeType": "Stmt_Nop",
-              },
-              {
-                "attributes": {
-                  "comments": [
-                    {
-                      "nodeType": "Comment",
-                      "text": "// @wp-kernel mutation:taxonomies update",
-                    },
-                  ],
-                },
-                "nodeType": "Stmt_Nop",
-              },
-              {
-                "attributes": {},
-                "expr": {
-                  "attributes": {},
-                  "expr": {
-                    "args": [
-                      {
-                        "attributes": {},
-                        "byRef": false,
-                        "name": null,
-                        "nodeType": "Arg",
-                        "unpack": false,
-                        "value": {
-                          "attributes": {},
-                          "name": "post_id",
-                          "nodeType": "Expr_Variable",
-                        },
-                      },
-                      {
-                        "attributes": {},
-                        "byRef": false,
-                        "name": null,
-                        "nodeType": "Arg",
-                        "unpack": false,
-                        "value": {
-                          "attributes": {},
-                          "name": "request",
-                          "nodeType": "Expr_Variable",
-                        },
-                      },
-                    ],
-                    "attributes": {},
-                    "name": {
-                      "attributes": {},
-                      "name": "syncBooksTaxonomies",
-                      "nodeType": "Identifier",
-                    },
-                    "nodeType": "Expr_MethodCall",
-                    "var": {
-                      "attributes": {},
-                      "name": "this",
-                      "nodeType": "Expr_Variable",
-                    },
-                  },
-                  "nodeType": "Expr_Assign",
-                  "var": {
-                    "attributes": {},
-                    "name": "taxonomy_result",
-                    "nodeType": "Expr_Variable",
-                  },
-                },
-                "nodeType": "Stmt_Expression",
-              },
-              {
-                "attributes": {},
-                "cond": {
-                  "args": [
-                    {
-                      "attributes": {},
-                      "byRef": false,
-                      "name": null,
-                      "nodeType": "Arg",
-                      "unpack": false,
-                      "value": {
-                        "attributes": {},
-                        "name": "taxonomy_result",
-                        "nodeType": "Expr_Variable",
-                      },
-                    },
-                  ],
-                  "attributes": {},
-                  "name": {
-                    "attributes": {},
-                    "nodeType": "Name",
-                    "parts": [
-                      "is_wp_error",
-                    ],
-                  },
-                  "nodeType": "Expr_FuncCall",
-                },
-                "else": null,
-                "elseifs": [],
-                "nodeType": "Stmt_If",
-                "stmts": [
-                  {
-                    "attributes": {},
-                    "expr": {
-                      "attributes": {},
-                      "name": "taxonomy_result",
-                      "nodeType": "Expr_Variable",
-                    },
-                    "nodeType": "Stmt_Return",
-                  },
-                ],
-              },
-            ],
           },
         ],
-      },
-      {
-        "attributes": {
-          "comments": [
-            {
-              "nodeType": "Comment",
-              "text": "// WPK:END AUTO",
-            },
-          ],
-          "endFilePos": 701,
-          "endLine": 23,
-          "endTokenPos": 701,
-          "startFilePos": 686,
-          "startLine": 23,
-          "startTokenPos": 686,
+        "attributes": {},
+        "name": {
+          "attributes": {},
+          "name": "get_param",
+          "nodeType": "Identifier",
         },
-        "nodeType": "Stmt_Nop",
+        "nodeType": "Expr_MethodCall",
+        "var": {
+          "attributes": {},
+          "name": "request",
+          "nodeType": "Expr_Variable",
+        },
+      },
+      "nodeType": "Expr_Assign",
+      "var": {
+        "attributes": {},
+        "name": "status",
+        "nodeType": "Expr_Variable",
+      },
+    },
+    "nodeType": "Stmt_Expression",
+  },
+  {
+    "attributes": {},
+    "cond": {
+      "attributes": {},
+      "left": {
+        "attributes": {},
+        "name": {
+          "attributes": {},
+          "nodeType": "Name",
+          "parts": [
+            "null",
+          ],
+        },
+        "nodeType": "Expr_ConstFetch",
+      },
+      "nodeType": "Expr_BinaryOp_NotIdentical",
+      "right": {
+        "attributes": {},
+        "name": "status",
+        "nodeType": "Expr_Variable",
+      },
+    },
+    "else": null,
+    "elseifs": [],
+    "nodeType": "Stmt_If",
+    "stmts": [
+      {
+        "attributes": {},
+        "expr": {
+          "attributes": {},
+          "expr": {
+            "args": [
+              {
+                "attributes": {},
+                "byRef": false,
+                "name": null,
+                "nodeType": "Arg",
+                "unpack": false,
+                "value": {
+                  "attributes": {},
+                  "name": "status",
+                  "nodeType": "Expr_Variable",
+                },
+              },
+            ],
+            "attributes": {},
+            "name": {
+              "attributes": {},
+              "name": "normaliseBookStatus",
+              "nodeType": "Identifier",
+            },
+            "nodeType": "Expr_MethodCall",
+            "var": {
+              "attributes": {},
+              "name": "this",
+              "nodeType": "Expr_Variable",
+            },
+          },
+          "nodeType": "Expr_Assign",
+          "var": {
+            "attributes": {},
+            "dim": {
+              "attributes": {},
+              "nodeType": "Scalar_String",
+              "value": "status",
+            },
+            "nodeType": "Expr_ArrayDimFetch",
+            "var": {
+              "attributes": {},
+              "name": "post_data",
+              "nodeType": "Expr_Variable",
+            },
+          },
+        },
+        "nodeType": "Stmt_Expression",
       },
     ],
   },
 ]
 `;
 
-exports[`wp-post mutation macros syncs meta and taxonomies with metadata comments: sync-mutations-statements 1`] = `
+exports[`wp-post mutation macros builds status validation statements with metadata comments: status-validation 1`] = `
 [
-  "class MacroHarness",
-  "{",
-  "        public function invoke( WP_REST_Request $request ): void",
-  "        {",
-  "                // @wp-kernel resource.wpPost.mutation sync-meta",
-  "                // @wp-kernel mutation:meta update",
-  "                $this->syncBooksMeta($post_id, $request);",
-  "                // @wp-kernel resource.wpPost.mutation sync-taxonomies",
-  "                // @wp-kernel mutation:taxonomies update",
-  "                $taxonomy_result = $this->syncBooksTaxonomies($post_id, $request);",
-  "                if (is_wp_error($taxonomy_result)) {",
-  "                        return $taxonomy_result;",
-  "                }",
-  "        }",
-  "}",
+  {
+    "attributes": {
+      "comments": [
+        {
+          "nodeType": "Comment",
+          "text": "// @wp-kernel resource.wpPost.mutation status-validation",
+        },
+      ],
+    },
+    "nodeType": "Stmt_Nop",
+  },
+  {
+    "attributes": {
+      "comments": [
+        {
+          "nodeType": "Comment",
+          "text": "// @wp-kernel mutation:status normalise",
+        },
+      ],
+    },
+    "nodeType": "Stmt_Nop",
+  },
+  {
+    "attributes": {},
+    "expr": {
+      "attributes": {},
+      "expr": {
+        "args": [
+          {
+            "attributes": {},
+            "byRef": false,
+            "name": null,
+            "nodeType": "Arg",
+            "unpack": false,
+            "value": {
+              "attributes": {},
+              "nodeType": "Scalar_String",
+              "value": "status",
+            },
+          },
+        ],
+        "attributes": {},
+        "name": {
+          "attributes": {},
+          "name": "get_param",
+          "nodeType": "Identifier",
+        },
+        "nodeType": "Expr_MethodCall",
+        "var": {
+          "attributes": {},
+          "name": "request",
+          "nodeType": "Expr_Variable",
+        },
+      },
+      "nodeType": "Expr_Assign",
+      "var": {
+        "attributes": {},
+        "name": "status",
+        "nodeType": "Expr_Variable",
+      },
+    },
+    "nodeType": "Stmt_Expression",
+  },
+  {
+    "attributes": {},
+    "expr": {
+      "attributes": {},
+      "expr": {
+        "args": [
+          {
+            "attributes": {},
+            "byRef": false,
+            "name": null,
+            "nodeType": "Arg",
+            "unpack": false,
+            "value": {
+              "attributes": {},
+              "name": "status",
+              "nodeType": "Expr_Variable",
+            },
+          },
+        ],
+        "attributes": {},
+        "name": {
+          "attributes": {},
+          "name": "normaliseBookStatus",
+          "nodeType": "Identifier",
+        },
+        "nodeType": "Expr_MethodCall",
+        "var": {
+          "attributes": {},
+          "name": "this",
+          "nodeType": "Expr_Variable",
+        },
+      },
+      "nodeType": "Expr_Assign",
+      "var": {
+        "attributes": {},
+        "dim": {
+          "attributes": {},
+          "nodeType": "Scalar_String",
+          "value": "status",
+        },
+        "nodeType": "Expr_ArrayDimFetch",
+        "var": {
+          "attributes": {},
+          "name": "post_data",
+          "nodeType": "Expr_Variable",
+        },
+      },
+    },
+    "nodeType": "Stmt_Expression",
+  },
+]
+`;
+
+exports[`wp-post mutation macros builds sync meta statements with metadata annotations: sync-meta 1`] = `
+[
+  {
+    "attributes": {
+      "comments": [
+        {
+          "nodeType": "Comment",
+          "text": "// @wp-kernel resource.wpPost.mutation sync-meta",
+        },
+      ],
+    },
+    "nodeType": "Stmt_Nop",
+  },
+  {
+    "attributes": {
+      "comments": [
+        {
+          "nodeType": "Comment",
+          "text": "// @wp-kernel mutation:meta update",
+        },
+      ],
+    },
+    "nodeType": "Stmt_Nop",
+  },
+  {
+    "attributes": {},
+    "expr": {
+      "args": [
+        {
+          "attributes": {},
+          "byRef": false,
+          "name": null,
+          "nodeType": "Arg",
+          "unpack": false,
+          "value": {
+            "attributes": {},
+            "name": "post_id",
+            "nodeType": "Expr_Variable",
+          },
+        },
+        {
+          "attributes": {},
+          "byRef": false,
+          "name": null,
+          "nodeType": "Arg",
+          "unpack": false,
+          "value": {
+            "attributes": {},
+            "name": "request",
+            "nodeType": "Expr_Variable",
+          },
+        },
+      ],
+      "attributes": {},
+      "name": {
+        "attributes": {},
+        "name": "syncBookMeta",
+        "nodeType": "Identifier",
+      },
+      "nodeType": "Expr_MethodCall",
+      "var": {
+        "attributes": {},
+        "name": "this",
+        "nodeType": "Expr_Variable",
+      },
+    },
+    "nodeType": "Stmt_Expression",
+  },
+]
+`;
+
+exports[`wp-post mutation macros builds sync taxonomies statements with result guard: sync-taxonomies 1`] = `
+[
+  {
+    "attributes": {
+      "comments": [
+        {
+          "nodeType": "Comment",
+          "text": "// @wp-kernel resource.wpPost.mutation sync-taxonomies",
+        },
+      ],
+    },
+    "nodeType": "Stmt_Nop",
+  },
+  {
+    "attributes": {
+      "comments": [
+        {
+          "nodeType": "Comment",
+          "text": "// @wp-kernel mutation:taxonomies update",
+        },
+      ],
+    },
+    "nodeType": "Stmt_Nop",
+  },
+  {
+    "attributes": {},
+    "expr": {
+      "attributes": {},
+      "expr": {
+        "args": [
+          {
+            "attributes": {},
+            "byRef": false,
+            "name": null,
+            "nodeType": "Arg",
+            "unpack": false,
+            "value": {
+              "attributes": {},
+              "name": {
+                "attributes": {},
+                "name": "ID",
+                "nodeType": "Identifier",
+              },
+              "nodeType": "Expr_PropertyFetch",
+              "var": {
+                "attributes": {},
+                "name": "post",
+                "nodeType": "Expr_Variable",
+              },
+            },
+          },
+          {
+            "attributes": {},
+            "byRef": false,
+            "name": null,
+            "nodeType": "Arg",
+            "unpack": false,
+            "value": {
+              "attributes": {},
+              "name": "request",
+              "nodeType": "Expr_Variable",
+            },
+          },
+        ],
+        "attributes": {},
+        "name": {
+          "attributes": {},
+          "name": "syncBookTaxonomies",
+          "nodeType": "Identifier",
+        },
+        "nodeType": "Expr_MethodCall",
+        "var": {
+          "attributes": {},
+          "name": "this",
+          "nodeType": "Expr_Variable",
+        },
+      },
+      "nodeType": "Expr_Assign",
+      "var": {
+        "attributes": {},
+        "name": "result",
+        "nodeType": "Expr_Variable",
+      },
+    },
+    "nodeType": "Stmt_Expression",
+  },
+  {
+    "attributes": {},
+    "cond": {
+      "args": [
+        {
+          "attributes": {},
+          "byRef": false,
+          "name": null,
+          "nodeType": "Arg",
+          "unpack": false,
+          "value": {
+            "attributes": {},
+            "name": "result",
+            "nodeType": "Expr_Variable",
+          },
+        },
+      ],
+      "attributes": {},
+      "name": {
+        "attributes": {},
+        "nodeType": "Name",
+        "parts": [
+          "is_wp_error",
+        ],
+      },
+      "nodeType": "Expr_FuncCall",
+    },
+    "else": null,
+    "elseifs": [],
+    "nodeType": "Stmt_If",
+    "stmts": [
+      {
+        "attributes": {},
+        "expr": {
+          "attributes": {},
+          "name": "result",
+          "nodeType": "Expr_Variable",
+        },
+        "nodeType": "Stmt_Return",
+      },
+    ],
+  },
 ]
 `;

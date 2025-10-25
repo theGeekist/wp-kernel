@@ -9,25 +9,25 @@
 export { WP_POST_MUTATION_CONTRACT } from '../../mutationContract';
 export type { ResourceMutationContract } from '../../mutationContract';
 export {
-	appendStatusValidationMacro,
-	appendSyncMetaMacro,
-	appendSyncTaxonomiesMacro,
-	appendCachePrimingMacro,
+	buildStatusValidationStatements,
+	buildSyncMetaStatements,
+	buildSyncTaxonomiesStatements,
+	buildCachePrimingStatements,
 	buildVariableExpression,
 	buildArrayDimExpression,
 	buildPropertyExpression,
 	type MacroExpression,
 } from './macros';
 export type {
-	BuildCreateRouteBodyOptions,
-	BuildDeleteRouteBodyOptions,
-	BuildMutationRouteBodyBaseOptions,
-	BuildUpdateRouteBodyOptions,
+	BuildCreateRouteStatementsOptions,
+	BuildDeleteRouteStatementsOptions,
+	BuildMutationRouteBaseOptions,
+	BuildUpdateRouteStatementsOptions,
 } from './routes';
 export {
-	buildCreateRouteBody,
-	buildUpdateRouteBody,
-	buildDeleteRouteBody,
+	buildCreateRouteStatements,
+	buildUpdateRouteStatements,
+	buildDeleteRouteStatements,
 } from './routes';
 export {
 	syncWpPostMeta,

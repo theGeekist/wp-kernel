@@ -1,3 +1,4 @@
+import { KernelError } from '@wpkernel/core/contracts';
 import {
 	buildArray,
 	buildArrayItem,
@@ -53,7 +54,7 @@ export function renderPhpValue(value: PhpValueDescriptor): PhpExpr {
 		return renderExpression(value);
 	}
 
-	return renderStructuredPhpValue(value);
+	return renderStructuredValue(value);
 }
 
 function isVariableDescriptor(
@@ -87,25 +88,22 @@ function renderExpression(descriptor: ExpressionValueDescriptor): PhpExpr {
 	return descriptor.expr;
 }
 
-function renderStructuredPhpValue(value: StructuredPhpValue): PhpExpr {
+function renderStructuredValue(value: StructuredPhpValue): PhpExpr {
 	if (Array.isArray(value)) {
 		const items = value.map((entry) =>
-			buildArrayItem(renderPhpValue(entry as PhpValueDescriptor))
+			buildArrayItem(renderStructuredValue(entry as StructuredPhpValue))
 		);
+
 		return buildArray(items);
 	}
 
-	if (value === null) {
-		return buildNull();
-	}
-
-	if (typeof value === 'object') {
-		const entries = Object.entries(value);
-		const items = entries.map(([key, val]) =>
-			buildArrayItem(renderPhpValue(val as PhpValueDescriptor), {
+	if (isPlainRecord(value)) {
+		const items = Object.entries(value).map(([key, entry]) =>
+			buildArrayItem(renderStructuredValue(entry as StructuredPhpValue), {
 				key: buildScalarString(key),
 			})
 		);
+
 		return buildArray(items);
 	}
 
@@ -126,16 +124,24 @@ function renderStructuredPhpValue(value: StructuredPhpValue): PhpExpr {
 			: buildScalarFloat(value);
 	}
 
-	if (typeof value === 'bigint') {
-		return buildScalarString(value.toString());
-	}
-
 	if (typeof value === 'boolean') {
 		return buildScalarBool(value);
+	}
+
+	if (value === null) {
+		return buildNull();
 	}
 
 	throw new KernelError('DeveloperError', {
 		message: `Unsupported PHP value: ${String(value)}`,
 		context: { value },
 	});
+}
+
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+	if (!value || typeof value !== 'object') {
+		return false;
+	}
+
+	return !Array.isArray(value);
 }

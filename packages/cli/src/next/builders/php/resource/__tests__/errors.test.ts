@@ -1,7 +1,7 @@
 import { buildWpErrorReturn } from '../errors';
 
 describe('resource error helpers', () => {
-	it('renders a WP_Error return with status metadata', () => {
+	it('builds a WP_Error return statement with status metadata', () => {
 		const statement = buildWpErrorReturn({
 			code: 'demo_error',
 			message: 'Demo message.',

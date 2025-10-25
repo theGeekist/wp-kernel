@@ -14,7 +14,6 @@ import {
 	makeErrorCodeFactory,
 	type PhpStmt,
 } from '@wpkernel/php-json-ast';
-import { formatStatementPrintable } from '../../../printer';
 import { buildIdentityValidationStatements } from '../../identity';
 import {
 	buildArrayLiteral,
@@ -25,21 +24,21 @@ import {
 	buildScalarCast,
 } from '../../../utils';
 import { buildWpErrorReturn } from '../../../errors';
-import type { BuildDeleteRouteBodyOptions } from './types';
+import type { BuildDeleteRouteStatementsOptions } from './types';
 
-export function buildDeleteRouteBody(
-	options: BuildDeleteRouteBodyOptions
-): boolean {
+export function buildDeleteRouteStatements(
+	options: BuildDeleteRouteStatementsOptions
+): PhpStmt[] | null {
 	const storage = options.resource.storage;
 	if (!storage || storage.mode !== 'wp-post') {
-		return false;
+		return null;
 	}
 
 	const identityVar = options.identity.param;
 	const errorCodeFactory = makeErrorCodeFactory(options.resource.name);
+	const statements: PhpStmt[] = [];
 
-	appendStatement(
-		options,
+	statements.push(
 		buildExpressionStatement(
 			buildAssign(
 				buildVariable(identityVar),
@@ -57,17 +56,9 @@ export function buildDeleteRouteBody(
 		pascalName: options.pascalName,
 		errorCodeFactory,
 	});
+	statements.push(...validationStatements);
 
-	for (const statement of validationStatements) {
-		appendStatement(options, statement);
-	}
-
-	if (validationStatements.length > 0) {
-		options.body.blank();
-	}
-
-	appendStatement(
-		options,
+	statements.push(
 		buildExpressionStatement(
 			buildAssign(
 				buildVariable('post'),
@@ -85,17 +76,13 @@ export function buildDeleteRouteBody(
 		message: `${options.pascalName} not found.`,
 		status: 404,
 	});
-
-	appendStatement(
-		options,
+	statements.push(
 		buildIfStatement(buildBooleanNot(buildInstanceof('post', 'WP_Post')), [
 			notFoundReturn,
 		])
 	);
-	options.body.blank();
 
-	appendStatement(
-		options,
+	statements.push(
 		buildExpressionStatement(
 			buildAssign(
 				buildVariable('previous'),
@@ -111,8 +98,7 @@ export function buildDeleteRouteBody(
 		)
 	);
 
-	appendStatement(
-		options,
+	statements.push(
 		buildExpressionStatement(
 			buildAssign(
 				buildVariable('deleted'),
@@ -129,9 +115,7 @@ export function buildDeleteRouteBody(
 		message: `Unable to delete ${options.pascalName}.`,
 		status: 500,
 	});
-
-	appendStatement(
-		options,
+	statements.push(
 		buildIfStatement(
 			buildBinaryOperation(
 				'Identical',
@@ -141,10 +125,8 @@ export function buildDeleteRouteBody(
 			[deleteReturn]
 		)
 	);
-	options.body.blank();
 
-	appendStatement(
-		options,
+	statements.push(
 		buildReturn(
 			buildArrayLiteral([
 				{
@@ -166,17 +148,5 @@ export function buildDeleteRouteBody(
 		)
 	);
 
-	return true;
-}
-
-function appendStatement(
-	options: BuildDeleteRouteBodyOptions,
-	statement: PhpStmt
-): void {
-	options.body.statement(
-		formatStatementPrintable(statement, {
-			indentLevel: options.indentLevel,
-			indentUnit: options.body.getIndentUnit(),
-		})
-	);
+	return statements;
 }
