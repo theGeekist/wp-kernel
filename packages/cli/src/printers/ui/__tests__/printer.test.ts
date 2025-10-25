@@ -6,10 +6,10 @@ import type { KernelConfigV1 } from '../../../config/types';
 import type { IRResource, IRv1 } from '../../../ir';
 import { KernelError } from '@wpkernel/core/contracts';
 import {
-	createKernelConfigFixture,
-	createJobResource,
-	createPrinterIrFixture,
-} from '../../../../tests/printers.test-support';
+	makeKernelConfigFixture,
+	makeJobResource,
+	makePrinterIrFixture,
+} from '@wpkernel/test-utils/next/printers.test-support';
 
 describe('emitUIArtifacts', () => {
 	it('writes admin screens, fixtures, and menu registrations using formatters', async () => {
@@ -188,12 +188,12 @@ function createIr(options: CreateIrOptions): IRv1 {
 		? { job: { name: 'job', routes: {}, ui } }
 		: { job: { name: 'job', routes: {} } };
 
-	const config = createKernelConfigFixture({
+	const config = makeKernelConfigFixture({
 		schemas: {} satisfies KernelConfigV1['schemas'],
 		resources,
 	});
 
-	const resource = createJobResource({ routes: [], hash: 'resource-job' });
+	const resource = makeJobResource({ routes: [], hash: 'resource-job' });
 	resource.cacheKeys = {
 		list: { segments: ['job'] as const, source: 'config' },
 		get: { segments: ['job', 'get'] as const, source: 'config' },
@@ -203,7 +203,7 @@ function createIr(options: CreateIrOptions): IRv1 {
 	resource.ui = ui;
 	resource.warnings = [];
 
-	return createPrinterIrFixture({
+	return makePrinterIrFixture({
 		meta: {
 			namespace: 'Demo\\Namespace',
 			sanitizedNamespace: 'Demo\\Namespace',

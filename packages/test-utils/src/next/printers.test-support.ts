@@ -1,5 +1,5 @@
 import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
-import type { KernelConfigV1 } from '../src/config/types';
+import type { KernelConfigV1 } from '@wpkernel/cli/config';
 import type {
 	IRBlock,
 	IRPolicyMap,
@@ -7,18 +7,18 @@ import type {
 	IRRoute,
 	IRSchema,
 	IRv1,
-} from '../src/ir';
+} from '@wpkernel/cli/ir';
 import type { ResourcePostMetaDescriptor } from '@wpkernel/core/resource';
 
-export interface CreateKernelConfigFixtureOptions {
+export interface MakeKernelConfigFixtureOptions {
 	readonly namespace?: string;
 	readonly schemas?: KernelConfigV1['schemas'];
 	readonly resources?: KernelConfigV1['resources'];
 	readonly adapters?: KernelConfigV1['adapters'];
 }
 
-export function createKernelConfigFixture(
-	options: CreateKernelConfigFixtureOptions = {}
+export function makeKernelConfigFixture(
+	options: MakeKernelConfigFixtureOptions = {}
 ): KernelConfigV1 {
 	const defaultSchemas: KernelConfigV1['schemas'] = {
 		job: {
@@ -46,7 +46,7 @@ export function createKernelConfigFixture(
 	} satisfies KernelConfigV1;
 }
 
-export interface CreatePrinterIrFixtureOptions {
+export interface MakePrinterIrFixtureOptions {
 	readonly config?: KernelConfigV1;
 	readonly schemas?: IRSchema[];
 	readonly resources?: IRResource[];
@@ -58,41 +58,54 @@ export interface CreatePrinterIrFixtureOptions {
 	readonly diagnostics?: IRv1['diagnostics'];
 }
 
-export function createPrinterIrFixture(
-	options: CreatePrinterIrFixtureOptions = {}
-): IRv1 {
-	const config = options.config ?? createKernelConfigFixture();
-	const sourcePath =
-		options.meta?.sourcePath ?? WPK_CONFIG_SOURCES.WPK_CONFIG_TS;
-	const origin = options.meta?.origin ?? WPK_CONFIG_SOURCES.WPK_CONFIG_TS;
+/* eslint-disable complexity */
+export function makePrinterIrFixture({
+	config = makeKernelConfigFixture(),
+	schemas = makeDefaultSchemas(),
+	resources = makeDefaultResources(),
+	policyMap = makeDefaultPolicyMap(),
+	policies = [],
+	blocks = [],
+	php = {
+		namespace: 'Demo\\Namespace',
+		autoload: 'inc/',
+		outputDir: '.generated/php',
+	},
+	meta: metaOverrides = {},
+	diagnostics,
+}: MakePrinterIrFixtureOptions = {}): IRv1 {
+	const {
+		namespace = 'demo-namespace',
+		sourcePath = WPK_CONFIG_SOURCES.WPK_CONFIG_TS,
+		origin = WPK_CONFIG_SOURCES.WPK_CONFIG_TS,
+		sanitizedNamespace = 'Demo\\Namespace',
+		...restMeta
+	} = metaOverrides;
 
 	const meta: IRv1['meta'] = {
 		version: 1,
-		namespace: options.meta?.namespace ?? 'demo-namespace',
+		namespace,
 		sourcePath,
 		origin,
-		sanitizedNamespace:
-			options.meta?.sanitizedNamespace ?? 'Demo\\Namespace',
+		sanitizedNamespace,
+		...restMeta,
 	};
 
 	return {
 		meta,
 		config,
-		schemas: options.schemas ?? createDefaultSchemas(),
-		resources: options.resources ?? createDefaultResources(),
-		policies: options.policies ?? [],
-		policyMap: options.policyMap ?? createDefaultPolicyMap(),
-		blocks: options.blocks ?? [],
-		php: options.php ?? {
-			namespace: 'Demo\\Namespace',
-			autoload: 'inc/',
-			outputDir: '.generated/php',
-		},
-		...(options.diagnostics ? { diagnostics: options.diagnostics } : {}),
+		schemas,
+		resources,
+		policies,
+		policyMap,
+		blocks,
+		php,
+		...(diagnostics ? { diagnostics } : {}),
 	} satisfies IRv1;
 }
+/* eslint-enable complexity */
 
-export function createDefaultSchemas(): IRSchema[] {
+export function makeDefaultSchemas(): IRSchema[] {
 	const jobSchema: IRSchema = {
 		key: 'job',
 		sourcePath: 'contracts/job.schema.json',
@@ -172,7 +185,7 @@ export function createDefaultSchemas(): IRSchema[] {
 	return [jobSchema, taskSchema, literalSchema, fallbackSchema];
 }
 
-function createDefaultPolicyMap(): IRPolicyMap {
+function makeDefaultPolicyMap(): IRPolicyMap {
 	return {
 		sourcePath: 'src/policy-map.ts',
 		definitions: [
@@ -193,12 +206,12 @@ function createDefaultPolicyMap(): IRPolicyMap {
 	} satisfies IRPolicyMap;
 }
 
-function createDefaultResources(): IRResource[] {
-	const jobResource = createJobResource();
-	const taskResource = createTaskResource();
-	const literalResource = createLiteralResource();
-	const orphanResource = createOrphanResource();
-	const remoteResource = createRemoteResource();
+function makeDefaultResources(): IRResource[] {
+	const jobResource = makeJobResource();
+	const taskResource = makeTaskResource();
+	const literalResource = makeLiteralResource();
+	const orphanResource = makeOrphanResource();
+	const remoteResource = makeRemoteResource();
 
 	return [
 		jobResource,
@@ -209,7 +222,7 @@ function createDefaultResources(): IRResource[] {
 	];
 }
 
-export interface CreateResourceOptions {
+export interface MakeResourceOptions {
 	readonly name?: string;
 	readonly routes?: IRRoute[];
 	readonly hash?: string;
@@ -231,9 +244,7 @@ type ExtendedWpPostStorage = WpPostStorage & {
 	meta?: Record<string, ExtendedPostMetaDescriptor>;
 };
 
-export function createJobResource(
-	options: CreateResourceOptions = {}
-): IRResource {
+export function makeJobResource(options: MakeResourceOptions = {}): IRResource {
 	const cacheKeys: IRResource['cacheKeys'] = {
 		list: { segments: ['job', 'list'] as const, source: 'config' },
 		get: {
@@ -312,8 +323,8 @@ export function createJobResource(
 	} satisfies IRResource;
 }
 
-export function createTaskResource(
-	options: CreateResourceOptions = {}
+export function makeTaskResource(
+	options: MakeResourceOptions = {}
 ): IRResource {
 	const cacheKeys: IRResource['cacheKeys'] = {
 		list: { segments: ['task', 'list'] as const, source: 'config' },
@@ -361,8 +372,8 @@ export function createTaskResource(
 	} satisfies IRResource;
 }
 
-export function createLiteralResource(
-	options: CreateResourceOptions = {}
+export function makeLiteralResource(
+	options: MakeResourceOptions = {}
 ): IRResource {
 	const cacheKeys: IRResource['cacheKeys'] = {
 		list: { segments: ['literal', 'list'] as const, source: 'config' },
@@ -394,8 +405,8 @@ export function createLiteralResource(
 	} satisfies IRResource;
 }
 
-export function createOrphanResource(
-	options: CreateResourceOptions = {}
+export function makeOrphanResource(
+	options: MakeResourceOptions = {}
 ): IRResource {
 	const cacheKeys: IRResource['cacheKeys'] = {
 		list: { segments: ['orphan', 'list'] as const, source: 'config' },
@@ -427,8 +438,8 @@ export function createOrphanResource(
 	} satisfies IRResource;
 }
 
-export function createRemoteResource(
-	options: CreateResourceOptions = {}
+export function makeRemoteResource(
+	options: MakeResourceOptions = {}
 ): IRResource {
 	const cacheKeys: IRResource['cacheKeys'] = {
 		list: { segments: ['remote', 'list'] as const, source: 'config' },
@@ -460,7 +471,7 @@ export function createRemoteResource(
 	} satisfies IRResource;
 }
 
-export function createPhpProjectFixture(): IRv1['php'] {
+export function makePhpProjectFixture(): IRv1['php'] {
 	return {
 		namespace: 'Demo\\Namespace',
 		autoload: 'inc/',
@@ -468,6 +479,6 @@ export function createPhpProjectFixture(): IRv1['php'] {
 	} satisfies IRv1['php'];
 }
 
-export function createBlocksFixture(): IRBlock[] {
+export function makeBlocksFixture(): IRBlock[] {
 	return [];
 }

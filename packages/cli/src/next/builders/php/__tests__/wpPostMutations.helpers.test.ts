@@ -9,9 +9,9 @@ import type {
 } from '@wpkernel/php-json-ast';
 import type { ResolvedIdentity } from '../identity';
 import {
-	createWpPostResource,
-	createWpTaxonomyResource,
-} from '../test-support/resources.test-support';
+	makeWpPostResource,
+	makeWpTaxonomyResource,
+} from '@wpkernel/test-utils/next/builders/php/resources.test-support';
 import {
 	prepareWpPostResponse,
 	syncWpPostMeta,
@@ -21,11 +21,11 @@ import {
 const IDENTITY: ResolvedIdentity = { type: 'string', param: 'slug' };
 
 type WpPostStorageOverrides = NonNullable<
-	Parameters<typeof createWpPostResource>[0]
+	Parameters<typeof makeWpPostResource>[0]
 >['storage'];
 
 function buildResource(overrides: WpPostStorageOverrides = {}) {
-	return createWpPostResource({
+	return makeWpPostResource({
 		storage: {
 			statuses: ['draft', 'publish'],
 			supports: ['title', 'editor', 'excerpt'],
@@ -47,7 +47,7 @@ function buildResource(overrides: WpPostStorageOverrides = {}) {
 
 describe('wp-post mutation helpers', () => {
 	it('throws a KernelError when the resource does not use wp-post storage', () => {
-		const resource = createWpTaxonomyResource({
+		const resource = makeWpTaxonomyResource({
 			name: 'books',
 			schemaKey: 'book',
 		});
@@ -122,7 +122,7 @@ describe('wp-post mutation helpers', () => {
 	});
 
 	it('omits slug and support-specific fields when not configured', () => {
-		const resource = createWpPostResource({
+		const resource = makeWpPostResource({
 			identity: { type: 'number', param: 'id' },
 			storage: {
 				supports: [],

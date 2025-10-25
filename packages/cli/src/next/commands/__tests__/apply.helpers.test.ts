@@ -7,7 +7,7 @@ import {
 } from '../apply';
 import type { KernelConfigV1, LoadedKernelConfig } from '../../../config/types';
 import type { Workspace } from '../../workspace';
-import { createWorkspaceMock } from '../../../../tests/workspace.test-support';
+import { makeWorkspaceMock } from '../../../../tests/workspace.test-support';
 
 const kernelConfig: KernelConfigV1 = {
 	version: 1,
@@ -38,7 +38,7 @@ describe('apply command helpers', () => {
 	});
 
 	it('returns null when no manifest content is present', async () => {
-		const workspace = createWorkspaceMock({
+		const workspace = makeWorkspaceMock({
 			readText: jest
 				.fn<
 					ReturnType<Workspace['readText']>,
@@ -51,7 +51,7 @@ describe('apply command helpers', () => {
 	});
 
 	it('parses manifest content and normalises values', async () => {
-		const workspace = createWorkspaceMock({
+		const workspace = makeWorkspaceMock({
 			readText: jest
 				.fn<
 					ReturnType<Workspace['readText']>,
@@ -100,7 +100,7 @@ describe('apply command helpers', () => {
 	});
 
 	it('throws a kernel error when manifest cannot be parsed', async () => {
-		const workspace = createWorkspaceMock({
+		const workspace = makeWorkspaceMock({
 			readText: jest
 				.fn<
 					ReturnType<Workspace['readText']>,

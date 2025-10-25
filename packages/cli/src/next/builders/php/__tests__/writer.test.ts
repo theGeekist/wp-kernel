@@ -9,7 +9,7 @@ import { createPhpProgramWriterHelper } from '../writer';
 import { getPhpBuilderChannel, resetPhpBuilderChannel } from '../channel';
 import { resetPhpAstChannel, buildStmtNop } from '@wpkernel/php-json-ast';
 import { buildPhpPrettyPrinter } from '@wpkernel/php-driver';
-import { createWorkspaceMock } from '../../../../../tests/workspace.test-support';
+import { makeWorkspaceMock } from '../../../../../tests/workspace.test-support';
 
 jest.mock('@wpkernel/php-driver', () => ({
 	buildPhpPrettyPrinter: jest.fn(() => ({
@@ -33,7 +33,7 @@ function buildReporter(): Reporter {
 }
 
 function buildPipelineContext(): PipelineContext {
-	const workspace = createWorkspaceMock({
+	const workspace = makeWorkspaceMock({
 		root: '/workspace',
 		cwd: () => '/workspace',
 		resolve: (...parts: string[]) => path.join('/workspace', ...parts),

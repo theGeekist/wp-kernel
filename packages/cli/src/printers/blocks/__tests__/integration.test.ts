@@ -6,9 +6,9 @@ import type { PrinterContext } from '../../types.js';
 import type { IRBlock } from '../../../ir/types.js';
 import type { KernelConfigV1 } from '../../../config/types.js';
 import {
-	createKernelConfigFixture,
-	createPrinterIrFixture,
-} from '../../../../tests/printers.test-support';
+	makeKernelConfigFixture,
+	makePrinterIrFixture,
+} from '@wpkernel/test-utils/next/printers.test-support';
 
 async function withTempDir<T>(
 	factory: (dir: string) => Promise<T>
@@ -76,13 +76,13 @@ describe('emitBlockArtifacts – integration', () => {
 				},
 			];
 
-			const config = createKernelConfigFixture({
+			const config = makeKernelConfigFixture({
 				namespace: 'demo',
 				schemas: {} satisfies KernelConfigV1['schemas'],
 				resources: {} satisfies KernelConfigV1['resources'],
 			});
 
-			const ir = createPrinterIrFixture({
+			const ir = makePrinterIrFixture({
 				config,
 				blocks,
 				meta: {

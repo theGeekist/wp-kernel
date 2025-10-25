@@ -5,13 +5,13 @@ import { buildRouteMetadata } from '../resourceController/metadata';
 import type { ResolvedIdentity } from '../identity';
 import type { BuilderOutput } from '../../../runtime/types';
 import type { Workspace } from '../../../workspace/types';
-import { createWorkspaceMock } from '../../../../../tests/workspace.test-support';
+import { makeWorkspaceMock } from '../../../../../tests/workspace.test-support';
 import {
-	createPhpIrFixture,
-	createWpPostResource,
-	createWpPostRoutes,
-	createWpTaxonomyResource,
-} from '../test-support/resources.test-support';
+	makePhpIrFixture,
+	makeWpPostResource,
+	makeWpPostRoutes,
+	makeWpTaxonomyResource,
+} from '@wpkernel/test-utils/next/builders/php/resources.test-support';
 import {
 	createPhpChannelHelper,
 	createPhpResourceControllerHelper,
@@ -30,7 +30,7 @@ function buildReporter(): Reporter {
 
 function buildWorkspace(): Workspace {
 	const root = process.cwd();
-	return createWorkspaceMock({
+	return makeWorkspaceMock({
 		root,
 		cwd: () => root,
 		resolve: (...parts: string[]) => path.join(root, ...parts),
@@ -203,9 +203,9 @@ describe('createPhpResourceControllerHelper', () => {
 describe('buildRouteMetadata', () => {
 	it('annotates mutation routes with cache segments and contract tags', () => {
 		const identity: ResolvedIdentity = { type: 'string', param: 'slug' };
-		const resource = createWpPostResource();
+		const resource = makeWpPostResource();
 
-		const allRoutes = createWpPostRoutes();
+		const allRoutes = makeWpPostRoutes();
 		const routes = [
 			getRoute(allRoutes, (route) => route.method === 'POST'),
 			getRoute(allRoutes, (route) => route.method === 'PUT'),
@@ -250,7 +250,7 @@ describe('buildRouteMetadata', () => {
 
 	it('omits mutation metadata when storage is not wp-post', () => {
 		const identity: ResolvedIdentity = { type: 'string', param: 'slug' };
-		const resource = createWpTaxonomyResource({
+		const resource = makeWpTaxonomyResource({
 			name: 'books',
 			schemaKey: 'book',
 			cacheKeys: {
@@ -262,7 +262,7 @@ describe('buildRouteMetadata', () => {
 			},
 		});
 
-		const allRoutes = createWpPostRoutes();
+		const allRoutes = makeWpPostRoutes();
 		const routes = [
 			getRoute(allRoutes, (route) => route.method === 'POST'),
 			getRoute(
@@ -300,7 +300,7 @@ describe('buildRouteMetadata', () => {
 
 	it('falls back to empty segments when mutation cache keys are undefined', () => {
 		const identity: ResolvedIdentity = { type: 'string', param: 'slug' };
-		const resource = createWpPostResource({
+		const resource = makeWpPostResource({
 			cacheKeys: {
 				list: { segments: ['list'], source: 'default' },
 				get: { segments: ['get'], source: 'default' },
@@ -310,7 +310,7 @@ describe('buildRouteMetadata', () => {
 			},
 		});
 
-		const allRoutes = createWpPostRoutes();
+		const allRoutes = makeWpPostRoutes();
 		const routes = [
 			getRoute(allRoutes, (route) => route.method === 'POST'),
 			getRoute(allRoutes, (route) => route.method === 'PUT'),
@@ -355,12 +355,12 @@ describe('buildRouteMetadata', () => {
 });
 
 function buildIr() {
-	return createPhpIrFixture();
+	return makePhpIrFixture();
 }
 
 function getRoute(
-	routes: ReturnType<typeof createWpPostRoutes>,
-	matcher: (route: ReturnType<typeof createWpPostRoutes>[number]) => boolean
+	routes: ReturnType<typeof makeWpPostRoutes>,
+	matcher: (route: ReturnType<typeof makeWpPostRoutes>[number]) => boolean
 ) {
 	const route = routes.find(matcher);
 	if (!route) {

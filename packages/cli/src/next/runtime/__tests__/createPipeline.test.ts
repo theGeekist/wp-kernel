@@ -4,7 +4,7 @@ import type { BuilderHelper, FragmentHelper } from '../types';
 import {
 	buildBuilderHelper,
 	buildFragmentHelper,
-} from '../test-support/pipeline.fixtures.test-support';
+} from '@wpkernel/test-utils/next/runtime/pipeline.fixtures.test-support';
 
 describe('createPipeline registration', () => {
 	it('throws when registering a fragment with wrong kind', () => {

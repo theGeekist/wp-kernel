@@ -14,9 +14,9 @@ import * as workspaceExports from '../../workspace';
 import { createIr } from '../createIr';
 import {
 	withWorkspace,
-	createWorkspaceMock,
+	makeWorkspaceMock,
 } from '../../../../tests/workspace.test-support';
-import { createKernelConfigFixture } from '../../../../tests/printers.test-support';
+import { makeKernelConfigFixture } from '@wpkernel/test-utils/next/printers.test-support';
 
 jest.mock('../../builders', () => {
 	const { createHelper } = jest.requireActual('../../runtime');
@@ -56,7 +56,7 @@ describe('createIr', () => {
 			path.join(FIXTURE_ROOT, 'schemas', 'todo.schema.json')
 		);
 
-		const config = createKernelConfigFixture({
+		const config = makeKernelConfigFixture({
 			namespace: 'todo-app',
 			schemas: {
 				todo: {
@@ -193,7 +193,7 @@ describe('createIr', () => {
 			}),
 		};
 
-		const workspace = createWorkspaceMock({
+		const workspace = makeWorkspaceMock({
 			root: '/tmp/custom-workspace',
 		});
 		const reporterChild = jest.fn();
@@ -229,7 +229,7 @@ describe('createIr', () => {
 			sourcePath: path.join(process.cwd(), 'configs', 'kernel.config.ts'),
 		} as const;
 
-		const createdWorkspace = createWorkspaceMock({
+		const createdWorkspace = makeWorkspaceMock({
 			root: '/tmp/generated-workspace',
 		});
 		const createdReporterChild = jest.fn();

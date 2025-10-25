@@ -1,11 +1,11 @@
 import { collectCanonicalBasePaths, determineRouteKind } from '../routes';
-import { createWpPostRoutes } from '../test-support/resources.test-support';
+import { makeWpPostRoutes } from '@wpkernel/test-utils/next/builders/php/resources.test-support';
 
 describe('routes helpers', () => {
 	const identityParam = 'slug';
 
 	it('collects canonical base paths using identity routes when available', () => {
-		const routes = createWpPostRoutes();
+		const routes = makeWpPostRoutes();
 
 		const basePaths = collectCanonicalBasePaths(routes, identityParam);
 
@@ -13,7 +13,7 @@ describe('routes helpers', () => {
 	});
 
 	it('classifies routes by HTTP method and path patterns', () => {
-		const routes = createWpPostRoutes();
+		const routes = makeWpPostRoutes();
 		const basePaths = collectCanonicalBasePaths(routes, identityParam);
 
 		const listRoute = getRouteBy(
@@ -55,7 +55,7 @@ describe('routes helpers', () => {
 	});
 
 	it('returns undefined for custom routes outside canonical patterns', () => {
-		const routes = createWpPostRoutes();
+		const routes = makeWpPostRoutes();
 		const basePaths = collectCanonicalBasePaths(routes, identityParam);
 
 		const customRoute = {
@@ -64,7 +64,7 @@ describe('routes helpers', () => {
 			policy: undefined,
 			hash: 'custom',
 			transport: 'local',
-		} satisfies ReturnType<typeof createWpPostRoutes>[number];
+		} satisfies ReturnType<typeof makeWpPostRoutes>[number];
 
 		expect(
 			determineRouteKind(customRoute, identityParam, basePaths)
@@ -73,8 +73,8 @@ describe('routes helpers', () => {
 });
 
 function getRouteBy(
-	routes: ReturnType<typeof createWpPostRoutes>,
-	matcher: (route: ReturnType<typeof createWpPostRoutes>[number]) => boolean
+	routes: ReturnType<typeof makeWpPostRoutes>,
+	matcher: (route: ReturnType<typeof makeWpPostRoutes>[number]) => boolean
 ) {
 	const route = routes.find(matcher);
 	if (!route) {
