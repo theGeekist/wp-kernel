@@ -3,7 +3,7 @@ import path from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { KernelError } from '@wpkernel/core/error';
-import { createHelper } from '@wpkernel/core/pipeline';
+import { createHelper } from '../runtime';
 import type {
 	BuilderApplyOptions,
 	BuilderHelper,

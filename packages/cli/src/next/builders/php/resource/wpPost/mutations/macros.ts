@@ -28,6 +28,7 @@ import {
 	buildPropertyFetch,
 } from '../../utils';
 import type { ResourceMutationContract } from '../../mutationContract';
+import { buildReturnIfWpError } from '../../errors';
 export interface MacroExpression {
 	readonly expression: PhpExpr;
 	readonly display: string;
@@ -203,13 +204,7 @@ export function buildSyncTaxonomiesStatements(
 	);
 	statements.push(assign);
 
-	const guard = buildIfStatement(
-		buildFuncCall(buildName(['is_wp_error']), [
-			buildArg(options.resultVariable.expression),
-		]),
-		[buildReturn(options.resultVariable.expression)]
-	);
-	statements.push(guard);
+	statements.push(buildReturnIfWpError(options.resultVariable.expression));
 	return statements;
 }
 

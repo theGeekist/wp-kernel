@@ -1,19 +1,14 @@
 import {
 	buildArray,
 	buildArrayItem,
-	buildAssign,
-	buildExpressionStatement,
-	buildIdentifier,
-	buildMethodCall,
 	buildReturn,
 	buildScalarCast,
 	buildScalarString,
-	buildStmtNop,
 	buildVariable,
-	isNonEmptyString,
 	type PhpStmt,
 	type ResourceMetadataHost,
 } from '@wpkernel/php-json-ast';
+import { isNonEmptyString } from '../../utils';
 import {
 	buildMetaQueryStatements,
 	buildTaxonomyQueryStatements,
@@ -26,6 +21,8 @@ import {
 	buildPropertyFetch,
 	createQueryArgsAssignmentStatement,
 	createWpQueryExecutionStatement,
+	buildMethodCallAssignmentStatement,
+	appendStatementsWithSpacing,
 	variable,
 	buildWpTaxonomyListRouteStatements,
 } from '../../resource';
@@ -62,16 +59,11 @@ export function buildListRouteStatements(
 	const statements: PhpStmt[] = [];
 
 	statements.push(
-		buildExpressionStatement(
-			buildAssign(
-				buildVariable('post_type'),
-				buildMethodCall(
-					buildVariable('this'),
-					buildIdentifier(`get${options.pascalName}PostType`),
-					[]
-				)
-			)
-		)
+		buildMethodCallAssignmentStatement({
+			variable: 'post_type',
+			subject: 'this',
+			method: `get${options.pascalName}PostType`,
+		})
 	);
 
 	const [perPageAssign, ensurePositive, clampMaximum] =
@@ -80,31 +72,24 @@ export function buildListRouteStatements(
 			targetVariable: 'per_page',
 		});
 
-	statements.push(
+	appendStatementsWithSpacing(statements, [
 		perPageAssign,
 		ensurePositive,
 		clampMaximum,
-		buildStmtNop()
-	);
+	]);
 
 	const statuses = Array.isArray(storage.statuses)
 		? storage.statuses.filter(isNonEmptyString)
 		: [];
 
 	if (statuses.length > 0) {
-		statements.push(
-			buildExpressionStatement(
-				buildAssign(
-					buildVariable('statuses'),
-					buildMethodCall(
-						buildVariable('this'),
-						buildIdentifier(`get${options.pascalName}Statuses`),
-						[]
-					)
-				)
-			)
-		);
-		statements.push(buildStmtNop());
+		appendStatementsWithSpacing(statements, [
+			buildMethodCallAssignmentStatement({
+				variable: 'statuses',
+				subject: 'this',
+				method: `get${options.pascalName}Statuses`,
+			}),
+		]);
 	}
 
 	const metaEntries = collectMetaQueryEntries(storage);
@@ -128,18 +113,18 @@ export function buildListRouteStatements(
 		targetVariable: 'query_args',
 		entries: queryEntries,
 	});
-	statements.push(queryArgsAssignment, buildStmtNop());
+	appendStatementsWithSpacing(statements, [queryArgsAssignment]);
 
-	appendSection(
+	appendStatementsWithSpacing(
 		statements,
 		buildMetaQueryStatements({ entries: metaEntries })
 	);
-	appendSection(
+	appendStatementsWithSpacing(
 		statements,
 		buildTaxonomyQueryStatements({ entries: taxonomyEntries })
 	);
 
-	statements.push(
+	appendStatementsWithSpacing(statements, [
 		createWpQueryExecutionStatement({
 			target: 'query',
 			argsVariable: 'query_args',
@@ -150,17 +135,16 @@ export function buildListRouteStatements(
 				segments: options.cacheSegments,
 				description: 'List query',
 			},
-		})
-	);
-	statements.push(buildStmtNop());
+		}),
+	]);
 
-	statements.push(buildListItemsInitialiserStatement());
-	statements.push(buildStmtNop());
+	appendStatementsWithSpacing(statements, [
+		buildListItemsInitialiserStatement(),
+	]);
 
-	statements.push(
-		buildListForeachStatement({ pascalName: options.pascalName })
-	);
-	statements.push(buildStmtNop());
+	appendStatementsWithSpacing(statements, [
+		buildListForeachStatement({ pascalName: options.pascalName }),
+	]);
 
 	const totalFetch = buildScalarCast(
 		'int',
@@ -188,17 +172,4 @@ export function buildListRouteStatements(
 	);
 
 	return statements;
-}
-
-function appendSection(target: PhpStmt[], section: readonly PhpStmt[]): void {
-	if (section.length === 0) {
-		return;
-	}
-
-	target.push(...section);
-
-	const last = section[section.length - 1]!;
-	if (last.nodeType !== 'Stmt_Nop') {
-		target.push(buildStmtNop());
-	}
 }

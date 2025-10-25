@@ -13,7 +13,7 @@ import {
 import { KernelError } from '@wpkernel/core/error';
 import type { IRv1 } from '../../ir/types';
 import type { KernelConfigV1 } from '../../config/types';
-import { createHelper } from '@wpkernel/core/pipeline';
+import { createHelper } from '../runtime';
 import type {
 	BuilderApplyOptions,
 	BuilderHelper,

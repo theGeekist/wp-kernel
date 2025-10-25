@@ -7,8 +7,6 @@ export * from './printables';
 export * from './programBuilder';
 export * from './templates';
 export * from './types';
-export * from './utils';
-export * from './valueRenderers';
 export * from './factories';
 export * from './context';
 export * from './builderChannel';

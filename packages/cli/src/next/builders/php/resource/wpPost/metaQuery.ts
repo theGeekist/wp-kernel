@@ -18,7 +18,6 @@ import {
 	buildScalarInt,
 	buildScalarString,
 	buildVariable,
-	toSnakeCase,
 	type PhpExpr,
 	type PhpStmt,
 	type PhpStmtExpression,
@@ -32,6 +31,7 @@ import {
 	buildIfStatementNode,
 	buildArrayInitialiserStatement,
 } from '../utils';
+import { toSnakeCase } from '../../utils';
 
 export interface WpPostMetaConfigEntry {
 	readonly single?: boolean | null;

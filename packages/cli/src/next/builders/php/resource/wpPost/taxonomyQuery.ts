@@ -15,7 +15,6 @@ import {
 	buildScalarInt,
 	buildScalarString,
 	buildVariable,
-	toSnakeCase,
 	type PhpStmt,
 } from '@wpkernel/php-json-ast';
 import {
@@ -25,6 +24,7 @@ import {
 	buildIfStatementNode,
 	buildArrayInitialiserStatement,
 } from '../utils';
+import { toSnakeCase } from '../../utils';
 
 export interface WpPostTaxonomyConfigEntry {
 	readonly taxonomy?: string | null;

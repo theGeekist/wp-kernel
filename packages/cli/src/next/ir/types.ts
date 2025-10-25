@@ -128,13 +128,16 @@ export function createIrFragmentOutput(draft: MutableIr): IrFragmentOutput {
 export type IrFragment = Helper<
 	PipelineContext,
 	IrFragmentInput,
-	IrFragmentOutput
+	IrFragmentOutput,
+	PipelineContext['reporter'],
+	'fragment'
 >;
 
 export type IrFragmentApplyOptions = HelperApplyOptions<
 	PipelineContext,
 	IrFragmentInput,
-	IrFragmentOutput
+	IrFragmentOutput,
+	PipelineContext['reporter']
 > & {
 	reporter: Reporter;
 };

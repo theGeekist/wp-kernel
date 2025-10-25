@@ -2,12 +2,17 @@ import {
 	buildArg,
 	buildArray,
 	buildArrayItem,
+	buildFuncCall,
+	buildIfStatement,
 	buildName,
 	buildNode,
 	buildReturn,
 	buildScalarInt,
 	buildScalarString,
+	type PhpExpr,
 	type PhpExprNew,
+	type PhpStmt,
+	type PhpStmtIf,
 	type PhpStmtReturn,
 } from '@wpkernel/php-json-ast';
 
@@ -38,4 +43,25 @@ export function buildWpErrorReturn(
 	});
 
 	return buildReturn(errorExpr);
+}
+
+export interface WpErrorGuardOptions {
+	readonly expression: PhpExpr;
+	readonly statements: readonly PhpStmt[];
+}
+
+export function buildIsWpErrorGuard(options: WpErrorGuardOptions): PhpStmtIf {
+	return buildIfStatement(
+		buildFuncCall(buildName(['is_wp_error']), [
+			buildArg(options.expression),
+		]),
+		[...options.statements]
+	);
+}
+
+export function buildReturnIfWpError(expression: PhpExpr): PhpStmtIf {
+	return buildIsWpErrorGuard({
+		expression,
+		statements: [buildReturn(expression)],
+	});
 }

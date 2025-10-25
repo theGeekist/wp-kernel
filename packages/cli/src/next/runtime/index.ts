@@ -1,3 +1,4 @@
+export { createHelper } from './createHelper';
 export { createPipeline } from './createPipeline';
 export type {
 	Pipeline,

@@ -1,4 +1,4 @@
-import { createHelper } from '@wpkernel/core/pipeline';
+import { createHelper } from '../../runtime';
 import type {
 	BuilderApplyOptions,
 	BuilderHelper,
@@ -26,7 +26,6 @@ import {
 	PHP_CLASS_MODIFIER_FINAL,
 	PHP_METHOD_MODIFIER_PUBLIC,
 	PHP_METHOD_MODIFIER_STATIC,
-	sanitizeJson,
 	type PhpAstBuilderAdapter,
 	type PhpAttributes,
 	type PhpExprNew,
@@ -34,6 +33,7 @@ import {
 } from '@wpkernel/php-json-ast';
 import { renderPhpValue } from './resource/phpValue';
 import type { IRPolicyDefinition, IRv1 } from '../../../ir/types';
+import { sanitizeJson } from './utils';
 
 export function createPhpPolicyHelper(): BuilderHelper {
 	return createHelper({

@@ -1,4 +1,4 @@
-import { createHelper } from '@wpkernel/core/pipeline';
+import { createHelper } from '../../runtime';
 import type {
 	BuilderApplyOptions,
 	BuilderHelper,
@@ -15,9 +15,7 @@ import {
 	buildClassMethod,
 	buildDocComment,
 	buildExpressionStatement,
-	buildFuncCall,
 	buildIdentifier,
-	buildMethodCall,
 	buildName,
 	buildParam,
 	buildReturn,
@@ -25,13 +23,9 @@ import {
 	buildStaticCall,
 	buildStmtNop,
 	buildVariable,
-	buildIfStatement,
 	createPhpFileBuilder,
-	makeErrorCodeFactory,
 	PHP_CLASS_MODIFIER_FINAL,
 	PHP_METHOD_MODIFIER_PUBLIC,
-	sanitizeJson,
-	toPascalCase,
 	type PhpAstBuilderAdapter,
 	type PhpAttributes,
 	type PhpStmt,
@@ -39,6 +33,7 @@ import {
 	type ResourceControllerRouteMetadata,
 	type ResourceMetadataHost,
 } from '@wpkernel/php-json-ast';
+import { makeErrorCodeFactory, sanitizeJson, toPascalCase } from './utils';
 import type { IRResource, IRRoute, IRv1 } from '../../../ir/types';
 import { resolveIdentityConfig, type ResolvedIdentity } from './identity';
 import { collectCanonicalBasePaths } from './routes';
@@ -53,6 +48,8 @@ import { buildNotImplementedStatements } from './resourceController/stubs';
 import { buildRouteKindStatements } from './resourceController/routes/handleRouteKind';
 import { createWpTaxonomyHelperMethods } from './resource/wpTaxonomy';
 import { renderPhpValue } from './resource/phpValue';
+import { createRequestParamAssignmentStatement } from './resource/request';
+import { buildReturnIfWpError } from './resource/errors';
 
 export function createPhpResourceControllerHelper(): BuilderHelper {
 	return createHelper({
@@ -279,15 +276,13 @@ function createRouteMethod(options: RouteMethodOptions): PhpStmtClassMethod {
 		})
 	) {
 		const param = options.identity.param;
-		const assign = buildAssign(
-			buildVariable(param),
-			buildMethodCall(
-				buildVariable('request'),
-				buildIdentifier('get_param'),
-				[buildArg(buildScalarString(param))]
-			)
+		statements.push(
+			createRequestParamAssignmentStatement({
+				requestVariable: 'request',
+				param,
+				targetVariable: param,
+			})
 		);
-		statements.push(buildExpressionStatement(assign));
 		statements.push(buildStmtNop());
 	}
 
@@ -301,14 +296,7 @@ function createRouteMethod(options: RouteMethodOptions): PhpStmtClassMethod {
 		);
 		statements.push(buildExpressionStatement(policyAssign));
 
-		const isErrorCall = buildFuncCall(buildName(['is_wp_error']), [
-			buildArg(buildVariable('permission')),
-		]);
-		statements.push(
-			buildIfStatement(isErrorCall, [
-				buildReturn(buildVariable('permission')),
-			])
-		);
+		statements.push(buildReturnIfWpError(buildVariable('permission')));
 		statements.push(buildStmtNop());
 	}
 
