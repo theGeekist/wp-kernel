@@ -29,10 +29,13 @@ import { createRequestParamAssignmentStatement } from '../request';
 import { variable } from '../phpValue';
 import {
 	buildArrayDimFetch,
+	buildArrayInitialiserStatement,
 	buildBinaryOperation,
 	buildIfStatementNode,
 	buildInstanceof,
 	buildScalarCast,
+	buildVariableAssignment,
+	normaliseVariableReference,
 } from '../utils';
 import { buildListItemsInitialiserStatement } from '../wpPost/list';
 import type { IRResource } from '../../../../../ir/types';
@@ -40,6 +43,7 @@ import {
 	buildPrepareTaxonomyTermResponseCall,
 	buildTaxonomyAssignmentStatement,
 } from './helpers';
+import { buildWpTermQueryInstantiation } from '@wpkernel/php-json-ast';
 
 type WpTaxonomyStorage = Extract<
 	NonNullable<IRResource['storage']>,
@@ -359,7 +363,6 @@ function buildResultsForeach(options: {
 		byRef: false,
 		stmts: [guard],
 	});
-}
 
 function buildTermQueryInstantiation(
 	target: string,
@@ -382,7 +385,6 @@ function buildContinueStatement(): PhpStmtContinue {
 	return buildNode<PhpStmtContinue>('Stmt_Continue', {
 		num: null,
 	});
-}
 
 function buildBlankStatement(): PhpStmt {
 	return buildNode<PhpStmt>('Stmt_Nop', {});

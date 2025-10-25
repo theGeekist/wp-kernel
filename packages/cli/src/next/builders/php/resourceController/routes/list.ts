@@ -13,6 +13,7 @@ import {
 	isNonEmptyString,
 	type PhpStmt,
 	type ResourceMetadataHost,
+	type PhpStmt,
 } from '@wpkernel/php-json-ast';
 import {
 	buildMetaQueryStatements,
@@ -201,4 +202,30 @@ function appendSection(target: PhpStmt[], section: readonly PhpStmt[]): void {
 	if (last.nodeType !== 'Stmt_Nop') {
 		target.push(buildStmtNop());
 	}
+}
+
+interface AppendPrintableOptions {
+	readonly indentLevel: number;
+	readonly indentUnit: string;
+}
+
+function appendPrintableStatements(
+	body: PhpMethodBodyBuilder,
+	statements: readonly PhpStmt[],
+	options: AppendPrintableOptions
+): void {
+	if (statements.length === 0) {
+		return;
+	}
+
+	for (const statement of statements) {
+		body.statement(
+			formatStatementPrintable(statement, {
+				indentLevel: options.indentLevel,
+				indentUnit: options.indentUnit,
+			})
+		);
+	}
+
+	body.blank();
 }

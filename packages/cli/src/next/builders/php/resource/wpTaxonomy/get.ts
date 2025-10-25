@@ -1,14 +1,12 @@
 import { KernelError } from '@wpkernel/core/contracts';
 import {
 	buildArg,
-	buildAssign,
-	buildExpressionStatement,
+	buildFuncCall,
 	buildIdentifier,
 	buildMethodCall,
+	buildName,
 	buildReturn,
 	buildVariable,
-	buildFuncCall,
-	buildName,
 	buildScalarString,
 	buildNode,
 	type PhpStmt,
@@ -26,6 +24,7 @@ import type { ResolvedIdentity } from '../../identity';
 import {
 	buildPrepareTaxonomyTermResponseCall,
 	buildResolveTaxonomyTermCall,
+	createTaxonomyAssignmentStatement,
 } from './helpers';
 
 type WpTaxonomyStorage = Extract<

@@ -34,6 +34,9 @@ import {
 	buildInstanceof,
 	buildPropertyFetch,
 	buildScalarCast,
+	buildVariableAssignment,
+	normaliseVariableReference,
+	type NormalisedVariableReference,
 } from '../utils';
 import { buildWpErrorReturn } from '../errors';
 
@@ -269,7 +272,7 @@ function createResolveTermHelper(pascalName: string): TaxonomyHelperMethod {
 		buildIdentifier(`resolve${pascalName}Term`),
 		{
 			flags: PHP_METHOD_MODIFIER_PRIVATE,
-			params: [buildParam(buildVariable('identity'))],
+			params: [buildParam(buildVariable(identityVar.raw))],
 			returnType: buildNode<PhpNullableType>('NullableType', {
 				type: buildName(['WP_Term']),
 			}),
@@ -281,6 +284,69 @@ function createResolveTermHelper(pascalName: string): TaxonomyHelperMethod {
 		node: method,
 		signature: `private function resolve${pascalName}Term( $identity ): ?WP_Term`,
 	};
+}
+
+function buildStringIdentityStatements(
+	taxonomyVar: NormalisedVariableReference,
+	identityVar: NormalisedVariableReference
+): PhpStmt[] {
+	const candidateVar = normaliseVariableReference('candidate');
+	const termVar = normaliseVariableReference('term');
+
+	const assignCandidate = buildVariableAssignment(
+		candidateVar,
+		buildFuncCall(buildName(['trim']), [
+			buildArg(
+				buildFuncCall(buildName(['strval']), [
+					buildArg(buildVariable(identityVar.raw)),
+				])
+			),
+		])
+	);
+
+	const slugLookup = buildVariableAssignment(
+		termVar,
+		buildFuncCall(buildName(['get_term_by']), [
+			buildArg(buildScalarString('slug')),
+			buildArg(buildVariable(candidateVar.raw)),
+			buildArg(buildVariable(taxonomyVar.raw)),
+		])
+	);
+
+	const slugReturn = buildReturn(buildVariable(termVar.raw));
+
+	const nameLookup = buildVariableAssignment(
+		termVar,
+		buildFuncCall(buildName(['get_term_by']), [
+			buildArg(buildScalarString('name')),
+			buildArg(buildVariable(candidateVar.raw)),
+			buildArg(buildVariable(taxonomyVar.raw)),
+		])
+	);
+
+	const nameReturn = buildReturn(buildVariable(termVar.raw));
+
+	const nonEmptyGuard = buildIfStatementNode({
+		condition: buildBinaryOperation(
+			'NotIdentical',
+			buildScalarString(''),
+			buildVariable(candidateVar.raw)
+		),
+		statements: [
+			slugLookup,
+			buildIfStatementNode({
+				condition: buildInstanceof('term', 'WP_Term'),
+				statements: [slugReturn],
+			}),
+			nameLookup,
+			buildIfStatementNode({
+				condition: buildInstanceof('term', 'WP_Term'),
+				statements: [nameReturn],
+			}),
+		],
+	});
+
+	return [assignCandidate, nonEmptyGuard];
 }
 
 function createValidateIdentityHelper(
