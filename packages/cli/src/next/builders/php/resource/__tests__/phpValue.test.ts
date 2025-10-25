@@ -1,5 +1,14 @@
 import { buildScalarInt } from '@wpkernel/php-json-ast';
 import { expression, renderPhpValue, variable } from '../phpValue';
+import type { PhpExpr, PhpExprArray } from '@wpkernel/php-json-ast';
+
+function expectArrayExpression(expr: PhpExpr): PhpExprArray {
+	expect(expr.nodeType).toBe('Expr_Array');
+	if (expr.nodeType !== 'Expr_Array') {
+		throw new Error('Expected rendered value to be an array');
+	}
+	return expr as PhpExprArray;
+}
 
 describe('phpValue', () => {
 	it('renders variable descriptors', () => {
@@ -18,8 +27,9 @@ describe('phpValue', () => {
 
 	it('renders structured literals', () => {
 		const rendered = renderPhpValue({ key: 'value' });
-		expect(rendered.nodeType).toBe('Expr_Array');
-		expect(rendered.items).toEqual(
+		const arrayExpr = expectArrayExpression(rendered);
+		const items = arrayExpr.items;
+		expect(items).toEqual(
 			expect.arrayContaining([
 				expect.objectContaining({
 					nodeType: 'Expr_ArrayItem',

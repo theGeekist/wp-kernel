@@ -1,15 +1,31 @@
 import { buildWpTaxonomyHelperMethods } from '../helpers';
-import type { PhpStmt, PhpExprArray } from '@wpkernel/php-json-ast';
+import type {
+	PhpStmt,
+	PhpExpr,
+	PhpExprArray,
+	PhpExprConstFetch,
+	PhpExprFuncCall,
+} from '@wpkernel/php-json-ast';
 import type { IRResource } from '../../../../../../ir/types';
 import type { ResolvedIdentity } from '../../../identity';
+import type { ResourceIdentityConfig } from '@wpkernel/core/resource';
 
 type TaxonomyStorage = Extract<
 	NonNullable<IRResource['storage']>,
 	{ mode: 'wp-taxonomy' }
 >;
 
+type TaxonomyHelper = ReturnType<typeof buildWpTaxonomyHelperMethods>[number];
+
 describe('buildWpTaxonomyHelperMethods', () => {
-	const identity: ResolvedIdentity = { type: 'string', param: 'slug' };
+	const identityConfig: ResourceIdentityConfig = {
+		type: 'string',
+		param: 'slug',
+	};
+	const identity: ResolvedIdentity = {
+		type: 'string',
+		param: identityConfig.param ?? 'slug',
+	};
 	const storage: TaxonomyStorage = {
 		mode: 'wp-taxonomy',
 		taxonomy: 'job_category',
@@ -28,7 +44,7 @@ describe('buildWpTaxonomyHelperMethods', () => {
 			update: { segments: [], source: 'default' },
 			remove: { segments: [], source: 'default' },
 		},
-		identity,
+		identity: identityConfig,
 		storage,
 		queryParams: undefined,
 		ui: undefined,
@@ -51,10 +67,12 @@ describe('buildWpTaxonomyHelperMethods', () => {
 	it('annotates resolve helper with the identity parameter and nullable WP_Term return type', () => {
 		const helpers = buildHelpers();
 
-		const resolveHelper = helpers[2];
+		const resolveHelper = getHelper(helpers, 2);
 		expect(resolveHelper.node?.name.name).toBe('resolveJobCategoriesTerm');
-		expect(resolveHelper.node?.params).toHaveLength(1);
-		expect(resolveHelper.node?.params[0].var).toMatchObject({
+		const resolveParams = resolveHelper.node?.params ?? [];
+		expect(resolveParams).toHaveLength(1);
+		const [resolveIdentityParam] = resolveParams;
+		expect(resolveIdentityParam?.var).toMatchObject({
 			nodeType: 'Expr_Variable',
 			name: 'identity',
 		});
@@ -67,12 +85,14 @@ describe('buildWpTaxonomyHelperMethods', () => {
 	it('exposes a typed WP_Term parameter when preparing the taxonomy response', () => {
 		const helpers = buildHelpers();
 
-		const prepareHelper = helpers[1];
+		const prepareHelper = getHelper(helpers, 1);
 		expect(prepareHelper.node?.name.name).toBe(
 			'prepareJobCategoriesTermResponse'
 		);
-		expect(prepareHelper.node?.params).toHaveLength(1);
-		expect(prepareHelper.node?.params[0].type).toMatchObject({
+		const prepareParams = prepareHelper.node?.params ?? [];
+		expect(prepareParams).toHaveLength(1);
+		const [prepareParam] = prepareParams;
+		expect(prepareParam?.type).toMatchObject({
 			nodeType: 'Name',
 			parts: ['WP_Term'],
 		});
@@ -82,26 +102,26 @@ describe('buildWpTaxonomyHelperMethods', () => {
 	it('extracts taxonomy term arguments from the request', () => {
 		const helpers = buildHelpers();
 
-		const extractHelper = helpers[3];
+		const extractHelper = getHelper(helpers, 3);
 		expect(extractHelper.node?.name.name).toBe(
 			'extractJobCategoriesTermArgs'
 		);
-		expect(extractHelper.node?.params).toHaveLength(1);
-		expect(extractHelper.node?.params[0].type).toMatchObject({
+		const extractParams = extractHelper.node?.params ?? [];
+		expect(extractParams).toHaveLength(1);
+		const [extractParam] = extractParams;
+		expect(extractParam?.type).toMatchObject({
 			nodeType: 'Name',
 			parts: ['WP_REST_Request'],
 		});
 
 		const stmts = extractHelper.node?.stmts ?? [];
 		const slugIf = findIfStatement(stmts, 'Expr_BinaryOp_BooleanAnd');
-		const assignStmt = slugIf?.stmts?.[0];
-		if (!assignStmt || assignStmt.nodeType !== 'Stmt_Expression') {
-			throw new Error('Expected slug guard to assign term args');
+		const assignStmt = expectExpressionStatement(slugIf?.stmts?.[0]);
+		const assignExpr = expectAssignExpression(assignStmt.expr);
+		const callExpr = assignExpr.expr;
+		if (callExpr.nodeType !== 'Expr_FuncCall') {
+			throw new Error('Expected slug sanitiser to be a function call');
 		}
-		if (assignStmt.expr?.nodeType !== 'Expr_Assign') {
-			throw new Error('Expected slug assignment to use Expr_Assign');
-		}
-		const callExpr = assignStmt.expr.expr;
 		expect(callExpr).toMatchObject({
 			nodeType: 'Expr_FuncCall',
 			name: { parts: ['sanitize_title'] },
@@ -117,12 +137,14 @@ describe('buildWpTaxonomyHelperMethods', () => {
 	it('exposes the identity candidate parameter when validating taxonomy identities', () => {
 		const helpers = buildHelpers();
 
-		const validateHelper = helpers[4];
+		const validateHelper = getHelper(helpers, 4);
 		expect(validateHelper.node?.name.name).toBe(
 			'validateJobCategoriesIdentity'
 		);
-		expect(validateHelper.node?.params).toHaveLength(1);
-		expect(validateHelper.node?.params[0].var).toMatchObject({
+		const validateParams = validateHelper.node?.params ?? [];
+		expect(validateParams).toHaveLength(1);
+		const [validateParam] = validateParams;
+		expect(validateParam?.var).toMatchObject({
 			nodeType: 'Expr_Variable',
 			name: 'value',
 		});
@@ -132,45 +154,106 @@ describe('buildWpTaxonomyHelperMethods', () => {
 	it('toggles hierarchical output for non-hierarchical taxonomies', () => {
 		const helpers = buildHelpers({ hierarchical: false });
 
-		const prepareHelper = helpers[1];
+		const prepareHelper = getHelper(helpers, 1);
 		expectHierarchicalFlag(prepareHelper, false);
 	});
 });
 
+function getHelper(
+	helpers: readonly TaxonomyHelper[],
+	index: number
+): TaxonomyHelper {
+	const helper = helpers[index];
+	if (!helper) {
+		throw new Error(`Expected helper at index ${index}`);
+	}
+	return helper;
+}
+
+function expectArrayExpression(expr: PhpExpr | undefined): PhpExprArray {
+	expect(expr?.nodeType).toBe('Expr_Array');
+	if (!expr || expr.nodeType !== 'Expr_Array') {
+		throw new Error('Expected array expression');
+	}
+	return expr as PhpExprArray;
+}
+
+function expectFuncCall(expr: PhpExpr | undefined): PhpExprFuncCall {
+	expect(expr?.nodeType).toBe('Expr_FuncCall');
+	if (!expr || expr.nodeType !== 'Expr_FuncCall') {
+		throw new Error('Expected function call expression');
+	}
+	return expr as PhpExprFuncCall;
+}
+
+function expectExpressionStatement(
+	stmt: PhpStmt | undefined
+): Extract<PhpStmt, { nodeType: 'Stmt_Expression'; expr: PhpExpr }> {
+	expect(stmt?.nodeType).toBe('Stmt_Expression');
+	if (!stmt || stmt.nodeType !== 'Stmt_Expression') {
+		throw new Error('Expected expression statement');
+	}
+	return stmt as Extract<
+		PhpStmt,
+		{ nodeType: 'Stmt_Expression'; expr: PhpExpr }
+	>;
+}
+
+function expectAssignExpression(
+	expr: PhpExpr | undefined
+): Extract<PhpExpr, { nodeType: 'Expr_Assign'; expr: PhpExpr }> {
+	expect(expr?.nodeType).toBe('Expr_Assign');
+	if (!expr || expr.nodeType !== 'Expr_Assign') {
+		throw new Error('Expected assign expression');
+	}
+	return expr as Extract<PhpExpr, { nodeType: 'Expr_Assign'; expr: PhpExpr }>;
+}
+
+function expectConstFetch(expr: PhpExpr | undefined): PhpExprConstFetch {
+	expect(expr?.nodeType).toBe('Expr_ConstFetch');
+	if (!expr || expr.nodeType !== 'Expr_ConstFetch') {
+		throw new Error('Expected const fetch expression');
+	}
+	return expr as PhpExprConstFetch;
+}
+
 function expectHierarchicalFlag(
-	helper: ReturnType<typeof buildHelpers>[number],
+	helper: TaxonomyHelper,
 	expected: boolean
 ): void {
 	const methodNode = helper.node;
 	expect(methodNode).toBeDefined();
 	const returnStmt = findReturnStatement(methodNode?.stmts ?? []);
-	expect(returnStmt?.expr?.nodeType).toBe('Expr_Array');
-	const arrayExpr = returnStmt?.expr as PhpExprArray | undefined;
-	const hierarchicalItem = arrayExpr?.items.find((item) => {
-		if (!item || !item.key || item.key.nodeType !== 'Scalar_String') {
-			return false;
+	const arrayExpr = expectArrayExpression(returnStmt?.expr ?? undefined);
+	let hierarchicalItem: (typeof arrayExpr.items)[number] | undefined;
+	for (const item of arrayExpr.items) {
+		const key = item?.key;
+		if (!item || !key || key.nodeType !== 'Scalar_String') {
+			continue;
 		}
-		return item.key.value === 'hierarchical';
-	});
-	expect(hierarchicalItem?.value?.nodeType).toBe('Expr_ConstFetch');
-	const constFetch = hierarchicalItem?.value;
-	if (constFetch?.nodeType !== 'Expr_ConstFetch') {
-		throw new Error('Expected hierarchical entry to be a const fetch');
+		const keyNode = key as Extract<
+			typeof key,
+			{ nodeType: 'Scalar_String'; value: string }
+		>;
+		if (keyNode.value === 'hierarchical') {
+			hierarchicalItem = item;
+			break;
+		}
 	}
+	if (!hierarchicalItem) {
+		throw new Error(
+			'Expected hierarchical entry in taxonomy helper response'
+		);
+	}
+	const constFetch = expectConstFetch(hierarchicalItem.value);
 	expect(constFetch.name.parts[0]).toBe(expected ? 'true' : 'false');
 }
 
-function expectFinalReturnTrim(
-	helper: ReturnType<typeof buildHelpers>[number]
-): void {
+function expectFinalReturnTrim(helper: TaxonomyHelper): void {
 	const methodNode = helper.node;
 	expect(methodNode).toBeDefined();
 	const returnStmt = findReturnStatement(methodNode?.stmts ?? []);
-	expect(returnStmt?.expr?.nodeType).toBe('Expr_FuncCall');
-	const callExpr = returnStmt?.expr;
-	if (!callExpr || callExpr.nodeType !== 'Expr_FuncCall') {
-		throw new Error('Expected return expression to be a function call');
-	}
+	const callExpr = expectFuncCall(returnStmt?.expr ?? undefined);
 	expect(callExpr.name).toMatchObject({ nodeType: 'Name', parts: ['trim'] });
 	expect(callExpr.args).toHaveLength(1);
 	const [arg] = callExpr.args;
@@ -180,7 +263,8 @@ function expectFinalReturnTrim(
 		throw new Error('Expected trim argument to be a cast expression');
 	}
 	expect((castExpr as { type?: string }).type ?? 'string').toBe('string');
-	expect(castExpr.expr).toMatchObject({
+	const castExpression = castExpr as { expr: PhpExpr };
+	expect(castExpression.expr).toMatchObject({
 		nodeType: 'Expr_Variable',
 		name: 'value',
 	});
@@ -192,8 +276,9 @@ function findReturnStatement(
 	return statements.find(
 		(
 			statement
-		): statement is Extract<PhpStmt, { nodeType: 'Stmt_Return' }> =>
-			statement.nodeType === 'Stmt_Return'
+		): statement is Extract<PhpStmt, { nodeType: 'Stmt_Return' }> => {
+			return statement.nodeType === 'Stmt_Return';
+		}
 	);
 }
 
@@ -202,8 +287,14 @@ function findIfStatement(
 	conditionType: string
 ): Extract<PhpStmt, { nodeType: 'Stmt_If' }> | undefined {
 	return statements.find(
-		(statement): statement is Extract<PhpStmt, { nodeType: 'Stmt_If' }> =>
-			statement.nodeType === 'Stmt_If' &&
-			statement.cond?.nodeType === conditionType
+		(statement): statement is Extract<PhpStmt, { nodeType: 'Stmt_If' }> => {
+			if (statement.nodeType !== 'Stmt_If') {
+				return false;
+			}
+			const cond = (
+				statement as Extract<typeof statement, { cond: PhpExpr }>
+			).cond;
+			return cond?.nodeType === conditionType;
+		}
 	);
 }

@@ -10,7 +10,13 @@ export type {
 	BuilderInput,
 	BuilderOutput,
 	BuilderWriteAction,
+	BuilderHelper,
 	FragmentInput,
 	FragmentOutput,
+	FragmentHelper,
 	PipelineContext,
+	PipelineExtension,
+	PipelineExtensionHook,
+	PipelineExtensionHookOptions,
+	PipelineExtensionHookResult,
 } from './types';
