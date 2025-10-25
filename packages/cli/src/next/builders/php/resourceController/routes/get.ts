@@ -5,30 +5,24 @@ import {
 	buildIdentifier,
 	buildMethodCall,
 	buildReturn,
+	buildStmtNop,
 	buildVariable,
-	buildPrintable,
-} from '@wpkernel/php-json-ast';
-import {
-	PHP_INDENT,
-	type PhpMethodBodyBuilder,
+	type PhpStmt,
 	type ResourceMetadataHost,
 } from '@wpkernel/php-json-ast';
 import {
 	appendResourceCacheEvent,
 	buildBooleanNot,
 	buildIdentityValidationStatements,
-	buildIfPrintable,
+	buildIfStatementNode,
 	buildInstanceof,
-	createWpErrorReturn,
-	buildWpTaxonomyGetRouteBody,
+	buildWpErrorReturn,
+	buildWpTaxonomyGetRouteStatements,
 } from '../../resource';
-import { formatStatementPrintable } from '../../resource/printer';
 import type { ResolvedIdentity } from '../../identity';
 import type { IRResource } from '../../../../../ir/types';
 
-export interface BuildGetRouteBodyOptions {
-	readonly body: PhpMethodBodyBuilder;
-	readonly indentLevel: number;
+export interface BuildGetRouteStatementsOptions {
 	readonly resource: IRResource;
 	readonly identity: ResolvedIdentity;
 	readonly pascalName: string;
@@ -37,16 +31,16 @@ export interface BuildGetRouteBodyOptions {
 	readonly cacheSegments: readonly unknown[];
 }
 
-export function buildGetRouteBody(options: BuildGetRouteBodyOptions): boolean {
+export function buildGetRouteStatements(
+	options: BuildGetRouteStatementsOptions
+): PhpStmt[] | null {
 	const storage = options.resource.storage;
 	if (!storage) {
-		return false;
+		return null;
 	}
 
 	if (storage.mode === 'wp-taxonomy') {
-		return buildWpTaxonomyGetRouteBody({
-			body: options.body,
-			indentLevel: options.indentLevel,
+		return buildWpTaxonomyGetRouteStatements({
 			resource: options.resource,
 			identity: options.identity,
 			pascalName: options.pascalName,
@@ -57,7 +51,7 @@ export function buildGetRouteBody(options: BuildGetRouteBodyOptions): boolean {
 	}
 
 	if (storage.mode !== 'wp-post') {
-		return false;
+		return null;
 	}
 
 	appendResourceCacheEvent({
@@ -68,10 +62,7 @@ export function buildGetRouteBody(options: BuildGetRouteBodyOptions): boolean {
 		description: 'Get request',
 	});
 
-	const indentLevel = options.indentLevel;
-	const indent = PHP_INDENT.repeat(indentLevel);
-	const param = options.identity.param;
-	const variableName = `$${param}`;
+	const statements: PhpStmt[] = [];
 
 	const identityStatements = buildIdentityValidationStatements({
 		identity: options.identity,
@@ -79,20 +70,14 @@ export function buildGetRouteBody(options: BuildGetRouteBodyOptions): boolean {
 		errorCodeFactory: options.errorCodeFactory,
 	});
 
-	for (const statement of identityStatements) {
-		options.body.statement(
-			formatStatementPrintable(statement, {
-				indentLevel,
-				indentUnit: PHP_INDENT,
-			})
-		);
-	}
+	statements.push(...identityStatements);
 
 	if (identityStatements.length > 0) {
-		options.body.blank();
+		statements.push(buildStmtNop());
 	}
 
-	const resolvePrintable = buildPrintable(
+	const param = options.identity.param;
+	statements.push(
 		buildExpressionStatement(
 			buildAssign(
 				buildVariable('post'),
@@ -102,29 +87,25 @@ export function buildGetRouteBody(options: BuildGetRouteBodyOptions): boolean {
 					[buildArg(buildVariable(param))]
 				)
 			)
-		),
-		[
-			`${indent}$post = $this->resolve${options.pascalName}Post( ${variableName} );`,
-		]
+		)
 	);
-	options.body.statement(resolvePrintable);
 
-	const notFoundReturn = createWpErrorReturn({
-		indentLevel: indentLevel + 1,
+	const notFoundReturn = buildWpErrorReturn({
 		code: options.errorCodeFactory('not_found'),
 		message: `${options.pascalName} not found.`,
 		status: 404,
 	});
 
-	const notFoundIf = buildIfPrintable({
-		indentLevel,
-		condition: buildBooleanNot(buildInstanceof('post', 'WP_Post')),
-		statements: [notFoundReturn],
-	});
-	options.body.statement(notFoundIf);
-	options.body.blank();
+	statements.push(
+		buildIfStatementNode({
+			condition: buildBooleanNot(buildInstanceof('post', 'WP_Post')),
+			statements: [notFoundReturn],
+		})
+	);
 
-	const returnPrintable = buildPrintable(
+	statements.push(buildStmtNop());
+
+	statements.push(
 		buildReturn(
 			buildMethodCall(
 				buildVariable('this'),
@@ -134,12 +115,8 @@ export function buildGetRouteBody(options: BuildGetRouteBodyOptions): boolean {
 					buildArg(buildVariable('request')),
 				]
 			)
-		),
-		[
-			`${indent}return $this->prepare${options.pascalName}Response( $post, $request );`,
-		]
+		)
 	);
-	options.body.statement(returnPrintable);
 
-	return true;
+	return statements;
 }

@@ -1,8 +1,8 @@
 import {
 	buildArg,
 	buildArray,
-	buildArrayItem,
 	buildArrayCast as buildArrayCastNode,
+	buildArrayItem,
 	buildAssign,
 	buildArrowFunction,
 	buildExpressionStatement,
@@ -18,20 +18,20 @@ import {
 	buildScalarInt,
 	buildScalarString,
 	buildVariable,
+	toSnakeCase,
 	type PhpExpr,
 	type PhpStmt,
-	type PhpPrintable,
-	type PhpMethodBodyBuilder,
+	type PhpStmtExpression,
+	type PhpStmtIf,
 } from '@wpkernel/php-json-ast';
-import { PHP_INDENT, toSnakeCase } from '@wpkernel/php-json-ast';
 import {
 	buildArrayDimFetch,
 	buildBinaryOperation,
 	buildBooleanNot,
 	buildScalarCast,
+	buildIfStatementNode,
+	buildArrayInitialiserStatement,
 } from '../utils';
-import { buildArrayInitialiser, buildIfPrintable } from '../printable';
-import { formatStatementPrintable } from '../printer';
 
 export interface WpPostMetaConfigEntry {
 	readonly single?: boolean | null;
@@ -62,269 +62,243 @@ export function collectMetaQueryEntries(
 	return entries;
 }
 
-export interface AppendMetaQueryBuilderOptions {
-	readonly body: PhpMethodBodyBuilder;
-	readonly indentLevel: number;
+export interface BuildMetaQueryStatementsOptions {
 	readonly entries: Array<[string, { single?: boolean | null } | undefined]>;
 }
 
-export function appendMetaQueryBuilder(
-	options: AppendMetaQueryBuilderOptions
-): void {
+export function buildMetaQueryStatements(
+	options: BuildMetaQueryStatementsOptions
+): readonly PhpStmt[] {
 	if (options.entries.length === 0) {
-		return;
+		return [];
 	}
 
-	const initPrintable = buildArrayInitialiser({
-		variable: 'meta_query',
-		indentLevel: options.indentLevel,
-	});
-	options.body.statement(initPrintable);
+	const statements: PhpStmt[] = [
+		buildArrayInitialiserStatement({ variable: 'meta_query' }),
+	];
 
 	for (const [key, descriptor] of options.entries) {
 		const variableName = `${toSnakeCase(key)}Meta`;
-		const requestPrintable = formatStatementPrintable(
-			buildExpressionStatement(
-				buildAssign(
-					buildVariable(variableName),
-					buildMethodCall(
-						buildVariable('request'),
-						buildIdentifier('get_param'),
-						[buildArg(buildScalarString(key))]
-					)
-				)
-			),
-			{
-				indentLevel: options.indentLevel,
-				indentUnit: PHP_INDENT,
-			}
-		);
-		options.body.statement(requestPrintable);
-
-		const childIndentLevel = options.indentLevel + 1;
-		const innerStatements: PhpPrintable<PhpStmt>[] = [];
-
-		if (descriptor?.single === false) {
-			innerStatements.push(
-				buildIfPrintable({
-					indentLevel: childIndentLevel,
-					condition: buildBooleanNot(
-						buildFuncCall(buildName(['is_array']), [
-							buildArg(buildVariable(variableName)),
-						])
-					),
-					statements: [
-						formatStatementPrintable(
-							buildExpressionStatement(
-								buildAssign(
-									buildVariable(variableName),
-									buildArray([
-										buildArrayItem(
-											buildVariable(variableName)
-										),
-									])
-								)
-							),
-							{
-								indentLevel: childIndentLevel,
-								indentUnit: PHP_INDENT,
-							}
-						),
-					],
-				})
-			);
-
-			const normalisePrintable = formatStatementPrintable(
-				buildExpressionStatement(
-					buildAssign(
-						buildVariable(variableName),
-						buildFuncCall(buildName(['array_values']), [
-							buildArg(
-								buildArrayCastNode(buildVariable(variableName))
-							),
-						])
-					)
-				),
-				{
-					indentLevel: childIndentLevel,
-					indentUnit: PHP_INDENT,
-				}
-			);
-
-			const filterPrintable = formatStatementPrintable(
-				buildExpressionStatement(
-					buildAssign(
-						buildVariable(variableName),
-						buildFuncCall(buildName(['array_filter']), [
-							buildArg(buildVariable(variableName)),
-							buildArg(createStaticTrimFilterClosure()),
-						])
-					)
-				),
-				{
-					indentLevel: childIndentLevel,
-					indentUnit: PHP_INDENT,
-				}
-			);
-
-			innerStatements.push(normalisePrintable, filterPrintable);
-
-			const pushPrintable = formatStatementPrintable(
-				buildExpressionStatement(
-					buildAssign(
-						buildArrayDimFetch('meta_query', null),
-						buildArray([
-							buildArrayItem(buildScalarString(key), {
-								key: buildScalarString('key'),
-							}),
-							buildArrayItem(buildScalarString('IN'), {
-								key: buildScalarString('compare'),
-							}),
-							buildArrayItem(buildVariable(variableName), {
-								key: buildScalarString('value'),
-							}),
-						])
-					)
-				),
-				{
-					indentLevel: childIndentLevel + 1,
-					indentUnit: PHP_INDENT,
-				}
-			);
-
-			innerStatements.push(
-				buildIfPrintable({
-					indentLevel: childIndentLevel,
-					condition: buildBinaryOperation(
-						'Greater',
-						buildFuncCall(buildName(['count']), [
-							buildArg(buildVariable(variableName)),
-						]),
-						buildScalarInt(0)
-					),
-					statements: [pushPrintable],
-				})
-			);
-		} else {
-			const sanitisePrintable = formatStatementPrintable(
-				buildExpressionStatement(
-					buildAssign(
-						buildVariable(variableName),
-						buildMatch(
-							buildFuncCall(buildName(['is_scalar']), [
-								buildArg(buildVariable(variableName)),
-							]),
-							[
-								buildMatchArm(
-									[buildScalarBool(true)],
-									buildFuncCall(buildName(['trim']), [
-										buildArg(
-											buildScalarCast(
-												'string',
-												buildVariable(variableName)
-											)
-										),
-									])
-								),
-								buildMatchArm(null, buildNull()),
-							]
-						)
-					)
-				),
-				{
-					indentLevel: childIndentLevel,
-					indentUnit: PHP_INDENT,
-				}
-			);
-
-			const pushPrintable = formatStatementPrintable(
-				buildExpressionStatement(
-					buildAssign(
-						buildArrayDimFetch('meta_query', null),
-						buildArray([
-							buildArrayItem(buildScalarString(key), {
-								key: buildScalarString('key'),
-							}),
-							buildArrayItem(buildScalarString('='), {
-								key: buildScalarString('compare'),
-							}),
-							buildArrayItem(buildVariable(variableName), {
-								key: buildScalarString('value'),
-							}),
-						])
-					)
-				),
-				{
-					indentLevel: childIndentLevel + 1,
-					indentUnit: PHP_INDENT,
-				}
-			);
-
-			innerStatements.push(
-				sanitisePrintable,
-				buildIfPrintable({
-					indentLevel: childIndentLevel,
-					condition: buildBinaryOperation(
-						'BooleanAnd',
-						buildBinaryOperation(
-							'NotIdentical',
-							buildVariable(variableName),
-							buildNull()
-						),
-						buildBinaryOperation(
-							'NotIdentical',
-							buildVariable(variableName),
-							buildScalarString('')
-						)
-					),
-					statements: [pushPrintable],
-				})
-			);
-		}
-
-		options.body.statement(
-			buildIfPrintable({
-				indentLevel: options.indentLevel,
+		statements.push(createMetaRequestAssignment(variableName, key));
+		statements.push(
+			buildIfStatementNode({
 				condition: buildBinaryOperation(
 					'NotIdentical',
 					buildVariable(variableName),
 					buildNull()
 				),
-				statements: innerStatements,
+				statements: createMetaBranchStatements({
+					key,
+					variableName,
+					descriptor,
+				}),
 			})
 		);
 	}
 
-	const assignPrintable = formatStatementPrintable(
-		buildExpressionStatement(
-			buildAssign(
-				buildArrayDimFetch(
-					'query_args',
-					buildScalarString('meta_query')
-				),
-				buildVariable('meta_query')
-			)
+	statements.push(createMetaQueryAssignmentGuard());
+
+	return statements;
+}
+
+interface MetaBranchOptions {
+	readonly key: string;
+	readonly variableName: string;
+	readonly descriptor: { single?: boolean | null } | undefined;
+}
+
+function createMetaBranchStatements(
+	options: MetaBranchOptions
+): readonly PhpStmt[] {
+	const { key, variableName, descriptor } = options;
+
+	if (descriptor?.single === false) {
+		return createMultiValueMetaStatements({ key, variableName });
+	}
+
+	return createSingleValueMetaStatements({ key, variableName });
+}
+
+interface MetaStatementBaseOptions {
+	readonly key: string;
+	readonly variableName: string;
+}
+
+function createMultiValueMetaStatements(
+	options: MetaStatementBaseOptions
+): readonly PhpStmt[] {
+	const ensureArray = buildIfStatementNode({
+		condition: buildBooleanNot(
+			buildFuncCall(buildName(['is_array']), [
+				buildArg(buildVariable(options.variableName)),
+			])
 		),
-		{
-			indentLevel: options.indentLevel + 1,
-			indentUnit: PHP_INDENT,
-		}
+		statements: [
+			buildExpressionStatement(
+				buildAssign(
+					buildVariable(options.variableName),
+					buildArray([
+						buildArrayItem(buildVariable(options.variableName)),
+					])
+				)
+			),
+		],
+	});
+
+	const normalise = buildExpressionStatement(
+		buildAssign(
+			buildVariable(options.variableName),
+			buildFuncCall(buildName(['array_values']), [
+				buildArg(
+					buildArrayCastNode(buildVariable(options.variableName))
+				),
+			])
+		)
 	);
 
-	options.body.statement(
-		buildIfPrintable({
-			indentLevel: options.indentLevel,
-			condition: buildBinaryOperation(
-				'Greater',
-				buildFuncCall(buildName(['count']), [
-					buildArg(buildVariable('meta_query')),
-				]),
-				buildScalarInt(0)
-			),
-			statements: [assignPrintable],
-		})
+	const filter = buildExpressionStatement(
+		buildAssign(
+			buildVariable(options.variableName),
+			buildFuncCall(buildName(['array_filter']), [
+				buildArg(buildVariable(options.variableName)),
+				buildArg(createStaticTrimFilterClosure()),
+			])
+		)
 	);
-	options.body.blank();
+
+	const push = buildExpressionStatement(
+		buildAssign(
+			buildArrayDimFetch('meta_query', null),
+			buildArray([
+				buildArrayItem(buildScalarString(options.key), {
+					key: buildScalarString('key'),
+				}),
+				buildArrayItem(buildScalarString('IN'), {
+					key: buildScalarString('compare'),
+				}),
+				buildArrayItem(buildVariable(options.variableName), {
+					key: buildScalarString('value'),
+				}),
+			])
+		)
+	);
+
+	const ensureNonEmpty = buildIfStatementNode({
+		condition: buildBinaryOperation(
+			'Greater',
+			buildFuncCall(buildName(['count']), [
+				buildArg(buildVariable(options.variableName)),
+			]),
+			buildScalarInt(0)
+		),
+		statements: [push],
+	});
+
+	return [ensureArray, normalise, filter, ensureNonEmpty];
+}
+
+function createSingleValueMetaStatements(
+	options: MetaStatementBaseOptions
+): readonly PhpStmt[] {
+	const sanitise = buildExpressionStatement(
+		buildAssign(
+			buildVariable(options.variableName),
+			buildMatch(
+				buildFuncCall(buildName(['is_scalar']), [
+					buildArg(buildVariable(options.variableName)),
+				]),
+				[
+					buildMatchArm(
+						[buildScalarBool(true)],
+						buildFuncCall(buildName(['trim']), [
+							buildArg(
+								buildScalarCast(
+									'string',
+									buildVariable(options.variableName)
+								)
+							),
+						])
+					),
+					buildMatchArm(null, buildNull()),
+				]
+			)
+		)
+	);
+
+	const push = buildExpressionStatement(
+		buildAssign(
+			buildArrayDimFetch('meta_query', null),
+			buildArray([
+				buildArrayItem(buildScalarString(options.key), {
+					key: buildScalarString('key'),
+				}),
+				buildArrayItem(buildScalarString('='), {
+					key: buildScalarString('compare'),
+				}),
+				buildArrayItem(buildVariable(options.variableName), {
+					key: buildScalarString('value'),
+				}),
+			])
+		)
+	);
+
+	const nonEmptyGuard = buildIfStatementNode({
+		condition: buildBinaryOperation(
+			'BooleanAnd',
+			buildBinaryOperation(
+				'NotIdentical',
+				buildVariable(options.variableName),
+				buildNull()
+			),
+			buildBinaryOperation(
+				'NotIdentical',
+				buildVariable(options.variableName),
+				buildScalarString('')
+			)
+		),
+		statements: [push],
+	});
+
+	return [sanitise, nonEmptyGuard];
+}
+
+function createMetaRequestAssignment(
+	variableName: string,
+	key: string
+): PhpStmtExpression {
+	return buildExpressionStatement(
+		buildAssign(
+			buildVariable(variableName),
+			buildMethodCall(
+				buildVariable('request'),
+				buildIdentifier('get_param'),
+				[buildArg(buildScalarString(key))]
+			)
+		)
+	);
+}
+
+function createMetaQueryAssignmentGuard(): PhpStmtIf {
+	return buildIfStatementNode({
+		condition: buildBinaryOperation(
+			'Greater',
+			buildFuncCall(buildName(['count']), [
+				buildArg(buildVariable('meta_query')),
+			]),
+			buildScalarInt(0)
+		),
+		statements: [
+			buildExpressionStatement(
+				buildAssign(
+					buildArrayDimFetch(
+						'query_args',
+						buildScalarString('meta_query')
+					),
+					buildVariable('meta_query')
+				)
+			),
+		],
+	});
 }
 
 function createStaticTrimFilterClosure(): PhpExpr {

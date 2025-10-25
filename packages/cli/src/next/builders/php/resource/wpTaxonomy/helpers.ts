@@ -4,6 +4,7 @@ import {
 	buildArray,
 	buildArrayItem,
 	buildAssign,
+	buildClassMethod,
 	buildExpressionStatement,
 	buildFuncCall,
 	buildIdentifier,
@@ -17,29 +18,24 @@ import {
 	buildScalarString,
 	buildVariable,
 	buildNull,
-	type PhpNullableType,
-	assembleMethodTemplate,
-	PHP_INDENT,
-	type PhpMethodTemplate,
-	type PhpExpr,
-	type PhpStmtExpression,
-	type PhpStmtReturn,
+	PHP_METHOD_MODIFIER_PRIVATE,
 	type PhpExprMethodCall,
-	type PhpPrintable,
+	type PhpNullableType,
+	type PhpStmt,
+	type PhpStmtClassMethod,
+	type PhpStmtExpression,
 } from '@wpkernel/php-json-ast';
-import { PHP_METHOD_MODIFIER_PRIVATE } from '@wpkernel/php-json-ast';
 import type { IRResource } from '../../../../../ir/types';
 import type { ResolvedIdentity } from '../../identity';
 import {
 	buildBinaryOperation,
 	buildBooleanNot,
+	buildIfStatementNode,
 	buildInstanceof,
 	buildPropertyFetch,
 	buildScalarCast,
 } from '../utils';
-import { buildIfPrintable } from '../printable';
-import { createWpErrorReturn } from '../errors';
-import { formatStatementPrintable } from '../printer';
+import { buildWpErrorReturn } from '../errors';
 
 type WpTaxonomyStorage = Extract<
 	NonNullable<IRResource['storage']>,
@@ -53,9 +49,14 @@ export interface TaxonomyHelperOptions {
 	readonly errorCodeFactory: (suffix: string) => string;
 }
 
+export interface TaxonomyHelperMethod {
+	readonly node: PhpStmtClassMethod;
+	readonly signature: string;
+}
+
 export function createWpTaxonomyHelperMethods(
 	options: TaxonomyHelperOptions
-): PhpMethodTemplate[] {
+): TaxonomyHelperMethod[] {
 	const storage = ensureStorage(options.resource);
 
 	return [
@@ -69,48 +70,31 @@ export function createWpTaxonomyHelperMethods(
 function createGetTaxonomyHelper(
 	pascalName: string,
 	storage: WpTaxonomyStorage
-): PhpMethodTemplate {
-	const indentLevel = 1;
-	const statementIndent = indentLevel + 1;
-
-	return assembleMethodTemplate({
-		signature: `private function get${pascalName}Taxonomy(): string`,
-		indentLevel,
-		indentUnit: PHP_INDENT,
-		body: (body) => {
-			const returnPrintable = createReturnPrintable(
-				buildScalarString(storage.taxonomy),
-				statementIndent
-			);
-			body.statement(returnPrintable);
-		},
-		ast: {
+): TaxonomyHelperMethod {
+	const method = buildClassMethod(
+		buildIdentifier(`get${pascalName}Taxonomy`),
+		{
 			flags: PHP_METHOD_MODIFIER_PRIVATE,
 			returnType: buildIdentifier('string'),
-		},
-	});
+			stmts: [buildReturn(buildScalarString(storage.taxonomy))],
+		}
+	);
+
+	return {
+		node: method,
+		signature: `private function get${pascalName}Taxonomy(): string`,
+	};
 }
 
 function createPrepareTermHelper(
 	pascalName: string,
 	storage: WpTaxonomyStorage
-): PhpMethodTemplate {
-	const indentLevel = 1;
-	const statementIndent = indentLevel + 1;
+): TaxonomyHelperMethod {
 	const hierarchical = storage.hierarchical === true;
 
-	return assembleMethodTemplate({
-		signature: `private function prepare${pascalName}TermResponse( WP_Term $term ): array`,
-		indentLevel,
-		indentUnit: PHP_INDENT,
-		body: (body) => {
-			const responseReturn = createReturnPrintable(
-				buildArrayTermResponse(hierarchical),
-				statementIndent
-			);
-			body.statement(responseReturn);
-		},
-		ast: {
+	const method = buildClassMethod(
+		buildIdentifier(`prepare${pascalName}TermResponse`),
+		{
 			flags: PHP_METHOD_MODIFIER_PRIVATE,
 			params: [
 				buildParam(buildVariable('term'), {
@@ -118,8 +102,14 @@ function createPrepareTermHelper(
 				}),
 			],
 			returnType: buildIdentifier('array'),
-		},
-	});
+			stmts: [buildReturn(buildArrayTermResponse(hierarchical))],
+		}
+	);
+
+	return {
+		node: method,
+		signature: `private function prepare${pascalName}TermResponse( WP_Term $term ): array`,
+	};
 }
 
 function buildArrayTermResponse(
@@ -173,307 +163,268 @@ function buildArrayTermResponse(
 	]);
 }
 
-function createResolveTermHelper(pascalName: string): PhpMethodTemplate {
-	const indentLevel = 1;
-	const statementIndent = indentLevel + 1;
+function createResolveTermHelper(pascalName: string): TaxonomyHelperMethod {
+	const statements: PhpStmt[] = [];
 
-	return assembleMethodTemplate({
-		signature: `private function resolve${pascalName}Term( $identity ): ?WP_Term`,
-		indentLevel,
-		indentUnit: PHP_INDENT,
-		body: (body) => {
-			const taxonomyAssign = createTaxonomyAssignmentPrintable({
-				pascalName,
-				indentLevel: statementIndent,
-				targetVariable: 'taxonomy',
-			});
-			body.statement(taxonomyAssign);
+	statements.push(
+		buildTaxonomyAssignmentStatement({
+			pascalName,
+			targetVariable: 'taxonomy',
+		})
+	);
 
-			const termAssign = createExpressionPrintable(
-				buildAssign(
-					buildVariable('term'),
-					buildFuncCall(buildName(['get_term']), [
+	const assignTermFromId = buildExpressionStatement(
+		buildAssign(
+			buildVariable('term'),
+			buildFuncCall(buildName(['get_term']), [
+				buildArg(buildVariable('identity')),
+				buildArg(buildVariable('taxonomy')),
+			])
+		)
+	);
+
+	const returnTerm = buildReturn(buildVariable('term'));
+
+	statements.push(
+		buildIfStatementNode({
+			condition: buildFuncCall(buildName(['is_int']), [
+				buildArg(buildVariable('identity')),
+			]),
+			statements: [
+				assignTermFromId,
+				buildIfStatementNode({
+					condition: buildInstanceof('term', 'WP_Term'),
+					statements: [returnTerm],
+				}),
+			],
+		})
+	);
+
+	const assignCandidate = buildExpressionStatement(
+		buildAssign(
+			buildVariable('candidate'),
+			buildFuncCall(buildName(['trim']), [
+				buildArg(
+					buildFuncCall(buildName(['strval']), [
 						buildArg(buildVariable('identity')),
-						buildArg(buildVariable('taxonomy')),
 					])
 				),
-				statementIndent + 1
-			);
+			])
+		)
+	);
 
-			const termReturn = createReturnPrintable(
-				buildVariable('term'),
-				statementIndent + 2
-			);
+	const lookupBySlug = buildExpressionStatement(
+		buildAssign(
+			buildVariable('term'),
+			buildFuncCall(buildName(['get_term_by']), [
+				buildArg(buildScalarString('slug')),
+				buildArg(buildVariable('candidate')),
+				buildArg(buildVariable('taxonomy')),
+			])
+		)
+	);
 
-			const numberGuard = buildIfPrintable({
-				indentLevel: statementIndent,
-				condition: buildFuncCall(buildName(['is_int']), [
-					buildArg(buildVariable('identity')),
-				]),
-				statements: [
-					termAssign,
-					buildIfPrintable({
-						indentLevel: statementIndent + 1,
-						condition: buildInstanceof('term', 'WP_Term'),
-						statements: [termReturn],
-					}),
-				],
-			});
-			body.statement(numberGuard);
+	const slugGuard = buildIfStatementNode({
+		condition: buildInstanceof('term', 'WP_Term'),
+		statements: [returnTerm],
+	});
 
-			const candidateAssign = createExpressionPrintable(
-				buildAssign(
-					buildVariable('candidate'),
-					buildFuncCall(buildName(['trim']), [
-						buildArg(
-							buildFuncCall(buildName(['strval']), [
-								buildArg(buildVariable('identity')),
-							])
-						),
-					])
-				),
-				statementIndent + 1
-			);
+	const lookupByName = buildExpressionStatement(
+		buildAssign(
+			buildVariable('term'),
+			buildFuncCall(buildName(['get_term_by']), [
+				buildArg(buildScalarString('name')),
+				buildArg(buildVariable('candidate')),
+				buildArg(buildVariable('taxonomy')),
+			])
+		)
+	);
 
-			const slugLookup = createExpressionPrintable(
-				buildAssign(
-					buildVariable('term'),
-					buildFuncCall(buildName(['get_term_by']), [
-						buildArg(buildScalarString('slug')),
-						buildArg(buildVariable('candidate')),
-						buildArg(buildVariable('taxonomy')),
-					])
-				),
-				statementIndent + 2
-			);
+	const nameGuard = buildIfStatementNode({
+		condition: buildInstanceof('term', 'WP_Term'),
+		statements: [returnTerm],
+	});
 
-			const slugReturn = createReturnPrintable(
-				buildVariable('term'),
-				statementIndent + 3
-			);
+	const nonEmptyCandidateGuard = buildIfStatementNode({
+		condition: buildBinaryOperation(
+			'NotIdentical',
+			buildScalarString(''),
+			buildVariable('candidate')
+		),
+		statements: [lookupBySlug, slugGuard, lookupByName, nameGuard],
+	});
 
-			const slugGuard = buildIfPrintable({
-				indentLevel: statementIndent + 2,
-				condition: buildInstanceof('term', 'WP_Term'),
-				statements: [slugReturn],
-			});
+	statements.push(
+		buildIfStatementNode({
+			condition: buildFuncCall(buildName(['is_string']), [
+				buildArg(buildVariable('identity')),
+			]),
+			statements: [assignCandidate, nonEmptyCandidateGuard],
+		})
+	);
 
-			const nameLookup = createExpressionPrintable(
-				buildAssign(
-					buildVariable('term'),
-					buildFuncCall(buildName(['get_term_by']), [
-						buildArg(buildScalarString('name')),
-						buildArg(buildVariable('candidate')),
-						buildArg(buildVariable('taxonomy')),
-					])
-				),
-				statementIndent + 2
-			);
+	statements.push(buildReturn(buildNull()));
 
-			const nameReturn = createReturnPrintable(
-				buildVariable('term'),
-				statementIndent + 3
-			);
-
-			const nameGuard = buildIfPrintable({
-				indentLevel: statementIndent + 2,
-				condition: buildInstanceof('term', 'WP_Term'),
-				statements: [nameReturn],
-			});
-
-			const nonEmptyGuard = buildIfPrintable({
-				indentLevel: statementIndent + 1,
-				condition: buildBinaryOperation(
-					'NotIdentical',
-					buildScalarString(''),
-					buildVariable('candidate')
-				),
-				statements: [slugLookup, slugGuard, nameLookup, nameGuard],
-			});
-
-			const stringGuard = buildIfPrintable({
-				indentLevel: statementIndent,
-				condition: buildFuncCall(buildName(['is_string']), [
-					buildArg(buildVariable('identity')),
-				]),
-				statements: [candidateAssign, nonEmptyGuard],
-			});
-			body.statement(stringGuard);
-
-			const nullReturn = createReturnPrintable(
-				buildNull(),
-				statementIndent
-			);
-			body.statement(nullReturn);
-		},
-		ast: {
+	const method = buildClassMethod(
+		buildIdentifier(`resolve${pascalName}Term`),
+		{
 			flags: PHP_METHOD_MODIFIER_PRIVATE,
 			params: [buildParam(buildVariable('identity'))],
 			returnType: buildNode<PhpNullableType>('NullableType', {
 				type: buildName(['WP_Term']),
 			}),
-		},
-	});
+			stmts: statements,
+		}
+	);
+
+	return {
+		node: method,
+		signature: `private function resolve${pascalName}Term( $identity ): ?WP_Term`,
+	};
 }
 
 function createValidateIdentityHelper(
 	options: TaxonomyHelperOptions
-): PhpMethodTemplate {
+): TaxonomyHelperMethod {
 	const { pascalName, identity, errorCodeFactory } = options;
-	const indentLevel = 1;
-	const statementIndent = indentLevel + 1;
+	const statements: PhpStmt[] = [];
 
-	return assembleMethodTemplate({
-		signature: `private function validate${pascalName}Identity( $value )`,
-		indentLevel,
-		indentUnit: PHP_INDENT,
-		body: (body) => {
-			const missingReturn = createWpErrorReturn({
-				indentLevel: statementIndent + 1,
-				code: errorCodeFactory('missing_identifier'),
-				message: `Missing identifier for ${pascalName}.`,
-				status: 400,
-			});
+	const missingReturn = buildWpErrorReturn({
+		code: errorCodeFactory('missing_identifier'),
+		message: `Missing identifier for ${pascalName}.`,
+		status: 400,
+	});
 
-			body.statement(
-				buildIfPrintable({
-					indentLevel: statementIndent,
-					condition: buildBinaryOperation(
-						'Identical',
-						buildNull(),
-						buildVariable('value')
-					),
-					statements: [missingReturn],
-				})
-			);
+	statements.push(
+		buildIfStatementNode({
+			condition: buildBinaryOperation(
+				'Identical',
+				buildNull(),
+				buildVariable('value')
+			),
+			statements: [missingReturn],
+		})
+	);
 
-			if (identity.type === 'number') {
-				const invalidReturn = createWpErrorReturn({
-					indentLevel: statementIndent + 1,
-					code: errorCodeFactory('invalid_identifier'),
-					message: `Invalid identifier for ${pascalName}.`,
-					status: 400,
-				});
+	if (identity.type === 'number') {
+		const invalidReturn = buildWpErrorReturn({
+			code: errorCodeFactory('invalid_identifier'),
+			message: `Invalid identifier for ${pascalName}.`,
+			status: 400,
+		});
 
-				body.statement(
-					buildIfPrintable({
-						indentLevel: statementIndent,
-						condition: buildBinaryOperation(
-							'BooleanAnd',
-							buildFuncCall(buildName(['is_string']), [
-								buildArg(buildVariable('value')),
-							]),
-							buildBinaryOperation(
-								'Identical',
-								buildScalarString(''),
-								buildFuncCall(buildName(['trim']), [
-									buildArg(buildVariable('value')),
-								])
-							)
-						),
-						statements: [missingReturn],
-					})
-				);
-
-				body.statement(
-					buildIfPrintable({
-						indentLevel: statementIndent,
-						condition: buildBooleanNot(
-							buildFuncCall(buildName(['is_numeric']), [
-								buildArg(buildVariable('value')),
-							])
-						),
-						statements: [invalidReturn],
-					})
-				);
-
-				body.statement(
-					createExpressionPrintable(
-						buildAssign(
-							buildVariable('value'),
-							buildScalarCast('int', buildVariable('value'))
-						),
-						statementIndent
-					)
-				);
-
-				body.statement(
-					buildIfPrintable({
-						indentLevel: statementIndent,
-						condition: buildBinaryOperation(
-							'SmallerOrEqual',
-							buildVariable('value'),
-							buildScalarInt(0)
-						),
-						statements: [invalidReturn],
-					})
-				);
-
-				body.statement(
-					createReturnPrintable(
-						buildVariable('value'),
-						statementIndent
-					)
-				);
-				return;
-			}
-
-			body.statement(
-				buildIfPrintable({
-					indentLevel: statementIndent,
-					condition: buildBinaryOperation(
-						'BooleanOr',
-						buildBooleanNot(
-							buildFuncCall(buildName(['is_string']), [
-								buildArg(buildVariable('value')),
-							])
-						),
-						buildBinaryOperation(
-							'Identical',
-							buildScalarString(''),
-							buildFuncCall(buildName(['trim']), [
-								buildArg(buildVariable('value')),
-							])
-						)
-					),
-					statements: [missingReturn],
-				})
-			);
-
-			body.statement(
-				createReturnPrintable(
-					buildFuncCall(buildName(['trim']), [
-						buildArg(
-							buildScalarCast('string', buildVariable('value'))
-						),
+		statements.push(
+			buildIfStatementNode({
+				condition: buildBinaryOperation(
+					'BooleanAnd',
+					buildFuncCall(buildName(['is_string']), [
+						buildArg(buildVariable('value')),
 					]),
-					statementIndent
+					buildBinaryOperation(
+						'Identical',
+						buildScalarString(''),
+						buildFuncCall(buildName(['trim']), [
+							buildArg(buildVariable('value')),
+						])
+					)
+				),
+				statements: [missingReturn],
+			})
+		);
+
+		statements.push(
+			buildIfStatementNode({
+				condition: buildBooleanNot(
+					buildFuncCall(buildName(['is_numeric']), [
+						buildArg(buildVariable('value')),
+					])
+				),
+				statements: [invalidReturn],
+			})
+		);
+
+		statements.push(
+			buildExpressionStatement(
+				buildAssign(
+					buildVariable('value'),
+					buildScalarCast('int', buildVariable('value'))
 				)
-			);
-		},
-		ast: {
+			)
+		);
+
+		statements.push(
+			buildIfStatementNode({
+				condition: buildBinaryOperation(
+					'SmallerOrEqual',
+					buildVariable('value'),
+					buildScalarInt(0)
+				),
+				statements: [invalidReturn],
+			})
+		);
+
+		statements.push(buildReturn(buildVariable('value')));
+	} else {
+		statements.push(
+			buildIfStatementNode({
+				condition: buildBinaryOperation(
+					'BooleanOr',
+					buildBooleanNot(
+						buildFuncCall(buildName(['is_string']), [
+							buildArg(buildVariable('value')),
+						])
+					),
+					buildBinaryOperation(
+						'Identical',
+						buildScalarString(''),
+						buildFuncCall(buildName(['trim']), [
+							buildArg(buildVariable('value')),
+						])
+					)
+				),
+				statements: [missingReturn],
+			})
+		);
+
+		statements.push(
+			buildReturn(
+				buildFuncCall(buildName(['trim']), [
+					buildArg(buildScalarCast('string', buildVariable('value'))),
+				])
+			)
+		);
+	}
+
+	const method = buildClassMethod(
+		buildIdentifier(`validate${pascalName}Identity`),
+		{
 			flags: PHP_METHOD_MODIFIER_PRIVATE,
 			params: [buildParam(buildVariable('value'))],
-		},
-	});
+			stmts: statements,
+		}
+	);
+
+	return {
+		node: method,
+		signature: `private function validate${pascalName}Identity( $value )`,
+	};
 }
 
-export interface TaxonomyAssignmentPrintableOptions {
+export interface TaxonomyAssignmentOptions {
 	readonly pascalName: string;
-	readonly indentLevel: number;
 	readonly targetVariable?: string;
 }
 
-export function createTaxonomyAssignmentPrintable(
-	options: TaxonomyAssignmentPrintableOptions
-): PhpPrintable<PhpStmtExpression> {
-	const { pascalName, indentLevel, targetVariable = 'taxonomy' } = options;
+export function buildTaxonomyAssignmentStatement(
+	options: TaxonomyAssignmentOptions
+): PhpStmtExpression {
+	const { pascalName, targetVariable = 'taxonomy' } = options;
 	const assignment = buildAssign(
 		buildVariable(targetVariable),
 		buildGetTaxonomyCall(pascalName)
 	);
 
-	return createExpressionPrintable(assignment, indentLevel);
+	return buildExpressionStatement(assignment);
 }
 
 export function buildGetTaxonomyCall(pascalName: string): PhpExprMethodCall {
@@ -504,28 +455,6 @@ export function buildPrepareTaxonomyTermResponseCall(
 		buildIdentifier(`prepare${pascalName}TermResponse`),
 		[buildArg(buildVariable(termVariable))]
 	);
-}
-
-function createExpressionPrintable(
-	expression: PhpExpr,
-	indentLevel: number
-): PhpPrintable<PhpStmtExpression> {
-	const statement = buildExpressionStatement(expression);
-	return formatStatementPrintable(statement, {
-		indentLevel,
-		indentUnit: PHP_INDENT,
-	});
-}
-
-function createReturnPrintable(
-	expression: PhpExpr | null,
-	indentLevel: number
-): PhpPrintable<PhpStmtReturn> {
-	const statement = buildReturn(expression);
-	return formatStatementPrintable(statement, {
-		indentLevel,
-		indentUnit: PHP_INDENT,
-	});
 }
 
 function ensureStorage(resource: IRResource): WpTaxonomyStorage {

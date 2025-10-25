@@ -15,17 +15,16 @@ import {
 	buildScalarInt,
 	buildScalarString,
 	buildVariable,
-	PHP_INDENT,
 	toSnakeCase,
+	type PhpStmt,
 } from '@wpkernel/php-json-ast';
 import {
 	buildArrayDimFetch,
 	buildBinaryOperation,
 	buildScalarCast,
+	buildIfStatementNode,
+	buildArrayInitialiserStatement,
 } from '../utils';
-import { buildArrayInitialiser, buildIfPrintable } from '../printable';
-import { formatStatementPrintable } from '../printer';
-import type { PhpMethodBodyBuilder } from '@wpkernel/php-json-ast';
 
 export interface WpPostTaxonomyConfigEntry {
 	readonly taxonomy?: string | null;
@@ -54,28 +53,24 @@ export function collectTaxonomyQueryEntries(
 	return entries;
 }
 
-export interface AppendTaxonomyQueryBuilderOptions {
-	readonly body: PhpMethodBodyBuilder;
-	readonly indentLevel: number;
+export interface BuildTaxonomyQueryStatementsOptions {
 	readonly entries: Array<[string, { taxonomy: string }]>;
 }
 
-export function appendTaxonomyQueryBuilder(
-	options: AppendTaxonomyQueryBuilderOptions
-): void {
+export function buildTaxonomyQueryStatements(
+	options: BuildTaxonomyQueryStatementsOptions
+): readonly PhpStmt[] {
 	if (options.entries.length === 0) {
-		return;
+		return [];
 	}
 
-	const initPrintable = buildArrayInitialiser({
-		variable: 'tax_query',
-		indentLevel: options.indentLevel,
-	});
-	options.body.statement(initPrintable);
+	const statements: PhpStmt[] = [
+		buildArrayInitialiserStatement({ variable: 'tax_query' }),
+	];
 
 	for (const [key, descriptor] of options.entries) {
 		const variableName = `${toSnakeCase(key)}Terms`;
-		const requestPrintable = formatStatementPrintable(
+		statements.push(
 			buildExpressionStatement(
 				buildAssign(
 					buildVariable(variableName),
@@ -85,128 +80,26 @@ export function appendTaxonomyQueryBuilder(
 						[buildArg(buildScalarString(key))]
 					)
 				)
-			),
-			{
-				indentLevel: options.indentLevel,
-				indentUnit: PHP_INDENT,
-			}
-		);
-		options.body.statement(requestPrintable);
-
-		const childIndentLevel = options.indentLevel + 1;
-
-		const sanitisePrintable = formatStatementPrintable(
-			buildExpressionStatement(
-				buildAssign(
-					buildVariable(variableName),
-					buildFuncCall(buildName(['array_filter']), [
-						buildArg(
-							buildFuncCall(buildName(['array_map']), [
-								buildArg(
-									buildArrowFunction({
-										static: true,
-										params: [
-											buildParam(buildVariable('value')),
-										],
-										expr: buildScalarCast(
-											'int',
-											buildVariable('value')
-										),
-									})
-								),
-								buildArg(
-									buildArrayCast(buildVariable(variableName))
-								),
-							])
-						),
-						buildArg(
-							buildArrowFunction({
-								static: true,
-								params: [buildParam(buildVariable('value'))],
-								expr: buildBinaryOperation(
-									'Greater',
-									buildVariable('value'),
-									buildScalarInt(0)
-								),
-							})
-						),
-					])
-				)
-			),
-			{
-				indentLevel: childIndentLevel,
-				indentUnit: PHP_INDENT,
-			}
+			)
 		);
 
-		const pushPrintable = formatStatementPrintable(
-			buildExpressionStatement(
-				buildAssign(
-					buildArrayDimFetch('tax_query', null),
-					buildArray([
-						buildArrayItem(buildScalarString(descriptor.taxonomy), {
-							key: buildScalarString('taxonomy'),
-						}),
-						buildArrayItem(buildScalarString('term_id'), {
-							key: buildScalarString('field'),
-						}),
-						buildArrayItem(buildVariable(variableName), {
-							key: buildScalarString('terms'),
-						}),
-					])
-				)
-			),
-			{
-				indentLevel: childIndentLevel + 1,
-				indentUnit: PHP_INDENT,
-			}
-		);
-
-		options.body.statement(
-			buildIfPrintable({
-				indentLevel: options.indentLevel,
+		statements.push(
+			buildIfStatementNode({
 				condition: buildBinaryOperation(
 					'NotIdentical',
 					buildVariable(variableName),
 					buildNull()
 				),
-				statements: [
-					sanitisePrintable,
-					buildIfPrintable({
-						indentLevel: childIndentLevel,
-						condition: buildBinaryOperation(
-							'Greater',
-							buildFuncCall(buildName(['count']), [
-								buildArg(buildVariable(variableName)),
-							]),
-							buildScalarInt(0)
-						),
-						statements: [pushPrintable],
-					}),
-				],
+				statements: createTaxonomyBranchStatements({
+					variableName,
+					taxonomy: descriptor.taxonomy,
+				}),
 			})
 		);
 	}
 
-	const assignPrintable = formatStatementPrintable(
-		buildExpressionStatement(
-			buildAssign(
-				buildArrayDimFetch(
-					'query_args',
-					buildScalarString('tax_query')
-				),
-				buildVariable('tax_query')
-			)
-		),
-		{
-			indentLevel: options.indentLevel + 1,
-			indentUnit: PHP_INDENT,
-		}
-	);
-
-	options.body.statement(
-		buildIfPrintable({
-			indentLevel: options.indentLevel,
+	statements.push(
+		buildIfStatementNode({
 			condition: buildBinaryOperation(
 				'Greater',
 				buildFuncCall(buildName(['count']), [
@@ -214,8 +107,94 @@ export function appendTaxonomyQueryBuilder(
 				]),
 				buildScalarInt(0)
 			),
-			statements: [assignPrintable],
+			statements: [
+				buildExpressionStatement(
+					buildAssign(
+						buildArrayDimFetch(
+							'query_args',
+							buildScalarString('tax_query')
+						),
+						buildVariable('tax_query')
+					)
+				),
+			],
 		})
 	);
-	options.body.blank();
+
+	return statements;
+}
+
+interface TaxonomyBranchOptions {
+	readonly variableName: string;
+	readonly taxonomy: string;
+}
+
+function createTaxonomyBranchStatements(
+	options: TaxonomyBranchOptions
+): readonly PhpStmt[] {
+	const sanitise = buildExpressionStatement(
+		buildAssign(
+			buildVariable(options.variableName),
+			buildFuncCall(buildName(['array_filter']), [
+				buildArg(
+					buildFuncCall(buildName(['array_map']), [
+						buildArg(
+							buildArrowFunction({
+								static: true,
+								params: [buildParam(buildVariable('value'))],
+								expr: buildScalarCast(
+									'int',
+									buildVariable('value')
+								),
+							})
+						),
+						buildArg(
+							buildArrayCast(buildVariable(options.variableName))
+						),
+					])
+				),
+				buildArg(
+					buildArrowFunction({
+						static: true,
+						params: [buildParam(buildVariable('value'))],
+						expr: buildBinaryOperation(
+							'Greater',
+							buildVariable('value'),
+							buildScalarInt(0)
+						),
+					})
+				),
+			])
+		)
+	);
+
+	const push = buildExpressionStatement(
+		buildAssign(
+			buildArrayDimFetch('tax_query', null),
+			buildArray([
+				buildArrayItem(buildScalarString(options.taxonomy), {
+					key: buildScalarString('taxonomy'),
+				}),
+				buildArrayItem(buildScalarString('term_id'), {
+					key: buildScalarString('field'),
+				}),
+				buildArrayItem(buildVariable(options.variableName), {
+					key: buildScalarString('terms'),
+				}),
+			])
+		)
+	);
+
+	const ensureNonEmpty = buildIfStatementNode({
+		condition: buildBinaryOperation(
+			'Greater',
+			buildFuncCall(buildName(['count']), [
+				buildArg(buildVariable(options.variableName)),
+			]),
+			buildScalarInt(0)
+		),
+		statements: [push],
+	});
+
+	return [sanitise, ensureNonEmpty];
 }

@@ -1,42 +1,25 @@
 import {
+	buildArg,
 	buildComment,
+	buildName,
+	buildNode,
+	buildReturn,
 	buildScalarInt,
 	buildScalarString,
 	buildStmtNop,
 	type PhpExprNew,
-	type PhpMethodBodyBuilder,
-} from '@wpkernel/php-json-ast';
-import {
-	buildPrintable,
-	buildNode,
-	buildReturn,
-	buildArg,
-	buildName,
+	type PhpStmt,
 } from '@wpkernel/php-json-ast';
 import type { IRRoute } from '../../../../ir/types';
 
-export interface AppendNotImplementedStubOptions {
-	readonly body: PhpMethodBodyBuilder;
-	readonly indent: string;
-	readonly route: IRRoute;
-}
-
-export function appendNotImplementedStub(
-	options: AppendNotImplementedStubOptions
-): void {
-	const todoPrintable = buildPrintable(
-		buildStmtNop({
-			comments: [
-				buildComment(
-					`// TODO: Implement handler for [${options.route.method}] ${options.route.path}.`
-				),
-			],
-		}),
-		[
-			`${options.indent}// TODO: Implement handler for [${options.route.method}] ${options.route.path}.`,
-		]
-	);
-	options.body.statement(todoPrintable);
+export function buildNotImplementedStatements(route: IRRoute): PhpStmt[] {
+	const todo = buildStmtNop({
+		comments: [
+			buildComment(
+				`// TODO: Implement handler for [${route.method}] ${route.path}.`
+			),
+		],
+	});
 
 	const errorExpr = buildNode<PhpExprNew>('Expr_New', {
 		class: buildName(['WP_Error']),
@@ -45,8 +28,8 @@ export function appendNotImplementedStub(
 			buildArg(buildScalarString('Not Implemented')),
 		],
 	});
-	const returnPrintable = buildPrintable(buildReturn(errorExpr), [
-		`${options.indent}return new WP_Error( 501, 'Not Implemented' );`,
-	]);
-	options.body.statement(returnPrintable);
+
+	const returnStatement = buildReturn(errorExpr);
+
+	return [todo, returnStatement];
 }

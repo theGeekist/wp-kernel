@@ -1,9 +1,9 @@
 export type {
-	BuildCreateRouteBodyOptions,
-	BuildDeleteRouteBodyOptions,
-	BuildMutationRouteBodyBaseOptions,
-	BuildUpdateRouteBodyOptions,
+	BuildCreateRouteStatementsOptions,
+	BuildDeleteRouteStatementsOptions,
+	BuildMutationRouteBaseOptions,
+	BuildUpdateRouteStatementsOptions,
 } from './types';
-export { buildCreateRouteBody } from './create';
-export { buildUpdateRouteBody } from './update';
-export { buildDeleteRouteBody } from './remove';
+export { buildCreateRouteStatements } from './create';
+export { buildUpdateRouteStatements } from './update';
+export { buildDeleteRouteStatements } from './remove';

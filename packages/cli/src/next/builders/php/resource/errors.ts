@@ -9,20 +9,12 @@ import {
 	buildScalarString,
 	type PhpExprNew,
 	type PhpStmtReturn,
-	type PhpPrintable,
-	PHP_INDENT,
 } from '@wpkernel/php-json-ast';
-import { formatStatementPrintable } from './printer';
 
 export interface WpErrorReturnAstOptions {
 	readonly code: string;
 	readonly message: string;
 	readonly status?: number;
-}
-
-export interface WpErrorReturnOptions extends WpErrorReturnAstOptions {
-	readonly indentLevel: number;
-	readonly indentUnit?: string;
 }
 
 export function buildWpErrorReturn(
@@ -46,14 +38,4 @@ export function buildWpErrorReturn(
 	});
 
 	return buildReturn(errorExpr);
-}
-
-export function createWpErrorReturn(
-	options: WpErrorReturnOptions
-): PhpPrintable<PhpStmtReturn> {
-	const node = buildWpErrorReturn(options);
-	return formatStatementPrintable(node, {
-		indentLevel: options.indentLevel,
-		indentUnit: options.indentUnit ?? PHP_INDENT,
-	});
 }
