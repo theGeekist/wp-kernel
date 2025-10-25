@@ -28,6 +28,7 @@ import {
 import type { IRResource } from '../../../../../ir/types';
 import type { ResolvedIdentity } from '../../identity';
 import {
+	buildArrayDimFetch,
 	buildBinaryOperation,
 	buildBooleanNot,
 	buildIfStatementNode,
@@ -39,6 +40,7 @@ import {
 	type NormalisedVariableReference,
 } from '../utils';
 import { buildWpErrorReturn } from '../errors';
+import { createRequestParamAssignmentStatement } from '../request';
 
 type WpTaxonomyStorage = Extract<
 	NonNullable<IRResource['storage']>,
@@ -66,6 +68,7 @@ export function createWpTaxonomyHelperMethods(
 		createGetTaxonomyHelper(options.pascalName, storage),
 		createPrepareTermHelper(options.pascalName, storage),
 		createResolveTermHelper(options.pascalName),
+		createExtractTermArgsHelper(options.pascalName),
 		createValidateIdentityHelper(options),
 	];
 }
@@ -167,102 +170,50 @@ function buildArrayTermResponse(
 }
 
 function createResolveTermHelper(pascalName: string): TaxonomyHelperMethod {
+	const taxonomyVar = normaliseVariableReference('taxonomy');
+	const identityVar = normaliseVariableReference('identity');
+	const termVar = normaliseVariableReference('term');
+
 	const statements: PhpStmt[] = [];
 
 	statements.push(
 		buildTaxonomyAssignmentStatement({
 			pascalName,
-			targetVariable: 'taxonomy',
+			targetVariable: taxonomyVar.raw,
 		})
 	);
 
-	const assignTermFromId = buildExpressionStatement(
-		buildAssign(
-			buildVariable('term'),
-			buildFuncCall(buildName(['get_term']), [
-				buildArg(buildVariable('identity')),
-				buildArg(buildVariable('taxonomy')),
-			])
-		)
+	const assignTermFromId = buildVariableAssignment(
+		termVar,
+		buildFuncCall(buildName(['get_term']), [
+			buildArg(buildVariable(identityVar.raw)),
+			buildArg(buildVariable(taxonomyVar.raw)),
+		])
 	);
 
-	const returnTerm = buildReturn(buildVariable('term'));
+	const returnTerm = buildReturn(buildVariable(termVar.raw));
 
 	statements.push(
 		buildIfStatementNode({
 			condition: buildFuncCall(buildName(['is_int']), [
-				buildArg(buildVariable('identity')),
+				buildArg(buildVariable(identityVar.raw)),
 			]),
 			statements: [
 				assignTermFromId,
 				buildIfStatementNode({
-					condition: buildInstanceof('term', 'WP_Term'),
+					condition: buildInstanceof(termVar.raw, 'WP_Term'),
 					statements: [returnTerm],
 				}),
 			],
 		})
 	);
 
-	const assignCandidate = buildExpressionStatement(
-		buildAssign(
-			buildVariable('candidate'),
-			buildFuncCall(buildName(['trim']), [
-				buildArg(
-					buildFuncCall(buildName(['strval']), [
-						buildArg(buildVariable('identity')),
-					])
-				),
-			])
-		)
-	);
-
-	const lookupBySlug = buildExpressionStatement(
-		buildAssign(
-			buildVariable('term'),
-			buildFuncCall(buildName(['get_term_by']), [
-				buildArg(buildScalarString('slug')),
-				buildArg(buildVariable('candidate')),
-				buildArg(buildVariable('taxonomy')),
-			])
-		)
-	);
-
-	const slugGuard = buildIfStatementNode({
-		condition: buildInstanceof('term', 'WP_Term'),
-		statements: [returnTerm],
-	});
-
-	const lookupByName = buildExpressionStatement(
-		buildAssign(
-			buildVariable('term'),
-			buildFuncCall(buildName(['get_term_by']), [
-				buildArg(buildScalarString('name')),
-				buildArg(buildVariable('candidate')),
-				buildArg(buildVariable('taxonomy')),
-			])
-		)
-	);
-
-	const nameGuard = buildIfStatementNode({
-		condition: buildInstanceof('term', 'WP_Term'),
-		statements: [returnTerm],
-	});
-
-	const nonEmptyCandidateGuard = buildIfStatementNode({
-		condition: buildBinaryOperation(
-			'NotIdentical',
-			buildScalarString(''),
-			buildVariable('candidate')
-		),
-		statements: [lookupBySlug, slugGuard, lookupByName, nameGuard],
-	});
-
 	statements.push(
 		buildIfStatementNode({
 			condition: buildFuncCall(buildName(['is_string']), [
-				buildArg(buildVariable('identity')),
+				buildArg(buildVariable(identityVar.raw)),
 			]),
-			statements: [assignCandidate, nonEmptyCandidateGuard],
+			statements: buildStringIdentityStatements(taxonomyVar, identityVar),
 		})
 	);
 
@@ -283,6 +234,142 @@ function createResolveTermHelper(pascalName: string): TaxonomyHelperMethod {
 	return {
 		node: method,
 		signature: `private function resolve${pascalName}Term( $identity ): ?WP_Term`,
+	};
+}
+
+function createExtractTermArgsHelper(pascalName: string): TaxonomyHelperMethod {
+	const requestVar = normaliseVariableReference('request');
+	const argsVar = normaliseVariableReference('args');
+	const descriptionVar = normaliseVariableReference('description');
+	const slugVar = normaliseVariableReference('slug');
+	const parentVar = normaliseVariableReference('parent');
+
+	const statements: PhpStmt[] = [];
+
+	statements.push(buildVariableAssignment(argsVar, buildArray([])));
+
+	statements.push(
+		createRequestParamAssignmentStatement({
+			requestVariable: requestVar.display,
+			param: 'description',
+			targetVariable: descriptionVar.display,
+		})
+	);
+
+	statements.push(
+		buildIfStatementNode({
+			condition: buildFuncCall(buildName(['is_string']), [
+				buildArg(buildVariable(descriptionVar.raw)),
+			]),
+			statements: [
+				buildExpressionStatement(
+					buildAssign(
+						buildArrayDimFetch(
+							argsVar.raw,
+							buildScalarString('description')
+						),
+						buildVariable(descriptionVar.raw)
+					)
+				),
+			],
+		})
+	);
+
+	statements.push(
+		createRequestParamAssignmentStatement({
+			requestVariable: requestVar.display,
+			param: 'slug',
+			targetVariable: slugVar.display,
+		})
+	);
+
+	statements.push(
+		buildIfStatementNode({
+			condition: buildBinaryOperation(
+				'BooleanAnd',
+				buildFuncCall(buildName(['is_string']), [
+					buildArg(buildVariable(slugVar.raw)),
+				]),
+				buildBinaryOperation(
+					'NotIdentical',
+					buildScalarString(''),
+					buildFuncCall(buildName(['trim']), [
+						buildArg(buildVariable(slugVar.raw)),
+					])
+				)
+			),
+			statements: [
+				buildExpressionStatement(
+					buildAssign(
+						buildArrayDimFetch(
+							argsVar.raw,
+							buildScalarString('slug')
+						),
+						buildFuncCall(buildName(['sanitize_title']), [
+							buildArg(buildVariable(slugVar.raw)),
+						])
+					)
+				),
+			],
+		})
+	);
+
+	statements.push(
+		createRequestParamAssignmentStatement({
+			requestVariable: requestVar.display,
+			param: 'parent',
+			targetVariable: parentVar.display,
+		})
+	);
+
+	statements.push(
+		buildIfStatementNode({
+			condition: buildBinaryOperation(
+				'NotIdentical',
+				buildNull(),
+				buildVariable(parentVar.raw)
+			),
+			statements: [
+				buildExpressionStatement(
+					buildAssign(
+						buildArrayDimFetch(
+							argsVar.raw,
+							buildScalarString('parent')
+						),
+						buildFuncCall(buildName(['max']), [
+							buildArg(buildScalarInt(0)),
+							buildArg(
+								buildScalarCast(
+									'int',
+									buildVariable(parentVar.raw)
+								)
+							),
+						])
+					)
+				),
+			],
+		})
+	);
+
+	statements.push(buildReturn(buildVariable(argsVar.raw)));
+
+	const method = buildClassMethod(
+		buildIdentifier(`extract${pascalName}TermArgs`),
+		{
+			flags: PHP_METHOD_MODIFIER_PRIVATE,
+			params: [
+				buildParam(buildVariable(requestVar.raw), {
+					type: buildName(['WP_REST_Request']),
+				}),
+			],
+			returnType: buildIdentifier('array'),
+			stmts: statements,
+		}
+	);
+
+	return {
+		node: method,
+		signature: `private function extract${pascalName}TermArgs( WP_REST_Request $request ): array`,
 	};
 }
 
@@ -335,12 +422,12 @@ function buildStringIdentityStatements(
 		statements: [
 			slugLookup,
 			buildIfStatementNode({
-				condition: buildInstanceof('term', 'WP_Term'),
+				condition: buildInstanceof(termVar.raw, 'WP_Term'),
 				statements: [slugReturn],
 			}),
 			nameLookup,
 			buildIfStatementNode({
-				condition: buildInstanceof('term', 'WP_Term'),
+				condition: buildInstanceof(termVar.raw, 'WP_Term'),
 				statements: [nameReturn],
 			}),
 		],

@@ -1,14 +1,16 @@
 import { KernelError } from '@wpkernel/core/contracts';
 import {
 	buildArg,
+	buildAssign,
+	buildExpressionStatement,
 	buildFuncCall,
 	buildIdentifier,
 	buildMethodCall,
 	buildName,
 	buildReturn,
-	buildVariable,
 	buildScalarString,
-	buildNode,
+	buildStmtNop,
+	buildVariable,
 	type PhpStmt,
 	type ResourceMetadataHost,
 } from '@wpkernel/php-json-ast';
@@ -24,7 +26,6 @@ import type { ResolvedIdentity } from '../../identity';
 import {
 	buildPrepareTaxonomyTermResponseCall,
 	buildResolveTaxonomyTermCall,
-	createTaxonomyAssignmentStatement,
 } from './helpers';
 
 type WpTaxonomyStorage = Extract<
@@ -90,7 +91,7 @@ export function buildWpTaxonomyGetRouteStatements(
 		statements: [buildReturn(buildVariable('identity'))],
 	});
 	statements.push(errorGuard);
-	statements.push(buildNode<PhpStmt>('Stmt_Nop', {}));
+	statements.push(buildStmtNop());
 
 	statements.push(
 		buildExpressionStatement(
@@ -112,7 +113,7 @@ export function buildWpTaxonomyGetRouteStatements(
 		statements: [notFoundReturn],
 	});
 	statements.push(guard);
-	statements.push(buildNode<PhpStmt>('Stmt_Nop', {}));
+	statements.push(buildStmtNop());
 
 	statements.push(
 		buildReturn(
