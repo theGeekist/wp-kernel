@@ -1,6 +1,6 @@
 import {
 	PATCH_MANIFEST_PATH,
-	createBuilderOutput,
+	buildBuilderOutput,
 	formatManifest,
 	readManifest,
 	resolveWorkspaceRoot,
@@ -25,7 +25,7 @@ const loadedConfig: LoadedKernelConfig = {
 
 describe('apply command helpers', () => {
 	it('creates a builder output queue', () => {
-		const output = createBuilderOutput();
+		const output = buildBuilderOutput();
 		expect(output.actions).toEqual([]);
 
 		output.queueWrite({

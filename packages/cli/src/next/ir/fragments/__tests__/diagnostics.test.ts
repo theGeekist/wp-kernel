@@ -1,9 +1,9 @@
-import { createReporterMock } from '@wpkernel/test-utils/cli';
+import { createReporterMock as buildReporterMock } from '@wpkernel/test-utils/cli';
 import type { KernelConfigV1 } from '../../../../config/types';
 import { createDiagnosticsFragment } from '../diagnostics';
-import { createIrDraft, createIrFragmentOutput } from '../../types';
+import { buildIrDraft, buildIrFragmentOutput } from '../../types';
 
-function createDraft(): ReturnType<typeof createIrDraft> {
+function buildDraft(): ReturnType<typeof buildIrDraft> {
 	const config = {
 		version: 1,
 		namespace: 'test',
@@ -11,7 +11,7 @@ function createDraft(): ReturnType<typeof createIrDraft> {
 		resources: {},
 	} as KernelConfigV1;
 
-	return createIrDraft({
+	return buildIrDraft({
 		config,
 		namespace: config.namespace,
 		origin: 'typescript',
@@ -22,7 +22,7 @@ function createDraft(): ReturnType<typeof createIrDraft> {
 describe('createDiagnosticsFragment', () => {
 	it('collects resource and policy diagnostics when warnings are present', async () => {
 		const fragment = createDiagnosticsFragment();
-		const draft = createDraft();
+		const draft = buildDraft();
 		draft.resources = [
 			{
 				name: 'remote',
@@ -49,8 +49,8 @@ describe('createDiagnosticsFragment', () => {
 			],
 		};
 
-		const reporter = createReporterMock();
-		const output = createIrFragmentOutput(draft);
+		const reporter = buildReporterMock();
+		const output = buildIrFragmentOutput(draft);
 
 		await fragment.apply(
 			{
@@ -92,7 +92,7 @@ describe('createDiagnosticsFragment', () => {
 
 	it('omits diagnostics when neither resources nor policy map provide warnings', async () => {
 		const fragment = createDiagnosticsFragment();
-		const draft = createDraft();
+		const draft = buildDraft();
 		draft.resources = [
 			{
 				name: 'local',
@@ -100,8 +100,8 @@ describe('createDiagnosticsFragment', () => {
 			},
 		] as unknown as typeof draft.resources;
 
-		const reporter = createReporterMock();
-		const output = createIrFragmentOutput(draft);
+		const reporter = buildReporterMock();
+		const output = buildIrFragmentOutput(draft);
 
 		await fragment.apply(
 			{

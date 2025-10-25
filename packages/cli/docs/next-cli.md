@@ -166,7 +166,7 @@ _Update the relevant workstream below when scope changes or a milestone closes. 
     - Only `NextApplyCommand` exported; no next equivalents for `init`, `generate`, `start`, `build`, `doctor`.
 - **Tasks**
     1. Port helpers like `ensureGeneratedPhpClean`, `ensureCleanDirectory`, and prompt utilities into the next workspace layer.
-    2. Implement `createInitCommand`, `createGenerateCommand`, `createStartCommand`, and `createDoctorCommand` under `packages/cli/src/next/commands`, mirroring legacy behaviour via the new helpers while the legacy `build` workflow remains in place.
+    2. Implement `buildInitCommand`, `buildGenerateCommand`, `buildStartCommand`, and `buildDoctorCommand` under `packages/cli/src/next/commands`, mirroring legacy behaviour via the new helpers while the legacy `build` workflow remains in place.
     3. Export the new commands through `packages/cli/src/next/index.ts` and update docs/tests accordingly.
 
 _Status update:_ Workspace helpers for git hygiene, directory safety, and confirmations now live under `next/workspace/utilities.ts`, and the next command surface exports factory wrappers for init, generate, start, and doctor while `build` remains a legacy-only workflow for now.
@@ -185,7 +185,7 @@ _Status update:_ Workspace helpers for git hygiene, directory safety, and confir
 - Apply, generate, init, doctor, and related commands achieve feature parity with the legacy CLI (including prompts, safety checks, and logging).
 - Builders emit artefacts identical (or intentionally improved) relative to the legacy pipeline; golden tests document differences.
 - Shared IR/config types are unified-no local stubs or duplicate aliases remain.
-- Every public `create*` helper remains documented, exported, and covered by tests so extensions can continue to compose features without modifying the runtime.
+- Every public pipeline helper that uses the `create*` prefix remains documented, exported, and covered by tests so extensions can continue to compose features without modifying the runtime.
 - Coverage meets or exceeds the legacy CLI across unit, integration, and E2E suites.
 - JSDoc is present for every public export and matches the quality bar set by `packages/core`.
 - `/docs` contains an up-to-date guide to the new CLI, its extensibility points, and migration checklist.

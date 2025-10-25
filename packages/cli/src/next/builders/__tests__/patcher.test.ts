@@ -1,7 +1,7 @@
 import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import { createWorkspace } from '../../workspace';
+import { buildWorkspace } from '../../workspace';
 import { createPatcher } from '../patcher';
 import type { BuilderOutput } from '../../runtime/types';
 import type { IRv1 } from '../../../ir/types';
@@ -15,7 +15,7 @@ async function withWorkspace<T>(run: (root: string) => Promise<T>): Promise<T> {
 	}
 }
 
-function createIr(namespace: string): IRv1 {
+function buildIr(namespace: string): IRv1 {
 	return {
 		meta: {
 			version: 1,
@@ -51,7 +51,7 @@ function createIr(namespace: string): IRv1 {
 }
 
 describe('createPatcher', () => {
-	function createOutput(): BuilderOutput {
+	function buildOutput(): BuilderOutput {
 		const actions: BuilderOutput['actions'] = [];
 		return {
 			actions,
@@ -61,7 +61,7 @@ describe('createPatcher', () => {
 		};
 	}
 
-	function createReporter() {
+	function buildReporter() {
 		return {
 			debug: jest.fn(),
 			info: jest.fn(),
@@ -73,9 +73,9 @@ describe('createPatcher', () => {
 
 	it('applies git merge patches and records manifest', async () => {
 		await withWorkspace(async (workspaceRoot) => {
-			const workspace = createWorkspace(workspaceRoot);
-			const reporter = createReporter();
-			const output = createOutput();
+			const workspace = buildWorkspace(workspaceRoot);
+			const reporter = buildReporter();
+			const output = buildOutput();
 
 			const baseContents = [
 				'<?php',
@@ -138,7 +138,7 @@ describe('createPatcher', () => {
 				ensureDir: true,
 			});
 
-			const ir = createIr('Demo');
+			const ir = buildIr('Demo');
 			const input = {
 				phase: 'apply' as const,
 				options: {
@@ -201,9 +201,9 @@ describe('createPatcher', () => {
 
 	it('records conflicts when merge cannot be resolved automatically', async () => {
 		await withWorkspace(async (workspaceRoot) => {
-			const workspace = createWorkspace(workspaceRoot);
-			const reporter = createReporter();
-			const output = createOutput();
+			const workspace = buildWorkspace(workspaceRoot);
+			const reporter = buildReporter();
+			const output = buildOutput();
 
 			const base = ['line-one', 'line-two', ''].join('\n');
 			const incoming = ['line-one updated', 'line-two', ''].join('\n');
@@ -245,7 +245,7 @@ describe('createPatcher', () => {
 				ensureDir: true,
 			});
 
-			const ir = createIr('Demo');
+			const ir = buildIr('Demo');
 			const input = {
 				phase: 'apply' as const,
 				options: {
@@ -295,11 +295,11 @@ describe('createPatcher', () => {
 
 	it('skips when no plan is present', async () => {
 		await withWorkspace(async (workspaceRoot) => {
-			const workspace = createWorkspace(workspaceRoot);
-			const reporter = createReporter();
-			const output = createOutput();
+			const workspace = buildWorkspace(workspaceRoot);
+			const reporter = buildReporter();
+			const output = buildOutput();
 
-			const ir = createIr('Demo');
+			const ir = buildIr('Demo');
 			const input = {
 				phase: 'apply' as const,
 				options: {
@@ -335,9 +335,9 @@ describe('createPatcher', () => {
 
 	it('skips entries with missing incoming artifacts', async () => {
 		await withWorkspace(async (workspaceRoot) => {
-			const workspace = createWorkspace(workspaceRoot);
-			const reporter = createReporter();
-			const output = createOutput();
+			const workspace = buildWorkspace(workspaceRoot);
+			const reporter = buildReporter();
+			const output = buildOutput();
 
 			await workspace.write(
 				path.posix.join('.wpk', 'apply', 'plan.json'),
@@ -368,7 +368,7 @@ describe('createPatcher', () => {
 				'base'
 			);
 
-			const ir = createIr('Demo');
+			const ir = buildIr('Demo');
 			const input = {
 				phase: 'apply' as const,
 				options: {
@@ -424,9 +424,9 @@ describe('createPatcher', () => {
 
 	it('skips when incoming matches the current target', async () => {
 		await withWorkspace(async (workspaceRoot) => {
-			const workspace = createWorkspace(workspaceRoot);
-			const reporter = createReporter();
-			const output = createOutput();
+			const workspace = buildWorkspace(workspaceRoot);
+			const reporter = buildReporter();
+			const output = buildOutput();
 
 			const sharedContents = ['<?php', 'echo "noop";', ''].join('\n');
 
@@ -460,7 +460,7 @@ describe('createPatcher', () => {
 				ensureDir: true,
 			});
 
-			const ir = createIr('Demo');
+			const ir = buildIr('Demo');
 			const input = {
 				phase: 'apply' as const,
 				options: {
@@ -506,16 +506,16 @@ describe('createPatcher', () => {
 
 	it('throws a kernel error when the plan JSON is invalid', async () => {
 		await withWorkspace(async (workspaceRoot) => {
-			const workspace = createWorkspace(workspaceRoot);
-			const reporter = createReporter();
-			const output = createOutput();
+			const workspace = buildWorkspace(workspaceRoot);
+			const reporter = buildReporter();
+			const output = buildOutput();
 
 			await workspace.write(
 				path.posix.join('.wpk', 'apply', 'plan.json'),
 				'{ invalid json ]'
 			);
 
-			const ir = createIr('Demo');
+			const ir = buildIr('Demo');
 			const input = {
 				phase: 'apply' as const,
 				options: {

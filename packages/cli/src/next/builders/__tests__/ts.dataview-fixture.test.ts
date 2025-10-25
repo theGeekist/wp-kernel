@@ -3,11 +3,11 @@ import path from 'node:path';
 import { createTsBuilder } from '../ts';
 import {
 	withWorkspace,
-	createKernelConfigSource,
-	createDataViewsConfig,
-	createBuilderArtifacts,
-	createReporter,
-	createOutput,
+	buildKernelConfigSource,
+	buildDataViewsConfig,
+	buildBuilderArtifacts,
+	buildReporter,
+	buildOutput,
 	prefixRelative,
 	normalise,
 } from '../tests/ts.test-support';
@@ -19,17 +19,17 @@ jest.mock('../../../commands/run-generate/validation', () => ({
 describe('createTsBuilder – DataView fixture creator', () => {
 	it('generates fixtures referencing the kernel config via a relative path', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
-			const configSource = createKernelConfigSource();
+			const configSource = buildKernelConfigSource();
 			await workspace.write('kernel.config.ts', configSource);
 
-			const dataviews = createDataViewsConfig();
-			const { ir, options } = createBuilderArtifacts({
+			const dataviews = buildDataViewsConfig();
+			const { ir, options } = buildBuilderArtifacts({
 				dataviews,
 				sourcePath: path.join(root, 'kernel.config.ts'),
 			});
 
-			const reporter = createReporter();
-			const output = createOutput();
+			const reporter = buildReporter();
+			const output = buildOutput();
 			const builder = createTsBuilder();
 
 			await builder.apply(
@@ -84,16 +84,16 @@ describe('createTsBuilder – DataView fixture creator', () => {
 
 	it('derives fixture names from the resource key', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
-			const dataviews = createDataViewsConfig();
-			const { ir, options } = createBuilderArtifacts({
+			const dataviews = buildDataViewsConfig();
+			const { ir, options } = buildBuilderArtifacts({
 				dataviews,
 				resourceKey: 'job-board',
 				resourceName: 'Job Board',
 				sourcePath: path.join(root, 'kernel.config.ts'),
 			});
 
-			const reporter = createReporter();
-			const output = createOutput();
+			const reporter = buildReporter();
+			const output = buildOutput();
 			const builder = createTsBuilder();
 
 			await builder.apply(
@@ -140,17 +140,17 @@ describe('createTsBuilder – DataView fixture creator', () => {
 				externalDir,
 				'kernel.config.ts'
 			);
-			await fs.writeFile(externalConfigPath, createKernelConfigSource());
+			await fs.writeFile(externalConfigPath, buildKernelConfigSource());
 
 			try {
-				const dataviews = createDataViewsConfig();
-				const { ir, options } = createBuilderArtifacts({
+				const dataviews = buildDataViewsConfig();
+				const { ir, options } = buildBuilderArtifacts({
 					dataviews,
 					sourcePath: externalConfigPath,
 				});
 
-				const reporter = createReporter();
-				const output = createOutput();
+				const reporter = buildReporter();
+				const output = buildOutput();
 				const builder = createTsBuilder();
 
 				await builder.apply(

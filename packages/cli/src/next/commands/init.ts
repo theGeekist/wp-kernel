@@ -2,11 +2,11 @@ import { Command, Option } from 'clipanion';
 import type { InitCommand as LegacyInitCommand } from '../../commands/init';
 import {
 	adoptCommandEnvironment,
-	createLegacyCommandLoader,
+	buildLegacyCommandLoader,
 	type LegacyCommandConstructor,
 } from './internal/delegate';
 
-export interface CreateInitCommandOptions {
+export interface BuildInitCommandOptions {
 	readonly command?: LegacyCommandConstructor<LegacyInitCommand>;
 	readonly loadCommand?: () => Promise<
 		LegacyCommandConstructor<LegacyInitCommand>
@@ -20,10 +20,10 @@ async function defaultLoadCommand(): Promise<InitConstructor> {
 	return module.InitCommand;
 }
 
-export function createInitCommand(
-	options: CreateInitCommandOptions = {}
+export function buildInitCommand(
+	options: BuildInitCommandOptions = {}
 ): InitConstructor {
-	const load = createLegacyCommandLoader({
+	const load = buildLegacyCommandLoader({
 		command: options.command,
 		loadCommand: options.loadCommand,
 		defaultLoad: defaultLoadCommand,

@@ -93,7 +93,7 @@ async function readPlan(workspace: Workspace): Promise<PatchPlan | null> {
 	}
 }
 
-async function createTempFile(
+async function writeTempFile(
 	workspace: Workspace,
 	scope: string,
 	relativePath: string,
@@ -115,19 +115,19 @@ async function mergeWithGit(
 	incoming: string
 ): Promise<{ status: 'clean' | 'conflict'; result: string }> {
 	const safeName = target.replace(/[^a-zA-Z0-9.-]/g, '-');
-	const baseFile = await createTempFile(
+	const baseFile = await writeTempFile(
 		workspace,
 		`patcher-base-${safeName}-`,
 		target,
 		base
 	);
-	const currentFile = await createTempFile(
+	const currentFile = await writeTempFile(
 		workspace,
 		`patcher-current-${safeName}-`,
 		target,
 		current
 	);
-	const incomingFile = await createTempFile(
+	const incomingFile = await writeTempFile(
 		workspace,
 		`patcher-incoming-${safeName}-`,
 		target,
@@ -194,7 +194,7 @@ async function queueWorkspaceFile(
 	});
 }
 
-function createEmptyManifest(): PatchManifest {
+function buildEmptyManifest(): PatchManifest {
 	return {
 		summary: {
 			applied: 0,
@@ -240,7 +240,7 @@ export function createPatcher(): BuilderHelper {
 				return;
 			}
 
-			const manifest = createEmptyManifest();
+			const manifest = buildEmptyManifest();
 
 			for (const instruction of plan.instructions) {
 				await processInstruction({

@@ -106,7 +106,7 @@ export function toWordPressHandle(slug: string): string {
 	return `wp-${slug}`;
 }
 
-export function createExternalList(pkg: PackageJsonLike | null): string[] {
+export function buildExternalList(pkg: PackageJsonLike | null): string[] {
 	const peerDeps = Object.keys(pkg?.peerDependencies ?? {});
 	const deps = Object.keys(pkg?.dependencies ?? {});
 
@@ -118,7 +118,7 @@ export function createExternalList(pkg: PackageJsonLike | null): string[] {
 	]);
 }
 
-export function createGlobals(
+export function buildGlobalsMap(
 	externals: readonly string[]
 ): Record<string, string> {
 	const globals: Record<string, string> = {};
@@ -151,9 +151,7 @@ export function createGlobals(
 	return globals;
 }
 
-export function createAssetDependencies(
-	externals: readonly string[]
-): string[] {
+export function buildAssetDependencies(externals: readonly string[]): string[] {
 	const dependencies = new Set<string>();
 
 	for (const dependency of externals) {
@@ -181,13 +179,13 @@ export function normaliseAliasReplacement(replacement: string): string {
 	return `${replacement}/`;
 }
 
-export function createRollupDriverArtifacts(
+export function buildRollupDriverArtifacts(
 	pkg: PackageJsonLike | null,
 	options: { readonly aliasRoot?: string } = {}
 ): RollupDriverArtifacts {
-	const externals = createExternalList(pkg);
-	const globals = createGlobals(externals);
-	const assetDependencies = createAssetDependencies(externals);
+	const externals = buildExternalList(pkg);
+	const globals = buildGlobalsMap(externals);
+	const assetDependencies = buildAssetDependencies(externals);
 	const aliasRoot = options.aliasRoot ?? './src';
 	const version = pkg?.version ?? '0.0.0';
 
@@ -274,7 +272,7 @@ export function createBundler(): BuilderHelper {
 
 			try {
 				const pkg = await readPackageJson(context.workspace);
-				const artifacts = createRollupDriverArtifacts(pkg, {
+				const artifacts = buildRollupDriverArtifacts(pkg, {
 					aliasRoot: './src',
 				});
 

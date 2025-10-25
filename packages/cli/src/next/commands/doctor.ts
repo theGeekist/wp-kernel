@@ -2,11 +2,11 @@ import { Command } from 'clipanion';
 import type { DoctorCommand as LegacyDoctorCommand } from '../../commands/doctor';
 import {
 	adoptCommandEnvironment,
-	createLegacyCommandLoader,
+	buildLegacyCommandLoader,
 	type LegacyCommandConstructor,
 } from './internal/delegate';
 
-export interface CreateDoctorCommandOptions {
+export interface BuildDoctorCommandOptions {
 	readonly command?: LegacyCommandConstructor<LegacyDoctorCommand>;
 	readonly loadCommand?: () => Promise<
 		LegacyCommandConstructor<LegacyDoctorCommand>
@@ -20,10 +20,10 @@ async function defaultLoadCommand(): Promise<DoctorConstructor> {
 	return module.DoctorCommand;
 }
 
-export function createDoctorCommand(
-	options: CreateDoctorCommandOptions = {}
+export function buildDoctorCommand(
+	options: BuildDoctorCommandOptions = {}
 ): DoctorConstructor {
-	const load = createLegacyCommandLoader({
+	const load = buildLegacyCommandLoader({
 		command: options.command,
 		loadCommand: options.loadCommand,
 		defaultLoad: defaultLoadCommand,

@@ -6,7 +6,7 @@ import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
 
 export const TMP_PREFIX = path.join(os.tmpdir(), 'next-apply-command-');
 
-export function createLoadedConfig(workspace: string): LoadedKernelConfig {
+export function buildLoadedConfig(workspace: string): LoadedKernelConfig {
 	return {
 		config: {
 			version: 1,

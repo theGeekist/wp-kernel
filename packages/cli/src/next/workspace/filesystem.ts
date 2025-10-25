@@ -73,7 +73,7 @@ function normaliseForMatch(root: string, absolute: string): string {
 	return relative === '' ? '.' : relative;
 }
 
-function createPatternMatcher(pattern: string): (candidate: string) => boolean {
+function buildPatternMatcher(pattern: string): (candidate: string) => boolean {
 	const normalised = pattern.replace(/\\/g, '/');
 	const escaped = normalised.replace(/([.+^=!:${}()|[\]\/\\])/g, '\\$1');
 	const regexSource = `^${escaped.replace(/\*\*/g, '.*').replace(/\*/g, '[^/]*')}$`;
@@ -161,7 +161,7 @@ async function recordOriginal(
 	}
 }
 
-function createManifest(record: TransactionRecord): FileManifest {
+function buildManifest(record: TransactionRecord): FileManifest {
 	return {
 		writes: Array.from(record.writes).sort(),
 		deletes: Array.from(record.deletes).sort(),
@@ -287,7 +287,7 @@ class FilesystemWorkspace implements Workspace {
 			return [];
 		}
 
-		const matchers = patterns.map(createPatternMatcher);
+		const matchers = patterns.map(buildPatternMatcher);
 		const entries = await listAllEntries(this.#root);
 
 		return entries.filter((absolute) => {
@@ -342,7 +342,7 @@ class FilesystemWorkspace implements Workspace {
 			await cleanupOriginal(original);
 		}
 
-		return createManifest(record);
+		return buildManifest(record);
 	}
 
 	async rollback(label?: string): Promise<FileManifest> {
@@ -382,7 +382,7 @@ class FilesystemWorkspace implements Workspace {
 			await cleanupOriginal(original);
 		}
 
-		return createManifest(record);
+		return buildManifest(record);
 	}
 
 	async dryRun<T>(
@@ -406,6 +406,6 @@ class FilesystemWorkspace implements Workspace {
 	}
 }
 
-export function createWorkspace(root: string = process.cwd()): Workspace {
+export function buildWorkspace(root: string = process.cwd()): Workspace {
 	return new FilesystemWorkspace(root);
 }

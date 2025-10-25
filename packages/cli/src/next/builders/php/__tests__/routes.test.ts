@@ -5,7 +5,7 @@ describe('routes helpers', () => {
 	const identityParam = 'slug';
 
 	it('collects canonical base paths using identity routes when available', () => {
-		const routes = createRoutes();
+		const routes = buildRoutes();
 
 		const basePaths = collectCanonicalBasePaths(routes, identityParam);
 
@@ -13,14 +13,14 @@ describe('routes helpers', () => {
 	});
 
 	it('classifies routes by HTTP method and path patterns', () => {
-		const routes = createRoutes();
+		const routes = buildRoutes();
 		const basePaths = collectCanonicalBasePaths(routes, identityParam);
 
 		const listRoute = routes[0];
 		const getRoute = routes[1];
 		const updateRoute = routes[2];
 		const deleteRoute = routes[3];
-		const createRoute = routes[4];
+		const postRoute = routes[4];
 
 		expect(determineRouteKind(listRoute, identityParam, basePaths)).toBe(
 			'list'
@@ -34,13 +34,13 @@ describe('routes helpers', () => {
 		expect(determineRouteKind(deleteRoute, identityParam, basePaths)).toBe(
 			'remove'
 		);
-		expect(determineRouteKind(createRoute, identityParam, basePaths)).toBe(
+		expect(determineRouteKind(postRoute, identityParam, basePaths)).toBe(
 			'create'
 		);
 	});
 
 	it('returns undefined for custom routes outside canonical patterns', () => {
-		const routes = createRoutes();
+		const routes = buildRoutes();
 		const basePaths = collectCanonicalBasePaths(routes, identityParam);
 
 		const customRoute: IRRoute = {
@@ -57,7 +57,7 @@ describe('routes helpers', () => {
 	});
 });
 
-function createRoutes(): IRRoute[] {
+function buildRoutes(): IRRoute[] {
 	return [
 		{
 			method: 'GET',
