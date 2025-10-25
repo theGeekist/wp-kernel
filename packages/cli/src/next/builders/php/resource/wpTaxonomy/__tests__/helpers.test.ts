@@ -79,10 +79,45 @@ describe('createWpTaxonomyHelperMethods', () => {
 		expectHierarchicalFlag(prepareHelper, true);
 	});
 
+	it('extracts taxonomy term arguments from the request', () => {
+		const helpers = createHelpers();
+
+		const extractHelper = helpers[3];
+		expect(extractHelper.node?.name.name).toBe(
+			'extractJobCategoriesTermArgs'
+		);
+		expect(extractHelper.node?.params).toHaveLength(1);
+		expect(extractHelper.node?.params[0].type).toMatchObject({
+			nodeType: 'Name',
+			parts: ['WP_REST_Request'],
+		});
+
+		const stmts = extractHelper.node?.stmts ?? [];
+		const slugIf = findIfStatement(stmts, 'Expr_BinaryOp_BooleanAnd');
+		const assignStmt = slugIf?.stmts?.[0];
+		if (!assignStmt || assignStmt.nodeType !== 'Stmt_Expression') {
+			throw new Error('Expected slug guard to assign term args');
+		}
+		if (assignStmt.expr?.nodeType !== 'Expr_Assign') {
+			throw new Error('Expected slug assignment to use Expr_Assign');
+		}
+		const callExpr = assignStmt.expr.expr;
+		expect(callExpr).toMatchObject({
+			nodeType: 'Expr_FuncCall',
+			name: { parts: ['sanitize_title'] },
+		});
+
+		const returnStmt = findReturnStatement(stmts);
+		expect(returnStmt?.expr).toMatchObject({
+			nodeType: 'Expr_Variable',
+			name: 'args',
+		});
+	});
+
 	it('exposes the identity candidate parameter when validating taxonomy identities', () => {
 		const helpers = createHelpers();
 
-		const validateHelper = helpers[3];
+		const validateHelper = helpers[4];
 		expect(validateHelper.node?.name.name).toBe(
 			'validateJobCategoriesIdentity'
 		);
@@ -159,5 +194,16 @@ function findReturnStatement(
 			statement
 		): statement is Extract<PhpStmt, { nodeType: 'Stmt_Return' }> =>
 			statement.nodeType === 'Stmt_Return'
+	);
+}
+
+function findIfStatement(
+	statements: readonly PhpStmt[],
+	conditionType: string
+): Extract<PhpStmt, { nodeType: 'Stmt_If' }> | undefined {
+	return statements.find(
+		(statement): statement is Extract<PhpStmt, { nodeType: 'Stmt_If' }> =>
+			statement.nodeType === 'Stmt_If' &&
+			statement.cond?.nodeType === conditionType
 	);
 }
