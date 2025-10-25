@@ -8,7 +8,7 @@ import { createPatcher } from '../../builders';
 import {
 	TMP_PREFIX,
 	buildLoadedConfig,
-} from '../__test-support__/apply.test-support';
+} from '@wpkernel/test-utils/next/commands/apply.test-support';
 
 jest.mock('../../../config');
 jest.mock('../../builders', () => ({

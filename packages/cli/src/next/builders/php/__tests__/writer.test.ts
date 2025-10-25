@@ -9,6 +9,7 @@ import { createPhpProgramWriterHelper } from '../writer';
 import { getPhpBuilderChannel, resetPhpBuilderChannel } from '../channel';
 import { resetPhpAstChannel, buildStmtNop } from '@wpkernel/php-json-ast';
 import { buildPhpPrettyPrinter } from '@wpkernel/php-driver';
+import { makeWorkspaceMock } from '../../../../../tests/workspace.test-support';
 
 jest.mock('@wpkernel/php-driver', () => ({
 	buildPhpPrettyPrinter: jest.fn(() => ({
@@ -32,31 +33,19 @@ function buildReporter(): Reporter {
 }
 
 function buildPipelineContext(): PipelineContext {
+	const workspace = makeWorkspaceMock({
+		root: '/workspace',
+		cwd: () => '/workspace',
+		resolve: (...parts: string[]) => path.join('/workspace', ...parts),
+		write: jest.fn(async () => undefined),
+		writeJson: jest.fn(async () => undefined),
+	});
+
 	return {
-		workspace: {
-			root: '/workspace',
-			resolve: (...parts: string[]) => path.join('/workspace', ...parts),
-			cwd: () => '/workspace',
-			read: async () => null,
-			readText: async () => null,
-			write: jest.fn(async () => undefined),
-			writeJson: jest.fn(async () => undefined),
-			exists: async () => false,
-			rm: async () => undefined,
-			glob: async () => [],
-			threeWayMerge: async () => 'clean',
-			begin: () => undefined,
-			commit: async () => ({ writes: [], deletes: [] }),
-			rollback: async () => ({ writes: [], deletes: [] }),
-			dryRun: async (fn) => ({
-				result: await fn(),
-				manifest: { writes: [], deletes: [] },
-			}),
-			tmpDir: async () => '.tmp',
-		},
+		workspace,
 		reporter: buildReporter(),
 		phase: 'generate',
-	} as unknown as PipelineContext;
+	};
 }
 
 function buildBuilderInput(): BuilderInput {
@@ -106,7 +95,11 @@ describe('createPhpProgramWriterHelper', () => {
 			undefined
 		);
 
-		const prettyPrinter = buildPhpPrettyPrinterMock.mock.results[0].value;
+		const firstCall = buildPhpPrettyPrinterMock.mock.results[0];
+		if (!firstCall || !firstCall.value) {
+			throw new Error('Expected pretty printer to be constructed.');
+		}
+		const prettyPrinter = firstCall.value;
 		expect(prettyPrinter.prettyPrint).toHaveBeenCalledWith({
 			filePath: '/workspace/.generated/php/Writer.php',
 			program,

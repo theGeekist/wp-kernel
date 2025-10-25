@@ -1,6 +1,17 @@
 import { KernelError } from '@wpkernel/core/contracts';
-import type { IRResource } from '../../../../ir/types';
-import type { ResolvedIdentity } from '../../resource/identity';
+import type {
+	PhpExprAssign,
+	PhpExprArrayDimFetch,
+	PhpExprVariable,
+	PhpScalarString,
+	PhpStmt,
+	PhpStmtExpression,
+} from '@wpkernel/php-json-ast';
+import type { ResolvedIdentity } from '../identity';
+import {
+	makeWpPostResource,
+	makeWpTaxonomyResource,
+} from '@wpkernel/test-utils/next/builders/php/resources.test-support';
 import {
 	prepareWpPostResponse,
 	syncWpPostMeta,
@@ -9,25 +20,13 @@ import {
 
 const IDENTITY: ResolvedIdentity = { type: 'string', param: 'slug' };
 
-function buildResource(
-	overrides: Partial<IRResource['storage']> = {}
-): IRResource {
-	return {
-		name: 'books',
-		schemaKey: 'book',
-		schemaProvenance: 'manual',
-		routes: [],
-		cacheKeys: {
-			list: { segments: ['books', 'list'], source: 'default' },
-			get: { segments: ['books', 'get'], source: 'default' },
-			create: { segments: ['books', 'create'], source: 'default' },
-			update: { segments: ['books', 'update'], source: 'default' },
-			remove: { segments: ['books', 'remove'], source: 'default' },
-		},
-		identity: IDENTITY,
+type WpPostStorageOverrides = NonNullable<
+	Parameters<typeof makeWpPostResource>[0]
+>['storage'];
+
+function buildResource(overrides: WpPostStorageOverrides = {}) {
+	return makeWpPostResource({
 		storage: {
-			mode: 'wp-post',
-			postType: 'book',
 			statuses: ['draft', 'publish'],
 			supports: ['title', 'editor', 'excerpt'],
 			meta: {
@@ -43,19 +42,15 @@ function buildResource(
 			},
 			...overrides,
 		},
-		queryParams: undefined,
-		ui: undefined,
-		hash: 'resource-hash',
-		warnings: [],
-	} as IRResource;
+	});
 }
 
 describe('wp-post mutation helpers', () => {
 	it('throws a KernelError when the resource does not use wp-post storage', () => {
-		const resource: IRResource = {
-			...buildResource(),
-			storage: undefined,
-		};
+		const resource = makeWpTaxonomyResource({
+			name: 'books',
+			schemaKey: 'book',
+		});
 
 		expect(() =>
 			syncWpPostMeta({
@@ -127,39 +122,47 @@ describe('wp-post mutation helpers', () => {
 	});
 
 	it('omits slug and support-specific fields when not configured', () => {
-		const resource: IRResource = {
-			...buildResource({
+		const resource = makeWpPostResource({
+			identity: { type: 'number', param: 'id' },
+			storage: {
 				supports: [],
 				meta: {},
 				taxonomies: {},
-			}),
-			identity: { type: 'number', param: 'post_id' },
-		};
+			},
+		});
 
 		const method = prepareWpPostResponse({
 			resource,
 			pascalName: 'Book',
-			identity: { type: 'number', param: 'post_id' },
+			identity: { type: 'number', param: 'id' },
 		});
 
 		const assignedKeys = new Set(
-			method.stmts.flatMap((statement) => {
-				if (
-					statement.nodeType === 'Stmt_Expression' &&
-					statement.expr.nodeType === 'Expr_Assign'
-				) {
-					const { var: target } = statement.expr;
-					if (
-						target.nodeType === 'Expr_ArrayDimFetch' &&
-						target.var.nodeType === 'Expr_Variable' &&
-						target.var.name === 'data' &&
-						target.dim?.nodeType === 'Scalar_String'
-					) {
-						return [target.dim.value];
-					}
+			(method.stmts ?? []).flatMap((statement) => {
+				if (!isExpressionStatement(statement)) {
+					return [];
 				}
 
-				return [];
+				const expression = statement.expr;
+				if (!isAssignExpression(expression)) {
+					return [];
+				}
+
+				const target = expression.var;
+				if (
+					!isArrayDimFetch(target) ||
+					!isVariableExpression(target.var) ||
+					target.var.name !== 'data'
+				) {
+					return [];
+				}
+
+				const dimension = target.dim;
+				if (!isScalarStringLiteral(dimension)) {
+					return [];
+				}
+
+				return [dimension.value];
 			})
 		);
 
@@ -169,3 +172,33 @@ describe('wp-post mutation helpers', () => {
 		expect(assignedKeys.has('excerpt')).toBe(false);
 	});
 });
+
+function isExpressionStatement(
+	statement: PhpStmt
+): statement is PhpStmtExpression {
+	return statement.nodeType === 'Stmt_Expression';
+}
+
+function isAssignExpression(
+	expression: PhpStmtExpression['expr']
+): expression is PhpExprAssign {
+	return expression.nodeType === 'Expr_Assign';
+}
+
+function isArrayDimFetch(
+	expression: PhpExprAssign['var']
+): expression is PhpExprArrayDimFetch {
+	return expression.nodeType === 'Expr_ArrayDimFetch';
+}
+
+function isVariableExpression(
+	expression: PhpExprArrayDimFetch['var']
+): expression is PhpExprVariable {
+	return expression.nodeType === 'Expr_Variable';
+}
+
+function isScalarStringLiteral(
+	expression: PhpExprArrayDimFetch['dim']
+): expression is PhpScalarString {
+	return expression?.nodeType === 'Scalar_String';
+}

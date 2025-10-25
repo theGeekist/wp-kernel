@@ -16,9 +16,9 @@ export function createBaseConfig(): KernelConfigV1 {
 	return {
 		version: 1,
 		namespace: 'test-namespace',
-		schemas: {},
-		resources: {},
-	} as unknown as KernelConfigV1;
+		schemas: {} satisfies KernelConfigV1['schemas'],
+		resources: {} satisfies KernelConfigV1['resources'],
+	} satisfies KernelConfigV1;
 }
 
 export async function withTempSchema(

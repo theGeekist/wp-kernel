@@ -1,7 +1,7 @@
 import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import type { LoadedKernelConfig } from '../../../config/types';
+import type { LoadedKernelConfig } from '@wpkernel/cli/config';
 import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
 
 export const TMP_PREFIX = path.join(os.tmpdir(), 'next-apply-command-');

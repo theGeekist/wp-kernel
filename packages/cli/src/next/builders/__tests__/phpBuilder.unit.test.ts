@@ -4,6 +4,7 @@ import type { Reporter } from '@wpkernel/core/reporter';
 import { createPhpBuilder } from '../php';
 import type { BuilderOutput } from '../../runtime/types';
 import type { Workspace } from '../../workspace/types';
+import { makeWorkspaceMock } from '../../../../tests/workspace.test-support';
 
 function buildReporter(): Reporter {
 	return {
@@ -16,7 +17,7 @@ function buildReporter(): Reporter {
 }
 
 function buildWorkspace(): Workspace {
-	return {
+	return makeWorkspaceMock({
 		root: process.cwd(),
 		cwd: jest.fn(() => process.cwd()),
 		read: jest.fn(async () => null),
@@ -30,15 +31,15 @@ function buildWorkspace(): Workspace {
 		begin: jest.fn(),
 		commit: jest.fn(async () => ({ writes: [], deletes: [] })),
 		rollback: jest.fn(async () => ({ writes: [], deletes: [] })),
-		dryRun: jest.fn(async (fn) => ({
+		dryRun: async <T>(fn: () => Promise<T>) => ({
 			result: await fn(),
 			manifest: { writes: [], deletes: [] },
-		})),
+		}),
 		tmpDir: jest.fn(async () => '.tmp'),
 		resolve: jest.fn((...parts: string[]) =>
 			path.join(process.cwd(), ...parts)
 		),
-	} as unknown as Workspace;
+	});
 }
 
 const output: BuilderOutput = {

@@ -25,12 +25,21 @@ import { assignCommandContext } from '@wpkernel/test-utils/cli';
 import * as Delegate from '../internal/delegate';
 import { buildDoctorCommand } from '../doctor';
 import type { Command as ClipanionCommand } from 'clipanion';
+import type { LegacyCommandConstructor } from '../internal/delegate';
+import type { DoctorCommand as LegacyDoctorCommand } from '../../../commands/doctor';
 
 type MockedLegacyModule = {
-	readonly DoctorCommand: (new () => ClipanionCommand) & {
+	readonly DoctorCommand: LegacyCommandConstructor<ClipanionCommand> & {
 		readonly executeMock: jest.Mock<Promise<number | void>, []>;
 	};
 };
+
+type CommandStreamShape = {
+	readonly cli?: unknown;
+	readonly context?: unknown;
+	readonly stdout?: unknown;
+	readonly stderr?: unknown;
+} & Record<string, unknown>;
 
 function getMockLegacyDoctor(): MockedLegacyModule['DoctorCommand'] {
 	return (jest.requireMock('../../../commands/doctor') as MockedLegacyModule)
@@ -39,12 +48,16 @@ function getMockLegacyDoctor(): MockedLegacyModule['DoctorCommand'] {
 
 describe('buildDoctorCommand', () => {
 	class FakeDoctorCommand extends Command {
-		public static readonly executeMock = jest.fn(async () => 7);
+		public static readonly executeMock: jest.Mock<Promise<number>, []> =
+			jest.fn(async () => 7);
 
 		override async execute(): Promise<number> {
 			return FakeDoctorCommand.executeMock.call(this);
 		}
 	}
+
+	const fakeDoctorConstructor =
+		FakeDoctorCommand as unknown as LegacyCommandConstructor<LegacyDoctorCommand>;
 
 	beforeEach(() => {
 		jest.spyOn(Delegate, 'adoptCommandEnvironment');
@@ -57,7 +70,7 @@ describe('buildDoctorCommand', () => {
 	});
 
 	it('delegates execution to the legacy command and adopts the environment', async () => {
-		const Doctor = buildDoctorCommand({ command: FakeDoctorCommand });
+		const Doctor = buildDoctorCommand({ command: fakeDoctorConstructor });
 		const next = new Doctor();
 
 		assignCommandContext(next, { cwd: process.cwd() });
@@ -70,14 +83,21 @@ describe('buildDoctorCommand', () => {
 
 		const delegateInstance =
 			FakeDoctorCommand.executeMock.mock.instances[0];
-		expect(delegateInstance.cli).toBe(next.cli);
-		expect(delegateInstance.context).toBe(next.context);
-		expect(delegateInstance.stdout).toBe(next.stdout);
-		expect(delegateInstance.stderr).toBe(next.stderr);
+		if (!delegateInstance) {
+			throw new Error('Expected delegate to be instantiated');
+		}
+		const delegateWithStreams = coerceCommandStreams(delegateInstance);
+		const nextWithStreams = coerceCommandStreams(next);
+		expect(delegateWithStreams.cli).toBe(nextWithStreams.cli);
+		expect(delegateWithStreams.context).toBe(nextWithStreams.context);
+		expect(delegateWithStreams.stdout).toBe(nextWithStreams.stdout);
+		expect(delegateWithStreams.stderr).toBe(nextWithStreams.stderr);
 	});
 
 	it('loads the legacy command once when using a loader', async () => {
-		const loadCommand = jest.fn(async () => FakeDoctorCommand);
+		const loadCommand: jest.MockedFunction<
+			() => Promise<LegacyCommandConstructor<LegacyDoctorCommand>>
+		> = jest.fn().mockResolvedValue(fakeDoctorConstructor);
 		const Doctor = buildDoctorCommand({ loadCommand });
 
 		const first = new Doctor();
@@ -92,7 +112,11 @@ describe('buildDoctorCommand', () => {
 	});
 
 	it('falls back to the default loader when no overrides are provided', async () => {
-		const loader = jest.fn(async () => getMockLegacyDoctor());
+		const loader: jest.MockedFunction<
+			(
+				command: LegacyCommandConstructor<LegacyDoctorCommand>
+			) => Promise<MockedLegacyModule['DoctorCommand']>
+		> = jest.fn(async (_command) => getMockLegacyDoctor());
 		jest.spyOn(Delegate, 'buildLegacyCommandLoader').mockImplementation(
 			({ defaultLoad }) => {
 				return async () => loader(await defaultLoad());
@@ -110,3 +134,7 @@ describe('buildDoctorCommand', () => {
 		expect(getMockLegacyDoctor().executeMock).toHaveBeenCalledTimes(1);
 	});
 });
+
+function coerceCommandStreams(command: unknown): CommandStreamShape {
+	return command as CommandStreamShape;
+}

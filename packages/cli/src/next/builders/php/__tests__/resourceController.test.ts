@@ -1,11 +1,17 @@
 import path from 'node:path';
 import type { Reporter } from '@wpkernel/core/reporter';
-import type { IRResource, IRRoute, IRv1 } from '../../../../ir/types';
 import { collectCanonicalBasePaths } from '../routes';
 import { buildRouteMetadata } from '../resourceController/metadata';
 import type { ResolvedIdentity } from '../identity';
 import type { BuilderOutput } from '../../../runtime/types';
-import type { Workspace } from '../../workspace/types';
+import type { Workspace } from '../../../workspace/types';
+import { makeWorkspaceMock } from '../../../../../tests/workspace.test-support';
+import {
+	makePhpIrFixture,
+	makeWpPostResource,
+	makeWpPostRoutes,
+	makeWpTaxonomyResource,
+} from '@wpkernel/test-utils/next/builders/php/resources.test-support';
 import {
 	createPhpChannelHelper,
 	createPhpResourceControllerHelper,
@@ -23,29 +29,12 @@ function buildReporter(): Reporter {
 }
 
 function buildWorkspace(): Workspace {
-	return {
-		root: process.cwd(),
-		cwd: jest.fn(() => process.cwd()),
-		read: jest.fn(async () => null),
-		readText: jest.fn(async () => null),
-		write: jest.fn(async () => undefined),
-		writeJson: jest.fn(async () => undefined),
-		exists: jest.fn(async () => false),
-		rm: jest.fn(async () => undefined),
-		glob: jest.fn(async () => []),
-		threeWayMerge: jest.fn(async () => 'clean'),
-		begin: jest.fn(),
-		commit: jest.fn(async () => ({ writes: [], deletes: [] })),
-		rollback: jest.fn(async () => ({ writes: [], deletes: [] })),
-		dryRun: jest.fn(async (fn) => ({
-			result: await fn(),
-			manifest: { writes: [], deletes: [] },
-		})),
-		tmpDir: jest.fn(async () => '.tmp'),
-		resolve: jest.fn((...parts: string[]) =>
-			path.join(process.cwd(), ...parts)
-		),
-	} as unknown as Workspace;
+	const root = process.cwd();
+	return makeWorkspaceMock({
+		root,
+		cwd: () => root,
+		resolve: (...parts: string[]) => path.join(root, ...parts),
+	});
 }
 
 describe('createPhpResourceControllerHelper', () => {
@@ -214,55 +203,13 @@ describe('createPhpResourceControllerHelper', () => {
 describe('buildRouteMetadata', () => {
 	it('annotates mutation routes with cache segments and contract tags', () => {
 		const identity: ResolvedIdentity = { type: 'string', param: 'slug' };
-		const resource: IRResource = {
-			name: 'books',
-			schemaKey: 'book',
-			schemaProvenance: 'manual',
-			routes: [],
-			cacheKeys: {
-				list: { segments: ['books', 'list'], source: 'default' },
-				get: { segments: ['books', 'get'], source: 'default' },
-				create: { segments: ['books', 'create'], source: 'default' },
-				update: { segments: ['books', 'update'], source: 'default' },
-				remove: { segments: ['books', 'remove'], source: 'default' },
-			},
-			identity,
-			storage: {
-				mode: 'wp-post',
-				postType: 'book',
-				statuses: [],
-				supports: [],
-				meta: {},
-				taxonomies: {},
-			} as IRResource['storage'],
-			queryParams: undefined,
-			ui: undefined,
-			hash: 'resource-hash',
-			warnings: [],
-		};
+		const resource = makeWpPostResource();
 
-		const routes: IRRoute[] = [
-			{
-				method: 'POST',
-				path: '/kernel/v1/books',
-				policy: undefined,
-				hash: 'create',
-				transport: 'local',
-			},
-			{
-				method: 'PUT',
-				path: '/kernel/v1/books/:slug',
-				policy: undefined,
-				hash: 'update',
-				transport: 'local',
-			},
-			{
-				method: 'DELETE',
-				path: '/kernel/v1/books/:slug',
-				policy: undefined,
-				hash: 'remove',
-				transport: 'local',
-			},
+		const allRoutes = makeWpPostRoutes();
+		const routes = [
+			getRoute(allRoutes, (route) => route.method === 'POST'),
+			getRoute(allRoutes, (route) => route.method === 'PUT'),
+			getRoute(allRoutes, (route) => route.method === 'DELETE'),
 		];
 
 		const canonicalBasePaths = collectCanonicalBasePaths(
@@ -303,11 +250,9 @@ describe('buildRouteMetadata', () => {
 
 	it('omits mutation metadata when storage is not wp-post', () => {
 		const identity: ResolvedIdentity = { type: 'string', param: 'slug' };
-		const resource: IRResource = {
+		const resource = makeWpTaxonomyResource({
 			name: 'books',
 			schemaKey: 'book',
-			schemaProvenance: 'manual',
-			routes: [],
 			cacheKeys: {
 				list: { segments: ['list'], source: 'default' },
 				get: { segments: ['get'], source: 'default' },
@@ -315,29 +260,17 @@ describe('buildRouteMetadata', () => {
 				update: { segments: ['update'], source: 'default' },
 				remove: { segments: ['remove'], source: 'default' },
 			},
-			identity,
-			storage: undefined,
-			queryParams: undefined,
-			ui: undefined,
-			hash: 'resource-hash',
-			warnings: [],
-		};
+		});
 
-		const routes: IRRoute[] = [
-			{
-				method: 'POST',
-				path: '/kernel/v1/books',
-				policy: undefined,
-				hash: 'create',
-				transport: 'local',
-			},
-			{
-				method: 'GET',
-				path: '/kernel/v1/books',
-				policy: undefined,
-				hash: 'list',
-				transport: 'local',
-			},
+		const allRoutes = makeWpPostRoutes();
+		const routes = [
+			getRoute(allRoutes, (route) => route.method === 'POST'),
+			getRoute(
+				allRoutes,
+				(route) =>
+					route.method === 'GET' &&
+					!route.path.includes(`:${identity.param}`)
+			),
 		];
 
 		const canonicalBasePaths = collectCanonicalBasePaths(
@@ -367,11 +300,7 @@ describe('buildRouteMetadata', () => {
 
 	it('falls back to empty segments when mutation cache keys are undefined', () => {
 		const identity: ResolvedIdentity = { type: 'string', param: 'slug' };
-		const resource: IRResource = {
-			name: 'books',
-			schemaKey: 'book',
-			schemaProvenance: 'manual',
-			routes: [],
+		const resource = makeWpPostResource({
 			cacheKeys: {
 				list: { segments: ['list'], source: 'default' },
 				get: { segments: ['get'], source: 'default' },
@@ -379,43 +308,13 @@ describe('buildRouteMetadata', () => {
 				update: undefined,
 				remove: undefined,
 			},
-			identity,
-			storage: {
-				mode: 'wp-post',
-				postType: 'book',
-				statuses: [],
-				supports: [],
-				meta: {},
-				taxonomies: {},
-			} as IRResource['storage'],
-			queryParams: undefined,
-			ui: undefined,
-			hash: 'resource-hash',
-			warnings: [],
-		};
+		});
 
-		const routes: IRRoute[] = [
-			{
-				method: 'POST',
-				path: '/kernel/v1/books',
-				policy: undefined,
-				hash: 'create',
-				transport: 'local',
-			},
-			{
-				method: 'PUT',
-				path: '/kernel/v1/books/:slug',
-				policy: undefined,
-				hash: 'update',
-				transport: 'local',
-			},
-			{
-				method: 'DELETE',
-				path: '/kernel/v1/books/:slug',
-				policy: undefined,
-				hash: 'remove',
-				transport: 'local',
-			},
+		const allRoutes = makeWpPostRoutes();
+		const routes = [
+			getRoute(allRoutes, (route) => route.method === 'POST'),
+			getRoute(allRoutes, (route) => route.method === 'PUT'),
+			getRoute(allRoutes, (route) => route.method === 'DELETE'),
 		];
 
 		const canonicalBasePaths = collectCanonicalBasePaths(
@@ -455,151 +354,17 @@ describe('buildRouteMetadata', () => {
 	});
 });
 
-function buildIr(): IRv1 {
-	const resource: IRResource = {
-		name: 'books',
-		schemaKey: 'book',
-		schemaProvenance: 'manual',
-		routes: buildRoutes(),
-		cacheKeys: {
-			list: { segments: ['books', 'list'], source: 'default' },
-			get: { segments: ['books', 'get'], source: 'default' },
-			create: { segments: ['books', 'create'], source: 'default' },
-			update: { segments: ['books', 'update'], source: 'default' },
-			remove: { segments: ['books', 'remove'], source: 'default' },
-		},
-		identity: { type: 'string' },
-		storage: {
-			mode: 'wp-post',
-			postType: 'book',
-			statuses: ['draft', 'publish'],
-			supports: ['title'],
-			meta: {
-				status: { type: 'string', single: true },
-				tags: { type: 'array', single: false },
-			},
-			taxonomies: {
-				genres: { taxonomy: 'book_genre' },
-			},
-		} as IRResource['storage'],
-		queryParams: undefined,
-		ui: undefined,
-		hash: 'resource-hash',
-		warnings: [],
-	};
-
-	const taxonomyResource: IRResource = {
-		name: 'jobCategories',
-		schemaKey: 'jobCategory',
-		schemaProvenance: 'manual',
-		routes: [
-			{
-				method: 'GET',
-				path: '/kernel/v1/job-categories',
-				policy: undefined,
-				hash: 'taxonomy-list',
-				transport: 'local',
-			},
-			{
-				method: 'GET',
-				path: '/kernel/v1/job-categories/:slug',
-				policy: undefined,
-				hash: 'taxonomy-get',
-				transport: 'local',
-			},
-		],
-		cacheKeys: {
-			list: { segments: ['jobCategories', 'list'], source: 'default' },
-			get: { segments: ['jobCategories', 'get'], source: 'default' },
-			create: { segments: [], source: 'default' },
-			update: { segments: [], source: 'default' },
-			remove: { segments: [], source: 'default' },
-		},
-		identity: { type: 'string', param: 'slug' },
-		storage: {
-			mode: 'wp-taxonomy',
-			taxonomy: 'job_category',
-			hierarchical: true,
-		} as IRResource['storage'],
-		queryParams: undefined,
-		ui: undefined,
-		hash: 'taxonomy-resource',
-		warnings: [],
-	};
-
-	return {
-		meta: {
-			version: 1,
-			namespace: 'demo-plugin',
-			sanitizedNamespace: 'DemoPlugin',
-			origin: 'kernel.config.ts',
-			sourcePath: 'kernel.config.ts',
-		},
-		config: {
-			version: 1,
-			namespace: 'demo-plugin',
-			schemas: {},
-			resources: {},
-		} as IRv1['config'],
-		schemas: [],
-		resources: [resource, taxonomyResource],
-		policies: [],
-		policyMap: {
-			sourcePath: undefined,
-			definitions: [],
-			fallback: {
-				capability: 'manage_options',
-				appliesTo: 'resource',
-			},
-			missing: [],
-			unused: [],
-			warnings: [],
-		},
-		blocks: [],
-		php: {
-			namespace: 'Demo\\Plugin',
-			autoload: 'inc/',
-			outputDir: '.generated/php',
-		},
-	};
+function buildIr() {
+	return makePhpIrFixture();
 }
 
-function buildRoutes(): IRRoute[] {
-	return [
-		{
-			method: 'GET',
-			path: '/kernel/v1/books',
-			policy: undefined,
-			hash: 'list',
-			transport: 'local',
-		},
-		{
-			method: 'GET',
-			path: '/kernel/v1/books/:slug',
-			policy: undefined,
-			hash: 'get',
-			transport: 'local',
-		},
-		{
-			method: 'POST',
-			path: '/kernel/v1/books',
-			policy: undefined,
-			hash: 'create',
-			transport: 'local',
-		},
-		{
-			method: 'PUT',
-			path: '/kernel/v1/books/:slug',
-			policy: undefined,
-			hash: 'update',
-			transport: 'local',
-		},
-		{
-			method: 'DELETE',
-			path: '/kernel/v1/books/:slug',
-			policy: undefined,
-			hash: 'remove',
-			transport: 'local',
-		},
-	];
+function getRoute(
+	routes: ReturnType<typeof makeWpPostRoutes>,
+	matcher: (route: ReturnType<typeof makeWpPostRoutes>[number]) => boolean
+) {
+	const route = routes.find(matcher);
+	if (!route) {
+		throw new Error('Expected route to be defined.');
+	}
+	return route;
 }

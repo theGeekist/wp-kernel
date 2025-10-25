@@ -1,4 +1,9 @@
 import { Command } from 'clipanion';
+import type { InitCommand as LegacyInitCommand } from '../../../commands/init';
+import type { GenerateCommand as LegacyGenerateCommand } from '../../../commands/generate';
+import type { StartCommand as LegacyStartCommand } from '../../../commands/start';
+import type { DoctorCommand as LegacyDoctorCommand } from '../../../commands/doctor';
+import type { LegacyCommandConstructor } from '../internal/delegate';
 
 function buildCommandContext() {
 	return {
@@ -17,7 +22,7 @@ describe('command factories', () => {
 			const captured: unknown[] = [];
 
 			class LegacyInit extends Command {
-				static override paths = [['init']] as const;
+				static override paths: string[][] = [['init']];
 				static override usage = Command.Usage({
 					description: 'legacy init',
 				});
@@ -41,9 +46,11 @@ describe('command factories', () => {
 				}
 			}
 
-			const loader = jest
-				.fn<() => Promise<typeof LegacyInit>>()
-				.mockResolvedValue(LegacyInit);
+			const legacyConstructor =
+				LegacyInit as unknown as LegacyCommandConstructor<LegacyInitCommand>;
+			const loader: jest.MockedFunction<
+				() => Promise<LegacyCommandConstructor<LegacyInitCommand>>
+			> = jest.fn().mockResolvedValue(legacyConstructor);
 			const { buildInitCommand } = await import('../init');
 			const NextInit = buildInitCommand({ loadCommand: loader });
 
@@ -76,7 +83,7 @@ describe('command factories', () => {
 
 		it('supports pre-resolved commands without invoking the loader', async () => {
 			class LegacyInit extends Command {
-				static override paths = [['init']] as const;
+				static override paths: string[][] = [['init']];
 				static override usage = Command.Usage({
 					description: 'legacy init',
 				});
@@ -86,12 +93,14 @@ describe('command factories', () => {
 				}
 			}
 
-			const loader = jest
-				.fn<() => Promise<typeof LegacyInit>>()
-				.mockRejectedValue(new Error('should not load'));
+			const legacyConstructor =
+				LegacyInit as unknown as LegacyCommandConstructor<LegacyInitCommand>;
+			const loader: jest.MockedFunction<
+				() => Promise<LegacyCommandConstructor<LegacyInitCommand>>
+			> = jest.fn().mockRejectedValue(new Error('should not load'));
 			const { buildInitCommand } = await import('../init');
 			const NextInit = buildInitCommand({
-				command: LegacyInit,
+				command: legacyConstructor,
 				loadCommand: loader,
 			});
 
@@ -110,7 +119,7 @@ describe('command factories', () => {
 		it('copies CLI context and exposes summary from the legacy command', async () => {
 			const summary = { applied: 1 };
 			class LegacyGenerate extends Command {
-				static override paths = [['generate']] as const;
+				static override paths: string[][] = [['generate']];
 				static override usage = Command.Usage({
 					description: 'legacy generate',
 				});
@@ -125,9 +134,11 @@ describe('command factories', () => {
 				}
 			}
 
-			const loader = jest
-				.fn<() => Promise<typeof LegacyGenerate>>()
-				.mockResolvedValue(LegacyGenerate);
+			const legacyConstructor =
+				LegacyGenerate as unknown as LegacyCommandConstructor<LegacyGenerateCommand>;
+			const loader: jest.MockedFunction<
+				() => Promise<LegacyCommandConstructor<LegacyGenerateCommand>>
+			> = jest.fn().mockResolvedValue(legacyConstructor);
 			const { buildGenerateCommand } = await import('../generate');
 			const NextGenerate = buildGenerateCommand({
 				loadCommand: loader,
@@ -148,7 +159,7 @@ describe('command factories', () => {
 
 		it('normalises non-numeric return values to zero', async () => {
 			class LegacyGenerate extends Command {
-				static override paths = [['generate']] as const;
+				static override paths: string[][] = [['generate']];
 				static override usage = Command.Usage({
 					description: 'legacy generate',
 				});
@@ -161,9 +172,11 @@ describe('command factories', () => {
 				}
 			}
 
-			const loader = jest
-				.fn<() => Promise<typeof LegacyGenerate>>()
-				.mockResolvedValue(LegacyGenerate);
+			const legacyConstructor =
+				LegacyGenerate as unknown as LegacyCommandConstructor<LegacyGenerateCommand>;
+			const loader: jest.MockedFunction<
+				() => Promise<LegacyCommandConstructor<LegacyGenerateCommand>>
+			> = jest.fn().mockResolvedValue(legacyConstructor);
 			const { buildGenerateCommand } = await import('../generate');
 			const NextGenerate = buildGenerateCommand({
 				loadCommand: loader,
@@ -185,7 +198,7 @@ describe('command factories', () => {
 			const captured: Array<{ verbose: boolean; auto: boolean }> = [];
 
 			class LegacyStart extends Command {
-				static override paths = [['start']] as const;
+				static override paths: string[][] = [['start']];
 				static override usage = Command.Usage({
 					description: 'legacy start',
 				});
@@ -202,9 +215,11 @@ describe('command factories', () => {
 				}
 			}
 
-			const loader = jest
-				.fn<() => Promise<typeof LegacyStart>>()
-				.mockResolvedValue(LegacyStart);
+			const legacyConstructor =
+				LegacyStart as unknown as LegacyCommandConstructor<LegacyStartCommand>;
+			const loader: jest.MockedFunction<
+				() => Promise<LegacyCommandConstructor<LegacyStartCommand>>
+			> = jest.fn().mockResolvedValue(legacyConstructor);
 			const { buildStartCommand } = await import('../start');
 			const NextStart = buildStartCommand({ loadCommand: loader });
 
@@ -224,7 +239,7 @@ describe('command factories', () => {
 			let executions = 0;
 
 			class LegacyStart extends Command {
-				static override paths = [['start']] as const;
+				static override paths: string[][] = [['start']];
 				static override usage = Command.Usage({
 					description: 'legacy start',
 				});
@@ -234,9 +249,11 @@ describe('command factories', () => {
 				}
 			}
 
-			const loader = jest
-				.fn<() => Promise<typeof LegacyStart>>()
-				.mockResolvedValue(LegacyStart);
+			const legacyConstructor =
+				LegacyStart as unknown as LegacyCommandConstructor<LegacyStartCommand>;
+			const loader: jest.MockedFunction<
+				() => Promise<LegacyCommandConstructor<LegacyStartCommand>>
+			> = jest.fn().mockResolvedValue(legacyConstructor);
 			const { buildStartCommand } = await import('../start');
 			const NextStart = buildStartCommand({ loadCommand: loader });
 
@@ -261,7 +278,7 @@ describe('command factories', () => {
 			const execute = jest.fn().mockResolvedValue(undefined);
 
 			class LegacyDoctor extends Command {
-				static override paths = [['doctor']] as const;
+				static override paths: string[][] = [['doctor']];
 				static override usage = Command.Usage({
 					description: 'legacy doctor',
 				});
@@ -271,9 +288,11 @@ describe('command factories', () => {
 				}
 			}
 
-			const loader = jest
-				.fn<() => Promise<typeof LegacyDoctor>>()
-				.mockResolvedValue(LegacyDoctor);
+			const legacyConstructor =
+				LegacyDoctor as unknown as LegacyCommandConstructor<LegacyDoctorCommand>;
+			const loader: jest.MockedFunction<
+				() => Promise<LegacyCommandConstructor<LegacyDoctorCommand>>
+			> = jest.fn().mockResolvedValue(legacyConstructor);
 			const { buildDoctorCommand } = await import('../doctor');
 			const NextDoctor = buildDoctorCommand({
 				loadCommand: loader,
@@ -291,7 +310,7 @@ describe('command factories', () => {
 
 		it('supports pre-resolved commands without invoking the loader', async () => {
 			class LegacyDoctor extends Command {
-				static override paths = [['doctor']] as const;
+				static override paths: string[][] = [['doctor']];
 				static override usage = Command.Usage({
 					description: 'legacy doctor',
 				});
@@ -301,12 +320,14 @@ describe('command factories', () => {
 				}
 			}
 
-			const loader = jest
-				.fn<() => Promise<typeof LegacyDoctor>>()
-				.mockRejectedValue(new Error('should not load'));
+			const legacyConstructor =
+				LegacyDoctor as unknown as LegacyCommandConstructor<LegacyDoctorCommand>;
+			const loader: jest.MockedFunction<
+				() => Promise<LegacyCommandConstructor<LegacyDoctorCommand>>
+			> = jest.fn().mockRejectedValue(new Error('should not load'));
 			const { buildDoctorCommand } = await import('../doctor');
 			const NextDoctor = buildDoctorCommand({
-				command: LegacyDoctor,
+				command: legacyConstructor,
 				loadCommand: loader,
 			});
 

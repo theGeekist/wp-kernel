@@ -10,7 +10,7 @@ import {
 	buildOutput,
 	prefixRelative,
 	normalise,
-} from '../tests/ts.test-support';
+} from '@wpkernel/test-utils/next/builders/tests/ts.test-support';
 
 jest.mock('../../../commands/run-generate/validation', () => ({
 	validateGeneratedImports: jest.fn().mockResolvedValue(undefined),

@@ -14,6 +14,7 @@ import {
 import type { BuilderOutput } from '../../runtime/types';
 import type { Workspace } from '../../workspace/types';
 import { buildPhpPrettyPrinter } from '@wpkernel/php-driver';
+import { makeWorkspaceMock } from '../../../../tests/workspace.test-support';
 
 jest.mock('@wpkernel/php-driver', () => ({
 	buildPhpPrettyPrinter: jest.fn(() => ({
@@ -39,7 +40,7 @@ function buildReporter(): Reporter {
 }
 
 function buildWorkspace(): Workspace {
-	return {
+	return makeWorkspaceMock({
 		root: process.cwd(),
 		cwd: jest.fn(() => process.cwd()),
 		read: jest.fn(async () => null),
@@ -53,15 +54,15 @@ function buildWorkspace(): Workspace {
 		begin: jest.fn(),
 		commit: jest.fn(async () => ({ writes: [], deletes: [] })),
 		rollback: jest.fn(async () => ({ writes: [], deletes: [] })),
-		dryRun: jest.fn(async (fn) => ({
+		dryRun: async <T>(fn: () => Promise<T>) => ({
 			result: await fn(),
 			manifest: { writes: [], deletes: [] },
-		})),
+		}),
 		tmpDir: jest.fn(async () => '.tmp'),
 		resolve: jest.fn((...parts: string[]) =>
 			path.join(process.cwd(), ...parts)
 		),
-	} as unknown as Workspace;
+	});
 }
 
 const ir: IRv1 = {
@@ -122,9 +123,10 @@ describe('createPhpBuilder', () => {
 			reporter,
 			phase: 'generate' as const,
 		};
+		const queueWrite = jest.fn();
 		const output: BuilderOutput = {
 			actions: [],
-			queueWrite: jest.fn(),
+			queueWrite,
 		};
 
 		const helpers = [
@@ -224,9 +226,10 @@ describe('createPhpBuilder', () => {
 		const builder = createPhpBuilder();
 		const reporter = buildReporter();
 		const workspace = buildWorkspace();
+		const queueWrite = jest.fn();
 		const output: BuilderOutput = {
 			actions: [],
-			queueWrite: jest.fn(),
+			queueWrite,
 		};
 
 		await builder.apply(
@@ -257,7 +260,7 @@ describe('createPhpBuilder', () => {
 			{ phase: 'init' }
 		);
 		expect(reporter.info).not.toHaveBeenCalled();
-		expect(output.queueWrite).not.toHaveBeenCalled();
+		expect(queueWrite).not.toHaveBeenCalled();
 	});
 
 	it('generates base controller artifacts from the AST channel', async () => {
@@ -265,9 +268,10 @@ describe('createPhpBuilder', () => {
 		const reporter = buildReporter();
 		const workspace = buildWorkspace();
 		const prettyPrint = setupPrettyPrinterMock();
+		const queueWrite = jest.fn();
 		const output: BuilderOutput = {
 			actions: [],
-			queueWrite: jest.fn(),
+			queueWrite,
 		};
 
 		await builder.apply(
@@ -324,11 +328,11 @@ describe('createPhpBuilder', () => {
 			}
 		);
 
-		expect(output.queueWrite).toHaveBeenCalledWith({
+		expect(queueWrite).toHaveBeenCalledWith({
 			file: baseControllerPath,
 			contents: '<?php\n// pretty printed base controller\n',
 		});
-		expect(output.queueWrite).toHaveBeenCalledWith({
+		expect(queueWrite).toHaveBeenCalledWith({
 			file: astPath,
 			contents: expect.stringMatching(/"Stmt_Class"/),
 		});

@@ -3,8 +3,12 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import { emitBlockArtifacts } from '../index.js';
 import type { PrinterContext } from '../../types.js';
-import type { IRBlock, IRv1 } from '../../../ir/types.js';
+import type { IRBlock } from '../../../ir/types.js';
 import type { KernelConfigV1 } from '../../../config/types.js';
+import {
+	makeKernelConfigFixture,
+	makePrinterIrFixture,
+} from '@wpkernel/test-utils/next/printers.test-support';
 
 async function withTempDir<T>(
 	factory: (dir: string) => Promise<T>
@@ -72,25 +76,25 @@ describe('emitBlockArtifacts – integration', () => {
 				},
 			];
 
-			const ir: IRv1 = {
+			const config = makeKernelConfigFixture({
+				namespace: 'demo',
+				schemas: {} satisfies KernelConfigV1['schemas'],
+				resources: {} satisfies KernelConfigV1['resources'],
+			});
+
+			const ir = makePrinterIrFixture({
+				config,
+				blocks,
 				meta: {
-					version: 1,
 					namespace: 'demo',
-					sourcePath: 'kernel.config.ts',
-					origin: 'kernel.config.ts',
 					sanitizedNamespace: 'Demo\\Plugin',
 				},
-				config: { namespace: 'demo' } as KernelConfigV1,
-				schemas: [],
-				resources: [],
-				policies: [],
-				blocks,
 				php: {
 					namespace: 'Demo\\Plugin',
 					autoload: 'inc/',
 					outputDir: '.generated/php',
 				},
-			} as IRv1;
+			});
 
 			const outputDir = path.join(tempDir, '.generated');
 
@@ -112,7 +116,7 @@ describe('emitBlockArtifacts – integration', () => {
 				ensureDirectory: async (directoryPath) => {
 					await fs.mkdir(directoryPath, { recursive: true });
 				},
-			} as PrinterContext;
+			};
 
 			await emitBlockArtifacts(context);
 

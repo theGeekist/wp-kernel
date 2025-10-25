@@ -9,9 +9,16 @@ import { buildWorkspace } from '../../workspace';
 import { withWorkspace } from '../../../../tests/workspace.test-support';
 import type {
 	BuilderApplyOptions,
+	BuilderHelper,
 	BuilderNext,
 	FragmentApplyOptions,
+	FragmentHelper,
 } from '../types';
+import {
+	buildBuilderHelper,
+	buildFragmentHelper,
+	buildPipelineExtension,
+} from '@wpkernel/test-utils/next/runtime/pipeline.fixtures.test-support';
 
 function buildPolicyMap(): IRPolicyMap {
 	return {
@@ -175,28 +182,22 @@ describe('createPipeline', () => {
 	it('rejects helpers registered under the wrong surface', () => {
 		const pipeline = createPipeline();
 
-		expect(() =>
-			pipeline.ir.use(
-				createHelper({
-					key: 'builder.wrong-surface',
-					kind: 'builder',
-					apply() {
-						return Promise.resolve();
-					},
-				})
-			)
-		).toThrow(/Attempted to register helper/);
+		const builder = buildBuilderHelper({
+			key: 'builder.wrong-surface',
+			apply: async () => undefined,
+		});
 
 		expect(() =>
-			pipeline.builders.use(
-				createHelper({
-					key: 'ir.wrong-surface',
-					kind: 'fragment',
-					apply() {
-						return Promise.resolve();
-					},
-				})
-			)
+			pipeline.ir.use(builder as unknown as FragmentHelper)
+		).toThrow(/Attempted to register helper/);
+
+		const fragment = buildFragmentHelper({
+			key: 'ir.wrong-surface',
+			apply: async () => undefined,
+		});
+
+		expect(() =>
+			pipeline.builders.use(fragment as unknown as BuilderHelper)
 		).toThrow(/Attempted to register helper/);
 	});
 
@@ -301,14 +302,15 @@ describe('createPipeline', () => {
 			pipeline.use(metaHelper);
 			pipeline.use(builderHelper);
 			pipeline.ir.use(policyHelper);
-			const extensionResult = pipeline.extensions.use({
-				register(pipe) {
-					pipe.builders.use(extensionBuilder);
-					return 'registered';
-				},
+			const register = jest.fn((pipe) => {
+				pipe.builders.use(extensionBuilder);
 			});
+			const extensionResult = pipeline.extensions.use(
+				buildPipelineExtension({ register })
+			);
 
-			expect(extensionResult).toBe('registered');
+			expect(register).toHaveBeenCalledWith(pipeline);
+			expect(extensionResult).toBeUndefined();
 
 			const workspace = buildWorkspace(workspaceRoot);
 			const reporter = buildReporterMock();

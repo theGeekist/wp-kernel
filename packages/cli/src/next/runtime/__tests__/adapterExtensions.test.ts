@@ -11,6 +11,8 @@ import { buildAdapterExtensionsExtension } from '../adapterExtensions';
 import { runAdapterExtensions } from '../../../adapters';
 import { mkdir } from 'node:fs/promises';
 import { buildTsFormatter } from '../../builders/ts';
+import { makeWorkspaceMock } from '../../../../tests/workspace.test-support';
+import type { Workspace } from '../../workspace';
 
 jest.mock('../../../adapters', () => ({
 	runAdapterExtensions: jest.fn(),
@@ -48,11 +50,23 @@ function buildOptions(
 		schemas: {},
 	} as KernelConfigV1;
 
-	const workspace = {
+	const workspace = makeWorkspaceMock({
 		root: '/tmp/workspace',
-		resolve: jest.fn((value: string) => path.join('/tmp/workspace', value)),
-		write: jest.fn(async () => undefined),
-	};
+		resolve: jest
+			.fn<
+				ReturnType<Workspace['resolve']>,
+				Parameters<Workspace['resolve']>
+			>()
+			.mockImplementation((value: string) =>
+				path.join('/tmp/workspace', value)
+			),
+		write: jest
+			.fn<
+				ReturnType<Workspace['write']>,
+				Parameters<Workspace['write']>
+			>()
+			.mockResolvedValue(undefined),
+	});
 	const reporter = buildReporterMock();
 
 	const artifact = {
@@ -131,7 +145,7 @@ describe('buildAdapterExtensionsExtension', () => {
 
 		const result = await hook({
 			...options,
-			context: { ...options.context, phase: 'validate' },
+			context: { ...options.context, phase: 'apply' },
 		});
 
 		expect(result).toBeUndefined();

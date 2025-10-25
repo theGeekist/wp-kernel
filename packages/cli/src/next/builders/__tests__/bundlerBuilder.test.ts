@@ -3,7 +3,11 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import { createNoopReporter as buildNoopReporter } from '@wpkernel/core/reporter';
 import { buildWorkspace } from '../../workspace';
-import type { BuilderOutput } from '../../runtime/types';
+import type {
+	BuilderInput,
+	BuilderOutput,
+	BuilderWriteAction,
+} from '../../runtime/types';
 import {
 	buildAssetDependencies,
 	createBundler,
@@ -39,7 +43,7 @@ describe('createBundler', () => {
 		sanitizedNamespace: string;
 		workspaceRoot: string;
 		phase: 'generate' | 'apply';
-	}) {
+	}): BuilderInput {
 		return {
 			phase,
 			options: {
@@ -88,7 +92,7 @@ describe('createBundler', () => {
 					outputDir: '.generated/php',
 				},
 			},
-		} as const;
+		};
 	}
 
 	it('writes rollup driver configuration and asset metadata', async () => {
@@ -112,9 +116,10 @@ describe('createBundler', () => {
 
 			const builder = createBundler();
 			const reporter = buildNoopReporter();
+			const queueWrite = jest.fn<void, [BuilderWriteAction]>();
 			const output: BuilderOutput = {
 				actions: [],
-				queueWrite: jest.fn(),
+				queueWrite,
 			};
 
 			const input = buildBuilderInput({
@@ -200,7 +205,7 @@ describe('createBundler', () => {
 			);
 
 			expect(output.queueWrite).toHaveBeenCalled();
-			const queuedFiles = output.queueWrite.mock.calls.map(
+			const queuedFiles = queueWrite.mock.calls.map(
 				([action]) => action.file
 			);
 			expect(queuedFiles).toEqual(
@@ -224,9 +229,10 @@ describe('createBundler', () => {
 
 			const builder = createBundler();
 			const reporter = buildNoopReporter();
+			const queueWrite = jest.fn<void, [BuilderWriteAction]>();
 			const output: BuilderOutput = {
 				actions: [],
-				queueWrite: jest.fn(),
+				queueWrite,
 			};
 			const input = buildBuilderInput({
 				namespace: 'bundler-plugin',

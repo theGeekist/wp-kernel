@@ -5,6 +5,11 @@ import type { ResourceDataViewsUIConfig } from '@wpkernel/core/resource';
 import type { KernelConfigV1 } from '../../../config/types';
 import type { IRResource, IRv1 } from '../../../ir';
 import { KernelError } from '@wpkernel/core/contracts';
+import {
+	makeKernelConfigFixture,
+	makeJobResource,
+	makePrinterIrFixture,
+} from '@wpkernel/test-utils/next/printers.test-support';
 
 describe('emitUIArtifacts', () => {
 	it('writes admin screens, fixtures, and menu registrations using formatters', async () => {
@@ -173,48 +178,33 @@ type CreateIrOptions = {
 };
 
 function createIr(options: CreateIrOptions): IRv1 {
-	const config: KernelConfigV1 = {
-		version: 1,
-		namespace: 'demo-namespace',
-		schemas: {},
-		resources: {},
-	} as KernelConfigV1;
+	const ui = options.dataviews
+		? ({
+				admin: { dataviews: options.dataviews },
+			} satisfies NonNullable<IRResource['ui']>)
+		: undefined;
 
-	if (options.dataviews) {
-		config.resources = {
-			job: {
-				name: 'job',
-				ui: { admin: { dataviews: options.dataviews } },
-			},
-		} as KernelConfigV1['resources'];
-	} else {
-		config.resources = {
-			job: { name: 'job' },
-		} as KernelConfigV1['resources'];
-	}
+	const resources: KernelConfigV1['resources'] = ui
+		? { job: { name: 'job', routes: {}, ui } }
+		: { job: { name: 'job', routes: {} } };
 
-	const resource: IRResource = {
-		name: 'job',
-		schemaKey: 'job',
-		schemaProvenance: 'manual',
-		routes: [],
-		cacheKeys: {
-			list: { segments: Object.freeze(['job']), source: 'config' },
-			get: { segments: Object.freeze(['job', 'get']), source: 'config' },
-		},
-		hash: 'resource-job',
-		warnings: [],
-	} as unknown as IRResource;
+	const config = makeKernelConfigFixture({
+		schemas: {} satisfies KernelConfigV1['schemas'],
+		resources,
+	});
 
-	if (options.dataviews) {
-		resource.ui = {
-			admin: { dataviews: options.dataviews },
-		} as IRResource['ui'];
-	}
+	const resource = makeJobResource({ routes: [], hash: 'resource-job' });
+	resource.cacheKeys = {
+		list: { segments: ['job'] as const, source: 'config' },
+		get: { segments: ['job', 'get'] as const, source: 'config' },
+	};
+	resource.queryParams = undefined;
+	resource.storage = undefined;
+	resource.ui = ui;
+	resource.warnings = [];
 
-	const ir: IRv1 = {
+	return makePrinterIrFixture({
 		meta: {
-			version: 1,
 			namespace: 'Demo\\Namespace',
 			sanitizedNamespace: 'Demo\\Namespace',
 			sourcePath: '/workspace/kernel.config.ts',
@@ -222,8 +212,7 @@ function createIr(options: CreateIrOptions): IRv1 {
 		},
 		config,
 		schemas: [],
-		resources: options.dataviews ? [resource] : [],
-		policies: [],
+		resources: ui ? [resource] : [],
 		policyMap: {
 			sourcePath: undefined,
 			definitions: [],
@@ -238,9 +227,7 @@ function createIr(options: CreateIrOptions): IRv1 {
 			autoload: 'inc/',
 			outputDir: '.generated/php',
 		},
-	};
-
-	return ir;
+	});
 }
 
 type DataViewsBlueprint = Partial<ResourceDataViewsUIConfig> & {
