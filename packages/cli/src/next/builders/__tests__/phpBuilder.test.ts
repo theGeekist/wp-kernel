@@ -14,7 +14,7 @@ import {
 import type { BuilderOutput } from '../../runtime/types';
 import type { Workspace } from '../../workspace/types';
 import { buildPhpPrettyPrinter } from '@wpkernel/php-driver';
-import { createWorkspaceMock } from '../../../../tests/workspace.test-support';
+import { makeWorkspaceMock } from '../../../../tests/workspace.test-support';
 
 jest.mock('@wpkernel/php-driver', () => ({
 	buildPhpPrettyPrinter: jest.fn(() => ({
@@ -40,7 +40,7 @@ function buildReporter(): Reporter {
 }
 
 function buildWorkspace(): Workspace {
-	return createWorkspaceMock({
+	return makeWorkspaceMock({
 		root: process.cwd(),
 		cwd: jest.fn(() => process.cwd()),
 		read: jest.fn(async () => null),

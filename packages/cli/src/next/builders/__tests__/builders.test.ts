@@ -6,7 +6,7 @@ import { createPhpDriverInstaller } from '@wpkernel/php-driver';
 import type { BuildIrOptions, IRv1 } from '../../../ir/types';
 import type { BuilderOutput } from '../../runtime/types';
 import type { Workspace } from '../../workspace/types';
-import { createWorkspaceMock } from '../../../../tests/workspace.test-support';
+import { makeWorkspaceMock } from '../../../../tests/workspace.test-support';
 
 jest.mock('node:child_process', () => {
 	const execFileMock = jest.fn(
@@ -81,7 +81,7 @@ const existsMock = jest
 	.fn<ReturnType<Workspace['exists']>, Parameters<Workspace['exists']>>()
 	.mockResolvedValue(true);
 
-const workspace = createWorkspaceMock({
+const workspace = makeWorkspaceMock({
 	root: process.cwd(),
 	resolve: (...parts: string[]) => path.join(process.cwd(), ...parts),
 	exists: existsMock,

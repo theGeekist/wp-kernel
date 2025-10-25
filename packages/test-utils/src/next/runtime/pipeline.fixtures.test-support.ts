@@ -1,15 +1,16 @@
+/* eslint-disable import/no-extraneous-dependencies -- test fixtures rely on CLI runtime helpers */
 import type { CreateHelperOptions } from '@wpkernel/core/pipeline';
-import { createHelper } from '../createHelper';
-import type {
-	BuilderHelper,
-	BuilderInput,
-	BuilderOutput,
-	FragmentHelper,
-	FragmentInput,
-	FragmentOutput,
-	PipelineContext,
-	PipelineExtension,
-} from '../types';
+import {
+	createHelper,
+	type BuilderHelper,
+	type BuilderInput,
+	type BuilderOutput,
+	type FragmentHelper,
+	type FragmentInput,
+	type FragmentOutput,
+	type PipelineContext,
+	type PipelineExtension,
+} from '@wpkernel/cli/next/runtime';
 
 type Reporter = PipelineContext['reporter'];
 
@@ -69,3 +70,4 @@ export function buildPipelineExtension({
 			((): ReturnType<PipelineExtension['register']> => undefined),
 	} satisfies PipelineExtension;
 }
+/* eslint-enable import/no-extraneous-dependencies */

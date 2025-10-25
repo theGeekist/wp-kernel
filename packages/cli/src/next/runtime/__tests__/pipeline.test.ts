@@ -18,7 +18,7 @@ import {
 	buildBuilderHelper,
 	buildFragmentHelper,
 	buildPipelineExtension,
-} from '../test-support/pipeline.fixtures.test-support';
+} from '@wpkernel/test-utils/next/runtime/pipeline.fixtures.test-support';
 
 function buildPolicyMap(): IRPolicyMap {
 	return {

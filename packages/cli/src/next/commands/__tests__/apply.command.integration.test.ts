@@ -10,7 +10,7 @@ import {
 	buildLoadedConfig,
 	seedPlan,
 	toFsPath,
-} from '../__test-support__/apply.test-support';
+} from '@wpkernel/test-utils/next/commands/apply.test-support';
 
 jest.mock('../../../config');
 

@@ -8,7 +8,7 @@ import type { IRResource, IRv1 } from '../../ir';
 import type { PrinterContext } from '../types';
 import { PhpFileBuilder } from '../php/builder';
 import { renderPhpFile } from '../php/render';
-import { createPrinterIrFixture } from '../../../tests/printers.test-support';
+import { makePrinterIrFixture } from '@wpkernel/test-utils/next/printers.test-support';
 
 const TMP_PREFIX = path.join(os.tmpdir(), 'wpk-printers-');
 
@@ -530,7 +530,7 @@ describe('emitGeneratedArtifacts', () => {
 
 	it('emits UI scaffolding when DataViews metadata is present', async () => {
 		await withTempDir(async (tempDir) => {
-			const ir = createPrinterIrFixture();
+			const ir = makePrinterIrFixture();
 			ir.config.resources = {
 				job: {
 					name: 'job',
@@ -714,7 +714,7 @@ describe('emitGeneratedArtifacts', () => {
 
 	it('repairs incomplete reporter implementations in adapter context overrides', async () => {
 		await withTempDir(async (tempDir) => {
-			const ir = createPrinterIrFixture();
+			const ir = makePrinterIrFixture();
 			const context = createPrinterContext(tempDir, { ir });
 			const brokenReporter = {
 				info: () => undefined,
@@ -764,7 +764,7 @@ describe('emitGeneratedArtifacts', () => {
 
 	it('preserves valid adapter context reporters and metadata', async () => {
 		await withTempDir(async (tempDir) => {
-			const ir = createPrinterIrFixture();
+			const ir = makePrinterIrFixture();
 			const context = createPrinterContext(tempDir, { ir });
 			const reporter = createNoopReporter().child('adapter');
 			const adapterNamespace = 'Demo\\Override';
@@ -801,7 +801,7 @@ describe('emitGeneratedArtifacts', () => {
 
 	it('hydrates missing adapter context fields before customisers run', async () => {
 		await withTempDir(async (tempDir) => {
-			const ir = createPrinterIrFixture();
+			const ir = makePrinterIrFixture();
 			const context = createPrinterContext(tempDir, { ir });
 			const reporters: AdapterContext['reporter'][] = [];
 
@@ -836,7 +836,7 @@ describe('emitGeneratedArtifacts', () => {
 
 	it('passes builders through adapter customisers', async () => {
 		await withTempDir(async (tempDir) => {
-			const ir = createPrinterIrFixture();
+			const ir = makePrinterIrFixture();
 			const context = createPrinterContext(tempDir, { ir });
 
 			const customised: string[] = [];
@@ -957,7 +957,7 @@ function createPrinterContext(
 	overrides: Partial<PrinterContext> & { ir?: IRv1 } = {}
 ): PrinterContext {
 	const { ir: overrideIr, ...restOverrides } = overrides;
-	const ir = overrideIr ?? createPrinterIrFixture();
+	const ir = overrideIr ?? makePrinterIrFixture();
 	const outputDir = path.join(tempDir, '.generated');
 
 	return {

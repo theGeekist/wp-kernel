@@ -11,7 +11,7 @@ import { buildAdapterExtensionsExtension } from '../adapterExtensions';
 import { runAdapterExtensions } from '../../../adapters';
 import { mkdir } from 'node:fs/promises';
 import { buildTsFormatter } from '../../builders/ts';
-import { createWorkspaceMock } from '../../../../tests/workspace.test-support';
+import { makeWorkspaceMock } from '../../../../tests/workspace.test-support';
 import type { Workspace } from '../../workspace';
 
 jest.mock('../../../adapters', () => ({
@@ -50,7 +50,7 @@ function buildOptions(
 		schemas: {},
 	} as KernelConfigV1;
 
-	const workspace = createWorkspaceMock({
+	const workspace = makeWorkspaceMock({
 		root: '/tmp/workspace',
 		resolve: jest
 			.fn<

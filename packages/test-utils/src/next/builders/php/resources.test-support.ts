@@ -1,5 +1,5 @@
 import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
-import type { IRRoute, IRResource, IRv1 } from '../../../../../ir/types';
+import type { IRRoute, IRResource, IRv1 } from '@wpkernel/cli/ir';
 
 type WpPostStorageConfig = Extract<IRResource['storage'], { mode: 'wp-post' }>;
 type WpTaxonomyStorageConfig = Extract<
@@ -15,7 +15,7 @@ const DEFAULT_CACHE_KEYS: IRResource['cacheKeys'] = {
 	remove: { segments: ['books', 'remove'], source: 'default' },
 };
 
-export interface CreateWpPostResourceOptions {
+export interface MakeWpPostResourceOptions {
 	readonly name?: string;
 	readonly schemaKey?: string;
 	readonly routes?: IRRoute[];
@@ -25,7 +25,7 @@ export interface CreateWpPostResourceOptions {
 	readonly hash?: string;
 }
 
-export function createWpPostRoutes(): IRRoute[] {
+export function makeWpPostRoutes(): IRRoute[] {
 	return [
 		{
 			method: 'GET',
@@ -65,8 +65,8 @@ export function createWpPostRoutes(): IRRoute[] {
 	];
 }
 
-export function createWpPostResource(
-	options: CreateWpPostResourceOptions = {}
+export function makeWpPostResource(
+	options: MakeWpPostResourceOptions = {}
 ): IRResource {
 	const storage: WpPostStorageConfig = {
 		mode: 'wp-post',
@@ -87,7 +87,7 @@ export function createWpPostResource(
 		name: options.name ?? 'books',
 		schemaKey: options.schemaKey ?? 'book',
 		schemaProvenance: 'manual',
-		routes: options.routes ?? createWpPostRoutes(),
+		routes: options.routes ?? makeWpPostRoutes(),
 		cacheKeys: options.cacheKeys ?? DEFAULT_CACHE_KEYS,
 		identity: options.identity ?? { type: 'string', param: 'slug' },
 		storage,
@@ -98,7 +98,7 @@ export function createWpPostResource(
 	} satisfies IRResource;
 }
 
-export interface CreateWpTaxonomyResourceOptions {
+export interface MakeWpTaxonomyResourceOptions {
 	readonly name?: string;
 	readonly schemaKey?: string;
 	readonly routes?: IRRoute[];
@@ -108,8 +108,8 @@ export interface CreateWpTaxonomyResourceOptions {
 	readonly hash?: string;
 }
 
-export function createWpTaxonomyResource(
-	options: CreateWpTaxonomyResourceOptions = {}
+export function makeWpTaxonomyResource(
+	options: MakeWpTaxonomyResourceOptions = {}
 ): IRResource {
 	const storage: WpTaxonomyStorageConfig = {
 		mode: 'wp-taxonomy',
@@ -162,16 +162,14 @@ export function createWpTaxonomyResource(
 	} satisfies IRResource;
 }
 
-export interface CreatePhpIrFixtureOptions {
+export interface MakePhpIrFixtureOptions {
 	readonly resources?: IRResource[];
 }
 
-export function createPhpIrFixture(
-	options: CreatePhpIrFixtureOptions = {}
-): IRv1 {
+export function makePhpIrFixture(options: MakePhpIrFixtureOptions = {}): IRv1 {
 	const resources = options.resources ?? [
-		createWpPostResource(),
-		createWpTaxonomyResource(),
+		makeWpPostResource(),
+		makeWpTaxonomyResource(),
 	];
 
 	return {
