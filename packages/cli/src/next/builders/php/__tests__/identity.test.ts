@@ -3,7 +3,7 @@ import { resolveIdentityConfig } from '../identity';
 
 describe('resolveIdentityConfig', () => {
 	it('defaults to numeric id when identity is missing', () => {
-		const resource = createResource();
+		const resource = buildResource();
 
 		expect(resolveIdentityConfig(resource)).toEqual({
 			type: 'number',
@@ -12,7 +12,7 @@ describe('resolveIdentityConfig', () => {
 	});
 
 	it('defaults to slug parameter for string identities without explicit param', () => {
-		const resource = createResource({
+		const resource = buildResource({
 			identity: { type: 'string' },
 		});
 
@@ -23,7 +23,7 @@ describe('resolveIdentityConfig', () => {
 	});
 
 	it('preserves explicit identity parameters', () => {
-		const resource = createResource({
+		const resource = buildResource({
 			identity: { type: 'string', param: 'uuid' },
 		});
 
@@ -34,7 +34,7 @@ describe('resolveIdentityConfig', () => {
 	});
 });
 
-function createResource(overrides: Partial<IRResource> = {}): IRResource {
+function buildResource(overrides: Partial<IRResource> = {}): IRResource {
 	return {
 		name: 'books',
 		schemaKey: 'book',

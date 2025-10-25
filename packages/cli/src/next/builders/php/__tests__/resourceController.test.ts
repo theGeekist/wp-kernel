@@ -12,7 +12,7 @@ import {
 	getPhpBuilderChannel,
 } from '../index';
 
-function createReporter(): Reporter {
+function buildReporter(): Reporter {
 	return {
 		debug: jest.fn(),
 		info: jest.fn(),
@@ -22,7 +22,7 @@ function createReporter(): Reporter {
 	};
 }
 
-function createWorkspace(): Workspace {
+function buildWorkspace(): Workspace {
 	return {
 		root: process.cwd(),
 		cwd: jest.fn(() => process.cwd()),
@@ -50,8 +50,8 @@ function createWorkspace(): Workspace {
 
 describe('createPhpResourceControllerHelper', () => {
 	it('queues resource controllers with resolved identity and route kinds', async () => {
-		const reporter = createReporter();
-		const workspace = createWorkspace();
+		const reporter = buildReporter();
+		const workspace = buildWorkspace();
 		const context = {
 			workspace,
 			reporter,
@@ -62,7 +62,7 @@ describe('createPhpResourceControllerHelper', () => {
 			queueWrite: jest.fn(),
 		};
 
-		const ir = createIr();
+		const ir = buildIr();
 
 		const applyOptions = {
 			context,
@@ -139,8 +139,8 @@ describe('createPhpResourceControllerHelper', () => {
 	});
 
 	it('queues taxonomy controllers with pagination helpers and term shaping', async () => {
-		const reporter = createReporter();
-		const workspace = createWorkspace();
+		const reporter = buildReporter();
+		const workspace = buildWorkspace();
 		const context = {
 			workspace,
 			reporter,
@@ -151,7 +151,7 @@ describe('createPhpResourceControllerHelper', () => {
 			queueWrite: jest.fn(),
 		};
 
-		const ir = createIr();
+		const ir = buildIr();
 
 		const applyOptions = {
 			context,
@@ -455,12 +455,12 @@ describe('buildRouteMetadata', () => {
 	});
 });
 
-function createIr(): IRv1 {
+function buildIr(): IRv1 {
 	const resource: IRResource = {
 		name: 'books',
 		schemaKey: 'book',
 		schemaProvenance: 'manual',
-		routes: createRoutes(),
+		routes: buildRoutes(),
 		cacheKeys: {
 			list: { segments: ['books', 'list'], source: 'default' },
 			get: { segments: ['books', 'get'], source: 'default' },
@@ -564,7 +564,7 @@ function createIr(): IRv1 {
 	};
 }
 
-function createRoutes(): IRRoute[] {
+function buildRoutes(): IRRoute[] {
 	return [
 		{
 			method: 'GET',

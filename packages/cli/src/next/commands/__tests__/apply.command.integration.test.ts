@@ -2,12 +2,12 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
 import { assignCommandContext } from '@wpkernel/test-utils/cli';
-import { createWorkspaceRunner } from '../../../../tests/workspace.test-support';
+import { createWorkspaceRunner as buildWorkspaceRunner } from '../../../../tests/workspace.test-support';
 import * as ApplyModule from '../apply';
 import { loadKernelConfig } from '../../../config';
 import {
 	TMP_PREFIX,
-	createLoadedConfig,
+	buildLoadedConfig,
 	seedPlan,
 	toFsPath,
 } from '../__test-support__/apply.test-support';
@@ -18,7 +18,7 @@ const loadKernelConfigMock = loadKernelConfig as jest.MockedFunction<
 	typeof loadKernelConfig
 >;
 
-const withWorkspace = createWorkspaceRunner({ prefix: TMP_PREFIX });
+const withWorkspace = buildWorkspaceRunner({ prefix: TMP_PREFIX });
 
 describe('NextApplyCommand integration', () => {
 	beforeEach(() => {
@@ -28,7 +28,7 @@ describe('NextApplyCommand integration', () => {
 	it('applies git patches and reports summary', async () => {
 		await withWorkspace(async (workspace) => {
 			loadKernelConfigMock.mockResolvedValue(
-				createLoadedConfig(workspace)
+				buildLoadedConfig(workspace)
 			);
 
 			const target = path.posix.join('php', 'JobController.php');
@@ -80,7 +80,7 @@ describe('NextApplyCommand integration', () => {
 	it('returns success when no plan exists', async () => {
 		await withWorkspace(async (workspace) => {
 			loadKernelConfigMock.mockResolvedValue(
-				createLoadedConfig(workspace)
+				buildLoadedConfig(workspace)
 			);
 
 			const command = new ApplyModule.NextApplyCommand();
@@ -104,7 +104,7 @@ describe('NextApplyCommand integration', () => {
 	it('exits with validation error when conflicts occur', async () => {
 		await withWorkspace(async (workspace) => {
 			loadKernelConfigMock.mockResolvedValue(
-				createLoadedConfig(workspace)
+				buildLoadedConfig(workspace)
 			);
 
 			const target = path.posix.join('php', 'Conflict.php');

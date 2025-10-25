@@ -66,7 +66,7 @@ const ir: IRv1 = {
 	},
 };
 
-function createOutput(): BuilderOutput {
+function buildOutput(): BuilderOutput {
 	const actions: BuilderOutput['actions'] = [];
 	return {
 		actions,
@@ -112,7 +112,7 @@ describe('builder stubs', () => {
 
 	it('executes stub builders without errors', async () => {
 		for (const helper of stubHelpers) {
-			const output = createOutput();
+			const output = buildOutput();
 			await helper.apply(
 				{
 					context,

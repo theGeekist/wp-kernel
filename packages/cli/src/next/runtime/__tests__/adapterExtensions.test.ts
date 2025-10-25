@@ -1,16 +1,16 @@
 import path from 'node:path';
 import { KernelError } from '@wpkernel/core/error';
-import { createReporterMock } from '@wpkernel/test-utils/cli';
+import { createReporterMock as buildReporterMock } from '@wpkernel/test-utils/cli';
 import type { KernelConfigV1 } from '../../../config/types';
 import type { IRv1 } from '../../../ir/types';
 import type {
 	PipelineExtensionHook,
 	PipelineExtensionHookOptions,
 } from '../types';
-import { createAdapterExtensionsExtension } from '../adapterExtensions';
+import { buildAdapterExtensionsExtension } from '../adapterExtensions';
 import { runAdapterExtensions } from '../../../adapters';
 import { mkdir } from 'node:fs/promises';
-import { createTsFormatter } from '../../builders/ts';
+import { buildTsFormatter } from '../../builders/ts';
 
 jest.mock('../../../adapters', () => ({
 	runAdapterExtensions: jest.fn(),
@@ -21,7 +21,7 @@ const tsFormatterFormatMock = jest.fn(
 );
 
 jest.mock('../../builders/ts', () => ({
-	createTsFormatter: jest.fn(() => ({
+	buildTsFormatter: jest.fn(() => ({
 		format: tsFormatterFormatMock,
 	})),
 }));
@@ -34,11 +34,11 @@ const runAdapterExtensionsMock = runAdapterExtensions as jest.MockedFunction<
 	typeof runAdapterExtensions
 >;
 const mkdirMock = mkdir as jest.MockedFunction<typeof mkdir>;
-const createTsFormatterMock = createTsFormatter as jest.MockedFunction<
-	typeof createTsFormatter
+const buildTsFormatterMock = buildTsFormatter as jest.MockedFunction<
+	typeof buildTsFormatter
 >;
 
-function createOptions(
+function buildOptions(
 	overrides: Partial<PipelineExtensionHookOptions> = {}
 ): PipelineExtensionHookOptions {
 	const config: KernelConfigV1 = {
@@ -53,7 +53,7 @@ function createOptions(
 		resolve: jest.fn((value: string) => path.join('/tmp/workspace', value)),
 		write: jest.fn(async () => undefined),
 	};
-	const reporter = createReporterMock();
+	const reporter = buildReporterMock();
 
 	const artifact = {
 		meta: {
@@ -94,13 +94,13 @@ function createOptions(
 	};
 }
 
-function createHook(config: KernelConfigV1): {
+function buildHook(config: KernelConfigV1): {
 	hook: PipelineExtensionHook;
 	options: PipelineExtensionHookOptions;
 } {
-	const extension = createAdapterExtensionsExtension();
+	const extension = buildAdapterExtensionsExtension();
 	const hook = extension.register({} as never) as PipelineExtensionHook;
-	const options = createOptions({
+	const options = buildOptions({
 		options: {
 			config,
 			namespace: config.namespace,
@@ -117,7 +117,7 @@ beforeEach(() => {
 	tsFormatterFormatMock.mockClear();
 });
 
-describe('createAdapterExtensionsExtension', () => {
+describe('buildAdapterExtensionsExtension', () => {
 	it('skips execution when pipeline phase is not generate', async () => {
 		const factory = jest.fn(() => [{ name: 'noop', apply: jest.fn() }]);
 		const config = {
@@ -127,7 +127,7 @@ describe('createAdapterExtensionsExtension', () => {
 			schemas: {},
 			adapters: { extensions: [factory] },
 		} as KernelConfigV1;
-		const { hook, options } = createHook(config);
+		const { hook, options } = buildHook(config);
 
 		const result = await hook({
 			...options,
@@ -147,7 +147,7 @@ describe('createAdapterExtensionsExtension', () => {
 			schemas: {},
 			adapters: { extensions: [] },
 		} as KernelConfigV1;
-		const { hook, options } = createHook(config);
+		const { hook, options } = buildHook(config);
 
 		const result = await hook(options);
 
@@ -165,7 +165,7 @@ describe('createAdapterExtensionsExtension', () => {
 				extensions: [() => [{ name: ' ', apply: jest.fn() }]],
 			},
 		} as KernelConfigV1;
-		const { hook, options } = createHook(config);
+		const { hook, options } = buildHook(config);
 
 		await expect(hook(options)).rejects.toThrow(KernelError);
 		expect(runAdapterExtensionsMock).not.toHaveBeenCalled();
@@ -190,7 +190,7 @@ describe('createAdapterExtensionsExtension', () => {
 			schemas: {},
 			adapters: { extensions: [factory] },
 		} as KernelConfigV1;
-		const { hook, options } = createHook(config);
+		const { hook, options } = buildHook(config);
 
 		const commit = jest.fn().mockResolvedValue(undefined);
 		const rollback = jest.fn().mockResolvedValue(undefined);
@@ -270,7 +270,7 @@ describe('createAdapterExtensionsExtension', () => {
 				],
 			},
 		} as KernelConfigV1;
-		const { hook, options } = createHook(config);
+		const { hook, options } = buildHook(config);
 
 		await expect(hook(options)).rejects.toThrow(KernelError);
 		expect(runAdapterExtensionsMock).not.toHaveBeenCalled();
@@ -306,7 +306,7 @@ describe('createAdapterExtensionsExtension', () => {
 				schemas: {},
 				adapters: { extensions: [factory as never] },
 			} as KernelConfigV1;
-			const { hook, options } = createHook(config);
+			const { hook, options } = buildHook(config);
 
 			await expect(hook(options)).rejects.toThrow(KernelError);
 			expect(runAdapterExtensionsMock).not.toHaveBeenCalled();
@@ -327,7 +327,7 @@ describe('createAdapterExtensionsExtension', () => {
 			schemas: {},
 			adapters: { extensions: [skip, empty] },
 		} as KernelConfigV1;
-		const { hook, options } = createHook(config);
+		const { hook, options } = buildHook(config);
 
 		const result = await hook(options);
 
@@ -356,7 +356,7 @@ describe('createAdapterExtensionsExtension', () => {
 				],
 			},
 		} as KernelConfigV1;
-		const { hook, options } = createHook(config);
+		const { hook, options } = buildHook(config);
 
 		runAdapterExtensionsMock.mockResolvedValue({
 			ir: options.artifact,
@@ -374,7 +374,7 @@ describe('createAdapterExtensionsExtension', () => {
 		await args?.formatTs('file.ts', 'export const value = 1;');
 
 		expect(formattedPhp).toBe('<?php echo 1; ?>');
-		expect(createTsFormatterMock).toHaveBeenCalledTimes(1);
+		expect(buildTsFormatterMock).toHaveBeenCalledTimes(1);
 		expect(tsFormatterFormatMock).toHaveBeenCalledWith({
 			filePath: 'file.ts',
 			contents: 'export const value = 1;',
@@ -392,7 +392,7 @@ describe('createAdapterExtensionsExtension', () => {
 				extensions: [() => ({ name: 'single', apply })],
 			},
 		} as KernelConfigV1;
-		const { hook, options } = createHook(config);
+		const { hook, options } = buildHook(config);
 
 		runAdapterExtensionsMock.mockResolvedValue({
 			ir: options.artifact,

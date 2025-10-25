@@ -1,6 +1,6 @@
 import { Command } from 'clipanion';
 
-function createStubCommand(name: string) {
+function buildStubCommand(name: string) {
 	class Stub extends Command {
 		static override paths = [[name]] as const;
 	}
@@ -21,23 +21,23 @@ describe('next index exports', () => {
 			};
 
 		await unstableMockModule('../commands/init', () => ({
-			createInitCommand: () => createStubCommand('init'),
+			buildInitCommand: () => buildStubCommand('init'),
 		}));
 		await unstableMockModule('../commands/generate', () => ({
-			createGenerateCommand: () => createStubCommand('generate'),
+			buildGenerateCommand: () => buildStubCommand('generate'),
 		}));
 		await unstableMockModule('../commands/start', () => ({
-			createStartCommand: () => createStubCommand('start'),
+			buildStartCommand: () => buildStubCommand('start'),
 		}));
 		await unstableMockModule('../commands/doctor', () => ({
-			createDoctorCommand: () => createStubCommand('doctor'),
+			buildDoctorCommand: () => buildStubCommand('doctor'),
 		}));
 
 		const next = await import('../index');
 		expect(typeof next.createHelper).toBe('function');
 		expect(typeof next.createPipeline).toBe('function');
 		expect(typeof next.createPatcher).toBe('function');
-		expect(typeof next.createWorkspace).toBe('function');
+		expect(typeof next.buildWorkspace).toBe('function');
 		expect(typeof next.NextApplyCommand).toBe('function');
 	});
 });

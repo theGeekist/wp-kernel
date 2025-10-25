@@ -1,11 +1,11 @@
 import path from 'node:path';
 import type { Reporter } from '@wpkernel/core/reporter';
-import { createNoopReporter } from '@wpkernel/core/reporter';
+import { createNoopReporter as buildNoopReporter } from '@wpkernel/core/reporter';
 import type { BuildIrOptions, IRv1 } from '../../ir/types';
 import { createPipeline } from '../runtime';
 import type { PipelinePhase, Pipeline } from '../runtime';
 import type { Workspace } from '../workspace';
-import { createWorkspace } from '../workspace';
+import { buildWorkspace } from '../workspace';
 import { createMetaFragment } from './fragments/meta';
 import { createSchemasFragment } from './fragments/schemas';
 import { createResourcesFragment } from './fragments/resources';
@@ -22,7 +22,7 @@ import {
 	createPhpDriverInstaller,
 	createTsBuilder,
 } from '../builders';
-import { createAdapterExtensionsExtension } from '../runtime/adapterExtensions';
+import { buildAdapterExtensionsExtension } from '../runtime/adapterExtensions';
 
 export interface CreateIrEnvironment {
 	readonly workspace?: Workspace;
@@ -58,12 +58,12 @@ export async function createIr(
 	const pipeline = environment.pipeline ?? createPipeline();
 	registerCoreFragments(pipeline);
 	registerCoreBuilders(pipeline);
-	pipeline.extensions.use(createAdapterExtensionsExtension());
+	pipeline.extensions.use(buildAdapterExtensionsExtension());
 
 	const workspace =
 		environment.workspace ??
-		createWorkspace(path.dirname(options.sourcePath));
-	const reporter = environment.reporter ?? createNoopReporter();
+		buildWorkspace(path.dirname(options.sourcePath));
+	const reporter = environment.reporter ?? buildNoopReporter();
 	const phase = environment.phase ?? 'generate';
 
 	const { ir } = await pipeline.run({

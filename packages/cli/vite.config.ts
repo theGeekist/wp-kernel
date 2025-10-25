@@ -2,7 +2,7 @@ import { resolve as resolvePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { PluginOption } from 'vite';
 import type { Reporter } from '@wpkernel/core/reporter';
-import { createWorkspace } from './src/next/workspace';
+import { buildWorkspace } from './src/next/workspace';
 import { createWPKLibConfig } from '../../vite.config.base';
 import pkg from './package.json';
 
@@ -131,7 +131,7 @@ function phpDriverInstallerPlugin(): PluginOption {
 			const factory = await loadPhpDriverInstaller();
 			const helper = factory();
 			const reporter = createConsoleReporter();
-			const workspace = createWorkspace(CLI_ROOT);
+			const workspace = buildWorkspace(CLI_ROOT);
 
 			await helper.apply(
 				{

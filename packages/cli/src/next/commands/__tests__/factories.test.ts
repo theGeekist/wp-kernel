@@ -1,6 +1,6 @@
 import { Command } from 'clipanion';
 
-function createCommandContext() {
+function buildCommandContext() {
 	return {
 		stdout: { write: jest.fn() },
 		stderr: { write: jest.fn() },
@@ -12,7 +12,7 @@ describe('command factories', () => {
 		jest.resetModules();
 	});
 
-	describe('createInitCommand', () => {
+	describe('buildInitCommand', () => {
 		it('lazily loads the legacy command and forwards options', async () => {
 			const captured: unknown[] = [];
 
@@ -44,14 +44,14 @@ describe('command factories', () => {
 			const loader = jest
 				.fn<() => Promise<typeof LegacyInit>>()
 				.mockResolvedValue(LegacyInit);
-			const { createInitCommand } = await import('../init');
-			const NextInit = createInitCommand({ loadCommand: loader });
+			const { buildInitCommand } = await import('../init');
+			const NextInit = buildInitCommand({ loadCommand: loader });
 
 			expect(loader).not.toHaveBeenCalled();
 
 			const command = new NextInit();
 			command.cli = {} as never;
-			command.context = createCommandContext() as never;
+			command.context = buildCommandContext() as never;
 			command.name = 'demo';
 			command.template = 'plugin';
 			command.force = true;
@@ -89,15 +89,15 @@ describe('command factories', () => {
 			const loader = jest
 				.fn<() => Promise<typeof LegacyInit>>()
 				.mockRejectedValue(new Error('should not load'));
-			const { createInitCommand } = await import('../init');
-			const NextInit = createInitCommand({
+			const { buildInitCommand } = await import('../init');
+			const NextInit = buildInitCommand({
 				command: LegacyInit,
 				loadCommand: loader,
 			});
 
 			const command = new NextInit();
 			command.cli = {} as never;
-			command.context = createCommandContext() as never;
+			command.context = buildCommandContext() as never;
 
 			const exitCode = await command.execute();
 
@@ -106,7 +106,7 @@ describe('command factories', () => {
 		});
 	});
 
-	describe('createGenerateCommand', () => {
+	describe('buildGenerateCommand', () => {
 		it('copies CLI context and exposes summary from the legacy command', async () => {
 			const summary = { applied: 1 };
 			class LegacyGenerate extends Command {
@@ -128,14 +128,14 @@ describe('command factories', () => {
 			const loader = jest
 				.fn<() => Promise<typeof LegacyGenerate>>()
 				.mockResolvedValue(LegacyGenerate);
-			const { createGenerateCommand } = await import('../generate');
-			const NextGenerate = createGenerateCommand({
+			const { buildGenerateCommand } = await import('../generate');
+			const NextGenerate = buildGenerateCommand({
 				loadCommand: loader,
 			});
 
 			const command = new NextGenerate();
 			command.cli = {} as never;
-			command.context = createCommandContext() as never;
+			command.context = buildCommandContext() as never;
 			command.dryRun = true;
 			command.verbose = true;
 
@@ -164,14 +164,14 @@ describe('command factories', () => {
 			const loader = jest
 				.fn<() => Promise<typeof LegacyGenerate>>()
 				.mockResolvedValue(LegacyGenerate);
-			const { createGenerateCommand } = await import('../generate');
-			const NextGenerate = createGenerateCommand({
+			const { buildGenerateCommand } = await import('../generate');
+			const NextGenerate = buildGenerateCommand({
 				loadCommand: loader,
 			});
 
 			const command = new NextGenerate();
 			command.cli = {} as never;
-			command.context = createCommandContext() as never;
+			command.context = buildCommandContext() as never;
 
 			const exitCode = await command.execute();
 
@@ -180,7 +180,7 @@ describe('command factories', () => {
 		});
 	});
 
-	describe('createStartCommand', () => {
+	describe('buildStartCommand', () => {
 		it('forwards start options to the legacy command', async () => {
 			const captured: Array<{ verbose: boolean; auto: boolean }> = [];
 
@@ -205,12 +205,12 @@ describe('command factories', () => {
 			const loader = jest
 				.fn<() => Promise<typeof LegacyStart>>()
 				.mockResolvedValue(LegacyStart);
-			const { createStartCommand } = await import('../start');
-			const NextStart = createStartCommand({ loadCommand: loader });
+			const { buildStartCommand } = await import('../start');
+			const NextStart = buildStartCommand({ loadCommand: loader });
 
 			const command = new NextStart();
 			command.cli = {} as never;
-			command.context = createCommandContext() as never;
+			command.context = buildCommandContext() as never;
 			command.verbose = true;
 			command.autoApplyPhp = true;
 
@@ -237,16 +237,16 @@ describe('command factories', () => {
 			const loader = jest
 				.fn<() => Promise<typeof LegacyStart>>()
 				.mockResolvedValue(LegacyStart);
-			const { createStartCommand } = await import('../start');
-			const NextStart = createStartCommand({ loadCommand: loader });
+			const { buildStartCommand } = await import('../start');
+			const NextStart = buildStartCommand({ loadCommand: loader });
 
 			const first = new NextStart();
 			first.cli = {} as never;
-			first.context = createCommandContext() as never;
+			first.context = buildCommandContext() as never;
 
 			const second = new NextStart();
 			second.cli = {} as never;
-			second.context = createCommandContext() as never;
+			second.context = buildCommandContext() as never;
 
 			await first.execute();
 			await second.execute();
@@ -256,7 +256,7 @@ describe('command factories', () => {
 		});
 	});
 
-	describe('createDoctorCommand', () => {
+	describe('buildDoctorCommand', () => {
 		it('delegates execution to the legacy doctor command', async () => {
 			const execute = jest.fn().mockResolvedValue(undefined);
 
@@ -274,14 +274,14 @@ describe('command factories', () => {
 			const loader = jest
 				.fn<() => Promise<typeof LegacyDoctor>>()
 				.mockResolvedValue(LegacyDoctor);
-			const { createDoctorCommand } = await import('../doctor');
-			const NextDoctor = createDoctorCommand({
+			const { buildDoctorCommand } = await import('../doctor');
+			const NextDoctor = buildDoctorCommand({
 				loadCommand: loader,
 			});
 
 			const command = new NextDoctor();
 			command.cli = {} as never;
-			command.context = createCommandContext() as never;
+			command.context = buildCommandContext() as never;
 
 			await command.execute();
 
@@ -304,15 +304,15 @@ describe('command factories', () => {
 			const loader = jest
 				.fn<() => Promise<typeof LegacyDoctor>>()
 				.mockRejectedValue(new Error('should not load'));
-			const { createDoctorCommand } = await import('../doctor');
-			const NextDoctor = createDoctorCommand({
+			const { buildDoctorCommand } = await import('../doctor');
+			const NextDoctor = buildDoctorCommand({
 				command: LegacyDoctor,
 				loadCommand: loader,
 			});
 
 			const command = new NextDoctor();
 			command.cli = {} as never;
-			command.context = createCommandContext() as never;
+			command.context = buildCommandContext() as never;
 
 			await expect(command.execute()).resolves.toBeUndefined();
 			expect(loader).not.toHaveBeenCalled();

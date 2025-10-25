@@ -137,7 +137,7 @@ function buildCallbackMethod(): PhpStmtClassMethod {
 			returnType: buildIdentifier('callable'),
 			stmts: [buildReturn(renderPhpValue('Policy::enforce'))],
 		},
-		createDocAttributes(docblock)
+		buildDocAttributes(docblock)
 	);
 }
 
@@ -177,11 +177,11 @@ function buildEnforceMethod(): PhpStmtClassMethod {
 			],
 			stmts: [todo, buildReturn(errorExpr)],
 		},
-		createDocAttributes(docblock)
+		buildDocAttributes(docblock)
 	);
 }
 
-function createDocAttributes(
+function buildDocAttributes(
 	docblock: readonly string[]
 ): PhpAttributes | undefined {
 	if (docblock.length === 0) {

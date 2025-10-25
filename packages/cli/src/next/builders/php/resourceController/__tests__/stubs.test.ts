@@ -1,7 +1,7 @@
 import type { PhpStmtReturn } from '@wpkernel/php-json-ast';
 import { buildNotImplementedStatements } from '../stubs';
 
-function createRoute() {
+function buildRoute() {
 	return {
 		method: 'POST',
 		path: '/kernel/v1/books',
@@ -13,7 +13,7 @@ function createRoute() {
 
 describe('buildNotImplementedStatements', () => {
 	it('returns a TODO comment and WP_Error return statement', () => {
-		const statements = buildNotImplementedStatements(createRoute());
+		const statements = buildNotImplementedStatements(buildRoute());
 
 		expect(statements).toHaveLength(2);
 		expect(statements[0].nodeType).toBe('Stmt_Nop');

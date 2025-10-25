@@ -1,15 +1,15 @@
 import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import { createNoopReporter } from '@wpkernel/core/reporter';
-import { createWorkspace } from '../../workspace';
+import { createNoopReporter as buildNoopReporter } from '@wpkernel/core/reporter';
+import { buildWorkspace } from '../../workspace';
 import type { BuilderOutput } from '../../runtime/types';
 import {
-	createAssetDependencies,
+	buildAssetDependencies,
 	createBundler,
-	createExternalList,
-	createGlobals,
-	createRollupDriverArtifacts,
+	buildExternalList,
+	buildGlobalsMap,
+	buildRollupDriverArtifacts,
 	normaliseAliasReplacement,
 	toWordPressGlobal,
 	toWordPressHandle,
@@ -29,7 +29,7 @@ describe('createBundler', () => {
 		}
 	}
 
-	function createBuilderInput({
+	function buildBuilderInput({
 		namespace,
 		sanitizedNamespace,
 		workspaceRoot,
@@ -93,7 +93,7 @@ describe('createBundler', () => {
 
 	it('writes rollup driver configuration and asset metadata', async () => {
 		await withWorkspace(async (workspaceRoot) => {
-			const workspace = createWorkspace(workspaceRoot);
+			const workspace = buildWorkspace(workspaceRoot);
 			await workspace.writeJson(
 				'package.json',
 				{
@@ -111,13 +111,13 @@ describe('createBundler', () => {
 			);
 
 			const builder = createBundler();
-			const reporter = createNoopReporter();
+			const reporter = buildNoopReporter();
 			const output: BuilderOutput = {
 				actions: [],
 				queueWrite: jest.fn(),
 			};
 
-			const input = createBuilderInput({
+			const input = buildBuilderInput({
 				namespace: 'bundler-plugin',
 				sanitizedNamespace: 'BundlerPlugin',
 				workspaceRoot,
@@ -219,16 +219,16 @@ describe('createBundler', () => {
 
 	it('rolls back workspace writes when package.json cannot be parsed', async () => {
 		await withWorkspace(async (workspaceRoot) => {
-			const workspace = createWorkspace(workspaceRoot);
+			const workspace = buildWorkspace(workspaceRoot);
 			await workspace.write('package.json', '{ invalid json');
 
 			const builder = createBundler();
-			const reporter = createNoopReporter();
+			const reporter = buildNoopReporter();
 			const output: BuilderOutput = {
 				actions: [],
 				queueWrite: jest.fn(),
 			};
-			const input = createBuilderInput({
+			const input = buildBuilderInput({
 				namespace: 'bundler-plugin',
 				sanitizedNamespace: 'BundlerPlugin',
 				workspaceRoot,
@@ -260,7 +260,7 @@ describe('createBundler', () => {
 	});
 
 	it('derives driver artifacts with sane defaults when package.json is missing', () => {
-		const artifacts = createRollupDriverArtifacts(null);
+		const artifacts = buildRollupDriverArtifacts(null);
 		expect(artifacts.config.external).toEqual(
 			expect.arrayContaining([
 				'@wordpress/data',
@@ -272,7 +272,7 @@ describe('createBundler', () => {
 	});
 
 	it('preserves alias replacements that already include a trailing slash', () => {
-		const artifacts = createRollupDriverArtifacts(
+		const artifacts = buildRollupDriverArtifacts(
 			{ peerDependencies: {} },
 			{ aliasRoot: './custom/' }
 		);
@@ -284,15 +284,15 @@ describe('createBundler', () => {
 
 	it('skips generation outside the generate phase', async () => {
 		await withWorkspace(async (workspaceRoot) => {
-			const workspace = createWorkspace(workspaceRoot);
+			const workspace = buildWorkspace(workspaceRoot);
 			const builder = createBundler();
-			const reporter = createNoopReporter();
+			const reporter = buildNoopReporter();
 			const output: BuilderOutput = {
 				actions: [],
 				queueWrite: jest.fn(),
 			};
 
-			const input = createBuilderInput({
+			const input = buildBuilderInput({
 				namespace: 'skip-plugin',
 				sanitizedNamespace: 'SkipPlugin',
 				workspaceRoot,
@@ -324,7 +324,7 @@ describe('createBundler', () => {
 
 describe('bundler helper exports', () => {
 	it('creates a deduplicated external list from package dependencies', () => {
-		const externals = createExternalList({
+		const externals = buildExternalList({
 			peerDependencies: {
 				'@wordpress/data': '^10.0.0',
 				react: '^18.0.0',
@@ -349,7 +349,7 @@ describe('bundler helper exports', () => {
 	});
 
 	it('maps externals to WordPress and React globals', () => {
-		const globals = createGlobals([
+		const globals = buildGlobalsMap([
 			'@wordpress/api-fetch',
 			'@wordpress/data',
 			'react',
@@ -369,7 +369,7 @@ describe('bundler helper exports', () => {
 	});
 
 	it('derives WordPress asset dependencies including react shims', () => {
-		const dependencies = createAssetDependencies([
+		const dependencies = buildAssetDependencies([
 			'@wordpress/data',
 			'@wordpress/hooks',
 			'react',
