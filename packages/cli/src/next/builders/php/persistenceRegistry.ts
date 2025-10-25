@@ -8,21 +8,20 @@ import type {
 	PipelineContext,
 } from '../../runtime/types';
 import {
-	appendClassTemplate,
 	appendGeneratedFileDocblock,
-	assembleClassTemplate,
+	buildClass,
+	buildClassMethod,
 	buildIdentifier,
-	assembleMethodTemplate,
+	buildReturn,
 	createPhpFileBuilder,
-	buildPhpReturnPrintable,
 	PHP_CLASS_MODIFIER_FINAL,
-	PHP_INDENT,
 	PHP_METHOD_MODIFIER_PUBLIC,
 	PHP_METHOD_MODIFIER_STATIC,
 	sanitizeJson,
 	type PhpAstBuilderAdapter,
 } from '@wpkernel/php-json-ast';
 import type { IRResource, IRv1 } from '../../../ir/types';
+import { renderPhpValue } from './resource/phpValue';
 
 export function createPhpPersistenceRegistryHelper(): BuilderHelper {
 	return createHelper({
@@ -70,30 +69,18 @@ function buildPersistenceRegistry(
 	]);
 
 	const payload = buildPersistencePayload(ir.resources);
-
-	const methods = [
-		assembleMethodTemplate({
-			signature: 'public static function get_config(): array',
-			indentLevel: 1,
-			indentUnit: PHP_INDENT,
-			body: (body) => {
-				const printable = buildPhpReturnPrintable(payload, 2);
-				body.statement(printable);
-			},
-			ast: {
-				flags: PHP_METHOD_MODIFIER_PUBLIC + PHP_METHOD_MODIFIER_STATIC,
-				returnType: buildIdentifier('array'),
-			},
-		}),
-	];
-
-	const classTemplate = assembleClassTemplate({
-		name: 'PersistenceRegistry',
-		flags: PHP_CLASS_MODIFIER_FINAL,
-		methods,
+	const method = buildClassMethod(buildIdentifier('get_config'), {
+		flags: PHP_METHOD_MODIFIER_PUBLIC + PHP_METHOD_MODIFIER_STATIC,
+		returnType: buildIdentifier('array'),
+		stmts: [buildReturn(renderPhpValue(payload))],
 	});
 
-	appendClassTemplate(builder, classTemplate);
+	const classNode = buildClass(buildIdentifier('PersistenceRegistry'), {
+		flags: PHP_CLASS_MODIFIER_FINAL,
+		stmts: [method],
+	});
+
+	builder.appendProgramStatement(classNode);
 }
 
 function buildPersistencePayload(

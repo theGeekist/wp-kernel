@@ -2,6 +2,7 @@ import { KernelError } from '@wpkernel/core/contracts';
 import {
 	buildArg,
 	buildAssign,
+	buildClassMethod,
 	buildExpressionStatement,
 	buildFuncCall,
 	buildIdentifier,
@@ -9,8 +10,8 @@ import {
 	buildMethodCall,
 	buildName,
 	buildNode,
-	buildReturn,
 	buildParam,
+	buildReturn,
 	buildScalarBool,
 	buildScalarFloat,
 	buildScalarInt,
@@ -18,17 +19,15 @@ import {
 	buildVariable,
 	buildNull,
 	PHP_METHOD_MODIFIER_PRIVATE,
-	assembleMethodTemplate,
-	PHP_INDENT,
 	toSnakeCase,
 	type PhpExpr,
 	type PhpExprTernary,
-	type PhpMethodBodyBuilder,
-	type PhpMethodTemplate,
 	type PhpStmt,
+	type PhpStmtClassMethod,
+	type PhpParam,
+	type PhpType,
 } from '@wpkernel/php-json-ast';
 import type { IRResource } from '../../../../../../ir/types';
-import { formatStatementPrintable } from '../../printer';
 import {
 	buildArrayDimFetch,
 	buildArrayLiteral,
@@ -59,110 +58,28 @@ export interface MutationHelperOptions {
 
 export function syncWpPostMeta(
 	options: MutationHelperOptions
-): PhpMethodTemplate {
+): PhpStmtClassMethod {
 	const storage = ensureStorage(options.resource);
 	const metaEntries = Object.entries(storage.meta ?? {}) as Array<
 		[string, WpPostMetaDescriptor]
 	>;
 
-	return assembleMethodTemplate({
-		signature: `private function sync${options.pascalName}Meta( int $post_id, WP_REST_Request $request ): void`,
-		indentLevel: 1,
-		indentUnit: PHP_INDENT,
-		body: (body) => {
-			if (metaEntries.length === 0) {
-				appendStatement(
-					body,
-					buildExpressionStatement(
-						buildFuncCall(buildName(['unset']), [
-							buildArg(buildVariable('post_id')),
-							buildArg(buildVariable('request')),
-						])
-					)
-				);
-				appendStatement(body, buildReturnVoid());
-				return;
-			}
+	const statements: PhpStmt[] = [];
 
-			for (const [key, descriptor] of metaEntries) {
-				const variableName = `${toSnakeCase(key)}Meta`;
+	if (metaEntries.length === 0) {
+		statements.push(
+			buildExpressionStatement(
+				buildFuncCall(buildName(['unset']), [
+					buildArg(buildVariable('post_id')),
+					buildArg(buildVariable('request')),
+				])
+			)
+		);
+		statements.push(buildReturnVoid());
 
-				appendStatement(
-					body,
-					buildExpressionStatement(
-						buildAssign(
-							buildVariable(variableName),
-							buildMethodCall(
-								buildVariable('request'),
-								buildIdentifier('get_param'),
-								[buildArg(buildScalarString(key))]
-							)
-						)
-					)
-				);
-
-				const branchStatements: PhpStmt[] = [
-					...createMetaSanitizerStatements(variableName, descriptor),
-				];
-
-				if (descriptor?.single === false) {
-					branchStatements.push(
-						buildExpressionStatement(
-							buildFuncCall(buildName(['delete_post_meta']), [
-								buildArg(buildVariable('post_id')),
-								buildArg(buildScalarString(key)),
-							])
-						)
-					);
-
-					branchStatements.push(
-						buildForeachStatement({
-							iterable: buildScalarCast(
-								'array',
-								buildVariable(variableName)
-							),
-							value: 'value',
-							statements: [
-								buildExpressionStatement(
-									buildFuncCall(
-										buildName(['add_post_meta']),
-										[
-											buildArg(buildVariable('post_id')),
-											buildArg(buildScalarString(key)),
-											buildArg(buildVariable('value')),
-										]
-									)
-								),
-							],
-						})
-					);
-				} else {
-					branchStatements.push(
-						buildExpressionStatement(
-							buildFuncCall(buildName(['update_post_meta']), [
-								buildArg(buildVariable('post_id')),
-								buildArg(buildScalarString(key)),
-								buildArg(buildVariable(variableName)),
-							])
-						)
-					);
-				}
-
-				appendStatement(
-					body,
-					buildIfStatement(
-						buildBinaryOperation(
-							'NotIdentical',
-							buildNull(),
-							buildVariable(variableName)
-						),
-						branchStatements
-					)
-				);
-			}
-		},
-		ast: {
-			flags: PHP_METHOD_MODIFIER_PRIVATE,
+		return buildHelperMethod({
+			name: `sync${options.pascalName}Meta`,
+			statements,
 			params: [
 				buildParam(buildVariable('post_id'), {
 					type: buildIdentifier('int'),
@@ -172,137 +89,120 @@ export function syncWpPostMeta(
 				}),
 			],
 			returnType: buildIdentifier('void'),
-		},
+		});
+	}
+
+	for (const [key, descriptor] of metaEntries) {
+		const variableName = `${toSnakeCase(key)}Meta`;
+
+		statements.push(
+			buildExpressionStatement(
+				buildAssign(
+					buildVariable(variableName),
+					buildMethodCall(
+						buildVariable('request'),
+						buildIdentifier('get_param'),
+						[buildArg(buildScalarString(key))]
+					)
+				)
+			)
+		);
+
+		const branchStatements: PhpStmt[] = [
+			...createMetaSanitizerStatements(variableName, descriptor),
+		];
+
+		if (descriptor?.single === false) {
+			branchStatements.push(
+				buildExpressionStatement(
+					buildFuncCall(buildName(['delete_post_meta']), [
+						buildArg(buildVariable('post_id')),
+						buildArg(buildScalarString(key)),
+					])
+				)
+			);
+
+			branchStatements.push(
+				buildForeachStatement({
+					iterable: buildScalarCast(
+						'array',
+						buildVariable(variableName)
+					),
+					value: 'value',
+					statements: [
+						buildExpressionStatement(
+							buildFuncCall(buildName(['add_post_meta']), [
+								buildArg(buildVariable('post_id')),
+								buildArg(buildScalarString(key)),
+								buildArg(buildVariable('value')),
+							])
+						),
+					],
+				})
+			);
+		} else {
+			branchStatements.push(
+				buildExpressionStatement(
+					buildFuncCall(buildName(['update_post_meta']), [
+						buildArg(buildVariable('post_id')),
+						buildArg(buildScalarString(key)),
+						buildArg(buildVariable(variableName)),
+					])
+				)
+			);
+		}
+
+		statements.push(
+			buildIfStatement(
+				buildBinaryOperation(
+					'NotIdentical',
+					buildNull(),
+					buildVariable(variableName)
+				),
+				branchStatements
+			)
+		);
+	}
+
+	return buildHelperMethod({
+		name: `sync${options.pascalName}Meta`,
+		statements,
+		params: [
+			buildParam(buildVariable('post_id'), {
+				type: buildIdentifier('int'),
+			}),
+			buildParam(buildVariable('request'), {
+				type: buildName(['WP_REST_Request']),
+			}),
+		],
+		returnType: buildIdentifier('void'),
 	});
 }
 
 export function syncWpPostTaxonomies(
 	options: MutationHelperOptions
-): PhpMethodTemplate {
+): PhpStmtClassMethod {
 	const storage = ensureStorage(options.resource);
 	const taxonomyEntries = Object.entries(storage.taxonomies ?? {}) as Array<
 		[string, WpPostTaxonomyDescriptor]
 	>;
 
-	return assembleMethodTemplate({
-		signature: `private function sync${options.pascalName}Taxonomies( int $post_id, WP_REST_Request $request )`,
-		indentLevel: 1,
-		indentUnit: PHP_INDENT,
-		body: (body) => {
-			if (taxonomyEntries.length === 0) {
-				appendStatement(
-					body,
-					buildExpressionStatement(
-						buildFuncCall(buildName(['unset']), [
-							buildArg(buildVariable('post_id')),
-							buildArg(buildVariable('request')),
-						])
-					)
-				);
-				appendStatement(body, buildReturn(buildScalarBool(true)));
-				return;
-			}
+	const statements: PhpStmt[] = [];
 
-			appendStatement(
-				body,
-				buildExpressionStatement(
-					buildAssign(buildVariable('result'), buildScalarBool(true))
-				)
-			);
+	if (taxonomyEntries.length === 0) {
+		statements.push(
+			buildExpressionStatement(
+				buildFuncCall(buildName(['unset']), [
+					buildArg(buildVariable('post_id')),
+					buildArg(buildVariable('request')),
+				])
+			)
+		);
+		statements.push(buildReturn(buildScalarBool(true)));
 
-			for (const [key, descriptor] of taxonomyEntries) {
-				const variableName = `${toSnakeCase(key)}Terms`;
-
-				appendStatement(
-					body,
-					buildExpressionStatement(
-						buildAssign(
-							buildVariable(variableName),
-							buildMethodCall(
-								buildVariable('request'),
-								buildIdentifier('get_param'),
-								[buildArg(buildScalarString(key))]
-							)
-						)
-					)
-				);
-
-				const branchStatements: PhpStmt[] = [
-					buildIfStatement(
-						buildBooleanNot(
-							buildFuncCall(buildName(['is_array']), [
-								buildArg(buildVariable(variableName)),
-							])
-						),
-						[
-							buildExpressionStatement(
-								buildAssign(
-									buildVariable(variableName),
-									buildArrayLiteral([
-										{
-											value: buildVariable(variableName),
-										},
-									])
-								)
-							),
-						]
-					),
-					buildExpressionStatement(
-						buildAssign(
-							buildVariable(variableName),
-							buildFuncCall(buildName(['array_filter']), [
-								buildArg(
-									buildFuncCall(buildName(['array_map']), [
-										buildArg(buildScalarString('intval')),
-										buildArg(
-											buildScalarCast(
-												'array',
-												buildVariable(variableName)
-											)
-										),
-									])
-								),
-							])
-						)
-					),
-					buildExpressionStatement(
-						buildAssign(
-							buildVariable('result'),
-							buildFuncCall(buildName(['wp_set_object_terms']), [
-								buildArg(buildVariable('post_id')),
-								buildArg(buildVariable(variableName)),
-								buildArg(
-									buildScalarString(descriptor.taxonomy)
-								),
-								buildArg(buildScalarBool(false)),
-							])
-						)
-					),
-					buildIfStatement(
-						buildFuncCall(buildName(['is_wp_error']), [
-							buildArg(buildVariable('result')),
-						]),
-						[buildReturn(buildVariable('result'))]
-					),
-				];
-
-				appendStatement(
-					body,
-					buildIfStatement(
-						buildBinaryOperation(
-							'NotIdentical',
-							buildNull(),
-							buildVariable(variableName)
-						),
-						branchStatements
-					)
-				);
-			}
-
-			appendStatement(body, buildReturn(buildVariable('result')));
-		},
-		ast: {
-			flags: PHP_METHOD_MODIFIER_PRIVATE,
+		return buildHelperMethod({
+			name: `sync${options.pascalName}Taxonomies`,
+			statements,
 			params: [
 				buildParam(buildVariable('post_id'), {
 					type: buildIdentifier('int'),
@@ -311,202 +211,56 @@ export function syncWpPostTaxonomies(
 					type: buildName(['WP_REST_Request']),
 				}),
 			],
-		},
-	});
-}
+		});
+	}
 
-export function prepareWpPostResponse(
-	options: MutationHelperOptions
-): PhpMethodTemplate {
-	const storage = ensureStorage(options.resource);
-	const metaEntries = Object.entries(storage.meta ?? {}) as Array<
-		[string, WpPostMetaDescriptor]
-	>;
-	const taxonomyEntries = Object.entries(storage.taxonomies ?? {}) as Array<
-		[string, WpPostTaxonomyDescriptor]
-	>;
-	const supports = new Set(storage.supports ?? []);
+	statements.push(
+		buildExpressionStatement(
+			buildAssign(buildVariable('result'), buildScalarBool(true))
+		)
+	);
 
-	return assembleMethodTemplate({
-		signature: `private function prepare${options.pascalName}Response( WP_Post $post, WP_REST_Request $request ): array`,
-		indentLevel: 1,
-		indentUnit: PHP_INDENT,
-		body: (body) => {
-			const baseItems = [
-				{
-					key: 'id',
-					value: buildScalarCast(
-						'int',
-						buildPropertyFetch('post', 'ID')
-					),
-				},
-				{
-					key: 'status',
-					value: buildScalarCast(
-						'string',
-						buildPropertyFetch('post', 'post_status')
-					),
-				},
-			];
+	for (const [key, descriptor] of taxonomyEntries) {
+		const variableName = `${toSnakeCase(key)}Terms`;
 
-			if (options.identity.param === 'slug') {
-				baseItems.splice(1, 0, {
-					key: 'slug',
-					value: buildScalarCast(
-						'string',
-						buildPropertyFetch('post', 'post_name')
-					),
-				});
-			}
-
-			appendStatement(
-				body,
-				buildExpressionStatement(
-					buildAssign(
-						buildVariable('data'),
-						buildArrayLiteral(baseItems)
+		statements.push(
+			buildExpressionStatement(
+				buildAssign(
+					buildVariable(variableName),
+					buildMethodCall(
+						buildVariable('request'),
+						buildIdentifier('get_param'),
+						[buildArg(buildScalarString(key))]
 					)
 				)
-			);
+			)
+		);
 
-			if (supports.has('title')) {
-				appendStatement(
-					body,
-					buildExpressionStatement(
-						buildAssign(
-							buildArrayDimFetch(
-								'data',
-								buildScalarString('title')
-							),
-							buildScalarCast(
-								'string',
-								buildPropertyFetch('post', 'post_title')
-							)
-						)
-					)
-				);
-			}
-
-			if (supports.has('editor')) {
-				appendStatement(
-					body,
-					buildExpressionStatement(
-						buildAssign(
-							buildArrayDimFetch(
-								'data',
-								buildScalarString('content')
-							),
-							buildScalarCast(
-								'string',
-								buildPropertyFetch('post', 'post_content')
-							)
-						)
-					)
-				);
-			}
-
-			if (supports.has('excerpt')) {
-				appendStatement(
-					body,
-					buildExpressionStatement(
-						buildAssign(
-							buildArrayDimFetch(
-								'data',
-								buildScalarString('excerpt')
-							),
-							buildScalarCast(
-								'string',
-								buildPropertyFetch('post', 'post_excerpt')
-							)
-						)
-					)
-				);
-			}
-
-			for (const [key, descriptor] of metaEntries) {
-				const variableName = `${toSnakeCase(key)}Meta`;
-				const fetchFlag = descriptor?.single === false ? false : true;
-
-				appendStatement(
-					body,
+		const branchStatements: PhpStmt[] = [
+			buildIfStatement(
+				buildBooleanNot(
+					buildFuncCall(buildName(['is_array']), [
+						buildArg(buildVariable(variableName)),
+					])
+				),
+				[
 					buildExpressionStatement(
 						buildAssign(
 							buildVariable(variableName),
-							buildFuncCall(buildName(['get_post_meta']), [
-								buildArg(buildPropertyFetch('post', 'ID')),
-								buildArg(buildScalarString(key)),
-								buildArg(buildScalarBool(fetchFlag)),
+							buildArrayLiteral([
+								{
+									value: buildVariable(variableName),
+								},
 							])
 						)
-					)
-				);
-
-				for (const statement of createMetaSanitizerStatements(
-					variableName,
-					descriptor
-				)) {
-					appendStatement(body, statement);
-				}
-
-				appendStatement(
-					body,
-					buildExpressionStatement(
-						buildAssign(
-							buildArrayDimFetch('data', buildScalarString(key)),
-							buildVariable(variableName)
-						)
-					)
-				);
-			}
-
-			for (const [key, descriptor] of taxonomyEntries) {
-				const variableName = `${toSnakeCase(key)}Terms`;
-
-				appendStatement(
-					body,
-					buildExpressionStatement(
-						buildAssign(
-							buildVariable(variableName),
-							buildFuncCall(buildName(['wp_get_object_terms']), [
-								buildArg(buildPropertyFetch('post', 'ID')),
-								buildArg(
-									buildScalarString(descriptor.taxonomy)
-								),
-								buildArg(
-									buildArrayLiteral([
-										{
-											key: 'fields',
-											value: buildScalarString('ids'),
-										},
-									])
-								),
-							])
-						)
-					)
-				);
-
-				appendStatement(
-					body,
-					buildIfStatement(
-						buildFuncCall(buildName(['is_wp_error']), [
-							buildArg(buildVariable(variableName)),
-						]),
-						[
-							buildExpressionStatement(
-								buildAssign(
-									buildVariable(variableName),
-									buildArrayLiteral([])
-								)
-							),
-						]
-					)
-				);
-
-				appendStatement(
-					body,
-					buildExpressionStatement(
-						buildAssign(
-							buildVariable(variableName),
+					),
+				]
+			),
+			buildExpressionStatement(
+				buildAssign(
+					buildVariable(variableName),
+					buildFuncCall(buildName(['array_filter']), [
+						buildArg(
 							buildFuncCall(buildName(['array_map']), [
 								buildArg(buildScalarString('intval')),
 								buildArg(
@@ -516,35 +270,214 @@ export function prepareWpPostResponse(
 									)
 								),
 							])
-						)
-					)
-				);
+						),
+					])
+				)
+			),
+			buildExpressionStatement(
+				buildAssign(
+					buildVariable('result'),
+					buildFuncCall(buildName(['wp_set_object_terms']), [
+						buildArg(buildVariable('post_id')),
+						buildArg(buildVariable(variableName)),
+						buildArg(buildScalarString(descriptor.taxonomy)),
+						buildArg(buildScalarBool(false)),
+					])
+				)
+			),
+			buildIfStatement(
+				buildFuncCall(buildName(['is_wp_error']), [
+					buildArg(buildVariable('result')),
+				]),
+				[buildReturn(buildVariable('result'))]
+			),
+		];
 
-				appendStatement(
-					body,
+		statements.push(
+			buildIfStatement(
+				buildBinaryOperation(
+					'NotIdentical',
+					buildNull(),
+					buildVariable(variableName)
+				),
+				branchStatements
+			)
+		);
+	}
+
+	statements.push(buildReturn(buildVariable('result')));
+
+	return buildHelperMethod({
+		name: `sync${options.pascalName}Taxonomies`,
+		statements,
+		params: [
+			buildParam(buildVariable('post_id'), {
+				type: buildIdentifier('int'),
+			}),
+			buildParam(buildVariable('request'), {
+				type: buildName(['WP_REST_Request']),
+			}),
+		],
+	});
+}
+
+export function prepareWpPostResponse(
+	options: MutationHelperOptions
+): PhpStmtClassMethod {
+	const storage = ensureStorage(options.resource);
+	const metaEntries = Object.entries(storage.meta ?? {}) as Array<
+		[string, WpPostMetaDescriptor]
+	>;
+	const taxonomyEntries = Object.entries(storage.taxonomies ?? {}) as Array<
+		[string, WpPostTaxonomyDescriptor]
+	>;
+	const supports = new Set(storage.supports ?? []);
+
+	const statements: PhpStmt[] = [];
+
+	const baseItems = [
+		{
+			key: 'id',
+			value: buildScalarCast('int', buildPropertyFetch('post', 'ID')),
+		},
+		{
+			key: 'status',
+			value: buildScalarCast(
+				'string',
+				buildPropertyFetch('post', 'post_status')
+			),
+		},
+	];
+
+	if (options.identity.param === 'slug') {
+		baseItems.splice(1, 0, {
+			key: 'slug',
+			value: buildScalarCast(
+				'string',
+				buildPropertyFetch('post', 'post_name')
+			),
+		});
+	}
+
+	statements.push(
+		buildExpressionStatement(
+			buildAssign(buildVariable('data'), buildArrayLiteral(baseItems))
+		)
+	);
+
+	appendSupportAssignments(statements, supports);
+
+	for (const [key, descriptor] of metaEntries) {
+		const variableName = `${toSnakeCase(key)}Meta`;
+		const fetchFlag = descriptor?.single === false ? false : true;
+
+		statements.push(
+			buildExpressionStatement(
+				buildAssign(
+					buildVariable(variableName),
+					buildFuncCall(buildName(['get_post_meta']), [
+						buildArg(buildPropertyFetch('post', 'ID')),
+						buildArg(buildScalarString(key)),
+						buildArg(buildScalarBool(fetchFlag)),
+					])
+				)
+			)
+		);
+
+		statements.push(
+			...createMetaSanitizerStatements(variableName, descriptor)
+		);
+
+		statements.push(
+			buildExpressionStatement(
+				buildAssign(
+					buildArrayDimFetch('data', buildScalarString(key)),
+					buildVariable(variableName)
+				)
+			)
+		);
+	}
+
+	for (const [key, descriptor] of taxonomyEntries) {
+		const variableName = `${toSnakeCase(key)}Terms`;
+
+		statements.push(
+			buildExpressionStatement(
+				buildAssign(
+					buildVariable(variableName),
+					buildFuncCall(buildName(['wp_get_object_terms']), [
+						buildArg(buildPropertyFetch('post', 'ID')),
+						buildArg(buildScalarString(descriptor.taxonomy)),
+						buildArg(
+							buildArrayLiteral([
+								{
+									key: 'fields',
+									value: buildScalarString('ids'),
+								},
+							])
+						),
+					])
+				)
+			)
+		);
+
+		statements.push(
+			buildIfStatement(
+				buildFuncCall(buildName(['is_wp_error']), [
+					buildArg(buildVariable(variableName)),
+				]),
+				[
 					buildExpressionStatement(
 						buildAssign(
-							buildArrayDimFetch('data', buildScalarString(key)),
-							buildVariable(variableName)
+							buildVariable(variableName),
+							buildArrayLiteral([])
 						)
-					)
-				);
-			}
+					),
+				]
+			)
+		);
 
-			appendStatement(body, buildReturn(buildVariable('data')));
-		},
-		ast: {
-			flags: PHP_METHOD_MODIFIER_PRIVATE,
-			params: [
-				buildParam(buildVariable('post'), {
-					type: buildName(['WP_Post']),
-				}),
-				buildParam(buildVariable('request'), {
-					type: buildName(['WP_REST_Request']),
-				}),
-			],
-			returnType: buildIdentifier('array'),
-		},
+		statements.push(
+			buildExpressionStatement(
+				buildAssign(
+					buildVariable(variableName),
+					buildFuncCall(buildName(['array_map']), [
+						buildArg(buildScalarString('intval')),
+						buildArg(
+							buildScalarCast(
+								'array',
+								buildVariable(variableName)
+							)
+						),
+					])
+				)
+			)
+		);
+
+		statements.push(
+			buildExpressionStatement(
+				buildAssign(
+					buildArrayDimFetch('data', buildScalarString(key)),
+					buildVariable(variableName)
+				)
+			)
+		);
+	}
+
+	statements.push(buildReturn(buildVariable('data')));
+
+	return buildHelperMethod({
+		name: `prepare${options.pascalName}Response`,
+		statements,
+		params: [
+			buildParam(buildVariable('post'), {
+				type: buildName(['WP_Post']),
+			}),
+			buildParam(buildVariable('request'), {
+				type: buildName(['WP_REST_Request']),
+			}),
+		],
+		returnType: buildIdentifier('array'),
 	});
 }
 
@@ -560,16 +493,51 @@ function ensureStorage(resource: IRResource): WpPostStorage {
 	return storage;
 }
 
-function appendStatement<T extends PhpStmt>(
-	body: PhpMethodBodyBuilder,
-	statement: T
+function appendSupportAssignments(
+	statements: PhpStmt[],
+	supports: ReadonlySet<string>
 ): void {
-	body.statement(
-		formatStatementPrintable(statement, {
-			indentLevel: body.getIndentLevel(),
-			indentUnit: body.getIndentUnit(),
-		})
-	);
+	if (supports.has('title')) {
+		statements.push(
+			buildExpressionStatement(
+				buildAssign(
+					buildArrayDimFetch('data', buildScalarString('title')),
+					buildScalarCast(
+						'string',
+						buildPropertyFetch('post', 'post_title')
+					)
+				)
+			)
+		);
+	}
+
+	if (supports.has('editor')) {
+		statements.push(
+			buildExpressionStatement(
+				buildAssign(
+					buildArrayDimFetch('data', buildScalarString('content')),
+					buildScalarCast(
+						'string',
+						buildPropertyFetch('post', 'post_content')
+					)
+				)
+			)
+		);
+	}
+
+	if (supports.has('excerpt')) {
+		statements.push(
+			buildExpressionStatement(
+				buildAssign(
+					buildArrayDimFetch('data', buildScalarString('excerpt')),
+					buildScalarCast(
+						'string',
+						buildPropertyFetch('post', 'post_excerpt')
+					)
+				)
+			)
+		);
+	}
 }
 
 function createMetaSanitizerStatements(
@@ -619,14 +587,14 @@ function createMetaSanitizerStatements(
 			),
 		];
 
-		const foreachNode = buildForeachStatement({
-			iterable: variableExpr(variableName),
-			key: 'meta_index',
+		const foreach = buildForeachStatement({
+			iterable: buildScalarCast('array', variableExpr(variableName)),
 			value: 'meta_value',
+			key: 'meta_index',
 			statements: foreachStatements,
 		});
 
-		return [ensureArray, normalize, foreachNode];
+		return [ensureArray, normalize, foreach];
 	}
 
 	return createMetaSanitizerValueAssignments(variableName, descriptor);
@@ -752,4 +720,18 @@ function buildTernary(
 
 function variableExpr(name: string): PhpExpr {
 	return buildVariable(name);
+}
+
+function buildHelperMethod(options: {
+	readonly name: string;
+	readonly statements: PhpStmt[];
+	readonly params: PhpParam[];
+	readonly returnType?: PhpType | null;
+}): PhpStmtClassMethod {
+	return buildClassMethod(buildIdentifier(options.name), {
+		flags: PHP_METHOD_MODIFIER_PRIVATE,
+		params: options.params,
+		returnType: options.returnType ?? null,
+		stmts: options.statements,
+	});
 }

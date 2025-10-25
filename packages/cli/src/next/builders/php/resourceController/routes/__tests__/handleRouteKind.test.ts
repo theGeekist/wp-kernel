@@ -1,7 +1,6 @@
-import { PHP_INDENT, PhpMethodBodyBuilder } from '@wpkernel/php-json-ast';
 import type { ResourceMetadataHost } from '@wpkernel/php-json-ast';
 import type { IRResource } from '../../../../../../ir/types';
-import { handleRouteKind } from '../handleRouteKind';
+import { buildRouteKindStatements } from '../handleRouteKind';
 
 function createMetadataHost(): ResourceMetadataHost {
 	return {
@@ -40,8 +39,6 @@ function createResource(storage: IRResource['storage']): IRResource {
 describe('handleRouteKind', () => {
 	it('delegates to mutation builders for wp-post resources', () => {
 		const options = {
-			body: new PhpMethodBodyBuilder(PHP_INDENT, 1),
-			indentLevel: 1,
 			resource: createResource({
 				mode: 'wp-post',
 				postType: 'book',
@@ -57,15 +54,28 @@ describe('handleRouteKind', () => {
 			cacheSegments: [],
 		} as const;
 
-		expect(handleRouteKind({ ...options, routeKind: 'create' })).toBe(true);
-		expect(handleRouteKind({ ...options, routeKind: 'update' })).toBe(true);
-		expect(handleRouteKind({ ...options, routeKind: 'remove' })).toBe(true);
+		expect(
+			buildRouteKindStatements({
+				...options,
+				routeKind: 'create',
+			})
+		).not.toBeNull();
+		expect(
+			buildRouteKindStatements({
+				...options,
+				routeKind: 'update',
+			})
+		).not.toBeNull();
+		expect(
+			buildRouteKindStatements({
+				...options,
+				routeKind: 'remove',
+			})
+		).not.toBeNull();
 	});
 
 	it('returns false for mutation kinds when storage is unsupported', () => {
 		const options = {
-			body: new PhpMethodBodyBuilder(PHP_INDENT, 1),
-			indentLevel: 1,
 			resource: createResource(undefined),
 			identity: { type: 'number', param: 'id' } as const,
 			pascalName: 'Book',
@@ -74,21 +84,28 @@ describe('handleRouteKind', () => {
 			cacheSegments: [],
 		} as const;
 
-		expect(handleRouteKind({ ...options, routeKind: 'create' })).toBe(
-			false
-		);
-		expect(handleRouteKind({ ...options, routeKind: 'update' })).toBe(
-			false
-		);
-		expect(handleRouteKind({ ...options, routeKind: 'remove' })).toBe(
-			false
-		);
+		expect(
+			buildRouteKindStatements({
+				...options,
+				routeKind: 'create',
+			})
+		).toBeNull();
+		expect(
+			buildRouteKindStatements({
+				...options,
+				routeKind: 'update',
+			})
+		).toBeNull();
+		expect(
+			buildRouteKindStatements({
+				...options,
+				routeKind: 'remove',
+			})
+		).toBeNull();
 	});
 
 	it('returns false for unsupported kinds', () => {
 		const options = {
-			body: new PhpMethodBodyBuilder(PHP_INDENT, 1),
-			indentLevel: 1,
 			resource: createResource(undefined),
 			identity: { type: 'number', param: 'id' } as const,
 			pascalName: 'Book',
@@ -97,15 +114,16 @@ describe('handleRouteKind', () => {
 			cacheSegments: [],
 		} as const;
 
-		expect(handleRouteKind({ ...options, routeKind: 'custom' })).toBe(
-			false
-		);
+		expect(
+			buildRouteKindStatements({
+				...options,
+				routeKind: 'custom',
+			})
+		).toBeNull();
 	});
 
 	it('delegates list/get routes for wp-taxonomy resources', () => {
 		const options = {
-			body: new PhpMethodBodyBuilder(PHP_INDENT, 1),
-			indentLevel: 1,
 			resource: createResource({
 				mode: 'wp-taxonomy',
 				taxonomy: 'book_genre',
@@ -118,7 +136,17 @@ describe('handleRouteKind', () => {
 			cacheSegments: [],
 		} as const;
 
-		expect(handleRouteKind({ ...options, routeKind: 'list' })).toBe(true);
-		expect(handleRouteKind({ ...options, routeKind: 'get' })).toBe(true);
+		expect(
+			buildRouteKindStatements({
+				...options,
+				routeKind: 'list',
+			})
+		).not.toBeNull();
+		expect(
+			buildRouteKindStatements({
+				...options,
+				routeKind: 'get',
+			})
+		).not.toBeNull();
 	});
 });

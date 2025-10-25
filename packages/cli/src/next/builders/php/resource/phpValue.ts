@@ -1,5 +1,12 @@
+import { KernelError } from '@wpkernel/core/contracts';
 import {
-	buildPhpExpressionPrintable,
+	buildArray,
+	buildArrayItem,
+	buildNull,
+	buildScalarBool,
+	buildScalarFloat,
+	buildScalarInt,
+	buildScalarString,
 	buildVariable,
 	type PhpExpr,
 } from '@wpkernel/php-json-ast';
@@ -45,8 +52,7 @@ export function renderPhpValue(value: PhpValueDescriptor): PhpExpr {
 		return renderExpression(value);
 	}
 
-	const printable = buildPhpExpressionPrintable(value, 0);
-	return printable.node;
+	return renderStructuredValue(value);
 }
 
 function isVariableDescriptor(
@@ -78,4 +84,62 @@ function renderVariable(descriptor: VariableValueDescriptor): PhpExpr {
 
 function renderExpression(descriptor: ExpressionValueDescriptor): PhpExpr {
 	return descriptor.expr;
+}
+
+function renderStructuredValue(value: StructuredPhpValue): PhpExpr {
+	if (Array.isArray(value)) {
+		const items = value.map((entry) =>
+			buildArrayItem(renderStructuredValue(entry as StructuredPhpValue))
+		);
+
+		return buildArray(items);
+	}
+
+	if (isPlainRecord(value)) {
+		const items = Object.entries(value).map(([key, entry]) =>
+			buildArrayItem(renderStructuredValue(entry as StructuredPhpValue), {
+				key: buildScalarString(key),
+			})
+		);
+
+		return buildArray(items);
+	}
+
+	if (typeof value === 'string') {
+		return buildScalarString(value);
+	}
+
+	if (typeof value === 'number') {
+		if (!Number.isFinite(value)) {
+			throw new KernelError('DeveloperError', {
+				message: 'Cannot render non-finite numbers in PHP output.',
+				context: { value },
+			});
+		}
+
+		return Number.isInteger(value)
+			? buildScalarInt(value)
+			: buildScalarFloat(value);
+	}
+
+	if (typeof value === 'boolean') {
+		return buildScalarBool(value);
+	}
+
+	if (value === null) {
+		return buildNull();
+	}
+
+	throw new KernelError('DeveloperError', {
+		message: `Unsupported PHP value: ${String(value)}`,
+		context: { value },
+	});
+}
+
+function isPlainRecord(value: unknown): value is Record<string, unknown> {
+	if (!value || typeof value !== 'object') {
+		return false;
+	}
+
+	return !Array.isArray(value);
 }

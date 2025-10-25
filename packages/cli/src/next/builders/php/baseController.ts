@@ -8,19 +8,17 @@ import type {
 	PipelineContext,
 } from '../../runtime/types';
 import {
-	appendClassTemplate,
 	appendGeneratedFileDocblock,
-	assembleClassTemplate,
+	buildClass,
+	buildClassMethod,
 	buildIdentifier,
-	assembleMethodTemplate,
-	createPhpFileBuilder,
-	PHP_CLASS_MODIFIER_ABSTRACT,
-	PHP_INDENT,
-	PHP_METHOD_MODIFIER_PUBLIC,
 	buildReturn,
 	buildScalarString,
+	createPhpFileBuilder,
+	PHP_CLASS_MODIFIER_ABSTRACT,
+	PHP_METHOD_MODIFIER_PUBLIC,
+	type PhpAstBuilderAdapter,
 } from '@wpkernel/php-json-ast';
-import { formatStatementPrintable } from './resource/printer';
 
 export function createPhpBaseControllerHelper(): BuilderHelper {
 	return createHelper({
@@ -51,41 +49,11 @@ export function createPhpBaseControllerHelper(): BuilderHelper {
 				namespace,
 				metadata: { kind: 'base-controller' },
 				build: (builder) => {
-					appendGeneratedFileDocblock(builder, [
-						`Source: ${ir.meta.origin} → resources (namespace: ${ir.meta.sanitizedNamespace})`,
-					]);
-
-					const getNamespaceMethod = assembleMethodTemplate({
-						signature: 'public function get_namespace(): string',
-						indentLevel: 1,
-						indentUnit: PHP_INDENT,
-						body: (body) => {
-							const returnPrintable = formatStatementPrintable(
-								buildReturn(
-									buildScalarString(
-										ir.meta.sanitizedNamespace
-									)
-								),
-								{
-									indentLevel: 2,
-									indentUnit: PHP_INDENT,
-								}
-							);
-							body.statement(returnPrintable);
-						},
-						ast: {
-							flags: PHP_METHOD_MODIFIER_PUBLIC,
-							returnType: buildIdentifier('string'),
-						},
-					});
-
-					const classTemplate = assembleClassTemplate({
-						name: 'BaseController',
-						flags: PHP_CLASS_MODIFIER_ABSTRACT,
-						methods: [getNamespaceMethod],
-					});
-
-					appendClassTemplate(builder, classTemplate);
+					buildBaseController(
+						builder,
+						ir.meta.origin,
+						ir.meta.sanitizedNamespace
+					);
 				},
 			});
 
@@ -93,4 +61,30 @@ export function createPhpBaseControllerHelper(): BuilderHelper {
 			await next?.();
 		},
 	});
+}
+
+function buildBaseController(
+	builder: PhpAstBuilderAdapter,
+	origin: string,
+	sanitizedNamespace: string
+): void {
+	appendGeneratedFileDocblock(builder, [
+		`Source: ${origin} → resources (namespace: ${sanitizedNamespace})`,
+	]);
+
+	const getNamespaceMethod = buildClassMethod(
+		buildIdentifier('get_namespace'),
+		{
+			flags: PHP_METHOD_MODIFIER_PUBLIC,
+			returnType: buildIdentifier('string'),
+			stmts: [buildReturn(buildScalarString(sanitizedNamespace))],
+		}
+	);
+
+	const classNode = buildClass(buildIdentifier('BaseController'), {
+		flags: PHP_CLASS_MODIFIER_ABSTRACT,
+		stmts: [getNamespaceMethod],
+	});
+
+	builder.appendProgramStatement(classNode);
 }

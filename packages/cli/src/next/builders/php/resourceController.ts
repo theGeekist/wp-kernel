@@ -8,35 +8,34 @@ import type {
 	PipelineContext,
 } from '../../runtime/types';
 import {
-	appendClassTemplate,
 	appendGeneratedFileDocblock,
 	buildArg,
 	buildAssign,
-	assembleClassTemplate,
-	makeErrorCodeFactory,
+	buildClass,
+	buildClassMethod,
+	buildDocComment,
 	buildExpressionStatement,
 	buildFuncCall,
 	buildIdentifier,
-	buildArray,
 	buildMethodCall,
-	assembleMethodTemplate,
 	buildName,
-	buildNode,
-	createPhpFileBuilder,
-	buildPhpReturnPrintable,
-	buildPrintable,
+	buildParam,
 	buildReturn,
 	buildScalarString,
 	buildStaticCall,
+	buildStmtNop,
 	buildVariable,
-	escapeSingleQuotes,
+	buildIfStatement,
+	createPhpFileBuilder,
+	makeErrorCodeFactory,
 	PHP_CLASS_MODIFIER_FINAL,
-	PHP_INDENT,
 	PHP_METHOD_MODIFIER_PUBLIC,
+	sanitizeJson,
 	toPascalCase,
 	type PhpAstBuilderAdapter,
-	type PhpMethodTemplate,
-	type PhpStmtIf,
+	type PhpAttributes,
+	type PhpStmt,
+	type PhpStmtClassMethod,
 	type ResourceControllerRouteMetadata,
 	type ResourceMetadataHost,
 } from '@wpkernel/php-json-ast';
@@ -50,10 +49,10 @@ import {
 } from './resourceController/metadata';
 import { createRouteMethodName } from './resourceController/routeNaming';
 import { routeUsesIdentity } from './resourceController/routeIdentity';
-import { appendNotImplementedStub } from './resourceController/stubs';
-import { handleRouteKind } from './resourceController/routes/handleRouteKind';
+import { buildNotImplementedStatements } from './resourceController/stubs';
+import { buildRouteKindStatements } from './resourceController/routes/handleRouteKind';
 import { createWpTaxonomyHelperMethods } from './resource/wpTaxonomy';
-import { formatStatementPrintable } from './resource/printer';
+import { renderPhpValue } from './resource/phpValue';
 
 export function createPhpResourceControllerHelper(): BuilderHelper {
 	return createHelper({
@@ -170,83 +169,14 @@ function buildResourceController(
 		builder.addUse('WP_Term_Query');
 	}
 
-	const methods: PhpMethodTemplate[] = [];
+	const methods: PhpStmtClassMethod[] = [];
 
-	methods.push(
-		assembleMethodTemplate({
-			signature: 'public function get_resource_name(): string',
-			indentLevel: 1,
-			indentUnit: PHP_INDENT,
-			body: (body) => {
-				const returnPrintable = formatStatementPrintable(
-					buildReturn(buildScalarString(resource.name)),
-					{
-						indentLevel: 2,
-						indentUnit: PHP_INDENT,
-					}
-				);
-				body.statement(returnPrintable);
-			},
-			ast: {
-				flags: PHP_METHOD_MODIFIER_PUBLIC,
-				returnType: buildIdentifier('string'),
-			},
-		})
-	);
-
-	methods.push(
-		assembleMethodTemplate({
-			signature: 'public function get_schema_key(): string',
-			indentLevel: 1,
-			indentUnit: PHP_INDENT,
-			body: (body) => {
-				const returnPrintable = formatStatementPrintable(
-					buildReturn(buildScalarString(resource.schemaKey)),
-					{
-						indentLevel: 2,
-						indentUnit: PHP_INDENT,
-					}
-				);
-				body.statement(returnPrintable);
-			},
-			ast: {
-				flags: PHP_METHOD_MODIFIER_PUBLIC,
-				returnType: buildIdentifier('string'),
-			},
-		})
-	);
-
-	methods.push(
-		assembleMethodTemplate({
-			signature: 'public function get_rest_args(): array',
-			indentLevel: 1,
-			indentUnit: PHP_INDENT,
-			body: (body) => {
-				const payload = buildRestArgs(ir.schemas, resource);
-				if (Object.keys(payload).length === 0) {
-					const returnPrintable = formatStatementPrintable(
-						buildReturn(buildArray([])),
-						{
-							indentLevel: 2,
-							indentUnit: PHP_INDENT,
-						}
-					);
-					body.statement(returnPrintable);
-					return;
-				}
-
-				const printable = buildPhpReturnPrintable(payload, 2);
-				body.statement(printable);
-			},
-			ast: {
-				flags: PHP_METHOD_MODIFIER_PUBLIC,
-				returnType: buildIdentifier('array'),
-			},
-		})
-	);
+	methods.push(createGetResourceNameMethod(resource));
+	methods.push(createGetSchemaKeyMethod(resource));
+	methods.push(createGetRestArgsMethod(ir, resource));
 
 	const routeMethods = resource.routes.map((route: IRRoute, index) =>
-		createRouteMethodTemplate({
+		createRouteMethod({
 			builder,
 			ir,
 			resource,
@@ -269,17 +199,16 @@ function buildResourceController(
 			identity,
 			errorCodeFactory,
 		});
-		methods.push(...taxonomyHelpers);
+		methods.push(...taxonomyHelpers.map((method) => method.node));
 	}
 
-	const classTemplate = assembleClassTemplate({
-		name: className,
+	const classNode = buildClass(buildIdentifier(className), {
 		flags: PHP_CLASS_MODIFIER_FINAL,
-		extends: 'BaseController',
-		methods,
+		extends: buildName(['BaseController']),
+		stmts: methods,
 	});
 
-	appendClassTemplate(builder, classTemplate);
+	builder.appendProgramStatement(classNode);
 
 	builder.setMetadata({
 		kind: 'resource-controller',
@@ -289,7 +218,37 @@ function buildResourceController(
 	});
 }
 
-interface RouteTemplateOptions {
+function createGetResourceNameMethod(resource: IRResource): PhpStmtClassMethod {
+	return buildClassMethod(buildIdentifier('get_resource_name'), {
+		flags: PHP_METHOD_MODIFIER_PUBLIC,
+		returnType: buildIdentifier('string'),
+		stmts: [buildReturn(buildScalarString(resource.name))],
+	});
+}
+
+function createGetSchemaKeyMethod(resource: IRResource): PhpStmtClassMethod {
+	return buildClassMethod(buildIdentifier('get_schema_key'), {
+		flags: PHP_METHOD_MODIFIER_PUBLIC,
+		returnType: buildIdentifier('string'),
+		stmts: [buildReturn(buildScalarString(resource.schemaKey))],
+	});
+}
+
+function createGetRestArgsMethod(
+	ir: IRv1,
+	resource: IRResource
+): PhpStmtClassMethod {
+	const payload = sanitizeJson(buildRestArgs(ir.schemas, resource));
+	const expression = renderPhpValue(payload);
+
+	return buildClassMethod(buildIdentifier('get_rest_args'), {
+		flags: PHP_METHOD_MODIFIER_PUBLIC,
+		returnType: buildIdentifier('array'),
+		stmts: [buildReturn(expression)],
+	});
+}
+
+interface RouteMethodOptions {
 	readonly builder: PhpAstBuilderAdapter;
 	readonly ir: IRv1;
 	readonly resource: IRResource;
@@ -302,120 +261,102 @@ interface RouteTemplateOptions {
 	readonly routeMetadata?: ResourceControllerRouteMetadata;
 }
 
-function createRouteMethodTemplate(
-	options: RouteTemplateOptions
-): PhpMethodTemplate {
+function createRouteMethod(options: RouteMethodOptions): PhpStmtClassMethod {
 	const methodName = createRouteMethodName(options.route, options.ir);
-	const indentLevel = 1;
 	const docblock = [
 		`Handle [${options.route.method}] ${options.route.path}.`,
 		`@wp-kernel route-kind ${options.routeKind}`,
 		...createRouteTagDocblock(options.routeMetadata?.tags),
 	];
 
-	return assembleMethodTemplate({
-		signature: `public function ${methodName}( WP_REST_Request $request )`,
-		indentLevel,
-		indentUnit: PHP_INDENT,
-		docblock,
-		body: (body) => {
-			const indent = PHP_INDENT.repeat(indentLevel + 1);
+	const statements: PhpStmt[] = [];
 
-			if (
-				routeUsesIdentity({
-					route: options.route,
-					routeKind: options.routeKind,
-					identity: options.identity,
-				})
-			) {
-				const param = options.identity.param;
-				const assign = buildAssign(
-					buildVariable(param),
-					buildMethodCall(
-						buildVariable('request'),
-						buildIdentifier('get_param'),
-						[buildArg(buildScalarString(param))]
-					)
-				);
-				const assignPrintable = buildPrintable(
-					buildExpressionStatement(assign),
-					[
-						`${indent}$${param} = $request->get_param( '${escapeSingleQuotes(
-							param
-						)}' );`,
-					]
-				);
-				body.statement(assignPrintable);
-				body.blank();
-			}
+	if (
+		routeUsesIdentity({
+			route: options.route,
+			routeKind: options.routeKind,
+			identity: options.identity,
+		})
+	) {
+		const param = options.identity.param;
+		const assign = buildAssign(
+			buildVariable(param),
+			buildMethodCall(
+				buildVariable('request'),
+				buildIdentifier('get_param'),
+				[buildArg(buildScalarString(param))]
+			)
+		);
+		statements.push(buildExpressionStatement(assign));
+		statements.push(buildStmtNop());
+	}
 
-			if (options.route.policy) {
-				const policyAssign = buildAssign(
-					buildVariable('permission'),
-					buildStaticCall(
-						buildName(['Policy']),
-						buildIdentifier('enforce'),
-						[
-							buildArg(buildScalarString(options.route.policy)),
-							buildArg(buildVariable('request')),
-						]
-					)
-				);
-				const assignPrintable = buildPrintable(
-					buildExpressionStatement(policyAssign),
-					[
-						`${indent}$permission = Policy::enforce( '${escapeSingleQuotes(
-							options.route.policy
-						)}', $request );`,
-					]
-				);
-				body.statement(assignPrintable);
+	if (options.route.policy) {
+		const policyAssign = buildAssign(
+			buildVariable('permission'),
+			buildStaticCall(buildName(['Policy']), buildIdentifier('enforce'), [
+				buildArg(buildScalarString(options.route.policy)),
+				buildArg(buildVariable('request')),
+			])
+		);
+		statements.push(buildExpressionStatement(policyAssign));
 
-				const isErrorCall = buildFuncCall(buildName(['is_wp_error']), [
-					buildArg(buildVariable('permission')),
-				]);
-				const ifNode = buildNode<PhpStmtIf>('Stmt_If', {
-					cond: isErrorCall,
-					stmts: [buildReturn(buildVariable('permission'))],
-					elseifs: [],
-					else: null,
-				});
-				const ifPrintable = buildPrintable(ifNode, [
-					`${indent}if ( is_wp_error( $permission ) ) {`,
-					`${indent}${PHP_INDENT}return $permission;`,
-					`${indent}}`,
-				]);
-				body.statement(ifPrintable);
-				body.blank();
-			}
+		const isErrorCall = buildFuncCall(buildName(['is_wp_error']), [
+			buildArg(buildVariable('permission')),
+		]);
+		statements.push(
+			buildIfStatement(isErrorCall, [
+				buildReturn(buildVariable('permission')),
+			])
+		);
+		statements.push(buildStmtNop());
+	}
 
-			const handled = handleRouteKind({
-				body,
-				indentLevel: indentLevel + 1,
-				resource: options.resource,
-				identity: options.identity,
-				pascalName: options.pascalName,
-				errorCodeFactory: options.errorCodeFactory,
-				metadataHost: options.metadataHost,
-				cacheSegments: resolveCacheSegments(
-					options.routeKind,
-					options.resource,
-					options.routeMetadata
-				),
-				routeKind: options.routeKind,
-			});
-
-			if (handled) {
-				return;
-			}
-
-			appendNotImplementedStub({
-				body,
-				indent,
-				route: options.route,
-			});
-		},
+	const handledStatements = buildRouteKindStatements({
+		resource: options.resource,
+		identity: options.identity,
+		pascalName: options.pascalName,
+		errorCodeFactory: options.errorCodeFactory,
+		metadataHost: options.metadataHost,
+		cacheSegments: resolveCacheSegments(
+			options.routeKind,
+			options.resource,
+			options.routeMetadata
+		),
+		routeKind: options.routeKind,
 	});
+
+	if (handledStatements && handledStatements.length > 0) {
+		statements.push(...handledStatements);
+	} else {
+		statements.push(...buildNotImplementedStatements(options.route));
+	}
+
+	const attributes = createDocAttributes(docblock);
+
+	return buildClassMethod(
+		buildIdentifier(methodName),
+		{
+			flags: PHP_METHOD_MODIFIER_PUBLIC,
+			params: [
+				buildParam(buildVariable('request'), {
+					type: buildName(['WP_REST_Request']),
+				}),
+			],
+			stmts: statements,
+		},
+		attributes
+	);
+}
+
+function createDocAttributes(
+	docblock: readonly string[]
+): PhpAttributes | undefined {
+	if (docblock.length === 0) {
+		return undefined;
+	}
+
+	return { comments: [buildDocComment(docblock)] };
 }
 
 function resolveCacheSegments(

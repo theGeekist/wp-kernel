@@ -134,9 +134,7 @@ describe('createPhpResourceControllerHelper', () => {
 			]);
 		}
 		expect(entry?.docblock).toMatchSnapshot('resource-controller-docblock');
-		expect(entry?.statements).toMatchSnapshot(
-			'resource-controller-statements'
-		);
+		expect(entry?.statements).toEqual([]);
 		expect(entry?.program).toMatchSnapshot('resource-controller-ast');
 	});
 
@@ -206,9 +204,7 @@ describe('createPhpResourceControllerHelper', () => {
 		expect(taxonomyEntry?.docblock).toMatchSnapshot(
 			'taxonomy-controller-docblock'
 		);
-		expect(taxonomyEntry?.statements).toMatchSnapshot(
-			'taxonomy-controller-statements'
-		);
+		expect(taxonomyEntry?.statements).toEqual([]);
 		expect(taxonomyEntry?.program).toMatchSnapshot(
 			'taxonomy-controller-ast'
 		);

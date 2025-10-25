@@ -1,289 +1,70 @@
-import path from 'node:path';
-import type { Reporter } from '@wpkernel/core/reporter';
-import type {
-	BuilderInput,
-	BuilderOutput,
-	PipelineContext,
-} from '../../../runtime/types';
 import {
-	createPhpProgramBuilder,
-	appendClassTemplate,
-	resetPhpAstChannel,
-} from '@wpkernel/php-json-ast';
-import {
-	assembleClassTemplate,
-	assembleMethodTemplate,
-	PHP_INDENT,
-	type PhpMethodBodyBuilder,
-} from '@wpkernel/php-json-ast';
-import {
-	appendCachePrimingMacro,
-	appendStatusValidationMacro,
-	appendSyncMetaMacro,
-	appendSyncTaxonomiesMacro,
-	buildArrayDimExpression,
+	buildStatusValidationStatements,
+	buildSyncMetaStatements,
+	buildSyncTaxonomiesStatements,
+	buildCachePrimingStatements,
 	buildVariableExpression,
+	buildArrayDimExpression,
+	buildPropertyExpression,
 	WP_POST_MUTATION_CONTRACT,
 } from '../resource/wpPost/mutations';
-import { getPhpBuilderChannel, resetPhpBuilderChannel } from '../channel';
 
-const CONTRACT = WP_POST_MUTATION_CONTRACT;
-
-type ChannelEntry = ReturnType<
-	ReturnType<typeof getPhpBuilderChannel>['pending']
->[number];
-
-function createReporter(): Reporter {
-	return {
-		debug: jest.fn(),
-		info: jest.fn(),
-		warn: jest.fn(),
-		error: jest.fn(),
-		child: jest.fn().mockReturnThis(),
-	};
-}
-
-function createPipelineContext(): PipelineContext {
-	interface MockWorkspace {
-		root: string;
-		resolve: (...parts: string[]) => string;
-		cwd: () => string;
-		read: () => Promise<null>;
-		readText: () => Promise<null>;
-		write: jest.MockedFunction<() => Promise<undefined>>;
-		writeJson: jest.MockedFunction<() => Promise<undefined>>;
-		exists: () => Promise<boolean>;
-		rm: () => Promise<undefined>;
-		glob: () => Promise<string[]>;
-		threeWayMerge: () => Promise<string>;
-		begin: () => undefined;
-		commit: () => Promise<{ writes: string[]; deletes: string[] }>;
-		rollback: () => Promise<{ writes: string[]; deletes: string[] }>;
-		dryRun: <T>(fn: () => Promise<T>) => Promise<{
-			result: T;
-			manifest: { writes: string[]; deletes: string[] };
-		}>;
-		tmpDir: () => Promise<string>;
-	}
-
-	interface MockPipelineContext {
-		workspace: MockWorkspace;
-		reporter: Reporter;
-		phase: string;
-	}
-
-	return {
-		workspace: {
-			root: '/workspace',
-			resolve: (...parts: string[]) => path.join('/workspace', ...parts),
-			cwd: () => '/workspace',
-			read: async () => null,
-			readText: async () => null,
-			write: jest.fn(async () => undefined),
-			writeJson: jest.fn(async () => undefined),
-			exists: async () => false,
-			rm: async () => undefined,
-			glob: async () => [],
-			threeWayMerge: async () => 'clean',
-			begin: () => undefined,
-			commit: async () => ({ writes: [], deletes: [] }),
-			rollback: async () => ({ writes: [], deletes: [] }),
-			dryRun: async <T>(fn: () => Promise<T>) => ({
-				result: await fn(),
-				manifest: { writes: [], deletes: [] },
-			}),
-			tmpDir: async () => '.tmp',
-		},
-		reporter: createReporter(),
-		phase: 'generate',
-	} as MockPipelineContext as unknown as PipelineContext;
-}
-
-function createBuilderInput(): BuilderInput {
-	return {
-		phase: 'generate',
-		options: {
-			config: {} as never,
-			namespace: 'demo-plugin',
-			origin: 'kernel.config.ts',
-			sourcePath: 'kernel.config.ts',
-		},
-		ir: null,
-	};
-}
-
-async function queueMacroProgram(
-	macro: string,
-	build: (body: PhpMethodBodyBuilder) => void,
-	tags: Record<string, string>
-): Promise<{ entry: ChannelEntry; context: PipelineContext }> {
-	const context = createPipelineContext();
-	const input = createBuilderInput();
-	const output: BuilderOutput = { actions: [], queueWrite: jest.fn() };
-
-	resetPhpBuilderChannel(context);
-	resetPhpAstChannel(context);
-
-	const helper = createPhpProgramBuilder<
-		PipelineContext,
-		BuilderInput,
-		BuilderOutput
-	>({
-		key: `macro.${macro}`,
-		filePath: context.workspace.resolve(
-			'.generated',
-			'php',
-			`${macro}.php`
-		),
-		namespace: 'Demo\\Rest',
-		metadata: {
-			kind: 'resource-macro',
-			macro,
-			tags,
-		},
-		async build(builder) {
-			const method = assembleMethodTemplate({
-				signature:
-					'public function invoke( WP_REST_Request $request ): void',
-				indentLevel: 1,
-				indentUnit: PHP_INDENT,
-				body: (body) => {
-					build(body);
-				},
-			});
-			const classTemplate = assembleClassTemplate({
-				name: 'MacroHarness',
-				methods: [method],
-			});
-			appendClassTemplate(builder, classTemplate);
-		},
-	});
-
-	await helper.apply(
-		{
-			context,
-			input,
-			output,
-			reporter: context.reporter,
-		},
-		undefined
-	);
-
-	const channel = getPhpBuilderChannel(context);
-	const entry = channel.pending()[0];
-	return { entry, context };
-}
+const METADATA_KEYS = WP_POST_MUTATION_CONTRACT.metadataKeys;
 
 describe('wp-post mutation macros', () => {
-	it('appends status validation without guard', async () => {
-		const { entry } = await queueMacroProgram(
-			'status-validation',
-			(body) => {
-				appendStatusValidationMacro({
-					body,
-					indentLevel: 2,
-					metadataKeys: CONTRACT.metadataKeys,
-					pascalName: 'Books',
-					target: buildVariableExpression('post_status'),
-				});
-			},
-			{
-				[CONTRACT.metadataKeys.channelTag]: 'status-validation',
-				[CONTRACT.metadataKeys.statusValidation]: 'normalise',
-			}
-		);
-
-		expect(entry.metadata).toMatchObject({
-			kind: 'resource-macro',
-			macro: 'status-validation',
+	it('builds status validation statements with metadata comments', () => {
+		const statements = buildStatusValidationStatements({
+			metadataKeys: METADATA_KEYS,
+			pascalName: 'Book',
+			target: buildArrayDimExpression('post_data', 'status'),
+			requestVariable: buildVariableExpression('request'),
+			statusVariable: buildVariableExpression('status'),
 		});
-		expect(entry.statements).toMatchSnapshot(
-			'status-validation-statements'
-		);
-		expect(entry.program).toMatchSnapshot('status-validation-macro');
+
+		expect(statements).toMatchSnapshot('status-validation');
 	});
 
-	it('guards status validation when null checks are enabled', async () => {
-		const { entry } = await queueMacroProgram(
-			'status-validation-guarded',
-			(body) => {
-				appendStatusValidationMacro({
-					body,
-					indentLevel: 2,
-					metadataKeys: CONTRACT.metadataKeys,
-					pascalName: 'Books',
-					target: buildArrayDimExpression('post_data', 'post_status'),
-					guardWithNullCheck: true,
-				});
-			},
-			{
-				[CONTRACT.metadataKeys.channelTag]: 'status-validation',
-				[CONTRACT.metadataKeys.statusValidation]: 'normalise',
-			}
-		);
+	it('builds guarded status validation when requested', () => {
+		const statements = buildStatusValidationStatements({
+			metadataKeys: METADATA_KEYS,
+			pascalName: 'Book',
+			target: buildArrayDimExpression('post_data', 'status'),
+			guardWithNullCheck: true,
+		});
 
-		expect(entry.statements).toMatchSnapshot(
-			'status-validation-guarded-statements'
-		);
-		expect(entry.program).toMatchSnapshot(
-			'status-validation-guarded-macro'
-		);
+		expect(statements).toMatchSnapshot('status-validation-guarded');
 	});
 
-	it('syncs meta and taxonomies with metadata comments', async () => {
-		const { entry } = await queueMacroProgram(
-			'sync-mutations',
-			(body) => {
-				const postId = buildVariableExpression('post_id');
-				appendSyncMetaMacro({
-					body,
-					indentLevel: 2,
-					metadataKeys: CONTRACT.metadataKeys,
-					pascalName: 'Books',
-					postId,
-				});
-				appendSyncTaxonomiesMacro({
-					body,
-					indentLevel: 2,
-					metadataKeys: CONTRACT.metadataKeys,
-					pascalName: 'Books',
-					postId,
-					resultVariable: buildVariableExpression('taxonomy_result'),
-				});
-			},
-			{
-				[CONTRACT.metadataKeys.channelTag]: 'sync',
-				[CONTRACT.metadataKeys.syncMeta]: 'update',
-				[CONTRACT.metadataKeys.syncTaxonomies]: 'update',
-			}
-		);
+	it('builds sync meta statements with metadata annotations', () => {
+		const statements = buildSyncMetaStatements({
+			metadataKeys: METADATA_KEYS,
+			pascalName: 'Book',
+			postId: buildVariableExpression('post_id'),
+		});
 
-		expect(entry.statements).toMatchSnapshot('sync-mutations-statements');
-		expect(entry.program).toMatchSnapshot('sync-mutations-macro');
+		expect(statements).toMatchSnapshot('sync-meta');
 	});
 
-	it('primes cache after mutations', async () => {
-		const { entry } = await queueMacroProgram(
-			'cache-priming',
-			(body) => {
-				appendCachePrimingMacro({
-					body,
-					indentLevel: 2,
-					metadataKeys: CONTRACT.metadataKeys,
-					pascalName: 'Books',
-					postId: buildVariableExpression('post_id'),
-					errorCode: 'wpk_books_load_failed',
-					failureMessage: 'Unable to load created Book.',
-				});
-			},
-			{
-				[CONTRACT.metadataKeys.channelTag]: 'cache-priming',
-				[CONTRACT.metadataKeys.cachePriming]: 'prime',
-				[CONTRACT.metadataKeys.cacheSegment]: 'prime',
-			}
-		);
+	it('builds sync taxonomies statements with result guard', () => {
+		const statements = buildSyncTaxonomiesStatements({
+			metadataKeys: METADATA_KEYS,
+			pascalName: 'Book',
+			postId: buildPropertyExpression('post', 'ID'),
+			resultVariable: buildVariableExpression('result'),
+		});
 
-		expect(entry.statements).toMatchSnapshot('cache-priming-statements');
-		expect(entry.program).toMatchSnapshot('cache-priming-macro');
+		expect(statements).toMatchSnapshot('sync-taxonomies');
+	});
+
+	it('builds cache priming statements with failure guard', () => {
+		const statements = buildCachePrimingStatements({
+			metadataKeys: METADATA_KEYS,
+			pascalName: 'Book',
+			postId: buildVariableExpression('post_id'),
+			errorCode: 'kernel_book_failed',
+			failureMessage: 'Unable to load Book.',
+		});
+
+		expect(statements).toMatchSnapshot('cache-priming');
 	});
 });
