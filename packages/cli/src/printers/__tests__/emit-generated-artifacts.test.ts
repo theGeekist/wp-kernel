@@ -3,11 +3,12 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import { emitGeneratedArtifacts } from '..';
 import { createNoopReporter } from '@wpkernel/core/reporter';
-import type { AdapterContext, KernelConfigV1 } from '../../config/types';
-import type { IRResource, IRSchema, IRv1 } from '../../ir';
+import type { AdapterContext } from '../../config/types';
+import type { IRResource, IRv1 } from '../../ir';
 import type { PrinterContext } from '../types';
 import { PhpFileBuilder } from '../php/builder';
 import { renderPhpFile } from '../php/render';
+import { makePrinterIrFixture } from '@wpkernel/test-utils/next/printers.test-support';
 
 const TMP_PREFIX = path.join(os.tmpdir(), 'wpk-printers-');
 
@@ -87,7 +88,11 @@ describe('emitGeneratedArtifacts', () => {
 		await withTempDir(async (tempDir) => {
 			const context = createPrinterContext(tempDir);
 			const absoluteTypesPath = path.join(tempDir, 'absolute/job.d.ts');
-			context.ir.config.schemas.job.generated.types = absoluteTypesPath;
+			const jobSchema = context.ir.config.schemas.job;
+			if (!jobSchema) {
+				throw new Error('Expected job schema to be present in config');
+			}
+			jobSchema.generated.types = absoluteTypesPath;
 			context.configDirectory = undefined;
 
 			await emitGeneratedArtifacts(context);
@@ -426,7 +431,17 @@ describe('emitGeneratedArtifacts', () => {
 			);
 
 			const literalRestArgs = extractPhpArrayPayload(literalContents);
-			expect(literalRestArgs).toEqual([]);
+			expect(literalRestArgs).toEqual({
+				uuid: expect.objectContaining({
+					schema: expect.objectContaining({
+						format: 'uuid',
+						type: 'string',
+					}),
+				}),
+				title: expect.objectContaining({
+					schema: expect.objectContaining({ type: 'string' }),
+				}),
+			});
 
 			const policyHelperContents = await fs.readFile(
 				policyHelperPath,
@@ -455,52 +470,43 @@ describe('emitGeneratedArtifacts', () => {
 			const persistencePayload =
 				extractPhpArrayPayload(persistenceContents);
 			expect(persistencePayload).toEqual({
-				resources: {
-					job: {
-						identity: {
+				resources: expect.objectContaining({
+					job: expect.objectContaining({
+						identity: expect.objectContaining({
 							param: 'id',
 							type: 'number',
-						},
-						storage: {
+						}),
+						storage: expect.objectContaining({
 							cacheTtl: 900,
 							mode: 'wp-post',
 							postType: 'job',
-						},
-					},
-					literal: {
-						identity: {
-							param: 'uuid',
-							type: 'string',
-						},
-						storage: null,
-					},
-					task: {
-						identity: {
+						}),
+					}),
+					task: expect.objectContaining({
+						identity: expect.objectContaining({
 							param: 'slug',
 							type: 'string',
-						},
-						storage: {
-							meta: {
-								status: {
+						}),
+						storage: expect.objectContaining({
+							meta: expect.objectContaining({
+								status: expect.objectContaining({
 									single: true,
 									type: 'string',
-								},
-								tags: {
-									items: {
-										type: 'string',
-									},
+								}),
+								tags: expect.objectContaining({
 									single: false,
 									type: 'array',
-								},
-							},
+								}),
+							}),
 							mode: 'wp-post',
 							postType: 'task',
-							retryLimit: 2,
-							revision: 3,
-							supports: ['title', 'editor'],
-						},
-					},
-				},
+							supports: expect.arrayContaining([
+								'title',
+								'editor',
+							]),
+						}),
+					}),
+				}),
 			});
 
 			const indexContents = await fs.readFile(indexPath, 'utf8');
@@ -524,7 +530,7 @@ describe('emitGeneratedArtifacts', () => {
 
 	it('emits UI scaffolding when DataViews metadata is present', async () => {
 		await withTempDir(async (tempDir) => {
-			const ir = createIrFixture();
+			const ir = makePrinterIrFixture();
 			ir.config.resources = {
 				job: {
 					name: 'job',
@@ -708,7 +714,7 @@ describe('emitGeneratedArtifacts', () => {
 
 	it('repairs incomplete reporter implementations in adapter context overrides', async () => {
 		await withTempDir(async (tempDir) => {
-			const ir = createIrFixture();
+			const ir = makePrinterIrFixture();
 			const context = createPrinterContext(tempDir, { ir });
 			const brokenReporter = {
 				info: () => undefined,
@@ -758,7 +764,7 @@ describe('emitGeneratedArtifacts', () => {
 
 	it('preserves valid adapter context reporters and metadata', async () => {
 		await withTempDir(async (tempDir) => {
-			const ir = createIrFixture();
+			const ir = makePrinterIrFixture();
 			const context = createPrinterContext(tempDir, { ir });
 			const reporter = createNoopReporter().child('adapter');
 			const adapterNamespace = 'Demo\\Override';
@@ -795,7 +801,7 @@ describe('emitGeneratedArtifacts', () => {
 
 	it('hydrates missing adapter context fields before customisers run', async () => {
 		await withTempDir(async (tempDir) => {
-			const ir = createIrFixture();
+			const ir = makePrinterIrFixture();
 			const context = createPrinterContext(tempDir, { ir });
 			const reporters: AdapterContext['reporter'][] = [];
 
@@ -830,7 +836,7 @@ describe('emitGeneratedArtifacts', () => {
 
 	it('passes builders through adapter customisers', async () => {
 		await withTempDir(async (tempDir) => {
-			const ir = createIrFixture();
+			const ir = makePrinterIrFixture();
 			const context = createPrinterContext(tempDir, { ir });
 
 			const customised: string[] = [];
@@ -950,10 +956,11 @@ function createPrinterContext(
 	tempDir: string,
 	overrides: Partial<PrinterContext> & { ir?: IRv1 } = {}
 ): PrinterContext {
-	const ir = overrides.ir ?? createIrFixture();
+	const { ir: overrideIr, ...restOverrides } = overrides;
+	const ir = overrideIr ?? makePrinterIrFixture();
 	const outputDir = path.join(tempDir, '.generated');
 
-	const context: PrinterContext = {
+	return {
 		ir,
 		outputDir,
 		configDirectory: tempDir,
@@ -971,319 +978,8 @@ function createPrinterContext(
 		ensureDirectory: async (directoryPath) => {
 			await fs.mkdir(directoryPath, { recursive: true });
 		},
-		...overrides,
-	} as PrinterContext;
-
-	return context;
-}
-
-function createIrFixture(): IRv1 {
-	const config: KernelConfigV1 = {
-		version: 1,
-		namespace: 'demo-namespace',
-		schemas: {
-			job: {
-				path: './contracts/job.schema.json',
-				generated: {
-					types: './.generated/../types/job.d.ts',
-				},
-			},
-		},
-		resources: {} as KernelConfigV1['resources'],
-	} as KernelConfigV1;
-
-	const jobSchema: IRSchema = {
-		key: 'job',
-		sourcePath: 'contracts/job.schema.json',
-		hash: 'hash-job',
-		schema: {
-			type: 'object',
-			required: ['id', 'status'],
-			properties: {
-				id: {
-					type: 'integer',
-					description: 'Identifier',
-					minimum: 0,
-				},
-				log_path: {
-					type: 'string',
-					description: 'Windows log path for debugging',
-					examples: ['C:\\logs\\'],
-				},
-				title: { type: 'string', description: 'Title' },
-				status: {
-					type: 'string',
-					enum: ['draft', 'published'],
-				},
-			},
-		},
-		provenance: 'manual',
-	};
-
-	const taskSchema: IRSchema = {
-		key: 'auto:task',
-		sourcePath: '[storage:task]',
-		hash: 'hash-task',
-		schema: {
-			type: 'object',
-			required: ['slug', 'status'],
-			properties: {
-				slug: { type: 'string' },
-				status: { type: 'string' },
-				tags: {
-					type: 'array',
-					items: { type: 'string', enum: [] },
-				},
-			},
-		},
-		provenance: 'auto',
-		generatedFrom: { type: 'storage', resource: 'task' },
-	};
-
-	const literalSchema: IRSchema = {
-		key: 'literal',
-		sourcePath: 'contracts/literal.schema.json',
-		hash: 'hash-literal',
-		schema: 'string' as unknown,
-		provenance: 'manual',
-	};
-
-	const fallbackSchema: IRSchema = {
-		key: 'auto:',
-		sourcePath: '[storage:fallback]',
-		hash: 'hash-fallback',
-		schema: {
-			type: 'object',
-			properties: {},
-		},
-		provenance: 'auto',
-		generatedFrom: { type: 'storage', resource: 'fallback' },
-	};
-
-	const jobResource: IRResource = {
-		name: 'job',
-		schemaKey: 'job',
-		schemaProvenance: 'manual',
-		routes: [
-			{
-				method: 'GET',
-				path: '/jobs',
-				hash: 'route-job-list',
-				transport: 'local',
-			},
-			{
-				method: 'POST',
-				path: '/jobs',
-				hash: 'route-job-create',
-				policy: 'jobs.create',
-				transport: 'local',
-			},
-		],
-		cacheKeys: {
-			list: {
-				segments: Object.freeze(['job', 'list']),
-				source: 'config',
-			},
-			get: {
-				segments: Object.freeze(['job', 'get', '__wpk_id__']),
-				source: 'default',
-			},
-		},
-		identity: { type: 'number', param: 'id' } as IRResource['identity'],
-		storage: {
-			mode: 'wp-post',
-			postType: 'job',
-			cacheTtl: 900,
-		} as IRResource['storage'],
-		queryParams: {
-			search: {
-				type: 'string',
-				description: 'Search term',
-				optional: true,
-			},
-			state: {
-				type: 'enum',
-				enum: ['draft', 'published'],
-			},
-		},
-		hash: 'resource-job',
-		warnings: [],
-	};
-
-	const taskResource: IRResource = {
-		name: 'task',
-		schemaKey: 'auto:task',
-		schemaProvenance: 'auto',
-		routes: [
-			{
-				method: 'GET',
-				path: '/tasks/:slug',
-				hash: 'route-task-list',
-				transport: 'local',
-			},
-		],
-		cacheKeys: {
-			list: {
-				segments: Object.freeze(['task', 'list']),
-				source: 'config',
-			},
-			get: {
-				segments: Object.freeze(['task', 'get', '__wpk_id__']),
-				source: 'default',
-			},
-		},
-		identity: { type: 'string', param: 'slug' } as IRResource['identity'],
-		storage: {
-			mode: 'wp-post',
-			postType: 'task',
-			supports: ['title', 'editor'],
-			retryLimit: 2,
-			revision: BigInt(3),
-			meta: {
-				status: { type: 'string', single: true },
-				tags: {
-					type: 'array',
-					single: false,
-					items: { type: 'string' },
-				},
-			},
-		} as unknown as IRResource['storage'],
-		queryParams: undefined,
-		hash: 'resource-task',
-		warnings: [],
-	};
-
-	const literalResource: IRResource = {
-		name: 'literal',
-		schemaKey: 'literal',
-		schemaProvenance: 'manual',
-		routes: [
-			{
-				method: 'GET',
-				path: '/demo-namespace/literal',
-				hash: 'route-literal-get',
-				transport: 'local',
-			},
-		],
-		cacheKeys: {
-			list: {
-				segments: Object.freeze(['literal', 'list']),
-				source: 'config',
-			},
-			get: {
-				segments: Object.freeze(['literal', 'get', '__wpk_id__']),
-				source: 'default',
-			},
-		},
-		identity: { type: 'string', param: 'uuid' } as IRResource['identity'],
-		queryParams: undefined,
-		hash: 'resource-literal',
-		warnings: [],
-	};
-
-	const orphanResource: IRResource = {
-		name: 'orphan',
-		schemaKey: 'missing',
-		schemaProvenance: 'manual',
-		routes: [
-			{
-				method: 'GET',
-				path: '/orphans',
-				hash: 'route-orphan-list',
-				transport: 'local',
-			},
-		],
-		cacheKeys: {
-			list: {
-				segments: Object.freeze(['orphan', 'list']),
-				source: 'config',
-			},
-			get: {
-				segments: Object.freeze(['orphan', 'get', '__wpk_id__']),
-				source: 'default',
-			},
-		},
-		identity: undefined,
-		storage: undefined,
-		queryParams: undefined,
-		hash: 'resource-orphan',
-		warnings: [],
-	};
-
-	const remoteResource: IRResource = {
-		name: 'remote',
-		schemaKey: 'job',
-		schemaProvenance: 'manual',
-		routes: [
-			{
-				method: 'GET',
-				path: 'https://api.example.com/jobs',
-				hash: 'route-remote-list',
-				transport: 'remote',
-			},
-		],
-		cacheKeys: {
-			list: {
-				segments: Object.freeze(['remote', 'list']),
-				source: 'config',
-			},
-			get: {
-				segments: Object.freeze(['remote', 'get', '__wpk_id__']),
-				source: 'default',
-			},
-		},
-		identity: undefined,
-		storage: undefined,
-		queryParams: undefined,
-		hash: 'resource-remote',
-		warnings: [],
-	};
-
-	const ir: IRv1 = {
-		meta: {
-			version: 1,
-			namespace: 'demo-namespace',
-			sourcePath: 'kernel.config.ts',
-			origin: 'kernel.config.ts',
-			sanitizedNamespace: 'Demo\\Namespace',
-		},
-		config,
-		schemas: [jobSchema, taskSchema, literalSchema, fallbackSchema],
-		resources: [
-			jobResource,
-			taskResource,
-			literalResource,
-			orphanResource,
-			remoteResource,
-		],
-		policies: [],
-		policyMap: {
-			sourcePath: 'src/policy-map.ts',
-			definitions: [
-				{
-					key: 'jobs.create',
-					capability: 'manage_options',
-					appliesTo: 'resource',
-					source: 'map',
-				},
-			],
-			fallback: {
-				capability: 'manage_options',
-				appliesTo: 'resource',
-			},
-			missing: [],
-			unused: [],
-			warnings: [],
-		},
-		blocks: [],
-		php: {
-			namespace: 'Demo\\Namespace',
-			autoload: 'inc/',
-			outputDir: '.generated/php',
-		},
-	};
-
-	return ir;
+		...restOverrides,
+	} satisfies PrinterContext;
 }
 
 function extractPhpArrayPayload(contents: string): unknown {

@@ -6,6 +6,7 @@ import { createPhpDriverInstaller } from '@wpkernel/php-driver';
 import type { BuildIrOptions, IRv1 } from '../../../ir/types';
 import type { BuilderOutput } from '../../runtime/types';
 import type { Workspace } from '../../workspace/types';
+import { makeWorkspaceMock } from '../../../../tests/workspace.test-support';
 
 jest.mock('node:child_process', () => {
 	const execFileMock = jest.fn(
@@ -76,13 +77,15 @@ function buildOutput(): BuilderOutput {
 	};
 }
 
-const existsMock = jest.fn(async () => true);
+const existsMock = jest
+	.fn<ReturnType<Workspace['exists']>, Parameters<Workspace['exists']>>()
+	.mockResolvedValue(true);
 
-const workspace = {
+const workspace = makeWorkspaceMock({
 	root: process.cwd(),
 	resolve: (...parts: string[]) => path.join(process.cwd(), ...parts),
 	exists: existsMock,
-} as unknown as Workspace;
+});
 
 const stubHelpers = [
 	createTsBuilder(),

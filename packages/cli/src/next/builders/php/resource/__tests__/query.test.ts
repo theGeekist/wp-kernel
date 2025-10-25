@@ -1,6 +1,9 @@
 import type {
 	ResourceControllerMetadata,
 	ResourceMetadataHost,
+	PhpExpr,
+	PhpExprArray,
+	PhpExprFuncCall,
 } from '@wpkernel/php-json-ast';
 import {
 	buildPaginationNormalisationStatements,
@@ -8,6 +11,22 @@ import {
 	buildPageExpression,
 	buildWpQueryExecutionStatement,
 } from '../query';
+
+function expectArrayExpression(expr: PhpExpr | undefined): PhpExprArray {
+	expect(expr?.nodeType).toBe('Expr_Array');
+	if (!expr || expr.nodeType !== 'Expr_Array') {
+		throw new Error('Expected array expression');
+	}
+	return expr as PhpExprArray;
+}
+
+function expectFuncCall(expr: PhpExpr): PhpExprFuncCall {
+	expect(expr.nodeType).toBe('Expr_FuncCall');
+	if (expr.nodeType !== 'Expr_FuncCall') {
+		throw new Error('Expected function call expression');
+	}
+	return expr as PhpExprFuncCall;
+}
 import { renderPhpValue, variable } from '../phpValue';
 
 describe('query helpers', () => {
@@ -31,7 +50,21 @@ describe('query helpers', () => {
 			nodeType: 'Expr_Assign',
 			var: { nodeType: 'Expr_Variable', name: 'query_args' },
 		});
-		const items = assignment.expr.expr?.items ?? [];
+		const assignExprCandidate = assignment.expr;
+		if (
+			!assignExprCandidate ||
+			assignExprCandidate.nodeType !== 'Expr_Assign'
+		) {
+			throw new Error(
+				'Expected query args assignment to use Expr_Assign'
+			);
+		}
+		const assignExpr = assignExprCandidate as Extract<
+			NonNullable<typeof assignment.expr>,
+			{ nodeType: 'Expr_Assign'; expr: PhpExpr }
+		>;
+		const arrayExpr = expectArrayExpression(assignExpr.expr);
+		const items = arrayExpr.items ?? [];
 		expect(items).toEqual(
 			expect.arrayContaining([
 				expect.objectContaining({
@@ -107,7 +140,8 @@ describe('query helpers', () => {
 			nodeType: 'Expr_FuncCall',
 			name: { nodeType: 'Name', parts: ['max'] },
 		});
-		const args = expr.args ?? [];
+		const funcCall = expectFuncCall(expr);
+		const args = funcCall.args ?? [];
 		expect(args).toEqual(
 			expect.arrayContaining([
 				expect.objectContaining({

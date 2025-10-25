@@ -8,11 +8,11 @@ import type {
 	ResourceDataViewsScreenConfig,
 	ResourceDataViewsUIConfig,
 } from '@wpkernel/core/resource';
-import type { KernelConfigV1 } from '../../../config/types';
-import type { BuildIrOptions, IRResource, IRv1 } from '../../../ir/types';
-import { buildWorkspace } from '../../workspace';
-import type { Workspace } from '../../workspace/types';
-import type { BuilderOutput } from '../../runtime/types';
+import type { KernelConfigV1 } from '@wpkernel/cli/config';
+import type { BuildIrOptions, IRResource, IRv1 } from '@wpkernel/cli/ir';
+import { buildWorkspace } from '@wpkernel/cli/next/workspace';
+import type { Workspace } from '@wpkernel/cli/next/workspace';
+import type { BuilderOutput } from '@wpkernel/cli/next/runtime';
 
 export interface BuilderHarnessContext {
 	readonly workspace: Workspace;

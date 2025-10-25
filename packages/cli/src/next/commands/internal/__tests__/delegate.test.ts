@@ -49,7 +49,26 @@ describe('buildLegacyCommandLoader', () => {
 
 describe('adoptCommandEnvironment', () => {
 	it('copies cli context and streams between commands', () => {
-		const source = Object.assign(new Command(), {
+		class SourceCommand extends Command {
+			stdin?: unknown;
+			stdout?: unknown;
+			stderr?: unknown;
+
+			override async execute(): Promise<number> {
+				return 0;
+			}
+		}
+		class TargetCommand extends Command {
+			stdin?: unknown;
+			stdout?: unknown;
+			stderr?: unknown;
+
+			override async execute(): Promise<number> {
+				return 0;
+			}
+		}
+
+		const source = Object.assign(new SourceCommand(), {
 			cli: Symbol('cli'),
 			context: { cwd: '/tmp' },
 			path: ['doctor'],
@@ -57,7 +76,7 @@ describe('adoptCommandEnvironment', () => {
 			stdout: Symbol('stdout'),
 			stderr: Symbol('stderr'),
 		});
-		const target = new Command();
+		const target = new TargetCommand();
 
 		adoptCommandEnvironment(source, target);
 

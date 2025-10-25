@@ -13,7 +13,7 @@ import {
 	buildBuilderArtifacts,
 	buildReporter,
 	buildOutput,
-} from '../tests/ts.test-support';
+} from '@wpkernel/test-utils/next/builders/tests/ts.test-support';
 import { validateGeneratedImports } from '../../../commands/run-generate/validation';
 
 jest.mock('../../../commands/run-generate/validation', () => ({

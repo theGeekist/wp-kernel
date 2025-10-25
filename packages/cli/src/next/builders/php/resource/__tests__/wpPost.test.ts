@@ -35,8 +35,10 @@ describe('wpPost query helpers', () => {
 		const guard = statements[2] as PhpStmtIf;
 		expect(guard.nodeType).toBe('Stmt_If');
 
-		const [ensureArray, normalise, filter, ensureNonEmpty] =
-			guard.stmts as const;
+		const ensureArray = guard.stmts[0];
+		const normalise = guard.stmts[1];
+		const filter = guard.stmts[2];
+		const ensureNonEmpty = guard.stmts[3];
 
 		expect(ensureArray).toMatchObject({ nodeType: 'Stmt_If' });
 		expect((ensureArray as PhpStmtIf).cond).toMatchObject({
@@ -128,7 +130,9 @@ describe('wpPost list helpers', () => {
 			name: { nodeType: 'Identifier', name: 'posts' },
 		});
 
-		const [assignment, guard, push] = foreachNode.stmts as const;
+		const assignment = foreachNode.stmts[0];
+		const guard = foreachNode.stmts[1];
+		const push = foreachNode.stmts[2];
 		expect(assignment).toMatchObject({
 			nodeType: 'Stmt_Expression',
 			expr: {

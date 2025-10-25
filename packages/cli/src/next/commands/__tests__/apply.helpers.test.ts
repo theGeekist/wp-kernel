@@ -7,6 +7,7 @@ import {
 } from '../apply';
 import type { KernelConfigV1, LoadedKernelConfig } from '../../../config/types';
 import type { Workspace } from '../../workspace';
+import { makeWorkspaceMock } from '../../../../tests/workspace.test-support';
 
 const kernelConfig: KernelConfigV1 = {
 	version: 1,
@@ -37,35 +38,45 @@ describe('apply command helpers', () => {
 	});
 
 	it('returns null when no manifest content is present', async () => {
-		const workspace: Pick<Workspace, 'readText'> = {
-			readText: jest.fn().mockResolvedValue(null),
-		} as unknown as Workspace;
+		const workspace = makeWorkspaceMock({
+			readText: jest
+				.fn<
+					ReturnType<Workspace['readText']>,
+					Parameters<Workspace['readText']>
+				>()
+				.mockResolvedValue(null),
+		});
 
 		await expect(readManifest(workspace)).resolves.toBeNull();
 	});
 
 	it('parses manifest content and normalises values', async () => {
-		const workspace: Pick<Workspace, 'readText'> = {
-			readText: jest.fn().mockResolvedValue(
-				JSON.stringify({
-					summary: { applied: '2', conflicts: '0', skipped: 1 },
-					records: [
-						{
-							file: 'app/file.ts',
-							status: 'applied',
-							description: 'Patched file',
-							details: { conflict: false },
-						},
-						{
-							file: null,
-							status: undefined,
-							description: 123,
-							details: 'not-object',
-						},
-					],
-				})
-			),
-		} as unknown as Workspace;
+		const workspace = makeWorkspaceMock({
+			readText: jest
+				.fn<
+					ReturnType<Workspace['readText']>,
+					Parameters<Workspace['readText']>
+				>()
+				.mockResolvedValue(
+					JSON.stringify({
+						summary: { applied: '2', conflicts: '0', skipped: 1 },
+						records: [
+							{
+								file: 'app/file.ts',
+								status: 'applied',
+								description: 'Patched file',
+								details: { conflict: false },
+							},
+							{
+								file: null,
+								status: undefined,
+								description: 123,
+								details: 'not-object',
+							},
+						],
+					})
+				),
+		});
 
 		const manifest = await readManifest(workspace);
 
@@ -89,9 +100,14 @@ describe('apply command helpers', () => {
 	});
 
 	it('throws a kernel error when manifest cannot be parsed', async () => {
-		const workspace: Pick<Workspace, 'readText'> = {
-			readText: jest.fn().mockResolvedValue('invalid-json'),
-		} as unknown as Workspace;
+		const workspace = makeWorkspaceMock({
+			readText: jest
+				.fn<
+					ReturnType<Workspace['readText']>,
+					Parameters<Workspace['readText']>
+				>()
+				.mockResolvedValue('invalid-json'),
+		});
 
 		await expect(readManifest(workspace)).rejects.toMatchObject({
 			code: 'DeveloperError',
