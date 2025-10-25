@@ -11,14 +11,14 @@ import {
 	type PhpStmtReturn,
 } from '@wpkernel/php-json-ast';
 
-export interface WpErrorReturnAstOptions {
+export interface WpErrorReturnOptions {
 	readonly code: string;
 	readonly message: string;
 	readonly status?: number;
 }
 
 export function buildWpErrorReturn(
-	options: WpErrorReturnAstOptions
+	options: WpErrorReturnOptions
 ): PhpStmtReturn {
 	const { code, message, status = 400 } = options;
 

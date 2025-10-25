@@ -10,6 +10,7 @@ import {
 	buildVariable,
 	type PhpExpr,
 } from '@wpkernel/php-json-ast';
+import { KernelError } from '@wpkernel/core/contracts';
 import { normaliseVariableReference } from './utils';
 
 export interface VariableValueDescriptor {
@@ -26,6 +27,7 @@ export type StructuredPhpValue =
 	| string
 	| number
 	| boolean
+	| bigint
 	| null
 	| readonly unknown[]
 	| Record<string, unknown>;
