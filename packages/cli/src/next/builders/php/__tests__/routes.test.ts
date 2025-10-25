@@ -1,11 +1,11 @@
-import type { IRRoute } from '../../../../ir/types';
 import { collectCanonicalBasePaths, determineRouteKind } from '../routes';
+import { createWpPostRoutes } from '../test-support/resources.test-support';
 
 describe('routes helpers', () => {
 	const identityParam = 'slug';
 
 	it('collects canonical base paths using identity routes when available', () => {
-		const routes = buildRoutes();
+		const routes = createWpPostRoutes();
 
 		const basePaths = collectCanonicalBasePaths(routes, identityParam);
 
@@ -13,14 +13,29 @@ describe('routes helpers', () => {
 	});
 
 	it('classifies routes by HTTP method and path patterns', () => {
-		const routes = buildRoutes();
+		const routes = createWpPostRoutes();
 		const basePaths = collectCanonicalBasePaths(routes, identityParam);
 
-		const listRoute = routes[0];
-		const getRoute = routes[1];
-		const updateRoute = routes[2];
-		const deleteRoute = routes[3];
-		const postRoute = routes[4];
+		const listRoute = getRouteBy(
+			routes,
+			(route) => route.method === 'GET' && !route.path.includes(':')
+		);
+		const getRoute = getRouteBy(
+			routes,
+			(route) => route.method === 'GET' && route.path.includes(':')
+		);
+		const updateRoute = getRouteBy(
+			routes,
+			(route) => route.method === 'PUT'
+		);
+		const deleteRoute = getRouteBy(
+			routes,
+			(route) => route.method === 'DELETE'
+		);
+		const postRoute = getRouteBy(
+			routes,
+			(route) => route.method === 'POST'
+		);
 
 		expect(determineRouteKind(listRoute, identityParam, basePaths)).toBe(
 			'list'
@@ -40,16 +55,16 @@ describe('routes helpers', () => {
 	});
 
 	it('returns undefined for custom routes outside canonical patterns', () => {
-		const routes = buildRoutes();
+		const routes = createWpPostRoutes();
 		const basePaths = collectCanonicalBasePaths(routes, identityParam);
 
-		const customRoute: IRRoute = {
+		const customRoute = {
 			method: 'POST',
 			path: '/kernel/v1/books/(?P<action>publish)',
 			policy: undefined,
 			hash: 'custom',
 			transport: 'local',
-		};
+		} satisfies ReturnType<typeof createWpPostRoutes>[number];
 
 		expect(
 			determineRouteKind(customRoute, identityParam, basePaths)
@@ -57,42 +72,13 @@ describe('routes helpers', () => {
 	});
 });
 
-function buildRoutes(): IRRoute[] {
-	return [
-		{
-			method: 'GET',
-			path: '/kernel/v1/books',
-			policy: undefined,
-			hash: 'list',
-			transport: 'local',
-		},
-		{
-			method: 'GET',
-			path: '/kernel/v1/books/:slug',
-			policy: undefined,
-			hash: 'get',
-			transport: 'local',
-		},
-		{
-			method: 'PATCH',
-			path: '/kernel/v1/books/:slug',
-			policy: undefined,
-			hash: 'update',
-			transport: 'local',
-		},
-		{
-			method: 'DELETE',
-			path: '/kernel/v1/books/:slug',
-			policy: undefined,
-			hash: 'delete',
-			transport: 'local',
-		},
-		{
-			method: 'POST',
-			path: '/kernel/v1/books',
-			policy: undefined,
-			hash: 'create',
-			transport: 'local',
-		},
-	];
+function getRouteBy(
+	routes: ReturnType<typeof createWpPostRoutes>,
+	matcher: (route: ReturnType<typeof createWpPostRoutes>[number]) => boolean
+) {
+	const route = routes.find(matcher);
+	if (!route) {
+		throw new Error('Expected route to be defined.');
+	}
+	return route;
 }

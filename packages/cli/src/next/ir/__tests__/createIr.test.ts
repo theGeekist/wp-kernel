@@ -12,7 +12,11 @@ import {
 import { buildWorkspace } from '../../workspace';
 import * as workspaceExports from '../../workspace';
 import { createIr } from '../createIr';
-import { withWorkspace } from '../../../../tests/workspace.test-support';
+import {
+	withWorkspace,
+	createWorkspaceMock,
+} from '../../../../tests/workspace.test-support';
+import { createKernelConfigFixture } from '../../../../tests/printers.test-support';
 
 jest.mock('../../builders', () => {
 	const { createHelper } = jest.requireActual('../../runtime');
@@ -52,8 +56,7 @@ describe('createIr', () => {
 			path.join(FIXTURE_ROOT, 'schemas', 'todo.schema.json')
 		);
 
-		const config: KernelConfigV1 = {
-			version: 1,
+		const config = createKernelConfigFixture({
 			namespace: 'todo-app',
 			schemas: {
 				todo: {
@@ -62,7 +65,7 @@ describe('createIr', () => {
 						types: './generated/todo.ts',
 					},
 				},
-			},
+			} satisfies KernelConfigV1['schemas'],
 			resources: {
 				todo: {
 					name: 'todo',
@@ -76,11 +79,11 @@ describe('createIr', () => {
 					},
 					cacheKeys: {
 						list: () => ['todo', 'list'],
-						get: (id: string | number) => ['todo', 'get', id],
+						get: (id?: string | number) => ['todo', 'get', id],
 					},
 				},
-			},
-		} as KernelConfigV1;
+			} satisfies KernelConfigV1['resources'],
+		});
 
 		await withWorkspace(
 			async (workspaceRoot) => {
@@ -133,7 +136,7 @@ describe('createIr', () => {
 					},
 				},
 			},
-		} as KernelConfigV1['resources'];
+		} satisfies KernelConfigV1['resources'];
 
 		await withWorkspace(
 			async (workspaceRoot) => {
@@ -182,7 +185,7 @@ describe('createIr', () => {
 			builders: { use: jest.fn() },
 			extensions: { use: jest.fn() },
 			run: jest.fn(async (input) => {
-				expect(input.phase).toBe('validate');
+				expect(input.phase).toBe('init');
 				expect(input.workspace).toBe(workspace);
 				expect(input.reporter).toBe(reporter);
 
@@ -190,7 +193,9 @@ describe('createIr', () => {
 			}),
 		};
 
-		const workspace = { root: '/tmp/custom-workspace' } as unknown;
+		const workspace = createWorkspaceMock({
+			root: '/tmp/custom-workspace',
+		});
 		const reporterChild = jest.fn();
 		const reporter = {
 			info: jest.fn(),
@@ -205,7 +210,7 @@ describe('createIr', () => {
 			pipeline: pipeline as never,
 			workspace,
 			reporter,
-			phase: 'validate',
+			phase: 'init',
 		});
 
 		expect(ir).toBe(pipelineRunResult.ir);
@@ -224,9 +229,9 @@ describe('createIr', () => {
 			sourcePath: path.join(process.cwd(), 'configs', 'kernel.config.ts'),
 		} as const;
 
-		const createdWorkspace = {
+		const createdWorkspace = createWorkspaceMock({
 			root: '/tmp/generated-workspace',
-		} as unknown;
+		});
 		const createdReporterChild = jest.fn();
 		const createdReporter = {
 			info: jest.fn(),

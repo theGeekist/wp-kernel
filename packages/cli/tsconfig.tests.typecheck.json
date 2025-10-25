@@ -45,8 +45,12 @@
 		"resolvePackageJsonImports": true
 	},
 	"include": [
-		"src/config/__tests__/**/*.ts",
-		"src/config/__tests__/**/*.tsx",
+		"src/next/workspace/__tests__/**/*.ts",
+		"src/next/workspace/__tests__/**/*.tsx",
+		"src/next/ir/__tests__/**/*.ts",
+		"src/next/ir/__tests__/**/*.tsx",
+		"src/printers/**/__tests__/**/*.ts",
+		"src/printers/**/__tests__/**/*.tsx",
 		"tests/**/*.ts",
 		"tests/**/*.tsx",
 		"vite.config.ts"
