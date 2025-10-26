@@ -75,8 +75,30 @@ export interface ConflictDiagnostic<TKind extends HelperKind = HelperKind> {
 	readonly kind?: TKind;
 }
 
+export interface MissingDependencyDiagnostic<
+	TKind extends HelperKind = HelperKind,
+> {
+	readonly type: 'missing-dependency';
+	readonly key: string;
+	readonly dependency: string;
+	readonly message: string;
+	readonly kind?: TKind;
+	readonly helper?: string;
+}
+
+export interface UnusedHelperDiagnostic<TKind extends HelperKind = HelperKind> {
+	readonly type: 'unused-helper';
+	readonly key: string;
+	readonly message: string;
+	readonly kind?: TKind;
+	readonly helper?: string;
+	readonly dependsOn?: readonly string[];
+}
+
 export type PipelineDiagnostic<TKind extends HelperKind = HelperKind> =
-	ConflictDiagnostic<TKind>;
+	| ConflictDiagnostic<TKind>
+	| MissingDependencyDiagnostic<TKind>
+	| UnusedHelperDiagnostic<TKind>;
 
 export interface PipelineRunState<
 	TArtifact,
@@ -97,6 +119,13 @@ export interface PipelineExtensionHookResult<TArtifact> {
 	readonly artifact?: TArtifact;
 	readonly commit?: () => Promise<void>;
 	readonly rollback?: () => Promise<void>;
+}
+
+export interface PipelineExtensionRollbackErrorMetadata {
+	readonly name?: string;
+	readonly message?: string;
+	readonly stack?: string;
+	readonly cause?: unknown;
 }
 
 export type PipelineExtensionHook<TContext, TOptions, TArtifact> = (
@@ -211,11 +240,22 @@ export interface CreatePipelineOptions<
 	readonly onExtensionRollbackError?: (options: {
 		readonly error: unknown;
 		readonly extensionKeys: readonly string[];
+		readonly hookSequence: readonly string[];
+		readonly errorMetadata: PipelineExtensionRollbackErrorMetadata;
 		readonly context: TContext;
 	}) => void;
 	readonly createConflictDiagnostic?: (options: {
-		readonly helper: TFragmentHelper;
-		readonly existing: TFragmentHelper;
+		readonly helper: TFragmentHelper | TBuilderHelper;
+		readonly existing: TFragmentHelper | TBuilderHelper;
+		readonly message: string;
+	}) => TDiagnostic;
+	readonly createMissingDependencyDiagnostic?: (options: {
+		readonly helper: TFragmentHelper | TBuilderHelper;
+		readonly dependency: string;
+		readonly message: string;
+	}) => TDiagnostic;
+	readonly createUnusedHelperDiagnostic?: (options: {
+		readonly helper: TFragmentHelper | TBuilderHelper;
 		readonly message: string;
 	}) => TDiagnostic;
 }

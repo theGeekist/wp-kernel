@@ -11,6 +11,7 @@ export * from './declareItem';
 export * from './scalar';
 export * from './expressions';
 export * from './stmt';
+export * from './propertyHook';
 
 import type { PhpArg } from './arguments';
 import type { PhpAttrGroup, PhpAttribute } from './attributes';
@@ -20,6 +21,7 @@ import type { PhpScalar } from './scalar';
 import type { PhpStmt } from './stmt';
 import type { PhpType } from './types';
 import type { PhpParam } from './params';
+import type { PhpPropertyHook } from './propertyHook';
 
 export type PhpNodeLike =
 	| PhpStmt
@@ -32,4 +34,5 @@ export type PhpNodeLike =
 	| PhpArg
 	| PhpConst
 	| PhpClosureUse
-	| PhpMatchArm;
+	| PhpMatchArm
+	| PhpPropertyHook;

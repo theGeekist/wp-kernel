@@ -1,7 +1,8 @@
 import { createHelper, createPipeline } from '../../src/pipeline/index.js';
 import type {
-	ConflictDiagnostic,
+	CreatePipelineOptions,
 	Helper,
+	PipelineDiagnostic,
 	PipelineStep,
 } from '../../src/pipeline/index.js';
 import { createNoopReporter } from '../../src/reporter/index.js';
@@ -51,7 +52,7 @@ describe('pipeline primitives', () => {
 
 	interface TestRunResult {
 		readonly artifact: number[];
-		readonly diagnostics: readonly ConflictDiagnostic[];
+		readonly diagnostics: readonly PipelineDiagnostic[];
 		readonly steps: readonly PipelineStep[];
 		readonly logs: readonly string[];
 	}
@@ -63,21 +64,25 @@ describe('pipeline primitives', () => {
 		Helper<TestContext, BuilderInput, BuilderOutput>['apply']
 	>[0];
 
-	function createTestPipeline() {
-		return createPipeline<
-			TestRunOptions,
-			TestBuildOptions,
-			TestContext,
-			Reporter,
-			DraftState,
-			number[],
-			ConflictDiagnostic,
-			TestRunResult,
-			FragmentInput,
-			FragmentOutput,
-			BuilderInput,
-			BuilderOutput
-		>({
+	type TestPipelineOptions = CreatePipelineOptions<
+		TestRunOptions,
+		TestBuildOptions,
+		TestContext,
+		Reporter,
+		DraftState,
+		number[],
+		PipelineDiagnostic,
+		TestRunResult,
+		FragmentInput,
+		FragmentOutput,
+		BuilderInput,
+		BuilderOutput,
+		'fragment',
+		'builder'
+	>;
+
+	function createTestPipeline(overrides: Partial<TestPipelineOptions> = {}) {
+		const options: TestPipelineOptions = {
 			fragmentKind: 'fragment',
 			builderKind: 'builder',
 			createBuildOptions(runOptions) {
@@ -137,6 +142,61 @@ describe('pipeline primitives', () => {
 					steps,
 					logs: context.logs.slice(),
 				} satisfies TestRunResult;
+			},
+		} satisfies TestPipelineOptions;
+
+		return createPipeline({
+			...options,
+			...overrides,
+		});
+	}
+
+	type TestPipelineInstance = ReturnType<typeof createTestPipeline>;
+
+	interface RecordedRollbackMetadata {
+		readonly name?: string;
+		readonly message?: string;
+		readonly stack?: string;
+		readonly cause?: unknown;
+	}
+
+	interface RecordedRollback {
+		readonly error: unknown;
+		readonly extensionKeys: readonly string[];
+		readonly hookSequence: readonly string[];
+		readonly errorMetadata: RecordedRollbackMetadata;
+	}
+
+	type RollbackHandlerOptions = RecordedRollback & { context: TestContext };
+
+	function createMockReporter(overrides: Partial<Reporter> = {}): Reporter {
+		const reporter = {} as Reporter;
+		reporter.info = overrides.info ?? (() => undefined);
+		reporter.warn = overrides.warn ?? (() => undefined);
+		reporter.error = overrides.error ?? (() => undefined);
+		reporter.debug = overrides.debug ?? (() => undefined);
+		reporter.child = overrides.child ?? (() => reporter);
+		return reporter;
+	}
+
+	function registerFailingExtensionHooks(
+		pipeline: TestPipelineInstance,
+		rollbackError: Error,
+		extensionError: Error
+	): void {
+		pipeline.extensions.use({
+			key: 'extension.rollback',
+			register: () => async () => ({
+				rollback: async () => {
+					throw rollbackError;
+				},
+			}),
+		});
+
+		pipeline.extensions.use({
+			key: 'extension.failure',
+			register: () => async () => {
+				throw extensionError;
 			},
 		});
 	}
@@ -246,5 +306,277 @@ describe('pipeline primitives', () => {
 		pipeline.ir.use(overrideA);
 
 		expect(() => pipeline.ir.use(overrideB)).toThrow(KernelError);
+	});
+
+	it('rejects duplicate builder override registrations', () => {
+		const pipeline = createTestPipeline();
+
+		const overrideA = createHelper<
+			TestContext,
+			BuilderInput,
+			BuilderOutput,
+			Reporter,
+			'builder'
+		>({
+			key: 'builder.override',
+			kind: 'builder',
+			mode: 'override',
+			async apply() {
+				// no-op
+			},
+		});
+
+		const overrideB = createHelper<
+			TestContext,
+			BuilderInput,
+			BuilderOutput,
+			Reporter,
+			'builder'
+		>({
+			key: 'builder.override',
+			kind: 'builder',
+			mode: 'override',
+			async apply() {
+				// no-op
+			},
+		});
+
+		pipeline.builders.use(overrideA);
+
+		expect(() => pipeline.builders.use(overrideB)).toThrow(KernelError);
+	});
+
+	it('records diagnostics for missing dependencies', async () => {
+		const reporter = createNoopReporter();
+		const capturedDiagnostics: PipelineDiagnostic[] = [];
+		const pipeline = createTestPipeline({
+			createMissingDependencyDiagnostic({ helper, dependency, message }) {
+				const diagnostic = {
+					type: 'missing-dependency',
+					key: helper.key,
+					dependency,
+					message,
+				} satisfies PipelineDiagnostic;
+				capturedDiagnostics.push(diagnostic);
+				return diagnostic;
+			},
+			createUnusedHelperDiagnostic({ helper, message }) {
+				const diagnostic = {
+					type: 'unused-helper',
+					key: helper.key,
+					message,
+				} satisfies PipelineDiagnostic;
+				capturedDiagnostics.push(diagnostic);
+				return diagnostic;
+			},
+		});
+
+		const orphanFragment = createHelper<
+			TestContext,
+			FragmentInput,
+			FragmentOutput,
+			Reporter,
+			'fragment'
+		>({
+			key: 'fragment.orphan',
+			kind: 'fragment',
+			dependsOn: ['fragment.missing'],
+			async apply() {
+				// no-op
+			},
+		});
+
+		pipeline.ir.use(orphanFragment);
+
+		await expect(
+			pipeline.run({
+				reporter,
+				workspace: '/tmp/workspace',
+				seed: 1,
+			})
+		).rejects.toThrow(KernelError);
+
+		expect(capturedDiagnostics).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({
+					type: 'missing-dependency',
+					key: 'fragment.orphan',
+					dependency: 'fragment.missing',
+				}),
+				expect.objectContaining({
+					type: 'unused-helper',
+					key: 'fragment.orphan',
+				}),
+			])
+		);
+	});
+
+	it('records diagnostics for dependency cycles', async () => {
+		const reporter = createNoopReporter();
+		const capturedDiagnostics: PipelineDiagnostic[] = [];
+		const pipeline = createTestPipeline({
+			createUnusedHelperDiagnostic({ helper, message }) {
+				const diagnostic = {
+					type: 'unused-helper',
+					key: helper.key,
+					message,
+				} satisfies PipelineDiagnostic;
+				capturedDiagnostics.push(diagnostic);
+				return diagnostic;
+			},
+		});
+
+		const first = createHelper<
+			TestContext,
+			FragmentInput,
+			FragmentOutput,
+			Reporter,
+			'fragment'
+		>({
+			key: 'fragment.first',
+			kind: 'fragment',
+			dependsOn: ['fragment.second'],
+			async apply() {
+				// no-op
+			},
+		});
+
+		const second = createHelper<
+			TestContext,
+			FragmentInput,
+			FragmentOutput,
+			Reporter,
+			'fragment'
+		>({
+			key: 'fragment.second',
+			kind: 'fragment',
+			dependsOn: ['fragment.first'],
+			async apply() {
+				// no-op
+			},
+		});
+
+		pipeline.ir.use(first);
+		pipeline.ir.use(second);
+
+		await expect(
+			pipeline.run({
+				reporter,
+				workspace: '/tmp/workspace',
+				seed: 5,
+			})
+		).rejects.toThrow(KernelError);
+
+		expect(capturedDiagnostics).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({
+					type: 'unused-helper',
+					key: 'fragment.first',
+				}),
+				expect.objectContaining({
+					type: 'unused-helper',
+					key: 'fragment.second',
+				}),
+			])
+		);
+		expect(
+			capturedDiagnostics.every((diagnostic) =>
+				diagnostic.message.includes('dependencies')
+			)
+		).toBe(true);
+	});
+
+	it('reports rollback failures with detailed metadata', async () => {
+		const warn = jest.fn<void, [string, unknown?]>();
+		const reporter = createMockReporter({ warn });
+		const pipeline = createTestPipeline();
+
+		const rollbackError = new KernelError('UnknownError', {
+			message: 'rollback failed',
+		});
+		const rollbackCause = new Error('rollback cause');
+		(rollbackError as Error & { cause?: unknown }).cause = rollbackCause;
+
+		const extensionError = new KernelError('UnknownError', {
+			message: 'extension failure',
+		});
+
+		registerFailingExtensionHooks(pipeline, rollbackError, extensionError);
+
+		await expect(
+			pipeline.run({
+				reporter,
+				workspace: '/tmp/workspace',
+				seed: 9,
+			})
+		).rejects.toThrow(extensionError);
+
+		expect(warn).toHaveBeenCalledTimes(1);
+		const firstCall = warn.mock.calls[0]! as [string, unknown?];
+		const message = firstCall[0];
+		const context = firstCall[1];
+		expect(message).toBe('Pipeline extension rollback failed.');
+		expect(context).toMatchObject({
+			error: rollbackError,
+			errorName: rollbackError.name,
+			errorMessage: rollbackError.message,
+			extensions: ['extension.rollback', 'extension.failure'],
+			hookKeys: ['extension.rollback', 'extension.failure'],
+		});
+
+		const contextObject = context as Record<string, unknown>;
+		expect(contextObject.errorStack).toBe(rollbackError.stack);
+		expect(contextObject.errorCause).toBe(rollbackCause);
+	});
+
+	it('provides rollback metadata to custom handlers', async () => {
+		const reporter = createMockReporter();
+		const handled: RecordedRollback[] = [];
+
+		const pipeline = createTestPipeline({
+			onExtensionRollbackError(options) {
+				const { context: _context, ...rest } =
+					options as RollbackHandlerOptions;
+				handled.push(rest);
+			},
+		});
+
+		const rollbackError = new KernelError('UnknownError', {
+			message: 'rollback failed',
+		});
+		const rollbackCause = new Error('inner cause');
+		(rollbackError as Error & { cause?: unknown }).cause = rollbackCause;
+
+		const extensionError = new KernelError('UnknownError', {
+			message: 'extension failure',
+		});
+
+		registerFailingExtensionHooks(pipeline, rollbackError, extensionError);
+
+		await expect(
+			pipeline.run({
+				reporter,
+				workspace: '/tmp/workspace',
+				seed: 12,
+			})
+		).rejects.toThrow(extensionError);
+
+		expect(handled).toHaveLength(1);
+		const entry = handled[0]!;
+		expect(entry.error).toBe(rollbackError);
+		expect(entry.extensionKeys).toEqual([
+			'extension.rollback',
+			'extension.failure',
+		]);
+		expect(entry.hookSequence).toEqual([
+			'extension.rollback',
+			'extension.failure',
+		]);
+		expect(entry.errorMetadata).toMatchObject({
+			name: rollbackError.name,
+			message: rollbackError.message,
+			stack: rollbackError.stack,
+			cause: rollbackCause,
+		});
 	});
 });

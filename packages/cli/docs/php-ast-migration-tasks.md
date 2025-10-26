@@ -123,6 +123,11 @@ The goal remains: every storage mode plugs into a helper-first API, the channel 
 - **Task 14 - Buffer (0.5.4):** ✓ Completed – DELETE routes now call `delete_transient()` and record cache invalidation metadata so callers can invalidate per-entity caches.
 - **Task 15 - Release (0.6.0):** ✓ Completed – Version 0.6.0 shipped with unified changelog entries and version bumps across the monorepo.
 
+- **Task 11 - Implementation (0.5.1):** ✓ Completed – Transient controllers/helpers now live under `packages/cli/src/next/builders/php/resource/transient/**`, emitting sanitised keys and TTL normalisers through the AST pipeline.
+- **Task 12 - Tests (0.5.2):** ✓ Completed – Builder and controller suites assert transient cache metadata, TTL sanitisation, and WP_Error handling while snapshotting queued `PhpProgram` artefacts.
+- **Task 13 - Fixtures & docs (0.5.3):** ✓ Completed – CLI goldens and contributor docs now surface transient helpers, storage bindings, and cache invalidation guidance for plugin authors.
+- **Task 14 - Buffer (0.5.4):** 🚧 In progress – Tracking the transient DELETE regression fix discovered during post-Task 13 validation.
+
 ### Phase 3 - Block printers (SSR & JS-only) ⏳
 
 > **MVP Plan reference:** Tasks 16-19 (Phase 3 patch band)
