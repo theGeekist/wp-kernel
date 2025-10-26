@@ -12,6 +12,7 @@ import type {
 	PipelineExtensionHook,
 	PipelineExtensionHookOptions,
 	PipelineExtensionHookResult,
+	PipelineExtensionRollbackErrorMetadata,
 	PipelineRunState,
 	PipelineStep,
 } from './types';
@@ -47,13 +48,40 @@ interface ExtensionHookEntry<TContext, TOptions, TArtifact> {
 	readonly hook: PipelineExtensionHook<TContext, TOptions, TArtifact>;
 }
 
+interface RollbackErrorArgs {
+	readonly error: unknown;
+	readonly extensionKeys: readonly string[];
+	readonly hookSequence: readonly string[];
+}
+
+function createRollbackErrorMetadata(
+	error: unknown
+): PipelineExtensionRollbackErrorMetadata {
+	if (error instanceof Error) {
+		const { name, message, stack } = error;
+		const cause = (error as Error & { cause?: unknown }).cause;
+
+		return {
+			name,
+			message,
+			stack,
+			cause,
+		};
+	}
+
+	if (typeof error === 'string') {
+		return {
+			message: error,
+		};
+	}
+
+	return {};
+}
+
 async function runExtensionHooks<TContext, TOptions, TArtifact>(
 	hooks: readonly ExtensionHookEntry<TContext, TOptions, TArtifact>[],
 	options: PipelineExtensionHookOptions<TContext, TOptions, TArtifact>,
-	onRollbackError: (args: {
-		readonly error: unknown;
-		readonly extensionKeys: readonly string[];
-	}) => void
+	onRollbackError: (args: RollbackErrorArgs) => void
 ): Promise<{
 	artifact: TArtifact;
 	results: PipelineExtensionHookResult<TArtifact>[];
@@ -101,10 +129,7 @@ async function commitExtensionResults<TArtifact>(
 async function rollbackExtensionResults<TContext, TOptions, TArtifact>(
 	results: readonly PipelineExtensionHookResult<TArtifact>[],
 	hooks: readonly ExtensionHookEntry<TContext, TOptions, TArtifact>[],
-	onRollbackError: (args: {
-		readonly error: unknown;
-		readonly extensionKeys: readonly string[];
-	}) => void
+	onRollbackError: (args: RollbackErrorArgs) => void
 ): Promise<void> {
 	const hookKeys = hooks.map((entry) => entry.key);
 
@@ -119,6 +144,7 @@ async function rollbackExtensionResults<TContext, TOptions, TArtifact>(
 			onRollbackError({
 				error,
 				extensionKeys: hookKeys,
+				hookSequence: hookKeys,
 			});
 		}
 	}
@@ -898,13 +924,20 @@ export function createPipeline<
 				((rollbackOptions: {
 					error: unknown;
 					extensionKeys: readonly string[];
+					hookSequence: readonly string[];
+					errorMetadata: PipelineExtensionRollbackErrorMetadata;
 					context: TContext;
 				}) => {
 					rollbackOptions.context.reporter.warn(
 						'Pipeline extension rollback failed.',
 						{
-							error: (rollbackOptions.error as Error).message,
+							error: rollbackOptions.error,
+							errorName: rollbackOptions.errorMetadata.name,
+							errorMessage: rollbackOptions.errorMetadata.message,
+							errorStack: rollbackOptions.errorMetadata.stack,
+							errorCause: rollbackOptions.errorMetadata.cause,
 							extensions: rollbackOptions.extensionKeys,
+							hookKeys: rollbackOptions.hookSequence,
 						}
 					);
 				});
@@ -917,10 +950,12 @@ export function createPipeline<
 					buildOptions,
 					artifact,
 				}),
-				({ error, extensionKeys }) =>
+				({ error, extensionKeys, hookSequence }) =>
 					handleRollbackError({
 						error,
 						extensionKeys,
+						hookSequence,
+						errorMetadata: createRollbackErrorMetadata(error),
 						context,
 					})
 			);
@@ -967,10 +1002,13 @@ export function createPipeline<
 				await rollbackExtensionResults(
 					extensionResult.results,
 					extensionHooks,
-					({ error: rollbackError, extensionKeys }) =>
+					({ error: rollbackError, extensionKeys, hookSequence }) =>
 						handleRollbackError({
 							error: rollbackError,
 							extensionKeys,
+							hookSequence,
+							errorMetadata:
+								createRollbackErrorMetadata(rollbackError),
 							context,
 						})
 				);

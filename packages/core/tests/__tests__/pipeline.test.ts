@@ -151,6 +151,56 @@ describe('pipeline primitives', () => {
 		});
 	}
 
+	type TestPipelineInstance = ReturnType<typeof createTestPipeline>;
+
+	interface RecordedRollbackMetadata {
+		readonly name?: string;
+		readonly message?: string;
+		readonly stack?: string;
+		readonly cause?: unknown;
+	}
+
+	interface RecordedRollback {
+		readonly error: unknown;
+		readonly extensionKeys: readonly string[];
+		readonly hookSequence: readonly string[];
+		readonly errorMetadata: RecordedRollbackMetadata;
+	}
+
+	type RollbackHandlerOptions = RecordedRollback & { context: TestContext };
+
+	function createMockReporter(overrides: Partial<Reporter> = {}): Reporter {
+		const reporter = {} as Reporter;
+		reporter.info = overrides.info ?? (() => undefined);
+		reporter.warn = overrides.warn ?? (() => undefined);
+		reporter.error = overrides.error ?? (() => undefined);
+		reporter.debug = overrides.debug ?? (() => undefined);
+		reporter.child = overrides.child ?? (() => reporter);
+		return reporter;
+	}
+
+	function registerFailingExtensionHooks(
+		pipeline: TestPipelineInstance,
+		rollbackError: Error,
+		extensionError: Error
+	): void {
+		pipeline.extensions.use({
+			key: 'extension.rollback',
+			register: () => async () => ({
+				rollback: async () => {
+					throw rollbackError;
+				},
+			}),
+		});
+
+		pipeline.extensions.use({
+			key: 'extension.failure',
+			register: () => async () => {
+				throw extensionError;
+			},
+		});
+	}
+
 	it('orders helpers and runs fragments before builders', async () => {
 		const reporter = createNoopReporter();
 		const pipeline = createTestPipeline();
@@ -434,5 +484,99 @@ describe('pipeline primitives', () => {
 				diagnostic.message.includes('dependencies')
 			)
 		).toBe(true);
+	});
+
+	it('reports rollback failures with detailed metadata', async () => {
+		const warn = jest.fn<void, [string, unknown?]>();
+		const reporter = createMockReporter({ warn });
+		const pipeline = createTestPipeline();
+
+		const rollbackError = new KernelError('UnknownError', {
+			message: 'rollback failed',
+		});
+		const rollbackCause = new Error('rollback cause');
+		(rollbackError as Error & { cause?: unknown }).cause = rollbackCause;
+
+		const extensionError = new KernelError('UnknownError', {
+			message: 'extension failure',
+		});
+
+		registerFailingExtensionHooks(pipeline, rollbackError, extensionError);
+
+		await expect(
+			pipeline.run({
+				reporter,
+				workspace: '/tmp/workspace',
+				seed: 9,
+			})
+		).rejects.toThrow(extensionError);
+
+		expect(warn).toHaveBeenCalledTimes(1);
+		const firstCall = warn.mock.calls[0]! as [string, unknown?];
+		const message = firstCall[0];
+		const context = firstCall[1];
+		expect(message).toBe('Pipeline extension rollback failed.');
+		expect(context).toMatchObject({
+			error: rollbackError,
+			errorName: rollbackError.name,
+			errorMessage: rollbackError.message,
+			extensions: ['extension.rollback', 'extension.failure'],
+			hookKeys: ['extension.rollback', 'extension.failure'],
+		});
+
+		const contextObject = context as Record<string, unknown>;
+		expect(contextObject.errorStack).toBe(rollbackError.stack);
+		expect(contextObject.errorCause).toBe(rollbackCause);
+	});
+
+	it('provides rollback metadata to custom handlers', async () => {
+		const reporter = createMockReporter();
+		const handled: RecordedRollback[] = [];
+
+		const pipeline = createTestPipeline({
+			onExtensionRollbackError(options) {
+				const { context: _context, ...rest } =
+					options as RollbackHandlerOptions;
+				handled.push(rest);
+			},
+		});
+
+		const rollbackError = new KernelError('UnknownError', {
+			message: 'rollback failed',
+		});
+		const rollbackCause = new Error('inner cause');
+		(rollbackError as Error & { cause?: unknown }).cause = rollbackCause;
+
+		const extensionError = new KernelError('UnknownError', {
+			message: 'extension failure',
+		});
+
+		registerFailingExtensionHooks(pipeline, rollbackError, extensionError);
+
+		await expect(
+			pipeline.run({
+				reporter,
+				workspace: '/tmp/workspace',
+				seed: 12,
+			})
+		).rejects.toThrow(extensionError);
+
+		expect(handled).toHaveLength(1);
+		const entry = handled[0]!;
+		expect(entry.error).toBe(rollbackError);
+		expect(entry.extensionKeys).toEqual([
+			'extension.rollback',
+			'extension.failure',
+		]);
+		expect(entry.hookSequence).toEqual([
+			'extension.rollback',
+			'extension.failure',
+		]);
+		expect(entry.errorMetadata).toMatchObject({
+			name: rollbackError.name,
+			message: rollbackError.message,
+			stack: rollbackError.stack,
+			cause: rollbackCause,
+		});
 	});
 });
