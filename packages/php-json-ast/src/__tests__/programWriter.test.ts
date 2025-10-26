@@ -2,7 +2,6 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import * as phpDriver from '@wpkernel/php-driver';
-import type { DriverContext } from '@wpkernel/php-driver';
 import type {
 	PipelineContext,
 	BuilderInput,
