@@ -9,7 +9,7 @@ import type { PhpStmt } from '../stmt';
 import type { PhpType } from '../types';
 
 export interface PhpExprBase extends PhpNode {
-	readonly nodeType: `Expr_${string}`;
+	readonly nodeType: `Expr_${string}` | 'ArrayItem';
 }
 
 export interface PhpExprAssign extends PhpExprBase {
