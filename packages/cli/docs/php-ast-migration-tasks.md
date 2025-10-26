@@ -85,12 +85,35 @@ The goal remains: every storage mode plugs into a helper-first API, the channel 
 
 ### Phase 2 - Transient storage parity ⏳
 
-> **MVP Plan reference:** Task 7 (Phase 2 patch band)
+> **MVP Plan reference:** Tasks 11-15 (Phase 2 patch band)
 
-- **Deliverables**
-    - Port transient controllers and utilities to AST builders (`packages/cli/src/printers/php/transient.ts` is the current implementation).
-    - Backfill tests for cache events, request validation, and response handling.
-    - Ensure shared helpers (e.g., cache metadata) work across storage modes.
+#### Task 11 - Transient AST builders (0.5.1)
+
+- Port every transient controller/helper under `packages/cli/src/printers/php/transient.ts` to the AST-first pipeline (`packages/cli/src/next/builders/php/resource/transient/**`).
+- Replace bespoke JSON node literals with canonical `@wpkernel/php-json-ast` factories and ensure each helper queues `PhpProgramAction` entries instead of string payloads.
+- Thread transient cache metadata through the shared registries so option/transient storage continues to share cache keys and invalidation helpers.
+
+#### Task 12 - Transient parity tests (0.5.2)
+
+- Extend next pipeline tests to cover cache events, request validation, and error handling unique to transients (`set`, `delete`, TTL enforcement).
+- Add writer assertions that snapshot the queued `PhpProgram` output and confirm the pretty-printer persists matching PHP/AST artefacts.
+- Update `packages/cli/tests/workspace.test-support.ts` (or the shared transient fixtures) so integration harnesses exercise transient pipelines in addition to options.
+
+#### Task 13 - Transient fixtures & docs (0.5.3)
+
+- Regenerate fixtures and goldens that cover transient controllers, storage bindings, and cache invalidation flows.
+- Update documentation (`docs/index.md`, this file, `cli-migration-phases.md`, and transient-focused guides) to point at the new helpers and tests.
+- Capture any migration notes required for downstream plugin authors (e.g., storage key naming changes) in `CHANGELOG.md` and relevant READMEs.
+
+#### Task 14 - Phase 2 buffer slot (0.5.4)
+
+- Reserve room for hotfixes uncovered while landing Tasks 11-13 (e.g., AST edge cases, driver configuration gaps).
+- Close the slot unmodified if no regressions surface; document the validation path so future phases can reuse the pattern.
+
+#### Task 15 - Phase 2 minor release (0.6.0)
+
+- Once Tasks 11-14 are ✓, cut the 0.6.0 release via `RELEASING.md` (version bump, changelog rollup, unified checks across CLI/Core/PHP driver/UI).
+- Announce the transient parity milestone in `CHANGELOG.md` and ensure adapters know where to hook into the new helpers.
 
 ### Phase 3 - Block printers (SSR & JS-only) ⏳
 

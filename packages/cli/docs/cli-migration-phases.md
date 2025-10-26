@@ -17,7 +17,7 @@ This document replaces earlier drafts (`next-cli.md.audit-backup`, `next-cli.md.
 | --------------------------------- | --------------------------------------------- | ------------- | ------------------- | ----------------------------------------- |
 | Phase 0 - Foundations (completed) | Pipeline hardening (Tasks 1‑4)                | -             | 0.4.1 → 0.4.4       | Baseline CLI checks per task              |
 | Phase 1 - wp-option parity        | AST builders + fixtures (patch band complete) | **0.5.0**     | 0.4.5 → 0.4.9       | CLI/core typecheck + CLI/php-driver tests |
-| Phase 2 - transient parity        | AST builders + cache events                   | **0.6.0**     | 0.5.1 → 0.5.9       | CLI/core + transient integration tests    |
+| Phase 2 - transient parity        | AST builders + cache events                   | **0.6.0**     | 0.5.1 → 0.5.4       | CLI/core + transient integration tests    |
 | Phase 3 - block builders          | SSR + JS-only builders                        | **0.7.0**     | 0.6.1 → 0.6.9       | CLI/ui + block integration smoke          |
 | Phase 4 - string printers retired | Remove legacy writers                         | **0.8.0**     | 0.7.1 → 0.7.4       | CLI + docs regeneration + regression run  |
 | Phase 5 - Apply layering          | Shims + flags + logging                       | **0.9.0**     | 0.8.1 → 0.8.4       | `wpk generate`/`wpk apply` acceptance run |

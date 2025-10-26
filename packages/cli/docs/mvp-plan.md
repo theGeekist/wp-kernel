@@ -2,7 +2,7 @@
 
 _See [Docs Index](./index.md) for navigation._
 
-> **Versioning reminder:** The CLI now rides the unified **v0.5.x (pre-1.0)** track. Phase 1 patch slots (0.4.5-0.4.9) are closed; claim the next available slot before you start, update the status when you land, and consolidate into the parent phase release once every patch in that band ships.
+> **Versioning reminder:** The CLI now rides the unified **v0.5.x (pre-1.0)** track. Phase 1 patch slots (0.4.5-0.4.9) are closed; Phase 2 work uses the 0.5.1-0.5.4 band. Claim the next available slot before you start, update the status when you land, and consolidate into the parent phase release once every patch in that band ships.
 
 ## Coordination & guardrails
 
@@ -21,17 +21,26 @@ _See [Docs Index](./index.md) for navigation._
 | 0.4.3 | Task 3 - End-to-end generate coverage             | ✓ shipped | Integration test snapshots cover PHP + AST artefacts.         | [Pipeline integration hardening](./pipeline-integration-tasks.md#item3--end-to-end-generate-pipeline-coverage-complexity-mediumhigh)   |
 | 0.4.4 | Task 4 - Driver configuration & documentation     | ✓ shipped | Update docs + exports alongside code.                         | [Pipeline integration hardening](./pipeline-integration-tasks.md#item4--surface-driver-configuration--documentation-complexity-medium) |
 
-### Phase 1 - Resource Parity & Apply Layering (🚧 In Progress)
+### Phase 1 - Resource Parity & Apply Layering (✓ Complete)
 
-| Slot                                                                                                       | Scope                                           | Status     | Notes                                                                                                   | Detail reference                                                                                           |
-| ---------------------------------------------------------------------------------------------------------- | ----------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| 0.4.5                                                                                                      | Task 5 - (wp-option parity) - AST builders land | ✓ shipped  | AST builders + helpers for wp-option controllers now live in the next pipeline.                         | [PHP AST migration - Phase 1 deliverables](./php-ast-migration-tasks.md#phase-1--wp-option-storage-parity) |
-| 0.4.6                                                                                                      | Task 6 - wp-option parity tests                 | ✓ shipped  | Snapshot coverage + writer assertions confirm queued `PhpProgram` payloads emit matching PHP/AST pairs. | [PHP AST migration - Phase 1 deliverables](./php-ast-migration-tasks.md#phase-1--wp-option-storage-parity) |
-| 0.4.7                                                                                                      | Task 7 - wp-option fixtures/docs                | ✓ shipped  | Integration fixtures now queue wp-option controllers and docs capture the updated flows.                |
-| [PHP AST migration - Phase 1 deliverables](./php-ast-migration-tasks.md#phase-1--wp-option-storage-parity) |
-| 0.4.8                                                                                                      | Task 8 - Buffer hotfix for Phase 1 work         | ✓ shipped  | No regressions surfaced after review; buffer slot closed without requiring a patch.                     | [PHP AST migration - Version cadence](./php-ast-migration-tasks.md#version-cadence)                        |
-| 0.4.9                                                                                                      | Task 9 - Release engineering prep               | ✓ shipped  | Changelog rollup + monorepo version bump prepared for the 0.5.0 handoff.                                | [Release process](../../RELEASING.md#1%EF%B8%8F%E2%83%A3-versioning-rules)                                 |
-| 0.5.0                                                                                                      | Task 10 - **Phase 1 minor**                     | ⬜ pending | Requires every 0.4.x slot to be ✓. Follow the release checklist.                                        | [Release process](../../RELEASING.md#3%EF%B8%8F%E2%83%A3-release-process)                                  |
+| Slot  | Scope                                           | Status    | Notes                                                                                                   | Detail reference                                                                                           |
+| ----- | ----------------------------------------------- | --------- | ------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| 0.4.5 | Task 5 - (wp-option parity) - AST builders land | ✓ shipped | AST builders + helpers for wp-option controllers now live in the next pipeline.                         | [PHP AST migration - Phase 1 deliverables](./php-ast-migration-tasks.md#phase-1--wp-option-storage-parity) |
+| 0.4.6 | Task 6 - wp-option parity tests                 | ✓ shipped | Snapshot coverage + writer assertions confirm queued `PhpProgram` payloads emit matching PHP/AST pairs. | [PHP AST migration - Phase 1 deliverables](./php-ast-migration-tasks.md#phase-1--wp-option-storage-parity) |
+| 0.4.7 | Task 7 - wp-option fixtures/docs                | ✓ shipped | Integration fixtures now queue wp-option controllers and docs capture the updated flows.                | [PHP AST migration - Phase 1 deliverables](./php-ast-migration-tasks.md#phase-1--wp-option-storage-parity) |
+| 0.4.8 | Task 8 - Buffer hotfix for Phase 1 work         | ✓ shipped | No regressions surfaced after review; buffer slot closed without requiring a patch.                     | [PHP AST migration - Version cadence](./php-ast-migration-tasks.md#version-cadence)                        |
+| 0.4.9 | Task 9 - Release engineering prep               | ✓ shipped | Changelog rollup + monorepo version bump prepared for the 0.5.0 handoff.                                | [Release process](../../RELEASING.md#1%EF%B8%8F%E2%83%A3-versioning-rules)                                 |
+| 0.5.0 | Task 10 - **Phase 1 minor**                     | ✓ shipped | All 0.4.x slots closed; 0.5.0 shipped via the unified release checklist.                                | [Release process](../../RELEASING.md#3%EF%B8%8F%E2%83%A3-release-process)                                  |
+
+### Phase 2 - Transient Storage Parity (⬜ Planned)
+
+| Slot  | Scope                                      | Status     | Notes                                                                                                         | Detail reference                                                                                       |
+| ----- | ------------------------------------------ | ---------- | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| 0.5.1 | Task 11 - Transient AST builders land      | ⬜ pending | Port transient controllers/helpers to AST builders without string fallbacks.                                  | [Phase 2 - transient builders](./php-ast-migration-tasks.md#task-11--transient-ast-builders)           |
+| 0.5.2 | Task 12 - Transient parity tests           | ⬜ pending | Cover cache events, error paths, and queued writer output for transient resources.                            | [Phase 2 - transient tests](./php-ast-migration-tasks.md#task-12--transient-parity-tests)              |
+| 0.5.3 | Task 13 - Transient fixtures & docs        | ⬜ pending | Refresh fixtures/docs to reflect AST-driven transient flows and reference new helper entry points.            | [Phase 2 - transient fixtures/docs](./php-ast-migration-tasks.md#task-13--transient-fixtures-and-docs) |
+| 0.5.4 | Task 14 - Buffer slot for transient parity | ⬜ pending | Reserve capacity for regression fixes discovered while landing Tasks 11-13; close unused once validation ends | [Phase 2 - buffer cadence](./php-ast-migration-tasks.md#task-14--phase-2-buffer-slot)                  |
+| 0.6.0 | Task 15 - **Phase 2 minor**                | ⬜ pending | Cut 0.6.0 after every 0.5.x slot ships; run the full release checklist across all affected workspaces.        | [Release process](../../RELEASING.md#3%EF%B8%8F%E2%83%A3-release-process)                              |
 
 ## Definition of "MVP"
 
