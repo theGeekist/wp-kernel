@@ -237,6 +237,7 @@ export function makePhpIrFixture(options: MakePhpIrFixtureOptions = {}): IRv1 {
 	const resources = options.resources ?? [
 		makeWpPostResource(),
 		makeWpTaxonomyResource(),
+		makeWpOptionResource(),
 	];
 
 	return {

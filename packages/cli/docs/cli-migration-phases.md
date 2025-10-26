@@ -149,7 +149,7 @@ These align with `docs/pipeline-integration-tasks.md` and related planning docs.
     - Port flag handling, backups, `.wpk-apply.log`, and generated-directory hygiene into `NextApplyCommand`.
 2. **PHP AST parity**
     - Track progress in `docs/php-ast-migration-tasks.md`.
-    - Outstanding: wp-option parity, transient parity, block printers, and removal of string-based printers once complete.
+    - Outstanding: transient parity, block printers, and removal of string-based printers once complete.
 3. **Block & UI builders**
     - Introduce a next-gen blocks builder (SSR + JS-only).
     - Expand `createTsBuilder` to cover stores/bootstrap/storybook and create import validation flows for new artefacts.

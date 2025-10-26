@@ -281,6 +281,11 @@ describe('createPhpBuilder integration', () => {
 					'Rest',
 					'JobCategoriesController.php'
 				);
+				await captureArtefact(
+					ir.php.outputDir,
+					'Rest',
+					'DemoOptionController.php'
+				);
 				await captureArtefact(ir.php.outputDir, 'Policy', 'Policy.php');
 				await captureArtefact(
 					ir.php.outputDir,
@@ -314,6 +319,8 @@ describe('createPhpBuilder integration', () => {
 			'.generated/php/Rest/BooksController.php.ast.json',
 			'.generated/php/Rest/JobCategoriesController.php',
 			'.generated/php/Rest/JobCategoriesController.php.ast.json',
+			'.generated/php/Rest/DemoOptionController.php',
+			'.generated/php/Rest/DemoOptionController.php.ast.json',
 			'.generated/php/index.php',
 			'.generated/php/index.php.ast.json',
 		].sort();
@@ -347,6 +354,14 @@ describe('createPhpBuilder integration', () => {
 		);
 		expect(booksControllerPhp).toBeDefined();
 		expect(booksControllerPhp).toMatchSnapshot('books-controller.php');
+
+		const demoOptionControllerPhp = artefacts.get(
+			'.generated/php/Rest/DemoOptionController.php'
+		);
+		expect(demoOptionControllerPhp).toBeDefined();
+		expect(demoOptionControllerPhp).toMatchSnapshot(
+			'demo-option-controller.php'
+		);
 
 		const policyHelperPhp = artefacts.get(
 			'.generated/php/Policy/Policy.php'

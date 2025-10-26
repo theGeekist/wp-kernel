@@ -78,7 +78,7 @@ The goal remains: every storage mode plugs into a helper-first API, the channel 
 - **Deliverables**
     - **Task 5 - Implementation (0.4.5):** ✓ Completed – AST builders for wp-option controllers/helpers now live under `packages/cli/src/next/builders/php/resource/wpOption/**`, replacing the legacy printer while staying fully AST-first.
     - **Task 6 - Tests (0.4.6):** ✓ Completed – Resource controller coverage snapshots queued `PhpProgram` payloads and verifies the writer emits matching PHP/AST pairs for wp-option controllers.
-    - **Task 7 - Fixtures & docs (0.4.7):** Update integration fixtures (if any) and documentation to cover wp-option flows.
+    - **Task 7 - Fixtures & docs (0.4.7):** ✓ Completed – Integration fixtures queue wp-option controllers and documentation now walks the updated flows.
 - **Additional slots**
     - **Task 8 - Buffer (0.4.8):** Optional regression fix or polish if issues surface during Phase 1.
     - **Task 9 - Release prep (0.4.9):** Roll the changelog into the 0.5.0 release entry and run the release checklist.
