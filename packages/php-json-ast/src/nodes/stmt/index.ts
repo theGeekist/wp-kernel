@@ -10,7 +10,7 @@ import type { PhpExpr } from '../expressions';
 import type { PhpPropertyHook } from '../propertyHook';
 
 export interface PhpStmtBase extends PhpNode {
-	readonly nodeType: `Stmt_${string}`;
+	readonly nodeType: `Stmt_${string}` | 'UseItem' | 'PropertyItem';
 }
 
 export interface PhpStmtNamespace extends PhpStmtBase {
