@@ -257,7 +257,7 @@ Objective: provide first-class CLI integration tests that exercise command pipel
 
 ### Success criteria
 
-- Running `pnpm --filter @wpkernel/cli test -- --runInBand integration` executes the smoke suite reliably.
+- Running `pnpm --filter @wpkernel/cli test --runInBand integration` executes the smoke suite reliably.
 - Harness utilities are reusable by future browser-based e2e (optional) without coupling to Playwright.
 - Provides confidence between unit tests and full browser e2e by validating CLI behaviour against real workspaces.
 

@@ -402,7 +402,7 @@ packages/cli/src/printers/blocks/
 - Jest integration suite `packages/cli/tests/integration/cli-smoke.test.ts` (or equivalent).
 - README / contributing note explaining the new harness and how to run the tests.
 
-**DoD:** Running `pnpm --filter @wpkernel/cli test -- --runInBand integration` (or documented command) executes the smoke suite successfully; harness utilities are reusable for future high-level tests.
+**DoD:** Running `pnpm --filter @wpkernel/cli test --runInBand integration` (or documented command) executes the smoke suite successfully; harness utilities are reusable for future high-level tests.
 
 **Dependencies:** Phase 5B (pipeline integration). Complements Phase 6.
 
