@@ -1,4 +1,5 @@
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
 import { KernelError } from '@wpkernel/core/error';
 import type {
@@ -15,7 +16,25 @@ export interface CreatePhpPrettyPrinterOptions {
 }
 
 function resolveDefaultScriptPath(): string {
-	return path.resolve(__dirname, '..', 'php', 'pretty-print.php');
+	if (typeof __dirname === 'string') {
+		return path.resolve(__dirname, '..', 'php', 'pretty-print.php');
+	}
+
+	const moduleUrl = getImportMetaUrl();
+	if (moduleUrl) {
+		const currentDirectory = path.dirname(fileURLToPath(moduleUrl));
+		return path.resolve(currentDirectory, '..', 'php', 'pretty-print.php');
+	}
+
+	return path.resolve(process.cwd(), 'php', 'pretty-print.php');
+}
+
+function getImportMetaUrl(): string | null {
+	try {
+		return new Function('return import.meta.url;')() as string;
+	} catch {
+		return null;
+	}
 }
 
 export function buildPhpPrettyPrinter(
