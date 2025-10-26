@@ -210,11 +210,11 @@ describe('modern PHP expressions', () => {
 
 		expect(parsed.code).toBe(
 			'<?php\n\n' +
-				'$callback = fn ($value) => match ($value) {\n' +
+				'$callback = fn($value) => match ($value) {\n' +
 				"    0 => 'zero',\n" +
 				"    default => 'other',\n" +
 				'};\n\n' +
-				'$repository?->find(42);\n\n' +
+				'$repository?->find(42);\n' +
 				'throw $error;\n'
 		);
 
