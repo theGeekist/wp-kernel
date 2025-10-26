@@ -144,11 +144,11 @@ exports[`wp-post mutation macros builds cache priming statements with failure gu
                       "nodeType": "Scalar_String",
                       "value": "status",
                     },
-                    "nodeType": "Expr_ArrayItem",
+                    "nodeType": "ArrayItem",
                     "unpack": false,
                     "value": {
                       "attributes": {},
-                      "nodeType": "Scalar_LNumber",
+                      "nodeType": "Scalar_Int",
                       "value": 500,
                     },
                   },

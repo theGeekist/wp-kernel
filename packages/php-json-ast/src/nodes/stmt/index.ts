@@ -7,9 +7,10 @@ import type { PhpName } from '../name';
 import type { PhpParam } from '../params';
 import type { PhpType } from '../types';
 import type { PhpExpr } from '../expressions';
+import type { PhpPropertyHook } from '../propertyHook';
 
 export interface PhpStmtBase extends PhpNode {
-	readonly nodeType: `Stmt_${string}`;
+	readonly nodeType: `Stmt_${string}` | 'UseItem' | 'PropertyItem';
 }
 
 export interface PhpStmtNamespace extends PhpStmtBase {
@@ -32,7 +33,7 @@ export interface PhpStmtGroupUse extends PhpStmtBase {
 }
 
 export interface PhpStmtUseUse extends PhpStmtBase {
-	readonly nodeType: 'Stmt_UseUse';
+	readonly nodeType: 'UseItem';
 	readonly name: PhpName;
 	readonly alias: PhpIdentifier | null;
 	readonly type: number;
@@ -60,6 +61,7 @@ export interface PhpStmtClassConst extends PhpStmtBase {
 	readonly flags: number;
 	readonly consts: PhpConst[];
 	readonly attrGroups: PhpAttrGroup[];
+	readonly type: PhpType | null;
 }
 
 export interface PhpStmtProperty extends PhpStmtBase {
@@ -68,10 +70,11 @@ export interface PhpStmtProperty extends PhpStmtBase {
 	readonly type: PhpType | null;
 	readonly props: PhpStmtPropertyProperty[];
 	readonly attrGroups: PhpAttrGroup[];
+	readonly hooks: PhpPropertyHook[];
 }
 
 export interface PhpStmtPropertyProperty extends PhpStmtBase {
-	readonly nodeType: 'Stmt_PropertyProperty';
+	readonly nodeType: 'PropertyItem';
 	readonly name: PhpIdentifier;
 	readonly default: PhpExpr | null;
 }
@@ -262,7 +265,7 @@ export function buildUseUse(
 ): PhpStmtUseUse {
 	const { type = 0, attributes } = options;
 	return buildNode<PhpStmtUseUse>(
-		'Stmt_UseUse',
+		'UseItem',
 		{ name, alias, type },
 		attributes
 	);

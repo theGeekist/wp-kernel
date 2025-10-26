@@ -22,7 +22,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
         "nodeType": "DeclareItem",
         "value": {
           "attributes": {},
-          "nodeType": "Scalar_LNumber",
+          "nodeType": "Scalar_Int",
           "value": 1,
         },
       },
@@ -97,7 +97,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                 "Policy",
               ],
             },
-            "nodeType": "Stmt_UseUse",
+            "nodeType": "UseItem",
             "type": 0,
           },
         ],
@@ -124,7 +124,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                 "WP_Error",
               ],
             },
-            "nodeType": "Stmt_UseUse",
+            "nodeType": "UseItem",
             "type": 0,
           },
         ],
@@ -151,7 +151,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                 "WP_Post",
               ],
             },
-            "nodeType": "Stmt_UseUse",
+            "nodeType": "UseItem",
             "type": 0,
           },
         ],
@@ -178,7 +178,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                 "WP_Query",
               ],
             },
-            "nodeType": "Stmt_UseUse",
+            "nodeType": "UseItem",
             "type": 0,
           },
         ],
@@ -205,7 +205,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                 "WP_REST_Request",
               ],
             },
-            "nodeType": "Stmt_UseUse",
+            "nodeType": "UseItem",
             "type": 0,
           },
         ],
@@ -232,7 +232,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                 "is_wp_error",
               ],
             },
-            "nodeType": "Stmt_UseUse",
+            "nodeType": "UseItem",
             "type": 0,
           },
         ],
@@ -396,6 +396,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                 "byRef": false,
                 "default": null,
                 "flags": 0,
+                "hooks": [],
                 "nodeType": "Param",
                 "type": {
                   "attributes": {},
@@ -499,7 +500,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                   "nodeType": "Expr_BinaryOp_SmallerOrEqual",
                   "right": {
                     "attributes": {},
-                    "nodeType": "Scalar_LNumber",
+                    "nodeType": "Scalar_Int",
                     "value": 0,
                   },
                 },
@@ -513,7 +514,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                       "attributes": {},
                       "expr": {
                         "attributes": {},
-                        "nodeType": "Scalar_LNumber",
+                        "nodeType": "Scalar_Int",
                         "value": 10,
                       },
                       "nodeType": "Expr_Assign",
@@ -539,7 +540,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                   "nodeType": "Expr_BinaryOp_Greater",
                   "right": {
                     "attributes": {},
-                    "nodeType": "Scalar_LNumber",
+                    "nodeType": "Scalar_Int",
                     "value": 100,
                   },
                 },
@@ -553,7 +554,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                       "attributes": {},
                       "expr": {
                         "attributes": {},
-                        "nodeType": "Scalar_LNumber",
+                        "nodeType": "Scalar_Int",
                         "value": 100,
                       },
                       "nodeType": "Expr_Assign",
@@ -618,7 +619,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                           "nodeType": "Scalar_String",
                           "value": "post_type",
                         },
-                        "nodeType": "Expr_ArrayItem",
+                        "nodeType": "ArrayItem",
                         "unpack": false,
                         "value": {
                           "attributes": {},
@@ -634,7 +635,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                           "nodeType": "Scalar_String",
                           "value": "post_status",
                         },
-                        "nodeType": "Expr_ArrayItem",
+                        "nodeType": "ArrayItem",
                         "unpack": false,
                         "value": {
                           "attributes": {},
@@ -650,7 +651,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                           "nodeType": "Scalar_String",
                           "value": "fields",
                         },
-                        "nodeType": "Expr_ArrayItem",
+                        "nodeType": "ArrayItem",
                         "unpack": false,
                         "value": {
                           "attributes": {},
@@ -666,7 +667,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                           "nodeType": "Scalar_String",
                           "value": "paged",
                         },
-                        "nodeType": "Expr_ArrayItem",
+                        "nodeType": "ArrayItem",
                         "unpack": false,
                         "value": {
                           "args": [
@@ -678,7 +679,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                               "unpack": false,
                               "value": {
                                 "attributes": {},
-                                "nodeType": "Scalar_LNumber",
+                                "nodeType": "Scalar_Int",
                                 "value": 1,
                               },
                             },
@@ -741,7 +742,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                           "nodeType": "Scalar_String",
                           "value": "posts_per_page",
                         },
-                        "nodeType": "Expr_ArrayItem",
+                        "nodeType": "ArrayItem",
                         "unpack": false,
                         "value": {
                           "attributes": {},
@@ -1015,7 +1016,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                                   "nodeType": "Scalar_String",
                                   "value": "key",
                                 },
-                                "nodeType": "Expr_ArrayItem",
+                                "nodeType": "ArrayItem",
                                 "unpack": false,
                                 "value": {
                                   "attributes": {},
@@ -1031,7 +1032,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                                   "nodeType": "Scalar_String",
                                   "value": "compare",
                                 },
-                                "nodeType": "Expr_ArrayItem",
+                                "nodeType": "ArrayItem",
                                 "unpack": false,
                                 "value": {
                                   "attributes": {},
@@ -1047,7 +1048,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                                   "nodeType": "Scalar_String",
                                   "value": "value",
                                 },
-                                "nodeType": "Expr_ArrayItem",
+                                "nodeType": "ArrayItem",
                                 "unpack": false,
                                 "value": {
                                   "attributes": {},
@@ -1189,7 +1190,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                                 "attributes": {},
                                 "byRef": false,
                                 "key": null,
-                                "nodeType": "Expr_ArrayItem",
+                                "nodeType": "ArrayItem",
                                 "unpack": false,
                                 "value": {
                                   "attributes": {},
@@ -1362,6 +1363,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                                   "byRef": false,
                                   "default": null,
                                   "flags": 0,
+                                  "hooks": [],
                                   "nodeType": "Param",
                                   "type": null,
                                   "var": {
@@ -1428,7 +1430,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                       "nodeType": "Expr_BinaryOp_Greater",
                       "right": {
                         "attributes": {},
-                        "nodeType": "Scalar_LNumber",
+                        "nodeType": "Scalar_Int",
                         "value": 0,
                       },
                     },
@@ -1451,7 +1453,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                                   "nodeType": "Scalar_String",
                                   "value": "key",
                                 },
-                                "nodeType": "Expr_ArrayItem",
+                                "nodeType": "ArrayItem",
                                 "unpack": false,
                                 "value": {
                                   "attributes": {},
@@ -1467,7 +1469,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                                   "nodeType": "Scalar_String",
                                   "value": "compare",
                                 },
-                                "nodeType": "Expr_ArrayItem",
+                                "nodeType": "ArrayItem",
                                 "unpack": false,
                                 "value": {
                                   "attributes": {},
@@ -1483,7 +1485,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                                   "nodeType": "Scalar_String",
                                   "value": "value",
                                 },
-                                "nodeType": "Expr_ArrayItem",
+                                "nodeType": "ArrayItem",
                                 "unpack": false,
                                 "value": {
                                   "attributes": {},
@@ -1544,7 +1546,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                   "nodeType": "Expr_BinaryOp_Greater",
                   "right": {
                     "attributes": {},
-                    "nodeType": "Scalar_LNumber",
+                    "nodeType": "Scalar_Int",
                     "value": 0,
                   },
                 },
@@ -1711,6 +1713,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                                         "byRef": false,
                                         "default": null,
                                         "flags": 0,
+                                        "hooks": [],
                                         "nodeType": "Param",
                                         "type": null,
                                         "var": {
@@ -1773,7 +1776,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                                 "nodeType": "Expr_BinaryOp_Greater",
                                 "right": {
                                   "attributes": {},
-                                  "nodeType": "Scalar_LNumber",
+                                  "nodeType": "Scalar_Int",
                                   "value": 0,
                                 },
                               },
@@ -1785,6 +1788,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                                   "byRef": false,
                                   "default": null,
                                   "flags": 0,
+                                  "hooks": [],
                                   "nodeType": "Param",
                                   "type": null,
                                   "var": {
@@ -1851,7 +1855,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                       "nodeType": "Expr_BinaryOp_Greater",
                       "right": {
                         "attributes": {},
-                        "nodeType": "Scalar_LNumber",
+                        "nodeType": "Scalar_Int",
                         "value": 0,
                       },
                     },
@@ -1874,7 +1878,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                                   "nodeType": "Scalar_String",
                                   "value": "taxonomy",
                                 },
-                                "nodeType": "Expr_ArrayItem",
+                                "nodeType": "ArrayItem",
                                 "unpack": false,
                                 "value": {
                                   "attributes": {},
@@ -1890,7 +1894,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                                   "nodeType": "Scalar_String",
                                   "value": "field",
                                 },
-                                "nodeType": "Expr_ArrayItem",
+                                "nodeType": "ArrayItem",
                                 "unpack": false,
                                 "value": {
                                   "attributes": {},
@@ -1906,7 +1910,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                                   "nodeType": "Scalar_String",
                                   "value": "terms",
                                 },
-                                "nodeType": "Expr_ArrayItem",
+                                "nodeType": "ArrayItem",
                                 "unpack": false,
                                 "value": {
                                   "attributes": {},
@@ -1967,7 +1971,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                   "nodeType": "Expr_BinaryOp_Greater",
                   "right": {
                     "attributes": {},
-                    "nodeType": "Scalar_LNumber",
+                    "nodeType": "Scalar_Int",
                     "value": 0,
                   },
                 },
@@ -2245,7 +2249,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                         "nodeType": "Scalar_String",
                         "value": "items",
                       },
-                      "nodeType": "Expr_ArrayItem",
+                      "nodeType": "ArrayItem",
                       "unpack": false,
                       "value": {
                         "attributes": {},
@@ -2261,7 +2265,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                         "nodeType": "Scalar_String",
                         "value": "total",
                       },
-                      "nodeType": "Expr_ArrayItem",
+                      "nodeType": "ArrayItem",
                       "unpack": false,
                       "value": {
                         "attributes": {},
@@ -2290,7 +2294,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                         "nodeType": "Scalar_String",
                         "value": "pages",
                       },
-                      "nodeType": "Expr_ArrayItem",
+                      "nodeType": "ArrayItem",
                       "unpack": false,
                       "value": {
                         "attributes": {},
@@ -2346,6 +2350,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                 "byRef": false,
                 "default": null,
                 "flags": 0,
+                "hooks": [],
                 "nodeType": "Param",
                 "type": {
                   "attributes": {},
@@ -2527,11 +2532,11 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                                   "nodeType": "Scalar_String",
                                   "value": "status",
                                 },
-                                "nodeType": "Expr_ArrayItem",
+                                "nodeType": "ArrayItem",
                                 "unpack": false,
                                 "value": {
                                   "attributes": {},
-                                  "nodeType": "Scalar_LNumber",
+                                  "nodeType": "Scalar_Int",
                                   "value": 400,
                                 },
                               },
@@ -2712,11 +2717,11 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                                   "nodeType": "Scalar_String",
                                   "value": "status",
                                 },
-                                "nodeType": "Expr_ArrayItem",
+                                "nodeType": "ArrayItem",
                                 "unpack": false,
                                 "value": {
                                   "attributes": {},
-                                  "nodeType": "Scalar_LNumber",
+                                  "nodeType": "Scalar_Int",
                                   "value": 404,
                                 },
                               },
@@ -2818,6 +2823,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                 "byRef": false,
                 "default": null,
                 "flags": 0,
+                "hooks": [],
                 "nodeType": "Param",
                 "type": {
                   "attributes": {},
@@ -2879,7 +2885,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                           "nodeType": "Scalar_String",
                           "value": "post_type",
                         },
-                        "nodeType": "Expr_ArrayItem",
+                        "nodeType": "ArrayItem",
                         "unpack": false,
                         "value": {
                           "attributes": {},
@@ -3116,7 +3122,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                   "attributes": {},
                   "left": {
                     "attributes": {},
-                    "nodeType": "Scalar_LNumber",
+                    "nodeType": "Scalar_Int",
                     "value": 0,
                   },
                   "nodeType": "Expr_BinaryOp_Identical",
@@ -3175,11 +3181,11 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                                   "nodeType": "Scalar_String",
                                   "value": "status",
                                 },
-                                "nodeType": "Expr_ArrayItem",
+                                "nodeType": "ArrayItem",
                                 "unpack": false,
                                 "value": {
                                   "attributes": {},
-                                  "nodeType": "Scalar_LNumber",
+                                  "nodeType": "Scalar_Int",
                                   "value": 500,
                                 },
                               },
@@ -3527,11 +3533,11 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                                   "nodeType": "Scalar_String",
                                   "value": "status",
                                 },
-                                "nodeType": "Expr_ArrayItem",
+                                "nodeType": "ArrayItem",
                                 "unpack": false,
                                 "value": {
                                   "attributes": {},
-                                  "nodeType": "Scalar_LNumber",
+                                  "nodeType": "Scalar_Int",
                                   "value": 500,
                                 },
                               },
@@ -3629,6 +3635,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                 "byRef": false,
                 "default": null,
                 "flags": 0,
+                "hooks": [],
                 "nodeType": "Param",
                 "type": {
                   "attributes": {},
@@ -3851,11 +3858,11 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                                   "nodeType": "Scalar_String",
                                   "value": "status",
                                 },
-                                "nodeType": "Expr_ArrayItem",
+                                "nodeType": "ArrayItem",
                                 "unpack": false,
                                 "value": {
                                   "attributes": {},
-                                  "nodeType": "Scalar_LNumber",
+                                  "nodeType": "Scalar_Int",
                                   "value": 400,
                                 },
                               },
@@ -4032,11 +4039,11 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                                   "nodeType": "Scalar_String",
                                   "value": "status",
                                 },
-                                "nodeType": "Expr_ArrayItem",
+                                "nodeType": "ArrayItem",
                                 "unpack": false,
                                 "value": {
                                   "attributes": {},
-                                  "nodeType": "Scalar_LNumber",
+                                  "nodeType": "Scalar_Int",
                                   "value": 404,
                                 },
                               },
@@ -4074,7 +4081,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                           "nodeType": "Scalar_String",
                           "value": "ID",
                         },
-                        "nodeType": "Expr_ArrayItem",
+                        "nodeType": "ArrayItem",
                         "unpack": false,
                         "value": {
                           "attributes": {},
@@ -4099,7 +4106,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                           "nodeType": "Scalar_String",
                           "value": "post_type",
                         },
-                        "nodeType": "Expr_ArrayItem",
+                        "nodeType": "ArrayItem",
                         "unpack": false,
                         "value": {
                           "args": [],
@@ -4374,7 +4381,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                   "attributes": {},
                   "left": {
                     "attributes": {},
-                    "nodeType": "Scalar_LNumber",
+                    "nodeType": "Scalar_Int",
                     "value": 0,
                   },
                   "nodeType": "Expr_BinaryOp_Identical",
@@ -4433,11 +4440,11 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                                   "nodeType": "Scalar_String",
                                   "value": "status",
                                 },
-                                "nodeType": "Expr_ArrayItem",
+                                "nodeType": "ArrayItem",
                                 "unpack": false,
                                 "value": {
                                   "attributes": {},
-                                  "nodeType": "Scalar_LNumber",
+                                  "nodeType": "Scalar_Int",
                                   "value": 500,
                                 },
                               },
@@ -4812,11 +4819,11 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                                   "nodeType": "Scalar_String",
                                   "value": "status",
                                 },
-                                "nodeType": "Expr_ArrayItem",
+                                "nodeType": "ArrayItem",
                                 "unpack": false,
                                 "value": {
                                   "attributes": {},
-                                  "nodeType": "Scalar_LNumber",
+                                  "nodeType": "Scalar_Int",
                                   "value": 500,
                                 },
                               },
@@ -4914,6 +4921,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                 "byRef": false,
                 "default": null,
                 "flags": 0,
+                "hooks": [],
                 "nodeType": "Param",
                 "type": {
                   "attributes": {},
@@ -5136,11 +5144,11 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                                   "nodeType": "Scalar_String",
                                   "value": "status",
                                 },
-                                "nodeType": "Expr_ArrayItem",
+                                "nodeType": "ArrayItem",
                                 "unpack": false,
                                 "value": {
                                   "attributes": {},
-                                  "nodeType": "Scalar_LNumber",
+                                  "nodeType": "Scalar_Int",
                                   "value": 400,
                                 },
                               },
@@ -5317,11 +5325,11 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                                   "nodeType": "Scalar_String",
                                   "value": "status",
                                 },
-                                "nodeType": "Expr_ArrayItem",
+                                "nodeType": "ArrayItem",
                                 "unpack": false,
                                 "value": {
                                   "attributes": {},
-                                  "nodeType": "Scalar_LNumber",
+                                  "nodeType": "Scalar_Int",
                                   "value": 404,
                                 },
                               },
@@ -5533,11 +5541,11 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                                   "nodeType": "Scalar_String",
                                   "value": "status",
                                 },
-                                "nodeType": "Expr_ArrayItem",
+                                "nodeType": "ArrayItem",
                                 "unpack": false,
                                 "value": {
                                   "attributes": {},
-                                  "nodeType": "Scalar_LNumber",
+                                  "nodeType": "Scalar_Int",
                                   "value": 500,
                                 },
                               },
@@ -5573,7 +5581,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                         "nodeType": "Scalar_String",
                         "value": "deleted",
                       },
-                      "nodeType": "Expr_ArrayItem",
+                      "nodeType": "ArrayItem",
                       "unpack": false,
                       "value": {
                         "attributes": {},
@@ -5595,7 +5603,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                         "nodeType": "Scalar_String",
                         "value": "id",
                       },
-                      "nodeType": "Expr_ArrayItem",
+                      "nodeType": "ArrayItem",
                       "unpack": false,
                       "value": {
                         "attributes": {},
@@ -5624,7 +5632,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
                         "nodeType": "Scalar_String",
                         "value": "previous",
                       },
-                      "nodeType": "Expr_ArrayItem",
+                      "nodeType": "ArrayItem",
                       "unpack": false,
                       "value": {
                         "attributes": {},
@@ -5699,7 +5707,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
         "nodeType": "DeclareItem",
         "value": {
           "attributes": {},
-          "nodeType": "Scalar_LNumber",
+          "nodeType": "Scalar_Int",
           "value": 1,
         },
       },
@@ -5771,7 +5779,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                 "Policy",
               ],
             },
-            "nodeType": "Stmt_UseUse",
+            "nodeType": "UseItem",
             "type": 0,
           },
         ],
@@ -5798,7 +5806,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                 "WP_Error",
               ],
             },
-            "nodeType": "Stmt_UseUse",
+            "nodeType": "UseItem",
             "type": 0,
           },
         ],
@@ -5825,7 +5833,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                 "WP_REST_Request",
               ],
             },
-            "nodeType": "Stmt_UseUse",
+            "nodeType": "UseItem",
             "type": 0,
           },
         ],
@@ -5852,7 +5860,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                 "WP_Term",
               ],
             },
-            "nodeType": "Stmt_UseUse",
+            "nodeType": "UseItem",
             "type": 0,
           },
         ],
@@ -5879,7 +5887,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                 "WP_Term_Query",
               ],
             },
-            "nodeType": "Stmt_UseUse",
+            "nodeType": "UseItem",
             "type": 0,
           },
         ],
@@ -5906,7 +5914,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                 "is_wp_error",
               ],
             },
-            "nodeType": "Stmt_UseUse",
+            "nodeType": "UseItem",
             "type": 0,
           },
         ],
@@ -6070,6 +6078,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                 "byRef": false,
                 "default": null,
                 "flags": 0,
+                "hooks": [],
                 "nodeType": "Param",
                 "type": {
                   "attributes": {},
@@ -6173,7 +6182,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                   "nodeType": "Expr_BinaryOp_SmallerOrEqual",
                   "right": {
                     "attributes": {},
-                    "nodeType": "Scalar_LNumber",
+                    "nodeType": "Scalar_Int",
                     "value": 0,
                   },
                 },
@@ -6187,7 +6196,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                       "attributes": {},
                       "expr": {
                         "attributes": {},
-                        "nodeType": "Scalar_LNumber",
+                        "nodeType": "Scalar_Int",
                         "value": 10,
                       },
                       "nodeType": "Expr_Assign",
@@ -6213,7 +6222,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                   "nodeType": "Expr_BinaryOp_Greater",
                   "right": {
                     "attributes": {},
-                    "nodeType": "Scalar_LNumber",
+                    "nodeType": "Scalar_Int",
                     "value": 100,
                   },
                 },
@@ -6227,7 +6236,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                       "attributes": {},
                       "expr": {
                         "attributes": {},
-                        "nodeType": "Scalar_LNumber",
+                        "nodeType": "Scalar_Int",
                         "value": 100,
                       },
                       "nodeType": "Expr_Assign",
@@ -6302,7 +6311,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                   "nodeType": "Expr_BinaryOp_SmallerOrEqual",
                   "right": {
                     "attributes": {},
-                    "nodeType": "Scalar_LNumber",
+                    "nodeType": "Scalar_Int",
                     "value": 0,
                   },
                 },
@@ -6316,7 +6325,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                       "attributes": {},
                       "expr": {
                         "attributes": {},
-                        "nodeType": "Scalar_LNumber",
+                        "nodeType": "Scalar_Int",
                         "value": 1,
                       },
                       "nodeType": "Expr_Assign",
@@ -6349,7 +6358,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                           "nodeType": "Scalar_String",
                           "value": "taxonomy",
                         },
-                        "nodeType": "Expr_ArrayItem",
+                        "nodeType": "ArrayItem",
                         "unpack": false,
                         "value": {
                           "attributes": {},
@@ -6365,7 +6374,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                           "nodeType": "Scalar_String",
                           "value": "hide_empty",
                         },
-                        "nodeType": "Expr_ArrayItem",
+                        "nodeType": "ArrayItem",
                         "unpack": false,
                         "value": {
                           "attributes": {},
@@ -6467,7 +6476,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                                 "attributes": {},
                                 "byRef": false,
                                 "key": null,
-                                "nodeType": "Expr_ArrayItem",
+                                "nodeType": "ArrayItem",
                                 "unpack": false,
                                 "value": {
                                   "attributes": {},
@@ -6479,7 +6488,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                                 "attributes": {},
                                 "byRef": false,
                                 "key": null,
-                                "nodeType": "Expr_ArrayItem",
+                                "nodeType": "ArrayItem",
                                 "unpack": false,
                                 "value": {
                                   "attributes": {},
@@ -6491,7 +6500,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                                 "attributes": {},
                                 "byRef": false,
                                 "key": null,
-                                "nodeType": "Expr_ArrayItem",
+                                "nodeType": "ArrayItem",
                                 "unpack": false,
                                 "value": {
                                   "attributes": {},
@@ -6503,7 +6512,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                                 "attributes": {},
                                 "byRef": false,
                                 "key": null,
-                                "nodeType": "Expr_ArrayItem",
+                                "nodeType": "ArrayItem",
                                 "unpack": false,
                                 "value": {
                                   "attributes": {},
@@ -6636,7 +6645,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                       "nodeType": "Expr_BinaryOp_Minus",
                       "right": {
                         "attributes": {},
-                        "nodeType": "Scalar_LNumber",
+                        "nodeType": "Scalar_Int",
                         "value": 1,
                       },
                     },
@@ -6961,7 +6970,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                   "attributes": {},
                   "expr": {
                     "attributes": {},
-                    "nodeType": "Scalar_LNumber",
+                    "nodeType": "Scalar_Int",
                     "value": 0,
                   },
                   "nodeType": "Expr_Assign",
@@ -6988,7 +6997,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                   "attributes": {},
                   "expr": {
                     "attributes": {},
-                    "nodeType": "Scalar_LNumber",
+                    "nodeType": "Scalar_Int",
                     "value": 0,
                   },
                   "nodeType": "Expr_Assign",
@@ -7128,7 +7137,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                                   "unpack": false,
                                   "value": {
                                     "attributes": {},
-                                    "nodeType": "Scalar_LNumber",
+                                    "nodeType": "Scalar_Int",
                                     "value": 1,
                                   },
                                 },
@@ -7196,7 +7205,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                         "nodeType": "Scalar_String",
                         "value": "items",
                       },
-                      "nodeType": "Expr_ArrayItem",
+                      "nodeType": "ArrayItem",
                       "unpack": false,
                       "value": {
                         "attributes": {},
@@ -7212,7 +7221,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                         "nodeType": "Scalar_String",
                         "value": "total",
                       },
-                      "nodeType": "Expr_ArrayItem",
+                      "nodeType": "ArrayItem",
                       "unpack": false,
                       "value": {
                         "attributes": {},
@@ -7228,7 +7237,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                         "nodeType": "Scalar_String",
                         "value": "pages",
                       },
-                      "nodeType": "Expr_ArrayItem",
+                      "nodeType": "ArrayItem",
                       "unpack": false,
                       "value": {
                         "attributes": {},
@@ -7271,6 +7280,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                 "byRef": false,
                 "default": null,
                 "flags": 0,
+                "hooks": [],
                 "nodeType": "Param",
                 "type": {
                   "attributes": {},
@@ -7556,11 +7566,11 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                                   "nodeType": "Scalar_String",
                                   "value": "status",
                                 },
-                                "nodeType": "Expr_ArrayItem",
+                                "nodeType": "ArrayItem",
                                 "unpack": false,
                                 "value": {
                                   "attributes": {},
-                                  "nodeType": "Scalar_LNumber",
+                                  "nodeType": "Scalar_Int",
                                   "value": 404,
                                 },
                               },
@@ -7668,6 +7678,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                 "byRef": false,
                 "default": null,
                 "flags": 0,
+                "hooks": [],
                 "nodeType": "Param",
                 "type": {
                   "attributes": {},
@@ -7703,7 +7714,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                         "nodeType": "Scalar_String",
                         "value": "id",
                       },
-                      "nodeType": "Expr_ArrayItem",
+                      "nodeType": "ArrayItem",
                       "unpack": false,
                       "value": {
                         "attributes": {},
@@ -7732,7 +7743,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                         "nodeType": "Scalar_String",
                         "value": "slug",
                       },
-                      "nodeType": "Expr_ArrayItem",
+                      "nodeType": "ArrayItem",
                       "unpack": false,
                       "value": {
                         "attributes": {},
@@ -7761,7 +7772,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                         "nodeType": "Scalar_String",
                         "value": "name",
                       },
-                      "nodeType": "Expr_ArrayItem",
+                      "nodeType": "ArrayItem",
                       "unpack": false,
                       "value": {
                         "attributes": {},
@@ -7790,7 +7801,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                         "nodeType": "Scalar_String",
                         "value": "taxonomy",
                       },
-                      "nodeType": "Expr_ArrayItem",
+                      "nodeType": "ArrayItem",
                       "unpack": false,
                       "value": {
                         "attributes": {},
@@ -7819,7 +7830,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                         "nodeType": "Scalar_String",
                         "value": "hierarchical",
                       },
-                      "nodeType": "Expr_ArrayItem",
+                      "nodeType": "ArrayItem",
                       "unpack": false,
                       "value": {
                         "attributes": {},
@@ -7841,7 +7852,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                         "nodeType": "Scalar_String",
                         "value": "description",
                       },
-                      "nodeType": "Expr_ArrayItem",
+                      "nodeType": "ArrayItem",
                       "unpack": false,
                       "value": {
                         "attributes": {},
@@ -7870,7 +7881,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                         "nodeType": "Scalar_String",
                         "value": "parent",
                       },
-                      "nodeType": "Expr_ArrayItem",
+                      "nodeType": "ArrayItem",
                       "unpack": false,
                       "value": {
                         "attributes": {},
@@ -7899,7 +7910,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                         "nodeType": "Scalar_String",
                         "value": "count",
                       },
-                      "nodeType": "Expr_ArrayItem",
+                      "nodeType": "ArrayItem",
                       "unpack": false,
                       "value": {
                         "attributes": {},
@@ -7945,6 +7956,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                 "byRef": false,
                 "default": null,
                 "flags": 0,
+                "hooks": [],
                 "nodeType": "Param",
                 "type": null,
                 "var": {
@@ -8449,6 +8461,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                 "byRef": false,
                 "default": null,
                 "flags": 0,
+                "hooks": [],
                 "nodeType": "Param",
                 "type": {
                   "attributes": {},
@@ -8830,7 +8843,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                             "unpack": false,
                             "value": {
                               "attributes": {},
-                              "nodeType": "Scalar_LNumber",
+                              "nodeType": "Scalar_Int",
                               "value": 0,
                             },
                           },
@@ -8910,6 +8923,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                 "byRef": false,
                 "default": null,
                 "flags": 0,
+                "hooks": [],
                 "nodeType": "Param",
                 "type": null,
                 "var": {
@@ -8993,11 +9007,11 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                                   "nodeType": "Scalar_String",
                                   "value": "status",
                                 },
-                                "nodeType": "Expr_ArrayItem",
+                                "nodeType": "ArrayItem",
                                 "unpack": false,
                                 "value": {
                                   "attributes": {},
-                                  "nodeType": "Scalar_LNumber",
+                                  "nodeType": "Scalar_Int",
                                   "value": 400,
                                 },
                               },
@@ -9138,11 +9152,11 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                                   "nodeType": "Scalar_String",
                                   "value": "status",
                                 },
-                                "nodeType": "Expr_ArrayItem",
+                                "nodeType": "ArrayItem",
                                 "unpack": false,
                                 "value": {
                                   "attributes": {},
-                                  "nodeType": "Scalar_LNumber",
+                                  "nodeType": "Scalar_Int",
                                   "value": 400,
                                 },
                               },
@@ -9257,7 +9271,7 @@ exports[`createPhpResourceControllerHelper queues wp-option controllers with aut
         "nodeType": "DeclareItem",
         "value": {
           "attributes": {},
-          "nodeType": "Scalar_LNumber",
+          "nodeType": "Scalar_Int",
           "value": 1,
         },
       },
@@ -9329,7 +9343,7 @@ exports[`createPhpResourceControllerHelper queues wp-option controllers with aut
                 "Policy",
               ],
             },
-            "nodeType": "Stmt_UseUse",
+            "nodeType": "UseItem",
             "type": 0,
           },
         ],
@@ -9356,7 +9370,7 @@ exports[`createPhpResourceControllerHelper queues wp-option controllers with aut
                 "WP_Error",
               ],
             },
-            "nodeType": "Stmt_UseUse",
+            "nodeType": "UseItem",
             "type": 0,
           },
         ],
@@ -9383,7 +9397,7 @@ exports[`createPhpResourceControllerHelper queues wp-option controllers with aut
                 "WP_REST_Request",
               ],
             },
-            "nodeType": "Stmt_UseUse",
+            "nodeType": "UseItem",
             "type": 0,
           },
         ],
@@ -9410,7 +9424,7 @@ exports[`createPhpResourceControllerHelper queues wp-option controllers with aut
                 "is_wp_error",
               ],
             },
-            "nodeType": "Stmt_UseUse",
+            "nodeType": "UseItem",
             "type": 0,
           },
         ],
@@ -9574,6 +9588,7 @@ exports[`createPhpResourceControllerHelper queues wp-option controllers with aut
                 "byRef": false,
                 "default": null,
                 "flags": 0,
+                "hooks": [],
                 "nodeType": "Param",
                 "type": {
                   "attributes": {},
@@ -9675,7 +9690,7 @@ exports[`createPhpResourceControllerHelper queues wp-option controllers with aut
                         "nodeType": "Scalar_String",
                         "value": "option",
                       },
-                      "nodeType": "Expr_ArrayItem",
+                      "nodeType": "ArrayItem",
                       "unpack": false,
                       "value": {
                         "attributes": {},
@@ -9691,7 +9706,7 @@ exports[`createPhpResourceControllerHelper queues wp-option controllers with aut
                         "nodeType": "Scalar_String",
                         "value": "value",
                       },
-                      "nodeType": "Expr_ArrayItem",
+                      "nodeType": "ArrayItem",
                       "unpack": false,
                       "value": {
                         "attributes": {},
@@ -9734,6 +9749,7 @@ exports[`createPhpResourceControllerHelper queues wp-option controllers with aut
                 "byRef": false,
                 "default": null,
                 "flags": 0,
+                "hooks": [],
                 "nodeType": "Param",
                 "type": {
                   "attributes": {},
@@ -10109,7 +10125,7 @@ exports[`createPhpResourceControllerHelper queues wp-option controllers with aut
                         "nodeType": "Scalar_String",
                         "value": "option",
                       },
-                      "nodeType": "Expr_ArrayItem",
+                      "nodeType": "ArrayItem",
                       "unpack": false,
                       "value": {
                         "attributes": {},
@@ -10125,7 +10141,7 @@ exports[`createPhpResourceControllerHelper queues wp-option controllers with aut
                         "nodeType": "Scalar_String",
                         "value": "updated",
                       },
-                      "nodeType": "Expr_ArrayItem",
+                      "nodeType": "ArrayItem",
                       "unpack": false,
                       "value": {
                         "attributes": {},
@@ -10145,7 +10161,7 @@ exports[`createPhpResourceControllerHelper queues wp-option controllers with aut
                         "nodeType": "Scalar_String",
                         "value": "value",
                       },
-                      "nodeType": "Expr_ArrayItem",
+                      "nodeType": "ArrayItem",
                       "unpack": false,
                       "value": {
                         "attributes": {},
@@ -10161,7 +10177,7 @@ exports[`createPhpResourceControllerHelper queues wp-option controllers with aut
                         "nodeType": "Scalar_String",
                         "value": "previous",
                       },
-                      "nodeType": "Expr_ArrayItem",
+                      "nodeType": "ArrayItem",
                       "unpack": false,
                       "value": {
                         "attributes": {},
@@ -10223,6 +10239,7 @@ exports[`createPhpResourceControllerHelper queues wp-option controllers with aut
                 "byRef": false,
                 "default": null,
                 "flags": 0,
+                "hooks": [],
                 "nodeType": "Param",
                 "type": null,
                 "var": {
@@ -10397,7 +10414,7 @@ exports[`createPhpResourceControllerHelper queues wp-option controllers with aut
                       "nodeType": "Expr_BinaryOp_Identical",
                       "right": {
                         "attributes": {},
-                        "nodeType": "Scalar_LNumber",
+                        "nodeType": "Scalar_Int",
                         "value": 1,
                       },
                     },
@@ -10570,7 +10587,7 @@ exports[`createPhpResourceControllerHelper queues wp-option controllers with aut
                             "attributes": {},
                             "byRef": false,
                             "key": null,
-                            "nodeType": "Expr_ArrayItem",
+                            "nodeType": "ArrayItem",
                             "unpack": false,
                             "value": {
                               "attributes": {},
@@ -10582,7 +10599,7 @@ exports[`createPhpResourceControllerHelper queues wp-option controllers with aut
                             "attributes": {},
                             "byRef": false,
                             "key": null,
-                            "nodeType": "Expr_ArrayItem",
+                            "nodeType": "ArrayItem",
                             "unpack": false,
                             "value": {
                               "attributes": {},
@@ -10594,7 +10611,7 @@ exports[`createPhpResourceControllerHelper queues wp-option controllers with aut
                             "attributes": {},
                             "byRef": false,
                             "key": null,
-                            "nodeType": "Expr_ArrayItem",
+                            "nodeType": "ArrayItem",
                             "unpack": false,
                             "value": {
                               "attributes": {},
@@ -10679,7 +10696,7 @@ exports[`createPhpResourceControllerHelper queues wp-option controllers with aut
                             "attributes": {},
                             "byRef": false,
                             "key": null,
-                            "nodeType": "Expr_ArrayItem",
+                            "nodeType": "ArrayItem",
                             "unpack": false,
                             "value": {
                               "attributes": {},
@@ -10691,7 +10708,7 @@ exports[`createPhpResourceControllerHelper queues wp-option controllers with aut
                             "attributes": {},
                             "byRef": false,
                             "key": null,
-                            "nodeType": "Expr_ArrayItem",
+                            "nodeType": "ArrayItem",
                             "unpack": false,
                             "value": {
                               "attributes": {},
@@ -10703,7 +10720,7 @@ exports[`createPhpResourceControllerHelper queues wp-option controllers with aut
                             "attributes": {},
                             "byRef": false,
                             "key": null,
-                            "nodeType": "Expr_ArrayItem",
+                            "nodeType": "ArrayItem",
                             "unpack": false,
                             "value": {
                               "attributes": {},

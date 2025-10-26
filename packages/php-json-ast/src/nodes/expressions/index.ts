@@ -8,8 +8,10 @@ import type { PhpScalar } from '../scalar';
 import type { PhpStmt } from '../stmt';
 import type { PhpType } from '../types';
 
+export type PhpExprNodeType = `Expr_${string}` | 'ArrayItem';
+
 export interface PhpExprBase extends PhpNode {
-	readonly nodeType: `Expr_${string}`;
+	readonly nodeType: PhpExprNodeType;
 }
 
 export interface PhpExprAssign extends PhpExprBase {
@@ -24,7 +26,7 @@ export interface PhpExprArray extends PhpExprBase {
 }
 
 export interface PhpExprArrayItem extends PhpExprBase {
-	readonly nodeType: 'Expr_ArrayItem';
+	readonly nodeType: 'ArrayItem';
 	readonly key: PhpExpr | null;
 	readonly value: PhpExpr;
 	readonly byRef: boolean;
@@ -267,7 +269,7 @@ export function buildArrayItem(
 	attributes?: PhpAttributes
 ): PhpExprArrayItem {
 	return buildNode<PhpExprArrayItem>(
-		'Expr_ArrayItem',
+		'ArrayItem',
 		{
 			key: options.key ?? null,
 			value,
