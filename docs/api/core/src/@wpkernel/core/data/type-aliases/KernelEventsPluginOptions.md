@@ -1,4 +1,4 @@
-[**WP Kernel API v0.4.0**](../../../../../../README.md)
+[**WP Kernel API v0.5.0**](../../../../../../README.md)
 
 ---
 

@@ -42,7 +42,7 @@
 	return (window as WPGlobal).wp?.data;
 };
 
-export const VERSION = '0.4.0';
+export const VERSION = '0.5.0';
 
 // ============================================================================
 // Namespace Exports (Organized by module)

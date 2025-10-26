@@ -2,7 +2,7 @@
 
 _See [Docs Index](./index.md) for navigation._
 
-> **Versioning reminder:** The CLI ships on the unified **v0.4.x (pre-1.0)** track. Tasks below reserve concrete version bumps-claim the slot before you start, update the status when you land, and consolidate into the parent phase release once every patch in that band ships.
+> **Versioning reminder:** The CLI now rides the unified **v0.5.x (pre-1.0)** track. Phase 1 patch slots (0.4.5-0.4.9) are closed; claim the next available slot before you start, update the status when you land, and consolidate into the parent phase release once every patch in that band ships.
 
 ## Coordination & guardrails
 
@@ -23,14 +23,15 @@ _See [Docs Index](./index.md) for navigation._
 
 ### Phase 1 - Resource Parity & Apply Layering (🚧 In Progress)
 
-| Slot  | Scope                                           | Status       | Notes                                                            | Detail reference                                                                                           |
-| ----- | ----------------------------------------------- | ------------ | ---------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
-| 0.4.5 | Task 5 - (wp-option parity) - AST builders land | ⬜ available | Implement controllers/helpers.                                   | [PHP AST migration - Phase 1 deliverables](./php-ast-migration-tasks.md#phase-1--wp-option-storage-parity) |
-| 0.4.6 | Task 6 - wp-option parity tests                 | ⬜ available | Snapshot queued `PhpProgram` payloads.                           | [PHP AST migration - Phase 1 deliverables](./php-ast-migration-tasks.md#phase-1--wp-option-storage-parity) |
-| 0.4.7 | Task 7 - wp-option fixtures/docs                | ⬜ available | Refresh fixtures + docs to match AST output.                     | [PHP AST migration - Phase 1 deliverables](./php-ast-migration-tasks.md#phase-1--wp-option-storage-parity) |
-| 0.4.8 | Task 8 - Buffer hotfix for Phase 1 work         | ⬜ available | Optional safety slot before 0.5.0.                               | [PHP AST migration - Version cadence](./php-ast-migration-tasks.md#version-cadence)                        |
-| 0.4.9 | Task 9 - Release engineering prep               | ⬜ available | Changelog rollup + release PR immediately before 0.5.0.          | [Release process](../../RELEASING.md#1%EF%B8%8F%E2%83%A3-versioning-rules)                                 |
-| 0.5.0 | Task 10 - **Phase 1 minor**                     | ⬜ pending   | Requires every 0.4.x slot to be ✓. Follow the release checklist. | [Release process](../../RELEASING.md#3%EF%B8%8F%E2%83%A3-release-process)                                  |
+| Slot                                                                                                       | Scope                                           | Status     | Notes                                                                                                   | Detail reference                                                                                           |
+| ---------------------------------------------------------------------------------------------------------- | ----------------------------------------------- | ---------- | ------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| 0.4.5                                                                                                      | Task 5 - (wp-option parity) - AST builders land | ✓ shipped  | AST builders + helpers for wp-option controllers now live in the next pipeline.                         | [PHP AST migration - Phase 1 deliverables](./php-ast-migration-tasks.md#phase-1--wp-option-storage-parity) |
+| 0.4.6                                                                                                      | Task 6 - wp-option parity tests                 | ✓ shipped  | Snapshot coverage + writer assertions confirm queued `PhpProgram` payloads emit matching PHP/AST pairs. | [PHP AST migration - Phase 1 deliverables](./php-ast-migration-tasks.md#phase-1--wp-option-storage-parity) |
+| 0.4.7                                                                                                      | Task 7 - wp-option fixtures/docs                | ✓ shipped  | Integration fixtures now queue wp-option controllers and docs capture the updated flows.                |
+| [PHP AST migration - Phase 1 deliverables](./php-ast-migration-tasks.md#phase-1--wp-option-storage-parity) |
+| 0.4.8                                                                                                      | Task 8 - Buffer hotfix for Phase 1 work         | ✓ shipped  | No regressions surfaced after review; buffer slot closed without requiring a patch.                     | [PHP AST migration - Version cadence](./php-ast-migration-tasks.md#version-cadence)                        |
+| 0.4.9                                                                                                      | Task 9 - Release engineering prep               | ✓ shipped  | Changelog rollup + monorepo version bump prepared for the 0.5.0 handoff.                                | [Release process](../../RELEASING.md#1%EF%B8%8F%E2%83%A3-versioning-rules)                                 |
+| 0.5.0                                                                                                      | Task 10 - **Phase 1 minor**                     | ⬜ pending | Requires every 0.4.x slot to be ✓. Follow the release checklist.                                        | [Release process](../../RELEASING.md#3%EF%B8%8F%E2%83%A3-release-process)                                  |
 
 ## Definition of "MVP"
 

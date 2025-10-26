@@ -1,6 +1,12 @@
 # @wpkernel/ui
 
-## 0.4.0 [Unreleased]
+## 0.5.0 - 2025-10-26
+
+### Maintenance
+
+- Version bump to `0.5.0` to match the Phase 1 release; UI packages pick up the new version without functional changes in this cycle.
+
+## 0.4.0
 
 ### Major Changes
 

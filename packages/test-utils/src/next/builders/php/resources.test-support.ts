@@ -6,6 +6,10 @@ type WpTaxonomyStorageConfig = Extract<
 	IRResource['storage'],
 	{ mode: 'wp-taxonomy' }
 >;
+type WpOptionStorageConfig = Extract<
+	IRResource['storage'],
+	{ mode: 'wp-option' }
+>;
 
 const DEFAULT_CACHE_KEYS: IRResource['cacheKeys'] = {
 	list: { segments: ['books', 'list'], source: 'default' },
@@ -162,6 +166,69 @@ export function makeWpTaxonomyResource(
 	} satisfies IRResource;
 }
 
+export interface MakeWpOptionResourceOptions {
+	readonly name?: string;
+	readonly schemaKey?: string;
+	readonly routes?: IRRoute[];
+	readonly cacheKeys?: IRResource['cacheKeys'];
+	readonly storage?: Partial<WpOptionStorageConfig>;
+	readonly hash?: string;
+}
+
+export function makeWpOptionResource(
+	options: MakeWpOptionResourceOptions = {}
+): IRResource {
+	const storage: WpOptionStorageConfig = {
+		mode: 'wp-option',
+		option: 'demo_option',
+		...options.storage,
+	};
+
+	const defaultRoutes: IRRoute[] = [
+		{
+			method: 'GET',
+			path: '/kernel/v1/demo-option',
+			policy: undefined,
+			hash: 'wp-option-get',
+			transport: 'local',
+		},
+		{
+			method: 'PUT',
+			path: '/kernel/v1/demo-option',
+			policy: undefined,
+			hash: 'wp-option-update',
+			transport: 'local',
+		},
+	];
+
+	return {
+		name: options.name ?? 'demoOption',
+		schemaKey: options.schemaKey ?? 'demoOption',
+		schemaProvenance: 'manual',
+		routes: options.routes ?? defaultRoutes,
+		cacheKeys:
+			options.cacheKeys ??
+			({
+				list: { segments: ['demoOption', 'list'], source: 'default' },
+				get: { segments: ['demoOption', 'get'], source: 'default' },
+				update: {
+					segments: ['demoOption', 'update'],
+					source: 'default',
+				},
+				remove: {
+					segments: ['demoOption', 'remove'],
+					source: 'default',
+				},
+			} satisfies IRResource['cacheKeys']),
+		identity: undefined,
+		storage,
+		queryParams: undefined,
+		ui: undefined,
+		hash: options.hash ?? 'wp-option-resource',
+		warnings: [],
+	} satisfies IRResource;
+}
+
 export interface MakePhpIrFixtureOptions {
 	readonly resources?: IRResource[];
 }
@@ -170,6 +237,7 @@ export function makePhpIrFixture(options: MakePhpIrFixtureOptions = {}): IRv1 {
 	const resources = options.resources ?? [
 		makeWpPostResource(),
 		makeWpTaxonomyResource(),
+		makeWpOptionResource(),
 	];
 
 	return {
