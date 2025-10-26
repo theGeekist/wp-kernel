@@ -1,0 +1,12 @@
+{
+	"name": "wpkernel/php-json-ast",
+	"description": "Composer dependencies for the PHP JSON AST helpers.",
+	"type": "project",
+	"require": {
+		"nikic/php-parser": "^5.1"
+	},
+	"config": {
+		"preferred-install": "dist",
+		"sort-packages": true
+	}
+}

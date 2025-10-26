@@ -17,10 +17,21 @@ export type {
 } from '@wpkernel/core/pipeline';
 export type PipelinePhase = 'init' | 'generate' | 'apply' | `custom:${string}`;
 
+export interface WorkspaceWriteOptions {
+	readonly mode?: number;
+	readonly ensureDir?: boolean;
+}
+
 export interface Workspace {
 	readonly root: string;
 	cwd: () => string;
 	resolve: (...parts: string[]) => string;
+	write: (
+		file: string,
+		contents: Buffer | string,
+		options?: WorkspaceWriteOptions
+	) => Promise<void>;
+	exists: (target: string) => Promise<boolean>;
 }
 
 export interface PipelineContext {
@@ -49,7 +60,7 @@ export type BuilderHelper<
 	TContext extends PipelineContext = PipelineContext,
 	TInput extends BuilderInput = BuilderInput,
 	TOutput extends BuilderOutput = BuilderOutput,
-> = Helper<TContext, TInput, TOutput>;
+> = Helper<TContext, TInput, TOutput, TContext['reporter'], 'builder'>;
 type BuilderApplyOptions = Parameters<BuilderHelper['apply']>[0];
 type BuilderNext = Parameters<BuilderHelper['apply']>[1];
 import {
@@ -140,7 +151,13 @@ export function createPhpProgramBuilder<
 		build,
 	} = options;
 
-	return createHelper<TContext, TInput, TOutput>({
+	return createHelper<
+		TContext,
+		TInput,
+		TOutput,
+		TContext['reporter'],
+		'builder'
+	>({
 		key,
 		kind: 'builder',
 		apply: async (
