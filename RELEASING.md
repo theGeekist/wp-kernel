@@ -131,7 +131,7 @@ Every Sprint PR must link to:
 
 ### Standard Sprint (minor)
 
-Update CHANGELOG.md with sprint changes, bump versions from `0.4.x` → `0.5.0`
+Update CHANGELOG.md with sprint changes, bump versions from `0.5.x` → `0.6.0`
 
 ### Alignment Sprint (patch)
 
@@ -153,9 +153,9 @@ Label PR with `no-release`:
 
 ## 6️⃣ Beta/Pre-release Workflow
 
-For Beta testing phases (e.g., Sprint 5 → 0.5.0-beta.1):
+For Beta testing phases (e.g., Sprint 5 → 0.6.0-beta.1):
 
-1. Update versions to beta (e.g., `0.5.0-beta.1`)
+1. Update versions to beta (e.g., `0.6.0-beta.1`)
 2. Build and publish with `--tag beta`:
     ```bash
     pnpm build
@@ -164,8 +164,8 @@ For Beta testing phases (e.g., Sprint 5 → 0.5.0-beta.1):
     npm publish --workspace packages/cli --tag beta
     npm publish --workspace packages/e2e-utils --tag beta
     ```
-3. Iterate with additional beta versions (0.5.0-beta.2, etc.)
-4. When ready for stable, update to `0.5.0` and publish normally
+3. Iterate with additional beta versions (0.6.0-beta.2, etc.)
+4. When ready for stable, update to `0.6.0` and publish normally
 
 **Install beta versions:**
 
