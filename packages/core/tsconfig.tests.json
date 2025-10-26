@@ -20,5 +20,6 @@
 		"dist-tests",
 		"**/dist",
 		"**/*.test-support.d.ts"
-	]
+	],
+	"references": [{ "path": "../cli/tsconfig.json" }]
 }

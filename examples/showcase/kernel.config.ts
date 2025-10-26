@@ -356,7 +356,7 @@ type ShowcaseKernelConfigShape = {
 	resources: ShowcaseResources;
 };
 
-// For CLI config guidance see https://github.com/theGeekist/wp-kernel/blob/main/packages/cli/mvp-cli-spec.md#6-blocks-of-authoring-safety
+// For CLI config guidance see https://github.com/theGeekist/wp-kernel/blob/main/packages/cli/docs/cli-migration-phases.md#authoring-safety-lint-rules
 export const kernelConfig = {
 	version: 1,
 	namespace: 'wp-kernel-showcase',

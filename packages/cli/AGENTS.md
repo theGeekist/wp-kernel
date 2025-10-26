@@ -20,10 +20,19 @@ Reuse the CLI transcript helpers from `@wpkernel/e2e-utils` when writing integra
 
 Respect package boundaries: consume kernel APIs through public exports, never deep imports. When adding commands that touch documentation or specs, coordinate the updates so generated output references the latest guidance. Try to keep code and test files <=500 SLOC for ease of debugging and maintanence
 
-Refer to `MVP-PHASES.md` in this package for the current roadmap, DoD, and testing expectations before extending the CLI.
-When you close out any phase from `docs/next-php-ast-parity-phases.md`, update the corresponding completion summary in that document within the same change and explicitly reaffirm that no legacy string-based PHP generation was introduced while delivering the phase.
+Before starting work, review `docs/mvp-plan.md` and `docs/cli-migration-phases.md` for the current roadmap, success criteria, and task definitions.
+When you close out any task from `docs/php-ast-migration-tasks.md` or `docs/pipeline-integration-tasks.md`, update the relevant completion notes and explicitly reaffirm that no string-based PHP generation was introduced while delivering the change.
 
 Always import CLI exit codes and namespace constants from `@wpkernel/core/contracts` to ensure parity with the framework.
+
+- Never add or wrap string-based generation in the CLI-emit AST (`PhpProgram`) or TypeScript output only.
+
+### Versioning
+
+- CLI tasks on the MVP board ship against the shared **v0.4.x** pre-1.0 line; plan your change sets so they trigger either a patch or minor bump for every package when merged.
+- Update the CLI and root changelogs at the same time and link to the release checklist in `RELEASING.md` so the unified version stays in sync.
+- Claim a version slot in `docs/mvp-plan.md` before you start and mark it complete (with PR link) once merged so parallel agents never collide on the same patch bump.
+- Delay the actual version/changelog edits until your PR is approved and rebased; land the bump in the final commit right before merge so the ledger stays accurate and rebases stay light.
 
 ### Cross-package dependencies
 

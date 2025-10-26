@@ -289,5 +289,5 @@ Tests use ESLint’s `RuleTester` with `@typescript-eslint/parser`, covering val
 
 - **Constants**: `packages/core/src/contracts/index.ts`
 - **Evaluator Utils**: `eslint-rules/utils/kernel-config-evaluator.js`
-- **CLI Spec**: [MVP CLI Spec §6 - Authoring Safety](../packages/cli/mvp-cli-spec.md#6-blocks-of-authoring-safety)
+- **CLI Spec**: [CLI Migration Phases – Authoring Safety](../packages/cli/docs/cli-migration-phases.md#authoring-safety-lint-rules)
 - **PR**: [#112 – ESLint Plugin Extensions](https://github.com/theGeekist/wp-kernel/pull/112)

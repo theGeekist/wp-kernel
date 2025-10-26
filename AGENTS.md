@@ -1,8 +1,8 @@
-# AGENTS.md - WP Kernel
+# AGENTS.md – wpk CLI
 
 ## Scope & Precedence
 
-This document provides operational guidance for coding agents (Codex, etc.) working on WP Kernel. Follow the commands and constraints below. Complete tasks only when checks are green and diffs are minimal.
+This document provides operational guidance for coding agents (Codex, etc.) working on the wpk CLI. Follow the commands and constraints below. Complete tasks only when checks are green and diffs are minimal. For task-specific context, always consult `packages/cli/docs/index.md` (Docs Index) and the [MVP Plan](packages/cli/docs/mvp-plan.md) before coding.
 
 ## Project Architecture & Invariants
 
@@ -13,6 +13,7 @@ This document provides operational guidance for coding agents (Codex, etc.) work
     - Use only **canonical registry event names**; no ad-hoc events.
     - Errors must be typed `KernelError` subclasses; never throw plain `Error`.
     - Lifecycle phases, namespaces, and CLI exit codes come from `@wpkernel/core/contracts`-never inline the kernel namespace or exit code numbers.
+    - **CLI rule:** All generation work happens in `packages/cli/src/next/**`. Do not introduce or wrap string-based printers-emit AST (`PhpProgram`) or TypeScript outputs only.
 
 ## Project Structure & Module Organisation
 
@@ -21,6 +22,7 @@ This document provides operational guidance for coding agents (Codex, etc.) work
 - Modules have clear separation of concerns and minimal cross-package dependencies.
 - Avoid deep imports across packages (e.g., no direct imports from `packages/*/src/**`).
 - Use explicit exports and imports to maintain encapsulation and module boundaries.
+- When updating CLI docs or planning work, keep `packages/cli/docs/index.md` and `packages/cli/docs/mvp-plan.md` in sync.
 
 ## Environment & Tooling
 
@@ -78,6 +80,8 @@ pnpm playground:offline:stop    # Stops server in background (zero network)
 
 ## Workflow & Policies
 
+- Before starting any task, read the linked documentation in the MVP plan and restate the scope (“Evaluate Task …”). Clarify uncertainties before writing code.
+- All CLI work must keep the AST-first pipeline intact. Do **not** wrap or call the old string-based printers (`packages/cli/src/printers/php/**`, `packages/cli/src/printers/blocks/**`).
 - Definition of Done (DoD):
     - Pass `pnpm typecheck` and `pnpm typecheck:tests`.
     - Pass `pnpm test` with no coverage regression.
@@ -93,7 +97,7 @@ pnpm playground:offline:stop    # Stops server in background (zero network)
 
 - Make small, focused commits (one concern per commit).
 - Always use the PR template (`.github/PULL_REQUEST_TEMPLATE.md`).
-- PR title format: Sprint headline (e.g., "Sprint 5: Bindings & Interactivity").
+- PR title format: task headline from the MVP plan (e.g., "Task 5: Block Builder AST implementation").
 - Link to Roadmap section and Sprint doc/spec in PR description.
 - Respond to all review feedback; avoid duplication; extract interfaces when suggested.
 
@@ -109,7 +113,7 @@ pnpm playground:offline:stop    # Stops server in background (zero network)
 
 ## Docs & Spec Coordination
 
-- Always update `/docs`, `CHANGELOG.md`, `README.md` and if needed `MIGRATION.md`.
+- Always update `/docs`, `CHANGELOG.md`, `README.md` and if needed `MIGRATION.md`. Keep `packages/cli/docs/index.md`, `packages/cli/docs/cli-migration-phases.md`, `packages/cli/docs/mvp-plan.md`, and related task docs in sync with code changes.
 - For documentation-only work, see `docs/AGENTS.md`; mention affected pages in PR descriptions to avoid drift.
 
 ## What NOT to do
@@ -122,6 +126,14 @@ pnpm playground:offline:stop    # Stops server in background (zero network)
 - Skip cache invalidation after writes.
 - Ignore TypeScript errors or coverage regressions.
 - git commit --no-verify
+
+## Versioning
+
+- Current release train: **v0.4.x (pre-1.0)**. All publishable packages share the same semantic version sourced from the root `package.json`.
+- When you complete any scoped task in `packages/cli/docs/mvp-plan.md`, plan the work so the unified version bumps by either a patch (fix-level) or minor (feature-level) increment. Do the code/tests first, then-once approvals land and you rebased-apply the version/CHANGELOG updates in a final commit before merge.
+- Document migrations and changelog entries as pre-1.0 guidance; do not reference 1.x semantics until the roadmap flips to RC.
+- If you introduce a new public surface, call out the required version bump in the PR template and confirm the release checklist in `RELEASING.md` is satisfied.
+- Respect the reserved version ledger in `packages/cli/docs/mvp-plan.md`; claim your slot before you start and update it (with PR link) once merged so parallel agents do not reuse patch numbers.
 
 ## Cross-package dependencies
 

@@ -234,12 +234,15 @@ Once we reach v1.0.0:
 
 WP Kernel is a monorepo with multiple packages. They share version numbers:
 
-| Package               | Current Version | Sync'd with |
-| --------------------- | --------------- | ----------- |
-| `@wpkernel/core`      | 0.3.0           | Monorepo    |
-| `@wpkernel/ui`        | 0.3.0           | Monorepo    |
-| `@wpkernel/cli`       | 0.3.0           | Monorepo    |
-| `@wpkernel/e2e-utils` | 0.3.0           | Monorepo    |
+| Package                  | Current Version | Sync'd with |
+| ------------------------ | --------------- | ----------- |
+| `@wpkernel/core`         | 0.4.0           | Monorepo    |
+| `@wpkernel/ui`           | 0.4.0           | Monorepo    |
+| `@wpkernel/cli`          | 0.4.0           | Monorepo    |
+| `@wpkernel/e2e-utils`    | 0.4.0           | Monorepo    |
+| `@wpkernel/php-driver`   | 0.4.0           | Monorepo    |
+| `@wpkernel/php-json-ast` | 0.4.0           | Monorepo    |
+| `@wpkernel/test-utils`   | 0.4.0           | Monorepo    |
 
 **Why synchronized versions?**
 

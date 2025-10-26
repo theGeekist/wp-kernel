@@ -1,7 +1,7 @@
 # WP Kernel - Current State (v2)
 
 **Last Updated:** 10 October 2025  
-**Version:** 0.3.0 (monorepo snapshot)  
+**Version:** 0.4.0 (monorepo snapshot)  
 **Status:** Core runtime stable; CLI Phases 0–6 complete (5C/7/7a/8 in progress)
 
 ---

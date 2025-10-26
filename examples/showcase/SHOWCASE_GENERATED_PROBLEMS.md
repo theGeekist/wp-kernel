@@ -30,4 +30,4 @@
     - Generated TS/TSX artefacts are snapshot-checked but never compiled, so missing imports in `.generated/ui/app/job/admin/JobsAdminScreen.tsx` went unnoticed.
     - Scaffolded workspace configs aren’t validated end-to-end; no test runs `wpk init` and then executes the generated `pnpm run typecheck`/`build`, so alias drift and missing dependencies slip past.
 
-This problem log feeds into the next-generation CLI architecture captured in `packages/cli/docs/next-cli.md`, which tackles the systemic issues highlighted above.
+This problem log feeds into the next-generation CLI architecture captured in `packages/cli/docs/cli-migration-phases.md`, which tackles the systemic issues highlighted above.
