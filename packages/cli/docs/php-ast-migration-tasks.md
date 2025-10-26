@@ -125,11 +125,38 @@ The goal remains: every storage mode plugs into a helper-first API, the channel 
 
 ### Phase 3 - Block printers (SSR & JS-only) ⏳
 
-> **MVP Plan reference:** Task 5 (Phase 3 patch band)
+> **MVP Plan reference:** Tasks 16-19 (Phase 3 patch band)
 
-- **Deliverables**
-    - Replace the existing block pipeline (`packages/cli/src/printers/blocks/**`) with next-gen builders that emit manifests, registrars, JS entry points, and `render.php` templates from structured data.
-    - Provide fixtures/tests that cover SSR, JS-only, and hybrid block scenarios.
+<a id="task-16"></a>
+
+#### Task 16 - Block builder implementation (0.6.1)
+
+- Port block generation into the next pipeline by replacing `packages/cli/src/printers/blocks/**` with helpers under `packages/cli/src/next/builders/blocks/**`.
+- Introduce shared `ts-morph` primitives (module/file factories, metadata helpers) that both the block builders and `createTsBuilder` can consume when emitting TypeScript entry points.
+- Keep SSR templates on the PHP channel: emit `render.php` via the existing AST helpers while routing JS-only registrars through the new `ts-morph` utilities so both surfaces share naming and import rules.
+
+<a id="task-17"></a>
+
+#### Task 17 - Block parity tests (0.6.2)
+
+- Extend the block builder unit suite to assert `ts-morph` output, SSR AST programs, and manifest metadata across SSR, JS-only, and hybrid scenarios.
+- Add integration coverage to the generate command harness so goldens capture registrar modules, editor scripts, style handles, and rendered PHP templates produced by the new helpers.
+- Wire cache and invalidation expectations into the tests where block controllers touch shared resource metadata, mirroring the transient/option precedent.
+
+<a id="task-18"></a>
+
+#### Task 18 - Block fixtures & documentation (0.6.3)
+
+- Refresh CLI fixtures, generated artefacts, and documentation (`docs/index.md`, this file, `cli-migration-phases.md`, adapter guides) to describe the new block pipeline and the shared `ts-morph` primitives.
+- Document migration guidance for plugin authors, including how SSR templates coexist with JS-only bundles and where to hook adapter extensions.
+- Ensure changelog entries in the workspace reference the new helpers and updated testing story so downstream releases capture the behaviour change.
+
+<a id="task-19"></a>
+
+#### Task 19 - Phase 3 buffer slot (0.6.4)
+
+- Reserve capacity for polish or regression fixes discovered while landing Tasks 16-18 (for example, `ts-morph` emit ordering or SSR template edge cases).
+- Close the slot with a bugfix if required, or document the validation path if no additional work is needed before cutting 0.7.0.
 
 ### Phase 4 - String-printer retirement ⏳
 

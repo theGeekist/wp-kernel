@@ -42,6 +42,15 @@ _See [Docs Index](./index.md) for navigation._
 | 0.5.4 | Task 14 - Buffer slot for transient parity | ✓ shipped | DELETE handlers now clear transient storage and emit cache invalidation events so per-entity caches stay consistent. | [Phase 2 - buffer cadence](./php-ast-migration-tasks.md#task-14--phase-2-buffer-slot)                  |
 | 0.6.0 | Task 15 - **Phase 2 minor**                | ✓ shipped | 0.6.0 cut with full release checks after closing the transient buffer slot; Phase 3 patch band now open.             | [Release process](../../RELEASING.md#3%EF%B8%8F%E2%83%A3-release-process)                              |
 
+### Phase 3 - Block Builder Parity (⬜ Planned)
+
+| Slot  | Scope                                    | Status     | Notes                                                                                                    | Detail reference                                                 |
+| ----- | ---------------------------------------- | ---------- | -------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------- |
+| 0.6.1 | Task 16 - Block builder implementation   | ⬜ planned | Replace legacy block printers with next helpers that share `ts-morph` primitives with `createTsBuilder`. | [Phase 3 - implementation](./php-ast-migration-tasks.md#task-16) |
+| 0.6.2 | Task 17 - Block parity tests             | ⬜ planned | Extend unit/integration suites to assert `ts-morph` output, SSR AST programs, and manifest metadata.     | [Phase 3 - tests](./php-ast-migration-tasks.md#task-17)          |
+| 0.6.3 | Task 18 - Block fixtures & documentation | ⬜ planned | Refresh fixtures/docs to describe the new pipeline and migration guidance for block authors.             | [Phase 3 - fixtures/docs](./php-ast-migration-tasks.md#task-18)  |
+| 0.6.4 | Task 19 - Phase 3 buffer slot            | ⬜ planned | Hold capacity for polish or regressions ahead of the 0.7.0 release.                                      | [Phase 3 - buffer](./php-ast-migration-tasks.md#task-19)         |
+
 ## Definition of "MVP"
 
 We consider the CLI ready for the MVP launch when the following are true:
