@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
 import * as phpDriver from '@wpkernel/php-driver';
+import type { DriverContext } from '@wpkernel/php-driver';
 import type {
 	PipelineContext,
 	BuilderInput,
@@ -99,11 +100,7 @@ describe('createPhpProgramWriterHelper', () => {
 
 		await installer.apply(
 			{
-				context: {
-					workspace,
-					phase: 'generate' as const,
-					reporter,
-				},
+				context: { workspace } satisfies DriverContext,
 				input: undefined as never,
 				output: undefined as never,
 				reporter,
