@@ -388,3 +388,33 @@ export function buildIfStatement(
 		attributes
 	);
 }
+
+export function buildForeach(
+	expr: PhpExpr,
+	options: {
+		valueVar: PhpExpr;
+		keyVar?: PhpExpr | null;
+		byRef?: boolean;
+		stmts?: PhpStmt[];
+	},
+	attributes?: PhpAttributes
+): PhpStmtForeach {
+	return buildNode<PhpStmtForeach>(
+		'Stmt_Foreach',
+		{
+			expr,
+			valueVar: options.valueVar,
+			keyVar: options.keyVar ?? null,
+			byRef: options.byRef ?? false,
+			stmts: options.stmts ?? [],
+		},
+		attributes
+	);
+}
+
+export function buildContinue(
+	num: PhpExpr | null = null,
+	attributes?: PhpAttributes
+): PhpStmtContinue {
+	return buildNode<PhpStmtContinue>('Stmt_Continue', { num }, attributes);
+}

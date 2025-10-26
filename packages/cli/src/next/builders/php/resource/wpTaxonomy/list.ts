@@ -4,12 +4,13 @@ import {
 	buildArray,
 	buildArrayItem,
 	buildAssign,
+	buildContinue,
 	buildExpressionStatement,
+	buildForeach,
 	buildFuncCall,
 	buildIdentifier,
 	buildMethodCall,
 	buildName,
-	buildNode,
 	buildReturn,
 	buildScalarBool,
 	buildScalarInt,
@@ -328,11 +329,9 @@ function buildExtraArgsMergeStatements(): PhpStmt[] {
 	);
 
 	statements.push(
-		buildNode<PhpStmtForeach>('Stmt_Foreach', {
-			expr: buildVariable('extra_args'),
+		buildForeach(buildVariable('extra_args'), {
 			valueVar: buildVariable('value'),
 			keyVar: buildVariable('key'),
-			byRef: false,
 			stmts: [guard, assign],
 		})
 	);
@@ -357,19 +356,15 @@ function buildResultsForeach(options: {
 		statements: [appendStatement],
 	});
 
-	return buildNode<PhpStmtForeach>('Stmt_Foreach', {
-		expr: buildVariable('results'),
+	return buildForeach(buildVariable('results'), {
 		valueVar: buildVariable('term'),
 		keyVar: null,
-		byRef: false,
 		stmts: [guard],
 	});
 }
 
 function buildContinueStatement(): PhpStmtContinue {
-	return buildNode<PhpStmtContinue>('Stmt_Continue', {
-		num: null,
-	});
+	return buildContinue();
 }
 
 function buildBlankStatement(): PhpStmt {

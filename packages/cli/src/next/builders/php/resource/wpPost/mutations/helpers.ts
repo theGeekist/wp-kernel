@@ -9,7 +9,7 @@ import {
 	buildIfStatement,
 	buildMethodCall,
 	buildName,
-	buildNode,
+	buildTernary as buildPhpTernary,
 	buildParam,
 	buildReturn,
 	buildScalarBool,
@@ -705,11 +705,7 @@ function buildTernary(
 	ifExpr: PhpExpr | null,
 	elseExpr: PhpExpr
 ): PhpExprTernary {
-	return buildNode<PhpExprTernary>('Expr_Ternary', {
-		cond: condition,
-		if: ifExpr,
-		else: elseExpr,
-	});
+	return buildPhpTernary(condition, ifExpr, elseExpr);
 }
 
 function variableExpr(name: string): PhpExpr {
