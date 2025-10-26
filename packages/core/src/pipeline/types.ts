@@ -109,6 +109,28 @@ export interface PipelineRunState<
 	readonly steps: readonly PipelineStep[];
 }
 
+export interface HelperExecutionSnapshot<
+	TKind extends HelperKind = HelperKind,
+> {
+	readonly kind: TKind;
+	readonly registered: readonly string[];
+	readonly executed: readonly string[];
+	readonly missing: readonly string[];
+}
+
+export interface FragmentFinalizationMetadata<
+	TFragmentKind extends HelperKind = HelperKind,
+> {
+	readonly fragments: HelperExecutionSnapshot<TFragmentKind>;
+}
+
+export interface PipelineExecutionMetadata<
+	TFragmentKind extends HelperKind = HelperKind,
+	TBuilderKind extends HelperKind = HelperKind,
+> extends FragmentFinalizationMetadata<TFragmentKind> {
+	readonly builders: HelperExecutionSnapshot<TBuilderKind>;
+}
+
 export interface PipelineExtensionHookOptions<TContext, TOptions, TArtifact> {
 	readonly context: TContext;
 	readonly options: TOptions;
@@ -210,6 +232,7 @@ export interface CreatePipelineOptions<
 		readonly options: TRunOptions;
 		readonly context: TContext;
 		readonly buildOptions: TBuildOptions;
+		readonly helpers: FragmentFinalizationMetadata<TFragmentKind>;
 	}) => TArtifact;
 	readonly createBuilderArgs: (options: {
 		readonly helper: TBuilderHelper;
@@ -230,6 +253,10 @@ export interface CreatePipelineOptions<
 		readonly context: TContext;
 		readonly buildOptions: TBuildOptions;
 		readonly options: TRunOptions;
+		readonly helpers: PipelineExecutionMetadata<
+			TFragmentKind,
+			TBuilderKind
+		>;
 	}) => TRunResult;
 	readonly createExtensionHookOptions?: (options: {
 		readonly context: TContext;

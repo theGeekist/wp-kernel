@@ -21,4 +21,7 @@ export type {
 	PipelineStep,
 	CreatePipelineOptions,
 	ConflictDiagnostic,
+	HelperExecutionSnapshot,
+	FragmentFinalizationMetadata,
+	PipelineExecutionMetadata,
 } from './types';
