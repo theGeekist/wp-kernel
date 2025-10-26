@@ -5,6 +5,7 @@ export {
 export {
 	buildTransientGetRouteStatements,
 	buildTransientSetRouteStatements,
+	buildTransientDeleteRouteStatements,
 	buildTransientUnsupportedRouteStatements,
 	type BuildTransientRouteBaseOptions,
 	type BuildTransientUnsupportedRouteOptions,

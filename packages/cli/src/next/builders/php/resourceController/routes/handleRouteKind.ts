@@ -23,6 +23,7 @@ import {
 import {
 	buildTransientGetRouteStatements,
 	buildTransientSetRouteStatements,
+	buildTransientDeleteRouteStatements,
 	buildTransientUnsupportedRouteStatements,
 } from '../../resource/transient';
 
@@ -116,6 +117,12 @@ function buildTransientRouteStatements(
 		case 'PUT':
 		case 'PATCH':
 			return buildTransientSetRouteStatements({
+				resource: options.resource,
+				pascalName: options.pascalName,
+				metadataHost: options.metadataHost,
+			});
+		case 'DELETE':
+			return buildTransientDeleteRouteStatements({
 				resource: options.resource,
 				pascalName: options.pascalName,
 				metadataHost: options.metadataHost,
