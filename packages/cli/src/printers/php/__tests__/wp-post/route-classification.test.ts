@@ -7,7 +7,7 @@ import {
 	createRoutes,
 } from '../../test-utils/wp-post';
 
-describe('createWpPostHandlers – route classification', () => {
+describe('createWpPostHandlers - route classification', () => {
 	it('derives canonical base paths when routes use the root path', () => {
 		const builder = new PhpFileBuilder('Demo\\Namespace\\Rest', {
 			kind: 'resource-controller',

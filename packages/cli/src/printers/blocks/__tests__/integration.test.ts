@@ -23,7 +23,7 @@ async function withTempDir<T>(
 	}
 }
 
-describe('emitBlockArtifacts – integration', () => {
+describe('emitBlockArtifacts - integration', () => {
 	it('writes JS and SSR block outputs together', async () => {
 		await withTempDir(async (tempDir) => {
 			const blocksRoot = path.join(tempDir, 'src', 'blocks');

@@ -7,7 +7,7 @@ import {
 	createRoutes,
 } from '../../test-utils/wp-post';
 
-describe('createWpPostHandlers – stub handlers', () => {
+describe('createWpPostHandlers - stub handlers', () => {
 	it('generates stub handlers for unsupported route kinds', () => {
 		const builder = new PhpFileBuilder('Demo\\Namespace\\Rest', {
 			kind: 'resource-controller',

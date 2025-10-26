@@ -1,6 +1,6 @@
 # Events
 
-> **Status**: ✓ **Fully Implemented** – JavaScript event system now flows through
+> **Status**: ✓ **Fully Implemented** - JavaScript event system now flows through
 > `KernelEventBus` with a WordPress hooks bridge.
 >
 > **PHP Bridge**: 🚧 Planned for a future release (legacy plugin integrations).

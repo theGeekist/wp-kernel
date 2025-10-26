@@ -9,7 +9,7 @@ import {
 	createBaseConfig,
 } from '../test-helpers';
 
-describe('buildIr – core behaviours', () => {
+describe('buildIr - core behaviours', () => {
 	it('constructs a deterministic IR for manual schemas', async () => {
 		const schemaPath = path.join(FIXTURE_ROOT, 'schemas/todo.schema.json');
 		const config = createBaseConfig();

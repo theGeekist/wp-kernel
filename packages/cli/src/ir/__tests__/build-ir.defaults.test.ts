@@ -6,7 +6,7 @@ import {
 	createBaseConfig,
 } from '../test-helpers';
 
-describe('buildIr – defaults and inference', () => {
+describe('buildIr - defaults and inference', () => {
 	it('derives default cache keys when not provided', async () => {
 		const config = createBaseConfig();
 		config.resources = {

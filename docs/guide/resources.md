@@ -41,11 +41,11 @@ export const job = defineResource<Job, JobQuery>({
 
 The resource above gives you:
 
-- **REST client methods** – `job.fetchList(query)`, `job.fetch(id)`, `job.create(data)`, `job.update(id, data)`, and `job.remove(id)` when the corresponding routes exist.【F:packages/core/src/resource/client.ts†L41-L230】
-- **React hooks** – `job.useList(query)` and `job.useGet(id)` become available after you call `attachUIBindings(kernel)` in your UI bundle.【F:packages/ui/src/hooks/resource-hooks.ts†L1-L160】【F:packages/ui/src/runtime/attachUIBindings.ts†L1-L120】
-- **Grouped APIs** – selectors under `job.select.*`, cache helpers under `job.cache.*`, and fetch methods under `job.get.*` and `job.fetch*` for advanced orchestration.【F:packages/core/src/resource/grouped-api.ts†L1-L170】
-- **Events** – `job.events.created`, `job.events.updated`, and `job.events.removed` emit through the kernel event bus with your namespace baked in.【F:packages/core/src/resource/define.ts†L390-L430】
-- **Cache helpers** – `job.cache.key('list')`, `job.prefetchList(query)`, and `job.prefetchGet(id)` wrap the WordPress data store’s selectors and resolvers.【F:packages/core/src/resource/types.ts†L459-L620】
+- **REST client methods** - `job.fetchList(query)`, `job.fetch(id)`, `job.create(data)`, `job.update(id, data)`, and `job.remove(id)` when the corresponding routes exist.【F:packages/core/src/resource/client.ts†L41-L230】
+- **React hooks** - `job.useList(query)` and `job.useGet(id)` become available after you call `attachUIBindings(kernel)` in your UI bundle.【F:packages/ui/src/hooks/resource-hooks.ts†L1-L160】【F:packages/ui/src/runtime/attachUIBindings.ts†L1-L120】
+- **Grouped APIs** - selectors under `job.select.*`, cache helpers under `job.cache.*`, and fetch methods under `job.get.*` and `job.fetch*` for advanced orchestration.【F:packages/core/src/resource/grouped-api.ts†L1-L170】
+- **Events** - `job.events.created`, `job.events.updated`, and `job.events.removed` emit through the kernel event bus with your namespace baked in.【F:packages/core/src/resource/define.ts†L390-L430】
+- **Cache helpers** - `job.cache.key('list')`, `job.prefetchList(query)`, and `job.prefetchGet(id)` wrap the WordPress data store’s selectors and resolvers.【F:packages/core/src/resource/types.ts†L459-L620】
 
 ## Namespaces
 

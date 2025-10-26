@@ -3,7 +3,7 @@ import { createRouteHandlers } from '../routes';
 import type { IRResource, IRRoute } from '../../../ir';
 import type { PrinterContext } from '../../types';
 
-describe('createRouteHandlers – transient storage', () => {
+describe('createRouteHandlers - transient storage', () => {
 	it('generates transient get and set handlers', () => {
 		const builder = new PhpFileBuilder('Demo\\Namespace\\Rest', {
 			kind: 'resource-controller',

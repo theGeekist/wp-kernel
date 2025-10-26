@@ -1,9 +1,9 @@
-# DataViews Integration – Specification
+# DataViews Integration - Specification
 
 **Version:** 0.1  
 **Status:** Proposed  
 **Date:** 2025-03-17  
-**Sprint:** Sprint 6 – DataViews & Admin UX
+**Sprint:** Sprint 6 - DataViews & Admin UX
 
 **Phased delivery:** See [`packages/ui/PHASES.dataviews.md`](packages/ui/PHASES.dataviews.md) for the implementation breakdown.  
 **Core docs:** Snapshot of WordPress developer guide lives at [`packages/ui/wp-dataviews.md`](packages/ui/wp-dataviews.md).  

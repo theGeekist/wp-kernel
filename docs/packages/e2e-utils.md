@@ -6,5 +6,5 @@ For usage guidance, start with [E2E testing](/contributing/e2e-testing).
 
 ## Testing helpers
 
-- `@wpkernel/test-utils/integration` – Shared workspace lifecycle helpers (`withWorkspace`, `createWorkspaceRunner`) re-exported here via `src/test-support/isolated-workspace.test-support.ts`.
-- `src/test-support/cli-runner.test-support.ts` – `runNodeSnippet()` for capturing CLI transcripts inside tests.
+- `@wpkernel/test-utils/integration` - Shared workspace lifecycle helpers (`withWorkspace`, `createWorkspaceRunner`) re-exported here via `src/test-support/isolated-workspace.test-support.ts`.
+- `src/test-support/cli-runner.test-support.ts` - `runNodeSnippet()` for capturing CLI transcripts inside tests.

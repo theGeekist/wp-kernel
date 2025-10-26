@@ -24,7 +24,7 @@ beforeEach(() => {
 	jest.clearAllMocks();
 });
 
-describe('createTsBuilder – orchestration', () => {
+describe('createTsBuilder - orchestration', () => {
 	it('skips generation when no resources expose DataViews metadata', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
 			const configSource = buildKernelConfigSource({ dataviews: null });

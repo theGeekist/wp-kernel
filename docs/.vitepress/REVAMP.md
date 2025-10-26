@@ -226,7 +226,7 @@ export default defineConfig({
 - Embed where it matters:
     - `/` landing (90 sec end-to-end)
     - `/getting-started/quick-start` (30 sec)
-    - `/guide/blocks` (30–45 sec on SSR vs JS-only)
+    - `/guide/blocks` (30-45 sec on SSR vs JS-only)
     - `/guide/dataviews` (30 sec configuring a table)
 
 - Keep them **short** and contextual. A wall of videos kills scanning.
@@ -242,9 +242,9 @@ export default defineConfig({
 
 **Three pillars**
 
-- **Generate, don’t glue** – `wpk generate` produces PHP/TS/manifest files from a single `kernel.config.ts`.
-- **Interop by default** – kernel plugins share the same runtime graph; resources and actions “just work” across plugins.
-- **Modern WP, batteries included** – Script Modules, SSR blocks via `render.php`, DataViews integration, policy keys → caps.
+- **Generate, don’t glue** - `wpk generate` produces PHP/TS/manifest files from a single `kernel.config.ts`.
+- **Interop by default** - kernel plugins share the same runtime graph; resources and actions “just work” across plugins.
+- **Modern WP, batteries included** - Script Modules, SSR blocks via `render.php`, DataViews integration, policy keys → caps.
 
 **Code card**
 
@@ -312,7 +312,7 @@ Each with tiny examples and a flow diagram: _init → edit config → generate �
 ## 10) Checklist
 
 - Move typedoc output to `docs/api/*`.
-- Create `/examples/index.md` + 2–3 example pages.
+- Create `/examples/index.md` + 2-3 example pages.
 - Draft landing page + quick start + kernel config.
 - Create `reference/decision-matrix.md` and `reference/cli-commands.md`.
 - Reorganize Guides (blocks, dataviews, resources merge).

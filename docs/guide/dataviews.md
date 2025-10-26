@@ -2,7 +2,7 @@
 
 Modern admin tables in WP Kernel build on the upstream `@wordpress/dataviews` component. This guide shows how to configure a resource-driven DataView that honours kernel policies, emits events, persists preferences, and plugs into generators, tests, and accessibility follow-ups.
 
-> 📖 Background: read the [DataViews Integration – Specification](https://github.com/theGeekist/wp-kernel/blob/main/packages/ui/DataViews%20Integration%20-%20Specification.md) for architecture decisions and the [UI package reference](../packages/ui.md) for API summaries.
+> 📖 Background: read the [DataViews Integration - Specification](https://github.com/theGeekist/wp-kernel/blob/main/packages/ui/DataViews%20Integration%20-%20Specification.md) for architecture decisions and the [UI package reference](../packages/ui.md) for API summaries.
 
 ## Prerequisites
 
@@ -217,9 +217,9 @@ Helpers rely on the DOM attributes emitted by `ResourceDataView`. Keep those sel
 
 ## Migration guidance
 
-- **Snapshot reference** – `packages/ui/vendor/dataviews-snapshot/` contains a checked-in copy of the Gutenberg sources for offline inspection. Refresh it with `pnpm --filter @wpkernel/ui update:dataviews-snapshot --source <path>`.
-- **Compat provider** – For WordPress versions prior to 6.7 wrap your screens with the compatibility helpers in `packages/ui/src/compat/dataviews.ts` to fall back to legacy tables.
-- **Generated code** – CLI fixtures emit function bodies verbatim. Review generated files before committing to keep long-term maintenance manageable.
+- **Snapshot reference** - `packages/ui/vendor/dataviews-snapshot/` contains a checked-in copy of the Gutenberg sources for offline inspection. Refresh it with `pnpm --filter @wpkernel/ui update:dataviews-snapshot --source <path>`.
+- **Compat provider** - For WordPress versions prior to 6.7 wrap your screens with the compatibility helpers in `packages/ui/src/compat/dataviews.ts` to fall back to legacy tables.
+- **Generated code** - CLI fixtures emit function bodies verbatim. Review generated files before committing to keep long-term maintenance manageable.
 
 ## Accessibility follow-ups
 

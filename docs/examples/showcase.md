@@ -25,9 +25,9 @@ After `dev` starts, visit **Kernel → Showcase** in your WordPress admin. The J
 
 ## What to explore
 
-1. `kernel.config.ts` – the single source of truth, including cache keys and DataViews metadata.
-2. `src/resources/job.ts` – the runtime resource definition consumed by the UI.
-3. `src/index.ts` – bootstraps the kernel and attaches UI bindings.
-4. `inc/` – generated PHP controllers after `wpk apply`.
+1. `kernel.config.ts` - the single source of truth, including cache keys and DataViews metadata.
+2. `src/resources/job.ts` - the runtime resource definition consumed by the UI.
+3. `src/index.ts` - bootstraps the kernel and attaches UI bindings.
+4. `inc/` - generated PHP controllers after `wpk apply`.
 
 Use this example as a reference implementation when you structure your own plugin. It shows how the CLI output, React runtime, and PHP bridge stay aligned through the config.

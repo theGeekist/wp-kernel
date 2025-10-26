@@ -6,11 +6,11 @@
 
 This package exposes UI building blocks that lean on the kernel runtime instead of bespoke data plumbing. Major surfaces include:
 
-- **ResourceDataView** – render `@wordpress/dataviews` with kernel-aware controllers, policy gating, and persisted preferences.
-- **createResourceDataViewController** – translate DataViews state (search, filters, sort, pagination) into resource queries and event payloads.
-- **createDataFormController** – pair inline editors with kernel actions and automatic cache invalidation.
-- **ActionButton / useAction** – trigger kernel actions from the UI without touching transports directly.
-- **KernelUIProvider** – share the bootstrapped runtime with React components.
+- **ResourceDataView** - render `@wordpress/dataviews` with kernel-aware controllers, policy gating, and persisted preferences.
+- **createResourceDataViewController** - translate DataViews state (search, filters, sort, pagination) into resource queries and event payloads.
+- **createDataFormController** - pair inline editors with kernel actions and automatic cache invalidation.
+- **ActionButton / useAction** - trigger kernel actions from the UI without touching transports directly.
+- **KernelUIProvider** - share the bootstrapped runtime with React components.
 
 All runtime imports come from published packages (`@wordpress/dataviews`, `@wordpress/components`) while this repository mirrors their types and wiring. The snapshot under `packages/ui/vendor/` is reference-only.
 
@@ -156,7 +156,7 @@ See the [DataViews guide](../../docs/guide/dataviews.md) for a full walkthrough 
 
 ## Additional resources
 
-- [DataViews Integration – Specification](./DataViews%20Integration%20-%20Specification.md)
+- [DataViews Integration - Specification](./DataViews%20Integration%20-%20Specification.md)
 - [Phased delivery plan](./PHASES.dataviews.md)
 - [E2E helpers](../e2e-utils/README.md)
 - [Project documentation](../../docs/index.md)

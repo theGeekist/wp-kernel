@@ -182,7 +182,7 @@ export class NextApplyCommand extends Command {
 			const manifest = await readManifest(workspace);
 			if (!manifest) {
 				const message =
-					'No apply manifest produced – nothing to patch.';
+					'No apply manifest produced - nothing to patch.';
 				reporter.info(message);
 				this.summary = { applied: 0, conflicts: 0, skipped: 0 };
 				this.records = [];

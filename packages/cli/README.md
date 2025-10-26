@@ -55,8 +55,8 @@ This scaffolds a Vite-ready plugin with kernel config, TypeScript/ESLint setup, 
 
 ## Documentation
 
-- **[CLI Migration Phases](./docs/cli-migration-phases.md)** – authoritative reference for the next pipeline
-- **[Kernel docs](https://thegeekist.github.io/wp-kernel/)** – framework guides and configuration reference
+- **[CLI Migration Phases](./docs/cli-migration-phases.md)** - authoritative reference for the next pipeline
+- **[Kernel docs](https://thegeekist.github.io/wp-kernel/)** - framework guides and configuration reference
 
 ## Testing Helpers
 
