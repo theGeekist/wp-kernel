@@ -10,6 +10,10 @@ type WpOptionStorageConfig = Extract<
 	IRResource['storage'],
 	{ mode: 'wp-option' }
 >;
+type TransientStorageConfig = Extract<
+	IRResource['storage'],
+	{ mode: 'transient' }
+>;
 
 const DEFAULT_CACHE_KEYS: IRResource['cacheKeys'] = {
 	list: { segments: ['books', 'list'], source: 'default' },
@@ -229,6 +233,73 @@ export function makeWpOptionResource(
 	} satisfies IRResource;
 }
 
+export interface MakeTransientResourceOptions {
+	readonly name?: string;
+	readonly schemaKey?: string;
+	readonly routes?: IRRoute[];
+	readonly cacheKeys?: IRResource['cacheKeys'];
+	readonly storage?: Partial<TransientStorageConfig>;
+	readonly hash?: string;
+	readonly identity?: IRResource['identity'];
+}
+
+export function makeTransientResource(
+	options: MakeTransientResourceOptions = {}
+): IRResource {
+	const storage: TransientStorageConfig = {
+		mode: 'transient',
+		...options.storage,
+	};
+
+	const defaultRoutes: IRRoute[] = [
+		{
+			method: 'GET',
+			path: '/kernel/v1/job-cache',
+			policy: undefined,
+			hash: 'transient-get',
+			transport: 'local',
+		},
+		{
+			method: 'PUT',
+			path: '/kernel/v1/job-cache',
+			policy: undefined,
+			hash: 'transient-set',
+			transport: 'local',
+		},
+		{
+			method: 'DELETE',
+			path: '/kernel/v1/job-cache',
+			policy: undefined,
+			hash: 'transient-delete',
+			transport: 'local',
+		},
+	];
+
+	const cacheKeys =
+		options.cacheKeys ??
+		({
+			list: { segments: ['jobCache', 'list'], source: 'default' },
+			get: { segments: ['jobCache', 'get'], source: 'default' },
+			create: { segments: [], source: 'default' },
+			update: { segments: ['jobCache', 'update'], source: 'default' },
+			remove: { segments: ['jobCache', 'remove'], source: 'default' },
+		} satisfies IRResource['cacheKeys']);
+
+	return {
+		name: options.name ?? 'jobCache',
+		schemaKey: options.schemaKey ?? 'jobCache',
+		schemaProvenance: 'manual',
+		routes: options.routes ?? defaultRoutes,
+		cacheKeys,
+		identity: options.identity,
+		storage,
+		queryParams: undefined,
+		ui: undefined,
+		hash: options.hash ?? 'transient-resource',
+		warnings: [],
+	} satisfies IRResource;
+}
+
 export interface MakePhpIrFixtureOptions {
 	readonly resources?: IRResource[];
 }
@@ -238,6 +309,7 @@ export function makePhpIrFixture(options: MakePhpIrFixtureOptions = {}): IRv1 {
 		makeWpPostResource(),
 		makeWpTaxonomyResource(),
 		makeWpOptionResource(),
+		makeTransientResource(),
 	];
 
 	return {

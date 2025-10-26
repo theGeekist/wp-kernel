@@ -1,5 +1,15 @@
 # @wpkernel/cli
 
+## Unreleased
+
+### Added
+
+- **Transient fixtures** – The generate command golden captures transient storage metadata, TTL helper output, and cache invalidation context beside existing resources.
+
+### Documentation
+
+- **Transient parity docs** – Migration plan, AST tracker, and adapter brief now record shipped transient builders/tests and the ongoing fixture/doc refresh in Task 13.
+
 ## 0.5.0 - 2025-10-26
 
 ### Added

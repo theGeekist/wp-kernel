@@ -11,6 +11,10 @@ The CLI turns a single `kernel.config.ts` into everything a WP Kernel plugin nee
 - **Safe apply** workflows that merge generated PHP back into `inc/` and copy build artefacts for blocks
 - **Adapter extensions** that participate in the pipeline without mutating project sources directly
 
+### Storage coverage
+
+`wpk generate` now emits controllers for every storage mode used in the framework: `wp-post`, `wp-taxonomy`, `wp-option`, and transient. Transient controllers compute sanitised cache keys and normalise TTL inputs via generated helpers so cache invalidation stays consistent across options and transients.
+
 ## Quick start
 
 ```bash
