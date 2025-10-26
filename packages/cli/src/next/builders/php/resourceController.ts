@@ -48,6 +48,7 @@ import { buildNotImplementedStatements } from './resourceController/stubs';
 import { buildRouteKindStatements } from './resourceController/routes/handleRouteKind';
 import { buildWpTaxonomyHelperMethods } from './resource/wpTaxonomy';
 import { buildWpOptionHelperMethods } from './resource/wpOption';
+import { buildTransientHelperMethods } from './resource/transient';
 import { renderPhpValue } from './resource/phpValue';
 import { buildRequestParamAssignmentStatement } from './resource/request';
 import { buildReturnIfWpError } from './resource/errors';
@@ -190,23 +191,14 @@ function buildResourceController(
 
 	methods.push(...routeMethods);
 
-	if (resource.storage?.mode === 'wp-taxonomy') {
-		const taxonomyHelpers = buildWpTaxonomyHelperMethods({
-			resource,
-			pascalName,
-			identity,
-			errorCodeFactory,
-		});
-		methods.push(...taxonomyHelpers.map((method) => method.node));
-	}
-
-	if (resource.storage?.mode === 'wp-option') {
-		const optionHelpers = buildWpOptionHelperMethods({
-			resource,
-			pascalName,
-		});
-		methods.push(...optionHelpers);
-	}
+	appendStorageHelperMethods({
+		resource,
+		pascalName,
+		identity,
+		errorCodeFactory,
+		ir,
+		methods,
+	});
 
 	const classNode = buildClass(buildIdentifier(className), {
 		flags: PHP_CLASS_MODIFIER_FINAL,
@@ -222,6 +214,54 @@ function buildResourceController(
 		identity,
 		routes: routeMetadata,
 	});
+}
+
+interface AppendStorageHelperMethodsOptions {
+	readonly resource: IRResource;
+	readonly pascalName: string;
+	readonly identity: ResolvedIdentity;
+	readonly errorCodeFactory: (suffix: string) => string;
+	readonly ir: IRv1;
+	readonly methods: PhpStmtClassMethod[];
+}
+
+function appendStorageHelperMethods(
+	options: AppendStorageHelperMethodsOptions
+): void {
+	const storageMode = options.resource.storage?.mode;
+
+	if (storageMode === 'wp-taxonomy') {
+		const taxonomyHelpers = buildWpTaxonomyHelperMethods({
+			resource: options.resource,
+			pascalName: options.pascalName,
+			identity: options.identity,
+			errorCodeFactory: options.errorCodeFactory,
+		});
+		options.methods.push(...taxonomyHelpers.map((method) => method.node));
+		return;
+	}
+
+	if (storageMode === 'transient') {
+		const namespace =
+			options.ir.meta.sanitizedNamespace ??
+			options.ir.meta.namespace ??
+			'';
+		const transientHelpers = buildTransientHelperMethods({
+			resource: options.resource,
+			pascalName: options.pascalName,
+			namespace,
+		});
+		options.methods.push(...transientHelpers);
+		return;
+	}
+
+	if (storageMode === 'wp-option') {
+		const optionHelpers = buildWpOptionHelperMethods({
+			resource: options.resource,
+			pascalName: options.pascalName,
+		});
+		options.methods.push(...optionHelpers);
+	}
 }
 
 function buildGetResourceNameMethod(resource: IRResource): PhpStmtClassMethod {
