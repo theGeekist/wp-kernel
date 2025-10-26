@@ -9,7 +9,7 @@ _See [Docs Index](./index.md) for navigation._
 | Task                                                  | Reserved version | Status              | Additional checks                                                 |
 | ----------------------------------------------------- | ---------------- | ------------------- | ----------------------------------------------------------------- |
 | Task 1 – Harden Next PHP Writer Helper                | 0.4.1            | ✓ shipped (this PR) | `pnpm --filter @wpkernel/cli test -- --testPathPatterns writer`   |
-| Task 2 – Audit PHP Builder Helpers for AST Purity     | 0.4.2            | ⬜ available        | `pnpm --filter @wpkernel/cli test --testPathPattern=builders/php` |
+| Task 2 – Audit PHP Builder Helpers for AST Purity     | 0.4.2            | ✓ shipped (this PR) | `pnpm --filter @wpkernel/cli test --testPathPattern=builders/php` |
 | Task 3 – End-to-End Generate Pipeline Coverage        | 0.4.3            | ⬜ available        | `pnpm --filter @wpkernel/test-utils test`                         |
 | Task 4 – Surface Driver Configuration & Documentation | 0.4.4            | ⬜ available        | `pnpm --filter @wpkernel/php-driver test`                         |
 
@@ -32,6 +32,10 @@ Helpers under `packages/cli/src/next/builders/php/` mostly compose AST nodes via
 - Search for direct object literals (`{ kind: 'program', … }`) or `statements` imports that bypass the shared factories; update them to call `@wpkernel/php-json-ast` helpers instead.
 - Update unit tests to snapshot canonical factory output. Where fixtures relied on loose shapes, regenerate them using the updated helpers to avoid manual JSON editing.
 - Verify no helper reintroduces string-based fallbacks (e.g., `renderPhpFile`). Remove dead imports as you go so static analysis stays clean.
+
+**Completion notes**
+
+Task 2 replaces every `buildNode('Expr_*')` usage in the PHP builders with dedicated factories from `@wpkernel/php-json-ast`, adds missing helpers for `new`, ternary, foreach, continue, and nullable types, and backfills builder tests so the canonical factories stay covered. CLI helpers now consume those exports directly, eliminating bespoke AST object literals.
 
 Task 3 – End-to-End Generate Pipeline Coverage (Complexity: Medium–High)
 The next pipeline chains the PHP helpers (`packages/cli/src/next/builders/php/builder.ts:20-63`) but today’s test coverage stops at unit-level assertions for individual helpers and the writer. There is no test that runs the full `generate` phase against a mock workspace and verifies the emitted `.php`/`.ast.json` artefacts end-to-end. Standing up that integration test means assembling representative AST payloads, wiring a fake workspace that captures writes, and snapshotting both outputs while proving the legacy string printers never run. The setup and fixture work push the effort into the mid range, yet it is still achievable in a single cloud run.

@@ -17,7 +17,7 @@ _See [Docs Index](./index.md) for navigation._
 | Slot  | Scope                                             | Status              | Notes                                                            |
 | ----- | ------------------------------------------------- | ------------------- | ---------------------------------------------------------------- |
 | 0.4.1 | Task 1 – Harden PHP writer helper                 | ✓ shipped (this PR) | Coverage + logging guardrails landed via writer helper tests.    |
-| 0.4.2 | Task 2 – Audit PHP builder helpers for AST purity | ⬜ available        | Verify all helpers use canonical factories + add tests.          |
+| 0.4.2 | Task 2 – Audit PHP builder helpers for AST purity | ✓ shipped (this PR) | Verify all helpers use canonical factories + add tests.          |
 | 0.4.3 | Task 3 – End-to-end generate coverage             | ⬜ available        | Use next workspace fixtures only.                                |
 | 0.4.4 | Task 4 – Driver configuration & documentation     | ⬜ available        | Update docs + exports alongside code.                            |
 | 0.4.5 | Phase 1 (wp-option parity) – AST builders land    | ⬜ available        | Implement controllers/helpers.                                   |

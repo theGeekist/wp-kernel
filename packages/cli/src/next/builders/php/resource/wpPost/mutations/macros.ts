@@ -8,7 +8,7 @@ import {
 	buildIfStatement,
 	buildMethodCall,
 	buildName,
-	buildNode,
+	buildNew,
 	buildReturn,
 	buildScalarInt,
 	buildScalarString,
@@ -16,7 +16,6 @@ import {
 	buildVariable,
 	buildNull,
 	type PhpExpr,
-	type PhpExprNew,
 	type PhpStmt,
 } from '@wpkernel/php-json-ast';
 import {
@@ -233,21 +232,18 @@ export function buildCachePrimingStatements(
 		)
 	);
 
-	const failureExpr = buildNode<PhpExprNew>('Expr_New', {
-		class: buildName(['WP_Error']),
-		args: [
-			buildArg(buildScalarString(options.errorCode)),
-			buildArg(buildScalarString(options.failureMessage)),
-			buildArg(
-				buildArrayLiteral([
-					{
-						key: 'status',
-						value: buildScalarInt(500),
-					},
-				])
-			),
-		],
-	});
+	const failureExpr = buildNew(buildName(['WP_Error']), [
+		buildArg(buildScalarString(options.errorCode)),
+		buildArg(buildScalarString(options.failureMessage)),
+		buildArg(
+			buildArrayLiteral([
+				{
+					key: 'status',
+					value: buildScalarInt(500),
+				},
+			])
+		),
+	]);
 	const failureGuard = buildIfStatement(
 		buildBooleanNot(buildInstanceof(postVariableName, 'WP_Post')),
 		[buildReturn(failureExpr)]
