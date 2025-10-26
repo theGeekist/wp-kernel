@@ -5,6 +5,7 @@ import type {
 	BuilderHelper,
 	BuilderNext,
 } from '../../runtime/types';
+import type { PhpDriverConfigurationOptions } from '@wpkernel/php-json-ast';
 import {
 	createPhpBaseControllerHelper,
 	createPhpChannelHelper,
@@ -15,11 +16,7 @@ import {
 	createPhpResourceControllerHelper,
 } from './printers';
 
-export interface PhpDriverConfigurationOptions {
-	readonly binary?: string;
-	readonly scriptPath?: string;
-	readonly importMetaUrl?: string;
-}
+export type { PhpDriverConfigurationOptions } from '@wpkernel/php-json-ast';
 
 export interface CreatePhpBuilderOptions {
 	readonly driver?: PhpDriverConfigurationOptions;

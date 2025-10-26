@@ -14,6 +14,8 @@ export function createTestPipelineContext(): PipelineContext {
 			root: '/workspace',
 			resolve: (...parts: string[]) => path.join('/workspace', ...parts),
 			cwd: () => '/workspace',
+			write: jest.fn().mockResolvedValue(undefined),
+			exists: jest.fn().mockResolvedValue(false),
 		},
 		phase: 'generate' as const,
 		reporter: createReporterMock(),

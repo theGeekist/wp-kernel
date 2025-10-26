@@ -1,0 +1,300 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { pathToFileURL } from 'node:url';
+import * as phpDriver from '@wpkernel/php-driver';
+import type {
+	PipelineContext,
+	BuilderInput,
+	BuilderOutput,
+} from '../programBuilder';
+import { createPhpProgramWriterHelper } from '../programWriter';
+import {
+	getPhpBuilderChannel,
+	resetPhpBuilderChannel,
+} from '../builderChannel';
+import { buildStmtNop } from '../nodes';
+import { resetPhpAstChannel } from '../context';
+import { createReporterMock } from '@wpkernel/test-utils/shared/reporter';
+
+const { createPhpDriverInstaller } = phpDriver;
+
+jest.setTimeout(120_000);
+
+const PACKAGE_ROOT = path.resolve(__dirname, '..', '..');
+const OUTPUT_ROOT = path.resolve(PACKAGE_ROOT, '.test-artifacts');
+const VENDOR_DIRECTORY = path.join(PACKAGE_ROOT, 'vendor');
+
+function createBuilderInput(): BuilderInput {
+	return {
+		phase: 'generate',
+		options: {
+			config: {} as never,
+			namespace: 'demo-plugin',
+			origin: 'kernel.config.ts',
+			sourcePath: 'kernel.config.ts',
+		},
+		ir: null,
+	};
+}
+
+function createWorkspace(root: string): PipelineContext['workspace'] {
+	return {
+		root,
+		resolve: (...parts: string[]) => path.resolve(root, ...parts),
+		cwd: () => root,
+		async write(file, contents, options = {}) {
+			const target = path.isAbsolute(file)
+				? file
+				: path.resolve(root, file);
+			const directory = path.dirname(target);
+
+			if (options.ensureDir !== false) {
+				await fs.mkdir(directory, { recursive: true });
+			}
+
+			await fs.writeFile(target, contents, {
+				mode: options.mode,
+			});
+		},
+		async exists(target) {
+			const resolved = path.isAbsolute(target)
+				? target
+				: path.resolve(root, target);
+
+			try {
+				await fs.access(resolved);
+				return true;
+			} catch {
+				return false;
+			}
+		},
+	};
+}
+
+function createPipelineContext(): PipelineContext {
+	const workspace = createWorkspace(PACKAGE_ROOT);
+	return {
+		workspace,
+		phase: 'generate',
+		reporter: createReporterMock(),
+	};
+}
+
+function resetChannels(context: PipelineContext): void {
+	resetPhpBuilderChannel(context);
+	resetPhpAstChannel(context);
+}
+
+async function ensureCleanArtifacts(): Promise<void> {
+	await fs.rm(OUTPUT_ROOT, { recursive: true, force: true });
+}
+
+describe('createPhpProgramWriterHelper', () => {
+	beforeAll(async () => {
+		await ensureCleanArtifacts();
+
+		const reporter = createReporterMock();
+		const installer = createPhpDriverInstaller();
+		const workspace = createWorkspace(PACKAGE_ROOT);
+
+		await installer.apply(
+			{
+				context: {
+					workspace,
+					phase: 'generate' as const,
+					reporter,
+				},
+				input: undefined as never,
+				output: undefined as never,
+				reporter,
+			},
+			undefined
+		);
+	});
+
+	afterAll(async () => {
+		await ensureCleanArtifacts();
+		await fs.rm(VENDOR_DIRECTORY, { recursive: true, force: true });
+	});
+
+	afterEach(() => {
+		jest.restoreAllMocks();
+	});
+
+	it('writes queued programs using the PHP driver', async () => {
+		const context = createPipelineContext();
+		const input = createBuilderInput();
+		const actions: BuilderOutput['actions'] = [];
+		const output: BuilderOutput = {
+			actions,
+			queueWrite: jest.fn((action) => {
+				actions.push(action);
+			}),
+		};
+
+		resetChannels(context);
+
+		const channel = getPhpBuilderChannel(context);
+		const program = [buildStmtNop(), buildStmtNop()];
+		const filePath = path.join(OUTPUT_ROOT, 'Writer.php');
+		channel.queue({
+			file: filePath,
+			metadata: { kind: 'policy-helper' },
+			docblock: ['Doc line'],
+			uses: ['Demo\\Contracts'],
+			statements: ['class Example {};'],
+			program,
+		});
+
+		const helper = createPhpProgramWriterHelper();
+		await helper.apply(
+			{
+				context,
+				input,
+				output,
+				reporter: context.reporter,
+			},
+			undefined
+		);
+
+		const emittedPhp = await fs.readFile(filePath, 'utf8');
+		const emittedAst = await fs.readFile(`${filePath}.ast.json`, 'utf8');
+
+		expect(emittedPhp).toContain('<?php');
+		expect(JSON.parse(emittedAst)[0]).toMatchObject({
+			nodeType: 'Stmt_Nop',
+		});
+
+		expect(output.queueWrite).toHaveBeenCalledWith({
+			file: filePath,
+			contents: emittedPhp,
+		});
+		expect(output.queueWrite).toHaveBeenCalledWith({
+			file: `${filePath}.ast.json`,
+			contents: emittedAst,
+		});
+
+		expect(context.reporter.debug).toHaveBeenCalledWith(
+			'createPhpProgramWriterHelper: emitted PHP artifact.',
+			{ file: filePath }
+		);
+	});
+
+	it('threads driver configuration overrides to the pretty printer', async () => {
+		const buildSpy = jest.spyOn(phpDriver, 'buildPhpPrettyPrinter');
+
+		const context = createPipelineContext();
+		const input = createBuilderInput();
+		const actions: BuilderOutput['actions'] = [];
+		const output: BuilderOutput = {
+			actions,
+			queueWrite: jest.fn((action) => {
+				actions.push(action);
+			}),
+		};
+
+		resetChannels(context);
+
+		const channel = getPhpBuilderChannel(context);
+		const program = [buildStmtNop()];
+		const filePath = path.join(OUTPUT_ROOT, 'Override.php');
+		channel.queue({
+			file: filePath,
+			metadata: { kind: 'policy-helper' },
+			docblock: [],
+			uses: [],
+			statements: [],
+			program,
+		});
+
+		const scriptPath = path.resolve(
+			PACKAGE_ROOT,
+			'..',
+			'php-driver',
+			'php',
+			'pretty-print.php'
+		);
+		const helper = createPhpProgramWriterHelper({
+			driver: {
+				binary: 'php',
+				scriptPath,
+				importMetaUrl: pathToFileURL(scriptPath).href,
+			},
+		});
+
+		await helper.apply(
+			{
+				context,
+				input,
+				output,
+				reporter: context.reporter,
+			},
+			undefined
+		);
+
+		expect(buildSpy).toHaveBeenCalledWith({
+			workspace: context.workspace,
+			phpBinary: 'php',
+			scriptPath,
+			importMetaUrl: pathToFileURL(scriptPath).href,
+		});
+	});
+
+	it('serialises the queued program when the driver omits the AST payload', async () => {
+		const prettyPrinter = {
+			prettyPrint: jest.fn(async () => ({
+				code: '<?php\n// generated fallback\n',
+				ast: undefined,
+			})),
+		} satisfies ReturnType<typeof phpDriver.buildPhpPrettyPrinter>;
+
+		jest.spyOn(phpDriver, 'buildPhpPrettyPrinter').mockReturnValue(
+			prettyPrinter
+		);
+
+		const context = createPipelineContext();
+		const input = createBuilderInput();
+		const actions: BuilderOutput['actions'] = [];
+		const output: BuilderOutput = {
+			actions,
+			queueWrite: jest.fn((action) => {
+				actions.push(action);
+			}),
+		};
+
+		resetChannels(context);
+
+		const channel = getPhpBuilderChannel(context);
+		const program = [buildStmtNop()];
+		const filePath = path.join(OUTPUT_ROOT, 'Fallback.php');
+		channel.queue({
+			file: filePath,
+			metadata: { kind: 'policy-helper' },
+			docblock: ['Doc line'],
+			uses: ['Demo\\Contracts'],
+			statements: ['class Example {};'],
+			program,
+		});
+
+		const helper = createPhpProgramWriterHelper();
+		await helper.apply(
+			{
+				context,
+				input,
+				output,
+				reporter: context.reporter,
+			},
+			undefined
+		);
+
+		expect(prettyPrinter.prettyPrint).toHaveBeenCalledWith({
+			filePath,
+			program,
+		});
+
+		const emittedAst = await fs.readFile(`${filePath}.ast.json`, 'utf8');
+		const expectedAst = `${JSON.stringify(program, null, 2)}\n`;
+
+		expect(emittedAst).toBe(expectedAst);
+	});
+});

@@ -5,6 +5,7 @@ export * from './modifiers';
 export * from './nodes';
 export * from './printables';
 export * from './programBuilder';
+export * from './programWriter';
 export * from './templates';
 export * from './types';
 export * from './factories';
