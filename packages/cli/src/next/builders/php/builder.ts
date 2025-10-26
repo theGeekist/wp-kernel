@@ -15,10 +15,18 @@ import {
 	createPhpResourceControllerHelper,
 } from './printers';
 
-export type CreatePhpBuilderOptions = Record<string, never>;
+export interface PhpDriverConfigurationOptions {
+	readonly binary?: string;
+	readonly scriptPath?: string;
+	readonly importMetaUrl?: string;
+}
+
+export interface CreatePhpBuilderOptions {
+	readonly driver?: PhpDriverConfigurationOptions;
+}
 
 export function createPhpBuilder(
-	_options: CreatePhpBuilderOptions = {}
+	options: CreatePhpBuilderOptions = {}
 ): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.php.core',
@@ -41,7 +49,9 @@ export function createPhpBuilder(
 				createPhpPolicyHelper(),
 				createPhpPersistenceRegistryHelper(),
 				createPhpIndexFileHelper(),
-				createPhpProgramWriterHelper(),
+				createPhpProgramWriterHelper({
+					driver: options.driver,
+				}),
 			];
 
 			if (!input.ir) {
