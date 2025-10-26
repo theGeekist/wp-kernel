@@ -75,8 +75,30 @@ export interface ConflictDiagnostic<TKind extends HelperKind = HelperKind> {
 	readonly kind?: TKind;
 }
 
+export interface MissingDependencyDiagnostic<
+	TKind extends HelperKind = HelperKind,
+> {
+	readonly type: 'missing-dependency';
+	readonly key: string;
+	readonly dependency: string;
+	readonly message: string;
+	readonly kind?: TKind;
+	readonly helper?: string;
+}
+
+export interface UnusedHelperDiagnostic<TKind extends HelperKind = HelperKind> {
+	readonly type: 'unused-helper';
+	readonly key: string;
+	readonly message: string;
+	readonly kind?: TKind;
+	readonly helper?: string;
+	readonly dependsOn?: readonly string[];
+}
+
 export type PipelineDiagnostic<TKind extends HelperKind = HelperKind> =
-	ConflictDiagnostic<TKind>;
+	| ConflictDiagnostic<TKind>
+	| MissingDependencyDiagnostic<TKind>
+	| UnusedHelperDiagnostic<TKind>;
 
 export interface PipelineRunState<
 	TArtifact,
@@ -214,8 +236,17 @@ export interface CreatePipelineOptions<
 		readonly context: TContext;
 	}) => void;
 	readonly createConflictDiagnostic?: (options: {
-		readonly helper: TFragmentHelper;
-		readonly existing: TFragmentHelper;
+		readonly helper: TFragmentHelper | TBuilderHelper;
+		readonly existing: TFragmentHelper | TBuilderHelper;
+		readonly message: string;
+	}) => TDiagnostic;
+	readonly createMissingDependencyDiagnostic?: (options: {
+		readonly helper: TFragmentHelper | TBuilderHelper;
+		readonly dependency: string;
+		readonly message: string;
+	}) => TDiagnostic;
+	readonly createUnusedHelperDiagnostic?: (options: {
+		readonly helper: TFragmentHelper | TBuilderHelper;
 		readonly message: string;
 	}) => TDiagnostic;
 }
