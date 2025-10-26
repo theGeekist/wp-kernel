@@ -1,12 +1,12 @@
+import type { WorkspaceWriteOptions } from '@wpkernel/php-json-ast';
+import type { WorkspaceLike } from '@wpkernel/php-driver';
+
 export interface FileManifest {
 	readonly writes: readonly string[];
 	readonly deletes: readonly string[];
 }
 
-export interface WriteOptions {
-	readonly mode?: number;
-	readonly ensureDir?: boolean;
-}
+export type WriteOptions = WorkspaceWriteOptions;
 
 export interface WriteJsonOptions extends WriteOptions {
 	readonly pretty?: boolean;
@@ -26,8 +26,7 @@ export interface MergeOptions {
 	readonly markers?: MergeMarkers;
 }
 
-export interface Workspace {
-	readonly root: string;
+export interface Workspace extends WorkspaceLike {
 	cwd: () => string;
 	read: (file: string) => Promise<Buffer | null>;
 	readText: (file: string) => Promise<string | null>;
@@ -41,7 +40,6 @@ export interface Workspace {
 		value: T,
 		options?: WriteJsonOptions
 	) => Promise<void>;
-	exists: (target: string) => Promise<boolean>;
 	rm: (target: string, options?: RemoveOptions) => Promise<void>;
 	glob: (pattern: string | readonly string[]) => Promise<string[]>;
 	threeWayMerge: (
@@ -58,5 +56,4 @@ export interface Workspace {
 		fn: () => Promise<T>
 	) => Promise<{ result: T; manifest: FileManifest }>;
 	tmpDir: (prefix?: string) => Promise<string>;
-	resolve: (...parts: string[]) => string;
 }
