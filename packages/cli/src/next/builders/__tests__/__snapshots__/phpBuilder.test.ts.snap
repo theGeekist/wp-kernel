@@ -22,7 +22,7 @@ exports[`createPhpBuilder generates base controller artifacts from the AST chann
         "nodeType": "DeclareItem",
         "value": {
           "attributes": {},
-          "nodeType": "Scalar_LNumber",
+          "nodeType": "Scalar_Int",
           "value": 1,
         },
       },

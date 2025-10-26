@@ -48,9 +48,10 @@ describe('resource error helpers', () => {
 									value: 'status',
 								}),
 								value: expect.objectContaining({
-									nodeType: 'Scalar_LNumber',
+									nodeType: 'Scalar_Int',
 									value: 418,
 								}),
+								nodeType: 'ArrayItem',
 							}),
 						]),
 					}),

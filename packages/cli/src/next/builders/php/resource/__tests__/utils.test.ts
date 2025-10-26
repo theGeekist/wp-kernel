@@ -59,7 +59,7 @@ describe('resource utils', () => {
 			expr: {
 				nodeType: 'Expr_Assign',
 				var: { nodeType: 'Expr_Variable', name: 'result' },
-				expr: { nodeType: 'Scalar_LNumber', value: 5 },
+				expr: { nodeType: 'Scalar_Int', value: 5 },
 			},
 		});
 	});

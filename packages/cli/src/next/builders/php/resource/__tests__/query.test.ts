@@ -68,21 +68,21 @@ describe('query helpers', () => {
 		expect(items).toEqual(
 			expect.arrayContaining([
 				expect.objectContaining({
-					nodeType: 'Expr_ArrayItem',
+					nodeType: 'ArrayItem',
 					key: expect.objectContaining({
 						nodeType: 'Scalar_String',
 						value: 'post_type',
 					}),
 				}),
 				expect.objectContaining({
-					nodeType: 'Expr_ArrayItem',
+					nodeType: 'ArrayItem',
 					key: expect.objectContaining({
 						nodeType: 'Scalar_String',
 						value: 'fields',
 					}),
 				}),
 				expect.objectContaining({
-					nodeType: 'Expr_ArrayItem',
+					nodeType: 'ArrayItem',
 					key: expect.objectContaining({
 						nodeType: 'Scalar_String',
 						value: 'paged',
@@ -146,7 +146,7 @@ describe('query helpers', () => {
 			expect.arrayContaining([
 				expect.objectContaining({
 					value: expect.objectContaining({
-						nodeType: 'Scalar_LNumber',
+						nodeType: 'Scalar_Int',
 						value: 1,
 					}),
 				}),
