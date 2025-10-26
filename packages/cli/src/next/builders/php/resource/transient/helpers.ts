@@ -1,6 +1,10 @@
 import {
 	buildArg,
+	buildArray,
+	buildArrayItem,
+	buildAssign,
 	buildClassMethod,
+	buildExpressionStatement,
 	buildIdentifier,
 	buildParam,
 	buildReturn,
@@ -16,9 +20,11 @@ import type { IRResource } from '../../../../../ir/types';
 import {
 	buildBinaryOperation,
 	buildBooleanNot,
+	buildArrayDimFetch,
 	buildFunctionCall,
 	buildIfStatementNode,
 	buildScalarCast,
+	buildForeachStatement,
 	buildVariableAssignment,
 	normaliseVariableReference,
 } from '../utils';
@@ -57,12 +63,86 @@ interface BuildTransientKeyHelperOptions {
 function buildTransientKeyHelper(
 	options: BuildTransientKeyHelperOptions
 ): PhpStmtClassMethod {
+	const segmentsVar = normaliseVariableReference('segments');
+	const partsVar = normaliseVariableReference('parts');
+	const segmentVar = normaliseVariableReference('segment');
+	const normalisedVar = normaliseVariableReference('normalised');
+
+	const statements: PhpStmt[] = [];
+
+	statements.push(
+		buildVariableAssignment(
+			partsVar,
+			buildArray([buildArrayItem(buildScalarString(options.key))])
+		)
+	);
+
+	statements.push(
+		buildForeachStatement({
+			iterable: buildVariable(segmentsVar.raw),
+			value: segmentVar.raw,
+			statements: [
+				buildIfStatementNode({
+					condition: buildBinaryOperation(
+						'NotIdentical',
+						buildNull(),
+						buildVariable(segmentVar.raw)
+					),
+					statements: [
+						buildVariableAssignment(
+							normalisedVar,
+							buildFunctionCall('trim', [
+								buildArg(
+									buildScalarCast(
+										'string',
+										buildVariable(segmentVar.raw)
+									)
+								),
+							])
+						),
+						buildIfStatementNode({
+							condition: buildBooleanNot(
+								buildBinaryOperation(
+									'Identical',
+									buildScalarString(''),
+									buildVariable(normalisedVar.raw)
+								)
+							),
+							statements: [
+								buildExpressionStatement(
+									buildAssign(
+										buildArrayDimFetch(partsVar.raw, null),
+										buildVariable(normalisedVar.raw)
+									)
+								),
+							],
+						}),
+					],
+				}),
+			],
+		})
+	);
+
+	statements.push(
+		buildReturn(
+			buildFunctionCall('implode', [
+				buildArg(buildScalarString('_')),
+				buildArg(buildVariable(partsVar.raw)),
+			])
+		)
+	);
+
 	return buildClassMethod(
 		buildIdentifier(`get${options.pascalName}TransientKey`),
 		{
 			flags: PHP_METHOD_MODIFIER_PRIVATE,
+			params: [
+				buildParam(buildVariable(segmentsVar.raw), {
+					variadic: true,
+				}),
+			],
 			returnType: buildIdentifier('string'),
-			stmts: [buildReturn(buildScalarString(options.key))],
+			stmts: statements,
 		}
 	);
 }

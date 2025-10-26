@@ -10361,7 +10361,23 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
               "nodeType": "Identifier",
             },
             "nodeType": "Stmt_ClassMethod",
-            "params": [],
+            "params": [
+              {
+                "attrGroups": [],
+                "attributes": {},
+                "byRef": false,
+                "default": null,
+                "flags": 0,
+                "nodeType": "Param",
+                "type": null,
+                "var": {
+                  "attributes": {},
+                  "name": "segments",
+                  "nodeType": "Expr_Variable",
+                },
+                "variadic": true,
+              },
+            ],
             "returnType": {
               "attributes": {},
               "name": "string",
@@ -10372,8 +10388,208 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
                 "attributes": {},
                 "expr": {
                   "attributes": {},
-                  "nodeType": "Scalar_String",
-                  "value": "demo_plugin_job_cache",
+                  "expr": {
+                    "attributes": {},
+                    "items": [
+                      {
+                        "attributes": {},
+                        "byRef": false,
+                        "key": null,
+                        "nodeType": "Expr_ArrayItem",
+                        "unpack": false,
+                        "value": {
+                          "attributes": {},
+                          "nodeType": "Scalar_String",
+                          "value": "demo_plugin_job_cache",
+                        },
+                      },
+                    ],
+                    "nodeType": "Expr_Array",
+                  },
+                  "nodeType": "Expr_Assign",
+                  "var": {
+                    "attributes": {},
+                    "name": "parts",
+                    "nodeType": "Expr_Variable",
+                  },
+                },
+                "nodeType": "Stmt_Expression",
+              },
+              {
+                "attributes": {},
+                "byRef": false,
+                "expr": {
+                  "attributes": {},
+                  "name": "segments",
+                  "nodeType": "Expr_Variable",
+                },
+                "keyVar": null,
+                "nodeType": "Stmt_Foreach",
+                "stmts": [
+                  {
+                    "attributes": {},
+                    "cond": {
+                      "attributes": {},
+                      "left": {
+                        "attributes": {},
+                        "name": {
+                          "attributes": {},
+                          "nodeType": "Name",
+                          "parts": [
+                            "null",
+                          ],
+                        },
+                        "nodeType": "Expr_ConstFetch",
+                      },
+                      "nodeType": "Expr_BinaryOp_NotIdentical",
+                      "right": {
+                        "attributes": {},
+                        "name": "segment",
+                        "nodeType": "Expr_Variable",
+                      },
+                    },
+                    "else": null,
+                    "elseifs": [],
+                    "nodeType": "Stmt_If",
+                    "stmts": [
+                      {
+                        "attributes": {},
+                        "expr": {
+                          "attributes": {},
+                          "expr": {
+                            "args": [
+                              {
+                                "attributes": {},
+                                "byRef": false,
+                                "name": null,
+                                "nodeType": "Arg",
+                                "unpack": false,
+                                "value": {
+                                  "attributes": {},
+                                  "expr": {
+                                    "attributes": {},
+                                    "name": "segment",
+                                    "nodeType": "Expr_Variable",
+                                  },
+                                  "nodeType": "Expr_Cast_String",
+                                },
+                              },
+                            ],
+                            "attributes": {},
+                            "name": {
+                              "attributes": {},
+                              "nodeType": "Name",
+                              "parts": [
+                                "trim",
+                              ],
+                            },
+                            "nodeType": "Expr_FuncCall",
+                          },
+                          "nodeType": "Expr_Assign",
+                          "var": {
+                            "attributes": {},
+                            "name": "normalised",
+                            "nodeType": "Expr_Variable",
+                          },
+                        },
+                        "nodeType": "Stmt_Expression",
+                      },
+                      {
+                        "attributes": {},
+                        "cond": {
+                          "attributes": {},
+                          "expr": {
+                            "attributes": {},
+                            "left": {
+                              "attributes": {},
+                              "nodeType": "Scalar_String",
+                              "value": "",
+                            },
+                            "nodeType": "Expr_BinaryOp_Identical",
+                            "right": {
+                              "attributes": {},
+                              "name": "normalised",
+                              "nodeType": "Expr_Variable",
+                            },
+                          },
+                          "nodeType": "Expr_BooleanNot",
+                        },
+                        "else": null,
+                        "elseifs": [],
+                        "nodeType": "Stmt_If",
+                        "stmts": [
+                          {
+                            "attributes": {},
+                            "expr": {
+                              "attributes": {},
+                              "expr": {
+                                "attributes": {},
+                                "name": "normalised",
+                                "nodeType": "Expr_Variable",
+                              },
+                              "nodeType": "Expr_Assign",
+                              "var": {
+                                "attributes": {},
+                                "dim": null,
+                                "nodeType": "Expr_ArrayDimFetch",
+                                "var": {
+                                  "attributes": {},
+                                  "name": "parts",
+                                  "nodeType": "Expr_Variable",
+                                },
+                              },
+                            },
+                            "nodeType": "Stmt_Expression",
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+                "valueVar": {
+                  "attributes": {},
+                  "name": "segment",
+                  "nodeType": "Expr_Variable",
+                },
+              },
+              {
+                "attributes": {},
+                "expr": {
+                  "args": [
+                    {
+                      "attributes": {},
+                      "byRef": false,
+                      "name": null,
+                      "nodeType": "Arg",
+                      "unpack": false,
+                      "value": {
+                        "attributes": {},
+                        "nodeType": "Scalar_String",
+                        "value": "_",
+                      },
+                    },
+                    {
+                      "attributes": {},
+                      "byRef": false,
+                      "name": null,
+                      "nodeType": "Arg",
+                      "unpack": false,
+                      "value": {
+                        "attributes": {},
+                        "name": "parts",
+                        "nodeType": "Expr_Variable",
+                      },
+                    },
+                  ],
+                  "attributes": {},
+                  "name": {
+                    "attributes": {},
+                    "nodeType": "Name",
+                    "parts": [
+                      "implode",
+                    ],
+                  },
+                  "nodeType": "Expr_FuncCall",
                 },
                 "nodeType": "Stmt_Return",
               },

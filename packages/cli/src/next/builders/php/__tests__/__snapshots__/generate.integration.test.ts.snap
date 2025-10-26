@@ -446,9 +446,18 @@ final class JobCacheController extends BaseController
         
         return ['key' => $key, 'deleted' => (bool) $deleted, 'previous' => $previous];
     }
-    private function getJobCacheTransientKey(): string
+    private function getJobCacheTransientKey(...$segments): string
     {
-        return 'demo_plugin_job_cache';
+        $parts = ['demo_plugin_job_cache'];
+        foreach ($segments as $segment) {
+            if (null !== $segment) {
+                $normalised = trim((string) $segment);
+                if (!('' === $normalised)) {
+                    $parts[] = $normalised;
+                }
+            }
+        }
+        return implode('_', $parts);
     }
     private function normaliseJobCacheExpiration($value): int
     {

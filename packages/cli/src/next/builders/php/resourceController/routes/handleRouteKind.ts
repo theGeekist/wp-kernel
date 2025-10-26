@@ -26,6 +26,7 @@ import {
 	buildTransientDeleteRouteStatements,
 	buildTransientUnsupportedRouteStatements,
 } from '../../resource/transient';
+import { routeUsesIdentity } from '../routeIdentity';
 
 export interface HandleRouteKindOptions {
 	readonly resource: IRResource;
@@ -106,32 +107,33 @@ function buildWpOptionRouteStatements(
 function buildTransientRouteStatements(
 	options: HandleRouteKindOptions
 ): PhpStmt[] {
+	const usesIdentity = routeUsesIdentity({
+		route: options.route,
+		routeKind: options.routeKind,
+		identity: options.identity,
+	});
+
+	const baseOptions = {
+		resource: options.resource,
+		pascalName: options.pascalName,
+		metadataHost: options.metadataHost,
+		identity: options.identity,
+		route: options.route,
+		usesIdentity,
+	} as const;
+
 	switch (options.route.method) {
 		case 'GET':
-			return buildTransientGetRouteStatements({
-				resource: options.resource,
-				pascalName: options.pascalName,
-				metadataHost: options.metadataHost,
-			});
+			return buildTransientGetRouteStatements(baseOptions);
 		case 'POST':
 		case 'PUT':
 		case 'PATCH':
-			return buildTransientSetRouteStatements({
-				resource: options.resource,
-				pascalName: options.pascalName,
-				metadataHost: options.metadataHost,
-			});
+			return buildTransientSetRouteStatements(baseOptions);
 		case 'DELETE':
-			return buildTransientDeleteRouteStatements({
-				resource: options.resource,
-				pascalName: options.pascalName,
-				metadataHost: options.metadataHost,
-			});
+			return buildTransientDeleteRouteStatements(baseOptions);
 		default:
 			return buildTransientUnsupportedRouteStatements({
-				resource: options.resource,
-				pascalName: options.pascalName,
-				metadataHost: options.metadataHost,
+				...baseOptions,
 				errorCodeFactory: options.errorCodeFactory,
 			});
 	}
