@@ -47,6 +47,7 @@ import { routeUsesIdentity } from './resourceController/routeIdentity';
 import { buildNotImplementedStatements } from './resourceController/stubs';
 import { buildRouteKindStatements } from './resourceController/routes/handleRouteKind';
 import { buildWpTaxonomyHelperMethods } from './resource/wpTaxonomy';
+import { buildWpOptionHelperMethods } from './resource/wpOption';
 import { renderPhpValue } from './resource/phpValue';
 import { buildRequestParamAssignmentStatement } from './resource/request';
 import { buildReturnIfWpError } from './resource/errors';
@@ -199,6 +200,14 @@ function buildResourceController(
 		methods.push(...taxonomyHelpers.map((method) => method.node));
 	}
 
+	if (resource.storage?.mode === 'wp-option') {
+		const optionHelpers = buildWpOptionHelperMethods({
+			resource,
+			pascalName,
+		});
+		methods.push(...optionHelpers);
+	}
+
 	const classNode = buildClass(buildIdentifier(className), {
 		flags: PHP_CLASS_MODIFIER_FINAL,
 		extends: buildName(['BaseController']),
@@ -302,6 +311,7 @@ function buildRouteMethod(options: RouteMethodOptions): PhpStmtClassMethod {
 
 	const handledStatements = buildRouteKindStatements({
 		resource: options.resource,
+		route: options.route,
 		identity: options.identity,
 		pascalName: options.pascalName,
 		errorCodeFactory: options.errorCodeFactory,

@@ -1,7 +1,7 @@
 import type { ResourceMetadataHost, PhpStmt } from '@wpkernel/php-json-ast';
 import type { ResolvedIdentity } from '../../identity';
 import type { RouteMetadataKind } from '../metadata';
-import type { IRResource } from '../../../../../ir/types';
+import type { IRResource, IRRoute } from '../../../../../ir/types';
 import {
 	buildCreateRouteStatements,
 	buildUpdateRouteStatements,
@@ -15,9 +15,15 @@ import type {
 } from '../../resource/wpPost/mutations/routes';
 import { buildGetRouteStatements } from './get';
 import { buildListRouteStatements } from './list';
+import {
+	buildWpOptionGetRouteStatements,
+	buildWpOptionUpdateRouteStatements,
+	buildWpOptionUnsupportedRouteStatements,
+} from '../../resource/wpOption';
 
 export interface HandleRouteKindOptions {
 	readonly resource: IRResource;
+	readonly route: IRRoute;
 	readonly identity: ResolvedIdentity;
 	readonly pascalName: string;
 	readonly errorCodeFactory: (suffix: string) => string;
@@ -29,6 +35,11 @@ export interface HandleRouteKindOptions {
 export function buildRouteKindStatements(
 	options: HandleRouteKindOptions
 ): PhpStmt[] | null {
+	const storage = options.resource.storage;
+	if (storage?.mode === 'wp-option') {
+		return buildWpOptionRouteStatements(options);
+	}
+
 	switch (options.routeKind) {
 		case 'list':
 			return buildListRouteStatements({
@@ -54,6 +65,31 @@ export function buildRouteKindStatements(
 			return buildRemoveRouteStatements(buildRemoveOptions(options));
 		default:
 			return null;
+	}
+}
+
+function buildWpOptionRouteStatements(
+	options: HandleRouteKindOptions
+): PhpStmt[] {
+	switch (options.route.method) {
+		case 'GET':
+			return buildWpOptionGetRouteStatements({
+				resource: options.resource,
+				pascalName: options.pascalName,
+			});
+		case 'POST':
+		case 'PUT':
+		case 'PATCH':
+			return buildWpOptionUpdateRouteStatements({
+				resource: options.resource,
+				pascalName: options.pascalName,
+			});
+		default:
+			return buildWpOptionUnsupportedRouteStatements({
+				resource: options.resource,
+				pascalName: options.pascalName,
+				errorCodeFactory: options.errorCodeFactory,
+			});
 	}
 }
 
