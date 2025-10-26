@@ -10,12 +10,12 @@ export interface PhpScalarString extends PhpScalarBase {
 }
 
 export interface PhpScalarLNumber extends PhpScalarBase {
-	readonly nodeType: 'Scalar_LNumber';
+	readonly nodeType: 'Scalar_Int';
 	readonly value: number;
 }
 
 export interface PhpScalarDNumber extends PhpScalarBase {
-	readonly nodeType: 'Scalar_DNumber';
+	readonly nodeType: 'Scalar_Float';
 	readonly value: number;
 }
 
@@ -41,12 +41,12 @@ export function buildScalarInt(
 	value: number,
 	attributes?: PhpAttributes
 ): PhpScalarLNumber {
-	return buildNode<PhpScalarLNumber>('Scalar_LNumber', { value }, attributes);
+	return buildNode<PhpScalarLNumber>('Scalar_Int', { value }, attributes);
 }
 
 export function buildScalarFloat(
 	value: number,
 	attributes?: PhpAttributes
 ): PhpScalarDNumber {
-	return buildNode<PhpScalarDNumber>('Scalar_DNumber', { value }, attributes);
+	return buildNode<PhpScalarDNumber>('Scalar_Float', { value }, attributes);
 }

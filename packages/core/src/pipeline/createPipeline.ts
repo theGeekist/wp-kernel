@@ -12,6 +12,7 @@ import type {
 	PipelineExtensionHook,
 	PipelineExtensionHookOptions,
 	PipelineExtensionHookResult,
+	PipelineExtensionRollbackErrorMetadata,
 	PipelineRunState,
 	PipelineStep,
 } from './types';
@@ -28,18 +29,59 @@ interface DependencyGraphState<THelper> {
 	readonly entryById: Map<string, RegisteredHelper<THelper>>;
 }
 
+interface MissingDependencyIssue<THelper> {
+	readonly dependant: RegisteredHelper<THelper>;
+	readonly dependencyKey: string;
+}
+
+interface BuildDependencyGraphOptions<THelper> {
+	readonly onMissingDependency?: (
+		issue: MissingDependencyIssue<THelper>
+	) => void;
+	readonly onUnresolvedHelpers?: (options: {
+		readonly unresolved: RegisteredHelper<THelper>[];
+	}) => void;
+}
+
 interface ExtensionHookEntry<TContext, TOptions, TArtifact> {
 	readonly key: string;
 	readonly hook: PipelineExtensionHook<TContext, TOptions, TArtifact>;
 }
 
+interface RollbackErrorArgs {
+	readonly error: unknown;
+	readonly extensionKeys: readonly string[];
+	readonly hookSequence: readonly string[];
+}
+
+function createRollbackErrorMetadata(
+	error: unknown
+): PipelineExtensionRollbackErrorMetadata {
+	if (error instanceof Error) {
+		const { name, message, stack } = error;
+		const cause = (error as Error & { cause?: unknown }).cause;
+
+		return {
+			name,
+			message,
+			stack,
+			cause,
+		};
+	}
+
+	if (typeof error === 'string') {
+		return {
+			message: error,
+		};
+	}
+
+	return {};
+}
+
 async function runExtensionHooks<TContext, TOptions, TArtifact>(
 	hooks: readonly ExtensionHookEntry<TContext, TOptions, TArtifact>[],
 	options: PipelineExtensionHookOptions<TContext, TOptions, TArtifact>,
-	onRollbackError: (args: {
-		readonly error: unknown;
-		readonly extensionKeys: readonly string[];
-	}) => void
+	onRollbackError: (args: RollbackErrorArgs) => void
 ): Promise<{
 	artifact: TArtifact;
 	results: PipelineExtensionHookResult<TArtifact>[];
@@ -87,10 +129,7 @@ async function commitExtensionResults<TArtifact>(
 async function rollbackExtensionResults<TContext, TOptions, TArtifact>(
 	results: readonly PipelineExtensionHookResult<TArtifact>[],
 	hooks: readonly ExtensionHookEntry<TContext, TOptions, TArtifact>[],
-	onRollbackError: (args: {
-		readonly error: unknown;
-		readonly extensionKeys: readonly string[];
-	}) => void
+	onRollbackError: (args: RollbackErrorArgs) => void
 ): Promise<void> {
 	const hookKeys = hooks.map((entry) => entry.key);
 
@@ -105,6 +144,7 @@ async function rollbackExtensionResults<TContext, TOptions, TArtifact>(
 			onRollbackError({
 				error,
 				extensionKeys: hookKeys,
+				hookSequence: hookKeys,
 			});
 		}
 	}
@@ -151,12 +191,28 @@ function createGraphState<THelper>(
 function registerHelperDependencies<THelper extends HelperDescriptor>(
 	entries: RegisteredHelper<THelper>[],
 	graph: DependencyGraphState<THelper>
-): void {
+): MissingDependencyIssue<THelper>[] {
+	const missing: MissingDependencyIssue<THelper>[] = [];
+
 	for (const entry of entries) {
 		for (const dependencyKey of entry.helper.dependsOn) {
-			linkDependency(entries, graph, dependencyKey, entry.id);
+			const linked = linkDependency(
+				entries,
+				graph,
+				dependencyKey,
+				entry.id
+			);
+
+			if (!linked) {
+				missing.push({
+					dependant: entry,
+					dependencyKey,
+				});
+			}
 		}
 	}
+
+	return missing;
 }
 
 function linkDependency<THelper extends HelperDescriptor>(
@@ -164,10 +220,15 @@ function linkDependency<THelper extends HelperDescriptor>(
 	graph: DependencyGraphState<THelper>,
 	dependencyKey: string,
 	dependantId: string
-): void {
+): boolean {
 	const related = entries.filter(
 		({ helper }) => helper.key === dependencyKey
 	);
+
+	if (related.length === 0) {
+		return false;
+	}
+
 	for (const dependency of related) {
 		const neighbours = graph.adjacency.get(dependency.id);
 		if (!neighbours) {
@@ -178,12 +239,17 @@ function linkDependency<THelper extends HelperDescriptor>(
 		const current = graph.indegree.get(dependantId) ?? 0;
 		graph.indegree.set(dependantId, current + 1);
 	}
+
+	return true;
 }
 
 function sortByDependencies<THelper extends HelperDescriptor>(
 	entries: RegisteredHelper<THelper>[],
 	graph: DependencyGraphState<THelper>
-): RegisteredHelper<THelper>[] {
+): {
+	ordered: RegisteredHelper<THelper>[];
+	unresolved: RegisteredHelper<THelper>[];
+} {
 	const ready = entries.filter(
 		(entry) => (graph.indegree.get(entry.id) ?? 0) === 0
 	);
@@ -191,6 +257,7 @@ function sortByDependencies<THelper extends HelperDescriptor>(
 
 	const ordered: RegisteredHelper<THelper>[] = [];
 	const indegree = new Map(graph.indegree);
+	const visited = new Set<string>();
 
 	while (ready.length > 0) {
 		const current = ready.shift();
@@ -199,6 +266,7 @@ function sortByDependencies<THelper extends HelperDescriptor>(
 		}
 
 		ordered.push(current);
+		visited.add(current.id);
 
 		const neighbours = graph.adjacency.get(current.id);
 		if (!neighbours) {
@@ -222,22 +290,47 @@ function sortByDependencies<THelper extends HelperDescriptor>(
 		}
 	}
 
-	return ordered;
+	const unresolved = entries.filter((entry) => !visited.has(entry.id));
+
+	return { ordered, unresolved };
 }
 
 function buildDependencyGraph<THelper extends HelperDescriptor>(
-	entries: RegisteredHelper<THelper>[]
+	entries: RegisteredHelper<THelper>[],
+	options?: BuildDependencyGraphOptions<THelper>
 ): {
 	order: RegisteredHelper<THelper>[];
 	adjacency: Map<string, Set<string>>;
 } {
 	const graph = createGraphState(entries);
-	registerHelperDependencies(entries, graph);
-	const ordered = sortByDependencies(entries, graph);
+	const missing = registerHelperDependencies(entries, graph);
 
-	if (ordered.length !== entries.length) {
+	if (missing.length > 0) {
+		for (const issue of missing) {
+			options?.onMissingDependency?.(issue);
+		}
+
+		const [firstIssue] = missing;
+		if (firstIssue) {
+			const dependantKey = firstIssue.dependant.helper.key;
+			throw new KernelError('ValidationError', {
+				message: `Helper "${dependantKey}" depends on unknown helper "${firstIssue.dependencyKey}".`,
+			});
+		}
+
 		throw new KernelError('ValidationError', {
-			message: 'Detected a cycle while ordering pipeline helpers.',
+			message: 'Detected unresolved helper dependencies.',
+		});
+	}
+
+	const { ordered, unresolved } = sortByDependencies(entries, graph);
+
+	if (unresolved.length > 0) {
+		options?.onUnresolvedHelpers?.({ unresolved });
+		const unresolvedKeys = unresolved.map((entry) => entry.helper.key);
+
+		throw new KernelError('ValidationError', {
+			message: `Detected unresolved pipeline helpers: ${unresolvedKeys.join(', ')}.`,
 		});
 	}
 
@@ -261,7 +354,7 @@ async function executeHelpers<
 		next: () => Promise<void>
 	) => Promise<void>,
 	recordStep: (entry: RegisteredHelper<THelper>) => void
-): Promise<void> {
+): Promise<Set<string>> {
 	const visited = new Set<string>();
 
 	async function runAt(index: number): Promise<void> {
@@ -300,6 +393,8 @@ async function executeHelpers<
 	}
 
 	await runAt(0);
+
+	return visited;
 }
 
 export function createPipeline<
@@ -391,6 +486,120 @@ export function createPipeline<
 		TArtifact
 	>[] = [];
 
+	const fragmentKindValue = fragmentKind as HelperKind;
+	const builderKindValue = builderKind as HelperKind;
+
+	function describeHelper(
+		kind: HelperKind,
+		helper: HelperDescriptor
+	): string {
+		if (kind === fragmentKindValue) {
+			return `Fragment helper "${helper.key}"`;
+		}
+
+		if (kind === builderKindValue) {
+			return `Builder helper "${helper.key}"`;
+		}
+
+		return `Helper "${helper.key}"`;
+	}
+
+	function pushConflictDiagnosticFor(
+		helper: HelperDescriptor,
+		existing: HelperDescriptor,
+		kind: HelperKind,
+		message: string
+	): void {
+		const diagnostic =
+			options.createConflictDiagnostic?.({
+				helper: helper as unknown as TFragmentHelper | TBuilderHelper,
+				existing: existing as unknown as
+					| TFragmentHelper
+					| TBuilderHelper,
+				message,
+			}) ??
+			({
+				type: 'conflict',
+				key: helper.key,
+				mode: helper.mode,
+				helpers: [
+					existing.origin ?? existing.key,
+					helper.origin ?? helper.key,
+				],
+				message,
+				kind,
+			} as unknown as TDiagnostic);
+
+		diagnostics.push(diagnostic);
+	}
+
+	function pushMissingDependencyDiagnosticFor(
+		helper: HelperDescriptor,
+		dependency: string,
+		kind: HelperKind
+	): void {
+		const message = `${describeHelper(kind, helper)} depends on unknown helper "${dependency}".`;
+		const diagnostic =
+			options.createMissingDependencyDiagnostic?.({
+				helper: helper as unknown as TFragmentHelper | TBuilderHelper,
+				dependency,
+				message,
+			}) ??
+			({
+				type: 'missing-dependency',
+				key: helper.key,
+				dependency,
+				message,
+				kind,
+				helper: helper.origin ?? helper.key,
+			} as unknown as TDiagnostic);
+
+		diagnostics.push(diagnostic);
+	}
+
+	function pushUnusedHelperDiagnosticFor(
+		helper: HelperDescriptor,
+		kind: HelperKind,
+		reason: string,
+		dependsOn: readonly string[]
+	): void {
+		const message = `${describeHelper(kind, helper)} ${reason}.`;
+		const diagnostic =
+			options.createUnusedHelperDiagnostic?.({
+				helper: helper as unknown as TFragmentHelper | TBuilderHelper,
+				message,
+			}) ??
+			({
+				type: 'unused-helper',
+				key: helper.key,
+				message,
+				kind,
+				helper: helper.origin ?? helper.key,
+				dependsOn,
+			} as unknown as TDiagnostic);
+
+		diagnostics.push(diagnostic);
+	}
+
+	function reportUnusedHelpers<THelper extends HelperDescriptor>(
+		entries: RegisteredHelper<THelper>[],
+		visited: Set<string>,
+		kind: HelperKind
+	): void {
+		for (const entry of entries) {
+			if (visited.has(entry.id)) {
+				continue;
+			}
+
+			pushUnusedHelperDiagnosticFor(
+				entry.helper as unknown as HelperDescriptor,
+				kind,
+				'was registered but never executed',
+				entry.helper.dependsOn
+			);
+		}
+	}
+
 	function registerFragment(helper: TFragmentHelper): void {
 		if (helper.kind !== fragmentKind) {
 			throw new KernelError('ValidationError', {
@@ -407,25 +616,12 @@ export function createPipeline<
 
 			if (existingOverride) {
 				const message = `Multiple overrides registered for helper "${helper.key}".`;
-				const diagnostic =
-					options.createConflictDiagnostic?.({
-						helper,
-						existing: existingOverride.helper,
-						message,
-					}) ??
-					({
-						type: 'conflict',
-						key: helper.key,
-						mode: 'override',
-						helpers: [
-							existingOverride.helper.origin ??
-								existingOverride.helper.key,
-							helper.origin ?? helper.key,
-						],
-						message,
-						kind: fragmentKind,
-					} as unknown as TDiagnostic);
-				diagnostics.push(diagnostic);
+				pushConflictDiagnosticFor(
+					helper,
+					existingOverride.helper,
+					fragmentKindValue,
+					message
+				);
 
 				throw new KernelError('ValidationError', {
 					message,
@@ -446,6 +642,28 @@ export function createPipeline<
 			throw new KernelError('ValidationError', {
 				message: `Attempted to register helper "${helper.key}" as ${builderKind} but received kind "${helper.kind}".`,
 			});
+		}
+
+		if (helper.mode === 'override') {
+			const existingOverride = builderEntries.find(
+				(entry) =>
+					entry.helper.key === helper.key &&
+					entry.helper.mode === 'override'
+			);
+
+			if (existingOverride) {
+				const message = `Multiple overrides registered for helper "${helper.key}".`;
+				pushConflictDiagnosticFor(
+					helper,
+					existingOverride.helper,
+					builderKindValue,
+					message
+				);
+
+				throw new KernelError('ValidationError', {
+					message,
+				});
+			}
 		}
 
 		const index = builderEntries.length;
@@ -573,7 +791,33 @@ export function createPipeline<
 				buildOptions,
 			});
 
-			const fragmentOrder = buildDependencyGraph(fragmentEntries).order;
+			const fragmentOrder = buildDependencyGraph(fragmentEntries, {
+				onMissingDependency: ({ dependant, dependencyKey }) => {
+					const helper = dependant.helper as HelperDescriptor;
+					pushMissingDependencyDiagnosticFor(
+						helper,
+						dependencyKey,
+						fragmentKindValue
+					);
+					pushUnusedHelperDiagnosticFor(
+						helper,
+						fragmentKindValue,
+						`could not execute because dependency "${dependencyKey}" was not found`,
+						helper.dependsOn
+					);
+				},
+				onUnresolvedHelpers: ({ unresolved }) => {
+					for (const entry of unresolved) {
+						const helper = entry.helper as HelperDescriptor;
+						pushUnusedHelperDiagnosticFor(
+							helper,
+							fragmentKindValue,
+							'could not execute because its dependencies never resolved',
+							helper.dependsOn
+						);
+					}
+				},
+			}).order;
 			const steps: PipelineStep[] = [];
 			const pushStep = (entry: RegisteredHelper<unknown>) => {
 				const descriptor = entry.helper as HelperDescriptor;
@@ -589,7 +833,7 @@ export function createPipeline<
 				});
 			};
 
-			await executeHelpers<
+			const fragmentVisited = await executeHelpers<
 				TContext,
 				TFragmentInput,
 				TFragmentOutput,
@@ -618,13 +862,45 @@ export function createPipeline<
 				(entry) => pushStep(entry)
 			);
 
+			reportUnusedHelpers(
+				fragmentEntries,
+				fragmentVisited,
+				fragmentKindValue
+			);
+
 			let artifact = options.finalizeFragmentState({
 				draft,
 				options: runOptions,
 				context,
 				buildOptions,
 			});
-			const builderOrder = buildDependencyGraph(builderEntries).order;
+			const builderOrder = buildDependencyGraph(builderEntries, {
+				onMissingDependency: ({ dependant, dependencyKey }) => {
+					const helper = dependant.helper as HelperDescriptor;
+					pushMissingDependencyDiagnosticFor(
+						helper,
+						dependencyKey,
+						builderKindValue
+					);
+					pushUnusedHelperDiagnosticFor(
+						helper,
+						builderKindValue,
+						`could not execute because dependency "${dependencyKey}" was not found`,
+						helper.dependsOn
+					);
+				},
+				onUnresolvedHelpers: ({ unresolved }) => {
+					for (const entry of unresolved) {
+						const helper = entry.helper as HelperDescriptor;
+						pushUnusedHelperDiagnosticFor(
+							helper,
+							builderKindValue,
+							'could not execute because its dependencies never resolved',
+							helper.dependsOn
+						);
+					}
+				},
+			}).order;
 
 			const createHookOptions =
 				options.createExtensionHookOptions ??
@@ -648,13 +924,20 @@ export function createPipeline<
 				((rollbackOptions: {
 					error: unknown;
 					extensionKeys: readonly string[];
+					hookSequence: readonly string[];
+					errorMetadata: PipelineExtensionRollbackErrorMetadata;
 					context: TContext;
 				}) => {
 					rollbackOptions.context.reporter.warn(
 						'Pipeline extension rollback failed.',
 						{
-							error: (rollbackOptions.error as Error).message,
+							error: rollbackOptions.error,
+							errorName: rollbackOptions.errorMetadata.name,
+							errorMessage: rollbackOptions.errorMetadata.message,
+							errorStack: rollbackOptions.errorMetadata.stack,
+							errorCause: rollbackOptions.errorMetadata.cause,
 							extensions: rollbackOptions.extensionKeys,
+							hookKeys: rollbackOptions.hookSequence,
 						}
 					);
 				});
@@ -667,17 +950,19 @@ export function createPipeline<
 					buildOptions,
 					artifact,
 				}),
-				({ error, extensionKeys }) =>
+				({ error, extensionKeys, hookSequence }) =>
 					handleRollbackError({
 						error,
 						extensionKeys,
+						hookSequence,
+						errorMetadata: createRollbackErrorMetadata(error),
 						context,
 					})
 			);
 			artifact = extensionResult.artifact;
 
 			try {
-				await executeHelpers<
+				const builderVisited = await executeHelpers<
 					TContext,
 					TBuilderInput,
 					TBuilderOutput,
@@ -706,15 +991,24 @@ export function createPipeline<
 					(entry) => pushStep(entry)
 				);
 
+				reportUnusedHelpers(
+					builderEntries,
+					builderVisited,
+					builderKindValue
+				);
+
 				await commitExtensionResults(extensionResult.results);
 			} catch (error) {
 				await rollbackExtensionResults(
 					extensionResult.results,
 					extensionHooks,
-					({ error: rollbackError, extensionKeys }) =>
+					({ error: rollbackError, extensionKeys, hookSequence }) =>
 						handleRollbackError({
 							error: rollbackError,
 							extensionKeys,
+							hookSequence,
+							errorMetadata:
+								createRollbackErrorMetadata(rollbackError),
 							context,
 						})
 				);

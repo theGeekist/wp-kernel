@@ -32,7 +32,7 @@ describe('phpValue', () => {
 		expect(items).toEqual(
 			expect.arrayContaining([
 				expect.objectContaining({
-					nodeType: 'Expr_ArrayItem',
+					nodeType: 'ArrayItem',
 					key: expect.objectContaining({
 						nodeType: 'Scalar_String',
 						value: 'key',
