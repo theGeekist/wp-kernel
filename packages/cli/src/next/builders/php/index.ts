@@ -1,4 +1,8 @@
 export { createPhpBuilder } from './builder';
+export type {
+	CreatePhpBuilderOptions,
+	PhpDriverConfigurationOptions,
+} from './builder';
 export {
 	createPhpChannelHelper,
 	createPhpBaseControllerHelper,
@@ -10,7 +14,11 @@ export {
 	getPhpBuilderChannel,
 	resetPhpBuilderChannel,
 } from './printers';
-export type { PhpProgramAction, PhpBuilderChannel } from './printers';
+export type {
+	PhpProgramAction,
+	PhpBuilderChannel,
+	CreatePhpProgramWriterHelperOptions,
+} from './printers';
 export {
 	createPhpDriverInstaller,
 	buildPhpPrettyPrinter,

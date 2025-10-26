@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { spawn } from 'node:child_process';
 import { KernelError } from '@wpkernel/core/error';
 import type {
@@ -13,34 +13,107 @@ export interface CreatePhpPrettyPrinterOptions {
 	readonly workspace: DriverWorkspace;
 	readonly phpBinary?: string;
 	readonly scriptPath?: string;
+	readonly importMetaUrl?: string;
 }
 
-function resolveDefaultScriptPath(): string {
+function resolveDefaultScriptPath(
+	options: {
+		readonly importMetaUrl?: string;
+	} = {}
+): string {
+	if (typeof options.importMetaUrl === 'string') {
+		const scriptFromImportMeta = resolveScriptPathFromImportMeta(
+			options.importMetaUrl
+		);
+		if (scriptFromImportMeta) {
+			return scriptFromImportMeta;
+		}
+	}
+
 	if (typeof __dirname === 'string') {
 		return path.resolve(__dirname, '..', 'php', 'pretty-print.php');
 	}
 
 	const moduleUrl = getImportMetaUrl();
 	if (moduleUrl) {
-		const currentDirectory = path.dirname(fileURLToPath(moduleUrl));
-		return path.resolve(currentDirectory, '..', 'php', 'pretty-print.php');
+		const scriptFromImportMeta = resolveScriptPathFromImportMeta(moduleUrl);
+		if (scriptFromImportMeta) {
+			return scriptFromImportMeta;
+		}
 	}
 
 	return path.resolve(process.cwd(), 'php', 'pretty-print.php');
 }
 
-function getImportMetaUrl(): string | null {
+function resolveScriptPathFromImportMeta(importMetaUrl: string): string | null {
 	try {
-		return new Function('return import.meta.url;')() as string;
+		const modulePath = fileURLToPath(importMetaUrl);
+		const currentDirectory = path.dirname(modulePath);
+		const initialParent = path.resolve(currentDirectory, '..');
+		const packageRoot =
+			path.basename(initialParent) === 'dist'
+				? path.resolve(initialParent, '..')
+				: initialParent;
+		return path.resolve(packageRoot, 'php', 'pretty-print.php');
 	} catch {
 		return null;
+	}
+}
+
+let cachedImportMetaUrl: string | null | undefined;
+
+function getImportMetaUrl(): string | null {
+	if (cachedImportMetaUrl !== undefined) {
+		return cachedImportMetaUrl;
+	}
+
+	cachedImportMetaUrl = resolveModuleUrlFromStack();
+	return cachedImportMetaUrl;
+}
+
+function resolveModuleUrlFromStack(): string | null {
+	const originalPrepareStackTrace = Error.prepareStackTrace;
+
+	try {
+		Error.prepareStackTrace = (_, structuredStackTrace) =>
+			structuredStackTrace;
+		const callSites = new Error().stack as unknown as
+			| ReadonlyArray<NodeJS.CallSite>
+			| undefined;
+
+		if (!Array.isArray(callSites)) {
+			return null;
+		}
+
+		for (const callSite of callSites) {
+			const fileName = callSite.getFileName?.();
+			if (typeof fileName !== 'string') {
+				continue;
+			}
+
+			if (fileName.startsWith('file:')) {
+				return fileName;
+			}
+
+			if (path.isAbsolute(fileName)) {
+				return pathToFileURL(fileName).href;
+			}
+		}
+
+		return null;
+	} catch {
+		return null;
+	} finally {
+		Error.prepareStackTrace = originalPrepareStackTrace;
 	}
 }
 
 export function buildPhpPrettyPrinter(
 	options: CreatePhpPrettyPrinterOptions
 ): PhpPrettyPrinter {
-	const scriptPath = options.scriptPath ?? resolveDefaultScriptPath();
+	const scriptPath =
+		options.scriptPath ??
+		resolveDefaultScriptPath({ importMetaUrl: options.importMetaUrl });
 	const phpBinary = options.phpBinary ?? 'php';
 	const defaultMemoryLimit = process.env.PHP_MEMORY_LIMIT ?? '512M';
 

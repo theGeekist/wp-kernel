@@ -5,5 +5,6 @@ export { createPhpPolicyHelper } from './policy';
 export { createPhpPersistenceRegistryHelper } from './persistenceRegistry';
 export { createPhpIndexFileHelper } from './indexFile';
 export { createPhpProgramWriterHelper } from './writer';
+export type { CreatePhpProgramWriterHelperOptions } from './writer';
 export { getPhpBuilderChannel, resetPhpBuilderChannel } from './channel';
 export type { PhpProgramAction, PhpBuilderChannel } from './channel';

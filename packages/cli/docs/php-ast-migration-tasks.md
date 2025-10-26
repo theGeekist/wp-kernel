@@ -104,8 +104,9 @@ The goal remains: every storage mode plugs into a helper-first API, the channel 
 ## Canonical schema & tooling
 
 - PHP node factories live in `@wpkernel/php-json-ast`; the schema mirrors `nikic/PHP-Parser` and is documented in `packages/cli/docs/php-json-schema.md`.
-- `@wpkernel/php-driver` resolves the pretty-print bridge and supports both CommonJS and ESM environments (`packages/php-driver/src/prettyPrinter.ts`).
+- `@wpkernel/php-driver` resolves the pretty-print bridge and supports both CommonJS and ESM environments via native module URL detection with integration coverage guarding the ESM fallback (`packages/php-driver/src/prettyPrinter.ts`, `packages/php-driver/src/__tests__/prettyPrinter.integration.test.ts`).
 - Tests should compose `PhpProgram` payloads using helpers in `packages/test-utils/src/next/builders/php/resources.test-support.ts`.
+- Driver overrides are threaded through `CreatePhpBuilderOptions`/`CreatePhpProgramWriterHelperOptions`, allowing pipelines to set the PHP binary, script path, or `import.meta.url` for the pretty-print bridge when the default resolution is not available, and native module URL detection covers ESM builds that cannot supply `__dirname`.
 
 ---
 
