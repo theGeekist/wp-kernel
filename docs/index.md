@@ -37,8 +37,8 @@ The kernel integrates with WordPress data stores and emits public events through
 
 ## Three ways to dive in
 
-- **Getting Started** – Install the CLI and walk the golden path from `wpk init` through `wpk start`.
-- **Guide** – Learn how resources, actions, policies, and UI bindings work together.
-- **API Reference** – Browse the generated Typedoc for `@wpkernel/cli`, `@wpkernel/core`, and `@wpkernel/ui`.
+- **Getting Started** - Install the CLI and walk the golden path from `wpk init` through `wpk start`.
+- **Guide** - Learn how resources, actions, policies, and UI bindings work together.
+- **API Reference** - Browse the generated Typedoc for `@wpkernel/cli`, `@wpkernel/core`, and `@wpkernel/ui`.
 
 When you are ready, begin with the [Quick Start](/getting-started/quick-start) or explore the [Showcase plugin](/examples/showcase) to see a full workflow in action.【F:docs/getting-started/quick-start.md†L1-L72】【F:examples/showcase/kernel.config.ts†L1-L115】

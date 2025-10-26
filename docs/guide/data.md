@@ -4,7 +4,7 @@ WP Kernel integrates with `@wordpress/data` through the `configureKernel()` boot
 
 Core primitives-resources, actions, cache helpers-continue to work without any bootstrap. Stores register themselves and actions can be invoked directly. Calling `configureKernel()` layers in observability, WordPress hooks integration, and optional Redux dispatch so the rest of the ecosystem can listen in.
 
-## `configureKernel(config)` – Unified bootstrap
+## `configureKernel(config)` - Unified bootstrap
 
 `configureKernel()` accepts a small configuration object and returns a `KernelInstance`. The instance exposes shared services such as the namespace, reporter, cache helpers, and `KernelEventBus` (`kernel.events`) so you can subscribe to lifecycle updates without touching globals.
 
@@ -22,22 +22,22 @@ kernel.emit('acme.bootstrap.ready', { timestamp: Date.now() });
 
 ### What it wires
 
-- **Registry integration** – Installs the existing `kernelEventsPlugin`, bridges action errors into `core/notices`, and forwards lifecycle events to `wp.hooks` when available.
-- **Redux middleware (optional)** – Appends the action middleware that powers `invokeAction()` envelopes. Hooks like `useAction()` rely on this layer.
-- **Reporter resolution** – Reuses a provided reporter or creates one scoped to the detected namespace. Retrieve it any time with `kernel.getReporter()`.
-- **Cache + events helpers** – Call `kernel.invalidate()` to reuse the canonical resource cache helpers and `kernel.emit()` to publish domain events.
-- **UI plumbing** – Pass `ui: { enable: true }` to opt into UI runtime integration in later phases. The flag defaults to `false` so nothing changes until you enable it.
+- **Registry integration** - Installs the existing `kernelEventsPlugin`, bridges action errors into `core/notices`, and forwards lifecycle events to `wp.hooks` when available.
+- **Redux middleware (optional)** - Appends the action middleware that powers `invokeAction()` envelopes. Hooks like `useAction()` rely on this layer.
+- **Reporter resolution** - Reuses a provided reporter or creates one scoped to the detected namespace. Retrieve it any time with `kernel.getReporter()`.
+- **Cache + events helpers** - Call `kernel.invalidate()` to reuse the canonical resource cache helpers and `kernel.emit()` to publish domain events.
+- **UI plumbing** - Pass `ui: { enable: true }` to opt into UI runtime integration in later phases. The flag defaults to `false` so nothing changes until you enable it.
 
 ### Instance helpers available today
 
 The initial instance surface focuses on read-mostly helpers:
 
-- `kernel.getNamespace()` – Returns the namespace resolved during configuration.
-- `kernel.getReporter()` – Provides access to the shared reporter.
-- `kernel.invalidate(patterns, options?)` – Delegates to the cache helpers using the configured registry.
-- `kernel.emit(eventName, payload)` – Emits custom events through WordPress hooks (and existing bridges).
-- `kernel.ui.isEnabled()` – Reports whether UI integration was requested.
-- `kernel.teardown()` – Removes middleware and listeners that were installed during configuration (useful in tests and hot reloads).
+- `kernel.getNamespace()` - Returns the namespace resolved during configuration.
+- `kernel.getReporter()` - Provides access to the shared reporter.
+- `kernel.invalidate(patterns, options?)` - Delegates to the cache helpers using the configured registry.
+- `kernel.emit(eventName, payload)` - Emits custom events through WordPress hooks (and existing bridges).
+- `kernel.ui.isEnabled()` - Reports whether UI integration was requested.
+- `kernel.teardown()` - Removes middleware and listeners that were installed during configuration (useful in tests and hot reloads).
 
 ## Core functionality without `configureKernel()`
 
@@ -54,15 +54,15 @@ You gain additional telemetry, notices, and Redux dispatch once `configureKernel
 
 ### Registry integration (recommended)
 
-1. **Consistent error handling** – Kernel errors map into WordPress notices automatically while emitting structured reporter output.
-2. **Ecosystem extensibility** – Lifecycle and domain events bridge into `wp.hooks` so PHP plugins or other JS bundles can observe them.
-3. **Centralised observability** – All events flow through the shared reporter, giving you a single telemetry pipeline.
-4. **Cross-tab coordination** – `scope: 'crossTab'` actions continue to use `BroadcastChannel` for synchronisation.
+1. **Consistent error handling** - Kernel errors map into WordPress notices automatically while emitting structured reporter output.
+2. **Ecosystem extensibility** - Lifecycle and domain events bridge into `wp.hooks` so PHP plugins or other JS bundles can observe them.
+3. **Centralised observability** - All events flow through the shared reporter, giving you a single telemetry pipeline.
+4. **Cross-tab coordination** - `scope: 'crossTab'` actions continue to use `BroadcastChannel` for synchronisation.
 
 ### Redux middleware (only when using `useAction()`)
 
-5. **Redux dispatch** – `invokeAction()` envelopes dispatch through the registry so `useAction()` hooks can provide loading and error states.
-6. **Type-safe envelopes** – Middleware unwraps the action metadata and ensures dispatch stays strongly typed.
+5. **Redux dispatch** - `invokeAction()` envelopes dispatch through the registry so `useAction()` hooks can provide loading and error states.
+6. **Type-safe envelopes** - Middleware unwraps the action metadata and ensures dispatch stays strongly typed.
 
 Actions retain their full `ActionContext` (policy enforcement, cache invalidation, reporter access, `ctx.emit()`) whether called directly or dispatched through Redux.
 
@@ -182,12 +182,12 @@ function my_plugin_handle_action_error( $payload ) {
 
 ## Edge cases & limitations
 
-- **Registry support** – No-op when `__experimentalUseMiddleware` is missing (older `@wordpress/data`).
-- **Missing hooks** – If `window.wp?.hooks` is absent, lifecycle events stay internal.
-- **Notice dependencies** – Without `core/notices`, notice forwarding is skipped but reporter logging stays active.
-- **BroadcastChannel** – Absent in SSR or older browsers; cross-tab sync degrades gracefully.
-- **Runtime configuration** – Policy engines and reporters rely on runtime wiring. Background jobs and PHP bridge integrations arrive in later phases.
-- **Middleware ordering** – Custom middleware runs after the kernel middleware. Ensure ordering aligns with your instrumentation requirements.
+- **Registry support** - No-op when `__experimentalUseMiddleware` is missing (older `@wordpress/data`).
+- **Missing hooks** - If `window.wp?.hooks` is absent, lifecycle events stay internal.
+- **Notice dependencies** - Without `core/notices`, notice forwarding is skipped but reporter logging stays active.
+- **BroadcastChannel** - Absent in SSR or older browsers; cross-tab sync degrades gracefully.
+- **Runtime configuration** - Policy engines and reporters rely on runtime wiring. Background jobs and PHP bridge integrations arrive in later phases.
+- **Middleware ordering** - Custom middleware runs after the kernel middleware. Ensure ordering aligns with your instrumentation requirements.
 
 ## Best practices
 
@@ -201,6 +201,6 @@ function my_plugin_handle_action_error( $payload ) {
 
 `configureKernel()` is the canonical bootstrap for WP Kernel. It installs the middleware stack, exposes the shared reporter and namespace, and prepares the ecosystem bridges that production plugins rely on. Configure once and let the kernel handle the wiring.
 
-## `usePolicy()` – gate UI with runtime capabilities
+## `usePolicy()` - gate UI with runtime capabilities
 
 `usePolicy` gives components access to the active policy runtime so UI can conditionally render based on capabilities.

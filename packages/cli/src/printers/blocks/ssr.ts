@@ -622,7 +622,7 @@ function createRenderStub(options: {
 
 	const title = deriveTitle(options.block, manifest);
 	const textdomain = deriveTextdomain(options.block, manifest);
-	const message = `${title} – hello from a dynamic block!`;
+	const message = `${title} - hello from a dynamic block!`;
 
 	const escapedMessage = escapeForSingleQuotedPhp(message);
 	const escapedDomain = escapeForSingleQuotedPhp(textdomain);

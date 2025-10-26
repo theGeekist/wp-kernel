@@ -45,9 +45,9 @@ Cache keys follow WordPress data store conventions: `[storeName, operation, ...p
 
 Examples:
 
-- `['job', 'list']` – unfiltered list cache key.
-- `['job', 'list', 'open']` – filtered list cache key.
-- `['job', 'get', 123]` – single item cache key.
+- `['job', 'list']` - unfiltered list cache key.
+- `['job', 'list', 'open']` - filtered list cache key.
+- `['job', 'get', 123]` - single item cache key.
 
 Use `resource.cache.key()`, `resource.cache.invalidate.*`, and `matchesCacheKey()` to work with these patterns safely.【F:packages/core/src/resource/types.ts†L459-L620】【F:packages/core/src/resource/cache.ts†L400-L760】
 

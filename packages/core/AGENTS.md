@@ -1,4 +1,4 @@
-# `@wpkernel/core` – Package Guide for Agents
+# `@wpkernel/core` - Package Guide for Agents
 
 This package is the runtime heart of WP Kernel. Changes here affect every consumer, so follow the root policies in `../../AGENTS.md` and the guidelines below.
 

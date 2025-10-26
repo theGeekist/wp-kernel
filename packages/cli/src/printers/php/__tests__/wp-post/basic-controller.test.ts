@@ -7,7 +7,7 @@ import {
 	createRoutes,
 } from '../../test-utils/wp-post';
 
-describe('createWpPostHandlers – basic controller generation', () => {
+describe('createWpPostHandlers - basic controller generation', () => {
 	it('generates CRUD methods and helpers for wp-post resources', () => {
 		const builder = new PhpFileBuilder('Demo\\Namespace\\Rest', {
 			kind: 'resource-controller',

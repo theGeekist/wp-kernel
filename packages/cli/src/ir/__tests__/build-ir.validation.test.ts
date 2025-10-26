@@ -9,7 +9,7 @@ import {
 	withTempSchema,
 } from '../test-helpers';
 
-describe('buildIr – validation', () => {
+describe('buildIr - validation', () => {
 	it('throws when duplicate routes are detected', async () => {
 		const config = createBaseConfig();
 		config.resources = {

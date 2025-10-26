@@ -10,5 +10,5 @@ Read the generated API at [/api/core/](/api/core/). The guide pages complement i
 
 ## Testing helpers
 
-- `@wpkernel/test-utils/core` – `createWordPressTestHarness()` bootstraps `window.wp` and exposes `reset`/`teardown` utilities.
-- `@wpkernel/test-utils/core` – `withActionRuntimeOverrides()` scopes `__WP_KERNEL_ACTION_RUNTIME__` changes and cleans up automatically alongside the WordPress harness helpers.
+- `@wpkernel/test-utils/core` - `createWordPressTestHarness()` bootstraps `window.wp` and exposes `reset`/`teardown` utilities.
+- `@wpkernel/test-utils/core` - `withActionRuntimeOverrides()` scopes `__WP_KERNEL_ACTION_RUNTIME__` changes and cleans up automatically alongside the WordPress harness helpers.

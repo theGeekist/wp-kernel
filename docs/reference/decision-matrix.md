@@ -4,9 +4,9 @@ This page explains what the CLI generates when you run `wpk generate` or `wpk ap
 
 ## Types printer
 
-- **Inputs** – every schema in the normalised IR.
-- **Outputs** – `.generated/types/*.d.ts` plus an index that re-exports PascalCase names.
-- **Notes** – emits a content hash comment so `wpk apply` can skip unchanged files.【F:packages/cli/src/printers/types/printer.ts†L1-L120】
+- **Inputs** - every schema in the normalised IR.
+- **Outputs** - `.generated/types/*.d.ts` plus an index that re-exports PascalCase names.
+- **Notes** - emits a content hash comment so `wpk apply` can skip unchanged files.【F:packages/cli/src/printers/types/printer.ts†L1-L120】
 
 ## PHP printer
 
@@ -29,16 +29,16 @@ The printer enforces public visibility for REST controller overrides and warns w
 
 ## Blocks printer
 
-- **JS-only blocks** – emits `.generated/blocks/auto-register.ts` that imports discovered `block.json` files and registers them automatically.【F:packages/cli/src/printers/blocks/js-only.ts†L1-L120】
-- **SSR blocks** – generates PHP registrars under `.generated/php/Blocks/**` and warns if closures cannot be serialised.【F:packages/cli/src/printers/blocks/ssr.ts†L1-L160】
+- **JS-only blocks** - emits `.generated/blocks/auto-register.ts` that imports discovered `block.json` files and registers them automatically.【F:packages/cli/src/printers/blocks/js-only.ts†L1-L120】
+- **SSR blocks** - generates PHP registrars under `.generated/php/Blocks/**` and warns if closures cannot be serialised.【F:packages/cli/src/printers/blocks/ssr.ts†L1-L160】
 
 ## UI printer (DataViews)
 
 When a resource defines `ui.admin.dataviews` the CLI emits:
 
-- `.generated/ui/app/<resource>/admin/<Component>.tsx` – wrapper around the DataViews runtime.
-- `.generated/ui/fixtures/dataviews/<resource>.ts` – serialised metadata.
-- `.generated/php/Admin/Menu_<Component>.php` – admin menu shim that enqueues the built bundle.【F:packages/cli/src/printers/ui/printer.ts†L1-L120】
+- `.generated/ui/app/<resource>/admin/<Component>.tsx` - wrapper around the DataViews runtime.
+- `.generated/ui/fixtures/dataviews/<resource>.ts` - serialised metadata.
+- `.generated/php/Admin/Menu_<Component>.php` - admin menu shim that enqueues the built bundle.【F:packages/cli/src/printers/ui/printer.ts†L1-L120】
 
 Function serialisation detects captured variables and warns when a function is not pure.
 

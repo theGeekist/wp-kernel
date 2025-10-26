@@ -53,10 +53,10 @@ function useAction<TInput, TResult>(
 
 ### Concurrency modes
 
-- **`parallel`** – every call runs immediately. `inFlight` tracks the count.
-- **`switch`** – cancel local tracking for previous calls and focus on the latest.
-- **`queue`** – run calls serially in FIFO order.
-- **`drop`** – ignore new calls while an invocation is active (return the
+- **`parallel`** - every call runs immediately. `inFlight` tracks the count.
+- **`switch`** - cancel local tracking for previous calls and focus on the latest.
+- **`queue`** - run calls serially in FIFO order.
+- **`drop`** - ignore new calls while an invocation is active (return the
   current promise).
 
 ## Example: basic form submission
@@ -162,7 +162,7 @@ available.
 
 ## References
 
-- Action definition – [`packages/core/src/actions/define.ts`](../packages/core/src/actions/define.ts)
-- Middleware/dispatch – [`packages/core/src/actions/middleware.ts`](../packages/core/src/actions/middleware.ts)
-- Action context types – [`packages/core/src/actions/types.ts`](../packages/core/src/actions/types.ts)
-- Cache helpers used by `autoInvalidate` – [`packages/core/src/resource/cache.ts`](../packages/core/src/resource/cache.ts)
+- Action definition - [`packages/core/src/actions/define.ts`](../packages/core/src/actions/define.ts)
+- Middleware/dispatch - [`packages/core/src/actions/middleware.ts`](../packages/core/src/actions/middleware.ts)
+- Action context types - [`packages/core/src/actions/types.ts`](../packages/core/src/actions/types.ts)
+- Cache helpers used by `autoInvalidate` - [`packages/core/src/resource/cache.ts`](../packages/core/src/resource/cache.ts)

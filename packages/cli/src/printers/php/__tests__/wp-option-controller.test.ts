@@ -3,7 +3,7 @@ import { createRouteHandlers } from '../routes';
 import type { IRResource, IRRoute } from '../../../ir';
 import type { PrinterContext } from '../../types';
 
-describe('createRouteHandlers – wp-option storage', () => {
+describe('createRouteHandlers - wp-option storage', () => {
 	it('creates getters and setters for option-backed resources', () => {
 		const builder = new PhpFileBuilder('Demo\\Namespace\\Rest', {
 			kind: 'resource-controller',

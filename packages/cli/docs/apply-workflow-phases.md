@@ -1,4 +1,4 @@
-# Phase 05 – Apply Workflow (Next Pipeline)
+# Phase 05 - Apply Workflow (Next Pipeline)
 
 _See [Docs Index](./index.md) for navigation._
 
@@ -6,7 +6,9 @@ _See [Docs Index](./index.md) for navigation._
 
 **Goal:** keep `apply` deterministic and safe while we transition from in-place controller merges to a model where generated artefacts live in `.generated/**` and user code merely extends or decorates them.
 
-- **Version guard:** Apply Phase 05 culminates in the **0.9.0** minor release. Reserve patch slots 0.8.1 (shim implementation), 0.8.2 (flag/log plumbing), 0.8.3 (integration coverage), and keep 0.8.4 as a buffer immediately before 0.9.0.
+> **MVP Plan reference:** Phase 5 - Apply layering & flags (Phase table entry #4)
+
+- **Version guard:** Apply Phase 5 culminates in the **0.9.0** minor release. Reserve patch slots 0.8.1 (shim implementation), 0.8.2 (flag/log plumbing), 0.8.3 (integration coverage), and keep 0.8.4 as a buffer immediately before 0.9.0.
 - **Pipeline rules:** Helpers remain AST-first-no string-based generation-and only `createHelper`-derived helpers may use the `create*` prefix. Alias other `create*` imports locally.
 - **Release checks:** Before cutting 0.9.0 run `pnpm --filter @wpkernel/cli test`, `pnpm --filter @wpkernel/core test`, `pnpm --filter @wpkernel/php-driver test`, `pnpm --filter @wpkernel/ui test`, `pnpm typecheck`, and an end-to-end `wpk generate && wpk apply --yes --dry-run` against the showcase workspace. Record the commands and results in the release PR.
 
@@ -40,8 +42,8 @@ _See [Docs Index](./index.md) for navigation._
 
 We want generated PHP (and future artefacts) to be the canonical implementation:
 
-1. **Generated base** – `.generated/php/Rest/FooController.php` contains the full class produced from the IR.
-2. **User surface** – the project’s `inc/Rest/FooController.php` simply extends that base:
+1. **Generated base** - `.generated/php/Rest/FooController.php` contains the full class produced from the IR.
+2. **User surface** - the project’s `inc/Rest/FooController.php` simply extends that base:
 
 ```php
 require_once __DIR__ . '/../../.generated/php/Rest/FooController.php';
@@ -51,7 +53,7 @@ class FooController extends \Vendor\Plugin\Generated\Rest\FooController {
 }
 ```
 
-3. **Apply task** – `apply` ensures the extension shim points at the latest generated class and rewrites only the bits that wire the user layer to the fresh base.
+3. **Apply task** - `apply` ensures the extension shim points at the latest generated class and rewrites only the bits that wire the user layer to the fresh base.
 
 ### 2.2 Why keep the merge engine?
 

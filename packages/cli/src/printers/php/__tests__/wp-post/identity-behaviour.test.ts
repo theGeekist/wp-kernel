@@ -7,7 +7,7 @@ import {
 	createRoutes,
 } from '../../test-utils/wp-post';
 
-describe('createWpPostHandlers – identity behaviour', () => {
+describe('createWpPostHandlers - identity behaviour', () => {
 	it('provides uuid identity fallbacks when resolving posts', () => {
 		const builder = new PhpFileBuilder('Demo\\Namespace\\Rest', {
 			kind: 'resource-controller',

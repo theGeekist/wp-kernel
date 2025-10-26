@@ -71,14 +71,14 @@ export interface AdapterExtension {
 
 `AdapterExtensionContext` (`packages/cli/src/config/types.ts:90-116`) exposes:
 
-- `ir` – a mutable clone of the IR (`IRv1`).
-- `updateIr(nextIr)` – replace the clone that subsequent extensions (and the builders) will consume.
-- `outputDir` – absolute path to `.generated/` inside the active workspace.
-- `configDirectory` – directory that contains the active `kernel.config.*` file.
-- `tempDir` – a sandbox folder dedicated to this extension.
-- `queueFile(filePath, contents)` – stage a file for later commit (paths may be absolute or relative to the workspace).
-- `formatPhp`, `formatTs` – placeholder formatters (currently pass-through; see §6).
-- `reporter` – a child reporter scoped to `adapter` for structured logging.
+- `ir` - a mutable clone of the IR (`IRv1`).
+- `updateIr(nextIr)` - replace the clone that subsequent extensions (and the builders) will consume.
+- `outputDir` - absolute path to `.generated/` inside the active workspace.
+- `configDirectory` - directory that contains the active `kernel.config.*` file.
+- `tempDir` - a sandbox folder dedicated to this extension.
+- `queueFile(filePath, contents)` - stage a file for later commit (paths may be absolute or relative to the workspace).
+- `formatPhp`, `formatTs` - placeholder formatters (currently pass-through; see §6).
+- `reporter` - a child reporter scoped to `adapter` for structured logging.
 
 Any uncaught error is logged and normalised before propagating back to the pipeline (`packages/cli/src/adapters/extensions.ts:129-173`); the sandbox is torn down automatically.
 

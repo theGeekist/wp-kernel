@@ -1,4 +1,4 @@
-# AGENTS.md – wpk CLI
+# AGENTS.md - wpk CLI
 
 ## Scope & Precedence
 

@@ -104,9 +104,9 @@ Ensures structural consistency across resource configuration objects in `kernel.
 
 ### What It Checks
 
-1. **Identity Parameter Matching** – `identity.param` must match route parameters.
-2. **Duplicate Route Detection** – Prevents duplicate `method` + `path` combos.
-3. **Post Type Validation** – `wp-post` mode must declare a `postType`.
+1. **Identity Parameter Matching** - `identity.param` must match route parameters.
+2. **Duplicate Route Detection** - Prevents duplicate `method` + `path` combos.
+3. **Post Type Validation** - `wp-post` mode must declare a `postType`.
 
 ### Example
 
@@ -143,10 +143,10 @@ Ensures cache key functions are valid, serialisable, and predictable.
 
 ### What It Checks
 
-1. **Return Type** – Must return an **array**.
-2. **Array Elements** – Must be **primitive values**.
-3. **Query Param References** – Must match declared `queryParams`.
-4. **Allowed Function Calls** – Only safe coercion helpers (`normalizeKeyValue`, `String`, `Number`, `Boolean`).
+1. **Return Type** - Must return an **array**.
+2. **Array Elements** - Must be **primitive values**.
+3. **Query Param References** - Must match declared `queryParams`.
+4. **Allowed Function Calls** - Only safe coercion helpers (`normalizeKeyValue`, `String`, `Number`, `Boolean`).
 
 ### Examples
 
@@ -289,5 +289,5 @@ Tests use ESLint’s `RuleTester` with `@typescript-eslint/parser`, covering val
 
 - **Constants**: `packages/core/src/contracts/index.ts`
 - **Evaluator Utils**: `eslint-rules/utils/kernel-config-evaluator.js`
-- **CLI Spec**: [CLI Migration Phases – Authoring Safety](../packages/cli/docs/cli-migration-phases.md#authoring-safety-lint-rules)
-- **PR**: [#112 – ESLint Plugin Extensions](https://github.com/theGeekist/wp-kernel/pull/112)
+- **CLI Spec**: [CLI Migration Phases - Authoring Safety](../packages/cli/docs/cli-migration-phases.md#authoring-safety-lint-rules)
+- **PR**: [#112 - ESLint Plugin Extensions](https://github.com/theGeekist/wp-kernel/pull/112)

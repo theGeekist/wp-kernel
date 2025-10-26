@@ -6,10 +6,10 @@ namespaces, levels, and context metadata.
 
 ## Why reporters?
 
-- **Single source of truth** – Actions, policies, and registry plugins rely on the same transport configuration.
-- **Structured payloads** – Hooks receive `{ message, context, timestamp }` so downstream consumers stay typed.
-- **Environment aware** – Console logging is skipped in production, while hooks remain active for instrumentation.
-- **Lint enforcement** – The `@kernel/no-console-in-kernel` rule blocks accidental `console.*` usage in core code.
+- **Single source of truth** - Actions, policies, and registry plugins rely on the same transport configuration.
+- **Structured payloads** - Hooks receive `{ message, context, timestamp }` so downstream consumers stay typed.
+- **Environment aware** - Console logging is skipped in production, while hooks remain active for instrumentation.
+- **Lint enforcement** - The `@kernel/no-console-in-kernel` rule blocks accidental `console.*` usage in core code.
 
 ## Creating a reporter
 

@@ -1,4 +1,4 @@
-# @wpkernel/e2e-utils – Test Audit (2024-09)
+# @wpkernel/e2e-utils - Test Audit (2024-09)
 
 ## Current Baseline
 

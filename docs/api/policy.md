@@ -34,17 +34,17 @@ map.
 
 `PolicyOptions` customise runtime behaviour:
 
-- `namespace` – override the detected plugin namespace. Defaults to
+- `namespace` - override the detected plugin namespace. Defaults to
   `getNamespace()` (usually the package slug).
-- `adapters.wp.canUser` – inject a capability check compatible with
+- `adapters.wp.canUser` - inject a capability check compatible with
   `@wordpress/data`’s `canUser` selector. The runtime auto-detects the core
   selector when the adapter is omitted.
-- `adapters.restProbe` – async helper for pinging REST endpoints before a rule
+- `adapters.restProbe` - async helper for pinging REST endpoints before a rule
   resolves. Optional.
-- `cache.ttlMs` – default time-to-live per entry (60_000 ms by default).
-- `cache.storage` – `'memory'` (default) or `'session'` persistence.
-- `cache.crossTab` – enable/disable BroadcastChannel fan-out (defaults to `true`).
-- `debug` – when `true`, the runtime logs reporter messages to the console.
+- `cache.ttlMs` - default time-to-live per entry (60_000 ms by default).
+- `cache.storage` - `'memory'` (default) or `'session'` persistence.
+- `cache.crossTab` - enable/disable BroadcastChannel fan-out (defaults to `true`).
+- `debug` - when `true`, the runtime logs reporter messages to the console.
 
 ### Usage
 
@@ -73,26 +73,26 @@ The returned helpers automatically register with the Action runtime so
 
 `PolicyHelpers<K>` exposes the following methods:
 
-- `can(key, ...params)` → `boolean | Promise<boolean>` – Evaluate a rule without
+- `can(key, ...params)` → `boolean | Promise<boolean>` - Evaluate a rule without
   throwing. Async rules return promises.
-- `assert(key, ...params)` → `void | Promise<void>` – Throws
+- `assert(key, ...params)` → `void | Promise<void>` - Throws
   `KernelError('PolicyDenied')` when the rule resolves to `false`. Also emits a
   `{namespace}.policy.denied` WordPress hook and BroadcastChannel event.
-- `keys()` → `(keyof K)[]` – List registered capability keys.
-- `extend(map)` → `void` – Merge additional rules and invalidate the cache for
+- `keys()` → `(keyof K)[]` - List registered capability keys.
+- `extend(map)` → `void` - Merge additional rules and invalidate the cache for
   affected keys.
-- `cache` – Shared `PolicyCache` instance used by the runtime and UI hook.
+- `cache` - Shared `PolicyCache` instance used by the runtime and UI hook.
 
 ## `PolicyContext`
 
 Rules receive a `PolicyContext` argument with:
 
-- `namespace` – resolved namespace.
-- `adapters` – the adapters supplied through `PolicyOptions` plus any detected
+- `namespace` - resolved namespace.
+- `adapters` - the adapters supplied through `PolicyOptions` plus any detected
   defaults (`wp.canUser`, `restProbe`).
-- `cache` – low-level cache interface supporting `get`, `set`, `invalidate`, and
+- `cache` - low-level cache interface supporting `get`, `set`, `invalidate`, and
   `subscribe`.
-- `reporter` – structured logging hooks (`info`, `warn`, `error`, `debug`).
+- `reporter` - structured logging hooks (`info`, `warn`, `error`, `debug`).
 
 Use the context to compose decisions, log diagnostic events, or reuse cached
 results across rules.

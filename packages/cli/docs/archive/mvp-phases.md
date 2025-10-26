@@ -353,7 +353,7 @@ packages/cli/src/printers/blocks/
 
 ---
 
-## Phase 6 – Block-Aware Apply Enhancements
+## Phase 6 - Block-Aware Apply Enhancements
 
 **Spec references:** [MVP Spec §7.3](./mvp-cli-spec.md#7-cli-commands)
 
@@ -375,7 +375,7 @@ packages/cli/src/printers/blocks/
 
 ---
 
-## Phase 6A – CLI Integration Harness
+## Phase 6A - CLI Integration Harness
 
 **Spec references:** [MVP Spec §10](./mvp-cli-spec.md#10-integration-harness--testing-strategy)
 
@@ -412,7 +412,7 @@ packages/cli/src/printers/blocks/
 
 ---
 
-## Phase 7 – Policy Map Integration
+## Phase 7 - Policy Map Integration
 
 **Spec references:** [MVP Spec §5](./mvp-cli-spec.md#5-policy-integration)
 
@@ -436,7 +436,7 @@ packages/cli/src/printers/blocks/
 
 ---
 
-## Phase 8A – Documentation, Exports & Bundler Hygiene
+## Phase 8A - Documentation, Exports & Bundler Hygiene
 
 **Spec references:** [MVP Spec §11](./mvp-cli-spec.md#11-documentation-exports--bundler-hygiene)
 

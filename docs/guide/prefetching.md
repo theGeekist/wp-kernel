@@ -11,10 +11,10 @@ waiting in the store.
 
 ## When to prefetch
 
-- **Detail hovers** – links in tables, context menus, or tooltips where the next
+- **Detail hovers** - links in tables, context menus, or tooltips where the next
   click is almost guaranteed.
-- **Scrolling lists** – preload the next page when the current page settles.
-- **View transitions** – hero tiles that navigate to a filtered list can prime
+- **Scrolling lists** - preload the next page when the current page settles.
+- **View transitions** - hero tiles that navigate to a filtered list can prime
   the first query while the user reads the summary.
 
 Avoid prefetching in situations where the user is unlikely to visit the target.
@@ -23,11 +23,11 @@ caching layers.
 
 ## Hooks overview
 
-- [`usePrefetcher`](/api/usePrefetcher) – stable wrappers around a resource’s
+- [`usePrefetcher`](/api/usePrefetcher) - stable wrappers around a resource’s
   `prefetchGet` / `prefetchList`.
-- `useHoverPrefetch` – wait for a hover to settle (default 150 ms) before firing.
-- `useVisiblePrefetch` – hook into `IntersectionObserver` or a scroll fallback.
-- `useNextPagePrefetch` – compute the next page query from the current list and
+- `useHoverPrefetch` - wait for a hover to settle (default 150 ms) before firing.
+- `useVisiblePrefetch` - hook into `IntersectionObserver` or a scroll fallback.
+- `useNextPagePrefetch` - compute the next page query from the current list and
   run it after the list finishes loading.
 
 All of the helpers delegate to the resource runtime in
@@ -108,6 +108,6 @@ running prefetch hooks during SSR, just like any other browser-side effect.
 
 ## Further reading
 
-- API reference – [`usePrefetcher`](/api/usePrefetcher)
-- Resource runtime – [`packages/core/src/resource/define.ts`](../packages/core/src/resource/define.ts)
-- Cache helpers – [`packages/core/src/resource/cache.ts`](../packages/core/src/resource/cache.ts)
+- API reference - [`usePrefetcher`](/api/usePrefetcher)
+- Resource runtime - [`packages/core/src/resource/define.ts`](../packages/core/src/resource/define.ts)
+- Cache helpers - [`packages/core/src/resource/cache.ts`](../packages/core/src/resource/cache.ts)

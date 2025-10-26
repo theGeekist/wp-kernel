@@ -103,7 +103,12 @@ describe('pretty printer ESM integration', () => {
 				'php',
 				'pretty-print.php'
 			);
-			expect(resolvedPath).toBe(expectedPath);
+			const normalisePath = (candidate: string) =>
+				fs.realpathSync.native?.(candidate) ??
+				fs.realpathSync(candidate);
+			expect(normalisePath(resolvedPath)).toBe(
+				normalisePath(expectedPath)
+			);
 		} finally {
 			fs.rmSync(temporaryDirectory, { recursive: true, force: true });
 		}

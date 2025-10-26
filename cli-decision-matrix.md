@@ -302,9 +302,9 @@ Two sub-printers; both act from **IR** + file system helpers. No command wiring 
 
 **Outputs:**
 
-- `.generated/ui/<Resource>Screen.tsx` – imports runtime `configureKernel` usage from project’s `src/index.ts` assumption (no runtime wiring here); uses the serialized dataviews fixture.
-- `.generated/ui/<Resource>.dataviews.ts` – the serialized config (`fields`, `defaultView`, `mapQuery`, `getItemId`, etc.). Functions are stringified as-is.
-- `.generated/php/Menu_<Resource>Screen.php` – calls `add_menu_page` (or submenu) and enqueues the built JS bundle for that screen.
+- `.generated/ui/<Resource>Screen.tsx` - imports runtime `configureKernel` usage from project’s `src/index.ts` assumption (no runtime wiring here); uses the serialized dataviews fixture.
+- `.generated/ui/<Resource>.dataviews.ts` - the serialized config (`fields`, `defaultView`, `mapQuery`, `getItemId`, etc.). Functions are stringified as-is.
+- `.generated/php/Menu_<Resource>Screen.php` - calls `add_menu_page` (or submenu) and enqueues the built JS bundle for that screen.
 
 **Validation/notes:**
 
@@ -336,10 +336,10 @@ This is optional **block scaffolding** from a resource. If the IR includes a `re
 - **Block registrar without build**: N/A at printer time (registrar only expects a path); orchestration will check at apply/build.
 
 - **Policy map warnings (from resolver):**
-    - `policy-map.missing` – No `src/policy-map.*` found; using fallback capability for referenced policies.
-    - `policy-map.entries.missing` – Policies referenced by routes are not defined in the policy map.
-    - `policy-map.entries.unused` – Policies defined in the map are not referenced by any route.
-    - `policy-map.binding.missing` – Policy targets an object but a request parameter couldn’t be inferred (helper may default to `id`).
+    - `policy-map.missing` - No `src/policy-map.*` found; using fallback capability for referenced policies.
+    - `policy-map.entries.missing` - Policies referenced by routes are not defined in the policy map.
+    - `policy-map.entries.unused` - Policies defined in the map are not referenced by any route.
+    - `policy-map.binding.missing` - Policy targets an object but a request parameter couldn’t be inferred (helper may default to `id`).
 - **Policy map errors (fail build):**
     - Invalid `appliesTo` scope (must be `"resource"` or `"object"`).
     - Policy map module failed to load or didn’t export a policy map object.

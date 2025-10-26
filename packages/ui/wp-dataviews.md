@@ -1,4 +1,4 @@
-Title: @wordpress/dataviews – Block Editor Handbook | Developer.WordPress.org
+Title: @wordpress/dataviews - Block Editor Handbook | Developer.WordPress.org
 
 URL Source: https://developer.wordpress.org/block-editor/reference-guides/packages/packages-dataviews/
 

@@ -3,7 +3,7 @@ import { createRouteHandlers } from '../routes';
 import type { IRResource, IRRoute } from '../../../ir';
 import type { PrinterContext } from '../../types';
 
-describe('createRouteHandlers – wp-taxonomy storage', () => {
+describe('createRouteHandlers - wp-taxonomy storage', () => {
 	it('generates CRUD handlers for taxonomy resources', () => {
 		const builder = new PhpFileBuilder('Demo\\Namespace\\Rest', {
 			kind: 'resource-controller',

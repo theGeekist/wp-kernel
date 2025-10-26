@@ -2,7 +2,7 @@
 
 **Last Updated:** 10 October 2025  
 **Version:** 0.4.0 (monorepo snapshot)  
-**Status:** Core runtime stable; CLI Phases 0–6 complete (5C/7/7a/8 in progress)
+**Status:** Core runtime stable; CLI Phases 0-6 complete (5C/7/7a/8 in progress)
 
 ---
 
@@ -527,16 +527,16 @@ E2E testing utilities for Playwright/Jest integration:
 
 Authoring workflow that turns `kernel.config.*` into generated TypeScript/PHP artifacts and keeps `inc/` in sync.
 
-- **Config Loader (`loadKernelConfig`)** – cosmiconfig + TSX resolve TS/JS/JSON/`package.json#wpk`, enforce Typanion schema parity, composer autoload guard, surface typed `KernelError` diagnostics.
-- **IR Builder (`buildIr`)** – deterministic `IRv1` carrying sanitised namespace, schema hashes, identity/storage metadata, policy hints, and printer directives.
-- **Printers** – emit `.generated/types/**` and `.generated/php/**` with adapter `customise` hooks before Prettier formatting.
-- **Adapter Extensions** – sandboxed pipeline (`adapter.extensions`) that can mutate IR and queue writes committed atomically after printers.
+- **Config Loader (`loadKernelConfig`)** - cosmiconfig + TSX resolve TS/JS/JSON/`package.json#wpk`, enforce Typanion schema parity, composer autoload guard, surface typed `KernelError` diagnostics.
+- **IR Builder (`buildIr`)** - deterministic `IRv1` carrying sanitised namespace, schema hashes, identity/storage metadata, policy hints, and printer directives.
+- **Printers** - emit `.generated/types/**` and `.generated/php/**` with adapter `customise` hooks before Prettier formatting.
+- **Adapter Extensions** - sandboxed pipeline (`adapter.extensions`) that can mutate IR and queue writes committed atomically after printers.
 - **Commands**
-    - `wpk generate [--dry-run] [--verbose]` – runs loader → IR → printers, summarises hash-based writes, exits 0/1/2/3 for success/validation/printer/adapter errors.
-    - `wpk apply [--yes] [--backup] [--force]` – enforces clean `.generated/php`, merges `WPK:BEGIN/END AUTO` blocks, writes `.wpk-apply.log` audit entries with flags and per-file metadata.
-    - `wpk start [--verbose] [--auto-apply-php]` – chokidar watch with fast/slow debounce tiers, queued triggers, optional best-effort PHP copy, and an embedded Vite dev server without implicit apply.
-    - `wpk build [--no-apply] [--verbose]` – orchestrates `generate` → `pnpm exec vite build` → `apply --yes`, with `--no-apply` for inspection workflows.
-    - `wpk init`, `wpk doctor` – placeholders slated for adapter/diagnostic work once Phase 7a/8 land.
+    - `wpk generate [--dry-run] [--verbose]` - runs loader → IR → printers, summarises hash-based writes, exits 0/1/2/3 for success/validation/printer/adapter errors.
+    - `wpk apply [--yes] [--backup] [--force]` - enforces clean `.generated/php`, merges `WPK:BEGIN/END AUTO` blocks, writes `.wpk-apply.log` audit entries with flags and per-file metadata.
+    - `wpk start [--verbose] [--auto-apply-php]` - chokidar watch with fast/slow debounce tiers, queued triggers, optional best-effort PHP copy, and an embedded Vite dev server without implicit apply.
+    - `wpk build [--no-apply] [--verbose]` - orchestrates `generate` → `pnpm exec vite build` → `apply --yes`, with `--no-apply` for inspection workflows.
+    - `wpk init`, `wpk doctor` - placeholders slated for adapter/diagnostic work once Phase 7a/8 land.
 
 ### Kernel Config (`kernel.config.ts`)
 
@@ -558,7 +558,7 @@ interface KernelConfigV1 {
 - `SchemaConfig` declares filesystem path and generated type target.
 - `ResourceConfig` is the same structure consumed by `defineResource`, ensuring runtime parity.
 - Adapter factories receive `AdapterContext { config, namespace, reporter, ir }`.
-- `AdapterExtensionContext` exposes `queueFile`, `updateIr`, `formatPhp`, and `formatTs` helpers – all writes must stay under `.generated/**`.
+- `AdapterExtensionContext` exposes `queueFile`, `updateIr`, `formatPhp`, and `formatTs` helpers - all writes must stay under `.generated/**`.
 
 ---
 

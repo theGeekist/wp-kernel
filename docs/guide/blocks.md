@@ -40,6 +40,6 @@ For list-style screens, combine blocks with the UI runtime. In the showcase exam
 
 ## Further reading
 
-- [Resources guide](/guide/resources) – resources power block data on both the client and the server.
-- [Showcase example](/examples/showcase) – see SSR and UI bindings working together.
-- [`/api/ui/`](../api/) – generated Typedoc for UI helpers.
+- [Resources guide](/guide/resources) - resources power block data on both the client and the server.
+- [Showcase example](/examples/showcase) - see SSR and UI bindings working together.
+- [`/api/ui/`](../api/) - generated Typedoc for UI helpers.

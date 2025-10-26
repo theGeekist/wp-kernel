@@ -45,8 +45,8 @@ examples/showcase/
 
 `kernel.config.ts` is the single source of truth for showcase resources. Running `pnpm generate` (an alias for `wpk generate`) reads that config, synthesises schemas, and writes artefacts into `.generated/`:
 
-- `types/` – TypeScript declarations inferred from the resource definition (`schema: 'auto'`).
-- `php/`, `rest-args/`, `validators/`, `helpers/` – Working copies that `pnpm apply` promotes into `inc/`.
+- `types/` - TypeScript declarations inferred from the resource definition (`schema: 'auto'`).
+- `php/`, `rest-args/`, `validators/`, `helpers/` - Working copies that `pnpm apply` promotes into `inc/`.
 
 The legacy JSON schema in `contracts/job.schema.json` remains for documentation and tests, but day-to-day development relies on the CLI’s auto-generated output.
 

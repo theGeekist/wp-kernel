@@ -48,7 +48,7 @@ Enhance the current IR builder to capture everything required for generation:
     - identity (explicit or inferred), storage, query params, UI metadata,
     - schema provenance (`manual` vs `auto`).
 - `policies`: deduplicated list of policy identifiers referenced by routes.
-- `blocks`: **NEW** – discovery result for block directories (SSR vs JS-only) based on `block.json` + optional `render.php`.
+- `blocks`: **NEW** - discovery result for block directories (SSR vs JS-only) based on `block.json` + optional `render.php`.
 - `php`: defaults (`namespace`, `autoload`, `outputDir`) with room for adapter overrides.
 
 Inference rules are derived from the canonical runtime types in `packages/core/src/resource/types.ts` and applied uniformly during IR construction:
@@ -321,7 +321,7 @@ Objective: provide first-class CLI integration tests that exercise command pipel
 
 ---
 
-## Appendix A – KernelConfig Template Sketch
+## Appendix A - KernelConfig Template Sketch
 
 ```ts
 import type { KernelConfigV1 } from '@wpkernel/cli/config';

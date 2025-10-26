@@ -2,7 +2,7 @@ I'm checking for docs in packages/cli/ to find AGENTS or related instructions.
 
 ````shell
 root@9d20af90c396:/workspace/wp-kernel# sed -n '1,160p' packages/cli/docs/next-cli.v2.md
-# Next CLI – SPRINT NEXT-CORRECT
+# Next CLI - SPRINT NEXT-CORRECT
 
 ## Executive Intent
 
@@ -35,7 +35,7 @@ use the PHP builder cannot yet offer helper-friendly hooks.
 
 ### Downstream call sites
 
-- `packages/cli/src/next/ir/createIr.ts` still registers `createPhpBuilder()` as a monolithic helper – it cannot be reordered wi
+- `packages/cli/src/next/ir/createIr.ts` still registers `createPhpBuilder()` as a monolithic helper - it cannot be reordered wi
 th future enrichers (e.g., audit logging).
 - `packages/cli/src/printers/blocks/**` exports the legacy blocks pipeline. The next branch cannot adopt it until a `createPhpHe
 lper` equivalent exists.
@@ -60,7 +60,7 @@ rced the legacy printer tree to survive in the “next” branch.
 
 1. Each PHP artifact is built by a dedicated helper (e.g., `createPhpControllerHelper`, `createPhpPolicyHelper`). They push decl
 arative actions (`queuePhpProgram`, `queueManifestCopy`) into `output` and delegate via `next`.
-2. A thin orchestration helper (`createPhpBuilder`) simply registers these helpers in order – it does not run IO itself.
+2. A thin orchestration helper (`createPhpBuilder`) simply registers these helpers in order - it does not run IO itself.
 3. The writer helper listens for queued PHP actions, shells into the pretty-printer, and persists `{php, ast}` pairs; failures r
 oll back queued writes.
 4. Blocks and adapter extensions consume the same helper actions, so the IR pipeline can enrich or replace behaviours without to
@@ -108,7 +108,7 @@ export function createPhpBuilder() {
 Each phase below describes exactly what to change, where, and why. Execute them sequentially. After finishing a phase, fill in t
 he matching **Completion Report** entry (see [Reporting Templates](#reporting-templates)).
 
-### Phase 0 – Hard Reset of the PHP builder surface
+### Phase 0 - Hard Reset of the PHP builder surface
 
 PLEASE REMEMBER, THIS IS AN ISOLATED BRANCH. **BREAKING CHANGES ARE ENCOURAGED** TO YIELD SIMPLER CLEANER CODE. SPEED IS IMPORTA
 NT. JUST DOCUMENT WHAT YOU BROKE AT EACH PHASE SO THE NEXT PHASE CAN ACCOUNT FOR IT
@@ -118,19 +118,19 @@ OKAY.
 
 **Files to change**
 
-- `packages/cli/src/next/builders/php/builder.ts` – delete `PrinterContext` usage, remove `ensureAdapterContext`, and replace th
+- `packages/cli/src/next/builders/php/builder.ts` - delete `PrinterContext` usage, remove `ensureAdapterContext`, and replace th
   e monolithic helper with a lightweight orchestrator that registers phase-specific helpers and invokes `next` immediately.
-- `packages/cli/src/next/builders/php/domains/context.ts` – delete the adapter customisation bridge. Any reporting utilities we
+- `packages/cli/src/next/builders/php/domains/context.ts` - delete the adapter customisation bridge. Any reporting utilities we
   need move into a new `reporting.ts` helper that only exposes pure logging helpers.
-- `packages/cli/src/next/builders/php/domains/index-file.ts` – replace string emitters with AST factories (declare/namespace/use
+- `packages/cli/src/next/builders/php/domains/index-file.ts` - replace string emitters with AST factories (declare/namespace/use
   ). The module should export a helper factory instead of `createPhpIndexFile`.
-- `packages/cli/src/next/builders/php/domains/writer.ts` – collapse into a `createPhpProgramWriter` helper that consumes queued
+- `packages/cli/src/next/builders/php/domains/writer.ts` - collapse into a `createPhpProgramWriter` helper that consumes queued
   actions (`PhpProgramAction[]`) and performs IO. Remove `PrinterContext` parameters.
-- `packages/cli/src/next/builders/php/program/*` – strip `toAst()` and any legacy-friendly shapes. Only expose builders that ret
+- `packages/cli/src/next/builders/php/program/*` - strip `toAst()` and any legacy-friendly shapes. Only expose builders that ret
   urn `PhpProgram` arrays.
-- `packages/cli/src/next/builders/__tests__/phpBuilder*.test.ts` – update to call `pipeline.use(createPhpBuilder())`, assert hel
+- `packages/cli/src/next/builders/__tests__/phpBuilder*.test.ts` - update to call `pipeline.use(createPhpBuilder())`, assert hel
   per composition via spies on `next`, and drop expectations for legacy manifest writes.
-- `packages/cli/src/next/builders/php/domains/__tests__/program-builder.test.ts` – remove string assertions, replace with AST no
+- `packages/cli/src/next/builders/php/domains/__tests__/program-builder.test.ts` - remove string assertions, replace with AST no
   de snapshots.
 
 **Why:** Without this reset later phases cannot compose helpers. The files listed are the only remaining code paths that instant
@@ -145,7 +145,7 @@ iate legacy contexts or string emitters.
 **Expected outcome:** `createPhpBuilder` becomes a no-op helper that logs the reset, legacy printer orchestration disappears, an
 d builds/tests keep passing with PHP emission intentionally disabled.
 
-### Phase 1 – Surface preparation for helper-first domains
+### Phase 1 - Surface preparation for helper-first domains
 
 **Goal:** decouple domain modules from `PrinterContext` and guarantee that each produces `PhpProgram` ASTs ready for helper comp
 osition.
@@ -172,7 +172,7 @@ ain.
 **Expected outcome:** All PHP domain modules consume `PhpDomainContext`, return `PhpProgram` values, and have AST-based assertio
 ns; runtime helper wiring remains unchanged.
 
-### Phase 2 – Helper decomposition of PHP domains
+### Phase 2 - Helper decomposition of PHP domains
 
 **Goal:** express each artifact as its own helper so future enrichers can compose them.
 
@@ -200,7 +200,7 @@ orchestration with data building.
 **Expected outcome:** Helpers exist for controllers, policies, persistence registries, and index files; `createPhpBuilder` regis
 ters them and queues AST programs via `queuePhpProgram`, while IO is still deferred.
 
-### Phase 3 – Writer channel + pretty-printer integration
+### Phase 3 - Writer channel + pretty-printer integration
 
 PLEASE REMEMBER, THIS IS AN ISOLATED BRANCH. **BREAKING CHANGES ARE ENCOURAGED** TO YIELD SIMPLER CLEANER CODE. SPEED IS IMPORTA
 NT. JUST DOCUMENT WHAT YOU BROKE AT EACH PHASE SO THE NEXT PHASE CAN ACCOUNT FOR IT

@@ -1,4 +1,4 @@
-# `@wpkernel/e2e-utils` – Package Guide for Agents
+# `@wpkernel/e2e-utils` - Package Guide for Agents
 
 This package wraps the WordPress Playwright fixtures with kernel-aware helpers. Follow the root policies in `../../AGENTS.md` and the specifics below when editing it.
 

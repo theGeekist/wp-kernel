@@ -7,7 +7,7 @@ import {
 	createRoutes,
 } from '../../test-utils/wp-post';
 
-describe('createWpPostHandlers – meta handling', () => {
+describe('createWpPostHandlers - meta handling', () => {
 	it('supports numeric identities and complex meta sanitisation', () => {
 		const builder = new PhpFileBuilder('Demo\\Namespace\\Rest', {
 			kind: 'resource-controller',

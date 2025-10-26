@@ -1,4 +1,4 @@
-# DataViews Integration – Phased Delivery
+# DataViews Integration - Phased Delivery
 
 > Roadmap aligned with [`DataViews Integration - Specification.md`](./DataViews%20Integration%20-%20Specification.md). Each phase references relevant sections to keep implementation contextual and auditable for the cloud agent. Phase deliverables assume the Gutenberg snapshot lives under [`packages/ui/vendor/dataviews-snapshot/`](vendor/dataviews-snapshot/README.md), while runtime imports continue to use the published `@wordpress/dataviews` package (`node_modules`). For feature reference, see [`packages/ui/wp-dataviews.md`](wp-dataviews.md).
 
@@ -18,7 +18,7 @@
 
 ---
 
-## Phase 1 – Kernel UI Runtime Foundations
+## Phase 1 - Kernel UI Runtime Foundations
 
 **Spec references:** §4.1 Kernel UI Runtime Extensions, §4.7 View Persistence  
 **Goal:** Extend `KernelUIRuntime` and `attachUIBindings` to host DataViews controllers, events, and preference adapters.
@@ -41,7 +41,7 @@
 
 ---
 
-## Phase 2 – Resource DataView Controller & Components
+## Phase 2 - Resource DataView Controller & Components
 
 **Spec references:** §4.3 Query & Data Orchestration, §4.4 Actions, Policies, and Editing  
 **Goal:** Deliver the controller utilities and React component wrappers that marry kernel resources/actions with the DataViews UI.
@@ -62,7 +62,7 @@
 
 ---
 
-## Phase 3 – configureKernel Integration & Registry Wiring
+## Phase 3 - configureKernel Integration & Registry Wiring
 
 **Spec references:** §4.5 configureKernel Integration, §5 API Surface Summary  
 **Goal:** Auto-register DataViews runtime pieces during kernel bootstrapping and ensure events/hooks fire end-to-end.
@@ -83,7 +83,7 @@
 
 ---
 
-## Phase 4 – Resource Metadata & CLI Bridge
+## Phase 4 - Resource Metadata & CLI Bridge
 
 **Spec references:** §4.2 Resource Metadata & CLI Config, §5 API Surface Summary  
 **Goal:** Surface DataViews configuration on resources and ensure CLI tooling propagates metadata for generators.
@@ -105,7 +105,7 @@
 
 ---
 
-## Phase 5 – Documentation, E2E, & Accessibility Planning
+## Phase 5 - Documentation, E2E, & Accessibility Planning
 
 **Spec references:** §6 Implementation Plan (Docs & Testing), §9 Deferred Items & Follow-Ups  
 **Goal:** Final polish for MVP: documentation, example screens, and Playwright regression coverage; log accessibility follow-up tasks for the dedicated sprint.
