@@ -14,7 +14,7 @@
 | **Version Bump**  | Update package.json versions manually   |
 | **Release**       | Tag and publish to npm manually         |
 
-**Current train**: unified **v0.4.x (pre-1.0)** across every publishable package.
+**Current train**: unified **v0.5.x (pre-1.0)** across every publishable package.
 
 ---
 

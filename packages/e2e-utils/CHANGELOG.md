@@ -1,6 +1,12 @@
 # @wpkernel/e2e-utils
 
-## 0.4.0 [Unreleased]
+## 0.5.0 - 2025-10-26
+
+### Maintenance
+
+- Version bump to `0.5.0` to stay aligned with the Phase 1 release; no additional E2E utility changes shipped in this cycle.
+
+## 0.4.0
 
 ### Changes
 

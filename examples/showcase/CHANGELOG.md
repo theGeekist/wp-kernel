@@ -1,6 +1,12 @@
 # wp-kernel-showcase
 
-## 0.4.0 [Unreleased]
+## 0.5.0 - 2025-10-26
+
+### Maintenance
+
+- Version bump to `0.5.0` to match the framework release; the showcase plugin pulls in the updated CLI artefacts without additional feature changes this cycle.
+
+## 0.4.0
 
 ### Minor Changes
 
