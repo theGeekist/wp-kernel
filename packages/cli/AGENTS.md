@@ -29,7 +29,7 @@ Always import CLI exit codes and namespace constants from `@wpkernel/core/contra
 
 ### Versioning
 
-- CLI tasks on the MVP board ship against the shared **v0.5.x** pre-1.0 line; plan your change sets so they trigger either a patch or minor bump for every package when merged.
+- CLI tasks on the MVP board ship against the shared **v0.6.x** pre-1.0 line; plan your change sets so they trigger either a patch or minor bump for every package when merged.
 - Update the CLI and root changelogs at the same time and link to the release checklist in `RELEASING.md` so the unified version stays in sync.
 - Claim a version slot in `docs/mvp-plan.md` before you start and mark it complete (with PR link) once merged so parallel agents never collide on the same patch bump.
 - Delay the actual version/changelog edits until your PR is approved and rebased; land the bump in the final commit right before merge so the ledger stays accurate and rebases stay light.

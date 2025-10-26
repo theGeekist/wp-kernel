@@ -9,13 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2025-10-26
+
 ### Added
 
-- **CLI transient fixtures** – The default `wpk generate` golden now captures transient storage metadata, TTL helper output, and cache invalidation context alongside existing resources.
+- **Transient parity pipeline** – Completed the transient AST builders, routed DELETE handlers, and refreshed generated fixtures so transient resources now ship with cache metadata and TTL helpers.
+
+### Fixed
+
+- **Transient DELETE handlers** – DELETE routes now call `delete_transient()`, return cache invalidation payloads, and emit shared cache events instead of responding with `501` errors.
 
 ### Documentation
 
-- **Transient parity guidance** – CLI contributor docs mark Tasks 11-12 as shipped, document the Task 13 fixture/doc refresh, and update adapter guidance now that transient helpers live in the AST pipeline.
+- **Phase 2 wrap-up** – CLI docs record Task 14 as shipped, log the 0.6.0 release, and open the Phase 3 patch band for block builders.
+
+### Maintenance
+
+- **Monorepo release** – Bumped all packages, showcase fixtures, and version trackers to `0.6.0` following the Phase 2 minor release checklist.
 
 ## [0.5.0] - 2025-10-26
 

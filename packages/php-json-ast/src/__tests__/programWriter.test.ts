@@ -100,7 +100,9 @@ describe('createPhpProgramWriterHelper', () => {
 
 		await installer.apply(
 			{
-				context: { workspace } satisfies DriverContext,
+				context: {
+					workspace,
+				},
 				input: undefined as never,
 				output: undefined as never,
 				reporter,
