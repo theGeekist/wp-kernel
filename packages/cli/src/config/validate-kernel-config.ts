@@ -19,7 +19,7 @@
  * - Write methods (POST/PUT/PATCH/DELETE) should have policies
  *
  * @module config/validate-kernel-config
- * @see {@link https://github.com/theGeekist/wp-kernel/blob/main/packages/cli/mvp-cli-spec.md#2-loader--validation-expectations}
+ * @see {@link https://github.com/theGeekist/wp-kernel/blob/main/packages/cli/docs/cli-migration-phases.md#runtime}
  */
 
 import type { Reporter } from '@wpkernel/core/reporter';

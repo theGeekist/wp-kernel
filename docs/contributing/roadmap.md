@@ -35,7 +35,7 @@ Write-path orchestration with `defineAction()`, middleware layer, lifecycle even
 
 `createReporter()` with pluggable transports (console, hooks, "all" channel), consolidated logging across all packages, request correlation IDs, reporter context management, noop reporter for production.
 
-### React Hooks Integration (Sprint 5 - Completed, v0.3.0)
+### React Hooks Integration (Sprint 5 - Completed, v0.4.0)
 
 - ✓ `useAction()` - Complete action dispatch system with 4 concurrency modes
 - ✓ `useGet()` & `useList()` - Resource data fetching hooks

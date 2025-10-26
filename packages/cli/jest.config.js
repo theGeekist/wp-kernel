@@ -27,6 +27,8 @@ export default {
 		'<rootDir>/packages/cli/**/__tests__/**/*.tsx',
 		'<rootDir>/packages/cli/**/__tests__/**/*.test.ts',
 		'<rootDir>/packages/cli/**/__tests__/**/*.test.tsx',
+		'<rootDir>/packages/cli/**/__tests__/**/*.spec.ts',
+		'<rootDir>/packages/cli/**/__tests__/**/*.spec.tsx',
 	],
 
 	// Module resolution

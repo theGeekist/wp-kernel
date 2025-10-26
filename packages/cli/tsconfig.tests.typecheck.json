@@ -18,6 +18,8 @@
 			"@wpkernel/cli/*": ["packages/cli/src/*"],
 			"@wpkernel/e2e-utils": ["packages/e2e-utils/src/index.ts"],
 			"@wpkernel/e2e-utils/*": ["packages/e2e-utils/src/*"],
+			"@wpkernel/php-json-ast": ["packages/php-json-ast/src/index.ts"],
+			"@wpkernel/php-json-ast/*": ["packages/php-json-ast/src/*"],
 			"@wpkernel/test-utils": ["packages/test-utils/src/index.ts"],
 			"@wpkernel/test-utils/*": ["packages/test-utils/src/*"],
 			"@wpkernel/php-driver": ["packages/php-driver/src/index.ts"],
@@ -45,10 +47,14 @@
 		"resolvePackageJsonImports": true
 	},
 	"include": [
-		"src/next/**/__tests__/**/*.ts",
-		"src/next/**/__tests__/**/*.tsx",
-		"tests/**/*.ts",
-		"tests/**/*.tsx",
+		"src/next/**/*.test.tsx",
+		"src/next/**/*.test.ts",
+		"src/next/**/*.spec.tsx",
+		"src/next/**/*.spec.ts",
+		"src/*.test.ts",
+		"src/*.test.tsx",
+		"src/*.spec.ts",
+		"src/*.spec.tsx",
 		"vite.config.ts"
 	],
 	"references": [

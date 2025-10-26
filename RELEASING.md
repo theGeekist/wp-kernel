@@ -14,6 +14,8 @@
 | **Version Bump**  | Update package.json versions manually   |
 | **Release**       | Tag and publish to npm manually         |
 
+**Current train**: unified **v0.4.x (pre-1.0)** across every publishable package.
+
 ---
 
 ## 1️⃣ Versioning Rules
@@ -129,11 +131,11 @@ Every Sprint PR must link to:
 
 ### Standard Sprint (minor)
 
-Update CHANGELOG.md with sprint changes, bump versions from `0.3.0` → `0.4.0`
+Update CHANGELOG.md with sprint changes, bump versions from `0.4.x` → `0.5.0`
 
 ### Alignment Sprint (patch)
 
-Update CHANGELOG.md with fixes, bump versions from `0.3.0` → `0.4.1`
+Update CHANGELOG.md with fixes, bump versions from `0.4.x` → `0.4.(x+1)`
 
 ### Breaking Change (major)
 
