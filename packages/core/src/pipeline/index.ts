@@ -16,6 +16,7 @@ export type {
 	PipelineExtensionHook,
 	PipelineExtensionHookOptions,
 	PipelineExtensionHookResult,
+	PipelineExtensionRollbackErrorMetadata,
 	PipelineRunState,
 	PipelineStep,
 	CreatePipelineOptions,
