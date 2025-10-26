@@ -62,6 +62,10 @@ function buildBuilderInput(): BuilderInput {
 }
 
 describe('createPhpProgramWriterHelper', () => {
+	beforeEach(() => {
+		jest.clearAllMocks();
+	});
+
 	it('writes queued programs using the pretty printer', async () => {
 		const context = buildPipelineContext();
 		const input = buildBuilderInput();
@@ -124,5 +128,106 @@ describe('createPhpProgramWriterHelper', () => {
 			file: '/workspace/.generated/php/Writer.php.ast.json',
 			contents: expect.stringContaining('Stmt_Nop'),
 		});
+
+		expect(context.reporter.debug).toHaveBeenCalledWith(
+			'createPhpProgramWriterHelper: emitted PHP artifact.',
+			{ file: '/workspace/.generated/php/Writer.php' }
+		);
+	});
+
+	it('serialises the queued program when the driver omits the AST payload', async () => {
+		const context = buildPipelineContext();
+		const input = buildBuilderInput();
+		const output: BuilderOutput = {
+			actions: [],
+			queueWrite: jest.fn(),
+		};
+
+		resetPhpBuilderChannel(context);
+		resetPhpAstChannel(context);
+
+		const channel = getPhpBuilderChannel(context);
+		const program = [buildStmtNop()];
+		const expectedSerialisedAst = `${JSON.stringify(program, null, 2)}\n`;
+		channel.queue({
+			file: '/workspace/.generated/php/Fallback.php',
+			metadata: { kind: 'policy-helper' },
+			docblock: ['Doc line'],
+			uses: ['Demo\\Contracts'],
+			statements: ['class Example {};'],
+			program,
+		});
+
+		const prettyPrint = jest.fn(async () => ({
+			code: '<?php\n// generated fallback\n',
+			ast: undefined,
+		}));
+
+		buildPhpPrettyPrinterMock.mockImplementationOnce(
+			() =>
+				({ prettyPrint }) as unknown as ReturnType<
+					typeof buildPhpPrettyPrinter
+				>
+		);
+
+		const helper = createPhpProgramWriterHelper();
+		await helper.apply({
+			context,
+			input,
+			output,
+			reporter: context.reporter,
+		});
+
+		expect(prettyPrint).toHaveBeenCalledWith({
+			filePath: '/workspace/.generated/php/Fallback.php',
+			program,
+		});
+
+		expect(context.workspace.write).toHaveBeenCalledWith(
+			'/workspace/.generated/php/Fallback.php.ast.json',
+			expectedSerialisedAst,
+			{ ensureDir: true }
+		);
+		expect(output.queueWrite).toHaveBeenCalledWith({
+			file: '/workspace/.generated/php/Fallback.php.ast.json',
+			contents: expectedSerialisedAst,
+		});
+
+		expect(context.reporter.debug).toHaveBeenCalledWith(
+			'createPhpProgramWriterHelper: emitted PHP artifact.',
+			{ file: '/workspace/.generated/php/Fallback.php' }
+		);
+	});
+
+	it('logs when no programs are queued and awaits the next helper', async () => {
+		const context = buildPipelineContext();
+		const input = buildBuilderInput();
+		const output: BuilderOutput = {
+			actions: [],
+			queueWrite: jest.fn(),
+		};
+
+		resetPhpBuilderChannel(context);
+		resetPhpAstChannel(context);
+
+		const helper = createPhpProgramWriterHelper();
+		const next = jest.fn(async () => undefined);
+
+		await helper.apply(
+			{
+				context,
+				input,
+				output,
+				reporter: context.reporter,
+			},
+			next
+		);
+
+		expect(buildPhpPrettyPrinterMock).not.toHaveBeenCalled();
+		expect(output.queueWrite).not.toHaveBeenCalled();
+		expect(context.reporter.debug).toHaveBeenCalledWith(
+			'createPhpProgramWriterHelper: no programs queued.'
+		);
+		expect(next).toHaveBeenCalledTimes(1);
 	});
 });
