@@ -20,6 +20,11 @@ import {
 	buildWpOptionUpdateRouteStatements,
 	buildWpOptionUnsupportedRouteStatements,
 } from '../../resource/wpOption';
+import {
+	buildTransientGetRouteStatements,
+	buildTransientSetRouteStatements,
+	buildTransientUnsupportedRouteStatements,
+} from '../../resource/transient';
 
 export interface HandleRouteKindOptions {
 	readonly resource: IRResource;
@@ -36,6 +41,10 @@ export function buildRouteKindStatements(
 	options: HandleRouteKindOptions
 ): PhpStmt[] | null {
 	const storage = options.resource.storage;
+	if (storage?.mode === 'transient') {
+		return buildTransientRouteStatements(options);
+	}
+
 	if (storage?.mode === 'wp-option') {
 		return buildWpOptionRouteStatements(options);
 	}
@@ -88,6 +97,34 @@ function buildWpOptionRouteStatements(
 			return buildWpOptionUnsupportedRouteStatements({
 				resource: options.resource,
 				pascalName: options.pascalName,
+				errorCodeFactory: options.errorCodeFactory,
+			});
+	}
+}
+
+function buildTransientRouteStatements(
+	options: HandleRouteKindOptions
+): PhpStmt[] {
+	switch (options.route.method) {
+		case 'GET':
+			return buildTransientGetRouteStatements({
+				resource: options.resource,
+				pascalName: options.pascalName,
+				metadataHost: options.metadataHost,
+			});
+		case 'POST':
+		case 'PUT':
+		case 'PATCH':
+			return buildTransientSetRouteStatements({
+				resource: options.resource,
+				pascalName: options.pascalName,
+				metadataHost: options.metadataHost,
+			});
+		default:
+			return buildTransientUnsupportedRouteStatements({
+				resource: options.resource,
+				pascalName: options.pascalName,
+				metadataHost: options.metadataHost,
 				errorCodeFactory: options.errorCodeFactory,
 			});
 	}

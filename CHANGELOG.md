@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Added
+
+- **CLI transient fixtures** – The default `wpk generate` golden now captures transient storage metadata, TTL helper output, and cache invalidation context alongside existing resources.
+
+### Documentation
+
+- **Transient parity guidance** – CLI contributor docs mark Tasks 11-12 as shipped, document the Task 13 fixture/doc refresh, and update adapter guidance now that transient helpers live in the AST pipeline.
+
 ## [0.5.0] - 2025-10-26
 
 ### Added

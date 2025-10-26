@@ -541,6 +541,31 @@ ${adapterEntries.map((entry) => `                ${entry}`).join(',\n')}
                         identity: { type: 'number', param: 'id' },
                         storage: { mode: 'wp-post', postType: 'job' },
                 },
+                jobCache: {
+                        name: 'job-cache',
+                        schema: 'job',
+                        routes: {
+                                get: { method: 'GET', path: '/job-cache' },
+                                update: {
+                                        method: 'PUT',
+                                        path: '/job-cache',
+                                        args: {
+                                                expiration: {
+                                                        type: 'number',
+                                                        description: 'Cache TTL (seconds)',
+                                                },
+                                        },
+                                },
+                                remove: { method: 'DELETE', path: '/job-cache' },
+                        },
+                        cacheKeys: {
+                                list: () => ['jobCache', 'list'],
+                                get: () => ['jobCache', 'get'],
+                                update: () => ['jobCache', 'update'],
+                                remove: () => ['jobCache', 'remove'],
+                        },
+                        storage: { mode: 'transient' },
+                },
         }${adapterSnippet},
 };
 `;

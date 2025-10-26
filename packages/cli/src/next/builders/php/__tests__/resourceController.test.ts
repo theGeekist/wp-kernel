@@ -13,6 +13,7 @@ import {
 	makeWpPostRoutes,
 	makeWpTaxonomyResource,
 	makeWpOptionResource,
+	makeTransientResource,
 } from '@wpkernel/test-utils/next/builders/php/resources.test-support';
 import {
 	createPhpChannelHelper,
@@ -304,6 +305,112 @@ describe('createPhpResourceControllerHelper', () => {
 			expect(output.queueWrite).toHaveBeenCalledWith({
 				file: `${optionEntry.file}.ast.json`,
 				contents: expect.stringContaining('Stmt_ClassMethod'),
+			});
+		} finally {
+			prettyPrinterSpy.mockRestore();
+		}
+	});
+
+	it('queues transient controllers with TTL helpers and cache metadata', async () => {
+		const reporter = buildReporter();
+		const workspace = buildWorkspace();
+		const context = {
+			workspace,
+			reporter,
+			phase: 'generate' as const,
+		};
+		const output: BuilderOutput = {
+			actions: [],
+			queueWrite: jest.fn(),
+		};
+
+		const ir = makePhpIrFixture({
+			resources: [makeTransientResource()],
+		});
+
+		const applyOptions = {
+			context,
+			input: {
+				phase: 'generate' as const,
+				options: {
+					config: ir.config,
+					namespace: ir.meta.namespace,
+					origin: ir.meta.origin,
+					sourcePath: ir.meta.sourcePath,
+				},
+				ir,
+			},
+			output,
+			reporter,
+		};
+
+		await createPhpChannelHelper().apply(applyOptions, undefined);
+		await createPhpResourceControllerHelper().apply(
+			applyOptions,
+			undefined
+		);
+
+		const channel = getPhpBuilderChannel(context);
+		const transientEntry = channel
+			.pending()
+			.find(
+				(candidate) =>
+					candidate.metadata.kind === 'resource-controller' &&
+					candidate.metadata.name === 'jobCache'
+			);
+
+		expect(transientEntry).toBeDefined();
+		expect(transientEntry?.metadata).toMatchObject({
+			name: 'jobCache',
+			routes: [
+				{ method: 'GET', path: '/kernel/v1/job-cache', kind: 'custom' },
+				{ method: 'PUT', path: '/kernel/v1/job-cache', kind: 'custom' },
+				{
+					method: 'DELETE',
+					path: '/kernel/v1/job-cache',
+					kind: 'custom',
+				},
+			],
+		});
+		expect(transientEntry?.docblock).toMatchSnapshot(
+			'transient-controller-docblock'
+		);
+		expect(transientEntry?.statements).toEqual([]);
+		expect(transientEntry?.program).toMatchSnapshot(
+			'transient-controller-ast'
+		);
+
+		if (!transientEntry) {
+			throw new Error('Expected transient controller entry.');
+		}
+
+		const prettyPrinter = {
+			prettyPrint: jest.fn(async ({ program }) => ({
+				code: '<?php\n// job-cache controller\n',
+				ast: program,
+			})),
+		};
+		const prettyPrinterSpy = jest
+			.spyOn(phpDriver, 'buildPhpPrettyPrinter')
+			.mockReturnValue(prettyPrinter as never);
+
+		try {
+			const writerHelper = createPhpProgramWriterHelper();
+			await writerHelper.apply(applyOptions, undefined);
+
+			expect(prettyPrinter.prettyPrint).toHaveBeenCalledWith({
+				filePath: transientEntry.file,
+				program: transientEntry.program,
+			});
+			expect(output.queueWrite).toHaveBeenCalledWith({
+				file: transientEntry.file,
+				contents: expect.stringContaining('// job-cache controller'),
+			});
+			expect(output.queueWrite).toHaveBeenCalledWith({
+				file: `${transientEntry.file}.ast.json`,
+				contents: expect.stringContaining(
+					'normaliseJobCacheExpiration'
+				),
 			});
 		} finally {
 			prettyPrinterSpy.mockRestore();
