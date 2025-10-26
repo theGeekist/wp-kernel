@@ -2,6 +2,7 @@ import { buildNode, type PhpAttributes, type PhpNode } from './base';
 import type { PhpAttrGroup } from './attributes';
 import type { PhpExpr } from './expressions';
 import type { PhpType } from './types';
+import type { PhpPropertyHook } from './propertyHook';
 
 export interface PhpParam extends PhpNode {
 	readonly nodeType: 'Param';
@@ -12,6 +13,7 @@ export interface PhpParam extends PhpNode {
 	readonly default: PhpExpr | null;
 	readonly flags: number;
 	readonly attrGroups: PhpAttrGroup[];
+	readonly hooks: PhpPropertyHook[];
 }
 
 export function buildParam(
@@ -23,6 +25,7 @@ export function buildParam(
 		default?: PhpExpr | null;
 		flags?: number;
 		attrGroups?: PhpAttrGroup[];
+		hooks?: PhpPropertyHook[];
 	} = {},
 	attributes?: PhpAttributes
 ): PhpParam {
@@ -36,6 +39,7 @@ export function buildParam(
 			default: options.default ?? null,
 			flags: options.flags ?? 0,
 			attrGroups: options.attrGroups ?? [],
+			hooks: options.hooks ?? [],
 		},
 		attributes
 	);

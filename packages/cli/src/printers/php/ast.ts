@@ -93,10 +93,13 @@ export interface PhpParam extends PhpNode {
 	readonly default: PhpExpr | null;
 	readonly flags: number;
 	readonly attrGroups: PhpAttrGroup[];
+	readonly hooks: PhpPropertyHook[];
 }
 
+type PhpStmtNodeType = `Stmt_${string}` | 'UseItem' | 'PropertyItem';
+
 export interface PhpStmtBase extends PhpNode {
-	readonly nodeType: `Stmt_${string}`;
+	readonly nodeType: PhpStmtNodeType;
 }
 
 export interface PhpStmtNamespace extends PhpStmtBase {
@@ -112,9 +115,10 @@ export interface PhpStmtUse extends PhpStmtBase {
 }
 
 export interface PhpStmtUseUse extends PhpStmtBase {
-	readonly nodeType: 'Stmt_UseUse';
+	readonly nodeType: 'UseItem';
 	readonly name: PhpName;
 	readonly alias: PhpIdentifier | null;
+	readonly type: number;
 }
 
 export interface PhpStmtClass extends PhpStmtBase {
@@ -138,6 +142,7 @@ export interface PhpStmtClassConst extends PhpStmtBase {
 	readonly flags: number;
 	readonly consts: PhpConst[];
 	readonly attrGroups: PhpAttrGroup[];
+	readonly type: PhpType | null;
 }
 
 export interface PhpConst extends PhpNode {
@@ -152,12 +157,23 @@ export interface PhpStmtProperty extends PhpStmtBase {
 	readonly type: PhpType | null;
 	readonly props: PhpStmtPropertyProperty[];
 	readonly attrGroups: PhpAttrGroup[];
+	readonly hooks: PhpPropertyHook[];
 }
 
 export interface PhpStmtPropertyProperty extends PhpStmtBase {
-	readonly nodeType: 'Stmt_PropertyProperty';
+	readonly nodeType: 'PropertyItem';
 	readonly name: PhpIdentifier;
 	readonly default: PhpExpr | null;
+}
+
+export interface PhpPropertyHook extends PhpNode {
+	readonly nodeType: 'PropertyHook';
+	readonly attrGroups: PhpAttrGroup[];
+	readonly flags: number;
+	readonly byRef: boolean;
+	readonly name: PhpIdentifier;
+	readonly params: PhpParam[];
+	readonly body: PhpExpr | PhpStmt[] | null;
 }
 
 export interface PhpStmtClassMethod extends PhpStmtBase {
@@ -298,8 +314,10 @@ export type PhpStmt =
 	| PhpStmtElse
 	| PhpStmtBase;
 
+type PhpExprNodeType = `Expr_${string}` | 'ArrayItem';
+
 export interface PhpExprBase extends PhpNode {
-	readonly nodeType: `Expr_${string}`;
+	readonly nodeType: PhpExprNodeType;
 }
 
 export interface PhpExprAssign extends PhpExprBase {
@@ -314,7 +332,7 @@ export interface PhpExprArray extends PhpExprBase {
 }
 
 export interface PhpExprArrayItem extends PhpExprBase {
-	readonly nodeType: 'Expr_ArrayItem';
+	readonly nodeType: 'ArrayItem';
 	readonly key: PhpExpr | null;
 	readonly value: PhpExpr;
 	readonly byRef: boolean;
@@ -428,12 +446,12 @@ export interface PhpScalarString extends PhpScalarBase {
 }
 
 export interface PhpScalarLNumber extends PhpScalarBase {
-	readonly nodeType: 'Scalar_LNumber';
+	readonly nodeType: 'Scalar_Int';
 	readonly value: number;
 }
 
 export interface PhpScalarDNumber extends PhpScalarBase {
-	readonly nodeType: 'Scalar_DNumber';
+	readonly nodeType: 'Scalar_Float';
 	readonly value: number;
 }
 
@@ -472,7 +490,8 @@ export type PhpNodeLike =
 	| PhpAttrGroup
 	| PhpParam
 	| PhpArg
-	| PhpConst;
+	| PhpConst
+	| PhpPropertyHook;
 
 /**
  * Generic factory helper for node construction. Consumers should prefer the
@@ -538,9 +557,14 @@ export function buildUse(
 export function buildUseUse(
 	name: PhpName,
 	alias: PhpIdentifier | null = null,
-	attributes?: PhpAttributes
+	options: { type?: number; attributes?: PhpAttributes } = {}
 ): PhpStmtUseUse {
-	return buildNode<PhpStmtUseUse>('Stmt_UseUse', { name, alias }, attributes);
+	const { type = 0, attributes } = options;
+	return buildNode<PhpStmtUseUse>(
+		'UseItem',
+		{ name, alias, type },
+		attributes
+	);
 }
 
 export function buildClass(
@@ -604,6 +628,7 @@ export function buildParam(
 		default?: PhpExpr | null;
 		flags?: number;
 		attrGroups?: PhpAttrGroup[];
+		hooks?: PhpPropertyHook[];
 	} = {},
 	attributes?: PhpAttributes
 ): PhpParam {
@@ -617,6 +642,7 @@ export function buildParam(
 			default: options.default ?? null,
 			flags: options.flags ?? 0,
 			attrGroups: options.attrGroups ?? [],
+			hooks: options.hooks ?? [],
 		},
 		attributes
 	);
@@ -657,7 +683,7 @@ export function buildArrayItem(
 	attributes?: PhpAttributes
 ): PhpExprArrayItem {
 	return buildNode<PhpExprArrayItem>(
-		'Expr_ArrayItem',
+		'ArrayItem',
 		{
 			key: options.key ?? null,
 			value,
@@ -679,14 +705,14 @@ export function buildScalarInt(
 	value: number,
 	attributes?: PhpAttributes
 ): PhpScalarLNumber {
-	return buildNode<PhpScalarLNumber>('Scalar_LNumber', { value }, attributes);
+	return buildNode<PhpScalarLNumber>('Scalar_Int', { value }, attributes);
 }
 
 export function buildScalarFloat(
 	value: number,
 	attributes?: PhpAttributes
 ): PhpScalarDNumber {
-	return buildNode<PhpScalarDNumber>('Scalar_DNumber', { value }, attributes);
+	return buildNode<PhpScalarDNumber>('Scalar_Float', { value }, attributes);
 }
 
 export function buildScalarBool(
