@@ -19,6 +19,7 @@
     - Educational error messages explaining framework contracts, runtime behavior, and concrete fixes
     - Inline documentation above each rule enforcement explaining the "why" behind constraints
     - JSDoc with @typedef for complex parameter objects and exported utilities
+- `createPhpBuilder` now exposes driver overrides (PHP binary, bridge path, or `import.meta.url`) and `createPhpProgramWriterHelper` forwards them to `@wpkernel/php-driver`, with documentation covering the new configuration surface.
 - IR inference for route transport classification (`local` vs `remote`)
 - Identity field inference from route placeholders (`:id`, `:slug`, `:uuid`)
 - Schema default to `'auto'` when storage exists but schema undefined

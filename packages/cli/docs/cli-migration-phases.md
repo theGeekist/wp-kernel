@@ -35,6 +35,7 @@ This document replaces earlier drafts (`next-cli.md.audit-backup`, `next-cli.md.
 - `runtime/createPipeline.ts` wires IR fragments and builders using `@wpkernel/core/pipeline`.
 - Helpers are created with `createHelper` and share a consistent signature (`runtime/createHelper.ts`, exported via `runtime/index.ts`).
 - Extension hooks (`runtime/adapterExtensions.ts`) execute adapter factories with sandboxed writes.
+- `createPhpBuilder` exposes `CreatePhpBuilderOptions` so consumers can thread PHP driver overrides (binary, script path, or `import.meta.url`) through to `createPhpProgramWriterHelper` when the bridge lives outside the default package layout, and the driver now resolves the bundled bridge via native module URL detection when `__dirname` is unavailable in ESM builds.
 
 ### Workspace
 
@@ -57,6 +58,7 @@ The existing fragments derive most behaviour directly from `wpk.config.*` (curre
 Core builders exist:
 
 - PHP (`builders/php/**`, channel + AST writer, resource controllers, policy helper, persistence registry, index file).
+- `createPhpProgramWriterHelper` accepts matching overrides via `CreatePhpProgramWriterHelperOptions`, forwarding them to `@wpkernel/php-driver` so alternative binaries or relocated bundles still resolve the pretty-print script.
 - TypeScript (`builders/ts.ts` with DataView screens/fixtures plus import validation via `validateGeneratedImports`).
 - Bundler (`builders/bundler.ts`) producing rollup config + asset manifests (no CLI build command planned).
 - Patcher (`builders/patcher.ts`) wrapping git three-way merge plans.
@@ -71,6 +73,7 @@ Core builders exist:
 
 - Shared fixtures for next helpers live in `packages/test-utils/src/next/**` (workspace mocks, PHP AST builders, pipeline fixtures).
 - Jest suites cover runtime, builders, and commands (see `packages/cli/src/next/**/__tests__`).
+- The PHP pipeline now ships an end-to-end integration test (`packages/cli/src/next/builders/php/__tests__/generate.integration.test.ts`) that snapshots generated controllers/policy output and ensures legacy printers remain untouched. Re-run it with `pnpm --filter @wpkernel/cli test -- --runTestsByPath packages/cli/src/next/builders/php/__tests__/generate.integration.test.ts` when updating fixtures.
 
 ---
 

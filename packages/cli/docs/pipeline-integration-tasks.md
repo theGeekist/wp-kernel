@@ -6,12 +6,12 @@ _See [Docs Index](./index.md) for navigation._
 
 ### Reserved patches (0.4.x cycle)
 
-| Task                                                  | Reserved version | Status              | Additional checks                                                 |
-| ----------------------------------------------------- | ---------------- | ------------------- | ----------------------------------------------------------------- |
-| Task 1 – Harden Next PHP Writer Helper                | 0.4.1            | ✓ shipped (this PR) | `pnpm --filter @wpkernel/cli test -- --testPathPatterns writer`   |
-| Task 2 – Audit PHP Builder Helpers for AST Purity     | 0.4.2            | ✓ shipped (this PR) | `pnpm --filter @wpkernel/cli test --testPathPattern=builders/php` |
-| Task 3 – End-to-End Generate Pipeline Coverage        | 0.4.3            | ⬜ available        | `pnpm --filter @wpkernel/test-utils test`                         |
-| Task 4 – Surface Driver Configuration & Documentation | 0.4.4            | ⬜ available        | `pnpm --filter @wpkernel/php-driver test`                         |
+| Task                                                  | Reserved version | Status              | Additional checks                                                                                                                |
+| ----------------------------------------------------- | ---------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Task 1 – Harden Next PHP Writer Helper                | 0.4.1            | ✓ shipped (this PR) | `pnpm --filter @wpkernel/cli test -- --testPathPatterns writer`                                                                  |
+| Task 2 – Audit PHP Builder Helpers for AST Purity     | 0.4.2            | ✓ shipped (this PR) | `pnpm --filter @wpkernel/cli test --testPathPattern=builders/php`                                                                |
+| Task 3 – End-to-End Generate Pipeline Coverage        | 0.4.3            | ✓ shipped (this PR) | `pnpm --filter @wpkernel/cli test -- --runTestsByPath packages/cli/src/next/builders/php/__tests__/generate.integration.test.ts` |
+| Task 4 – Surface Driver Configuration & Documentation | 0.4.4            | ✓ shipped (this PR) | `pnpm --filter @wpkernel/php-driver test`                                                                                        |
 
 Update the status column before starting work and link the PR once merged so the release shepherd can validate that every prerequisite shipped before cutting 0.5.0.
 
@@ -46,6 +46,12 @@ The next pipeline chains the PHP helpers (`packages/cli/src/next/builders/php/bu
 - Run the pipeline end-to-end (using helpers exported from `packages/test-utils/src/next/runtime/pipeline.fixtures.test-support.ts` or similar) with a representative IR, execute `createPhpBuilder` + `createPhpProgramWriterHelper`, and assert the workspace mock receives matching PHP/AST content.
 - Add guards that spy on the legacy printers (`packages/cli/src/printers/php/**`) to ensure they remain untouched during the integration test.
 
+**Completion notes**
+
+- `packages/cli/src/next/builders/php/__tests__/generate.integration.test.ts` now runs the next pipeline against a disposable workspace, stages PHP + `.ast.json` artefacts via the writer helper, and snapshots representative controllers/policy output to prove parity.
+- The suite normalises nikic/PHP-Parser v5 typed property payloads before invoking the bridge and executes through a synchronous pretty-printer shim so the packaged PHP script remains the single source of truth.
+- Legacy printers are wrapped in spies throughout the run to guarantee the end-to-end coverage exercises only the AST-first pipeline. Re-run the targeted check with `pnpm --filter @wpkernel/cli test -- --runTestsByPath packages/cli/src/next/builders/php/__tests__/generate.integration.test.ts` when updating fixtures.
+
 Task 4 – Surface Driver Configuration & Documentation (Complexity: Medium)
 Threading configurable PHP driver hooks requires plumbing options through the next builder exports (`packages/cli/src/next/builders/php/index.ts:1-7`) and runtime glue without regressing existing consumers. Once the surface exists, documentation must be refreshed across `packages/cli/docs/cli-migration-phases.md`, `packages/cli/docs/php-ast-migration-tasks.md`, and `packages/cli/CHANGELOG.md` to describe the AST→PHP flow and the new configuration knobs. The code changes are moderate and the documentation pass is deliberate but bounded, keeping the task in the medium band while still suitable for a single cloud run.
 
@@ -54,6 +60,12 @@ Threading configurable PHP driver hooks requires plumbing options through the ne
 - `createPhpProgramWriterHelper` calls `buildPhpPrettyPrinter({ workspace })` directly-there is no way to override the PHP binary, script path, or future driver options. Extend `CreatePhpBuilderOptions` so callers (and eventually CLI config) can supply these settings, propagate them through the helper pipeline, and document the new surface.
 - Exported convenience helpers in `packages/cli/src/next/builders/php/index.ts` should surface the same options to external consumers.
 - Once options exist, add unit tests ensuring overrides reach the driver (mock `buildPhpPrettyPrinter` and assert it was invoked with the supplied paths/bin). Update docs and changelog entries in the same PR so readers understand how to configure the driver.
+
+**Completion notes**
+
+- `createPhpBuilder` now accepts `CreatePhpBuilderOptions` so callers can supply a PHP binary, explicit bridge path, or `import.meta.url` when constructing the pipeline (`packages/cli/src/next/builders/php/builder.ts`).
+- `createPhpProgramWriterHelper` forwards those overrides directly to `buildPhpPrettyPrinter`, and `@wpkernel/php-driver` now resolves custom bridge paths derived from the provided `scriptPath` or native module URL detection when ESM bundles drop `__dirname` (`packages/cli/src/next/builders/php/writer.ts`, `packages/php-driver/src/prettyPrinter/*.ts`, `packages/php-driver/src/__tests__/prettyPrinter.integration.test.ts`).
+- Documentation covering the migration brief and AST parity tracker now calls out the new configuration knobs so maintainers know how to point the driver at relocated binaries or bundles.
 
 Task 5 – Add Blocks Builder (Complexity: Medium)
 The current block printers in `packages/cli/src/printers/blocks/**` still generate manifests, registrars, and `render.php` stubs as strings. A next-gen `createBlocksBuilder` must implement the same outputs using the AST-first pipeline (no delegation to or wrapping of the string-based printers), run inside the workspace transaction, and queue manifests/registrars/render templates so the block pipeline joins the AST-first workflow. This sets the stage for future config reuse-no new schema fields required because the IR already carries the block metadata.

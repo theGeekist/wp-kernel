@@ -135,6 +135,54 @@ describe('createPhpProgramWriterHelper', () => {
 		);
 	});
 
+	it('threads driver configuration overrides to the pretty printer', async () => {
+		const context = buildPipelineContext();
+		const input = buildBuilderInput();
+		const output: BuilderOutput = {
+			actions: [],
+			queueWrite: jest.fn(),
+		};
+
+		resetPhpBuilderChannel(context);
+		resetPhpAstChannel(context);
+
+		const channel = getPhpBuilderChannel(context);
+		const program = [buildStmtNop()];
+		channel.queue({
+			file: '/workspace/.generated/php/Override.php',
+			metadata: { kind: 'policy-helper' },
+			docblock: [],
+			uses: [],
+			statements: [],
+			program,
+		});
+
+		const helper = (
+			createPhpProgramWriterHelper as (
+				options?: unknown
+			) => ReturnType<typeof createPhpProgramWriterHelper>
+		)({
+			driver: {
+				binary: '/usr/bin/php82',
+				scriptPath: '/custom/pretty-print.php',
+				importMetaUrl: 'file:///custom/pkg/dist/index.js',
+			},
+		});
+		await helper.apply({
+			context,
+			input,
+			output,
+			reporter: context.reporter,
+		});
+
+		expect(buildPhpPrettyPrinterMock).toHaveBeenCalledWith({
+			workspace: context.workspace,
+			phpBinary: '/usr/bin/php82',
+			scriptPath: '/custom/pretty-print.php',
+			importMetaUrl: 'file:///custom/pkg/dist/index.js',
+		});
+	});
+
 	it('serialises the queued program when the driver omits the AST payload', async () => {
 		const context = buildPipelineContext();
 		const input = buildBuilderInput();

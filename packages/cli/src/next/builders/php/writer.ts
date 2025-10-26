@@ -6,8 +6,15 @@ import type {
 } from '../../runtime/types';
 import { getPhpBuilderChannel } from './channel';
 import { buildPhpPrettyPrinter } from '@wpkernel/php-driver';
+import type { PhpDriverConfigurationOptions } from './builder';
 
-export function createPhpProgramWriterHelper(): BuilderHelper {
+export interface CreatePhpProgramWriterHelperOptions {
+	readonly driver?: PhpDriverConfigurationOptions;
+}
+
+export function createPhpProgramWriterHelper(
+	helperOptions: CreatePhpProgramWriterHelperOptions = {}
+): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.php.writer',
 		kind: 'builder',
@@ -23,9 +30,21 @@ export function createPhpProgramWriterHelper(): BuilderHelper {
 				return;
 			}
 
-			const prettyPrinter = buildPhpPrettyPrinter({
+			const prettyPrinterOptions: Parameters<
+				typeof buildPhpPrettyPrinter
+			>[0] = {
 				workspace: options.context.workspace,
-			});
+				phpBinary: helperOptions.driver?.binary,
+				scriptPath: helperOptions.driver?.scriptPath,
+			};
+
+			if (helperOptions.driver?.importMetaUrl) {
+				(
+					prettyPrinterOptions as { importMetaUrl?: string }
+				).importMetaUrl = helperOptions.driver.importMetaUrl;
+			}
+
+			const prettyPrinter = buildPhpPrettyPrinter(prettyPrinterOptions);
 
 			for (const action of pending) {
 				const { code, ast } = await prettyPrinter.prettyPrint({
