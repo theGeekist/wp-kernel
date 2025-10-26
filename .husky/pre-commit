@@ -15,7 +15,7 @@ HAS_CLI_CHANGES=$(echo "$STAGED_FILES" | grep -E '^packages/cli/' || true)
 HAS_PHP_DRIVER_CHANGES=$(echo "$STAGED_FILES" | grep -E '^packages/php-driver/' || true)
 HAS_PHP_AST_CHANGES=$(echo "$STAGED_FILES" | grep -E '^packages/php-json-ast/' || true)
 HAS_SHOWCASE_CHANGES=$(echo "$STAGED_FILES" | grep -E '^examples/showcase/' || true)
-
+git add --all
 TYPECHECKS_EXECUTED=0
 CLI_TYPECHECK_RAN=0
 UI_TYPECHECK_RAN=0
