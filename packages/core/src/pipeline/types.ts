@@ -121,6 +121,13 @@ export interface PipelineExtensionHookResult<TArtifact> {
 	readonly rollback?: () => Promise<void>;
 }
 
+export interface PipelineExtensionRollbackErrorMetadata {
+	readonly name?: string;
+	readonly message?: string;
+	readonly stack?: string;
+	readonly cause?: unknown;
+}
+
 export type PipelineExtensionHook<TContext, TOptions, TArtifact> = (
 	options: PipelineExtensionHookOptions<TContext, TOptions, TArtifact>
 ) => Promise<PipelineExtensionHookResult<TArtifact> | void>;
@@ -233,6 +240,8 @@ export interface CreatePipelineOptions<
 	readonly onExtensionRollbackError?: (options: {
 		readonly error: unknown;
 		readonly extensionKeys: readonly string[];
+		readonly hookSequence: readonly string[];
+		readonly errorMetadata: PipelineExtensionRollbackErrorMetadata;
 		readonly context: TContext;
 	}) => void;
 	readonly createConflictDiagnostic?: (options: {
