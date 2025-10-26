@@ -11,3 +11,4 @@ export * from './wpPost/taxonomyQuery';
 export * from './wpPost/identity';
 export * from './wpPost/mutations';
 export * from './wpTaxonomy';
+export * from './wpOption';

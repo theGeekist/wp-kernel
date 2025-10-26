@@ -76,8 +76,8 @@ The goal remains: every storage mode plugs into a helper-first API, the channel 
 > **MVP Plan reference:** Tasks 5-9 (Phase 1 patch band)
 
 - **Deliverables**
-    - **Task 5 - Implementation (0.4.5):** Introduce AST builders for wp-option controllers/helpers that replicate the behaviour currently implemented in `packages/cli/src/printers/php/wp-option.ts`.
-    - **Task 6 - Tests (0.4.6):** Add unit tests that snapshot the queued `PhpProgram` payloads and confirm the writer emits matching PHP/AST pairs.
+    - **Task 5 - Implementation (0.4.5):** ✓ Completed – AST builders for wp-option controllers/helpers now live under `packages/cli/src/next/builders/php/resource/wpOption/**`, replacing the legacy printer while staying fully AST-first.
+    - **Task 6 - Tests (0.4.6):** ✓ Completed – Resource controller coverage snapshots queued `PhpProgram` payloads and verifies the writer emits matching PHP/AST pairs for wp-option controllers.
     - **Task 7 - Fixtures & docs (0.4.7):** Update integration fixtures (if any) and documentation to cover wp-option flows.
 - **Additional slots**
     - **Task 8 - Buffer (0.4.8):** Optional regression fix or polish if issues surface during Phase 1.

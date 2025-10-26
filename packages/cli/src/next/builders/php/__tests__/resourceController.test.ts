@@ -6,15 +6,18 @@ import type { ResolvedIdentity } from '../identity';
 import type { BuilderOutput } from '../../../runtime/types';
 import type { Workspace } from '../../../workspace/types';
 import { makeWorkspaceMock } from '../../../../../tests/workspace.test-support';
+import * as phpDriver from '@wpkernel/php-driver';
 import {
 	makePhpIrFixture,
 	makeWpPostResource,
 	makeWpPostRoutes,
 	makeWpTaxonomyResource,
+	makeWpOptionResource,
 } from '@wpkernel/test-utils/next/builders/php/resources.test-support';
 import {
 	createPhpChannelHelper,
 	createPhpResourceControllerHelper,
+	createPhpProgramWriterHelper,
 	getPhpBuilderChannel,
 } from '../index';
 
@@ -197,6 +200,114 @@ describe('createPhpResourceControllerHelper', () => {
 		expect(taxonomyEntry?.program).toMatchSnapshot(
 			'taxonomy-controller-ast'
 		);
+	});
+
+	it('queues wp-option controllers with autoload helpers', async () => {
+		const reporter = buildReporter();
+		const workspace = buildWorkspace();
+		const context = {
+			workspace,
+			reporter,
+			phase: 'generate' as const,
+		};
+		const output: BuilderOutput = {
+			actions: [],
+			queueWrite: jest.fn(),
+		};
+
+		const ir = makePhpIrFixture({
+			resources: [makeWpOptionResource()],
+		});
+
+		const applyOptions = {
+			context,
+			input: {
+				phase: 'generate' as const,
+				options: {
+					config: ir.config,
+					namespace: ir.meta.namespace,
+					origin: ir.meta.origin,
+					sourcePath: ir.meta.sourcePath,
+				},
+				ir,
+			},
+			output,
+			reporter,
+		};
+
+		await createPhpChannelHelper().apply(applyOptions, undefined);
+		await createPhpResourceControllerHelper().apply(
+			applyOptions,
+			undefined
+		);
+
+		const channel = getPhpBuilderChannel(context);
+		const optionEntry = channel
+			.pending()
+			.find(
+				(candidate) =>
+					candidate.metadata.kind === 'resource-controller' &&
+					candidate.metadata.name === 'demoOption'
+			);
+
+		expect(optionEntry).toBeDefined();
+		expect(optionEntry?.metadata).toMatchObject({
+			name: 'demoOption',
+			routes: [
+				{
+					method: 'GET',
+					path: '/kernel/v1/demo-option',
+					kind: 'custom',
+				},
+				{
+					method: 'PUT',
+					path: '/kernel/v1/demo-option',
+					kind: 'custom',
+				},
+			],
+		});
+
+		expect(optionEntry?.docblock).toMatchSnapshot(
+			'wp-option-controller-docblock'
+		);
+		expect(optionEntry?.statements).toEqual([]);
+		expect(optionEntry?.program).toMatchSnapshot(
+			'wp-option-controller-ast'
+		);
+
+		if (!optionEntry) {
+			throw new Error('Expected wp-option controller entry.');
+		}
+
+		const prettyPrinter = {
+			prettyPrint: jest.fn(async ({ program }) => ({
+				code: '<?php\n// demo-option controller\n',
+				ast: program,
+			})),
+		};
+		const prettyPrinterSpy = jest
+			.spyOn(phpDriver, 'buildPhpPrettyPrinter')
+			.mockReturnValue(prettyPrinter as never);
+
+		try {
+			const writerHelper = createPhpProgramWriterHelper();
+			await writerHelper.apply(applyOptions, undefined);
+
+			expect(prettyPrinter.prettyPrint).toHaveBeenCalledWith({
+				filePath: optionEntry.file,
+				program: optionEntry.program,
+			});
+			expect(output.queueWrite).toHaveBeenCalledWith({
+				file: optionEntry.file,
+				contents: expect.stringContaining('// demo-option controller'),
+			});
+			expect(output.queueWrite).toHaveBeenCalledWith({
+				file: `${optionEntry.file}.ast.json`,
+				contents: expect.stringContaining('Stmt_ClassMethod'),
+			});
+		} finally {
+			prettyPrinterSpy.mockRestore();
+		}
 	});
 });
 
