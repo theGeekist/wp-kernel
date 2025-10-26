@@ -1,7 +1,8 @@
 import { createHelper, createPipeline } from '../../src/pipeline/index.js';
 import type {
-	ConflictDiagnostic,
+	CreatePipelineOptions,
 	Helper,
+	PipelineDiagnostic,
 	PipelineStep,
 } from '../../src/pipeline/index.js';
 import { createNoopReporter } from '../../src/reporter/index.js';
@@ -51,7 +52,7 @@ describe('pipeline primitives', () => {
 
 	interface TestRunResult {
 		readonly artifact: number[];
-		readonly diagnostics: readonly ConflictDiagnostic[];
+		readonly diagnostics: readonly PipelineDiagnostic[];
 		readonly steps: readonly PipelineStep[];
 		readonly logs: readonly string[];
 	}
@@ -63,21 +64,25 @@ describe('pipeline primitives', () => {
 		Helper<TestContext, BuilderInput, BuilderOutput>['apply']
 	>[0];
 
-	function createTestPipeline() {
-		return createPipeline<
-			TestRunOptions,
-			TestBuildOptions,
-			TestContext,
-			Reporter,
-			DraftState,
-			number[],
-			ConflictDiagnostic,
-			TestRunResult,
-			FragmentInput,
-			FragmentOutput,
-			BuilderInput,
-			BuilderOutput
-		>({
+	type TestPipelineOptions = CreatePipelineOptions<
+		TestRunOptions,
+		TestBuildOptions,
+		TestContext,
+		Reporter,
+		DraftState,
+		number[],
+		PipelineDiagnostic,
+		TestRunResult,
+		FragmentInput,
+		FragmentOutput,
+		BuilderInput,
+		BuilderOutput,
+		'fragment',
+		'builder'
+	>;
+
+	function createTestPipeline(overrides: Partial<TestPipelineOptions> = {}) {
+		const options: TestPipelineOptions = {
 			fragmentKind: 'fragment',
 			builderKind: 'builder',
 			createBuildOptions(runOptions) {
@@ -138,6 +143,11 @@ describe('pipeline primitives', () => {
 					logs: context.logs.slice(),
 				} satisfies TestRunResult;
 			},
+		} satisfies TestPipelineOptions;
+
+		return createPipeline({
+			...options,
+			...overrides,
 		});
 	}
 
@@ -246,5 +256,183 @@ describe('pipeline primitives', () => {
 		pipeline.ir.use(overrideA);
 
 		expect(() => pipeline.ir.use(overrideB)).toThrow(KernelError);
+	});
+
+	it('rejects duplicate builder override registrations', () => {
+		const pipeline = createTestPipeline();
+
+		const overrideA = createHelper<
+			TestContext,
+			BuilderInput,
+			BuilderOutput,
+			Reporter,
+			'builder'
+		>({
+			key: 'builder.override',
+			kind: 'builder',
+			mode: 'override',
+			async apply() {
+				// no-op
+			},
+		});
+
+		const overrideB = createHelper<
+			TestContext,
+			BuilderInput,
+			BuilderOutput,
+			Reporter,
+			'builder'
+		>({
+			key: 'builder.override',
+			kind: 'builder',
+			mode: 'override',
+			async apply() {
+				// no-op
+			},
+		});
+
+		pipeline.builders.use(overrideA);
+
+		expect(() => pipeline.builders.use(overrideB)).toThrow(KernelError);
+	});
+
+	it('records diagnostics for missing dependencies', async () => {
+		const reporter = createNoopReporter();
+		const capturedDiagnostics: PipelineDiagnostic[] = [];
+		const pipeline = createTestPipeline({
+			createMissingDependencyDiagnostic({ helper, dependency, message }) {
+				const diagnostic = {
+					type: 'missing-dependency',
+					key: helper.key,
+					dependency,
+					message,
+				} satisfies PipelineDiagnostic;
+				capturedDiagnostics.push(diagnostic);
+				return diagnostic;
+			},
+			createUnusedHelperDiagnostic({ helper, message }) {
+				const diagnostic = {
+					type: 'unused-helper',
+					key: helper.key,
+					message,
+				} satisfies PipelineDiagnostic;
+				capturedDiagnostics.push(diagnostic);
+				return diagnostic;
+			},
+		});
+
+		const orphanFragment = createHelper<
+			TestContext,
+			FragmentInput,
+			FragmentOutput,
+			Reporter,
+			'fragment'
+		>({
+			key: 'fragment.orphan',
+			kind: 'fragment',
+			dependsOn: ['fragment.missing'],
+			async apply() {
+				// no-op
+			},
+		});
+
+		pipeline.ir.use(orphanFragment);
+
+		await expect(
+			pipeline.run({
+				reporter,
+				workspace: '/tmp/workspace',
+				seed: 1,
+			})
+		).rejects.toThrow(KernelError);
+
+		expect(capturedDiagnostics).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({
+					type: 'missing-dependency',
+					key: 'fragment.orphan',
+					dependency: 'fragment.missing',
+				}),
+				expect.objectContaining({
+					type: 'unused-helper',
+					key: 'fragment.orphan',
+				}),
+			])
+		);
+	});
+
+	it('records diagnostics for dependency cycles', async () => {
+		const reporter = createNoopReporter();
+		const capturedDiagnostics: PipelineDiagnostic[] = [];
+		const pipeline = createTestPipeline({
+			createUnusedHelperDiagnostic({ helper, message }) {
+				const diagnostic = {
+					type: 'unused-helper',
+					key: helper.key,
+					message,
+				} satisfies PipelineDiagnostic;
+				capturedDiagnostics.push(diagnostic);
+				return diagnostic;
+			},
+		});
+
+		const first = createHelper<
+			TestContext,
+			FragmentInput,
+			FragmentOutput,
+			Reporter,
+			'fragment'
+		>({
+			key: 'fragment.first',
+			kind: 'fragment',
+			dependsOn: ['fragment.second'],
+			async apply() {
+				// no-op
+			},
+		});
+
+		const second = createHelper<
+			TestContext,
+			FragmentInput,
+			FragmentOutput,
+			Reporter,
+			'fragment'
+		>({
+			key: 'fragment.second',
+			kind: 'fragment',
+			dependsOn: ['fragment.first'],
+			async apply() {
+				// no-op
+			},
+		});
+
+		pipeline.ir.use(first);
+		pipeline.ir.use(second);
+
+		await expect(
+			pipeline.run({
+				reporter,
+				workspace: '/tmp/workspace',
+				seed: 5,
+			})
+		).rejects.toThrow(KernelError);
+
+		expect(capturedDiagnostics).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({
+					type: 'unused-helper',
+					key: 'fragment.first',
+				}),
+				expect.objectContaining({
+					type: 'unused-helper',
+					key: 'fragment.second',
+				}),
+			])
+		);
+		expect(
+			capturedDiagnostics.every((diagnostic) =>
+				diagnostic.message.includes('dependencies')
+			)
+		).toBe(true);
 	});
 });
