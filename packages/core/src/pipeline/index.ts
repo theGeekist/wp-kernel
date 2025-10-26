@@ -10,6 +10,8 @@ export type {
 	CreateHelperOptions,
 	Pipeline,
 	PipelineDiagnostic,
+	MissingDependencyDiagnostic,
+	UnusedHelperDiagnostic,
 	PipelineExtension,
 	PipelineExtensionHook,
 	PipelineExtensionHookOptions,
