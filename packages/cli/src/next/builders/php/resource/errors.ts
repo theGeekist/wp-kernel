@@ -5,12 +5,11 @@ import {
 	buildFuncCall,
 	buildIfStatement,
 	buildName,
-	buildNode,
+	buildNew,
 	buildReturn,
 	buildScalarInt,
 	buildScalarString,
 	type PhpExpr,
-	type PhpExprNew,
 	type PhpStmt,
 	type PhpStmtIf,
 	type PhpStmtReturn,
@@ -27,20 +26,17 @@ export function buildWpErrorReturn(
 ): PhpStmtReturn {
 	const { code, message, status = 400 } = options;
 
-	const errorExpr = buildNode<PhpExprNew>('Expr_New', {
-		class: buildName(['WP_Error']),
-		args: [
-			buildArg(buildScalarString(code)),
-			buildArg(buildScalarString(message)),
-			buildArg(
-				buildArray([
-					buildArrayItem(buildScalarInt(status), {
-						key: buildScalarString('status'),
-					}),
-				])
-			),
-		],
-	});
+	const errorExpr = buildNew(buildName(['WP_Error']), [
+		buildArg(buildScalarString(code)),
+		buildArg(buildScalarString(message)),
+		buildArg(
+			buildArray([
+				buildArrayItem(buildScalarInt(status), {
+					key: buildScalarString('status'),
+				}),
+			])
+		),
+	]);
 
 	return buildReturn(errorExpr);
 }

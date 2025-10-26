@@ -383,6 +383,18 @@ export function buildFuncCall(
 	);
 }
 
+export function buildNew(
+	className: PhpName | PhpExpr,
+	args: PhpArg[] = [],
+	attributes?: PhpAttributes
+): PhpExprNew {
+	return buildNode<PhpExprNew>(
+		'Expr_New',
+		{ class: className, args },
+		attributes
+	);
+}
+
 export function buildPropertyFetch(
 	variable: PhpExpr,
 	name: PhpIdentifier | PhpExpr,
@@ -416,6 +428,33 @@ export function buildBooleanNot(
 		{ expr },
 		attributes
 	);
+}
+
+export type PhpBinaryOperator =
+	| 'Plus'
+	| 'Minus'
+	| 'Mul'
+	| 'Div'
+	| 'Mod'
+	| 'BooleanAnd'
+	| 'BooleanOr'
+	| 'Smaller'
+	| 'SmallerOrEqual'
+	| 'Greater'
+	| 'GreaterOrEqual'
+	| 'Equal'
+	| 'NotEqual'
+	| 'Identical'
+	| 'NotIdentical';
+
+export function buildBinaryOperation(
+	operator: PhpBinaryOperator,
+	left: PhpExpr,
+	right: PhpExpr,
+	attributes?: PhpAttributes
+): PhpExprBinaryOp {
+	const nodeType = `Expr_BinaryOp_${operator}` as PhpExprBinaryOp['nodeType'];
+	return buildNode<PhpExprBinaryOp>(nodeType, { left, right }, attributes);
 }
 
 export function buildInstanceof(
@@ -517,6 +556,19 @@ export function buildArrowFunction(
 			expr: options.expr,
 			attrGroups: options.attrGroups ?? [],
 		},
+		attributes
+	);
+}
+
+export function buildTernary(
+	cond: PhpExpr,
+	ifExpr: PhpExpr | null,
+	elseExpr: PhpExpr,
+	attributes?: PhpAttributes
+): PhpExprTernary {
+	return buildNode<PhpExprTernary>(
+		'Expr_Ternary',
+		{ cond, if: ifExpr, else: elseExpr },
 		attributes
 	);
 }

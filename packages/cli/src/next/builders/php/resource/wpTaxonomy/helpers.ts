@@ -10,7 +10,7 @@ import {
 	buildIdentifier,
 	buildMethodCall,
 	buildName,
-	buildNode,
+	buildNullableType,
 	buildParam,
 	buildReturn,
 	buildScalarBool,
@@ -20,7 +20,6 @@ import {
 	buildNull,
 	PHP_METHOD_MODIFIER_PRIVATE,
 	type PhpExprMethodCall,
-	type PhpNullableType,
 	type PhpStmt,
 	type PhpStmtClassMethod,
 	type PhpStmtExpression,
@@ -224,9 +223,7 @@ function buildResolveTermHelper(pascalName: string): TaxonomyHelperMethod {
 		{
 			flags: PHP_METHOD_MODIFIER_PRIVATE,
 			params: [buildParam(buildVariable(identityVar.raw))],
-			returnType: buildNode<PhpNullableType>('NullableType', {
-				type: buildName(['WP_Term']),
-			}),
+			returnType: buildNullableType(buildName(['WP_Term'])),
 			stmts: statements,
 		}
 	);
