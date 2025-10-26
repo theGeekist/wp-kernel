@@ -6,12 +6,12 @@ _See [Docs Index](./index.md) for navigation._
 
 ### Reserved patches (0.4.x cycle)
 
-| Task                                                  | Reserved version | Status       | Additional checks                                                    |
-| ----------------------------------------------------- | ---------------- | ------------ | -------------------------------------------------------------------- |
-| Task 1 – Harden Next PHP Writer Helper                | 0.4.1            | ⬜ available | `pnpm --filter @wpkernel/cli test -- --testPathPattern=writer`       |
-| Task 2 – Audit PHP Builder Helpers for AST Purity     | 0.4.2            | ⬜ available | `pnpm --filter @wpkernel/cli test -- --testPathPattern=builders/php` |
-| Task 3 – End-to-End Generate Pipeline Coverage        | 0.4.3            | ⬜ available | `pnpm --filter @wpkernel/test-utils test`                            |
-| Task 4 – Surface Driver Configuration & Documentation | 0.4.4            | ⬜ available | `pnpm --filter @wpkernel/php-driver test`                            |
+| Task                                                  | Reserved version | Status       | Additional checks                                                 |
+| ----------------------------------------------------- | ---------------- | ------------ | ----------------------------------------------------------------- |
+| Task 1 – Harden Next PHP Writer Helper                | 0.4.1            | ⬜ available | `pnpm --filter @wpkernel/cli test --testPathPattern=writer`       |
+| Task 2 – Audit PHP Builder Helpers for AST Purity     | 0.4.2            | ⬜ available | `pnpm --filter @wpkernel/cli test --testPathPattern=builders/php` |
+| Task 3 – End-to-End Generate Pipeline Coverage        | 0.4.3            | ⬜ available | `pnpm --filter @wpkernel/test-utils test`                         |
+| Task 4 – Surface Driver Configuration & Documentation | 0.4.4            | ⬜ available | `pnpm --filter @wpkernel/php-driver test`                         |
 
 Update the status column before starting work and link the PR once merged so the release shepherd can validate that every prerequisite shipped before cutting 0.5.0.
 

@@ -14,7 +14,7 @@ Whenever you add or rename a page, update the navigation indices that reference 
 
 ### Coordination
 
-Large documentation updates should mention the affected pages in `docs/guide/repository-handbook.md` and call out the coverage in the pull request description. When edits touch both code and docs, run the full documentation suite (`pnpm lint -- --fix` if applicable, plus `pnpm typecheck:tests` when code snippets are executable) before shipping. This keeps the public narrative, root specifications, and test suite aligned.
+Large documentation updates should mention the affected pages in `docs/guide/repository-handbook.md` and call out the coverage in the pull request description. When edits touch both code and docs, run the full documentation suite (`pnpm lint --fix` if applicable, plus `pnpm typecheck:tests` when code snippets are executable) before shipping. This keeps the public narrative, root specifications, and test suite aligned.
 
 ### Versioning & Releases
 

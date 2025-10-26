@@ -512,7 +512,7 @@ gh run view <run-id> --log
 
 ```bash
 # Run specific test
-pnpm test -- --testNamePattern="should create thing"
+pnpm test --testNamePattern="should create thing"
 
 # Debug in VS Code
 # Add breakpoint, then F5
