@@ -13,6 +13,7 @@ import { buildTransientHelperMethods } from '../transient/helpers';
 import {
 	buildTransientGetRouteStatements,
 	buildTransientSetRouteStatements,
+	buildTransientDeleteRouteStatements,
 	buildTransientUnsupportedRouteStatements,
 } from '../transient/routes';
 import { makeTransientResource } from '@wpkernel/test-utils/next/builders/php/resources.test-support';
@@ -247,6 +248,55 @@ describe('transient route builders', () => {
 					scope: 'get',
 					operation: 'invalidate',
 					description: 'Invalidate transient value',
+				}),
+			])
+		);
+	});
+
+	it('builds delete route statements, invalidates cache, and returns deletion payload', () => {
+		const resource = makeTransientResource();
+		const { metadata, host } = createMetadataHost();
+
+		const statements = buildTransientDeleteRouteStatements({
+			resource,
+			pascalName: 'JobCache',
+			metadataHost: host,
+		});
+
+		expect(statements).toHaveLength(6);
+		expect(statements[0]).toMatchObject({
+			nodeType: 'Stmt_Expression',
+			expr: { nodeType: 'Expr_Assign' },
+		});
+
+		const deleteAssignment = statements.find((statement) =>
+			isVariableAssignment(statement, 'deleted')
+		);
+		if (!deleteAssignment) {
+			throw new Error('Expected delete assignment to be present.');
+		}
+		expect(deleteAssignment.expr.expr).toMatchObject({
+			nodeType: 'Expr_FuncCall',
+			name: expect.objectContaining({ parts: ['delete_transient'] }),
+		});
+
+		const returnStatement = statements[5];
+		if (!isReturnStatement(returnStatement)) {
+			throw new Error('Expected delete return statement to be present.');
+		}
+
+		const serialised = JSON.stringify(returnStatement);
+		expect(serialised).toContain('deleted');
+		expect(serialised).toContain('previous');
+		expect(serialised).toContain('Expr_Cast_Bool');
+
+		const cache = metadata.cache;
+		expect(cache?.events).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({
+					scope: 'get',
+					operation: 'invalidate',
+					description: 'Delete transient value',
 				}),
 			])
 		);

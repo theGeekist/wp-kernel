@@ -439,7 +439,12 @@ final class JobCacheController extends BaseController
      */
     public function deleteKernelV1JobCache(WP_REST_Request $request)
     {
-        return new WP_Error('wpk_job_cache_unsupported_operation', 'Operation not supported for JobCache transient.', ['status' => 501]);
+        $key = $this->getJobCacheTransientKey();
+        $previous = get_transient($key);
+        
+        $deleted = delete_transient($key);
+        
+        return ['key' => $key, 'deleted' => (bool) $deleted, 'previous' => $previous];
     }
     private function getJobCacheTransientKey(): string
     {

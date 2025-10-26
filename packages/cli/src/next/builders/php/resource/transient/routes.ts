@@ -203,6 +203,74 @@ export function buildTransientSetRouteStatements(
 	return statements;
 }
 
+export function buildTransientDeleteRouteStatements(
+	options: BuildTransientRouteBaseOptions
+): PhpStmt[] {
+	ensureTransientStorage(options.resource);
+
+	appendResourceCacheEvent({
+		host: options.metadataHost,
+		scope: 'get',
+		operation: 'invalidate',
+		segments: options.resource.cacheKeys.get.segments,
+		description: 'Delete transient value',
+	});
+
+	const keyVar = normaliseVariableReference('key');
+	const previousVar = normaliseVariableReference('previous');
+	const deletedVar = normaliseVariableReference('deleted');
+
+	const statements: PhpStmt[] = [];
+
+	statements.push(
+		buildMethodCallAssignmentStatement({
+			variable: keyVar.display,
+			subject: 'this',
+			method: `get${options.pascalName}TransientKey`,
+		})
+	);
+
+	statements.push(
+		buildFunctionCallAssignmentStatement({
+			variable: previousVar.display,
+			functionName: 'get_transient',
+			args: [buildArg(buildVariable(keyVar.raw))],
+		})
+	);
+
+	statements.push(buildStmtNop());
+
+	statements.push(
+		buildVariableAssignment(
+			deletedVar,
+			buildFunctionCall('delete_transient', [
+				buildArg(buildVariable(keyVar.raw)),
+			])
+		)
+	);
+
+	statements.push(buildStmtNop());
+
+	statements.push(
+		buildReturn(
+			buildArray([
+				buildArrayItem(buildVariable(keyVar.raw), {
+					key: buildScalarString('key'),
+				}),
+				buildArrayItem(
+					buildScalarCast('bool', buildVariable(deletedVar.raw)),
+					{ key: buildScalarString('deleted') }
+				),
+				buildArrayItem(buildVariable(previousVar.raw), {
+					key: buildScalarString('previous'),
+				}),
+			])
+		)
+	);
+
+	return statements;
+}
+
 export function buildTransientUnsupportedRouteStatements(
 	options: BuildTransientUnsupportedRouteOptions
 ): PhpStmt[] {

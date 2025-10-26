@@ -117,7 +117,8 @@ The goal remains: every storage mode plugs into a helper-first API, the channel 
 
 - **Task 11 - Implementation (0.5.1):** ✓ Completed – Transient controllers/helpers now live under `packages/cli/src/next/builders/php/resource/transient/**`, emitting sanitised keys and TTL normalisers through the AST pipeline.
 - **Task 12 - Tests (0.5.2):** ✓ Completed – Builder and controller suites assert transient cache metadata, TTL sanitisation, and WP_Error handling while snapshotting queued `PhpProgram` artefacts.
-- **Task 13 - Fixtures & docs (0.5.3):** 🚧 In progress – Regenerating CLI goldens and updating contributor docs so transient helpers, storage bindings, and cache invalidation guidance surface for plugin authors.
+- **Task 13 - Fixtures & docs (0.5.3):** ✓ Completed – CLI goldens and contributor docs now surface transient helpers, storage bindings, and cache invalidation guidance for plugin authors.
+- **Task 14 - Buffer (0.5.4):** 🚧 In progress – Tracking the transient DELETE regression fix discovered during post-Task 13 validation.
 
 ### Phase 3 - Block printers (SSR & JS-only) ⏳
 
