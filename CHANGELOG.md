@@ -7,7 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.4.0] - Unreleased
+## [0.5.0] - 2025-10-26
+
+### Added
+
+- **wp-option AST parity** – The next-generation CLI pipeline now emits wp-option controllers, helpers, and routes as `PhpProgram` artefacts alongside existing post and taxonomy resources, replacing the legacy string-based printer.
+
+### Changed
+
+- **Integration coverage** – The shared PHP IR fixture, generate integration suite, and controller snapshots now capture DemoOption artefacts so regression tests exercise the option controller end to end.
+
+### Documentation
+
+- **Phase 1 tracking updates** – CLI migration docs mark Tasks 8 and 9 as shipped, note the unused hotfix buffer, and advance the roadmap to the 0.5.x train ahead of the Phase 1 minor release.
+
+### Maintenance
+
+- **Release prep** – No hotfixes were required during the buffer slot; all publishable packages and showcase examples now carry version `0.5.0` in preparation for the Phase 1 release.
+
+## [0.4.0]
 
 ### Added - Sprint 5: React Hooks Integration
 
