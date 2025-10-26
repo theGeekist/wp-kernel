@@ -6,25 +6,23 @@ _See [Docs Index](./index.md) for navigation._
 
 ### Reserved patches (0.4.x cycle)
 
-| Task                                                  | Reserved version | Status       | Additional checks                                                 |
-| ----------------------------------------------------- | ---------------- | ------------ | ----------------------------------------------------------------- |
-| Task 1 – Harden Next PHP Writer Helper                | 0.4.1            | ⬜ available | `pnpm --filter @wpkernel/cli test --testPathPattern=writer`       |
-| Task 2 – Audit PHP Builder Helpers for AST Purity     | 0.4.2            | ⬜ available | `pnpm --filter @wpkernel/cli test --testPathPattern=builders/php` |
-| Task 3 – End-to-End Generate Pipeline Coverage        | 0.4.3            | ⬜ available | `pnpm --filter @wpkernel/test-utils test`                         |
-| Task 4 – Surface Driver Configuration & Documentation | 0.4.4            | ⬜ available | `pnpm --filter @wpkernel/php-driver test`                         |
+| Task                                                  | Reserved version | Status              | Additional checks                                                 |
+| ----------------------------------------------------- | ---------------- | ------------------- | ----------------------------------------------------------------- |
+| Task 1 – Harden Next PHP Writer Helper                | 0.4.1            | ✓ shipped (this PR) | `pnpm --filter @wpkernel/cli test -- --testPathPatterns writer`   |
+| Task 2 – Audit PHP Builder Helpers for AST Purity     | 0.4.2            | ⬜ available        | `pnpm --filter @wpkernel/cli test --testPathPattern=builders/php` |
+| Task 3 – End-to-End Generate Pipeline Coverage        | 0.4.3            | ⬜ available        | `pnpm --filter @wpkernel/test-utils test`                         |
+| Task 4 – Surface Driver Configuration & Documentation | 0.4.4            | ⬜ available        | `pnpm --filter @wpkernel/php-driver test`                         |
 
 Update the status column before starting work and link the PR once merged so the release shepherd can validate that every prerequisite shipped before cutting 0.5.0.
 
 ---
 
 Task 1 – Harden Next PHP Writer Helper (Complexity: Low–Medium)
-`createPhpProgramWriterHelper` already drains the channel, invokes the pretty printer with each queued `PhpProgramAction`, and writes both the PHP source and JSON AST with `ensureDir` semantics before mirroring the writes through `queueWrite` (`packages/cli/src/next/builders/php/writer.ts:10-63`). The remaining risk lives in edge cases: the fallback path when the driver omits an AST payload, the “no work queued” branch, and the debug logging contract all lack coverage. Tightening those seams is a focused change-layer in fixture-driven tests that cover the fallback serialisation and log assertions while keeping the helper’s output queue intact.
+`createPhpProgramWriterHelper` already drains the channel, invokes the pretty printer with each queued `PhpProgramAction`, and writes both the PHP source and JSON AST with `ensureDir` semantics before mirroring the writes through `queueWrite` (`packages/cli/src/next/builders/php/writer.ts:10-63`). The remaining risk lived in edge cases: the fallback path when the driver omits an AST payload, the “no work queued” branch, and the debug logging contract all lacked coverage. Tightening those seams is a focused change-layer in fixture-driven tests that cover the fallback serialisation and log assertions while keeping the helper’s output queue intact.
 
-**Audit findings**
+**Completion notes**
 
-- When `prettyPrint` omits the AST payload we fall back to the original program (`finalAst = ast ?? action.program`), but there is no test proving the JSON output is built from the fallback. Add a new test case where the mocked driver returns `{ code, ast: undefined }` and assert the `.ast.json` file serialises the queued program.
-- We do not assert reporter activity. Add expectations for the “no programs queued” branch and for the per-file debug log to ensure logging stays intact.
-- Consider a lightweight test that drains no items and confirms `next?.()` is awaited, so the helper behaves as a pass-through when the channel is empty.
+Task 1 now ships regression coverage for the fallback serialisation, empty-channel pass-through, and debug logging contract. The writer helper tests assert JSON output is derived from the queued program whenever the driver omits an AST payload, verify both PHP and AST writes are mirrored through `queueWrite`, and guard the reporter messages in the “no work queued” branch. Keep these fixtures up to date as the pipeline evolves so the channel contract stays locked down.
 
 Task 2 – Audit PHP Builder Helpers for AST Purity (Complexity: Medium)
 Helpers under `packages/cli/src/next/builders/php/` mostly compose AST nodes via `@wpkernel/php-json-ast`, yet a handful still lean on handwritten objects or string scaffolding. This task walks every helper, replaces ad hoc constructions with canonical factories, and backfills fixtures/tests so schema drift is caught immediately. Expect broad-but-mechanical edits that touch controllers, registries, and shared utilities while keeping the AST-first contract airtight.

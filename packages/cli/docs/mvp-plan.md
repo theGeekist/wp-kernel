@@ -14,18 +14,18 @@ _See [Docs Index](./index.md) for navigation._
 
 ### Reserved version ledger (0.4.x cycle – before Phase 1 minor)
 
-| Slot  | Scope                                             | Status       | Notes                                                            |
-| ----- | ------------------------------------------------- | ------------ | ---------------------------------------------------------------- |
-| 0.4.1 | Task 1 – Harden PHP writer helper                 | ⬜ available | Includes coverage + logging guardrails.                          |
-| 0.4.2 | Task 2 – Audit PHP builder helpers for AST purity | ⬜ available | Verify all helpers use canonical factories + add tests.          |
-| 0.4.3 | Task 3 – End-to-end generate coverage             | ⬜ available | Use next workspace fixtures only.                                |
-| 0.4.4 | Task 4 – Driver configuration & documentation     | ⬜ available | Update docs + exports alongside code.                            |
-| 0.4.5 | Phase 1 (wp-option parity) – AST builders land    | ⬜ available | Implement controllers/helpers.                                   |
-| 0.4.6 | Phase 1 – wp-option parity tests                  | ⬜ available | Snapshot queued `PhpProgram` payloads.                           |
-| 0.4.7 | Phase 1 – wp-option fixtures/docs                 | ⬜ available | Refresh fixtures + docs to match AST output.                     |
-| 0.4.8 | Buffer – hotfix for Phase 1 work                  | ⬜ available | Optional safety slot before 0.5.0.                               |
-| 0.4.9 | Release engineering prep                          | ⬜ available | Changelog rollup + release PR immediately before 0.5.0.          |
-| 0.5.0 | **Phase 1 minor**                                 | ⬜ pending   | Requires every 0.4.x slot to be ✓. Follow the release checklist. |
+| Slot  | Scope                                             | Status              | Notes                                                            |
+| ----- | ------------------------------------------------- | ------------------- | ---------------------------------------------------------------- |
+| 0.4.1 | Task 1 – Harden PHP writer helper                 | ✓ shipped (this PR) | Coverage + logging guardrails landed via writer helper tests.    |
+| 0.4.2 | Task 2 – Audit PHP builder helpers for AST purity | ⬜ available        | Verify all helpers use canonical factories + add tests.          |
+| 0.4.3 | Task 3 – End-to-end generate coverage             | ⬜ available        | Use next workspace fixtures only.                                |
+| 0.4.4 | Task 4 – Driver configuration & documentation     | ⬜ available        | Update docs + exports alongside code.                            |
+| 0.4.5 | Phase 1 (wp-option parity) – AST builders land    | ⬜ available        | Implement controllers/helpers.                                   |
+| 0.4.6 | Phase 1 – wp-option parity tests                  | ⬜ available        | Snapshot queued `PhpProgram` payloads.                           |
+| 0.4.7 | Phase 1 – wp-option fixtures/docs                 | ⬜ available        | Refresh fixtures + docs to match AST output.                     |
+| 0.4.8 | Buffer – hotfix for Phase 1 work                  | ⬜ available        | Optional safety slot before 0.5.0.                               |
+| 0.4.9 | Release engineering prep                          | ⬜ available        | Changelog rollup + release PR immediately before 0.5.0.          |
+| 0.5.0 | **Phase 1 minor**                                 | ⬜ pending          | Requires every 0.4.x slot to be ✓. Follow the release checklist. |
 
 ## Definition of "MVP"
 
@@ -51,7 +51,7 @@ Before coding, the agent must review `AGENTS.md`, the referenced documentation, 
 
 | ID  | Task                                     | Summary & Scope                                                                                                                                                                                  | Reserved version                            | Required checks                                                              |
 | --- | ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------- | ---------------------------------------------------------------------------- |
-| 1   | Harden PHP writer helper                 | Add coverage for fallback AST serialisation, reporter calls, and empty-channel behaviour in `createPhpProgramWriterHelper`.                                                                      | 0.4.1 (patch)                               | Baseline + `pnpm --filter @wpkernel/cli test --testPathPattern=writer`       |
+| 1   | Harden PHP writer helper                 | Add coverage for fallback AST serialisation, reporter calls, and empty-channel behaviour in `createPhpProgramWriterHelper`.                                                                      | 0.4.1 (patch)                               | Baseline + `pnpm --filter @wpkernel/cli test -- --testPathPatterns writer`   |
 | 2   | Audit PHP builder helpers for AST purity | Walk `packages/cli/src/next/builders/php/**` to ensure every helper uses `@wpkernel/php-json-ast` factories, removing legacy scaffolding and updating fixtures/tests for schema conformance.     | 0.4.2 (patch)                               | Baseline + `pnpm --filter @wpkernel/cli test --testPathPattern=builders/php` |
 | 3   | End-to-end generate coverage             | Execute the PHP builder + writer against a workspace fixture and assert emitted `.php`/`.ast.json` files without touching string-based printers.                                                 | 0.4.3 (patch)                               | Baseline + `pnpm --filter @wpkernel/test-utils test`                         |
 | 4   | Driver configuration & documentation     | Thread optional PHP driver settings (binary, script path, import meta URL) through `createPhpBuilder`/`createPhpProgramWriterHelper`, update exports, and document the knobs.                    | 0.4.4 (patch)                               | Baseline + `pnpm --filter @wpkernel/php-driver test`                         |
@@ -62,3 +62,5 @@ Before coding, the agent must review `AGENTS.md`, the referenced documentation, 
 | 9   | Update documentation & lint links        | After code tasks complete, ensure all documentation and lint rule links reflect the final state.                                                                                                 | Use next available patch in active cycle    | Baseline + `pnpm lint --fix`                                                 |
 
 Each task should be executed independently; if a task proves too large for a single agent run, the agent must scope it into smaller follow-up tasks using the evaluation workflow above.
+
+Task 1 is now ✓ shipped (this PR). The writer helper tests cover fallback AST serialisation, the empty-channel guard, and reporter debug output; treat those assertions as baseline coverage for future changes.
