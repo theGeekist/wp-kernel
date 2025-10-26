@@ -284,6 +284,11 @@ describe('createPhpBuilder integration', () => {
 				await captureArtefact(
 					ir.php.outputDir,
 					'Rest',
+					'JobCacheController.php'
+				);
+				await captureArtefact(
+					ir.php.outputDir,
+					'Rest',
 					'DemoOptionController.php'
 				);
 				await captureArtefact(ir.php.outputDir, 'Policy', 'Policy.php');
@@ -319,13 +324,16 @@ describe('createPhpBuilder integration', () => {
 			'.generated/php/Rest/BooksController.php.ast.json',
 			'.generated/php/Rest/JobCategoriesController.php',
 			'.generated/php/Rest/JobCategoriesController.php.ast.json',
+			'.generated/php/Rest/JobCacheController.php',
+			'.generated/php/Rest/JobCacheController.php.ast.json',
 			'.generated/php/Rest/DemoOptionController.php',
 			'.generated/php/Rest/DemoOptionController.php.ast.json',
 			'.generated/php/index.php',
 			'.generated/php/index.php.ast.json',
 		].sort();
 
-		expect(Array.from(artefacts.keys()).sort()).toEqual(expectedFiles);
+		const actualFiles = Array.from(artefacts.keys()).sort();
+		expect(actualFiles).toEqual(expectedFiles);
 
 		const queuedRelativeFiles = queuedWrites
 			.map((action) => normalise(action.file))
@@ -361,6 +369,14 @@ describe('createPhpBuilder integration', () => {
 		expect(demoOptionControllerPhp).toBeDefined();
 		expect(demoOptionControllerPhp).toMatchSnapshot(
 			'demo-option-controller.php'
+		);
+
+		const jobCacheControllerPhp = artefacts.get(
+			'.generated/php/Rest/JobCacheController.php'
+		);
+		expect(jobCacheControllerPhp).toBeDefined();
+		expect(jobCacheControllerPhp).toMatchSnapshot(
+			'job-cache-controller.php'
 		);
 
 		const policyHelperPhp = artefacts.get(
