@@ -217,7 +217,7 @@ Helpers rely on the DOM attributes emitted by `ResourceDataView`. Keep those sel
 
 ## Migration guidance
 
-- **Snapshot reference** – `packages/ui/vendor/dataviews-snapshot/` contains a checked-in copy of the Gutenberg sources for offline inspection. Refresh it with `pnpm --filter @wpkernel/ui update:dataviews-snapshot -- --source <path>`.
+- **Snapshot reference** – `packages/ui/vendor/dataviews-snapshot/` contains a checked-in copy of the Gutenberg sources for offline inspection. Refresh it with `pnpm --filter @wpkernel/ui update:dataviews-snapshot --source <path>`.
 - **Compat provider** – For WordPress versions prior to 6.7 wrap your screens with the compatibility helpers in `packages/ui/src/compat/dataviews.ts` to fall back to legacy tables.
 - **Generated code** – CLI fixtures emit function bodies verbatim. Review generated files before committing to keep long-term maintenance manageable.
 

@@ -83,4 +83,5 @@ export default {
 			statements: 88,
 		},
 	},
+	coveragePathIgnorePatterns: ['\\.test-support\\.(ts|tsx)$'],
 };
