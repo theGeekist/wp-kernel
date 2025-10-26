@@ -4,7 +4,7 @@ _See [Docs Index](./index.md) for navigation._
 
 > **Non-negotiables:** These tasks live on the next pipeline. Do not introduce or wrap string-based PHP printers, and reserve the `create*` prefix for helpers built with `createHelper`.
 
-### Reserved patches (0.4.x cycle)
+### Reserved patches (0.4.x cycle - completed)
 
 | Hardening item                                        | Reserved version | Status    | Additional checks                                                                                                             | MVP Plan task |
 | ----------------------------------------------------- | ---------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------- | ------------- |

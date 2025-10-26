@@ -1,6 +1,24 @@
 # @wpkernel/cli
 
-## 0.4.0 [Unreleased]
+## 0.5.0 - 2025-10-26
+
+### Added
+
+- **wp-option controllers (AST)** – `packages/cli/src/next/builders/php/resource/wpOption/**` now emit wp-option controllers through the next-generation pipeline, replacing the legacy string printer while preserving helper-first behaviour.
+
+### Changed
+
+- **Integration coverage** – The generate integration suite and controller snapshots include DemoOption fixtures so resource routing, method dispatch, and writer output stay covered end to end.
+
+### Documentation
+
+- **Phase 1 closure** – MVP plan, migration phases, and parity trackers mark Tasks 8 and 9 as shipped, document the unused buffer hotfix slot, and advance the CLI roadmap to the v0.5.x release track.
+
+### Maintenance
+
+- **Release prep** – No buffer hotfixes were required; the package version is bumped to `0.5.0` alongside the rest of the monorepo.
+
+## 0.4.0
 
 ### Added
 
