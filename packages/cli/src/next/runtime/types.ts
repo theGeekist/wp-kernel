@@ -1,15 +1,24 @@
 import type { Reporter } from '@wpkernel/core/reporter';
-import type { BuildIrOptions, IRv1 } from '../../ir/types';
 import type { Helper, HelperDescriptor } from '@wpkernel/core/pipeline';
+import type {
+	BuilderHelper as PhpBuilderHelper,
+	BuilderInput as PhpBuilderInput,
+	BuilderOutput as PhpBuilderOutput,
+	BuilderWriteAction as PhpBuilderWriteAction,
+	PipelineContext as PhpPipelineContext,
+	PipelinePhase,
+} from '@wpkernel/php-json-ast';
+import type { BuildIrOptions, IRv1 } from '../../ir/types';
 import type { MutableIr } from '../ir/types';
 import type { Workspace } from '../workspace/types';
 
-export type PipelinePhase = 'init' | 'generate' | 'apply' | `custom:${string}`;
+type BasePipelineContext = PhpPipelineContext;
 
-export interface PipelineContext {
+export type { PipelinePhase };
+
+export interface PipelineContext
+	extends Omit<BasePipelineContext, 'workspace'> {
 	readonly workspace: Workspace;
-	readonly phase: PipelinePhase;
-	readonly reporter: Reporter;
 }
 
 export interface PipelineRunOptions {
@@ -61,28 +70,21 @@ export interface FragmentOutput {
 	assign: (partial: Partial<MutableIr>) => void;
 }
 
-export interface BuilderInput {
-	readonly phase: PipelinePhase;
+type BaseBuilderInput = PhpBuilderInput;
+
+export interface BuilderInput extends Omit<BaseBuilderInput, 'options' | 'ir'> {
 	readonly options: BuildIrOptions;
 	readonly ir: IRv1 | null;
 }
 
-export interface BuilderWriteAction {
-	readonly file: string;
-	readonly contents: Buffer | string;
-}
+export type BuilderWriteAction = PhpBuilderWriteAction;
 
-export interface BuilderOutput {
-	readonly actions: BuilderWriteAction[];
-	queueWrite: (action: BuilderWriteAction) => void;
-}
+export type BuilderOutput = PhpBuilderOutput;
 
-export type BuilderHelper = Helper<
+export type BuilderHelper = PhpBuilderHelper<
 	PipelineContext,
 	BuilderInput,
-	BuilderOutput,
-	PipelineContext['reporter'],
-	'builder'
+	BuilderOutput
 >;
 
 export interface PipelineExtensionHookOptions {
