@@ -6,12 +6,11 @@ import {
 	buildIdentifier,
 	buildMethodCall,
 	buildName,
-	buildNode,
+	buildNew,
 	buildScalarInt,
 	buildScalarString,
 	buildVariable,
 	type PhpExprBinaryOp,
-	type PhpExprNew,
 	type PhpStmtExpression,
 	type PhpStmtIf,
 	type ResourceControllerCacheOperation,
@@ -188,10 +187,9 @@ export function buildWpQueryExecutionStatement(
 
 	const targetRef = normaliseVariableReference(target);
 	const argsRef = normaliseVariableReference(argsVariable);
-	const instantiation = buildNode<PhpExprNew>('Expr_New', {
-		class: buildName(['WP_Query']),
-		args: [buildArg(buildVariable(argsRef.raw))],
-	});
+	const instantiation = buildNew(buildName(['WP_Query']), [
+		buildArg(buildVariable(argsRef.raw)),
+	]);
 
 	return buildVariableAssignment(targetRef, instantiation);
 }

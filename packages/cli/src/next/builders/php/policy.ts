@@ -16,7 +16,7 @@ import {
 	buildDocComment,
 	buildIdentifier,
 	buildName,
-	buildNode,
+	buildNew,
 	buildParam,
 	buildReturn,
 	buildScalarString,
@@ -28,7 +28,6 @@ import {
 	PHP_METHOD_MODIFIER_STATIC,
 	type PhpAstBuilderAdapter,
 	type PhpAttributes,
-	type PhpExprNew,
 	type PhpStmtClassMethod,
 } from '@wpkernel/php-json-ast';
 import { renderPhpValue } from './resource/phpValue';
@@ -153,15 +152,12 @@ function buildEnforceMethod(): PhpStmtClassMethod {
 		],
 	});
 
-	const errorExpr = buildNode<PhpExprNew>('Expr_New', {
-		class: buildName(['WP_Error']),
-		args: [
-			buildArg(buildScalarString('wpk_policy_stub')),
-			buildArg(
-				buildScalarString('Policy enforcement is not yet implemented.')
-			),
-		],
-	});
+	const errorExpr = buildNew(buildName(['WP_Error']), [
+		buildArg(buildScalarString('wpk_policy_stub')),
+		buildArg(
+			buildScalarString('Policy enforcement is not yet implemented.')
+		),
+	]);
 
 	return buildClassMethod(
 		buildIdentifier('enforce'),

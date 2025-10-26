@@ -5,15 +5,16 @@ import {
 	buildArrayDimFetch as buildArrayDimFetchNode,
 	buildArrayItem,
 	buildAssign,
+	buildBinaryOperation as buildBinaryOperationNode,
 	buildBooleanNot as buildBooleanNotExpr,
 	buildExpressionStatement,
+	buildForeach,
 	buildFuncCall,
 	buildIdentifier,
 	buildIfStatement,
 	buildInstanceof as buildInstanceofExpr,
 	buildMethodCall,
 	buildName,
-	buildNode,
 	buildPropertyFetch as buildPropertyFetchNode,
 	buildReturn,
 	buildScalarCast as buildScalarCastNode,
@@ -21,8 +22,8 @@ import {
 	buildStmtNop,
 	buildVariable,
 	type PhpArg,
+	type PhpBinaryOperator,
 	type PhpExpr,
-	type PhpExprBinaryOp,
 	type PhpExprBooleanNot,
 	type PhpExprFuncCall,
 	type PhpExprMethodCall,
@@ -74,30 +75,14 @@ export function buildScalarCast(kind: ScalarCastKind, expr: PhpExpr): PhpExpr {
 	return buildScalarCastNode(kind, expr);
 }
 
-export type BinaryOperator =
-	| 'Plus'
-	| 'Minus'
-	| 'Mul'
-	| 'Div'
-	| 'Mod'
-	| 'BooleanAnd'
-	| 'BooleanOr'
-	| 'Smaller'
-	| 'SmallerOrEqual'
-	| 'Greater'
-	| 'GreaterOrEqual'
-	| 'Equal'
-	| 'NotEqual'
-	| 'Identical'
-	| 'NotIdentical';
+export type BinaryOperator = PhpBinaryOperator;
 
 export function buildBinaryOperation(
 	operator: BinaryOperator,
 	left: PhpExpr,
 	right: PhpExpr
-): PhpExprBinaryOp {
-	const nodeType = `Expr_BinaryOp_${operator}` as PhpExprBinaryOp['nodeType'];
-	return buildNode<PhpExprBinaryOp>(nodeType, { left, right });
+) {
+	return buildBinaryOperationNode(operator, left, right);
 }
 
 export interface IfStatementOptions {
@@ -284,8 +269,7 @@ export function buildForeachStatement(
 			? buildVariable(options.value)
 			: options.value;
 
-	return buildNode<PhpStmtForeach>('Stmt_Foreach', {
-		expr: options.iterable,
+	return buildForeach(options.iterable, {
 		valueVar,
 		keyVar,
 		byRef: options.byRef ?? false,

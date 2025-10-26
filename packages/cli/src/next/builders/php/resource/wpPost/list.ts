@@ -2,16 +2,16 @@ import {
 	buildArg,
 	buildArray,
 	buildAssign,
+	buildContinue,
 	buildExpressionStatement,
+	buildForeach,
 	buildFuncCall,
 	buildIdentifier,
 	buildIfStatement,
 	buildMethodCall,
 	buildName,
-	buildNode,
 	buildVariable,
 	type PhpStmt,
-	type PhpStmtContinue,
 	type PhpStmtForeach,
 } from '@wpkernel/php-json-ast';
 import {
@@ -44,9 +44,7 @@ export function buildListForeachStatement(
 		)
 	);
 
-	const continueStatement = buildNode<PhpStmtContinue>('Stmt_Continue', {
-		num: null,
-	});
+	const continueStatement = buildContinue();
 
 	const guard = buildIfStatement(
 		buildBooleanNot(buildInstanceof('post', 'WP_Post')),
@@ -67,11 +65,9 @@ export function buildListForeachStatement(
 		)
 	);
 
-	return buildNode<PhpStmtForeach>('Stmt_Foreach', {
-		expr: buildPropertyFetch('query', 'posts'),
+	return buildForeach(buildPropertyFetch('query', 'posts'), {
 		valueVar: buildVariable('post_id'),
 		keyVar: null,
-		byRef: false,
 		stmts: [assignment, guard, pushStatement],
 	});
 }

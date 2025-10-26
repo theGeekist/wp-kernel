@@ -1,4 +1,4 @@
-import type { PhpNode } from './base';
+import { buildNode, type PhpAttributes, type PhpNode } from './base';
 import type { PhpIdentifier } from './identifier';
 import type { PhpName } from './name';
 
@@ -23,3 +23,10 @@ export type PhpType =
 	| PhpNullableType
 	| PhpUnionType
 	| PhpIntersectionType;
+
+export function buildNullableType(
+	type: PhpType,
+	attributes?: PhpAttributes
+): PhpNullableType {
+	return buildNode<PhpNullableType>('NullableType', { type }, attributes);
+}
