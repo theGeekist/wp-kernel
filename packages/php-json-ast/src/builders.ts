@@ -3,12 +3,14 @@ export {
 	createPhpProgramBuilder,
 	createPhpFileBuilder,
 } from './programBuilder';
+export { createPhpProgramWriterHelper } from './programWriter';
 
 export type {
 	HelperKind,
 	HelperMode,
 	PipelinePhase,
 	Workspace,
+	WorkspaceWriteOptions,
 	PipelineContext,
 	HelperApplyOptions,
 	HelperApplyFn,
@@ -23,3 +25,7 @@ export type {
 	CreatePhpFileBuilderOptions,
 	PhpAstBuilderAdapter,
 } from './programBuilder';
+export type {
+	CreatePhpProgramWriterHelperOptions,
+	PhpDriverConfigurationOptions,
+} from './programWriter';
