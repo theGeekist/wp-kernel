@@ -108,12 +108,20 @@ The goal remains: every storage mode plugs into a helper-first API, the channel 
 #### Task 14 - Phase 2 buffer slot (0.5.4)
 
 - Reserve room for hotfixes uncovered while landing Tasks 11-13 (e.g., AST edge cases, driver configuration gaps).
-- Close the slot unmodified if no regressions surface; document the validation path so future phases can reuse the pattern.
+- Ship any regressions discovered during verification-transient DELETE handlers now remove cache entries instead of returning 501 errors.
+- Close the slot unmodified if no additional regressions surface; document the validation path so future phases can reuse the pattern.
 
 #### Task 15 - Phase 2 minor release (0.6.0)
 
 - Once Tasks 11-14 are ✓, cut the 0.6.0 release via `RELEASING.md` (version bump, changelog rollup, unified checks across CLI/Core/PHP driver/UI).
 - Announce the transient parity milestone in `CHANGELOG.md` and ensure adapters know where to hook into the new helpers.
+- Refresh docs (`mvp-plan.md`, `cli-migration-phases.md`, adapter brief) to mark Phase 2 as complete and open the Phase 3 patch band.
+
+- **Task 11 - Implementation (0.5.1):** ✓ Completed – Transient controllers/helpers now live under `packages/cli/src/next/builders/php/resource/transient/**`, emitting sanitised keys and TTL normalisers through the AST pipeline.
+- **Task 12 - Tests (0.5.2):** ✓ Completed – Builder and controller suites assert transient cache metadata, TTL sanitisation, and WP_Error handling while snapshotting queued `PhpProgram` artefacts.
+- **Task 13 - Fixtures & docs (0.5.3):** ✓ Completed – CLI goldens and contributor docs now surface transient helpers, storage bindings, and cache invalidation guidance for plugin authors.
+- **Task 14 - Buffer (0.5.4):** ✓ Completed – DELETE routes now call `delete_transient()` and record cache invalidation metadata so callers can invalidate per-entity caches.
+- **Task 15 - Release (0.6.0):** ✓ Completed – Version 0.6.0 shipped with unified changelog entries and version bumps across the monorepo.
 
 ### Phase 3 - Block printers (SSR & JS-only) ⏳
 

@@ -27,7 +27,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin constants.
-\define( 'WPK_SHOWCASE_VERSION', '0.5.0' );
+\define( 'WPK_SHOWCASE_VERSION', '0.6.0' );
 \define( 'WPK_SHOWCASE_FILE', __FILE__ );
 \define( 'WPK_SHOWCASE_PATH', \plugin_dir_path( __FILE__ ) );
 \define( 'WPK_SHOWCASE_URL', \plugin_dir_url( __FILE__ ) );

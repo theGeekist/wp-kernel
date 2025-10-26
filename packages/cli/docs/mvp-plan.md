@@ -2,7 +2,7 @@
 
 _See [Docs Index](./index.md) for navigation._
 
-> **Versioning reminder:** The CLI now rides the unified **v0.5.x (pre-1.0)** track. Phase 1 patch slots (0.4.5-0.4.9) are closed; Phase 2 work uses the 0.5.1-0.5.4 band. Claim the next available slot before you start, update the status when you land, and consolidate into the parent phase release once every patch in that band ships.
+> **Versioning reminder:** The CLI now rides the unified **v0.6.x (pre-1.0)** track. Phase 2 patch slots (0.5.1-0.5.4) are closed; Phase 3 work uses the 0.6.1-0.6.4 band. Claim the next available slot before you start, update the status when you land, and consolidate into the parent phase release once every patch in that band ships.
 
 ## Coordination & guardrails
 
@@ -32,15 +32,15 @@ _See [Docs Index](./index.md) for navigation._
 | 0.4.9 | Task 9 - Release engineering prep               | ✓ shipped | Changelog rollup + monorepo version bump prepared for the 0.5.0 handoff.                                | [Release process](../../RELEASING.md#1%EF%B8%8F%E2%83%A3-versioning-rules)                                 |
 | 0.5.0 | Task 10 - **Phase 1 minor**                     | ✓ shipped | All 0.4.x slots closed; 0.5.0 shipped via the unified release checklist.                                | [Release process](../../RELEASING.md#3%EF%B8%8F%E2%83%A3-release-process)                                  |
 
-### Phase 2 - Transient Storage Parity (⬜ Planned)
+### Phase 2 - Transient Storage Parity (✓ Complete)
 
-| Slot  | Scope                                      | Status     | Notes                                                                                                         | Detail reference                                                                                       |
-| ----- | ------------------------------------------ | ---------- | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| 0.5.1 | Task 11 - Transient AST builders land      | ⬜ pending | Port transient controllers/helpers to AST builders without string fallbacks.                                  | [Phase 2 - transient builders](./php-ast-migration-tasks.md#task-11--transient-ast-builders)           |
-| 0.5.2 | Task 12 - Transient parity tests           | ⬜ pending | Cover cache events, error paths, and queued writer output for transient resources.                            | [Phase 2 - transient tests](./php-ast-migration-tasks.md#task-12--transient-parity-tests)              |
-| 0.5.3 | Task 13 - Transient fixtures & docs        | ⬜ pending | Refresh fixtures/docs to reflect AST-driven transient flows and reference new helper entry points.            | [Phase 2 - transient fixtures/docs](./php-ast-migration-tasks.md#task-13--transient-fixtures-and-docs) |
-| 0.5.4 | Task 14 - Buffer slot for transient parity | ⬜ pending | Reserve capacity for regression fixes discovered while landing Tasks 11-13; close unused once validation ends | [Phase 2 - buffer cadence](./php-ast-migration-tasks.md#task-14--phase-2-buffer-slot)                  |
-| 0.6.0 | Task 15 - **Phase 2 minor**                | ⬜ pending | Cut 0.6.0 after every 0.5.x slot ships; run the full release checklist across all affected workspaces.        | [Release process](../../RELEASING.md#3%EF%B8%8F%E2%83%A3-release-process)                              |
+| Slot  | Scope                                      | Status    | Notes                                                                                                                | Detail reference                                                                                       |
+| ----- | ------------------------------------------ | --------- | -------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| 0.5.1 | Task 11 - Transient AST builders land      | ✓ shipped | AST helpers for transient controllers now live in the next pipeline with key sanitisation + TTL normalisation.       | [Phase 2 - transient builders](./php-ast-migration-tasks.md#task-11--transient-ast-builders)           |
+| 0.5.2 | Task 12 - Transient parity tests           | ✓ shipped | Builder and controller suites cover transient cache metadata, TTL helpers, and WP_Error fallbacks.                   | [Phase 2 - transient tests](./php-ast-migration-tasks.md#task-12--transient-parity-tests)              |
+| 0.5.3 | Task 13 - Transient fixtures & docs        | ✓ shipped | CLI goldens + docs refreshed so transient helpers surface in fixtures and contributor guides.                        | [Phase 2 - transient fixtures/docs](./php-ast-migration-tasks.md#task-13--transient-fixtures-and-docs) |
+| 0.5.4 | Task 14 - Buffer slot for transient parity | ✓ shipped | DELETE handlers now clear transient storage and emit cache invalidation events so per-entity caches stay consistent. | [Phase 2 - buffer cadence](./php-ast-migration-tasks.md#task-14--phase-2-buffer-slot)                  |
+| 0.6.0 | Task 15 - **Phase 2 minor**                | ✓ shipped | 0.6.0 cut with full release checks after closing the transient buffer slot; Phase 3 patch band now open.             | [Release process](../../RELEASING.md#3%EF%B8%8F%E2%83%A3-release-process)                              |
 
 ## Definition of "MVP"
 

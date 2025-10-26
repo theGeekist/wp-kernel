@@ -1,5 +1,25 @@
 # @wpkernel/cli
 
+## Unreleased
+
+## 0.6.0 - 2025-10-26
+
+### Added
+
+- **Transient fixtures** – The generate command golden captures transient storage metadata, TTL helper output, and cache invalidation context beside existing resources.
+
+### Fixed
+
+- **Transient DELETE handlers** – DELETE routes now call `delete_transient()`, emit cache invalidation events, and return previous payloads rather than replying with `501` errors.
+
+### Documentation
+
+- **Phase 2 wrap-up** – Migration plan, AST tracker, and adapter brief mark Task 14 as shipped, highlight identity-aware cache keys, and log the 0.6.0 release.
+
+### Maintenance
+
+- **Monorepo release** – Bumped `@wpkernel/cli` to `0.6.0` alongside the rest of the workspace after completing the Phase 2 checklist.
+
 ## 0.5.0 - 2025-10-26
 
 ### Added

@@ -12,3 +12,4 @@ export * from './wpPost/identity';
 export * from './wpPost/mutations';
 export * from './wpTaxonomy';
 export * from './wpOption';
+export * from './transient';

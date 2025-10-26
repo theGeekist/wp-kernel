@@ -13,7 +13,7 @@ _See [Docs Index](./index.md) for navigation._
 | Item 3 - End-to-End Generate Pipeline Coverage        | 0.4.3            | ✓ shipped | `pnpm --filter @wpkernel/cli test --runTestsByPath packages/cli/src/next/builders/php/__tests__/generate.integration.test.ts` | Task 3        |
 | Item 4 - Surface Driver Configuration & Documentation | 0.4.4            | ✓ shipped | `pnpm --filter @wpkernel/php-driver test`                                                                                     | Task 4        |
 
-Update the status column before starting work and link the PR once merged so the release shepherd can validate that every prerequisite shipped before cutting 0.5.0.
+Update the status column before starting work and link the PR once merged so the release shepherd can validate that every prerequisite shipped before cutting 0.6.0.
 
 ---
 

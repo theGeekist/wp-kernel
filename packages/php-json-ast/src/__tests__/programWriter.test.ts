@@ -101,8 +101,6 @@ describe('createPhpProgramWriterHelper', () => {
 			{
 				context: {
 					workspace,
-					phase: 'generate' as const,
-					reporter,
 				},
 				input: undefined as never,
 				output: undefined as never,

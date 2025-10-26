@@ -3,7 +3,7 @@
 _See [Docs Index](./index.md) for navigation._
 
 Status: **Alpha**  
-Version train: **v0.5.x (pre-1.0)**
+Version train: **v0.6.x (pre-1.0)**
 Scope: `packages/cli/src/next/**`  
 Audience: maintainers and contributors working on the wpk helper-first pipeline (`packages/cli/src/next/**`).
 
@@ -13,14 +13,14 @@ This document replaces earlier drafts (`next-cli.md.audit-backup`, `next-cli.md.
 
 ## Release cadence
 
-| Phase                             | Scope checkpoint                              | Minor release | Required patch band | Phase gate checks                         |
-| --------------------------------- | --------------------------------------------- | ------------- | ------------------- | ----------------------------------------- |
-| Phase 0 - Foundations (completed) | Pipeline hardening (Tasks 1‑4)                | -             | 0.4.1 → 0.4.4       | Baseline CLI checks per task              |
-| Phase 1 - wp-option parity        | AST builders + fixtures (patch band complete) | **0.5.0**     | 0.4.5 → 0.4.9       | CLI/core typecheck + CLI/php-driver tests |
-| Phase 2 - transient parity        | AST builders + cache events                   | **0.6.0**     | 0.5.1 → 0.5.4       | CLI/core + transient integration tests    |
-| Phase 3 - block builders          | SSR + JS-only builders                        | **0.7.0**     | 0.6.1 → 0.6.9       | CLI/ui + block integration smoke          |
-| Phase 4 - string printers retired | Remove legacy writers                         | **0.8.0**     | 0.7.1 → 0.7.4       | CLI + docs regeneration + regression run  |
-| Phase 5 - Apply layering          | Shims + flags + logging                       | **0.9.0**     | 0.8.1 → 0.8.4       | `wpk generate`/`wpk apply` acceptance run |
+| Phase                             | Scope checkpoint                                                                                      | Minor release | Required patch band | Phase gate checks                         |
+| --------------------------------- | ----------------------------------------------------------------------------------------------------- | ------------- | ------------------- | ----------------------------------------- |
+| Phase 0 - Foundations (completed) | Pipeline hardening (Tasks 1‑4)                                                                        | -             | 0.4.1 → 0.4.4       | Baseline CLI checks per task              |
+| Phase 1 - wp-option parity        | AST builders + fixtures (patch band complete)                                                         | **0.5.0**     | 0.4.5 → 0.4.9       | CLI/core typecheck + CLI/php-driver tests |
+| Phase 2 - transient parity        | AST builders + cache events (Tasks 11-15 shipped; transient buffer closed ahead of the 0.6.0 release) | **0.6.0**     | 0.5.1 → 0.5.4       | CLI/core + transient integration tests    |
+| Phase 3 - block builders          | SSR + JS-only builders                                                                                | **0.7.0**     | 0.6.1 → 0.6.9       | CLI/ui + block integration smoke          |
+| Phase 4 - string printers retired | Remove legacy writers                                                                                 | **0.8.0**     | 0.7.1 → 0.7.4       | CLI + docs regeneration + regression run  |
+| Phase 5 - Apply layering          | Shims + flags + logging                                                                               | **0.9.0**     | 0.8.1 → 0.8.4       | `wpk generate`/`wpk apply` acceptance run |
 
 - **Patch bands:** Each phase reserves patch numbers in batches of three (implementation, tests, fixtures/docs) plus a buffer slot. Consume them sequentially; update [MVP Plan](./mvp-plan.md) as you go so parallel agents never target the same release.
 - **Non-negotiables:** Every helper touched here must remain AST-first. Do not revive string-based printers, and reserve the `create*` prefix for helpers produced via `createHelper` (alias third-party `create*` functions locally if needed).
@@ -149,7 +149,7 @@ These align with `docs/pipeline-integration-tasks.md` and related planning docs.
     - Port flag handling, backups, `.wpk-apply.log`, and generated-directory hygiene into `NextApplyCommand`.
 2. **PHP AST parity**
     - Track progress in `docs/php-ast-migration-tasks.md`.
-    - Outstanding: transient parity, block printers, and removal of string-based printers once complete.
+    - Outstanding: transient fixture/doc refresh (Task 13), block printers, and removal of string-based printers once complete.
 3. **Block & UI builders**
     - Introduce a next-gen blocks builder (SSR + JS-only).
     - Expand `createTsBuilder` to cover stores/bootstrap/storybook and create import validation flows for new artefacts.

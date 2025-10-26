@@ -1,8 +1,8 @@
-**WP Kernel API v0.5.0**
+**WP Kernel API v0.6.0**
 
 ---
 
-# WP Kernel API v0.5.0
+# WP Kernel API v0.6.0
 
 ## Modules
 
