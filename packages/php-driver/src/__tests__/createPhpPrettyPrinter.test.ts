@@ -88,6 +88,19 @@ describe('buildPhpPrettyPrinter', () => {
 		expect(fs.existsSync(scriptPath)).toBe(true);
 	});
 
+	it('resolves the pretty print script relative to an import meta URL', () => {
+		const fakeImportMetaUrl = new URL(
+			'file:///virtual/pkg/dist/index.js'
+		).toString();
+		const scriptPath = resolvePrettyPrintScriptPath({
+			importMetaUrl: fakeImportMetaUrl,
+		});
+
+		expect(scriptPath).toBe(
+			path.resolve('/virtual/pkg', 'php', 'pretty-print.php')
+		);
+	});
+
 	it('invokes the PHP bridge and returns formatted code and AST payloads', async () => {
 		spawnMock.mockImplementation(() =>
 			makeMockChildProcess({
@@ -136,6 +149,65 @@ describe('buildPhpPrettyPrinter', () => {
 				cwd: workspace.root,
 				env: expect.objectContaining({
 					PHP_MEMORY_LIMIT: '768M',
+				}),
+			})
+		);
+	});
+
+	it('passes import meta URL overrides to the bridge invocation', async () => {
+		spawnMock.mockImplementation(() =>
+			makeMockChildProcess({
+				onEnd: ({ child, stdout }) => {
+					setImmediate(() => {
+						stdout.emit(
+							'data',
+							JSON.stringify({
+								code: '<?php echo 1;\n',
+								ast: ['node'],
+							})
+						);
+						child.emit('close', 0);
+					});
+				},
+			})
+		);
+
+		const importMetaUrl = new URL(
+			'file:///custom/pkg/dist/index.js'
+		).toString();
+		const prettyPrinter = buildPhpPrettyPrinter({
+			workspace,
+			importMetaUrl,
+		});
+
+		await prettyPrinter.prettyPrint({
+			filePath: 'Rest/BaseController.php',
+			program: [
+				{
+					nodeType: 'Stmt_Nop',
+				},
+			] as PhpProgram,
+		});
+
+		const expectedScriptPath = path.resolve(
+			'/custom/pkg',
+			'php',
+			'pretty-print.php'
+		);
+
+		expect(spawnMock).toHaveBeenCalledWith(
+			'php',
+			[
+				'-d',
+				'memory_limit=512M',
+				expectedScriptPath,
+				workspace.root,
+				'Rest/BaseController.php',
+			],
+			expect.objectContaining({
+				cwd: workspace.root,
+				env: expect.objectContaining({
+					PHP_MEMORY_LIMIT: '512M',
 				}),
 			})
 		);
