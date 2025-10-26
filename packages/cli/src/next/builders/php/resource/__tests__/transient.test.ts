@@ -161,7 +161,7 @@ describe('transient helper builders', () => {
 				expect.objectContaining({
 					nodeType: 'Stmt_Return',
 					expr: expect.objectContaining({
-						nodeType: 'Scalar_LNumber',
+						nodeType: 'Scalar_Int',
 						value: 0,
 					}),
 				}),

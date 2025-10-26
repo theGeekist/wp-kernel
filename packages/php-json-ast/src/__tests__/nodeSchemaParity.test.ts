@@ -72,10 +72,13 @@ type InterfaceSchema = {
 	readonly properties: Set<string>;
 };
 
-type InterfaceMetadata = InterfaceSchema & {
+type InterfaceMetadata = {
+	readonly interfaceName: string;
+	readonly filePath: string;
 	readonly extends: readonly string[];
 	readonly ownProperties: readonly string[];
 	readonly nodeType: string | null;
+	properties?: Set<string>;
 };
 
 function collectTypeScriptNodeSchemas(): Map<string, InterfaceSchema> {
@@ -129,7 +132,6 @@ function collectTypeScriptNodeSchemas(): Map<string, InterfaceSchema> {
 				extends: extendsNames,
 				ownProperties,
 				nodeType,
-				properties: new Set<string>(),
 			});
 		});
 	}
@@ -162,7 +164,7 @@ function collectInterfaceProperties(
 	interfaces: Map<string, InterfaceMetadata>,
 	seen: Set<string>
 ): Set<string> {
-	if (metadata.properties.size > 0) {
+	if (metadata.properties) {
 		return metadata.properties;
 	}
 

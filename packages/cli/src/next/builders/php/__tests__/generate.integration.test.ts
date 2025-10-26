@@ -109,6 +109,7 @@ const legacyPrinterSpies: LegacySpy[] = [
 ];
 
 const CLI_VENDOR_ROOT = path.resolve(__dirname, '../../../../../vendor');
+const INTEGRATION_TIMEOUT_MS = 20000;
 
 afterEach(() => {
 	for (const entry of legacyPrinterSpies) {
@@ -123,281 +124,294 @@ afterAll(() => {
 });
 
 describe('createPhpBuilder integration', () => {
-	it('emits PHP + AST artefacts via the PHP driver without touching legacy printers', async () => {
-		const ir = makePhpIrFixture();
-		const builder = createPhpBuilder();
-		const reporter = createReporterStub();
-		const queuedWrites: BuilderOutput['actions'] = [];
-		const output: BuilderOutput = {
-			actions: queuedWrites,
-			queueWrite(action) {
-				queuedWrites.push(action);
-			},
-		};
+	it(
+		'emits PHP + AST artefacts via the PHP driver without touching legacy printers',
+		async () => {
+			const ir = makePhpIrFixture();
+			const builder = createPhpBuilder();
+			const reporter = createReporterStub();
+			const queuedWrites: BuilderOutput['actions'] = [];
+			const output: BuilderOutput = {
+				actions: queuedWrites,
+				queueWrite(action) {
+					queuedWrites.push(action);
+				},
+			};
 
-		const artefacts = new Map<string, string>();
-		let workspaceRoot: string | null = null;
+			const artefacts = new Map<string, string>();
+			let workspaceRoot: string | null = null;
 
-		const prettyPrinterSpy = jest
-			.spyOn(phpDriver, 'buildPhpPrettyPrinter')
-			.mockImplementation((options) => {
-				const scriptPath =
-					options.scriptPath ??
-					phpDriver.resolvePrettyPrintScriptPath();
-				const phpBinary = options.phpBinary ?? 'php';
+			const prettyPrinterSpy = jest
+				.spyOn(phpDriver, 'buildPhpPrettyPrinter')
+				.mockImplementation((options) => {
+					const scriptPath =
+						options.scriptPath ??
+						phpDriver.resolvePrettyPrintScriptPath();
+					const phpBinary = options.phpBinary ?? 'php';
 
-				return {
-					async prettyPrint(payload) {
-						const normalisedProgram = normalisePhpValue(
-							payload.program
-						);
-						const input = JSON.stringify({
-							file: payload.filePath,
-							ast: normalisedProgram,
-						});
-						const result = spawnSync(
-							phpBinary,
-							[
-								'-d',
-								'memory_limit=1024M',
-								scriptPath,
-								options.workspace.root,
-								payload.filePath,
-							],
-							{
-								input,
-								encoding: 'utf8',
+					return {
+						async prettyPrint(payload) {
+							const normalisedProgram = normalisePhpValue(
+								payload.program
+							);
+							const input = JSON.stringify({
+								file: payload.filePath,
+								ast: normalisedProgram,
+							});
+							const result = spawnSync(
+								phpBinary,
+								[
+									'-d',
+									'memory_limit=1024M',
+									scriptPath,
+									options.workspace.root,
+									payload.filePath,
+								],
+								{
+									input,
+									encoding: 'utf8',
+								}
+							);
+
+							if (result.error) {
+								throw result.error;
 							}
-						);
 
-						if (result.error) {
-							throw result.error;
-						}
+							if (result.status !== 0) {
+								throw new Error(
+									`PHP pretty print failed (${result.status}): ${
+										result.stderr || result.stdout
+									}`
+								);
+							}
 
-						if (result.status !== 0) {
-							throw new Error(
-								`PHP pretty print failed (${result.status}): ${
-									result.stderr || result.stdout
-								}`
-							);
-						}
-
-						try {
-							const stdout = result.stdout.trim();
-							const jsonStart = stdout.indexOf('{');
-							const parsedPayload =
-								jsonStart === -1
-									? stdout
-									: stdout.slice(jsonStart);
-							return JSON.parse(
-								parsedPayload
-							) as phpDriver.PhpPrettyPrintResult;
-						} catch (_error) {
-							throw new Error(
-								`Failed to parse pretty print output: ${result.stdout}`
-							);
-						}
-					},
-				} satisfies phpDriver.PhpPrettyPrinter;
-			});
-
-		try {
-			await withWorkspace(async (workspacePath) => {
-				const workspace = buildWorkspace(workspacePath);
-				workspaceRoot = workspace.root;
-				await fs.cp(CLI_VENDOR_ROOT, workspace.resolve('vendor'), {
-					recursive: true,
+							try {
+								const stdout = result.stdout.trim();
+								const jsonStart = stdout.indexOf('{');
+								const parsedPayload =
+									jsonStart === -1
+										? stdout
+										: stdout.slice(jsonStart);
+								return JSON.parse(
+									parsedPayload
+								) as phpDriver.PhpPrettyPrintResult;
+							} catch (_error) {
+								throw new Error(
+									`Failed to parse pretty print output: ${result.stdout}`
+								);
+							}
+						},
+					} satisfies phpDriver.PhpPrettyPrinter;
 				});
-				await fs.access(workspace.resolve('vendor', 'autoload.php'));
-				await fs.access(
-					workspace.resolve(
-						'vendor',
-						'nikic',
-						'php-parser',
-						'lib',
-						'PhpParser',
-						'JsonDecoder.php'
-					)
-				);
-				const toRelative = (absolute: string): string => {
-					if (!workspaceRoot) {
-						throw new Error('Workspace root not initialised.');
-					}
 
-					const relative = path
-						.relative(workspaceRoot, absolute)
-						.split(path.sep)
-						.join('/');
-					return relative === '' ? '.' : relative;
-				};
+			try {
+				await withWorkspace(async (workspacePath) => {
+					const workspace = buildWorkspace(workspacePath);
+					workspaceRoot = workspace.root;
+					await fs.cp(CLI_VENDOR_ROOT, workspace.resolve('vendor'), {
+						recursive: true,
+					});
+					await fs.access(
+						workspace.resolve('vendor', 'autoload.php')
+					);
+					await fs.access(
+						workspace.resolve(
+							'vendor',
+							'nikic',
+							'php-parser',
+							'lib',
+							'PhpParser',
+							'JsonDecoder.php'
+						)
+					);
+					const toRelative = (absolute: string): string => {
+						if (!workspaceRoot) {
+							throw new Error('Workspace root not initialised.');
+						}
 
-				const captureArtefact = async (
-					...segments: string[]
-				): Promise<void> => {
-					const phpPath = workspace.resolve(...segments);
-					const phpContents = await fs.readFile(phpPath, 'utf8');
-					artefacts.set(toRelative(phpPath), phpContents);
+						const relative = path
+							.relative(workspaceRoot, absolute)
+							.split(path.sep)
+							.join('/');
+						return relative === '' ? '.' : relative;
+					};
 
-					const astPath = `${phpPath}.ast.json`;
-					const astContents = await fs.readFile(astPath, 'utf8');
-					artefacts.set(toRelative(astPath), astContents);
-				};
+					const captureArtefact = async (
+						...segments: string[]
+					): Promise<void> => {
+						const phpPath = workspace.resolve(...segments);
+						const phpContents = await fs.readFile(phpPath, 'utf8');
+						artefacts.set(toRelative(phpPath), phpContents);
 
-				await builder.apply(
-					{
-						context: {
-							workspace,
-							reporter,
-							phase: 'generate',
-						},
-						input: {
-							phase: 'generate',
-							options: {
-								config: ir.config,
-								namespace: ir.meta.namespace,
-								origin: ir.meta.origin,
-								sourcePath: ir.meta.sourcePath,
+						const astPath = `${phpPath}.ast.json`;
+						const astContents = await fs.readFile(astPath, 'utf8');
+						artefacts.set(toRelative(astPath), astContents);
+					};
+
+					await builder.apply(
+						{
+							context: {
+								workspace,
+								reporter,
+								phase: 'generate',
 							},
-							ir,
+							input: {
+								phase: 'generate',
+								options: {
+									config: ir.config,
+									namespace: ir.meta.namespace,
+									origin: ir.meta.origin,
+									sourcePath: ir.meta.sourcePath,
+								},
+								ir,
+							},
+							output,
+							reporter,
 						},
-						output,
-						reporter,
-					},
-					undefined
-				);
+						undefined
+					);
 
-				await captureArtefact(
-					ir.php.outputDir,
-					'Rest',
-					'BaseController.php'
-				);
-				await captureArtefact(
-					ir.php.outputDir,
-					'Rest',
-					'BooksController.php'
-				);
-				await captureArtefact(
-					ir.php.outputDir,
-					'Rest',
-					'JobCategoriesController.php'
-				);
-				await captureArtefact(
-					ir.php.outputDir,
-					'Rest',
-					'JobCacheController.php'
-				);
-				await captureArtefact(
-					ir.php.outputDir,
-					'Rest',
-					'DemoOptionController.php'
-				);
-				await captureArtefact(ir.php.outputDir, 'Policy', 'Policy.php');
-				await captureArtefact(
-					ir.php.outputDir,
-					'Registration',
-					'PersistenceRegistry.php'
-				);
-				await captureArtefact(ir.php.outputDir, 'index.php');
-			});
-		} finally {
-			prettyPrinterSpy.mockRestore();
-		}
+					await captureArtefact(
+						ir.php.outputDir,
+						'Rest',
+						'BaseController.php'
+					);
+					await captureArtefact(
+						ir.php.outputDir,
+						'Rest',
+						'BooksController.php'
+					);
+					await captureArtefact(
+						ir.php.outputDir,
+						'Rest',
+						'JobCategoriesController.php'
+					);
+					await captureArtefact(
+						ir.php.outputDir,
+						'Rest',
+						'JobCacheController.php'
+					);
+					await captureArtefact(
+						ir.php.outputDir,
+						'Rest',
+						'DemoOptionController.php'
+					);
+					await captureArtefact(
+						ir.php.outputDir,
+						'Policy',
+						'Policy.php'
+					);
+					await captureArtefact(
+						ir.php.outputDir,
+						'Registration',
+						'PersistenceRegistry.php'
+					);
+					await captureArtefact(ir.php.outputDir, 'index.php');
+				});
+			} finally {
+				prettyPrinterSpy.mockRestore();
+			}
 
-		if (!workspaceRoot) {
-			throw new Error('Expected workspace root to be captured.');
-		}
+			if (!workspaceRoot) {
+				throw new Error('Expected workspace root to be captured.');
+			}
 
-		const normalise = (absolutePath: string): string =>
-			path
-				.relative(workspaceRoot!, absolutePath)
-				.split(path.sep)
-				.join('/');
+			const normalise = (absolutePath: string): string =>
+				path
+					.relative(workspaceRoot!, absolutePath)
+					.split(path.sep)
+					.join('/');
 
-		const expectedFiles = [
-			'.generated/php/Policy/Policy.php',
-			'.generated/php/Policy/Policy.php.ast.json',
-			'.generated/php/Registration/PersistenceRegistry.php',
-			'.generated/php/Registration/PersistenceRegistry.php.ast.json',
-			'.generated/php/Rest/BaseController.php',
-			'.generated/php/Rest/BaseController.php.ast.json',
-			'.generated/php/Rest/BooksController.php',
-			'.generated/php/Rest/BooksController.php.ast.json',
-			'.generated/php/Rest/JobCategoriesController.php',
-			'.generated/php/Rest/JobCategoriesController.php.ast.json',
-			'.generated/php/Rest/JobCacheController.php',
-			'.generated/php/Rest/JobCacheController.php.ast.json',
-			'.generated/php/Rest/DemoOptionController.php',
-			'.generated/php/Rest/DemoOptionController.php.ast.json',
-			'.generated/php/index.php',
-			'.generated/php/index.php.ast.json',
-		].sort();
+			const expectedFiles = [
+				'.generated/php/Policy/Policy.php',
+				'.generated/php/Policy/Policy.php.ast.json',
+				'.generated/php/Registration/PersistenceRegistry.php',
+				'.generated/php/Registration/PersistenceRegistry.php.ast.json',
+				'.generated/php/Rest/BaseController.php',
+				'.generated/php/Rest/BaseController.php.ast.json',
+				'.generated/php/Rest/BooksController.php',
+				'.generated/php/Rest/BooksController.php.ast.json',
+				'.generated/php/Rest/JobCategoriesController.php',
+				'.generated/php/Rest/JobCategoriesController.php.ast.json',
+				'.generated/php/Rest/JobCacheController.php',
+				'.generated/php/Rest/JobCacheController.php.ast.json',
+				'.generated/php/Rest/DemoOptionController.php',
+				'.generated/php/Rest/DemoOptionController.php.ast.json',
+				'.generated/php/index.php',
+				'.generated/php/index.php.ast.json',
+			].sort();
 
-		const actualFiles = Array.from(artefacts.keys()).sort();
-		expect(actualFiles).toEqual(expectedFiles);
+			const actualFiles = Array.from(artefacts.keys()).sort();
+			expect(actualFiles).toEqual(expectedFiles);
 
-		const queuedRelativeFiles = queuedWrites
-			.map((action) => normalise(action.file))
-			.sort();
-		expect(queuedRelativeFiles).toEqual(expectedFiles);
+			const queuedRelativeFiles = queuedWrites
+				.map((action) => normalise(action.file))
+				.sort();
+			expect(queuedRelativeFiles).toEqual(expectedFiles);
 
-		for (const action of queuedWrites) {
-			const relative = normalise(action.file);
-			const contents = artefacts.get(relative);
-			expect(contents).toBeDefined();
-			expect(action.contents).toBe(contents);
-		}
+			for (const action of queuedWrites) {
+				const relative = normalise(action.file);
+				const contents = artefacts.get(relative);
+				expect(contents).toBeDefined();
+				expect(action.contents).toBe(contents);
+			}
 
-		expect(reporter.info).toHaveBeenCalledWith(
-			'createPhpBuilder: PHP artifacts generated.'
-		);
+			expect(reporter.info).toHaveBeenCalledWith(
+				'createPhpBuilder: PHP artifacts generated.'
+			);
 
-		const baseControllerPhp = artefacts.get(
-			'.generated/php/Rest/BaseController.php'
-		);
-		expect(baseControllerPhp).toBeDefined();
-		expect(baseControllerPhp).toMatchSnapshot('base-controller.php');
+			const baseControllerPhp = artefacts.get(
+				'.generated/php/Rest/BaseController.php'
+			);
+			expect(baseControllerPhp).toBeDefined();
+			expect(baseControllerPhp).toMatchSnapshot('base-controller.php');
 
-		const booksControllerPhp = artefacts.get(
-			'.generated/php/Rest/BooksController.php'
-		);
-		expect(booksControllerPhp).toBeDefined();
-		expect(booksControllerPhp).toMatchSnapshot('books-controller.php');
+			const booksControllerPhp = artefacts.get(
+				'.generated/php/Rest/BooksController.php'
+			);
+			expect(booksControllerPhp).toBeDefined();
+			expect(booksControllerPhp).toMatchSnapshot('books-controller.php');
 
-		const demoOptionControllerPhp = artefacts.get(
-			'.generated/php/Rest/DemoOptionController.php'
-		);
-		expect(demoOptionControllerPhp).toBeDefined();
-		expect(demoOptionControllerPhp).toMatchSnapshot(
-			'demo-option-controller.php'
-		);
+			const demoOptionControllerPhp = artefacts.get(
+				'.generated/php/Rest/DemoOptionController.php'
+			);
+			expect(demoOptionControllerPhp).toBeDefined();
+			expect(demoOptionControllerPhp).toMatchSnapshot(
+				'demo-option-controller.php'
+			);
 
-		const jobCacheControllerPhp = artefacts.get(
-			'.generated/php/Rest/JobCacheController.php'
-		);
-		expect(jobCacheControllerPhp).toBeDefined();
-		expect(jobCacheControllerPhp).toMatchSnapshot(
-			'job-cache-controller.php'
-		);
+			const jobCacheControllerPhp = artefacts.get(
+				'.generated/php/Rest/JobCacheController.php'
+			);
+			expect(jobCacheControllerPhp).toBeDefined();
+			expect(jobCacheControllerPhp).toMatchSnapshot(
+				'job-cache-controller.php'
+			);
 
-		const policyHelperPhp = artefacts.get(
-			'.generated/php/Policy/Policy.php'
-		);
-		expect(policyHelperPhp).toBeDefined();
-		expect(policyHelperPhp).toMatchSnapshot('policy-helper.php');
+			const policyHelperPhp = artefacts.get(
+				'.generated/php/Policy/Policy.php'
+			);
+			expect(policyHelperPhp).toBeDefined();
+			expect(policyHelperPhp).toMatchSnapshot('policy-helper.php');
 
-		const baseControllerAst = artefacts.get(
-			'.generated/php/Rest/BaseController.php.ast.json'
-		);
-		expect(baseControllerAst).toBeDefined();
-		const parsedAst = JSON.parse(baseControllerAst as string);
-		expect(Array.isArray(parsedAst)).toBe(true);
-		const topLevelNodeTypes = parsedAst.map(
-			(node: { readonly nodeType?: string }) => node.nodeType
-		);
-		expect(topLevelNodeTypes).toEqual(['Stmt_Declare', 'Stmt_Namespace']);
+			const baseControllerAst = artefacts.get(
+				'.generated/php/Rest/BaseController.php.ast.json'
+			);
+			expect(baseControllerAst).toBeDefined();
+			const parsedAst = JSON.parse(baseControllerAst as string);
+			expect(Array.isArray(parsedAst)).toBe(true);
+			const topLevelNodeTypes = parsedAst.map(
+				(node: { readonly nodeType?: string }) => node.nodeType
+			);
+			expect(topLevelNodeTypes).toEqual([
+				'Stmt_Declare',
+				'Stmt_Namespace',
+			]);
 
-		for (const entry of legacyPrinterSpies) {
-			expect(entry.spy).not.toHaveBeenCalled();
-		}
-	});
+			for (const entry of legacyPrinterSpies) {
+				expect(entry.spy).not.toHaveBeenCalled();
+			}
+		},
+		INTEGRATION_TIMEOUT_MS
+	);
 });

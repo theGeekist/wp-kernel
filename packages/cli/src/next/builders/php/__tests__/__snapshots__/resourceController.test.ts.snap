@@ -9271,7 +9271,7 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
         "nodeType": "DeclareItem",
         "value": {
           "attributes": {},
-          "nodeType": "Scalar_LNumber",
+          "nodeType": "Scalar_Int",
           "value": 1,
         },
       },
@@ -9344,7 +9344,7 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
                 "Policy",
               ],
             },
-            "nodeType": "Stmt_UseUse",
+            "nodeType": "UseItem",
             "type": 0,
           },
         ],
@@ -9371,7 +9371,7 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
                 "WP_Error",
               ],
             },
-            "nodeType": "Stmt_UseUse",
+            "nodeType": "UseItem",
             "type": 0,
           },
         ],
@@ -9398,7 +9398,7 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
                 "WP_REST_Request",
               ],
             },
-            "nodeType": "Stmt_UseUse",
+            "nodeType": "UseItem",
             "type": 0,
           },
         ],
@@ -9425,7 +9425,7 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
                 "is_wp_error",
               ],
             },
-            "nodeType": "Stmt_UseUse",
+            "nodeType": "UseItem",
             "type": 0,
           },
         ],
@@ -9589,6 +9589,7 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
                 "byRef": false,
                 "default": null,
                 "flags": 0,
+                "hooks": [],
                 "nodeType": "Param",
                 "type": {
                   "attributes": {},
@@ -9690,7 +9691,7 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
                         "nodeType": "Scalar_String",
                         "value": "key",
                       },
-                      "nodeType": "Expr_ArrayItem",
+                      "nodeType": "ArrayItem",
                       "unpack": false,
                       "value": {
                         "attributes": {},
@@ -9706,7 +9707,7 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
                         "nodeType": "Scalar_String",
                         "value": "value",
                       },
-                      "nodeType": "Expr_ArrayItem",
+                      "nodeType": "ArrayItem",
                       "unpack": false,
                       "value": {
                         "attributes": {},
@@ -9749,6 +9750,7 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
                 "byRef": false,
                 "default": null,
                 "flags": 0,
+                "hooks": [],
                 "nodeType": "Param",
                 "type": {
                   "attributes": {},
@@ -10059,7 +10061,7 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
                         "nodeType": "Scalar_String",
                         "value": "key",
                       },
-                      "nodeType": "Expr_ArrayItem",
+                      "nodeType": "ArrayItem",
                       "unpack": false,
                       "value": {
                         "attributes": {},
@@ -10075,7 +10077,7 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
                         "nodeType": "Scalar_String",
                         "value": "stored",
                       },
-                      "nodeType": "Expr_ArrayItem",
+                      "nodeType": "ArrayItem",
                       "unpack": false,
                       "value": {
                         "attributes": {},
@@ -10095,7 +10097,7 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
                         "nodeType": "Scalar_String",
                         "value": "value",
                       },
-                      "nodeType": "Expr_ArrayItem",
+                      "nodeType": "ArrayItem",
                       "unpack": false,
                       "value": {
                         "attributes": {},
@@ -10111,7 +10113,7 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
                         "nodeType": "Scalar_String",
                         "value": "previous",
                       },
-                      "nodeType": "Expr_ArrayItem",
+                      "nodeType": "ArrayItem",
                       "unpack": false,
                       "value": {
                         "attributes": {},
@@ -10127,7 +10129,7 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
                         "nodeType": "Scalar_String",
                         "value": "expiration",
                       },
-                      "nodeType": "Expr_ArrayItem",
+                      "nodeType": "ArrayItem",
                       "unpack": false,
                       "value": {
                         "attributes": {},
@@ -10170,6 +10172,7 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
                 "byRef": false,
                 "default": null,
                 "flags": 0,
+                "hooks": [],
                 "nodeType": "Param",
                 "type": {
                   "attributes": {},
@@ -10313,7 +10316,7 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
                         "nodeType": "Scalar_String",
                         "value": "key",
                       },
-                      "nodeType": "Expr_ArrayItem",
+                      "nodeType": "ArrayItem",
                       "unpack": false,
                       "value": {
                         "attributes": {},
@@ -10329,7 +10332,7 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
                         "nodeType": "Scalar_String",
                         "value": "deleted",
                       },
-                      "nodeType": "Expr_ArrayItem",
+                      "nodeType": "ArrayItem",
                       "unpack": false,
                       "value": {
                         "attributes": {},
@@ -10349,7 +10352,7 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
                         "nodeType": "Scalar_String",
                         "value": "previous",
                       },
-                      "nodeType": "Expr_ArrayItem",
+                      "nodeType": "ArrayItem",
                       "unpack": false,
                       "value": {
                         "attributes": {},
@@ -10382,6 +10385,7 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
                 "byRef": false,
                 "default": null,
                 "flags": 0,
+                "hooks": [],
                 "nodeType": "Param",
                 "type": null,
                 "var": {
@@ -10409,7 +10413,7 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
                         "attributes": {},
                         "byRef": false,
                         "key": null,
-                        "nodeType": "Expr_ArrayItem",
+                        "nodeType": "ArrayItem",
                         "unpack": false,
                         "value": {
                           "attributes": {},
@@ -10627,6 +10631,7 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
                 "byRef": false,
                 "default": null,
                 "flags": 0,
+                "hooks": [],
                 "nodeType": "Param",
                 "type": null,
                 "var": {
@@ -10673,7 +10678,7 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
                     "attributes": {},
                     "expr": {
                       "attributes": {},
-                      "nodeType": "Scalar_LNumber",
+                      "nodeType": "Scalar_Int",
                       "value": 0,
                     },
                     "nodeType": "Stmt_Return",
@@ -10723,7 +10728,7 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
                           "unpack": false,
                           "value": {
                             "attributes": {},
-                            "nodeType": "Scalar_LNumber",
+                            "nodeType": "Scalar_Int",
                             "value": 0,
                           },
                         },
@@ -10797,7 +10802,7 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
                           "unpack": false,
                           "value": {
                             "attributes": {},
-                            "nodeType": "Scalar_LNumber",
+                            "nodeType": "Scalar_Int",
                             "value": 0,
                           },
                         },
@@ -10871,7 +10876,7 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
                     "attributes": {},
                     "expr": {
                       "attributes": {},
-                      "nodeType": "Scalar_LNumber",
+                      "nodeType": "Scalar_Int",
                       "value": 0,
                     },
                     "nodeType": "Stmt_Return",
@@ -10944,7 +10949,7 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
                     "attributes": {},
                     "expr": {
                       "attributes": {},
-                      "nodeType": "Scalar_LNumber",
+                      "nodeType": "Scalar_Int",
                       "value": 0,
                     },
                     "nodeType": "Stmt_Return",
@@ -10994,7 +10999,7 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
                           "unpack": false,
                           "value": {
                             "attributes": {},
-                            "nodeType": "Scalar_LNumber",
+                            "nodeType": "Scalar_Int",
                             "value": 0,
                           },
                         },
@@ -11033,7 +11038,7 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
                 "attributes": {},
                 "expr": {
                   "attributes": {},
-                  "nodeType": "Scalar_LNumber",
+                  "nodeType": "Scalar_Int",
                   "value": 0,
                 },
                 "nodeType": "Stmt_Return",

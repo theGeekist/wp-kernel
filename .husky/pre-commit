@@ -9,31 +9,99 @@ pnpm lint-staged
 
 # Smarter typecheck logic based on staged changes
 echo "🔍 Checking which packages changed for typecheck..."
-HAS_KERNEL_CHANGES=$(echo "$STAGED_FILES" | grep -E '^packages/core/' || true)
+HAS_CORE_CHANGES=$(echo "$STAGED_FILES" | grep -E '^packages/core/' || true)
 HAS_UI_CHANGES=$(echo "$STAGED_FILES" | grep -E '^packages/ui/' || true)
 HAS_CLI_CHANGES=$(echo "$STAGED_FILES" | grep -E '^packages/cli/' || true)
+HAS_PHP_DRIVER_CHANGES=$(echo "$STAGED_FILES" | grep -E '^packages/php-driver/' || true)
+HAS_PHP_AST_CHANGES=$(echo "$STAGED_FILES" | grep -E '^packages/php-json-ast/' || true)
 HAS_SHOWCASE_CHANGES=$(echo "$STAGED_FILES" | grep -E '^examples/showcase/' || true)
 
-if [ -n "$HAS_KERNEL_CHANGES" ]; then
-  echo "🔍 Kernel changes detected: running typecheck and typecheck:tests for all packages..."
+TYPECHECKS_EXECUTED=0
+CLI_TYPECHECK_RAN=0
+UI_TYPECHECK_RAN=0
+PHP_DRIVER_TYPECHECK_RAN=0
+PHP_AST_TYPECHECK_RAN=0
+SHOWCASE_TYPECHECK_RAN=0
+
+run_cli_typechecks() {
+  if [ "$CLI_TYPECHECK_RAN" -eq 0 ]; then
+    CLI_TYPECHECK_RAN=1
+    TYPECHECKS_EXECUTED=1
+    echo "🔍 CLI changes detected: running typecheck and typecheck:tests for CLI..."
+    pnpm --filter @wpkernel/cli typecheck
+    pnpm --filter @wpkernel/cli typecheck:tests
+  fi
+}
+
+run_ui_typechecks() {
+  if [ "$UI_TYPECHECK_RAN" -eq 0 ]; then
+    UI_TYPECHECK_RAN=1
+    TYPECHECKS_EXECUTED=1
+    echo "🔍 UI changes detected: running typecheck and typecheck:tests for UI..."
+    pnpm --filter @wpkernel/ui typecheck
+    pnpm --filter @wpkernel/ui typecheck:tests
+  fi
+}
+
+run_php_driver_typechecks() {
+  if [ "$PHP_DRIVER_TYPECHECK_RAN" -eq 0 ]; then
+    PHP_DRIVER_TYPECHECK_RAN=1
+    TYPECHECKS_EXECUTED=1
+    echo "🔍 PHP driver changes detected: running typecheck and typecheck:tests for php-driver..."
+    pnpm --filter @wpkernel/php-driver typecheck
+    pnpm --filter @wpkernel/php-driver typecheck:tests
+  fi
+}
+
+run_php_ast_typechecks() {
+  if [ "$PHP_AST_TYPECHECK_RAN" -eq 0 ]; then
+    PHP_AST_TYPECHECK_RAN=1
+    TYPECHECKS_EXECUTED=1
+    echo "🔍 PHP JSON AST changes detected: running typecheck and typecheck:tests for php-json-ast..."
+    pnpm --filter @wpkernel/php-json-ast typecheck
+    pnpm --filter @wpkernel/php-json-ast typecheck:tests
+  fi
+}
+
+run_showcase_typechecks() {
+  if [ "$SHOWCASE_TYPECHECK_RAN" -eq 0 ]; then
+    SHOWCASE_TYPECHECK_RAN=1
+    TYPECHECKS_EXECUTED=1
+    echo "🔍 Showcase changes detected: running typecheck and typecheck:tests for Showcase..."
+    pnpm --filter wp-kernel-showcase typecheck
+    pnpm --filter wp-kernel-showcase typecheck:tests
+  fi
+}
+
+if [ -n "$HAS_CORE_CHANGES" ]; then
+  echo "🔍 Core changes detected: running typecheck and typecheck:tests for all packages..."
   pnpm typecheck
   pnpm typecheck:tests
-elif [ -n "$HAS_UI_CHANGES" ]; then
-  echo "🔍 UI changes detected: running typecheck and typecheck:tests for UI and CLI..."
-  pnpm --filter @wpkernel/ui typecheck
-  pnpm --filter @wpkernel/ui typecheck:tests
-  pnpm --filter @wpkernel/cli typecheck
-  pnpm --filter @wpkernel/cli typecheck:tests
-elif [ -n "$HAS_CLI_CHANGES" ]; then
-  echo "🔍 CLI changes detected: running typecheck and typecheck:tests for CLI only..."
-  pnpm --filter @wpkernel/cli typecheck
-  pnpm --filter @wpkernel/cli typecheck:tests
-elif [ -n "$HAS_SHOWCASE_CHANGES" ]; then
-  echo "🔍 Showcase changes detected: running typecheck and typecheck:tests for Showcase only..."
-  pnpm --filter wp-kernel-showcase typecheck
-  pnpm --filter wp-kernel-showcase typecheck:tests
 else
-  echo "⏭️  No package changes detected: skipping typecheck and typecheck:tests."
+  if [ -n "$HAS_UI_CHANGES" ]; then
+    run_ui_typechecks
+    run_cli_typechecks
+  fi
+
+  if [ -n "$HAS_CLI_CHANGES" ]; then
+    run_cli_typechecks
+  fi
+
+  if [ -n "$HAS_PHP_DRIVER_CHANGES" ]; then
+    run_php_driver_typechecks
+  fi
+
+  if [ -n "$HAS_PHP_AST_CHANGES" ]; then
+    run_php_ast_typechecks
+  fi
+
+  if [ -n "$HAS_SHOWCASE_CHANGES" ]; then
+    run_showcase_typechecks
+  fi
+
+  if [ "$TYPECHECKS_EXECUTED" -eq 0 ]; then
+    echo "⏭️  No package changes detected: skipping typecheck and typecheck:tests."
+  fi
 fi
 
 # Run tests with coverage (always - matches CI)
