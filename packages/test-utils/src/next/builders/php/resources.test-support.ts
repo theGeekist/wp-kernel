@@ -240,6 +240,7 @@ export interface MakeTransientResourceOptions {
 	readonly cacheKeys?: IRResource['cacheKeys'];
 	readonly storage?: Partial<TransientStorageConfig>;
 	readonly hash?: string;
+	readonly identity?: IRResource['identity'];
 }
 
 export function makeTransientResource(
@@ -290,7 +291,7 @@ export function makeTransientResource(
 		schemaProvenance: 'manual',
 		routes: options.routes ?? defaultRoutes,
 		cacheKeys,
-		identity: undefined,
+		identity: options.identity,
 		storage,
 		queryParams: undefined,
 		ui: undefined,

@@ -8,6 +8,7 @@ import type {
 	PhpExpr,
 	PhpExprAssign,
 	PhpExprVariable,
+	PhpArg,
 } from '@wpkernel/php-json-ast';
 import { buildTransientHelperMethods } from '../transient/helpers';
 import {
@@ -17,6 +18,7 @@ import {
 	buildTransientUnsupportedRouteStatements,
 } from '../transient/routes';
 import { makeTransientResource } from '@wpkernel/test-utils/next/builders/php/resources.test-support';
+import type { ResolvedIdentity } from '../../identity';
 
 function createMetadataHost(): {
 	metadata: ResourceControllerMetadata;
@@ -104,13 +106,46 @@ describe('transient helper builders', () => {
 
 		const keyHelper = expectClassMethod(keyMethod!);
 		expect(keyHelper.name?.name).toBe('getJobCacheTransientKey');
-		expect(keyHelper.stmts).toHaveLength(1);
-		const keyReturn = keyHelper.stmts?.[0];
+		expect(keyHelper.params).toHaveLength(1);
+		const [segmentsParam] = keyHelper.params ?? [];
+		expect(segmentsParam?.variadic).toBe(true);
+		expect(segmentsParam?.var).toMatchObject({
+			nodeType: 'Expr_Variable',
+			name: 'segments',
+		});
+
+		const initialiseParts = keyHelper.stmts?.[0];
+		expect(initialiseParts).toMatchObject({
+			nodeType: 'Stmt_Expression',
+			expr: {
+				nodeType: 'Expr_Assign',
+				var: expect.objectContaining({
+					nodeType: 'Expr_Variable',
+					name: 'parts',
+				}),
+				expr: expect.objectContaining({
+					nodeType: 'Expr_Array',
+					items: expect.arrayContaining([
+						expect.objectContaining({
+							value: expect.objectContaining({
+								nodeType: 'Scalar_String',
+								value: 'demo_namespace_job_cache',
+							}),
+						}),
+					]),
+				}),
+			},
+		});
+
+		const keyReturn = keyHelper.stmts?.[keyHelper.stmts.length - 1];
 		expect(keyReturn).toMatchObject({
 			nodeType: 'Stmt_Return',
 			expr: {
-				nodeType: 'Scalar_String',
-				value: 'demo_namespace_job_cache',
+				nodeType: 'Expr_FuncCall',
+				name: expect.objectContaining({
+					nodeType: 'Name',
+					parts: ['implode'],
+				}),
 			},
 		});
 
@@ -157,11 +192,16 @@ describe('transient route builders', () => {
 	it('builds get route statements and records cache metadata', () => {
 		const resource = makeTransientResource();
 		const { metadata, host } = createMetadataHost();
+		const identity: ResolvedIdentity = { type: 'number', param: 'id' };
+		const route = resource.routes[0]!;
 
 		const statements = buildTransientGetRouteStatements({
 			resource,
 			pascalName: 'JobCache',
 			metadataHost: host,
+			identity,
+			route,
+			usesIdentity: false,
 		});
 
 		expect(statements).toHaveLength(4);
@@ -190,11 +230,16 @@ describe('transient route builders', () => {
 	it('builds set route statements, invalidates cache, and returns state payload', () => {
 		const resource = makeTransientResource();
 		const { metadata, host } = createMetadataHost();
+		const identity: ResolvedIdentity = { type: 'number', param: 'id' };
+		const route = resource.routes[1]!;
 
 		const statements = buildTransientSetRouteStatements({
 			resource,
 			pascalName: 'JobCache',
 			metadataHost: host,
+			identity,
+			route,
+			usesIdentity: false,
 		});
 
 		expect(statements).toHaveLength(9);
@@ -203,8 +248,9 @@ describe('transient route builders', () => {
 			expr: { nodeType: 'Expr_Assign' },
 		});
 
-		const expirationAssignment = statements.find((statement) =>
-			isVariableAssignment(statement, 'expiration')
+		const expirationAssignment = statements.find(
+			(statement): statement is VariableAssignmentStatement =>
+				isVariableAssignment(statement, 'expiration')
 		);
 		if (!expirationAssignment) {
 			throw new Error('Expected expiration assignment to be present.');
@@ -219,8 +265,9 @@ describe('transient route builders', () => {
 			}),
 		});
 
-		const setTransientCall = statements.find((statement) =>
-			isVariableAssignment(statement, 'stored')
+		const setTransientCall = statements.find(
+			(statement): statement is VariableAssignmentStatement =>
+				isVariableAssignment(statement, 'stored')
 		);
 		if (!setTransientCall) {
 			throw new Error(
@@ -256,11 +303,16 @@ describe('transient route builders', () => {
 	it('builds delete route statements, invalidates cache, and returns deletion payload', () => {
 		const resource = makeTransientResource();
 		const { metadata, host } = createMetadataHost();
+		const identity: ResolvedIdentity = { type: 'number', param: 'id' };
+		const route = resource.routes[2]!;
 
 		const statements = buildTransientDeleteRouteStatements({
 			resource,
 			pascalName: 'JobCache',
 			metadataHost: host,
+			identity,
+			route,
+			usesIdentity: false,
 		});
 
 		expect(statements).toHaveLength(6);
@@ -269,8 +321,9 @@ describe('transient route builders', () => {
 			expr: { nodeType: 'Expr_Assign' },
 		});
 
-		const deleteAssignment = statements.find((statement) =>
-			isVariableAssignment(statement, 'deleted')
+		const deleteAssignment = statements.find(
+			(statement): statement is VariableAssignmentStatement =>
+				isVariableAssignment(statement, 'deleted')
 		);
 		if (!deleteAssignment) {
 			throw new Error('Expected delete assignment to be present.');
@@ -302,19 +355,96 @@ describe('transient route builders', () => {
 		);
 	});
 
+	it('passes identity segments to the transient key helper when routes use identity', () => {
+		const routes = [
+			{
+				method: 'GET',
+				path: '/kernel/v1/job-cache/:slug',
+				policy: undefined,
+				hash: 'transient-get',
+				transport: 'local',
+			},
+			{
+				method: 'PUT',
+				path: '/kernel/v1/job-cache/:slug',
+				policy: undefined,
+				hash: 'transient-set',
+				transport: 'local',
+			},
+			{
+				method: 'DELETE',
+				path: '/kernel/v1/job-cache/:slug',
+				policy: undefined,
+				hash: 'transient-delete',
+				transport: 'local',
+			},
+		] as const;
+
+		const resource = makeTransientResource({
+			routes: routes.slice(),
+			identity: { type: 'string', param: 'slug' },
+		});
+
+		const { host } = createMetadataHost();
+		const identity: ResolvedIdentity = { type: 'string', param: 'slug' };
+		const route = resource.routes[0]!;
+
+		const statements = buildTransientGetRouteStatements({
+			resource,
+			pascalName: 'JobCache',
+			metadataHost: host,
+			identity,
+			route,
+			usesIdentity: true,
+		});
+
+		const assignment = statements[0];
+		if (!isVariableAssignment(assignment, 'key')) {
+			throw new Error('Expected first statement to assign key variable.');
+		}
+
+		const methodCall = assignment.expr.expr;
+		if (methodCall.nodeType !== 'Expr_MethodCall') {
+			throw new Error(
+				'Expected key assignment to call the transient key helper.'
+			);
+		}
+
+		const args =
+			(methodCall as typeof methodCall & { args?: readonly PhpArg[] })
+				.args ?? [];
+		expect(args).toHaveLength(1);
+		const [identityArg] = args as readonly PhpArg[];
+		if (!identityArg) {
+			throw new Error('Expected identity argument to be defined.');
+		}
+		expect(identityArg.value).toMatchObject({
+			nodeType: 'Expr_Variable',
+			name: 'slug',
+		});
+	});
+
 	it('records cache read and invalidation events when sharing metadata host', () => {
 		const resource = makeTransientResource();
 		const { metadata, host } = createMetadataHost();
+		const identity: ResolvedIdentity = { type: 'number', param: 'id' };
+		const [getRoute, setRoute] = resource.routes;
 
 		buildTransientGetRouteStatements({
 			resource,
 			pascalName: 'JobCache',
 			metadataHost: host,
+			identity,
+			route: getRoute!,
+			usesIdentity: false,
 		});
 		buildTransientSetRouteStatements({
 			resource,
 			pascalName: 'JobCache',
 			metadataHost: host,
+			identity,
+			route: setRoute!,
+			usesIdentity: false,
 		});
 
 		expect(metadata.cache?.events).toEqual([
@@ -334,11 +464,16 @@ describe('transient route builders', () => {
 	it('returns WP_Error for unsupported routes', () => {
 		const resource = makeTransientResource();
 		const { host } = createMetadataHost();
+		const identity: ResolvedIdentity = { type: 'number', param: 'id' };
+		const route = resource.routes[0]!;
 
 		const [statement] = buildTransientUnsupportedRouteStatements({
 			resource,
 			pascalName: 'JobCache',
 			metadataHost: host,
+			identity,
+			route,
+			usesIdentity: false,
 			errorCodeFactory: (suffix: string) => `wpk_job_cache_${suffix}`,
 		});
 

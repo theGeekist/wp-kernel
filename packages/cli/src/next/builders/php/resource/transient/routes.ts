@@ -9,7 +9,7 @@ import {
 	type PhpStmt,
 	type ResourceMetadataHost,
 } from '@wpkernel/php-json-ast';
-import type { IRResource } from '../../../../../ir/types';
+import type { IRResource, IRRoute } from '../../../../../ir/types';
 import {
 	buildFunctionCall,
 	buildFunctionCallAssignmentStatement,
@@ -22,11 +22,15 @@ import {
 import { appendResourceCacheEvent } from '../cache';
 import { buildWpErrorReturn } from '../errors';
 import { ensureTransientStorage } from './shared';
+import type { ResolvedIdentity } from '../../identity';
 
 export interface BuildTransientRouteBaseOptions {
 	readonly resource: IRResource;
 	readonly pascalName: string;
 	readonly metadataHost: ResourceMetadataHost;
+	readonly identity: ResolvedIdentity;
+	readonly route: IRRoute;
+	readonly usesIdentity: boolean;
 }
 
 export interface BuildTransientUnsupportedRouteOptions
@@ -52,11 +56,16 @@ export function buildTransientGetRouteStatements(
 
 	const statements: PhpStmt[] = [];
 
+	const keyArgs = options.usesIdentity
+		? [buildArg(buildVariable(options.identity.param))]
+		: [];
+
 	statements.push(
 		buildMethodCallAssignmentStatement({
 			variable: keyVar.display,
 			subject: 'this',
 			method: `get${options.pascalName}TransientKey`,
+			args: keyArgs,
 		})
 	);
 
@@ -108,11 +117,16 @@ export function buildTransientSetRouteStatements(
 
 	const statements: PhpStmt[] = [];
 
+	const keyArgs = options.usesIdentity
+		? [buildArg(buildVariable(options.identity.param))]
+		: [];
+
 	statements.push(
 		buildMethodCallAssignmentStatement({
 			variable: keyVar.display,
 			subject: 'this',
 			method: `get${options.pascalName}TransientKey`,
+			args: keyArgs,
 		})
 	);
 
@@ -222,11 +236,16 @@ export function buildTransientDeleteRouteStatements(
 
 	const statements: PhpStmt[] = [];
 
+	const keyArgs = options.usesIdentity
+		? [buildArg(buildVariable(options.identity.param))]
+		: [];
+
 	statements.push(
 		buildMethodCallAssignmentStatement({
 			variable: keyVar.display,
 			subject: 'this',
 			method: `get${options.pascalName}TransientKey`,
+			args: keyArgs,
 		})
 	);
 
