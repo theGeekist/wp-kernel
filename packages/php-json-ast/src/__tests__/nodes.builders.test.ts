@@ -36,7 +36,7 @@ describe('node builders', () => {
 		expect(operation).toMatchObject({
 			nodeType: 'Expr_BinaryOp_Greater',
 			left: { nodeType: 'Expr_Variable', name: 'count' },
-			right: { nodeType: 'Scalar_LNumber', value: 0 },
+			right: { nodeType: 'Scalar_Int', value: 0 },
 		});
 	});
 

@@ -24,7 +24,7 @@ export interface PhpExprArray extends PhpExprBase {
 }
 
 export interface PhpExprArrayItem extends PhpExprBase {
-	readonly nodeType: 'Expr_ArrayItem';
+	readonly nodeType: 'ArrayItem';
 	readonly key: PhpExpr | null;
 	readonly value: PhpExpr;
 	readonly byRef: boolean;
@@ -267,7 +267,7 @@ export function buildArrayItem(
 	attributes?: PhpAttributes
 ): PhpExprArrayItem {
 	return buildNode<PhpExprArrayItem>(
-		'Expr_ArrayItem',
+		'ArrayItem',
 		{
 			key: options.key ?? null,
 			value,
