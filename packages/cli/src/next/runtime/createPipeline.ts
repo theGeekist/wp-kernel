@@ -83,8 +83,8 @@ export function createPipeline(): Pipeline {
 				reporter: context.reporter,
 			} satisfies Parameters<FragmentHelper['apply']>[0];
 		},
-		finalizeFragmentState({ draft }) {
-			return finalizeIrDraft(draft);
+		finalizeFragmentState({ draft, helpers }) {
+			return finalizeIrDraft(draft, helpers);
 		},
 		createBuilderArgs({ context, buildOptions, artifact }) {
 			return {
