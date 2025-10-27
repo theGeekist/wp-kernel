@@ -2,7 +2,7 @@ import type { Reporter } from '@wpkernel/core/reporter';
 import type { ResourceConfig } from '@wpkernel/core/resource';
 import type { WPKConfigSource } from '@wpkernel/core/contracts';
 import type { IRv1 } from '../ir/types';
-import type { PhpAstBuilder } from '../printers/php/types';
+import type { PhpAstBuilder } from '@wpkernel/php-json-ast';
 
 /**
  * Source identifier describing where a kernel config was loaded from.

@@ -3,12 +3,6 @@ import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
 import { assignCommandContext } from '@wpkernel/test-utils/cli';
 import { buildDoctorCommand } from '../doctor';
 
-jest.mock('../../../commands/run-generate', () => ({
-	serialiseError: (error: unknown) => ({
-		message: error instanceof Error ? error.message : String(error),
-	}),
-}));
-
 describe('buildDoctorCommand', () => {
 	const reporterFactory = jest.fn(createReporterMock);
 	const loadKernelConfig = jest.fn();

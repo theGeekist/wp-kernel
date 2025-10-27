@@ -54,10 +54,10 @@ pnpm wpk generate
 pnpm wpk apply
 ```
 
-- `wpk generate` writes `.generated/types/*.d.ts`, `.generated/php/**`, optional `.generated/ui/**`, and block registration files based on the config.【F:packages/cli/src/printers/index.ts†L1-L16】【F:packages/cli/src/printers/php/printer.ts†L1-L73】 The command summary lists how many files were written, skipped, or removed.
-- `wpk apply` copies `.generated/php/**` into `inc/` and `.generated/build/**` into `build/`, respecting `--yes`, `--backup`, and `--force` flags.【F:packages/cli/src/commands/apply/command.ts†L1-L120】
+- `wpk generate` writes `.generated/types/*.d.ts`, `.generated/php/**`, optional `.generated/ui/**`, and block registration files based on the config.【F:packages/cli/src/next/builders/ts.ts†L1-L200】【F:packages/cli/src/next/builders/php/builder.ts†L1-L80】 The command summary lists how many files were written, skipped, or removed.
+- `wpk apply` copies `.generated/php/**` into `inc/` and `.generated/build/**` into `build/`, respecting `--yes`, `--backup`, and `--force` flags.【F:packages/cli/src/next/commands/apply.ts†L1-L260】
 
-Inspect `.generated/php/Rest/JobController.php` and `inc/` after the apply step to see the generated bridge. The PHP controllers include capability guards based on `policy` hints and expose `get_rest_args()` data derived from your schema.【F:packages/cli/src/printers/php/resource-controller.ts†L1-L70】
+Inspect `.generated/php/Rest/JobController.php` and `inc/` after the apply step to see the generated bridge. The PHP controllers include capability guards based on `policy` hints and expose `get_rest_args()` data derived from your schema.【F:packages/cli/src/next/builders/php/resourceController.ts†L1-L220】
 
 ## 4. Attach the UI runtime
 
@@ -72,7 +72,7 @@ const kernel = configureKernel({ namespace: kernelConfig.namespace });
 export const ui = attachUIBindings(kernel);
 ```
 
-Once attached, components call `job.useList()` or render `<ResourceDataView>` when `ui.admin.dataviews` metadata exists in the config.【F:packages/ui/src/hooks/resource-hooks.ts†L1-L120】【F:packages/cli/src/printers/ui/printer.ts†L1-L120】
+Once attached, components call `job.useList()` or render `<ResourceDataView>` when `ui.admin.dataviews` metadata exists in the config.【F:packages/ui/src/hooks/resource-hooks.ts†L1-L120】【F:packages/cli/src/next/builders/ts.ts†L1-L200】
 
 ## 5. Iterate in watch mode
 
@@ -80,6 +80,6 @@ Once attached, components call `job.useList()` or render `<ResourceDataView>` wh
 pnpm wpk start
 ```
 
-`wpk start` watches `kernel.config.*`, `contracts/**`, `schemas/**`, and your source tree. When files change it reruns the generators and proxies Vite output from the current project so the admin UI reloads automatically.【F:packages/cli/src/commands/start.ts†L1-L160】 Use `--auto-apply-php` to copy PHP artifacts on every cycle when you trust the diff.
+`wpk start` watches `kernel.config.*`, `contracts/**`, `schemas/**`, and your source tree. When files change it reruns the builders and proxies Vite output from the current project so the admin UI reloads automatically.【F:packages/cli/src/next/commands/start.ts†L1-L320】 Use `--auto-apply-php` to copy PHP artifacts on every cycle when you trust the diff.
 
-You have now run the full loop: configure → generate → apply → start. Each change to `kernel.config.ts` feeds the same printers, so the generated PHP, TypeScript, and UI scaffolding stay in sync.
+You have now run the full loop: configure → generate → apply → start. Each change to `kernel.config.ts` feeds the same builders, so the generated PHP, TypeScript, and UI scaffolding stay in sync.
