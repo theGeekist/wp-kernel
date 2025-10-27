@@ -11,7 +11,12 @@ import type { Workspace, FileManifest } from '../workspace';
 import { buildWorkspace } from '../workspace';
 import { runInitWorkflow } from './init/workflow';
 import { isGitRepository } from './init/git';
-import type { InitWorkflowResult, InitWorkflowOptions } from './init/workflow';
+import {
+	createInitCommandRuntime,
+	formatInitWorkflowError,
+	resolveCommandCwd,
+	type InitCommandRuntimeResult,
+} from './init/command-runtime';
 
 function buildReporterNamespace(): string {
 	return `${WPK_NAMESPACE}.cli.next.init`;
@@ -54,35 +59,6 @@ function mergeDependencies(options: BuildInitCommandOptions): InitDependencies {
 	} satisfies InitDependencies;
 }
 
-function resolveWorkspaceRoot(context: Command['context']): string {
-	const cwd = (context as { cwd?: () => string }).cwd;
-	return typeof cwd === 'function' ? cwd() : process.cwd();
-}
-
-function formatErrorMessage(error: KernelError): string {
-	const collisions = Array.isArray(
-		(error.data as { collisions?: unknown })?.collisions
-	)
-		? ((error.data as { collisions?: string[] }).collisions ?? [])
-		: [];
-
-	const lines = [`[wpk] init failed: ${error.message}`];
-
-	if (collisions.length > 0) {
-		lines.push('Conflicting files:');
-		for (const file of collisions) {
-			lines.push(`  - ${file}`);
-		}
-	}
-
-	const path = (error.data as { path?: unknown })?.path;
-	if (typeof path === 'string' && path.length > 0) {
-		lines.push(`  - ${path}`);
-	}
-
-	return `${lines.join('\n')}\n`;
-}
-
 export function buildInitCommand(
 	options: BuildInitCommandOptions = {}
 ): InitCommandConstructor {
@@ -123,45 +99,15 @@ export function buildInitCommand(
 		public dependencySource: string | null = null;
 
 		override async execute(): Promise<WPKExitCode> {
-			const reporter = dependencies.buildReporter({
-				namespace: buildReporterNamespace(),
-				level: 'info',
-				enabled: process.env.NODE_ENV !== 'test',
-			});
-
 			try {
-				const workspaceRoot = resolveWorkspaceRoot(this.context);
-				const workspace = dependencies.buildWorkspace(workspaceRoot);
+				const runtime = this.createRuntime();
 
-				const projectName =
-					typeof this.name === 'string' && this.name.length > 0
-						? this.name
-						: undefined;
-				const templateOption =
-					typeof this.template === 'string' &&
-					this.template.length > 0
-						? this.template
-						: undefined;
-				const force = this.force === true;
-				const verbose = this.verbose === true;
-				const preferRegistry = this.preferRegistryVersions === true;
+				await this.warnWhenGitMissing(
+					runtime.workspace,
+					runtime.reporter
+				);
 
-				await this.warnWhenGitMissing(workspace, reporter);
-
-				const result = await this.runWorkflow({
-					workspace,
-					reporter,
-					projectName,
-					template: templateOption,
-					force,
-					verbose,
-					preferRegistryVersionsFlag: preferRegistry,
-					env: {
-						WPK_PREFER_REGISTRY_VERSIONS:
-							process.env.WPK_PREFER_REGISTRY_VERSIONS,
-						REGISTRY_URL: process.env.REGISTRY_URL,
-					},
-				});
+				const result = await runtime.runWorkflow();
 
 				this.manifest = result.manifest;
 				this.summary = result.summaryText;
@@ -176,12 +122,40 @@ export function buildInitCommand(
 				this.dependencySource = null;
 
 				if (KernelError.isKernelError(error)) {
-					this.context.stderr.write(formatErrorMessage(error));
+					this.context.stderr.write(
+						formatInitWorkflowError('init', error)
+					);
 					return WPK_EXIT_CODES.VALIDATION_ERROR;
 				}
 
 				throw error;
 			}
+		}
+
+		private createRuntime(): InitCommandRuntimeResult {
+			const workspaceRoot = resolveCommandCwd(this.context);
+
+			return createInitCommandRuntime(
+				{
+					buildWorkspace: dependencies.buildWorkspace,
+					buildReporter: dependencies.buildReporter,
+					runWorkflow: dependencies.runWorkflow,
+				},
+				{
+					reporterNamespace: buildReporterNamespace(),
+					workspaceRoot,
+					projectName: this.name,
+					template: this.template,
+					force: this.force,
+					verbose: this.verbose,
+					preferRegistryVersions: this.preferRegistryVersions,
+					env: {
+						WPK_PREFER_REGISTRY_VERSIONS:
+							process.env.WPK_PREFER_REGISTRY_VERSIONS,
+						REGISTRY_URL: process.env.REGISTRY_URL,
+					},
+				}
+			);
 		}
 
 		private async warnWhenGitMissing(
@@ -212,12 +186,6 @@ export function buildInitCommand(
 					},
 				});
 			}
-		}
-
-		private runWorkflow(
-			workflowOptions: Omit<InitWorkflowOptions, 'runWorkflow'>
-		): Promise<InitWorkflowResult> {
-			return dependencies.runWorkflow(workflowOptions);
 		}
 	}
 

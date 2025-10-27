@@ -16,7 +16,12 @@ import {
 	installNodeDependencies,
 	installComposerDependencies,
 } from './init/installers';
-import type { InitWorkflowOptions, InitWorkflowResult } from './init/workflow';
+import {
+	createInitCommandRuntime,
+	formatInitWorkflowError,
+	resolveCommandCwd,
+	type InitCommandRuntimeResult,
+} from './init/command-runtime';
 
 function buildReporterNamespace(): string {
 	return `${WPK_NAMESPACE}.cli.next.create`;
@@ -75,39 +80,10 @@ function mergeDependencies(
 	} satisfies CreateDependencies;
 }
 
-function resolveBaseDirectory(context: Command['context']): string {
-	const cwd = (context as { cwd?: () => string }).cwd;
-	return typeof cwd === 'function' ? cwd() : process.cwd();
-}
-
 function resolveTargetDirectory(base: string, target?: string): string {
 	const candidate =
 		typeof target === 'string' && target.length > 0 ? target : '.';
 	return path.resolve(base, candidate);
-}
-
-function formatErrorMessage(error: KernelError): string {
-	const collisions = Array.isArray(
-		(error.data as { collisions?: unknown })?.collisions
-	)
-		? ((error.data as { collisions?: string[] }).collisions ?? [])
-		: [];
-
-	const lines = [`[wpk] create failed: ${error.message}`];
-
-	if (collisions.length > 0) {
-		lines.push('Conflicting files:');
-		for (const file of collisions) {
-			lines.push(`  - ${file}`);
-		}
-	}
-
-	const pathEntry = (error.data as { path?: unknown })?.path;
-	if (typeof pathEntry === 'string' && pathEntry.length > 0) {
-		lines.push(`  - ${pathEntry}`);
-	}
-
-	return `${lines.join('\n')}\n`;
 }
 
 export function buildCreateCommand(
@@ -156,63 +132,38 @@ export function buildCreateCommand(
 		public dependencySource: string | null = null;
 
 		override async execute(): Promise<WPKExitCode> {
-			const reporter = dependencies.buildReporter({
-				namespace: buildReporterNamespace(),
-				level: 'info',
-				enabled: process.env.NODE_ENV !== 'test',
-			});
-
 			try {
-				const base = resolveBaseDirectory(this.context);
+				const base = resolveCommandCwd(this.context);
 				const targetValue =
 					typeof this.target === 'string' && this.target.length > 0
 						? this.target
 						: undefined;
 				const targetRoot = resolveTargetDirectory(base, targetValue);
 
-				const workspace = dependencies.buildWorkspace(targetRoot);
+				const runtime = this.createRuntime(targetRoot);
+
 				await dependencies.ensureCleanDirectory({
-					workspace,
+					workspace: runtime.workspace,
 					directory: targetRoot,
 					force: this.force === true,
 					create: true,
-					reporter,
+					reporter: runtime.reporter,
 				});
 
-				const projectName =
-					typeof this.name === 'string' && this.name.length > 0
-						? this.name
-						: undefined;
-				const templateOption =
-					typeof this.template === 'string' &&
-					this.template.length > 0
-						? this.template
-						: undefined;
-				const force = this.force === true;
-				const verbose = this.verbose === true;
-				const preferRegistry = this.preferRegistryVersions === true;
-
-				const result = await this.runWorkflow({
-					workspace,
-					reporter,
-					projectName,
-					template: templateOption,
-					force,
-					verbose,
-					preferRegistryVersionsFlag: preferRegistry,
-					env: {
-						WPK_PREFER_REGISTRY_VERSIONS:
-							process.env.WPK_PREFER_REGISTRY_VERSIONS,
-						REGISTRY_URL: process.env.REGISTRY_URL,
-					},
-				});
+				const result = await runtime.runWorkflow();
 
 				this.summary = result.summaryText;
 				this.manifest = result.manifest;
 				this.dependencySource = result.dependencySource;
 
-				await this.ensureGitRepository(workspace, reporter);
-				await this.installDependencies(workspace, reporter);
+				await this.ensureGitRepository(
+					runtime.workspace,
+					runtime.reporter
+				);
+				await this.installDependencies(
+					runtime.workspace,
+					runtime.reporter
+				);
 
 				this.context.stdout.write(result.summaryText);
 				return WPK_EXIT_CODES.SUCCESS;
@@ -222,12 +173,38 @@ export function buildCreateCommand(
 				this.dependencySource = null;
 
 				if (KernelError.isKernelError(error)) {
-					this.context.stderr.write(formatErrorMessage(error));
+					this.context.stderr.write(
+						formatInitWorkflowError('create', error)
+					);
 					return WPK_EXIT_CODES.VALIDATION_ERROR;
 				}
 
 				throw error;
 			}
+		}
+
+		private createRuntime(targetRoot: string): InitCommandRuntimeResult {
+			return createInitCommandRuntime(
+				{
+					buildWorkspace: dependencies.buildWorkspace,
+					buildReporter: dependencies.buildReporter,
+					runWorkflow: dependencies.runWorkflow,
+				},
+				{
+					reporterNamespace: buildReporterNamespace(),
+					workspaceRoot: targetRoot,
+					projectName: this.name,
+					template: this.template,
+					force: this.force,
+					verbose: this.verbose,
+					preferRegistryVersions: this.preferRegistryVersions,
+					env: {
+						WPK_PREFER_REGISTRY_VERSIONS:
+							process.env.WPK_PREFER_REGISTRY_VERSIONS,
+						REGISTRY_URL: process.env.REGISTRY_URL,
+					},
+				}
+			);
 		}
 
 		private async ensureGitRepository(
@@ -261,12 +238,6 @@ export function buildCreateCommand(
 
 			reporter.info('Installing composer dependencies...');
 			await dependencies.installComposerDependencies(workspace.root);
-		}
-
-		private runWorkflow(
-			workflowOptions: InitWorkflowOptions
-		): Promise<InitWorkflowResult> {
-			return dependencies.runWorkflow(workflowOptions);
 		}
 	}
 
