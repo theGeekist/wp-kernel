@@ -42,6 +42,7 @@ describe('next index exports', () => {
 		expect(typeof next.createPipeline).toBe('function');
 		expect(typeof next.createPatcher).toBe('function');
 		expect(typeof next.buildWorkspace).toBe('function');
+		expect(typeof next.buildApplyCommand).toBe('function');
 		expect(typeof next.NextApplyCommand).toBe('function');
 	});
 });
