@@ -4,7 +4,7 @@ _See [Docs Index](./index.md) for navigation._
 
 **Audience:** contributors extending or refactoring the next-generation CLI apply flow (`packages/cli/src/next/**`).
 
-**Goal:** keep `apply` deterministic and safe while we transition from in-place controller merges to a model where generated artefacts live in `.generated/**` and user code merely extends or decorates them.
+**Goal:** keep `apply` deterministic and safe while we transition from in-place controller merges to a model where generated artefacts live in `.generated/**` and user code merely extends or decorates them. The command itself will be produced via a `buildApplyCommand` factory so it can plug into the same dependency-injection seams that other next-gen commands already expose.
 
 > **MVP Plan reference:** Phase 5 - Apply layering & flags (Phase table entry #4)
 
@@ -26,13 +26,26 @@ _See [Docs Index](./index.md) for navigation._
 
 ### 1.2 CLI surface
 
-- `NextApplyCommand` (`packages/cli/src/next/commands/apply.ts:1-205`) loads the plan, runs the patcher helper, prints the manifest summary, and exits with `WPK_EXIT_CODES.VALIDATION_ERROR` if any conflicts remain.
-- Flags like `--yes`, `--backup`, and `--force` are not yet honoured; support will be ported into `NextApplyCommand` as part of the layering work.
+- `NextApplyCommand` (`packages/cli/src/next/commands/apply.ts:1-212`) loads the plan, runs the patcher helper, prints the manifest summary, and exits with `WPK_EXIT_CODES.VALIDATION_ERROR` if any conflicts remain.
+- A factory wrapper (`buildApplyCommand`) does not exist yet, so the command cannot be dependency-injected the way `buildGenerateCommand` or `buildInitCommand` can.
+- Flags like `--yes`, `--backup`, and `--force` are not yet honoured; support will be ported into the command as part of the layering work.
 
-### 1.3 Safety guarantees
+### 1.3 Legacy reference point
 
-- Merges occur in a sandbox; `queueWrite` only records filesystem actions after the helper commits (`packages/cli/src/next/builders/patcher.ts:147-188`).
-- Exit codes map to the core contract (`@wpkernel/core/contracts`), so commands remain scriptable.
+- The legacy command still handles every side effect: it copies generated PHP into `inc/`, syncs block artefacts, respects `--yes/--backup/--force`, keeps an append-only `.wpk-apply.log`, and emits summaries for PHP and blocks (`packages/cli/src/commands/apply/command.ts:21-157`).
+- Guard rails rely on git: the preflight check shells out to `git status --porcelain -- .generated/php` and warns instead of failing when the directory is not tracked (`packages/cli/src/commands/apply/ensure-generated-php-clean.ts:11-99`). This behaviour needs to tighten when we require a repository for apply.
+
+### 1.4 Gaps in the next command
+
+- The next apply path only reads `.wpk/apply/plan.json` and writes `.wpk/apply/manifest.json`; it never stages or mutates user code directly, so composer autoload discovery and shim creation are still missing (`packages/cli/src/next/commands/apply.ts:145-212`).
+- `createPatcher` performs diff3 merges in temporary files but depends entirely on pre-authored instructions. The helper currently skips work if no plan exists, and no builder emits that plan yet (`packages/cli/src/next/builders/patcher.ts:226-318`).
+- There is no git guardrail: if the workspace lacks a `.git` directory the command still runs because neither the command nor the helper asserts repository state (`packages/cli/src/next/commands/apply.ts:145-212`).
+- The manifest is printed to stdout, but we do not append to `.wpk-apply.log` or snapshot the builder actions that would let the CLI review pending writes before they hit disk (`packages/cli/src/next/commands/apply.ts:183-212`).
+
+### 1.5 Safety guarantees
+
+- Merges occur in a sandbox; `queueWrite` only records filesystem actions after the helper commits (`packages/cli/src/next/builders/patcher.ts:226-318`).
+- Exit codes map to the core contract (`@wpkernel/core/contracts`), so commands remain scriptable (`packages/cli/src/next/commands/apply.ts:145-212`).
 
 ---
 
@@ -69,15 +82,22 @@ What changes is _what_ we merge. Instead of large controller bodies, the merge i
 
 ## 3. Implementation plan
 
-1. **Ensure generated classes are consumable as bases**
+1. **Adopt the command factory seam**
+    - Introduce `buildApplyCommand` in the next command surface so tests and the orchestrator can construct the command with injected reporters, workspace handles, or builders.
+    - Mirror the dependency injection options already offered by `buildGenerateCommand` and expose overrides for the patcher helper and manifest reader.
+2. **Ensure generated classes are consumable as bases**
     - Confirm every generated controller/helper exposes a stable namespace and class name that user code can extend (`packages/cli/src/next/builders/php/resourceController.ts:1-870`, `indexFile.ts:1-74`, `policy.ts:21-110`).
     - Guarantee `.generated/**` remains the single source of truth (already true for PHP/AST output, see `packages/cli/src/next/builders/php/writer.ts:30-68`).
-2. **Introduce extension shims**
+3. **Introduce extension shims**
     - Create or update the apply plan builder to emit files that wrap generated classes (e.g., require + subclass).
     - Treat those shims as templates we own; the user keeps overrides inside the class body.
-3. **Port safety rails**
+    - Detect whether `composer.json` exposes a PSR-4 namespace (the init template wires `inc/` automatically, see `packages/cli/templates/init/composer.json:1-9`) and fall back to emitting `require_once` guards when autoloading is unavailable.
+    - Warn during generation when the configured namespace cannot be normalised to PSR-1 before writing shims so projects know to adjust `kernel.config.ts`.
+4. **Port safety rails**
     - Carry across flag handling (`--yes`, `--backup`, `--force`) and `.wpk-apply.log` once the new layering is in place.
-4. **Update tests**
+    - Enforce git hygiene: fail early when `.git` is missing or dirty instead of silently skipping checks as the legacy helper does today (`packages/cli/src/commands/apply/ensure-generated-php-clean.ts:11-99`).
+    - Mirror the legacy logging contract by appending structured entries to `.wpk-apply.log` on success and failure (`packages/cli/src/commands/apply/command.ts:104-140`).
+5. **Update tests**
     - Extend `packages/cli/src/next/builders/__tests__/patcher.test.ts` (or add new suites) to assert the shim model.
     - Add integration tests that regenerate `.generated/**`, run `apply`, and confirm user shims update without touching custom overrides.
 
