@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2025-10-26
+
+### Added
+
+- **Block builder parity** – The next-generation pipeline now stages block manifests, registrars, and render stubs through shared helpers for both SSR and JS-only variants, matching the legacy printers without string-based generation.
+
+### Fixed
+
+- **Block manifest cache invalidation** – Workspace-aware file signatures refresh manifest and render metadata when source files change so builders no longer reuse stale cache entries.
+
+### Documentation
+
+- **Phase 3 completion** – CLI migration docs mark Tasks 16-19 as shipped, describe the shared `ts-morph` primitives, and call out the 0.7.0 release cadence.
+
+### Maintenance
+
+- **Monorepo release** – Bumped all packages, templates, and showcase fixtures to `0.7.0` and regenerated API docs for the release tag.
+
 ## [0.6.0] - 2025-10-26
 
 ### Added
