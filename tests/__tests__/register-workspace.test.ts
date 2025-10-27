@@ -66,6 +66,38 @@ function createPackage(rootDir: string, packageName: string): string {
 }
 
 describe('register-workspace', () => {
+	it('ensures package manifests expose default scripts', () => {
+		const { rootDir, cleanup } = setupRepository();
+		const logger = createLogger();
+
+		try {
+			const alphaDir = createPackage(rootDir, 'alpha');
+
+			registerWorkspace({
+				workspaceInput: 'packages/alpha',
+				cwd: rootDir,
+				logger,
+			});
+
+			const manifest = JSON.parse(
+				fs.readFileSync(path.join(alphaDir, 'package.json'), 'utf8')
+			) as { scripts?: Record<string, string> };
+
+			expect(manifest.scripts).toMatchObject({
+				build: 'vite build && tsc --noEmit',
+				lint: 'eslint src/',
+				'lint:fix': 'eslint src/ --fix',
+				test: 'jest --passWithNoTests --watchman=false',
+				'test:coverage': 'jest --coverage --watchman=false',
+				'test:watch': 'jest --watch',
+				typecheck: 'tsc --noEmit',
+				'typecheck:tests': 'tsc --project tsconfig.tests.json --noEmit',
+			});
+		} finally {
+			cleanup();
+		}
+	});
+
 	it('adds TypeScript references for declared dependencies', () => {
 		const { rootDir, cleanup } = setupRepository();
 		const logger = createLogger();
