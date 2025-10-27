@@ -25,6 +25,7 @@
 		"lint:fix": "eslint packages/ examples/ --fix",
 		"lint:branching": "eslint --rulesdir ./eslint-rules --rule 'no-else-return:error' packages/ examples/",
 		"lint:peers": "pnpm exec tsx scripts/check-framework-peers.ts",
+		"release:verify": "pnpm exec tsx scripts/check-release-readiness.ts",
 		"format": "prettier --write '**/*.{js,ts,tsx,json,md,yml,yaml}' && node scripts/normalize-punctuation.js",
 		"format:check": "prettier --check '**/*.{js,ts,tsx,json,md,yml,yaml}'",
 		"typecheck": "pnpm --recursive --filter './packages/*' --filter './examples/*' run typecheck",

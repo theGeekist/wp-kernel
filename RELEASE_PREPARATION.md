@@ -12,8 +12,8 @@ WP Kernel is approaching its first coordinated framework release without `releas
        Completed – shared presets (`tsconfig.lib.json`, `tsconfig.tests.json`, `tsconfig.tests.cli.json`) are in place, package configs extend them, Jest helpers live under `scripts/config/create-wpk-jest-config.ts`, the `scripts/register-workspace.ts` CLI wires new workspaces, and docs cover the workflow in `docs/guide/adding-workspace-dependencies.md` plus `DEVELOPMENT.md`.
 - [x] **Task 2 – Centralize framework peer dependency policy and validation**  
        Completed – `scripts/config/framework-peers.ts` defines the canonical versions, `scripts/check-framework-peers.ts` validates every package, `package.json` exposes `pnpm lint:peers`, `vite.config.base.ts` reads the map for Rollup externals, and package READMEs document the policy.
-- [ ] **Task 3 – Document manual framework release workflow**  
-       _Completion notes:_ _(update with summary, links, and required checks when finished.)_
+- [x] **Task 3 – Document manual framework release workflow**
+      Completed – Authored `docs/releases/framework-release-playbook.md`, updated `RELEASING.md`/`DEVELOPMENT.md` to point at the manual flow, added `scripts/check-release-readiness.ts` plus the `pnpm release:verify` hook, and verified the readiness check covers all publishable workspaces.
 - [ ] **Task 4 – Automate documentation version sync and release tagging**  
        _Completion notes:_ _(update with summary, links, and required checks when finished.)_
 
