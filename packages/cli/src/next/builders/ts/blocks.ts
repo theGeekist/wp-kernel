@@ -14,9 +14,13 @@ import type {
 	BuilderOutput,
 	PipelineContext,
 } from '../../runtime/types';
-import type { IRv1 } from '../../../ir/types';
+import type { IRBlock, IRv1 } from '../../../ir/types';
 import { collectBlockManifests } from '../blocks/manifest';
 import type { ProcessedBlockManifest } from '../blocks/manifest';
+import {
+	deriveResourceBlocks,
+	type DerivedResourceBlock,
+} from '../blocks/derived';
 import {
 	buildAutoRegisterModuleMetadata,
 	generateBlockImportPath,
@@ -24,6 +28,8 @@ import {
 import { buildBlockRegistrarMetadata } from './shared/metadata';
 
 const STUB_TRANSACTION_LABEL = 'builder.generate.ts.blocks.stubs';
+const DERIVED_TRANSACTION_LABEL =
+	'builder.generate.ts.blocks.derived-manifests';
 
 export function createJsBlocksBuilder(): BuilderHelper {
 	return createHelper({
@@ -65,12 +71,32 @@ async function runJsBlocksGeneration(options: {
 	readonly output: BuilderOutput;
 	readonly reporter: BuilderApplyOptions['reporter'];
 }): Promise<number | null> {
-	const manifestMap = await collectBlockManifests({
-		workspace: options.workspace,
-		blocks: options.ir.blocks,
+	const existingBlocks = new Map(
+		options.ir.blocks.map((block) => [block.key, block])
+	);
+	const derivedBlocks = deriveResourceBlocks({
+		ir: options.ir,
+		existingBlocks,
 	});
 
-	const jsOnlyBlocks = options.ir.blocks
+	await stageDerivedManifestWrites({
+		workspace: options.workspace,
+		output: options.output,
+		reporter: options.reporter,
+		manifests: derivedBlocks,
+	});
+
+	const allBlocks = mergeBlocks(
+		options.ir.blocks,
+		derivedBlocks.map((entry) => entry.block)
+	);
+
+	const manifestMap = await collectBlockManifests({
+		workspace: options.workspace,
+		blocks: allBlocks,
+	});
+
+	const jsOnlyBlocks = allBlocks
 		.filter((block) => !block.hasRender)
 		.map((block) => manifestMap.get(block.key))
 		.filter((entry): entry is ProcessedBlockManifest => Boolean(entry))
@@ -360,6 +386,62 @@ async function stageStubWrites(options: {
 		await workspace.rollback(STUB_TRANSACTION_LABEL);
 		throw error;
 	}
+}
+
+async function stageDerivedManifestWrites(options: {
+	readonly workspace: PipelineContext['workspace'];
+	readonly output: BuilderOutput;
+	readonly reporter: BuilderApplyOptions['reporter'];
+	readonly manifests: readonly DerivedResourceBlock[];
+}): Promise<void> {
+	if (options.manifests.length === 0) {
+		return;
+	}
+
+	const { workspace, output, reporter } = options;
+	workspace.begin(DERIVED_TRANSACTION_LABEL);
+	try {
+		for (const entry of options.manifests) {
+			const absolutePath = workspace.resolve(entry.block.manifestSource);
+			const contents = `${JSON.stringify(entry.manifest, null, 2)}\n`;
+			await workspace.write(absolutePath, contents, {
+				ensureDir: true,
+			});
+		}
+
+		const manifest = await workspace.commit(DERIVED_TRANSACTION_LABEL);
+		for (const file of manifest.writes) {
+			const contents = await workspace.readText(file);
+			if (!contents) {
+				continue;
+			}
+
+			output.queueWrite({ file, contents });
+		}
+
+		reporter.debug(
+			'createJsBlocksBuilder: emitted derived block manifests.',
+			{ files: manifest.writes }
+		);
+	} catch (error) {
+		await workspace.rollback(DERIVED_TRANSACTION_LABEL);
+		throw error;
+	}
+}
+
+function mergeBlocks(
+	original: readonly IRBlock[],
+	derived: readonly IRBlock[]
+): IRBlock[] {
+	const map = new Map(original.map((block) => [block.key, block]));
+
+	for (const block of derived) {
+		if (!map.has(block.key)) {
+			map.set(block.key, block);
+		}
+	}
+
+	return Array.from(map.values());
 }
 
 async function collectModuleStubs(options: {
