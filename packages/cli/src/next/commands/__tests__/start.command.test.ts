@@ -821,6 +821,50 @@ describe('buildStartCommand', () => {
 			'../start'
 		);
 
+		const spawnProcess = jest
+			.fn(() => new FakeChildProcess())
+			.mockName('child-process');
+
+		const StartCommand = importBuildStartCommand({
+			buildReporter: () => createReporterMock(),
+			buildGenerateCommand: () =>
+				FakeGenerateCommand as unknown as GenerateConstructor,
+			adoptCommandEnvironment: jest.fn(),
+			fileSystem: {
+				access: fsAccess,
+				mkdir: fsMkdir,
+				cp: fsCp,
+			},
+			spawnViteProcess: spawnProcess,
+		});
+
+		const command = new StartCommand();
+		assignCommandContext(command);
+
+		await expect(command.execute()).rejects.toMatchObject({
+			message: 'Unable to resolve chokidar.watch for CLI start command.',
+		});
+
+		const spawnedProcess = spawnProcess.mock.results[0]
+			?.value as unknown as FakeChildProcess;
+
+		expect(spawnedProcess.kill).toHaveBeenCalledTimes(1);
+		expect(spawnedProcess.kill).toHaveBeenCalledWith('SIGINT');
+
+		jest.resetModules();
+	});
+
+	it('reuses the cached chokidar module between start command invocations', async () => {
+		jest.resetModules();
+		const watchSpy = jest
+			.fn(() => new FakeWatcher() as unknown as FSWatcher)
+			.mockName('cached-watch');
+		jest.doMock('chokidar', () => ({ watch: watchSpy }));
+
+		const { buildStartCommand: importBuildStartCommand } = await import(
+			'../start'
+		);
+
 		const StartCommand = importBuildStartCommand({
 			buildReporter: () => createReporterMock(),
 			buildGenerateCommand: () =>
@@ -834,12 +878,25 @@ describe('buildStartCommand', () => {
 			spawnViteProcess: () => new FakeChildProcess(),
 		});
 
-		const command = new StartCommand();
-		assignCommandContext(command);
+		const firstCommand = new StartCommand();
+		assignCommandContext(firstCommand);
 
-		await expect(command.execute()).rejects.toMatchObject({
-			message: 'Unable to resolve chokidar.watch for CLI start command.',
-		});
+		const firstExecution = firstCommand.execute();
+		await flushTimers();
+		process.emit('SIGINT');
+		await flushTimers();
+		await firstExecution;
+
+		const secondCommand = new StartCommand();
+		assignCommandContext(secondCommand);
+
+		const secondExecution = secondCommand.execute();
+		await flushTimers();
+		process.emit('SIGINT');
+		await flushTimers();
+		await secondExecution;
+
+		expect(watchSpy).toHaveBeenCalledTimes(2);
 
 		jest.resetModules();
 	});
