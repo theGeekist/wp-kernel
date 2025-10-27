@@ -18,7 +18,7 @@
 
 ## Functions
 
-- [serializeKernelError](functions/serializeKernelError.md)
+- [serializeWPKernelError](functions/serializeWPKernelError.md)
 
 ## References
 
@@ -52,9 +52,9 @@ Re-exports [WPKConfigSource](../namespace/type-aliases/WPKConfigSource.md)
 
 ---
 
-### KernelError
+### WPKernelError
 
-Re-exports [KernelError](../../classes/KernelError.md)
+Re-exports [WPKernelError](../../classes/WPKernelError.md)
 
 ---
 

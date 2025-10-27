@@ -8,7 +8,7 @@ import { WPK_EVENTS, WPK_SUBSYSTEM_NAMESPACES } from '../contracts/index.js';
 import { getKernelEventBus } from '../events/bus';
 import type { KernelRegistry } from '../data/types';
 import { getHooks as getActionHooks } from '../actions/context';
-import { KernelError } from '../error/index';
+import { WPKernelError } from '../error/index';
 
 /**
  * Internal state shape exposed by the __getInternalState selector.
@@ -523,7 +523,7 @@ export function interpolatePath(path: string, params: PathParams = {}): string {
 	);
 
 	if (missingParams.length > 0) {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: `Missing required path parameters: ${missingParams.join(', ')}`,
 			data: {
 				validationErrors: [],

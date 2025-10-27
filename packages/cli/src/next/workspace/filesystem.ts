@@ -1,7 +1,7 @@
 import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import type {
 	FileManifest,
 	MergeOptions,
@@ -326,14 +326,14 @@ class FilesystemWorkspace implements Workspace {
 	async commit(label?: string): Promise<FileManifest> {
 		const record = this.#transactions.pop();
 		if (!record) {
-			throw new KernelError('ValidationError', {
+			throw new WPKernelError('ValidationError', {
 				message:
 					'Attempted to commit workspace transaction without an active scope.',
 			});
 		}
 
 		if (label && record.label && record.label !== label) {
-			throw new KernelError('ValidationError', {
+			throw new WPKernelError('ValidationError', {
 				message: `Attempted to commit transaction "${label}" but top of stack is "${record.label}".`,
 			});
 		}
@@ -348,14 +348,14 @@ class FilesystemWorkspace implements Workspace {
 	async rollback(label?: string): Promise<FileManifest> {
 		const record = this.#transactions.pop();
 		if (!record) {
-			throw new KernelError('ValidationError', {
+			throw new WPKernelError('ValidationError', {
 				message:
 					'Attempted to rollback workspace transaction without an active scope.',
 			});
 		}
 
 		if (label && record.label && record.label !== label) {
-			throw new KernelError('ValidationError', {
+			throw new WPKernelError('ValidationError', {
 				message: `Attempted to rollback transaction "${label}" but top of stack is "${record.label}".`,
 			});
 		}

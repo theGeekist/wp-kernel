@@ -225,7 +225,7 @@ Status: ✓ Completed – The next controller helper now emits missing-policy wa
 
 ## Risks & mitigations
 
-- **Incomplete node data** - rely on the shared factories and fixtures; `prettyPrint` surfaces missing data as `KernelError('DeveloperError', …)`.
+- **Incomplete node data** - rely on the shared factories and fixtures; `prettyPrint` surfaces missing data as `WPKernelError('DeveloperError', …)`.
 - **String-printer drift** - defer removal of string printers until the AST equivalents ship with coverage.
 - **Block migration complexity** - SSR blocks touch PHP, JSON, and JS outputs; plan comprehensive integration tests before decommissioning the string-based pipeline.
 

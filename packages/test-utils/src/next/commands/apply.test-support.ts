@@ -1,12 +1,12 @@
 import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import type { LoadedKernelConfig } from '@wpkernel/cli/config';
+import type { LoadedWPKernelConfig } from '@wpkernel/cli/config';
 import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
 
 export const TMP_PREFIX = path.join(os.tmpdir(), 'next-apply-command-');
 
-export function buildLoadedConfig(workspace: string): LoadedKernelConfig {
+export function buildLoadedConfig(workspace: string): LoadedWPKernelConfig {
 	return {
 		config: {
 			version: 1,
@@ -18,7 +18,7 @@ export function buildLoadedConfig(workspace: string): LoadedKernelConfig {
 		sourcePath: path.join(workspace, WPK_CONFIG_SOURCES.WPK_CONFIG_TS),
 		configOrigin: WPK_CONFIG_SOURCES.WPK_CONFIG_TS,
 		composerCheck: 'ok',
-	} satisfies LoadedKernelConfig;
+	} satisfies LoadedWPKernelConfig;
 }
 
 export async function ensureDirectory(directory: string): Promise<void> {

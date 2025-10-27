@@ -19,7 +19,7 @@ readonly phase: PipelinePhase;
 ### config
 
 ```ts
-readonly config: KernelConfigV1;
+readonly config: WPKernelConfigV1;
 ```
 
 ---

@@ -23,10 +23,10 @@ describe('doctor command default environment checks', () => {
 
 		const { buildDoctorCommand } = await import('../doctor');
 
-		const loadKernelConfig = jest.fn().mockResolvedValue({
+		const loadWPKernelConfig = jest.fn().mockResolvedValue({
 			config: {},
-			sourcePath: path.join(process.cwd(), 'kernel.config.ts'),
-			configOrigin: 'kernel.config.ts',
+			sourcePath: path.join(process.cwd(), 'wpk.config.ts'),
+			configOrigin: 'wpk.config.ts',
 			composerCheck: 'ok',
 			namespace: 'Demo\\\\Plugin\\\\',
 		});
@@ -37,7 +37,7 @@ describe('doctor command default environment checks', () => {
 		const reporterFactory = jest.fn(() => createReporterMock());
 
 		const DoctorCommand = buildDoctorCommand({
-			loadKernelConfig,
+			loadWPKernelConfig,
 			buildWorkspace,
 			ensureGeneratedPhpClean,
 			buildReporter: reporterFactory,
@@ -66,10 +66,10 @@ describe('doctor command default environment checks', () => {
 
 		const { buildDoctorCommand } = await import('../doctor');
 
-		const loadKernelConfig = jest.fn().mockResolvedValue({
+		const loadWPKernelConfig = jest.fn().mockResolvedValue({
 			config: {},
-			sourcePath: path.join(process.cwd(), 'kernel.config.ts'),
-			configOrigin: 'kernel.config.ts',
+			sourcePath: path.join(process.cwd(), 'wpk.config.ts'),
+			configOrigin: 'wpk.config.ts',
 			composerCheck: 'ok',
 			namespace: 'Demo\\\\Plugin\\\\',
 		});
@@ -80,7 +80,7 @@ describe('doctor command default environment checks', () => {
 		const reporterFactory = jest.fn(() => createReporterMock());
 
 		const DoctorCommand = buildDoctorCommand({
-			loadKernelConfig,
+			loadWPKernelConfig,
 			buildWorkspace,
 			ensureGeneratedPhpClean,
 			buildReporter: reporterFactory,
@@ -101,10 +101,10 @@ describe('doctor command default environment checks', () => {
 
 		const { buildDoctorCommand } = await import('../doctor');
 
-		const loadKernelConfig = jest.fn().mockResolvedValue({
+		const loadWPKernelConfig = jest.fn().mockResolvedValue({
 			config: {},
-			sourcePath: path.join(process.cwd(), 'kernel.config.ts'),
-			configOrigin: 'kernel.config.ts',
+			sourcePath: path.join(process.cwd(), 'wpk.config.ts'),
+			configOrigin: 'wpk.config.ts',
 			composerCheck: 'ok',
 			namespace: 'Demo\\\\Plugin\\\\',
 		});
@@ -115,7 +115,7 @@ describe('doctor command default environment checks', () => {
 		const reporterFactory = jest.fn(() => createReporterMock());
 
 		const DoctorCommand = buildDoctorCommand({
-			loadKernelConfig,
+			loadWPKernelConfig,
 			buildWorkspace,
 			ensureGeneratedPhpClean,
 			buildReporter: reporterFactory,

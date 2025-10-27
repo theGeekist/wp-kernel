@@ -6,7 +6,7 @@
  *
  * @see Product Specification § 4.1 Resources
  */
-import { KernelError } from '../error/KernelError';
+import { WPKernelError } from '../error/WPKernelError';
 import {
 	registerStoreKey,
 	invalidate as globalInvalidate,
@@ -278,7 +278,7 @@ export function defineResource<T = unknown, TQuery = unknown>(
 							? undefined
 							: (window as WPGlobal).wp;
 					if (!globalWp?.data?.dispatch) {
-						throw new KernelError('DeveloperError', {
+						throw new WPKernelError('DeveloperError', {
 							message:
 								'prefetchGet requires @wordpress/data to be loaded',
 							context: {
@@ -320,7 +320,7 @@ export function defineResource<T = unknown, TQuery = unknown>(
 							? undefined
 							: (window as WPGlobal).wp;
 					if (!globalWp?.data?.dispatch) {
-						throw new KernelError('DeveloperError', {
+						throw new WPKernelError('DeveloperError', {
 							message:
 								'prefetchList requires @wordpress/data to be loaded',
 							context: {

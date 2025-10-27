@@ -73,16 +73,16 @@ function createBuilderInput(): BuilderInput {
 		options: {
 			config: {} as never,
 			namespace: 'demo-plugin',
-			origin: 'kernel.config.ts',
-			sourcePath: 'kernel.config.ts',
+			origin: 'wpk.config.ts',
+			sourcePath: 'wpk.config.ts',
 		},
 		ir: {
 			meta: {
 				version: 1,
 				namespace: 'demo-plugin',
 				sanitizedNamespace: 'DemoPlugin',
-				origin: 'kernel.config.ts',
-				sourcePath: 'kernel.config.ts',
+				origin: 'wpk.config.ts',
+				sourcePath: 'wpk.config.ts',
 			},
 			config: {} as never,
 			schemas: [],

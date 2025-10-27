@@ -1,19 +1,19 @@
-import { KernelError, serializeKernelError } from '../index';
+import { WPKernelError, serializeWPKernelError } from '../index';
 
-describe('serializeKernelError', () => {
-	it('serializes KernelError instances to the canonical JSON shape', () => {
-		const error = new KernelError('ValidationError', {
+describe('serializeWPKernelError', () => {
+	it('serializes WPKernelError instances to the canonical JSON shape', () => {
+		const error = new WPKernelError('ValidationError', {
 			message: 'Missing required field',
 			context: {
 				field: 'title',
 			},
 		});
 
-		const serialized = serializeKernelError(error);
+		const serialized = serializeWPKernelError(error);
 
 		expect(serialized).toEqual(error.toJSON());
 		expect(JSON.parse(JSON.stringify(serialized))).toMatchObject({
-			name: 'KernelError',
+			name: 'WPKernelError',
 			code: 'ValidationError',
 			message: 'Missing required field',
 			context: {
@@ -23,11 +23,11 @@ describe('serializeKernelError', () => {
 	});
 
 	it('supports wrapped non-kernel errors', () => {
-		const wrapped = KernelError.wrap(new Error('boom'), 'UnknownError', {
+		const wrapped = WPKernelError.wrap(new Error('boom'), 'UnknownError', {
 			operation: 'contract-test',
 		});
 
-		const serialized = serializeKernelError(wrapped);
+		const serialized = serializeWPKernelError(wrapped);
 
 		expect(serialized).toEqual(wrapped.toJSON());
 		expect(serialized.context).toEqual({ operation: 'contract-test' });

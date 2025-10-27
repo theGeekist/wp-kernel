@@ -1,4 +1,4 @@
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import type { ResourceConfig, ResourceRoute } from '@wpkernel/core/resource';
 import type { IRRoute, IRWarning } from '../publicTypes';
 import { hashCanonical } from './canonical';
@@ -43,7 +43,7 @@ export function normaliseRoutes(options: {
 			const duplicateKey = `${method} ${analysis.normalisedPath}`;
 			if (duplicateDetector.has(duplicateKey)) {
 				const existing = duplicateDetector.get(duplicateKey)!;
-				throw new KernelError('ValidationError', {
+				throw new WPKernelError('ValidationError', {
 					message: `Duplicate route detected for ${method} ${analysis.normalisedPath}.`,
 					context: {
 						resource: resourceKey,
@@ -103,14 +103,14 @@ function analyseRoutePath(options: {
 	const trimmed = candidate.trim();
 
 	if (!trimmed) {
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message: `Route ${routeKey} for resource "${resourceKey}" is empty.`,
 			context: { resource: resourceKey, route: routeKey },
 		});
 	}
 
 	if (trimmed.includes('../') || trimmed.includes('..\\')) {
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message: `Route ${routeKey} for resource "${resourceKey}" contains disallowed path traversal segments.`,
 			context: { resource: resourceKey, route: routeKey, path: trimmed },
 		});
@@ -142,7 +142,7 @@ function analyseRoutePath(options: {
 
 	for (const prefix of RESERVED_ROUTE_PREFIXES) {
 		if (collapsed.startsWith(prefix)) {
-			throw new KernelError('ValidationError', {
+			throw new WPKernelError('ValidationError', {
 				message: `Route ${routeKey} for resource "${resourceKey}" uses reserved prefix "${prefix}".`,
 				context: {
 					resource: resourceKey,

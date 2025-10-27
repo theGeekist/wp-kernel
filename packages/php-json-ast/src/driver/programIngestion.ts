@@ -1,5 +1,5 @@
 import type { Reporter } from '@wpkernel/core/reporter';
-import { KernelError } from '../KernelError';
+import { WPKernelError } from '@wpkernel/core/contracts';
 import { getPhpBuilderChannel } from '../builderChannel';
 import type { PhpProgram } from '../nodes';
 import type { PipelineContext } from '../programBuilder';
@@ -115,7 +115,7 @@ async function* toAsyncIterable(
 		return;
 	}
 
-	throw new KernelError('DeveloperError', {
+	throw new WPKernelError('DeveloperError', {
 		message: 'Unsupported ingestion source provided.',
 		data: {
 			received: typeof source,
@@ -129,7 +129,7 @@ function parseMessage(line: string): PhpProgramIngestionMessage {
 	try {
 		payload = JSON.parse(line);
 	} catch (error) {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: 'Failed to decode PHP ingestion payload.',
 			data: {
 				line,
@@ -139,7 +139,7 @@ function parseMessage(line: string): PhpProgramIngestionMessage {
 	}
 
 	if (!isPhpProgramIngestionPayload(payload)) {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: 'Invalid PHP ingestion payload received.',
 			data: { payload },
 		});
@@ -188,7 +188,7 @@ function resolveFilePath(
 ): string {
 	const file = options.resolveFilePath?.(message) ?? message.file;
 	if (typeof file !== 'string' || file.length === 0) {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: 'Resolved ingestion file path was empty.',
 			data: { file },
 		});
@@ -239,7 +239,7 @@ function flushBufferedMessage(buffer: string): {
 			message: parseMessage(trimmed),
 		};
 	} catch (error) {
-		if (error instanceof KernelError && error.code === 'DeveloperError') {
+		if (error instanceof WPKernelError && error.code === 'DeveloperError') {
 			return { remaining: trimmed };
 		}
 

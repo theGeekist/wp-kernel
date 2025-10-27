@@ -49,7 +49,7 @@ sanitizedNamespace: string;
 ### config
 
 ```ts
-config: KernelConfigV1;
+config: WPKernelConfigV1;
 ```
 
 ---

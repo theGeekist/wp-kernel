@@ -3,7 +3,7 @@
  */
 
 import { defineResource } from '../define';
-import { KernelError } from '../../error';
+import { WPKernelError } from '../../error';
 import { resetNamespaceCache } from '../../namespace';
 import type { ResourceStore, ResourceDataViewsUIConfig } from '../types';
 import {
@@ -428,7 +428,9 @@ describe('defineResource - integration', () => {
 					},
 				});
 
-				await expect(resource.fetch!(999)).rejects.toThrow(KernelError);
+				await expect(resource.fetch!(999)).rejects.toThrow(
+					WPKernelError
+				);
 			});
 		});
 	});

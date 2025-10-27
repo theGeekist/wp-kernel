@@ -133,7 +133,7 @@ useNextPagePrefetch(job, currentQuery, {
 
 - These helpers rely on the store registration performed by
   `defineResource`-they do not talk to the transport directly.
-- The kernel throws a `KernelError('DeveloperError')` if `@wordpress/data`
+- The kernel throws a `WPKernelError('DeveloperError')` if `@wordpress/data`
   is not present. This mirrors the imperative `prefetch*` functions.
 - Prefetching is **advisory**. Use it to reduce wait time, not to enforce data
   loading. Render hooks (`resource.useList`, `resource.useGet`) remain the

@@ -6,7 +6,7 @@ import { promisify } from 'node:util';
 import readline from 'node:readline/promises';
 import { stdin as defaultStdin, stdout as defaultStdout } from 'node:process';
 import type { Reporter } from '@wpkernel/core/reporter';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import type { Workspace } from './types';
 import { serialiseError } from '../commands/apply/errors';
 
@@ -119,7 +119,7 @@ export async function ensureGeneratedPhpClean({
 		);
 
 		if (stdout.trim().length > 0) {
-			throw new KernelError('ValidationError', {
+			throw new WPKernelError('ValidationError', {
 				message: 'Generated PHP directory has uncommitted changes.',
 				context: {
 					path: relativeSource,
@@ -135,12 +135,12 @@ export async function ensureGeneratedPhpClean({
 			return;
 		}
 
-		if (KernelError.isKernelError(error)) {
+		if (WPKernelError.isWPKernelError(error)) {
 			throw error;
 		}
 
 		/* istanbul ignore next - git invocation failed unexpectedly */
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: 'Unable to verify generated PHP cleanliness.',
 			context: {
 				path: relativeSource,
@@ -169,7 +169,7 @@ export async function ensureCleanDirectory({
 	}
 
 	if (!stat.isDirectory()) {
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message: 'Expected a directory.',
 			context: { path: relativeDirectory },
 		});
@@ -181,7 +181,7 @@ export async function ensureCleanDirectory({
 	}
 
 	if (!force) {
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message: 'Directory is not empty.',
 			context: {
 				path: relativeDirectory,

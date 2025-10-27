@@ -84,7 +84,7 @@ export function JobList() {
 }
 ```
 
-Hooks draw from the same store keys as the grouped selectors. They throw a `KernelError` if `@wordpress/data` is not present, which protects you during SSR or early bootstrap.【F:packages/ui/src/hooks/resource-hooks.ts†L40-L140】
+Hooks draw from the same store keys as the grouped selectors. They throw a `WPKernelError` if `@wordpress/data` is not present, which protects you during SSR or early bootstrap.【F:packages/ui/src/hooks/resource-hooks.ts†L40-L140】
 
 ## Surfacing data in admin screens
 

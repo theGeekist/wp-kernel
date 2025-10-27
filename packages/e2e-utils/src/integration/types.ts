@@ -150,7 +150,7 @@ export interface CapabilityMap {
 	objects?: Record<string, CapabilityDescriptor[] | undefined>;
 }
 
-export interface KernelConfigFabricatorOptions {
+export interface WPKernelConfigFabricatorOptions {
 	namespace?: string;
 	storage?: 'transient' | 'wp-post' | 'wp-option' | 'wp-taxonomy';
 	includeSSRBlock?: boolean;
@@ -159,7 +159,7 @@ export interface KernelConfigFabricatorOptions {
 	includePolicies?: boolean;
 }
 
-export interface KernelConfigFabrication {
+export interface WPKernelConfigFabrication {
 	config: unknown;
 	capabilities: CapabilityMap;
 	blocks: {

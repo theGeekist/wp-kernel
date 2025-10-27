@@ -133,7 +133,7 @@ export async function createItemViaStore(store, payload) {
 
 ### Automatic notices & reporting
 
-If `CreateItem` throws `KernelError('ValidationError', { message: 'Bad input' })`, then after `configureKernel({ registry })` runs:
+If `CreateItem` throws `WPKernelError('ValidationError', { message: 'Bad input' })`, then after `configureKernel({ registry })` runs:
 
 - `core/notices.createNotice('info', 'Bad input')` fires once the store is registered.
 - The configured reporter receives `error(...)` with contextual metadata.
@@ -193,7 +193,7 @@ function my_plugin_handle_action_error( $payload ) {
 
 - Call `configureKernel()` once per registry at bootstrap; retain the teardown for tests and hot module replacement.
 - Register stores via `registerKernelStore()` so they inherit kernel-aware behaviour.
-- Throw `KernelError` subclasses from actions for structured notice mapping.
+- Throw `WPKernelError` subclasses from actions for structured notice mapping.
 - Provide a production reporter to forward logs to your telemetry system.
 - Use `kernel.emit()` for domain events so they route through existing bridges.
 

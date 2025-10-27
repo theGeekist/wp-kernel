@@ -13,7 +13,7 @@ const withWorkspace = createWorkspaceRunner({ prefix: TMP_PREFIX });
 
 async function createCommand(workspace: string) {
 	const moduleUrl = pathToFileURL(
-		path.join(__dirname, '../../../../templates/init/kernel.config.ts')
+		path.join(__dirname, '../../../../templates/init/wpk.config.ts')
 	).href;
 	(globalThis as { __WPK_CLI_MODULE_URL__?: string }).__WPK_CLI_MODULE_URL__ =
 		moduleUrl;
@@ -45,7 +45,7 @@ describe('NextInitCommand', () => {
 			expect(summary).toContain(
 				'created plugin scaffold for jobs-plugin'
 			);
-			expect(summary).toContain('created kernel.config.ts');
+			expect(summary).toContain('created wpk.config.ts');
 			expect(summary).toContain('created src/index.ts');
 			expect(summary).toContain('created tsconfig.json');
 			expect(summary).toContain('created jsconfig.json');
@@ -55,12 +55,12 @@ describe('NextInitCommand', () => {
 			expect(summary).toContain('created composer.json');
 			expect(summary).toContain('created inc/.gitkeep');
 
-			const kernelConfig = await fs.readFile(
-				path.join(workspace, 'kernel.config.ts'),
+			const wpkConfig = await fs.readFile(
+				path.join(workspace, 'wpk.config.ts'),
 				'utf8'
 			);
-			expect(kernelConfig).toContain("namespace: 'jobs-plugin'");
-			expect(kernelConfig).toContain(
+			expect(wpkConfig).toContain("namespace: 'jobs-plugin'");
+			expect(wpkConfig).toContain(
 				'Kernel configuration for your project.'
 			);
 
@@ -122,7 +122,7 @@ describe('NextInitCommand', () => {
 		await withWorkspace(async (workspace) => {
 			await fs.mkdir(path.join(workspace, 'src'), { recursive: true });
 			await fs.writeFile(
-				path.join(workspace, 'kernel.config.ts'),
+				path.join(workspace, 'wpk.config.ts'),
 				'export {};\n',
 				'utf8'
 			);

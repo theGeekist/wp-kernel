@@ -1,4 +1,4 @@
-import { KernelError } from '@wpkernel/core/contracts';
+import { WPKernelError } from '@wpkernel/core/contracts';
 import {
 	buildArg,
 	buildAssign,
@@ -478,7 +478,7 @@ export function prepareWpPostResponse(
 function ensureStorage(resource: IRResource): WpPostStorage {
 	const storage = resource.storage;
 	if (!storage || storage.mode !== 'wp-post') {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: 'Resource must use wp-post storage.',
 			context: { name: resource.name },
 		});

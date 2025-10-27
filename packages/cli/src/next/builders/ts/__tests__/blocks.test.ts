@@ -3,7 +3,7 @@ import { createJsBlocksBuilder } from '../blocks';
 import type { IRResource, IRSchema, IRv1 } from '../../../ir/publicTypes';
 import {
 	withWorkspace,
-	buildKernelConfigSource,
+	buildWPKernelConfigSource,
 	buildBuilderArtifacts,
 	buildReporter,
 	buildOutput,
@@ -13,8 +13,8 @@ import {
 describe('createJsBlocksBuilder', () => {
 	it('emits registrar and stubs for js-only blocks', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
-			const configSource = buildKernelConfigSource();
-			await workspace.write('kernel.config.ts', configSource);
+			const configSource = buildWPKernelConfigSource();
+			await workspace.write('wpk.config.ts', configSource);
 
 			const blockDir = path.join('src', 'blocks', 'example');
 			const manifestPath = path.join(blockDir, 'block.json');
@@ -35,7 +35,7 @@ describe('createJsBlocksBuilder', () => {
 			);
 
 			const { ir, options } = buildBuilderArtifacts({
-				sourcePath: path.join(root, 'kernel.config.ts'),
+				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
 			const irWithBlocks: IRv1 = {
 				...ir,
@@ -89,8 +89,8 @@ describe('createJsBlocksBuilder', () => {
 
 	it('writes empty registrar when blocks rely on file modules', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
-			const configSource = buildKernelConfigSource();
-			await workspace.write('kernel.config.ts', configSource);
+			const configSource = buildWPKernelConfigSource();
+			await workspace.write('wpk.config.ts', configSource);
 
 			const blockDir = path.join('src', 'blocks', 'module');
 			const manifestPath = path.join(blockDir, 'block.json');
@@ -110,7 +110,7 @@ describe('createJsBlocksBuilder', () => {
 			);
 
 			const { ir, options } = buildBuilderArtifacts({
-				sourcePath: path.join(root, 'kernel.config.ts'),
+				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
 			const irWithBlocks: IRv1 = {
 				...ir,
@@ -161,8 +161,8 @@ describe('createJsBlocksBuilder', () => {
 	});
 	it('does not overwrite existing stubs when present', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
-			const configSource = buildKernelConfigSource();
-			await workspace.write('kernel.config.ts', configSource);
+			const configSource = buildWPKernelConfigSource();
+			await workspace.write('wpk.config.ts', configSource);
 
 			const blockDir = path.join('src', 'blocks', 'existing');
 			const manifestPath = path.join(blockDir, 'block.json');
@@ -186,7 +186,7 @@ describe('createJsBlocksBuilder', () => {
 			);
 
 			const { ir, options } = buildBuilderArtifacts({
-				sourcePath: path.join(root, 'kernel.config.ts'),
+				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
 			const irWithBlocks: IRv1 = {
 				...ir,
@@ -230,15 +230,15 @@ describe('createJsBlocksBuilder', () => {
 
 	it('skips generation when manifest cannot be processed', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
-			const configSource = buildKernelConfigSource();
-			await workspace.write('kernel.config.ts', configSource);
+			const configSource = buildWPKernelConfigSource();
+			await workspace.write('wpk.config.ts', configSource);
 
 			const blockDir = path.join('src', 'blocks', 'invalid');
 			const manifestPath = path.join(blockDir, 'block.json');
 			await workspace.write(manifestPath, '{ invalid json');
 
 			const { ir, options } = buildBuilderArtifacts({
-				sourcePath: path.join(root, 'kernel.config.ts'),
+				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
 			const irWithBlocks: IRv1 = {
 				...ir,
@@ -278,8 +278,8 @@ describe('createJsBlocksBuilder', () => {
 
 	it('logs debug when no JS-only blocks are present', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
-			const configSource = buildKernelConfigSource();
-			await workspace.write('kernel.config.ts', configSource);
+			const configSource = buildWPKernelConfigSource();
+			await workspace.write('wpk.config.ts', configSource);
 
 			const blockDir = path.join('src', 'blocks', 'ssr');
 			const manifestPath = path.join(blockDir, 'block.json');
@@ -299,7 +299,7 @@ describe('createJsBlocksBuilder', () => {
 			);
 
 			const { ir, options } = buildBuilderArtifacts({
-				sourcePath: path.join(root, 'kernel.config.ts'),
+				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
 			const irWithBlocks: IRv1 = {
 				...ir,
@@ -339,11 +339,11 @@ describe('createJsBlocksBuilder', () => {
 
 	it('ignores non-generate phases', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
-			const configSource = buildKernelConfigSource();
-			await workspace.write('kernel.config.ts', configSource);
+			const configSource = buildWPKernelConfigSource();
+			await workspace.write('wpk.config.ts', configSource);
 
 			const { ir, options } = buildBuilderArtifacts({
-				sourcePath: path.join(root, 'kernel.config.ts'),
+				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
 
 			const reporter = buildReporter();
@@ -370,11 +370,11 @@ describe('createJsBlocksBuilder', () => {
 
 	it('skips when IR is missing', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
-			const configSource = buildKernelConfigSource();
-			await workspace.write('kernel.config.ts', configSource);
+			const configSource = buildWPKernelConfigSource();
+			await workspace.write('wpk.config.ts', configSource);
 
 			const { options } = buildBuilderArtifacts({
-				sourcePath: path.join(root, 'kernel.config.ts'),
+				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
 
 			const reporter = buildReporter();
@@ -402,8 +402,8 @@ describe('createJsBlocksBuilder', () => {
 
 	it('uses staged contents when workspace read returns null', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
-			const configSource = buildKernelConfigSource();
-			await workspace.write('kernel.config.ts', configSource);
+			const configSource = buildWPKernelConfigSource();
+			await workspace.write('wpk.config.ts', configSource);
 
 			const blockDir = path.join('src', 'blocks', 'null-read');
 			const manifestPath = path.join(blockDir, 'block.json');
@@ -424,7 +424,7 @@ describe('createJsBlocksBuilder', () => {
 			);
 
 			const { ir, options } = buildBuilderArtifacts({
-				sourcePath: path.join(root, 'kernel.config.ts'),
+				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
 			const irWithBlocks: IRv1 = {
 				...ir,
@@ -494,8 +494,8 @@ describe('createJsBlocksBuilder', () => {
 
 	it('rolls back stub writes when a filesystem error occurs', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
-			const configSource = buildKernelConfigSource();
-			await workspace.write('kernel.config.ts', configSource);
+			const configSource = buildWPKernelConfigSource();
+			await workspace.write('wpk.config.ts', configSource);
 
 			const blockDir = path.join('src', 'blocks', 'failing');
 			const manifestPath = path.join(blockDir, 'block.json');
@@ -515,7 +515,7 @@ describe('createJsBlocksBuilder', () => {
 			);
 
 			const { ir, options } = buildBuilderArtifacts({
-				sourcePath: path.join(root, 'kernel.config.ts'),
+				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
 			const irWithBlocks: IRv1 = {
 				...ir,
@@ -562,11 +562,11 @@ describe('createJsBlocksBuilder', () => {
 
 	it('derives manifests and stubs for resources without explicit blocks', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
-			const configSource = buildKernelConfigSource();
-			await workspace.write('kernel.config.ts', configSource);
+			const configSource = buildWPKernelConfigSource();
+			await workspace.write('wpk.config.ts', configSource);
 
 			const { ir, options } = buildBuilderArtifacts({
-				sourcePath: path.join(root, 'kernel.config.ts'),
+				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
 
 			const resource: IRResource = {

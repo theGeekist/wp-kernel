@@ -1,6 +1,6 @@
 import { defineAction } from '../define';
 import type { ActionConfig, ActionOptions } from '../types';
-import { KernelError } from '../../error/KernelError';
+import { WPKernelError } from '../../error/WPKernelError';
 
 function createAction<TArgs = void, TResult = void>(
 	name: string,
@@ -15,7 +15,7 @@ describe('defineAction', () => {
 		it('throws DeveloperError when config is missing', () => {
 			expect(() =>
 				defineAction(undefined as unknown as ActionConfig<void, void>)
-			).toThrow(KernelError);
+			).toThrow(WPKernelError);
 			expect(() =>
 				defineAction(undefined as unknown as ActionConfig<void, void>)
 			).toThrow(
@@ -29,7 +29,7 @@ describe('defineAction', () => {
 					name: '' as string,
 					handler: async () => {},
 				})
-			).toThrow(KernelError);
+			).toThrow(WPKernelError);
 			expect(() =>
 				defineAction({
 					name: '' as string,
@@ -46,7 +46,7 @@ describe('defineAction', () => {
 					name: 123 as unknown as string,
 					handler: async () => {},
 				})
-			).toThrow(KernelError);
+			).toThrow(WPKernelError);
 			expect(() =>
 				defineAction({
 					name: 123 as unknown as string,
@@ -63,7 +63,7 @@ describe('defineAction', () => {
 					name: 'TestAction',
 					handler: 'not a function' as unknown as () => Promise<void>,
 				})
-			).toThrow(KernelError);
+			).toThrow(WPKernelError);
 			expect(() =>
 				defineAction({
 					name: 'TestAction',
@@ -74,8 +74,8 @@ describe('defineAction', () => {
 	});
 
 	describe('error normalization', () => {
-		it('preserves KernelError with merged context', async () => {
-			const originalError = new KernelError('ValidationError', {
+		it('preserves WPKernelError with merged context', async () => {
+			const originalError = new WPKernelError('ValidationError', {
 				message: 'Invalid input',
 				data: { field: 'email' },
 				context: { source: 'form' },
@@ -97,8 +97,8 @@ describe('defineAction', () => {
 			});
 		});
 
-		it('preserves KernelError stack trace', async () => {
-			const originalError = new KernelError('ServerError', {
+		it('preserves WPKernelError stack trace', async () => {
+			const originalError = new WPKernelError('ServerError', {
 				message: 'Custom error',
 			});
 			const originalStack = originalError.stack;
@@ -110,11 +110,11 @@ describe('defineAction', () => {
 			try {
 				await action(undefined);
 			} catch (error) {
-				expect((error as KernelError).stack).toBe(originalStack);
+				expect((error as WPKernelError).stack).toBe(originalStack);
 			}
 		});
 
-		it('wraps standard Error into KernelError with UnknownError code', async () => {
+		it('wraps standard Error into WPKernelError with UnknownError code', async () => {
 			const standardError = new Error('Something went wrong');
 
 			const action = createAction('TestAction', async () => {
@@ -131,7 +131,7 @@ describe('defineAction', () => {
 			});
 		});
 
-		it('wraps non-Error values into KernelError with descriptive message', async () => {
+		it('wraps non-Error values into WPKernelError with descriptive message', async () => {
 			const action = createAction('TestAction', async () => {
 				throw 'string error';
 			});
@@ -147,7 +147,7 @@ describe('defineAction', () => {
 			});
 		});
 
-		it('wraps null throw into KernelError', async () => {
+		it('wraps null throw into WPKernelError', async () => {
 			const action = createAction('TestAction', async () => {
 				throw null;
 			});
@@ -163,7 +163,7 @@ describe('defineAction', () => {
 			});
 		});
 
-		it('wraps undefined throw into KernelError', async () => {
+		it('wraps undefined throw into WPKernelError', async () => {
 			const action = createAction('TestAction', async () => {
 				throw undefined;
 			});
@@ -179,7 +179,7 @@ describe('defineAction', () => {
 			});
 		});
 
-		it('wraps number throw into KernelError', async () => {
+		it('wraps number throw into WPKernelError', async () => {
 			const action = createAction('TestAction', async () => {
 				throw 42;
 			});
@@ -195,7 +195,7 @@ describe('defineAction', () => {
 			});
 		});
 
-		it('wraps object throw into KernelError', async () => {
+		it('wraps object throw into WPKernelError', async () => {
 			const action = createAction('TestAction', async () => {
 				throw { custom: 'error object' };
 			});

@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import type { Reporter } from '@wpkernel/core/reporter';
 import { createPhpBuilder } from '../php';
 import type { BuilderOutput } from '../../runtime/types';
@@ -66,8 +66,8 @@ describe('createPhpBuilder (unit)', () => {
 						options: {
 							config: {} as never,
 							namespace: 'demo',
-							origin: 'kernel.config.ts',
-							sourcePath: 'kernel.config.ts',
+							origin: 'wpk.config.ts',
+							sourcePath: 'wpk.config.ts',
 						},
 						ir: null,
 					},
@@ -76,6 +76,6 @@ describe('createPhpBuilder (unit)', () => {
 				},
 				undefined
 			)
-		).rejects.toThrow(KernelError);
+		).rejects.toThrow(WPKernelError);
 	});
 });

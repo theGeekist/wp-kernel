@@ -1,4 +1,4 @@
-import { KernelError } from '@wpkernel/core/contracts';
+import { WPKernelError } from '@wpkernel/core/contracts';
 import {
 	clearNamespaceState,
 	createMockWpPackage,
@@ -44,9 +44,9 @@ describe('test-utils/wp.test-support', () => {
 		return window.wp;
 	}
 
-	it('throws a KernelError when wp is not initialised', () => {
+	it('throws a WPKernelError when wp is not initialised', () => {
 		delete (window as { wp?: unknown }).wp;
-		expect(() => ensureWpData()).toThrow(KernelError);
+		expect(() => ensureWpData()).toThrow(WPKernelError);
 	});
 
 	it('returns the data package when wp is initialised', () => {

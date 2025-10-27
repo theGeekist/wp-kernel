@@ -26,7 +26,7 @@ Every action execution automatically handles:
 - **Cache invalidation** - Keep UI fresh without manual work
 - **Job scheduling** - Queue background tasks without blocking users
 - **Policy enforcement** - Check capabilities before writes
-- **Error normalization** - Convert any error into structured `KernelError`
+- **Error normalization** - Convert any error into structured `WPKernelError`
 - **Observability** - Emit start/complete/error events for monitoring
 
 ## Basic Usage
@@ -67,7 +67,7 @@ Each invocation automatically emits three lifecycle hooks via `@wordpress/hooks`
 
 - **`wpk.action.start`** - Before execution, includes args and metadata
 - **`wpk.action.complete`** - After success, includes result and duration
-- **`wpk.action.error`** - On failure, includes normalized `KernelError` and duration
+- **`wpk.action.error`** - On failure, includes normalized `WPKernelError` and duration
 
 These events enable:
 
@@ -122,7 +122,7 @@ The `ActionContext` (first parameter `ctx`) provides:
 
 ## Error Handling
 
-All errors are automatically normalized to `KernelError` instances with:
+All errors are automatically normalized to `WPKernelError` instances with:
 
 - Consistent error codes
 - Action name and request ID in context
@@ -131,7 +131,7 @@ All errors are automatically normalized to `KernelError` instances with:
 
 ```typescript
 defineAction('TestAction', async (ctx, args) => {
-	throw new Error('Something broke'); // Auto-wrapped as KernelError
+	throw new Error('Something broke'); // Auto-wrapped as WPKernelError
 });
 ```
 

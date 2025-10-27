@@ -1,13 +1,13 @@
 import {
-	KernelError,
+	WPKernelError,
 	WPK_EXIT_CODES,
 	type WPKExitCode,
-	serializeKernelError,
+	serializeWPKernelError,
 } from '@wpkernel/core/contracts';
 import type { Reporter } from '@wpkernel/core/reporter';
 import { serialiseError } from './reporting';
 
-const VALIDATION_EXIT_CODES = new Set<KernelError['code']>([
+const VALIDATION_EXIT_CODES = new Set<WPKernelError['code']>([
 	'ValidationError',
 	'DeveloperError',
 ]);
@@ -17,8 +17,8 @@ export function handleFailure(
 	reporter: Reporter,
 	defaultExitCode: WPKExitCode
 ): WPKExitCode {
-	if (KernelError.isKernelError(error)) {
-		reporter.error(error.message, serializeKernelError(error));
+	if (WPKernelError.isWPKernelError(error)) {
+		reporter.error(error.message, serializeWPKernelError(error));
 
 		if (VALIDATION_EXIT_CODES.has(error.code)) {
 			return WPK_EXIT_CODES.VALIDATION_ERROR;

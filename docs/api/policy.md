@@ -76,7 +76,7 @@ The returned helpers automatically register with the Action runtime so
 - `can(key, ...params)` → `boolean | Promise<boolean>` - Evaluate a rule without
   throwing. Async rules return promises.
 - `assert(key, ...params)` → `void | Promise<void>` - Throws
-  `KernelError('PolicyDenied')` when the rule resolves to `false`. Also emits a
+  `WPKernelError('PolicyDenied')` when the rule resolves to `false`. Also emits a
   `{namespace}.policy.denied` WordPress hook and BroadcastChannel event.
 - `keys()` → `(keyof K)[]` - List registered capability keys.
 - `extend(map)` → `void` - Merge additional rules and invalidate the cache for

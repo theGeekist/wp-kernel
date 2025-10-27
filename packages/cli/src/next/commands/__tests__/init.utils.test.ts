@@ -71,7 +71,7 @@ describe('init utils', () => {
 				Object.assign(new Error('missing'), { code: 'ENOENT' })
 			);
 
-		await expect(fileExists(workspace, 'kernel.config.ts')).resolves.toBe(
+		await expect(fileExists(workspace, 'wpk.config.ts')).resolves.toBe(
 			true
 		);
 		await expect(fileExists(workspace, 'src/index.ts')).resolves.toBe(
@@ -80,7 +80,7 @@ describe('init utils', () => {
 
 		expect(accessMock).toHaveBeenNthCalledWith(
 			1,
-			path.join('/tmp/project', 'kernel.config.ts')
+			path.join('/tmp/project', 'wpk.config.ts')
 		);
 		expect(accessMock).toHaveBeenNthCalledWith(
 			2,
@@ -102,7 +102,7 @@ describe('init utils', () => {
 		const accessMock = fs.access as jest.MockedFunction<typeof fs.access>;
 		accessMock.mockRejectedValue(failure);
 
-		await expect(fileExists(workspace, 'kernel.config.ts')).rejects.toBe(
+		await expect(fileExists(workspace, 'wpk.config.ts')).rejects.toBe(
 			failure
 		);
 	});

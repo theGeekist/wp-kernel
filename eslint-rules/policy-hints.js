@@ -1,5 +1,5 @@
 import {
-	createKernelConfigEvaluator,
+	createWPKernelConfigEvaluator,
 	getObjectProperty,
 	getResourcesFromConfig,
 	getStringValue,
@@ -69,19 +69,19 @@ export default {
 		schema: [],
 	},
 	create(context) {
-		const evaluator = createKernelConfigEvaluator(context);
-		if (!evaluator.isKernelConfig) {
+		const evaluator = createWPKernelConfigEvaluator(context);
+		if (!evaluator.isWPKernelConfig) {
 			return {};
 		}
 
 		return {
 			Program() {
-				const kernelConfig = evaluator.getKernelConfig();
-				if (!kernelConfig) {
+				const wpkConfig = evaluator.getWPKernelConfig();
+				if (!wpkConfig) {
 					return;
 				}
 
-				const resources = getResourcesFromConfig(kernelConfig);
+				const resources = getResourcesFromConfig(wpkConfig);
 				for (const resource of resources) {
 					validateResourcePolicies(context, resource);
 				}

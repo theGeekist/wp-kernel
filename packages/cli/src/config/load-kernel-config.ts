@@ -1,7 +1,7 @@
 /**
  * Kernel config loader.
  *
- * Responsible for locating and resolving the project's `kernel.config.(ts|js)`
+ * Responsible for locating and resolving the project's `wpk.config.(ts|js)`
  * (or a `wpk` field in package.json). It supports TS execution via `tsx`
  * and falls back to standard Node imports for JS files. Returned values
  * are normalised to the canonical kernel configuration object.
@@ -11,14 +11,14 @@ import { promises as fs } from 'node:fs';
 import { pathToFileURL } from 'node:url';
 import type * as cosmiconfigNamespace from 'cosmiconfig';
 import { createReporter, type Reporter } from '@wpkernel/core/reporter';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import {
 	WPK_CONFIG_SOURCES,
 	WPK_NAMESPACE,
 	type WPKConfigSource,
 } from '@wpkernel/core/contracts';
-import { validateKernelConfig } from './validate-kernel-config';
-import type { LoadedKernelConfig } from './types';
+import { validateWPKernelConfig } from './validate-kernel-config';
+import type { LoadedWPKernelConfig } from './types';
 
 type CosmiconfigModule = typeof cosmiconfigNamespace;
 type CosmiconfigResult = Awaited<
@@ -57,7 +57,7 @@ async function loadDefaultLoader<
 	const loader = module.defaultLoaders[extension];
 
 	if (!loader) {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: `No cosmiconfig loader registered for ${extension}.`,
 		});
 	}
@@ -76,9 +76,9 @@ async function loadDefaultLoader<
  * correctly.
  *
  * @return The validated kernel config and associated metadata.
- * @throws KernelError when discovery, parsing or validation fails.
+ * @throws WPKernelError when discovery, parsing or validation fails.
  */
-export async function loadKernelConfig(): Promise<LoadedKernelConfig> {
+export async function loadWPKernelConfig(): Promise<LoadedWPKernelConfig> {
 	const cosmiconfigModule = await loadCosmiconfigModule();
 	const explorer = cosmiconfigModule.cosmiconfig(WPK_NAMESPACE, {
 		searchPlaces: [
@@ -99,9 +99,9 @@ export async function loadKernelConfig(): Promise<LoadedKernelConfig> {
 	const searchResult = await explorer.search();
 	if (!searchResult || searchResult.isEmpty) {
 		const message =
-			'Unable to locate a kernel config. Create kernel.config.ts (or kernel.config.js) or add a "wpk" field to package.json.';
+			'Unable to locate a kernel config. Create wpk.config.ts (or wpk.config.js) or add a "wpk" field to package.json.';
 		reporter.error(message);
-		throw new KernelError('DeveloperError', { message });
+		throw new WPKernelError('DeveloperError', { message });
 	}
 
 	const resolvedResult = searchResult as NonNullable<CosmiconfigResult>;
@@ -115,7 +115,7 @@ export async function loadKernelConfig(): Promise<LoadedKernelConfig> {
 	});
 
 	const rawConfig = await resolveConfigValue(resolvedResult.config);
-	const { config, namespace } = validateKernelConfig(rawConfig, {
+	const { config, namespace } = validateWPKernelConfig(rawConfig, {
 		reporter,
 		sourcePath,
 		origin,
@@ -147,7 +147,7 @@ export async function loadKernelConfig(): Promise<LoadedKernelConfig> {
  *
  * @param result - Result returned from cosmiconfig.
  * @return The matching `WPK_CONFIG_SOURCES` identifier.
- * @throws KernelError when the file is unsupported.
+ * @throws WPKernelError when the file is unsupported.
  */
 export function getConfigOrigin(
 	result: NonNullable<CosmiconfigResult>
@@ -168,7 +168,7 @@ export function getConfigOrigin(
 
 	const message = `Unsupported kernel config source: ${fileName}.`;
 	reporter.error(message, { fileName, filepath: result.filepath });
-	throw new KernelError('DeveloperError', { message });
+	throw new WPKernelError('DeveloperError', { message });
 }
 
 export function createTsLoader({
@@ -205,7 +205,7 @@ export function createTsLoader({
 			const message = `Failed to execute ${filepath}: ${formatError(tsxError)}`;
 			reporter.error(message, { filepath, error: tsxError });
 			const underlying = tsxError instanceof Error ? tsxError : undefined;
-			throw new KernelError('DeveloperError', {
+			throw new WPKernelError('DeveloperError', {
 				message,
 				data: underlying ? { originalError: underlying } : undefined,
 			});
@@ -226,7 +226,7 @@ export function createJsLoader(
 		} catch (error) {
 			const message = `Failed to import ${filepath}: ${formatError(error)}`;
 			const underlying = error instanceof Error ? error : undefined;
-			throw new KernelError('DeveloperError', {
+			throw new WPKernelError('DeveloperError', {
 				message,
 				data: underlying ? { originalError: underlying } : undefined,
 			});
@@ -237,7 +237,7 @@ export function createJsLoader(
 /**
  * Normalise nested config module exports into a raw config value.
  *
- * The helper unwraps default exports, `kernelConfig` wrappers, `config`
+ * The helper unwraps default exports, `wpkConfig` wrappers, `config`
  * wrappers and promises to support a wide range of authoring styles.
  *
  * @param value - Raw module export from a loader.
@@ -256,8 +256,8 @@ export async function resolveConfigValue(value: unknown): Promise<unknown> {
 			continue;
 		}
 
-		if ('kernelConfig' in current && current.kernelConfig !== current) {
-			current = current.kernelConfig;
+		if ('wpkConfig' in current && current.wpkConfig !== current) {
+			current = current.wpkConfig;
 			continue;
 		}
 
@@ -281,7 +281,7 @@ export async function validateComposerAutoload(
 	if (!composerPath) {
 		const message = `composer.json not found near ${startDir}. Ensure your plugin declares psr-4 autoload mapping to "inc/".`;
 		validationReporter.error(message, { startDir });
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message,
 			context: {
 				startDir,
@@ -320,7 +320,7 @@ export async function readComposerJson(
 		const message = `Unable to read composer.json at ${composerPath}: ${formatError(error)}`;
 		validationReporter.error(message, { composerPath });
 		const underlying = error instanceof Error ? error : undefined;
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message,
 			context: { composerPath },
 			data: underlying ? { originalError: underlying } : undefined,
@@ -339,7 +339,7 @@ export function getComposerAutoloadMap(
 	) {
 		const message = `composer.json at ${composerPath} is missing an "autoload" object.`;
 		validationReporter.error(message, { composerPath });
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message,
 			context: { composerPath },
 		});
@@ -350,7 +350,7 @@ export function getComposerAutoloadMap(
 	if (!isObject(autoload)) {
 		const message = `composer.json at ${composerPath} must declare "autoload.psr-4".`;
 		validationReporter.error(message, { composerPath });
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message,
 			context: { composerPath },
 		});
@@ -382,7 +382,7 @@ export function assertIncMapping(
 		composerPath,
 		autoload,
 	});
-	throw new KernelError('ValidationError', {
+	throw new WPKernelError('ValidationError', {
 		message,
 		context: { composerPath },
 	});

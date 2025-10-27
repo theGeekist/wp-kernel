@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import type { DefinedAction } from '@wpkernel/core/actions';
-import type { KernelError } from '@wpkernel/core/error';
+import type { WPKernelError } from '@wpkernel/core/error';
 import type { CacheKeyPattern, ResourceObject } from '@wpkernel/core/resource';
 import { useAction } from '../hooks/useAction';
 import type { DataViewsRuntimeContext } from './types';
@@ -8,7 +8,7 @@ import { normalizeActionError } from './error-utils';
 
 interface DataFormControllerState<TResult> {
 	status: 'idle' | 'running' | 'success' | 'error';
-	error?: KernelError;
+	error?: WPKernelError;
 	inFlight: number;
 	result?: TResult;
 }
@@ -27,7 +27,7 @@ interface CreateDataFormControllerOptions<TInput, TResult, TQuery> {
 	resourceName: string;
 	invalidate?: (result: TResult, input: TInput) => CacheKeyPattern[] | false;
 	onSuccess?: (result: TResult) => void;
-	onError?: (error: KernelError) => void;
+	onError?: (error: WPKernelError) => void;
 }
 
 function defaultInvalidate<TResult, TQuery>(

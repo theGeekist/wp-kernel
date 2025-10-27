@@ -22,7 +22,7 @@ throw new ServerError({
 
 ## Extends
 
-- [`KernelError`](KernelError.md)
+- [`WPKernelError`](WPKernelError.md)
 
 ## Constructors
 
@@ -74,7 +74,7 @@ Server error options
 
 #### Overrides
 
-[`KernelError`](KernelError.md).[`constructor`](KernelError.md#constructor)
+[`WPKernelError`](WPKernelError.md).[`constructor`](WPKernelError.md#constructor)
 
 ## Properties
 
@@ -88,7 +88,7 @@ Error code - identifies the type of error
 
 #### Inherited from
 
-[`KernelError`](KernelError.md).[`code`](KernelError.md#code)
+[`WPKernelError`](WPKernelError.md).[`code`](WPKernelError.md#code)
 
 ---
 
@@ -102,7 +102,7 @@ Additional data about the error
 
 #### Inherited from
 
-[`KernelError`](KernelError.md).[`data`](KernelError.md#data)
+[`WPKernelError`](WPKernelError.md).[`data`](WPKernelError.md#data)
 
 ---
 
@@ -116,7 +116,7 @@ Context in which the error occurred
 
 #### Inherited from
 
-[`KernelError`](KernelError.md).[`context`](KernelError.md#context)
+[`WPKernelError`](WPKernelError.md).[`context`](WPKernelError.md#context)
 
 ---
 
@@ -196,17 +196,17 @@ Serialized error object
 
 #### Inherited from
 
-[`KernelError`](KernelError.md).[`toJSON`](KernelError.md#tojson)
+[`WPKernelError`](WPKernelError.md).[`toJSON`](WPKernelError.md#tojson)
 
 ---
 
 ### fromJSON()
 
 ```ts
-static fromJSON(serialized): KernelError;
+static fromJSON(serialized): WPKernelError;
 ```
 
-Create KernelError from serialized format
+Create WPKernelError from serialized format
 
 #### Parameters
 
@@ -218,23 +218,23 @@ Serialized error object
 
 #### Returns
 
-[`KernelError`](KernelError.md)
+[`WPKernelError`](WPKernelError.md)
 
-New KernelError instance
+New WPKernelError instance
 
 #### Inherited from
 
-[`KernelError`](KernelError.md).[`fromJSON`](KernelError.md#fromjson)
+[`WPKernelError`](WPKernelError.md).[`fromJSON`](WPKernelError.md#fromjson)
 
 ---
 
-### isKernelError()
+### isWPKernelError()
 
 ```ts
-static isKernelError(error): error is KernelError;
+static isWPKernelError(error): error is WPKernelError;
 ```
 
-Check if an error is a KernelError
+Check if an error is a WPKernelError
 
 #### Parameters
 
@@ -246,13 +246,13 @@ Error to check
 
 #### Returns
 
-`error is KernelError`
+`error is WPKernelError`
 
-True if error is a KernelError
+True if error is a WPKernelError
 
 #### Inherited from
 
-[`KernelError`](KernelError.md).[`isKernelError`](KernelError.md#iskernelerror)
+[`WPKernelError`](WPKernelError.md).[`isWPKernelError`](WPKernelError.md#iskernelerror)
 
 ---
 
@@ -262,10 +262,10 @@ True if error is a KernelError
 static wrap(
    error,
    code,
-   context?): KernelError;
+   context?): WPKernelError;
 ```
 
-Wrap a native Error into a KernelError
+Wrap a native Error into a WPKernelError
 
 #### Parameters
 
@@ -289,13 +289,13 @@ Additional context
 
 #### Returns
 
-[`KernelError`](KernelError.md)
+[`WPKernelError`](WPKernelError.md)
 
-New KernelError wrapping the original
+New WPKernelError wrapping the original
 
 #### Inherited from
 
-[`KernelError`](KernelError.md).[`wrap`](KernelError.md#wrap)
+[`WPKernelError`](WPKernelError.md).[`wrap`](WPKernelError.md#wrap)
 
 ---
 

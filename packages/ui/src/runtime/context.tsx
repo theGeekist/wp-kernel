@@ -1,6 +1,6 @@
 /* @jsxImportSource react */
 import { createContext, useContext, type ReactNode } from 'react';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import type { KernelUIRuntime } from '@wpkernel/core/data';
 
 const KernelUIContext = createContext<KernelUIRuntime | null>(null);
@@ -21,7 +21,7 @@ export function KernelUIProvider({ runtime, children }: KernelUIProviderProps) {
 export function useKernelUI(): KernelUIRuntime {
 	const runtime = useContext(KernelUIContext);
 	if (!runtime) {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message:
 				'Kernel UI runtime unavailable. Attach UI bindings via configureKernel({ ui: { attach } }) and wrap your React tree with <KernelUIProvider />.',
 		});

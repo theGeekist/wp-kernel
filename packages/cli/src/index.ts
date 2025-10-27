@@ -11,7 +11,7 @@ export { VERSION } from './version';
 export { runCli } from './cli/run';
 
 export type {
-	KernelConfigV1,
+	WPKernelConfigV1,
 	SchemaConfig,
 	AdaptersConfig,
 	PhpAdapterConfig,
@@ -21,7 +21,7 @@ export type {
 	AdapterExtensionContext,
 	AdapterExtensionFactory,
 	ConfigOrigin,
-	LoadedKernelConfig,
+	LoadedWPKernelConfig,
 } from './config';
 
 export {

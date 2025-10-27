@@ -3,7 +3,7 @@ import path from 'node:path';
 import { createTsBuilder } from '../ts';
 import {
 	withWorkspace,
-	buildKernelConfigSource,
+	buildWPKernelConfigSource,
 	buildDataViewsConfig,
 	buildBuilderArtifacts,
 	buildReporter,
@@ -19,13 +19,13 @@ jest.mock('../../../commands/run-generate/validation', () => ({
 describe('createTsBuilder - DataView fixture creator', () => {
 	it('generates fixtures referencing the kernel config via a relative path', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
-			const configSource = buildKernelConfigSource();
-			await workspace.write('kernel.config.ts', configSource);
+			const configSource = buildWPKernelConfigSource();
+			await workspace.write('wpk.config.ts', configSource);
 
 			const dataviews = buildDataViewsConfig();
 			const { ir, options } = buildBuilderArtifacts({
 				dataviews,
-				sourcePath: path.join(root, 'kernel.config.ts'),
+				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
 
 			const reporter = buildReporter();
@@ -64,17 +64,17 @@ describe('createTsBuilder - DataView fixture creator', () => {
 					path
 						.relative(
 							path.dirname(workspace.resolve(fixturePath)),
-							workspace.resolve('kernel.config.ts')
+							workspace.resolve('wpk.config.ts')
 						)
 						.replace(/\.(ts|tsx|js|jsx|mjs|cjs)$/u, '')
 				)
 			);
 
 			expect(fixtureContents).toContain(
-				`import * as kernelConfigModule from '${expectedConfigImport}';`
+				`import * as wpkConfigModule from '${expectedConfigImport}';`
 			);
 			expect(fixtureContents).toContain(
-				"kernelConfigModule.kernelConfig.resources['job'].ui!.admin!.dataviews"
+				"wpkConfigModule.wpkConfig.resources['job'].ui!.admin!.dataviews"
 			);
 			expect(fixtureContents).toContain(
 				'export const jobDataViewConfig: ResourceDataViewConfig<unknown, unknown>'
@@ -89,7 +89,7 @@ describe('createTsBuilder - DataView fixture creator', () => {
 				dataviews,
 				resourceKey: 'job-board',
 				resourceName: 'Job Board',
-				sourcePath: path.join(root, 'kernel.config.ts'),
+				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
 
 			const reporter = buildReporter();
@@ -136,11 +136,8 @@ describe('createTsBuilder - DataView fixture creator', () => {
 				'external-kernel-config'
 			);
 			await fs.mkdir(externalDir, { recursive: true });
-			const externalConfigPath = path.join(
-				externalDir,
-				'kernel.config.ts'
-			);
-			await fs.writeFile(externalConfigPath, buildKernelConfigSource());
+			const externalConfigPath = path.join(externalDir, 'wpk.config.ts');
+			await fs.writeFile(externalConfigPath, buildWPKernelConfigSource());
 
 			try {
 				const dataviews = buildDataViewsConfig();
@@ -181,7 +178,7 @@ describe('createTsBuilder - DataView fixture creator', () => {
 				const fixtureContents = await workspace.readText(fixturePath);
 
 				expect(fixtureContents).toContain(
-					"import * as kernelConfigModule from '@/external-kernel-config/kernel.config';"
+					"import * as wpkConfigModule from '@/external-kernel-config/wpk.config';"
 				);
 			} finally {
 				await fs.rm(externalDir, { recursive: true, force: true });

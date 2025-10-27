@@ -1,5 +1,5 @@
 import { createPipeline } from '../createPipeline';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import type { BuilderHelper, FragmentHelper } from '../types';
 import {
 	buildBuilderHelper,
@@ -17,7 +17,7 @@ describe('createPipeline registration', () => {
 
 		expect(() =>
 			pipeline.ir.use(builder as unknown as FragmentHelper)
-		).toThrow(KernelError);
+		).toThrow(WPKernelError);
 	});
 
 	it('throws when registering a builder with wrong kind', () => {
@@ -30,7 +30,7 @@ describe('createPipeline registration', () => {
 
 		expect(() =>
 			pipeline.builders.use(fragment as unknown as BuilderHelper)
-		).toThrow(KernelError);
+		).toThrow(WPKernelError);
 	});
 
 	it('throws on multiple overrides for same fragment key', () => {
@@ -51,6 +51,6 @@ describe('createPipeline registration', () => {
 
 		pipeline.use(first);
 
-		expect(() => pipeline.use(duplicate)).toThrow(KernelError);
+		expect(() => pipeline.use(duplicate)).toThrow(WPKernelError);
 	});
 });

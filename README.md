@@ -184,7 +184,7 @@ Tree-shakeable, clear module boundaries. Best for production apps.
 ```typescript
 import { fetch } from '@wpkernel/core/http';
 import { defineResource, invalidate } from '@wpkernel/core/resource';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 ```
 
 ### 2. Namespace Imports
@@ -196,7 +196,7 @@ import { http, resource, error } from '@wpkernel/core';
 
 await http.fetch({ path: '/wpk/v1/things' });
 const thing = resource.defineResource({ name: 'thing', routes: {...} });
-throw new error.KernelError('ValidationError', {...});
+throw new error.WPKernelError('ValidationError', {...});
 ```
 
 ### 3. Flat Imports
@@ -204,7 +204,7 @@ throw new error.KernelError('ValidationError', {...});
 Quick and simple. Good for prototyping.
 
 ```typescript
-import { fetch, defineResource, KernelError } from '@wpkernel/core';
+import { fetch, defineResource, WPKernelError } from '@wpkernel/core';
 ```
 
 All patterns work identically - pick what you prefer. The framework doesn't care.

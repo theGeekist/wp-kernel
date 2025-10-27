@@ -1,4 +1,4 @@
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import { createHelper } from '../../runtime';
 import type { IrFragment, IrFragmentApplyOptions } from '../types';
 
@@ -9,13 +9,13 @@ export function createValidationFragment(): IrFragment {
 		dependsOn: ['ir.meta.core', 'ir.resources.core', 'ir.policy-map.core'],
 		async apply({ input }: IrFragmentApplyOptions) {
 			if (!input.draft.meta) {
-				throw new KernelError('ValidationError', {
+				throw new WPKernelError('ValidationError', {
 					message: 'IR meta was not initialised before validation.',
 				});
 			}
 
 			if (!input.draft.policyMap) {
-				throw new KernelError('ValidationError', {
+				throw new WPKernelError('ValidationError', {
 					message:
 						'IR policy map was not resolved before validation.',
 				});
@@ -23,7 +23,7 @@ export function createValidationFragment(): IrFragment {
 
 			for (const resource of input.draft.resources) {
 				if (!resource.schemaKey) {
-					throw new KernelError('ValidationError', {
+					throw new WPKernelError('ValidationError', {
 						message: `Resource "${resource.name}" is missing a schema association after resource fragment execution.`,
 						context: { resource: resource.name },
 					});

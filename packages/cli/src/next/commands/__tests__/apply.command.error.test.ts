@@ -1,5 +1,5 @@
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import { assignCommandContext } from '@wpkernel/test-utils/cli';
 import { createWorkspaceRunner as buildWorkspaceRunner } from '../../../../tests/workspace.test-support';
 import * as ApplyModule from '../apply';
@@ -14,7 +14,7 @@ describe('NextApplyCommand error handling', () => {
 	it('maps validation kernel errors to validation exit code', async () => {
 		await withWorkspace(async (workspace) => {
 			const applyMock = jest.fn(async () => {
-				throw new KernelError('ValidationError', {
+				throw new WPKernelError('ValidationError', {
 					message: 'apply failed',
 				});
 			});
@@ -26,7 +26,7 @@ describe('NextApplyCommand error handling', () => {
 			});
 
 			const ApplyCommand = ApplyModule.buildApplyCommand({
-				loadKernelConfig: loadConfig,
+				loadWPKernelConfig: loadConfig,
 				createPatcher,
 			});
 			const command = new ApplyCommand();

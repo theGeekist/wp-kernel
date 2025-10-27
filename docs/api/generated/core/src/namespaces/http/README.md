@@ -12,7 +12,7 @@ Provides HTTP transport layer wrapping @wordpress/api-fetch with:
 
 - Request correlation via unique IDs
 - Event emission for observability
-- Error normalization to KernelError
+- Error normalization to WPKernelError
 - Query parameter and field filtering support
 
 ## References

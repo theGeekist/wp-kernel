@@ -1,7 +1,7 @@
 import path from 'node:path';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import { createReporterMock as buildReporterMock } from '@wpkernel/test-utils/cli';
-import type { KernelConfigV1 } from '../../../config/types';
+import type { WPKernelConfigV1 } from '../../../config/types';
 import type { IRv1 } from '../../ir/publicTypes';
 import type {
 	PipelineExtensionHook,
@@ -43,12 +43,12 @@ const buildTsFormatterMock = buildTsFormatter as jest.MockedFunction<
 function buildOptions(
 	overrides: Partial<PipelineExtensionHookOptions> = {}
 ): PipelineExtensionHookOptions {
-	const config: KernelConfigV1 = {
+	const config: WPKernelConfigV1 = {
 		version: 1,
 		namespace: 'test',
 		resources: {},
 		schemas: {},
-	} as KernelConfigV1;
+	} as WPKernelConfigV1;
 
 	const workspace = makeWorkspaceMock({
 		root: '/tmp/workspace',
@@ -74,7 +74,7 @@ function buildOptions(
 			sanitizedNamespace: 'TestNamespace',
 			namespace: 'test',
 			origin: 'typescript',
-			sourcePath: '/tmp/workspace/kernel.config.ts',
+			sourcePath: '/tmp/workspace/wpk.config.ts',
 			version: 1,
 		},
 	} as unknown as IRv1;
@@ -89,7 +89,7 @@ function buildOptions(
 			config,
 			namespace: 'test',
 			origin: 'typescript',
-			sourcePath: '/tmp/workspace/kernel.config.ts',
+			sourcePath: '/tmp/workspace/wpk.config.ts',
 		},
 		artifact,
 	};
@@ -108,7 +108,7 @@ function buildOptions(
 	};
 }
 
-function buildHook(config: KernelConfigV1): {
+function buildHook(config: WPKernelConfigV1): {
 	hook: PipelineExtensionHook;
 	options: PipelineExtensionHookOptions;
 } {
@@ -119,7 +119,7 @@ function buildHook(config: KernelConfigV1): {
 			config,
 			namespace: config.namespace,
 			origin: 'typescript',
-			sourcePath: '/tmp/workspace/kernel.config.ts',
+			sourcePath: '/tmp/workspace/wpk.config.ts',
 		},
 	});
 
@@ -140,7 +140,7 @@ describe('buildAdapterExtensionsExtension', () => {
 			resources: {},
 			schemas: {},
 			adapters: { extensions: [factory] },
-		} as KernelConfigV1;
+		} as WPKernelConfigV1;
 		const { hook, options } = buildHook(config);
 
 		const result = await hook({
@@ -160,7 +160,7 @@ describe('buildAdapterExtensionsExtension', () => {
 			resources: {},
 			schemas: {},
 			adapters: { extensions: [] },
-		} as KernelConfigV1;
+		} as WPKernelConfigV1;
 		const { hook, options } = buildHook(config);
 
 		const result = await hook(options);
@@ -178,10 +178,10 @@ describe('buildAdapterExtensionsExtension', () => {
 			adapters: {
 				extensions: [() => [{ name: ' ', apply: jest.fn() }]],
 			},
-		} as KernelConfigV1;
+		} as WPKernelConfigV1;
 		const { hook, options } = buildHook(config);
 
-		await expect(hook(options)).rejects.toThrow(KernelError);
+		await expect(hook(options)).rejects.toThrow(WPKernelError);
 		expect(runAdapterExtensionsMock).not.toHaveBeenCalled();
 		expect(options.context.reporter.child).toHaveBeenCalledWith('adapter');
 		expect(options.context.reporter.error).toHaveBeenCalledWith(
@@ -203,7 +203,7 @@ describe('buildAdapterExtensionsExtension', () => {
 			resources: {},
 			schemas: {},
 			adapters: { extensions: [factory] },
-		} as KernelConfigV1;
+		} as WPKernelConfigV1;
 		const { hook, options } = buildHook(config);
 
 		const commit = jest.fn().mockResolvedValue(undefined);
@@ -283,10 +283,10 @@ describe('buildAdapterExtensionsExtension', () => {
 					},
 				],
 			},
-		} as KernelConfigV1;
+		} as WPKernelConfigV1;
 		const { hook, options } = buildHook(config);
 
-		await expect(hook(options)).rejects.toThrow(KernelError);
+		await expect(hook(options)).rejects.toThrow(WPKernelError);
 		expect(runAdapterExtensionsMock).not.toHaveBeenCalled();
 		expect(options.context.reporter.error).toHaveBeenCalledWith(
 			'Adapter extensions failed to initialise.',
@@ -319,10 +319,10 @@ describe('buildAdapterExtensionsExtension', () => {
 				resources: {},
 				schemas: {},
 				adapters: { extensions: [factory as never] },
-			} as KernelConfigV1;
+			} as WPKernelConfigV1;
 			const { hook, options } = buildHook(config);
 
-			await expect(hook(options)).rejects.toThrow(KernelError);
+			await expect(hook(options)).rejects.toThrow(WPKernelError);
 			expect(runAdapterExtensionsMock).not.toHaveBeenCalled();
 			expect(options.context.reporter.error).toHaveBeenCalledWith(
 				'Adapter extensions failed to initialise.',
@@ -340,7 +340,7 @@ describe('buildAdapterExtensionsExtension', () => {
 			resources: {},
 			schemas: {},
 			adapters: { extensions: [skip, empty] },
-		} as KernelConfigV1;
+		} as WPKernelConfigV1;
 		const { hook, options } = buildHook(config);
 
 		const result = await hook(options);
@@ -369,7 +369,7 @@ describe('buildAdapterExtensionsExtension', () => {
 					],
 				],
 			},
-		} as KernelConfigV1;
+		} as WPKernelConfigV1;
 		const { hook, options } = buildHook(config);
 
 		runAdapterExtensionsMock.mockResolvedValue({
@@ -405,7 +405,7 @@ describe('buildAdapterExtensionsExtension', () => {
 			adapters: {
 				extensions: [() => ({ name: 'single', apply })],
 			},
-		} as KernelConfigV1;
+		} as WPKernelConfigV1;
 		const { hook, options } = buildHook(config);
 
 		runAdapterExtensionsMock.mockResolvedValue({

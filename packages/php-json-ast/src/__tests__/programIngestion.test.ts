@@ -4,7 +4,7 @@ import {
 	getPhpBuilderChannel,
 	resetPhpBuilderChannel,
 } from '../builderChannel';
-import { KernelError } from '../KernelError';
+import { WPKernelError } from '@wpkernel/core/contracts';
 import type { PipelineContext, Workspace } from '../programBuilder';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { PhpFileMetadata } from '../types';
@@ -228,7 +228,7 @@ describe('consumePhpProgramIngestion', () => {
 				context,
 				source: ['{"file": "unterminated"'],
 			})
-		).rejects.toBeInstanceOf(KernelError);
+		).rejects.toBeInstanceOf(WPKernelError);
 	});
 
 	it('throws when the source cannot be iterated', async () => {

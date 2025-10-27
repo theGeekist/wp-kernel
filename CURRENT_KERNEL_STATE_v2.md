@@ -15,7 +15,7 @@ WP Kernel is a Rails-like framework for WordPress where JavaScript is the source
 - **`@wpkernel/core`** - Core framework: actions, resources, data integration, policy, reporter, namespace detection, HTTP transport, error types, event bus
 - **`@wpkernel/ui`** - React integration: hooks, runtime adapter, context provider for UI primitives
 - **`@wpkernel/e2e-utils`** - End-to-end test helpers and fixtures for Playwright/Jest
-- **`@wpkernel/cli`** - Authoring workflow: `loadKernelConfig`, deterministic IR builder, printers for TypeScript/PHP, adapter extension runner, commands (`generate`, `apply`, `dev`, placeholder `init`/`doctor`)
+- **`@wpkernel/cli`** - Authoring workflow: `loadWPKernelConfig`, deterministic IR builder, printers for TypeScript/PHP, adapter extension runner, commands (`generate`, `apply`, `dev`, placeholder `init`/`doctor`)
 - **`examples/showcase`** - Example plugin demonstrating real-world usage (jobs & applications system)
 
 ---
@@ -41,7 +41,7 @@ import {
 
 - **`http`** - REST API transport (`fetch`)
 - **`resource`** - Resource system (`defineResource`, cache helpers, store factory)
-- **`error`** - Error classes (`KernelError`, `TransportError`, `ServerError`)
+- **`error`** - Error classes (`WPKernelError`, `TransportError`, `ServerError`)
 - **`namespace`** - Namespace detection and helpers
 - **`actions`** - Action system (`defineAction`, middleware, invokeAction)
 - **`policy`** - Policy runtime (`definePolicy`, proxy, cache)
@@ -78,7 +78,7 @@ For quick imports without namespace nesting:
 
 **Error Classes:**
 
-- `KernelError` - Base error with typed codes and structured context
+- `WPKernelError` - Base error with typed codes and structured context
 - `TransportError` - HTTP/network errors with request/response data
 - `ServerError` - Server-side errors (4xx/5xx) with WordPress error payload
 
@@ -509,7 +509,7 @@ function PostActions({ postId }) {
 
 - ✓ Call `configureKernel({ ui: { attach: attachUIBindings } })` at bootstrap
 - ✓ Wrap React tree with `<KernelUIProvider runtime={kernel.getUIRuntime()} />`
-- ✓ Hooks will throw `KernelError` if runtime is unavailable
+- ✓ Hooks will throw `WPKernelError` if runtime is unavailable
 
 ---
 
@@ -525,9 +525,9 @@ E2E testing utilities for Playwright/Jest integration:
 
 ### `@wpkernel/cli`
 
-Authoring workflow that turns `kernel.config.*` into generated TypeScript/PHP artifacts and keeps `inc/` in sync.
+Authoring workflow that turns `wpk.config.*` into generated TypeScript/PHP artifacts and keeps `inc/` in sync.
 
-- **Config Loader (`loadKernelConfig`)** - cosmiconfig + TSX resolve TS/JS/JSON/`package.json#wpk`, enforce Typanion schema parity, composer autoload guard, surface typed `KernelError` diagnostics.
+- **Config Loader (`loadWPKernelConfig`)** - cosmiconfig + TSX resolve TS/JS/JSON/`package.json#wpk`, enforce Typanion schema parity, composer autoload guard, surface typed `WPKernelError` diagnostics.
 - **IR Builder (`buildIr`)** - deterministic `IRv1` carrying sanitised namespace, schema hashes, identity/storage metadata, policy hints, and printer directives.
 - **Printers** - emit `.generated/types/**` and `.generated/php/**` with adapter `customise` hooks before Prettier formatting.
 - **Adapter Extensions** - sandboxed pipeline (`adapter.extensions`) that can mutate IR and queue writes committed atomically after printers.
@@ -538,12 +538,12 @@ Authoring workflow that turns `kernel.config.*` into generated TypeScript/PHP ar
     - `wpk build [--no-apply] [--verbose]` - orchestrates `generate` → `pnpm exec vite build` → `apply --yes`, with `--no-apply` for inspection workflows.
     - `wpk init`, `wpk doctor` - placeholders slated for adapter/diagnostic work once Phase 7a/8 land.
 
-### Kernel Config (`kernel.config.ts`)
+### Kernel Config (`wpk.config.ts`)
 
-The CLI treats `KernelConfigV1` as the single authoring surface:
+The CLI treats `WPKernelConfigV1` as the single authoring surface:
 
 ```ts
-interface KernelConfigV1 {
+interface WPKernelConfigV1 {
 	version: 1;
 	namespace: string;
 	schemas: Record<string, SchemaConfig>;
@@ -715,7 +715,7 @@ function PostList() {
 
 ### CLI-Driven Authoring Workflow
 
-1. **Edit** `kernel.config.ts`, resource definitions, or JSON Schemas.
+1. **Edit** `wpk.config.ts`, resource definitions, or JSON Schemas.
 2. **Generate**: `wpk generate [--dry-run]` runs loader → IR → printers. Inspect the SHA-256-based summary before committing.
 3. **Commit** `.generated/**` to capture the canonical codegen state (required before apply).
 4. **Apply**: `wpk apply [--backup][--force][--yes]` merges guarded PHP into `inc/**`, writes `.wpk-apply.log`, and enforces clean `.generated/php`.
@@ -816,17 +816,17 @@ const kernel = configureKernel({
 
 ### Error Normalization
 
-All errors become `KernelError` instances with:
+All errors become `WPKernelError` instances with:
 
 - Typed error codes (`ValidationError`, `TransportError`, `ServerError`, etc.)
 - Structured context (action name, request ID, resource, etc.)
 - Preserved stack traces
-- WordPress error payload mapping (PHP `WP_Error` → `KernelError`)
+- WordPress error payload mapping (PHP `WP_Error` → `WPKernelError`)
 
 **Error Flow:**
 
 1. Action throws error (any type)
-2. Action runtime wraps in `KernelError` with context
+2. Action runtime wraps in `WPKernelError` with context
 3. `action:error` event emitted
 4. `kernelEventsPlugin` forwards to `core/notices.createNotice()`
 5. User sees structured error notice

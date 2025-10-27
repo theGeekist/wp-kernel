@@ -2,9 +2,9 @@
 
 ---
 
-[WP Kernel API](../../../README.md) / [@wpkernel/cli](../README.md) / LoadedKernelConfig
+[WP Kernel API](../../../README.md) / [@wpkernel/cli](../README.md) / LoadedWPKernelConfig
 
-# Interface: LoadedKernelConfig
+# Interface: LoadedWPKernelConfig
 
 Result returned when loading and validating a kernel config file.
 
@@ -13,7 +13,7 @@ Result returned when loading and validating a kernel config file.
 ### config
 
 ```ts
-config: KernelConfigV1;
+config: WPKernelConfigV1;
 ```
 
 ---

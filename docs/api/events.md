@@ -87,7 +87,7 @@ addAction('wpk.resource.error', 'my-plugin', (event) => {
 ```typescript
 {
 	resourceName: string;
-	error: KernelError;
+	error: WPKernelError;
 	requestId: string;
 }
 ```
@@ -109,7 +109,7 @@ addAction('wpk.resource.retry', 'my-plugin', (event) => {
 	resourceName: string;
 	attempt: number;
 	nextDelay: number;
-	error: KernelError;
+	error: WPKernelError;
 	requestId: string;
 }
 ```

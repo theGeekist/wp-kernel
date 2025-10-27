@@ -1,4 +1,4 @@
-import { KernelError } from '../../error/KernelError';
+import { WPKernelError } from '../../error/WPKernelError';
 import { createReporter } from '../../reporter';
 import { kernelEventsPlugin } from '../../data/plugins/events';
 import { registerKernelStore } from '../../data/store';
@@ -15,7 +15,7 @@ function createActionErrorEvent(
 ): ActionErrorEvent {
 	return {
 		phase: 'error',
-		error: new KernelError('ValidationError', { message: 'test error' }),
+		error: new WPKernelError('ValidationError', { message: 'test error' }),
 		actionName: 'TestAction',
 		requestId: 'test-req-id',
 		namespace: 'test',
@@ -157,7 +157,7 @@ describe('Integration: Kernel error reporting flow', () => {
 		});
 
 		const event = createActionErrorEvent({
-			error: new KernelError('ValidationError', {
+			error: new WPKernelError('ValidationError', {
 				message: 'Invalid input',
 			}),
 			actionName: 'SavePost',

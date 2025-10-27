@@ -33,16 +33,16 @@ echo ""
 gh issue create \
   --title "A1: Result Types & Errors" \
   --body "## Goal
-Ensure KernelError path is hooked in transport. Normalize TransportError/ServerError.
+Ensure WPKernelError path is hooked in transport. Normalize TransportError/ServerError.
 
 ## Tasks
-- [ ] Create base KernelError class with \`code\`, \`message\`, \`data\`, \`context\`
+- [ ] Create base WPKernelError class with \`code\`, \`message\`, \`data\`, \`context\`
 - [ ] Create TransportError subclass (status, path, method)
 - [ ] Create ServerError subclass (parse WordPress REST errors)
 - [ ] Add unit tests for serialization/deserialization
 
 ## Files
-- \`packages/core/src/errors/KernelError.ts\`
+- \`packages/core/src/errors/WPKernelError.ts\`
 - \`packages/core/src/errors/TransportError.ts\`
 - \`packages/core/src/errors/ServerError.ts\`
 - \`packages/core/src/errors/types.ts\`
@@ -278,7 +278,7 @@ Unit tests for cache keys, resolvers, _fields, errors, events.
 - [ ] Cache key determinism tests
 - [ ] Resolver behavior tests (async flow)
 - [ ] _fields query param tests
-- [ ] Error mapping to KernelError tests
+- [ ] Error mapping to WPKernelError tests
 - [ ] Event emission with requestId tests
 
 ## Coverage Target

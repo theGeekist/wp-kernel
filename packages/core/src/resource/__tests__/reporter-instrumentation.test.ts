@@ -1,7 +1,7 @@
 import { defineResource } from '../define';
 import type { Reporter } from '../../reporter';
 import type { ResourceObject, ResourceStore } from '../types';
-import { KernelError } from '../../error/KernelError';
+import { WPKernelError } from '../../error/WPKernelError';
 
 jest.mock('../../http/fetch', () => ({
 	fetch: jest.fn(),
@@ -457,7 +457,7 @@ describe('resource reporters', () => {
 			const store = getResourceStore(resource);
 			const iterator = store.resolvers.getItems();
 			iterator.next();
-		}).toThrow(KernelError);
+		}).toThrow(WPKernelError);
 
 		expect(logs).toEqual(
 			expect.arrayContaining([
@@ -549,7 +549,7 @@ describe('resource reporters', () => {
 			const store = getResourceStore(resource);
 			const iterator = store.resolvers.getList();
 			iterator.next();
-		}).toThrow(KernelError);
+		}).toThrow(WPKernelError);
 
 		expect(logs).toEqual(
 			expect.arrayContaining([
@@ -601,7 +601,7 @@ describe('resource reporters', () => {
 			const store = getResourceStore(resource);
 			const iterator = store.resolvers.getItem(1);
 			iterator.next();
-		}).toThrow(KernelError);
+		}).toThrow(WPKernelError);
 
 		expect(logs).toEqual(
 			expect.arrayContaining([

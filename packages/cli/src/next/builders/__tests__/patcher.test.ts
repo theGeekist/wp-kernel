@@ -20,8 +20,8 @@ function buildIr(namespace: string): IRv1 {
 		meta: {
 			version: 1,
 			namespace,
-			origin: 'kernel.config.ts',
-			sourcePath: 'kernel.config.ts',
+			origin: 'wpk.config.ts',
+			sourcePath: 'wpk.config.ts',
 			sanitizedNamespace: namespace,
 		},
 		config: {
@@ -145,7 +145,7 @@ describe('createPatcher', () => {
 					config: ir.config,
 					namespace: ir.meta.namespace,
 					origin: ir.meta.origin,
-					sourcePath: path.join(workspaceRoot, 'kernel.config.ts'),
+					sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
 				},
 				ir,
 			};
@@ -252,7 +252,7 @@ describe('createPatcher', () => {
 					config: ir.config,
 					namespace: ir.meta.namespace,
 					origin: ir.meta.origin,
-					sourcePath: path.join(workspaceRoot, 'kernel.config.ts'),
+					sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
 				},
 				ir,
 			};
@@ -306,7 +306,7 @@ describe('createPatcher', () => {
 					config: ir.config,
 					namespace: ir.meta.namespace,
 					origin: ir.meta.origin,
-					sourcePath: path.join(workspaceRoot, 'kernel.config.ts'),
+					sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
 				},
 				ir,
 			};
@@ -375,7 +375,7 @@ describe('createPatcher', () => {
 					config: ir.config,
 					namespace: ir.meta.namespace,
 					origin: ir.meta.origin,
-					sourcePath: path.join(workspaceRoot, 'kernel.config.ts'),
+					sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
 				},
 				ir,
 			};
@@ -467,7 +467,7 @@ describe('createPatcher', () => {
 					config: ir.config,
 					namespace: ir.meta.namespace,
 					origin: ir.meta.origin,
-					sourcePath: path.join(workspaceRoot, 'kernel.config.ts'),
+					sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
 				},
 				ir,
 			};
@@ -522,7 +522,7 @@ describe('createPatcher', () => {
 					config: ir.config,
 					namespace: ir.meta.namespace,
 					origin: ir.meta.origin,
-					sourcePath: path.join(workspaceRoot, 'kernel.config.ts'),
+					sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
 				},
 				ir,
 			};
@@ -542,7 +542,7 @@ describe('createPatcher', () => {
 					},
 					undefined
 				)
-			).rejects.toMatchObject({ name: 'KernelError' });
+			).rejects.toMatchObject({ name: 'WPKernelError' });
 		});
 	});
 });

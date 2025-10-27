@@ -43,7 +43,7 @@ examples/showcase/
 
 ## Kernel Config & Generated Artifacts
 
-`kernel.config.ts` is the single source of truth for showcase resources. Running `pnpm generate` (an alias for `wpk generate`) reads that config, synthesises schemas, and writes artefacts into `.generated/`:
+`wpk.config.ts` is the single source of truth for showcase resources. Running `pnpm generate` (an alias for `wpk generate`) reads that config, synthesises schemas, and writes artefacts into `.generated/`:
 
 - `types/` - TypeScript declarations inferred from the resource definition (`schema: 'auto'`).
 - `php/`, `rest-args/`, `validators/`, `helpers/` - Working copies that `pnpm apply` promotes into `inc/`.
@@ -52,7 +52,7 @@ The legacy JSON schema in `contracts/job.schema.json` remains for documentation 
 
 ### PHP Bridge Scaffolding
 
-REST controllers and other PHP bridge files under `inc/` adhere to PSR-4 (`WPKernel\Showcase\*`) and mirror the auto-generated templates in `.generated/php/**`. The generator derives these templates from `src/kernel.config.ts`, so developers can regenerate confidently and still customise the working copies.
+REST controllers and other PHP bridge files under `inc/` adhere to PSR-4 (`WPKernel\Showcase\*`) and mirror the auto-generated templates in `.generated/php/**`. The generator derives these templates from `src/wpk.config.ts`, so developers can regenerate confidently and still customise the working copies.
 
 ### Schema Validation
 
@@ -178,7 +178,7 @@ The Job entity schema (`contracts/job.schema.json`) defines:
 Once types are generated, import and use them in your code:
 
 ```typescript
-import type { Job } from '../kernel.config';
+import type { Job } from '../wpk.config';
 
 // Fully typed Job entity
 const job: Job = {

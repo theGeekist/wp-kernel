@@ -150,7 +150,7 @@ Because each step has a dedicated place in the architecture, you can add logging
 
 ## Error handling and resilience
 
-All surfaced errors extend `KernelError`, giving you predictable properties for UX messaging, logging, and telemetry. Transports retry with exponential backoff on recoverable failures (timeouts, 5xx, 429). Background jobs follow the same policy and expose polling hooks so the UI can communicate progress without guesswork.
+All surfaced errors extend `WPKernelError`, giving you predictable properties for UX messaging, logging, and telemetry. Transports retry with exponential backoff on recoverable failures (timeouts, 5xx, 429). Background jobs follow the same policy and expose polling hooks so the UI can communicate progress without guesswork.
 
 ## Performance expectations
 

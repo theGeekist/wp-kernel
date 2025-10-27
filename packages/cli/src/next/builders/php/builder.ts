@@ -1,5 +1,5 @@
 import { createHelper } from '../../runtime';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import type {
 	BuilderApplyOptions,
 	BuilderHelper,
@@ -54,7 +54,7 @@ export function createPhpBuilder(
 			];
 
 			if (!input.ir) {
-				throw new KernelError('ValidationError', {
+				throw new WPKernelError('ValidationError', {
 					message:
 						'createPhpBuilder requires an IR instance during execution.',
 				});

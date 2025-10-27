@@ -20,9 +20,9 @@ Exports all error types and utilities for consistent error handling throughout t
 
 ## References
 
-### KernelError
+### WPKernelError
 
-Re-exports [KernelError](../../classes/KernelError.md)
+Re-exports [WPKernelError](../../classes/WPKernelError.md)
 
 ---
 

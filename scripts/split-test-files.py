@@ -82,7 +82,7 @@ STORE_HEADER = """/**
 
 import {{ createStore }} from '../../store.js';
 import type {{ ResourceObject, ListResponse }} from '../../types.js';
-import {{ KernelError }} from '../../../error/index.js';
+import {{ WPKernelError }} from '../../../error/index.js';
 
 // Mock resource for testing
 interface MockThing {{
@@ -242,7 +242,7 @@ import {{
 	registerStoreKey,
 	type CacheKeyPattern,
 }} from '../../cache.js';
-import {{ KernelError }} from '../../../error/index.js';
+import {{ WPKernelError }} from '../../../error/index.js';
 
 // Mock window.wp global
 interface WindowWithWp extends Window {{

@@ -1,4 +1,4 @@
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import type { Workspace } from '../../workspace';
 import { ensureTrailingNewline } from './utils';
 import type { DependencyResolution } from '../../../commands/init/dependency-versions';
@@ -99,7 +99,7 @@ async function loadPackageState(workspace: Workspace): Promise<PackageState> {
 			data: parsed,
 		};
 	} catch (_error) {
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message: 'package.json is not valid JSON.',
 			data: { path: PACKAGE_JSON_FILENAME },
 		});

@@ -3,7 +3,7 @@
  */
 
 import { defineResource } from '../define';
-import { KernelError } from '../../error';
+import { WPKernelError } from '../../error';
 
 interface Thing {
 	id: number;
@@ -22,7 +22,7 @@ describe('defineResource - config validation', () => {
 							list: { path: '/wpk/v1/things', method: 'GET' },
 						},
 					});
-				}).toThrow(KernelError);
+				}).toThrow(WPKernelError);
 			});
 
 			it('should throw DeveloperError with correct error code for missing name', () => {
@@ -35,8 +35,8 @@ describe('defineResource - config validation', () => {
 					});
 					fail('Should have thrown');
 				} catch (e) {
-					expect(e).toBeInstanceOf(KernelError);
-					const error = e as KernelError;
+					expect(e).toBeInstanceOf(WPKernelError);
+					const error = e as WPKernelError;
 					expect(error.code).toBe('DeveloperError');
 					expect(error.message).toContain('name');
 				}
@@ -50,7 +50,7 @@ describe('defineResource - config validation', () => {
 							list: { path: '/wpk/v1/things', method: 'GET' },
 						},
 					});
-				}).toThrow(KernelError);
+				}).toThrow(WPKernelError);
 			});
 
 			it('should reject names with spaces', () => {
@@ -61,7 +61,7 @@ describe('defineResource - config validation', () => {
 							list: { path: '/wpk/v1/things', method: 'GET' },
 						},
 					});
-				}).toThrow(KernelError);
+				}).toThrow(WPKernelError);
 			});
 
 			it('should reject names with underscores', () => {
@@ -72,7 +72,7 @@ describe('defineResource - config validation', () => {
 							list: { path: '/wpk/v1/things', method: 'GET' },
 						},
 					});
-				}).toThrow(KernelError);
+				}).toThrow(WPKernelError);
 			});
 
 			it('should accept valid kebab-case names', () => {
@@ -116,7 +116,7 @@ describe('defineResource - config validation', () => {
 						name: 'thing',
 						routes: undefined as never,
 					});
-				}).toThrow(KernelError);
+				}).toThrow(WPKernelError);
 			});
 
 			it('should throw when routes is empty object', () => {
@@ -125,7 +125,7 @@ describe('defineResource - config validation', () => {
 						name: 'thing',
 						routes: {},
 					});
-				}).toThrow(KernelError);
+				}).toThrow(WPKernelError);
 			});
 
 			it('should accept config with only list route', () => {
@@ -182,7 +182,7 @@ describe('defineResource - config validation', () => {
 							fetch: { path: '/wpk/v1/things', method: 'GET' },
 						} as never,
 					});
-				}).toThrow(KernelError);
+				}).toThrow(WPKernelError);
 			});
 		});
 
@@ -195,7 +195,7 @@ describe('defineResource - config validation', () => {
 							list: null as never,
 						},
 					});
-				}).toThrow(KernelError);
+				}).toThrow(WPKernelError);
 
 				try {
 					defineResource({
@@ -205,8 +205,8 @@ describe('defineResource - config validation', () => {
 						},
 					});
 				} catch (e) {
-					expect(e).toBeInstanceOf(KernelError);
-					const error = e as KernelError;
+					expect(e).toBeInstanceOf(WPKernelError);
+					const error = e as WPKernelError;
 					expect(error.code).toBe('DeveloperError');
 					expect(error.message).toContain('must be an object');
 				}
@@ -220,7 +220,7 @@ describe('defineResource - config validation', () => {
 							list: 'not an object' as never,
 						},
 					});
-				}).toThrow(KernelError);
+				}).toThrow(WPKernelError);
 			});
 
 			it('should throw when route.path is missing', () => {
@@ -231,7 +231,7 @@ describe('defineResource - config validation', () => {
 							list: { method: 'GET' } as never,
 						},
 					});
-				}).toThrow(KernelError);
+				}).toThrow(WPKernelError);
 			});
 
 			it('should throw when route.method is missing', () => {
@@ -242,7 +242,7 @@ describe('defineResource - config validation', () => {
 							list: { path: '/wpk/v1/things' } as never,
 						},
 					});
-				}).toThrow(KernelError);
+				}).toThrow(WPKernelError);
 			});
 
 			it('should throw for invalid HTTP method', () => {
@@ -256,7 +256,7 @@ describe('defineResource - config validation', () => {
 							},
 						},
 					});
-				}).toThrow(KernelError);
+				}).toThrow(WPKernelError);
 			});
 
 			it('should accept GET method', () => {
@@ -337,7 +337,7 @@ describe('defineResource - config validation', () => {
 						},
 						store: null as never,
 					});
-				}).toThrow(KernelError);
+				}).toThrow(WPKernelError);
 			});
 
 			it('should reject store.getId when not a function', () => {
@@ -352,7 +352,7 @@ describe('defineResource - config validation', () => {
 							getId: 'not-a-function',
 						},
 					});
-				}).toThrow(KernelError);
+				}).toThrow(WPKernelError);
 			});
 
 			it('should reject store.getQueryKey when not a function', () => {
@@ -367,7 +367,7 @@ describe('defineResource - config validation', () => {
 							getQueryKey: 'not-a-function',
 						},
 					});
-				}).toThrow(KernelError);
+				}).toThrow(WPKernelError);
 			});
 
 			it('should accept valid store overrides', () => {

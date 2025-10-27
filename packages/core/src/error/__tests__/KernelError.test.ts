@@ -1,24 +1,24 @@
 /**
- * Tests for KernelError base class
+ * Tests for WPKernelError base class
  */
 
-import { KernelError } from '../KernelError';
+import { WPKernelError } from '../WPKernelError';
 import type { SerializedError } from '../types';
 
-describe('KernelError', () => {
+describe('WPKernelError', () => {
 	describe('constructor', () => {
 		it('creates error with code and default message', () => {
-			const error = new KernelError('ValidationError');
+			const error = new WPKernelError('ValidationError');
 
 			expect(error.code).toBe('ValidationError');
 			expect(error.message).toBe('Validation failed');
-			expect(error.name).toBe('KernelError');
+			expect(error.name).toBe('WPKernelError');
 			expect(error.data).toBeUndefined();
 			expect(error.context).toBeUndefined();
 		});
 
 		it('creates error with custom message', () => {
-			const error = new KernelError('PolicyDenied', {
+			const error = new WPKernelError('PolicyDenied', {
 				message: 'User lacks required capability',
 			});
 
@@ -27,7 +27,7 @@ describe('KernelError', () => {
 		});
 
 		it('creates error with data and context', () => {
-			const error = new KernelError('TransportError', {
+			const error = new WPKernelError('TransportError', {
 				message: 'Request failed',
 				data: {
 					serverCode: 'rest_error',
@@ -50,23 +50,23 @@ describe('KernelError', () => {
 		});
 
 		it('maintains proper prototype chain', () => {
-			const error = new KernelError('ValidationError');
+			const error = new WPKernelError('ValidationError');
 
-			expect(error).toBeInstanceOf(KernelError);
+			expect(error).toBeInstanceOf(WPKernelError);
 			expect(error).toBeInstanceOf(Error);
 		});
 
 		it('captures stack trace', () => {
-			const error = new KernelError('ValidationError');
+			const error = new WPKernelError('ValidationError');
 
 			expect(error.stack).toBeDefined();
-			expect(error.stack).toContain('KernelError');
+			expect(error.stack).toContain('WPKernelError');
 		});
 	});
 
 	describe('toJSON', () => {
 		it('serializes error to JSON-safe format', () => {
-			const error = new KernelError('ValidationError', {
+			const error = new WPKernelError('ValidationError', {
 				message: 'Invalid input',
 				data: {
 					validationErrors: [
@@ -82,7 +82,7 @@ describe('KernelError', () => {
 			const json = error.toJSON();
 
 			expect(json).toEqual({
-				name: 'KernelError',
+				name: 'WPKernelError',
 				code: 'ValidationError',
 				message: 'Invalid input',
 				data: {
@@ -99,7 +99,7 @@ describe('KernelError', () => {
 		});
 
 		it('handles undefined data and context', () => {
-			const error = new KernelError('TimeoutError');
+			const error = new WPKernelError('TimeoutError');
 			const json = error.toJSON();
 
 			expect(json.data).toBeUndefined();
@@ -110,7 +110,7 @@ describe('KernelError', () => {
 	describe('fromJSON', () => {
 		it('deserializes error from JSON format', () => {
 			const serialized: SerializedError = {
-				name: 'KernelError',
+				name: 'WPKernelError',
 				code: 'PolicyDenied',
 				message: 'Permission denied',
 				data: {
@@ -123,9 +123,9 @@ describe('KernelError', () => {
 				stack: 'Error stack trace',
 			};
 
-			const error = KernelError.fromJSON(serialized);
+			const error = WPKernelError.fromJSON(serialized);
 
-			expect(error).toBeInstanceOf(KernelError);
+			expect(error).toBeInstanceOf(WPKernelError);
 			expect(error.code).toBe('PolicyDenied');
 			expect(error.message).toBe('Permission denied');
 			expect(error.data).toEqual({ policyKey: 'things.manage' });
@@ -135,46 +135,46 @@ describe('KernelError', () => {
 
 		it('handles missing stack trace', () => {
 			const serialized: SerializedError = {
-				name: 'KernelError',
+				name: 'WPKernelError',
 				code: 'UnknownError',
 				message: 'Something went wrong',
 			};
 
-			const error = KernelError.fromJSON(serialized);
+			const error = WPKernelError.fromJSON(serialized);
 
-			expect(error).toBeInstanceOf(KernelError);
+			expect(error).toBeInstanceOf(WPKernelError);
 			expect(error.stack).toBeDefined(); // New stack is generated
 		});
 	});
 
-	describe('isKernelError', () => {
-		it('returns true for KernelError instances', () => {
-			const error = new KernelError('ValidationError');
+	describe('isWPKernelError', () => {
+		it('returns true for WPKernelError instances', () => {
+			const error = new WPKernelError('ValidationError');
 
-			expect(KernelError.isKernelError(error)).toBe(true);
+			expect(WPKernelError.isWPKernelError(error)).toBe(true);
 		});
 
 		it('returns false for native Error', () => {
 			const error = new Error('Native error');
 
-			expect(KernelError.isKernelError(error)).toBe(false);
+			expect(WPKernelError.isWPKernelError(error)).toBe(false);
 		});
 
 		it('returns false for non-error values', () => {
-			expect(KernelError.isKernelError(null)).toBe(false);
-			expect(KernelError.isKernelError(undefined)).toBe(false);
-			expect(KernelError.isKernelError('string')).toBe(false);
-			expect(KernelError.isKernelError(123)).toBe(false);
-			expect(KernelError.isKernelError({})).toBe(false);
+			expect(WPKernelError.isWPKernelError(null)).toBe(false);
+			expect(WPKernelError.isWPKernelError(undefined)).toBe(false);
+			expect(WPKernelError.isWPKernelError('string')).toBe(false);
+			expect(WPKernelError.isWPKernelError(123)).toBe(false);
+			expect(WPKernelError.isWPKernelError({})).toBe(false);
 		});
 	});
 
 	describe('wrap', () => {
-		it('wraps native Error into KernelError', () => {
+		it('wraps native Error into WPKernelError', () => {
 			const nativeError = new Error('Something broke');
-			const wrapped = KernelError.wrap(nativeError);
+			const wrapped = WPKernelError.wrap(nativeError);
 
-			expect(wrapped).toBeInstanceOf(KernelError);
+			expect(wrapped).toBeInstanceOf(WPKernelError);
 			expect(wrapped.code).toBe('UnknownError');
 			expect(wrapped.message).toBe('Something broke');
 			expect(wrapped.data?.originalError).toBe(nativeError);
@@ -182,14 +182,14 @@ describe('KernelError', () => {
 
 		it('wraps with custom error code', () => {
 			const nativeError = new Error('Network issue');
-			const wrapped = KernelError.wrap(nativeError, 'TransportError');
+			const wrapped = WPKernelError.wrap(nativeError, 'TransportError');
 
 			expect(wrapped.code).toBe('TransportError');
 		});
 
 		it('wraps with additional context', () => {
 			const nativeError = new Error('Timeout');
-			const wrapped = KernelError.wrap(nativeError, 'TimeoutError', {
+			const wrapped = WPKernelError.wrap(nativeError, 'TimeoutError', {
 				path: '/wpk/v1/things',
 				requestId: 'abc-123',
 			});
@@ -216,7 +216,7 @@ describe('KernelError', () => {
 
 		codes.forEach((code) => {
 			it(`creates error with code: ${code}`, () => {
-				const error = new KernelError(code);
+				const error = new WPKernelError(code);
 
 				expect(error.code).toBe(code);
 				expect(error.message).toBeDefined();
@@ -226,7 +226,7 @@ describe('KernelError', () => {
 
 		it('uses fallback message for invalid error code', () => {
 			// TypeScript will complain, but we want to test runtime behavior
-			const error = new KernelError('InvalidCode' as 'ValidationError');
+			const error = new WPKernelError('InvalidCode' as 'ValidationError');
 
 			expect(error.code).toBe('InvalidCode');
 			expect(error.message).toBe('An error occurred');
@@ -242,11 +242,11 @@ describe('KernelError', () => {
 			const mockCaptureStackTrace = jest.fn();
 			Error.captureStackTrace = mockCaptureStackTrace;
 
-			const error = new KernelError('ValidationError');
+			const error = new WPKernelError('ValidationError');
 
 			expect(mockCaptureStackTrace).toHaveBeenCalledWith(
 				error,
-				KernelError
+				WPKernelError
 			);
 
 			// Restore
@@ -262,7 +262,7 @@ describe('KernelError', () => {
 
 			// Should not throw
 			expect(() => {
-				new KernelError('ValidationError');
+				new WPKernelError('ValidationError');
 			}).not.toThrow();
 
 			// Restore

@@ -3,10 +3,10 @@
 The kernel config is the single source of truth for your plugin. The CLI reads this file to generate TypeScript types, PHP controllers, and optional UI scaffolding. This page documents the v1 shape used by `@wpk/cli` today.【F:packages/cli/src/config/types.ts†L47-L120】
 
 ```ts
-// kernel.config.ts
-import type { KernelConfigV1 } from '@wpkernel/cli/config';
+// wpk.config.ts
+import type { WPKernelConfigV1 } from '@wpkernel/cli/config';
 
-export const kernelConfig: KernelConfigV1 = {
+export const wpkConfig: WPKernelConfigV1 = {
 	version: 1,
 	namespace: 'acme-jobs',
 	schemas: {},

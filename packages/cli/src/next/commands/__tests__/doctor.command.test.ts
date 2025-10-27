@@ -5,7 +5,7 @@ import { buildDoctorCommand } from '../doctor';
 
 describe('buildDoctorCommand', () => {
 	const reporterFactory = jest.fn(createReporterMock);
-	const loadKernelConfig = jest.fn();
+	const loadWPKernelConfig = jest.fn();
 	const buildWorkspace = jest.fn();
 	const ensureGeneratedPhpClean = jest.fn();
 	const checkPhpEnvironment = jest.fn();
@@ -17,11 +17,11 @@ describe('buildDoctorCommand', () => {
 			buildCheck('php-driver', 'PHP driver', 'pass', 'Driver ok'),
 			buildCheck('php-runtime', 'PHP runtime', 'pass', 'Runtime ok'),
 		]);
-		const configPath = path.join(process.cwd(), 'kernel.config.ts');
-		loadKernelConfig.mockResolvedValue({
+		const configPath = path.join(process.cwd(), 'wpk.config.ts');
+		loadWPKernelConfig.mockResolvedValue({
 			config: {},
 			sourcePath: configPath,
-			configOrigin: 'kernel.config.ts',
+			configOrigin: 'wpk.config.ts',
 			composerCheck: 'ok',
 			namespace: 'Demo\\\\Plugin\\\\',
 		});
@@ -34,7 +34,7 @@ describe('buildDoctorCommand', () => {
 
 	it('returns success when all checks pass', async () => {
 		const DoctorCommand = buildDoctorCommand({
-			loadKernelConfig,
+			loadWPKernelConfig,
 			buildWorkspace,
 			ensureGeneratedPhpClean,
 			buildReporter: reporterFactory,
@@ -55,10 +55,10 @@ describe('buildDoctorCommand', () => {
 	});
 
 	it('returns failure when kernel config fails to load', async () => {
-		loadKernelConfig.mockRejectedValueOnce(new Error('missing config'));
+		loadWPKernelConfig.mockRejectedValueOnce(new Error('missing config'));
 
 		const DoctorCommand = buildDoctorCommand({
-			loadKernelConfig,
+			loadWPKernelConfig,
 			buildWorkspace,
 			ensureGeneratedPhpClean,
 			buildReporter: reporterFactory,
@@ -83,7 +83,7 @@ describe('buildDoctorCommand', () => {
 		]);
 
 		const DoctorCommand = buildDoctorCommand({
-			loadKernelConfig,
+			loadWPKernelConfig,
 			buildWorkspace,
 			ensureGeneratedPhpClean,
 			buildReporter: reporterFactory,
@@ -105,7 +105,7 @@ describe('buildDoctorCommand', () => {
 		);
 
 		const DoctorCommand = buildDoctorCommand({
-			loadKernelConfig,
+			loadWPKernelConfig,
 			buildWorkspace,
 			ensureGeneratedPhpClean,
 			buildReporter: reporterFactory,
@@ -122,17 +122,17 @@ describe('buildDoctorCommand', () => {
 	});
 
 	it('warns when composer autoload mapping is missing', async () => {
-		const configPath = path.join(process.cwd(), 'kernel.config.ts');
-		loadKernelConfig.mockResolvedValueOnce({
+		const configPath = path.join(process.cwd(), 'wpk.config.ts');
+		loadWPKernelConfig.mockResolvedValueOnce({
 			config: {},
 			sourcePath: configPath,
-			configOrigin: 'kernel.config.ts',
+			configOrigin: 'wpk.config.ts',
 			composerCheck: 'mismatch',
 			namespace: 'Demo\\\\Plugin\\\\',
 		});
 
 		const DoctorCommand = buildDoctorCommand({
-			loadKernelConfig,
+			loadWPKernelConfig,
 			buildWorkspace,
 			ensureGeneratedPhpClean,
 			buildReporter: reporterFactory,
@@ -152,7 +152,7 @@ describe('buildDoctorCommand', () => {
 		buildWorkspace.mockReturnValueOnce(null as unknown as { root: string });
 
 		const DoctorCommand = buildDoctorCommand({
-			loadKernelConfig,
+			loadWPKernelConfig,
 			buildWorkspace,
 			ensureGeneratedPhpClean,
 			buildReporter: reporterFactory,
@@ -181,7 +181,7 @@ describe('buildDoctorCommand', () => {
 		]);
 
 		const DoctorCommand = buildDoctorCommand({
-			loadKernelConfig,
+			loadWPKernelConfig,
 			buildWorkspace,
 			ensureGeneratedPhpClean,
 			buildReporter: reporterFactory,

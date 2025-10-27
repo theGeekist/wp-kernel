@@ -4,7 +4,7 @@ import type {
 	ResourceStorageConfig,
 	ResourceUIConfig,
 } from '@wpkernel/core/resource';
-import type { KernelConfigV1 } from '../../config/types';
+import type { WPKernelConfigV1 } from '../../config/types';
 
 export type SchemaProvenance = 'manual' | 'auto';
 
@@ -123,7 +123,7 @@ export interface IRv1 {
 		origin: string;
 		sanitizedNamespace: string;
 	};
-	config: KernelConfigV1;
+	config: WPKernelConfigV1;
 	schemas: IRSchema[];
 	resources: IRResource[];
 	policies: IRPolicyHint[];
@@ -134,7 +134,7 @@ export interface IRv1 {
 }
 
 export interface BuildIrOptions {
-	config: KernelConfigV1;
+	config: WPKernelConfigV1;
 	sourcePath: string;
 	origin: string;
 	namespace: string;

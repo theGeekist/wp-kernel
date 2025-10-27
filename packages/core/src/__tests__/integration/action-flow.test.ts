@@ -20,7 +20,7 @@ import {
 } from '@wpkernel/test-utils/core';
 import { defineResource } from '../../resource/define';
 import * as cache from '../../resource/cache';
-import { KernelError } from '../../error/index';
+import { WPKernelError } from '../../error/index';
 
 function createAction<TArgs = void, TResult = void>(
 	name: string,
@@ -284,7 +284,7 @@ describe('Action Flow Integration', () => {
 				overrides: {
 					policy: {
 						assert: jest.fn(() => {
-							throw new KernelError('PolicyDenied', {
+							throw new WPKernelError('PolicyDenied', {
 								message: 'denied',
 							});
 						}),

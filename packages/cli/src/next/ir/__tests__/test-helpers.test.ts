@@ -5,7 +5,7 @@ import {
 	canonicalHash,
 	withTempWorkspace,
 	withTempSchema,
-} from '../../shared/test-helpers';
+} from '../shared/test-helpers';
 
 describe('IR test helpers', () => {
 	it('sorts values deterministically and normalises undefined', () => {

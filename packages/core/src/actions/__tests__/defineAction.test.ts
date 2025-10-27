@@ -1,7 +1,7 @@
 import { defineAction } from '../define';
 import type { ActionConfig, ActionOptions } from '../types';
 import * as cache from '../../resource/cache';
-import { KernelError } from '../../error/KernelError';
+import { WPKernelError } from '../../error/WPKernelError';
 
 function createAction<TArgs = void, TResult = void>(
 	name: string,
@@ -117,14 +117,14 @@ describe('defineAction', () => {
 		});
 
 		await expect(action(undefined as never)).rejects.toBeInstanceOf(
-			KernelError
+			WPKernelError
 		);
 
 		expect(doAction).toHaveBeenCalledWith(
 			'wpk.action.error',
 			expect.objectContaining({
 				actionName: 'Thing.Fail',
-				error: expect.any(KernelError),
+				error: expect.any(WPKernelError),
 			})
 		);
 	});

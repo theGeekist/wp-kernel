@@ -2,16 +2,16 @@
 
 ---
 
-[WP Kernel API](../../../README.md) / [core/src](../README.md) / KernelError
+[WP Kernel API](../../../README.md) / [core/src](../README.md) / WPKernelError
 
-# Class: KernelError
+# Class: WPKernelError
 
 Base error class for WP Kernel
 
 ## Example
 
 ```typescript
-throw new KernelError('PolicyDenied', {
+throw new WPKernelError('PolicyDenied', {
 	message: 'User lacks required capability',
 	context: { policyKey: 'things.manage', userId: 123 },
 });
@@ -32,10 +32,10 @@ throw new KernelError('PolicyDenied', {
 ### Constructor
 
 ```ts
-new KernelError(code, options): KernelError;
+new WPKernelError(code, options): WPKernelError;
 ```
 
-Create a new KernelError
+Create a new WPKernelError
 
 #### Parameters
 
@@ -63,7 +63,7 @@ Error options
 
 #### Returns
 
-`KernelError`
+`WPKernelError`
 
 #### Overrides
 
@@ -122,10 +122,10 @@ Serialized error object
 ### fromJSON()
 
 ```ts
-static fromJSON(serialized): KernelError;
+static fromJSON(serialized): WPKernelError;
 ```
 
-Create KernelError from serialized format
+Create WPKernelError from serialized format
 
 #### Parameters
 
@@ -137,19 +137,19 @@ Serialized error object
 
 #### Returns
 
-`KernelError`
+`WPKernelError`
 
-New KernelError instance
+New WPKernelError instance
 
 ---
 
-### isKernelError()
+### isWPKernelError()
 
 ```ts
-static isKernelError(error): error is KernelError;
+static isWPKernelError(error): error is WPKernelError;
 ```
 
-Check if an error is a KernelError
+Check if an error is a WPKernelError
 
 #### Parameters
 
@@ -161,9 +161,9 @@ Error to check
 
 #### Returns
 
-`error is KernelError`
+`error is WPKernelError`
 
-True if error is a KernelError
+True if error is a WPKernelError
 
 ---
 
@@ -173,10 +173,10 @@ True if error is a KernelError
 static wrap(
    error,
    code,
-   context?): KernelError;
+   context?): WPKernelError;
 ```
 
-Wrap a native Error into a KernelError
+Wrap a native Error into a WPKernelError
 
 #### Parameters
 
@@ -200,6 +200,6 @@ Additional context
 
 #### Returns
 
-`KernelError`
+`WPKernelError`
 
-New KernelError wrapping the original
+New WPKernelError wrapping the original

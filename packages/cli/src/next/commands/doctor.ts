@@ -6,8 +6,8 @@ import { createReporter as buildReporter } from '@wpkernel/core/reporter';
 import { type Reporter } from '@wpkernel/core/reporter';
 import { WPK_NAMESPACE, WPK_EXIT_CODES } from '@wpkernel/core/contracts';
 import { serialiseError } from './internal/serialiseError';
-import { loadKernelConfig } from '../../config';
-import type { LoadedKernelConfig } from '../../config/types';
+import { loadWPKernelConfig } from '../../config';
+import type { LoadedWPKernelConfig } from '../../config/types';
 import { buildWorkspace, ensureGeneratedPhpClean } from '../workspace';
 import type { Workspace } from '../workspace';
 
@@ -28,7 +28,7 @@ interface CheckPhpEnvironmentOptions {
 }
 
 interface DoctorDependencies {
-	readonly loadKernelConfig: typeof loadKernelConfig;
+	readonly loadWPKernelConfig: typeof loadWPKernelConfig;
 	readonly buildWorkspace: typeof buildWorkspace;
 	readonly ensureGeneratedPhpClean: typeof ensureGeneratedPhpClean;
 	readonly buildReporter: typeof buildReporter;
@@ -38,7 +38,7 @@ interface DoctorDependencies {
 }
 
 export interface BuildDoctorCommandOptions {
-	readonly loadKernelConfig?: typeof loadKernelConfig;
+	readonly loadWPKernelConfig?: typeof loadWPKernelConfig;
 	readonly buildWorkspace?: typeof buildWorkspace;
 	readonly ensureGeneratedPhpClean?: typeof ensureGeneratedPhpClean;
 	readonly buildReporter?: typeof buildReporter;
@@ -51,7 +51,7 @@ function mergeDependencies(
 	options: BuildDoctorCommandOptions
 ): DoctorDependencies {
 	return {
-		loadKernelConfig: options.loadKernelConfig ?? loadKernelConfig,
+		loadWPKernelConfig: options.loadWPKernelConfig ?? loadWPKernelConfig,
 		buildWorkspace: options.buildWorkspace ?? buildWorkspace,
 		ensureGeneratedPhpClean:
 			options.ensureGeneratedPhpClean ?? ensureGeneratedPhpClean,
@@ -87,7 +87,7 @@ export function buildDoctorCommand(
 
 			const results: DoctorCheckResult[] = [];
 
-			const configResult = await this.checkKernelConfig({
+			const configResult = await this.checkWPKernelConfig({
 				reporter,
 				deps: dependencies,
 			});
@@ -129,7 +129,7 @@ export function buildDoctorCommand(
 				: WPK_EXIT_CODES.SUCCESS;
 		}
 
-		private async checkKernelConfig({
+		private async checkWPKernelConfig({
 			reporter,
 			deps,
 		}: {
@@ -137,11 +137,11 @@ export function buildDoctorCommand(
 			deps: DoctorDependencies;
 		}): Promise<{
 			result: DoctorCheckResult;
-			loadedConfig: LoadedKernelConfig | null;
+			loadedConfig: LoadedWPKernelConfig | null;
 			workspace: Workspace | null;
 		}> {
 			try {
-				const loaded = await deps.loadKernelConfig();
+				const loaded = await deps.loadWPKernelConfig();
 				reporter.info('Kernel config loaded successfully.', {
 					sourcePath: loaded.sourcePath,
 					origin: loaded.configOrigin,
@@ -181,7 +181,7 @@ export function buildDoctorCommand(
 		}
 
 		private describeComposerCheck(
-			loaded: LoadedKernelConfig,
+			loaded: LoadedWPKernelConfig,
 			reporter: Reporter
 		): DoctorCheckResult {
 			if (loaded.composerCheck === 'ok') {

@@ -2,23 +2,23 @@
 
 ---
 
-[WP Kernel API](../../../../../README.md) / [core/src](../../../README.md) / [contracts](../README.md) / serializeKernelError
+[WP Kernel API](../../../../../README.md) / [core/src](../../../README.md) / [contracts](../README.md) / serializeWPKernelError
 
-# Function: serializeKernelError()
+# Function: serializeWPKernelError()
 
 ```ts
-function serializeKernelError(error): SerializedError;
+function serializeWPKernelError(error): SerializedError;
 ```
 
-Serialize KernelErrors to the canonical JSON shape.
+Serialize WPKernelErrors to the canonical JSON shape.
 
 ## Parameters
 
 ### error
 
-[`KernelError`](../../../classes/KernelError.md)
+[`WPKernelError`](../../../classes/WPKernelError.md)
 
-KernelError instance to serialize.
+WPKernelError instance to serialize.
 
 ## Returns
 

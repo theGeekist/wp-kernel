@@ -1,4 +1,4 @@
-import { KernelError } from '../error/index.js';
+import { WPKernelError } from '../error/index.js';
 import type { Reporter } from '../reporter/types';
 import type {
 	CreatePipelineOptions,
@@ -315,12 +315,12 @@ function buildDependencyGraph<THelper extends HelperDescriptor>(
 		const [firstIssue] = missing;
 		if (firstIssue) {
 			const dependantKey = firstIssue.dependant.helper.key;
-			throw new KernelError('ValidationError', {
+			throw new WPKernelError('ValidationError', {
 				message: `Helper "${dependantKey}" depends on unknown helper "${firstIssue.dependencyKey}".`,
 			});
 		}
 
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message: 'Detected unresolved helper dependencies.',
 		});
 	}
@@ -331,7 +331,7 @@ function buildDependencyGraph<THelper extends HelperDescriptor>(
 		options?.onUnresolvedHelpers?.({ unresolved });
 		const unresolvedKeys = unresolved.map((entry) => entry.helper.key);
 
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message: `Detected unresolved pipeline helpers: ${unresolvedKeys.join(', ')}.`,
 		});
 	}
@@ -654,7 +654,7 @@ export function createPipeline<
 				)
 			);
 
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message: `Pipeline finalisation aborted because ${missingDescriptions.join(
 				', '
 			)} did not execute.`,
@@ -663,7 +663,7 @@ export function createPipeline<
 
 	function registerFragment(helper: TFragmentHelper): void {
 		if (helper.kind !== fragmentKind) {
-			throw new KernelError('ValidationError', {
+			throw new WPKernelError('ValidationError', {
 				message: `Attempted to register helper "${helper.key}" as ${fragmentKind} but received kind "${helper.kind}".`,
 			});
 		}
@@ -684,7 +684,7 @@ export function createPipeline<
 					message
 				);
 
-				throw new KernelError('ValidationError', {
+				throw new WPKernelError('ValidationError', {
 					message,
 				});
 			}
@@ -700,7 +700,7 @@ export function createPipeline<
 
 	function registerBuilder(helper: TBuilderHelper): void {
 		if (helper.kind !== builderKind) {
-			throw new KernelError('ValidationError', {
+			throw new WPKernelError('ValidationError', {
 				message: `Attempted to register helper "${helper.key}" as ${builderKind} but received kind "${helper.kind}".`,
 			});
 		}
@@ -721,7 +721,7 @@ export function createPipeline<
 					message
 				);
 
-				throw new KernelError('ValidationError', {
+				throw new WPKernelError('ValidationError', {
 					message,
 				});
 			}
@@ -839,7 +839,7 @@ export function createPipeline<
 				return;
 			}
 
-			throw new KernelError('ValidationError', {
+			throw new WPKernelError('ValidationError', {
 				message: `Unsupported helper kind "${helper.kind}".`,
 			});
 		},

@@ -14,7 +14,7 @@
  * @module @wpkernel/core/policy/context
  */
 
-import { KernelError } from '../error/KernelError';
+import { WPKernelError } from '../error/WPKernelError';
 import type { ActionRuntime } from '../actions/types';
 import { createReporter } from '../reporter';
 import { WPK_SUBSYSTEM_NAMESPACES } from '../contracts/index.js';
@@ -88,7 +88,7 @@ export function createPolicyProxy(
 			return runtime.policy;
 		}
 
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: `Action "${options.actionName}" attempted to assert a policy without a policy runtime configured.`,
 		});
 	}
@@ -122,7 +122,7 @@ export function createPolicyProxy(
 					if (result instanceof Promise) {
 						return result.then((allowed) => {
 							if (!allowed) {
-								throw new KernelError('PolicyDenied', {
+								throw new WPKernelError('PolicyDenied', {
 									message: `Policy "${key}" denied by runtime can().`,
 									context: {
 										policyKey: key,
@@ -134,7 +134,7 @@ export function createPolicyProxy(
 					}
 
 					if (!result) {
-						throw new KernelError('PolicyDenied', {
+						throw new WPKernelError('PolicyDenied', {
 							message: `Policy "${key}" denied by runtime can().`,
 							context: {
 								policyKey: key,
@@ -145,7 +145,7 @@ export function createPolicyProxy(
 					return;
 				}
 
-				throw new KernelError('DeveloperError', {
+				throw new WPKernelError('DeveloperError', {
 					message: `Action "${options.actionName}" attempted to assert policy "${key}" but runtime does not expose assert().`,
 				});
 			});

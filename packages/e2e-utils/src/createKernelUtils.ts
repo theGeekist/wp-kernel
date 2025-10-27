@@ -8,7 +8,7 @@
  */
 
 import { extractPathParams, interpolatePath } from '@wpkernel/core/resource';
-import { KernelError, WPK_NAMESPACE } from '@wpkernel/core/contracts';
+import { WPKernelError, WPK_NAMESPACE } from '@wpkernel/core/contracts';
 import type { Page } from '@playwright/test';
 import type { RequestUtils } from '@wordpress/e2e-test-utils-playwright';
 import type {
@@ -156,7 +156,7 @@ export function createResourceHelper<T>(
 					? error.message
 					: 'Unknown interpolation error';
 
-			throw new KernelError('DeveloperError', {
+			throw new WPKernelError('DeveloperError', {
 				message: `Failed to interpolate remove path for resource "${config.name}": ${message}`,
 				context: {
 					resourceName: config.name,
@@ -196,7 +196,7 @@ export function createResourceHelper<T>(
 			data: Partial<T>
 		): Promise<T & { id: string | number }> => {
 			if (!routes.create) {
-				throw new KernelError('DeveloperError', {
+				throw new WPKernelError('DeveloperError', {
 					message: `Resource "${config.name}" does not have a create route configured`,
 					context: { resourceName: config.name },
 				});
@@ -213,7 +213,7 @@ export function createResourceHelper<T>(
 			});
 
 			if (!response || typeof response !== 'object') {
-				throw new KernelError('UnknownError', {
+				throw new WPKernelError('UnknownError', {
 					message: `Failed to seed resource "${config.name}": Invalid response`,
 					context: { resourceName: config.name },
 				});
@@ -221,7 +221,7 @@ export function createResourceHelper<T>(
 
 			const identifier = resolveIdentifier(response);
 			if (identifier === undefined) {
-				throw new KernelError('DeveloperError', {
+				throw new WPKernelError('DeveloperError', {
 					message: `Failed to seed resource "${config.name}": Missing identifier`,
 					context: { resourceName: config.name },
 				});
@@ -236,7 +236,7 @@ export function createResourceHelper<T>(
 			items: Partial<T>[]
 		): Promise<Array<T & { id: string | number }>> => {
 			if (!routes.create) {
-				throw new KernelError('DeveloperError', {
+				throw new WPKernelError('DeveloperError', {
 					message: `Resource "${config.name}" does not have a create route configured`,
 					context: { resourceName: config.name },
 				});
@@ -257,7 +257,7 @@ export function createResourceHelper<T>(
 					});
 
 					if (!response || typeof response !== 'object') {
-						throw new KernelError('UnknownError', {
+						throw new WPKernelError('UnknownError', {
 							message: `Failed to seed resource "${config.name}": Invalid response`,
 							context: { resourceName: config.name },
 						});
@@ -265,7 +265,7 @@ export function createResourceHelper<T>(
 
 					const identifier = resolveIdentifier(response);
 					if (identifier === undefined) {
-						throw new KernelError('DeveloperError', {
+						throw new WPKernelError('DeveloperError', {
 							message: `Failed to seed resource "${config.name}": Missing identifier`,
 							context: { resourceName: config.name },
 						});
@@ -282,7 +282,7 @@ export function createResourceHelper<T>(
 
 		remove: async (id: string | number): Promise<void> => {
 			if (!routes.remove) {
-				throw new KernelError('DeveloperError', {
+				throw new WPKernelError('DeveloperError', {
 					message: `Resource "${config.name}" does not have a remove route configured`,
 					context: { resourceName: config.name },
 				});
@@ -291,7 +291,7 @@ export function createResourceHelper<T>(
 			const path = buildRemovePath(id);
 
 			if (!path) {
-				throw new KernelError('DeveloperError', {
+				throw new WPKernelError('DeveloperError', {
 					message: `Resource "${config.name}" does not have a remove route configured`,
 					context: { resourceName: config.name },
 				});
@@ -309,7 +309,7 @@ export function createResourceHelper<T>(
 
 		deleteAll: async (): Promise<void> => {
 			if (!routes.list || !routes.remove) {
-				throw new KernelError('DeveloperError', {
+				throw new WPKernelError('DeveloperError', {
 					message: `Resource "${config.name}" must have both list and remove routes for deleteAll()`,
 					context: { resourceName: config.name },
 				});
@@ -321,7 +321,7 @@ export function createResourceHelper<T>(
 			});
 
 			if (!Array.isArray(response)) {
-				throw new KernelError('UnknownError', {
+				throw new WPKernelError('UnknownError', {
 					message: `Failed to list resources "${config.name}": Expected array response`,
 					context: { resourceName: config.name },
 				});
@@ -338,7 +338,7 @@ export function createResourceHelper<T>(
 
 					const path = buildRemovePath(identifier);
 					if (!path) {
-						throw new KernelError('DeveloperError', {
+						throw new WPKernelError('DeveloperError', {
 							message: `Resource "${config.name}" does not have a remove route configured`,
 							context: { resourceName: config.name },
 						});
@@ -502,7 +502,7 @@ function extractSelectorPath<T>(selector: (state: T) => unknown): string[] {
 		: extractFunctionExpression(source);
 
 	if (!expression) {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message:
 				'Invalid selector: Only simple property access is supported',
 		});
@@ -510,7 +510,7 @@ function extractSelectorPath<T>(selector: (state: T) => unknown): string[] {
 
 	const candidate = expression.replace(/;$/, '');
 	if (!SAFE_SELECTOR_PATTERN.test(candidate)) {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message:
 				'Invalid selector: Only simple property access is supported',
 		});
@@ -523,7 +523,7 @@ function extractSelectorPath<T>(selector: (state: T) => unknown): string[] {
 
 	for (const segment of path) {
 		if (FORBIDDEN_PROPS.has(segment)) {
-			throw new KernelError('DeveloperError', {
+			throw new WPKernelError('DeveloperError', {
 				message: `Security violation: Property "${segment}" is not allowed`,
 				context: { property: segment },
 			});
@@ -668,7 +668,7 @@ export function createStoreHelper<T>(
 				);
 
 				if (evaluation?.error) {
-					throw new KernelError('DeveloperError', {
+					throw new WPKernelError('DeveloperError', {
 						message: evaluation.error.message,
 						context: {
 							storeKey,
@@ -684,7 +684,7 @@ export function createStoreHelper<T>(
 				}
 
 				if (Date.now() - startTime > timeout) {
-					throw new KernelError('TimeoutError', {
+					throw new WPKernelError('TimeoutError', {
 						message: `Timeout waiting for store "${storeKey}" selector after ${timeout}ms`,
 						context: { storeKey, timeout },
 					});
@@ -729,7 +729,7 @@ export function createStoreHelper<T>(
 			}, storeKey);
 
 			if (evaluation?.error) {
-				throw new KernelError('DeveloperError', {
+				throw new WPKernelError('DeveloperError', {
 					message: evaluation.error.message,
 					context: {
 						storeKey,
@@ -767,7 +767,7 @@ export function createStoreHelper<T>(
 			}, storeKey);
 
 			if (evaluation?.error) {
-				throw new KernelError('DeveloperError', {
+				throw new WPKernelError('DeveloperError', {
 					message: evaluation.error.message,
 					context: {
 						storeKey,

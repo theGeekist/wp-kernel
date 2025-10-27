@@ -19,13 +19,13 @@ These filenames/keys are consumed by the CLI and runtime config loaders.
 ### WPK_CONFIG_TS
 
 ```ts
-readonly WPK_CONFIG_TS: "kernel.config.ts" = 'kernel.config.ts';
+readonly WPK_CONFIG_TS: "wpk.config.ts" = 'wpk.config.ts';
 ```
 
 ### WPK_CONFIG_JS
 
 ```ts
-readonly WPK_CONFIG_JS: "kernel.config.js" = 'kernel.config.js';
+readonly WPK_CONFIG_JS: "wpk.config.js" = 'wpk.config.js';
 ```
 
 ### PACKAGE_JSON_WPK

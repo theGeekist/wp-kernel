@@ -11,7 +11,7 @@ import { createReporter, setKernelReporter } from '../reporter';
 import type { Reporter } from '../reporter';
 import { invalidate as invalidateCache } from '../resource/cache';
 import type { CacheKeyPattern, InvalidateOptions } from '../resource/cache';
-import { KernelError } from '../error/KernelError';
+import { WPKernelError } from '../error/WPKernelError';
 import {
 	getKernelEventBus,
 	type KernelEventBus,
@@ -72,7 +72,7 @@ function emitEvent(
 	payload: unknown
 ): void {
 	if (!eventName || typeof eventName !== 'string') {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: 'kernel emit requires a non-empty string event name.',
 		});
 	}

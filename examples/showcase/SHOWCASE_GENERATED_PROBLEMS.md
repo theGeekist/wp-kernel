@@ -16,7 +16,7 @@
 
 ## TypeScript / TSX Generation Defects
 
-- **Undefined identifiers** - `.generated/ui/app/job/admin/JobsAdminScreen.tsx:22` throws a `KernelError` without importing it, and the error payload references `resourceName` which is not defined anywhere in the file.
+- **Undefined identifiers** - `.generated/ui/app/job/admin/JobsAdminScreen.tsx:22` throws a `WPKernelError` without importing it, and the error payload references `resourceName` which is not defined anywhere in the file.
 - **Incomplete fixture helpers** - `.generated/ui/fixtures/dataviews/job.ts:51` and :96 reference `jobStatusLabels`, `toTrimmedString`, `resolveStatus`, and `assignStringFilter` without defining or importing them. As soon as the file gets type-checked it will fail with `cannot find name` errors.
 - **Silent coverage gap** - `tsconfig.json:24` only includes `.generated/types/**/*.d.ts`, so the UI artefacts under `.generated/ui/**` are never type-checked. That’s why the missing identifiers above do not surface during `pnpm --filter wp-kernel-showcase run typecheck`.
 - **Runtime aliasing** - `.generated/ui/app/job/admin/JobsAdminScreen.tsx:5` deep-imports local source via `@/bootstrap/kernel`, but the generated plugin’s published TypeScript config resolves `@/*` to monorepo sources (tsconfig.json:10-21). Outside the workspace, these aliases break resolution and the bundle fails.

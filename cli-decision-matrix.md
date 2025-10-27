@@ -38,7 +38,7 @@ This document summarizes the responsibilities and outputs of the core CLI comman
     - Types: `src/printers/types/printer.ts`
     - UI: `src/printers/ui/printer.ts`
 - **Scaffold templates for `init`:** `templates/init/**`
-    - Provides initial `package.json`, `tsconfig.json`, `kernel.config.ts`, `eslint.config.js`, `src/index.ts`, and PHP `inc/` placeholders.
+    - Provides initial `package.json`, `tsconfig.json`, `wpk.config.ts`, `eslint.config.js`, `src/index.ts`, and PHP `inc/` placeholders.
 - **Build output (compiled distribution):** `dist/**`
 - **Tests:** `src/**/__tests__/**`, plus integration tests under printer-specific `__tests__` folders.
 

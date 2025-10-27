@@ -9,7 +9,7 @@
  * @see Product Specification § 4.1 Resources
  * @module resource-hooks
  */
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import type { ResourceObject, ListResponse } from '@wpkernel/core/resource';
 import type { KernelUIRuntime } from '@wpkernel/core/data';
 import { useKernelUI } from '../runtime/context';
@@ -104,7 +104,7 @@ function ensureUseSelect<T, TQuery>(
 ) {
 	const wp = resolveWpGlobal();
 	if (!wp?.data?.useSelect) {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: `${method} requires @wordpress/data to be loaded`,
 			context: {
 				resource: resource.name,

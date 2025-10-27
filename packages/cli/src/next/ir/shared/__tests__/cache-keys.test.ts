@@ -1,6 +1,6 @@
 import { deriveCacheKeys, createDefaultCacheKeySegments } from '../cache-keys';
 import type { CacheKeys } from '@wpkernel/core/resource';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 
 describe('cache-keys utilities', () => {
 	it('derives default keys when functions not provided', () => {
@@ -22,7 +22,7 @@ describe('cache-keys utilities', () => {
 			get: () => ['demo', 'get'],
 		};
 
-		expect(() => deriveCacheKeys(keys, 'demo')).toThrow(KernelError);
+		expect(() => deriveCacheKeys(keys, 'demo')).toThrow(WPKernelError);
 	});
 
 	it('creates frozen default segments', () => {

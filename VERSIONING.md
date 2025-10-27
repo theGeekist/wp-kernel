@@ -69,7 +69,7 @@ After reaching `1.0.0`:
 ✓ **TypeScript Types (Public)**
 
 - Exported types from package roots won't change without major bump
-- Example: `KernelError`, `ResourceConfig`, `ActionContext`
+- Example: `WPKernelError`, `ResourceConfig`, `ActionContext`
 
 ### What May Change (Non-Breaking)
 

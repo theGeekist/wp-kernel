@@ -47,7 +47,7 @@
   and replays the kernel registry instead of mutating globals, so UI bundles can
   subscribe deterministically regardless of load order.
 - Hooks such as `useAction`, `useResourceList`, and prefetch helpers now throw a
-  `KernelError` if a `KernelUIRuntime` is not available.
+  `WPKernelError` if a `KernelUIRuntime` is not available.
 
 ### Bug Fixes
 
@@ -138,7 +138,7 @@ createRoot(node).render(
     - 30+ validated pnpm scripts
     - Comprehensive documentation (SCRIPTS.md, SCRIPTS_AUDIT.md)
 
-    **WordPress Integration**: - Error tests (KernelError, ServerError, TransportError)
+    **WordPress Integration**: - Error tests (WPKernelError, ServerError, TransportError)
     - Resources with cache invalidation + auto-retry
     - wp-env configuration (WordPress 6.8 + PHP 8.3)
     - Changesets for version management

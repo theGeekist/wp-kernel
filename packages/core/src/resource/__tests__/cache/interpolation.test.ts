@@ -4,7 +4,7 @@
  */
 
 import { interpolatePath, extractPathParams } from '../../cache';
-import { KernelError } from '../../../error/index';
+import { WPKernelError } from '../../../error/index';
 
 describe('interpolatePath', () => {
 	describe('basic interpolation', () => {
@@ -84,7 +84,7 @@ describe('interpolatePath', () => {
 		it('should throw DeveloperError when required param is missing', () => {
 			expect(() => {
 				interpolatePath('/my-plugin/v1/things/:id', {});
-			}).toThrow(KernelError);
+			}).toThrow(WPKernelError);
 		});
 
 		it('should throw DeveloperError with correct error code', () => {
@@ -92,8 +92,8 @@ describe('interpolatePath', () => {
 				interpolatePath('/my-plugin/v1/things/:id', {});
 				fail('Should have thrown');
 			} catch (e) {
-				expect(e).toBeInstanceOf(KernelError);
-				const error = e as KernelError;
+				expect(e).toBeInstanceOf(WPKernelError);
+				const error = e as WPKernelError;
 				expect(error.code).toBe('DeveloperError');
 			}
 		});
@@ -108,7 +108,7 @@ describe('interpolatePath', () => {
 				);
 				fail('Should have thrown');
 			} catch (e) {
-				const error = e as KernelError;
+				const error = e as WPKernelError;
 				expect(error.message).toContain('commentId');
 			}
 		});
@@ -118,7 +118,7 @@ describe('interpolatePath', () => {
 				interpolatePath('/my-plugin/v1/things/:id', {
 					id: null as never,
 				});
-			}).toThrow(KernelError);
+			}).toThrow(WPKernelError);
 		});
 
 		it('should throw when param is undefined', () => {
@@ -126,7 +126,7 @@ describe('interpolatePath', () => {
 				interpolatePath('/my-plugin/v1/things/:id', {
 					id: undefined as never,
 				});
-			}).toThrow(KernelError);
+			}).toThrow(WPKernelError);
 		});
 
 		it('should list all missing params when multiple are missing', () => {
@@ -139,7 +139,7 @@ describe('interpolatePath', () => {
 				);
 				fail('Should have thrown');
 			} catch (e) {
-				const error = e as KernelError;
+				const error = e as WPKernelError;
 				expect(error.message).toContain('id');
 				expect(error.message).toContain('itemId');
 				expect(error.message).not.toContain('subId');
@@ -151,7 +151,7 @@ describe('interpolatePath', () => {
 				interpolatePath('/my-plugin/v1/things/:id', {});
 				fail('Should have thrown');
 			} catch (e) {
-				const error = e as KernelError;
+				const error = e as WPKernelError;
 				expect(error.data?.path).toBe('/my-plugin/v1/things/:id');
 				expect(error.data?.requiredParams).toEqual(['id']);
 				expect(error.data?.providedParams).toEqual([]);

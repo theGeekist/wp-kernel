@@ -12,7 +12,7 @@
  * @internal
  */
 
-import { KernelError } from '../error/KernelError';
+import { WPKernelError } from '../error/WPKernelError';
 import { invalidate as invalidateCache } from '../resource/cache';
 import { getNamespace } from '../namespace/detect';
 import { createPolicyProxy } from '../policy/context';
@@ -239,12 +239,12 @@ function createJobs(actionName: string, runtime?: ActionRuntime) {
 
 	return {
 		async enqueue(jobName: string): Promise<void> {
-			throw new KernelError('NotImplementedError', {
+			throw new WPKernelError('NotImplementedError', {
 				message: `Action \"${actionName}\" attempted to enqueue job \"${jobName}\" but no jobs runtime is configured.`,
 			});
 		},
 		async wait(jobName: string): Promise<never> {
-			throw new KernelError('NotImplementedError', {
+			throw new WPKernelError('NotImplementedError', {
 				message: `Action \"${actionName}\" attempted to wait on job \"${jobName}\" but no jobs runtime is configured.`,
 			});
 		},
@@ -398,7 +398,7 @@ function emitDomainEvent(
 	metadata: ActionLifecycleEventBase
 ) {
 	if (!eventName || typeof eventName !== 'string') {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: 'ctx.emit requires a non-empty string event name.',
 		});
 	}

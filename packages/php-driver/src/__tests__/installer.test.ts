@@ -1,4 +1,4 @@
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import { createPhpDriverInstaller } from '../installer';
 
 type Reporter = ReturnType<typeof createReporter>;
@@ -109,7 +109,7 @@ describe('createPhpDriverInstaller', () => {
 		);
 	});
 
-	it('wraps composer failures in a KernelError', async () => {
+	it('wraps composer failures in a WPKernelError', async () => {
 		execFileMock.mockRejectedValue(new Error('composer failed'));
 
 		const helper = createPhpDriverInstaller();
@@ -129,7 +129,7 @@ describe('createPhpDriverInstaller', () => {
 				},
 				undefined
 			)
-		).rejects.toBeInstanceOf(KernelError);
+		).rejects.toBeInstanceOf(WPKernelError);
 
 		expect(reporter.error).toHaveBeenCalledWith(
 			'Composer install failed while fetching nikic/php-parser.',

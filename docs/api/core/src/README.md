@@ -16,18 +16,18 @@ JavaScript is the source of truth and PHP is a thin contract.
 ```ts
 import { fetch } from '@wpkernel/core/http';
 import { defineResource } from '@wpkernel/core/resource';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 ```
 
 ```ts
 import { http, resource, error } from '@wpkernel/core';
 await http.fetch({ path: '/my-plugin/v1/things' });
 resource.defineResource({ name: 'thing', routes: {...} });
-throw new error.KernelError('ValidationError', {...});
+throw new error.WPKernelError('ValidationError', {...});
 ```
 
 ```ts
-import { fetch, defineResource, KernelError } from '@wpkernel/core';
+import { fetch, defineResource, WPKernelError } from '@wpkernel/core';
 ```
 
 ## Modules
@@ -46,7 +46,7 @@ import { fetch, defineResource, KernelError } from '@wpkernel/core';
 
 ## Classes
 
-- [KernelError](classes/KernelError.md)
+- [WPKernelError](classes/WPKernelError.md)
 - [ServerError](classes/ServerError.md)
 - [TransportError](classes/TransportError.md)
 - [KernelEventBus](classes/KernelEventBus.md)

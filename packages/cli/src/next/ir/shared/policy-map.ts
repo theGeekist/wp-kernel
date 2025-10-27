@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import type {
 	PolicyCapabilityDescriptor,
 	PolicyMapDefinition,
@@ -215,7 +215,7 @@ async function loadPolicyMapModule(
 	} catch (error) {
 		const message = `Failed to load policy map at ${mapPath}: ${formatError(error)}`;
 		const underlying = error instanceof Error ? error : undefined;
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message,
 			context: { policyMapPath: mapPath },
 			data: underlying ? { originalError: underlying } : undefined,
@@ -226,7 +226,7 @@ async function loadPolicyMapModule(
 	const map = extractPolicyMap(resolved);
 	if (!map) {
 		const message = `Policy map module at ${mapPath} must export a policy map object.`;
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message,
 			context: { policyMapPath: mapPath },
 		});
@@ -283,7 +283,7 @@ async function evaluateEntry(options: {
 	} catch (error) {
 		const message = `Policy map entry "${options.key}" threw during evaluation.`;
 		const underlying = error instanceof Error ? error : undefined;
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message,
 			context: {
 				policy: options.key,
@@ -313,7 +313,7 @@ function coerceDescriptor(
 	}
 
 	const message = `Policy map entry "${options.key}" must resolve to a capability string or descriptor.`;
-	throw new KernelError('ValidationError', {
+	throw new WPKernelError('ValidationError', {
 		message,
 		context: {
 			policy: options.key,
@@ -344,7 +344,7 @@ function assertValidPolicyScope(
 		`Policy map entry "${options.key}" has invalid appliesTo scope "${String(scope)}". ` +
 		'Expected "resource" or "object".';
 
-	throw new KernelError('ValidationError', {
+	throw new WPKernelError('ValidationError', {
 		message,
 		context: {
 			policy: options.key,

@@ -62,7 +62,7 @@ Automatically emitted by the HTTP transport layer (framework events use `wpk.*` 
 // On transport/server error
 'wpk.resource.error': {
   resourceName: string;
-  error: KernelError;
+  error: WPKernelError;
   requestId: string;
 }
 
@@ -71,7 +71,7 @@ Automatically emitted by the HTTP transport layer (framework events use `wpk.*` 
   resourceName: string;
   attempt: number;
   nextDelay: number;
-  error: KernelError;
+  error: WPKernelError;
   requestId: string;
 }
 ```
@@ -150,7 +150,7 @@ console.log(customPost.events.created); // 'enterprise.post.created' ✓
 // Action failed
 'wpk.action.error': {
   actionName: string;
-  error: KernelError;
+  error: WPKernelError;
   requestId: string;
 }
 ```
@@ -190,7 +190,7 @@ console.log(customPost.events.created); // 'enterprise.post.created' ✓
 'wpk.job.failed': {
   jobName: string;
   jobId: string;
-  error: KernelError;
+  error: WPKernelError;
 }
 ```
 

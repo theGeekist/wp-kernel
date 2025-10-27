@@ -77,7 +77,7 @@ Each invocation automatically emits lifecycle hooks via `@wordpress/hooks`:
 
 - `wpk.action.start` - before execution, payload includes args and metadata.
 - `wpk.action.complete` - after success, payload includes result and duration.
-- `wpk.action.error` - on failure, payload includes normalized `KernelError`.
+- `wpk.action.error` - on failure, payload includes normalized `WPKernelError`.
 
 Events are broadcast cross-tab by default. Set `scope: 'tabLocal'` to keep events
 within the current tab; tab-local actions never bridge to PHP even when

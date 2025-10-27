@@ -10,7 +10,7 @@ import {
 	type DefaultActionInput,
 } from '../test-support/ResourceDataView.test-support';
 import { act } from 'react';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import type { CacheKeyPattern } from '@wpkernel/core/resource';
 import type { ResourceDataViewActionConfig } from '../types';
 
@@ -522,8 +522,8 @@ describe('ResourceDataView actions', () => {
 			})
 			.catch((error: unknown) => error);
 
-		expect(rejection).toBeInstanceOf(KernelError);
-		expect((rejection as KernelError).code).toBe('UnknownError');
+		expect(rejection).toBeInstanceOf(WPKernelError);
+		expect((rejection as WPKernelError).code).toBe('UnknownError');
 		expect(runtime.dataviews.reporter.error).toHaveBeenCalledWith(
 			'Unhandled error thrown by DataViews action',
 			expect.objectContaining({ selection: ['1'] })

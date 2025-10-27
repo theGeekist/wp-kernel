@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import type { CacheKeyPattern } from '@wpkernel/core/resource';
 import {
 	invokeAction,
@@ -28,7 +28,7 @@ type StoreMarkerRegistry = ResolvedRegistry & {
 
 function ensureBrowserEnvironment() {
 	if (typeof window === 'undefined') {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message:
 				'useAction cannot run during SSR. Call run() on the client side.',
 		});
@@ -43,7 +43,7 @@ function resolveWpDataRegistry(runtime: KernelUIRuntime): ResolvedRegistry {
 	const registry = runtime.registry ?? runtime.kernel?.getRegistry();
 
 	if (!registry?.dispatch) {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message:
 				'useAction requires the WordPress data registry. Ensure configureKernel() was called with a registry and attach UI bindings.',
 		});
@@ -95,7 +95,7 @@ function resolveInvokeMethod(
 	const invoke = dispatcher?.invoke;
 
 	if (typeof invoke !== 'function') {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message:
 				'Failed to resolve kernel action dispatcher. Verify configureKernel() initialised the registry.',
 		});
@@ -143,7 +143,7 @@ export interface UseActionOptions<TInput, TResult> {
 
 export interface UseActionState<TResult> {
 	status: 'idle' | 'running' | 'success' | 'error';
-	error?: KernelError;
+	error?: WPKernelError;
 	result?: TResult;
 	inFlight: number;
 }
@@ -169,14 +169,17 @@ const initialState: UseActionState<unknown> = {
 	inFlight: 0,
 };
 
-function normaliseToKernelError(value: unknown, message: string): KernelError {
-	if (KernelError.isKernelError(value)) {
+function normaliseToWPKernelError(
+	value: unknown,
+	message: string
+): WPKernelError {
+	if (WPKernelError.isWPKernelError(value)) {
 		return value;
 	}
 	if (value instanceof Error) {
-		return KernelError.wrap(value);
+		return WPKernelError.wrap(value);
 	}
-	return new KernelError('UnknownError', {
+	return new WPKernelError('UnknownError', {
 		message,
 		data: { value },
 	});
@@ -248,7 +251,7 @@ export function useAction<TInput, TResult>(
 		});
 	}, []);
 
-	const applyErrorState = useCallback((error: KernelError) => {
+	const applyErrorState = useCallback((error: WPKernelError) => {
 		setState((prev) => {
 			const nextInFlight = Math.max(prev.inFlight - 1, 0);
 			return {
@@ -301,7 +304,7 @@ export function useAction<TInput, TResult>(
 			} catch (error) {
 				markRequestCancelled(record);
 				requestsRef.current.delete(requestId);
-				const kernelError = normaliseToKernelError(
+				const kernelError = normaliseToWPKernelError(
 					error,
 					'Dispatching action failed with non-error value'
 				);
@@ -330,7 +333,7 @@ export function useAction<TInput, TResult>(
 					return result;
 				})
 				.catch((error: unknown) => {
-					const kernelError = normaliseToKernelError(
+					const kernelError = normaliseToWPKernelError(
 						error,
 						'Action failed with non-error value'
 					);
@@ -405,7 +408,7 @@ export function useAction<TInput, TResult>(
 						.then(() => {
 							// Check if queue was cancelled (generation changed) before executing this queued call
 							if (queueGenerationRef.current !== generation) {
-								throw new KernelError('DeveloperError', {
+								throw new WPKernelError('DeveloperError', {
 									message:
 										'Queued action cancelled before execution in queue concurrency mode',
 								});

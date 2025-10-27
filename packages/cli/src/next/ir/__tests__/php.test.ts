@@ -1,4 +1,4 @@
-import { createPhpNamespace } from '../../shared/php';
+import { createPhpNamespace } from '../shared/php';
 
 describe('createPhpNamespace', () => {
 	it('returns default namespace when empty', () => {

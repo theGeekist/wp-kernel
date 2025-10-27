@@ -8,10 +8,10 @@
 
 ## Properties
 
-### loadKernelConfig()?
+### loadWPKernelConfig()?
 
 ```ts
-readonly optional loadKernelConfig: () => Promise<LoadedKernelConfig>;
+readonly optional loadWPKernelConfig: () => Promise<LoadedWPKernelConfig>;
 ```
 
 Locate and load the project's kernel configuration.
@@ -23,13 +23,13 @@ correctly.
 
 #### Returns
 
-`Promise`\&lt;[`LoadedKernelConfig`](../../../interfaces/LoadedKernelConfig.md)\&gt;
+`Promise`\&lt;[`LoadedWPKernelConfig`](../../../interfaces/LoadedWPKernelConfig.md)\&gt;
 
 The validated kernel config and associated metadata.
 
 #### Throws
 
-KernelError when discovery, parsing or validation fails.
+WPKernelError when discovery, parsing or validation fails.
 
 ---
 
@@ -121,7 +121,7 @@ readonly optional resolveWorkspaceRoot: (loaded) => string;
 
 ##### loaded
 
-[`LoadedKernelConfig`](../../../interfaces/LoadedKernelConfig.md)
+[`LoadedWPKernelConfig`](../../../interfaces/LoadedWPKernelConfig.md)
 
 #### Returns
 

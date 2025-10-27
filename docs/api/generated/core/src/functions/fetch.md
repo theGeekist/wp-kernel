@@ -43,7 +43,7 @@ Promise resolving to response with data and metadata
 
 ## Throws
 
-KernelError on request failure
+WPKernelError on request failure
 
 ## Example
 

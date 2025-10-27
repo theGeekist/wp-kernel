@@ -6,7 +6,7 @@ import type {
 	KernelUIRuntime,
 } from '@wpkernel/core/data';
 import type { Reporter } from '@wpkernel/core/reporter';
-import { KernelError } from '@wpkernel/core/contracts';
+import { WPKernelError } from '@wpkernel/core/contracts';
 import {
 	createWordPressTestHarness,
 	type WordPressTestHarness,
@@ -80,7 +80,7 @@ export function createKernelUITestHarness(
 	const provider = options.provider;
 
 	if (!provider) {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message:
 				'KernelUITestHarness requires a KernelUIProvider. Pass options.provider when calling createKernelUITestHarness.',
 		});

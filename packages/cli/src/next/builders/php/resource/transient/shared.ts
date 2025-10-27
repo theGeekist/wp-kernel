@@ -1,4 +1,4 @@
-import { KernelError } from '@wpkernel/core/contracts';
+import { WPKernelError } from '@wpkernel/core/contracts';
 import type { IRResource } from '../../../../ir/publicTypes';
 import { toSnakeCase } from '../../utils';
 
@@ -15,7 +15,7 @@ export interface ResolveTransientKeyOptions {
 export function ensureTransientStorage(resource: IRResource): TransientStorage {
 	const storage = resource.storage;
 	if (!storage || storage.mode !== 'transient') {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: 'Resource must use transient storage.',
 			context: { name: resource.name },
 		});

@@ -11,7 +11,7 @@ This document provides operational guidance for coding agents (Codex, etc.) work
 - Non-negotiables:
     - UI never calls transport directly; **all writes flow through Actions**.
     - Use only **canonical registry event names**; no ad-hoc events.
-    - Errors must be typed `KernelError` subclasses; never throw plain `Error`.
+    - Errors must be typed `WPKernelError` subclasses; never throw plain `Error`.
     - Lifecycle phases, namespaces, and CLI exit codes come from `@wpkernel/core/contracts`-never inline the kernel namespace or exit code numbers.
     - **CLI rule:** All generation work happens in `packages/cli/src/next/**`. Do not introduce or wrap string-based printers-emit AST (`PhpProgram`) or TypeScript outputs only.
 

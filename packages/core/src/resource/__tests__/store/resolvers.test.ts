@@ -6,7 +6,7 @@
 
 import { createStore } from '../../store';
 import type { ResourceObject, ListResponse } from '../../types';
-import { KernelError } from '../../../error/index';
+import { WPKernelError } from '../../../error/index';
 import {
 	createMockResource,
 	type MockThing,
@@ -105,7 +105,7 @@ describe('createStore - Resolvers', () => {
 
 				await expect(async () => {
 					await collectActionsFromResolver(generator);
-				}).rejects.toThrow(KernelError);
+				}).rejects.toThrow(WPKernelError);
 
 				const generator2 = storeWithoutFetch.resolvers.getItem(1);
 				await expect(async () => {
@@ -183,7 +183,7 @@ describe('createStore - Resolvers', () => {
 				const generator = storeWithoutList.resolvers.getItems();
 				await expect(async () => {
 					await collectActionsFromResolver(generator);
-				}).rejects.toThrow(KernelError);
+				}).rejects.toThrow(WPKernelError);
 
 				const generator2 = storeWithoutList.resolvers.getItems();
 				await expect(async () => {

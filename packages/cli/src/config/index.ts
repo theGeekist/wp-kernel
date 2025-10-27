@@ -2,7 +2,7 @@
  * Kernel config types and utilities.
  */
 export type {
-	KernelConfigV1,
+	WPKernelConfigV1,
 	SchemaConfig,
 	AdaptersConfig,
 	PhpAdapterConfig,
@@ -12,8 +12,8 @@ export type {
 	AdapterExtensionContext,
 	AdapterExtensionFactory,
 	ConfigOrigin,
-	LoadedKernelConfig,
+	LoadedWPKernelConfig,
 } from './types';
 
-export { loadKernelConfig } from './load-kernel-config';
-export { validateKernelConfig } from './validate-kernel-config';
+export { loadWPKernelConfig } from './load-kernel-config';
+export { validateWPKernelConfig } from './validate-kernel-config';

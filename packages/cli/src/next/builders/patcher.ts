@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import { createHelper } from '../runtime';
 import type {
 	BuilderApplyOptions,
@@ -83,7 +83,7 @@ async function readPlan(workspace: Workspace): Promise<PatchPlan | null> {
 			),
 		} satisfies PatchPlan;
 	} catch (error) {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: 'Failed to parse patch plan JSON.',
 			context: {
 				file: PATCH_PLAN_PATH,
@@ -166,7 +166,7 @@ async function mergeWithGit(
 		}
 
 		/* istanbul ignore next - defensive logging for unexpected git failures */
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: 'git merge-file failed while computing patch.',
 			context: {
 				file: target,

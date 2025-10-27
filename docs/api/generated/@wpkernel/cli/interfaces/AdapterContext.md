@@ -17,7 +17,7 @@ Context shared with adapter factories while generating artifacts.
 ### config
 
 ```ts
-config: KernelConfigV1;
+config: WPKernelConfigV1;
 ```
 
 ---

@@ -1,6 +1,6 @@
 import { Command, Option } from 'clipanion';
 import { createReporter as buildReporter } from '@wpkernel/core/reporter';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import {
 	WPK_NAMESPACE,
 	WPK_EXIT_CODES,
@@ -121,7 +121,7 @@ export function buildInitCommand(
 				this.manifest = null;
 				this.dependencySource = null;
 
-				if (KernelError.isKernelError(error)) {
+				if (WPKernelError.isWPKernelError(error)) {
 					this.context.stderr.write(
 						formatInitWorkflowError('init', error)
 					);
@@ -172,11 +172,11 @@ export function buildInitCommand(
 					);
 				}
 			} catch (error) {
-				if (KernelError.isKernelError(error)) {
+				if (WPKernelError.isWPKernelError(error)) {
 					throw error;
 				}
 
-				throw new KernelError('DeveloperError', {
+				throw new WPKernelError('DeveloperError', {
 					message:
 						'Unable to verify git repository status for init command.',
 					context: {

@@ -11,7 +11,7 @@ import {
 	WPK_CONFIG_SOURCES,
 	type WPKExitCode,
 } from '@wpkernel/core/contracts';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import { adoptCommandEnvironment } from './internal/delegate';
 import { buildGenerateCommand } from './generate';
 import type { Command as ClipanionCommand } from 'clipanion';
@@ -150,7 +150,7 @@ async function loadChokidarWatch(): Promise<WatchFn> {
 		}
 	}
 
-	throw new KernelError('DeveloperError', {
+	throw new WPKernelError('DeveloperError', {
 		message: 'Unable to resolve chokidar.watch for CLI start command.',
 	});
 }

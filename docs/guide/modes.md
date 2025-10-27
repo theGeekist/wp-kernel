@@ -79,7 +79,7 @@ WordPress as a backend API. External frontend (React, Next.js, Vue, etc.) consum
 
 ```typescript
 // wpk.config.ts
-export default defineKernelConfig({
+export default defineWPKernelConfig({
 	project: {
 		supports: {
 			wp: false,
@@ -130,7 +130,7 @@ Pre-rendered HTML served from CDN. No runtime REST API calls. Content generated 
 
 ```typescript
 // wpk.config.ts
-export default defineKernelConfig({
+export default defineWPKernelConfig({
 	project: {
 		supports: {
 			wp: true, // For editor experience
@@ -175,9 +175,9 @@ const jobs = await job.list(); // Build error!
 Declare modes in `wpk.config.ts`:
 
 ```typescript
-import { defineKernelConfig } from '@wpkernel/core/config';
+import { defineWPKernelConfig } from '@wpkernel/core/config';
 
-export default defineKernelConfig({
+export default defineWPKernelConfig({
 	project: {
 		name: 'my-project',
 		supports: {
@@ -278,7 +278,7 @@ Kernel automatically detects runtime context to enable/disable features:
 **Detected when:**
 
 - No WordPress globals
-- `kernel.configure({ rootURL })` called
+- `wpk.configure({ rootURL })` called
 - `WPK_API_ROOT` env var set
 
 **Behavior:**
@@ -399,7 +399,7 @@ Docs: https://kernel.geekist.dev/guide/modes#static-export
 // kernel/src/resource/client.ts
 export function list(query) {
 	if (__DEV__ && isStaticMode() && isFrontEnd()) {
-		throw new KernelError('StaticModeViolation', {
+		throw new WPKernelError('StaticModeViolation', {
 			method: 'list',
 			resource: this.name,
 			suggestion: 'Use server bindings or move to admin context',
@@ -414,7 +414,7 @@ export function list(query) {
 **Error output:**
 
 ```
-KernelError: StaticModeViolation
+WPKernelError: StaticModeViolation
 
 Resource: job
 Method: list()
@@ -618,7 +618,7 @@ export default function JobsPage({ jobs }) {
 **Error:**
 
 ```
-KernelError: StaticModeViolation
+WPKernelError: StaticModeViolation
 Resource: job
 Method: list()
 ```

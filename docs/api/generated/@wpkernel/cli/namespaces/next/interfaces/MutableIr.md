@@ -27,7 +27,7 @@ meta:
 ### config
 
 ```ts
-readonly config: KernelConfigV1;
+readonly config: WPKernelConfigV1;
 ```
 
 ---

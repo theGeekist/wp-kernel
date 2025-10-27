@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import type { WorkspaceLike } from '../workspace';
 
 export interface PhpAstNode {
@@ -204,7 +204,7 @@ export function buildPhpPrettyPrinter(
 		});
 
 		if (exitCode !== 0) {
-			throw new KernelError('DeveloperError', {
+			throw new WPKernelError('DeveloperError', {
 				message: 'Failed to pretty print PHP artifacts.',
 				data: {
 					filePath: payload.filePath,
@@ -230,7 +230,7 @@ function ensureValidPayload(payload: PhpPrettyPrintPayload): void {
 	const { program } = payload;
 
 	if (!Array.isArray(program)) {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: 'PHP pretty printer requires an AST payload.',
 			data: {
 				filePath: payload.filePath,
@@ -250,8 +250,8 @@ function ensureValidPayload(payload: PhpPrettyPrintPayload): void {
 	});
 }
 
-function makeInvalidNodeError(filePath: string, index: number): KernelError {
-	return new KernelError('DeveloperError', {
+function makeInvalidNodeError(filePath: string, index: number): WPKernelError {
+	return new WPKernelError('DeveloperError', {
 		message:
 			'PHP pretty printer requires AST nodes with a string nodeType.',
 		data: {
@@ -296,7 +296,7 @@ async function waitForBridgeExit(
 				(error as NodeJS.ErrnoException).code === 'ENOENT'
 			) {
 				settleReject(
-					new KernelError('DeveloperError', {
+					new WPKernelError('DeveloperError', {
 						message:
 							'PHP pretty printer is missing required dependencies.',
 						data: meta,
@@ -314,7 +314,7 @@ async function waitForBridgeExit(
 		const stdin = child.stdin;
 		if (!stdin) {
 			settleReject(
-				new KernelError('DeveloperError', {
+				new WPKernelError('DeveloperError', {
 					message:
 						'PHP pretty printer child process did not expose a writable stdin.',
 					data: meta,
@@ -358,7 +358,7 @@ function parseBridgeOutput(
 			ast: raw.ast as PhpProgram,
 		};
 	} catch (error) {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message:
 				'Failed to parse pretty printer response for PHP artifacts.',
 			data: {

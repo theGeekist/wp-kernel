@@ -100,7 +100,7 @@ Use WPK_EVENTS.ACTION_START from contracts/index.ts instead.
 
 ### Purpose
 
-Ensures structural consistency across resource configuration objects in `kernel.config.ts`.
+Ensures structural consistency across resource configuration objects in `wpk.config.ts`.
 
 ### What It Checks
 
@@ -210,28 +210,28 @@ Write route 'create' should declare a policy identifier
 
 ### Purpose
 
-Encourages self-documenting `kernel.config.ts` files by linking to official CLI spec documentation.
+Encourages self-documenting `wpk.config.ts` files by linking to official CLI spec documentation.
 
 ### What It Checks
 
-- Detects missing documentation link comments before `kernelConfig` exports.
+- Detects missing documentation link comments before `wpkConfig` exports.
 - Offers auto-fix insertion.
 
 ### Example
 
 ```ts
 // ✗ WARN
-export const kernelConfig = { version: 1, namespace: 'demo' };
+export const wpkConfig = { version: 1, namespace: 'demo' };
 
 // ✓ GOOD
 // For CLI config guidance see https://github.com/theGeekist/wp-kernel/blob/main/packages/cli/mvp-cli-spec.md#6-blocks-of-authoring-safety
-export const kernelConfig = { version: 1, namespace: 'demo' };
+export const wpkConfig = { version: 1, namespace: 'demo' };
 ```
 
 **Diagnostic**
 
 ```
-Add a documentation reference comment for kernelConfig. Developers resolving lint diagnostics should review <doc-url>.
+Add a documentation reference comment for wpkConfig. Developers resolving lint diagnostics should review <doc-url>.
 ```
 
 ---

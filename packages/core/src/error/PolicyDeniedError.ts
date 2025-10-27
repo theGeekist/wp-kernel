@@ -7,7 +7,7 @@
  * @module
  */
 
-import { KernelError } from './KernelError';
+import { WPKernelError } from './WPKernelError';
 import type { ErrorContext, ErrorData } from './types';
 
 /**
@@ -23,7 +23,7 @@ import type { ErrorContext, ErrorData } from './types';
  * });
  * ```
  */
-export class PolicyDeniedError extends KernelError {
+export class PolicyDeniedError extends WPKernelError {
 	/**
 	 * I18n message key for user-facing error messages
 	 * Format: `policy.denied.{namespace}.{policyKey}`

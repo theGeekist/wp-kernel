@@ -1,9 +1,9 @@
 import { createReporterMock as buildReporterMock } from '@wpkernel/test-utils/cli';
 import type { IRPolicyMap } from '../../ir/publicTypes';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import { createHelper } from '../createHelper';
 import { createPipeline } from '../createPipeline';
-import type { KernelConfigV1 } from '../../../config/types';
+import type { WPKernelConfigV1 } from '../../../config/types';
 import { FIXTURE_CONFIG_PATH } from '../../ir/shared/test-helpers';
 import { buildWorkspace } from '../../workspace';
 import { withWorkspace } from '../../../../tests/workspace.test-support';
@@ -32,7 +32,7 @@ function buildPolicyMap(): IRPolicyMap {
 }
 
 describe('createPipeline', () => {
-	const config: KernelConfigV1 = {
+	const config: WPKernelConfigV1 = {
 		version: 1,
 		namespace: 'test-namespace',
 		schemas: {},
@@ -240,7 +240,7 @@ describe('createPipeline', () => {
 					workspace,
 					reporter,
 				})
-			).rejects.toThrow(KernelError);
+			).rejects.toThrow(WPKernelError);
 		});
 	});
 

@@ -6,7 +6,7 @@ import {
 } from '../ts';
 import {
 	withWorkspace,
-	buildKernelConfigSource,
+	buildWPKernelConfigSource,
 	buildDataViewsConfig,
 	buildBuilderArtifacts,
 	buildReporter,
@@ -31,13 +31,13 @@ describe('createTsBuilder - admin screen creator', () => {
 				'export const job = { ui: { admin: { dataviews: {} } } };\n'
 			);
 
-			const configSource = buildKernelConfigSource();
-			await workspace.write('kernel.config.ts', configSource);
+			const configSource = buildWPKernelConfigSource();
+			await workspace.write('wpk.config.ts', configSource);
 
 			const dataviews = buildDataViewsConfig();
 			const { ir, options } = buildBuilderArtifacts({
 				dataviews,
-				sourcePath: path.join(root, 'kernel.config.ts'),
+				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
 
 			const reporter = buildReporter();
@@ -81,7 +81,7 @@ describe('createTsBuilder - admin screen creator', () => {
 				'/** @jsxImportSource @wordpress/element */'
 			);
 			expect(screenContents).toContain(
-				"import { KernelError } from '@wpkernel/core/contracts';"
+				"import { WPKernelError } from '@wpkernel/core/contracts';"
 			);
 
 			const expectedResourceImport = normalise(
@@ -132,18 +132,18 @@ describe('createTsBuilder - admin screen creator', () => {
 			const dataviews = buildDataViewsConfig({
 				screen: { component: 'JobBoardAdminScreen' },
 			});
-			const configSource = buildKernelConfigSource({
+			const configSource = buildWPKernelConfigSource({
 				resourceKey: 'job-board',
 				resourceName: 'Job Board',
 				dataviews: { screen: { component: 'JobBoardAdminScreen' } },
 			});
-			await workspace.write('kernel.config.ts', configSource);
+			await workspace.write('wpk.config.ts', configSource);
 
 			const { ir, options } = buildBuilderArtifacts({
 				resourceKey: 'job-board',
 				resourceName: 'Job Board',
 				dataviews,
-				sourcePath: path.join(root, 'kernel.config.ts'),
+				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
 
 			const reporter = buildReporter();
@@ -198,18 +198,18 @@ describe('createTsBuilder - admin screen creator', () => {
 
 	it('falls back to configured aliases when imports cannot be resolved', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
-			const configSource = buildKernelConfigSource({
+			const configSource = buildWPKernelConfigSource({
 				resourceKey: 'job-board',
 				resourceName: 'Job Board',
 			});
-			await workspace.write('kernel.config.ts', configSource);
+			await workspace.write('wpk.config.ts', configSource);
 
 			const dataviews = buildDataViewsConfig();
 			const { ir, options } = buildBuilderArtifacts({
 				resourceKey: 'job-board',
 				resourceName: 'Job Board',
 				dataviews,
-				sourcePath: path.join(root, 'kernel.config.ts'),
+				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
 
 			const reporter = buildReporter();
@@ -266,7 +266,7 @@ describe('createTsBuilder - admin screen creator', () => {
 				},
 			});
 
-			const configSource = buildKernelConfigSource({
+			const configSource = buildWPKernelConfigSource({
 				dataviews: {
 					screen: {
 						component: 'JobsAdminCustomScreen',
@@ -278,11 +278,11 @@ describe('createTsBuilder - admin screen creator', () => {
 					},
 				},
 			});
-			await workspace.write('kernel.config.ts', configSource);
+			await workspace.write('wpk.config.ts', configSource);
 
 			const { ir, options } = buildBuilderArtifacts({
 				dataviews,
-				sourcePath: path.join(root, 'kernel.config.ts'),
+				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
 
 			const reporter = buildReporter();
@@ -345,7 +345,7 @@ describe('createTsBuilder - admin screen creator', () => {
 				dataviews,
 				resourceName: 'Job Board',
 				resourceKey: 'job-board',
-				sourcePath: path.join(root, 'kernel.config.ts'),
+				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
 
 			const reporter = buildReporter();

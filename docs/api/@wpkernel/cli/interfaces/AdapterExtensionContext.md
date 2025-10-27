@@ -17,7 +17,7 @@ Execution context provided to adapter extensions.
 ### config
 
 ```ts
-config: KernelConfigV1;
+config: WPKernelConfigV1;
 ```
 
 #### Inherited from

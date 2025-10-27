@@ -1,5 +1,5 @@
 import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
-import type { KernelConfigV1 } from '@wpkernel/cli/config';
+import type { WPKernelConfigV1 } from '@wpkernel/cli/config';
 import type {
 	IRBlock,
 	IRPolicyMap,
@@ -7,20 +7,20 @@ import type {
 	IRRoute,
 	IRSchema,
 	IRv1,
-} from '@wpkernel/cli/ir';
+} from '@wpkernel/cli/next/ir';
 import type { ResourcePostMetaDescriptor } from '@wpkernel/core/resource';
 
-export interface MakeKernelConfigFixtureOptions {
+export interface MakeWPKernelConfigFixtureOptions {
 	readonly namespace?: string;
-	readonly schemas?: KernelConfigV1['schemas'];
-	readonly resources?: KernelConfigV1['resources'];
-	readonly adapters?: KernelConfigV1['adapters'];
+	readonly schemas?: WPKernelConfigV1['schemas'];
+	readonly resources?: WPKernelConfigV1['resources'];
+	readonly adapters?: WPKernelConfigV1['adapters'];
 }
 
-export function makeKernelConfigFixture(
-	options: MakeKernelConfigFixtureOptions = {}
-): KernelConfigV1 {
-	const defaultSchemas: KernelConfigV1['schemas'] = {
+export function makeWPKernelConfigFixture(
+	options: MakeWPKernelConfigFixtureOptions = {}
+): WPKernelConfigV1 {
+	const defaultSchemas: WPKernelConfigV1['schemas'] = {
 		job: {
 			path: './contracts/job.schema.json',
 			generated: {
@@ -28,7 +28,7 @@ export function makeKernelConfigFixture(
 			},
 		},
 	};
-	const defaultResources: KernelConfigV1['resources'] = {};
+	const defaultResources: WPKernelConfigV1['resources'] = {};
 
 	const {
 		namespace = 'demo-namespace',
@@ -43,11 +43,11 @@ export function makeKernelConfigFixture(
 		schemas: schemas ?? defaultSchemas,
 		resources: resources ?? defaultResources,
 		...(adapters ? { adapters } : {}),
-	} satisfies KernelConfigV1;
+	} satisfies WPKernelConfigV1;
 }
 
 export interface MakePrinterIrFixtureOptions {
-	readonly config?: KernelConfigV1;
+	readonly config?: WPKernelConfigV1;
 	readonly schemas?: IRSchema[];
 	readonly resources?: IRResource[];
 	readonly policyMap?: IRPolicyMap;
@@ -60,7 +60,7 @@ export interface MakePrinterIrFixtureOptions {
 
 /* eslint-disable complexity */
 export function makePrinterIrFixture({
-	config = makeKernelConfigFixture(),
+	config = makeWPKernelConfigFixture(),
 	schemas = makeDefaultSchemas(),
 	resources = makeDefaultResources(),
 	policyMap = makeDefaultPolicyMap(),

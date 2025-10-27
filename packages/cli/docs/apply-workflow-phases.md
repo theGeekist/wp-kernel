@@ -92,7 +92,7 @@ What changes is _what_ we merge. Instead of large controller bodies, the merge i
     - Create or update the apply plan builder to emit files that wrap generated classes (e.g., require + subclass).
     - Treat those shims as templates we own; the user keeps overrides inside the class body.
     - Detect whether `composer.json` exposes a PSR-4 namespace (the init template wires `inc/` automatically, see `packages/cli/templates/init/composer.json:1-9`) and fall back to emitting `require_once` guards when autoloading is unavailable.
-    - Warn during generation when the configured namespace cannot be normalised to PSR-1 before writing shims so projects know to adjust `kernel.config.ts`.
+    - Warn during generation when the configured namespace cannot be normalised to PSR-1 before writing shims so projects know to adjust `wpk.config.ts`.
 4. **Port safety rails**
     - Carry across flag handling (`--yes`, `--backup`, `--force`) and `.wpk-apply.log` once the new layering is in place.
     - Enforce git hygiene: fail early when `.git` is missing or dirty instead of skipping checks (`packages/cli/src/next/workspace/utilities.ts:60-150`).

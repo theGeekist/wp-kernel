@@ -1,4 +1,4 @@
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { ResourceConfig } from '@wpkernel/core/resource';
 import {
@@ -6,7 +6,7 @@ import {
 	type ReporterMock,
 } from '@wpkernel/test-utils/cli';
 import {
-	validateKernelConfig,
+	validateWPKernelConfig,
 	resourceRoutesValidator,
 	normalizeVersion,
 	runResourceChecks,
@@ -73,7 +73,7 @@ function createMockReporter(): {
 	return { reporter: reporter as unknown as Reporter, child };
 }
 
-describe('validateKernelConfig', () => {
+describe('validateWPKernelConfig', () => {
 	const baseSchema = {
 		default: {
 			path: 'schemas/default.json',
@@ -107,10 +107,10 @@ describe('validateKernelConfig', () => {
 		const config = createValidConfig();
 		config.namespace = 'Valid Namespace';
 
-		const result = validateKernelConfig(config, {
+		const result = validateWPKernelConfig(config, {
 			reporter,
-			origin: 'kernel.config.js',
-			sourcePath: '/tmp/kernel.config.js',
+			origin: 'wpk.config.js',
+			sourcePath: '/tmp/wpk.config.js',
 		});
 
 		expect(result.namespace).toBe('valid-namespace');
@@ -149,10 +149,10 @@ describe('validateKernelConfig', () => {
 			},
 		};
 
-		const result = validateKernelConfig(config, {
+		const result = validateWPKernelConfig(config, {
 			reporter,
-			origin: 'kernel.config.ts',
-			sourcePath: '/tmp/kernel.config.ts',
+			origin: 'wpk.config.ts',
+			sourcePath: '/tmp/wpk.config.ts',
 		});
 
 		const resource = result.config.resources.thing!;
@@ -171,12 +171,12 @@ describe('validateKernelConfig', () => {
 		config.namespace = '123-invalid';
 
 		expect(() =>
-			validateKernelConfig(config, {
+			validateWPKernelConfig(config, {
 				reporter,
-				origin: 'kernel.config.js',
-				sourcePath: '/tmp/kernel.config.js',
+				origin: 'wpk.config.js',
+				sourcePath: '/tmp/wpk.config.js',
 			})
-		).toThrow(KernelError);
+		).toThrow(WPKernelError);
 		expect(child.error).toHaveBeenCalled();
 	});
 
@@ -185,16 +185,16 @@ describe('validateKernelConfig', () => {
 		const config = createValidConfig();
 		delete config.version;
 
-		const result = validateKernelConfig(config, {
+		const result = validateWPKernelConfig(config, {
 			reporter,
-			origin: 'kernel.config.js',
-			sourcePath: '/tmp/kernel.config.js',
+			origin: 'wpk.config.js',
+			sourcePath: '/tmp/wpk.config.js',
 		});
 
 		expect(result.config.version).toBe(1);
 		expect(child.warn).toHaveBeenCalledWith(
 			expect.stringContaining('missing "version"'),
-			expect.objectContaining({ sourcePath: '/tmp/kernel.config.js' })
+			expect.objectContaining({ sourcePath: '/tmp/wpk.config.js' })
 		);
 	});
 
@@ -204,12 +204,12 @@ describe('validateKernelConfig', () => {
 		config.version = 2;
 
 		expect(() =>
-			validateKernelConfig(config, {
+			validateWPKernelConfig(config, {
 				reporter,
-				origin: 'kernel.config.js',
-				sourcePath: '/tmp/kernel.config.js',
+				origin: 'wpk.config.js',
+				sourcePath: '/tmp/wpk.config.js',
 			})
-		).toThrow(KernelError);
+		).toThrow(WPKernelError);
 		expect(child.error).toHaveBeenCalled();
 	});
 
@@ -217,12 +217,12 @@ describe('validateKernelConfig', () => {
 		const { reporter, child } = createMockReporter();
 
 		expect(() =>
-			validateKernelConfig(null, {
+			validateWPKernelConfig(null, {
 				reporter,
-				origin: 'kernel.config.js',
-				sourcePath: '/tmp/kernel.config.js',
+				origin: 'wpk.config.js',
+				sourcePath: '/tmp/wpk.config.js',
 			})
-		).toThrow(KernelError);
+		).toThrow(WPKernelError);
 		expect(child.error).toHaveBeenCalledWith(
 			expect.stringContaining('Invalid kernel config discovered'),
 			expect.objectContaining({
@@ -237,12 +237,12 @@ describe('validateKernelConfig', () => {
 		config.resources.thing!.identity = { type: 'string', param: 'slug' };
 
 		expect(() =>
-			validateKernelConfig(config, {
+			validateWPKernelConfig(config, {
 				reporter,
-				origin: 'kernel.config.js',
-				sourcePath: '/tmp/kernel.config.js',
+				origin: 'wpk.config.js',
+				sourcePath: '/tmp/wpk.config.js',
 			})
-		).toThrow(KernelError);
+		).toThrow(WPKernelError);
 		expect(child.error).toHaveBeenCalledWith(
 			expect.stringContaining('Identity param'),
 			expect.objectContaining({
@@ -263,10 +263,10 @@ describe('validateKernelConfig', () => {
 			mode: 'wp-post',
 		};
 
-		const result = validateKernelConfig(config, {
+		const result = validateWPKernelConfig(config, {
 			reporter,
-			origin: 'kernel.config.js',
-			sourcePath: '/tmp/kernel.config.js',
+			origin: 'wpk.config.js',
+			sourcePath: '/tmp/wpk.config.js',
 		});
 
 		expect(result.config.resources.thing!.storage).toEqual(
@@ -287,17 +287,17 @@ describe('validateKernelConfig', () => {
 		};
 
 		expect(() =>
-			validateKernelConfig(config, {
+			validateWPKernelConfig(config, {
 				reporter,
-				origin: 'kernel.config.js',
-				sourcePath: '/tmp/kernel.config.js',
+				origin: 'wpk.config.js',
+				sourcePath: '/tmp/wpk.config.js',
 			})
-		).toThrow(KernelError);
+		).toThrow(WPKernelError);
 		expect(child.error).toHaveBeenCalled();
 	});
 });
 
-describe('validateKernelConfig helpers', () => {
+describe('validateWPKernelConfig helpers', () => {
 	it('requires at least one resource route when validating', () => {
 		const state = { errors: [] as string[] };
 
@@ -326,7 +326,7 @@ describe('validateKernelConfig helpers', () => {
 
 		expect(() =>
 			normalizeVersion(2 as never, reporter, '/tmp/config.ts')
-		).toThrow(KernelError);
+		).toThrow(WPKernelError);
 	});
 
 	it('warns when identity metadata exists without routes', () => {
@@ -352,7 +352,7 @@ describe('validateKernelConfig helpers', () => {
 		const message = formatValidationErrors(
 			['first', 'second'],
 			'/tmp/config.ts',
-			'kernel.config.ts'
+			'wpk.config.ts'
 		);
 
 		expect(message).toMatch('Invalid kernel config discovered');
@@ -381,7 +381,7 @@ describe('validateKernelConfig helpers', () => {
 				} as ResourceConfig,
 				child as unknown as Reporter
 			)
-		).toThrow(KernelError);
+		).toThrow(WPKernelError);
 
 		expect(child.error).toHaveBeenCalledWith(
 			expect.stringContaining('duplicate route'),

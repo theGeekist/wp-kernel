@@ -1,12 +1,12 @@
 # Showcase plugin
 
-The showcase plugin is included with the repository so you can study a full-featured kernel project. It models a hiring portal with a single `job` resource, DataViews metadata, actions, and generated PHP controllers wired into a WordPress plugin.【F:examples/showcase/kernel.config.ts†L1-L140】
+The showcase plugin is included with the repository so you can study a full-featured kernel project. It models a hiring portal with a single `job` resource, DataViews metadata, actions, and generated PHP controllers wired into a WordPress plugin.【F:examples/showcase/wpk.config.ts†L1-L140】
 
 ## Why this example matters
 
 The project exercises most of the shipped surface area:
 
-- The `job` resource defines REST routes, cache keys, query parameter descriptors, and DataViews metadata that the CLI turns into React fixtures and PHP menu shims.【F:examples/showcase/kernel.config.ts†L1-L340】【F:packages/cli/src/next/builders/ts.ts†L1-L200】
+- The `job` resource defines REST routes, cache keys, query parameter descriptors, and DataViews metadata that the CLI turns into React fixtures and PHP menu shims.【F:examples/showcase/wpk.config.ts†L1-L340】【F:packages/cli/src/next/builders/ts.ts†L1-L200】
 - Actions in `src/actions/jobs/CreateJob.ts` coordinate writes by calling the generated client, invalidating cache keys, and emitting domain events.【F:examples/showcase/src/actions/jobs/CreateJob.ts†L1-L80】
 - `src/views/admin/JobsList.tsx` renders `<ResourceDataView>` against the generated runtime so you can see how the UI bindings work in practice.【F:examples/showcase/src/views/admin/JobsList.tsx†L1-L200】
 - After `wpk generate` and `wpk apply`, PHP controllers live under `inc/Rest/**` and expose permission callbacks that map to the policy hints in the config.【F:examples/showcase/inc/Rest/JobController.php†L1-L200】【F:packages/cli/src/next/builders/php/resourceController.ts†L1-L220】
@@ -25,7 +25,7 @@ After `dev` starts, visit **Kernel → Showcase** in your WordPress admin. The J
 
 ## What to explore
 
-1. `kernel.config.ts` - the single source of truth, including cache keys and DataViews metadata.
+1. `wpk.config.ts` - the single source of truth, including cache keys and DataViews metadata.
 2. `src/resources/job.ts` - the runtime resource definition consumed by the UI.
 3. `src/index.ts` - bootstraps the kernel and attaches UI bindings.
 4. `inc/` - generated PHP controllers after `wpk apply`.

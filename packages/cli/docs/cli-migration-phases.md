@@ -48,7 +48,7 @@ Phase 4 closed with Task 26: after controller safety warnings (Task 25) landed, 
 
 ### IR & Builders
 
-The existing fragments derive most behaviour directly from `wpk.config.*` (current filename `kernel.config.ts`); prefer wiring helpers to output based on the current IR rather than expanding the schema.
+The existing fragments derive most behaviour directly from `wpk.config.*` (current filename `wpk.config.ts`); prefer wiring helpers to output based on the current IR rather than expanding the schema.
 
 | Fragment                 | Inputs                                             | Derived behaviour                                                                                                                       |
 | ------------------------ | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
@@ -166,7 +166,7 @@ These align with `docs/pipeline-integration-tasks.md` and related planning docs.
 
 ## Extension & adapter story
 
-- Adapter extensions are configured via `kernelConfig.adapters.extensions` and executed through `runtime/adapterExtensions.ts`.
+- Adapter extensions are configured via `wpkConfig.adapters.extensions` and executed through `runtime/adapterExtensions.ts`.
 - Each extension receives cloned IR, sandboxed filesystem access, and formatters; they can mutate IR via `updateIr` or queue files via `queueFile`.
 - The adapter DX guide (`docs/adapter-dx.md`) details current capabilities and future recipe plans. Keep it in sync with any helper surface changes.
 

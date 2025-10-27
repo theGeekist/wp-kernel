@@ -1,4 +1,4 @@
-import { KernelError } from '@wpkernel/core/contracts';
+import { WPKernelError } from '@wpkernel/core/contracts';
 import type {
 	PhpExprAssign,
 	PhpExprArrayDimFetch,
@@ -46,7 +46,7 @@ function buildResource(overrides: WpPostStorageOverrides = {}) {
 }
 
 describe('wp-post mutation helpers', () => {
-	it('throws a KernelError when the resource does not use wp-post storage', () => {
+	it('throws a WPKernelError when the resource does not use wp-post storage', () => {
 		const resource = makeWpTaxonomyResource({
 			name: 'books',
 			schemaKey: 'book',
@@ -58,7 +58,7 @@ describe('wp-post mutation helpers', () => {
 				pascalName: 'Book',
 				identity: IDENTITY,
 			})
-		).toThrow(KernelError);
+		).toThrow(WPKernelError);
 	});
 
 	it('returns early when no meta fields are configured', () => {

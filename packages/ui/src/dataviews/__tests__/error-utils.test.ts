@@ -1,4 +1,4 @@
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import type { Reporter } from '@wpkernel/core/reporter';
 import { normalizeActionError } from '../error-utils';
 
@@ -21,7 +21,7 @@ describe('normalizeActionError', () => {
 
 	it('wraps validation errors as DataViewsActionError', () => {
 		const reporter = createReporter();
-		const original = new KernelError('ValidationError', {
+		const original = new WPKernelError('ValidationError', {
 			message: 'Invalid input',
 			context: { field: 'title' },
 		});
@@ -29,7 +29,7 @@ describe('normalizeActionError', () => {
 		const normalized = normalizeActionError(original, context, reporter);
 
 		expect(normalized).not.toBe(original);
-		expect(normalized).toBeInstanceOf(KernelError);
+		expect(normalized).toBeInstanceOf(WPKernelError);
 		expect(normalized.code).toBe('ValidationError');
 		expect(normalized.context).toEqual(
 			expect.objectContaining({ actionId: 'delete', resource: 'jobs' })
@@ -38,7 +38,7 @@ describe('normalizeActionError', () => {
 
 	it('maps policy denied errors with default message', () => {
 		const reporter = createReporter();
-		const denied = new KernelError('PolicyDenied', {
+		const denied = new WPKernelError('PolicyDenied', {
 			context: { policyKey: 'jobs.delete' },
 		});
 		denied.message = '';
@@ -52,9 +52,9 @@ describe('normalizeActionError', () => {
 		);
 	});
 
-	it('wraps transport errors using KernelError.wrap', () => {
+	it('wraps transport errors using WPKernelError.wrap', () => {
 		const reporter = createReporter();
-		const transport = new KernelError('TransportError', {
+		const transport = new WPKernelError('TransportError', {
 			message: 'Network down',
 		});
 
@@ -79,11 +79,11 @@ describe('normalizeActionError', () => {
 		);
 	});
 
-	it('handles non-error values by constructing KernelError', () => {
+	it('handles non-error values by constructing WPKernelError', () => {
 		const reporter = createReporter();
 		const normalized = normalizeActionError('fail', context, reporter);
 
-		expect(normalized).toBeInstanceOf(KernelError);
+		expect(normalized).toBeInstanceOf(WPKernelError);
 		expect(normalized.code).toBe('UnknownError');
 		expect(reporter.error).toHaveBeenCalledWith(
 			'DataViews action failed with non-error value',

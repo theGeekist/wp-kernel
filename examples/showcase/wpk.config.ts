@@ -349,7 +349,7 @@ type ShowcaseResources = {
 	job: ResourceConfig<Job, JobListParams> & { schema: string | 'auto' };
 };
 
-type ShowcaseKernelConfigShape = {
+type ShowcaseWPKernelConfigShape = {
 	version: 1;
 	namespace: string;
 	schemas: Record<string, unknown>;
@@ -357,7 +357,7 @@ type ShowcaseKernelConfigShape = {
 };
 
 // For CLI config guidance see https://github.com/theGeekist/wp-kernel/blob/main/packages/cli/docs/cli-migration-phases.md#authoring-safety-lint-rules
-export const kernelConfig = {
+export const wpkConfig = {
 	version: 1,
 	namespace: 'wp-kernel-showcase',
 	schemas: {},
@@ -367,6 +367,6 @@ export const kernelConfig = {
 			schema: 'auto',
 		},
 	},
-} satisfies ShowcaseKernelConfigShape;
+} satisfies ShowcaseWPKernelConfigShape;
 
-export type ShowcaseKernelConfig = typeof kernelConfig;
+export type ShowcaseWPKernelConfig = typeof wpkConfig;

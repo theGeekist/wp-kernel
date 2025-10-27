@@ -1,7 +1,7 @@
 /**
  * Base Error Class for WP Kernel
  *
- * All errors in the framework extend from KernelError. This provides consistent
+ * All errors in the framework extend from WPKernelError. This provides consistent
  * structure, serialization, and debugging capabilities.
  *
  * @module
@@ -19,13 +19,13 @@ import type {
  *
  * @example
  * ```typescript
- * throw new KernelError('PolicyDenied', {
+ * throw new WPKernelError('PolicyDenied', {
  *   message: 'User lacks required capability',
  *   context: { policyKey: 'things.manage', userId: 123 }
  * });
  * ```
  */
-export class KernelError extends Error {
+export class WPKernelError extends Error {
 	/**
 	 * Error code - identifies the type of error
 	 */
@@ -42,7 +42,7 @@ export class KernelError extends Error {
 	public readonly context?: ErrorContext;
 
 	/**
-	 * Create a new KernelError
+	 * Create a new WPKernelError
 	 *
 	 * @param code            - Error code identifying the error type
 	 * @param options         - Error options
@@ -58,7 +58,8 @@ export class KernelError extends Error {
 			context?: ErrorContext;
 		} = {}
 	) {
-		const message = options.message || KernelError.getDefaultMessage(code);
+		const message =
+			options.message || WPKernelError.getDefaultMessage(code);
 
 		super(message);
 
@@ -67,13 +68,13 @@ export class KernelError extends Error {
 			Error.captureStackTrace(this, this.constructor);
 		}
 
-		this.name = 'KernelError';
+		this.name = 'WPKernelError';
 		this.code = code;
 		this.data = options.data;
 		this.context = options.context;
 
 		// Set prototype explicitly (required for custom errors in TypeScript)
-		Object.setPrototypeOf(this, KernelError.prototype);
+		Object.setPrototypeOf(this, WPKernelError.prototype);
 	}
 
 	/**
@@ -93,13 +94,13 @@ export class KernelError extends Error {
 	}
 
 	/**
-	 * Create KernelError from serialized format
+	 * Create WPKernelError from serialized format
 	 *
 	 * @param serialized - Serialized error object
-	 * @return New KernelError instance
+	 * @return New WPKernelError instance
 	 */
-	public static fromJSON(serialized: SerializedError): KernelError {
-		const error = new KernelError(serialized.code, {
+	public static fromJSON(serialized: SerializedError): WPKernelError {
+		const error = new WPKernelError(serialized.code, {
 			message: serialized.message,
 			data: serialized.data,
 			context: serialized.context,
@@ -136,29 +137,29 @@ export class KernelError extends Error {
 	}
 
 	/**
-	 * Check if an error is a KernelError
+	 * Check if an error is a WPKernelError
 	 *
 	 * @param error - Error to check
-	 * @return True if error is a KernelError
+	 * @return True if error is a WPKernelError
 	 */
-	public static isKernelError(error: unknown): error is KernelError {
-		return error instanceof KernelError;
+	public static isWPKernelError(error: unknown): error is WPKernelError {
+		return error instanceof WPKernelError;
 	}
 
 	/**
-	 * Wrap a native Error into a KernelError
+	 * Wrap a native Error into a WPKernelError
 	 *
 	 * @param error   - Native error to wrap
 	 * @param code    - Error code to assign
 	 * @param context - Additional context
-	 * @return New KernelError wrapping the original
+	 * @return New WPKernelError wrapping the original
 	 */
 	public static wrap(
 		error: Error,
 		code: ErrorCode = 'UnknownError',
 		context?: ErrorContext
-	): KernelError {
-		return new KernelError(code, {
+	): WPKernelError {
+		return new WPKernelError(code, {
 			message: error.message,
 			data: {
 				originalError: error,

@@ -14,6 +14,6 @@
 		"types": ["node"],
 		"paths": "__WPK_TSCONFIG_PATHS__"
 	},
-	"include": ["src/**/*", ".generated/types/**/*.d.ts", "kernel.config.ts"],
+	"include": ["src/**/*", ".generated/types/**/*.d.ts", "wpk.config.ts"],
 	"exclude": ["node_modules", "dist"]
 }

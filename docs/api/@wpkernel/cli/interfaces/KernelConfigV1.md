@@ -2,9 +2,9 @@
 
 ---
 
-[WP Kernel API](../../../README.md) / [@wpkernel/cli](../README.md) / KernelConfigV1
+[WP Kernel API](../../../README.md) / [@wpkernel/cli](../README.md) / WPKernelConfigV1
 
-# Interface: KernelConfigV1
+# Interface: WPKernelConfigV1
 
 Shape of a v1 kernel configuration object.
 

@@ -4,13 +4,13 @@
  * Wraps @wordpress/api-fetch with:
  * - Request ID generation for correlation
  * - Event emission (wpk.resource.request/response/error)
- * - Error normalization to KernelError
+ * - Error normalization to WPKernelError
  * - _fields query parameter support
  *
  * @see Product Specification § 4.1 Resources
  */
 
-import { KernelError } from '../error/KernelError';
+import { WPKernelError } from '../error/WPKernelError';
 import { WPK_EVENTS } from '../contracts/index.js';
 import { createNoopReporter, getKernelReporter } from '../reporter';
 import type { Reporter } from '../reporter';
@@ -109,7 +109,7 @@ function buildUrl(
 }
 
 /**
- * Normalize WordPress REST API error to KernelError
+ * Normalize WordPress REST API error to WPKernelError
  * @param error
  * @param requestId
  * @param method
@@ -120,9 +120,9 @@ function normalizeError(
 	requestId: string,
 	method: string,
 	path: string
-): KernelError {
-	// Already a KernelError
-	if (error instanceof KernelError) {
+): WPKernelError {
+	// Already a WPKernelError
+	if (error instanceof WPKernelError) {
 		return error;
 	}
 
@@ -139,7 +139,7 @@ function normalizeError(
 			data?: { status?: number };
 		};
 
-		return new KernelError('ServerError', {
+		return new WPKernelError('ServerError', {
 			message: wpError.message,
 			data: {
 				code: wpError.code,
@@ -155,7 +155,7 @@ function normalizeError(
 
 	// Network/transport error
 	if (error instanceof Error) {
-		return new KernelError('TransportError', {
+		return new WPKernelError('TransportError', {
 			message: error.message,
 			context: {
 				requestId,
@@ -167,7 +167,7 @@ function normalizeError(
 	}
 
 	// Unknown error
-	return new KernelError('TransportError', {
+	return new WPKernelError('TransportError', {
 		message: 'Unknown transport error',
 		context: {
 			requestId,
@@ -194,7 +194,7 @@ function resolveApiFetch(
 	fullPath: string
 ): ApiFetchFn {
 	if (typeof window === 'undefined') {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: 'Cannot execute fetch during server-side rendering (SSR).',
 			context: { requestId, method, path: fullPath },
 		});
@@ -211,7 +211,7 @@ function resolveApiFetch(
 	const apiFetch = globalWp?.apiFetch;
 
 	if (!apiFetch) {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message:
 				'@wordpress/api-fetch is not available. Ensure it is loaded as a dependency.',
 			context: { requestId, method, path: fullPath },
@@ -274,7 +274,7 @@ function emitResponseEvent<T>(
 function emitErrorEvent(
 	hooks: ReturnType<typeof getHooks>,
 	request: TransportRequest,
-	error: KernelError,
+	error: WPKernelError,
 	duration: number
 ): void {
 	if (!hooks?.doAction) {
@@ -309,7 +309,7 @@ function emitErrorEvent(
  * @template T - Expected response data type
  * @param    request - Request configuration
  * @return Promise resolving to response with data and metadata
- * @throws KernelError on request failure
+ * @throws WPKernelError on request failure
  *
  * @example
  * ```typescript

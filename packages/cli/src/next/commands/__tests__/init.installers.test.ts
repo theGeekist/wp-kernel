@@ -1,4 +1,4 @@
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import {
 	installComposerDependencies,
 	installNodeDependencies,
@@ -37,12 +37,12 @@ describe('init installers', () => {
 
 		await expect(
 			installNodeDependencies('/tmp/project', { exec })
-		).rejects.toBeInstanceOf(KernelError);
+		).rejects.toBeInstanceOf(WPKernelError);
 
 		await installNodeDependencies('/tmp/project', { exec }).catch(
 			(error) => {
-				expect(error).toBeInstanceOf(KernelError);
-				const kernelError = error as KernelError;
+				expect(error).toBeInstanceOf(WPKernelError);
+				const kernelError = error as WPKernelError;
 				expect(kernelError.code).toBe('DeveloperError');
 				expect(kernelError.message).toBe(
 					'Failed to install npm dependencies.'
@@ -85,13 +85,13 @@ describe('init installers', () => {
 
 		await expect(
 			installComposerDependencies('/tmp/project', { exec: failingExec })
-		).rejects.toBeInstanceOf(KernelError);
+		).rejects.toBeInstanceOf(WPKernelError);
 
 		await installComposerDependencies('/tmp/project', {
 			exec: failingExec,
 		}).catch((error) => {
-			expect(error).toBeInstanceOf(KernelError);
-			const kernelError = error as KernelError;
+			expect(error).toBeInstanceOf(WPKernelError);
+			const kernelError = error as WPKernelError;
 			expect(kernelError.code).toBe('DeveloperError');
 			expect(kernelError.message).toBe(
 				'Failed to install composer dependencies.'

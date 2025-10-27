@@ -169,14 +169,14 @@ export const CreatePost = defineAction({
 ```typescript
 import { defineAction } from '@wpkernel/core/actions';
 import { post } from '@/resources/post';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 
 export const CreatePost = defineAction({
 	name: 'Post.Create',
 	handler: async (ctx, { title, content, notifySubscribers = false }) => {
 		// Validation
 		if (!title?.trim()) {
-			throw new KernelError('ValidationError', {
+			throw new WPKernelError('ValidationError', {
 				message: 'Post title is required',
 				field: 'title',
 			});
@@ -249,7 +249,7 @@ function PostForm() {
         content: form.get('content') as string,
       });
     } catch {
-      // error already normalised to KernelError and exposed via `error`
+      // error already normalised to WPKernelError and exposed via `error`
     }
   };
 

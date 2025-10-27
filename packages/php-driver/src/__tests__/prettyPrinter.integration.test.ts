@@ -66,7 +66,7 @@ describe('pretty printer ESM integration', () => {
 		);
 		fs.writeFileSync(
 			path.join(stubModuleRoot, 'error.js'),
-			'export class KernelError extends Error {}',
+			'export class WPKernelError extends Error {}',
 			'utf8'
 		);
 

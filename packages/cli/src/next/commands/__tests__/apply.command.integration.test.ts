@@ -37,7 +37,7 @@ describe('NextApplyCommand integration', () => {
 				.fn()
 				.mockResolvedValue(buildLoadedConfig(workspace));
 			const ApplyCommand = ApplyModule.buildApplyCommand({
-				loadKernelConfig: loadConfig,
+				loadWPKernelConfig: loadConfig,
 			});
 			const command = new ApplyCommand();
 			const { stdout } = assignCommandContext(command, {
@@ -74,7 +74,7 @@ describe('NextApplyCommand integration', () => {
 				.fn()
 				.mockResolvedValue(buildLoadedConfig(workspace));
 			const ApplyCommand = ApplyModule.buildApplyCommand({
-				loadKernelConfig: loadConfig,
+				loadWPKernelConfig: loadConfig,
 			});
 			const command = new ApplyCommand();
 			const { stdout } = assignCommandContext(command, {
@@ -112,7 +112,7 @@ describe('NextApplyCommand integration', () => {
 				.fn()
 				.mockResolvedValue(buildLoadedConfig(workspace));
 			const ApplyCommand = ApplyModule.buildApplyCommand({
-				loadKernelConfig: loadConfig,
+				loadWPKernelConfig: loadConfig,
 			});
 			const command = new ApplyCommand();
 			const { stdout } = assignCommandContext(command, {

@@ -15,13 +15,13 @@ The sections below catalogue what you can rely on right now and describe how we 
 
 ## 1. Configuration entry points
 
-Projects register adapters in `wpk.config.*` (current filename `kernel.config.ts`, scheduled to be renamed) using the `adapters.extensions` hook (`packages/cli/src/config/types.ts:113-118`):
+Projects register adapters in `wpk.config.*` (current filename `wpk.config.ts`, scheduled to be renamed) using the `adapters.extensions` hook (`packages/cli/src/config/types.ts:113-118`):
 
 ```ts
-import type { KernelConfigV1 } from '@wpkernel/cli';
+import type { WPKernelConfigV1 } from '@wpkernel/cli';
 import { companyTelemetry } from './adapters/company-telemetry';
 
-export const kernelConfig: KernelConfigV1 = {
+export const wpkConfig: WPKernelConfigV1 = {
 	version: 1,
 	namespace: 'demo-plugin',
 	schemas: {},
@@ -36,7 +36,7 @@ export const kernelConfig: KernelConfigV1 = {
 
 - Each factory receives an `AdapterContext` with the loaded config, reporter, and sanitised namespace (`packages/cli/src/config/types.ts:90-110`).
 - The factory returns one extension, multiple extensions, or nothing (to opt out in a given environment).
-- Invalid extensions raise a `KernelError('DeveloperError', …)` and abort the run before any files are written (`packages/cli/src/next/runtime/adapterExtensions.ts:100-134`).
+- Invalid extensions raise a `WPKernelError('DeveloperError', …)` and abort the run before any files are written (`packages/cli/src/next/runtime/adapterExtensions.ts:100-134`).
 
 > **Illustrative note:** the old CLI exposed `adapters.php` for string printers. The next pipeline prints PHP from AST programs, so adapters should integrate via the AST APIs described below.
 
@@ -74,7 +74,7 @@ export interface AdapterExtension {
 - `ir` - a mutable clone of the IR (`IRv1`).
 - `updateIr(nextIr)` - replace the clone that subsequent extensions (and the builders) will consume.
 - `outputDir` - absolute path to `.generated/` inside the active workspace.
-- `configDirectory` - directory that contains the active `kernel.config.*` file.
+- `configDirectory` - directory that contains the active `wpk.config.*` file.
 - `tempDir` - a sandbox folder dedicated to this extension.
 - `queueFile(filePath, contents)` - stage a file for later commit (paths may be absolute or relative to the workspace).
 - `formatPhp`, `formatTs` - placeholder formatters (currently pass-through; see §6).
@@ -197,7 +197,7 @@ Until these milestones land, adapters should continue to lean on IR rewrites and
 
 | Concern              | What exists today                                           | Location                                                                                          |
 | -------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| Registering adapters | `config.adapters.extensions` (on `KernelConfigV1`)          | `packages/cli/src/config/types.ts:113-118`                                                        |
+| Registering adapters | `config.adapters.extensions` (on `WPKernelConfigV1`)        | `packages/cli/src/config/types.ts:113-118`                                                        |
 | Extension execution  | Runs during `generate`, serial order, sandboxed writes      | `packages/cli/src/next/runtime/adapterExtensions.ts:100-170`                                      |
 | Updating the IR      | Call `updateIr` inside `apply`                              | `packages/cli/src/adapters/extensions.ts:64-120`                                                  |
 | Staging files        | `queueFile` + sandbox commit                                | `packages/cli/src/adapters/__tests__/extensions.test.ts`                                          |

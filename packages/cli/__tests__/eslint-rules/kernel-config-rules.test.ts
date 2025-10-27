@@ -22,11 +22,11 @@ const tester = new RuleTester({
 	},
 });
 
-const filename = '/workspace/example/kernel.config.ts';
+const filename = '/workspace/example/wpk.config.ts';
 
 const baseConfigHeader = `const normalizeKeyValue = (value: unknown) => value ?? null;\n`;
 
-const baseConfigFooter = `\nexport const kernelConfig = {\n        version: 1,\n        namespace: 'demo',\n        schemas: {},\n        resources: {\n                thing: resource,\n        },\n};\n`;
+const baseConfigFooter = `\nexport const wpkConfig = {\n        version: 1,\n        namespace: 'demo',\n        schemas: {},\n        resources: {\n                thing: resource,\n        },\n};\n`;
 
 tester.run('config-consistency', configConsistencyRule, {
 	valid: [

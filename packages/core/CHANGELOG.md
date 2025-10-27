@@ -101,7 +101,7 @@
     - Comprehensive documentation (SCRIPTS.md, SCRIPTS_AUDIT.md)
 
     **WordPress Integration**:
-    - Error tests (KernelError, ServerError, TransportError)
+    - Error tests (WPKernelError, ServerError, TransportError)
     - Resources with cache invalidation + auto-retry
     - wp-env configuration (WordPress 6.8 + PHP 8.3)
     - Changesets for version management

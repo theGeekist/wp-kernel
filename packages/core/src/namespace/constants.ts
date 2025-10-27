@@ -108,8 +108,8 @@ export type WPKEvent = (typeof WPK_EVENTS)[keyof typeof WPK_EVENTS];
  * These filenames/keys are consumed by the CLI and runtime config loaders.
  */
 export const WPK_CONFIG_SOURCES = {
-	WPK_CONFIG_TS: 'kernel.config.ts',
-	WPK_CONFIG_JS: 'kernel.config.js',
+	WPK_CONFIG_TS: 'wpk.config.ts',
+	WPK_CONFIG_JS: 'wpk.config.js',
 	PACKAGE_JSON_WPK: 'package.json#wpk',
 } as const;
 

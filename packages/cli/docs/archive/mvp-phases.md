@@ -2,7 +2,7 @@
 
 > Workstream aligned with the [MVP CLI Spec](./mvp-cli-spec.md). Each phase is narrowly scoped so a single agent iteration can complete it without inventing new patterns. Always reference the cited sections before coding.
 
-Test harness: `examples/test-the-cli/kernel.config.ts` is a minimal project used for CLI smoke tests. Treat it as throw-away; adjust the config as needed during development but avoid committing transient changes.
+Test harness: `examples/test-the-cli/wpk.config.ts` is a minimal project used for CLI smoke tests. Treat it as throw-away; adjust the config as needed during development but avoid committing transient changes.
 
 Phase 0 audit outcomes are captured in [`docs/mvp-phase-0-checklist.md`](./docs/mvp-phase-0-checklist.md); remaining work begins at Phase 1A below.
 
@@ -50,7 +50,7 @@ Finally you find that imports from other packages are sometimes missing, it usua
 - Run `pnpm --filter @wpkernel/cli build` after changes (TypeScript + Vite) to catch regressions.
 - Honour repo invariants (no deep imports, no plain `Error`, etc.) listed in `AGENTS.md`.
 - When a phase extends or creates documentation, keep specs (`mvp-cli-spec.md`, discussion notes) in sync.
-- **CLI smoke test:** before signing off a phase that touches generation, printers, apply, or command wiring, run the CLI against `examples/test-the-cli/kernel.config.ts`: 1. `pnpm --filter @wpkernel/core build && pnpm --filter @wpkernel/cli build` 2. `cd examples/test-the-cli` 3. `node ../../packages/cli/bin/wpk.js generate --dry-run` 4. `node ../../packages/cli/bin/wpk.js generate`
+- **CLI smoke test:** before signing off a phase that touches generation, printers, apply, or command wiring, run the CLI against `examples/test-the-cli/wpk.config.ts`: 1. `pnpm --filter @wpkernel/core build && pnpm --filter @wpkernel/cli build` 2. `cd examples/test-the-cli` 3. `node ../../packages/cli/bin/wpk.js generate --dry-run` 4. `node ../../packages/cli/bin/wpk.js generate`
 
 ---
 
@@ -273,7 +273,7 @@ packages/cli/src/printers/blocks/
 
 **Deliverables:** Rule implementations, fixture-backed tests, updated lint config/docs.
 
-**DoD:** Running ESLint against the fixtures surfaces the expected diagnostics; docs explain how the rules relate to `kernel.config.ts`.
+**DoD:** Running ESLint against the fixtures surfaces the expected diagnostics; docs explain how the rules relate to `wpk.config.ts`.
 
 **Dependencies:** Phase 1A, 1B.
 
@@ -289,7 +289,7 @@ packages/cli/src/printers/blocks/
 
 **Scope:**
 
-- Replace stub with scaffolding creating: `kernel.config.ts`, `src/index.ts`, `tsconfig.json`, ESLint config, package scripts.
+- Replace stub with scaffolding creating: `wpk.config.ts`, `src/index.ts`, `tsconfig.json`, ESLint config, package scripts.
 - Respect `--force` flag; abort safely when files exist.
 
 **Deliverables:** Updated `init` command + templates + tests.

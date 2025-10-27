@@ -1,10 +1,10 @@
-import type { KernelConfigV1 } from '../../../config/types';
-import { buildIr } from '../../buildIr';
+import type { WPKernelConfigV1 } from '../../../config/types';
+import { buildIr } from '../buildIr';
 import {
 	FIXTURE_CONFIG_PATH,
 	canonicalHash,
 	createBaseConfig,
-} from '../../shared/test-helpers';
+} from '../shared/test-helpers';
 
 describe('buildIr - defaults and inference', () => {
 	it('derives default cache keys when not provided', async () => {
@@ -24,12 +24,12 @@ describe('buildIr - defaults and inference', () => {
 					},
 				},
 			},
-		} as unknown as KernelConfigV1['resources'];
+		} as unknown as WPKernelConfigV1['resources'];
 
 		const ir = await buildIr({
 			config,
 			sourcePath: FIXTURE_CONFIG_PATH,
-			origin: 'kernel.config.ts',
+			origin: 'wpk.config.ts',
 			namespace: config.namespace,
 		});
 
@@ -70,12 +70,12 @@ describe('buildIr - defaults and inference', () => {
 					],
 				},
 			},
-		} as unknown as KernelConfigV1['resources'];
+		} as unknown as WPKernelConfigV1['resources'];
 
 		const ir = await buildIr({
 			config,
 			sourcePath: FIXTURE_CONFIG_PATH,
-			origin: 'kernel.config.ts',
+			origin: 'wpk.config.ts',
 			namespace: config.namespace,
 		});
 
@@ -124,12 +124,12 @@ describe('buildIr - defaults and inference', () => {
 					},
 				},
 			},
-		} as unknown as KernelConfigV1['resources'];
+		} as unknown as WPKernelConfigV1['resources'];
 
 		const ir = await buildIr({
 			config,
 			sourcePath: FIXTURE_CONFIG_PATH,
-			origin: 'kernel.config.ts',
+			origin: 'wpk.config.ts',
 			namespace: config.namespace,
 		});
 
@@ -163,12 +163,12 @@ describe('buildIr - defaults and inference', () => {
 					},
 				},
 			},
-		} as unknown as KernelConfigV1['resources'];
+		} as unknown as WPKernelConfigV1['resources'];
 
 		const ir = await buildIr({
 			config,
 			sourcePath: FIXTURE_CONFIG_PATH,
-			origin: 'kernel.config.ts',
+			origin: 'wpk.config.ts',
 			namespace: config.namespace,
 		});
 
@@ -201,12 +201,12 @@ describe('buildIr - defaults and inference', () => {
 					},
 				},
 			},
-		} as unknown as KernelConfigV1['resources'];
+		} as unknown as WPKernelConfigV1['resources'];
 
 		const ir = await buildIr({
 			config,
 			sourcePath: FIXTURE_CONFIG_PATH,
-			origin: 'kernel.config.ts',
+			origin: 'wpk.config.ts',
 			namespace: config.namespace,
 		});
 
@@ -231,12 +231,12 @@ describe('buildIr - defaults and inference', () => {
 					},
 				},
 			},
-		} as unknown as KernelConfigV1['resources'];
+		} as unknown as WPKernelConfigV1['resources'];
 
 		const ir = await buildIr({
 			config,
 			sourcePath: FIXTURE_CONFIG_PATH,
-			origin: 'kernel.config.ts',
+			origin: 'wpk.config.ts',
 			namespace: config.namespace,
 		});
 
@@ -260,12 +260,12 @@ describe('buildIr - defaults and inference', () => {
 					},
 				},
 			},
-		} as unknown as KernelConfigV1['resources'];
+		} as unknown as WPKernelConfigV1['resources'];
 
 		const ir = await buildIr({
 			config,
 			sourcePath: FIXTURE_CONFIG_PATH,
-			origin: 'kernel.config.ts',
+			origin: 'wpk.config.ts',
 			namespace: config.namespace,
 		});
 
@@ -289,12 +289,12 @@ describe('buildIr - defaults and inference', () => {
 				},
 				storage: { mode: 'wp-post' },
 			},
-		} as unknown as KernelConfigV1['resources'];
+		} as unknown as WPKernelConfigV1['resources'];
 
 		const ir = await buildIr({
 			config,
 			sourcePath: FIXTURE_CONFIG_PATH,
-			origin: 'kernel.config.ts',
+			origin: 'wpk.config.ts',
 			namespace: config.namespace,
 		});
 
@@ -340,12 +340,12 @@ describe('buildIr - defaults and inference', () => {
 				},
 				storage: { mode: 'wp-post' },
 			},
-		} as unknown as KernelConfigV1['resources'];
+		} as unknown as WPKernelConfigV1['resources'];
 
 		const ir = await buildIr({
 			config,
 			sourcePath: FIXTURE_CONFIG_PATH,
-			origin: 'kernel.config.ts',
+			origin: 'wpk.config.ts',
 			namespace: config.namespace,
 		});
 
@@ -378,7 +378,7 @@ describe('buildIr - defaults and inference', () => {
 				path: './schemas/todo.schema.json',
 				generated: { types: 'types/second.d.ts' },
 			},
-		} as KernelConfigV1['schemas'];
+		} as WPKernelConfigV1['schemas'];
 		config.resources = {
 			one: {
 				name: 'duplicate',
@@ -400,12 +400,12 @@ describe('buildIr - defaults and inference', () => {
 					},
 				},
 			},
-		} as unknown as KernelConfigV1['resources'];
+		} as unknown as WPKernelConfigV1['resources'];
 
 		const ir = await buildIr({
 			config,
 			sourcePath: FIXTURE_CONFIG_PATH,
-			origin: 'kernel.config.ts',
+			origin: 'wpk.config.ts',
 			namespace: config.namespace,
 		});
 

@@ -1,4 +1,4 @@
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type {
 	BuildIrOptions,
@@ -83,7 +83,7 @@ function assertCoreFragmentsExecuted(
 
 	if (missing.size > 0) {
 		const missingList = Array.from(missing).sort().join(', ');
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message: `IR finalisation aborted because the following fragments did not execute: ${missingList}.`,
 		});
 	}
@@ -96,21 +96,21 @@ export function finalizeIrDraft(
 	assertCoreFragmentsExecuted(helpers);
 
 	if (!draft.meta) {
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message:
 				'IR meta fragment did not set metadata before pipeline completion.',
 		});
 	}
 
 	if (!draft.policyMap) {
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message:
 				'IR policy map fragment did not resolve policy map before pipeline completion.',
 		});
 	}
 
 	if (!draft.php) {
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message:
 				'IR PHP fragment did not configure PHP project before pipeline completion.',
 		});

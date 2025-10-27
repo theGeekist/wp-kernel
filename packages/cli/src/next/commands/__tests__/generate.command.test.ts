@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import {
 	assignCommandContext,
 	createReporterMock,
@@ -109,10 +109,10 @@ describe('NextGenerateCommand', () => {
 		const { pipeline, runMock } = createPipelineStub(workspace);
 		const reporter = createReporterMock();
 
-		const loadKernelConfig = jest.fn().mockResolvedValue({
+		const loadWPKernelConfig = jest.fn().mockResolvedValue({
 			config: { version: 1 },
-			sourcePath: path.join(workspace.root, 'kernel.config.ts'),
-			configOrigin: 'kernel.config.ts',
+			sourcePath: path.join(workspace.root, 'wpk.config.ts'),
+			configOrigin: 'wpk.config.ts',
 			namespace: 'Demo',
 		});
 
@@ -120,7 +120,7 @@ describe('NextGenerateCommand', () => {
 		const validateGeneratedImports = jest.fn().mockResolvedValue(undefined);
 
 		const GenerateCommand = buildGenerateCommand({
-			loadKernelConfig,
+			loadWPKernelConfig,
 			buildWorkspace: jest.fn().mockReturnValue(workspace),
 			createPipeline: jest.fn().mockReturnValue(pipeline),
 			registerFragments: jest.fn(),
@@ -177,10 +177,10 @@ describe('NextGenerateCommand', () => {
 		const { pipeline, runMock } = createPipelineStub(workspace);
 		const reporter = createReporterMock();
 
-		const loadKernelConfig = jest.fn().mockResolvedValue({
+		const loadWPKernelConfig = jest.fn().mockResolvedValue({
 			config: { version: 1 },
-			sourcePath: path.join(workspace.root, 'kernel.config.ts'),
-			configOrigin: 'kernel.config.ts',
+			sourcePath: path.join(workspace.root, 'wpk.config.ts'),
+			configOrigin: 'wpk.config.ts',
 			namespace: 'Demo',
 		});
 
@@ -188,7 +188,7 @@ describe('NextGenerateCommand', () => {
 		const validateGeneratedImports = jest.fn().mockResolvedValue(undefined);
 
 		const GenerateCommand = buildGenerateCommand({
-			loadKernelConfig,
+			loadWPKernelConfig,
 			buildWorkspace: jest.fn().mockReturnValue(workspace),
 			createPipeline: jest.fn().mockReturnValue(pipeline),
 			registerFragments: jest.fn(),
@@ -260,15 +260,15 @@ describe('NextGenerateCommand', () => {
 			} satisfies PipelineRunResult;
 		});
 
-		const loadKernelConfig = jest.fn().mockResolvedValue({
+		const loadWPKernelConfig = jest.fn().mockResolvedValue({
 			config: { version: 1 },
-			sourcePath: path.join(workspace.root, 'kernel.config.ts'),
-			configOrigin: 'kernel.config.ts',
+			sourcePath: path.join(workspace.root, 'wpk.config.ts'),
+			configOrigin: 'wpk.config.ts',
 			namespace: 'Demo',
 		});
 
 		const GenerateCommand = buildGenerateCommand({
-			loadKernelConfig,
+			loadWPKernelConfig,
 			buildWorkspace: jest.fn().mockReturnValue(workspace),
 			createPipeline: jest.fn().mockReturnValue(pipeline),
 			registerFragments: jest.fn(),
@@ -300,20 +300,20 @@ describe('NextGenerateCommand', () => {
 		const reporter = createReporterMock();
 
 		const { pipeline } = createPipelineStub(workspace, async () => {
-			throw new KernelError('ValidationError', {
+			throw new WPKernelError('ValidationError', {
 				message: 'pipeline failed',
 			});
 		});
 
-		const loadKernelConfig = jest.fn().mockResolvedValue({
+		const loadWPKernelConfig = jest.fn().mockResolvedValue({
 			config: { version: 1 },
-			sourcePath: path.join(workspace.root, 'kernel.config.ts'),
-			configOrigin: 'kernel.config.ts',
+			sourcePath: path.join(workspace.root, 'wpk.config.ts'),
+			configOrigin: 'wpk.config.ts',
 			namespace: 'Demo',
 		});
 
 		const GenerateCommand = buildGenerateCommand({
-			loadKernelConfig,
+			loadWPKernelConfig,
 			buildWorkspace: jest.fn().mockReturnValue(workspace),
 			createPipeline: jest.fn().mockReturnValue(pipeline),
 			registerFragments: jest.fn(),
