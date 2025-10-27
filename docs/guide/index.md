@@ -43,6 +43,8 @@ WP Kernel revolves around a handful of primitives that cooperate rather than com
 
 The diagram mirrors the way WordPress ships features today. Views render blocks backed by bindings and Interactivity controllers. Actions coordinate writes. Resources speak REST to WordPress, while events and jobs make the system observable and resilient.
 
+To keep those responsibilities modular, the framework is preparing a foundation package that exposes shared contracts, error types, and namespace helpers without bundling the runtime. The existing runtime will shift to `@wpkernel/client`, while a new `@wpkernel/core` package hosts the common building blocks. [Read the proposal →](/guide/foundation-layer)
+
 ## The core primitives
 
 ### Resources
