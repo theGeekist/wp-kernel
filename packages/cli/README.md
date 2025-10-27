@@ -83,6 +83,15 @@ This scaffolds a Vite-ready plugin with kernel config, TypeScript/ESLint setup, 
 - Node.js 20+
 - pnpm 9+ (recommended)
 
+## Peer dependencies
+
+Install the workspace builds for `@wpkernel/core`, `@wpkernel/php-json-ast`,
+and `@wpkernel/test-utils` alongside the CLI (`workspace:*` ranges). These
+packages stay external in the published build so generators can share runtime
+contracts with the framework. Run `pnpm lint:peers` (or
+`pnpm exec tsx scripts/check-framework-peers.ts`) to verify the versions before
+shipping changes.
+
 ## Adapter extensions
 
 Adapters can register extension factories to participate in the generation pipeline without mutating `.generated/` directly. Each extension runs inside an isolated sandbox; queued files are only written after the core printers succeed.
