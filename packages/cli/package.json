@@ -39,9 +39,9 @@
 			"default": "./dist/config/index.js"
 		},
 		"./ir": {
-			"types": "./dist/ir/index.d.ts",
-			"import": "./dist/ir/index.js",
-			"default": "./dist/ir/index.js"
+			"types": "./dist/next/ir/index.d.ts",
+			"import": "./dist/next/ir/index.js",
+			"default": "./dist/next/ir/index.js"
 		},
 		"./policy-map": {
 			"types": "./dist/policy-map.d.ts",
