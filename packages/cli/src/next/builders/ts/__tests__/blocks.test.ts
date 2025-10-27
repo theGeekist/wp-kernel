@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { createJsBlocksBuilder } from '../blocks';
-import type { IRv1 } from '../../../../ir/types';
+import type { IRResource, IRSchema, IRv1 } from '../../../../ir/types';
 import {
 	withWorkspace,
 	buildKernelConfigSource,
@@ -557,6 +557,124 @@ describe('createJsBlocksBuilder', () => {
 			expect(rollbackSpy).toHaveBeenCalled();
 			writeSpy.mockRestore();
 			rollbackSpy.mockRestore();
+		});
+	});
+
+	it('derives manifests and stubs for resources without explicit blocks', async () => {
+		await withWorkspace(async ({ workspace, root }) => {
+			const configSource = buildKernelConfigSource();
+			await workspace.write('kernel.config.ts', configSource);
+
+			const { ir, options } = buildBuilderArtifacts({
+				sourcePath: path.join(root, 'kernel.config.ts'),
+			});
+
+			const resource: IRResource = {
+				name: 'books',
+				schemaKey: 'book',
+				schemaProvenance: 'manual',
+				routes: [
+					{
+						method: 'GET',
+						path: '/kernel/v1/books',
+						policy: undefined,
+						hash: 'list',
+						transport: 'remote',
+					},
+				],
+				cacheKeys: {
+					list: { segments: ['books', 'list'], source: 'config' },
+					get: { segments: ['books', 'get'], source: 'config' },
+				},
+				identity: undefined,
+				storage: undefined,
+				queryParams: undefined,
+				ui: undefined,
+				hash: 'books-resource',
+				warnings: [],
+			};
+
+			const schema: IRSchema = {
+				key: 'book',
+				sourcePath: 'schemas/book.json',
+				hash: 'schema-book',
+				schema: {
+					type: 'object',
+					properties: {
+						title: { type: 'string', description: 'Title' },
+						status: { enum: ['draft', 'publish'] },
+					},
+				},
+				provenance: 'manual',
+			};
+
+			const irWithResource: IRv1 = {
+				...ir,
+				resources: [resource],
+				schemas: [schema],
+			};
+
+			const reporter = buildReporter();
+			const output = buildOutput();
+
+			await createJsBlocksBuilder().apply(
+				{
+					context: { workspace, phase: 'generate', reporter },
+					input: {
+						phase: 'generate',
+						options,
+						ir: irWithResource,
+					},
+					output,
+					reporter,
+				},
+				undefined
+			);
+
+			const manifestPath = path.join(
+				'.generated',
+				'blocks',
+				'books',
+				'block.json'
+			);
+
+			const manifestContents = await workspace.readText(manifestPath);
+			expect(manifestContents).not.toBeNull();
+			const parsed = JSON.parse(manifestContents ?? '{}');
+			expect(parsed).toMatchObject({
+				name: 'demo-namespace/books',
+				editorScriptModule: 'file:./index.tsx',
+				viewScriptModule: 'file:./view.ts',
+			});
+
+			await expect(
+				workspace.readText(
+					path.join('.generated', 'blocks', 'books', 'index.tsx')
+				)
+			).resolves.toContain('AUTO-GENERATED WPK STUB');
+			await expect(
+				workspace.readText(
+					path.join('.generated', 'blocks', 'books', 'view.ts')
+				)
+			).resolves.toContain('AUTO-GENERATED WPK STUB');
+
+			expect(
+				output.actions.map((action) => normalise(action.file)).sort()
+			).toEqual(
+				[
+					'.generated/blocks/auto-register.ts',
+					'.generated/blocks/books/block.json',
+					'.generated/blocks/books/index.tsx',
+					'.generated/blocks/books/view.ts',
+				].sort()
+			);
+
+			expect(reporter.warn).toHaveBeenCalledTimes(1);
+			expect(reporter.warn).toHaveBeenCalledWith(
+				expect.stringContaining(
+					'render template was not declared and none was found'
+				)
+			);
 		});
 	});
 });

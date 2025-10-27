@@ -204,13 +204,13 @@ Status: ✓ Completed – AST helper now mirrors the legacy enforcement flow, em
 
 #### Task 25 - Controller safety & block derivation (0.7.6)
 
-Status: ⬜ Planned – Missing-policy warnings and resource-driven block scaffolds remain delegated to the legacy printers.
+Status: ✓ Completed – The next controller helper now emits missing-policy warnings and resource-driven block derivation flows through the manifest collector.
 
-- Reintroduce the `warnOnMissingPolicies` semantics inside the next controller helper so reporter output matches the legacy CLI during generation.
-- Implement resource-driven block derivation (equivalent to `deriveResourceBlocks`) to emit JS-only manifests and module stubs when authors omit them.
-- Ensure derived manifests flow through the shared block manifest collector so SSR/JS registrars stay deterministic.
-- Extend integration coverage to snapshot the warnings and derived artefacts, preventing regressions as we remove the legacy printers.
-- Complexity: medium-high – coordinates controller metadata, block builders, and integration tests.
+- Restored `warnOnMissingPolicies` semantics via the PHP controller helper so generation logs match the legacy CLI for write routes without policies.
+- Implemented resource-driven block derivation in the next pipeline, emitting JS-only manifests and staging auto-register stubs when blocks are absent.
+- Threaded derived manifests through the shared collector so TypeScript/PHP registrars consume a deterministic block map.
+- Added unit and integration coverage to snapshot controller warnings and generated manifests/stubs, guarding the transition away from string printers.
+- Complexity: medium-high – coordinated controller metadata, manifest collection, and JS block builders.
 
 ---
 
