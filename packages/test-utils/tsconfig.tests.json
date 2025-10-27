@@ -1,10 +1,9 @@
 {
 	"$schema": "https://json.schemastore.org/tsconfig",
-	"extends": "../../tsconfig.base.json",
+	"extends": "../../tsconfig.tests.json",
 	"compilerOptions": {
 		"rootDir": "./src",
 		"outDir": "./dist-tests",
-		"composite": true,
 		"types": ["node", "jest"]
 	},
 	"include": ["src/**/*.test.ts", "src/**/*.test.tsx"],
