@@ -70,7 +70,7 @@ JSON object for each requested path:
 
 ```bash
 php packages/php-json-ast/php/ingest-program.php packages/php-json-ast \
-  packages/php-json-ast/php/tests/fixtures/CodifiedController.php
+  packages/php-json-ast/fixtures/ingestion/CodifiedController.php
 ```
 
 Every line on stdout contains `{ file, program }`. Pipe those lines into
