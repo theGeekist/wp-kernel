@@ -13,5 +13,15 @@
 		"vite.config.ts"
 	],
 	"exclude": ["dist", "dist-tests", "node_modules"],
-	"references": [{ "path": "./tsconfig.json" }, { "path": "../core" }]
+	"references": [
+		{
+			"path": "../core"
+		},
+		{
+			"path": "../wp-json-ast"
+		},
+		{
+			"path": "./tsconfig.json"
+		}
+	]
 }

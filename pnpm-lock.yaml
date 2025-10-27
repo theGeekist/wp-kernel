@@ -282,6 +282,9 @@ importers:
       '@wpkernel/test-utils':
         specifier: workspace:*
         version: link:../test-utils
+      '@wpkernel/wp-json-ast':
+        specifier: workspace:*
+        version: link:../wp-json-ast
       chokidar:
         specifier: ^4.0.3
         version: 4.0.3
@@ -406,6 +409,12 @@ importers:
       react:
         specifier: ^18.3.1
         version: 18.3.1
+
+  packages/wp-json-ast:
+    dependencies:
+      '@wpkernel/php-json-ast':
+        specifier: workspace:*
+        version: link:../php-json-ast
 
 packages:
 

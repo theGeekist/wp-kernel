@@ -1,6 +1,10 @@
+import {
+	buildDocComment,
+	type PhpDocComment,
+	type PhpAstBuilderAdapter,
+} from '@wpkernel/php-json-ast';
+
 import { DEFAULT_DOC_HEADER } from './constants';
-import { buildDocComment, type PhpDocComment } from './nodes';
-import type { PhpAstBuilderAdapter } from './programBuilder';
 
 export function appendGeneratedFileDocblock(
 	builder: PhpAstBuilderAdapter,
