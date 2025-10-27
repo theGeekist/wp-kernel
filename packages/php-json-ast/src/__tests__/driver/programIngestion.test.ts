@@ -23,7 +23,6 @@ const WORKSPACE_ROOT = PACKAGE_ROOT;
 const OUTPUT_ROOT = path.join(PACKAGE_ROOT, '.test-artifacts', 'ingestion');
 const FIXTURE_PATH = path.join(OUTPUT_ROOT, 'CodifiedController.php');
 const INGESTION_SCRIPT = path.join(PACKAGE_ROOT, 'php', 'ingest-program.php');
-const VENDOR_DIRECTORY = path.join(PACKAGE_ROOT, 'vendor');
 
 interface TestPipelineContext extends PipelineContext {
 	readonly reporter: ReturnType<typeof createReporterMock>;
@@ -172,10 +171,6 @@ describe('consumePhpProgramIngestion', () => {
 
 	beforeEach(async () => {
 		await ensureFixture();
-	});
-
-	afterAll(async () => {
-		await fs.rm(VENDOR_DIRECTORY, { recursive: true, force: true });
 	});
 
 	afterEach(async () => {
