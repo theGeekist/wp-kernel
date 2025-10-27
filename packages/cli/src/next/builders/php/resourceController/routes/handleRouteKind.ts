@@ -1,4 +1,5 @@
-import type { ResourceMetadataHost, PhpStmt } from '@wpkernel/php-json-ast';
+import type { PhpStmt } from '@wpkernel/php-json-ast';
+import type { ResourceMetadataHost } from '@wpkernel/wp-json-ast';
 import type { ResolvedIdentity } from '../../identity';
 import type { RouteMetadataKind } from '../metadata';
 import type { IRResource, IRRoute } from '../../../../ir/publicTypes';

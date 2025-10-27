@@ -14,6 +14,7 @@ HAS_UI_CHANGES=$(echo "$STAGED_FILES" | grep -E '^packages/ui/' || true)
 HAS_CLI_CHANGES=$(echo "$STAGED_FILES" | grep -E '^packages/cli/' || true)
 HAS_PHP_DRIVER_CHANGES=$(echo "$STAGED_FILES" | grep -E '^packages/php-driver/' || true)
 HAS_PHP_AST_CHANGES=$(echo "$STAGED_FILES" | grep -E '^packages/php-json-ast/' || true)
+HAS_WP_JSON_AST_CHANGES=$(echo "$STAGED_FILES" | grep -E '^packages/wp-json-ast/' || true)
 HAS_SHOWCASE_CHANGES=$(echo "$STAGED_FILES" | grep -E '^examples/showcase/' || true)
 git add --all
 TYPECHECKS_EXECUTED=0
@@ -21,6 +22,7 @@ CLI_TYPECHECK_RAN=0
 UI_TYPECHECK_RAN=0
 PHP_DRIVER_TYPECHECK_RAN=0
 PHP_AST_TYPECHECK_RAN=0
+WP_JSON_AST_TYPECHECK_RAN=0
 SHOWCASE_TYPECHECK_RAN=0
 
 run_cli_typechecks() {
@@ -63,6 +65,16 @@ run_php_ast_typechecks() {
   fi
 }
 
+run_wp_json_ast_typechecks() {
+  if [ "$WP_JSON_AST_TYPECHECK_RAN" -eq 0 ]; then
+    WP_JSON_AST_TYPECHECK_RAN=1
+    TYPECHECKS_EXECUTED=1
+    echo "🔍 WP JSON AST changes detected: running typecheck and typecheck:tests for wp-json-ast..."
+    pnpm --filter @wpkernel/wp-json-ast typecheck
+    pnpm --filter @wpkernel/wp-json-ast typecheck:tests
+  fi
+}
+
 run_showcase_typechecks() {
   if [ "$SHOWCASE_TYPECHECK_RAN" -eq 0 ]; then
     SHOWCASE_TYPECHECK_RAN=1
@@ -93,6 +105,10 @@ else
 
   if [ -n "$HAS_PHP_AST_CHANGES" ]; then
     run_php_ast_typechecks
+  fi
+
+  if [ -n "$HAS_WP_JSON_AST_CHANGES" ]; then
+    run_wp_json_ast_typechecks
   fi
 
   if [ -n "$HAS_SHOWCASE_CHANGES" ]; then

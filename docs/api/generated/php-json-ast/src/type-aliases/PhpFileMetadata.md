@@ -7,8 +7,5 @@
 # Type Alias: PhpFileMetadata
 
 ```ts
-type PhpFileMetadata =
-	| GenericPhpFileMetadata
-	| ResourceControllerMetadata
-	| ResourceMacroMetadata;
+type PhpFileMetadata = GenericPhpFileMetadata | ResourceControllerMetadata;
 ```

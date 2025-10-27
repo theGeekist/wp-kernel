@@ -7,8 +7,8 @@ import {
 	buildStmtNop,
 	buildVariable,
 	type PhpStmt,
-	type ResourceMetadataHost,
 } from '@wpkernel/php-json-ast';
+import type { ResourceMetadataHost } from '@wpkernel/wp-json-ast';
 import type { IRResource, IRRoute } from '../../../../ir/publicTypes';
 import {
 	buildFunctionCall,

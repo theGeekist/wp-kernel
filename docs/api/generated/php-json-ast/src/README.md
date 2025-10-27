@@ -122,7 +122,6 @@
 - [ResourceControllerMetadata](interfaces/ResourceControllerMetadata.md)
 - [ResourceControllerCacheEvent](interfaces/ResourceControllerCacheEvent.md)
 - [ResourceControllerCacheMetadata](interfaces/ResourceControllerCacheMetadata.md)
-- [ResourceMacroMetadata](interfaces/ResourceMacroMetadata.md)
 - [GenericPhpFileMetadata](interfaces/GenericPhpFileMetadata.md)
 - [PhpAstBuilder](interfaces/PhpAstBuilder.md)
 
@@ -155,7 +154,6 @@
 
 ## Variables
 
-- [DEFAULT_DOC_HEADER](variables/DEFAULT_DOC_HEADER.md)
 - [AUTO_GUARD_BEGIN](variables/AUTO_GUARD_BEGIN.md)
 - [AUTO_GUARD_END](variables/AUTO_GUARD_END.md)
 - [PHP_CLASS_MODIFIER_ABSTRACT](variables/PHP_CLASS_MODIFIER_ABSTRACT.md)
@@ -179,11 +177,8 @@
 - [addUseEntry](functions/addUseEntry.md)
 - [appendStatementLine](functions/appendStatementLine.md)
 - [appendProgramStatement](functions/appendProgramStatement.md)
-- [appendGeneratedFileDocblock](functions/appendGeneratedFileDocblock.md)
-- [buildGeneratedFileDocComment](functions/buildGeneratedFileDocComment.md)
 - [consumePhpProgramIngestion](functions/consumePhpProgramIngestion.md)
 - [appendResourceControllerCacheEvent](functions/appendResourceControllerCacheEvent.md)
-- [buildWpQueryInstantiation](functions/buildWpQueryInstantiation.md)
 - [buildWpTermQueryInstantiation](functions/buildWpTermQueryInstantiation.md)
 - [formatClassModifiers](functions/formatClassModifiers.md)
 - [buildArg](functions/buildArg.md)
