@@ -21,6 +21,7 @@ import { createActionMiddleware } from '../actions/middleware';
 import { wpkEventsPlugin } from './plugins/events';
 import { defineResource as baseDefineResource } from '../resource/define';
 import type { ResourceConfig, ResourceObject } from '../resource/types';
+import { setCorePipelineConfig } from '../configuration/flags';
 
 type CleanupTask = () => void;
 
@@ -96,6 +97,7 @@ export function configureWPKernel(
 	const namespace = resolveNamespace(options.namespace);
 	const reporter = resolveReporter(namespace, options.reporter);
 	const ui = normalizeUIConfig(options.ui);
+	setCorePipelineConfig({ enabled: Boolean(options.corePipeline?.enabled) });
 
 	const events = getWPKernelEventBus();
 	setWPKernelEventBus(events);
