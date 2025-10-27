@@ -21,12 +21,14 @@ import {
 	buildScalarString,
 	buildStmtNop,
 	buildVariable,
+	buildNode,
 	type PhpArg,
 	type PhpBinaryOperator,
 	type PhpExpr,
 	type PhpExprBooleanNot,
 	type PhpExprFuncCall,
 	type PhpExprMethodCall,
+	type PhpExprBinaryOp,
 	type PhpStmt,
 	type PhpStmtExpression,
 	type PhpStmtForeach,
@@ -75,13 +77,20 @@ export function buildScalarCast(kind: ScalarCastKind, expr: PhpExpr): PhpExpr {
 	return buildScalarCastNode(kind, expr);
 }
 
-export type BinaryOperator = PhpBinaryOperator;
+export type BinaryOperator = PhpBinaryOperator | 'Concat';
 
 export function buildBinaryOperation(
 	operator: BinaryOperator,
 	left: PhpExpr,
 	right: PhpExpr
 ) {
+	if (operator === 'Concat') {
+		return buildNode<PhpExprBinaryOp>('Expr_BinaryOp_Concat', {
+			left,
+			right,
+		});
+	}
+
 	return buildBinaryOperationNode(operator, left, right);
 }
 
