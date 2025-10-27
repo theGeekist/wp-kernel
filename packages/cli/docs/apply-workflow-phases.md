@@ -37,7 +37,7 @@ _See [Docs Index](./index.md) for navigation._
 
 ### 1.4 Gaps in the next command
 
-- The next apply path only reads `.wpk/apply/plan.json` and writes `.wpk/apply/manifest.json`; it never stages or mutates user code directly, so composer autoload discovery and shim creation are still missing (`packages/cli/src/next/commands/apply.ts:145-212`).
+- The plan builder now stages extension shims under `.wpk/apply/**`, adds `require_once` fallbacks, and captures builder actions, but `apply` still lacks flag handling, git enforcement, and logging parity (`packages/cli/src/next/commands/apply.ts:145-212`).
 - `createPatcher` performs diff3 merges in temporary files but depends entirely on pre-authored instructions. The helper currently skips work if no plan exists, and no builder emits that plan yet (`packages/cli/src/next/builders/patcher.ts:226-318`).
 - There is no git guardrail: if the workspace lacks a `.git` directory the command still runs because neither the command nor the helper asserts repository state (`packages/cli/src/next/commands/apply.ts:145-212`).
 - The manifest is printed to stdout, but we do not append to `.wpk-apply.log` or snapshot the builder actions that would let the CLI review pending writes before they hit disk (`packages/cli/src/next/commands/apply.ts:183-212`).

@@ -33,7 +33,7 @@ export function createPhpBaseControllerHelper(): BuilderHelper {
 			}
 
 			const { ir } = options.input;
-			const namespaceRoot = ir.php.namespace;
+			const namespaceRoot = `${ir.php.namespace}\\Generated`;
 			const namespace = `${namespaceRoot}\\Rest`;
 			const filePath = options.context.workspace.resolve(
 				ir.php.outputDir,

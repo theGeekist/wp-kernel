@@ -78,7 +78,7 @@ export function createPhpResourceControllerHelper(): BuilderHelper {
 
 			for (const resource of ir.resources) {
 				warnOnMissingPolicies({ reporter, resource });
-				const namespaceRoot = ir.php.namespace;
+				const namespaceRoot = `${ir.php.namespace}\\Generated`;
 				const namespace = `${namespaceRoot}\\Rest`;
 				const className = `${toPascalCase(resource.name)}Controller`;
 				const filePath = options.context.workspace.resolve(
@@ -188,7 +188,7 @@ function buildResourceController(
 		),
 	]);
 
-	builder.addUse(`${ir.php.namespace}\\Policy\\Policy`);
+	builder.addUse(`${ir.php.namespace}\\Generated\\Policy\\Policy`);
 	builder.addUse('WP_Error');
 	builder.addUse('WP_REST_Request');
 	builder.addUse('function is_wp_error');

@@ -173,6 +173,13 @@ describe('createPatcher', () => {
 				'apply',
 				'manifest.json'
 			);
+			const basePath = path.posix.join(
+				'.wpk',
+				'apply',
+				'base',
+				'php',
+				'JobController.php'
+			);
 			const manifestRaw = await workspace.readText(manifestPath);
 			expect(manifestRaw).toBeTruthy();
 			const manifest = JSON.parse(manifestRaw ?? '{}');
@@ -188,10 +195,23 @@ describe('createPatcher', () => {
 					description: 'Update Job controller shim',
 				}),
 			]);
+			expect(manifest.actions).toEqual(
+				expect.arrayContaining([
+					'php/JobController.php',
+					manifestPath,
+					basePath,
+				])
+			);
 
 			expect(output.actions.map((action) => action.file)).toEqual(
-				expect.arrayContaining(['php/JobController.php', manifestPath])
+				expect.arrayContaining([
+					'php/JobController.php',
+					manifestPath,
+					basePath,
+				])
 			);
+			const updatedBase = await workspace.readText(basePath);
+			expect(updatedBase).toBe(incomingContents);
 			expect(reporter.info).toHaveBeenCalledWith(
 				'createPatcher: completed patch application.',
 				expect.objectContaining({ summary: expect.any(Object) })
@@ -277,15 +297,24 @@ describe('createPatcher', () => {
 			expect(merged).toContain('=======');
 			expect(merged).toContain('>>>>>>>');
 
-			const manifestRaw = await workspace.readText(
-				path.posix.join('.wpk', 'apply', 'manifest.json')
+			const manifestPath = path.posix.join(
+				'.wpk',
+				'apply',
+				'manifest.json'
 			);
+			const manifestRaw = await workspace.readText(manifestPath);
 			const manifest = JSON.parse(manifestRaw ?? '{}');
 			expect(manifest.summary).toEqual({
 				applied: 0,
 				conflicts: 1,
 				skipped: 0,
 			});
+			expect(manifest.actions).toEqual(
+				expect.arrayContaining(['php/Conflict.php', manifestPath])
+			);
+			expect(output.actions.map((action) => action.file)).toEqual(
+				expect.arrayContaining(['php/Conflict.php', manifestPath])
+			);
 			expect(reporter.warn).toHaveBeenCalledWith(
 				'createPatcher: merge conflict detected.',
 				expect.objectContaining({ file: 'php/Conflict.php' })
@@ -395,9 +424,12 @@ describe('createPatcher', () => {
 				undefined
 			);
 
-			const manifestRaw = await workspace.readText(
-				path.posix.join('.wpk', 'apply', 'manifest.json')
+			const manifestPath = path.posix.join(
+				'.wpk',
+				'apply',
+				'manifest.json'
 			);
+			const manifestRaw = await workspace.readText(manifestPath);
 			const manifest = JSON.parse(manifestRaw ?? '{}');
 			expect(manifest.summary).toEqual({
 				applied: 0,
@@ -418,6 +450,10 @@ describe('createPatcher', () => {
 					}),
 				])
 			);
+			expect(manifest.actions).toEqual([manifestPath]);
+			expect(output.actions.map((action) => action.file)).toEqual([
+				manifestPath,
+			]);
 			expect(reporter.warn).toHaveBeenCalled();
 		});
 	});
@@ -487,9 +523,12 @@ describe('createPatcher', () => {
 				undefined
 			);
 
-			const manifestRaw = await workspace.readText(
-				path.posix.join('.wpk', 'apply', 'manifest.json')
+			const manifestPath = path.posix.join(
+				'.wpk',
+				'apply',
+				'manifest.json'
 			);
+			const manifestRaw = await workspace.readText(manifestPath);
 			const manifest = JSON.parse(manifestRaw ?? '{}');
 			expect(manifest.summary).toEqual({
 				applied: 0,
@@ -501,6 +540,10 @@ describe('createPatcher', () => {
 				status: 'skipped',
 				details: { reason: 'no-op' },
 			});
+			expect(manifest.actions).toEqual([manifestPath]);
+			expect(output.actions.map((action) => action.file)).toEqual([
+				manifestPath,
+			]);
 		});
 	});
 
