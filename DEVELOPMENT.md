@@ -185,6 +185,18 @@ pnpm add -D new-dev-dependency
 cd packages/core && pnpm add new-runtime-dep
 ```
 
+### **Scaffolding a New Workspace**
+
+Use the helper when you spin up a fresh package:
+
+```bash
+pnpm workspace:register packages/awesome-tool
+```
+
+The script creates `tsconfig.json` / `tsconfig.tests.json` using the shared presets, appends the workspace to the root `tsconfig.json` references, keeps `tsconfig.base.json` aliases in sync, and backfills the `typecheck` / `typecheck:tests` scripts in the package manifest. From there you can focus on Vite/Jest specifics without worrying about missing the required repo wiring.
+
+Pass `--deps=@wpkernel/core,@wpkernel/ui` (comma separated) when the new workspace should depend on existing packages. The helper adds project references to both TypeScript configs, updates `peerDependencies` with `workspace:*`, and will warn if the requested dependency already points back to your package. Use `--remove-deps=` with the same syntax to prune relationships later.
+
 ### **Peer Dependencies**
 
 Special case: If a package requires specific peer deps (like Vite plugins), add them to both:
