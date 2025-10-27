@@ -45,11 +45,6 @@
 			"import": "./dist/nodes.js",
 			"default": "./dist/nodes.js"
 		},
-		"./templates": {
-			"types": "./dist/templates.d.ts",
-			"import": "./dist/templates.js",
-			"default": "./dist/templates.js"
-		},
 		"./factories": {
 			"types": "./dist/factories.d.ts",
 			"import": "./dist/factories.js",
