@@ -4,4 +4,4 @@
  * Source: kernel.config.ts → schemas
  */
 
-export type { Job } from "./job";
+export type { Job } from './job';
