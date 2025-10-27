@@ -10,8 +10,8 @@ import {
 	buildStmtNop,
 	buildVariable,
 	type PhpStmt,
-	type ResourceMetadataHost,
 } from '@wpkernel/php-json-ast';
+import type { ResourceMetadataHost } from '@wpkernel/wp-json-ast';
 import { appendResourceCacheEvent } from '../cache';
 import { buildWpErrorReturn, buildReturnIfWpError } from '../errors';
 import {

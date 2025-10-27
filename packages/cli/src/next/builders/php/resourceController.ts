@@ -9,6 +9,12 @@ import type {
 } from '../../runtime/types';
 import {
 	appendGeneratedFileDocblock,
+	createWpPhpFileBuilder,
+	type PhpFileMetadata,
+	type ResourceControllerRouteMetadata,
+	type ResourceMetadataHost,
+} from '@wpkernel/wp-json-ast';
+import {
 	buildArg,
 	buildAssign,
 	buildClass,
@@ -23,15 +29,12 @@ import {
 	buildStaticCall,
 	buildStmtNop,
 	buildVariable,
-	createPhpFileBuilder,
 	PHP_CLASS_MODIFIER_FINAL,
 	PHP_METHOD_MODIFIER_PUBLIC,
 	type PhpAstBuilderAdapter,
 	type PhpAttributes,
 	type PhpStmt,
 	type PhpStmtClassMethod,
-	type ResourceControllerRouteMetadata,
-	type ResourceMetadataHost,
 } from '@wpkernel/php-json-ast';
 import { makeErrorCodeFactory, sanitizeJson, toPascalCase } from './utils';
 import type { IRResource, IRRoute, IRv1 } from '../../ir/publicTypes';
@@ -85,7 +88,7 @@ export function createPhpResourceControllerHelper(): BuilderHelper {
 				);
 				const identity = resolveIdentityConfig(resource);
 
-				const helper = createPhpFileBuilder<
+				const helper = createWpPhpFileBuilder<
 					PipelineContext,
 					BuilderInput,
 					BuilderOutput
@@ -164,7 +167,7 @@ function buildResourceController(
 	const pascalName = toPascalCase(resource.name);
 	const errorCodeFactory = makeErrorCodeFactory(resource.name);
 	const metadataHost: ResourceMetadataHost = {
-		getMetadata: () => builder.getMetadata(),
+		getMetadata: () => builder.getMetadata() as PhpFileMetadata,
 		setMetadata: (metadata) => builder.setMetadata(metadata),
 	};
 	const canonicalBasePaths = collectCanonicalBasePaths(

@@ -17,12 +17,14 @@ import {
 	buildScalarString,
 	buildStmtNop,
 	buildVariable,
-	buildWpTermQueryInstantiation,
 	type PhpStmt,
 	type PhpStmtContinue,
 	type PhpStmtForeach,
-	type ResourceMetadataHost,
 } from '@wpkernel/php-json-ast';
+import {
+	buildWpTermQueryInstantiation,
+	type ResourceMetadataHost,
+} from '@wpkernel/wp-json-ast';
 import { appendResourceCacheEvent } from '../cache';
 import {
 	buildPaginationNormalisationStatements,

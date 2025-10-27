@@ -1,6 +1,4 @@
 import type {
-	ResourceControllerMetadata,
-	ResourceMetadataHost,
 	PhpStmt,
 	PhpStmtClassMethod,
 	PhpStmtExpression,
@@ -10,6 +8,10 @@ import type {
 	PhpExprVariable,
 	PhpArg,
 } from '@wpkernel/php-json-ast';
+import type {
+	ResourceControllerMetadata,
+	ResourceMetadataHost,
+} from '@wpkernel/wp-json-ast';
 import { buildTransientHelperMethods } from '../transient/helpers';
 import {
 	buildTransientGetRouteStatements,

@@ -9,6 +9,9 @@ import type {
 } from '../../runtime/types';
 import {
 	appendGeneratedFileDocblock,
+	createWpPhpFileBuilder,
+} from '@wpkernel/wp-json-ast';
+import {
 	buildArg,
 	buildArray,
 	buildArrayDimFetch,
@@ -37,7 +40,6 @@ import {
 	buildStaticCall,
 	buildTernary,
 	buildVariable,
-	createPhpFileBuilder,
 	PHP_CLASS_MODIFIER_FINAL,
 	PHP_METHOD_MODIFIER_PRIVATE,
 	PHP_METHOD_MODIFIER_PUBLIC,
@@ -72,7 +74,7 @@ export function createPhpPolicyHelper(): BuilderHelper {
 				'Policy.php'
 			);
 
-			const helper = createPhpFileBuilder<
+			const helper = createWpPhpFileBuilder<
 				PipelineContext,
 				BuilderInput,
 				BuilderOutput

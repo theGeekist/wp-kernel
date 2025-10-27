@@ -1,9 +1,9 @@
 import path from 'node:path';
 import {
 	appendGeneratedFileDocblock,
-	buildReturn,
-	createPhpFileBuilder,
-} from '@wpkernel/php-json-ast';
+	createWpPhpFileBuilder,
+} from '@wpkernel/wp-json-ast';
+import { buildReturn } from '@wpkernel/php-json-ast';
 import type {
 	BuilderHelper,
 	BuilderInput,
@@ -30,20 +30,22 @@ export function buildBlocksManifestHelper({
 		'blocks-manifest.php'
 	);
 
-	return createPhpFileBuilder<PipelineContext, BuilderInput, BuilderOutput>({
-		key: 'php-blocks-manifest',
-		filePath,
-		namespace: '',
-		metadata: { kind: 'block-manifest' },
-		build: (builder) => {
-			appendGeneratedFileDocblock(builder, [
-				`Source: ${ir.meta.origin} → blocks.ssr.manifest`,
-			]);
+	return createWpPhpFileBuilder<PipelineContext, BuilderInput, BuilderOutput>(
+		{
+			key: 'php-blocks-manifest',
+			filePath,
+			namespace: '',
+			metadata: { kind: 'block-manifest' },
+			build: (builder) => {
+				appendGeneratedFileDocblock(builder, [
+					`Source: ${ir.meta.origin} → blocks.ssr.manifest`,
+				]);
 
-			const payload = sanitizeJson(manifestEntries);
-			builder.appendProgramStatement(
-				buildReturn(renderPhpValue(payload))
-			);
-		},
-	});
+				const payload = sanitizeJson(manifestEntries);
+				builder.appendProgramStatement(
+					buildReturn(renderPhpValue(payload))
+				);
+			},
+		}
+	);
 }

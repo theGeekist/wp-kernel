@@ -2,7 +2,7 @@ import type {
 	ResourceControllerMetadata,
 	ResourceControllerCacheMetadata,
 	ResourceMetadataHost,
-} from '@wpkernel/php-json-ast';
+} from '@wpkernel/wp-json-ast';
 import { appendResourceCacheEvent, normaliseCacheSegments } from '../cache';
 
 describe('resource cache helpers', () => {
