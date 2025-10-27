@@ -201,5 +201,7 @@ The goal remains: every storage mode plugs into a helper-first API, the channel 
 
 - Do adapters need AST-level extension points for blocks, or will a higher-level recipe API suffice once the builders land?
 - Should we add checksums/metadata to generated artefacts to detect manual edits before we retire the string-based pipeline?
+- How should the next-gen block builders surface recoverable issues (missing render templates, manifest warnings)? Legacy printers emit reporter warnings-confirm whether we keep that contract or introduce typed error codes before swapping pipelines.
+- Where do we persist block-specific cache metadata once the manifest/registrar move to AST builders (e.g. per-block hashes, registrar fingerprints) so incremental rebuilds can detect when to skip writes?
 
 Update this document whenever a phase ships: move the milestone into “Phase 0 - Core builders migrated” (or add a new completed phase section) with concrete references, and adjust the remaining phases accordingly.
