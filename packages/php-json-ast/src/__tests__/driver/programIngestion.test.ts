@@ -253,6 +253,41 @@ describe('consumePhpProgramIngestion', () => {
 			contents: emittedAst,
 		});
 	});
+
+	it('handles ingestion sources that yield pre-trimmed lines', async () => {
+		const context = createPipelineContext();
+
+		resetPhpBuilderChannel(context);
+
+		const duplicateFixturePath = path.join(
+			OUTPUT_ROOT,
+			'CodifiedControllerCopy.php'
+		);
+		await fs.copyFile(FIXTURE_PATH, duplicateFixturePath);
+
+		const lines = await runIngestionScript([
+			FIXTURE_PATH,
+			duplicateFixturePath,
+		]);
+		const messages = createAsyncIterable(lines);
+
+		await consumePhpProgramIngestion({
+			context,
+			source: messages,
+			defaultMetadata: { kind: 'index-file' },
+		});
+
+		const pending = getPhpBuilderChannel(context).pending();
+		expect(pending).toHaveLength(lines.length);
+
+		const expectedFiles = lines
+			.map((line) => JSON.parse(line) as { file: string })
+			.map((message) => message.file)
+			.sort();
+
+		const queuedFiles = pending.map((action) => action.file).sort();
+		expect(queuedFiles).toEqual(expectedFiles);
+	});
 });
 
 function createAsyncIterable<T>(values: readonly T[]): AsyncIterable<T> {
