@@ -5,7 +5,7 @@ import {
 	buildArrayDimFetch as buildArrayDimFetchNode,
 	buildArrayItem,
 	buildAssign,
-	buildBinaryOperation as buildBinaryOperationNode,
+	buildBinaryOperation as buildBinaryOperationPrimitive,
 	buildBooleanNot as buildBooleanNotExpr,
 	buildExpressionStatement,
 	buildForeach,
@@ -75,14 +75,12 @@ export function buildScalarCast(kind: ScalarCastKind, expr: PhpExpr): PhpExpr {
 	return buildScalarCastNode(kind, expr);
 }
 
-export type BinaryOperator = PhpBinaryOperator;
-
 export function buildBinaryOperation(
-	operator: BinaryOperator,
+	operator: PhpBinaryOperator,
 	left: PhpExpr,
 	right: PhpExpr
 ) {
-	return buildBinaryOperationNode(operator, left, right);
+	return buildBinaryOperationPrimitive(operator, left, right);
 }
 
 export interface IfStatementOptions {

@@ -1,7 +1,7 @@
 # WP Kernel Roadmap
 
 **Status**: Active development toward v1.0  
-**Latest Release**: v0.6.0 (October 2025)
+**Latest Release**: v0.7.0 (October 2025)
 
 ---
 
@@ -89,4 +89,4 @@ Deepen the learning surface with refreshed block binding walkthroughs, Interacti
 
 **Get Involved**: [GitHub](https://github.com/theGeekist/wp-kernel) · [Issues](https://github.com/theGeekist/wp-kernel/issues) · [Contributing](https://theGeekist.github.io/wp-kernel/contributing/)
 
-_Last updated: October 9, 2025_
+_Last updated: October 27, 2025_
