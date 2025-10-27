@@ -1,14 +1,14 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
+import { sanitizeNamespace } from '@wpkernel/core/namespace';
 import { createNoopReporter as buildNoopReporter } from '@wpkernel/core/reporter';
 import * as reporterExports from '@wpkernel/core/reporter';
 import type { KernelConfigV1 } from '../../../config/types';
-import { buildIr } from '../../../ir';
 import {
 	createBaseConfig,
 	FIXTURE_CONFIG_PATH,
 	FIXTURE_ROOT,
-} from '../../../ir/test-helpers';
+} from '../shared/test-helpers';
 import { buildWorkspace } from '../../workspace';
 import * as workspaceExports from '../../workspace';
 import { createIr } from '../createIr';
@@ -53,7 +53,7 @@ jest.mock('../../builders', () => {
 jest.setTimeout(60000);
 
 describe('createIr', () => {
-	it('reproduces the legacy IR output for a basic configuration', async () => {
+	it('builds IR for a basic configuration', async () => {
 		const schemaPath = path.relative(
 			path.dirname(FIXTURE_CONFIG_PATH),
 			path.join(FIXTURE_ROOT, 'schemas', 'todo.schema.json')
@@ -105,22 +105,78 @@ describe('createIr', () => {
 				} as const;
 
 				const workspace = buildWorkspace(workspaceRoot);
-				const [legacy, next] = await Promise.all([
-					buildIr(options),
-					createIr(options, {
-						workspace,
-						reporter: buildNoopReporter(),
-					}),
-				]);
+				const ir = await createIr(options, {
+					workspace,
+					reporter: buildNoopReporter(),
+				});
 
-				const legacyWithDiagnostics = legacy as typeof next;
-				const { diagnostics: legacyDiagnostics, ...legacyRest } =
-					legacyWithDiagnostics;
-				const { diagnostics: nextDiagnostics, ...nextRest } = next;
+				expect(ir.meta).toEqual(
+					expect.objectContaining({
+						version: 1,
+						namespace: config.namespace,
+						origin: 'typescript',
+						sanitizedNamespace: sanitizeNamespace(config.namespace),
+					})
+				);
 
-				expect(legacyDiagnostics).toBeUndefined();
-				expect(nextRest).toEqual(legacyRest);
-				expect(nextDiagnostics).toBeDefined();
+				expect(ir.config).toBe(config);
+				expect(ir.schemas).toHaveLength(1);
+				expect(ir.schemas[0]).toEqual(
+					expect.objectContaining({
+						key: 'todo',
+						provenance: 'manual',
+						sourcePath: expect.stringContaining(
+							'schemas/todo.schema.json'
+						),
+					})
+				);
+
+				expect(ir.resources).toHaveLength(1);
+				expect(ir.resources[0]).toEqual(
+					expect.objectContaining({
+						name: 'todo',
+						schemaKey: 'todo',
+						routes: [
+							expect.objectContaining({
+								path: '/todo-app/v1/todo',
+								method: 'GET',
+								policy: 'manage_todo',
+							}),
+						],
+						cacheKeys: expect.objectContaining({
+							list: expect.objectContaining({
+								segments: expect.arrayContaining([
+									'todo',
+									'list',
+								]),
+							}),
+							get: expect.objectContaining({
+								segments: expect.arrayContaining([
+									'todo',
+									'get',
+								]),
+							}),
+						}),
+					})
+				);
+
+				expect(Array.isArray(ir.blocks)).toBe(true);
+				expect(ir.policyMap).toEqual(
+					expect.objectContaining({
+						fallback: expect.objectContaining({
+							capability: expect.any(String),
+						}),
+						warnings: expect.any(Array),
+					})
+				);
+				expect(ir.php).toEqual(
+					expect.objectContaining({
+						namespace: expect.any(String),
+						autoload: 'inc/',
+						outputDir: '.generated/php',
+					})
+				);
+				expect(Array.isArray(ir.diagnostics)).toBe(true);
 			},
 			{ chdir: false }
 		);

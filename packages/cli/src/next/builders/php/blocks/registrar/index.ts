@@ -14,7 +14,7 @@ import type {
 	BuilderOutput,
 	PipelineContext,
 } from '../../../../runtime/types';
-import type { IRv1 } from '../../../../../ir/types';
+import type { IRv1 } from '../../../../ir/publicTypes';
 import { buildRegisterMethod } from './methods/register';
 import {
 	buildNormaliseRelativeMethod,

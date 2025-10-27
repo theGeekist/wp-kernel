@@ -1,7 +1,7 @@
 import { createResourcesFragment } from '../resources';
 import { KernelError } from '@wpkernel/core/error';
 
-jest.mock('../../../../ir/resource-builder', () => ({
+jest.mock('../../shared/resource-builder', () => ({
 	buildResources: jest.fn(async () => [
 		{
 			name: 'Thing',
@@ -18,7 +18,7 @@ jest.mock('../../../../ir/resource-builder', () => ({
 	]),
 }));
 
-import { buildResources } from '../../../../ir/resource-builder';
+import { buildResources } from '../../shared/resource-builder';
 
 describe('createResourcesFragment', () => {
 	const fragment = createResourcesFragment();

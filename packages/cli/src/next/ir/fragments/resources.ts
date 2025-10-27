@@ -1,7 +1,7 @@
 import { KernelError } from '@wpkernel/core/error';
 import { createHelper } from '../../runtime';
-import { buildResources } from '../../../ir/resource-builder';
-import type { SchemaAccumulator } from '../../../ir/schema';
+import { buildResources } from '../shared/resource-builder';
+import type { SchemaAccumulator } from '../shared/schema';
 import type { IrFragment, IrFragmentApplyOptions } from '../types';
 import { META_EXTENSION_KEY } from './meta';
 import { SCHEMA_EXTENSION_KEY } from './schemas';

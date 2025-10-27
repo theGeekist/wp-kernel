@@ -1,0 +1,13 @@
+{
+	"entry": "index",
+	"dependencies": [
+		"wp-components",
+		"wp-data",
+		"wp-dataviews",
+		"wp-element",
+		"wp-hooks",
+		"wp-i18n",
+		"wp-interactivity"
+	],
+	"version": "0.0.0"
+}

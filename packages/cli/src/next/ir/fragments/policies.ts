@@ -1,5 +1,5 @@
 import { createHelper } from '../../runtime';
-import { collectPolicyHints } from '../../../ir/policies';
+import { collectPolicyHints } from '../shared/policies';
 import type { IrFragment, IrFragmentApplyOptions } from '../types';
 
 export function createPoliciesFragment(): IrFragment {

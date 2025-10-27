@@ -1,5 +1,5 @@
 import { createPipeline as createCorePipeline } from '@wpkernel/core/pipeline';
-import type { BuildIrOptions } from '../../ir/types';
+import type { BuildIrOptions } from '../ir/publicTypes';
 import {
 	buildIrDraft,
 	buildIrFragmentOutput,

@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { withWorkspace } from '@wpkernel/test-utils/next/builders/tests/ts.test-support';
-import type { IRBlock } from '../../../../ir/types';
+import type { IRBlock } from '../../../ir/publicTypes';
 import { collectBlockManifests } from '../manifest';
 
 describe('collectBlockManifests', () => {

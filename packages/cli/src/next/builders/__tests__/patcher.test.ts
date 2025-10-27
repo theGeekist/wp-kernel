@@ -4,7 +4,7 @@ import fs from 'node:fs/promises';
 import { buildWorkspace } from '../../workspace';
 import { createPatcher } from '../patcher';
 import type { BuilderOutput } from '../../runtime/types';
-import type { IRv1 } from '../../../ir/types';
+import type { IRv1 } from '../../ir/publicTypes';
 
 async function withWorkspace<T>(run: (root: string) => Promise<T>): Promise<T> {
 	const root = await fs.mkdtemp(path.join(os.tmpdir(), 'patcher-builder-'));

@@ -41,5 +41,6 @@ export type {
 	IRBlock,
 	IRPhpProject,
 	BuildIrOptions,
-} from './ir';
+} from './next/ir/publicTypes';
+export { buildIr } from './next/ir/buildIr';
 export * as next from './next';

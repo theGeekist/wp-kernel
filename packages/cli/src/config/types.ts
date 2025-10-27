@@ -1,7 +1,7 @@
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { ResourceConfig } from '@wpkernel/core/resource';
 import type { WPKConfigSource } from '@wpkernel/core/contracts';
-import type { IRv1 } from '../ir/types';
+import type { IRv1 } from '../next/ir/publicTypes';
 import type { PhpAstBuilder } from '@wpkernel/php-json-ast';
 
 /**

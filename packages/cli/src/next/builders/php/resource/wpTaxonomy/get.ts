@@ -19,7 +19,7 @@ import {
 	buildIfStatementNode,
 	buildInstanceof,
 } from '../utils';
-import type { IRResource } from '../../../../../ir/types';
+import type { IRResource } from '../../../../ir/publicTypes';
 import type { ResolvedIdentity } from '../../identity';
 import {
 	buildPrepareTaxonomyTermResponseCall,

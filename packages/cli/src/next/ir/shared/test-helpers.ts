@@ -2,7 +2,7 @@ import path from 'node:path';
 import os from 'node:os';
 import fs from 'node:fs/promises';
 import { createHash } from 'node:crypto';
-import type { KernelConfigV1 } from '../config/types';
+import type { KernelConfigV1 } from '../../../config/types';
 import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
 
 export const FIXTURE_ROOT = path.join(__dirname, '__fixtures__');
