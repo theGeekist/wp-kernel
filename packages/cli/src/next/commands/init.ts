@@ -1,33 +1,68 @@
 import { Command, Option } from 'clipanion';
-import type { InitCommand as LegacyInitCommand } from '../../commands/init';
+import { createReporter as buildReporter } from '@wpkernel/core/reporter';
+import { KernelError } from '@wpkernel/core/error';
 import {
-	adoptCommandEnvironment,
-	buildLegacyCommandLoader,
-	type LegacyCommandConstructor,
-} from './internal/delegate';
+	WPK_NAMESPACE,
+	WPK_EXIT_CODES,
+	type WPKExitCode,
+} from '@wpkernel/core/contracts';
+import type { Reporter } from '@wpkernel/core/reporter';
+import type { Workspace, FileManifest } from '../workspace';
+import { buildWorkspace } from '../workspace';
+import { runInitWorkflow } from './init/workflow';
+import { isGitRepository } from './init/git';
+import {
+	createInitCommandRuntime,
+	formatInitWorkflowError,
+	resolveCommandCwd,
+	type InitCommandRuntimeResult,
+} from './init/command-runtime';
 
-export interface BuildInitCommandOptions {
-	readonly command?: LegacyCommandConstructor<LegacyInitCommand>;
-	readonly loadCommand?: () => Promise<
-		LegacyCommandConstructor<LegacyInitCommand>
-	>;
+function buildReporterNamespace(): string {
+	return `${WPK_NAMESPACE}.cli.next.init`;
 }
 
-type InitConstructor = LegacyCommandConstructor<LegacyInitCommand>;
+export interface BuildInitCommandOptions {
+	readonly buildWorkspace?: typeof buildWorkspace;
+	readonly buildReporter?: typeof buildReporter;
+	readonly runWorkflow?: typeof runInitWorkflow;
+	readonly checkGitRepository?: typeof isGitRepository;
+}
 
-async function defaultLoadCommand(): Promise<InitConstructor> {
-	const module = await import('../../commands/init');
-	return module.InitCommand;
+export type InitCommandInstance = Command & {
+	name?: string;
+	template?: string;
+	force: boolean;
+	verbose: boolean;
+	preferRegistryVersions: boolean;
+	summary: string | null;
+	manifest: FileManifest | null;
+	dependencySource: string | null;
+};
+
+export type InitCommandConstructor = new () => InitCommandInstance;
+
+interface InitDependencies {
+	readonly buildWorkspace: typeof buildWorkspace;
+	readonly buildReporter: typeof buildReporter;
+	readonly runWorkflow: typeof runInitWorkflow;
+	readonly checkGitRepository: typeof isGitRepository;
+}
+
+function mergeDependencies(options: BuildInitCommandOptions): InitDependencies {
+	return {
+		buildWorkspace,
+		buildReporter,
+		runWorkflow: runInitWorkflow,
+		checkGitRepository: isGitRepository,
+		...options,
+	} satisfies InitDependencies;
 }
 
 export function buildInitCommand(
 	options: BuildInitCommandOptions = {}
-): InitConstructor {
-	const load = buildLegacyCommandLoader({
-		command: options.command,
-		loadCommand: options.loadCommand,
-		defaultLoad: defaultLoadCommand,
-	});
+): InitCommandConstructor {
+	const dependencies = mergeDependencies(options);
 
 	class NextInitCommand extends Command {
 		static override paths = [['init']];
@@ -45,11 +80,13 @@ export function buildInitCommand(
 			description: 'Project slug used for namespace/package defaults',
 			required: false,
 		});
+
 		template = Option.String('--template', {
 			description:
 				'Reserved for future templates (plugin/theme/headless)',
 			required: false,
 		});
+
 		force = Option.Boolean('--force', false);
 		verbose = Option.Boolean('--verbose', false);
 		preferRegistryVersions = Option.Boolean(
@@ -57,26 +94,100 @@ export function buildInitCommand(
 			false
 		);
 
-		override async execute(): Promise<number> {
-			const Constructor = await load();
-			const delegate = new Constructor();
+		public summary: string | null = null;
+		public manifest: FileManifest | null = null;
+		public dependencySource: string | null = null;
 
-			adoptCommandEnvironment(this, delegate);
-			(delegate as { name?: string | undefined }).name = this.name;
-			(delegate as { template?: string | undefined }).template =
-				this.template;
-			(delegate as { force?: boolean }).force = this.force;
-			(delegate as { verbose?: boolean }).verbose = this.verbose;
-			(
-				delegate as {
-					preferRegistryVersions?: boolean;
+		override async execute(): Promise<WPKExitCode> {
+			try {
+				const runtime = this.createRuntime();
+
+				await this.warnWhenGitMissing(
+					runtime.workspace,
+					runtime.reporter
+				);
+
+				const result = await runtime.runWorkflow();
+
+				this.manifest = result.manifest;
+				this.summary = result.summaryText;
+				this.dependencySource = result.dependencySource;
+
+				this.context.stdout.write(result.summaryText);
+
+				return WPK_EXIT_CODES.SUCCESS;
+			} catch (error) {
+				this.summary = null;
+				this.manifest = null;
+				this.dependencySource = null;
+
+				if (KernelError.isKernelError(error)) {
+					this.context.stderr.write(
+						formatInitWorkflowError('init', error)
+					);
+					return WPK_EXIT_CODES.VALIDATION_ERROR;
 				}
-			).preferRegistryVersions = this.preferRegistryVersions;
 
-			const result = await delegate.execute();
-			return typeof result === 'number' ? result : 0;
+				throw error;
+			}
+		}
+
+		private createRuntime(): InitCommandRuntimeResult {
+			const workspaceRoot = resolveCommandCwd(this.context);
+
+			return createInitCommandRuntime(
+				{
+					buildWorkspace: dependencies.buildWorkspace,
+					buildReporter: dependencies.buildReporter,
+					runWorkflow: dependencies.runWorkflow,
+				},
+				{
+					reporterNamespace: buildReporterNamespace(),
+					workspaceRoot,
+					projectName: this.name,
+					template: this.template,
+					force: this.force,
+					verbose: this.verbose,
+					preferRegistryVersions: this.preferRegistryVersions,
+					env: {
+						WPK_PREFER_REGISTRY_VERSIONS:
+							process.env.WPK_PREFER_REGISTRY_VERSIONS,
+						REGISTRY_URL: process.env.REGISTRY_URL,
+					},
+				}
+			);
+		}
+
+		private async warnWhenGitMissing(
+			workspace: Workspace,
+			reporter: Reporter
+		): Promise<void> {
+			try {
+				const hasGit = await dependencies.checkGitRepository(
+					workspace.root
+				);
+				if (!hasGit) {
+					reporter.warn(
+						'Git repository not detected. Run `git init` to enable version control before committing generated files.'
+					);
+				}
+			} catch (error) {
+				if (KernelError.isKernelError(error)) {
+					throw error;
+				}
+
+				throw new KernelError('DeveloperError', {
+					message:
+						'Unable to verify git repository status for init command.',
+					context: {
+						error: String(
+							(error as { message?: unknown }).message ?? error
+						),
+					},
+				});
+			}
 		}
 	}
 
-	return NextInitCommand as unknown as InitConstructor;
+	return NextInitCommand as InitCommandConstructor;
 }
