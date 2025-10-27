@@ -7,7 +7,7 @@
 # Function: buildGenerateCommand()
 
 ```ts
-function buildGenerateCommand(options): GenerateConstructor;
+function buildGenerateCommand(options): () => Command<BaseContext> & object;
 ```
 
 ## Parameters
@@ -18,4 +18,10 @@ function buildGenerateCommand(options): GenerateConstructor;
 
 ## Returns
 
-`GenerateConstructor`
+```ts
+new buildGenerateCommand(): Command<BaseContext> & object;
+```
+
+### Returns
+
+`Command`\&lt;`BaseContext`\&gt; & `object`
