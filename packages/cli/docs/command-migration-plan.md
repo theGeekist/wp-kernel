@@ -62,20 +62,17 @@ Embedding the commands in factories keeps the orchestration consistent with the 
 
 ### 3.3 Init
 
-- **Current state:** `buildInitCommand` delegates to the legacy scaffolder and emits no git warnings.
+- **Current state:** `buildInitCommand` now scaffolds via next workspace helpers, prints manifest summaries, and warns when no git repository is detected.
 - **Scope:**
-    - Rebuild the init workflow on the next workspace helper stack so prompts, filesystem writes, and reporter usage align with the new pipeline.
-    - Warn when the command executes outside a git repository; surface remediation steps before proceeding.
-    - Prepare the implementation so the forthcoming `create` wrapper can call into the same helper without re-implementing prompts.
+    - Continue evolving prompts and reporter messaging alongside future workflow polish.
+    - Share helpers with the `create` wrapper so dependency installation and git bootstrap remain consistent.
 - **MVP Plan mapping:** Phase 4 Task 21 covers native init scaffolding and the shared surface needed by `create`.
 
 ### 3.4 Create
 
-- **Current state:** The CLI has no `create` command.
+- **Current state:** `buildCreateCommand` wraps the init workflow, initialises git repositories when missing, and installs npm/composer dependencies with a `--skip-install` escape hatch.
 - **Scope:**
-    - Implement a new command factory (`buildCreateCommand`) that shells out to the init helpers, bootstraps git repositories when absent, and installs npm + composer dependencies.
-    - Ensure the command runs idempotently when re-executed in partially-initialised directories.
-    - Provide progress logging through the next reporter and expose `--skip-install` or equivalent escape hatches if needed for CI environments.
+    - Expand logging/reporting as additional workflow polish lands and ensure idempotent reruns remain covered by integration tests.
 - **MVP Plan mapping:** Phase 4 Task 21 includes delivering the create wrapper alongside the init rewrite.
 
 ### 3.5 Start
