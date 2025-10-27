@@ -412,6 +412,9 @@ importers:
 
   packages/wp-json-ast:
     dependencies:
+      '@wpkernel/core':
+        specifier: workspace:*
+        version: link:../core
       '@wpkernel/php-json-ast':
         specifier: workspace:*
         version: link:../php-json-ast
