@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { Command, Option } from 'clipanion';
 import { createReporter as buildReporter } from '@wpkernel/core/reporter';
 import { KernelError } from '@wpkernel/core/error';
@@ -8,55 +9,81 @@ import {
 } from '@wpkernel/core/contracts';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { Workspace, FileManifest } from '../workspace';
-import { buildWorkspace } from '../workspace';
+import { buildWorkspace, ensureCleanDirectory } from '../workspace';
 import { runInitWorkflow } from './init/workflow';
-import { isGitRepository } from './init/git';
-import type { InitWorkflowResult, InitWorkflowOptions } from './init/workflow';
+import { initialiseGitRepository, isGitRepository } from './init/git';
+import {
+	installNodeDependencies,
+	installComposerDependencies,
+} from './init/installers';
+import type { InitWorkflowOptions, InitWorkflowResult } from './init/workflow';
 
 function buildReporterNamespace(): string {
-	return `${WPK_NAMESPACE}.cli.next.init`;
+	return `${WPK_NAMESPACE}.cli.next.create`;
 }
 
-export interface BuildInitCommandOptions {
+export interface BuildCreateCommandOptions {
 	readonly buildWorkspace?: typeof buildWorkspace;
 	readonly buildReporter?: typeof buildReporter;
 	readonly runWorkflow?: typeof runInitWorkflow;
 	readonly checkGitRepository?: typeof isGitRepository;
+	readonly initGitRepository?: typeof initialiseGitRepository;
+	readonly ensureCleanDirectory?: typeof ensureCleanDirectory;
+	readonly installNodeDependencies?: typeof installNodeDependencies;
+	readonly installComposerDependencies?: typeof installComposerDependencies;
 }
 
-export type InitCommandInstance = Command & {
+export type CreateCommandInstance = Command & {
+	target?: string;
 	name?: string;
 	template?: string;
 	force: boolean;
 	verbose: boolean;
 	preferRegistryVersions: boolean;
+	skipInstall: boolean;
 	summary: string | null;
 	manifest: FileManifest | null;
 	dependencySource: string | null;
 };
 
-export type InitCommandConstructor = new () => InitCommandInstance;
+export type CreateCommandConstructor = new () => CreateCommandInstance;
 
-interface InitDependencies {
+interface CreateDependencies {
 	readonly buildWorkspace: typeof buildWorkspace;
 	readonly buildReporter: typeof buildReporter;
 	readonly runWorkflow: typeof runInitWorkflow;
 	readonly checkGitRepository: typeof isGitRepository;
+	readonly initGitRepository: typeof initialiseGitRepository;
+	readonly ensureCleanDirectory: typeof ensureCleanDirectory;
+	readonly installNodeDependencies: typeof installNodeDependencies;
+	readonly installComposerDependencies: typeof installComposerDependencies;
 }
 
-function mergeDependencies(options: BuildInitCommandOptions): InitDependencies {
+function mergeDependencies(
+	options: BuildCreateCommandOptions
+): CreateDependencies {
 	return {
 		buildWorkspace,
 		buildReporter,
 		runWorkflow: runInitWorkflow,
 		checkGitRepository: isGitRepository,
+		initGitRepository: initialiseGitRepository,
+		ensureCleanDirectory,
+		installNodeDependencies,
+		installComposerDependencies,
 		...options,
-	} satisfies InitDependencies;
+	} satisfies CreateDependencies;
 }
 
-function resolveWorkspaceRoot(context: Command['context']): string {
+function resolveBaseDirectory(context: Command['context']): string {
 	const cwd = (context as { cwd?: () => string }).cwd;
 	return typeof cwd === 'function' ? cwd() : process.cwd();
+}
+
+function resolveTargetDirectory(base: string, target?: string): string {
+	const candidate =
+		typeof target === 'string' && target.length > 0 ? target : '.';
+	return path.resolve(base, candidate);
 }
 
 function formatErrorMessage(error: KernelError): string {
@@ -66,7 +93,7 @@ function formatErrorMessage(error: KernelError): string {
 		? ((error.data as { collisions?: string[] }).collisions ?? [])
 		: [];
 
-	const lines = [`[wpk] init failed: ${error.message}`];
+	const lines = [`[wpk] create failed: ${error.message}`];
 
 	if (collisions.length > 0) {
 		lines.push('Conflicting files:');
@@ -75,31 +102,36 @@ function formatErrorMessage(error: KernelError): string {
 		}
 	}
 
-	const path = (error.data as { path?: unknown })?.path;
-	if (typeof path === 'string' && path.length > 0) {
-		lines.push(`  - ${path}`);
+	const pathEntry = (error.data as { path?: unknown })?.path;
+	if (typeof pathEntry === 'string' && pathEntry.length > 0) {
+		lines.push(`  - ${pathEntry}`);
 	}
 
 	return `${lines.join('\n')}\n`;
 }
 
-export function buildInitCommand(
-	options: BuildInitCommandOptions = {}
-): InitCommandConstructor {
+export function buildCreateCommand(
+	options: BuildCreateCommandOptions = {}
+): CreateCommandConstructor {
 	const dependencies = mergeDependencies(options);
 
-	class NextInitCommand extends Command {
-		static override paths = [['init']];
+	class NextCreateCommand extends Command {
+		static override paths = [['create']];
 
 		static override usage = Command.Usage({
 			description:
-				'Initialise a WP Kernel project by scaffolding config, entrypoint, and linting presets.',
+				'Create a new WP Kernel project, initialise git, and install dependencies.',
 			examples: [
-				['Scaffold project files', 'wpk init --name=my-plugin'],
-				['Overwrite existing files', 'wpk init --force'],
+				['Create project in current directory', 'wpk create'],
+				['Create project in ./demo-plugin', 'wpk create demo-plugin'],
+				[
+					'Create without installing dependencies',
+					'wpk create demo --skip-install',
+				],
 			],
 		});
 
+		target = Option.String({ name: 'directory', required: false });
 		name = Option.String('--name', {
 			description: 'Project slug used for namespace/package defaults',
 			required: false,
@@ -117,6 +149,7 @@ export function buildInitCommand(
 			'--prefer-registry-versions',
 			false
 		);
+		skipInstall = Option.Boolean('--skip-install', false);
 
 		public summary: string | null = null;
 		public manifest: FileManifest | null = null;
@@ -130,8 +163,21 @@ export function buildInitCommand(
 			});
 
 			try {
-				const workspaceRoot = resolveWorkspaceRoot(this.context);
-				const workspace = dependencies.buildWorkspace(workspaceRoot);
+				const base = resolveBaseDirectory(this.context);
+				const targetValue =
+					typeof this.target === 'string' && this.target.length > 0
+						? this.target
+						: undefined;
+				const targetRoot = resolveTargetDirectory(base, targetValue);
+
+				const workspace = dependencies.buildWorkspace(targetRoot);
+				await dependencies.ensureCleanDirectory({
+					workspace,
+					directory: targetRoot,
+					force: this.force === true,
+					create: true,
+					reporter,
+				});
 
 				const projectName =
 					typeof this.name === 'string' && this.name.length > 0
@@ -145,8 +191,6 @@ export function buildInitCommand(
 				const force = this.force === true;
 				const verbose = this.verbose === true;
 				const preferRegistry = this.preferRegistryVersions === true;
-
-				await this.warnWhenGitMissing(workspace, reporter);
 
 				const result = await this.runWorkflow({
 					workspace,
@@ -163,12 +207,14 @@ export function buildInitCommand(
 					},
 				});
 
-				this.manifest = result.manifest;
 				this.summary = result.summaryText;
+				this.manifest = result.manifest;
 				this.dependencySource = result.dependencySource;
 
-				this.context.stdout.write(result.summaryText);
+				await this.ensureGitRepository(workspace, reporter);
+				await this.installDependencies(workspace, reporter);
 
+				this.context.stdout.write(result.summaryText);
 				return WPK_EXIT_CODES.SUCCESS;
 			} catch (error) {
 				this.summary = null;
@@ -184,42 +230,45 @@ export function buildInitCommand(
 			}
 		}
 
-		private async warnWhenGitMissing(
+		private async ensureGitRepository(
 			workspace: Workspace,
 			reporter: Reporter
 		): Promise<void> {
-			try {
-				const hasGit = await dependencies.checkGitRepository(
-					workspace.root
-				);
-				if (!hasGit) {
-					reporter.warn(
-						'Git repository not detected. Run `git init` to enable version control before committing generated files.'
-					);
-				}
-			} catch (error) {
-				if (KernelError.isKernelError(error)) {
-					throw error;
-				}
-
-				throw new KernelError('DeveloperError', {
-					message:
-						'Unable to verify git repository status for init command.',
-					context: {
-						error: String(
-							(error as { message?: unknown }).message ?? error
-						),
-					},
-				});
+			const hasGit = await dependencies.checkGitRepository(
+				workspace.root
+			);
+			if (hasGit) {
+				return;
 			}
+
+			reporter.info('Initialising git repository.');
+			await dependencies.initGitRepository(workspace.root);
+		}
+
+		private async installDependencies(
+			workspace: Workspace,
+			reporter: Reporter
+		): Promise<void> {
+			if (this.skipInstall === true) {
+				reporter.warn(
+					'Skipping dependency installation (--skip-install provided).'
+				);
+				return;
+			}
+
+			reporter.info('Installing npm dependencies...');
+			await dependencies.installNodeDependencies(workspace.root);
+
+			reporter.info('Installing composer dependencies...');
+			await dependencies.installComposerDependencies(workspace.root);
 		}
 
 		private runWorkflow(
-			workflowOptions: Omit<InitWorkflowOptions, 'runWorkflow'>
+			workflowOptions: InitWorkflowOptions
 		): Promise<InitWorkflowResult> {
 			return dependencies.runWorkflow(workflowOptions);
 		}
 	}
 
-	return NextInitCommand as InitCommandConstructor;
+	return NextCreateCommand as CreateCommandConstructor;
 }
