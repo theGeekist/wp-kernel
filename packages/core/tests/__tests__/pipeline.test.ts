@@ -4,6 +4,8 @@ import type {
 	Helper,
 	PipelineDiagnostic,
 	PipelineStep,
+	FragmentFinalizationMetadata,
+	PipelineExecutionMetadata,
 } from '../../src/pipeline/index.js';
 import { createNoopReporter } from '../../src/reporter/index.js';
 import type { Reporter } from '../../src/reporter/types.js';
@@ -344,6 +346,105 @@ describe('pipeline primitives', () => {
 		pipeline.builders.use(overrideA);
 
 		expect(() => pipeline.builders.use(overrideB)).toThrow(KernelError);
+	});
+
+	it('provides helper execution metadata to finalisation and run results', async () => {
+		const reporter = createNoopReporter();
+		const finalisationMetadata: FragmentFinalizationMetadata<'fragment'>[] =
+			[];
+		const runMetadata: PipelineExecutionMetadata<'fragment', 'builder'>[] =
+			[];
+		const pipeline = createTestPipeline({
+			finalizeFragmentState({ draft, helpers }) {
+				finalisationMetadata.push(helpers);
+				return draft.values.slice();
+			},
+			createRunResult({
+				artifact,
+				diagnostics,
+				steps,
+				context,
+				helpers,
+			}) {
+				runMetadata.push(helpers);
+				return {
+					artifact,
+					diagnostics,
+					steps,
+					logs: context.logs.slice(),
+				} satisfies TestRunResult;
+			},
+		});
+
+		const firstFragment = createHelper<
+			TestContext,
+			FragmentInput,
+			FragmentOutput,
+			Reporter,
+			'fragment'
+		>({
+			key: 'fragment.alpha',
+			kind: 'fragment',
+			async apply({ output }: FragmentApplyArgs) {
+				output.append(1);
+			},
+		});
+
+		const secondFragment = createHelper<
+			TestContext,
+			FragmentInput,
+			FragmentOutput,
+			Reporter,
+			'fragment'
+		>({
+			key: 'fragment.beta',
+			kind: 'fragment',
+			dependsOn: ['fragment.alpha'],
+			async apply({ output }: FragmentApplyArgs) {
+				output.append(2);
+			},
+		});
+
+		const builder = createHelper<
+			TestContext,
+			BuilderInput,
+			BuilderOutput,
+			Reporter,
+			'builder'
+		>({
+			key: 'builder.core',
+			kind: 'builder',
+			async apply({ context }: BuilderApplyArgs) {
+				context.logs.push('builder:core');
+			},
+		});
+
+		pipeline.ir.use(firstFragment);
+		pipeline.ir.use(secondFragment);
+		pipeline.builders.use(builder);
+
+		await pipeline.run({
+			reporter,
+			workspace: '/tmp/workspace',
+			seed: 21,
+		});
+
+		expect(finalisationMetadata).toHaveLength(1);
+		const [finaliseHelpers] = finalisationMetadata;
+		expect(finaliseHelpers?.fragments.executed).toEqual([
+			'fragment.alpha',
+			'fragment.beta',
+		]);
+		expect(finaliseHelpers?.fragments.missing).toEqual([]);
+
+		expect(runMetadata).toHaveLength(1);
+		const [runHelpers] = runMetadata;
+		expect(runHelpers?.fragments.executed).toEqual([
+			'fragment.alpha',
+			'fragment.beta',
+		]);
+		expect(runHelpers?.builders.executed).toEqual(['builder.core']);
+		expect(runHelpers?.builders.missing).toEqual([]);
 	});
 
 	it('records diagnostics for missing dependencies', async () => {
