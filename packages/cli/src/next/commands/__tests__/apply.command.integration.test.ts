@@ -59,6 +59,13 @@ describe('NextApplyCommand integration', () => {
 					description: 'Update controller shim',
 				}),
 			]);
+			expect(command.manifest?.actions).toEqual(
+				expect.arrayContaining([
+					target,
+					path.posix.join('.wpk', 'apply', 'manifest.json'),
+					path.posix.join('.wpk', 'apply', 'base', target),
+				])
+			);
 			expect(stdout.toString()).toContain('Applied: 1');
 			expect(stdout.toString()).toContain(target);
 

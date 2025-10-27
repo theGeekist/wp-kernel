@@ -9,7 +9,7 @@ declare(strict_types=1);
  * Edits between WPK:BEGIN AUTO and WPK:END AUTO will be overwritten.
  * Source: wpk.config.ts → resources (namespace: DemoPlugin)
  */
-namespace Demo\\Plugin\\Rest;
+namespace Demo\\Plugin\\Generated\\Rest;
 
 // WPK:BEGIN AUTO
 abstract class BaseController
@@ -38,9 +38,9 @@ declare(strict_types=1);
  * Route: [PUT] /kernel/v1/books/:slug
  * Route: [DELETE] /kernel/v1/books/:slug
  */
-namespace Demo\\Plugin\\Rest;
+namespace Demo\\Plugin\\Generated\\Rest;
 
-use Demo\\Plugin\\Policy\\Policy;
+use Demo\\Plugin\\Generated\\Policy\\Policy;
 use WP_Error;
 use WP_Post;
 use WP_Query;
@@ -285,9 +285,9 @@ declare(strict_types=1);
  * Route: [GET] /kernel/v1/demo-option
  * Route: [PUT] /kernel/v1/demo-option
  */
-namespace Demo\\Plugin\\Rest;
+namespace Demo\\Plugin\\Generated\\Rest;
 
-use Demo\\Plugin\\Policy\\Policy;
+use Demo\\Plugin\\Generated\\Policy\\Policy;
 use WP_Error;
 use WP_REST_Request;
 use function is_wp_error;
@@ -385,9 +385,9 @@ declare(strict_types=1);
  * Route: [PUT] /kernel/v1/job-cache
  * Route: [DELETE] /kernel/v1/job-cache
  */
-namespace Demo\\Plugin\\Rest;
+namespace Demo\\Plugin\\Generated\\Rest;
 
-use Demo\\Plugin\\Policy\\Policy;
+use Demo\\Plugin\\Generated\\Policy\\Policy;
 use WP_Error;
 use WP_REST_Request;
 use function is_wp_error;
@@ -496,7 +496,7 @@ declare(strict_types=1);
  * Edits between WPK:BEGIN AUTO and WPK:END AUTO will be overwritten.
  * Source: wpk.config.ts → policy-map ([fallback])
  */
-namespace Demo\\Plugin\\Policy;
+namespace Demo\\Plugin\\Generated\\Policy;
 
 use WP_Error;
 use WP_REST_Request;

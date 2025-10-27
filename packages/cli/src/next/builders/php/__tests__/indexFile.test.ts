@@ -79,12 +79,12 @@ describe('createPhpIndexFileHelper', () => {
 			expect.arrayContaining([
 				expect.objectContaining({
 					key: expect.objectContaining({
-						value: 'Demo\\Plugin\\Rest\\BooksController',
+						value: 'Demo\\Plugin\\Generated\\Rest\\BooksController',
 					}),
 				}),
 				expect.objectContaining({
 					key: expect.objectContaining({
-						value: 'Demo\\Plugin\\Rest\\AuthorsController',
+						value: 'Demo\\Plugin\\Generated\\Rest\\AuthorsController',
 					}),
 				}),
 			])
