@@ -2,6 +2,22 @@
 
 declare(strict_types=1);
 
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
+
+set_error_handler(
+    static function (int $severity, string $message, string $file = '', int $line = 0): bool {
+        if (($severity & (E_DEPRECATED | E_USER_DEPRECATED)) === 0) {
+            return false;
+        }
+
+        $location = $file !== '' ? " in {$file}" : '';
+        $lineInfo = $line > 0 ? " on line {$line}" : '';
+        fwrite(STDERR, "Deprecated: {$message}{$location}{$lineInfo}\n");
+
+        return true;
+    }
+);
+
 if ($argc < 3) {
     fwrite(STDERR, "Usage: php pretty-print.php <workspace-root> <file>\n");
     exit(1);
