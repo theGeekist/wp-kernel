@@ -46,6 +46,19 @@ import { ActionButton } from '@wpkernel/ui';
 <ActionButton action={CreatePost}>Create Post</ActionButton>
 ```
 
+## Peer dependencies
+
+Install the WordPress runtime packages alongside `@wpkernel/core` so builds
+never inline them. The framework currently targets:
+
+- `@wordpress/api-fetch` `>=7.32.0`
+- `@wordpress/data` `>=10.32.0`
+- `@wordpress/element` `>=6.32.0`
+- `@wordpress/hooks` `>=4.32.0`
+
+Run `pnpm lint:peers` before committing to confirm every workspace is aligned
+with the shared policy from `scripts/check-framework-peers.ts`.
+
 ## Testing Helpers
 
 - `@wpkernel/test-utils/core` exposes the WordPress harness family

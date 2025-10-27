@@ -15,6 +15,7 @@
 		"src/*.spec.tsx",
 		"vite.config.ts",
 		"../../vite.config.base.ts",
+		"../../scripts/config/framework-peers.ts",
 		"./package.json"
 	],
 	"references": [

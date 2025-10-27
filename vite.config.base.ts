@@ -4,6 +4,8 @@ import dts from 'vite-plugin-dts';
 // eslint-disable-next-line camelcase
 import { wp_globals } from '@kucrut/vite-for-wp/utils';
 
+import { FRAMEWORK_PEERS } from './scripts/config/framework-peers';
+
 // Accept array OR predicate for externals
 type ExternalOpt = Array<string | RegExp> | ((id: string) => boolean);
 
@@ -35,6 +37,17 @@ export const createWPKLibConfig = (
 	// Normalise externals to Rollup’s accepted shapes (array OR function)
 	const userExternal = options.external;
 
+	const escapeRegex = (value: string): string =>
+		value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+	const peerExternal: Array<string | RegExp> = Object.entries(
+		FRAMEWORK_PEERS
+	).map(([dependency, spec]) =>
+		spec.kind === 'internal'
+			? new RegExp(`^${escapeRegex(dependency)}(\/.*)?$`)
+			: dependency
+	);
+
 	// Default external policy:
 	// - All WP ids (incl. any @wordpress/*)
 	// - React bits (just in case something imports jsx-runtime)
@@ -43,10 +56,8 @@ export const createWPKLibConfig = (
 	// - A few heavy tools used by CLI/plugins (left external on purpose)
 	const defaultExternalArray: Array<string | RegExp> = [
 		...wpIds,
-		'react',
-		'react-dom',
+		...peerExternal,
 		'react/jsx-runtime',
-		/^@wpkernel\/core(\/.*)?$/,
 		/^node:/,
 		'fs',
 		'fs/promises',
