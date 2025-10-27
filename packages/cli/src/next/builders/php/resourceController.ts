@@ -74,6 +74,7 @@ export function createPhpResourceControllerHelper(): BuilderHelper {
 			}
 
 			for (const resource of ir.resources) {
+				warnOnMissingPolicies({ reporter, resource });
 				const namespaceRoot = ir.php.namespace;
 				const namespace = `${namespaceRoot}\\Rest`;
 				const className = `${toPascalCase(resource.name)}Controller`;
@@ -115,6 +116,37 @@ export function createPhpResourceControllerHelper(): BuilderHelper {
 			await next?.();
 		},
 	});
+}
+
+function warnOnMissingPolicies(options: {
+	readonly reporter: BuilderApplyOptions['reporter'];
+	readonly resource: IRResource;
+}): void {
+	const { reporter, resource } = options;
+
+	for (const route of resource.routes) {
+		if (!isWriteRoute(route.method) || route.policy) {
+			continue;
+		}
+
+		reporter.warn('Write route missing policy.', {
+			resource: resource.name,
+			method: route.method,
+			path: route.path,
+		});
+	}
+}
+
+function isWriteRoute(method: string): boolean {
+	switch (method.toUpperCase()) {
+		case 'POST':
+		case 'PUT':
+		case 'PATCH':
+		case 'DELETE':
+			return true;
+		default:
+			return false;
+	}
 }
 
 interface BuildResourceControllerOptions {
