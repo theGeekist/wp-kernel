@@ -4,7 +4,6 @@ import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
 import { assignCommandContext } from '@wpkernel/test-utils/cli';
 import { createWorkspaceRunner as buildWorkspaceRunner } from '../../../../tests/workspace.test-support';
 import * as ApplyModule from '../apply';
-import { loadKernelConfig } from '../../../config';
 import {
 	TMP_PREFIX,
 	buildLoadedConfig,
@@ -12,25 +11,11 @@ import {
 	toFsPath,
 } from '@wpkernel/test-utils/next/commands/apply.test-support';
 
-jest.mock('../../../config');
-
-const loadKernelConfigMock = loadKernelConfig as jest.MockedFunction<
-	typeof loadKernelConfig
->;
-
 const withWorkspace = buildWorkspaceRunner({ prefix: TMP_PREFIX });
 
 describe('NextApplyCommand integration', () => {
-	beforeEach(() => {
-		jest.resetAllMocks();
-	});
-
 	it('applies git patches and reports summary', async () => {
 		await withWorkspace(async (workspace) => {
-			loadKernelConfigMock.mockResolvedValue(
-				buildLoadedConfig(workspace)
-			);
-
 			const target = path.posix.join('php', 'JobController.php');
 			const baseContents = ['<?php', 'class JobController {}', ''].join(
 				'\n'
@@ -48,7 +33,13 @@ describe('NextApplyCommand integration', () => {
 				current: baseContents,
 			});
 
-			const command = new ApplyModule.NextApplyCommand();
+			const loadConfig = jest
+				.fn()
+				.mockResolvedValue(buildLoadedConfig(workspace));
+			const ApplyCommand = ApplyModule.buildApplyCommand({
+				loadKernelConfig: loadConfig,
+			});
+			const command = new ApplyCommand();
 			const { stdout } = assignCommandContext(command, {
 				cwd: workspace,
 			});
@@ -79,11 +70,13 @@ describe('NextApplyCommand integration', () => {
 
 	it('returns success when no plan exists', async () => {
 		await withWorkspace(async (workspace) => {
-			loadKernelConfigMock.mockResolvedValue(
-				buildLoadedConfig(workspace)
-			);
-
-			const command = new ApplyModule.NextApplyCommand();
+			const loadConfig = jest
+				.fn()
+				.mockResolvedValue(buildLoadedConfig(workspace));
+			const ApplyCommand = ApplyModule.buildApplyCommand({
+				loadKernelConfig: loadConfig,
+			});
+			const command = new ApplyCommand();
 			const { stdout } = assignCommandContext(command, {
 				cwd: workspace,
 			});
@@ -103,10 +96,6 @@ describe('NextApplyCommand integration', () => {
 
 	it('exits with validation error when conflicts occur', async () => {
 		await withWorkspace(async (workspace) => {
-			loadKernelConfigMock.mockResolvedValue(
-				buildLoadedConfig(workspace)
-			);
-
 			const target = path.posix.join('php', 'Conflict.php');
 			const base = ['line-one', 'line-two', ''].join('\n');
 			const incoming = ['line-one updated', 'line-two', ''].join('\n');
@@ -119,7 +108,13 @@ describe('NextApplyCommand integration', () => {
 				description: 'Introduce new logic',
 			});
 
-			const command = new ApplyModule.NextApplyCommand();
+			const loadConfig = jest
+				.fn()
+				.mockResolvedValue(buildLoadedConfig(workspace));
+			const ApplyCommand = ApplyModule.buildApplyCommand({
+				loadKernelConfig: loadConfig,
+			});
+			const command = new ApplyCommand();
 			const { stdout } = assignCommandContext(command, {
 				cwd: workspace,
 			});

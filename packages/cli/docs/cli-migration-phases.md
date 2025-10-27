@@ -68,7 +68,7 @@ Core builders exist:
 ### Commands
 
 - `commands/index.ts` exports:
-    - `NextApplyCommand` (CLI entry point around `createPatcher`).
+    - `buildApplyCommand` producing `NextApplyCommand` (CLI entry point around `createPatcher`).
     - Factory commands `buildInitCommand`, `buildGenerateCommand`, `buildStartCommand`, `buildDoctorCommand` that currently delegate to the existing string-based implementations until parity work lands.
 
 ### Testing
@@ -146,7 +146,7 @@ These align with `docs/pipeline-integration-tasks.md` and related planning docs.
 
 1. **Apply layering & flag parity**
     - Implement user-extends-generated shims (`docs/apply-workflow-phases.md`).
-    - Port flag handling, backups, `.wpk-apply.log`, and generated-directory hygiene into `NextApplyCommand`.
+    - Port flag handling, backups, `.wpk-apply.log`, and generated-directory hygiene into the `buildApplyCommand` surface and default `NextApplyCommand`.
 2. **PHP AST parity**
     - Track progress in `docs/php-ast-migration-tasks.md`.
     - Outstanding: transient fixture/doc refresh (Task 13), block printers, and removal of string-based printers once complete.
