@@ -187,4 +187,125 @@ describe('collectBlockManifests', () => {
 			expect(processed?.renderStub).toBeUndefined();
 		});
 	});
+
+	it('refreshes cached manifest data when the manifest file changes', async () => {
+		await withWorkspace(async ({ workspace }) => {
+			const blockDir = path.join('src', 'blocks', 'cache');
+			const manifestPath = path.join(blockDir, 'block.json');
+
+			await workspace.write(
+				manifestPath,
+				JSON.stringify(
+					{
+						name: 'demo/cache',
+						title: 'Initial Title',
+						icon: 'smiley',
+						category: 'widgets',
+						editorScript: 'file:./index.js',
+					},
+					null,
+					2
+				)
+			);
+
+			const block: IRBlock = {
+				key: 'demo/cache',
+				directory: blockDir,
+				hasRender: true,
+				manifestSource: manifestPath,
+			};
+
+			const first = await collectBlockManifests({
+				workspace,
+				blocks: [block],
+			});
+
+			expect(first.get(block.key)?.manifestObject?.title).toBe(
+				'Initial Title'
+			);
+
+			await workspace.write(
+				manifestPath,
+				JSON.stringify(
+					{
+						name: 'demo/cache',
+						title: 'Updated Title',
+						icon: 'smiley',
+						category: 'widgets',
+						editorScript: 'file:./index.js',
+					},
+					null,
+					2
+				)
+			);
+
+			const second = await collectBlockManifests({
+				workspace,
+				blocks: [block],
+			});
+
+			expect(second.get(block.key)?.manifestObject?.title).toBe(
+				'Updated Title'
+			);
+		});
+	});
+
+	it('refreshes cached render data when a render file materialises', async () => {
+		await withWorkspace(async ({ workspace, root }) => {
+			const blockDir = path.join('src', 'blocks', 'render');
+			const manifestPath = path.join(blockDir, 'block.json');
+			const renderPath = path.join(blockDir, 'render.php');
+
+			await workspace.write(
+				manifestPath,
+				JSON.stringify(
+					{
+						name: 'demo/render',
+						title: 'Render Cache',
+						icon: 'smiley',
+						category: 'widgets',
+						editorScript: 'file:./index.js',
+						render: 'file:./render.php',
+					},
+					null,
+					2
+				)
+			);
+
+			const block: IRBlock = {
+				key: 'demo/render',
+				directory: blockDir,
+				hasRender: true,
+				manifestSource: manifestPath,
+			};
+
+			const first = await collectBlockManifests({
+				workspace,
+				blocks: [block],
+			});
+			const firstProcessed = first.get(block.key);
+			expect(firstProcessed?.renderStub?.path).toBe(
+				path.join(root, renderPath)
+			);
+			expect(firstProcessed?.warnings).toContain(
+				'Block "demo/render": render file declared in manifest was missing; created stub at src/blocks/render/render.php.'
+			);
+
+			await workspace.write(renderPath, '<?php echo "render";\n');
+
+			const second = await collectBlockManifests({
+				workspace,
+				blocks: [block],
+			});
+			const secondProcessed = second.get(block.key);
+			expect(secondProcessed?.renderStub).toBeUndefined();
+			expect(secondProcessed?.warnings).not.toContain(
+				'Block "demo/render": render file declared in manifest was missing; created stub at src/blocks/render/render.php.'
+			);
+			expect(secondProcessed?.renderPath).toEqual({
+				absolutePath: path.join(root, renderPath),
+				relativePath: 'src/blocks/render/render.php',
+			});
+		});
+	});
 });

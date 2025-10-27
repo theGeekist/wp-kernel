@@ -1,3 +1,5 @@
+import { createHash } from 'node:crypto';
+import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { Workspace } from '../../workspace/types';
 import type { IRBlock } from '../../../ir/types';
@@ -30,9 +32,27 @@ export interface ProcessedBlockManifest {
 	readonly registrar: BlockRegistrarMetadata;
 }
 
+interface FileSignature {
+	readonly exists: boolean;
+	readonly mtimeMs?: number;
+	readonly size?: number;
+	readonly hash?: string;
+}
+
+interface PathSignature {
+	readonly path: string;
+	readonly signature: FileSignature;
+}
+
+interface BlockManifestSignature {
+	readonly manifest: PathSignature;
+	readonly render?: PathSignature;
+}
+
 interface BlockManifestCache {
 	key: string;
 	data: Map<string, ProcessedBlockManifest>;
+	signatures: Map<string, BlockManifestSignature>;
 }
 
 const BLOCK_CACHE = new WeakMap<Workspace, BlockManifestCache>();
@@ -46,22 +66,29 @@ export async function collectBlockManifests({
 	workspace,
 	blocks,
 }: CollectBlockManifestsOptions): Promise<Map<string, ProcessedBlockManifest>> {
-	const cacheKey = buildCacheKey(blocks);
+	const sortedBlocks = [...blocks].sort((a, b) => a.key.localeCompare(b.key));
+	const cacheKey = buildCacheKey(sortedBlocks);
 	const cached = BLOCK_CACHE.get(workspace);
 	if (cached && cached.key === cacheKey) {
-		return cached.data;
+		const valid = await isCacheValid(workspace, sortedBlocks, cached);
+		if (valid) {
+			return cached.data;
+		}
 	}
 
 	const map = new Map<string, ProcessedBlockManifest>();
+	const signatures = new Map<string, BlockManifestSignature>();
 
-	for (const block of [...blocks].sort((a, b) =>
-		a.key.localeCompare(b.key)
-	)) {
+	for (const block of sortedBlocks) {
 		const processed = await processBlock(workspace, block);
 		map.set(block.key, processed);
+		signatures.set(
+			block.key,
+			await buildBlockSignature(workspace, block, processed)
+		);
 	}
 
-	BLOCK_CACHE.set(workspace, { key: cacheKey, data: map });
+	BLOCK_CACHE.set(workspace, { key: cacheKey, data: map, signatures });
 	return map;
 }
 
@@ -216,6 +243,131 @@ async function processBlock(
 		renderStub,
 		registrar,
 	} satisfies ProcessedBlockManifest;
+}
+
+async function isCacheValid(
+	workspace: Workspace,
+	blocks: readonly IRBlock[],
+	cache: BlockManifestCache
+): Promise<boolean> {
+	if (
+		cache.data.size !== blocks.length ||
+		cache.signatures.size !== blocks.length
+	) {
+		return false;
+	}
+
+	for (const block of blocks) {
+		const processed = cache.data.get(block.key);
+		const previousSignature = cache.signatures.get(block.key);
+		if (!processed || !previousSignature) {
+			return false;
+		}
+
+		const currentSignature = await buildBlockSignature(
+			workspace,
+			block,
+			processed
+		);
+
+		if (
+			!pathSignatureEqual(
+				previousSignature.manifest,
+				currentSignature.manifest
+			)
+		) {
+			return false;
+		}
+
+		if (
+			!pathSignatureEqual(
+				previousSignature.render,
+				currentSignature.render
+			)
+		) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+async function buildBlockSignature(
+	workspace: Workspace,
+	block: IRBlock,
+	processed: ProcessedBlockManifest
+): Promise<BlockManifestSignature> {
+	const manifestAbsolutePath = workspace.resolve(block.manifestSource);
+	const manifest: PathSignature = {
+		path: manifestAbsolutePath,
+		signature: await describeFile(manifestAbsolutePath),
+	};
+
+	const renderAbsolutePath = processed.renderPath?.absolutePath;
+	const render = renderAbsolutePath
+		? {
+				path: renderAbsolutePath,
+				signature: await describeFile(renderAbsolutePath),
+			}
+		: undefined;
+
+	return { manifest, render } satisfies BlockManifestSignature;
+}
+
+async function describeFile(absolutePath: string): Promise<FileSignature> {
+	try {
+		const stats = await fs.lstat(absolutePath);
+		let hash: string | undefined;
+
+		if (stats.isFile()) {
+			const contents = await fs.readFile(absolutePath);
+			hash = createHash('sha1').update(contents).digest('hex');
+		}
+
+		return {
+			exists: true,
+			mtimeMs: stats.mtimeMs,
+			size: stats.size,
+			hash,
+		} satisfies FileSignature;
+	} catch (error) {
+		if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+			return { exists: false } satisfies FileSignature;
+		}
+
+		throw error;
+	}
+}
+
+function pathSignatureEqual(
+	previous?: PathSignature,
+	current?: PathSignature
+): boolean {
+	if (!previous && !current) {
+		return true;
+	}
+
+	if (!previous || !current) {
+		return false;
+	}
+
+	if (previous.path !== current.path) {
+		return false;
+	}
+
+	return fileSignatureEqual(previous.signature, current.signature);
+}
+
+function fileSignatureEqual(a: FileSignature, b: FileSignature): boolean {
+	if (a.exists !== b.exists) {
+		return false;
+	}
+
+	if (!a.exists) {
+		return true;
+	}
+
+	return a.mtimeMs === b.mtimeMs && a.size === b.size && a.hash === b.hash;
 }
 
 async function readManifest(
