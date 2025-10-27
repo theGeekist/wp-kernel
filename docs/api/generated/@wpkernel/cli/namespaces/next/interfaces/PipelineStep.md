@@ -1,4 +1,4 @@
-[**WP Kernel API v0.6.0**](../../../../../README.md)
+[**WP Kernel API v0.7.0**](../../../../../README.md)
 
 ---
 
@@ -8,81 +8,9 @@
 
 ## Extends
 
-- [`HelperDescriptor`](HelperDescriptor.md)
+- [`HelperDescriptor`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md)
 
 ## Properties
-
-### key
-
-```ts
-readonly key: string;
-```
-
-#### Inherited from
-
-[`HelperDescriptor`](HelperDescriptor.md).[`key`](HelperDescriptor.md#key)
-
----
-
-### kind
-
-```ts
-readonly kind: HelperKind;
-```
-
-#### Inherited from
-
-[`HelperDescriptor`](HelperDescriptor.md).[`kind`](HelperDescriptor.md#kind)
-
----
-
-### mode
-
-```ts
-readonly mode: HelperMode;
-```
-
-#### Inherited from
-
-[`HelperDescriptor`](HelperDescriptor.md).[`mode`](HelperDescriptor.md#mode)
-
----
-
-### priority
-
-```ts
-readonly priority: number;
-```
-
-#### Inherited from
-
-[`HelperDescriptor`](HelperDescriptor.md).[`priority`](HelperDescriptor.md#priority)
-
----
-
-### dependsOn
-
-```ts
-readonly dependsOn: readonly string[];
-```
-
-#### Inherited from
-
-[`HelperDescriptor`](HelperDescriptor.md).[`dependsOn`](HelperDescriptor.md#dependson)
-
----
-
-### origin?
-
-```ts
-readonly optional origin: string;
-```
-
-#### Inherited from
-
-[`HelperDescriptor`](HelperDescriptor.md).[`origin`](HelperDescriptor.md#origin)
-
----
 
 ### id
 
@@ -97,3 +25,75 @@ readonly id: string;
 ```ts
 readonly index: number;
 ```
+
+---
+
+### key
+
+```ts
+readonly key: string;
+```
+
+#### Inherited from
+
+[`HelperDescriptor`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md).[`key`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md#key)
+
+---
+
+### kind
+
+```ts
+readonly kind: HelperKind;
+```
+
+#### Inherited from
+
+[`HelperDescriptor`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md).[`kind`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md#kind)
+
+---
+
+### mode
+
+```ts
+readonly mode: HelperMode;
+```
+
+#### Inherited from
+
+[`HelperDescriptor`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md).[`mode`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md#mode)
+
+---
+
+### priority
+
+```ts
+readonly priority: number;
+```
+
+#### Inherited from
+
+[`HelperDescriptor`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md).[`priority`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md#priority)
+
+---
+
+### dependsOn
+
+```ts
+readonly dependsOn: readonly string[];
+```
+
+#### Inherited from
+
+[`HelperDescriptor`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md).[`dependsOn`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md#dependson)
+
+---
+
+### origin?
+
+```ts
+readonly optional origin: string;
+```
+
+#### Inherited from
+
+[`HelperDescriptor`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md).[`origin`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md#origin)

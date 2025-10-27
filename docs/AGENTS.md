@@ -18,7 +18,7 @@ Large documentation updates should mention the affected pages in `docs/guide/rep
 
 ### Versioning & Releases
 
-- Docs describe the pre-1.0 train: **current version is v0.6.x** across all publishable packages.
+- Docs describe the pre-1.0 train: **current version is v0.7.x** across all publishable packages.
 - When a task in `packages/cli/docs/mvp-plan.md` lands, mirror the patch/minor bump and update every relevant changelog/migration page in the same PR.
 - Remove or revise stale references to prior release numbers while keeping historical context sectioned under their respective changelog entries.
 

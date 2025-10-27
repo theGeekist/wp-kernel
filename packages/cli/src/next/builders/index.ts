@@ -5,5 +5,6 @@ export type {
 	PhpDriverConfigurationOptions,
 } from './php';
 export { createTsBuilder } from './ts';
+export { createJsBlocksBuilder } from './ts/blocks';
 export { createPatcher } from './patcher';
 export { createPhpDriverInstaller } from '@wpkernel/php-driver';

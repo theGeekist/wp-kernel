@@ -1,0 +1,61 @@
+[**WP Kernel API v0.7.0**](../../../README.md)
+
+---
+
+[WP Kernel API](../../../README.md) / [php-json-ast/src](../README.md) / PhpExprMethodCall
+
+# Interface: PhpExprMethodCall
+
+## Extends
+
+- [`PhpExprBase`](PhpExprBase.md)
+
+## Properties
+
+### attributes
+
+```ts
+readonly attributes: PhpAttributes;
+```
+
+#### Inherited from
+
+[`PhpExprBase`](PhpExprBase.md).[`attributes`](PhpExprBase.md#attributes)
+
+---
+
+### nodeType
+
+```ts
+readonly nodeType: "Expr_MethodCall";
+```
+
+#### Overrides
+
+[`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
+
+---
+
+### var
+
+```ts
+readonly var: PhpExpr;
+```
+
+---
+
+### name
+
+```ts
+readonly name:
+  | PhpExpr
+  | PhpIdentifier;
+```
+
+---
+
+### args
+
+```ts
+readonly args: PhpArg[];
+```

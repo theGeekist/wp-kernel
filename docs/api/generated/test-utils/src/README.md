@@ -1,4 +1,4 @@
-[**WP Kernel API v0.6.0**](../../README.md)
+[**WP Kernel API v0.7.0**](../../README.md)
 
 ---
 
@@ -15,6 +15,7 @@
 - [BaseContext](interfaces/BaseContext.md)
 - [CommandContextOptions](interfaces/CommandContextOptions.md)
 - [CommandContextHarness](interfaces/CommandContextHarness.md)
+- [FlushAsyncOptions](interfaces/FlushAsyncOptions.md)
 - [ActionRuntimeOverrides](interfaces/ActionRuntimeOverrides.md)
 - [WordPressHarnessOverrides](interfaces/WordPressHarnessOverrides.md)
 - [WordPressTestHarness](interfaces/WordPressTestHarness.md)
@@ -38,6 +39,7 @@
 
 - [createCommandContext](functions/createCommandContext.md)
 - [assignCommandContext](functions/assignCommandContext.md)
+- [flushAsync](functions/flushAsync.md)
 - [createMemoryStream](functions/createMemoryStream.md)
 - [applyActionRuntimeOverrides](functions/applyActionRuntimeOverrides.md)
 - [withActionRuntimeOverrides](functions/withActionRuntimeOverrides.md)

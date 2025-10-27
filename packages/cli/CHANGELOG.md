@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+## 0.7.0 - 2025-10-26
+
+### Added
+
+- **Block builder pipeline** – SSR and JS-only block generation now runs through shared manifest, registrar, and render helpers in the next pipeline, replacing the legacy string printers while preserving parity.
+
+### Fixed
+
+- **Manifest cache invalidation** – File signature tracking refreshes block manifests and render templates when source files change so builders rerun instead of serving stale artefacts.
+
+### Documentation
+
+- **Phase 3 closure** – MVP plan, migration phases, and AST tracker record Tasks 16-19 as shipped and document the shared `ts-morph` primitives powering the new builders.
+
+### Maintenance
+
+- **Release prep** – Version bumped to `0.7.0` alongside regenerated API docs and showcase fixtures after closing the Phase 3 buffer slot.
+
 ## 0.6.0 - 2025-10-26
 
 ### Added

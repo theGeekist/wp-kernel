@@ -1,4 +1,4 @@
-[**WP Kernel API v0.6.0**](../../../../../README.md)
+[**WP Kernel API v0.7.0**](../../../../../README.md)
 
 ---
 
@@ -7,9 +7,9 @@
 # Function: createPhpDriverInstaller()
 
 ```ts
-function createPhpDriverInstaller(): BuilderHelper;
+function createPhpDriverInstaller(): DriverHelper;
 ```
 
 ## Returns
 
-`BuilderHelper`
+`DriverHelper`

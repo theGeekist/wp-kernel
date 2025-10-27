@@ -1,4 +1,4 @@
-[**WP Kernel API v0.6.0**](../../../../../README.md)
+[**WP Kernel API v0.7.0**](../../../../../README.md)
 
 ---
 
@@ -24,7 +24,7 @@ use: (helper) => void;
 
 ###### helper
 
-`FragmentHelper`
+[`FragmentHelper`](../type-aliases/FragmentHelper.md)
 
 ##### Returns
 
@@ -48,7 +48,7 @@ use: (helper) => void;
 
 ###### helper
 
-`BuilderHelper`
+[`BuilderHelper`](../type-aliases/BuilderHelper.md)
 
 ##### Returns
 
@@ -65,18 +65,18 @@ readonly extensions: object;
 #### use()
 
 ```ts
-use: (extension) => void | Promise<void>;
+use: (extension) => unknown;
 ```
 
 ##### Parameters
 
 ###### extension
 
-`PipelineExtension`
+[`PipelineExtension`](PipelineExtension.md)
 
 ##### Returns
 
-`void` \| `Promise`\&lt;`void`\&gt;
+`unknown`
 
 ---
 
@@ -90,7 +90,7 @@ use: (helper) => void;
 
 ##### helper
 
-`FragmentHelper` | `BuilderHelper`
+[`FragmentHelper`](../type-aliases/FragmentHelper.md) | [`BuilderHelper`](../type-aliases/BuilderHelper.md)
 
 #### Returns
 

@@ -1,4 +1,4 @@
-[**WP Kernel API v0.6.0**](../../../README.md)
+[**WP Kernel API v0.7.0**](../../../README.md)
 
 ---
 
@@ -98,4 +98,12 @@ blocks: IRBlock[];
 
 ```ts
 php: IRPhpProject;
+```
+
+---
+
+### diagnostics?
+
+```ts
+optional diagnostics: IRDiagnostic[];
 ```

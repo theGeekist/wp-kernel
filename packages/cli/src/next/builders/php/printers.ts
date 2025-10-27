@@ -4,6 +4,7 @@ export { createPhpResourceControllerHelper } from './resourceController';
 export { createPhpPolicyHelper } from './policy';
 export { createPhpPersistenceRegistryHelper } from './persistenceRegistry';
 export { createPhpIndexFileHelper } from './indexFile';
+export { createPhpBlocksHelper } from './blocks';
 export { createPhpProgramWriterHelper } from './writer';
 export type { CreatePhpProgramWriterHelperOptions } from './writer';
 export { getPhpBuilderChannel, resetPhpBuilderChannel } from './channel';
