@@ -21,7 +21,20 @@ jest.setTimeout(120_000);
 const PACKAGE_ROOT = path.resolve(__dirname, '..', '..', '..');
 const WORKSPACE_ROOT = PACKAGE_ROOT;
 const OUTPUT_ROOT = path.join(PACKAGE_ROOT, '.test-artifacts', 'ingestion');
-const FIXTURE_PATH = path.join(OUTPUT_ROOT, 'CodifiedController.php');
+const FIXTURE_NAME = 'CodifiedController.php';
+const FIXTURE_PATH = path.join(OUTPUT_ROOT, FIXTURE_NAME);
+const CANONICAL_FIXTURE_PATH = path.join(
+	PACKAGE_ROOT,
+	'fixtures',
+	'ingestion',
+	FIXTURE_NAME
+);
+const CANONICAL_AST_PATH = path.join(
+	PACKAGE_ROOT,
+	'fixtures',
+	'ingestion',
+	'CodifiedController.ast.json'
+);
 const INGESTION_SCRIPT = path.join(PACKAGE_ROOT, 'php', 'ingest-program.php');
 const VENDOR_DIRECTORY = path.join(PACKAGE_ROOT, 'vendor');
 
@@ -116,8 +129,7 @@ async function ensureFixture(): Promise<void> {
 	await fs.rm(OUTPUT_ROOT, { recursive: true, force: true });
 	await fs.mkdir(OUTPUT_ROOT, { recursive: true });
 
-	const source = `<?php\n\nnamespace Fixtures\\Codemod;\n\n#[PropertyHook('controller')]\nfinal class CodifiedController\n{\n        /**\n         * @var list<string>\n         */\n        public array $resources;\n}\n`;
-
+	const source = await fs.readFile(CANONICAL_FIXTURE_PATH, 'utf8');
 	await fs.writeFile(FIXTURE_PATH, source);
 }
 
@@ -241,8 +253,19 @@ describe('consumePhpProgramIngestion', () => {
 		const emittedPhp = await fs.readFile(filePath, 'utf8');
 		const emittedAst = await fs.readFile(`${filePath}.ast.json`, 'utf8');
 
+		const expectedAst = await fs.readFile(CANONICAL_AST_PATH, 'utf8');
+
+		expect(emittedPhp).toContain('declare (strict_types=1);');
 		expect(emittedPhp).toContain('final class CodifiedController');
-		expect(JSON.parse(emittedAst)).toEqual(message.program);
+		expect(emittedPhp).toContain("#[PropertyHook('resources')]");
+		expect(emittedPhp).toContain('* Describe the controller lifecycle.');
+		expect(emittedPhp).toContain(
+			'public function __construct(public readonly string $name)'
+		);
+
+		const parsedExpectedAst = JSON.parse(expectedAst);
+		expect(JSON.parse(emittedAst)).toEqual(parsedExpectedAst);
+		expect(message.program).toEqual(parsedExpectedAst);
 
 		expect(output.queueWrite).toHaveBeenCalledWith({
 			file: filePath,
