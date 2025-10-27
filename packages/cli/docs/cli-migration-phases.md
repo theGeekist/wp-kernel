@@ -131,14 +131,12 @@ export const createExampleHelper = () =>
 
 ## Current command surface
 
-| Command    | Implementation                            | Status            | Notes                                                                                                                                                                                                                 |
-| ---------- | ----------------------------------------- | ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `apply`    | `NextApplyCommand` + `createPatcher`      | Partially native  | Uses new patch plan/manifest pipeline; lacks flag parity (`--yes/--backup/--force`) and logging present in the earlier command. Apply layering (generated base + user shim) is tracked in `apply-workflow-phases.md`. |
-| `generate` | `buildGenerateCommand` (temporary bridge) | Migration pending | Native command should compose `createPipeline`, run diagnostics (`validateGeneratedImports`, policy/schema warnings), and emit artefacts without touching `inc/`.                                                     |
-| `start`    | `buildStartCommand` (temporary bridge)    | Migration pending | Needs helper-based watch orchestration (chokidar tiers, Vite dev server integration, optional auto-apply flag) implemented with the next pipeline.                                                                    |
-| `init`     | `buildInitCommand` (temporary bridge)     | Migration pending | Requires wpk workspace scaffolding templates once the pipeline stabilises.                                                                                                                                            |
-| `doctor`   | `buildDoctorCommand` (temporary stub)     | Migration pending | Next version should run health checks (config schema, composer autoload mapping, php-driver availability, workspace hygiene).                                                                                         |
-| `build`    | Deprecated                                | Not planned       | Plugin authors should wire their own build pipeline (Vite/Rollup/WordPress tooling). A new CLI `build` command is not planned.                                                                                        |
+See [Command Migration & Parity Plan](./command-migration-plan.md) for the authoritative command-by-command scope, legacy parity gaps, and MVP Plan mapping. Highlights:
+
+- `apply` remains partially native and must gain a `buildApplyCommand` factory in addition to shim/log/git parity.
+- `generate`, `init`, `start`, and `doctor` still delegate to legacy implementations through temporary `build*Command` bridges that need native replacements.
+- `create` has no implementation; it will wrap the init flow, bootstrap git, and install dependencies.
+- `build` stays deprecated with no planned replacement.
 
 ---
 
