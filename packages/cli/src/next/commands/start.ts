@@ -328,10 +328,10 @@ export function buildStartCommand(
 			}
 
 			child.stdout?.on('data', (chunk) => {
-				reporter.debug('Vite stdout.', { chunk: chunk.toString() });
+				reporter.info(chunk.toString());
 			});
 			child.stderr?.on('data', (chunk) => {
-				reporter.debug('Vite stderr.', { chunk: chunk.toString() });
+				reporter.warn(chunk.toString());
 			});
 
 			const exit = new Promise<void>((resolve) => {

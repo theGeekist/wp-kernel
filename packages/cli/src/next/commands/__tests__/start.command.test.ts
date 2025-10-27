@@ -203,6 +203,24 @@ describe('NextStartCommand', () => {
 		await shutdown(executePromise);
 	});
 
+	it('forwards Vite output at info and warn levels', async () => {
+		const reporter = createReporterMock();
+		const { command, viteProcess } = createStartCommand({
+			buildReporter: jest.fn().mockReturnValue(reporter),
+		});
+
+		const { executePromise } = await runCommand(command);
+
+		viteProcess.stdout.write('ready\n');
+		viteProcess.stderr.write('error\n');
+		await flushTimers();
+
+		expect(reporter.info).toHaveBeenCalledWith('ready\n');
+		expect(reporter.warn).toHaveBeenCalledWith('error\n');
+
+		await shutdown(executePromise);
+	});
+
 	it('stops the Vite dev server on shutdown', async () => {
 		const { command, viteProcess } = createStartCommand();
 		const { executePromise } = await runCommand(command);
