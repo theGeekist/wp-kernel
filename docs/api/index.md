@@ -4,9 +4,9 @@ Dive deep into the generated Typedoc for each package. Conceptual guides live un
 
 ## Package overviews
 
-- [`/api/@wpkernel/cli/`](./@wpkernel/cli/) - CLI commands, printer contracts, kernel config loaders.
-- [`/api/core/`](./core/) - runtime helpers, error taxonomy, HTTP transport, and resource utilities.
-- [`/api/@wpkernel/ui/`](./@wpkernel/ui/) - UI runtime, DataViews helpers, block bindings, and React hooks.
+- [`/api/@wpkernel/cli/`](./@wpkernel/cli/index.md) - CLI commands, printer contracts, kernel config loaders.
+- [`/api/core/`](./core/index.md) - runtime helpers, error taxonomy, HTTP transport, and resource utilities.
+- [`/api/@wpkernel/ui/`](./@wpkernel/ui/index.md) - UI runtime, DataViews helpers, block bindings, and React hooks.
 
 The generated pages are excluded from local search to keep the index lean. Use your browser search or the sidebar tree to jump directly to an interface or type alias.
 

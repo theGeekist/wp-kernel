@@ -1,6 +1,6 @@
 # Decision matrix
 
-This page explains what the CLI generates when you run `wpk generate` or `wpk apply`. It mirrors the internal matrix described in [`cli-decision-matrix.md`](../../cli-decision-matrix.md) and the printers under `packages/cli/src/printers`. No differences were found during the latest review.【F:packages/cli/src/printers/index.ts†L1-L16】
+This page explains what the CLI generates when you run `wpk generate` or `wpk apply`. It mirrors the internal matrix described in `cli-decision-matrix.md` at the repository root and the printers under `packages/cli/src/printers`. No differences were found during the latest review.【F:packages/cli/src/printers/index.ts†L1-L16】
 
 ## Types printer
 
