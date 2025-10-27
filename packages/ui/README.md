@@ -20,7 +20,17 @@ All runtime imports come from published packages (`@wordpress/dataviews`, `@word
 pnpm add @wpkernel/ui @wpkernel/core
 ```
 
-Peer dependencies (React 18+, WordPress 6.7+) must be installed alongside.
+Install the matching WordPress and React peers to avoid bundling them into the
+UI build:
+
+- `@wordpress/components` `>=30.5.0`
+- `@wordpress/data` `>=10.32.0`
+- `@wordpress/dataviews` `>=9.1.0`
+- `@wordpress/element` `>=6.32.0`
+- `react` `>=18.0.0`
+
+Run `pnpm lint:peers` to confirm every workspace honours the shared policy in
+`scripts/check-framework-peers.ts` before publishing.
 
 ## Bootstrapping the runtime
 

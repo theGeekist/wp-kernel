@@ -4,6 +4,19 @@
 
 WP Kernel is approaching its first coordinated framework release without `release-please`. The work below normalizes scaffolding for new packages, centralizes framework dependency policy, and documents a manual release process so we can iterate confidently toward stable npm publication. Each task is scoped to complete in a single development cycle and includes mandatory checks.
 
+> **Policy:** Mark the completion status for every task in the tracker below as part of the definition of done. A task is only complete once the section is updated with notes and verification details.
+
+## Completion tracking
+
+- [x] **Task 1 – Consolidate TypeScript/Jest scaffolding and registration**  
+       Completed – shared presets (`tsconfig.lib.json`, `tsconfig.tests.json`, `tsconfig.tests.cli.json`) are in place, package configs extend them, Jest helpers live under `scripts/config/create-wpk-jest-config.ts`, the `scripts/register-workspace.ts` CLI wires new workspaces, and docs cover the workflow in `docs/guide/adding-workspace-dependencies.md` plus `DEVELOPMENT.md`.
+- [x] **Task 2 – Centralize framework peer dependency policy and validation**  
+       Completed – `scripts/config/framework-peers.ts` defines the canonical versions, `scripts/check-framework-peers.ts` validates every package, `package.json` exposes `pnpm lint:peers`, `vite.config.base.ts` reads the map for Rollup externals, and package READMEs document the policy.
+- [ ] **Task 3 – Document manual framework release workflow**  
+       _Completion notes:_ _(update with summary, links, and required checks when finished.)_
+- [ ] **Task 4 – Automate documentation version sync and release tagging**  
+       _Completion notes:_ _(update with summary, links, and required checks when finished.)_
+
 ## Task 1 – Consolidate TypeScript/Jest scaffolding and registration
 
 **Objective:** Generate shared compiler/testing presets and automation that prevent `pnpm typecheck` / `pnpm typecheck:tests` from breaking whenever a new workspace is added.
