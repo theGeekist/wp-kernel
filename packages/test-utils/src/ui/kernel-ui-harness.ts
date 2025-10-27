@@ -1,9 +1,9 @@
 import { createElement, type ReactNode } from 'react';
-import { KernelEventBus } from '@wpkernel/core/events';
+import { WPKernelEventBus } from '@wpkernel/core/events';
 import type {
-	KernelInstance,
-	KernelRegistry,
-	KernelUIRuntime,
+	WPKInstance,
+	WPKernelRegistry,
+	WPKernelUIRuntime,
 } from '@wpkernel/core/data';
 import type { Reporter } from '@wpkernel/core/reporter';
 import { WPKernelError } from '@wpkernel/core/contracts';
@@ -13,22 +13,24 @@ import {
 } from '../core/wp-harness.js';
 import { createReporterMock } from '../shared/reporter.js';
 
-type KernelUIProviderComponent = (props: {
-	runtime: KernelUIRuntime;
+type WPKernelUIProviderComponent = (props: {
+	runtime: WPKernelUIRuntime;
 	children: ReactNode;
 }) => ReturnType<typeof createElement>;
 
 export interface KernelUITestHarnessOptions {
 	reporter?: Partial<Reporter>;
 	namespace?: string;
-	provider?: KernelUIProviderComponent;
+	provider?: WPKernelUIProviderComponent;
 }
 
 export interface KernelUITestHarness {
 	wordpress: WordPressTestHarness;
-	createRuntime: (overrides?: Partial<KernelUIRuntime>) => KernelUIRuntime;
+	createRuntime: (
+		overrides?: Partial<WPKernelUIRuntime>
+	) => WPKernelUIRuntime;
 	createWrapper: (
-		runtime?: KernelUIRuntime
+		runtime?: WPKernelUIRuntime
 	) => ({
 		children,
 	}: {
@@ -41,10 +43,10 @@ export interface KernelUITestHarness {
 }
 
 function buildRuntime(
-	registry: KernelRegistry | undefined,
+	registry: WPKernelRegistry | undefined,
 	options: KernelUITestHarnessOptions,
-	overrides: Partial<KernelUIRuntime> = {}
-): KernelUIRuntime {
+	overrides: Partial<WPKernelUIRuntime> = {}
+): WPKernelUIRuntime {
 	const reporter = createReporterMock({
 		overrides: options.reporter,
 	});
@@ -53,17 +55,17 @@ function buildRuntime(
 		namespace: options.namespace ?? 'tests',
 		reporter,
 		registry,
-		events: new KernelEventBus(),
+		events: new WPKernelEventBus(),
 		invalidate: jest.fn(),
-		kernel: overrides.kernel as KernelInstance | undefined,
+		kernel: overrides.kernel as WPKInstance | undefined,
 		policies: overrides.policies,
 		options: overrides.options,
-	} satisfies KernelUIRuntime;
+	} satisfies WPKernelUIRuntime;
 }
 
 function createWrapper(
-	runtime: KernelUIRuntime,
-	provider: KernelUIProviderComponent
+	runtime: WPKernelUIRuntime,
+	provider: WPKernelUIProviderComponent
 ) {
 	return function Wrapper({ children }: { children: ReactNode }) {
 		return createElement(provider, { runtime, children });
@@ -82,7 +84,7 @@ export function createKernelUITestHarness(
 	if (!provider) {
 		throw new WPKernelError('DeveloperError', {
 			message:
-				'KernelUITestHarness requires a KernelUIProvider. Pass options.provider when calling createKernelUITestHarness.',
+				'KernelUITestHarness requires a WPKernelUIProvider. Pass options.provider when calling createKernelUITestHarness.',
 		});
 	}
 
@@ -90,7 +92,7 @@ export function createKernelUITestHarness(
 		wordpress,
 		createRuntime: (overrides = {}) =>
 			buildRuntime(
-				wordpress.wp?.data as KernelRegistry | undefined,
+				wordpress.wp?.data as WPKernelRegistry | undefined,
 				options,
 				overrides
 			),
@@ -98,7 +100,7 @@ export function createKernelUITestHarness(
 			createWrapper(
 				runtime ??
 					buildRuntime(
-						wordpress.wp?.data as KernelRegistry | undefined,
+						wordpress.wp?.data as WPKernelRegistry | undefined,
 						options
 					),
 				provider

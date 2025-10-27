@@ -4,7 +4,7 @@
 import { fetch } from '../fetch';
 import { WPKernelError } from '../../error/index';
 import type { Reporter } from '../../reporter';
-import { setKernelReporter, clearKernelReporter } from '../../reporter';
+import { setWPKernelReporter, clearWPKReporter } from '../../reporter';
 import {
 	createApiFetchHarness,
 	withWordPressData,
@@ -29,7 +29,7 @@ describe('transport/fetch', () => {
 	afterEach(() => {
 		jest.restoreAllMocks();
 		apiHarness.harness.teardown();
-		clearKernelReporter();
+		clearWPKReporter();
 	});
 
 	function createReporterSpy(): { reporter: Reporter; logs: LogEntry[] } {
@@ -506,7 +506,7 @@ describe('transport/fetch', () => {
 
 		it('uses kernel reporter when metadata is not provided', async () => {
 			const kernelSpy = createReporterSpy();
-			setKernelReporter(kernelSpy.reporter);
+			setWPKernelReporter(kernelSpy.reporter);
 			mockApiFetch.mockResolvedValue({ id: 7 });
 
 			await fetch({

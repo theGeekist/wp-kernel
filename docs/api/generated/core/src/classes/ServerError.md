@@ -78,48 +78,6 @@ Server error options
 
 ## Properties
 
-### code
-
-```ts
-readonly code: ErrorCode;
-```
-
-Error code - identifies the type of error
-
-#### Inherited from
-
-[`WPKernelError`](WPKernelError.md).[`code`](WPKernelError.md#code)
-
----
-
-### data?
-
-```ts
-readonly optional data: ErrorData;
-```
-
-Additional data about the error
-
-#### Inherited from
-
-[`WPKernelError`](WPKernelError.md).[`data`](WPKernelError.md#data)
-
----
-
-### context?
-
-```ts
-readonly optional context: ErrorContext;
-```
-
-Context in which the error occurred
-
-#### Inherited from
-
-[`WPKernelError`](WPKernelError.md).[`context`](WPKernelError.md#context)
-
----
-
 ### serverCode
 
 ```ts
@@ -178,126 +136,49 @@ readonly optional serverData: Record<string, unknown>;
 
 Additional server data
 
+---
+
+### code
+
+```ts
+readonly code: ErrorCode;
+```
+
+Error code - identifies the type of error
+
+#### Inherited from
+
+[`WPKernelError`](WPKernelError.md).[`code`](WPKernelError.md#code)
+
+---
+
+### data?
+
+```ts
+readonly optional data: ErrorData;
+```
+
+Additional data about the error
+
+#### Inherited from
+
+[`WPKernelError`](WPKernelError.md).[`data`](WPKernelError.md#data)
+
+---
+
+### context?
+
+```ts
+readonly optional context: ErrorContext;
+```
+
+Context in which the error occurred
+
+#### Inherited from
+
+[`WPKernelError`](WPKernelError.md).[`context`](WPKernelError.md#context)
+
 ## Methods
-
-### toJSON()
-
-```ts
-toJSON(): SerializedError;
-```
-
-Serialize error to JSON-safe format
-
-#### Returns
-
-[`SerializedError`](../type-aliases/SerializedError.md)
-
-Serialized error object
-
-#### Inherited from
-
-[`WPKernelError`](WPKernelError.md).[`toJSON`](WPKernelError.md#tojson)
-
----
-
-### fromJSON()
-
-```ts
-static fromJSON(serialized): WPKernelError;
-```
-
-Create WPKernelError from serialized format
-
-#### Parameters
-
-##### serialized
-
-[`SerializedError`](../type-aliases/SerializedError.md)
-
-Serialized error object
-
-#### Returns
-
-[`WPKernelError`](WPKernelError.md)
-
-New WPKernelError instance
-
-#### Inherited from
-
-[`WPKernelError`](WPKernelError.md).[`fromJSON`](WPKernelError.md#fromjson)
-
----
-
-### isWPKernelError()
-
-```ts
-static isWPKernelError(error): error is WPKernelError;
-```
-
-Check if an error is a WPKernelError
-
-#### Parameters
-
-##### error
-
-`unknown`
-
-Error to check
-
-#### Returns
-
-`error is WPKernelError`
-
-True if error is a WPKernelError
-
-#### Inherited from
-
-[`WPKernelError`](WPKernelError.md).[`isWPKernelError`](WPKernelError.md#iskernelerror)
-
----
-
-### wrap()
-
-```ts
-static wrap(
-   error,
-   code,
-   context?): WPKernelError;
-```
-
-Wrap a native Error into a WPKernelError
-
-#### Parameters
-
-##### error
-
-`Error`
-
-Native error to wrap
-
-##### code
-
-[`ErrorCode`](../type-aliases/ErrorCode.md) = `'UnknownError'`
-
-Error code to assign
-
-##### context?
-
-[`ErrorContext`](../type-aliases/ErrorContext.md)
-
-Additional context
-
-#### Returns
-
-[`WPKernelError`](WPKernelError.md)
-
-New WPKernelError wrapping the original
-
-#### Inherited from
-
-[`WPKernelError`](WPKernelError.md).[`wrap`](WPKernelError.md#wrap)
-
----
 
 ### fromWordPressResponse()
 
@@ -406,3 +287,122 @@ Extract validation errors from server response
 `object`[]
 
 Array of validation errors if available
+
+---
+
+### toJSON()
+
+```ts
+toJSON(): SerializedError;
+```
+
+Serialize error to JSON-safe format
+
+#### Returns
+
+[`SerializedError`](../type-aliases/SerializedError.md)
+
+Serialized error object
+
+#### Inherited from
+
+[`WPKernelError`](WPKernelError.md).[`toJSON`](WPKernelError.md#tojson)
+
+---
+
+### fromJSON()
+
+```ts
+static fromJSON(serialized): WPKernelError;
+```
+
+Create WPKernelError from serialized format
+
+#### Parameters
+
+##### serialized
+
+[`SerializedError`](../type-aliases/SerializedError.md)
+
+Serialized error object
+
+#### Returns
+
+[`WPKernelError`](WPKernelError.md)
+
+New WPKernelError instance
+
+#### Inherited from
+
+[`WPKernelError`](WPKernelError.md).[`fromJSON`](WPKernelError.md#fromjson)
+
+---
+
+### isWPKernelError()
+
+```ts
+static isWPKernelError(error): error is WPKernelError;
+```
+
+Check if an error is a WPKernelError
+
+#### Parameters
+
+##### error
+
+`unknown`
+
+Error to check
+
+#### Returns
+
+`error is WPKernelError`
+
+True if error is a WPKernelError
+
+#### Inherited from
+
+[`WPKernelError`](WPKernelError.md).[`isWPKernelError`](WPKernelError.md#iswpkernelerror)
+
+---
+
+### wrap()
+
+```ts
+static wrap(
+   error,
+   code,
+   context?): WPKernelError;
+```
+
+Wrap a native Error into a WPKernelError
+
+#### Parameters
+
+##### error
+
+`Error`
+
+Native error to wrap
+
+##### code
+
+[`ErrorCode`](../type-aliases/ErrorCode.md) = `'UnknownError'`
+
+Error code to assign
+
+##### context?
+
+[`ErrorContext`](../type-aliases/ErrorContext.md)
+
+Additional context
+
+#### Returns
+
+[`WPKernelError`](WPKernelError.md)
+
+New WPKernelError wrapping the original
+
+#### Inherited from
+
+[`WPKernelError`](WPKernelError.md).[`wrap`](WPKernelError.md#wrap)

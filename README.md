@@ -58,10 +58,10 @@ pnpm add @wpkernel/core
 **Bootstrap the runtime:**
 
 ```ts
-import { configureKernel } from '@wpkernel/core';
+import { configureWPKernel } from '@wpkernel/core';
 import { attachUIBindings } from '@wpkernel/ui';
 
-const kernel = configureKernel({
+const kernel = configureWPKernel({
 	registry: window.wp.data,
 	namespace: 'my-plugin',
 	ui: { attach: attachUIBindings },
@@ -74,18 +74,18 @@ Mount the UI runtime so React hooks can subscribe to resources and actions throu
 
 ```tsx
 import { createRoot } from 'react-dom/client';
-import { KernelUIProvider } from '@wpkernel/ui';
+import { WPKernelUIProvider } from '@wpkernel/ui';
 
 const runtime = kernel.getUIRuntime();
 
 createRoot(document.getElementById('app')!).render(
-	<KernelUIProvider runtime={runtime}>
+	<WPKernelUIProvider runtime={runtime}>
 		<App />
-	</KernelUIProvider>
+	</WPKernelUIProvider>
 );
 ```
 
-`configureKernel()` installs the registry middleware and returns a shared instance so you can access the namespace, reporter, cache helpers, and the typed `kernel.events` bus.
+`configureWPKernel()` installs the registry middleware and returns a shared instance so you can access the namespace, reporter, cache helpers, and the typed `kernel.events` bus.
 
 > ℹ️ Import lifecycle phases, namespace constants, and CLI exit codes from `@wpkernel/core/contracts` to stay aligned with the framework's canonical contract.
 

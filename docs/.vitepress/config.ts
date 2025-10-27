@@ -187,8 +187,8 @@ export default withMermaid(
 						items: [
 							{ text: 'Contracts', link: '/reference/contracts' },
 							{
-								text: 'Kernel Config',
-								link: '/reference/kernel-config',
+								text: 'WPK Config',
+								link: '/reference/wpk-config',
 							},
 							{
 								text: 'Decision Matrix',

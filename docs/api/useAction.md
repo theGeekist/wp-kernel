@@ -7,10 +7,10 @@ the lifecycle instrumentation provided by `defineAction`
 (`packages/core/src/actions/define.ts`) while gaining a first-class React
 interface.
 
-The hook lives in `@wpkernel/ui` and expects a `KernelUIRuntime` to be
-available via `KernelUIProvider`. Attach the runtime during
-`configureKernel({ ui: { attach: attachUIBindings } })` and wrap your React tree
-with `KernelUIProvider` so hooks can resolve the registry and action dispatcher.
+The hook lives in `@wpkernel/ui` and expects a `WPKernelUIRuntime` to be
+available via `WPKernelUIProvider`. Attach the runtime during
+`configureWPKernel({ ui: { attach: attachUIBindings } })` and wrap your React tree
+with `WPKernelUIProvider` so hooks can resolve the registry and action dispatcher.
 `useAction()` does **not** reimplement actions-everything still flows through
 `invokeAction` and the runtime declared in
 `packages/core/src/actions/types.ts`.

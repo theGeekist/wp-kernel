@@ -44,7 +44,7 @@ Resource definition to augment with hooks
 
 ### \_runtime?
 
-[`KernelUIRuntime`](../../../core/src/@wpkernel/core/data/interfaces/KernelUIRuntime.md)
+[`WPKernelUIRuntime`](../../../core/src/@wpkernel/core/data/interfaces/WPKernelUIRuntime.md)
 
 Active Kernel UI runtime (unused placeholder for API symmetry)
 

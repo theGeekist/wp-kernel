@@ -22,7 +22,7 @@
 
 ### Major Changes
 
-- Introduced `attachUIBindings`, `KernelUIProvider`, and runtime context so hooks
+- Introduced `attachUIBindings`, `WPKernelUIProvider`, and runtime context so hooks
   consume configuration explicitly instead of relying on global side effects.
 - **DataViews Phase 2**: Added `ResourceDataView` component with resource/action controllers
     - `createResourceDataViewController` for DataViews state → resource query mapping
@@ -30,7 +30,7 @@
     - `ResourceDataView` React component bridging kernel resources/actions with WordPress DataViews UI
     - Policy-gated actions with error normalization
     - Comprehensive test fixtures for DataViews integration (`packages/ui/fixtures/dataviews/`)
-- **DataViews Phase 3**: `configureKernel` auto-registers resource DataViews configs, wiring runtime events and integration
+- **DataViews Phase 3**: `configureWPKernel` auto-registers resource DataViews configs, wiring runtime events and integration
   tests across kernel/UI packages.
 - **DataViews Phase 5**: Complete documentation, showcase integration, and E2E utilities
     - Comprehensive DataViews guide (`docs/guide/dataviews.md`) with setup, usage patterns, and migration notes
@@ -47,7 +47,7 @@
   and replays the kernel registry instead of mutating globals, so UI bundles can
   subscribe deterministically regardless of load order.
 - Hooks such as `useAction`, `useResourceList`, and prefetch helpers now throw a
-  `WPKernelError` if a `KernelUIRuntime` is not available.
+  `WPKernelError` if a `WPKernelUIRuntime` is not available.
 
 ### Bug Fixes
 
@@ -68,10 +68,10 @@
 ### Migration Guide
 
 ```tsx
-import { configureKernel } from '@wpkernel/core';
-import { attachUIBindings, KernelUIProvider } from '@wpkernel/ui';
+import { configureWPKernel } from '@wpkernel/core';
+import { attachUIBindings, WPKernelUIProvider } from '@wpkernel/ui';
 
-const kernel = configureKernel({
+const kernel = configureWPKernel({
 	namespace: 'my-plugin',
 	registry: window.wp.data,
 	ui: { attach: attachUIBindings },
@@ -80,9 +80,9 @@ const kernel = configureKernel({
 const runtime = kernel.getUIRuntime();
 
 createRoot(node).render(
-	<KernelUIProvider runtime={runtime}>
+	<WPKernelUIProvider runtime={runtime}>
 		<App />
-	</KernelUIProvider>
+	</WPKernelUIProvider>
 );
 ```
 
@@ -100,7 +100,7 @@ createRoot(node).render(
 ### Documentation
 
 - Recorded the adapter-only runtime baseline across the documentation site,
-  highlighting `KernelUIProvider`, runtime attachment, and the absence of legacy
+  highlighting `WPKernelUIProvider`, runtime attachment, and the absence of legacy
   globals so integrators follow the final architecture.
 
 ## 0.2.0

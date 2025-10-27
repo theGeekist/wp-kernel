@@ -45,7 +45,7 @@ async function CreatePost(ctx, input) {
 }
 ```
 
-When an action throws, the reporter also feeds the `kernelEventsPlugin()` bridge so failures show up as `core/notices` alerts.
+When an action throws, the reporter also feeds the `wpkEventsPlugin()` bridge so failures show up as `core/notices` alerts.
 
 ## In policies
 
@@ -63,13 +63,13 @@ Without `debug`, the policy reporter becomes a no-op and avoids console noise.
 
 ## Registry integration
 
-`configureKernel()` wires kernel middleware into an `@wordpress/data` registry:
+`configureWPKernel()` wires kernel middleware into an `@wordpress/data` registry:
 
 ```typescript
-import { configureKernel } from '@wpkernel/core';
+import { configureWPKernel } from '@wpkernel/core';
 
 const registry = createRegistry();
-const kernel = configureKernel({
+const kernel = configureWPKernel({
 	namespace: 'showcase',
 	registry,
 	reporter: createReporter({ namespace: 'showcase', channel: 'all' }),

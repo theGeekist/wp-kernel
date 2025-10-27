@@ -29,7 +29,7 @@ Write-path orchestration with `defineAction()`, middleware layer, lifecycle even
 
 ### WordPress Data Integration (Sprint 4)
 
-`configureKernel()` provides two integration layers: 1) Registry integration (`kernelEventsPlugin` bridges errors → `core/notices`, connects lifecycle events to `wp.hooks` for ecosystem extensibility, reporter integration) - recommended for production, and 2) Redux middleware (`createActionMiddleware` enables action dispatch via envelopes) - only needed when using `useAction()` React hook. Resources auto-register stores without the bootstrap.
+`configureWPKernel()` provides two integration layers: 1) Registry integration (`wpkEventsPlugin` bridges errors → `core/notices`, connects lifecycle events to `wp.hooks` for ecosystem extensibility, reporter integration) - recommended for production, and 2) Redux middleware (`createActionMiddleware` enables action dispatch via envelopes) - only needed when using `useAction()` React hook. Resources auto-register stores without the bootstrap.
 
 ### Unified Reporting (Sprint 4.5)
 
@@ -45,7 +45,7 @@ Write-path orchestration with `defineAction()`, middleware layer, lifecycle even
 
 ### Architecture Implementation Sprint 5.5 (Phases 1-9), Completed v0.4.0
 
-Completed the bootstrap transition to `configureKernel()`, replaced global UI shims with the adapter-driven runtime, introduced the typed event bus, unified action/policy/job signatures around configuration objects, threaded resource reporters through client/store/cache/transport for full observability, and refreshed the documentation stack so every guide, reference, and showcase page matches the final architecture.
+Completed the bootstrap transition to `configureWPKernel()`, replaced global UI shims with the adapter-driven runtime, introduced the typed event bus, unified action/policy/job signatures around configuration objects, threaded resource reporters through client/store/cache/transport for full observability, and refreshed the documentation stack so every guide, reference, and showcase page matches the final architecture.
 
 **Phase 8 - Resource Reporter Wiring**: Propagated kernel reporters through resource definitions, clients, store resolvers, and grouped APIs with comprehensive 615-line test suite. Resources now emit structured telemetry aligned with actions/policies.
 

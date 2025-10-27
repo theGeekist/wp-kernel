@@ -7,5 +7,5 @@
 # Variable: attachUIBindings
 
 ```ts
-const attachUIBindings: KernelUIAttach;
+const attachUIBindings: WPKernelUIAttach;
 ```

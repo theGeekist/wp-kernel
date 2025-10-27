@@ -64,7 +64,7 @@ After reaching `1.0.0`:
 - `definePolicy(policies)` → PolicyMap
 - `createReporter(options)` → Reporter
 - `useKernel(registry)` → Plugin
-- `registerKernelStore(name, options)` → Store
+- `registerWPKernelStore(name, options)` → Store
 
 ✓ **TypeScript Types (Public)**
 

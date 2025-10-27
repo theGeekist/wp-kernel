@@ -21,7 +21,7 @@
 ## Phase 1 - Kernel UI Runtime Foundations
 
 **Spec references:** §4.1 Kernel UI Runtime Extensions, §4.7 View Persistence  
-**Goal:** Extend `KernelUIRuntime` and `attachUIBindings` to host DataViews controllers, events, and preference adapters.
+**Goal:** Extend `WPKernelUIRuntime` and `attachUIBindings` to host DataViews controllers, events, and preference adapters.
 
 - **Scope:**
     - Extend runtime types with `dataviews` namespace (registry, controllers, preferences).
@@ -62,14 +62,14 @@
 
 ---
 
-## Phase 3 - configureKernel Integration & Registry Wiring
+## Phase 3 - configureWPKernel Integration & Registry Wiring
 
-**Spec references:** §4.5 configureKernel Integration, §5 API Surface Summary  
+**Spec references:** §4.5 configureWPKernel Integration, §5 API Surface Summary  
 **Goal:** Auto-register DataViews runtime pieces during kernel bootstrapping and ensure events/hooks fire end-to-end.
 
 - **Scope:**
-    - Extend `ConfigureKernelOptions.ui.options` to accept DataViews flags/adapters.
-    - Update `configureKernel` to initialise DataViews runtime when enabled and to honour `autoRegisterResources`.
+    - Extend `ConfigureWPKernelOptions.ui.options` to accept DataViews flags/adapters.
+    - Update `configureWPKernel` to initialise DataViews runtime when enabled and to honour `autoRegisterResources`.
     - Listen to `resource:defined` events to register controllers derived from `resource.ui?.admin?.dataviews`.
     - Add integration tests under `packages/core/src/data/__tests__/` mocking UI attach to confirm controllers register and emit events.
 
@@ -77,7 +77,7 @@
 
 - **DoD:** `pnpm --filter @wpkernel/core typecheck` and unit/integration tests pass; UI package tests still green; Status Log records integration scenarios executed.
 
-- **Testing:** Jest integration tests covering configureKernel + runtime interplay (including teardown) plus snapshot tests for emitted events.
+- **Testing:** Jest integration tests covering configureWPKernel + runtime interplay (including teardown) plus snapshot tests for emitted events.
 
 - **Status Log:** _TBD_
 
@@ -133,6 +133,6 @@
 | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | P1    | Kernel UI runtime exposes DataViews namespace with preferences adapter, events, errors, and snapshot updater script.                                               | None                                                                                | Snapshot script depends on local Gutenberg checkout; ensure `GUTENBERG_PATH` is set in environments without the repo. |
 | P2    | Resource DataView controller, DataForm controller, React wrapper, and fixtures implemented with unit coverage for query mapping, persistence, and action dispatch. | Document standalone runtime usage guidance and extend integration tests in Phase 3. | DataViews snapshot remains reference-only; ensure runtime imports continue to resolve from `node_modules`.            |
-| P3    | configureKernel auto-wires DataViews runtime options, registering controllers on `resource:defined` and bridging `ui:dataviews:*` events.                          | None                                                                                | Kernel + UI integration tests cover resource replay, live registration, and event emission.                           |
+| P3    | configureWPKernel auto-wires DataViews runtime options, registering controllers on `resource:defined` and bridging `ui:dataviews:*` events.                        | None                                                                                | Kernel + UI integration tests cover resource replay, live registration, and event emission.                           |
 | P4    | Resource metadata typed for DataViews; CLI validation/IR propagate it and generators emit `.generated/ui` screens, fixtures, and optional PHP menus.               | None                                                                                | CLI outputs require declarative metadata (functions are rejected during serialisation).                               |
 | P5    | -                                                                                                                                                                  | -                                                                                   | -                                                                                                                     |

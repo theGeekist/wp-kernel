@@ -3,8 +3,8 @@ import type { DefinedAction } from '@wpkernel/core/actions';
 import { WPKernelError } from '@wpkernel/core/error';
 import type { ResourceObject, CacheKeyPattern } from '@wpkernel/core/resource';
 import * as errorUtils from '../error-utils';
-import type { KernelUIRuntime } from '@wpkernel/core/data';
-import { KernelUIProvider } from '../../runtime/context';
+import type { WPKernelUIRuntime } from '@wpkernel/core/data';
+import { WPKernelUIProvider } from '../../runtime/context';
 import { createRoot } from 'react-dom/client';
 import {
 	__TESTING__ as dataFormTesting,
@@ -23,7 +23,7 @@ const useActionMock = jest.requireMock('../../hooks/useAction')
 	globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
 ).IS_REACT_ACT_ENVIRONMENT = true;
 
-function createRuntime(): KernelUIRuntime {
+function createRuntime(): WPKernelUIRuntime {
 	return {
 		kernel: undefined,
 		namespace: 'tests',
@@ -79,18 +79,18 @@ function createRuntime(): KernelUIRuntime {
 			options: { enable: true, autoRegisterResources: true },
 			getResourceReporter: jest.fn(),
 		},
-	} as unknown as KernelUIRuntime;
+	} as unknown as WPKernelUIRuntime;
 }
 
-function renderHookWithProvider<T>(hook: () => T, runtime: KernelUIRuntime) {
+function renderHookWithProvider<T>(hook: () => T, runtime: WPKernelUIRuntime) {
 	const container = document.createElement('div');
 	const root = createRoot(container);
 	const result: { current: T } = { current: undefined as unknown as T };
 	act(() => {
 		root.render(
-			<KernelUIProvider runtime={runtime}>
+			<WPKernelUIProvider runtime={runtime}>
 				<HookRunner hook={hook} result={result} />
-			</KernelUIProvider>
+			</WPKernelUIProvider>
 		);
 	});
 	return { result, root };

@@ -11,8 +11,8 @@
  */
 import { WPKernelError } from '@wpkernel/core/error';
 import type { ResourceObject, ListResponse } from '@wpkernel/core/resource';
-import type { KernelUIRuntime } from '@wpkernel/core/data';
-import { useKernelUI } from '../runtime/context';
+import type { WPKernelUIRuntime } from '@wpkernel/core/data';
+import { useWPKernelUI } from '../runtime/context';
 
 /**
  * WordPress data store selector shape
@@ -127,7 +127,7 @@ function ensureUseSelect<T, TQuery>(
  */
 function createUseGet<T, TQuery>(resource: ResourceObject<T, TQuery>) {
 	return (id: string | number): UseResourceItemResult<T> => {
-		useKernelUI();
+		useWPKernelUI();
 		const wpData = ensureUseSelect(resource, 'useGet');
 
 		return wpData.useSelect(
@@ -157,7 +157,7 @@ function createUseGet<T, TQuery>(resource: ResourceObject<T, TQuery>) {
  */
 function createUseList<T, TQuery>(resource: ResourceObject<T, TQuery>) {
 	return (query?: TQuery): UseResourceListResult<T> => {
-		useKernelUI();
+		useWPKernelUI();
 		const wpData = ensureUseSelect(resource, 'useList');
 
 		return wpData.useSelect(
@@ -192,7 +192,7 @@ function createUseList<T, TQuery>(resource: ResourceObject<T, TQuery>) {
  */
 export function attachResourceHooks<T, TQuery>(
 	resource: ResourceObject<T, TQuery>,
-	_runtime?: KernelUIRuntime
+	_runtime?: WPKernelUIRuntime
 ): ResourceObject<T, TQuery> {
 	if (resource.routes.get) {
 		resource.useGet = createUseGet(resource);

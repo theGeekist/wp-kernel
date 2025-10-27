@@ -10,7 +10,7 @@ When referencing lifecycle phases, namespaces, or exit codes, link to `@wpkernel
 
 ### Navigation and linking
 
-Whenever you add or rename a page, update the navigation indices that reference it (for example `docs/index.md`, `docs/packages/index.md`, or guide landing pages). Prefer relative links (`../guide/actions.md`) so the site builds cleanly in all environments. If you surface a new concept in `/docs`, cross-reference the canonical source (such as `configureKernel - Specification.md`) so readers know where to dive deeper.
+Whenever you add or rename a page, update the navigation indices that reference it (for example `docs/index.md`, `docs/packages/index.md`, or guide landing pages). Prefer relative links (`../guide/actions.md`) so the site builds cleanly in all environments. If you surface a new concept in `/docs`, cross-reference the canonical source (such as `configureWPKernel - Specification.md`) so readers know where to dive deeper.
 
 ### Coordination
 

@@ -4,7 +4,7 @@ The CLI package ships developer tooling for the framework. Use this guide alongs
 
 ### Scope
 
-Focus on scaffolding commands, code generation, and DX utilities. Keep the CLI aligned with the current architecture-templates should reflect `configureKernel()`, `KernelUIRuntime`, and config-object definitions.
+Focus on scaffolding commands, code generation, and DX utilities. Keep the CLI aligned with the current architecture-templates should reflect `configureWPKernel()`, `WPKernelUIRuntime`, and config-object definitions.
 
 ### Build & Test
 

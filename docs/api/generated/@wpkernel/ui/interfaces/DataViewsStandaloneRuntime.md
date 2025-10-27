@@ -103,7 +103,7 @@ readonly dataviews: KernelDataViewsRuntime;
 ### policies?
 
 ```ts
-readonly optional policies: KernelUIPolicyRuntime;
+readonly optional policies: WPKUIPolicyRuntime;
 ```
 
 #### Overrides

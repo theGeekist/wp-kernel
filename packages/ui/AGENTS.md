@@ -9,7 +9,7 @@ This file supplements the root [AGENTS.md](../../AGENTS.md) with agent guideline
 - Build: `pnpm build`
 - Test: `pnpm test`
 - Verify no `@wordpress/*` packages are bundled; all are peer dependencies.
-- Shared helpers: import the runtime harness from `@wpkernel/test-utils/ui` (always pass `KernelUIProvider` from this package) and keep using `tests/dom-observer.test-support.ts` for `IntersectionObserver`/`requestAnimationFrame` mocks. WordPress globals should come from `@wpkernel/test-utils/wp`.
+- Shared helpers: import the runtime harness from `@wpkernel/test-utils/ui` (always pass `WPKernelUIProvider` from this package) and keep using `tests/dom-observer.test-support.ts` for `IntersectionObserver`/`requestAnimationFrame` mocks. WordPress globals should come from `@wpkernel/test-utils/wp`.
 - DataView specs should import from `src/dataviews/test-support/ResourceDataView.test-support.tsx` for the full helper surface (`createKernelRuntime`, `renderResourceDataView`, `renderActionScenario`, `buildListResource`, `buildActionConfig`, `createConfig`, `createResource`, `createDataViewsTestController`, and `flushDataViews`). Do **not** reimplement DataViews mocks, pagination controllers, or selection plumbing in individual specs-extend the harness when shared behaviour is missing and add accompanying self-tests.
 - Run `pnpm --filter @wpkernel/ui typecheck:tests` after editing `.test-support.ts` helpers; they are omitted from the production build but validated via the tests TypeScript project.
 

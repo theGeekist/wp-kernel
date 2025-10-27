@@ -4,8 +4,8 @@
  */
 
 import { invalidate, registerStoreKey } from '../../cache';
-import { setKernelEventBus, KernelEventBus } from '../../../events/bus';
-import { setKernelReporter, clearKernelReporter } from '../../../reporter';
+import { setWPKernelEventBus, WPKernelEventBus } from '../../../events/bus';
+import { setWPKernelReporter, clearWPKReporter } from '../../../reporter';
 import type { Reporter } from '../../../reporter';
 import {
 	createResourceDataHarness,
@@ -17,7 +17,7 @@ describe('invalidate', () => {
 	let mockDispatch: jest.Mock;
 	let mockSelect: jest.Mock;
 	let harnessSetup: ResourceHarnessSetup;
-	let bus: KernelEventBus;
+	let bus: WPKernelEventBus;
 	let cacheListener: jest.Mock;
 
 	beforeEach(() => {
@@ -30,21 +30,21 @@ describe('invalidate', () => {
 			},
 		});
 
-		bus = new KernelEventBus();
-		setKernelEventBus(bus);
+		bus = new WPKernelEventBus();
+		setWPKernelEventBus(bus);
 		cacheListener = jest.fn();
 		bus.on('cache:invalidated', cacheListener);
 
 		// Register test store keys
 		registerStoreKey('wpk/thing');
 		registerStoreKey('wpk/job');
-		clearKernelReporter();
+		clearWPKReporter();
 	});
 
 	afterEach(() => {
-		setKernelEventBus(new KernelEventBus());
+		setWPKernelEventBus(new WPKernelEventBus());
 		jest.clearAllMocks();
-		clearKernelReporter();
+		clearWPKReporter();
 		harnessSetup.harness.teardown();
 	});
 
@@ -244,7 +244,7 @@ describe('invalidate', () => {
 	describe('reporter instrumentation', () => {
 		it('uses kernel reporter when no override provided', () => {
 			const { reporter, logs } = createReporterSpy();
-			setKernelReporter(reporter);
+			setWPKernelReporter(reporter);
 
 			const mockState = {
 				lists: {
@@ -288,7 +288,7 @@ describe('invalidate', () => {
 		it('prefers explicit reporter override', () => {
 			const kernelSpy = createReporterSpy();
 			const overrideSpy = createReporterSpy();
-			setKernelReporter(kernelSpy.reporter);
+			setWPKernelReporter(kernelSpy.reporter);
 
 			const mockState = {
 				lists: {
@@ -714,7 +714,7 @@ describe('invalidate', () => {
 			process.env.NODE_ENV = 'development';
 
 			const { reporter, logs } = createReporterSpy();
-			setKernelReporter(reporter);
+			setWPKernelReporter(reporter);
 
 			mockDispatch.mockImplementation(() => {
 				throw new Error('Store explosion!');
@@ -741,7 +741,7 @@ describe('invalidate', () => {
 			process.env.NODE_ENV = 'production';
 
 			const { reporter, logs } = createReporterSpy();
-			setKernelReporter(reporter);
+			setWPKernelReporter(reporter);
 
 			mockDispatch.mockImplementation(() => {
 				throw new Error('Store explosion!');

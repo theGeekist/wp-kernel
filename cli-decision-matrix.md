@@ -302,7 +302,7 @@ Two sub-printers; both act from **IR** + file system helpers. No command wiring 
 
 **Outputs:**
 
-- `.generated/ui/<Resource>Screen.tsx` - imports runtime `configureKernel` usage from project’s `src/index.ts` assumption (no runtime wiring here); uses the serialized dataviews fixture.
+- `.generated/ui/<Resource>Screen.tsx` - imports runtime `configureWPKernel` usage from project’s `src/index.ts` assumption (no runtime wiring here); uses the serialized dataviews fixture.
 - `.generated/ui/<Resource>.dataviews.ts` - the serialized config (`fields`, `defaultView`, `mapQuery`, `getItemId`, etc.). Functions are stringified as-is.
 - `.generated/php/Menu_<Resource>Screen.php` - calls `add_menu_page` (or submenu) and enqueues the built JS bundle for that screen.
 

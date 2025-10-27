@@ -4,7 +4,7 @@ This package is the runtime heart of WP Kernel. Changes here affect every consum
 
 ### Scope
 
-Work in this package focuses on resources, actions, policies, registry integration, reporter infrastructure, and the new `configureKernel()` bootstrap. When altering public APIs, update the companion specs (`configureKernel - Specification.md`, `Architecture Cohesion Proposal.md`) first, then mirror the changes in code and documentation.
+Work in this package focuses on resources, actions, policies, registry integration, reporter infrastructure, and the new `configureWPKernel()` bootstrap. When altering public APIs, update the companion specs (`configureWPKernel - Specification.md`, `Architecture Cohesion Proposal.md`) first, then mirror the changes in code and documentation.
 
 ### Build & Test
 

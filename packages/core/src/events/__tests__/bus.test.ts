@@ -1,6 +1,6 @@
 import type { Reporter } from '../../reporter';
 import {
-	KernelEventBus,
+	WPKernelEventBus,
 	clearRegisteredActions,
 	clearRegisteredResources,
 	getRegisteredActions,
@@ -33,7 +33,7 @@ const mockCreateReporter = createReporter as jest.MockedFunction<
 >;
 const originalEnv = process.env.NODE_ENV;
 
-describe('KernelEventBus', () => {
+describe('WPKernelEventBus', () => {
 	beforeEach(() => {
 		clearRegisteredResources();
 		clearRegisteredActions();
@@ -42,7 +42,7 @@ describe('KernelEventBus', () => {
 	});
 
 	it('emits events to registered listeners', () => {
-		const bus = new KernelEventBus();
+		const bus = new WPKernelEventBus();
 		const listener = jest.fn();
 
 		bus.on('custom:event', listener);
@@ -89,7 +89,7 @@ describe('KernelEventBus', () => {
 	});
 
 	it('short-circuits when emitting with no listeners', () => {
-		const bus = new KernelEventBus();
+		const bus = new WPKernelEventBus();
 
 		expect(() =>
 			bus.emit('custom:event', {
@@ -105,7 +105,7 @@ describe('KernelEventBus', () => {
 
 	it('reports listener failures outside production environments', () => {
 		process.env.NODE_ENV = 'development';
-		const bus = new KernelEventBus();
+		const bus = new WPKernelEventBus();
 		const reporter = mockCreateReporter.mock.results[0]
 			?.value as jest.Mocked<Reporter>;
 
@@ -126,14 +126,14 @@ describe('KernelEventBus', () => {
 
 		expect(succeedingListener).toHaveBeenCalled();
 		expect(reporter?.error).toHaveBeenCalledWith(
-			'KernelEventBus listener failed',
+			'WPKernelEventBus listener failed',
 			expect.objectContaining({ event: 'custom:event' })
 		);
 	});
 
 	it('suppresses listener errors in production', () => {
 		process.env.NODE_ENV = 'production';
-		const bus = new KernelEventBus();
+		const bus = new WPKernelEventBus();
 		const reporter = mockCreateReporter.mock.results[0]
 			?.value as jest.Mocked<Reporter>;
 
@@ -152,7 +152,7 @@ describe('KernelEventBus', () => {
 	});
 
 	it('supports once listeners that tear themselves down', () => {
-		const bus = new KernelEventBus();
+		const bus = new WPKernelEventBus();
 		const listener = jest.fn();
 
 		bus.once('custom:event', listener);
@@ -165,7 +165,7 @@ describe('KernelEventBus', () => {
 	});
 
 	it('allows removing listeners before registration', () => {
-		const bus = new KernelEventBus();
+		const bus = new WPKernelEventBus();
 		const listener = jest.fn();
 
 		expect(() => bus.off('custom:event', listener)).not.toThrow();

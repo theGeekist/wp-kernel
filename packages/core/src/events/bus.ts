@@ -33,7 +33,7 @@ export type CustomKernelEvent = {
 	payload: unknown;
 };
 
-export type KernelEventMap = {
+export type WPKernelEventMap = {
 	'resource:defined': ResourceDefinedEvent;
 	'action:defined': ActionDefinedEvent;
 	'action:start': ActionLifecycleEvent;
@@ -44,11 +44,11 @@ export type KernelEventMap = {
 	'custom:event': CustomKernelEvent;
 };
 
-type KernelEventName = keyof KernelEventMap;
+type KernelEventName = keyof WPKernelEventMap;
 
 type Listener<T> = (payload: T) => void;
 
-export class KernelEventBus {
+export class WPKernelEventBus {
 	private reporter = createReporter({
 		namespace: WPK_SUBSYSTEM_NAMESPACES.EVENTS,
 		channel: 'console',
@@ -57,15 +57,15 @@ export class KernelEventBus {
 
 	private listeners: Map<
 		KernelEventName,
-		Set<Listener<KernelEventMap[KernelEventName]>>
+		Set<Listener<WPKernelEventMap[KernelEventName]>>
 	> = new Map();
 
 	on<K extends KernelEventName>(
 		event: K,
-		listener: Listener<KernelEventMap[K]>
+		listener: Listener<WPKernelEventMap[K]>
 	): () => void {
 		const set = this.listeners.get(event) ?? new Set();
-		set.add(listener as Listener<KernelEventMap[KernelEventName]>);
+		set.add(listener as Listener<WPKernelEventMap[KernelEventName]>);
 		this.listeners.set(event, set);
 		return () => {
 			this.off(event, listener);
@@ -74,7 +74,7 @@ export class KernelEventBus {
 
 	once<K extends KernelEventName>(
 		event: K,
-		listener: Listener<KernelEventMap[K]>
+		listener: Listener<WPKernelEventMap[K]>
 	): () => void {
 		const teardown = this.on(event, (payload) => {
 			teardown();
@@ -85,13 +85,13 @@ export class KernelEventBus {
 
 	off<K extends KernelEventName>(
 		event: K,
-		listener: Listener<KernelEventMap[K]>
+		listener: Listener<WPKernelEventMap[K]>
 	): void {
 		const set = this.listeners.get(event);
 		if (!set) {
 			return;
 		}
-		set.delete(listener as Listener<KernelEventMap[KernelEventName]>);
+		set.delete(listener as Listener<WPKernelEventMap[KernelEventName]>);
 		if (set.size === 0) {
 			this.listeners.delete(event);
 		}
@@ -99,7 +99,7 @@ export class KernelEventBus {
 
 	emit<K extends KernelEventName>(
 		event: K,
-		payload: KernelEventMap[K]
+		payload: WPKernelEventMap[K]
 	): void {
 		const set = this.listeners.get(event);
 		if (!set) {
@@ -108,10 +108,10 @@ export class KernelEventBus {
 
 		for (const listener of Array.from(set)) {
 			try {
-				listener(payload as KernelEventMap[KernelEventName]);
+				listener(payload as WPKernelEventMap[KernelEventName]);
 			} catch (error) {
 				if (process.env.NODE_ENV !== 'production') {
-					this.reporter.error('KernelEventBus listener failed', {
+					this.reporter.error('WPKernelEventBus listener failed', {
 						event,
 						error,
 					});
@@ -121,18 +121,18 @@ export class KernelEventBus {
 	}
 }
 
-let sharedEventBus: KernelEventBus | undefined;
+let sharedEventBus: WPKernelEventBus | undefined;
 const definedResources: ResourceDefinedEvent[] = [];
 const definedActions: ActionDefinedEvent[] = [];
 
-export function getKernelEventBus(): KernelEventBus {
+export function getWPKernelEventBus(): WPKernelEventBus {
 	if (!sharedEventBus) {
-		sharedEventBus = new KernelEventBus();
+		sharedEventBus = new WPKernelEventBus();
 	}
 	return sharedEventBus;
 }
 
-export function setKernelEventBus(bus: KernelEventBus): void {
+export function setWPKernelEventBus(bus: WPKernelEventBus): void {
 	sharedEventBus = bus;
 }
 

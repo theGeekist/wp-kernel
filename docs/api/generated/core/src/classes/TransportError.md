@@ -73,6 +73,36 @@ Transport error options
 
 ## Properties
 
+### status
+
+```ts
+readonly status: number;
+```
+
+HTTP status code
+
+---
+
+### path
+
+```ts
+readonly path: string;
+```
+
+Request path
+
+---
+
+### method
+
+```ts
+readonly method: string;
+```
+
+HTTP method
+
+---
+
 ### code
 
 ```ts
@@ -113,37 +143,71 @@ Context in which the error occurred
 
 [`WPKernelError`](WPKernelError.md).[`context`](WPKernelError.md#context)
 
----
-
-### status
-
-```ts
-readonly status: number;
-```
-
-HTTP status code
-
----
-
-### path
-
-```ts
-readonly path: string;
-```
-
-Request path
-
----
-
-### method
-
-```ts
-readonly method: string;
-```
-
-HTTP method
-
 ## Methods
+
+### isTimeout()
+
+```ts
+isTimeout(): boolean;
+```
+
+Check if error is a network timeout
+
+#### Returns
+
+`boolean`
+
+True if this is a timeout error
+
+---
+
+### isRetryable()
+
+```ts
+isRetryable(): boolean;
+```
+
+Check if error is retryable
+
+#### Returns
+
+`boolean`
+
+True if request should be retried
+
+---
+
+### isClientError()
+
+```ts
+isClientError(): boolean;
+```
+
+Check if error is a client error (4xx)
+
+#### Returns
+
+`boolean`
+
+True if this is a client error
+
+---
+
+### isServerError()
+
+```ts
+isServerError(): boolean;
+```
+
+Check if error is a server error (5xx)
+
+#### Returns
+
+`boolean`
+
+True if this is a server error
+
+---
 
 ### toJSON()
 
@@ -217,7 +281,7 @@ True if error is a WPKernelError
 
 #### Inherited from
 
-[`WPKernelError`](WPKernelError.md).[`isWPKernelError`](WPKernelError.md#iskernelerror)
+[`WPKernelError`](WPKernelError.md).[`isWPKernelError`](WPKernelError.md#iswpkernelerror)
 
 ---
 
@@ -261,67 +325,3 @@ New WPKernelError wrapping the original
 #### Inherited from
 
 [`WPKernelError`](WPKernelError.md).[`wrap`](WPKernelError.md#wrap)
-
----
-
-### isTimeout()
-
-```ts
-isTimeout(): boolean;
-```
-
-Check if error is a network timeout
-
-#### Returns
-
-`boolean`
-
-True if this is a timeout error
-
----
-
-### isRetryable()
-
-```ts
-isRetryable(): boolean;
-```
-
-Check if error is retryable
-
-#### Returns
-
-`boolean`
-
-True if request should be retried
-
----
-
-### isClientError()
-
-```ts
-isClientError(): boolean;
-```
-
-Check if error is a client error (4xx)
-
-#### Returns
-
-`boolean`
-
-True if this is a client error
-
----
-
-### isServerError()
-
-```ts
-isServerError(): boolean;
-```
-
-Check if error is a server error (5xx)
-
-#### Returns
-
-`boolean`
-
-True if this is a server error

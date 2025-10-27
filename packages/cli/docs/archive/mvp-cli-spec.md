@@ -316,7 +316,7 @@ Objective: provide first-class CLI integration tests that exercise command pipel
 ## 10. Adoption Notes
 
 - Update CLI README with root-config instructions (no showcase references beyond illustrative snippets).
-- Encourage consumers to keep `wpk.config.ts` in sync with runtime by importing it directly inside `configureKernel` bootstrap.
+- Encourage consumers to keep `wpk.config.ts` in sync with runtime by importing it directly inside `configureWPKernel` bootstrap.
 - Showcase app may adopt generated artefacts for demonstration but must not be treated as canonical input.
 
 ---

@@ -18,12 +18,12 @@ WP Kernel gives WordPress developers a predictable workflow. Describe resources 
 
 ```ts
 // src/index.ts
-import { configureKernel } from '@wpkernel/core/data';
-import type { KernelInstance } from '@wpkernel/core/data';
+import { configureWPKernel } from '@wpkernel/core/data';
+import type { WPKInstance } from '@wpkernel/core/data';
 import { wpkConfig } from '../wpk.config';
 
-export function bootstrapKernel(): KernelInstance {
-	return configureKernel({
+export function bootstrapKernel(): WPKInstance {
+	return configureWPKernel({
 		namespace: wpkConfig.namespace,
 	});
 }

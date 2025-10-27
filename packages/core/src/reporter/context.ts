@@ -2,14 +2,14 @@ import type { Reporter } from './types';
 
 let kernelReporter: Reporter | undefined;
 
-export function setKernelReporter(reporter: Reporter | undefined): void {
+export function setWPKernelReporter(reporter: Reporter | undefined): void {
 	kernelReporter = reporter;
 }
 
-export function getKernelReporter(): Reporter | undefined {
+export function getWPKernelReporter(): Reporter | undefined {
 	return kernelReporter;
 }
 
-export function clearKernelReporter(): void {
+export function clearWPKReporter(): void {
 	kernelReporter = undefined;
 }

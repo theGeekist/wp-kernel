@@ -19,18 +19,18 @@ wordpress: WordPressTestHarness;
 ### createRuntime()
 
 ```ts
-createRuntime: (overrides?) => KernelUIRuntime;
+createRuntime: (overrides?) => WPKernelUIRuntime;
 ```
 
 #### Parameters
 
 ##### overrides?
 
-`Partial`\&lt;[`KernelUIRuntime`](../../../core/src/@wpkernel/core/data/interfaces/KernelUIRuntime.md)\&gt;
+`Partial`\&lt;[`WPKernelUIRuntime`](../../../core/src/@wpkernel/core/data/interfaces/WPKernelUIRuntime.md)\&gt;
 
 #### Returns
 
-[`KernelUIRuntime`](../../../core/src/@wpkernel/core/data/interfaces/KernelUIRuntime.md)
+[`WPKernelUIRuntime`](../../../core/src/@wpkernel/core/data/interfaces/WPKernelUIRuntime.md)
 
 ---
 
@@ -44,7 +44,7 @@ createWrapper: (runtime?) => (__namedParameters) => ReactElement<{}>;
 
 ##### runtime?
 
-[`KernelUIRuntime`](../../../core/src/@wpkernel/core/data/interfaces/KernelUIRuntime.md)
+[`WPKernelUIRuntime`](../../../core/src/@wpkernel/core/data/interfaces/WPKernelUIRuntime.md)
 
 #### Returns
 

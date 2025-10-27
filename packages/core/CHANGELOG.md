@@ -23,7 +23,7 @@
 ### Breaking Changes
 
 - Removed the `withKernel()` export. Registry middleware is now wired directly
-  through `configureKernel()`, and teardown happens via the returned instance.
+  through `configureWPKernel()`, and teardown happens via the returned instance.
 - `defineAction()` and `definePolicy()` now accept configuration objects
   (`{ name, handler, options }` / `{ map, options }`) rather than positional
   parameters. Update call sites to pass the new shape.
@@ -34,7 +34,7 @@
   `kernel.hasUIRuntime()` to manage UI adapters without global mutation.
 - `defineResource()` now registers resources with the runtime via
   `trackUIResource()` instead of relying on queued globals.
-- Added `KernelEventBus` with `kernel.events` so lifecycle events surface through
+- Added `WPKernelEventBus` with `kernel.events` so lifecycle events surface through
   a typed subscription interface while continuing to bridge into `wp.hooks`.
   Action and cache events now emit through the bus, enabling UI runtimes and
   adapters to subscribe without global shims.
@@ -43,7 +43,7 @@
 - Resource reporters inherit from the kernel instance. Client methods and store
   resolvers emit structured `debug`/`info`/`error` logs and every resource now
   exposes a `reporter` property for custom instrumentation.
-- **DataViews Phase 3**: `configureKernel` preserves resource UI metadata,
+- **DataViews Phase 3**: `configureWPKernel` preserves resource UI metadata,
   forwards DataViews options to UI attachments, and emits `ui:dataviews:*`
   events end-to-end with new integration coverage.
 - **DataViews Phase 4**: `ResourceConfig`/`ResourceObject` expose typed
@@ -64,8 +64,8 @@
 
 - Finalized Phase 7 by aligning the root specifications, README, roadmap, and
   `/docs` guides with the adapter-driven runtime, typed event bus, and
-  configuration-object APIs. Examples now showcase `configureKernel()`,
-  `KernelUIProvider`, and cache/event orchestration through action context.
+  configuration-object APIs. Examples now showcase `configureWPKernel()`,
+  `WPKernelUIProvider`, and cache/event orchestration through action context.
 
 ## 0.3.0
 

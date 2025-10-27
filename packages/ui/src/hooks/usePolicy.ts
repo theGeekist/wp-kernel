@@ -11,8 +11,8 @@ import type {
 	PolicyHelpers,
 	UsePolicyResult,
 } from '@wpkernel/core/policy';
-import { useKernelUI } from '../runtime/context';
-import type { KernelUIRuntime } from '@wpkernel/core/data';
+import { useWPKernelUI } from '../runtime/context';
+import type { WPKernelUIRuntime } from '@wpkernel/core/data';
 
 type PolicyLike<K extends Record<string, unknown>> =
 	| PolicyHelpers<K>
@@ -23,7 +23,7 @@ function isPromise(value: unknown): value is Promise<unknown> {
 }
 
 function resolvePolicy<K extends Record<string, unknown>>(
-	runtime: KernelUIRuntime
+	runtime: WPKernelUIRuntime
 ): PolicyLike<K> | undefined {
 	return runtime.policies?.policy as PolicyLike<K> | undefined;
 }
@@ -40,7 +40,7 @@ function resolvePolicy<K extends Record<string, unknown>>(
 export function usePolicy<
 	K extends Record<string, unknown>,
 >(): UsePolicyResult<K> {
-	const runtime = useKernelUI();
+	const runtime = useWPKernelUI();
 	const policy = resolvePolicy<K>(runtime);
 	const cache = policy?.cache;
 

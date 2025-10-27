@@ -52,4 +52,5 @@ kernel and UI packages.
 ## Functions
 
 - [runCli](functions/runCli.md)
+- [buildIr](functions/buildIr.md)
 - [definePolicyMap](functions/definePolicyMap.md)

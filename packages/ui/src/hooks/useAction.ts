@@ -6,10 +6,10 @@ import {
 	type ActionEnvelope,
 	type DefinedAction,
 } from '@wpkernel/core/actions';
-import { registerKernelStore } from '@wpkernel/core/data';
+import { registerWPKernelStore } from '@wpkernel/core/data';
 import { useLatest, useStableCallback } from './internal/useStableCallback';
-import { useKernelUI } from '../runtime/context';
-import type { KernelUIRuntime } from '@wpkernel/core/data';
+import { useWPKernelUI } from '../runtime/context';
+import type { WPKernelUIRuntime } from '@wpkernel/core/data';
 
 interface WPDataLike {
 	dispatch?: (store: string) => unknown;
@@ -39,13 +39,13 @@ type ResolvedRegistry = WPDataLike & {
 	dispatch: NonNullable<WPDataLike['dispatch']>;
 };
 
-function resolveWpDataRegistry(runtime: KernelUIRuntime): ResolvedRegistry {
+function resolveWpDataRegistry(runtime: WPKernelUIRuntime): ResolvedRegistry {
 	const registry = runtime.registry ?? runtime.kernel?.getRegistry();
 
 	if (!registry?.dispatch) {
 		throw new WPKernelError('DeveloperError', {
 			message:
-				'useAction requires the WordPress data registry. Ensure configureKernel() was called with a registry and attach UI bindings.',
+				'useAction requires the WordPress data registry. Ensure configureWPKernel() was called with a registry and attach UI bindings.',
 		});
 	}
 
@@ -59,7 +59,7 @@ function ensureActionStoreRegistered(wpData: ResolvedRegistry): void {
 	}
 
 	try {
-		registerKernelStore(ACTION_STORE_KEY, {
+		registerWPKernelStore(ACTION_STORE_KEY, {
 			reducer: (state = {}) => state,
 			actions: {
 				invoke: (
@@ -97,7 +97,7 @@ function resolveInvokeMethod(
 	if (typeof invoke !== 'function') {
 		throw new WPKernelError('DeveloperError', {
 			message:
-				'Failed to resolve kernel action dispatcher. Verify configureKernel() initialised the registry.',
+				'Failed to resolve kernel action dispatcher. Verify configureWPKernel() initialised the registry.',
 		});
 	}
 
@@ -123,7 +123,7 @@ function wrapInvoke(
 	return dispatchFn;
 }
 
-function createDispatch(runtime: KernelUIRuntime): DispatchFunction {
+function createDispatch(runtime: WPKernelUIRuntime): DispatchFunction {
 	ensureBrowserEnvironment();
 	const wpData = resolveWpDataRegistry(runtime);
 	ensureActionStoreRegistered(wpData);
@@ -189,7 +189,7 @@ export function useAction<TInput, TResult>(
 	action: DefinedAction<TInput, TResult>,
 	options: UseActionOptions<TInput, TResult> = {}
 ): UseActionResult<TInput, TResult> {
-	const runtime = useKernelUI();
+	const runtime = useWPKernelUI();
 	const actionRef = useLatest(action);
 	const optionsRef = useLatest(options);
 	const autoInvalidateRef = useLatest(options.autoInvalidate);

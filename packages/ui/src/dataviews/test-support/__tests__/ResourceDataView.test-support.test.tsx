@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react';
-import { KernelUIProvider } from '../../../runtime/context';
+import { WPKernelUIProvider } from '../../../runtime/context';
 import {
 	DataViewsMock,
 	createKernelRuntime,
@@ -30,7 +30,7 @@ describe('ResourceDataView test support helpers', () => {
 		]);
 	});
 
-	it('renders UI within KernelUIProvider', () => {
+	it('renders UI within WPKernelUIProvider', () => {
 		const runtime = createKernelRuntime();
 		const result = renderWithProvider(<div>hello</div>, runtime);
 		expect(result.getByText('hello')).toBeTruthy();
@@ -49,11 +49,11 @@ describe('ResourceDataView test support helpers', () => {
 	it('captures DataViews props from mock calls', () => {
 		DataViewsMock.mockClear();
 		render(
-			<KernelUIProvider runtime={createKernelRuntime()}>
+			<WPKernelUIProvider runtime={createKernelRuntime()}>
 				{DataViewsMock({
 					data: [],
 				})}
-			</KernelUIProvider>
+			</WPKernelUIProvider>
 		);
 		expect(getLastDataViewsProps()).toEqual({ data: [] });
 	});

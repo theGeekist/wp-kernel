@@ -2,29 +2,29 @@ import type { WPDataRegistry } from '@wordpress/data/build-types/registry';
 import type { ReduxMiddleware } from '../actions/types';
 import type { Reporter } from '../reporter';
 import type { CacheKeyPattern, InvalidateOptions } from '../resource/cache';
-import type { KernelEventBus } from '../events/bus';
+import type { WPKernelEventBus } from '../events/bus';
 import type { PolicyHelpers } from '../policy/types';
 import type { ResourceConfig, ResourceObject } from '../resource/types';
 
-export type KernelRegistry = WPDataRegistry & {
+export type WPKernelRegistry = WPDataRegistry & {
 	__experimentalUseMiddleware?: (
 		middleware: () => ReduxMiddleware[]
 	) => (() => void) | void;
 	dispatch: (storeName: string) => unknown;
 };
 
-export interface KernelUIConfig {
+export interface WPKUIConfig {
 	enable?: boolean;
-	attach?: KernelUIAttach;
+	attach?: WPKernelUIAttach;
 	options?: UIIntegrationOptions;
 }
 
-export interface ConfigureKernelOptions {
+export interface ConfigureWPKernelOptions {
 	namespace?: string;
-	registry?: KernelRegistry;
+	registry?: WPKernelRegistry;
 	reporter?: Reporter;
 	middleware?: ReduxMiddleware[];
-	ui?: KernelUIConfig;
+	ui?: WPKUIConfig;
 }
 
 export interface UIIntegrationOptions {
@@ -40,19 +40,19 @@ export interface UIIntegrationOptions {
 	[key: string]: unknown;
 }
 
-export interface KernelUIPolicyRuntime {
+export interface WPKUIPolicyRuntime {
 	policy?: Partial<PolicyHelpers<Record<string, unknown>>> & {
 		cache?: PolicyHelpers<Record<string, unknown>>['cache'];
 	};
 }
 
-export interface KernelUIRuntime {
-	kernel?: KernelInstance;
+export interface WPKernelUIRuntime {
+	kernel?: WPKInstance;
 	namespace: string;
 	reporter: Reporter;
-	registry?: KernelRegistry;
-	events: KernelEventBus;
-	policies?: KernelUIPolicyRuntime;
+	registry?: WPKernelRegistry;
+	events: WPKernelEventBus;
+	policies?: WPKUIPolicyRuntime;
 	invalidate?: (
 		patterns: CacheKeyPattern | CacheKeyPattern[],
 		options?: InvalidateOptions
@@ -60,12 +60,12 @@ export interface KernelUIRuntime {
 	options?: UIIntegrationOptions;
 }
 
-export type KernelUIAttach = (
-	kernel: KernelInstance,
+export type WPKernelUIAttach = (
+	kernel: WPKInstance,
 	options?: UIIntegrationOptions
-) => KernelUIRuntime;
+) => WPKernelUIRuntime;
 
-export interface KernelInstance {
+export interface WPKInstance {
 	getNamespace: () => string;
 	getReporter: () => Reporter;
 	invalidate: (
@@ -74,18 +74,18 @@ export interface KernelInstance {
 	) => void;
 	emit: (eventName: string, payload: unknown) => void;
 	teardown: () => void;
-	getRegistry: () => KernelRegistry | undefined;
+	getRegistry: () => WPKernelRegistry | undefined;
 	hasUIRuntime: () => boolean;
-	getUIRuntime: () => KernelUIRuntime | undefined;
+	getUIRuntime: () => WPKernelUIRuntime | undefined;
 	attachUIBindings: (
-		attach: KernelUIAttach,
+		attach: WPKernelUIAttach,
 		options?: UIIntegrationOptions
-	) => KernelUIRuntime;
+	) => WPKernelUIRuntime;
 	ui: {
 		isEnabled: () => boolean;
-		options?: KernelUIConfig['options'];
+		options?: WPKUIConfig['options'];
 	};
-	events: KernelEventBus;
+	events: WPKernelEventBus;
 	defineResource: <T = unknown, TQuery = unknown>(
 		config: ResourceConfig<T, TQuery>
 	) => ResourceObject<T, TQuery>;

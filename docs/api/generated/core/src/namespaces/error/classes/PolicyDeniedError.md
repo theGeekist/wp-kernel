@@ -85,6 +85,37 @@ Additional error context
 
 ## Properties
 
+### messageKey
+
+```ts
+readonly messageKey: string;
+```
+
+I18n message key for user-facing error messages
+Format: `policy.denied.{namespace}.{policyKey}`
+
+---
+
+### policyKey
+
+```ts
+readonly policyKey: string;
+```
+
+Policy key that was denied
+
+---
+
+### namespace
+
+```ts
+readonly namespace: string;
+```
+
+Plugin namespace
+
+---
+
 ### code
 
 ```ts
@@ -124,37 +155,6 @@ Context in which the error occurred
 #### Inherited from
 
 [`WPKernelError`](../../../classes/WPKernelError.md).[`context`](../../../classes/WPKernelError.md#context)
-
----
-
-### messageKey
-
-```ts
-readonly messageKey: string;
-```
-
-I18n message key for user-facing error messages
-Format: `policy.denied.{namespace}.{policyKey}`
-
----
-
-### policyKey
-
-```ts
-readonly policyKey: string;
-```
-
-Policy key that was denied
-
----
-
-### namespace
-
-```ts
-readonly namespace: string;
-```
-
-Plugin namespace
 
 ## Methods
 
@@ -230,7 +230,7 @@ True if error is a WPKernelError
 
 #### Inherited from
 
-[`WPKernelError`](../../../classes/WPKernelError.md).[`isWPKernelError`](../../../classes/WPKernelError.md#iskernelerror)
+[`WPKernelError`](../../../classes/WPKernelError.md).[`isWPKernelError`](../../../classes/WPKernelError.md#iswpkernelerror)
 
 ---
 

@@ -27,5 +27,5 @@ optional namespace: string;
 ### provider?
 
 ```ts
-optional provider: KernelUIProviderComponent;
+optional provider: WPKernelUIProviderComponent;
 ```

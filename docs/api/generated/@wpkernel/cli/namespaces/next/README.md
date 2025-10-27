@@ -8,13 +8,17 @@
 
 ## Interfaces
 
-- [IRDiagnostic](interfaces/IRDiagnostic.md)
 - [CreatePhpBuilderOptions](interfaces/CreatePhpBuilderOptions.md)
 - [PatchRecord](interfaces/PatchRecord.md)
 - [PatchManifest](interfaces/PatchManifest.md)
 - [BuildApplyCommandOptions](interfaces/BuildApplyCommandOptions.md)
 - [BuildCreateCommandOptions](interfaces/BuildCreateCommandOptions.md)
 - [BuildInitCommandOptions](interfaces/BuildInitCommandOptions.md)
+- [IRResourceCacheKey](interfaces/IRResourceCacheKey.md)
+- [IRWarning](interfaces/IRWarning.md)
+- [IRDiagnostic](interfaces/IRDiagnostic.md)
+- [IRPolicyDefinition](interfaces/IRPolicyDefinition.md)
+- [IRPolicyMap](interfaces/IRPolicyMap.md)
 - [MutableIr](interfaces/MutableIr.md)
 - [IrFragmentInput](interfaces/IrFragmentInput.md)
 - [IrFragmentOutput](interfaces/IrFragmentOutput.md)
@@ -41,11 +45,14 @@
 
 ## Type Aliases
 
-- [IRDiagnosticSeverity](type-aliases/IRDiagnosticSeverity.md)
 - [PatchStatus](type-aliases/PatchStatus.md)
 - [ApplyCommandConstructor](type-aliases/ApplyCommandConstructor.md)
 - [CreateCommandConstructor](type-aliases/CreateCommandConstructor.md)
 - [InitCommandConstructor](type-aliases/InitCommandConstructor.md)
+- [SchemaProvenance](type-aliases/SchemaProvenance.md)
+- [IRRouteTransport](type-aliases/IRRouteTransport.md)
+- [IRDiagnosticSeverity](type-aliases/IRDiagnosticSeverity.md)
+- [IRPolicyScope](type-aliases/IRPolicyScope.md)
 - [IrFragment](type-aliases/IrFragment.md)
 - [PipelineDiagnostic](type-aliases/PipelineDiagnostic.md)
 - [FragmentHelper](type-aliases/FragmentHelper.md)
@@ -142,6 +149,60 @@ Re-exports [HelperMode](../../../../php-json-ast/src/type-aliases/HelperMode.md)
 ### CreateHelperOptions
 
 Re-exports [CreateHelperOptions](../../../../php-json-ast/src/interfaces/CreateHelperOptions.md)
+
+---
+
+### buildIr
+
+Re-exports [buildIr](../../functions/buildIr.md)
+
+---
+
+### BuildIrOptions
+
+Re-exports [BuildIrOptions](../../interfaces/BuildIrOptions.md)
+
+---
+
+### IRBlock
+
+Re-exports [IRBlock](../../interfaces/IRBlock.md)
+
+---
+
+### IRPhpProject
+
+Re-exports [IRPhpProject](../../interfaces/IRPhpProject.md)
+
+---
+
+### IRPolicyHint
+
+Re-exports [IRPolicyHint](../../interfaces/IRPolicyHint.md)
+
+---
+
+### IRResource
+
+Re-exports [IRResource](../../interfaces/IRResource.md)
+
+---
+
+### IRRoute
+
+Re-exports [IRRoute](../../interfaces/IRRoute.md)
+
+---
+
+### IRSchema
+
+Re-exports [IRSchema](../../interfaces/IRSchema.md)
+
+---
+
+### IRv1
+
+Re-exports [IRv1](../../interfaces/IRv1.md)
 
 ---
 

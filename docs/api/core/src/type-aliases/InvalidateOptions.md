@@ -44,7 +44,7 @@ true;
 ### registry?
 
 ```ts
-optional registry: KernelRegistry;
+optional registry: WPKernelRegistry;
 ```
 
 Registry to operate against instead of relying on global getWPData().

@@ -21,7 +21,7 @@ import type {
 	DefinedAction,
 	ResolvedActionOptions,
 } from './types';
-import { getKernelEventBus, recordActionDefined } from '../events/bus';
+import { getWPKernelEventBus, recordActionDefined } from '../events/bus';
 import { getNamespace } from '../namespace/detect';
 
 /**
@@ -427,7 +427,7 @@ export function defineAction<TArgs = void, TResult = void>(
 		namespace,
 	};
 	recordActionDefined(definition);
-	getKernelEventBus().emit('action:defined', definition);
+	getWPKernelEventBus().emit('action:defined', definition);
 
 	return action;
 }

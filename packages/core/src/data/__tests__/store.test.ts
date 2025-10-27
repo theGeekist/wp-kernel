@@ -1,4 +1,4 @@
-import { registerKernelStore } from '../store';
+import { registerWPKernelStore } from '../store';
 import { ensureWpData } from '@wpkernel/test-utils/wp';
 
 type TestState = { value: number };
@@ -32,7 +32,7 @@ jest.mock('@wordpress/data', () => ({
 		(window.wp?.data?.register as jest.Mock | undefined)?.(...args),
 }));
 
-describe('registerKernelStore', () => {
+describe('registerWPKernelStore', () => {
 	beforeEach(() => {
 		const wpData = ensureWpData();
 		wpData.createReduxStore.mockReset();
@@ -69,7 +69,7 @@ describe('registerKernelStore', () => {
 			selectors,
 		};
 
-		const result = registerKernelStore('wpk/test', config);
+		const result = registerWPKernelStore('wpk/test', config);
 
 		expect(wpData.createReduxStore).toHaveBeenCalledWith(
 			'wpk/test',
@@ -108,7 +108,7 @@ describe('registerKernelStore', () => {
 			},
 		};
 
-		registerKernelStore('wpk/forwarded', config);
+		registerWPKernelStore('wpk/forwarded', config);
 
 		expect(wpData.createReduxStore).toHaveBeenCalledTimes(1);
 		expect(wpData.createReduxStore).toHaveBeenCalledWith(

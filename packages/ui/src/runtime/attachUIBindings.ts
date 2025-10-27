@@ -1,7 +1,7 @@
 import type {
-	KernelInstance,
-	KernelUIRuntime,
-	KernelUIAttach,
+	WPKInstance,
+	WPKernelUIRuntime,
+	WPKernelUIAttach,
 	UIIntegrationOptions,
 } from '@wpkernel/core/data';
 import {
@@ -17,14 +17,14 @@ import {
 import { createResourceDataViewController } from '../dataviews/resource-controller';
 import type { ResourceDataViewConfig } from '../dataviews/types';
 
-type RuntimePolicy = NonNullable<KernelUIRuntime['policies']>['policy'];
+type RuntimePolicy = NonNullable<WPKernelUIRuntime['policies']>['policy'];
 
 type ResourceDataViewMetadata<TItem, TQuery> = {
 	config: ResourceDataViewConfig<TItem, TQuery>;
 	preferencesKey?: string;
 };
 
-function resolvePolicyRuntime(): KernelUIRuntime['policies'] {
+function resolvePolicyRuntime(): WPKernelUIRuntime['policies'] {
 	const runtime = (
 		globalThis as {
 			__WP_KERNEL_ACTION_RUNTIME__?: { policy?: RuntimePolicy };
@@ -76,7 +76,7 @@ function extractResourceDataViewMetadata<TItem, TQuery>(
 }
 
 function registerResourceDataView<TItem, TQuery>(
-	runtime: KernelUIRuntime,
+	runtime: WPKernelUIRuntime,
 	resource: ResourceObject<TItem, TQuery>
 ): void {
 	const dataviews = runtime.dataviews;
@@ -132,7 +132,7 @@ function registerResourceDataView<TItem, TQuery>(
 }
 
 function attachExistingResources(
-	runtime: KernelUIRuntime,
+	runtime: WPKernelUIRuntime,
 	resources: ResourceDefinedEvent[]
 ): void {
 	resources.forEach((event) => {
@@ -142,11 +142,11 @@ function attachExistingResources(
 	});
 }
 
-export const attachUIBindings: KernelUIAttach = (
-	kernel: KernelInstance,
+export const attachUIBindings: WPKernelUIAttach = (
+	kernel: WPKInstance,
 	options?: UIIntegrationOptions
-): KernelUIRuntime => {
-	const runtime: KernelUIRuntime = {
+): WPKernelUIRuntime => {
+	const runtime: WPKernelUIRuntime = {
 		kernel,
 		namespace: kernel.getNamespace(),
 		reporter: kernel.getReporter(),

@@ -95,7 +95,7 @@ readonly optional invalidate: (patterns) => void;
 ### policies?
 
 ```ts
-readonly optional policies: KernelUIPolicyRuntime;
+readonly optional policies: WPKUIPolicyRuntime;
 ```
 
 ---

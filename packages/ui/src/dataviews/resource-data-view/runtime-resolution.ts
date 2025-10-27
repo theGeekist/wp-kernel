@@ -1,22 +1,22 @@
-import type { KernelUIRuntime } from '@wpkernel/core/data';
+import type { WPKernelUIRuntime } from '@wpkernel/core/data';
 import { DataViewsControllerError } from '../../runtime/dataviews/errors';
 import { ensureControllerRuntime, isDataViewsRuntime } from '../runtime';
 import type { DataViewsRuntimeContext } from '../types';
 
 export type RuntimeResolution = {
-	kernelRuntime?: KernelUIRuntime;
+	kernelRuntime?: WPKernelUIRuntime;
 	context: DataViewsRuntimeContext;
 };
 
 function isKernelRuntime(
-	candidate: KernelUIRuntime | DataViewsRuntimeContext
-): candidate is KernelUIRuntime {
+	candidate: WPKernelUIRuntime | DataViewsRuntimeContext
+): candidate is WPKernelUIRuntime {
 	return 'namespace' in candidate && 'events' in candidate;
 }
 
 export function resolveRuntime(
-	runtimeProp: KernelUIRuntime | DataViewsRuntimeContext | undefined,
-	hookRuntime: KernelUIRuntime | null
+	runtimeProp: WPKernelUIRuntime | DataViewsRuntimeContext | undefined,
+	hookRuntime: WPKernelUIRuntime | null
 ): RuntimeResolution {
 	if (runtimeProp) {
 		if (isDataViewsRuntime(runtimeProp)) {
@@ -45,7 +45,7 @@ export function resolveRuntime(
 
 	if (!hookRuntime) {
 		throw new DataViewsControllerError(
-			'Kernel UI runtime unavailable. Provide a runtime prop or wrap with <KernelUIProvider />.'
+			'Kernel UI runtime unavailable. Provide a runtime prop or wrap with <WPKernelUIProvider />.'
 		);
 	}
 

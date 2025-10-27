@@ -48,18 +48,18 @@ import { fetch, defineResource, WPKernelError } from '@wpkernel/core';
 
 ## Classes
 
-- [WPKernelError](classes/WPKernelError.md)
 - [ServerError](classes/ServerError.md)
 - [TransportError](classes/TransportError.md)
-- [KernelEventBus](classes/KernelEventBus.md)
+- [WPKernelError](classes/WPKernelError.md)
+- [WPKernelEventBus](classes/WPKernelEventBus.md)
 
 ## Interfaces
 
-- [KernelUIConfig](interfaces/KernelUIConfig.md)
-- [ConfigureKernelOptions](interfaces/ConfigureKernelOptions.md)
+- [WPKUIConfig](interfaces/WPKUIConfig.md)
+- [ConfigureWPKernelOptions](interfaces/ConfigureWPKernelOptions.md)
 - [UIIntegrationOptions](interfaces/UIIntegrationOptions.md)
-- [KernelUIPolicyRuntime](interfaces/KernelUIPolicyRuntime.md)
-- [KernelInstance](interfaces/KernelInstance.md)
+- [WPKUIPolicyRuntime](interfaces/WPKUIPolicyRuntime.md)
+- [WPKInstance](interfaces/WPKInstance.md)
 - [ResourceDataViewsMenuConfig](interfaces/ResourceDataViewsMenuConfig.md)
 - [ResourceDataViewsScreenConfig](interfaces/ResourceDataViewsScreenConfig.md)
 - [ResourceDataViewsUIConfig](interfaces/ResourceDataViewsUIConfig.md)
@@ -80,8 +80,8 @@ import { fetch, defineResource, WPKernelError } from '@wpkernel/core';
 - [ActionConfig](type-aliases/ActionConfig.md)
 - [DefinedAction](type-aliases/DefinedAction.md)
 - [NoticeStatus](type-aliases/NoticeStatus.md)
-- [KernelRegistry](type-aliases/KernelRegistry.md)
-- [KernelUIAttach](type-aliases/KernelUIAttach.md)
+- [WPKernelRegistry](type-aliases/WPKernelRegistry.md)
+- [WPKernelUIAttach](type-aliases/WPKernelUIAttach.md)
 - [ErrorCode](type-aliases/ErrorCode.md)
 - [ErrorContext](type-aliases/ErrorContext.md)
 - [ErrorData](type-aliases/ErrorData.md)
@@ -91,7 +91,7 @@ import { fetch, defineResource, WPKernelError } from '@wpkernel/core';
 - [ActionDomainEvent](type-aliases/ActionDomainEvent.md)
 - [CacheInvalidatedEvent](type-aliases/CacheInvalidatedEvent.md)
 - [CustomKernelEvent](type-aliases/CustomKernelEvent.md)
-- [KernelEventMap](type-aliases/KernelEventMap.md)
+- [WPKernelEventMap](type-aliases/WPKernelEventMap.md)
 - [HttpMethod](type-aliases/HttpMethod.md)
 - [TransportMeta](type-aliases/TransportMeta.md)
 - [TransportRequest](type-aliases/TransportRequest.md)
@@ -156,11 +156,11 @@ import { fetch, defineResource, WPKernelError } from '@wpkernel/core';
 - [defineAction](functions/defineAction.md)
 - [createActionMiddleware](functions/createActionMiddleware.md)
 - [invokeAction](functions/invokeAction.md)
-- [configureKernel](functions/configureKernel.md)
-- [kernelEventsPlugin](functions/kernelEventsPlugin.md)
-- [registerKernelStore](functions/registerKernelStore.md)
-- [getKernelEventBus](functions/getKernelEventBus.md)
-- [setKernelEventBus](functions/setKernelEventBus.md)
+- [configureWPKernel](functions/configureWPKernel.md)
+- [wpkEventsPlugin](functions/wpkEventsPlugin.md)
+- [registerWPKernelStore](functions/registerWPKernelStore.md)
+- [getWPKernelEventBus](functions/getWPKernelEventBus.md)
+- [setWPKernelEventBus](functions/setWPKernelEventBus.md)
 - [getRegisteredResources](functions/getRegisteredResources.md)
 - [getRegisteredActions](functions/getRegisteredActions.md)
 - [clearRegisteredResources](functions/clearRegisteredResources.md)
@@ -172,9 +172,9 @@ import { fetch, defineResource, WPKernelError } from '@wpkernel/core';
 - [isValidNamespace](functions/isValidNamespace.md)
 - [createPolicyProxy](functions/createPolicyProxy.md)
 - [definePolicy](functions/definePolicy.md)
-- [setKernelReporter](functions/setKernelReporter.md)
-- [getKernelReporter](functions/getKernelReporter.md)
-- [clearKernelReporter](functions/clearKernelReporter.md)
+- [setWPKernelReporter](functions/setWPKernelReporter.md)
+- [getWPKernelReporter](functions/getWPKernelReporter.md)
+- [clearWPKReporter](functions/clearWPKReporter.md)
 - [createReporter](functions/createReporter.md)
 - [createNoopReporter](functions/createNoopReporter.md)
 - [normalizeCacheKey](functions/normalizeCacheKey.md)
@@ -215,6 +215,6 @@ Re-exports [WPKExitCode](namespaces/contracts/type-aliases/WPKExitCode.md)
 
 ---
 
-### KernelUIRuntime
+### WPKernelUIRuntime
 
-Re-exports [KernelUIRuntime](@wpkernel/core/data/interfaces/KernelUIRuntime.md)
+Re-exports [WPKernelUIRuntime](@wpkernel/core/data/interfaces/WPKernelUIRuntime.md)

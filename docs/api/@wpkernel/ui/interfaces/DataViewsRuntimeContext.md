@@ -33,7 +33,7 @@ readonly dataviews: DataViewsControllerRuntime;
 ### policies?
 
 ```ts
-readonly optional policies: KernelUIPolicyRuntime;
+readonly optional policies: WPKUIPolicyRuntime;
 ```
 
 ---

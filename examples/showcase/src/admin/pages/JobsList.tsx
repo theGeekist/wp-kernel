@@ -13,7 +13,7 @@ import { DataForm } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
 import { WPKernelError } from '@wpkernel/core/error';
 import type { DefinedAction } from '@wpkernel/core/actions';
-import { useKernelUI } from '@wpkernel/ui';
+import { useWPKernelUI } from '@wpkernel/ui';
 import {
 	ResourceDataView,
 	createDataFormController,
@@ -52,7 +52,7 @@ const normalizeStatus = (value: unknown): CreateJobInput['status'] => {
 };
 
 function useDataViewsRuntimeContext(): DataViewsRuntimeContext {
-	const runtime = useKernelUI();
+	const runtime = useWPKernelUI();
 	if (!runtime?.dataviews) {
 		throw new WPKernelError('DeveloperError', {
 			message:

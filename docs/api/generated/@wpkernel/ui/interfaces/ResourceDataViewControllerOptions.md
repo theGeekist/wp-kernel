@@ -87,7 +87,7 @@ optional invalidate: (patterns) => void;
 ### policies?
 
 ```ts
-optional policies: KernelUIPolicyRuntimeSource;
+optional policies: WPKUIPolicyRuntimeSource;
 ```
 
 ---

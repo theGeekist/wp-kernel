@@ -26,7 +26,7 @@ import {
 	createEventsGetter,
 } from './grouped-api';
 import type { CacheKeys, ResourceConfig, ResourceObject } from './types';
-import { getKernelEventBus, recordResourceDefined } from '../events/bus';
+import { getWPKernelEventBus, recordResourceDefined } from '../events/bus';
 import { createReporter, createNoopReporter } from '../reporter';
 import type { Reporter } from '../reporter';
 
@@ -431,7 +431,7 @@ export function defineResource<T = unknown, TQuery = unknown>(
 		namespace,
 	};
 	recordResourceDefined(definition);
-	getKernelEventBus().emit('resource:defined', definition);
+	getWPKernelEventBus().emit('resource:defined', definition);
 
 	return resource;
 }

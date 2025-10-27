@@ -79,7 +79,7 @@ The Interactivity API adds behaviour without shipping custom JavaScript bundles 
 
 ### DataViews
 
-DataViews provide WordPress 6.7+ admin surfaces powered by kernel controllers. Define metadata on your resources, let `configureKernel()` auto-register the controllers, and render `ResourceDataView` so policies, actions, and preferences stay consistent. [Read the full guide →](/guide/dataviews)
+DataViews provide WordPress 6.7+ admin surfaces powered by kernel controllers. Define metadata on your resources, let `configureWPKernel()` auto-register the controllers, and render `ResourceDataView` so policies, actions, and preferences stay consistent. [Read the full guide →](/guide/dataviews)
 
 ### Prefetching
 

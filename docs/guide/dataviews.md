@@ -7,7 +7,7 @@ Modern admin tables in WP Kernel build on the upstream `@wordpress/dataviews` co
 ## Prerequisites
 
 - WordPress 6.7+ (DataViews + Script Modules).
-- `@wpkernel/core` configured with `configureKernel()`.
+- `@wpkernel/core` configured with `configureWPKernel()`.
 - `@wpkernel/ui` attached via `attachUIBindings()`.
 - Resources that describe their REST contract and optional policies/actions.
 
@@ -77,13 +77,13 @@ export const job = defineResource<Job, JobQuery>({
 
 ## 2. Bootstrap the UI runtime
 
-Opt in to DataViews when calling `configureKernel()` and share the runtime with React.
+Opt in to DataViews when calling `configureWPKernel()` and share the runtime with React.
 
 ```ts
-import { configureKernel } from '@wpkernel/core';
-import { attachUIBindings, KernelUIProvider } from '@wpkernel/ui';
+import { configureWPKernel } from '@wpkernel/core';
+import { attachUIBindings, WPKernelUIProvider } from '@wpkernel/ui';
 
-export const kernel = configureKernel({
+export const kernel = configureWPKernel({
 	namespace: 'demo',
 	registry: window.wp.data,
 	ui: {
@@ -101,9 +101,9 @@ const runtime = kernel.getUIRuntime();
 ```tsx
 export function AdminApp() {
 	return (
-		<KernelUIProvider runtime={runtime}>
+		<WPKernelUIProvider runtime={runtime}>
 			<JobsAdminScreen />
-		</KernelUIProvider>
+		</WPKernelUIProvider>
 	);
 }
 ```
