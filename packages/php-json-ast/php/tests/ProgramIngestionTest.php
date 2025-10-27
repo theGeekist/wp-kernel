@@ -12,19 +12,25 @@ final class ProgramIngestionTest extends TestCase
 
     private string $workspaceRoot;
 
+    private string $fixturesRoot;
+
     protected function setUp(): void
     {
         $this->scriptPath = realpath(__DIR__ . '/../ingest-program.php');
         $this->assertNotFalse($this->scriptPath, 'Failed to resolve ingestion script path.');
 
-        $this->workspaceRoot = realpath(__DIR__ . '/../..');
-        $this->assertNotFalse($this->workspaceRoot, 'Failed to resolve workspace root.');
+        $workspaceRoot = realpath(__DIR__ . '/../..');
+        $this->assertNotFalse($workspaceRoot, 'Failed to resolve workspace root.');
+        $this->workspaceRoot = $workspaceRoot;
+
+        $fixturesRoot = realpath($this->workspaceRoot . '/fixtures/ingestion');
+        $this->assertNotFalse($fixturesRoot, 'Failed to resolve ingestion fixtures root.');
+        $this->fixturesRoot = $fixturesRoot;
     }
 
     public function testItEmitsSchemaFaithfulProgramJson(): void
     {
-        $fixturePath = realpath(__DIR__ . '/fixtures/CodifiedController.php');
-        $this->assertNotFalse($fixturePath, 'Fixture path did not resolve.');
+        $fixturePath = $this->resolveFixturePath('CodifiedController.php');
 
         $command = sprintf(
             'php %s %s %s 2>&1',
@@ -48,6 +54,13 @@ final class ProgramIngestionTest extends TestCase
 
         $program = $payload['program'];
         $this->assertIsArray($program, 'Program should decode to an array of statements.');
+
+        $expectedProgram = json_decode(
+            $this->readFixture('CodifiedController.ast.json'),
+            true
+        );
+        $this->assertIsArray($expectedProgram, 'Expected AST snapshot should decode to an array.');
+        $this->assertSame($expectedProgram, $program, 'Ingested program AST did not match snapshot.');
 
         $namespace = $this->findFirstNodeByType($program, 'Stmt_Namespace');
         $this->assertIsArray($namespace, 'Namespace node should exist.');
@@ -81,8 +94,7 @@ final class ProgramIngestionTest extends TestCase
 
     public function testItSupportsMultipleFilesInASingleInvocation(): void
     {
-        $fixturePath = realpath(__DIR__ . '/fixtures/CodifiedController.php');
-        $this->assertNotFalse($fixturePath, 'Fixture path did not resolve.');
+        $fixturePath = $this->resolveFixturePath('CodifiedController.php');
 
         $command = sprintf(
             'php %s %s %s %s 2>&1',
@@ -104,6 +116,30 @@ final class ProgramIngestionTest extends TestCase
             $this->assertIsArray($payload);
             $this->assertSame($fixturePath, $payload['file'] ?? null);
         }
+    }
+
+    private function resolveFixturePath(string $fixture): string
+    {
+        $path = $this->fixturesRoot . DIRECTORY_SEPARATOR . $fixture;
+        $resolved = realpath($path);
+        $this->assertNotFalse(
+            $resolved,
+            sprintf('Fixture path did not resolve: %s', $path)
+        );
+
+        return $resolved;
+    }
+
+    private function readFixture(string $fixture): string
+    {
+        $path = $this->resolveFixturePath($fixture);
+        $contents = file_get_contents($path);
+        $this->assertNotFalse(
+            $contents,
+            sprintf('Failed to read fixture contents: %s', $path)
+        );
+
+        return $contents;
     }
 
     /**

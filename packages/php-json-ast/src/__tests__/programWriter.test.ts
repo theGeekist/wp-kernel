@@ -21,8 +21,11 @@ const { createPhpDriverInstaller } = phpDriver;
 jest.setTimeout(120_000);
 
 const PACKAGE_ROOT = path.resolve(__dirname, '..', '..');
-const OUTPUT_ROOT = path.resolve(PACKAGE_ROOT, '.test-artifacts');
-const VENDOR_DIRECTORY = path.join(PACKAGE_ROOT, 'vendor');
+const OUTPUT_ROOT = path.resolve(
+	PACKAGE_ROOT,
+	'.test-artifacts',
+	'program-writer'
+);
 
 function createBuilderInput(): BuilderInput {
 	return {
@@ -112,7 +115,6 @@ describe('createPhpProgramWriterHelper', () => {
 
 	afterAll(async () => {
 		await ensureCleanArtifacts();
-		await fs.rm(VENDOR_DIRECTORY, { recursive: true, force: true });
 	});
 
 	afterEach(() => {

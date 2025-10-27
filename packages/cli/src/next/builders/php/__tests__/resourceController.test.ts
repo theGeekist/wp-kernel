@@ -129,6 +129,36 @@ describe('createPhpResourceControllerHelper', () => {
 		expect(entry?.docblock).toMatchSnapshot('resource-controller-docblock');
 		expect(entry?.statements).toEqual([]);
 		expect(entry?.program).toMatchSnapshot('resource-controller-ast');
+		const warnings = (reporter.warn as jest.Mock).mock.calls;
+		expect(warnings.length).toBeGreaterThanOrEqual(3);
+		expect(warnings).toEqual(
+			expect.arrayContaining([
+				[
+					'Write route missing policy.',
+					{
+						resource: 'books',
+						method: 'POST',
+						path: '/kernel/v1/books',
+					},
+				],
+				[
+					'Write route missing policy.',
+					{
+						resource: 'books',
+						method: 'PUT',
+						path: '/kernel/v1/books/:slug',
+					},
+				],
+				[
+					'Write route missing policy.',
+					{
+						resource: 'books',
+						method: 'DELETE',
+						path: '/kernel/v1/books/:slug',
+					},
+				],
+			])
+		);
 	});
 
 	it('queues taxonomy controllers with pagination helpers and term shaping', async () => {
