@@ -5,7 +5,7 @@ Keep this page updated-edit or prune entries as soon as a referenced document ch
 - **Version guard** - The CLI operates on the unified **v0.7.x (pre-1.0)** line. Reserved version slots live in [MVP Plan](./mvp-plan.md); claim and update them as tasks ship so parallel agents never collide.
 - **Implementation rules** - All downstream work must keep the AST-first pipeline intact: no string-based PHP generation, and reserve the `create*` prefix for helpers produced via `createHelper`. Alias third-party `create*` imports to avoid collisions.
 - **[CLI Migration Phases](./cli-migration-phases.md)** - canonical contributor brief for the next pipeline (runtime, helpers, command status, workstreams).
-- **[PHP AST Migration Tasks](./php-ast-migration-tasks.md)** - status tracker for AST parity (wp-option and transient parity shipped; block printers and string-printer retirement still pending).
+- **[PHP AST Migration Tasks](./php-ast-migration-tasks.md)** - status tracker for AST parity (wp-option/transient parity shipped; policy helper parity and controller safety tasks gate the string-printer retirement).
 - **[Block Printer Parity](./block-printer-parity.md)** - legacy JS-only/SSR printer behaviour that Phase 3 builders must mirror.
 - **[Apply Workflow Phases](./apply-workflow-phases.md)** - plan for layering apply (generated base classes + user shims) and porting the remaining flag/logging behaviour.
 - **[Command Migration & Parity Plan](./command-migration-plan.md)** - scope for rebuilding CLI commands on the next pipeline, including `buildApplyCommand`, native `generate/init/start/doctor`, and the forthcoming `create` wrapper.

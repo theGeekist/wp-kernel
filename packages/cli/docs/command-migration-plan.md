@@ -95,7 +95,7 @@ Embedding the commands in factories keeps the orchestration consistent with the 
 ### 3.7 Build (deprecated)
 
 - **State:** The legacy build command remains deprecated. The next CLI will not ship a replacement-document this in release notes and onboarding guides once the command migration completes.
-- **Action:** Remove the command entry point after all other commands run natively and the documentation update lands (tracked in Phase 4 Task 24).
+- **Action:** Remove the command entry point after all other commands run natively and the documentation update lands (tracked in Phase 4 Task 26).
 
 ---
 
