@@ -39,7 +39,7 @@ export function createPhpIndexFileHelper(): BuilderHelper {
 					ir.php.outputDir,
 					'index.php'
 				),
-				namespace: ir.php.namespace,
+				namespace: `${ir.php.namespace}\\Generated`,
 				metadata: { kind: 'index-file' },
 				build: (builder) => buildIndexFile(builder, ir),
 			});
@@ -61,7 +61,7 @@ function buildIndexFile(builder: PhpAstBuilderAdapter, ir: IRv1): void {
 }
 
 function buildIndexEntries(ir: IRv1): Record<string, string> {
-	const namespace = ir.php.namespace;
+	const namespace = `${ir.php.namespace}\\Generated`;
 	const baseDir = ir.php.outputDir;
 
 	const entries: Record<string, string> = {

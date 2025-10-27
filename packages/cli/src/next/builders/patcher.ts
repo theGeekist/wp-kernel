@@ -54,6 +54,7 @@ interface PatchManifest {
 		skipped: number;
 	};
 	readonly records: PatchRecord[];
+	actions: string[];
 }
 
 interface ProcessInstructionOptions {
@@ -202,6 +203,7 @@ function buildEmptyManifest(): PatchManifest {
 			skipped: 0,
 		},
 		records: [],
+		actions: [],
 	} satisfies PatchManifest;
 }
 
@@ -251,6 +253,12 @@ export function createPatcher(): BuilderHelper {
 					reporter,
 				});
 			}
+
+			const actionFiles = [
+				...output.actions.map((action) => action.file),
+				PATCH_MANIFEST_PATH,
+			];
+			manifest.actions = Array.from(new Set(actionFiles));
 
 			await context.workspace.writeJson(PATCH_MANIFEST_PATH, manifest, {
 				pretty: true,
@@ -340,6 +348,11 @@ async function processInstruction({
 
 	await workspace.write(file, result, { ensureDir: true });
 	await queueWorkspaceFile(workspace, output, file);
+
+	if (status === 'clean') {
+		await workspace.write(basePath, incoming, { ensureDir: true });
+		await queueWorkspaceFile(workspace, output, basePath);
+	}
 
 	recordResult(manifest, {
 		file,
