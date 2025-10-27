@@ -54,6 +54,7 @@ This roadmap captures how `@wpkernel/php-json-ast` can evolve now that `nikic/ph
 - Provide Jest coverage that feeds representative payloads through the helper and asserts the writer flushes identical `.php` and `.ast.json` artefacts.
 - Document the helper usage in the driver quick-start so contributors can round-trip fixtures locally.
   _Expectation: TypeScript callers can translate the raw PHP stream into queued `PhpProgram` entries in a single helper call._
+  **Status:** ✓ Implemented in [`src/driver/programIngestion.ts`](../src/driver/programIngestion.ts), which streams JSON-line payloads into queued `PhpProgram` entries while preserving the writer metadata contract. Covered end-to-end in [`src/__tests__/driver/programIngestion.test.ts`](../src/__tests__/driver/programIngestion.test.ts) (currently red while we resolve the pretty-printer exit 255 regression noted in the test TODOs) and documented for contributors in the [driver quick-start](./driver-quickstart.md#4-ingest-php-programs-from-typescript).
 
 #### Task 3 - Capture ingestion fixtures and snapshots
 
