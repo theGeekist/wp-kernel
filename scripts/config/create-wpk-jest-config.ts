@@ -63,10 +63,13 @@ function buildModuleNameMapper(): Record<string, string> {
 		const normalizedTarget = ensurePosix(
 			path.join('<rootDir>', cleanedTarget)
 		);
+		const normalizedTargetDir = hasWildcard
+			? normalizedTarget.replace(/\/\*+$/, '')
+			: normalizedTarget;
 
 		const regex = hasWildcard ? `^${aliasPattern}$` : `^${alias}$`;
 		mapper[regex] = hasWildcard
-			? `${normalizedTarget.replace(/\/\(\.\*\)$/, '')}/$1`
+			? `${normalizedTargetDir}/$1`
 			: normalizedTarget;
 
 		if (hasWildcard && !alias.endsWith('**')) {
