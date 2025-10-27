@@ -199,12 +199,24 @@ export function buildStartCommand(
 				return WPK_EXIT_CODES.UNEXPECTED_ERROR;
 			}
 
-			const watch = await this.#loadWatch();
-			const watcher = watch(WATCH_PATTERNS, {
-				cwd: process.cwd(),
-				ignoreInitial: true,
-				ignored: IGNORED_PATTERNS,
-			});
+			let watcher: ReturnType<WatchFn>;
+			try {
+				const watch = await this.#loadWatch();
+				watcher = watch(WATCH_PATTERNS, {
+					cwd: process.cwd(),
+					ignoreInitial: true,
+					ignored: IGNORED_PATTERNS,
+				});
+			} catch (error) {
+				reporter.error(
+					'Failed to initialise file watcher.',
+					serialiseError(error)
+				);
+				await this.stopViteDevServer(viteHandle, viteReporter, {
+					awaitExit: false,
+				});
+				throw error;
+			}
 
 			const timers: Partial<Record<ChangeTier, NodeJS.Timeout>> = {};
 			const pending: Partial<Record<ChangeTier, Trigger>> = {};
@@ -516,18 +528,28 @@ export function buildStartCommand(
 
 		private async stopViteDevServer(
 			handle: ViteHandle,
-			reporter: Reporter
+			reporter: Reporter,
+			stopOptions: { awaitExit?: boolean } = {}
 		): Promise<void> {
+			const { awaitExit = true } = stopOptions;
 			const { child, exit } = handle;
 			if (child.killed) {
-				await exit;
+				if (awaitExit) {
+					await exit;
+				}
 				return;
 			}
 
 			const stopped = child.kill('SIGINT');
 			if (!stopped) {
 				reporter.debug('Vite dev server already stopped.');
-				await exit;
+				if (awaitExit) {
+					await exit;
+				}
+				return;
+			}
+
+			if (!awaitExit) {
 				return;
 			}
 
