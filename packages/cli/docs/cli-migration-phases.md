@@ -19,7 +19,7 @@ This document replaces earlier drafts (`next-cli.md.audit-backup`, `next-cli.md.
 | Phase 1 - wp-option parity           | AST builders + fixtures (patch band complete)                                                         | **0.5.0**     | 0.4.5 → 0.4.9       | CLI/core typecheck + CLI/php-driver tests |
 | Phase 2 - transient parity           | AST builders + cache events (Tasks 11-15 shipped; transient buffer closed ahead of the 0.6.0 release) | **0.6.0**     | 0.5.1 → 0.5.4       | CLI/core + transient integration tests    |
 | Phase 3 - block builders (completed) | SSR + JS-only builders (Tasks 16-19)                                                                  | **0.7.0**     | 0.6.1 → 0.6.4       | CLI/ui + block integration smoke          |
-| Phase 4 - string printers retired    | Remove legacy writers                                                                                 | **0.8.0**     | 0.7.1 → 0.7.4       | CLI + docs regeneration + regression run  |
+| Phase 4 - string printers retired    | Remove legacy writers                                                                                 | **0.8.0**     | 0.7.1 → 0.7.6       | CLI + docs regeneration + regression run  |
 | Phase 5 - Apply layering             | Shims + flags + logging                                                                               | **0.9.0**     | 0.8.1 → 0.8.4       | `wpk generate`/`wpk apply` acceptance run |
 
 - **Patch bands:** Each phase reserves patch numbers in batches of three (implementation, tests, fixtures/docs) plus a buffer slot. Consume them sequentially; update [MVP Plan](./mvp-plan.md) as you go so parallel agents never target the same release.
@@ -27,6 +27,8 @@ This document replaces earlier drafts (`next-cli.md.audit-backup`, `next-cli.md.
 - **Phase consolidation:** The agent cutting a minor release runs the full checks for all impacted packages (`@wpkernel/cli`, `@wpkernel/core`, `@wpkernel/php-driver`, `@wpkernel/ui`) and documents the results in the release PR.
 
 Phase 3 covered Tasks 16-19: port the legacy block printers (`packages/cli/src/printers/blocks/js-only.ts` and `packages/cli/src/printers/blocks/ssr.ts`) into the AST-first pipeline, ship the shared `ts-morph` primitives, lock parity through tests, refresh fixtures/docs, and hold the buffer slot before cutting 0.7.0. Those checkpoints are now complete; expect medium-complexity runs here-each task replaces end-to-end generation of manifests, registrars, and per-block `render.php` stubs. See [PHP AST Migration Tasks](./php-ast-migration-tasks.md#phase-3---block-printers-ssr--js-only-) for the detailed scope.
+
+Phase 4 now depends on Task 23 (native `start`/`doctor`), Task 24 (policy helper parity), and Task 25 (controller safety warnings plus derived block scaffolds) before the Task 26 release can delete the legacy printers and command shims.
 
 ---
 
@@ -149,7 +151,7 @@ These align with `docs/pipeline-integration-tasks.md` and related planning docs.
     - Port flag handling, backups, `.wpk-apply.log`, and generated-directory hygiene into the `buildApplyCommand` surface and default `NextApplyCommand`.
 2. **PHP AST parity**
     - Track progress in `docs/php-ast-migration-tasks.md`.
-    - Outstanding: transient fixture/doc refresh (Task 13), block printers, and removal of string-based printers once complete.
+    - Outstanding: Task 24 (policy helper parity), Task 25 (controller safety warnings & derived block scaffolds), and the Task 26 release that deletes the remaining string-based printers once parity lands.
 3. **Block & UI builders**
     - Introduce a next-gen blocks builder (SSR + JS-only).
     - Expand `createTsBuilder` to cover stores/bootstrap/storybook and create import validation flows for new artefacts.
