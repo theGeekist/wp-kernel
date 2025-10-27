@@ -40,6 +40,20 @@ describe('node builders', () => {
 		});
 	});
 
+	it('builds concatenation operations via typed primitive', () => {
+		const operation = buildBinaryOperation(
+			'Concat',
+			buildScalarString('left'),
+			buildScalarString('right')
+		);
+
+		expect(operation).toMatchObject({
+			nodeType: 'Expr_BinaryOp_Concat',
+			left: { nodeType: 'Scalar_String', value: 'left' },
+			right: { nodeType: 'Scalar_String', value: 'right' },
+		});
+	});
+
 	it('builds ternary expressions', () => {
 		const ternary = buildTernary(
 			buildVariable('condition'),

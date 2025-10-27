@@ -1,4 +1,4 @@
-[**WP Kernel API v0.6.0**](../../../../../README.md)
+[**WP Kernel API v0.7.0**](../../../../../README.md)
 
 ---
 
@@ -7,5 +7,11 @@
 # Type Alias: IrFragment
 
 ```ts
-type IrFragment = Helper<PipelineContext, IrFragmentInput, IrFragmentOutput>;
+type IrFragment = Helper<
+	PipelineContext,
+	IrFragmentInput,
+	IrFragmentOutput,
+	PipelineContext['reporter'],
+	'fragment'
+>;
 ```

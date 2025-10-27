@@ -1,4 +1,4 @@
-[**WP Kernel API v0.6.0**](../../../../../README.md)
+[**WP Kernel API v0.7.0**](../../../../../README.md)
 
 ---
 
@@ -6,15 +6,11 @@
 
 # Interface: Workspace
 
+## Extends
+
+- `WorkspaceLike`
+
 ## Properties
-
-### root
-
-```ts
-readonly root: string;
-```
-
----
 
 ### cwd()
 
@@ -82,7 +78,7 @@ write: (file, data, options?) => Promise<void>;
 
 ##### options?
 
-[`WriteOptions`](WriteOptions.md)
+[`WorkspaceWriteOptions`](../../../../../php-json-ast/src/interfaces/WorkspaceWriteOptions.md)
 
 #### Returns
 
@@ -119,24 +115,6 @@ writeJson: <T>(file, value, options?) => Promise<void>;
 #### Returns
 
 `Promise`\&lt;`void`\&gt;
-
----
-
-### exists()
-
-```ts
-exists: (target) => Promise<boolean>;
-```
-
-#### Parameters
-
-##### target
-
-`string`
-
-#### Returns
-
-`Promise`\&lt;`boolean`\&gt;
 
 ---
 
@@ -184,7 +162,7 @@ glob: (pattern) => Promise<string[]>;
 
 ```ts
 threeWayMerge: (file, base, current, incoming, options?) =>
-	Promise<'clean' | 'conflict'>;
+	Promise<'conflict' | 'clean'>;
 ```
 
 #### Parameters
@@ -211,7 +189,7 @@ threeWayMerge: (file, base, current, incoming, options?) =>
 
 #### Returns
 
-`Promise`\&lt;`"clean"` \| `"conflict"`\&gt;
+`Promise`\&lt;`"conflict"` \| `"clean"`\&gt;
 
 ---
 
@@ -318,6 +296,20 @@ tmpDir: (prefix?) => Promise<string>;
 
 ---
 
+### root
+
+```ts
+readonly root: string;
+```
+
+#### Inherited from
+
+```ts
+WorkspaceLike.root;
+```
+
+---
+
 ### resolve()
 
 ```ts
@@ -333,3 +325,33 @@ resolve: (...parts) => string;
 #### Returns
 
 `string`
+
+#### Inherited from
+
+```ts
+WorkspaceLike.resolve;
+```
+
+---
+
+### exists()
+
+```ts
+exists: (target) => Promise<boolean>;
+```
+
+#### Parameters
+
+##### target
+
+`string`
+
+#### Returns
+
+`Promise`\&lt;`boolean`\&gt;
+
+#### Inherited from
+
+```ts
+WorkspaceLike.exists;
+```

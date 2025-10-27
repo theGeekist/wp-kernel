@@ -1,4 +1,4 @@
-[**WP Kernel API v0.6.0**](../../../../../README.md)
+[**WP Kernel API v0.7.0**](../../../../../README.md)
 
 ---
 
@@ -6,15 +6,11 @@
 
 # Interface: BuilderInput
 
+## Extends
+
+- `Omit`\&lt;`BaseBuilderInput`, `"options"` \| `"ir"`\&gt;
+
 ## Properties
-
-### phase
-
-```ts
-readonly phase: PipelinePhase;
-```
-
----
 
 ### options
 
@@ -27,5 +23,17 @@ readonly options: BuildIrOptions;
 ### ir
 
 ```ts
-readonly ir: IRv1;
+readonly ir: IRv1 | null;
 ```
+
+---
+
+### phase
+
+```ts
+readonly phase: PipelinePhase;
+```
+
+#### Inherited from
+
+[`BuilderInput`](../../../../../php-json-ast/src/interfaces/BuilderInput.md).[`phase`](../../../../../php-json-ast/src/interfaces/BuilderInput.md#phase)

@@ -1,8 +1,8 @@
 # WP Kernel - Current State (v2)
 
-**Last Updated:** 10 October 2025  
-**Version:** 0.6.0 (monorepo snapshot)
-**Status:** Core runtime stable; CLI Phases 0-6 complete (5C/7/7a/8 in progress)
+**Last Updated:** 27 October 2025
+**Version:** 0.7.0 (monorepo snapshot)
+**Status:** Core runtime stable; CLI Phases 0-3 complete (Phase 4 underway)
 
 ---
 
@@ -1034,5 +1034,5 @@ The framework is production-ready after completing Phases 1-7 of the architectur
 ---
 
 **Document Version:** 2.0  
-**Framework Version:** 0.6.0 (released)
+**Framework Version:** 0.7.0 (released)
 **Generated:** 9 October 2025

@@ -1,4 +1,4 @@
-[**WP Kernel API v0.6.0**](../../../README.md)
+[**WP Kernel API v0.7.0**](../../../README.md)
 
 ---
 
@@ -7,5 +7,5 @@
 # Variable: VERSION
 
 ```ts
-const VERSION: '0.6.0' = '0.6.0';
+const VERSION: '0.7.0' = '0.7.0';
 ```

@@ -9,6 +9,7 @@ import type { PhpDriverConfigurationOptions } from '@wpkernel/php-json-ast';
 import {
 	createPhpBaseControllerHelper,
 	createPhpChannelHelper,
+	createPhpBlocksHelper,
 	createPhpIndexFileHelper,
 	createPhpPersistenceRegistryHelper,
 	createPhpPolicyHelper,
@@ -46,6 +47,7 @@ export function createPhpBuilder(
 				createPhpPolicyHelper(),
 				createPhpPersistenceRegistryHelper(),
 				createPhpIndexFileHelper(),
+				createPhpBlocksHelper(),
 				createPhpProgramWriterHelper({
 					driver: options.driver,
 				}),

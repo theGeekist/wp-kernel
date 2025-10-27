@@ -1,4 +1,4 @@
-[**WP Kernel API v0.6.0**](../../../../../README.md)
+[**WP Kernel API v0.7.0**](../../../../../README.md)
 
 ---
 
@@ -8,9 +8,17 @@
 
 ## Extends
 
-- [`WriteOptions`](WriteOptions.md)
+- [`WriteOptions`](../type-aliases/WriteOptions.md)
 
 ## Properties
+
+### pretty?
+
+```ts
+readonly optional pretty: boolean;
+```
+
+---
 
 ### mode?
 
@@ -20,7 +28,9 @@ readonly optional mode: number;
 
 #### Inherited from
 
-[`WriteOptions`](WriteOptions.md).[`mode`](WriteOptions.md#mode)
+```ts
+WriteOptions.mode;
+```
 
 ---
 
@@ -32,12 +42,6 @@ readonly optional ensureDir: boolean;
 
 #### Inherited from
 
-[`WriteOptions`](WriteOptions.md).[`ensureDir`](WriteOptions.md#ensuredir)
-
----
-
-### pretty?
-
 ```ts
-readonly optional pretty: boolean;
+WriteOptions.ensureDir;
 ```

@@ -1,4 +1,4 @@
-[**WP Kernel API v0.6.0**](../../README.md)
+[**WP Kernel API v0.7.0**](../../README.md)
 
 ---
 
@@ -42,6 +42,7 @@ import { fetch, defineResource, KernelError } from '@wpkernel/core';
 - [@wpkernel/core/events](namespaces/@wpkernel/core/events/README.md)
 - [http](namespaces/http/README.md)
 - [namespace](namespaces/namespace/README.md)
+- [pipeline](namespaces/pipeline/README.md)
 - [policy](namespaces/policy/README.md)
 - [resource](namespaces/resource/README.md)
 
