@@ -9,7 +9,7 @@ export function reportError(
 	reporter: Reporter,
 	message: string,
 	error: unknown,
-	channel: 'adapter' | 'printer' | 'runtime' = 'runtime'
+	channel: 'adapter' | 'builder' | 'runtime' = 'runtime'
 ): void {
 	reporter.child(channel).error(message, serialiseError(error));
 }

@@ -1,4 +1,4 @@
-[**WP Kernel API v0.7.0**](../../../../../README.md)
+[**WP Kernel API v0.8.0**](../../../../../README.md)
 
 ---
 
@@ -7,7 +7,7 @@
 # Function: buildStartCommand()
 
 ```ts
-function buildStartCommand(options): StartConstructor;
+function buildStartCommand(options): () => Command;
 ```
 
 ## Parameters
@@ -18,4 +18,10 @@ function buildStartCommand(options): StartConstructor;
 
 ## Returns
 
-`StartConstructor`
+```ts
+new buildStartCommand(): Command;
+```
+
+### Returns
+
+`Command`

@@ -8,13 +8,13 @@
 import { Cli, Command } from 'clipanion';
 import { WPK_NAMESPACE } from '@wpkernel/core/contracts';
 import {
-	GenerateCommand,
-	InitCommand,
-	DoctorCommand,
-	StartCommand,
-	BuildCommand,
-	ApplyCommand,
-} from '../commands';
+	buildApplyCommand,
+	buildCreateCommand,
+	buildDoctorCommand,
+	buildGenerateCommand,
+	buildInitCommand,
+	buildStartCommand,
+} from '../next/commands';
 import { VERSION } from '../version';
 
 class RootCommand extends Command {
@@ -39,12 +39,19 @@ const cli = new Cli({
 	binaryVersion: VERSION,
 });
 
+const GenerateCommand = buildGenerateCommand();
+const InitCommand = buildInitCommand();
+const CreateCommand = buildCreateCommand();
+const DoctorCommand = buildDoctorCommand();
+const StartCommand = buildStartCommand();
+const ApplyCommand = buildApplyCommand();
+
 cli.register(RootCommand);
 cli.register(GenerateCommand);
 cli.register(InitCommand);
+cli.register(CreateCommand);
 cli.register(DoctorCommand);
 cli.register(StartCommand);
-cli.register(BuildCommand);
 cli.register(ApplyCommand);
 
 /**

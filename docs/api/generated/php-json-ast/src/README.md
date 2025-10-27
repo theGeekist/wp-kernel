@@ -1,4 +1,4 @@
-[**WP Kernel API v0.7.0**](../../README.md)
+[**WP Kernel API v0.8.0**](../../README.md)
 
 ---
 
@@ -19,6 +19,8 @@
 - [PhpStatementEntry](interfaces/PhpStatementEntry.md)
 - [PhpAstContextEntry](interfaces/PhpAstContextEntry.md)
 - [PhpAstChannel](interfaces/PhpAstChannel.md)
+- [PhpProgramIngestionMessage](interfaces/PhpProgramIngestionMessage.md)
+- [ConsumePhpProgramIngestionOptions](interfaces/ConsumePhpProgramIngestionOptions.md)
 - [ResourceMetadataHost](interfaces/ResourceMetadataHost.md)
 - [BuildWpQueryInstantiationOptions](interfaces/BuildWpQueryInstantiationOptions.md)
 - [BuildWpTermQueryInstantiationOptions](interfaces/BuildWpTermQueryInstantiationOptions.md)
@@ -129,6 +131,7 @@
 - [HelperKind](type-aliases/HelperKind.md)
 - [HelperMode](type-aliases/HelperMode.md)
 - [HelperApplyFn](type-aliases/HelperApplyFn.md)
+- [PhpProgramIngestionSource](type-aliases/PhpProgramIngestionSource.md)
 - [PhpAttributes](type-aliases/PhpAttributes.md)
 - [PhpDocComment](type-aliases/PhpDocComment.md)
 - [PhpExprNodeType](type-aliases/PhpExprNodeType.md)
@@ -178,6 +181,7 @@
 - [appendProgramStatement](functions/appendProgramStatement.md)
 - [appendGeneratedFileDocblock](functions/appendGeneratedFileDocblock.md)
 - [buildGeneratedFileDocComment](functions/buildGeneratedFileDocComment.md)
+- [consumePhpProgramIngestion](functions/consumePhpProgramIngestion.md)
 - [appendResourceControllerCacheEvent](functions/appendResourceControllerCacheEvent.md)
 - [buildWpQueryInstantiation](functions/buildWpQueryInstantiation.md)
 - [buildWpTermQueryInstantiation](functions/buildWpTermQueryInstantiation.md)

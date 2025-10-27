@@ -32,8 +32,8 @@ _See [Docs Index](./index.md) for navigation._
 
 ### 1.3 Legacy reference point
 
-- The legacy command still handles every side effect: it copies generated PHP into `inc/`, syncs block artefacts, respects `--yes/--backup/--force`, keeps an append-only `.wpk-apply.log`, and emits summaries for PHP and blocks (`packages/cli/src/commands/apply/command.ts:21-157`).
-- Guard rails rely on git: the preflight check shells out to `git status --porcelain -- .generated/php` and warns instead of failing when the directory is not tracked (`packages/cli/src/commands/apply/ensure-generated-php-clean.ts:11-99`). This behaviour needs to tighten when we require a repository for apply.
+- The pre-0.8.0 command handled every side effect: copying generated PHP into `inc/`, syncing block artefacts, respecting `--yes/--backup/--force`, keeping an append-only `.wpk-apply.log`, and emitting summaries for PHP and blocks. Those responsibilities now migrate onto the next pipeline (`packages/cli/src/next/commands/apply.ts`).
+- Guard rails rely on git: the new helper shells out to `git status --porcelain -- .generated/php` and warns instead of failing when the directory is not tracked (`packages/cli/src/next/workspace/utilities.ts:60-120`). This behaviour needs to tighten when we require a repository for apply.
 
 ### 1.4 Gaps in the next command
 
@@ -95,8 +95,8 @@ What changes is _what_ we merge. Instead of large controller bodies, the merge i
     - Warn during generation when the configured namespace cannot be normalised to PSR-1 before writing shims so projects know to adjust `kernel.config.ts`.
 4. **Port safety rails**
     - Carry across flag handling (`--yes`, `--backup`, `--force`) and `.wpk-apply.log` once the new layering is in place.
-    - Enforce git hygiene: fail early when `.git` is missing or dirty instead of silently skipping checks as the legacy helper does today (`packages/cli/src/commands/apply/ensure-generated-php-clean.ts:11-99`).
-    - Mirror the legacy logging contract by appending structured entries to `.wpk-apply.log` on success and failure (`packages/cli/src/commands/apply/command.ts:104-140`).
+    - Enforce git hygiene: fail early when `.git` is missing or dirty instead of skipping checks (`packages/cli/src/next/workspace/utilities.ts:60-150`).
+    - Mirror the prior logging contract by appending structured entries to `.wpk-apply.log` on success and failure (compare v0.7.x history for the original layout).
 5. **Update tests**
     - Extend `packages/cli/src/next/builders/__tests__/patcher.test.ts` (or add new suites) to assert the shim model.
     - Add integration tests that regenerate `.generated/**`, run `apply`, and confirm user shims update without touching custom overrides.
@@ -115,7 +115,7 @@ What changes is _what_ we merge. Instead of large controller bodies, the merge i
 
 - Next patcher helper: `packages/cli/src/next/builders/patcher.ts`
 - Next apply command: `packages/cli/src/next/commands/apply.ts`
-- Legacy apply command (reference only): `packages/cli/src/commands/apply/command.ts`
+- Legacy apply command (reference only): see v0.7.x history for `packages/cli/src/commands/apply/command.ts`
 - Next PHP writer (AST + pretty printer): `packages/cli/src/next/builders/php/writer.ts`
 - Generate pipeline entrypoint: `packages/cli/src/next/ir/createIr.ts`
 

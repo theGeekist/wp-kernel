@@ -28,7 +28,7 @@ This document replaces earlier drafts (`next-cli.md.audit-backup`, `next-cli.md.
 
 Phase 3 covered Tasks 16-19: port the legacy block printers (`packages/cli/src/printers/blocks/js-only.ts` and `packages/cli/src/printers/blocks/ssr.ts`) into the AST-first pipeline, ship the shared `ts-morph` primitives, lock parity through tests, refresh fixtures/docs, and hold the buffer slot before cutting 0.7.0. Those checkpoints are now complete; expect medium-complexity runs here-each task replaces end-to-end generation of manifests, registrars, and per-block `render.php` stubs. See [PHP AST Migration Tasks](./php-ast-migration-tasks.md#phase-3---block-printers-ssr--js-only-) for the detailed scope.
 
-Phase 4 now depends on Task 25 (controller safety warnings plus derived block scaffolds)-Task 23 delivered the native `start`/`doctor` commands-before the Task 26 release can delete the legacy printers and command shims.
+Phase 4 closed with Task 26: after controller safety warnings (Task 25) landed, the 0.8.0 release removed the legacy string printers and command shims so the CLI now runs exclusively through the next pipeline factories.
 
 ---
 
@@ -69,15 +69,13 @@ Core builders exist:
 
 ### Commands
 
-- `commands/index.ts` exports:
-    - `buildApplyCommand` producing `NextApplyCommand` (CLI entry point around `createPatcher`).
-    - Factory commands `buildInitCommand`, `buildGenerateCommand`, `buildStartCommand`, `buildDoctorCommand` that currently delegate to the existing string-based implementations until parity work lands.
+- `cli/run.ts` now registers `buildGenerateCommand`, `buildInitCommand`, `buildCreateCommand`, `buildStartCommand`, `buildDoctorCommand`, and `buildApplyCommand`; the legacy Clipanion classes were removed in v0.8.0.
 
 ### Testing
 
 - Shared fixtures for next helpers live in `packages/test-utils/src/next/**` (workspace mocks, PHP AST builders, pipeline fixtures).
 - Jest suites cover runtime, builders, and commands (see `packages/cli/src/next/**/__tests__`).
-- The PHP pipeline now ships an end-to-end integration test (`packages/cli/src/next/builders/php/__tests__/generate.integration.test.ts`) that snapshots generated controllers/policy output and ensures legacy printers remain untouched. Re-run it with `pnpm --filter @wpkernel/cli test -- --runTestsByPath packages/cli/src/next/builders/php/__tests__/generate.integration.test.ts` when updating fixtures.
+- The PHP pipeline now ships an end-to-end integration test (`packages/cli/src/next/builders/php/__tests__/generate.integration.test.ts`) that snapshots generated controllers/policy output to confirm the AST builders write the expected artefacts. Re-run it with `pnpm --filter @wpkernel/cli test -- --runTestsByPath packages/cli/src/next/builders/php/__tests__/generate.integration.test.ts` when updating fixtures.
 
 ---
 

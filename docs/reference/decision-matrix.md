@@ -1,14 +1,14 @@
 # Decision matrix
 
-This page explains what the CLI generates when you run `wpk generate` or `wpk apply`. It mirrors the internal matrix described in `cli-decision-matrix.md` at the repository root and the printers under `packages/cli/src/printers`. No differences were found during the latest review.【F:packages/cli/src/printers/index.ts†L1-L16】
+This page explains what the CLI generates when you run `wpk generate` or `wpk apply`. It mirrors the internal matrix described in `cli-decision-matrix.md` at the repository root and the builders under `packages/cli/src/next/builders`. No differences were found during the latest review.【F:packages/cli/src/next/builders/php/printers.ts†L1-L40】
 
-## Types printer
+## Types builder
 
 - **Inputs** - every schema in the normalised IR.
 - **Outputs** - `.generated/types/*.d.ts` plus an index that re-exports PascalCase names.
-- **Notes** - emits a content hash comment so `wpk apply` can skip unchanged files.【F:packages/cli/src/printers/types/printer.ts†L1-L120】
+- **Notes** - emits a content hash comment so `wpk apply` can skip unchanged files.【F:packages/cli/src/next/builders/ts.ts†L1-L200】
 
-## PHP printer
+## PHP builder
 
 | Condition                                                            | Controller body                                     | Bootstrap | Notes                                                                                 |
 | -------------------------------------------------------------------- | --------------------------------------------------- | --------- | ------------------------------------------------------------------------------------- |
@@ -25,24 +25,24 @@ Additional outputs:
 - `.generated/php/Registration/PersistenceRegistry.php`
 - `.generated/php/index.php`
 
-The printer enforces public visibility for REST controller overrides and warns when policy hints are missing on write routes.【F:packages/cli/src/printers/php/printer.ts†L1-L73】【F:packages/cli/src/printers/php/routes.ts†L60-L170】
+The builders enforce public visibility for REST controller overrides and warn when policy hints are missing on write routes.【F:packages/cli/src/next/builders/php/resourceController.ts†L1-L220】【F:packages/cli/src/next/builders/php/routes.ts†L60-L220】
 
-## Blocks printer
+## Blocks builders
 
-- **JS-only blocks** - emits `.generated/blocks/auto-register.ts` that imports discovered `block.json` files and registers them automatically.【F:packages/cli/src/printers/blocks/js-only.ts†L1-L120】
-- **SSR blocks** - generates PHP registrars under `.generated/php/Blocks/**` and warns if closures cannot be serialised.【F:packages/cli/src/printers/blocks/ssr.ts†L1-L160】
+- **JS-only blocks** - emits `.generated/blocks/auto-register.ts` that imports discovered `block.json` files and registers them automatically.【F:packages/cli/src/next/builders/ts.ts†L200-L360】
+- **SSR blocks** - generates PHP registrars under `.generated/php/Blocks/**` and warns if closures cannot be serialised.【F:packages/cli/src/next/builders/php/blocks/index.ts†L1-L160】
 
-## UI printer (DataViews)
+## UI builder (DataViews)
 
 When a resource defines `ui.admin.dataviews` the CLI emits:
 
 - `.generated/ui/app/<resource>/admin/<Component>.tsx` - wrapper around the DataViews runtime.
 - `.generated/ui/fixtures/dataviews/<resource>.ts` - serialised metadata.
-- `.generated/php/Admin/Menu_<Component>.php` - admin menu shim that enqueues the built bundle.【F:packages/cli/src/printers/ui/printer.ts†L1-L120】
+- `.generated/php/Admin/Menu_<Component>.php` - admin menu shim that enqueues the built bundle.【F:packages/cli/src/next/builders/ts.ts†L120-L220】
 
 Function serialisation detects captured variables and warns when a function is not pure.
 
-## Printers deliberately skip
+## Builders deliberately skip
 
 - Running Vite or building assets.
 - Copying files into `inc/` or `build/` (handled by `wpk apply`).
@@ -50,7 +50,7 @@ Function serialisation detects captured variables and warns when a function is n
 
 ## Troubleshooting checklist
 
-- Missing policy hints on write routes → warning with `manage_options` fallback.【F:packages/cli/src/printers/php/routes.ts†L80-L170】
-- UUID identity without a matching meta key → warning and stubbed `get` implementation.【F:packages/cli/src/printers/php/resource-controller.ts†L1-L70】
-- PHP visibility mismatch → build error when formatting the file.【F:packages/cli/src/printers/php/printer.ts†L1-L73】
-- Detected closures in DataViews functions → warning to refactor into pure functions.【F:packages/cli/src/printers/ui/printer.ts†L1-L120】
+- Missing policy hints on write routes → warning with `manage_options` fallback.【F:packages/cli/src/next/builders/php/routes.ts†L170-L260】
+- UUID identity without a matching meta key → warning and stubbed `get` implementation.【F:packages/cli/src/next/builders/php/resourceController.ts†L200-L320】
+- PHP visibility mismatch → build error when formatting the file.【F:packages/cli/src/next/builders/php/resourceController.ts†L1-L120】
+- Detected closures in DataViews functions → warning to refactor into pure functions.【F:packages/cli/src/next/builders/ts.ts†L200-L360】

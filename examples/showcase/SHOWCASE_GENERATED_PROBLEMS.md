@@ -24,7 +24,7 @@
 
 ## Testing Strategy Gaps
 
-- **Existing coverage** - PHP printers have focused unit suites (`packages/cli/src/printers/php/__tests__/**`) and an integration snapshot in `packages/cli/src/printers/__tests__/emit-generated-artifacts.test.ts`. CLI command suites (`packages/cli/src/commands/__tests__/…`) exercise `runGenerate` via mocks but exit before any generated artefact is linted or compiled.
+- **Existing coverage** - The next builders ship focused unit suites (`packages/cli/src/next/builders/php/__tests__/**`) and end-to-end snapshots in `packages/cli/src/next/builders/php/__tests__/generate.integration.test.ts`. CLI command suites (`packages/cli/src/next/commands/__tests__/…`) exercise the factories without relying on the removed `runGenerate` shim.
 - **What slipped through**
     - Printer tests assert string equality only; none shell out to `php -l`, so syntax errors like the illegal `continue;` and `${variable}` placeholder survive.
     - Generated TS/TSX artefacts are snapshot-checked but never compiled, so missing imports in `.generated/ui/app/job/admin/JobsAdminScreen.tsx` went unnoticed.

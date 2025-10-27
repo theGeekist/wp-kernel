@@ -1,6 +1,6 @@
 # Test the CLI
 
-This example powers the CLI smoke tests. It keeps the project small so the generated artifacts are easy to inspect while still exercising the local route printers and apply workflow.【F:examples/test-the-cli/kernel.config.ts†L1-L48】
+This example powers the CLI smoke tests. It keeps the project small so the generated artifacts are easy to inspect while still exercising the local route builders and apply workflow.【F:examples/test-the-cli/kernel.config.ts†L1-L48】
 
 ## What it covers
 
@@ -16,7 +16,7 @@ pnpm --filter @examples/test-the-cli wpk generate
 pnpm --filter @examples/test-the-cli wpk apply
 ```
 
-Inspect the diff between `.generated/php/**` and `inc/**` after each run. The resource uses `storage.mode = 'transient'`, so the generated controller demonstrates how the PHP adapter handles non-post storage strategies.【F:examples/test-the-cli/kernel.config.ts†L27-L48】【F:packages/cli/src/printers/php/printer.ts†L1-L73】
+Inspect the diff between `.generated/php/**` and `inc/**` after each run. The resource uses `storage.mode = 'transient'`, so the generated controller demonstrates how the PHP adapter handles non-post storage strategies.【F:examples/test-the-cli/kernel.config.ts†L27-L48】【F:packages/cli/src/next/builders/php/resourceController.ts†L1-L220】
 
 ## Files to review
 

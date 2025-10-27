@@ -12,7 +12,7 @@ import type { LoadedKernelConfig } from '../../config/types';
 import { loadKernelConfig } from '../../config';
 import { buildWorkspace, type Workspace } from '../workspace';
 import { createPatcher } from '../builders';
-import { determineExitCode, reportFailure } from '../../commands/apply/errors';
+import { determineExitCode, reportFailure } from './apply/errors';
 
 export const PATCH_MANIFEST_PATH = path.posix.join(
 	'.wpk',
