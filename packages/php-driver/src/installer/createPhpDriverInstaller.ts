@@ -1,6 +1,6 @@
 import { promisify } from 'node:util';
 import { execFile, type ExecFileOptions } from 'node:child_process';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import type { WorkspaceLike } from '../workspace';
 
 const REQUIRED_PACKAGE = 'nikic/php-parser';
@@ -24,7 +24,7 @@ function resolveExecFile(configExec?: ExecFileFn): ExecFileFn {
 
 	if (!cachedExecFileAsync) {
 		if (typeof execFile !== 'function') {
-			throw new KernelError('DeveloperError', {
+			throw new WPKernelError('DeveloperError', {
 				message: 'Composer install support is unavailable.',
 			});
 		}
@@ -102,7 +102,7 @@ export function createPhpDriverInstaller(
 					`Composer install failed while fetching ${REQUIRED_PACKAGE}.`,
 					{ error }
 				);
-				throw new KernelError('DeveloperError', {
+				throw new WPKernelError('DeveloperError', {
 					message: 'Composer install failed.',
 					data:
 						error instanceof Error

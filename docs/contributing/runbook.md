@@ -630,7 +630,7 @@ add_action('rest_api_init', function () {
 
 ### Static Export (CDN)
 
-> **🚧 Requires**: `defineKernelConfig()` API, build guards • upcoming initiative
+> **🚧 Requires**: `defineWPKernelConfig()` API, build guards • upcoming initiative
 
 Pre-rendered HTML for CDN deployment.
 
@@ -638,7 +638,7 @@ Pre-rendered HTML for CDN deployment.
 
 ```typescript
 // wpk.config.ts
-export default defineKernelConfig({
+export default defineWPKernelConfig({
 	project: {
 		supports: {
 			wp: true,

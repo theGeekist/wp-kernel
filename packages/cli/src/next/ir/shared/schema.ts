@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { promises as fs } from 'node:fs';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import { WPK_NAMESPACE } from '@wpkernel/core/contracts';
 import type {
 	ResourceConfig,
@@ -94,7 +94,7 @@ export async function resolveResourceSchema(
 	}
 
 	if (typeof schema !== 'string') {
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message: `Resource "${resourceKey}" must declare a schema reference or use 'auto'.`,
 			context: { resource: resourceKey },
 		});
@@ -102,7 +102,7 @@ export async function resolveResourceSchema(
 
 	const irSchema = accumulator.byKey.get(schema);
 	if (!irSchema) {
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message: `Resource "${resourceKey}" references unknown schema "${schema}".`,
 			context: { resource: resourceKey, schema },
 		});
@@ -146,7 +146,7 @@ export async function resolveSchemaPath(
 		return workspaceRelative;
 	}
 
-	throw new KernelError('ValidationError', {
+	throw new WPKernelError('ValidationError', {
 		message: `Schema path "${schemaPath}" could not be resolved from ${configPath}.`,
 		context: { schemaPath, configPath },
 	});
@@ -154,7 +154,7 @@ export async function resolveSchemaPath(
 
 export async function ensureFileExists(filePath: string): Promise<void> {
 	if (!(await fileExists(filePath))) {
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message: `Schema file "${filePath}" does not exist.`,
 			context: { filePath },
 		});
@@ -183,7 +183,7 @@ export async function loadJsonSchema(
 		return JSON.parse(raw);
 	} catch (error) {
 		const message = `Failed to load JSON schema for "${key}" from ${filePath}.`;
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message,
 			data: error instanceof Error ? { originalError: error } : undefined,
 		});

@@ -16,7 +16,7 @@ import {
 	WPK_CONFIG_SOURCES,
 	type WPKConfigSource,
 } from '../namespace/constants.js';
-import { KernelError } from '../error/KernelError.js';
+import { WPKernelError } from '../error/WPKernelError.js';
 import type {
 	ErrorCode,
 	ErrorContext,
@@ -58,11 +58,11 @@ export const WPK_EXIT_CODES = {
 export type WPKExitCode = (typeof WPK_EXIT_CODES)[keyof typeof WPK_EXIT_CODES];
 
 /**
- * Serialize KernelErrors to the canonical JSON shape.
+ * Serialize WPKernelErrors to the canonical JSON shape.
  *
- * @param error KernelError instance to serialize.
+ * @param error WPKernelError instance to serialize.
  */
-export function serializeKernelError(error: KernelError): SerializedError {
+export function serializeWPKernelError(error: WPKernelError): SerializedError {
 	return error.toJSON();
 }
 
@@ -77,7 +77,7 @@ export type {
 };
 
 export {
-	KernelError,
+	WPKernelError,
 	WPK_NAMESPACE,
 	WPK_SUBSYSTEM_NAMESPACES,
 	WPK_INFRASTRUCTURE,

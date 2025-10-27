@@ -1,4 +1,4 @@
-import { KernelError } from '../../error/KernelError';
+import { WPKernelError } from '../../error/WPKernelError';
 import type {
 	ActionErrorEvent,
 	ReduxMiddleware,
@@ -71,7 +71,7 @@ function getNoticesDispatch(
 }
 
 function mapErrorToStatus(error: unknown): NoticeStatus {
-	if (KernelError.isKernelError(error)) {
+	if (WPKernelError.isWPKernelError(error)) {
 		switch (error.code) {
 			case 'PolicyDenied':
 				return 'warning';
@@ -86,7 +86,7 @@ function mapErrorToStatus(error: unknown): NoticeStatus {
 }
 
 function resolveErrorMessage(error: unknown): string {
-	if (KernelError.isKernelError(error)) {
+	if (WPKernelError.isWPKernelError(error)) {
 		return error.message;
 	}
 

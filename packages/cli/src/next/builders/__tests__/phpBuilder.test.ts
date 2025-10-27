@@ -70,8 +70,8 @@ const ir: IRv1 = {
 		version: 1,
 		namespace: 'demo-plugin',
 		sanitizedNamespace: 'DemoPlugin',
-		origin: 'kernel.config.ts',
-		sourcePath: 'kernel.config.ts',
+		origin: 'wpk.config.ts',
+		sourcePath: 'wpk.config.ts',
 	},
 	config: {
 		version: 1,
@@ -168,7 +168,7 @@ describe('createPhpBuilder', () => {
 		expect(baseEntry).toBeDefined();
 		expect(baseEntry?.docblock).toEqual(
 			expect.arrayContaining([
-				expect.stringContaining('Source: kernel.config.ts → resources'),
+				expect.stringContaining('Source: wpk.config.ts → resources'),
 			])
 		);
 		expect(baseEntry?.program[0]?.nodeType).toBe('Stmt_Declare');

@@ -1,7 +1,7 @@
 import type { Command } from 'clipanion';
 import type { ReporterOptions } from '@wpkernel/core/reporter';
 import type { InitWorkflowOptions } from '../init/workflow';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import { createReporterMock } from '@wpkernel/test-utils/cli';
 import { makeWorkspaceMock } from '../../../../tests/workspace.test-support';
 import {
@@ -86,7 +86,7 @@ describe('init command runtime helpers', () => {
 	});
 
 	it('formats kernel errors consistently for init workflow consumers', () => {
-		const error = new KernelError('ValidationError', {
+		const error = new WPKernelError('ValidationError', {
 			message: 'Failed to write files.',
 			data: {
 				collisions: ['wpk.config.ts', 'src/index.ts'],

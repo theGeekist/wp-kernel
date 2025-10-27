@@ -1,4 +1,4 @@
-import { KernelError } from '@wpkernel/core/contracts';
+import { WPKernelError } from '@wpkernel/core/contracts';
 import {
 	buildArray,
 	buildArrayCast,
@@ -44,7 +44,7 @@ export function normaliseVariableReference(
 ): NormalisedVariableReference {
 	const trimmed = name.trim();
 	if (!trimmed) {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: 'Variable name must not be empty.',
 			context: { name },
 		});
@@ -53,7 +53,7 @@ export function normaliseVariableReference(
 	if (trimmed.startsWith('$')) {
 		const raw = trimmed.slice(1);
 		if (!raw) {
-			throw new KernelError('DeveloperError', {
+			throw new WPKernelError('DeveloperError', {
 				message: 'Variable name must include an identifier.',
 				context: { name },
 			});

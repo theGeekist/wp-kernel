@@ -8,7 +8,7 @@
  * @module @wpkernel/core/actions/define
  */
 
-import { KernelError } from '../error/KernelError';
+import { WPKernelError } from '../error/WPKernelError';
 import {
 	createActionContext,
 	emitLifecycleEvent,
@@ -25,7 +25,7 @@ import { getKernelEventBus, recordActionDefined } from '../events/bus';
 import { getNamespace } from '../namespace/detect';
 
 /**
- * Normalize unknown errors into structured KernelError instances.
+ * Normalize unknown errors into structured WPKernelError instances.
  *
  * Ensures all errors thrown from actions follow a consistent shape for logging,
  * debugging, and error handling. Preserves stack traces and merges action context.
@@ -33,21 +33,21 @@ import { getNamespace } from '../namespace/detect';
  * @param error      - Unknown error value caught during action execution
  * @param actionName - Name of the action that threw the error
  * @param requestId  - Correlation ID for tracking this action invocation
- * @return Normalized KernelError with action context attached
+ * @return Normalized WPKernelError with action context attached
  * @internal
  */
 function normalizeError(
 	error: unknown,
 	actionName: string,
 	requestId: string
-): KernelError {
-	if (KernelError.isKernelError(error)) {
+): WPKernelError {
+	if (WPKernelError.isWPKernelError(error)) {
 		const context = {
 			...(error.context || {}),
 			actionName: error.context?.actionName ?? actionName,
 			requestId: error.context?.requestId ?? requestId,
 		};
-		const wrapped = new KernelError(error.code, {
+		const wrapped = new WPKernelError(error.code, {
 			message: error.message,
 			data: error.data,
 			context,
@@ -57,13 +57,13 @@ function normalizeError(
 	}
 
 	if (error instanceof Error) {
-		return KernelError.wrap(error, 'UnknownError', {
+		return WPKernelError.wrap(error, 'UnknownError', {
 			actionName,
 			requestId,
 		});
 	}
 
-	return new KernelError('UnknownError', {
+	return new WPKernelError('UnknownError', {
 		message: `Action \"${actionName}\" failed with non-error value`,
 		data: { value: error },
 		context: { actionName, requestId },
@@ -149,7 +149,7 @@ function createLifecycleEvent(
  * - **Cache invalidation** — Keep UI fresh without manual work
  * - **Job scheduling** — Queue background tasks without blocking users
  * - **Policy enforcement** — Check capabilities before writes
- * - **Error normalization** — Convert any error into structured `KernelError`
+ * - **Error normalization** — Convert any error into structured `WPKernelError`
  * - **Observability** — Emit start/complete/error events for monitoring
  *
  * ## Basic Usage
@@ -190,7 +190,7 @@ function createLifecycleEvent(
  *
  * - **`wpk.action.start`** — Before execution, includes args and metadata
  * - **`wpk.action.complete`** — After success, includes result and duration
- * - **`wpk.action.error`** — On failure, includes normalized `KernelError` and duration
+ * - **`wpk.action.error`** — On failure, includes normalized `WPKernelError` and duration
  *
  * These events enable:
  * - Debugging (see exactly what actions ran and when)
@@ -244,7 +244,7 @@ function createLifecycleEvent(
  *
  * ## Error Handling
  *
- * All errors are automatically normalized to `KernelError` instances with:
+ * All errors are automatically normalized to `WPKernelError` instances with:
  * - Consistent error codes
  * - Action name and request ID in context
  * - Preserved stack traces
@@ -252,7 +252,7 @@ function createLifecycleEvent(
  *
  * ```typescript
  * defineAction('TestAction', async (ctx, args) => {
- *   throw new KernelError('DeveloperError', { message: 'Something broke' });
+ *   throw new WPKernelError('DeveloperError', { message: 'Something broke' });
  * });
  * ```
  *
@@ -343,7 +343,7 @@ export function defineAction<TArgs = void, TResult = void>(
 	config: ActionConfig<TArgs, TResult>
 ): DefinedAction<TArgs, TResult> {
 	if (!config || typeof config !== 'object') {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message:
 				'defineAction requires a configuration object with "name" and "handler".',
 		});
@@ -352,14 +352,14 @@ export function defineAction<TArgs = void, TResult = void>(
 	const { name, handler, options = {} } = config;
 
 	if (!name || typeof name !== 'string') {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message:
 				'defineAction requires a non-empty string "name" property.',
 		});
 	}
 
 	if (typeof handler !== 'function') {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: `defineAction(\"${name}\") expects a function for the "handler" property.`,
 		});
 	}

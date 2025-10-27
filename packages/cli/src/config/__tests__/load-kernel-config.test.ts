@@ -3,7 +3,7 @@ import fsSync from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {
-	loadKernelConfig,
+	loadWPKernelConfig,
 	getConfigOrigin,
 	resolveConfigValue,
 	formatError,
@@ -15,7 +15,7 @@ import {
 	setCachedTsImport,
 } from '../load-kernel-config';
 import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import { createWorkspaceRunner } from '../../../tests/workspace.test-support';
 
 const TMP_PREFIX = 'wpk-cli-config-loader-';
@@ -24,7 +24,7 @@ const runWorkspace = createWorkspaceRunner({
 	prefix: path.join(os.tmpdir(), TMP_PREFIX),
 });
 
-describe('loadKernelConfig', () => {
+describe('loadWPKernelConfig', () => {
 	async function withWorkspace(
 		files: Record<string, string>,
 		run: (workspace: string) => Promise<void>
@@ -35,7 +35,7 @@ describe('loadKernelConfig', () => {
 	it('loads a kernel config and validates composer autoload', async () => {
 		await withWorkspace(
 			{
-				'kernel.config.js': `module.exports = {
+				'wpk.config.js': `module.exports = {
   version: 1,
   namespace: 'valid-namespace',
   schemas: {},
@@ -54,7 +54,7 @@ describe('loadKernelConfig', () => {
 				'composer.json': createComposerJson('inc/'),
 			},
 			async (workspaceRoot) => {
-				const result = await loadKernelConfig();
+				const result = await loadWPKernelConfig();
 
 				expect(result.namespace).toBe('valid-namespace');
 				expect(result.config.namespace).toBe('valid-namespace');
@@ -65,7 +65,7 @@ describe('loadKernelConfig', () => {
 				// canonicalize both sides using realpathSync for stable equality.
 				expect(fsSync.realpathSync(result.sourcePath)).toBe(
 					fsSync.realpathSync(
-						path.join(workspaceRoot, 'kernel.config.js')
+						path.join(workspaceRoot, 'wpk.config.js')
 					)
 				);
 				expect(result.composerCheck).toBe('ok');
@@ -80,7 +80,7 @@ describe('loadKernelConfig', () => {
 				'composer.json': createComposerJson('inc/'),
 			},
 			async () => {
-				await expect(loadKernelConfig()).rejects.toMatchObject({
+				await expect(loadWPKernelConfig()).rejects.toMatchObject({
 					code: 'DeveloperError',
 				});
 			}
@@ -90,7 +90,7 @@ describe('loadKernelConfig', () => {
 	it('throws a validation error when composer autoload mapping is incorrect', async () => {
 		await withWorkspace(
 			{
-				'kernel.config.js': `module.exports = {
+				'wpk.config.js': `module.exports = {
   version: 1,
   namespace: 'valid-namespace',
   schemas: {},
@@ -109,7 +109,7 @@ describe('loadKernelConfig', () => {
 				'composer.json': createComposerJson('src/'),
 			},
 			async () => {
-				await expect(loadKernelConfig()).rejects.toMatchObject({
+				await expect(loadWPKernelConfig()).rejects.toMatchObject({
 					code: 'ValidationError',
 				});
 			}
@@ -119,10 +119,10 @@ describe('loadKernelConfig', () => {
 	it('throws when composer.json is missing', async () => {
 		await withWorkspace(
 			{
-				'kernel.config.js': createValidKernelConfig('valid-namespace'),
+				'wpk.config.js': createValidWPKernelConfig('valid-namespace'),
 			},
 			async () => {
-				await expect(loadKernelConfig()).rejects.toMatchObject({
+				await expect(loadWPKernelConfig()).rejects.toMatchObject({
 					code: 'ValidationError',
 				});
 			}
@@ -132,21 +132,21 @@ describe('loadKernelConfig', () => {
 	it('throws when composer.json cannot be parsed', async () => {
 		await withWorkspace(
 			{
-				'kernel.config.js': createValidKernelConfig('valid-namespace'),
+				'wpk.config.js': createValidWPKernelConfig('valid-namespace'),
 				'composer.json': '{ invalid json',
 			},
 			async () => {
-				await expect(loadKernelConfig()).rejects.toMatchObject({
+				await expect(loadWPKernelConfig()).rejects.toMatchObject({
 					code: 'ValidationError',
 				});
 			}
 		);
 	});
 
-	it('wraps composer read failures with KernelError for primitive reasons', async () => {
+	it('wraps composer read failures with WPKernelError for primitive reasons', async () => {
 		await withWorkspace(
 			{
-				'kernel.config.js': createValidKernelConfig('valid-namespace'),
+				'wpk.config.js': createValidWPKernelConfig('valid-namespace'),
 				'composer.json': createComposerJson('inc/'),
 			},
 			async () => {
@@ -167,7 +167,7 @@ describe('loadKernelConfig', () => {
 						);
 					});
 
-				await expect(loadKernelConfig()).rejects.toMatchObject({
+				await expect(loadWPKernelConfig()).rejects.toMatchObject({
 					code: 'ValidationError',
 				});
 
@@ -180,7 +180,7 @@ describe('loadKernelConfig', () => {
 	it('throws when composer.json is missing autoload metadata', async () => {
 		await withWorkspace(
 			{
-				'kernel.config.js': createValidKernelConfig('valid-namespace'),
+				'wpk.config.js': createValidWPKernelConfig('valid-namespace'),
 				'composer.json': JSON.stringify(
 					{ name: 'temp/plugin' },
 					null,
@@ -188,7 +188,7 @@ describe('loadKernelConfig', () => {
 				),
 			},
 			async () => {
-				await expect(loadKernelConfig()).rejects.toMatchObject({
+				await expect(loadWPKernelConfig()).rejects.toMatchObject({
 					code: 'ValidationError',
 				});
 			}
@@ -198,7 +198,7 @@ describe('loadKernelConfig', () => {
 	it('accepts composer mappings without trailing slash', async () => {
 		await withWorkspace(
 			{
-				'kernel.config.js': createValidKernelConfig('valid-namespace'),
+				'wpk.config.js': createValidWPKernelConfig('valid-namespace'),
 				'composer.json': JSON.stringify(
 					{
 						name: 'temp/plugin',
@@ -213,7 +213,7 @@ describe('loadKernelConfig', () => {
 				),
 			},
 			async () => {
-				const result = await loadKernelConfig();
+				const result = await loadWPKernelConfig();
 				expect(result.namespace).toBe('valid-namespace');
 			}
 		);
@@ -222,7 +222,7 @@ describe('loadKernelConfig', () => {
 	it('throws when composer.json is missing psr-4 autoload mappings', async () => {
 		await withWorkspace(
 			{
-				'kernel.config.js': createValidKernelConfig('valid-namespace'),
+				'wpk.config.js': createValidWPKernelConfig('valid-namespace'),
 				'composer.json': JSON.stringify(
 					{
 						name: 'temp/plugin',
@@ -233,7 +233,7 @@ describe('loadKernelConfig', () => {
 				),
 			},
 			async () => {
-				await expect(loadKernelConfig()).rejects.toMatchObject({
+				await expect(loadWPKernelConfig()).rejects.toMatchObject({
 					code: 'ValidationError',
 				});
 			}
@@ -243,7 +243,7 @@ describe('loadKernelConfig', () => {
 	it('throws when composer.json psr-4 mappings are not strings', async () => {
 		await withWorkspace(
 			{
-				'kernel.config.js': createValidKernelConfig('valid-namespace'),
+				'wpk.config.js': createValidWPKernelConfig('valid-namespace'),
 				'composer.json': JSON.stringify(
 					{
 						name: 'temp/plugin',
@@ -258,7 +258,7 @@ describe('loadKernelConfig', () => {
 				),
 			},
 			async () => {
-				await expect(loadKernelConfig()).rejects.toMatchObject({
+				await expect(loadWPKernelConfig()).rejects.toMatchObject({
 					code: 'ValidationError',
 				});
 			}
@@ -268,7 +268,7 @@ describe('loadKernelConfig', () => {
 	it('throws when resource identity metadata does not match routes', async () => {
 		await withWorkspace(
 			{
-				'kernel.config.js': `module.exports = {
+				'wpk.config.js': `module.exports = {
   version: 1,
   namespace: 'valid-namespace',
   schemas: {},
@@ -287,7 +287,7 @@ describe('loadKernelConfig', () => {
 				'composer.json': createComposerJson('inc/'),
 			},
 			async () => {
-				await expect(loadKernelConfig()).rejects.toMatchObject({
+				await expect(loadWPKernelConfig()).rejects.toMatchObject({
 					code: 'ValidationError',
 				});
 			}
@@ -297,11 +297,11 @@ describe('loadKernelConfig', () => {
 	it('throws when a JavaScript config fails to import', async () => {
 		await withWorkspace(
 			{
-				'kernel.config.js': `throw new Error('boom');`,
+				'wpk.config.js': `throw new Error('boom');`,
 				'composer.json': createComposerJson('inc/'),
 			},
 			async () => {
-				await expect(loadKernelConfig()).rejects.toMatchObject({
+				await expect(loadWPKernelConfig()).rejects.toMatchObject({
 					code: 'DeveloperError',
 				});
 			}
@@ -311,9 +311,9 @@ describe('loadKernelConfig', () => {
 	it('resolves nested config exports via promises and default properties', async () => {
 		await withWorkspace(
 			{
-				'kernel.config.js': `module.exports = Promise.resolve({
+				'wpk.config.js': `module.exports = Promise.resolve({
   default: {
-    kernelConfig: {
+    wpkConfig: {
       config: ${createConfigObjectString('nested-namespace')}
     }
   }
@@ -322,7 +322,7 @@ describe('loadKernelConfig', () => {
 				'composer.json': createComposerJson('inc/'),
 			},
 			async () => {
-				const result = await loadKernelConfig();
+				const result = await loadWPKernelConfig();
 				expect(result.namespace).toBe('nested-namespace');
 				expect(result.config.namespace).toBe('nested-namespace');
 			}
@@ -332,9 +332,9 @@ describe('loadKernelConfig', () => {
 	it('supports TypeScript configs via tsx fallback', async () => {
 		await withWorkspace(
 			{
-				'kernel.config.ts': `export default Promise.resolve({
+				'wpk.config.ts': `export default Promise.resolve({
   default: {
-    kernelConfig: {
+    wpkConfig: {
       config: ${createConfigObjectString('ts namespace')}
     }
   }
@@ -345,7 +345,7 @@ describe('loadKernelConfig', () => {
 			async () => {
 				const tsImportMock = jest.fn().mockResolvedValue({
 					default: {
-						kernelConfig: {
+						wpkConfig: {
 							config: createConfigObject('ts namespace'),
 						},
 					},
@@ -356,7 +356,7 @@ describe('loadKernelConfig', () => {
 					jest.doMock('tsx/esm/api', () => ({
 						tsImport: tsImportMock,
 					}));
-					const { loadKernelConfig: isolatedLoad } = await import(
+					const { loadWPKernelConfig: isolatedLoad } = await import(
 						'../load-kernel-config'
 					);
 
@@ -374,10 +374,10 @@ describe('loadKernelConfig', () => {
 		);
 	});
 
-	it('wraps tsx loader failures with KernelError', async () => {
+	it('wraps tsx loader failures with WPKernelError', async () => {
 		await withWorkspace(
 			{
-				'kernel.config.ts': `export default {};
+				'wpk.config.ts': `export default {};
 `,
 			},
 			async () => {
@@ -389,7 +389,7 @@ describe('loadKernelConfig', () => {
 					jest.doMock('tsx/esm/api', () => ({
 						tsImport: tsImportMock,
 					}));
-					const { loadKernelConfig: isolatedLoad } = await import(
+					const { loadWPKernelConfig: isolatedLoad } = await import(
 						'../load-kernel-config'
 					);
 
@@ -435,7 +435,7 @@ describe('loadKernelConfig', () => {
 				'composer.json': createComposerJson('inc/'),
 			},
 			async (workspaceRoot) => {
-				const result = await loadKernelConfig();
+				const result = await loadWPKernelConfig();
 
 				expect(result.namespace).toBe('package-namespace');
 				expect(result.configOrigin).toBe(
@@ -451,21 +451,21 @@ describe('loadKernelConfig', () => {
 	});
 });
 
-describe('loadKernelConfig helpers', () => {
+describe('loadWPKernelConfig helpers', () => {
 	it('throws for unsupported config origins', () => {
 		const result = {
-			filepath: '/workspace/kernel.config.json',
+			filepath: '/workspace/wpk.config.json',
 			config: {},
 		} as unknown as Parameters<typeof getConfigOrigin>[0];
 
-		expect(() => getConfigOrigin(result)).toThrow(KernelError);
+		expect(() => getConfigOrigin(result)).toThrow(WPKernelError);
 	});
 
 	it('resolves config value across promises and wrappers', async () => {
 		const config = await resolveConfigValue(
 			Promise.resolve({
 				default: {
-					kernelConfig: {
+					wpkConfig: {
 						config: { version: 1 },
 					},
 				},
@@ -485,7 +485,7 @@ describe('loadKernelConfig helpers', () => {
 			.mockRejectedValue(new Error('default failed'));
 		const tsImport = jest.fn().mockResolvedValue({
 			default: {
-				kernelConfig: {
+				wpkConfig: {
 					config: { version: 1 },
 				},
 			},
@@ -496,7 +496,7 @@ describe('loadKernelConfig helpers', () => {
 			tsImportLoader: async () => tsImport,
 		});
 
-		const result = await loader('/tmp/kernel.config.ts', '');
+		const result = await loader('/tmp/wpk.config.ts', '');
 
 		expect(defaultLoader).toHaveBeenCalled();
 		expect(tsImport).toHaveBeenCalled();
@@ -508,7 +508,7 @@ describe('loadKernelConfig helpers', () => {
 			throw new Error('dynamic import boom');
 		});
 
-		await expect(loader('/tmp/kernel.config.js')).rejects.toMatchObject({
+		await expect(loader('/tmp/wpk.config.js')).rejects.toMatchObject({
 			code: 'DeveloperError',
 		});
 	});
@@ -580,7 +580,7 @@ function createComposerJson(autoloadPath: string): string {
 	);
 }
 
-function createValidKernelConfig(namespace: string): string {
+function createValidWPKernelConfig(namespace: string): string {
 	return `module.exports = ${createConfigObjectString(namespace)};\n`;
 }
 

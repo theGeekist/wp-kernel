@@ -38,14 +38,14 @@ export interface RuleTesterConfig {
 	sourceType?: 'script' | 'module';
 }
 
-export interface KernelConfigFixtureOptions {
+export interface WPKernelConfigFixtureOptions {
 	header?: string;
 	footer?: string;
 }
 
 const FALLBACK_HEADER =
 	'const normalizeKeyValue = (value: unknown) => value ?? null;\n';
-const FALLBACK_FOOTER = `\nexport const kernelConfig = {\n        version: 1,\n        namespace: 'demo',\n        schemas: {},\n        resources: {\n                thing: resource,\n        },\n};\n`;
+const FALLBACK_FOOTER = `\nexport const wpkConfig = {\n        version: 1,\n        namespace: 'demo',\n        schemas: {},\n        resources: {\n                thing: resource,\n        },\n};\n`;
 
 export function ensureStructuredClone() {
 	if (typeof globalThis.structuredClone !== 'function') {
@@ -68,9 +68,9 @@ export function createRuleTester(config: RuleTesterConfig = {}): RuleTester {
 	});
 }
 
-export function buildKernelConfigFixture(
+export function buildWPKernelConfigFixture(
 	body: string,
-	options: KernelConfigFixtureOptions = {}
+	options: WPKernelConfigFixtureOptions = {}
 ): string {
 	const header = options.header ?? FALLBACK_HEADER;
 	const footer = options.footer ?? FALLBACK_FOOTER;

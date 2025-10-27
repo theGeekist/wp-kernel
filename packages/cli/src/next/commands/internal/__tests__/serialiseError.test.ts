@@ -1,23 +1,23 @@
 import {
-	KernelError,
-	serializeKernelError,
+	WPKernelError,
+	serializeWPKernelError,
 	type SerializedError,
 } from '@wpkernel/core/contracts';
 import { serialiseError } from '../serialiseError';
 
 describe('serialiseError', () => {
 	it('returns serialized kernel errors unchanged', () => {
-		const kernelError = new KernelError('DeveloperError', {
+		const kernelError = new WPKernelError('DeveloperError', {
 			message: 'Already typed error',
 			data: { value: 123 },
 		});
 
 		const result = serialiseError(kernelError);
 
-		expect(result).toEqual(serializeKernelError(kernelError));
+		expect(result).toEqual(serializeWPKernelError(kernelError));
 	});
 
-	it('wraps native errors with KernelError metadata', () => {
+	it('wraps native errors with WPKernelError metadata', () => {
 		const nativeError = new Error('native failure');
 
 		const result = serialiseError(nativeError);

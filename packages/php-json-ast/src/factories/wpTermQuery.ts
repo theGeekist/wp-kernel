@@ -1,4 +1,4 @@
-import { KernelError } from '../KernelError';
+import { WPKernelError } from '@wpkernel/core/contracts';
 import {
 	buildArg,
 	buildAssign,
@@ -23,7 +23,7 @@ interface NormalisedVariableName {
 function normaliseVariableName(name: string): NormalisedVariableName {
 	const trimmed = name.trim();
 	if (!trimmed) {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: 'Variable name must not be empty.',
 			context: { name },
 		});
@@ -32,7 +32,7 @@ function normaliseVariableName(name: string): NormalisedVariableName {
 	if (trimmed.startsWith('$')) {
 		const raw = trimmed.slice(1);
 		if (!raw) {
-			throw new KernelError('DeveloperError', {
+			throw new WPKernelError('DeveloperError', {
 				message: 'Variable name must include an identifier.',
 				context: { name },
 			});

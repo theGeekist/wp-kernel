@@ -3,7 +3,7 @@ import type {
 	ActionCompleteEvent,
 	ActionStartEvent,
 } from '../../actions/types';
-import { KernelError } from '../../error/KernelError';
+import { WPKernelError } from '../../error/WPKernelError';
 import { kernelEventsPlugin } from '../plugins/events';
 import type { Reporter } from '../../reporter';
 import type { KernelRegistry } from '../types';
@@ -36,7 +36,7 @@ function createActionErrorEvent(
 ): ActionErrorEvent {
 	return {
 		phase: 'error',
-		error: new KernelError('ValidationError', { message: 'test error' }),
+		error: new WPKernelError('ValidationError', { message: 'test error' }),
 		actionName: 'TestAction',
 		requestId: 'test-req-id',
 		namespace: 'test',
@@ -116,7 +116,7 @@ describe('kernelEventsPlugin', () => {
 		bus.emit(
 			'action:error',
 			createActionErrorEvent({
-				error: new KernelError('PolicyDenied', { message: 'denied' }),
+				error: new WPKernelError('PolicyDenied', { message: 'denied' }),
 				actionName: 'CheckPolicy',
 				requestId: 'act_warning',
 				namespace: 'acme',
@@ -134,7 +134,7 @@ describe('kernelEventsPlugin', () => {
 		bus.emit(
 			'action:error',
 			createActionErrorEvent({
-				error: new KernelError('ValidationError', {
+				error: new WPKernelError('ValidationError', {
 					message: 'invalid',
 				}),
 				actionName: 'Validate',
@@ -348,7 +348,7 @@ describe('kernelEventsPlugin', () => {
 		);
 	});
 
-	it('maps unknown KernelError codes to error notices', () => {
+	it('maps unknown WPKernelError codes to error notices', () => {
 		const registry = createRegistryMock();
 		const bus = new KernelEventBus();
 		const middleware = kernelEventsPlugin({ registry, events: bus });
@@ -356,7 +356,7 @@ describe('kernelEventsPlugin', () => {
 			type: 'INIT',
 		});
 
-		const kernelError = new KernelError('ServerError', {
+		const kernelError = new WPKernelError('ServerError', {
 			message: 'Internal failure',
 		});
 		const event = createActionErrorEvent({

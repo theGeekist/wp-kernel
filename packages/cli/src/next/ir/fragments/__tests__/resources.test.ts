@@ -1,5 +1,5 @@
 import { createResourcesFragment } from '../resources';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 
 jest.mock('../../shared/resource-builder', () => ({
 	buildResources: jest.fn(async () => [
@@ -56,7 +56,7 @@ describe('createResourcesFragment', () => {
 	it('throws if meta extension missing', async () => {
 		const draft = { extensions: {} } as any;
 		await expect(fragment.apply(makeApplyOptions(draft))).rejects.toThrow(
-			KernelError
+			WPKernelError
 		);
 	});
 
@@ -65,7 +65,7 @@ describe('createResourcesFragment', () => {
 			extensions: { 'ir.meta.core': { sanitizedNamespace: 'ns' } },
 		} as any;
 		await expect(fragment.apply(makeApplyOptions(draft))).rejects.toThrow(
-			KernelError
+			WPKernelError
 		);
 	});
 

@@ -7,7 +7,7 @@ import { KernelEventBus } from '@wpkernel/core/events';
 import type { Reporter } from '@wpkernel/core/reporter';
 import { createPolicyCache, createPolicyCacheKey } from '@wpkernel/core/policy';
 import type { PolicyHelpers, UsePolicyResult } from '@wpkernel/core/policy';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 
 jest.mock('@wpkernel/core/namespace', () => ({
 	getNamespace: () => 'acme',
@@ -111,7 +111,7 @@ describe('usePolicy hook (UI integration)', () => {
 				});
 			}).toThrow(
 				expect.objectContaining({
-					name: 'KernelError',
+					name: 'WPKernelError',
 					code: 'DeveloperError',
 				})
 			);
@@ -166,7 +166,7 @@ describe('usePolicy hook (UI integration)', () => {
 		const latest = results[results.length - 1]!;
 		expect(latest.isLoading).toBe(false);
 		expect(latest.keys).toEqual([]);
-		expect(latest.error).toBeInstanceOf(KernelError);
+		expect(latest.error).toBeInstanceOf(WPKernelError);
 		expect(latest.can('any' as never, undefined as never)).toBe(false);
 		cleanup();
 	});
@@ -202,7 +202,7 @@ describe('usePolicy hook (UI integration)', () => {
 
 	it('records thrown errors from runtime can()', async () => {
 		const runtimeCan = jest.fn(() => {
-			throw new KernelError('PolicyDenied', { message: 'denied' });
+			throw new WPKernelError('PolicyDenied', { message: 'denied' });
 		});
 		const runtime: RuntimePolicy = {
 			can: runtimeCan,
@@ -227,8 +227,8 @@ describe('usePolicy hook (UI integration)', () => {
 		});
 		expect(allowed).toBe(false);
 		const final = results[results.length - 1]!;
-		expect(final.error).toBeInstanceOf(KernelError);
-		expect((final.error as KernelError).code).toBe('PolicyDenied');
+		expect(final.error).toBeInstanceOf(WPKernelError);
+		expect((final.error as WPKernelError).code).toBe('PolicyDenied');
 		cleanup();
 	});
 

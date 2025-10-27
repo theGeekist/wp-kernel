@@ -133,7 +133,7 @@ export type ActionJobs = {
  *     // Only allow deleting own posts
  *     const post = await api.posts.get(postId);
  *     if (post.authorId !== currentUser.id) {
- *       throw new KernelError('UnauthorizedError', {
+ *       throw new WPKernelError('UnauthorizedError', {
  *         message: 'Cannot delete posts by other authors'
  *       });
  *     }

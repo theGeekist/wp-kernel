@@ -103,7 +103,7 @@ export const DeleteJob = defineAction({
 });
 ```
 
-`assert()` throws a `KernelError('PolicyDenied')` when a rule returns false. The
+`assert()` throws a `WPKernelError('PolicyDenied')` when a rule returns false. The
 error includes a structured `context` field, a `messageKey` of the form
 `policy.denied.{namespace}.{key}`, and triggers a `{namespace}.policy.denied`
 WordPress hook plus a BroadcastChannel message so other tabs hear about the

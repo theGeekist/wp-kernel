@@ -6,7 +6,7 @@
  * @module
  */
 
-export { KernelError } from './KernelError';
+export { WPKernelError } from './WPKernelError';
 export { TransportError } from './TransportError';
 export { ServerError } from './ServerError';
 export { PolicyDeniedError } from './PolicyDeniedError';

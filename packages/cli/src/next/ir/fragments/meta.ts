@@ -1,5 +1,5 @@
 import { sanitizeNamespace } from '@wpkernel/core/namespace';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import { createHelper } from '../../runtime';
 import type { IrFragment, IrFragmentApplyOptions } from '../types';
 import { toWorkspaceRelative } from '../../../utils';
@@ -17,7 +17,7 @@ export function createMetaFragment(): IrFragment {
 				input.options.namespace
 			);
 			if (!sanitizedNamespace) {
-				throw new KernelError('ValidationError', {
+				throw new WPKernelError('ValidationError', {
 					message: `Unable to sanitise namespace "${input.options.namespace}" during IR construction.`,
 					context: {
 						namespace: input.options.namespace,

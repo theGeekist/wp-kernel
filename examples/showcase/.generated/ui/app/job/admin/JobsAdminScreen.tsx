@@ -19,7 +19,7 @@ function JobsAdminScreenContent() {
 export function JobsAdminScreen() {
 	const runtime = kernel.getUIRuntime?.();
 	if (!runtime) {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: 'UI runtime not attached.',
 			context: { resourceName },
 		});

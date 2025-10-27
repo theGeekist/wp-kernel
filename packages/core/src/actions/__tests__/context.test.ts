@@ -9,7 +9,7 @@ import {
 	getHooks,
 	resolveOptions,
 } from '../context';
-import { KernelError } from '../../error/KernelError';
+import { WPKernelError } from '../../error/WPKernelError';
 import type { Reporter } from '../../reporter';
 
 describe('Action Context', () => {
@@ -190,7 +190,7 @@ describe('Action Context', () => {
 				expect(result).toBe(true);
 			});
 
-			it('throws KernelError when assert called without runtime policy', () => {
+			it('throws WPKernelError when assert called without runtime policy', () => {
 				global.__WP_KERNEL_ACTION_RUNTIME__ = undefined;
 
 				const ctx = createActionContext('Test.Action', 'req_123', {
@@ -200,7 +200,7 @@ describe('Action Context', () => {
 
 				expect(() =>
 					ctx.policy.assert('test.capability', undefined)
-				).toThrow(KernelError);
+				).toThrow(WPKernelError);
 				expect(() =>
 					ctx.policy.assert('test.capability', undefined)
 				).toThrow(/attempted to assert a policy/);
@@ -299,7 +299,7 @@ describe('Action Context', () => {
 
 				await expect(
 					ctx.jobs.enqueue('TestJob', { id: 1 })
-				).rejects.toThrow(KernelError);
+				).rejects.toThrow(WPKernelError);
 				await expect(
 					ctx.jobs.enqueue('TestJob', { id: 1 })
 				).rejects.toThrow(/no jobs runtime is configured/);
@@ -315,7 +315,7 @@ describe('Action Context', () => {
 
 				await expect(
 					ctx.jobs.wait('TestJob', { id: 1 })
-				).rejects.toThrow(KernelError);
+				).rejects.toThrow(WPKernelError);
 				await expect(
 					ctx.jobs.wait('TestJob', { id: 1 })
 				).rejects.toThrow(/no jobs runtime is configured/);
@@ -330,7 +330,7 @@ describe('Action Context', () => {
 				});
 
 				expect(() => ctx.emit('', { data: 'test' })).toThrow(
-					KernelError
+					WPKernelError
 				);
 				expect(() => ctx.emit('', { data: 'test' })).toThrow(
 					/requires a non-empty string event name/

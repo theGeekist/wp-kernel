@@ -7,7 +7,7 @@ import type {
 	IRSchema,
 	IRv1,
 } from '../../../ir/publicTypes';
-import type { KernelConfigV1 } from '../../../config/types';
+import type { WPKernelConfigV1 } from '../../../config/types';
 
 describe('deriveResourceBlocks', () => {
 	it('derives manifest attributes from schema definitions', () => {
@@ -223,7 +223,7 @@ function makeIr(options?: {
 	namespace?: string;
 }): IRv1 {
 	const namespace = options?.namespace ?? 'test-namespace';
-	const config: KernelConfigV1 = {
+	const config: WPKernelConfigV1 = {
 		version: 1,
 		namespace,
 		schemas: {},

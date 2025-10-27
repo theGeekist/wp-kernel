@@ -242,7 +242,7 @@ export default defineConfig({
 
 **Three pillars**
 
-- **Generate, don’t glue** - `wpk generate` produces PHP/TS/manifest files from a single `kernel.config.ts`.
+- **Generate, don’t glue** - `wpk generate` produces PHP/TS/manifest files from a single `wpk.config.ts`.
 - **Interop by default** - kernel plugins share the same runtime graph; resources and actions “just work” across plugins.
 - **Modern WP, batteries included** - Script Modules, SSR blocks via `render.php`, DataViews integration, policy keys → caps.
 
@@ -251,10 +251,10 @@ export default defineConfig({
 ```ts
 // src/index.ts
 import { configureKernel } from '@wpk/core';
-import { kernelConfig } from '@kernel-config';
+import { wpkConfig } from '@kernel-config';
 
 configureKernel({
-	namespace: kernelConfig.namespace,
+	namespace: wpkConfig.namespace,
 	registry: window.wp?.data,
 });
 ```

@@ -8,8 +8,8 @@ import type {
 	ResourceDataViewsScreenConfig,
 	ResourceDataViewsUIConfig,
 } from '@wpkernel/core/resource';
-import type { KernelConfigV1 } from '@wpkernel/cli/config';
-import type { BuildIrOptions, IRResource, IRv1 } from '@wpkernel/cli/ir';
+import type { WPKernelConfigV1 } from '@wpkernel/cli/config';
+import type { BuildIrOptions, IRResource, IRv1 } from '@wpkernel/cli/next/ir';
 import { buildWorkspace } from '@wpkernel/cli/next/workspace';
 import type { Workspace } from '@wpkernel/cli/next/workspace';
 import type { BuilderOutput } from '@wpkernel/cli/next/runtime';
@@ -31,7 +31,7 @@ export async function withWorkspace(
 	}
 }
 
-export interface KernelConfigSourceOptions {
+export interface WPKernelConfigSourceOptions {
 	readonly namespace?: string;
 	readonly resourceKey?: string;
 	readonly resourceName?: string;
@@ -40,8 +40,8 @@ export interface KernelConfigSourceOptions {
 	} | null;
 }
 
-export function buildKernelConfigSource(
-	options: KernelConfigSourceOptions = {}
+export function buildWPKernelConfigSource(
+	options: WPKernelConfigSourceOptions = {}
 ): string {
 	const {
 		namespace = 'demo-namespace',
@@ -88,7 +88,7 @@ const toTrimmedString = (value: unknown): string | undefined => {
         return trimmed.length > 0 ? trimmed : undefined;
 };
 
-${dataViewsDeclaration}export const kernelConfig = {
+${dataViewsDeclaration}export const wpkConfig = {
         version: 1,
         namespace: '${namespace}',
         schemas: {},
@@ -153,7 +153,7 @@ export interface BuilderArtifactOptions {
 }
 
 export interface BuilderArtifacts {
-	readonly config: KernelConfigV1;
+	readonly config: WPKernelConfigV1;
 	readonly ir: IRv1;
 	readonly options: BuildIrOptions;
 }
@@ -181,14 +181,14 @@ export function buildBuilderArtifacts(
 			: {}),
 	} as ResourceConfig;
 
-	const config: KernelConfigV1 = {
+	const config: WPKernelConfigV1 = {
 		version: 1,
 		namespace,
 		schemas: {},
 		resources: {
 			[resourceKey]: resourceConfig,
 		},
-	} as KernelConfigV1;
+	} as WPKernelConfigV1;
 
 	const irResource: IRResource = {
 		name: resourceName,

@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { Command, Option } from 'clipanion';
 import { createReporter as buildReporter } from '@wpkernel/core/reporter';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import {
 	WPK_NAMESPACE,
 	WPK_EXIT_CODES,
@@ -172,7 +172,7 @@ export function buildCreateCommand(
 				this.manifest = null;
 				this.dependencySource = null;
 
-				if (KernelError.isKernelError(error)) {
+				if (WPKernelError.isWPKernelError(error)) {
 					this.context.stderr.write(
 						formatInitWorkflowError('create', error)
 					);

@@ -28,11 +28,11 @@ These values come directly from `defineResource` and match the namespace detecti
 
 ## Error taxonomy
 
-All framework errors extend `KernelError` and share the same serialization shape.【F:packages/core/src/error/KernelError.ts†L1-L160】
+All framework errors extend `WPKernelError` and share the same serialization shape.【F:packages/core/src/error/WPKernelError.ts†L1-L160】
 
 | Error class         | Description                              | Notable fields                           |
 | ------------------- | ---------------------------------------- | ---------------------------------------- |
-| `KernelError`       | Base class for typed errors.             | `code`, `message`, `data`, `context`.    |
+| `WPKernelError`     | Base class for typed errors.             | `code`, `message`, `data`, `context`.    |
 | `TransportError`    | Network or fetch failure in the browser. | `status`, `path`, `method`, `requestId`. |
 | `ServerError`       | WordPress REST returned a `WP_Error`.    | `status`, `path`, `data`, `requestId`.   |
 | `PolicyDeniedError` | A policy assertion failed.               | `policyKey`, `context`, `userId?`.       |

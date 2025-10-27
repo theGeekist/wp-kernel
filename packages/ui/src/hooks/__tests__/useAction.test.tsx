@@ -3,7 +3,7 @@ import { createDeferred, renderHook } from '../testing/test-utils';
 import { useAction } from '../useAction';
 import type { UseActionOptions, UseActionResult } from '../useAction';
 import type { ActionEnvelope, DefinedAction } from '@wpkernel/core/actions';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import * as kernelData from '@wpkernel/core/data';
 import { KernelEventBus } from '@wpkernel/core/events';
 import type {
@@ -176,9 +176,9 @@ describe('useAction', () => {
 			},
 		},
 		{
-			label: 'error state when action rejects with KernelError',
+			label: 'error state when action rejects with WPKernelError',
 			arrange: () => {
-				const kernelError = new KernelError('ValidationError', {
+				const kernelError = new WPKernelError('ValidationError', {
 					message: 'Invalid',
 				});
 				prepareWpData((envelope) =>
@@ -522,7 +522,7 @@ describe('useAction', () => {
 		}
 	});
 
-	it('throws a KernelError when run during SSR', () => {
+	it('throws a WPKernelError when run during SSR', () => {
 		const descriptor = Object.getOwnPropertyDescriptor(
 			globalThis,
 			'window'
@@ -546,7 +546,7 @@ describe('useAction', () => {
 			result.current.run({} as never);
 		}).toThrow(
 			expect.objectContaining({
-				name: 'KernelError',
+				name: 'WPKernelError',
 				code: 'DeveloperError',
 				message: expect.stringContaining(
 					'useAction cannot run during SSR'
@@ -572,7 +572,7 @@ describe('useAction', () => {
 
 		expect(() => result.current.run({} as never)).toThrow(
 			expect.objectContaining({
-				name: 'KernelError',
+				name: 'WPKernelError',
 				code: 'DeveloperError',
 				message: expect.stringContaining(
 					'Failed to resolve kernel action dispatcher'
@@ -631,7 +631,7 @@ describe('useAction', () => {
 		registerSpy.mockRestore();
 	});
 
-	it('normalises non-error dispatch failures into KernelError instances', async () => {
+	it('normalises non-error dispatch failures into WPKernelError instances', async () => {
 		prepareWpData(() => {
 			throw 'primitive failure';
 		});
@@ -647,8 +647,8 @@ describe('useAction', () => {
 			}
 		});
 
-		expect(capturedError as KernelError).toMatchObject({
-			name: 'KernelError',
+		expect(capturedError as WPKernelError).toMatchObject({
+			name: 'WPKernelError',
 			code: 'UnknownError',
 			message: 'Dispatching action failed with non-error value',
 		});
@@ -743,12 +743,12 @@ describe('useAction', () => {
 
 		// Ensure secondRun and thirdRun reject with cancellation error
 		await expect(secondRun).rejects.toMatchObject({
-			name: 'KernelError',
+			name: 'WPKernelError',
 			code: 'DeveloperError',
 			message: expect.stringContaining('cancelled'),
 		});
 		await expect(thirdRun).rejects.toMatchObject({
-			name: 'KernelError',
+			name: 'WPKernelError',
 			code: 'DeveloperError',
 			message: expect.stringContaining('cancelled'),
 		});
@@ -763,7 +763,7 @@ describe('useAction', () => {
 
 		expect(() => result.current.run({} as never)).toThrow(
 			expect.objectContaining({
-				name: 'KernelError',
+				name: 'WPKernelError',
 				code: 'DeveloperError',
 				message: expect.stringContaining(
 					'useAction requires the WordPress data registry'
@@ -772,7 +772,7 @@ describe('useAction', () => {
 		);
 	});
 
-	it('handles Error instances in normaliseToKernelError', async () => {
+	it('handles Error instances in normaliseToWPKernelError', async () => {
 		const consoleErrorSpy = jest
 			.spyOn(console, 'error')
 			.mockImplementation(() => {});
@@ -790,7 +790,7 @@ describe('useAction', () => {
 				await result.current.run({} as never);
 			} catch (error) {
 				expect(error).toMatchObject({
-					name: 'KernelError',
+					name: 'WPKernelError',
 					message: expect.stringContaining('Regular error message'),
 				});
 			}

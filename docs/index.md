@@ -4,7 +4,7 @@ title: WP Kernel
 
 # Build modern WordPress plugins from one source of truth
 
-WP Kernel gives WordPress developers a predictable workflow. Describe resources and policies in `kernel.config.ts`, run the CLI, and let the framework emit typed REST clients, PHP controllers, and admin UI scaffolding that follow the same contract. When you opt into DataViews metadata or block manifests, the generator adds those pieces too.
+WP Kernel gives WordPress developers a predictable workflow. Describe resources and policies in `wpk.config.ts`, run the CLI, and let the framework emit typed REST clients, PHP controllers, and admin UI scaffolding that follow the same contract. When you opt into DataViews metadata or block manifests, the generator adds those pieces too.
 
 <div class="cta-buttons">
 <a class="vp-button" href="/getting-started/quick-start">Quick Start</a>
@@ -20,11 +20,11 @@ WP Kernel gives WordPress developers a predictable workflow. Describe resources 
 // src/index.ts
 import { configureKernel } from '@wpkernel/core/data';
 import type { KernelInstance } from '@wpkernel/core/data';
-import { kernelConfig } from '../kernel.config';
+import { wpkConfig } from '../wpk.config';
 
 export function bootstrapKernel(): KernelInstance {
 	return configureKernel({
-		namespace: kernelConfig.namespace,
+		namespace: wpkConfig.namespace,
 	});
 }
 
@@ -41,4 +41,4 @@ The kernel integrates with WordPress data stores and emits public events through
 - **Guide** - Learn how resources, actions, policies, and UI bindings work together.
 - **API Reference** - Browse the generated Typedoc for `@wpkernel/cli`, `@wpkernel/core`, and `@wpkernel/ui`.
 
-When you are ready, begin with the [Quick Start](/getting-started/quick-start) or explore the [Showcase plugin](/examples/showcase) to see a full workflow in action.【F:docs/getting-started/quick-start.md†L1-L72】【F:examples/showcase/kernel.config.ts†L1-L115】
+When you are ready, begin with the [Quick Start](/getting-started/quick-start) or explore the [Showcase plugin](/examples/showcase) to see a full workflow in action.【F:docs/getting-started/quick-start.md†L1-L72】【F:examples/showcase/wpk.config.ts†L1-L115】

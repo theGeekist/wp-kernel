@@ -336,7 +336,7 @@ describe('buildPhpPrettyPrinter', () => {
 		);
 	});
 
-	it('throws a KernelError when the bridge exits with a non-zero code', async () => {
+	it('throws a WPKernelError when the bridge exits with a non-zero code', async () => {
 		spawnMock.mockImplementation(() =>
 			makeMockChildProcess({
 				onEnd: ({ child, stderr }) => {

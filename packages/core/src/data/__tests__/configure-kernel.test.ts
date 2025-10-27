@@ -2,7 +2,7 @@ import { configureKernel } from '../configure-kernel';
 import { createReporter } from '../../reporter';
 import type { Reporter } from '../../reporter';
 import { invalidate as invalidateCache } from '../../resource/cache';
-import { KernelError } from '../../error/KernelError';
+import { WPKernelError } from '../../error/WPKernelError';
 import type {
 	KernelInstance,
 	KernelRegistry,
@@ -215,10 +215,10 @@ describe('configureKernel', () => {
 		});
 	});
 
-	it('throws KernelError when emit is called with invalid event name', () => {
+	it('throws WPKernelError when emit is called with invalid event name', () => {
 		const kernel = configureKernel({ namespace: 'acme' });
 
-		expect(() => kernel.emit('', {})).toThrow(KernelError);
+		expect(() => kernel.emit('', {})).toThrow(WPKernelError);
 	});
 
 	it('reports UI disabled state by default', () => {

@@ -1,13 +1,13 @@
 import path from 'node:path';
-import { KernelError } from '@wpkernel/core/error';
-import type { KernelConfigV1 } from '../../../config/types';
-import { buildIr } from '../../buildIr';
+import { WPKernelError } from '@wpkernel/core/error';
+import type { WPKernelConfigV1 } from '../../../config/types';
+import { buildIr } from '../buildIr';
 import {
 	FIXTURE_CONFIG_PATH,
 	FIXTURE_ROOT,
 	createBaseConfig,
 	withTempSchema,
-} from '../../shared/test-helpers';
+} from '../shared/test-helpers';
 
 describe('buildIr - validation', () => {
 	it('throws when duplicate routes are detected', async () => {
@@ -33,16 +33,16 @@ describe('buildIr - validation', () => {
 					},
 				},
 			},
-		} as unknown as KernelConfigV1['resources'];
+		} as unknown as WPKernelConfigV1['resources'];
 
 		await expect(
 			buildIr({
 				config,
 				sourcePath: FIXTURE_CONFIG_PATH,
-				origin: 'kernel.config.ts',
+				origin: 'wpk.config.ts',
 				namespace: config.namespace,
 			})
-		).rejects.toBeInstanceOf(KernelError);
+		).rejects.toBeInstanceOf(WPKernelError);
 	});
 
 	it('allows duplicate routes when both are remote', async () => {
@@ -68,12 +68,12 @@ describe('buildIr - validation', () => {
 					},
 				},
 			},
-		} as unknown as KernelConfigV1['resources'];
+		} as unknown as WPKernelConfigV1['resources'];
 
 		const ir = await buildIr({
 			config,
 			sourcePath: FIXTURE_CONFIG_PATH,
-			origin: 'kernel.config.ts',
+			origin: 'wpk.config.ts',
 			namespace: config.namespace,
 		});
 
@@ -100,16 +100,16 @@ describe('buildIr - validation', () => {
 					list: { path: 'wp/v2/conflict', method: 'GET' },
 				},
 			},
-		} as unknown as KernelConfigV1['resources'];
+		} as unknown as WPKernelConfigV1['resources'];
 
 		await expect(
 			buildIr({
 				config,
 				sourcePath: FIXTURE_CONFIG_PATH,
-				origin: 'kernel.config.ts',
+				origin: 'wpk.config.ts',
 				namespace: config.namespace,
 			})
-		).rejects.toBeInstanceOf(KernelError);
+		).rejects.toBeInstanceOf(WPKernelError);
 	});
 
 	it('rejects path traversal segments', async () => {
@@ -122,16 +122,16 @@ describe('buildIr - validation', () => {
 					list: { path: '../escape', method: 'GET' },
 				},
 			},
-		} as unknown as KernelConfigV1['resources'];
+		} as unknown as WPKernelConfigV1['resources'];
 
 		await expect(
 			buildIr({
 				config,
 				sourcePath: FIXTURE_CONFIG_PATH,
-				origin: 'kernel.config.ts',
+				origin: 'wpk.config.ts',
 				namespace: config.namespace,
 			})
-		).rejects.toBeInstanceOf(KernelError);
+		).rejects.toBeInstanceOf(WPKernelError);
 	});
 
 	it('throws when schema path cannot be resolved', async () => {
@@ -141,7 +141,7 @@ describe('buildIr - validation', () => {
 				path: './unknown.schema.json',
 				generated: { types: 'types/missing.d.ts' },
 			},
-		} as KernelConfigV1['schemas'];
+		} as WPKernelConfigV1['schemas'];
 		config.resources = {
 			missing: {
 				name: 'missing',
@@ -153,16 +153,16 @@ describe('buildIr - validation', () => {
 					},
 				},
 			},
-		} as unknown as KernelConfigV1['resources'];
+		} as unknown as WPKernelConfigV1['resources'];
 
 		await expect(
 			buildIr({
 				config,
 				sourcePath: FIXTURE_CONFIG_PATH,
-				origin: 'kernel.config.ts',
+				origin: 'wpk.config.ts',
 				namespace: config.namespace,
 			})
-		).rejects.toBeInstanceOf(KernelError);
+		).rejects.toBeInstanceOf(WPKernelError);
 	});
 
 	it('throws when schema JSON is invalid', async () => {
@@ -173,7 +173,7 @@ describe('buildIr - validation', () => {
 					path: schemaPath,
 					generated: { types: 'types/temp.d.ts' },
 				},
-			} as KernelConfigV1['schemas'];
+			} as WPKernelConfigV1['schemas'];
 			config.resources = {
 				temp: {
 					name: 'temp',
@@ -185,16 +185,16 @@ describe('buildIr - validation', () => {
 						},
 					},
 				},
-			} as unknown as KernelConfigV1['resources'];
+			} as unknown as WPKernelConfigV1['resources'];
 
 			await expect(
 				buildIr({
 					config,
 					sourcePath: FIXTURE_CONFIG_PATH,
-					origin: 'kernel.config.ts',
+					origin: 'wpk.config.ts',
 					namespace: config.namespace,
 				})
-			).rejects.toBeInstanceOf(KernelError);
+			).rejects.toBeInstanceOf(WPKernelError);
 		});
 	});
 
@@ -211,16 +211,16 @@ describe('buildIr - validation', () => {
 					},
 				},
 			},
-		} as unknown as KernelConfigV1['resources'];
+		} as unknown as WPKernelConfigV1['resources'];
 
 		await expect(
 			buildIr({
 				config,
 				sourcePath: FIXTURE_CONFIG_PATH,
-				origin: 'kernel.config.ts',
+				origin: 'wpk.config.ts',
 				namespace: config.namespace,
 			})
-		).rejects.toBeInstanceOf(KernelError);
+		).rejects.toBeInstanceOf(WPKernelError);
 	});
 
 	it('resolves schema path from workspace root', async () => {
@@ -234,7 +234,7 @@ describe('buildIr - validation', () => {
 				path: schemaPath,
 				generated: { types: 'types/todo.d.ts' },
 			},
-		} as KernelConfigV1['schemas'];
+		} as WPKernelConfigV1['schemas'];
 		config.resources = {
 			todo: {
 				name: 'todo',
@@ -246,12 +246,12 @@ describe('buildIr - validation', () => {
 					},
 				},
 			},
-		} as unknown as KernelConfigV1['resources'];
+		} as unknown as WPKernelConfigV1['resources'];
 
 		const ir = await buildIr({
 			config,
 			sourcePath: FIXTURE_CONFIG_PATH,
-			origin: 'kernel.config.ts',
+			origin: 'wpk.config.ts',
 			namespace: config.namespace,
 		});
 
@@ -268,16 +268,16 @@ describe('buildIr - validation', () => {
 					list: { path: '   ', method: 'GET' },
 				},
 			},
-		} as unknown as KernelConfigV1['resources'];
+		} as unknown as WPKernelConfigV1['resources'];
 
 		await expect(
 			buildIr({
 				config,
 				sourcePath: FIXTURE_CONFIG_PATH,
-				origin: 'kernel.config.ts',
+				origin: 'wpk.config.ts',
 				namespace: config.namespace,
 			})
-		).rejects.toBeInstanceOf(KernelError);
+		).rejects.toBeInstanceOf(WPKernelError);
 	});
 
 	it('throws when cache key function returns non-array values', async () => {
@@ -296,15 +296,15 @@ describe('buildIr - validation', () => {
 					list: () => 'not-an-array' as unknown as unknown[],
 				},
 			},
-		} as unknown as KernelConfigV1['resources'];
+		} as unknown as WPKernelConfigV1['resources'];
 
 		await expect(
 			buildIr({
 				config,
 				sourcePath: FIXTURE_CONFIG_PATH,
-				origin: 'kernel.config.ts',
+				origin: 'wpk.config.ts',
 				namespace: config.namespace,
 			})
-		).rejects.toBeInstanceOf(KernelError);
+		).rejects.toBeInstanceOf(WPKernelError);
 	});
 });

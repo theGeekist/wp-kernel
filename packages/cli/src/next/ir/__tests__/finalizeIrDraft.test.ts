@@ -1,7 +1,7 @@
 import { finalizeIrDraft, buildIrDraft, type MutableIr } from '../types';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import type { FragmentFinalizationMetadata } from '@wpkernel/core/pipeline';
-import { makeKernelConfigFixture } from '@wpkernel/test-utils/next/printers.test-support';
+import { makeWPKernelConfigFixture } from '@wpkernel/test-utils/next/printers.test-support';
 
 function createHelpersMetadata(
 	executed: readonly string[],
@@ -18,18 +18,18 @@ function createHelpersMetadata(
 }
 
 function buildDraft(): MutableIr {
-	const config = makeKernelConfigFixture();
+	const config = makeWPKernelConfigFixture();
 	const draft = buildIrDraft({
 		config,
 		namespace: config.namespace,
 		origin: 'typescript',
-		sourcePath: '/tmp/kernel.config.ts',
+		sourcePath: '/tmp/wpk.config.ts',
 	});
 
 	draft.meta = {
 		version: 1,
 		namespace: config.namespace,
-		sourcePath: '/tmp/kernel.config.ts',
+		sourcePath: '/tmp/wpk.config.ts',
 		origin: 'typescript',
 		sanitizedNamespace: 'TestNamespace',
 	};
@@ -84,13 +84,13 @@ describe('finalizeIrDraft', () => {
 			['ir.policy-map.core']
 		);
 
-		expect(() => finalizeIrDraft(draft, helpers)).toThrow(KernelError);
+		expect(() => finalizeIrDraft(draft, helpers)).toThrow(WPKernelError);
 	});
 
 	it('throws when metadata reports missing fragments even if executed list contains them', () => {
 		const draft = buildDraft();
 		const helpers = createHelpersMetadata(REQUIRED, ['ir.resources.core']);
 
-		expect(() => finalizeIrDraft(draft, helpers)).toThrow(KernelError);
+		expect(() => finalizeIrDraft(draft, helpers)).toThrow(WPKernelError);
 	});
 });

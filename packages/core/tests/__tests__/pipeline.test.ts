@@ -9,7 +9,7 @@ import type {
 } from '../../src/pipeline/index.js';
 import { createNoopReporter } from '../../src/reporter/index.js';
 import type { Reporter } from '../../src/reporter/types.js';
-import { KernelError } from '../../src/error/index.js';
+import { WPKernelError } from '../../src/error/index.js';
 
 describe('pipeline primitives', () => {
 	interface TestRunOptions {
@@ -307,7 +307,7 @@ describe('pipeline primitives', () => {
 
 		pipeline.ir.use(overrideA);
 
-		expect(() => pipeline.ir.use(overrideB)).toThrow(KernelError);
+		expect(() => pipeline.ir.use(overrideB)).toThrow(WPKernelError);
 	});
 
 	it('rejects duplicate builder override registrations', () => {
@@ -345,7 +345,7 @@ describe('pipeline primitives', () => {
 
 		pipeline.builders.use(overrideA);
 
-		expect(() => pipeline.builders.use(overrideB)).toThrow(KernelError);
+		expect(() => pipeline.builders.use(overrideB)).toThrow(WPKernelError);
 	});
 
 	it('provides helper execution metadata to finalisation and run results', async () => {
@@ -495,7 +495,7 @@ describe('pipeline primitives', () => {
 				workspace: '/tmp/workspace',
 				seed: 1,
 			})
-		).rejects.toThrow(KernelError);
+		).rejects.toThrow(WPKernelError);
 
 		expect(capturedDiagnostics).toEqual(
 			expect.arrayContaining([
@@ -566,7 +566,7 @@ describe('pipeline primitives', () => {
 				workspace: '/tmp/workspace',
 				seed: 5,
 			})
-		).rejects.toThrow(KernelError);
+		).rejects.toThrow(WPKernelError);
 
 		expect(capturedDiagnostics).toEqual(
 			expect.arrayContaining([
@@ -592,13 +592,13 @@ describe('pipeline primitives', () => {
 		const reporter = createMockReporter({ warn });
 		const pipeline = createTestPipeline();
 
-		const rollbackError = new KernelError('UnknownError', {
+		const rollbackError = new WPKernelError('UnknownError', {
 			message: 'rollback failed',
 		});
 		const rollbackCause = new Error('rollback cause');
 		(rollbackError as Error & { cause?: unknown }).cause = rollbackCause;
 
-		const extensionError = new KernelError('UnknownError', {
+		const extensionError = new WPKernelError('UnknownError', {
 			message: 'extension failure',
 		});
 
@@ -642,13 +642,13 @@ describe('pipeline primitives', () => {
 			},
 		});
 
-		const rollbackError = new KernelError('UnknownError', {
+		const rollbackError = new WPKernelError('UnknownError', {
 			message: 'rollback failed',
 		});
 		const rollbackCause = new Error('inner cause');
 		(rollbackError as Error & { cause?: unknown }).cause = rollbackCause;
 
-		const extensionError = new KernelError('UnknownError', {
+		const extensionError = new WPKernelError('UnknownError', {
 			message: 'extension failure',
 		});
 

@@ -4,7 +4,7 @@ import fs from 'node:fs/promises';
 import { Readable, Writable } from 'node:stream';
 import { execFile as execFileCallback } from 'node:child_process';
 import { promisify } from 'node:util';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import { createReporterMock as buildReporterMock } from '@wpkernel/test-utils/cli';
 import { buildWorkspace } from '../filesystem';
 import {
@@ -163,7 +163,7 @@ describe('workspace utilities', () => {
 					workspace,
 					directory: target,
 				})
-			).rejects.toBeInstanceOf(KernelError);
+			).rejects.toBeInstanceOf(WPKernelError);
 		});
 
 		it('clears directory contents when force is true', async () => {

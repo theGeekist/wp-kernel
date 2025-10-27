@@ -14,7 +14,7 @@ import {
 	normaliseError,
 	assertValidExtension,
 } from '../extensions';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import type { AdapterContext } from '../../config/types';
 import type { IRv1 } from '../../next/ir/publicTypes';
 import type { Reporter } from '@wpkernel/core/reporter';
@@ -27,7 +27,7 @@ function createIr(): IRv1 {
 		meta: {
 			version: 1,
 			namespace: 'Demo\\Namespace',
-			sourcePath: '/workspace/kernel.config.ts',
+			sourcePath: '/workspace/wpk.config.ts',
 			origin: 'file',
 			sanitizedNamespace: 'Demo\\Namespace',
 		},
@@ -429,7 +429,7 @@ describe('runAdapterExtensions extra branches', () => {
 	});
 
 	it('normalises kernel errors and primitives', () => {
-		const kernelError = new KernelError('DeveloperError', {
+		const kernelError = new WPKernelError('DeveloperError', {
 			message: 'bad',
 		});
 		expect(normaliseError(kernelError)).toBe(kernelError);

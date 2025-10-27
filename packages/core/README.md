@@ -275,17 +275,17 @@ await CreatePost({ data });
 - **`@wpkernel/core/jobs`** - defineJob, background work
 - **`@wpkernel/core/bindings`** - Block binding sources
 - **`@wpkernel/core/interactivity`** - defineInteraction, front-end actions
-- **`@wpkernel/core/error`** - KernelError, error taxonomy
+- **`@wpkernel/core/error`** - WPKernelError, error taxonomy
 
 ### Error Handling
 
 ```typescript
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 
 try {
 	await CreatePost({ data });
 } catch (error) {
-	if (error instanceof KernelError) {
+	if (error instanceof WPKernelError) {
 		console.log(error.code); // 'PolicyDenied', 'ValidationError', etc.
 		console.log(error.context);
 	}

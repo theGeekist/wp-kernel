@@ -11,4 +11,4 @@ For a narrative overview of the workflow, start with:
 
 ## Testing helpers
 
-- `tests/rule-tester.test-support.ts` - `createRuleTester()` with canonical parser + fixture builders, plus `buildKernelConfigFixture()` for golden snippets.
+- `tests/rule-tester.test-support.ts` - `createRuleTester()` with canonical parser + fixture builders, plus `buildWPKernelConfigFixture()` for golden snippets.

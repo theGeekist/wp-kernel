@@ -1,4 +1,4 @@
-import { KernelError } from '@wpkernel/core/contracts';
+import { WPKernelError } from '@wpkernel/core/contracts';
 import {
 	buildScalarCast,
 	buildBinaryOperation,
@@ -25,12 +25,14 @@ describe('resource utils', () => {
 
 		it('throws for empty names', () => {
 			expect(() => normaliseVariableReference('   ')).toThrow(
-				KernelError
+				WPKernelError
 			);
 		});
 
 		it('throws for sigils without identifiers', () => {
-			expect(() => normaliseVariableReference('$')).toThrow(KernelError);
+			expect(() => normaliseVariableReference('$')).toThrow(
+				WPKernelError
+			);
 		});
 	});
 

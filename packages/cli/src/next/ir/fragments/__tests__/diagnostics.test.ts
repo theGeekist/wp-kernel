@@ -1,5 +1,5 @@
 import { createReporterMock as buildReporterMock } from '@wpkernel/test-utils/cli';
-import type { KernelConfigV1 } from '../../../../config/types';
+import type { WPKernelConfigV1 } from '../../../../config/types';
 import { createDiagnosticsFragment } from '../diagnostics';
 import { buildIrDraft, buildIrFragmentOutput } from '../../types';
 
@@ -9,13 +9,13 @@ function buildDraft(): ReturnType<typeof buildIrDraft> {
 		namespace: 'test',
 		schemas: {},
 		resources: {},
-	} as KernelConfigV1;
+	} as WPKernelConfigV1;
 
 	return buildIrDraft({
 		config,
 		namespace: config.namespace,
 		origin: 'typescript',
-		sourcePath: '/tmp/kernel.config.ts',
+		sourcePath: '/tmp/wpk.config.ts',
 	});
 }
 
@@ -64,7 +64,7 @@ describe('createDiagnosticsFragment', () => {
 						config: draft.config,
 						namespace: draft.config.namespace,
 						origin: 'typescript',
-						sourcePath: '/tmp/kernel.config.ts',
+						sourcePath: '/tmp/wpk.config.ts',
 					},
 					draft,
 				},
@@ -115,7 +115,7 @@ describe('createDiagnosticsFragment', () => {
 						config: draft.config,
 						namespace: draft.config.namespace,
 						origin: 'typescript',
-						sourcePath: '/tmp/kernel.config.ts',
+						sourcePath: '/tmp/wpk.config.ts',
 					},
 					draft,
 				},

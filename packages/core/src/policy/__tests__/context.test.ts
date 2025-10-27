@@ -4,7 +4,7 @@ import {
 	getPolicyRuntime,
 	withPolicyRequestContext,
 } from '../context';
-import { KernelError } from '../../error/KernelError';
+import { WPKernelError } from '../../error/WPKernelError';
 import type { ActionRuntime } from '../../actions/types';
 
 describe('policy context', () => {
@@ -71,7 +71,7 @@ describe('policy context', () => {
 		delete global.__WP_KERNEL_ACTION_RUNTIME__;
 		const proxy = createProxy();
 		expect(() => proxy.assert('tasks.manage', undefined)).toThrow(
-			KernelError
+			WPKernelError
 		);
 	});
 
@@ -104,9 +104,9 @@ describe('policy context', () => {
 		} as ActionRuntime;
 		const proxy = createProxy();
 
-		expect(() => proxy.assert('tasks.manage')).toThrow(KernelError);
+		expect(() => proxy.assert('tasks.manage')).toThrow(WPKernelError);
 		expect(() => proxy.assert('tasks.manage', undefined)).toThrow(
-			KernelError
+			WPKernelError
 		);
 		expect(can).toHaveBeenCalledTimes(2);
 	});
@@ -118,7 +118,9 @@ describe('policy context', () => {
 		} as ActionRuntime;
 		const proxy = createProxy();
 
-		await expect(proxy.assert('tasks.manage')).rejects.toThrow(KernelError);
+		await expect(proxy.assert('tasks.manage')).rejects.toThrow(
+			WPKernelError
+		);
 		expect(can).toHaveBeenCalledWith('tasks.manage');
 	});
 

@@ -13,8 +13,8 @@ import { renderSummary } from '../../commands/run-generate/summary';
 import { validateGeneratedImports } from '../../commands/run-generate/validation';
 import { handleFailure } from '../../commands/run-generate/errors';
 import type { GenerationSummary } from '../../commands/run-generate/types';
-import { loadKernelConfig } from '../../config';
-import type { LoadedKernelConfig } from '../../config/types';
+import { loadWPKernelConfig } from '../../config';
+import type { LoadedWPKernelConfig } from '../../config/types';
 import {
 	buildWorkspace,
 	toWorkspaceRelative,
@@ -33,7 +33,7 @@ function buildReporterNamespace(): string {
 }
 
 export interface BuildGenerateCommandOptions {
-	readonly loadKernelConfig?: typeof loadKernelConfig;
+	readonly loadWPKernelConfig?: typeof loadWPKernelConfig;
 	readonly buildWorkspace?: typeof buildWorkspace;
 	readonly createPipeline?: typeof createPipeline;
 	readonly registerFragments?: typeof registerCoreFragments;
@@ -45,7 +45,7 @@ export interface BuildGenerateCommandOptions {
 }
 
 interface GenerateDependencies {
-	readonly loadKernelConfig: typeof loadKernelConfig;
+	readonly loadWPKernelConfig: typeof loadWPKernelConfig;
 	readonly buildWorkspace: typeof buildWorkspace;
 	readonly createPipeline: typeof createPipeline;
 	readonly registerFragments: typeof registerCoreFragments;
@@ -60,7 +60,7 @@ function mergeDependencies(
 	options: BuildGenerateCommandOptions
 ): GenerateDependencies {
 	return {
-		loadKernelConfig,
+		loadWPKernelConfig,
 		buildWorkspace,
 		createPipeline,
 		registerFragments: registerCoreFragments,
@@ -73,7 +73,7 @@ function mergeDependencies(
 	} satisfies GenerateDependencies;
 }
 
-function resolveWorkspaceRoot(loaded: LoadedKernelConfig): string {
+function resolveWorkspaceRoot(loaded: LoadedWPKernelConfig): string {
 	return path.dirname(loaded.sourcePath);
 }
 
@@ -324,7 +324,7 @@ export function buildGenerateCommand(
 		static override paths = [['generate']];
 
 		static override usage = Command.Usage({
-			description: 'Generate WP Kernel artifacts from kernel.config.*.',
+			description: 'Generate WP Kernel artifacts from wpk.config.*.',
 			examples: [
 				['Generate artifacts into .generated/', 'wpk generate'],
 				[
@@ -353,7 +353,7 @@ export function buildGenerateCommand(
 			this.summary = null;
 
 			try {
-				const loaded = await dependencies.loadKernelConfig();
+				const loaded = await dependencies.loadWPKernelConfig();
 				const workspaceRoot = resolveWorkspaceRoot(loaded);
 				const baseWorkspace =
 					dependencies.buildWorkspace(workspaceRoot);

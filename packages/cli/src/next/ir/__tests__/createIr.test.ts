@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import { sanitizeNamespace } from '@wpkernel/core/namespace';
 import { createNoopReporter as buildNoopReporter } from '@wpkernel/core/reporter';
 import * as reporterExports from '@wpkernel/core/reporter';
-import type { KernelConfigV1 } from '../../../config/types';
+import type { WPKernelConfigV1 } from '../../../config/types';
 import {
 	createBaseConfig,
 	FIXTURE_CONFIG_PATH,
@@ -16,7 +16,7 @@ import {
 	withWorkspace,
 	makeWorkspaceMock,
 } from '../../../../tests/workspace.test-support';
-import { makeKernelConfigFixture } from '@wpkernel/test-utils/next/printers.test-support';
+import { makeWPKernelConfigFixture } from '@wpkernel/test-utils/next/printers.test-support';
 
 jest.mock('../../builders', () => {
 	const { createHelper } = jest.requireActual('../../runtime');
@@ -59,7 +59,7 @@ describe('createIr', () => {
 			path.join(FIXTURE_ROOT, 'schemas', 'todo.schema.json')
 		);
 
-		const config = makeKernelConfigFixture({
+		const config = makeWPKernelConfigFixture({
 			namespace: 'todo-app',
 			schemas: {
 				todo: {
@@ -68,7 +68,7 @@ describe('createIr', () => {
 						types: './generated/todo.ts',
 					},
 				},
-			} satisfies KernelConfigV1['schemas'],
+			} satisfies WPKernelConfigV1['schemas'],
 			resources: {
 				todo: {
 					name: 'todo',
@@ -85,7 +85,7 @@ describe('createIr', () => {
 						get: (id?: string | number) => ['todo', 'get', id],
 					},
 				},
-			} satisfies KernelConfigV1['resources'],
+			} satisfies WPKernelConfigV1['resources'],
 		});
 
 		await withWorkspace(
@@ -195,7 +195,7 @@ describe('createIr', () => {
 					},
 				},
 			},
-		} satisfies KernelConfigV1['resources'];
+		} satisfies WPKernelConfigV1['resources'];
 
 		await withWorkspace(
 			async (workspaceRoot) => {
@@ -203,7 +203,7 @@ describe('createIr', () => {
 					config,
 					namespace: config.namespace,
 					origin: 'typescript',
-					sourcePath: path.join(workspaceRoot, 'kernel.config.ts'),
+					sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
 				} as const;
 
 				const workspace = buildWorkspace(workspaceRoot);
@@ -233,7 +233,7 @@ describe('createIr', () => {
 			config,
 			namespace: config.namespace,
 			origin: 'test-origin',
-			sourcePath: path.join(process.cwd(), 'kernel.config.ts'),
+			sourcePath: path.join(process.cwd(), 'wpk.config.ts'),
 		} as const;
 
 		const pipelineRunResult = {
@@ -285,7 +285,7 @@ describe('createIr', () => {
 			config,
 			namespace: config.namespace,
 			origin: 'test-origin',
-			sourcePath: path.join(process.cwd(), 'configs', 'kernel.config.ts'),
+			sourcePath: path.join(process.cwd(), 'configs', 'wpk.config.ts'),
 		} as const;
 
 		const createdWorkspace = makeWorkspaceMock({

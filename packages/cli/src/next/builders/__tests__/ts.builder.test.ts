@@ -8,7 +8,7 @@ import {
 } from '../ts';
 import {
 	withWorkspace,
-	buildKernelConfigSource,
+	buildWPKernelConfigSource,
 	buildDataViewsConfig,
 	buildBuilderArtifacts,
 	buildReporter,
@@ -27,12 +27,12 @@ beforeEach(() => {
 describe('createTsBuilder - orchestration', () => {
 	it('skips generation when no resources expose DataViews metadata', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
-			const configSource = buildKernelConfigSource({ dataviews: null });
-			await workspace.write('kernel.config.ts', configSource);
+			const configSource = buildWPKernelConfigSource({ dataviews: null });
+			await workspace.write('wpk.config.ts', configSource);
 
 			const { ir, options } = buildBuilderArtifacts({
 				dataviews: null,
-				sourcePath: path.join(root, 'kernel.config.ts'),
+				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
 
 			const reporter = buildReporter();
@@ -85,12 +85,12 @@ describe('createTsBuilder - orchestration', () => {
 			);
 
 			const dataviews = buildDataViewsConfig();
-			const configSource = buildKernelConfigSource();
-			await workspace.write('kernel.config.ts', configSource);
+			const configSource = buildWPKernelConfigSource();
+			await workspace.write('wpk.config.ts', configSource);
 
 			const { ir, options } = buildBuilderArtifacts({
 				dataviews,
-				sourcePath: path.join(root, 'kernel.config.ts'),
+				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
 
 			const reporter = buildReporter();
@@ -192,7 +192,7 @@ describe('createTsBuilder - orchestration', () => {
 			const dataviews = buildDataViewsConfig();
 			const { ir, options } = buildBuilderArtifacts({
 				dataviews,
-				sourcePath: path.join(root, 'kernel.config.ts'),
+				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
 
 			const hooks = {
@@ -283,7 +283,7 @@ describe('createTsBuilder - orchestration', () => {
 				dataviews: jobDataViews,
 				resourceKey: 'job',
 				resourceName: 'Job',
-				sourcePath: path.join(root, 'kernel.config.ts'),
+				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
 
 			const taskDataViews = buildDataViewsConfig({

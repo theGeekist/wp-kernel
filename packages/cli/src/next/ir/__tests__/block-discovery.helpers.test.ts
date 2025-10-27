@@ -2,14 +2,14 @@ import path from 'node:path';
 import os from 'node:os';
 import fs from 'node:fs/promises';
 import type { Dirent } from 'node:fs';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import {
 	discoverBlocks,
 	isOutsideWorkspace,
 	shouldSkipEntry,
 	loadBlockEntry,
 	fileExists,
-} from '../../shared/block-discovery';
+} from '../shared/block-discovery';
 
 describe('block discovery helpers', () => {
 	afterEach(() => {
@@ -115,7 +115,7 @@ describe('block discovery helpers', () => {
 
 			await expect(
 				loadBlockEntry(manifestPath, blockDir, tmp)
-			).rejects.toBeInstanceOf(KernelError);
+			).rejects.toBeInstanceOf(WPKernelError);
 
 			await fs.writeFile(
 				manifestPath,
@@ -125,7 +125,7 @@ describe('block discovery helpers', () => {
 
 			await expect(
 				loadBlockEntry(manifestPath, blockDir, tmp)
-			).rejects.toBeInstanceOf(KernelError);
+			).rejects.toBeInstanceOf(WPKernelError);
 		} finally {
 			await fs.rm(tmp, { recursive: true, force: true });
 		}

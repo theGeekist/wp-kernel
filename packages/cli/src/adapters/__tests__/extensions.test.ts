@@ -2,11 +2,11 @@ import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { runAdapterExtensions } from '..';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import type {
 	AdapterContext,
 	AdapterExtension,
-	KernelConfigV1,
+	WPKernelConfigV1,
 } from '../../config/types';
 import type { IRPolicyScope, IRv1 } from '../../next/ir/publicTypes';
 import { FileWriter } from '../../utils/file-writer';
@@ -370,7 +370,7 @@ describe('runAdapterExtensions', () => {
 		}
 	});
 
-	it('normalises KernelError instances thrown by extensions', async () => {
+	it('normalises WPKernelError instances thrown by extensions', async () => {
 		const outputDir = await fs.mkdtemp(TMP_OUTPUT);
 		const reporter = createReporterMock();
 
@@ -380,7 +380,7 @@ describe('runAdapterExtensions', () => {
 			const extension: AdapterExtension = {
 				name: 'fails-kernel-error',
 				async apply() {
-					throw new KernelError('DeveloperError', {
+					throw new WPKernelError('DeveloperError', {
 						message: 'bad extension',
 					});
 				},
@@ -402,7 +402,7 @@ describe('runAdapterExtensions', () => {
 					formatPhp: async (_filePath, contents) => contents,
 					formatTs: async (_filePath, contents) => contents,
 				})
-			).rejects.toBeInstanceOf(KernelError);
+			).rejects.toBeInstanceOf(WPKernelError);
 		} finally {
 			await fs.rm(outputDir, { recursive: true, force: true });
 		}
@@ -513,7 +513,7 @@ function createIr(): IRv1 {
 		meta: {
 			version: 1,
 			namespace: 'Demo\\Namespace',
-			sourcePath: '/workspace/kernel.config.ts',
+			sourcePath: '/workspace/wpk.config.ts',
 			origin: 'file',
 			sanitizedNamespace: 'Demo\\Namespace',
 		},
@@ -550,7 +550,7 @@ function createAdapterContext(reporter: Reporter, ir: IRv1): AdapterContext {
 	};
 }
 
-function createConfig(): KernelConfigV1 {
+function createConfig(): WPKernelConfigV1 {
 	return {
 		version: 1,
 		namespace: 'demo',

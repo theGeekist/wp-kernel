@@ -1,6 +1,6 @@
 import { act } from 'react';
 import type { DefinedAction } from '@wpkernel/core/actions';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import type { ResourceObject, CacheKeyPattern } from '@wpkernel/core/resource';
 import * as errorUtils from '../error-utils';
 import type { KernelUIRuntime } from '@wpkernel/core/data';
@@ -164,7 +164,7 @@ describe('createDataFormController', () => {
 
 	it('normalizes errors before throwing', async () => {
 		const runtime = createRuntime();
-		const kernelError = new KernelError('ValidationError', {
+		const kernelError = new WPKernelError('ValidationError', {
 			message: 'Invalid data',
 		});
 		useActionMock.mockImplementation(() => ({
@@ -213,7 +213,7 @@ describe('createDataFormController', () => {
 
 	it('falls back to unknown action name when missing', async () => {
 		const runtime = createRuntime();
-		const kernelError = new KernelError('ValidationError', {
+		const kernelError = new WPKernelError('ValidationError', {
 			message: 'Failure',
 		});
 		useActionMock.mockImplementation(() => ({

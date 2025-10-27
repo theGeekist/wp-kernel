@@ -12,18 +12,18 @@ cd my-plugin
 
 `wpk init` scaffolds:
 
-- `kernel.config.ts` with the v1 config shape (empty `resources` and `schemas`).
+- `wpk.config.ts` with the v1 config shape (empty `resources` and `schemas`).
 - `src/index.ts` that calls `configureKernel` and exports the kernel instance.
-- WordPress plugin wiring (`composer.json`, `inc/bootstrap.php`) and TypeScript build config.【F:packages/cli/templates/init/kernel.config.ts†L1-L15】【F:packages/cli/templates/init/src/index.ts†L1-L14】
+- WordPress plugin wiring (`composer.json`, `inc/bootstrap.php`) and TypeScript build config.【F:packages/cli/templates/init/wpk.config.ts†L1-L15】【F:packages/cli/templates/init/src/index.ts†L1-L14】
 
 ## 2. Define a resource
 
-Edit `kernel.config.ts` and add at least one resource before generating. This example declares a local `job` resource with REST routes and `wp-post` storage so the PHP printers have something to emit.
+Edit `wpk.config.ts` and add at least one resource before generating. This example declares a local `job` resource with REST routes and `wp-post` storage so the PHP printers have something to emit.
 
 ```ts
-import type { KernelConfigV1 } from '@wpkernel/cli/config';
+import type { WPKernelConfigV1 } from '@wpkernel/cli/config';
 
-export const kernelConfig: KernelConfigV1 = {
+export const wpkConfig: WPKernelConfigV1 = {
 	version: 1,
 	namespace: 'acme-jobs',
 	schemas: {},
@@ -66,9 +66,9 @@ In your entry point, attach UI bindings so React components can use the generate
 ```ts
 import { configureKernel } from '@wpkernel/core/data';
 import { attachUIBindings } from '@wpkernel/ui';
-import { kernelConfig } from '../kernel.config';
+import { wpkConfig } from '../wpk.config';
 
-const kernel = configureKernel({ namespace: kernelConfig.namespace });
+const kernel = configureKernel({ namespace: wpkConfig.namespace });
 export const ui = attachUIBindings(kernel);
 ```
 
@@ -80,6 +80,6 @@ Once attached, components call `job.useList()` or render `<ResourceDataView>` wh
 pnpm wpk start
 ```
 
-`wpk start` watches `kernel.config.*`, `contracts/**`, `schemas/**`, and your source tree. When files change it reruns the builders and proxies Vite output from the current project so the admin UI reloads automatically.【F:packages/cli/src/next/commands/start.ts†L1-L320】 Use `--auto-apply-php` to copy PHP artifacts on every cycle when you trust the diff.
+`wpk start` watches `wpk.config.*`, `contracts/**`, `schemas/**`, and your source tree. When files change it reruns the builders and proxies Vite output from the current project so the admin UI reloads automatically.【F:packages/cli/src/next/commands/start.ts†L1-L320】 Use `--auto-apply-php` to copy PHP artifacts on every cycle when you trust the diff.
 
-You have now run the full loop: configure → generate → apply → start. Each change to `kernel.config.ts` feeds the same builders, so the generated PHP, TypeScript, and UI scaffolding stay in sync.
+You have now run the full loop: configure → generate → apply → start. Each change to `wpk.config.ts` feeds the same builders, so the generated PHP, TypeScript, and UI scaffolding stay in sync.

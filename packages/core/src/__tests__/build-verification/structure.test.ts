@@ -46,7 +46,7 @@ describe('Build: Output structure', () => {
 			'resource/define.js',
 			'resource/store.js',
 			'resource/cache.js',
-			'error/KernelError.js',
+			'error/WPKernelError.js',
 			'http/fetch.js',
 		])('keeps %s file', (filePath) => {
 			expectPathExists(filePath);

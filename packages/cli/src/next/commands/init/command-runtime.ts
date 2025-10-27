@@ -3,7 +3,7 @@ import type {
 	ReporterLevel,
 	ReporterOptions,
 } from '@wpkernel/core/reporter';
-import { type KernelError } from '@wpkernel/core/error';
+import { type WPKernelError } from '@wpkernel/core/error';
 import type { Command } from 'clipanion';
 import type { Workspace } from '../../workspace';
 import type { InitWorkflowOptions, InitWorkflowResult } from './workflow';
@@ -97,7 +97,7 @@ export function createInitCommandRuntime(
 
 export function formatInitWorkflowError(
 	command: string,
-	error: KernelError
+	error: WPKernelError
 ): string {
 	const collisions = Array.isArray(
 		(error.data as { collisions?: unknown })?.collisions

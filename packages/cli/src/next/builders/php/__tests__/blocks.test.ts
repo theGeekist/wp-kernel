@@ -4,7 +4,7 @@ import { getPhpBuilderChannel, resetPhpBuilderChannel } from '../channel';
 import type { IRv1 } from '../../../ir/publicTypes';
 import {
 	withWorkspace,
-	buildKernelConfigSource,
+	buildWPKernelConfigSource,
 	buildBuilderArtifacts,
 	buildReporter,
 	buildOutput,
@@ -14,8 +14,8 @@ import {
 describe('createPhpBlocksHelper', () => {
 	it('emits manifest, registrar, and render stub for SSR blocks', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
-			const configSource = buildKernelConfigSource();
-			await workspace.write('kernel.config.ts', configSource);
+			const configSource = buildWPKernelConfigSource();
+			await workspace.write('wpk.config.ts', configSource);
 
 			const blockDir = path.join('src', 'blocks', 'example');
 			const manifestPath = path.join(blockDir, 'block.json');
@@ -35,7 +35,7 @@ describe('createPhpBlocksHelper', () => {
 			);
 
 			const { ir, options } = buildBuilderArtifacts({
-				sourcePath: path.join(root, 'kernel.config.ts'),
+				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
 			const irWithBlocks: IRv1 = {
 				...ir,
@@ -111,11 +111,11 @@ describe('createPhpBlocksHelper', () => {
 
 	it('skips when SSR blocks are absent', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
-			const configSource = buildKernelConfigSource();
-			await workspace.write('kernel.config.ts', configSource);
+			const configSource = buildWPKernelConfigSource();
+			await workspace.write('wpk.config.ts', configSource);
 
 			const { options, ir } = buildBuilderArtifacts({
-				sourcePath: path.join(root, 'kernel.config.ts'),
+				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
 
 			const reporter = buildReporter();
@@ -147,15 +147,15 @@ describe('createPhpBlocksHelper', () => {
 
 	it('skips manifest emission when entries are missing', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
-			const configSource = buildKernelConfigSource();
-			await workspace.write('kernel.config.ts', configSource);
+			const configSource = buildWPKernelConfigSource();
+			await workspace.write('wpk.config.ts', configSource);
 
 			const blockDir = path.join('src', 'blocks', 'broken');
 			const manifestPath = path.join(blockDir, 'block.json');
 			await workspace.write(manifestPath, '{ invalid json');
 
 			const { ir, options } = buildBuilderArtifacts({
-				sourcePath: path.join(root, 'kernel.config.ts'),
+				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
 			const irWithBlocks: IRv1 = {
 				...ir,
@@ -201,8 +201,8 @@ describe('createPhpBlocksHelper', () => {
 
 	it('rolls back render stub writes when workspace write fails', async () => {
 		await withWorkspace(async ({ workspace, root }) => {
-			const configSource = buildKernelConfigSource();
-			await workspace.write('kernel.config.ts', configSource);
+			const configSource = buildWPKernelConfigSource();
+			await workspace.write('wpk.config.ts', configSource);
 
 			const blockDir = path.join('src', 'blocks', 'failing');
 			const manifestPath = path.join(blockDir, 'block.json');
@@ -222,7 +222,7 @@ describe('createPhpBlocksHelper', () => {
 			);
 
 			const { ir, options } = buildBuilderArtifacts({
-				sourcePath: path.join(root, 'kernel.config.ts'),
+				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
 			const irWithBlocks: IRv1 = {
 				...ir,

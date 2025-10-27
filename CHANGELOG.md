@@ -311,11 +311,11 @@ This release marks the completion of the foundation, resources, E2E utilities, p
 - **@wordpress/api-fetch integration** - WordPress nonce and rootURL middleware
 - **Correlation IDs** - Request tracking with `requestId`
 - **Retry logic** - Automatic exponential backoff for transient failures
-- **Error standardization** - All errors extend `KernelError`
+- **Error standardization** - All errors extend `WPKernelError`
 
 #### Error System (`@wpkernel/core/error`)
 
-- **`KernelError` base class** - Structured errors with serialization
+- **`WPKernelError` base class** - Structured errors with serialization
 - **`TransportError`** - Network/fetch failures
 - **`ServerError`** - WordPress WP_Error responses
 - **`PolicyDeniedError`** - Capability check failures

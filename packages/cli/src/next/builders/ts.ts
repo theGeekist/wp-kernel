@@ -10,9 +10,9 @@ import {
 	type SourceFile,
 	VariableDeclarationKind,
 } from 'ts-morph';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import type { IRv1 } from '../ir/publicTypes';
-import type { KernelConfigV1 } from '../../config/types';
+import type { WPKernelConfigV1 } from '../../config/types';
 import { createHelper } from '../runtime';
 import type {
 	BuilderApplyOptions,
@@ -59,7 +59,7 @@ export interface TsBuilderCreatorContext {
 	readonly project: Project;
 	readonly workspace: Workspace;
 	readonly descriptor: ResourceDescriptor;
-	readonly config: KernelConfigV1;
+	readonly config: WPKernelConfigV1;
 	readonly sourcePath: string;
 	readonly ir: IRv1;
 	readonly reporter: Reporter;
@@ -213,7 +213,7 @@ export function buildAdminScreenCreator(): TsBuilderCreator {
 			);
 			sourceFile.addImportDeclaration({
 				moduleSpecifier: '@wpkernel/core/contracts',
-				namedImports: ['KernelError'],
+				namedImports: ['WPKernelError'],
 			});
 			sourceFile.addImportDeclaration({
 				moduleSpecifier: '@wpkernel/ui',
@@ -280,7 +280,7 @@ export function buildAdminScreenCreator(): TsBuilderCreator {
 					writer.writeLine('if (!runtime) {');
 					writer.indent(() => {
 						writer.writeLine(
-							"throw new KernelError('DeveloperError', {"
+							"throw new WPKernelError('DeveloperError', {"
 						);
 						writer.indent(() => {
 							writer.writeLine(
@@ -351,7 +351,7 @@ export function buildDataViewFixtureCreator(): TsBuilderCreator {
 			});
 			sourceFile.addImportDeclaration({
 				moduleSpecifier: configImport,
-				namespaceImport: 'kernelConfigModule',
+				namespaceImport: 'wpkConfigModule',
 			});
 			sourceFile.addVariableStatement({
 				isExported: true,
@@ -362,7 +362,7 @@ export function buildDataViewFixtureCreator(): TsBuilderCreator {
 						type: 'ResourceDataViewConfig<unknown, unknown>',
 						initializer: (writer) => {
 							writer.write(
-								'kernelConfigModule.kernelConfig.resources['
+								'wpkConfigModule.wpkConfig.resources['
 							);
 							writer.quote(descriptor.key);
 							writer.write('].ui!.admin!.dataviews');
@@ -471,7 +471,7 @@ function requireIr(ir: IRv1 | null): IRv1 {
 		return ir;
 	}
 
-	throw new KernelError('ValidationError', {
+	throw new WPKernelError('ValidationError', {
 		message: 'createTsBuilder requires an IR instance during execution.',
 	});
 }

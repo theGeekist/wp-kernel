@@ -1,5 +1,5 @@
 import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
-import type { IRRoute, IRResource, IRv1 } from '@wpkernel/cli/ir';
+import type { IRRoute, IRResource, IRv1 } from '@wpkernel/cli/next/ir';
 
 type WpPostStorageConfig = Extract<IRResource['storage'], { mode: 'wp-post' }>;
 type WpTaxonomyStorageConfig = Extract<

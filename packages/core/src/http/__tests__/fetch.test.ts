@@ -2,7 +2,7 @@
  * Tests for the transport fetch wrapper
  */
 import { fetch } from '../fetch';
-import { KernelError } from '../../error/index';
+import { WPKernelError } from '../../error/index';
 import type { Reporter } from '../../reporter';
 import { setKernelReporter, clearKernelReporter } from '../../reporter';
 import {
@@ -246,7 +246,7 @@ describe('transport/fetch', () => {
 	});
 
 	describe('error handling', () => {
-		it('should normalize WordPress REST API errors to KernelError', async () => {
+		it('should normalize WordPress REST API errors to WPKernelError', async () => {
 			const wpError = {
 				code: 'rest_forbidden',
 				message: 'Sorry, you are not allowed to do that.',
@@ -259,7 +259,7 @@ describe('transport/fetch', () => {
 					path: '/my-plugin/v1/things/1',
 					method: 'DELETE',
 				})
-			).rejects.toThrow(KernelError);
+			).rejects.toThrow(WPKernelError);
 
 			try {
 				await fetch({
@@ -267,19 +267,19 @@ describe('transport/fetch', () => {
 					method: 'DELETE',
 				});
 			} catch (error) {
-				expect(error).toBeInstanceOf(KernelError);
-				expect((error as KernelError).code).toBe('ServerError');
-				expect((error as KernelError).message).toBe(
+				expect(error).toBeInstanceOf(WPKernelError);
+				expect((error as WPKernelError).code).toBe('ServerError');
+				expect((error as WPKernelError).message).toBe(
 					'Sorry, you are not allowed to do that.'
 				);
-				expect((error as KernelError).data).toEqual({
+				expect((error as WPKernelError).data).toEqual({
 					code: 'rest_forbidden',
 					status: 403,
 				});
 			}
 		});
 
-		it('should normalize network errors to KernelError', async () => {
+		it('should normalize network errors to WPKernelError', async () => {
 			const networkError = new Error('Network request failed');
 			networkError.name = 'NetworkError';
 			mockApiFetch.mockRejectedValue(networkError);
@@ -290,9 +290,9 @@ describe('transport/fetch', () => {
 					method: 'GET',
 				});
 			} catch (error) {
-				expect(error).toBeInstanceOf(KernelError);
-				expect((error as KernelError).code).toBe('TransportError');
-				expect((error as KernelError).message).toBe(
+				expect(error).toBeInstanceOf(WPKernelError);
+				expect((error as WPKernelError).code).toBe('TransportError');
+				expect((error as WPKernelError).message).toBe(
 					'Network request failed'
 				);
 			}
@@ -337,7 +337,7 @@ describe('transport/fetch', () => {
 						path: '/my-plugin/v1/things',
 						method: 'GET',
 					})
-				).rejects.toThrow(KernelError);
+				).rejects.toThrow(WPKernelError);
 
 				try {
 					await fetch({
@@ -345,8 +345,10 @@ describe('transport/fetch', () => {
 						method: 'GET',
 					});
 				} catch (error) {
-					expect((error as KernelError).code).toBe('DeveloperError');
-					expect((error as KernelError).message).toContain(
+					expect((error as WPKernelError).code).toBe(
+						'DeveloperError'
+					);
+					expect((error as WPKernelError).message).toContain(
 						'@wordpress/api-fetch is not available'
 					);
 				}
@@ -363,19 +365,19 @@ describe('transport/fetch', () => {
 					method: 'GET',
 				});
 			} catch (error) {
-				expect(error).toBeInstanceOf(KernelError);
-				expect((error as KernelError).code).toBe('TransportError');
-				expect((error as KernelError).message).toBe(
+				expect(error).toBeInstanceOf(WPKernelError);
+				expect((error as WPKernelError).code).toBe('TransportError');
+				expect((error as WPKernelError).message).toBe(
 					'Unknown transport error'
 				);
-				expect((error as KernelError).context?.error).toBe(
+				expect((error as WPKernelError).context?.error).toBe(
 					'Something went wrong'
 				);
 			}
 		});
 
-		it('should preserve existing KernelError instances', async () => {
-			const customError = new KernelError('PolicyDenied', {
+		it('should preserve existing WPKernelError instances', async () => {
+			const customError = new WPKernelError('PolicyDenied', {
 				message: 'Custom error',
 			});
 			mockApiFetch.mockRejectedValue(customError);
@@ -387,7 +389,7 @@ describe('transport/fetch', () => {
 				});
 			} catch (error) {
 				expect(error).toBe(customError);
-				expect((error as KernelError).code).toBe('PolicyDenied');
+				expect((error as WPKernelError).code).toBe('PolicyDenied');
 			}
 		});
 	});
@@ -481,7 +483,7 @@ describe('transport/fetch', () => {
 						resourceName: 'thing',
 					},
 				})
-			).rejects.toThrow(KernelError);
+			).rejects.toThrow(WPKernelError);
 
 			expect(logs).toEqual(
 				expect.arrayContaining([

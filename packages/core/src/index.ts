@@ -8,7 +8,7 @@
  * ```ts
  * import { fetch } from '@wpkernel/core/http';
  * import { defineResource } from '@wpkernel/core/resource';
- * import { KernelError } from '@wpkernel/core/error';
+ * import { WPKernelError } from '@wpkernel/core/error';
  * ```
  *
  * @example Namespace imports (organized)
@@ -16,12 +16,12 @@
  * import { http, resource, error } from '@wpkernel/core';
  * await http.fetch({ path: '/my-plugin/v1/things' });
  * resource.defineResource({ name: 'thing', routes: {...} });
- * throw new error.KernelError('ValidationError', {...});
+ * throw new error.WPKernelError('ValidationError', {...});
  * ```
  *
  * @example Flat imports (convenience)
  * ```ts
- * import { fetch, defineResource, KernelError } from '@wpkernel/core';
+ * import { fetch, defineResource, WPKernelError } from '@wpkernel/core';
  * ```
  *
  * @module
@@ -72,12 +72,12 @@ export {
 	WPK_INFRASTRUCTURE,
 	WPK_NAMESPACE,
 	WPK_SUBSYSTEM_NAMESPACES,
-	serializeKernelError,
+	serializeWPKernelError,
 } from './contracts/index.js';
 export type { ActionLifecyclePhase, WPKExitCode } from './contracts/index.js';
 
 // Error classes
-export { KernelError, TransportError, ServerError } from './error/index.js';
+export { WPKernelError, TransportError, ServerError } from './error/index.js';
 export type {
 	ErrorCode,
 	ErrorContext,

@@ -4,13 +4,13 @@ import {
 	type KernelRegistry,
 } from '@wpkernel/core/data';
 import { attachUIBindings } from '@wpkernel/ui';
-import { kernelConfig } from '../kernel.config';
+import { wpkConfig } from '../wpk.config';
 
 let kernelInstance: KernelInstance | undefined;
 
 export function bootstrapKernel(registry?: KernelRegistry): KernelInstance {
 	kernelInstance = configureKernel({
-		namespace: kernelConfig.namespace,
+		namespace: wpkConfig.namespace,
 		registry,
 		ui: { attach: attachUIBindings },
 	});

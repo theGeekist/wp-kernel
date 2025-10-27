@@ -56,9 +56,9 @@ Call `configureKernel` once during bootstrap, then hand the instance to `attachU
 ```ts
 import { configureKernel } from '@wpkernel/core/data';
 import { attachUIBindings } from '@wpkernel/ui';
-import { kernelConfig } from '../kernel.config';
+import { wpkConfig } from '../wpk.config';
 
-export const kernel = configureKernel({ namespace: kernelConfig.namespace });
+export const kernel = configureKernel({ namespace: wpkConfig.namespace });
 export const ui = attachUIBindings(kernel);
 ```
 

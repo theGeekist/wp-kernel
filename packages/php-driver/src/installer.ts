@@ -1,6 +1,6 @@
 import { promisify } from 'node:util';
 import { execFile } from 'node:child_process';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import { createHelper, type Helper } from '@wpkernel/core/pipeline';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { DriverWorkspace } from './types';
@@ -63,7 +63,7 @@ export function createPhpDriverInstaller(): DriverHelper {
 						`Composer install failed while fetching ${REQUIRED_PACKAGE}.`,
 						{ error }
 					);
-					throw new KernelError('DeveloperError', {
+					throw new WPKernelError('DeveloperError', {
 						message: 'Composer install failed.',
 						data:
 							error instanceof Error

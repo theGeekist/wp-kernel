@@ -1,9 +1,9 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import type { KernelConfigV1 } from '../../../config/types';
-import { buildIr } from '../../buildIr';
-import { setCachedTsImport } from '../../../../config/load-kernel-config';
-import { createBaseConfig, withTempWorkspace } from '../../shared/test-helpers';
+import type { WPKernelConfigV1 } from '../../../config/types';
+import { buildIr } from '../buildIr';
+import { setCachedTsImport } from '../../../config/load-kernel-config';
+import { createBaseConfig, withTempWorkspace } from '../shared/test-helpers';
 
 describe('policy map integration', () => {
 	afterEach(() => {
@@ -14,8 +14,8 @@ describe('policy map integration', () => {
 		await withTempWorkspace(
 			async (workspace) => {
 				await fs.writeFile(
-					path.join(workspace, 'kernel.config.ts'),
-					'export const kernelConfig = {};',
+					path.join(workspace, 'wpk.config.ts'),
+					'export const wpkConfig = {};',
 					'utf8'
 				);
 			},
@@ -24,8 +24,8 @@ describe('policy map integration', () => {
 
 				const ir = await buildIr({
 					config,
-					sourcePath: path.join(workspace, 'kernel.config.ts'),
-					origin: 'kernel.config.ts',
+					sourcePath: path.join(workspace, 'wpk.config.ts'),
+					origin: 'wpk.config.ts',
 					namespace: config.namespace,
 				});
 
@@ -50,8 +50,8 @@ describe('policy map integration', () => {
 		await withTempWorkspace(
 			async (workspace) => {
 				await fs.writeFile(
-					path.join(workspace, 'kernel.config.ts'),
-					'export const kernelConfig = {};',
+					path.join(workspace, 'wpk.config.ts'),
+					'export const wpkConfig = {};',
 					'utf8'
 				);
 				await fs.mkdir(path.join(workspace, 'src'), {
@@ -74,8 +74,8 @@ describe('policy map integration', () => {
 
 				const ir = await buildIr({
 					config,
-					sourcePath: path.join(workspace, 'kernel.config.ts'),
-					origin: 'kernel.config.ts',
+					sourcePath: path.join(workspace, 'wpk.config.ts'),
+					origin: 'wpk.config.ts',
 					namespace: config.namespace,
 				});
 
@@ -91,8 +91,8 @@ describe('policy map integration', () => {
 		await withTempWorkspace(
 			async (workspace) => {
 				await fs.writeFile(
-					path.join(workspace, 'kernel.config.ts'),
-					'export const kernelConfig = {};',
+					path.join(workspace, 'wpk.config.ts'),
+					'export const wpkConfig = {};',
 					'utf8'
 				);
 				await fs.mkdir(path.join(workspace, 'src'), {
@@ -117,8 +117,8 @@ describe('policy map integration', () => {
 
 				const ir = await buildIr({
 					config,
-					sourcePath: path.join(workspace, 'kernel.config.ts'),
-					origin: 'kernel.config.ts',
+					sourcePath: path.join(workspace, 'wpk.config.ts'),
+					origin: 'wpk.config.ts',
 					namespace: config.namespace,
 				});
 
@@ -159,8 +159,8 @@ describe('policy map integration', () => {
 		await withTempWorkspace(
 			async (workspace) => {
 				await fs.writeFile(
-					path.join(workspace, 'kernel.config.ts'),
-					'export const kernelConfig = {};',
+					path.join(workspace, 'wpk.config.ts'),
+					'export const wpkConfig = {};',
 					'utf8'
 				);
 				await fs.mkdir(path.join(workspace, 'src'), {
@@ -196,8 +196,8 @@ describe('policy map integration', () => {
 
 				const ir = await buildIr({
 					config,
-					sourcePath: path.join(workspace, 'kernel.config.ts'),
-					origin: 'kernel.config.ts',
+					sourcePath: path.join(workspace, 'wpk.config.ts'),
+					origin: 'wpk.config.ts',
 					namespace: config.namespace,
 				});
 
@@ -216,8 +216,8 @@ describe('policy map integration', () => {
 		await withTempWorkspace(
 			async (workspace) => {
 				await fs.writeFile(
-					path.join(workspace, 'kernel.config.ts'),
-					'export const kernelConfig = {};',
+					path.join(workspace, 'wpk.config.ts'),
+					'export const wpkConfig = {};',
 					'utf8'
 				);
 				await fs.mkdir(path.join(workspace, 'src'), {
@@ -242,8 +242,8 @@ describe('policy map integration', () => {
 				await expect(
 					buildIr({
 						config,
-						sourcePath: path.join(workspace, 'kernel.config.ts'),
-						origin: 'kernel.config.ts',
+						sourcePath: path.join(workspace, 'wpk.config.ts'),
+						origin: 'wpk.config.ts',
 						namespace: config.namespace,
 					})
 				).rejects.toMatchObject({
@@ -261,8 +261,8 @@ describe('policy map integration', () => {
 		await withTempWorkspace(
 			async (workspace) => {
 				await fs.writeFile(
-					path.join(workspace, 'kernel.config.ts'),
-					'export const kernelConfig = {};',
+					path.join(workspace, 'wpk.config.ts'),
+					'export const wpkConfig = {};',
 					'utf8'
 				);
 				await fs.mkdir(path.join(workspace, 'src'), {
@@ -287,8 +287,8 @@ describe('policy map integration', () => {
 				await expect(
 					buildIr({
 						config,
-						sourcePath: path.join(workspace, 'kernel.config.ts'),
-						origin: 'kernel.config.ts',
+						sourcePath: path.join(workspace, 'wpk.config.ts'),
+						origin: 'wpk.config.ts',
 						namespace: config.namespace,
 					})
 				).rejects.toMatchObject({
@@ -301,7 +301,7 @@ describe('policy map integration', () => {
 	});
 });
 
-function createPolicyConfig(): KernelConfigV1 {
+function createPolicyConfig(): WPKernelConfigV1 {
 	const config = createBaseConfig();
 	config.resources = {
 		demo: {
@@ -321,7 +321,7 @@ function createPolicyConfig(): KernelConfigV1 {
 				},
 			},
 		},
-	} as unknown as KernelConfigV1['resources'];
+	} as unknown as WPKernelConfigV1['resources'];
 
 	return config;
 }
@@ -342,8 +342,8 @@ it('resolves ts-based policy maps with async descriptors', async () => {
 	await withTempWorkspace(
 		async (workspace) => {
 			await fs.writeFile(
-				path.join(workspace, 'kernel.config.ts'),
-				'export const kernelConfig = {};',
+				path.join(workspace, 'wpk.config.ts'),
+				'export const wpkConfig = {};',
 				'utf8'
 			);
 			await fs.mkdir(path.join(workspace, 'src'), {
@@ -360,8 +360,8 @@ it('resolves ts-based policy maps with async descriptors', async () => {
 
 			const ir = await buildIr({
 				config,
-				sourcePath: path.join(workspace, 'kernel.config.ts'),
-				origin: 'kernel.config.ts',
+				sourcePath: path.join(workspace, 'wpk.config.ts'),
+				origin: 'wpk.config.ts',
 				namespace: config.namespace,
 			});
 
@@ -400,8 +400,8 @@ it('propagates ts import errors as validation failures', async () => {
 	await withTempWorkspace(
 		async (workspace) => {
 			await fs.writeFile(
-				path.join(workspace, 'kernel.config.ts'),
-				'export const kernelConfig = {};',
+				path.join(workspace, 'wpk.config.ts'),
+				'export const wpkConfig = {};',
 				'utf8'
 			);
 			await fs.mkdir(path.join(workspace, 'src'), {
@@ -419,8 +419,8 @@ it('propagates ts import errors as validation failures', async () => {
 			await expect(
 				buildIr({
 					config,
-					sourcePath: path.join(workspace, 'kernel.config.ts'),
-					origin: 'kernel.config.ts',
+					sourcePath: path.join(workspace, 'wpk.config.ts'),
+					origin: 'wpk.config.ts',
 					namespace: config.namespace,
 				})
 			).rejects.toMatchObject({
@@ -435,8 +435,8 @@ it('rejects modules that do not export a policy map object', async () => {
 	await withTempWorkspace(
 		async (workspace) => {
 			await fs.writeFile(
-				path.join(workspace, 'kernel.config.ts'),
-				'export const kernelConfig = {};',
+				path.join(workspace, 'wpk.config.ts'),
+				'export const wpkConfig = {};',
 				'utf8'
 			);
 			await fs.mkdir(path.join(workspace, 'src'), {
@@ -456,8 +456,8 @@ it('rejects modules that do not export a policy map object', async () => {
 			await expect(
 				buildIr({
 					config,
-					sourcePath: path.join(workspace, 'kernel.config.ts'),
-					origin: 'kernel.config.ts',
+					sourcePath: path.join(workspace, 'wpk.config.ts'),
+					origin: 'wpk.config.ts',
 					namespace: config.namespace,
 				})
 			).rejects.toMatchObject({
@@ -474,8 +474,8 @@ it('rejects when a policy descriptor factory throws during evaluation', async ()
 	await withTempWorkspace(
 		async (workspace) => {
 			await fs.writeFile(
-				path.join(workspace, 'kernel.config.ts'),
-				'export const kernelConfig = {};',
+				path.join(workspace, 'wpk.config.ts'),
+				'export const wpkConfig = {};',
 				'utf8'
 			);
 			await fs.mkdir(path.join(workspace, 'src'), {
@@ -500,8 +500,8 @@ it('rejects when a policy descriptor factory throws during evaluation', async ()
 			await expect(
 				buildIr({
 					config,
-					sourcePath: path.join(workspace, 'kernel.config.ts'),
-					origin: 'kernel.config.ts',
+					sourcePath: path.join(workspace, 'wpk.config.ts'),
+					origin: 'wpk.config.ts',
 					namespace: config.namespace,
 				})
 			).rejects.toMatchObject({

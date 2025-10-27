@@ -54,16 +54,16 @@ describe('createBundler', () => {
 					resources: {},
 				},
 				namespace,
-				origin: 'kernel.config.ts',
-				sourcePath: path.join(workspaceRoot, 'kernel.config.ts'),
+				origin: 'wpk.config.ts',
+				sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
 			},
 			ir: {
 				meta: {
 					version: 1,
 					namespace,
 					sanitizedNamespace,
-					origin: 'kernel.config.ts',
-					sourcePath: 'kernel.config.ts',
+					origin: 'wpk.config.ts',
+					sourcePath: 'wpk.config.ts',
 				},
 				config: {
 					version: 1,

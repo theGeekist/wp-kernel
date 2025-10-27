@@ -7,7 +7,7 @@ import type {
 	PolicyOptions,
 	PolicyRule,
 } from '../types';
-import { KernelError } from '../../error/KernelError';
+import { WPKernelError } from '../../error/WPKernelError';
 import { PolicyDeniedError } from '../../error/PolicyDeniedError';
 
 function createPolicy<K extends Record<string, unknown>>(
@@ -88,7 +88,7 @@ describe('policy module', () => {
 		expect(hits).toBe(1);
 	});
 
-	it('throws KernelError with messageKey and emits events when denied', async () => {
+	it('throws WPKernelError with messageKey and emits events when denied', async () => {
 		const hooks = window.wp?.hooks as { doAction?: jest.Mock } | undefined;
 		expect(hooks?.doAction).toBeDefined();
 		const doAction = hooks!.doAction!;
@@ -178,7 +178,7 @@ describe('policy module', () => {
 		});
 
 		expect(() => proxy.assert('tasks.manage', undefined)).toThrow(
-			KernelError
+			WPKernelError
 		);
 		expect(doAction).toHaveBeenCalledWith(
 			'acme.policy.denied',
@@ -198,7 +198,9 @@ describe('policy module', () => {
 			'tasks.manage': () => true,
 		});
 
-		expect(() => policy.can('tasks.delete' as never)).toThrow(KernelError);
+		expect(() => policy.can('tasks.delete' as never)).toThrow(
+			WPKernelError
+		);
 	});
 
 	it('reuses in-flight promises for async policy evaluations', async () => {

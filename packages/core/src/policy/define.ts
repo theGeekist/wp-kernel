@@ -15,7 +15,7 @@
  * @module @wpkernel/core/policy/define
  */
 
-import { KernelError } from '../error/KernelError';
+import { WPKernelError } from '../error/WPKernelError';
 import { PolicyDeniedError } from '../error/PolicyDeniedError';
 import { getNamespace } from '../namespace/detect';
 import {
@@ -254,7 +254,7 @@ function detectWpCanUser(reporter: PolicyReporter) {
  */
 function ensureBoolean(value: unknown, key: string): asserts value is boolean {
 	if (typeof value !== 'boolean') {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: `Policy "${key}" must return a boolean. Received ${typeof value}.`,
 		});
 	}
@@ -367,7 +367,7 @@ function emitPolicyBridge(
  * Generates error with:
  * - messageKey for internationalization: "policy.denied.{namespace}.{policyKey}"
  * - context object with policyKey and params
- * - KernelError code: PolicyDenied
+ * - WPKernelError code: PolicyDenied
  *
  * @param namespace - Plugin namespace for messageKey generation
  * @param policyKey - Policy key that was denied
@@ -670,7 +670,7 @@ export function definePolicy<K extends Record<string, unknown>>(
 	config: PolicyDefinitionConfig<K>
 ): PolicyHelpers<K> {
 	if (!config || typeof config !== 'object') {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: 'definePolicy requires a configuration object with "map".',
 		});
 	}
@@ -678,7 +678,7 @@ export function definePolicy<K extends Record<string, unknown>>(
 	const { map, options } = config;
 
 	if (!map || typeof map !== 'object') {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: 'definePolicy requires a "map" of policy rules.',
 		});
 	}
@@ -707,7 +707,7 @@ export function definePolicy<K extends Record<string, unknown>>(
 		const rule = rules.get(key);
 		if (!rule) {
 			const availableKeys = Array.from(rules.keys()).map(String);
-			throw new KernelError('DeveloperError', {
+			throw new WPKernelError('DeveloperError', {
 				message: `Policy "${String(key)}" is not registered. Available keys: ${availableKeys.join(', ')}`,
 				context: {
 					requestedKey: String(key),

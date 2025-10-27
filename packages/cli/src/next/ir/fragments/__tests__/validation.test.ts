@@ -1,5 +1,5 @@
 import { createValidationFragment } from '../validation';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 
 // This test file uses minimal, valid shapes from the IR types to exercise
 // the validation fragment's branches (missing meta, missing policyMap,
@@ -69,14 +69,14 @@ describe('createValidationFragment', () => {
 	it('throws when meta is not present', async () => {
 		const draft = { policyMap: mockPolicyMap, resources: [mockResource] };
 		await expect(fragment.apply(makeApplyOptions(draft))).rejects.toThrow(
-			KernelError
+			WPKernelError
 		);
 	});
 
 	it('throws when policyMap is not present', async () => {
 		const draft = { meta: mockMeta, resources: [mockResource] };
 		await expect(fragment.apply(makeApplyOptions(draft))).rejects.toThrow(
-			KernelError
+			WPKernelError
 		);
 	});
 
@@ -89,7 +89,7 @@ describe('createValidationFragment', () => {
 			resources: [badResource],
 		};
 		await expect(fragment.apply(makeApplyOptions(draft))).rejects.toThrow(
-			KernelError
+			WPKernelError
 		);
 	});
 

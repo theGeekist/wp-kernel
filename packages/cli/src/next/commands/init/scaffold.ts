@@ -1,5 +1,5 @@
 import path from 'node:path';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
 import type { Workspace } from '../../workspace';
 import {
@@ -108,7 +108,7 @@ export async function assertNoCollisions({
 		return;
 	}
 
-	throw new KernelError('ValidationError', {
+	throw new WPKernelError('ValidationError', {
 		message:
 			'Refusing to overwrite existing files. Re-run with --force to replace them.',
 		data: { collisions },

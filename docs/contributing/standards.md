@@ -331,13 +331,13 @@ const thing = getThing(id);
 
 ## Error Handling
 
-### Always Use KernelError
+### Always Use WPKernelError
 
 ```typescript
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 
 // ✓ CORRECT
-throw new KernelError('ValidationError', {
+throw new WPKernelError('ValidationError', {
 	field: 'title',
 	message: 'Title is required',
 });

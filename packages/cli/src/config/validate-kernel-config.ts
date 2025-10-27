@@ -1,12 +1,12 @@
 /**
  * Kernel Config Validator
  *
- * Validates `kernel.config.ts` structure and enforces framework contracts
+ * Validates `wpk.config.ts` structure and enforces framework contracts
  * before code generation. This is the first line of defense against invalid
  * configurations, catching issues at load time rather than runtime.
  *
  * **Validation Layers:**
- * 1. **Type Structure** - Typanion validators ensure config matches KernelConfigV1 shape
+ * 1. **Type Structure** - Typanion validators ensure config matches WPKernelConfigV1 shape
  * 2. **Namespace Sanitization** - Ensures namespace is valid and WordPress-safe
  * 3. **Resource Integrity** - Validates routes, identity params, storage modes
  * 4. **Security Checks** - Warns about missing policies on write operations
@@ -25,23 +25,26 @@
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { ResourceConfig } from '@wpkernel/core/resource';
 import { sanitizeNamespace } from '@wpkernel/core/namespace';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import * as t from 'typanion';
-import type { KernelConfigV1, KernelConfigVersion } from './types';
+import type { WPKernelConfigV1, WPKernelConfigVersion } from './types';
 
-interface ValidateKernelConfigOptions {
+interface ValidateWPKernelConfigOptions {
 	reporter: Reporter;
 	sourcePath: string;
 	origin: string;
 }
 
-interface ValidateKernelConfigResult {
-	config: KernelConfigV1;
+interface ValidateWPKernelConfigResult {
+	config: WPKernelConfigV1;
 	namespace: string;
 }
 
-type KernelConfigCandidate = Omit<KernelConfigV1, 'version' | 'namespace'> & {
-	version?: KernelConfigVersion;
+type WPKernelConfigCandidate = Omit<
+	WPKernelConfigV1,
+	'version' | 'namespace'
+> & {
+	version?: WPKernelConfigVersion;
 	namespace: string;
 };
 
@@ -295,7 +298,7 @@ const resourceConfigValidator = t.isObject(
 	{ extra: t.isRecord(t.isUnknown()) }
 );
 
-const kernelConfigValidator = t.isObject(
+const wpkConfigValidator = t.isObject(
 	{
 		version: t.isOptional(t.isLiteral(1)),
 		namespace: t.isString(),
@@ -332,20 +335,20 @@ const kernelConfigValidator = t.isObject(
  * @throws When validation fails or namespace is invalid
  * @example
  * ```ts
- * const { config, namespace } = validateKernelConfig(rawConfig, {
+ * const { config, namespace } = validateWPKernelConfig(rawConfig, {
  *   reporter: createReporter({ namespace: 'cli' }),
- *   sourcePath: '/app/kernel.config.ts',
- *   origin: 'kernel.config.ts'
+ *   sourcePath: '/app/wpk.config.ts',
+ *   origin: 'wpk.config.ts'
  * });
  * ```
  */
-export function validateKernelConfig(
+export function validateWPKernelConfig(
 	rawConfig: unknown,
-	options: ValidateKernelConfigOptions
-): ValidateKernelConfigResult {
+	options: ValidateWPKernelConfigOptions
+): ValidateWPKernelConfigResult {
 	const validationReporter = options.reporter.child('validation');
 
-	const validation = t.as(rawConfig, kernelConfigValidator, { errors: true });
+	const validation = t.as(rawConfig, wpkConfigValidator, { errors: true });
 	if (validation.errors) {
 		const validationErrorList = Array.isArray(validation.errors)
 			? validation.errors
@@ -360,7 +363,7 @@ export function validateKernelConfig(
 			sourcePath: options.sourcePath,
 			origin: options.origin,
 		});
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message,
 			context: {
 				sourcePath: options.sourcePath,
@@ -369,7 +372,7 @@ export function validateKernelConfig(
 		});
 	}
 
-	const candidate = validation.value as KernelConfigCandidate;
+	const candidate = validation.value as WPKernelConfigCandidate;
 	const version = normalizeVersion(
 		candidate.version,
 		validationReporter,
@@ -383,7 +386,7 @@ export function validateKernelConfig(
 			namespace: candidate.namespace,
 			sourcePath: options.sourcePath,
 		});
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message,
 			context: {
 				sourcePath: options.sourcePath,
@@ -412,11 +415,11 @@ export function validateKernelConfig(
 		);
 	}
 
-	const config: KernelConfigV1 = {
+	const config: WPKernelConfigV1 = {
 		...candidate,
 		version,
 		namespace: sanitizedNamespace,
-	} as KernelConfigV1;
+	} as WPKernelConfigV1;
 
 	return {
 		config,
@@ -425,10 +428,10 @@ export function validateKernelConfig(
 }
 
 export function normalizeVersion(
-	version: KernelConfigVersion | undefined,
+	version: WPKernelConfigVersion | undefined,
 	reporter: Reporter,
 	sourcePath: string
-): KernelConfigVersion {
+): WPKernelConfigVersion {
 	if (typeof version === 'undefined') {
 		reporter.warn(
 			`Kernel config at ${sourcePath} is missing "version". Defaulting to 1. Add \`version: 1\` to opt into CLI tooling guarantees.`,
@@ -440,7 +443,7 @@ export function normalizeVersion(
 	if (version !== 1) {
 		const message = `Unsupported kernel config version ${String(version)} in ${sourcePath}. Only version 1 is supported.`;
 		reporter.error(message, { sourcePath, version });
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message,
 			context: {
 				sourcePath,
@@ -521,7 +524,7 @@ function validateIdentityParameter(
 			identity,
 			routes,
 		});
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message,
 			context: {
 				resourceName,
@@ -554,7 +557,7 @@ function validateUniqueRoutes(
 				method: route.method,
 				path: route.path,
 			});
-			throw new KernelError('ValidationError', {
+			throw new WPKernelError('ValidationError', {
 				message,
 				context: {
 					resourceName,

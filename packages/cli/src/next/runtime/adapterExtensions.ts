@@ -1,6 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import { runAdapterExtensions } from '../../adapters';
 import type {
 	AdapterContext,
@@ -115,7 +115,7 @@ async function runExtensions(
 		adapterReporter.error('Adapter extensions failed to initialise.', {
 			error: resolved.message,
 		});
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: 'Adapter extensions failed to initialise.',
 			data: { message: resolved.message },
 		});

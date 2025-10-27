@@ -1,6 +1,6 @@
 import { execFile as execFileCallback } from 'node:child_process';
 import { promisify } from 'node:util';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 
 const execFile = promisify(execFileCallback);
 
@@ -15,7 +15,7 @@ export async function installNodeDependencies(
 	try {
 		await exec('npm', ['install'], { cwd });
 	} catch (error) {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: 'Failed to install npm dependencies.',
 			context: serialiseExecError(error),
 		});
@@ -29,7 +29,7 @@ export async function installComposerDependencies(
 	try {
 		await exec('composer', ['install'], { cwd });
 	} catch (error) {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: 'Failed to install composer dependencies.',
 			context: serialiseExecError(error),
 		});

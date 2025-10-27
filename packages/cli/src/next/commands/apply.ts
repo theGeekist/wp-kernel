@@ -2,14 +2,14 @@ import path from 'node:path';
 import { Command, Option } from 'clipanion';
 import { createReporter as buildReporter } from '@wpkernel/core/reporter';
 import {
-	KernelError,
+	WPKernelError,
 	WPK_NAMESPACE,
 	WPK_EXIT_CODES,
 	type WPKExitCode,
 } from '@wpkernel/core/contracts';
 import type { BuilderOutput } from '../runtime/types';
-import type { LoadedKernelConfig } from '../../config/types';
-import { loadKernelConfig } from '../../config';
+import type { LoadedWPKernelConfig } from '../../config/types';
+import { loadWPKernelConfig } from '../../config';
 import { buildWorkspace, type Workspace } from '../workspace';
 import { createPatcher } from '../builders';
 import { determineExitCode, reportFailure } from './apply/errors';
@@ -84,7 +84,7 @@ export async function readManifest(
 			})),
 		} satisfies PatchManifest;
 	} catch (error) {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: 'Failed to parse apply manifest.',
 			context: {
 				file: PATCH_MANIFEST_PATH,
@@ -117,7 +117,7 @@ export function formatManifest(manifest: PatchManifest): string {
 	return `${lines.join('\n')}\n`;
 }
 
-export function resolveWorkspaceRoot(loaded: LoadedKernelConfig): string {
+export function resolveWorkspaceRoot(loaded: LoadedWPKernelConfig): string {
 	return path.dirname(loaded.sourcePath);
 }
 
@@ -126,7 +126,7 @@ function buildReporterNamespace(): string {
 }
 
 export interface BuildApplyCommandOptions {
-	readonly loadKernelConfig?: typeof loadKernelConfig;
+	readonly loadWPKernelConfig?: typeof loadWPKernelConfig;
 	readonly buildWorkspace?: typeof buildWorkspace;
 	readonly createPatcher?: typeof createPatcher;
 	readonly buildReporter?: typeof buildReporter;
@@ -147,7 +147,7 @@ function mergeDependencies(
 	options: BuildApplyCommandOptions
 ): ApplyCommandDependencies {
 	return {
-		loadKernelConfig,
+		loadWPKernelConfig,
 		buildWorkspace,
 		createPatcher,
 		buildReporter,
@@ -188,7 +188,7 @@ export function buildApplyCommand(
 			});
 
 			try {
-				const loaded = await dependencies.loadKernelConfig();
+				const loaded = await dependencies.loadWPKernelConfig();
 				const workspaceRoot = dependencies.resolveWorkspaceRoot(loaded);
 				const workspace = dependencies.buildWorkspace(workspaceRoot);
 				const builder = dependencies.createPatcher();

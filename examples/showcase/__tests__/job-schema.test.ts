@@ -262,7 +262,7 @@ describe('Job Schema Validation', () => {
 		});
 
 		it('should document status enum on the public Job type alias', () => {
-			const configPath = resolve(__dirname, '../kernel.config.ts');
+			const configPath = resolve(__dirname, '../wpk.config.ts');
 			const configContent = readFileSync(configPath, 'utf-8');
 
 			expect(configContent).toContain(
@@ -271,7 +271,7 @@ describe('Job Schema Validation', () => {
 		});
 
 		it('should document seniority enum on the public Job type alias', () => {
-			const configPath = resolve(__dirname, '../kernel.config.ts');
+			const configPath = resolve(__dirname, '../wpk.config.ts');
 			const configContent = readFileSync(configPath, 'utf-8');
 
 			expect(configContent).toContain(

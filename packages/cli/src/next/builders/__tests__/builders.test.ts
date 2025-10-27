@@ -36,7 +36,7 @@ const buildOptions: BuildIrOptions = {
 	},
 	namespace: 'test',
 	origin: 'typescript',
-	sourcePath: '/workspace/kernel.config.ts',
+	sourcePath: '/workspace/wpk.config.ts',
 };
 
 const ir: IRv1 = {
@@ -44,7 +44,7 @@ const ir: IRv1 = {
 		version: 1,
 		namespace: 'test',
 		origin: 'typescript',
-		sourcePath: 'kernel.config.ts',
+		sourcePath: 'wpk.config.ts',
 		sanitizedNamespace: 'test',
 	},
 	config: buildOptions.config,

@@ -6,7 +6,7 @@
  *
  * @see Product Specification § 4.1 Resources
  */
-import { KernelError } from '../error/index';
+import { WPKernelError } from '../error/index';
 import type { ResourceConfig } from './types';
 
 /**
@@ -61,7 +61,7 @@ function failValidation(
 	options: { code?: string; resourceName?: string } = {}
 ): never {
 	const { code, resourceName } = options;
-	throw new KernelError('DeveloperError', {
+	throw new WPKernelError('DeveloperError', {
 		message,
 		data: {
 			validationErrors: [

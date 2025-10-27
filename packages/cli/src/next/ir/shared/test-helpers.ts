@@ -2,7 +2,7 @@ import path from 'node:path';
 import os from 'node:os';
 import fs from 'node:fs/promises';
 import { createHash } from 'node:crypto';
-import type { KernelConfigV1 } from '../../../config/types';
+import type { WPKernelConfigV1 } from '../../../config/types';
 import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
 
 export const FIXTURE_ROOT = path.join(__dirname, '__fixtures__');
@@ -12,13 +12,13 @@ export const FIXTURE_CONFIG_PATH = path.join(
 );
 const TMP_PREFIX = path.join(os.tmpdir(), 'wpk-ir-test-');
 
-export function createBaseConfig(): KernelConfigV1 {
+export function createBaseConfig(): WPKernelConfigV1 {
 	return {
 		version: 1,
 		namespace: 'test-namespace',
-		schemas: {} satisfies KernelConfigV1['schemas'],
-		resources: {} satisfies KernelConfigV1['resources'],
-	} satisfies KernelConfigV1;
+		schemas: {} satisfies WPKernelConfigV1['schemas'],
+		resources: {} satisfies WPKernelConfigV1['resources'],
+	} satisfies WPKernelConfigV1;
 }
 
 export async function withTempSchema(

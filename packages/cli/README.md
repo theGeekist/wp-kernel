@@ -4,7 +4,7 @@
 
 ## Overview
 
-The CLI turns a single `kernel.config.ts` into everything a WP Kernel plugin needs:
+The CLI turns a single `wpk.config.ts` into everything a WP Kernel plugin needs:
 
 - **Project scaffolding** via `wpk init`
 - **Deterministic generation** of TypeScript contracts, UI entrypoints, PHP bridges, and block registrars
@@ -28,7 +28,7 @@ This scaffolds a Vite-ready plugin with kernel config, TypeScript/ESLint setup, 
 ## Core workflow: init → generate → apply
 
 1. **Initialise** a project once with `wpk init`.
-2. **Generate** artefacts whenever `kernel.config.ts` changes:
+2. **Generate** artefacts whenever `wpk.config.ts` changes:
 
     ```bash
     wpk generate           # writes to .generated/**
@@ -98,7 +98,7 @@ Adapters can register extension factories to participate in the generation pipel
 
 ```ts
 module.exports = {
-	// ...kernel.config.js contents
+	// ...wpk.config.js contents
 	adapters: {
 		extensions: [
 			({ namespace, reporter }) => ({

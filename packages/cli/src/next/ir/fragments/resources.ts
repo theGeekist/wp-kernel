@@ -1,4 +1,4 @@
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import { createHelper } from '../../runtime';
 import { buildResources } from '../shared/resource-builder';
 import type { SchemaAccumulator } from '../shared/schema';
@@ -16,7 +16,7 @@ export function createResourcesFragment(): IrFragment {
 				| { sanitizedNamespace: string }
 				| undefined;
 			if (!meta) {
-				throw new KernelError('ValidationError', {
+				throw new WPKernelError('ValidationError', {
 					message:
 						'Meta fragment must run before resources fragment.',
 				});
@@ -26,7 +26,7 @@ export function createResourcesFragment(): IrFragment {
 				| SchemaAccumulator
 				| undefined;
 			if (!accumulator) {
-				throw new KernelError('ValidationError', {
+				throw new WPKernelError('ValidationError', {
 					message:
 						'Schemas fragment must run before resources fragment.',
 				});

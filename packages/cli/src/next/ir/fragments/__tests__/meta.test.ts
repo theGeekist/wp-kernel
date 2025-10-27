@@ -1,5 +1,5 @@
 import { createMetaFragment } from '../meta';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 
 describe('createMetaFragment', () => {
 	const fragment = createMetaFragment();
@@ -32,7 +32,7 @@ describe('createMetaFragment', () => {
 		const draft = { extensions: {} } as any;
 		await expect(
 			fragment.apply(makeApplyOptions(draft, { namespace: '' }))
-		).rejects.toThrow(KernelError);
+		).rejects.toThrow(WPKernelError);
 	});
 
 	it('assigns meta to draft on success', async () => {

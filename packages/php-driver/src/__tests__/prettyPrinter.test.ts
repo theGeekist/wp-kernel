@@ -1,6 +1,6 @@
 import { EventEmitter } from 'node:events';
 import type { ChildProcess } from 'node:child_process';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import { buildPhpPrettyPrinter } from '../prettyPrinter';
 import type { DriverWorkspace, PhpPrettyPrintPayload } from '../types';
 
@@ -72,7 +72,7 @@ describe('buildPhpPrettyPrinter', () => {
 		});
 
 		await expect(printer.prettyPrint(makePayload(null))).rejects.toEqual(
-			expect.any(KernelError)
+			expect.any(WPKernelError)
 		);
 	});
 
@@ -83,10 +83,10 @@ describe('buildPhpPrettyPrinter', () => {
 
 		await expect(
 			printer.prettyPrint(makePayload([{}]))
-		).rejects.toBeInstanceOf(KernelError);
+		).rejects.toBeInstanceOf(WPKernelError);
 	});
 
-	it('propagates non-zero exit codes as KernelError', async () => {
+	it('propagates non-zero exit codes as WPKernelError', async () => {
 		spawnMock.mockReturnValue(
 			makeMockedChildProcess({
 				exitCode: 1,
@@ -101,7 +101,7 @@ describe('buildPhpPrettyPrinter', () => {
 
 		await expect(
 			printer.prettyPrint(makePayload([{ nodeType: 'Stmt_Nop' }]))
-		).rejects.toBeInstanceOf(KernelError);
+		).rejects.toBeInstanceOf(WPKernelError);
 	});
 
 	it('parses successful bridge output', async () => {

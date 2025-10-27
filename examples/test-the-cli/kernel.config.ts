@@ -43,7 +43,7 @@ const exampleResource: ResourceConfig<ExampleItem, ExampleQuery> = {
 };
 
 // For CLI config guidance see https://github.com/theGeekist/wp-kernel/blob/main/packages/cli/docs/cli-migration-phases.md#authoring-safety-lint-rules
-export const kernelConfig = {
+export const wpkConfig = {
 	version: 1,
 	namespace: 'wp-kernel-cli-sample',
 	schemas: {},
@@ -52,4 +52,4 @@ export const kernelConfig = {
 	},
 };
 
-export type TestCliKernelConfig = typeof kernelConfig;
+export type TestCliWPKernelConfig = typeof wpkConfig;

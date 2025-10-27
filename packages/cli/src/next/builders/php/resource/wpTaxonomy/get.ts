@@ -1,4 +1,4 @@
-import { KernelError } from '@wpkernel/core/contracts';
+import { WPKernelError } from '@wpkernel/core/contracts';
 import {
 	buildArg,
 	buildAssign,
@@ -119,7 +119,7 @@ export function buildWpTaxonomyGetRouteStatements(
 function ensureStorage(resource: IRResource): WpTaxonomyStorage {
 	const storage = resource.storage;
 	if (!storage || storage.mode !== 'wp-taxonomy') {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: 'Resource must use wp-taxonomy storage.',
 			context: { name: resource.name },
 		});

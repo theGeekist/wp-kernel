@@ -27,7 +27,7 @@ WP Kernel's core runtime, UI adapter, and CLI pipeline are feature-complete for 
 ### Reference Implementations
 
 - The showcase plugin demonstrates the full stack—kernel config, resource clients, UI DataViews, actions, and generated PHP controllers—proving the workflow in a real WordPress project.【F:docs/examples/showcase.md†L1-L33】【F:examples/showcase/src/actions/jobs/CreateJob.ts†L14-L63】
-- The "Test the CLI" example keeps a minimal transient-backed resource for smoke-testing generation and apply routines without unrelated noise.【F:docs/examples/test-the-cli.md†L1-L27】【F:examples/test-the-cli/kernel.config.ts†L1-L48】
+- The "Test the CLI" example keeps a minimal transient-backed resource for smoke-testing generation and apply routines without unrelated noise.【F:docs/examples/test-the-cli.md†L1-L27】【F:examples/test-the-cli/wpk.config.ts†L1-L48】
 
 ## Planned & In-Flight Work
 

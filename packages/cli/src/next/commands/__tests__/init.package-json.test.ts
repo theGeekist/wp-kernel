@@ -1,4 +1,4 @@
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import type { DependencyResolution } from '../../../commands/init/dependency-versions';
 import { makeWorkspaceMock } from '../../../../tests/workspace.test-support';
 import type { Workspace } from '../../workspace';
@@ -199,6 +199,6 @@ describe('init package.json helpers', () => {
 				force: false,
 				dependencyResolution,
 			})
-		).rejects.toBeInstanceOf(KernelError);
+		).rejects.toBeInstanceOf(WPKernelError);
 	});
 });

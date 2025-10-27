@@ -2,7 +2,7 @@
 /**
  * AUTO-GENERATED FILE. DO NOT EDIT BY HAND.
  *
- * Source: src/kernel.config.ts (via kernelConfig.resources.*)
+ * Source: src/wpk.config.ts (via wpkConfig.resources.*)
  * Target: inc/Rest/Controller.php
  *
  * Provides common functionality for all REST controllers, including _fields parameter support.

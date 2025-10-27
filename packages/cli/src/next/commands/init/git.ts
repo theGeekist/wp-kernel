@@ -1,6 +1,6 @@
 import { execFile as execFileCallback } from 'node:child_process';
 import { promisify } from 'node:util';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 
 const execFile = promisify(execFileCallback);
 
@@ -26,7 +26,7 @@ export async function isGitRepository(
 			return false;
 		}
 
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: 'Unable to determine git repository status.',
 			context: { error: serialiseExecError(error) },
 		});
@@ -40,7 +40,7 @@ export async function initialiseGitRepository(
 	try {
 		await exec('git', ['init'], { cwd });
 	} catch (error) {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: 'Failed to initialise git repository.',
 			context: { error: serialiseExecError(error) },
 		});

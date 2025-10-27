@@ -1,4 +1,4 @@
-import { KernelError } from '@wpkernel/core/contracts';
+import { WPKernelError } from '@wpkernel/core/contracts';
 import {
 	buildArray,
 	buildArrayItem,
@@ -112,7 +112,7 @@ function renderStructuredValue(value: StructuredPhpValue): PhpExpr {
 
 	if (typeof value === 'number') {
 		if (!Number.isFinite(value)) {
-			throw new KernelError('DeveloperError', {
+			throw new WPKernelError('DeveloperError', {
 				message: 'Cannot render non-finite numbers in PHP output.',
 				context: { value },
 			});
@@ -131,7 +131,7 @@ function renderStructuredValue(value: StructuredPhpValue): PhpExpr {
 		return buildNull();
 	}
 
-	throw new KernelError('DeveloperError', {
+	throw new WPKernelError('DeveloperError', {
 		message: `Unsupported PHP value: ${String(value)}`,
 		context: { value },
 	});

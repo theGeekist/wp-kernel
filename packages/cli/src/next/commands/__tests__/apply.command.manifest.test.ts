@@ -24,7 +24,7 @@ describe('NextApplyCommand manifest handling', () => {
 			});
 
 			const ApplyCommand = ApplyModule.buildApplyCommand({
-				loadKernelConfig: loadConfig,
+				loadWPKernelConfig: loadConfig,
 				buildWorkspace,
 				createPatcher,
 			});

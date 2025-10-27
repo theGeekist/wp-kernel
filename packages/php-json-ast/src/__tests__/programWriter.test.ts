@@ -33,8 +33,8 @@ function createBuilderInput(): BuilderInput {
 		options: {
 			config: {} as never,
 			namespace: 'demo-plugin',
-			origin: 'kernel.config.ts',
-			sourcePath: 'kernel.config.ts',
+			origin: 'wpk.config.ts',
+			sourcePath: 'wpk.config.ts',
 		},
 		ir: null,
 	};

@@ -1,7 +1,7 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import type { Dirent } from 'node:fs';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import type { IRBlock } from '../publicTypes';
 
 const IGNORED_DIRECTORIES = new Set(['node_modules', '.generated', '.git']);
@@ -84,7 +84,7 @@ async function handleBlockDirectory(options: {
 
 	const existing = options.state.seenKeys.get(block.key);
 	if (existing && existing !== block.directory) {
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message: `Block "${block.key}" discovered in multiple directories.`,
 			context: { existing, duplicate: block.directory },
 		});
@@ -129,7 +129,7 @@ export async function loadBlockEntry(
 	try {
 		raw = await fs.readFile(manifestPath, 'utf8');
 	} catch (error) {
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message: `Failed to read block manifest at ${manifestPath}.`,
 			data: error instanceof Error ? { originalError: error } : undefined,
 		});
@@ -139,21 +139,21 @@ export async function loadBlockEntry(
 	try {
 		parsed = JSON.parse(raw);
 	} catch (error) {
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message: `Invalid JSON in block manifest ${manifestPath}.`,
 			data: error instanceof Error ? { originalError: error } : undefined,
 		});
 	}
 
 	if (!parsed || typeof parsed !== 'object') {
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message: `Block manifest ${manifestPath} must be an object.`,
 		});
 	}
 
 	const key = (parsed as Record<string, unknown>).name;
 	if (typeof key !== 'string' || !key) {
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message: `Block manifest ${manifestPath} missing required "name" field.`,
 		});
 	}

@@ -5,22 +5,25 @@ import {
 	readManifest,
 	resolveWorkspaceRoot,
 } from '../apply';
-import type { KernelConfigV1, LoadedKernelConfig } from '../../../config/types';
+import type {
+	WPKernelConfigV1,
+	LoadedWPKernelConfig,
+} from '../../../config/types';
 import type { Workspace } from '../../workspace';
 import { makeWorkspaceMock } from '../../../../tests/workspace.test-support';
 
-const kernelConfig: KernelConfigV1 = {
+const wpkConfig: WPKernelConfigV1 = {
 	version: 1,
 	namespace: 'Demo',
 	schemas: {},
 	resources: {},
 };
 
-const loadedConfig: LoadedKernelConfig = {
-	config: kernelConfig,
+const loadedConfig: LoadedWPKernelConfig = {
+	config: wpkConfig,
 	namespace: 'Demo',
-	sourcePath: '/path/to/workspace/kernel.config.ts',
-	configOrigin: 'kernel.config.ts',
+	sourcePath: '/path/to/workspace/wpk.config.ts',
+	configOrigin: 'wpk.config.ts',
 	composerCheck: 'ok',
 };
 

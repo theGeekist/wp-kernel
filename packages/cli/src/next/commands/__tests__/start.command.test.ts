@@ -51,7 +51,7 @@ describe('buildStartCommand', () => {
 
 		expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(1);
 
-		watcher.emit('all', 'change', 'kernel.config.ts');
+		watcher.emit('all', 'change', 'wpk.config.ts');
 		await flushTimers();
 		expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(1);
 
@@ -72,7 +72,7 @@ describe('buildStartCommand', () => {
 	it('uses slow debounce for schema changes and overrides fast triggers', async () => {
 		const { watcher, executePromise } = await buildCommand();
 
-		watcher.emit('all', 'change', 'kernel.config.ts');
+		watcher.emit('all', 'change', 'wpk.config.ts');
 		watcher.emit(
 			'all',
 			'change',
@@ -94,7 +94,7 @@ describe('buildStartCommand', () => {
 		const { watcher, executePromise } = await buildCommand();
 
 		watcher.emit('error', new Error('watcher failure'));
-		watcher.emit('all', 'change', 'kernel.config.ts');
+		watcher.emit('all', 'change', 'wpk.config.ts');
 
 		await jest.advanceTimersByTimeAsync(FAST_DEBOUNCE_MS + 1);
 		await flushTimers();
@@ -113,7 +113,7 @@ describe('buildStartCommand', () => {
 			expect(fsCp).toHaveBeenCalledTimes(1);
 		});
 
-		watcher.emit('all', 'change', 'kernel.config.ts');
+		watcher.emit('all', 'change', 'wpk.config.ts');
 		await jest.advanceTimersByTimeAsync(FAST_DEBOUNCE_MS + 1);
 		await flushTimers();
 
@@ -150,7 +150,7 @@ describe('buildStartCommand', () => {
 
 		const { watcher, executePromise } = await buildCommand();
 
-		watcher.emit('all', 'change', 'kernel.config.ts');
+		watcher.emit('all', 'change', 'wpk.config.ts');
 		await jest.advanceTimersByTimeAsync(FAST_DEBOUNCE_MS + 1);
 		await flushTimers();
 		expect(FakeGenerateCommand.executeMock).toHaveBeenCalledTimes(1);
@@ -167,7 +167,7 @@ describe('buildStartCommand', () => {
 	it('clears pending timers when shutting down with queued triggers', async () => {
 		const { watcher, executePromise } = await buildCommand();
 
-		watcher.emit('all', 'change', 'kernel.config.ts');
+		watcher.emit('all', 'change', 'wpk.config.ts');
 		await flushTimers();
 		await shutdown(executePromise);
 
@@ -177,9 +177,9 @@ describe('buildStartCommand', () => {
 	it('restarts debounce timers when repeated fast events arrive', async () => {
 		const { watcher, executePromise } = await buildCommand();
 
-		watcher.emit('all', 'change', 'kernel.config.ts');
+		watcher.emit('all', 'change', 'wpk.config.ts');
 		await flushTimers();
-		watcher.emit('all', 'change', 'kernel.config.ts');
+		watcher.emit('all', 'change', 'wpk.config.ts');
 		await flushTimers();
 
 		await jest.advanceTimersByTimeAsync(FAST_DEBOUNCE_MS - 1);
@@ -207,17 +207,17 @@ describe('buildStartCommand', () => {
 		const { watcher, executePromise } = await buildCommand();
 		const reporter = reporterFactory.mock.results[0]!.value as ReporterMock;
 
-		watcher.emit('all', 'change', 'kernel.config.ts');
+		watcher.emit('all', 'change', 'wpk.config.ts');
 		await flushTimers();
 
-		watcher.emit('all', 'change', 'kernel.config.ts');
+		watcher.emit('all', 'change', 'wpk.config.ts');
 		await flushTimers();
 
 		expect(reporter.debug).toHaveBeenCalledWith(
 			'Queueing change while generation is running.',
 			expect.objectContaining({
 				event: 'change',
-				file: 'kernel.config.ts',
+				file: 'wpk.config.ts',
 				tier: 'fast',
 			})
 		);
@@ -288,7 +288,7 @@ describe('buildStartCommand', () => {
 			trigger: {
 				tier: 'fast',
 				event: 'change',
-				file: 'kernel.config.ts',
+				file: 'wpk.config.ts',
 			},
 			reporter,
 			generateReporter,
@@ -331,7 +331,7 @@ describe('buildStartCommand', () => {
 			trigger: {
 				tier: 'fast',
 				event: 'change',
-				file: 'kernel.config.ts',
+				file: 'wpk.config.ts',
 			},
 			reporter,
 			generateReporter,
@@ -588,7 +588,7 @@ describe('buildStartCommand', () => {
 		const fastTrigger: Trigger = {
 			tier: 'fast',
 			event: 'change',
-			file: 'kernel.config.ts',
+			file: 'wpk.config.ts',
 		};
 		const slowTrigger: Trigger = {
 			tier: 'slow',
@@ -598,7 +598,7 @@ describe('buildStartCommand', () => {
 		const anotherFast: Trigger = {
 			tier: 'fast',
 			event: 'change',
-			file: 'kernel.config.ts',
+			file: 'wpk.config.ts',
 		};
 
 		expect(prioritiseQueued(null, fastTrigger)).toBe(fastTrigger);

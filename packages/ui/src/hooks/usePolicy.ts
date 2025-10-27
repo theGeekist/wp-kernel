@@ -4,7 +4,7 @@ import {
 	useState,
 	useSyncExternalStore,
 } from '@wordpress/element';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import { createPolicyCacheKey } from '@wpkernel/core/policy';
 import type {
 	ParamsOf,
@@ -60,7 +60,7 @@ export function usePolicy<
 			setError(undefined);
 		} else {
 			setError(
-				new KernelError('DeveloperError', {
+				new WPKernelError('DeveloperError', {
 					message:
 						'No policy runtime configured. Call definePolicy() and wire it into the action runtime.',
 				})
