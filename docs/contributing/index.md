@@ -37,6 +37,7 @@ Additional references:
 - [`LICENSING.md`](https://github.com/theGeekist/wp-kernel/blob/main/LICENSING.md) - decision log for licensing choices.
 - [`information/Roadmap`](https://github.com/theGeekist/wp-kernel/blob/main/information/Roadmap%20PO%20%E2%80%A2%20v1.0.md) - product roadmap.
 - [`examples/showcase/README.md`](https://github.com/theGeekist/wp-kernel/blob/main/examples/showcase/README.md) - detailed walkthrough of the showcase plugin.
+- [Framework Release Playbook](../releases/framework-release-playbook.md) - manual release checklist and verification steps.
 
 ## Standards and testing
 

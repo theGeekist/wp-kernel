@@ -1,20 +1,20 @@
 # Release Model & Workflow
 
-> **WP Kernel uses manual semantic versioning with fixed versioning across all public packages.**
+> **WP Kernel uses manual semantic versioning with fixed versioning across all public packages.** The retired `release-please` automation remains disabled until we finish the follow-up automation tasks.
 
-**Model**: Sprint-driven releases with manual version management.
+**Model**: Sprint-driven releases with manual version management backed by the [Framework Release Playbook](docs/releases/framework-release-playbook.md).
 
 ---
 
 ## Quick Reference
 
-| Action            | Process                                 |
-| ----------------- | --------------------------------------- |
-| **New Sprint PR** | Update CHANGELOG.md with sprint changes |
-| **Version Bump**  | Update package.json versions manually   |
-| **Release**       | Tag and publish to npm manually         |
+| Action            | Process                                                                |
+| ----------------- | ---------------------------------------------------------------------- |
+| **New Sprint PR** | Update CHANGELOG.md with sprint changes                                |
+| **Version Bump**  | Update package.json versions manually                                  |
+| **Release**       | Follow the framework playbook, run `pnpm release:verify`, tag, publish |
 
-**Current train**: unified **v0.5.x (pre-1.0)** across every publishable package.
+**Current train**: unified **v0.7.x (pre-1.0)** across every publishable package.
 
 ---
 
@@ -85,23 +85,12 @@ Every Sprint PR must link to:
 
 ### Preparing a Release
 
-1. **Update versions** in all package.json files (fixed versioning)
-2. **Update CHANGELOG.md** - Change `[Unreleased]` to version and date
-3. **Commit and tag**:
-    ```bash
-    git add .
-    git commit -m "chore(release): v0.x.0"
-    git tag v0.x.0
-    git push origin main --tags
-    ```
-4. **Build and publish**:
-    ```bash
-    pnpm build
-    npm publish --workspace packages/core
-    npm publish --workspace packages/ui
-    npm publish --workspace packages/cli
-    npm publish --workspace packages/e2e-utils
-    ```
+Walk through the [Framework Release Playbook](docs/releases/framework-release-playbook.md) for the authoritative checklist. At a minimum:
+
+1. **Run the verification suite** – `pnpm lint --fix`, `pnpm typecheck`, `pnpm typecheck:tests`, `pnpm test`, `pnpm build`, and finally `pnpm release:verify` to confirm every publishable workspace declares the required scripts and shares the root version.
+2. **Update versions** in all `package.json` files (fixed versioning across every published workspace) and refresh the root/package changelog entries.
+3. **Commit and tag** using annotated tags only after every package publishes successfully.
+4. **Publish packages** individually (core, ui, cli, e2e-utils, php-driver, php-json-ast, test-utils) so any failure is obvious and easy to retry.
 
 ---
 
