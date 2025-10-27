@@ -13,10 +13,12 @@ import {
 	type PhpExprBinaryOp,
 	type PhpStmtExpression,
 	type PhpStmtIf,
+} from '@wpkernel/php-json-ast';
+import {
 	type ResourceControllerCacheOperation,
 	type ResourceControllerCacheScope,
 	type ResourceMetadataHost,
-} from '@wpkernel/php-json-ast';
+} from '@wpkernel/wp-json-ast';
 import { appendResourceCacheEvent } from './cache';
 import {
 	expression,

@@ -9,12 +9,14 @@ import type {
 } from '../../runtime/types';
 import {
 	appendGeneratedFileDocblock,
+	createWpPhpFileBuilder,
+} from '@wpkernel/wp-json-ast';
+import {
 	buildClass,
 	buildClassMethod,
 	buildIdentifier,
 	buildReturn,
 	buildScalarString,
-	createPhpFileBuilder,
 	PHP_CLASS_MODIFIER_ABSTRACT,
 	PHP_METHOD_MODIFIER_PUBLIC,
 	type PhpAstBuilderAdapter,
@@ -39,7 +41,7 @@ export function createPhpBaseControllerHelper(): BuilderHelper {
 				'BaseController.php'
 			);
 
-			const builderHelper = createPhpFileBuilder<
+			const builderHelper = createWpPhpFileBuilder<
 				PipelineContext,
 				BuilderInput,
 				BuilderOutput

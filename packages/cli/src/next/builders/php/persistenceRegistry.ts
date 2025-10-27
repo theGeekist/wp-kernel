@@ -9,11 +9,13 @@ import type {
 } from '../../runtime/types';
 import {
 	appendGeneratedFileDocblock,
+	createWpPhpFileBuilder,
+} from '@wpkernel/wp-json-ast';
+import {
 	buildClass,
 	buildClassMethod,
 	buildIdentifier,
 	buildReturn,
-	createPhpFileBuilder,
 	PHP_CLASS_MODIFIER_FINAL,
 	PHP_METHOD_MODIFIER_PUBLIC,
 	PHP_METHOD_MODIFIER_STATIC,
@@ -42,7 +44,7 @@ export function createPhpPersistenceRegistryHelper(): BuilderHelper {
 				'PersistenceRegistry.php'
 			);
 
-			const helper = createPhpFileBuilder<
+			const helper = createWpPhpFileBuilder<
 				PipelineContext,
 				BuilderInput,
 				BuilderOutput

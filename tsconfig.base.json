@@ -29,7 +29,9 @@
 			"@wpkernel/php-json-ast/*": ["./packages/php-json-ast/src/*"],
 			"@wpkernel/php-driver": ["./packages/php-driver/src/index.ts"],
 			"@wpkernel/php-driver/*": ["./packages/php-driver/src/*"],
-			"@test-utils/*": ["./tests/test-utils/*"]
+			"@test-utils/*": ["./tests/test-utils/*"],
+			"@wpkernel/wp-json-ast": ["./packages/wp-json-ast/src/index.ts"],
+			"@wpkernel/wp-json-ast/*": ["./packages/wp-json-ast/src/*"]
 		},
 
 		// Type Checking (Strict Mode)

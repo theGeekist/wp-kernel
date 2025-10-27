@@ -1,9 +1,11 @@
 import path from 'node:path';
 import {
 	appendGeneratedFileDocblock,
+	createWpPhpFileBuilder,
+} from '@wpkernel/wp-json-ast';
+import {
 	buildClass,
 	buildIdentifier,
-	createPhpFileBuilder,
 	PHP_CLASS_MODIFIER_FINAL,
 	type PhpAstBuilderAdapter,
 	type PhpStmtClassMethod,
@@ -34,13 +36,15 @@ export function buildBlocksRegistrarHelper({
 }): BuilderHelper {
 	const filePath = path.join(ir.php.outputDir, 'Blocks', 'Register.php');
 
-	return createPhpFileBuilder<PipelineContext, BuilderInput, BuilderOutput>({
-		key: 'php-blocks-registrar',
-		filePath,
-		namespace: `${ir.php.namespace}\\Blocks`,
-		metadata: { kind: 'block-registrar' },
-		build: (builder) => buildRegistrarClass(builder, ir),
-	});
+	return createWpPhpFileBuilder<PipelineContext, BuilderInput, BuilderOutput>(
+		{
+			key: 'php-blocks-registrar',
+			filePath,
+			namespace: `${ir.php.namespace}\\Blocks`,
+			metadata: { kind: 'block-registrar' },
+			build: (builder) => buildRegistrarClass(builder, ir),
+		}
+	);
 }
 
 function buildRegistrarClass(builder: PhpAstBuilderAdapter, ir: IRv1): void {

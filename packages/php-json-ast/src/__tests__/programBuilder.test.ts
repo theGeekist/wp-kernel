@@ -4,7 +4,6 @@ import type { Reporter } from '@wpkernel/core/reporter';
 // Simplified types - just what the tests need
 type BuilderInput = any;
 type BuilderOutput = any;
-import { appendGeneratedFileDocblock } from '../docblocks';
 import {
 	createPhpFileBuilder,
 	resetPhpProgramBuilderContext,
@@ -126,7 +125,7 @@ describe('programBuilder helpers', () => {
 			namespace: 'Demo\\Example',
 			metadata: { kind: 'policy-helper' },
 			build: (builder) => {
-				appendGeneratedFileDocblock(builder, ['Example file']);
+				builder.appendDocblock('Example file');
 				builder.addUse('Demo\\Contracts');
 				builder.addUse('function Demo\\Helpers\\Foo');
 				builder.addUse('Demo\\Contracts');

@@ -1,43 +1,30 @@
-import * as builders from '../builders';
+import * as packageIndex from '../index';
 import * as programBuilder from '../programBuilder';
 import * as programWriter from '../programWriter';
-import * as channels from '../channels';
 import * as context from '../context';
 import * as builderChannel from '../builderChannel';
-import * as factories from '../factories';
-import * as factoryIndex from '../factories/index';
 
 describe('package entrypoints', () => {
-	it('re-exports builder helpers', () => {
-		expect(builders.createPhpProgramBuilder).toBe(
+	it('re-exports builder helpers through the package index', () => {
+		expect(packageIndex.createPhpProgramBuilder).toBe(
 			programBuilder.createPhpProgramBuilder
 		);
-		expect(builders.createHelper).toBe(programBuilder.createHelper);
-		expect(builders.createPhpProgramWriterHelper).toBe(
+		expect(packageIndex.createHelper).toBe(programBuilder.createHelper);
+		expect(packageIndex.createPhpProgramWriterHelper).toBe(
 			programWriter.createPhpProgramWriterHelper
 		);
 	});
 
-	it('re-exports builder channel helpers', () => {
-		expect(channels.getPhpBuilderChannel).toBe(
+	it('re-exports channel helpers through the package index', () => {
+		expect(packageIndex.getPhpBuilderChannel).toBe(
 			builderChannel.getPhpBuilderChannel
 		);
-		expect(channels.resetPhpBuilderChannel).toBe(
+		expect(packageIndex.resetPhpBuilderChannel).toBe(
 			builderChannel.resetPhpBuilderChannel
 		);
-		expect(channels.getPhpAstChannel).toBe(context.getPhpAstChannel);
-		expect(channels.resetPhpAstChannel).toBe(context.resetPhpAstChannel);
-	});
-
-	it('re-exports factory helpers', () => {
-		const keys = Object.keys(factoryIndex).filter(
-			(key) => key !== '__esModule' && key !== 'default'
+		expect(packageIndex.getPhpAstChannel).toBe(context.getPhpAstChannel);
+		expect(packageIndex.resetPhpAstChannel).toBe(
+			context.resetPhpAstChannel
 		);
-
-		for (const key of keys) {
-			const exported = (factories as Record<string, unknown>)[key];
-			const expected = (factoryIndex as Record<string, unknown>)[key];
-			expect(exported).toBe(expected);
-		}
 	});
 });

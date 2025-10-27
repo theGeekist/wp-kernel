@@ -1,0 +1,42 @@
+{
+	"name": "@wpkernel/wp-json-ast",
+	"version": "0.8.0",
+	"description": "WordPress-specific extensions for the @wpkernel/php-json-ast toolkit",
+	"license": "EUPL-1.2",
+	"type": "module",
+	"sideEffects": false,
+	"main": "./dist/index.js",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js",
+			"default": "./dist/index.js"
+		},
+		"./package.json": "./package.json"
+	},
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE"
+	],
+	"scripts": {
+		"build": "vite build && tsc --noEmit",
+		"lint": "eslint src/",
+		"lint:fix": "eslint src/ --fix",
+		"test": "jest --passWithNoTests --watchman=false",
+		"test:coverage": "jest --coverage --watchman=false",
+		"test:watch": "jest --watch",
+		"typecheck": "tsc --noEmit",
+		"typecheck:tests": "tsc --project tsconfig.tests.json --noEmit"
+	},
+	"peerDependencies": {
+		"@wpkernel/php-json-ast": "workspace:*",
+		"@wpkernel/core": "workspace:*"
+	},
+	"dependencies": {
+		"@wpkernel/php-json-ast": "workspace:*",
+		"@wpkernel/core": "workspace:*"
+	}
+}
