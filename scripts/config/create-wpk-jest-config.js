@@ -80,7 +80,13 @@ function findRepoRoot(startDir) {
 }
 
 function resolvePackageDir(input) {
-	const resolved = typeof input === 'string' ? input : fileURLToPath(input);
+	const value =
+		typeof input === 'string' && input.startsWith('file://')
+			? fileURLToPath(input)
+			: typeof input === 'string'
+				? input
+				: fileURLToPath(input);
+	const resolved = value;
 	return fs.statSync(resolved).isDirectory()
 		? resolved
 		: path.dirname(resolved);
