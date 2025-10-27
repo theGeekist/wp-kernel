@@ -1,9 +1,10 @@
 import { Command } from 'clipanion';
-import type { InitCommand as LegacyInitCommand } from '../../../commands/init';
 import type { GenerateCommand as LegacyGenerateCommand } from '../../../commands/generate';
 import type { StartCommand as LegacyStartCommand } from '../../../commands/start';
 import type { DoctorCommand as LegacyDoctorCommand } from '../../../commands/doctor';
 import type { LegacyCommandConstructor } from '../internal/delegate';
+import { makeWorkspaceMock } from '../../../../tests/workspace.test-support';
+import type { FileManifest } from '../../workspace';
 
 function buildCommandContext() {
 	return {
@@ -18,100 +19,46 @@ describe('command factories', () => {
 	});
 
 	describe('buildInitCommand', () => {
-		it('lazily loads the legacy command and forwards options', async () => {
-			const captured: unknown[] = [];
+		it('injects workspace, reporter, and workflow dependencies', async () => {
+			const workspace = makeWorkspaceMock();
+			const reporter = { warn: jest.fn(), info: jest.fn() };
+			const workflow = jest.fn().mockResolvedValue({
+				manifest: { writes: [], deletes: [] } as FileManifest,
+				summaryText: 'summary\n',
+				summaries: [],
+				dependencySource: 'fallback',
+				namespace: 'demo',
+				templateName: 'plugin',
+			});
+			const checkGit = jest.fn().mockResolvedValue(false);
+			const buildWorkspaceMock = jest.fn().mockReturnValue(workspace);
+			const buildReporterMock = jest.fn().mockReturnValue(reporter);
 
-			class LegacyInit extends Command {
-				static override paths: string[][] = [['init']];
-				static override usage = Command.Usage({
-					description: 'legacy init',
-				});
-
-				name?: string;
-				template?: string;
-				force = false;
-				verbose = false;
-				preferRegistryVersions = false;
-
-				override async execute(): Promise<number> {
-					captured.push({
-						context: this.context,
-						name: this.name,
-						template: this.template,
-						force: this.force,
-						verbose: this.verbose,
-						preferRegistryVersions: this.preferRegistryVersions,
-					});
-					return 7;
-				}
-			}
-
-			const legacyConstructor =
-				LegacyInit as unknown as LegacyCommandConstructor<LegacyInitCommand>;
-			const loader: jest.MockedFunction<
-				() => Promise<LegacyCommandConstructor<LegacyInitCommand>>
-			> = jest.fn().mockResolvedValue(legacyConstructor);
-			const { buildInitCommand } = await import('../init');
-			const NextInit = buildInitCommand({ loadCommand: loader });
-
-			expect(loader).not.toHaveBeenCalled();
-
-			const command = new NextInit();
-			command.cli = {} as never;
-			command.context = buildCommandContext() as never;
-			command.name = 'demo';
-			command.template = 'plugin';
-			command.force = true;
-			command.verbose = true;
-			command.preferRegistryVersions = true;
-
-			const result = await command.execute();
-
-			expect(result).toBe(7);
-			expect(loader).toHaveBeenCalledTimes(1);
-			expect(captured).toEqual([
-				{
-					context: command.context,
-					name: 'demo',
-					template: 'plugin',
-					force: true,
-					verbose: true,
-					preferRegistryVersions: true,
-				},
-			]);
-		});
-
-		it('supports pre-resolved commands without invoking the loader', async () => {
-			class LegacyInit extends Command {
-				static override paths: string[][] = [['init']];
-				static override usage = Command.Usage({
-					description: 'legacy init',
-				});
-
-				override async execute(): Promise<void> {
-					return undefined;
-				}
-			}
-
-			const legacyConstructor =
-				LegacyInit as unknown as LegacyCommandConstructor<LegacyInitCommand>;
-			const loader: jest.MockedFunction<
-				() => Promise<LegacyCommandConstructor<LegacyInitCommand>>
-			> = jest.fn().mockRejectedValue(new Error('should not load'));
 			const { buildInitCommand } = await import('../init');
 			const NextInit = buildInitCommand({
-				command: legacyConstructor,
-				loadCommand: loader,
+				buildWorkspace: buildWorkspaceMock,
+				buildReporter: buildReporterMock,
+				runWorkflow: workflow,
+				checkGitRepository: checkGit,
 			});
 
 			const command = new NextInit();
 			command.cli = {} as never;
 			command.context = buildCommandContext() as never;
+			command.name = 'demo';
 
 			const exitCode = await command.execute();
 
 			expect(exitCode).toBe(0);
-			expect(loader).not.toHaveBeenCalled();
+			expect(buildWorkspaceMock).toHaveBeenCalledTimes(1);
+			expect(buildReporterMock).toHaveBeenCalledTimes(1);
+			expect(checkGit).toHaveBeenCalledWith(workspace.root);
+			expect(workflow).toHaveBeenCalledWith(
+				expect.objectContaining({
+					workspace,
+					projectName: 'demo',
+				})
+			);
 		});
 	});
 
