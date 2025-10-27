@@ -42,7 +42,7 @@ Embedding the commands in factories keeps the orchestration consistent with the 
 
 ### 3.1 Apply
 
-- **Current state:** The default `NextApplyCommand` produced by `buildApplyCommand` loads the kernel config, executes `createPatcher`, and prints the manifest summary. It does not enforce git hygiene, create backups, honour `--yes/--backup/--force`, or append to `.wpk-apply.log`.
+- **Current state:** The default `NextApplyCommand` produced by `buildApplyCommand` loads the kernel config, executes `createPatcher`, honours `--yes/--backup/--force`, enforces git hygiene, and appends structured entries to `.wpk-apply.log` while printing the manifest summary.
 - **Legacy reference:** The pre-0.8.0 command shim handled three-way merges, composer autoload detection, shim creation, git checks, backups, and logging; refer to the v0.7.x history for implementation details.
 - **Scope:**
     - Introduce `buildApplyCommand` that mirrors the structure of `buildGenerateCommand` so tests can instantiate the command with injected builders/reporters.

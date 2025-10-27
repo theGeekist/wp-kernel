@@ -16,19 +16,36 @@ describe('NextApplyCommand manifest handling', () => {
 				.fn()
 				.mockResolvedValue(buildLoadedConfig(workspace));
 			const readText = jest.fn().mockResolvedValue('invalid-json');
+			const dryRun = jest.fn(async (fn) => {
+				try {
+					const result = await fn();
+					return { result, manifest: { writes: [], deletes: [] } };
+				} catch (error) {
+					throw error;
+				}
+			});
 			const buildWorkspace = jest.fn().mockReturnValue({
 				readText,
+				resolve: jest.fn(),
+				dryRun,
 			});
 			const createPatcher = jest.fn().mockReturnValue({
 				apply: jest.fn(async () => undefined),
 			});
+			const ensureGitRepository = jest.fn().mockResolvedValue(undefined);
+			const appendApplyLog = jest.fn().mockResolvedValue(undefined);
 
 			const ApplyCommand = ApplyModule.buildApplyCommand({
 				loadWPKernelConfig: loadConfig,
 				buildWorkspace,
 				createPatcher,
+				ensureGitRepository,
+				appendApplyLog,
 			});
 			const command = new ApplyCommand();
+			command.yes = true;
+			command.backup = false;
+			command.force = false;
 			assignCommandContext(command, { cwd: workspace });
 
 			const exitCode = await command.execute();
