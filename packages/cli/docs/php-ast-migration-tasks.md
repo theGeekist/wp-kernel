@@ -192,13 +192,13 @@ Status: ✓ Completed – Manifest cache invalidation bugfix closed the buffer s
 
 #### Task 24 - Policy helper parity (0.7.5)
 
-Status: ⬜ Planned – The AST policy helper still returns a placeholder `WP_Error` and skips capability enforcement.
+Status: ✓ Completed – AST helper now mirrors the legacy enforcement flow, emits structured errors, and reports fallback policies through the next pipeline reporter.
 
-- Port capability checks (`current_user_can` wiring), object binding resolution, and the reusable closure scaffolds from the legacy printer into the AST helper (`packages/cli/src/next/builders/php/policy.ts`).
-- Restore structured `KernelError` responses for capability failures and binding issues so controller outputs match the historical behaviour.
-- Surface reporter warnings for unsecured write routes by threading the policy helper results back through the builder pipeline.
-- Update integration coverage to snapshot the restored policies and diagnostics.
-- Complexity: high – touches shared helpers, reporter wiring, and integration tests.
+- Ported capability checks (`current_user_can` wiring), object binding resolution, and closure scaffolds into the AST helper (`packages/cli/src/next/builders/php/policy.ts`).
+- Restored structured `WP_Error` responses for denied policies and missing bindings so controller outputs stay aligned with historical behaviour.
+- Threaded policy map warnings back to the reporter so unsecured routes falling back to the default capability surface during generation.
+- Updated unit and integration coverage to exercise the new helper methods and refresh the generated `Policy.php` snapshot.
+- Complexity: high – touched shared helpers, reporter wiring, and integration tests.
 
 <a id="task-25---controller-safety--block-derivation"></a>
 
