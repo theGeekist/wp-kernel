@@ -1,5 +1,11 @@
 # @wpkernel/core
 
+## 0.7.0 - 2025-10-26
+
+### Maintenance
+
+- Version bump to `0.7.0` to align with the Phase 3 block builder release; runtime code remains unchanged aside from the exported `VERSION` constant.
+
 ## 0.6.0 - 2025-10-26
 
 ### Maintenance
