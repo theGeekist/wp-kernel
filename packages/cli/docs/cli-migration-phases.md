@@ -28,7 +28,7 @@ This document replaces earlier drafts (`next-cli.md.audit-backup`, `next-cli.md.
 
 Phase 3 covered Tasks 16-19: port the legacy block printers (`packages/cli/src/printers/blocks/js-only.ts` and `packages/cli/src/printers/blocks/ssr.ts`) into the AST-first pipeline, ship the shared `ts-morph` primitives, lock parity through tests, refresh fixtures/docs, and hold the buffer slot before cutting 0.7.0. Those checkpoints are now complete; expect medium-complexity runs here-each task replaces end-to-end generation of manifests, registrars, and per-block `render.php` stubs. See [PHP AST Migration Tasks](./php-ast-migration-tasks.md#phase-3---block-printers-ssr--js-only-) for the detailed scope.
 
-Phase 4 now depends on Task 23 (native `start`/`doctor`); with Task 25 delivering controller safety warnings plus derived block scaffolds, the Task 26 release can retire the remaining legacy printers and command shims.
+Phase 4 now depends on Task 25 (controller safety warnings plus derived block scaffolds)-Task 23 delivered the native `start`/`doctor` commands-before the Task 26 release can delete the legacy printers and command shims.
 
 ---
 
