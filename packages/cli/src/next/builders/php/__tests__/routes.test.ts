@@ -1,5 +1,11 @@
-import { collectCanonicalBasePaths, determineRouteKind } from '../routes';
+import {
+	collectCanonicalBasePaths,
+	determineRouteKind,
+	getPathSegments,
+	normalizeRoutePath,
+} from '../routes';
 import { makeWpPostRoutes } from '@wpkernel/test-utils/next/builders/php/resources.test-support';
+import type { IRRoute } from '../../../ir/publicTypes';
 
 describe('routes helpers', () => {
 	const identityParam = 'slug';
@@ -70,6 +76,56 @@ describe('routes helpers', () => {
 			determineRouteKind(customRoute, identityParam, basePaths)
 		).toBeUndefined();
 	});
+
+	it('derives canonical paths from non-identity routes when needed', () => {
+		const routes: IRRoute[] = [
+			makeRoute({ method: 'GET', path: '/books' }),
+			makeRoute({ method: 'GET', path: '/books/popular' }),
+			makeRoute({ method: 'POST', path: '/authors' }),
+		];
+
+		const basePaths = collectCanonicalBasePaths(routes, identityParam);
+		expect(Array.from(basePaths).sort()).toEqual(['/authors', '/books']);
+	});
+
+	it('returns an empty set when no canonical base path can be derived', () => {
+		const routes: IRRoute[] = [
+			makeRoute({ method: 'GET', path: '/kernel/v1/books/:id' }),
+			makeRoute({ method: 'POST', path: '/kernel/v1/books/:id/publish' }),
+		];
+
+		const basePaths = collectCanonicalBasePaths(routes, identityParam);
+		expect(basePaths.size).toBe(0);
+	});
+
+	it('normalises route paths and segments consistently', () => {
+		expect(normalizeRoutePath('kernel/v1/books/')).toBe('/kernel/v1/books');
+		expect(normalizeRoutePath('/kernel//v1//books')).toBe(
+			'/kernel/v1/books'
+		);
+		expect(normalizeRoutePath('/')).toBe('/');
+
+		expect(getPathSegments('/kernel/v1/books/:slug')).toEqual([
+			'kernel',
+			'v1',
+			'books',
+			':slug',
+		]);
+		expect(getPathSegments('/')).toEqual([]);
+	});
+
+	it('treats unsupported method and path combinations as custom routes', () => {
+		const routes = makeWpPostRoutes();
+		const basePaths = collectCanonicalBasePaths(routes, identityParam);
+		const putCollectionRoute = makeRoute({
+			method: 'PUT',
+			path: '/kernel/v1/books',
+		});
+
+		expect(
+			determineRouteKind(putCollectionRoute, identityParam, basePaths)
+		).toBeUndefined();
+	});
 });
 
 function getRouteBy(
@@ -81,4 +137,13 @@ function getRouteBy(
 		throw new Error('Expected route to be defined.');
 	}
 	return route;
+}
+
+function makeRoute(route: Pick<IRRoute, 'method' | 'path'>): IRRoute {
+	return {
+		...route,
+		transport: 'local',
+		hash: `${route.method}:${route.path}`,
+		policy: undefined,
+	} satisfies IRRoute;
 }

@@ -83,7 +83,7 @@ function buildPersistenceRegistry(
 	builder.appendProgramStatement(classNode);
 }
 
-function buildPersistencePayload(
+export function buildPersistencePayload(
 	resources: readonly IRResource[]
 ): Record<string, unknown> {
 	const entries: Record<string, unknown> = {};
