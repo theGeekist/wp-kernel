@@ -13,6 +13,8 @@ import type {
 	PipelineExtensionHookOptions,
 	PipelineExtensionHookResult,
 	PipelineExtensionRollbackErrorMetadata,
+	HelperExecutionSnapshot,
+	PipelineExecutionMetadata,
 	PipelineRunState,
 	PipelineStep,
 } from './types';
@@ -600,6 +602,65 @@ export function createPipeline<
 		}
 	}
 
+	function createExecutionSnapshot<
+		THelper extends HelperDescriptor<TKind>,
+		TKind extends HelperKind,
+	>(
+		entries: RegisteredHelper<THelper>[],
+		visited: Set<string>,
+		kind: TKind
+	): HelperExecutionSnapshot<TKind> {
+		const registered: string[] = [];
+		const executed: string[] = [];
+		const missing: string[] = [];
+
+		for (const entry of entries) {
+			const key = entry.helper.key;
+			registered.push(key);
+
+			if (visited.has(entry.id)) {
+				executed.push(key);
+			} else {
+				missing.push(key);
+			}
+		}
+
+		return {
+			kind,
+			registered,
+			executed,
+			missing,
+		} satisfies HelperExecutionSnapshot<TKind>;
+	}
+
+	function ensureAllHelpersExecuted<
+		THelper extends HelperDescriptor<TKind>,
+		TKind extends HelperKind,
+	>(
+		entries: RegisteredHelper<THelper>[],
+		snapshot: HelperExecutionSnapshot<TKind>,
+		kind: TKind
+	): void {
+		if (snapshot.missing.length === 0) {
+			return;
+		}
+
+		const missingDescriptions = entries
+			.filter((entry) => snapshot.missing.includes(entry.helper.key))
+			.map((entry) =>
+				describeHelper(
+					kind,
+					entry.helper as unknown as HelperDescriptor
+				)
+			);
+
+		throw new KernelError('ValidationError', {
+			message: `Pipeline finalisation aborted because ${missingDescriptions.join(
+				', '
+			)} did not execute.`,
+		});
+	}
+
 	function registerFragment(helper: TFragmentHelper): void {
 		if (helper.kind !== fragmentKind) {
 			throw new KernelError('ValidationError', {
@@ -833,6 +894,12 @@ export function createPipeline<
 				});
 			};
 
+			let builderExecutionSnapshot = createExecutionSnapshot(
+				builderEntries,
+				new Set<string>(),
+				builderKind
+			);
+
 			const fragmentVisited = await executeHelpers<
 				TContext,
 				TFragmentInput,
@@ -868,11 +935,24 @@ export function createPipeline<
 				fragmentKindValue
 			);
 
+			const fragmentExecution = createExecutionSnapshot(
+				fragmentEntries,
+				fragmentVisited,
+				fragmentKind
+			);
+
+			ensureAllHelpersExecuted(
+				fragmentEntries,
+				fragmentExecution,
+				fragmentKindValue
+			);
+
 			let artifact = options.finalizeFragmentState({
 				draft,
 				options: runOptions,
 				context,
 				buildOptions,
+				helpers: { fragments: fragmentExecution },
 			});
 			const builderOrder = buildDependencyGraph(builderEntries, {
 				onMissingDependency: ({ dependant, dependencyKey }) => {
@@ -997,6 +1077,20 @@ export function createPipeline<
 					builderKindValue
 				);
 
+				const builderExecution = createExecutionSnapshot(
+					builderEntries,
+					builderVisited,
+					builderKind
+				);
+
+				ensureAllHelpersExecuted(
+					builderEntries,
+					builderExecution,
+					builderKindValue
+				);
+
+				builderExecutionSnapshot = builderExecution;
+
 				await commitExtensionResults(extensionResult.results);
 			} catch (error) {
 				await rollbackExtensionResults(
@@ -1025,6 +1119,10 @@ export function createPipeline<
 					context: TContext;
 					buildOptions: TBuildOptions;
 					options: TRunOptions;
+					helpers: PipelineExecutionMetadata<
+						TFragmentKind,
+						TBuilderKind
+					>;
 				}) =>
 					({
 						artifact: state.artifact,
@@ -1039,6 +1137,10 @@ export function createPipeline<
 				context,
 				buildOptions,
 				options: runOptions,
+				helpers: {
+					fragments: fragmentExecution,
+					builders: builderExecutionSnapshot,
+				},
 			});
 		},
 	};
