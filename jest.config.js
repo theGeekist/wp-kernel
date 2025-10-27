@@ -6,10 +6,20 @@
  * Individual packages can also run tests independently using their own configs.
  */
 
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import baseConfig from './jest.config.base.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const cliGlobalSetup = path.resolve(
+	__dirname,
+	'packages/cli/tests/jest-global-setup.cjs'
+);
 
 export default {
 	...baseConfig,
+
+	globalSetup: cliGlobalSetup,
 
 	// Test file locations
 	roots: ['<rootDir>/packages', '<rootDir>/examples', '<rootDir>/tests'],
