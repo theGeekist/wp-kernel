@@ -82,6 +82,7 @@ This roadmap captures how `@wpkernel/php-json-ast` can evolve now that `nikic/ph
 - Snapshot the fixture round-trip in both PHPUnit and Jest to confirm attribute fidelity across the PHP ↔ TypeScript boundary.
 - Record the validation procedure in this plan once green so future phases inherit the ingestion contract.
   _Expectation: Shared fixtures guarantee the ingestion bridge reproduces upstream metadata end-to-end._
+  **Status:** ✓ Canonical fixtures now live under [`fixtures/ingestion/`](../fixtures/ingestion) with shared AST snapshots. `ProgramIngestionTest` decodes the PHP driver output and compares it to [`CodifiedController.ast.json`](../fixtures/ingestion/CodifiedController.ast.json), while [`programIngestion.test.ts`](../src/__tests__/driver/programIngestion.test.ts) copies the same fixture into its sandbox and asserts that both the streamed payload and writer outputs match the stored snapshot.
 
 ### Upcoming phases
 
