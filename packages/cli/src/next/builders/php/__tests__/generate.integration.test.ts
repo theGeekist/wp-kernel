@@ -111,6 +111,33 @@ const legacyPrinterSpies: LegacySpy[] = [
 const CLI_VENDOR_ROOT = path.resolve(__dirname, '../../../../../vendor');
 const INTEGRATION_TIMEOUT_MS = 20000;
 
+type ComposerSetupModule = (() => Promise<void>) & {
+	ensureCliVendorDependencies?: () => Promise<void>;
+};
+
+type ComposerSetupNamespace = {
+	default?: ComposerSetupModule;
+	ensureCliVendorDependencies?: () => Promise<void>;
+};
+
+const CLI_VENDOR_SETUP_MODULE: string =
+	'../../../../../tests/jest-global-setup.cjs';
+
+async function ensureCliVendorReady(): Promise<void> {
+	const module = (await import(
+		CLI_VENDOR_SETUP_MODULE
+	)) as ComposerSetupNamespace;
+	const ensureDependencies =
+		module.ensureCliVendorDependencies ??
+		module.default?.ensureCliVendorDependencies ??
+		module.default;
+	if (typeof ensureDependencies !== 'function') {
+		throw new Error('Unable to load CLI vendor dependency installer.');
+	}
+
+	await ensureDependencies();
+}
+
 afterEach(() => {
 	for (const entry of legacyPrinterSpies) {
 		entry.spy.mockClear();
@@ -208,6 +235,7 @@ describe('createPhpBuilder integration', () => {
 				await withWorkspace(async (workspacePath) => {
 					const workspace = buildWorkspace(workspacePath);
 					workspaceRoot = workspace.root;
+					await ensureCliVendorReady();
 					await fs.cp(CLI_VENDOR_ROOT, workspace.resolve('vendor'), {
 						recursive: true,
 					});
