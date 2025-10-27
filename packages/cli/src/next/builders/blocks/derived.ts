@@ -1,6 +1,12 @@
 import path from 'node:path';
 
-import type { IRBlock, IRResource, IRSchema, IRv1 } from '../../../ir/types';
+import type {
+	IRBlock,
+	IRResource,
+	IRRoute,
+	IRSchema,
+	IRv1,
+} from '../../ir/publicTypes';
 
 export interface DerivedResourceBlock {
 	readonly block: IRBlock;
@@ -52,7 +58,7 @@ export function deriveResourceBlocks(options: {
 
 function shouldGenerateBlock(resource: IRResource): boolean {
 	const hasGetRoute = resource.routes.some(
-		(route) => route.method.toUpperCase() === 'GET'
+		(route: IRRoute) => route.method.toUpperCase() === 'GET'
 	);
 	const hasUi = Boolean(resource.ui?.admin?.dataviews);
 	return hasGetRoute || hasUi;
@@ -61,7 +67,7 @@ function shouldGenerateBlock(resource: IRResource): boolean {
 function determineBlockType(resource: IRResource): 'js-only' | 'ssr' {
 	const hasStorage = Boolean(resource.storage);
 	const hasLocalRoute = resource.routes.some(
-		(route) => route.transport === 'local'
+		(route: IRRoute) => route.transport === 'local'
 	);
 
 	if (hasStorage && hasLocalRoute) {

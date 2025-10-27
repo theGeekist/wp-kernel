@@ -1,4 +1,4 @@
-import type { IRResource } from '../../../../../../../ir/types';
+import type { IRResource } from '../../../../../../ir/publicTypes';
 import type { ResolvedIdentity } from '../../../../identity';
 import type { ResourceMutationContract } from '../../../mutationContract';
 

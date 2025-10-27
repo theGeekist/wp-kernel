@@ -19,7 +19,7 @@ import {
 	PHP_METHOD_MODIFIER_STATIC,
 	type PhpAstBuilderAdapter,
 } from '@wpkernel/php-json-ast';
-import type { IRResource, IRv1 } from '../../../ir/types';
+import type { IRResource, IRv1 } from '../../ir/publicTypes';
 import { renderPhpValue } from './resource/phpValue';
 import { sanitizeJson } from './utils';
 

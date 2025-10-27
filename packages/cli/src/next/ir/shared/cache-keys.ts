@@ -1,6 +1,6 @@
 import type { CacheKeyFn, CacheKeys } from '@wpkernel/core/resource';
 import { KernelError } from '@wpkernel/core/contracts';
-import type { IRResource, IRResourceCacheKey } from './types';
+import type { IRResource, IRResourceCacheKey } from '../publicTypes';
 
 export function deriveCacheKeys(
 	cacheKeys: CacheKeys<unknown> | undefined,

@@ -14,7 +14,7 @@ import type {
 	BuilderOutput,
 	PipelineContext,
 } from '../../runtime/types';
-import type { IRBlock, IRv1 } from '../../../ir/types';
+import type { IRBlock, IRv1 } from '../../ir/publicTypes';
 import { collectBlockManifests } from '../blocks/manifest';
 import type { ProcessedBlockManifest } from '../blocks/manifest';
 import {
@@ -71,8 +71,8 @@ async function runJsBlocksGeneration(options: {
 	readonly output: BuilderOutput;
 	readonly reporter: BuilderApplyOptions['reporter'];
 }): Promise<number | null> {
-	const existingBlocks = new Map(
-		options.ir.blocks.map((block) => [block.key, block])
+	const existingBlocks = new Map<string, IRBlock>(
+		options.ir.blocks.map((block): [string, IRBlock] => [block.key, block])
 	);
 	const derivedBlocks = deriveResourceBlocks({
 		ir: options.ir,
@@ -97,8 +97,8 @@ async function runJsBlocksGeneration(options: {
 	});
 
 	const jsOnlyBlocks = allBlocks
-		.filter((block) => !block.hasRender)
-		.map((block) => manifestMap.get(block.key))
+		.filter((block: IRBlock) => !block.hasRender)
+		.map((block: IRBlock) => manifestMap.get(block.key))
 		.filter((entry): entry is ProcessedBlockManifest => Boolean(entry))
 		.sort((a, b) => a.block.key.localeCompare(b.block.key));
 

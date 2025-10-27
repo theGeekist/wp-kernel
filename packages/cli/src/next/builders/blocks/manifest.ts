@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { Workspace } from '../../workspace/types';
-import type { IRBlock } from '../../../ir/types';
+import type { IRBlock } from '../../ir/publicTypes';
 import { buildBlockRegistrarMetadata } from '../ts/shared/metadata';
 import type { BlockRegistrarMetadata } from '../ts/shared/metadata';
 
@@ -573,7 +573,7 @@ function deriveTitle(
 		.split(/[^A-Za-z0-9]+/u)
 		.filter(Boolean)
 		.map(
-			(segment) =>
+			(segment: string) =>
 				segment.charAt(0).toUpperCase() + segment.slice(1).toLowerCase()
 		)
 		.join(' ');

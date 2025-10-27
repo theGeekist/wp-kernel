@@ -3,7 +3,7 @@ import { KernelError } from '@wpkernel/core/error';
 import { createHelper } from '../../runtime';
 import type { IrFragment, IrFragmentApplyOptions } from '../types';
 import { toWorkspaceRelative } from '../../../utils';
-import { createPhpNamespace } from '../../../ir/php';
+import { createPhpNamespace } from '../shared/php';
 
 export const META_EXTENSION_KEY = 'ir.meta.core';
 

@@ -1,5 +1,5 @@
 import { KernelError } from '@wpkernel/core/contracts';
-import type { IRResource } from '../../../../../ir/types';
+import type { IRResource } from '../../../../ir/publicTypes';
 
 export type WpOptionStorage = Extract<
 	NonNullable<IRResource['storage']>,

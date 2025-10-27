@@ -1,7 +1,7 @@
 import path from 'node:path';
 import type { Reporter } from '@wpkernel/core/reporter';
 import { createNoopReporter as buildNoopReporter } from '@wpkernel/core/reporter';
-import type { BuildIrOptions, IRv1 } from '../../ir/types';
+import type { BuildIrOptions, IRv1 } from './publicTypes';
 import { createPipeline } from '../runtime';
 import type { PipelinePhase, Pipeline } from '../runtime';
 import type { Workspace } from '../workspace';

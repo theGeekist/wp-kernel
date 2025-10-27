@@ -14,7 +14,7 @@ import {
 	toTitleCase,
 	resolveResourceSchema,
 	createSchemaAccumulator,
-} from '../schema';
+} from '../../shared/schema';
 
 describe('schema helpers', () => {
 	it('infers schema setting from resource configuration', () => {

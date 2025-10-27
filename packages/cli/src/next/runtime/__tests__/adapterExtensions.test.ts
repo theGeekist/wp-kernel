@@ -2,7 +2,7 @@ import path from 'node:path';
 import { KernelError } from '@wpkernel/core/error';
 import { createReporterMock as buildReporterMock } from '@wpkernel/test-utils/cli';
 import type { KernelConfigV1 } from '../../../config/types';
-import type { IRv1 } from '../../../ir/types';
+import type { IRv1 } from '../../ir/publicTypes';
 import type {
 	PipelineExtensionHook,
 	PipelineExtensionHookOptions,

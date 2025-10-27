@@ -5,20 +5,20 @@ import type {
 	PolicyCapabilityDescriptor,
 	PolicyMapDefinition,
 	PolicyMapEntry,
-} from '../policy-map';
+} from '../../../policy-map';
 import {
 	fileExists,
 	formatError,
 	getTsImport,
 	resolveConfigValue,
-} from '../config/load-kernel-config';
+} from '../../../config/load-kernel-config';
 import type {
 	IRPolicyHint,
 	IRPolicyMap,
 	IRResource,
 	IRPolicyScope,
-} from './types';
-import { toWorkspaceRelative } from '../utils';
+} from '../publicTypes';
+import { toWorkspaceRelative } from '../../../utils';
 
 interface ResolvePolicyMapOptions {
 	workspaceRoot: string;

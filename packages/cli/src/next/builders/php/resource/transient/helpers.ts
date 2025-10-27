@@ -16,7 +16,7 @@ import {
 	type PhpStmt,
 	type PhpStmtClassMethod,
 } from '@wpkernel/php-json-ast';
-import type { IRResource } from '../../../../../ir/types';
+import type { IRResource } from '../../../../ir/publicTypes';
 import {
 	buildBinaryOperation,
 	buildBooleanNot,

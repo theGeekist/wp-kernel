@@ -1,4 +1,4 @@
-import type { IRRoute } from '../../../ir/types';
+import type { IRRoute } from '../../ir/publicTypes';
 
 export type ResourceRouteKind = 'list' | 'get' | 'create' | 'update' | 'remove';
 

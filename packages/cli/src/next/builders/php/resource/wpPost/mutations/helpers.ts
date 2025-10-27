@@ -26,7 +26,7 @@ import {
 	type PhpParam,
 	type PhpType,
 } from '@wpkernel/php-json-ast';
-import type { IRResource } from '../../../../../../ir/types';
+import type { IRResource } from '../../../../../ir/publicTypes';
 import {
 	buildArrayDimFetch,
 	buildArrayLiteral,
@@ -327,7 +327,7 @@ export function prepareWpPostResponse(
 	const taxonomyEntries = Object.entries(storage.taxonomies ?? {}) as Array<
 		[string, WpPostTaxonomyDescriptor]
 	>;
-	const supports = new Set(storage.supports ?? []);
+	const supports = new Set<string>(storage.supports ?? []);
 
 	const statements: PhpStmt[] = [];
 

@@ -1,4 +1,9 @@
-import type { IRBlock, IRPolicyHint, IRResource, IRSchema } from './types';
+import type {
+	IRBlock,
+	IRPolicyHint,
+	IRResource,
+	IRSchema,
+} from '../publicTypes';
 
 export function sortSchemas(schemas: IRSchema[]): IRSchema[] {
 	return schemas.slice().sort((a, b) => a.key.localeCompare(b.key));
