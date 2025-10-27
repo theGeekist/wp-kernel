@@ -3,6 +3,7 @@ export {
 	registerCoreFragments,
 	registerCoreBuilders,
 } from './createIr';
+export { buildIr } from './buildIr';
 export { createMetaFragment, META_EXTENSION_KEY } from './fragments/meta';
 export {
 	createSchemasFragment,
@@ -23,3 +24,20 @@ export type {
 	IrFragmentInput,
 	IrFragmentOutput,
 } from './types';
+export type {
+	BuildIrOptions,
+	IRBlock,
+	IRPhpProject,
+	IRPolicyDefinition,
+	IRPolicyHint,
+	IRPolicyMap,
+	IRPolicyScope,
+	IRResource,
+	IRResourceCacheKey,
+	IRRoute,
+	IRRouteTransport,
+	IRSchema,
+	IRv1,
+	IRWarning,
+	SchemaProvenance,
+} from './publicTypes';

@@ -5,7 +5,7 @@ import type {
 	IRResource,
 	IRWarning,
 	SchemaProvenance,
-} from './types';
+} from '../publicTypes';
 import { deriveCacheKeys, serializeCacheKeys } from './cache-keys';
 import { normaliseRoutes } from './routes';
 import type { SchemaAccumulator } from './schema';

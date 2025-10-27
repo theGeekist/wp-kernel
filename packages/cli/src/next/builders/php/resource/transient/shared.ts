@@ -1,5 +1,5 @@
 import { KernelError } from '@wpkernel/core/contracts';
-import type { IRResource } from '../../../../../ir/types';
+import type { IRResource } from '../../../../ir/publicTypes';
 import { toSnakeCase } from '../../utils';
 
 export type TransientStorage = Extract<

@@ -11,7 +11,7 @@ import {
 	VariableDeclarationKind,
 } from 'ts-morph';
 import { KernelError } from '@wpkernel/core/error';
-import type { IRv1 } from '../../ir/types';
+import type { IRv1 } from '../ir/publicTypes';
 import type { KernelConfigV1 } from '../../config/types';
 import { createHelper } from '../runtime';
 import type {

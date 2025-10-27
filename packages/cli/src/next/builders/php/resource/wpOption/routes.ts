@@ -10,7 +10,7 @@ import {
 	buildNull,
 	type PhpStmt,
 } from '@wpkernel/php-json-ast';
-import type { IRResource } from '../../../../../ir/types';
+import type { IRResource } from '../../../../ir/publicTypes';
 import {
 	buildBinaryOperation,
 	buildFunctionCall,

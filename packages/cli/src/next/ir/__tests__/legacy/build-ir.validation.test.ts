@@ -1,13 +1,13 @@
 import path from 'node:path';
 import { KernelError } from '@wpkernel/core/error';
-import type { KernelConfigV1 } from '../../config/types';
-import { buildIr } from '../build-ir';
+import type { KernelConfigV1 } from '../../../config/types';
+import { buildIr } from '../../buildIr';
 import {
 	FIXTURE_CONFIG_PATH,
 	FIXTURE_ROOT,
 	createBaseConfig,
 	withTempSchema,
-} from '../test-helpers';
+} from '../../shared/test-helpers';
 
 describe('buildIr - validation', () => {
 	it('throws when duplicate routes are detected', async () => {

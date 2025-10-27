@@ -1,4 +1,4 @@
-import type { IRRoute } from '../../../../ir/types';
+import type { IRRoute } from '../../../ir/publicTypes';
 import type { ResolvedIdentity } from '../identity';
 import type { RouteMetadataKind } from './metadata';
 

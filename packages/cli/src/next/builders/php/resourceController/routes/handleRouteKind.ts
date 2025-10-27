@@ -1,7 +1,7 @@
 import type { ResourceMetadataHost, PhpStmt } from '@wpkernel/php-json-ast';
 import type { ResolvedIdentity } from '../../identity';
 import type { RouteMetadataKind } from '../metadata';
-import type { IRResource, IRRoute } from '../../../../../ir/types';
+import type { IRResource, IRRoute } from '../../../../ir/publicTypes';
 import {
 	buildCreateRouteStatements,
 	buildUpdateRouteStatements,

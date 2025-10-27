@@ -1,5 +1,5 @@
 import type { ResourceMetadataHost } from '@wpkernel/php-json-ast';
-import type { IRResource, IRRoute } from '../../../../../../ir/types';
+import type { IRResource, IRRoute } from '../../../../../ir/publicTypes';
 import {
 	buildRouteKindStatements,
 	type HandleRouteKindOptions,

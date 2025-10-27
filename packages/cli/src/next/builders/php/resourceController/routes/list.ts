@@ -26,7 +26,7 @@ import {
 	variable,
 	buildWpTaxonomyListRouteStatements,
 } from '../../resource';
-import type { IRResource } from '../../../../../ir/types';
+import type { IRResource } from '../../../../ir/publicTypes';
 
 export interface BuildListRouteStatementsOptions {
 	readonly resource: IRResource;

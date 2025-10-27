@@ -2,7 +2,7 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import type { Dirent } from 'node:fs';
 import { KernelError } from '@wpkernel/core/error';
-import type { IRBlock } from './types';
+import type { IRBlock } from '../publicTypes';
 
 const IGNORED_DIRECTORIES = new Set(['node_modules', '.generated', '.git']);
 

@@ -6,8 +6,12 @@ import type {
 	ResourceConfig,
 	ResourcePostMetaDescriptor,
 } from '@wpkernel/core/resource';
-import type { BuildIrOptions, IRSchema, SchemaProvenance } from './types';
-import { resolveFromWorkspace, toWorkspaceRelative } from '../utils';
+import type {
+	BuildIrOptions,
+	IRSchema,
+	SchemaProvenance,
+} from '../publicTypes';
+import { resolveFromWorkspace, toWorkspaceRelative } from '../../../utils';
 import { hashCanonical, sortObject } from './canonical';
 
 const JSON_SCHEMA_URL = 'https://json-schema.org/draft/2020-12/schema';

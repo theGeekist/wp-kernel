@@ -7,8 +7,8 @@ import {
 	prepareStorage,
 	inferPostType,
 	sortWarnings,
-} from '../resource-builder';
-import type { IRResource } from '../types';
+} from '../../shared/resource-builder';
+import type { IRResource } from '../../types';
 
 describe('resource builder helpers', () => {
 	it('normalises query params by sorting keys', () => {

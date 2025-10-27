@@ -4,7 +4,7 @@ import {
 	sortPolicies,
 	sortResources,
 	sortSchemas,
-} from '../../../ir/ordering';
+} from '../shared/ordering';
 import type { IrFragment, IrFragmentApplyOptions } from '../types';
 
 export function createOrderingFragment(): IrFragment {

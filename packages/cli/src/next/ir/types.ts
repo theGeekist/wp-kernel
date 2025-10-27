@@ -10,7 +10,7 @@ import type {
 	IRResource,
 	IRSchema,
 	IRv1,
-} from '../../ir/types';
+} from './publicTypes';
 import type {
 	FragmentFinalizationMetadata,
 	Helper,
@@ -194,4 +194,4 @@ export type IrFragmentApplyOptions = HelperApplyOptions<
 	reporter: Reporter;
 };
 
-export type { IRDiagnostic, IRDiagnosticSeverity } from '../../ir/types';
+export type { IRDiagnostic, IRDiagnosticSeverity } from './publicTypes';

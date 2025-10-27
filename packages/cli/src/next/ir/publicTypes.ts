@@ -4,7 +4,7 @@ import type {
 	ResourceStorageConfig,
 	ResourceUIConfig,
 } from '@wpkernel/core/resource';
-import type { KernelConfigV1 } from '../config/types';
+import type { KernelConfigV1 } from '../../config/types';
 
 export type SchemaProvenance = 'manual' | 'auto';
 

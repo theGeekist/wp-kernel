@@ -1,5 +1,5 @@
 import { createHelper } from '../../runtime';
-import type { IRDiagnostic, IRWarning } from '../../../ir/types';
+import type { IRDiagnostic, IRWarning } from '../publicTypes';
 import type { IrFragment, IrFragmentApplyOptions } from '../types';
 
 const DIAGNOSTICS_FRAGMENT_KEY = 'ir.diagnostics.core';

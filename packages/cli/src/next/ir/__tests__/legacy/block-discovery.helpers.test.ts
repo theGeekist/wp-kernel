@@ -9,7 +9,7 @@ import {
 	shouldSkipEntry,
 	loadBlockEntry,
 	fileExists,
-} from '../block-discovery';
+} from '../../shared/block-discovery';
 
 describe('block discovery helpers', () => {
 	afterEach(() => {

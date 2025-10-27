@@ -1,8 +1,8 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import type { KernelConfigV1 } from '../../config/types';
-import { buildIr } from '../build-ir';
-import { createBaseConfig, withTempWorkspace } from '../test-helpers';
+import type { KernelConfigV1 } from '../../../config/types';
+import { buildIr } from '../../buildIr';
+import { createBaseConfig, withTempWorkspace } from '../../shared/test-helpers';
 
 describe('buildIr - block discovery', () => {
 	it('discovers JS-only and SSR blocks while respecting ignore rules', async () => {

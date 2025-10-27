@@ -6,7 +6,7 @@ import type {
 	PhpExprConstFetch,
 	PhpExprFuncCall,
 } from '@wpkernel/php-json-ast';
-import type { IRResource } from '../../../../../../ir/types';
+import type { IRResource } from '../../../../../ir/publicTypes';
 import type { ResolvedIdentity } from '../../../identity';
 import type { ResourceIdentityConfig } from '@wpkernel/core/resource';
 

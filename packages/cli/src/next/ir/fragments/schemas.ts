@@ -2,7 +2,7 @@ import { createHelper } from '../../runtime';
 import {
 	createSchemaAccumulator,
 	loadConfiguredSchemas,
-} from '../../../ir/schema';
+} from '../shared/schema';
 import type { IrFragment, IrFragmentApplyOptions } from '../types';
 
 export const SCHEMA_EXTENSION_KEY = 'ir.schemas.core';

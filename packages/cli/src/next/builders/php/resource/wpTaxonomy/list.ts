@@ -39,7 +39,7 @@ import {
 } from '../utils';
 import { buildReturnIfWpError } from '../errors';
 import { buildListItemsInitialiserStatement } from '../wpPost/list';
-import type { IRResource } from '../../../../../ir/types';
+import type { IRResource } from '../../../../ir/publicTypes';
 import {
 	buildPrepareTaxonomyTermResponseCall,
 	buildTaxonomyAssignmentStatement,

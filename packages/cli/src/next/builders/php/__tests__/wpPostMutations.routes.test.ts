@@ -7,7 +7,7 @@ import {
 	syncWpPostTaxonomies,
 	prepareWpPostResponse,
 } from '../resource/wpPost/mutations';
-import type { IRResource } from '../../../../ir/types';
+import type { IRResource } from '../../../ir/publicTypes';
 
 const CONTRACT = WP_POST_MUTATION_CONTRACT;
 

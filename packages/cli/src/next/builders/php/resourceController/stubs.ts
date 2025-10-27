@@ -9,7 +9,7 @@ import {
 	buildStmtNop,
 	type PhpStmt,
 } from '@wpkernel/php-json-ast';
-import type { IRRoute } from '../../../../ir/types';
+import type { IRRoute } from '../../../ir/publicTypes';
 
 export function buildNotImplementedStatements(route: IRRoute): PhpStmt[] {
 	const todo = buildStmtNop({

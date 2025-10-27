@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { createPhpBlocksHelper } from '../blocks';
 import { getPhpBuilderChannel, resetPhpBuilderChannel } from '../channel';
-import type { IRv1 } from '../../../../ir/types';
+import type { IRv1 } from '../../../ir/publicTypes';
 import {
 	withWorkspace,
 	buildKernelConfigSource,

@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { createHelper } from '../../runtime';
-import { discoverBlocks } from '../../../ir/block-discovery';
+import { discoverBlocks } from '../shared/block-discovery';
 import type { IrFragment, IrFragmentApplyOptions } from '../types';
 
 export function createBlocksFragment(): IrFragment {
