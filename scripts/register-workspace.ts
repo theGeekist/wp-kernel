@@ -273,19 +273,39 @@ type PackageManifest = {
 	[key: string]: unknown;
 };
 
+const DEFAULT_SCRIPTS: Record<string, string> = {
+	build: 'vite build && tsc --noEmit',
+	lint: 'eslint src/',
+	'lint:fix': 'eslint src/ --fix',
+	test: 'jest --passWithNoTests --watchman=false',
+	'test:coverage': 'jest --coverage --watchman=false',
+	'test:watch': 'jest --watch',
+	typecheck: 'tsc --noEmit',
+	'typecheck:tests': 'tsc --project tsconfig.tests.json --noEmit',
+};
+
 function ensureManifestScripts(manifest: PackageManifest): boolean {
 	let changed = false;
 	manifest.scripts = manifest.scripts ?? {};
 
-	if (!manifest.scripts.typecheck) {
-		manifest.scripts.typecheck = 'tsc --noEmit';
+	for (const [scriptName, command] of Object.entries(DEFAULT_SCRIPTS)) {
+		if (manifest.scripts[scriptName]) {
+			continue;
+		}
+
+		manifest.scripts[scriptName] = command;
 		changed = true;
 	}
 
-	if (!manifest.scripts['typecheck:tests']) {
-		manifest.scripts['typecheck:tests'] =
-			'tsc --project tsconfig.tests.json --noEmit';
-		changed = true;
+	if (changed) {
+		const ordered = Object.keys(manifest.scripts)
+			.sort((left, right) => left.localeCompare(right))
+			.reduce<Record<string, string>>((accumulator, key) => {
+				accumulator[key] = manifest.scripts![key]!;
+				return accumulator;
+			}, {});
+
+		manifest.scripts = ordered;
 	}
 
 	return changed;
