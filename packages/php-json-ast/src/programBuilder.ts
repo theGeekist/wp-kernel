@@ -77,7 +77,6 @@ import {
 } from './context';
 import { getPhpBuilderChannel } from './builderChannel';
 import {
-	buildComment,
 	buildDeclare,
 	buildDeclareItem,
 	buildDocComment,
@@ -86,7 +85,6 @@ import {
 	buildName,
 	buildNamespace,
 	buildScalarInt,
-	buildStmtNop,
 	buildUse,
 	buildGroupUse,
 	buildUseUse,
@@ -98,7 +96,6 @@ import {
 	type PhpStmtGroupUse,
 	type PhpStmtUse,
 } from './nodes';
-import { AUTO_GUARD_BEGIN, AUTO_GUARD_END } from './constants';
 import type { PhpAstBuilder, PhpFileMetadata } from './types';
 // Export the builder channel functions for compatibility
 export { getPhpBuilderChannel, resetPhpBuilderChannel } from './builderChannel';
@@ -325,28 +322,12 @@ function buildProgramLayout(context: PhpAstContext): PhpStmt[] {
 		appendOrganisedUses(organisedUses, tracker, namespaceStatements);
 	}
 
-	const beginGuard = buildStmtNop({
-		comments: [buildComment(`// ${AUTO_GUARD_BEGIN}`)],
-	});
-	const beginGuardText = `// ${AUTO_GUARD_BEGIN}`;
-	const beginGuardLocation = tracker.consumeNode([beginGuardText]);
-	namespaceStatements.push(
-		mergeNodeAttributes(beginGuard, beginGuardLocation)
-	);
-
 	for (const entry of context.statementEntries) {
 		const location = tracker.consumeNode(
 			entry.lines.length > 0 ? entry.lines : ['']
 		);
 		namespaceStatements.push(mergeNodeAttributes(entry.node, location));
 	}
-
-	const endGuard = buildStmtNop({
-		comments: [buildComment(`// ${AUTO_GUARD_END}`)],
-	});
-	const endGuardText = `// ${AUTO_GUARD_END}`;
-	const endGuardLocation = tracker.consumeNode([endGuardText]);
-	namespaceStatements.push(mergeNodeAttributes(endGuard, endGuardLocation));
 
 	const namespaceEnd = tracker.snapshotPreviousLine();
 

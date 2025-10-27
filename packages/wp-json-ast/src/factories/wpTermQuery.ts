@@ -8,7 +8,7 @@ import {
 	buildVariable,
 	type PhpExprNew,
 	type PhpStmtExpression,
-} from '../nodes';
+} from '@wpkernel/php-json-ast';
 
 export interface BuildWpTermQueryInstantiationOptions {
 	readonly target: string;
