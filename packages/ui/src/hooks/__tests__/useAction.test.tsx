@@ -5,14 +5,14 @@ import type { UseActionOptions, UseActionResult } from '../useAction';
 import type { ActionEnvelope, DefinedAction } from '@wpkernel/core/actions';
 import { WPKernelError } from '@wpkernel/core/error';
 import * as kernelData from '@wpkernel/core/data';
-import { KernelEventBus } from '@wpkernel/core/events';
+import { WPKernelEventBus } from '@wpkernel/core/events';
 import type {
-	KernelUIRuntime,
-	KernelRegistry,
-	KernelInstance,
+	WPKernelUIRuntime,
+	WPKernelRegistry,
+	WPKInstance,
 } from '@wpkernel/core/data';
 import type { Reporter } from '@wpkernel/core/reporter';
-import { KernelUIProvider } from '@wpkernel/ui';
+import { WPKernelUIProvider } from '@wpkernel/ui';
 import {
 	createKernelUITestHarness,
 	type KernelUITestHarness,
@@ -23,7 +23,7 @@ const ACTION_STORE_KEY = 'wp-kernel/ui/actions';
 function renderUseActionHook<TInput, TResult>(
 	action: DefinedAction<TInput, TResult>,
 	options?: UseActionOptions<TInput, TResult>,
-	runtimeOverrides?: Partial<KernelUIRuntime>
+	runtimeOverrides?: Partial<WPKernelUIRuntime>
 ) {
 	if (!harness) {
 		throw new Error('Kernel UI harness not initialised');
@@ -108,7 +108,7 @@ interface StateMatrixCase {
 	arrange: () => {
 		action: DefinedAction<any, any>;
 		options?: UseActionOptions<any, any>;
-		runtimeOverrides?: Partial<KernelUIRuntime>;
+		runtimeOverrides?: Partial<WPKernelUIRuntime>;
 		execute: (result: { current: GenericUseActionResult }) => Promise<void>;
 		assert: (state: GenericUseActionResult) => void;
 	};
@@ -117,7 +117,7 @@ interface StateMatrixCase {
 describe('useAction', () => {
 	beforeAll(() => {
 		harness = createKernelUITestHarness({
-			provider: KernelUIProvider,
+			provider: WPKernelUIProvider,
 		});
 		harness.suppressConsoleError((args) => {
 			try {
@@ -564,7 +564,7 @@ describe('useAction', () => {
 		const registry = {
 			...harness!.wordpress.data,
 			dispatch: jest.fn(() => ({})),
-		} as unknown as KernelRegistry;
+		} as unknown as WPKernelRegistry;
 
 		const { result } = renderUseActionHook(action, undefined, {
 			registry,
@@ -584,7 +584,7 @@ describe('useAction', () => {
 	it('ignores duplicate store registration errors', async () => {
 		harness?.resetActionStoreRegistration();
 		const registerSpy = jest
-			.spyOn(kernelData, 'registerKernelStore')
+			.spyOn(kernelData, 'registerWPKernelStore')
 			.mockImplementation(() => {
 				throw new Error('Store already registered');
 			});
@@ -612,7 +612,7 @@ describe('useAction', () => {
 	it('propagates unexpected store registration errors', async () => {
 		harness?.resetActionStoreRegistration();
 		const registerSpy = jest
-			.spyOn(kernelData, 'registerKernelStore')
+			.spyOn(kernelData, 'registerWPKernelStore')
 			.mockImplementation(() => {
 				throw new Error('Unexpected failure');
 			});
@@ -657,7 +657,7 @@ describe('useAction', () => {
 	it('does not invalidate cache when autoInvalidate returns falsey values', async () => {
 		harness?.resetActionStoreRegistration();
 		const registerSpy = jest
-			.spyOn(kernelData, 'registerKernelStore')
+			.spyOn(kernelData, 'registerWPKernelStore')
 			.mockReturnValue({
 				name: ACTION_STORE_KEY,
 				instantiate: () => ({}) as any,
@@ -813,13 +813,13 @@ describe('useAction', () => {
 			emit: jest.fn(),
 			teardown: jest.fn(),
 			getRegistry: () =>
-				globalThis.window?.wp?.data as KernelRegistry | undefined,
+				globalThis.window?.wp?.data as WPKernelRegistry | undefined,
 			hasUIRuntime: () => true,
 			getUIRuntime: () => undefined,
 			attachUIBindings: jest.fn(),
 			ui: { isEnabled: () => true, options: undefined },
-			events: new KernelEventBus(),
-		} as unknown as KernelInstance;
+			events: new WPKernelEventBus(),
+		} as unknown as WPKInstance;
 
 		const { result } = renderUseActionHook(
 			action,
@@ -842,7 +842,7 @@ describe('useAction', () => {
 			| ((envelope: ActionEnvelope<any, any>) => ActionEnvelope<any, any>)
 			| null = null;
 		const registerSpy = jest
-			.spyOn(kernelData, 'registerKernelStore')
+			.spyOn(kernelData, 'registerWPKernelStore')
 			.mockImplementation((name, definition) => {
 				registeredInvoke = (
 					definition.actions as {
@@ -944,20 +944,20 @@ describe('useAction', () => {
 		);
 
 		const action = makeDefinedAction(async () => ({ id: 1 }));
-		const kernelInstance = {
-			invalidate: invalidate as KernelInstance['invalidate'],
-		} as KernelInstance;
+		const wpkernelInstance = {
+			invalidate: invalidate as WPKInstance['invalidate'],
+		} as WPKInstance;
 
 		const { result, runtime } = renderUseActionHook(
 			action,
 			{
 				autoInvalidate: () => [['resource']],
 			},
-			{ kernel: kernelInstance }
+			{ kernel: wpkernelInstance }
 		);
 
 		runtime.invalidate = undefined as unknown as typeof runtime.invalidate;
-		runtime.kernel = kernelInstance;
+		runtime.kernel = wpkernelInstance;
 
 		await act(async () => {
 			await result.current.run({} as never);

@@ -18,7 +18,7 @@ import { getNamespace } from '../namespace/detect';
 import { createPolicyProxy } from '../policy/context';
 import { createReporter as createKernelReporter } from '../reporter';
 import { WPK_EVENTS, WPK_INFRASTRUCTURE } from '../contracts/index.js';
-import { getKernelEventBus } from '../events/bus';
+import { getWPKernelEventBus } from '../events/bus';
 import type {
 	ActionContext,
 	ActionLifecycleEvent,
@@ -318,7 +318,7 @@ function broadcastLifecycle(event: ActionLifecycleEvent): void {
 
 export function emitLifecycleEvent(event: ActionLifecycleEvent): void {
 	const eventName = LIFECYCLE_EVENT_MAP[event.phase];
-	const bus = getKernelEventBus();
+	const bus = getWPKernelEventBus();
 	const busEventMap = {
 		start: 'action:start',
 		complete: 'action:complete',
@@ -408,7 +408,7 @@ function emitDomainEvent(
 		timestamp: Date.now(),
 	};
 
-	const bus = getKernelEventBus();
+	const bus = getWPKernelEventBus();
 	bus.emit('action:domain', {
 		eventName,
 		payload,

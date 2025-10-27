@@ -4,10 +4,10 @@ import type {
 	ActionStartEvent,
 } from '../../actions/types';
 import { WPKernelError } from '../../error/WPKernelError';
-import { kernelEventsPlugin } from '../plugins/events';
+import { wpkEventsPlugin } from '../plugins/events';
 import type { Reporter } from '../../reporter';
-import type { KernelRegistry } from '../types';
-import { KernelEventBus } from '../../events/bus';
+import type { WPKernelRegistry } from '../types';
+import { WPKernelEventBus } from '../../events/bus';
 import { WPK_EVENTS } from '../../contracts';
 
 type WordPressHooks = {
@@ -22,13 +22,13 @@ type WordPressWindow = typeof window & {
 	};
 };
 
-function createRegistryMock(): KernelRegistry & { createNotice: jest.Mock } {
+function createRegistryMock(): WPKernelRegistry & { createNotice: jest.Mock } {
 	const createNotice = jest.fn();
 	const dispatch = jest.fn().mockReturnValue({ createNotice });
 	return {
 		dispatch,
 		createNotice,
-	} as unknown as KernelRegistry & { createNotice: jest.Mock };
+	} as unknown as WPKernelRegistry & { createNotice: jest.Mock };
 }
 
 function createActionErrorEvent(
@@ -48,7 +48,7 @@ function createActionErrorEvent(
 	};
 }
 
-describe('kernelEventsPlugin', () => {
+describe('wpkEventsPlugin', () => {
 	beforeEach(() => {
 		const wpGlobal = window as WordPressWindow;
 		wpGlobal.wp = {
@@ -71,8 +71,8 @@ describe('kernelEventsPlugin', () => {
 		} as jest.Mocked<Reporter>;
 		reporter.child.mockReturnValue(reporter);
 
-		const bus = new KernelEventBus();
-		const middleware = kernelEventsPlugin({
+		const bus = new WPKernelEventBus();
+		const middleware = wpkEventsPlugin({
 			reporter,
 			registry,
 			events: bus,
@@ -179,8 +179,8 @@ describe('kernelEventsPlugin', () => {
 
 	it('bridges lifecycle and custom events to WordPress hooks', () => {
 		const registry = createRegistryMock();
-		const bus = new KernelEventBus();
-		const middleware = kernelEventsPlugin({
+		const bus = new WPKernelEventBus();
+		const middleware = wpkEventsPlugin({
 			registry,
 			events: bus,
 		});
@@ -257,8 +257,8 @@ describe('kernelEventsPlugin', () => {
 
 	it('removes listeners when destroy is called', () => {
 		const registry = createRegistryMock();
-		const bus = new KernelEventBus();
-		const middleware = kernelEventsPlugin({ registry, events: bus });
+		const bus = new WPKernelEventBus();
+		const middleware = wpkEventsPlugin({ registry, events: bus });
 		const next = jest.fn();
 		middleware({ dispatch: jest.fn(), getState: jest.fn() })(next)({
 			type: 'IGNORE',
@@ -273,14 +273,14 @@ describe('kernelEventsPlugin', () => {
 	});
 
 	it('gracefully handles registries without dispatch helpers', () => {
-		const registry = {} as unknown as KernelRegistry;
+		const registry = {} as unknown as WPKernelRegistry;
 		const reporter = {
 			error: jest.fn(),
 			child: jest.fn().mockReturnThis(),
 		} as unknown as jest.Mocked<Reporter>;
 
-		const bus = new KernelEventBus();
-		const middleware = kernelEventsPlugin({
+		const bus = new WPKernelEventBus();
+		const middleware = wpkEventsPlugin({
 			registry,
 			reporter,
 			events: bus,
@@ -299,10 +299,10 @@ describe('kernelEventsPlugin', () => {
 	it('ignores registries that do not expose createNotice()', () => {
 		const registry = {
 			dispatch: jest.fn().mockReturnValue({}),
-		} as unknown as KernelRegistry;
+		} as unknown as WPKernelRegistry;
 
-		const bus = new KernelEventBus();
-		const middleware = kernelEventsPlugin({ registry, events: bus });
+		const bus = new WPKernelEventBus();
+		const middleware = wpkEventsPlugin({ registry, events: bus });
 		middleware({ dispatch: jest.fn(), getState: jest.fn() })(jest.fn())({
 			type: 'INIT',
 		});
@@ -317,10 +317,10 @@ describe('kernelEventsPlugin', () => {
 			dispatch: jest.fn(() => {
 				throw new Error('registry failure');
 			}),
-		} as unknown as KernelRegistry;
+		} as unknown as WPKernelRegistry;
 
-		const bus = new KernelEventBus();
-		const middleware = kernelEventsPlugin({ registry, events: bus });
+		const bus = new WPKernelEventBus();
+		const middleware = wpkEventsPlugin({ registry, events: bus });
 		middleware({ dispatch: jest.fn(), getState: jest.fn() })(jest.fn())({
 			type: 'INIT',
 		});
@@ -332,8 +332,8 @@ describe('kernelEventsPlugin', () => {
 
 	it('falls back to a default error message for unexpected values', () => {
 		const registry = createRegistryMock();
-		const bus = new KernelEventBus();
-		const middleware = kernelEventsPlugin({ registry, events: bus });
+		const bus = new WPKernelEventBus();
+		const middleware = wpkEventsPlugin({ registry, events: bus });
 		middleware({ dispatch: jest.fn(), getState: jest.fn() })(jest.fn())({
 			type: 'INIT',
 		});
@@ -350,8 +350,8 @@ describe('kernelEventsPlugin', () => {
 
 	it('maps unknown WPKernelError codes to error notices', () => {
 		const registry = createRegistryMock();
-		const bus = new KernelEventBus();
-		const middleware = kernelEventsPlugin({ registry, events: bus });
+		const bus = new WPKernelEventBus();
+		const middleware = wpkEventsPlugin({ registry, events: bus });
 		middleware({ dispatch: jest.fn(), getState: jest.fn() })(jest.fn())({
 			type: 'INIT',
 		});
@@ -391,8 +391,8 @@ describe('kernelEventsPlugin', () => {
 
 		try {
 			const registry = createRegistryMock();
-			const bus = new KernelEventBus();
-			const middleware = kernelEventsPlugin({
+			const bus = new WPKernelEventBus();
+			const middleware = wpkEventsPlugin({
 				registry,
 				events: bus,
 			});

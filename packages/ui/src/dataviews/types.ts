@@ -7,7 +7,7 @@ import type {
 	ResourceObject,
 	ListResponse,
 } from '@wpkernel/core/resource';
-import type { KernelUIPolicyRuntime } from '@wpkernel/core/data';
+import type { WPKUIPolicyRuntime } from '@wpkernel/core/data';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type {
 	DataViewChangedPayload,
@@ -48,7 +48,7 @@ export interface DataViewsControllerRuntime {
 export interface DataViewsRuntimeContext {
 	readonly namespace: string;
 	readonly dataviews: DataViewsControllerRuntime;
-	readonly policies?: KernelUIPolicyRuntime;
+	readonly policies?: WPKUIPolicyRuntime;
 	readonly invalidate?: (
 		patterns: CacheKeyPattern | CacheKeyPattern[],
 		options?: InvalidateOptions
@@ -125,9 +125,9 @@ export interface ResourceDataViewConfig<TItem, TQuery> {
 	defaultLayouts?: Record<string, unknown>;
 }
 
-export type KernelUIPolicyRuntimeSource =
-	| KernelUIPolicyRuntime
-	| (() => KernelUIPolicyRuntime | undefined);
+export type WPKUIPolicyRuntimeSource =
+	| WPKUIPolicyRuntime
+	| (() => WPKUIPolicyRuntime | undefined);
 
 export interface ResourceDataViewControllerOptions<TItem, TQuery> {
 	resource?: ResourceObject<TItem, TQuery>;
@@ -137,7 +137,7 @@ export interface ResourceDataViewControllerOptions<TItem, TQuery> {
 	runtime: DataViewsControllerRuntime;
 	namespace: string;
 	invalidate?: (patterns: CacheKeyPattern | CacheKeyPattern[]) => void;
-	policies?: KernelUIPolicyRuntimeSource;
+	policies?: WPKUIPolicyRuntimeSource;
 	preferencesKey?: string;
 	fetchList?: (query: TQuery) => Promise<ListResponse<TItem>>;
 	prefetchList?: (query: TQuery) => Promise<void>;
@@ -154,7 +154,7 @@ export interface ResourceDataViewController<TItem, TQuery> {
 	readonly invalidate?: (
 		patterns: CacheKeyPattern | CacheKeyPattern[]
 	) => void;
-	readonly policies?: KernelUIPolicyRuntime;
+	readonly policies?: WPKUIPolicyRuntime;
 	readonly fetchList?: (query: TQuery) => Promise<ListResponse<TItem>>;
 	readonly prefetchList?: (query: TQuery) => Promise<void>;
 	mapViewToQuery: (view: View) => TQuery;
@@ -178,12 +178,12 @@ export interface DataViewsRuntimeOptions {
 	namespace: string;
 	reporter: Reporter;
 	preferences: DataViewPreferencesRuntime | DataViewPreferencesAdapter;
-	policies?: KernelUIPolicyRuntime;
+	policies?: WPKUIPolicyRuntime;
 	invalidate?: (patterns: CacheKeyPattern | CacheKeyPattern[]) => void;
 	emit?: (eventName: string, payload: unknown) => void;
 }
 
 export interface DataViewsStandaloneRuntime extends DataViewsRuntimeContext {
 	readonly dataviews: KernelDataViewsRuntime;
-	readonly policies?: KernelUIPolicyRuntime;
+	readonly policies?: WPKUIPolicyRuntime;
 }

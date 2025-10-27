@@ -1,14 +1,17 @@
-export { configureKernel } from './configure-kernel';
-export { registerKernelStore } from './store';
-export { kernelEventsPlugin } from './plugins/events';
-export type { NoticeStatus, KernelEventsPluginOptions } from './plugins/events';
+export { configureWPKernel } from './configure-kernel';
+export { registerWPKernelStore } from './store';
+export { wpkEventsPlugin } from './plugins/events';
 export type {
-	KernelRegistry,
-	ConfigureKernelOptions,
-	KernelInstance,
-	KernelUIConfig,
-	KernelUIRuntime,
-	KernelUIAttach,
+	NoticeStatus,
+	WPKernelEventsPluginOptions,
+} from './plugins/events';
+export type {
+	WPKernelRegistry,
+	ConfigureWPKernelOptions,
+	WPKInstance,
+	WPKUIConfig,
+	WPKernelUIRuntime,
+	WPKernelUIAttach,
 	UIIntegrationOptions,
-	KernelUIPolicyRuntime,
+	WPKUIPolicyRuntime,
 } from './types';

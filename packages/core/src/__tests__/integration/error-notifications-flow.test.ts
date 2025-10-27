@@ -1,10 +1,10 @@
 import { WPKernelError } from '../../error/WPKernelError';
 import { createReporter } from '../../reporter';
-import { kernelEventsPlugin } from '../../data/plugins/events';
-import { registerKernelStore } from '../../data/store';
-import type { KernelRegistry } from '../../data/types';
+import { wpkEventsPlugin } from '../../data/plugins/events';
+import { registerWPKernelStore } from '../../data/store';
+import type { WPKernelRegistry } from '../../data/types';
 import type { ActionErrorEvent } from '../../actions/types';
-import { KernelEventBus } from '../../events/bus';
+import { WPKernelEventBus } from '../../events/bus';
 import {
 	createWordPressTestHarness,
 	type WordPressTestHarness,
@@ -112,7 +112,7 @@ describe('Integration: Kernel error reporting flow', () => {
 	});
 
 	it('creates notices and reporter output when action errors are emitted', () => {
-		const registry = harness.data as unknown as KernelRegistry;
+		const registry = harness.data as unknown as WPKernelRegistry;
 
 		type IntegrationState = Record<string, never>;
 		type IntegrationActions = {
@@ -122,7 +122,7 @@ describe('Integration: Kernel error reporting flow', () => {
 			selectNothing: () => undefined;
 		};
 
-		registerKernelStore<
+		registerWPKernelStore<
 			'wpk/integration',
 			IntegrationState,
 			IntegrationActions,
@@ -145,8 +145,8 @@ describe('Integration: Kernel error reporting flow', () => {
 			level: 'info',
 		});
 
-		const bus = new KernelEventBus();
-		const middleware = kernelEventsPlugin({
+		const bus = new WPKernelEventBus();
+		const middleware = wpkEventsPlugin({
 			reporter,
 			registry,
 			events: bus,

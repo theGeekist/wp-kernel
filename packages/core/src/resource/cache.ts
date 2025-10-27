@@ -1,12 +1,12 @@
 import {
 	createNoopReporter,
 	createReporter,
-	getKernelReporter,
+	getWPKernelReporter,
 } from '../reporter';
 import type { Reporter } from '../reporter';
 import { WPK_EVENTS, WPK_SUBSYSTEM_NAMESPACES } from '../contracts/index.js';
-import { getKernelEventBus } from '../events/bus';
-import type { KernelRegistry } from '../data/types';
+import { getWPKernelEventBus } from '../events/bus';
+import type { WPKernelRegistry } from '../data/types';
 import { getHooks as getActionHooks } from '../actions/context';
 import { WPKernelError } from '../error/index';
 
@@ -57,7 +57,7 @@ function resolveCacheReporter(provided?: Reporter): Reporter {
 		return provided;
 	}
 
-	const kernelReporter = getKernelReporter();
+	const kernelReporter = getWPKernelReporter();
 	if (kernelReporter) {
 		return kernelReporter.child('cache');
 	}
@@ -93,7 +93,7 @@ function toPatternsArray(
  * @param reporter
  */
 function getInternalStateSelector(
-	dataRegistry: KernelRegistry,
+	dataRegistry: WPKernelRegistry,
 	storeKey: string,
 	reporter: Reporter
 ): (() => InternalState) | undefined {
@@ -226,7 +226,7 @@ function invalidateStoreMatches(
  * @param reporter
  */
 function processStoreInvalidation(
-	dataRegistry: KernelRegistry,
+	dataRegistry: WPKernelRegistry,
 	storeKey: string,
 	patternsArray: CacheKeyPattern[],
 	invalidatedKeysSet: Set<string>,
@@ -291,7 +291,7 @@ function processStoreInvalidation(
 }
 
 function invalidateStores(
-	dataRegistry: KernelRegistry,
+	dataRegistry: WPKernelRegistry,
 	storeKeys: string[],
 	patternsArray: CacheKeyPattern[],
 	invalidatedKeysSet: Set<string>,
@@ -604,7 +604,7 @@ export type InvalidateOptions = {
 	/**
 	 * Registry to operate against instead of relying on global getWPData().
 	 */
-	registry?: KernelRegistry;
+	registry?: WPKernelRegistry;
 
 	/**
 	 * Reporter override for cache instrumentation.
@@ -701,7 +701,7 @@ export function invalidate(
 
 	// Resolve data registry (noop in tests / node)
 	const dataRegistry =
-		overrideRegistry ?? (getWPData() as KernelRegistry | undefined);
+		overrideRegistry ?? (getWPData() as WPKernelRegistry | undefined);
 	if (!dataRegistry) {
 		return;
 	}
@@ -745,7 +745,7 @@ export function invalidate(
  * @param keys - The cache keys that were invalidated
  */
 function emitCacheInvalidatedEvent(keys: string[]): void {
-	getKernelEventBus().emit('cache:invalidated', {
+	getWPKernelEventBus().emit('cache:invalidated', {
 		keys,
 	});
 	const hooks = getActionHooks();
@@ -771,11 +771,11 @@ function emitCacheInvalidatedEvent(keys: string[]): void {
  */
 export function invalidateAll(
 	storeKey: string,
-	registry?: KernelRegistry,
+	registry?: WPKernelRegistry,
 	reporterOverride?: Reporter
 ): void {
 	const dataRegistry =
-		registry ?? (getWPData() as KernelRegistry | undefined);
+		registry ?? (getWPData() as WPKernelRegistry | undefined);
 	if (!dataRegistry) {
 		return;
 	}

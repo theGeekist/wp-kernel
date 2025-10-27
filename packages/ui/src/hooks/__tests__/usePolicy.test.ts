@@ -1,9 +1,9 @@
 import React, { act, useEffect, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import { usePolicy } from '../usePolicy';
-import { KernelUIProvider } from '../../runtime';
-import type { KernelUIRuntime } from '@wpkernel/core/data';
-import { KernelEventBus } from '@wpkernel/core/events';
+import { WPKernelUIProvider } from '../../runtime';
+import type { WPKernelUIRuntime } from '@wpkernel/core/data';
+import { WPKernelEventBus } from '@wpkernel/core/events';
 import type { Reporter } from '@wpkernel/core/reporter';
 import { createPolicyCache, createPolicyCacheKey } from '@wpkernel/core/policy';
 import type { PolicyHelpers, UsePolicyResult } from '@wpkernel/core/policy';
@@ -27,12 +27,12 @@ const noopReporter: Reporter = {
 	child: jest.fn(),
 };
 
-function createRuntime(policy?: RuntimePolicy): KernelUIRuntime {
+function createRuntime(policy?: RuntimePolicy): WPKernelUIRuntime {
 	return {
 		namespace: 'acme',
 		reporter: noopReporter,
 		registry: undefined,
-		events: new KernelEventBus(),
+		events: new WPKernelEventBus(),
 		policies: policy ? { policy } : undefined,
 	};
 }
@@ -55,7 +55,7 @@ describe('usePolicy hook (UI integration)', () => {
 
 	function renderTestComponent<Policy extends Record<string, unknown>>(
 		results: UsePolicyResult<Policy>[],
-		runtime: KernelUIRuntime
+		runtime: WPKernelUIRuntime
 	) {
 		const container = document.createElement('div');
 		const root = createRoot(container);
@@ -75,7 +75,7 @@ describe('usePolicy hook (UI integration)', () => {
 
 		act(() => {
 			root.render(
-				React.createElement(KernelUIProvider, {
+				React.createElement(WPKernelUIProvider, {
 					runtime,
 					children: React.createElement(TestComponent),
 				})

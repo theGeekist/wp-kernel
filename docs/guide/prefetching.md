@@ -5,9 +5,9 @@ whether or not a prefetch fires. These helpers exist to warm the cache ahead of
 likely navigation, so when the user finally clicks the link the data is already
 waiting in the store.
 
-> ℹ️ Prefetching hooks read from the `KernelUIRuntime`. Attach UI bindings during
-> `configureKernel({ ui: { attach: attachUIBindings } })` and wrap your React tree
-> with `KernelUIProvider` so the runtime is available.
+> ℹ️ Prefetching hooks read from the `WPKernelUIRuntime`. Attach UI bindings during
+> `configureWPKernel({ ui: { attach: attachUIBindings } })` and wrap your React tree
+> with `WPKernelUIProvider` so the runtime is available.
 
 ## When to prefetch
 

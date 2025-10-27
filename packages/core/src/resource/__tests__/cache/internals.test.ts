@@ -1,12 +1,12 @@
-import type { KernelRegistry } from '../../../data/types';
+import type { WPKernelRegistry } from '../../../data/types';
 import {
 	invalidate,
 	invalidateAll,
 	registerStoreKey,
 	type CacheKeyPattern,
 } from '../../cache';
-import { KernelEventBus, setKernelEventBus } from '../../../events/bus';
-import { clearKernelReporter } from '../../../reporter';
+import { WPKernelEventBus, setWPKernelEventBus } from '../../../events/bus';
+import { clearWPKReporter } from '../../../reporter';
 
 type LogEntry = {
 	level: 'debug' | 'info' | 'warn' | 'error';
@@ -49,8 +49,8 @@ function createReporterSpy(): ReporterSpy {
 describe('resource cache internals', () => {
 	let dispatch: jest.Mock;
 	let select: jest.Mock;
-	let registry: KernelRegistry;
-	let bus: KernelEventBus;
+	let registry: WPKernelRegistry;
+	let bus: WPKernelEventBus;
 	let originalNodeEnv: string | undefined;
 
 	beforeEach(() => {
@@ -59,16 +59,16 @@ describe('resource cache internals', () => {
 		registry = {
 			dispatch,
 			select,
-		} as unknown as KernelRegistry;
-		bus = new KernelEventBus();
-		setKernelEventBus(bus);
-		clearKernelReporter();
+		} as unknown as WPKernelRegistry;
+		bus = new WPKernelEventBus();
+		setWPKernelEventBus(bus);
+		clearWPKReporter();
 		originalNodeEnv = process.env.NODE_ENV;
 	});
 
 	afterEach(() => {
-		setKernelEventBus(new KernelEventBus());
-		clearKernelReporter();
+		setWPKernelEventBus(new WPKernelEventBus());
+		clearWPKReporter();
 		process.env.NODE_ENV = originalNodeEnv;
 		jest.clearAllMocks();
 	});

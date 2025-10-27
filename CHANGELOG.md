@@ -205,8 +205,8 @@ This release marks the completion of the foundation, resources, E2E utilities, p
 #### WordPress Data Integration (`@wpkernel/core/data`)
 
 - **`withKernel(registry)`** - Registry plugin with kernel middleware (renamed from useKernel)
-- **`registerKernelStore()`** - Store wrapper with actions DSL
-- **`kernelEventsPlugin()`** - Automatic error → WordPress notices bridge
+- **`registerWPKernelStore()`** - Store wrapper with actions DSL
+- **`wpkEventsPlugin()`** - Automatic error → WordPress notices bridge
 - **Full @wordpress/data parity** - Actions work in block editor environments
 - **Middleware chain** - Integrates with existing Redux middleware
 - **Type safety** - Full TypeScript support for kernel-enhanced stores

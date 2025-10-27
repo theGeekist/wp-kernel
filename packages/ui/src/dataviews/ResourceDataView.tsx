@@ -8,7 +8,7 @@ import {
 	type ReactNode,
 } from 'react';
 import { DataViews } from '@wordpress/dataviews';
-import type { KernelUIRuntime } from '@wpkernel/core/data';
+import type { WPKernelUIRuntime } from '@wpkernel/core/data';
 import type { ListResponse, ResourceObject } from '@wpkernel/core/resource';
 import { useOptionalKernelUI } from '../runtime/context';
 import type {
@@ -26,7 +26,7 @@ type ResourceDataViewProps<TItem, TQuery> = {
 	resource?: ResourceObject<TItem, TQuery>;
 	config?: ResourceDataViewConfig<TItem, TQuery>;
 	controller?: ResourceDataViewController<TItem, TQuery>;
-	runtime?: KernelUIRuntime | DataViewsRuntimeContext;
+	runtime?: WPKernelUIRuntime | DataViewsRuntimeContext;
 	fetchList?: (query: TQuery) => Promise<ListResponse<TItem>>;
 	emptyState?: ReactNode;
 };

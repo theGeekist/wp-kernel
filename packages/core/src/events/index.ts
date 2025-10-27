@@ -5,9 +5,9 @@
  */
 
 export {
-	KernelEventBus,
-	getKernelEventBus,
-	setKernelEventBus,
+	WPKernelEventBus,
+	getWPKernelEventBus,
+	setWPKernelEventBus,
 	getRegisteredResources,
 	getRegisteredActions,
 	clearRegisteredResources,
@@ -15,7 +15,7 @@ export {
 } from './bus.js';
 
 export type {
-	KernelEventMap,
+	WPKernelEventMap,
 	ResourceDefinedEvent,
 	ActionDefinedEvent,
 	ActionDomainEvent,

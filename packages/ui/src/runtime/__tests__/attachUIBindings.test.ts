@@ -1,14 +1,14 @@
 import type {
-	KernelInstance,
-	KernelRegistry,
-	KernelUIRuntime,
+	WPKInstance,
+	WPKernelRegistry,
+	WPKernelUIRuntime,
 	UIIntegrationOptions,
 } from '@wpkernel/core/data';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { ResourceObject } from '@wpkernel/core/resource';
 import type { View } from '@wordpress/dataviews';
 import {
-	KernelEventBus,
+	WPKernelEventBus,
 	type ResourceDefinedEvent,
 	getRegisteredResources,
 } from '@wpkernel/core/events';
@@ -44,7 +44,7 @@ const mockGetRegisteredResources =
 		typeof getRegisteredResources
 	>;
 
-type PreferencesRegistry = KernelRegistry & {
+type PreferencesRegistry = WPKernelRegistry & {
 	__store: Map<string, Map<string, unknown>>;
 };
 
@@ -170,14 +170,14 @@ function createResourceWithDataView(): ResourceObject<
 }
 
 function createKernel(
-	events: KernelEventBus,
+	events: WPKernelEventBus,
 	options?: UIIntegrationOptions,
-	registry?: KernelRegistry,
+	registry?: WPKernelRegistry,
 	reporter?: Reporter
-): KernelInstance {
+): WPKInstance {
 	const reporterInstance = reporter ?? createReporter();
 
-	const kernel: KernelInstance = {
+	const kernel: WPKInstance = {
 		getNamespace: () => 'tests',
 		getReporter: () => reporterInstance,
 		invalidate: jest.fn(),
@@ -208,14 +208,14 @@ describe('attachUIBindings', () => {
 		delete (
 			globalThis as {
 				__WP_KERNEL_ACTION_RUNTIME__?: {
-					policy?: KernelUIRuntime['policies'];
+					policy?: WPKernelUIRuntime['policies'];
 				};
 			}
 		).__WP_KERNEL_ACTION_RUNTIME__;
 	});
 
 	it('attaches hooks for existing and future resources', () => {
-		const events = new KernelEventBus();
+		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
 		const kernel = createKernel(events, undefined, registry);
 
@@ -253,7 +253,7 @@ describe('attachUIBindings', () => {
 	});
 
 	it('provides runtime helpers that proxy to the kernel', () => {
-		const events = new KernelEventBus();
+		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
 		const kernel = createKernel(events, { suspense: true }, registry);
 		const runtime = attachUIBindings(kernel, { notices: true });
@@ -267,7 +267,7 @@ describe('attachUIBindings', () => {
 	});
 
 	it('lazily resolves policy runtime from global overrides', () => {
-		const events = new KernelEventBus();
+		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
 		const kernel = createKernel(events, undefined, registry);
 		const runtime = attachUIBindings(kernel);
@@ -285,7 +285,7 @@ describe('attachUIBindings', () => {
 	});
 
 	it('throws configuration error when registry is unavailable', async () => {
-		const events = new KernelEventBus();
+		const events = new WPKernelEventBus();
 		const kernel = createKernel(events);
 
 		const originalWp = (window as unknown as { wp?: typeof window.wp }).wp;
@@ -305,12 +305,12 @@ describe('attachUIBindings', () => {
 	});
 
 	it('resolves preferences registry from global wp.data when runtime registry missing', async () => {
-		const events = new KernelEventBus();
+		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
 		const reporter = createReporter();
-		const originalWp = (globalThis as { wp?: { data?: KernelRegistry } })
+		const originalWp = (globalThis as { wp?: { data?: WPKernelRegistry } })
 			.wp;
-		(globalThis as { wp?: { data?: KernelRegistry } }).wp = {
+		(globalThis as { wp?: { data?: WPKernelRegistry } }).wp = {
 			data: registry,
 		};
 
@@ -329,16 +329,17 @@ describe('attachUIBindings', () => {
 				'Resolved preferences registry from global wp.data'
 			);
 		} finally {
-			(globalThis as { wp?: { data?: KernelRegistry } }).wp = originalWp;
+			(globalThis as { wp?: { data?: WPKernelRegistry } }).wp =
+				originalWp;
 		}
 	});
 
 	it('throws configuration error when core/preferences store is incomplete', async () => {
-		const events = new KernelEventBus();
+		const events = new WPKernelEventBus();
 		const registry = {
 			select: () => ({}),
 			dispatch: () => ({ set: jest.fn() }),
-		} as unknown as KernelRegistry;
+		} as unknown as WPKernelRegistry;
 		const kernel = createKernel(events, undefined, registry);
 
 		const runtime = attachUIBindings(kernel);
@@ -351,13 +352,13 @@ describe('attachUIBindings', () => {
 	});
 
 	it('throws configuration error when core/preferences store lacks set action', async () => {
-		const events = new KernelEventBus();
+		const events = new WPKernelEventBus();
 		const registry = {
 			select: () => ({
 				get: jest.fn().mockReturnValue(undefined),
 			}),
 			dispatch: () => ({}),
-		} as unknown as KernelRegistry;
+		} as unknown as WPKernelRegistry;
 		const kernel = createKernel(events, undefined, registry);
 
 		const runtime = attachUIBindings(kernel);
@@ -371,7 +372,7 @@ describe('attachUIBindings', () => {
 	});
 
 	it('initializes dataviews runtime with default preferences adapter', async () => {
-		const events = new KernelEventBus();
+		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
 		const kernel = createKernel(events, undefined, registry);
 
@@ -407,7 +408,7 @@ describe('attachUIBindings', () => {
 	});
 
 	it('auto-registers DataViews controllers for existing resources', () => {
-		const events = new KernelEventBus();
+		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
 		const kernel = createKernel(events, undefined, registry);
 		const resource = createResourceWithDataView();
@@ -441,7 +442,7 @@ describe('attachUIBindings', () => {
 	});
 
 	it('updates auto-registered controllers when policy runtime becomes available', () => {
-		const events = new KernelEventBus();
+		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
 		const kernel = createKernel(events, undefined, registry);
 		const resource = createResourceWithDataView();
@@ -453,7 +454,7 @@ describe('attachUIBindings', () => {
 		const runtime = attachUIBindings(kernel);
 		const dataviews = runtime.dataviews!;
 		const controller = dataviews.controllers.get('jobs') as {
-			policies?: KernelUIRuntime['policies'];
+			policies?: WPKernelUIRuntime['policies'];
 		};
 
 		expect(controller).toBeDefined();
@@ -470,7 +471,7 @@ describe('attachUIBindings', () => {
 	});
 
 	it('auto-registers DataViews controllers for future resources', () => {
-		const events = new KernelEventBus();
+		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
 		const kernel = createKernel(events, undefined, registry);
 		const runtime = attachUIBindings(kernel);
@@ -496,7 +497,7 @@ describe('attachUIBindings', () => {
 	});
 
 	it('skips auto-registration when disabled via options', () => {
-		const events = new KernelEventBus();
+		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
 		const kernel = createKernel(
 			events,
@@ -517,7 +518,7 @@ describe('attachUIBindings', () => {
 	});
 
 	it('resolves preferences using scope precedence', async () => {
-		const events = new KernelEventBus();
+		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
 		const kernel = createKernel(events, undefined, registry);
 
@@ -541,7 +542,7 @@ describe('attachUIBindings', () => {
 	});
 
 	it('respects dataviews enable false option', () => {
-		const events = new KernelEventBus();
+		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
 		const kernel = createKernel(events, undefined, registry);
 
@@ -553,7 +554,7 @@ describe('attachUIBindings', () => {
 	});
 
 	it('throws when custom preferences adapter is invalid', () => {
-		const events = new KernelEventBus();
+		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
 		const kernel = createKernel(events, undefined, registry);
 
@@ -569,7 +570,7 @@ describe('attachUIBindings', () => {
 	});
 
 	it('warns and falls back when reporter child throws', async () => {
-		const events = new KernelEventBus();
+		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
 		const reporter =
 			createReporterWithThrowingChild() as jest.Mocked<Reporter>;
@@ -598,7 +599,7 @@ describe('attachUIBindings', () => {
 	});
 
 	it('reuses base reporter when child reporter is unavailable', () => {
-		const events = new KernelEventBus();
+		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
 		const reporter =
 			createReporterWithUndefinedChild() as jest.Mocked<Reporter>;
@@ -618,7 +619,7 @@ describe('attachUIBindings', () => {
 	});
 
 	it('reports when DataViews event emission fails', () => {
-		const events = new KernelEventBus();
+		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
 		const kernel = createKernel(events, undefined, registry);
 
@@ -647,7 +648,7 @@ describe('attachUIBindings', () => {
 	});
 
 	it('emits DataViews view change and unregistered events', () => {
-		const events = new KernelEventBus();
+		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
 		const kernel = createKernel(events, undefined, registry);
 

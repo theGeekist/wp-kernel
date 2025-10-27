@@ -1,6 +1,6 @@
 import { createReduxStore, register } from '@wordpress/data';
 
-export function registerKernelStore<
+export function registerWPKernelStore<
 	Key extends string,
 	State,
 	Actions extends Record<string, (...args: unknown[]) => unknown>,

@@ -12,7 +12,7 @@
 
 import { WPKernelError } from '../error/WPKernelError';
 import { WPK_EVENTS } from '../contracts/index.js';
-import { createNoopReporter, getKernelReporter } from '../reporter';
+import { createNoopReporter, getWPKernelReporter } from '../reporter';
 import type { Reporter } from '../reporter';
 import type {
 	TransportRequest,
@@ -41,7 +41,7 @@ function resolveTransportReporter(meta?: TransportMeta): Reporter {
 		return meta.reporter.child('transport');
 	}
 
-	const kernelReporter = getKernelReporter();
+	const kernelReporter = getWPKernelReporter();
 	if (kernelReporter) {
 		const resourceScope = meta?.resourceName
 			? `transport.${meta.resourceName}`

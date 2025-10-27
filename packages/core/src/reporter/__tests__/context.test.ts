@@ -1,17 +1,17 @@
 import {
-	getKernelReporter,
-	setKernelReporter,
-	clearKernelReporter,
+	getWPKernelReporter,
+	setWPKernelReporter,
+	clearWPKReporter,
 } from '../index';
 import type { Reporter } from '../types';
 
 describe('reporter context', () => {
 	afterEach(() => {
-		clearKernelReporter();
+		clearWPKReporter();
 	});
 
 	it('returns undefined when no reporter set', () => {
-		expect(getKernelReporter()).toBeUndefined();
+		expect(getWPKernelReporter()).toBeUndefined();
 	});
 
 	it('stores and retrieves reporter instances', () => {
@@ -29,8 +29,8 @@ describe('reporter context', () => {
 			} as unknown as Reporter),
 		};
 
-		setKernelReporter(reporter);
-		expect(getKernelReporter()).toBe(reporter);
+		setWPKernelReporter(reporter);
+		expect(getWPKernelReporter()).toBe(reporter);
 	});
 
 	it('clears reporter when requested', () => {
@@ -42,8 +42,8 @@ describe('reporter context', () => {
 			child: jest.fn(),
 		};
 
-		setKernelReporter(reporter);
-		clearKernelReporter();
-		expect(getKernelReporter()).toBeUndefined();
+		setWPKernelReporter(reporter);
+		clearWPKReporter();
+		expect(getWPKernelReporter()).toBeUndefined();
 	});
 });

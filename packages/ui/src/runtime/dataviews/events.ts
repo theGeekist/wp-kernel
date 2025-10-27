@@ -1,4 +1,4 @@
-import type { KernelInstance } from '@wpkernel/core/data';
+import type { WPKInstance } from '@wpkernel/core/data';
 import type { Reporter } from '@wpkernel/core/reporter';
 
 export const DATA_VIEWS_EVENT_PREFIX = 'ui:dataviews';
@@ -41,7 +41,7 @@ export interface DataViewsEventEmitter {
 }
 
 function emitEvent(
-	kernel: KernelInstance,
+	kernel: WPKInstance,
 	reporter: Reporter,
 	eventName: string,
 	payload:
@@ -68,7 +68,7 @@ export const __TESTING__ = {
 };
 
 export function createDataViewsEventEmitter(
-	kernel: KernelInstance,
+	kernel: WPKInstance,
 	reporter: Reporter
 ): DataViewsEventEmitter {
 	return {

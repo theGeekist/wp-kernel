@@ -32,7 +32,7 @@ docs/
 │  ├─ reporting.md
 │  └─ modes.md                      # Thin client vs rich server
 ├─ reference/
-│  ├─ kernel-config.md              # The root config (commented, canonical)
+│  ├─ wpk-config.md              # The root config (commented, canonical)
 │  ├─ contracts.md                  # JSON Schema patterns & 'auto' rules
 │  ├─ decision-matrix.md            # What gets generated when (concise table)
 │  └─ cli-commands.md               # generate/apply/init/start/build/doctor
@@ -92,7 +92,7 @@ contributing/*
 
 - **Reference**:
     - Keep `reference/contracts.md`.
-    - Add `reference/kernel-config.md` (canonical, commented, source of truth).
+    - Add `reference/wpk-config.md` (canonical, commented, source of truth).
     - Add `reference/decision-matrix.md` (your “what gets generated” table).
     - Add `reference/cli-commands.md` (truth for flags/flows).
 
@@ -156,7 +156,7 @@ export default defineConfig({
 				// Generated list or hand-maintained
 			],
 			'/reference/': [
-				{ text: 'Kernel Config', link: '/reference/kernel-config' },
+				{ text: 'Kernel Config', link: '/reference/wpk-config' },
 				{ text: 'Contracts & Schemas', link: '/reference/contracts' },
 				{ text: 'Decision Matrix', link: '/reference/decision-matrix' },
 				{ text: 'CLI Commands', link: '/reference/cli-commands' },
@@ -210,10 +210,10 @@ export default defineConfig({
         pnpm wpk start
         ```
 
-    - Show the single `src/index.ts` using `configureKernel`.
+    - Show the single `src/index.ts` using `configureWPKernel`.
     - Link to **Decision Matrix** for “what got generated”.
 
-3. **Kernel Config (`/reference/kernel-config`)**
+3. **Kernel Config (`/reference/wpk-config`)**
     - The **commented** canonical template (the one we discussed).
     - Use collapsible sections for advanced fields.
     - Link “see Decision Matrix” near each field that affects generation.
@@ -250,10 +250,10 @@ export default defineConfig({
 
 ```ts
 // src/index.ts
-import { configureKernel } from '@wpk/core';
+import { configureWPKernel } from '@wpk/core';
 import { wpkConfig } from '@kernel-config';
 
-configureKernel({
+configureWPKernel({
 	namespace: wpkConfig.namespace,
 	registry: window.wp?.data,
 });

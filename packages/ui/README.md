@@ -10,7 +10,7 @@ This package exposes UI building blocks that lean on the kernel runtime instead 
 - **createResourceDataViewController** - translate DataViews state (search, filters, sort, pagination) into resource queries and event payloads.
 - **createDataFormController** - pair inline editors with kernel actions and automatic cache invalidation.
 - **ActionButton / useAction** - trigger kernel actions from the UI without touching transports directly.
-- **KernelUIProvider** - share the bootstrapped runtime with React components.
+- **WPKernelUIProvider** - share the bootstrapped runtime with React components.
 
 All runtime imports come from published packages (`@wordpress/dataviews`, `@wordpress/components`) while this repository mirrors their types and wiring. The snapshot under `packages/ui/vendor/` is reference-only.
 
@@ -35,11 +35,11 @@ Run `pnpm lint:peers` to confirm every workspace honours the shared policy in
 ## Bootstrapping the runtime
 
 ```tsx
-import { configureKernel } from '@wpkernel/core';
-import { attachUIBindings, KernelUIProvider } from '@wpkernel/ui';
+import { configureWPKernel } from '@wpkernel/core';
+import { attachUIBindings, WPKernelUIProvider } from '@wpkernel/ui';
 import { job } from '@/resources/job';
 
-const kernel = configureKernel({
+const kernel = configureWPKernel({
 	namespace: 'demo',
 	registry: window.wp.data,
 	ui: {
@@ -54,9 +54,9 @@ const kernel = configureKernel({
 const runtime = kernel.getUIRuntime();
 
 const App = () => (
-	<KernelUIProvider runtime={runtime}>
+	<WPKernelUIProvider runtime={runtime}>
 		{/* screens render ResourceDataView with controllers */}
-	</KernelUIProvider>
+	</WPKernelUIProvider>
 );
 ```
 
@@ -152,7 +152,7 @@ The showcase application (`examples/showcase`) mounts the generated screen to de
 
 ## Testing & E2E helpers
 
-Unit tests live alongside the controllers and components (`packages/ui/src/dataviews/__tests__`). For unit/integration coverage inside this package, import the runtime harness from `@wpkernel/test-utils/ui` (pass `KernelUIProvider` from this package), keep using `tests/dom-observer.test-support.ts` for DOM mocks, and lean on `src/dataviews/test-support/ResourceDataView.test-support.tsx`. The DataView harness exports the full surface (`createKernelRuntime`, `createResource`, `createConfig`, `renderResourceDataView`, `renderActionScenario`, `buildListResource`, `buildActionConfig`, `createDataViewsTestController`, and `flushDataViews`) so suites share runtime setup, rerender control, pagination/view updates, and assertion accessors instead of recreating bespoke wiring. When the harness needs new behaviour, extend it with targeted helpers and accompanying self-tests before updating individual specs. For end-to-end coverage, `@wpkernel/e2e-utils` exposes `kernel.dataview()` helpers that build on the DOM attributes emitted by `ResourceDataView`.
+Unit tests live alongside the controllers and components (`packages/ui/src/dataviews/__tests__`). For unit/integration coverage inside this package, import the runtime harness from `@wpkernel/test-utils/ui` (pass `WPKernelUIProvider` from this package), keep using `tests/dom-observer.test-support.ts` for DOM mocks, and lean on `src/dataviews/test-support/ResourceDataView.test-support.tsx`. The DataView harness exports the full surface (`createKernelRuntime`, `createResource`, `createConfig`, `renderResourceDataView`, `renderActionScenario`, `buildListResource`, `buildActionConfig`, `createDataViewsTestController`, and `flushDataViews`) so suites share runtime setup, rerender control, pagination/view updates, and assertion accessors instead of recreating bespoke wiring. When the harness needs new behaviour, extend it with targeted helpers and accompanying self-tests before updating individual specs. For end-to-end coverage, `@wpkernel/e2e-utils` exposes `kernel.dataview()` helpers that build on the DOM attributes emitted by `ResourceDataView`.
 
 ```ts
 const dataview = kernel.dataview({ resource: 'job' });

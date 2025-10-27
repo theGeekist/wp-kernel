@@ -1,5 +1,5 @@
 import type { View } from '@wordpress/dataviews';
-import type { KernelUIPolicyRuntime } from '@wpkernel/core/data';
+import type { WPKUIPolicyRuntime } from '@wpkernel/core/data';
 import type { Reporter } from '@wpkernel/core/reporter';
 import { createResourceDataViewController } from '../resource-controller';
 import { DataViewsControllerError } from '../../runtime/dataviews/errors';
@@ -148,7 +148,7 @@ describe('createResourceDataViewController', () => {
 
 	it('resolves policies using accessor function', () => {
 		const runtime = createRuntime();
-		const policyRuntime: { current?: KernelUIPolicyRuntime } = {};
+		const policyRuntime: { current?: WPKUIPolicyRuntime } = {};
 
 		const controller = createResourceDataViewController({
 			resourceName: 'jobs',
@@ -162,7 +162,7 @@ describe('createResourceDataViewController', () => {
 
 		const policies = {
 			policy: { can: jest.fn() },
-		} as unknown as KernelUIPolicyRuntime;
+		} as unknown as WPKUIPolicyRuntime;
 		policyRuntime.current = policies;
 
 		expect(controller.policies).toBe(policies);

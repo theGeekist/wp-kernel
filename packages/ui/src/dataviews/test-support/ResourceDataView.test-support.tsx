@@ -1,8 +1,8 @@
 import { act, type ComponentProps, type ReactNode } from 'react';
 import { render, type RenderResult } from '@testing-library/react';
 import { DataViews } from '@wordpress/dataviews';
-import { KernelUIProvider } from '../../runtime/context';
-import type { KernelUIRuntime } from '@wpkernel/core/data';
+import { WPKernelUIProvider } from '../../runtime/context';
+import type { WPKernelUIRuntime } from '@wpkernel/core/data';
 import type { DefinedAction } from '@wpkernel/core/actions';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { ListResponse, ResourceObject } from '@wpkernel/core/resource';
@@ -45,8 +45,8 @@ export function createReporter(): Reporter {
 	return reporter;
 }
 
-type RuntimeWithDataViews = KernelUIRuntime & {
-	dataviews: NonNullable<KernelUIRuntime['dataviews']>;
+type RuntimeWithDataViews = WPKernelUIRuntime & {
+	dataviews: NonNullable<WPKernelUIRuntime['dataviews']>;
 };
 
 export type { RuntimeWithDataViews };
@@ -95,25 +95,27 @@ export function createKernelRuntime(): RuntimeWithDataViews {
 
 export function renderWithProvider(
 	ui: React.ReactElement,
-	runtime: KernelUIRuntime
+	runtime: WPKernelUIRuntime
 ): RenderResult & { rerenderWithProvider: (next: React.ReactElement) => void } {
 	let result: RenderResult | undefined;
 	act(() => {
 		result = render(
-			<KernelUIProvider runtime={runtime}>{ui}</KernelUIProvider>
+			<WPKernelUIProvider runtime={runtime}>{ui}</WPKernelUIProvider>
 		);
 	});
 
 	if (!result) {
 		throw new WPKernelError('DeveloperError', {
-			message: 'Failed to render with KernelUIProvider',
+			message: 'Failed to render with WPKernelUIProvider',
 		});
 	}
 
 	const rerenderWithProvider = (next: React.ReactElement) => {
 		act(() => {
 			result!.rerender(
-				<KernelUIProvider runtime={runtime}>{next}</KernelUIProvider>
+				<WPKernelUIProvider runtime={runtime}>
+					{next}
+				</WPKernelUIProvider>
 			);
 		});
 	};
@@ -236,7 +238,7 @@ export type ResourceDataViewTestProps<TItem, TQuery> = {
 	resource?: ResourceObject<TItem, TQuery>;
 	config?: ResourceDataViewConfig<TItem, TQuery>;
 	controller?: ResourceDataViewController<TItem, TQuery>;
-	runtime?: KernelUIRuntime | DataViewsRuntimeContext;
+	runtime?: WPKernelUIRuntime | DataViewsRuntimeContext;
 	fetchList?: (query: TQuery) => Promise<ListResponse<TItem>>;
 	emptyState?: ReactNode;
 };

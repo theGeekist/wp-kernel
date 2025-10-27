@@ -8,13 +8,13 @@ import {
 	attachResourceHooks,
 	type UseResourceListResult,
 } from '../resource-hooks';
-import { KernelEventBus } from '@wpkernel/core/events';
+import { WPKernelEventBus } from '@wpkernel/core/events';
 import type { Reporter } from '@wpkernel/core/reporter';
-import { attachUIBindings, KernelUIProvider } from '../../runtime';
+import { attachUIBindings, WPKernelUIProvider } from '../../runtime';
 import type {
-	KernelInstance,
-	KernelUIRuntime,
-	KernelRegistry,
+	WPKInstance,
+	WPKernelUIRuntime,
+	WPKernelRegistry,
 } from '@wpkernel/core/data';
 import { renderHook } from '../testing/test-utils';
 
@@ -48,20 +48,20 @@ describe('resource hooks (UI integration)', () => {
 	};
 
 	function createRuntime(
-		overrides: Partial<KernelUIRuntime> = {}
-	): KernelUIRuntime {
+		overrides: Partial<WPKernelUIRuntime> = {}
+	): WPKernelUIRuntime {
 		const registry = Object.prototype.hasOwnProperty.call(
 			overrides,
 			'registry'
 		)
 			? overrides.registry
-			: (mockWpData as unknown as KernelRegistry | undefined);
+			: (mockWpData as unknown as WPKernelRegistry | undefined);
 
 		return {
 			namespace: 'tests',
 			reporter: overrides.reporter ?? noopReporter,
 			registry,
-			events: overrides.events ?? new KernelEventBus(),
+			events: overrides.events ?? new WPKernelEventBus(),
 			invalidate: overrides.invalidate ?? jest.fn(),
 			kernel: overrides.kernel,
 			policies: overrides.policies,
@@ -69,16 +69,16 @@ describe('resource hooks (UI integration)', () => {
 		};
 	}
 
-	function createWrapper(runtime: KernelUIRuntime) {
+	function createWrapper(runtime: WPKernelUIRuntime) {
 		return function Wrapper({ children }: { children: ReactNode }) {
-			return createElement(KernelUIProvider, { runtime, children });
+			return createElement(WPKernelUIProvider, { runtime, children });
 		};
 	}
 
 	function renderUseGetHook<T, Q>(
 		resource: ResourceObject<T, Q>,
 		id: string | number,
-		runtimeOverrides?: Partial<KernelUIRuntime>
+		runtimeOverrides?: Partial<WPKernelUIRuntime>
 	) {
 		const runtime = createRuntime(runtimeOverrides);
 		return renderHook(() => resource.useGet!(id), {
@@ -89,7 +89,7 @@ describe('resource hooks (UI integration)', () => {
 	function renderUseListHook<T, Q>(
 		resource: ResourceObject<T, Q>,
 		query?: Q,
-		runtimeOverrides?: Partial<KernelUIRuntime>
+		runtimeOverrides?: Partial<WPKernelUIRuntime>
 	) {
 		const runtime = createRuntime(runtimeOverrides);
 		return renderHook(() => resource.useList!(query), {
@@ -590,7 +590,7 @@ describe('resource hooks (UI integration)', () => {
 	});
 
 	it('attaches hooks when kernel emits resource:defined events', () => {
-		const bus = new KernelEventBus();
+		const bus = new WPKernelEventBus();
 		const reporter: Reporter = {
 			info: jest.fn(),
 			warn: jest.fn(),
@@ -611,7 +611,7 @@ describe('resource hooks (UI integration)', () => {
 			attachUIBindings: jest.fn(),
 			ui: { isEnabled: () => false, options: undefined },
 			events: bus,
-		} as unknown as KernelInstance;
+		} as unknown as WPKInstance;
 
 		const runtime = attachUIBindings(kernelStub);
 

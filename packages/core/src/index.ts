@@ -185,32 +185,32 @@ export type {
 } from './policy/index.js';
 
 // Data integration
-export { configureKernel, registerKernelStore } from './data/index.js';
-export { kernelEventsPlugin } from './data/plugins/events';
+export { configureWPKernel, registerWPKernelStore } from './data/index.js';
+export { wpkEventsPlugin } from './data/plugins/events';
 export type {
-	KernelRegistry,
-	ConfigureKernelOptions,
-	KernelInstance,
-	KernelUIConfig,
-	KernelUIRuntime,
-	KernelUIAttach,
+	WPKernelRegistry,
+	ConfigureWPKernelOptions,
+	WPKInstance,
+	WPKUIConfig,
+	WPKernelUIRuntime,
+	WPKernelUIAttach,
 	UIIntegrationOptions,
-	KernelUIPolicyRuntime,
+	WPKUIPolicyRuntime,
 	NoticeStatus,
 } from './data/index.js';
 
 // Event bus
 export {
-	KernelEventBus,
-	getKernelEventBus,
-	setKernelEventBus,
+	WPKernelEventBus,
+	getWPKernelEventBus,
+	setWPKernelEventBus,
 	getRegisteredResources,
 	getRegisteredActions,
 	clearRegisteredResources,
 	clearRegisteredActions,
 } from './events/index.js';
 export type {
-	KernelEventMap,
+	WPKernelEventMap,
 	ResourceDefinedEvent,
 	ActionDefinedEvent,
 	ActionDomainEvent,
@@ -222,9 +222,9 @@ export type {
 export {
 	createReporter,
 	createNoopReporter,
-	getKernelReporter,
-	setKernelReporter,
-	clearKernelReporter,
+	getWPKernelReporter,
+	setWPKernelReporter,
+	clearWPKReporter,
 } from './reporter/index.js';
 export type {
 	Reporter,

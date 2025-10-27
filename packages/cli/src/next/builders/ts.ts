@@ -217,7 +217,7 @@ export function buildAdminScreenCreator(): TsBuilderCreator {
 			});
 			sourceFile.addImportDeclaration({
 				moduleSpecifier: '@wpkernel/ui',
-				namedImports: ['KernelUIProvider', 'useKernelUI'],
+				namedImports: ['WPKernelUIProvider', 'useWPKernelUI'],
 			});
 			sourceFile.addImportDeclaration({
 				moduleSpecifier: '@wpkernel/ui/dataviews',
@@ -253,7 +253,7 @@ export function buildAdminScreenCreator(): TsBuilderCreator {
 			sourceFile.addFunction({
 				name: contentComponentName,
 				statements: (writer) => {
-					writer.writeLine('const runtime = useKernelUI();');
+					writer.writeLine('const runtime = useWPKernelUI();');
 					writer.writeLine('return (');
 					writer.indent(() => {
 						writer.writeLine('<ResourceDataView');
@@ -297,12 +297,12 @@ export function buildAdminScreenCreator(): TsBuilderCreator {
 					writer.writeLine('return (');
 					writer.indent(() => {
 						writer.writeLine(
-							'<KernelUIProvider runtime={runtime}>'
+							'<WPKernelUIProvider runtime={runtime}>'
 						);
 						writer.indent(() => {
 							writer.writeLine(`<${contentComponentName} />`);
 						});
-						writer.writeLine('</KernelUIProvider>');
+						writer.writeLine('</WPKernelUIProvider>');
 					});
 					writer.writeLine(');');
 				},

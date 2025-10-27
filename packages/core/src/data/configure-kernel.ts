@@ -1,38 +1,38 @@
 import type {
-	KernelRegistry,
-	ConfigureKernelOptions,
-	KernelInstance,
-	KernelUIConfig,
-	KernelUIAttach,
-	KernelUIRuntime,
+	WPKernelRegistry,
+	ConfigureWPKernelOptions,
+	WPKInstance,
+	WPKUIConfig,
+	WPKernelUIAttach,
+	WPKernelUIRuntime,
 } from './types';
 import { getNamespace as detectNamespace } from '../namespace/detect';
-import { createReporter, setKernelReporter } from '../reporter';
+import { createReporter, setWPKernelReporter } from '../reporter';
 import type { Reporter } from '../reporter';
 import { invalidate as invalidateCache } from '../resource/cache';
 import type { CacheKeyPattern, InvalidateOptions } from '../resource/cache';
 import { WPKernelError } from '../error/WPKernelError';
 import {
-	getKernelEventBus,
-	type KernelEventBus,
-	setKernelEventBus,
+	getWPKernelEventBus,
+	type WPKernelEventBus,
+	setWPKernelEventBus,
 } from '../events/bus';
 import { createActionMiddleware } from '../actions/middleware';
-import { kernelEventsPlugin } from './plugins/events';
+import { wpkEventsPlugin } from './plugins/events';
 import { defineResource as baseDefineResource } from '../resource/define';
 import type { ResourceConfig, ResourceObject } from '../resource/types';
 
 type CleanupTask = () => void;
 
 function resolveRegistry(
-	registry?: KernelRegistry
-): KernelRegistry | undefined {
+	registry?: WPKernelRegistry
+): WPKernelRegistry | undefined {
 	if (registry) {
 		return registry;
 	}
 
 	if (typeof getWPData === 'function') {
-		return getWPData() as unknown as KernelRegistry | undefined;
+		return getWPData() as unknown as WPKernelRegistry | undefined;
 	}
 
 	return undefined;
@@ -54,10 +54,10 @@ function resolveReporter(namespace: string, reporter?: Reporter): Reporter {
 	});
 }
 
-function normalizeUIConfig(config?: KernelUIConfig): {
+function normalizeUIConfig(config?: WPKUIConfig): {
 	enable: boolean;
-	options?: KernelUIConfig['options'];
-	attach?: KernelUIAttach;
+	options?: WPKUIConfig['options'];
+	attach?: WPKernelUIAttach;
 } {
 	return {
 		enable: Boolean(config?.enable ?? config?.attach),
@@ -67,7 +67,7 @@ function normalizeUIConfig(config?: KernelUIConfig): {
 }
 
 function emitEvent(
-	bus: KernelEventBus,
+	bus: WPKernelEventBus,
 	eventName: string,
 	payload: unknown
 ): void {
@@ -89,19 +89,19 @@ function extractResourceName(name: string): string {
 	return resourceName || name;
 }
 
-export function configureKernel(
-	options: ConfigureKernelOptions = {}
-): KernelInstance {
+export function configureWPKernel(
+	options: ConfigureWPKernelOptions = {}
+): WPKInstance {
 	const registry = resolveRegistry(options.registry);
 	const namespace = resolveNamespace(options.namespace);
 	const reporter = resolveReporter(namespace, options.reporter);
 	const ui = normalizeUIConfig(options.ui);
 
-	const events = getKernelEventBus();
-	setKernelEventBus(events);
-	setKernelReporter(reporter);
-	const cleanupTasks: CleanupTask[] = [() => setKernelReporter(undefined)];
-	let uiRuntime: KernelUIRuntime | undefined;
+	const events = getWPKernelEventBus();
+	setWPKernelEventBus(events);
+	setWPKernelReporter(reporter);
+	const cleanupTasks: CleanupTask[] = [() => setWPKernelReporter(undefined)];
+	let uiRuntime: WPKernelUIRuntime | undefined;
 
 	if (
 		registry &&
@@ -117,7 +117,7 @@ export function configureKernel(
 			cleanupTasks.push(detachActions);
 		}
 
-		const eventsMiddleware = kernelEventsPlugin({
+		const eventsMiddleware = wpkEventsPlugin({
 			reporter,
 			registry,
 			events,
@@ -135,7 +135,7 @@ export function configureKernel(
 		});
 	}
 
-	const kernel: KernelInstance = {
+	const kernel: WPKInstance = {
 		getNamespace() {
 			return namespace;
 		},
@@ -182,7 +182,7 @@ export function configureKernel(
 		getUIRuntime() {
 			return uiRuntime;
 		},
-		attachUIBindings(attach: KernelUIAttach, attachOptions) {
+		attachUIBindings(attach: WPKernelUIAttach, attachOptions) {
 			uiRuntime = attach(kernel, attachOptions ?? ui.options);
 			return uiRuntime;
 		},

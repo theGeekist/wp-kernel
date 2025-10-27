@@ -13,7 +13,7 @@ cd my-plugin
 `wpk init` scaffolds:
 
 - `wpk.config.ts` with the v1 config shape (empty `resources` and `schemas`).
-- `src/index.ts` that calls `configureKernel` and exports the kernel instance.
+- `src/index.ts` that calls `configureWPKernel` and exports the kernel instance.
 - WordPress plugin wiring (`composer.json`, `inc/bootstrap.php`) and TypeScript build config.【F:packages/cli/templates/init/wpk.config.ts†L1-L15】【F:packages/cli/templates/init/src/index.ts†L1-L14】
 
 ## 2. Define a resource
@@ -64,11 +64,11 @@ Inspect `.generated/php/Rest/JobController.php` and `inc/` after the apply step 
 In your entry point, attach UI bindings so React components can use the generated hooks.
 
 ```ts
-import { configureKernel } from '@wpkernel/core/data';
+import { configureWPKernel } from '@wpkernel/core/data';
 import { attachUIBindings } from '@wpkernel/ui';
 import { wpkConfig } from '../wpk.config';
 
-const kernel = configureKernel({ namespace: wpkConfig.namespace });
+const kernel = configureWPKernel({ namespace: wpkConfig.namespace });
 export const ui = attachUIBindings(kernel);
 ```
 

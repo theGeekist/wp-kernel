@@ -1,23 +1,23 @@
-import { configureKernel } from '../configure-kernel';
+import { configureWPKernel } from '../configure-kernel';
 import { createReporter } from '../../reporter';
 import type { Reporter } from '../../reporter';
 import { invalidate as invalidateCache } from '../../resource/cache';
 import { WPKernelError } from '../../error/WPKernelError';
 import type {
-	KernelInstance,
-	KernelRegistry,
-	KernelUIRuntime,
-	KernelUIAttach,
+	WPKInstance,
+	WPKernelRegistry,
+	WPKernelUIRuntime,
+	WPKernelUIAttach,
 	UIIntegrationOptions,
 } from '../types';
 import {
-	KernelEventBus,
-	getKernelEventBus,
-	setKernelEventBus,
+	WPKernelEventBus,
+	getWPKernelEventBus,
+	setWPKernelEventBus,
 	type CustomKernelEvent,
 } from '../../events/bus';
 import { createActionMiddleware } from '../../actions/middleware';
-import { kernelEventsPlugin } from '../plugins/events';
+import { wpkEventsPlugin } from '../plugins/events';
 import { getNamespace as detectNamespace } from '../../namespace/detect';
 import type { ResourceConfig } from '../../resource/types';
 
@@ -29,13 +29,13 @@ jest.mock('../../actions/middleware', () => ({
 
 jest.mock('../../reporter', () => ({
 	createReporter: jest.fn(),
-	setKernelReporter: jest.fn(),
-	getKernelReporter: jest.fn(() => undefined),
-	clearKernelReporter: jest.fn(),
+	setWPKernelReporter: jest.fn(),
+	getWPKernelReporter: jest.fn(() => undefined),
+	clearWPKReporter: jest.fn(),
 }));
 
 jest.mock('../plugins/events', () => ({
-	kernelEventsPlugin: jest.fn(() => ({ destroy: jest.fn() })),
+	wpkEventsPlugin: jest.fn(() => ({ destroy: jest.fn() })),
 }));
 
 jest.mock('../../resource/cache', () => ({
@@ -48,7 +48,7 @@ jest.mock('../../namespace/detect', () => ({
 
 type Middleware = ReturnType<typeof createActionMiddleware>;
 
-describe('configureKernel', () => {
+describe('configureWPKernel', () => {
 	const actionMiddleware: Middleware = jest
 		.fn()
 		.mockImplementation((next) => (action: unknown) => next(action));
@@ -73,10 +73,10 @@ describe('configureKernel', () => {
 		mockReporter = createMockReporter();
 		(createActionMiddleware as jest.Mock).mockReturnValue(actionMiddleware);
 		(createReporter as jest.Mock).mockReturnValue(mockReporter);
-		(kernelEventsPlugin as jest.Mock).mockReturnValue(eventMiddleware);
+		(wpkEventsPlugin as jest.Mock).mockReturnValue(eventMiddleware);
 		(invalidateCache as jest.Mock).mockImplementation(() => undefined);
 		globalThis.getWPData = jest.fn();
-		setKernelEventBus(new KernelEventBus());
+		setWPKernelEventBus(new WPKernelEventBus());
 	});
 
 	afterEach(() => {
@@ -94,11 +94,11 @@ describe('configureKernel', () => {
 				.mockReturnValueOnce(detachActions)
 				.mockReturnValueOnce(detachEvents),
 			dispatch: jest.fn().mockReturnValue({ createNotice: jest.fn() }),
-		} as unknown as KernelRegistry & {
+		} as unknown as WPKernelRegistry & {
 			__experimentalUseMiddleware: jest.Mock;
 		};
 
-		const kernel = configureKernel({
+		const kernel = configureWPKernel({
 			namespace: 'acme',
 			registry,
 			middleware: [customMiddleware],
@@ -128,9 +128,9 @@ describe('configureKernel', () => {
 	it('handles registries without middleware support gracefully', () => {
 		const registry = {
 			dispatch: jest.fn(),
-		} as unknown as KernelRegistry;
+		} as unknown as WPKernelRegistry;
 
-		const kernel = configureKernel({ namespace: 'acme', registry });
+		const kernel = configureWPKernel({ namespace: 'acme', registry });
 
 		expect(
 			(registry as { __experimentalUseMiddleware?: unknown })
@@ -146,11 +146,11 @@ describe('configureKernel', () => {
 				.fn()
 				.mockReturnValue(() => undefined),
 			dispatch: jest.fn(),
-		} as unknown as KernelRegistry;
+		} as unknown as WPKernelRegistry;
 
 		(globalThis.getWPData as jest.Mock).mockReturnValue(registry);
 
-		configureKernel({ namespace: 'acme' });
+		configureWPKernel({ namespace: 'acme' });
 
 		expect(globalThis.getWPData).toHaveBeenCalled();
 		expect(registry.__experimentalUseMiddleware).toHaveBeenCalled();
@@ -159,7 +159,7 @@ describe('configureKernel', () => {
 	it('handles missing global registry helpers gracefully', () => {
 		delete (globalThis as { getWPData?: unknown }).getWPData;
 
-		const kernel = configureKernel({ namespace: 'acme' });
+		const kernel = configureWPKernel({ namespace: 'acme' });
 
 		expect(kernel.getRegistry()).toBeUndefined();
 	});
@@ -170,9 +170,9 @@ describe('configureKernel', () => {
 				.fn()
 				.mockReturnValue(() => undefined),
 			dispatch: jest.fn(),
-		} as unknown as KernelRegistry;
+		} as unknown as WPKernelRegistry;
 
-		const kernel = configureKernel({ namespace: 'acme', registry });
+		const kernel = configureWPKernel({ namespace: 'acme', registry });
 		const patterns = ['post', 'list'];
 
 		kernel.invalidate(patterns);
@@ -202,9 +202,9 @@ describe('configureKernel', () => {
 	});
 
 	it('emits custom events through the event bus', () => {
-		const kernel = configureKernel({ namespace: 'acme' });
+		const kernel = configureWPKernel({ namespace: 'acme' });
 		const payload = { foo: 'bar' };
-		const bus = getKernelEventBus();
+		const bus = getWPKernelEventBus();
 		const emitSpy = jest.spyOn(bus, 'emit');
 
 		kernel.emit('wpk.event', payload);
@@ -216,29 +216,29 @@ describe('configureKernel', () => {
 	});
 
 	it('throws WPKernelError when emit is called with invalid event name', () => {
-		const kernel = configureKernel({ namespace: 'acme' });
+		const kernel = configureWPKernel({ namespace: 'acme' });
 
 		expect(() => kernel.emit('', {})).toThrow(WPKernelError);
 	});
 
 	it('reports UI disabled state by default', () => {
-		const kernel = configureKernel({ namespace: 'acme' });
+		const kernel = configureWPKernel({ namespace: 'acme' });
 
 		expect(kernel.ui.isEnabled()).toBe(false);
 	});
 
 	it('attaches UI runtime when adapter is provided', () => {
-		const runtime: KernelUIRuntime = {
+		const runtime: WPKernelUIRuntime = {
 			namespace: 'acme',
 			reporter: mockReporter,
 			registry: undefined,
-			events: new KernelEventBus(),
+			events: new WPKernelEventBus(),
 			invalidate: jest.fn(),
 			options: undefined,
 		};
 		const attach = jest.fn(() => runtime);
 
-		const kernel = configureKernel({
+		const kernel = configureWPKernel({
 			namespace: 'acme',
 			ui: { attach },
 		});
@@ -250,17 +250,17 @@ describe('configureKernel', () => {
 	});
 
 	it('allows manual UI runtime attachment', () => {
-		const runtime: KernelUIRuntime = {
+		const runtime: WPKernelUIRuntime = {
 			namespace: 'acme',
 			reporter: mockReporter,
 			registry: undefined,
-			events: new KernelEventBus(),
+			events: new WPKernelEventBus(),
 			invalidate: jest.fn(),
 			options: undefined,
 		};
 		const attach = jest.fn(() => runtime);
 
-		const kernel = configureKernel({ namespace: 'acme' });
+		const kernel = configureWPKernel({ namespace: 'acme' });
 
 		expect(kernel.hasUIRuntime()).toBe(false);
 
@@ -273,8 +273,8 @@ describe('configureKernel', () => {
 	});
 
 	it('exposes the shared event bus on the kernel instance', () => {
-		const kernel = configureKernel({ namespace: 'acme' });
-		const bus = getKernelEventBus();
+		const kernel = configureWPKernel({ namespace: 'acme' });
+		const bus = getWPKernelEventBus();
 
 		expect(kernel.events).toBe(bus);
 	});
@@ -285,9 +285,9 @@ describe('configureKernel', () => {
 				.fn()
 				.mockReturnValue(() => undefined),
 			dispatch: jest.fn(),
-		} as unknown as KernelRegistry;
+		} as unknown as WPKernelRegistry;
 
-		const kernel = configureKernel({
+		const kernel = configureWPKernel({
 			namespace: 'acme',
 			registry,
 			reporter: mockReporter,
@@ -304,7 +304,7 @@ describe('configureKernel', () => {
 		>;
 		detectNamespaceMock.mockReturnValueOnce('fallback.namespace');
 
-		const kernel = configureKernel();
+		const kernel = configureWPKernel();
 
 		expect(detectNamespaceMock).toHaveBeenCalled();
 		expect(kernel.getNamespace()).toBe('fallback.namespace');
@@ -317,11 +317,11 @@ describe('configureKernel', () => {
 				.mockReturnValueOnce(undefined)
 				.mockReturnValueOnce(undefined),
 			dispatch: jest.fn(),
-		} as unknown as KernelRegistry;
+		} as unknown as WPKernelRegistry;
 
-		(kernelEventsPlugin as jest.Mock).mockReturnValueOnce({});
+		(wpkEventsPlugin as jest.Mock).mockReturnValueOnce({});
 
-		const kernel = configureKernel({ namespace: 'acme', registry });
+		const kernel = configureWPKernel({ namespace: 'acme', registry });
 
 		expect(() => kernel.teardown()).not.toThrow();
 	});
@@ -336,7 +336,7 @@ describe('configureKernel', () => {
 				.mockReturnValueOnce(detachActions)
 				.mockReturnValueOnce(() => undefined),
 			dispatch: jest.fn().mockReturnValue({ createNotice: jest.fn() }),
-		} as unknown as KernelRegistry & {
+		} as unknown as WPKernelRegistry & {
 			__experimentalUseMiddleware: jest.Mock;
 		};
 
@@ -344,7 +344,7 @@ describe('configureKernel', () => {
 		process.env.NODE_ENV = 'development';
 
 		try {
-			const kernel = configureKernel({ namespace: 'acme', registry });
+			const kernel = configureWPKernel({ namespace: 'acme', registry });
 
 			kernel.teardown();
 
@@ -371,7 +371,7 @@ describe('configureKernel', () => {
 				.mockReturnValueOnce(detachActions)
 				.mockReturnValueOnce(detachEvents),
 			dispatch: jest.fn().mockReturnValue({ createNotice: jest.fn() }),
-		} as unknown as KernelRegistry & {
+		} as unknown as WPKernelRegistry & {
 			__experimentalUseMiddleware: jest.Mock;
 		};
 
@@ -379,7 +379,7 @@ describe('configureKernel', () => {
 		process.env.NODE_ENV = 'development';
 
 		try {
-			const kernel = configureKernel({
+			const kernel = configureWPKernel({
 				namespace: 'acme',
 				registry,
 				reporter: mockReporter,
@@ -400,7 +400,7 @@ describe('configureKernel', () => {
 		const childReporter = createMockReporter();
 		mockReporter.child.mockReturnValue(childReporter);
 
-		const kernel = configureKernel({
+		const kernel = configureWPKernel({
 			namespace: 'acme',
 			reporter: mockReporter,
 		});
@@ -418,7 +418,7 @@ describe('configureKernel', () => {
 	});
 
 	it('respects custom resource reporters when provided', () => {
-		const kernel = configureKernel({ namespace: 'acme' });
+		const kernel = configureWPKernel({ namespace: 'acme' });
 		const customReporter = createMockReporter();
 
 		const resource = kernel.defineResource<{ id: number }>({
@@ -434,7 +434,7 @@ describe('configureKernel', () => {
 	});
 
 	it('preserves explicit resource namespaces supplied in config', () => {
-		const kernel = configureKernel({ namespace: 'acme' });
+		const kernel = configureWPKernel({ namespace: 'acme' });
 
 		const resource = kernel.defineResource<{ id: number }>({
 			name: 'thing',
@@ -448,13 +448,13 @@ describe('configureKernel', () => {
 		expect(resource.events?.created).toBe('custom.thing.created');
 	});
 
-	it('wires DataViews options through configureKernel for auto-registration and events', () => {
+	it('wires DataViews options through configureWPKernel for auto-registration and events', () => {
 		const controllers = new Map<string, unknown>();
 		const registryEntries = new Map<string, unknown>();
 		const customEvents: CustomKernelEvent[] = [];
 		const attach = jest.fn(
-			(kernel: KernelInstance, options?: UIIntegrationOptions) => {
-				const runtime: KernelUIRuntime = {
+			(kernel: WPKInstance, options?: UIIntegrationOptions) => {
+				const runtime: WPKernelUIRuntime = {
 					kernel,
 					namespace: kernel.getNamespace(),
 					reporter: kernel.getReporter(),
@@ -501,7 +501,7 @@ describe('configureKernel', () => {
 						},
 						getResourceReporter: () => kernel.getReporter(),
 					},
-				} as unknown as KernelUIRuntime;
+				} as unknown as WPKernelUIRuntime;
 
 				kernel.events.on('resource:defined', ({ resource }) => {
 					const metadata = (
@@ -534,11 +534,11 @@ describe('configureKernel', () => {
 			}
 		);
 
-		const kernel = configureKernel({
+		const kernel = configureWPKernel({
 			namespace: 'acme',
 			ui: {
 				enable: true,
-				attach: attach as unknown as KernelUIAttach,
+				attach: attach as unknown as WPKernelUIAttach,
 				options: {
 					dataviews: {
 						enable: true,
@@ -588,7 +588,7 @@ describe('configureKernel', () => {
 
 		expect(firstCall).toBeDefined();
 
-		const runtimeWithDataViews = firstCall!.value as KernelUIRuntime & {
+		const runtimeWithDataViews = firstCall!.value as WPKernelUIRuntime & {
 			dataviews?: { events: { viewChanged: (payload: unknown) => void } };
 		};
 
@@ -613,7 +613,7 @@ describe('configureKernel', () => {
 	});
 
 	it('respects namespace embedded within resource name shorthand', () => {
-		const kernel = configureKernel({ namespace: 'acme' });
+		const kernel = configureWPKernel({ namespace: 'acme' });
 
 		const resource = kernel.defineResource<{ id: number }>({
 			name: 'custom:thing',
@@ -627,7 +627,7 @@ describe('configureKernel', () => {
 	});
 
 	it('prefers explicit namespace when provided alongside shorthand name syntax', () => {
-		const kernel = configureKernel({ namespace: 'acme' });
+		const kernel = configureWPKernel({ namespace: 'acme' });
 
 		const resource = kernel.defineResource<{ id: number }>({
 			name: 'custom:thing',
