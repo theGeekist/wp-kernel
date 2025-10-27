@@ -1,4 +1,4 @@
-[**WP Kernel API v0.6.0**](../../../README.md)
+[**WP Kernel API v0.7.0**](../../../README.md)
 
 ---
 
@@ -125,6 +125,30 @@ ensureDirectory: (directoryPath) => Promise<void>;
 ```ts
 optional phpAdapter: PhpAdapterConfig;
 ```
+
+---
+
+### phpDriver?
+
+```ts
+optional phpDriver: object;
+```
+
+#### prettyPrint()
+
+```ts
+prettyPrint: (options) => Promise<PhpPrettyPrintResult>;
+```
+
+##### Parameters
+
+###### options
+
+`PhpPrettyPrintOptions`
+
+##### Returns
+
+`Promise`\&lt;`PhpPrettyPrintResult`\&gt;
 
 ---
 

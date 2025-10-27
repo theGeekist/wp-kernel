@@ -1,4 +1,4 @@
-[**WP Kernel API v0.6.0**](../../../../../README.md)
+[**WP Kernel API v0.7.0**](../../../../../README.md)
 
 ---
 
@@ -7,9 +7,15 @@
 # Function: createTsBuilder()
 
 ```ts
-function createTsBuilder(): BuilderHelper;
+function createTsBuilder(options): BuilderHelper;
 ```
+
+## Parameters
+
+### options
+
+`CreateTsBuilderOptions` = `{}`
 
 ## Returns
 
-`BuilderHelper`
+[`BuilderHelper`](../type-aliases/BuilderHelper.md)

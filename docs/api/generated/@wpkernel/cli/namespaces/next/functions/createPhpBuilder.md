@@ -1,4 +1,4 @@
-[**WP Kernel API v0.6.0**](../../../../../README.md)
+[**WP Kernel API v0.7.0**](../../../../../README.md)
 
 ---
 
@@ -7,9 +7,15 @@
 # Function: createPhpBuilder()
 
 ```ts
-function createPhpBuilder(): BuilderHelper;
+function createPhpBuilder(options): BuilderHelper;
 ```
+
+## Parameters
+
+### options
+
+[`CreatePhpBuilderOptions`](../interfaces/CreatePhpBuilderOptions.md) = `{}`
 
 ## Returns
 
-`BuilderHelper`
+[`BuilderHelper`](../type-aliases/BuilderHelper.md)

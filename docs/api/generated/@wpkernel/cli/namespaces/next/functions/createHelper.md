@@ -1,4 +1,4 @@
-[**WP Kernel API v0.6.0**](../../../../../README.md)
+[**WP Kernel API v0.7.0**](../../../../../README.md)
 
 ---
 
@@ -6,32 +6,34 @@
 
 # Function: createHelper()
 
+## Call Signature
+
 ```ts
-function createHelper<TContext, TInput, TOutput>(
-	options
-): Helper<TContext, TInput, TOutput>;
+function createHelper(options): FragmentHelper;
 ```
 
-## Type Parameters
+### Parameters
 
-### TContext
+#### options
 
-`TContext`
+`FragmentHelperOptions`
 
-### TInput
+### Returns
 
-`TInput`
+[`FragmentHelper`](../type-aliases/FragmentHelper.md)
 
-### TOutput
+## Call Signature
 
-`TOutput`
+```ts
+function createHelper(options): BuilderHelper;
+```
 
-## Parameters
+### Parameters
 
-### options
+#### options
 
-[`CreateHelperOptions`](../interfaces/CreateHelperOptions.md)\&lt;`TContext`, `TInput`, `TOutput`\&gt;
+`BuilderHelperOptions`
 
-## Returns
+### Returns
 
-[`Helper`](../interfaces/Helper.md)\&lt;`TContext`, `TInput`, `TOutput`\&gt;
+[`BuilderHelper`](../type-aliases/BuilderHelper.md)

@@ -1,4 +1,4 @@
-[**WP Kernel API v0.6.0**](../../../../../README.md)
+[**WP Kernel API v0.7.0**](../../../../../README.md)
 
 ---
 
@@ -11,7 +11,7 @@
 ### key
 
 ```ts
-readonly key: string;
+key: string;
 ```
 
 ---
@@ -19,7 +19,7 @@ readonly key: string;
 ### message
 
 ```ts
-readonly message: string;
+message: string;
 ```
 
 ---
@@ -27,7 +27,7 @@ readonly message: string;
 ### severity
 
 ```ts
-readonly severity: IRDiagnosticSeverity;
+severity: IRDiagnosticSeverity;
 ```
 
 ---
@@ -35,5 +35,5 @@ readonly severity: IRDiagnosticSeverity;
 ### context?
 
 ```ts
-readonly optional context: Record<string, unknown>;
+optional context: Record<string, unknown>;
 ```
