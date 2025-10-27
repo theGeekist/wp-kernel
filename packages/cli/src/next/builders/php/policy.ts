@@ -10,27 +10,45 @@ import type {
 import {
 	appendGeneratedFileDocblock,
 	buildArg,
+	buildArray,
+	buildArrayDimFetch,
+	buildArrayItem,
+	buildAssign,
+	buildBinaryOperation,
 	buildClass,
 	buildClassMethod,
-	buildComment,
+	buildClosure,
+	buildClosureUse,
 	buildDocComment,
+	buildExpressionStatement,
+	buildFuncCall,
 	buildIdentifier,
+	buildIfStatement,
+	buildMethodCall,
 	buildName,
 	buildNew,
+	buildNull,
+	buildNullableType,
 	buildParam,
 	buildReturn,
+	buildScalarBool,
+	buildScalarInt,
 	buildScalarString,
-	buildStmtNop,
+	buildStaticCall,
+	buildTernary,
 	buildVariable,
 	createPhpFileBuilder,
 	PHP_CLASS_MODIFIER_FINAL,
+	PHP_METHOD_MODIFIER_PRIVATE,
 	PHP_METHOD_MODIFIER_PUBLIC,
 	PHP_METHOD_MODIFIER_STATIC,
 	type PhpAstBuilderAdapter,
 	type PhpAttributes,
+	type PhpStmt,
 	type PhpStmtClassMethod,
 } from '@wpkernel/php-json-ast';
 import { renderPhpValue } from './resource/phpValue';
+import type { Reporter } from '@wpkernel/core/reporter';
 import type { IRPolicyDefinition, IRv1 } from '../../../ir/types';
 import { sanitizeJson } from './utils';
 
@@ -46,6 +64,7 @@ export function createPhpPolicyHelper(): BuilderHelper {
 			}
 
 			const { ir } = input;
+			reportPolicyWarnings(options.reporter, ir.policyMap);
 			const namespace = `${ir.php.namespace}\\Policy`;
 			const filePath = options.context.workspace.resolve(
 				ir.php.outputDir,
@@ -88,6 +107,9 @@ function buildPolicyHelper(builder: PhpAstBuilderAdapter, ir: IRv1): void {
 		buildFallbackMethod(fallback),
 		buildCallbackMethod(),
 		buildEnforceMethod(),
+		buildGetDefinitionMethod(),
+		buildGetBindingMethod(),
+		buildCreateErrorMethod(),
 	];
 
 	const classNode = buildClass(buildIdentifier('Policy'), {
@@ -96,6 +118,26 @@ function buildPolicyHelper(builder: PhpAstBuilderAdapter, ir: IRv1): void {
 	});
 
 	builder.appendProgramStatement(classNode);
+}
+
+function reportPolicyWarnings(
+	reporter: Reporter,
+	policyMap: IRv1['policyMap']
+): void {
+	for (const warning of policyMap.warnings) {
+		reporter.warn('Policy helper warning emitted.', {
+			code: warning.code,
+			message: warning.message,
+			context: warning.context,
+		});
+	}
+
+	if (policyMap.missing.length > 0) {
+		reporter.warn('Policies falling back to default capability.', {
+			policies: policyMap.missing,
+			capability: policyMap.fallback.capability,
+		});
+	}
 }
 
 function buildPolicyMapMethod(
@@ -119,10 +161,29 @@ function buildFallbackMethod(
 }
 
 function buildCallbackMethod(): PhpStmtClassMethod {
-	const docblock = [
-		'Create a permission callback reference.',
-		'@todo Return a closure once enforcement is implemented.',
-	];
+	const docblock = ['Create a permission callback closure for a policy.'];
+
+	const closure = buildClosure({
+		static: true,
+		params: [
+			buildParam(buildVariable('request'), {
+				type: buildName(['WP_REST_Request']),
+			}),
+		],
+		uses: [buildClosureUse(buildVariable('policy_key'))],
+		stmts: [
+			buildReturn(
+				buildStaticCall(
+					buildName(['self']),
+					buildIdentifier('enforce'),
+					[
+						buildArg(buildVariable('policy_key')),
+						buildArg(buildVariable('request')),
+					]
+				)
+			),
+		],
+	});
 
 	return buildClassMethod(
 		buildIdentifier('callback'),
@@ -134,7 +195,7 @@ function buildCallbackMethod(): PhpStmtClassMethod {
 				}),
 			],
 			returnType: buildIdentifier('callable'),
-			stmts: [buildReturn(renderPhpValue('Policy::enforce'))],
+			stmts: [buildReturn(closure)],
 		},
 		buildDocAttributes(docblock)
 	);
@@ -143,21 +204,213 @@ function buildCallbackMethod(): PhpStmtClassMethod {
 function buildEnforceMethod(): PhpStmtClassMethod {
 	const docblock = [
 		'Evaluate a policy against the current user.',
-		'@todo Wire kernel policy enforcement.',
+		'@return bool|WP_Error',
 	];
 
-	const todo = buildStmtNop({
-		comments: [
-			buildComment('// TODO: Implement policy enforcement logic.'),
-		],
-	});
+	const definitionAssign = buildExpressionStatement(
+		buildAssign(
+			buildVariable('definition'),
+			buildStaticCall(
+				buildName(['self']),
+				buildIdentifier('get_definition'),
+				[buildArg(buildVariable('policy_key'))]
+			)
+		)
+	);
 
-	const errorExpr = buildNew(buildName(['WP_Error']), [
-		buildArg(buildScalarString('wpk_policy_stub')),
-		buildArg(
-			buildScalarString('Policy enforcement is not yet implemented.')
+	const fallbackAssign = buildExpressionStatement(
+		buildAssign(
+			buildVariable('fallback'),
+			buildStaticCall(
+				buildName(['self']),
+				buildIdentifier('fallback'),
+				[]
+			)
+		)
+	);
+
+	const capabilityAssign = buildExpressionStatement(
+		buildAssign(
+			buildVariable('capability'),
+			buildTernary(
+				buildFuncCall(buildName(['isset']), [
+					buildArg(
+						buildArrayDimFetch(
+							buildVariable('definition'),
+							buildScalarString('capability')
+						)
+					),
+				]),
+				buildArrayDimFetch(
+					buildVariable('definition'),
+					buildScalarString('capability')
+				),
+				buildArrayDimFetch(
+					buildVariable('fallback'),
+					buildScalarString('capability')
+				)
+			)
+		)
+	);
+
+	const scopeAssign = buildExpressionStatement(
+		buildAssign(
+			buildVariable('scope'),
+			buildTernary(
+				buildFuncCall(buildName(['isset']), [
+					buildArg(
+						buildArrayDimFetch(
+							buildVariable('definition'),
+							buildScalarString('appliesTo')
+						)
+					),
+				]),
+				buildArrayDimFetch(
+					buildVariable('definition'),
+					buildScalarString('appliesTo')
+				),
+				buildArrayDimFetch(
+					buildVariable('fallback'),
+					buildScalarString('appliesTo')
+				)
+			)
+		)
+	);
+
+	const allowedDefaultAssign = buildExpressionStatement(
+		buildAssign(
+			buildVariable('allowed'),
+			buildFuncCall(buildName(['current_user_can']), [
+				buildArg(buildVariable('capability')),
+			])
+		)
+	);
+
+	const bindingAssign = buildExpressionStatement(
+		buildAssign(
+			buildVariable('binding'),
+			buildStaticCall(
+				buildName(['self']),
+				buildIdentifier('get_binding'),
+				[buildArg(buildVariable('definition'))]
+			)
+		)
+	);
+
+	const ensureBindingStatement = buildIfStatement(
+		buildBinaryOperation(
+			'Identical',
+			buildVariable('binding'),
+			buildNull()
 		),
+		[
+			buildExpressionStatement(
+				buildAssign(buildVariable('binding'), buildScalarString('id'))
+			),
+		]
+	);
+
+	const objectIdAssign = buildExpressionStatement(
+		buildAssign(
+			buildVariable('object_id'),
+			buildMethodCall(
+				buildVariable('request'),
+				buildIdentifier('get_param'),
+				[buildArg(buildVariable('binding'))]
+			)
+		)
+	);
+
+	const missingObjectGuard = buildIfStatement(
+		buildBinaryOperation(
+			'Identical',
+			buildVariable('object_id'),
+			buildNull()
+		),
+		[
+			buildReturn(
+				buildStaticCall(
+					buildName(['self']),
+					buildIdentifier('create_error'),
+					[
+						buildArg(
+							buildScalarString('wpk_policy_object_missing')
+						),
+						buildArg(
+							buildFuncCall(buildName(['sprintf']), [
+								buildArg(
+									buildScalarString(
+										'Object identifier parameter "%s" missing for policy "%s".'
+									)
+								),
+								buildArg(buildVariable('binding')),
+								buildArg(buildVariable('policy_key')),
+							])
+						),
+					]
+				)
+			),
+		]
+	);
+
+	const allowedObjectAssign = buildExpressionStatement(
+		buildAssign(
+			buildVariable('allowed'),
+			buildFuncCall(buildName(['current_user_can']), [
+				buildArg(buildVariable('capability')),
+				buildArg(buildVariable('object_id')),
+			])
+		)
+	);
+
+	const objectScopeBlock = buildIfStatement(
+		buildBinaryOperation(
+			'Identical',
+			buildScalarString('object'),
+			buildVariable('scope')
+		),
+		[
+			bindingAssign,
+			ensureBindingStatement,
+			objectIdAssign,
+			missingObjectGuard,
+			allowedObjectAssign,
+		]
+	);
+
+	const allowedGuard = buildIfStatement(buildVariable('allowed'), [
+		buildReturn(buildScalarBool(true)),
 	]);
+
+	const deniedReturn = buildReturn(
+		buildStaticCall(buildName(['self']), buildIdentifier('create_error'), [
+			buildArg(buildScalarString('wpk_policy_denied')),
+			buildArg(
+				buildScalarString('You are not allowed to perform this action.')
+			),
+			buildArg(
+				buildArray([
+					buildArrayItem(buildVariable('policy_key'), {
+						key: buildScalarString('policy'),
+					}),
+					buildArrayItem(buildVariable('capability'), {
+						key: buildScalarString('capability'),
+					}),
+				])
+			),
+		])
+	);
+
+	const statements: PhpStmt[] = [
+		definitionAssign,
+		fallbackAssign,
+		capabilityAssign,
+		scopeAssign,
+		allowedDefaultAssign,
+		objectScopeBlock,
+		allowedGuard,
+		deniedReturn,
+	];
 
 	return buildClassMethod(
 		buildIdentifier('enforce'),
@@ -171,10 +424,153 @@ function buildEnforceMethod(): PhpStmtClassMethod {
 					type: buildName(['WP_REST_Request']),
 				}),
 			],
-			stmts: [todo, buildReturn(errorExpr)],
+			stmts: statements,
 		},
 		buildDocAttributes(docblock)
 	);
+}
+
+function buildGetDefinitionMethod(): PhpStmtClassMethod {
+	return buildClassMethod(buildIdentifier('get_definition'), {
+		flags: PHP_METHOD_MODIFIER_PRIVATE + PHP_METHOD_MODIFIER_STATIC,
+		params: [
+			buildParam(buildVariable('policy_key'), {
+				type: buildIdentifier('string'),
+			}),
+		],
+		returnType: buildIdentifier('array'),
+		stmts: [
+			buildExpressionStatement(
+				buildAssign(
+					buildVariable('map'),
+					buildStaticCall(
+						buildName(['self']),
+						buildIdentifier('policy_map'),
+						[]
+					)
+				)
+			),
+			buildIfStatement(
+				buildFuncCall(buildName(['isset']), [
+					buildArg(
+						buildArrayDimFetch(
+							buildVariable('map'),
+							buildVariable('policy_key')
+						)
+					),
+				]),
+				[
+					buildReturn(
+						buildArrayDimFetch(
+							buildVariable('map'),
+							buildVariable('policy_key')
+						)
+					),
+				]
+			),
+			buildReturn(
+				buildStaticCall(
+					buildName(['self']),
+					buildIdentifier('fallback'),
+					[]
+				)
+			),
+		],
+	});
+}
+
+function buildGetBindingMethod(): PhpStmtClassMethod {
+	const statements: PhpStmt[] = [
+		buildExpressionStatement(
+			buildAssign(
+				buildVariable('binding'),
+				buildTernary(
+					buildFuncCall(buildName(['isset']), [
+						buildArg(
+							buildArrayDimFetch(
+								buildVariable('definition'),
+								buildScalarString('binding')
+							)
+						),
+					]),
+					buildArrayDimFetch(
+						buildVariable('definition'),
+						buildScalarString('binding')
+					),
+					buildNull()
+				)
+			)
+		),
+		buildIfStatement(
+			buildBinaryOperation(
+				'BooleanAnd',
+				buildFuncCall(buildName(['is_string']), [
+					buildArg(buildVariable('binding')),
+				]),
+				buildBinaryOperation(
+					'NotIdentical',
+					buildVariable('binding'),
+					buildScalarString('')
+				)
+			),
+			[buildReturn(buildVariable('binding'))]
+		),
+		buildReturn(buildNull()),
+	];
+
+	return buildClassMethod(buildIdentifier('get_binding'), {
+		flags: PHP_METHOD_MODIFIER_PRIVATE + PHP_METHOD_MODIFIER_STATIC,
+		params: [
+			buildParam(buildVariable('definition'), {
+				type: buildIdentifier('array'),
+			}),
+		],
+		returnType: buildNullableType(buildIdentifier('string')),
+		stmts: statements,
+	});
+}
+
+function buildCreateErrorMethod(): PhpStmtClassMethod {
+	return buildClassMethod(buildIdentifier('create_error'), {
+		flags: PHP_METHOD_MODIFIER_PRIVATE + PHP_METHOD_MODIFIER_STATIC,
+		params: [
+			buildParam(buildVariable('code'), {
+				type: buildIdentifier('string'),
+			}),
+			buildParam(buildVariable('message'), {
+				type: buildIdentifier('string'),
+			}),
+			buildParam(buildVariable('context'), {
+				type: buildIdentifier('array'),
+				default: buildArray([]),
+			}),
+		],
+		returnType: buildIdentifier('WP_Error'),
+		stmts: [
+			buildExpressionStatement(
+				buildAssign(
+					buildVariable('payload'),
+					buildFuncCall(buildName(['array_merge']), [
+						buildArg(
+							buildArray([
+								buildArrayItem(buildScalarInt(403), {
+									key: buildScalarString('status'),
+								}),
+							])
+						),
+						buildArg(buildVariable('context')),
+					])
+				)
+			),
+			buildReturn(
+				buildNew(buildName(['WP_Error']), [
+					buildArg(buildVariable('code')),
+					buildArg(buildVariable('message')),
+					buildArg(buildVariable('payload')),
+				])
+			),
+		],
+	});
 }
 
 function buildDocAttributes(

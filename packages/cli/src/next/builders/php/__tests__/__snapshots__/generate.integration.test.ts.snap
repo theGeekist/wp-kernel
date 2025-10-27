@@ -511,22 +511,60 @@ final class Policy
     {
         return ['appliesTo' => 'resource', 'capability' => 'manage_options'];
     }
-    /**
-     * Create a permission callback reference.
-     * @todo Return a closure once enforcement is implemented.
-     */
+    /** Create a permission callback closure for a policy. */
     public static function callback(string $policy_key): callable
     {
-        return 'Policy::enforce';
+        return static function (WP_REST_Request $request) use ($policy_key) {
+            return self::enforce($policy_key, $request);
+        };
     }
     /**
      * Evaluate a policy against the current user.
-     * @todo Wire kernel policy enforcement.
+     * @return bool|WP_Error
      */
     public static function enforce(string $policy_key, WP_REST_Request $request)
     {
-        // TODO: Implement policy enforcement logic.
-        return new WP_Error('wpk_policy_stub', 'Policy enforcement is not yet implemented.');
+        $definition = self::get_definition($policy_key);
+        $fallback = self::fallback();
+        $capability = isset($definition['capability']) ? $definition['capability'] : $fallback['capability'];
+        $scope = isset($definition['appliesTo']) ? $definition['appliesTo'] : $fallback['appliesTo'];
+        $allowed = current_user_can($capability);
+        if ('object' === $scope) {
+            $binding = self::get_binding($definition);
+            if ($binding === null) {
+                $binding = 'id';
+            }
+            $object_id = $request->get_param($binding);
+            if ($object_id === null) {
+                return self::create_error('wpk_policy_object_missing', sprintf('Object identifier parameter "%s" missing for policy "%s".', $binding, $policy_key));
+            }
+            $allowed = current_user_can($capability, $object_id);
+        }
+        if ($allowed) {
+            return true;
+        }
+        return self::create_error('wpk_policy_denied', 'You are not allowed to perform this action.', ['policy' => $policy_key, 'capability' => $capability]);
+    }
+    private static function get_definition(string $policy_key): array
+    {
+        $map = self::policy_map();
+        if (isset($map[$policy_key])) {
+            return $map[$policy_key];
+        }
+        return self::fallback();
+    }
+    private static function get_binding(array $definition): ?string
+    {
+        $binding = isset($definition['binding']) ? $definition['binding'] : null;
+        if (is_string($binding) && $binding !== '') {
+            return $binding;
+        }
+        return null;
+    }
+    private static function create_error(string $code, string $message, array $context = []): WP_Error
+    {
+        $payload = array_merge(['status' => 403], $context);
+        return new WP_Error($code, $message, $payload);
     }
 }
 // WPK:END AUTO
