@@ -4,56 +4,55 @@ Bringing a new package online inside the wp-kernel monorepo, and then teaching i
 
 ## 1. Package manifest
 
-1. Create the package directory under `packages/` with at minimum:
-    - `package.json`
-    - `tsconfig.json`
-    - `tsconfig.tests.json`
-    - `vite.config.ts` (if it is a buildable library)
-    - `jest.config.js` (or rely on root config if appropriate)
+1. Create the package directory under `packages/` with at minimum a `package.json`, TypeScript configs, a Vite build config (for libraries), and a Jest config. The helper script `pnpm workspace:register packages/<name>` (or `pnpm exec tsx scripts/register-workspace.ts packages/<name>`) scaffolds both TS configs, keeps `tsconfig.base.json` aliases current, and adds the missing `typecheck` scripts when needed.
+    - Pass `--deps=@wpkernel/core,@wpkernel/ui` (comma separated) to pre-register internal dependencies. The script updates TypeScript references, adds `peerDependencies` with `workspace:*` versions, and surfaces a warning if you accidentally introduce a cycle (for example, if `ui` already points at your package). Use `--remove-deps=` with the same syntax to prune references and peer dependency entries.
 2. In `package.json`:
     - Point `main`, `module`, and `types` at the `dist/` outputs (`./dist/index.js` / `index.d.ts`).
-    - Add `scripts` for `build`, `typecheck`, `typecheck:tests`, `lint`, `test`, mirroring existing packages.
+    - Ensure the standard scripts exist (`build`, `typecheck`, `typecheck:tests`, `lint`, `test`). The registration script inserts the typecheck targets automatically.
     - Declare sibling workspace packages in `peerDependencies` (e.g. `@wpkernel/core`, `@wpkernel/test-utils`). This matches our pattern of treating the shared packages as runtime peers rather than bundling them.
     - Optionally list the same packages under `devDependencies` if you need their tooling in tests, but keep runtime imports via peers.
 
 ## 2. TypeScript configuration
 
-Every package needs two `tsconfig` files:
+Every package needs two `tsconfig` files and they should extend the shared presets:
 
 - **`tsconfig.json`** for source builds (`tsc --noEmit` and Vite declarations).
-    - `extends: "../../tsconfig.base.json"`.
-    - `compilerOptions.rootDir` = `./src`, `outDir` = `./dist`, `composite: true`.
-    - Include both the package sources and the shared `types/**/*.d.ts`:  
-      `include: ["src/**/*", "../../types/**/*.d.ts"]`.
+    - `extends: "../../tsconfig.lib.json"` so the shared compiler options (strictness, module resolution) stay in sync.
+    - Override `compilerOptions.rootDir` with `./src` and `outDir` with `./dist`.
+    - Include the package sources and shared declarations (`include: ["src/**/*", "../../types/**/*.d.ts"]`).
     - Exclude all tests to keep the build graph clean.
     - Add `"references"` to every sibling package whose types you import (e.g. `{ "path": "../core/tsconfig.json" }`, `{ "path": "../test-utils/tsconfig.json" }`).
 
 - **`tsconfig.tests.json`** for test-only types (`pnpm typecheck:tests`).
-    - `rootDir: "."`, `outDir: "./dist-tests"`, `types: ["jest","node"]`.
-    - Include the test files (`src/**/__tests__/**/*`, `tests/**/*`) and any fixtures.
-    - Exclude `dist/`, `dist-tests/`, `node_modules/`.
-    - Add references back to the source `tsconfig.json` **and** the sibling workspaces the tests rely on.
+    - `extends: "../../tsconfig.tests.json"` to pick up the shared Jest/Node typing preset.
+    - Set `compilerOptions.rootDir` to the repository root (`../../`) and `outDir` to `./dist-tests` so cross-package fixtures resolve correctly.
+    - Include the package tests, fixtures, and shared helpers (e.g. `../../tests/**/*`, `../../packages/test-utils/src/**/*`).
+    - Exclude `dist/`, `dist-tests/`, and `node_modules/`.
+    - Reference the source `tsconfig.json` **and** any sibling workspaces the tests rely on.
 
-This reference graph is what enables `tsc --build` and Vite’s declaration plugin to resolve modules produced by other packages without copying source files.
+Running `pnpm exec tsx scripts/register-workspace.ts packages/<name>` will create both files with the structure above and update the root `tsconfig.json` references. Use `--deps=` when you want the script to insert sibling references during scaffolding; edit the generated files afterwards if you need bespoke include paths or want to remove a relationship with `--remove-deps=`.
 
 ## 3. Jest configuration
 
-Start from the package template in `packages/cli/jest.config.js`:
+Start from the shared helper in `scripts/config/create-wpk-jest-config.ts`:
 
-1. Set `displayName` and `rootDir` the same way (`path.resolve(__dirname, '../..')`).
-2. Copy the `moduleNameMapper` entries that remap `@wpkernel/*` imports to source folders. This ensures Jest compiles the TypeScript instead of trying to load `.js` output from `node_modules`.
-3. Point `setupFilesAfterEnv` to `tests/setup-jest.ts` if the package needs the shared test globals.
-4. Keep coverage limited to the package's `src/` tree.
-5. **Test support utilities**: If your package includes `.test-support.ts` files (utility functions for tests, not actual test files), add them to `testPathIgnorePatterns`:
-    ```js
-    testPathIgnorePatterns: [
-        ...baseConfig.testPathIgnorePatterns,
-        'testUtils\\.test-support\\.(js|ts|tsx)$',
-    ],
+1. Import `createWPKJestConfig` and call it with the package display name plus `packageDir: import.meta.url`.
+2. Override `collectCoverageFrom`, `coverageThreshold`, or `testMatch` as needed. The helper already wires the path aliases from `tsconfig.base.json`, loads `tests/setup-jest.ts`, and scopes coverage to `src/`.
+3. If a package requires extra ignores or module aliases (for example, UI’s custom JSX runtime), spread them on the returned config:
+
+    ```ts
+    const config = createWPKJestConfig({
+    	displayName: '@wpkernel/php-json-ast',
+    	packageDir: import.meta.url,
+    });
+
+    config.testPathIgnorePatterns = [
+    	...(config.testPathIgnorePatterns ?? []),
+    	'testUtils\\.test-support\\.(js|ts|tsx)$',
+    ];
     ```
-    This prevents Jest from trying to run utility files as test suites while still allowing actual test files like `test-support.test.ts` to run normally.
 
-**Note**: The main `jest.config.js` at the monorepo root also includes this pattern in its `testPathIgnorePatterns`, so global test runs (`pnpm test` from root) will automatically exclude these files. Individual packages need their own ignore patterns since they use separate Jest configurations.
+The helper keeps package Jest configs short and ensures they stay aligned when aliases or root behaviour change.
 
 ## 4. ESLint configuration
 

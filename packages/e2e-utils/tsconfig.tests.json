@@ -1,10 +1,8 @@
 {
 	"$schema": "https://json.schemastore.org/tsconfig",
-	"extends": "../../tsconfig.base.json",
+	"extends": "../../tsconfig.tests.json",
 	"compilerOptions": {
-		"rootDir": "./src",
-		"noEmit": true,
-		"skipLibCheck": true
+		"rootDir": "./src"
 	},
 	"include": ["src/**/*.test.ts", "src/**/*.test.tsx"],
 	"references": [{ "path": "../core" }]
