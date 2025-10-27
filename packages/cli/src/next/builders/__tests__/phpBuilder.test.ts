@@ -198,6 +198,9 @@ describe('createPhpBuilder', () => {
 			'fallback',
 			'callback',
 			'enforce',
+			'get_definition',
+			'get_binding',
+			'create_error',
 		]);
 
 		const enforceMethod = classNode?.stmts?.find(
@@ -205,21 +208,92 @@ describe('createPhpBuilder', () => {
 				stmt?.nodeType === 'Stmt_ClassMethod' &&
 				stmt?.name?.name === 'enforce'
 		) as { stmts?: any[] } | undefined;
-		expect(enforceMethod?.stmts?.[0]?.nodeType).toBe('Stmt_Nop');
-		expect(
-			enforceMethod?.stmts?.[0]?.attributes?.comments?.[0]?.text
-		).toContain('TODO: Implement policy enforcement logic');
+		expect(enforceMethod?.stmts?.[0]?.nodeType).not.toBe('Stmt_Nop');
 
-		const enforceReturn = enforceMethod?.stmts?.find(
-			(stmt: any) => stmt?.nodeType === 'Stmt_Return'
+		const finalStatement =
+			enforceMethod?.stmts?.[(enforceMethod?.stmts?.length ?? 1) - 1];
+		expect(finalStatement?.nodeType).toBe('Stmt_Return');
+		const finalExpr = (finalStatement as any)?.expr;
+		expect(finalExpr?.nodeType).toBe('Expr_StaticCall');
+		expect(finalExpr?.class?.parts).toEqual(['self']);
+		expect(finalExpr?.name?.name).toBe('create_error');
+
+		const hasObjectGuard = enforceMethod?.stmts?.some(
+			(stmt: any) => stmt?.nodeType === 'Stmt_If'
 		);
-		expect(enforceReturn?.expr?.nodeType).toBe('Expr_New');
-		expect(enforceReturn?.expr?.class?.parts).toEqual(['WP_Error']);
+		expect(hasObjectGuard).toBe(true);
 
 		const indexEntry = pending.find(
 			(entry) => entry.metadata.kind === 'index-file'
 		);
 		expect(indexEntry?.program[1]?.nodeType).toBe('Stmt_Namespace');
+	});
+
+	it('reports policy map warnings when fallbacks are required', async () => {
+		const workspace = buildWorkspace();
+		const reporter = buildReporter();
+		const context = {
+			workspace,
+			reporter,
+			phase: 'generate' as const,
+		};
+
+		const helper = createPhpPolicyHelper();
+		const queueWrite = jest.fn();
+		const output: BuilderOutput = {
+			actions: [],
+			queueWrite,
+		};
+
+		const localIr: IRv1 = {
+			...ir,
+			policyMap: {
+				...ir.policyMap,
+				warnings: [
+					{
+						code: 'policy-map.entries.missing',
+						message: 'Policies referenced by routes are missing.',
+						context: { policies: ['manage_todo'] },
+					},
+				],
+				missing: ['manage_todo'],
+			},
+		};
+
+		await helper.apply(
+			{
+				context,
+				input: {
+					phase: 'generate',
+					options: {
+						config: localIr.config,
+						namespace: localIr.meta.namespace,
+						origin: localIr.meta.origin,
+						sourcePath: localIr.meta.sourcePath,
+					},
+					ir: localIr,
+				},
+				output,
+				reporter,
+			},
+			undefined
+		);
+
+		expect(reporter.warn).toHaveBeenCalledWith(
+			'Policy helper warning emitted.',
+			expect.objectContaining({
+				code: 'policy-map.entries.missing',
+				message: 'Policies referenced by routes are missing.',
+				context: { policies: ['manage_todo'] },
+			})
+		);
+		expect(reporter.warn).toHaveBeenCalledWith(
+			'Policies falling back to default capability.',
+			expect.objectContaining({
+				policies: ['manage_todo'],
+				capability: 'manage_options',
+			})
+		);
 	});
 
 	it('logs a debug message and skips non-generate phases', async () => {
