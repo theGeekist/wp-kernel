@@ -53,7 +53,7 @@ If you omit `namespace`, the runtime detects it from your plugin headers. You ca
 
 ## Schemas keep clients honest
 
-Passing `'auto'` tells the CLI to derive JSON Schema from your TypeScript types. Alternatively you can import a schema file via the config. Either way the schema feeds `json-schema-to-typescript` for `.d.ts` generation and the PHP printer for REST argument metadata.【F:packages/cli/src/printers/types/printer.ts†L1-L80】【F:packages/cli/src/printers/php/resource-controller.ts†L1-L70】
+Passing `'auto'` tells the CLI to derive JSON Schema from your TypeScript types. Alternatively you can import a schema file via the config. Either way the schema feeds `json-schema-to-typescript` for `.d.ts` generation and the PHP builder for REST argument metadata.【F:packages/cli/src/next/builders/ts.ts†L1-L200】【F:packages/cli/src/next/builders/php/resourceController.ts†L1-L220】
 
 ## Cache and invalidation
 
@@ -61,7 +61,7 @@ Every route can define a cache key helper. Actions typically call `ctx.invalidat
 
 ## Policies and capability checks
 
-`policyHints` bridge frontend intent with backend enforcement. When you provide a hint for a write route, the PHP printer wires `permission_callback` to `Policy::enforce('jobs.create', $request)`. Missing hints trigger a warning and fall back to `current_user_can('manage_options')`, which is surfaced in the generation summary.【F:packages/cli/src/printers/php/routes.ts†L80-L170】【F:packages/cli/src/printers/php/printer.ts†L24-L65】
+`policyHints` bridge frontend intent with backend enforcement. When you provide a hint for a write route, the PHP builder wires `permission_callback` to `Policy::enforce('jobs.create', $request)`. Missing hints trigger a warning and fall back to `current_user_can('manage_options')`, which is surfaced in the generation summary.【F:packages/cli/src/next/builders/php/routes.ts†L170-L260】【F:packages/cli/src/next/builders/php/resourceController.ts†L1-L120】
 
 ## Using resources from the UI
 
@@ -88,7 +88,7 @@ Hooks draw from the same store keys as the grouped selectors. They throw a `Kern
 
 ## Surfacing data in admin screens
 
-When your kernel config includes `ui.admin.dataviews`, the CLI emits `.generated/ui/app/<resource>/admin/<Component>.tsx` and DataViews fixtures. The generated screen uses the resource’s `job.useList()` hook and automatically registers a controller with the UI runtime, so rendering `<ResourceDataView>` is enough to display the list.【F:packages/cli/src/printers/ui/printer.ts†L1-L120】【F:packages/ui/src/dataviews/resource-controller.ts†L1-L180】
+When your kernel config includes `ui.admin.dataviews`, the CLI emits `.generated/ui/app/<resource>/admin/<Component>.tsx` and DataViews fixtures. The generated screen uses the resource’s `job.useList()` hook and automatically registers a controller with the UI runtime, so rendering `<ResourceDataView>` is enough to display the list.【F:packages/cli/src/next/builders/ts.ts†L1-L200】【F:packages/ui/src/dataviews/resource-controller.ts†L1-L180】
 
 ## Where to go next
 

@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2025-10-26
+
+### Removed
+
+- **Legacy CLI shims** – Deleted the string-based printers and Clipanion command classes, wiring the CLI entrypoint directly to the next-generation command factories.
+
+### Changed
+
+- **Command registration** – `wpk` now registers `generate`, `init`, `create`, `start`, `doctor`, and `apply` via the next pipeline builders only; the deprecated `build` command has been removed.
+
+### Documentation
+
+- **Phase 4 release** – Updated the CLI roadmap, quick start, resource guide, and showcase docs to reference the builder-based pipeline and mark Task 26 (0.8.0) as shipped.
+
+### Maintenance
+
+- **Monorepo release** – Bumped all packages, templates, and showcase fixtures to `0.8.0` and regenerated API/docs content after retiring the legacy printers.
+
 ## [0.7.0] - 2025-10-26
 
 ### Added

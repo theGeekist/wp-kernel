@@ -42,16 +42,4 @@ export type {
 	IRPhpProject,
 	BuildIrOptions,
 } from './ir';
-export type { PrinterContext } from './printers/types';
-export type { PhpAstBuilder } from './printers/php/types';
-
-export {
-	GenerateCommand,
-	InitCommand,
-	DoctorCommand,
-	StartCommand,
-	BuildCommand,
-	ApplyCommand,
-} from './commands';
-
 export * as next from './next';

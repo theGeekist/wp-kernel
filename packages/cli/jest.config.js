@@ -16,8 +16,6 @@ const config = createWPKJestConfig({
 		'!<rootDir>/packages/cli/src/cli/**',
 		'!<rootDir>/packages/cli/src/commands/**',
 		'!<rootDir>/packages/cli/src/internal/**',
-		'!<rootDir>/packages/cli/src/printers/**',
-		'!<rootDir>/packages/cli/src/printers/php/**',
 		'!<rootDir>/packages/cli/src/ir/index.ts',
 	],
 	coverageThreshold: {

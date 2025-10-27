@@ -111,7 +111,7 @@ export async function validateGeneratedImports({
 
 	throw new KernelError('ValidationError', {
 		message:
-			'Generated artifacts reference modules or exports that do not exist. Ensure project dependencies are installed and printers are up to date.',
+			'Generated artifacts reference modules or exports that do not exist. Ensure project dependencies are installed and builders are up to date.',
 		context: {
 			diagnostics: relevantDiagnostics.map((diagnostic) => ({
 				code: diagnostic.code,

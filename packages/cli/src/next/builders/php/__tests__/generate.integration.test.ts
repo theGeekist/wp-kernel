@@ -8,18 +8,6 @@ import { buildWorkspace } from '../../../workspace';
 import { withWorkspace } from '@wpkernel/test-utils/integration';
 import { makePhpIrFixture } from '@wpkernel/test-utils/next/builders/php/resources.test-support';
 import * as phpDriver from '@wpkernel/php-driver';
-import * as legacyBaseController from '../../../../printers/php/base-controller';
-import * as legacyResourceController from '../../../../printers/php/resource-controller';
-import * as legacyPolicyHelper from '../../../../printers/php/policy-helper';
-import * as legacyPersistenceRegistry from '../../../../printers/php/persistence-registry';
-import * as legacyIndexFile from '../../../../printers/php/index-file';
-import * as legacyWriter from '../../../../printers/php/writer';
-
-type LegacySpy = {
-	readonly name: string;
-	readonly spy: jest.SpyInstance;
-};
-
 function normalisePhpValue(value: unknown): unknown {
 	if (Array.isArray(value)) {
 		return value.map(normalisePhpValue);
@@ -75,39 +63,6 @@ function createReporterStub(): Reporter {
 	};
 }
 
-const legacyPrinterSpies: LegacySpy[] = [
-	{
-		name: 'base-controller printer',
-		spy: jest.spyOn(legacyBaseController, 'createBaseControllerBuilder'),
-	},
-	{
-		name: 'resource-controller printer',
-		spy: jest.spyOn(
-			legacyResourceController,
-			'createResourceControllerArtifact'
-		),
-	},
-	{
-		name: 'policy helper printer',
-		spy: jest.spyOn(legacyPolicyHelper, 'createPolicyHelperBuilder'),
-	},
-	{
-		name: 'persistence registry printer',
-		spy: jest.spyOn(
-			legacyPersistenceRegistry,
-			'createPersistenceRegistryBuilder'
-		),
-	},
-	{
-		name: 'index file printer',
-		spy: jest.spyOn(legacyIndexFile, 'createPhpIndexFile'),
-	},
-	{
-		name: 'legacy writer',
-		spy: jest.spyOn(legacyWriter, 'writePhpArtifact'),
-	},
-];
-
 const CLI_VENDOR_ROOT = path.resolve(__dirname, '../../../../../vendor');
 const INTEGRATION_TIMEOUT_MS = 20000;
 
@@ -137,18 +92,6 @@ async function ensureCliVendorReady(): Promise<void> {
 
 	await ensureDependencies();
 }
-
-afterEach(() => {
-	for (const entry of legacyPrinterSpies) {
-		entry.spy.mockClear();
-	}
-});
-
-afterAll(() => {
-	for (const entry of legacyPrinterSpies) {
-		entry.spy.mockRestore();
-	}
-});
 
 describe('createPhpBuilder integration', () => {
 	it(
@@ -435,10 +378,6 @@ describe('createPhpBuilder integration', () => {
 				'Stmt_Declare',
 				'Stmt_Namespace',
 			]);
-
-			for (const entry of legacyPrinterSpies) {
-				expect(entry.spy).not.toHaveBeenCalled();
-			}
 		},
 		INTEGRATION_TIMEOUT_MS
 	);
