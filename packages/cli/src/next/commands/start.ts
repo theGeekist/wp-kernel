@@ -1,5 +1,6 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
+import type { Dirent } from 'node:fs';
 import { spawn, type ChildProcessWithoutNullStreams } from 'node:child_process';
 import type * as chokidarModule from 'chokidar';
 import { Command, Option } from 'clipanion';
@@ -431,7 +432,9 @@ export function buildStartCommand(
 			}
 
 			try {
+				const snapshot = await collectDirectorySnapshot(sourceDir);
 				await fs.mkdir(targetDir, { recursive: true });
+				await pruneStaleEntries(targetDir, snapshot);
 				await fs.cp(sourceDir, targetDir, { recursive: true });
 				reporter.info('Applied generated PHP artifacts.', {
 					source: toWorkspaceRelativePath(sourceDir),
@@ -456,6 +459,94 @@ export function detectTier(filePath: string): ChangeTier {
 	}
 
 	return 'fast';
+}
+
+type DirectorySnapshot = {
+	files: Set<string>;
+	directories: Set<string>;
+};
+
+async function collectDirectorySnapshot(
+	root: string
+): Promise<DirectorySnapshot> {
+	const files = new Set<string>();
+	const directories = new Set<string>();
+
+	const walk = async (current: string, relative: string): Promise<void> => {
+		let entries: Dirent[];
+		try {
+			entries = await fs.readdir(current, { withFileTypes: true });
+		} catch (error) {
+			if (isNotFoundError(error)) {
+				return;
+			}
+			throw error;
+		}
+
+		for (const entry of entries) {
+			const entryRelative = buildRelativePath(relative, entry.name);
+			if (entry.isDirectory()) {
+				directories.add(entryRelative);
+				await walk(path.join(current, entry.name), entryRelative);
+			} else {
+				files.add(entryRelative);
+			}
+		}
+	};
+
+	await walk(root, '');
+
+	return { files, directories };
+}
+
+async function pruneStaleEntries(
+	targetRoot: string,
+	snapshot: DirectorySnapshot,
+	relative = ''
+): Promise<void> {
+	const current = relative ? path.join(targetRoot, relative) : targetRoot;
+	let entries: Dirent[];
+
+	try {
+		entries = await fs.readdir(current, { withFileTypes: true });
+	} catch (error) {
+		if (isNotFoundError(error)) {
+			return;
+		}
+		throw error;
+	}
+
+	for (const entry of entries) {
+		const entryRelative = buildRelativePath(relative, entry.name);
+		const entryPath = path.join(current, entry.name);
+
+		if (entry.isDirectory()) {
+			if (!snapshot.directories.has(entryRelative)) {
+				await fs.rm(entryPath, { recursive: true, force: true });
+				continue;
+			}
+
+			await pruneStaleEntries(targetRoot, snapshot, entryRelative);
+			continue;
+		}
+
+		if (!snapshot.files.has(entryRelative)) {
+			await fs.rm(entryPath, { force: true });
+		}
+	}
+}
+
+function buildRelativePath(relative: string, entry: string): string {
+	return relative === '' ? entry : `${relative}/${entry}`;
+}
+
+function isNotFoundError(error: unknown): error is NodeJS.ErrnoException {
+	return (
+		typeof error === 'object' &&
+		error !== null &&
+		'code' in error &&
+		(error as NodeJS.ErrnoException).code === 'ENOENT'
+	);
 }
 
 function normaliseForLog(filePath: string): string {

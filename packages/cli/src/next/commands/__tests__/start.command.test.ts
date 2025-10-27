@@ -1,5 +1,7 @@
 import { EventEmitter } from 'node:events';
 import fs from 'node:fs/promises';
+import path from 'node:path';
+import type { Dirent } from 'node:fs';
 import { PassThrough } from 'node:stream';
 import type { ChildProcessWithoutNullStreams } from 'node:child_process';
 import type { Reporter } from '@wpkernel/core/reporter';
@@ -13,6 +15,8 @@ jest.mock('node:fs/promises', () => ({
 	access: jest.fn(),
 	mkdir: jest.fn(),
 	cp: jest.fn(),
+	readdir: jest.fn(),
+	rm: jest.fn(),
 }));
 
 jest.mock('chokidar', () => ({
@@ -64,6 +68,18 @@ describe('NextStartCommand', () => {
 		mockedFs.access.mockResolvedValue(undefined);
 		mockedFs.mkdir.mockResolvedValue(undefined);
 		mockedFs.cp.mockResolvedValue(undefined);
+		const sourceDir = path.resolve(process.cwd(), '.generated/php');
+		const targetDir = path.resolve(process.cwd(), 'inc');
+		mockedFs.readdir.mockImplementation(async (dir: string) => {
+			if (dir === sourceDir) {
+				return [createDirent('index.php')];
+			}
+			if (dir === targetDir) {
+				return [];
+			}
+			return [];
+		});
+		mockedFs.rm.mockResolvedValue(undefined);
 	});
 
 	afterEach(() => {
@@ -152,6 +168,37 @@ describe('NextStartCommand', () => {
 		const { executePromise } = await runCommand(command);
 
 		expect(mockedFs.cp).not.toHaveBeenCalled();
+
+		await shutdown(executePromise);
+	});
+
+	it('removes stale PHP artifacts before copying new ones', async () => {
+		const sourceDir = path.resolve(process.cwd(), '.generated/php');
+		const targetDir = path.resolve(process.cwd(), 'inc');
+
+		mockedFs.readdir.mockImplementation(async (dir: string) => {
+			if (dir === sourceDir) {
+				return [createDirent('current.php')];
+			}
+
+			if (dir === targetDir) {
+				return [createDirent('current.php'), createDirent('stale.php')];
+			}
+
+			return [];
+		});
+
+		const { command } = createStartCommand();
+		command.autoApplyPhp = true;
+
+		const { executePromise } = await runCommand(command);
+
+		await expectEventually(() => {
+			expect(mockedFs.rm).toHaveBeenCalledWith(
+				path.join(targetDir, 'stale.php'),
+				{ force: true }
+			);
+		});
 
 		await shutdown(executePromise);
 	});
@@ -317,6 +364,18 @@ async function expectEventually(assertion: () => void): Promise<void> {
 
 const FAST_DEBOUNCE_MS = 200;
 const SLOW_DEBOUNCE_MS = 600;
+
+function createDirent(
+	name: string,
+	options: { directory?: boolean } = {}
+): Dirent {
+	return {
+		name,
+		isDirectory: () => Boolean(options.directory),
+		isFile: () => !options.directory,
+		isSymbolicLink: () => false,
+	} as unknown as Dirent;
+}
 
 function stubRunGeneration(result: GenerationRunResult): void {
 	runGenerationMock.mockImplementation(async (_dependencies, options) => {
