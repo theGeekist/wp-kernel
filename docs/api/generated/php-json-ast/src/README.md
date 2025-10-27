@@ -6,10 +6,6 @@
 
 # php-json-ast/src
 
-## Classes
-
-- [PhpMethodBodyBuilder](classes/PhpMethodBodyBuilder.md)
-
 ## Interfaces
 
 - [HelperDescriptor](interfaces/HelperDescriptor.md)
@@ -120,9 +116,6 @@
 - [CreatePhpFileBuilderOptions](interfaces/CreatePhpFileBuilderOptions.md)
 - [PhpDriverConfigurationOptions](interfaces/PhpDriverConfigurationOptions.md)
 - [CreatePhpProgramWriterHelperOptions](interfaces/CreatePhpProgramWriterHelperOptions.md)
-- [PhpMethodTemplateAstOptions](interfaces/PhpMethodTemplateAstOptions.md)
-- [PhpMethodTemplateOptions](interfaces/PhpMethodTemplateOptions.md)
-- [PhpClassTemplateOptions](interfaces/PhpClassTemplateOptions.md)
 - [ResourceControllerRouteMetadata](interfaces/ResourceControllerRouteMetadata.md)
 - [ResourceControllerMetadata](interfaces/ResourceControllerMetadata.md)
 - [ResourceControllerCacheEvent](interfaces/ResourceControllerCacheEvent.md)
@@ -151,8 +144,6 @@
 - [PipelinePhase](type-aliases/PipelinePhase.md)
 - [BuilderHelper](type-aliases/BuilderHelper.md)
 - [PhpFileAst](type-aliases/PhpFileAst.md)
-- [PhpMethodTemplate](type-aliases/PhpMethodTemplate.md)
-- [PhpClassTemplate](type-aliases/PhpClassTemplate.md)
 - [ResourceControllerCacheScope](type-aliases/ResourceControllerCacheScope.md)
 - [ResourceControllerCacheOperation](type-aliases/ResourceControllerCacheOperation.md)
 - [PhpFileMetadata](type-aliases/PhpFileMetadata.md)
@@ -172,14 +163,10 @@
 - [PHP_METHOD_MODIFIER_STATIC](variables/PHP_METHOD_MODIFIER_STATIC.md)
 - [PHP_METHOD_MODIFIER_ABSTRACT](variables/PHP_METHOD_MODIFIER_ABSTRACT.md)
 - [PHP_METHOD_MODIFIER_FINAL](variables/PHP_METHOD_MODIFIER_FINAL.md)
-- [PHP_INDENT](variables/PHP_INDENT.md)
 
 ## Functions
 
 - [createHelper](functions/createHelper.md)
-- [appendMethodTemplates](functions/appendMethodTemplates.md)
-- [appendClassTemplate](functions/appendClassTemplate.md)
-- [appendPrintable](functions/appendPrintable.md)
 - [getPhpBuilderChannel](functions/getPhpBuilderChannel.md)
 - [resetPhpBuilderChannel](functions/resetPhpBuilderChannel.md)
 - [getPhpAstChannel](functions/getPhpAstChannel.md)
@@ -257,5 +244,3 @@
 - [createPhpFileBuilder](functions/createPhpFileBuilder.md)
 - [resetPhpProgramBuilderContext](functions/resetPhpProgramBuilderContext.md)
 - [createPhpProgramWriterHelper](functions/createPhpProgramWriterHelper.md)
-- [assembleMethodTemplate](functions/assembleMethodTemplate.md)
-- [assembleClassTemplate](functions/assembleClassTemplate.md)

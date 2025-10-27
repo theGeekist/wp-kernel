@@ -121,6 +121,35 @@ describe('createPhpProgramWriterHelper', () => {
 		jest.restoreAllMocks();
 	});
 
+	it('logs and exits early when no programs are queued', async () => {
+		const context = createPipelineContext();
+		const input = createBuilderInput();
+		const output: BuilderOutput = {
+			actions: [],
+			queueWrite: jest.fn(),
+		};
+
+		resetChannels(context);
+
+		const helper = createPhpProgramWriterHelper();
+		const next = jest.fn();
+
+		await helper.apply(
+			{
+				context,
+				input,
+				output,
+				reporter: context.reporter,
+			},
+			next
+		);
+
+		expect(context.reporter.debug).toHaveBeenCalledWith(
+			'createPhpProgramWriterHelper: no programs queued.'
+		);
+		expect(next).toHaveBeenCalledTimes(1);
+	});
+
 	it('writes queued programs using the PHP driver', async () => {
 		const context = createPipelineContext();
 		const input = createBuilderInput();

@@ -168,7 +168,6 @@ const config = createWPKLibConfig(
 		builders: 'src/builders.ts',
 		channels: 'src/channels.ts',
 		nodes: 'src/nodes.ts',
-		templates: 'src/templates.ts',
 		factories: 'src/factories.ts',
 		types: 'src/types.ts',
 	},
