@@ -11,7 +11,12 @@ import {
 	toFsPath,
 } from '@wpkernel/test-utils/next/commands/apply.test-support';
 
-const withWorkspace = buildWorkspaceRunner({ prefix: TMP_PREFIX });
+const withWorkspace = buildWorkspaceRunner({
+	prefix: TMP_PREFIX,
+	async setup(workspace) {
+		await fs.mkdir(path.join(workspace, '.git'), { recursive: true });
+	},
+});
 
 describe('NextApplyCommand integration', () => {
 	it('applies git patches and reports summary', async () => {
@@ -40,6 +45,9 @@ describe('NextApplyCommand integration', () => {
 				loadWPKernelConfig: loadConfig,
 			});
 			const command = new ApplyCommand();
+			command.yes = true;
+			command.backup = false;
+			command.force = false;
 			const { stdout } = assignCommandContext(command, {
 				cwd: workspace,
 			});
@@ -75,6 +83,97 @@ describe('NextApplyCommand integration', () => {
 		});
 	});
 
+	it('creates backups when the backup flag is set', async () => {
+		await withWorkspace(async (workspace) => {
+			const target = path.posix.join('php', 'BackupController.php');
+			const baseContents = [
+				'<?php',
+				'class BackupController {}',
+				'',
+			].join('\n');
+			const updatedContents = [
+				'<?php',
+				'class BackupController extends BaseController {}',
+				'',
+			].join('\n');
+
+			await seedPlan(workspace, target, {
+				base: baseContents,
+				incoming: updatedContents,
+				current: baseContents,
+				description: 'Update controller shim',
+			});
+
+			const loadConfig = jest
+				.fn()
+				.mockResolvedValue(buildLoadedConfig(workspace));
+			const ApplyCommand = ApplyModule.buildApplyCommand({
+				loadWPKernelConfig: loadConfig,
+			});
+			const command = new ApplyCommand();
+			command.yes = true;
+			command.backup = true;
+			command.force = false;
+			assignCommandContext(command, { cwd: workspace });
+
+			await command.execute();
+
+			const backupPath = `${toFsPath(workspace, target)}.bak`;
+			const backupContents = await fs.readFile(backupPath, 'utf8');
+			expect(backupContents).toBe(baseContents);
+		});
+	});
+
+	it('records apply runs in the workspace log', async () => {
+		await withWorkspace(async (workspace) => {
+			const target = path.posix.join('php', 'LogController.php');
+			const baseContents = ['<?php', 'class LogController {}', ''].join(
+				'\n'
+			);
+			const incomingContents = [
+				'<?php',
+				'class LogController extends Base {}',
+				'',
+			].join('\n');
+
+			await seedPlan(workspace, target, {
+				base: baseContents,
+				incoming: incomingContents,
+				current: baseContents,
+				description: 'Promote controller changes',
+			});
+
+			const loadConfig = jest
+				.fn()
+				.mockResolvedValue(buildLoadedConfig(workspace));
+			const ApplyCommand = ApplyModule.buildApplyCommand({
+				loadWPKernelConfig: loadConfig,
+			});
+			const command = new ApplyCommand();
+			command.yes = true;
+			command.backup = false;
+			command.force = false;
+			assignCommandContext(command, { cwd: workspace });
+
+			await command.execute();
+
+			const logPath = path.join(workspace, '.wpk-apply.log');
+			const logContents = await fs.readFile(logPath, 'utf8');
+			const entries = logContents
+				.trim()
+				.split('\n')
+				.map((line) => JSON.parse(line));
+
+			expect(entries.at(-1)).toEqual(
+				expect.objectContaining({
+					status: 'success',
+					flags: { yes: true, backup: false, force: false },
+					summary: { applied: 1, conflicts: 0, skipped: 0 },
+				})
+			);
+		});
+	});
+
 	it('returns success when no plan exists', async () => {
 		await withWorkspace(async (workspace) => {
 			const loadConfig = jest
@@ -84,6 +183,9 @@ describe('NextApplyCommand integration', () => {
 				loadWPKernelConfig: loadConfig,
 			});
 			const command = new ApplyCommand();
+			command.yes = true;
+			command.backup = false;
+			command.force = false;
 			const { stdout } = assignCommandContext(command, {
 				cwd: workspace,
 			});
@@ -122,6 +224,9 @@ describe('NextApplyCommand integration', () => {
 				loadWPKernelConfig: loadConfig,
 			});
 			const command = new ApplyCommand();
+			command.yes = true;
+			command.backup = false;
+			command.force = false;
 			const { stdout } = assignCommandContext(command, {
 				cwd: workspace,
 			});
@@ -135,6 +240,43 @@ describe('NextApplyCommand integration', () => {
 				skipped: 0,
 			});
 			expect(stdout.toString()).toContain('Conflicts: 1');
+		});
+	});
+
+	it('returns success for conflicts when force is enabled', async () => {
+		await withWorkspace(async (workspace) => {
+			const target = path.posix.join('php', 'Forced.php');
+			const base = ['original', ''].join('\n');
+			const incoming = ['updated', ''].join('\n');
+			const current = ['custom', ''].join('\n');
+
+			await seedPlan(workspace, target, {
+				base,
+				incoming,
+				current,
+				description: 'Introduce conflict',
+			});
+
+			const loadConfig = jest
+				.fn()
+				.mockResolvedValue(buildLoadedConfig(workspace));
+			const ApplyCommand = ApplyModule.buildApplyCommand({
+				loadWPKernelConfig: loadConfig,
+			});
+			const command = new ApplyCommand();
+			command.yes = true;
+			command.backup = false;
+			command.force = true;
+			assignCommandContext(command, { cwd: workspace });
+
+			const exitCode = await command.execute();
+
+			expect(exitCode).toBe(WPK_EXIT_CODES.SUCCESS);
+			expect(command.summary).toEqual({
+				applied: 0,
+				conflicts: 1,
+				skipped: 0,
+			});
 		});
 	});
 });
