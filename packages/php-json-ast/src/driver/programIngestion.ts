@@ -76,20 +76,19 @@ async function* readMessages(
 	for await (const chunk of toAsyncIterable(source)) {
 		buffer += chunk.toString();
 
-		while (true) {
-			const newlineIndex = buffer.indexOf('\n');
-			if (newlineIndex === -1) {
-				break;
-			}
-
-			const line = buffer.slice(0, newlineIndex);
-			buffer = buffer.slice(newlineIndex + 1);
-
-			if (line.trim().length === 0) {
-				continue;
-			}
-
+		const drained = drainDelimitedLines(buffer);
+		buffer = drained.remaining;
+		for (const line of drained.lines) {
 			yield parseMessage(line);
+		}
+
+		const flush = flushBufferedMessage(buffer);
+		buffer = flush.remaining;
+
+		if (flush.message) {
+			yield flush.message;
+		} else if (flush.error) {
+			throw flush.error;
 		}
 	}
 
@@ -196,6 +195,56 @@ function resolveFilePath(
 	}
 
 	return file;
+}
+
+function drainDelimitedLines(buffer: string): {
+	remaining: string;
+	lines: string[];
+} {
+	const lines: string[] = [];
+	let remaining = buffer;
+
+	while (true) {
+		const newlineIndex = remaining.indexOf('\n');
+		if (newlineIndex === -1) {
+			break;
+		}
+
+		const line = remaining.slice(0, newlineIndex);
+		remaining = remaining.slice(newlineIndex + 1);
+
+		if (line.trim().length === 0) {
+			continue;
+		}
+
+		lines.push(line);
+	}
+
+	return { remaining, lines };
+}
+
+function flushBufferedMessage(buffer: string): {
+	remaining: string;
+	message?: PhpProgramIngestionMessage;
+	error?: unknown;
+} {
+	const trimmed = buffer.trim();
+	if (trimmed.length === 0 || !trimmed.endsWith('}')) {
+		return { remaining: buffer };
+	}
+
+	try {
+		return {
+			remaining: '',
+			message: parseMessage(trimmed),
+		};
+	} catch (error) {
+		if (error instanceof KernelError && error.code === 'DeveloperError') {
+			return { remaining: trimmed };
+		}
+
+		return { remaining: buffer, error };
+	}
 }
 
 function normaliseStringArray(value: unknown): readonly string[] {
