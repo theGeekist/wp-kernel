@@ -63,7 +63,48 @@ For the sample above the `code` payload renders `return 'Hello world';`. You can
 pipe the JSON into `jq` or save it alongside the generated PHP to inspect the
 round-trip.
 
-## 4. Next steps
+## 4. Ingest PHP programs from TypeScript
+
+Codemod pilots can now start from real PHP files. The ingestion script emits a
+JSON object for each requested path:
+
+```bash
+php packages/php-json-ast/php/ingest-program.php packages/php-json-ast \
+  packages/php-json-ast/fixtures/ingestion/CodifiedController.php
+```
+
+Every line on stdout contains `{ file, program }`. Pipe those lines into
+`consumePhpProgramIngestion()` and the helper will queue matching
+`PhpProgram` entries for `createPhpProgramWriterHelper()` to flush:
+
+```ts
+import readline from 'node:readline/promises';
+import {
+	consumePhpProgramIngestion,
+	createPhpProgramWriterHelper,
+} from '@wpkernel/php-json-ast';
+
+const ingestion = readline.createInterface({ input: child.stdout });
+
+await consumePhpProgramIngestion({
+	context,
+	source: ingestion,
+	defaultMetadata: { kind: 'index-file' },
+});
+
+await createPhpProgramWriterHelper().apply({
+	context,
+	input,
+	output,
+	reporter: context.reporter,
+});
+```
+
+The writer helper persists both the regenerated PHP source and a `.ast.json`
+snapshot for inspection, mirroring the pretty-print workflow. In the example
+above `child` is the `spawn()`ed PHP process streaming ingestion payloads.
+
+## 5. Next steps
 
 With the driver confirmed, you can queue programs through
 `createPhpProgramWriterHelper()` inside a pipeline context. The helper drains the

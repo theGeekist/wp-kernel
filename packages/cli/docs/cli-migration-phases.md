@@ -151,7 +151,7 @@ These align with `docs/pipeline-integration-tasks.md` and related planning docs.
     - Port flag handling, backups, `.wpk-apply.log`, and generated-directory hygiene into the `buildApplyCommand` surface and default `NextApplyCommand`.
 2. **PHP AST parity**
     - Track progress in `docs/php-ast-migration-tasks.md`.
-    - Outstanding: Task 25 (controller safety warnings & derived block scaffolds) and the Task 26 release that deletes the remaining string-based printers once parity lands.
+    - Outstanding: Task 26 release that deletes the remaining string-based printers once parity lands.
 3. **Block & UI builders**
     - Introduce a next-gen blocks builder (SSR + JS-only).
     - Expand `createTsBuilder` to cover stores/bootstrap/storybook and create import validation flows for new artefacts.

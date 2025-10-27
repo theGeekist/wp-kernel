@@ -213,7 +213,7 @@ describe('modern PHP expressions', () => {
 				'$callback = fn($value) => match ($value) {\n' +
 				"    0 => 'zero',\n" +
 				"    default => 'other',\n" +
-				'};\n\n' +
+				'};\n' +
 				'$repository?->find(42);\n' +
 				'throw $error;\n'
 		);

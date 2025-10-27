@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
+
 if ($argc < 3) {
     fwrite(STDERR, "Usage: php ingest-program.php <workspace-root> <file> [<file> ...]\n");
     exit(1);
@@ -124,7 +126,6 @@ function normalizeNodeShape(array $node): array
         case 'Name_Relative':
             if (isset($node['name']) && is_string($node['name'])) {
                 $node['parts'] = explode('\\', $node['name']);
-                unset($node['name']);
             }
             break;
     }
