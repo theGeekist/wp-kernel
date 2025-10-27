@@ -11,7 +11,11 @@ import type {
 	IRSchema,
 	IRv1,
 } from '../../ir/types';
-import type { Helper, HelperApplyOptions } from '@wpkernel/core/pipeline';
+import type {
+	FragmentFinalizationMetadata,
+	Helper,
+	HelperApplyOptions,
+} from '@wpkernel/core/pipeline';
 import type { PipelineContext } from '../runtime/types';
 
 export interface MutableIr {
@@ -42,7 +46,55 @@ export function buildIrDraft(options: BuildIrOptions): MutableIr {
 	};
 }
 
-export function finalizeIrDraft(draft: MutableIr): IRv1 {
+const CORE_FRAGMENT_PREFIXES = [
+	'ir.meta.',
+	'ir.schemas.',
+	'ir.resources.',
+	'ir.policies.',
+	'ir.policy-map.',
+	'ir.diagnostics.',
+	'ir.blocks.',
+	'ir.ordering.',
+	'ir.validation.',
+] as const;
+
+function assertCoreFragmentsExecuted(
+	helpers: FragmentFinalizationMetadata<'fragment'>
+): void {
+	const missing = new Set(helpers.fragments.missing);
+
+	for (const prefix of CORE_FRAGMENT_PREFIXES) {
+		const registered = helpers.fragments.registered.some((key) =>
+			key.startsWith(prefix)
+		);
+
+		if (!registered) {
+			continue;
+		}
+
+		const executed = helpers.fragments.executed.some((key) =>
+			key.startsWith(prefix)
+		);
+
+		if (!executed) {
+			missing.add(`${prefix}*`);
+		}
+	}
+
+	if (missing.size > 0) {
+		const missingList = Array.from(missing).sort().join(', ');
+		throw new KernelError('ValidationError', {
+			message: `IR finalisation aborted because the following fragments did not execute: ${missingList}.`,
+		});
+	}
+}
+
+export function finalizeIrDraft(
+	draft: MutableIr,
+	helpers: FragmentFinalizationMetadata<'fragment'>
+): IRv1 {
+	assertCoreFragmentsExecuted(helpers);
+
 	if (!draft.meta) {
 		throw new KernelError('ValidationError', {
 			message:
