@@ -1,4 +1,4 @@
-[**WP Kernel API v0.7.0**](../../../../../README.md)
+[**WP Kernel API v0.8.0**](../../../../../README.md)
 
 ---
 
@@ -7,7 +7,7 @@
 # Function: buildDoctorCommand()
 
 ```ts
-function buildDoctorCommand(options): DoctorConstructor;
+function buildDoctorCommand(options): () => Command;
 ```
 
 ## Parameters
@@ -18,4 +18,10 @@ function buildDoctorCommand(options): DoctorConstructor;
 
 ## Returns
 
-`DoctorConstructor`
+```ts
+new buildDoctorCommand(): Command;
+```
+
+### Returns
+
+`Command`

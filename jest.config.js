@@ -63,7 +63,6 @@ export default {
 		'!packages/cli/src/cli/**', // CLI entry points (require process, filesystem)
 		'!packages/cli/src/commands/**', // Command implementations (file I/O, tested integration-style)
 		'!packages/cli/src/internal/**', // Internal constants (trivial)
-		'!packages/cli/src/printers/**', // File printers (tested indirectly via IR tests)
 		'!packages/cli/src/version.ts', // Auto-generated version constant
 		'!packages/cli/src/ir/__fixtures__/**', // Test fixtures
 		// Exclude dataviews test-support helpers from coverage

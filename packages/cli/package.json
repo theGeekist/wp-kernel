@@ -1,6 +1,6 @@
 {
 	"name": "@wpkernel/cli",
-	"version": "0.7.0",
+	"version": "0.8.0",
 	"description": "CLI for scaffolding and managing WP Kernel projects",
 	"license": "EUPL-1.2",
 	"type": "module",
@@ -33,11 +33,6 @@
 			"import": "./dist/index.js",
 			"default": "./dist/index.js"
 		},
-		"./commands": {
-			"types": "./dist/commands/index.d.ts",
-			"import": "./dist/commands/index.js",
-			"default": "./dist/commands/index.js"
-		},
 		"./config": {
 			"types": "./dist/config/index.d.ts",
 			"import": "./dist/config/index.js",
@@ -47,11 +42,6 @@
 			"types": "./dist/ir/index.d.ts",
 			"import": "./dist/ir/index.js",
 			"default": "./dist/ir/index.js"
-		},
-		"./printers": {
-			"types": "./dist/printers/index.d.ts",
-			"import": "./dist/printers/index.js",
-			"default": "./dist/printers/index.js"
 		},
 		"./policy-map": {
 			"types": "./dist/policy-map.d.ts",

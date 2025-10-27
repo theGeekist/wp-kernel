@@ -16,7 +16,7 @@ import { createReporterMock } from '@wpkernel/test-utils/cli';
 const TMP_OUTPUT = path.join(os.tmpdir(), 'wpk-extension-output-');
 
 describe('runAdapterExtensions', () => {
-	it('queues files in a sandbox and commits them after printers succeed', async () => {
+	it('queues files in a sandbox and commits them after builders succeed', async () => {
 		const outputDir = await fs.mkdtemp(TMP_OUTPUT);
 		const writer = new FileWriter();
 		const reporter = createReporterMock();
@@ -67,7 +67,7 @@ describe('runAdapterExtensions', () => {
 		}
 	});
 
-	it('rolls back sandbox files when printers fail', async () => {
+	it('rolls back sandbox files when builders fail', async () => {
 		const outputDir = await fs.mkdtemp(TMP_OUTPUT);
 		const reporter = createReporterMock();
 

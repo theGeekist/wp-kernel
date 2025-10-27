@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+## 0.8.0 - 2025-10-26
+
+### Removed
+
+- **Legacy printers** – Removed the string-based PHP/TypeScript/blocks printers and the `runGenerate` shim in favour of the next pipeline builders.
+- **Deprecated commands** – Dropped the Clipanion `GenerateCommand`, `StartCommand`, `DoctorCommand`, `InitCommand`, `BuildCommand`, and `ApplyCommand` classes; the CLI now registers the factory-built commands directly (and omits the deprecated `build` command).
+
+### Changed
+
+- **CLI entrypoint** – `cli/run.ts` instantiates the next-generation `generate`, `init`, `create`, `start`, `doctor`, and `apply` commands before registration, eliminating the legacy command layer.
+
+### Documentation
+
+- **Task 26 release notes** – Migration plan, MVP ledger, quick start, and resource/block guides now describe the builder pipeline and mark the 0.8.0 release as shipped.
+
 ## 0.7.0 - 2025-10-26
 
 ### Added

@@ -1,4 +1,4 @@
-[**WP Kernel API v0.7.0**](../../README.md)
+[**WP Kernel API v0.8.0**](../../README.md)
 
 ---
 
@@ -15,15 +15,6 @@ kernel and UI packages.
 ## Namespaces
 
 - [next](namespaces/next/README.md)
-
-## Classes
-
-- [ApplyCommand](classes/ApplyCommand.md)
-- [BuildCommand](classes/BuildCommand.md)
-- [DoctorCommand](classes/DoctorCommand.md)
-- [GenerateCommand](classes/GenerateCommand.md)
-- [InitCommand](classes/InitCommand.md)
-- [StartCommand](classes/StartCommand.md)
 
 ## Interfaces
 
@@ -44,8 +35,6 @@ kernel and UI packages.
 - [IRv1](interfaces/IRv1.md)
 - [BuildIrOptions](interfaces/BuildIrOptions.md)
 - [PolicyCapabilityDescriptor](interfaces/PolicyCapabilityDescriptor.md)
-- [PhpAstBuilder](interfaces/PhpAstBuilder.md)
-- [PrinterContext](interfaces/PrinterContext.md)
 
 ## Type Aliases
 
