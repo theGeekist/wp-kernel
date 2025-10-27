@@ -38,6 +38,7 @@ export interface PatchRecord {
 export interface PatchManifest {
 	readonly summary: PatchManifestSummary;
 	readonly records: PatchRecord[];
+	readonly actions: readonly string[];
 }
 
 export function buildBuilderOutput(): BuilderOutput {
@@ -82,6 +83,11 @@ export async function readManifest(
 						? record.details
 						: undefined,
 			})),
+			actions: Array.isArray((data as { actions?: unknown }).actions)
+				? ((data as { actions?: unknown }).actions as unknown[])
+						.map((value) => String(value ?? ''))
+						.filter((value) => value.length > 0)
+				: [],
 		} satisfies PatchManifest;
 	} catch (error) {
 		throw new WPKernelError('DeveloperError', {

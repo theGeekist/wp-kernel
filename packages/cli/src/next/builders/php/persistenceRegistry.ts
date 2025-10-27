@@ -37,7 +37,7 @@ export function createPhpPersistenceRegistryHelper(): BuilderHelper {
 			}
 
 			const { ir } = input;
-			const namespace = `${ir.php.namespace}\\Registration`;
+			const namespace = `${ir.php.namespace}\\Generated\\Registration`;
 			const filePath = options.context.workspace.resolve(
 				ir.php.outputDir,
 				'Registration',

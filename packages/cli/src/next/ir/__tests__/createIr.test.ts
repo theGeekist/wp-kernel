@@ -33,6 +33,9 @@ jest.mock('../../builders', () => {
 		createBundler: jest.fn(() =>
 			createStubBuilder('builder.generate.stub.bundler')
 		),
+		createApplyPlanBuilder: jest.fn(() =>
+			createStubBuilder('builder.generate.stub.plan')
+		),
 		createPatcher: jest.fn(() =>
 			createStubBuilder('builder.generate.stub.patcher')
 		),
@@ -274,7 +277,7 @@ describe('createIr', () => {
 
 		expect(ir).toBe(pipelineRunResult.ir);
 		expect(pipeline.ir.use).toHaveBeenCalledTimes(9);
-		expect(pipeline.builders.use).toHaveBeenCalledTimes(6);
+		expect(pipeline.builders.use).toHaveBeenCalledTimes(7);
 		expect(pipeline.extensions.use).toHaveBeenCalledTimes(1);
 		expect(pipeline.run).toHaveBeenCalledTimes(1);
 	});
@@ -330,7 +333,7 @@ describe('createIr', () => {
 
 		expect(ir).toBe(pipelineRunResult.ir);
 		expect(pipeline.ir.use).toHaveBeenCalledTimes(9);
-		expect(pipeline.builders.use).toHaveBeenCalledTimes(6);
+		expect(pipeline.builders.use).toHaveBeenCalledTimes(7);
 		expect(pipeline.extensions.use).toHaveBeenCalledTimes(1);
 		expect(pipeline.run).toHaveBeenCalledTimes(1);
 		expect(workspaceSpy).toHaveBeenCalledWith(
