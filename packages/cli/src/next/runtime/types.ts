@@ -8,7 +8,7 @@ import type {
 	PipelineContext as PhpPipelineContext,
 	PipelinePhase,
 } from '@wpkernel/php-json-ast';
-import type { BuildIrOptions, IRv1 } from '../../ir/types';
+import type { BuildIrOptions, IRv1 } from '../ir/publicTypes';
 import type { MutableIr } from '../ir/types';
 import type { Workspace } from '../workspace/types';
 

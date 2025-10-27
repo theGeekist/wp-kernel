@@ -18,7 +18,7 @@ import {
 	appendStatementsWithSpacing,
 } from '../../resource';
 import type { ResolvedIdentity } from '../../identity';
-import type { IRResource } from '../../../../../ir/types';
+import type { IRResource } from '../../../../ir/publicTypes';
 
 export interface BuildGetRouteStatementsOptions {
 	readonly resource: IRResource;

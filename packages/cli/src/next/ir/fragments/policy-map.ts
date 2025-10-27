@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { createHelper } from '../../runtime';
-import { resolvePolicyMap } from '../../../ir/policy-map';
+import { resolvePolicyMap } from '../shared/policy-map';
 import type { IrFragment, IrFragmentApplyOptions } from '../types';
 
 export function createPolicyMapFragment(): IrFragment {

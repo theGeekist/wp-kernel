@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { createJsBlocksBuilder } from '../blocks';
-import type { IRResource, IRSchema, IRv1 } from '../../../../ir/types';
+import type { IRResource, IRSchema, IRv1 } from '../../../ir/publicTypes';
 import {
 	withWorkspace,
 	buildKernelConfigSource,

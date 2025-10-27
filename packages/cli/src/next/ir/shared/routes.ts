@@ -1,6 +1,6 @@
 import { KernelError } from '@wpkernel/core/error';
 import type { ResourceConfig, ResourceRoute } from '@wpkernel/core/resource';
-import type { IRRoute, IRWarning } from './types';
+import type { IRRoute, IRWarning } from '../publicTypes';
 import { hashCanonical } from './canonical';
 
 const RESERVED_ROUTE_PREFIXES = [

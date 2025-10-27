@@ -1,4 +1,4 @@
-import type { IRPolicyHint, IRResource } from './types';
+import type { IRPolicyHint, IRResource } from '../publicTypes';
 
 export function collectPolicyHints(resources: IRResource[]): IRPolicyHint[] {
 	const hints = new Map<string, IRPolicyHint>();

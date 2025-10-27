@@ -1,10 +1,10 @@
-import type { KernelConfigV1 } from '../../config/types';
-import { buildIr } from '../build-ir';
+import type { KernelConfigV1 } from '../../../config/types';
+import { buildIr } from '../../buildIr';
 import {
 	FIXTURE_CONFIG_PATH,
 	canonicalHash,
 	createBaseConfig,
-} from '../test-helpers';
+} from '../../shared/test-helpers';
 
 describe('buildIr - defaults and inference', () => {
 	it('derives default cache keys when not provided', async () => {

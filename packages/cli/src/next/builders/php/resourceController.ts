@@ -34,7 +34,7 @@ import {
 	type ResourceMetadataHost,
 } from '@wpkernel/php-json-ast';
 import { makeErrorCodeFactory, sanitizeJson, toPascalCase } from './utils';
-import type { IRResource, IRRoute, IRv1 } from '../../../ir/types';
+import type { IRResource, IRRoute, IRv1 } from '../../ir/publicTypes';
 import { resolveIdentityConfig, type ResolvedIdentity } from './identity';
 import { collectCanonicalBasePaths } from './routes';
 import { buildRestArgs } from './resourceController/restArgs';
@@ -206,7 +206,7 @@ function buildResourceController(
 	methods.push(buildGetSchemaKeyMethod(resource));
 	methods.push(buildGetRestArgsMethod(ir, resource));
 
-	const routeMethods = resource.routes.map((route: IRRoute, index) =>
+	const routeMethods = resource.routes.map((route: IRRoute, index: number) =>
 		buildRouteMethod({
 			builder,
 			ir,

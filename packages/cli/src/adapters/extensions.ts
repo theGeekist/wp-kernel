@@ -8,7 +8,7 @@ import type {
 	AdapterExtension,
 	AdapterExtensionContext,
 } from '../config/types';
-import type { IRv1 } from '../ir/types';
+import type { IRv1 } from '../next/ir/publicTypes';
 
 /**
  * Result returned by the `runAdapterExtensions` helper.

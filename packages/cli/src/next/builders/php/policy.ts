@@ -49,7 +49,7 @@ import {
 } from '@wpkernel/php-json-ast';
 import { renderPhpValue } from './resource/phpValue';
 import type { Reporter } from '@wpkernel/core/reporter';
-import type { IRPolicyDefinition, IRv1 } from '../../../ir/types';
+import type { IRPolicyDefinition, IRv1 } from '../../ir/publicTypes';
 import { sanitizeJson } from './utils';
 
 export function createPhpPolicyHelper(): BuilderHelper {

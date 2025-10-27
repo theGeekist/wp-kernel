@@ -1,5 +1,5 @@
 import { toPascalCase } from '../utils';
-import type { IRRoute, IRv1 } from '../../../../ir/types';
+import type { IRRoute, IRv1 } from '../../../ir/publicTypes';
 
 export function buildRouteMethodName(route: IRRoute, ir: IRv1): string {
 	const method = route.method.toLowerCase();

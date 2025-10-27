@@ -13,7 +13,7 @@ import {
 	createPhpFileBuilder,
 	type PhpAstBuilderAdapter,
 } from '@wpkernel/php-json-ast';
-import type { IRv1 } from '../../../ir/types';
+import type { IRv1 } from '../../ir/publicTypes';
 import { renderPhpValue } from './resource/phpValue';
 import { toPascalCase } from './utils';
 

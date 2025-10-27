@@ -1,9 +1,9 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import type { KernelConfigV1 } from '../../config/types';
-import { buildIr } from '../build-ir';
-import { setCachedTsImport } from '../../config/load-kernel-config';
-import { createBaseConfig, withTempWorkspace } from '../test-helpers';
+import type { KernelConfigV1 } from '../../../config/types';
+import { buildIr } from '../../buildIr';
+import { setCachedTsImport } from '../../../../config/load-kernel-config';
+import { createBaseConfig, withTempWorkspace } from '../../shared/test-helpers';
 
 describe('policy map integration', () => {
 	afterEach(() => {

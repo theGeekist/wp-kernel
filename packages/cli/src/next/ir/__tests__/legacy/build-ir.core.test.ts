@@ -1,13 +1,13 @@
 import path from 'node:path';
 import { KernelError } from '@wpkernel/core/error';
-import type { KernelConfigV1 } from '../../config/types';
-import { buildIr } from '../build-ir';
+import type { KernelConfigV1 } from '../../../config/types';
+import { buildIr } from '../../buildIr';
 import {
 	FIXTURE_CONFIG_PATH,
 	FIXTURE_ROOT,
 	canonicalHash,
 	createBaseConfig,
-} from '../test-helpers';
+} from '../../shared/test-helpers';
 
 describe('buildIr - core behaviours', () => {
 	it('constructs a deterministic IR for manual schemas', async () => {

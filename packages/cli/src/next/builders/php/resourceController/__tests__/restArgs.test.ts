@@ -1,4 +1,4 @@
-import type { IRResource, IRSchema } from '../../../../../ir/types';
+import type { IRResource, IRSchema } from '../../../../ir/publicTypes';
 import { buildRestArgs } from '../restArgs';
 
 function buildResource(overrides: Partial<IRResource> = {}): IRResource {

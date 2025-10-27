@@ -1,6 +1,6 @@
 import path from 'node:path';
 import type { Reporter } from '@wpkernel/core/reporter';
-import type { IRv1 } from '../../../ir/types';
+import type { IRv1 } from '../../ir/publicTypes';
 import {
 	createPhpBuilder,
 	createPhpChannelHelper,

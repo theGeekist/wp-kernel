@@ -1,5 +1,5 @@
 import { sanitizeJson } from '../utils';
-import type { IRResource, IRSchema } from '../../../../ir/types';
+import type { IRResource, IRSchema } from '../../../ir/publicTypes';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return Boolean(value) && typeof value === 'object' && !Array.isArray(value);

@@ -10,7 +10,7 @@ import type {
 	BuilderOutput,
 	PipelineContext,
 } from '../../../runtime/types';
-import type { IRv1 } from '../../../../ir/types';
+import type { IRv1 } from '../../../ir/publicTypes';
 import type { BlockManifestEntry } from '../../blocks/manifest';
 import { sanitizeJson } from '../utils';
 import { renderPhpValue } from '../resource/phpValue';
