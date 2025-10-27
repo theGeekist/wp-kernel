@@ -7,15 +7,15 @@
 # Function: buildInitCommand()
 
 ```ts
-function buildInitCommand(options): InitConstructor;
+function buildInitCommand(options): InitCommandConstructor;
 ```
 
 ## Parameters
 
 ### options
 
-`BuildInitCommandOptions` = `{}`
+[`BuildInitCommandOptions`](../interfaces/BuildInitCommandOptions.md) = `{}`
 
 ## Returns
 
-`InitConstructor`
+[`InitCommandConstructor`](../type-aliases/InitCommandConstructor.md)

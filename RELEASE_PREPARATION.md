@@ -14,8 +14,8 @@ WP Kernel is approaching its first coordinated framework release without `releas
        Completed – `scripts/config/framework-peers.ts` defines the canonical versions, `scripts/check-framework-peers.ts` validates every package, `package.json` exposes `pnpm lint:peers`, `vite.config.base.ts` reads the map for Rollup externals, and package READMEs document the policy.
 - [x] **Task 3 – Document manual framework release workflow**
       Completed – Authored `docs/releases/framework-release-playbook.md`, updated `RELEASING.md`/`DEVELOPMENT.md` to point at the manual flow, added `scripts/check-release-readiness.ts` plus the `pnpm release:verify` hook, and verified the readiness check covers all publishable workspaces.
-- [ ] **Task 4 – Automate documentation version sync and release tagging**  
-       _Completion notes:_ _(update with summary, links, and required checks when finished.)_
+- [x] **Task 4 – Automate documentation version sync and release tagging**
+      Completed – Added `pnpm release:bump` to synchronize package/docs versions and rebuild the site, introduced `scripts/release/prepare-pr.ts` behind `pnpm release:prepare-pr`, expanded the framework release playbook with release PR guidance, tagging best practices, and dry-run requirements, and verified the workflow with `pnpm lint --fix`, `pnpm typecheck`, `pnpm typecheck:tests`, `pnpm test`, `pnpm build`, and `pnpm docs:build`.
 
 ## Task 1 – Consolidate TypeScript/Jest scaffolding and registration
 
