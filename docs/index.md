@@ -14,7 +14,7 @@ WP Kernel gives WordPress developers a predictable workflow. Describe resources 
 
 ## Conventions over glue code
 
-`defineResource` provides REST helpers, cache keys, React hooks, and grouped APIs in one place. `wpk generate` turns that config into `.generated/` TypeScript declarations and PHP controllers, and `wpk apply` moves the PHP layer into `inc/`. You can review the printers in [`packages/cli/src/printers`](../packages/cli/src/printers) to see exactly what is produced.
+`defineResource` provides REST helpers, cache keys, React hooks, and grouped APIs in one place. `wpk generate` turns that config into `.generated/` TypeScript declarations and PHP controllers, and `wpk apply` moves the PHP layer into `inc/`. You can review the printers in `packages/cli/src/printers` to see exactly what is produced.
 
 ```ts
 // src/index.ts

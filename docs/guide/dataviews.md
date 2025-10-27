@@ -229,5 +229,5 @@ Accessibility hardening (ARIA reconciliation, focus choreography, high-contrast 
 
 - [UI package reference](../packages/ui.md)
 - [CLI package reference](../packages/cli.md)
-- [Showcase walkthrough](./showcase.md)
+- [Showcase walkthrough](/examples/showcase)
 - [E2E helpers](../packages/e2e-utils.md)
