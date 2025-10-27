@@ -11,6 +11,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Calculate monorepo root from this package
 const monorepoRoot = path.resolve(__dirname, '../..');
+const globalSetup = path.resolve(__dirname, 'tests/jest-global-setup.js');
 
 export default {
 	...baseConfig,
@@ -55,6 +56,7 @@ export default {
 
 	// Setup files
 	setupFilesAfterEnv: ['<rootDir>/tests/setup-jest.ts'],
+	globalSetup,
 
 	coveragePathIgnorePatterns: [
 		...(baseConfig.coveragePathIgnorePatterns ?? []),
