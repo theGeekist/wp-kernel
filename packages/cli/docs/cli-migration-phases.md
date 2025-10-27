@@ -136,7 +136,7 @@ export const createExampleHelper = () =>
 See [Command Migration & Parity Plan](./command-migration-plan.md) for the authoritative command-by-command scope, legacy parity gaps, and MVP Plan mapping. Highlights:
 
 - `apply` remains partially native and must gain a `buildApplyCommand` factory in addition to shim/log/git parity.
-- `generate`, `init`, `start`, and `doctor` still delegate to legacy implementations through temporary `build*Command` bridges that need native replacements.
+- Core commands now run through native factories (`generate`, `init`, `start`, `doctor`) with the legacy shims retained only for backwards compatibility until Phase 4 closes.
 - `create` has no implementation; it will wrap the init flow, bootstrap git, and install dependencies.
 - `build` stays deprecated with no planned replacement.
 
@@ -158,8 +158,8 @@ These align with `docs/pipeline-integration-tasks.md` and related planning docs.
 4. **Bundler workflow**
     - Grow `createBundler` into a reusable Vite/Rollup helper (hashed assets, manifest verification) so plugin builds can consume the config. No CLI `build` command will be provided.
 5. **Command migration**
-    - Rebuild `generate`, `start`, `init`, `doctor` using the new helpers.
-    - Add CLI transcript tests once commands go native.
+    - Maintain the native command factories (`generate`, `start`, `init`, `doctor`) and expand integration coverage (CLI transcripts, watcher smoke tests).
+    - Track remaining apply parity work separately (see Apply layering workstream).
 6. **Documentation & DX**
     - Keep `docs` in sync (this file, adapter spec, AST parity plan).
     - Export helper typings via `runtime/index.ts` and document extension hooks for third parties.
