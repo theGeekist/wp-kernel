@@ -66,13 +66,13 @@ This roadmap captures how `@wpkernel/php-json-ast` can evolve now that `nikic/ph
 
 ##### Task 2 - Land the TypeScript ingestion helper
 
-> **Task status:** Pending – Update this entry once the helper lands and tests are green.
+> **Task status:** In Progress – Blocked on stabilising the ingestion test harness.
 
 - Add a consumer under `src/driver/**` that accepts the streamed JSON, hydrates `PhpProgram` builders, and forwards them to `createPhpProgramWriterHelper` with zero manual mapping.
 - Provide Jest coverage that feeds representative payloads through the helper and asserts the writer flushes identical `.php` and `.ast.json` artefacts.
 - Document the helper usage in the driver quick-start so contributors can round-trip fixtures locally.
   _Expectation: TypeScript callers can translate the raw PHP stream into queued `PhpProgram` entries in a single helper call._
-  **Status:** ✓ Implemented in [`src/driver/programIngestion.ts`](../src/driver/programIngestion.ts), which streams JSON-line payloads into queued `PhpProgram` entries while preserving the writer metadata contract. Covered end-to-end in [`src/__tests__/driver/programIngestion.test.ts`](../src/__tests__/driver/programIngestion.test.ts) (currently red while we resolve the pretty-printer exit 255 regression noted in the test TODOs) and documented for contributors in the [driver quick-start](./driver-quickstart.md#4-ingest-php-programs-from-typescript).
+  **Status:** Implementation exists in [`src/driver/programIngestion.ts`](../src/driver/programIngestion.ts) and is documented in the [driver quick-start](./driver-quickstart.md#4-ingest-php-programs-from-typescript), but the accompanying tests in [`src/__tests__/driver/programIngestion.test.ts`](../src/__tests__/driver/programIngestion.test.ts) are still red due to the outstanding pretty-printer exit 255 regression noted in their TODOs. Treat the task as incomplete until the regression is resolved and the suite runs green.
 
 ##### Task 3 - Capture ingestion fixtures and snapshots
 
