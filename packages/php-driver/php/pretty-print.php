@@ -81,7 +81,7 @@ try {
 }
 
 $printer = new Standard();
-$output = $printer->prettyPrintFile($statements);
+$output = normalizeDeclareSpacing($printer->prettyPrintFile($statements));
 
 $encoderFlags = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES;
 $astJson = json_encode($statements, $encoderFlags);
@@ -115,4 +115,10 @@ echo $resultJson . "\n";
 function ensureTrailingNewline(string $value): string
 {
     return str_ends_with($value, "\n") ? $value : $value . "\n";
+}
+
+function normalizeDeclareSpacing(string $value): string
+{
+    $normalized = preg_replace('/\bdeclare\s+\(/', 'declare(', $value);
+    return is_string($normalized) ? $normalized : $value;
 }

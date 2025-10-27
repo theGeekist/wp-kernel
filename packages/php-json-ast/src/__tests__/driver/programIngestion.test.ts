@@ -255,7 +255,7 @@ describe('consumePhpProgramIngestion', () => {
 
 		const expectedAst = await fs.readFile(CANONICAL_AST_PATH, 'utf8');
 
-		expect(emittedPhp).toContain('declare (strict_types=1);');
+		expect(emittedPhp).toContain('declare(strict_types=1);');
 		expect(emittedPhp).toContain('final class CodifiedController');
 		expect(emittedPhp).toContain("#[PropertyHook('resources')]");
 		expect(emittedPhp).toContain('* Describe the controller lifecycle.');
