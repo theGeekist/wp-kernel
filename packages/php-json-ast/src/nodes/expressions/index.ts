@@ -447,7 +447,8 @@ export type PhpBinaryOperator =
 	| 'Equal'
 	| 'NotEqual'
 	| 'Identical'
-	| 'NotIdentical';
+	| 'NotIdentical'
+	| 'Concat';
 
 export function buildBinaryOperation(
 	operator: PhpBinaryOperator,
