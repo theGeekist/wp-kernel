@@ -23,6 +23,7 @@ import type { ResourceConfig } from '../../resource/types';
 import {
 	isCorePipelineEnabled,
 	resetCorePipelineConfig,
+	setCorePipelineConfig,
 } from '../../configuration/flags';
 
 jest.mock('../../actions/middleware', () => ({
@@ -100,6 +101,34 @@ describe('configureWPKernel', () => {
 			namespace: 'acme',
 			corePipeline: { enabled: true },
 		});
+
+		expect(isCorePipelineEnabled()).toBe(true);
+	});
+
+	it('restores the core pipeline flag to its default after teardown', () => {
+		const kernel = configureWPKernel({
+			namespace: 'acme',
+			corePipeline: { enabled: true },
+		});
+
+		expect(isCorePipelineEnabled()).toBe(true);
+
+		kernel.teardown();
+
+		expect(isCorePipelineEnabled()).toBe(false);
+	});
+
+	it('restores the previous core pipeline flag state after teardown', () => {
+		setCorePipelineConfig({ enabled: true });
+
+		const kernel = configureWPKernel({
+			namespace: 'acme',
+			corePipeline: { enabled: false },
+		});
+
+		expect(isCorePipelineEnabled()).toBe(false);
+
+		kernel.teardown();
 
 		expect(isCorePipelineEnabled()).toBe(true);
 	});
