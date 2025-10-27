@@ -19,7 +19,7 @@ _Referenced from:_
 - [`packages/core/src/resource/define.ts` §162-378](../../core/src/resource/define.ts#L162-L378)
 - [`packages/core/src/pipeline/createPipeline.ts` §1-200](../../core/src/pipeline/createPipeline.ts#L1-L200)
 
-### 🧩 Task: Introduce Core Pipeline Scaffolding
+### 🧩 Task 32: Introduce Core Pipeline Scaffolding
 
 **Objective**: establish the helper map, state contracts, and feature flag needed to migrate orchestration into the pipeline while keeping the public API untouched.
 
@@ -44,7 +44,7 @@ _Referenced from:_
 
 - [`packages/core/src/actions/define.ts` §342-432](../../core/src/actions/define.ts#L342-L432)
 
-### 🧩 Task: Refactor `defineAction` onto Core Pipeline
+### 🧩 Task 33: Refactor `defineAction` onto Core Pipeline
 
 **Objective**: run action definitions through the new helper pipeline without altering the external API or lifecycle semantics.
 
@@ -69,7 +69,7 @@ _Referenced from:_
 
 - [`packages/core/src/resource/define.ts` §162-378](../../core/src/resource/define.ts#L162-L378)
 
-### 🧩 Task: Refactor `defineResource` onto Core Pipeline
+### 🧩 Task 34: Refactor `defineResource` onto Core Pipeline
 
 **Objective**: deliver feature-parity resource definitions using the pipeline so stores, caches, and grouped APIs behave identically to the legacy implementation.
 
@@ -94,7 +94,7 @@ _Referenced from:_
 
 - [`packages/core/src/pipeline/createPipeline.ts` §83-153](../../core/src/pipeline/createPipeline.ts#L83-L153)
 
-### 🧩 Task: Polish Diagnostics and Extension Story
+### 🧩 Task 35: Polish Diagnostics and Extension Story
 
 **Objective**: finalise the developer experience for pipeline adopters and confirm the feature flag path toward the minor release.
 
@@ -119,7 +119,7 @@ _Referenced from:_
 
 - [`packages/cli/docs/mvp-plan.md` §67-75](../../cli/docs/mvp-plan.md#L67-L75)
 
-### 🧩 Task: Cut Phase 6 Minor Release
+### 🧩 Task 36: Cut Phase 6 Minor Release
 
 **Objective**: complete the transition by making pipelines the sole execution path and documenting the release thoroughly.
 
