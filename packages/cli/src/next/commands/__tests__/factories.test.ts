@@ -1,5 +1,4 @@
 import { Command } from 'clipanion';
-import type { GenerateCommand as LegacyGenerateCommand } from '../../../commands/generate';
 import type { StartCommand as LegacyStartCommand } from '../../../commands/start';
 import type { DoctorCommand as LegacyDoctorCommand } from '../../../commands/doctor';
 import type { LegacyCommandConstructor } from '../internal/delegate';
@@ -59,84 +58,6 @@ describe('command factories', () => {
 					projectName: 'demo',
 				})
 			);
-		});
-	});
-
-	describe('buildGenerateCommand', () => {
-		it('copies CLI context and exposes summary from the legacy command', async () => {
-			const summary = { applied: 1 };
-			class LegacyGenerate extends Command {
-				static override paths: string[][] = [['generate']];
-				static override usage = Command.Usage({
-					description: 'legacy generate',
-				});
-
-				dryRun = false;
-				verbose = false;
-				summary?: typeof summary;
-
-				override async execute(): Promise<number> {
-					this.summary = summary;
-					return 0;
-				}
-			}
-
-			const legacyConstructor =
-				LegacyGenerate as unknown as LegacyCommandConstructor<LegacyGenerateCommand>;
-			const loader: jest.MockedFunction<
-				() => Promise<LegacyCommandConstructor<LegacyGenerateCommand>>
-			> = jest.fn().mockResolvedValue(legacyConstructor);
-			const { buildGenerateCommand } = await import('../generate');
-			const NextGenerate = buildGenerateCommand({
-				loadCommand: loader,
-			});
-
-			const command = new NextGenerate();
-			command.cli = {} as never;
-			command.context = buildCommandContext() as never;
-			command.dryRun = true;
-			command.verbose = true;
-
-			const exitCode = await command.execute();
-
-			expect(exitCode).toBe(0);
-			expect(loader).toHaveBeenCalledTimes(1);
-			expect(command.summary).toBe(summary);
-		});
-
-		it('normalises non-numeric return values to zero', async () => {
-			class LegacyGenerate extends Command {
-				static override paths: string[][] = [['generate']];
-				static override usage = Command.Usage({
-					description: 'legacy generate',
-				});
-
-				dryRun = false;
-				verbose = false;
-
-				override async execute(): Promise<void> {
-					return undefined;
-				}
-			}
-
-			const legacyConstructor =
-				LegacyGenerate as unknown as LegacyCommandConstructor<LegacyGenerateCommand>;
-			const loader: jest.MockedFunction<
-				() => Promise<LegacyCommandConstructor<LegacyGenerateCommand>>
-			> = jest.fn().mockResolvedValue(legacyConstructor);
-			const { buildGenerateCommand } = await import('../generate');
-			const NextGenerate = buildGenerateCommand({
-				loadCommand: loader,
-			});
-
-			const command = new NextGenerate();
-			command.cli = {} as never;
-			command.context = buildCommandContext() as never;
-
-			const exitCode = await command.execute();
-
-			expect(exitCode).toBe(0);
-			expect(command.summary).toBeUndefined();
 		});
 	});
 
