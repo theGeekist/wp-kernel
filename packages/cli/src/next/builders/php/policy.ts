@@ -120,7 +120,7 @@ function buildPolicyHelper(builder: PhpAstBuilderAdapter, ir: IRv1): void {
 	builder.appendProgramStatement(classNode);
 }
 
-function reportPolicyWarnings(
+export function reportPolicyWarnings(
 	reporter: Reporter,
 	policyMap: IRv1['policyMap']
 ): void {
