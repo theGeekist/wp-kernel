@@ -66,13 +66,13 @@ This roadmap captures how `@wpkernel/php-json-ast` can evolve now that `nikic/ph
 
 ##### Task 2 - Land the TypeScript ingestion helper
 
-> **Task status:** In Progress – Blocked on stabilising the ingestion test harness.
+> **Task status:** Complete – End-to-end ingestion tests now pass in both Jest and PHPUnit.
 
 - Add a consumer under `src/driver/**` that accepts the streamed JSON, hydrates `PhpProgram` builders, and forwards them to `createPhpProgramWriterHelper` with zero manual mapping.
-- Provide Jest coverage that feeds representative payloads through the helper and asserts the writer flushes identical `.php` and `.ast.json` artefacts.
+- Provide Jest coverage that feeds representative payloads through the helper and asserts the writer flushes identical `.php` and `.ast.json` artefacts. (`pnpm --filter @wpkernel/php-json-ast test -- programIngestion`)
 - Document the helper usage in the driver quick-start so contributors can round-trip fixtures locally.
   _Expectation: TypeScript callers can translate the raw PHP stream into queued `PhpProgram` entries in a single helper call._
-  **Status:** Implementation exists in [`src/driver/programIngestion.ts`](../src/driver/programIngestion.ts) and is documented in the [driver quick-start](./driver-quickstart.md#4-ingest-php-programs-from-typescript), but the accompanying tests in [`src/__tests__/driver/programIngestion.test.ts`](../src/__tests__/driver/programIngestion.test.ts) are still red due to the outstanding pretty-printer exit 255 regression noted in their TODOs. Treat the task as incomplete until the regression is resolved and the suite runs green.
+  **Status:** [`src/driver/programIngestion.ts`](../src/driver/programIngestion.ts) hydrates builders from the PHP stream and the suite passes via both Jest ([`src/__tests__/driver/programIngestion.test.ts`](../src/__tests__/driver/programIngestion.test.ts)) and PHPUnit ([`php/tests/ProgramIngestionTest.php`](../php/tests/ProgramIngestionTest.php)).
 
 ##### Task 3 - Capture ingestion fixtures and snapshots
 
