@@ -26,8 +26,8 @@ _See [Docs Index](./index.md) for navigation._
 
 ### 1.2 CLI surface
 
-- `NextApplyCommand` (`packages/cli/src/next/commands/apply.ts:1-212`) loads the plan, runs the patcher helper, prints the manifest summary, and exits with `WPK_EXIT_CODES.VALIDATION_ERROR` if any conflicts remain.
-- A factory wrapper (`buildApplyCommand`) does not exist yet, so the command cannot be dependency-injected the way `buildGenerateCommand` or `buildInitCommand` can.
+- `buildApplyCommand` (`packages/cli/src/next/commands/apply.ts`) produces the default `NextApplyCommand`, which loads the plan, runs the patcher helper, prints the manifest summary, and exits with `WPK_EXIT_CODES.VALIDATION_ERROR` if any conflicts remain.
+- The factory wrapper (`buildApplyCommand`) now exposes the dependency-injection seam used by `buildGenerateCommand` and `buildInitCommand`, returning `NextApplyCommand` while we continue layering safety rails.
 - Flags like `--yes`, `--backup`, and `--force` are not yet honoured; support will be ported into the command as part of the layering work.
 
 ### 1.3 Legacy reference point
@@ -83,7 +83,7 @@ What changes is _what_ we merge. Instead of large controller bodies, the merge i
 ## 3. Implementation plan
 
 1. **Adopt the command factory seam**
-    - Introduce `buildApplyCommand` in the next command surface so tests and the orchestrator can construct the command with injected reporters, workspace handles, or builders.
+    - Keep `buildApplyCommand` in the next command surface so tests and the orchestrator can construct the command with injected reporters, workspace handles, or builders.
     - Mirror the dependency injection options already offered by `buildGenerateCommand` and expose overrides for the patcher helper and manifest reader.
 2. **Ensure generated classes are consumable as bases**
     - Confirm every generated controller/helper exposes a stable namespace and class name that user code can extend (`packages/cli/src/next/builders/php/resourceController.ts:1-870`, `indexFile.ts:1-74`, `policy.ts:21-110`).

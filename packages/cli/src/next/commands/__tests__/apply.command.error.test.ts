@@ -3,35 +3,14 @@ import { KernelError } from '@wpkernel/core/error';
 import { assignCommandContext } from '@wpkernel/test-utils/cli';
 import { createWorkspaceRunner as buildWorkspaceRunner } from '../../../../tests/workspace.test-support';
 import * as ApplyModule from '../apply';
-import { loadKernelConfig } from '../../../config';
-import { createPatcher } from '../../builders';
 import {
 	TMP_PREFIX,
 	buildLoadedConfig,
 } from '@wpkernel/test-utils/next/commands/apply.test-support';
 
-jest.mock('../../../config');
-
-jest.mock('../../builders', () => ({
-	createPatcher: jest.fn(),
-}));
-
-const loadKernelConfigMock = loadKernelConfig as jest.MockedFunction<
-	typeof loadKernelConfig
->;
-
 const withWorkspace = buildWorkspaceRunner({ prefix: TMP_PREFIX });
 
-const createPatcherMock = createPatcher as jest.MockedFunction<
-	typeof createPatcher
->;
-
 describe('NextApplyCommand error handling', () => {
-	beforeEach(() => {
-		jest.resetAllMocks();
-		createPatcherMock.mockReset();
-	});
-
 	it('maps validation kernel errors to validation exit code', async () => {
 		await withWorkspace(async (workspace) => {
 			const applyMock = jest.fn(async () => {
@@ -39,15 +18,18 @@ describe('NextApplyCommand error handling', () => {
 					message: 'apply failed',
 				});
 			});
-			createPatcherMock.mockReturnValue({
+			const loadConfig = jest
+				.fn()
+				.mockResolvedValue(buildLoadedConfig(workspace));
+			const createPatcher = jest.fn().mockReturnValue({
 				apply: applyMock,
-			} as unknown as ReturnType<typeof createPatcher>);
+			});
 
-			loadKernelConfigMock.mockResolvedValue(
-				buildLoadedConfig(workspace)
-			);
-
-			const command = new ApplyModule.NextApplyCommand();
+			const ApplyCommand = ApplyModule.buildApplyCommand({
+				loadKernelConfig: loadConfig,
+				createPatcher,
+			});
+			const command = new ApplyCommand();
 			assignCommandContext(command, { cwd: workspace });
 
 			const exitCode = await command.execute();
