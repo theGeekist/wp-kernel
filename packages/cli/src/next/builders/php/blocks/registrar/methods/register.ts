@@ -35,12 +35,16 @@ export function buildRegisterMethod(): PhpStmtClassMethod {
 
 	const stmts: PhpStmt[] = [
 		buildVariableAssignment(
+			normaliseVariableReference(pluginRootVariable),
+			buildFunctionCall('dirname', [
+				buildArg(buildConstFetchExpr('__DIR__')),
+				buildArg(buildScalarInt(3)),
+			])
+		),
+		buildVariableAssignment(
 			normaliseVariableReference(manifestVariable),
 			buildConcat(
-				buildFunctionCall('dirname', [
-					buildArg(buildConstFetchExpr('__DIR__')),
-					buildArg(buildScalarInt(2)),
-				]),
+				buildVariable(pluginRootVariable),
 				buildScalarString('/build/blocks-manifest.php')
 			)
 		),
@@ -66,13 +70,6 @@ export function buildRegisterMethod(): PhpStmtClassMethod {
 			),
 			statements: [buildReturn(null)],
 		}),
-		buildVariableAssignment(
-			normaliseVariableReference(pluginRootVariable),
-			buildFunctionCall('dirname', [
-				buildArg(buildConstFetchExpr('__DIR__')),
-				buildArg(buildScalarInt(2)),
-			])
-		),
 		buildForeachStatement({
 			iterable: buildVariable(entriesVariable),
 			key: buildVariable('block'),
