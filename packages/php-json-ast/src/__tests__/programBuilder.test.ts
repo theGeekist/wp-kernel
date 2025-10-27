@@ -4,15 +4,19 @@ import type { Reporter } from '@wpkernel/core/reporter';
 // Simplified types - just what the tests need
 type BuilderInput = any;
 type BuilderOutput = any;
-import { appendClassTemplate, appendMethodTemplates } from '../append';
 import { appendGeneratedFileDocblock } from '../docblocks';
 import {
-	assembleClassTemplate,
-	assembleMethodTemplate,
-	PHP_INDENT,
-} from '../templates';
-import { createPhpFileBuilder } from '../programBuilder';
-import { buildIdentifier, buildStmtNop } from '../nodes';
+	createPhpFileBuilder,
+	resetPhpProgramBuilderContext,
+} from '../programBuilder';
+import {
+	buildClass,
+	buildClassMethod,
+	buildIdentifier,
+	buildReturn,
+	buildScalarString,
+	buildStmtNop,
+} from '../nodes';
 import {
 	PHP_CLASS_MODIFIER_ABSTRACT,
 	PHP_METHOD_MODIFIER_PUBLIC,
@@ -128,26 +132,18 @@ describe('programBuilder helpers', () => {
 				builder.addUse('Demo\\Contracts');
 				builder.appendStatement('// class declaration');
 
-				const method = assembleMethodTemplate({
-					signature: 'public function label(): string',
-					indentLevel: 1,
-					indentUnit: PHP_INDENT,
-					body: (body) => {
-						body.line("return 'demo';");
-					},
-					ast: {
-						flags: PHP_METHOD_MODIFIER_PUBLIC,
-						returnType: buildIdentifier('string'),
-					},
+				const method = buildClassMethod(buildIdentifier('label'), {
+					flags: PHP_METHOD_MODIFIER_PUBLIC,
+					returnType: buildIdentifier('string'),
+					stmts: [buildReturn(buildScalarString('demo'))],
 				});
 
-				const classTemplate = assembleClassTemplate({
-					name: 'Example',
+				const classNode = buildClass(buildIdentifier('Example'), {
 					flags: PHP_CLASS_MODIFIER_ABSTRACT,
-					methods: [method],
+					stmts: [method],
 				});
 
-				appendClassTemplate(builder, classTemplate);
+				builder.appendProgramStatement(classNode);
 				builder.appendProgramStatement(buildStmtNop());
 			},
 		});
@@ -188,7 +184,7 @@ describe('programBuilder helpers', () => {
 		);
 	});
 
-	it('appendMethodTemplates inserts blank lines between methods', async () => {
+	it('appends class methods directly to the program AST', async () => {
 		const context = createPipelineContext();
 		const input = createBuilderInput();
 		const output: BuilderOutput = {
@@ -197,36 +193,26 @@ describe('programBuilder helpers', () => {
 		};
 
 		const helper = createPhpFileBuilder({
-			key: 'blank-methods',
+			key: 'multi-methods',
 			filePath: '/workspace/.generated/php/Blank.php',
 			namespace: 'Demo\\Blank',
 			metadata: { kind: 'policy-helper' },
 			build: (builder) => {
-				const first = assembleMethodTemplate({
-					signature: 'public function first()',
-					indentLevel: 1,
-					body: (body) => {
-						body.line('return 1;');
-					},
-					ast: {
-						flags: PHP_METHOD_MODIFIER_PUBLIC,
-						returnType: null,
-					},
+				const first = buildClassMethod(buildIdentifier('first'), {
+					flags: PHP_METHOD_MODIFIER_PUBLIC,
+					stmts: [buildReturn(buildScalarString('first'))],
 				});
 
-				const second = assembleMethodTemplate({
-					signature: 'public function second()',
-					indentLevel: 1,
-					body: (body) => {
-						body.line('return 2;');
-					},
-					ast: {
-						flags: PHP_METHOD_MODIFIER_PUBLIC,
-						returnType: null,
-					},
+				const second = buildClassMethod(buildIdentifier('second'), {
+					flags: PHP_METHOD_MODIFIER_PUBLIC,
+					stmts: [buildReturn(buildScalarString('second'))],
 				});
 
-				appendMethodTemplates(builder, [first, second]);
+				const classNode = buildClass(buildIdentifier('Example'), {
+					stmts: [first, second],
+				});
+
+				builder.appendProgramStatement(classNode);
 			},
 		});
 
@@ -244,9 +230,21 @@ describe('programBuilder helpers', () => {
 
 		const pending = getTestBuilderQueue(context);
 		expect(pending).toHaveLength(1);
-		const statements = pending[0]!.statements;
-		const blankLines = statements.filter((line) => line === '');
-		expect(blankLines).toHaveLength(1);
+		const namespaceNode = pending[0]!.program.find(
+			(stmt: any) => stmt.nodeType === 'Stmt_Namespace'
+		) as any;
+		expect(namespaceNode).toBeDefined();
+
+		const classNode = namespaceNode.stmts.find(
+			(stmt: any) => stmt.nodeType === 'Stmt_Class'
+		) as any;
+		expect(classNode).toBeDefined();
+
+		const methodNames = classNode.stmts
+			.filter((stmt: any) => stmt.nodeType === 'Stmt_ClassMethod')
+			.map((method: any) => method.name.name);
+
+		expect(methodNames).toEqual(['first', 'second']);
 	});
 
 	it('normalises use statements, namespace overrides, and metadata updates', async () => {
@@ -266,6 +264,7 @@ describe('programBuilder helpers', () => {
 				builder.addUse('   ');
 				builder.addUse('\\');
 				builder.addUse('Demo\\Contracts as ContractAlias');
+				builder.addUse('Demo\\Provided as ManualAlias');
 				builder.addUse('function Demo\\Helpers\\foo');
 				builder.addUse('const Demo\\Constants\\BAR');
 				builder.addUse('\\Vendor\\Package\\Thing');
@@ -273,6 +272,7 @@ describe('programBuilder helpers', () => {
 				builder.addUse('function Demo\\Helpers\\bar');
 				builder.addUse('Demo\\Special\\Helper');
 				builder.addUse('const Demo\\Constants\\BAZ');
+				builder.addUse('Demo\\Group\\SingleOnly');
 
 				builder.appendDocblock('Example docblock');
 				builder.appendStatement('return 1;');
@@ -312,7 +312,8 @@ describe('programBuilder helpers', () => {
 		expect(action!.statements).toContain('return 1;');
 		expect(action!.metadata.kind).toBe('base-controller');
 		expect(action!.uses).toEqual([
-			'Demo\\Contracts as ContractAlias',
+			'Demo\\{Contracts as ContractAlias, Provided as ManualAlias}',
+			'Demo\\Group\\SingleOnly',
 			'Demo\\Special\\{Helper, Name as CustomAlias}',
 			'\\Vendor\\Package\\Thing',
 			'function Demo\\Helpers\\{bar, foo}',
@@ -327,6 +328,65 @@ describe('programBuilder helpers', () => {
 						(stmt: any) => stmt.nodeType === 'Stmt_GroupUse'
 					)
 				: [];
-		expect(namespaceUses).toHaveLength(3);
+		expect(namespaceUses).toHaveLength(4);
+	});
+
+	it('builds programs in the global namespace with explicit use overrides', async () => {
+		const context = createPipelineContext();
+		const input = createBuilderInput();
+		const output: BuilderOutput = {
+			actions: [],
+			queueWrite: jest.fn(),
+		};
+
+		const helper = createPhpFileBuilder({
+			key: 'global-namespace',
+			filePath: '/workspace/.generated/php/Global.php',
+			namespace: '',
+			metadata: { kind: 'index-file' },
+			build: (builder) => {
+				builder.addUse('Single');
+				builder.addUse('\\Vendor\\Package');
+				builder.addUse('Group\\Shared\\First');
+				builder.addUse('Group\\Shared\\Second');
+				builder.addUse('Demo\\Provided as ProvidedAlias');
+				builder.addUse('function Helpers\\Utility');
+				builder.addUse('const Constants\\Value');
+
+				builder.appendStatement('echo 1;');
+				builder.appendProgramStatement(buildStmtNop());
+			},
+		});
+
+		resetTestChannels(context);
+
+		await helper.apply(
+			{
+				context,
+				input,
+				output,
+				reporter: context.reporter,
+			},
+			undefined
+		);
+
+		const [action] = getTestBuilderQueue(context);
+		expect(action).toBeDefined();
+		expect(action!.docblock).toEqual([]);
+		expect(action!.uses).toEqual([
+			'Demo\\Provided as ProvidedAlias',
+			'Group\\Shared\\{First, Second}',
+			'Single',
+			'\\Vendor\\Package',
+			'function Helpers\\Utility',
+			'const Constants\\Value',
+		]);
+
+		const namespaceNode = action!.program.find(
+			(stmt: any) => stmt.nodeType === 'Stmt_Namespace'
+		);
+		expect((namespaceNode as any)?.name).toBeNull();
+
+		resetPhpProgramBuilderContext(context);
 	});
 });
