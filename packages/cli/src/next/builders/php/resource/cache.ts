@@ -1,9 +1,9 @@
-import { appendResourceControllerCacheEvent } from '@wpkernel/php-json-ast';
-import type {
-	ResourceMetadataHost,
-	ResourceControllerCacheOperation,
-	ResourceControllerCacheScope,
-} from '@wpkernel/php-json-ast';
+import {
+	appendResourceControllerCacheEvent,
+	type ResourceMetadataHost,
+	type ResourceControllerCacheOperation,
+	type ResourceControllerCacheScope,
+} from '@wpkernel/wp-json-ast';
 import { sanitizeJson } from '../utils';
 
 export interface CacheEventOptions {

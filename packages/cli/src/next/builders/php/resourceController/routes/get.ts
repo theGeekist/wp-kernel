@@ -3,8 +3,8 @@ import {
 	buildReturn,
 	buildVariable,
 	type PhpStmt,
-	type ResourceMetadataHost,
 } from '@wpkernel/php-json-ast';
+import type { ResourceMetadataHost } from '@wpkernel/wp-json-ast';
 import {
 	appendResourceCacheEvent,
 	buildBooleanNot,

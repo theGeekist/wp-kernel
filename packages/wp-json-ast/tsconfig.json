@@ -3,8 +3,7 @@
 	"extends": "../../tsconfig.lib.json",
 	"compilerOptions": {
 		"rootDir": "./src",
-		"outDir": "./dist",
-		"moduleResolution": "bundler"
+		"outDir": "./dist"
 	},
 	"include": ["src/**/*", "../../types/**/*.d.ts"],
 	"exclude": [
@@ -17,16 +16,7 @@
 	],
 	"references": [
 		{
-			"path": "../core"
-		},
-		{
-			"path": "../php-driver"
-		},
-		{
 			"path": "../php-json-ast"
-		},
-		{
-			"path": "../wp-json-ast"
 		}
 	]
 }

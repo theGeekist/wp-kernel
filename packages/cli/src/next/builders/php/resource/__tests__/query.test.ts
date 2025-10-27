@@ -1,10 +1,12 @@
 import type {
-	ResourceControllerMetadata,
-	ResourceMetadataHost,
 	PhpExpr,
 	PhpExprArray,
 	PhpExprFuncCall,
 } from '@wpkernel/php-json-ast';
+import type {
+	ResourceControllerMetadata,
+	ResourceMetadataHost,
+} from '@wpkernel/wp-json-ast';
 import {
 	buildPaginationNormalisationStatements,
 	buildQueryArgsAssignmentStatement,

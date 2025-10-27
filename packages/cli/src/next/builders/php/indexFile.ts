@@ -9,10 +9,9 @@ import type {
 } from '../../runtime/types';
 import {
 	appendGeneratedFileDocblock,
-	buildReturn,
-	createPhpFileBuilder,
-	type PhpAstBuilderAdapter,
-} from '@wpkernel/php-json-ast';
+	createWpPhpFileBuilder,
+} from '@wpkernel/wp-json-ast';
+import { buildReturn, type PhpAstBuilderAdapter } from '@wpkernel/php-json-ast';
 import type { IRv1 } from '../../ir/publicTypes';
 import { renderPhpValue } from './resource/phpValue';
 import { toPascalCase } from './utils';
@@ -30,7 +29,7 @@ export function createPhpIndexFileHelper(): BuilderHelper {
 
 			const ir = input.ir;
 
-			const helper = createPhpFileBuilder<
+			const helper = createWpPhpFileBuilder<
 				PipelineContext,
 				BuilderInput,
 				BuilderOutput
