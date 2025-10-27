@@ -2,7 +2,7 @@
 
 Guide to submitting pull requests to WP Kernel.
 
-> **📖 For release workflow and versioning**, see `RELEASING.md` in project root (canonical source).
+> **📖 For release workflow and versioning**, see `RELEASING.md` in project root and the [Framework Release Playbook](../releases/framework-release-playbook.md).
 
 ## Before You Start
 
