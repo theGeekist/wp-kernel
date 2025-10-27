@@ -76,19 +76,19 @@ Embedding the commands in factories keeps the orchestration consistent with the 
 
 ### 3.5 Start
 
-- **Current state:** `buildStartCommand` delegates to the legacy watcher.
+- **Current state:** `buildStartCommand` orchestrates chokidar tiers, forwards reporter output, runs Vite, and optionally mirrors PHP artefacts into `inc/`.
 - **Scope:**
-    - Build a helper-driven watcher that listens for config/schema changes, regenerates artefacts, and optionally invokes `apply`.
-    - Tier chokidar watchers so large projects can limit hot reloading scopes.
-    - Integrate with the Vite dev server used in examples and surface diagnostics through the reporter.
+    - Expand watcher ergonomics as new pipeline hooks land (e.g., scoped regeneration flags, PHP filtering).
+    - Share diagnostics helpers with future apply/watch polish.
+    - Coordinate Vite lifecycle tweaks with example apps as they evolve.
 - **MVP Plan mapping:** Phase 4 Task 23 covers the new watcher orchestration and its integration tests.
 
 ### 3.6 Doctor
 
-- **Current state:** `buildDoctorCommand` is a stub that returns success immediately.
+- **Current state:** `buildDoctorCommand` validates configs, composer autoload mapping, generated PHP cleanliness, and PHP runtime/driver availability.
 - **Scope:**
-    - Run config schema validation, composer autoload inspections, php-driver availability checks, and workspace hygiene audits.
-    - Produce actionable output (including exit codes) that users can script in CI.
+    - Layer in additional workspace audits (git status, dependency drift) as new helpers land.
+    - Ensure CI scripting remains stable by documenting exit-code contracts alongside new checks.
     - Share helper utilities with apply/start where possible (git assertions, dependency detection).
 - **MVP Plan mapping:** Phase 4 Task 23 includes doctor coverage to ensure the watcher and health checks align.
 
