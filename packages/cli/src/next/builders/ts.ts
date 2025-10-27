@@ -23,15 +23,13 @@ import type {
 import type { Workspace } from '../workspace/types';
 import { validateGeneratedImports } from '../../commands/run-generate/validation';
 import type { GenerationSummary } from '../../commands/run-generate/types';
-
-const SOURCE_EXTENSIONS = [
-	'.ts',
-	'.tsx',
-	'.js',
-	'.jsx',
-	'.mjs',
-	'.cjs',
-] as const;
+import {
+	buildModuleSpecifier,
+	resolveKernelImport,
+	resolveResourceImport,
+	toCamelCase,
+	toPascalCase,
+} from './ts/shared';
 const GENERATED_ROOT = '.generated';
 
 export interface TsBuilderEmitOptions {
@@ -615,138 +613,4 @@ async function runImportValidation(options: {
 		summary,
 		reporter: options.reporter,
 	});
-}
-
-async function resolveResourceImport({
-	workspace,
-	from,
-	configured,
-	resourceKey,
-}: {
-	readonly workspace: Workspace;
-	readonly from: string;
-	readonly configured?: string;
-	readonly resourceKey: string;
-}): Promise<string> {
-	if (configured) {
-		return configured;
-	}
-
-	const resolved = await findExistingModule(
-		workspace,
-		path.join('src', 'resources', resourceKey)
-	);
-	if (resolved) {
-		return buildModuleSpecifier({ workspace, from, target: resolved });
-	}
-
-	return `@/resources/${resourceKey}`;
-}
-
-async function resolveKernelImport({
-	workspace,
-	from,
-	configured,
-}: {
-	readonly workspace: Workspace;
-	readonly from: string;
-	readonly configured?: string;
-}): Promise<string> {
-	if (configured) {
-		return configured;
-	}
-
-	const resolved = await findExistingModule(
-		workspace,
-		path.join('src', 'bootstrap', 'kernel')
-	);
-	if (resolved) {
-		return buildModuleSpecifier({ workspace, from, target: resolved });
-	}
-
-	return '@/bootstrap/kernel';
-}
-
-async function findExistingModule(
-	workspace: Workspace,
-	basePath: string
-): Promise<string | null> {
-	for (const extension of SOURCE_EXTENSIONS) {
-		const candidate = `${basePath}${extension}`;
-		if (await workspace.exists(candidate)) {
-			return candidate;
-		}
-	}
-
-	return null;
-}
-
-function buildModuleSpecifier({
-	workspace,
-	from,
-	target,
-}: {
-	readonly workspace: Workspace;
-	readonly from: string;
-	readonly target: string;
-}): string {
-	const fromAbsolute = workspace.resolve(from);
-	const targetAbsolute = path.isAbsolute(target)
-		? target
-		: workspace.resolve(target);
-	const workspaceRoot = workspace.resolve('.');
-	const relativeToWorkspace = path.relative(workspaceRoot, targetAbsolute);
-
-	if (relativeToWorkspace.startsWith('..')) {
-		const aliasTarget = stripExtension(relativeToWorkspace)
-			.replace(/^(\.\.[\\/])+/, '')
-			.replace(/\\/g, '/');
-
-		const normalisedAlias =
-			aliasTarget.length > 0 ? aliasTarget.replace(/^\/+/u, '') : '';
-
-		return normalisedAlias.length > 0 ? `@/${normalisedAlias}` : '@/';
-	}
-
-	const relative = path.relative(path.dirname(fromAbsolute), targetAbsolute);
-	const withoutExtension = stripExtension(relative);
-
-	return normaliseModuleSpecifier(withoutExtension);
-}
-
-function stripExtension(modulePath: string): string {
-	for (const extension of SOURCE_EXTENSIONS) {
-		if (modulePath.endsWith(extension)) {
-			return modulePath.slice(0, -extension.length);
-		}
-	}
-
-	return modulePath;
-}
-
-function normaliseModuleSpecifier(specifier: string): string {
-	const normalised = specifier.replace(/\\/g, '/');
-	if (normalised.startsWith('.')) {
-		return normalised;
-	}
-	return `./${normalised}`;
-}
-
-function toPascalCase(value: string): string {
-	return value
-		.split(/[^a-zA-Z0-9]+/u)
-		.filter(Boolean)
-		.map(
-			(segment) =>
-				segment.charAt(0).toUpperCase() + segment.slice(1).toLowerCase()
-		)
-		.join('');
-}
-
-function toCamelCase(value: string): string {
-	const pascal = toPascalCase(value);
-	if (pascal.length === 0) {
-		return pascal;
-	}
-	return pascal.charAt(0).toLowerCase() + pascal.slice(1);
 }
