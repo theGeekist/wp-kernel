@@ -1,6 +1,14 @@
 import { WPKernelError } from '../error/WPKernelError';
 import type { ActionLifecycleEvent, ResolvedActionOptions } from './types';
 
+/**
+ * Coerce unknown failures into `WPKernelError` instances with consistent
+ * metadata so lifecycle observers can rely on structured error details.
+ *
+ * @param error      - Unknown failure thrown during action execution.
+ * @param actionName - Name of the action that produced the failure.
+ * @param requestId  - Correlation identifier for the action invocation.
+ */
 export function normalizeActionError(
 	error: unknown,
 	actionName: string,
@@ -35,6 +43,17 @@ export function normalizeActionError(
 	});
 }
 
+/**
+ * Create a structured lifecycle event payload for broadcast via the kernel
+ * event bus.
+ *
+ * @param phase      - Lifecycle phase being emitted (start/complete/error).
+ * @param options    - Resolved action configuration controlling scope/bridge.
+ * @param actionName - Name of the action being executed.
+ * @param requestId  - Correlation identifier for the action invocation.
+ * @param namespace  - Namespace associated with the action definition.
+ * @param extra      - Additional phase-specific metadata (args, result, error).
+ */
 export function createActionLifecycleEvent(
 	phase: ActionLifecycleEvent['phase'],
 	options: ResolvedActionOptions,

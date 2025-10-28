@@ -7,20 +7,32 @@ import type { WPKernelError } from '../../error/WPKernelError';
 import type { Reporter } from '../../reporter/types';
 import type { Helper, PipelineDiagnostic, PipelineRunState } from '../types';
 
+/**
+ * Helper kind identifiers reserved for action pipeline helpers.
+ */
 export type ActionFragmentKind = 'core.action.fragment';
 export type ActionBuilderKind = 'core.action.builder';
 
+/**
+ * Runtime options passed to the pipeline when executing an action.
+ */
 export interface ActionPipelineRunOptions<TArgs, TResult> {
 	readonly config: ActionConfig<TArgs, TResult>;
 	readonly args: TArgs;
 	readonly resolvedOptions: ResolvedActionOptions;
 }
 
+/**
+ * Build-time options derived from the run options before helper invocation.
+ */
 export interface ActionPipelineBuildOptions<TArgs, TResult> {
 	readonly config: ActionConfig<TArgs, TResult>;
 	readonly resolvedOptions: ResolvedActionOptions;
 }
 
+/**
+ * Shared context handed to every helper participating in the pipeline.
+ */
 export interface ActionPipelineContext {
 	readonly reporter: Reporter;
 	readonly actionName: string;
@@ -30,15 +42,24 @@ export interface ActionPipelineContext {
 	readonly actionContext: ActionContext;
 }
 
+/**
+ * Input payload received by lifecycle fragments prior to handler execution.
+ */
 export interface ActionLifecycleFragmentInput<TArgs> {
 	readonly args: TArgs;
 }
 
+/**
+ * Input payload received by builder helpers responsible for invoking handlers.
+ */
 export interface ActionBuilderInput<TArgs, TResult> {
 	readonly args: TArgs;
 	readonly handler: ActionConfig<TArgs, TResult>['handler'];
 }
 
+/**
+ * Mutable draft object populated throughout pipeline execution.
+ */
 export interface ActionInvocationDraft<TResult> {
 	startTime?: number;
 	durationMs?: number;
@@ -46,13 +67,22 @@ export interface ActionInvocationDraft<TResult> {
 	error?: WPKernelError;
 }
 
+/**
+ * Alias representing the final artifact produced by the pipeline run.
+ */
 export type ActionPipelineArtifact<TResult> = ActionInvocationDraft<TResult>;
 
+/**
+ * Structured run result returned to the caller after pipeline completion.
+ */
 export type ActionPipelineRunResult<TResult> = PipelineRunState<
 	ActionPipelineArtifact<TResult>,
 	PipelineDiagnostic
 >;
 
+/**
+ * Descriptor type for lifecycle fragment helpers.
+ */
 export type ActionFragmentHelper<TArgs, TResult> = Helper<
 	ActionPipelineContext,
 	ActionLifecycleFragmentInput<TArgs>,
@@ -61,6 +91,9 @@ export type ActionFragmentHelper<TArgs, TResult> = Helper<
 	ActionFragmentKind
 >;
 
+/**
+ * Descriptor type for builder helpers that execute the action handler.
+ */
 export type ActionBuilderHelper<TArgs, TResult> = Helper<
 	ActionPipelineContext,
 	ActionBuilderInput<TArgs, TResult>,
