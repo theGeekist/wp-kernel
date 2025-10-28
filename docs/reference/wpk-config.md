@@ -77,6 +77,6 @@ The CLI converts schemas into `.d.ts` files under `.generated/types` (or the con
 
 ## Keeping configs healthy
 
-- Run `pnpm wpk doctor` to validate the config and check Composer autoloading.【F:packages/cli/src/next/commands/doctor.ts†L1-L160】
-- Track changes with version control-`wpk generate` prints a summary of detected deltas so you can confirm the impact before applying.【F:packages/cli/src/next/commands/generate.ts†L1-L360】
+- Run `pnpm wpk doctor` to validate the config and check Composer autoloading.【F:packages/cli/src/commands/doctor.ts†L1-L160】
+- Track changes with version control-`wpk generate` prints a summary of detected deltas so you can confirm the impact before applying.【F:packages/cli/src/commands/generate.ts†L1-L360】
 - When you introduce new fields, cross-check the [Decision Matrix](/reference/decision-matrix) to understand which builders will react.

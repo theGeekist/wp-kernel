@@ -9,12 +9,12 @@ import {
 	type SerializedError,
 	type WPKExitCode,
 } from '@wpkernel/core/contracts';
-import type { BuilderOutput } from '../runtime/types';
-import type { LoadedWPKernelConfig } from '../../config/types';
-import { loadWPKernelConfig } from '../../config';
-import { buildWorkspace, promptConfirm } from '../workspace';
-import type { FileManifest, Workspace } from '../workspace';
-import { createPatcher } from '../builders';
+import type { BuilderOutput } from '../next/runtime/types';
+import type { LoadedWPKernelConfig } from '../config/types';
+import { loadWPKernelConfig } from '../config';
+import { buildWorkspace, promptConfirm } from '../next/workspace';
+import type { FileManifest, Workspace } from '../next/workspace';
+import { createPatcher } from '../next/builders';
 import {
 	determineExitCode,
 	reportFailure,
@@ -74,28 +74,40 @@ export interface ApplyLogEntry {
 }
 
 async function ensureGitRepository(workspace: Workspace): Promise<void> {
-	const gitPath = workspace.resolve('.git');
+	const workspaceRoot = workspace.cwd();
+	let current = workspaceRoot;
 
-	try {
-		const stats = await fs.lstat(gitPath);
-		if (stats.isDirectory() || stats.isFile()) {
-			return;
-		}
-	} catch (error) {
-		if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-			throw new WPKernelError('ValidationError', {
-				message: 'Apply requires a git repository.',
-				context: { path: '.git' },
-			});
+	while (true) {
+		const gitPath = path.join(current, '.git');
+
+		try {
+			const stats = await fs.lstat(gitPath);
+			if (
+				stats.isDirectory() ||
+				stats.isFile() ||
+				stats.isSymbolicLink()
+			) {
+				return;
+			}
+		} catch (error) {
+			const errorCode = (error as NodeJS.ErrnoException).code;
+			if (errorCode && errorCode !== 'ENOENT') {
+				throw new WPKernelError('DeveloperError', {
+					message: 'Unable to inspect git repository state.',
+					context: {
+						path: path.relative(workspaceRoot, gitPath) || '.git',
+						error: serialiseError(error),
+					},
+				});
+			}
 		}
 
-		throw new WPKernelError('DeveloperError', {
-			message: 'Unable to inspect git repository state.',
-			context: {
-				path: '.git',
-				error: serialiseError(error),
-			},
-		});
+		const parent = path.dirname(current);
+		if (parent === current) {
+			break;
+		}
+
+		current = parent;
 	}
 
 	throw new WPKernelError('ValidationError', {
@@ -669,7 +681,7 @@ export function resolveWorkspaceRoot(loaded: LoadedWPKernelConfig): string {
 }
 
 function buildReporterNamespace(): string {
-	return `${WPK_NAMESPACE}.cli.next.apply`;
+	return `${WPK_NAMESPACE}.cli.apply`;
 }
 
 export interface BuildApplyCommandOptions {

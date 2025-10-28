@@ -2,10 +2,47 @@ import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import type { LoadedWPKernelConfig } from '@wpkernel/cli/config';
-import type { ApplyLogEntry } from '@wpkernel/cli/next/commands/apply';
 import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
 
-export const TMP_PREFIX = path.join(os.tmpdir(), 'next-apply-command-');
+export const TMP_PREFIX = path.join(os.tmpdir(), 'cli-apply-command-');
+
+export type ApplyLogStatus =
+	| 'success'
+	| 'conflict'
+	| 'skipped'
+	| 'cancelled'
+	| 'failed';
+
+export interface ApplyLogFlags {
+	readonly yes: boolean;
+	readonly backup: boolean;
+	readonly force: boolean;
+}
+
+export interface ApplyLogSummary {
+	readonly applied: number;
+	readonly conflicts: number;
+	readonly skipped: number;
+}
+
+export interface ApplyLogRecord {
+	readonly file: string;
+	readonly status: 'applied' | 'conflict' | 'skipped';
+	readonly description?: string;
+	readonly details?: Record<string, unknown>;
+}
+
+export interface ApplyLogEntry {
+	readonly version: number;
+	readonly timestamp: string;
+	readonly status: ApplyLogStatus;
+	readonly exitCode: number;
+	readonly flags: ApplyLogFlags;
+	readonly summary: ApplyLogSummary | null;
+	readonly records: readonly ApplyLogRecord[];
+	readonly actions: readonly string[];
+	readonly error?: unknown;
+}
 
 export function buildLoadedConfig(workspace: string): LoadedWPKernelConfig {
 	return {

@@ -8,7 +8,7 @@ import { stdin as defaultStdin, stdout as defaultStdout } from 'node:process';
 import type { Reporter } from '@wpkernel/core/reporter';
 import { WPKernelError } from '@wpkernel/core/error';
 import type { Workspace } from './types';
-import { serialiseError } from '../commands/apply/errors';
+import { serialiseError } from '../../commands/apply/errors';
 
 const execFile = promisify(execFileCallback);
 

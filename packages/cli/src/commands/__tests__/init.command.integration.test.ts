@@ -4,7 +4,7 @@ import fs from 'node:fs/promises';
 import { pathToFileURL } from 'node:url';
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
 import { assignCommandContext } from '@wpkernel/test-utils/cli';
-import { createWorkspaceRunner } from '../../../../tests/workspace.test-support';
+import { createWorkspaceRunner } from '../../../tests/workspace.test-support';
 import { buildInitCommand } from '../init';
 
 const TMP_PREFIX = path.join(os.tmpdir(), 'wpk-next-init-command-');
@@ -13,7 +13,7 @@ const withWorkspace = createWorkspaceRunner({ prefix: TMP_PREFIX });
 
 async function createCommand(workspace: string) {
 	const moduleUrl = pathToFileURL(
-		path.join(__dirname, '../../../../templates/init/wpk.config.ts')
+		path.join(__dirname, '../../../templates/init/wpk.config.ts')
 	).href;
 	(globalThis as { __WPK_CLI_MODULE_URL__?: string }).__WPK_CLI_MODULE_URL__ =
 		moduleUrl;
@@ -39,7 +39,6 @@ describe('NextInitCommand', () => {
 			command.name = 'jobs-plugin';
 
 			const exit = await command.execute();
-
 			expect(exit).toBe(WPK_EXIT_CODES.SUCCESS);
 			const summary = stdout.toString();
 			expect(summary).toContain(

@@ -2,7 +2,7 @@ import path from 'node:path';
 import fs from 'node:fs/promises';
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
 import { assignCommandContext } from '@wpkernel/test-utils/cli';
-import { createWorkspaceRunner as buildWorkspaceRunner } from '../../../../tests/workspace.test-support';
+import { createWorkspaceRunner as buildWorkspaceRunner } from '../../../tests/workspace.test-support';
 import * as ApplyModule from '../apply';
 import {
 	TMP_PREFIX,
@@ -10,7 +10,7 @@ import {
 	seedPlan,
 	toFsPath,
 	readApplyLogEntries,
-} from '@wpkernel/test-utils/next/commands/apply.test-support';
+} from '@wpkernel/test-utils/cli/commands/apply.test-support';
 
 const withWorkspace = buildWorkspaceRunner({
 	prefix: TMP_PREFIX,
@@ -122,6 +122,52 @@ describe('NextApplyCommand integration', () => {
 			const backupPath = `${toFsPath(workspace, target)}.bak`;
 			const backupContents = await fs.readFile(backupPath, 'utf8');
 			expect(backupContents).toBe(baseContents);
+		});
+	});
+	it('accepts git repositories located in ancestor directories', async () => {
+		await withWorkspace(async (workspace) => {
+			const projectWorkspace = path.join(workspace, 'packages', 'demo');
+			await fs.mkdir(projectWorkspace, { recursive: true });
+
+			const target = path.posix.join('php', 'AncestorController.php');
+			const baseContents = [
+				'<?php',
+				'class AncestorController {}',
+				'',
+			].join('\n');
+			const incomingContents = [
+				'<?php',
+				'class AncestorController extends BaseController {}',
+				'',
+			].join('\n');
+
+			await seedPlan(projectWorkspace, target, {
+				base: baseContents,
+				incoming: incomingContents,
+				current: baseContents,
+				description: 'Update controller shim',
+			});
+
+			const loadConfig = jest
+				.fn()
+				.mockResolvedValue(buildLoadedConfig(projectWorkspace));
+			const ApplyCommand = ApplyModule.buildApplyCommand({
+				loadWPKernelConfig: loadConfig,
+			});
+			const command = new ApplyCommand();
+			command.yes = true;
+			command.backup = false;
+			command.force = false;
+			assignCommandContext(command, { cwd: projectWorkspace });
+
+			const exitCode = await command.execute();
+
+			expect(exitCode).toBe(WPK_EXIT_CODES.SUCCESS);
+			expect(command.summary).toEqual({
+				applied: 1,
+				conflicts: 0,
+				skipped: 0,
+			});
 		});
 	});
 

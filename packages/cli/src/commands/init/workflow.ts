@@ -1,7 +1,7 @@
 import path from 'node:path';
 import type { Reporter } from '@wpkernel/core/reporter';
-import type { Workspace, FileManifest } from '../../workspace';
-import { resolveDependencyVersions } from '../../../commands/init/dependency-versions';
+import type { Workspace, FileManifest } from '../../next/workspace';
+import { resolveDependencyVersions } from './dependency-versions';
 import { appendPackageSummary, writePackageJson } from './package-json';
 import {
 	assertNoCollisions,

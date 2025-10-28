@@ -13,7 +13,7 @@ import type {
 	Pipeline,
 	PipelineRunOptions,
 	PipelineRunResult,
-} from '../../runtime';
+} from '../../next/runtime';
 
 function createWorkspaceStub() {
 	const root = path.join(process.cwd(), 'workspace');

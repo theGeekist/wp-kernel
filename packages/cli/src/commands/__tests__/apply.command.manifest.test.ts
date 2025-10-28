@@ -1,11 +1,11 @@
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
 import { assignCommandContext } from '@wpkernel/test-utils/cli';
-import { createWorkspaceRunner as buildWorkspaceRunner } from '../../../../tests/workspace.test-support';
+import { createWorkspaceRunner as buildWorkspaceRunner } from '../../../tests/workspace.test-support';
 import * as ApplyModule from '../apply';
 import {
 	TMP_PREFIX,
 	buildLoadedConfig,
-} from '@wpkernel/test-utils/next/commands/apply.test-support';
+} from '@wpkernel/test-utils/cli/commands/apply.test-support';
 
 const withWorkspace = buildWorkspaceRunner({ prefix: TMP_PREFIX });
 
