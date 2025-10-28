@@ -15,7 +15,10 @@ import { getWPKernelEventBus, recordResourceDefined } from '../events/bus';
 import type { Reporter } from '../reporter';
 import { isCorePipelineEnabled } from '../configuration/flags';
 import { createResourcePipeline } from '../pipeline/resources/createResourcePipeline';
-import type { ResourcePipelineRunResult } from '../pipeline/resources/types';
+import type {
+	ResourcePipelineRunOptions,
+	ResourcePipelineRunResult,
+} from '../pipeline/resources/types';
 import type { MaybePromise } from '../pipeline/types';
 import { resolveNamespaceAndName } from './namespace';
 import { resolveResourceReporter } from './reporter';
@@ -25,16 +28,8 @@ import {
 	type NormalizedResourceConfig,
 } from './buildResourceObject';
 
-interface BuildLegacyResourceOptions<T, TQuery> {
-	readonly config: ResourceConfig<T, TQuery>;
-	readonly normalizedConfig: NormalizedResourceConfig<T, TQuery>;
-	readonly namespace: string;
-	readonly resourceName: string;
-	readonly reporter: Reporter;
-}
-
 function buildLegacyResource<T, TQuery>(
-	options: BuildLegacyResourceOptions<T, TQuery>
+	options: ResourcePipelineRunOptions<T, TQuery>
 ): ResourceObject<T, TQuery> {
 	const { config, normalizedConfig, namespace, resourceName, reporter } =
 		options;
@@ -100,6 +95,40 @@ function createNormalizedConfig<T, TQuery>(
 	} as NormalizedResourceConfig<T, TQuery>;
 }
 
+function createResourceDefinitionOptions<T, TQuery>({
+	config,
+	namespace,
+	resourceName,
+	reporter,
+}: {
+	readonly config: ResourceConfig<T, TQuery>;
+	readonly namespace: string;
+	readonly resourceName: string;
+	readonly reporter: Reporter;
+}): ResourcePipelineRunOptions<T, TQuery> {
+	return {
+		config,
+		normalizedConfig: createNormalizedConfig(config, resourceName),
+		namespace,
+		resourceName,
+		reporter,
+	} satisfies ResourcePipelineRunOptions<T, TQuery>;
+}
+
+function finalizeResourceDefinition<T, TQuery>(
+	options: ResourcePipelineRunOptions<T, TQuery>,
+	resource: ResourceObject<T, TQuery>
+): ResourceObject<T, TQuery> {
+	const definition = {
+		resource: resource as ResourceObject<unknown, unknown>,
+		namespace: options.namespace,
+	};
+	recordResourceDefined(definition);
+	getWPKernelEventBus().emit('resource:defined', definition);
+
+	return resource;
+}
+
 /**
  * Define a resource with typed REST client
  *
@@ -140,46 +169,30 @@ export function defineResource<T = unknown, TQuery = unknown>(
 		resourceName,
 		override: config.reporter,
 	});
-	const normalizedConfig = createNormalizedConfig(config, resourceName);
+	const runOptions = createResourceDefinitionOptions({
+		config,
+		namespace,
+		resourceName,
+		reporter,
+	});
 
-	let resource: ResourceObject<T, TQuery>;
+	if (!isCorePipelineEnabled()) {
+		const resource = buildLegacyResource(runOptions);
+		return finalizeResourceDefinition(runOptions, resource);
+	}
 
-	if (isCorePipelineEnabled()) {
-		const pipeline = createResourcePipeline<T, TQuery>();
-		const runResult = assertSynchronousRunResult(
-			pipeline.run({
-				config,
-				normalizedConfig,
-				namespace,
-				resourceName,
-				reporter,
-			})
-		);
+	const pipeline = createResourcePipeline<T, TQuery>();
+	const runResult = assertSynchronousRunResult(pipeline.run(runOptions));
 
-		if (!runResult.artifact.resource) {
-			throw new WPKernelError('DeveloperError', {
-				message:
-					'Resource pipeline completed without producing a resource artifact.',
-			});
-		}
-
-		resource = runResult.artifact.resource as ResourceObject<T, TQuery>;
-	} else {
-		resource = buildLegacyResource({
-			config,
-			normalizedConfig,
-			namespace,
-			resourceName,
-			reporter,
+	if (!runResult.artifact.resource) {
+		throw new WPKernelError('DeveloperError', {
+			message:
+				'Resource pipeline completed without producing a resource artifact.',
 		});
 	}
 
-	const definition = {
-		resource: resource as ResourceObject<unknown, unknown>,
-		namespace,
-	};
-	recordResourceDefined(definition);
-	getWPKernelEventBus().emit('resource:defined', definition);
-
-	return resource;
+	return finalizeResourceDefinition(
+		runOptions,
+		runResult.artifact.resource as ResourceObject<T, TQuery>
+	);
 }
