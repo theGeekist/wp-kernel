@@ -122,6 +122,7 @@ _Referenced from:_
 2. **Side-effect orchestration** – Introduce builders that manage lazy store registration and BroadcastChannel event emission so side effects run deterministically via pipeline commit hooks. Cover rollback scenarios to guarantee clean failure handling.
 3. **`defineResource` integration** – Update the public entry point to execute the pipeline while preserving TypeScript typings and runtime behaviour. Provide a clear migration path from the feature flag introduced in Task 32.
 4. **Regression coverage** – Extend tests to validate reporter messages, cache key generation, grouped API getters, and store registration across Node and browser mocks. Where necessary, refactor oversized fixtures to honour the ≤500 SLOC guideline.
+5. **Synchronous runner** – Expose a `runSync` entry point that mirrors the async `run` but throws when helpers or extensions return promises so resource definitions can complete during module evaluation.
 
 **Completion placeholder**
 

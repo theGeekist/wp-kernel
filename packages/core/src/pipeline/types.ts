@@ -139,8 +139,8 @@ export interface PipelineExtensionHookOptions<TContext, TOptions, TArtifact> {
 
 export interface PipelineExtensionHookResult<TArtifact> {
 	readonly artifact?: TArtifact;
-	readonly commit?: () => Promise<void>;
-	readonly rollback?: () => Promise<void>;
+	readonly commit?: () => Promise<void> | void;
+	readonly rollback?: () => Promise<void> | void;
 }
 
 export interface PipelineExtensionRollbackErrorMetadata {
@@ -152,7 +152,10 @@ export interface PipelineExtensionRollbackErrorMetadata {
 
 export type PipelineExtensionHook<TContext, TOptions, TArtifact> = (
 	options: PipelineExtensionHookOptions<TContext, TOptions, TArtifact>
-) => Promise<PipelineExtensionHookResult<TArtifact> | void>;
+) =>
+	| PipelineExtensionHookResult<TArtifact>
+	| void
+	| Promise<PipelineExtensionHookResult<TArtifact> | void>;
 
 export interface PipelineExtension<TPipeline, TContext, TOptions, TArtifact> {
 	readonly key?: string;
@@ -364,4 +367,5 @@ export interface Pipeline<
 	};
 	use: (helper: TFragmentHelper | TBuilderHelper) => void;
 	run: (options: TRunOptions) => Promise<TRunResult>;
+	runSync: (options: TRunOptions) => TRunResult;
 }
