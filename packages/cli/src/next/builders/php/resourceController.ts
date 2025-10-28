@@ -9,32 +9,17 @@ import type {
 } from '../../runtime/types';
 import {
 	appendGeneratedFileDocblock,
+	buildRestControllerClass,
 	createWpPhpFileBuilder,
 	type PhpFileMetadata,
 	type ResourceControllerRouteMetadata,
 	type ResourceMetadataHost,
+	type RestRouteConfig,
+	type ScalarCastKind,
 } from '@wpkernel/wp-json-ast';
-import {
-	buildArg,
-	buildAssign,
-	buildClass,
-	buildClassMethod,
-	buildDocComment,
-	buildExpressionStatement,
-	buildIdentifier,
-	buildName,
-	buildParam,
-	buildReturn,
-	buildScalarString,
-	buildStaticCall,
-	buildStmtNop,
-	buildVariable,
-	PHP_CLASS_MODIFIER_FINAL,
-	PHP_METHOD_MODIFIER_PUBLIC,
-	type PhpAstBuilderAdapter,
-	type PhpAttributes,
-	type PhpStmt,
-	type PhpStmtClassMethod,
+import type {
+	PhpAstBuilderAdapter,
+	PhpStmtClassMethod,
 } from '@wpkernel/php-json-ast';
 import { makeErrorCodeFactory, sanitizeJson, toPascalCase } from './utils';
 import type { IRResource, IRRoute, IRv1 } from '../../ir/publicTypes';
@@ -53,8 +38,6 @@ import { buildWpTaxonomyHelperMethods } from './resource/wpTaxonomy';
 import { buildWpOptionHelperMethods } from './resource/wpOption';
 import { buildTransientHelperMethods } from './resource/transient';
 import { renderPhpValue } from './resource/phpValue';
-import { buildRequestParamAssignmentStatement } from './resource/request';
-import { buildReturnIfWpError } from './resource/errors';
 
 export function createPhpResourceControllerHelper(): BuilderHelper {
 	return createHelper({
@@ -180,6 +163,7 @@ function buildResourceController(
 		canonicalBasePaths,
 		resource,
 	});
+
 	appendGeneratedFileDocblock(builder, [
 		`Source: ${ir.meta.origin} → resources.${resource.name}`,
 		`Schema: ${resource.schemaKey} (${resource.schemaProvenance})`,
@@ -188,58 +172,41 @@ function buildResourceController(
 		),
 	]);
 
-	builder.addUse(`${ir.php.namespace}\\Generated\\Policy\\Policy`);
-	builder.addUse('WP_Error');
-	builder.addUse('WP_REST_Request');
-	builder.addUse('function is_wp_error');
-
-	if (resource.storage?.mode === 'wp-post') {
-		builder.addUse('WP_Post');
-		builder.addUse('WP_Query');
-	}
-
-	if (resource.storage?.mode === 'wp-taxonomy') {
-		builder.addUse('WP_Term');
-		builder.addUse('WP_Term_Query');
-	}
-
-	const methods: PhpStmtClassMethod[] = [];
-
-	methods.push(buildGetResourceNameMethod(resource));
-	methods.push(buildGetSchemaKeyMethod(resource));
-	methods.push(buildGetRestArgsMethod(ir, resource));
-
-	const routeMethods = resource.routes.map((route: IRRoute, index: number) =>
-		buildRouteMethod({
-			builder,
-			ir,
-			resource,
-			route,
-			identity,
-			pascalName,
-			errorCodeFactory,
-			metadataHost,
-			routeKind: routeMetadata[index]?.kind ?? 'custom',
-			routeMetadata: routeMetadata[index],
-		})
+	const restArgsExpression = renderPhpValue(
+		sanitizeJson(buildRestArgs(ir.schemas, resource))
 	);
-
-	methods.push(...routeMethods);
-
-	appendStorageHelperMethods({
+	const routeConfigs = buildRouteConfigs({
+		ir,
+		resource,
+		identity,
+		pascalName,
+		metadataHost,
+		routeMetadata,
+		errorCodeFactory,
+	});
+	const helperMethods = buildStorageHelperMethods({
 		resource,
 		pascalName,
 		identity,
 		errorCodeFactory,
 		ir,
-		methods,
+	});
+	const additionalUses = collectAdditionalUses(resource);
+	const { classNode, uses } = buildRestControllerClass({
+		className,
+		resourceName: resource.name,
+		schemaKey: resource.schemaKey,
+		restArgsExpression,
+		identity,
+		routes: routeConfigs,
+		helperMethods,
+		additionalUses,
+		policyClass: `${ir.php.namespace}\Policy\Policy`,
 	});
 
-	const classNode = buildClass(buildIdentifier(className), {
-		flags: PHP_CLASS_MODIFIER_FINAL,
-		extends: buildName(['BaseController']),
-		stmts: methods,
-	});
+	for (const use of uses) {
+		builder.addUse(use);
+	}
 
 	builder.appendProgramStatement(classNode);
 
@@ -251,18 +218,90 @@ function buildResourceController(
 	});
 }
 
-interface AppendStorageHelperMethodsOptions {
+interface BuildRouteConfigsOptions {
+	readonly ir: IRv1;
+	readonly resource: IRResource;
+	readonly identity: ResolvedIdentity;
+	readonly pascalName: string;
+	readonly metadataHost: ResourceMetadataHost;
+	readonly routeMetadata: readonly ResourceControllerRouteMetadata[];
+	readonly errorCodeFactory: (suffix: string) => string;
+}
+
+function buildRouteConfigs(
+	options: BuildRouteConfigsOptions
+): RestRouteConfig[] {
+	return options.resource.routes.map((route, index) => {
+		const routeKind = options.routeMetadata[index]?.kind ?? 'custom';
+		const metadata =
+			options.routeMetadata[index] ??
+			({
+				method: route.method,
+				path: route.path,
+				kind: routeKind,
+			} satisfies ResourceControllerRouteMetadata);
+
+		const usesIdentity = routeUsesIdentity({
+			route,
+			routeKind,
+			identity: options.identity,
+		});
+
+		const handledStatements = buildRouteKindStatements({
+			resource: options.resource,
+			route,
+			identity: options.identity,
+			pascalName: options.pascalName,
+			errorCodeFactory: options.errorCodeFactory,
+			metadataHost: options.metadataHost,
+			cacheSegments: resolveCacheSegments(
+				routeKind,
+				options.resource,
+				options.routeMetadata[index]
+			),
+			routeKind,
+		});
+
+		const statements =
+			handledStatements && handledStatements.length > 0
+				? handledStatements
+				: buildNotImplementedStatements(route);
+
+		const identityCast: ScalarCastKind | undefined =
+			options.identity.type === 'number' ? 'int' : undefined;
+
+		const requestParameters = usesIdentity
+			? [
+					{
+						requestVariable: 'request',
+						param: options.identity.param,
+						targetVariable: options.identity.param,
+						cast: identityCast,
+					},
+				]
+			: undefined;
+
+		return {
+			methodName: buildRouteMethodName(route, options.ir),
+			metadata,
+			policy: route.policy,
+			requestParameters,
+			statements,
+		} satisfies RestRouteConfig;
+	});
+}
+
+interface BuildStorageHelperMethodsOptions {
 	readonly resource: IRResource;
 	readonly pascalName: string;
 	readonly identity: ResolvedIdentity;
 	readonly errorCodeFactory: (suffix: string) => string;
 	readonly ir: IRv1;
-	readonly methods: PhpStmtClassMethod[];
 }
 
-function appendStorageHelperMethods(
-	options: AppendStorageHelperMethodsOptions
-): void {
+function buildStorageHelperMethods(
+	options: BuildStorageHelperMethodsOptions
+): readonly PhpStmtClassMethod[] {
 	const storageMode = options.resource.storage?.mode;
 
 	if (storageMode === 'wp-taxonomy') {
@@ -272,8 +311,8 @@ function appendStorageHelperMethods(
 			identity: options.identity,
 			errorCodeFactory: options.errorCodeFactory,
 		});
-		options.methods.push(...taxonomyHelpers.map((method) => method.node));
-		return;
+
+		return taxonomyHelpers.map((method) => method.node);
 	}
 
 	if (storageMode === 'transient') {
@@ -281,157 +320,39 @@ function appendStorageHelperMethods(
 			options.ir.meta.sanitizedNamespace ??
 			options.ir.meta.namespace ??
 			'';
-		const transientHelpers = buildTransientHelperMethods({
+
+		return buildTransientHelperMethods({
 			resource: options.resource,
 			pascalName: options.pascalName,
 			namespace,
 		});
-		options.methods.push(...transientHelpers);
-		return;
 	}
 
 	if (storageMode === 'wp-option') {
-		const optionHelpers = buildWpOptionHelperMethods({
+		return buildWpOptionHelperMethods({
 			resource: options.resource,
 			pascalName: options.pascalName,
 		});
-		options.methods.push(...optionHelpers);
-	}
-}
-
-function buildGetResourceNameMethod(resource: IRResource): PhpStmtClassMethod {
-	return buildClassMethod(buildIdentifier('get_resource_name'), {
-		flags: PHP_METHOD_MODIFIER_PUBLIC,
-		returnType: buildIdentifier('string'),
-		stmts: [buildReturn(buildScalarString(resource.name))],
-	});
-}
-
-function buildGetSchemaKeyMethod(resource: IRResource): PhpStmtClassMethod {
-	return buildClassMethod(buildIdentifier('get_schema_key'), {
-		flags: PHP_METHOD_MODIFIER_PUBLIC,
-		returnType: buildIdentifier('string'),
-		stmts: [buildReturn(buildScalarString(resource.schemaKey))],
-	});
-}
-
-function buildGetRestArgsMethod(
-	ir: IRv1,
-	resource: IRResource
-): PhpStmtClassMethod {
-	const payload = sanitizeJson(buildRestArgs(ir.schemas, resource));
-	const expression = renderPhpValue(payload);
-
-	return buildClassMethod(buildIdentifier('get_rest_args'), {
-		flags: PHP_METHOD_MODIFIER_PUBLIC,
-		returnType: buildIdentifier('array'),
-		stmts: [buildReturn(expression)],
-	});
-}
-
-interface RouteMethodOptions {
-	readonly builder: PhpAstBuilderAdapter;
-	readonly ir: IRv1;
-	readonly resource: IRResource;
-	readonly route: IRRoute;
-	readonly identity: ResolvedIdentity;
-	readonly pascalName: string;
-	readonly errorCodeFactory: (suffix: string) => string;
-	readonly metadataHost: ResourceMetadataHost;
-	readonly routeKind: RouteMetadataKind;
-	readonly routeMetadata?: ResourceControllerRouteMetadata;
-}
-
-function buildRouteMethod(options: RouteMethodOptions): PhpStmtClassMethod {
-	const methodName = buildRouteMethodName(options.route, options.ir);
-	const docblock = [
-		`Handle [${options.route.method}] ${options.route.path}.`,
-		`@wp-kernel route-kind ${options.routeKind}`,
-		...buildRouteTagDocblock(options.routeMetadata?.tags),
-	];
-
-	const statements: PhpStmt[] = [];
-
-	if (
-		routeUsesIdentity({
-			route: options.route,
-			routeKind: options.routeKind,
-			identity: options.identity,
-		})
-	) {
-		const param = options.identity.param;
-		statements.push(
-			buildRequestParamAssignmentStatement({
-				requestVariable: 'request',
-				param,
-				targetVariable: param,
-			})
-		);
-		statements.push(buildStmtNop());
 	}
 
-	if (options.route.policy) {
-		const policyAssign = buildAssign(
-			buildVariable('permission'),
-			buildStaticCall(buildName(['Policy']), buildIdentifier('enforce'), [
-				buildArg(buildScalarString(options.route.policy)),
-				buildArg(buildVariable('request')),
-			])
-		);
-		statements.push(buildExpressionStatement(policyAssign));
-
-		statements.push(buildReturnIfWpError(buildVariable('permission')));
-		statements.push(buildStmtNop());
-	}
-
-	const handledStatements = buildRouteKindStatements({
-		resource: options.resource,
-		route: options.route,
-		identity: options.identity,
-		pascalName: options.pascalName,
-		errorCodeFactory: options.errorCodeFactory,
-		metadataHost: options.metadataHost,
-		cacheSegments: resolveCacheSegments(
-			options.routeKind,
-			options.resource,
-			options.routeMetadata
-		),
-		routeKind: options.routeKind,
-	});
-
-	if (handledStatements && handledStatements.length > 0) {
-		statements.push(...handledStatements);
-	} else {
-		statements.push(...buildNotImplementedStatements(options.route));
-	}
-
-	const attributes = buildDocAttributes(docblock);
-
-	return buildClassMethod(
-		buildIdentifier(methodName),
-		{
-			flags: PHP_METHOD_MODIFIER_PUBLIC,
-			params: [
-				buildParam(buildVariable('request'), {
-					type: buildName(['WP_REST_Request']),
-				}),
-			],
-			stmts: statements,
-		},
-		attributes
-	);
+	return [];
 }
 
-function buildDocAttributes(
-	docblock: readonly string[]
-): PhpAttributes | undefined {
-	if (docblock.length === 0) {
-		return undefined;
+function collectAdditionalUses(resource: IRResource): readonly string[] {
+	const uses = new Set<string>();
+
+	if (resource.storage?.mode === 'wp-post') {
+		uses.add('WP_Post');
+		uses.add('WP_Query');
 	}
 
-	return { comments: [buildDocComment(docblock)] };
-}
+	if (resource.storage?.mode === 'wp-taxonomy') {
+		uses.add('WP_Term');
+		uses.add('WP_Term_Query');
+	}
 
+	return [...uses];
+}
 function resolveCacheSegments(
 	routeKind: RouteMetadataKind,
 	resource: IRResource,
@@ -469,16 +390,4 @@ function resolveMutationCacheSegments(
 	}
 
 	return [];
-}
-
-function buildRouteTagDocblock(
-	tags: ResourceControllerRouteMetadata['tags'] | undefined
-): string[] {
-	if (!tags) {
-		return [];
-	}
-
-	return Object.entries(tags)
-		.sort(([leftKey], [rightKey]) => leftKey.localeCompare(rightKey))
-		.map(([key, value]) => `@wp-kernel ${key} ${value}`);
 }

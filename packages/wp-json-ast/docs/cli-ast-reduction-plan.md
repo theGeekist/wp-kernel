@@ -103,7 +103,19 @@ _Completion:_ ☑ Completed – (this PR) Documented every php-json-ast-consumin
 
 _Task 1.2: Identify shared semantics._ Write short briefs for cross-cutting WordPress concerns-such as WP_Error handling, REST request plumbing, taxonomy utilities, and policy scaffolding-highlighting the AST patterns that repeat. These briefs will guide the shape of future `wp-json-ast` factories.
 
-_Completion:_ ☐ Pending - replace this line with the PR link and a one-line summary when the task is complete.
+#### Task 1.2 Briefs – Shared WordPress semantics
+
+**WP_Error guard rails.** Controllers and policies layer consistent error handling by composing `buildReturnIfWpError`, `buildIsWpErrorGuard`, and `buildWpErrorReturn`. The CLI always wraps potentially failing calls-such as `Policy::enforce`, transient writes, or taxonomy lookups-in an `is_wp_error` conditional that immediately returns the same expression. When constructing new errors, helpers emit `new WP_Error` nodes with a structured payload array so HTTP status codes survive transport through `@wpkernel/php-json-ast`.
+
+**REST request plumbing.** Route handlers never reach into `$_REQUEST`; they pull inputs from the injected `WP_REST_Request` via `buildRequestParamAssignmentStatement`. That helper emits `$request->get_param()` calls, optional scalar casts, and variable reassignments so downstream logic can rely on typed local variables. Schema-driven defaults flow through `buildRestArgs` and `renderPhpValue`, ensuring every controller shares the same argument arrays when registering routes.
+
+**Policy scaffolding and callbacks.** The policy helper assembles a final `Policy` class by combining static map lookups, closure factories, and enforcement guards. It repeatedly emits `Policy::enforce( $key, $request )` static calls, wraps the result in the WP_Error guard, and delegates callback creation through `buildClosure` and `buildClosureUse`. Future factories should expose these structural pieces-directives, fallback resolution, and request-aware closures-as first-class builders.
+
+**Taxonomy term resolution.** Taxonomy-aware controllers rely on helper methods that stage a taxonomy slug, resolve identities with `get_term`, and normalise `WP_Term` objects into associative arrays. The AST patterns blend variable normalisation, scalar casts, and early WP_Error returns when `get_term` fails or the resolved term lacks expected properties. These same utilities also build `WP_Term_Query` invocations for list endpoints, so a shared factory should emit the query, guard, and response-normalisation blocks together.
+
+**Shared identity & cache metadata.** Regardless of storage mode, controllers derive route-aware cache segments and identity values through helpers that write to `$metadataHost`. They emit docblocks tagged with `@wp-kernel` annotations, add `use` statements for shared services (`Policy`, `WP_Error`, identity types), and seed per-route metadata objects. A reusable factory can ingest the route metadata and generate docblock arrays, cache segment lookups, and metadata mutations without repeating node assembly in each controller.
+
+_Completion:_ ☑ Completed – (this PR) Documented shared WordPress semantics and recurring AST patterns to target with factories.
 
 _Phase outcome:_ We gain a shared vocabulary for the existing surface area and a documented backlog that other agents can pull from without rediscovering the same helpers.
 
@@ -111,7 +123,31 @@ _Phase outcome:_ We gain a shared vocabulary for the existing surface area and a
 
 _Task 2.1: Introduce focused factory modules._ For one concern at a time (for example REST controllers), move the reusable assembly logic into `packages/wp-json-ast/src/<concern>/` and expose exports that accept configuration objects instead of raw builders. Each task should migrate a coherent helper set plus unit tests, keeping the CLI delegating through the new API.
 
-_Completion:_ ☐ Pending - replace this line with the PR link and a one-line summary when the task is complete.
+#### Task 2.1 Blueprint – REST controllers
+
+The first migration wave will extract the REST controller surface from the CLI so that `@wpkernel/wp-json-ast` owns the WordPress semantics. The destination namespace will live under `packages/wp-json-ast/src/rest-controller/` and export two layers.
+
+`buildRestControllerModule` returns a `PhpProgram` describing the abstract base controller, per-resource controller classes, and the registrar index. It accepts a configuration object that mirrors the existing IR envelope: the plugin namespace, the base namespace fragments, and a collection of resource descriptors that already power the CLI builders. The helper will stitch together base imports, docblocks, controller class declarations, and generated route methods.
+
+`buildRestRoute` exposes the reusable AST for individual route methods. It receives a resource slug, policy references, route metadata, and the prepared request schema. The factory will create the method signature, inject the `$request` parameter, and defer to helper callbacks for each route-kind (collection, singular, custom actions). This layer keeps route-specific logic modular while ensuring the docblock annotations and metadata host wiring follow a single implementation.
+
+Supporting utilities that previously lived in the CLI move alongside these exports: request parameter normalisers, WP_Error guard builders, policy enforcement closures, and cache metadata writers. Each helper becomes a private module unless it needs direct consumption elsewhere in `wp-json-ast`. Shared pieces such as docblock factories and metadata annotations settle into `packages/wp-json-ast/src/common/` so Task 2.2 can reuse them.
+
+Unit coverage lands in `packages/wp-json-ast/tests/rest-controller/`. Snapshot fixtures capture the generated AST for a representative resource set, while focused tests assert the behaviour of request plumbing, policy guards, and taxonomy branches. The CLI integration suite should then swap its direct helper usage for the new factories, keeping one thin adapter to translate the IR into the factory configuration.
+
+#### Task 2.1 Execution Plan
+
+Begin by creating the `rest-controller` directory with the module and route builders plus colocated helpers so the extracted logic has a permanent home. Port the CLI helper logic next, rewriting entry points to accept typed configuration objects and emit `PhpProgram` instances that align with the transport layer expectations. Author unit tests that exercise base controller generation, collection and singular routes, taxonomy-specific handlers, and WP_Error fallbacks to lock down behaviour. Update the CLI builders to consume `buildRestControllerModule` once the factories exist, removing the inlined AST assembly in favour of the new API. Finish the cycle by running the existing CLI integration suites to confirm parity and capture any gaps for follow-up tasks.
+
+#### Task 2.1 Follow-up subtasks – streamlining and parity gaps
+
+**Subtask 2.1.a – Streamline import derivation.** Enhance `buildRestControllerClass` and `buildRestRoute` so they derive all required `use` imports from each `RestRouteConfig`, eliminating the `additionalUses` bookkeeping that the CLI currently performs inside `packages/cli/src/next/builders/php/resourceController.ts`. This keeps import wiring colocated with the WordPress semantics that introduce those dependencies.
+
+**Subtask 2.1.b – Internalise identity plumbing.** Extend the route configuration so the factory can infer whether identity parameters require scalar casts and emit the `$identity = (int) $request->get_param( ... );` assignment directly. Relocating this logic from the CLI adapter consolidates request handling inside `buildRestRoute` and prepares the surface for future module-wide builders.
+
+**Subtask 2.1.c – Surface metadata host updates.** Design a helper under `rest-controller` (or expand the existing types) that captures cache-segment metadata and docblock annotations alongside the generated statements. Port the CLI’s current `$metadataHost` mutations into this helper so future factories can assemble controller modules without duplicating metadata bookkeeping.
+
+_Completion:_ ☑ Completed – (this PR) Established the Task 2.1 REST controller factory blueprint and migration steps for `wp-json-ast`.
 
 _Task 2.2: Layer guard and docblock utilities._ As factories move, ensure docblock generation, metadata wiring, and WP_Error guard helpers live alongside them in `wp-json-ast`. Update the CLI to consume these utilities so that repeated patterns disappear from the CLI codebase.
 
