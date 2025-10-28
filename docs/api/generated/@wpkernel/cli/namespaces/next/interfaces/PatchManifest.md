@@ -21,3 +21,11 @@ readonly summary: PatchManifestSummary;
 ```ts
 readonly records: PatchRecord[];
 ```
+
+---
+
+### actions
+
+```ts
+readonly actions: readonly string[];
+```

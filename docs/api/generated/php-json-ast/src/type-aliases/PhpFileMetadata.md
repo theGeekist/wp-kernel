@@ -7,5 +7,13 @@
 # Type Alias: PhpFileMetadata
 
 ```ts
-type PhpFileMetadata = GenericPhpFileMetadata | ResourceControllerMetadata;
+type PhpFileMetadata = Readonly<Record<string, unknown>> & object;
+```
+
+## Type Declaration
+
+### kind?
+
+```ts
+readonly optional kind: string;
 ```
