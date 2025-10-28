@@ -1,7 +1,10 @@
 import path from 'node:path';
 import type { Reporter } from '@wpkernel/core/reporter';
-import { collectCanonicalBasePaths } from '../routes';
-import { buildRouteMetadata } from '../resourceController/metadata';
+import {
+	collectCanonicalBasePaths,
+	buildResourceControllerRouteMetadata,
+} from '@wpkernel/wp-json-ast';
+import type { IRResource } from '../../ir/publicTypes';
 import type { ResolvedIdentity } from '../identity';
 import type { BuilderOutput } from '../../../runtime/types';
 import type { Workspace } from '../../../workspace/types';
@@ -15,6 +18,7 @@ import {
 	makeWpOptionResource,
 	makeTransientResource,
 } from '@wpkernel/test-utils/next/builders/php/resources.test-support';
+import { WP_POST_MUTATION_CONTRACT } from '../resource/wpPost/mutations';
 import {
 	createPhpChannelHelper,
 	createPhpResourceControllerHelper,
@@ -97,11 +101,13 @@ describe('createPhpResourceControllerHelper', () => {
 					method: 'GET',
 					path: '/kernel/v1/books',
 					kind: 'list',
+					cacheSegments: ['books', 'list'],
 				},
 				{
 					method: 'GET',
 					path: '/kernel/v1/books/:slug',
 					kind: 'get',
+					cacheSegments: ['books', 'get'],
 				},
 				{
 					method: 'POST',
@@ -448,7 +454,7 @@ describe('createPhpResourceControllerHelper', () => {
 	});
 });
 
-describe('buildRouteMetadata', () => {
+describe('buildResourceControllerRouteMetadata', () => {
 	it('annotates mutation routes with cache segments and contract tags', () => {
 		const identity: ResolvedIdentity = { type: 'string', param: 'slug' };
 		const resource = makeWpPostResource();
@@ -464,11 +470,17 @@ describe('buildRouteMetadata', () => {
 			routes,
 			identity.param
 		);
-		const metadata = buildRouteMetadata({
-			routes,
-			identity,
+		const metadata = buildResourceControllerRouteMetadata({
+			routes: routes.map((route) => ({
+				method: route.method,
+				path: route.path,
+			})),
+			identity: { param: identity.param },
 			canonicalBasePaths,
-			resource,
+			cacheKeys: buildCacheKeyPlan(resource),
+			mutationMetadata: {
+				channelTag: WP_POST_MUTATION_CONTRACT.metadataKeys.channelTag,
+			},
 		});
 
 		expect(metadata).toEqual([
@@ -525,11 +537,15 @@ describe('buildRouteMetadata', () => {
 			routes,
 			identity.param
 		);
-		const metadata = buildRouteMetadata({
-			routes,
-			identity,
+		const metadata = buildResourceControllerRouteMetadata({
+			routes: routes.map((route) => ({
+				method: route.method,
+				path: route.path,
+			})),
+			identity: { param: identity.param },
 			canonicalBasePaths,
-			resource,
+			cacheKeys: buildCacheKeyPlan(resource),
+			mutationMetadata: undefined,
 		});
 
 		expect(metadata).toEqual([
@@ -569,11 +585,17 @@ describe('buildRouteMetadata', () => {
 			routes,
 			identity.param
 		);
-		const metadata = buildRouteMetadata({
-			routes,
-			identity,
+		const metadata = buildResourceControllerRouteMetadata({
+			routes: routes.map((route) => ({
+				method: route.method,
+				path: route.path,
+			})),
+			identity: { param: identity.param },
 			canonicalBasePaths,
-			resource,
+			cacheKeys: buildCacheKeyPlan(resource),
+			mutationMetadata: {
+				channelTag: WP_POST_MUTATION_CONTRACT.metadataKeys.channelTag,
+			},
 		});
 
 		expect(metadata).toEqual([
@@ -604,6 +626,22 @@ describe('buildRouteMetadata', () => {
 
 function buildIr() {
 	return makePhpIrFixture();
+}
+
+function buildCacheKeyPlan(resource: Pick<IRResource, 'cacheKeys'>) {
+	return {
+		list: { segments: resource.cacheKeys.list.segments },
+		get: { segments: resource.cacheKeys.get.segments },
+		create: resource.cacheKeys.create
+			? { segments: resource.cacheKeys.create.segments }
+			: undefined,
+		update: resource.cacheKeys.update
+			? { segments: resource.cacheKeys.update.segments }
+			: undefined,
+		remove: resource.cacheKeys.remove
+			? { segments: resource.cacheKeys.remove.segments }
+			: undefined,
+	} as const;
 }
 
 function getRoute(
