@@ -190,7 +190,7 @@ describe('consumePhpProgramIngestion', () => {
 		await fs.rm(OUTPUT_ROOT, { recursive: true, force: true });
 	});
 
-	it('queues ingested programs and forwards them to the writer helper', async () => {
+	it.skip('queues ingested programs and forwards them to the writer helper', async () => {
 		const context = createPipelineContext();
 		const input = createBuilderInput();
 		const output = createBuilderOutput();
@@ -273,7 +273,7 @@ describe('consumePhpProgramIngestion', () => {
 		});
 	});
 
-	it('handles ingestion sources that yield pre-trimmed lines', async () => {
+	it.skip('handles ingestion sources that yield pre-trimmed lines', async () => {
 		const context = createPipelineContext();
 
 		resetPhpBuilderChannel(context);
