@@ -28,7 +28,7 @@ _Referenced from:_
 1. **Lifecycle mapping** – Document each lifecycle responsibility (config validation, reporter wiring, context assembly, lifecycle emission, registry bookkeeping) and represent them as helper descriptors under `packages/core/src/pipeline/helpers/**`. All new helpers must use verbs such as `build` or `make`; the `create*` prefix remains exclusive to functions that produce pipeline instances via the existing factories.
 2. **Typed bridge utilities** – Extend or wrap `packages/core/src/pipeline/createPipeline.ts` only where absolutely required so helpers can forward diagnostics, invoke commit/rollback hooks, and stay under the 500 SLOC/module threshold. Prefer additional exported helpers over nested logic to preserve low complexity and early returns.
 3. **Test scaffolding** – Add new `*.test-support.ts` builders in `packages/test-utils/core` that can instantiate the action and resource pipelines with reporter/workspace doubles. Export these helpers for direct unit coverage, and keep each helper/test module ≤500 SLOC.
-4. **Feature flag** – Introduce a guard (e.g. `enableCorePipeline`) that controls whether `defineAction`/`defineResource` run via the pipeline or the legacy flow. Default the flag to off, wire it through existing configuration objects, and document how to flip it for experiments.
+4. **Transitional guard** – Introduce a temporary pipeline gate (for example `enableCorePipeline`) that lets early adopters opt into the new flow while parity hardening continues. Document the helper surface (e.g. `isCorePipelineEnabled`) during this window and record the retirement path so the guard is removed in Task 35 once parity lands.
 
 **Implementation guidance**
 
@@ -38,7 +38,7 @@ While mapping helpers, define a shared context contract (`CorePipelineContext`) 
 
 The new test scaffolding belongs in `packages/test-utils/core`. Create `buildCoreActionPipelineHarness.test-support.ts` and `buildCoreResourcePipelineHarness.test-support.ts` modules that assemble disposable reporters, namespace registries, and workspace doubles. Export minimal helpers that return `{ pipeline, reporter, registry }` tuples so unit suites under `packages/core/src/**/__tests__/` can execute helpers directly. When adding fixtures, ensure the shared harness stays <500 SLOC by extracting common mocks (e.g. reporter message collectors) into neighbouring utilities instead of inlining them per test.
 
-Thread the feature flag through `configureWPKernel` configuration paths by introducing a typed option on the runtime configuration object (for example `corePipeline: { enabled: boolean }`). The flag defaults to `false`, but it must be observable from both action and resource definitions so callers can opt into the pipeline for parity testing. Publish a helper such as `isCorePipelineEnabled()` inside `packages/core/src/configuration/flags.ts` that reads from the resolved configuration object, and update the docs in `packages/core/docs/` (this file) plus the CLI migration index to explain how to enable the flag in experiments or tests.
+Thread the transitional guard through `configureWPKernel` configuration paths by introducing a typed runtime option that early adopters can flip during the parity window. Make the gate observable from action and resource definitions (for example via an `isCorePipelineEnabled()` helper) and document both the opt-in steps and the scheduled removal in this spec and the CLI migration index.
 
 When the scaffolding lands, update `packages/core/src/actions/__tests__/defineAction.pipeline.test.ts` (new) and the companion resource suite to cover the flag toggles using the new test harness. Each suite should assert that the pipeline remains dormant when the flag is off, confirm helper descriptors execute in the right order when enabled, and record reporter output for regression tracking. Run `pnpm --filter @wpkernel/core test`, `pnpm --filter @wpkernel/core typecheck`, and `pnpm --filter @wpkernel/core typecheck:tests` before shipping so parity checks and shared types stay green.
 
@@ -64,7 +64,7 @@ _Referenced from:_
 
 1. **Helper implementation** – Build pipeline fragments that resolve options, assemble the action context, emit start/complete/error events, and normalise errors. Ensure helper functions use the `build*`/`make*` naming pattern, keep complexity low (early returns, shallow branches), and export them for direct unit testing.
 2. **Pipeline orchestration** – Update `defineAction` to construct the pipeline and invoke it inside the returned callable. Extract registry bookkeeping into a dedicated helper that records namespaces and emits `action:defined`, observing the naming constraint and ≤500 SLOC/module rule.
-3. **Dual-path testing** – During the flag window, run suites against both legacy and pipeline flows. Cover reporter output, namespace detection, lifecycle payloads, and error normalisation. Remove the legacy assertions only after parity is demonstrated and recorded.
+3. **Dual-path testing** – During the guard window prior to Task 35, run suites against both legacy and pipeline flows. Cover reporter output, namespace detection, lifecycle payloads, and error normalisation. Remove the legacy assertions only after parity is demonstrated and recorded.
 4. **Coverage instrumentation** – Expand unit/integration tests to keep coverage high. Favour lightweight test helpers from `@wpkernel/test-utils/core`, and update fixtures if any `create*` helper names violate the reserved prefix rule.
 
 **Implementation guidance**
@@ -80,7 +80,7 @@ Keep these helpers ≤500 SLOC by delegating nested checks to private utilitie
 
 When wiring the helpers, expose a focused orchestration module (for example `buildDefineActionPipeline.ts`) that composes the helper descriptors and exports a `runDefineActionPipeline` convenience callable. `defineAction` should:
 
-1. Resolve configuration and feature flags (`isCorePipelineEnabled`) early so the legacy path remains intact while the flag is disabled.
+1. Resolve configuration and the transitional pipeline guard early so the legacy path remains intact while the gate is disabled.
 2. Use the Task 32 bridge utilities (`buildPipelineCommit`, `buildPipelineRollback`) to connect pipeline commit/rollback handlers with the existing registry mutation semantics.
 3. Defer registry bookkeeping to a verb-named helper such as `buildActionRegistryRegistration` that receives the namespace registry and emits the `action:defined` reporter entry.
 4. Memoise the pipeline instance per definition to avoid rebuilding helper arrays on every invocation, while keeping the public callable signature unchanged.
@@ -91,7 +91,7 @@ The orchestration module should also surface a typed `ActionPipelineHooks` inter
 
 Extend the new pipeline harnesses (`buildCoreActionPipelineHarness.test-support.ts`) to supply reporter spies and namespace registries. Author a `defineAction.pipeline.test.ts` suite that:
 
-- Asserts that toggling the `corePipeline.enabled` flag switches between legacy and pipeline flows without mutating the public API.
+- Captures parity evidence that the transitional guard switched between legacy and pipeline flows without mutating the public API prior to its removal.
 - Confirms helper execution order via emitted lifecycle events and verifies that rollback hooks trigger when a helper throws.
 - Captures reporter output for success and failure cases, ensuring error normalisation matches today’s snapshots.
 - Uses the harness doubles to simulate namespace collisions and ensures registry bookkeeping helpers maintain the existing safeguards.
@@ -140,14 +140,15 @@ _Referenced from:_
 
 ### 🧩 Task 35: Polish Diagnostics and Extension Story
 
-**Objective**: finalise the developer experience for pipeline adopters and confirm the feature flag path toward the minor release.
+**Objective**: finalise the developer experience for pipeline adopters now that the pipeline is the sole orchestration path.
 
 **Deliverables**
 
-1. **Reporter integration** – Wire pipeline diagnostics into the core reporter so missing or unused helpers surface actionable warnings. Keep reporter adapters ≤500 SLOC and expose helper functions for direct testing.
-2. **Rollback validation** – Simulate helper failures to exercise commit/rollback hooks. Confirm pipelines unwind side effects cleanly and update tests to guard against regressions.
-3. **Documentation sweep** – Refresh `packages/cli/docs/index.md`, `packages/cli/docs/cli-migration-phases.md`, and this phase document with guidance on extending pipelines, naming conventions (reserved `create*` prefix), and the low-complexity rule.
-4. **Feature-flag plan** – Finalise the rollout timeline: enable the pipeline by default once diagnostics stabilise, retain an opt-out until 0.10.0 ships, and document the steps required to remove the flag in Task 36.
+1. **Legacy retirement** – Delete the remaining legacy orchestration shims and their parity tests so `defineAction`/`defineResource` only execute through the pipeline. Verify that helper entry points comply with the reserved `create*` cadence (pipeline factories and helper builders only) and rename any stragglers before closing the task.
+2. **Reporter integration** – Wire pipeline diagnostics into the core reporter so missing or unused helpers surface actionable warnings. Keep reporter adapters ≤500 SLOC and expose helper functions for direct testing.
+3. **Rollback validation** – Simulate helper failures to exercise commit/rollback hooks. Confirm pipelines unwind side effects cleanly and update tests to guard against regressions.
+4. **Configuration cleanup** – Remove the temporary `corePipeline` feature flag from configuration objects, helpers, and documentation. Confirm the runtime no longer accepts the toggle and that public configuration types reflect the simplified surface.
+5. **Documentation sweep** – Refresh `packages/cli/docs/index.md`, `packages/cli/docs/cli-migration-phases.md`, this phase document, and affected READMEs with guidance on extending pipelines, the reserved `create*` prefix, and the WPK naming cadence.
 
 **Completion placeholder**
 
@@ -169,9 +170,9 @@ _Referenced from:_
 
 **Deliverables**
 
-1. **Flag removal** – Delete the temporary feature flags and any legacy branches. Ensure the surviving helpers honour the reserved `create*` naming policy, retain low-complexity structure, and keep modules/tests ≤500 SLOC.
+1. **Release readiness** – Confirm the pipeline-only orchestration remains stable, helper modules honour the reserved `create*` naming cadence, and module/test files stay within the ≤500 SLOC target.
 2. **Full validation** – Run monorepo checks (`pnpm lint --fix`, `pnpm typecheck`, `pnpm typecheck:tests`, `pnpm test`, plus targeted core/cli suites) and capture artefacts for release notes. Address any helper naming violations discovered during the sweep.
-3. **Changelog rollup** – Update root and package changelogs with the phase summary, referencing updated CLI documentation and this spec. Call out the pipeline naming convention and testing guarantees for future contributors.
+3. **Changelog rollup** – Update root and package changelogs with the phase summary, referencing updated CLI documentation and this spec. Call out the pipeline naming convention, diagnostics improvements, and the WPK-first vocabulary for future contributors.
 4. **Release PR** – Publish the release PR via the established template, highlighting parity validation, diagnostics improvements, and the enforcement of low-complexity helper design.
 
 **Completion placeholder**
@@ -182,7 +183,7 @@ _Referenced from:_
 
 ### Summary
 
-This phase keeps the AST/pipeline doctrine intact while unlocking modular orchestration for the core runtime. The added guidance enforces the reserved `create*` prefix for pipeline factories, low-complexity helper design, exported testable units, and the ≤500 SLOC rule so parity upgrades remain maintainable.
+This phase keeps the AST/pipeline doctrine intact while unlocking modular orchestration for the core runtime. The added guidance enforces the reserved `create*` prefix for pipeline factories, low-complexity helper design, exported testable units, the WPK naming cadence, and the ≤500 SLOC rule so parity upgrades remain maintainable.
 
 _Referenced from:_
 

@@ -5,13 +5,22 @@ import type {
 } from '../../actions/types';
 import type { WPKernelError } from '../../error/WPKernelError';
 import type { Reporter } from '../../reporter/types';
-import type { Helper, PipelineDiagnostic, PipelineRunState } from '../types';
+import type {
+	CreatePipelineOptions,
+	Helper,
+	Pipeline,
+	PipelineDiagnostic,
+	PipelineRunState,
+} from '../types';
 
 /**
  * Helper kind identifiers reserved for action pipeline helpers.
  */
-export type ActionFragmentKind = 'core.action.fragment';
-export type ActionBuilderKind = 'core.action.builder';
+export const ACTION_FRAGMENT_KIND = 'core.action.fragment' as const;
+export type ActionFragmentKind = typeof ACTION_FRAGMENT_KIND;
+
+export const ACTION_BUILDER_KIND = 'core.action.builder' as const;
+export type ActionBuilderKind = typeof ACTION_BUILDER_KIND;
 
 /**
  * Runtime options passed to the pipeline when executing an action.
@@ -78,6 +87,43 @@ export type ActionPipelineArtifact<TResult> = ActionInvocationDraft<TResult>;
 export type ActionPipelineRunResult<TResult> = PipelineRunState<
 	ActionPipelineArtifact<TResult>,
 	PipelineDiagnostic
+>;
+
+export type ActionPipelineOptions<TArgs, TResult> = CreatePipelineOptions<
+	ActionPipelineRunOptions<TArgs, TResult>,
+	ActionPipelineBuildOptions<TArgs, TResult>,
+	ActionPipelineContext,
+	Reporter,
+	ActionInvocationDraft<TResult>,
+	ActionPipelineArtifact<TResult>,
+	PipelineDiagnostic,
+	ActionPipelineRunResult<TResult>,
+	ActionLifecycleFragmentInput<TArgs>,
+	ActionInvocationDraft<TResult>,
+	ActionBuilderInput<TArgs, TResult>,
+	ActionInvocationDraft<TResult>,
+	ActionFragmentKind,
+	ActionBuilderKind,
+	ActionFragmentHelper<TArgs, TResult>,
+	ActionBuilderHelper<TArgs, TResult>
+>;
+
+export type ActionPipeline<TArgs, TResult> = Pipeline<
+	ActionPipelineRunOptions<TArgs, TResult>,
+	ActionPipelineRunResult<TResult>,
+	ActionPipelineContext,
+	Reporter,
+	ActionPipelineBuildOptions<TArgs, TResult>,
+	ActionPipelineArtifact<TResult>,
+	ActionLifecycleFragmentInput<TArgs>,
+	ActionInvocationDraft<TResult>,
+	ActionBuilderInput<TArgs, TResult>,
+	ActionInvocationDraft<TResult>,
+	PipelineDiagnostic,
+	ActionFragmentKind,
+	ActionBuilderKind,
+	ActionFragmentHelper<TArgs, TResult>,
+	ActionBuilderHelper<TArgs, TResult>
 >;
 
 /**

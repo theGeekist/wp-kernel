@@ -1,13 +1,15 @@
 import { createHelper } from '../../helper';
 import { createActionLifecycleEvent } from '../../../actions/lifecycle';
 import { emitLifecycleEvent } from '../../../actions/context';
-import type { Reporter } from '../../../reporter/types';
 import type {
 	ActionFragmentHelper,
+	ActionFragmentKind,
 	ActionInvocationDraft,
 	ActionLifecycleFragmentInput,
 	ActionPipelineContext,
 } from '../types';
+import { ACTION_FRAGMENT_KIND } from '../types';
+import type { Reporter } from '../../../reporter/types';
 import { readMonotonicTime } from './timing';
 
 /**
@@ -26,10 +28,10 @@ export function buildActionLifecycleFragment<
 		ActionLifecycleFragmentInput<TArgs>,
 		ActionInvocationDraft<TResult>,
 		Reporter,
-		'core.action.fragment'
+		ActionFragmentKind
 	>({
 		key: 'action.lifecycle.initialize',
-		kind: 'core.action.fragment',
+		kind: ACTION_FRAGMENT_KIND,
 		apply: async ({ context, input, output }) => {
 			output.startTime = readMonotonicTime();
 			const startEvent = createActionLifecycleEvent(
@@ -42,5 +44,5 @@ export function buildActionLifecycleFragment<
 			);
 			emitLifecycleEvent(startEvent);
 		},
-	});
+	}) satisfies ActionFragmentHelper<TArgs, TResult>;
 }

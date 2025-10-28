@@ -6,10 +6,19 @@ import type {
 	ResourceObject,
 } from '../../resource/types';
 import type { NormalizedResourceConfig } from '../../resource/buildResourceObject';
-import type { Helper, PipelineDiagnostic, PipelineRunState } from '../types';
+import type {
+	CreatePipelineOptions,
+	Helper,
+	Pipeline,
+	PipelineDiagnostic,
+	PipelineRunState,
+} from '../types';
 
-export type ResourceFragmentKind = 'core.resource.fragment';
-export type ResourceBuilderKind = 'core.resource.builder';
+export const RESOURCE_FRAGMENT_KIND = 'core.resource.fragment' as const;
+export type ResourceFragmentKind = typeof RESOURCE_FRAGMENT_KIND;
+
+export const RESOURCE_BUILDER_KIND = 'core.resource.builder' as const;
+export type ResourceBuilderKind = typeof RESOURCE_BUILDER_KIND;
 
 export interface ResourcePipelineRunOptions<T, TQuery> {
 	readonly config: ResourceConfig<T, TQuery>;
@@ -41,6 +50,43 @@ export type ResourcePipelineArtifact<T, TQuery> = ResourcePipelineDraft<
 export type ResourcePipelineRunResult<T, TQuery> = PipelineRunState<
 	ResourcePipelineArtifact<T, TQuery>,
 	PipelineDiagnostic
+>;
+
+export type ResourcePipelineOptions<T, TQuery> = CreatePipelineOptions<
+	ResourcePipelineRunOptions<T, TQuery>,
+	ResourcePipelineBuildOptions<T, TQuery>,
+	ResourcePipelineContext<T, TQuery>,
+	Reporter,
+	ResourcePipelineDraft<T, TQuery>,
+	ResourcePipelineArtifact<T, TQuery>,
+	PipelineDiagnostic,
+	ResourcePipelineRunResult<T, TQuery>,
+	ResourceFragmentInput<T, TQuery>,
+	ResourcePipelineDraft<T, TQuery>,
+	ResourceBuilderInput<T, TQuery>,
+	ResourcePipelineArtifact<T, TQuery>,
+	ResourceFragmentKind,
+	ResourceBuilderKind,
+	ResourceFragmentHelper<T, TQuery>,
+	ResourceBuilderHelper<T, TQuery>
+>;
+
+export type ResourcePipeline<T, TQuery> = Pipeline<
+	ResourcePipelineRunOptions<T, TQuery>,
+	ResourcePipelineRunResult<T, TQuery>,
+	ResourcePipelineContext<T, TQuery>,
+	Reporter,
+	ResourcePipelineBuildOptions<T, TQuery>,
+	ResourcePipelineArtifact<T, TQuery>,
+	ResourceFragmentInput<T, TQuery>,
+	ResourcePipelineDraft<T, TQuery>,
+	ResourceBuilderInput<T, TQuery>,
+	ResourcePipelineArtifact<T, TQuery>,
+	PipelineDiagnostic,
+	ResourceFragmentKind,
+	ResourceBuilderKind,
+	ResourceFragmentHelper<T, TQuery>,
+	ResourceBuilderHelper<T, TQuery>
 >;
 
 export type ResourceFragmentInput<T, TQuery> = ResourceConfig<T, TQuery>;

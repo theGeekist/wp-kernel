@@ -1,15 +1,29 @@
 import { createHelper } from '../../helper';
 import { validateConfig } from '../../../resource/validation';
 import { RESOURCE_LOG_MESSAGES } from '../../../resource/logMessages';
-import type { ResourceFragmentHelper } from '../types';
+import type {
+	ResourceFragmentHelper,
+	ResourceFragmentInput,
+	ResourceFragmentKind,
+	ResourcePipelineContext,
+	ResourcePipelineDraft,
+} from '../types';
+import { RESOURCE_FRAGMENT_KIND } from '../types';
+import type { Reporter } from '../../../reporter/types';
 
 export function buildResourceValidationFragment<
 	T,
 	TQuery,
 >(): ResourceFragmentHelper<T, TQuery> {
-	return createHelper({
+	return createHelper<
+		ResourcePipelineContext<T, TQuery>,
+		ResourceFragmentInput<T, TQuery>,
+		ResourcePipelineDraft<T, TQuery>,
+		Reporter,
+		ResourceFragmentKind
+	>({
 		key: 'resource.config.validate',
-		kind: 'core.resource.fragment',
+		kind: RESOURCE_FRAGMENT_KIND,
 		apply: ({ context }) => {
 			validateConfig(context.normalizedConfig);
 			context.reporter.info(RESOURCE_LOG_MESSAGES.define, {
@@ -19,5 +33,5 @@ export function buildResourceValidationFragment<
 				hasCacheKeys: Boolean(context.config.cacheKeys),
 			});
 		},
-	});
+	}) satisfies ResourceFragmentHelper<T, TQuery>;
 }
