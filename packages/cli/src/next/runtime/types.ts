@@ -1,5 +1,9 @@
 import type { Reporter } from '@wpkernel/core/reporter';
-import type { Helper, HelperDescriptor } from '@wpkernel/core/pipeline';
+import type {
+	Helper,
+	HelperDescriptor,
+	Pipeline as CorePipeline,
+} from '@wpkernel/core/pipeline';
 import type {
 	BuilderHelper as PhpBuilderHelper,
 	BuilderInput as PhpBuilderInput,
@@ -103,25 +107,29 @@ export type PipelineExtensionHook = (
 	options: PipelineExtensionHookOptions
 ) => Promise<PipelineExtensionHookResult | void>;
 
+export type Pipeline = CorePipeline<
+	PipelineRunOptions,
+	PipelineRunResult,
+	PipelineContext,
+	PipelineContext['reporter'],
+	BuildIrOptions,
+	IRv1,
+	FragmentInput,
+	FragmentOutput,
+	BuilderInput,
+	BuilderOutput,
+	PipelineDiagnostic,
+	FragmentHelper['kind'],
+	BuilderHelper['kind'],
+	FragmentHelper,
+	BuilderHelper
+>;
+
 export interface PipelineExtension {
 	readonly key?: string;
 	register: (
 		pipeline: Pipeline
 	) => void | PipelineExtensionHook | Promise<void | PipelineExtensionHook>;
-}
-
-export interface Pipeline {
-	readonly ir: {
-		use: (helper: FragmentHelper) => void;
-	};
-	readonly builders: {
-		use: (helper: BuilderHelper) => void;
-	};
-	readonly extensions: {
-		use: (extension: PipelineExtension) => unknown | Promise<unknown>;
-	};
-	use: (helper: FragmentHelper | BuilderHelper) => void;
-	run: (options: PipelineRunOptions) => Promise<PipelineRunResult>;
 }
 
 export type FragmentApplyOptions = Parameters<FragmentHelper['apply']>[0];

@@ -490,11 +490,13 @@ describe('pipeline primitives', () => {
 		pipeline.ir.use(orphanFragment);
 
 		await expect(
-			pipeline.run({
-				reporter,
-				workspace: '/tmp/workspace',
-				seed: 1,
-			})
+			Promise.resolve().then(() =>
+				pipeline.run({
+					reporter,
+					workspace: '/tmp/workspace',
+					seed: 1,
+				})
+			)
 		).rejects.toThrow(WPKernelError);
 
 		expect(capturedDiagnostics).toEqual(
@@ -561,11 +563,13 @@ describe('pipeline primitives', () => {
 		pipeline.ir.use(second);
 
 		await expect(
-			pipeline.run({
-				reporter,
-				workspace: '/tmp/workspace',
-				seed: 5,
-			})
+			Promise.resolve().then(() =>
+				pipeline.run({
+					reporter,
+					workspace: '/tmp/workspace',
+					seed: 5,
+				})
+			)
 		).rejects.toThrow(WPKernelError);
 
 		expect(capturedDiagnostics).toEqual(
@@ -605,11 +609,13 @@ describe('pipeline primitives', () => {
 		registerFailingExtensionHooks(pipeline, rollbackError, extensionError);
 
 		await expect(
-			pipeline.run({
-				reporter,
-				workspace: '/tmp/workspace',
-				seed: 9,
-			})
+			Promise.resolve().then(() =>
+				pipeline.run({
+					reporter,
+					workspace: '/tmp/workspace',
+					seed: 9,
+				})
+			)
 		).rejects.toThrow(extensionError);
 
 		expect(warn).toHaveBeenCalledTimes(1);
@@ -655,11 +661,13 @@ describe('pipeline primitives', () => {
 		registerFailingExtensionHooks(pipeline, rollbackError, extensionError);
 
 		await expect(
-			pipeline.run({
-				reporter,
-				workspace: '/tmp/workspace',
-				seed: 12,
-			})
+			Promise.resolve().then(() =>
+				pipeline.run({
+					reporter,
+					workspace: '/tmp/workspace',
+					seed: 12,
+				})
+			)
 		).rejects.toThrow(extensionError);
 
 		expect(handled).toHaveLength(1);

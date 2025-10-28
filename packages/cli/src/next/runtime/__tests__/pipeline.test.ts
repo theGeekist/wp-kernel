@@ -230,8 +230,8 @@ describe('createPipeline', () => {
 			const workspace = buildWorkspace(workspaceRoot);
 			const reporter = buildReporterMock();
 
-			await expect(
-				pipeline.run({
+			await expect(async () => {
+				const result = pipeline.run({
 					phase: 'generate',
 					config,
 					namespace: 'cycle',
@@ -239,8 +239,15 @@ describe('createPipeline', () => {
 					sourcePath: FIXTURE_CONFIG_PATH,
 					workspace,
 					reporter,
-				})
-			).rejects.toThrow(WPKernelError);
+				});
+
+				if (
+					result &&
+					typeof (result as PromiseLike<unknown>).then === 'function'
+				) {
+					await result;
+				}
+			}).rejects.toThrow(WPKernelError);
 		});
 	});
 
