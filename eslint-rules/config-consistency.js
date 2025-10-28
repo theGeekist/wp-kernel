@@ -10,13 +10,27 @@ import {
 const DOC_URL =
 	'https://github.com/theGeekist/wp-kernel/blob/main/packages/cli/docs/cli-migration-phases.md#authoring-safety-lint-rules';
 
+const identityPatternCache = new Map();
+
+function getIdentityPattern(param) {
+	if (!param) {
+		return null;
+	}
+
+	if (!identityPatternCache.has(param)) {
+		identityPatternCache.set(param, new RegExp(`:${param}(?:[/?]|$)`));
+	}
+
+	return identityPatternCache.get(param);
+}
+
 function pathContainsParam(path, param) {
 	if (!path || !param) {
 		return false;
 	}
 
-	const pattern = new RegExp(`:${param}(?:[/?]|$)`);
-	return pattern.test(path);
+	const pattern = getIdentityPattern(param);
+	return pattern?.test(path) ?? false;
 }
 
 function reportMissingIdentity(context, resourceName, param, property) {
@@ -88,13 +102,18 @@ function getRoutes(evaluatedResource) {
 		return [];
 	}
 
-	return Array.from(routesProperty.value.properties.entries()).map(
-		([key, property]) => ({
+	const routes = [];
+	for (const [key, property] of routesProperty.value.properties.entries()) {
+		const value = property.value;
+		routes.push({
 			key,
 			property,
-			value: property.value,
-		})
-	);
+			value,
+			meta: value?.kind === 'object' ? getRouteMeta(property) : null,
+		});
+	}
+
+	return routes;
 }
 
 function getRouteMeta(routeProperty) {
@@ -224,7 +243,7 @@ function validateIdentity(context, resource, identity, routes) {
 	}
 
 	const matches = routes.some((route) => {
-		const meta = getRouteMeta(route.property);
+		const meta = route.meta;
 		return Boolean(
 			meta?.path && pathContainsParam(meta.path, identity.param)
 		);
@@ -251,7 +270,7 @@ function reportDuplicateRoutes(context, resource, routes) {
 			continue;
 		}
 
-		const meta = getRouteMeta(route.property);
+		const meta = route.meta;
 		if (!meta?.method || !meta.path) {
 			continue;
 		}

@@ -66,11 +66,11 @@ const NAMESPACE_PATTERNS = {
 };
 
 // Flatten all patterns for checking
-const ALL_HARDCODED_STRINGS = [
+const ALL_HARDCODED_STRINGS = new Set([
 	...NAMESPACE_PATTERNS.EVENT_NAMES,
 	...NAMESPACE_PATTERNS.SUBSYSTEM_NAMESPACES,
 	...NAMESPACE_PATTERNS.INFRASTRUCTURE,
-];
+]);
 
 const TEST_FILE_SUFFIXES = ['.test.ts', '.test.tsx', '.spec.ts'];
 
@@ -115,23 +115,18 @@ function shouldIgnoreFile(filename) {
 	return isDocumentationFile(filename);
 }
 
-function literalInComment(node, context) {
-	const sourceCode = context.getSourceCode();
-	const comments = sourceCode.getAllComments();
-
-	return comments.some(
-		(comment) =>
-			node.range[0] >= comment.range[0] &&
-			node.range[1] <= comment.range[1]
+function literalInComment(node, commentRanges) {
+	return commentRanges.some(
+		([start, end]) => node.range[0] >= start && node.range[1] <= end
 	);
 }
 
-function reportLiteralIfNeeded(context, node) {
+function reportLiteralIfNeeded(context, node, commentRanges) {
 	if (typeof node.value !== 'string') {
 		return;
 	}
 
-	if (literalInComment(node, context)) {
+	if (literalInComment(node, commentRanges)) {
 		return;
 	}
 
@@ -183,7 +178,7 @@ function reportTemplateLiteralIfNeeded(context, node) {
  */
 function containsHardcodedNamespace(value) {
 	// Exact matches
-	if (ALL_HARDCODED_STRINGS.includes(value)) {
+	if (ALL_HARDCODED_STRINGS.has(value)) {
 		return true;
 	}
 
@@ -274,9 +269,14 @@ export default {
 			return {};
 		}
 
+		const commentRanges = context
+			.getSourceCode()
+			.getAllComments()
+			.map((comment) => comment.range);
+
 		return {
 			Literal(node) {
-				reportLiteralIfNeeded(context, node);
+				reportLiteralIfNeeded(context, node, commentRanges);
 			},
 
 			TemplateLiteral(node) {
