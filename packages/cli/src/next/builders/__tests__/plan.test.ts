@@ -226,4 +226,109 @@ describe('createApplyPlanBuilder', () => {
 			prettyPrinterSpy.mockRestore();
 		});
 	});
+
+	it('falls back to require guards when no autoload root is defined', async () => {
+		await withWorkspace(async (workspaceRoot) => {
+			const workspace = buildWorkspace(workspaceRoot);
+			const reporter = buildReporter();
+			const output = buildOutput();
+
+			const ir = makePhpIrFixture({
+				resources: [
+					makeWpPostResource({ name: 'jobs', schemaKey: 'job' }),
+				],
+			});
+			ir.php.autoload = '';
+
+			const capturedPrograms: PhpProgram[] = [];
+			const prettyPrinterSpy = jest
+				.spyOn(phpDriver, 'buildPhpPrettyPrinter')
+				.mockImplementation(() => ({
+					async prettyPrint(payload) {
+						capturedPrograms.push(payload.program);
+						return {
+							code: '<?php // shim\n',
+							ast: payload.program,
+						};
+					},
+				}));
+
+			const helper = createApplyPlanBuilder();
+			await helper.apply(
+				{
+					context: {
+						workspace,
+						reporter,
+						phase: 'generate' as const,
+					},
+					input: {
+						phase: 'generate' as const,
+						options: {
+							config: ir.config,
+							namespace: ir.meta.namespace,
+							origin: ir.meta.origin,
+							sourcePath: path.join(
+								workspaceRoot,
+								'wpk.config.ts'
+							),
+						},
+						ir,
+					},
+					output,
+					reporter,
+				},
+				undefined
+			);
+
+			const planPath = path.posix.join('.wpk', 'apply', 'plan.json');
+			const planRaw = await workspace.readText(planPath);
+			expect(planRaw).toBeTruthy();
+			const plan = JSON.parse(planRaw ?? '{}') as {
+				instructions?: Array<{
+					file: string;
+					base: string;
+					incoming: string;
+				}>;
+			};
+
+			const [instruction] = plan.instructions ?? [];
+			expect(instruction).toMatchObject({
+				file: 'Rest/JobsController.php',
+				base: '.wpk/apply/base/Rest/JobsController.php',
+				incoming: '.wpk/apply/incoming/Rest/JobsController.php',
+			});
+
+			expect(capturedPrograms).toHaveLength(1);
+			const [program] = capturedPrograms;
+			const namespaceStmt = expectNodeOfType(
+				program.find((stmt) => stmt.nodeType === 'Stmt_Namespace'),
+				'Stmt_Namespace'
+			);
+			const ifStatement = expectNodeOfType(
+				namespaceStmt.stmts.find((stmt) => stmt.nodeType === 'Stmt_If'),
+				'Stmt_If'
+			);
+			const requireStatement = expectNodeOfType(
+				ifStatement.stmts[0],
+				'Stmt_Expression'
+			);
+			const requireCall = expectNodeOfType(
+				requireStatement.expr,
+				'Expr_FuncCall'
+			);
+			const requireArg = expectNodeOfType(
+				requireCall.args[0]?.value,
+				'Expr_BinaryOp_Concat'
+			);
+			const requireSuffix = expectNodeOfType(
+				requireArg.right,
+				'Scalar_String'
+			);
+			expect(requireSuffix.value).toBe(
+				'/../.generated/php/Rest/JobsController.php'
+			);
+
+			prettyPrinterSpy.mockRestore();
+		});
+	});
 });

@@ -8,6 +8,7 @@ import * as ApplyModule from '../apply';
 import {
 	TMP_PREFIX,
 	buildLoadedConfig,
+	readApplyLogEntries,
 } from '@wpkernel/test-utils/next/commands/apply.test-support';
 
 const withWorkspace = buildWorkspaceRunner({
@@ -45,6 +46,14 @@ describe('NextApplyCommand error handling', () => {
 			expect(exitCode).toBe(WPK_EXIT_CODES.VALIDATION_ERROR);
 			expect(command.summary).toBeNull();
 			expect(command.records).toEqual([]);
+
+			const entries = await readApplyLogEntries(workspace);
+			expect(entries.at(-1)).toEqual(
+				expect.objectContaining({
+					status: 'failed',
+					exitCode: WPK_EXIT_CODES.VALIDATION_ERROR,
+				})
+			);
 		});
 	});
 });
