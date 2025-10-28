@@ -126,3 +126,79 @@ readonly optional resolveWorkspaceRoot: (loaded) => string;
 #### Returns
 
 `string`
+
+---
+
+### promptConfirm()?
+
+```ts
+readonly optional promptConfirm: (__namedParameters) => Promise<boolean>;
+```
+
+#### Parameters
+
+##### \_\_namedParameters
+
+[`ConfirmPromptOptions`](ConfirmPromptOptions.md)
+
+#### Returns
+
+`Promise`\&lt;`boolean`\&gt;
+
+---
+
+### ensureGitRepository()?
+
+```ts
+readonly optional ensureGitRepository: (workspace) => Promise<void>;
+```
+
+#### Parameters
+
+##### workspace
+
+[`Workspace`](Workspace.md)
+
+#### Returns
+
+`Promise`\&lt;`void`\&gt;
+
+---
+
+### createBackups()?
+
+```ts
+readonly optional createBackups: (__namedParameters) => Promise<void>;
+```
+
+#### Parameters
+
+##### \_\_namedParameters
+
+`CreateBackupsOptions`
+
+#### Returns
+
+`Promise`\&lt;`void`\&gt;
+
+---
+
+### appendApplyLog()?
+
+```ts
+readonly optional appendApplyLog: (workspace, entry) => Promise<void>;
+```
+
+#### Parameters
+
+##### workspace
+
+[`Workspace`](Workspace.md)
+
+##### entry
+
+`ApplyLogEntry`
+
+#### Returns
+
+`Promise`\&lt;`void`\&gt;

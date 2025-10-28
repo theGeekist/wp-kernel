@@ -21,9 +21,6 @@
 - [PhpAstChannel](interfaces/PhpAstChannel.md)
 - [PhpProgramIngestionMessage](interfaces/PhpProgramIngestionMessage.md)
 - [ConsumePhpProgramIngestionOptions](interfaces/ConsumePhpProgramIngestionOptions.md)
-- [ResourceMetadataHost](interfaces/ResourceMetadataHost.md)
-- [BuildWpQueryInstantiationOptions](interfaces/BuildWpQueryInstantiationOptions.md)
-- [BuildWpTermQueryInstantiationOptions](interfaces/BuildWpTermQueryInstantiationOptions.md)
 - [PhpArg](interfaces/PhpArg.md)
 - [PhpAttrGroup](interfaces/PhpAttrGroup.md)
 - [PhpAttribute](interfaces/PhpAttribute.md)
@@ -118,11 +115,6 @@
 - [CreatePhpFileBuilderOptions](interfaces/CreatePhpFileBuilderOptions.md)
 - [PhpDriverConfigurationOptions](interfaces/PhpDriverConfigurationOptions.md)
 - [CreatePhpProgramWriterHelperOptions](interfaces/CreatePhpProgramWriterHelperOptions.md)
-- [ResourceControllerRouteMetadata](interfaces/ResourceControllerRouteMetadata.md)
-- [ResourceControllerMetadata](interfaces/ResourceControllerMetadata.md)
-- [ResourceControllerCacheEvent](interfaces/ResourceControllerCacheEvent.md)
-- [ResourceControllerCacheMetadata](interfaces/ResourceControllerCacheMetadata.md)
-- [GenericPhpFileMetadata](interfaces/GenericPhpFileMetadata.md)
 - [PhpAstBuilder](interfaces/PhpAstBuilder.md)
 
 ## Type Aliases
@@ -146,16 +138,12 @@
 - [PipelinePhase](type-aliases/PipelinePhase.md)
 - [BuilderHelper](type-aliases/BuilderHelper.md)
 - [PhpFileAst](type-aliases/PhpFileAst.md)
-- [ResourceControllerCacheScope](type-aliases/ResourceControllerCacheScope.md)
-- [ResourceControllerCacheOperation](type-aliases/ResourceControllerCacheOperation.md)
 - [PhpFileMetadata](type-aliases/PhpFileMetadata.md)
 - [PhpJsonNode](type-aliases/PhpJsonNode.md)
 - [PhpJsonAst](type-aliases/PhpJsonAst.md)
 
 ## Variables
 
-- [AUTO_GUARD_BEGIN](variables/AUTO_GUARD_BEGIN.md)
-- [AUTO_GUARD_END](variables/AUTO_GUARD_END.md)
 - [PHP_CLASS_MODIFIER_ABSTRACT](variables/PHP_CLASS_MODIFIER_ABSTRACT.md)
 - [PHP_CLASS_MODIFIER_FINAL](variables/PHP_CLASS_MODIFIER_FINAL.md)
 - [PHP_METHOD_MODIFIER_PUBLIC](variables/PHP_METHOD_MODIFIER_PUBLIC.md)
@@ -178,8 +166,6 @@
 - [appendStatementLine](functions/appendStatementLine.md)
 - [appendProgramStatement](functions/appendProgramStatement.md)
 - [consumePhpProgramIngestion](functions/consumePhpProgramIngestion.md)
-- [appendResourceControllerCacheEvent](functions/appendResourceControllerCacheEvent.md)
-- [buildWpTermQueryInstantiation](functions/buildWpTermQueryInstantiation.md)
 - [formatClassModifiers](functions/formatClassModifiers.md)
 - [buildArg](functions/buildArg.md)
 - [buildAttributeGroup](functions/buildAttributeGroup.md)

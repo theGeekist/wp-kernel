@@ -73,6 +73,7 @@
 - [createBundler](functions/createBundler.md)
 - [createPatcher](functions/createPatcher.md)
 - [createPhpBuilder](functions/createPhpBuilder.md)
+- [createApplyPlanBuilder](functions/createApplyPlanBuilder.md)
 - [createTsBuilder](functions/createTsBuilder.md)
 - [createJsBlocksBuilder](functions/createJsBlocksBuilder.md)
 - [buildApplyCommand](functions/buildApplyCommand.md)
