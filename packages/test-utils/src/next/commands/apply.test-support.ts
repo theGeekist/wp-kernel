@@ -2,6 +2,7 @@ import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import type { LoadedWPKernelConfig } from '@wpkernel/cli/config';
+import type { ApplyLogEntry } from '@wpkernel/cli/next/commands/apply';
 import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
 
 export const TMP_PREFIX = path.join(os.tmpdir(), 'next-apply-command-');
@@ -72,4 +73,18 @@ export async function seedPlan(
 	if (typeof options.current === 'string') {
 		await fs.writeFile(targetPath, options.current, 'utf8');
 	}
+}
+
+export async function readApplyLogEntries(
+	workspace: string
+): Promise<ApplyLogEntry[]> {
+	const logPath = path.join(workspace, '.wpk-apply.log');
+	const raw = await fs.readFile(logPath, 'utf8').catch(() => '');
+	const trimmed = raw.trim();
+
+	if (trimmed.length === 0) {
+		return [];
+	}
+
+	return trimmed.split('\n').map((line) => JSON.parse(line) as ApplyLogEntry);
 }

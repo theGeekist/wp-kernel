@@ -9,6 +9,7 @@ import {
 	buildLoadedConfig,
 	seedPlan,
 	toFsPath,
+	readApplyLogEntries,
 } from '@wpkernel/test-utils/next/commands/apply.test-support';
 
 const withWorkspace = buildWorkspaceRunner({
@@ -157,13 +158,7 @@ describe('NextApplyCommand integration', () => {
 
 			await command.execute();
 
-			const logPath = path.join(workspace, '.wpk-apply.log');
-			const logContents = await fs.readFile(logPath, 'utf8');
-			const entries = logContents
-				.trim()
-				.split('\n')
-				.map((line) => JSON.parse(line));
-
+			const entries = await readApplyLogEntries(workspace);
 			expect(entries.at(-1)).toEqual(
 				expect.objectContaining({
 					status: 'success',
@@ -200,6 +195,15 @@ describe('NextApplyCommand integration', () => {
 			});
 			expect(command.records).toEqual([]);
 			expect(stdout.toString()).toContain('No apply manifest produced');
+
+			const entries = await readApplyLogEntries(workspace);
+			expect(entries.at(-1)).toEqual(
+				expect.objectContaining({
+					status: 'skipped',
+					exitCode: WPK_EXIT_CODES.SUCCESS,
+					summary: { applied: 0, conflicts: 0, skipped: 0 },
+				})
+			);
 		});
 	});
 
@@ -240,6 +244,15 @@ describe('NextApplyCommand integration', () => {
 				skipped: 0,
 			});
 			expect(stdout.toString()).toContain('Conflicts: 1');
+
+			const entries = await readApplyLogEntries(workspace);
+			expect(entries.at(-1)).toEqual(
+				expect.objectContaining({
+					status: 'conflict',
+					exitCode: WPK_EXIT_CODES.VALIDATION_ERROR,
+					summary: { applied: 0, conflicts: 1, skipped: 0 },
+				})
+			);
 		});
 	});
 
@@ -277,6 +290,15 @@ describe('NextApplyCommand integration', () => {
 				conflicts: 1,
 				skipped: 0,
 			});
+
+			const entries = await readApplyLogEntries(workspace);
+			expect(entries.at(-1)).toEqual(
+				expect.objectContaining({
+					status: 'conflict',
+					exitCode: WPK_EXIT_CODES.SUCCESS,
+					flags: { yes: true, backup: false, force: true },
+				})
+			);
 		});
 	});
 });

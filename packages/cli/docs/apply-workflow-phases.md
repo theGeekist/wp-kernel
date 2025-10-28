@@ -100,6 +100,7 @@ What changes is _what_ we merge. Instead of large controller bodies, the merge i
 5. **Update tests**
     - Extend `packages/cli/src/next/builders/__tests__/patcher.test.ts` (or add new suites) to assert the shim model.
     - Add integration tests that regenerate `.generated/**`, run `apply`, and confirm user shims update without touching custom overrides.
+    - ✓ Task 29 delivered coverage for shim regeneration merges, composer fallback `require_once` guards, and apply log status variants across builder + command suites.
 
 ---
 
