@@ -9,6 +9,7 @@ import type {
 } from '../../runtime/types';
 import {
 	appendGeneratedFileDocblock,
+	buildRestBaseControllerDocblock,
 	createWpPhpFileBuilder,
 } from '@wpkernel/wp-json-ast';
 import {
@@ -70,9 +71,13 @@ function buildBaseController(
 	origin: string,
 	sanitizedNamespace: string
 ): void {
-	appendGeneratedFileDocblock(builder, [
-		`Source: ${origin} → resources (namespace: ${sanitizedNamespace})`,
-	]);
+	appendGeneratedFileDocblock(
+		builder,
+		buildRestBaseControllerDocblock({
+			origin,
+			sanitizedNamespace,
+		})
+	);
 
 	const getNamespaceMethod = buildClassMethod(
 		buildIdentifier('get_namespace'),

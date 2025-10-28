@@ -157,6 +157,20 @@ _Quality follow-up:_ ☑ Covered identity plumbing, docblock generation, and cac
 
 _Task 2.2: Layer guard and docblock utilities._ As factories move, ensure docblock generation, metadata wiring, and WP_Error guard helpers live alongside them in `wp-json-ast`. Update the CLI to consume these utilities so that repeated patterns disappear from the CLI codebase.
 
+#### Task 2.2 Follow-up subtasks – shared utility surface
+
+**Subtask 2.2.a – Centralise WP_Error guard utilities.** Relocate the guard builders that wrap `WP_Error` detection and early returns from the CLI into a dedicated `wp-json-ast` module. Provide a cohesive API under `src/common/guards/` and replace CLI imports so guard behaviour comes from the shared surface.
+
+_Completion:_ ☑ Completed – (this PR) moved the WP_Error guard helpers into `src/common/guards/` and updated imports across `wp-json-ast` and the CLI adapter layer.
+
+**Subtask 2.2.b – Create shared docblock factories.** Extract the controller, policy, and registry docblock assembly logic into reusable builders within `src/common/docblock/`. Cover the factories with unit tests and refactor the CLI helpers to call the shared functions.
+
+_Completion:_ ☑ Completed – (this PR) exposed docblock factories from `src/common/docblock/` and updated CLI builders to consume them.
+
+**Subtask 2.2.c – Consolidate metadata host wiring.** Implement metadata helper modules under `src/common/metadata/` so cache segments, identity wiring, and annotations originate in `wp-json-ast`. Update CLI builders to use these helpers instead of manipulating `$metadataHost` directly.
+
+_Completion:_ ☐ Pending – migrate metadata host helpers and ensure CLI builders delegate to the shared implementation.
+
 _Completion:_ ☐ Pending - replace this line with the PR link and a one-line summary when the task is complete.
 
 _Phase outcome:_ WordPress-specific AST knowledge resides in `wp-json-ast`, and the CLI depends on typed factories rather than constructing nodes manually.
