@@ -16,6 +16,7 @@ import { createDiagnosticsFragment } from './fragments/diagnostics';
 import { createOrderingFragment } from './fragments/ordering';
 import { createValidationFragment } from './fragments/validation';
 import {
+	createApplyPlanBuilder,
 	createBundler,
 	createJsBlocksBuilder,
 	createPatcher,
@@ -48,6 +49,7 @@ function registerCoreBuilders(pipeline: Pipeline): void {
 	pipeline.builders.use(createBundler());
 	pipeline.builders.use(createPhpDriverInstaller());
 	pipeline.builders.use(createPhpBuilder());
+	pipeline.builders.use(createApplyPlanBuilder());
 	pipeline.builders.use(createJsBlocksBuilder());
 	pipeline.builders.use(createTsBuilder());
 	pipeline.builders.use(createPatcher());

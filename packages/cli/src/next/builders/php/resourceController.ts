@@ -61,7 +61,7 @@ export function createPhpResourceControllerHelper(): BuilderHelper {
 
 			for (const resource of ir.resources) {
 				warnOnMissingPolicies({ reporter, resource });
-				const namespaceRoot = ir.php.namespace;
+				const namespaceRoot = `${ir.php.namespace}\\Generated`;
 				const namespace = `${namespaceRoot}\\Rest`;
 				const className = `${toPascalCase(resource.name)}Controller`;
 				const filePath = options.context.workspace.resolve(

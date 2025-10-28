@@ -176,7 +176,14 @@ jobs:
               uses: actions/setup-node@v4
               with:
                   node-version: ${{ env.NODE_VERSION }}
-
+                  
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '8.2'
+                  tools: composer
+                  coverage: none
+                  
             - name: Restore node_modules
               uses: actions/cache@v4
               with:

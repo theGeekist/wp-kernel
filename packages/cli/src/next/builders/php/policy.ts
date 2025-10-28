@@ -67,7 +67,7 @@ export function createPhpPolicyHelper(): BuilderHelper {
 
 			const { ir } = input;
 			reportPolicyWarnings(options.reporter, ir.policyMap);
-			const namespace = `${ir.php.namespace}\\Policy`;
+			const namespace = `${ir.php.namespace}\\Generated\\Policy`;
 			const filePath = options.context.workspace.resolve(
 				ir.php.outputDir,
 				'Policy',
