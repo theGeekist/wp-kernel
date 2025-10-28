@@ -18,13 +18,33 @@ function getRoutes(resource) {
 		return [];
 	}
 
-	return Array.from(routesProperty.value.properties.entries()).map(
-		([key, property]) => ({
+	const routes = [];
+	for (const [key, property] of routesProperty.value.properties.entries()) {
+		const value = property.value;
+		if (value?.kind === 'object') {
+			const method = getMethod(value);
+			routes.push({
+				key,
+				property,
+				value,
+				meta: {
+					method,
+					normalizedMethod: method?.toUpperCase() ?? null,
+					hasPolicy: hasPolicy(value),
+				},
+			});
+			continue;
+		}
+
+		routes.push({
 			key,
 			property,
-			value: property.value,
-		})
-	);
+			value,
+			meta: null,
+		});
+	}
+
+	return routes;
 }
 
 function getMethod(route) {
@@ -106,12 +126,13 @@ function validateRoutePolicy(context, resource, route) {
 		return;
 	}
 
-	const method = getMethod(route.value);
-	if (!method || !WRITE_METHODS.has(method.toUpperCase())) {
+	const meta = route.meta;
+	const normalizedMethod = meta?.normalizedMethod;
+	if (!normalizedMethod || !WRITE_METHODS.has(normalizedMethod)) {
 		return;
 	}
 
-	if (hasPolicy(route.value)) {
+	if (meta?.hasPolicy) {
 		return;
 	}
 
@@ -128,7 +149,7 @@ function validateRoutePolicy(context, resource, route) {
 		data: {
 			resource: resource.name,
 			routeKey: route.key,
-			method: method.toUpperCase(),
+			method: normalizedMethod,
 			docUrl: DOC_URL,
 		},
 	});
