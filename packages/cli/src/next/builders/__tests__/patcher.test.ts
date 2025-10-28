@@ -219,6 +219,129 @@ describe('createPatcher', () => {
 		});
 	});
 
+	it('merges shim updates while preserving user edits', async () => {
+		await withWorkspace(async (workspaceRoot) => {
+			const workspace = buildWorkspace(workspaceRoot);
+			const reporter = buildReporter();
+			const output = buildOutput();
+
+			const baseContents = [
+				'<?php',
+				"require_once __DIR__ . '/../.generated/php/Rest/JobController.php';",
+				'class JobController extends \\Demo\\Plugin\\Generated\\Rest\\JobController',
+				'{',
+				'}',
+				'',
+			].join('\n');
+			const incomingContents = [
+				'<?php',
+				"require_once __DIR__ . '/../../.generated/php/Rest/JobController.php';",
+				'class JobController extends \\Demo\\Plugin\\Generated\\Rest\\JobController',
+				'{',
+				'}',
+				'',
+			].join('\n');
+			const currentContents = [
+				'<?php',
+				"require_once __DIR__ . '/../.generated/php/Rest/JobController.php';",
+				'class JobController extends \\Demo\\Plugin\\Generated\\Rest\\JobController',
+				'{',
+				'    public function custom()',
+				'    {',
+				'        return true;',
+				'    }',
+				'}',
+				'',
+			].join('\n');
+
+			await workspace.write(
+				path.posix.join('.wpk', 'apply', 'plan.json'),
+				JSON.stringify(
+					{
+						instructions: [
+							{
+								file: 'php/JobController.php',
+								base: '.wpk/apply/base/php/JobController.php',
+								incoming:
+									'.wpk/apply/incoming/php/JobController.php',
+								description: 'Update Job controller shim',
+							},
+						],
+					},
+					null,
+					2
+				)
+			);
+
+			await workspace.write(
+				path.posix.join(
+					'.wpk',
+					'apply',
+					'base',
+					'php',
+					'JobController.php'
+				),
+				baseContents
+			);
+			await workspace.write(
+				path.posix.join(
+					'.wpk',
+					'apply',
+					'incoming',
+					'php',
+					'JobController.php'
+				),
+				incomingContents
+			);
+			await workspace.write('php/JobController.php', currentContents, {
+				ensureDir: true,
+			});
+
+			const ir = buildIr('Demo');
+			const input = {
+				phase: 'apply' as const,
+				options: {
+					config: ir.config,
+					namespace: ir.meta.namespace,
+					origin: ir.meta.origin,
+					sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
+				},
+				ir,
+			};
+
+			const builder = createPatcher();
+			await builder.apply(
+				{
+					context: {
+						workspace,
+						reporter,
+						phase: 'apply' as const,
+					},
+					input,
+					output,
+					reporter,
+				},
+				undefined
+			);
+
+			const updated = await workspace.readText('php/JobController.php');
+			expect(updated).toContain(
+				"require_once __DIR__ . '/../../.generated/php/Rest/JobController.php';"
+			);
+			expect(updated).toContain('public function custom()');
+
+			const manifestRaw = await workspace.readText(
+				path.posix.join('.wpk', 'apply', 'manifest.json')
+			);
+			const manifest = JSON.parse(manifestRaw ?? '{}');
+			expect(manifest.summary).toEqual({
+				applied: 1,
+				conflicts: 0,
+				skipped: 0,
+			});
+		});
+	});
+
 	it('records conflicts when merge cannot be resolved automatically', async () => {
 		await withWorkspace(async (workspaceRoot) => {
 			const workspace = buildWorkspace(workspaceRoot);
