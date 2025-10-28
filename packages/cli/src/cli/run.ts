@@ -14,15 +14,14 @@ import {
 	buildGenerateCommand,
 	buildInitCommand,
 	buildStartCommand,
-} from '../next/commands';
+} from '../commands';
 import { VERSION } from '../version';
 
 class RootCommand extends Command {
 	static override paths = [Command.Default];
 
 	static override usage = Command.Usage({
-		description:
-			'WP Kernel CLI entry point (placeholder commands registered).',
+		description: 'WP Kernel CLI entry point.',
 	});
 
 	override async execute(): Promise<number | void> {

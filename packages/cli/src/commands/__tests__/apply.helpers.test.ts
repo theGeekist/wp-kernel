@@ -9,8 +9,8 @@ import type {
 	WPKernelConfigV1,
 	LoadedWPKernelConfig,
 } from '../../../config/types';
-import type { Workspace } from '../../workspace';
-import { makeWorkspaceMock } from '../../../../tests/workspace.test-support';
+import type { Workspace } from '../../next/workspace';
+import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
 
 const wpkConfig: WPKernelConfigV1 = {
 	version: 1,

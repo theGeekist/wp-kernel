@@ -3,7 +3,7 @@ import {
 	assignCommandContext,
 	createReporterMock,
 } from '@wpkernel/test-utils/cli';
-import { makeWorkspaceMock } from '../../../../tests/workspace.test-support';
+import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
 import { buildInitCommand } from '../init';
 
 describe('NextInitCommand (unit)', () => {

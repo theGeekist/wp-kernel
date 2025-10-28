@@ -1,7 +1,7 @@
 import { WPKernelError } from '@wpkernel/core/error';
-import type { DependencyResolution } from '../../../commands/init/dependency-versions';
-import { makeWorkspaceMock } from '../../../../tests/workspace.test-support';
-import type { Workspace } from '../../workspace';
+import type { DependencyResolution } from '../init/dependency-versions';
+import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
+import type { Workspace } from '../../next/workspace';
 import { appendPackageSummary, writePackageJson } from '../init/package-json';
 
 const dependencyResolution: DependencyResolution = {

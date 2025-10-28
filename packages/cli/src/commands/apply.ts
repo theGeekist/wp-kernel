@@ -9,12 +9,12 @@ import {
 	type SerializedError,
 	type WPKExitCode,
 } from '@wpkernel/core/contracts';
-import type { BuilderOutput } from '../runtime/types';
-import type { LoadedWPKernelConfig } from '../../config/types';
-import { loadWPKernelConfig } from '../../config';
-import { buildWorkspace, promptConfirm } from '../workspace';
-import type { FileManifest, Workspace } from '../workspace';
-import { createPatcher } from '../builders';
+import type { BuilderOutput } from '../next/runtime/types';
+import type { LoadedWPKernelConfig } from '../config/types';
+import { loadWPKernelConfig } from '../config';
+import { buildWorkspace, promptConfirm } from '../next/workspace';
+import type { FileManifest, Workspace } from '../next/workspace';
+import { createPatcher } from '../next/builders';
 import {
 	determineExitCode,
 	reportFailure,
@@ -681,7 +681,7 @@ export function resolveWorkspaceRoot(loaded: LoadedWPKernelConfig): string {
 }
 
 function buildReporterNamespace(): string {
-	return `${WPK_NAMESPACE}.cli.next.apply`;
+	return `${WPK_NAMESPACE}.cli.apply`;
 }
 
 export interface BuildApplyCommandOptions {
