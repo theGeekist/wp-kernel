@@ -1,15 +1,9 @@
 import type { PhpStmt } from '@wpkernel/php-json-ast';
 
+import { buildRequestParamAssignmentStatement } from '../common/request';
+
 import type { RestControllerIdentity, RestRouteConfig } from './types';
 
-/**
- * Subtask 2.1.b placeholder – eventually the REST route factory should internalise identity
- * plumbing so the CLI no longer assembles `$identity = $request->get_param()` statements.
- *
- * Implementation guidance lives in
- * {@link ../../docs/cli-ast-reduction-plan.md#subtask-2-1-b-–-internalise-identity-plumbing}.
- * Keep new behaviour aligned with that section to avoid drifting requirements.
- */
 export interface RestRouteIdentityPlan {
 	readonly identity: RestControllerIdentity;
 	readonly route: RestRouteConfig;
@@ -18,15 +12,28 @@ export interface RestRouteIdentityPlan {
 /**
  * Emits the statements required to extract and cast the resource identity for a REST route.
  *
- * The placeholder currently returns an empty array to minimise behavioural changes until the
- * full implementation lands.  Replace with the appropriate request parameter assignments and
- * casts when Subtask 2.1.b is executed.
+ * When the route references the controller identity, the factory generates an assignment that
+ * pulls the parameter from the `WP_REST_Request` instance and applies numeric casts for integer
+ * identities.  Routes that do not use the identity omit any plumbing to avoid unnecessary
+ * request work.
+ *
  * @param plan
  */
 export function buildIdentityPlumbing(
 	plan: RestRouteIdentityPlan
 ): readonly PhpStmt[] {
-	void plan;
+	if (!plan.route.usesIdentity) {
+		return [];
+	}
 
-	return [];
+	const cast = plan.identity.type === 'number' ? 'int' : undefined;
+
+	const assignment = buildRequestParamAssignmentStatement({
+		requestVariable: 'request',
+		param: plan.identity.param,
+		targetVariable: plan.identity.param,
+		cast,
+	});
+
+	return [assignment];
 }
