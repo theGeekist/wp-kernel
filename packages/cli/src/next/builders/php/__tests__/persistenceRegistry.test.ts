@@ -1,7 +1,4 @@
-import {
-	buildPersistencePayload,
-	createPhpPersistenceRegistryHelper,
-} from '../persistenceRegistry';
+import { createPhpPersistenceRegistryHelper } from '../persistenceRegistry';
 import { getPhpBuilderChannel, resetPhpBuilderChannel } from '../channel';
 import { resetPhpAstChannel } from '@wpkernel/php-json-ast';
 import type { IRResource } from '../../../ir/publicTypes';
@@ -42,11 +39,11 @@ describe('createPhpPersistenceRegistryHelper', () => {
 
 		const resources: IRResource[] = [
 			makeResource('books', {
-				storage: { driver: 'wp', options: { table: 'posts' } },
-				identity: { type: 'primary', field: 'ID' },
+				storage: { mode: 'wp-post', postType: 'book' },
+				identity: { type: 'number', param: 'id' },
 			}),
 			makeResource('drafts', {
-				storage: { driver: 'wp', options: { table: 'posts' } },
+				storage: { mode: 'wp-option', option: 'draft_option' },
 			}),
 			makeResource('ignored'),
 		];
@@ -104,34 +101,6 @@ describe('createPhpPersistenceRegistryHelper', () => {
 				}),
 			])
 		);
-	});
-});
-
-describe('buildPersistencePayload', () => {
-	it('omits resources without persistence metadata and fills null defaults', () => {
-		const resources: IRResource[] = [
-			makeResource('books', {
-				storage: { driver: 'wp', options: { table: 'posts' } },
-				identity: { type: 'primary', field: 'ID' },
-			}),
-			makeResource('drafts', {
-				storage: { driver: 'wp', options: { table: 'posts' } },
-			}),
-			makeResource('ignored'),
-		];
-
-		const payload = buildPersistencePayload(resources);
-		expect(payload.resources).toMatchObject({
-			books: {
-				storage: { driver: 'wp', options: { table: 'posts' } },
-				identity: { type: 'primary', field: 'ID' },
-			},
-			drafts: {
-				storage: { driver: 'wp', options: { table: 'posts' } },
-				identity: null,
-			},
-		});
-		expect(payload.resources).not.toHaveProperty('ignored');
 	});
 });
 
