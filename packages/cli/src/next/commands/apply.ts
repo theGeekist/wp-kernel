@@ -74,28 +74,40 @@ export interface ApplyLogEntry {
 }
 
 async function ensureGitRepository(workspace: Workspace): Promise<void> {
-	const gitPath = workspace.resolve('.git');
+	const workspaceRoot = workspace.cwd();
+	let current = workspaceRoot;
 
-	try {
-		const stats = await fs.lstat(gitPath);
-		if (stats.isDirectory() || stats.isFile()) {
-			return;
-		}
-	} catch (error) {
-		if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
-			throw new WPKernelError('ValidationError', {
-				message: 'Apply requires a git repository.',
-				context: { path: '.git' },
-			});
+	while (true) {
+		const gitPath = path.join(current, '.git');
+
+		try {
+			const stats = await fs.lstat(gitPath);
+			if (
+				stats.isDirectory() ||
+				stats.isFile() ||
+				stats.isSymbolicLink()
+			) {
+				return;
+			}
+		} catch (error) {
+			const errorCode = (error as NodeJS.ErrnoException).code;
+			if (errorCode && errorCode !== 'ENOENT') {
+				throw new WPKernelError('DeveloperError', {
+					message: 'Unable to inspect git repository state.',
+					context: {
+						path: path.relative(workspaceRoot, gitPath) || '.git',
+						error: serialiseError(error),
+					},
+				});
+			}
 		}
 
-		throw new WPKernelError('DeveloperError', {
-			message: 'Unable to inspect git repository state.',
-			context: {
-				path: '.git',
-				error: serialiseError(error),
-			},
-		});
+		const parent = path.dirname(current);
+		if (parent === current) {
+			break;
+		}
+
+		current = parent;
 	}
 
 	throw new WPKernelError('ValidationError', {
