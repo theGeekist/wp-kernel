@@ -6,6 +6,7 @@ import type {
 	HelperApplyOptions,
 	HelperKind,
 	HelperDescriptor,
+	MaybePromise,
 	Pipeline,
 	PipelineDiagnostic,
 	PipelineExtension,
@@ -50,10 +51,54 @@ interface ExtensionHookEntry<TContext, TOptions, TArtifact> {
 	readonly hook: PipelineExtensionHook<TContext, TOptions, TArtifact>;
 }
 
+interface ExtensionHookExecution<TContext, TOptions, TArtifact> {
+	readonly hook: ExtensionHookEntry<TContext, TOptions, TArtifact>;
+	readonly result: PipelineExtensionHookResult<TArtifact>;
+}
+
 interface RollbackErrorArgs {
 	readonly error: unknown;
 	readonly extensionKeys: readonly string[];
 	readonly hookSequence: readonly string[];
+}
+
+function isPromiseLike(value: unknown): value is PromiseLike<unknown> {
+	if (
+		(typeof value !== 'object' || value === null) &&
+		typeof value !== 'function'
+	) {
+		return false;
+	}
+
+	return typeof (value as PromiseLike<unknown>).then === 'function';
+}
+
+function maybeThen<T, TResult>(
+	value: MaybePromise<T>,
+	onFulfilled: (value: T) => MaybePromise<TResult>
+): MaybePromise<TResult> {
+	if (isPromiseLike(value)) {
+		return Promise.resolve(value).then(onFulfilled);
+	}
+
+	return onFulfilled(value);
+}
+
+function maybeTry<T>(
+	run: () => MaybePromise<T>,
+	onError: (error: unknown) => MaybePromise<T>
+): MaybePromise<T> {
+	try {
+		const result = run();
+
+		if (isPromiseLike(result)) {
+			return Promise.resolve(result).catch((error) => onError(error));
+		}
+
+		return result;
+	} catch (error) {
+		return onError(error);
+	}
 }
 
 function createRollbackErrorMetadata(
@@ -80,76 +125,157 @@ function createRollbackErrorMetadata(
 	return {};
 }
 
-async function runExtensionHooks<TContext, TOptions, TArtifact>(
+function processSequentially<T>(
+	items: readonly T[],
+	handler: (item: T, index: number) => MaybePromise<void>,
+	direction: 'forward' | 'reverse' = 'forward'
+): MaybePromise<void> {
+	const length = items.length;
+
+	if (length === 0) {
+		return;
+	}
+
+	const shouldContinue = (index: number) =>
+		direction === 'forward' ? index < length : index >= 0;
+	const advance = (index: number) =>
+		direction === 'forward' ? index + 1 : index - 1;
+
+	const iterate = (startIndex: number): MaybePromise<void> => {
+		for (
+			let index = startIndex;
+			shouldContinue(index);
+			index = advance(index)
+		) {
+			const item = items[index]!;
+			const result = handler(item, index);
+
+			if (isPromiseLike(result)) {
+				return Promise.resolve(result).then(() =>
+					iterate(advance(index))
+				);
+			}
+		}
+	};
+
+	const start = direction === 'forward' ? 0 : length - 1;
+
+	return iterate(start);
+}
+
+function runExtensionHooks<TContext, TOptions, TArtifact>(
 	hooks: readonly ExtensionHookEntry<TContext, TOptions, TArtifact>[],
 	options: PipelineExtensionHookOptions<TContext, TOptions, TArtifact>,
 	onRollbackError: (args: RollbackErrorArgs) => void
-): Promise<{
+): MaybePromise<{
 	artifact: TArtifact;
-	results: PipelineExtensionHookResult<TArtifact>[];
+	results: ExtensionHookExecution<TContext, TOptions, TArtifact>[];
 }> {
 	let artifact = options.artifact;
-	const results: PipelineExtensionHookResult<TArtifact>[] = [];
+	const results: ExtensionHookExecution<TContext, TOptions, TArtifact>[] = [];
 
-	try {
-		for (const entry of hooks) {
-			const result = await entry.hook({
+	const process = () =>
+		processSequentially(hooks, (entry) => {
+			const hookResult = entry.hook({
 				context: options.context,
 				options: options.options,
 				artifact,
 			});
 
-			if (!result) {
-				continue;
+			if (isPromiseLike(hookResult)) {
+				return Promise.resolve(hookResult).then((resolved) => {
+					if (!resolved) {
+						return undefined;
+					}
+
+					if (resolved.artifact !== undefined) {
+						artifact = resolved.artifact;
+					}
+
+					results.push({
+						hook: entry,
+						result: resolved,
+					});
+
+					return undefined;
+				});
 			}
 
-			if (result.artifact !== undefined) {
-				artifact = result.artifact;
+			if (!hookResult) {
+				return undefined;
 			}
 
-			results.push(result);
-		}
-	} catch (error) {
-		await rollbackExtensionResults(results, hooks, onRollbackError);
+			if (hookResult.artifact !== undefined) {
+				artifact = hookResult.artifact;
+			}
 
-		throw error;
-	}
+			return void results.push({
+				hook: entry,
+				result: hookResult,
+			});
+		});
 
-	return { artifact, results };
+	const processed = maybeTry(process, (error) =>
+		maybeThen(
+			rollbackExtensionResults(results, hooks, onRollbackError),
+			() => {
+				throw error;
+			}
+		)
+	);
+
+	return maybeThen(processed, () => ({ artifact, results }));
 }
 
-async function commitExtensionResults<TArtifact>(
-	results: readonly PipelineExtensionHookResult<TArtifact>[]
-): Promise<void> {
-	for (const result of results) {
-		if (result.commit) {
-			await result.commit();
+function commitExtensionResults<TContext, TOptions, TArtifact>(
+	results: readonly ExtensionHookExecution<TContext, TOptions, TArtifact>[]
+): MaybePromise<void> {
+	return processSequentially(results, (execution) => {
+		const commit = execution.result.commit;
+		if (!commit) {
+			return undefined;
 		}
-	}
+
+		const commitResult = commit();
+		if (isPromiseLike(commitResult)) {
+			return commitResult.then(() => undefined);
+		}
+
+		return undefined;
+	});
 }
 
-async function rollbackExtensionResults<TContext, TOptions, TArtifact>(
-	results: readonly PipelineExtensionHookResult<TArtifact>[],
+function rollbackExtensionResults<TContext, TOptions, TArtifact>(
+	results: readonly ExtensionHookExecution<TContext, TOptions, TArtifact>[],
 	hooks: readonly ExtensionHookEntry<TContext, TOptions, TArtifact>[],
 	onRollbackError: (args: RollbackErrorArgs) => void
-): Promise<void> {
+): MaybePromise<void> {
 	const hookKeys = hooks.map((entry) => entry.key);
+	const hookSequence = hookKeys;
 
-	for (const result of [...results].reverse()) {
-		if (!result.rollback) {
-			continue;
-		}
+	return processSequentially(
+		[...results].reverse(),
+		(execution) => {
+			const rollback = execution.result.rollback;
+			if (!rollback) {
+				return;
+			}
 
-		try {
-			await result.rollback();
-		} catch (error) {
-			onRollbackError({
-				error,
-				extensionKeys: hookKeys,
-				hookSequence: hookKeys,
-			});
-		}
-	}
+			return maybeTry(
+				() => rollback(),
+				(error) => {
+					onRollbackError({
+						error,
+						extensionKeys: hookKeys,
+						hookSequence,
+					});
+
+					return undefined;
+				}
+			);
+		},
+		'forward'
+	);
 }
 
 function createHelperId(
@@ -339,7 +465,7 @@ function buildDependencyGraph<THelper extends HelperDescriptor>(
 	return { order: ordered, adjacency: graph.adjacency };
 }
 
-async function executeHelpers<
+function executeHelpers<
 	TContext,
 	TInput,
 	TOutput,
@@ -353,48 +479,81 @@ async function executeHelpers<
 	invoke: (
 		helper: THelper,
 		args: TArgs,
-		next: () => Promise<void>
-	) => Promise<void>,
+		next: () => MaybePromise<void>
+	) => MaybePromise<void>,
 	recordStep: (entry: RegisteredHelper<THelper>) => void
-): Promise<Set<string>> {
+): MaybePromise<Set<string>> {
 	const visited = new Set<string>();
 
-	async function runAt(index: number): Promise<void> {
+	function runAtAsync(index: number): Promise<void> {
+		const continuation = runAt(index);
+		if (isPromiseLike(continuation)) {
+			return Promise.resolve(continuation).then(() => undefined);
+		}
+
+		return Promise.resolve();
+	}
+
+	function runAt(index: number): MaybePromise<void> {
 		if (index >= ordered.length) {
 			return;
 		}
 
 		const entry = ordered[index];
 		if (!entry) {
-			await runAt(index + 1);
-			return;
+			return runAt(index + 1);
 		}
+
 		if (visited.has(entry.id)) {
-			await runAt(index + 1);
-			return;
+			return runAt(index + 1);
 		}
 
 		visited.add(entry.id);
 		recordStep(entry);
 
 		let nextCalled = false;
+		let nextResult: MaybePromise<void> | undefined;
 		const args = makeArgs(entry);
-		const next = async () => {
+
+		const next = (): MaybePromise<void> => {
 			if (nextCalled) {
-				return;
+				return nextResult;
 			}
+
 			nextCalled = true;
-			await runAt(index + 1);
+			const continuation = runAt(index + 1);
+			nextResult = continuation;
+			return continuation;
 		};
 
-		await invoke(entry.helper, args, next);
+		const invocation = invoke(entry.helper, args, next);
 
-		if (!nextCalled) {
-			await runAt(index + 1);
+		if (isPromiseLike(invocation)) {
+			return Promise.resolve(invocation).then(() => {
+				if (!nextCalled) {
+					return runAtAsync(index + 1);
+				}
+
+				if (isPromiseLike(nextResult)) {
+					return nextResult;
+				}
+
+				return undefined;
+			});
 		}
+
+		if (nextCalled) {
+			return nextResult;
+		}
+
+		return runAt(index + 1);
 	}
 
-	await runAt(0);
+	const execution = runAt(0);
+
+	if (isPromiseLike(execution)) {
+		return execution.then(() => visited);
+	}
 
 	return visited;
 }
@@ -766,6 +925,407 @@ export function createPipeline<
 		return result;
 	}
 
+	interface PipelineRunContext {
+		readonly runOptions: TRunOptions;
+		readonly buildOptions: TBuildOptions;
+		readonly context: TContext;
+		readonly draft: TDraft;
+		readonly fragmentOrder: RegisteredHelper<TFragmentHelper>[];
+		readonly steps: PipelineStep[];
+		readonly pushStep: (entry: RegisteredHelper<unknown>) => void;
+		readonly builderGraphOptions: BuildDependencyGraphOptions<TBuilderHelper>;
+		readonly createHookOptions: (
+			artifact: TArtifact
+		) => PipelineExtensionHookOptions<TContext, TBuildOptions, TArtifact>;
+		readonly handleRollbackError: (options: {
+			readonly error: unknown;
+			readonly extensionKeys: readonly string[];
+			readonly hookSequence: readonly string[];
+			readonly errorMetadata: PipelineExtensionRollbackErrorMetadata;
+			readonly context: TContext;
+		}) => void;
+	}
+
+	function createRunContext(runOptions: TRunOptions): PipelineRunContext {
+		const buildOptions = options.createBuildOptions(runOptions);
+		const context = options.createContext(runOptions);
+		const draft = options.createFragmentState({
+			options: runOptions,
+			context,
+			buildOptions,
+		});
+
+		const fragmentOrder = buildDependencyGraph(fragmentEntries, {
+			onMissingDependency: ({ dependant, dependencyKey }) => {
+				const helper = dependant.helper as HelperDescriptor;
+				pushMissingDependencyDiagnosticFor(
+					helper,
+					dependencyKey,
+					fragmentKindValue
+				);
+				pushUnusedHelperDiagnosticFor(
+					helper,
+					fragmentKindValue,
+					`could not execute because dependency "${dependencyKey}" was not found`,
+					helper.dependsOn
+				);
+			},
+			onUnresolvedHelpers: ({ unresolved }) => {
+				for (const entry of unresolved) {
+					const helper = entry.helper as HelperDescriptor;
+					pushUnusedHelperDiagnosticFor(
+						helper,
+						fragmentKindValue,
+						'could not execute because its dependencies never resolved',
+						helper.dependsOn
+					);
+				}
+			},
+		}).order;
+
+		const steps: PipelineStep[] = [];
+		const pushStep = (entry: RegisteredHelper<unknown>) => {
+			const descriptor = entry.helper as HelperDescriptor;
+			steps.push({
+				id: entry.id,
+				index: steps.length,
+				key: descriptor.key,
+				kind: descriptor.kind,
+				mode: descriptor.mode,
+				priority: descriptor.priority,
+				dependsOn: descriptor.dependsOn,
+				origin: descriptor.origin,
+			});
+		};
+
+		const builderGraphOptions: BuildDependencyGraphOptions<TBuilderHelper> =
+			{
+				onMissingDependency: ({ dependant, dependencyKey }) => {
+					const helper = dependant.helper as HelperDescriptor;
+					pushMissingDependencyDiagnosticFor(
+						helper,
+						dependencyKey,
+						builderKindValue
+					);
+					pushUnusedHelperDiagnosticFor(
+						helper,
+						builderKindValue,
+						`could not execute because dependency "${dependencyKey}" was not found`,
+						helper.dependsOn
+					);
+				},
+				onUnresolvedHelpers: ({ unresolved }) => {
+					for (const entry of unresolved) {
+						const helper = entry.helper as HelperDescriptor;
+						pushUnusedHelperDiagnosticFor(
+							helper,
+							builderKindValue,
+							'could not execute because its dependencies never resolved',
+							helper.dependsOn
+						);
+					}
+				},
+			};
+
+		const createHookOptionsFn =
+			options.createExtensionHookOptions ??
+			((hookOptions: {
+				context: TContext;
+				options: TRunOptions;
+				buildOptions: TBuildOptions;
+				artifact: TArtifact;
+			}): PipelineExtensionHookOptions<
+				TContext,
+				TBuildOptions,
+				TArtifact
+			> => ({
+				context: hookOptions.context,
+				options: hookOptions.buildOptions,
+				artifact: hookOptions.artifact,
+			}));
+
+		const createHookOptions = (artifact: TArtifact) =>
+			createHookOptionsFn({
+				context,
+				options: runOptions,
+				buildOptions,
+				artifact,
+			});
+
+		const handleRollbackError =
+			options.onExtensionRollbackError ??
+			((rollbackOptions: {
+				readonly error: unknown;
+				readonly extensionKeys: readonly string[];
+				readonly hookSequence: readonly string[];
+				readonly errorMetadata: PipelineExtensionRollbackErrorMetadata;
+				readonly context: TContext;
+			}) => {
+				rollbackOptions.context.reporter.warn(
+					'Pipeline extension rollback failed.',
+					{
+						error: rollbackOptions.error,
+						errorName: rollbackOptions.errorMetadata.name,
+						errorMessage: rollbackOptions.errorMetadata.message,
+						errorStack: rollbackOptions.errorMetadata.stack,
+						errorCause: rollbackOptions.errorMetadata.cause,
+						extensions: rollbackOptions.extensionKeys,
+						hookKeys: rollbackOptions.hookSequence,
+					}
+				);
+			});
+
+		return {
+			runOptions,
+			buildOptions,
+			context,
+			draft,
+			fragmentOrder,
+			steps,
+			pushStep,
+			builderGraphOptions,
+			createHookOptions,
+			handleRollbackError,
+		} satisfies PipelineRunContext;
+	}
+
+	const createRunResultFn =
+		options.createRunResult ??
+		((state: {
+			readonly artifact: TArtifact;
+			readonly diagnostics: readonly TDiagnostic[];
+			readonly steps: readonly PipelineStep[];
+			readonly context: TContext;
+			readonly buildOptions: TBuildOptions;
+			readonly options: TRunOptions;
+			readonly helpers: PipelineExecutionMetadata<
+				TFragmentKind,
+				TBuilderKind
+			>;
+		}) =>
+			({
+				artifact: state.artifact,
+				diagnostics: state.diagnostics,
+				steps: state.steps,
+			}) as TRunResult);
+
+	function executeRun(
+		runContext: PipelineRunContext
+	): MaybePromise<TRunResult> {
+		const {
+			runOptions,
+			buildOptions,
+			context,
+			draft,
+			fragmentOrder,
+			steps,
+			pushStep,
+			builderGraphOptions,
+			createHookOptions,
+			handleRollbackError,
+		} = runContext;
+
+		let builderExecutionSnapshot = createExecutionSnapshot(
+			builderEntries,
+			new Set<string>(),
+			builderKind
+		);
+
+		const fragmentVisited = executeHelpers<
+			TContext,
+			TFragmentInput,
+			TFragmentOutput,
+			TReporter,
+			TFragmentKind,
+			TFragmentHelper,
+			HelperApplyOptions<
+				TContext,
+				TFragmentInput,
+				TFragmentOutput,
+				TReporter
+			>
+		>(
+			fragmentOrder,
+			(entry) =>
+				options.createFragmentArgs({
+					helper: entry.helper,
+					options: runOptions,
+					context,
+					buildOptions,
+					draft,
+				}),
+			(helper, args, next) => helper.apply(args, next),
+			(entry) => pushStep(entry)
+		);
+
+		return maybeThen(fragmentVisited, (fragmentVisitedSet) => {
+			reportUnusedHelpers(
+				fragmentEntries,
+				fragmentVisitedSet,
+				fragmentKindValue
+			);
+
+			const fragmentExecution = createExecutionSnapshot(
+				fragmentEntries,
+				fragmentVisitedSet,
+				fragmentKind
+			);
+
+			ensureAllHelpersExecuted(
+				fragmentEntries,
+				fragmentExecution,
+				fragmentKindValue
+			);
+
+			let artifact = options.finalizeFragmentState({
+				draft,
+				options: runOptions,
+				context,
+				buildOptions,
+				helpers: { fragments: fragmentExecution },
+			});
+
+			const builderOrder = buildDependencyGraph(
+				builderEntries,
+				builderGraphOptions
+			).order;
+
+			const extensionResult = runExtensionHooks(
+				extensionHooks,
+				createHookOptions(artifact),
+				({ error, extensionKeys, hookSequence }) =>
+					handleRollbackError({
+						error,
+						extensionKeys,
+						hookSequence,
+						errorMetadata: createRollbackErrorMetadata(error),
+						context,
+					})
+			);
+
+			return maybeThen(extensionResult, (extensionState) => {
+				artifact = extensionState.artifact;
+
+				const rollbackAndRethrowWith =
+					<T>() =>
+					(error: unknown): MaybePromise<T> =>
+						maybeThen(
+							rollbackExtensionResults(
+								extensionState.results,
+								extensionHooks,
+								({
+									error: rollbackError,
+									extensionKeys,
+									hookSequence,
+								}) =>
+									handleRollbackError({
+										error: rollbackError,
+										extensionKeys,
+										hookSequence,
+										errorMetadata:
+											createRollbackErrorMetadata(
+												rollbackError
+											),
+										context,
+									})
+							),
+							() => {
+								throw error;
+							}
+						);
+
+				const handleRunFailure = rollbackAndRethrowWith<TRunResult>();
+
+				const handleBuilderVisited = (
+					builderVisited: Set<string>
+				): MaybePromise<TRunResult> => {
+					reportUnusedHelpers(
+						builderEntries,
+						builderVisited,
+						builderKindValue
+					);
+
+					const builderExecution = createExecutionSnapshot(
+						builderEntries,
+						builderVisited,
+						builderKind
+					);
+
+					ensureAllHelpersExecuted(
+						builderEntries,
+						builderExecution,
+						builderKindValue
+					);
+
+					builderExecutionSnapshot = builderExecution;
+
+					const finalizeRun = () =>
+						createRunResultFn({
+							artifact,
+							diagnostics: diagnostics.slice(),
+							steps,
+							context,
+							buildOptions,
+							options: runOptions,
+							helpers: {
+								fragments: fragmentExecution,
+								builders: builderExecutionSnapshot,
+							},
+						});
+
+					const handleCommitFailure = rollbackAndRethrowWith<void>();
+
+					const commitAndFinalize = (): MaybePromise<TRunResult> =>
+						maybeThen(
+							maybeTry(
+								() =>
+									commitExtensionResults(
+										extensionState.results
+									),
+								handleCommitFailure
+							),
+							finalizeRun
+						);
+
+					return commitAndFinalize();
+				};
+
+				const runBuilders = (): MaybePromise<TRunResult> =>
+					maybeThen(
+						executeHelpers<
+							TContext,
+							TBuilderInput,
+							TBuilderOutput,
+							TReporter,
+							TBuilderKind,
+							TBuilderHelper,
+							HelperApplyOptions<
+								TContext,
+								TBuilderInput,
+								TBuilderOutput,
+								TReporter
+							>
+						>(
+							builderOrder,
+							(entry) =>
+								options.createBuilderArgs({
+									helper: entry.helper,
+									options: runOptions,
+									context,
+									buildOptions,
+									artifact,
+								}),
+							(helper, args, next) => helper.apply(args, next),
+							(entry) => pushStep(entry)
+						),
+						handleBuilderVisited
+					);
+
+				return maybeTry(runBuilders, handleRunFailure);
+			});
+		});
+	}
+
 	type PipelineInstance = Pipeline<
 		TRunOptions,
 		TRunResult,
@@ -843,305 +1403,9 @@ export function createPipeline<
 				message: `Unsupported helper kind "${helper.kind}".`,
 			});
 		},
-		async run(runOptions: TRunOptions) {
-			const buildOptions = options.createBuildOptions(runOptions);
-			const context = options.createContext(runOptions);
-			const draft = options.createFragmentState({
-				options: runOptions,
-				context,
-				buildOptions,
-			});
-
-			const fragmentOrder = buildDependencyGraph(fragmentEntries, {
-				onMissingDependency: ({ dependant, dependencyKey }) => {
-					const helper = dependant.helper as HelperDescriptor;
-					pushMissingDependencyDiagnosticFor(
-						helper,
-						dependencyKey,
-						fragmentKindValue
-					);
-					pushUnusedHelperDiagnosticFor(
-						helper,
-						fragmentKindValue,
-						`could not execute because dependency "${dependencyKey}" was not found`,
-						helper.dependsOn
-					);
-				},
-				onUnresolvedHelpers: ({ unresolved }) => {
-					for (const entry of unresolved) {
-						const helper = entry.helper as HelperDescriptor;
-						pushUnusedHelperDiagnosticFor(
-							helper,
-							fragmentKindValue,
-							'could not execute because its dependencies never resolved',
-							helper.dependsOn
-						);
-					}
-				},
-			}).order;
-			const steps: PipelineStep[] = [];
-			const pushStep = (entry: RegisteredHelper<unknown>) => {
-				const descriptor = entry.helper as HelperDescriptor;
-				steps.push({
-					id: entry.id,
-					index: steps.length,
-					key: descriptor.key,
-					kind: descriptor.kind,
-					mode: descriptor.mode,
-					priority: descriptor.priority,
-					dependsOn: descriptor.dependsOn,
-					origin: descriptor.origin,
-				});
-			};
-
-			let builderExecutionSnapshot = createExecutionSnapshot(
-				builderEntries,
-				new Set<string>(),
-				builderKind
-			);
-
-			const fragmentVisited = await executeHelpers<
-				TContext,
-				TFragmentInput,
-				TFragmentOutput,
-				TReporter,
-				TFragmentKind,
-				TFragmentHelper,
-				HelperApplyOptions<
-					TContext,
-					TFragmentInput,
-					TFragmentOutput,
-					TReporter
-				>
-			>(
-				fragmentOrder,
-				(entry) =>
-					options.createFragmentArgs({
-						helper: entry.helper,
-						options: runOptions,
-						context,
-						buildOptions,
-						draft,
-					}),
-				async (helper, args, next) => {
-					await helper.apply(args, next);
-				},
-				(entry) => pushStep(entry)
-			);
-
-			reportUnusedHelpers(
-				fragmentEntries,
-				fragmentVisited,
-				fragmentKindValue
-			);
-
-			const fragmentExecution = createExecutionSnapshot(
-				fragmentEntries,
-				fragmentVisited,
-				fragmentKind
-			);
-
-			ensureAllHelpersExecuted(
-				fragmentEntries,
-				fragmentExecution,
-				fragmentKindValue
-			);
-
-			let artifact = options.finalizeFragmentState({
-				draft,
-				options: runOptions,
-				context,
-				buildOptions,
-				helpers: { fragments: fragmentExecution },
-			});
-			const builderOrder = buildDependencyGraph(builderEntries, {
-				onMissingDependency: ({ dependant, dependencyKey }) => {
-					const helper = dependant.helper as HelperDescriptor;
-					pushMissingDependencyDiagnosticFor(
-						helper,
-						dependencyKey,
-						builderKindValue
-					);
-					pushUnusedHelperDiagnosticFor(
-						helper,
-						builderKindValue,
-						`could not execute because dependency "${dependencyKey}" was not found`,
-						helper.dependsOn
-					);
-				},
-				onUnresolvedHelpers: ({ unresolved }) => {
-					for (const entry of unresolved) {
-						const helper = entry.helper as HelperDescriptor;
-						pushUnusedHelperDiagnosticFor(
-							helper,
-							builderKindValue,
-							'could not execute because its dependencies never resolved',
-							helper.dependsOn
-						);
-					}
-				},
-			}).order;
-
-			const createHookOptions =
-				options.createExtensionHookOptions ??
-				((hookOptions: {
-					context: TContext;
-					options: TRunOptions;
-					buildOptions: TBuildOptions;
-					artifact: TArtifact;
-				}): PipelineExtensionHookOptions<
-					TContext,
-					TBuildOptions,
-					TArtifact
-				> => ({
-					context: hookOptions.context,
-					options: hookOptions.buildOptions,
-					artifact: hookOptions.artifact,
-				}));
-
-			const handleRollbackError =
-				options.onExtensionRollbackError ??
-				((rollbackOptions: {
-					error: unknown;
-					extensionKeys: readonly string[];
-					hookSequence: readonly string[];
-					errorMetadata: PipelineExtensionRollbackErrorMetadata;
-					context: TContext;
-				}) => {
-					rollbackOptions.context.reporter.warn(
-						'Pipeline extension rollback failed.',
-						{
-							error: rollbackOptions.error,
-							errorName: rollbackOptions.errorMetadata.name,
-							errorMessage: rollbackOptions.errorMetadata.message,
-							errorStack: rollbackOptions.errorMetadata.stack,
-							errorCause: rollbackOptions.errorMetadata.cause,
-							extensions: rollbackOptions.extensionKeys,
-							hookKeys: rollbackOptions.hookSequence,
-						}
-					);
-				});
-
-			const extensionResult = await runExtensionHooks(
-				extensionHooks,
-				createHookOptions({
-					context,
-					options: runOptions,
-					buildOptions,
-					artifact,
-				}),
-				({ error, extensionKeys, hookSequence }) =>
-					handleRollbackError({
-						error,
-						extensionKeys,
-						hookSequence,
-						errorMetadata: createRollbackErrorMetadata(error),
-						context,
-					})
-			);
-			artifact = extensionResult.artifact;
-
-			try {
-				const builderVisited = await executeHelpers<
-					TContext,
-					TBuilderInput,
-					TBuilderOutput,
-					TReporter,
-					TBuilderKind,
-					TBuilderHelper,
-					HelperApplyOptions<
-						TContext,
-						TBuilderInput,
-						TBuilderOutput,
-						TReporter
-					>
-				>(
-					builderOrder,
-					(entry) =>
-						options.createBuilderArgs({
-							helper: entry.helper,
-							options: runOptions,
-							context,
-							buildOptions,
-							artifact,
-						}),
-					async (helper, args, next) => {
-						await helper.apply(args, next);
-					},
-					(entry) => pushStep(entry)
-				);
-
-				reportUnusedHelpers(
-					builderEntries,
-					builderVisited,
-					builderKindValue
-				);
-
-				const builderExecution = createExecutionSnapshot(
-					builderEntries,
-					builderVisited,
-					builderKind
-				);
-
-				ensureAllHelpersExecuted(
-					builderEntries,
-					builderExecution,
-					builderKindValue
-				);
-
-				builderExecutionSnapshot = builderExecution;
-
-				await commitExtensionResults(extensionResult.results);
-			} catch (error) {
-				await rollbackExtensionResults(
-					extensionResult.results,
-					extensionHooks,
-					({ error: rollbackError, extensionKeys, hookSequence }) =>
-						handleRollbackError({
-							error: rollbackError,
-							extensionKeys,
-							hookSequence,
-							errorMetadata:
-								createRollbackErrorMetadata(rollbackError),
-							context,
-						})
-				);
-
-				throw error;
-			}
-
-			const createRunResult =
-				options.createRunResult ??
-				((state: {
-					artifact: TArtifact;
-					diagnostics: readonly TDiagnostic[];
-					steps: readonly PipelineStep[];
-					context: TContext;
-					buildOptions: TBuildOptions;
-					options: TRunOptions;
-					helpers: PipelineExecutionMetadata<
-						TFragmentKind,
-						TBuilderKind
-					>;
-				}) =>
-					({
-						artifact: state.artifact,
-						diagnostics: state.diagnostics,
-						steps: state.steps,
-					}) as TRunResult);
-
-			return createRunResult({
-				artifact,
-				diagnostics: diagnostics.slice(),
-				steps,
-				context,
-				buildOptions,
-				options: runOptions,
-				helpers: {
-					fragments: fragmentExecution,
-					builders: builderExecutionSnapshot,
-				},
-			});
+		run(runOptions: TRunOptions) {
+			const runContext = createRunContext(runOptions);
+			return executeRun(runContext);
 		},
 	};
 

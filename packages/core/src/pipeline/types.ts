@@ -1,5 +1,7 @@
 import type { Reporter } from '../reporter/types';
 
+export type MaybePromise<T> = T | Promise<T>;
+
 export type HelperKind = 'fragment' | 'builder' | (string & {});
 export type HelperMode = 'extend' | 'override' | 'merge';
 
@@ -31,8 +33,8 @@ export type HelperApplyFn<
 	TReporter extends Reporter = Reporter,
 > = (
 	options: HelperApplyOptions<TContext, TInput, TOutput, TReporter>,
-	next?: () => Promise<void>
-) => Promise<void> | void;
+	next?: () => MaybePromise<void>
+) => MaybePromise<void>;
 
 export interface Helper<
 	TContext,
@@ -139,8 +141,8 @@ export interface PipelineExtensionHookOptions<TContext, TOptions, TArtifact> {
 
 export interface PipelineExtensionHookResult<TArtifact> {
 	readonly artifact?: TArtifact;
-	readonly commit?: () => Promise<void>;
-	readonly rollback?: () => Promise<void>;
+	readonly commit?: () => MaybePromise<void>;
+	readonly rollback?: () => MaybePromise<void>;
 }
 
 export interface PipelineExtensionRollbackErrorMetadata {
@@ -152,16 +154,17 @@ export interface PipelineExtensionRollbackErrorMetadata {
 
 export type PipelineExtensionHook<TContext, TOptions, TArtifact> = (
 	options: PipelineExtensionHookOptions<TContext, TOptions, TArtifact>
-) => Promise<PipelineExtensionHookResult<TArtifact> | void>;
+) => MaybePromise<PipelineExtensionHookResult<TArtifact> | void>;
 
 export interface PipelineExtension<TPipeline, TContext, TOptions, TArtifact> {
 	readonly key?: string;
 	register: (
 		pipeline: TPipeline
-	) =>
-		| void
-		| PipelineExtensionHook<TContext, TOptions, TArtifact>
-		| Promise<void | PipelineExtensionHook<TContext, TOptions, TArtifact>>;
+	) => MaybePromise<void | PipelineExtensionHook<
+		TContext,
+		TOptions,
+		TArtifact
+	>>;
 }
 
 export interface CreatePipelineOptions<
@@ -363,5 +366,5 @@ export interface Pipeline<
 		) => unknown | Promise<unknown>;
 	};
 	use: (helper: TFragmentHelper | TBuilderHelper) => void;
-	run: (options: TRunOptions) => Promise<TRunResult>;
+	run: (options: TRunOptions) => MaybePromise<TRunResult>;
 }
