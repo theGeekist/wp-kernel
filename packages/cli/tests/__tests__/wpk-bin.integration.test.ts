@@ -97,9 +97,9 @@ describe('wpk bin integration', () => {
 
 				expect(result.code).toBe(0);
 				expect(result.stderr).toBe('');
-				expect(result.stdout).toContain(
-					'created plugin scaffold for integration-plugin'
-				);
+				const scaffoldedMessage =
+					'created plugin scaffold for integration-plugin';
+				expect(result.stdout).toContain(scaffoldedMessage);
 				expect(result.stdout).toContain('created wpk.config.ts');
 
 				const configPath = path.join(workspace, 'wpk.config.ts');
@@ -135,10 +135,8 @@ describe('wpk bin integration', () => {
 					'IntegrationPlugin\\': 'inc/',
 				});
 
-				const indexSource = await fs.readFile(
-					path.join(workspace, 'src', 'index.ts'),
-					'utf8'
-				);
+				const indexPath = path.join(workspace, 'src', 'index.ts');
+				const indexSource = await fs.readFile(indexPath, 'utf8');
 				expect(indexSource).toContain('bootstrapKernel');
 			},
 			{ chdir: false }
