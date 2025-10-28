@@ -20,6 +20,11 @@ import { createActionMiddleware } from '../../actions/middleware';
 import { wpkEventsPlugin } from '../plugins/events';
 import { getNamespace as detectNamespace } from '../../namespace/detect';
 import type { ResourceConfig } from '../../resource/types';
+import {
+	isCorePipelineEnabled,
+	resetCorePipelineConfig,
+	setCorePipelineConfig,
+} from '../../configuration/flags';
 
 jest.mock('../../actions/middleware', () => ({
 	createActionMiddleware: jest.fn(() =>
@@ -70,6 +75,7 @@ describe('configureWPKernel', () => {
 
 	beforeEach(() => {
 		jest.clearAllMocks();
+		resetCorePipelineConfig();
 		mockReporter = createMockReporter();
 		(createActionMiddleware as jest.Mock).mockReturnValue(actionMiddleware);
 		(createReporter as jest.Mock).mockReturnValue(mockReporter);
@@ -82,6 +88,49 @@ describe('configureWPKernel', () => {
 	afterEach(() => {
 		(actionMiddleware as jest.Mock).mockReset();
 		eventMiddleware.destroy.mockReset();
+	});
+
+	it('disables the core pipeline by default', () => {
+		configureWPKernel({ namespace: 'acme' });
+
+		expect(isCorePipelineEnabled()).toBe(false);
+	});
+
+	it('enables the core pipeline when requested', () => {
+		configureWPKernel({
+			namespace: 'acme',
+			corePipeline: { enabled: true },
+		});
+
+		expect(isCorePipelineEnabled()).toBe(true);
+	});
+
+	it('restores the core pipeline flag to its default after teardown', () => {
+		const kernel = configureWPKernel({
+			namespace: 'acme',
+			corePipeline: { enabled: true },
+		});
+
+		expect(isCorePipelineEnabled()).toBe(true);
+
+		kernel.teardown();
+
+		expect(isCorePipelineEnabled()).toBe(false);
+	});
+
+	it('restores the previous core pipeline flag state after teardown', () => {
+		setCorePipelineConfig({ enabled: true });
+
+		const kernel = configureWPKernel({
+			namespace: 'acme',
+			corePipeline: { enabled: false },
+		});
+
+		expect(isCorePipelineEnabled()).toBe(false);
+
+		kernel.teardown();
+
+		expect(isCorePipelineEnabled()).toBe(true);
 	});
 
 	it('installs middleware on the provided registry and cleans up on teardown', () => {
