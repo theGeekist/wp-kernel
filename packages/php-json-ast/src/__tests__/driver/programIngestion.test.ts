@@ -14,7 +14,6 @@ import type {
 	BuilderOutput,
 } from '../../programBuilder';
 import { createReporterMock } from '@wpkernel/test-utils/shared/reporter';
-import { createPhpDriverInstaller } from '@wpkernel/php-driver';
 
 jest.setTimeout(120_000);
 
@@ -84,19 +83,21 @@ function createPipelineContext(): TestPipelineContext {
 }
 
 async function ensureComposerDependencies(): Promise<void> {
-	const installer = createPhpDriverInstaller();
-	const reporter = createReporterMock();
+	// no op, packages/cli/tests/jest-global-setup.js already has a global setup step
+	// that runs composer install for the php-json-ast package.
+	// const installer = createPhpDriverInstaller();
+	// const reporter = createReporterMock();
 	const workspace = createWorkspace();
 
-	await installer.apply(
-		{
-			context: { workspace },
-			input: undefined as never,
-			output: undefined as never,
-			reporter,
-		},
-		undefined
-	);
+	// await installer.apply(
+	// 	{
+	// 		context: { workspace },
+	// 		input: undefined as never,
+	// 		output: undefined as never,
+	// 		reporter,
+	// 	},
+	// 	undefined
+	// );
 
 	const autoloadPath = workspace.resolve('vendor', 'autoload.php');
 	if (!(await workspace.exists(autoloadPath))) {

@@ -4,7 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const execFileAsync = async (command, args, options) =>
-	await new Promise((resolve, reject) => {
+	new Promise((resolve, reject) => {
 		execFile(command, args, options, (error, stdout, stderr) => {
 			if (error) {
 				const enrichedError = new Error(
@@ -20,53 +20,50 @@ const execFileAsync = async (command, args, options) =>
 	});
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const CLI_ROOT = path.resolve(__dirname, '..');
-const VENDOR_AUTOLOAD = path.resolve(CLI_ROOT, 'vendor', 'autoload.php');
-const COMPOSER_MANIFEST = path.resolve(CLI_ROOT, 'composer.json');
+const ROOT = path.resolve(__dirname, '..');
+const PACKAGES = [
+	path.join(ROOT, 'packages', 'cli'),
+	path.join(ROOT, 'packages', 'php-json-ast'),
+];
 
 async function hasFile(filePath) {
 	try {
 		await fs.access(filePath);
 		return true;
 	} catch (error) {
-		if (
-			error &&
-			typeof error === 'object' &&
-			'code' in error &&
-			error.code === 'ENOENT'
-		) {
+		if (error?.code === 'ENOENT') {
 			return false;
 		}
-
 		throw error;
 	}
 }
 
-async function ensureComposerDependencies() {
-	const hasAutoload = await hasFile(VENDOR_AUTOLOAD);
-	if (hasAutoload) {
+async function ensureComposerDependencies(packageRoot) {
+	const vendorAutoload = path.join(packageRoot, 'vendor', 'autoload.php');
+	const composerManifest = path.join(packageRoot, 'composer.json');
+
+	if (await hasFile(vendorAutoload)) {
 		return;
 	}
 
-	const hasComposerManifest = await hasFile(COMPOSER_MANIFEST);
-	if (!hasComposerManifest) {
+	if (!(await hasFile(composerManifest))) {
 		throw new Error(
-			`Expected composer manifest at ${COMPOSER_MANIFEST}, but it was not found.`
+			`Expected composer manifest at ${composerManifest}, but it was not found.`
 		);
 	}
 
 	const composerArgs = ['install', '--no-interaction', '--no-progress'];
+	await execFileAsync('composer', composerArgs, { cwd: packageRoot });
 
-	await execFileAsync('composer', composerArgs, { cwd: CLI_ROOT });
-
-	const installedAutoload = await hasFile(VENDOR_AUTOLOAD);
-	if (!installedAutoload) {
+	if (!(await hasFile(vendorAutoload))) {
 		throw new Error(
-			`Composer install completed but autoload.php is still missing at ${VENDOR_AUTOLOAD}.`
+			`Composer install completed but autoload.php is still missing at ${vendorAutoload}.`
 		);
 	}
 }
 
 export default async function globalSetup() {
-	await ensureComposerDependencies();
+	for (const pkg of PACKAGES) {
+		await ensureComposerDependencies(pkg);
+	}
 }
