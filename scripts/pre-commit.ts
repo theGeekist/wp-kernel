@@ -500,10 +500,36 @@ async function main() {
 
 	const tasks: Task[] = [];
 
+	tasks.push({
+		title: 'Format workspace',
+		async run(ctx) {
+			ctx.update('pnpm format');
+			const result = await runCommand('pnpm', ['format']);
+			if (result.code !== 0) {
+				throw new CommandError('pnpm format', result);
+			}
+
+			const summaryLines: string[] = [];
+			const trimmed = result.stdout.trim();
+			if (trimmed.length > 0) {
+				summaryLines.push(...trimmed.split('\n').slice(-5));
+			}
+
+			const normalizedSummary = result.stderr
+				.trim()
+				.split('\n')
+				.filter(Boolean)
+				.slice(-3);
+			summaryLines.push(...normalizedSummary);
+
+			return { summaryLines } satisfies TaskResult;
+		},
+	});
+
 	const hasStagedFiles = stagedFiles.length > 0;
 
 	tasks.push({
-		title: 'Format & lint staged files',
+		title: 'Lint staged files',
 		enabled: hasStagedFiles,
 		skipMessage: 'No staged files detected – skipping lint-staged.',
 		async run(ctx) {
