@@ -1,5 +1,10 @@
 import type { Reporter } from '../reporter/types';
-import type { CreateHelperOptions, Helper, HelperKind } from './types';
+import type {
+	CreateHelperOptions,
+	Helper,
+	HelperKind,
+	MaybePromise,
+} from './types';
 
 export function createHelper<
 	TContext,
@@ -28,13 +33,13 @@ export function createHelper<
 			priority,
 			dependsOn: Array.from(dependsOn),
 			origin,
-			apply: async (
+			apply(
 				runtimeOptions: Parameters<
 					Helper<TContext, TInput, TOutput, TReporter, TKind>['apply']
 				>[0],
-				next?: () => Promise<void>
-			) => {
-				await apply(runtimeOptions, next);
+				next?: () => MaybePromise<void>
+			) {
+				return apply(runtimeOptions, next);
 			},
 		});
 
