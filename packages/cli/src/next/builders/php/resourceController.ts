@@ -9,9 +9,12 @@ import type {
 } from '../../runtime/types';
 import {
 	appendGeneratedFileDocblock,
+	buildResourceCacheKeysPlan,
+	buildResourceControllerMetadata,
 	buildRestControllerClass,
 	buildRestControllerDocblock,
 	createWpPhpFileBuilder,
+	routeUsesIdentity,
 	type PhpFileMetadata,
 	type ResourceControllerRouteMetadata,
 	type ResourceMetadataHost,
@@ -24,19 +27,14 @@ import type {
 import { makeErrorCodeFactory, sanitizeJson, toPascalCase } from './utils';
 import type { IRResource, IRv1 } from '../../ir/publicTypes';
 import { resolveIdentityConfig, type ResolvedIdentity } from './identity';
-import { collectCanonicalBasePaths } from './routes';
 import { buildRestArgs } from './resourceController/restArgs';
-import {
-	buildRouteMetadata,
-	type RouteMetadataKind,
-} from './resourceController/metadata';
 import { buildRouteMethodName } from './resourceController/routeNaming';
-import { routeUsesIdentity } from './resourceController/routeIdentity';
 import { buildNotImplementedStatements } from './resourceController/stubs';
 import { buildRouteKindStatements } from './resourceController/routes/handleRouteKind';
 import { buildWpTaxonomyHelperMethods } from './resource/wpTaxonomy';
 import { buildWpOptionHelperMethods } from './resource/wpOption';
 import { buildTransientHelperMethods } from './resource/transient';
+import { WP_POST_MUTATION_CONTRACT } from './resource/wpPost/mutations';
 import { renderPhpValue } from './resource/phpValue';
 
 export function createPhpResourceControllerHelper(): BuilderHelper {
@@ -153,15 +151,12 @@ function buildResourceController(
 		getMetadata: () => builder.getMetadata() as PhpFileMetadata,
 		setMetadata: (metadata) => builder.setMetadata(metadata),
 	};
-	const canonicalBasePaths = collectCanonicalBasePaths(
-		resource.routes,
-		identity.param
-	);
-	const routeMetadata = buildRouteMetadata({
-		routes: resource.routes,
+	const routeMetadataSource = buildResourceControllerMetadata({
+		name: resource.name,
 		identity,
-		canonicalBasePaths,
-		resource,
+		routes: resource.routes.map(({ method, path }) => ({ method, path })),
+		cacheKeys: buildResourceCacheKeysPlan(resource.cacheKeys),
+		mutationMetadata: resolveRouteMutationMetadata(resource),
 	});
 
 	appendGeneratedFileDocblock(
@@ -171,7 +166,7 @@ function buildResourceController(
 			resourceName: resource.name,
 			schemaKey: resource.schemaKey,
 			schemaProvenance: resource.schemaProvenance,
-			routes: routeMetadata,
+			routes: routeMetadataSource.routes,
 		})
 	);
 
@@ -184,7 +179,7 @@ function buildResourceController(
 		identity,
 		pascalName,
 		metadataHost,
-		routeMetadata,
+		routeMetadata: routeMetadataSource.routes,
 		errorCodeFactory,
 	});
 	const helperMethods = buildStorageHelperMethods({
@@ -211,12 +206,7 @@ function buildResourceController(
 
 	builder.appendProgramStatement(classNode);
 
-	builder.setMetadata({
-		kind: 'resource-controller',
-		name: resource.name,
-		identity,
-		routes: routeMetadata,
-	});
+	builder.setMetadata(routeMetadataSource);
 }
 
 interface BuildRouteConfigsOptions {
@@ -233,19 +223,18 @@ function buildRouteConfigs(
 	options: BuildRouteConfigsOptions
 ): RestRouteConfig[] {
 	return options.resource.routes.map((route, index) => {
-		const routeKind = options.routeMetadata[index]?.kind ?? 'custom';
 		const metadata =
 			options.routeMetadata[index] ??
 			({
 				method: route.method,
 				path: route.path,
-				kind: routeKind,
+				kind: 'custom',
 			} satisfies ResourceControllerRouteMetadata);
 
 		const usesIdentity = routeUsesIdentity({
-			route,
-			routeKind,
-			identity: options.identity,
+			route: { method: route.method, path: route.path },
+			routeKind: metadata.kind,
+			identity: { param: options.identity.param },
 		});
 
 		const handledStatements = buildRouteKindStatements({
@@ -255,12 +244,8 @@ function buildRouteConfigs(
 			pascalName: options.pascalName,
 			errorCodeFactory: options.errorCodeFactory,
 			metadataHost: options.metadataHost,
-			cacheSegments: resolveCacheSegments(
-				routeKind,
-				options.resource,
-				options.routeMetadata[index]
-			),
-			routeKind,
+			cacheSegments: metadata.cacheSegments ?? [],
+			routeKind: metadata.kind,
 		});
 
 		const statements =
@@ -325,41 +310,14 @@ function buildStorageHelperMethods(
 	return [];
 }
 
-function resolveCacheSegments(
-	routeKind: RouteMetadataKind,
-	resource: IRResource,
-	routeMetadata: ResourceControllerRouteMetadata | undefined
-): readonly unknown[] {
-	if (routeMetadata?.cacheSegments !== undefined) {
-		return routeMetadata.cacheSegments;
-	}
-
-	if (routeKind === 'list') {
-		return resource.cacheKeys.list.segments;
-	}
-
-	if (routeKind === 'get') {
-		return resource.cacheKeys.get.segments;
-	}
-
-	return resolveMutationCacheSegments(routeKind, resource);
-}
-
-function resolveMutationCacheSegments(
-	routeKind: RouteMetadataKind,
+function resolveRouteMutationMetadata(
 	resource: IRResource
-): readonly unknown[] {
-	if (routeKind === 'create') {
-		return resource.cacheKeys.create?.segments ?? [];
+): { readonly channelTag: string } | undefined {
+	if (resource.storage?.mode === 'wp-post') {
+		return {
+			channelTag: WP_POST_MUTATION_CONTRACT.metadataKeys.channelTag,
+		};
 	}
 
-	if (routeKind === 'update') {
-		return resource.cacheKeys.update?.segments ?? [];
-	}
-
-	if (routeKind === 'remove') {
-		return resource.cacheKeys.remove?.segments ?? [];
-	}
-
-	return [];
+	return undefined;
 }

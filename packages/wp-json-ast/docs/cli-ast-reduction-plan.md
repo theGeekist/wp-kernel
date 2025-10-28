@@ -169,9 +169,7 @@ _Completion:_ ☑ Completed – (this PR) exposed docblock factories from `src/c
 
 **Subtask 2.2.c – Consolidate metadata host wiring.** Implement metadata helper modules under `src/common/metadata/` so cache segments, identity wiring, and annotations originate in `wp-json-ast`. Update CLI builders to use these helpers instead of manipulating `$metadataHost` directly.
 
-_Completion:_ ☐ Pending – migrate metadata host helpers and ensure CLI builders delegate to the shared implementation.
-
-_Completion:_ ☐ Pending - replace this line with the PR link and a one-line summary when the task is complete.
+_Completion:_ ☑ Completed – (this PR) consolidated resource metadata builders and cache-key planning in `src/common/metadata/`, allowing the CLI to rely on shared helpers for route annotations and cache events.
 
 _Phase outcome:_ WordPress-specific AST knowledge resides in `wp-json-ast`, and the CLI depends on typed factories rather than constructing nodes manually.
 
