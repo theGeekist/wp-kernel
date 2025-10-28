@@ -191,7 +191,6 @@ function buildResourceController(
 		errorCodeFactory,
 		ir,
 	});
-	const additionalUses = collectAdditionalUses(resource);
 	const { classNode, uses } = buildRestControllerClass({
 		className,
 		resourceName: resource.name,
@@ -200,7 +199,6 @@ function buildResourceController(
 		identity,
 		routes: routeConfigs,
 		helperMethods,
-		additionalUses,
 		policyClass: `${ir.php.namespace}\Policy\Policy`,
 	});
 
@@ -338,21 +336,6 @@ function buildStorageHelperMethods(
 	return [];
 }
 
-function collectAdditionalUses(resource: IRResource): readonly string[] {
-	const uses = new Set<string>();
-
-	if (resource.storage?.mode === 'wp-post') {
-		uses.add('WP_Post');
-		uses.add('WP_Query');
-	}
-
-	if (resource.storage?.mode === 'wp-taxonomy') {
-		uses.add('WP_Term');
-		uses.add('WP_Term_Query');
-	}
-
-	return [...uses];
-}
 function resolveCacheSegments(
 	routeKind: RouteMetadataKind,
 	resource: IRResource,

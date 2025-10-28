@@ -3,8 +3,11 @@ import type { RestControllerClassConfig } from '../types';
 import {
 	buildClassMethod,
 	buildIdentifier,
+	buildName,
+	buildParam,
 	buildReturn,
 	buildScalarString,
+	buildVariable,
 	PHP_METHOD_MODIFIER_PUBLIC,
 	type PhpStmtClassMethod,
 } from '@wpkernel/php-json-ast';
@@ -13,6 +16,11 @@ describe('buildRestControllerClass', () => {
 	it('returns a class node with standard methods and collected imports', () => {
 		const helperMethod = buildClassMethod(buildIdentifier('helper'), {
 			flags: PHP_METHOD_MODIFIER_PUBLIC,
+			params: [
+				buildParam(buildVariable('post'), {
+					type: buildName(['WP_Post']),
+				}),
+			],
 			stmts: [buildReturn(buildScalarString('helper'))],
 		});
 
@@ -35,7 +43,6 @@ describe('buildRestControllerClass', () => {
 				},
 			],
 			helperMethods: [helperMethod],
-			additionalUses: ['WP_Post'],
 			policyClass: 'App\\Policy\\Policy',
 		};
 

@@ -35,7 +35,6 @@ export interface RestControllerClassConfig {
 	readonly identity: RestControllerIdentity;
 	readonly routes: readonly RestRouteConfig[];
 	readonly helperMethods?: readonly PhpStmtClassMethod[];
-	readonly additionalUses?: readonly string[];
 	readonly policyClass?: string;
 }
 
