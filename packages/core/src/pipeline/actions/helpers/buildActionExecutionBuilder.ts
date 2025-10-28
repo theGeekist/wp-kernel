@@ -42,8 +42,13 @@ export function buildActionExecutionBuilder<
 					context.actionContext,
 					input.args
 				);
-				const duration = getTimestamp() - start;
 				output.result = result;
+
+				if (next) {
+					await next();
+				}
+
+				const duration = getTimestamp() - start;
 				output.durationMs = duration;
 				const completeEvent = createActionLifecycleEvent(
 					'complete',
@@ -62,6 +67,7 @@ export function buildActionExecutionBuilder<
 				);
 				const duration = getTimestamp() - start;
 				output.error = normalized;
+				delete output.result;
 				output.durationMs = duration;
 				const errorEvent = createActionLifecycleEvent(
 					'error',
@@ -73,10 +79,6 @@ export function buildActionExecutionBuilder<
 				);
 				emitLifecycleEvent(errorEvent);
 				throw normalized;
-			}
-
-			if (next) {
-				await next();
 			}
 		},
 	});
