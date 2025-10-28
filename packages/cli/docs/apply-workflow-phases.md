@@ -39,7 +39,7 @@ _See [Docs Index](./index.md) for navigation._
 
 - The plan builder now stages extension shims under `.wpk/apply/**`, adds `require_once` fallbacks, and captures builder actions. Task 28 layered flag handling, git enforcement, and `.wpk-apply.log` parity onto the next apply command (`packages/cli/src/next/commands/apply.ts`).
 - `createPatcher` performs diff3 merges in temporary files but depends entirely on pre-authored instructions. The helper currently skips work if no plan exists, and no builder emits that plan yet (`packages/cli/src/next/builders/patcher.ts:226-318`).
-- There is no git guardrail: if the workspace lacks a `.git` directory the command still runs because neither the command nor the helper asserts repository state (`packages/cli/src/next/commands/apply.ts:145-212`).
+- Task 30 extended the git guard so the command now walks ancestor directories to locate `.git`, keeping mono-repo packages compliant without forcing duplicate repositories (`packages/cli/src/next/commands/apply.ts:62-102`).
 - The manifest is printed to stdout, but we do not append to `.wpk-apply.log` or snapshot the builder actions that would let the CLI review pending writes before they hit disk (`packages/cli/src/next/commands/apply.ts:183-212`).
 
 ### 1.5 Safety guarantees
