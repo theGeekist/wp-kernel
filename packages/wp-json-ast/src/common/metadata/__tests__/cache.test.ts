@@ -2,11 +2,11 @@ import type {
 	PhpFileMetadata,
 	ResourceControllerCacheMetadata,
 	ResourceControllerMetadata,
-} from '../../types';
-import type { ResourceMetadataHost } from '../../factories/cacheMetadata';
-import { appendResourceCacheEvent, normaliseCacheSegments } from '../metadata';
+} from '../../../types';
+import type { ResourceMetadataHost } from '../cache';
+import { appendResourceCacheEvent, normaliseCacheSegments } from '../cache';
 
-describe('rest-controller metadata helpers', () => {
+describe('resource controller cache metadata helpers', () => {
 	it('normalises primitive segments', () => {
 		expect(normaliseCacheSegments(['demo', 1, true, null])).toEqual([
 			'demo',

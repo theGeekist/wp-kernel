@@ -1,11 +1,60 @@
-import {
-	appendResourceControllerCacheEvent,
-	type ResourceMetadataHost,
-} from '../factories/cacheMetadata';
 import type {
+	PhpFileMetadata,
+	ResourceControllerCacheEvent,
+	ResourceControllerCacheMetadata,
 	ResourceControllerCacheOperation,
 	ResourceControllerCacheScope,
-} from '../types';
+	ResourceControllerMetadata,
+} from '../../types';
+
+export interface ResourceMetadataHost {
+	getMetadata: () => PhpFileMetadata;
+	setMetadata: (metadata: PhpFileMetadata) => void;
+}
+
+function isResourceControllerMetadata(
+	metadata: PhpFileMetadata
+): metadata is ResourceControllerMetadata {
+	return metadata.kind === 'resource-controller';
+}
+
+function cloneCacheEvent(
+	event: ResourceControllerCacheEvent
+): ResourceControllerCacheEvent {
+	return {
+		...event,
+		segments: [...event.segments],
+	};
+}
+
+function mergeCacheMetadata(
+	cache: ResourceControllerCacheMetadata | undefined,
+	event: ResourceControllerCacheEvent
+): ResourceControllerCacheMetadata {
+	if (!cache) {
+		return { events: [cloneCacheEvent(event)] };
+	}
+
+	return {
+		events: [...cache.events, cloneCacheEvent(event)],
+	};
+}
+
+export function appendResourceControllerCacheEvent(
+	host: ResourceMetadataHost,
+	event: ResourceControllerCacheEvent
+): void {
+	const metadata = host.getMetadata();
+	if (!isResourceControllerMetadata(metadata)) {
+		return;
+	}
+
+	const nextCache = mergeCacheMetadata(metadata.cache, event);
+	host.setMetadata({
+		...metadata,
+		cache: nextCache,
+	});
+}
 
 export interface RestRouteCacheEventPlan {
 	readonly host: ResourceMetadataHost;
@@ -15,14 +64,6 @@ export interface RestRouteCacheEventPlan {
 	readonly description?: string;
 }
 
-/**
- * Append a cache event for a REST route to the associated metadata host.
- *
- * The helper normalises cache segments so they remain serialisable and stable,
- * mirroring the CLI behaviour while colocating the metadata plumbing inside
- * `@wpkernel/wp-json-ast`.
- * @param plan
- */
 export function appendResourceCacheEvent(plan: RestRouteCacheEventPlan): void {
 	appendResourceControllerCacheEvent(plan.host, {
 		scope: plan.scope,
@@ -62,20 +103,20 @@ function normaliseCacheSegment(segment: unknown): string {
 	}
 
 	try {
-		return JSON.stringify(sanitizeJson(segment));
+		return JSON.stringify(sanitiseJson(segment));
 	} catch (_error) {
 		return String(segment);
 	}
 }
 
-function sanitizeJson<T>(value: T): T {
+function sanitiseJson<T>(value: T): T {
 	if (Array.isArray(value)) {
-		return value.map((entry) => sanitizeJson(entry)) as unknown as T;
+		return value.map((entry) => sanitiseJson(entry)) as unknown as T;
 	}
 
 	if (isPlainObject(value)) {
 		const entries = Object.entries(value)
-			.map(([key, val]) => [key, sanitizeJson(val)] as const)
+			.map(([key, val]) => [key, sanitiseJson(val)] as const)
 			.sort(([left], [right]) => left.localeCompare(right));
 
 		return Object.fromEntries(entries) as unknown as T;
