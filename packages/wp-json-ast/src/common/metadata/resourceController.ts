@@ -19,39 +19,38 @@ export interface ResourceControllerIdentityMetadataPlan
 	readonly type: 'number' | 'string';
 }
 
-export interface ResourceCacheKeyDescriptor {
-	readonly segments: readonly unknown[];
-}
+export type ResourceCacheKeyDescriptor = Readonly<{
+	segments: readonly unknown[];
+}>;
 
-export interface ResourceCacheKeysPlan {
+type OptionalCacheKeyKind = 'create' | 'update' | 'remove';
+
+const OPTIONAL_CACHE_KEY_KINDS: readonly OptionalCacheKeyKind[] = [
+	'create',
+	'update',
+	'remove',
+];
+
+const IDENTITY_ROUTE_KINDS = new Set<ResourceControllerRouteMetadata['kind']>([
+	'get',
+	'update',
+	'remove',
+]);
+
+export type ResourceCacheKeysPlan = {
 	readonly list: ResourceCacheKeyDescriptor;
 	readonly get: ResourceCacheKeyDescriptor;
-	readonly create?: ResourceCacheKeyDescriptor;
-	readonly update?: ResourceCacheKeyDescriptor;
-	readonly remove?: ResourceCacheKeyDescriptor;
-}
+} & Partial<Record<OptionalCacheKeyKind, ResourceCacheKeyDescriptor>>;
 
-export interface ResourceCacheKeySource {
-	readonly segments: readonly unknown[];
-}
-
-export interface ResourceCacheKeysSource {
-	readonly list: ResourceCacheKeySource;
-	readonly get: ResourceCacheKeySource;
-	readonly create?: ResourceCacheKeySource;
-	readonly update?: ResourceCacheKeySource;
-	readonly remove?: ResourceCacheKeySource;
-}
+export type ResourceCacheKeysSource = ResourceCacheKeysPlan;
 
 export function buildResourceCacheKeysPlan(
 	options: ResourceCacheKeysSource
 ): ResourceCacheKeysPlan {
 	return {
-		list: cloneDescriptor(options.list),
-		get: cloneDescriptor(options.get),
-		...(options.create ? { create: cloneDescriptor(options.create) } : {}),
-		...(options.update ? { update: cloneDescriptor(options.update) } : {}),
-		...(options.remove ? { remove: cloneDescriptor(options.remove) } : {}),
+		list: cloneCacheKey(options.list),
+		get: cloneCacheKey(options.get),
+		...cloneOptionalCacheKeys(options),
 	} as const;
 }
 
@@ -127,39 +126,36 @@ export function collectCanonicalBasePaths(
 	routes: readonly RouteDefinition[],
 	identityParam: string
 ): Set<string> {
-	const basePaths = new Set(
-		routes
-			.map((route) => extractCanonicalBasePath(route.path, identityParam))
-			.filter((value): value is string => typeof value === 'string')
-	);
+	const identityBasePaths = routes
+		.map((route) => extractCanonicalBasePath(route.path, identityParam))
+		.filter((value): value is string => typeof value === 'string');
 
-	if (basePaths.size > 0) {
-		return basePaths;
+	if (identityBasePaths.length > 0) {
+		return new Set(identityBasePaths);
 	}
 
-	const normalizedNonParamPaths = routes
+	const normalizedStaticRoutes = routes
 		.map((route) => normalizeRoutePath(route.path))
-		.filter((path) => !path.includes(':'));
+		.filter((path) => !path.includes(':'))
+		.map((path) => ({ path, segments: getPathSegments(path) }));
 
-	if (normalizedNonParamPaths.length === 0) {
-		return basePaths;
+	if (normalizedStaticRoutes.length === 0) {
+		return new Set();
 	}
 
 	const minimalSegmentCount = Math.min(
-		...normalizedNonParamPaths.map((path) => getPathSegments(path).length)
+		...normalizedStaticRoutes.map((route) => route.segments.length)
 	);
 
 	if (minimalSegmentCount > 1) {
-		return basePaths;
+		return new Set();
 	}
 
-	for (const path of normalizedNonParamPaths) {
-		if (getPathSegments(path).length === minimalSegmentCount) {
-			basePaths.add(path);
-		}
-	}
+	const canonical = normalizedStaticRoutes
+		.filter((route) => route.segments.length === minimalSegmentCount)
+		.map((route) => route.path);
 
-	return basePaths;
+	return new Set(canonical);
 }
 
 export function determineRouteKind(
@@ -168,34 +164,19 @@ export function determineRouteKind(
 	canonicalBasePaths: ReadonlySet<string>
 ): ResourceRouteKind | undefined {
 	const normalizedPath = normalizeRoutePath(route.path);
+	const method = route.method.toUpperCase();
 
 	if (
 		matchesIdentityRoute(normalizedPath, identityParam, canonicalBasePaths)
 	) {
-		if (route.method === 'GET') {
-			return 'get';
-		}
-
-		if (route.method === 'PUT' || route.method === 'PATCH') {
-			return 'update';
-		}
-
-		if (route.method === 'DELETE') {
-			return 'remove';
-		}
+		return identityRouteKindsByMethod[method];
 	}
 
-	if (canonicalBasePaths.has(normalizedPath)) {
-		if (route.method === 'GET') {
-			return 'list';
-		}
-
-		if (route.method === 'POST') {
-			return 'create';
-		}
+	if (!canonicalBasePaths.has(normalizedPath)) {
+		return undefined;
 	}
 
-	return undefined;
+	return collectionRouteKindsByMethod[method];
 }
 
 export interface RouteIdentityContext {
@@ -205,11 +186,7 @@ export interface RouteIdentityContext {
 }
 
 export function routeUsesIdentity(context: RouteIdentityContext): boolean {
-	if (
-		context.routeKind === 'get' ||
-		context.routeKind === 'update' ||
-		context.routeKind === 'remove'
-	) {
+	if (IDENTITY_ROUTE_KINDS.has(context.routeKind)) {
 		return true;
 	}
 
@@ -250,20 +227,20 @@ function resolveCacheSegments(
 	kind: ResourceControllerRouteMetadata['kind'],
 	cacheKeys: ResourceCacheKeysPlan
 ): readonly unknown[] | undefined {
-	const fallback = {
-		list: [...cacheKeys.list.segments],
-		get: [...cacheKeys.get.segments],
-		create: [...(cacheKeys.create?.segments ?? [])],
-		update: [...(cacheKeys.update?.segments ?? [])],
-		remove: [...(cacheKeys.remove?.segments ?? [])],
-		custom: undefined,
-	} as const;
+	if (kind === 'custom') {
+		return undefined;
+	}
 
-	return fallback[kind];
+	const descriptor = cacheKeys[kind];
+	if (!descriptor) {
+		return [];
+	}
+
+	return [...descriptor.segments];
 }
 
-function cloneDescriptor(
-	descriptor: ResourceCacheKeySource
+function cloneCacheKey(
+	descriptor: ResourceCacheKeyDescriptor
 ): ResourceCacheKeyDescriptor {
 	return { segments: [...descriptor.segments] };
 }
@@ -287,16 +264,11 @@ function buildMutationTags(
 function mapToMutationKind(
 	kind: ResourceControllerRouteMetadata['kind']
 ): 'create' | 'update' | 'delete' | undefined {
-	switch (kind) {
-		case 'create':
-			return 'create';
-		case 'update':
-			return 'update';
-		case 'remove':
-			return 'delete';
-		default:
-			return undefined;
+	if (kind === 'create' || kind === 'update' || kind === 'remove') {
+		return mutationKinds[kind];
 	}
+
+	return undefined;
 }
 
 function extractCanonicalBasePath(
@@ -352,3 +324,38 @@ function matchesIdentityRoute(
 
 	return true;
 }
+
+function cloneOptionalCacheKeys(
+	source: ResourceCacheKeysSource
+): Partial<Record<OptionalCacheKeyKind, ResourceCacheKeyDescriptor>> {
+	const entries = OPTIONAL_CACHE_KEY_KINDS.flatMap((kind) => {
+		const descriptor = source[kind];
+		return descriptor ? ([[kind, cloneCacheKey(descriptor)]] as const) : [];
+	});
+
+	return Object.fromEntries(entries) as Partial<
+		Record<OptionalCacheKeyKind, ResourceCacheKeyDescriptor>
+	>;
+}
+
+const identityRouteKindsByMethod: Partial<Record<string, ResourceRouteKind>> = {
+	GET: 'get',
+	PUT: 'update',
+	PATCH: 'update',
+	DELETE: 'remove',
+};
+
+const collectionRouteKindsByMethod: Partial<Record<string, ResourceRouteKind>> =
+	{
+		GET: 'list',
+		POST: 'create',
+	};
+
+const mutationKinds: Record<
+	'create' | 'update' | 'remove',
+	'create' | 'update' | 'delete'
+> = {
+	create: 'create',
+	update: 'update',
+	remove: 'delete',
+};
