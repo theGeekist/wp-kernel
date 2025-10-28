@@ -16,7 +16,6 @@
 	],
 	"references": [
 		{ "path": "../core/tsconfig.json" },
-		{ "path": "../test-utils/tsconfig.json" },
 		{ "path": "../php-driver/tsconfig.json" }
 	]
 }
