@@ -21,41 +21,44 @@ concurrency:
     group: pages
     cancel-in-progress: true
 
+# Environment variables for caching
+env:
+    NODE_VERSION: '22.20.0'
+    PNPM_VERSION: '10.19.0'
+
 jobs:
     build:
+        name: Setup & Install Dependencies
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
               uses: actions/checkout@v4
-              with:
-                  fetch-depth: 0 # For last updated timestamps
-
-            - name: Setup Node
-              uses: actions/setup-node@v4
-              with:
-                  node-version: '22.20.0'
 
             - name: Setup pnpm
               uses: pnpm/action-setup@v4
               with:
-                  version: 10.17.1
-                  run_install: false
+                  version: ${{ env.PNPM_VERSION }}
 
-            - name: Get pnpm store directory
-              id: pnpm-cache
-              shell: bash
-              run: |
-                  echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  cache: 'pnpm'
 
-            - name: Setup pnpm cache
+            - name: Cache node_modules
+              id: cache-node-modules
               uses: actions/cache@v4
               with:
-                  path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
-                  key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+                  path: |
+                      node_modules
+                      packages/*/node_modules
+                      examples/*/node_modules
+                  key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
                   restore-keys: |
-                      ${{ runner.os }}-pnpm-store-
+                      node-modules-${{ runner.os }}-
 
             - name: Install dependencies
+              if: steps.cache-node-modules.outputs.cache-hit != 'true'
               run: pnpm install --frozen-lockfile
 
             - name: Setup Pages
