@@ -259,9 +259,23 @@ export function defineAction<TArgs = void, TResult = void>(
 
 	const resolvedOptions = resolveOptions(options);
 
-	const action = isCorePipelineEnabled()
-		? createPipelineBackedAction(config, resolvedOptions)
-		: createLegacyAction(config, resolvedOptions);
+	const legacyAction = createLegacyAction(config, resolvedOptions);
+	let pipelineBackedAction: DefinedAction<TArgs, TResult> | null = null;
+
+	const action = async function executeAction(args: TArgs): Promise<TResult> {
+		if (!isCorePipelineEnabled()) {
+			return legacyAction(args);
+		}
+
+		if (!pipelineBackedAction) {
+			pipelineBackedAction = createPipelineBackedAction(
+				config,
+				resolvedOptions
+			);
+		}
+
+		return pipelineBackedAction(args);
+	} as DefinedAction<TArgs, TResult>;
 
 	attachActionMetadata(action, name, resolvedOptions);
 
