@@ -127,7 +127,7 @@ _Task 2.1: Introduce focused factory modules._ For one concern at a time (for ex
 
 The first migration wave will extract the REST controller surface from the CLI so that `@wpkernel/wp-json-ast` owns the WordPress semantics. The destination namespace will live under `packages/wp-json-ast/src/rest-controller/` and export two layers.
 
-`buildRestControllerModule` returns a `PhpProgram` describing the abstract base controller, per-resource controller classes, and the registrar index. It accepts a configuration object that mirrors the existing IR envelope: the plugin namespace, the base namespace fragments, and a collection of resource descriptors that already power the CLI builders. The helper will stitch together base imports, docblocks, controller class declarations, and generated route methods.
+`buildRestControllerModule` returns a structured module description containing `PhpProgram` payloads for the abstract base controller, each resource controller class, and the registrar index. It accepts a configuration object that mirrors the existing IR envelope: the plugin namespace, the base namespace fragments, and a collection of resource descriptors that already power the CLI builders. The helper will stitch together base imports, docblocks, controller class declarations, and generated route methods.
 
 `buildRestRoute` exposes the reusable AST for individual route methods. It receives a resource slug, policy references, route metadata, and the prepared request schema. The factory will create the method signature, inject the `$request` parameter, and defer to helper callbacks for each route-kind (collection, singular, custom actions). This layer keeps route-specific logic modular while ensuring the docblock annotations and metadata host wiring follow a single implementation.
 
@@ -142,6 +142,8 @@ Begin by creating the `rest-controller` directory with the module and route buil
 #### Task 2.1 Follow-up subtasks – streamlining and parity gaps
 
 **Subtask 2.1.a – Streamline import derivation.** Enhance `buildRestControllerClass` and `buildRestRoute` so they derive all required `use` imports from each `RestRouteConfig`, eliminating the `additionalUses` bookkeeping that the CLI currently performs inside `packages/cli/src/next/builders/php/resourceController.ts`. This keeps import wiring colocated with the WordPress semantics that introduce those dependencies.
+
+_Completion:_ ☑ Completed – (this PR) Rest controller imports now derive from route statements and helper metadata inside `wp-json-ast`.
 
 **Subtask 2.1.b – Internalise identity plumbing.** Extend the route configuration so the factory can infer whether identity parameters require scalar casts and emit the `$identity = (int) $request->get_param( ... );` assignment directly. Relocating this logic from the CLI adapter consolidates request handling inside `buildRestRoute` and prepares the surface for future module-wide builders.
 

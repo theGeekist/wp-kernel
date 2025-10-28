@@ -17,6 +17,7 @@ import type {
 	RestControllerClassConfig,
 } from './types';
 import { buildRestRoute } from './route';
+import { deriveRestControllerImports } from './imports';
 
 export function buildRestControllerClass(
 	config: RestControllerClassConfig
@@ -44,23 +45,14 @@ export function buildRestControllerClass(
 		}
 	);
 
-	const uses = new Set<string>([
-		'WP_Error',
-		'WP_REST_Request',
-		'function is_wp_error',
-	]);
-
-	if (config.routes.some((route) => route.policy) && config.policyClass) {
-		uses.add(config.policyClass);
-	}
-
-	for (const entry of config.additionalUses ?? []) {
-		uses.add(entry);
-	}
+	const imports = deriveRestControllerImports(config.routes, {
+		policyClass: config.policyClass,
+		helperMethods: config.helperMethods,
+	});
 
 	return {
 		classNode,
-		uses: [...uses],
+		uses: [...imports],
 	};
 }
 
