@@ -15,7 +15,6 @@ import {
 	type ResourceControllerRouteMetadata,
 	type ResourceMetadataHost,
 	type RestRouteConfig,
-	type ScalarCastKind,
 } from '@wpkernel/wp-json-ast';
 import type {
 	PhpAstBuilderAdapter,
@@ -265,25 +264,11 @@ function buildRouteConfigs(
 				? handledStatements
 				: buildNotImplementedStatements(route);
 
-		const identityCast: ScalarCastKind | undefined =
-			options.identity.type === 'number' ? 'int' : undefined;
-
-		const requestParameters = usesIdentity
-			? [
-					{
-						requestVariable: 'request',
-						param: options.identity.param,
-						targetVariable: options.identity.param,
-						cast: identityCast,
-					},
-				]
-			: undefined;
-
 		return {
 			methodName: buildRouteMethodName(route, options.ir),
 			metadata,
 			policy: route.policy,
-			requestParameters,
+			usesIdentity,
 			statements,
 		} satisfies RestRouteConfig;
 	});

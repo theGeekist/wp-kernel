@@ -147,9 +147,13 @@ _Completion:_ ☑ Completed – (this PR) Rest controller imports now derive fro
 
 **Subtask 2.1.b – Internalise identity plumbing.** Extend the route configuration so the factory can infer whether identity parameters require scalar casts and emit the `$identity = (int) $request->get_param( ... );` assignment directly. Relocating this logic from the CLI adapter consolidates request handling inside `buildRestRoute` and prepares the surface for future module-wide builders.
 
+_Completion:_ ☑ Completed – (this PR) `buildRestRoute` now emits identity request plumbing based on the route configuration, removing the CLI-only implementation.
+
 **Subtask 2.1.c – Surface metadata host updates.** Design a helper under `rest-controller` (or expand the existing types) that captures cache-segment metadata and docblock annotations alongside the generated statements. Port the CLI’s current `$metadataHost` mutations into this helper so future factories can assemble controller modules without duplicating metadata bookkeeping.
 
-_Completion:_ ☑ Completed – (this PR) Established the Task 2.1 REST controller factory blueprint and migration steps for `wp-json-ast`.
+_Completion:_ ☑ Completed – (this PR) Centralised REST route cache metadata helpers in `wp-json-ast` so controller factories own metadata host updates.
+
+_Quality follow-up:_ ☑ Covered identity plumbing, docblock generation, and cache metadata helpers with focused tests to lock down Task 2.1 behaviour.
 
 _Task 2.2: Layer guard and docblock utilities._ As factories move, ensure docblock generation, metadata wiring, and WP_Error guard helpers live alongside them in `wp-json-ast`. Update the CLI to consume these utilities so that repeated patterns disappear from the CLI codebase.
 
