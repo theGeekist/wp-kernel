@@ -21,6 +21,10 @@ import { createActionMiddleware } from '../actions/middleware';
 import { wpkEventsPlugin } from './plugins/events';
 import { defineResource as baseDefineResource } from '../resource/define';
 import type { ResourceConfig, ResourceObject } from '../resource/types';
+import {
+	getCorePipelineConfig,
+	setCorePipelineConfig,
+} from '../configuration/flags';
 
 type CleanupTask = () => void;
 
@@ -96,11 +100,18 @@ export function configureWPKernel(
 	const namespace = resolveNamespace(options.namespace);
 	const reporter = resolveReporter(namespace, options.reporter);
 	const ui = normalizeUIConfig(options.ui);
+	const previousCorePipelineConfig = {
+		...getCorePipelineConfig(),
+	};
+	setCorePipelineConfig({ enabled: Boolean(options.corePipeline?.enabled) });
 
 	const events = getWPKernelEventBus();
 	setWPKernelEventBus(events);
 	setWPKernelReporter(reporter);
-	const cleanupTasks: CleanupTask[] = [() => setWPKernelReporter(undefined)];
+	const cleanupTasks: CleanupTask[] = [
+		() => setCorePipelineConfig(previousCorePipelineConfig),
+		() => setWPKernelReporter(undefined),
+	];
 	let uiRuntime: WPKernelUIRuntime | undefined;
 
 	if (

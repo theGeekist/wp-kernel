@@ -17,121 +17,14 @@ import {
 } from './context';
 import type {
 	ActionConfig,
-	ActionLifecycleEvent,
 	DefinedAction,
 	ResolvedActionOptions,
 } from './types';
 import { getWPKernelEventBus, recordActionDefined } from '../events/bus';
 import { getNamespace } from '../namespace/detect';
-
-/**
- * Normalize unknown errors into structured WPKernelError instances.
- *
- * Ensures all errors thrown from actions follow a consistent shape for logging,
- * debugging, and error handling. Preserves stack traces and merges action context.
- *
- * @param error      - Unknown error value caught during action execution
- * @param actionName - Name of the action that threw the error
- * @param requestId  - Correlation ID for tracking this action invocation
- * @return Normalized WPKernelError with action context attached
- * @internal
- */
-function normalizeError(
-	error: unknown,
-	actionName: string,
-	requestId: string
-): WPKernelError {
-	if (WPKernelError.isWPKernelError(error)) {
-		const context = {
-			...(error.context || {}),
-			actionName: error.context?.actionName ?? actionName,
-			requestId: error.context?.requestId ?? requestId,
-		};
-		const wrapped = new WPKernelError(error.code, {
-			message: error.message,
-			data: error.data,
-			context,
-		});
-		wrapped.stack = error.stack;
-		return wrapped;
-	}
-
-	if (error instanceof Error) {
-		return WPKernelError.wrap(error, 'UnknownError', {
-			actionName,
-			requestId,
-		});
-	}
-
-	return new WPKernelError('UnknownError', {
-		message: `Action \"${actionName}\" failed with non-error value`,
-		data: { value: error },
-		context: { actionName, requestId },
-	});
-}
-
-/**
- * Build lifecycle event payload for emission.
- *
- * Creates structured event objects for action start, completion, and error phases.
- * These events power the observability layer and enable debugging, monitoring,
- * and cross-component coordination.
- *
- * @param phase      - Lifecycle phase: 'start', 'complete', or 'error'
- * @param options    - Resolved action options (scope, bridged)
- * @param actionName - Name of the action being executed
- * @param requestId  - Correlation ID for this invocation
- * @param namespace  - Resolved namespace for event naming
- * @param extra      - Phase-specific payload (args, result, error, duration)
- * @return Structured lifecycle event ready for emission
- * @internal
- */
-function createLifecycleEvent(
-	phase: ActionLifecycleEvent['phase'],
-	options: ResolvedActionOptions,
-	actionName: string,
-	requestId: string,
-	namespace: string,
-	extra: Partial<{
-		args: unknown;
-		result: unknown;
-		durationMs: number;
-		error: unknown;
-	}>
-): ActionLifecycleEvent {
-	const base = {
-		actionName,
-		requestId,
-		namespace,
-		scope: options.scope,
-		bridged: options.bridged,
-		timestamp: Date.now(),
-	} as const;
-
-	if (phase === 'start') {
-		return {
-			phase,
-			...base,
-			args: extra.args ?? null,
-		};
-	}
-
-	if (phase === 'complete') {
-		return {
-			phase,
-			...base,
-			result: extra.result,
-			durationMs: extra.durationMs ?? 0,
-		};
-	}
-
-	return {
-		phase: 'error',
-		...base,
-		error: extra.error,
-		durationMs: extra.durationMs ?? 0,
-	};
-}
+import { createActionLifecycleEvent, normalizeActionError } from './lifecycle';
+import { createActionPipeline } from '../pipeline/actions/createActionPipeline';
+import { isCorePipelineEnabled } from '../configuration/flags';
 
 /**
  * Define a WP Kernel action with lifecycle instrumentation and side-effect coordination.
@@ -360,16 +253,71 @@ export function defineAction<TArgs = void, TResult = void>(
 
 	if (typeof handler !== 'function') {
 		throw new WPKernelError('DeveloperError', {
-			message: `defineAction(\"${name}\") expects a function for the "handler" property.`,
+			message: `defineAction("${name}") expects a function for the "handler" property.`,
 		});
 	}
 
 	const resolvedOptions = resolveOptions(options);
 
+	const legacyAction = createLegacyAction(config, resolvedOptions);
+	let pipelineBackedAction: DefinedAction<TArgs, TResult> | null = null;
+
 	const action = async function executeAction(args: TArgs): Promise<TResult> {
+		if (!isCorePipelineEnabled()) {
+			return legacyAction(args);
+		}
+
+		if (!pipelineBackedAction) {
+			pipelineBackedAction = createPipelineBackedAction(
+				config,
+				resolvedOptions
+			);
+		}
+
+		return pipelineBackedAction(args);
+	} as DefinedAction<TArgs, TResult>;
+
+	attachActionMetadata(action, name, resolvedOptions);
+
+	const namespace = getNamespace();
+	const definition = {
+		action: action as DefinedAction<unknown, unknown>,
+		namespace,
+	};
+	recordActionDefined(definition);
+	getWPKernelEventBus().emit('action:defined', definition);
+
+	return action;
+}
+
+function attachActionMetadata<TArgs, TResult>(
+	action: DefinedAction<TArgs, TResult>,
+	name: string,
+	resolvedOptions: ResolvedActionOptions
+): void {
+	Object.defineProperty(action, 'actionName', {
+		value: name,
+		enumerable: true,
+		writable: false,
+	});
+
+	Object.defineProperty(action, 'options', {
+		value: resolvedOptions,
+		enumerable: true,
+		writable: false,
+	});
+}
+
+function createLegacyAction<TArgs, TResult>(
+	config: ActionConfig<TArgs, TResult>,
+	resolvedOptions: ResolvedActionOptions
+): DefinedAction<TArgs, TResult> {
+	const { name, handler } = config;
+
+	return async function executeAction(args: TArgs): Promise<TResult> {
 		const requestId = generateActionRequestId();
 		const context = createActionContext(name, requestId, resolvedOptions);
-		const startEvent = createLifecycleEvent(
+		const startEvent = createActionLifecycleEvent(
 			'start',
 			resolvedOptions,
 			name,
@@ -383,7 +331,7 @@ export function defineAction<TArgs = void, TResult = void>(
 		try {
 			const result = await handler(context, args);
 			const duration = performance.now() - startTime;
-			const completeEvent = createLifecycleEvent(
+			const completeEvent = createActionLifecycleEvent(
 				'complete',
 				resolvedOptions,
 				name,
@@ -394,9 +342,9 @@ export function defineAction<TArgs = void, TResult = void>(
 			emitLifecycleEvent(completeEvent);
 			return result;
 		} catch (error) {
-			const kernelError = normalizeError(error, name, requestId);
+			const kernelError = normalizeActionError(error, name, requestId);
 			const duration = performance.now() - startTime;
-			const errorEvent = createLifecycleEvent(
+			const errorEvent = createActionLifecycleEvent(
 				'error',
 				resolvedOptions,
 				name,
@@ -408,26 +356,21 @@ export function defineAction<TArgs = void, TResult = void>(
 			throw kernelError;
 		}
 	} as DefinedAction<TArgs, TResult>;
+}
 
-	Object.defineProperty(action, 'actionName', {
-		value: name,
-		enumerable: true,
-		writable: false,
-	});
+function createPipelineBackedAction<TArgs, TResult>(
+	config: ActionConfig<TArgs, TResult>,
+	resolvedOptions: ResolvedActionOptions
+): DefinedAction<TArgs, TResult> {
+	const pipeline = createActionPipeline<TArgs, TResult>();
 
-	Object.defineProperty(action, 'options', {
-		value: resolvedOptions,
-		enumerable: true,
-		writable: false,
-	});
+	return async function executeAction(args: TArgs): Promise<TResult> {
+		const runResult = await pipeline.run({
+			config,
+			args,
+			resolvedOptions,
+		});
 
-	const namespace = getNamespace();
-	const definition = {
-		action: action as DefinedAction<unknown, unknown>,
-		namespace,
-	};
-	recordActionDefined(definition);
-	getWPKernelEventBus().emit('action:defined', definition);
-
-	return action;
+		return runResult.artifact.result as TResult;
+	} as DefinedAction<TArgs, TResult>;
 }

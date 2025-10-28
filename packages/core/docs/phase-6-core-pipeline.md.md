@@ -30,6 +30,18 @@ _Referenced from:_
 3. **Test scaffolding** – Add new `*.test-support.ts` builders in `packages/test-utils/core` that can instantiate the action and resource pipelines with reporter/workspace doubles. Export these helpers for direct unit coverage, and keep each helper/test module ≤500 SLOC.
 4. **Feature flag** – Introduce a guard (e.g. `enableCorePipeline`) that controls whether `defineAction`/`defineResource` run via the pipeline or the legacy flow. Default the flag to off, wire it through existing configuration objects, and document how to flip it for experiments.
 
+**Implementation guidance**
+
+Begin with a survey of the orchestration logic inside `packages/core/src/actions/define.ts` (§342-432) and `packages/core/src/resource/define.ts` (§162-378). Break each lifecycle responsibility into a dedicated helper descriptor object that records the stage name, expected inputs, and hook wiring. Place descriptors beneath `packages/core/src/pipeline/helpers/` with file names that mirror the verb-driven helper names (`buildActionLifecycleHelpers.ts`, `makeResourceReporterBridge.ts`, etc.) so future tasks can import them piecemeal without re-reading the legacy modules. Keep each helper surface under 500 SLOC by pushing nested decision trees into small private functions that exit early.
+
+While mapping helpers, define a shared context contract (`CorePipelineContext`) that threads through configuration, reporter references, namespace metadata, and registry handles. The context lives alongside the helper descriptors so `createPipeline` only needs to accept a typed `PipelineOrchestrator<CorePipelineContext>` rather than duplicating structural types. When a helper needs access to commit or rollback hooks, expose thin wrapper utilities (`buildPipelineCommit`, `buildPipelineRollback`) that forward to `createPipeline` without leaking implementation details. Avoid modifying `createPipeline` internals unless you need to surface an additional hook; even then, keep the edit to additive exports that maintain today’s control flow and early return structure.
+
+The new test scaffolding belongs in `packages/test-utils/core`. Create `buildCoreActionPipelineHarness.test-support.ts` and `buildCoreResourcePipelineHarness.test-support.ts` modules that assemble disposable reporters, namespace registries, and workspace doubles. Export minimal helpers that return `{ pipeline, reporter, registry }` tuples so unit suites under `packages/core/src/**/__tests__/` can execute helpers directly. When adding fixtures, ensure the shared harness stays <500 SLOC by extracting common mocks (e.g. reporter message collectors) into neighbouring utilities instead of inlining them per test.
+
+Thread the feature flag through `configureWPKernel` configuration paths by introducing a typed option on the runtime configuration object (for example `corePipeline: { enabled: boolean }`). The flag defaults to `false`, but it must be observable from both action and resource definitions so callers can opt into the pipeline for parity testing. Publish a helper such as `isCorePipelineEnabled()` inside `packages/core/src/configuration/flags.ts` that reads from the resolved configuration object, and update the docs in `packages/core/docs/` (this file) plus the CLI migration index to explain how to enable the flag in experiments or tests.
+
+When the scaffolding lands, update `packages/core/src/actions/__tests__/defineAction.pipeline.test.ts` (new) and the companion resource suite to cover the flag toggles using the new test harness. Each suite should assert that the pipeline remains dormant when the flag is off, confirm helper descriptors execute in the right order when enabled, and record reporter output for regression tracking. Run `pnpm --filter @wpkernel/core test`, `pnpm --filter @wpkernel/core typecheck`, and `pnpm --filter @wpkernel/core typecheck:tests` before shipping so parity checks and shared types stay green.
+
 **Completion placeholder**
 
 - [ ] _Task 32 complete - replace this line with PR link and date when finished._
@@ -54,6 +66,37 @@ _Referenced from:_
 2. **Pipeline orchestration** – Update `defineAction` to construct the pipeline and invoke it inside the returned callable. Extract registry bookkeeping into a dedicated helper that records namespaces and emits `action:defined`, observing the naming constraint and ≤500 SLOC/module rule.
 3. **Dual-path testing** – During the flag window, run suites against both legacy and pipeline flows. Cover reporter output, namespace detection, lifecycle payloads, and error normalisation. Remove the legacy assertions only after parity is demonstrated and recorded.
 4. **Coverage instrumentation** – Expand unit/integration tests to keep coverage high. Favour lightweight test helpers from `@wpkernel/test-utils/core`, and update fixtures if any `create*` helper names violate the reserved prefix rule.
+
+**Implementation guidance**
+
+Start by codifying the orchestration responsibilities from `defineAction` into discrete helper descriptors beneath `packages/core/src/pipeline/helpers/actions/`. Pair each descriptor with a `build*` factory that receives the shared `CorePipelineContext` defined in Task 32 and returns typed hooks for the pipeline executor. Suggested helpers include:
+
+- `buildActionOptionsResolver` (validates/normalises the public definition options and prepares defaults such as idempotency and timeout configuration).
+- `buildActionContextAssembler` (threads namespace metadata, reporter bindings, and lifecycle emitters into the context payload consumed by downstream helpers).
+- `buildActionLifecycleEmitter` (emits `action:start`/`action:complete` events and records reporter diagnostics, using early returns to short-circuit on failure cases).
+- `makeActionErrorNormaliser` (wraps thrown values in `WPKernelError` subclasses and records structured diagnostics before the pipeline rethrows).
+
+Keep these helpers ≤500 SLOC by delegating nested checks to private utilities in the same module. Avoid new `create*` prefixes; reserve them for actual pipeline constructors.
+
+When wiring the helpers, expose a focused orchestration module (for example `buildDefineActionPipeline.ts`) that composes the helper descriptors and exports a `runDefineActionPipeline` convenience callable. `defineAction` should:
+
+1. Resolve configuration and feature flags (`isCorePipelineEnabled`) early so the legacy path remains intact while the flag is disabled.
+2. Use the Task 32 bridge utilities (`buildPipelineCommit`, `buildPipelineRollback`) to connect pipeline commit/rollback handlers with the existing registry mutation semantics.
+3. Defer registry bookkeeping to a verb-named helper such as `buildActionRegistryRegistration` that receives the namespace registry and emits the `action:defined` reporter entry.
+4. Memoise the pipeline instance per definition to avoid rebuilding helper arrays on every invocation, while keeping the public callable signature unchanged.
+
+The orchestration module should also surface a typed `ActionPipelineHooks` interface so tests can assert on the lifecycle ordering without digging into private structures.
+
+**Testing & verification**
+
+Extend the new pipeline harnesses (`buildCoreActionPipelineHarness.test-support.ts`) to supply reporter spies and namespace registries. Author a `defineAction.pipeline.test.ts` suite that:
+
+- Asserts that toggling the `corePipeline.enabled` flag switches between legacy and pipeline flows without mutating the public API.
+- Confirms helper execution order via emitted lifecycle events and verifies that rollback hooks trigger when a helper throws.
+- Captures reporter output for success and failure cases, ensuring error normalisation matches today’s snapshots.
+- Uses the harness doubles to simulate namespace collisions and ensures registry bookkeeping helpers maintain the existing safeguards.
+
+Retain the legacy parity tests until the pipeline path proves stable across the full matrix (`pnpm --filter @wpkernel/core test`, `pnpm --filter @wpkernel/core typecheck`, `pnpm --filter @wpkernel/core typecheck:tests`).
 
 **Completion placeholder**
 
