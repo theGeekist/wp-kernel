@@ -20,10 +20,10 @@ const execFileAsync = async (command, args, options) =>
 	});
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const ROOT = path.resolve(__dirname, '..');
+const REPO_ROOT = path.resolve(__dirname, '..', '..', '..');
 const PACKAGES = [
-	path.join(ROOT, 'packages', 'cli'),
-	path.join(ROOT, 'packages', 'php-json-ast'),
+	path.join(REPO_ROOT, 'packages', 'cli'),
+	path.join(REPO_ROOT, 'packages', 'php-json-ast'),
 ];
 
 async function hasFile(filePath) {
