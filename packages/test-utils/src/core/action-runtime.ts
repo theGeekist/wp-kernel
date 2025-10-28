@@ -1,5 +1,9 @@
 import type { ActionRuntime } from '@wpkernel/core/actions/types.js';
 
+declare global {
+	var __WP_KERNEL_ACTION_RUNTIME__: ActionRuntime | undefined;
+}
+
 export interface ActionRuntimeOverrides {
 	runtime?: Partial<ActionRuntime>;
 	policy?: ActionRuntime['policy'];

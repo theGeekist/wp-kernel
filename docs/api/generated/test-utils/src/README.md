@@ -19,6 +19,7 @@
 - [ApplyLogSummary](interfaces/ApplyLogSummary.md)
 - [ApplyLogRecord](interfaces/ApplyLogRecord.md)
 - [ApplyLogEntry](interfaces/ApplyLogEntry.md)
+- [BuildLoadedConfigOptions](interfaces/BuildLoadedConfigOptions.md)
 - [FlushAsyncOptions](interfaces/FlushAsyncOptions.md)
 - [ActionRuntimeOverrides](interfaces/ActionRuntimeOverrides.md)
 - [WordPressHarnessOverrides](interfaces/WordPressHarnessOverrides.md)

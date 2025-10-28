@@ -90,6 +90,7 @@
 	"dependencies": {
 		"@wpkernel/php-driver": "workspace:*",
 		"@wpkernel/php-json-ast": "workspace:*",
+		"@wpkernel/test-utils": "workspace:*",
 		"@wpkernel/wp-json-ast": "workspace:*",
 		"chokidar": "^4.0.3",
 		"clipanion": "4.0.0-rc.4",
