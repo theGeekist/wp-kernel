@@ -372,15 +372,15 @@ function parseUseEntry(entry: string): ParsedUse {
 
 	if (trimmed.startsWith('function ')) {
 		const name = trimmed.slice('function '.length);
-		return buildParsedUse(name, 2);
+		return buildParsedUse(name, 1);
 	}
 
 	if (trimmed.startsWith('const ')) {
 		const name = trimmed.slice('const '.length);
-		return buildParsedUse(name, 3);
+		return buildParsedUse(name, 2);
 	}
 
-	return buildParsedUse(trimmed, 1);
+	return buildParsedUse(trimmed, 0);
 }
 
 function buildParsedUse(name: string, type: number): ParsedUse {
