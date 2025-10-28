@@ -1,4 +1,3 @@
-/* eslint-disable import/no-extraneous-dependencies -- test fixtures rely on CLI runtime helpers */
 import type { CreateHelperOptions } from '@wpkernel/core/pipeline';
 import {
 	createHelper,
@@ -72,4 +71,3 @@ export function buildPipelineExtension({
 			((): ReturnType<PipelineExtension['register']> => undefined),
 	} satisfies PipelineExtension;
 }
-/* eslint-enable import/no-extraneous-dependencies */
