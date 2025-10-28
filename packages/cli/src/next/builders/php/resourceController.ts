@@ -10,6 +10,7 @@ import type {
 import {
 	appendGeneratedFileDocblock,
 	buildRestControllerClass,
+	buildRestControllerDocblock,
 	createWpPhpFileBuilder,
 	type PhpFileMetadata,
 	type ResourceControllerRouteMetadata,
@@ -21,7 +22,7 @@ import type {
 	PhpStmtClassMethod,
 } from '@wpkernel/php-json-ast';
 import { makeErrorCodeFactory, sanitizeJson, toPascalCase } from './utils';
-import type { IRResource, IRRoute, IRv1 } from '../../ir/publicTypes';
+import type { IRResource, IRv1 } from '../../ir/publicTypes';
 import { resolveIdentityConfig, type ResolvedIdentity } from './identity';
 import { collectCanonicalBasePaths } from './routes';
 import { buildRestArgs } from './resourceController/restArgs';
@@ -163,13 +164,16 @@ function buildResourceController(
 		resource,
 	});
 
-	appendGeneratedFileDocblock(builder, [
-		`Source: ${ir.meta.origin} → resources.${resource.name}`,
-		`Schema: ${resource.schemaKey} (${resource.schemaProvenance})`,
-		...resource.routes.map(
-			(route: IRRoute) => `Route: [${route.method}] ${route.path}`
-		),
-	]);
+	appendGeneratedFileDocblock(
+		builder,
+		buildRestControllerDocblock({
+			origin: ir.meta.origin,
+			resourceName: resource.name,
+			schemaKey: resource.schemaKey,
+			schemaProvenance: resource.schemaProvenance,
+			routes: routeMetadata,
+		})
+	);
 
 	const restArgsExpression = renderPhpValue(
 		sanitizeJson(buildRestArgs(ir.schemas, resource))

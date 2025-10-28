@@ -9,6 +9,9 @@ import type {
 } from '../../runtime/types';
 import {
 	appendGeneratedFileDocblock,
+	buildDocCommentAttributes,
+	buildPolicyCallbackDocblock,
+	buildPolicyEnforceDocblock,
 	createWpPhpFileBuilder,
 } from '@wpkernel/wp-json-ast';
 import {
@@ -22,7 +25,6 @@ import {
 	buildClassMethod,
 	buildClosure,
 	buildClosureUse,
-	buildDocComment,
 	buildExpressionStatement,
 	buildFuncCall,
 	buildIdentifier,
@@ -45,7 +47,6 @@ import {
 	PHP_METHOD_MODIFIER_PUBLIC,
 	PHP_METHOD_MODIFIER_STATIC,
 	type PhpAstBuilderAdapter,
-	type PhpAttributes,
 	type PhpStmt,
 	type PhpStmtClassMethod,
 } from '@wpkernel/php-json-ast';
@@ -163,7 +164,7 @@ function buildFallbackMethod(
 }
 
 function buildCallbackMethod(): PhpStmtClassMethod {
-	const docblock = ['Create a permission callback closure for a policy.'];
+	const docblock = buildPolicyCallbackDocblock();
 
 	const closure = buildClosure({
 		static: true,
@@ -199,15 +200,12 @@ function buildCallbackMethod(): PhpStmtClassMethod {
 			returnType: buildIdentifier('callable'),
 			stmts: [buildReturn(closure)],
 		},
-		buildDocAttributes(docblock)
+		buildDocCommentAttributes(docblock)
 	);
 }
 
 function buildEnforceMethod(): PhpStmtClassMethod {
-	const docblock = [
-		'Evaluate a policy against the current user.',
-		'@return bool|WP_Error',
-	];
+	const docblock = buildPolicyEnforceDocblock();
 
 	const definitionAssign = buildExpressionStatement(
 		buildAssign(
@@ -428,7 +426,7 @@ function buildEnforceMethod(): PhpStmtClassMethod {
 			],
 			stmts: statements,
 		},
-		buildDocAttributes(docblock)
+		buildDocCommentAttributes(docblock)
 	);
 }
 
@@ -573,16 +571,6 @@ function buildCreateErrorMethod(): PhpStmtClassMethod {
 			),
 		],
 	});
-}
-
-function buildDocAttributes(
-	docblock: readonly string[]
-): PhpAttributes | undefined {
-	if (docblock.length === 0) {
-		return undefined;
-	}
-
-	return { comments: [buildDocComment(docblock)] };
 }
 
 function buildPolicyMap(

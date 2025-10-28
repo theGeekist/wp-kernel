@@ -9,6 +9,7 @@ import type {
 } from '../../runtime/types';
 import {
 	appendGeneratedFileDocblock,
+	buildPersistenceRegistryDocblock,
 	createWpPhpFileBuilder,
 } from '@wpkernel/wp-json-ast';
 import {
@@ -66,9 +67,10 @@ function buildPersistenceRegistry(
 	builder: PhpAstBuilderAdapter,
 	ir: IRv1
 ): void {
-	appendGeneratedFileDocblock(builder, [
-		`Source: ${ir.meta.origin} → resources (storage + identity metadata)`,
-	]);
+	appendGeneratedFileDocblock(
+		builder,
+		buildPersistenceRegistryDocblock({ origin: ir.meta.origin })
+	);
 
 	const payload = buildPersistencePayload(ir.resources);
 	const method = buildClassMethod(buildIdentifier('get_config'), {
