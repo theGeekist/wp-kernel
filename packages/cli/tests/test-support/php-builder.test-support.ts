@@ -1,5 +1,4 @@
 /* eslint-env jest */
-import path from 'node:path';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type {
 	BuilderInput,
@@ -9,6 +8,7 @@ import type {
 import type { IRv1 } from '../../src/next/ir/publicTypes';
 import type { WPKernelConfigV1 } from '../../src/config/types';
 import { makeWorkspaceMock } from '../workspace.test-support';
+import type { Workspace } from '../../src/next/workspace/types';
 
 const DEFAULT_CONFIG_SOURCE = 'tests.config.ts';
 
@@ -25,12 +25,8 @@ export function createReporter(): Reporter {
 export function createPipelineContext(
 	overrides?: Partial<PipelineContext>
 ): PipelineContext {
-	const workspace = makeWorkspaceMock({
+	const workspace = makeWorkspaceMock<Workspace>({
 		root: '/workspace',
-		cwd: () => '/workspace',
-		resolve: (...parts: string[]) => path.join('/workspace', ...parts),
-		write: jest.fn(async () => undefined),
-		writeJson: jest.fn(async () => undefined),
 	});
 
 	const base: PipelineContext = {

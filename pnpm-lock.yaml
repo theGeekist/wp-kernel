@@ -376,9 +376,6 @@ importers:
 
   packages/test-utils:
     dependencies:
-      '@wpkernel/cli':
-        specifier: workspace:*
-        version: link:../cli
       '@wpkernel/core':
         specifier: workspace:*
         version: link:../core

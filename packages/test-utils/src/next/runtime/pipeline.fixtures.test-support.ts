@@ -1,73 +1,64 @@
-import type { CreateHelperOptions } from '@wpkernel/core/pipeline';
-import {
-	createHelper,
-	type BuilderInput,
-	type BuilderOutput,
-	type FragmentInput,
-	type FragmentOutput,
-	type Pipeline,
-	type PipelineContext,
-} from '@wpkernel/cli/next/runtime';
+import type { CreateHelperOptions, Helper } from '@wpkernel/core/pipeline';
+import { createHelper } from '@wpkernel/core/pipeline';
+import type { Reporter } from '@wpkernel/core/reporter';
 
-type Reporter = PipelineContext['reporter'];
-
-type FragmentHelper = Parameters<Pipeline['ir']['use']>[0];
-type BuilderHelper = Parameters<Pipeline['builders']['use']>[0];
-type PipelineExtension = Parameters<Pipeline['extensions']['use']>[0];
-
-type FragmentHelperOptions = Omit<
-	CreateHelperOptions<
-		PipelineContext,
-		FragmentInput,
-		FragmentOutput,
-		Reporter,
-		FragmentHelper['kind']
-	>,
-	'kind'
->;
-
-type BuilderHelperOptions = Omit<
-	CreateHelperOptions<
-		PipelineContext,
-		BuilderInput,
-		BuilderOutput,
-		Reporter,
-		BuilderHelper['kind']
-	>,
-	'kind'
->;
-
-interface BuildPipelineExtensionOptions {
+export interface BuildPipelineExtensionOptions<
+	TRegister extends (...args: unknown[]) => unknown = (
+		...args: unknown[]
+	) => unknown,
+> {
 	readonly key?: string;
-	readonly register?: PipelineExtension['register'];
+	readonly register?: TRegister;
 }
 
-export function buildFragmentHelper(
-	options: FragmentHelperOptions
-): FragmentHelper {
+export function buildFragmentHelper<
+	TContext,
+	TInput,
+	TOutput,
+	TReporter extends Reporter,
+	TKind extends string = 'fragment',
+>(
+	options: Omit<
+		CreateHelperOptions<TContext, TInput, TOutput, TReporter, TKind>,
+		'kind'
+	> & {
+		readonly kind?: TKind;
+	}
+): Helper<TContext, TInput, TOutput, TReporter, TKind> {
 	return createHelper({
 		...options,
-		kind: 'fragment',
+		kind: options.kind ?? ('fragment' as TKind),
 	});
 }
 
-export function buildBuilderHelper(
-	options: BuilderHelperOptions
-): BuilderHelper {
+export function buildBuilderHelper<
+	TContext,
+	TInput,
+	TOutput,
+	TReporter extends Reporter,
+	TKind extends string = 'builder',
+>(
+	options: Omit<
+		CreateHelperOptions<TContext, TInput, TOutput, TReporter, TKind>,
+		'kind'
+	> & {
+		readonly kind?: TKind;
+	}
+): Helper<TContext, TInput, TOutput, TReporter, TKind> {
 	return createHelper({
 		...options,
-		kind: 'builder',
+		kind: options.kind ?? ('builder' as TKind),
 	});
 }
 
-export function buildPipelineExtension({
-	key,
-	register,
-}: BuildPipelineExtensionOptions = {}): PipelineExtension {
+export function buildPipelineExtension<
+	TRegister extends (...args: unknown[]) => unknown = () => void,
+>({ key, register }: BuildPipelineExtensionOptions<TRegister> = {}): {
+	readonly key?: string;
+	readonly register: TRegister;
+} {
 	return {
 		key,
-		register:
-			register ??
-			((): ReturnType<PipelineExtension['register']> => undefined),
-	} satisfies PipelineExtension;
+		register: register ?? (((): unknown => undefined) as TRegister),
+	};
 }

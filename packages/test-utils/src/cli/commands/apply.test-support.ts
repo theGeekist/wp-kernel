@@ -1,8 +1,11 @@
 import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import type { LoadedWPKernelConfig } from '@wpkernel/cli/config';
 import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
+import type {
+	KernelConfigV1Like,
+	LoadedKernelConfigLike,
+} from '../../next/types.js';
 
 export const TMP_PREFIX = path.join(os.tmpdir(), 'cli-apply-command-');
 
@@ -44,19 +47,48 @@ export interface ApplyLogEntry {
 	readonly error?: unknown;
 }
 
-export function buildLoadedConfig(workspace: string): LoadedWPKernelConfig {
-	return {
-		config: {
-			version: 1,
-			namespace: 'Demo',
-			schemas: {},
-			resources: {},
-		},
+export interface BuildLoadedConfigOptions<
+	TConfig extends KernelConfigV1Like = KernelConfigV1Like,
+	TOrigin extends string = string,
+	TComposerCheck extends string = string,
+> {
+	readonly config?: TConfig;
+	readonly namespace?: string;
+	readonly sourcePath?: string;
+	readonly configOrigin?: TOrigin;
+	readonly composerCheck?: TComposerCheck;
+}
+
+export function buildLoadedConfig<
+	TConfig extends KernelConfigV1Like = KernelConfigV1Like,
+	TOrigin extends string = string,
+	TComposerCheck extends string = string,
+>(
+	workspace: string,
+	options: BuildLoadedConfigOptions<TConfig, TOrigin, TComposerCheck> = {}
+): LoadedKernelConfigLike<TConfig, TOrigin, TComposerCheck> {
+	const defaultConfig = {
+		version: 1,
 		namespace: 'Demo',
-		sourcePath: path.join(workspace, WPK_CONFIG_SOURCES.WPK_CONFIG_TS),
-		configOrigin: WPK_CONFIG_SOURCES.WPK_CONFIG_TS,
-		composerCheck: 'ok',
-	} satisfies LoadedWPKernelConfig;
+		schemas: {},
+		resources: {},
+	} as TConfig;
+
+	const config = options.config ?? defaultConfig;
+	const namespace = options.namespace ?? config.namespace;
+
+	const configOrigin = (options.configOrigin ??
+		WPK_CONFIG_SOURCES.WPK_CONFIG_TS) as TOrigin;
+
+	return {
+		config,
+		namespace,
+		sourcePath:
+			options.sourcePath ??
+			path.join(workspace, WPK_CONFIG_SOURCES.WPK_CONFIG_TS),
+		configOrigin,
+		composerCheck: options.composerCheck ?? ('ok' as TComposerCheck),
+	} satisfies LoadedKernelConfigLike<TConfig, TOrigin, TComposerCheck>;
 }
 
 export async function ensureDirectory(directory: string): Promise<void> {

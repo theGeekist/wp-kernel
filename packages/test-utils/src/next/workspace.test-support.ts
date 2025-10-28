@@ -1,12 +1,12 @@
 import path from 'node:path';
 import type {
-	Workspace,
-	FileManifest,
-	MergeOptions,
-	RemoveOptions,
-	WriteJsonOptions,
-	WriteOptions,
-} from '@wpkernel/cli/next/workspace';
+	WorkspaceFileManifestLike,
+	WorkspaceLike,
+	WorkspaceMergeOptionsLike,
+	WorkspaceRemoveOptionsLike,
+	WorkspaceWriteJsonOptionsLike,
+	WorkspaceWriteOptionsLike,
+} from './types.js';
 
 export type { WorkspaceOptions } from '@wpkernel/test-utils/integration';
 export {
@@ -14,18 +14,18 @@ export {
 	createWorkspaceRunner,
 } from '@wpkernel/test-utils/integration';
 
-export interface WorkspaceMockOptions extends Partial<Workspace> {
-	readonly root?: string;
-}
+export type WorkspaceMockOptions<
+	TWorkspace extends WorkspaceLike = WorkspaceLike,
+> = Partial<Omit<TWorkspace, 'root'>> & { readonly root?: string };
 
-function makeEmptyManifest(): FileManifest {
+function makeEmptyManifest(): WorkspaceFileManifestLike {
 	return { writes: [], deletes: [] };
 }
 
 async function defaultWrite(
 	_file: string,
 	_data: Buffer | string,
-	_options?: WriteOptions
+	_options?: WorkspaceWriteOptionsLike
 ): Promise<void> {
 	// Intentionally no-op.
 }
@@ -33,14 +33,14 @@ async function defaultWrite(
 async function defaultWriteJson<T>(
 	_file: string,
 	_value: T,
-	_options?: WriteJsonOptions
+	_options?: WorkspaceWriteJsonOptionsLike
 ): Promise<void> {
 	// Intentionally no-op.
 }
 
 async function defaultRm(
 	_target: string,
-	_options?: RemoveOptions
+	_options?: WorkspaceRemoveOptionsLike
 ): Promise<void> {
 	// Intentionally no-op.
 }
@@ -50,14 +50,14 @@ async function defaultThreeWayMerge(
 	_base: string,
 	_current: string,
 	_incoming: string,
-	_options?: MergeOptions
+	_options?: WorkspaceMergeOptionsLike
 ): Promise<'clean' | 'conflict'> {
 	return 'clean';
 }
 
 async function defaultDryRun<T>(
 	callback: () => Promise<T>
-): Promise<{ result: T; manifest: FileManifest }> {
+): Promise<{ result: T; manifest: WorkspaceFileManifestLike }> {
 	return {
 		result: await callback(),
 		manifest: makeEmptyManifest(),
@@ -65,9 +65,9 @@ async function defaultDryRun<T>(
 }
 
 /* eslint-disable complexity */
-export function makeWorkspaceMock(
-	overrides: WorkspaceMockOptions = {}
-): Workspace {
+export function makeWorkspaceMock<
+	TWorkspace extends WorkspaceLike = WorkspaceLike,
+>(overrides: WorkspaceMockOptions<TWorkspace> = {}): TWorkspace {
 	const manifestFactory = () => makeEmptyManifest();
 	const defaultRoot = path.join(process.cwd(), 'next-workspace');
 	const {
@@ -87,7 +87,7 @@ export function makeWorkspaceMock(
 		dryRun = defaultDryRun,
 		tmpDir,
 		resolve,
-	} = overrides;
+	} = overrides as WorkspaceMockOptions<WorkspaceLike>;
 
 	const defaultTmpDir = async (prefix = 'workspace-') =>
 		path.join(
@@ -97,7 +97,7 @@ export function makeWorkspaceMock(
 		);
 	const defaultResolve = (...parts: string[]) => path.join(root, ...parts);
 
-	return {
+	const workspace: WorkspaceLike = {
 		root,
 		cwd,
 		read,
@@ -114,6 +114,8 @@ export function makeWorkspaceMock(
 		dryRun,
 		tmpDir: tmpDir ?? defaultTmpDir,
 		resolve: resolve ?? defaultResolve,
-	} satisfies Workspace;
+	} satisfies WorkspaceLike;
+
+	return workspace as TWorkspace;
 }
 /* eslint-enable complexity */

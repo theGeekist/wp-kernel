@@ -5,7 +5,7 @@ import {
 	buildDataViewFixtureCreator,
 } from '../ts';
 import {
-	withWorkspace,
+	withWorkspace as baseWithWorkspace,
 	buildWPKernelConfigSource,
 	buildDataViewsConfig,
 	buildBuilderArtifacts,
@@ -13,11 +13,19 @@ import {
 	buildOutput,
 	normalise,
 	prefixRelative,
+	type BuilderHarnessContext,
 } from '@wpkernel/test-utils/next/builders/tests/ts.test-support';
+import { buildWorkspace } from '../../workspace';
+import type { Workspace } from '../../workspace';
 
 jest.mock('../../../commands/run-generate/validation', () => ({
 	validateGeneratedImports: jest.fn().mockResolvedValue(undefined),
 }));
+
+const withWorkspace = (
+	run: (context: BuilderHarnessContext<Workspace>) => Promise<void>
+) =>
+	baseWithWorkspace(run, { createWorkspace: (root) => buildWorkspace(root) });
 
 describe('createTsBuilder - admin screen creator', () => {
 	it('generates admin screens with resolved relative imports', async () => {

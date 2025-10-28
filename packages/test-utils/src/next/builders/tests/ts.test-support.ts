@@ -8,23 +8,42 @@ import type {
 	ResourceDataViewsScreenConfig,
 	ResourceDataViewsUIConfig,
 } from '@wpkernel/core/resource';
-import type { WPKernelConfigV1 } from '@wpkernel/cli/config';
-import type { BuildIrOptions, IRResource, IRv1 } from '@wpkernel/cli/next/ir';
-import { buildWorkspace } from '@wpkernel/cli/next/workspace';
-import type { Workspace } from '@wpkernel/cli/next/workspace';
-import type { BuilderOutput } from '@wpkernel/cli/next/runtime';
+import { makeWorkspaceMock } from '../../workspace.test-support.js';
+import type {
+	BuilderOutputLike,
+	BuildIrOptionsLike,
+	IRResourceLike,
+	IRv1Like,
+	KernelConfigV1Like,
+	WorkspaceLike,
+} from '../../types.js';
 
-export interface BuilderHarnessContext {
-	readonly workspace: Workspace;
+export interface BuilderHarnessContext<
+	TWorkspace extends WorkspaceLike = WorkspaceLike,
+> {
+	readonly workspace: TWorkspace;
 	readonly root: string;
 }
 
-export async function withWorkspace(
-	run: (context: BuilderHarnessContext) => Promise<void>
+export interface WorkspaceFactoryOptions<
+	TWorkspace extends WorkspaceLike = WorkspaceLike,
+> {
+	readonly createWorkspace?: (
+		root: string
+	) => Promise<TWorkspace> | TWorkspace;
+}
+
+export async function withWorkspace<
+	TWorkspace extends WorkspaceLike = WorkspaceLike,
+>(
+	run: (context: BuilderHarnessContext<TWorkspace>) => Promise<void>,
+	options: WorkspaceFactoryOptions<TWorkspace> = {}
 ): Promise<void> {
 	const root = await fs.mkdtemp(path.join(os.tmpdir(), 'ts-builder-'));
 	try {
-		const workspace = buildWorkspace(root);
+		const workspace = (await (options.createWorkspace
+			? options.createWorkspace(root)
+			: makeWorkspaceMock({ root }))) as TWorkspace;
 		await run({ workspace, root });
 	} finally {
 		await fs.rm(root, { recursive: true, force: true });
@@ -130,7 +149,7 @@ export function buildDataViewsConfig(
 	const base: ResourceDataViewsUIConfig = {
 		fields: [],
 		defaultView: { type: 'table', fields: [] },
-		mapQuery: (viewState) => {
+		mapQuery: (viewState: Record<string, unknown>) => {
 			const search = (viewState as { search?: string }).search ?? '';
 			return search.trim().length > 0 ? { q: search.trim() } : {};
 		},
@@ -152,10 +171,14 @@ export interface BuilderArtifactOptions {
 	readonly sourcePath: string;
 }
 
-export interface BuilderArtifacts {
-	readonly config: WPKernelConfigV1;
-	readonly ir: IRv1;
-	readonly options: BuildIrOptions;
+export interface BuilderArtifacts<
+	TConfig extends KernelConfigV1Like = KernelConfigV1Like,
+	TIr extends IRv1Like<TConfig> = IRv1Like<TConfig>,
+	TOptions extends BuildIrOptionsLike<TConfig> = BuildIrOptionsLike<TConfig>,
+> {
+	readonly config: TConfig;
+	readonly ir: TIr;
+	readonly options: TOptions;
 }
 
 export function buildBuilderArtifacts(
@@ -181,16 +204,16 @@ export function buildBuilderArtifacts(
 			: {}),
 	} as ResourceConfig;
 
-	const config: WPKernelConfigV1 = {
+	const config: KernelConfigV1Like = {
 		version: 1,
 		namespace,
 		schemas: {},
 		resources: {
 			[resourceKey]: resourceConfig,
 		},
-	} as WPKernelConfigV1;
+	} as KernelConfigV1Like;
 
-	const irResource: IRResource = {
+	const irResource: IRResourceLike = {
 		name: resourceName,
 		schemaKey: resourceKey,
 		schemaProvenance: 'manual',
@@ -201,11 +224,11 @@ export function buildBuilderArtifacts(
 		},
 		hash: 'demo-hash',
 		warnings: [],
-	};
+	} as IRResourceLike;
 
 	const sanitizedNamespace = toPascalCase(namespace);
 
-	const ir: IRv1 = {
+	const ir: IRv1Like = {
 		meta: {
 			version: 1,
 			namespace,
@@ -234,16 +257,16 @@ export function buildBuilderArtifacts(
 			autoload: 'inc/',
 			outputDir: '.generated/php',
 		},
-	};
+	} as IRv1Like;
 
-	const buildOptions: BuildIrOptions = {
+	const buildOptions: BuildIrOptionsLike = {
 		config,
 		namespace,
 		origin: 'typescript',
 		sourcePath,
-	};
+	} as BuildIrOptionsLike;
 
-	return { config, ir, options: buildOptions };
+	return { config, ir, options: buildOptions } satisfies BuilderArtifacts;
 }
 
 export function buildReporter(): Reporter {
@@ -258,11 +281,13 @@ export function buildReporter(): Reporter {
 	return reporter;
 }
 
-export function buildOutput(): BuilderOutput {
-	const actions: BuilderOutput['actions'] = [];
-	const queueWrite = jest.fn((action: BuilderOutput['actions'][number]) => {
-		actions.push(action);
-	});
+export function buildOutput(): BuilderOutputLike {
+	const actions: BuilderOutputLike['actions'] = [];
+	const queueWrite = jest.fn(
+		(action: BuilderOutputLike['actions'][number]) => {
+			actions.push(action);
+		}
+	);
 
 	return { actions, queueWrite };
 }
