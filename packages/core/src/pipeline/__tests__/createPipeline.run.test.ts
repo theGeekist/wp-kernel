@@ -5,6 +5,7 @@ import type {
 	HelperApplyOptions,
 	Pipeline,
 	PipelineDiagnostic,
+	PipelineExtensionHook,
 	PipelineExtensionHookResult,
 	PipelineRunState,
 } from '../types';
@@ -312,14 +313,23 @@ describe('createPipeline.run', () => {
 
 		pipeline.extensions.use({
 			key: 'failing-extension',
-			register: () => () => ({
-				commit: () => {
-					commitSpy();
-				},
-				rollback: async () => {
-					rollbackSpy();
-				},
-			}),
+			register: () => {
+				const hook: PipelineExtensionHook<
+					TestContext,
+					TestRunOptions,
+					TestArtifact
+				> = () =>
+					Promise.resolve({
+						commit: async () => {
+							commitSpy();
+						},
+						rollback: async () => {
+							rollbackSpy();
+						},
+					});
+
+				return hook;
+			},
 		});
 
 		await expect(pipeline.run({})).rejects.toThrow('builder failure');

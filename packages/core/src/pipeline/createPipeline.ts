@@ -1206,6 +1206,36 @@ export function createPipeline<
 			return maybeThen(extensionResult, (extensionState) => {
 				artifact = extensionState.artifact;
 
+				const rollbackAndRethrowWith =
+					<T>() =>
+					(error: unknown): MaybePromise<T> =>
+						maybeThen(
+							rollbackExtensionResults(
+								extensionState.results,
+								extensionHooks,
+								({
+									error: rollbackError,
+									extensionKeys,
+									hookSequence,
+								}) =>
+									handleRollbackError({
+										error: rollbackError,
+										extensionKeys,
+										hookSequence,
+										errorMetadata:
+											createRollbackErrorMetadata(
+												rollbackError
+											),
+										context,
+									})
+							),
+							() => {
+								throw error;
+							}
+						);
+
+				const handleRunFailure = rollbackAndRethrowWith<TRunResult>();
+
 				const handleBuilderVisited = (
 					builderVisited: Set<string>
 				): MaybePromise<TRunResult> => {
@@ -1243,10 +1273,21 @@ export function createPipeline<
 							},
 						});
 
-					return maybeThen(
-						commitExtensionResults(extensionState.results),
-						finalizeRun
-					);
+					const handleCommitFailure = rollbackAndRethrowWith<void>();
+
+					const commitAndFinalize = (): MaybePromise<TRunResult> =>
+						maybeThen(
+							maybeTry(
+								() =>
+									commitExtensionResults(
+										extensionState.results
+									),
+								handleCommitFailure
+							),
+							finalizeRun
+						);
+
+					return commitAndFinalize();
 				};
 
 				const runBuilders = (): MaybePromise<TRunResult> =>
@@ -1280,32 +1321,7 @@ export function createPipeline<
 						handleBuilderVisited
 					);
 
-				return maybeTry(runBuilders, (error) =>
-					maybeThen(
-						rollbackExtensionResults(
-							extensionState.results,
-							extensionHooks,
-							({
-								error: rollbackError,
-								extensionKeys,
-								hookSequence,
-							}) =>
-								handleRollbackError({
-									error: rollbackError,
-									extensionKeys,
-									hookSequence,
-									errorMetadata:
-										createRollbackErrorMetadata(
-											rollbackError
-										),
-									context,
-								})
-						),
-						() => {
-							throw error;
-						}
-					)
-				);
+				return maybeTry(runBuilders, handleRunFailure);
 			});
 		});
 	}
