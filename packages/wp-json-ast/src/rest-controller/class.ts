@@ -29,7 +29,7 @@ export function buildRestControllerClass(
 	];
 
 	for (const route of config.routes) {
-		methods.push(buildRestRoute(route));
+		methods.push(buildRestRoute(route, config.identity));
 	}
 
 	if (config.helperMethods) {

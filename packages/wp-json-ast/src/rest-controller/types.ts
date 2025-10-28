@@ -18,6 +18,7 @@ export interface RestRouteConfig {
 	readonly metadata: ResourceControllerRouteMetadata;
 	readonly policy?: string;
 	readonly docblockSummary?: string;
+	readonly usesIdentity?: boolean;
 	readonly requestParameters?: readonly RestRouteRequestParameter[];
 	readonly statements: readonly PhpStmt[];
 }

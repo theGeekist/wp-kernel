@@ -12,16 +12,11 @@ describe('buildRestRoute', () => {
 				kind: 'get',
 			},
 			policy: 'job.read',
-			requestParameters: [
-				{
-					param: 'id',
-					cast: 'int',
-				},
-			],
+			usesIdentity: true,
 			statements: [buildReturn(buildScalarString('ok'))],
 		};
 
-		const method = buildRestRoute(config);
+		const method = buildRestRoute(config, { type: 'number', param: 'id' });
 
 		expect(method.params?.[0]).toMatchObject({
 			type: expect.objectContaining({
@@ -66,6 +61,29 @@ describe('buildRestRoute', () => {
 		});
 
 		expect(method.stmts?.[5]).toMatchObject({
+			nodeType: 'Stmt_Return',
+			expr: expect.objectContaining({
+				nodeType: 'Scalar_String',
+				value: 'ok',
+			}),
+		});
+	});
+
+	it('omits identity plumbing when the route does not reference the controller identity', () => {
+		const config: RestRouteConfig = {
+			methodName: 'list_items',
+			metadata: {
+				method: 'GET',
+				path: '/jobs',
+				kind: 'list',
+			},
+			statements: [buildReturn(buildScalarString('ok'))],
+		};
+
+		const method = buildRestRoute(config, { type: 'number', param: 'id' });
+
+		expect(method.stmts).toHaveLength(1);
+		expect(method.stmts?.[0]).toMatchObject({
 			nodeType: 'Stmt_Return',
 			expr: expect.objectContaining({
 				nodeType: 'Scalar_String',
