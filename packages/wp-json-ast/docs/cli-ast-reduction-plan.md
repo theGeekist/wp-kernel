@@ -153,6 +153,8 @@ _Completion:_ ☑ Completed – (this PR) `buildRestRoute` now emits identity re
 
 _Completion:_ ☑ Completed – (this PR) Centralised REST route cache metadata helpers in `wp-json-ast` so controller factories own metadata host updates.
 
+_Quality follow-up:_ ☑ Covered identity plumbing, docblock generation, and cache metadata helpers with focused tests to lock down Task 2.1 behaviour.
+
 _Task 2.2: Layer guard and docblock utilities._ As factories move, ensure docblock generation, metadata wiring, and WP_Error guard helpers live alongside them in `wp-json-ast`. Update the CLI to consume these utilities so that repeated patterns disappear from the CLI codebase.
 
 _Completion:_ ☐ Pending - replace this line with the PR link and a one-line summary when the task is complete.
