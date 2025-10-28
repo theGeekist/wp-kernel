@@ -8,12 +8,12 @@
 
 ## Interfaces
 
-- [CreatePhpBuilderOptions](interfaces/CreatePhpBuilderOptions.md)
 - [PatchRecord](interfaces/PatchRecord.md)
 - [PatchManifest](interfaces/PatchManifest.md)
 - [BuildApplyCommandOptions](interfaces/BuildApplyCommandOptions.md)
 - [BuildCreateCommandOptions](interfaces/BuildCreateCommandOptions.md)
 - [BuildInitCommandOptions](interfaces/BuildInitCommandOptions.md)
+- [CreatePhpBuilderOptions](interfaces/CreatePhpBuilderOptions.md)
 - [IRResourceCacheKey](interfaces/IRResourceCacheKey.md)
 - [IRWarning](interfaces/IRWarning.md)
 - [IRDiagnostic](interfaces/IRDiagnostic.md)
@@ -32,7 +32,6 @@
 - [PipelineExtensionHookOptions](interfaces/PipelineExtensionHookOptions.md)
 - [PipelineExtensionHookResult](interfaces/PipelineExtensionHookResult.md)
 - [PipelineExtension](interfaces/PipelineExtension.md)
-- [Pipeline](interfaces/Pipeline.md)
 - [FileManifest](interfaces/FileManifest.md)
 - [WriteJsonOptions](interfaces/WriteJsonOptions.md)
 - [RemoveOptions](interfaces/RemoveOptions.md)
@@ -60,6 +59,7 @@
 - [BuilderOutput](type-aliases/BuilderOutput.md)
 - [BuilderHelper](type-aliases/BuilderHelper.md)
 - [PipelineExtensionHook](type-aliases/PipelineExtensionHook.md)
+- [Pipeline](type-aliases/Pipeline.md)
 - [WriteOptions](type-aliases/WriteOptions.md)
 
 ## Variables
@@ -70,18 +70,18 @@
 
 ## Functions
 
-- [createBundler](functions/createBundler.md)
-- [createPatcher](functions/createPatcher.md)
-- [createPhpBuilder](functions/createPhpBuilder.md)
-- [createApplyPlanBuilder](functions/createApplyPlanBuilder.md)
-- [createTsBuilder](functions/createTsBuilder.md)
-- [createJsBlocksBuilder](functions/createJsBlocksBuilder.md)
 - [buildApplyCommand](functions/buildApplyCommand.md)
 - [buildCreateCommand](functions/buildCreateCommand.md)
 - [buildDoctorCommand](functions/buildDoctorCommand.md)
 - [buildGenerateCommand](functions/buildGenerateCommand.md)
 - [buildInitCommand](functions/buildInitCommand.md)
 - [buildStartCommand](functions/buildStartCommand.md)
+- [createBundler](functions/createBundler.md)
+- [createPatcher](functions/createPatcher.md)
+- [createPhpBuilder](functions/createPhpBuilder.md)
+- [createApplyPlanBuilder](functions/createApplyPlanBuilder.md)
+- [createTsBuilder](functions/createTsBuilder.md)
+- [createJsBlocksBuilder](functions/createJsBlocksBuilder.md)
 - [registerCoreFragments](functions/registerCoreFragments.md)
 - [registerCoreBuilders](functions/registerCoreBuilders.md)
 - [createIr](functions/createIr.md)

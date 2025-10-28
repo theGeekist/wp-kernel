@@ -14,7 +14,7 @@ function registerCoreFragments(pipeline): void;
 
 ### pipeline
 
-[`Pipeline`](../interfaces/Pipeline.md)
+[`Pipeline`](../type-aliases/Pipeline.md)
 
 ## Returns
 

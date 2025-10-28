@@ -31,7 +31,7 @@ register: (pipeline) =>
 
 ##### pipeline
 
-[`Pipeline`](Pipeline.md)
+[`Pipeline`](../type-aliases/Pipeline.md)
 
 #### Returns
 

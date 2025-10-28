@@ -9,7 +9,7 @@
 ```ts
 type PipelineExtensionHook<TContext, TOptions, TArtifact> = (
 	options
-) => Promise<PipelineExtensionHookResult<TArtifact> | void>;
+) => MaybePromise<PipelineExtensionHookResult<TArtifact> | void>;
 ```
 
 ## Type Parameters
@@ -34,6 +34,6 @@ type PipelineExtensionHook<TContext, TOptions, TArtifact> = (
 
 ## Returns
 
-`Promise`\&lt;
+`MaybePromise`\&lt;
 \| [`PipelineExtensionHookResult`](../interfaces/PipelineExtensionHookResult.md)\&lt;`TArtifact`\&gt;
 \| `void`\&gt;

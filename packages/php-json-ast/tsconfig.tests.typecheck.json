@@ -1,6 +1,9 @@
 {
 	"$schema": "https://json.schemastore.org/tsconfig",
 	"extends": "../../tsconfig.tests.cli.json",
+	"compilerOptions": {
+		"rootDir": "../.."
+	},
 	"include": [
 		"src/**/__tests__/**/*.ts",
 		"src/**/__tests__/**/*.tsx",
@@ -12,6 +15,7 @@
 	"references": [
 		{ "path": "./tsconfig.json" },
 		{ "path": "../core/tsconfig.json" },
+		{ "path": "../test-utils/tsconfig.json" },
 		{ "path": "../php-driver/tsconfig.json" }
 	]
 }

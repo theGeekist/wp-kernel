@@ -179,7 +179,7 @@ use: (helper) => void;
 ### run()
 
 ```ts
-run: (options) => Promise<TRunResult>;
+run: (options) => MaybePromise<TRunResult>;
 ```
 
 #### Parameters
@@ -190,4 +190,4 @@ run: (options) => Promise<TRunResult>;
 
 #### Returns
 
-`Promise`\&lt;`TRunResult`\&gt;
+`MaybePromise`\&lt;`TRunResult`\&gt;

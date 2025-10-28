@@ -15,6 +15,10 @@
 - [BaseContext](interfaces/BaseContext.md)
 - [CommandContextOptions](interfaces/CommandContextOptions.md)
 - [CommandContextHarness](interfaces/CommandContextHarness.md)
+- [ApplyLogFlags](interfaces/ApplyLogFlags.md)
+- [ApplyLogSummary](interfaces/ApplyLogSummary.md)
+- [ApplyLogRecord](interfaces/ApplyLogRecord.md)
+- [ApplyLogEntry](interfaces/ApplyLogEntry.md)
 - [FlushAsyncOptions](interfaces/FlushAsyncOptions.md)
 - [ActionRuntimeOverrides](interfaces/ActionRuntimeOverrides.md)
 - [WordPressHarnessOverrides](interfaces/WordPressHarnessOverrides.md)
@@ -30,15 +34,25 @@
 
 ## Type Aliases
 
+- [ApplyLogStatus](type-aliases/ApplyLogStatus.md)
 - [RuntimeCleanup](type-aliases/RuntimeCleanup.md)
 - [ReporterLike](type-aliases/ReporterLike.md)
 - [ReporterMock](type-aliases/ReporterMock.md)
 - [WordPressData](type-aliases/WordPressData.md)
 
+## Variables
+
+- [TMP_PREFIX](variables/TMP_PREFIX.md)
+
 ## Functions
 
 - [createCommandContext](functions/createCommandContext.md)
 - [assignCommandContext](functions/assignCommandContext.md)
+- [buildLoadedConfig](functions/buildLoadedConfig.md)
+- [ensureDirectory](functions/ensureDirectory.md)
+- [toFsPath](functions/toFsPath.md)
+- [seedPlan](functions/seedPlan.md)
+- [readApplyLogEntries](functions/readApplyLogEntries.md)
 - [flushAsync](functions/flushAsync.md)
 - [createMemoryStream](functions/createMemoryStream.md)
 - [applyActionRuntimeOverrides](functions/applyActionRuntimeOverrides.md)

@@ -117,6 +117,7 @@
 		"test:coverage": "jest --coverage --watchman=false"
 	},
 	"peerDependencies": {
+		"@wpkernel/cli": "workspace:*",
 		"@wpkernel/core": "workspace:*",
 		"@wpkernel/ui": "workspace:*",
 		"react": ">=18.0.0"

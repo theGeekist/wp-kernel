@@ -10,7 +10,7 @@
 type HelperApplyFn<TContext, TInput, TOutput, TReporter> = (
 	options,
 	next?
-) => Promise<void> | void;
+) => MaybePromise<void>;
 ```
 
 ## Type Parameters
@@ -39,8 +39,8 @@ type HelperApplyFn<TContext, TInput, TOutput, TReporter> = (
 
 ### next?
 
-() =&gt; `Promise`\&lt;`void`\&gt;
+() =&gt; `MaybePromise`\&lt;`void`\&gt;
 
 ## Returns
 
-`Promise`\&lt;`void`\&gt; \| `void`
+`MaybePromise`\&lt;`void`\&gt;

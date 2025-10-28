@@ -38,11 +38,7 @@ readonly optional key: string;
 
 ```ts
 register: (pipeline) =>
-  | void
-  | PipelineExtensionHook<TContext, TOptions, TArtifact>
-  | Promise<
-  | void
-| PipelineExtensionHook<TContext, TOptions, TArtifact>>;
+	MaybePromise<void | PipelineExtensionHook<TContext, TOptions, TArtifact>>;
 ```
 
 #### Parameters
@@ -53,8 +49,6 @@ register: (pipeline) =>
 
 #### Returns
 
-\| `void`
-\| [`PipelineExtensionHook`](../type-aliases/PipelineExtensionHook.md)\&lt;`TContext`, `TOptions`, `TArtifact`\&gt;
-\| `Promise`\&lt;
+`MaybePromise`\&lt;
 \| `void`
 \| [`PipelineExtensionHook`](../type-aliases/PipelineExtensionHook.md)\&lt;`TContext`, `TOptions`, `TArtifact`\&gt;\&gt;

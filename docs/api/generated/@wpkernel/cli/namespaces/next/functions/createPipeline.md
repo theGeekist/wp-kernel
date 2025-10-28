@@ -12,4 +12,4 @@ function createPipeline(): Pipeline;
 
 ## Returns
 
-[`Pipeline`](../interfaces/Pipeline.md)
+[`Pipeline`](../type-aliases/Pipeline.md)
