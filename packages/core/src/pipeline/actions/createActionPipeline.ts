@@ -20,6 +20,15 @@ import type {
 	ActionPipelineRunResult,
 } from './types';
 
+/**
+ * Construct the action execution pipeline.
+ *
+ * The pipeline wires lifecycle fragments, execution builders, and diagnostics
+ * so `defineAction` can compose additional helpers over time without rewriting
+ * orchestration logic. Callers receive a pipeline instance that encapsulates
+ * helper registration and exposes a `run` method mirroring the legacy action
+ * flow.
+ */
 export function createActionPipeline<TArgs, TResult>() {
 	const pipeline = createPipeline<
 		ActionPipelineRunOptions<TArgs, TResult>,

@@ -11,16 +11,16 @@ import type {
 	ActionInvocationDraft,
 	ActionPipelineContext,
 } from '../types';
+import { measureDurationMs, readMonotonicTime } from './timing';
 
-function getTimestamp(): number {
-	const perf = globalThis.performance;
-	if (perf && typeof perf.now === 'function') {
-		return perf.now();
-	}
-
-	return Date.now();
-}
-
+/**
+ * Build the execution-stage helper responsible for invoking the user supplied
+ * action handler and translating the outcome into lifecycle events.
+ *
+ * The helper records timing metadata, ensures downstream builder failures are
+ * normalised, and emits matching `complete`/`error` lifecycle events once the
+ * entire builder chain settles.
+ */
 export function buildActionExecutionBuilder<
 	TArgs,
 	TResult,
@@ -35,7 +35,7 @@ export function buildActionExecutionBuilder<
 		key: 'action.execute.handler',
 		kind: 'core.action.builder',
 		apply: async ({ context, input, output }, next) => {
-			const start = output.startTime ?? getTimestamp();
+			const start = output.startTime ?? readMonotonicTime();
 
 			try {
 				const result = await input.handler(
@@ -48,7 +48,7 @@ export function buildActionExecutionBuilder<
 					await next();
 				}
 
-				const duration = getTimestamp() - start;
+				const duration = measureDurationMs(start);
 				output.durationMs = duration;
 				const completeEvent = createActionLifecycleEvent(
 					'complete',
@@ -65,7 +65,7 @@ export function buildActionExecutionBuilder<
 					context.actionName,
 					context.requestId
 				);
-				const duration = getTimestamp() - start;
+				const duration = measureDurationMs(start);
 				output.error = normalized;
 				delete output.result;
 				output.durationMs = duration;
