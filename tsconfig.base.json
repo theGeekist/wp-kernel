@@ -20,6 +20,8 @@
 			"@wpkernel/ui": ["./packages/ui/src/index.ts"],
 			"@wpkernel/ui/*": ["./packages/ui/src/*"],
 			"@wpkernel/cli": ["./packages/cli/src/index.ts"],
+			"@wpkernel/cli/commands/*": ["./packages/cli/src/commands/*"],
+			"@wpkernel/cli/src/*": ["./packages/cli/src/*"],
 			"@wpkernel/cli/*": ["./packages/cli/src/*"],
 			"@wpkernel/e2e-utils": ["./packages/e2e-utils/src/index.ts"],
 			"@wpkernel/e2e-utils/*": ["./packages/e2e-utils/src/*"],

@@ -8,13 +8,13 @@ import {
 	type WPKExitCode,
 } from '@wpkernel/core/contracts';
 import type { Reporter } from '@wpkernel/core/reporter';
-import type { FileWriterSummary } from '../../utils';
-import { renderSummary } from '../../commands/run-generate/summary';
-import { validateGeneratedImports } from '../../commands/run-generate/validation';
-import { handleFailure } from '../../commands/run-generate/errors';
-import type { GenerationSummary } from '../../commands/run-generate/types';
-import { loadWPKernelConfig } from '../../config';
-import type { LoadedWPKernelConfig } from '../../config/types';
+import type { FileWriterSummary } from '../utils';
+import { renderSummary } from './run-generate/summary';
+import { validateGeneratedImports } from './run-generate/validation';
+import { handleFailure } from './run-generate/errors';
+import type { GenerationSummary } from './run-generate/types';
+import { loadWPKernelConfig } from '../config';
+import type { LoadedWPKernelConfig } from '../config/types';
 import {
 	buildWorkspace,
 	toWorkspaceRelative,
@@ -23,13 +23,16 @@ import {
 	type WriteOptions,
 	type WriteJsonOptions,
 	type RemoveOptions,
-} from '../workspace';
-import { createPipeline, type PipelineDiagnostic } from '../runtime';
-import { registerCoreBuilders, registerCoreFragments } from '../ir/createIr';
-import { buildAdapterExtensionsExtension } from '../runtime/adapterExtensions';
+} from '../next/workspace';
+import { createPipeline, type PipelineDiagnostic } from '../next/runtime';
+import {
+	registerCoreBuilders,
+	registerCoreFragments,
+} from '../next/ir/createIr';
+import { buildAdapterExtensionsExtension } from '../next/runtime/adapterExtensions';
 
 function buildReporterNamespace(): string {
-	return `${WPK_NAMESPACE}.cli.next.generate`;
+	return `${WPK_NAMESPACE}.cli.generate`;
 }
 
 export interface BuildGenerateCommandOptions {

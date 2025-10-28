@@ -1,5 +1,5 @@
-import type { FileManifest } from '../../workspace';
-import { makeWorkspaceMock } from '../../../../tests/workspace.test-support';
+import type { FileManifest } from '../../next/workspace';
+import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
 
 function buildCommandContext() {
 	return {

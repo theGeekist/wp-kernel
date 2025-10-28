@@ -3,7 +3,7 @@ import type { ReporterOptions } from '@wpkernel/core/reporter';
 import type { InitWorkflowOptions } from '../init/workflow';
 import { WPKernelError } from '@wpkernel/core/error';
 import { createReporterMock } from '@wpkernel/test-utils/cli';
-import { makeWorkspaceMock } from '../../../../tests/workspace.test-support';
+import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
 import {
 	createInitCommandRuntime,
 	formatInitWorkflowError,

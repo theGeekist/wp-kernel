@@ -8,8 +8,8 @@ import {
 	type WPKExitCode,
 } from '@wpkernel/core/contracts';
 import type { Reporter } from '@wpkernel/core/reporter';
-import type { Workspace, FileManifest } from '../workspace';
-import { buildWorkspace, ensureCleanDirectory } from '../workspace';
+import type { Workspace, FileManifest } from '../next/workspace';
+import { buildWorkspace, ensureCleanDirectory } from '../next/workspace';
 import { runInitWorkflow } from './init/workflow';
 import { initialiseGitRepository, isGitRepository } from './init/git';
 import {
@@ -24,7 +24,7 @@ import {
 } from './init/command-runtime';
 
 function buildReporterNamespace(): string {
-	return `${WPK_NAMESPACE}.cli.next.create`;
+	return `${WPK_NAMESPACE}.cli.create`;
 }
 
 export interface BuildCreateCommandOptions {

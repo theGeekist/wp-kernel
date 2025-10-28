@@ -10,7 +10,6 @@ const config = createWPKJestConfig({
 		'!<rootDir>/packages/cli/src/**/__tests__/**',
 		'!<rootDir>/packages/cli/src/**/__test-support__/**',
 		'!<rootDir>/packages/cli/src/**/*.test-support.ts',
-		'!<rootDir>/packages/cli/src/next/commands/**',
 		'!<rootDir>/packages/cli/src/next/ir/shared/__fixtures__/**',
 		'!<rootDir>/packages/cli/src/index.ts',
 		'!<rootDir>/packages/cli/src/version.ts',
