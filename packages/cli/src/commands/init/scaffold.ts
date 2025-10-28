@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { WPKernelError } from '@wpkernel/core/error';
 import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
-import type { Workspace } from '../../workspace';
+import type { Workspace } from '../../next/workspace';
 import {
 	applyReplacements,
 	buildComposerPackageName,

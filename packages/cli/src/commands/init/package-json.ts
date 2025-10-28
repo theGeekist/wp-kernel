@@ -1,7 +1,7 @@
 import { WPKernelError } from '@wpkernel/core/error';
-import type { Workspace } from '../../workspace';
+import type { Workspace } from '../../next/workspace';
 import { ensureTrailingNewline } from './utils';
-import type { DependencyResolution } from '../../../commands/init/dependency-versions';
+import type { DependencyResolution } from './dependency-versions';
 import type { ScaffoldStatus } from './utils';
 
 const PACKAGE_JSON_FILENAME = 'package.json';

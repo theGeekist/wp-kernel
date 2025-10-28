@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
 import { assignCommandContext } from '@wpkernel/test-utils/cli';
-import { makeWorkspaceMock } from '../../../../tests/workspace.test-support';
+import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
 import { buildCreateCommand } from '../create';
 
 describe('NextCreateCommand', () => {

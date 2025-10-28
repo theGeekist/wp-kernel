@@ -1,5 +1,5 @@
 import { createReporterMock } from '@wpkernel/test-utils/cli';
-import { makeWorkspaceMock } from '../../../../tests/workspace.test-support';
+import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
 import { runInitWorkflow } from '../init/workflow';
 import type { InitWorkflowOptions } from '../init/workflow';
 import {
@@ -9,9 +9,9 @@ import {
 	writeScaffoldFiles,
 } from '../init/scaffold';
 import { writePackageJson } from '../init/package-json';
-import { resolveDependencyVersions } from '../../../commands/init/dependency-versions';
-import type { DependencyResolution } from '../../../commands/init/dependency-versions';
-import type { Workspace } from '../../workspace';
+import { resolveDependencyVersions } from '../init/dependency-versions';
+import type { DependencyResolution } from '../init/dependency-versions';
+import type { Workspace } from '../../next/workspace';
 
 type WriteScaffoldFiles = typeof writeScaffoldFiles;
 type BuildScaffoldDescriptors = typeof buildScaffoldDescriptors;
@@ -37,7 +37,7 @@ jest.mock('../init/package-json', () => {
 	} satisfies Partial<typeof actual>;
 });
 
-jest.mock('../../../commands/init/dependency-versions', () => ({
+jest.mock('../init/dependency-versions', () => ({
 	resolveDependencyVersions: jest.fn(),
 }));
 

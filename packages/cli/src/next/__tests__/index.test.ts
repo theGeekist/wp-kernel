@@ -24,16 +24,16 @@ describe('next index exports', () => {
 				) => Promise<void>;
 			};
 
-		await unstableMockModule('../commands/init', () => ({
+		await unstableMockModule('../../commands/init', () => ({
 			buildInitCommand: () => buildStubCommand('init'),
 		}));
-		await unstableMockModule('../commands/generate', () => ({
+		await unstableMockModule('../../commands/generate', () => ({
 			buildGenerateCommand: () => buildStubCommand('generate'),
 		}));
-		await unstableMockModule('../commands/start', () => ({
+		await unstableMockModule('../../commands/start', () => ({
 			buildStartCommand: () => buildStubCommand('start'),
 		}));
-		await unstableMockModule('../commands/doctor', () => ({
+		await unstableMockModule('../../commands/doctor', () => ({
 			buildDoctorCommand: () => buildStubCommand('doctor'),
 		}));
 

@@ -15,7 +15,7 @@ import { WPKernelError } from '@wpkernel/core/error';
 import { adoptCommandEnvironment } from './internal/delegate';
 import { buildGenerateCommand } from './generate';
 import type { Command as ClipanionCommand } from 'clipanion';
-import { forwardProcessOutput } from '../../commands/process-output';
+import { forwardProcessOutput } from './process-output';
 import { serialiseError } from './internal/serialiseError';
 
 type WatchFn = typeof chokidarModule.watch;
@@ -111,7 +111,7 @@ function mergeDependencies(
 }
 
 function buildReporterNamespace(): string {
-	return `${WPK_NAMESPACE}.cli.next.start`;
+	return `${WPK_NAMESPACE}.cli.start`;
 }
 
 function defaultSpawnViteProcess(): ChildProcessWithoutNullStreams {

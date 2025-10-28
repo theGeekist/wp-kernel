@@ -6,10 +6,10 @@ import { createReporter as buildReporter } from '@wpkernel/core/reporter';
 import { type Reporter } from '@wpkernel/core/reporter';
 import { WPK_NAMESPACE, WPK_EXIT_CODES } from '@wpkernel/core/contracts';
 import { serialiseError } from './internal/serialiseError';
-import { loadWPKernelConfig } from '../../config';
-import type { LoadedWPKernelConfig } from '../../config/types';
-import { buildWorkspace, ensureGeneratedPhpClean } from '../workspace';
-import type { Workspace } from '../workspace';
+import { loadWPKernelConfig } from '../config';
+import type { LoadedWPKernelConfig } from '../config/types';
+import { buildWorkspace, ensureGeneratedPhpClean } from '../next/workspace';
+import type { Workspace } from '../next/workspace';
 
 const execFile = promisify(execFileCallback);
 
@@ -62,7 +62,7 @@ function mergeDependencies(
 }
 
 function buildReporterNamespace(): string {
-	return `${WPK_NAMESPACE}.cli.next.doctor`;
+	return `${WPK_NAMESPACE}.cli.doctor`;
 }
 
 export function buildDoctorCommand(
