@@ -40,7 +40,6 @@ declare(strict_types=1);
  */
 namespace Demo\\Plugin\\Rest;
 
-use Demo\\Plugin\\Policy\\Policy;
 use WP_Error;
 use WP_Post;
 use WP_Query;
@@ -287,7 +286,6 @@ declare(strict_types=1);
  */
 namespace Demo\\Plugin\\Rest;
 
-use Demo\\Plugin\\Policy\\Policy;
 use WP_Error;
 use WP_REST_Request;
 use function is_wp_error;
@@ -387,7 +385,6 @@ declare(strict_types=1);
  */
 namespace Demo\\Plugin\\Rest;
 
-use Demo\\Plugin\\Policy\\Policy;
 use WP_Error;
 use WP_REST_Request;
 use function is_wp_error;

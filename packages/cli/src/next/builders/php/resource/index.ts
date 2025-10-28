@@ -1,7 +1,8 @@
 export * from './utils';
 export * from './phpValue';
 export * from './cache';
-export * from './request';
+export { buildRequestParamAssignmentStatement } from './request';
+export type { RequestParamAssignmentOptions } from './request';
 export * from './query';
 export * from './errors';
 export * from './mutationContract';
