@@ -16,6 +16,7 @@ HAS_PHP_DRIVER_CHANGES=$(echo "$STAGED_FILES" | grep -E '^packages/php-driver/' 
 HAS_PHP_AST_CHANGES=$(echo "$STAGED_FILES" | grep -E '^packages/php-json-ast/' || true)
 HAS_WP_JSON_AST_CHANGES=$(echo "$STAGED_FILES" | grep -E '^packages/wp-json-ast/' || true)
 HAS_SHOWCASE_CHANGES=$(echo "$STAGED_FILES" | grep -E '^examples/showcase/' || true)
+pnpm format
 git add --all
 TYPECHECKS_EXECUTED=0
 CLI_TYPECHECK_RAN=0
