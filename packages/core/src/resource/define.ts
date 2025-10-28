@@ -7,107 +7,126 @@
  * @see Product Specification § 4.1 Resources
  */
 import { WPKernelError } from '../error/WPKernelError';
-import {
-	registerStoreKey,
-	invalidate as globalInvalidate,
-	type CacheKeyPattern,
-} from './cache';
-import { createStore } from './store';
 import { validateConfig } from './validation';
 import { createClient } from './client';
 import { createDefaultCacheKeys } from './utils';
-import { getNamespace } from '../namespace';
-import {
-	createSelectGetter,
-	createGetGetter,
-	createMutateGetter,
-	createCacheGetter,
-	createStoreApiGetter,
-	createEventsGetter,
-} from './grouped-api';
 import type { CacheKeys, ResourceConfig, ResourceObject } from './types';
 import { getWPKernelEventBus, recordResourceDefined } from '../events/bus';
-import { createReporter, createNoopReporter } from '../reporter';
 import type { Reporter } from '../reporter';
+import { isCorePipelineEnabled } from '../configuration/flags';
+import { createResourcePipeline } from '../pipeline/resources/createResourcePipeline';
+import type {
+	ResourcePipelineRunOptions,
+	ResourcePipelineRunResult,
+} from '../pipeline/resources/types';
+import type { MaybePromise } from '../pipeline/types';
+import { resolveNamespaceAndName } from './namespace';
+import { resolveResourceReporter } from './reporter';
+import { RESOURCE_LOG_MESSAGES } from './logMessages';
+import {
+	buildResourceObject,
+	type NormalizedResourceConfig,
+} from './buildResourceObject';
 
-/**
- * Parse namespace:name syntax from a string
- *
- * @internal
- * @param name - String that may contain namespace:name syntax
- * @return Parsed namespace and resource name, or null if invalid
- */
-function parseNamespaceFromString(
-	name: string
-): { namespace: string; resourceName: string } | null {
-	if (!name.includes(':')) {
-		return null;
-	}
+function buildLegacyResource<T, TQuery>(
+	options: ResourcePipelineRunOptions<T, TQuery>
+): ResourceObject<T, TQuery> {
+	const { config, normalizedConfig, namespace, resourceName, reporter } =
+		options;
 
-	const parts = name.split(':', 2);
-	const namespace = parts[0];
-	const resourceName = parts[1];
+	validateConfig(normalizedConfig);
 
-	if (namespace && resourceName) {
-		return { namespace, resourceName };
-	}
-
-	return null;
-}
-
-/**
- * Resolve namespace from config with support for shorthand syntax
- *
- * @internal
- * @param config - Resource configuration
- * @return Resolved namespace and resource name
- */
-function resolveNamespaceAndName<T, TQuery>(
-	config: ResourceConfig<T, TQuery>
-): { namespace: string; resourceName: string } {
-	// If explicit namespace is provided, use it
-	if (config.namespace) {
-		// If name also contains colon syntax, parse the resource name part
-		// This handles the edge case where both are provided
-		const parsed = parseNamespaceFromString(config.name);
-		if (parsed) {
-			return {
-				namespace: config.namespace,
-				resourceName: parsed.resourceName,
-			};
-		}
-		return { namespace: config.namespace, resourceName: config.name };
-	}
-
-	// Check for shorthand namespace:name syntax
-	const parsed = parseNamespaceFromString(config.name);
-	if (parsed) {
-		return parsed;
-	}
-
-	// Use auto-detection
-	const namespace = getNamespace();
-	return { namespace, resourceName: config.name };
-}
-
-function resolveReporter(
-	namespace: string,
-	resourceName: string,
-	override?: Reporter
-): Reporter {
-	if (override) {
-		return override;
-	}
-
-	if (process.env.WPK_SILENT_REPORTERS === '1') {
-		return createNoopReporter();
-	}
-
-	return createReporter({
-		namespace: `${namespace}.resource.${resourceName}`,
-		channel: 'all',
-		level: 'debug',
+	reporter.info(RESOURCE_LOG_MESSAGES.define, {
+		namespace,
+		resource: resourceName,
+		routes: Object.keys(config.routes ?? {}),
+		hasCacheKeys: Boolean(config.cacheKeys),
 	});
+
+	const client = createClient<T, TQuery>(config, reporter, {
+		namespace,
+		resourceName,
+	});
+
+	const cacheKeys: Required<CacheKeys<TQuery>> = {
+		...createDefaultCacheKeys<TQuery>(resourceName),
+		...config.cacheKeys,
+	};
+
+	return buildResourceObject({
+		config,
+		normalizedConfig,
+		namespace,
+		resourceName,
+		reporter,
+		cacheKeys,
+		client,
+	});
+}
+
+function isPromiseLike<T>(value: unknown): value is PromiseLike<T> {
+	return (
+		!!value &&
+		(typeof value === 'object' || typeof value === 'function') &&
+		typeof (value as PromiseLike<T>).then === 'function'
+	);
+}
+
+function assertSynchronousRunResult<T, TQuery>(
+	result: MaybePromise<ResourcePipelineRunResult<T, TQuery>>
+): ResourcePipelineRunResult<T, TQuery> {
+	if (isPromiseLike(result)) {
+		throw new WPKernelError('DeveloperError', {
+			message:
+				'defineResource pipeline execution must complete synchronously. Received a promise from the pipeline run.',
+		});
+	}
+
+	return result;
+}
+
+function createNormalizedConfig<T, TQuery>(
+	config: ResourceConfig<T, TQuery>,
+	resourceName: string
+): NormalizedResourceConfig<T, TQuery> {
+	return {
+		...config,
+		name: resourceName,
+	} as NormalizedResourceConfig<T, TQuery>;
+}
+
+function createResourceDefinitionOptions<T, TQuery>({
+	config,
+	namespace,
+	resourceName,
+	reporter,
+}: {
+	readonly config: ResourceConfig<T, TQuery>;
+	readonly namespace: string;
+	readonly resourceName: string;
+	readonly reporter: Reporter;
+}): ResourcePipelineRunOptions<T, TQuery> {
+	return {
+		config,
+		normalizedConfig: createNormalizedConfig(config, resourceName),
+		namespace,
+		resourceName,
+		reporter,
+	} satisfies ResourcePipelineRunOptions<T, TQuery>;
+}
+
+function finalizeResourceDefinition<T, TQuery>(
+	options: ResourcePipelineRunOptions<T, TQuery>,
+	resource: ResourceObject<T, TQuery>
+): ResourceObject<T, TQuery> {
+	const definition = {
+		resource: resource as ResourceObject<unknown, unknown>,
+		namespace: options.namespace,
+	};
+	recordResourceDefined(definition);
+	getWPKernelEventBus().emit('resource:defined', definition);
+
+	return resource;
 }
 
 /**
@@ -126,312 +145,54 @@ function resolveReporter(
  * @param    config - Resource configuration
  * @return Resource object with client methods and metadata
  * @throws DeveloperError if configuration is invalid
- * @example
- * ```ts
- * // Auto-detection (90% case) - namespace detected from plugin context
- * const testimonial = defineResource<TestimonialPost, { search?: string }>({
- *   name: 'testimonial',
- *   routes: {
- *     list: { path: '/my-plugin/v1/testimonials', method: 'GET' },
- *     get: { path: '/my-plugin/v1/testimonials/:id', method: 'GET' },
- *     create: { path: '/my-plugin/v1/testimonials', method: 'POST' }
- *   },
- *   cacheKeys: {
- *     list: (q) => ['testimonial', 'list', q?.search],
- *     get: (id) => ['testimonial', 'get', id]
- *   }
- * });
- * // Events: 'my-plugin.testimonial.created', Store: 'my-plugin/testimonial'
- *
- * // Explicit namespace override
- * const job = defineResource<Job>({
- *   name: 'job',
- *   namespace: 'custom-hr',
- *   routes: { list: { path: '/custom-hr/v1/jobs', method: 'GET' } }
- * });
- * // Events: 'custom-hr.job.created', Store: 'custom-hr/job'
- *
- * // Shorthand namespace:name syntax
- * const task = defineResource<Task>({
- *   name: 'acme:task',
- *   routes: { list: { path: '/acme/v1/tasks', method: 'GET' } }
- * });
- * // Events: 'acme.task.created', Store: 'acme/task'
- * ```
  */
 export function defineResource<T = unknown, TQuery = unknown>(
 	config: ResourceConfig<T, TQuery>
 ): ResourceObject<T, TQuery> {
-	// Resolve namespace and resource name first
-	const { namespace, resourceName } = resolveNamespaceAndName(config);
-
-	const reporter = resolveReporter(namespace, resourceName, config.reporter);
-	const RESOURCE_LOG_MESSAGES = {
-		define: 'resource.define',
-		registerStore: 'resource.store.register',
-		storeRegistered: 'resource.store.registered',
-		prefetchItem: 'resource.prefetch.item',
-		prefetchList: 'resource.prefetch.list',
-	} as const;
-
-	// Create a normalized config for validation
-	const normalizedConfig = {
-		...config,
-		name: resourceName,
-	};
-
-	// Validate configuration (throws on error)
-	validateConfig(normalizedConfig);
-
-	reporter.info(RESOURCE_LOG_MESSAGES.define, {
-		namespace,
-		resource: resourceName,
-		routes: Object.keys(config.routes ?? {}),
-		hasCacheKeys: Boolean(config.cacheKeys),
-	});
-
-	// Create client methods using original config (for routes)
-	const client = createClient<T, TQuery>(config, reporter, {
-		namespace,
-		resourceName,
-	});
-
-	// Create or use provided cache keys
-	const cacheKeys: Required<CacheKeys<TQuery>> = {
-		...createDefaultCacheKeys<TQuery>(resourceName),
-		...config.cacheKeys,
-	};
-
-	// Lazy store initialization
-	let _store: unknown = null;
-	let _storeRegistered = false;
-
-	// Build resource object
-	const storeReporter = reporter.child('store');
-	const cacheReporter = reporter.child('cache');
-
-	const resource: ResourceObject<T, TQuery> = {
-		...client,
-		name: resourceName,
-		storeKey: `${namespace}/${resourceName}`,
-		cacheKeys,
-		routes: config.routes,
-		reporter,
-
-		// Lazy-load and register @wordpress/data store on first access
-		get store() {
-			if (!_storeRegistered) {
-				// Register store key for invalidation tracking
-				registerStoreKey(resource.storeKey);
-
-				// Create store descriptor
-				const storeDescriptor = createStore<T, TQuery>({
-					resource: resource as ResourceObject<T, TQuery>,
-					reporter,
-					...(config.store ?? {}),
-				});
-
-				// Check if @wordpress/data is available (browser environment)
-				const globalWp =
-					typeof window === 'undefined'
-						? undefined
-						: (window as WPGlobal).wp;
-				if (
-					globalWp?.data?.createReduxStore &&
-					globalWp?.data?.register
-				) {
-					storeReporter.debug(RESOURCE_LOG_MESSAGES.registerStore, {
-						storeKey: resource.storeKey,
-						resource: resourceName,
-					});
-					// Use createReduxStore to create a proper store descriptor
-					const reduxStore = globalWp.data.createReduxStore(
-						resource.storeKey,
-						{
-							reducer: storeDescriptor.reducer,
-							actions: storeDescriptor.actions,
-							selectors: storeDescriptor.selectors,
-							resolvers: storeDescriptor.resolvers,
-							initialState: storeDescriptor.initialState,
-							controls: storeDescriptor.controls,
-						}
-					);
-					globalWp.data.register(reduxStore);
-					storeReporter.info(RESOURCE_LOG_MESSAGES.storeRegistered, {
-						storeKey: resource.storeKey,
-						resource: resourceName,
-					});
-				}
-
-				_store = storeDescriptor;
-				_storeRegistered = true;
-			}
-			return _store;
-		},
-
-		// Thin-flat API: Prefetch methods
-		prefetchGet: config.routes.get
-			? async (id: string | number) => {
-					// Check if @wordpress/data is available
-					const globalWp =
-						typeof window === 'undefined'
-							? undefined
-							: (window as WPGlobal).wp;
-					if (!globalWp?.data?.dispatch) {
-						throw new WPKernelError('DeveloperError', {
-							message:
-								'prefetchGet requires @wordpress/data to be loaded',
-							context: {
-								resource: config.name,
-								method: 'prefetchGet',
-							},
-						});
-					}
-
-					// Trigger lazy store registration
-					void resource.store;
-
-					// Dispatch resolver (fire and forget)
-					const storeDispatch = globalWp.data.dispatch as (
-						storeKey: string
-					) => {
-						getItem?: (id: string | number) => void;
-					};
-					const dispatch = storeDispatch(resource.storeKey);
-					if (dispatch?.getItem) {
-						reporter.debug(RESOURCE_LOG_MESSAGES.prefetchItem, {
-							id,
-							storeKey: resource.storeKey,
-							resource: resourceName,
-						});
-						// Trigger the resolver by selecting
-						await globalWp.data
-							.resolveSelect(resource.storeKey as string)
-							.getItem(id);
-					}
-				}
-			: undefined,
-
-		prefetchList: config.routes.list
-			? async (query?: TQuery) => {
-					// Check if @wordpress/data is available
-					const globalWp =
-						typeof window === 'undefined'
-							? undefined
-							: (window as WPGlobal).wp;
-					if (!globalWp?.data?.dispatch) {
-						throw new WPKernelError('DeveloperError', {
-							message:
-								'prefetchList requires @wordpress/data to be loaded',
-							context: {
-								resource: config.name,
-								method: 'prefetchList',
-							},
-						});
-					}
-
-					// Trigger lazy store registration
-					void resource.store;
-
-					// Dispatch resolver (fire and forget)
-
-					reporter.debug(RESOURCE_LOG_MESSAGES.prefetchList, {
-						query,
-						storeKey: resource.storeKey,
-						resource: resourceName,
-					});
-					await globalWp.data
-						.resolveSelect(resource.storeKey as string)
-						.getList(query);
-				}
-			: undefined,
-
-		// Thin-flat API: Cache management
-		invalidate: (patterns: CacheKeyPattern | CacheKeyPattern[]) => {
-			globalInvalidate(patterns, {
-				storeKey: resource.storeKey,
-				reporter: cacheReporter,
-				namespace,
-				resourceName,
-			});
-		},
-
-		key: (
-			operation: 'list' | 'get' | 'create' | 'update' | 'remove',
-			params?: TQuery | string | number | Partial<T>
-		): (string | number | boolean)[] => {
-			// Access the appropriate cache key generator
-			// Note: createDefaultCacheKeys always provides all operations,
-			// so generator is guaranteed to exist
-			const generator = cacheKeys[operation];
-
-			// Generate and return the cache key
-			// Type assertion is safe because we know the generator exists
-			// and params will be passed to the appropriate cache key function
-			const cacheKey = generator(params as never);
-
-			// Filter out null and undefined values
-			return cacheKey.filter(
-				(v): v is string | number | boolean =>
-					v !== null && v !== undefined
-			);
-		},
-
-		// Grouped API: Pure selectors (no fetching)
-		// ===================================================================
-		// GROUPED API - Organized namespaces for power users
-		// ===================================================================
-
-		// Grouped API: Pure selectors (read from cache)
-		get select() {
-			return createSelectGetter<T, TQuery>(config).call(this);
-		},
-
-		// Grouped API: Explicit data fetching (bypass cache, direct REST calls)
-		get get() {
-			return createGetGetter<T, TQuery>(config).call(this);
-		},
-
-		// Grouped API: Mutations
-		get mutate() {
-			return createMutateGetter<T, TQuery>(config).call(this);
-		},
-
-		// Grouped API: Cache control
-		get cache() {
-			return createCacheGetter<T, TQuery>(
-				normalizedConfig,
-				cacheKeys
-			).call(this);
-		},
-
-		// Grouped API: Store access
-		get storeApi() {
-			return createStoreApiGetter<T, TQuery>().call(this);
-		},
-
-		// Grouped API: Event names
-		get events() {
-			return createEventsGetter<T, TQuery>({
-				...config,
-				namespace,
-				name: resourceName,
-			}).call(this);
-		},
-	};
-
-	const configWithUI = config as ResourceConfig<T, TQuery>;
-
-	if (configWithUI.ui && typeof configWithUI.ui === 'object') {
-		resource.ui = configWithUI.ui;
+	if (!config || typeof config !== 'object') {
+		throw new WPKernelError('DeveloperError', {
+			message:
+				'defineResource requires a configuration object with "name" and "routes".',
+		});
 	}
 
-	const definition = {
-		resource: resource as ResourceObject<unknown, unknown>,
-		namespace,
-	};
-	recordResourceDefined(definition);
-	getWPKernelEventBus().emit('resource:defined', definition);
+	if (!config.name || typeof config.name !== 'string') {
+		throw new WPKernelError('DeveloperError', {
+			message:
+				'defineResource requires a non-empty string "name" property.',
+		});
+	}
 
-	return resource;
+	const { namespace, resourceName } = resolveNamespaceAndName(config);
+	const reporter = resolveResourceReporter({
+		namespace,
+		resourceName,
+		override: config.reporter,
+	});
+	const runOptions = createResourceDefinitionOptions({
+		config,
+		namespace,
+		resourceName,
+		reporter,
+	});
+
+	if (!isCorePipelineEnabled()) {
+		const resource = buildLegacyResource(runOptions);
+		return finalizeResourceDefinition(runOptions, resource);
+	}
+
+	const pipeline = createResourcePipeline<T, TQuery>();
+	const runResult = assertSynchronousRunResult(pipeline.run(runOptions));
+
+	if (!runResult.artifact.resource) {
+		throw new WPKernelError('DeveloperError', {
+			message:
+				'Resource pipeline completed without producing a resource artifact.',
+		});
+	}
+
+	return finalizeResourceDefinition(
+		runOptions,
+		runResult.artifact.resource as ResourceObject<T, TQuery>
+	);
 }
