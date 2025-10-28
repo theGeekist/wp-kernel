@@ -10,7 +10,17 @@ import {
 	toCamelCase,
 	toPascalCase,
 } from '..';
-import { withWorkspace } from '@wpkernel/test-utils/next/builders/tests/ts.test-support';
+import {
+	withWorkspace as baseWithWorkspace,
+	type BuilderHarnessContext,
+} from '@wpkernel/test-utils/next/builders/tests/ts.test-support';
+import { buildWorkspace } from '../../../../workspace';
+import type { Workspace } from '../../../../workspace';
+
+const withWorkspace = (
+	run: (context: BuilderHarnessContext<Workspace>) => Promise<void>
+) =>
+	baseWithWorkspace(run, { createWorkspace: (root) => buildWorkspace(root) });
 
 describe('ts shared helpers', () => {
 	describe('module specifiers', () => {

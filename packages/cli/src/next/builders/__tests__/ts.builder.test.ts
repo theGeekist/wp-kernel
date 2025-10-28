@@ -7,14 +7,22 @@ import {
 	type TsBuilderCreator,
 } from '../ts';
 import {
-	withWorkspace,
+	withWorkspace as baseWithWorkspace,
 	buildWPKernelConfigSource,
 	buildDataViewsConfig,
 	buildBuilderArtifacts,
 	buildReporter,
 	buildOutput,
+	type BuilderHarnessContext,
 } from '@wpkernel/test-utils/next/builders/tests/ts.test-support';
+import { buildWorkspace } from '../../workspace';
+import type { Workspace } from '../../workspace';
 import { validateGeneratedImports } from '../../../commands/run-generate/validation';
+
+const withWorkspace = (
+	run: (context: BuilderHarnessContext<Workspace>) => Promise<void>
+) =>
+	baseWithWorkspace(run, { createWorkspace: (root) => buildWorkspace(root) });
 
 jest.mock('../../../commands/run-generate/validation', () => ({
 	validateGeneratedImports: jest.fn().mockResolvedValue(undefined),

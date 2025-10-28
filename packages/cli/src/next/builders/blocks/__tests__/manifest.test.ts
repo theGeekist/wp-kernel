@@ -1,7 +1,17 @@
 import path from 'node:path';
-import { withWorkspace } from '@wpkernel/test-utils/next/builders/tests/ts.test-support';
+import {
+	withWorkspace as baseWithWorkspace,
+	type BuilderHarnessContext,
+} from '@wpkernel/test-utils/next/builders/tests/ts.test-support';
+import { buildWorkspace } from '../../../workspace';
+import type { Workspace } from '../../../workspace';
 import type { IRBlock } from '../../../ir/publicTypes';
 import { collectBlockManifests } from '../manifest';
+
+const withWorkspace = (
+	run: (context: BuilderHarnessContext<Workspace>) => Promise<void>
+) =>
+	baseWithWorkspace(run, { createWorkspace: (root) => buildWorkspace(root) });
 
 describe('collectBlockManifests', () => {
 	it('returns manifest entries and render metadata for blocks with declared render files', async () => {

@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createTsBuilder } from '../ts';
 import {
-	withWorkspace,
+	withWorkspace as baseWithWorkspace,
 	buildWPKernelConfigSource,
 	buildDataViewsConfig,
 	buildBuilderArtifacts,
@@ -10,11 +10,19 @@ import {
 	buildOutput,
 	prefixRelative,
 	normalise,
+	type BuilderHarnessContext,
 } from '@wpkernel/test-utils/next/builders/tests/ts.test-support';
+import { buildWorkspace } from '../../workspace';
+import type { Workspace } from '../../workspace';
 
 jest.mock('../../../commands/run-generate/validation', () => ({
 	validateGeneratedImports: jest.fn().mockResolvedValue(undefined),
 }));
+
+const withWorkspace = (
+	run: (context: BuilderHarnessContext<Workspace>) => Promise<void>
+) =>
+	baseWithWorkspace(run, { createWorkspace: (root) => buildWorkspace(root) });
 
 describe('createTsBuilder - DataView fixture creator', () => {
 	it('generates fixtures referencing the kernel config via a relative path', async () => {

@@ -1,21 +1,43 @@
 import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
-import type { IRRoute, IRResource, IRv1 } from '@wpkernel/cli/next/ir';
+import type {
+	ResourceIdentityConfig,
+	ResourceStorageConfig,
+} from '@wpkernel/core/resource';
+import type {
+	IRResourceCacheKeyLike,
+	IRResourceLike,
+	IRRouteLike,
+	IRv1Like,
+	IRWarningLike,
+	KernelConfigV1Like,
+} from '../../types.js';
 
-type WpPostStorageConfig = Extract<IRResource['storage'], { mode: 'wp-post' }>;
-type WpTaxonomyStorageConfig = Extract<
-	IRResource['storage'],
+type ResourceCacheKeys<TCacheKey extends IRResourceCacheKeyLike> = {
+	readonly list: TCacheKey;
+	readonly get: TCacheKey;
+	readonly create?: TCacheKey;
+	readonly update?: TCacheKey;
+	readonly remove?: TCacheKey;
+};
+
+type WpPostStorageConfigLike = Extract<
+	ResourceStorageConfig,
+	{ mode: 'wp-post' }
+>;
+type WpTaxonomyStorageConfigLike = Extract<
+	ResourceStorageConfig,
 	{ mode: 'wp-taxonomy' }
 >;
-type WpOptionStorageConfig = Extract<
-	IRResource['storage'],
+type WpOptionStorageConfigLike = Extract<
+	ResourceStorageConfig,
 	{ mode: 'wp-option' }
 >;
-type TransientStorageConfig = Extract<
-	IRResource['storage'],
+type TransientStorageConfigLike = Extract<
+	ResourceStorageConfig,
 	{ mode: 'transient' }
 >;
 
-const DEFAULT_CACHE_KEYS: IRResource['cacheKeys'] = {
+const DEFAULT_CACHE_KEYS: ResourceCacheKeys<IRResourceCacheKeyLike> = {
 	list: { segments: ['books', 'list'], source: 'default' },
 	get: { segments: ['books', 'get'], source: 'default' },
 	create: { segments: ['books', 'create'], source: 'default' },
@@ -23,17 +45,24 @@ const DEFAULT_CACHE_KEYS: IRResource['cacheKeys'] = {
 	remove: { segments: ['books', 'remove'], source: 'default' },
 };
 
-export interface MakeWpPostResourceOptions {
+export interface MakeWpPostResourceOptions<
+	TRoute extends IRRouteLike = IRRouteLike,
+	TCacheKey extends IRResourceCacheKeyLike = IRResourceCacheKeyLike,
+	TIdentity = ResourceIdentityConfig,
+	TStorage extends WpPostStorageConfigLike = WpPostStorageConfigLike,
+	TWarning extends IRWarningLike = IRWarningLike,
+> {
 	readonly name?: string;
 	readonly schemaKey?: string;
-	readonly routes?: IRRoute[];
-	readonly cacheKeys?: IRResource['cacheKeys'];
-	readonly identity?: IRResource['identity'];
-	readonly storage?: Partial<WpPostStorageConfig>;
+	readonly routes?: readonly TRoute[];
+	readonly cacheKeys?: ResourceCacheKeys<TCacheKey>;
+	readonly identity?: TIdentity;
+	readonly storage?: Partial<TStorage>;
 	readonly hash?: string;
+	readonly warnings?: readonly TWarning[];
 }
 
-export function makeWpPostRoutes(): IRRoute[] {
+export function makeWpPostRoutes(): IRRouteLike[] {
 	return [
 		{
 			method: 'GET',
@@ -73,10 +102,30 @@ export function makeWpPostRoutes(): IRRoute[] {
 	];
 }
 
-export function makeWpPostResource(
-	options: MakeWpPostResourceOptions = {}
-): IRResource {
-	const storage: WpPostStorageConfig = {
+export function makeWpPostResource<
+	TRoute extends IRRouteLike = IRRouteLike,
+	TCacheKey extends IRResourceCacheKeyLike = IRResourceCacheKeyLike,
+	TIdentity = ResourceIdentityConfig,
+	TStorage extends WpPostStorageConfigLike = WpPostStorageConfigLike,
+	TWarning extends IRWarningLike = IRWarningLike,
+>(
+	options: MakeWpPostResourceOptions<
+		TRoute,
+		TCacheKey,
+		TIdentity,
+		TStorage,
+		TWarning
+	> = {}
+): IRResourceLike<
+	TRoute,
+	TCacheKey,
+	TIdentity,
+	TStorage,
+	unknown,
+	unknown,
+	TWarning
+> {
+	const storage = {
 		mode: 'wp-post',
 		postType: 'book',
 		statuses: ['draft', 'publish'],
@@ -89,106 +138,184 @@ export function makeWpPostResource(
 			genres: { taxonomy: 'book_genre' },
 		},
 		...options.storage,
-	};
+	} as TStorage;
+
+	const cacheKeys = (options.cacheKeys ??
+		DEFAULT_CACHE_KEYS) as ResourceCacheKeys<TCacheKey>;
+	const routes = (options.routes ?? makeWpPostRoutes()) as readonly TRoute[];
+	const identity = (options.identity ?? {
+		type: 'string',
+		param: 'slug',
+	}) as TIdentity;
+	const warnings = (options.warnings ?? []) as readonly TWarning[];
 
 	return {
 		name: options.name ?? 'books',
 		schemaKey: options.schemaKey ?? 'book',
 		schemaProvenance: 'manual',
-		routes: options.routes ?? makeWpPostRoutes(),
-		cacheKeys: options.cacheKeys ?? DEFAULT_CACHE_KEYS,
-		identity: options.identity ?? { type: 'string', param: 'slug' },
+		routes,
+		cacheKeys,
+		identity,
 		storage,
 		queryParams: undefined,
 		ui: undefined,
 		hash: options.hash ?? 'resource-hash',
-		warnings: [],
-	} satisfies IRResource;
+		warnings,
+	} as IRResourceLike<
+		TRoute,
+		TCacheKey,
+		TIdentity,
+		TStorage,
+		unknown,
+		unknown,
+		TWarning
+	>;
 }
 
-export interface MakeWpTaxonomyResourceOptions {
+export interface MakeWpTaxonomyResourceOptions<
+	TRoute extends IRRouteLike = IRRouteLike,
+	TCacheKey extends IRResourceCacheKeyLike = IRResourceCacheKeyLike,
+	TIdentity = ResourceIdentityConfig,
+	TStorage extends WpTaxonomyStorageConfigLike = WpTaxonomyStorageConfigLike,
+	TWarning extends IRWarningLike = IRWarningLike,
+> {
 	readonly name?: string;
 	readonly schemaKey?: string;
-	readonly routes?: IRRoute[];
-	readonly cacheKeys?: IRResource['cacheKeys'];
-	readonly identity?: IRResource['identity'];
-	readonly storage?: Partial<WpTaxonomyStorageConfig>;
+	readonly routes?: readonly TRoute[];
+	readonly cacheKeys?: ResourceCacheKeys<TCacheKey>;
+	readonly identity?: TIdentity;
+	readonly storage?: Partial<TStorage>;
 	readonly hash?: string;
+	readonly warnings?: readonly TWarning[];
 }
 
-export function makeWpTaxonomyResource(
-	options: MakeWpTaxonomyResourceOptions = {}
-): IRResource {
-	const storage: WpTaxonomyStorageConfig = {
+export function makeWpTaxonomyResource<
+	TRoute extends IRRouteLike = IRRouteLike,
+	TCacheKey extends IRResourceCacheKeyLike = IRResourceCacheKeyLike,
+	TIdentity = ResourceIdentityConfig,
+	TStorage extends WpTaxonomyStorageConfigLike = WpTaxonomyStorageConfigLike,
+	TWarning extends IRWarningLike = IRWarningLike,
+>(
+	options: MakeWpTaxonomyResourceOptions<
+		TRoute,
+		TCacheKey,
+		TIdentity,
+		TStorage,
+		TWarning
+	> = {}
+): IRResourceLike<
+	TRoute,
+	TCacheKey,
+	TIdentity,
+	TStorage,
+	unknown,
+	unknown,
+	TWarning
+> {
+	const storage = {
 		mode: 'wp-taxonomy',
 		taxonomy: 'job_category',
 		hierarchical: true,
 		...options.storage,
-	};
+	} as TStorage;
+
+	const defaultRoutes: IRRouteLike[] = [
+		{
+			method: 'GET',
+			path: '/kernel/v1/job-categories',
+			policy: undefined,
+			hash: 'taxonomy-list',
+			transport: 'local',
+		},
+		{
+			method: 'GET',
+			path: '/kernel/v1/job-categories/:slug',
+			policy: undefined,
+			hash: 'taxonomy-get',
+			transport: 'local',
+		},
+	];
+
+	const cacheKeys = (options.cacheKeys ?? {
+		list: { segments: ['jobCategories', 'list'], source: 'default' },
+		get: { segments: ['jobCategories', 'get'], source: 'default' },
+		create: { segments: [], source: 'default' },
+		update: { segments: [], source: 'default' },
+		remove: { segments: [], source: 'default' },
+	}) as ResourceCacheKeys<TCacheKey>;
+	const routes = (options.routes ?? defaultRoutes) as readonly TRoute[];
+	const identity = (options.identity ?? {
+		type: 'string',
+		param: 'slug',
+	}) as TIdentity;
+	const warnings = (options.warnings ?? []) as readonly TWarning[];
 
 	return {
 		name: options.name ?? 'jobCategories',
 		schemaKey: options.schemaKey ?? 'jobCategory',
 		schemaProvenance: 'manual',
-		routes:
-			options.routes ??
-			([
-				{
-					method: 'GET',
-					path: '/kernel/v1/job-categories',
-					policy: undefined,
-					hash: 'taxonomy-list',
-					transport: 'local',
-				},
-				{
-					method: 'GET',
-					path: '/kernel/v1/job-categories/:slug',
-					policy: undefined,
-					hash: 'taxonomy-get',
-					transport: 'local',
-				},
-			] satisfies IRRoute[]),
-		cacheKeys: options.cacheKeys ?? {
-			list: {
-				segments: ['jobCategories', 'list'],
-				source: 'default',
-			},
-			get: {
-				segments: ['jobCategories', 'get'],
-				source: 'default',
-			},
-			create: { segments: [], source: 'default' },
-			update: { segments: [], source: 'default' },
-			remove: { segments: [], source: 'default' },
-		},
-		identity: options.identity ?? { type: 'string', param: 'slug' },
+		routes,
+		cacheKeys,
+		identity,
 		storage,
 		queryParams: undefined,
 		ui: undefined,
 		hash: options.hash ?? 'taxonomy-resource',
-		warnings: [],
-	} satisfies IRResource;
+		warnings,
+	} as IRResourceLike<
+		TRoute,
+		TCacheKey,
+		TIdentity,
+		TStorage,
+		unknown,
+		unknown,
+		TWarning
+	>;
 }
 
-export interface MakeWpOptionResourceOptions {
+export interface MakeWpOptionResourceOptions<
+	TRoute extends IRRouteLike = IRRouteLike,
+	TCacheKey extends IRResourceCacheKeyLike = IRResourceCacheKeyLike,
+	TStorage extends WpOptionStorageConfigLike = WpOptionStorageConfigLike,
+	TWarning extends IRWarningLike = IRWarningLike,
+> {
 	readonly name?: string;
 	readonly schemaKey?: string;
-	readonly routes?: IRRoute[];
-	readonly cacheKeys?: IRResource['cacheKeys'];
-	readonly storage?: Partial<WpOptionStorageConfig>;
+	readonly routes?: readonly TRoute[];
+	readonly cacheKeys?: ResourceCacheKeys<TCacheKey>;
+	readonly storage?: Partial<TStorage>;
 	readonly hash?: string;
+	readonly warnings?: readonly TWarning[];
 }
 
-export function makeWpOptionResource(
-	options: MakeWpOptionResourceOptions = {}
-): IRResource {
-	const storage: WpOptionStorageConfig = {
+export function makeWpOptionResource<
+	TRoute extends IRRouteLike = IRRouteLike,
+	TCacheKey extends IRResourceCacheKeyLike = IRResourceCacheKeyLike,
+	TStorage extends WpOptionStorageConfigLike = WpOptionStorageConfigLike,
+	TWarning extends IRWarningLike = IRWarningLike,
+>(
+	options: MakeWpOptionResourceOptions<
+		TRoute,
+		TCacheKey,
+		TStorage,
+		TWarning
+	> = {}
+): IRResourceLike<
+	TRoute,
+	TCacheKey,
+	ResourceIdentityConfig | undefined,
+	TStorage,
+	unknown,
+	unknown,
+	TWarning
+> {
+	const storage = {
 		mode: 'wp-option',
 		option: 'demo_option',
 		...options.storage,
-	};
+	} as TStorage;
 
-	const defaultRoutes: IRRoute[] = [
+	const defaultRoutes: IRRouteLike[] = [
 		{
 			method: 'GET',
 			path: '/kernel/v1/demo-option',
@@ -205,53 +332,84 @@ export function makeWpOptionResource(
 		},
 	];
 
+	const cacheKeys = (options.cacheKeys ?? {
+		list: { segments: ['demoOption', 'list'], source: 'default' },
+		get: { segments: ['demoOption', 'get'], source: 'default' },
+		update: { segments: ['demoOption', 'update'], source: 'default' },
+		remove: { segments: ['demoOption', 'remove'], source: 'default' },
+	}) as ResourceCacheKeys<TCacheKey>;
+	const routes = (options.routes ?? defaultRoutes) as readonly TRoute[];
+	const warnings = (options.warnings ?? []) as readonly TWarning[];
+
 	return {
 		name: options.name ?? 'demoOption',
 		schemaKey: options.schemaKey ?? 'demoOption',
 		schemaProvenance: 'manual',
-		routes: options.routes ?? defaultRoutes,
-		cacheKeys:
-			options.cacheKeys ??
-			({
-				list: { segments: ['demoOption', 'list'], source: 'default' },
-				get: { segments: ['demoOption', 'get'], source: 'default' },
-				update: {
-					segments: ['demoOption', 'update'],
-					source: 'default',
-				},
-				remove: {
-					segments: ['demoOption', 'remove'],
-					source: 'default',
-				},
-			} satisfies IRResource['cacheKeys']),
+		routes,
+		cacheKeys,
 		identity: undefined,
 		storage,
 		queryParams: undefined,
 		ui: undefined,
 		hash: options.hash ?? 'wp-option-resource',
-		warnings: [],
-	} satisfies IRResource;
+		warnings,
+	} as IRResourceLike<
+		TRoute,
+		TCacheKey,
+		ResourceIdentityConfig | undefined,
+		TStorage,
+		unknown,
+		unknown,
+		TWarning
+	>;
 }
 
-export interface MakeTransientResourceOptions {
+export interface MakeTransientResourceOptions<
+	TRoute extends IRRouteLike = IRRouteLike,
+	TCacheKey extends IRResourceCacheKeyLike = IRResourceCacheKeyLike,
+	TStorage extends TransientStorageConfigLike = TransientStorageConfigLike,
+	TIdentity = ResourceIdentityConfig | undefined,
+	TWarning extends IRWarningLike = IRWarningLike,
+> {
 	readonly name?: string;
 	readonly schemaKey?: string;
-	readonly routes?: IRRoute[];
-	readonly cacheKeys?: IRResource['cacheKeys'];
-	readonly storage?: Partial<TransientStorageConfig>;
+	readonly routes?: readonly TRoute[];
+	readonly cacheKeys?: ResourceCacheKeys<TCacheKey>;
+	readonly storage?: Partial<TStorage>;
 	readonly hash?: string;
-	readonly identity?: IRResource['identity'];
+	readonly identity?: TIdentity;
+	readonly warnings?: readonly TWarning[];
 }
 
-export function makeTransientResource(
-	options: MakeTransientResourceOptions = {}
-): IRResource {
-	const storage: TransientStorageConfig = {
+export function makeTransientResource<
+	TRoute extends IRRouteLike = IRRouteLike,
+	TCacheKey extends IRResourceCacheKeyLike = IRResourceCacheKeyLike,
+	TStorage extends TransientStorageConfigLike = TransientStorageConfigLike,
+	TIdentity = ResourceIdentityConfig | undefined,
+	TWarning extends IRWarningLike = IRWarningLike,
+>(
+	options: MakeTransientResourceOptions<
+		TRoute,
+		TCacheKey,
+		TStorage,
+		TIdentity,
+		TWarning
+	> = {}
+): IRResourceLike<
+	TRoute,
+	TCacheKey,
+	TIdentity,
+	TStorage,
+	unknown,
+	unknown,
+	TWarning
+> {
+	const storage = {
 		mode: 'transient',
 		...options.storage,
-	};
+	} as TStorage;
 
-	const defaultRoutes: IRRoute[] = [
+	const defaultRoutes: IRRouteLike[] = [
 		{
 			method: 'GET',
 			path: '/kernel/v1/job-cache',
@@ -275,42 +433,60 @@ export function makeTransientResource(
 		},
 	];
 
-	const cacheKeys =
-		options.cacheKeys ??
-		({
-			list: { segments: ['jobCache', 'list'], source: 'default' },
-			get: { segments: ['jobCache', 'get'], source: 'default' },
-			create: { segments: [], source: 'default' },
-			update: { segments: ['jobCache', 'update'], source: 'default' },
-			remove: { segments: ['jobCache', 'remove'], source: 'default' },
-		} satisfies IRResource['cacheKeys']);
+	const cacheKeys = (options.cacheKeys ?? {
+		list: { segments: ['jobCache', 'list'], source: 'default' },
+		get: { segments: ['jobCache', 'get'], source: 'default' },
+		create: { segments: [], source: 'default' },
+		update: { segments: ['jobCache', 'update'], source: 'default' },
+		remove: { segments: ['jobCache', 'remove'], source: 'default' },
+	}) as ResourceCacheKeys<TCacheKey>;
+	const routes = (options.routes ?? defaultRoutes) as readonly TRoute[];
+	const warnings = (options.warnings ?? []) as readonly TWarning[];
 
 	return {
 		name: options.name ?? 'jobCache',
 		schemaKey: options.schemaKey ?? 'jobCache',
 		schemaProvenance: 'manual',
-		routes: options.routes ?? defaultRoutes,
+		routes,
 		cacheKeys,
-		identity: options.identity,
+		identity: options.identity as TIdentity,
 		storage,
 		queryParams: undefined,
 		ui: undefined,
 		hash: options.hash ?? 'transient-resource',
-		warnings: [],
-	} satisfies IRResource;
+		warnings,
+	} as IRResourceLike<
+		TRoute,
+		TCacheKey,
+		TIdentity,
+		TStorage,
+		unknown,
+		unknown,
+		TWarning
+	>;
 }
 
-export interface MakePhpIrFixtureOptions {
-	readonly resources?: IRResource[];
+export interface MakePhpIrFixtureOptions<
+	TRoute extends IRRouteLike = IRRouteLike,
+	TResource extends IRResourceLike<TRoute> = IRResourceLike<TRoute>,
+> {
+	readonly resources?: readonly TResource[];
 }
 
-export function makePhpIrFixture(options: MakePhpIrFixtureOptions = {}): IRv1 {
-	const resources = options.resources ?? [
-		makeWpPostResource(),
-		makeWpTaxonomyResource(),
-		makeWpOptionResource(),
-		makeTransientResource(),
-	];
+export function makePhpIrFixture<
+	TRoute extends IRRouteLike = IRRouteLike,
+	TResource extends IRResourceLike<TRoute> = IRResourceLike<TRoute>,
+>(
+	options: MakePhpIrFixtureOptions<TRoute, TResource> = {}
+): IRv1Like<KernelConfigV1Like, unknown, TRoute, TResource> {
+	const resources =
+		options.resources ??
+		([
+			makeWpPostResource(),
+			makeWpTaxonomyResource(),
+			makeWpOptionResource(),
+			makeTransientResource(),
+		] as unknown as readonly TResource[]);
 
 	return {
 		meta: {
@@ -346,5 +522,5 @@ export function makePhpIrFixture(options: MakePhpIrFixtureOptions = {}): IRv1 {
 			autoload: 'inc/',
 			outputDir: '.generated/php',
 		},
-	} satisfies IRv1;
+	} as IRv1Like<KernelConfigV1Like, unknown, TRoute, TResource>;
 }

@@ -3,13 +3,21 @@ import { createPhpBlocksHelper } from '../blocks';
 import { getPhpBuilderChannel, resetPhpBuilderChannel } from '../channel';
 import type { IRv1 } from '../../../ir/publicTypes';
 import {
-	withWorkspace,
+	withWorkspace as baseWithWorkspace,
 	buildWPKernelConfigSource,
 	buildBuilderArtifacts,
 	buildReporter,
 	buildOutput,
 	normalise,
+	type BuilderHarnessContext,
 } from '@wpkernel/test-utils/next/builders/tests/ts.test-support';
+import { buildWorkspace } from '../../../workspace';
+import type { Workspace } from '../../../workspace';
+
+const withWorkspace = (
+	run: (context: BuilderHarnessContext<Workspace>) => Promise<void>
+) =>
+	baseWithWorkspace(run, { createWorkspace: (root) => buildWorkspace(root) });
 
 describe('createPhpBlocksHelper', () => {
 	it('emits manifest, registrar, and render stub for SSR blocks', async () => {
