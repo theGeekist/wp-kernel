@@ -1,7 +1,9 @@
 import type { PhpStmt } from '@wpkernel/php-json-ast';
-import type { ResourceMetadataHost } from '@wpkernel/wp-json-ast';
+import type {
+	ResourceControllerRouteMetadata,
+	ResourceMetadataHost,
+} from '@wpkernel/wp-json-ast';
 import type { ResolvedIdentity } from '../../identity';
-import type { RouteMetadataKind } from '../metadata';
 import type { IRResource, IRRoute } from '../../../../ir/publicTypes';
 import {
 	buildCreateRouteStatements,
@@ -27,7 +29,9 @@ import {
 	buildTransientDeleteRouteStatements,
 	buildTransientUnsupportedRouteStatements,
 } from '../../resource/transient';
-import { routeUsesIdentity } from '../routeIdentity';
+import { routeUsesIdentity } from '@wpkernel/wp-json-ast';
+
+type RouteMetadataKind = ResourceControllerRouteMetadata['kind'];
 
 export interface HandleRouteKindOptions {
 	readonly resource: IRResource;

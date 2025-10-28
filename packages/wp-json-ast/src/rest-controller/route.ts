@@ -2,7 +2,6 @@ import {
 	buildArg,
 	buildAssign,
 	buildClassMethod,
-	buildDocComment,
 	buildExpressionStatement,
 	buildIdentifier,
 	buildName,
@@ -12,13 +11,13 @@ import {
 	buildStmtNop,
 	buildVariable,
 	PHP_METHOD_MODIFIER_PUBLIC,
-	type PhpAttributes,
 	type PhpStmt,
 	type PhpStmtClassMethod,
 } from '@wpkernel/php-json-ast';
 
 import { buildRequestParamAssignmentStatement } from '../common/request';
-import { buildReturnIfWpError } from '../common/wpError';
+import { buildReturnIfWpError } from '../common/guards';
+import { buildDocCommentAttributes } from '../common/docblock';
 import { buildIdentityPlumbing } from './identity';
 
 import type {
@@ -56,7 +55,7 @@ export function buildRestRoute(
 
 	statements.push(...config.statements);
 
-	const attributes = buildDocAttributes([
+	const attributes = buildDocCommentAttributes([
 		buildSummaryLine(config),
 		`@wp-kernel route-kind ${config.metadata.kind}`,
 		...buildTagDocblock(config.metadata.tags),
@@ -118,17 +117,6 @@ function buildRequestParameterStatements(
 			cast: parameter.cast,
 		})
 	);
-}
-
-function buildDocAttributes(
-	lines: readonly (string | undefined)[]
-): PhpAttributes | undefined {
-	const docLines = lines.filter(Boolean) as string[];
-	if (docLines.length === 0) {
-		return undefined;
-	}
-
-	return { comments: [buildDocComment(docLines)] };
 }
 
 function buildSummaryLine(config: RestRouteConfig): string {

@@ -27,7 +27,12 @@ import {
 } from '@wpkernel/php-json-ast';
 
 import { AUTO_GUARD_BEGIN, AUTO_GUARD_END } from '../constants';
-import { buildGeneratedFileDocComment } from '../docblocks';
+import {
+	buildGeneratedFileDocComment,
+	buildRestBaseControllerDocblock,
+	buildRestControllerDocblock,
+	buildRestIndexDocblock,
+} from '../common/docblock';
 import type {
 	BaseControllerMetadata,
 	ResourceControllerMetadata,
@@ -35,7 +40,6 @@ import type {
 import type {
 	RestControllerClassConfig,
 	RestControllerIdentity,
-	RestRouteConfig,
 } from './types';
 import { buildRestControllerClass } from './class';
 
@@ -139,9 +143,10 @@ interface BuildBaseControllerFileOptions {
 function buildBaseControllerFile(
 	options: BuildBaseControllerFileOptions
 ): RestControllerModuleFile {
-	const docblock = [
-		`Source: ${options.origin} → resources (namespace: ${options.sanitizedNamespace})`,
-	];
+	const docblock = buildRestBaseControllerDocblock({
+		origin: options.origin,
+		sanitizedNamespace: options.sanitizedNamespace,
+	});
 	const namespace = buildNamespaceStatement({
 		namespace: options.namespace,
 		docblock,
@@ -174,12 +179,12 @@ function buildControllerFile(
 	options: BuildControllerFileOptions
 ): RestControllerModuleFile {
 	const { controller } = options;
-	const docblock = buildControllerDocblock({
+	const docblock = buildRestControllerDocblock({
 		origin: options.origin,
 		resourceName: controller.resourceName,
 		schemaKey: controller.schemaKey,
 		schemaProvenance: controller.schemaProvenance,
-		routes: controller.routes,
+		routes: controller.routes.map((route) => route.metadata),
 	});
 
 	const { classNode, uses } = buildRestControllerClass(controller);
@@ -238,7 +243,7 @@ function buildIndexFile(
 		entries.push(entry);
 	}
 
-	const docblock = [`Source: ${options.origin} → php/index`];
+	const docblock = buildRestIndexDocblock({ origin: options.origin });
 	const returnNode = mergeNodeAttributes(
 		buildReturn(buildIndexArray(entries)),
 		{ comments: [buildGeneratedFileDocComment(docblock)] }
@@ -299,27 +304,6 @@ function buildGuardedBlock(statements: readonly PhpStmt[]): PhpStmt[] {
 		buildStmtNop({ comments: [buildComment(`// ${AUTO_GUARD_BEGIN}`)] }),
 		...statements,
 		buildStmtNop({ comments: [buildComment(`// ${AUTO_GUARD_END}`)] }),
-	];
-}
-
-interface BuildControllerDocblockOptions {
-	readonly origin: string;
-	readonly resourceName: string;
-	readonly schemaKey: string;
-	readonly schemaProvenance: string;
-	readonly routes: readonly RestRouteConfig[];
-}
-
-function buildControllerDocblock(
-	options: BuildControllerDocblockOptions
-): readonly string[] {
-	return [
-		`Source: ${options.origin} → resources.${options.resourceName}`,
-		`Schema: ${options.schemaKey} (${options.schemaProvenance})`,
-		...options.routes.map(
-			(route) =>
-				`Route: [${route.metadata.method}] ${route.metadata.path}`
-		),
 	];
 }
 
