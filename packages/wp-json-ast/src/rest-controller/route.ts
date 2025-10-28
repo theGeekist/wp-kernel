@@ -19,13 +19,21 @@ import {
 
 import { buildRequestParamAssignmentStatement } from '../common/request';
 import { buildReturnIfWpError } from '../common/wpError';
+import { buildIdentityPlumbing } from './identity';
 
-import type { RestRouteConfig, RestRouteRequestParameter } from './types';
+import type {
+	RestControllerIdentity,
+	RestRouteConfig,
+	RestRouteRequestParameter,
+} from './types';
 
-export function buildRestRoute(config: RestRouteConfig): PhpStmtClassMethod {
+export function buildRestRoute(
+	config: RestRouteConfig,
+	identity: RestControllerIdentity
+): PhpStmtClassMethod {
 	const statements: PhpStmt[] = [];
 
-	appendRequestParameters(statements, config.requestParameters);
+	appendRequestHandling(statements, { identity, route: config });
 
 	if (config.policy) {
 		const assignment = buildStaticCall(
@@ -69,26 +77,47 @@ export function buildRestRoute(config: RestRouteConfig): PhpStmtClassMethod {
 	);
 }
 
-function appendRequestParameters(
+interface AppendRequestHandlingOptions {
+	readonly identity: RestControllerIdentity;
+	readonly route: RestRouteConfig;
+}
+
+function appendRequestHandling(
 	statements: PhpStmt[],
-	parameters: readonly RestRouteRequestParameter[] | undefined
+	options: AppendRequestHandlingOptions
 ): void {
-	if (!parameters || parameters.length === 0) {
+	const identityStatements = buildIdentityPlumbing({
+		identity: options.identity,
+		route: options.route,
+	});
+	const parameterStatements = buildRequestParameterStatements(
+		options.route.requestParameters
+	);
+
+	if (identityStatements.length === 0 && parameterStatements.length === 0) {
 		return;
 	}
 
-	for (const parameter of parameters) {
-		statements.push(
-			buildRequestParamAssignmentStatement({
-				requestVariable: parameter.requestVariable ?? 'request',
-				param: parameter.param,
-				targetVariable: parameter.targetVariable,
-				cast: parameter.cast,
-			})
-		);
+	statements.push(...identityStatements);
+	statements.push(...parameterStatements);
+	statements.push(buildStmtNop());
+}
+
+function buildRequestParameterStatements(
+	parameters: readonly RestRouteRequestParameter[] | undefined
+): PhpStmt[] {
+	if (!parameters || parameters.length === 0) {
+		return [];
 	}
 
-	statements.push(buildStmtNop());
+	return parameters.map((parameter) =>
+		buildRequestParamAssignmentStatement({
+			requestVariable: parameter.requestVariable ?? 'request',
+			param: parameter.param,
+			targetVariable: parameter.targetVariable,
+			cast: parameter.cast,
+		})
+	);
 }
 
 function buildDocAttributes(
