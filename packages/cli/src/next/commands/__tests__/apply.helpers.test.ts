@@ -99,6 +99,7 @@ describe('apply command helpers', () => {
 					details: undefined,
 				},
 			],
+			actions: [],
 		});
 	});
 
