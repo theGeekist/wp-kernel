@@ -104,6 +104,17 @@ describe('appendResourceControllerCacheEvent', () => {
 		const metadata: PhpFileMetadata = {
 			kind: 'policy-helper',
 			name: 'demo',
+			map: {
+				sourcePath: undefined,
+				fallback: {
+					capability: 'manage_demo',
+					appliesTo: 'resource',
+				},
+				definitions: [],
+				missing: [],
+				unused: [],
+				warnings: [],
+			},
 		};
 		const host = createHost(metadata);
 
