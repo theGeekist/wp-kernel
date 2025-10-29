@@ -2,6 +2,8 @@
 
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
+import { readFile } from 'node:fs/promises';
+import path from 'node:path';
 import { performance } from 'node:perf_hooks';
 
 interface CommandResult {
@@ -35,6 +37,169 @@ const colors = {
 };
 
 const spinnerFrames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
+
+const TYPECHECK_TARGETS = {
+	core: {
+		label: 'Core workspace',
+		filter: '@wpkernel/core',
+		packageName: '@wpkernel/core',
+		directory: 'packages/core/',
+	},
+	cli: {
+		label: 'CLI workspace',
+		filter: '@wpkernel/cli',
+		packageName: '@wpkernel/cli',
+		directory: 'packages/cli/',
+	},
+	ui: {
+		label: 'UI workspace',
+		filter: '@wpkernel/ui',
+		packageName: '@wpkernel/ui',
+		directory: 'packages/ui/',
+	},
+	'php-driver': {
+		label: 'PHP driver workspace',
+		filter: '@wpkernel/php-driver',
+		packageName: '@wpkernel/php-driver',
+		directory: 'packages/php-driver/',
+	},
+	'php-json-ast': {
+		label: 'PHP JSON AST workspace',
+		filter: '@wpkernel/php-json-ast',
+		packageName: '@wpkernel/php-json-ast',
+		directory: 'packages/php-json-ast/',
+	},
+	'wp-json-ast': {
+		label: 'WP JSON AST workspace',
+		filter: '@wpkernel/wp-json-ast',
+		packageName: '@wpkernel/wp-json-ast',
+		directory: 'packages/wp-json-ast/',
+	},
+	'test-utils': {
+		label: 'Test utils workspace',
+		filter: '@wpkernel/test-utils',
+		packageName: '@wpkernel/test-utils',
+		directory: 'packages/test-utils/',
+	},
+	'e2e-utils': {
+		label: 'E2E utils workspace',
+		filter: '@wpkernel/e2e-utils',
+		packageName: '@wpkernel/e2e-utils',
+		directory: 'packages/e2e-utils/',
+	},
+	showcase: {
+		label: 'Showcase example',
+		filter: 'wp-kernel-showcase',
+		packageName: 'wp-kernel-showcase',
+		directory: 'examples/showcase/',
+	},
+} as const;
+
+type TypecheckTargetKey = keyof typeof TYPECHECK_TARGETS;
+
+type TypecheckTargetConfig = (typeof TYPECHECK_TARGETS)[TypecheckTargetKey];
+
+const TYPECHECK_TARGET_ENTRIES = Object.entries(TYPECHECK_TARGETS) as Array<
+	[TypecheckTargetKey, TypecheckTargetConfig]
+>;
+
+interface TypecheckDependencyGraph {
+	dependents: Map<TypecheckTargetKey, Set<TypecheckTargetKey>>;
+}
+
+interface WorkspaceManifest {
+	dependencies?: Record<string, string>;
+	devDependencies?: Record<string, string>;
+	peerDependencies?: Record<string, string>;
+	optionalDependencies?: Record<string, string>;
+}
+
+let typecheckDependencyGraphPromise: Promise<TypecheckDependencyGraph> | null =
+	null;
+
+async function readManifest(
+	manifestPath: string
+): Promise<WorkspaceManifest | null> {
+	try {
+		const raw = await readFile(manifestPath, 'utf8');
+		return JSON.parse(raw) as WorkspaceManifest;
+	} catch (error: unknown) {
+		if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+			return null;
+		}
+		throw error;
+	}
+}
+
+function collectWorkspaceDependencyNames(
+	manifest: WorkspaceManifest
+): string[] {
+	const dependencySections = [
+		'dependencies',
+		'devDependencies',
+		'peerDependencies',
+		'optionalDependencies',
+	] as const;
+
+	const names = new Set<string>();
+
+	for (const section of dependencySections) {
+		const dependencies = manifest[section];
+		if (!dependencies) {
+			continue;
+		}
+
+		for (const dependencyName of Object.keys(dependencies)) {
+			names.add(dependencyName);
+		}
+	}
+
+	return [...names];
+}
+
+async function buildTypecheckDependencyGraph(): Promise<TypecheckDependencyGraph> {
+	const dependents = new Map<TypecheckTargetKey, Set<TypecheckTargetKey>>();
+	const packageToTargetKey = new Map<string, TypecheckTargetKey>();
+
+	for (const [key, target] of TYPECHECK_TARGET_ENTRIES) {
+		dependents.set(key, new Set());
+		packageToTargetKey.set(target.packageName, key);
+	}
+
+	for (const [key, target] of TYPECHECK_TARGET_ENTRIES) {
+		const manifestPath = path.join(target.directory, 'package.json');
+		const manifest = await readManifest(manifestPath);
+		if (!manifest) {
+			continue;
+		}
+
+		const dependencyNames = collectWorkspaceDependencyNames(manifest);
+
+		for (const dependencyName of dependencyNames) {
+			const dependencyKey = packageToTargetKey.get(dependencyName);
+			if (!dependencyKey) {
+				continue;
+			}
+
+			const dependentSet = dependents.get(dependencyKey);
+			if (!dependentSet) {
+				continue;
+			}
+
+			dependentSet.add(key);
+		}
+	}
+
+	return { dependents };
+}
+
+async function getTypecheckDependencyGraph(): Promise<TypecheckDependencyGraph> {
+	if (!typecheckDependencyGraphPromise) {
+		typecheckDependencyGraphPromise = buildTypecheckDependencyGraph();
+	}
+
+	return typecheckDependencyGraphPromise;
+}
 
 interface Spinner {
 	update: (suffix?: string) => void;
@@ -113,22 +278,31 @@ async function runCommand(
 		stdio: 'pipe',
 	});
 
-	let stdout = '';
-	let stderr = '';
+	const stdoutChunks: string[] = [];
+	const stderrChunks: string[] = [];
 
-	child.stdout.on('data', (data) => {
-		stdout += data.toString();
-	});
+	if (child.stdout) {
+		child.stdout.setEncoding('utf8');
+		child.stdout.on('data', (chunk: string) => {
+			stdoutChunks.push(chunk);
+		});
+	}
 
-	child.stderr.on('data', (data) => {
-		stderr += data.toString();
-	});
+	if (child.stderr) {
+		child.stderr.setEncoding('utf8');
+		child.stderr.on('data', (chunk: string) => {
+			stderrChunks.push(chunk);
+		});
+	}
 
 	const [code, signal] = (await once(child, 'close')) as [
 		number,
 		NodeJS.Signals | null,
 	];
 	const durationMs = performance.now() - startedAt;
+
+	const stdout = stdoutChunks.join('');
+	const stderr = stderrChunks.join('');
 
 	return { stdout, stderr, code, signal, durationMs };
 }
@@ -166,6 +340,10 @@ interface Task {
 	skipMessage?: string;
 }
 
+function normalizePath(file: string): string {
+	return file.replace(/\\/g, '/');
+}
+
 async function getStagedFiles(): Promise<string[]> {
 	const result = await runCommand('git', [
 		'diff',
@@ -184,14 +362,196 @@ async function getStagedFiles(): Promise<string[]> {
 	return result.stdout
 		.split('\n')
 		.map((line) => line.trim())
-		.filter(Boolean);
+		.filter(Boolean)
+		.map(normalizePath);
 }
 
-function hasPrefix(files: string[], prefix: string): boolean {
-	return files.some((file) => file.startsWith(prefix));
+const DOCUMENTATION_FILE_EXTENSIONS = new Set([
+	'.md',
+	'.mdx',
+	'.markdown',
+	'.mdown',
+	'.adoc',
+	'.rst',
+	'.txt',
+]);
+
+const DOCUMENTATION_FILENAMES = new Set([
+	'changelog.md',
+	'readme.md',
+	'contributing.md',
+	'license.md',
+	'licensing.md',
+	'migrating.md',
+	'migration.md',
+	'roadmap.md',
+]);
+
+function isDocumentationFile(file: string): boolean {
+	const lowercased = file.toLowerCase();
+	const ext = path.extname(lowercased);
+	const filename = path.basename(lowercased);
+
+	if (DOCUMENTATION_FILE_EXTENSIONS.has(ext)) {
+		return true;
+	}
+
+	if (DOCUMENTATION_FILENAMES.has(filename)) {
+		return true;
+	}
+
+	if (lowercased.startsWith('docs/')) {
+		return true;
+	}
+
+	if (/^packages\/[^/]+\/docs\//.test(lowercased)) {
+		return true;
+	}
+
+	if (/^examples\/[^/]+\/docs\//.test(lowercased)) {
+		return true;
+	}
+
+	return false;
 }
 
-function buildTypecheckTasks(stagedFiles: string[]): Task[] {
+type RegisterTarget = (
+	key: string,
+	label: string,
+	filter: string,
+	reason: string
+) => void;
+
+function hasChangesForTarget(
+	files: string[],
+	target: TypecheckTargetConfig
+): boolean {
+	return files.some((file) => file.startsWith(target.directory));
+}
+
+interface DependencyQueueEntry {
+	current: TypecheckTargetKey;
+	origin: TypecheckTargetKey;
+	depth: number;
+}
+
+function collectTouchedTargets(
+	stagedFiles: string[],
+	registerTarget: RegisterTarget
+): Set<TypecheckTargetKey> {
+	const touchedTargets = new Set<TypecheckTargetKey>();
+
+	for (const [key, target] of TYPECHECK_TARGET_ENTRIES) {
+		if (!hasChangesForTarget(stagedFiles, target)) {
+			continue;
+		}
+
+		touchedTargets.add(key);
+		registerTarget(
+			key,
+			target.label,
+			target.filter,
+			`${target.label} files changed`
+		);
+	}
+
+	return touchedTargets;
+}
+
+function createInitialDependencyQueue(
+	origins: Set<TypecheckTargetKey>
+): DependencyQueueEntry[] {
+	return [...origins].map((origin) => ({
+		current: origin,
+		origin,
+		depth: 0,
+	}));
+}
+
+function markOriginVisited(
+	visitedByOrigin: Map<TypecheckTargetKey, Set<TypecheckTargetKey>>,
+	dependent: TypecheckTargetKey,
+	origin: TypecheckTargetKey
+): boolean {
+	const seenOrigins =
+		visitedByOrigin.get(dependent) ?? new Set<TypecheckTargetKey>();
+	if (seenOrigins.has(origin)) {
+		return false;
+	}
+
+	seenOrigins.add(origin);
+	visitedByOrigin.set(dependent, seenOrigins);
+	return true;
+}
+
+function registerDependencyReason(
+	dependent: TypecheckTargetKey,
+	origin: TypecheckTargetKey,
+	depth: number,
+	registerTarget: RegisterTarget
+): void {
+	const dependentTarget = TYPECHECK_TARGETS[dependent];
+	const originTarget = TYPECHECK_TARGETS[origin];
+	const verb = depth === 0 ? 'depends on' : 'transitively depends on';
+	const reason = `${dependentTarget.label} ${verb} ${originTarget.label}`;
+
+	registerTarget(
+		dependent,
+		dependentTarget.label,
+		dependentTarget.filter,
+		reason
+	);
+}
+
+function propagateDependencyTargets(
+	dependencyGraph: TypecheckDependencyGraph,
+	queue: DependencyQueueEntry[],
+	visitedByOrigin: Map<TypecheckTargetKey, Set<TypecheckTargetKey>>,
+	registerTarget: RegisterTarget
+): void {
+	while (queue.length > 0) {
+		const { current, origin, depth } = queue.shift()!;
+		const dependents = dependencyGraph.dependents.get(current);
+		if (!dependents) {
+			continue;
+		}
+
+		for (const dependent of dependents) {
+			if (!markOriginVisited(visitedByOrigin, dependent, origin)) {
+				continue;
+			}
+
+			registerDependencyReason(dependent, origin, depth, registerTarget);
+			queue.push({ current: dependent, origin, depth: depth + 1 });
+		}
+	}
+}
+
+async function populateTypecheckTargets(
+	stagedFiles: string[],
+	registerTarget: RegisterTarget
+): Promise<void> {
+	const touchedTargets = collectTouchedTargets(stagedFiles, registerTarget);
+	if (touchedTargets.size === 0) {
+		return;
+	}
+
+	const dependencyGraph = await getTypecheckDependencyGraph();
+	const queue = createInitialDependencyQueue(touchedTargets);
+	const visitedByOrigin = new Map<
+		TypecheckTargetKey,
+		Set<TypecheckTargetKey>
+	>();
+
+	propagateDependencyTargets(
+		dependencyGraph,
+		queue,
+		visitedByOrigin,
+		registerTarget
+	);
+}
+
+async function buildTypecheckTasks(stagedFiles: string[]): Promise<Task[]> {
 	const tasks: Task[] = [];
 	const typecheckTargets = new Map<
 		string,
@@ -215,90 +575,7 @@ function buildTypecheckTasks(stagedFiles: string[]): Task[] {
 		typecheckTargets.set(key, entry);
 	};
 
-	const hasCoreChanges = hasPrefix(stagedFiles, 'packages/core/');
-	const hasUIChanges = hasPrefix(stagedFiles, 'packages/ui/');
-	const hasCliChanges = hasPrefix(stagedFiles, 'packages/cli/');
-	const hasPhpDriverChanges = hasPrefix(stagedFiles, 'packages/php-driver/');
-	const hasPhpAstChanges = hasPrefix(stagedFiles, 'packages/php-json-ast/');
-	const hasWpJsonAstChanges = hasPrefix(stagedFiles, 'packages/wp-json-ast/');
-	const hasShowcaseChanges = hasPrefix(stagedFiles, 'examples/showcase/');
-
-	if (hasCoreChanges) {
-		tasks.push(
-			createCommandTask({
-				title: 'Typecheck entire workspace',
-				commands: [
-					{ cmd: 'pnpm', args: ['typecheck'], label: 'typecheck' },
-					{
-						cmd: 'pnpm',
-						args: ['typecheck:tests'],
-						label: 'typecheck:tests',
-					},
-				],
-			})
-		);
-		return tasks;
-	}
-
-	if (hasUIChanges) {
-		registerTarget(
-			'ui',
-			'UI workspace',
-			'@wpkernel/ui',
-			'UI files changed'
-		);
-		registerTarget(
-			'cli',
-			'CLI workspace',
-			'@wpkernel/cli',
-			'UI depends on CLI output'
-		);
-	}
-
-	if (hasCliChanges) {
-		registerTarget(
-			'cli',
-			'CLI workspace',
-			'@wpkernel/cli',
-			'CLI files changed'
-		);
-	}
-
-	if (hasPhpDriverChanges) {
-		registerTarget(
-			'php-driver',
-			'PHP driver workspace',
-			'@wpkernel/php-driver',
-			'PHP driver files changed'
-		);
-	}
-
-	if (hasPhpAstChanges) {
-		registerTarget(
-			'php-json-ast',
-			'PHP JSON AST workspace',
-			'@wpkernel/php-json-ast',
-			'PHP JSON AST files changed'
-		);
-	}
-
-	if (hasWpJsonAstChanges) {
-		registerTarget(
-			'wp-json-ast',
-			'WP JSON AST workspace',
-			'@wpkernel/wp-json-ast',
-			'WP JSON AST files changed'
-		);
-	}
-
-	if (hasShowcaseChanges) {
-		registerTarget(
-			'showcase',
-			'Showcase example',
-			'wp-kernel-showcase',
-			'Showcase files changed'
-		);
-	}
+	await populateTypecheckTargets(stagedFiles, registerTarget);
 
 	for (const [, target] of typecheckTargets) {
 		tasks.push(
@@ -499,13 +776,21 @@ async function main() {
 	const stagedFiles = await getStagedFiles();
 
 	const hasStagedFiles = stagedFiles.length > 0;
+	const nonDocumentationFiles = stagedFiles.filter(
+		(file) => !isDocumentationFile(file)
+	);
+	const hasNonDocumentationChanges = nonDocumentationFiles.length > 0;
+	const documentationOnlyChanges =
+		hasStagedFiles && !hasNonDocumentationChanges;
 
 	const tasks: Task[] = [];
 
 	tasks.push({
 		title: 'Lint staged files',
-		enabled: hasStagedFiles,
-		skipMessage: 'No staged files detected – skipping lint-staged.',
+		enabled: hasStagedFiles && !documentationOnlyChanges,
+		skipMessage: hasStagedFiles
+			? 'Documentation-only changes detected – skipping lint-staged.'
+			: 'No staged files detected – skipping lint-staged.',
 		async run(ctx) {
 			ctx.update('lint-staged');
 			const result = await runCommand('pnpm', ['lint-staged']);
@@ -523,33 +808,59 @@ async function main() {
 		},
 	});
 
-	tasks.push(...buildTypecheckTasks(stagedFiles));
+	if (hasNonDocumentationChanges) {
+		tasks.push(...(await buildTypecheckTasks(nonDocumentationFiles)));
 
-	tasks.push({
-		title: 'Run tests with coverage',
-		async run(ctx) {
-			ctx.update('jest --coverage');
-			const result = await runCommand('pnpm', ['test:coverage']);
-			if (result.code !== 0) {
-				throw new CommandError('pnpm test:coverage', result);
-			}
+		tasks.push({
+			title: 'Run tests with coverage',
+			async run(ctx) {
+				ctx.update('jest --coverage');
+				const result = await runCommand('pnpm', ['test:coverage']);
+				if (result.code !== 0) {
+					throw new CommandError('pnpm test:coverage', result);
+				}
 
-			return {
-				summaryLines: extractCoverageSummary(result.stdout),
-			} satisfies TaskResult;
-		},
-	});
+				return {
+					summaryLines: extractCoverageSummary(result.stdout),
+				} satisfies TaskResult;
+			},
+		});
 
-	tasks.push({
-		title: 'Run integration test suites',
-		async run(ctx) {
-			ctx.update('jest integration');
-			const result = await runCommand('pnpm', ['test:integration']);
-			if (result.code !== 0) {
-				throw new CommandError('pnpm test:integration', result);
-			}
-		},
-	});
+		tasks.push({
+			title: 'Run integration test suites',
+			async run(ctx) {
+				ctx.update('jest integration');
+				const result = await runCommand('pnpm', ['test:integration']);
+				if (result.code !== 0) {
+					throw new CommandError('pnpm test:integration', result);
+				}
+			},
+		});
+	} else {
+		tasks.push({
+			title: 'Typecheck',
+			enabled: false,
+			skipMessage:
+				'Documentation-only changes detected – skipping typechecks.',
+			async run() {},
+		});
+
+		tasks.push({
+			title: 'Run tests with coverage',
+			enabled: false,
+			skipMessage:
+				'Documentation-only changes detected – skipping coverage tests.',
+			async run() {},
+		});
+
+		tasks.push({
+			title: 'Run integration test suites',
+			enabled: false,
+			skipMessage:
+				'Documentation-only changes detected – skipping integration tests.',
+			async run() {},
+		});
+	}
 
 	tasks.push({
 		title: 'Format workspace',
