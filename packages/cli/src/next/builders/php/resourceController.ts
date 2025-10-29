@@ -2,26 +2,25 @@ import { createHelper } from '../../runtime';
 import type {
 	BuilderApplyOptions,
 	BuilderHelper,
-	BuilderInput,
 	BuilderNext,
-	BuilderOutput,
 	PipelineContext,
 } from '../../runtime/types';
 import {
-	appendGeneratedFileDocblock,
 	buildResourceCacheKeysPlan,
 	buildResourceControllerMetadata,
-	buildRestControllerClass,
-	buildRestControllerDocblock,
-	createWpPhpFileBuilder,
+	buildRestControllerModule,
+	DEFAULT_DOC_HEADER,
 	routeUsesIdentity,
-	type PhpFileMetadata,
+	type ResourceControllerMetadata,
 	type ResourceControllerRouteMetadata,
 	type ResourceMetadataHost,
+	type RestControllerModuleConfig,
+	type RestControllerModuleControllerConfig,
 	type RestRouteConfig,
 } from '@wpkernel/wp-json-ast';
+import { getPhpBuilderChannel } from '@wpkernel/php-json-ast';
 import type {
-	PhpAstBuilderAdapter,
+	PhpBuilderChannel,
 	PhpStmtClassMethod,
 } from '@wpkernel/php-json-ast';
 import { makeErrorCodeFactory, sanitizeJson, toPascalCase } from './utils';
@@ -59,43 +58,19 @@ export function createPhpResourceControllerHelper(): BuilderHelper {
 
 			for (const resource of ir.resources) {
 				warnOnMissingCapabilities({ reporter, resource });
-				const namespaceRoot = `${ir.php.namespace}\\Generated`;
-				const namespace = `${namespaceRoot}\\Rest`;
-				const className = `${toPascalCase(resource.name)}Controller`;
-				const filePath = options.context.workspace.resolve(
-					ir.php.outputDir,
-					'Rest',
-					`${className}.php`
-				);
-				const identity = resolveIdentityConfig(resource);
-
-				const helper = createWpPhpFileBuilder<
-					PipelineContext,
-					BuilderInput,
-					BuilderOutput
-				>({
-					key: `resource-controller.${resource.name}`,
-					filePath,
-					namespace,
-					metadata: {
-						kind: 'resource-controller',
-						name: resource.name,
-						identity,
-						routes: [],
-					},
-					build: (builder) => {
-						buildResourceController({
-							builder,
-							ir,
-							resource,
-							className,
-							identity,
-						});
-					},
-				});
-
-				await helper.apply(options);
 			}
+
+			const moduleConfig = buildRestControllerModuleConfig({
+				ir,
+				resources: ir.resources,
+			});
+
+			queueResourceControllerFiles({
+				config: moduleConfig,
+				workspace: options.context.workspace,
+				channel: getPhpBuilderChannel(options.context),
+				outputDir: ir.php.outputDir,
+			});
 
 			await next?.();
 		},
@@ -133,55 +108,79 @@ function isWriteRoute(method: string): boolean {
 	}
 }
 
-interface BuildResourceControllerOptions {
-	readonly builder: PhpAstBuilderAdapter;
+interface BuildRestControllerModuleConfigOptions {
 	readonly ir: IRv1;
-	readonly resource: IRResource;
-	readonly className: string;
-	readonly identity: ResolvedIdentity;
+	readonly resources: readonly IRResource[];
 }
 
-function buildResourceController(
-	options: BuildResourceControllerOptions
-): void {
-	const { builder, ir, resource, className, identity } = options;
-	const pascalName = toPascalCase(resource.name);
-	const errorCodeFactory = makeErrorCodeFactory(resource.name);
-	const metadataHost: ResourceMetadataHost = {
-		getMetadata: () => builder.getMetadata() as PhpFileMetadata,
-		setMetadata: (metadata) => builder.setMetadata(metadata),
-	};
-	const routeMetadataSource = buildResourceControllerMetadata({
-		name: resource.name,
-		identity,
-		routes: resource.routes.map(({ method, path }) => ({ method, path })),
-		cacheKeys: buildResourceCacheKeysPlan(resource.cacheKeys),
-		mutationMetadata: resolveRouteMutationMetadata(resource),
-	});
+function buildRestControllerModuleConfig(
+	options: BuildRestControllerModuleConfigOptions
+): RestControllerModuleConfig {
+	const namespaceRoot = `${options.ir.php.namespace}\\Generated`;
+	const namespace = `${namespaceRoot}\\Rest`;
 
-	appendGeneratedFileDocblock(
-		builder,
-		buildRestControllerDocblock({
-			origin: ir.meta.origin,
-			resourceName: resource.name,
-			schemaKey: resource.schemaKey,
-			schemaProvenance: resource.schemaProvenance,
-			routes: routeMetadataSource.routes,
+	const controllers = options.resources.map((resource) =>
+		buildControllerConfig({
+			ir: options.ir,
+			resource,
 		})
 	);
 
+	return {
+		origin: options.ir.meta.origin,
+		sanitizedNamespace: options.ir.meta.sanitizedNamespace,
+		namespace,
+		controllers,
+		includeBaseController: false,
+	} satisfies RestControllerModuleConfig;
+}
+
+interface BuildControllerConfigOptions {
+	readonly ir: IRv1;
+	readonly resource: IRResource;
+}
+
+function buildControllerConfig(
+	options: BuildControllerConfigOptions
+): RestControllerModuleControllerConfig {
+	const { ir, resource } = options;
+	const className = `${toPascalCase(resource.name)}Controller`;
+	const pascalName = toPascalCase(resource.name);
+	const identity = resolveIdentityConfig(resource);
 	const restArgsExpression = renderPhpValue(
 		sanitizeJson(buildRestArgs(ir.schemas, resource))
 	);
-	const routeConfigs = buildRouteConfigs({
+	const errorCodeFactory = makeErrorCodeFactory(resource.name);
+
+	let metadataState: ResourceControllerMetadata =
+		buildResourceControllerMetadata({
+			name: resource.name,
+			identity,
+			routes: resource.routes.map(({ method, path }) => ({
+				method,
+				path,
+			})),
+			cacheKeys: buildResourceCacheKeysPlan(resource.cacheKeys),
+			mutationMetadata: resolveRouteMutationMetadata(resource),
+		});
+
+	const metadataHost: ResourceMetadataHost = {
+		getMetadata: () => metadataState,
+		setMetadata: (metadata) => {
+			metadataState = metadata as ResourceControllerMetadata;
+		},
+	};
+
+	const routes = buildRouteConfigs({
 		ir,
 		resource,
 		identity,
 		pascalName,
 		metadataHost,
-		routeMetadata: routeMetadataSource.routes,
+		routeMetadata: metadataState.routes,
 		errorCodeFactory,
 	});
+
 	const helperMethods = buildStorageHelperMethods({
 		resource,
 		pascalName,
@@ -189,24 +188,55 @@ function buildResourceController(
 		errorCodeFactory,
 		ir,
 	});
-	const { classNode, uses } = buildRestControllerClass({
+
+	return {
 		className,
 		resourceName: resource.name,
 		schemaKey: resource.schemaKey,
+		schemaProvenance: resource.schemaProvenance,
 		restArgsExpression,
 		identity,
-		routes: routeConfigs,
+		routes,
 		helperMethods,
-		capabilityClass: `${ir.php.namespace}\Capability\Capability`,
-	});
+		capabilityClass: `${ir.php.namespace}\\Capability\\Capability`,
+		fileName: `Rest/${className}.php`,
+		metadata: metadataState,
+	} satisfies RestControllerModuleControllerConfig;
+}
 
-	for (const use of uses) {
-		builder.addUse(use);
+interface QueueResourceControllerFileOptions {
+	readonly config: RestControllerModuleConfig;
+	readonly channel: PhpBuilderChannel;
+	readonly workspace: PipelineContext['workspace'];
+	readonly outputDir: string;
+}
+
+function queueResourceControllerFiles(
+	options: QueueResourceControllerFileOptions
+): void {
+	const result = buildRestControllerModule(options.config);
+
+	for (const file of result.files) {
+		if (file.metadata.kind !== 'resource-controller') {
+			continue;
+		}
+
+		const relativeParts = file.fileName
+			.split('/')
+			.filter((part) => part.length > 0);
+
+		options.channel.queue({
+			file: options.workspace.resolve(
+				options.outputDir,
+				...relativeParts
+			),
+			program: file.program,
+			metadata: file.metadata,
+			docblock: [...DEFAULT_DOC_HEADER, ...file.docblock],
+			uses: [],
+			statements: [],
+		});
 	}
-
-	builder.appendProgramStatement(classNode);
-
-	builder.setMetadata(routeMetadataSource);
 }
 
 interface BuildRouteConfigsOptions {

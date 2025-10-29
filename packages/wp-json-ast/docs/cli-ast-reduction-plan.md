@@ -151,7 +151,7 @@ _Completion:_ ☑ Completed – (this PR) `buildRestRoute` now emits identity re
 
 **Subtask 2.1.c – Surface metadata host updates.** Design a helper under `rest-controller` (or expand the existing types) that captures cache-segment metadata and docblock annotations alongside the generated statements. Port the CLI’s current `$metadataHost` mutations into this helper so future factories can assemble controller modules without duplicating metadata bookkeeping.
 
-_Completion:_ ☑ Completed – (this PR) Centralised REST route cache metadata helpers in `wp-json-ast` so controller factories own metadata host updates.
+_Completion:_ ☑ Completed – (this PR) CLI resource controller generation now delegates to `buildRestControllerModule`, so `wp-json-ast` owns metadata host updates and cache wiring.
 
 _Quality follow-up:_ ☑ Covered identity plumbing, docblock generation, and cache metadata helpers with focused tests to lock down Task 2.1 behaviour.
 
