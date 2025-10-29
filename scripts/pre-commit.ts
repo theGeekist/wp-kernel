@@ -605,7 +605,15 @@ async function resolveTypecheckTargets(
 }
 
 function buildFilterArgs(filters: string[], command: string): string[] {
-	return filters.flatMap((filter) => ['--filter', filter]).concat(command);
+	const patterns = new Set(
+		filters.map((filter) =>
+			filter.endsWith('...') ? filter : `${filter}...`
+		)
+	);
+
+	return Array.from(patterns)
+		.flatMap((pattern) => ['--filter', pattern])
+		.concat(command);
 }
 
 function buildTypecheckSummaryLines(
