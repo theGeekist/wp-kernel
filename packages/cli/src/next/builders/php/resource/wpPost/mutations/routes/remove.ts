@@ -6,7 +6,11 @@ import {
 	buildVariable,
 	type PhpStmt,
 } from '@wpkernel/php-json-ast';
-import { buildIdentityValidationStatements } from '../../identity';
+import {
+	buildIdentityValidationStatements,
+	isNumericIdentity,
+	type IdentityValidationOptions,
+} from '../../identity';
 import {
 	buildArrayLiteral,
 	buildBinaryOperation,
@@ -42,11 +46,21 @@ export function buildDeleteRouteStatements(
 		})
 	);
 
-	const validationStatements = buildIdentityValidationStatements({
-		identity: options.identity,
-		pascalName: options.pascalName,
-		errorCodeFactory,
-	});
+	const identityValidationOptions: IdentityValidationOptions =
+		isNumericIdentity(options.identity)
+			? {
+					identity: options.identity,
+					pascalName: options.pascalName,
+					errorCodeFactory,
+				}
+			: {
+					identity: options.identity,
+					pascalName: options.pascalName,
+					errorCodeFactory,
+				};
+	const validationStatements = buildIdentityValidationStatements(
+		identityValidationOptions
+	);
 	statements.push(...validationStatements);
 
 	statements.push(

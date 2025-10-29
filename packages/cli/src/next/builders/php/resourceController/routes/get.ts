@@ -16,8 +16,10 @@ import {
 	buildMethodCallAssignmentStatement,
 	buildMethodCallExpression,
 	appendStatementsWithSpacing,
+	isNumericIdentity,
 } from '../../resource';
 import type { ResolvedIdentity } from '../../identity';
+import type { IdentityValidationOptions } from '../../resource/wpPost/identity';
 import type { IRResource } from '../../../../ir/publicTypes';
 
 export interface BuildGetRouteStatementsOptions {
@@ -62,11 +64,21 @@ export function buildGetRouteStatements(
 
 	const statements: PhpStmt[] = [];
 
-	const identityStatements = buildIdentityValidationStatements({
-		identity: options.identity,
-		pascalName: options.pascalName,
-		errorCodeFactory: options.errorCodeFactory,
-	});
+	const identityValidationOptions: IdentityValidationOptions =
+		isNumericIdentity(options.identity)
+			? {
+					identity: options.identity,
+					pascalName: options.pascalName,
+					errorCodeFactory: options.errorCodeFactory,
+				}
+			: {
+					identity: options.identity,
+					pascalName: options.pascalName,
+					errorCodeFactory: options.errorCodeFactory,
+				};
+	const identityStatements = buildIdentityValidationStatements(
+		identityValidationOptions
+	);
 
 	appendStatementsWithSpacing(statements, identityStatements);
 
