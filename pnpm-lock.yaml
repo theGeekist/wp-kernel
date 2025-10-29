@@ -119,6 +119,9 @@ importers:
       '@wp-playground/cli':
         specifier: ^3.0.12
         version: 3.0.12
+      '@wpkernel/scripts':
+        specifier: workspace:*
+        version: link:scripts
       ajv:
         specifier: ^8.17.1
         version: 8.17.1
@@ -264,6 +267,9 @@ importers:
       '@wpkernel/e2e-utils':
         specifier: workspace:*
         version: link:../../packages/e2e-utils
+      '@wpkernel/scripts':
+        specifier: workspace:*
+        version: link:../../scripts
 
   packages/cli:
     dependencies:
@@ -313,6 +319,9 @@ importers:
         specifier: '>=5.0.0'
         version: 5.9.3
     devDependencies:
+      '@wpkernel/scripts':
+        specifier: workspace:*
+        version: link:../../scripts
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -340,6 +349,10 @@ importers:
       loglayer:
         specifier: '>=6.7.2'
         version: 6.9.1
+    devDependencies:
+      '@wpkernel/scripts':
+        specifier: workspace:*
+        version: link:../../scripts
 
   packages/e2e-utils:
     dependencies:
@@ -355,12 +368,20 @@ importers:
       '@wpkernel/test-utils':
         specifier: workspace:*
         version: link:../test-utils
+    devDependencies:
+      '@wpkernel/scripts':
+        specifier: workspace:*
+        version: link:../../scripts
 
   packages/php-driver:
     dependencies:
       '@wpkernel/core':
         specifier: workspace:*
         version: link:../core
+    devDependencies:
+      '@wpkernel/scripts':
+        specifier: workspace:*
+        version: link:../../scripts
 
   packages/php-json-ast:
     dependencies:
@@ -373,6 +394,10 @@ importers:
       '@wpkernel/test-utils':
         specifier: workspace:*
         version: link:../test-utils
+    devDependencies:
+      '@wpkernel/scripts':
+        specifier: workspace:*
+        version: link:../../scripts
 
   packages/test-utils:
     dependencies:
@@ -385,6 +410,10 @@ importers:
       react:
         specifier: ^18.3.1
         version: 18.3.1
+    devDependencies:
+      '@wpkernel/scripts':
+        specifier: workspace:*
+        version: link:../../scripts
 
   packages/ui:
     dependencies:
@@ -409,6 +438,10 @@ importers:
       react:
         specifier: ^18.3.1
         version: 18.3.1
+    devDependencies:
+      '@wpkernel/scripts':
+        specifier: workspace:*
+        version: link:../../scripts
 
   packages/wp-json-ast:
     dependencies:
@@ -418,6 +451,12 @@ importers:
       '@wpkernel/php-json-ast':
         specifier: workspace:*
         version: link:../php-json-ast
+    devDependencies:
+      '@wpkernel/scripts':
+        specifier: workspace:*
+        version: link:../../scripts
+
+  scripts: {}
 
 packages:
 

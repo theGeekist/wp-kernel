@@ -1,4 +1,4 @@
-import { createWPKJestConfig } from '../../scripts/config/create-wpk-jest-config.js';
+import { createWPKJestConfig } from '@wpkernel/scripts/config/create-wpk-jest-config.js';
 
 const config = createWPKJestConfig({
 	displayName: '@wpkernel/php-json-ast',

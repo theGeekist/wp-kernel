@@ -8,7 +8,7 @@ const tscBin = require.resolve('typescript/bin/tsc');
 
 const repoRoot = path.resolve(__dirname, '..', '..');
 const packageRoot = process.cwd();
-const args = process.argv.slice(2);
+const args = process.argv.slice(2).filter((arg) => arg !== '--');
 const configInputs = args.length > 0 ? args : ['tsconfig.tests.json'];
 
 const configCache = new Map();
