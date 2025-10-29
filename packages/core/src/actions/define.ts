@@ -9,15 +9,20 @@
  */
 
 import { WPKernelError } from '../error/WPKernelError';
-import { resolveOptions } from './context';
 import type {
 	ActionConfig,
 	DefinedAction,
 	ResolvedActionOptions,
 } from './types';
-import { getWPKernelEventBus, recordActionDefined } from '../events/bus';
+import {
+	getWPKernelEventBus,
+	recordActionDefined,
+	type ActionDefinedEvent,
+} from '../events/bus';
 import { getNamespace } from '../namespace/detect';
 import { createActionPipeline } from '../pipeline/actions/createActionPipeline';
+import { resolveActionDefinitionOptions } from '../pipeline/actions/helpers/buildActionOptionsResolver';
+import { makeActionRegistryBridge } from '../pipeline/actions/helpers/makeActionRegistryBridge';
 
 /**
  * Define a WP Kernel action with lifecycle instrumentation and side-effect coordination.
@@ -250,14 +255,29 @@ export function defineAction<TArgs = void, TResult = void>(
 		});
 	}
 
-	const resolvedOptions = resolveOptions(options);
+	const resolvedOptions = resolveActionDefinitionOptions(options);
 
 	const pipeline = createActionPipeline<TArgs, TResult>();
+	let definition: ActionDefinedEvent | null = null;
+	const eventBus = getWPKernelEventBus();
+	const registryBridge = makeActionRegistryBridge((event) => {
+		recordActionDefined(event);
+		eventBus.emit('action:defined', event);
+	});
+
 	const action = async function executeAction(args: TArgs): Promise<TResult> {
+		if (!definition) {
+			throw new WPKernelError('DeveloperError', {
+				message:
+					'defineAction attempted to execute before initialising pipeline metadata.',
+			});
+		}
+
 		const runResult = await pipeline.run({
 			config,
 			args,
-			resolvedOptions,
+			definition,
+			registry: registryBridge,
 		});
 
 		return runResult.artifact.result as TResult;
@@ -266,12 +286,12 @@ export function defineAction<TArgs = void, TResult = void>(
 	attachActionMetadata(action, name, resolvedOptions);
 
 	const namespace = getNamespace();
-	const definition = {
+	const definitionEvent: ActionDefinedEvent = {
 		action: action as DefinedAction<unknown, unknown>,
 		namespace,
 	};
-	recordActionDefined(definition);
-	getWPKernelEventBus().emit('action:defined', definition);
+	definition = definitionEvent;
+	registryBridge.recordActionDefined?.(definitionEvent);
 
 	return action;
 }
