@@ -7,13 +7,9 @@
  * @see Product Specification § 4.1 Resources
  */
 import { WPKernelError } from '../error/WPKernelError';
-import { validateConfig } from './validation';
-import { createClient } from './client';
-import { createDefaultCacheKeys } from './utils';
-import type { CacheKeys, ResourceConfig, ResourceObject } from './types';
+import type { ResourceConfig, ResourceObject } from './types';
 import { getWPKernelEventBus, recordResourceDefined } from '../events/bus';
 import type { Reporter } from '../reporter';
-import { isCorePipelineEnabled } from '../configuration/flags';
 import { createResourcePipeline } from '../pipeline/resources/createResourcePipeline';
 import type {
 	ResourcePipelineRunOptions,
@@ -22,47 +18,7 @@ import type {
 import type { MaybePromise } from '../pipeline/types';
 import { resolveNamespaceAndName } from './namespace';
 import { resolveResourceReporter } from './reporter';
-import { RESOURCE_LOG_MESSAGES } from './logMessages';
-import {
-	buildResourceObject,
-	type NormalizedResourceConfig,
-} from './buildResourceObject';
-
-function buildLegacyResource<T, TQuery>(
-	options: ResourcePipelineRunOptions<T, TQuery>
-): ResourceObject<T, TQuery> {
-	const { config, normalizedConfig, namespace, resourceName, reporter } =
-		options;
-
-	validateConfig(normalizedConfig);
-
-	reporter.info(RESOURCE_LOG_MESSAGES.define, {
-		namespace,
-		resource: resourceName,
-		routes: Object.keys(config.routes ?? {}),
-		hasCacheKeys: Boolean(config.cacheKeys),
-	});
-
-	const client = createClient<T, TQuery>(config, reporter, {
-		namespace,
-		resourceName,
-	});
-
-	const cacheKeys: Required<CacheKeys<TQuery>> = {
-		...createDefaultCacheKeys<TQuery>(resourceName),
-		...config.cacheKeys,
-	};
-
-	return buildResourceObject({
-		config,
-		normalizedConfig,
-		namespace,
-		resourceName,
-		reporter,
-		cacheKeys,
-		client,
-	});
-}
+import type { NormalizedResourceConfig } from './buildResourceObject';
 
 function isPromiseLike<T>(value: unknown): value is PromiseLike<T> {
 	return (
@@ -85,7 +41,7 @@ function assertSynchronousRunResult<T, TQuery>(
 	return result;
 }
 
-function createNormalizedConfig<T, TQuery>(
+function buildNormalizedConfig<T, TQuery>(
 	config: ResourceConfig<T, TQuery>,
 	resourceName: string
 ): NormalizedResourceConfig<T, TQuery> {
@@ -95,7 +51,7 @@ function createNormalizedConfig<T, TQuery>(
 	} as NormalizedResourceConfig<T, TQuery>;
 }
 
-function createResourceDefinitionOptions<T, TQuery>({
+function buildResourceDefinitionOptions<T, TQuery>({
 	config,
 	namespace,
 	resourceName,
@@ -108,7 +64,7 @@ function createResourceDefinitionOptions<T, TQuery>({
 }): ResourcePipelineRunOptions<T, TQuery> {
 	return {
 		config,
-		normalizedConfig: createNormalizedConfig(config, resourceName),
+		normalizedConfig: buildNormalizedConfig(config, resourceName),
 		namespace,
 		resourceName,
 		reporter,
@@ -169,18 +125,12 @@ export function defineResource<T = unknown, TQuery = unknown>(
 		resourceName,
 		override: config.reporter,
 	});
-	const runOptions = createResourceDefinitionOptions({
+	const runOptions = buildResourceDefinitionOptions({
 		config,
 		namespace,
 		resourceName,
 		reporter,
 	});
-
-	if (!isCorePipelineEnabled()) {
-		const resource = buildLegacyResource(runOptions);
-		return finalizeResourceDefinition(runOptions, resource);
-	}
-
 	const pipeline = createResourcePipeline<T, TQuery>();
 	const runResult = assertSynchronousRunResult(pipeline.run(runOptions));
 

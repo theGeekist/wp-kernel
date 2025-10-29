@@ -45,17 +45,3 @@ optional middleware: ReduxMiddleware[];
 ```ts
 optional ui: WPKUIConfig;
 ```
-
----
-
-### corePipeline?
-
-```ts
-optional corePipeline: object;
-```
-
-#### enabled?
-
-```ts
-optional enabled: boolean;
-```

@@ -4,13 +4,15 @@ import {
 	normalizeActionError,
 } from '../../../actions/lifecycle';
 import { emitLifecycleEvent } from '../../../actions/context';
-import type { Reporter } from '../../../reporter/types';
 import type {
 	ActionBuilderHelper,
 	ActionBuilderInput,
+	ActionBuilderKind,
 	ActionInvocationDraft,
 	ActionPipelineContext,
 } from '../types';
+import { ACTION_BUILDER_KIND } from '../types';
+import type { Reporter } from '../../../reporter/types';
 import { measureDurationMs, readMonotonicTime } from './timing';
 
 /**
@@ -20,6 +22,12 @@ import { measureDurationMs, readMonotonicTime } from './timing';
  * The helper records timing metadata, ensures downstream builder failures are
  * normalised, and emits matching `complete`/`error` lifecycle events once the
  * entire builder chain settles.
+ *
+ * @example
+ * ```ts
+ * const executionBuilder = buildActionExecutionBuilder<{ id: string }, string>();
+ * pipeline.builders.use(executionBuilder);
+ * ```
  */
 export function buildActionExecutionBuilder<
 	TArgs,
@@ -30,10 +38,10 @@ export function buildActionExecutionBuilder<
 		ActionBuilderInput<TArgs, TResult>,
 		ActionInvocationDraft<TResult>,
 		Reporter,
-		'core.action.builder'
+		ActionBuilderKind
 	>({
 		key: 'action.execute.handler',
-		kind: 'core.action.builder',
+		kind: ACTION_BUILDER_KIND,
 		apply: async ({ context, input, output }, next) => {
 			const start = output.startTime ?? readMonotonicTime();
 
@@ -81,5 +89,5 @@ export function buildActionExecutionBuilder<
 				throw normalized;
 			}
 		},
-	});
+	}) satisfies ActionBuilderHelper<TArgs, TResult>;
 }

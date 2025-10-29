@@ -1,15 +1,39 @@
 import { createHelper } from '../../helper';
 import { buildResourceObject } from '../../../resource/buildResourceObject';
-import type { ResourceBuilderHelper } from '../types';
+import type {
+	ResourceBuilderHelper,
+	ResourceBuilderInput,
+	ResourceBuilderKind,
+	ResourcePipelineArtifact,
+	ResourcePipelineContext,
+} from '../types';
+import { RESOURCE_BUILDER_KIND } from '../types';
+import type { Reporter } from '../../../reporter/types';
 import { WPKernelError } from '../../../error/WPKernelError';
 
+/**
+ * Create the builder helper that assembles the final resource object once
+ * prerequisite fragments (client and cache keys) have executed.
+ *
+ * @example
+ * ```ts
+ * const builder = buildResourceObjectBuilder<Post, { id: number }>();
+ * pipeline.builders.use(builder);
+ * ```
+ */
 export function buildResourceObjectBuilder<T, TQuery>(): ResourceBuilderHelper<
 	T,
 	TQuery
 > {
-	return createHelper({
+	return createHelper<
+		ResourcePipelineContext<T, TQuery>,
+		ResourceBuilderInput<T, TQuery>,
+		ResourcePipelineArtifact<T, TQuery>,
+		Reporter,
+		ResourceBuilderKind
+	>({
 		key: 'resource.object.build',
-		kind: 'core.resource.builder',
+		kind: RESOURCE_BUILDER_KIND,
 		apply: ({ context, output }) => {
 			if (!output.client) {
 				throw new WPKernelError('DeveloperError', {
@@ -35,5 +59,5 @@ export function buildResourceObjectBuilder<T, TQuery>(): ResourceBuilderHelper<
 				client: output.client,
 			});
 		},
-	});
+	}) satisfies ResourceBuilderHelper<T, TQuery>;
 }
