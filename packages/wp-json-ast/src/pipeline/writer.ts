@@ -36,6 +36,15 @@ export interface QueueModuleFilesOptions<
 	readonly filter?: (file: TFile) => boolean;
 }
 
+type ProgramTargetQueue<TFile extends ProgramTargetFile = ProgramTargetFile> = (
+	file: TFile,
+	overrides?: QueueProgramFileOptions
+) => void;
+
+type ProgramTargetQueueMany<
+	TFile extends ProgramTargetFile = ProgramTargetFile,
+> = (options: QueueModuleFilesOptions<TFile>) => void;
+
 export interface ProgramTargetPlannerOptions {
 	readonly workspace: PipelineContext['workspace'];
 	readonly outputDir: string;
@@ -44,36 +53,28 @@ export interface ProgramTargetPlannerOptions {
 }
 
 export interface ProgramTargetPlanner {
-	readonly queueFile: <TFile extends ProgramTargetFile>(
-		file: TFile,
-		options?: QueueProgramFileOptions
-	) => void;
-	readonly queueFiles: <TFile extends ProgramTargetFile>(
-		options: QueueModuleFilesOptions<TFile>
-	) => void;
+	readonly queueFile: ProgramTargetQueue;
+	readonly queueFiles: ProgramTargetQueueMany;
 }
 
 export function buildProgramTargetPlanner(
 	options: ProgramTargetPlannerOptions
 ): ProgramTargetPlanner {
+	const { workspace, outputDir, channel } = options;
 	const baseDocblockPrefix = options.docblockPrefix ?? [];
 
-	const queueFile: ProgramTargetPlanner['queueFile'] = (file, overrides) => {
-		const resolvedPath =
-			overrides?.filePath ??
-			resolveProgramFilePath(
-				options.workspace,
-				options.outputDir,
-				file.fileName
-			);
+	const queueFile: ProgramTargetQueue = (file, overrides) => {
+		const resolvedPath = overrides?.filePath
+			? overrides.filePath
+			: resolveProgramFilePath(workspace, outputDir, file.fileName);
 
-		const docblock = [
-			...baseDocblockPrefix,
-			...(overrides?.docblockPrefix ?? []),
-			...(file.docblock ?? []),
-		];
+		const docblock = mergeDocblockSegments(
+			baseDocblockPrefix,
+			overrides?.docblockPrefix,
+			file.docblock
+		);
 
-		options.channel.queue({
+		channel.queue({
 			file: resolvedPath,
 			program: file.program,
 			metadata: file.metadata,
@@ -83,13 +84,13 @@ export function buildProgramTargetPlanner(
 		});
 	};
 
-	const queueFiles: ProgramTargetPlanner['queueFiles'] = ({
+	const queueFiles: ProgramTargetQueueMany = ({
 		files,
 		docblockPrefix,
 		filter,
 	}) => {
 		for (const file of files) {
-			if (filter && !filter(file)) {
+			if (filter?.(file) === false) {
 				continue;
 			}
 
@@ -121,4 +122,20 @@ function resolveProgramFilePath(
 		.filter((segment) => segment.length > 0);
 
 	return workspace.resolve(outputDir, ...segments);
+}
+
+function mergeDocblockSegments(
+	...segments: ReadonlyArray<readonly string[] | undefined>
+): readonly string[] {
+	const result: string[] = [];
+
+	for (const segment of segments) {
+		if (!segment) {
+			continue;
+		}
+
+		result.push(...segment);
+	}
+
+	return result;
 }
