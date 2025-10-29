@@ -8,27 +8,49 @@ import {
 
 import { buildBlockManifestDocblock } from '../common/docblock';
 import { buildBlockManifestMetadata } from '../common/metadata/block';
-import { renderPhpValue } from '../resource/common/phpValue';
-import type { BlockManifestConfig, BlockModuleFile } from './types';
+import {
+	renderPhpValue,
+	type StructuredPhpValue,
+} from '../resource/common/phpValue';
 import { buildGuardedBlock, withGeneratedDocComment } from './utils';
+import type {
+	BlockManifestConfig,
+	BlockManifestEntries,
+	BlockManifestEntry,
+	BlockManifestEntryRecord,
+	BlockManifestFile,
+	BlockManifestMap,
+	BlockManifestMetadataResult,
+} from './types';
 import type { BlockManifestValidationError } from '../types';
 
 const DEFAULT_MANIFEST_FILE = 'build/blocks-manifest.php';
 
-export interface BlockManifestMetadataResult {
-	readonly manifest: Record<string, Record<string, unknown>>;
-	readonly errors: readonly BlockManifestValidationError[];
+type ManifestEntryTuple = readonly [string, BlockManifestEntryRecord];
+
+type MutableManifestEntries = ManifestEntryTuple[];
+
+type MutableManifestErrors = BlockManifestValidationError[];
+
+interface ManifestProgramOptions {
+	readonly docblock: readonly string[];
+	readonly manifest: BlockManifestMap;
+}
+
+interface ManifestSanitizerOptions {
+	readonly blockKey: string;
+	readonly entry: BlockManifestEntry;
+	readonly errors: MutableManifestErrors;
 }
 
 export function buildManifestMetadata(
-	entries: Readonly<Record<string, BlockManifestConfig['entries'][string]>>
+	entries: BlockManifestEntries
 ): BlockManifestMetadataResult {
-	const errors: BlockManifestValidationError[] = [];
-	const manifestEntries: Array<readonly [string, Record<string, unknown>]> =
-		[];
+	const errors: MutableManifestErrors = [];
+	const manifestEntries: MutableManifestEntries = [];
 
 	for (const [blockKey, entry] of Object.entries(entries)) {
-		const sanitised = sanitizeEntry(blockKey, entry, errors);
+		const sanitised = sanitizeEntry({ blockKey, entry, errors });
 		if (!sanitised) {
 			continue;
 		}
@@ -47,7 +69,7 @@ export function buildManifestMetadata(
 export function buildBlockManifestFile(
 	origin: string,
 	config: BlockManifestConfig
-): BlockModuleFile<ReturnType<typeof buildBlockManifestMetadata>> {
+): BlockManifestFile {
 	const docblock = buildBlockManifestDocblock({ origin });
 	const manifestMetadata = buildManifestMetadata(config.entries);
 	const metadata = buildBlockManifestMetadata({
@@ -64,36 +86,31 @@ export function buildBlockManifestFile(
 		docblock,
 		metadata,
 		program,
-	} satisfies BlockModuleFile<typeof metadata>;
+	} satisfies BlockManifestFile;
 }
 
 function buildManifestProgram({
 	docblock,
 	manifest,
-}: {
-	readonly docblock: readonly string[];
-	readonly manifest: Record<string, Record<string, unknown>>;
-}): PhpProgram {
+}: ManifestProgramOptions): PhpProgram {
 	const strictTypes = buildDeclare([
 		buildDeclareItem('strict_types', buildScalarInt(1)),
 	]);
 
 	const returnStatement = withGeneratedDocComment(
-		buildReturn(
-			renderPhpValue(manifest as unknown as Record<string, unknown>)
-		),
+		buildReturn(renderPhpValue(manifest as StructuredPhpValue)),
 		docblock
 	);
 
 	return [strictTypes, ...buildGuardedBlock([returnStatement])];
 }
 
-function sanitizeEntry(
-	blockKey: string,
-	entry: BlockManifestConfig['entries'][string],
-	errors: BlockManifestValidationError[]
-): Record<string, unknown> | null {
-	const manifest: Record<string, unknown> = {};
+function sanitizeEntry({
+	blockKey,
+	entry,
+	errors,
+}: ManifestSanitizerOptions): BlockManifestEntryRecord | null {
+	const manifest: BlockManifestEntryRecord = {};
 
 	const directory = normaliseString(entry.directory);
 	if (!directory) {
@@ -140,8 +157,8 @@ function sanitizeEntry(
 }
 
 function sanitizeRecord(
-	value: Record<string, unknown>
-): Record<string, unknown> {
+	value: BlockManifestEntryRecord
+): BlockManifestEntryRecord {
 	const entries = Object.entries(value)
 		.map(([key, entry]) => [key, sanitizeValue(entry)] as const)
 		.sort(([left], [right]) => left.localeCompare(right));
@@ -155,7 +172,7 @@ function sanitizeValue(value: unknown): unknown {
 	}
 
 	if (value && typeof value === 'object') {
-		return sanitizeRecord(value as Record<string, unknown>);
+		return sanitizeRecord(value as BlockManifestEntryRecord);
 	}
 
 	return value;

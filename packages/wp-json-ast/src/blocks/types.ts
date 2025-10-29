@@ -1,6 +1,14 @@
 import type { PhpProgram } from '@wpkernel/php-json-ast';
 
-import type { BlockManifestMetadata, BlockRegistrarMetadata } from '../types';
+import type {
+	BlockManifestMetadata,
+	BlockManifestValidationError,
+	BlockRegistrarMetadata,
+} from '../types';
+
+export type BlockManifestEntryRecord = Record<string, unknown>;
+
+export type BlockManifestMap = Record<string, BlockManifestEntryRecord>;
 
 export interface BlockManifestEntry {
 	readonly directory: string;
@@ -8,9 +16,16 @@ export interface BlockManifestEntry {
 	readonly render?: string;
 }
 
+export type BlockManifestEntries = Readonly<Record<string, BlockManifestEntry>>;
+
 export interface BlockManifestConfig {
 	readonly fileName?: string;
-	readonly entries: Readonly<Record<string, BlockManifestEntry>>;
+	readonly entries: BlockManifestEntries;
+}
+
+export interface BlockManifestMetadataResult {
+	readonly manifest: BlockManifestMap;
+	readonly errors: readonly BlockManifestValidationError[];
 }
 
 export interface BlockRenderTarget {
@@ -20,7 +35,7 @@ export interface BlockRenderTarget {
 
 export interface BlockRenderStubDescriptor {
 	readonly blockKey: string;
-	readonly manifest: Readonly<Record<string, unknown>>;
+	readonly manifest: Readonly<BlockManifestEntryRecord>;
 	readonly target: BlockRenderTarget;
 }
 
@@ -38,20 +53,26 @@ export interface BlockModuleFile<
 	readonly program: PhpProgram;
 }
 
+export type BlockManifestFile = BlockModuleFile<BlockManifestMetadata>;
+
+export type BlockRegistrarFile = BlockModuleFile<BlockRegistrarMetadata>;
+
+export type BlockModuleFileEntry = BlockModuleFile<
+	BlockManifestMetadata | BlockRegistrarMetadata
+>;
+
 export interface BlockModuleResult {
-	readonly files: readonly BlockModuleFile<
-		BlockManifestMetadata | BlockRegistrarMetadata
-	>[];
+	readonly files: readonly BlockModuleFileEntry[];
 	readonly renderStubs: readonly BlockRenderStub[];
 }
 
 export interface BlockModuleHooks {
 	readonly manifestFile?: (
-		file: BlockModuleFile<BlockManifestMetadata>
-	) => BlockModuleFile<BlockManifestMetadata> | void;
+		file: BlockManifestFile
+	) => BlockManifestFile | void;
 	readonly registrarFile?: (
-		file: BlockModuleFile<BlockRegistrarMetadata>
-	) => BlockModuleFile<BlockRegistrarMetadata> | void;
+		file: BlockRegistrarFile
+	) => BlockRegistrarFile | void;
 	readonly renderStub?: (
 		stub: BlockRenderStub,
 		descriptor: BlockRenderStubDescriptor

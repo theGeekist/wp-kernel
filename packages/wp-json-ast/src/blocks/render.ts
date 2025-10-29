@@ -1,5 +1,10 @@
 import type { BlockRenderStub, BlockRenderStubDescriptor } from './types';
 
+interface RenderStubTemplateOptions {
+	readonly blockKey: string;
+	readonly manifest: BlockRenderStubDescriptor['manifest'];
+}
+
 export function buildRenderStub(
 	descriptor: BlockRenderStubDescriptor
 ): BlockRenderStub {
@@ -13,10 +18,7 @@ export function buildRenderStub(
 	};
 }
 
-function createRenderStub(options: {
-	readonly blockKey: string;
-	readonly manifest: Readonly<Record<string, unknown>>;
-}): string {
+function createRenderStub(options: RenderStubTemplateOptions): string {
 	const title = deriveTitle(options);
 	const textdomain = deriveTextdomain(options);
 	const message = `${title} - hello from a dynamic block!`;
@@ -27,10 +29,7 @@ function createRenderStub(options: {
 	return `<?php\n/**\n * AUTO-GENERATED WPK STUB: safe to edit.\n *\n * @see https://github.com/WordPress/gutenberg/blob/trunk/docs/reference-guides/block-api/block-metadata.md#render\n */\n?>\n<p <?php echo get_block_wrapper_attributes(); ?>>\n\t<?php esc_html_e( '${escapedMessage}', '${escapedDomain}' ); ?>\n</p>\n`;
 }
 
-function deriveTitle(options: {
-	readonly blockKey: string;
-	readonly manifest: Readonly<Record<string, unknown>>;
-}): string {
+function deriveTitle(options: RenderStubTemplateOptions): string {
 	const titleValue = options.manifest.title;
 	if (typeof titleValue === 'string' && titleValue.trim().length > 0) {
 		return titleValue.trim();
@@ -51,10 +50,7 @@ function deriveTitle(options: {
 		.join(' ');
 }
 
-function deriveTextdomain(options: {
-	readonly blockKey: string;
-	readonly manifest: Readonly<Record<string, unknown>>;
-}): string {
+function deriveTextdomain(options: RenderStubTemplateOptions): string {
 	const textdomainValue = options.manifest.textdomain;
 	if (
 		typeof textdomainValue === 'string' &&

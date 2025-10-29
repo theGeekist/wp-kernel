@@ -1,10 +1,14 @@
 import { buildBlockManifestFile } from './manifest';
 import { buildBlockRegistrarFile } from './registrar';
 import { buildRenderStub } from './render';
-import type { BlockModuleConfig, BlockModuleResult } from './types';
+import type {
+	BlockModuleConfig,
+	BlockModuleFileEntry,
+	BlockModuleResult,
+} from './types';
 
 export function buildBlockModule(config: BlockModuleConfig): BlockModuleResult {
-	const files: BlockModuleResult['files'][number][] = [];
+	const files: BlockModuleFileEntry[] = [];
 	const hooks = config.hooks ?? {};
 
 	if (Object.keys(config.manifest.entries).length > 0) {
@@ -13,10 +17,7 @@ export function buildBlockModule(config: BlockModuleConfig): BlockModuleResult {
 			config.manifest
 		);
 
-		files.push(
-			(hooks.manifestFile?.(manifestFile) ??
-				manifestFile) as BlockModuleResult['files'][number]
-		);
+		files.push(hooks.manifestFile?.(manifestFile) ?? manifestFile);
 	}
 
 	const registrarFile = buildBlockRegistrarFile(
@@ -25,10 +26,7 @@ export function buildBlockModule(config: BlockModuleConfig): BlockModuleResult {
 		config.registrarFileName
 	);
 
-	files.push(
-		(hooks.registrarFile?.(registrarFile) ??
-			registrarFile) as BlockModuleResult['files'][number]
-	);
+	files.push(hooks.registrarFile?.(registrarFile) ?? registrarFile);
 
 	const renderStubs = (config.renderStubs ?? []).map((descriptor) => {
 		const stub = buildRenderStub(descriptor);
