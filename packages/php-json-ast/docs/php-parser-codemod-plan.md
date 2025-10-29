@@ -110,11 +110,12 @@ This roadmap captures how `@wpkernel/php-json-ast` can evolve now that `nikic/ph
 
 ##### Task 6 - Snapshot codemod outcomes for observability
 
-> **Task status:** Pending – Add snapshot tooling outcomes and doc updates here once delivered.
+> **Task status:** Complete – Codemod executions now emit before/after snapshots with reviewer-facing summaries.
 
-- Extend the writer helper tests to capture pre/post AST snapshots whenever a codemod runs.
-- Persist human-readable diagnostics (diffs or summaries) alongside the `.ast.json` outputs for local debugging.
-- Document how to enable the snapshots in the CLI pipeline and how to interpret failures during review.
+- The PHP ingestion bridge records codemod diagnostics (pre/post programs plus visitor stack metadata) whenever the driver applies a stack from `serialisePhpCodemodConfiguration`.
+- `createPhpProgramWriterHelper` persists `.codemod.before.ast.json`, `.codemod.after.ast.json`, and `.codemod.summary.txt` alongside the standard `.ast.json` file. The summary includes visitor identifiers, SHA hashes for each AST, and the first twenty structural differences so reviewers can triage changes without re-running the driver.
+- `programWriter.test.ts` and the ingestion integration suite assert that the new artefacts are written, queued for CLI consumers, and match the streamed diagnostics end-to-end.
+- Snapshotting is automatic-any CLI build that threads a codemod configuration through the writer will emit the diagnostics bundle. During review, diff the summary (and, if needed, the before/after AST files) to understand what changed.
   _Expectation: Every codemod execution leaves auditable artefacts that reviewers can diff without rerunning the pipeline._
 
 #### Phase 3 - Advanced utilities & debugging

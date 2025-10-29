@@ -94,6 +94,7 @@ describe('consumePhpProgramIngestion', () => {
 			docblock: ['summary', 'details'],
 			uses: ['App\\Foo'],
 			statements: ['<?php echo 1;'],
+			codemod: undefined,
 		});
 
 		expect(actions[1]).toEqual({
@@ -103,6 +104,7 @@ describe('consumePhpProgramIngestion', () => {
 			docblock: ['explicit'],
 			uses: [],
 			statements: [],
+			codemod: undefined,
 		});
 
 		expect(actions[2]).toEqual({
@@ -112,6 +114,7 @@ describe('consumePhpProgramIngestion', () => {
 			docblock: [],
 			uses: ['FinalUse'],
 			statements: [],
+			codemod: undefined,
 		});
 
 		expect(reporter.debug).toHaveBeenNthCalledWith(

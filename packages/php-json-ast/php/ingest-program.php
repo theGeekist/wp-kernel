@@ -112,30 +112,42 @@ foreach ($files as $file) {
         exit(1);
     }
 
+    $codemodSummary = null;
+
     if (count($visitors) > 0) {
+        $beforeProgram = normaliseProgramStatements(
+            $statements,
+            $encoderFlags,
+            $file,
+            'codemod input'
+        );
+
         $statements = applyCodemodVisitors($statements, $visitors);
+
+        $program = normaliseProgramStatements(
+            $statements,
+            $encoderFlags,
+            $file,
+            'codemod output'
+        );
+
+        $codemodSummary = [
+            'before' => $beforeProgram,
+            'after' => $program,
+            'visitors' => summariseCodemodVisitors($visitorDefinitions, $visitors),
+        ];
+    } else {
+        $program = normaliseProgramStatements($statements, $encoderFlags, $file, 'AST');
     }
-
-    $programJson = json_encode($statements, $encoderFlags);
-
-    if ($programJson === false) {
-        fwrite(STDERR, "Failed to encode AST for {$file}: " . json_last_error_msg() . "\n");
-        exit(1);
-    }
-
-    $program = json_decode($programJson, true);
-
-    if (!is_array($program)) {
-        fwrite(STDERR, "Decoded AST payload for {$file} was not an array.\n");
-        exit(1);
-    }
-
-    $program = normalizeValue($program);
 
     $result = [
         'file' => $file,
         'program' => $program,
     ];
+
+    if ($codemodSummary !== null) {
+        $result['codemod'] = $codemodSummary;
+    }
 
     $resultJson = json_encode($result, $encoderFlags);
 
@@ -243,6 +255,77 @@ function applyCodemodVisitors(array $statements, array $visitors): array
     $traversed = $traverser->traverse($statements);
 
     return $traversed;
+}
+
+/**
+ * @param list<CodemodVisitorDefinition> $definitions
+ * @param list<NodeVisitor> $visitors
+ * @return list<array{key: string, stackKey: string, stackIndex: int, visitorIndex: int, class: string}>
+ */
+function summariseCodemodVisitors(array $definitions, array $visitors): array
+{
+    $summaries = [];
+
+    foreach ($visitors as $index => $visitor) {
+        $definition = $definitions[$index] ?? null;
+
+        if ($definition === null) {
+            $summaries[] = [
+                'key' => get_class($visitor),
+                'stackKey' => 'unknown',
+                'stackIndex' => $index,
+                'visitorIndex' => 0,
+                'class' => get_class($visitor),
+            ];
+            continue;
+        }
+
+        $summaries[] = [
+            'key' => $definition['key'],
+            'stackKey' => $definition['stackKey'],
+            'stackIndex' => $definition['stackIndex'],
+            'visitorIndex' => $definition['visitorIndex'],
+            'class' => get_class($visitor),
+        ];
+    }
+
+    return $summaries;
+}
+
+/**
+ * @param array<int, mixed> $statements
+ * @return array<int, mixed>
+ */
+function normaliseProgramStatements(
+    array $statements,
+    int $encoderFlags,
+    string $file,
+    string $context
+): array {
+    $programJson = json_encode($statements, $encoderFlags);
+
+    if ($programJson === false) {
+        fwrite(
+            STDERR,
+            sprintf('Failed to encode %s for %s: %s' . "\n", $context, $file, json_last_error_msg())
+        );
+        exit(1);
+    }
+
+    $program = json_decode($programJson, true);
+
+    if (!is_array($program)) {
+        fwrite(
+            STDERR,
+            sprintf('Decoded %s payload for %s was not an array.' . "\n", $context, $file)
+        );
+        exit(1);
+    }
+
+    /** @var array<int, mixed> $normalized */
+    $normalized = normalizeValue($program);
+
+    return $normalized;
 }
 
 /**

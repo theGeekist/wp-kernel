@@ -15,6 +15,7 @@ import type {
 	BuilderInput,
 	BuilderOutput,
 } from '../../programBuilder';
+import type { PhpProgramIngestionMessage } from '../../driver/programIngestion';
 import { createReporterMock } from '@wpkernel/test-utils/shared/reporter';
 
 jest.setTimeout(120_000);
@@ -55,9 +56,12 @@ type RoundTripResult = {
 	readonly emittedPhp: string;
 	readonly emittedAst: string;
 	readonly filePath: string;
-	readonly message: { readonly file: string; readonly program: unknown };
+	readonly message: PhpProgramIngestionMessage;
 	readonly output: BuilderOutput;
 	readonly lines: readonly string[];
+	readonly codemodBefore: string | null;
+	readonly codemodAfter: string | null;
+	readonly codemodSummary: string | null;
 };
 
 let cleanupTargets: string[] = [];
@@ -323,18 +327,44 @@ async function runRoundTrip(
 	}
 
 	const [message] = lines.map((line) => JSON.parse(line));
-	const filePath = (message as { file: string }).file;
+	const typedMessage = message as PhpProgramIngestionMessage;
+	const filePath = typedMessage.file;
 	const emittedPhp = await fs.readFile(filePath, 'utf8');
 	const emittedAst = await fs.readFile(`${filePath}.ast.json`, 'utf8');
+
+	const codemodBeforePath = `${filePath}.codemod.before.ast.json`;
+	const codemodAfterPath = `${filePath}.codemod.after.ast.json`;
+	const codemodSummaryPath = `${filePath}.codemod.summary.txt`;
+
+	const [codemodBefore, codemodAfter, codemodSummary] = await Promise.all([
+		readOptionalFile(codemodBeforePath),
+		readOptionalFile(codemodAfterPath),
+		readOptionalFile(codemodSummaryPath),
+	]);
 
 	return {
 		emittedPhp,
 		emittedAst,
 		filePath,
-		message: message as { file: string; program: unknown },
+		message: typedMessage,
 		output,
 		lines,
+		codemodBefore,
+		codemodAfter,
+		codemodSummary,
 	};
+}
+
+async function readOptionalFile(targetPath: string): Promise<string | null> {
+	try {
+		return await fs.readFile(targetPath, 'utf8');
+	} catch (error) {
+		if ((error as NodeJS.ErrnoException)?.code === 'ENOENT') {
+			return null;
+		}
+
+		throw error;
+	}
 }
 
 describe('consumePhpProgramIngestion', () => {
@@ -459,6 +489,28 @@ describe('consumePhpProgramIngestion', () => {
 		expect(result.emittedPhp).toBe(expectedPhp);
 		expect(parsedResultAst).toEqual(parsedExpectedAst);
 		expect(result.message.program).toEqual(parsedExpectedAst);
+
+		expect(result.message.codemod).toBeDefined();
+		const codemod = result.message.codemod!;
+
+		expect(result.codemodBefore).not.toBeNull();
+		expect(result.codemodAfter).not.toBeNull();
+		expect(result.codemodSummary).not.toBeNull();
+
+		expect(result.codemodBefore).toBe(
+			`${JSON.stringify(codemod.before, null, 2)}\n`
+		);
+		expect(result.codemodAfter).toBe(
+			`${JSON.stringify(codemod.after, null, 2)}\n`
+		);
+
+		expect(JSON.parse(result.codemodBefore!)).toEqual(codemod.before);
+		expect(JSON.parse(result.codemodAfter!)).toEqual(codemod.after);
+
+		expect(result.codemodSummary).toContain('Change detected: yes');
+		expect(result.codemodSummary).toContain('baseline');
+
+		expect(codemod.after).toEqual(parsedExpectedAst);
 
 		expect(result.output.queueWrite).toHaveBeenCalledWith({
 			file: result.filePath,
