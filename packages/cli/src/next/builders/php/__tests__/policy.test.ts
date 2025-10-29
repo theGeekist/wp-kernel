@@ -1,4 +1,4 @@
-import { createPhpPolicyHelper, reportPolicyWarnings } from '../policy';
+import { createPhpPolicyHelper } from '../policy';
 import { getPhpBuilderChannel, resetPhpBuilderChannel } from '../channel';
 import { resetPhpAstChannel } from '@wpkernel/php-json-ast';
 import type { IRPolicyDefinition } from '../../../ir/publicTypes';
@@ -54,16 +54,18 @@ describe('createPhpPolicyHelper', () => {
 		resetPhpBuilderChannel(context);
 		resetPhpAstChannel(context);
 
+		const reporter = createReporter();
 		const ir = createMinimalIr({
 			policyMap: {
 				definitions,
 				fallback: { capability: 'manage_demo', appliesTo: 'resource' },
 				missing: ['resource.delete'],
-				unused: [],
+				unused: ['resource.archive'],
 				warnings: [
 					{
 						code: 'demo',
 						message: 'Example warning',
+						context: { scope: 'policy' },
 					},
 				],
 			},
@@ -75,7 +77,7 @@ describe('createPhpPolicyHelper', () => {
 				context,
 				input: createBuilderInput({ ir }),
 				output: createBuilderOutput(),
-				reporter: context.reporter,
+				reporter,
 			},
 			undefined
 		);
@@ -125,34 +127,21 @@ describe('createPhpPolicyHelper', () => {
 				}),
 			])
 		);
-	});
-});
-
-describe('reportPolicyWarnings', () => {
-	it('forwards warnings and missing policies to the reporter', () => {
-		const reporter = createReporter();
-		reportPolicyWarnings(reporter, {
-			definitions: [],
-			fallback: { capability: 'manage_demo', appliesTo: 'resource' },
-			missing: ['resource.delete'],
-			unused: [],
-			warnings: [
-				{
-					code: 'demo',
-					message: 'Example warning',
-					context: { scope: 'policy' },
-				},
-			],
-			sourcePath: 'policy-map.json',
-		});
-
 		expect(reporter.warn).toHaveBeenCalledWith(
 			'Policy helper warning emitted.',
 			expect.objectContaining({ code: 'demo' })
 		);
 		expect(reporter.warn).toHaveBeenCalledWith(
-			'Policies falling back to default capability.',
-			expect.objectContaining({ policies: ['resource.delete'] })
+			'Policy falling back to default capability.',
+			expect.objectContaining({
+				policy: 'resource.delete',
+				capability: 'manage_demo',
+				scope: 'resource',
+			})
+		);
+		expect(reporter.warn).toHaveBeenCalledWith(
+			'Policy definition declared but unused.',
+			expect.objectContaining({ policy: 'resource.archive' })
 		);
 	});
 });
