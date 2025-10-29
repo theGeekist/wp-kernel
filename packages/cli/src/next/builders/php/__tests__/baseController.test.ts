@@ -68,7 +68,7 @@ describe('createPhpBaseControllerHelper', () => {
 		expect(entry).toBeDefined();
 		expect(entry?.docblock).toEqual(
 			expect.arrayContaining([
-				expect.stringContaining('namespace: demo-plugin/rest'),
+				expect.stringContaining('namespace: demo-plugin)'),
 			])
 		);
 	});

@@ -5,11 +5,14 @@ describe('deriveModuleNamespace', () => {
 		const result = deriveModuleNamespace({
 			pluginNamespace: 'Demo\\Plugin',
 			sanitizedPluginNamespace: 'demo-plugin',
-			segments: [moduleSegment('Generated', ''), moduleSegment('Rest')],
+			segments: [
+				moduleSegment('Generated', ''),
+				moduleSegment('Rest', ''),
+			],
 		});
 
 		expect(result.namespace).toBe('Demo\\Plugin\\Generated\\Rest');
-		expect(result.sanitizedNamespace).toBe('demo-plugin/rest');
+		expect(result.sanitizedNamespace).toBe('demo-plugin');
 	});
 
 	it('normalises missing sanitized values using defaults', () => {

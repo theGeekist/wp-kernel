@@ -32,7 +32,7 @@ export function createPhpBaseControllerHelper(): BuilderHelper {
 				sanitizedPluginNamespace: ir.meta.sanitizedNamespace,
 				segments: [
 					moduleSegment('Generated', ''),
-					moduleSegment('Rest'),
+					moduleSegment('Rest', ''),
 				],
 			};
 			const filePath = options.context.workspace.resolve(

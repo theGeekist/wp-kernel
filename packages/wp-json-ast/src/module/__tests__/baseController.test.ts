@@ -12,7 +12,7 @@ describe('buildBaseControllerProgram', () => {
 				sanitizedPluginNamespace: 'demo-plugin',
 				segments: [
 					moduleSegment('Generated', ''),
-					moduleSegment('Rest'),
+					moduleSegment('Rest', ''),
 				],
 			},
 			metadataName: 'rest-base',
@@ -20,7 +20,7 @@ describe('buildBaseControllerProgram', () => {
 
 		expect(result.namespace).toBe('Demo\\Plugin\\Generated\\Rest');
 		expect(result.docblock).toEqual([
-			'Source: wpk.config.ts → resources (namespace: demo-plugin/rest)',
+			'Source: wpk.config.ts → resources (namespace: demo-plugin)',
 		]);
 		expect(result.metadata).toEqual({
 			kind: 'base-controller',
@@ -37,6 +37,6 @@ describe('buildBaseControllerProgram', () => {
 		const returnStmt = method.stmts?.[0] as {
 			expr: { value: string };
 		};
-		expect(returnStmt.expr.value).toBe('demo-plugin/rest');
+		expect(returnStmt.expr.value).toBe('demo-plugin');
 	});
 });
