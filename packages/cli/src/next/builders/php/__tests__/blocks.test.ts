@@ -13,6 +13,17 @@ import {
 } from '@wpkernel/test-utils/next/builders/tests/ts.test-support';
 import { buildWorkspace } from '../../../workspace';
 import type { Workspace } from '../../../workspace';
+import * as BlockModule from '@wpkernel/wp-json-ast';
+
+jest.mock('@wpkernel/wp-json-ast', () => {
+	const actual = jest.requireActual<typeof BlockModule>(
+		'@wpkernel/wp-json-ast'
+	);
+	return {
+		...actual,
+		buildBlockModule: jest.fn(actual.buildBlockModule),
+	};
+});
 
 const withWorkspace = (
 	run: (context: BuilderHarnessContext<Workspace>) => Promise<void>
@@ -45,6 +56,7 @@ describe('createPhpBlocksHelper', () => {
 			const { ir, options } = buildBuilderArtifacts({
 				sourcePath: path.join(root, 'wpk.config.ts'),
 			});
+
 			const irWithBlocks: IRv1 = {
 				...ir,
 				blocks: [
@@ -114,6 +126,119 @@ describe('createPhpBlocksHelper', () => {
 			expect(
 				output.actions.map((action) => normalise(action.file)).sort()
 			).toEqual(['src/blocks/example/render.php']);
+		});
+	});
+
+	it('reports manifest validation errors surfaced by wp-json-ast', async () => {
+		await withWorkspace(async ({ workspace, root }) => {
+			const configSource = buildWPKernelConfigSource();
+			await workspace.write('wpk.config.ts', configSource);
+
+			const blockDir = path.join('src', 'blocks', 'example');
+			const manifestPath = path.join(blockDir, 'block.json');
+			await workspace.write(
+				manifestPath,
+				JSON.stringify(
+					{
+						name: 'demo/example',
+						title: 'Example Block',
+						icon: 'smiley',
+						category: 'widgets',
+						editorScript: 'build/editor.js',
+					},
+					null,
+					2
+				)
+			);
+
+			const { ir, options } = buildBuilderArtifacts({
+				sourcePath: path.join(root, 'wpk.config.ts'),
+			});
+			const irWithBlocks: IRv1 = {
+				...ir,
+				blocks: [
+					{
+						key: 'demo/example',
+						directory: blockDir,
+						hasRender: true,
+						manifestSource: manifestPath,
+					},
+				],
+			};
+
+			const reporter = buildReporter();
+			const context = { workspace, phase: 'generate' as const, reporter };
+			resetPhpBuilderChannel(context);
+			const output = buildOutput();
+
+			const actualBlockModule = jest.requireActual<typeof BlockModule>(
+				'@wpkernel/wp-json-ast'
+			);
+			const buildBlockModuleMock =
+				BlockModule.buildBlockModule as jest.MockedFunction<
+					typeof actualBlockModule.buildBlockModule
+				>;
+			buildBlockModuleMock.mockImplementation((config) => {
+				const result = actualBlockModule.buildBlockModule(config);
+				const files = result.files.map((file) => {
+					if (file.metadata.kind !== 'block-manifest') {
+						return file;
+					}
+
+					return {
+						...file,
+						metadata: {
+							...file.metadata,
+							validation: {
+								errors: [
+									{
+										code: 'block-manifest/missing-directory',
+										block: 'demo/example',
+										field: 'directory',
+										message:
+											'Block "demo/example": manifest entry is missing a directory path.',
+										value: undefined,
+									},
+								],
+							},
+						},
+					} as typeof file;
+				});
+
+				return {
+					...result,
+					files,
+				};
+			});
+
+			try {
+				await createPhpBlocksHelper().apply(
+					{
+						context,
+						input: {
+							phase: 'generate',
+							options,
+							ir: irWithBlocks,
+						},
+						output,
+						reporter,
+					},
+					undefined
+				);
+			} finally {
+				buildBlockModuleMock.mockImplementation(
+					actualBlockModule.buildBlockModule
+				);
+			}
+
+			expect(reporter.error).toHaveBeenCalledWith(
+				'Block "demo/example": manifest entry is missing a directory path.',
+				expect.objectContaining({
+					code: 'block-manifest/missing-directory',
+					block: 'demo/example',
+					field: 'directory',
+				})
+			);
 		});
 	});
 

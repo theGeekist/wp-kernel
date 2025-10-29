@@ -21,7 +21,7 @@ import {
 	buildIfStatementNode,
 	buildVariableAssignment,
 	normaliseVariableReference,
-} from '../../../resource/utils';
+} from '../../../resource/common/utils';
 import {
 	buildConcat,
 	buildConstFetchExpr,

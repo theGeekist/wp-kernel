@@ -25,7 +25,7 @@ import {
 	buildBooleanNot,
 	buildFunctionCall,
 	buildIfStatementNode,
-} from '../../../resource/utils';
+} from '../../../resource/common/utils';
 
 export function buildBuildRenderArgumentsMethod(): PhpStmtClassMethod {
 	const closure = buildClosure({

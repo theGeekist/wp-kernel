@@ -6,7 +6,7 @@ import {
 	type PhpExpr,
 	type PhpStmt,
 } from '@wpkernel/php-json-ast';
-import { buildFunctionCall } from '../../resource/utils';
+import { buildFunctionCall } from '../../resource/common/utils';
 
 export function buildConstFetchExpr(name: string) {
 	return buildFunctionCall('constant', [buildArg(buildScalarString(name))]);

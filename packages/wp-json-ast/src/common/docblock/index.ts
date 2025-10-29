@@ -93,6 +93,18 @@ export function buildCapabilityEnforceDocblock(): readonly string[] {
 	];
 }
 
+export function buildBlockManifestDocblock(options: {
+	readonly origin: string;
+}): readonly string[] {
+	return [`Source: ${options.origin} → blocks.ssr.manifest`];
+}
+
+export function buildBlockRegistrarDocblock(options: {
+	readonly origin: string;
+}): readonly string[] {
+	return [`Source: ${options.origin} → blocks.ssr.register`];
+}
+
 export interface PersistenceRegistryDocblockOptions {
 	readonly origin: string;
 }
