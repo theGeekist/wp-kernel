@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2025-10-27
+
+### Added
+
+- **Apply workflow release** – Cut the v0.9.0 release after validating the layered `wpk generate && wpk apply --yes --dry-run` flow and finishing the Task 31 checklist.
+
+### Documentation
+
+- **Task 31 closure** – Updated the CLI MVP ledger to mark the Phase 5 minor release as shipped and captured the apply workflow migration notes.
+
+### Maintenance
+
+- **Monorepo release** – Bumped all packages, showcase fixtures, and generated API docs to `0.9.0` via the release automation script.
+
 ## [0.8.0] - 2025-10-26
 
 ### Removed

@@ -2,7 +2,7 @@
 
 _See [Docs Index](./index.md) for navigation._
 
-> **Versioning reminder:** The CLI now rides the unified **v0.7.x (pre-1.0)** track. Phase 3 patch slots (0.6.1-0.6.4) are closed; Phase 4 work uses the 0.7.1-0.7.6 band. Claim the next available slot before you start, update the status when you land, and consolidate into the parent phase release once every patch in that band ships.
+> **Versioning reminder:** The CLI now rides the unified **v0.9.x (pre-1.0)** track. Phase 5 patch slots (0.8.1-0.8.4) are closed; reserve the next available slot before you start, update the status when you land, and consolidate into the parent phase release once every patch in that band ships.
 
 ## Coordination & guardrails
 
@@ -64,15 +64,15 @@ _See [Docs Index](./index.md) for navigation._
 | 0.7.6 | Task 25 - Safety warnings & derived blocks          | ✓ shipped | Next pipeline warns on missing write capabilities and derives JS-only block manifests so resources without scaffolds emit auto-registered stubs.               | [Controller safety & block derivation](./php-ast-migration-tasks.md#task-25---controller-safety--block-derivation)  |
 | 0.8.0 | Task 26 - **Phase 4 minor**                         | ✓ shipped | Retired string printers and the legacy command layer; CLI now registers next-gen factories only and v0.8.0 cuts the Phase 4 release.                           | [Command migration summary](./command-migration-plan.md#4-dependencies--sequencing)                                 |
 
-### Phase 5 - Apply Layering & Flags (⬜ Planned)
+### Phase 5 - Apply Layering & Flags (✓ Complete)
 
-| Slot  | Scope                                         | Status     | Notes                                                                                                                                   | Detail reference                                                                                       |
-| ----- | --------------------------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| 0.8.1 | Task 27 - Shim generation & composer fallback | ✓ shipped  | Next pipeline emits extension shims, adds `require_once` fallback guards, and persists builder actions into `.wpk/apply/manifest.json`. | [Apply workflow - shims](./apply-workflow-phases.md#3-implementation-plan)                             |
-| 0.8.2 | Task 28 - Flags, git enforcement, logging     | ✓ shipped  | Ported `--yes/--backup/--force`, enforced `.git`, appended `.wpk-apply.log`, and aligned reporter output with the legacy command.       | [Apply workflow - safety rails](./apply-workflow-phases.md#3-implementation-plan)                      |
-| 0.8.3 | Task 29 - Integration coverage                | ✓ shipped  | Builder + command suites now cover shim regeneration merges, composer fallback `require_once` guards, and apply log status variants.    | [Apply workflow - tests](./apply-workflow-phases.md#3-implementation-plan)                             |
-| 0.8.4 | Task 30 - Buffer slot                         | ✓ shipped  | Hardened git detection so workspaces nested inside mono-repos respect ancestor repositories before the 0.9.0 release cut.               | [Apply workflow guard](./apply-workflow-phases.md#1-current-state-next)                                |
-| 0.9.0 | Task 31 - **Phase 5 minor**                   | ⬜ planned | Ship the layered apply workflow with full release checks (`wpk generate && wpk apply --yes --dry-run`) and document the migration.      | [Apply workflow release checklist](./apply-workflow-phases.md#phase-05---apply-workflow-next-pipeline) |
+| Slot  | Scope                                         | Status    | Notes                                                                                                                                         | Detail reference                                                                                       |
+| ----- | --------------------------------------------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| 0.8.1 | Task 27 - Shim generation & composer fallback | ✓ shipped | Next pipeline emits extension shims, adds `require_once` fallback guards, and persists builder actions into `.wpk/apply/manifest.json`.       | [Apply workflow - shims](./apply-workflow-phases.md#3-implementation-plan)                             |
+| 0.8.2 | Task 28 - Flags, git enforcement, logging     | ✓ shipped | Ported `--yes/--backup/--force`, enforced `.git`, appended `.wpk-apply.log`, and aligned reporter output with the legacy command.             | [Apply workflow - safety rails](./apply-workflow-phases.md#3-implementation-plan)                      |
+| 0.8.3 | Task 29 - Integration coverage                | ✓ shipped | Builder + command suites now cover shim regeneration merges, composer fallback `require_once` guards, and apply log status variants.          | [Apply workflow - tests](./apply-workflow-phases.md#3-implementation-plan)                             |
+| 0.8.4 | Task 30 - Buffer slot                         | ✓ shipped | Hardened git detection so workspaces nested inside mono-repos respect ancestor repositories before the 0.9.0 release cut.                     | [Apply workflow guard](./apply-workflow-phases.md#1-current-state-next)                                |
+| 0.9.0 | Task 31 - **Phase 5 minor**                   | ✓ shipped | Closed out Task 31 by cutting the 0.9.0 release after validating `wpk generate && wpk apply --yes --dry-run` and updating the migration docs. | [Apply workflow release checklist](./apply-workflow-phases.md#phase-05---apply-workflow-next-pipeline) |
 
 ## Definition of "MVP"
 
