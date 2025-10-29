@@ -642,7 +642,8 @@ export function createPipeline<
 	const fragmentEntries: RegisteredHelper<TFragmentHelper>[] = [];
 	const builderEntries: RegisteredHelper<TBuilderHelper>[] = [];
 	const diagnostics: TDiagnostic[] = [];
-	const loggedDiagnostics = new Set<TDiagnostic>();
+	let loggedDiagnostics = new Set<TDiagnostic>();
+	let loggedDiagnosticsReporter: Reporter | undefined;
 	let diagnosticReporter: Reporter | undefined;
 	const extensionHooks: ExtensionHookEntry<
 		TContext,
@@ -748,6 +749,11 @@ export function createPipeline<
 	function logDiagnostic(diagnostic: TDiagnostic): void {
 		if (!diagnosticReporter) {
 			return;
+		}
+
+		if (diagnosticReporter !== loggedDiagnosticsReporter) {
+			loggedDiagnostics = new Set();
+			loggedDiagnosticsReporter = diagnosticReporter;
 		}
 
 		if (loggedDiagnostics.has(diagnostic)) {

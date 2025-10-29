@@ -349,6 +349,9 @@ importers:
       '@wordpress/hooks':
         specifier: '>=4.32.0'
         version: 4.32.0
+      '@wordpress/interactivity':
+        specifier: '>=6.34.0'
+        version: 6.34.0
       loglayer:
         specifier: '>=6.7.2'
         version: 6.9.1
