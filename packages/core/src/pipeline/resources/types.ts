@@ -13,6 +13,7 @@ import type {
 	PipelineDiagnostic,
 	PipelineRunState,
 } from '../types';
+import type { CorePipelineContext } from '../helpers/context';
 
 /**
  * Helper kind identifier reserved for resource lifecycle fragments.
@@ -57,11 +58,11 @@ export interface ResourcePipelineRunOptions<T, TQuery> {
 	/** Normalized configuration with defaults expanded. */
 	readonly normalizedConfig: NormalizedResourceConfig<T, TQuery>;
 	/** Namespace owning the resource (usually plugin slug). */
-	readonly namespace: string;
+	namespace: string;
 	/** Canonical resource name used for logging and cache keys. */
 	readonly resourceName: string;
 	/** Structured reporter used for diagnostics and telemetry. */
-	readonly reporter: Reporter;
+	reporter: Reporter;
 }
 
 export type ResourcePipelineBuildOptions<T, TQuery> =
@@ -79,7 +80,8 @@ export type ResourcePipelineBuildOptions<T, TQuery> =
  * ```
  */
 export interface ResourcePipelineContext<T, TQuery>
-	extends ResourcePipelineBuildOptions<T, TQuery> {
+	extends ResourcePipelineBuildOptions<T, TQuery>,
+		CorePipelineContext {
 	/** Unique key linking store entries and diagnostics to the resource. */
 	readonly storeKey: string;
 }

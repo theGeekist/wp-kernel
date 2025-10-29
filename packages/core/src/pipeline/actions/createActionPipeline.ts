@@ -1,16 +1,20 @@
 import { createPipeline } from '../createPipeline';
-import {
-	createActionContext,
-	generateActionRequestId,
-} from '../../actions/context';
+import { generateActionRequestId } from '../../actions/context';
 import { buildActionLifecycleFragment } from './helpers/buildActionLifecycleFragment';
 import { buildActionExecutionBuilder } from './helpers/buildActionExecutionBuilder';
+import { buildActionOptionsResolver } from './helpers/buildActionOptionsResolver';
+import { buildActionContextAssembler } from './helpers/buildActionContextAssembler';
+import { buildActionRegistryRecorder } from './helpers/buildActionRegistryRecorder';
 import type {
 	ActionPipeline,
+	ActionPipelineContext,
 	ActionPipelineOptions,
 	ActionPipelineRunResult,
 } from './types';
 import { ACTION_BUILDER_KIND, ACTION_FRAGMENT_KIND } from './types';
+import { getNamespace } from '../../namespace/detect';
+import { createReporter as createKernelReporter } from '../../reporter';
+import type { Reporter } from '../../reporter/types';
 
 /**
  * Construct the action execution pipeline.
@@ -34,7 +38,10 @@ import { ACTION_BUILDER_KIND, ACTION_FRAGMENT_KIND } from './types';
  * const result = await pipeline.run({
  *   config: actionConfig,
  *   args: { postId: 42 },
- *   resolvedOptions: { scope: 'crossTab', bridged: true },
+ *   definition: {
+ *     action: createDefinedAction(),
+ *     namespace: 'example/posts',
+ *   },
  * });
  *
  * console.log(result.artifact.result);
@@ -50,24 +57,22 @@ export function createActionPipeline<TArgs, TResult>(): ActionPipeline<
 		createBuildOptions(runOptions) {
 			return {
 				config: runOptions.config,
-				resolvedOptions: runOptions.resolvedOptions,
 			};
 		},
-		createContext(runOptions) {
+		createContext(runOptions): ActionPipelineContext<TArgs, TResult> {
 			const requestId = generateActionRequestId();
-			const actionContext = createActionContext(
-				runOptions.config.name,
-				requestId,
-				runOptions.resolvedOptions
-			);
+			const namespace = getNamespace();
+			const reporter = resolveReporter(namespace);
 
 			return {
-				reporter: actionContext.reporter,
+				reporter,
 				actionName: runOptions.config.name,
-				namespace: actionContext.namespace,
-				resolvedOptions: runOptions.resolvedOptions,
+				namespace,
 				requestId,
-				actionContext,
+				config: runOptions.config,
+				args: runOptions.args,
+				definition: runOptions.definition,
+				registry: runOptions.registry,
 			};
 		},
 		createFragmentState() {
@@ -107,8 +112,27 @@ export function createActionPipeline<TArgs, TResult>(): ActionPipeline<
 	const pipeline: ActionPipeline<TArgs, TResult> =
 		createPipeline(pipelineOptions);
 
+	pipeline.ir.use(buildActionOptionsResolver<TArgs, TResult>());
+	pipeline.ir.use(buildActionContextAssembler<TArgs, TResult>());
 	pipeline.ir.use(buildActionLifecycleFragment<TArgs, TResult>());
 	pipeline.builders.use(buildActionExecutionBuilder<TArgs, TResult>());
+	pipeline.builders.use(buildActionRegistryRecorder<TArgs, TResult>());
 
 	return pipeline;
+}
+
+function resolveReporter(namespace: string): Reporter {
+	const runtime = globalThis.__WP_KERNEL_ACTION_RUNTIME__ as
+		| { reporter?: Reporter }
+		| undefined;
+
+	if (runtime?.reporter) {
+		return runtime.reporter;
+	}
+
+	return createKernelReporter({
+		namespace,
+		channel: 'all',
+		level: 'debug',
+	});
 }

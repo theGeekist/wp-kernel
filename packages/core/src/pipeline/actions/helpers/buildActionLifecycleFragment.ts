@@ -1,6 +1,7 @@
 import { createHelper } from '../../helper';
 import { createActionLifecycleEvent } from '../../../actions/lifecycle';
 import { emitLifecycleEvent } from '../../../actions/context';
+import { WPKernelError } from '../../../error/WPKernelError';
 import type {
 	ActionFragmentHelper,
 	ActionFragmentKind,
@@ -30,7 +31,7 @@ export function buildActionLifecycleFragment<
 	TResult,
 >(): ActionFragmentHelper<TArgs, TResult> {
 	return createHelper<
-		ActionPipelineContext,
+		ActionPipelineContext<TArgs, TResult>,
 		ActionLifecycleFragmentInput<TArgs>,
 		ActionInvocationDraft<TResult>,
 		Reporter,
@@ -38,7 +39,22 @@ export function buildActionLifecycleFragment<
 	>({
 		key: 'action.lifecycle.initialize',
 		kind: ACTION_FRAGMENT_KIND,
+		mode: 'extend',
+		priority: 80,
+		dependsOn: ['action.context.assemble'],
 		apply: async ({ context, input, output }) => {
+			if (!context.resolvedOptions) {
+				throw new WPKernelError('DeveloperError', {
+					message:
+						'action.lifecycle.initialize requires resolved options. Ensure action.options.resolve runs first.',
+				});
+			}
+			if (!context.actionContext) {
+				throw new WPKernelError('DeveloperError', {
+					message:
+						'action.lifecycle.initialize requires an action context. Ensure action.context.assemble runs first.',
+				});
+			}
 			output.startTime = readMonotonicTime();
 			const startEvent = createActionLifecycleEvent(
 				'start',

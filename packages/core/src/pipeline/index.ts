@@ -1,5 +1,6 @@
 export { createHelper } from './helper';
 export { createPipeline } from './createPipeline';
+export { buildPipelineCommit, buildPipelineRollback } from './helpers/commit';
 export type {
 	Helper,
 	HelperApplyFn,
@@ -25,3 +26,7 @@ export type {
 	FragmentFinalizationMetadata,
 	PipelineExecutionMetadata,
 } from './types';
+export type {
+	CorePipelineContext,
+	CorePipelineRegistryBridge,
+} from './helpers/context';
