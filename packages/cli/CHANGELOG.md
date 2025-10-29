@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+## 0.9.0 - 2025-10-27
+
+### Added
+
+- **Layered apply workflow release** – Verified the Task 31 checklist (`wpk generate && wpk apply --yes --dry-run`) and finalized the Phase 5 minor release.
+
+### Documentation
+
+- **MVP ledger update** – Marked the Phase 5 release slot as shipped and captured the migration guidance in the CLI docs.
+
+### Maintenance
+
+- **Version bump** – Propagated the package version to `0.9.0` and regenerated API references via the release automation.
+
 ## 0.8.0 - 2025-10-26
 
 ### Removed
