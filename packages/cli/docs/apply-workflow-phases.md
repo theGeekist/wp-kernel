@@ -26,21 +26,19 @@ _See [Docs Index](./index.md) for navigation._
 
 ### 1.2 CLI surface
 
-- `buildApplyCommand` (`packages/cli/src/commands/apply.ts`) produces the default `NextApplyCommand`, which loads the plan, runs the patcher helper, prints the manifest summary, and exits with `WPK_EXIT_CODES.VALIDATION_ERROR` if any conflicts remain.
-- The factory wrapper (`buildApplyCommand`) now exposes the dependency-injection seam used by `buildGenerateCommand` and `buildInitCommand`, returning `NextApplyCommand` while we continue layering safety rails.
-- Flags like `--yes`, `--backup`, and `--force` are not yet honoured; support will be ported into the command as part of the layering work.
+- `buildApplyCommand` (`packages/cli/src/commands/apply.ts`) produces the default `NextApplyCommand`, loads the plan, emits shims, writes `.wpk-apply.log`, and exits with `WPK_EXIT_CODES.VALIDATION_ERROR` when conflicts remain.
+- The factory wrapper (`buildApplyCommand`) exposes the dependency-injection seam used by `buildGenerateCommand` and `buildInitCommand`, returning `NextApplyCommand` so tests can inject reporters, manifest readers, or patcher helpers.
+- Flags `--yes`, `--backup`, and `--force` now match the legacy behaviour alongside composer fallback detection and git enforcement.
 
 ### 1.3 Legacy reference point
 
 - The pre-0.8.0 command handled every side effect: copying generated PHP into `inc/`, syncing block artefacts, respecting `--yes/--backup/--force`, keeping an append-only `.wpk-apply.log`, and emitting summaries for PHP and blocks. Those responsibilities now migrate onto the next pipeline (`packages/cli/src/commands/apply.ts`).
 - Guard rails rely on git: the new helper shells out to `git status --porcelain -- .generated/php` and warns instead of failing when the directory is not tracked (`packages/cli/src/next/workspace/utilities.ts:60-120`). This behaviour needs to tighten when we require a repository for apply.
 
-### 1.4 Gaps in the next command
+### 1.4 Ongoing polish
 
-- The plan builder now stages extension shims under `.wpk/apply/**`, adds `require_once` fallbacks, and captures builder actions. Task 28 layered flag handling, git enforcement, and `.wpk-apply.log` parity onto the next apply command (`packages/cli/src/commands/apply.ts`).
-- `createPatcher` performs diff3 merges in temporary files but depends entirely on pre-authored instructions. The helper currently skips work if no plan exists, and no builder emits that plan yet (`packages/cli/src/next/builders/patcher.ts:226-318`).
-- Task 30 extended the git guard so the command now walks ancestor directories to locate `.git`, keeping mono-repo packages compliant without forcing duplicate repositories (`packages/cli/src/commands/apply.ts:62-102`).
-- The manifest is printed to stdout, but we do not append to `.wpk-apply.log` or snapshot the builder actions that would let the CLI review pending writes before they hit disk (`packages/cli/src/commands/apply.ts:183-212`).
+- Tasks 27-31 closed the shim model, git guard, composer fallbacks, and `.wpk-apply.log` parity. Use this section as a status summary rather than a backlog.
+- Future diagnostics or reporting tweaks should be tracked under Phase 8 Task 46 once the core pipeline alignment spec lands additional requirements.
 
 ### 1.5 Safety guarantees
 
@@ -89,10 +87,10 @@ What changes is _what_ we merge. Instead of large controller bodies, the merge i
     - Confirm every generated controller/helper exposes a stable namespace and class name that user code can extend (`packages/cli/src/next/builders/php/resourceController.ts:1-870`, `indexFile.ts:1-74`, `capability.ts:21-110`).
     - Guarantee `.generated/**` remains the single source of truth (already true for PHP/AST output, see `packages/cli/src/next/builders/php/writer.ts:30-68`).
 3. **Introduce extension shims**
-    - Create or update the apply plan builder to emit files that wrap generated classes (e.g., require + subclass).
-    - Treat those shims as templates we own; the user keeps overrides inside the class body.
-    - Detect whether `composer.json` exposes a PSR-4 namespace (the init template wires `inc/` automatically, see `packages/cli/templates/init/composer.json:1-9`) and fall back to emitting `require_once` guards when autoloading is unavailable.
-    - Warn during generation when the configured namespace cannot be normalised to PSR-1 before writing shims so projects know to adjust `wpk.config.ts`.
+    - ✓ Task 27 updated the apply plan builder to emit require + subclass shims that wrap generated classes.
+    - ✓ Task 27 treats those shims as templates we own; users keep overrides inside the class body.
+    - ✓ Task 27 detects PSR-4 namespaces (see `packages/cli/templates/init/composer.json`) and falls back to `require_once` guards when autoloading is unavailable.
+    - ✓ Task 27 warns during generation when namespaces cannot be normalised to PSR-1 so projects can adjust `wpk.config.ts`.
 4. **Port safety rails**
     - Carry across flag handling (`--yes`, `--backup`, `--force`) and `.wpk-apply.log` once the new layering is in place. ✓ Task 28 implemented these safety rails in `packages/cli/src/commands/apply.ts`.
     - Enforce git hygiene: fail early when `.git` is missing or dirty instead of skipping checks (`packages/cli/src/next/workspace/utilities.ts:60-150`).

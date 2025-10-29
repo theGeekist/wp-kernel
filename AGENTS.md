@@ -129,7 +129,7 @@ pnpm playground:offline:stop    # Stops server in background (zero network)
 
 ## Versioning
 
-- Current release train: **v0.7.x (pre-1.0)**. All publishable packages share the same semantic version sourced from the root `package.json`.
+- Current release train: **v0.9.x (pre-1.0)**. All publishable packages share the same semantic version sourced from the root `package.json`.
 - When you complete any scoped task in `packages/cli/docs/mvp-plan.md`, plan the work so the unified version bumps by either a patch (fix-level) or minor (feature-level) increment. Do the code/tests first, then-once approvals land and you rebased-apply the version/CHANGELOG updates in a final commit before merge.
 - Document migrations and changelog entries as pre-1.0 guidance; do not reference 1.x semantics until the roadmap flips to RC.
 - If you introduce a new public surface, call out the required version bump in the PR template and confirm the release checklist in `RELEASING.md` is satisfied.
