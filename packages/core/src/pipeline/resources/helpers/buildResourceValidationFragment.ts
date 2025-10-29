@@ -11,6 +11,16 @@ import type {
 import { RESOURCE_FRAGMENT_KIND } from '../types';
 import type { Reporter } from '../../../reporter/types';
 
+/**
+ * Create a fragment helper that validates resource configuration and records
+ * a diagnostic log entry describing the configured routes.
+ *
+ * @example
+ * ```ts
+ * const validation = buildResourceValidationFragment<Post, { id: number }>();
+ * pipeline.ir.use(validation);
+ * ```
+ */
 export function buildResourceValidationFragment<
 	T,
 	TQuery,

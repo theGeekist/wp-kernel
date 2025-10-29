@@ -11,6 +11,16 @@ import { RESOURCE_BUILDER_KIND } from '../types';
 import type { Reporter } from '../../../reporter/types';
 import { WPKernelError } from '../../../error/WPKernelError';
 
+/**
+ * Create the builder helper that assembles the final resource object once
+ * prerequisite fragments (client and cache keys) have executed.
+ *
+ * @example
+ * ```ts
+ * const builder = buildResourceObjectBuilder<Post, { id: number }>();
+ * pipeline.builders.use(builder);
+ * ```
+ */
 export function buildResourceObjectBuilder<T, TQuery>(): ResourceBuilderHelper<
 	T,
 	TQuery
