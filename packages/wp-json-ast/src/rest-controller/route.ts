@@ -21,48 +21,19 @@ import { buildDocCommentAttributes } from '../common/docblock';
 import { buildIdentityPlumbing } from './identity';
 
 import type {
-	RestControllerIdentity,
 	RestRouteConfig,
+	RestRouteIdentityPlan,
 	RestRouteRequestParameter,
 } from './types';
 
 export function buildRestRoute(
-	config: RestRouteConfig,
-	identity: RestControllerIdentity
+	plan: RestRouteIdentityPlan
 ): PhpStmtClassMethod {
-	const statements: PhpStmt[] = [];
-
-	appendRequestHandling(statements, { identity, route: config });
-
-	if (config.capability) {
-		const assignment = buildStaticCall(
-			buildName(['Capability']),
-			buildIdentifier('enforce'),
-			[
-				buildArg(buildScalarString(config.capability)),
-				buildArg(buildVariable('request')),
-			]
-		);
-
-		statements.push(
-			buildExpressionStatement(
-				buildAssign(buildVariable('permission'), assignment)
-			)
-		);
-		statements.push(buildReturnIfWpError(buildVariable('permission')));
-		statements.push(buildStmtNop());
-	}
-
-	statements.push(...config.statements);
-
-	const attributes = buildDocCommentAttributes([
-		buildSummaryLine(config),
-		`@wp-kernel route-kind ${config.metadata.kind}`,
-		...buildTagDocblock(config.metadata.tags),
-	]);
+	const statements = buildRouteStatements(plan);
+	const attributes = buildRouteAttributes(plan.route);
 
 	return buildClassMethod(
-		buildIdentifier(config.methodName),
+		buildIdentifier(plan.route.methodName),
 		{
 			flags: PHP_METHOD_MODIFIER_PUBLIC,
 			params: [
@@ -76,30 +47,59 @@ export function buildRestRoute(
 	);
 }
 
-interface AppendRequestHandlingOptions {
-	readonly identity: RestControllerIdentity;
-	readonly route: RestRouteConfig;
+function buildRouteStatements(plan: RestRouteIdentityPlan): PhpStmt[] {
+	const requestHandling = buildRequestHandlingStatements(plan);
+	const capabilityGuard = buildCapabilityGuardStatements(
+		plan.route.capability
+	);
+
+	return [...requestHandling, ...capabilityGuard, ...plan.route.statements];
 }
 
-function appendRequestHandling(
-	statements: PhpStmt[],
-	options: AppendRequestHandlingOptions
-): void {
-	const identityStatements = buildIdentityPlumbing({
-		identity: options.identity,
-		route: options.route,
-	});
+function buildRouteAttributes(route: RestRouteConfig) {
+	return buildDocCommentAttributes([
+		buildSummaryLine(route),
+		`@wp-kernel route-kind ${route.metadata.kind}`,
+		...buildTagDocblock(route.metadata.tags),
+	]);
+}
+
+function buildCapabilityGuardStatements(capability?: string): PhpStmt[] {
+	if (!capability) {
+		return [];
+	}
+
+	const assignment = buildStaticCall(
+		buildName(['Capability']),
+		buildIdentifier('enforce'),
+		[
+			buildArg(buildScalarString(capability)),
+			buildArg(buildVariable('request')),
+		]
+	);
+
+	return [
+		buildExpressionStatement(
+			buildAssign(buildVariable('permission'), assignment)
+		),
+		buildReturnIfWpError(buildVariable('permission')),
+		buildStmtNop(),
+	];
+}
+
+function buildRequestHandlingStatements(
+	plan: RestRouteIdentityPlan
+): PhpStmt[] {
+	const identityStatements = buildIdentityPlumbing(plan);
 	const parameterStatements = buildRequestParameterStatements(
-		options.route.requestParameters
+		plan.route.requestParameters
 	);
 
 	if (identityStatements.length === 0 && parameterStatements.length === 0) {
-		return;
+		return [];
 	}
 
-	statements.push(...identityStatements);
-	statements.push(...parameterStatements);
-	statements.push(buildStmtNop());
+	return [...identityStatements, ...parameterStatements, buildStmtNop()];
 }
 
 function buildRequestParameterStatements(
@@ -119,12 +119,12 @@ function buildRequestParameterStatements(
 	);
 }
 
-function buildSummaryLine(config: RestRouteConfig): string {
-	if (config.docblockSummary) {
-		return config.docblockSummary;
+function buildSummaryLine(route: RestRouteConfig): string {
+	if (route.docblockSummary) {
+		return route.docblockSummary;
 	}
 
-	return `Handle [${config.metadata.method}] ${config.metadata.path}.`;
+	return `Handle [${route.metadata.method}] ${route.metadata.path}.`;
 }
 
 function buildTagDocblock(

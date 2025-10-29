@@ -22,19 +22,7 @@ import { deriveRestControllerImports } from './imports';
 export function buildRestControllerClass(
 	config: RestControllerClassConfig
 ): RestControllerClassBuildResult {
-	const methods: PhpStmtClassMethod[] = [
-		buildGetResourceNameMethod(config.resourceName),
-		buildGetSchemaKeyMethod(config.schemaKey),
-		buildGetRestArgsMethod(config.restArgsExpression),
-	];
-
-	for (const route of config.routes) {
-		methods.push(buildRestRoute(route, config.identity));
-	}
-
-	if (config.helperMethods) {
-		methods.push(...config.helperMethods);
-	}
+	const methods = buildControllerMethods(config);
 
 	const classNode: PhpStmtClass = buildClass(
 		buildIdentifier(config.className),
@@ -54,6 +42,25 @@ export function buildRestControllerClass(
 		classNode,
 		uses: [...imports],
 	};
+}
+
+function buildControllerMethods(
+	config: RestControllerClassConfig
+): PhpStmtClassMethod[] {
+	const routeMethods = config.routes.map((route) =>
+		buildRestRoute({
+			route,
+			identity: config.identity,
+		})
+	);
+
+	return [
+		buildGetResourceNameMethod(config.resourceName),
+		buildGetSchemaKeyMethod(config.schemaKey),
+		buildGetRestArgsMethod(config.restArgsExpression),
+		...routeMethods,
+		...Array.from(config.helperMethods ?? []),
+	];
 }
 
 function buildGetResourceNameMethod(resourceName: string): PhpStmtClassMethod {

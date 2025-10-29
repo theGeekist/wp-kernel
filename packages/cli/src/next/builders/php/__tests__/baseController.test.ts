@@ -40,7 +40,7 @@ describe('createPhpBaseControllerHelper', () => {
 		const helper = createPhpBaseControllerHelper();
 		const ir = createMinimalIr({
 			meta: {
-				sanitizedNamespace: 'DemoPlugin',
+				sanitizedNamespace: 'demo-plugin',
 				origin: 'wpk.config.ts',
 			},
 			php: {
@@ -68,7 +68,7 @@ describe('createPhpBaseControllerHelper', () => {
 		expect(entry).toBeDefined();
 		expect(entry?.docblock).toEqual(
 			expect.arrayContaining([
-				expect.stringContaining('namespace: DemoPlugin'),
+				expect.stringContaining('namespace: demo-plugin/rest'),
 			])
 		);
 	});
