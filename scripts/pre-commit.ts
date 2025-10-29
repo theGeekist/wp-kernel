@@ -2,6 +2,7 @@
 
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
+import path from 'node:path';
 import { performance } from 'node:perf_hooks';
 
 interface CommandResult {
@@ -113,22 +114,31 @@ async function runCommand(
 		stdio: 'pipe',
 	});
 
-	let stdout = '';
-	let stderr = '';
+	const stdoutChunks: string[] = [];
+	const stderrChunks: string[] = [];
 
-	child.stdout.on('data', (data) => {
-		stdout += data.toString();
-	});
+	if (child.stdout) {
+		child.stdout.setEncoding('utf8');
+		child.stdout.on('data', (chunk: string) => {
+			stdoutChunks.push(chunk);
+		});
+	}
 
-	child.stderr.on('data', (data) => {
-		stderr += data.toString();
-	});
+	if (child.stderr) {
+		child.stderr.setEncoding('utf8');
+		child.stderr.on('data', (chunk: string) => {
+			stderrChunks.push(chunk);
+		});
+	}
 
 	const [code, signal] = (await once(child, 'close')) as [
 		number,
 		NodeJS.Signals | null,
 	];
 	const durationMs = performance.now() - startedAt;
+
+	const stdout = stdoutChunks.join('');
+	const stderr = stderrChunks.join('');
 
 	return { stdout, stderr, code, signal, durationMs };
 }
@@ -166,6 +176,10 @@ interface Task {
 	skipMessage?: string;
 }
 
+function normalizePath(file: string): string {
+	return file.replace(/\\/g, '/');
+}
+
 async function getStagedFiles(): Promise<string[]> {
 	const result = await runCommand('git', [
 		'diff',
@@ -184,11 +198,224 @@ async function getStagedFiles(): Promise<string[]> {
 	return result.stdout
 		.split('\n')
 		.map((line) => line.trim())
-		.filter(Boolean);
+		.filter(Boolean)
+		.map(normalizePath);
 }
 
 function hasPrefix(files: string[], prefix: string): boolean {
 	return files.some((file) => file.startsWith(prefix));
+}
+
+const DOCUMENTATION_FILE_EXTENSIONS = new Set([
+	'.md',
+	'.mdx',
+	'.markdown',
+	'.mdown',
+	'.adoc',
+	'.rst',
+	'.txt',
+]);
+
+const DOCUMENTATION_FILENAMES = new Set([
+	'changelog.md',
+	'readme.md',
+	'contributing.md',
+	'license.md',
+	'licensing.md',
+	'migrating.md',
+	'migration.md',
+	'roadmap.md',
+]);
+
+function isDocumentationFile(file: string): boolean {
+	const lowercased = file.toLowerCase();
+	const ext = path.extname(lowercased);
+	const filename = path.basename(lowercased);
+
+	if (DOCUMENTATION_FILE_EXTENSIONS.has(ext)) {
+		return true;
+	}
+
+	if (DOCUMENTATION_FILENAMES.has(filename)) {
+		return true;
+	}
+
+	if (lowercased.startsWith('docs/')) {
+		return true;
+	}
+
+	if (/^packages\/[^/]+\/docs\//.test(lowercased)) {
+		return true;
+	}
+
+	if (/^examples\/[^/]+\/docs\//.test(lowercased)) {
+		return true;
+	}
+
+	return false;
+}
+
+type RegisterTarget = (
+	key: string,
+	label: string,
+	filter: string,
+	reason: string
+) => void;
+
+function populateTypecheckTargets(
+	stagedFiles: string[],
+	registerTarget: RegisterTarget
+): void {
+	const prefixConfigurations: Array<{
+		matches: (files: string[]) => boolean;
+		apply: (register: RegisterTarget) => void;
+	}> = [
+		{
+			matches: (files) => hasPrefix(files, 'packages/core/'),
+			apply: (register) => {
+				register(
+					'core',
+					'Core workspace',
+					'@wpkernel/core',
+					'Core files changed'
+				);
+				register(
+					'cli',
+					'CLI workspace',
+					'@wpkernel/cli',
+					'CLI depends on core changes'
+				);
+				register(
+					'ui',
+					'UI workspace',
+					'@wpkernel/ui',
+					'UI depends on core changes'
+				);
+				register(
+					'php-driver',
+					'PHP driver workspace',
+					'@wpkernel/php-driver',
+					'PHP driver depends on core changes'
+				);
+				register(
+					'php-json-ast',
+					'PHP JSON AST workspace',
+					'@wpkernel/php-json-ast',
+					'PHP JSON AST depends on core changes'
+				);
+				register(
+					'wp-json-ast',
+					'WP JSON AST workspace',
+					'@wpkernel/wp-json-ast',
+					'WP JSON AST depends on core changes'
+				);
+				register(
+					'test-utils',
+					'Test utils workspace',
+					'@wpkernel/test-utils',
+					'Test utils depend on core changes'
+				);
+			},
+		},
+		{
+			matches: (files) => hasPrefix(files, 'packages/ui/'),
+			apply: (register) => {
+				register(
+					'ui',
+					'UI workspace',
+					'@wpkernel/ui',
+					'UI files changed'
+				);
+				register(
+					'cli',
+					'CLI workspace',
+					'@wpkernel/cli',
+					'UI depends on CLI output'
+				);
+			},
+		},
+		{
+			matches: (files) => hasPrefix(files, 'packages/cli/'),
+			apply: (register) => {
+				register(
+					'cli',
+					'CLI workspace',
+					'@wpkernel/cli',
+					'CLI files changed'
+				);
+			},
+		},
+		{
+			matches: (files) => hasPrefix(files, 'packages/php-driver/'),
+			apply: (register) => {
+				register(
+					'php-driver',
+					'PHP driver workspace',
+					'@wpkernel/php-driver',
+					'PHP driver files changed'
+				);
+			},
+		},
+		{
+			matches: (files) => hasPrefix(files, 'packages/php-json-ast/'),
+			apply: (register) => {
+				register(
+					'php-json-ast',
+					'PHP JSON AST workspace',
+					'@wpkernel/php-json-ast',
+					'PHP JSON AST files changed'
+				);
+			},
+		},
+		{
+			matches: (files) => hasPrefix(files, 'packages/wp-json-ast/'),
+			apply: (register) => {
+				register(
+					'wp-json-ast',
+					'WP JSON AST workspace',
+					'@wpkernel/wp-json-ast',
+					'WP JSON AST files changed'
+				);
+			},
+		},
+		{
+			matches: (files) => hasPrefix(files, 'packages/e2e-utils/'),
+			apply: (register) => {
+				register(
+					'e2e-utils',
+					'E2E utils workspace',
+					'@wpkernel/e2e-utils',
+					'E2E utils files changed'
+				);
+			},
+		},
+		{
+			matches: (files) => hasPrefix(files, 'packages/test-utils/'),
+			apply: (register) => {
+				register(
+					'test-utils',
+					'Test utils workspace',
+					'@wpkernel/test-utils',
+					'Test utils files changed'
+				);
+			},
+		},
+		{
+			matches: (files) => hasPrefix(files, 'examples/showcase/'),
+			apply: (register) => {
+				register(
+					'showcase',
+					'Showcase example',
+					'wp-kernel-showcase',
+					'Showcase files changed'
+				);
+			},
+		},
+	];
+
+	prefixConfigurations
+		.filter((configuration) => configuration.matches(stagedFiles))
+		.forEach((configuration) => configuration.apply(registerTarget));
 }
 
 function buildTypecheckTasks(stagedFiles: string[]): Task[] {
@@ -215,90 +442,7 @@ function buildTypecheckTasks(stagedFiles: string[]): Task[] {
 		typecheckTargets.set(key, entry);
 	};
 
-	const hasCoreChanges = hasPrefix(stagedFiles, 'packages/core/');
-	const hasUIChanges = hasPrefix(stagedFiles, 'packages/ui/');
-	const hasCliChanges = hasPrefix(stagedFiles, 'packages/cli/');
-	const hasPhpDriverChanges = hasPrefix(stagedFiles, 'packages/php-driver/');
-	const hasPhpAstChanges = hasPrefix(stagedFiles, 'packages/php-json-ast/');
-	const hasWpJsonAstChanges = hasPrefix(stagedFiles, 'packages/wp-json-ast/');
-	const hasShowcaseChanges = hasPrefix(stagedFiles, 'examples/showcase/');
-
-	if (hasCoreChanges) {
-		tasks.push(
-			createCommandTask({
-				title: 'Typecheck entire workspace',
-				commands: [
-					{ cmd: 'pnpm', args: ['typecheck'], label: 'typecheck' },
-					{
-						cmd: 'pnpm',
-						args: ['typecheck:tests'],
-						label: 'typecheck:tests',
-					},
-				],
-			})
-		);
-		return tasks;
-	}
-
-	if (hasUIChanges) {
-		registerTarget(
-			'ui',
-			'UI workspace',
-			'@wpkernel/ui',
-			'UI files changed'
-		);
-		registerTarget(
-			'cli',
-			'CLI workspace',
-			'@wpkernel/cli',
-			'UI depends on CLI output'
-		);
-	}
-
-	if (hasCliChanges) {
-		registerTarget(
-			'cli',
-			'CLI workspace',
-			'@wpkernel/cli',
-			'CLI files changed'
-		);
-	}
-
-	if (hasPhpDriverChanges) {
-		registerTarget(
-			'php-driver',
-			'PHP driver workspace',
-			'@wpkernel/php-driver',
-			'PHP driver files changed'
-		);
-	}
-
-	if (hasPhpAstChanges) {
-		registerTarget(
-			'php-json-ast',
-			'PHP JSON AST workspace',
-			'@wpkernel/php-json-ast',
-			'PHP JSON AST files changed'
-		);
-	}
-
-	if (hasWpJsonAstChanges) {
-		registerTarget(
-			'wp-json-ast',
-			'WP JSON AST workspace',
-			'@wpkernel/wp-json-ast',
-			'WP JSON AST files changed'
-		);
-	}
-
-	if (hasShowcaseChanges) {
-		registerTarget(
-			'showcase',
-			'Showcase example',
-			'wp-kernel-showcase',
-			'Showcase files changed'
-		);
-	}
+	populateTypecheckTargets(stagedFiles, registerTarget);
 
 	for (const [, target] of typecheckTargets) {
 		tasks.push(
@@ -499,13 +643,21 @@ async function main() {
 	const stagedFiles = await getStagedFiles();
 
 	const hasStagedFiles = stagedFiles.length > 0;
+	const nonDocumentationFiles = stagedFiles.filter(
+		(file) => !isDocumentationFile(file)
+	);
+	const hasNonDocumentationChanges = nonDocumentationFiles.length > 0;
+	const documentationOnlyChanges =
+		hasStagedFiles && !hasNonDocumentationChanges;
 
 	const tasks: Task[] = [];
 
 	tasks.push({
 		title: 'Lint staged files',
-		enabled: hasStagedFiles,
-		skipMessage: 'No staged files detected – skipping lint-staged.',
+		enabled: hasStagedFiles && !documentationOnlyChanges,
+		skipMessage: hasStagedFiles
+			? 'Documentation-only changes detected – skipping lint-staged.'
+			: 'No staged files detected – skipping lint-staged.',
 		async run(ctx) {
 			ctx.update('lint-staged');
 			const result = await runCommand('pnpm', ['lint-staged']);
@@ -523,33 +675,59 @@ async function main() {
 		},
 	});
 
-	tasks.push(...buildTypecheckTasks(stagedFiles));
+	if (hasNonDocumentationChanges) {
+		tasks.push(...buildTypecheckTasks(nonDocumentationFiles));
 
-	tasks.push({
-		title: 'Run tests with coverage',
-		async run(ctx) {
-			ctx.update('jest --coverage');
-			const result = await runCommand('pnpm', ['test:coverage']);
-			if (result.code !== 0) {
-				throw new CommandError('pnpm test:coverage', result);
-			}
+		tasks.push({
+			title: 'Run tests with coverage',
+			async run(ctx) {
+				ctx.update('jest --coverage');
+				const result = await runCommand('pnpm', ['test:coverage']);
+				if (result.code !== 0) {
+					throw new CommandError('pnpm test:coverage', result);
+				}
 
-			return {
-				summaryLines: extractCoverageSummary(result.stdout),
-			} satisfies TaskResult;
-		},
-	});
+				return {
+					summaryLines: extractCoverageSummary(result.stdout),
+				} satisfies TaskResult;
+			},
+		});
 
-	tasks.push({
-		title: 'Run integration test suites',
-		async run(ctx) {
-			ctx.update('jest integration');
-			const result = await runCommand('pnpm', ['test:integration']);
-			if (result.code !== 0) {
-				throw new CommandError('pnpm test:integration', result);
-			}
-		},
-	});
+		tasks.push({
+			title: 'Run integration test suites',
+			async run(ctx) {
+				ctx.update('jest integration');
+				const result = await runCommand('pnpm', ['test:integration']);
+				if (result.code !== 0) {
+					throw new CommandError('pnpm test:integration', result);
+				}
+			},
+		});
+	} else {
+		tasks.push({
+			title: 'Typecheck',
+			enabled: false,
+			skipMessage:
+				'Documentation-only changes detected – skipping typechecks.',
+			async run() {},
+		});
+
+		tasks.push({
+			title: 'Run tests with coverage',
+			enabled: false,
+			skipMessage:
+				'Documentation-only changes detected – skipping coverage tests.',
+			async run() {},
+		});
+
+		tasks.push({
+			title: 'Run integration test suites',
+			enabled: false,
+			skipMessage:
+				'Documentation-only changes detected – skipping integration tests.',
+			async run() {},
+		});
+	}
 
 	tasks.push({
 		title: 'Format workspace',
