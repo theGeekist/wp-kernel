@@ -14,7 +14,7 @@
 | **Version Bump**  | Update package.json versions manually                                  |
 | **Release**       | Follow the framework playbook, run `pnpm release:verify`, tag, publish |
 
-**Current train**: unified **v0.7.x (pre-1.0)** across every publishable package.
+**Current train**: unified **v0.9.x (pre-1.0)** across every publishable package.
 
 ---
 

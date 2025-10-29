@@ -12,19 +12,17 @@ This plan supplements the focused workflow guides (for example [Apply Workflow P
 
 ## 1. Command surface snapshot
 
-| Command    | Next entry point                                                           | Legacy entry point                  | Current behaviour                                                                                        | Required upgrades                                                                                                                                                    |
-| ---------- | -------------------------------------------------------------------------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `apply`    | `buildApplyCommand` (`src/commands/apply.ts`) returning `NextApplyCommand` | Removed in v0.8.0 (string printers) | Native manifest reader with partial parity (no git, logging, or composer/autoload integration).          | Port flag/log behaviour, enforce git, append `.wpk-apply.log`, emit shims when composer autoload is unavailable, and refactor through a `buildApplyCommand` factory. |
-| `generate` | `buildGenerateCommand` (`src/commands/generate.ts`)                        | Removed in v0.8.0 (Clipanion shim)  | Native pipeline command that runs `createPipeline`, validates adapters, and streams workspace summaries. | Continue surfacing diagnostics and reporter polish as the pipeline evolves; ensure integration tests cover adapter hooks and summary output.                         |
-| `init`     | `buildInitCommand` (`src/commands/init.ts`)                                | Removed in v0.8.0 (scaffolder shim) | Bridges to the legacy scaffolder.                                                                        | Implement git repository warnings, align prompts with next pipeline adapters, and prepare for `create` reuse.                                                        |
-| `create`   | -                                                                          | -                                   | Not implemented.                                                                                         | Wrap the init flow, bootstrap git when missing, install npm + composer dependencies, and surface progress via the next reporter.                                     |
-| `start`    | `buildStartCommand` (`src/commands/start.ts`)                              | Removed in v0.8.0 (watcher shim)    | Delegates to the legacy watcher.                                                                         | Rebuild as a native pipeline orchestration (watch IR, regenerate, optionally `apply`) with chokidar tiers and Vite integration.                                      |
-| `doctor`   | `buildDoctorCommand` (`src/commands/doctor.ts`)                            | Removed in v0.8.0 (stub command)    | Stub that returns success.                                                                               | Implement health checks (config schema, composer autoload, php-driver availability, workspace hygiene) and report via the next reporter.                             |
-| `build`    | -                                                                          | Removed in v0.8.0 (deprecated)      | Deprecated.                                                                                              | No replacement planned; document removal.                                                                                                                            |
+| Command    | Next entry point                                                           | Legacy entry point                  | Current behaviour                                                                                                | Follow-ups                                                                                                                                                                                                          |
+| ---------- | -------------------------------------------------------------------------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apply`    | `buildApplyCommand` (`src/commands/apply.ts`) returning `NextApplyCommand` | Removed in v0.8.0 (string printers) | Native manifest reader with shims, composer fallbacks, git enforcement, `.wpk-apply.log`, and flag parity.       | Phase 8 Task 46 captures future diagnostics polish; otherwise the command is feature-complete.                                                                                                                      |
+| `generate` | `buildGenerateCommand` (`src/commands/generate.ts`)                        | Removed in v0.8.0 (Clipanion shim)  | Native pipeline command that runs `createPipeline`, validates adapters, and streams workspace summaries.         | Continue surfacing diagnostics/reporting improvements alongside new adapters and IR hooks.                                                                                                                          |
+| `init`     | `buildInitCommand` (`src/commands/init.ts`)                                | Removed in v0.8.0 (scaffolder shim) | Native scaffolder backed by workspace helpers with git hygiene warnings and manifest summaries.                  | Share future prompt/reporting polish with `create`; no outstanding parity gaps remain.                                                                                                                              |
+| `create`   | `buildCreateCommand` (`src/commands/create.ts`)                            | Removed in v0.8.0 (scaffolder shim) | Wraps the init workflow, bootstraps git when missing, installs npm/composer deps, and respects `--skip-install`. | Phase 7 Tasks 37-38 add the published bootstrap workspace and proxy; later tasks grow templates/reporting.                                                                                                          |
+| `start`    | `buildStartCommand` (`src/commands/start.ts`)                              | Removed in v0.8.0 (watcher shim)    | Native watcher orchestrating chokidar tiers, regeneration, optional auto-apply, and Vite.                        | Phase 8 Task 46 leads the Vite reporter swap to `createReporter({ namespace: 'cli.vite', channel: 'console' })`; follow-up roadmap items can iterate on watcher ergonomics (selective regeneration, adapter hooks). |
+| `doctor`   | `buildDoctorCommand` (`src/commands/doctor.ts`)                            | Removed in v0.8.0 (stub command)    | Runs config/composer/workspace/PHP-driver checks with structured reporter output and exit codes.                 | Add new audits as helpers land (dependency drift, git status)-no legacy parity gaps remain.                                                                                                                         |
+| `build`    | -                                                                          | Removed in v0.8.0 (deprecated)      | Deprecated.                                                                                                      | No replacement planned; document removal.                                                                                                                                                                           |
 
-All next-gen commands should follow the `build*Command` factory pattern already used by `generate`, `init`, `start`, and `doctor`. The factories encapsulate dependency injection for tests, provide a seam for sharing the clipanion command metadata, and will make it possible to run commands inside the core pipeline orchestrator.
-
----
+All next-gen commands follow the `build*Command` factory pattern already used by `generate`, `init`, `create`, `start`, and `doctor`. The factories encapsulate dependency injection for tests, provide a seam for sharing the Clipanion command metadata, and make it possible to run commands inside the core pipeline orchestrator.
 
 ## 2. Pipeline orchestration expectations
 
@@ -44,12 +42,10 @@ Embedding the commands in factories keeps the orchestration consistent with the 
 
 - **Current state:** The default `NextApplyCommand` produced by `buildApplyCommand` loads the kernel config, executes `createPatcher`, honours `--yes/--backup/--force`, enforces git hygiene, and appends structured entries to `.wpk-apply.log` while printing the manifest summary.
 - **Legacy reference:** The pre-0.8.0 command shim handled three-way merges, composer autoload detection, shim creation, git checks, backups, and logging; refer to the v0.7.x history for implementation details.
-- **Scope:**
-    - Introduce `buildApplyCommand` that mirrors the structure of `buildGenerateCommand` so tests can instantiate the command with injected builders/reporters.
-    - Update the apply workflow to emit user extension shims and compute `require_once` fallbacks when composer autoload is absent. See [Apply Workflow Phases](./apply-workflow-phases.md) for the layering plan.
-    - Port git requirements (fail when `.git` is missing), restore `--yes/--backup/--force` semantics, and persist `.wpk-apply.log` entries.
-    - Ensure manifests capture builder actions so the pipeline can reconcile pending writes before touching the workspace.
-- **MVP Plan mapping:** Tasks in [Phase 5 - Apply layering & flags](./mvp-plan.md#phase-5---apply-layering--flags--planned-) cover shim generation, safety rails, and release gating. The new `buildApplyCommand` factory lands in Phase 4 Task 20.
+- **Ongoing focus:**
+    - Keep shim templates and composer fallbacks aligned with adapter/runtime changes (see [Apply Workflow Phases](./apply-workflow-phases.md)).
+    - Expand diagnostics/log output as Phase 8 Task 46 introduces new reporting requirements.
+- **MVP Plan mapping:** Phase 4 Task 20 delivered the factory and Phase 5 closed layering + safety rails. Any additional polish now rolls into Phase 7 Tasks 37-45 (bootstrap flow) with diagnostics routed to Phase 8 Task 46.
 
 ### 3.2 Generate
 
@@ -78,7 +74,7 @@ Embedding the commands in factories keeps the orchestration consistent with the 
 
 - **Current state:** `buildStartCommand` orchestrates chokidar tiers, forwards reporter output, runs Vite, and optionally mirrors PHP artefacts into `inc/`.
 - **Scope:**
-    - Expand watcher ergonomics as new pipeline hooks land (e.g., scoped regeneration flags, PHP filtering).
+    - Hand the Vite reporter swap to Phase 8 Task 46 (`createReporter({ namespace: 'cli.vite', channel: 'console' })`), then expand watcher ergonomics as new pipeline hooks land (e.g., scoped regeneration flags, PHP filtering).
     - Share diagnostics helpers with future apply/watch polish.
     - Coordinate Vite lifecycle tweaks with example apps as they evolve.
 - **MVP Plan mapping:** Phase 4 Task 23 covers the new watcher orchestration and its integration tests.
@@ -101,8 +97,9 @@ Embedding the commands in factories keeps the orchestration consistent with the 
 
 ## 4. Dependencies & sequencing
 
-1. **Phase 4 (Command migration & string-printer retirement):** Deliver the command factories (`buildApplyCommand`, native `init/create`, `generate`, `start`, `doctor`) before removing string printers. This phase culminates in the **0.8.0** release once the legacy command layer disappears.
-2. **Phase 5 (Apply layering & flags):** Builds on Phase 4 by adding shim generation, git enforcement, and logging to `apply`. See the dedicated [apply workflow](./apply-workflow-phases.md) for the release guard (0.9.0 minor).
-3. **Pipeline reliance:** Every command will run atop `createPipeline` and workspace transactions. Coordinate with `@wpkernel/core` to expose any missing orchestration helpers before landing command rewrites.
+1. **Phase 4 (Command migration & string-printer retirement):** Shipped in **0.8.0** with the factories (`buildApplyCommand`, native `init/create`, `generate`, `start`, `doctor`) and the removal of legacy shims. Treat it as the baseline when adding new commands.
+2. **Phase 5 (Apply layering & flags):** Closed in **0.9.0** after layering shims, git enforcement, and logging onto `apply`. See the dedicated [apply workflow](./apply-workflow-phases.md) for historical guardrails.
+3. **Phase 6 (Core pipeline alignment):** Tracks Tasks 32-36 in `packages/core/docs/phase-6-core-pipeline.md.md`. Coordinate with core as the spec evolves and route CLI bootstrap follow-ups into Phase 7 Tasks 37-45.
+4. **Pipeline reliance:** Every command runs atop `createPipeline` and workspace transactions. Coordinate with `@wpkernel/core` to expose any missing orchestration helpers before landing new features.
 
 Keep this plan synchronised with the [CLI Migration Phases](./cli-migration-phases.md) and update entries whenever new tasks ship.

@@ -1,5 +1,29 @@
 # @wpkernel/ui
 
+## Unreleased
+
+### In progress
+
+- **Phase 6 – Core pipeline alignment** – No UI updates are required yet, but
+  Tasks 32-36 may prompt documentation or runtime alignment once the core
+  orchestration work merges.
+- **Phase 7 – Plugin bootstrap flow** – Tasks 37-45 will land the create bootstrap, plugin loader, regeneration cleanup, and activation smoke before 0.11.0 ships; track any UI adjustments that surface during that work.
+- **Phase 8 placeholder** – Task 46 will collect incremental diagnostics (starting with the CLI LogLayer reporter) after the bootstrap flow ships.
+
+## 0.9.0 - 2025-10-27
+
+### Maintenance
+
+- Version bump to `0.9.0` to remain aligned with the Phase 5 release; UI exports
+  continue to mirror the runtime without further adjustments.
+
+## 0.8.0 - 2025-10-26
+
+### Maintenance
+
+- Version bump to `0.8.0` alongside the command migration release; UI APIs are
+  unchanged apart from the `VERSION` constant update.
+
 ## 0.7.0 - 2025-10-26
 
 ### Maintenance
