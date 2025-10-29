@@ -60,8 +60,14 @@ const child = spawn(process.execPath, [...finalArgs, ...jestArgs], {
         cwd: process.cwd(),
 });
 
-child.on('close', (code) => {
-        process.exit(code);
+child.on('close', (code, signal) => {
+        if (signal) {
+                // Re-emit the original termination signal so tooling and CI detect the failure.
+                process.kill(process.pid, signal);
+                return;
+        }
+
+        process.exit(code ?? 1);
 });
 
 child.on('error', (error) => {
