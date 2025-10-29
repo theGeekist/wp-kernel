@@ -223,11 +223,11 @@ _Completion:_ ☑ Completed – (this PR) introduced `buildPersistenceRegistryMo
 
 **Subtask 2.4.a – Normalise storage adapters.** Add a shared helper that maps storage kinds (`option`, `transient`, `custom`) to the appropriate AST fragments, replacing the CLI switch statements.
 
-_Completion:_ ☐ Pending – create the adapter mapper in `src/persistence/` and remove the CLI branching logic.
+_Completion:_ ☑ Completed – (this PR) introduced `normalizeStorageConfig` in `src/persistence/helpers.ts` so the module emits sorted storage payloads for post, option, transient, and taxonomy adapters.
 
 **Subtask 2.4.b – Co-locate identity validation.** Move the scalar casting and guard logic for identity payloads into `wp-json-ast`, aligning it with the request plumbing added in Task 2.1.
 
-_Completion:_ ☐ Pending – expose identity validation helpers and delete the CLI equivalents.
+_Completion:_ ☑ Completed – (this PR) added `normalizeIdentityConfig` that applies default params, casts, and guards while keeping the CLI adapter free of identity AST handling.
 
 _Task 2.5: Extract index and base controller emitters._ Consolidate the base controller and index file generators under `packages/wp-json-ast/src/module/` so they produce ready-to-write programs from the CLI IR. This removes the last general-purpose PHP emitters from the CLI and ensures future modules inherit consistent docblocks and metadata wiring.
 
