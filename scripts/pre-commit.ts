@@ -2,6 +2,7 @@
 
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
+import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { performance } from 'node:perf_hooks';
 
@@ -41,104 +42,164 @@ const TYPECHECK_TARGETS = {
 	core: {
 		label: 'Core workspace',
 		filter: '@wpkernel/core',
+		packageName: '@wpkernel/core',
+		directory: 'packages/core/',
 	},
 	cli: {
 		label: 'CLI workspace',
 		filter: '@wpkernel/cli',
+		packageName: '@wpkernel/cli',
+		directory: 'packages/cli/',
 	},
 	ui: {
 		label: 'UI workspace',
 		filter: '@wpkernel/ui',
+		packageName: '@wpkernel/ui',
+		directory: 'packages/ui/',
 	},
 	'php-driver': {
 		label: 'PHP driver workspace',
 		filter: '@wpkernel/php-driver',
+		packageName: '@wpkernel/php-driver',
+		directory: 'packages/php-driver/',
 	},
 	'php-json-ast': {
 		label: 'PHP JSON AST workspace',
 		filter: '@wpkernel/php-json-ast',
+		packageName: '@wpkernel/php-json-ast',
+		directory: 'packages/php-json-ast/',
 	},
 	'wp-json-ast': {
 		label: 'WP JSON AST workspace',
 		filter: '@wpkernel/wp-json-ast',
+		packageName: '@wpkernel/wp-json-ast',
+		directory: 'packages/wp-json-ast/',
 	},
 	'test-utils': {
 		label: 'Test utils workspace',
 		filter: '@wpkernel/test-utils',
+		packageName: '@wpkernel/test-utils',
+		directory: 'packages/test-utils/',
 	},
 	'e2e-utils': {
 		label: 'E2E utils workspace',
 		filter: '@wpkernel/e2e-utils',
+		packageName: '@wpkernel/e2e-utils',
+		directory: 'packages/e2e-utils/',
 	},
 	showcase: {
 		label: 'Showcase example',
 		filter: 'wp-kernel-showcase',
+		packageName: 'wp-kernel-showcase',
+		directory: 'examples/showcase/',
 	},
 } as const;
 
 type TypecheckTargetKey = keyof typeof TYPECHECK_TARGETS;
 
-const TYPECHECK_RULES: Array<{
-	prefix: string;
-	targets: Array<{ key: TypecheckTargetKey; reason: string }>;
-}> = [
-	{
-		prefix: 'packages/core/',
-		targets: [
-			{ key: 'core', reason: 'Core files changed' },
-			{ key: 'cli', reason: 'CLI depends on core changes' },
-			{ key: 'ui', reason: 'UI depends on core changes' },
-			{ key: 'php-driver', reason: 'PHP driver depends on core changes' },
-			{
-				key: 'php-json-ast',
-				reason: 'PHP JSON AST depends on core changes',
-			},
-			{
-				key: 'wp-json-ast',
-				reason: 'WP JSON AST depends on core changes',
-			},
-			{ key: 'test-utils', reason: 'Test utils depend on core changes' },
-			{ key: 'e2e-utils', reason: 'E2E utils depend on core changes' },
-		],
-	},
-	{
-		prefix: 'packages/ui/',
-		targets: [
-			{ key: 'ui', reason: 'UI files changed' },
-			{ key: 'cli', reason: 'UI depends on CLI output' },
-		],
-	},
-	{
-		prefix: 'packages/cli/',
-		targets: [{ key: 'cli', reason: 'CLI files changed' }],
-	},
-	{
-		prefix: 'packages/php-driver/',
-		targets: [{ key: 'php-driver', reason: 'PHP driver files changed' }],
-	},
-	{
-		prefix: 'packages/php-json-ast/',
-		targets: [
-			{ key: 'php-json-ast', reason: 'PHP JSON AST files changed' },
-		],
-	},
-	{
-		prefix: 'packages/wp-json-ast/',
-		targets: [{ key: 'wp-json-ast', reason: 'WP JSON AST files changed' }],
-	},
-	{
-		prefix: 'packages/e2e-utils/',
-		targets: [{ key: 'e2e-utils', reason: 'E2E utils files changed' }],
-	},
-	{
-		prefix: 'packages/test-utils/',
-		targets: [{ key: 'test-utils', reason: 'Test utils files changed' }],
-	},
-	{
-		prefix: 'examples/showcase/',
-		targets: [{ key: 'showcase', reason: 'Showcase files changed' }],
-	},
-];
+type TypecheckTargetConfig = (typeof TYPECHECK_TARGETS)[TypecheckTargetKey];
+
+const TYPECHECK_TARGET_ENTRIES = Object.entries(TYPECHECK_TARGETS) as Array<
+	[TypecheckTargetKey, TypecheckTargetConfig]
+>;
+
+interface TypecheckDependencyGraph {
+	dependents: Map<TypecheckTargetKey, Set<TypecheckTargetKey>>;
+}
+
+interface WorkspaceManifest {
+	dependencies?: Record<string, string>;
+	devDependencies?: Record<string, string>;
+	peerDependencies?: Record<string, string>;
+	optionalDependencies?: Record<string, string>;
+}
+
+let typecheckDependencyGraphPromise: Promise<TypecheckDependencyGraph> | null =
+	null;
+
+async function readManifest(
+	manifestPath: string
+): Promise<WorkspaceManifest | null> {
+	try {
+		const raw = await readFile(manifestPath, 'utf8');
+		return JSON.parse(raw) as WorkspaceManifest;
+	} catch (error: unknown) {
+		if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+			return null;
+		}
+		throw error;
+	}
+}
+
+function collectWorkspaceDependencyNames(
+	manifest: WorkspaceManifest
+): string[] {
+	const dependencySections = [
+		'dependencies',
+		'devDependencies',
+		'peerDependencies',
+		'optionalDependencies',
+	] as const;
+
+	const names = new Set<string>();
+
+	for (const section of dependencySections) {
+		const dependencies = manifest[section];
+		if (!dependencies) {
+			continue;
+		}
+
+		for (const dependencyName of Object.keys(dependencies)) {
+			names.add(dependencyName);
+		}
+	}
+
+	return [...names];
+}
+
+async function buildTypecheckDependencyGraph(): Promise<TypecheckDependencyGraph> {
+	const dependents = new Map<TypecheckTargetKey, Set<TypecheckTargetKey>>();
+	const packageToTargetKey = new Map<string, TypecheckTargetKey>();
+
+	for (const [key, target] of TYPECHECK_TARGET_ENTRIES) {
+		dependents.set(key, new Set());
+		packageToTargetKey.set(target.packageName, key);
+	}
+
+	for (const [key, target] of TYPECHECK_TARGET_ENTRIES) {
+		const manifestPath = path.join(target.directory, 'package.json');
+		const manifest = await readManifest(manifestPath);
+		if (!manifest) {
+			continue;
+		}
+
+		const dependencyNames = collectWorkspaceDependencyNames(manifest);
+
+		for (const dependencyName of dependencyNames) {
+			const dependencyKey = packageToTargetKey.get(dependencyName);
+			if (!dependencyKey) {
+				continue;
+			}
+
+			const dependentSet = dependents.get(dependencyKey);
+			if (!dependentSet) {
+				continue;
+			}
+
+			dependentSet.add(key);
+		}
+	}
+
+	return { dependents };
+}
+
+async function getTypecheckDependencyGraph(): Promise<TypecheckDependencyGraph> {
+	if (!typecheckDependencyGraphPromise) {
+		typecheckDependencyGraphPromise = buildTypecheckDependencyGraph();
+	}
+
+	return typecheckDependencyGraphPromise;
+}
 
 interface Spinner {
 	update: (suffix?: string) => void;
@@ -305,10 +366,6 @@ async function getStagedFiles(): Promise<string[]> {
 		.map(normalizePath);
 }
 
-function hasPrefix(files: string[], prefix: string): boolean {
-	return files.some((file) => file.startsWith(prefix));
-}
-
 const DOCUMENTATION_FILE_EXTENSIONS = new Set([
 	'.md',
 	'.mdx',
@@ -365,23 +422,136 @@ type RegisterTarget = (
 	reason: string
 ) => void;
 
-function populateTypecheckTargets(
+function hasChangesForTarget(
+	files: string[],
+	target: TypecheckTargetConfig
+): boolean {
+	return files.some((file) => file.startsWith(target.directory));
+}
+
+interface DependencyQueueEntry {
+	current: TypecheckTargetKey;
+	origin: TypecheckTargetKey;
+	depth: number;
+}
+
+function collectTouchedTargets(
 	stagedFiles: string[],
 	registerTarget: RegisterTarget
-): void {
-	for (const rule of TYPECHECK_RULES) {
-		if (!hasPrefix(stagedFiles, rule.prefix)) {
+): Set<TypecheckTargetKey> {
+	const touchedTargets = new Set<TypecheckTargetKey>();
+
+	for (const [key, target] of TYPECHECK_TARGET_ENTRIES) {
+		if (!hasChangesForTarget(stagedFiles, target)) {
 			continue;
 		}
 
-		for (const { key, reason } of rule.targets) {
-			const target = TYPECHECK_TARGETS[key];
-			registerTarget(key, target.label, target.filter, reason);
+		touchedTargets.add(key);
+		registerTarget(
+			key,
+			target.label,
+			target.filter,
+			`${target.label} files changed`
+		);
+	}
+
+	return touchedTargets;
+}
+
+function createInitialDependencyQueue(
+	origins: Set<TypecheckTargetKey>
+): DependencyQueueEntry[] {
+	return [...origins].map((origin) => ({
+		current: origin,
+		origin,
+		depth: 0,
+	}));
+}
+
+function markOriginVisited(
+	visitedByOrigin: Map<TypecheckTargetKey, Set<TypecheckTargetKey>>,
+	dependent: TypecheckTargetKey,
+	origin: TypecheckTargetKey
+): boolean {
+	const seenOrigins =
+		visitedByOrigin.get(dependent) ?? new Set<TypecheckTargetKey>();
+	if (seenOrigins.has(origin)) {
+		return false;
+	}
+
+	seenOrigins.add(origin);
+	visitedByOrigin.set(dependent, seenOrigins);
+	return true;
+}
+
+function registerDependencyReason(
+	dependent: TypecheckTargetKey,
+	origin: TypecheckTargetKey,
+	depth: number,
+	registerTarget: RegisterTarget
+): void {
+	const dependentTarget = TYPECHECK_TARGETS[dependent];
+	const originTarget = TYPECHECK_TARGETS[origin];
+	const verb = depth === 0 ? 'depends on' : 'transitively depends on';
+	const reason = `${dependentTarget.label} ${verb} ${originTarget.label}`;
+
+	registerTarget(
+		dependent,
+		dependentTarget.label,
+		dependentTarget.filter,
+		reason
+	);
+}
+
+function propagateDependencyTargets(
+	dependencyGraph: TypecheckDependencyGraph,
+	queue: DependencyQueueEntry[],
+	visitedByOrigin: Map<TypecheckTargetKey, Set<TypecheckTargetKey>>,
+	registerTarget: RegisterTarget
+): void {
+	while (queue.length > 0) {
+		const { current, origin, depth } = queue.shift()!;
+		const dependents = dependencyGraph.dependents.get(current);
+		if (!dependents) {
+			continue;
+		}
+
+		for (const dependent of dependents) {
+			if (!markOriginVisited(visitedByOrigin, dependent, origin)) {
+				continue;
+			}
+
+			registerDependencyReason(dependent, origin, depth, registerTarget);
+			queue.push({ current: dependent, origin, depth: depth + 1 });
 		}
 	}
 }
 
-function buildTypecheckTasks(stagedFiles: string[]): Task[] {
+async function populateTypecheckTargets(
+	stagedFiles: string[],
+	registerTarget: RegisterTarget
+): Promise<void> {
+	const touchedTargets = collectTouchedTargets(stagedFiles, registerTarget);
+	if (touchedTargets.size === 0) {
+		return;
+	}
+
+	const dependencyGraph = await getTypecheckDependencyGraph();
+	const queue = createInitialDependencyQueue(touchedTargets);
+	const visitedByOrigin = new Map<
+		TypecheckTargetKey,
+		Set<TypecheckTargetKey>
+	>();
+
+	propagateDependencyTargets(
+		dependencyGraph,
+		queue,
+		visitedByOrigin,
+		registerTarget
+	);
+}
+
+async function buildTypecheckTasks(stagedFiles: string[]): Promise<Task[]> {
 	const tasks: Task[] = [];
 	const typecheckTargets = new Map<
 		string,
@@ -405,7 +575,7 @@ function buildTypecheckTasks(stagedFiles: string[]): Task[] {
 		typecheckTargets.set(key, entry);
 	};
 
-	populateTypecheckTargets(stagedFiles, registerTarget);
+	await populateTypecheckTargets(stagedFiles, registerTarget);
 
 	for (const [, target] of typecheckTargets) {
 		tasks.push(
@@ -639,7 +809,7 @@ async function main() {
 	});
 
 	if (hasNonDocumentationChanges) {
-		tasks.push(...buildTypecheckTasks(nonDocumentationFiles));
+		tasks.push(...(await buildTypecheckTasks(nonDocumentationFiles)));
 
 		tasks.push({
 			title: 'Run tests with coverage',
