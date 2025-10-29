@@ -1,5 +1,6 @@
 import { WPKernelError } from '../error/index.js';
 import type { Reporter } from '../reporter/types';
+import { reportPipelineDiagnostic } from './reporting.js';
 import type {
 	CreatePipelineOptions,
 	Helper,
@@ -641,6 +642,8 @@ export function createPipeline<
 	const fragmentEntries: RegisteredHelper<TFragmentHelper>[] = [];
 	const builderEntries: RegisteredHelper<TBuilderHelper>[] = [];
 	const diagnostics: TDiagnostic[] = [];
+	const loggedDiagnostics = new Set<TDiagnostic>();
+	let diagnosticReporter: Reporter | undefined;
 	const extensionHooks: ExtensionHookEntry<
 		TContext,
 		TBuildOptions,
@@ -691,7 +694,7 @@ export function createPipeline<
 				kind,
 			} as unknown as TDiagnostic);
 
-		diagnostics.push(diagnostic);
+		emitDiagnostic(diagnostic);
 	}
 
 	function pushMissingDependencyDiagnosticFor(
@@ -715,7 +718,7 @@ export function createPipeline<
 				helper: helper.origin ?? helper.key,
 			} as unknown as TDiagnostic);
 
-		diagnostics.push(diagnostic);
+		emitDiagnostic(diagnostic);
 	}
 
 	function pushUnusedHelperDiagnosticFor(
@@ -739,7 +742,29 @@ export function createPipeline<
 				dependsOn,
 			} as unknown as TDiagnostic);
 
+		emitDiagnostic(diagnostic);
+	}
+
+	function logDiagnostic(diagnostic: TDiagnostic): void {
+		if (!diagnosticReporter) {
+			return;
+		}
+
+		if (loggedDiagnostics.has(diagnostic)) {
+			return;
+		}
+
+		reportPipelineDiagnostic({
+			reporter: diagnosticReporter,
+			diagnostic,
+		});
+
+		loggedDiagnostics.add(diagnostic);
+	}
+
+	function emitDiagnostic(diagnostic: TDiagnostic): void {
 		diagnostics.push(diagnostic);
+		logDiagnostic(diagnostic);
 	}
 
 	function reportUnusedHelpers<THelper extends HelperDescriptor>(
@@ -949,6 +974,10 @@ export function createPipeline<
 	function createRunContext(runOptions: TRunOptions): PipelineRunContext {
 		const buildOptions = options.createBuildOptions(runOptions);
 		const context = options.createContext(runOptions);
+		diagnosticReporter = context.reporter;
+		for (const diagnostic of diagnostics) {
+			logDiagnostic(diagnostic);
+		}
 		const draft = options.createFragmentState({
 			options: runOptions,
 			context,

@@ -45,6 +45,8 @@ export default {
 			'<rootDir>/packages/php-json-ast/src/$1',
 		'^@wpkernel/php-driver$': '<rootDir>/packages/php-driver/src',
 		'^@wpkernel/php-driver/(.*)$': '<rootDir>/packages/php-driver/src/$1',
+		'^@wordpress/interactivity$':
+			'<rootDir>/tests/mocks/wp-interactivity.ts',
 	},
 
 	// Test file patterns

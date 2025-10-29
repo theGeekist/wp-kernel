@@ -55,7 +55,10 @@ describe('createPipeline.run', () => {
 		TestDiagnostic
 	>;
 
-	function createTestPipeline(): TestPipeline {
+	function createTestPipeline(): {
+		pipeline: TestPipeline;
+		reporter: Reporter;
+	} {
 		const reporter = createTestReporter();
 		const pipeline = createPipeline<
 			TestRunOptions,
@@ -114,11 +117,11 @@ describe('createPipeline.run', () => {
 			},
 		});
 
-		return pipeline;
+		return { pipeline, reporter };
 	}
 
 	it('returns synchronously when helpers do not yield promises', () => {
-		const pipeline = createTestPipeline();
+		const { pipeline } = createTestPipeline();
 
 		pipeline.ir.use(
 			createHelper<
@@ -169,7 +172,7 @@ describe('createPipeline.run', () => {
 	});
 
 	it('returns a promise when helpers perform asynchronous work', async () => {
-		const pipeline = createTestPipeline();
+		const { pipeline } = createTestPipeline();
 
 		pipeline.ir.use(
 			createHelper<
@@ -214,7 +217,7 @@ describe('createPipeline.run', () => {
 	});
 
 	it('waits for asynchronous extension hooks before resolving', async () => {
-		const pipeline = createTestPipeline();
+		const { pipeline } = createTestPipeline();
 		const commitSpy = jest.fn();
 
 		pipeline.ir.use(
@@ -275,7 +278,7 @@ describe('createPipeline.run', () => {
 	});
 
 	it('rolls back extension results when builders fail', async () => {
-		const pipeline = createTestPipeline();
+		const { pipeline } = createTestPipeline();
 		const rollbackSpy = jest.fn();
 		const commitSpy = jest.fn();
 
@@ -335,5 +338,47 @@ describe('createPipeline.run', () => {
 		await expect(pipeline.run({})).rejects.toThrow('builder failure');
 		expect(commitSpy).not.toHaveBeenCalled();
 		expect(rollbackSpy).toHaveBeenCalledTimes(1);
+	});
+
+	it('reports pipeline diagnostics through the reporter', () => {
+		const { pipeline, reporter } = createTestPipeline();
+
+		pipeline.ir.use(
+			createHelper<
+				TestContext,
+				void,
+				string[],
+				Reporter,
+				typeof pipeline.fragmentKind
+			>({
+				key: 'fragment.audit',
+				kind: pipeline.fragmentKind,
+				dependsOn: ['fragment.missing'],
+				apply() {
+					// no-op
+				},
+			})
+		);
+
+		expect(() => pipeline.run({})).toThrow(
+			'depends on unknown helper "fragment.missing"'
+		);
+
+		expect(reporter.warn).toHaveBeenCalledWith(
+			'Pipeline diagnostic reported.',
+			expect.objectContaining({
+				type: 'missing-dependency',
+				key: 'fragment.audit',
+				dependency: 'fragment.missing',
+			})
+		);
+
+		expect(reporter.warn).toHaveBeenCalledWith(
+			'Pipeline diagnostic reported.',
+			expect.objectContaining({
+				type: 'unused-helper',
+				key: 'fragment.audit',
+			})
+		);
 	});
 });
