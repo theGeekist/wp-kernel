@@ -70,7 +70,7 @@
 		"format": "prettier --write 'src/**/*.{js,ts,tsx,json,md}'",
 		"format:check": "prettier --check 'src/**/*.{js,ts,tsx,json,md}'",
 		"typecheck": "tsc --noEmit",
-		"typecheck:tests": "tsc --project tsconfig.tests.json --noEmit",
+		"typecheck:tests": "node ../../scripts/test/run-typecheck-tests.cjs",
 		"test": "node ../../scripts/test/run-jest.cjs",
 		"test:watch": "node ../../scripts/test/run-jest.cjs --watch",
 		"test:coverage": "node ../../scripts/test/run-jest.cjs coverage",
