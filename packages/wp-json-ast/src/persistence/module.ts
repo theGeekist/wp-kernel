@@ -24,7 +24,13 @@ import {
 	buildGeneratedFileDocComment,
 	buildPersistenceRegistryDocblock,
 } from '../common/docblock';
-import { buildPhpLiteral, sanitizeJsonValue, type JsonValue } from './helpers';
+import {
+	buildPhpLiteral,
+	normalizeIdentityConfig,
+	normalizeStorageConfig,
+	sanitizeJsonValue,
+	type JsonValue,
+} from './helpers';
 import type {
 	PersistenceRegistryModuleConfig,
 	PersistenceRegistryModuleFile,
@@ -86,19 +92,27 @@ function buildPersistenceRegistryClass(
 function buildRegistryPayload(
 	resources: readonly PersistenceRegistryResourceConfig[]
 ): PhpExpr {
-	const entries = resources
-		.filter((resource) => resource.storage || resource.identity)
-		.map((resource) => ({
-			key: resource.name,
-			value: sanitizeJsonValue<JsonValue>({
-				storage: resource.storage ?? null,
-				identity: resource.identity ?? null,
-			}),
-		}));
-
 	const resourcesPayload: Record<string, JsonValue> = {};
-	for (const entry of entries) {
-		resourcesPayload[entry.key] = entry.value;
+
+	for (const resource of resources) {
+		const storage = normalizeStorageConfig(resource.storage ?? null);
+		const identity = normalizeIdentityConfig(resource.identity ?? null);
+
+		if (!storage && !identity) {
+			continue;
+		}
+
+		const payload: Record<string, JsonValue> = {};
+
+		if (identity) {
+			payload.identity = identity;
+		}
+
+		if (storage) {
+			payload.storage = storage;
+		}
+
+		resourcesPayload[resource.name] = sanitizeJsonValue(payload);
 	}
 
 	const payload: JsonValue = {

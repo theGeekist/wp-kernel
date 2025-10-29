@@ -19,6 +19,17 @@ describe('buildPersistenceRegistryModule', () => {
 						mode: 'wp-post',
 						postType: 'demo_post',
 						statuses: ['publish', 'draft'],
+						supports: ['title', 'editor', 'custom-fields'],
+						meta: {
+							apply_deadline: {
+								single: true,
+								type: 'string',
+							},
+							salary_min: {
+								single: true,
+								type: 'integer',
+							},
+						},
 					},
 					identity: { type: 'number', param: 'id' },
 				},
@@ -98,11 +109,39 @@ describe('buildPersistenceRegistryModule', () => {
 			(item: PhpArrayItem) => item.key?.value === 'option'
 		);
 
+		const postEntryKeys = postEntry?.value?.items?.map(
+			(item: PhpArrayItem) => item.key?.value
+		);
+		expect(postEntryKeys).toEqual(['identity', 'storage']);
+
+		const identityItem = postEntry?.value?.items?.find(
+			(item: PhpArrayItem) => item.key?.value === 'identity'
+		);
+		expect(identityItem?.value?.items).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({
+					key: expect.objectContaining({ value: 'param' }),
+					value: expect.objectContaining({ value: 'id' }),
+				}),
+				expect.objectContaining({
+					key: expect.objectContaining({ value: 'type' }),
+					value: expect.objectContaining({ value: 'number' }),
+				}),
+				expect.objectContaining({
+					key: expect.objectContaining({ value: 'cast' }),
+					value: expect.objectContaining({ value: 'int' }),
+				}),
+			])
+		);
+
+		const guardsEntry = identityItem?.value?.items?.find(
+			(item: PhpArrayItem) => item.key?.value === 'guards'
+		);
 		expect(
-			postEntry?.value?.items?.map(
-				(item: PhpArrayItem) => item.key?.value
+			guardsEntry?.value?.items?.map(
+				(item: PhpArrayItem) => item.value?.value
 			)
-		).toEqual(['identity', 'storage']);
+		).toEqual(['is_numeric']);
 		const storageItem = postEntry?.value?.items?.find(
 			(item: PhpArrayItem) => item.key?.value === 'storage'
 		);
@@ -113,7 +152,16 @@ describe('buildPersistenceRegistryModule', () => {
 			statusesItem?.value?.items?.map(
 				(item: PhpArrayItem) => item.value?.value
 			)
-		).toEqual(['publish', 'draft']);
+		).toEqual(['draft', 'publish']);
+
+		const supportsItem = storageItem?.value?.items?.find(
+			(item: PhpArrayItem) => item.key?.value === 'supports'
+		);
+		expect(
+			supportsItem?.value?.items?.map(
+				(item: PhpArrayItem) => item.value?.value
+			)
+		).toEqual(['custom-fields', 'editor', 'title']);
 
 		const optionMode = optionEntry?.value?.items
 			?.find((item: PhpArrayItem) => item.key?.value === 'storage')
