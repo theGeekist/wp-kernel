@@ -1,6 +1,6 @@
 import { createPhpCapabilityHelper } from '../capability';
 import { getPhpBuilderChannel, resetPhpBuilderChannel } from '../channel';
-import { resetPhpAstChannel } from '@wpkernel/php-json-ast';
+import { resetPhpAstChannel } from '@wpkernel/wp-json-ast';
 import type { IRCapabilityDefinition } from '../../../ir/publicTypes';
 import {
 	createBuilderInput,

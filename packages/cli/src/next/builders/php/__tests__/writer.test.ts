@@ -7,7 +7,8 @@ import type {
 } from '../../../runtime/types';
 import { createPhpProgramWriterHelper } from '../writer';
 import { getPhpBuilderChannel, resetPhpBuilderChannel } from '../channel';
-import { resetPhpAstChannel, buildStmtNop } from '@wpkernel/php-json-ast';
+import { buildStmtNop } from '@wpkernel/php-json-ast';
+import { resetPhpAstChannel } from '@wpkernel/wp-json-ast';
 import { buildPhpPrettyPrinter } from '@wpkernel/php-driver';
 import { makeWorkspaceMock } from '../../../../../tests/workspace.test-support';
 
