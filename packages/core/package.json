@@ -110,9 +110,10 @@
 		"format:check": "prettier --check 'src/**/*.{js,ts,tsx,json,md}'",
 		"typecheck": "tsc --noEmit",
 		"typecheck:tests": "tsc --project tsconfig.tests.json --noEmit",
-		"test": "jest --passWithNoTests --watchman=false",
-		"test:watch": "jest --watch",
-		"test:coverage": "jest --coverage --watchman=false"
+		"test": "node ../../scripts/test/run-jest.cjs",
+		"test:watch": "node ../../scripts/test/run-jest.cjs --watch",
+		"test:coverage": "node ../../scripts/test/run-jest.cjs coverage",
+		"test:integration": "node ../../scripts/test/run-jest.cjs integration"
 	},
 	"peerDependencies": {
 		"@wordpress/api-fetch": ">=7.32.0",
