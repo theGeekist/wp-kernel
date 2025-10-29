@@ -37,6 +37,109 @@ const colors = {
 
 const spinnerFrames = ['⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏'];
 
+const TYPECHECK_TARGETS = {
+	core: {
+		label: 'Core workspace',
+		filter: '@wpkernel/core',
+	},
+	cli: {
+		label: 'CLI workspace',
+		filter: '@wpkernel/cli',
+	},
+	ui: {
+		label: 'UI workspace',
+		filter: '@wpkernel/ui',
+	},
+	'php-driver': {
+		label: 'PHP driver workspace',
+		filter: '@wpkernel/php-driver',
+	},
+	'php-json-ast': {
+		label: 'PHP JSON AST workspace',
+		filter: '@wpkernel/php-json-ast',
+	},
+	'wp-json-ast': {
+		label: 'WP JSON AST workspace',
+		filter: '@wpkernel/wp-json-ast',
+	},
+	'test-utils': {
+		label: 'Test utils workspace',
+		filter: '@wpkernel/test-utils',
+	},
+	'e2e-utils': {
+		label: 'E2E utils workspace',
+		filter: '@wpkernel/e2e-utils',
+	},
+	showcase: {
+		label: 'Showcase example',
+		filter: 'wp-kernel-showcase',
+	},
+} as const;
+
+type TypecheckTargetKey = keyof typeof TYPECHECK_TARGETS;
+
+const TYPECHECK_RULES: Array<{
+	prefix: string;
+	targets: Array<{ key: TypecheckTargetKey; reason: string }>;
+}> = [
+	{
+		prefix: 'packages/core/',
+		targets: [
+			{ key: 'core', reason: 'Core files changed' },
+			{ key: 'cli', reason: 'CLI depends on core changes' },
+			{ key: 'ui', reason: 'UI depends on core changes' },
+			{ key: 'php-driver', reason: 'PHP driver depends on core changes' },
+			{
+				key: 'php-json-ast',
+				reason: 'PHP JSON AST depends on core changes',
+			},
+			{
+				key: 'wp-json-ast',
+				reason: 'WP JSON AST depends on core changes',
+			},
+			{ key: 'test-utils', reason: 'Test utils depend on core changes' },
+			{ key: 'e2e-utils', reason: 'E2E utils depend on core changes' },
+		],
+	},
+	{
+		prefix: 'packages/ui/',
+		targets: [
+			{ key: 'ui', reason: 'UI files changed' },
+			{ key: 'cli', reason: 'UI depends on CLI output' },
+		],
+	},
+	{
+		prefix: 'packages/cli/',
+		targets: [{ key: 'cli', reason: 'CLI files changed' }],
+	},
+	{
+		prefix: 'packages/php-driver/',
+		targets: [{ key: 'php-driver', reason: 'PHP driver files changed' }],
+	},
+	{
+		prefix: 'packages/php-json-ast/',
+		targets: [
+			{ key: 'php-json-ast', reason: 'PHP JSON AST files changed' },
+		],
+	},
+	{
+		prefix: 'packages/wp-json-ast/',
+		targets: [{ key: 'wp-json-ast', reason: 'WP JSON AST files changed' }],
+	},
+	{
+		prefix: 'packages/e2e-utils/',
+		targets: [{ key: 'e2e-utils', reason: 'E2E utils files changed' }],
+	},
+	{
+		prefix: 'packages/test-utils/',
+		targets: [{ key: 'test-utils', reason: 'Test utils files changed' }],
+	},
+	{
+		prefix: 'examples/showcase/',
+		targets: [{ key: 'showcase', reason: 'Showcase files changed' }],
+	},
+];
+
 interface Spinner {
 	update: (suffix?: string) => void;
 	succeed: (message: string) => void;
@@ -266,156 +369,16 @@ function populateTypecheckTargets(
 	stagedFiles: string[],
 	registerTarget: RegisterTarget
 ): void {
-	const prefixConfigurations: Array<{
-		matches: (files: string[]) => boolean;
-		apply: (register: RegisterTarget) => void;
-	}> = [
-		{
-			matches: (files) => hasPrefix(files, 'packages/core/'),
-			apply: (register) => {
-				register(
-					'core',
-					'Core workspace',
-					'@wpkernel/core',
-					'Core files changed'
-				);
-				register(
-					'cli',
-					'CLI workspace',
-					'@wpkernel/cli',
-					'CLI depends on core changes'
-				);
-				register(
-					'ui',
-					'UI workspace',
-					'@wpkernel/ui',
-					'UI depends on core changes'
-				);
-				register(
-					'php-driver',
-					'PHP driver workspace',
-					'@wpkernel/php-driver',
-					'PHP driver depends on core changes'
-				);
-				register(
-					'php-json-ast',
-					'PHP JSON AST workspace',
-					'@wpkernel/php-json-ast',
-					'PHP JSON AST depends on core changes'
-				);
-				register(
-					'wp-json-ast',
-					'WP JSON AST workspace',
-					'@wpkernel/wp-json-ast',
-					'WP JSON AST depends on core changes'
-				);
-				register(
-					'test-utils',
-					'Test utils workspace',
-					'@wpkernel/test-utils',
-					'Test utils depend on core changes'
-				);
-			},
-		},
-		{
-			matches: (files) => hasPrefix(files, 'packages/ui/'),
-			apply: (register) => {
-				register(
-					'ui',
-					'UI workspace',
-					'@wpkernel/ui',
-					'UI files changed'
-				);
-				register(
-					'cli',
-					'CLI workspace',
-					'@wpkernel/cli',
-					'UI depends on CLI output'
-				);
-			},
-		},
-		{
-			matches: (files) => hasPrefix(files, 'packages/cli/'),
-			apply: (register) => {
-				register(
-					'cli',
-					'CLI workspace',
-					'@wpkernel/cli',
-					'CLI files changed'
-				);
-			},
-		},
-		{
-			matches: (files) => hasPrefix(files, 'packages/php-driver/'),
-			apply: (register) => {
-				register(
-					'php-driver',
-					'PHP driver workspace',
-					'@wpkernel/php-driver',
-					'PHP driver files changed'
-				);
-			},
-		},
-		{
-			matches: (files) => hasPrefix(files, 'packages/php-json-ast/'),
-			apply: (register) => {
-				register(
-					'php-json-ast',
-					'PHP JSON AST workspace',
-					'@wpkernel/php-json-ast',
-					'PHP JSON AST files changed'
-				);
-			},
-		},
-		{
-			matches: (files) => hasPrefix(files, 'packages/wp-json-ast/'),
-			apply: (register) => {
-				register(
-					'wp-json-ast',
-					'WP JSON AST workspace',
-					'@wpkernel/wp-json-ast',
-					'WP JSON AST files changed'
-				);
-			},
-		},
-		{
-			matches: (files) => hasPrefix(files, 'packages/e2e-utils/'),
-			apply: (register) => {
-				register(
-					'e2e-utils',
-					'E2E utils workspace',
-					'@wpkernel/e2e-utils',
-					'E2E utils files changed'
-				);
-			},
-		},
-		{
-			matches: (files) => hasPrefix(files, 'packages/test-utils/'),
-			apply: (register) => {
-				register(
-					'test-utils',
-					'Test utils workspace',
-					'@wpkernel/test-utils',
-					'Test utils files changed'
-				);
-			},
-		},
-		{
-			matches: (files) => hasPrefix(files, 'examples/showcase/'),
-			apply: (register) => {
-				register(
-					'showcase',
-					'Showcase example',
-					'wp-kernel-showcase',
-					'Showcase files changed'
-				);
-			},
-		},
-	];
+	for (const rule of TYPECHECK_RULES) {
+		if (!hasPrefix(stagedFiles, rule.prefix)) {
+			continue;
+		}
 
-	prefixConfigurations
-		.filter((configuration) => configuration.matches(stagedFiles))
-		.forEach((configuration) => configuration.apply(registerTarget));
+		for (const { key, reason } of rule.targets) {
+			const target = TYPECHECK_TARGETS[key];
+			registerTarget(key, target.label, target.filter, reason);
+		}
+	}
 }
 
 function buildTypecheckTasks(stagedFiles: string[]): Task[] {
