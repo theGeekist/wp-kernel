@@ -16,7 +16,6 @@ export function createRootJestConfig(options = {}) {
 
 	const config = {
 		...baseConfig,
-		globalSetup: cliGlobalSetup,
 		roots: ['<rootDir>/packages', '<rootDir>/examples', '<rootDir>/tests'],
 		moduleNameMapper: {
 			...baseConfig.moduleNameMapper,
@@ -95,6 +94,10 @@ export function createRootJestConfig(options = {}) {
 	}
 
 	config.testPathIgnorePatterns = Array.from(ignorePatterns);
+
+	if (!skipIntegration) {
+		config.globalSetup = cliGlobalSetup;
+	}
 
 	return config;
 }
