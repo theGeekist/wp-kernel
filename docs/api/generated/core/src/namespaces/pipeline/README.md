@@ -8,6 +8,8 @@
 
 ## Interfaces
 
+- [CorePipelineRegistryBridge](interfaces/CorePipelineRegistryBridge.md)
+- [CorePipelineContext](interfaces/CorePipelineContext.md)
 - [PipelineStep](interfaces/PipelineStep.md)
 - [ConflictDiagnostic](interfaces/ConflictDiagnostic.md)
 - [MissingDependencyDiagnostic](interfaces/MissingDependencyDiagnostic.md)
@@ -31,6 +33,8 @@
 ## Functions
 
 - [createPipeline](functions/createPipeline.md)
+- [buildPipelineCommit](functions/buildPipelineCommit.md)
+- [buildPipelineRollback](functions/buildPipelineRollback.md)
 
 ## References
 
