@@ -57,7 +57,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
       {
         "attributes": {},
         "nodeType": "Stmt_Use",
-        "type": 1,
+        "type": 0,
         "uses": [
           {
             "alias": null,
@@ -77,7 +77,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
       {
         "attributes": {},
         "nodeType": "Stmt_Use",
-        "type": 1,
+        "type": 0,
         "uses": [
           {
             "alias": null,
@@ -97,7 +97,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
       {
         "attributes": {},
         "nodeType": "Stmt_Use",
-        "type": 1,
+        "type": 0,
         "uses": [
           {
             "alias": null,
@@ -117,7 +117,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
       {
         "attributes": {},
         "nodeType": "Stmt_Use",
-        "type": 1,
+        "type": 0,
         "uses": [
           {
             "alias": null,
@@ -137,7 +137,7 @@ exports[`createPhpResourceControllerHelper queues resource controllers with reso
       {
         "attributes": {},
         "nodeType": "Stmt_Use",
-        "type": 2,
+        "type": 1,
         "uses": [
           {
             "alias": null,
@@ -5637,7 +5637,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
       {
         "attributes": {},
         "nodeType": "Stmt_Use",
-        "type": 1,
+        "type": 0,
         "uses": [
           {
             "alias": null,
@@ -5657,7 +5657,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
       {
         "attributes": {},
         "nodeType": "Stmt_Use",
-        "type": 1,
+        "type": 0,
         "uses": [
           {
             "alias": null,
@@ -5677,7 +5677,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
       {
         "attributes": {},
         "nodeType": "Stmt_Use",
-        "type": 1,
+        "type": 0,
         "uses": [
           {
             "alias": null,
@@ -5697,7 +5697,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
       {
         "attributes": {},
         "nodeType": "Stmt_Use",
-        "type": 1,
+        "type": 0,
         "uses": [
           {
             "alias": null,
@@ -5717,7 +5717,7 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
       {
         "attributes": {},
         "nodeType": "Stmt_Use",
-        "type": 2,
+        "type": 1,
         "uses": [
           {
             "alias": null,
@@ -9100,7 +9100,7 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
       {
         "attributes": {},
         "nodeType": "Stmt_Use",
-        "type": 1,
+        "type": 0,
         "uses": [
           {
             "alias": null,
@@ -9120,7 +9120,7 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
       {
         "attributes": {},
         "nodeType": "Stmt_Use",
-        "type": 1,
+        "type": 0,
         "uses": [
           {
             "alias": null,
@@ -9140,7 +9140,7 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
       {
         "attributes": {},
         "nodeType": "Stmt_Use",
-        "type": 2,
+        "type": 1,
         "uses": [
           {
             "alias": null,
@@ -10843,7 +10843,7 @@ exports[`createPhpResourceControllerHelper queues wp-option controllers with aut
       {
         "attributes": {},
         "nodeType": "Stmt_Use",
-        "type": 1,
+        "type": 0,
         "uses": [
           {
             "alias": null,
@@ -10863,7 +10863,7 @@ exports[`createPhpResourceControllerHelper queues wp-option controllers with aut
       {
         "attributes": {},
         "nodeType": "Stmt_Use",
-        "type": 1,
+        "type": 0,
         "uses": [
           {
             "alias": null,
@@ -10883,7 +10883,7 @@ exports[`createPhpResourceControllerHelper queues wp-option controllers with aut
       {
         "attributes": {},
         "nodeType": "Stmt_Use",
-        "type": 2,
+        "type": 1,
         "uses": [
           {
             "alias": null,

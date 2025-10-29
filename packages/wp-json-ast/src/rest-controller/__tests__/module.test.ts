@@ -183,7 +183,7 @@ describe('buildRestControllerModule', () => {
 				(use) => use.name?.parts?.join('\\') === 'WP_Error'
 			)
 		);
-		expect(normalImport?.type).toBe(1);
+		expect(normalImport?.type).toBe(0);
 		expect(normalImport?.uses?.[0]?.type).toBe(0);
 
 		const functionImport = useStatements.find((statement) =>
@@ -191,7 +191,7 @@ describe('buildRestControllerModule', () => {
 				(use) => use.name?.parts?.join('\\') === 'is_wp_error'
 			)
 		);
-		expect(functionImport?.type).toBe(2);
+		expect(functionImport?.type).toBe(1);
 		expect(functionImport?.uses?.[0]?.type).toBe(0);
 	});
 });

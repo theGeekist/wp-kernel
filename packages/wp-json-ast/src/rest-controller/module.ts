@@ -256,9 +256,10 @@ type ParsedUse = {
 };
 
 const PHP_USE_TYPE_UNKNOWN = 0;
-const PHP_USE_TYPE_NORMAL = 1;
-const PHP_USE_TYPE_FUNCTION = 2;
-const PHP_USE_TYPE_CONSTANT = 3;
+// Match the `php-parser` constants used by `buildUse` for type discrimination.
+const PHP_PARSER_USE_TYPE_NORMAL = 0;
+const PHP_PARSER_USE_TYPE_FUNCTION = 1;
+const PHP_PARSER_USE_TYPE_CONSTANT = 2;
 
 function buildUseStatements(uses: readonly string[]): PhpStmtUse[] {
 	const parsed = new Map<string, ParsedUse>();
@@ -287,15 +288,15 @@ function parseUseEntry(entry: string): ParsedUse {
 
 	if (trimmed.startsWith('function ')) {
 		const name = trimmed.slice('function '.length);
-		return buildParsedUse(name, PHP_USE_TYPE_FUNCTION);
+		return buildParsedUse(name, PHP_PARSER_USE_TYPE_FUNCTION);
 	}
 
 	if (trimmed.startsWith('const ')) {
 		const name = trimmed.slice('const '.length);
-		return buildParsedUse(name, PHP_USE_TYPE_CONSTANT);
+		return buildParsedUse(name, PHP_PARSER_USE_TYPE_CONSTANT);
 	}
 
-	return buildParsedUse(trimmed, PHP_USE_TYPE_NORMAL);
+	return buildParsedUse(trimmed, PHP_PARSER_USE_TYPE_NORMAL);
 }
 
 function buildParsedUse(name: string, type: number): ParsedUse {
