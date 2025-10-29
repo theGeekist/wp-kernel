@@ -53,7 +53,7 @@ This roadmap captures how `@wpkernel/php-json-ast` can evolve now that `nikic/ph
 
 #### Phase 1 - Ingestion scaffolding
 
-> **Status:** In Progress
+> **Status:** Complete
 
 ##### Task 1 - Establish the parser ingestion bridge
 
@@ -88,24 +88,24 @@ This roadmap captures how `@wpkernel/php-json-ast` can evolve now that `nikic/ph
 
 #### Phase 2 - Codemod execution framework
 
-> **Status:** Planned
+> **Status:** In Progress
 
 ##### Task 4 - Register codemod stacks through the driver
 
-> **Task status:** Pending – Populate with implementation notes and links once the configuration contract is merged.
+> **Task status:** Complete – Codemod stacks now flow from TypeScript helpers into the PHP ingestion driver with validation and tests.
 
-- Design a configuration contract that lets TypeScript declare ordered visitor stacks before pretty-printing begins.
-- Thread the configuration through the PHP entry point so visitors can be resolved, instantiated, and attached to a single `NodeTraverser` run.
-- Cover error handling (unknown visitor keys, invalid options) with focused PHP unit tests.
+- The new [`driver/codemods.ts`](../src/driver/codemods.ts) module defines the `PhpCodemodConfiguration` contract, a default stack key, and helpers to serialise configuration payloads for the PHP bridge. The helper suite is covered in [`driver/codemods.test.ts`](../src/__tests__/driver/codemods.test.ts).
+- [`php/ingest-program.php`](../php/ingest-program.php) now accepts an optional `--config <path>` argument. When provided, it resolves and validates the declared stacks, instantiates supported visitors (starting with the upstream `NameResolver`), and runs them through a single `NodeTraverser` pass before emitting AST payloads.
+- [`ProgramIngestionTest`](../php/tests/ProgramIngestionTest.php) now exercises the codemod path: it asserts that `NameResolver` annotations appear in the streamed AST and that the driver fails fast on unknown visitor keys or invalid option types.
   _Expectation: A single driver invocation can execute a caller-specified visitor stack without manual script edits._
 
 ##### Task 5 - Ship a baseline codemod pack
 
-> **Task status:** Pending – Update with visitor bundle details and verification steps on completion.
+> **Task status:** Complete – Baseline visitors for name canonicalisation and `use` grouping now ship with fixtures and end-to-end coverage.
 
-- Implement a starter library of visitors (name canonicalisation, import grouping) under `php/Codemods/**`.
-- Provide TypeScript shims that serialize the visitor selection and options, keeping naming consistent between the two runtimes.
-- Exercise the pack with fixtures that show before/after AST payloads and corresponding pretty-printed PHP output.
+- `php/Codemods/BaselineNameCanonicaliserVisitor.php` wraps PhpParser's `NameResolver` with sane defaults, while `SortUseStatementsVisitor.php` reorders class, function, and constant imports (including grouped declarations) deterministically.
+- The new [`createBaselineCodemodConfiguration`](../src/codemods/baselinePack.ts) helper emits stack definitions targeting the baseline visitors, and `ProgramIngestionTest` plus the ingestion integration suite assert both AST and pretty-printed output against [`fixtures/codemods/BaselinePack.*`](../fixtures/codemods).
+- TypeScript callers can serialise the configuration with [`serialisePhpCodemodConfiguration`](../src/driver/codemods.ts) to drive the PHP bridge; baseline coverage exercises success and failure paths for option validation.
   _Expectation: Contributors can opt into vetted visitor bundles and observe consistent transformations across runs._
 
 ##### Task 6 - Snapshot codemod outcomes for observability

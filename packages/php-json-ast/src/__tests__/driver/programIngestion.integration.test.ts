@@ -4,6 +4,8 @@ import { spawn } from 'node:child_process';
 import type { ChildProcessWithoutNullStreams } from 'node:child_process';
 import { createPhpProgramWriterHelper } from '../../programWriter';
 import { consumePhpProgramIngestion } from '../../driver/programIngestion';
+import { createBaselineCodemodConfiguration } from '../../codemods/baselinePack';
+import { serialisePhpCodemodConfiguration } from '../../driver/codemods';
 import {
 	getPhpBuilderChannel,
 	resetPhpBuilderChannel,
@@ -31,6 +33,15 @@ const CANONICAL_AST_PATH = path.join(
 	'fixtures',
 	'ingestion',
 	'CodifiedController.ast.json'
+);
+const CODEMOD_FIXTURE_ROOT = path.join(PACKAGE_ROOT, 'fixtures', 'codemods');
+const BASELINE_CODEMOD_EXPECTED_PHP = path.join(
+	CODEMOD_FIXTURE_ROOT,
+	'BaselinePack.after.php'
+);
+const BASELINE_CODEMOD_EXPECTED_AST = path.join(
+	CODEMOD_FIXTURE_ROOT,
+	'BaselinePack.after.ast.json'
 );
 const INGESTION_SCRIPT = path.join(PACKAGE_ROOT, 'php', 'ingest-program.php');
 
@@ -111,6 +122,20 @@ async function ensureFixture(
 	return target;
 }
 
+async function ensureCodemodFixture(
+	workspaceRoot: string,
+	sourceFile: string,
+	targetFile: string = path.basename(sourceFile)
+): Promise<string> {
+	const outputRoot = resolveOutputRoot(workspaceRoot);
+	await fs.mkdir(outputRoot, { recursive: true });
+	const target = path.join(outputRoot, targetFile);
+	const sourcePath = path.join(CODEMOD_FIXTURE_ROOT, sourceFile);
+	const contents = await fs.readFile(sourcePath, 'utf8');
+	await fs.writeFile(target, contents);
+	return target;
+}
+
 function createWorkspace(workspaceRoot: string): PipelineContext['workspace'] {
 	return {
 		root: workspaceRoot,
@@ -186,9 +211,18 @@ function createBuilderOutput(): BuilderOutput {
 
 async function runIngestionScript(
 	files: readonly string[],
-	workspaceRoot: string
+	workspaceRoot: string,
+	configurationPath?: string
 ): Promise<readonly string[]> {
-	const child = spawn('php', [INGESTION_SCRIPT, workspaceRoot, ...files], {
+	const args = [INGESTION_SCRIPT, workspaceRoot];
+
+	if (configurationPath !== undefined) {
+		args.push('--config', configurationPath);
+	}
+
+	args.push(...files);
+
+	const child = spawn('php', args, {
 		cwd: workspaceRoot,
 	});
 
@@ -251,7 +285,8 @@ function formatPrettyPrinterError(error: unknown): Error {
 
 async function runRoundTrip(
 	workspaceRoot: string,
-	fixturePaths: readonly string[]
+	fixturePaths: readonly string[],
+	configurationPath?: string
 ): Promise<RoundTripResult> {
 	const context = createPipelineContext(workspaceRoot);
 	const input = createBuilderInput();
@@ -259,7 +294,11 @@ async function runRoundTrip(
 
 	resetPhpBuilderChannel(context);
 
-	const lines = await runIngestionScript(fixturePaths, workspaceRoot);
+	const lines = await runIngestionScript(
+		fixturePaths,
+		workspaceRoot,
+		configurationPath
+	);
 	const messages = createAsyncIterable(lines);
 
 	await consumePhpProgramIngestion({
@@ -374,6 +413,69 @@ describe('consumePhpProgramIngestion', () => {
 
 		const queuedFiles = pending.map((action) => action.file).sort();
 		expect(queuedFiles).toEqual(expectedFiles);
+	});
+
+	it('applies the baseline codemod pack before writing artefacts', async () => {
+		const workspaceRoot = path.join(
+			PACKAGE_ROOT,
+			'.test-artifacts',
+			'baseline-pack'
+		);
+
+		await fs.rm(workspaceRoot, { recursive: true, force: true });
+		await fs.mkdir(workspaceRoot, { recursive: true });
+		registerCleanup(workspaceRoot);
+
+		await prepareWorkspaceRoot(workspaceRoot);
+		const fixturePath = await ensureCodemodFixture(
+			workspaceRoot,
+			'BaselinePack.before.php'
+		);
+
+		const configuration = createBaselineCodemodConfiguration();
+		const configurationPath = path.join(
+			resolveOutputRoot(workspaceRoot),
+			'baseline-pack.json'
+		);
+		await fs.writeFile(
+			configurationPath,
+			serialisePhpCodemodConfiguration(configuration)
+		);
+
+		const result = await runRoundTrip(
+			workspaceRoot,
+			[fixturePath],
+			configurationPath
+		);
+
+		const [expectedPhp, expectedAst] = await Promise.all([
+			fs.readFile(BASELINE_CODEMOD_EXPECTED_PHP, 'utf8'),
+			fs.readFile(BASELINE_CODEMOD_EXPECTED_AST, 'utf8'),
+		]);
+
+		const parsedExpectedAst = JSON.parse(expectedAst) as unknown;
+		const parsedResultAst = JSON.parse(result.emittedAst) as unknown;
+
+		expect(result.emittedPhp).toBe(expectedPhp);
+		expect(parsedResultAst).toEqual(parsedExpectedAst);
+		expect(result.message.program).toEqual(parsedExpectedAst);
+
+		expect(result.output.queueWrite).toHaveBeenCalledWith({
+			file: result.filePath,
+			contents: expectedPhp,
+		});
+
+		const astWriteCall = (
+			result.output.queueWrite as jest.Mock
+		).mock.calls.find(
+			([call]) => call.file === `${result.filePath}.ast.json`
+		);
+
+		expect(astWriteCall).toBeDefined();
+
+		const astContents = astWriteCall?.[0].contents;
+		expect(typeof astContents).toBe('string');
+		expect(JSON.parse(astContents as string)).toEqual(parsedExpectedAst);
 	});
 
 	it('falls back to the package autoload when workspace dependencies are absent', async () => {
