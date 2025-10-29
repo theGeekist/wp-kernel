@@ -46,7 +46,7 @@ export function buildRestControllerClass(
 	);
 
 	const imports = deriveRestControllerImports(config.routes, {
-		policyClass: config.policyClass,
+		capabilityClass: config.capabilityClass,
 		helperMethods: config.helperMethods,
 	});
 

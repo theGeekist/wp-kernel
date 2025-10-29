@@ -28,8 +28,8 @@ export type ResourceRoute = {
 	path: string;
 	/** HTTP method */
 	method: HttpMethod;
-	/** Optional policy identifier used by tooling to map to capability checks */
-	policy?: string;
+	/** Optional capability identifier used by tooling to map to capability checks */
+	capability?: string;
 };
 
 /**

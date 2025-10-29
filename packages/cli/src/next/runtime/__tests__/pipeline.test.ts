@@ -1,5 +1,5 @@
 import { createReporterMock as buildReporterMock } from '@wpkernel/test-utils/cli';
-import type { IRPolicyMap } from '../../ir/publicTypes';
+import type { IRCapabilityMap } from '../../ir/publicTypes';
 import { WPKernelError } from '@wpkernel/core/error';
 import { createHelper } from '../createHelper';
 import { createPipeline } from '../createPipeline';
@@ -20,7 +20,7 @@ import {
 	buildPipelineExtension,
 } from '@wpkernel/test-utils/next/runtime/pipeline.fixtures.test-support';
 
-function buildPolicyMap(): IRPolicyMap {
+function buildCapabilityMap(): IRCapabilityMap {
 	return {
 		sourcePath: undefined,
 		definitions: [],
@@ -80,26 +80,26 @@ describe('createPipeline', () => {
 					output.assign({
 						schemas: [],
 						resources: [],
-						policies: [],
+						capabilities: [],
 						blocks: [],
 					});
 				},
 			});
 
-			const policyHelper = createHelper({
-				key: 'ir.policy-map.test',
+			const capabilityHelper = createHelper({
+				key: 'ir.capability-map.test',
 				kind: 'fragment',
 				dependsOn: ['ir.collection.test'],
 				apply({ output }: FragmentApplyOptions) {
-					runOrder.push('policy');
-					output.assign({ policyMap: buildPolicyMap() });
+					runOrder.push('capability');
+					output.assign({ capabilityMap: buildCapabilityMap() });
 				},
 			});
 
 			const validationHelper = createHelper({
 				key: 'ir.validation.test',
 				kind: 'fragment',
-				dependsOn: ['ir.policy-map.test'],
+				dependsOn: ['ir.capability-map.test'],
 				apply() {
 					runOrder.push('validation');
 				},
@@ -117,7 +117,7 @@ describe('createPipeline', () => {
 
 			pipeline.ir.use(metaHelper);
 			pipeline.ir.use(collectionHelper);
-			pipeline.ir.use(policyHelper);
+			pipeline.ir.use(capabilityHelper);
 			pipeline.ir.use(validationHelper);
 			pipeline.builders.use(builderHelper);
 
@@ -137,14 +137,14 @@ describe('createPipeline', () => {
 			expect(runOrder).toEqual([
 				'meta',
 				'collection',
-				'policy',
+				'capability',
 				'validation',
 				'builder',
 			]);
 			expect(steps.map((step) => step.key)).toEqual([
 				'ir.meta.test',
 				'ir.collection.test',
-				'ir.policy-map.test',
+				'ir.capability-map.test',
 				'ir.validation.test',
 				'builder.test',
 			]);
@@ -279,13 +279,13 @@ describe('createPipeline', () => {
 				},
 			});
 
-			const policyHelper = createHelper({
-				key: 'ir.policy-map.inline',
+			const capabilityHelper = createHelper({
+				key: 'ir.capability-map.inline',
 				kind: 'fragment',
 				dependsOn: ['ir.meta.inline'],
 				apply({ output }: FragmentApplyOptions) {
-					executionOrder.push('policy');
-					output.assign({ policyMap: buildPolicyMap() });
+					executionOrder.push('capability');
+					output.assign({ capabilityMap: buildCapabilityMap() });
 				},
 			});
 
@@ -308,7 +308,7 @@ describe('createPipeline', () => {
 
 			pipeline.use(metaHelper);
 			pipeline.use(builderHelper);
-			pipeline.ir.use(policyHelper);
+			pipeline.ir.use(capabilityHelper);
 			const register = jest.fn((pipe) => {
 				pipe.builders.use(extensionBuilder);
 			});
@@ -331,7 +331,7 @@ describe('createPipeline', () => {
 				reporter,
 			});
 
-			expect(executionOrder.slice(0, 2)).toEqual(['meta', 'policy']);
+			expect(executionOrder.slice(0, 2)).toEqual(['meta', 'capability']);
 			expect(new Set(executionOrder.slice(2))).toEqual(
 				new Set(['builder.inline', 'builder.extension'])
 			);
@@ -381,9 +381,9 @@ describe('createPipeline', () => {
 						output.assign({
 							schemas: [],
 							resources: [],
-							policies: [],
+							capabilities: [],
 							blocks: [],
-							policyMap: buildPolicyMap(),
+							capabilityMap: buildCapabilityMap(),
 						});
 					},
 				})
@@ -482,9 +482,9 @@ describe('createPipeline', () => {
 						output.assign({
 							schemas: [],
 							resources: [],
-							policies: [],
+							capabilities: [],
 							blocks: [],
-							policyMap: buildPolicyMap(),
+							capabilityMap: buildCapabilityMap(),
 						});
 					},
 				})
@@ -590,7 +590,7 @@ describe('createPipeline', () => {
 						output.assign({
 							schemas: [],
 							resources: [],
-							policies: [],
+							capabilities: [],
 							blocks: [],
 						});
 					},
@@ -599,11 +599,11 @@ describe('createPipeline', () => {
 
 			pipeline.ir.use(
 				createHelper({
-					key: 'ir.policy-map.priority',
+					key: 'ir.capability-map.priority',
 					kind: 'fragment',
 					dependsOn: ['ir.collection.priority'],
 					apply({ output }: FragmentApplyOptions) {
-						output.assign({ policyMap: buildPolicyMap() });
+						output.assign({ capabilityMap: buildCapabilityMap() });
 					},
 				})
 			);
@@ -612,7 +612,7 @@ describe('createPipeline', () => {
 				createHelper({
 					key: 'ir.validation.priority',
 					kind: 'fragment',
-					dependsOn: ['ir.policy-map.priority'],
+					dependsOn: ['ir.capability-map.priority'],
 					apply() {
 						// no-op validation stub
 					},
@@ -761,9 +761,9 @@ describe('createPipeline', () => {
 						output.assign({
 							schemas: [],
 							resources: [],
-							policies: [],
+							capabilities: [],
 							blocks: [],
-							policyMap: buildPolicyMap(),
+							capabilityMap: buildCapabilityMap(),
 						});
 					},
 				})
@@ -855,9 +855,9 @@ describe('createPipeline', () => {
 						output.assign({
 							schemas: [],
 							resources: [],
-							policies: [],
+							capabilities: [],
 							blocks: [],
-							policyMap: buildPolicyMap(),
+							capabilityMap: buildCapabilityMap(),
 						});
 					},
 				})
@@ -951,9 +951,9 @@ describe('createPipeline', () => {
 						output.assign({
 							schemas: [],
 							resources: [],
-							policies: [],
+							capabilities: [],
 							blocks: [],
-							policyMap: buildPolicyMap(),
+							capabilityMap: buildCapabilityMap(),
 						});
 					},
 				})
@@ -1048,9 +1048,9 @@ describe('createPipeline', () => {
 						output.assign({
 							schemas: [],
 							resources: [],
-							policies: [],
+							capabilities: [],
 							blocks: [],
-							policyMap: buildPolicyMap(),
+							capabilityMap: buildCapabilityMap(),
 						});
 					},
 				})
@@ -1145,9 +1145,9 @@ describe('createPipeline', () => {
 						output.assign({
 							schemas: [],
 							resources: [],
-							policies: [],
+							capabilities: [],
 							blocks: [],
-							policyMap: buildPolicyMap(),
+							capabilityMap: buildCapabilityMap(),
 						});
 					},
 				})

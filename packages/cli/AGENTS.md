@@ -1,6 +1,6 @@
 # `@wpkernel/cli` - Package Guide for Agents
 
-The CLI package ships developer tooling for the framework. Use this guide alongside the root policies in `../../AGENTS.md`.
+The CLI package ships developer tooling for the framework. Use this guide alongside the root capabilities in `../../AGENTS.md`.
 
 ### Scope
 

@@ -84,10 +84,10 @@ optional invalidate: (patterns) => void;
 
 ---
 
-### policies?
+### capabilities?
 
 ```ts
-optional policies: WPKUIPolicyRuntimeSource;
+optional capabilities: WPKUICapabilityRuntimeSource;
 ```
 
 ---

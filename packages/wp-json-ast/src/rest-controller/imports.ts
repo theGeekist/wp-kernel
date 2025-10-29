@@ -21,11 +21,11 @@ const IGNORED_NAMES = new Set([
 	'static',
 	'parent',
 	'BaseController',
-	'Policy',
+	'Capability',
 ]);
 
 export interface RestControllerImportDerivationOptions {
-	readonly policyClass?: string;
+	readonly capabilityClass?: string;
 	readonly helperMethods?: readonly PhpStmtClassMethod[];
 }
 
@@ -36,10 +36,10 @@ export function deriveRestControllerImports(
 	const imports = new Set<string>(BASE_IMPORTS);
 
 	if (
-		options.policyClass &&
-		routes.some((route) => route.policy !== undefined)
+		options.capabilityClass &&
+		routes.some((route) => route.capability !== undefined)
 	) {
-		imports.add(options.policyClass);
+		imports.add(options.capabilityClass);
 	}
 
 	for (const route of routes) {

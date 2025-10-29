@@ -17,8 +17,8 @@
 - [IRResourceCacheKey](interfaces/IRResourceCacheKey.md)
 - [IRWarning](interfaces/IRWarning.md)
 - [IRDiagnostic](interfaces/IRDiagnostic.md)
-- [IRPolicyDefinition](interfaces/IRPolicyDefinition.md)
-- [IRPolicyMap](interfaces/IRPolicyMap.md)
+- [IRCapabilityDefinition](interfaces/IRCapabilityDefinition.md)
+- [IRCapabilityMap](interfaces/IRCapabilityMap.md)
 - [MutableIr](interfaces/MutableIr.md)
 - [IrFragmentInput](interfaces/IrFragmentInput.md)
 - [IrFragmentOutput](interfaces/IrFragmentOutput.md)
@@ -51,7 +51,7 @@
 - [SchemaProvenance](type-aliases/SchemaProvenance.md)
 - [IRRouteTransport](type-aliases/IRRouteTransport.md)
 - [IRDiagnosticSeverity](type-aliases/IRDiagnosticSeverity.md)
-- [IRPolicyScope](type-aliases/IRPolicyScope.md)
+- [IRCapabilityScope](type-aliases/IRCapabilityScope.md)
 - [IrFragment](type-aliases/IrFragment.md)
 - [PipelineDiagnostic](type-aliases/PipelineDiagnostic.md)
 - [FragmentHelper](type-aliases/FragmentHelper.md)
@@ -86,11 +86,11 @@
 - [registerCoreBuilders](functions/registerCoreBuilders.md)
 - [createIr](functions/createIr.md)
 - [createBlocksFragment](functions/createBlocksFragment.md)
+- [createCapabilitiesFragment](functions/createCapabilitiesFragment.md)
+- [createCapabilityMapFragment](functions/createCapabilityMapFragment.md)
 - [createDiagnosticsFragment](functions/createDiagnosticsFragment.md)
 - [createMetaFragment](functions/createMetaFragment.md)
 - [createOrderingFragment](functions/createOrderingFragment.md)
-- [createPoliciesFragment](functions/createPoliciesFragment.md)
-- [createPolicyMapFragment](functions/createPolicyMapFragment.md)
 - [createResourcesFragment](functions/createResourcesFragment.md)
 - [createSchemasFragment](functions/createSchemasFragment.md)
 - [createValidationFragment](functions/createValidationFragment.md)
@@ -177,9 +177,9 @@ Re-exports [IRPhpProject](../../interfaces/IRPhpProject.md)
 
 ---
 
-### IRPolicyHint
+### IRCapabilityHint
 
-Re-exports [IRPolicyHint](../../interfaces/IRPolicyHint.md)
+Re-exports [IRCapabilityHint](../../interfaces/IRCapabilityHint.md)
 
 ---
 

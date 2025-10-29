@@ -18,11 +18,11 @@ describe('WPKernelError', () => {
 		});
 
 		it('creates error with custom message', () => {
-			const error = new WPKernelError('PolicyDenied', {
+			const error = new WPKernelError('CapabilityDenied', {
 				message: 'User lacks required capability',
 			});
 
-			expect(error.code).toBe('PolicyDenied');
+			expect(error.code).toBe('CapabilityDenied');
 			expect(error.message).toBe('User lacks required capability');
 		});
 
@@ -111,10 +111,10 @@ describe('WPKernelError', () => {
 		it('deserializes error from JSON format', () => {
 			const serialized: SerializedError = {
 				name: 'WPKernelError',
-				code: 'PolicyDenied',
+				code: 'CapabilityDenied',
 				message: 'Permission denied',
 				data: {
-					policyKey: 'things.manage',
+					capabilityKey: 'things.manage',
 				},
 				context: {
 					userId: 42,
@@ -126,9 +126,9 @@ describe('WPKernelError', () => {
 			const error = WPKernelError.fromJSON(serialized);
 
 			expect(error).toBeInstanceOf(WPKernelError);
-			expect(error.code).toBe('PolicyDenied');
+			expect(error.code).toBe('CapabilityDenied');
 			expect(error.message).toBe('Permission denied');
-			expect(error.data).toEqual({ policyKey: 'things.manage' });
+			expect(error.data).toEqual({ capabilityKey: 'things.manage' });
 			expect(error.context).toEqual({ userId: 42, siteId: 1 });
 			expect(error.stack).toBe('Error stack trace');
 		});
@@ -205,7 +205,7 @@ describe('WPKernelError', () => {
 		const codes = [
 			'TransportError',
 			'ServerError',
-			'PolicyDenied',
+			'CapabilityDenied',
 			'ValidationError',
 			'TimeoutError',
 			'NotImplementedError',

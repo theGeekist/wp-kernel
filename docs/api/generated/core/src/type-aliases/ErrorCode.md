@@ -10,7 +10,7 @@
 type ErrorCode =
 	| 'TransportError'
 	| 'ServerError'
-	| 'PolicyDenied'
+	| 'CapabilityDenied'
 	| 'ValidationError'
 	| 'TimeoutError'
 	| 'NotImplementedError'

@@ -5,7 +5,7 @@
  * - **ActionContext**: The primary API surface exposed to action implementations
  * - **Action Options**: Configuration for event scope and PHP bridge integration
  * - **Lifecycle Events**: Type definitions for start/complete/error events
- * - **Integration Surfaces**: Reporter, jobs, and policy helpers
+ * - **Integration Surfaces**: Reporter, jobs, and capability helpers
  * - **Redux Middleware**: Type-safe Redux/`@wordpress/data` integration
  *
  * These types form the contract between action implementations and the kernel runtime,
@@ -15,7 +15,7 @@
  */
 
 import type { CacheKeyPattern, InvalidateOptions } from '../resource/cache';
-import type { PolicyHelpers } from '../policy/types';
+import type { CapabilityHelpers } from '../capability/types';
 import type { Reporter } from '../reporter';
 
 /**
@@ -119,17 +119,17 @@ export type ActionJobs = {
  * Authorization and capability checking interface for actions.
  *
  * Actions use this interface to enforce authorization rules and validate user capabilities.
- * The actual policy enforcement is handled by the runtime policy engine provided by the
+ * The actual capability enforcement is handled by the runtime capability engine provided by the
  * host application (which typically integrates with WordPress capabilities).
  *
  * @example
  * ```typescript
  * async function DeletePost(ctx, { postId }) {
  *   // Assert capability (throws if user lacks permission)
- *   ctx.policy.assert('delete_posts');
+ *   ctx.capability.assert('delete_posts');
  *
  *   // Or check capability conditionally
- *   if (!ctx.policy.can('delete_others_posts')) {
+ *   if (!ctx.capability.can('delete_others_posts')) {
  *     // Only allow deleting own posts
  *     const post = await api.posts.get(postId);
  *     if (post.authorId !== currentUser.id) {
@@ -246,7 +246,7 @@ export type ActionLifecycleEvent =
  * ```typescript
  * async function CreatePost(ctx: ActionContext, input: CreatePostInput) {
  *   // Authorization
- *   ctx.policy.assert('edit_posts');
+ *   ctx.capability.assert('edit_posts');
  *
  *   // Logging
  *   ctx.reporter.info('Creating post', { input });
@@ -279,9 +279,9 @@ export type ActionContext = {
 	) => void;
 	/** Background job helpers. */
 	readonly jobs: ActionJobs;
-	/** Policy enforcement helpers. */
-	readonly policy: Pick<
-		PolicyHelpers<Record<string, unknown>>,
+	/** Capability enforcement helpers. */
+	readonly capability: Pick<
+		CapabilityHelpers<Record<string, unknown>>,
 		'assert' | 'can'
 	>;
 	/** Structured logging surface. */
@@ -294,7 +294,7 @@ export type ActionContext = {
  * Function signature for action implementations.
  *
  * Actions are async functions that receive:
- * 1. **Context** (`ctx`) - Integration surfaces (emit, invalidate, jobs, policy, reporter)
+ * 1. **Context** (`ctx`) - Integration surfaces (emit, invalidate, jobs, capability, reporter)
  * 2. **Arguments** (`args`) - Input data provided by the caller
  *
  * And return a Promise resolving to the action's result.
@@ -393,7 +393,7 @@ export type ReduxMiddleware<TState = unknown> = (
  * global.__WP_KERNEL_ACTION_RUNTIME__ = {
  *   reporter: customReporter,
  *   jobs: customJobEngine,
- *   policy: customPolicyEngine,
+ *   capability: customCapabilityEngine,
  *   bridge: customPhpBridge
  * };
  * ```
@@ -409,7 +409,7 @@ export type ReduxMiddleware<TState = unknown> = (
 export type ActionRuntime = {
 	reporter?: Reporter;
 	jobs?: ActionJobs;
-	policy?: Partial<PolicyHelpers<Record<string, unknown>>>;
+	capability?: Partial<CapabilityHelpers<Record<string, unknown>>>;
 	bridge?: {
 		emit: (
 			eventName: string,

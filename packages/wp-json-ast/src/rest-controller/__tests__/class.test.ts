@@ -38,12 +38,12 @@ describe('buildRestControllerClass', () => {
 						path: '/jobs/(?P<id>\\d+)',
 						kind: 'get',
 					},
-					policy: 'job.read',
+					capability: 'job.read',
 					statements: [],
 				},
 			],
 			helperMethods: [helperMethod],
-			policyClass: 'App\\Policy\\Policy',
+			capabilityClass: 'App\\Capability\\Capability',
 		};
 
 		const result = buildRestControllerClass(config);
@@ -75,7 +75,7 @@ describe('buildRestControllerClass', () => {
 				'WP_Error',
 				'WP_REST_Request',
 				'function is_wp_error',
-				'App\\Policy\\Policy',
+				'App\\Capability\\Capability',
 				'WP_Post',
 			])
 		);

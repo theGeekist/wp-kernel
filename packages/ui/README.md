@@ -6,7 +6,7 @@
 
 This package exposes UI building blocks that lean on the kernel runtime instead of bespoke data plumbing. Major surfaces include:
 
-- **ResourceDataView** - render `@wordpress/dataviews` with kernel-aware controllers, policy gating, and persisted preferences.
+- **ResourceDataView** - render `@wordpress/dataviews` with kernel-aware controllers, capability gating, and persisted preferences.
 - **createResourceDataViewController** - translate DataViews state (search, filters, sort, pagination) into resource queries and event payloads.
 - **createDataFormController** - pair inline editors with kernel actions and automatic cache invalidation.
 - **ActionButton / useAction** - trigger kernel actions from the UI without touching transports directly.
@@ -29,7 +29,7 @@ UI build:
 - `@wordpress/element` `>=6.32.0`
 - `react` `>=18.0.0`
 
-Run `pnpm lint:peers` to confirm every workspace honours the shared policy in
+Run `pnpm lint:peers` to confirm every workspace honours the shared capability in
 `scripts/check-framework-peers.ts` before publishing.
 
 ## Bootstrapping the runtime

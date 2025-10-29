@@ -1,4 +1,4 @@
-# Versioning & Back-Compatibility Policy
+# Versioning & Back-Compatibility Capability
 
 This document defines WP Kernel's approach to versioning, breaking changes, and deprecations.
 
@@ -49,7 +49,7 @@ After reaching `1.0.0`:
 
 ✓ **Error Codes**
 
-- `PolicyDenied`, `Transport`, `Server`, `Validation`, `Timeout`, `Developer`
+- `CapabilityDenied`, `Transport`, `Server`, `Validation`, `Timeout`, `Developer`
 - Codes are stable identifiers across all 0.x and 1.x releases
 
 ✓ **Cache Key Patterns**
@@ -61,7 +61,7 @@ After reaching `1.0.0`:
 
 - `defineResource(config)` → Resource
 - `defineAction(name, handler, options?)` → Action
-- `definePolicy(policies)` → PolicyMap
+- `defineCapability(capabilities)` → CapabilityMap
 - `createReporter(options)` → Reporter
 - `useKernel(registry)` → Plugin
 - `registerWPKernelStore(name, options)` → Store
@@ -187,7 +187,7 @@ See: [Migration Guides](https://theGeekist.github.io/wp-kernel/migration/)
 
 ### What to Expect
 
-- ✓ **Core primitives are stable**: Resources, Actions, Policies, Events
+- ✓ **Core primitives are stable**: Resources, Actions, Capabilities, Events
 - ✓ **Event names and error codes won't change**
 - ⚠️ **API ergonomics may improve**: We're refining DX based on feedback
 - ⚠️ **Edge case behavior may change**: We're hardening error handling and validation

@@ -113,20 +113,20 @@ export function createMinimalIr(overrides?: Partial<IRv1>): IRv1 {
 		config: baseConfig,
 		schemas: overrides?.schemas ?? [],
 		resources: overrides?.resources ?? [],
-		policies: overrides?.policies ?? [],
-		policyMap: {
-			definitions: overrides?.policyMap?.definitions ?? [],
+		capabilities: overrides?.capabilities ?? [],
+		capabilityMap: {
+			definitions: overrides?.capabilityMap?.definitions ?? [],
 			fallback: {
 				capability:
-					overrides?.policyMap?.fallback?.capability ??
+					overrides?.capabilityMap?.fallback?.capability ??
 					`manage_${namespace.toLowerCase()}`,
 				appliesTo:
-					overrides?.policyMap?.fallback?.appliesTo ?? 'resource',
+					overrides?.capabilityMap?.fallback?.appliesTo ?? 'resource',
 			},
-			missing: overrides?.policyMap?.missing ?? [],
-			unused: overrides?.policyMap?.unused ?? [],
-			warnings: overrides?.policyMap?.warnings ?? [],
-			sourcePath: overrides?.policyMap?.sourcePath,
+			missing: overrides?.capabilityMap?.missing ?? [],
+			unused: overrides?.capabilityMap?.unused ?? [],
+			warnings: overrides?.capabilityMap?.warnings ?? [],
+			sourcePath: overrides?.capabilityMap?.sourcePath,
 		},
 		blocks: overrides?.blocks ?? [],
 		php: {
@@ -142,12 +142,12 @@ export function createMinimalIr(overrides?: Partial<IRv1>): IRv1 {
 		...overrides,
 		meta: { ...base.meta, ...overrides?.meta },
 		config: overrides?.config ?? baseConfig,
-		policyMap: {
-			...base.policyMap,
-			...overrides?.policyMap,
+		capabilityMap: {
+			...base.capabilityMap,
+			...overrides?.capabilityMap,
 			fallback: {
-				...base.policyMap.fallback,
-				...overrides?.policyMap?.fallback,
+				...base.capabilityMap.fallback,
+				...overrides?.capabilityMap?.fallback,
 			},
 		},
 		php: { ...base.php, ...overrides?.php },

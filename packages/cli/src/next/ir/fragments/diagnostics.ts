@@ -21,13 +21,13 @@ function toResourceDiagnostic(
 	};
 }
 
-function toPolicyDiagnostic(warning: IRWarning): IRDiagnostic {
+function toCapabilityDiagnostic(warning: IRWarning): IRDiagnostic {
 	return {
-		key: `${DIAGNOSTICS_FRAGMENT_KEY}:policy-map:${warning.code}`,
+		key: `${DIAGNOSTICS_FRAGMENT_KEY}:capability-map:${warning.code}`,
 		message: warning.message,
 		severity: 'warn',
 		context: {
-			source: 'policy-map',
+			source: 'capability-map',
 			code: warning.code,
 			...(warning.context ?? {}),
 		},
@@ -42,7 +42,7 @@ export function createDiagnosticsFragment(): IrFragment {
 	return createHelper({
 		key: DIAGNOSTICS_FRAGMENT_KEY,
 		kind: 'fragment',
-		dependsOn: ['ir.resources.core', 'ir.policy-map.core'],
+		dependsOn: ['ir.resources.core', 'ir.capability-map.core'],
 		async apply({ input, output }: IrFragmentApplyOptions) {
 			const diagnostics: IRDiagnostic[] = [];
 
@@ -54,9 +54,9 @@ export function createDiagnosticsFragment(): IrFragment {
 				}
 			}
 
-			if (input.draft.policyMap) {
-				for (const warning of input.draft.policyMap.warnings) {
-					diagnostics.push(toPolicyDiagnostic(warning));
+			if (input.draft.capabilityMap) {
+				for (const warning of input.draft.capabilityMap.warnings) {
+					diagnostics.push(toCapabilityDiagnostic(warning));
 				}
 			}
 

@@ -39,7 +39,7 @@ final class PersistenceRegistry
                                 "single" => true,
                                 "type" => "string",
                             ],
-                            "remote_policy" => [
+                            "remote_capability" => [
                                 "single" => true,
                                 "type" => "string",
                             ],

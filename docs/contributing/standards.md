@@ -352,7 +352,7 @@ throw new Error('Validation failed');
 try {
 	await CreateThing({ data });
 } catch (e) {
-	if (e.code === 'PolicyDenied') {
+	if (e.code === 'CapabilityDenied') {
 		// Handle permission error
 	} else if (e.code === 'ValidationError') {
 		// Handle validation error

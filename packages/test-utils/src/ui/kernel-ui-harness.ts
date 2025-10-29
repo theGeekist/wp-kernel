@@ -58,7 +58,7 @@ function buildRuntime(
 		events: new WPKernelEventBus(),
 		invalidate: jest.fn(),
 		kernel: overrides.kernel as WPKInstance | undefined,
-		policies: overrides.policies,
+		capabilities: overrides.capabilities,
 		options: overrides.options,
 	} satisfies WPKernelUIRuntime;
 }

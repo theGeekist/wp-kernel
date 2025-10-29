@@ -239,8 +239,8 @@ export function buildBuilderArtifacts(
 		config,
 		schemas: [],
 		resources: [irResource],
-		policies: [],
-		policyMap: {
+		capabilities: [],
+		capabilityMap: {
 			sourcePath: undefined,
 			definitions: [],
 			fallback: {

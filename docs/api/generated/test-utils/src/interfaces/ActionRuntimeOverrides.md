@@ -16,8 +16,8 @@ optional runtime: Partial<ActionRuntime>;
 
 ---
 
-### policy?
+### capability?
 
 ```ts
-optional policy: Partial<PolicyHelpers<Record<string, unknown>>>;
+optional capability: Partial<CapabilityHelpers<Record<string, unknown>>>;
 ```

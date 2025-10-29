@@ -30,10 +30,10 @@ readonly dataviews: DataViewsControllerRuntime;
 
 ---
 
-### policies?
+### capabilities?
 
 ```ts
-readonly optional policies: WPKUIPolicyRuntime;
+readonly optional capabilities: WPKUICapabilityRuntime;
 ```
 
 ---

@@ -58,7 +58,7 @@ rced the legacy printer tree to survive in the “next” branch.
 
 ## Target Architecture (Helper-First)
 
-1. Each PHP artifact is built by a dedicated helper (e.g., `createPhpControllerHelper`, `createPhpPolicyHelper`). They push decl
+1. Each PHP artifact is built by a dedicated helper (e.g., `createPhpControllerHelper`, `createPhpCapabilityHelper`). They push decl
 arative actions (`queuePhpProgram`, `queueManifestCopy`) into `output` and delegate via `next`.
 2. A thin orchestration helper (`createPhpBuilder`) simply registers these helpers in order - it does not run IO itself.
 3. The writer helper listens for queued PHP actions, shells into the pretty-printer, and persists `{php, ast}` pairs; failures r
@@ -95,7 +95,7 @@ export function createPhpBuilder() {
                         pipeline.use(
                                 createPhpControllerHelper(args.input.ir.php.controllers.base)
                         );
-                        pipeline.use(createPhpPolicyHelper(args.input.ir.php.policy));
+                        pipeline.use(createPhpCapabilityHelper(args.input.ir.php.capability));
                         // future enrichers simply pipeline.use(...)
                         return next(args);
                 },
@@ -180,7 +180,7 @@ ns; runtime helper wiring remains unchanged.
 
 - Create `packages/cli/src/next/builders/php/helpers/controller.ts` exporting `createPhpControllerHelper(definition)` that queue
   s controller programs.
-- Create `.../helpers/policy.ts`, `.../helpers/persistenceRegistry.ts`, and `.../helpers/indexFile.ts` mirroring the existing do
+- Create `.../helpers/capability.ts`, `.../helpers/persistenceRegistry.ts`, and `.../helpers/indexFile.ts` mirroring the existing do
   mains but returning helpers.
 - Update domain modules (`packages/cli/src/next/builders/php/domains/*.ts`) to export pure AST factories (e.g., `buildResourceCo
 ntrollerProgram(definition)`), removing IO and helper creation.
@@ -197,7 +197,7 @@ orchestration with data building.
 - Update integration coverage in `packages/cli/src/next/builders/__tests__/phpBuilder.test.ts` to inspect queued helper actions
   (e.g., via `output.drainChannel('php')`).
 
-**Expected outcome:** Helpers exist for controllers, policies, persistence registries, and index files; `createPhpBuilder` regis
+**Expected outcome:** Helpers exist for controllers, capabilities, persistence registries, and index files; `createPhpBuilder` regis
 ters them and queues AST programs via `queuePhpProgram`, while IO is still deferred.
 
 ### Phase 3 - Writer channel + pretty-printer integration
@@ -279,7 +279,7 @@ packages/cli/src/next/builders/php/domains/test-utils/wp-post.ts
 packages/cli/src/next/builders/php/domains/rest-args.ts
 packages/cli/src/next/builders/php/domains/render.ts
 packages/cli/src/next/builders/php/domains/persistence-registry.ts
-packages/cli/src/next/builders/php/domains/policy-helper.ts
+packages/cli/src/next/builders/php/domains/capability-helper.ts
 packages/cli/src/next/builders/php/domains/context.ts
 packages/cli/src/next/builders/php/domains/__fixtures__/sample-function-ast.ts
 packages/cli/src/next/builders/php/domains/writer.ts
@@ -365,10 +365,10 @@ packages/cli/src/next/builders/php/domains/transient.ts
 31:     context: PrinterContext;
 45:     context: PrinterContext;
 
-packages/cli/src/next/builders/php/domains/policy-helper.ts
+packages/cli/src/next/builders/php/domains/capability-helper.ts
 1:import type { PrinterContext } from './types';
 15:     context: PrinterContext
-80:function buildPolicyMap(context: PrinterContext): Record<string, unknown> {
+80:function buildCapabilityMap(context: PrinterContext): Record<string, unknown> {
 
 packages/cli/src/next/builders/php/domains/index-file.ts
 2:import type { PrinterContext } from './types';
@@ -557,7 +557,7 @@ export function createResourceControllerArtifact(
                 ...routes.map((route) => `Route: [${route.method}] ${route.path}`),
         ]);
 
-        builder.addUse(`${namespaceRoot}\\Policy\\Policy`);
+        builder.addUse(`${namespaceRoot}\\Capability\\Capability`);
 
         const className = `${toPascalCase(resource.name)}Controller`;
         builder.appendStatement(`class ${className} extends BaseController`);
@@ -643,7 +643,7 @@ export interface PhpFileMetadata {
                 | 'persistence-registry'
                 | 'block-manifest'
                 | 'block-registrar'
-                | 'policy-helper';
+                | 'capability-helper';
         name?: string;
 }
 
@@ -1151,9 +1151,9 @@ I need to confirm that domain modules are correctly returning PhpProgram ASTs, n
 
 ```shell
 root@9d20af90c396:/workspace/wp-kernel# rg "createPhpFileBuilder" -n packages/cli/src/next/builders/php -g"*.ts"
-packages/cli/src/next/builders/php/domains/policy-helper.ts
+packages/cli/src/next/builders/php/domains/capability-helper.ts
 3:      createPhpFileBuilder,
-17:     const builder = createPhpFileBuilder(`${namespaceRoot}\\Policy`, {
+17:     const builder = createPhpFileBuilder(`${namespaceRoot}\\Capability`, {
 
 packages/cli/src/next/builders/php/domains/persistence-registry.ts
 2:      createPhpFileBuilder,
@@ -2168,7 +2168,7 @@ export function createRouteHandlers(options: {
                         break;
         }
 
-        return applyPolicyGuards({
+        return applyCapabilityGuards({
                 methods,
                 routeDefinitions,
         });
@@ -2184,7 +2184,7 @@ export function createRouteMethodName(
         return `${method}${suffix}`;
 }
 
-export function warnOnMissingPolicies(options: {
+export function warnOnMissingCapabilities(options: {
         reporter: Reporter;
         resource: IRResource;
         routes: IRRoute[];
@@ -2192,12 +2192,12 @@ export function warnOnMissingPolicies(options: {
         const { reporter, resource, routes } = options;
 
         for (const route of routes) {
-                const missingPolicy = isWriteRoute(route.method) && !route.policy;
-                if (!missingPolicy) {
+                const missingCapability = isWriteRoute(route.method) && !route.capability;
+                if (!missingCapability) {
                         continue;
                 }
 
-                reporter.warn('Write route missing policy.', {
+                reporter.warn('Write route missing capability.', {
                         resource: resource.name,
                         method: route.method,
                         path: route.path,
@@ -2241,7 +2241,7 @@ function createRouteStubs(options: {
         );
 }
 
-function applyPolicyGuards(options: {
+function applyCapabilityGuards(options: {
         methods: string[][];
         routeDefinitions: Array<{ route: IRRoute }>;
 }): string[][] {
@@ -2252,7 +2252,7 @@ function applyPolicyGuards(options: {
                 const methodLines = options.methods[index]!;
                 if (index < routeCount) {
                         const route = options.routeDefinitions[index]!.route;
-                        guarded.push(injectPolicyGuard(methodLines, route));
+                        guarded.push(injectCapabilityGuard(methodLines, route));
                 } else {
                         guarded.push(methodLines);
                 }
@@ -2261,8 +2261,8 @@ function applyPolicyGuards(options: {
         return guarded;
 }
 
-function injectPolicyGuard(methodLines: string[], route: IRRoute): string[] {
-        if (!route.policy) {
+function injectCapabilityGuard(methodLines: string[], route: IRRoute): string[] {
+        if (!route.capability) {
                 return methodLines;
         }
 
@@ -2272,7 +2272,7 @@ function injectPolicyGuard(methodLines: string[], route: IRRoute): string[] {
         }
 
         const guardLines = [
-                `${PHP_INDENT.repeat(2)}$permission = Policy::enforce( '${escapeSingleQuotes(route.policy)}', $request );`,
+                `${PHP_INDENT.repeat(2)}$permission = Capability::enforce( '${escapeSingleQuotes(route.capability)}', $request );`,
                 `${PHP_INDENT.repeat(2)}if ( is_wp_error( $permission ) ) {`,
                 `${PHP_INDENT.repeat(3)}return $permission;`,
                 `${PHP_INDENT.repeat(2)}}`,
@@ -2340,11 +2340,11 @@ packages/cli/src/next/builders/php/domains/resource-controller.ts
 34:             `Source: ${context.ir.meta.origin} → resources.${resource.name}`,
 45:     const schema = context.ir.schemas.find(
 
-packages/cli/src/next/builders/php/domains/policy-helper.ts
-21:     const source = context.ir.policyMap.sourcePath ?? '[fallback]';
-24:             `Source: ${context.ir.meta.origin} → policy-map (${source})`,
-39:             sanitizeJson(context.ir.policyMap.fallback)
-82:     for (const definition of context.ir.policyMap.definitions) {
+packages/cli/src/next/builders/php/domains/capability-helper.ts
+21:     const source = context.ir.capabilityMap.sourcePath ?? '[fallback]';
+24:             `Source: ${context.ir.meta.origin} → capability-map (${source})`,
+39:             sanitizeJson(context.ir.capabilityMap.fallback)
+82:     for (const definition of context.ir.capabilityMap.definitions) {
 
 packages/cli/src/next/builders/php/domains/transient.ts
 55:             options.context.ir.meta.sanitizedNamespace ??
@@ -2747,10 +2747,10 @@ packages/cli/src/next/builders/php/domains/context.ts
 11:                     ir: PrinterContext['ir'];
 30:             ir: PrinterContext['ir'];
 
-packages/cli/src/next/builders/php/domains/policy-helper.ts
+packages/cli/src/next/builders/php/domains/capability-helper.ts
 1:import type { PrinterContext } from './types';
 15:     context: PrinterContext
-80:function buildPolicyMap(context: PrinterContext): Record<string, unknown> {
+80:function buildCapabilityMap(context: PrinterContext): Record<string, unknown> {
 
 packages/cli/src/next/builders/php/domains/persistence-registry.ts
 11:import type { PrinterContext } from './types';

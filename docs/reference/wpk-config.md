@@ -19,7 +19,7 @@ export const wpkConfig: WPKernelConfigV1 = {
 				create: {
 					path: '/acme/v1/jobs',
 					method: 'POST',
-					policy: 'jobs.create',
+					capability: 'jobs.create',
 				},
 			},
 			storage: { mode: 'wp-post', postType: 'wpk_job' },
@@ -55,7 +55,7 @@ Resources accept the same fields as `defineResource` plus a few extras for scaff
 
 - **`storage`** - describes WordPress persistence (`wp-post`, `wp-option`, `wp-taxonomy`, or `transient`). Informs the PHP builder and `wpk apply` about target directories and capabilities.【F:packages/cli/src/next/builders/php/resourceController.ts†L1-L120】【F:packages/cli/src/next/builders/php/routes.ts†L60-L170】
 - **`identity`** - declares how the resource identifies items (`id`, `slug`, or `uuid`). Controls REST params and PHP lookups.【F:packages/core/src/resource/types.ts†L215-L280】【F:packages/cli/src/next/builders/php/resourceController.ts†L120-L220】
-- **`policyHints`** - capability keys wired into generated controllers. Missing hints produce warnings and fall back to `manage_options`.【F:packages/cli/src/next/builders/php/routes.ts†L170-L260】
+- **`capabilityHints`** - capability keys wired into generated controllers. Missing hints produce warnings and fall back to `manage_options`.【F:packages/cli/src/next/builders/php/routes.ts†L170-L260】
 - **`ui.admin.dataviews`** - enables DataViews scaffolding. Provide a slug, title, and optional `mapQuery` function; the CLI serialises the metadata into `.generated/ui/fixtures/dataviews/*.ts` and emits admin menu shims when `screen.menu` is present.【F:packages/cli/src/next/builders/ts.ts†L1-L200】
 
 ## Schemas

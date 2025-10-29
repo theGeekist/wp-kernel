@@ -20,7 +20,7 @@ function createValidationError(
 	});
 }
 
-function createPolicyDeniedError(
+function createCapabilityDeniedError(
 	error: WPKernelError,
 	context: ErrorContext
 ): WPKernelError {
@@ -28,7 +28,7 @@ function createPolicyDeniedError(
 		actionId: context.actionId,
 		resource: context.resource,
 		selection: context.selection,
-		policyKey: error.context?.policyKey,
+		capabilityKey: error.context?.capabilityKey,
 	});
 }
 
@@ -49,8 +49,8 @@ function handleWPKernelError(
 	switch (error.code) {
 		case 'ValidationError':
 			return createValidationError(error, context);
-		case 'PolicyDenied':
-			return createPolicyDeniedError(error, context);
+		case 'CapabilityDenied':
+			return createCapabilityDeniedError(error, context);
 		case 'TransportError':
 		case 'ServerError':
 			return wrapTransportError(error, context);

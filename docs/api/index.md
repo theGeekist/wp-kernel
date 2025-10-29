@@ -14,7 +14,7 @@ The generated pages are excluded from local search to keep the index lean. Use y
 
 Some APIs benefit from narrative explanations before you open Typedoc:
 
-- [Resources](/guide/resources) - defining REST contracts, cache keys, and policy hints.
+- [Resources](/guide/resources) - defining REST contracts, cache keys, and capability hints.
 - [Actions](/guide/actions) - orchestrating writes and invalidation.
 - [Interactivity](/guide/interactivity) - binding stateful behaviour to blocks and views.
 - [Blocks](/guide/blocks) - manifests, bindings, and SSR.

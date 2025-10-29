@@ -58,7 +58,7 @@ export function createPhpResourceControllerHelper(): BuilderHelper {
 			}
 
 			for (const resource of ir.resources) {
-				warnOnMissingPolicies({ reporter, resource });
+				warnOnMissingCapabilities({ reporter, resource });
 				const namespaceRoot = `${ir.php.namespace}\\Generated`;
 				const namespace = `${namespaceRoot}\\Rest`;
 				const className = `${toPascalCase(resource.name)}Controller`;
@@ -102,18 +102,18 @@ export function createPhpResourceControllerHelper(): BuilderHelper {
 	});
 }
 
-function warnOnMissingPolicies(options: {
+function warnOnMissingCapabilities(options: {
 	readonly reporter: BuilderApplyOptions['reporter'];
 	readonly resource: IRResource;
 }): void {
 	const { reporter, resource } = options;
 
 	for (const route of resource.routes) {
-		if (!isWriteRoute(route.method) || route.policy) {
+		if (!isWriteRoute(route.method) || route.capability) {
 			continue;
 		}
 
-		reporter.warn('Write route missing policy.', {
+		reporter.warn('Write route missing capability.', {
 			resource: resource.name,
 			method: route.method,
 			path: route.path,
@@ -197,7 +197,7 @@ function buildResourceController(
 		identity,
 		routes: routeConfigs,
 		helperMethods,
-		policyClass: `${ir.php.namespace}\Policy\Policy`,
+		capabilityClass: `${ir.php.namespace}\Capability\Capability`,
 	});
 
 	for (const use of uses) {
@@ -256,7 +256,7 @@ function buildRouteConfigs(
 		return {
 			methodName: buildRouteMethodName(route, options.ir),
 			metadata,
-			policy: route.policy,
+			capability: route.capability,
 			usesIdentity,
 			statements,
 		} satisfies RestRouteConfig;

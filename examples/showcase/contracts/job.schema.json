@@ -57,9 +57,9 @@
 				"Temporary"
 			]
 		},
-		"remote_policy": {
+		"remote_capability": {
 			"type": "string",
-			"description": "Remote work policy",
+			"description": "Remote work capability",
 			"enum": ["on-site", "remote", "hybrid"]
 		},
 		"salary_min": {

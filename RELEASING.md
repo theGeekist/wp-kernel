@@ -96,7 +96,7 @@ Walk through the [Framework Release Playbook](docs/releases/framework-release-pl
 
 ## 4️⃣ Direct Commits to Main
 
-**Policy**: Main commits should be for monorepo hygiene only, not consumer-facing changes, and never trigger publishing.
+**Capability**: Main commits should be for monorepo hygiene only, not consumer-facing changes, and never trigger publishing.
 
 ### When to commit directly:
 
@@ -242,7 +242,7 @@ If PR: add label `no-release`. No CHANGELOG entry needed.
 
 ## Related Documentation
 
-- **[VERSIONING.md](./VERSIONING.md)** - Semver policy, deprecations, back-compat
+- **[VERSIONING.md](./VERSIONING.md)** - Semver capability, deprecations, back-compat
 - **[CHANGELOG.md](./CHANGELOG.md)** - Historical releases and changes
 - **[PR Template](./.github/PULL_REQUEST_TEMPLATE.md)** - Required PR format
 - **[Contributing Guide](./docs/contributing/)** - Full contributor workflow

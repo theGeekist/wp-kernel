@@ -48,10 +48,10 @@ events: WPKernelEventBus;
 
 ---
 
-### policies?
+### capabilities?
 
 ```ts
-optional policies: WPKUIPolicyRuntime;
+optional capabilities: WPKUICapabilityRuntime;
 ```
 
 ---

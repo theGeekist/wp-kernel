@@ -46,7 +46,7 @@ export const wpkConfig: WPKernelConfigV1 = {
 
 The next pipeline wires adapter extensions automatically when `createIr` executes (`packages/cli/src/next/ir/createIr.ts:33-52`):
 
-1. IR fragments run first (meta, schemas, resources, policies, diagnostics).
+1. IR fragments run first (meta, schemas, resources, capabilities, diagnostics).
 2. During the `generate` phase the pipeline invokes the adapter extension hook (`packages/cli/src/next/runtime/adapterExtensions.ts:134-170`).
 3. Extensions execute serially. Each receives a **cloned** IR snapshot plus a sandbox directory. They may:
     - patch the clone and call `updateIr(nextIr)` so downstream extensions and builders see the change;
@@ -93,13 +93,13 @@ Update the IR so the existing builders can emit the right artefacts:
 ```ts
 import type { AdapterExtension } from '@wpkernel/cli';
 
-export const enforcePolicyFallback: AdapterExtension = {
-	name: 'company.policy-fallback',
+export const enforceCapabilityFallback: AdapterExtension = {
+	name: 'company.capability-fallback',
 	apply({ ir, updateIr }) {
 		const clone = {
 			...ir,
-			policyMap: {
-				...ir.policyMap,
+			capabilityMap: {
+				...ir.capabilityMap,
 				fallback: {
 					capability: 'manage_options',
 					appliesTo: 'resource',
@@ -112,7 +112,7 @@ export const enforcePolicyFallback: AdapterExtension = {
 };
 ```
 
-`createPhpBuilder` reads the modified policy map and emits the updated helper automatically (`packages/cli/src/next/builders/php/policy.ts:21-110`).
+`createPhpBuilder` reads the modified capability map and emits the updated helper automatically (`packages/cli/src/next/builders/php/capability.ts:21-110`).
 
 ### 4.2 Queue supplemental files
 

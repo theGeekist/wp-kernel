@@ -51,7 +51,7 @@ Item 2 replaces every `buildNode('Expr_*')` usage in the PHP builders with dedic
 
 **Completion notes**
 
-- `packages/cli/src/next/builders/php/__tests__/generate.integration.test.ts` now runs the next pipeline against a disposable workspace, stages PHP + `.ast.json` artefacts via the writer helper, and snapshots representative controllers/policy output to prove parity.
+- `packages/cli/src/next/builders/php/__tests__/generate.integration.test.ts` now runs the next pipeline against a disposable workspace, stages PHP + `.ast.json` artefacts via the writer helper, and snapshots representative controllers/capability output to prove parity.
 - The suite normalises nikic/PHP-Parser v5 typed property payloads before invoking the bridge and executes through a synchronous pretty-printer shim so the packaged PHP script remains the single source of truth.
 - Legacy printers are wrapped in spies throughout the run to guarantee the end-to-end coverage exercises only the AST-first pipeline. Re-run the targeted check with `pnpm --filter @wpkernel/cli test -- --runTestsByPath packages/cli/src/next/builders/php/__tests__/generate.integration.test.ts` when updating fixtures.
 

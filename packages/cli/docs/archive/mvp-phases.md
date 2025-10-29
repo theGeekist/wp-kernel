@@ -40,7 +40,7 @@ Finally you find that imports from other packages are sometimes missing, it usua
 
 **Non-goals / Deferred Work:**
 
-- Dedicated policy helper emission lives in Phase 7 alongside the policy-map contract.
+- Dedicated capability helper emission lives in Phase 7 alongside the capability-map contract.
 - UI/DataViews scaffolding beyond the existing printers is showcase-specific and not part of the MVP sprint.
 - Resource-driven block scaffolding flags (`resource.blocks?.scaffold`, etc.) remain future enhancements; Phase 3 only covers discovery + derived defaults.
 
@@ -54,7 +54,7 @@ Finally you find that imports from other packages are sometimes missing, it usua
 
 ---
 
-## Phase 1A - IR Enhancements (Route Classification & Policy Hints)
+## Phase 1A - IR Enhancements (Route Classification & Capability Hints)
 
 **Spec references:** [MVP Spec §3-4](./mvp-cli-spec.md#3-intermediate-representation-ir)
 
@@ -111,7 +111,7 @@ Finally you find that imports from other packages are sometimes missing, it usua
 - Generate `WP_Error(501, 'Not Implemented')` stubs for `local` routes; skip `remote` routes.
 - Use inferred identity for parameter resolution in stubs.
 - Bootstrap only registers resources with ≥1 local route.
-- Warn on write routes without policies.
+- Warn on write routes without capabilities.
 
 **Reference files:** `packages/cli/src/printers/php/printer.ts` (template builder + stub emitter) with assertions in `packages/cli/src/printers/__tests__/php-printer.stubs.test.ts` (or equivalent).
 
@@ -266,7 +266,7 @@ packages/cli/src/printers/blocks/
 
 **Scope:**
 
-- Extend `eslint-rules/@kernel` with:`wpk/config-consistency`, `wpk/cache-keys-valid`, `wpk/policy-hints`, and `wpk/doc-links`.
+- Extend `eslint-rules/@kernel` with:`wpk/config-consistency`, `wpk/cache-keys-valid`, `wpk/capability-hints`, and `wpk/doc-links`.
 - Exercise each rule against CLI-focused fixtures (e.g., generated plugin layouts) stored under `packages/cli/tests/**`; do **not** rely on workspace-root files.
 - Integrate the rules into `eslint.config.js` with sensible defaults for the monorepo.
 - Document usage and provide ESLint `RuleTester` suites ensuring diagnostics include documentation URLs.
@@ -412,27 +412,27 @@ packages/cli/src/printers/blocks/
 
 ---
 
-## Phase 7 - Policy Map Integration
+## Phase 7 - Capability Map Integration
 
-**Spec references:** [MVP Spec §5](./mvp-cli-spec.md#5-policy-integration)
+**Spec references:** [MVP Spec §5](./mvp-cli-spec.md#5-capability-integration)
 
 **Scope:**
 
-- Define contract for `src/policy-map.ts` (string capabilities or functions).
-- Detect and validate policy map during IR build.
-- Generate `inc/Policy/Policy.php` helper wiring `permission_callback`.
+- Define contract for `src/capability-map.ts` (string capabilities or functions).
+- Detect and validate capability map during IR build.
+- Generate `inc/Capability/Capability.php` helper wiring `permission_callback`.
 - Fallback to safe defaults with warnings when map missing.
-- Diagnostic for undefined/unused policies.
+- Diagnostic for undefined/unused capabilities.
 
-**Deliverables:** Policy discovery + PHP helper + printer integration + tests.
+**Deliverables:** Capability discovery + PHP helper + printer integration + tests.
 
-**DoD:** Controllers use policy helper; CLI warns on missing policies/map.
+**DoD:** Controllers use capability helper; CLI warns on missing capabilities/map.
 
 **Dependencies:** Phases 1A, 2B-2C.
 
 **Status Log:** Started 2025-10-13 - Completed 2025-10-13
 
-**Reference files:** policy detection in `packages/cli/src/ir/build-ir.ts` (new helpers), PHP helper printer additions alongside `packages/cli/src/printers/php/printer.ts`, and fixtures/tests in `packages/cli/tests/policy-map/**`.
+**Reference files:** capability detection in `packages/cli/src/ir/build-ir.ts` (new helpers), PHP helper printer additions alongside `packages/cli/src/printers/php/printer.ts`, and fixtures/tests in `packages/cli/tests/capability-map/**`.
 
 ---
 
@@ -493,7 +493,7 @@ packages/cli/src/printers/blocks/
 
 | Phase | Focus                        | Dependencies |
 | ----- | ---------------------------- | ------------ |
-| 1A    | IR route + policy meta       | -            |
+| 1A    | IR route + capability meta   | -            |
 | 1B    | Block discovery              | 1A           |
 | 2A    | PHP printer stubs            | 1A           |
 | 2B    | `wp-post` CRUD               | 2A           |
@@ -506,6 +506,6 @@ packages/cli/src/printers/blocks/
 | 5C    | Command surface refresh      | 5B, 6A       |
 | 6     | Block-aware apply            | 3B, 5B       |
 | 6A    | CLI integration harness      | 5B           |
-| 7     | Policy integration           | 1A, 2B-2C    |
+| 7     | Capability integration       | 1A, 2B-2C    |
 | 8A    | Docs/exports/bundler hygiene | 7            |
 | 8B    | Final QA & adoption          | All prior    |

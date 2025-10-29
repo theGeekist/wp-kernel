@@ -11,9 +11,9 @@ Base error class for WP Kernel
 ## Example
 
 ```typescript
-throw new WPKernelError('PolicyDenied', {
+throw new WPKernelError('CapabilityDenied', {
 	message: 'User lacks required capability',
-	context: { policyKey: 'things.manage', userId: 123 },
+	context: { capabilityKey: 'things.manage', userId: 123 },
 });
 ```
 
@@ -25,7 +25,7 @@ throw new WPKernelError('PolicyDenied', {
 
 - [`TransportError`](TransportError.md)
 - [`ServerError`](ServerError.md)
-- [`PolicyDeniedError`](../namespaces/error/classes/PolicyDeniedError.md)
+- [`CapabilityDeniedError`](../namespaces/error/classes/CapabilityDeniedError.md)
 
 ## Constructors
 

@@ -31,7 +31,7 @@ This document summarizes the responsibilities and outputs of the core CLI comman
     - Notable: `src/commands/init.ts`, `src/commands/generate.ts`, `src/commands/apply.ts`
 - **IR (builder + types + helpers):** `src/ir/**`
     - Notable: `src/ir/build-ir.ts`, `src/ir/types.ts`, `src/ir/block-discovery.ts`
-- **Policy map resolver (author code entry):** `src/policy-map.ts`
+- **Capability map resolver (author code entry):** `src/capability-map.ts`
 - **Printers (all):** `src/printers/**`
     - Blocks: `src/printers/blocks/{js-only,ssr,derived-blocks}.ts`
     - PHP: `src/printers/php/**`
@@ -52,7 +52,7 @@ This document summarizes the responsibilities and outputs of the core CLI comman
 
 - **Purpose:** Runs all printers (Types, PHP, Blocks, UI) using IR/config.
 - **Outputs:** Source artifacts under `.generated/**` only.
-- **Validation:** Surfaces all warnings/errors as described in the decision matrix (policy gaps, identity, function serialization, etc.).
+- **Validation:** Surfaces all warnings/errors as described in the decision matrix (capability gaps, identity, function serialization, etc.).
 - After printers complete, the CLI validates that the generated imports resolve against the current workspace and installed packages; failures surface as `ValidationError` with the formatted TypeScript diagnostics.
 - **Does NOT:** Copy/move files to runtime locations, run build steps, or scaffold project structure.
 
@@ -77,14 +77,14 @@ This document summarizes the responsibilities and outputs of the core CLI comman
 
 - `package.json` seeded from `<name>`:
     - `dependencies`: `@wpkernel/*` set to `"latest"` (prod-mimic; actual registry resolution is environmental).
-    - WordPress/React deps declared per **Dependency Policy** (below).
+    - WordPress/React deps declared per **Dependency Capability** (below).
     - Minimal scripts (`build`, `dev`, `typecheck`) aligned with the showcase.
 - `vite.config.*` with externals/globals for React and `@wordpress/*` (no bundling of WP globals).
 - `tsconfig.*` with sane defaults (ES modules, JSX, strict).
 - Minimal source skeleton (`src/` entrypoint).
 - _(Optional)_ `.npmrc` to pin a scoped registry only when an explicit flag is provided (environmental `.npmrc` takes precedence).
 
-**Dependency Policy**
+**Dependency Capability**
 
 - **Required:** `@wpkernel/*` pinned to `"latest"`.
 - **Supported strategies for WP/React (either is valid):**
@@ -149,14 +149,14 @@ This document summarizes the responsibilities and outputs of the core CLI comman
 
 ### IR Validation
 
-- **IR construction (`build-ir.ts`)** assembles all required fields: `meta`, `schemas`, `resources`, `policies`, `policyMap`, `blocks`, `php`; performs discovery for schemas/resources/blocks/policy hints; resolves the policy map with fallback + missing/unused warnings; and ensures shapes match this matrix.
-- **IR types (`types.ts`)** define `IRSchema`, `IRResource`, `IRBlock`, `IRPolicyMap`, etc., with all resource fields (`identity`, `storage`, `routes`, `queryParams`, `ui`, `warnings`) and block/policy structures (SSR vs JS-only) aligned; warnings/errors are represented for downstream printers.
+- **IR construction (`build-ir.ts`)** assembles all required fields: `meta`, `schemas`, `resources`, `capabilities`, `capabilityMap`, `blocks`, `php`; performs discovery for schemas/resources/blocks/capability hints; resolves the capability map with fallback + missing/unused warnings; and ensures shapes match this matrix.
+- **IR types (`types.ts`)** define `IRSchema`, `IRResource`, `IRBlock`, `IRCapabilityMap`, etc., with all resource fields (`identity`, `storage`, `routes`, `queryParams`, `ui`, `warnings`) and block/capability structures (SSR vs JS-only) aligned; warnings/errors are represented for downstream printers.
 
 ### Printer Validation
 
 - **Types printer** iterates `ir.schemas[]`, emits one `.d.ts` per schema, supports custom output path + index re-exports, includes a content-hash banner, and errors on duplicate output targets.
 - **Blocks printer (JS-only)** filters `ir.blocks[]` for `!hasRender`, emits the auto-register source, and skips when empty.
-- **PHP printer** composes policy helpers (fallback + map; resource/object scopes; `current_user_can` wiring), builds REST args (threads `identity` + `queryParams`), enforces method visibility, handles identity resolution, and surfaces policy/identity warnings as specified.
+- **PHP printer** composes capability helpers (fallback + map; resource/object scopes; `current_user_can` wiring), builds REST args (threads `identity` + `queryParams`), enforces method visibility, handles identity resolution, and surfaces capability/identity warnings as specified.
 - **UI printer** consumes `resource.ui.admin.dataviews` + `ir.meta.namespace`, emitting a screen wrapper, serialized fixtures, and a PHP menu shim.
 
 ### Matrix Compliance (summary)
@@ -186,7 +186,7 @@ This matrix ensures the CLI implementation matches the architectural and operati
 
 - `ir.meta.namespace`
 - `ir.schemas[]` (explicit or auto-synthesized)
-- `ir.resources[]` (with `identity`, `storage`, `routes`, `schemaKey`, `policyHints?`)
+- `ir.resources[]` (with `identity`, `storage`, `routes`, `schemaKey`, `capabilityHints?`)
 - `ir.blocks[]` (from block discovery; each `{ key, directory, hasRender, manifestSource }`)
 - Paths are workspace-relative; printers only write under `.generated/**` unless noted.
 
@@ -217,23 +217,23 @@ Formatting: TS via Prettier; PHP via Prettier PHP. All PHP files include **WPK:B
 
 ## 2) PHP Printer (REST + Persistence)
 
-**Inputs:** `ir.resources[]`, `ir.meta.namespace`, `ir.policies?`
+**Inputs:** `ir.resources[]`, `ir.meta.namespace`, `ir.capabilities?`
 
 **Decision matrix per resource (derived, no extra config):**
 
-| Condition                                                                   | Controller Body                                                                   | Bootstrap | Notes                                                                                                                                                                           |
-| --------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Has ≥1 **local route** and `storage.mode === 'wp-post'`                     | **CRUD implementation** (list/get/create/update/remove) using WP primitives       | Yes       | REST arg arrays from schema + `queryParams`. Resolve identity (`id/slug/uuid`) per `resource.identity`. Permission callbacks wired using available policy hints (denied ⇒ 403). |
-| Has ≥1 local route and `storage.mode ∈ {wp-taxonomy, wp-option, transient}` | **Mode-specific implementation** or explicit `WP_Error(501)` where unsupported    | Yes       | Taxonomy CRUD (terms), options get/update, transients get/set/delete.                                                                                                           |
-| Has ≥1 local route and **no storage**                                       | **Stub** methods returning `WP_Error(501, 'Not Implemented')` with TODO docblocks | Yes       | Scaffolds the shape so teams can hand-fill later.                                                                                                                               |
-| All routes remote (absolute/outside namespace) or none                      | **Skip** resource entirely                                                        | No        | Thin client-only.                                                                                                                                                               |
+| Condition                                                                   | Controller Body                                                                   | Bootstrap | Notes                                                                                                                                                                               |
+| --------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Has ≥1 **local route** and `storage.mode === 'wp-post'`                     | **CRUD implementation** (list/get/create/update/remove) using WP primitives       | Yes       | REST arg arrays from schema + `queryParams`. Resolve identity (`id/slug/uuid`) per `resource.identity`. Permission callbacks wired using available capability hints (denied ⇒ 403). |
+| Has ≥1 local route and `storage.mode ∈ {wp-taxonomy, wp-option, transient}` | **Mode-specific implementation** or explicit `WP_Error(501)` where unsupported    | Yes       | Taxonomy CRUD (terms), options get/update, transients get/set/delete.                                                                                                               |
+| Has ≥1 local route and **no storage**                                       | **Stub** methods returning `WP_Error(501, 'Not Implemented')` with TODO docblocks | Yes       | Scaffolds the shape so teams can hand-fill later.                                                                                                                                   |
+| All routes remote (absolute/outside namespace) or none                      | **Skip** resource entirely                                                        | No        | Thin client-only.                                                                                                                                                                   |
 
 **Outputs:**
 
 - `.generated/php/Rest/BaseController.php` (once)
 - `.generated/php/Rest/<Resource>Controller.php` (per resource that meets “local route”)
 - `.generated/php/Bootstrap.php` - registers routes for all local resources
-- `.generated/php/Policy/policy.php` - **only if** policy hints exist (mirrors keys → `current_user_can` map)
+- `.generated/php/Capability/capability.php` - **only if** capability hints exist (mirrors keys → `current_user_can` map)
 - `.generated/php/index.php` - PSR-4 classmap for generated files
 - `.generated/rest-args/<resource>.php` - REST argument arrays (list/get/create/update/remove) derived from schema and `queryParams`
 
@@ -246,22 +246,22 @@ Formatting: TS via Prettier; PHP via Prettier PHP. All PHP files include **WPK:B
     - `uuid` → resolve via meta lookup if storage defines a `uuid` meta key; otherwise guarded `WP_Error(400, ...)`.
 
 - **Permission callbacks**:
-    - If a route has a `policy` hint, wire `permission_callback` to `wpk_check_policy( 'key', [args] )`.
+    - If a route has a `capability` hint, wire `permission_callback` to `wpk_check_capability( 'key', [args] )`.
     - If missing on **writes** (create/update/remove), warn and default to `current_user_can( 'manage_options' )`.
 
-#### Policy map resolution
+#### Capability map resolution
 
-- The policy map is discovered at `src/policy-map.{ts,js,mjs,cjs}` (first match wins).
-- The module may export either the map object directly or an object containing `{ policyMap: <map> }`.
-- Each policy map entry may be:
+- The capability map is discovered at `src/capability-map.{ts,js,mjs,cjs}` (first match wins).
+- The module may export either the map object directly or an object containing `{ capabilityMap: <map> }`.
+- Each capability map entry may be:
     - a **string** capability (assumed `{ appliesTo: 'resource' }`);
     - a **descriptor** `{ capability, appliesTo?: 'resource' | 'object', binding?: string }`;
     - or a **function** (sync/async) that resolves to either of the above.
 - The field `appliesTo` must be `"resource"` or `"object"`; invalid values raise a `ValidationError`.
 - For `"object"` scope, if no binding is declared, the resolver tries to infer a request parameter name from referenced resources’ `identity.param`.
     - If exactly one unique param is inferred, it is used.
-    - Otherwise, a warning `policy-map.binding.missing` is emitted (helper may default to `"id"`).
-- If no map file is found or referenced policies are absent, the system falls back to `"manage_options"` and emits warnings.
+    - Otherwise, a warning `capability-map.binding.missing` is emitted (helper may default to `"id"`).
+- If no map file is found or referenced capabilities are absent, the system falls back to `"manage_options"` and emits warnings.
 
 - **REST arg arrays**:
     - Use schema’s `required` + `type` to build sanitize/validate arrays.
@@ -331,19 +331,19 @@ This is optional **block scaffolding** from a resource. If the IR includes a `re
 
 - **PHP override visibility**: if a template would emit `protected/private` for methods declared `public` upstream, **error** (hard stop).
 - **Identity mismatches**: e.g., `uuid` identity without a meta key for `wp-post` → warn and stub `get`.
-- **Policy gaps**: write routes without `policy` → warn; permission_callback defaults to `manage_options`.
+- **Capability gaps**: write routes without `capability` → warn; permission_callback defaults to `manage_options`.
 - **Function serialization** (UI printer): detect captured variables and warn that stringified functions must be pure.
 - **Block registrar without build**: N/A at printer time (registrar only expects a path); orchestration will check at apply/build.
 
-- **Policy map warnings (from resolver):**
-    - `policy-map.missing` - No `src/policy-map.*` found; using fallback capability for referenced policies.
-    - `policy-map.entries.missing` - Policies referenced by routes are not defined in the policy map.
-    - `policy-map.entries.unused` - Policies defined in the map are not referenced by any route.
-    - `policy-map.binding.missing` - Policy targets an object but a request parameter couldn’t be inferred (helper may default to `id`).
-- **Policy map errors (fail build):**
+- **Capability map warnings (from resolver):**
+    - `capability-map.missing` - No `src/capability-map.*` found; using fallback capability for referenced capabilities.
+    - `capability-map.entries.missing` - Capabilities referenced by routes are not defined in the capability map.
+    - `capability-map.entries.unused` - Capabilities defined in the map are not referenced by any route.
+    - `capability-map.binding.missing` - Capability targets an object but a request parameter couldn’t be inferred (helper may default to `id`).
+- **Capability map errors (fail build):**
     - Invalid `appliesTo` scope (must be `"resource"` or `"object"`).
-    - Policy map module failed to load or didn’t export a policy map object.
-    - Policy map entry function threw during evaluation.
+    - Capability map module failed to load or didn’t export a capability map object.
+    - Capability map entry function threw during evaluation.
 
 ---
 

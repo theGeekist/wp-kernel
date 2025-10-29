@@ -20,7 +20,7 @@ function buildDraft(): ReturnType<typeof buildIrDraft> {
 }
 
 describe('createDiagnosticsFragment', () => {
-	it('collects resource and policy diagnostics when warnings are present', async () => {
+	it('collects resource and capability diagnostics when warnings are present', async () => {
 		const fragment = createDiagnosticsFragment();
 		const draft = buildDraft();
 		draft.resources = [
@@ -35,7 +35,7 @@ describe('createDiagnosticsFragment', () => {
 				],
 			},
 		] as unknown as typeof draft.resources;
-		draft.policyMap = {
+		draft.capabilityMap = {
 			sourcePath: undefined,
 			definitions: [],
 			fallback: { capability: 'manage_options', appliesTo: 'resource' },
@@ -43,8 +43,8 @@ describe('createDiagnosticsFragment', () => {
 			unused: [],
 			warnings: [
 				{
-					code: 'policy-map.missing-policy',
-					message: 'Missing policy mapping.',
+					code: 'capability-map.missing-capability',
+					message: 'Missing capability mapping.',
 				},
 			],
 		};
@@ -82,7 +82,7 @@ describe('createDiagnosticsFragment', () => {
 				}),
 				expect.objectContaining({
 					key: expect.stringContaining(
-						'policy-map:policy-map.missing-policy'
+						'capability-map:capability-map.missing-capability'
 					),
 					severity: 'warn',
 				}),
@@ -90,7 +90,7 @@ describe('createDiagnosticsFragment', () => {
 		);
 	});
 
-	it('omits diagnostics when neither resources nor policy map provide warnings', async () => {
+	it('omits diagnostics when neither resources nor capability map provide warnings', async () => {
 		const fragment = createDiagnosticsFragment();
 		const draft = buildDraft();
 		draft.resources = [

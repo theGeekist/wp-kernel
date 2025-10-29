@@ -33,7 +33,7 @@ export const job = defineResource<Job, JobQuery>({
 		],
 		get: (id) => ['job', 'get', id],
 	},
-	policyHints: {
+	capabilityHints: {
 		create: 'jobs.create',
 	},
 });
@@ -59,9 +59,9 @@ Passing `'auto'` tells the CLI to derive JSON Schema from your TypeScript types.
 
 Every route can define a cache key helper. Actions typically call `ctx.invalidate([job.cache.key('list')])` or one of the grouped helpers (`job.cache.invalidate.list(query)`) after mutations. The resource runtime records keys and uses `@wordpress/data` resolvers to keep list and item caches consistent.【F:packages/core/src/resource/cache.ts†L1-L760】【F:packages/core/src/resource/store.ts†L430-L560】
 
-## Policies and capability checks
+## Capabilities and capability checks
 
-`policyHints` bridge frontend intent with backend enforcement. When you provide a hint for a write route, the PHP builder wires `permission_callback` to `Policy::enforce('jobs.create', $request)`. Missing hints trigger a warning and fall back to `current_user_can('manage_options')`, which is surfaced in the generation summary.【F:packages/cli/src/next/builders/php/routes.ts†L170-L260】【F:packages/cli/src/next/builders/php/resourceController.ts†L1-L120】
+`capabilityHints` bridge frontend intent with backend enforcement. When you provide a hint for a write route, the PHP builder wires `permission_callback` to `Capability::enforce('jobs.create', $request)`. Missing hints trigger a warning and fall back to `current_user_can('manage_options')`, which is surfaced in the generation summary.【F:packages/cli/src/next/builders/php/routes.ts†L170-L260】【F:packages/cli/src/next/builders/php/resourceController.ts†L1-L120】
 
 ## Using resources from the UI
 

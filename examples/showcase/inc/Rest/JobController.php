@@ -19,7 +19,7 @@ use WP_Error;
 use WP_Post;
 use WP_Query;
 use WP_REST_Request;
-use WPKernel\Showcase\Policy\Policy;
+use WPKernel\Showcase\Capability\Capability;
 
 // WPK:BEGIN AUTO
 class JobController extends BaseController
@@ -59,7 +59,7 @@ class JobController extends BaseController
                     "type" => "string",
                 ],
             ],
-            "remote_policy" => [
+            "remote_capability" => [
                 "schema" => [
                     "type" => "string",
                 ],
@@ -105,7 +105,7 @@ class JobController extends BaseController
      */
     public function deleteV1JobsId(WP_REST_Request $request)
     {
-        $permission = Policy::enforce("jobs.delete", $request);
+        $permission = Capability::enforce("jobs.delete", $request);
         if (is_wp_error($permission)) {
             return $permission;
         }
@@ -227,15 +227,15 @@ class JobController extends BaseController
                 }
             }
         }
-        $remote_policyMeta = $request->get_param("remote_policy");
-        if (null !== $remote_policyMeta) {
-            if (is_scalar($remote_policyMeta)) {
-                $remote_policyMeta = trim((string) $remote_policyMeta);
-                if ("" !== $remote_policyMeta) {
+        $remote_capabilityMeta = $request->get_param("remote_capability");
+        if (null !== $remote_capabilityMeta) {
+            if (is_scalar($remote_capabilityMeta)) {
+                $remote_capabilityMeta = trim((string) $remote_capabilityMeta);
+                if ("" !== $remote_capabilityMeta) {
                     $meta_query[] = [
-                        "key" => "remote_policy",
+                        "key" => "remote_capability",
                         "compare" => "=",
-                        "value" => $remote_policyMeta,
+                        "value" => $remote_capabilityMeta,
                     ];
                 }
             }
@@ -376,7 +376,7 @@ class JobController extends BaseController
      */
     public function postV1Jobs(WP_REST_Request $request)
     {
-        $permission = Policy::enforce("jobs.create", $request);
+        $permission = Capability::enforce("jobs.create", $request);
         if (is_wp_error($permission)) {
             return $permission;
         }
@@ -426,7 +426,7 @@ class JobController extends BaseController
      */
     public function putV1JobsId(WP_REST_Request $request)
     {
-        $permission = Policy::enforce("jobs.update", $request);
+        $permission = Capability::enforce("jobs.update", $request);
         if (is_wp_error($permission)) {
             return $permission;
         }
@@ -598,11 +598,11 @@ class JobController extends BaseController
             ? $job_typeMeta
             : (string) $job_typeMeta;
         $data["job_type"] = $job_typeMeta;
-        $remote_policyMeta = get_post_meta($post->ID, "remote_policy", true);
-        $remote_policyMeta = is_string($remote_policyMeta)
-            ? $remote_policyMeta
-            : (string) $remote_policyMeta;
-        $data["remote_policy"] = $remote_policyMeta;
+        $remote_capabilityMeta = get_post_meta($post->ID, "remote_capability", true);
+        $remote_capabilityMeta = is_string($remote_capabilityMeta)
+            ? $remote_capabilityMeta
+            : (string) $remote_capabilityMeta;
+        $data["remote_capability"] = $remote_capabilityMeta;
         $salary_minMeta = get_post_meta($post->ID, "salary_min", true);
         $salary_minMeta = is_numeric($salary_minMeta)
             ? (int) $salary_minMeta
@@ -669,12 +669,12 @@ class JobController extends BaseController
                 : (string) $job_typeMeta;
             update_post_meta($post_id, "job_type", $job_typeMeta);
         }
-        $remote_policyMeta = $request->get_param("remote_policy");
-        if (null !== $remote_policyMeta) {
-            $remote_policyMeta = is_string($remote_policyMeta)
-                ? $remote_policyMeta
-                : (string) $remote_policyMeta;
-            update_post_meta($post_id, "remote_policy", $remote_policyMeta);
+        $remote_capabilityMeta = $request->get_param("remote_capability");
+        if (null !== $remote_capabilityMeta) {
+            $remote_capabilityMeta = is_string($remote_capabilityMeta)
+                ? $remote_capabilityMeta
+                : (string) $remote_capabilityMeta;
+            update_post_meta($post_id, "remote_capability", $remote_capabilityMeta);
         }
         $salary_minMeta = $request->get_param("salary_min");
         if (null !== $salary_minMeta) {

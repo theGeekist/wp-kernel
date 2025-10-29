@@ -311,7 +311,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/php-code-coverage/issues",
-                "security": "https://github.com/sebastianbergmann/php-code-coverage/security/policy",
+                "security": "https://github.com/sebastianbergmann/php-code-coverage/security/capability",
                 "source": "https://github.com/sebastianbergmann/php-code-coverage/tree/10.1.16"
             },
             "funding": [
@@ -372,7 +372,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/php-file-iterator/issues",
-                "security": "https://github.com/sebastianbergmann/php-file-iterator/security/policy",
+                "security": "https://github.com/sebastianbergmann/php-file-iterator/security/capability",
                 "source": "https://github.com/sebastianbergmann/php-file-iterator/tree/4.1.0"
             },
             "funding": [
@@ -495,7 +495,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/php-text-template/issues",
-                "security": "https://github.com/sebastianbergmann/php-text-template/security/policy",
+                "security": "https://github.com/sebastianbergmann/php-text-template/security/capability",
                 "source": "https://github.com/sebastianbergmann/php-text-template/tree/3.0.1"
             },
             "funding": [
@@ -647,7 +647,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
-                "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
+                "security": "https://github.com/sebastianbergmann/phpunit/security/capability",
                 "source": "https://github.com/sebastianbergmann/phpunit/tree/10.5.58"
             },
             "funding": [
@@ -720,7 +720,7 @@
             "homepage": "https://github.com/sebastianbergmann/cli-parser",
             "support": {
                 "issues": "https://github.com/sebastianbergmann/cli-parser/issues",
-                "security": "https://github.com/sebastianbergmann/cli-parser/security/policy",
+                "security": "https://github.com/sebastianbergmann/cli-parser/security/capability",
                 "source": "https://github.com/sebastianbergmann/cli-parser/tree/2.0.1"
             },
             "funding": [
@@ -908,7 +908,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/comparator/issues",
-                "security": "https://github.com/sebastianbergmann/comparator/security/policy",
+                "security": "https://github.com/sebastianbergmann/comparator/security/capability",
                 "source": "https://github.com/sebastianbergmann/comparator/tree/5.0.4"
             },
             "funding": [
@@ -978,7 +978,7 @@
             "homepage": "https://github.com/sebastianbergmann/complexity",
             "support": {
                 "issues": "https://github.com/sebastianbergmann/complexity/issues",
-                "security": "https://github.com/sebastianbergmann/complexity/security/policy",
+                "security": "https://github.com/sebastianbergmann/complexity/security/capability",
                 "source": "https://github.com/sebastianbergmann/complexity/tree/3.2.0"
             },
             "funding": [
@@ -1045,7 +1045,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/diff/issues",
-                "security": "https://github.com/sebastianbergmann/diff/security/policy",
+                "security": "https://github.com/sebastianbergmann/diff/security/capability",
                 "source": "https://github.com/sebastianbergmann/diff/tree/5.1.1"
             },
             "funding": [
@@ -1109,7 +1109,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/environment/issues",
-                "security": "https://github.com/sebastianbergmann/environment/security/policy",
+                "security": "https://github.com/sebastianbergmann/environment/security/capability",
                 "source": "https://github.com/sebastianbergmann/environment/tree/6.1.0"
             },
             "funding": [
@@ -1187,7 +1187,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/exporter/issues",
-                "security": "https://github.com/sebastianbergmann/exporter/security/policy",
+                "security": "https://github.com/sebastianbergmann/exporter/security/capability",
                 "source": "https://github.com/sebastianbergmann/exporter/tree/5.1.4"
             },
             "funding": [
@@ -1261,7 +1261,7 @@
             ],
             "support": {
                 "issues": "https://github.com/sebastianbergmann/global-state/issues",
-                "security": "https://github.com/sebastianbergmann/global-state/security/policy",
+                "security": "https://github.com/sebastianbergmann/global-state/security/capability",
                 "source": "https://github.com/sebastianbergmann/global-state/tree/6.0.2"
             },
             "funding": [
@@ -1319,7 +1319,7 @@
             "homepage": "https://github.com/sebastianbergmann/lines-of-code",
             "support": {
                 "issues": "https://github.com/sebastianbergmann/lines-of-code/issues",
-                "security": "https://github.com/sebastianbergmann/lines-of-code/security/policy",
+                "security": "https://github.com/sebastianbergmann/lines-of-code/security/capability",
                 "source": "https://github.com/sebastianbergmann/lines-of-code/tree/2.0.2"
             },
             "funding": [
@@ -1495,7 +1495,7 @@
             "homepage": "https://github.com/sebastianbergmann/recursion-context",
             "support": {
                 "issues": "https://github.com/sebastianbergmann/recursion-context/issues",
-                "security": "https://github.com/sebastianbergmann/recursion-context/security/policy",
+                "security": "https://github.com/sebastianbergmann/recursion-context/security/capability",
                 "source": "https://github.com/sebastianbergmann/recursion-context/tree/5.0.1"
             },
             "funding": [

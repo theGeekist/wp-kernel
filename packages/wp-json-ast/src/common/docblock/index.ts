@@ -82,13 +82,13 @@ export function buildRestIndexDocblock(
 	return [`Source: ${options.origin} → php/index`];
 }
 
-export function buildPolicyCallbackDocblock(): readonly string[] {
-	return ['Create a permission callback closure for a policy.'];
+export function buildCapabilityCallbackDocblock(): readonly string[] {
+	return ['Create a permission callback closure for a capability.'];
 }
 
-export function buildPolicyEnforceDocblock(): readonly string[] {
+export function buildCapabilityEnforceDocblock(): readonly string[] {
 	return [
-		'Evaluate a policy against the current user.',
+		'Evaluate a capability against the current user.',
 		'@return bool|WP_Error',
 	];
 }

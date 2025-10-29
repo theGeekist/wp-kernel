@@ -9,14 +9,14 @@
  * 1. **Type Structure** - Typanion validators ensure config matches WPKernelConfigV1 shape
  * 2. **Namespace Sanitization** - Ensures namespace is valid and WordPress-safe
  * 3. **Resource Integrity** - Validates routes, identity params, storage modes
- * 4. **Security Checks** - Warns about missing policies on write operations
+ * 4. **Security Checks** - Warns about missing capabilities on write operations
  *
  * **Framework Contracts Enforced:**
  * - Each resource must have at least one route operation
  * - Identity parameters must appear in route paths
  * - Routes must have unique method+path combinations
  * - wp-post storage should specify postType
- * - Write methods (POST/PUT/PATCH/DELETE) should have policies
+ * - Write methods (POST/PUT/PATCH/DELETE) should have capabilities
  *
  * @module config/validate-kernel-config
  * @see {@link https://github.com/theGeekist/wp-kernel/blob/main/packages/cli/docs/cli-migration-phases.md#runtime}
@@ -68,7 +68,7 @@ const resourceRouteValidator = t.isObject(
 	{
 		path: t.isString(),
 		method: httpMethodValidator,
-		policy: t.isOptional(t.isString()),
+		capability: t.isOptional(t.isString()),
 	},
 	{ extra: t.isRecord(t.isUnknown()) }
 );
@@ -320,13 +320,13 @@ const wpkConfigValidator = t.isObject(
  * 1. Type structure validation (Typanion schemas)
  * 2. Namespace sanitization and validation
  * 3. Version normalization (defaults to 1 if missing)
- * 4. Per-resource integrity checks (routes, identity, storage, policies)
+ * 4. Per-resource integrity checks (routes, identity, storage, capabilities)
  *
  * Error Handling:
  * - Structural errors throw immediately with formatted error messages
  * - Invalid namespaces throw (must be lowercase kebab-case)
  * - Resource contract violations throw with context
- * - Missing policies warn (security hint, not blocking)
+ * - Missing capabilities warn (security hint, not blocking)
  * - Missing postType warns (will be auto-generated)
  *
  * @param rawConfig - Unvalidated config object from loader
@@ -461,7 +461,7 @@ export function normalizeVersion(
  * Enforces framework contracts on individual resources:
  * - Identity parameters must appear in route paths
  * - Routes must have unique method+path combinations
- * - Write routes should have policies (warns if missing)
+ * - Write routes should have capabilities (warns if missing)
  * - wp-post storage should specify postType (warns if missing)
  *
  * @param resourceName - Resource identifier for error messages
@@ -485,7 +485,7 @@ export function runResourceChecks(
 		reporter
 	);
 	validateUniqueRoutes(resourceName, routes, reporter);
-	validateWritePolicies(resourceName, routes, reporter);
+	validateWriteCapabilities(resourceName, routes, reporter);
 	validateStorageMode(resourceName, resource.storage, reporter);
 }
 
@@ -496,7 +496,7 @@ function validateIdentityParameter(
 		key: string;
 		path: string;
 		method: string;
-		policy?: string;
+		capability?: string;
 	}>,
 	reporter: Reporter
 ): void {
@@ -540,7 +540,7 @@ function validateUniqueRoutes(
 		key: string;
 		path: string;
 		method: string;
-		policy?: string;
+		capability?: string;
 	}>,
 	reporter: Reporter
 ): void {
@@ -570,13 +570,13 @@ function validateUniqueRoutes(
 	}
 }
 
-function validateWritePolicies(
+function validateWriteCapabilities(
 	resourceName: string,
 	routes: Array<{
 		key: string;
 		path: string;
 		method: string;
-		policy?: string;
+		capability?: string;
 	}>,
 	reporter: Reporter
 ): void {
@@ -585,10 +585,10 @@ function validateWritePolicies(
 	for (const route of routes) {
 		if (
 			WRITE_METHODS.includes(route.method.toUpperCase()) &&
-			!route.policy
+			!route.capability
 		) {
 			reporter.warn(
-				`Resource "${resourceName}" route ${route.key} (${route.method} ${route.path}) uses a write method but has no policy defined. This endpoint will be publicly accessible.`,
+				`Resource "${resourceName}" route ${route.key} (${route.method} ${route.path}) uses a write method but has no capability defined. This endpoint will be publicly accessible.`,
 				{
 					resourceName,
 					routeKey: route.key,

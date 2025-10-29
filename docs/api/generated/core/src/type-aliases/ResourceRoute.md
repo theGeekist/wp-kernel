@@ -40,10 +40,10 @@ HTTP method
 
 ---
 
-### policy?
+### capability?
 
 ```ts
-optional policy: string;
+optional capability: string;
 ```
 
-Optional policy identifier used by tooling to map to capability checks
+Optional capability identifier used by tooling to map to capability checks

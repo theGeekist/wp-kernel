@@ -21,11 +21,11 @@ Additional outputs:
 
 - `.generated/php/Rest/BaseController.php`
 - `.generated/php/Rest/<Resource>Controller.php`
-- `.generated/php/Policy/Policy.php`
+- `.generated/php/Capability/Capability.php`
 - `.generated/php/Registration/PersistenceRegistry.php`
 - `.generated/php/index.php`
 
-The builders enforce public visibility for REST controller overrides and warn when policy hints are missing on write routes.【F:packages/cli/src/next/builders/php/resourceController.ts†L1-L220】【F:packages/cli/src/next/builders/php/routes.ts†L60-L220】
+The builders enforce public visibility for REST controller overrides and warn when capability hints are missing on write routes.【F:packages/cli/src/next/builders/php/resourceController.ts†L1-L220】【F:packages/cli/src/next/builders/php/routes.ts†L60-L220】
 
 ## Blocks builders
 
@@ -50,7 +50,7 @@ Function serialisation detects captured variables and warns when a function is n
 
 ## Troubleshooting checklist
 
-- Missing policy hints on write routes → warning with `manage_options` fallback.【F:packages/cli/src/next/builders/php/routes.ts†L170-L260】
+- Missing capability hints on write routes → warning with `manage_options` fallback.【F:packages/cli/src/next/builders/php/routes.ts†L170-L260】
 - UUID identity without a matching meta key → warning and stubbed `get` implementation.【F:packages/cli/src/next/builders/php/resourceController.ts†L200-L320】
 - PHP visibility mismatch → build error when formatting the file.【F:packages/cli/src/next/builders/php/resourceController.ts†L1-L120】
 - Detected closures in DataViews functions → warning to refactor into pure functions.【F:packages/cli/src/next/builders/ts.ts†L200-L360】

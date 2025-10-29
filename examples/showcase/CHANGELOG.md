@@ -19,7 +19,7 @@
 - **DataViews Phase 5**: JobsList page migrated to DataViews integration
     - Replaced custom table implementation with `ResourceDataView` component
     - Demonstrates real-world DataViews usage with kernel resources
-    - Showcases policy-gated actions, filters, sorting, and pagination
+    - Showcases capability-gated actions, filters, sorting, and pagination
     - Enhanced kernel config with DataViews metadata for Job resource
 
 ## 0.3.0
@@ -118,7 +118,7 @@
     - ✓ Excellent developer experience
 
     ### What's Next
-    - Sprint 2: Policies & Permissions
+    - Sprint 2: Capabilities & Permissions
     - Phase 2 (Optional): Vitest migration
     - Phase 5 (Future): Actions-First enforcement
 

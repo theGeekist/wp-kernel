@@ -2,16 +2,16 @@
 
 ## Context
 
-WP Kernel is approaching its first coordinated framework release without `release-please`. The work below normalizes scaffolding for new packages, centralizes framework dependency policy, and documents a manual release process so we can iterate confidently toward stable npm publication. Each task is scoped to complete in a single development cycle and includes mandatory checks.
+WP Kernel is approaching its first coordinated framework release without `release-please`. The work below normalizes scaffolding for new packages, centralizes framework dependency capability, and documents a manual release process so we can iterate confidently toward stable npm publication. Each task is scoped to complete in a single development cycle and includes mandatory checks.
 
-> **Policy:** Mark the completion status for every task in the tracker below as part of the definition of done. A task is only complete once the section is updated with notes and verification details.
+> **Capability:** Mark the completion status for every task in the tracker below as part of the definition of done. A task is only complete once the section is updated with notes and verification details.
 
 ## Completion tracking
 
 - [x] **Task 1 – Consolidate TypeScript/Jest scaffolding and registration**  
        Completed – shared presets (`tsconfig.lib.json`, `tsconfig.tests.json`, `tsconfig.tests.cli.json`) are in place, package configs extend them, Jest helpers live under `scripts/config/create-wpk-jest-config.ts`, the `scripts/register-workspace.ts` CLI wires new workspaces, and docs cover the workflow in `docs/guide/adding-workspace-dependencies.md` plus `DEVELOPMENT.md`.
-- [x] **Task 2 – Centralize framework peer dependency policy and validation**  
-       Completed – `scripts/config/framework-peers.ts` defines the canonical versions, `scripts/check-framework-peers.ts` validates every package, `package.json` exposes `pnpm lint:peers`, `vite.config.base.ts` reads the map for Rollup externals, and package READMEs document the policy.
+- [x] **Task 2 – Centralize framework peer dependency capability and validation**  
+       Completed – `scripts/config/framework-peers.ts` defines the canonical versions, `scripts/check-framework-peers.ts` validates every package, `package.json` exposes `pnpm lint:peers`, `vite.config.base.ts` reads the map for Rollup externals, and package READMEs document the capability.
 - [x] **Task 3 – Document manual framework release workflow**
       Completed – Authored `docs/releases/framework-release-playbook.md`, updated `RELEASING.md`/`DEVELOPMENT.md` to point at the manual flow, added `scripts/check-release-readiness.ts` plus the `pnpm release:verify` hook, and verified the readiness check covers all publishable workspaces.
 - [x] **Task 4 – Automate documentation version sync and release tagging**
@@ -38,7 +38,7 @@ WP Kernel is approaching its first coordinated framework release without `releas
 - ✓ `pnpm lint --fix`
 - ✓ `pnpm test`
 
-## Task 2 – Centralize framework peer dependency policy and validation
+## Task 2 – Centralize framework peer dependency capability and validation
 
 **Objective:** Guarantee consistent peer/runtime dependency declarations across packages and prevent accidental bundling of WordPress/React modules.
 
@@ -48,7 +48,7 @@ WP Kernel is approaching its first coordinated framework release without `releas
 2. Update `vite.config.base.ts` (and any related Rollup externals) to consume the map so new dependencies stay external by default.
 3. Provide a utility (`scripts/check-framework-peers.ts`) that validates each package `package.json` has the expected peers and matching versions.
 4. Wire the validation script into `package.json` via `"lint:peers"` and include it in CI (e.g., run inside `pnpm lint`).
-5. Refresh package README snippets (UI, Core, CLI) to describe the peer policy and installation expectations.
+5. Refresh package README snippets (UI, Core, CLI) to describe the peer capability and installation expectations.
 
 **Required tooling/tests:**
 

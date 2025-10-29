@@ -36,10 +36,10 @@ describe('normalizeActionError', () => {
 		);
 	});
 
-	it('maps policy denied errors with default message', () => {
+	it('maps capability denied errors with default message', () => {
 		const reporter = createReporter();
-		const denied = new WPKernelError('PolicyDenied', {
-			context: { policyKey: 'jobs.delete' },
+		const denied = new WPKernelError('CapabilityDenied', {
+			context: { capabilityKey: 'jobs.delete' },
 		});
 		denied.message = '';
 
@@ -48,7 +48,7 @@ describe('normalizeActionError', () => {
 		expect(normalized.code).toBe('ValidationError');
 		expect(normalized.message).toBe('Action not permitted');
 		expect(normalized.context).toEqual(
-			expect.objectContaining({ policyKey: 'jobs.delete' })
+			expect.objectContaining({ capabilityKey: 'jobs.delete' })
 		);
 	});
 

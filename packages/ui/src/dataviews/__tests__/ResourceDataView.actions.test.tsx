@@ -53,19 +53,19 @@ describe('ResourceDataView actions', () => {
 		);
 	});
 
-	it('disables actions when policies deny access', async () => {
+	it('disables actions when capabilities deny access', async () => {
 		const runtime = createKernelRuntime();
-		const policyCan = jest.fn().mockResolvedValue(false);
-		runtime.policies = {
-			policy: {
-				can: policyCan,
+		const capabilityCan = jest.fn().mockResolvedValue(false);
+		runtime.capabilities = {
+			capability: {
+				can: capabilityCan,
 			},
-		} as unknown as RuntimeWithDataViews['policies'];
+		} as unknown as RuntimeWithDataViews['capabilities'];
 
 		const { getActionEntries } = renderActionScenario({
 			runtime,
 			action: {
-				policy: 'jobs.delete',
+				capability: 'jobs.delete',
 				disabledWhenDenied: true,
 			},
 		});
@@ -75,21 +75,21 @@ describe('ResourceDataView actions', () => {
 		const actions = getActionEntries();
 		expect(actions).toHaveLength(1);
 		expect(actions[0]?.disabled).toBe(true);
-		expect(policyCan).toHaveBeenCalledWith('jobs.delete');
+		expect(capabilityCan).toHaveBeenCalledWith('jobs.delete');
 	});
 
 	it('omits denied actions when disabledWhenDenied is false', async () => {
 		const runtime = createKernelRuntime();
-		runtime.policies = {
-			policy: {
+		runtime.capabilities = {
+			capability: {
 				can: jest.fn(() => false),
 			},
-		} as unknown as RuntimeWithDataViews['policies'];
+		} as unknown as RuntimeWithDataViews['capabilities'];
 
 		const { getDataViewProps } = renderActionScenario({
 			runtime,
 			action: {
-				policy: 'jobs.delete',
+				capability: 'jobs.delete',
 				disabledWhenDenied: false,
 			},
 		});
@@ -99,19 +99,19 @@ describe('ResourceDataView actions', () => {
 		expect(getDataViewProps().actions).toEqual([]);
 	});
 
-	it('warns when policy evaluation promise rejects', async () => {
+	it('warns when capability evaluation promise rejects', async () => {
 		const runtime = createKernelRuntime();
 		const warnSpy = runtime.dataviews.reporter.warn as jest.Mock;
-		runtime.policies = {
-			policy: {
+		runtime.capabilities = {
+			capability: {
 				can: jest.fn(() => Promise.reject(new Error('nope'))),
 			},
-		} as unknown as RuntimeWithDataViews['policies'];
+		} as unknown as RuntimeWithDataViews['capabilities'];
 
 		renderActionScenario({
 			runtime,
 			action: {
-				policy: 'jobs.delete',
+				capability: 'jobs.delete',
 				disabledWhenDenied: true,
 			},
 		});
@@ -119,34 +119,34 @@ describe('ResourceDataView actions', () => {
 		await flushDataViews(2);
 
 		expect(warnSpy).toHaveBeenCalledWith(
-			'Policy evaluation failed for DataViews action',
-			expect.objectContaining({ policy: 'jobs.delete' })
+			'Capability evaluation failed for DataViews action',
+			expect.objectContaining({ capability: 'jobs.delete' })
 		);
 	});
 
-	it('logs errors when policy evaluation throws synchronously', () => {
+	it('logs errors when capability evaluation throws synchronously', () => {
 		const runtime = createKernelRuntime();
 		const errorSpy = runtime.dataviews.reporter.error as jest.Mock;
-		runtime.policies = {
-			policy: {
+		runtime.capabilities = {
+			capability: {
 				can: jest.fn(() => {
 					throw new Error('boom');
 				}),
 			},
-		} as unknown as RuntimeWithDataViews['policies'];
+		} as unknown as RuntimeWithDataViews['capabilities'];
 
 		renderActionScenario({
 			runtime,
 			action: {
-				policy: 'jobs.delete',
+				capability: 'jobs.delete',
 			},
 		});
 
 		expect(errorSpy).toHaveBeenCalledWith(
-			'Policy evaluation threw an error',
+			'Capability evaluation threw an error',
 			{
 				error: expect.any(Error),
-				policy: 'jobs.delete',
+				capability: 'jobs.delete',
 			}
 		);
 	});
@@ -183,14 +183,14 @@ describe('ResourceDataView actions', () => {
 		expect(resourceInvalidate).not.toHaveBeenCalled();
 	});
 
-	it('disables actions when no policy runtime is available', () => {
+	it('disables actions when no capability runtime is available', () => {
 		const runtime = createKernelRuntime();
-		runtime.policies = undefined;
+		runtime.capabilities = undefined;
 
 		const { getActionEntries } = renderActionScenario({
 			runtime,
 			action: {
-				policy: 'jobs.delete',
+				capability: 'jobs.delete',
 				disabledWhenDenied: true,
 			},
 		});
@@ -202,21 +202,21 @@ describe('ResourceDataView actions', () => {
 		expect(firstAction!.disabled).toBe(true);
 	});
 
-	it('disables policy-gated actions when policy runtime is not available', () => {
+	it('disables capability-gated actions when capability runtime is not available', () => {
 		const runtime = createKernelRuntime();
-		runtime.policies = undefined;
+		runtime.capabilities = undefined;
 
 		const { getActionEntries } = renderActionScenario({
 			runtime,
 			actions: [
 				buildActionConfig({
-					policy: 'jobs.delete',
+					capability: 'jobs.delete',
 					disabledWhenDenied: true,
 				}),
 				buildActionConfig({
 					id: 'edit',
 					label: 'Edit',
-					policy: 'jobs.edit',
+					capability: 'jobs.edit',
 					disabledWhenDenied: true,
 				}),
 			],
@@ -231,18 +231,18 @@ describe('ResourceDataView actions', () => {
 		expect(secondAction!.disabled).toBe(true);
 	});
 
-	it('keeps policy-free actions enabled even with policy runtime present', async () => {
+	it('keeps capability-free actions enabled even with capability runtime present', async () => {
 		const runtime = createKernelRuntime();
-		runtime.policies = {
-			policy: {
+		runtime.capabilities = {
+			capability: {
 				can: jest.fn(() => Promise.resolve(true)),
 			},
-		} as unknown as RuntimeWithDataViews['policies'];
+		} as unknown as RuntimeWithDataViews['capabilities'];
 
 		const { getActionEntries } = renderActionScenario({
 			runtime,
 			actions: [
-				buildActionConfig({ policy: 'jobs.delete' }),
+				buildActionConfig({ capability: 'jobs.delete' }),
 				buildActionConfig({
 					id: 'view',
 					label: 'View',
@@ -261,19 +261,19 @@ describe('ResourceDataView actions', () => {
 		expect(secondAction!.disabled).toBe(false);
 	});
 
-	it('emits a pending event while policy resolution is in progress', async () => {
+	it('emits a pending event while capability resolution is in progress', async () => {
 		const runtime = createKernelRuntime();
-		let resolvePolicy: ((value: boolean) => void) | undefined;
-		runtime.policies = {
-			policy: {
+		let resolveCapability: ((value: boolean) => void) | undefined;
+		runtime.capabilities = {
+			capability: {
 				can: jest.fn(
 					() =>
 						new Promise<boolean>((resolve) => {
-							resolvePolicy = resolve;
+							resolveCapability = resolve;
 						})
 				),
 			},
-		} as unknown as RuntimeWithDataViews['policies'];
+		} as unknown as RuntimeWithDataViews['capabilities'];
 
 		const actionImpl = jest.fn();
 		const { getActionEntries } = renderActionScenario({
@@ -283,7 +283,7 @@ describe('ResourceDataView actions', () => {
 					scope: 'crossTab',
 					bridged: true,
 				}),
-				policy: 'jobs.delete',
+				capability: 'jobs.delete',
 				disabledWhenDenied: true,
 			},
 		});
@@ -301,22 +301,22 @@ describe('ResourceDataView actions', () => {
 			expect.objectContaining({
 				actionId: 'delete',
 				permitted: false,
-				reason: 'policy-pending',
+				reason: 'capability-pending',
 			})
 		);
 		expect(actionImpl).not.toHaveBeenCalled();
 
-		resolvePolicy?.(true);
+		resolveCapability?.(true);
 		await flushDataViews();
 	});
 
-	it('warns when executing a denied policy-gated action', async () => {
+	it('warns when executing a denied capability-gated action', async () => {
 		const runtime = createKernelRuntime();
-		runtime.policies = {
-			policy: {
+		runtime.capabilities = {
+			capability: {
 				can: jest.fn(() => Promise.resolve(false)),
 			},
-		} as unknown as RuntimeWithDataViews['policies'];
+		} as unknown as RuntimeWithDataViews['capabilities'];
 
 		const actionImpl = jest.fn();
 		const { getActionEntries } = renderActionScenario({
@@ -326,7 +326,7 @@ describe('ResourceDataView actions', () => {
 					scope: 'crossTab',
 					bridged: true,
 				}),
-				policy: 'jobs.delete',
+				capability: 'jobs.delete',
 				disabledWhenDenied: true,
 			},
 		});
@@ -345,11 +345,11 @@ describe('ResourceDataView actions', () => {
 			expect.objectContaining({
 				actionId: 'delete',
 				permitted: false,
-				reason: 'policy-denied',
+				reason: 'capability-denied',
 			})
 		);
 		expect(runtime.dataviews.reporter.warn).toHaveBeenCalledWith(
-			'DataViews action blocked by policy',
+			'DataViews action blocked by capability',
 			expect.objectContaining({ actionId: 'delete' })
 		);
 		expect(actionImpl).not.toHaveBeenCalled();
@@ -558,60 +558,60 @@ describe('ResourceDataView actions', () => {
 		expect(resource.invalidate).toHaveBeenCalledWith(customPatterns);
 	});
 
-	it('ignores policy resolution when component unmounts before completion', async () => {
+	it('ignores capability resolution when component unmounts before completion', async () => {
 		const runtime = createKernelRuntime();
-		let resolvePolicy: ((value: boolean) => void) | undefined;
-		runtime.policies = {
-			policy: {
+		let resolveCapability: ((value: boolean) => void) | undefined;
+		runtime.capabilities = {
+			capability: {
 				can: jest.fn(
 					() =>
 						new Promise<boolean>((resolve) => {
-							resolvePolicy = resolve;
+							resolveCapability = resolve;
 						})
 				),
 			},
-		} as unknown as RuntimeWithDataViews['policies'];
+		} as unknown as RuntimeWithDataViews['capabilities'];
 
 		const { renderResult } = renderActionScenario({
 			runtime,
 			action: {
-				policy: 'jobs.delete',
+				capability: 'jobs.delete',
 				disabledWhenDenied: true,
 			},
 		});
 
 		renderResult.unmount();
-		resolvePolicy?.(true);
+		resolveCapability?.(true);
 
 		await flushDataViews();
 
 		expect(runtime.dataviews.reporter.warn).not.toHaveBeenCalled();
 	});
 
-	it('ignores policy rejections after unmount', async () => {
+	it('ignores capability rejections after unmount', async () => {
 		const runtime = createKernelRuntime();
-		let rejectPolicy: ((reason?: unknown) => void) | undefined;
-		runtime.policies = {
-			policy: {
+		let rejectCapability: ((reason?: unknown) => void) | undefined;
+		runtime.capabilities = {
+			capability: {
 				can: jest.fn(
 					() =>
 						new Promise<boolean>((_, reject) => {
-							rejectPolicy = reject;
+							rejectCapability = reject;
 						})
 				),
 			},
-		} as unknown as RuntimeWithDataViews['policies'];
+		} as unknown as RuntimeWithDataViews['capabilities'];
 
 		const { renderResult: rejectionRender } = renderActionScenario({
 			runtime,
 			action: {
-				policy: 'jobs.delete',
+				capability: 'jobs.delete',
 				disabledWhenDenied: true,
 			},
 		});
 
 		rejectionRender.unmount();
-		rejectPolicy?.(new Error('denied'));
+		rejectCapability?.(new Error('denied'));
 
 		await flushDataViews();
 

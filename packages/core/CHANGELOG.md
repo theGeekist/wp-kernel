@@ -24,7 +24,7 @@
 
 - Removed the `withKernel()` export. Registry middleware is now wired directly
   through `configureWPKernel()`, and teardown happens via the returned instance.
-- `defineAction()` and `definePolicy()` now accept configuration objects
+- `defineAction()` and `defineCapability()` now accept configuration objects
   (`{ name, handler, options }` / `{ map, options }`) rather than positional
   parameters. Update call sites to pass the new shape.
 

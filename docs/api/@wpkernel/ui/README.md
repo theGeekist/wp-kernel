@@ -42,7 +42,7 @@ Reusable UI components for WP Kernel.
 - [useAction](functions/useAction.md)
 - [useHoverPrefetch](functions/useHoverPrefetch.md)
 - [useNextPagePrefetch](functions/useNextPagePrefetch.md)
-- [usePolicy](functions/usePolicy.md)
+- [useCapability](functions/useCapability.md)
 - [usePrefetcher](functions/usePrefetcher.md)
 - [useVisiblePrefetch](functions/useVisiblePrefetch.md)
 - [WPKernelUIProvider](functions/WPKernelUIProvider.md)

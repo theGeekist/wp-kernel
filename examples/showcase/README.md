@@ -13,7 +13,7 @@ This plugin demonstrates how to build a modern WordPress product using WP Kernel
 - **Block Bindings**: Data display in editor and front-end
 - **Interactivity**: Front-end form handling and filtering
 - **Jobs (Background)**: Async resume parsing and email sending
-- **Policies**: Permission-based UI gating
+- **Capabilities**: Permission-based UI gating
 - **Events**: Canonical event taxonomy with PHP bridge support
 
 ## Project Structure
@@ -168,7 +168,7 @@ The Job entity schema (`contracts/job.schema.json`) defines:
 - `location` (string) - Geographic location
 - `seniority` (enum) - Junior, Mid, Senior, Lead, Principal
 - `job_type` (enum) - Full-time, Part-time, Contract, Internship, Temporary
-- `remote_policy` (enum) - on-site, remote, hybrid
+- `remote_capability` (enum) - on-site, remote, hybrid
 - `salary_min`, `salary_max` (integer) - Salary range in cents
 - `apply_deadline` (date-time) - Application deadline
 - `updated_at` (date-time) - Last update timestamp

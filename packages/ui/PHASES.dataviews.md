@@ -43,18 +43,18 @@
 
 ## Phase 2 - Resource DataView Controller & Components
 
-**Spec references:** §4.3 Query & Data Orchestration, §4.4 Actions, Policies, and Editing  
+**Spec references:** §4.3 Query & Data Orchestration, §4.4 Actions, Capabilities, and Editing  
 **Goal:** Deliver the controller utilities and React component wrappers that marry kernel resources/actions with the DataViews UI.
 
 - **Scope:**
     - Implement `createResourceDataViewController` translating DataViews state → resource queries via the `QueryMapping` contract and exposing data/loading/errors via hooks.
     - Implement `createDataFormController` bridging `DataForm` with kernel actions and cache invalidation.
-    - Create `ResourceDataView` React component composing controller outputs with the snapshot DataViews component, including policy-gated actions and error normalization rules.
+    - Create `ResourceDataView` React component composing controller outputs with the snapshot DataViews component, including capability-gated actions and error normalization rules.
     - Provide storybook-ready fixtures under `packages/ui/fixtures/dataviews` using the snapshot types.
 
 - **Deliverables:** controller utilities (`packages/ui/src/dataviews/`), React component, fixtures, unit tests (React Testing Library) validating sort/search/pagination mapping and action dispatch.
 
-- **DoD:** All UI tests (unit + integration) pass; coverage updated; component documented in README; Status Log notes policy gating coverage.
+- **DoD:** All UI tests (unit + integration) pass; coverage updated; component documented in README; Status Log notes capability gating coverage.
 
 - **Testing:** Jest with React Testing Library; integration test verifying controller + mock resource interplay.
 

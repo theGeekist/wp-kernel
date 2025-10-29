@@ -84,13 +84,13 @@ Flag primary styling.
 
 ---
 
-### policy?
+### capability?
 
 ```ts
-optional policy: string;
+optional capability: string;
 ```
 
-Policy key to gate rendering and execution.
+Capability key to gate rendering and execution.
 
 ---
 
@@ -100,7 +100,7 @@ Policy key to gate rendering and execution.
 optional disabledWhenDenied: boolean;
 ```
 
-When true, render disabled instead of hiding on policy denial.
+When true, render disabled instead of hiding on capability denial.
 
 ---
 

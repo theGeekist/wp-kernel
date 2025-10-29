@@ -1,7 +1,7 @@
 import { createHelper } from '../../runtime';
 import {
 	sortBlocks,
-	sortPolicies,
+	sortCapabilities,
 	sortResources,
 	sortSchemas,
 } from '../shared/ordering';
@@ -14,14 +14,14 @@ export function createOrderingFragment(): IrFragment {
 		dependsOn: [
 			'ir.schemas.core',
 			'ir.resources.core',
-			'ir.policies.core',
+			'ir.capabilities.core',
 			'ir.blocks.core',
 		],
 		async apply({ input, output }: IrFragmentApplyOptions) {
 			output.assign({
 				schemas: sortSchemas(input.draft.schemas),
 				resources: sortResources(input.draft.resources),
-				policies: sortPolicies(input.draft.policies),
+				capabilities: sortCapabilities(input.draft.capabilities),
 				blocks: sortBlocks(input.draft.blocks),
 			});
 		},

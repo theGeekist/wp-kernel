@@ -29,7 +29,7 @@ export type JobListParams = {
 
 export type Job = Omit<
 	JobResource,
-	'seniority' | 'job_type' | 'remote_policy'
+	'seniority' | 'job_type' | 'remote_capability'
 > & {
 	id: number;
 	title: string;
@@ -43,7 +43,7 @@ export type Job = Omit<
 		| 'Contract'
 		| 'Internship'
 		| 'Temporary';
-	remote_policy?: 'on-site' | 'remote' | 'hybrid';
+	remote_capability?: 'on-site' | 'remote' | 'hybrid';
 	created_at: string;
 	updated_at?: string;
 };
@@ -63,7 +63,7 @@ const storage: ResourceStorageConfig = {
 		location: { type: 'string', single: true },
 		seniority: { type: 'string', single: true },
 		job_type: { type: 'string', single: true },
-		remote_policy: { type: 'string', single: true },
+		remote_capability: { type: 'string', single: true },
 		salary_min: { type: 'integer', single: true },
 		salary_max: { type: 'integer', single: true },
 		apply_deadline: { type: 'string', single: true },
@@ -86,17 +86,17 @@ const routes: ResourceRoutes = {
 	create: {
 		path: '/wp-kernel-showcase/v1/jobs',
 		method: 'POST',
-		policy: 'jobs.create',
+		capability: 'jobs.create',
 	},
 	update: {
 		path: '/wp-kernel-showcase/v1/jobs/:id',
 		method: 'PUT',
-		policy: 'jobs.update',
+		capability: 'jobs.update',
 	},
 	remove: {
 		path: '/wp-kernel-showcase/v1/jobs/:id',
 		method: 'DELETE',
-		policy: 'jobs.delete',
+		capability: 'jobs.delete',
 	},
 };
 

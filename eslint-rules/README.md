@@ -8,7 +8,7 @@ This document outlines the custom ESLint rules designed to enforce best practice
 
 ### Purpose
 
-Prevents namespace drift by enforcing the use of **centralised constants** instead of hardcoded namespace strings such as `'wpk'`, `'wpk.action.start'`, or `'kernel.policy'`.
+Prevents namespace drift by enforcing the use of **centralised constants** instead of hardcoded namespace strings such as `'wpk'`, `'wpk.action.start'`, or `'kernel.capability'`.
 
 ### Why It Matters
 
@@ -37,7 +37,7 @@ hooks.doAction(WPK_EVENTS.ACTION_START, event);
 
 ```ts
 // ✗ BAD
-createReporter({ namespace: 'kernel.policy' });
+createReporter({ namespace: 'kernel.capability' });
 
 // ✓ GOOD
 import { WPK_SUBSYSTEM_NAMESPACES } from '../contracts';
@@ -177,15 +177,15 @@ Cache key references unknown query param 'serch' (did you mean 'search'?)
 
 ---
 
-## `@kernel/policy-hints`
+## `@kernel/capability-hints`
 
 ### Purpose
 
-Encourages **explicit policy declarations** for all write operations.
+Encourages **explicit capability declarations** for all write operations.
 
 ### What It Checks
 
-- Flags write routes (`POST`, `PUT`, `PATCH`, `DELETE`) missing a `policy` field.
+- Flags write routes (`POST`, `PUT`, `PATCH`, `DELETE`) missing a `capability` field.
 - Read (`GET`) routes are exempt but encouraged.
 
 ### Example
@@ -195,13 +195,13 @@ Encourages **explicit policy declarations** for all write operations.
 routes: { create: { method: 'POST' } };
 
 // ✓ GOOD
-routes: { create: { method: 'POST', policy: 'things.create' } };
+routes: { create: { method: 'POST', capability: 'things.create' } };
 ```
 
 **Diagnostic**
 
 ```
-Write route 'create' should declare a policy identifier
+Write route 'create' should declare a capability identifier
 ```
 
 ---
@@ -244,7 +244,7 @@ Add a documentation reference comment for wpkConfig. Developers resolving lint d
 import noHardcodedNamespaceStrings from './eslint-rules/no-hardcoded-namespace-strings.js';
 import configConsistency from './eslint-rules/config-consistency.js';
 import cacheKeysValid from './eslint-rules/cache-keys-valid.js';
-import policyHints from './eslint-rules/policy-hints.js';
+import capabilityHints from './eslint-rules/capability-hints.js';
 import docLinks from './eslint-rules/doc-links.js';
 
 const kernelPlugin = {
@@ -252,7 +252,7 @@ const kernelPlugin = {
 		'no-hardcoded-namespace-strings': noHardcodedNamespaceStrings,
 		'config-consistency': configConsistency,
 		'cache-keys-valid': cacheKeysValid,
-		'policy-hints': policyHints,
+		'capability-hints': capabilityHints,
 		'doc-links': docLinks,
 	},
 };
@@ -264,7 +264,7 @@ export default [
 			'@kernel/no-hardcoded-namespace-strings': 'error',
 			'@kernel/config-consistency': 'error',
 			'@kernel/cache-keys-valid': 'error',
-			'@kernel/policy-hints': 'error',
+			'@kernel/capability-hints': 'error',
 			'@kernel/doc-links': 'warn', // auto-fixable
 		},
 	},

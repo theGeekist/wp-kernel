@@ -48,18 +48,18 @@ resources: IRResource[];
 
 ---
 
-### policies
+### capabilities
 
 ```ts
-policies: IRPolicyHint[];
+capabilities: IRCapabilityHint[];
 ```
 
 ---
 
-### policyMap
+### capabilityMap
 
 ```ts
-policyMap: IRPolicyMap | null;
+capabilityMap: IRCapabilityMap | null;
 ```
 
 ---

@@ -24,10 +24,10 @@ path: string;
 
 ---
 
-### policy?
+### capability?
 
 ```ts
-optional policy: string;
+optional capability: string;
 ```
 
 ---

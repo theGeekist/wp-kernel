@@ -78,7 +78,7 @@ pnpm playground:offline:stop    # Stops server in background (zero network)
     - Splitting related concerns into focused modules
     - De-duplicating repeated patterns
 
-## Workflow & Policies
+## Workflow & Capabilities
 
 - Before starting any task, read the linked documentation in the MVP plan and restate the scope (“Evaluate Task …”). Clarify uncertainties before writing code.
 - All CLI work must keep the AST-first pipeline intact. Do **not** wrap or call the old string-based printers (`packages/cli/src/printers/php/**`, `packages/cli/src/printers/blocks/**`).
@@ -101,7 +101,7 @@ pnpm playground:offline:stop    # Stops server in background (zero network)
 - Link to Roadmap section and Sprint doc/spec in PR description.
 - Respond to all review feedback; avoid duplication; extract interfaces when suggested.
 
-## Agent Execution Policy (Codex)
+## Agent Execution Capability (Codex)
 
 - Default to read/write in workspace.
 - Ask before:

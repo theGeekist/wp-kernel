@@ -2,7 +2,7 @@ import { createValidationFragment } from '../validation';
 import { WPKernelError } from '@wpkernel/core/error';
 
 // This test file uses minimal, valid shapes from the IR types to exercise
-// the validation fragment's branches (missing meta, missing policyMap,
+// the validation fragment's branches (missing meta, missing capabilityMap,
 // resource missing schemaKey, and successful case).
 
 describe('createValidationFragment', () => {
@@ -16,7 +16,7 @@ describe('createValidationFragment', () => {
 		sanitizedNamespace: 'test',
 	};
 
-	const mockPolicyMap = {
+	const mockCapabilityMap = {
 		definitions: [],
 		fallback: { capability: 'read', appliesTo: 'resource' },
 		missing: [],
@@ -67,13 +67,16 @@ describe('createValidationFragment', () => {
 	}
 
 	it('throws when meta is not present', async () => {
-		const draft = { policyMap: mockPolicyMap, resources: [mockResource] };
+		const draft = {
+			capabilityMap: mockCapabilityMap,
+			resources: [mockResource],
+		};
 		await expect(fragment.apply(makeApplyOptions(draft))).rejects.toThrow(
 			WPKernelError
 		);
 	});
 
-	it('throws when policyMap is not present', async () => {
+	it('throws when capabilityMap is not present', async () => {
 		const draft = { meta: mockMeta, resources: [mockResource] };
 		await expect(fragment.apply(makeApplyOptions(draft))).rejects.toThrow(
 			WPKernelError
@@ -85,7 +88,7 @@ describe('createValidationFragment', () => {
 		delete badResource.schemaKey;
 		const draft = {
 			meta: mockMeta,
-			policyMap: mockPolicyMap,
+			capabilityMap: mockCapabilityMap,
 			resources: [badResource],
 		};
 		await expect(fragment.apply(makeApplyOptions(draft))).rejects.toThrow(
@@ -93,10 +96,10 @@ describe('createValidationFragment', () => {
 		);
 	});
 
-	it('resolves when meta, policyMap and resources are present', async () => {
+	it('resolves when meta, capabilityMap and resources are present', async () => {
 		const draft = {
 			meta: mockMeta,
-			policyMap: mockPolicyMap,
+			capabilityMap: mockCapabilityMap,
 			resources: [mockResource],
 		};
 		await expect(

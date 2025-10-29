@@ -76,6 +76,6 @@ Re-exports [UIIntegrationOptions](../../../interfaces/UIIntegrationOptions.md)
 
 ---
 
-### WPKUIPolicyRuntime
+### WPKUICapabilityRuntime
 
-Re-exports [WPKUIPolicyRuntime](../../../interfaces/WPKUIPolicyRuntime.md)
+Re-exports [WPKUICapabilityRuntime](../../../interfaces/WPKUICapabilityRuntime.md)

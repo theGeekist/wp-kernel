@@ -57,7 +57,7 @@ never inline them. The framework currently targets:
 - `@wordpress/hooks` `>=4.32.0`
 
 Run `pnpm lint:peers` before committing to confirm every workspace is aligned
-with the shared policy from `scripts/check-framework-peers.ts`.
+with the shared capability from `scripts/check-framework-peers.ts`.
 
 ## Testing Helpers
 
@@ -271,7 +271,7 @@ await CreatePost({ data });
 - **`@wpkernel/core/resource`** - defineResource, resource client
 - **`@wpkernel/core/actions`** - defineAction, action orchestration
 - **`@wpkernel/core/events`** - Event registry, canonical names
-- **`@wpkernel/core/policies`** - definePolicy, capability checks
+- **`@wpkernel/core/capabilities`** - defineCapability, capability checks
 - **`@wpkernel/core/jobs`** - defineJob, background work
 - **`@wpkernel/core/bindings`** - Block binding sources
 - **`@wpkernel/core/interactivity`** - defineInteraction, front-end actions
@@ -286,7 +286,7 @@ try {
 	await CreatePost({ data });
 } catch (error) {
 	if (error instanceof WPKernelError) {
-		console.log(error.code); // 'PolicyDenied', 'ValidationError', etc.
+		console.log(error.code); // 'CapabilityDenied', 'ValidationError', etc.
 		console.log(error.context);
 	}
 }

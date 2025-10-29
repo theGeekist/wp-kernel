@@ -26,10 +26,10 @@ export const WPK_NAMESPACE = 'wpk';
  * These provide better diagnostic context than the root namespace alone.
  */
 export const WPK_SUBSYSTEM_NAMESPACES = {
-	/** Policy subsystem */
-	POLICY: `${WPK_NAMESPACE}.policy`,
-	/** Policy cache subsystem */
-	POLICY_CACHE: `${WPK_NAMESPACE}.policy.cache`,
+	/** Capability subsystem */
+	POLICY: `${WPK_NAMESPACE}.capability`,
+	/** Capability cache subsystem */
+	POLICY_CACHE: `${WPK_NAMESPACE}.capability.cache`,
 	/** Resource cache subsystem */
 	CACHE: `${WPK_NAMESPACE}.cache`,
 	/** Action subsystem */
@@ -48,12 +48,12 @@ export const WPK_SUBSYSTEM_NAMESPACES = {
  * Keys used for browser APIs (storage, channels), WordPress hooks, and public event names.
  */
 export const WPK_INFRASTRUCTURE = {
-	/** Storage key prefix for policy cache */
-	POLICY_CACHE_STORAGE: `${WPK_NAMESPACE}.policy.cache`,
-	/** BroadcastChannel name for policy cache sync */
-	POLICY_CACHE_CHANNEL: `${WPK_NAMESPACE}.policy.cache`,
-	/** BroadcastChannel name for policy events */
-	POLICY_EVENT_CHANNEL: `${WPK_NAMESPACE}.policy.events`,
+	/** Storage key prefix for capability cache */
+	POLICY_CACHE_STORAGE: `${WPK_NAMESPACE}.capability.cache`,
+	/** BroadcastChannel name for capability cache sync */
+	POLICY_CACHE_CHANNEL: `${WPK_NAMESPACE}.capability.cache`,
+	/** BroadcastChannel name for capability events */
+	POLICY_EVENT_CHANNEL: `${WPK_NAMESPACE}.capability.events`,
 	/** BroadcastChannel name for action lifecycle events */
 	ACTIONS_CHANNEL: `${WPK_NAMESPACE}.actions`,
 	/** WordPress hooks namespace prefix for kernel events plugin */

@@ -4,8 +4,8 @@ import type {
 	BuildIrOptions,
 	IRBlock,
 	IRDiagnostic,
-	IRPolicyHint,
-	IRPolicyMap,
+	IRCapabilityHint,
+	IRCapabilityMap,
 	IRPhpProject,
 	IRResource,
 	IRSchema,
@@ -23,8 +23,8 @@ export interface MutableIr {
 	readonly config: IRv1['config'];
 	schemas: IRSchema[];
 	resources: IRResource[];
-	policies: IRPolicyHint[];
-	policyMap: IRPolicyMap | null;
+	capabilities: IRCapabilityHint[];
+	capabilityMap: IRCapabilityMap | null;
 	blocks: IRBlock[];
 	php: IRPhpProject | null;
 	diagnostics: IRDiagnostic[];
@@ -37,8 +37,8 @@ export function buildIrDraft(options: BuildIrOptions): MutableIr {
 		config: options.config,
 		schemas: [],
 		resources: [],
-		policies: [],
-		policyMap: null,
+		capabilities: [],
+		capabilityMap: null,
 		blocks: [],
 		php: null,
 		diagnostics: [],
@@ -50,8 +50,8 @@ const CORE_FRAGMENT_PREFIXES = [
 	'ir.meta.',
 	'ir.schemas.',
 	'ir.resources.',
-	'ir.policies.',
-	'ir.policy-map.',
+	'ir.capabilities.',
+	'ir.capability-map.',
 	'ir.diagnostics.',
 	'ir.blocks.',
 	'ir.ordering.',
@@ -102,10 +102,10 @@ export function finalizeIrDraft(
 		});
 	}
 
-	if (!draft.policyMap) {
+	if (!draft.capabilityMap) {
 		throw new WPKernelError('ValidationError', {
 			message:
-				'IR policy map fragment did not resolve policy map before pipeline completion.',
+				'IR capability map fragment did not resolve capability map before pipeline completion.',
 		});
 	}
 
@@ -124,8 +124,8 @@ export function finalizeIrDraft(
 		config: draft.config,
 		schemas: draft.schemas,
 		resources: draft.resources,
-		policies: draft.policies,
-		policyMap: draft.policyMap,
+		capabilities: draft.capabilities,
+		capabilityMap: draft.capabilityMap,
 		blocks: draft.blocks,
 		php: draft.php,
 		diagnostics,
@@ -155,11 +155,11 @@ export function buildIrFragmentOutput(draft: MutableIr): IrFragmentOutput {
 			if (partial.resources) {
 				draft.resources = partial.resources;
 			}
-			if (partial.policies) {
-				draft.policies = partial.policies;
+			if (partial.capabilities) {
+				draft.capabilities = partial.capabilities;
 			}
-			if (partial.policyMap) {
-				draft.policyMap = partial.policyMap;
+			if (partial.capabilityMap) {
+				draft.capabilityMap = partial.capabilityMap;
 			}
 			if (partial.blocks) {
 				draft.blocks = partial.blocks;

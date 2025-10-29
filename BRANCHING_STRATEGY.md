@@ -35,7 +35,7 @@ sprint-1/a1-errors
 sprint-1/a2-define-resource
 sprint-1/b2-rest-stub
 sprint-1/c3-e2e-tests
-sprint-2/policies-client-hints
+sprint-2/capabilities-client-hints
 ```
 
 ### Hotfix Branches (Future)

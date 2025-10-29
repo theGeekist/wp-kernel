@@ -50,4 +50,4 @@ graph LR
     D --> E[wpk start]
 ```
 
-Follow the arrows each time you add a resource, block, or policy hint. `wpk build` mirrors `wpk start` without the watcher, and `wpk doctor` can be invoked at any point in the flow.
+Follow the arrows each time you add a resource, block, or capability hint. `wpk build` mirrors `wpk start` without the watcher, and `wpk doctor` can be invoked at any point in the flow.

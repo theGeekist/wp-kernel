@@ -25,11 +25,11 @@ export interface LoadedKernelConfigLike<
 export interface IRRouteLike<
 	TMethod extends string = string,
 	TTransport extends string = string,
-	TPolicy = string | undefined,
+	TCapability = string | undefined,
 > {
 	readonly method: TMethod;
 	readonly path: string;
-	readonly policy?: TPolicy;
+	readonly capability?: TCapability;
 	readonly hash: string;
 	readonly transport: TTransport;
 }
@@ -91,8 +91,8 @@ export interface IRv1Like<
 	TSchema = unknown,
 	TRoute extends IRRouteLike = IRRouteLike,
 	TResource extends IRResourceLike<TRoute> = IRResourceLike<TRoute>,
-	TPolicyHint = unknown,
-	TPolicyMap = unknown,
+	TCapabilityHint = unknown,
+	TCapabilityMap = unknown,
 	TBlock = unknown,
 	TPhpProject = unknown,
 	TDiagnostic = IRWarningLike,
@@ -101,8 +101,8 @@ export interface IRv1Like<
 	readonly config: TConfig;
 	readonly schemas: readonly TSchema[];
 	readonly resources: readonly TResource[];
-	readonly policies: readonly TPolicyHint[];
-	readonly policyMap: TPolicyMap;
+	readonly capabilities: readonly TCapabilityHint[];
+	readonly capabilityMap: TCapabilityMap;
 	readonly blocks: readonly TBlock[];
 	readonly php: TPhpProject;
 	readonly diagnostics?: readonly TDiagnostic[];

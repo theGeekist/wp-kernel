@@ -20,18 +20,18 @@ These provide better diagnostic context than the root namespace alone.
 ### POLICY
 
 ```ts
-readonly POLICY: "wpk.policy";
+readonly POLICY: "wpk.capability";
 ```
 
-Policy subsystem
+Capability subsystem
 
 ### POLICY_CACHE
 
 ```ts
-readonly POLICY_CACHE: "wpk.policy.cache";
+readonly POLICY_CACHE: "wpk.capability.cache";
 ```
 
-Policy cache subsystem
+Capability cache subsystem
 
 ### CACHE
 

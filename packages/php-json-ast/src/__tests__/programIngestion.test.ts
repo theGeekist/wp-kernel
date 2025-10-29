@@ -63,7 +63,7 @@ describe('consumePhpProgramIngestion', () => {
 				file: 'second.php',
 				program: [],
 				metadata: {
-					kind: 'policy-helper',
+					kind: 'capability-helper',
 				} satisfies PhpFileMetadata,
 				docblock: ['explicit'],
 			}).slice(0, -1);
@@ -99,7 +99,7 @@ describe('consumePhpProgramIngestion', () => {
 		expect(actions[1]).toEqual({
 			file: 'prefixed/second.php',
 			program: [],
-			metadata: { kind: 'policy-helper' },
+			metadata: { kind: 'capability-helper' },
 			docblock: ['explicit'],
 			uses: [],
 			statements: [],

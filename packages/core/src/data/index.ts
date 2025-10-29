@@ -13,5 +13,5 @@ export type {
 	WPKernelUIRuntime,
 	WPKernelUIAttach,
 	UIIntegrationOptions,
-	WPKUIPolicyRuntime,
+	WPKUICapabilityRuntime,
 } from './types';

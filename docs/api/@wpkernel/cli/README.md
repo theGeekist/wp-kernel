@@ -34,12 +34,12 @@ kernel and UI packages.
 - [IRSchema](interfaces/IRSchema.md)
 - [IRRoute](interfaces/IRRoute.md)
 - [IRResource](interfaces/IRResource.md)
-- [IRPolicyHint](interfaces/IRPolicyHint.md)
+- [IRCapabilityHint](interfaces/IRCapabilityHint.md)
 - [IRBlock](interfaces/IRBlock.md)
 - [IRPhpProject](interfaces/IRPhpProject.md)
 - [IRv1](interfaces/IRv1.md)
 - [BuildIrOptions](interfaces/BuildIrOptions.md)
-- [PolicyCapabilityDescriptor](interfaces/PolicyCapabilityDescriptor.md)
+- [CapabilityCapabilityDescriptor](interfaces/CapabilityCapabilityDescriptor.md)
 - [PhpAstBuilder](interfaces/PhpAstBuilder.md)
 - [PrinterContext](interfaces/PrinterContext.md)
 
@@ -48,9 +48,9 @@ kernel and UI packages.
 - [ConfigOrigin](type-aliases/ConfigOrigin.md)
 - [PhpAdapterFactory](type-aliases/PhpAdapterFactory.md)
 - [AdapterExtensionFactory](type-aliases/AdapterExtensionFactory.md)
-- [PolicyMapScope](type-aliases/PolicyMapScope.md)
-- [PolicyMapEntry](type-aliases/PolicyMapEntry.md)
-- [PolicyMapDefinition](type-aliases/PolicyMapDefinition.md)
+- [CapabilityMapScope](type-aliases/CapabilityMapScope.md)
+- [CapabilityMapEntry](type-aliases/CapabilityMapEntry.md)
+- [CapabilityMapDefinition](type-aliases/CapabilityMapDefinition.md)
 
 ## Variables
 
@@ -59,4 +59,4 @@ kernel and UI packages.
 ## Functions
 
 - [runCli](functions/runCli.md)
-- [definePolicyMap](functions/definePolicyMap.md)
+- [defineCapabilityMap](functions/defineCapabilityMap.md)

@@ -86,7 +86,7 @@ What changes is _what_ we merge. Instead of large controller bodies, the merge i
     - Keep `buildApplyCommand` in the next command surface so tests and the orchestrator can construct the command with injected reporters, workspace handles, or builders.
     - Mirror the dependency injection options already offered by `buildGenerateCommand` and expose overrides for the patcher helper and manifest reader.
 2. **Ensure generated classes are consumable as bases**
-    - Confirm every generated controller/helper exposes a stable namespace and class name that user code can extend (`packages/cli/src/next/builders/php/resourceController.ts:1-870`, `indexFile.ts:1-74`, `policy.ts:21-110`).
+    - Confirm every generated controller/helper exposes a stable namespace and class name that user code can extend (`packages/cli/src/next/builders/php/resourceController.ts:1-870`, `indexFile.ts:1-74`, `capability.ts:21-110`).
     - Guarantee `.generated/**` remains the single source of truth (already true for PHP/AST output, see `packages/cli/src/next/builders/php/writer.ts:30-68`).
 3. **Introduce extension shims**
     - Create or update the apply plan builder to emit files that wrap generated classes (e.g., require + subclass).

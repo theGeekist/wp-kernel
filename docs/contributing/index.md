@@ -26,14 +26,14 @@ Use this checklist when you need the deeper context that sits outside `/docs`:
 | ------------------ | ------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
 | Project overview   | High-level architecture, packages, and motivation | [`README.md`](https://github.com/theGeekist/wp-kernel/blob/main/README.md)                         |
 | Development guide  | Environment setup, scripts, and tooling           | [`DEVELOPMENT.md`](https://github.com/theGeekist/wp-kernel/blob/main/DEVELOPMENT.md)               |
-| Branching strategy | Release cadence and merge policy                  | [`BRANCHING_STRATEGY.md`](https://github.com/theGeekist/wp-kernel/blob/main/BRANCHING_STRATEGY.md) |
+| Branching strategy | Release cadence and merge capability              | [`BRANCHING_STRATEGY.md`](https://github.com/theGeekist/wp-kernel/blob/main/BRANCHING_STRATEGY.md) |
 | Change log         | Human-curated release notes                       | [`CHANGELOG.md`](https://github.com/theGeekist/wp-kernel/blob/main/CHANGELOG.md)                   |
 | Licensing          | EUPL-1.2 terms and rationale                      | [`LICENSE`](https://github.com/theGeekist/wp-kernel/blob/main/LICENSE)                             |
 | Package READMEs    | Package-specific instructions                     | [`packages/*/README.md`](https://github.com/theGeekist/wp-kernel/tree/main/packages)               |
 
 Additional references:
 
-- [`AGENTS.md`](https://github.com/theGeekist/wp-kernel/blob/main/AGENTS.md) - automation policy for bots and scripts.
+- [`AGENTS.md`](https://github.com/theGeekist/wp-kernel/blob/main/AGENTS.md) - automation capability for bots and scripts.
 - [`LICENSING.md`](https://github.com/theGeekist/wp-kernel/blob/main/LICENSING.md) - decision log for licensing choices.
 - [`information/Roadmap`](https://github.com/theGeekist/wp-kernel/blob/main/information/Roadmap%20PO%20%E2%80%A2%20v1.0.md) - product roadmap.
 - [`examples/showcase/README.md`](https://github.com/theGeekist/wp-kernel/blob/main/examples/showcase/README.md) - detailed walkthrough of the showcase plugin.

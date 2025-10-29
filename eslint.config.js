@@ -21,7 +21,7 @@ import noConsoleInKernel from './eslint-rules/no-console-in-kernel.js';
 import noHardcodedNamespaceStrings from './eslint-rules/no-hardcoded-namespace-strings.js';
 import configConsistency from './eslint-rules/config-consistency.js';
 import cacheKeysValid from './eslint-rules/cache-keys-valid.js';
-import policyHints from './eslint-rules/policy-hints.js';
+import capabilityHints from './eslint-rules/capability-hints.js';
 import docLinks from './eslint-rules/doc-links.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -34,7 +34,7 @@ const kernelPlugin = {
 		'no-hardcoded-namespace-strings': noHardcodedNamespaceStrings,
 		'config-consistency': configConsistency,
 		'cache-keys-valid': cacheKeysValid,
-		'policy-hints': policyHints,
+		'capability-hints': capabilityHints,
 		'doc-links': docLinks,
 	},
 };
@@ -160,7 +160,7 @@ export default [
 			'@kernel/no-hardcoded-namespace-strings': 'error',
 			'@kernel/config-consistency': 'error',
 			'@kernel/cache-keys-valid': 'error',
-			'@kernel/policy-hints': 'error',
+			'@kernel/capability-hints': 'error',
 			'@kernel/doc-links': 'warn',
 		},
 	}, // WordPress Script Modules - runtime-resolved imports

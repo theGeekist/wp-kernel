@@ -585,7 +585,7 @@ describe('createJsBlocksBuilder', () => {
 					{
 						method: 'GET',
 						path: '/kernel/v1/books',
-						policy: undefined,
+						capability: undefined,
 						hash: 'list',
 						transport: 'remote',
 					},

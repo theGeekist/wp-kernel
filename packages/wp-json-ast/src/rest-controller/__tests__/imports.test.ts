@@ -24,7 +24,7 @@ describe('deriveRestControllerImports', () => {
 				path: '/demo/v1/items',
 				kind: 'list',
 			},
-			policy: 'demo.read',
+			capability: 'demo.read',
 			statements: [
 				buildExpressionStatement(
 					buildAssign(
@@ -62,7 +62,7 @@ describe('deriveRestControllerImports', () => {
 		);
 
 		const imports = deriveRestControllerImports([route], {
-			policyClass: 'Demo\\Plugin\\Policy\\Policy',
+			capabilityClass: 'Demo\\Plugin\\Capability\\Capability',
 			helperMethods: [helper],
 		});
 
@@ -71,7 +71,7 @@ describe('deriveRestControllerImports', () => {
 				'WP_Error',
 				'WP_REST_Request',
 				'function is_wp_error',
-				'Demo\\Plugin\\Policy\\Policy',
+				'Demo\\Plugin\\Capability\\Capability',
 				'WP_Post',
 				'WP_Query',
 				'WP_Term',

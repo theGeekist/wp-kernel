@@ -50,18 +50,18 @@ Phase 4 closed with Task 26: after controller safety warnings (Task 25) landed, 
 
 The existing fragments derive most behaviour directly from `wpk.config.*` (current filename `wpk.config.ts`); prefer wiring helpers to output based on the current IR rather than expanding the schema.
 
-| Fragment                 | Inputs                                             | Derived behaviour                                                                                                                       |
-| ------------------------ | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| `meta`                   | namespace, config origin                           | Sanitised namespace (`Demo Plugin` → `DemoPlugin`), source path, origin type.                                                           |
-| `schemas`                | `schemas` map                                      | Resolves schema files, hashes content, determines provenance (`manual` vs generated), warns on missing files.                           |
-| `resources`              | `resources` map + schemas                          | Builds routes (method, transport), cache keys, storage bindings, query params, UI metadata; emits warnings for invalid configs.         |
-| `blocks`                 | resource UI metadata (derived from `wpk.config.*`) | Produces `IRBlock { key, directory, manifestSource, hasRender }`, detects SSR vs JS-only by inspecting manifests/fallback `render.php`. |
-| `policies` / `policyMap` | resources + optional policy map file               | Generates policy hints, fallback capabilities, missing/unused warnings.                                                                 |
-| php adapter              | `adapters.php` factory                             | Allows projects to override namespace/autoload/customise PHP AST building.                                                              |
+| Fragment                         | Inputs                                             | Derived behaviour                                                                                                                       |
+| -------------------------------- | -------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `meta`                           | namespace, config origin                           | Sanitised namespace (`Demo Plugin` → `DemoPlugin`), source path, origin type.                                                           |
+| `schemas`                        | `schemas` map                                      | Resolves schema files, hashes content, determines provenance (`manual` vs generated), warns on missing files.                           |
+| `resources`                      | `resources` map + schemas                          | Builds routes (method, transport), cache keys, storage bindings, query params, UI metadata; emits warnings for invalid configs.         |
+| `blocks`                         | resource UI metadata (derived from `wpk.config.*`) | Produces `IRBlock { key, directory, manifestSource, hasRender }`, detects SSR vs JS-only by inspecting manifests/fallback `render.php`. |
+| `capabilities` / `capabilityMap` | resources + optional capability map file           | Generates capability hints, fallback capabilities, missing/unused warnings.                                                             |
+| php adapter                      | `adapters.php` factory                             | Allows projects to override namespace/autoload/customise PHP AST building.                                                              |
 
 Core builders exist:
 
-- PHP (`builders/php/**`, channel + AST writer, resource controllers, policy helper, persistence registry, index file).
+- PHP (`builders/php/**`, channel + AST writer, resource controllers, capability helper, persistence registry, index file).
 - `createPhpProgramWriterHelper` accepts matching overrides via `CreatePhpProgramWriterHelperOptions`, forwarding them to `@wpkernel/php-driver` so alternative binaries or relocated bundles still resolve the pretty-print script.
 - TypeScript (`builders/ts.ts` with DataView screens/fixtures plus import validation via `validateGeneratedImports`).
 - Bundler (`builders/bundler.ts`) producing rollup config + asset manifests (no CLI build command planned).
@@ -75,7 +75,7 @@ Core builders exist:
 
 - Shared fixtures for next helpers live in `packages/test-utils/src/next/**` (workspace mocks, PHP AST builders, pipeline fixtures).
 - Jest suites cover runtime, builders, and commands (see `packages/cli/src/next/**/__tests__`).
-- The PHP pipeline now ships an end-to-end integration test (`packages/cli/src/next/builders/php/__tests__/generate.integration.test.ts`) that snapshots generated controllers/policy output to confirm the AST builders write the expected artefacts. Re-run it with `pnpm --filter @wpkernel/cli test -- --runTestsByPath packages/cli/src/next/builders/php/__tests__/generate.integration.test.ts` when updating fixtures.
+- The PHP pipeline now ships an end-to-end integration test (`packages/cli/src/next/builders/php/__tests__/generate.integration.test.ts`) that snapshots generated controllers/capability output to confirm the AST builders write the expected artefacts. Re-run it with `pnpm --filter @wpkernel/cli test -- --runTestsByPath packages/cli/src/next/builders/php/__tests__/generate.integration.test.ts` when updating fixtures.
 
 ---
 
@@ -86,7 +86,7 @@ Core builders exist:
 - **Separation of concerns** - helpers compose low-level drivers (PHP via `nikic/PHP-Parser`, TS via `ts-morph`, bundler via Rollup, apply via git merge). Swap drivers without touching high-level orchestration.
 - **Layered apply** - generated artefacts live under `.generated/**`. Apply should update user shims that extend generated bases instead of merging controller bodies directly (see `docs/apply-workflow-phases.md`).
 - **Extensibility contract** - adapter extensions run through the sandboxed pipeline hooks; third parties should plugin via helpers rather than monkey-patching core modules.
-- **Authoring safety** - ESLint rules under `eslint-rules/**` (e.g., `wpk/config-consistency`, `wpk/cache-keys-valid`, `wpk/policy-hints`, `wpk/doc-links`) enforce wpk config invariants and surface doc links directly in diagnostics; keep them aligned with the latest config contract.
+- **Authoring safety** - ESLint rules under `eslint-rules/**` (e.g., `wpk/config-consistency`, `wpk/cache-keys-valid`, `wpk/capability-hints`, `wpk/doc-links`) enforce wpk config invariants and surface doc links directly in diagnostics; keep them aligned with the latest config contract.
 
 ## Authoring safety (lint rules)
 
@@ -94,7 +94,7 @@ Kernel config lint rules live in `eslint-rules/**` and are wired through `eslint
 
 - `wpk/config-consistency` ensures identity params match routes, flags duplicate method/path combos, and checks storage metadata (e.g., inferred `postType` for `wp-post` storage).
 - `wpk/cache-keys-valid` validates cache key functions (arrays of primitives, known query params).
-- `wpk/policy-hints` warns when write routes lack `policy`.
+- `wpk/capability-hints` warns when write routes lack `capability`.
 - `wpk/doc-links` attaches documentation URLs to diagnostics so authors can jump directly to the relevant guide.
 
 Keep these rules updated whenever the config contract evolves.

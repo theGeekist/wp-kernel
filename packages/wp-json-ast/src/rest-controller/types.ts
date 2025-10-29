@@ -16,7 +16,7 @@ export interface RestRouteRequestParameter
 export interface RestRouteConfig {
 	readonly methodName: string;
 	readonly metadata: ResourceControllerRouteMetadata;
-	readonly policy?: string;
+	readonly capability?: string;
 	readonly docblockSummary?: string;
 	readonly usesIdentity?: boolean;
 	readonly requestParameters?: readonly RestRouteRequestParameter[];
@@ -36,7 +36,7 @@ export interface RestControllerClassConfig {
 	readonly identity: RestControllerIdentity;
 	readonly routes: readonly RestRouteConfig[];
 	readonly helperMethods?: readonly PhpStmtClassMethod[];
-	readonly policyClass?: string;
+	readonly capabilityClass?: string;
 }
 
 export interface RestControllerClassBuildResult {

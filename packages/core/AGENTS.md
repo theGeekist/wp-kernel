@@ -1,10 +1,10 @@
 # `@wpkernel/core` - Package Guide for Agents
 
-This package is the runtime heart of WP Kernel. Changes here affect every consumer, so follow the root policies in `../../AGENTS.md` and the guidelines below.
+This package is the runtime heart of WP Kernel. Changes here affect every consumer, so follow the root capabilities in `../../AGENTS.md` and the guidelines below.
 
 ### Scope
 
-Work in this package focuses on resources, actions, policies, registry integration, reporter infrastructure, and the new `configureWPKernel()` bootstrap. When altering public APIs, update the companion specs (`configureWPKernel - Specification.md`, `Architecture Cohesion Proposal.md`) first, then mirror the changes in code and documentation.
+Work in this package focuses on resources, actions, capabilities, registry integration, reporter infrastructure, and the new `configureWPKernel()` bootstrap. When altering public APIs, update the companion specs (`configureWPKernel - Specification.md`, `Architecture Cohesion Proposal.md`) first, then mirror the changes in code and documentation.
 
 ### Build & Test
 

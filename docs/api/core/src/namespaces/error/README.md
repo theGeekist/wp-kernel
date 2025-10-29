@@ -12,7 +12,7 @@ Exports all error types and utilities for consistent error handling throughout t
 
 ## Classes
 
-- [PolicyDeniedError](classes/PolicyDeniedError.md)
+- [CapabilityDeniedError](classes/CapabilityDeniedError.md)
 
 ## Type Aliases
 

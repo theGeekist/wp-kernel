@@ -7,5 +7,5 @@ export * from './common/guards';
 export * from './common/docblock';
 export * from './common/metadata';
 export * from './rest-controller';
-export * from './policy';
+export * from './capability';
 export * from './persistence';

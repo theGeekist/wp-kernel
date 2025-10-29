@@ -81,7 +81,7 @@ describe('createPhpProgramWriterHelper', () => {
 		const program = [buildStmtNop(), buildStmtNop()];
 		channel.queue({
 			file: '/workspace/.generated/php/Writer.php',
-			metadata: { kind: 'policy-helper' },
+			metadata: { kind: 'capability-helper' },
 			docblock: ['Doc line'],
 			uses: ['Demo\\Contracts'],
 			statements: ['class Example {};'],
@@ -150,7 +150,7 @@ describe('createPhpProgramWriterHelper', () => {
 		const program = [buildStmtNop()];
 		channel.queue({
 			file: '/workspace/.generated/php/Override.php',
-			metadata: { kind: 'policy-helper' },
+			metadata: { kind: 'capability-helper' },
 			docblock: [],
 			uses: [],
 			statements: [],
@@ -199,7 +199,7 @@ describe('createPhpProgramWriterHelper', () => {
 		const expectedSerialisedAst = `${JSON.stringify(program, null, 2)}\n`;
 		channel.queue({
 			file: '/workspace/.generated/php/Fallback.php',
-			metadata: { kind: 'policy-helper' },
+			metadata: { kind: 'capability-helper' },
 			docblock: ['Doc line'],
 			uses: ['Demo\\Contracts'],
 			statements: ['class Example {};'],

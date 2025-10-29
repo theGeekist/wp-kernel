@@ -92,10 +92,10 @@ readonly optional invalidate: (patterns) => void;
 
 ---
 
-### policies?
+### capabilities?
 
 ```ts
-readonly optional policies: WPKUIPolicyRuntime;
+readonly optional capabilities: WPKUICapabilityRuntime;
 ```
 
 ---

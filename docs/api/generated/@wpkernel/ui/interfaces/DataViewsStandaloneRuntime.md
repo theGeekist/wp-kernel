@@ -100,12 +100,12 @@ readonly dataviews: KernelDataViewsRuntime;
 
 ---
 
-### policies?
+### capabilities?
 
 ```ts
-readonly optional policies: WPKUIPolicyRuntime;
+readonly optional capabilities: WPKUICapabilityRuntime;
 ```
 
 #### Overrides
 
-[`DataViewsRuntimeContext`](DataViewsRuntimeContext.md).[`policies`](DataViewsRuntimeContext.md#policies)
+[`DataViewsRuntimeContext`](DataViewsRuntimeContext.md).[`capabilities`](DataViewsRuntimeContext.md#capabilities)

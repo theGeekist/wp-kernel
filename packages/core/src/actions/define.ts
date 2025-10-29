@@ -3,7 +3,7 @@
  *
  * Actions are the conductors of your WordPress application. They orchestrate
  * write operations with consistent side effects: event emission, cache invalidation,
- * job scheduling, and policy enforcement.
+ * job scheduling, and capability enforcement.
  *
  * @module @wpkernel/core/actions/define
  */
@@ -34,7 +34,7 @@ import { createActionPipeline } from '../pipeline/actions/createActionPipeline';
  * - **Event emission** — Broadcast lifecycle events via `@wordpress/hooks` and BroadcastChannel
  * - **Cache invalidation** — Keep UI fresh without manual work
  * - **Job scheduling** — Queue background tasks without blocking users
- * - **Policy enforcement** — Check capabilities before writes
+ * - **Capability enforcement** — Check capabilities before writes
  * - **Error normalization** — Convert any error into structured `WPKernelError`
  * - **Observability** — Emit start/complete/error events for monitoring
  *
@@ -48,8 +48,8 @@ import { createActionPipeline } from '../pipeline/actions/createActionPipeline';
  *   { data: Testimonial },
  *   Testimonial
  * >('Testimonial.Create', async (ctx, { data }) => {
- *   // 1. Policy check
- *   ctx.policy.assert('testimonials.create');
+ *   // 1. Capability check
+ *   ctx.capability.assert('testimonials.create');
  *
  *   // 2. Resource call (the actual write)
  *   const created = await testimonial.create!(data);
@@ -124,8 +124,8 @@ import { createActionPipeline } from '../pipeline/actions/createActionPipeline';
  * - **`ctx.invalidate(patterns, options?)`** — Invalidate resource caches
  * - **`ctx.jobs.enqueue(name, payload)`** — Queue background jobs
  * - **`ctx.jobs.wait(name, payload, opts?)`** — Wait for job completion
- * - **`ctx.policy.assert(capability)`** — Throw if capability missing
- * - **`ctx.policy.can(capability)`** — Check capability (returns boolean)
+ * - **`ctx.capability.assert(capability)`** — Throw if capability missing
+ * - **`ctx.capability.can(capability)`** — Check capability (returns boolean)
  * - **`ctx.reporter.info/warn/error/debug(msg, ctx?)`** — Structured logging
  *
  * ## Error Handling
@@ -164,7 +164,7 @@ import { createActionPipeline } from '../pipeline/actions/createActionPipeline';
  * global.__WP_KERNEL_ACTION_RUNTIME__ = {
  *   reporter: customLogger,
  *   jobs: customJobRunner,
- *   policy: customPolicyEngine,
+ *   capability: customCapabilityEngine,
  *   bridge: customPHPBridge,
  * };
  * ```
@@ -199,7 +199,7 @@ import { createActionPipeline } from '../pipeline/actions/createActionPipeline';
  * export const PublishPost = defineAction(
  *   'Post.Publish',
  *   async (ctx, { id }) => {
- *     ctx.policy.assert('posts.publish');
+ *     ctx.capability.assert('posts.publish');
  *     const post = await postResource.update!({ id, status: 'publish' });
  *     ctx.emit(postResource.events.updated, { id, data: post });
  *     ctx.invalidate(['post', 'list'], { storeKey: 'my-plugin/post' });

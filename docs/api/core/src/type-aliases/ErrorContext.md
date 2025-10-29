@@ -40,10 +40,10 @@ optional actionName: string;
 
 ---
 
-### policyKey?
+### capabilityKey?
 
 ```ts
-optional policyKey: string;
+optional capabilityKey: string;
 ```
 
 ---

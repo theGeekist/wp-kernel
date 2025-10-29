@@ -32,7 +32,7 @@ export function fabricateWPKernelConfig(
 		},
 	};
 
-	const capabilities = options.includePolicies
+	const capabilities = options.includeCapabilities
 		? buildCapabilityMap(resource.name)
 		: {};
 

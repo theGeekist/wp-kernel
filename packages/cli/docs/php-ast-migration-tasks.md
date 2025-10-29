@@ -37,28 +37,28 @@ The goal remains: every storage mode plugs into a helper-first API, the channel 
 
 ### Version cadence
 
-| Cycle | Patch slots             | Purpose                              | Notes                                                                                                                                                                 |
-| ----- | ----------------------- | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 0.4.x | 0.4.1-0.4.4             | Pipeline hardening (Tasks 1‑4)       | See [Pipeline Integration Tasks](./pipeline-integration-tasks.md).                                                                                                    |
-| 0.4.x | 0.4.5 - implementation  | Phase 1 - wp-option builders         | Implement controllers/helpers (no string printers).                                                                                                                   |
-| 0.4.x | 0.4.6 - tests           | Phase 1 - wp-option tests            | Snapshot queued `PhpProgram` payloads.                                                                                                                                |
-| 0.4.x | 0.4.7 - fixtures/docs   | Phase 1 - wp-option fixtures/docs    | Refresh fixtures + docs to match AST output.                                                                                                                          |
-| 0.4.x | 0.4.8 - buffer          | Phase 1 buffer slot                  | Optional regression fix before 0.5.0.                                                                                                                                 |
-| 0.4.x | 0.4.9 - release prep    | Phase 1 release prep                 | Changelog rollup + release PR.                                                                                                                                        |
-| 0.5.x | 0.5.1 - implementation  | Phase 2 - transient builders         | Port helper implementations (AST-only).                                                                                                                               |
-| 0.5.x | 0.5.2 - tests           | Phase 2 - transient tests            | Cover cache events + error paths.                                                                                                                                     |
-| 0.5.x | 0.5.3 - fixtures/docs   | Phase 2 - transient fixtures/docs    | Update fixtures + docs.                                                                                                                                               |
-| 0.5.x | 0.5.4 - buffer          | Phase 2 buffer slot                  | Optional bugfix before 0.6.0.                                                                                                                                         |
-| 0.6.x | 0.6.1 - implementation  | Phase 3 - block builders             | Implement next-gen SSR/JS-only builders by replacing `packages/cli/src/printers/blocks/ssr.ts` and `packages/cli/src/printers/blocks/js-only.ts`. Complexity: medium. |
-| 0.6.x | 0.6.2 - tests           | Phase 3 - block tests                | Integration coverage for manifests/registrars/`render.php` outputs using the AST + `ts-morph` pipeline. Complexity: medium.                                           |
-| 0.6.x | 0.6.3 - fixtures/docs   | Phase 3 - block fixtures/docs        | Update docs + fixtures to reference the new builders and retired printers. Complexity: medium.                                                                        |
-| 0.6.x | 0.6.4 - buffer          | Phase 3 buffer slot                  | Optional polish before 0.7.0 (e.g., manifest ordering or `ts-morph` import fixes). Complexity: medium.                                                                |
-| 0.7.x | 0.7.1 - implementation  | Phase 4 - string-printer retirement  | Remove legacy printers.                                                                                                                                               |
-| 0.7.x | 0.7.2 - tests           | Phase 4 - regression tests           | Regenerate goldens via next pipeline.                                                                                                                                 |
-| 0.7.x | 0.7.3 - docs            | Phase 4 - documentation cleanup      | Update docs + migration guides.                                                                                                                                       |
-| 0.7.x | 0.7.4 - buffer          | Phase 4 buffer slot                  | Optional hotfix before 0.8.0.                                                                                                                                         |
-| 0.7.x | 0.7.5 - policy parity   | Phase 4 - policy helper parity       | Restore capability enforcement, binding resolution, and structured errors before removing the legacy helper.                                                          |
-| 0.7.x | 0.7.6 - safety & blocks | Phase 4 - controller safety & blocks | Reinstate missing-policy warnings and resource-driven block derivation so JS-only scaffolds keep shipping automatically.                                              |
+| Cycle | Patch slots               | Purpose                              | Notes                                                                                                                                                                 |
+| ----- | ------------------------- | ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0.4.x | 0.4.1-0.4.4               | Pipeline hardening (Tasks 1‑4)       | See [Pipeline Integration Tasks](./pipeline-integration-tasks.md).                                                                                                    |
+| 0.4.x | 0.4.5 - implementation    | Phase 1 - wp-option builders         | Implement controllers/helpers (no string printers).                                                                                                                   |
+| 0.4.x | 0.4.6 - tests             | Phase 1 - wp-option tests            | Snapshot queued `PhpProgram` payloads.                                                                                                                                |
+| 0.4.x | 0.4.7 - fixtures/docs     | Phase 1 - wp-option fixtures/docs    | Refresh fixtures + docs to match AST output.                                                                                                                          |
+| 0.4.x | 0.4.8 - buffer            | Phase 1 buffer slot                  | Optional regression fix before 0.5.0.                                                                                                                                 |
+| 0.4.x | 0.4.9 - release prep      | Phase 1 release prep                 | Changelog rollup + release PR.                                                                                                                                        |
+| 0.5.x | 0.5.1 - implementation    | Phase 2 - transient builders         | Port helper implementations (AST-only).                                                                                                                               |
+| 0.5.x | 0.5.2 - tests             | Phase 2 - transient tests            | Cover cache events + error paths.                                                                                                                                     |
+| 0.5.x | 0.5.3 - fixtures/docs     | Phase 2 - transient fixtures/docs    | Update fixtures + docs.                                                                                                                                               |
+| 0.5.x | 0.5.4 - buffer            | Phase 2 buffer slot                  | Optional bugfix before 0.6.0.                                                                                                                                         |
+| 0.6.x | 0.6.1 - implementation    | Phase 3 - block builders             | Implement next-gen SSR/JS-only builders by replacing `packages/cli/src/printers/blocks/ssr.ts` and `packages/cli/src/printers/blocks/js-only.ts`. Complexity: medium. |
+| 0.6.x | 0.6.2 - tests             | Phase 3 - block tests                | Integration coverage for manifests/registrars/`render.php` outputs using the AST + `ts-morph` pipeline. Complexity: medium.                                           |
+| 0.6.x | 0.6.3 - fixtures/docs     | Phase 3 - block fixtures/docs        | Update docs + fixtures to reference the new builders and retired printers. Complexity: medium.                                                                        |
+| 0.6.x | 0.6.4 - buffer            | Phase 3 buffer slot                  | Optional polish before 0.7.0 (e.g., manifest ordering or `ts-morph` import fixes). Complexity: medium.                                                                |
+| 0.7.x | 0.7.1 - implementation    | Phase 4 - string-printer retirement  | Remove legacy printers.                                                                                                                                               |
+| 0.7.x | 0.7.2 - tests             | Phase 4 - regression tests           | Regenerate goldens via next pipeline.                                                                                                                                 |
+| 0.7.x | 0.7.3 - docs              | Phase 4 - documentation cleanup      | Update docs + migration guides.                                                                                                                                       |
+| 0.7.x | 0.7.4 - buffer            | Phase 4 buffer slot                  | Optional hotfix before 0.8.0.                                                                                                                                         |
+| 0.7.x | 0.7.5 - capability parity | Phase 4 - capability helper parity   | Restore capability enforcement, binding resolution, and structured errors before removing the legacy helper.                                                          |
+| 0.7.x | 0.7.6 - safety & blocks   | Phase 4 - controller safety & blocks | Reinstate missing-capability warnings and resource-driven block derivation so JS-only scaffolds keep shipping automatically.                                          |
 
 - **Rule of thumb:** Implementation → tests → fixtures/docs. Do not skip the validation leg; AST outputs must be asserted before release.
 - **Non-negotiables:** Each slot assumes helpers remain AST-first and respect the `create*` prefix constraint. String-based PHP generation stays deleted.
@@ -66,9 +66,9 @@ The goal remains: every storage mode plugs into a helper-first API, the channel 
 
 ### Phase 0 - Core builders migrated ✓
 
-- `createPhpBuilder` orchestrates the AST-first helpers (policy helper, persistence registry, index file, resource controllers) (`packages/cli/src/next/builders/php/builder.ts`, `printers.ts`).
+- `createPhpBuilder` orchestrates the AST-first helpers (capability helper, persistence registry, index file, resource controllers) (`packages/cli/src/next/builders/php/builder.ts`, `printers.ts`).
 - `createPhpProgramWriterHelper` pretty-prints queued programs and persists both `.php` and `.ast.json` (`packages/cli/src/next/builders/php/writer.ts`, `php/__tests__/writer.test.ts`).
-- Identity resolution, routing metadata, and policy guards live entirely in the AST layer (`packages/cli/src/next/builders/php/identity.ts`, `resourceController/metadata.ts`, `routeIdentity.ts`, `routeNaming.ts`, `routes/handleRouteKind.ts`).
+- Identity resolution, routing metadata, and capability guards live entirely in the AST layer (`packages/cli/src/next/builders/php/identity.ts`, `resourceController/metadata.ts`, `routeIdentity.ts`, `routeNaming.ts`, `routes/handleRouteKind.ts`).
 - wp-post controllers (list/get/mutations) and shared utilities live under `packages/cli/src/next/builders/php/resource/wpPost/**` with extensive tests (`wpPostMutations.*.test.ts`, `resourceController.test.ts`).
 - wp-taxonomy controllers and helpers are implemented as AST builders (`packages/cli/src/next/builders/php/resource/wpTaxonomy/**`, `wpTaxonomy/helpers.test.ts`).
 - Shared test fixtures for the next pipeline reside in `packages/test-utils/src/next/**`, ensuring parity checks run against canonical AST output.
@@ -188,25 +188,25 @@ Status: ✓ Completed – Manifest cache invalidation bugfix closed the buffer s
     - Update documentation (including this file, `cli-migration-phases.md`, and CHANGELOG entries).
     - Regenerate any golden fixtures exclusively through the next pipeline.
 
-<a id="task-24---policy-helper-parity"></a>
+<a id="task-24---capability-helper-parity"></a>
 
-#### Task 24 - Policy helper parity (0.7.5)
+#### Task 24 - Capability helper parity (0.7.5)
 
-Status: ✓ Completed – AST helper now mirrors the legacy enforcement flow, emits structured errors, and reports fallback policies through the next pipeline reporter.
+Status: ✓ Completed – AST helper now mirrors the legacy enforcement flow, emits structured errors, and reports fallback capabilities through the next pipeline reporter.
 
-- Ported capability checks (`current_user_can` wiring), object binding resolution, and closure scaffolds into the AST helper (`packages/cli/src/next/builders/php/policy.ts`).
-- Restored structured `WP_Error` responses for denied policies and missing bindings so controller outputs stay aligned with historical behaviour.
-- Threaded policy map warnings back to the reporter so unsecured routes falling back to the default capability surface during generation.
-- Updated unit and integration coverage to exercise the new helper methods and refresh the generated `Policy.php` snapshot.
+- Ported capability checks (`current_user_can` wiring), object binding resolution, and closure scaffolds into the AST helper (`packages/cli/src/next/builders/php/capability.ts`).
+- Restored structured `WP_Error` responses for denied capabilities and missing bindings so controller outputs stay aligned with historical behaviour.
+- Threaded capability map warnings back to the reporter so unsecured routes falling back to the default capability surface during generation.
+- Updated unit and integration coverage to exercise the new helper methods and refresh the generated `Capability.php` snapshot.
 - Complexity: high – touched shared helpers, reporter wiring, and integration tests.
 
 <a id="task-25---controller-safety--block-derivation"></a>
 
 #### Task 25 - Controller safety & block derivation (0.7.6)
 
-Status: ✓ Completed – The next controller helper now emits missing-policy warnings and resource-driven block derivation flows through the manifest collector.
+Status: ✓ Completed – The next controller helper now emits missing-capability warnings and resource-driven block derivation flows through the manifest collector.
 
-- Restored `warnOnMissingPolicies` semantics via the PHP controller helper so generation logs match the legacy CLI for write routes without policies.
+- Restored `warnOnMissingCapabilities` semantics via the PHP controller helper so generation logs match the legacy CLI for write routes without capabilities.
 - Implemented resource-driven block derivation in the next pipeline, emitting JS-only manifests and staging auto-register stubs when blocks are absent.
 - Threaded derived manifests through the shared collector so TypeScript/PHP registrars consume a deterministic block map.
 - Added unit and integration coverage to snapshot controller warnings and generated manifests/stubs, guarding the transition away from string printers.

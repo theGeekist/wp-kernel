@@ -161,7 +161,7 @@ function register_content_types(): void {
 			'schema'            => array( 'type' => 'string' ),
 			'sanitize_callback' => 'sanitize_text_field',
 		),
-		'remote_policy'  => array(
+		'remote_capability'  => array(
 			'type'   => 'string',
 			'schema' => array(
 				'type' => 'string',
@@ -256,7 +256,7 @@ function seed_sample_jobs(): void {
 			'description'    => 'Build cutting-edge WordPress products using modern JavaScript frameworks.',
 			'department'     => 'Engineering',
 			'location'       => 'San Francisco, CA',
-			'remote_policy'  => 'hybrid',
+			'remote_capability'  => 'hybrid',
 			'job_type'       => 'full-time',
 			'seniority'      => 'senior',
 			'salary_min'     => 12000000,
@@ -272,7 +272,7 @@ function seed_sample_jobs(): void {
 			'description'    => 'Join our team to build beautiful, accessible interfaces using React and Gutenberg.',
 			'department'     => 'Engineering',
 			'location'       => 'Remote',
-			'remote_policy'  => 'remote-first',
+			'remote_capability'  => 'remote-first',
 			'job_type'       => 'full-time',
 			'seniority'      => 'junior',
 			'salary_min'     => 7000000,
@@ -288,7 +288,7 @@ function seed_sample_jobs(): void {
 			'description'    => 'Define product strategy and work with engineering to deliver value to customers.',
 			'department'     => 'Product',
 			'location'       => 'New York, NY',
-			'remote_policy'  => 'hybrid',
+			'remote_capability'  => 'hybrid',
 			'job_type'       => 'full-time',
 			'seniority'      => 'lead',
 			'salary_min'     => 15000000,
@@ -304,7 +304,7 @@ function seed_sample_jobs(): void {
 			'description'    => 'Build and maintain our CI/CD pipeline and cloud infrastructure.',
 			'department'     => 'Engineering',
 			'location'       => 'Austin, TX',
-			'remote_policy'  => 'remote',
+			'remote_capability'  => 'remote',
 			'job_type'       => 'full-time',
 			'seniority'      => 'mid',
 			'salary_min'     => 10000000,
@@ -320,7 +320,7 @@ function seed_sample_jobs(): void {
 			'description'    => 'Design intuitive user experiences for our WordPress products.',
 			'department'     => 'Design',
 			'location'       => 'Seattle, WA',
-			'remote_policy'  => 'hybrid',
+			'remote_capability'  => 'hybrid',
 			'job_type'       => 'full-time',
 			'seniority'      => 'mid',
 			'salary_min'     => 9000000,
@@ -359,7 +359,7 @@ function seed_sample_jobs(): void {
 			continue;
 		}
 
-		$meta_keys = array( 'department', 'location', 'remote_policy', 'job_type', 'seniority', 'salary_min', 'salary_max', 'currency', 'apply_deadline' );
+		$meta_keys = array( 'department', 'location', 'remote_capability', 'job_type', 'seniority', 'salary_min', 'salary_max', 'currency', 'apply_deadline' );
 		foreach ( $meta_keys as $meta_key ) {
 			if ( array_key_exists( $meta_key, $job ) && null !== $job[ $meta_key ] ) {
 				update_post_meta( $post_id, $meta_key, $job[ $meta_key ] );

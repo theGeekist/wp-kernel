@@ -46,4 +46,4 @@ This file supplements the root [AGENTS.md](../../AGENTS.md) with agent guideline
 - Mention affected docs (see `../../docs/AGENTS.md`) when publishing UI-facing API changes.
 - Align any cross-package dependency work (tsconfig updates, shared runtime wiring) with `docs/guide/adding-workspace-dependencies.md` so the UI build remains compatible with sibling packages.
 
-See [../../AGENTS.md](../../AGENTS.md) for shared monorepo agent policies.
+See [../../AGENTS.md](../../AGENTS.md) for shared monorepo agent capabilities.

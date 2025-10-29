@@ -1,7 +1,7 @@
 # `useAction`
 
 React hook that wraps kernel actions with predictable state, concurrency
-policies, and cache invalidation helpers. It dispatches Actions through the
+capabilities, and cache invalidation helpers. It dispatches Actions through the
 kernel middleware (`packages/core/src/actions/middleware.ts`), so you keep all
 the lifecycle instrumentation provided by `defineAction`
 (`packages/core/src/actions/define.ts`) while gaining a first-class React

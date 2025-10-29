@@ -66,12 +66,12 @@ export function normaliseRoutes(options: {
 		irRoutes.push({
 			method,
 			path: analysis.normalisedPath,
-			policy: route.policy,
+			capability: route.capability,
 			transport: analysis.transport,
 			hash: hashCanonical({
 				method,
 				path: analysis.normalisedPath,
-				policy: route.policy ?? null,
+				capability: route.capability ?? null,
 				transport: analysis.transport,
 			}),
 		});

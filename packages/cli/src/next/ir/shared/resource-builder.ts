@@ -379,7 +379,7 @@ export function hashResource(options: {
 		routes: options.routes.map((route) => ({
 			method: route.method,
 			path: route.path,
-			policy: route.policy,
+			capability: route.capability,
 			transport: route.transport,
 		})),
 		cacheKeys: serializeCacheKeys(options.cacheKeys),

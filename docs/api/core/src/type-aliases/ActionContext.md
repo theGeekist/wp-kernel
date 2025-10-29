@@ -28,7 +28,7 @@ This is the second parameter to every action function.
 ```typescript
 async function CreatePost(ctx: ActionContext, input: CreatePostInput) {
 	// Authorization
-	ctx.policy.assert('edit_posts');
+	ctx.capability.assert('edit_posts');
 
 	// Logging
 	ctx.reporter.info('Creating post', { input });
@@ -119,13 +119,13 @@ Background job helpers.
 
 ---
 
-### policy
+### capability
 
 ```ts
-readonly policy: Pick<PolicyHelpers<Record<string, unknown>>, "assert" | "can">;
+readonly capability: Pick<CapabilityHelpers<Record<string, unknown>>, "assert" | "can">;
 ```
 
-Policy enforcement helpers.
+Capability enforcement helpers.
 
 ---
 

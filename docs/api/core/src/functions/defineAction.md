@@ -25,7 +25,7 @@ Every action execution automatically handles:
 - **Event emission** - Broadcast lifecycle events via `@wordpress/hooks` and BroadcastChannel
 - **Cache invalidation** - Keep UI fresh without manual work
 - **Job scheduling** - Queue background tasks without blocking users
-- **Policy enforcement** - Check capabilities before writes
+- **Capability enforcement** - Check capabilities before writes
 - **Error normalization** - Convert any error into structured `WPKernelError`
 - **Observability** - Emit start/complete/error events for monitoring
 
@@ -39,8 +39,8 @@ export const CreateTestimonial = defineAction<
 	{ data: Testimonial },
 	Testimonial
 >('Testimonial.Create', async (ctx, { data }) => {
-	// 1. Policy check
-	ctx.policy.assert('testimonials.create');
+	// 1. Capability check
+	ctx.capability.assert('testimonials.create');
 
 	// 2. Resource call (the actual write)
 	const created = await testimonial.create!(data);
@@ -116,8 +116,8 @@ The `ActionContext` (first parameter `ctx`) provides:
 - **`ctx.invalidate(patterns, options?)`** - Invalidate resource caches
 - **`ctx.jobs.enqueue(name, payload)`** - Queue background jobs
 - **`ctx.jobs.wait(name, payload, opts?)`** - Wait for job completion
-- **`ctx.policy.assert(capability)`** - Throw if capability missing
-- **`ctx.policy.can(capability)`** - Check capability (returns boolean)
+- **`ctx.capability.assert(capability)`** - Throw if capability missing
+- **`ctx.capability.can(capability)`** - Check capability (returns boolean)
 - **`ctx.reporter.info/warn/error/debug(msg, ctx?)`** - Structured logging
 
 ## Error Handling
@@ -157,7 +157,7 @@ Host applications can customize behavior via `global.__WP_KERNEL_ACTION_RUNTIME_
 global.__WP_KERNEL_ACTION_RUNTIME__ = {
 	reporter: customLogger,
 	jobs: customJobRunner,
-	policy: customPolicyEngine,
+	capability: customCapabilityEngine,
 	bridge: customPHPBridge,
 };
 ```
@@ -214,7 +214,7 @@ export const CreatePost = defineAction(
 ```ts
 // With full orchestration
 export const PublishPost = defineAction('Post.Publish', async (ctx, { id }) => {
-	ctx.policy.assert('posts.publish');
+	ctx.capability.assert('posts.publish');
 	const post = await postResource.update!({ id, status: 'publish' });
 	ctx.emit(postResource.events.updated, { id, data: post });
 	ctx.invalidate(['post', 'list'], { storeKey: 'my-plugin/post' });
