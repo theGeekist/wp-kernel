@@ -255,6 +255,7 @@ type ParsedUse = {
 	readonly sortKey: string;
 };
 
+const PHP_USE_TYPE_UNKNOWN = 0;
 const PHP_USE_TYPE_NORMAL = 1;
 const PHP_USE_TYPE_FUNCTION = 2;
 const PHP_USE_TYPE_CONSTANT = 3;
@@ -270,7 +271,11 @@ function buildUseStatements(uses: readonly string[]): PhpStmtUse[] {
 	return [...parsed.values()]
 		.sort((left, right) => left.sortKey.localeCompare(right.sortKey))
 		.map((entry) =>
-			buildUse(entry.type, [buildUseUse(buildName([...entry.parts]))])
+			buildUse(entry.type, [
+				buildUseUse(buildName([...entry.parts]), null, {
+					type: PHP_USE_TYPE_UNKNOWN,
+				}),
+			])
 		);
 }
 
