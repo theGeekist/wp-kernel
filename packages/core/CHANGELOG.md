@@ -1,5 +1,40 @@
 # @wpkernel/core
 
+## Unreleased
+
+### In progress
+
+- **Phase 6 – Core pipeline alignment** – Tracking Tasks 32-36 from the CLI MVP
+  ledger to keep runtime documentation and contracts in sync ahead of the
+  reserved 0.10.0 minor release.
+- **Phase 7 – Plugin bootstrap flow** – Tasks 37-45 will ship the create bootstrap, plugin loader generator, regeneration cleanup, and activation smoke tests before the 0.11.0 release.
+- **Phase 8 placeholder** – Task 46 will collect incremental diagnostics (LogLayer reporter, transcript polish) after the bootstrap flow ships.
+
+## 0.9.0 - 2025-10-27
+
+### Maintenance
+
+- Version bump to `0.9.0` to align with the Phase 5 apply workflow release; the
+  runtime surface is unchanged beyond the exported `VERSION` constant update.
+
+### Documentation
+
+- Mirrored the CLI MVP ledger by marking Task 31 as shipped and confirming the
+  apply layering notes in the shared specs remain accurate for the runtime.
+
+## 0.8.0 - 2025-10-26
+
+### Maintenance
+
+- Version bump to `0.8.0` so the core package stays aligned with the command
+  migration release; runtime APIs remain unchanged aside from the `VERSION`
+  constant.
+
+### Documentation
+
+- Confirmed the command migration documentation references the current core
+  contracts and removed legacy command mentions from the runtime guides.
+
 ## 0.7.0 - 2025-10-26
 
 ### Maintenance
