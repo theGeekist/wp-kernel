@@ -44,6 +44,12 @@
 		},
 		{
 			"path": "./packages/wp-json-ast/tsconfig.tests.json"
+		},
+		{
+			"path": "./packages/create-wpk"
+		},
+		{
+			"path": "./packages/create-wpk/tsconfig.tests.json"
 		}
 	]
 }

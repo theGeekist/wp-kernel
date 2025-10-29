@@ -1,0 +1,17 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig",
+	"extends": "../../tsconfig.tests.json",
+	"compilerOptions": {
+		"rootDir": "../..",
+		"paths": {
+			"@wpkernel/core": ["./node_modules/@wpkernel/core/dist/index.d.ts"],
+			"@wpkernel/core/*": ["./node_modules/@wpkernel/core/dist/*"]
+		}
+	},
+	"include": ["src/**/*.ts"],
+	"references": [
+		{ "path": "./tsconfig.json" },
+		{ "path": "../cli/tsconfig.json" },
+		{ "path": "../test-utils/tsconfig.json" }
+	]
+}
