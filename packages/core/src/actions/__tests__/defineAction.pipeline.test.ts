@@ -1,6 +1,8 @@
 import { defineAction } from '../define';
 import { WPKernelError } from '../../error/WPKernelError';
 import * as pipelineModule from '../../pipeline/actions/createActionPipeline';
+import * as events from '../../events/bus';
+import type { ActionDefinedEvent } from '../../events/bus';
 
 type WindowWithHooks = Window & { wp?: { hooks?: { doAction: jest.Mock } } };
 
@@ -50,6 +52,33 @@ describe('defineAction pipeline integration', () => {
 
 		expect(pipelineSpy).toHaveBeenCalled();
 		pipelineSpy.mockRestore();
+	});
+
+	it('records action definitions exactly once via the registry bridge', async () => {
+		const recordSpy = jest.spyOn(events, 'recordActionDefined');
+		const bus = events.getWPKernelEventBus();
+		const emitSpy = jest.spyOn(bus, 'emit');
+
+		const action = defineAction({
+			name: 'Pipeline.Registry',
+			handler: async () => undefined,
+		});
+
+		expect(recordSpy).toHaveBeenCalledTimes(1);
+		const definedPayload = emitSpy.mock.calls.find(
+			([eventName]) => eventName === 'action:defined'
+		)?.[1] as ActionDefinedEvent | undefined;
+
+		expect(definedPayload).toBeDefined();
+		expect(definedPayload?.action).toBe(action);
+
+		await action(undefined as never);
+		await action(undefined as never);
+
+		expect(recordSpy).toHaveBeenCalledTimes(1);
+
+		emitSpy.mockRestore();
+		recordSpy.mockRestore();
 	});
 
 	it('normalises errors via the pipeline', async () => {
