@@ -10,3 +10,5 @@ export * from './driver/programIngestion';
 export * from './driver/codemods';
 export * from './codemods/baselinePack';
 export * from './codemods/types';
+export * from './driver/programIngestionUtils';
+export * from './utils/programArtifacts';
