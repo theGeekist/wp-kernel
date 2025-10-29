@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### In progress
+
+- **Phase 6 – Core pipeline alignment** – Tasks 32-36 are in flight to align the
+  CLI docs with the core orchestration spec ahead of the reserved 0.10.0 minor
+  release. Status mirrors `packages/cli/docs/mvp-plan.md`.
+- **Phase 7 – Plugin bootstrap flow** – Tasks 37-45 will publish the create bootstrap, emit the plugin loader, clean stale artefacts, run activation smoke, and close with the 0.11.0 release once Phase 6 wraps.
+- **Phase 8 placeholder** – Task 46 will collect incremental diagnostics (starting with the CLI LogLayer reporter) after the plugin bootstrap flow ships.
+
 ## 0.9.0 - 2025-10-27
 
 ### Added
