@@ -22,11 +22,11 @@ import { readMonotonicTime } from './timing';
  *
  * @example
  * ```ts
- * const lifecycleFragment = buildActionLifecycleFragment<{ id: string }, string>();
+ * const lifecycleFragment = createActionLifecycleFragment<{ id: string }, string>();
  * pipeline.ir.use(lifecycleFragment);
  * ```
  */
-export function buildActionLifecycleFragment<
+export function createActionLifecycleFragment<
 	TArgs,
 	TResult,
 >(): ActionFragmentHelper<TArgs, TResult> {

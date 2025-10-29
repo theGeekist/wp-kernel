@@ -17,11 +17,11 @@ import type { Reporter } from '../../../reporter/types';
  *
  * @example
  * ```ts
- * const validation = buildResourceValidationFragment<Post, { id: number }>();
+ * const validation = createResourceValidationFragment<Post, { id: number }>();
  * pipeline.ir.use(validation);
  * ```
  */
-export function buildResourceValidationFragment<
+export function createResourceValidationFragment<
 	T,
 	TQuery,
 >(): ResourceFragmentHelper<T, TQuery> {

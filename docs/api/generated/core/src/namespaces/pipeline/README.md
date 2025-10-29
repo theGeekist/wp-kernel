@@ -33,8 +33,8 @@
 ## Functions
 
 - [createPipeline](functions/createPipeline.md)
-- [buildPipelineCommit](functions/buildPipelineCommit.md)
-- [buildPipelineRollback](functions/buildPipelineRollback.md)
+- [createPipelineCommit](functions/createPipelineCommit.md)
+- [createPipelineRollback](functions/createPipelineRollback.md)
 
 ## References
 

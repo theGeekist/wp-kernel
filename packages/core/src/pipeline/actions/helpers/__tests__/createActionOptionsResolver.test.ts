@@ -1,10 +1,10 @@
-import { buildActionOptionsResolver } from '../buildActionOptionsResolver';
+import { createActionOptionsResolver } from '../createActionOptionsResolver';
 import type { ActionPipelineContext } from '../../types';
 import type { ResolvedActionOptions } from '../../../../actions/types';
 
-describe('buildActionOptionsResolver', () => {
+describe('createActionOptionsResolver', () => {
 	it('resolves options and stores them on context and draft', async () => {
-		const helper = buildActionOptionsResolver<void, string>();
+		const helper = createActionOptionsResolver<void, string>();
 		const context: ActionPipelineContext<void, string> = {
 			actionName: 'Test.Action',
 			namespace: 'tests',

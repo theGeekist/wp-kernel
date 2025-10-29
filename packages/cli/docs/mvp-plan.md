@@ -184,11 +184,12 @@ Close the scaffolding gaps identified above so `create → generate → apply` r
 
 ### Phase 8 – Post-MVP polish (⬜ Planned)
 
-Reserve Phase 8 for incremental polish once the plugin bootstrap flow ships. The first queued item is adopting the shared LogLayer reporter in the CLI Vite config so builds participate in framework-wide transports and hooks.
+Reserve Phase 8 for incremental polish once the plugin bootstrap flow ships. The queue now includes adopting the shared LogLayer reporter in the CLI Vite config and layering interactivity-aware scaffolding so generators can emit `data-wp-*` bindings that align with the new `defineInteraction` helper from Phase 6.
 
 | Slot | Task                                       | Status     | Notes                                                                                                                                                                                                    |
-| ---- | ------------------------------------------ | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ---- | ------------------------------------------ | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
 | TBD  | Task 46 – LogLayer reporter & follow-on DX | ⬜ Planned | Replace `createConsoleReporter()` in `packages/cli/vite.config.ts` with `createReporter({ namespace: 'cli.vite', channel: 'console' })` and stage further diagnostics once WordPress hooks are required. |
+| TBD  | Task 47 – Interactivity-aware generators   | ⬜ Planned | Extend CLI scaffolds to emit `data-wp-*` attributes, enqueue `wp.interactivity` dependencies, and document how generated markup composes with `defineInteraction` pipelines.                             | [Spec](../core/docs/phase-6-core-pipeline.md.md#patch-094---task-35-buffer--extension-diagnostics) |
 
 ## Definition of "MVP"
 
