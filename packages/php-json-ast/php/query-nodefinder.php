@@ -428,7 +428,6 @@ function runPromotedConstructorParametersQuery(
                     'hasDefault' => $param->default !== null,
                     'byReference' => $param->byRef,
                     'variadic' => $param->variadic,
-                    'hasHooks' => $param->hooks !== [],
                 ],
                 'attributes' => normalizeValue($param->getAttributes()),
                 'excerpt' => normaliseNodeToArray($param, $encoderFlags),
