@@ -3,6 +3,7 @@ import type {
 	ActionContext,
 	ResolvedActionOptions,
 } from '../../actions/types';
+import type { ActionDefinedEvent } from '../../events/bus';
 import type { WPKernelError } from '../../error/WPKernelError';
 import type { Reporter } from '../../reporter/types';
 import type {
@@ -12,6 +13,7 @@ import type {
 	PipelineDiagnostic,
 	PipelineRunState,
 } from '../types';
+import type { CorePipelineContext } from '../helpers/context';
 
 /**
  * Helper kind identifier reserved for action lifecycle fragments.
@@ -44,7 +46,10 @@ export type ActionBuilderKind = typeof ACTION_BUILDER_KIND;
  *     handler: async (_ctx, args) => `updated:${args.postId}`,
  *   },
  *   args: { postId: 42 },
- *   resolvedOptions: { scope: 'crossTab', bridged: true },
+ *   definition: {
+ *     action: createAction, // Defined action reference
+ *     namespace: 'example/posts',
+ *   },
  * };
  * ```
  */
@@ -53,8 +58,10 @@ export interface ActionPipelineRunOptions<TArgs, TResult> {
 	readonly config: ActionConfig<TArgs, TResult>;
 	/** Arguments provided by the caller of the defined action. */
 	readonly args: TArgs;
-	/** Runtime options applied after default resolution. */
-	readonly resolvedOptions: ResolvedActionOptions;
+	/** Definition metadata for registry bookkeeping. */
+	readonly definition: ActionDefinedEvent;
+	/** Optional registry bridge surfaced to helpers. */
+	readonly registry?: CorePipelineContext['registry'];
 }
 
 /**
@@ -64,15 +71,12 @@ export interface ActionPipelineRunOptions<TArgs, TResult> {
  * ```ts
  * const buildOptions: ActionPipelineBuildOptions<{ postId: number }, string> = {
  *   config: runOptions.config,
- *   resolvedOptions: runOptions.resolvedOptions,
  * };
  * ```
  */
 export interface ActionPipelineBuildOptions<TArgs, TResult> {
 	/** Original action configuration object. */
 	readonly config: ActionConfig<TArgs, TResult>;
-	/** Resolved runtime options shared across helpers. */
-	readonly resolvedOptions: ResolvedActionOptions;
 }
 
 /**
@@ -87,22 +91,32 @@ export interface ActionPipelineBuildOptions<TArgs, TResult> {
  *   resolvedOptions: { scope: 'crossTab', bridged: true },
  *   requestId: 'action-1a2b3c',
  *   actionContext,
+ *   config: runOptions.config,
+ *   args: runOptions.args,
+ *   definition: runOptions.definition,
  * };
  * ```
  */
-export interface ActionPipelineContext {
+export interface ActionPipelineContext<TArgs = unknown, TResult = unknown>
+	extends CorePipelineContext {
 	/** Structured reporter used for diagnostics and lifecycle events. */
-	readonly reporter: Reporter;
+	reporter: Reporter;
 	/** Canonical action name registered via `defineAction`. */
 	readonly actionName: string;
 	/** Namespace owning the action (usually plugin slug). */
-	readonly namespace: string;
+	namespace: string;
 	/** Final runtime options controlling bridging and scope. */
-	readonly resolvedOptions: ResolvedActionOptions;
+	resolvedOptions?: ResolvedActionOptions;
 	/** Correlation identifier for the current invocation. */
 	readonly requestId: string;
 	/** Rich action context injected into user handlers. */
-	readonly actionContext: ActionContext;
+	actionContext?: ActionContext;
+	/** Original action configuration. */
+	readonly config: ActionConfig<TArgs, TResult>;
+	/** Call-time arguments. */
+	readonly args: TArgs;
+	/** Action definition metadata for registry bookkeeping. */
+	readonly definition: ActionDefinedEvent;
 }
 
 /**
@@ -158,6 +172,8 @@ export interface ActionInvocationDraft<TResult> {
 	result?: TResult;
 	/** Normalized kernel error when execution fails. */
 	error?: WPKernelError;
+	/** Final resolved options shared with metadata helpers. */
+	resolvedOptions?: ResolvedActionOptions;
 }
 
 /**
@@ -196,7 +212,7 @@ export type ActionPipelineRunResult<TResult> = PipelineRunState<
 export type ActionPipelineOptions<TArgs, TResult> = CreatePipelineOptions<
 	ActionPipelineRunOptions<TArgs, TResult>,
 	ActionPipelineBuildOptions<TArgs, TResult>,
-	ActionPipelineContext,
+	ActionPipelineContext<TArgs, TResult>,
 	Reporter,
 	ActionInvocationDraft<TResult>,
 	ActionPipelineArtifact<TResult>,
@@ -218,7 +234,7 @@ export type ActionPipelineOptions<TArgs, TResult> = CreatePipelineOptions<
 export type ActionPipeline<TArgs, TResult> = Pipeline<
 	ActionPipelineRunOptions<TArgs, TResult>,
 	ActionPipelineRunResult<TResult>,
-	ActionPipelineContext,
+	ActionPipelineContext<TArgs, TResult>,
 	Reporter,
 	ActionPipelineBuildOptions<TArgs, TResult>,
 	ActionPipelineArtifact<TResult>,
@@ -248,7 +264,7 @@ export type ActionPipeline<TArgs, TResult> = Pipeline<
  * ```
  */
 export type ActionFragmentHelper<TArgs, TResult> = Helper<
-	ActionPipelineContext,
+	ActionPipelineContext<TArgs, TResult>,
 	ActionLifecycleFragmentInput<TArgs>,
 	ActionInvocationDraft<TResult>,
 	Reporter,
@@ -271,7 +287,7 @@ export type ActionFragmentHelper<TArgs, TResult> = Helper<
  * ```
  */
 export type ActionBuilderHelper<TArgs, TResult> = Helper<
-	ActionPipelineContext,
+	ActionPipelineContext<TArgs, TResult>,
 	ActionBuilderInput<TArgs, TResult>,
 	ActionInvocationDraft<TResult>,
 	Reporter,

@@ -30,13 +30,25 @@ describe('buildActionExecutionBuilder', () => {
 		bridged: true,
 	};
 	const reporter = {} as Reporter;
-	const baseContext: ActionPipelineContext = {
+	const baseContext: ActionPipelineContext<
+		{ value: number },
+		{ ok: boolean }
+	> = {
 		actionContext: {} as never,
 		actionName: 'Test.Action',
 		namespace: 'test',
 		reporter,
 		requestId: 'request-id',
 		resolvedOptions,
+		config: {
+			name: 'Test.Action',
+			handler: async () => ({ ok: true }),
+		},
+		args: { value: 0 },
+		definition: {
+			action: (async () => undefined) as never,
+			namespace: 'test',
+		},
 	};
 
 	beforeEach(() => {

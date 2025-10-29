@@ -1,8 +1,5 @@
 import { createHelper } from '../../helper';
-import {
-	createActionLifecycleEvent,
-	normalizeActionError,
-} from '../../../actions/lifecycle';
+import { createActionLifecycleEvent } from '../../../actions/lifecycle';
 import { emitLifecycleEvent } from '../../../actions/context';
 import type {
 	ActionBuilderHelper,
@@ -14,6 +11,8 @@ import type {
 import { ACTION_BUILDER_KIND } from '../types';
 import type { Reporter } from '../../../reporter/types';
 import { measureDurationMs, readMonotonicTime } from './timing';
+import { makeActionErrorNormaliser } from './makeActionErrorNormaliser';
+import { WPKernelError } from '../../../error/WPKernelError';
 
 /**
  * Build the execution-stage helper responsible for invoking the user supplied
@@ -33,8 +32,10 @@ export function buildActionExecutionBuilder<
 	TArgs,
 	TResult,
 >(): ActionBuilderHelper<TArgs, TResult> {
+	const normaliseError = makeActionErrorNormaliser();
+
 	return createHelper<
-		ActionPipelineContext,
+		ActionPipelineContext<TArgs, TResult>,
 		ActionBuilderInput<TArgs, TResult>,
 		ActionInvocationDraft<TResult>,
 		Reporter,
@@ -42,7 +43,21 @@ export function buildActionExecutionBuilder<
 	>({
 		key: 'action.execute.handler',
 		kind: ACTION_BUILDER_KIND,
+		mode: 'extend',
+		priority: 70,
 		apply: async ({ context, input, output }, next) => {
+			if (!context.actionContext) {
+				throw new WPKernelError('DeveloperError', {
+					message:
+						'action.execute.handler requires an action context. Ensure action.context.assemble runs first.',
+				});
+			}
+			if (!context.resolvedOptions) {
+				throw new WPKernelError('DeveloperError', {
+					message:
+						'action.execute.handler requires resolved options. Ensure action.options.resolve runs first.',
+				});
+			}
 			const start = output.startTime ?? readMonotonicTime();
 
 			try {
@@ -51,6 +66,7 @@ export function buildActionExecutionBuilder<
 					input.args
 				);
 				output.result = result;
+				output.resolvedOptions = context.resolvedOptions;
 
 				if (next) {
 					await next();
@@ -68,11 +84,7 @@ export function buildActionExecutionBuilder<
 				);
 				emitLifecycleEvent(completeEvent);
 			} catch (error) {
-				const normalized = normalizeActionError(
-					error,
-					context.actionName,
-					context.requestId
-				);
+				const normalized = normaliseError(error, context);
 				const duration = measureDurationMs(start);
 				output.error = normalized;
 				delete output.result;
