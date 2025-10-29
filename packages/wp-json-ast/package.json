@@ -30,7 +30,7 @@
 		"test:watch": "node ../../scripts/test/run-jest.cjs --watch",
 		"test:integration": "node ../../scripts/test/run-jest.cjs integration",
 		"typecheck": "tsc --noEmit",
-		"typecheck:tests": "tsc --project tsconfig.tests.json --noEmit"
+		"typecheck:tests": "node ../../scripts/test/run-typecheck-tests.cjs"
 	},
 	"peerDependencies": {
 		"@wpkernel/php-json-ast": "workspace:*",

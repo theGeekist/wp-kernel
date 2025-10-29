@@ -111,7 +111,7 @@
 		"format": "prettier --write 'src/**/*.{ts,tsx}'",
 		"format:check": "prettier --check 'src/**/*.{ts,tsx}'",
 		"typecheck": "tsc --project tsconfig.json --noEmit",
-		"typecheck:tests": "tsc --project tsconfig.tests.json --noEmit",
+		"typecheck:tests": "node ../../scripts/test/run-typecheck-tests.cjs",
 		"test": "node ../../scripts/test/run-jest.cjs",
 		"test:watch": "node ../../scripts/test/run-jest.cjs --watch",
 		"test:coverage": "node ../../scripts/test/run-jest.cjs coverage",
