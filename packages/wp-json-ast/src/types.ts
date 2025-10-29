@@ -55,9 +55,34 @@ export type BlockRegistrarMetadata = BasePhpFileMetadata & {
 	readonly name?: string;
 };
 
+export interface PolicyHelperDefinitionMetadata {
+	readonly key: string;
+	readonly capability: string;
+	readonly appliesTo: 'resource' | 'object';
+	readonly binding?: string;
+	readonly source: 'map' | 'fallback';
+}
+
+export interface PolicyHelperWarningMetadata {
+	readonly code: string;
+	readonly message: string;
+	readonly context?: Record<string, unknown>;
+}
+
 export type PolicyHelperMetadata = BasePhpFileMetadata & {
 	readonly kind: 'policy-helper';
 	readonly name?: string;
+	readonly map: {
+		readonly sourcePath?: string;
+		readonly fallback: {
+			readonly capability: string;
+			readonly appliesTo: 'resource' | 'object';
+		};
+		readonly definitions: readonly PolicyHelperDefinitionMetadata[];
+		readonly missing: readonly string[];
+		readonly unused: readonly string[];
+		readonly warnings: readonly PolicyHelperWarningMetadata[];
+	};
 };
 
 export type IndexFileMetadata = BasePhpFileMetadata & {

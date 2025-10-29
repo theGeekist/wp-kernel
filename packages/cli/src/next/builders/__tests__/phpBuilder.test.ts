@@ -288,10 +288,11 @@ describe('createPhpBuilder', () => {
 			})
 		);
 		expect(reporter.warn).toHaveBeenCalledWith(
-			'Policies falling back to default capability.',
+			'Policy falling back to default capability.',
 			expect.objectContaining({
-				policies: ['manage_todo'],
+				policy: 'manage_todo',
 				capability: 'manage_options',
+				scope: 'resource',
 			})
 		);
 	});
