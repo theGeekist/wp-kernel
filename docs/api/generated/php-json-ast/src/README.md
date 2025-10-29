@@ -123,6 +123,11 @@
 - [CreatePhpFileBuilderOptions](interfaces/CreatePhpFileBuilderOptions.md)
 - [PhpDriverConfigurationOptions](interfaces/PhpDriverConfigurationOptions.md)
 - [CreatePhpProgramWriterHelperOptions](interfaces/CreatePhpProgramWriterHelperOptions.md)
+- [PhpNodeFinderQueryDefinition](interfaces/PhpNodeFinderQueryDefinition.md)
+- [PhpNodeFinderQueryConfiguration](interfaces/PhpNodeFinderQueryConfiguration.md)
+- [PhpNodeFinderQueryMatch](interfaces/PhpNodeFinderQueryMatch.md)
+- [PhpNodeFinderQueryResultEntry](interfaces/PhpNodeFinderQueryResultEntry.md)
+- [PhpNodeFinderQueryResult](interfaces/PhpNodeFinderQueryResult.md)
 - [PhpAstBuilder](interfaces/PhpAstBuilder.md)
 
 ## Type Aliases
@@ -146,6 +151,7 @@
 - [PipelinePhase](type-aliases/PipelinePhase.md)
 - [BuilderHelper](type-aliases/BuilderHelper.md)
 - [PhpFileAst](type-aliases/PhpFileAst.md)
+- [PhpNodeFinderQueryKey](type-aliases/PhpNodeFinderQueryKey.md)
 - [PhpFileMetadata](type-aliases/PhpFileMetadata.md)
 - [PhpJsonNode](type-aliases/PhpJsonNode.md)
 - [PhpJsonAst](type-aliases/PhpJsonAst.md)
@@ -248,6 +254,8 @@
 - [createPhpFileBuilder](functions/createPhpFileBuilder.md)
 - [resetPhpProgramBuilderContext](functions/resetPhpProgramBuilderContext.md)
 - [createPhpProgramWriterHelper](functions/createPhpProgramWriterHelper.md)
+- [isPhpNodeFinderQueryConfigurationEmpty](functions/isPhpNodeFinderQueryConfigurationEmpty.md)
+- [serialisePhpNodeFinderQueryConfiguration](functions/serialisePhpNodeFinderQueryConfiguration.md)
 - [serialiseAst](functions/serialiseAst.md)
 - [persistProgramArtifacts](functions/persistProgramArtifacts.md)
 - [persistCodemodDiagnostics](functions/persistCodemodDiagnostics.md)
