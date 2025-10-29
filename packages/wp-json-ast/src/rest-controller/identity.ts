@@ -2,12 +2,7 @@ import type { PhpStmt } from '@wpkernel/php-json-ast';
 
 import { buildRequestParamAssignmentStatement } from '../common/request';
 
-import type { RestControllerIdentity, RestRouteConfig } from './types';
-
-export interface RestRouteIdentityPlan {
-	readonly identity: RestControllerIdentity;
-	readonly route: RestRouteConfig;
-}
+import type { RestRouteIdentityPlan } from './types';
 
 /**
  * Emits the statements required to extract and cast the resource identity for a REST route.

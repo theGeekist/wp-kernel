@@ -9,19 +9,12 @@ import type {
 } from '../../runtime/types';
 import {
 	appendGeneratedFileDocblock,
-	buildRestBaseControllerDocblock,
+	buildBaseControllerProgram,
 	createWpPhpFileBuilder,
+	moduleSegment,
+	deriveModuleNamespace,
+	type ModuleNamespaceConfig,
 } from '@wpkernel/wp-json-ast';
-import {
-	buildClass,
-	buildClassMethod,
-	buildIdentifier,
-	buildReturn,
-	buildScalarString,
-	PHP_CLASS_MODIFIER_ABSTRACT,
-	PHP_METHOD_MODIFIER_PUBLIC,
-	type PhpAstBuilderAdapter,
-} from '@wpkernel/php-json-ast';
 
 export function createPhpBaseControllerHelper(): BuilderHelper {
 	return createHelper({
@@ -34,13 +27,27 @@ export function createPhpBaseControllerHelper(): BuilderHelper {
 			}
 
 			const { ir } = options.input;
-			const namespaceRoot = `${ir.php.namespace}\\Generated`;
-			const namespace = `${namespaceRoot}\\Rest`;
+			const namespaceConfig: ModuleNamespaceConfig = {
+				pluginNamespace: ir.php.namespace,
+				sanitizedPluginNamespace: ir.meta.sanitizedNamespace,
+				segments: [
+					moduleSegment('Generated', ''),
+					moduleSegment('Rest', ''),
+				],
+			};
 			const filePath = options.context.workspace.resolve(
 				ir.php.outputDir,
 				'Rest',
 				'BaseController.php'
 			);
+
+			const program = buildBaseControllerProgram({
+				origin: ir.meta.origin,
+				namespace: namespaceConfig,
+			});
+			const derivedNamespace =
+				program.namespace ??
+				deriveModuleNamespace(namespaceConfig).namespace;
 
 			const builderHelper = createWpPhpFileBuilder<
 				PipelineContext,
@@ -49,14 +56,14 @@ export function createPhpBaseControllerHelper(): BuilderHelper {
 			>({
 				key: 'base-controller',
 				filePath,
-				namespace,
-				metadata: { kind: 'base-controller' },
+				namespace: derivedNamespace,
+				metadata: program.metadata,
 				build: (builder) => {
-					buildBaseController(
-						builder,
-						ir.meta.origin,
-						ir.meta.sanitizedNamespace
-					);
+					appendGeneratedFileDocblock(builder, program.docblock);
+
+					for (const statement of program.statements) {
+						builder.appendProgramStatement(statement);
+					}
 				},
 			});
 
@@ -64,34 +71,4 @@ export function createPhpBaseControllerHelper(): BuilderHelper {
 			await next?.();
 		},
 	});
-}
-
-function buildBaseController(
-	builder: PhpAstBuilderAdapter,
-	origin: string,
-	sanitizedNamespace: string
-): void {
-	appendGeneratedFileDocblock(
-		builder,
-		buildRestBaseControllerDocblock({
-			origin,
-			sanitizedNamespace,
-		})
-	);
-
-	const getNamespaceMethod = buildClassMethod(
-		buildIdentifier('get_namespace'),
-		{
-			flags: PHP_METHOD_MODIFIER_PUBLIC,
-			returnType: buildIdentifier('string'),
-			stmts: [buildReturn(buildScalarString(sanitizedNamespace))],
-		}
-	);
-
-	const classNode = buildClass(buildIdentifier('BaseController'), {
-		flags: PHP_CLASS_MODIFIER_ABSTRACT,
-		stmts: [getNamespaceMethod],
-	});
-
-	builder.appendProgramStatement(classNode);
 }

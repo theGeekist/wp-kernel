@@ -9,11 +9,11 @@ import type {
 } from '../../runtime/types';
 import {
 	appendGeneratedFileDocblock,
+	buildIndexProgram,
 	createWpPhpFileBuilder,
+	type ModuleIndexEntry,
 } from '@wpkernel/wp-json-ast';
-import { buildReturn, type PhpAstBuilderAdapter } from '@wpkernel/php-json-ast';
 import type { IRv1 } from '../../ir/publicTypes';
-import { renderPhpValue } from './resource/phpValue';
 import { toPascalCase } from './utils';
 
 export function createPhpIndexFileHelper(): BuilderHelper {
@@ -29,6 +29,13 @@ export function createPhpIndexFileHelper(): BuilderHelper {
 
 			const ir = input.ir;
 
+			const moduleNamespace = `${ir.php.namespace}\\Generated`;
+			const program = buildIndexProgram({
+				origin: ir.meta.origin,
+				namespace: moduleNamespace,
+				entries: buildIndexEntries(ir),
+			});
+
 			const helper = createWpPhpFileBuilder<
 				PipelineContext,
 				BuilderInput,
@@ -39,9 +46,15 @@ export function createPhpIndexFileHelper(): BuilderHelper {
 					ir.php.outputDir,
 					'index.php'
 				),
-				namespace: `${ir.php.namespace}\\Generated`,
-				metadata: { kind: 'index-file' },
-				build: (builder) => buildIndexFile(builder, ir),
+				namespace: program.namespace ?? moduleNamespace,
+				metadata: program.metadata,
+				build: (builder) => {
+					appendGeneratedFileDocblock(builder, program.docblock);
+
+					for (const statement of program.statements) {
+						builder.appendProgramStatement(statement);
+					}
+				},
 			});
 
 			await helper.apply(options);
@@ -50,30 +63,29 @@ export function createPhpIndexFileHelper(): BuilderHelper {
 	});
 }
 
-function buildIndexFile(builder: PhpAstBuilderAdapter, ir: IRv1): void {
-	appendGeneratedFileDocblock(builder, [
-		`Source: ${ir.meta.origin} → php/index`,
-	]);
-
-	const entries = buildIndexEntries(ir);
-	const returnStatement = buildReturn(renderPhpValue(entries));
-	builder.appendProgramStatement(returnStatement);
-}
-
-function buildIndexEntries(ir: IRv1): Record<string, string> {
+function buildIndexEntries(ir: IRv1): ModuleIndexEntry[] {
 	const namespace = `${ir.php.namespace}\\Generated`;
-	const baseDir = ir.php.outputDir;
-
-	const entries: Record<string, string> = {
-		[`${namespace}\\Rest\\BaseController`]: `${baseDir}/Rest/BaseController.php`,
-		[`${namespace}\\Capability\\Capability`]: `${baseDir}/Capability/Capability.php`,
-		[`${namespace}\\Registration\\PersistenceRegistry`]: `${baseDir}/Registration/PersistenceRegistry.php`,
-	};
+	const entries: ModuleIndexEntry[] = [
+		{
+			className: `${namespace}\\Rest\\BaseController`,
+			path: 'Rest/BaseController.php',
+		},
+		{
+			className: `${namespace}\\Capability\\Capability`,
+			path: 'Capability/Capability.php',
+		},
+		{
+			className: `${namespace}\\Registration\\PersistenceRegistry`,
+			path: 'Registration/PersistenceRegistry.php',
+		},
+	];
 
 	for (const resource of ir.resources) {
 		const pascal = toPascalCase(resource.name);
-		const className = `${namespace}\\Rest\\${pascal}Controller`;
-		entries[className] = `${baseDir}/Rest/${pascal}Controller.php`;
+		entries.push({
+			className: `${namespace}\\Rest\\${pascal}Controller`,
+			path: `Rest/${pascal}Controller.php`,
+		});
 	}
 
 	return entries;

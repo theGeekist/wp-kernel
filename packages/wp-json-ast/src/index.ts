@@ -6,6 +6,8 @@ export * from './common/request';
 export * from './common/guards';
 export * from './common/docblock';
 export * from './common/metadata';
+export * from './common/module';
 export * from './rest-controller';
 export * from './capability';
 export * from './persistence';
+export * from './module';
