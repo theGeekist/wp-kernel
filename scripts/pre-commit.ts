@@ -498,35 +498,9 @@ function extractCoverageSummary(output: string): string[] {
 async function main() {
 	const stagedFiles = await getStagedFiles();
 
-	const tasks: Task[] = [];
-
-	tasks.push({
-		title: 'Format workspace',
-		async run(ctx) {
-			ctx.update('pnpm format');
-			const result = await runCommand('pnpm', ['format']);
-			if (result.code !== 0) {
-				throw new CommandError('pnpm format', result);
-			}
-
-			const summaryLines: string[] = [];
-			const trimmed = result.stdout.trim();
-			if (trimmed.length > 0) {
-				summaryLines.push(...trimmed.split('\n').slice(-5));
-			}
-
-			const normalizedSummary = result.stderr
-				.trim()
-				.split('\n')
-				.filter(Boolean)
-				.slice(-3);
-			summaryLines.push(...normalizedSummary);
-
-			return { summaryLines } satisfies TaskResult;
-		},
-	});
-
 	const hasStagedFiles = stagedFiles.length > 0;
+
+	const tasks: Task[] = [];
 
 	tasks.push({
 		title: 'Lint staged files',
@@ -563,6 +537,43 @@ async function main() {
 			return {
 				summaryLines: extractCoverageSummary(result.stdout),
 			} satisfies TaskResult;
+		},
+	});
+
+	tasks.push({
+		title: 'Format workspace',
+		async run(ctx) {
+			ctx.update('pnpm format');
+			const result = await runCommand('pnpm', ['format']);
+			if (result.code !== 0) {
+				throw new CommandError('pnpm format', result);
+			}
+
+			const summaryLines: string[] = [];
+			const trimmed = result.stdout.trim();
+			if (trimmed.length > 0) {
+				summaryLines.push(...trimmed.split('\n').slice(-5));
+			}
+
+			const normalizedSummary = result.stderr
+				.trim()
+				.split('\n')
+				.filter(Boolean)
+				.slice(-3);
+			summaryLines.push(...normalizedSummary);
+
+			return { summaryLines } satisfies TaskResult;
+		},
+	});
+
+	tasks.push({
+		title: 'Finalize staged changes',
+		async run(ctx) {
+			ctx.update('git add --update');
+			const result = await runCommand('git', ['add', '--update']);
+			if (result.code !== 0) {
+				throw new CommandError('git add --update', result);
+			}
 		},
 	});
 

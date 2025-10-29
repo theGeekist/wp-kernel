@@ -3,8 +3,28 @@ import { defineConfig } from 'vitepress';
 import { withMermaid } from 'vitepress-plugin-mermaid';
 
 // Fast mode for pre-commit hooks (MPA mode + no minification)
-const FAST = process.env.DOCS_FAST === '1';
-const PROD = process.env.NODE_ENV === 'production';
+// Defaults to enabled locally unless DOCS_FAST=0/false.
+const rawCI = process.env.CI;
+const CI = Boolean(rawCI && !['0', 'false'].includes(rawCI.toLowerCase()));
+const rawFast = process.env.DOCS_FAST?.toLowerCase();
+const FAST =
+	rawFast === '1' ||
+	rawFast === 'true' ||
+	(!CI && rawFast !== '0' && rawFast !== 'false');
+
+const searchConfig = FAST
+	? undefined
+	: {
+			provider: 'local' as const,
+		};
+
+const baseBuildOptions = {
+	target: 'esnext' as const,
+	cssTarget: 'esnext' as const,
+	modulePreload: {
+		polyfill: false as const,
+	},
+};
 
 export default withMermaid(
 	defineConfig({
@@ -12,7 +32,7 @@ export default withMermaid(
 		description:
 			'A Rails-like, opinionated framework for building modern WordPress products',
 		base: '/wp-kernel/',
-		lastUpdated: true,
+		lastUpdated: !FAST,
 		sitemap: { hostname: 'https://thegeekist.github.io' },
 
 		// Keep wp-env localhost URLs valid (any port + path)
@@ -45,12 +65,14 @@ export default withMermaid(
 
 			build: FAST
 				? {
+						...baseBuildOptions,
 						minify: false,
 						cssMinify: false,
 						reportCompressedSize: false,
 						sourcemap: false,
 					}
 				: {
+						...baseBuildOptions,
 						reportCompressedSize: false,
 						// split the usual suspects so main stays slim
 						rollupOptions: {
@@ -267,7 +289,7 @@ export default withMermaid(
 					link: 'https://github.com/theGeekist/wp-kernel',
 				},
 			],
-			search: { provider: 'local' },
+			...(searchConfig ? { search: searchConfig } : {}),
 			footer: {
 				message: 'Released under the EUPL-1.2 License.',
 				copyright:

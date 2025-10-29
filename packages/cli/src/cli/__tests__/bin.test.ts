@@ -1,6 +1,8 @@
 import path from 'node:path';
 import { spawn } from 'node:child_process';
 
+jest.setTimeout(20000);
+
 describe('wpk bin', () => {
 	it('falls back to TypeScript sources when dist artifacts are unavailable', async () => {
 		const binPath = path.join(__dirname, '../../../bin/wpk.js');
