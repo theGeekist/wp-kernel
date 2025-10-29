@@ -255,6 +255,10 @@ type ParsedUse = {
 	readonly sortKey: string;
 };
 
+const PHP_USE_TYPE_NORMAL = 1;
+const PHP_USE_TYPE_FUNCTION = 2;
+const PHP_USE_TYPE_CONSTANT = 3;
+
 function buildUseStatements(uses: readonly string[]): PhpStmtUse[] {
 	const parsed = new Map<string, ParsedUse>();
 
@@ -278,15 +282,15 @@ function parseUseEntry(entry: string): ParsedUse {
 
 	if (trimmed.startsWith('function ')) {
 		const name = trimmed.slice('function '.length);
-		return buildParsedUse(name, 2);
+		return buildParsedUse(name, PHP_USE_TYPE_FUNCTION);
 	}
 
 	if (trimmed.startsWith('const ')) {
 		const name = trimmed.slice('const '.length);
-		return buildParsedUse(name, 3);
+		return buildParsedUse(name, PHP_USE_TYPE_CONSTANT);
 	}
 
-	return buildParsedUse(trimmed, 1);
+	return buildParsedUse(trimmed, PHP_USE_TYPE_NORMAL);
 }
 
 function buildParsedUse(name: string, type: number): ParsedUse {
