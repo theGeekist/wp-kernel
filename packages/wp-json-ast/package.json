@@ -25,11 +25,15 @@
 		"build": "vite build && tsc --noEmit",
 		"lint": "eslint src/",
 		"lint:fix": "eslint src/ --fix",
-		"test": "jest --passWithNoTests --watchman=false",
-		"test:coverage": "jest --coverage --watchman=false",
-		"test:watch": "jest --watch",
+		"test": "wpk-run-jest",
+		"test:coverage": "wpk-run-jest coverage",
+		"test:watch": "wpk-run-jest --watch",
+		"test:integration": "wpk-run-jest integration",
 		"typecheck": "tsc --noEmit",
-		"typecheck:tests": "tsc --project tsconfig.tests.json --noEmit"
+		"typecheck:tests": "wpk-run-typecheck-tests"
+	},
+	"devDependencies": {
+		"@wpkernel/scripts": "workspace:*"
 	},
 	"peerDependencies": {
 		"@wpkernel/php-json-ast": "workspace:*",

@@ -35,7 +35,8 @@
 		"@wpkernel/ui": "workspace:*"
 	},
 	"devDependencies": {
-		"@wpkernel/e2e-utils": "workspace:*"
+		"@wpkernel/e2e-utils": "workspace:*",
+		"@wpkernel/scripts": "workspace:*"
 	},
 	"peerDependencies": {
 		"@wordpress/dataviews": ">=9.1.0",

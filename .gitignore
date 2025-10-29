@@ -14,6 +14,7 @@ build/
 
 # Generated API documentation (committed to source control, but listed here for reference)
 # docs/api/generated/
+docs/api/.typedoc-cache.json
 
 # VitePress build output
 docs/.vitepress/dist/

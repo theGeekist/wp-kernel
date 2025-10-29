@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-import { registerWorkspace } from '../../scripts/register-workspace';
+import { registerWorkspace } from '@wpkernel/scripts/register-workspace';
 
 type LoggerMock = {
 	readonly log: jest.Mock<void, [string]>;

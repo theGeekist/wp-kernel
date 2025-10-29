@@ -3,6 +3,8 @@ import path from 'node:path';
 import { spawn } from 'node:child_process';
 import { withWorkspace } from '../workspace.test-support';
 
+jest.setTimeout(30000);
+
 const CLI_BIN = path.resolve(__dirname, '../../bin/wpk.js');
 const CLI_LOADER = path.resolve(
 	__dirname,

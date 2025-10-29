@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createWPKJestConfig } from '../../scripts/config/create-wpk-jest-config.js';
+import { createWPKJestConfig } from '@wpkernel/scripts/config/create-wpk-jest-config.js';
 
 const config = createWPKJestConfig({
 	displayName: '@wpkernel/cli',
