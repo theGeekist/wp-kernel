@@ -25,12 +25,11 @@ if ($argc < 3) {
 
 $workspaceRoot = $argv[1];
 $targetFile = $argv[2];
-$autoloadPath = $workspaceRoot . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
-
-if (!is_file($autoloadPath)) {
-    fwrite(STDERR, "Composer autoload not found at {$autoloadPath}.\n");
-    exit(1);
-}
+$autoloadPath = resolveAutoloadPath($workspaceRoot, [
+    buildAutoloadPathFromRoot(__DIR__ . '/..'),
+    buildAutoloadPathFromRoot(dirname(__DIR__, 2)),
+    buildAutoloadPathFromRoot(dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'php-json-ast'),
+]);
 
 require $autoloadPath;
 
@@ -121,4 +120,69 @@ function normalizeDeclareSpacing(string $value): string
 {
     $normalized = preg_replace('/\bdeclare\s+\(/', 'declare(', $value);
     return is_string($normalized) ? $normalized : $value;
+}
+
+/**
+ * @param list<string> $additionalCandidates
+ */
+function resolveAutoloadPath(string $workspaceRoot, array $additionalCandidates = []): string
+{
+    $candidates = array_merge(
+        [buildAutoloadPathFromRoot($workspaceRoot)],
+        $additionalCandidates,
+        buildAutoloadCandidatesFromEnv()
+    );
+
+    $candidates = array_values(
+        array_unique(
+            array_filter(
+                $candidates,
+                static fn(string $candidate): bool => $candidate !== ''
+            )
+        )
+    );
+
+    foreach ($candidates as $candidate) {
+        if (is_file($candidate)) {
+            return $candidate;
+        }
+    }
+
+    fwrite(STDERR, "Composer autoload not found at any of the following paths:\n");
+    foreach ($candidates as $candidate) {
+        fwrite(STDERR, " - {$candidate}\n");
+    }
+
+    exit(1);
+}
+
+function buildAutoloadPathFromRoot(string $root): string
+{
+    $normalizedRoot = rtrim($root, DIRECTORY_SEPARATOR);
+    if ($normalizedRoot === '') {
+        return '';
+    }
+
+    return $normalizedRoot . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
+}
+
+/**
+ * @return list<string>
+ */
+function buildAutoloadCandidatesFromEnv(): array
+{
+    $paths = getenv('PHP_DRIVER_AUTOLOAD_PATHS');
+    if (!is_string($paths) || $paths === '') {
+        return [];
+    }
+
+    $candidates = [];
+    foreach (explode(PATH_SEPARATOR, $paths) as $candidate) {
+        $trimmed = trim($candidate);
+        if ($trimmed !== '') {
+            $candidates[] = $trimmed;
+        }
+    }
+
+    return $candidates;
 }

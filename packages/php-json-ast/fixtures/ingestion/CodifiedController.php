@@ -1,20 +1,16 @@
 <?php
 
 declare(strict_types=1);
-
 namespace Fixtures\Codemod;
 
 use Attribute;
-
 #[Attribute(Attribute::TARGET_PROPERTY)]
 final class PropertyHook
 {
-    public function __construct(
-        public readonly string $name,
-    ) {
+    public function __construct(public readonly string $name)
+    {
     }
 }
-
 #[PropertyHook('controller')]
 final class CodifiedController
 {
@@ -23,7 +19,6 @@ final class CodifiedController
      */
     #[PropertyHook('resources')]
     public array $resources = [];
-
     /**
      * Describe the controller lifecycle.
      */
