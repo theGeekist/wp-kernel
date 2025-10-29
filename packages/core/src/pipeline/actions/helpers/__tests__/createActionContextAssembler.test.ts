@@ -1,4 +1,4 @@
-import { buildActionContextAssembler } from '../buildActionContextAssembler';
+import { createActionContextAssembler } from '../createActionContextAssembler';
 import type { ActionPipelineContext } from '../../types';
 import { WPKernelError } from '../../../../error/WPKernelError';
 
@@ -11,9 +11,9 @@ jest.mock('../../../../actions/context', () => ({
 
 const { createActionContext } = jest.requireMock('../../../../actions/context');
 
-describe('buildActionContextAssembler', () => {
+describe('createActionContextAssembler', () => {
 	it('creates an action context and updates reporter/namespace', async () => {
-		const helper = buildActionContextAssembler<void, void>();
+		const helper = createActionContextAssembler<void, void>();
 		const context: ActionPipelineContext<void, void> = {
 			actionName: 'Test.Action',
 			namespace: 'tests',
@@ -49,7 +49,7 @@ describe('buildActionContextAssembler', () => {
 	});
 
 	it('throws when resolved options are missing', async () => {
-		const helper = buildActionContextAssembler<void, void>();
+		const helper = createActionContextAssembler<void, void>();
 		const context: ActionPipelineContext<void, void> = {
 			actionName: 'Missing.Options',
 			namespace: 'tests',

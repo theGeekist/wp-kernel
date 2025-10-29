@@ -13,9 +13,9 @@ export interface CoreActionHelperDescriptor extends HelperDescriptor {
 }
 
 /**
- * Build the canonical helper descriptor catalogue for action orchestration.
+ * Create the canonical helper descriptor catalogue for action orchestration.
  */
-export function buildCoreActionHelperCatalog(): readonly CoreActionHelperDescriptor[] {
+export function createCoreActionHelperCatalog(): readonly CoreActionHelperDescriptor[] {
 	return [
 		{
 			key: 'action.options.resolve',
