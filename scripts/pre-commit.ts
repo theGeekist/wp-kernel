@@ -551,63 +551,101 @@ async function populateTypecheckTargets(
 	);
 }
 
-async function buildTypecheckTasks(stagedFiles: string[]): Promise<Task[]> {
-	const tasks: Task[] = [];
-	const typecheckTargets = new Map<
-		string,
-		{ label: string; reasons: string[]; filter: string }
-	>();
+interface ResolvedTypecheckTarget {
+	key: string;
+	label: string;
+	filter: string;
+	reasons: string[];
+}
 
-	const registerTarget = (
-		key: string,
-		label: string,
-		filter: string,
-		reason: string
-	) => {
-		const entry = typecheckTargets.get(key) ?? {
+function registerResolvedTarget(
+	collection: Map<string, ResolvedTypecheckTarget>,
+	key: string,
+	label: string,
+	filter: string,
+	reason: string
+): void {
+	const entry =
+		collection.get(key) ??
+		({
+			key,
 			label,
-			reasons: [],
 			filter,
-		};
-		if (!entry.reasons.includes(reason)) {
-			entry.reasons.push(reason);
+			reasons: [],
+		} satisfies ResolvedTypecheckTarget);
+
+	if (!entry.reasons.includes(reason)) {
+		entry.reasons.push(reason);
+	}
+
+	collection.set(key, entry);
+}
+
+async function resolveTypecheckTargets(
+	stagedFiles: string[]
+): Promise<ResolvedTypecheckTarget[]> {
+	const resolvedTargets = new Map<string, ResolvedTypecheckTarget>();
+
+	await populateTypecheckTargets(
+		stagedFiles,
+		(key, label, filter, reason) => {
+			registerResolvedTarget(resolvedTargets, key, label, filter, reason);
 		}
-		typecheckTargets.set(key, entry);
-	};
+	);
 
-	await populateTypecheckTargets(stagedFiles, registerTarget);
+	const orderedTargets = Array.from(resolvedTargets.values());
+	orderedTargets.sort((a, b) => a.label.localeCompare(b.label));
+	return orderedTargets;
+}
 
-	for (const [, target] of typecheckTargets) {
-		tasks.push(
-			createCommandTask({
-				title: `Typecheck ${target.label}`,
-				summaryLines: target.reasons.map((reason) => `• ${reason}`),
-				commands: [
-					{
-						cmd: 'pnpm',
-						args: ['--filter', target.filter, 'typecheck'],
-						label: 'typecheck',
-					},
-					{
-						cmd: 'pnpm',
-						args: ['--filter', target.filter, 'typecheck:tests'],
-						label: 'typecheck:tests',
-					},
-				],
-			})
-		);
+function buildFilterArgs(filters: string[], command: string): string[] {
+	return filters.flatMap((filter) => ['--filter', filter]).concat(command);
+}
+
+function buildTypecheckSummaryLines(
+	targets: ResolvedTypecheckTarget[]
+): string[] {
+	return targets.flatMap((target) =>
+		target.reasons.map((reason) => `• ${target.label}: ${reason}`)
+	);
+}
+
+async function buildTypecheckTasks(stagedFiles: string[]): Promise<Task[]> {
+	const targets = await resolveTypecheckTargets(stagedFiles);
+
+	if (targets.length === 0) {
+		return [
+			{
+				title: 'Typecheck',
+				enabled: false,
+				skipMessage:
+					'No package changes detected – skipping typechecks.',
+				run: async () => {},
+			},
+		];
 	}
 
-	if (typecheckTargets.size === 0) {
-		tasks.push({
-			title: 'Typecheck',
-			enabled: false,
-			skipMessage: 'No package changes detected – skipping typechecks.',
-			run: async () => {},
-		});
-	}
+	const filters = targets.map((target) => target.filter);
+	const summaryLines = () => buildTypecheckSummaryLines(targets);
 
-	return tasks;
+	return [
+		createCommandTask({
+			title: 'Typecheck affected workspaces',
+			summaryLines,
+			commands: [
+				{
+					cmd: 'pnpm',
+					args: buildFilterArgs(filters, 'typecheck'),
+					label: 'typecheck',
+				},
+				{
+					cmd: 'pnpm',
+					args: buildFilterArgs(filters, 'typecheck:tests'),
+					label: 'typecheck:tests',
+				},
+			],
+		}),
+	];
 }
 
 interface CommandDescriptor {
