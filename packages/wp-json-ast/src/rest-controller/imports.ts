@@ -8,7 +8,10 @@ import type {
 	PhpType,
 } from '@wpkernel/php-json-ast';
 
-import type { RestRouteConfig } from './types';
+import type {
+	RestControllerImportDerivationOptions,
+	RestRouteConfig,
+} from './types';
 
 const BASE_IMPORTS = [
 	'WP_Error',
@@ -23,11 +26,6 @@ const IGNORED_NAMES = new Set([
 	'BaseController',
 	'Capability',
 ]);
-
-export interface RestControllerImportDerivationOptions {
-	readonly capabilityClass?: string;
-	readonly helperMethods?: readonly PhpStmtClassMethod[];
-}
 
 export function deriveRestControllerImports(
 	routes: readonly RestRouteConfig[],

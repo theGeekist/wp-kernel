@@ -20,7 +20,6 @@ import {
 	PHP_CLASS_MODIFIER_ABSTRACT,
 	PHP_METHOD_MODIFIER_PUBLIC,
 	type PhpExpr,
-	type PhpProgram,
 	type PhpStmt,
 	type PhpStmtClass,
 	type PhpStmtUse,
@@ -33,154 +32,106 @@ import {
 	buildRestControllerDocblock,
 	buildRestIndexDocblock,
 } from '../common/docblock';
+import type { ResourceControllerMetadata } from '../types';
 import type {
-	BaseControllerMetadata,
-	ResourceControllerMetadata,
-} from '../types';
-import type {
-	RestControllerClassConfig,
 	RestControllerIdentity,
+	RestControllerModuleConfig,
+	RestControllerModuleControllerConfig,
+	RestControllerModuleFile,
+	RestControllerModuleIndexEntry,
+	RestControllerModuleResult,
 } from './types';
 import { buildRestControllerClass } from './class';
 
-export interface RestControllerModuleControllerConfig
-	extends RestControllerClassConfig {
-	readonly resourceName: string;
-	readonly schemaProvenance: string;
-	readonly fileName: string;
-	readonly metadata?: ResourceControllerMetadata;
-}
-
-export interface RestControllerModuleIndexEntry {
-	readonly className: string;
-	readonly path: string;
-}
-
-export interface RestControllerModuleFile {
-	readonly fileName: string;
-	readonly namespace: string | null;
-	readonly docblock: readonly string[];
-	readonly metadata:
-		| BaseControllerMetadata
-		| ResourceControllerMetadata
-		| { readonly kind: 'index-file' };
-	readonly program: PhpProgram;
-}
-
-export interface RestControllerModuleResult {
-	readonly files: readonly RestControllerModuleFile[];
-}
-
-export interface RestControllerModuleConfig {
-	readonly origin: string;
-	readonly sanitizedNamespace: string;
-	readonly namespace: string;
-	readonly controllers: readonly RestControllerModuleControllerConfig[];
-	readonly additionalIndexEntries?: readonly RestControllerModuleIndexEntry[];
-	readonly baseControllerFileName?: string;
-	readonly includeBaseController?: boolean;
-}
+export type {
+	RestControllerModuleConfig,
+	RestControllerModuleControllerConfig,
+	RestControllerModuleFile,
+	RestControllerModuleIndexEntry,
+	RestControllerModuleResult,
+} from './types';
 
 const DEFAULT_BASE_CONTROLLER_CLASS = 'BaseController';
-const DEFAULT_INDEX_METADATA = { kind: 'index-file' } as const;
+const DEFAULT_INDEX_METADATA: RestControllerModuleFile['metadata'] = {
+	kind: 'index-file',
+};
 
 export function buildRestControllerModule(
 	config: RestControllerModuleConfig
 ): RestControllerModuleResult {
-	const files: RestControllerModuleFile[] = [];
 	const strictTypes = buildStrictTypesDeclare();
-
+	const includeBase = config.includeBaseController !== false;
 	const baseControllerFileName =
 		config.baseControllerFileName ??
 		`Rest/${DEFAULT_BASE_CONTROLLER_CLASS}.php`;
 
-	if (config.includeBaseController !== false) {
-		files.push(
-			buildBaseControllerFile({
-				strictTypes,
-				namespace: config.namespace,
-				sanitizedNamespace: config.sanitizedNamespace,
-				origin: config.origin,
-				fileName: baseControllerFileName,
-			})
-		);
-	}
+	const baseFiles = includeBase
+		? [
+				buildBaseControllerFile(
+					strictTypes,
+					config.namespace,
+					config.sanitizedNamespace,
+					config.origin,
+					baseControllerFileName
+				),
+			]
+		: [];
 
-	for (const controller of config.controllers) {
-		files.push(
-			buildControllerFile({
+	const files: RestControllerModuleFile[] = [
+		...baseFiles,
+		...config.controllers.map((controller) =>
+			buildControllerFile(
 				strictTypes,
-				namespace: config.namespace,
-				origin: config.origin,
-				controller,
-			})
-		);
-	}
-
-	files.push(
-		buildIndexFile({
+				config.namespace,
+				config.origin,
+				controller
+			)
+		),
+		buildIndexFile(
 			strictTypes,
-			origin: config.origin,
-			namespace: config.namespace,
+			config,
 			baseControllerFileName,
-			includeBaseController: config.includeBaseController !== false,
-			controllers: config.controllers,
-			additionalEntries: config.additionalIndexEntries ?? [],
-		})
-	);
+			includeBase
+		),
+	];
 
-	return { files };
-}
-
-interface BuildBaseControllerFileOptions {
-	readonly strictTypes: PhpStmt;
-	readonly namespace: string;
-	readonly sanitizedNamespace: string;
-	readonly origin: string;
-	readonly fileName: string;
+	return { files } satisfies RestControllerModuleResult;
 }
 
 function buildBaseControllerFile(
-	options: BuildBaseControllerFileOptions
+	strictTypes: PhpStmt,
+	namespaceName: string,
+	sanitizedNamespace: string,
+	origin: string,
+	fileName: string
 ): RestControllerModuleFile {
 	const docblock = buildRestBaseControllerDocblock({
-		origin: options.origin,
-		sanitizedNamespace: options.sanitizedNamespace,
+		origin,
+		sanitizedNamespace,
 	});
-	const namespace = buildNamespaceStatement({
-		namespace: options.namespace,
+	const namespace = buildNamespaceStatement(
+		namespaceName,
 		docblock,
-		body: buildGuardedBlock([
-			buildBaseControllerClass(options.sanitizedNamespace),
-		]),
-	});
-
-	const program: PhpProgram = [options.strictTypes, namespace];
-
-	const metadata: BaseControllerMetadata = { kind: 'base-controller' };
+		buildGuardedBlock([buildBaseControllerClass(sanitizedNamespace)])
+	);
 
 	return {
-		fileName: options.fileName,
-		namespace: options.namespace,
+		fileName,
+		namespace: namespaceName,
 		docblock,
-		metadata,
-		program,
+		metadata: { kind: 'base-controller' },
+		program: [strictTypes, namespace],
 	};
 }
 
-interface BuildControllerFileOptions {
-	readonly strictTypes: PhpStmt;
-	readonly namespace: string;
-	readonly origin: string;
-	readonly controller: RestControllerModuleControllerConfig;
-}
-
 function buildControllerFile(
-	options: BuildControllerFileOptions
+	strictTypes: PhpStmt,
+	namespace: string,
+	origin: string,
+	controller: RestControllerModuleControllerConfig
 ): RestControllerModuleFile {
-	const { controller } = options;
 	const docblock = buildRestControllerDocblock({
-		origin: options.origin,
+		origin,
 		resourceName: controller.resourceName,
 		schemaKey: controller.schemaKey,
 		schemaProvenance: controller.schemaProvenance,
@@ -190,73 +141,49 @@ function buildControllerFile(
 	const { classNode, uses } = buildRestControllerClass(controller);
 	const useStatements = buildUseStatements(uses);
 
-	const namespace = buildNamespaceStatement({
-		namespace: options.namespace,
-		docblock,
-		body: [...useStatements, ...buildGuardedBlock([classNode])],
-	});
-
-	const program: PhpProgram = [options.strictTypes, namespace];
+	const namespaceNode = buildNamespaceStatement(namespace, docblock, [
+		...useStatements,
+		...buildGuardedBlock([classNode]),
+	]);
 
 	const metadata: ResourceControllerMetadata =
 		controller.metadata ?? buildControllerMetadata(controller);
 
 	return {
 		fileName: controller.fileName,
-		namespace: options.namespace,
+		namespace,
 		docblock,
 		metadata,
-		program,
+		program: [strictTypes, namespaceNode],
 	};
 }
 
-interface BuildIndexFileOptions {
-	readonly strictTypes: PhpStmt;
-	readonly origin: string;
-	readonly namespace: string;
-	readonly baseControllerFileName: string;
-	readonly includeBaseController: boolean;
-	readonly controllers: readonly RestControllerModuleControllerConfig[];
-	readonly additionalEntries: readonly RestControllerModuleIndexEntry[];
-}
-
 function buildIndexFile(
-	options: BuildIndexFileOptions
+	strictTypes: PhpStmt,
+	config: RestControllerModuleConfig,
+	baseControllerFileName: string,
+	includeBaseController: boolean
 ): RestControllerModuleFile {
-	const entries: RestControllerModuleIndexEntry[] = [];
+	const entries = buildIndexEntries({
+		namespace: config.namespace,
+		includeBase: includeBaseController,
+		baseControllerFileName,
+		controllers: config.controllers,
+		additionalEntries: config.additionalIndexEntries ?? [],
+	});
 
-	if (options.includeBaseController) {
-		entries.push({
-			className: `${options.namespace}\\${DEFAULT_BASE_CONTROLLER_CLASS}`,
-			path: options.baseControllerFileName,
-		});
-	}
-
-	for (const controller of options.controllers) {
-		entries.push({
-			className: `${options.namespace}\\${controller.className}`,
-			path: controller.fileName,
-		});
-	}
-
-	for (const entry of options.additionalEntries) {
-		entries.push(entry);
-	}
-
-	const docblock = buildRestIndexDocblock({ origin: options.origin });
+	const docblock = buildRestIndexDocblock({ origin: config.origin });
 	const returnNode = mergeNodeAttributes(
 		buildReturn(buildIndexArray(entries)),
 		{ comments: [buildGeneratedFileDocComment(docblock)] }
 	);
-
-	const program: PhpProgram = [options.strictTypes, returnNode];
 
 	return {
 		fileName: 'index.php',
 		namespace: null,
 		docblock,
 		metadata: DEFAULT_INDEX_METADATA,
-		program,
+		program: [strictTypes, returnNode],
 	};
 }
 
@@ -280,22 +207,17 @@ function buildBaseControllerClass(sanitizedNamespace: string): PhpStmtClass {
 	});
 }
 
-interface BuildNamespaceStatementOptions {
-	readonly namespace: string;
-	readonly docblock: readonly string[];
-	readonly body: readonly PhpStmt[];
-}
-
 function buildNamespaceStatement(
-	options: BuildNamespaceStatementOptions
+	namespace: string,
+	docblock: readonly string[],
+	body: readonly PhpStmt[]
 ): PhpStmt {
-	const namespaceNode = buildNamespace(
-		buildName(splitNamespace(options.namespace)),
-		[...options.body]
-	);
+	const namespaceNode = buildNamespace(buildName(splitNamespace(namespace)), [
+		...body,
+	]);
 
 	return mergeNodeAttributes(namespaceNode, {
-		comments: [buildGeneratedFileDocComment(options.docblock)],
+		comments: [buildGeneratedFileDocComment(docblock)],
 	});
 }
 
@@ -327,11 +249,11 @@ function normaliseIdentity(
 	};
 }
 
-interface ParsedUse {
+type ParsedUse = {
 	readonly type: number;
 	readonly parts: readonly string[];
 	readonly sortKey: string;
-}
+};
 
 function buildUseStatements(uses: readonly string[]): PhpStmtUse[] {
 	const parsed = new Map<string, ParsedUse>();
@@ -379,6 +301,30 @@ function splitNamespace(namespace: string): string[] {
 		.split('\\')
 		.map((part) => part.trim())
 		.filter((part) => part.length > 0);
+}
+
+function buildIndexEntries(options: {
+	readonly namespace: string;
+	readonly includeBase: boolean;
+	readonly baseControllerFileName: string;
+	readonly controllers: readonly RestControllerModuleControllerConfig[];
+	readonly additionalEntries: readonly RestControllerModuleIndexEntry[];
+}): RestControllerModuleIndexEntry[] {
+	const baseEntries = options.includeBase
+		? [
+				{
+					className: `${options.namespace}\\${DEFAULT_BASE_CONTROLLER_CLASS}`,
+					path: options.baseControllerFileName,
+				},
+			]
+		: [];
+
+	const controllerEntries = options.controllers.map((controller) => ({
+		className: `${options.namespace}\\${controller.className}`,
+		path: controller.fileName,
+	}));
+
+	return [...baseEntries, ...controllerEntries, ...options.additionalEntries];
 }
 
 function buildIndexArray(

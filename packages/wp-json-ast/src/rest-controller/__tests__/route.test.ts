@@ -28,7 +28,10 @@ describe('buildRestRoute', () => {
 			statements: [buildReturn(buildScalarString('ok'))],
 		};
 
-		const method = buildRestRoute(config, { type: 'number', param: 'id' });
+		const method = buildRestRoute({
+			route: config,
+			identity: { type: 'number', param: 'id' },
+		});
 
 		expect(method.params?.[0]).toMatchObject({
 			type: expect.objectContaining({
@@ -92,7 +95,10 @@ describe('buildRestRoute', () => {
 			statements: [buildReturn(buildScalarString('ok'))],
 		};
 
-		const method = buildRestRoute(config, { type: 'number', param: 'id' });
+		const method = buildRestRoute({
+			route: config,
+			identity: { type: 'number', param: 'id' },
+		});
 
 		expect(method.stmts).toHaveLength(1);
 		expect(method.stmts?.[0]).toMatchObject({
@@ -124,7 +130,10 @@ describe('buildRestRoute', () => {
 			statements: [buildReturn(buildScalarString('ok'))],
 		};
 
-		const method = buildRestRoute(config, { type: 'number', param: 'id' });
+		const method = buildRestRoute({
+			route: config,
+			identity: { type: 'number', param: 'id' },
+		});
 
 		expect(method.stmts).toHaveLength(5);
 		expect(method.stmts?.[0]).toMatchObject({
@@ -174,9 +183,12 @@ describe('buildRestRoute', () => {
 			statements: [buildReturn(buildScalarString('ok'))],
 		};
 
-		const method = buildRestRoute(config, {
-			type: 'string',
-			param: 'slug',
+		const method = buildRestRoute({
+			route: config,
+			identity: {
+				type: 'string',
+				param: 'slug',
+			},
 		});
 		const doc = extractDocText(method);
 
@@ -200,7 +212,10 @@ describe('buildRestRoute', () => {
 			statements: [buildReturn(buildScalarString('ok'))],
 		};
 
-		const method = buildRestRoute(config, { type: 'number', param: 'id' });
+		const method = buildRestRoute({
+			route: config,
+			identity: { type: 'number', param: 'id' },
+		});
 		const doc = extractDocText(method);
 
 		expect(doc).toContain('Handle [PATCH] /jobs/(?P<id>\\d+).');

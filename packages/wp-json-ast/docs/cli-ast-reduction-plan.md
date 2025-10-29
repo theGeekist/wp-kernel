@@ -246,15 +246,17 @@ Tests belong in `packages/wp-json-ast/tests/module/`, covering namespace renderi
 3. Write unit tests verifying class signatures, docblock contents, and array structure for representative IR inputs.
 4. Replace `createPhpBaseControllerHelper` and `createPhpIndexFileHelper` with adapters that call the new factories, deleting direct AST usage from the CLI.
 
+_Completion:_ ☑ Completed – (this PR) extracted base controller and index program builders into `src/module/` and updated the CLI adapters to consume the shared programs.
+
 #### Task 2.5 Follow-up subtasks – extensibility
 
 **Subtask 2.5.a – Support custom module entries.** Extend `buildIndexProgram` to accept optional augmentation callbacks so downstream pipelines can register additional artefacts without rewriting the factory.
 
-_Completion:_ ☐ Pending – add augmentation support and update documentation for module composition.
+_Completion:_ ☑ Completed – (this PR) module index builders now accept augmentation callbacks and the plan reflects module composition.
 
 **Subtask 2.5.b – Share namespace derivation.** Lift the namespace sanitisation helpers into `src/common/module/` so every factory consumes a consistent implementation.
 
-_Completion:_ ☐ Pending – relocate namespace helpers and prune the CLI-specific variants.
+_Completion:_ ☑ Completed – (this PR) namespace derivation helpers now live under src/common/module and the CLI consumes the shared implementation.
 
 _Task 2.6: Consolidate resource request and mutation helpers._ The CLI's `resource` directory still assembles request payloads, cache metadata, mutation contracts, and error envelopes directly with php-json-ast primitives. Relocate this surface into `packages/wp-json-ast/src/resource/` so the factories that power REST controllers can also materialise resource-specific accessors without duplicating AST glue.
 
