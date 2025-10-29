@@ -58,6 +58,7 @@ export * as data from './data/index.js';
 export * as events from './events/index.js';
 export * as contracts from './contracts/index.js';
 export * as pipeline from './pipeline/index.js';
+export * as interactivity from './interactivity/index.js';
 
 // ============================================================================
 // Flat Exports (Convenience aliases)
@@ -198,6 +199,17 @@ export type {
 	WPKUICapabilityRuntime,
 	NoticeStatus,
 } from './data/index.js';
+
+// Interactivity
+export { defineInteraction } from './interactivity/defineInteraction.js';
+export type {
+	DefineInteractionOptions,
+	DefinedInteraction,
+	InteractionActionBinding,
+	InteractionActionInput,
+	InteractionActionsRecord,
+	InteractionActionMetaResolver,
+} from './interactivity/defineInteraction.js';
 
 // Event bus
 export {

@@ -107,6 +107,9 @@ importers:
       '@wordpress/i18n':
         specifier: ^6.5.0
         version: 6.5.0
+      '@wordpress/interactivity':
+        specifier: ^6.34.0
+        version: 6.34.0
       '@wordpress/jest-preset-default':
         specifier: ^12.32.0
         version: 12.32.0(@babel/core@7.28.4)(jest@30.2.0(@types/node@24.7.2)(babel-plugin-macros@3.1.0))
@@ -2818,6 +2821,14 @@ packages:
   '@polka/url@1.0.0-next.29':
     resolution: {integrity: sha512-wwQAWhWSuHaag8c4q/KN/vCoeOJYshAIvMQwD4GpSb3OiZklFfvAgmj0VCBBImRpuF/aFgIRzllXlVX93Jevww==}
 
+  '@preact/signals-core@1.12.1':
+    resolution: {integrity: sha512-BwbTXpj+9QutoZLQvbttRg5x3l5468qaV2kufh+51yha1c53ep5dY4kTuZR35+3pAZxpfQerGJiQqg34ZNZ6uA==}
+
+  '@preact/signals@1.3.2':
+    resolution: {integrity: sha512-naxcJgUJ6BTOROJ7C3QML7KvwKwCXQJYTc5L/b0eEsdYgPB6SxwoQ1vDGcS0Q7GVjAenVq/tXrybVdFShHYZWg==}
+    peerDependencies:
+      preact: 10.x
+
   '@prettier/plugin-php@0.24.0':
     resolution: {integrity: sha512-x9l65fCE/pgoET6RQowgdgG8Xmzs44z6j6Hhg3coINCyCw9JBGJ5ZzMR2XHAM2jmAdbJAIgqB6cUn4/3W3XLTA==}
     peerDependencies:
@@ -4033,6 +4044,10 @@ packages:
 
   '@wordpress/icons@10.32.0':
     resolution: {integrity: sha512-1WvJdT361X1LnetYBpBWUjAVXZzl+pBdIwHbYRAp8ej47EI/igPmNxmq81nFd40s8fer/9qtipielcqSI6H2rA==}
+    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
+
+  '@wordpress/interactivity@6.34.0':
+    resolution: {integrity: sha512-0WRvm1mCulCCYCpGNIXkDFK41L9VJblnkXrOeXFV9lfePCLQN/ulAEgUSQCRbQiG/B//w8cQKUl3XFmkM3Ev1g==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
   '@wordpress/is-shallow-equal@5.32.0':
@@ -14015,6 +14030,13 @@ snapshots:
 
   '@polka/url@1.0.0-next.29': {}
 
+  '@preact/signals-core@1.12.1': {}
+
+  '@preact/signals@1.3.2(preact@10.27.2)':
+    dependencies:
+      '@preact/signals-core': 1.12.1
+      preact: 10.27.2
+
   '@prettier/plugin-php@0.24.0(prettier@3.6.2)':
     dependencies:
       linguist-languages: 8.2.0
@@ -15601,6 +15623,11 @@ snapshots:
       '@wordpress/primitives': 4.32.0(react@18.3.1)
     transitivePeerDependencies:
       - react
+
+  '@wordpress/interactivity@6.34.0':
+    dependencies:
+      '@preact/signals': 1.3.2(preact@10.27.2)
+      preact: 10.27.2
 
   '@wordpress/is-shallow-equal@5.32.0':
     dependencies:
