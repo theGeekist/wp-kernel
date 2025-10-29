@@ -1,9 +1,9 @@
-import { buildActionRegistryRecorder } from '../buildActionRegistryRecorder';
+import { createActionRegistryRecorder } from '../createActionRegistryRecorder';
 import type { ActionPipelineContext } from '../../types';
 
-describe('buildActionRegistryRecorder', () => {
+describe('createActionRegistryRecorder', () => {
 	it('invokes registry bridge after downstream builders', async () => {
-		const helper = buildActionRegistryRecorder<void, void>();
+		const helper = createActionRegistryRecorder<void, void>();
 		const recordActionDefined = jest.fn();
 		const context: ActionPipelineContext<void, void> = {
 			actionName: 'Test.Action',
@@ -43,7 +43,7 @@ describe('buildActionRegistryRecorder', () => {
 	});
 
 	it('tolerates missing registry bridges', async () => {
-		const helper = buildActionRegistryRecorder<void, void>();
+		const helper = createActionRegistryRecorder<void, void>();
 		const context: ActionPipelineContext<void, void> = {
 			actionName: 'No.Registry',
 			namespace: 'tests',

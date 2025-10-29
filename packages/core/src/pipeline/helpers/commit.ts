@@ -32,7 +32,7 @@ function normaliseTasks(inputs: readonly TaskInput[]): PipelineTask[] {
 	return inputs.filter(Boolean) as PipelineTask[];
 }
 
-export function buildPipelineCommit(
+export function createPipelineCommit(
 	...tasks: readonly TaskInput[]
 ): (() => MaybePromise<void>) | undefined {
 	const normalised = normaliseTasks(tasks);
@@ -43,7 +43,7 @@ export function buildPipelineCommit(
 	return () => runSequential(normalised);
 }
 
-export function buildPipelineRollback(
+export function createPipelineRollback(
 	...tasks: readonly TaskInput[]
 ): (() => MaybePromise<void>) | undefined {
 	const normalised = normaliseTasks(tasks);

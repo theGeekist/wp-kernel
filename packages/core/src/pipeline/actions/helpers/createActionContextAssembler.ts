@@ -11,7 +11,7 @@ import type {
 import { ACTION_FRAGMENT_KIND } from '../types';
 import type { Reporter } from '../../../reporter/types';
 
-export function buildActionContextAssembler<
+export function createActionContextAssembler<
 	TArgs,
 	TResult,
 >(): ActionFragmentHelper<TArgs, TResult> {

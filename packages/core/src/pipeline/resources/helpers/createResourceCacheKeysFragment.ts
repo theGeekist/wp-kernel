@@ -1,5 +1,6 @@
 import { createHelper } from '../../helper';
-import { createClient } from '../../../resource/client';
+import { createDefaultCacheKeys } from '../../../resource/utils';
+import type { CacheKeys } from '../../../resource/types';
 import type {
 	ResourceFragmentHelper,
 	ResourceFragmentInput,
@@ -11,16 +12,16 @@ import { RESOURCE_FRAGMENT_KIND } from '../types';
 import type { Reporter } from '../../../reporter/types';
 
 /**
- * Create a fragment helper that instantiates the resource client used by
- * downstream builders and exposes it via the pipeline draft.
+ * Create a fragment helper that merges user-defined cache keys with the
+ * framework defaults to guarantee a complete cache key surface.
  *
  * @example
  * ```ts
- * const clientFragment = buildResourceClientFragment<Post, { id: number }>();
- * pipeline.ir.use(clientFragment);
+ * const cacheKeysFragment = createResourceCacheKeysFragment<Post, { id: number }>();
+ * pipeline.ir.use(cacheKeysFragment);
  * ```
  */
-export function buildResourceClientFragment<
+export function createResourceCacheKeysFragment<
 	T,
 	TQuery,
 >(): ResourceFragmentHelper<T, TQuery> {
@@ -31,18 +32,14 @@ export function buildResourceClientFragment<
 		Reporter,
 		ResourceFragmentKind
 	>({
-		key: 'resource.client.build',
+		key: 'resource.cacheKeys.build',
 		kind: RESOURCE_FRAGMENT_KIND,
 		dependsOn: ['resource.config.validate'],
 		apply: ({ context, output }) => {
-			output.client = createClient<T, TQuery>(
-				context.config,
-				context.reporter,
-				{
-					namespace: context.namespace,
-					resourceName: context.resourceName,
-				}
-			);
+			output.cacheKeys = {
+				...createDefaultCacheKeys<TQuery>(context.resourceName),
+				...(context.config.cacheKeys ?? {}),
+			} as Required<CacheKeys<TQuery>>;
 		},
 	}) satisfies ResourceFragmentHelper<T, TQuery>;
 }

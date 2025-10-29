@@ -16,9 +16,9 @@ export interface CoreResourceHelperDescriptor extends HelperDescriptor {
 }
 
 /**
- * Build the canonical helper descriptor catalogue for resource orchestration.
+ * Create the canonical helper descriptor catalogue for resource orchestration.
  */
-export function buildCoreResourceHelperCatalog(): readonly CoreResourceHelperDescriptor[] {
+export function createCoreResourceHelperCatalog(): readonly CoreResourceHelperDescriptor[] {
 	return [
 		{
 			key: 'resource.config.validate',

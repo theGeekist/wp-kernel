@@ -20,7 +20,7 @@ export function resolveActionDefinitionOptions(
 	return resolveOptions(options);
 }
 
-export function buildActionOptionsResolver<
+export function createActionOptionsResolver<
 	TArgs,
 	TResult,
 >(): ActionFragmentHelper<TArgs, TResult> {

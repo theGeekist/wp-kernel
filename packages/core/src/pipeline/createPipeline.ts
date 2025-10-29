@@ -37,7 +37,7 @@ interface MissingDependencyIssue<THelper> {
 	readonly dependencyKey: string;
 }
 
-interface BuildDependencyGraphOptions<THelper> {
+interface CreateDependencyGraphOptions<THelper> {
 	readonly onMissingDependency?: (
 		issue: MissingDependencyIssue<THelper>
 	) => void;
@@ -423,9 +423,9 @@ function sortByDependencies<THelper extends HelperDescriptor>(
 	return { ordered, unresolved };
 }
 
-function buildDependencyGraph<THelper extends HelperDescriptor>(
+function createDependencyGraph<THelper extends HelperDescriptor>(
 	entries: RegisteredHelper<THelper>[],
-	options?: BuildDependencyGraphOptions<THelper>
+	options?: CreateDependencyGraphOptions<THelper>
 ): {
 	order: RegisteredHelper<THelper>[];
 	adjacency: Map<string, Set<string>>;
@@ -933,7 +933,7 @@ export function createPipeline<
 		readonly fragmentOrder: RegisteredHelper<TFragmentHelper>[];
 		readonly steps: PipelineStep[];
 		readonly pushStep: (entry: RegisteredHelper<unknown>) => void;
-		readonly builderGraphOptions: BuildDependencyGraphOptions<TBuilderHelper>;
+		readonly builderGraphOptions: CreateDependencyGraphOptions<TBuilderHelper>;
 		readonly createHookOptions: (
 			artifact: TArtifact
 		) => PipelineExtensionHookOptions<TContext, TBuildOptions, TArtifact>;
@@ -955,7 +955,7 @@ export function createPipeline<
 			buildOptions,
 		});
 
-		const fragmentOrder = buildDependencyGraph(fragmentEntries, {
+		const fragmentOrder = createDependencyGraph(fragmentEntries, {
 			onMissingDependency: ({ dependant, dependencyKey }) => {
 				const helper = dependant.helper as HelperDescriptor;
 				pushMissingDependencyDiagnosticFor(
@@ -998,7 +998,7 @@ export function createPipeline<
 			});
 		};
 
-		const builderGraphOptions: BuildDependencyGraphOptions<TBuilderHelper> =
+		const builderGraphOptions: CreateDependencyGraphOptions<TBuilderHelper> =
 			{
 				onMissingDependency: ({ dependant, dependencyKey }) => {
 					const helper = dependant.helper as HelperDescriptor;
@@ -1185,7 +1185,7 @@ export function createPipeline<
 				helpers: { fragments: fragmentExecution },
 			});
 
-			const builderOrder = buildDependencyGraph(
+			const builderOrder = createDependencyGraph(
 				builderEntries,
 				builderGraphOptions
 			).order;

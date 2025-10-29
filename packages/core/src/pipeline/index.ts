@@ -1,6 +1,6 @@
 export { createHelper } from './helper';
 export { createPipeline } from './createPipeline';
-export { buildPipelineCommit, buildPipelineRollback } from './helpers/commit';
+export { createPipelineCommit, createPipelineRollback } from './helpers/commit';
 export type {
 	Helper,
 	HelperApplyFn,

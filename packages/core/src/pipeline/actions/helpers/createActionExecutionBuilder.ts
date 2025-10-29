@@ -15,7 +15,7 @@ import { makeActionErrorNormaliser } from './makeActionErrorNormaliser';
 import { WPKernelError } from '../../../error/WPKernelError';
 
 /**
- * Build the execution-stage helper responsible for invoking the user supplied
+ * Create the execution-stage helper responsible for invoking the user supplied
  * action handler and translating the outcome into lifecycle events.
  *
  * The helper records timing metadata, ensures downstream builder failures are
@@ -24,11 +24,11 @@ import { WPKernelError } from '../../../error/WPKernelError';
  *
  * @example
  * ```ts
- * const executionBuilder = buildActionExecutionBuilder<{ id: string }, string>();
+ * const executionBuilder = createActionExecutionBuilder<{ id: string }, string>();
  * pipeline.builders.use(executionBuilder);
  * ```
  */
-export function buildActionExecutionBuilder<
+export function createActionExecutionBuilder<
 	TArgs,
 	TResult,
 >(): ActionBuilderHelper<TArgs, TResult> {
