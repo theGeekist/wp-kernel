@@ -11,7 +11,7 @@ import type {
 import { ACTION_BUILDER_KIND } from '../types';
 import type { Reporter } from '../../../reporter/types';
 import { measureDurationMs, readMonotonicTime } from './timing';
-import { makeActionErrorNormaliser } from './makeActionErrorNormaliser';
+import { createActionErrorNormaliser } from './createActionErrorNormaliser';
 import { WPKernelError } from '../../../error/WPKernelError';
 
 /**
@@ -32,7 +32,7 @@ export function createActionExecutionBuilder<
 	TArgs,
 	TResult,
 >(): ActionBuilderHelper<TArgs, TResult> {
-	const normaliseError = makeActionErrorNormaliser();
+	const normaliseError = createActionErrorNormaliser();
 
 	return createHelper<
 		ActionPipelineContext<TArgs, TResult>,

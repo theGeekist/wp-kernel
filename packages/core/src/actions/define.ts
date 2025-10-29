@@ -22,7 +22,7 @@ import {
 import { getNamespace } from '../namespace/detect';
 import { createActionPipeline } from '../pipeline/actions/createActionPipeline';
 import { resolveActionDefinitionOptions } from '../pipeline/actions/helpers/createActionOptionsResolver';
-import { makeActionRegistryBridge } from '../pipeline/actions/helpers/makeActionRegistryBridge';
+import { createActionRegistryBridge } from '../pipeline/actions/helpers/createActionRegistryBridge';
 
 /**
  * Define a WP Kernel action with lifecycle instrumentation and side-effect coordination.
@@ -260,7 +260,7 @@ export function defineAction<TArgs = void, TResult = void>(
 	const pipeline = createActionPipeline<TArgs, TResult>();
 	let definition: ActionDefinedEvent | null = null;
 	const eventBus = getWPKernelEventBus();
-	const registryBridge = makeActionRegistryBridge((event) => {
+	const registryBridge = createActionRegistryBridge((event) => {
 		recordActionDefined(event);
 		eventBus.emit('action:defined', event);
 	});

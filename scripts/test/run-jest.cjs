@@ -1,5 +1,89 @@
 #!/usr/bin/env node
 const { spawn } = require('node:child_process');
+const fs = require('node:fs');
+const path = require('node:path');
+
+const REPO_ROOT_SENTINEL = 'pnpm-workspace.yaml';
+
+const workspaceRoot = (() => {
+        const candidates = [process.env.WPKERNEL_REPO_ROOT, process.env.INIT_CWD, process.cwd()];
+
+        const isWorkspaceRoot = (candidate) =>
+                Boolean(candidate) && fs.existsSync(path.join(candidate, REPO_ROOT_SENTINEL));
+
+        for (const candidate of candidates) {
+                if (isWorkspaceRoot(candidate)) {
+                        return candidate;
+                }
+        }
+
+        let current = process.cwd();
+        const { root } = path.parse(current);
+
+        while (current !== root) {
+                if (isWorkspaceRoot(current)) {
+                        return current;
+                }
+
+                current = path.dirname(current);
+        }
+
+        return process.cwd();
+})();
+
+const normaliseRunTestsByPathArgs = (args) => {
+        const normalised = [];
+
+        for (let index = 0; index < args.length; index += 1) {
+                const arg = args[index];
+
+                if (arg === '--runTestsByPath') {
+                        normalised.push(arg);
+
+                        while (index + 1 < args.length && !args[index + 1].startsWith('-')) {
+                                const candidate = args[index + 1];
+                                normalised.push(resolveTestPath(candidate));
+                                index += 1;
+                        }
+
+                        continue;
+                }
+
+                if (arg.startsWith('--runTestsByPath=')) {
+                        const [, value = ''] = arg.split('=');
+                        normalised.push(`--runTestsByPath=${resolveTestPath(value)}`);
+                        continue;
+                }
+
+                normalised.push(arg);
+        }
+
+        return normalised;
+};
+
+const resolveTestPath = (testPath) => {
+        if (!testPath) {
+                return testPath;
+        }
+
+        if (path.isAbsolute(testPath)) {
+                return testPath;
+        }
+
+        const resolvedFromCwd = path.resolve(process.cwd(), testPath);
+
+        if (fs.existsSync(resolvedFromCwd)) {
+                return resolvedFromCwd;
+        }
+
+        const resolvedFromWorkspace = path.resolve(workspaceRoot, testPath);
+
+        if (fs.existsSync(resolvedFromWorkspace)) {
+                return resolvedFromWorkspace;
+        }
+
+        return testPath;
+};
 
 const rawArgs = process.argv.slice(2);
 let mode = 'default';
@@ -11,6 +95,7 @@ if (rawArgs[0] && !rawArgs[0].startsWith('-')) {
 }
 
 jestArgs = jestArgs.filter((arg) => arg !== '--');
+jestArgs = normaliseRunTestsByPathArgs(jestArgs);
 
 const env = { ...process.env };
 

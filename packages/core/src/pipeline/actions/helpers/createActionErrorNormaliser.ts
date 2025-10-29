@@ -7,7 +7,7 @@ export type ActionErrorNormaliser = (
 	context: Pick<ActionPipelineContext, 'actionName' | 'requestId'>
 ) => WPKernelError;
 
-export function makeActionErrorNormaliser(): ActionErrorNormaliser {
+export function createActionErrorNormaliser(): ActionErrorNormaliser {
 	return (error, context) =>
 		normalizeActionError(error, context.actionName, context.requestId);
 }
