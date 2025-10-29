@@ -22,14 +22,30 @@ Stand up the `@wpkernel/create-wpk` workspace so the monorepo can publish a `npm
 2. Adds the package metadata (`package.json`, README, LICENSE) and a tiny Node entry that shells out to the CLI binary but leaves flag forwarding for the next patch.
 3. Sets up the release tooling (build scripts, `files` whitelist, bin map) without yet touching docs or integration coverage.
 
+Any functionality beyond the scaffold-argument forwarding, telemetry hooks, documentation polish, or smoke coverage-lives in Task 38 so the workspace can publish independently before the proxy is wired up.
+
 ### Patch 0.10.2 – Task 38: Wire the bootstrap proxy & smoke coverage
 
 Finish the bootstrapper by teaching it to invoke the CLI and verifying the flow end-to-end. Ship:
 
 1. A proxy that forwards arguments after `--` (e.g. `--name`) into `packages/cli/bin/wpk.js`, capturing stdout/stderr for diagnostics.
 2. Optional analytics/reporting hooks so bootstrap usage can be logged alongside other CLI events.
-3. A smoke test inside `packages/cli/tests/integration` that exercises `npm create @wpkernel/wpk -- --name demo` via the new package to prove the invocation lands in `wpk create`.
+3. A smoke test inside `packages/cli/tests/__tests__/create-wpk.integration.test.ts` that exercises `npm create @wpkernel/wpk -- --name demo` via the new package to prove the invocation lands in `wpk create`.
 4. Documentation updates in `packages/cli/docs/index.md` and the README that announce the new bootstrap command.
+
+Each deliverable touches the same entry point, so shipping them together keeps the proxy, telemetry stub, docs, and integration smoke aligned without needing an additional task split.
+
+#### Task 38 delivery summary
+
+Task 38 now logs bootstrap runs under the `wpk.cli.bootstrap` reporter namespace and captures stdout/stderr lengths for diagnostics in `packages/create-wpk/src/index.ts`. The CLI integration suite adds `packages/cli/tests/__tests__/create-wpk.integration.test.ts`, which compiles the published bootstrap binary on demand (via `packages/create-wpk/tsconfig.json`) before executing `npm create @wpkernel/wpk -- --skip-install`. Contributors no longer need to run `pnpm --filter @wpkernel/create-wpk build` manually before running Jest, and the README/CHANGELOG highlight the telemetry and smoke coverage now that both installments of Task 38 have shipped.
+
+#### Task 38 investigation findings
+
+The current bootstrap entry simply shells out with `spawnSync(process.execPath, [cliBinPath, 'create'])`, so it never inspects `process.argv` or forwards the positional target and flags that `npm|pnpm|yarn create` pass before and after `--`.【F:packages/create-wpk/src/index.ts†L1-L20】 Supporting real invocations means rewriting the proxy to split `process.argv.slice(2)` on the `--` separator, preserve directory arguments (for example `npm create @wpkernel/wpk demo`) and forward every option (`--skip-install`, `--force`, etc.) to `wpk create` so the smoke test can avoid hitting installers.【F:packages/cli/src/commands/create.ts†L103-L245】 Using `spawnSync` with `stdio: 'inherit'` also prevents us from collecting stdout/stderr for telemetry, so the proxy likely needs to switch to `spawn`/streaming pipes that both echo to the terminal and buffer output for the reporter.
+
+Adding telemetry requires instantiating the kernel reporter inside the bootstrap package (likely via `createReporter` from `@wpkernel/core/reporter`) and deciding on canonical event names so the emitted logs align with the `wpk` namespace.【F:packages/cli/src/commands/create.ts†L1-L244】 The README still calls out telemetry and flag forwarding as future scope, so Task 38 must remove that limitation copy once the instrumentation lands.【F:packages/create-wpk/README.md†L1-L16】 The package manifest only depends on `@wpkernel/cli` today, so pulling in the reporter will introduce a new workspace dependency that needs TypeScript path wiring and changelog updates in tandem with the code.【F:packages/create-wpk/package.json†L1-L55】【F:packages/create-wpk/CHANGELOG.md†L1-L11】
+
+For the smoke test, we need to stand up a temporary workspace (via `withWorkspace`) and spawn the compiled bootstrap binary while injecting the same `NODE_OPTIONS` loader that the existing `wpk-bin` integration test uses to resolve the PHP JSON AST shim.【F:packages/cli/tests/**tests**/wpk-bin.integration.test.ts†L1-L96】 Because `wpk create` installs npm and Composer dependencies unless `--skip-install` is forwarded, the test must assert that the proxy passes that flag through to avoid hitting external tooling and keep the suite hermetic.【F:packages/cli/src/commands/create.ts†L196-L244】 We also need to decide whether the test runs against `packages/create-wpk/dist/index.js` (requiring the workspace to build the package before Jest executes) or uses `tsx` to execute `src/index.ts` directly; either approach should be documented so contributors know which prerequisite the smoke test expects.【F:packages/create-wpk/package.json†L30-L52】【F:packages/cli/docs/mvp-plan.md†L170-L177】
 
 ### Patch 0.10.3 – Task 39: Init adoption guardrails
 
