@@ -22,9 +22,9 @@ import {
 	normalizeActionError,
 } from '../../../../actions/lifecycle';
 import { measureDurationMs, readMonotonicTime } from '../timing';
-import { buildActionExecutionBuilder } from '../buildActionExecutionBuilder';
+import { createActionExecutionBuilder } from '../createActionExecutionBuilder';
 
-describe('buildActionExecutionBuilder', () => {
+describe('createActionExecutionBuilder', () => {
 	const resolvedOptions: ResolvedActionOptions = {
 		scope: 'crossTab',
 		bridged: true,
@@ -66,7 +66,7 @@ describe('buildActionExecutionBuilder', () => {
 			order.push('handler');
 			return { ok: true };
 		});
-		const helper = buildActionExecutionBuilder<
+		const helper = createActionExecutionBuilder<
 			{ value: number },
 			{ ok: boolean }
 		>();
@@ -119,7 +119,7 @@ describe('buildActionExecutionBuilder', () => {
 				order.push(event.phase);
 			}
 		);
-		const helper = buildActionExecutionBuilder<
+		const helper = createActionExecutionBuilder<
 			{ value: number },
 			{ ok: boolean }
 		>();
@@ -164,7 +164,7 @@ describe('buildActionExecutionBuilder', () => {
 			throw new Error('should not read start time');
 		});
 
-		const helper = buildActionExecutionBuilder<
+		const helper = createActionExecutionBuilder<
 			{ value: number },
 			{ ok: boolean }
 		>();

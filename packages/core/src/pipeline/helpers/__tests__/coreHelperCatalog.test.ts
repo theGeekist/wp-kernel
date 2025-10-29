@@ -1,9 +1,9 @@
-import { buildCoreActionHelperCatalog } from '../actions/catalog';
-import { buildCoreResourceHelperCatalog } from '../resources/catalog';
+import { createCoreActionHelperCatalog } from '../actions/catalog';
+import { createCoreResourceHelperCatalog } from '../resources/catalog';
 
 describe('core pipeline helper catalogues', () => {
 	it('lists action helpers for every lifecycle responsibility', () => {
-		const catalog = buildCoreActionHelperCatalog();
+		const catalog = createCoreActionHelperCatalog();
 		const keys = catalog.map((entry) => entry.key);
 		expect(new Set(keys).size).toBe(keys.length);
 		expect(catalog.map((entry) => entry.responsibility)).toEqual([
@@ -16,7 +16,7 @@ describe('core pipeline helper catalogues', () => {
 	});
 
 	it('lists resource helpers for every lifecycle responsibility', () => {
-		const catalog = buildCoreResourceHelperCatalog();
+		const catalog = createCoreResourceHelperCatalog();
 		const keys = catalog.map((entry) => entry.key);
 		expect(new Set(keys).size).toBe(keys.length);
 		expect(catalog.map((entry) => entry.responsibility)).toEqual([

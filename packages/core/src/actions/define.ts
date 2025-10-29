@@ -21,7 +21,7 @@ import {
 } from '../events/bus';
 import { getNamespace } from '../namespace/detect';
 import { createActionPipeline } from '../pipeline/actions/createActionPipeline';
-import { resolveActionDefinitionOptions } from '../pipeline/actions/helpers/buildActionOptionsResolver';
+import { resolveActionDefinitionOptions } from '../pipeline/actions/helpers/createActionOptionsResolver';
 import { makeActionRegistryBridge } from '../pipeline/actions/helpers/makeActionRegistryBridge';
 
 /**

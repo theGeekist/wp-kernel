@@ -1,10 +1,10 @@
 import { createPipeline } from '../createPipeline';
 import { generateActionRequestId } from '../../actions/context';
-import { buildActionLifecycleFragment } from './helpers/buildActionLifecycleFragment';
-import { buildActionExecutionBuilder } from './helpers/buildActionExecutionBuilder';
-import { buildActionOptionsResolver } from './helpers/buildActionOptionsResolver';
-import { buildActionContextAssembler } from './helpers/buildActionContextAssembler';
-import { buildActionRegistryRecorder } from './helpers/buildActionRegistryRecorder';
+import { createActionLifecycleFragment } from './helpers/createActionLifecycleFragment';
+import { createActionExecutionBuilder } from './helpers/createActionExecutionBuilder';
+import { createActionOptionsResolver } from './helpers/createActionOptionsResolver';
+import { createActionContextAssembler } from './helpers/createActionContextAssembler';
+import { createActionRegistryRecorder } from './helpers/createActionRegistryRecorder';
 import type {
 	ActionPipeline,
 	ActionPipelineContext,
@@ -112,11 +112,11 @@ export function createActionPipeline<TArgs, TResult>(): ActionPipeline<
 	const pipeline: ActionPipeline<TArgs, TResult> =
 		createPipeline(pipelineOptions);
 
-	pipeline.ir.use(buildActionOptionsResolver<TArgs, TResult>());
-	pipeline.ir.use(buildActionContextAssembler<TArgs, TResult>());
-	pipeline.ir.use(buildActionLifecycleFragment<TArgs, TResult>());
-	pipeline.builders.use(buildActionExecutionBuilder<TArgs, TResult>());
-	pipeline.builders.use(buildActionRegistryRecorder<TArgs, TResult>());
+	pipeline.ir.use(createActionOptionsResolver<TArgs, TResult>());
+	pipeline.ir.use(createActionContextAssembler<TArgs, TResult>());
+	pipeline.ir.use(createActionLifecycleFragment<TArgs, TResult>());
+	pipeline.builders.use(createActionExecutionBuilder<TArgs, TResult>());
+	pipeline.builders.use(createActionRegistryRecorder<TArgs, TResult>());
 
 	return pipeline;
 }

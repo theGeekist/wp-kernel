@@ -1,8 +1,8 @@
 import { createPipeline } from '../createPipeline';
-import { buildResourceValidationFragment } from './helpers/buildResourceValidationFragment';
-import { buildResourceClientFragment } from './helpers/buildResourceClientFragment';
-import { buildResourceCacheKeysFragment } from './helpers/buildResourceCacheKeysFragment';
-import { buildResourceObjectBuilder } from './helpers/buildResourceObjectBuilder';
+import { createResourceValidationFragment } from './helpers/createResourceValidationFragment';
+import { createResourceClientFragment } from './helpers/createResourceClientFragment';
+import { createResourceCacheKeysFragment } from './helpers/createResourceCacheKeysFragment';
+import { createResourceObjectBuilder } from './helpers/createResourceObjectBuilder';
 import type {
 	ResourcePipeline,
 	ResourcePipelineOptions,
@@ -79,10 +79,10 @@ export function createResourcePipeline<T, TQuery>(): ResourcePipeline<
 	const pipeline: ResourcePipeline<T, TQuery> =
 		createPipeline(pipelineOptions);
 
-	pipeline.ir.use(buildResourceValidationFragment<T, TQuery>());
-	pipeline.ir.use(buildResourceClientFragment<T, TQuery>());
-	pipeline.ir.use(buildResourceCacheKeysFragment<T, TQuery>());
-	pipeline.builders.use(buildResourceObjectBuilder<T, TQuery>());
+	pipeline.ir.use(createResourceValidationFragment<T, TQuery>());
+	pipeline.ir.use(createResourceClientFragment<T, TQuery>());
+	pipeline.ir.use(createResourceCacheKeysFragment<T, TQuery>());
+	pipeline.builders.use(createResourceObjectBuilder<T, TQuery>());
 
 	return pipeline;
 }

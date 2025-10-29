@@ -17,11 +17,11 @@ import { WPKernelError } from '../../../error/WPKernelError';
  *
  * @example
  * ```ts
- * const builder = buildResourceObjectBuilder<Post, { id: number }>();
+ * const builder = createResourceObjectBuilder<Post, { id: number }>();
  * pipeline.builders.use(builder);
  * ```
  */
-export function buildResourceObjectBuilder<T, TQuery>(): ResourceBuilderHelper<
+export function createResourceObjectBuilder<T, TQuery>(): ResourceBuilderHelper<
 	T,
 	TQuery
 > {

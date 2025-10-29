@@ -9,7 +9,7 @@ import type {
 import { ACTION_BUILDER_KIND } from '../types';
 import type { Reporter } from '../../../reporter/types';
 
-export function buildActionRegistryRecorder<
+export function createActionRegistryRecorder<
 	TArgs,
 	TResult,
 >(): ActionBuilderHelper<TArgs, TResult> {
