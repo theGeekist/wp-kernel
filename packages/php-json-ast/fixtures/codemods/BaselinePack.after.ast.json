@@ -1,0 +1,1295 @@
+[
+	{
+		"nodeType": "Stmt_Declare",
+		"attributes": {
+			"startLine": 3,
+			"startTokenPos": 2,
+			"startFilePos": 7,
+			"endLine": 3,
+			"endTokenPos": 8,
+			"endFilePos": 30
+		},
+		"declares": [
+			{
+				"nodeType": "DeclareItem",
+				"attributes": {
+					"startLine": 3,
+					"startTokenPos": 4,
+					"startFilePos": 15,
+					"endLine": 3,
+					"endTokenPos": 6,
+					"endFilePos": 28
+				},
+				"key": {
+					"nodeType": "Identifier",
+					"attributes": {
+						"startLine": 3,
+						"startTokenPos": 4,
+						"startFilePos": 15,
+						"endLine": 3,
+						"endTokenPos": 4,
+						"endFilePos": 26
+					},
+					"name": "strict_types"
+				},
+				"value": {
+					"nodeType": "Scalar_Int",
+					"attributes": {
+						"startLine": 3,
+						"startTokenPos": 6,
+						"startFilePos": 28,
+						"endLine": 3,
+						"endTokenPos": 6,
+						"endFilePos": 28,
+						"rawValue": "1",
+						"kind": 10
+					},
+					"value": 1
+				}
+			}
+		],
+		"stmts": null
+	},
+	{
+		"nodeType": "Stmt_Namespace",
+		"attributes": {
+			"startLine": 5,
+			"startTokenPos": 10,
+			"startFilePos": 33,
+			"endLine": 31,
+			"endTokenPos": 173,
+			"endFilePos": 772,
+			"kind": 1
+		},
+		"name": {
+			"nodeType": "Name",
+			"attributes": {
+				"startLine": 5,
+				"startTokenPos": 12,
+				"startFilePos": 43,
+				"endLine": 5,
+				"endTokenPos": 12,
+				"endFilePos": 58
+			},
+			"name": "Fixtures\\Codemod",
+			"parts": ["Fixtures", "Codemod"]
+		},
+		"stmts": [
+			{
+				"nodeType": "Stmt_Use",
+				"attributes": {
+					"startLine": 8,
+					"startTokenPos": 20,
+					"startFilePos": 95,
+					"endLine": 8,
+					"endTokenPos": 23,
+					"endFilePos": 129
+				},
+				"type": 1,
+				"uses": [
+					{
+						"nodeType": "UseItem",
+						"attributes": {
+							"startLine": 8,
+							"startTokenPos": 22,
+							"startFilePos": 99,
+							"endLine": 8,
+							"endTokenPos": 22,
+							"endFilePos": 128
+						},
+						"type": 0,
+						"name": {
+							"nodeType": "Name",
+							"attributes": {
+								"startLine": 8,
+								"startTokenPos": 22,
+								"startFilePos": 99,
+								"endLine": 8,
+								"endTokenPos": 22,
+								"endFilePos": 128
+							},
+							"name": "Project\\Contracts\\FooInterface",
+							"parts": ["Project", "Contracts", "FooInterface"]
+						},
+						"alias": null
+					}
+				]
+			},
+			{
+				"nodeType": "Stmt_Use",
+				"attributes": {
+					"startLine": 7,
+					"startTokenPos": 15,
+					"startFilePos": 62,
+					"endLine": 7,
+					"endTokenPos": 18,
+					"endFilePos": 93
+				},
+				"type": 1,
+				"uses": [
+					{
+						"nodeType": "UseItem",
+						"attributes": {
+							"startLine": 7,
+							"startTokenPos": 17,
+							"startFilePos": 66,
+							"endLine": 7,
+							"endTokenPos": 17,
+							"endFilePos": 92
+						},
+						"type": 0,
+						"name": {
+							"nodeType": "Name",
+							"attributes": {
+								"startLine": 7,
+								"startTokenPos": 17,
+								"startFilePos": 66,
+								"endLine": 7,
+								"endTokenPos": 17,
+								"endFilePos": 92
+							},
+							"name": "Project\\Helpers\\ArrayHelper",
+							"parts": ["Project", "Helpers", "ArrayHelper"]
+						},
+						"alias": null
+					}
+				]
+			},
+			{
+				"nodeType": "Stmt_Use",
+				"attributes": {
+					"startLine": 11,
+					"startTokenPos": 39,
+					"startFilePos": 217,
+					"endLine": 11,
+					"endTokenPos": 42,
+					"endFilePos": 240
+				},
+				"type": 1,
+				"uses": [
+					{
+						"nodeType": "UseItem",
+						"attributes": {
+							"startLine": 11,
+							"startTokenPos": 41,
+							"startFilePos": 221,
+							"endLine": 11,
+							"endTokenPos": 41,
+							"endFilePos": 239
+						},
+						"type": 0,
+						"name": {
+							"nodeType": "Name",
+							"attributes": {
+								"startLine": 11,
+								"startTokenPos": 41,
+								"startFilePos": 221,
+								"endLine": 11,
+								"endTokenPos": 41,
+								"endFilePos": 239
+							},
+							"name": "Project\\Helpers\\bbb",
+							"parts": ["Project", "Helpers", "bbb"]
+						},
+						"alias": null
+					}
+				]
+			},
+			{
+				"nodeType": "Stmt_GroupUse",
+				"attributes": {
+					"startLine": 12,
+					"startTokenPos": 44,
+					"startFilePos": 242,
+					"endLine": 12,
+					"endTokenPos": 60,
+					"endFilePos": 296
+				},
+				"type": 0,
+				"prefix": {
+					"nodeType": "Name",
+					"attributes": {
+						"startLine": 12,
+						"startTokenPos": 46,
+						"startFilePos": 246,
+						"endLine": 12,
+						"endTokenPos": 46,
+						"endFilePos": 266
+					},
+					"name": "Project\\Helpers\\Group",
+					"parts": ["Project", "Helpers", "Group"]
+				},
+				"uses": [
+					{
+						"nodeType": "UseItem",
+						"attributes": {
+							"startLine": 12,
+							"startTokenPos": 57,
+							"startFilePos": 289,
+							"endLine": 12,
+							"endTokenPos": 57,
+							"endFilePos": 293
+						},
+						"type": 1,
+						"name": {
+							"nodeType": "Name",
+							"attributes": {
+								"startLine": 12,
+								"startTokenPos": 57,
+								"startFilePos": 289,
+								"endLine": 12,
+								"endTokenPos": 57,
+								"endFilePos": 293
+							},
+							"name": "Alpha",
+							"parts": ["Alpha"]
+						},
+						"alias": null
+					},
+					{
+						"nodeType": "UseItem",
+						"attributes": {
+							"startLine": 12,
+							"startTokenPos": 50,
+							"startFilePos": 270,
+							"endLine": 12,
+							"endTokenPos": 54,
+							"endFilePos": 286
+						},
+						"type": 1,
+						"name": {
+							"nodeType": "Name",
+							"attributes": {
+								"startLine": 12,
+								"startTokenPos": 50,
+								"startFilePos": 270,
+								"endLine": 12,
+								"endTokenPos": 50,
+								"endFilePos": 273
+							},
+							"name": "Beta",
+							"parts": ["Beta"]
+						},
+						"alias": {
+							"nodeType": "Identifier",
+							"attributes": {
+								"startLine": 12,
+								"startTokenPos": 54,
+								"startFilePos": 278,
+								"endLine": 12,
+								"endTokenPos": 54,
+								"endFilePos": 286
+							},
+							"name": "BetaAlias"
+						}
+					}
+				]
+			},
+			{
+				"nodeType": "Stmt_Use",
+				"attributes": {
+					"startLine": 13,
+					"startTokenPos": 62,
+					"startFilePos": 298,
+					"endLine": 13,
+					"endTokenPos": 67,
+					"endFilePos": 339
+				},
+				"type": 2,
+				"uses": [
+					{
+						"nodeType": "UseItem",
+						"attributes": {
+							"startLine": 13,
+							"startTokenPos": 66,
+							"startFilePos": 311,
+							"endLine": 13,
+							"endTokenPos": 66,
+							"endFilePos": 338
+						},
+						"type": 0,
+						"name": {
+							"nodeType": "Name",
+							"attributes": {
+								"startLine": 13,
+								"startTokenPos": 66,
+								"startFilePos": 311,
+								"endLine": 13,
+								"endTokenPos": 66,
+								"endFilePos": 338
+							},
+							"name": "Project\\Helpers\\build_helper",
+							"parts": ["Project", "Helpers", "build_helper"]
+						},
+						"alias": null
+					}
+				]
+			},
+			{
+				"nodeType": "Stmt_Use",
+				"attributes": {
+					"startLine": 10,
+					"startTokenPos": 32,
+					"startFilePos": 175,
+					"endLine": 10,
+					"endTokenPos": 37,
+					"endFilePos": 215
+				},
+				"type": 2,
+				"uses": [
+					{
+						"nodeType": "UseItem",
+						"attributes": {
+							"startLine": 10,
+							"startTokenPos": 36,
+							"startFilePos": 188,
+							"endLine": 10,
+							"endTokenPos": 36,
+							"endFilePos": 214
+						},
+						"type": 0,
+						"name": {
+							"nodeType": "Name",
+							"attributes": {
+								"startLine": 10,
+								"startTokenPos": 36,
+								"startFilePos": 188,
+								"endLine": 10,
+								"endTokenPos": 36,
+								"endFilePos": 214
+							},
+							"name": "Project\\Helpers\\render_view",
+							"parts": ["Project", "Helpers", "render_view"]
+						},
+						"alias": null
+					}
+				]
+			},
+			{
+				"nodeType": "Stmt_Use",
+				"attributes": {
+					"startLine": 14,
+					"startTokenPos": 69,
+					"startFilePos": 341,
+					"endLine": 14,
+					"endTokenPos": 74,
+					"endFilePos": 384
+				},
+				"type": 3,
+				"uses": [
+					{
+						"nodeType": "UseItem",
+						"attributes": {
+							"startLine": 14,
+							"startTokenPos": 73,
+							"startFilePos": 351,
+							"endLine": 14,
+							"endTokenPos": 73,
+							"endFilePos": 383
+						},
+						"type": 0,
+						"name": {
+							"nodeType": "Name",
+							"attributes": {
+								"startLine": 14,
+								"startTokenPos": 73,
+								"startFilePos": 351,
+								"endLine": 14,
+								"endTokenPos": 73,
+								"endFilePos": 383
+							},
+							"name": "Project\\Constants\\AnotherConstant",
+							"parts": ["Project", "Constants", "AnotherConstant"]
+						},
+						"alias": null
+					}
+				]
+			},
+			{
+				"nodeType": "Stmt_Use",
+				"attributes": {
+					"startLine": 9,
+					"startTokenPos": 25,
+					"startFilePos": 131,
+					"endLine": 9,
+					"endTokenPos": 30,
+					"endFilePos": 173
+				},
+				"type": 3,
+				"uses": [
+					{
+						"nodeType": "UseItem",
+						"attributes": {
+							"startLine": 9,
+							"startTokenPos": 29,
+							"startFilePos": 141,
+							"endLine": 9,
+							"endTokenPos": 29,
+							"endFilePos": 172
+						},
+						"type": 0,
+						"name": {
+							"nodeType": "Name",
+							"attributes": {
+								"startLine": 9,
+								"startTokenPos": 29,
+								"startFilePos": 141,
+								"endLine": 9,
+								"endTokenPos": 29,
+								"endFilePos": 172
+							},
+							"name": "Project\\Constants\\GlobalConstant",
+							"parts": ["Project", "Constants", "GlobalConstant"]
+						},
+						"alias": null
+					}
+				]
+			},
+			{
+				"nodeType": "Stmt_Class",
+				"attributes": {
+					"startLine": 16,
+					"startTokenPos": 76,
+					"startFilePos": 387,
+					"endLine": 31,
+					"endTokenPos": 173,
+					"endFilePos": 772
+				},
+				"name": {
+					"nodeType": "Identifier",
+					"attributes": {
+						"startLine": 16,
+						"startTokenPos": 80,
+						"startFilePos": 399,
+						"endLine": 16,
+						"endTokenPos": 80,
+						"endFilePos": 417
+					},
+					"name": "BaselinePackExample"
+				},
+				"stmts": [
+					{
+						"nodeType": "Stmt_ClassMethod",
+						"attributes": {
+							"startLine": 18,
+							"startTokenPos": 84,
+							"startFilePos": 425,
+							"endLine": 30,
+							"endTokenPos": 171,
+							"endFilePos": 770
+						},
+						"flags": 1,
+						"byRef": false,
+						"name": {
+							"nodeType": "Identifier",
+							"attributes": {
+								"startLine": 18,
+								"startTokenPos": 88,
+								"startFilePos": 441,
+								"endLine": 18,
+								"endTokenPos": 88,
+								"endFilePos": 443
+							},
+							"name": "run"
+						},
+						"params": [],
+						"returnType": {
+							"nodeType": "Identifier",
+							"attributes": {
+								"startLine": 18,
+								"startTokenPos": 93,
+								"startFilePos": 448,
+								"endLine": 18,
+								"endTokenPos": 93,
+								"endFilePos": 451
+							},
+							"name": "void"
+						},
+						"stmts": [
+							{
+								"nodeType": "Stmt_Expression",
+								"attributes": {
+									"startLine": 20,
+									"startTokenPos": 97,
+									"startFilePos": 467,
+									"endLine": 20,
+									"endTokenPos": 101,
+									"endFilePos": 489
+								},
+								"expr": {
+									"nodeType": "Expr_FuncCall",
+									"attributes": {
+										"startLine": 20,
+										"startTokenPos": 97,
+										"startFilePos": 467,
+										"endLine": 20,
+										"endTokenPos": 100,
+										"endFilePos": 488
+									},
+									"name": {
+										"nodeType": "Name",
+										"attributes": {
+											"startLine": 20,
+											"startTokenPos": 97,
+											"startFilePos": 467,
+											"endLine": 20,
+											"endTokenPos": 97,
+											"endFilePos": 477,
+											"resolvedName": {
+												"nodeType": "Name_FullyQualified",
+												"attributes": {
+													"startLine": 20,
+													"startTokenPos": 97,
+													"startFilePos": 467,
+													"endLine": 20,
+													"endTokenPos": 97,
+													"endFilePos": 477
+												},
+												"name": "Project\\Helpers\\render_view",
+												"parts": [
+													"Project",
+													"Helpers",
+													"render_view"
+												]
+											}
+										},
+										"name": "render_view",
+										"parts": ["render_view"]
+									},
+									"args": [
+										{
+											"nodeType": "Arg",
+											"attributes": {
+												"startLine": 20,
+												"startTokenPos": 99,
+												"startFilePos": 479,
+												"endLine": 20,
+												"endTokenPos": 99,
+												"endFilePos": 487
+											},
+											"name": null,
+											"value": {
+												"nodeType": "Scalar_String",
+												"attributes": {
+													"startLine": 20,
+													"startTokenPos": 99,
+													"startFilePos": 479,
+													"endLine": 20,
+													"endTokenPos": 99,
+													"endFilePos": 487,
+													"kind": 1,
+													"rawValue": "'example'"
+												},
+												"value": "example"
+											},
+											"byRef": false,
+											"unpack": false
+										}
+									]
+								}
+							},
+							{
+								"nodeType": "Stmt_Expression",
+								"attributes": {
+									"startLine": 21,
+									"startTokenPos": 103,
+									"startFilePos": 499,
+									"endLine": 21,
+									"endTokenPos": 106,
+									"endFilePos": 513
+								},
+								"expr": {
+									"nodeType": "Expr_FuncCall",
+									"attributes": {
+										"startLine": 21,
+										"startTokenPos": 103,
+										"startFilePos": 499,
+										"endLine": 21,
+										"endTokenPos": 105,
+										"endFilePos": 512
+									},
+									"name": {
+										"nodeType": "Name",
+										"attributes": {
+											"startLine": 21,
+											"startTokenPos": 103,
+											"startFilePos": 499,
+											"endLine": 21,
+											"endTokenPos": 103,
+											"endFilePos": 510,
+											"resolvedName": {
+												"nodeType": "Name_FullyQualified",
+												"attributes": {
+													"startLine": 21,
+													"startTokenPos": 103,
+													"startFilePos": 499,
+													"endLine": 21,
+													"endTokenPos": 103,
+													"endFilePos": 510
+												},
+												"name": "Project\\Helpers\\build_helper",
+												"parts": [
+													"Project",
+													"Helpers",
+													"build_helper"
+												]
+											}
+										},
+										"name": "build_helper",
+										"parts": ["build_helper"]
+									},
+									"args": []
+								}
+							},
+							{
+								"nodeType": "Stmt_Expression",
+								"attributes": {
+									"startLine": 23,
+									"startTokenPos": 108,
+									"startFilePos": 524,
+									"endLine": 23,
+									"endTokenPos": 113,
+									"endFilePos": 547
+								},
+								"expr": {
+									"nodeType": "Expr_Assign",
+									"attributes": {
+										"startLine": 23,
+										"startTokenPos": 108,
+										"startFilePos": 524,
+										"endLine": 23,
+										"endTokenPos": 112,
+										"endFilePos": 546
+									},
+									"var": {
+										"nodeType": "Expr_Variable",
+										"attributes": {
+											"startLine": 23,
+											"startTokenPos": 108,
+											"startFilePos": 524,
+											"endLine": 23,
+											"endTokenPos": 108,
+											"endFilePos": 529
+										},
+										"name": "value"
+									},
+									"expr": {
+										"nodeType": "Expr_ConstFetch",
+										"attributes": {
+											"startLine": 23,
+											"startTokenPos": 112,
+											"startFilePos": 533,
+											"endLine": 23,
+											"endTokenPos": 112,
+											"endFilePos": 546
+										},
+										"name": {
+											"nodeType": "Name",
+											"attributes": {
+												"startLine": 23,
+												"startTokenPos": 112,
+												"startFilePos": 533,
+												"endLine": 23,
+												"endTokenPos": 112,
+												"endFilePos": 546,
+												"resolvedName": {
+													"nodeType": "Name_FullyQualified",
+													"attributes": {
+														"startLine": 23,
+														"startTokenPos": 112,
+														"startFilePos": 533,
+														"endLine": 23,
+														"endTokenPos": 112,
+														"endFilePos": 546
+													},
+													"name": "Project\\Constants\\GlobalConstant",
+													"parts": [
+														"Project",
+														"Constants",
+														"GlobalConstant"
+													]
+												}
+											},
+											"name": "GlobalConstant",
+											"parts": ["GlobalConstant"]
+										}
+									}
+								}
+							},
+							{
+								"nodeType": "Stmt_Expression",
+								"attributes": {
+									"startLine": 24,
+									"startTokenPos": 115,
+									"startFilePos": 557,
+									"endLine": 24,
+									"endTokenPos": 124,
+									"endFilePos": 584
+								},
+								"expr": {
+									"nodeType": "Expr_Assign",
+									"attributes": {
+										"startLine": 24,
+										"startTokenPos": 115,
+										"startFilePos": 557,
+										"endLine": 24,
+										"endTokenPos": 123,
+										"endFilePos": 583
+									},
+									"var": {
+										"nodeType": "Expr_Variable",
+										"attributes": {
+											"startLine": 24,
+											"startTokenPos": 115,
+											"startFilePos": 557,
+											"endLine": 24,
+											"endTokenPos": 115,
+											"endFilePos": 563
+										},
+										"name": "helper"
+									},
+									"expr": {
+										"nodeType": "Expr_New",
+										"attributes": {
+											"startLine": 24,
+											"startTokenPos": 119,
+											"startFilePos": 567,
+											"endLine": 24,
+											"endTokenPos": 123,
+											"endFilePos": 583
+										},
+										"class": {
+											"nodeType": "Name",
+											"attributes": {
+												"startLine": 24,
+												"startTokenPos": 121,
+												"startFilePos": 571,
+												"endLine": 24,
+												"endTokenPos": 121,
+												"endFilePos": 581,
+												"resolvedName": {
+													"nodeType": "Name_FullyQualified",
+													"attributes": {
+														"startLine": 24,
+														"startTokenPos": 121,
+														"startFilePos": 571,
+														"endLine": 24,
+														"endTokenPos": 121,
+														"endFilePos": 581
+													},
+													"name": "Project\\Helpers\\ArrayHelper",
+													"parts": [
+														"Project",
+														"Helpers",
+														"ArrayHelper"
+													]
+												}
+											},
+											"name": "ArrayHelper",
+											"parts": ["ArrayHelper"]
+										},
+										"args": []
+									}
+								}
+							},
+							{
+								"nodeType": "Stmt_Expression",
+								"attributes": {
+									"startLine": 25,
+									"startTokenPos": 126,
+									"startFilePos": 594,
+									"endLine": 25,
+									"endTokenPos": 134,
+									"endFilePos": 630
+								},
+								"expr": {
+									"nodeType": "Expr_MethodCall",
+									"attributes": {
+										"startLine": 25,
+										"startTokenPos": 126,
+										"startFilePos": 594,
+										"endLine": 25,
+										"endTokenPos": 133,
+										"endFilePos": 629
+									},
+									"var": {
+										"nodeType": "Expr_Variable",
+										"attributes": {
+											"startLine": 25,
+											"startTokenPos": 126,
+											"startFilePos": 594,
+											"endLine": 25,
+											"endTokenPos": 126,
+											"endFilePos": 600
+										},
+										"name": "helper"
+									},
+									"name": {
+										"nodeType": "Identifier",
+										"attributes": {
+											"startLine": 25,
+											"startTokenPos": 128,
+											"startFilePos": 603,
+											"endLine": 25,
+											"endTokenPos": 128,
+											"endFilePos": 608
+										},
+										"name": "handle"
+									},
+									"args": [
+										{
+											"nodeType": "Arg",
+											"attributes": {
+												"startLine": 25,
+												"startTokenPos": 130,
+												"startFilePos": 610,
+												"endLine": 25,
+												"endTokenPos": 132,
+												"endFilePos": 628
+											},
+											"name": null,
+											"value": {
+												"nodeType": "Expr_ClassConstFetch",
+												"attributes": {
+													"startLine": 25,
+													"startTokenPos": 130,
+													"startFilePos": 610,
+													"endLine": 25,
+													"endTokenPos": 132,
+													"endFilePos": 628
+												},
+												"class": {
+													"nodeType": "Name",
+													"attributes": {
+														"startLine": 25,
+														"startTokenPos": 130,
+														"startFilePos": 610,
+														"endLine": 25,
+														"endTokenPos": 130,
+														"endFilePos": 621,
+														"resolvedName": {
+															"nodeType": "Name_FullyQualified",
+															"attributes": {
+																"startLine": 25,
+																"startTokenPos": 130,
+																"startFilePos": 610,
+																"endLine": 25,
+																"endTokenPos": 130,
+																"endFilePos": 621
+															},
+															"name": "Project\\Contracts\\FooInterface",
+															"parts": [
+																"Project",
+																"Contracts",
+																"FooInterface"
+															]
+														}
+													},
+													"name": "FooInterface",
+													"parts": ["FooInterface"]
+												},
+												"name": {
+													"nodeType": "Identifier",
+													"attributes": {
+														"startLine": 25,
+														"startTokenPos": 132,
+														"startFilePos": 624,
+														"endLine": 25,
+														"endTokenPos": 132,
+														"endFilePos": 628
+													},
+													"name": "class"
+												}
+											},
+											"byRef": false,
+											"unpack": false
+										}
+									]
+								}
+							},
+							{
+								"nodeType": "Stmt_Expression",
+								"attributes": {
+									"startLine": 26,
+									"startTokenPos": 136,
+									"startFilePos": 640,
+									"endLine": 26,
+									"endTokenPos": 146,
+									"endFilePos": 669
+								},
+								"expr": {
+									"nodeType": "Expr_MethodCall",
+									"attributes": {
+										"startLine": 26,
+										"startTokenPos": 136,
+										"startFilePos": 640,
+										"endLine": 26,
+										"endTokenPos": 145,
+										"endFilePos": 668
+									},
+									"var": {
+										"nodeType": "Expr_Variable",
+										"attributes": {
+											"startLine": 26,
+											"startTokenPos": 136,
+											"startFilePos": 640,
+											"endLine": 26,
+											"endTokenPos": 136,
+											"endFilePos": 646
+										},
+										"name": "helper"
+									},
+									"name": {
+										"nodeType": "Identifier",
+										"attributes": {
+											"startLine": 26,
+											"startTokenPos": 138,
+											"startFilePos": 649,
+											"endLine": 26,
+											"endTokenPos": 138,
+											"endFilePos": 657
+										},
+										"name": "withAlias"
+									},
+									"args": [
+										{
+											"nodeType": "Arg",
+											"attributes": {
+												"startLine": 26,
+												"startTokenPos": 140,
+												"startFilePos": 659,
+												"endLine": 26,
+												"endTokenPos": 144,
+												"endFilePos": 667
+											},
+											"name": null,
+											"value": {
+												"nodeType": "Expr_New",
+												"attributes": {
+													"startLine": 26,
+													"startTokenPos": 140,
+													"startFilePos": 659,
+													"endLine": 26,
+													"endTokenPos": 144,
+													"endFilePos": 667
+												},
+												"class": {
+													"nodeType": "Name",
+													"attributes": {
+														"startLine": 26,
+														"startTokenPos": 142,
+														"startFilePos": 663,
+														"endLine": 26,
+														"endTokenPos": 142,
+														"endFilePos": 665,
+														"resolvedName": {
+															"nodeType": "Name_FullyQualified",
+															"attributes": {
+																"startLine": 26,
+																"startTokenPos": 142,
+																"startFilePos": 663,
+																"endLine": 26,
+																"endTokenPos": 142,
+																"endFilePos": 665
+															},
+															"name": "Project\\Helpers\\bbb",
+															"parts": [
+																"Project",
+																"Helpers",
+																"bbb"
+															]
+														}
+													},
+													"name": "bbb",
+													"parts": ["bbb"]
+												},
+												"args": []
+											},
+											"byRef": false,
+											"unpack": false
+										}
+									]
+								}
+							},
+							{
+								"nodeType": "Stmt_Expression",
+								"attributes": {
+									"startLine": 27,
+									"startTokenPos": 148,
+									"startFilePos": 679,
+									"endLine": 27,
+									"endTokenPos": 164,
+									"endFilePos": 742
+								},
+								"expr": {
+									"nodeType": "Expr_MethodCall",
+									"attributes": {
+										"startLine": 27,
+										"startTokenPos": 148,
+										"startFilePos": 679,
+										"endLine": 27,
+										"endTokenPos": 163,
+										"endFilePos": 741
+									},
+									"var": {
+										"nodeType": "Expr_Variable",
+										"attributes": {
+											"startLine": 27,
+											"startTokenPos": 148,
+											"startFilePos": 679,
+											"endLine": 27,
+											"endTokenPos": 148,
+											"endFilePos": 685
+										},
+										"name": "helper"
+									},
+									"name": {
+										"nodeType": "Identifier",
+										"attributes": {
+											"startLine": 27,
+											"startTokenPos": 150,
+											"startFilePos": 688,
+											"endLine": 27,
+											"endTokenPos": 150,
+											"endFilePos": 692
+										},
+										"name": "group"
+									},
+									"args": [
+										{
+											"nodeType": "Arg",
+											"attributes": {
+												"startLine": 27,
+												"startTokenPos": 152,
+												"startFilePos": 694,
+												"endLine": 27,
+												"endTokenPos": 154,
+												"endFilePos": 709
+											},
+											"name": null,
+											"value": {
+												"nodeType": "Expr_ClassConstFetch",
+												"attributes": {
+													"startLine": 27,
+													"startTokenPos": 152,
+													"startFilePos": 694,
+													"endLine": 27,
+													"endTokenPos": 154,
+													"endFilePos": 709
+												},
+												"class": {
+													"nodeType": "Name",
+													"attributes": {
+														"startLine": 27,
+														"startTokenPos": 152,
+														"startFilePos": 694,
+														"endLine": 27,
+														"endTokenPos": 152,
+														"endFilePos": 702,
+														"resolvedName": {
+															"nodeType": "Name_FullyQualified",
+															"attributes": {
+																"startLine": 27,
+																"startTokenPos": 152,
+																"startFilePos": 694,
+																"endLine": 27,
+																"endTokenPos": 152,
+																"endFilePos": 702
+															},
+															"name": "Project\\Helpers\\Group\\Beta",
+															"parts": [
+																"Project",
+																"Helpers",
+																"Group",
+																"Beta"
+															]
+														}
+													},
+													"name": "BetaAlias",
+													"parts": ["BetaAlias"]
+												},
+												"name": {
+													"nodeType": "Identifier",
+													"attributes": {
+														"startLine": 27,
+														"startTokenPos": 154,
+														"startFilePos": 705,
+														"endLine": 27,
+														"endTokenPos": 154,
+														"endFilePos": 709
+													},
+													"name": "class"
+												}
+											},
+											"byRef": false,
+											"unpack": false
+										},
+										{
+											"nodeType": "Arg",
+											"attributes": {
+												"startLine": 27,
+												"startTokenPos": 157,
+												"startFilePos": 712,
+												"endLine": 27,
+												"endTokenPos": 159,
+												"endFilePos": 723
+											},
+											"name": null,
+											"value": {
+												"nodeType": "Expr_ClassConstFetch",
+												"attributes": {
+													"startLine": 27,
+													"startTokenPos": 157,
+													"startFilePos": 712,
+													"endLine": 27,
+													"endTokenPos": 159,
+													"endFilePos": 723
+												},
+												"class": {
+													"nodeType": "Name",
+													"attributes": {
+														"startLine": 27,
+														"startTokenPos": 157,
+														"startFilePos": 712,
+														"endLine": 27,
+														"endTokenPos": 157,
+														"endFilePos": 716,
+														"resolvedName": {
+															"nodeType": "Name_FullyQualified",
+															"attributes": {
+																"startLine": 27,
+																"startTokenPos": 157,
+																"startFilePos": 712,
+																"endLine": 27,
+																"endTokenPos": 157,
+																"endFilePos": 716
+															},
+															"name": "Project\\Helpers\\Group\\Alpha",
+															"parts": [
+																"Project",
+																"Helpers",
+																"Group",
+																"Alpha"
+															]
+														}
+													},
+													"name": "Alpha",
+													"parts": ["Alpha"]
+												},
+												"name": {
+													"nodeType": "Identifier",
+													"attributes": {
+														"startLine": 27,
+														"startTokenPos": 159,
+														"startFilePos": 719,
+														"endLine": 27,
+														"endTokenPos": 159,
+														"endFilePos": 723
+													},
+													"name": "class"
+												}
+											},
+											"byRef": false,
+											"unpack": false
+										},
+										{
+											"nodeType": "Arg",
+											"attributes": {
+												"startLine": 27,
+												"startTokenPos": 162,
+												"startFilePos": 726,
+												"endLine": 27,
+												"endTokenPos": 162,
+												"endFilePos": 740
+											},
+											"name": null,
+											"value": {
+												"nodeType": "Expr_ConstFetch",
+												"attributes": {
+													"startLine": 27,
+													"startTokenPos": 162,
+													"startFilePos": 726,
+													"endLine": 27,
+													"endTokenPos": 162,
+													"endFilePos": 740
+												},
+												"name": {
+													"nodeType": "Name",
+													"attributes": {
+														"startLine": 27,
+														"startTokenPos": 162,
+														"startFilePos": 726,
+														"endLine": 27,
+														"endTokenPos": 162,
+														"endFilePos": 740,
+														"resolvedName": {
+															"nodeType": "Name_FullyQualified",
+															"attributes": {
+																"startLine": 27,
+																"startTokenPos": 162,
+																"startFilePos": 726,
+																"endLine": 27,
+																"endTokenPos": 162,
+																"endFilePos": 740
+															},
+															"name": "Project\\Constants\\AnotherConstant",
+															"parts": [
+																"Project",
+																"Constants",
+																"AnotherConstant"
+															]
+														}
+													},
+													"name": "AnotherConstant",
+													"parts": ["AnotherConstant"]
+												}
+											},
+											"byRef": false,
+											"unpack": false
+										}
+									]
+								}
+							},
+							{
+								"nodeType": "Stmt_Echo",
+								"attributes": {
+									"startLine": 29,
+									"startTokenPos": 166,
+									"startFilePos": 753,
+									"endLine": 29,
+									"endTokenPos": 169,
+									"endFilePos": 764
+								},
+								"exprs": [
+									{
+										"nodeType": "Expr_Variable",
+										"attributes": {
+											"startLine": 29,
+											"startTokenPos": 168,
+											"startFilePos": 758,
+											"endLine": 29,
+											"endTokenPos": 168,
+											"endFilePos": 763
+										},
+										"name": "value"
+									}
+								]
+							}
+						],
+						"attrGroups": []
+					}
+				],
+				"attrGroups": [],
+				"namespacedName": {
+					"nodeType": "Name",
+					"attributes": [],
+					"name": "Fixtures\\Codemod\\BaselinePackExample",
+					"parts": ["Fixtures", "Codemod", "BaselinePackExample"]
+				},
+				"flags": 32,
+				"extends": null,
+				"implements": []
+			}
+		]
+	}
+]

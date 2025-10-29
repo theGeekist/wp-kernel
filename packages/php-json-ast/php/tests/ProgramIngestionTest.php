@@ -14,6 +14,13 @@ final class ProgramIngestionTest extends TestCase
 
     private string $fixturesRoot;
 
+    private string $codemodFixturesRoot;
+
+    /**
+     * @var list<string>
+     */
+    private array $temporaryConfigFiles = [];
+
     protected function setUp(): void
     {
         $this->scriptPath = realpath(__DIR__ . '/../ingest-program.php');
@@ -26,6 +33,21 @@ final class ProgramIngestionTest extends TestCase
         $fixturesRoot = realpath($this->workspaceRoot . '/fixtures/ingestion');
         $this->assertNotFalse($fixturesRoot, 'Failed to resolve ingestion fixtures root.');
         $this->fixturesRoot = $fixturesRoot;
+
+        $codemodFixturesRoot = realpath($this->workspaceRoot . '/fixtures/codemods');
+        $this->assertNotFalse($codemodFixturesRoot, 'Failed to resolve codemod fixtures root.');
+        $this->codemodFixturesRoot = $codemodFixturesRoot;
+    }
+
+    protected function tearDown(): void
+    {
+        foreach ($this->temporaryConfigFiles as $file) {
+            if (is_string($file) && is_file($file)) {
+                @unlink($file);
+            }
+        }
+
+        $this->temporaryConfigFiles = [];
     }
 
     public function testItEmitsSchemaFaithfulProgramJson(): void
@@ -118,6 +140,224 @@ final class ProgramIngestionTest extends TestCase
         }
     }
 
+    public function testItRunsConfiguredCodemodVisitorsBeforeEmittingPayload(): void
+    {
+        $fixturePath = $this->resolveFixturePath('CodifiedController.php');
+        $configuration = $this->createCodemodConfiguration([
+            'stacks' => [
+                [
+                    'key' => 'ingest.before-print',
+                    'visitors' => [
+                        [
+                            'key' => 'name-resolver',
+                            'options' => [
+                                'preserveOriginalNames' => true,
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $command = sprintf(
+            'php %s %s --config %s %s 2>&1',
+            escapeshellarg($this->scriptPath),
+            escapeshellarg($this->workspaceRoot),
+            escapeshellarg($configuration),
+            escapeshellarg($fixturePath)
+        );
+
+        $output = [];
+        $exitCode = 0;
+        exec($command, $output, $exitCode);
+
+        $this->assertSame(0, $exitCode, sprintf("Command failed:\n%s", implode("\n", $output)));
+        $this->assertNotEmpty($output, 'Ingestion script produced no output.');
+
+        $payload = json_decode($output[0], true);
+        $this->assertIsArray($payload, 'Output payload should decode to an array.');
+        $program = $payload['program'] ?? null;
+        $this->assertIsArray($program, 'Program should decode to an array of statements.');
+
+        $namespacedAttributes = array_filter(
+            $this->collectAttributeValues($program, 'namespacedName'),
+            static fn($value): bool => is_array($value) && isset($value['parts']) && is_array($value['parts'])
+        );
+
+        $this->assertNotEmpty(
+            $namespacedAttributes,
+            'NameResolver visitor should annotate nodes with namespacedName attributes.'
+        );
+
+        $propertyHookMatches = array_filter(
+            $namespacedAttributes,
+            static fn(array $value): bool => $value['parts'] === ['Fixtures', 'Codemod', 'PropertyHook']
+        );
+
+        $this->assertNotEmpty(
+            $propertyHookMatches,
+            'Expected PropertyHook attribute to expose its fully qualified name.'
+        );
+    }
+
+    public function testItAppliesBaselineCodemodPackVisitors(): void
+    {
+        $fixturePath = $this->resolveCodemodFixturePath('BaselinePack.before.php');
+        $configuration = $this->createCodemodConfiguration([
+            'stacks' => [
+                [
+                    'key' => 'ingest.before-print',
+                    'visitors' => [
+                        [
+                            'key' => 'baseline.name-canonicaliser',
+                        ],
+                        [
+                            'key' => 'baseline.use-grouping',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $command = sprintf(
+            'php %s %s --config %s %s 2>&1',
+            escapeshellarg($this->scriptPath),
+            escapeshellarg($this->workspaceRoot),
+            escapeshellarg($configuration),
+            escapeshellarg($fixturePath)
+        );
+
+        $output = [];
+        $exitCode = 0;
+        exec($command, $output, $exitCode);
+
+        $this->assertSame(0, $exitCode, sprintf("Command failed:\n%s", implode("\n", $output)));
+        $this->assertNotEmpty($output, 'Ingestion script produced no output.');
+
+        $payload = json_decode($output[0], true);
+        $this->assertIsArray($payload, 'Output payload should decode to an array.');
+        $program = $payload['program'] ?? null;
+        $this->assertIsArray($program, 'Program should decode to an array of statements.');
+
+        $expectedProgram = json_decode(
+            $this->readCodemodFixture('BaselinePack.after.ast.json'),
+            true
+        );
+        $this->assertIsArray($expectedProgram, 'Expected codemod AST should decode to an array.');
+        $this->assertSame($expectedProgram, $program, 'Codemod output did not match expected AST.');
+    }
+
+    public function testItFailsWhenCodemodVisitorIsUnknown(): void
+    {
+        $fixturePath = $this->resolveFixturePath('CodifiedController.php');
+        $configuration = $this->createCodemodConfiguration([
+            'stacks' => [
+                [
+                    'key' => 'ingest.before-print',
+                    'visitors' => [
+                        [
+                            'key' => 'unknown-visitor',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $command = sprintf(
+            'php %s %s --config %s %s 2>&1',
+            escapeshellarg($this->scriptPath),
+            escapeshellarg($this->workspaceRoot),
+            escapeshellarg($configuration),
+            escapeshellarg($fixturePath)
+        );
+
+        $output = [];
+        $exitCode = 0;
+        exec($command, $output, $exitCode);
+
+        $this->assertSame(1, $exitCode, 'Expected script to exit with non-zero status for unknown visitor.');
+        $this->assertNotEmpty($output, 'Expected error output for unknown visitor.');
+        $this->assertStringContainsString('Unknown codemod visitor "unknown-visitor"', implode("\n", $output));
+    }
+
+    public function testItFailsWhenCodemodVisitorOptionsAreInvalid(): void
+    {
+        $fixturePath = $this->resolveFixturePath('CodifiedController.php');
+        $configuration = $this->createCodemodConfiguration([
+            'stacks' => [
+                [
+                    'key' => 'ingest.before-print',
+                    'visitors' => [
+                        [
+                            'key' => 'name-resolver',
+                            'options' => [
+                                'preserveOriginalNames' => 'true',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $command = sprintf(
+            'php %s %s --config %s %s 2>&1',
+            escapeshellarg($this->scriptPath),
+            escapeshellarg($this->workspaceRoot),
+            escapeshellarg($configuration),
+            escapeshellarg($fixturePath)
+        );
+
+        $output = [];
+        $exitCode = 0;
+        exec($command, $output, $exitCode);
+
+        $this->assertSame(1, $exitCode, 'Expected script to exit with non-zero status for invalid options.');
+        $this->assertNotEmpty($output, 'Expected error output for invalid visitor options.');
+        $this->assertStringContainsString(
+            'Option "preserveOriginalNames" for visitor "name-resolver"',
+            implode("\n", $output)
+        );
+    }
+
+    public function testItFailsWhenBaselineCodemodOptionsAreInvalid(): void
+    {
+        $fixturePath = $this->resolveFixturePath('CodifiedController.php');
+        $configuration = $this->createCodemodConfiguration([
+            'stacks' => [
+                [
+                    'key' => 'ingest.before-print',
+                    'visitors' => [
+                        [
+                            'key' => 'baseline.use-grouping',
+                            'options' => [
+                                'caseSensitive' => 'yes',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $command = sprintf(
+            'php %s %s --config %s %s 2>&1',
+            escapeshellarg($this->scriptPath),
+            escapeshellarg($this->workspaceRoot),
+            escapeshellarg($configuration),
+            escapeshellarg($fixturePath)
+        );
+
+        $output = [];
+        $exitCode = 0;
+        exec($command, $output, $exitCode);
+
+        $this->assertSame(1, $exitCode, 'Expected script to exit with non-zero status for invalid baseline options.');
+        $this->assertNotEmpty($output, 'Expected error output for invalid baseline options.');
+        $this->assertStringContainsString(
+            'Option "caseSensitive" for visitor "baseline.use-grouping"',
+            implode("\n", $output)
+        );
+    }
+
     private function resolveFixturePath(string $fixture): string
     {
         $path = $this->fixturesRoot . DIRECTORY_SEPARATOR . $fixture;
@@ -130,6 +370,25 @@ final class ProgramIngestionTest extends TestCase
         return $resolved;
     }
 
+    /**
+     * @param array<string, mixed> $configuration
+     */
+    private function createCodemodConfiguration(array $configuration): string
+    {
+        $encoded = json_encode($configuration, JSON_PRETTY_PRINT);
+        $this->assertNotFalse($encoded, 'Failed to encode codemod configuration.');
+
+        $path = tempnam(sys_get_temp_dir(), 'php-json-ast-codemod');
+        $this->assertIsString($path, 'Failed to create temporary configuration file.');
+
+        $written = file_put_contents($path, $encoded);
+        $this->assertNotFalse($written, 'Failed to write codemod configuration file.');
+
+        $this->temporaryConfigFiles[] = $path;
+
+        return $path;
+    }
+
     private function readFixture(string $fixture): string
     {
         $path = $this->resolveFixturePath($fixture);
@@ -137,6 +396,30 @@ final class ProgramIngestionTest extends TestCase
         $this->assertNotFalse(
             $contents,
             sprintf('Failed to read fixture contents: %s', $path)
+        );
+
+        return $contents;
+    }
+
+    private function resolveCodemodFixturePath(string $fixture): string
+    {
+        $path = $this->codemodFixturesRoot . DIRECTORY_SEPARATOR . $fixture;
+        $resolved = realpath($path);
+        $this->assertNotFalse(
+            $resolved,
+            sprintf('Codemod fixture path did not resolve: %s', $path)
+        );
+
+        return $resolved;
+    }
+
+    private function readCodemodFixture(string $fixture): string
+    {
+        $path = $this->resolveCodemodFixturePath($fixture);
+        $contents = file_get_contents($path);
+        $this->assertNotFalse(
+            $contents,
+            sprintf('Failed to read codemod fixture contents: %s', $path)
         );
 
         return $contents;
@@ -180,5 +463,29 @@ final class ProgramIngestionTest extends TestCase
         }
 
         return null;
+    }
+
+    /**
+     * @return list<mixed>
+     */
+    private function collectAttributeValues(mixed $value, string $attribute): array
+    {
+        if (!is_array($value)) {
+            return [];
+        }
+
+        $found = [];
+
+        if (array_key_exists($attribute, $value)) {
+            $found[] = $value[$attribute];
+        }
+
+        foreach ($value as $child) {
+            foreach ($this->collectAttributeValues($child, $attribute) as $nested) {
+                $found[] = $nested;
+            }
+        }
+
+        return $found;
     }
 }
