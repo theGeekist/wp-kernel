@@ -77,10 +77,14 @@ export function createPhpResourceControllerHelper(): BuilderHelper {
 	});
 }
 
-function warnOnMissingCapabilities(options: {
+interface WarnOnMissingCapabilitiesOptions {
 	readonly reporter: BuilderApplyOptions['reporter'];
 	readonly resource: IRResource;
-}): void {
+}
+
+function warnOnMissingCapabilities(
+	options: WarnOnMissingCapabilitiesOptions
+): void {
 	const { reporter, resource } = options;
 
 	for (const route of resource.routes) {
@@ -123,6 +127,9 @@ function buildRestControllerModuleConfig(
 		buildControllerConfig({
 			ir: options.ir,
 			resource,
+			identity: resolveIdentityConfig(resource),
+			pascalName: toPascalCase(resource.name),
+			errorCodeFactory: makeErrorCodeFactory(resource.name),
 		})
 	);
 
@@ -135,22 +142,29 @@ function buildRestControllerModuleConfig(
 	} satisfies RestControllerModuleConfig;
 }
 
-interface BuildControllerConfigOptions {
+type ErrorCodeFactory = (suffix: string) => string;
+
+interface ControllerBuildContext {
 	readonly ir: IRv1;
 	readonly resource: IRResource;
+	readonly identity: ResolvedIdentity;
+	readonly pascalName: string;
+	readonly errorCodeFactory: ErrorCodeFactory;
+}
+
+interface RouteConfigBuildContext extends ControllerBuildContext {
+	readonly metadataHost: ResourceMetadataHost;
+	readonly routeMetadata: readonly ResourceControllerRouteMetadata[];
 }
 
 function buildControllerConfig(
-	options: BuildControllerConfigOptions
+	options: ControllerBuildContext
 ): RestControllerModuleControllerConfig {
-	const { ir, resource } = options;
-	const className = `${toPascalCase(resource.name)}Controller`;
-	const pascalName = toPascalCase(resource.name);
-	const identity = resolveIdentityConfig(resource);
+	const { ir, resource, identity, pascalName } = options;
+	const className = `${pascalName}Controller`;
 	const restArgsExpression = renderPhpValue(
 		sanitizeJson(buildRestArgs(ir.schemas, resource))
 	);
-	const errorCodeFactory = makeErrorCodeFactory(resource.name);
 
 	let metadataState: ResourceControllerMetadata =
 		buildResourceControllerMetadata({
@@ -172,21 +186,13 @@ function buildControllerConfig(
 	};
 
 	const routes = buildRouteConfigs({
-		ir,
-		resource,
-		identity,
-		pascalName,
+		...options,
 		metadataHost,
 		routeMetadata: metadataState.routes,
-		errorCodeFactory,
 	});
 
 	const helperMethods = buildStorageHelperMethods({
-		resource,
-		pascalName,
-		identity,
-		errorCodeFactory,
-		ir,
+		...options,
 	});
 
 	return {
@@ -239,18 +245,8 @@ function queueResourceControllerFiles(
 	}
 }
 
-interface BuildRouteConfigsOptions {
-	readonly ir: IRv1;
-	readonly resource: IRResource;
-	readonly identity: ResolvedIdentity;
-	readonly pascalName: string;
-	readonly metadataHost: ResourceMetadataHost;
-	readonly routeMetadata: readonly ResourceControllerRouteMetadata[];
-	readonly errorCodeFactory: (suffix: string) => string;
-}
-
 function buildRouteConfigs(
-	options: BuildRouteConfigsOptions
+	options: RouteConfigBuildContext
 ): RestRouteConfig[] {
 	return options.resource.routes.map((route, index) => {
 		const metadata =
@@ -293,16 +289,8 @@ function buildRouteConfigs(
 	});
 }
 
-interface BuildStorageHelperMethodsOptions {
-	readonly resource: IRResource;
-	readonly pascalName: string;
-	readonly identity: ResolvedIdentity;
-	readonly errorCodeFactory: (suffix: string) => string;
-	readonly ir: IRv1;
-}
-
 function buildStorageHelperMethods(
-	options: BuildStorageHelperMethodsOptions
+	options: ControllerBuildContext
 ): readonly PhpStmtClassMethod[] {
 	const storageMode = options.resource.storage?.mode;
 
