@@ -104,6 +104,20 @@ The writer helper persists both the regenerated PHP source and a `.ast.json`
 snapshot for inspection, mirroring the pretty-print workflow. In the example
 above `child` is the `spawn()`ed PHP process streaming ingestion payloads.
 
+When you pass a codemod configuration to `ingest-program.php` (serialised with
+`serialisePhpCodemodConfiguration` and forwarded with `--config`), the same
+writer call will also emit:
+
+- `<file>.codemod.before.ast.json` – the ingested AST before any visitors ran.
+- `<file>.codemod.after.ast.json` – the transformed AST (mirrors `<file>.ast.json`).
+- `<file>.codemod.summary.txt` – visitor metadata, SHA hashes for each AST, and
+  a capped list of structural differences (`Change detected: yes/no`).
+
+During review, diff the summary to see which visitors ran and what changed; the
+before/after AST snapshots provide deeper inspection when necessary. No extra
+flags are required-any CLI build that threads a codemod configuration through
+`createPhpProgramWriterHelper()` will receive the diagnostics bundle.
+
 ## 5. Next steps
 
 With the driver confirmed, you can queue programs through

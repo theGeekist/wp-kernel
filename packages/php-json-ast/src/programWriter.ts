@@ -7,6 +7,12 @@ import type {
 	BuilderOutput,
 } from './programBuilder';
 import { getPhpBuilderChannel } from './builderChannel';
+import type { PhpProgramAction } from './builderChannel';
+import type { PhpProgram } from './nodes';
+import {
+	persistCodemodDiagnostics,
+	persistProgramArtifacts,
+} from './utils/programArtifacts';
 
 export interface PhpDriverConfigurationOptions {
 	readonly binary?: string;
@@ -74,46 +80,53 @@ export function createPhpProgramWriterHelper<
 
 			const prettyPrinter = buildPhpPrettyPrinter(prettyPrinterOptions);
 
-			for (const action of pending) {
-				const { code, ast } = await prettyPrinter.prettyPrint({
-					filePath: action.file,
-					program: action.program,
-				});
-
-				const finalAst = ast ?? action.program;
-				const astPath = `${action.file}.ast.json`;
-
-				await context.workspace.write(action.file, code, {
-					ensureDir: true,
-				});
-
-				const serialisedAst = serialiseAst(finalAst);
-
-				await context.workspace.write(astPath, serialisedAst, {
-					ensureDir: true,
-				});
-
-				output.queueWrite({
-					file: action.file,
-					contents: code,
-				});
-
-				output.queueWrite({
-					file: astPath,
-					contents: serialisedAst,
-				});
-
-				reporter.debug(
-					'createPhpProgramWriterHelper: emitted PHP artifact.',
-					{ file: action.file }
-				);
-			}
+			await processPendingPrograms(
+				context,
+				output,
+				reporter,
+				pending,
+				prettyPrinter
+			);
 
 			await next?.();
 		},
 	});
 }
 
-function serialiseAst(ast: unknown): string {
-	return `${JSON.stringify(ast, null, 2)}\n`;
+async function processPendingPrograms(
+	context: PipelineContext,
+	output: BuilderOutput,
+	reporter: PipelineContext['reporter'],
+	pending: readonly PhpProgramAction[],
+	prettyPrinter: ReturnType<typeof buildPhpPrettyPrinter>
+): Promise<void> {
+	for (const action of pending) {
+		const { code, ast } = await prettyPrinter.prettyPrint({
+			filePath: action.file,
+			program: action.program,
+		});
+
+		const finalAst = (ast ?? action.program) as PhpProgram;
+
+		await persistProgramArtifacts(
+			context,
+			output,
+			action.file,
+			code,
+			finalAst
+		);
+
+		if (action.codemod) {
+			await persistCodemodDiagnostics(
+				context,
+				output,
+				action.file,
+				action.codemod
+			);
+		}
+
+		reporter.debug('createPhpProgramWriterHelper: emitted PHP artifact.', {
+			file: action.file,
+		});
+	}
 }
