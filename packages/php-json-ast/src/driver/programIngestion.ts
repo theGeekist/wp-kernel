@@ -12,6 +12,21 @@ export interface PhpProgramIngestionMessage {
 	readonly docblock?: readonly string[];
 	readonly uses?: readonly string[];
 	readonly statements?: readonly string[];
+	readonly codemod?: PhpProgramCodemodResult;
+}
+
+export interface PhpProgramCodemodVisitorSummary {
+	readonly key: string;
+	readonly stackKey: string;
+	readonly stackIndex: number;
+	readonly visitorIndex: number;
+	readonly class: string;
+}
+
+export interface PhpProgramCodemodResult {
+	readonly before: PhpProgram;
+	readonly after: PhpProgram;
+	readonly visitors: readonly PhpProgramCodemodVisitorSummary[];
 }
 
 export type PhpProgramIngestionSource =
@@ -50,6 +65,7 @@ export async function consumePhpProgramIngestion(
 			docblock,
 			uses,
 			statements,
+			codemod: message.codemod,
 		});
 
 		ingested += 1;
@@ -164,7 +180,48 @@ function isPhpProgramIngestionPayload(
 		return false;
 	}
 
+	if (
+		candidate.codemod !== undefined &&
+		!isPhpProgramCodemodResult(candidate.codemod)
+	) {
+		return false;
+	}
+
 	return true;
+}
+
+function isPhpProgramCodemodResult(
+	value: unknown
+): value is PhpProgramCodemodResult {
+	if (value === null || typeof value !== 'object') {
+		return false;
+	}
+
+	const candidate = value as Record<string, unknown>;
+	if (!Array.isArray(candidate.before) || !Array.isArray(candidate.after)) {
+		return false;
+	}
+
+	if (!Array.isArray(candidate.visitors)) {
+		return false;
+	}
+
+	return candidate.visitors.every((visitor) => {
+		if (visitor === null || typeof visitor !== 'object') {
+			return false;
+		}
+
+		const summary = visitor as Record<string, unknown>;
+		return (
+			typeof summary.key === 'string' &&
+			typeof summary.stackKey === 'string' &&
+			typeof summary.stackIndex === 'number' &&
+			Number.isInteger(summary.stackIndex) &&
+			typeof summary.visitorIndex === 'number' &&
+			Number.isInteger(summary.visitorIndex) &&
+			typeof summary.class === 'string'
+		);
+	});
 }
 
 function resolveMetadata(

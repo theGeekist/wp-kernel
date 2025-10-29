@@ -13,6 +13,7 @@ import {
 	resetPhpBuilderChannel,
 } from '../builderChannel';
 import { buildStmtNop } from '../nodes';
+import type { PhpProgram } from '../nodes';
 import { resetPhpAstChannel } from '../context';
 import { createReporterMock } from '@wpkernel/test-utils/shared/reporter';
 
@@ -325,5 +326,127 @@ describe('createPhpProgramWriterHelper', () => {
 		const expectedAst = `${JSON.stringify(program, null, 2)}\n`;
 
 		expect(emittedAst).toBe(expectedAst);
+	});
+
+	it('writes codemod snapshots and diagnostics when codemod metadata is present', async () => {
+		const context = createPipelineContext();
+		const input = createBuilderInput();
+		const actions: BuilderOutput['actions'] = [];
+		const output: BuilderOutput = {
+			actions,
+			queueWrite: jest.fn((action) => {
+				actions.push(action);
+			}),
+		};
+
+		resetChannels(context);
+
+		const channel = getPhpBuilderChannel(context);
+		const filePath = path.join(OUTPUT_ROOT, 'Codemod.php');
+
+		const beforeProgram = [
+			{
+				nodeType: 'Stmt_Class',
+				attributes: {},
+				name: {
+					nodeType: 'Identifier',
+					attributes: {},
+					name: 'BeforeClass',
+				},
+				flags: 0,
+				extends: null,
+				implements: [],
+				stmts: [],
+				attrGroups: [],
+				namespacedName: null,
+			},
+		] as unknown as PhpProgram;
+
+		const afterProgram = [
+			{
+				nodeType: 'Stmt_Class',
+				attributes: {},
+				name: {
+					nodeType: 'Identifier',
+					attributes: {},
+					name: 'AfterClass',
+				},
+				flags: 0,
+				extends: null,
+				implements: [],
+				stmts: [],
+				attrGroups: [],
+				namespacedName: null,
+			},
+		] as unknown as PhpProgram;
+
+		channel.queue({
+			file: filePath,
+			metadata: { kind: 'capability-helper' },
+			docblock: [],
+			uses: [],
+			statements: [],
+			program: afterProgram,
+			codemod: {
+				before: beforeProgram,
+				after: afterProgram,
+				visitors: [
+					{
+						key: 'demo.visitor',
+						stackKey: 'demo-stack',
+						stackIndex: 0,
+						visitorIndex: 0,
+						class: 'Demo\\Visitor',
+					},
+				],
+			},
+		});
+
+		const helper = createPhpProgramWriterHelper();
+		await helper.apply(
+			{
+				context,
+				input,
+				output,
+				reporter: context.reporter,
+			},
+			undefined
+		);
+
+		const beforePath = `${filePath}.codemod.before.ast.json`;
+		const afterPath = `${filePath}.codemod.after.ast.json`;
+		const summaryPath = `${filePath}.codemod.summary.txt`;
+
+		const [beforeSnapshot, afterSnapshot, summary] = await Promise.all([
+			fs.readFile(beforePath, 'utf8'),
+			fs.readFile(afterPath, 'utf8'),
+			fs.readFile(summaryPath, 'utf8'),
+		]);
+
+		expect(beforeSnapshot).toBe(
+			`${JSON.stringify(beforeProgram, null, 2)}\n`
+		);
+		expect(afterSnapshot).toBe(
+			`${JSON.stringify(afterProgram, null, 2)}\n`
+		);
+
+		expect(summary).toContain('demo.visitor');
+		expect(summary).toContain('Before hash:');
+		expect(summary).toContain('After hash:');
+		expect(summary).toContain('Change detected: yes');
+		expect(summary).toContain('$[0].name.name');
+
+		expect(output.queueWrite).toHaveBeenCalledWith({
+			file: beforePath,
+			contents: `${JSON.stringify(beforeProgram, null, 2)}\n`,
+		});
+		expect(output.queueWrite).toHaveBeenCalledWith({
+			file: afterPath,
+			contents: `${JSON.stringify(afterProgram, null, 2)}\n`,
+		});
+		expect(output.queueWrite).toHaveBeenCalledWith({
+			file: summaryPath,
+			contents: summary,
+		});
 	});
 });

@@ -4,6 +4,7 @@
 import type { PipelineContext } from './programBuilder';
 import type { PhpProgram } from './nodes';
 import type { PhpFileMetadata } from './types';
+import type { PhpProgramCodemodResult } from './driver/programIngestion';
 
 const PHP_CHANNEL_SYMBOL = Symbol('@wpkernel/php-json-ast/builder-channel');
 
@@ -14,6 +15,7 @@ export interface PhpProgramAction {
 	readonly docblock: readonly string[];
 	readonly uses: readonly string[];
 	readonly statements: readonly string[];
+	readonly codemod?: PhpProgramCodemodResult;
 }
 
 export interface PhpBuilderChannel {
