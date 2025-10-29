@@ -12,7 +12,7 @@ import {
 	type PhpStmt,
 } from '@wpkernel/php-json-ast';
 import type { ResourceMetadataHost } from '@wpkernel/wp-json-ast';
-import { appendResourceCacheEvent } from '../cache';
+import { buildCacheInvalidators } from '../cache';
 import { buildWpErrorReturn, buildReturnIfWpError } from '../errors';
 import {
 	buildBooleanNot,
@@ -45,12 +45,16 @@ export function buildWpTaxonomyGetRouteStatements(
 ): PhpStmt[] {
 	ensureStorage(options.resource);
 
-	appendResourceCacheEvent({
+	buildCacheInvalidators({
 		host: options.metadataHost,
-		scope: 'get',
-		operation: 'read',
-		segments: options.cacheSegments,
-		description: 'Get term request',
+		events: [
+			{
+				scope: 'get',
+				operation: 'read',
+				segments: options.cacheSegments,
+				description: 'Get term request',
+			},
+		],
 	});
 
 	const statements: PhpStmt[] = [];
