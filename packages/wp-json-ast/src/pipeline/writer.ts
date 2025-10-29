@@ -45,28 +45,68 @@ type ProgramTargetQueueMany<
 	TFile extends ProgramTargetFile = ProgramTargetFile,
 > = (options: QueueModuleFilesOptions<TFile>) => void;
 
-export interface ProgramTargetPlannerOptions {
+export interface ResolveFilePathStrategyContext<
+	TFile extends ProgramTargetFile = ProgramTargetFile,
+> {
+	readonly workspace: PipelineContext['workspace'];
+	readonly outputDir: string;
+	readonly file: TFile;
+	readonly overrides?: QueueProgramFileOptions;
+}
+
+export type ProgramTargetPlannerStrategy<
+	TFile extends ProgramTargetFile = ProgramTargetFile,
+> = {
+	readonly resolveFilePath?: (
+		context: ResolveFilePathStrategyContext<TFile>
+	) => string;
+};
+
+export type ProgramTargetPlannerOptions<
+	TFile extends ProgramTargetFile = ProgramTargetFile,
+> = {
 	readonly workspace: PipelineContext['workspace'];
 	readonly outputDir: string;
 	readonly channel: PhpBuilderChannel;
 	readonly docblockPrefix?: readonly string[];
-}
+	readonly strategy?: ProgramTargetPlannerStrategy<TFile>;
+};
 
-export interface ProgramTargetPlanner {
-	readonly queueFile: ProgramTargetQueue;
-	readonly queueFiles: ProgramTargetQueueMany;
+export interface ProgramTargetPlanner<
+	TFile extends ProgramTargetFile = ProgramTargetFile,
+> {
+	readonly queueFile: ProgramTargetQueue<TFile>;
+	readonly queueFiles: ProgramTargetQueueMany<TFile>;
 }
 
 export function buildProgramTargetPlanner(
 	options: ProgramTargetPlannerOptions
-): ProgramTargetPlanner {
+): ProgramTargetPlanner;
+export function buildProgramTargetPlanner<
+	TFile extends ProgramTargetFile = ProgramTargetFile,
+>(options: ProgramTargetPlannerOptions<TFile>): ProgramTargetPlanner<TFile> {
 	const { workspace, outputDir, channel } = options;
 	const baseDocblockPrefix = options.docblockPrefix ?? [];
+	const strategy = options.strategy ?? {};
 
-	const queueFile: ProgramTargetQueue = (file, overrides) => {
+	const resolveFilePath =
+		strategy.resolveFilePath ??
+		((context: ResolveFilePathStrategyContext<TFile>) =>
+			resolveProgramFilePath(
+				context.workspace,
+				context.outputDir,
+				context.file.fileName
+			));
+
+	const queueFile: ProgramTargetQueue<TFile> = (file, overrides) => {
 		const resolvedPath = overrides?.filePath
 			? overrides.filePath
-			: resolveProgramFilePath(workspace, outputDir, file.fileName);
+			: resolveFilePath({
+					workspace,
+					outputDir,
+					file,
+					overrides,
+				});
 
 		const docblock = mergeDocblockSegments(
 			baseDocblockPrefix,
@@ -84,7 +124,7 @@ export function buildProgramTargetPlanner(
 		});
 	};
 
-	const queueFiles: ProgramTargetQueueMany = ({
+	const queueFiles: ProgramTargetQueueMany<TFile> = ({
 		files,
 		docblockPrefix,
 		filter,

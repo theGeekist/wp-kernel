@@ -26,16 +26,34 @@ export interface IdentityResolutionSource {
 	readonly identity?: ResourceIdentityConfig | null;
 }
 
-export interface ResolvedIdentity {
-	readonly type: 'number' | 'string';
+export interface ResolvedNumberIdentity {
+	readonly type: 'number';
 	readonly param: string;
 }
 
-export interface IdentityGuardOptions {
-	readonly identity: ResolvedIdentity;
+export interface ResolvedStringIdentity {
+	readonly type: 'string';
+	readonly param: string;
+}
+
+export type ResolvedIdentity = ResolvedNumberIdentity | ResolvedStringIdentity;
+
+export interface BaseIdentityGuardOptions {
 	readonly pascalName: string;
 	readonly errorCodeFactory: (suffix: string) => string;
 }
+
+export interface NumericIdentityGuardOptions extends BaseIdentityGuardOptions {
+	readonly identity: ResolvedNumberIdentity;
+}
+
+export interface StringIdentityGuardOptions extends BaseIdentityGuardOptions {
+	readonly identity: ResolvedStringIdentity;
+}
+
+export type IdentityGuardOptions =
+	| NumericIdentityGuardOptions
+	| StringIdentityGuardOptions;
 
 export interface IdentityHelpers {
 	readonly resolveIdentityConfig: (
@@ -59,12 +77,38 @@ export function resolveIdentityConfig(
 	return resolveIdentityConfigInternal(resource);
 }
 
+export function isNumericIdentity(
+	identity: ResolvedIdentity
+): identity is ResolvedNumberIdentity {
+	return identity.type === 'number';
+}
+
+export function isStringIdentity(
+	identity: ResolvedIdentity
+): identity is ResolvedStringIdentity {
+	return identity.type === 'string';
+}
+
 export function buildIdentityGuardStatements(
 	options: IdentityGuardOptions
 ): readonly PhpStmt[] {
 	const variable = normaliseVariableReference(options.identity.param);
 
-	return identityGuardBuilders[options.identity.type](options, variable.raw);
+	if (isNumericIdentity(options.identity)) {
+		const numericOptions: NumericIdentityGuardOptions = {
+			...options,
+			identity: options.identity,
+		};
+
+		return buildNumericIdentityGuards(numericOptions, variable.raw);
+	}
+
+	const stringOptions: StringIdentityGuardOptions = {
+		...options,
+		identity: options.identity,
+	};
+
+	return buildStringIdentityGuards(stringOptions, variable.raw);
 }
 
 function resolveIdentityConfigInternal(
@@ -84,7 +128,7 @@ function resolveIdentityConfigInternal(
 }
 
 function buildNumericIdentityGuards(
-	options: IdentityGuardOptions,
+	options: NumericIdentityGuardOptions,
 	variable: string
 ): readonly PhpStmt[] {
 	const createVariable = () => buildVariable(variable);
@@ -112,7 +156,7 @@ function buildNumericIdentityGuards(
 }
 
 function buildStringIdentityGuards(
-	options: IdentityGuardOptions,
+	options: StringIdentityGuardOptions,
 	variable: string
 ): readonly PhpStmt[] {
 	const createVariable = () => buildVariable(variable);
@@ -148,7 +192,7 @@ function buildStringIdentityGuards(
 
 type IdentityType = ResolvedIdentity['type'];
 
-const DEFAULT_IDENTITY: ResolvedIdentity = {
+const DEFAULT_IDENTITY: ResolvedNumberIdentity = {
 	type: 'number',
 	param: 'id',
 };
@@ -156,16 +200,6 @@ const DEFAULT_IDENTITY: ResolvedIdentity = {
 const DEFAULT_IDENTITY_PARAM: Record<IdentityType, string> = {
 	number: 'id',
 	string: 'slug',
-};
-
-type IdentityGuardBuilder = (
-	options: IdentityGuardOptions,
-	variable: string
-) => readonly PhpStmt[];
-
-const identityGuardBuilders: Record<IdentityType, IdentityGuardBuilder> = {
-	number: buildNumericIdentityGuards,
-	string: buildStringIdentityGuards,
 };
 
 type IdentityErrorKind = 'missing' | 'invalid';

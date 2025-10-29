@@ -347,11 +347,11 @@ _Completion:_ ☑ Completed – (this PR) centralised identity guards, channel b
 
 **Subtask 2.8.a – Provide filesystem strategy hooks.** Let `buildProgramTargetPlanner` accept callbacks for workspace-specific overrides (e.g., mu-plugins vs. standard plugins) so downstream consumers can adjust output without reimplementing the planner.
 
-_Completion:_ ☐ Pending – add planner hooks and excise the CLI-specific branching.
+_Completion:_ ☑ Completed – (this PR) added strategy hooks to `buildProgramTargetPlanner`, enabling workspace-specific file path overrides without rewriting the planner.
 
 **Subtask 2.8.b – Harden identity guard typing.** Export discriminated union types for identity helpers so CLI callers and future transports receive full type inference instead of relying on ad-hoc narrowing.
 
-_Completion:_ ☐ Pending – publish typed identity helpers and migrate CLI callsites to the new contracts.
+_Completion:_ ☑ Completed – (this PR) exported discriminated union identity types and updated the shared helpers so downstream pipelines benefit from precise typing.
 
 ### Phase 3 - Adopt Pipeline-Oriented Composition in the CLI
 
