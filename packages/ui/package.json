@@ -36,10 +36,10 @@
 			"import": "./dist/hooks/useAction.js",
 			"default": "./dist/hooks/useAction.js"
 		},
-		"./hooks/usePolicy": {
-			"types": "./dist/hooks/usePolicy.d.ts",
-			"import": "./dist/hooks/usePolicy.js",
-			"default": "./dist/hooks/usePolicy.js"
+		"./hooks/useCapability": {
+			"types": "./dist/hooks/useCapability.d.ts",
+			"import": "./dist/hooks/useCapability.js",
+			"default": "./dist/hooks/useCapability.js"
 		},
 		"./hooks/resource-hooks": {
 			"types": "./dist/hooks/resource-hooks.d.ts",

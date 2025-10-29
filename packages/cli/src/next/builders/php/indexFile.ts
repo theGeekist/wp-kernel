@@ -66,7 +66,7 @@ function buildIndexEntries(ir: IRv1): Record<string, string> {
 
 	const entries: Record<string, string> = {
 		[`${namespace}\\Rest\\BaseController`]: `${baseDir}/Rest/BaseController.php`,
-		[`${namespace}\\Policy\\Policy`]: `${baseDir}/Policy/Policy.php`,
+		[`${namespace}\\Capability\\Capability`]: `${baseDir}/Capability/Capability.php`,
 		[`${namespace}\\Registration\\PersistenceRegistry`]: `${baseDir}/Registration/PersistenceRegistry.php`,
 	};
 

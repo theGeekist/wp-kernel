@@ -63,10 +63,10 @@
 			"import": "./dist/events/index.js",
 			"default": "./dist/events/index.js"
 		},
-		"./policy": {
-			"types": "./dist/policy/index.d.ts",
-			"import": "./dist/policy.js",
-			"default": "./dist/policy.js"
+		"./capability": {
+			"types": "./dist/capability/index.d.ts",
+			"import": "./dist/capability.js",
+			"default": "./dist/capability.js"
 		},
 		"./pipeline": {
 			"types": "./dist/pipeline/index.d.ts",

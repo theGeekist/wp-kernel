@@ -2,7 +2,7 @@ import { RuleTester } from 'eslint';
 import * as tsParser from '@typescript-eslint/parser';
 import configConsistencyRule from '../../../../eslint-rules/config-consistency.js';
 import cacheKeysValidRule from '../../../../eslint-rules/cache-keys-valid.js';
-import policyHintsRule from '../../../../eslint-rules/policy-hints.js';
+import capabilityHintsRule from '../../../../eslint-rules/capability-hints.js';
 import docLinksRule from '../../../../eslint-rules/doc-links.js';
 
 const DOC_URL =
@@ -32,7 +32,7 @@ tester.run('config-consistency', configConsistencyRule, {
 	valid: [
 		{
 			filename,
-			code: `${baseConfigHeader}const resource = {\n        routes: {\n                get: { path: '/demo/v1/things/:id', method: 'GET' },\n                update: { path: '/demo/v1/things/:id', method: 'PUT', policy: 'things.update' },\n        },\n        identity: { type: 'number', param: 'id' },\n        storage: { mode: 'wp-post', postType: 'demo-thing' },\n};${baseConfigFooter}`,
+			code: `${baseConfigHeader}const resource = {\n        routes: {\n                get: { path: '/demo/v1/things/:id', method: 'GET' },\n                update: { path: '/demo/v1/things/:id', method: 'PUT', capability: 'things.update' },\n        },\n        identity: { type: 'number', param: 'id' },\n        storage: { mode: 'wp-post', postType: 'demo-thing' },\n};${baseConfigFooter}`,
 		},
 	],
 	invalid: [
@@ -46,7 +46,7 @@ tester.run('config-consistency', configConsistencyRule, {
 		},
 		{
 			filename,
-			code: `${baseConfigHeader}const resource = {\n        routes: {\n                update: { path: '/demo/v1/things/:id', method: 'PUT', policy: 'things.update' },\n                patch: { path: '/demo/v1/things/:id', method: 'PUT', policy: 'things.patch' },\n        },\n};${baseConfigFooter}`,
+			code: `${baseConfigHeader}const resource = {\n        routes: {\n                update: { path: '/demo/v1/things/:id', method: 'PUT', capability: 'things.update' },\n                patch: { path: '/demo/v1/things/:id', method: 'PUT', capability: 'things.patch' },\n        },\n};${baseConfigFooter}`,
 			errors: [{ messageId: 'duplicateRoute' }],
 		},
 	],
@@ -82,18 +82,18 @@ tester.run('cache-keys-valid', cacheKeysValidRule, {
 	],
 });
 
-tester.run('policy-hints', policyHintsRule, {
+tester.run('capability-hints', capabilityHintsRule, {
 	valid: [
 		{
 			filename,
-			code: `${baseConfigHeader}const resource = {\n        routes: {\n                create: { path: '/demo/v1/things', method: 'POST', policy: 'things.create' },\n        },\n};${baseConfigFooter}`,
+			code: `${baseConfigHeader}const resource = {\n        routes: {\n                create: { path: '/demo/v1/things', method: 'POST', capability: 'things.create' },\n        },\n};${baseConfigFooter}`,
 		},
 	],
 	invalid: [
 		{
 			filename,
 			code: `${baseConfigHeader}const resource = {\n        routes: {\n                create: { path: '/demo/v1/things', method: 'POST' },\n        },\n};${baseConfigFooter}`,
-			errors: [{ messageId: 'missingPolicy' }],
+			errors: [{ messageId: 'missingCapability' }],
 		},
 	],
 });

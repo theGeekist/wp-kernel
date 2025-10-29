@@ -55,7 +55,7 @@ export type BlockRegistrarMetadata = BasePhpFileMetadata & {
 	readonly name?: string;
 };
 
-export interface PolicyHelperDefinitionMetadata {
+export interface CapabilityHelperDefinitionMetadata {
 	readonly key: string;
 	readonly capability: string;
 	readonly appliesTo: 'resource' | 'object';
@@ -63,14 +63,14 @@ export interface PolicyHelperDefinitionMetadata {
 	readonly source: 'map' | 'fallback';
 }
 
-export interface PolicyHelperWarningMetadata {
+export interface CapabilityHelperWarningMetadata {
 	readonly code: string;
 	readonly message: string;
 	readonly context?: Record<string, unknown>;
 }
 
-export type PolicyHelperMetadata = BasePhpFileMetadata & {
-	readonly kind: 'policy-helper';
+export type CapabilityHelperMetadata = BasePhpFileMetadata & {
+	readonly kind: 'capability-helper';
 	readonly name?: string;
 	readonly map: {
 		readonly sourcePath?: string;
@@ -78,10 +78,10 @@ export type PolicyHelperMetadata = BasePhpFileMetadata & {
 			readonly capability: string;
 			readonly appliesTo: 'resource' | 'object';
 		};
-		readonly definitions: readonly PolicyHelperDefinitionMetadata[];
+		readonly definitions: readonly CapabilityHelperDefinitionMetadata[];
 		readonly missing: readonly string[];
 		readonly unused: readonly string[];
-		readonly warnings: readonly PolicyHelperWarningMetadata[];
+		readonly warnings: readonly CapabilityHelperWarningMetadata[];
 	};
 };
 
@@ -95,7 +95,7 @@ export type WpPhpFileMetadata =
 	| PersistenceRegistryMetadata
 	| BlockManifestMetadata
 	| BlockRegistrarMetadata
-	| PolicyHelperMetadata
+	| CapabilityHelperMetadata
 	| IndexFileMetadata
 	| ResourceControllerMetadata;
 

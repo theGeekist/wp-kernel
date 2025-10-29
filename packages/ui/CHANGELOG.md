@@ -28,7 +28,7 @@
     - `createResourceDataViewController` for DataViews state → resource query mapping
     - `createDataFormController` for DataForm → kernel action integration with cache invalidation
     - `ResourceDataView` React component bridging kernel resources/actions with WordPress DataViews UI
-    - Policy-gated actions with error normalization
+    - Capability-gated actions with error normalization
     - Comprehensive test fixtures for DataViews integration (`packages/ui/fixtures/dataviews/`)
 - **DataViews Phase 3**: `configureWPKernel` auto-registers resource DataViews configs, wiring runtime events and integration
   tests across kernel/UI packages.
@@ -51,16 +51,16 @@
 
 ### Bug Fixes
 
-- Fixed policy runtime freezing at UI attachment time. `runtime.policies` is now
-  a getter that dynamically resolves from the global policy runtime, allowing
-  policies registered via `definePolicy()` after `attachUIBindings()` to be
+- Fixed capability runtime freezing at UI attachment time. `runtime.capabilities` is now
+  a getter that dynamically resolves from the global capability runtime, allowing
+  capabilities registered via `defineCapability()` after `attachUIBindings()` to be
   observed (e.g., lazy-loaded plugins). Components won't auto-rerender on late
-  registration but will observe new policies on their next render triggered by
+  registration but will observe new capabilities on their next render triggered by
   other state changes.
-- Auto-registered `ResourceDataView` controllers now re-resolve policy runtime
-  accessors so that actions gated by policies unlock once `definePolicy()`
+- Auto-registered `ResourceDataView` controllers now re-resolve capability runtime
+  accessors so that actions gated by capabilities unlock once `defineCapability()`
   registers the runtime, avoiding the need for a full refresh when the UI
-  attached before policies were available.
+  attached before capabilities were available.
 - Migrated all kernel imports to the new `@wpkernel/core/events` and
   `@wpkernel/core/resource/*` barrels so UI bundles no longer rely on the
   package root.

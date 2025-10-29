@@ -155,14 +155,14 @@ console.log(customPost.events.created); // 'enterprise.post.created' ✓
 }
 ```
 
-### Policy Events
+### Capability Events
 
-✓ **Available Now**: Emitted during policy checks.
+✓ **Available Now**: Emitted during capability checks.
 
 ```typescript
-// Client policy check failed
-'wpk.policy.denied': {
-  policyKey: string;
+// Client capability check failed
+'wpk.capability.denied': {
+  capabilityKey: string;
   context?: Record<string, unknown>;
 }
 ```

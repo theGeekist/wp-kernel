@@ -7,7 +7,7 @@ export {
 	createPhpChannelHelper,
 	createPhpBaseControllerHelper,
 	createPhpResourceControllerHelper,
-	createPhpPolicyHelper,
+	createPhpCapabilityHelper,
 	createPhpPersistenceRegistryHelper,
 	createPhpIndexFileHelper,
 	createPhpProgramWriterHelper,

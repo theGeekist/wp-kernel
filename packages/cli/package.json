@@ -43,10 +43,10 @@
 			"import": "./dist/next/ir/index.js",
 			"default": "./dist/next/ir/index.js"
 		},
-		"./policy-map": {
-			"types": "./dist/policy-map.d.ts",
-			"import": "./dist/policy-map.js",
-			"default": "./dist/policy-map.js"
+		"./capability-map": {
+			"types": "./dist/capability-map.d.ts",
+			"import": "./dist/capability-map.js",
+			"default": "./dist/capability-map.js"
 		},
 		"./version": {
 			"types": "./dist/version.d.ts",

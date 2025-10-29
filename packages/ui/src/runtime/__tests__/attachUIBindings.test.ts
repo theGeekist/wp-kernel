@@ -208,7 +208,7 @@ describe('attachUIBindings', () => {
 		delete (
 			globalThis as {
 				__WP_KERNEL_ACTION_RUNTIME__?: {
-					policy?: WPKernelUIRuntime['policies'];
+					capability?: WPKernelUIRuntime['capabilities'];
 				};
 			}
 		).__WP_KERNEL_ACTION_RUNTIME__;
@@ -266,22 +266,22 @@ describe('attachUIBindings', () => {
 		expect(kernel.invalidate).toHaveBeenCalledWith(['posts'], undefined);
 	});
 
-	it('lazily resolves policy runtime from global overrides', () => {
+	it('lazily resolves capability runtime from global overrides', () => {
 		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
 		const kernel = createKernel(events, undefined, registry);
 		const runtime = attachUIBindings(kernel);
 
-		expect(runtime.policies).toBeUndefined();
+		expect(runtime.capabilities).toBeUndefined();
 
-		const policy = { can: jest.fn() };
+		const capability = { can: jest.fn() };
 		(
 			globalThis as {
-				__WP_KERNEL_ACTION_RUNTIME__?: { policy?: unknown };
+				__WP_KERNEL_ACTION_RUNTIME__?: { capability?: unknown };
 			}
-		).__WP_KERNEL_ACTION_RUNTIME__ = { policy };
+		).__WP_KERNEL_ACTION_RUNTIME__ = { capability };
 
-		expect(runtime.policies).toEqual({ policy });
+		expect(runtime.capabilities).toEqual({ capability });
 	});
 
 	it('throws configuration error when registry is unavailable', async () => {
@@ -441,7 +441,7 @@ describe('attachUIBindings', () => {
 		);
 	});
 
-	it('updates auto-registered controllers when policy runtime becomes available', () => {
+	it('updates auto-registered controllers when capability runtime becomes available', () => {
 		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
 		const kernel = createKernel(events, undefined, registry);
@@ -454,20 +454,20 @@ describe('attachUIBindings', () => {
 		const runtime = attachUIBindings(kernel);
 		const dataviews = runtime.dataviews!;
 		const controller = dataviews.controllers.get('jobs') as {
-			policies?: WPKernelUIRuntime['policies'];
+			capabilities?: WPKernelUIRuntime['capabilities'];
 		};
 
 		expect(controller).toBeDefined();
-		expect(controller?.policies).toBeUndefined();
+		expect(controller?.capabilities).toBeUndefined();
 
-		const policy = { can: jest.fn() };
+		const capability = { can: jest.fn() };
 		(
 			globalThis as {
-				__WP_KERNEL_ACTION_RUNTIME__?: { policy?: unknown };
+				__WP_KERNEL_ACTION_RUNTIME__?: { capability?: unknown };
 			}
-		).__WP_KERNEL_ACTION_RUNTIME__ = { policy };
+		).__WP_KERNEL_ACTION_RUNTIME__ = { capability };
 
-		expect(controller?.policies).toEqual({ policy });
+		expect(controller?.capabilities).toEqual({ capability });
 	});
 
 	it('auto-registers DataViews controllers for future resources', () => {

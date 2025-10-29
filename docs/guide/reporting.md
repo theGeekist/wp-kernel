@@ -6,7 +6,7 @@ namespaces, levels, and context metadata.
 
 ## Why reporters?
 
-- **Single source of truth** - Actions, policies, and registry plugins rely on the same transport configuration.
+- **Single source of truth** - Actions, capabilities, and registry plugins rely on the same transport configuration.
 - **Structured payloads** - Hooks receive `{ message, context, timestamp }` so downstream consumers stay typed.
 - **Environment aware** - Console logging is skipped in production, while hooks remain active for instrumentation.
 - **Lint enforcement** - The `@kernel/no-console-in-kernel` rule blocks accidental `console.*` usage in core code.
@@ -47,19 +47,19 @@ async function CreatePost(ctx, input) {
 
 When an action throws, the reporter also feeds the `wpkEventsPlugin()` bridge so failures show up as `core/notices` alerts.
 
-## In policies
+## In capabilities
 
-`definePolicy()` now accepts `debug: true` to enable reporter output. The reporter shares the same namespace so hook listeners can
+`defineCapability()` now accepts `debug: true` to enable reporter output. The reporter shares the same namespace so hook listeners can
 correlate events across the stack:
 
 ```typescript
-const policy = definePolicy(rules, {
+const capability = defineCapability(rules, {
 	namespace: 'showcase',
 	debug: true,
 });
 ```
 
-Without `debug`, the policy reporter becomes a no-op and avoids console noise.
+Without `debug`, the capability reporter becomes a no-op and avoids console noise.
 
 ## Registry integration
 
@@ -92,7 +92,7 @@ well, so `fetchList`, `fetch`, `create`, `update`, and `remove` generate
 `transport.request`, `transport.response`, or `transport.error` messages with
 correlated request IDs. Forward the reporter to your logging pipeline (Sentry,
 Datadog, etc.) to correlate cache invalidations and REST requests with upstream
-actions and policies.
+actions and capabilities.
 
 ## Linting: no console in kernel
 

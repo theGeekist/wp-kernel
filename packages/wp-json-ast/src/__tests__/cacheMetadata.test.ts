@@ -102,7 +102,7 @@ describe('appendResourceControllerCacheEvent', () => {
 
 	it('ignores non resource-controller metadata', () => {
 		const metadata: PhpFileMetadata = {
-			kind: 'policy-helper',
+			kind: 'capability-helper',
 			name: 'demo',
 			map: {
 				sourcePath: undefined,

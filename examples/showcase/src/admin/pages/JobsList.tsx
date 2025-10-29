@@ -63,7 +63,7 @@ function useDataViewsRuntimeContext(): DataViewsRuntimeContext {
 	return {
 		namespace: runtime.namespace,
 		dataviews: ensureControllerRuntime(runtime.dataviews),
-		policies: runtime.policies,
+		capabilities: runtime.capabilities,
 		invalidate: runtime.invalidate,
 		registry: runtime.registry,
 		reporter: runtime.reporter,

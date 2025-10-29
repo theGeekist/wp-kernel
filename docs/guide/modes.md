@@ -256,7 +256,7 @@ Kernel automatically detects runtime context to enable/disable features:
 - ✓ All Actions available
 - ✓ Resources can call REST
 - ✓ Admin surfaces mount
-- ✓ Policy checks active
+- ✓ Capability checks active
 
 ### Front-End (Dynamic WP)
 

@@ -4,7 +4,7 @@
  * Tests comprehensive action flows including:
  * - Resource integration and event emission
  * - Error handling and lifecycle events
- * - Policy enforcement
+ * - Capability enforcement
  * - Background job integration
  * - Cache invalidation
  * - Cross-tab vs tab-local scoping
@@ -263,7 +263,7 @@ describe('Action Flow Integration', () => {
 		);
 	});
 
-	describe('policy enforcement matrix', () => {
+	describe('capability enforcement matrix', () => {
 		const scenarios: Array<{
 			title: string;
 			overrides: ActionRuntimeOverrides;
@@ -272,7 +272,7 @@ describe('Action Flow Integration', () => {
 			{
 				title: 'allows action when runtime grants capability',
 				overrides: {
-					policy: {
+					capability: {
 						assert: jest.fn(),
 						can: jest.fn().mockResolvedValue(true),
 					},
@@ -282,9 +282,9 @@ describe('Action Flow Integration', () => {
 			{
 				title: 'surfaces denial when runtime throws',
 				overrides: {
-					policy: {
+					capability: {
 						assert: jest.fn(() => {
-							throw new WPKernelError('PolicyDenied', {
+							throw new WPKernelError('CapabilityDenied', {
 								message: 'denied',
 							});
 						}),
@@ -306,8 +306,8 @@ describe('Action Flow Integration', () => {
 			const UpdateThing = createAction<
 				{ id: number; updates: { title: string } },
 				{ id: number; title: string }
-			>('Thing.Update.Policy', async (ctx, { id, updates }) => {
-				ctx.policy.assert('edit_things', undefined);
+			>('Thing.Update.Capability', async (ctx, { id, updates }) => {
+				ctx.capability.assert('edit_things', undefined);
 				const result = await resource.update!(id, updates);
 				ctx.invalidate([`thing:${id}`, 'list']);
 				return result;
@@ -327,7 +327,7 @@ describe('Action Flow Integration', () => {
 				expect(mockDoAction).toHaveBeenCalledWith(
 					'wpk.action.error',
 					expect.objectContaining({
-						actionName: 'Thing.Update.Policy',
+						actionName: 'Thing.Update.Capability',
 						phase: 'error',
 					})
 				);
@@ -345,7 +345,7 @@ describe('Action Flow Integration', () => {
 				expect(mockDoAction).toHaveBeenCalledWith(
 					'wpk.action.complete',
 					expect.objectContaining({
-						actionName: 'Thing.Update.Policy',
+						actionName: 'Thing.Update.Capability',
 						result: { id: 1, title: 'Updated' },
 					})
 				);

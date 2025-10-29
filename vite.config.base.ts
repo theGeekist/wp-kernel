@@ -48,7 +48,7 @@ export const createWPKLibConfig = (
 			: dependency
 	);
 
-	// Default external policy:
+	// Default external capability:
 	// - All WP ids (incl. any @wordpress/*)
 	// - React bits (just in case something imports jsx-runtime)
 	// - Other kernel packages (avoid circular bundling across workspace)

@@ -19,9 +19,9 @@ import type {
  *
  * @example
  * ```typescript
- * throw new WPKernelError('PolicyDenied', {
+ * throw new WPKernelError('CapabilityDenied', {
  *   message: 'User lacks required capability',
- *   context: { policyKey: 'things.manage', userId: 123 }
+ *   context: { capabilityKey: 'things.manage', userId: 123 }
  * });
  * ```
  */
@@ -124,7 +124,7 @@ export class WPKernelError extends Error {
 		const messages: Record<ErrorCode, string> = {
 			TransportError: 'Network request failed',
 			ServerError: 'Server returned an error',
-			PolicyDenied: 'Permission denied',
+			CapabilityDenied: 'Permission denied',
 			ValidationError: 'Validation failed',
 			TimeoutError: 'Request timed out',
 			NotImplementedError: 'Feature not yet implemented',

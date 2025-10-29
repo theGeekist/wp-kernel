@@ -140,7 +140,7 @@ describe('createPhpResourceControllerHelper', () => {
 		expect(warnings).toEqual(
 			expect.arrayContaining([
 				[
-					'Write route missing policy.',
+					'Write route missing capability.',
 					{
 						resource: 'books',
 						method: 'POST',
@@ -148,7 +148,7 @@ describe('createPhpResourceControllerHelper', () => {
 					},
 				],
 				[
-					'Write route missing policy.',
+					'Write route missing capability.',
 					{
 						resource: 'books',
 						method: 'PUT',
@@ -156,7 +156,7 @@ describe('createPhpResourceControllerHelper', () => {
 					},
 				],
 				[
-					'Write route missing policy.',
+					'Write route missing capability.',
 					{
 						resource: 'books',
 						method: 'DELETE',

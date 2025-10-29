@@ -30,7 +30,7 @@ function buildInitialDecisions(
 	const map = new Map<string, ActionDecision>();
 	const actions = controller.config.actions ?? [];
 	actions.forEach((action) => {
-		if (action.policy) {
+		if (action.capability) {
 			map.set(action.id, { allowed: false, loading: true });
 			return;
 		}
@@ -50,15 +50,15 @@ function useActionDecisions(
 		let cancelled = false;
 		const actions = controller.config.actions ?? [];
 		const reporter = controller.getReporter();
-		const policyRuntime = controller.policies?.policy;
-		const can = policyRuntime?.can as
+		const capabilityRuntime = controller.capabilities?.capability;
+		const can = capabilityRuntime?.can as
 			| ((key: string, ...args: unknown[]) => boolean | Promise<boolean>)
 			| undefined;
 
 		if (!can) {
 			const next = new Map<string, ActionDecision>();
 			actions.forEach((action) => {
-				if (action.policy) {
+				if (action.capability) {
 					next.set(action.id, { allowed: false, loading: false });
 				} else {
 					next.set(action.id, { allowed: true, loading: false });
@@ -72,13 +72,13 @@ function useActionDecisions(
 
 		const next = new Map<string, ActionDecision>();
 		actions.forEach((action) => {
-			if (!action.policy) {
+			if (!action.capability) {
 				next.set(action.id, { allowed: true, loading: false });
 				return;
 			}
 
 			try {
-				const result = can(action.policy);
+				const result = can(action.capability);
 				if (result instanceof Promise) {
 					next.set(action.id, { allowed: false, loading: true });
 					result
@@ -100,10 +100,10 @@ function useActionDecisions(
 								return;
 							}
 							reporter.warn?.(
-								'Policy evaluation failed for DataViews action',
+								'Capability evaluation failed for DataViews action',
 								{
 									error,
-									policy: action.policy,
+									capability: action.capability,
 								}
 							);
 							setDecisions((prev) => {
@@ -123,9 +123,9 @@ function useActionDecisions(
 					loading: false,
 				});
 			} catch (error) {
-				reporter.error?.('Policy evaluation threw an error', {
+				reporter.error?.('Capability evaluation threw an error', {
 					error,
-					policy: action.policy,
+					capability: action.capability,
 				});
 				next.set(action.id, { allowed: false, loading: false });
 			}
@@ -136,7 +136,7 @@ function useActionDecisions(
 		return () => {
 			cancelled = true;
 		};
-	}, [controller, controller.config.actions, controller.policies]);
+	}, [controller, controller.config.actions, controller.capabilities]);
 
 	return decisions;
 }
@@ -223,7 +223,7 @@ function createActionCallback<TItem, TQuery>(
 				actionId: actionConfig.id,
 				selection: selectionIds,
 				permitted: false,
-				reason: 'policy-pending',
+				reason: 'capability-pending',
 			});
 			return;
 		}
@@ -233,9 +233,9 @@ function createActionCallback<TItem, TQuery>(
 				actionId: actionConfig.id,
 				selection: selectionIds,
 				permitted: false,
-				reason: 'policy-denied',
+				reason: 'capability-denied',
 			});
-			reporter.warn?.('DataViews action blocked by policy', {
+			reporter.warn?.('DataViews action blocked by capability', {
 				actionId: actionConfig.id,
 				selection: selectionIds,
 			});

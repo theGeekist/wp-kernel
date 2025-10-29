@@ -97,7 +97,7 @@ function createRawPerPageController(
 		namespace: runtime.namespace,
 		preferencesKey: 'tests::items',
 		invalidate: runtime.invalidate,
-		policies: undefined,
+		capabilities: undefined,
 		fetchList: undefined,
 		prefetchList: undefined,
 		mapViewToQuery,

@@ -26,7 +26,7 @@ describe('buildRestControllerModule', () => {
 				},
 			],
 			helperMethods: [],
-			policyClass: 'Demo\\Plugin\\Policy\\Policy',
+			capabilityClass: 'Demo\\Plugin\\Capability\\Capability',
 			fileName: 'Rest/BookController.php',
 		};
 
@@ -37,8 +37,8 @@ describe('buildRestControllerModule', () => {
 			controllers: [controller],
 			additionalIndexEntries: [
 				{
-					className: 'Demo\\Plugin\\Policy\\Policy',
-					path: 'Policy/Policy.php',
+					className: 'Demo\\Plugin\\Capability\\Capability',
+					path: 'Capability/Capability.php',
 				},
 			],
 		});
@@ -109,7 +109,7 @@ describe('buildRestControllerModule', () => {
 		expect(entryKeys).toEqual([
 			'Demo\\Plugin\\Rest\\BaseController',
 			'Demo\\Plugin\\Rest\\BookController',
-			'Demo\\Plugin\\Policy\\Policy',
+			'Demo\\Plugin\\Capability\\Capability',
 		]);
 		indexArray.forEach((item) => {
 			expect(item.value.nodeType).toBe('Expr_BinaryOp_Concat');

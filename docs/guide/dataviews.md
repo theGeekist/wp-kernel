@@ -1,6 +1,6 @@
 # DataViews Integration
 
-Modern admin tables in WP Kernel build on the upstream `@wordpress/dataviews` component. This guide shows how to configure a resource-driven DataView that honours kernel policies, emits events, persists preferences, and plugs into generators, tests, and accessibility follow-ups.
+Modern admin tables in WP Kernel build on the upstream `@wordpress/dataviews` component. This guide shows how to configure a resource-driven DataView that honours kernel capabilities, emits events, persists preferences, and plugs into generators, tests, and accessibility follow-ups.
 
 > 📖 Background: read the [DataViews Integration - Specification](https://github.com/theGeekist/wp-kernel/blob/main/packages/ui/DataViews%20Integration%20-%20Specification.md) for architecture decisions and the [UI package reference](../packages/ui.md) for API summaries.
 
@@ -9,7 +9,7 @@ Modern admin tables in WP Kernel build on the upstream `@wordpress/dataviews` co
 - WordPress 6.7+ (DataViews + Script Modules).
 - `@wpkernel/core` configured with `configureWPKernel()`.
 - `@wpkernel/ui` attached via `attachUIBindings()`.
-- Resources that describe their REST contract and optional policies/actions.
+- Resources that describe their REST contract and optional capabilities/actions.
 
 ## 1. Describe the admin view in your resource
 
@@ -148,7 +148,7 @@ export function JobsAdminScreen() {
 
 `ResourceDataView` wraps the upstream component, providing:
 
-- Policy-gated bulk and row actions.
+- Capability-gated bulk and row actions.
 - Preference persistence through the adapter chain (user → role → site).
 - Event emission for `ui:dataviews:*` hooks.
 - `data-wpk-dataview-*` attributes for automated tests.
@@ -199,7 +199,7 @@ Outputs include:
 
 ## Testing the experience
 
-Unit tests: see `packages/ui/src/dataviews/__tests__/` for patterns covering query mapping, preference persistence, and policy gating.
+Unit tests: see `packages/ui/src/dataviews/__tests__/` for patterns covering query mapping, preference persistence, and capability gating.
 
 Playwright helpers: `@wpkernel/e2e-utils` exposes a `kernel.dataview()` factory.
 

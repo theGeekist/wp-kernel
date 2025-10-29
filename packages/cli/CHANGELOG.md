@@ -86,7 +86,7 @@
     - Main orchestrator reduced from 775 lines to 83 lines
     - Saves ~1,750 lines across Phase 2C by reusing infrastructure (~36% reduction)
     - Established pattern for future storage mode additions
-- **ESLint Plugin**: 4 kernel config validation rules (`@kernel/config-consistency`, `@kernel/cache-keys-valid`, `@kernel/policy-hints`, `@kernel/doc-links`)
+- **ESLint Plugin**: 4 kernel config validation rules (`@kernel/config-consistency`, `@kernel/cache-keys-valid`, `@kernel/capability-hints`, `@kernel/doc-links`)
     - Educational error messages explaining framework contracts, runtime behavior, and concrete fixes
     - Inline documentation above each rule enforcement explaining the "why" behind constraints
     - JSDoc with @typedef for complex parameter objects and exported utilities
@@ -108,7 +108,7 @@
     - Enables clean addition of new storage modes without code duplication
     - Comprehensive test suite reorganized into focused spec files (basic, identity, meta, routes, stubs)
 - Enhanced ESLint rule messages to explain: (1) what we inferred, (2) why the framework cares, (3) runtime consequences, (4) how to fix with examples
-- Refactored monolithic `build-ir.ts` into focused modules (schema, routes, resource-builder, block-discovery, cache-keys, policies, php, ordering, canonical)
+- Refactored monolithic `build-ir.ts` into focused modules (schema, routes, resource-builder, block-discovery, cache-keys, capabilities, php, ordering, canonical)
 - Split IR test suite into focused spec files (core, defaults, validation, blocks, php)
 - Externalised runtime-only dependencies (`chokidar`, `clipanion`, `cosmiconfig`,
   `typanion`) from the Vite build and lazy-loaded filesystem watching so the CLI

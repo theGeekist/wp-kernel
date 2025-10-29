@@ -182,8 +182,8 @@ export const CreatePost = defineAction({
 			});
 		}
 
-		// Permission check via policy surface
-		ctx.policy.assert('publish_posts');
+		// Permission check via capability surface
+		ctx.capability.assert('publish_posts');
 
 		try {
 			const created = await post.create({ title, content });

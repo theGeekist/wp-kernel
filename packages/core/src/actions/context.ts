@@ -4,7 +4,7 @@
  * This module provides the runtime machinery that powers action execution:
  * - Context creation with dependency injection
  * - Event emission (hooks + BroadcastChannel)
- * - Policy enforcement
+ * - Capability enforcement
  * - Job scheduling integration
  * - Structured logging
  *
@@ -15,7 +15,7 @@
 import { WPKernelError } from '../error/WPKernelError';
 import { invalidate as invalidateCache } from '../resource/cache';
 import { getNamespace } from '../namespace/detect';
-import { createPolicyProxy } from '../policy/context';
+import { createCapabilityProxy } from '../capability/context';
 import { createReporter as createKernelReporter } from '../reporter';
 import { WPK_EVENTS, WPK_INFRASTRUCTURE } from '../contracts/index.js';
 import { getWPKernelEventBus } from '../events/bus';
@@ -45,7 +45,7 @@ let broadcastChannel: BroadcastChannel | null | undefined;
  * Lazily resolve the runtime configuration provided by host applications.
  *
  * Host apps can customize action behavior by setting `global.__WP_KERNEL_ACTION_RUNTIME__`
- * with custom reporters, job runners, policy engines, or event bridges.
+ * with custom reporters, job runners, capability engines, or event bridges.
  *
  * @return Runtime configuration if provided, otherwise undefined
  * @internal
@@ -160,26 +160,26 @@ function resolveReporter(
 }
 
 /**
- * Create policy integration helpers for authorization and validation.
+ * Create capability integration helpers for authorization and validation.
  *
- * Policies allow actions to enforce authorization rules, validate user capabilities,
- * and gate access to sensitive operations. This function creates a policy surface
+ * Capabilities allow actions to enforce authorization rules, validate user capabilities,
+ * and gate access to sensitive operations. This function creates a capability surface
  * that actions can use to check permissions or enforce constraints.
  *
- * If the runtime provides a custom policy engine, it's used; otherwise, returns
+ * If the runtime provides a custom capability engine, it's used; otherwise, returns
  * a no-op implementation that always allows access (useful for development or
  * applications without authorization requirements).
  *
  * @param actionName - Name of the action being protected
- * @param runtime    - Optional runtime configuration with custom policy engine
- * @return Policy helpers for checking capabilities and enforcing rules
+ * @param runtime    - Optional runtime configuration with custom capability engine
+ * @return Capability helpers for checking capabilities and enforcing rules
  * @internal
  *
  * @example
  * ```typescript
- * // With custom policy engine
+ * // With custom capability engine
  * global.__WP_KERNEL_ACTION_RUNTIME__ = {
- *   policy: {
+ *   capability: {
  *     check: async (actionName, rule) => {
  *       const user = getCurrentUser();
  *       return user.hasCapability(rule);
@@ -187,12 +187,12 @@ function resolveReporter(
  *   }
  * };
  *
- * const policy = createPolicy('DeletePost');
- * await policy.check('delete_posts'); // Throws if user lacks capability
+ * const capability = createCapability('DeletePost');
+ * await capability.check('delete_posts'); // Throws if user lacks capability
  *
  * // No-op fallback (always allows)
- * const policy = createPolicy('CreateDraft'); // No runtime provided
- * await policy.check('edit_posts'); // Always succeeds
+ * const capability = createCapability('CreateDraft'); // No runtime provided
+ * await capability.check('edit_posts'); // Always succeeds
  * ```
  */
 /**
@@ -438,12 +438,12 @@ function emitDomainEvent(
  * - Event emission (`ctx.emit`) for domain events
  * - Cache invalidation (`ctx.invalidate`) for resource stores
  * - Background job scheduling (`ctx.jobs`) for async work
- * - Authorization checks (`ctx.policy`) for capability enforcement
+ * - Authorization checks (`ctx.capability`) for capability enforcement
  * - Structured logging (`ctx.reporter`) for observability
  * - Identity metadata (`ctx.namespace`, `ctx.requestId`) for tracing
  *
  * This function assembles the context by wiring together runtime integrations
- * (reporter, jobs, policy) and binding them to the current action invocation.
+ * (reporter, jobs, capability) and binding them to the current action invocation.
  *
  * @param actionName - Name of the action being executed
  * @param requestId  - Unique identifier for this action invocation
@@ -482,7 +482,7 @@ export function createActionContext(
 	};
 
 	const reporter = resolveReporter(runtime, namespace);
-	const policy = createPolicyProxy({
+	const capability = createCapabilityProxy({
 		actionName,
 		requestId,
 		namespace,
@@ -495,7 +495,7 @@ export function createActionContext(
 		requestId,
 		namespace,
 		reporter,
-		policy,
+		capability,
 		jobs,
 		emit(eventName, payload) {
 			emitDomainEvent(eventName, payload, metadata);

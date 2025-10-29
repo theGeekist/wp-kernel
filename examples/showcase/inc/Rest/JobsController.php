@@ -186,7 +186,7 @@ class JobsController extends Controller {
 			'description'    => $request->get_param( 'description' ) ?? '',
 			'department'     => $request->get_param( 'department' ) ?? '',
 			'location'       => $request->get_param( 'location' ) ?? '',
-			'remote_policy'  => $request->get_param( 'remote_policy' ) ?? 'office',
+			'remote_capability'  => $request->get_param( 'remote_capability' ) ?? 'office',
 			'job_type'       => $request->get_param( 'job_type' ) ?? 'full-time',
 			'seniority'      => $request->get_param( 'seniority' ) ?? 'mid',
 			'salary_min'     => $request->get_param( 'salary_min' ) ?? null,
@@ -252,7 +252,7 @@ class JobsController extends Controller {
 					'description'    => $request->get_param( 'description' ),
 					'department'     => $request->get_param( 'department' ),
 					'location'       => $request->get_param( 'location' ),
-					'remote_policy'  => $request->get_param( 'remote_policy' ),
+					'remote_capability'  => $request->get_param( 'remote_capability' ),
 					'job_type'       => $request->get_param( 'job_type' ),
 					'seniority'      => $request->get_param( 'seniority' ),
 					'salary_min'     => $request->get_param( 'salary_min' ),
@@ -370,8 +370,8 @@ class JobsController extends Controller {
 					'description' => __( 'Primary office location.', 'wp-kernel-showcase' ),
 					'type'        => 'string',
 				),
-				'remote_policy'  => array(
-					'description' => __( 'Remote work policy.', 'wp-kernel-showcase' ),
+				'remote_capability'  => array(
+					'description' => __( 'Remote work capability.', 'wp-kernel-showcase' ),
 					'type'        => 'string',
 					'enum'        => array( 'office', 'hybrid', 'remote', 'remote-first' ),
 				),
@@ -440,7 +440,7 @@ class JobsController extends Controller {
 				'description'    => 'Build cutting-edge WordPress products using modern JavaScript frameworks.',
 				'department'     => 'Engineering',
 				'location'       => 'San Francisco, CA',
-				'remote_policy'  => 'hybrid',
+				'remote_capability'  => 'hybrid',
 				'job_type'       => 'full-time',
 				'seniority'      => 'senior',
 				'salary_min'     => 12000000, // $120,000
@@ -457,7 +457,7 @@ class JobsController extends Controller {
 				'description'    => 'Join our team to build beautiful, accessible interfaces using React and Gutenberg.',
 				'department'     => 'Engineering',
 				'location'       => 'Remote',
-				'remote_policy'  => 'remote-first',
+				'remote_capability'  => 'remote-first',
 				'job_type'       => 'full-time',
 				'seniority'      => 'junior',
 				'salary_min'     => 7000000, // $70,000
@@ -474,7 +474,7 @@ class JobsController extends Controller {
 				'description'    => 'Define product strategy and work with engineering to deliver value to customers.',
 				'department'     => 'Product',
 				'location'       => 'New York, NY',
-				'remote_policy'  => 'hybrid',
+				'remote_capability'  => 'hybrid',
 				'job_type'       => 'full-time',
 				'seniority'      => 'lead',
 				'salary_min'     => 15000000, // $150,000
@@ -491,7 +491,7 @@ class JobsController extends Controller {
 				'description'    => 'Build and maintain our CI/CD pipeline and cloud infrastructure.',
 				'department'     => 'Engineering',
 				'location'       => 'Austin, TX',
-				'remote_policy'  => 'remote',
+				'remote_capability'  => 'remote',
 				'job_type'       => 'full-time',
 				'seniority'      => 'mid',
 				'salary_min'     => 10000000, // $100,000
@@ -508,7 +508,7 @@ class JobsController extends Controller {
 				'description'    => 'Design intuitive user experiences for our WordPress products.',
 				'department'     => 'Design',
 				'location'       => 'Seattle, WA',
-				'remote_policy'  => 'hybrid',
+				'remote_capability'  => 'hybrid',
 				'job_type'       => 'full-time',
 				'seniority'      => 'mid',
 				'salary_min'     => 9000000, // $90,000

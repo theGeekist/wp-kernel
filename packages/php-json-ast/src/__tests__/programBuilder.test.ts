@@ -86,8 +86,8 @@ function createBuilderInput(): BuilderInput {
 			config: {} as never,
 			schemas: [],
 			resources: [],
-			policies: [],
-			policyMap: {
+			capabilities: [],
+			capabilityMap: {
 				sourcePath: undefined,
 				definitions: [],
 				fallback: {
@@ -123,7 +123,7 @@ describe('programBuilder helpers', () => {
 			key: 'test-program',
 			filePath: '/workspace/.generated/php/Example.php',
 			namespace: 'Demo\\Example',
-			metadata: { kind: 'policy-helper' },
+			metadata: { kind: 'capability-helper' },
 			build: (builder) => {
 				builder.appendDocblock('Example file');
 				builder.addUse('Demo\\Contracts');
@@ -161,7 +161,7 @@ describe('programBuilder helpers', () => {
 		expect(actions).toHaveLength(1);
 		const [action] = actions;
 		expect(action!.file).toBe('/workspace/.generated/php/Example.php');
-		expect(action!.metadata.kind).toBe('policy-helper');
+		expect(action!.metadata.kind).toBe('capability-helper');
 		expect(action!.docblock).toContain('Example file');
 		expect(action!.uses).toEqual([
 			'Demo\\Contracts',
@@ -195,7 +195,7 @@ describe('programBuilder helpers', () => {
 			key: 'multi-methods',
 			filePath: '/workspace/.generated/php/Blank.php',
 			namespace: 'Demo\\Blank',
-			metadata: { kind: 'policy-helper' },
+			metadata: { kind: 'capability-helper' },
 			build: (builder) => {
 				const first = buildClassMethod(buildIdentifier('first'), {
 					flags: PHP_METHOD_MODIFIER_PUBLIC,
@@ -258,7 +258,7 @@ describe('programBuilder helpers', () => {
 			key: 'normalised-uses',
 			filePath: '/workspace/.generated/php/Normalised.php',
 			namespace: 'Demo\\Original',
-			metadata: { kind: 'policy-helper' },
+			metadata: { kind: 'capability-helper' },
 			build: (builder) => {
 				builder.addUse('   ');
 				builder.addUse('\\');

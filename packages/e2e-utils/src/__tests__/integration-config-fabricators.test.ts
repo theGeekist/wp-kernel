@@ -6,7 +6,7 @@ describe('fabricateWPKernelConfig', () => {
 			namespace: 'custom-namespace',
 			storage: 'wp-post',
 			includeRemoteRoutes: true,
-			includePolicies: true,
+			includeCapabilities: true,
 			includeSSRBlock: true,
 			includeJsBlock: true,
 		});

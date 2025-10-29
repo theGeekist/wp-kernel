@@ -71,12 +71,12 @@ describe('createReporter', () => {
 			namespace: WPK_NAMESPACE,
 			channel: 'console',
 		});
-		const child = reporter.child('policy');
+		const child = reporter.child('capability');
 
 		child.warn('denied');
 
 		expect(console.warn).toHaveBeenCalledWith(
-			`[${WPK_NAMESPACE}.policy]`,
+			`[${WPK_NAMESPACE}.capability]`,
 			'denied'
 		);
 	});

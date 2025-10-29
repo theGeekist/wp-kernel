@@ -15,7 +15,7 @@ export { attachUIBindings, WPKernelUIProvider, useWPKernelUI } from './runtime';
 export type { WPKernelUIProviderProps } from './runtime';
 
 // Hooks migrated from kernel
-export { usePolicy } from './hooks/usePolicy';
+export { useCapability } from './hooks/useCapability';
 export {
 	attachResourceHooks,
 	type UseResourceItemResult,

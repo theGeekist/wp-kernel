@@ -32,7 +32,7 @@ export function useResolvedController<TItem, TQuery>(
 			runtime: context.dataviews,
 			namespace: context.namespace,
 			invalidate: context.invalidate,
-			policies: () => context.policies,
+			capabilities: () => context.capabilities,
 			fetchList,
 			prefetchList: resource.prefetchList,
 		});
@@ -43,7 +43,7 @@ export function useResolvedController<TItem, TQuery>(
 		context.dataviews,
 		context.namespace,
 		context.invalidate,
-		context.policies,
+		context.capabilities,
 		fetchList,
 	]);
 }

@@ -112,12 +112,14 @@ describe('wpkEventsPlugin', () => {
 			expect.objectContaining({ requestId: 'act_error' })
 		);
 
-		// Policy denied → warning notice
+		// Capability denied → warning notice
 		bus.emit(
 			'action:error',
 			createActionErrorEvent({
-				error: new WPKernelError('PolicyDenied', { message: 'denied' }),
-				actionName: 'CheckPolicy',
+				error: new WPKernelError('CapabilityDenied', {
+					message: 'denied',
+				}),
+				actionName: 'CheckCapability',
 				requestId: 'act_warning',
 				namespace: 'acme',
 				bridged: true,

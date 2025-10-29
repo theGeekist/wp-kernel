@@ -53,7 +53,7 @@ export * as resource from './resource/index.js';
 export * as error from './error/index.js';
 export * as namespace from './namespace/index.js';
 export * as actions from './actions/index.js';
-export * as policy from './policy/index.js';
+export * as capability from './capability/index.js';
 export * as data from './data/index.js';
 export * as events from './events/index.js';
 export * as contracts from './contracts/index.js';
@@ -168,21 +168,21 @@ export type {
 	WaitOptions,
 } from './actions/types';
 
-// Policy system
-export { definePolicy, createPolicyProxy } from './policy/index.js';
+// Capability system
+export { defineCapability, createCapabilityProxy } from './capability/index.js';
 export type {
-	PolicyRule,
-	PolicyMap,
-	PolicyHelpers,
-	PolicyOptions,
-	PolicyDefinitionConfig,
-	PolicyContext,
-	PolicyCache,
-	PolicyCacheOptions,
-	PolicyDeniedEvent,
-	PolicyReporter,
+	CapabilityRule,
+	CapabilityMap,
+	CapabilityHelpers,
+	CapabilityOptions,
+	CapabilityDefinitionConfig,
+	CapabilityContext,
+	CapabilityCache,
+	CapabilityCacheOptions,
+	CapabilityDeniedEvent,
+	CapabilityReporter,
 	ParamsOf,
-} from './policy/index.js';
+} from './capability/index.js';
 
 // Data integration
 export { configureWPKernel, registerWPKernelStore } from './data/index.js';
@@ -195,7 +195,7 @@ export type {
 	WPKernelUIRuntime,
 	WPKernelUIAttach,
 	UIIntegrationOptions,
-	WPKUIPolicyRuntime,
+	WPKUICapabilityRuntime,
 	NoticeStatus,
 } from './data/index.js';
 

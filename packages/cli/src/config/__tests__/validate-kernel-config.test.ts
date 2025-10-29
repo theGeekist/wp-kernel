@@ -19,27 +19,27 @@ interface TestResourceConfig {
 		list?: {
 			path: string;
 			method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-			policy?: string;
+			capability?: string;
 		};
 		get?: {
 			path: string;
 			method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-			policy?: string;
+			capability?: string;
 		};
 		create?: {
 			path: string;
 			method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-			policy?: string;
+			capability?: string;
 		};
 		update?: {
 			path: string;
 			method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-			policy?: string;
+			capability?: string;
 		};
 		remove?: {
 			path: string;
 			method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-			policy?: string;
+			capability?: string;
 		};
 	};
 	identity?:
@@ -393,7 +393,7 @@ describe('validateWPKernelConfig helpers', () => {
 		);
 	});
 
-	it('warns when write routes lack policy', () => {
+	it('warns when write routes lack capability', () => {
 		const { child } = createMockReporter();
 
 		runResourceChecks(
@@ -416,7 +416,7 @@ describe('validateWPKernelConfig helpers', () => {
 
 		expect(child.warn).toHaveBeenCalledTimes(2);
 		expect(child.warn).toHaveBeenCalledWith(
-			expect.stringContaining('write method but has no policy'),
+			expect.stringContaining('write method but has no capability'),
 			expect.objectContaining({
 				resourceName: 'thing',
 				routeKey: 'create',
@@ -424,7 +424,7 @@ describe('validateWPKernelConfig helpers', () => {
 			})
 		);
 		expect(child.warn).toHaveBeenCalledWith(
-			expect.stringContaining('write method but has no policy'),
+			expect.stringContaining('write method but has no capability'),
 			expect.objectContaining({
 				resourceName: 'thing',
 				routeKey: 'update',
@@ -433,7 +433,7 @@ describe('validateWPKernelConfig helpers', () => {
 		);
 	});
 
-	it('does not warn when write routes have policy', () => {
+	it('does not warn when write routes have capability', () => {
 		const { child } = createMockReporter();
 
 		runResourceChecks(
@@ -444,7 +444,7 @@ describe('validateWPKernelConfig helpers', () => {
 					create: {
 						path: '/things',
 						method: 'POST',
-						policy: 'create_things',
+						capability: 'create_things',
 					},
 				},
 			} as ResourceConfig,

@@ -15,7 +15,7 @@ function extractDocText(method: PhpStmtClassMethod): string {
 }
 
 describe('buildRestRoute', () => {
-	it('creates route methods with request param guards and policy enforcement', () => {
+	it('creates route methods with request param guards and capability enforcement', () => {
 		const config: RestRouteConfig = {
 			methodName: 'get_item',
 			metadata: {
@@ -23,7 +23,7 @@ describe('buildRestRoute', () => {
 				path: '/jobs/(?P<id>\\d+)',
 				kind: 'get',
 			},
-			policy: 'job.read',
+			capability: 'job.read',
 			usesIdentity: true,
 			statements: [buildReturn(buildScalarString('ok'))],
 		};

@@ -12,7 +12,7 @@ import {
 	createPhpBlocksHelper,
 	createPhpIndexFileHelper,
 	createPhpPersistenceRegistryHelper,
-	createPhpPolicyHelper,
+	createPhpCapabilityHelper,
 	createPhpProgramWriterHelper,
 	createPhpResourceControllerHelper,
 } from './printers';
@@ -44,7 +44,7 @@ export function createPhpBuilder(
 				createPhpChannelHelper(),
 				createPhpBaseControllerHelper(),
 				createPhpResourceControllerHelper(),
-				createPhpPolicyHelper(),
+				createPhpCapabilityHelper(),
 				createPhpPersistenceRegistryHelper(),
 				createPhpIndexFileHelper(),
 				createPhpBlocksHelper(),

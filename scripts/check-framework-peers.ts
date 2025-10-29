@@ -163,7 +163,7 @@ function collectDevDependencyErrors(
 
 		if (!spec.devRange) {
 			errors.push(
-				`${packageName} declares devDependency "${dependency}" but the shared policy does not define a version. Add a policy entry or remove the devDependency.`
+				`${packageName} declares devDependency "${dependency}" but the shared capability does not define a version. Add a capability entry or remove the devDependency.`
 			);
 			continue;
 		}
@@ -178,7 +178,7 @@ function collectDevDependencyErrors(
 	return errors;
 }
 
-function ensurePeerPolicy(
+function ensurePeerCapability(
 	packageJson: PackageJson,
 	packagePath: string
 ): string[] {
@@ -206,7 +206,7 @@ function main(): void {
 	const workspacePackages = gatherWorkspacePackages();
 	for (const packageJsonPath of workspacePackages) {
 		const packageJson = readJsonFile<PackageJson>(packageJsonPath);
-		errors.push(...ensurePeerPolicy(packageJson, packageJsonPath));
+		errors.push(...ensurePeerCapability(packageJson, packageJsonPath));
 	}
 
 	if (errors.length > 0) {
@@ -218,7 +218,7 @@ function main(): void {
 		return;
 	}
 
-	console.log('✅ Framework peer dependency policy is satisfied.');
+	console.log('✅ Framework peer dependency capability is satisfied.');
 }
 
 main();

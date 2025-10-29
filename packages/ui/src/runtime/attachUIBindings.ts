@@ -17,25 +17,27 @@ import {
 import { createResourceDataViewController } from '../dataviews/resource-controller';
 import type { ResourceDataViewConfig } from '../dataviews/types';
 
-type RuntimePolicy = NonNullable<WPKernelUIRuntime['policies']>['policy'];
+type RuntimeCapability = NonNullable<
+	WPKernelUIRuntime['capabilities']
+>['capability'];
 
 type ResourceDataViewMetadata<TItem, TQuery> = {
 	config: ResourceDataViewConfig<TItem, TQuery>;
 	preferencesKey?: string;
 };
 
-function resolvePolicyRuntime(): WPKernelUIRuntime['policies'] {
+function resolveCapabilityRuntime(): WPKernelUIRuntime['capabilities'] {
 	const runtime = (
 		globalThis as {
-			__WP_KERNEL_ACTION_RUNTIME__?: { policy?: RuntimePolicy };
+			__WP_KERNEL_ACTION_RUNTIME__?: { capability?: RuntimeCapability };
 		}
 	).__WP_KERNEL_ACTION_RUNTIME__;
 
-	if (!runtime?.policy) {
+	if (!runtime?.capability) {
 		return undefined;
 	}
 
-	return { policy: runtime.policy };
+	return { capability: runtime.capability };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -98,7 +100,7 @@ function registerResourceDataView<TItem, TQuery>(
 			runtime: dataviews,
 			namespace: runtime.namespace,
 			invalidate: runtime.invalidate,
-			policies: () => runtime.policies,
+			capabilities: () => runtime.capabilities,
 			preferencesKey: metadata.preferencesKey,
 			fetchList: resource.fetchList,
 			prefetchList: resource.prefetchList,
@@ -152,10 +154,10 @@ export const attachUIBindings: WPKernelUIAttach = (
 		reporter: kernel.getReporter(),
 		registry: kernel.getRegistry(),
 		events: kernel.events,
-		// Use a getter to resolve policy runtime dynamically, allowing late registrations
-		// via definePolicy() after attachUIBindings() has been called (e.g., lazy-loaded plugins)
-		get policies() {
-			return resolvePolicyRuntime();
+		// Use a getter to resolve capability runtime dynamically, allowing late registrations
+		// via defineCapability() after attachUIBindings() has been called (e.g., lazy-loaded plugins)
+		get capabilities() {
+			return resolveCapabilityRuntime();
 		},
 		invalidate: (patterns, invalidateOptions) =>
 			kernel.invalidate(patterns, invalidateOptions),

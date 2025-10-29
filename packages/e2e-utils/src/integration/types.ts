@@ -156,7 +156,7 @@ export interface WPKernelConfigFabricatorOptions {
 	includeSSRBlock?: boolean;
 	includeJsBlock?: boolean;
 	includeRemoteRoutes?: boolean;
-	includePolicies?: boolean;
+	includeCapabilities?: boolean;
 }
 
 export interface WPKernelConfigFabrication {

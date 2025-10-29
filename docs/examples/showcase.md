@@ -9,7 +9,7 @@ The project exercises most of the shipped surface area:
 - The `job` resource defines REST routes, cache keys, query parameter descriptors, and DataViews metadata that the CLI turns into React fixtures and PHP menu shims.【F:examples/showcase/wpk.config.ts†L1-L340】【F:packages/cli/src/next/builders/ts.ts†L1-L200】
 - Actions in `src/actions/jobs/CreateJob.ts` coordinate writes by calling the generated client, invalidating cache keys, and emitting domain events.【F:examples/showcase/src/actions/jobs/CreateJob.ts†L1-L80】
 - `src/views/admin/JobsList.tsx` renders `<ResourceDataView>` against the generated runtime so you can see how the UI bindings work in practice.【F:examples/showcase/src/views/admin/JobsList.tsx†L1-L200】
-- After `wpk generate` and `wpk apply`, PHP controllers live under `inc/Rest/**` and expose permission callbacks that map to the policy hints in the config.【F:examples/showcase/inc/Rest/JobController.php†L1-L200】【F:packages/cli/src/next/builders/php/resourceController.ts†L1-L220】
+- After `wpk generate` and `wpk apply`, PHP controllers live under `inc/Rest/**` and expose permission callbacks that map to the capability hints in the config.【F:examples/showcase/inc/Rest/JobController.php†L1-L200】【F:packages/cli/src/next/builders/php/resourceController.ts†L1-L220】
 
 ## Run it locally
 

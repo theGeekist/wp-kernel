@@ -146,7 +146,7 @@ describe('resource cache internals', () => {
 
 	it('warns when stores omit __getInternalState in development', () => {
 		process.env.NODE_ENV = 'development';
-		const storeKey = 'wpk/policy-less';
+		const storeKey = 'wpk/capability-less';
 		registerStoreKey(storeKey);
 
 		const invalidateSpy = jest.fn();
@@ -155,7 +155,7 @@ describe('resource cache internals', () => {
 
 		const { reporter, logs } = createReporterSpy();
 
-		invalidate(['policy-less', 'list'], {
+		invalidate(['capability-less', 'list'], {
 			registry,
 			reporter,
 			storeKey,

@@ -161,14 +161,14 @@ describe('Action Context', () => {
 			});
 		});
 
-		describe('policy', () => {
-			it('uses runtime policy if provided', () => {
-				const mockPolicy = {
+		describe('capability', () => {
+			it('uses runtime capability if provided', () => {
+				const mockCapability = {
 					assert: jest.fn(),
 					can: jest.fn().mockReturnValue(true),
 				};
 				global.__WP_KERNEL_ACTION_RUNTIME__ = {
-					policy: mockPolicy,
+					capability: mockCapability,
 				};
 
 				const ctx = createActionContext('Test.Action', 'req_123', {
@@ -176,21 +176,21 @@ describe('Action Context', () => {
 					bridged: true,
 				});
 
-				ctx.policy.assert('test.capability', undefined);
-				expect(mockPolicy.assert).toHaveBeenCalledWith(
+				ctx.capability.assert('test.capability', undefined);
+				expect(mockCapability.assert).toHaveBeenCalledWith(
 					'test.capability',
 					undefined
 				);
 
-				const result = ctx.policy.can('test.capability', undefined);
-				expect(mockPolicy.can).toHaveBeenCalledWith(
+				const result = ctx.capability.can('test.capability', undefined);
+				expect(mockCapability.can).toHaveBeenCalledWith(
 					'test.capability',
 					undefined
 				);
 				expect(result).toBe(true);
 			});
 
-			it('throws WPKernelError when assert called without runtime policy', () => {
+			it('throws WPKernelError when assert called without runtime capability', () => {
 				global.__WP_KERNEL_ACTION_RUNTIME__ = undefined;
 
 				const ctx = createActionContext('Test.Action', 'req_123', {
@@ -199,14 +199,14 @@ describe('Action Context', () => {
 				});
 
 				expect(() =>
-					ctx.policy.assert('test.capability', undefined)
+					ctx.capability.assert('test.capability', undefined)
 				).toThrow(WPKernelError);
 				expect(() =>
-					ctx.policy.assert('test.capability', undefined)
-				).toThrow(/attempted to assert a policy/);
+					ctx.capability.assert('test.capability', undefined)
+				).toThrow(/attempted to assert a capability/);
 			});
 
-			it('returns false and warns when can called without runtime policy', () => {
+			it('returns false and warns when can called without runtime capability', () => {
 				global.__WP_KERNEL_ACTION_RUNTIME__ = undefined;
 				const originalEnv = process.env.NODE_ENV;
 				process.env.NODE_ENV = 'development';
@@ -219,20 +219,26 @@ describe('Action Context', () => {
 					bridged: true,
 				});
 
-				const result1 = ctx.policy.can('test.capability', undefined);
+				const result1 = ctx.capability.can(
+					'test.capability',
+					undefined
+				);
 				expect(result1).toBe(false);
 				expect(consoleWarnSpy).toHaveBeenCalledWith(
-					'[wpk.policy]',
-					'Action "Test.Action" called policy.can(\'test.capability\') but no policy runtime is configured.'
+					'[wpk.capability]',
+					'Action "Test.Action" called capability.can(\'test.capability\') but no capability runtime is configured.'
 				);
 				expect(console as any).toHaveWarnedWith(
-					'[wpk.policy]',
-					'Action "Test.Action" called policy.can(\'test.capability\') but no policy runtime is configured.'
+					'[wpk.capability]',
+					'Action "Test.Action" called capability.can(\'test.capability\') but no capability runtime is configured.'
 				);
 
 				// Second call should not warn again (warned = true)
 				consoleWarnSpy.mockClear();
-				const result2 = ctx.policy.can('test.capability', undefined);
+				const result2 = ctx.capability.can(
+					'test.capability',
+					undefined
+				);
 				expect(result2).toBe(false);
 				expect(consoleWarnSpy).not.toHaveBeenCalled();
 
@@ -253,7 +259,7 @@ describe('Action Context', () => {
 					bridged: true,
 				});
 
-				const result = ctx.policy.can('test.capability', undefined);
+				const result = ctx.capability.can('test.capability', undefined);
 				expect(result).toBe(false);
 				expect(consoleWarnSpy).not.toHaveBeenCalled();
 

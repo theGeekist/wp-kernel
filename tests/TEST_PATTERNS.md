@@ -116,7 +116,7 @@ global.sessionStorage = {
 
 ## Common Scenarios
 
-### Testing Policy Events
+### Testing Capability Events
 
 ```typescript
 // ✓ CORRECT
@@ -128,8 +128,8 @@ window.wp!.hooks!.doAction = doAction;
 // Test your code...
 
 expect(doAction).toHaveBeenCalledWith(
-	'wpk.policy.denied',
-	expect.objectContaining({ policyKey: 'test' })
+	'wpk.capability.denied',
+	expect.objectContaining({ capabilityKey: 'test' })
 );
 ```
 
@@ -137,7 +137,7 @@ expect(doAction).toHaveBeenCalledWith(
 
 ```typescript
 // ✓ CORRECT: Use built-in BroadcastChannel
-const channel = new BroadcastChannel('wpk.policy.events');
+const channel = new BroadcastChannel('wpk.capability.events');
 const listener = jest.fn();
 channel.onmessage = listener;
 

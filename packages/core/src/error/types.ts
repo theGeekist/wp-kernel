@@ -12,7 +12,7 @@
 export type ErrorCode =
 	| 'TransportError' // HTTP/network errors
 	| 'ServerError' // WordPress REST API errors
-	| 'PolicyDenied' // Permission/capability failures
+	| 'CapabilityDenied' // Permission/capability failures
 	| 'ValidationError' // Input validation failures
 	| 'TimeoutError' // Request/job timeouts
 	| 'NotImplementedError' // Feature not yet implemented
@@ -27,7 +27,7 @@ export type ErrorContext = {
 	/** Resource or action name */
 	resourceName?: string;
 	actionName?: string;
-	policyKey?: string;
+	capabilityKey?: string;
 
 	/** Request details */
 	path?: string;

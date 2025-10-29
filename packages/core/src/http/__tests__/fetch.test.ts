@@ -377,7 +377,7 @@ describe('transport/fetch', () => {
 		});
 
 		it('should preserve existing WPKernelError instances', async () => {
-			const customError = new WPKernelError('PolicyDenied', {
+			const customError = new WPKernelError('CapabilityDenied', {
 				message: 'Custom error',
 			});
 			mockApiFetch.mockRejectedValue(customError);
@@ -389,7 +389,7 @@ describe('transport/fetch', () => {
 				});
 			} catch (error) {
 				expect(error).toBe(customError);
-				expect((error as WPKernelError).code).toBe('PolicyDenied');
+				expect((error as WPKernelError).code).toBe('CapabilityDenied');
 			}
 		});
 	});

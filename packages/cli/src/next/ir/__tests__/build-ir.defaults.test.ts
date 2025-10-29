@@ -94,7 +94,7 @@ describe('buildIr - defaults and inference', () => {
 		});
 	});
 
-	it('collects policy references across routes and resources', async () => {
+	it('collects capability references across routes and resources', async () => {
 		const config = createBaseConfig();
 		config.resources = {
 			alpha: {
@@ -104,12 +104,12 @@ describe('buildIr - defaults and inference', () => {
 					list: {
 						path: '/test-namespace/v1/alpha',
 						method: 'GET',
-						policy: 'shared.policy',
+						capability: 'shared.capability',
 					},
 					create: {
 						path: '/test-namespace/v1/alpha',
 						method: 'POST',
-						policy: 'shared.policy',
+						capability: 'shared.capability',
 					},
 				},
 			},
@@ -120,7 +120,7 @@ describe('buildIr - defaults and inference', () => {
 					get: {
 						path: '/test-namespace/v1/beta/:id',
 						method: 'GET',
-						policy: 'shared.policy',
+						capability: 'shared.capability',
 					},
 				},
 			},
@@ -133,12 +133,12 @@ describe('buildIr - defaults and inference', () => {
 			namespace: config.namespace,
 		});
 
-		const [policy] = ir.policies.filter(
-			(candidate) => candidate.key === 'shared.policy'
+		const [capability] = ir.capabilities.filter(
+			(candidate) => candidate.key === 'shared.capability'
 		);
-		expect(policy.references).toHaveLength(3);
+		expect(capability.references).toHaveLength(3);
 		expect(
-			policy.references.map((reference) => reference.resource)
+			capability.references.map((reference) => reference.resource)
 		).toEqual(['alpha', 'alpha', 'beta']);
 	});
 

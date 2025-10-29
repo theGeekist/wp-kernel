@@ -3,7 +3,7 @@ import type { ReduxMiddleware } from '../actions/types';
 import type { Reporter } from '../reporter';
 import type { CacheKeyPattern, InvalidateOptions } from '../resource/cache';
 import type { WPKernelEventBus } from '../events/bus';
-import type { PolicyHelpers } from '../policy/types';
+import type { CapabilityHelpers } from '../capability/types';
 import type { ResourceConfig, ResourceObject } from '../resource/types';
 
 export type WPKernelRegistry = WPDataRegistry & {
@@ -40,9 +40,9 @@ export interface UIIntegrationOptions {
 	[key: string]: unknown;
 }
 
-export interface WPKUIPolicyRuntime {
-	policy?: Partial<PolicyHelpers<Record<string, unknown>>> & {
-		cache?: PolicyHelpers<Record<string, unknown>>['cache'];
+export interface WPKUICapabilityRuntime {
+	capability?: Partial<CapabilityHelpers<Record<string, unknown>>> & {
+		cache?: CapabilityHelpers<Record<string, unknown>>['cache'];
 	};
 }
 
@@ -52,7 +52,7 @@ export interface WPKernelUIRuntime {
 	reporter: Reporter;
 	registry?: WPKernelRegistry;
 	events: WPKernelEventBus;
-	policies?: WPKUIPolicyRuntime;
+	capabilities?: WPKUICapabilityRuntime;
 	invalidate?: (
 		patterns: CacheKeyPattern | CacheKeyPattern[],
 		options?: InvalidateOptions

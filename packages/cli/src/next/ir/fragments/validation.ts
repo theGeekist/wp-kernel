@@ -6,7 +6,11 @@ export function createValidationFragment(): IrFragment {
 	return createHelper({
 		key: 'ir.validation.core',
 		kind: 'fragment',
-		dependsOn: ['ir.meta.core', 'ir.resources.core', 'ir.policy-map.core'],
+		dependsOn: [
+			'ir.meta.core',
+			'ir.resources.core',
+			'ir.capability-map.core',
+		],
 		async apply({ input }: IrFragmentApplyOptions) {
 			if (!input.draft.meta) {
 				throw new WPKernelError('ValidationError', {
@@ -14,10 +18,10 @@ export function createValidationFragment(): IrFragment {
 				});
 			}
 
-			if (!input.draft.policyMap) {
+			if (!input.draft.capabilityMap) {
 				throw new WPKernelError('ValidationError', {
 					message:
-						'IR policy map was not resolved before validation.',
+						'IR capability map was not resolved before validation.',
 				});
 			}
 

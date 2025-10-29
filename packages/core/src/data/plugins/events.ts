@@ -73,7 +73,7 @@ function getNoticesDispatch(
 function mapErrorToStatus(error: unknown): NoticeStatus {
 	if (WPKernelError.isWPKernelError(error)) {
 		switch (error.code) {
-			case 'PolicyDenied':
+			case 'CapabilityDenied':
 				return 'warning';
 			case 'ValidationError':
 				return 'info';

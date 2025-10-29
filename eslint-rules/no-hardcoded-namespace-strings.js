@@ -2,7 +2,7 @@
  * ESLint Rule: no-hardcoded-namespace-strings
  *
  * Enforces usage of WPK_NAMESPACE, WPK_EVENTS, and WPK_SUBSYSTEM_NAMESPACES constants
- * instead of hardcoded namespace strings like 'wpk', 'wpk.action.start', 'kernel.policy', etc.
+ * instead of hardcoded namespace strings like 'wpk', 'wpk.action.start', 'kernel.capability', etc.
  *
  * This prevents namespace drift and ensures a single source of truth for all
  * framework namespace identifiers.
@@ -45,20 +45,20 @@ const NAMESPACE_PATTERNS = {
 
 	// Subsystem namespaces
 	SUBSYSTEM_NAMESPACES: [
-		'wpk.policy',
-		'wpk.policy.cache',
+		'wpk.capability',
+		'wpk.capability.cache',
 		'wpk.cache',
 		'wpk.actions',
 		'wpk.namespace',
 		'wpk.reporter',
-		'kernel.policy', // Legacy, should use wpk.policy
+		'kernel.capability', // Legacy, should use wpk.capability
 	],
 
 	// Infrastructure/channel names
 	INFRASTRUCTURE: [
 		'wpk.actions', // BroadcastChannel
-		'wpk.policy.cache',
-		'wpk.policy.events',
+		'wpk.capability.cache',
+		'wpk.capability.events',
 	],
 
 	// Namespace prefix patterns (for string operations)
@@ -210,8 +210,8 @@ function getConstantSuggestion(value) {
 
 	// Subsystem namespaces
 	if (NAMESPACE_PATTERNS.SUBSYSTEM_NAMESPACES.includes(value)) {
-		if (value === 'kernel.policy') {
-			return 'WPK_SUBSYSTEM_NAMESPACES.POLICY (changed from kernel.policy to wpk.policy)';
+		if (value === 'kernel.capability') {
+			return 'WPK_SUBSYSTEM_NAMESPACES.POLICY (changed from kernel.capability to wpk.capability)';
 		}
 		const constantName = value
 			.replace('wpk.', '')

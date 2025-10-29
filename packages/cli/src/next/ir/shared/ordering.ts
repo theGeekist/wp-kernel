@@ -1,6 +1,6 @@
 import type {
 	IRBlock,
-	IRPolicyHint,
+	IRCapabilityHint,
 	IRResource,
 	IRSchema,
 } from '../publicTypes';
@@ -20,8 +20,10 @@ export function sortResources(resources: IRResource[]): IRResource[] {
 	});
 }
 
-export function sortPolicies(policies: IRPolicyHint[]): IRPolicyHint[] {
-	return policies.slice().sort((a, b) => a.key.localeCompare(b.key));
+export function sortCapabilities(
+	capabilities: IRCapabilityHint[]
+): IRCapabilityHint[] {
+	return capabilities.slice().sort((a, b) => a.key.localeCompare(b.key));
 }
 
 export function sortBlocks(blocks: IRBlock[]): IRBlock[] {

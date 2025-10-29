@@ -33,7 +33,7 @@ function createIr(): IRv1 {
 		},
 		schemas: [],
 		resources: [],
-		policies: [],
+		capabilities: [],
 		blocks: [],
 		php: {
 			namespace: 'Demo\\Namespace',

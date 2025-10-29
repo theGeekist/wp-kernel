@@ -33,7 +33,7 @@ export function resolveRuntime(
 				context: {
 					namespace: runtimeProp.namespace,
 					dataviews: ensureControllerRuntime(runtimeProp.dataviews),
-					policies: runtimeProp.policies,
+					capabilities: runtimeProp.capabilities,
 					invalidate: runtimeProp.invalidate,
 					registry: runtimeProp.registry,
 					reporter: runtimeProp.reporter,
@@ -60,7 +60,7 @@ export function resolveRuntime(
 		context: {
 			namespace: hookRuntime.namespace,
 			dataviews: ensureControllerRuntime(hookRuntime.dataviews),
-			policies: hookRuntime.policies,
+			capabilities: hookRuntime.capabilities,
 			invalidate: hookRuntime.invalidate,
 			registry: hookRuntime.registry,
 			reporter: hookRuntime.reporter,

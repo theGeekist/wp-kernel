@@ -80,7 +80,7 @@ describe('createIr', () => {
 						list: {
 							path: '/todo-app/v1/todo',
 							method: 'GET',
-							policy: 'manage_todo',
+							capability: 'manage_todo',
 						},
 					},
 					cacheKeys: {
@@ -143,7 +143,7 @@ describe('createIr', () => {
 							expect.objectContaining({
 								path: '/todo-app/v1/todo',
 								method: 'GET',
-								policy: 'manage_todo',
+								capability: 'manage_todo',
 							}),
 						],
 						cacheKeys: expect.objectContaining({
@@ -164,7 +164,7 @@ describe('createIr', () => {
 				);
 
 				expect(Array.isArray(ir.blocks)).toBe(true);
-				expect(ir.policyMap).toEqual(
+				expect(ir.capabilityMap).toEqual(
 					expect.objectContaining({
 						fallback: expect.objectContaining({
 							capability: expect.any(String),

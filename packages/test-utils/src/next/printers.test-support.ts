@@ -56,19 +56,19 @@ export interface PrinterIRSchema {
 	};
 }
 
-export interface PrinterIRPolicyReference {
+export interface PrinterIRCapabilityReference {
 	readonly resource: string;
 	readonly route: string;
 	readonly transport: string;
 }
 
-export interface PrinterIRPolicyHint {
+export interface PrinterIRCapabilityHint {
 	readonly key: string;
 	readonly source: 'resource' | 'config';
-	readonly references: PrinterIRPolicyReference[];
+	readonly references: PrinterIRCapabilityReference[];
 }
 
-export interface PrinterIRPolicyDefinition {
+export interface PrinterIRCapabilityDefinition {
 	readonly key: string;
 	readonly capability: string;
 	readonly appliesTo: 'resource' | 'object';
@@ -76,9 +76,9 @@ export interface PrinterIRPolicyDefinition {
 	readonly source: 'map' | 'fallback';
 }
 
-export interface PrinterIRPolicyMap {
+export interface PrinterIRCapabilityMap {
 	readonly sourcePath?: string;
-	readonly definitions: PrinterIRPolicyDefinition[];
+	readonly definitions: PrinterIRCapabilityDefinition[];
 	readonly fallback: {
 		readonly capability: string;
 		readonly appliesTo: 'resource' | 'object';
@@ -106,8 +106,8 @@ export type PrinterIr = IRv1Like<
 	PrinterIRSchema,
 	IRRouteLike,
 	IRResourceLike,
-	PrinterIRPolicyHint,
-	PrinterIRPolicyMap,
+	PrinterIRCapabilityHint,
+	PrinterIRCapabilityMap,
 	PrinterIRBlock,
 	PrinterPhpProject
 >;
@@ -116,8 +116,8 @@ export interface MakePrinterIrFixtureOptions {
 	readonly config?: KernelConfigV1Like;
 	readonly schemas?: PrinterIRSchema[];
 	readonly resources?: IRResourceLike[];
-	readonly policyMap?: PrinterIRPolicyMap;
-	readonly policies?: PrinterIr['policies'];
+	readonly capabilityMap?: PrinterIRCapabilityMap;
+	readonly capabilities?: PrinterIr['capabilities'];
 	readonly blocks?: PrinterIRBlock[];
 	readonly php?: PrinterPhpProject;
 	readonly meta?: Partial<PrinterIr['meta']>;
@@ -129,8 +129,8 @@ export function makePrinterIrFixture({
 	config = makeWPKernelConfigFixture(),
 	schemas = makeDefaultSchemas(),
 	resources = makeDefaultResources(),
-	policyMap = makeDefaultPolicyMap(),
-	policies = [],
+	capabilityMap = makeDefaultCapabilityMap(),
+	capabilities = [],
 	blocks = [],
 	php = {
 		namespace: 'Demo\\Namespace',
@@ -162,8 +162,8 @@ export function makePrinterIrFixture({
 		config,
 		schemas,
 		resources,
-		policies,
-		policyMap,
+		capabilities,
+		capabilityMap,
 		blocks,
 		php,
 		...(diagnostics ? { diagnostics } : {}),
@@ -251,9 +251,9 @@ export function makeDefaultSchemas(): PrinterIRSchema[] {
 	return [jobSchema, taskSchema, literalSchema, fallbackSchema];
 }
 
-function makeDefaultPolicyMap(): PrinterIRPolicyMap {
+function makeDefaultCapabilityMap(): PrinterIRCapabilityMap {
 	return {
-		sourcePath: 'src/policy-map.ts',
+		sourcePath: 'src/capability-map.ts',
 		definitions: [
 			{
 				key: 'jobs.create',
@@ -269,7 +269,7 @@ function makeDefaultPolicyMap(): PrinterIRPolicyMap {
 		missing: [],
 		unused: [],
 		warnings: [],
-	} satisfies PrinterIRPolicyMap;
+	} satisfies PrinterIRCapabilityMap;
 }
 
 function makeDefaultResources(): IRResourceLike[] {
@@ -398,7 +398,7 @@ export function makeJobResource(
 				path: '/jobs',
 				hash: 'route-job-create',
 				transport: 'local',
-				policy: 'jobs.create',
+				capability: 'jobs.create',
 			},
 			{
 				method: 'PUT',

@@ -60,7 +60,7 @@ export function createKernelRuntime(): RuntimeWithDataViews {
 		reporter,
 		registry: undefined,
 		events: {} as never,
-		policies: undefined,
+		capabilities: undefined,
 		invalidate: jest.fn(),
 		options: {},
 		dataviews: {

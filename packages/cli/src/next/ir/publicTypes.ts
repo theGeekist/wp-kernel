@@ -25,7 +25,7 @@ export type IRRouteTransport = 'local' | 'remote';
 export interface IRRoute {
 	method: string;
 	path: string;
-	policy?: string;
+	capability?: string;
 	hash: string;
 	transport: IRRouteTransport;
 }
@@ -70,7 +70,7 @@ export interface IRResource {
 	warnings: IRWarning[];
 }
 
-export interface IRPolicyHint {
+export interface IRCapabilityHint {
 	key: string;
 	source: 'resource' | 'config';
 	references: Array<{
@@ -80,22 +80,22 @@ export interface IRPolicyHint {
 	}>;
 }
 
-export type IRPolicyScope = 'resource' | 'object';
+export type IRCapabilityScope = 'resource' | 'object';
 
-export interface IRPolicyDefinition {
+export interface IRCapabilityDefinition {
 	key: string;
 	capability: string;
-	appliesTo: IRPolicyScope;
+	appliesTo: IRCapabilityScope;
 	binding?: string;
 	source: 'map' | 'fallback';
 }
 
-export interface IRPolicyMap {
+export interface IRCapabilityMap {
 	sourcePath?: string;
-	definitions: IRPolicyDefinition[];
+	definitions: IRCapabilityDefinition[];
 	fallback: {
 		capability: string;
-		appliesTo: IRPolicyScope;
+		appliesTo: IRCapabilityScope;
 	};
 	missing: string[];
 	unused: string[];
@@ -126,8 +126,8 @@ export interface IRv1 {
 	config: WPKernelConfigV1;
 	schemas: IRSchema[];
 	resources: IRResource[];
-	policies: IRPolicyHint[];
-	policyMap: IRPolicyMap;
+	capabilities: IRCapabilityHint[];
+	capabilityMap: IRCapabilityMap;
 	blocks: IRBlock[];
 	php: IRPhpProject;
 	diagnostics?: IRDiagnostic[];

@@ -28,7 +28,7 @@ describe('buildIr - core behaviours', () => {
 					list: {
 						path: '/test-namespace/v1/todos',
 						method: 'GET',
-						policy: 'todos.list',
+						capability: 'todos.list',
 					},
 					get: {
 						path: '/test-namespace/v1/todos/:id',
@@ -37,7 +37,7 @@ describe('buildIr - core behaviours', () => {
 					create: {
 						path: '/test-namespace/v1/todos',
 						method: 'POST',
-						policy: 'todos.create',
+						capability: 'todos.create',
 					},
 				},
 				cacheKeys: {
@@ -91,7 +91,7 @@ describe('buildIr - core behaviours', () => {
 		expect(resource.storage).toEqual({ mode: 'wp-post', postType: 'todo' });
 		expect(resource.warnings).toEqual([]);
 
-		expect(ir.policies).toEqual([
+		expect(ir.capabilities).toEqual([
 			{
 				key: 'todos.create',
 				source: 'resource',

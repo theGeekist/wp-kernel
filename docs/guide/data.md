@@ -64,7 +64,7 @@ You gain additional telemetry, notices, and Redux dispatch once `configureWPKern
 5. **Redux dispatch** - `invokeAction()` envelopes dispatch through the registry so `useAction()` hooks can provide loading and error states.
 6. **Type-safe envelopes** - Middleware unwraps the action metadata and ensures dispatch stays strongly typed.
 
-Actions retain their full `ActionContext` (policy enforcement, cache invalidation, reporter access, `ctx.emit()`) whether called directly or dispatched through Redux.
+Actions retain their full `ActionContext` (capability enforcement, cache invalidation, reporter access, `ctx.emit()`) whether called directly or dispatched through Redux.
 
 ## Practical examples
 
@@ -104,7 +104,7 @@ export async function createItem(payload) {
 	try {
 		const result = await CreateItem(payload);
 		// Action still has full ActionContext capabilities:
-		// - Policy enforcement
+		// - Capability enforcement
 		// - Lifecycle events (wpk.action.start/complete/error)
 		// - ctx.emit() for domain events
 		// - Cache invalidation
@@ -186,7 +186,7 @@ function my_plugin_handle_action_error( $payload ) {
 - **Missing hooks** - If `window.wp?.hooks` is absent, lifecycle events stay internal.
 - **Notice dependencies** - Without `core/notices`, notice forwarding is skipped but reporter logging stays active.
 - **BroadcastChannel** - Absent in SSR or older browsers; cross-tab sync degrades gracefully.
-- **Runtime configuration** - Policy engines and reporters rely on runtime wiring. Background jobs and PHP bridge integrations arrive in later phases.
+- **Runtime configuration** - Capability engines and reporters rely on runtime wiring. Background jobs and PHP bridge integrations arrive in later phases.
 - **Middleware ordering** - Custom middleware runs after the kernel middleware. Ensure ordering aligns with your instrumentation requirements.
 
 ## Best practices
@@ -201,6 +201,6 @@ function my_plugin_handle_action_error( $payload ) {
 
 `configureWPKernel()` is the canonical bootstrap for WP Kernel. It installs the middleware stack, exposes the shared reporter and namespace, and prepares the ecosystem bridges that production plugins rely on. Configure once and let the kernel handle the wiring.
 
-## `usePolicy()` - gate UI with runtime capabilities
+## `useCapability()` - gate UI with runtime capabilities
 
-`usePolicy` gives components access to the active policy runtime so UI can conditionally render based on capabilities.
+`useCapability` gives components access to the active capability runtime so UI can conditionally render based on capabilities.

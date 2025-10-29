@@ -216,8 +216,8 @@ export function createResourceDataViewController<TItem, TQuery>(
 		namespace: options.namespace,
 		preferencesKey,
 		invalidate: options.invalidate,
-		get policies() {
-			const source = options.policies;
+		get capabilities() {
+			const source = options.capabilities;
 			if (typeof source === 'function') {
 				return source() ?? undefined;
 			}

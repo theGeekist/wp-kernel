@@ -101,8 +101,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`useGet()` & `useList()`** - Resource data fetching hooks
     - Lazy attachment mechanism for resources defined before UI loads
     - WordPress data store integration
-- **`usePolicy()`** - Capability checks in UI (migrated from kernel package)
-    - Reactive policy cache with `can()` helper
+- **`useCapability()`** - Capability checks in UI (migrated from kernel package)
+    - Reactive capability cache with `can()` helper
     - Loading and error states
 - **Prefetching Hooks**:
     - `usePrefetcher()` - Generic prefetching orchestrator with debouncing
@@ -149,7 +149,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🎉 Sprints 0-4.5 Complete: Production-Ready Core Framework
 
-This release marks the completion of the foundation, resources, E2E utilities, policies, actions, WordPress data integration, and unified reporting systems. The framework is now production-ready for early adopters.
+This release marks the completion of the foundation, resources, E2E utilities, capabilities, actions, WordPress data integration, and unified reporting systems. The framework is now production-ready for early adopters.
 
 **Completed Sprints:**
 
@@ -157,7 +157,7 @@ This release marks the completion of the foundation, resources, E2E utilities, p
 - ✓ Sprint 1: Resources & Stores (V1)
 - ✓ Sprint 1.5: Build Tooling & Resources Refactor
 - ✓ Sprint 2: E2E Utils (Kernel-Aware Test Harness)
-- ✓ Sprint 3: Policies (Complete Implementation)
+- ✓ Sprint 3: Capabilities (Complete Implementation)
 - ✓ Sprint 4: Actions & WordPress Data Integration
 - ✓ Sprint 4.5: Unified Reporting & Data Consolidation
 
@@ -173,7 +173,7 @@ This release marks the completion of the foundation, resources, E2E utilities, p
 - **Consolidated logging** - Single reporter interface used across all packages
 - **Request/response tracking** - Automatic correlation IDs for debugging
 - **Reporter context** - Per-request metadata and tags
-- **Policy integration** - Policy events flow through reporter
+- **Capability integration** - Capability events flow through reporter
 - **Noop reporter** - Zero-overhead production mode
 - **Development transport** - Console logging with grouping and color coding
 - **Type safety** - Full TypeScript definitions for reporters and transports
@@ -183,7 +183,7 @@ This release marks the completion of the foundation, resources, E2E utilities, p
 - All packages now use unified reporter for logging
 - HTTP transport includes request/response/error tracking
 - Actions emit lifecycle events through reporter
-- Policy system reports denied/granted checks
+- Capability system reports denied/granted checks
 - Resource operations tracked with correlation IDs
 
 ---
@@ -220,26 +220,26 @@ This release marks the completion of the foundation, resources, E2E utilities, p
 
 ---
 
-### Added - Sprint 3: Policies (Complete Implementation)
+### Added - Sprint 3: Capabilities (Complete Implementation)
 
-#### Policy System (`@wpkernel/core/policy`)
+#### Capability System (`@wpkernel/core/capability`)
 
-- **`definePolicy()`** - Capability checking with WordPress integration
-- **`can()` / `assert()`** - Helper functions for policy checks
-- **`usePolicy()`** - React hook for component-level capability gates
-- **PolicyContext** - Runtime context management for policy evaluation
-- **PolicyCache** - Caching layer for policy results
-- **Automatic UI gating** - Components hide/disable based on policies
-- **`wpk.policy.denied` events** - Emitted when capability checks fail
-- **Policy reporter integration** - All policy checks logged
+- **`defineCapability()`** - Capability checking with WordPress integration
+- **`can()` / `assert()`** - Helper functions for capability checks
+- **`useCapability()`** - React hook for component-level capability gates
+- **CapabilityContext** - Runtime context management for capability evaluation
+- **CapabilityCache** - Caching layer for capability results
+- **Automatic UI gating** - Components hide/disable based on capabilities
+- **`wpk.capability.denied` events** - Emitted when capability checks fail
+- **Capability reporter integration** - All capability checks logged
 - **WordPress capability provider** - Integration with WP's cap system
-- **24 policy files** - Complete implementation with 6 test suites
+- **24 capability files** - Complete implementation with 6 test suites
 
 #### Type Safety
 
-- Full TypeScript definitions for all policy APIs
-- Type-safe policy keys and context
-- Compile-time checking for policy usage
+- Full TypeScript definitions for all capability APIs
+- Type-safe capability keys and context
+- Compile-time checking for capability usage
 
 ---
 
@@ -318,7 +318,7 @@ This release marks the completion of the foundation, resources, E2E utilities, p
 - **`WPKernelError` base class** - Structured errors with serialization
 - **`TransportError`** - Network/fetch failures
 - **`ServerError`** - WordPress WP_Error responses
-- **`PolicyDeniedError`** - Capability check failures
+- **`CapabilityDeniedError`** - Capability check failures
 - **`ValidationError`** - Schema validation errors
 - **Type safety** - Full TypeScript definitions for all error types
 
@@ -342,7 +342,7 @@ See [0.1.0] release notes for complete Sprint 0 details including:
 ### Documentation
 
 - **[NEW] API Contracts Reference** - One-page reference for events, errors, cache keys
-- **[NEW] VERSIONING.md** - Semver policy, deprecation process, back-compat guarantees
+- **[NEW] VERSIONING.md** - Semver capability, deprecation process, back-compat guarantees
 - **[NEW] Compatibility Matrix** - WordPress, Node, PHP, browser requirements
 - **Updated ROADMAP.md** - Reflects Sprint 0-4.5 completion
 - **Updated Product Specification** - Marked implemented features
@@ -588,7 +588,7 @@ Result: **Zero deprecated subdependencies, zero peer warnings**
 
 - **Section 4.6: Event Taxonomy** - Complete registry with 20+ system events, TypeScript definitions, PHP bridge mapping
 - **Section 4.4.1.1: Server Binding Sources** - Attribute-level SSR for SEO, performance budgets, clear limitations
-- **Section 5.1: Transport Strategy** - Retry policies, timeout hierarchy, circuit breaker pattern
+- **Section 5.1: Transport Strategy** - Retry capabilities, timeout hierarchy, circuit breaker pattern
 
 #### New Documentation Created
 

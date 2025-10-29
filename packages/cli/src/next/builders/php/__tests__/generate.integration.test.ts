@@ -269,8 +269,8 @@ describe('createPhpBuilder integration', () => {
 					);
 					await captureArtefact(
 						ir.php.outputDir,
-						'Policy',
-						'Policy.php'
+						'Capability',
+						'Capability.php'
 					);
 					await captureArtefact(
 						ir.php.outputDir,
@@ -294,8 +294,8 @@ describe('createPhpBuilder integration', () => {
 					.join('/');
 
 			const expectedFiles = [
-				'.generated/php/Policy/Policy.php',
-				'.generated/php/Policy/Policy.php.ast.json',
+				'.generated/php/Capability/Capability.php',
+				'.generated/php/Capability/Capability.php.ast.json',
 				'.generated/php/Registration/PersistenceRegistry.php',
 				'.generated/php/Registration/PersistenceRegistry.php.ast.json',
 				'.generated/php/Rest/BaseController.php',
@@ -359,11 +359,13 @@ describe('createPhpBuilder integration', () => {
 				'job-cache-controller.php'
 			);
 
-			const policyHelperPhp = artefacts.get(
-				'.generated/php/Policy/Policy.php'
+			const capabilityHelperPhp = artefacts.get(
+				'.generated/php/Capability/Capability.php'
 			);
-			expect(policyHelperPhp).toBeDefined();
-			expect(policyHelperPhp).toMatchSnapshot('policy-helper.php');
+			expect(capabilityHelperPhp).toBeDefined();
+			expect(capabilityHelperPhp).toMatchSnapshot(
+				'capability-helper.php'
+			);
 
 			const baseControllerAst = artefacts.get(
 				'.generated/php/Rest/BaseController.php.ast.json'

@@ -32,8 +32,8 @@ function buildIr(namespace: string): IRv1 {
 		},
 		schemas: [],
 		resources: [],
-		policies: [],
-		policyMap: {
+		capabilities: [],
+		capabilityMap: {
 			sourcePath: undefined,
 			definitions: [],
 			fallback: { capability: 'manage_options', appliesTo: 'resource' },

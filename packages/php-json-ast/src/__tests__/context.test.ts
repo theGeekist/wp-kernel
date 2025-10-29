@@ -15,7 +15,7 @@ describe('PhpAstChannel', () => {
 		const context = createTestPipelineContext();
 		const channel = getPhpAstChannel(context);
 
-		const metadata: PhpFileMetadata = { kind: 'policy-helper' };
+		const metadata: PhpFileMetadata = { kind: 'capability-helper' };
 
 		const entry = channel.open({
 			key: 'demo',

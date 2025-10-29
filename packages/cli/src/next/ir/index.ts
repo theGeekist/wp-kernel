@@ -10,8 +10,8 @@ export {
 	SCHEMA_EXTENSION_KEY,
 } from './fragments/schemas';
 export { createResourcesFragment } from './fragments/resources';
-export { createPoliciesFragment } from './fragments/policies';
-export { createPolicyMapFragment } from './fragments/policy-map';
+export { createCapabilitiesFragment } from './fragments/capabilities';
+export { createCapabilityMapFragment } from './fragments/capability-map';
 export { createDiagnosticsFragment } from './fragments/diagnostics';
 export { createBlocksFragment } from './fragments/blocks';
 export { createOrderingFragment } from './fragments/ordering';
@@ -28,10 +28,10 @@ export type {
 	BuildIrOptions,
 	IRBlock,
 	IRPhpProject,
-	IRPolicyDefinition,
-	IRPolicyHint,
-	IRPolicyMap,
-	IRPolicyScope,
+	IRCapabilityDefinition,
+	IRCapabilityHint,
+	IRCapabilityMap,
+	IRCapabilityScope,
 	IRResource,
 	IRResourceCacheKey,
 	IRRoute,

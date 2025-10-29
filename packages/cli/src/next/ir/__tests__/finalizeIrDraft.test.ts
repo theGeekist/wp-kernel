@@ -33,7 +33,7 @@ function buildDraft(): MutableIr {
 		origin: 'typescript',
 		sanitizedNamespace: 'TestNamespace',
 	};
-	draft.policyMap = {
+	draft.capabilityMap = {
 		sourcePath: undefined,
 		definitions: [],
 		fallback: {
@@ -58,8 +58,8 @@ describe('finalizeIrDraft', () => {
 		'ir.meta.core',
 		'ir.schemas.core',
 		'ir.resources.core',
-		'ir.policies.core',
-		'ir.policy-map.core',
+		'ir.capabilities.core',
+		'ir.capability-map.core',
 		'ir.diagnostics.core',
 		'ir.blocks.core',
 		'ir.ordering.core',
@@ -73,15 +73,15 @@ describe('finalizeIrDraft', () => {
 		const ir = finalizeIrDraft(draft, helpers);
 
 		expect(ir.meta.namespace).toBe(draft.meta!.namespace);
-		expect(ir.policyMap).toBe(draft.policyMap);
+		expect(ir.capabilityMap).toBe(draft.capabilityMap);
 		expect(ir.php).toBe(draft.php);
 	});
 
 	it('throws when any required fragment did not execute', () => {
 		const draft = buildDraft();
 		const helpers = createHelpersMetadata(
-			REQUIRED.filter((key) => key !== 'ir.policy-map.core'),
-			['ir.policy-map.core']
+			REQUIRED.filter((key) => key !== 'ir.capability-map.core'),
+			['ir.capability-map.core']
 		);
 
 		expect(() => finalizeIrDraft(draft, helpers)).toThrow(WPKernelError);

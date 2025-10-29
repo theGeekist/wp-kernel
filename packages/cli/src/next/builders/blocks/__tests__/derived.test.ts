@@ -241,8 +241,8 @@ function makeIr(options?: {
 		config,
 		schemas: options?.schemas ?? [],
 		resources: options?.resources ?? [],
-		policies: [],
-		policyMap: {
+		capabilities: [],
+		capabilityMap: {
 			definitions: [],
 			fallback: {
 				capability: 'manage_' + namespace,

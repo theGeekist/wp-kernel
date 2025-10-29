@@ -10,8 +10,8 @@ import {
 	buildDocCommentAttributes,
 	buildGeneratedFileDocComment,
 	buildPersistenceRegistryDocblock,
-	buildPolicyCallbackDocblock,
-	buildPolicyEnforceDocblock,
+	buildCapabilityCallbackDocblock,
+	buildCapabilityEnforceDocblock,
 	buildRestBaseControllerDocblock,
 	buildRestControllerDocblock,
 	buildRestIndexDocblock,
@@ -96,12 +96,12 @@ describe('common/docblock', () => {
 		]);
 	});
 
-	it('builds policy docblocks', () => {
-		expect(buildPolicyCallbackDocblock()).toEqual([
-			'Create a permission callback closure for a policy.',
+	it('builds capability docblocks', () => {
+		expect(buildCapabilityCallbackDocblock()).toEqual([
+			'Create a permission callback closure for a capability.',
 		]);
-		expect(buildPolicyEnforceDocblock()).toEqual([
-			'Evaluate a policy against the current user.',
+		expect(buildCapabilityEnforceDocblock()).toEqual([
+			'Evaluate a capability against the current user.',
 			'@return bool|WP_Error',
 		]);
 	});

@@ -168,7 +168,7 @@ describe('createPhpProgramWriterHelper', () => {
 		const filePath = path.join(OUTPUT_ROOT, 'Writer.php');
 		channel.queue({
 			file: filePath,
-			metadata: { kind: 'policy-helper' },
+			metadata: { kind: 'capability-helper' },
 			docblock: ['Doc line'],
 			uses: ['Demo\\Contracts'],
 			statements: ['class Example {};'],
@@ -229,7 +229,7 @@ describe('createPhpProgramWriterHelper', () => {
 		const filePath = path.join(OUTPUT_ROOT, 'Override.php');
 		channel.queue({
 			file: filePath,
-			metadata: { kind: 'policy-helper' },
+			metadata: { kind: 'capability-helper' },
 			docblock: [],
 			uses: [],
 			statements: [],
@@ -298,7 +298,7 @@ describe('createPhpProgramWriterHelper', () => {
 		const filePath = path.join(OUTPUT_ROOT, 'Fallback.php');
 		channel.queue({
 			file: filePath,
-			metadata: { kind: 'policy-helper' },
+			metadata: { kind: 'capability-helper' },
 			docblock: ['Doc line'],
 			uses: ['Demo\\Contracts'],
 			statements: ['class Example {};'],

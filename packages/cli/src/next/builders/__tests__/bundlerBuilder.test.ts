@@ -73,8 +73,8 @@ describe('createBundler', () => {
 				},
 				schemas: [],
 				resources: [],
-				policies: [],
-				policyMap: {
+				capabilities: [],
+				capabilityMap: {
 					sourcePath: undefined,
 					definitions: [],
 					fallback: {

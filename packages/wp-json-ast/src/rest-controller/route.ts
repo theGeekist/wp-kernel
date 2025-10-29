@@ -34,12 +34,12 @@ export function buildRestRoute(
 
 	appendRequestHandling(statements, { identity, route: config });
 
-	if (config.policy) {
+	if (config.capability) {
 		const assignment = buildStaticCall(
-			buildName(['Policy']),
+			buildName(['Capability']),
 			buildIdentifier('enforce'),
 			[
-				buildArg(buildScalarString(config.policy)),
+				buildArg(buildScalarString(config.capability)),
 				buildArg(buildVariable('request')),
 			]
 		);

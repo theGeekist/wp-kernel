@@ -6,7 +6,7 @@ import {
 	createPhpChannelHelper,
 	createPhpBaseControllerHelper,
 	createPhpResourceControllerHelper,
-	createPhpPolicyHelper,
+	createPhpCapabilityHelper,
 	createPhpPersistenceRegistryHelper,
 	createPhpIndexFileHelper,
 	getPhpBuilderChannel,
@@ -81,8 +81,8 @@ const ir: IRv1 = {
 	} as IRv1['config'],
 	schemas: [],
 	resources: [],
-	policies: [],
-	policyMap: {
+	capabilities: [],
+	capabilityMap: {
 		sourcePath: undefined,
 		definitions: [],
 		fallback: {
@@ -133,7 +133,7 @@ describe('createPhpBuilder', () => {
 			createPhpChannelHelper(),
 			createPhpBaseControllerHelper(),
 			createPhpResourceControllerHelper(),
-			createPhpPolicyHelper(),
+			createPhpCapabilityHelper(),
 			createPhpPersistenceRegistryHelper(),
 			createPhpIndexFileHelper(),
 		];
@@ -173,13 +173,13 @@ describe('createPhpBuilder', () => {
 		);
 		expect(baseEntry?.program[0]?.nodeType).toBe('Stmt_Declare');
 
-		const policyEntry = pending.find(
-			(entry) => entry.metadata.kind === 'policy-helper'
+		const capabilityEntry = pending.find(
+			(entry) => entry.metadata.kind === 'capability-helper'
 		);
-		expect(policyEntry).toBeDefined();
-		expect(policyEntry?.statements).toHaveLength(0);
+		expect(capabilityEntry).toBeDefined();
+		expect(capabilityEntry?.statements).toHaveLength(0);
 
-		const namespaceNode = policyEntry?.program.find(
+		const namespaceNode = capabilityEntry?.program.find(
 			(stmt) => stmt?.nodeType === 'Stmt_Namespace'
 		) as { stmts?: unknown[] } | undefined;
 		expect(namespaceNode).toBeDefined();
@@ -187,14 +187,14 @@ describe('createPhpBuilder', () => {
 		const classNode = namespaceNode?.stmts?.find(
 			(stmt: any) => stmt?.nodeType === 'Stmt_Class'
 		) as { stmts?: unknown[]; name?: { name?: string } } | undefined;
-		expect(classNode?.name?.name).toBe('Policy');
+		expect(classNode?.name?.name).toBe('Capability');
 
 		const methodNames =
 			classNode?.stmts
 				?.filter((stmt: any) => stmt?.nodeType === 'Stmt_ClassMethod')
 				.map((method: any) => method?.name?.name) ?? [];
 		expect(methodNames).toEqual([
-			'policy_map',
+			'capability_map',
 			'fallback',
 			'callback',
 			'enforce',
@@ -229,7 +229,7 @@ describe('createPhpBuilder', () => {
 		expect(indexEntry?.program[1]?.nodeType).toBe('Stmt_Namespace');
 	});
 
-	it('reports policy map warnings when fallbacks are required', async () => {
+	it('reports capability map warnings when fallbacks are required', async () => {
 		const workspace = buildWorkspace();
 		const reporter = buildReporter();
 		const context = {
@@ -238,7 +238,7 @@ describe('createPhpBuilder', () => {
 			phase: 'generate' as const,
 		};
 
-		const helper = createPhpPolicyHelper();
+		const helper = createPhpCapabilityHelper();
 		const queueWrite = jest.fn();
 		const output: BuilderOutput = {
 			actions: [],
@@ -247,13 +247,14 @@ describe('createPhpBuilder', () => {
 
 		const localIr: IRv1 = {
 			...ir,
-			policyMap: {
-				...ir.policyMap,
+			capabilityMap: {
+				...ir.capabilityMap,
 				warnings: [
 					{
-						code: 'policy-map.entries.missing',
-						message: 'Policies referenced by routes are missing.',
-						context: { policies: ['manage_todo'] },
+						code: 'capability-map.entries.missing',
+						message:
+							'Capabilities referenced by routes are missing.',
+						context: { capabilities: ['manage_todo'] },
 					},
 				],
 				missing: ['manage_todo'],
@@ -280,18 +281,18 @@ describe('createPhpBuilder', () => {
 		);
 
 		expect(reporter.warn).toHaveBeenCalledWith(
-			'Policy helper warning emitted.',
+			'Capability helper warning emitted.',
 			expect.objectContaining({
-				code: 'policy-map.entries.missing',
-				message: 'Policies referenced by routes are missing.',
-				context: { policies: ['manage_todo'] },
+				code: 'capability-map.entries.missing',
+				message: 'Capabilities referenced by routes are missing.',
+				context: { capabilities: ['manage_todo'] },
 			})
 		);
 		expect(reporter.warn).toHaveBeenCalledWith(
-			'Policy falling back to default capability.',
+			'Capability falling back to default capability.',
 			expect.objectContaining({
-				policy: 'manage_todo',
-				capability: 'manage_options',
+				capability: 'manage_todo',
+				capabilities: ['manage_options'],
 				scope: 'resource',
 			})
 		);

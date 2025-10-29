@@ -49,7 +49,7 @@ function buildRoute(method: IRRoute['method']): IRRoute {
 	return {
 		method,
 		path: '/kernel/v1/books',
-		policy: undefined,
+		capability: undefined,
 		transport: 'local',
 		hash: `${method.toLowerCase()}-route`,
 	};

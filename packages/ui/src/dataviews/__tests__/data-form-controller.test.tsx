@@ -42,7 +42,7 @@ function createRuntime(): WPKernelUIRuntime {
 		} as any,
 		registry: undefined,
 		events: {} as never,
-		policies: undefined,
+		capabilities: undefined,
 		invalidate: jest.fn(),
 		options: {},
 		dataviews: {
