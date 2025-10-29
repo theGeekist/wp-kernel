@@ -19,7 +19,7 @@ import {
 	buildVariableAssignment,
 	normaliseVariableReference,
 } from '../utils';
-import { appendResourceCacheEvent } from '../cache';
+import { buildCacheInvalidators } from '../cache';
 import { buildWpErrorReturn } from '../errors';
 import { ensureTransientStorage } from './shared';
 import type { ResolvedIdentity } from '../../identity';
@@ -43,12 +43,16 @@ export function buildTransientGetRouteStatements(
 ): PhpStmt[] {
 	ensureTransientStorage(options.resource);
 
-	appendResourceCacheEvent({
+	buildCacheInvalidators({
 		host: options.metadataHost,
-		scope: 'get',
-		operation: 'read',
-		segments: options.resource.cacheKeys.get.segments,
-		description: 'Read transient value',
+		events: [
+			{
+				scope: 'get',
+				operation: 'read',
+				segments: options.resource.cacheKeys.get.segments,
+				description: 'Read transient value',
+			},
+		],
 	});
 
 	const keyVar = normaliseVariableReference('key');
@@ -100,12 +104,16 @@ export function buildTransientSetRouteStatements(
 ): PhpStmt[] {
 	ensureTransientStorage(options.resource);
 
-	appendResourceCacheEvent({
+	buildCacheInvalidators({
 		host: options.metadataHost,
-		scope: 'get',
-		operation: 'invalidate',
-		segments: options.resource.cacheKeys.get.segments,
-		description: 'Invalidate transient value',
+		events: [
+			{
+				scope: 'get',
+				operation: 'invalidate',
+				segments: options.resource.cacheKeys.get.segments,
+				description: 'Invalidate transient value',
+			},
+		],
 	});
 
 	const keyVar = normaliseVariableReference('key');
@@ -222,12 +230,16 @@ export function buildTransientDeleteRouteStatements(
 ): PhpStmt[] {
 	ensureTransientStorage(options.resource);
 
-	appendResourceCacheEvent({
+	buildCacheInvalidators({
 		host: options.metadataHost,
-		scope: 'get',
-		operation: 'invalidate',
-		segments: options.resource.cacheKeys.get.segments,
-		description: 'Delete transient value',
+		events: [
+			{
+				scope: 'get',
+				operation: 'invalidate',
+				segments: options.resource.cacheKeys.get.segments,
+				description: 'Delete transient value',
+			},
+		],
 	});
 
 	const keyVar = normaliseVariableReference('key');
