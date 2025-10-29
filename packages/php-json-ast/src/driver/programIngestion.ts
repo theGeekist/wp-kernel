@@ -4,6 +4,7 @@ import { getPhpBuilderChannel } from '../builderChannel';
 import type { PhpProgram } from '../nodes';
 import type { PipelineContext } from '../programBuilder';
 import type { PhpFileMetadata } from '../types';
+import type { PhpProgramCodemodResult } from '../codemods/types';
 
 export interface PhpProgramIngestionMessage {
 	readonly file: string;
@@ -15,24 +16,15 @@ export interface PhpProgramIngestionMessage {
 	readonly codemod?: PhpProgramCodemodResult;
 }
 
-export interface PhpProgramCodemodVisitorSummary {
-	readonly key: string;
-	readonly stackKey: string;
-	readonly stackIndex: number;
-	readonly visitorIndex: number;
-	readonly class: string;
-}
-
-export interface PhpProgramCodemodResult {
-	readonly before: PhpProgram;
-	readonly after: PhpProgram;
-	readonly visitors: readonly PhpProgramCodemodVisitorSummary[];
-}
-
 export type PhpProgramIngestionSource =
 	| AsyncIterable<string | Buffer>
 	| Iterable<string | Buffer>
 	| NodeJS.ReadableStream;
+
+export type {
+	PhpProgramCodemodResult,
+	PhpProgramCodemodVisitorSummary,
+} from '../codemods/types';
 
 export interface ConsumePhpProgramIngestionOptions {
 	readonly context: PipelineContext;
@@ -43,6 +35,17 @@ export interface ConsumePhpProgramIngestionOptions {
 }
 
 const DEFAULT_METADATA: PhpFileMetadata = { kind: 'index-file' };
+
+interface DelimitedLinesResult {
+	readonly remaining: string;
+	readonly lines: string[];
+}
+
+interface FlushBufferedMessageResult {
+	readonly remaining: string;
+	readonly message?: PhpProgramIngestionMessage;
+	readonly error?: unknown;
+}
 
 export async function consumePhpProgramIngestion(
 	options: ConsumePhpProgramIngestionOptions
@@ -254,10 +257,7 @@ function resolveFilePath(
 	return file;
 }
 
-function drainDelimitedLines(buffer: string): {
-	remaining: string;
-	lines: string[];
-} {
+function drainDelimitedLines(buffer: string): DelimitedLinesResult {
 	const lines: string[] = [];
 	let remaining = buffer;
 
@@ -280,11 +280,7 @@ function drainDelimitedLines(buffer: string): {
 	return { remaining, lines };
 }
 
-function flushBufferedMessage(buffer: string): {
-	remaining: string;
-	message?: PhpProgramIngestionMessage;
-	error?: unknown;
-} {
+function flushBufferedMessage(buffer: string): FlushBufferedMessageResult {
 	const trimmed = buffer.trim();
 	if (trimmed.length === 0 || !trimmed.endsWith('}')) {
 		return { remaining: buffer };

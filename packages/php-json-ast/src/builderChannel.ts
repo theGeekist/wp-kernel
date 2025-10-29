@@ -4,7 +4,7 @@
 import type { PipelineContext } from './programBuilder';
 import type { PhpProgram } from './nodes';
 import type { PhpFileMetadata } from './types';
-import type { PhpProgramCodemodResult } from './driver/programIngestion';
+import type { PhpProgramCodemodResult } from './codemods/types';
 
 const PHP_CHANNEL_SYMBOL = Symbol('@wpkernel/php-json-ast/builder-channel');
 

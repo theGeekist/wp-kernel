@@ -12,7 +12,7 @@ import type { PhpProgramAction } from './builderChannel';
 import type {
 	PhpProgramCodemodResult,
 	PhpProgramCodemodVisitorSummary,
-} from './driver/programIngestion';
+} from './codemods/types';
 import type { PhpProgram } from './nodes';
 
 export interface PhpDriverConfigurationOptions {
