@@ -53,3 +53,11 @@ readonly optional uses: readonly string[];
 ```ts
 readonly optional statements: readonly string[];
 ```
+
+---
+
+### codemod?
+
+```ts
+readonly optional codemod: PhpProgramCodemodResult;
+```

@@ -200,6 +200,7 @@ export default [
 					caughtErrorsIgnorePattern: '^_',
 				},
 			],
+			'import/named': 'off',
 			'@typescript-eslint/consistent-type-imports': [
 				'error',
 				{
