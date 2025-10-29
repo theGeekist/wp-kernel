@@ -4,6 +4,14 @@ import { getPhpBuilderChannel } from '../builderChannel';
 import type { PhpProgram } from '../nodes';
 import type { PipelineContext } from '../programBuilder';
 import type { PhpFileMetadata } from '../types';
+import type { PhpProgramCodemodResult } from '../codemods/types';
+import {
+	drainDelimitedLines,
+	flushBufferedMessage,
+	normaliseStringArray,
+	parseMessage,
+	toAsyncIterable,
+} from './programIngestionUtils';
 
 export interface PhpProgramIngestionMessage {
 	readonly file: string;
@@ -12,12 +20,18 @@ export interface PhpProgramIngestionMessage {
 	readonly docblock?: readonly string[];
 	readonly uses?: readonly string[];
 	readonly statements?: readonly string[];
+	readonly codemod?: PhpProgramCodemodResult;
 }
 
 export type PhpProgramIngestionSource =
 	| AsyncIterable<string | Buffer>
 	| Iterable<string | Buffer>
 	| NodeJS.ReadableStream;
+
+export type {
+	PhpProgramCodemodResult,
+	PhpProgramCodemodVisitorSummary,
+} from '../codemods/types';
 
 export interface ConsumePhpProgramIngestionOptions {
 	readonly context: PipelineContext;
@@ -50,6 +64,7 @@ export async function consumePhpProgramIngestion(
 			docblock,
 			uses,
 			statements,
+			codemod: message.codemod,
 		});
 
 		ingested += 1;
@@ -98,75 +113,6 @@ async function* readMessages(
 	}
 }
 
-async function* toAsyncIterable(
-	source: PhpProgramIngestionSource
-): AsyncIterable<string | Buffer> {
-	if (Symbol.asyncIterator in source) {
-		for await (const chunk of source as AsyncIterable<string | Buffer>) {
-			yield chunk;
-		}
-		return;
-	}
-
-	if (Symbol.iterator in source) {
-		for (const chunk of source as Iterable<string | Buffer>) {
-			yield chunk;
-		}
-		return;
-	}
-
-	throw new WPKernelError('DeveloperError', {
-		message: 'Unsupported ingestion source provided.',
-		data: {
-			received: typeof source,
-		},
-	});
-}
-
-function parseMessage(line: string): PhpProgramIngestionMessage {
-	let payload: unknown;
-
-	try {
-		payload = JSON.parse(line);
-	} catch (error) {
-		throw new WPKernelError('DeveloperError', {
-			message: 'Failed to decode PHP ingestion payload.',
-			data: {
-				line,
-				reason: error instanceof Error ? error.message : String(error),
-			},
-		});
-	}
-
-	if (!isPhpProgramIngestionPayload(payload)) {
-		throw new WPKernelError('DeveloperError', {
-			message: 'Invalid PHP ingestion payload received.',
-			data: { payload },
-		});
-	}
-
-	return payload;
-}
-
-function isPhpProgramIngestionPayload(
-	payload: unknown
-): payload is PhpProgramIngestionMessage {
-	if (payload === null || typeof payload !== 'object') {
-		return false;
-	}
-
-	const candidate = payload as Record<string, unknown>;
-	if (typeof candidate.file !== 'string') {
-		return false;
-	}
-
-	if (!Array.isArray(candidate.program)) {
-		return false;
-	}
-
-	return true;
-}
-
 function resolveMetadata(
 	message: PhpProgramIngestionMessage,
 	options: ConsumePhpProgramIngestionOptions
@@ -195,69 +141,4 @@ function resolveFilePath(
 	}
 
 	return file;
-}
-
-function drainDelimitedLines(buffer: string): {
-	remaining: string;
-	lines: string[];
-} {
-	const lines: string[] = [];
-	let remaining = buffer;
-
-	while (true) {
-		const newlineIndex = remaining.indexOf('\n');
-		if (newlineIndex === -1) {
-			break;
-		}
-
-		const line = remaining.slice(0, newlineIndex);
-		remaining = remaining.slice(newlineIndex + 1);
-
-		if (line.trim().length === 0) {
-			continue;
-		}
-
-		lines.push(line);
-	}
-
-	return { remaining, lines };
-}
-
-function flushBufferedMessage(buffer: string): {
-	remaining: string;
-	message?: PhpProgramIngestionMessage;
-	error?: unknown;
-} {
-	const trimmed = buffer.trim();
-	if (trimmed.length === 0 || !trimmed.endsWith('}')) {
-		return { remaining: buffer };
-	}
-
-	try {
-		return {
-			remaining: '',
-			message: parseMessage(trimmed),
-		};
-	} catch (error) {
-		if (error instanceof WPKernelError && error.code === 'DeveloperError') {
-			return { remaining: trimmed };
-		}
-
-		return { remaining: buffer, error };
-	}
-}
-
-function normaliseStringArray(value: unknown): readonly string[] {
-	if (!Array.isArray(value)) {
-		return [];
-	}
-
-	const result: string[] = [];
-	for (const entry of value) {
-		if (typeof entry === 'string') {
-			result.push(entry);
-		}
-	}
-
-	return result;
 }
