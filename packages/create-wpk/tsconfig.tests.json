@@ -1,0 +1,20 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig",
+	"extends": "../../tsconfig.tests.json",
+	"compilerOptions": {
+		"rootDir": "../..",
+		"outDir": "./dist-tests",
+		"paths": {
+			"@wpkernel/core": ["./node_modules/@wpkernel/core/dist/index.d.ts"],
+			"@wpkernel/core/*": ["./node_modules/@wpkernel/core/dist/*"]
+		}
+	},
+	"include": ["src/**/*", "tests/**/*"],
+	"exclude": [
+		"node_modules",
+		"dist",
+		"dist-tests",
+		"**/dist",
+		"**/*.test-support.d.ts"
+	]
+}

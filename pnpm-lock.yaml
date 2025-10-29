@@ -354,6 +354,19 @@ importers:
         specifier: workspace:*
         version: link:../../scripts
 
+  packages/create-wpk:
+    dependencies:
+      '@wpkernel/cli':
+        specifier: workspace:*
+        version: link:../cli
+      '@wpkernel/core':
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      '@wpkernel/scripts':
+        specifier: workspace:*
+        version: link:../../scripts
+
   packages/e2e-utils:
     dependencies:
       '@playwright/test':
