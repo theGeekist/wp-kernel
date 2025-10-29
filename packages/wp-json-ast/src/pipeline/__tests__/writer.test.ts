@@ -1,5 +1,5 @@
 import type { PhpProgramAction } from '@wpkernel/php-json-ast';
-import { buildProgramTargetPlanner } from '../writer';
+import { buildProgramTargetPlanner, type ProgramTargetFile } from '../writer';
 
 describe('buildProgramTargetPlanner', () => {
 	it('queues files with resolved paths and merged docblocks', () => {
@@ -59,6 +59,28 @@ describe('buildProgramTargetPlanner', () => {
 
 		expect(actions).toHaveLength(1);
 		expect(actions[0]?.docblock).toEqual(['Doc header', 'Source: demo']);
+	});
+
+	it('supports workspace-specific path overrides through strategy hooks', () => {
+		const actions: PhpProgramAction[] = [];
+		const planner = buildProgramTargetPlanner({
+			workspace: buildWorkspace(),
+			outputDir: 'Generated',
+			channel: buildChannel(actions),
+			strategy: {
+				resolveFilePath: ({ file }: { file: ProgramTargetFile }) =>
+					`/custom/${file.fileName.toLowerCase()}`,
+			},
+		} as unknown as Parameters<typeof buildProgramTargetPlanner>[0]);
+
+		planner.queueFile({
+			fileName: 'Capability/Capability.php',
+			program: [{ nodeType: 'Stmt_Nop', attributes: {} }],
+			metadata: { kind: 'capability-helper' },
+		});
+
+		expect(actions).toHaveLength(1);
+		expect(actions[0]?.file).toBe('/custom/capability/capability.php');
 	});
 });
 
