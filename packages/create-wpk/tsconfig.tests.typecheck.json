@@ -4,13 +4,20 @@
 	"compilerOptions": {
 		"rootDir": "../..",
 		"paths": {
-			"@wpkernel/core": ["./node_modules/@wpkernel/core/dist/index.d.ts"],
-			"@wpkernel/core/*": ["./node_modules/@wpkernel/core/dist/*"]
+			"@wpkernel/core": [
+				"../core/src/index.ts",
+				"./node_modules/@wpkernel/core/dist/index.d.ts"
+			],
+			"@wpkernel/core/*": [
+				"../core/src/*",
+				"./node_modules/@wpkernel/core/dist/*"
+			]
 		}
 	},
-	"include": ["src/**/*.ts"],
+	"include": ["src/**/*.ts", "../../types/**/*.d.ts"],
 	"references": [
 		{ "path": "./tsconfig.json" },
+		{ "path": "../core/tsconfig.json" },
 		{ "path": "../cli/tsconfig.json" },
 		{ "path": "../test-utils/tsconfig.json" }
 	]

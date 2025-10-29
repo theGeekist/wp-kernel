@@ -3,13 +3,7 @@
 	"extends": "../../tsconfig.lib.json",
 	"compilerOptions": {
 		"rootDir": "./src",
-		"outDir": "./dist",
-		"module": "NodeNext",
-		"moduleResolution": "nodenext",
-		"paths": {
-			"@wpkernel/core": ["./node_modules/@wpkernel/core/dist/index.d.ts"],
-			"@wpkernel/core/*": ["./node_modules/@wpkernel/core/dist/*"]
-		}
+		"outDir": "./dist"
 	},
 	"include": ["src/**/*", "../../types/**/*.d.ts"],
 	"exclude": [
@@ -19,5 +13,10 @@
 		"**/*.test.tsx",
 		"**/*.test-support.ts",
 		"**/*.test-support.tsx"
+	],
+	"references": [
+		{
+			"path": "../core"
+		}
 	]
 }

@@ -5,16 +5,26 @@
 		"rootDir": "../..",
 		"outDir": "./dist-tests",
 		"paths": {
-			"@wpkernel/core": ["./node_modules/@wpkernel/core/dist/index.d.ts"],
-			"@wpkernel/core/*": ["./node_modules/@wpkernel/core/dist/*"]
+			"@wpkernel/core": [
+				"../core/src/index.ts",
+				"./node_modules/@wpkernel/core/dist/index.d.ts"
+			],
+			"@wpkernel/core/*": [
+				"../core/src/*",
+				"./node_modules/@wpkernel/core/dist/*"
+			]
 		}
 	},
-	"include": ["src/**/*", "tests/**/*"],
+	"include": ["src/**/*", "tests/**/*", "../../types/**/*.d.ts"],
 	"exclude": [
 		"node_modules",
 		"dist",
 		"dist-tests",
 		"**/dist",
 		"**/*.test-support.d.ts"
+	],
+	"references": [
+		{ "path": "./tsconfig.json" },
+		{ "path": "../core/tsconfig.json" }
 	]
 }
