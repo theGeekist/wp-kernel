@@ -1,8 +1,9 @@
 import {
 	buildIsWpErrorGuard,
 	buildReturnIfWpError,
+	buildWpErrorExpression,
 	buildWpErrorReturn,
-} from '../wpError';
+} from '../errors';
 import {
 	buildReturn,
 	buildScalarString,
@@ -20,7 +21,7 @@ function expectNewExpression(expr: PhpExpr | null | undefined): PhpExprNew {
 	return expr as PhpExprNew;
 }
 
-describe('WP_Error helpers', () => {
+describe('resource error helpers', () => {
 	it('builds a WP_Error return statement with status metadata', () => {
 		const statement = buildWpErrorReturn({
 			code: 'demo_error',
@@ -122,6 +123,18 @@ describe('WP_Error helpers', () => {
 					expr: expression,
 				}),
 			],
+		});
+	});
+
+	it('builds reusable WP_Error expressions', () => {
+		const expr = buildWpErrorExpression({
+			code: 'demo_error',
+			message: 'Demo message.',
+		});
+
+		expect(expr).toMatchObject({
+			nodeType: 'Expr_New',
+			class: expect.objectContaining({ parts: ['WP_Error'] }),
 		});
 	});
 });
