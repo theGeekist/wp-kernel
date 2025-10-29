@@ -99,7 +99,7 @@ _Task 1.1: Catalogue WordPress-centric builders._ Document every CLI helper unde
 | `packages/cli/src/next/builders/php/blocks/registrar/methods/paths.ts`    | `buildResolveConfigPathMethod`, `buildResolveRenderPathMethod`, `buildResolveDirectoryFallbackMethod`, `buildNormaliseRelativeMethod` | Normalises file system lookups for block metadata/render files within the plugin structure, providing graceful fallbacks.                                                 | Plugin root directory, manifest config array values.                                           |
 | `packages/cli/src/next/builders/php/blocks/registrar/common.ts`           | `buildConstFetchExpr`, `buildContinueStatement`, `buildConcat`                                                                        | Shared AST primitives used by registrar methods to compose filesystem checks and loop control in WordPress block registration.                                            | Constant names, iterable variables, expression operands.                                       |
 
-_Completion:_ ☑ Completed – (this PR) Documented every php-json-ast-consuming CLI helper with WordPress semantics and inputs.
+_Completion:_ ☑ Completed – Documented every php-json-ast-consuming CLI helper with WordPress semantics and inputs.
 
 _Task 1.2: Identify shared semantics._ Write short briefs for cross-cutting WordPress concerns-such as WP_Error handling, REST request plumbing, taxonomy utilities, and capability scaffolding-highlighting the AST patterns that repeat. These briefs will guide the shape of future `wp-json-ast` factories.
 
@@ -115,7 +115,7 @@ _Task 1.2: Identify shared semantics._ Write short briefs for cross-cutting Word
 
 **Shared identity & cache metadata.** Regardless of storage mode, controllers derive route-aware cache segments and identity values through helpers that write to `$metadataHost`. They emit docblocks tagged with `@wp-kernel` annotations, add `use` statements for shared services (`Capability`, `WP_Error`, identity types), and seed per-route metadata objects. A reusable factory can ingest the route metadata and generate docblock arrays, cache segment lookups, and metadata mutations without repeating node assembly in each controller.
 
-_Completion:_ ☑ Completed – (this PR) Documented shared WordPress semantics and recurring AST patterns to target with factories.
+_Completion:_ ☑ Completed – Documented shared WordPress semantics and recurring AST patterns to target with factories.
 
 _Phase outcome:_ We gain a shared vocabulary for the existing surface area and a documented backlog that other agents can pull from without rediscovering the same helpers.
 
@@ -143,15 +143,15 @@ Begin by creating the `rest-controller` directory with the module and route buil
 
 **Subtask 2.1.a – Streamline import derivation.** Enhance `buildRestControllerClass` and `buildRestRoute` so they derive all required `use` imports from each `RestRouteConfig`, eliminating the `additionalUses` bookkeeping that the CLI currently performs inside `packages/cli/src/next/builders/php/resourceController.ts`. This keeps import wiring colocated with the WordPress semantics that introduce those dependencies.
 
-_Completion:_ ☑ Completed – (this PR) Rest controller imports now derive from route statements and helper metadata inside `wp-json-ast`.
+_Completion:_ ☑ Completed – Rest controller imports now derive from route statements and helper metadata inside `wp-json-ast`.
 
 **Subtask 2.1.b – Internalise identity plumbing.** Extend the route configuration so the factory can infer whether identity parameters require scalar casts and emit the `$identity = (int) $request->get_param( ... );` assignment directly. Relocating this logic from the CLI adapter consolidates request handling inside `buildRestRoute` and prepares the surface for future module-wide builders.
 
-_Completion:_ ☑ Completed – (this PR) `buildRestRoute` now emits identity request plumbing based on the route configuration, removing the CLI-only implementation.
+_Completion:_ ☑ Completed – `buildRestRoute` now emits identity request plumbing based on the route configuration, removing the CLI-only implementation.
 
 **Subtask 2.1.c – Surface metadata host updates.** Design a helper under `rest-controller` (or expand the existing types) that captures cache-segment metadata and docblock annotations alongside the generated statements. Port the CLI’s current `$metadataHost` mutations into this helper so future factories can assemble controller modules without duplicating metadata bookkeeping.
 
-_Completion:_ ☑ Completed – (this PR) CLI resource controller generation now delegates to `buildRestControllerModule`, so `wp-json-ast` owns metadata host updates and cache wiring.
+_Completion:_ ☑ Completed – CLI resource controller generation now delegates to `buildRestControllerModule`, so `wp-json-ast` owns metadata host updates and cache wiring.
 
 _Quality follow-up:_ ☑ Covered identity plumbing, docblock generation, and cache metadata helpers with focused tests to lock down Task 2.1 behaviour.
 
@@ -161,15 +161,15 @@ _Task 2.2: Layer guard and docblock utilities._ As factories move, ensure docblo
 
 **Subtask 2.2.a – Centralise WP_Error guard utilities.** Relocate the guard builders that wrap `WP_Error` detection and early returns from the CLI into a dedicated `wp-json-ast` module. Provide a cohesive API under `src/common/guards/` and replace CLI imports so guard behaviour comes from the shared surface.
 
-_Completion:_ ☑ Completed – (this PR) moved the WP_Error guard helpers into `src/common/guards/` and updated imports across `wp-json-ast` and the CLI adapter layer.
+_Completion:_ ☑ Completed – Moved the WP_Error guard helpers into `src/common/guards/` and updated imports across `wp-json-ast` and the CLI adapter layer.
 
 **Subtask 2.2.b – Create shared docblock factories.** Extract the controller, capability, and registry docblock assembly logic into reusable builders within `src/common/docblock/`. Cover the factories with unit tests and refactor the CLI helpers to call the shared functions.
 
-_Completion:_ ☑ Completed – (this PR) exposed docblock factories from `src/common/docblock/` and updated CLI builders to consume them.
+_Completion:_ ☑ Completed – Exposed docblock factories from `src/common/docblock/` and updated CLI builders to consume them.
 
 **Subtask 2.2.c – Consolidate metadata host wiring.** Implement metadata helper modules under `src/common/metadata/` so cache segments, identity wiring, and annotations originate in `wp-json-ast`. Update CLI builders to use these helpers instead of manipulating `$metadataHost` directly.
 
-_Completion:_ ☑ Completed – (this PR) consolidated resource metadata builders and cache-key planning in `src/common/metadata/`, allowing the CLI to rely on shared helpers for route annotations and cache events.
+_Completion:_ ☑ Completed – Consolidated resource metadata builders and cache-key planning in `src/common/metadata/`, allowing the CLI to rely on shared helpers for route annotations and cache events.
 
 _Phase outcome:_ WordPress-specific AST knowledge resides in `wp-json-ast`, and the CLI depends on typed factories rather than constructing nodes manually.
 
@@ -194,11 +194,11 @@ Unit tests land under `packages/wp-json-ast/tests/capability/`, asserting regist
 
 **Subtask 2.3.a – Integrate reporter hooks.** Ensure the capability factories expose structured warnings (e.g. missing fallback, unused capability). Provide a typed callback so the CLI can forward the messages without rehydrating context.
 
-_Completion:_ ☑ Completed – (this PR) `buildCapabilityModule` now surfaces structured warning hooks consumed by the CLI reporter.
+_Completion:_ ☑ Completed – `buildCapabilityModule` now surfaces structured warning hooks consumed by the CLI reporter.
 
 **Subtask 2.3.b – Share callback metadata helpers.** Extract the repeated `$metadataHost` interactions that tag capability callbacks with cache segments or schema provenance. Relocate them into `src/common/metadata/` so all factories reuse a consistent implementation.
 
-_Completion:_ ☑ Completed – (this PR) centralized capability metadata generation under `src/common/metadata/capability.ts` and wired the CLI to the shared surface.
+_Completion:_ ☑ Completed – Centralized capability metadata generation under `src/common/metadata/capability.ts` and wired the CLI to the shared surface.
 
 _Task 2.4: Migrate persistence registry builders._ Shift the persistence registry logic from the CLI into `packages/wp-json-ast/src/persistence/`. The exported factories should transform resource storage definitions into registrar programs, storage adapters, and identity helpers so the CLI simply forwards IR data.
 
@@ -217,17 +217,17 @@ Tests live in `packages/wp-json-ast/tests/persistence/` and should validate regi
 3. Cover the factories with fixtures spanning file storage, option storage, and custom storage extensions, asserting program output snapshots where helpful.
 4. Replace the CLI helper implementation with calls to `buildPersistenceRegistryModule`, keeping only the IR-to-config translation layer.
 
-_Completion:_ ☑ Completed – (this PR) introduced `buildPersistenceRegistryModule` under `src/persistence/`, migrated the CLI helper to delegate to the factory, and added unit tests covering registrar emission and payload sanitisation.
+_Completion:_ ☑ Completed – Introduced `buildPersistenceRegistryModule` under `src/persistence/`, migrated the CLI helper to delegate to the factory, and added unit tests covering registrar emission and payload sanitisation.
 
 #### Task 2.4 Follow-up subtasks – hardening and reuse
 
 **Subtask 2.4.a – Normalise storage adapters.** Add a shared helper that maps storage kinds (`option`, `transient`, `custom`) to the appropriate AST fragments, replacing the CLI switch statements.
 
-_Completion:_ ☑ Completed – (this PR) introduced `normalizeStorageConfig` in `src/persistence/helpers.ts` so the module emits sorted storage payloads for post, option, transient, and taxonomy adapters.
+_Completion:_ ☑ Completed – Introduced `normalizeStorageConfig` in `src/persistence/helpers.ts` so the module emits sorted storage payloads for post, option, transient, and taxonomy adapters.
 
 **Subtask 2.4.b – Co-locate identity validation.** Move the scalar casting and guard logic for identity payloads into `wp-json-ast`, aligning it with the request plumbing added in Task 2.1.
 
-_Completion:_ ☑ Completed – (this PR) added `normalizeIdentityConfig` that applies default params, casts, and guards while keeping the CLI adapter free of identity AST handling.
+_Completion:_ ☑ Completed – Added `normalizeIdentityConfig` that applies default params, casts, and guards while keeping the CLI adapter free of identity AST handling.
 
 _Task 2.5: Extract index and base controller emitters._ Consolidate the base controller and index file generators under `packages/wp-json-ast/src/module/` so they produce ready-to-write programs from the CLI IR. This removes the last general-purpose PHP emitters from the CLI and ensures future modules inherit consistent docblocks and metadata wiring.
 
@@ -246,17 +246,17 @@ Tests belong in `packages/wp-json-ast/tests/module/`, covering namespace renderi
 3. Write unit tests verifying class signatures, docblock contents, and array structure for representative IR inputs.
 4. Replace `createPhpBaseControllerHelper` and `createPhpIndexFileHelper` with adapters that call the new factories, deleting direct AST usage from the CLI.
 
-_Completion:_ ☑ Completed – (this PR) extracted base controller and index program builders into `src/module/` and updated the CLI adapters to consume the shared programs.
+_Completion:_ ☑ Completed – Extracted base controller and index program builders into `src/module/` and updated the CLI adapters to consume the shared programs.
 
 #### Task 2.5 Follow-up subtasks – extensibility
 
 **Subtask 2.5.a – Support custom module entries.** Extend `buildIndexProgram` to accept optional augmentation callbacks so downstream pipelines can register additional artefacts without rewriting the factory.
 
-_Completion:_ ☑ Completed – (this PR) module index builders now accept augmentation callbacks and the plan reflects module composition.
+_Completion:_ ☑ Completed – Module index builders now accept augmentation callbacks and the plan reflects module composition.
 
 **Subtask 2.5.b – Share namespace derivation.** Lift the namespace sanitisation helpers into `src/common/module/` so every factory consumes a consistent implementation.
 
-_Completion:_ ☑ Completed – (this PR) namespace derivation helpers now live under src/common/module and the CLI consumes the shared implementation.
+_Completion:_ ☑ Completed – Namespace derivation helpers now live under src/common/module and the CLI consumes the shared implementation.
 
 _Task 2.6: Consolidate resource request and mutation helpers._ The CLI's `resource` directory still assembles request payloads, cache metadata, mutation contracts, and error envelopes directly with php-json-ast primitives. Relocate this surface into `packages/wp-json-ast/src/resource/` so the factories that power REST controllers can also materialise resource-specific accessors without duplicating AST glue.
 
@@ -281,19 +281,19 @@ These factories emit structured artifacts (`{ helper, metadata }`) so downstream
 
 **Subtask 2.6.a – Centralise resource error envelopes.** Extract `errors.ts` and related helpers into `src/resource/errors/` so both controllers and persistence payloads rely on the same WP_Error composition primitives.
 
-_Completion:_ ☑ Completed – (this PR) moved the WP_Error builders into `src/resource/errors/`, added reusable expression helpers, and pointed the CLI re-exports at the shared module.
+_Completion:_ ☑ Completed – Moved the WP_Error builders into `src/resource/errors/`, added reusable expression helpers, and pointed the CLI re-exports at the shared module.
 
 **Subtask 2.6.b – Share scalar and enum normalisers.** Relocate the `phpValue` and request schema normalisation helpers into `src/resource/common/`, ensuring every factory consumes a single implementation for casting and enum validation.
 
-_Completion:_ ☑ Completed – (this PR) migrated the query argument and pagination normalisers into `src/resource/query.ts`, exported them through `@wpkernel/wp-json-ast`, and replaced the CLI implementation with re-exports.
+_Completion:_ ☑ Completed – Migrated the query argument and pagination normalisers into `src/resource/query.ts`, exported them through `@wpkernel/wp-json-ast`, and replaced the CLI implementation with re-exports.
 
 **Subtask 2.6.c – Unify cache invalidation wiring.** Provide a `buildCacheInvalidators` helper that returns the `$metadataHost` mutations the CLI currently duplicates across resources and persistence registries.
 
-_Completion:_ ☑ Completed – (this PR) introduced `buildCacheInvalidators` under `src/resource/cache.ts` and updated the CLI resource routes to call the shared helper instead of duplicating metadata host mutations.
+_Completion:_ ☑ Completed – Introduced `buildCacheInvalidators` under `src/resource/cache.ts` and updated the CLI resource routes to call the shared helper instead of duplicating metadata host mutations.
 
 _Task 2.7: Move block registrar and render stubs._ Block registration still lives entirely in the CLI (`packages/cli/src/next/builders/php/blocks/**`), including manifest parsing, registrar composition, and server-side render stubs. Port this surface into `packages/wp-json-ast/src/blocks/` so block pipelines consume the same WordPress-aware factories as REST modules.
 
-_Completion:_ ☑ Completed – (this PR) migrated the block manifest, registrar, and render stub builders into `@wpkernel/wp-json-ast` and updated the CLI to delegate to `buildBlockModule`.
+_Completion:_ ☑ Completed – Migrated the block manifest, registrar, and render stub builders into `@wpkernel/wp-json-ast` and updated the CLI to delegate to `buildBlockModule`.
 
 #### Task 2.7 Blueprint – Block module builders
 
@@ -316,11 +316,11 @@ Keep manifest parsing and schema validation TypeScript-first so the CLI simply f
 
 **Subtask 2.7.a – Support block-level augmentation hooks.** Allow `buildBlockModule` to accept optional callbacks that augment registrar entries or stub programs before emission so future transports can inject analytics or telemetry without rewriting the factory.
 
-_Completion:_ ☑ Completed – (this PR) added manifest, registrar, and render stub augmentation hooks to `buildBlockModule` and documented their usage through unit coverage.
+_Completion:_ ☑ Completed – Added manifest, registrar, and render stub augmentation hooks to `buildBlockModule` and documented their usage through unit coverage.
 
 **Subtask 2.7.b – Share manifest validation errors.** Surface typed error objects from `buildManifestMetadata` so the CLI can report manifest issues without duplicating the validation logic.
 
-_Completion:_ ☑ Completed – (this PR) emitted structured manifest validation errors from `buildManifestMetadata`, propagated them via metadata, and updated the CLI to log the shared diagnostics.
+_Completion:_ ☑ Completed – Emitted structured manifest validation errors from `buildManifestMetadata`, propagated them via metadata, and updated the CLI to log the shared diagnostics.
 
 _Task 2.8: Fold identity and pipeline utilities into shared factories._ Helper modules such as `packages/cli/src/next/builders/php/identity.ts`, `utils.ts`, and the php driver wrappers still expose low-level AST node assembly for identity derivation, filesystem targeting, and php-json-ast orchestration. Move these pieces into `wp-json-ast` so the CLI pipeline becomes a thin coordinator over shared primitives.
 
@@ -343,15 +343,15 @@ These factories expose typed contracts so CLI builders can request identity tran
 
 #### Task 2.8 Follow-up subtasks – robustness
 
-_Completion:_ ☑ Completed – (this PR) centralised identity guards, channel bootstrap, and program target planning inside `@wpkernel/wp-json-ast`, updating the CLI to consume the shared pipeline helpers.
+_Completion:_ ☑ Completed – Centralised identity guards, channel bootstrap, and program target planning inside `@wpkernel/wp-json-ast`, updating the CLI to consume the shared pipeline helpers.
 
 **Subtask 2.8.a – Provide filesystem strategy hooks.** Let `buildProgramTargetPlanner` accept callbacks for workspace-specific overrides (e.g., mu-plugins vs. standard plugins) so downstream consumers can adjust output without reimplementing the planner.
 
-_Completion:_ ☑ Completed – (this PR) added strategy hooks to `buildProgramTargetPlanner`, enabling workspace-specific file path overrides without rewriting the planner.
+_Completion:_ ☑ Completed – Added strategy hooks to `buildProgramTargetPlanner`, enabling workspace-specific file path overrides without rewriting the planner.
 
 **Subtask 2.8.b – Harden identity guard typing.** Export discriminated union types for identity helpers so CLI callers and future transports receive full type inference instead of relying on ad-hoc narrowing.
 
-_Completion:_ ☑ Completed – (this PR) exported discriminated union identity types and updated the shared helpers so downstream pipelines benefit from precise typing.
+_Completion:_ ☑ Completed – Exported discriminated union identity types and updated the shared helpers so downstream pipelines benefit from precise typing.
 
 ### Phase 3 - Adopt Pipeline-Oriented Composition in the CLI
 
