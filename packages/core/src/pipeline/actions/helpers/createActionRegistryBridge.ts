@@ -1,7 +1,7 @@
 import type { ActionDefinedEvent } from '../../../events/bus';
 import type { CorePipelineRegistryBridge } from '../../helpers/context';
 
-export function makeActionRegistryBridge(
+export function createActionRegistryBridge(
 	onRecord: (event: ActionDefinedEvent) => void
 ): CorePipelineRegistryBridge {
 	let recorded = false;
