@@ -34,7 +34,7 @@ Running `pnpm exec tsx scripts/register-workspace.ts packages/<name>` will creat
 
 ## 3. Jest configuration
 
-Start from the shared helper in `scripts/config/create-wpk-jest-config.ts`:
+Start from the shared helper exported via `@wpkernel/scripts/config/create-wpk-jest-config.js`:
 
 1. Import `createWPKJestConfig` and call it with the package display name plus `packageDir: import.meta.url`.
 2. Override `collectCoverageFrom`, `coverageThreshold`, or `testMatch` as needed. The helper already wires the path aliases from `tsconfig.base.json`, loads `tests/setup-jest.ts`, and scopes coverage to `src/`.

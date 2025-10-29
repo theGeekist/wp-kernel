@@ -4,7 +4,7 @@ import dts from 'vite-plugin-dts';
 // eslint-disable-next-line camelcase
 import { wp_globals } from '@kucrut/vite-for-wp/utils';
 
-import { FRAMEWORK_PEERS } from './scripts/config/framework-peers';
+import { FRAMEWORK_PEERS } from '@wpkernel/scripts/config/framework-peers';
 
 // Accept array OR predicate for externals
 type ExternalOpt = Array<string | RegExp> | ((id: string) => boolean);
