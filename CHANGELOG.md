@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### In progress
+
+- **Phase 6 – Core pipeline alignment** – Tasks 32-36 are underway to mirror the
+  CLI MVP ledger with the core pipeline spec. Track status in
+  `packages/cli/docs/mvp-plan.md` and the linked core orchestration brief until
+  the 0.10.0 release closes.
+- **Phase 7 – Plugin bootstrap flow** – Tasks 37-45 will publish the bootstrap workspace, loader integration, cleanup passes, activation docs, and close with the 0.11.0 release once Phase 6 wraps.
+- **Phase 8 placeholder** – Task 46 will collect incremental diagnostics (starting with the CLI LogLayer reporter) after the plugin bootstrap flow ships.
+
 ## [0.9.0] - 2025-10-27
 
 ### Added

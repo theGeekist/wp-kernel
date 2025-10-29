@@ -25,7 +25,7 @@ import {
 	buildWpTermQueryInstantiation,
 	type ResourceMetadataHost,
 } from '@wpkernel/wp-json-ast';
-import { appendResourceCacheEvent } from '../cache';
+import { buildCacheInvalidators } from '../cache';
 import {
 	buildPaginationNormalisationStatements,
 	buildQueryArgsAssignmentStatement,
@@ -64,12 +64,16 @@ export function buildWpTaxonomyListRouteStatements(
 ): PhpStmt[] {
 	ensureStorage(options.resource);
 
-	appendResourceCacheEvent({
+	buildCacheInvalidators({
 		host: options.metadataHost,
-		scope: 'list',
-		operation: 'read',
-		segments: options.cacheSegments,
-		description: 'List terms query',
+		events: [
+			{
+				scope: 'list',
+				operation: 'read',
+				segments: options.cacheSegments,
+				description: 'List terms query',
+			},
+		],
 	});
 
 	const statements: PhpStmt[] = [];

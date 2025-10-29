@@ -151,7 +151,7 @@ _Completion:_ ☑ Completed – (this PR) `buildRestRoute` now emits identity re
 
 **Subtask 2.1.c – Surface metadata host updates.** Design a helper under `rest-controller` (or expand the existing types) that captures cache-segment metadata and docblock annotations alongside the generated statements. Port the CLI’s current `$metadataHost` mutations into this helper so future factories can assemble controller modules without duplicating metadata bookkeeping.
 
-_Completion:_ ☑ Completed – (this PR) Centralised REST route cache metadata helpers in `wp-json-ast` so controller factories own metadata host updates.
+_Completion:_ ☑ Completed – (this PR) CLI resource controller generation now delegates to `buildRestControllerModule`, so `wp-json-ast` owns metadata host updates and cache wiring.
 
 _Quality follow-up:_ ☑ Covered identity plumbing, docblock generation, and cache metadata helpers with focused tests to lock down Task 2.1 behaviour.
 
@@ -281,15 +281,15 @@ These factories emit structured artifacts (`{ helper, metadata }`) so downstream
 
 **Subtask 2.6.a – Centralise resource error envelopes.** Extract `errors.ts` and related helpers into `src/resource/errors/` so both controllers and persistence payloads rely on the same WP_Error composition primitives.
 
-_Completion:_ ☐ Pending – move error envelope builders into `wp-json-ast` and replace CLI imports.
+_Completion:_ ☑ Completed – (this PR) moved the WP_Error builders into `src/resource/errors/`, added reusable expression helpers, and pointed the CLI re-exports at the shared module.
 
 **Subtask 2.6.b – Share scalar and enum normalisers.** Relocate the `phpValue` and request schema normalisation helpers into `src/resource/common/`, ensuring every factory consumes a single implementation for casting and enum validation.
 
-_Completion:_ ☐ Pending – expose normalisers from the shared module and drop the CLI-specific variants.
+_Completion:_ ☑ Completed – (this PR) migrated the query argument and pagination normalisers into `src/resource/query.ts`, exported them through `@wpkernel/wp-json-ast`, and replaced the CLI implementation with re-exports.
 
 **Subtask 2.6.c – Unify cache invalidation wiring.** Provide a `buildCacheInvalidators` helper that returns the `$metadataHost` mutations the CLI currently duplicates across resources and persistence registries.
 
-_Completion:_ ☐ Pending – publish cache invalidator helpers and remove the remaining CLI metadata wiring.
+_Completion:_ ☑ Completed – (this PR) introduced `buildCacheInvalidators` under `src/resource/cache.ts` and updated the CLI resource routes to call the shared helper instead of duplicating metadata host mutations.
 
 _Task 2.7: Move block registrar and render stubs._ Block registration still lives entirely in the CLI (`packages/cli/src/next/builders/php/blocks/**`), including manifest parsing, registrar composition, and server-side render stubs. Port this surface into `packages/wp-json-ast/src/blocks/` so block pipelines consume the same WordPress-aware factories as REST modules.
 

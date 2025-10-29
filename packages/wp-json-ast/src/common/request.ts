@@ -4,7 +4,7 @@ import {
 	buildAssign,
 	buildIdentifier,
 	buildMethodCall,
-	buildScalarCast,
+	buildScalarCast as buildScalarCastNode,
 	buildScalarString,
 	buildVariable,
 	buildArrayCast,
@@ -18,7 +18,9 @@ export interface NormalisedVariableReference {
 	readonly display: string;
 }
 
-function normaliseVariableReference(name: string): NormalisedVariableReference {
+export function normaliseVariableReference(
+	name: string
+): NormalisedVariableReference {
 	const trimmed = name.trim();
 	if (!trimmed) {
 		throw new WPKernelError('DeveloperError', {
@@ -44,15 +46,12 @@ function normaliseVariableReference(name: string): NormalisedVariableReference {
 
 export type ScalarCastKind = 'int' | 'float' | 'string' | 'bool' | 'array';
 
-function buildScalarCastExpression(
-	kind: ScalarCastKind,
-	expr: PhpExpr
-): PhpExpr {
+export function buildScalarCast(kind: ScalarCastKind, expr: PhpExpr): PhpExpr {
 	if (kind === 'array') {
 		return buildArrayCast(expr);
 	}
 
-	return buildScalarCast(kind, expr);
+	return buildScalarCastNode(kind, expr);
 }
 
 export interface RequestParamAssignmentOptions {
@@ -76,7 +75,7 @@ export function buildRequestParamAssignmentStatement(
 	);
 
 	const expression: PhpExpr = cast
-		? buildScalarCastExpression(cast, methodCall)
+		? buildScalarCast(cast, methodCall)
 		: methodCall;
 
 	return buildExpressionStatement(

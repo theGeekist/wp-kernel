@@ -66,23 +66,23 @@ This roadmap captures how `@wpkernel/php-json-ast` can evolve now that `nikic/ph
 
 ##### Task 2 - Land the TypeScript ingestion helper
 
-> **Task status:** Pending – Update this entry once the helper lands and tests are green.
+> **Task status:** Complete – The helper and its end-to-end coverage are green.
 
 - Add a consumer under `src/driver/**` that accepts the streamed JSON, hydrates `PhpProgram` builders, and forwards them to `createPhpProgramWriterHelper` with zero manual mapping.
 - Provide Jest coverage that feeds representative payloads through the helper and asserts the writer flushes identical `.php` and `.ast.json` artefacts.
 - Document the helper usage in the driver quick-start so contributors can round-trip fixtures locally.
   _Expectation: TypeScript callers can translate the raw PHP stream into queued `PhpProgram` entries in a single helper call._
-  **Status:** ✓ Implemented in [`src/driver/programIngestion.ts`](../src/driver/programIngestion.ts), which streams JSON-line payloads into queued `PhpProgram` entries while preserving the writer metadata contract. Covered end-to-end in [`src/__tests__/driver/programIngestion.test.ts`](../src/__tests__/driver/programIngestion.test.ts) (currently red while we resolve the pretty-printer exit 255 regression noted in the test TODOs) and documented for contributors in the [driver quick-start](./driver-quickstart.md#4-ingest-php-programs-from-typescript).
+  **Status:** ✓ Implemented in [`src/driver/programIngestion.ts`](../src/driver/programIngestion.ts), which streams JSON-line payloads into queued `PhpProgram` entries while preserving the writer metadata contract. [`programIngestion.integration.test.ts`](../src/__tests__/driver/programIngestion.integration.test.ts) now runs in full, with the PHP bridge falling back to the packaged Composer autoloader when the workspace lacks dependencies, and the workflow is documented in the [driver quick-start](./driver-quickstart.md#4-ingest-php-programs-from-typescript).
 
 ##### Task 3 - Capture ingestion fixtures and snapshots
 
-> **Task status:** Pending – Record completion details here when the shared fixtures and snapshots ship.
+> **Task status:** Complete – Shared fixtures anchor cross-runtime snapshots and round-trip validation.
 
 - Introduce fixtures covering namespaces, class modifiers, doc comments, and attributes inside `fixtures/ingestion/**`.
 - Snapshot the fixture round-trip in both PHPUnit and Jest to confirm attribute fidelity across the PHP ↔ TypeScript boundary.
 - Record the validation procedure in this plan once green so future phases inherit the ingestion contract.
   _Expectation: Shared fixtures guarantee the ingestion bridge reproduces upstream metadata end-to-end._
-  **Status:** ✓ Canonical fixtures now live under [`fixtures/ingestion/`](../fixtures/ingestion) with shared AST snapshots. `ProgramIngestionTest` decodes the PHP driver output and compares it to [`CodifiedController.ast.json`](../fixtures/ingestion/CodifiedController.ast.json), while [`programIngestion.test.ts`](../src/__tests__/driver/programIngestion.test.ts) copies the same fixture into its sandbox and asserts that both the streamed payload and writer outputs match the stored snapshot.
+  **Status:** ✓ Canonical fixtures now live under [`fixtures/ingestion/`](../fixtures/ingestion) with shared AST snapshots. `ProgramIngestionTest` decodes the PHP driver output and compares it to [`CodifiedController.ast.json`](../fixtures/ingestion/CodifiedController.ast.json), while [`programIngestion.integration.test.ts`](../src/__tests__/driver/programIngestion.integration.test.ts) hydrates the same fixture in its sandbox and verifies that the streamed payload, writer-emitted `.php`, and `.ast.json` artefacts exactly match the stored snapshots.
 
 ### Upcoming phases
 

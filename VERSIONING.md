@@ -25,7 +25,7 @@ During the `0.x` release series:
 - **`0.x.y` (Patch bump)**: Bug fixes, performance improvements, documentation updates
 - **Breaking changes are documented** in CHANGELOG with migration guides
 
-**Current Status**: v0.7.0 (Phase 3 block builder release)
+**Current Status**: v0.9.0 (Phase 5 apply layering release)
 
 ### Post-1.0 Interpretation (Future)
 
