@@ -1,4 +1,4 @@
-import { createWPKJestConfig } from '../../scripts/config/create-wpk-jest-config.js';
+import { createWPKJestConfig } from '@wpkernel/scripts/config/create-wpk-jest-config.js';
 
 export default createWPKJestConfig({
 	displayName: '@wpkernel/core',

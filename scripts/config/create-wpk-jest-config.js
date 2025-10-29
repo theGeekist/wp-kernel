@@ -93,6 +93,8 @@ export function createWPKJestConfig(options) {
 	const relativePackageDir = ensurePosix(
 		path.relative(rootDir, packageDirectory)
 	);
+	const skipIntegration = process.env.JEST_SKIP_INTEGRATION === '1';
+	const integrationTestPattern = '\\.integration\\.test\\.(?:[jt]sx?)$';
 
 	const defaultTestMatch = [
 		`<rootDir>/${relativePackageDir}/**/__tests__/**/*.{ts,tsx}`,
@@ -105,7 +107,7 @@ export function createWPKJestConfig(options) {
 		`!<rootDir>/${relativePackageDir}/src/**/*.d.ts`,
 	];
 
-	return {
+	const config = {
 		...baseConfig,
 		displayName: options.displayName,
 		rootDir,
@@ -122,4 +124,16 @@ export function createWPKJestConfig(options) {
 		coverageThreshold:
 			options.coverageThreshold ?? baseConfig.coverageThreshold,
 	};
+
+	const ignorePatterns = new Set(config.testPathIgnorePatterns ?? []);
+
+	if (skipIntegration) {
+		ignorePatterns.add(integrationTestPattern);
+	}
+
+	if (ignorePatterns.size > 0) {
+		config.testPathIgnorePatterns = Array.from(ignorePatterns);
+	}
+
+	return config;
 }

@@ -60,10 +60,14 @@
 		"format": "prettier --write 'src/**/*.{js,ts,tsx,json,md}'",
 		"format:check": "prettier --check 'src/**/*.{js,ts,tsx,json,md}'",
 		"typecheck": "tsc --noEmit",
-		"typecheck:tests": "tsc --project tsconfig.tests.typecheck.json --noEmit && tsc --project tsconfig.tests.json --noEmit",
-		"test": "jest --passWithNoTests --watchman=false",
-		"test:watch": "jest --watch",
-		"test:coverage": "jest --coverage --watchman=false"
+		"typecheck:tests": "wpk-run-typecheck-tests tsconfig.tests.typecheck.json tsconfig.tests.json",
+		"test": "wpk-run-jest",
+		"test:watch": "wpk-run-jest --watch",
+		"test:coverage": "wpk-run-jest coverage",
+		"test:integration": "wpk-run-jest integration"
+	},
+	"devDependencies": {
+		"@wpkernel/scripts": "workspace:*"
 	},
 	"publishConfig": {
 		"access": "public"
