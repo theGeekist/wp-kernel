@@ -7,9 +7,9 @@ import type {
 import {
 	createPhpProgramWriterHelper as createBasePhpProgramWriterHelper,
 	type CreatePhpProgramWriterHelperOptions,
-} from '@wpkernel/php-json-ast';
+} from '@wpkernel/wp-json-ast';
 
-export type { CreatePhpProgramWriterHelperOptions } from '@wpkernel/php-json-ast';
+export type { CreatePhpProgramWriterHelperOptions } from '@wpkernel/wp-json-ast';
 
 export function createPhpProgramWriterHelper(
 	options: CreatePhpProgramWriterHelperOptions = {}
