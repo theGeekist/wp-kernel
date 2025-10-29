@@ -1,6 +1,6 @@
 import { createPhpBaseControllerHelper } from '../baseController';
 import { getPhpBuilderChannel, resetPhpBuilderChannel } from '../channel';
-import { resetPhpAstChannel } from '@wpkernel/php-json-ast';
+import { resetPhpAstChannel } from '@wpkernel/wp-json-ast';
 import {
 	createBuilderInput,
 	createBuilderOutput,

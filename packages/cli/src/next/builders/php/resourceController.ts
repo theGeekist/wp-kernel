@@ -6,6 +6,7 @@ import type {
 	PipelineContext,
 } from '../../runtime/types';
 import {
+	buildProgramTargetPlanner,
 	buildResourceCacheKeysPlan,
 	buildResourceControllerMetadata,
 	buildRestControllerModule,
@@ -18,11 +19,9 @@ import {
 	type RestControllerModuleControllerConfig,
 	type RestRouteConfig,
 } from '@wpkernel/wp-json-ast';
-import { getPhpBuilderChannel } from '@wpkernel/php-json-ast';
-import type {
-	PhpBuilderChannel,
-	PhpStmtClassMethod,
-} from '@wpkernel/php-json-ast';
+import { getPhpBuilderChannel } from './channel';
+import type { PhpBuilderChannel } from './channel';
+import type { PhpStmtClassMethod } from '@wpkernel/php-json-ast';
 import { makeErrorCodeFactory, sanitizeJson, toPascalCase } from './utils';
 import type { IRResource, IRv1 } from '../../ir/publicTypes';
 import { resolveIdentityConfig, type ResolvedIdentity } from './identity';
@@ -222,27 +221,17 @@ function queueResourceControllerFiles(
 ): void {
 	const result = buildRestControllerModule(options.config);
 
-	for (const file of result.files) {
-		if (file.metadata.kind !== 'resource-controller') {
-			continue;
-		}
+	const planner = buildProgramTargetPlanner({
+		workspace: options.workspace,
+		outputDir: options.outputDir,
+		channel: options.channel,
+		docblockPrefix: DEFAULT_DOC_HEADER,
+	});
 
-		const relativeParts = file.fileName
-			.split('/')
-			.filter((part) => part.length > 0);
-
-		options.channel.queue({
-			file: options.workspace.resolve(
-				options.outputDir,
-				...relativeParts
-			),
-			program: file.program,
-			metadata: file.metadata,
-			docblock: [...DEFAULT_DOC_HEADER, ...file.docblock],
-			uses: [],
-			statements: [],
-		});
-	}
+	planner.queueFiles({
+		files: result.files,
+		filter: (file) => file.metadata.kind === 'resource-controller',
+	});
 }
 
 function buildRouteConfigs(
