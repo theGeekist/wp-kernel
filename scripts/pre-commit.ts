@@ -541,6 +541,17 @@ async function main() {
 	});
 
 	tasks.push({
+		title: 'Run integration test suites',
+		async run(ctx) {
+			ctx.update('jest integration');
+			const result = await runCommand('pnpm', ['test:integration']);
+			if (result.code !== 0) {
+				throw new CommandError('pnpm test:integration', result);
+			}
+		},
+	});
+
+	tasks.push({
 		title: 'Format workspace',
 		async run(ctx) {
 			ctx.update('pnpm format');
