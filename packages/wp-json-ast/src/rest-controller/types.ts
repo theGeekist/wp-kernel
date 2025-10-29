@@ -8,10 +8,12 @@ import type {
 
 import type {
 	BaseControllerMetadata,
+	IndexFileMetadata,
 	ResourceControllerMetadata,
 	ResourceControllerRouteMetadata,
 } from '../types';
 import type { RequestParamAssignmentOptions } from '../common/request';
+import type { ModuleIndexEntry } from '../module/types';
 
 export interface RestRouteRequestParameter
 	extends Omit<RequestParamAssignmentOptions, 'requestVariable'> {
@@ -67,19 +69,18 @@ export interface RestControllerModuleControllerConfig
 	readonly metadata?: ResourceControllerMetadata;
 }
 
-export interface RestControllerModuleIndexEntry {
-	readonly className: string;
-	readonly path: string;
-}
+export type RestControllerModuleIndexEntry = ModuleIndexEntry;
+
+export type RestControllerModuleMetadata =
+	| BaseControllerMetadata
+	| ResourceControllerMetadata
+	| IndexFileMetadata;
 
 export interface RestControllerModuleFile {
 	readonly fileName: string;
 	readonly namespace: string | null;
 	readonly docblock: readonly string[];
-	readonly metadata:
-		| BaseControllerMetadata
-		| ResourceControllerMetadata
-		| { readonly kind: 'index-file' };
+	readonly metadata: RestControllerModuleMetadata;
 	readonly program: PhpProgram;
 }
 
@@ -95,4 +96,12 @@ export interface RestControllerModuleConfig {
 	readonly additionalIndexEntries?: readonly RestControllerModuleIndexEntry[];
 	readonly baseControllerFileName?: string;
 	readonly includeBaseController?: boolean;
+}
+
+export interface RestControllerIndexEntriesOptions {
+	readonly namespace: string;
+	readonly includeBase: boolean;
+	readonly baseControllerFileName: string;
+	readonly controllers: readonly RestControllerModuleControllerConfig[];
+	readonly additionalEntries: readonly RestControllerModuleIndexEntry[];
 }
