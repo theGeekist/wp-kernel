@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { createHelper } from '../../../runtime';
 import type {
 	BuilderApplyOptions,
@@ -9,9 +10,9 @@ import {
 	type ProcessedBlockManifest,
 } from '../../blocks/manifest';
 import { collatePhpBlockArtifacts } from './artifacts';
-import { buildBlocksManifestHelper } from './manifestHelper';
-import { buildBlocksRegistrarHelper } from './registrar';
 import { stageRenderStubs } from './renderStubs';
+import { buildBlockModule } from '@wpkernel/wp-json-ast';
+import { getPhpBuilderChannel } from '../channel';
 
 export function createPhpBlocksHelper(): BuilderHelper {
 	return createHelper({
@@ -50,13 +51,6 @@ export function createPhpBlocksHelper(): BuilderHelper {
 				reporter,
 			});
 
-			await stageRenderStubs({
-				stubs: renderStubs,
-				workspace: context.workspace,
-				output,
-				reporter,
-			});
-
 			if (Object.keys(manifestEntries).length === 0) {
 				reporter.debug(
 					'createPhpBlocksHelper: no manifest entries produced.'
@@ -65,14 +59,45 @@ export function createPhpBlocksHelper(): BuilderHelper {
 				return;
 			}
 
-			const manifestHelper = buildBlocksManifestHelper({
-				ir,
-				manifestEntries,
+			const blockModule = buildBlockModule({
+				origin: ir.meta.origin,
+				namespace: `${ir.php.namespace}\\Blocks`,
+				manifest: {
+					fileName: 'build/blocks-manifest.php',
+					entries: manifestEntries,
+				},
+				registrarFileName: 'Blocks/Register.php',
+				renderStubs,
 			});
-			const registrarHelper = buildBlocksRegistrarHelper({ ir });
 
-			await manifestHelper.apply(options);
-			await registrarHelper.apply(options);
+			reportManifestValidationErrors({
+				files: blockModule.files,
+				reporter,
+			});
+
+			await stageRenderStubs({
+				stubs: blockModule.renderStubs,
+				workspace: context.workspace,
+				output,
+				reporter,
+			});
+
+			const channel = getPhpBuilderChannel(context);
+			for (const file of blockModule.files) {
+				const target = resolveBlockFilePath({
+					file,
+					ir,
+				});
+
+				channel.queue({
+					file: target,
+					program: file.program,
+					metadata: file.metadata,
+					docblock: file.docblock,
+					uses: [],
+					statements: [],
+				});
+			}
 
 			reporter.debug(
 				'createPhpBlocksHelper: queued SSR block manifest and registrar.'
@@ -81,4 +106,43 @@ export function createPhpBlocksHelper(): BuilderHelper {
 			await next?.();
 		},
 	});
+}
+
+function resolveBlockFilePath({
+	file,
+	ir,
+}: {
+	readonly file: ReturnType<typeof buildBlockModule>['files'][number];
+	readonly ir: BuilderApplyOptions['input']['ir'];
+}): string {
+	if (file.metadata.kind === 'block-manifest') {
+		const manifestDir = path.dirname(ir!.php.outputDir);
+		return path.join(manifestDir, file.fileName);
+	}
+
+	return path.join(ir!.php.outputDir, file.fileName);
+}
+
+function reportManifestValidationErrors({
+	files,
+	reporter,
+}: {
+	readonly files: ReturnType<typeof buildBlockModule>['files'];
+	readonly reporter: BuilderApplyOptions['reporter'];
+}): void {
+	const manifestFile = files.find(
+		(file) => file.metadata.kind === 'block-manifest'
+	);
+	if (!manifestFile || manifestFile.metadata.kind !== 'block-manifest') {
+		return;
+	}
+
+	for (const error of manifestFile.metadata.validation?.errors ?? []) {
+		reporter.error(error.message, {
+			code: error.code,
+			block: error.block,
+			field: error.field,
+			value: error.value,
+		});
+	}
 }

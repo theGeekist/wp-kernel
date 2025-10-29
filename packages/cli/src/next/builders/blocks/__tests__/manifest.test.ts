@@ -100,11 +100,11 @@ describe('collectBlockManifests', () => {
 			});
 			const processed = result.get(block.key);
 			expect(processed?.renderStub).toBeDefined();
-			expect(processed?.renderStub?.path).toBe(
+			expect(processed?.renderStub?.target.absolutePath).toBe(
 				path.join(root, blockDir, 'render.php')
 			);
-			expect(processed?.renderStub?.contents).toContain(
-				'AUTO-GENERATED WPK STUB: safe to edit.'
+			expect(processed?.renderStub?.target.relativePath).toBe(
+				'src/blocks/stub/render.php'
 			);
 			expect(processed?.warnings).toContain(
 				'Block "demo/stub": render file declared in manifest was missing; created stub at src/blocks/stub/render.php.'
@@ -144,7 +144,7 @@ describe('collectBlockManifests', () => {
 				blocks: [block],
 			});
 			const processed = result.get(block.key);
-			expect(processed?.renderStub?.path).toBe(
+			expect(processed?.renderStub?.target.absolutePath).toBe(
 				path.join(root, blockDir, 'render.php')
 			);
 			expect(processed?.manifestEntry?.render).toBe(
@@ -294,7 +294,7 @@ describe('collectBlockManifests', () => {
 				blocks: [block],
 			});
 			const firstProcessed = first.get(block.key);
-			expect(firstProcessed?.renderStub?.path).toBe(
+			expect(firstProcessed?.renderStub?.target.absolutePath).toBe(
 				path.join(root, renderPath)
 			);
 			expect(firstProcessed?.warnings).toContain(
