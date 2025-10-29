@@ -10,6 +10,25 @@ import type {
 } from './types';
 import { RESOURCE_BUILDER_KIND, RESOURCE_FRAGMENT_KIND } from './types';
 
+/**
+ * Construct the resource pipeline responsible for validating configuration,
+ * producing cache keys, creating clients, and building the final resource
+ * object.
+ *
+ * @example
+ * ```ts
+ * const pipeline = createResourcePipeline<Post, { id: number }>();
+ * const result = await pipeline.run({
+ *   config: resourceConfig,
+ *   normalizedConfig,
+ *   namespace: 'example/resources',
+ *   resourceName: 'Post',
+ *   reporter,
+ * });
+ *
+ * console.log(result.artifact.resource?.get.one({ id: 42 }));
+ * ```
+ */
 export function createResourcePipeline<T, TQuery>(): ResourcePipeline<
 	T,
 	TQuery

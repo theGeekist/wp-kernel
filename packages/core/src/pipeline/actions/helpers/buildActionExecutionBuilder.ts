@@ -22,6 +22,12 @@ import { measureDurationMs, readMonotonicTime } from './timing';
  * The helper records timing metadata, ensures downstream builder failures are
  * normalised, and emits matching `complete`/`error` lifecycle events once the
  * entire builder chain settles.
+ *
+ * @example
+ * ```ts
+ * const executionBuilder = buildActionExecutionBuilder<{ id: string }, string>();
+ * pipeline.builders.use(executionBuilder);
+ * ```
  */
 export function buildActionExecutionBuilder<
 	TArgs,

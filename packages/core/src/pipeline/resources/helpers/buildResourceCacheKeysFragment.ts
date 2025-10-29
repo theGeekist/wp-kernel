@@ -11,6 +11,16 @@ import type {
 import { RESOURCE_FRAGMENT_KIND } from '../types';
 import type { Reporter } from '../../../reporter/types';
 
+/**
+ * Create a fragment helper that merges user-defined cache keys with the
+ * framework defaults to guarantee a complete cache key surface.
+ *
+ * @example
+ * ```ts
+ * const cacheKeysFragment = buildResourceCacheKeysFragment<Post, { id: number }>();
+ * pipeline.ir.use(cacheKeysFragment);
+ * ```
+ */
 export function buildResourceCacheKeysFragment<
 	T,
 	TQuery,

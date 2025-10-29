@@ -20,6 +20,25 @@ import { ACTION_BUILDER_KIND, ACTION_FRAGMENT_KIND } from './types';
  * orchestration logic. Callers receive a pipeline instance that encapsulates
  * helper registration and exposes a `run` method mirroring the legacy action
  * flow.
+ *
+ * @example
+ * ```ts
+ * const pipeline = createActionPipeline<{ postId: number }, string>();
+ *
+ * pipeline.ir.use(createHelper({
+ *   key: 'action.audit',
+ *   kind: ACTION_FRAGMENT_KIND,
+ *   apply: ({ reporter, input }) => reporter.info('args', input.args),
+ * }));
+ *
+ * const result = await pipeline.run({
+ *   config: actionConfig,
+ *   args: { postId: 42 },
+ *   resolvedOptions: { scope: 'crossTab', bridged: true },
+ * });
+ *
+ * console.log(result.artifact.result);
+ * ```
  */
 export function createActionPipeline<TArgs, TResult>(): ActionPipeline<
 	TArgs,

@@ -18,6 +18,12 @@ import { readMonotonicTime } from './timing';
  * The helper captures the invocation start time and immediately emits the
  * `action.start` lifecycle event so observers receive argument metadata before
  * any builders run.
+ *
+ * @example
+ * ```ts
+ * const lifecycleFragment = buildActionLifecycleFragment<{ id: string }, string>();
+ * pipeline.ir.use(lifecycleFragment);
+ * ```
  */
 export function buildActionLifecycleFragment<
 	TArgs,

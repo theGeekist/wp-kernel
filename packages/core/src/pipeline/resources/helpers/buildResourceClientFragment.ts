@@ -10,6 +10,16 @@ import type {
 import { RESOURCE_FRAGMENT_KIND } from '../types';
 import type { Reporter } from '../../../reporter/types';
 
+/**
+ * Create a fragment helper that instantiates the resource client used by
+ * downstream builders and exposes it via the pipeline draft.
+ *
+ * @example
+ * ```ts
+ * const clientFragment = buildResourceClientFragment<Post, { id: number }>();
+ * pipeline.ir.use(clientFragment);
+ * ```
+ */
 export function buildResourceClientFragment<
 	T,
 	TQuery,
