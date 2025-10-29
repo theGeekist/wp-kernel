@@ -16,6 +16,7 @@ import {
 	buildMethodCallAssignmentStatement,
 	buildMethodCallExpression,
 	appendStatementsWithSpacing,
+	type IdentityValidationOptions,
 } from '../../resource';
 import type { ResolvedIdentity } from '../../identity';
 import type { IRResource } from '../../../../ir/publicTypes';
@@ -62,11 +63,22 @@ export function buildGetRouteStatements(
 
 	const statements: PhpStmt[] = [];
 
-	const identityStatements = buildIdentityValidationStatements({
-		identity: options.identity,
-		pascalName: options.pascalName,
-		errorCodeFactory: options.errorCodeFactory,
-	});
+	const identityValidationOptions: IdentityValidationOptions =
+		options.identity.type === 'string'
+			? {
+					identity: options.identity,
+					pascalName: options.pascalName,
+					errorCodeFactory: options.errorCodeFactory,
+				}
+			: {
+					identity: options.identity,
+					pascalName: options.pascalName,
+					errorCodeFactory: options.errorCodeFactory,
+				};
+
+	const identityStatements = buildIdentityValidationStatements(
+		identityValidationOptions
+	);
 
 	appendStatementsWithSpacing(statements, identityStatements);
 

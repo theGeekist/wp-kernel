@@ -1,5 +1,8 @@
 import { WPKernelError } from '@wpkernel/core/contracts';
-import type { PhpProgramCodemodResult } from '../codemods/types';
+import type {
+	PhpProgramCodemodDiagnostics,
+	PhpProgramCodemodResult,
+} from '../codemods/types';
 import type {
 	PhpProgramIngestionMessage,
 	PhpProgramIngestionSource,
@@ -149,6 +152,13 @@ export function isPhpProgramIngestionPayload(
 		return false;
 	}
 
+	if (
+		candidate.diagnostics !== undefined &&
+		!isPhpProgramCodemodDiagnostics(candidate.diagnostics)
+	) {
+		return false;
+	}
+
 	return true;
 }
 
@@ -168,6 +178,13 @@ export function isPhpProgramCodemodResult(
 		return false;
 	}
 
+	if (
+		candidate.diagnostics !== undefined &&
+		!isPhpProgramCodemodDiagnostics(candidate.diagnostics)
+	) {
+		return false;
+	}
+
 	return candidate.visitors.every((visitor) => {
 		if (visitor === null || typeof visitor !== 'object') {
 			return false;
@@ -184,4 +201,26 @@ export function isPhpProgramCodemodResult(
 			typeof summary.class === 'string'
 		);
 	});
+}
+
+function isPhpProgramCodemodDiagnostics(
+	value: unknown
+): value is PhpProgramCodemodDiagnostics {
+	if (value === null || typeof value !== 'object') {
+		return false;
+	}
+
+	const candidate = value as Record<string, unknown>;
+
+	if (typeof candidate.dumps === 'undefined') {
+		return true;
+	}
+
+	if (candidate.dumps === null || typeof candidate.dumps !== 'object') {
+		return false;
+	}
+
+	const dumps = candidate.dumps as Record<string, unknown>;
+
+	return typeof dumps.before === 'string' && typeof dumps.after === 'string';
 }

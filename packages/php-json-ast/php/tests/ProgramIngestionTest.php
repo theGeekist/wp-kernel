@@ -247,6 +247,121 @@ final class ProgramIngestionTest extends TestCase
         $this->assertSame($expectedProgram, $program, 'Codemod output did not match expected AST.');
     }
 
+    public function testItEmitsNodeDumpsWhenDiagnosticsEnabledInConfiguration(): void
+    {
+        $fixturePath = $this->resolveCodemodFixturePath('BaselinePack.before.php');
+        $configuration = $this->createCodemodConfiguration([
+            'diagnostics' => [
+                'nodeDumps' => true,
+            ],
+            'stacks' => [
+                [
+                    'key' => 'ingest.before-print',
+                    'visitors' => [
+                        [
+                            'key' => 'baseline.name-canonicaliser',
+                        ],
+                        [
+                            'key' => 'baseline.use-grouping',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $command = sprintf(
+            'php %s %s --config %s %s 2>&1',
+            escapeshellarg($this->scriptPath),
+            escapeshellarg($this->workspaceRoot),
+            escapeshellarg($configuration),
+            escapeshellarg($fixturePath)
+        );
+
+        $output = [];
+        $exitCode = 0;
+        exec($command, $output, $exitCode);
+
+        $this->assertSame(0, $exitCode, sprintf("Command failed:\n%s", implode("\n", $output)));
+        $this->assertNotEmpty($output, 'Ingestion script produced no output.');
+
+        $payload = json_decode($output[0], true);
+        $this->assertIsArray($payload, 'Output payload should decode to an array.');
+
+        $codemod = $payload['codemod'] ?? null;
+        $this->assertIsArray($codemod, 'Codemod summary should be present.');
+
+        $diagnostics = $codemod['diagnostics'] ?? null;
+        $this->assertIsArray($diagnostics, 'Diagnostics payload should be present.');
+
+        $dumps = $diagnostics['dumps'] ?? null;
+        $this->assertIsArray($dumps, 'Diagnostics dumps should be present.');
+
+        $beforeDump = $dumps['before'] ?? null;
+        $afterDump = $dumps['after'] ?? null;
+        $this->assertIsString($beforeDump, 'Before dump should be a string.');
+        $this->assertIsString($afterDump, 'After dump should be a string.');
+        $this->assertStringContainsString('Stmt_Class', $beforeDump);
+        $this->assertStringContainsString('Stmt_Class', $afterDump);
+        $this->assertStringContainsString('flags: FINAL', $afterDump);
+        $this->assertStringContainsString('attrGroups', $afterDump);
+    }
+
+    public function testItEmitsNodeDumpsWhenDiagnosticsFlagIsProvided(): void
+    {
+        $fixturePath = $this->resolveCodemodFixturePath('BaselinePack.before.php');
+        $configuration = $this->createCodemodConfiguration([
+            'stacks' => [
+                [
+                    'key' => 'ingest.before-print',
+                    'visitors' => [
+                        [
+                            'key' => 'baseline.name-canonicaliser',
+                        ],
+                        [
+                            'key' => 'baseline.use-grouping',
+                        ],
+                    ],
+                ],
+            ],
+        ]);
+
+        $command = sprintf(
+            'php %s %s --diagnostics --config %s %s 2>&1',
+            escapeshellarg($this->scriptPath),
+            escapeshellarg($this->workspaceRoot),
+            escapeshellarg($configuration),
+            escapeshellarg($fixturePath)
+        );
+
+        $output = [];
+        $exitCode = 0;
+        exec($command, $output, $exitCode);
+
+        $this->assertSame(0, $exitCode, sprintf("Command failed:\n%s", implode("\n", $output)));
+        $this->assertNotEmpty($output, 'Ingestion script produced no output.');
+
+        $payload = json_decode($output[0], true);
+        $this->assertIsArray($payload, 'Output payload should decode to an array.');
+
+        $codemod = $payload['codemod'] ?? null;
+        $this->assertIsArray($codemod, 'Codemod summary should be present.');
+
+        $diagnostics = $codemod['diagnostics'] ?? null;
+        $this->assertIsArray($diagnostics, 'Diagnostics payload should be present.');
+
+        $dumps = $diagnostics['dumps'] ?? null;
+        $this->assertIsArray($dumps, 'Diagnostics dumps should be present.');
+
+        $beforeDump = $dumps['before'] ?? null;
+        $afterDump = $dumps['after'] ?? null;
+        $this->assertIsString($beforeDump, 'Before dump should be a string.');
+        $this->assertIsString($afterDump, 'After dump should be a string.');
+        $this->assertStringContainsString('Stmt_Class', $beforeDump);
+        $this->assertStringContainsString('Stmt_Class', $afterDump);
+        $this->assertStringContainsString('flags: FINAL', $afterDump);
+        $this->assertStringContainsString('attrGroups', $afterDump);
+    }
+
     public function testItFailsWhenCodemodVisitorIsUnknown(): void
     {
         $fixturePath = $this->resolveFixturePath('CodifiedController.php');

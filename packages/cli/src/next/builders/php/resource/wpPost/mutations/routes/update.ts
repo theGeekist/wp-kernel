@@ -6,7 +6,10 @@ import {
 	buildVariable,
 	type PhpStmt,
 } from '@wpkernel/php-json-ast';
-import { buildIdentityValidationStatements } from '../../identity';
+import {
+	buildIdentityValidationStatements,
+	type IdentityValidationOptions,
+} from '../../identity';
 import {
 	buildCachePrimingStatements,
 	buildStatusValidationStatements,
@@ -53,11 +56,21 @@ export function buildUpdateRouteStatements(
 		})
 	);
 
-	const validationStatements = buildIdentityValidationStatements({
-		identity: options.identity,
-		pascalName: options.pascalName,
-		errorCodeFactory,
-	});
+	const identityValidationOptions: IdentityValidationOptions =
+		options.identity.type === 'string'
+			? {
+					identity: options.identity,
+					pascalName: options.pascalName,
+					errorCodeFactory,
+				}
+			: {
+					identity: options.identity,
+					pascalName: options.pascalName,
+					errorCodeFactory,
+				};
+	const validationStatements = buildIdentityValidationStatements(
+		identityValidationOptions
+	);
 	statements.push(...validationStatements);
 
 	statements.push(
