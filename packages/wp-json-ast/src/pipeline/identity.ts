@@ -9,6 +9,7 @@ import {
 	buildScalarInt,
 	buildScalarString,
 	buildVariable,
+	type PhpExpr,
 	type PhpStmt,
 } from '@wpkernel/php-json-ast';
 import type { ResourceIdentityConfig } from '@wpkernel/core/resource';
@@ -63,11 +64,7 @@ export function buildIdentityGuardStatements(
 ): readonly PhpStmt[] {
 	const variable = normaliseVariableReference(options.identity.param);
 
-	if (options.identity.type === 'number') {
-		return buildNumericIdentityGuards(options, variable.raw);
-	}
-
-	return buildStringIdentityGuards(options, variable.raw);
+	return identityGuardBuilders[options.identity.type](options, variable.raw);
 }
 
 function resolveIdentityConfigInternal(
@@ -75,18 +72,14 @@ function resolveIdentityConfigInternal(
 ): ResolvedIdentity {
 	const identity = resource.identity;
 	if (!identity) {
-		return {
-			type: 'number',
-			param: 'id',
-		};
+		return { ...DEFAULT_IDENTITY };
 	}
 
-	const param =
-		identity.param ?? (identity.type === 'number' ? 'id' : 'slug');
+	const { type, param } = identity;
 
 	return {
-		type: identity.type,
-		param,
+		type,
+		param: param ?? DEFAULT_IDENTITY_PARAM[type],
 	};
 }
 
@@ -94,40 +87,26 @@ function buildNumericIdentityGuards(
 	options: IdentityGuardOptions,
 	variable: string
 ): readonly PhpStmt[] {
-	const missingIdentifier = buildWpErrorReturn({
-		code: options.errorCodeFactory('missing_identifier'),
-		message: `Missing identifier for ${options.pascalName}.`,
-		status: 400,
-	});
-
-	const invalidIdentifier = buildWpErrorReturn({
-		code: options.errorCodeFactory('invalid_identifier'),
-		message: `Invalid identifier for ${options.pascalName}.`,
-		status: 400,
-	});
+	const createVariable = () => buildVariable(variable);
 
 	return [
 		buildIfStatement(
-			buildBinaryOperation(
-				'Identical',
-				buildNull(),
-				buildVariable(variable)
-			),
-			[missingIdentifier]
+			buildBinaryOperation('Identical', buildNull(), createVariable()),
+			[createIdentityGuardError(options, 'missing')]
 		),
 		buildExpressionStatement(
 			buildAssign(
-				buildVariable(variable),
-				buildScalarCast('int', buildVariable(variable))
+				createVariable(),
+				buildScalarCast('int', createVariable())
 			)
 		),
 		buildIfStatement(
 			buildBinaryOperation(
 				'SmallerOrEqual',
-				buildVariable(variable),
+				createVariable(),
 				buildScalarInt(0)
 			),
-			[invalidIdentifier]
+			[createIdentityGuardError(options, 'invalid')]
 		),
 	];
 }
@@ -136,39 +115,72 @@ function buildStringIdentityGuards(
 	options: IdentityGuardOptions,
 	variable: string
 ): readonly PhpStmt[] {
-	const missingIdentifier = buildWpErrorReturn({
-		code: options.errorCodeFactory('missing_identifier'),
-		message: `Missing identifier for ${options.pascalName}.`,
-		status: 400,
-	});
+	const createVariable = () => buildVariable(variable);
+	const buildTrimCall = (argument: PhpExpr) =>
+		buildFuncCall(buildName(['trim']), [buildArg(argument)]);
 
 	const guardCondition = buildBinaryOperation(
 		'BooleanOr',
 		buildBooleanNot(
 			buildFuncCall(buildName(['is_string']), [
-				buildArg(buildVariable(variable)),
+				buildArg(createVariable()),
 			])
 		),
 		buildBinaryOperation(
 			'Identical',
 			buildScalarString(''),
-			buildFuncCall(buildName(['trim']), [
-				buildArg(buildVariable(variable)),
-			])
+			buildTrimCall(createVariable())
 		)
 	);
 
 	return [
-		buildIfStatement(guardCondition, [missingIdentifier]),
+		buildIfStatement(guardCondition, [
+			createIdentityGuardError(options, 'missing'),
+		]),
 		buildExpressionStatement(
 			buildAssign(
-				buildVariable(variable),
-				buildFuncCall(buildName(['trim']), [
-					buildArg(
-						buildScalarCast('string', buildVariable(variable))
-					),
-				])
+				createVariable(),
+				buildTrimCall(buildScalarCast('string', createVariable()))
 			)
 		),
 	];
+}
+
+type IdentityType = ResolvedIdentity['type'];
+
+const DEFAULT_IDENTITY: ResolvedIdentity = {
+	type: 'number',
+	param: 'id',
+};
+
+const DEFAULT_IDENTITY_PARAM: Record<IdentityType, string> = {
+	number: 'id',
+	string: 'slug',
+};
+
+type IdentityGuardBuilder = (
+	options: IdentityGuardOptions,
+	variable: string
+) => readonly PhpStmt[];
+
+const identityGuardBuilders: Record<IdentityType, IdentityGuardBuilder> = {
+	number: buildNumericIdentityGuards,
+	string: buildStringIdentityGuards,
+};
+
+type IdentityErrorKind = 'missing' | 'invalid';
+
+function createIdentityGuardError(
+	options: IdentityGuardOptions,
+	kind: IdentityErrorKind
+): PhpStmt {
+	const suffix =
+		kind === 'missing' ? 'missing_identifier' : 'invalid_identifier';
+	const adjective = kind === 'missing' ? 'Missing' : 'Invalid';
+
+	return buildWpErrorReturn({
+		code: options.errorCodeFactory(suffix),
+		message: `${adjective} identifier for ${options.pascalName}.`,
+		status: 400,
+	});
 }
