@@ -3,14 +3,12 @@ import type {
 	BuilderOutput,
 } from '../../../runtime/types';
 import type { Workspace } from '../../../workspace/types';
-import type { ProcessedBlockManifest } from '../../blocks/manifest';
+import type { BlockRenderStub } from '@wpkernel/wp-json-ast';
 
 export const RENDER_TRANSACTION_LABEL = 'builder.generate.php.blocks.render';
 
 export interface StageRenderStubsOptions {
-	readonly stubs: readonly NonNullable<
-		ProcessedBlockManifest['renderStub']
-	>[];
+	readonly stubs: readonly BlockRenderStub[];
 	readonly workspace: Workspace;
 	readonly output: BuilderOutput;
 	readonly reporter: BuilderApplyOptions['reporter'];
@@ -29,7 +27,7 @@ export async function stageRenderStubs({
 	workspace.begin(RENDER_TRANSACTION_LABEL);
 	try {
 		for (const stub of stubs) {
-			await workspace.write(stub.path, stub.contents, {
+			await workspace.write(stub.relativePath, stub.contents, {
 				ensureDir: true,
 			});
 		}

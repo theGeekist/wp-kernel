@@ -293,6 +293,8 @@ _Completion:_ ☑ Completed – (this PR) introduced `buildCacheInvalidators` un
 
 _Task 2.7: Move block registrar and render stubs._ Block registration still lives entirely in the CLI (`packages/cli/src/next/builders/php/blocks/**`), including manifest parsing, registrar composition, and server-side render stubs. Port this surface into `packages/wp-json-ast/src/blocks/` so block pipelines consume the same WordPress-aware factories as REST modules.
 
+_Completion:_ ☑ Completed – (this PR) migrated the block manifest, registrar, and render stub builders into `@wpkernel/wp-json-ast` and updated the CLI to delegate to `buildBlockModule`.
+
 #### Task 2.7 Blueprint – Block module builders
 
 Introduce `buildBlockModule` that returns the registrar program plus auxiliary render stubs based on the CLI's manifest IR. Supporting factories cover:
@@ -314,11 +316,11 @@ Keep manifest parsing and schema validation TypeScript-first so the CLI simply f
 
 **Subtask 2.7.a – Support block-level augmentation hooks.** Allow `buildBlockModule` to accept optional callbacks that augment registrar entries or stub programs before emission so future transports can inject analytics or telemetry without rewriting the factory.
 
-_Completion:_ ☐ Pending – add augmentation hooks and document them alongside the factory contracts.
+_Completion:_ ☑ Completed – (this PR) added manifest, registrar, and render stub augmentation hooks to `buildBlockModule` and documented their usage through unit coverage.
 
 **Subtask 2.7.b – Share manifest validation errors.** Surface typed error objects from `buildManifestMetadata` so the CLI can report manifest issues without duplicating the validation logic.
 
-_Completion:_ ☐ Pending – expose manifest validation results and remove CLI-side error formatting.
+_Completion:_ ☑ Completed – (this PR) emitted structured manifest validation errors from `buildManifestMetadata`, propagated them via metadata, and updated the CLI to log the shared diagnostics.
 
 _Task 2.8: Fold identity and pipeline utilities into shared factories._ Helper modules such as `packages/cli/src/next/builders/php/identity.ts`, `utils.ts`, and the php driver wrappers still expose low-level AST node assembly for identity derivation, filesystem targeting, and php-json-ast orchestration. Move these pieces into `wp-json-ast` so the CLI pipeline becomes a thin coordinator over shared primitives.
 

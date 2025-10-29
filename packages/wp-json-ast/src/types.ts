@@ -45,9 +45,25 @@ export type PersistenceRegistryMetadata = BasePhpFileMetadata & {
 	readonly name?: string;
 };
 
+export interface BlockManifestValidationError {
+	readonly code:
+		| 'block-manifest/missing-directory'
+		| 'block-manifest/invalid-directory'
+		| 'block-manifest/missing-manifest'
+		| 'block-manifest/invalid-manifest'
+		| 'block-manifest/invalid-render';
+	readonly block: string;
+	readonly field: 'directory' | 'manifest' | 'render';
+	readonly message: string;
+	readonly value?: unknown;
+}
+
 export type BlockManifestMetadata = BasePhpFileMetadata & {
 	readonly kind: 'block-manifest';
 	readonly name?: string;
+	readonly validation?: {
+		readonly errors: readonly BlockManifestValidationError[];
+	};
 };
 
 export type BlockRegistrarMetadata = BasePhpFileMetadata & {

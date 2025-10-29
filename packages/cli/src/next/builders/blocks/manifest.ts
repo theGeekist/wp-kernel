@@ -12,11 +12,6 @@ export interface BlockManifestEntry {
 	readonly render?: string;
 }
 
-export interface GeneratedFile {
-	readonly path: string;
-	readonly contents: string;
-}
-
 export interface ProcessedBlockManifest {
 	readonly block: IRBlock;
 	readonly manifestEntry?: BlockManifestEntry;
@@ -28,7 +23,14 @@ export interface ProcessedBlockManifest {
 		readonly absolutePath: string;
 		readonly relativePath: string;
 	};
-	readonly renderStub?: GeneratedFile;
+	readonly renderStub?: {
+		readonly blockKey: string;
+		readonly manifest: Record<string, unknown>;
+		readonly target: {
+			readonly absolutePath: string;
+			readonly relativePath: string;
+		};
+	};
 	readonly registrar: BlockRegistrarMetadata;
 }
 
@@ -149,7 +151,7 @@ async function processBlock(
 		manifestRead.manifestObject
 	);
 
-	let renderStub: GeneratedFile | undefined;
+	let renderStub: ProcessedBlockManifest['renderStub'];
 	let renderPath: { absolutePath: string; relativePath: string } | undefined;
 
 	if (manifestDeclaresCallback) {
@@ -177,12 +179,13 @@ async function processBlock(
 		if (!exists) {
 			if (declared) {
 				renderStub = {
-					path: absolutePath,
-					contents: createRenderStub({
-						block,
-						manifest: manifestRead.manifestObject,
-					}),
-				} satisfies GeneratedFile;
+					blockKey: block.key,
+					manifest: manifestRead.manifestObject ?? {},
+					target: {
+						absolutePath,
+						relativePath,
+					},
+				} satisfies ProcessedBlockManifest['renderStub'];
 				warnings.push(
 					`Block "${block.key}": render file declared in manifest was missing; created stub at ${relativePath}.`
 				);
@@ -221,12 +224,13 @@ async function processBlock(
 
 	if (!exists) {
 		renderStub = {
-			path: fallbackAbsolute,
-			contents: createRenderStub({
-				block,
-				manifest: manifestRead.manifestObject,
-			}),
-		} satisfies GeneratedFile;
+			blockKey: block.key,
+			manifest: manifestRead.manifestObject ?? {},
+			target: {
+				absolutePath: fallbackAbsolute,
+				relativePath: fallbackRelative,
+			},
+		} satisfies ProcessedBlockManifest['renderStub'];
 		warnings.push(
 			`Block "${block.key}": render template was not declared and none was found; created stub at ${fallbackRelative}.`
 		);
@@ -538,65 +542,6 @@ async function resolveRenderResolution(options: {
 		exists: true,
 		declared: false,
 	};
-}
-
-function createRenderStub(options: {
-	readonly block: IRBlock;
-	readonly manifest: Record<string, unknown>;
-}): string {
-	const title = deriveTitle(options.block, options.manifest);
-	const textdomain = deriveTextdomain(options.block, options.manifest);
-	const message = `${title} - hello from a dynamic block!`;
-
-	const escapedMessage = escapeForSingleQuotedPhp(message);
-	const escapedDomain = escapeForSingleQuotedPhp(textdomain);
-
-	return `<?php\n/**\n * AUTO-GENERATED WPK STUB: safe to edit.\n *\n * @see https://github.com/WordPress/gutenberg/blob/trunk/docs/reference-guides/block-api/block-metadata.md#render\n */\n?>\n<p <?php echo get_block_wrapper_attributes(); ?>>\n\t<?php esc_html_e( '${escapedMessage}', '${escapedDomain}' ); ?>\n</p>\n`;
-}
-
-function deriveTitle(
-	block: IRBlock,
-	manifest: Record<string, unknown>
-): string {
-	const title =
-		typeof manifest.title === 'string' ? manifest.title.trim() : '';
-	if (title.length > 0) {
-		return title;
-	}
-
-	const [, slug] = block.key.split('/');
-	if (!slug) {
-		return 'Block';
-	}
-
-	return slug
-		.split(/[^A-Za-z0-9]+/u)
-		.filter(Boolean)
-		.map(
-			(segment: string) =>
-				segment.charAt(0).toUpperCase() + segment.slice(1).toLowerCase()
-		)
-		.join(' ');
-}
-
-function deriveTextdomain(
-	block: IRBlock,
-	manifest: Record<string, unknown>
-): string {
-	const candidate =
-		typeof manifest.textdomain === 'string'
-			? manifest.textdomain.trim()
-			: '';
-	if (candidate.length > 0) {
-		return candidate;
-	}
-
-	const [namespace] = block.key.split('/');
-	return namespace && namespace.length > 0 ? namespace : 'messages';
-}
-
-function escapeForSingleQuotedPhp(value: string): string {
-	return value.replace(/\\/gu, '\\\\').replace(/'/gu, "\\'");
 }
 
 function toWorkspaceRelative(workspace: Workspace, absolute: string): string {

@@ -1,0 +1,39 @@
+import { buildBlockManifestFile } from './manifest';
+import { buildBlockRegistrarFile } from './registrar';
+import { buildRenderStub } from './render';
+import type { BlockModuleConfig, BlockModuleResult } from './types';
+
+export function buildBlockModule(config: BlockModuleConfig): BlockModuleResult {
+	const files: BlockModuleResult['files'][number][] = [];
+	const hooks = config.hooks ?? {};
+
+	if (Object.keys(config.manifest.entries).length > 0) {
+		const manifestFile = buildBlockManifestFile(
+			config.origin,
+			config.manifest
+		);
+
+		files.push(
+			(hooks.manifestFile?.(manifestFile) ??
+				manifestFile) as BlockModuleResult['files'][number]
+		);
+	}
+
+	const registrarFile = buildBlockRegistrarFile(
+		config.origin,
+		config.namespace,
+		config.registrarFileName
+	);
+
+	files.push(
+		(hooks.registrarFile?.(registrarFile) ??
+			registrarFile) as BlockModuleResult['files'][number]
+	);
+
+	const renderStubs = (config.renderStubs ?? []).map((descriptor) => {
+		const stub = buildRenderStub(descriptor);
+		return hooks.renderStub?.(stub, descriptor) ?? stub;
+	});
+
+	return { files, renderStubs } satisfies BlockModuleResult;
+}
