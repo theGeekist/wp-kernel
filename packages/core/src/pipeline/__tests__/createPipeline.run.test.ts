@@ -55,11 +55,17 @@ describe('createPipeline.run', () => {
 		TestDiagnostic
 	>;
 
-	function createTestPipeline(): {
+	function createTestPipeline({
+		getReporter,
+	}: {
+		getReporter?: () => Reporter;
+	} = {}): {
 		pipeline: TestPipeline;
 		reporter: Reporter;
 	} {
-		const reporter = createTestReporter();
+		const fallbackReporter = createTestReporter();
+		const resolveReporter = () => getReporter?.() ?? fallbackReporter;
+		let reporter = resolveReporter();
 		const pipeline = createPipeline<
 			TestRunOptions,
 			TestBuildOptions,
@@ -78,7 +84,9 @@ describe('createPipeline.run', () => {
 				return {};
 			},
 			createContext() {
-				return { reporter };
+				const activeReporter = resolveReporter();
+				reporter = activeReporter;
+				return { reporter: activeReporter };
 			},
 			createFragmentState() {
 				return [] as TestDraft;
@@ -374,6 +382,78 @@ describe('createPipeline.run', () => {
 		);
 
 		expect(reporter.warn).toHaveBeenCalledWith(
+			'Pipeline diagnostic reported.',
+			expect.objectContaining({
+				type: 'unused-helper',
+				key: 'fragment.audit',
+			})
+		);
+	});
+
+	it('replays pipeline diagnostics for each reporter when reused', () => {
+		let currentReporter = createTestReporter();
+		const firstReporter = currentReporter;
+		const { pipeline } = createTestPipeline({
+			getReporter: () => currentReporter,
+		});
+
+		pipeline.ir.use(
+			createHelper<
+				TestContext,
+				void,
+				string[],
+				Reporter,
+				typeof pipeline.fragmentKind
+			>({
+				key: 'fragment.audit',
+				kind: pipeline.fragmentKind,
+				dependsOn: ['fragment.missing'],
+				apply() {
+					// no-op
+				},
+			})
+		);
+
+		expect(() => pipeline.run({})).toThrow(
+			'depends on unknown helper "fragment.missing"'
+		);
+
+		expect(firstReporter.warn).toHaveBeenCalledWith(
+			'Pipeline diagnostic reported.',
+			expect.objectContaining({
+				type: 'missing-dependency',
+				key: 'fragment.audit',
+				dependency: 'fragment.missing',
+			})
+		);
+
+		expect(firstReporter.warn).toHaveBeenCalledWith(
+			'Pipeline diagnostic reported.',
+			expect.objectContaining({
+				type: 'unused-helper',
+				key: 'fragment.audit',
+			})
+		);
+
+		const secondReporter = createTestReporter();
+		currentReporter = secondReporter;
+
+		expect(() => pipeline.run({})).toThrow(
+			'depends on unknown helper "fragment.missing"'
+		);
+
+		expect(firstReporter.warn).toHaveBeenCalledTimes(2);
+
+		expect(secondReporter.warn).toHaveBeenCalledWith(
+			'Pipeline diagnostic reported.',
+			expect.objectContaining({
+				type: 'missing-dependency',
+				key: 'fragment.audit',
+				dependency: 'fragment.missing',
+			})
+		);
+
+		expect(secondReporter.warn).toHaveBeenCalledWith(
 			'Pipeline diagnostic reported.',
 			expect.objectContaining({
 				type: 'unused-helper',
