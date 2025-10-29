@@ -6,6 +6,7 @@ import type {
 } from '../../runtime/types';
 import {
 	buildPersistenceRegistryModule,
+	buildProgramTargetPlanner,
 	type PersistenceRegistryResourceConfig,
 } from '@wpkernel/wp-json-ast';
 import type { IRv1 } from '../../ir/publicTypes';
@@ -30,22 +31,13 @@ export function createPhpPersistenceRegistryHelper(): BuilderHelper {
 				resources: mapResources(ir),
 			});
 
-			const channel = getPhpBuilderChannel(options.context);
-			for (const file of module.files) {
-				const filePath = options.context.workspace.resolve(
-					ir.php.outputDir,
-					file.fileName
-				);
+			const planner = buildProgramTargetPlanner({
+				workspace: options.context.workspace,
+				outputDir: ir.php.outputDir,
+				channel: getPhpBuilderChannel(options.context),
+			});
 
-				channel.queue({
-					file: filePath,
-					program: file.program,
-					metadata: file.metadata,
-					docblock: file.docblock,
-					uses: file.uses,
-					statements: file.statements,
-				});
-			}
+			planner.queueFiles({ files: module.files });
 
 			await next?.();
 		},

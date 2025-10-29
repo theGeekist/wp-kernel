@@ -4,7 +4,10 @@ import type {
 	BuilderHelper,
 	BuilderNext,
 } from '../../runtime/types';
-import { buildCapabilityModule } from '@wpkernel/wp-json-ast';
+import {
+	buildCapabilityModule,
+	buildProgramTargetPlanner,
+} from '@wpkernel/wp-json-ast';
 import type { CapabilityModuleWarning } from '@wpkernel/wp-json-ast';
 import { getPhpBuilderChannel } from './channel';
 
@@ -32,22 +35,13 @@ export function createPhpCapabilityHelper(): BuilderHelper {
 				},
 			});
 
-			const channel = getPhpBuilderChannel(options.context);
-			for (const file of module.files) {
-				const filePath = options.context.workspace.resolve(
-					ir.php.outputDir,
-					file.fileName
-				);
+			const planner = buildProgramTargetPlanner({
+				workspace: options.context.workspace,
+				outputDir: ir.php.outputDir,
+				channel: getPhpBuilderChannel(options.context),
+			});
 
-				channel.queue({
-					file: filePath,
-					program: file.program,
-					metadata: file.metadata,
-					docblock: file.docblock,
-					uses: file.uses,
-					statements: file.statements,
-				});
-			}
+			planner.queueFiles({ files: module.files });
 
 			await next?.();
 		},

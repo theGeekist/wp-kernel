@@ -343,6 +343,8 @@ These factories expose typed contracts so CLI builders can request identity tran
 
 #### Task 2.8 Follow-up subtasks – robustness
 
+_Completion:_ ☑ Completed – (this PR) centralised identity guards, channel bootstrap, and program target planning inside `@wpkernel/wp-json-ast`, updating the CLI to consume the shared pipeline helpers.
+
 **Subtask 2.8.a – Provide filesystem strategy hooks.** Let `buildProgramTargetPlanner` accept callbacks for workspace-specific overrides (e.g., mu-plugins vs. standard plugins) so downstream consumers can adjust output without reimplementing the planner.
 
 _Completion:_ ☐ Pending – add planner hooks and excise the CLI-specific branching.

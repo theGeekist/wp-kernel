@@ -18,3 +18,4 @@ export * from './blocks/registrar';
 export * from './blocks/render';
 export * from './blocks/utils';
 export * from './blocks/types';
+export * from './pipeline';
