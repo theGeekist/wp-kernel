@@ -22,7 +22,7 @@ describe('Job resource cache invalidation', () => {
 	let resource: ResourceObject<Job, void>;
 	let storeKey: string;
 
-	beforeEach(() => {
+	beforeEach(async () => {
 		// Setup WordPress data in window
 		(window as WordPressWindow).wp = {
 			data: wpData,
@@ -30,7 +30,7 @@ describe('Job resource cache invalidation', () => {
 
 		// Define the job resource with a unique namespace to avoid conflicts
 		const uniqueNamespace = `test-${Date.now()}`;
-		resource = defineResource<Job, void>({
+		resource = await defineResource<Job, void>({
 			name: 'job',
 			namespace: uniqueNamespace,
 			routes: {

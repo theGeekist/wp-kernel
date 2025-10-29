@@ -7,7 +7,6 @@
  */
 
 import { defineResource } from '../../resource/define';
-import type { ResourceObject } from '../../resource/types';
 import * as wpData from '@wordpress/data';
 import {
 	createWordPressTestHarness,
@@ -24,18 +23,22 @@ type TestItem = {
 	updated_at: string;
 };
 
+type DefinedResource<T, TQuery> = Awaited<
+	ReturnType<typeof defineResource<T, TQuery>>
+>;
+
 describe('Resource cache invalidation integration', () => {
 	let harness: WordPressTestHarness;
-	let resource: ResourceObject<TestItem, void>;
+	let resource: DefinedResource<TestItem, void>;
 	let storeKey: string;
 
-	beforeEach(() => {
+	beforeEach(async () => {
 		harness = createWordPressTestHarness({
 			data: wpData as unknown as WordPressHarnessOverrides['data'],
 		});
 
 		const uniqueNamespace = `test-${Date.now()}`;
-		resource = defineResource<TestItem, void>({
+		resource = await defineResource<TestItem, void>({
 			name: 'testitem',
 			namespace: uniqueNamespace,
 			routes: {
@@ -63,7 +66,7 @@ describe('Resource cache invalidation integration', () => {
 		harness.teardown();
 	});
 
-	it('should clear cached list data when invalidate.list() is called', () => {
+	it('should clear cached list data when invalidate.list() is called', async () => {
 		// 1. Manually populate store with some data (simulating a successful fetch)
 		const dispatch = wpData.dispatch(storeKey) as any;
 		dispatch.receiveItems(
@@ -94,7 +97,7 @@ describe('Resource cache invalidation integration', () => {
 		expect(listAfter.items).toHaveLength(0);
 	});
 
-	it('should invalidate resolution state for getList', () => {
+	it('should invalidate resolution state for getList', async () => {
 		const dispatch = wpData.dispatch(storeKey) as any;
 		const select = wpData.select(storeKey) as any;
 

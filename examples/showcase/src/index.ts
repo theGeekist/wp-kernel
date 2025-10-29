@@ -9,6 +9,7 @@ import { mountAdmin } from './admin';
 import { job } from './resources';
 import { ShowcaseActionError } from './errors/ShowcaseActionError';
 import { bootstrapKernel, kernel } from './bootstrap/kernel';
+import { wpkConfig } from './wpk.config';
 
 type WPWindow = typeof window & {
 	wp?: {
@@ -19,7 +20,7 @@ type WPWindow = typeof window & {
 /**
  * Initialize plugin resources and mount the admin UI if available.
  */
-export function init(): void {
+export async function init(): Promise<void> {
 	const globalWindow = window as WPWindow;
 
 	if (!globalWindow.wp?.data) {
@@ -31,13 +32,20 @@ export function init(): void {
 	// Initialize WP Kernel runtime (middleware + events plugin)
 	bootstrapKernel(globalWindow.wp.data as WPKernelRegistry);
 
+	let resource: Awaited<typeof job> | undefined;
+
 	try {
+		resource = await job;
 		// Trigger lazy store registration and warm initial data.
-		void job.store;
-		void job.prefetchList?.();
+		void resource.store;
+		void resource.prefetchList?.();
 	} catch (error) {
 		const wrapped = ShowcaseActionError.fromUnknown(error, {
-			context: { actionName: 'Jobs.Init', resourceName: job.storeKey },
+			context: {
+				actionName: 'Jobs.Init',
+				resourceName:
+					resource?.storeKey ?? wpkConfig.resources.job.name,
+			},
 		});
 		console.error(
 			'[WP Kernel Showcase] Failed to prepare job resource:',
@@ -59,9 +67,11 @@ export function init(): void {
 }
 
 if (document.readyState === 'loading') {
-	document.addEventListener('DOMContentLoaded', init);
+	document.addEventListener('DOMContentLoaded', () => {
+		void init();
+	});
 } else {
-	init();
+	void init();
 }
 
 export { job } from './resources';

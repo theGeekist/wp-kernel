@@ -20,9 +20,12 @@ describe('core pipeline helper catalogues', () => {
 		const keys = catalog.map((entry) => entry.key);
 		expect(new Set(keys).size).toBe(keys.length);
 		expect(catalog.map((entry) => entry.responsibility)).toEqual([
+			'namespace',
+			'reporter',
 			'validation',
 			'client',
 			'cache-keys',
+			'grouped-api',
 			'builder',
 			'registry',
 		]);

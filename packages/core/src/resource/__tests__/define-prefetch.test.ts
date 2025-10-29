@@ -50,7 +50,10 @@ describe('defineResource - Prefetch Methods', () => {
 	describe('prefetchGet method', () => {
 		it('should throw error if @wordpress/data is not loaded', async () => {
 			await withWordPressData({ wp: null }, async () => {
-				const resource = defineResource<MockThing, MockThingQuery>({
+				const resource = await defineResource<
+					MockThing,
+					MockThingQuery
+				>({
 					name: 'thing',
 					routes: {
 						get: {
@@ -67,7 +70,7 @@ describe('defineResource - Prefetch Methods', () => {
 		});
 
 		it('should call resolveSelect to trigger prefetch', async () => {
-			const resource = defineResource<MockThing, MockThingQuery>({
+			const resource = await defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
 				routes: {
 					get: { path: '/my-plugin/v1/things/:id', method: 'GET' },
@@ -86,7 +89,7 @@ describe('defineResource - Prefetch Methods', () => {
 		});
 
 		it('should handle missing getItem method gracefully', async () => {
-			const resource = defineResource<MockThing, MockThingQuery>({
+			const resource = await defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
 				routes: {
 					get: { path: '/my-plugin/v1/things/:id', method: 'GET' },
@@ -99,8 +102,8 @@ describe('defineResource - Prefetch Methods', () => {
 			await expect(resource.prefetchGet!(1)).resolves.toBeUndefined();
 		});
 
-		it('should be undefined when route not configured', () => {
-			const resource = defineResource<MockThing, MockThingQuery>({
+		it('should be undefined when route not configured', async () => {
+			const resource = await defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
 				routes: {
 					// No get route
@@ -112,7 +115,7 @@ describe('defineResource - Prefetch Methods', () => {
 		});
 
 		it('should work with string IDs', async () => {
-			const resource = defineResource<MockThing, MockThingQuery>({
+			const resource = await defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
 				routes: {
 					get: { path: '/my-plugin/v1/things/:id', method: 'GET' },
@@ -133,7 +136,10 @@ describe('defineResource - Prefetch Methods', () => {
 	describe('prefetchList method', () => {
 		it('should throw error if @wordpress/data is not loaded', async () => {
 			await withWordPressData({ data: null }, async () => {
-				const resource = defineResource<MockThing, MockThingQuery>({
+				const resource = await defineResource<
+					MockThing,
+					MockThingQuery
+				>({
 					name: 'thing',
 					routes: {
 						list: { path: '/my-plugin/v1/things', method: 'GET' },
@@ -147,7 +153,7 @@ describe('defineResource - Prefetch Methods', () => {
 		});
 
 		it('should call resolveSelect to trigger prefetch', async () => {
-			const resource = defineResource<MockThing, MockThingQuery>({
+			const resource = await defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
 				routes: {
 					list: { path: '/my-plugin/v1/things', method: 'GET' },
@@ -166,7 +172,7 @@ describe('defineResource - Prefetch Methods', () => {
 		});
 
 		it('should pass query parameter to resolveSelect', async () => {
-			const resource = defineResource<MockThing, MockThingQuery>({
+			const resource = await defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
 				routes: {
 					list: { path: '/my-plugin/v1/things', method: 'GET' },
@@ -185,7 +191,7 @@ describe('defineResource - Prefetch Methods', () => {
 		});
 
 		it('should handle missing getList method gracefully', async () => {
-			const resource = defineResource<MockThing, MockThingQuery>({
+			const resource = await defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
 				routes: {
 					list: { path: '/my-plugin/v1/things', method: 'GET' },
@@ -200,8 +206,8 @@ describe('defineResource - Prefetch Methods', () => {
 			await expect(resource.prefetchList!()).resolves.toBeUndefined();
 		});
 
-		it('should be undefined when route not configured', () => {
-			const resource = defineResource<MockThing, MockThingQuery>({
+		it('should be undefined when route not configured', async () => {
+			const resource = await defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
 				routes: {
 					// No list route

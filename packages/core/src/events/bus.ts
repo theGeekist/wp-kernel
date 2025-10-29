@@ -140,6 +140,22 @@ export function recordResourceDefined(event: ResourceDefinedEvent): void {
 	definedResources.push(event);
 }
 
+export function removeRecordedResource(event: ResourceDefinedEvent): void {
+	const index = definedResources.findIndex((entry) => {
+		if (entry.namespace !== event.namespace) {
+			return false;
+		}
+
+		return entry.resource === event.resource;
+	});
+
+	if (index < 0) {
+		return;
+	}
+
+	definedResources.splice(index, 1);
+}
+
 export function recordActionDefined(event: ActionDefinedEvent): void {
 	definedActions.push(event);
 }

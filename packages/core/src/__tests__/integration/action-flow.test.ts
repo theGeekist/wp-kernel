@@ -97,12 +97,16 @@ describe('Action Flow Integration', () => {
 		it.each(scenarios)(
 			'%s',
 			async ({ options, expectBridge, expectScope, expectBroadcast }) => {
-				const channelInstances: Array<{
+				type MockBroadcastChannel = {
 					postMessage: jest.Mock;
 					close: jest.Mock;
-				}> = [];
-				const broadcastFactory = jest.fn(() => {
-					const instance = {
+				};
+				const channelInstances: Array<MockBroadcastChannel> = [];
+				const broadcastFactory = jest.fn<
+					MockBroadcastChannel,
+					[string]
+				>(() => {
+					const instance: MockBroadcastChannel = {
 						postMessage: jest.fn(),
 						close: jest.fn(),
 					};
@@ -114,7 +118,10 @@ describe('Action Flow Integration', () => {
 				window.BroadcastChannel =
 					broadcastFactory as unknown as typeof window.BroadcastChannel;
 
-				const resource = defineResource<{ id: number; title: string }>({
+				const resource = await defineResource<{
+					id: number;
+					title: string;
+				}>({
 					name: 'thing',
 					routes: {
 						create: { path: '/wpk/v1/things', method: 'POST' },
@@ -155,17 +162,28 @@ describe('Action Flow Integration', () => {
 				);
 				expect(domainEvent).toBeDefined();
 
+				const actionChannels = broadcastFactory.mock.calls
+					.map((call, index) => ({
+						channelName: call[0],
+						instance: channelInstances[index],
+					}))
+					.filter((entry) => entry.channelName === 'wpk.actions');
+
 				if (expectBroadcast) {
-					expect(broadcastFactory).toHaveBeenCalled();
+					expect(actionChannels.length).toBeGreaterThan(0);
+					const [firstActionChannel] = actionChannels;
+					if (!firstActionChannel || !firstActionChannel.instance) {
+						throw new Error('Expected action broadcast channel');
+					}
 					expect(
-						channelInstances[0]?.postMessage
+						firstActionChannel.instance.postMessage
 					).toHaveBeenCalledWith(
 						expect.objectContaining({
 							event: resource.events!.created,
 						})
 					);
 				} else {
-					expect(broadcastFactory).not.toHaveBeenCalled();
+					expect(actionChannels).toHaveLength(0);
 				}
 			}
 		);
@@ -178,7 +196,7 @@ describe('Action Flow Integration', () => {
 			.spyOn(cache, 'invalidate')
 			.mockImplementation(() => undefined);
 
-		const resource = defineResource<{ id: number; title: string }>({
+		const resource = await defineResource<{ id: number; title: string }>({
 			name: 'thing',
 			routes: {
 				create: { path: '/wpk/v1/things', method: 'POST' },
@@ -233,7 +251,7 @@ describe('Action Flow Integration', () => {
 		const errorMessage = 'Network failure';
 		mockApiFetch.mockRejectedValue(new Error(errorMessage));
 
-		const resource = defineResource<{ id: number; title: string }>({
+		const resource = await defineResource<{ id: number; title: string }>({
 			name: 'thing',
 			routes: {
 				update: { path: '/wpk/v1/things/:id', method: 'PUT' },
@@ -296,7 +314,10 @@ describe('Action Flow Integration', () => {
 		];
 
 		it.each(scenarios)('%s', async ({ overrides, expectRejection }) => {
-			const resource = defineResource<{ id: number; title: string }>({
+			const resource = await defineResource<{
+				id: number;
+				title: string;
+			}>({
 				name: 'thing',
 				routes: {
 					update: { path: '/wpk/v1/things/:id', method: 'PUT' },
@@ -354,7 +375,7 @@ describe('Action Flow Integration', () => {
 	});
 
 	it('integrates with background jobs', async () => {
-		const resource = defineResource<{ id: number; title: string }>({
+		const resource = await defineResource<{ id: number; title: string }>({
 			name: 'thing',
 			routes: {
 				create: { path: '/wpk/v1/things', method: 'POST' },

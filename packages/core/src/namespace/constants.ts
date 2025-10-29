@@ -56,12 +56,16 @@ export const WPK_INFRASTRUCTURE = {
 	POLICY_EVENT_CHANNEL: `${WPK_NAMESPACE}.capability.events`,
 	/** BroadcastChannel name for action lifecycle events */
 	ACTIONS_CHANNEL: `${WPK_NAMESPACE}.actions`,
+	/** BroadcastChannel name for resource definition events */
+	RESOURCES_CHANNEL: `${WPK_NAMESPACE}.resources`,
 	/** WordPress hooks namespace prefix for kernel events plugin */
 	WP_HOOKS_NAMESPACE_PREFIX: `${WPK_NAMESPACE}/notices`,
 	/** BroadcastChannel message type for action lifecycle events */
 	ACTIONS_MESSAGE_TYPE_LIFECYCLE: `${WPK_NAMESPACE}.action.lifecycle`,
 	/** BroadcastChannel message type for action custom events */
 	ACTIONS_MESSAGE_TYPE_EVENT: `${WPK_NAMESPACE}.action.event`,
+	/** BroadcastChannel message type for resource definition lifecycle */
+	RESOURCES_MESSAGE_TYPE_DEFINED: `${WPK_NAMESPACE}.resource.defined`,
 } as const;
 
 /**

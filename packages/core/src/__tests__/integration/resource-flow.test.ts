@@ -59,8 +59,8 @@ describe('Resource Flow Integration', () => {
 	});
 
 	describe('Resource → Store → Resolver Flow', () => {
-		it('should create resource with store and register it', () => {
-			const resource = defineResource<Thing, ThingQuery>({
+		it('should create resource with store and register it', async () => {
+			const resource = await defineResource<Thing, ThingQuery>({
 				name: 'thing',
 				routes: {
 					list: { path: '/wpk/v1/things', method: 'GET' },
@@ -242,7 +242,7 @@ describe('Resource Flow Integration', () => {
 		it.each(transportScenarios)('%s', async ({ routes, arrange }) => {
 			const { expectedRequest, invoke, assertResult } = arrange();
 
-			const resource = defineResource<Thing, ThingQuery>({
+			const resource = await defineResource<Thing, ThingQuery>({
 				name: 'thing',
 				routes,
 			});
@@ -288,7 +288,7 @@ describe('Resource Flow Integration', () => {
 				const transportError = new Error('Network error');
 				mockApiFetch.mockRejectedValue(transportError);
 
-				const resource = defineResource<Thing, ThingQuery>({
+				const resource = await defineResource<Thing, ThingQuery>({
 					name: 'thing',
 					routes,
 				});
@@ -331,7 +331,7 @@ describe('Resource Flow Integration', () => {
 				});
 				mockApiFetch.mockRejectedValue(retryableError);
 
-				const resource = defineResource<Thing, ThingQuery>({
+				const resource = await defineResource<Thing, ThingQuery>({
 					name: 'thing',
 					routes,
 				});
@@ -343,8 +343,8 @@ describe('Resource Flow Integration', () => {
 	});
 
 	describe('Cache Keys Integration', () => {
-		it('should generate deterministic cache keys for list queries', () => {
-			const resource = defineResource<Thing, ThingQuery>({
+		it('should generate deterministic cache keys for list queries', async () => {
+			const resource = await defineResource<Thing, ThingQuery>({
 				name: 'thing',
 				routes: {
 					list: { path: '/wpk/v1/things', method: 'GET' },
@@ -371,8 +371,8 @@ describe('Resource Flow Integration', () => {
 			expect(key1).not.toEqual(key3);
 		});
 
-		it('should generate cache keys for all CRUD operations', () => {
-			const resource = defineResource<Thing>({
+		it('should generate cache keys for all CRUD operations', async () => {
+			const resource = await defineResource<Thing>({
 				name: 'thing',
 				routes: {
 					list: { path: '/wpk/v1/things', method: 'GET' },
@@ -392,8 +392,8 @@ describe('Resource Flow Integration', () => {
 	});
 
 	describe('Store Configuration Integration', () => {
-		it('should create store with correct selectors', () => {
-			const resource = defineResource<Thing>({
+		it('should create store with correct selectors', async () => {
+			const resource = await defineResource<Thing>({
 				name: 'thing',
 				routes: {
 					list: { path: '/wpk/v1/things', method: 'GET' },
@@ -414,8 +414,8 @@ describe('Resource Flow Integration', () => {
 			expect(storeConfig.selectors).toHaveProperty('getError');
 		});
 
-		it('should create store with correct resolvers', () => {
-			const resource = defineResource<Thing, ThingQuery>({
+		it('should create store with correct resolvers', async () => {
+			const resource = await defineResource<Thing, ThingQuery>({
 				name: 'thing',
 				routes: {
 					list: { path: '/wpk/v1/things', method: 'GET' },
@@ -434,8 +434,8 @@ describe('Resource Flow Integration', () => {
 			expect(storeConfig.resolvers).toHaveProperty('getItems');
 		});
 
-		it('should create store with correct actions', () => {
-			const resource = defineResource<Thing>({
+		it('should create store with correct actions', async () => {
+			const resource = await defineResource<Thing>({
 				name: 'thing',
 				routes: {
 					list: { path: '/wpk/v1/things', method: 'GET' },

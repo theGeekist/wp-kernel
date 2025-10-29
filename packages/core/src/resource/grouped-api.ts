@@ -18,6 +18,27 @@ import { invalidate as globalInvalidate } from './cache';
 import type { ResourceConfig, ResourceObject, CacheKeys } from './types';
 import { detectNamespace, WPK_NAMESPACE } from '../namespace/index';
 
+export interface ResourceGroupedApiGetters<T, TQuery> {
+	readonly select?: (
+		this: ResourceObject<T, TQuery>
+	) => ResourceObject<T, TQuery>['select'];
+	readonly get?: (
+		this: ResourceObject<T, TQuery>
+	) => ResourceObject<T, TQuery>['get'];
+	readonly mutate?: (
+		this: ResourceObject<T, TQuery>
+	) => ResourceObject<T, TQuery>['mutate'];
+	readonly cache: (
+		this: ResourceObject<T, TQuery>
+	) => ResourceObject<T, TQuery>['cache'];
+	readonly storeApi: (
+		this: ResourceObject<T, TQuery>
+	) => ResourceObject<T, TQuery>['storeApi'];
+	readonly events: (
+		this: ResourceObject<T, TQuery>
+	) => ResourceObject<T, TQuery>['events'];
+}
+
 /**
  * Create select namespace getter
  *

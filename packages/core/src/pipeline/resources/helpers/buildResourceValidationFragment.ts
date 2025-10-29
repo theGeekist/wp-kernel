@@ -1,6 +1,7 @@
 import { createHelper } from '../../helper';
 import { validateConfig } from '../../../resource/validation';
 import { RESOURCE_LOG_MESSAGES } from '../../../resource/logMessages';
+import { WPKernelError } from '../../../error/WPKernelError';
 import type {
 	ResourceFragmentHelper,
 	ResourceFragmentInput,
@@ -34,7 +35,22 @@ export function buildResourceValidationFragment<
 	>({
 		key: 'resource.config.validate',
 		kind: RESOURCE_FRAGMENT_KIND,
+		dependsOn: ['resource.namespace.resolve', 'resource.reporter.resolve'],
 		apply: ({ context }) => {
+			if (!context.normalizedConfig) {
+				throw new WPKernelError('DeveloperError', {
+					message:
+						'Resource configuration validation requires a normalized config. Ensure resource.namespace.resolve runs first.',
+				});
+			}
+
+			if (!context.namespace || !context.resourceName) {
+				throw new WPKernelError('DeveloperError', {
+					message:
+						'Resource configuration validation requires namespace and resource name metadata. Ensure resource.namespace.resolve runs first.',
+				});
+			}
+
 			validateConfig(context.normalizedConfig);
 			context.reporter.info(RESOURCE_LOG_MESSAGES.define, {
 				namespace: context.namespace,

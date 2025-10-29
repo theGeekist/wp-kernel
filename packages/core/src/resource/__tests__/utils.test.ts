@@ -18,8 +18,8 @@ interface ThingQuery {
 
 describe('defineResource - resource object structure', () => {
 	describe('resource object structure', () => {
-		it('should include resource name', () => {
-			const resource = defineResource({
+		it('should include resource name', async () => {
+			const resource = await defineResource({
 				name: 'thing',
 				routes: {
 					list: { path: '/my-plugin/v1/things', method: 'GET' },
@@ -29,8 +29,8 @@ describe('defineResource - resource object structure', () => {
 			expect(resource.name).toBe('thing');
 		});
 
-		it('should generate correct store key', () => {
-			const resource = defineResource({
+		it('should generate correct store key', async () => {
+			const resource = await defineResource({
 				name: 'thing',
 				routes: {
 					list: { path: '/my-plugin/v1/things', method: 'GET' },
@@ -40,7 +40,7 @@ describe('defineResource - resource object structure', () => {
 			expect(resource.storeKey).toBe('wpk/thing');
 		});
 
-		it('should preserve routes', () => {
+		it('should preserve routes', async () => {
 			const routes = {
 				list: { path: '/my-plugin/v1/things', method: 'GET' as const },
 				get: {
@@ -49,7 +49,7 @@ describe('defineResource - resource object structure', () => {
 				},
 			};
 
-			const resource = defineResource({
+			const resource = await defineResource({
 				name: 'thing',
 				routes,
 			});
@@ -57,8 +57,8 @@ describe('defineResource - resource object structure', () => {
 			expect(resource.routes).toEqual(routes);
 		});
 
-		it('should generate default cache keys when not provided', () => {
-			const resource = defineResource({
+		it('should generate default cache keys when not provided', async () => {
+			const resource = await defineResource({
 				name: 'thing',
 				routes: {
 					list: { path: '/my-plugin/v1/things', method: 'GET' },
@@ -72,8 +72,8 @@ describe('defineResource - resource object structure', () => {
 			expect(typeof resource.cacheKeys.get).toBe('function');
 		});
 
-		it('should generate all default cache keys for CRUD operations', () => {
-			const resource = defineResource<Thing>({
+		it('should generate all default cache keys for CRUD operations', async () => {
+			const resource = await defineResource<Thing>({
 				name: 'thing',
 				routes: {
 					list: { path: '/my-plugin/v1/things', method: 'GET' },
@@ -120,7 +120,7 @@ describe('defineResource - resource object structure', () => {
 			]);
 		});
 
-		it('should use custom cache keys when provided', () => {
+		it('should use custom cache keys when provided', async () => {
 			const customCacheKeys: {
 				list: CacheKeyFn<ThingQuery>;
 				get: CacheKeyFn<string | number>;
@@ -129,7 +129,7 @@ describe('defineResource - resource object structure', () => {
 				get: (id?: string | number) => ['custom', 'get', id],
 			};
 
-			const resource = defineResource<Thing, ThingQuery>({
+			const resource = await defineResource<Thing, ThingQuery>({
 				name: 'thing',
 				routes: {
 					list: { path: '/my-plugin/v1/things', method: 'GET' },
@@ -146,8 +146,8 @@ describe('defineResource - resource object structure', () => {
 			expect(resource.cacheKeys.get(123)).toEqual(['custom', 'get', 123]);
 		});
 
-		it('should merge custom and default cache keys', () => {
-			const resource = defineResource<Thing, ThingQuery>({
+		it('should merge custom and default cache keys', async () => {
+			const resource = await defineResource<Thing, ThingQuery>({
 				name: 'thing',
 				routes: {
 					list: { path: '/my-plugin/v1/things', method: 'GET' },

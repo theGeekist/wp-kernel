@@ -1,6 +1,7 @@
 import { createHelper } from '../../helper';
 import { createDefaultCacheKeys } from '../../../resource/utils';
 import type { CacheKeys } from '../../../resource/types';
+import { WPKernelError } from '../../../error/WPKernelError';
 import type {
 	ResourceFragmentHelper,
 	ResourceFragmentInput,
@@ -36,10 +37,23 @@ export function buildResourceCacheKeysFragment<
 		kind: RESOURCE_FRAGMENT_KIND,
 		dependsOn: ['resource.config.validate'],
 		apply: ({ context, output }) => {
-			output.cacheKeys = {
-				...createDefaultCacheKeys<TQuery>(context.resourceName),
-				...(context.config.cacheKeys ?? {}),
-			} as Required<CacheKeys<TQuery>>;
+			const resourceName = output.resourceName ?? context.resourceName;
+
+			if (!resourceName) {
+				throw new WPKernelError('DeveloperError', {
+					message:
+						'Resource cache key creation requires a resource name. Ensure resource.namespace.resolve runs first.',
+				});
+			}
+
+			const overrideCacheKeys: Partial<CacheKeys<TQuery>> =
+				context.config.cacheKeys ?? {};
+			const cacheKeys = {
+				...createDefaultCacheKeys<TQuery>(resourceName),
+				...overrideCacheKeys,
+			} satisfies Required<CacheKeys<TQuery>>;
+
+			output.cacheKeys = cacheKeys;
 		},
 	}) satisfies ResourceFragmentHelper<T, TQuery>;
 }

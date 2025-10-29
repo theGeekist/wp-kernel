@@ -5,15 +5,20 @@ import type {
 	ResourceConfig,
 	ResourceObject,
 } from '../../resource/types';
+import type { ResourceGroupedApiGetters } from '../../resource/grouped-api';
 import type { NormalizedResourceConfig } from '../../resource/buildResourceObject';
 import type {
 	CreatePipelineOptions,
 	Helper,
+	MaybePromise,
 	Pipeline,
 	PipelineDiagnostic,
 	PipelineRunState,
 } from '../types';
-import type { CorePipelineContext } from '../helpers/context';
+import type {
+	CorePipelineContext,
+	CorePipelineRegistryBridge,
+} from '../helpers/context';
 
 /**
  * Helper kind identifier reserved for resource lifecycle fragments.
@@ -45,24 +50,14 @@ export type ResourceBuilderKind = typeof RESOURCE_BUILDER_KIND;
  * ```ts
  * const runOptions: ResourcePipelineRunOptions<{ id: number }, { id: number }> = {
  *   config: resourceConfig,
- *   normalizedConfig,
- *   namespace: 'example/resources',
- *   resourceName: 'Post',
- *   reporter,
  * };
  * ```
  */
 export interface ResourcePipelineRunOptions<T, TQuery> {
 	/** Original resource configuration provided by `defineResource`. */
 	readonly config: ResourceConfig<T, TQuery>;
-	/** Normalized configuration with defaults expanded. */
-	readonly normalizedConfig: NormalizedResourceConfig<T, TQuery>;
-	/** Namespace owning the resource (usually plugin slug). */
-	namespace: string;
-	/** Canonical resource name used for logging and cache keys. */
-	readonly resourceName: string;
-	/** Structured reporter used for diagnostics and telemetry. */
-	reporter: Reporter;
+	/** Optional registry hooks surfaced to helper orchestration. */
+	readonly registry?: CorePipelineRegistryBridge;
 }
 
 export type ResourcePipelineBuildOptions<T, TQuery> =
@@ -74,16 +69,24 @@ export type ResourcePipelineBuildOptions<T, TQuery> =
  * @example
  * ```ts
  * const context: ResourcePipelineContext<{ id: number }, { id: number }> = {
- *   ...runOptions,
+ *   config: resourceConfig,
+ *   namespace: 'example/resources',
+ *   resourceName: 'Post',
+ *   reporter,
  *   storeKey: 'example/resources/Post',
  * };
  * ```
  */
 export interface ResourcePipelineContext<T, TQuery>
-	extends ResourcePipelineBuildOptions<T, TQuery>,
-		CorePipelineContext {
+	extends CorePipelineContext {
+	/** Original resource configuration provided by `defineResource`. */
+	readonly config: ResourceConfig<T, TQuery>;
+	/** Canonical resource name resolved by helper execution. */
+	resourceName: string;
+	/** Normalized configuration with defaults expanded. */
+	normalizedConfig?: NormalizedResourceConfig<T, TQuery>;
 	/** Unique key linking store entries and diagnostics to the resource. */
-	readonly storeKey: string;
+	storeKey: string;
 }
 
 /**
@@ -98,13 +101,38 @@ export interface ResourcePipelineContext<T, TQuery>
  * ```
  */
 export interface ResourcePipelineDraft<T, TQuery> {
+	/** Resolved namespace for the resource once helpers execute. */
+	namespace?: string;
+	/** Canonical resource name resolved by helper execution. */
+	resourceName?: string;
+	/** Store key derived from the namespace/resource pair. */
+	storeKey?: string;
+	/** Structured reporter resolved for the resource definition. */
+	reporter?: Reporter;
 	/** Resource client constructed from the provided configuration. */
 	client?: ResourceClient<T, TQuery>;
 	/** Normalized cache keys available to the public resource object. */
 	cacheKeys?: Required<CacheKeys<TQuery>>;
+	/** Grouped API getter factories assembled for the resource object. */
+	groupedApi?: ResourceGroupedApiGetters<T, TQuery>;
 	/** Fully built resource object returned to callers. */
 	resource?: ResourceObject<T, TQuery>;
+	/** Deferred side-effect hooks scheduled for commit/rollback. */
+	sideEffects?: ResourcePipelineSideEffects;
 }
+
+/**
+ * Collection of deferred commit/rollback tasks prepared by builders.
+ */
+export interface ResourcePipelineSideEffects {
+	readonly commits: ResourcePipelineSideEffectTask[];
+	readonly rollbacks: ResourcePipelineSideEffectTask[];
+}
+
+/**
+ * Task signature for deferred resource side effects.
+ */
+export type ResourcePipelineSideEffectTask = () => MaybePromise<void> | void;
 
 /**
  * Final artifact returned from the resource pipeline run.

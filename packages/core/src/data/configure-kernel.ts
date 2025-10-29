@@ -21,6 +21,7 @@ import { createActionMiddleware } from '../actions/middleware';
 import { wpkEventsPlugin } from './plugins/events';
 import { defineResource as baseDefineResource } from '../resource/define';
 import type { ResourceConfig, ResourceObject } from '../resource/types';
+import type { MaybePromise } from '../pipeline/types';
 
 type CleanupTask = () => void;
 
@@ -195,7 +196,7 @@ export function configureWPKernel(
 		events,
 		defineResource<T = unknown, TQuery = unknown>(
 			resourceConfig: ResourceConfig<T, TQuery>
-		): ResourceObject<T, TQuery> {
+		): MaybePromise<ResourceObject<T, TQuery>> {
 			const resourceName = extractResourceName(resourceConfig.name);
 			const resourceReporter =
 				resourceConfig.reporter ??

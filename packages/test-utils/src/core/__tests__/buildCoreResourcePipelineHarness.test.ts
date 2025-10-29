@@ -20,10 +20,6 @@ describe('buildCoreResourcePipelineHarness', () => {
 			{ search?: string }
 		> = {
 			config,
-			normalizedConfig: { ...config },
-			namespace: harness.namespace,
-			resourceName: harness.resourceName,
-			reporter: harness.reporter.reporter,
 		};
 
 		const result = await harness.pipeline.run(runOptions);

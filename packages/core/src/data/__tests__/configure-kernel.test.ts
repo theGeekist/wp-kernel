@@ -21,6 +21,19 @@ import { wpkEventsPlugin } from '../plugins/events';
 import { getNamespace as detectNamespace } from '../../namespace/detect';
 import type { ResourceConfig } from '../../resource/types';
 
+function createMockReporter(): jest.Mocked<Reporter> {
+	const child = jest.fn<Reporter, [string]>();
+	const reporter = {
+		info: jest.fn(),
+		warn: jest.fn(),
+		error: jest.fn(),
+		debug: jest.fn(),
+		child,
+	} as unknown as jest.Mocked<Reporter>;
+	child.mockReturnValue(reporter);
+	return reporter;
+}
+
 jest.mock('../../actions/middleware', () => ({
 	createActionMiddleware: jest.fn(() =>
 		jest.fn(() => jest.fn((action) => action))
@@ -29,6 +42,7 @@ jest.mock('../../actions/middleware', () => ({
 
 jest.mock('../../reporter', () => ({
 	createReporter: jest.fn(),
+	createNoopReporter: jest.fn(() => createMockReporter()),
 	setWPKernelReporter: jest.fn(),
 	getWPKernelReporter: jest.fn(() => undefined),
 	clearWPKReporter: jest.fn(),
@@ -40,6 +54,8 @@ jest.mock('../plugins/events', () => ({
 
 jest.mock('../../resource/cache', () => ({
 	invalidate: jest.fn(),
+	registerStoreKey: jest.fn(),
+	unregisterStoreKey: jest.fn(),
 }));
 
 jest.mock('../../namespace/detect', () => ({
@@ -54,20 +70,6 @@ describe('configureWPKernel', () => {
 		.mockImplementation((next) => (action: unknown) => next(action));
 	let mockReporter: jest.Mocked<Reporter>;
 	const eventMiddleware = { destroy: jest.fn() };
-
-	function createMockReporter(): jest.Mocked<Reporter> {
-		const child = jest.fn<Reporter, [string]>();
-		const reporter = {
-			info: jest.fn(),
-			warn: jest.fn(),
-			error: jest.fn(),
-			debug: jest.fn(),
-			child,
-		} as unknown as jest.Mocked<Reporter>;
-		child.mockReturnValue(reporter);
-		return reporter;
-	}
-
 	beforeEach(() => {
 		jest.clearAllMocks();
 		mockReporter = createMockReporter();
@@ -396,7 +398,7 @@ describe('configureWPKernel', () => {
 		}
 	});
 
-	it('defines resources using kernel reporter namespace', () => {
+	it('defines resources using kernel reporter namespace', async () => {
 		const childReporter = createMockReporter();
 		mockReporter.child.mockReturnValue(childReporter);
 
@@ -405,7 +407,7 @@ describe('configureWPKernel', () => {
 			reporter: mockReporter,
 		});
 
-		const resource = kernel.defineResource<{ id: number }>({
+		const resource = await kernel.defineResource<{ id: number }>({
 			name: 'thing',
 			routes: {
 				get: { path: '/acme/v1/things/:id', method: 'GET' },
@@ -417,11 +419,11 @@ describe('configureWPKernel', () => {
 		expect(resource.storeKey).toBe('acme/thing');
 	});
 
-	it('respects custom resource reporters when provided', () => {
+	it('respects custom resource reporters when provided', async () => {
 		const kernel = configureWPKernel({ namespace: 'acme' });
 		const customReporter = createMockReporter();
 
-		const resource = kernel.defineResource<{ id: number }>({
+		const resource = await kernel.defineResource<{ id: number }>({
 			name: 'thing',
 			reporter: customReporter,
 			routes: {
@@ -433,10 +435,10 @@ describe('configureWPKernel', () => {
 		expect(resource.routes.list).toBeDefined();
 	});
 
-	it('preserves explicit resource namespaces supplied in config', () => {
+	it('preserves explicit resource namespaces supplied in config', async () => {
 		const kernel = configureWPKernel({ namespace: 'acme' });
 
-		const resource = kernel.defineResource<{ id: number }>({
+		const resource = await kernel.defineResource<{ id: number }>({
 			name: 'thing',
 			namespace: 'custom',
 			routes: {
@@ -448,7 +450,7 @@ describe('configureWPKernel', () => {
 		expect(resource.events?.created).toBe('custom.thing.created');
 	});
 
-	it('wires DataViews options through configureWPKernel for auto-registration and events', () => {
+	it('wires DataViews options through configureWPKernel for auto-registration and events', async () => {
 		const controllers = new Map<string, unknown>();
 		const registryEntries = new Map<string, unknown>();
 		const customEvents: CustomKernelEvent[] = [];
@@ -569,7 +571,7 @@ describe('configureWPKernel', () => {
 			},
 		};
 
-		const resource = kernel.defineResource(
+		const resource = await kernel.defineResource(
 			resourceDefinition as unknown as ResourceConfig<
 				unknown,
 				{ search?: string }
@@ -612,10 +614,10 @@ describe('configureWPKernel', () => {
 		);
 	});
 
-	it('respects namespace embedded within resource name shorthand', () => {
+	it('respects namespace embedded within resource name shorthand', async () => {
 		const kernel = configureWPKernel({ namespace: 'acme' });
 
-		const resource = kernel.defineResource<{ id: number }>({
+		const resource = await kernel.defineResource<{ id: number }>({
 			name: 'custom:thing',
 			routes: {
 				get: { path: '/custom/v1/things/:id', method: 'GET' },
@@ -626,10 +628,10 @@ describe('configureWPKernel', () => {
 		expect(resource.events?.updated).toBe('custom.thing.updated');
 	});
 
-	it('prefers explicit namespace when provided alongside shorthand name syntax', () => {
+	it('prefers explicit namespace when provided alongside shorthand name syntax', async () => {
 		const kernel = configureWPKernel({ namespace: 'acme' });
 
-		const resource = kernel.defineResource<{ id: number }>({
+		const resource = await kernel.defineResource<{ id: number }>({
 			name: 'custom:thing',
 			namespace: 'custom-explicit',
 			routes: {

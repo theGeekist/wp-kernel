@@ -1,5 +1,5 @@
 import type { FormEvent } from 'react';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import {
 	Button,
 	Card,
@@ -8,6 +8,7 @@ import {
 	Flex,
 	FlexItem,
 	Notice,
+	Spinner,
 } from '@wordpress/components';
 import { DataForm } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
@@ -85,25 +86,82 @@ const createJobAction: DefinedAction<CreateJobInput, Job> = Object.assign(
 	}
 );
 
+function useJobResource(): {
+	resource: ResourceObject<Job, JobListParams> | null;
+	error: string | null;
+} {
+	const [resource, setResource] = useState<ResourceObject<
+		Job,
+		JobListParams
+	> | null>(null);
+	const [error, setError] = useState<string | null>(null);
+
+	useEffect(() => {
+		let isMounted = true;
+
+		Promise.resolve(job)
+			.then((resourceObject) => {
+				if (!isMounted) {
+					return;
+				}
+				setResource(resourceObject);
+			})
+			.catch((caught) => {
+				if (!isMounted) {
+					return;
+				}
+
+				const message = WPKernelError.isWPKernelError(caught)
+					? caught.message
+					: __(
+							'Unable to load the jobs resource. Check console output for details.',
+							'wp-kernel-showcase'
+						);
+
+				setError(message);
+				console.error(
+					'[WP Kernel Showcase] Failed to resolve job resource:',
+					caught
+				);
+			});
+
+		return () => {
+			isMounted = false;
+		};
+	}, []);
+
+	return { resource, error };
+}
+
 export function JobsList(): JSX.Element {
 	const runtimeContext = useDataViewsRuntimeContext();
 	const [feedback, setFeedback] = useState<CreateFeedback>(null);
 	const [formState, setFormState] = useState<CreateJobInput>(
 		createDefaultFormState()
 	);
+	const { resource: resolvedResource, error: resourceError } =
+		useJobResource();
 
-	const controllerFactory = useMemo(
-		() =>
-			createDataFormController<CreateJobInput, Job, JobListParams>({
-				action: createJobAction,
-				runtime: runtimeContext,
-				resource: job as ResourceObject<unknown, JobListParams>,
-				resourceName: job.name,
-			}),
-		[runtimeContext]
+	const controllerFactory = useMemo(() => {
+		if (!resolvedResource) {
+			return null;
+		}
+
+		return createDataFormController<CreateJobInput, Job, JobListParams>({
+			action: createJobAction,
+			runtime: runtimeContext,
+			resource: resolvedResource as ResourceObject<
+				unknown,
+				JobListParams
+			>,
+			resourceName: resolvedResource.name,
+		});
+	}, [resolvedResource, runtimeContext]);
+
+	const controller = useMemo(
+		() => controllerFactory?.(),
+		[controllerFactory]
 	);
-
-	const controller = controllerFactory();
 	const hasConfiguredDataViews = Boolean(
 		wpkConfig.resources.job.ui?.admin?.dataviews
 	);
@@ -147,28 +205,6 @@ export function JobsList(): JSX.Element {
 		});
 	}, []);
 
-	const handleSubmit = useCallback(
-		async (event: FormEvent<HTMLFormElement>) => {
-			event.preventDefault();
-			setFeedback(null);
-
-			try {
-				await controller.submit(formState);
-				setFeedback({ type: 'success', message: SUCCESS_MESSAGE });
-				setFormState(createDefaultFormState());
-				controller.reset();
-			} catch (error) {
-				const message = WPKernelError.isWPKernelError(error)
-					? error.message
-					: ERROR_FALLBACK;
-				setFeedback({ type: 'error', message });
-			}
-		},
-		[controller, formState]
-	);
-
-	const isSubmitting = controller.state.status === 'running';
-
 	const emptyState = useMemo(
 		() => (
 			<Notice status="info" isDismissible={false}>
@@ -180,6 +216,16 @@ export function JobsList(): JSX.Element {
 		),
 		[]
 	);
+
+	if (resourceError) {
+		return (
+			<div className="jobs-admin" data-testid="jobs-admin-root">
+				<Notice status="error" isDismissible={false}>
+					{resourceError}
+				</Notice>
+			</div>
+		);
+	}
 
 	if (!hasConfiguredDataViews) {
 		return (
@@ -193,6 +239,41 @@ export function JobsList(): JSX.Element {
 			</div>
 		);
 	}
+
+	if (!resolvedResource || !controller) {
+		return (
+			<div className="jobs-admin" data-testid="jobs-admin-root">
+				<Flex
+					align="center"
+					justify="center"
+					style={{ minHeight: '240px' }}
+				>
+					<Spinner />
+				</Flex>
+			</div>
+		);
+	}
+
+	const confirmedController = controller as NonNullable<typeof controller>;
+
+	const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+		event.preventDefault();
+		setFeedback(null);
+
+		try {
+			await confirmedController.submit(formState);
+			setFeedback({ type: 'success', message: SUCCESS_MESSAGE });
+			setFormState(createDefaultFormState());
+			confirmedController.reset();
+		} catch (error) {
+			const message = WPKernelError.isWPKernelError(error)
+				? error.message
+				: ERROR_FALLBACK;
+			setFeedback({ type: 'error', message });
+		}
+	};
+
+	const isSubmitting = confirmedController.state.status === 'running';
 
 	return (
 		<div className="jobs-admin" data-testid="jobs-admin-root">
@@ -254,7 +335,7 @@ export function JobsList(): JSX.Element {
 				</FlexItem>
 				<FlexItem style={{ flex: '1 1 520px', minWidth: '320px' }}>
 					<ResourceDataView<Job, JobListParams>
-						resource={job}
+						resource={resolvedResource}
 						config={jobDataViewsConfig}
 						emptyState={emptyState}
 					/>

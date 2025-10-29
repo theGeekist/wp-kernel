@@ -26,8 +26,8 @@ interface ThingQuery {
 
 describe('defineResource - integration', () => {
 	describe('lazy store initialization', () => {
-		it('should have a store property', () => {
-			const resource = defineResource<Thing>({
+		it('should have a store property', async () => {
+			const resource = await defineResource<Thing>({
 				name: 'thing',
 				routes: {
 					list: { path: '/my-plugin/v1/things', method: 'GET' },
@@ -37,8 +37,8 @@ describe('defineResource - integration', () => {
 			expect(resource).toHaveProperty('store');
 		});
 
-		it('should return same store instance on multiple accesses', () => {
-			const resource = defineResource<Thing>({
+		it('should return same store instance on multiple accesses', async () => {
+			const resource = await defineResource<Thing>({
 				name: 'thing',
 				routes: {
 					list: { path: '/my-plugin/v1/things', method: 'GET' },
@@ -51,8 +51,8 @@ describe('defineResource - integration', () => {
 			expect(store1).toBe(store2);
 		});
 
-		it('should create store with correct storeKey', () => {
-			const resource = defineResource<Thing>({
+		it('should create store with correct storeKey', async () => {
+			const resource = await defineResource<Thing>({
 				name: 'thing',
 				routes: {
 					list: { path: '/my-plugin/v1/things', method: 'GET' },
@@ -64,8 +64,8 @@ describe('defineResource - integration', () => {
 			expect(store).toHaveProperty('storeKey', 'wpk/thing');
 		});
 
-		it('should create store with selectors, actions, resolvers, reducer', () => {
-			const resource = defineResource<Thing>({
+		it('should create store with selectors, actions, resolvers, reducer', async () => {
+			const resource = await defineResource<Thing>({
 				name: 'thing',
 				routes: {
 					list: { path: '/my-plugin/v1/things', method: 'GET' },
@@ -81,7 +81,7 @@ describe('defineResource - integration', () => {
 			expect(store).toHaveProperty('initialState');
 		});
 
-		it('should respect custom store identifier configuration', () => {
+		it('should respect custom store identifier configuration', async () => {
 			interface Article {
 				slug: string;
 				title: string;
@@ -91,7 +91,7 @@ describe('defineResource - integration', () => {
 				category?: string;
 			}
 
-			const resource = defineResource<Article, ArticleQuery>({
+			const resource = await defineResource<Article, ArticleQuery>({
 				name: 'article',
 				routes: {
 					list: { path: '/my-plugin/v1/articles', method: 'GET' },
@@ -166,8 +166,8 @@ describe('defineResource - integration', () => {
 		});
 
 		it('should not register store when window.wp.data is undefined', async () => {
-			await withWordPressData({ wp: null }, () => {
-				const resource = defineResource<Thing>({
+			await withWordPressData({ wp: null }, async () => {
+				const resource = await defineResource<Thing>({
 					name: 'thing',
 					routes: {
 						list: { path: '/my-plugin/v1/things', method: 'GET' },
@@ -197,8 +197,8 @@ describe('defineResource - integration', () => {
 						register: mockRegister,
 					},
 				},
-				() => {
-					const resource = defineResource<Thing>({
+				async () => {
+					const resource = await defineResource<Thing>({
 						name: 'thing-with-register',
 						routes: {
 							list: {
@@ -229,7 +229,7 @@ describe('defineResource - integration', () => {
 	});
 
 	describe('ui metadata', () => {
-		it('preserves admin dataview metadata on the resource object', () => {
+		it('preserves admin dataview metadata on the resource object', async () => {
 			const dataviewConfig: ResourceDataViewsUIConfig<Thing, ThingQuery> =
 				{
 					fields: [{ id: 'title', label: 'Title' }],
@@ -245,7 +245,7 @@ describe('defineResource - integration', () => {
 					},
 				};
 
-			const resource = defineResource<Thing>({
+			const resource = await defineResource<Thing>({
 				name: 'thing',
 				routes: {
 					list: { path: '/my-plugin/v1/things', method: 'GET' },
@@ -284,7 +284,7 @@ describe('defineResource - integration', () => {
 				];
 				mockApiFetch.mockResolvedValue(mockData);
 
-				const resource = defineResource<Thing, ThingQuery>({
+				const resource = await defineResource<Thing, ThingQuery>({
 					name: 'thing',
 					routes: {
 						list: { path: '/my-plugin/v1/things', method: 'GET' },
@@ -311,7 +311,7 @@ describe('defineResource - integration', () => {
 				];
 				mockApiFetch.mockResolvedValue(mockData);
 
-				const resource = defineResource<Thing>({
+				const resource = await defineResource<Thing>({
 					name: 'thing',
 					routes: {
 						list: { path: '/my-plugin/v1/things', method: 'GET' },
@@ -337,7 +337,7 @@ describe('defineResource - integration', () => {
 				};
 				mockApiFetch.mockResolvedValue(mockResponse);
 
-				const resource = defineResource<Thing>({
+				const resource = await defineResource<Thing>({
 					name: 'thing',
 					routes: {
 						list: { path: '/my-plugin/v1/things', method: 'GET' },
@@ -359,7 +359,7 @@ describe('defineResource - integration', () => {
 				};
 				mockApiFetch.mockResolvedValue(mockData);
 
-				const resource = defineResource<Thing>({
+				const resource = await defineResource<Thing>({
 					name: 'thing',
 					routes: {
 						get: {
@@ -388,7 +388,7 @@ describe('defineResource - integration', () => {
 				};
 				mockApiFetch.mockResolvedValue(mockData);
 
-				const resource = defineResource<Thing>({
+				const resource = await defineResource<Thing>({
 					name: 'thing',
 					routes: {
 						get: {
@@ -418,7 +418,7 @@ describe('defineResource - integration', () => {
 				};
 				mockApiFetch.mockRejectedValue(mockError);
 
-				const resource = defineResource<Thing>({
+				const resource = await defineResource<Thing>({
 					name: 'thing',
 					routes: {
 						get: {
@@ -449,8 +449,8 @@ describe('defineResource - integration', () => {
 			resetNamespaceCache();
 		});
 
-		it('should use auto-detected namespace by default', () => {
-			const resource = defineResource<Thing>({
+		it('should use auto-detected namespace by default', async () => {
+			const resource = await defineResource<Thing>({
 				name: 'thing',
 				routes: {
 					list: { path: '/my-plugin/v1/things', method: 'GET' },
@@ -464,8 +464,8 @@ describe('defineResource - integration', () => {
 			expect(resource.events?.removed).toBe('wpk.thing.removed');
 		});
 
-		it('should use explicit namespace when provided', () => {
-			const resource = defineResource<Thing>({
+		it('should use explicit namespace when provided', async () => {
+			const resource = await defineResource<Thing>({
 				name: 'thing',
 				namespace: 'my-plugin',
 				routes: {
@@ -479,8 +479,8 @@ describe('defineResource - integration', () => {
 			expect(resource.events?.removed).toBe('my-plugin.thing.removed');
 		});
 
-		it('should parse namespace from shorthand name syntax', () => {
-			const resource = defineResource<Thing>({
+		it('should parse namespace from shorthand name syntax', async () => {
+			const resource = await defineResource<Thing>({
 				name: 'acme:thing',
 				routes: {
 					list: { path: '/acme/v1/things', method: 'GET' },
@@ -494,8 +494,8 @@ describe('defineResource - integration', () => {
 			expect(resource.events?.removed).toBe('acme.thing.removed');
 		});
 
-		it('should prefer explicit namespace over shorthand syntax', () => {
-			const resource = defineResource<Thing>({
+		it('should prefer explicit namespace over shorthand syntax', async () => {
+			const resource = await defineResource<Thing>({
 				name: 'prefix:thing',
 				namespace: 'explicit',
 				routes: {
@@ -510,8 +510,8 @@ describe('defineResource - integration', () => {
 			expect(resource.events?.created).toBe('explicit.thing.created');
 		});
 
-		it('should use namespace in cache invalidation', () => {
-			const resource = defineResource<Thing>({
+		it('should use namespace in cache invalidation', async () => {
+			const resource = await defineResource<Thing>({
 				name: 'thing',
 				namespace: 'custom',
 				routes: {
@@ -524,7 +524,7 @@ describe('defineResource - integration', () => {
 			expect(resource.cache?.invalidate?.all).toBeDefined();
 		});
 
-		it('should detect namespace from build-time defines', () => {
+		it('should detect namespace from build-time defines', async () => {
 			// Mock build-time define
 			const originalDefine = (
 				globalThis as GlobalThis & { __WPK_NAMESPACE__?: string }
@@ -534,7 +534,7 @@ describe('defineResource - integration', () => {
 			).__WPK_NAMESPACE__ = 'build-time-plugin';
 
 			try {
-				const resource = defineResource<Thing>({
+				const resource = await defineResource<Thing>({
 					name: 'thing',
 					routes: {
 						list: {
@@ -566,7 +566,7 @@ describe('defineResource - integration', () => {
 			}
 		});
 
-		it('should detect namespace from WordPress plugin data', () => {
+		it('should detect namespace from WordPress plugin data', async () => {
 			// Mock WordPress plugin data
 			const windowWithWp = global.window;
 			const originalData = windowWithWp?.wpKernelData;
@@ -581,7 +581,7 @@ describe('defineResource - integration', () => {
 				// Clear cache to ensure fresh detection
 				resetNamespaceCache();
 
-				const resource = defineResource<Thing>({
+				const resource = await defineResource<Thing>({
 					name: 'thing',
 					routes: {
 						list: {
@@ -607,9 +607,9 @@ describe('defineResource - integration', () => {
 			}
 		});
 
-		it('should maintain backward compatibility with existing code', () => {
+		it('should maintain backward compatibility with existing code', async () => {
 			// Existing code without namespace should still work
-			const resource = defineResource<Thing>({
+			const resource = await defineResource<Thing>({
 				name: 'thing',
 				routes: {
 					list: { path: '/my-plugin/v1/things', method: 'GET' },

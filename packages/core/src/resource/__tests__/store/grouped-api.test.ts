@@ -55,7 +55,7 @@ describe('createStore - Grouped API', () => {
 				expect(list).toEqual([]);
 			});
 
-			it('select.list should return empty array when getItems returns falsy', () => {
+			it('select.list should return empty array when getItems returns falsy', async () => {
 				// Mock window.wp.data.select to return a store with getItems that returns null
 				const mockGetItems = jest.fn().mockReturnValue(null);
 				const harness = createWordPressTestHarness({
@@ -67,7 +67,7 @@ describe('createStore - Grouped API', () => {
 				});
 
 				// Create a real resource
-				const realResource = defineTestResource({
+				const realResource = await defineTestResource({
 					name: 'test',
 					routes: {
 						list: { path: '/wpk/v1/test', method: 'GET' },

@@ -37,8 +37,8 @@ describe('defineResource - grouped API getters and cache.key()', () => {
 	// ===================================================================
 
 	describe('cache.key()', () => {
-		it('should generate cache key for list operation', () => {
-			const resource = defineResource<MockThing, MockThingQuery>({
+		it('should generate cache key for list operation', async () => {
+			const resource = await defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
 				routes: {
 					list: { path: '/wpk/v1/things', method: 'GET' },
@@ -57,8 +57,8 @@ describe('defineResource - grouped API getters and cache.key()', () => {
 			expect(key).toEqual(['thing', 'list', 'search-term']);
 		});
 
-		it('should generate cache key for get operation', () => {
-			const resource = defineResource<MockThing, MockThingQuery>({
+		it('should generate cache key for get operation', async () => {
+			const resource = await defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
 				routes: {
 					get: { path: '/wpk/v1/things/:id', method: 'GET' },
@@ -73,8 +73,8 @@ describe('defineResource - grouped API getters and cache.key()', () => {
 			expect(key).toEqual(['thing', 'get', 123]);
 		});
 
-		it('should generate cache key for create operation', () => {
-			const resource = defineResource<MockThing, MockThingQuery>({
+		it('should generate cache key for create operation', async () => {
+			const resource = await defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
 				routes: {
 					create: { path: '/wpk/v1/things', method: 'POST' },
@@ -93,8 +93,8 @@ describe('defineResource - grouped API getters and cache.key()', () => {
 			expect(key).toEqual(['thing', 'create', 'New Thing']);
 		});
 
-		it('should generate cache key for update operation', () => {
-			const resource = defineResource<MockThing, MockThingQuery>({
+		it('should generate cache key for update operation', async () => {
+			const resource = await defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
 				routes: {
 					update: { path: '/wpk/v1/things/:id', method: 'PUT' },
@@ -109,8 +109,8 @@ describe('defineResource - grouped API getters and cache.key()', () => {
 			expect(key).toEqual(['thing', 'update', 456]);
 		});
 
-		it('should generate cache key for remove operation', () => {
-			const resource = defineResource<MockThing, MockThingQuery>({
+		it('should generate cache key for remove operation', async () => {
+			const resource = await defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
 				routes: {
 					remove: { path: '/wpk/v1/things/:id', method: 'DELETE' },
@@ -125,8 +125,8 @@ describe('defineResource - grouped API getters and cache.key()', () => {
 			expect(key).toEqual(['thing', 'remove', 789]);
 		});
 
-		it('should filter out null and undefined values from cache key', () => {
-			const resource = defineResource<MockThing, MockThingQuery>({
+		it('should filter out null and undefined values from cache key', async () => {
+			const resource = await defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
 				routes: {
 					list: { path: '/wpk/v1/things', method: 'GET' },
@@ -156,8 +156,8 @@ describe('defineResource - grouped API getters and cache.key()', () => {
 	// ===================================================================
 
 	describe('grouped API property getters', () => {
-		it('should lazily create select namespace when accessed', () => {
-			const resource = defineResource<MockThing, MockThingQuery>({
+		it('should lazily create select namespace when accessed', async () => {
+			const resource = await defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
 				routes: {
 					get: { path: '/wpk/v1/things/:id', method: 'GET' },
@@ -174,8 +174,8 @@ describe('defineResource - grouped API getters and cache.key()', () => {
 			expect(selectNamespace!.items).toBeDefined();
 		});
 
-		it('should leave use namespace undefined without UI hooks', () => {
-			const resource = defineResource<MockThing, MockThingQuery>({
+		it('should leave use namespace undefined without UI hooks', async () => {
+			const resource = await defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
 				routes: {
 					get: { path: '/wpk/v1/things/:id', method: 'GET' },
@@ -187,8 +187,8 @@ describe('defineResource - grouped API getters and cache.key()', () => {
 			expect(resource.useList).toBeUndefined();
 		});
 
-		it('should lazily create get namespace when accessed', () => {
-			const resource = defineResource<MockThing, MockThingQuery>({
+		it('should lazily create get namespace when accessed', async () => {
+			const resource = await defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
 				routes: {
 					get: { path: '/wpk/v1/things/:id', method: 'GET' },
@@ -204,8 +204,8 @@ describe('defineResource - grouped API getters and cache.key()', () => {
 			expect(getNamespace!.list).toBe(resource.fetchList);
 		});
 
-		it('should lazily create mutate namespace when accessed', () => {
-			const resource = defineResource<MockThing, MockThingQuery>({
+		it('should lazily create mutate namespace when accessed', async () => {
+			const resource = await defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
 				routes: {
 					create: { path: '/wpk/v1/things', method: 'POST' },
@@ -223,8 +223,8 @@ describe('defineResource - grouped API getters and cache.key()', () => {
 			expect(mutateNamespace!.remove).toBe(resource.remove);
 		});
 
-		it('should lazily create cache namespace when accessed', () => {
-			const resource = defineResource<MockThing, MockThingQuery>({
+		it('should lazily create cache namespace when accessed', async () => {
+			const resource = await defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
 				routes: {
 					get: { path: '/wpk/v1/things/:id', method: 'GET' },
@@ -241,8 +241,8 @@ describe('defineResource - grouped API getters and cache.key()', () => {
 			expect(cacheNamespace.key).toBe(resource.key);
 		});
 
-		it('should lazily create storeApi namespace when accessed', () => {
-			const resource = defineResource<MockThing, MockThingQuery>({
+		it('should lazily create storeApi namespace when accessed', async () => {
+			const resource = await defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
 				routes: {
 					get: { path: '/wpk/v1/things/:id', method: 'GET' },
@@ -257,8 +257,8 @@ describe('defineResource - grouped API getters and cache.key()', () => {
 			expect(storeApiNamespace.descriptor).toBe(resource.store);
 		});
 
-		it('should lazily create events namespace when accessed', () => {
-			const resource = defineResource<MockThing, MockThingQuery>({
+		it('should lazily create events namespace when accessed', async () => {
+			const resource = await defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
 				routes: {
 					create: { path: '/wpk/v1/things', method: 'POST' },
@@ -274,8 +274,8 @@ describe('defineResource - grouped API getters and cache.key()', () => {
 			expect(eventsNamespace!.removed).toBe('wpk.thing.removed');
 		});
 
-		it('should return same namespace on multiple accesses', () => {
-			const resource = defineResource<MockThing, MockThingQuery>({
+		it('should return same namespace on multiple accesses', async () => {
+			const resource = await defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
 				routes: {
 					get: { path: '/wpk/v1/things/:id', method: 'GET' },
@@ -293,8 +293,8 @@ describe('defineResource - grouped API getters and cache.key()', () => {
 	});
 
 	describe('cache.invalidate.all behavior', () => {
-		it('should call invalidate.all without errors', () => {
-			const resource = defineResource<MockThing, MockThingQuery>({
+		it('should call invalidate.all without errors', async () => {
+			const resource = await defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
 				routes: {
 					list: { path: '/wpk/v1/things', method: 'GET' },
@@ -307,8 +307,8 @@ describe('defineResource - grouped API getters and cache.key()', () => {
 			}).not.toThrow();
 		});
 
-		it('should have invalidate.all method defined', () => {
-			const resource = defineResource<MockThing, MockThingQuery>({
+		it('should have invalidate.all method defined', async () => {
+			const resource = await defineResource<MockThing, MockThingQuery>({
 				name: 'thing',
 				routes: {
 					list: { path: '/wpk/v1/things', method: 'GET' },

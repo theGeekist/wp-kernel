@@ -8,17 +8,9 @@
  */
 import { WPKernelError } from '../error/WPKernelError';
 import type { ResourceConfig, ResourceObject } from './types';
-import { getWPKernelEventBus, recordResourceDefined } from '../events/bus';
-import type { Reporter } from '../reporter';
 import { createResourcePipeline } from '../pipeline/resources/createResourcePipeline';
-import type {
-	ResourcePipelineRunOptions,
-	ResourcePipelineRunResult,
-} from '../pipeline/resources/types';
+import type { ResourcePipelineRunResult } from '../pipeline/resources/types';
 import type { MaybePromise } from '../pipeline/types';
-import { resolveNamespaceAndName } from './namespace';
-import { resolveResourceReporter } from './reporter';
-import type { NormalizedResourceConfig } from './buildResourceObject';
 
 function isPromiseLike<T>(value: unknown): value is PromiseLike<T> {
 	return (
@@ -28,61 +20,34 @@ function isPromiseLike<T>(value: unknown): value is PromiseLike<T> {
 	);
 }
 
-function assertSynchronousRunResult<T, TQuery>(
-	result: MaybePromise<ResourcePipelineRunResult<T, TQuery>>
-): ResourcePipelineRunResult<T, TQuery> {
-	if (isPromiseLike(result)) {
+function resolveResourceArtifact<T, TQuery>(
+	result: ResourcePipelineRunResult<T, TQuery>
+): ResourceObject<T, TQuery> {
+	if (!result.artifact.resource) {
 		throw new WPKernelError('DeveloperError', {
 			message:
-				'defineResource pipeline execution must complete synchronously. Received a promise from the pipeline run.',
+				'Resource pipeline completed without producing a resource artifact.',
 		});
 	}
 
-	return result;
+	if (!result.artifact.namespace) {
+		throw new WPKernelError('DeveloperError', {
+			message:
+				'Resource pipeline completed without resolving a namespace. Ensure resource.namespace.resolve runs first.',
+		});
+	}
+
+	return result.artifact.resource as ResourceObject<T, TQuery>;
 }
 
-function buildNormalizedConfig<T, TQuery>(
-	config: ResourceConfig<T, TQuery>,
-	resourceName: string
-): NormalizedResourceConfig<T, TQuery> {
-	return {
-		...config,
-		name: resourceName,
-	} as NormalizedResourceConfig<T, TQuery>;
-}
+function normalizeRunResult<T, TQuery>(
+	result: MaybePromise<ResourcePipelineRunResult<T, TQuery>>
+): MaybePromise<ResourceObject<T, TQuery>> {
+	if (isPromiseLike(result)) {
+		return Promise.resolve(result).then(resolveResourceArtifact<T, TQuery>);
+	}
 
-function buildResourceDefinitionOptions<T, TQuery>({
-	config,
-	namespace,
-	resourceName,
-	reporter,
-}: {
-	readonly config: ResourceConfig<T, TQuery>;
-	readonly namespace: string;
-	readonly resourceName: string;
-	readonly reporter: Reporter;
-}): ResourcePipelineRunOptions<T, TQuery> {
-	return {
-		config,
-		normalizedConfig: buildNormalizedConfig(config, resourceName),
-		namespace,
-		resourceName,
-		reporter,
-	} satisfies ResourcePipelineRunOptions<T, TQuery>;
-}
-
-function finalizeResourceDefinition<T, TQuery>(
-	options: ResourcePipelineRunOptions<T, TQuery>,
-	resource: ResourceObject<T, TQuery>
-): ResourceObject<T, TQuery> {
-	const definition = {
-		resource: resource as ResourceObject<unknown, unknown>,
-		namespace: options.namespace,
-	};
-	recordResourceDefined(definition);
-	getWPKernelEventBus().emit('resource:defined', definition);
-
-	return resource;
+	return resolveResourceArtifact<T, TQuery>(result);
 }
 
 /**
@@ -104,7 +69,7 @@ function finalizeResourceDefinition<T, TQuery>(
  */
 export function defineResource<T = unknown, TQuery = unknown>(
 	config: ResourceConfig<T, TQuery>
-): ResourceObject<T, TQuery> {
+): MaybePromise<ResourceObject<T, TQuery>> {
 	if (!config || typeof config !== 'object') {
 		throw new WPKernelError('DeveloperError', {
 			message:
@@ -119,30 +84,10 @@ export function defineResource<T = unknown, TQuery = unknown>(
 		});
 	}
 
-	const { namespace, resourceName } = resolveNamespaceAndName(config);
-	const reporter = resolveResourceReporter({
-		namespace,
-		resourceName,
-		override: config.reporter,
-	});
-	const runOptions = buildResourceDefinitionOptions({
-		config,
-		namespace,
-		resourceName,
-		reporter,
-	});
 	const pipeline = createResourcePipeline<T, TQuery>();
-	const runResult = assertSynchronousRunResult(pipeline.run(runOptions));
+	const runResult = pipeline.run({
+		config,
+	});
 
-	if (!runResult.artifact.resource) {
-		throw new WPKernelError('DeveloperError', {
-			message:
-				'Resource pipeline completed without producing a resource artifact.',
-		});
-	}
-
-	return finalizeResourceDefinition(
-		runOptions,
-		runResult.artifact.resource as ResourceObject<T, TQuery>
-	);
+	return normalizeRunResult<T, TQuery>(runResult);
 }

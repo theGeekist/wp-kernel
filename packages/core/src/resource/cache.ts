@@ -640,6 +640,17 @@ export function registerStoreKey(storeKey: string): void {
 }
 
 /**
+ * Remove a store key from invalidation tracking.
+ * Used when resource orchestration rolls back before commit.
+ *
+ * @internal
+ * @param storeKey - The store key to remove from the registry.
+ */
+export function unregisterStoreKey(storeKey: string): void {
+	registeredStoreKeys.delete(storeKey);
+}
+
+/**
  * Get all registered store keys matching the given prefix
  *
  * @param prefix - Prefix to filter by (e.g., 'my-plugin/')

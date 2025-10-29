@@ -16,8 +16,8 @@ interface Thing {
 
 describe('defineResource - client methods', () => {
 	describe('client method generation', () => {
-		it('should generate fetchList method when list route is defined', () => {
-			const resource = defineResource({
+		it('should generate fetchList method when list route is defined', async () => {
+			const resource = await defineResource({
 				name: 'thing',
 				routes: {
 					list: { path: '/my-plugin/v1/things', method: 'GET' },
@@ -28,8 +28,8 @@ describe('defineResource - client methods', () => {
 			expect(typeof resource.fetchList).toBe('function');
 		});
 
-		it('should not generate fetchList method when list route is not defined', () => {
-			const resource = defineResource({
+		it('should not generate fetchList method when list route is not defined', async () => {
+			const resource = await defineResource({
 				name: 'thing',
 				routes: {
 					get: { path: '/my-plugin/v1/things/:id', method: 'GET' },
@@ -39,8 +39,8 @@ describe('defineResource - client methods', () => {
 			expect(resource.fetchList).toBeUndefined();
 		});
 
-		it('should generate fetch method when get route is defined', () => {
-			const resource = defineResource({
+		it('should generate fetch method when get route is defined', async () => {
+			const resource = await defineResource({
 				name: 'thing',
 				routes: {
 					get: { path: '/my-plugin/v1/things/:id', method: 'GET' },
@@ -51,8 +51,8 @@ describe('defineResource - client methods', () => {
 			expect(typeof resource.fetch).toBe('function');
 		});
 
-		it('should generate create method when create route is defined', () => {
-			const resource = defineResource({
+		it('should generate create method when create route is defined', async () => {
+			const resource = await defineResource({
 				name: 'thing',
 				routes: {
 					create: { path: '/my-plugin/v1/things', method: 'POST' },
@@ -63,8 +63,8 @@ describe('defineResource - client methods', () => {
 			expect(typeof resource.create).toBe('function');
 		});
 
-		it('should generate update method when update route is defined', () => {
-			const resource = defineResource({
+		it('should generate update method when update route is defined', async () => {
+			const resource = await defineResource({
 				name: 'thing',
 				routes: {
 					update: {
@@ -78,8 +78,8 @@ describe('defineResource - client methods', () => {
 			expect(typeof resource.update).toBe('function');
 		});
 
-		it('should generate remove method when remove route is defined', () => {
-			const resource = defineResource({
+		it('should generate remove method when remove route is defined', async () => {
+			const resource = await defineResource({
 				name: 'thing',
 				routes: {
 					remove: {
@@ -93,8 +93,8 @@ describe('defineResource - client methods', () => {
 			expect(typeof resource.remove).toBe('function');
 		});
 
-		it('should generate all methods for full CRUD config', () => {
-			const resource = defineResource<Thing>({
+		it('should generate all methods for full CRUD config', async () => {
+			const resource = await defineResource<Thing>({
 				name: 'thing',
 				routes: {
 					list: { path: '/my-plugin/v1/things', method: 'GET' },
@@ -137,7 +137,7 @@ describe('defineResource - client methods', () => {
 			const mockData = { id: 1, title: 'Test' };
 			mockApiFetch.mockResolvedValue(mockData);
 
-			const resource = defineResource<Thing>({
+			const resource = await defineResource<Thing>({
 				name: 'thing',
 				routes: {
 					create: { path: '/my-plugin/v1/things', method: 'POST' },
@@ -158,7 +158,7 @@ describe('defineResource - client methods', () => {
 			const mockData = { id: 123, title: 'Updated' };
 			mockApiFetch.mockResolvedValue(mockData);
 
-			const resource = defineResource<Thing>({
+			const resource = await defineResource<Thing>({
 				name: 'thing',
 				routes: {
 					update: {
@@ -181,7 +181,7 @@ describe('defineResource - client methods', () => {
 		it('should call transportFetch when remove is called', async () => {
 			mockApiFetch.mockResolvedValue({});
 
-			const resource = defineResource<Thing>({
+			const resource = await defineResource<Thing>({
 				name: 'thing',
 				routes: {
 					remove: {
@@ -203,7 +203,7 @@ describe('defineResource - client methods', () => {
 		it('should handle transport errors correctly', async () => {
 			mockApiFetch.mockRejectedValue(new Error('Network error'));
 
-			const resource = defineResource<Thing>({
+			const resource = await defineResource<Thing>({
 				name: 'thing',
 				routes: {
 					create: { path: '/my-plugin/v1/things', method: 'POST' },
@@ -229,7 +229,7 @@ describe('defineResource - client methods', () => {
 
 			mockApiFetch.mockResolvedValue(mockObjectResponse);
 
-			const resource = defineResource<Thing>({
+			const resource = await defineResource<Thing>({
 				name: 'thing',
 				routes: {
 					list: { path: '/my-plugin/v1/things', method: 'GET' },
@@ -253,7 +253,7 @@ describe('defineResource - client methods', () => {
 
 			mockApiFetch.mockResolvedValue(mockObjectResponse);
 
-			const resource = defineResource<Thing>({
+			const resource = await defineResource<Thing>({
 				name: 'thing',
 				routes: {
 					list: { path: '/my-plugin/v1/things', method: 'GET' },

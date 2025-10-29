@@ -17,12 +17,12 @@ type WordPressWindow = Window &
 describe('resource store resolution', () => {
 	let resource: ResourceObject<TestJob, void>;
 
-	beforeEach(() => {
+	beforeEach(async () => {
 		(window as WordPressWindow).wp = {
 			data: wpData,
 		};
 
-		resource = defineResource<TestJob, void>({
+		resource = await defineResource<TestJob, void>({
 			name: 'job',
 			namespace: 'jest-tests',
 			routes: {

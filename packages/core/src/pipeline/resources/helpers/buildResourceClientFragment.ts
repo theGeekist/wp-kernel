@@ -1,5 +1,6 @@
 import { createHelper } from '../../helper';
 import { createClient } from '../../../resource/client';
+import { WPKernelError } from '../../../error/WPKernelError';
 import type {
 	ResourceFragmentHelper,
 	ResourceFragmentInput,
@@ -35,12 +36,22 @@ export function buildResourceClientFragment<
 		kind: RESOURCE_FRAGMENT_KIND,
 		dependsOn: ['resource.config.validate'],
 		apply: ({ context, output }) => {
+			const namespace = output.namespace ?? context.namespace;
+			const resourceName = output.resourceName ?? context.resourceName;
+
+			if (!namespace || !resourceName) {
+				throw new WPKernelError('DeveloperError', {
+					message:
+						'Resource client creation requires namespace and resource name metadata. Ensure resource.namespace.resolve runs first.',
+				});
+			}
+
 			output.client = createClient<T, TQuery>(
 				context.config,
 				context.reporter,
 				{
-					namespace: context.namespace,
-					resourceName: context.resourceName,
+					namespace,
+					resourceName,
 				}
 			);
 		},

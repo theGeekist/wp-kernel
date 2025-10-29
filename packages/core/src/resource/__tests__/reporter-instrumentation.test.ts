@@ -55,7 +55,7 @@ describe('resource reporters', () => {
 			data: { items: [{ id: 1 }], total: 1 },
 		});
 
-		const resource = defineResource<{ id: number }>({
+		const resource = await defineResource<{ id: number }>({
 			name: 'thing',
 			reporter,
 			routes: {
@@ -92,7 +92,7 @@ describe('resource reporters', () => {
 		const { reporter, logs } = createReporterSpy();
 		transportFetch.mockRejectedValue('boom');
 
-		const resource = defineResource<{ id: number }>({
+		const resource = await defineResource<{ id: number }>({
 			name: 'thing',
 			reporter,
 			routes: {
@@ -118,7 +118,7 @@ describe('resource reporters', () => {
 			data: [{ id: 1 }, { id: 2 }],
 		});
 
-		const resource = defineResource<{ id: number }>({
+		const resource = await defineResource<{ id: number }>({
 			name: 'thing',
 			reporter,
 			routes: {
@@ -145,7 +145,7 @@ describe('resource reporters', () => {
 			data: { items: [], total: 0, hasMore: false },
 		});
 
-		const resource = defineResource<{ id: number }>({
+		const resource = await defineResource<{ id: number }>({
 			name: 'thing',
 			routes: {
 				list: { path: '/wpk/v1/things', method: 'GET' },
@@ -166,7 +166,7 @@ describe('resource reporters', () => {
 			data: { id: 7 },
 		});
 
-		const resource = defineResource<{ id: number }>({
+		const resource = await defineResource<{ id: number }>({
 			name: 'thing',
 			reporter,
 			routes: {
@@ -204,7 +204,7 @@ describe('resource reporters', () => {
 		const { reporter, logs } = createReporterSpy();
 		transportFetch.mockRejectedValue('fetch failed');
 
-		const resource = defineResource<{ id: number }>({
+		const resource = await defineResource<{ id: number }>({
 			name: 'thing',
 			reporter,
 			routes: {
@@ -231,7 +231,7 @@ describe('resource reporters', () => {
 			data: { id: 15, title: 'Created' },
 		});
 
-		const resource = defineResource<{ id: number; title: string }>({
+		const resource = await defineResource<{ id: number; title: string }>({
 			name: 'thing',
 			reporter,
 			routes: {
@@ -261,7 +261,7 @@ describe('resource reporters', () => {
 		const { reporter, logs } = createReporterSpy();
 		transportFetch.mockRejectedValue('create failed');
 
-		const resource = defineResource<{ id: number; title: string }>({
+		const resource = await defineResource<{ id: number; title: string }>({
 			name: 'thing',
 			reporter,
 			routes: {
@@ -289,7 +289,7 @@ describe('resource reporters', () => {
 			data: { id: 21, title: 'Updated' },
 		});
 
-		const resource = defineResource<{ id: number; title: string }>({
+		const resource = await defineResource<{ id: number; title: string }>({
 			name: 'thing',
 			reporter,
 			routes: {
@@ -336,7 +336,7 @@ describe('resource reporters', () => {
 		const { reporter, logs } = createReporterSpy();
 		transportFetch.mockResolvedValue(undefined);
 
-		const resource = defineResource<{ id: number }>({
+		const resource = await defineResource<{ id: number }>({
 			name: 'thing',
 			reporter,
 			routes: {
@@ -363,7 +363,7 @@ describe('resource reporters', () => {
 
 	it('logs resolver lifecycle for getItem success', async () => {
 		const { reporter, logs } = createReporterSpy();
-		const resource = defineResource<{ id: number }>({
+		const resource = await defineResource<{ id: number }>({
 			name: 'thing',
 			reporter,
 			routes: {
@@ -398,7 +398,7 @@ describe('resource reporters', () => {
 
 	it('logs resolver lifecycle for getItems success with fallback cache key', async () => {
 		const { reporter, logs } = createReporterSpy();
-		const resource = defineResource<{ id: number }>({
+		const resource = await defineResource<{ id: number }>({
 			name: 'thing',
 			reporter,
 			routes: {
@@ -443,9 +443,9 @@ describe('resource reporters', () => {
 		);
 	});
 
-	it('logs missing getItems route before throwing', () => {
+	it('logs missing getItems route before throwing', async () => {
 		const { reporter, logs } = createReporterSpy();
-		const resource = defineResource<{ id: number }>({
+		const resource = await defineResource<{ id: number }>({
 			name: 'thing',
 			reporter,
 			routes: {
@@ -472,7 +472,7 @@ describe('resource reporters', () => {
 
 	it('logs resolver errors when getItems fetch rejects', async () => {
 		const { reporter, logs } = createReporterSpy();
-		const resource = defineResource<{ id: number }>({
+		const resource = await defineResource<{ id: number }>({
 			name: 'thing',
 			reporter,
 			routes: {
@@ -506,7 +506,7 @@ describe('resource reporters', () => {
 
 	it('logs resolver errors when fetch rejects', async () => {
 		const { reporter, logs } = createReporterSpy();
-		const resource = defineResource<{ id: number }>({
+		const resource = await defineResource<{ id: number }>({
 			name: 'thing',
 			reporter,
 			routes: {
@@ -535,9 +535,9 @@ describe('resource reporters', () => {
 		);
 	});
 
-	it('logs missing list route errors before throwing', () => {
+	it('logs missing list route errors before throwing', async () => {
 		const { reporter, logs } = createReporterSpy();
-		const resource = defineResource<{ id: number }>({
+		const resource = await defineResource<{ id: number }>({
 			name: 'thing',
 			reporter,
 			routes: {
@@ -566,7 +566,7 @@ describe('resource reporters', () => {
 		const { reporter, logs } = createReporterSpy();
 		transportFetch.mockRejectedValue('delete failed');
 
-		const resource = defineResource<{ id: number }>({
+		const resource = await defineResource<{ id: number }>({
 			name: 'thing',
 			reporter,
 			routes: {
@@ -587,9 +587,9 @@ describe('resource reporters', () => {
 		);
 	});
 
-	it('logs missing route errors before throwing', () => {
+	it('logs missing route errors before throwing', async () => {
 		const { reporter, logs } = createReporterSpy();
-		const resource = defineResource<{ id: number }>({
+		const resource = await defineResource<{ id: number }>({
 			name: 'thing',
 			reporter,
 			routes: {

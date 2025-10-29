@@ -47,7 +47,7 @@ export interface ResourceHarnessSetup {
 	resolveSelect: jest.Mock;
 }
 
-export const defineTestResource = <T, TQuery>(
+export const defineTestResource = async <T, TQuery>(
 	config: ResourceConfig<T, TQuery>
 ) => defineResource<T, TQuery>(config);
 

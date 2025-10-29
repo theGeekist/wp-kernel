@@ -35,6 +35,7 @@ export function buildResourceObjectBuilder<T, TQuery>(): ResourceBuilderHelper<
 		key: 'resource.object.build',
 		kind: RESOURCE_BUILDER_KIND,
 		apply: ({ context, output }) => {
+			const normalizedConfig = context.normalizedConfig;
 			if (!output.client) {
 				throw new WPKernelError('DeveloperError', {
 					message:
@@ -49,14 +50,33 @@ export function buildResourceObjectBuilder<T, TQuery>(): ResourceBuilderHelper<
 				});
 			}
 
+			if (!normalizedConfig) {
+				throw new WPKernelError('DeveloperError', {
+					message:
+						'Resource object construction requires a normalized config. Ensure resource.namespace.resolve runs first.',
+				});
+			}
+
+			const namespace = output.namespace ?? context.namespace;
+			const resourceName = output.resourceName ?? context.resourceName;
+
+			if (!namespace || !resourceName) {
+				throw new WPKernelError('DeveloperError', {
+					message:
+						'Resource object construction requires namespace and resource name metadata. Ensure resource.namespace.resolve runs first.',
+				});
+			}
+
 			output.resource = buildResourceObject({
 				config: context.config,
-				normalizedConfig: context.normalizedConfig,
-				namespace: context.namespace,
-				resourceName: context.resourceName,
+				normalizedConfig,
+				namespace,
+				resourceName,
 				reporter: context.reporter,
 				cacheKeys: output.cacheKeys,
 				client: output.client,
+				storeKey: output.storeKey,
+				groupedApi: output.groupedApi,
 			});
 		},
 	}) satisfies ResourceBuilderHelper<T, TQuery>;

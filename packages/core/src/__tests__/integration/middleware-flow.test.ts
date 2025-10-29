@@ -67,7 +67,7 @@ describe('Redux Middleware Integration', () => {
 		const createdItem = { id: 1, title: 'Test Item' };
 		mockApiFetch.mockResolvedValue(createdItem);
 
-		const resource = defineResource<TestItem>({
+		const resource = await defineResource<TestItem>({
 			name: 'testitem',
 			routes: {
 				create: { path: '/test/v1/items', method: 'POST' },
@@ -120,7 +120,7 @@ describe('Redux Middleware Integration', () => {
 		expect(next).not.toHaveBeenCalled();
 	});
 
-	it('allows standard Redux actions to pass through unchanged', () => {
+	it('allows standard Redux actions to pass through unchanged', async () => {
 		const standardAction = {
 			type: 'ADD_ITEM',
 			item: { id: 1, title: 'Standard Action' },
@@ -137,7 +137,7 @@ describe('Redux Middleware Integration', () => {
 	it('handles action errors through middleware', async () => {
 		mockApiFetch.mockRejectedValue(new Error('API Error'));
 
-		const resource = defineResource<TestItem>({
+		const resource = await defineResource<TestItem>({
 			name: 'testitem',
 			routes: {
 				create: { path: '/test/v1/items', method: 'POST' },
@@ -172,7 +172,7 @@ describe('Redux Middleware Integration', () => {
 		const createdItem = { id: 1, title: 'Test Item' };
 		mockApiFetch.mockResolvedValue(createdItem);
 
-		const resource = defineResource<TestItem>({
+		const resource = await defineResource<TestItem>({
 			name: 'testitem',
 			routes: {
 				create: { path: '/test/v1/items', method: 'POST' },

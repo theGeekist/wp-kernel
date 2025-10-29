@@ -1,6 +1,7 @@
 import { __ } from '@wordpress/i18n';
 import { job } from '../../resources';
 import type { Job } from '../../../wpk.config';
+import { wpkConfig } from '../../../wpk.config';
 import { ShowcaseActionError } from '../../errors/ShowcaseActionError';
 
 export type CreateJobInput = {
@@ -25,8 +26,12 @@ export async function CreateJob(input: CreateJobInput): Promise<Job> {
 		});
 	}
 
+	let resource: Awaited<typeof job> | undefined;
+
 	try {
-		const createdJob = await job.create?.({
+		resource = await job;
+
+		const createdJob = await resource.create?.({
 			title: input.title.trim(),
 			department: input.department?.trim(),
 			location: input.location?.trim(),
@@ -42,13 +47,13 @@ export async function CreateJob(input: CreateJobInput): Promise<Job> {
 				),
 				context: {
 					actionName: 'Jobs.Create',
-					resourceName: job.storeKey,
+					resourceName: resource.storeKey,
 				},
 			});
 		}
 
 		// Ensure any list queries are refreshed for subsequent renders.
-		job.cache.invalidate.list();
+		resource.cache.invalidate.list();
 
 		return createdJob;
 	} catch (error) {
@@ -56,7 +61,8 @@ export async function CreateJob(input: CreateJobInput): Promise<Job> {
 			code: 'UnknownError',
 			context: {
 				actionName: 'Jobs.Create',
-				resourceName: job.storeKey,
+				resourceName:
+					resource?.storeKey ?? wpkConfig.resources.job.name,
 			},
 		});
 	}

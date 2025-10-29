@@ -1,6 +1,7 @@
 import type { WPDataRegistry } from '@wordpress/data/build-types/registry';
 import type { ReduxMiddleware } from '../actions/types';
 import type { Reporter } from '../reporter';
+import type { MaybePromise } from '../pipeline/types';
 import type { CacheKeyPattern, InvalidateOptions } from '../resource/cache';
 import type { WPKernelEventBus } from '../events/bus';
 import type { CapabilityHelpers } from '../capability/types';
@@ -88,5 +89,5 @@ export interface WPKInstance {
 	events: WPKernelEventBus;
 	defineResource: <T = unknown, TQuery = unknown>(
 		config: ResourceConfig<T, TQuery>
-	) => ResourceObject<T, TQuery>;
+	) => MaybePromise<ResourceObject<T, TQuery>>;
 }

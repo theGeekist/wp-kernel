@@ -18,6 +18,7 @@ import {
 	createCacheGetter,
 	createStoreApiGetter,
 	createEventsGetter,
+	type ResourceGroupedApiGetters,
 } from './grouped-api';
 import type { Reporter } from '../reporter';
 import { RESOURCE_LOG_MESSAGES } from './logMessages';
@@ -34,6 +35,8 @@ interface BuildResourceObjectOptions<T, TQuery> {
 	readonly reporter: Reporter;
 	readonly cacheKeys: Required<CacheKeys<TQuery>>;
 	readonly client: ResourceClient<T, TQuery>;
+	readonly storeKey?: string;
+	readonly groupedApi?: ResourceGroupedApiGetters<T, TQuery>;
 }
 
 export function buildResourceObject<T, TQuery>(
@@ -54,10 +57,26 @@ export function buildResourceObject<T, TQuery>(
 	const storeReporter = reporter.child('store');
 	const cacheReporter = reporter.child('cache');
 
+	const storeKey = options.storeKey ?? `${namespace}/${resourceName}`;
+
+	const groupedApiGetters: ResourceGroupedApiGetters<T, TQuery> =
+		options.groupedApi ?? {
+			select: createSelectGetter<T, TQuery>(config),
+			get: createGetGetter<T, TQuery>(config),
+			mutate: createMutateGetter<T, TQuery>(config),
+			cache: createCacheGetter<T, TQuery>(normalizedConfig, cacheKeys),
+			storeApi: createStoreApiGetter<T, TQuery>(),
+			events: createEventsGetter<T, TQuery>({
+				...config,
+				namespace,
+				name: resourceName,
+			}),
+		};
+
 	const resource: ResourceObject<T, TQuery> = {
 		...client,
 		name: resourceName,
-		storeKey: `${namespace}/${resourceName}`,
+		storeKey,
 		cacheKeys,
 		routes: config.routes,
 		reporter,
@@ -195,29 +214,22 @@ export function buildResourceObject<T, TQuery>(
 			);
 		},
 		get select() {
-			return createSelectGetter<T, TQuery>(config).call(this);
+			return groupedApiGetters.select?.call(this);
 		},
 		get get() {
-			return createGetGetter<T, TQuery>(config).call(this);
+			return groupedApiGetters.get?.call(this);
 		},
 		get mutate() {
-			return createMutateGetter<T, TQuery>(config).call(this);
+			return groupedApiGetters.mutate?.call(this);
 		},
 		get cache() {
-			return createCacheGetter<T, TQuery>(
-				normalizedConfig,
-				cacheKeys
-			).call(this);
+			return groupedApiGetters.cache.call(this);
 		},
 		get storeApi() {
-			return createStoreApiGetter<T, TQuery>().call(this);
+			return groupedApiGetters.storeApi.call(this);
 		},
 		get events() {
-			return createEventsGetter<T, TQuery>({
-				...config,
-				namespace,
-				name: resourceName,
-			}).call(this);
+			return groupedApiGetters.events.call(this);
 		},
 	};
 

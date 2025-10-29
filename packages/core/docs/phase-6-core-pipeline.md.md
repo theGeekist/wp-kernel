@@ -123,7 +123,22 @@ _Referenced from:_
 
 **Completion placeholder**
 
-- [x] Task 34 complete – PR pending (2024-05-05)
+- [x] Task 34 complete – PR pending (2025-10-29)
+
+#### Recommended sub-steps for Task 34
+
+- [x] **Expand the helper catalogue** to represent namespace parsing, reporter resolution, grouped API assembly, and other pending responsibilities so downstream helpers can register against a complete descriptor list.
+- [x] **Wire namespace and reporter helpers** into `createResourcePipeline` so `defineResource` no longer performs pre-processing outside the pipeline surface.
+- [x] **Introduce side-effect builders** that schedule lazy store registration and BroadcastChannel emission through commit/rollback hooks, ensuring deterministic teardown when helpers fail.
+- [x] **Document the feature-flag migration** for consumers adopting the pipeline path and surface regression coverage across Node/browser harnesses, updating or trimming fixtures as required.
+- [x] **Enable dual-mode execution** in `defineResource` so pipeline runs return synchronously by default while gracefully yielding a promise when helpers are asynchronous.
+
+##### Feature-flag migration notes (29 Oct 2025)
+
+- `defineResource` now executes the pipeline for every call, so remove the Task 32 flag guards and rely on the pipeline-backed artifact emitted by [`packages/core/src/resource/define.ts`](../../core/src/resource/define.ts). The `configureWPKernel()` shim already forwards reporter and namespace metadata into the pipeline, keeping runtime behaviour aligned with [`packages/core/src/data/configure-kernel.ts`](../../core/src/data/configure-kernel.ts).
+- Dual-mode execution is in place: synchronous helper catalogues resolve immediately, while asynchronous helpers propagate a `Promise` from `defineResource`. Consumers can continue to instantiate resources during module evaluation and `await` the definition when dynamic imports, schema loaders, or async extensions participate in the run.
+- Delete bundler defines or bootstrap conditionals that still reference the Task 32 opt-in flag; there is no longer a legacy code path to call.
+- Regression coverage now runs the pipeline integration suite inside both the browser harness and a WordPress-free context so BroadcastChannel emission, registry bookkeeping, and Node execution stay in sync (`packages/core/src/resource/__tests__/defineResource.pipeline.test.ts`).
 
 ---
 

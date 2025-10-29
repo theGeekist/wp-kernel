@@ -5,9 +5,12 @@ import {
 import type { HelperDescriptor } from '../../types';
 
 export type ResourceLifecycleResponsibility =
+	| 'namespace'
+	| 'reporter'
 	| 'validation'
 	| 'client'
 	| 'cache-keys'
+	| 'grouped-api'
 	| 'builder'
 	| 'registry';
 
@@ -21,18 +24,34 @@ export interface CoreResourceHelperDescriptor extends HelperDescriptor {
 export function buildCoreResourceHelperCatalog(): readonly CoreResourceHelperDescriptor[] {
 	return [
 		{
+			key: 'resource.namespace.resolve',
+			kind: RESOURCE_FRAGMENT_KIND,
+			mode: 'extend',
+			priority: 130,
+			dependsOn: [],
+			responsibility: 'namespace',
+		},
+		{
+			key: 'resource.reporter.resolve',
+			kind: RESOURCE_FRAGMENT_KIND,
+			mode: 'extend',
+			priority: 120,
+			dependsOn: ['resource.namespace.resolve'],
+			responsibility: 'reporter',
+		},
+		{
 			key: 'resource.config.validate',
 			kind: RESOURCE_FRAGMENT_KIND,
 			mode: 'extend',
-			priority: 100,
-			dependsOn: [],
+			priority: 110,
+			dependsOn: ['resource.reporter.resolve'],
 			responsibility: 'validation',
 		},
 		{
 			key: 'resource.client.build',
 			kind: RESOURCE_FRAGMENT_KIND,
 			mode: 'extend',
-			priority: 90,
+			priority: 100,
 			dependsOn: ['resource.config.validate'],
 			responsibility: 'client',
 		},
@@ -40,16 +59,24 @@ export function buildCoreResourceHelperCatalog(): readonly CoreResourceHelperDes
 			key: 'resource.cacheKeys.build',
 			kind: RESOURCE_FRAGMENT_KIND,
 			mode: 'extend',
-			priority: 80,
-			dependsOn: ['resource.client.build'],
+			priority: 90,
+			dependsOn: ['resource.config.validate'],
 			responsibility: 'cache-keys',
+		},
+		{
+			key: 'resource.groupedApi.assemble',
+			kind: RESOURCE_BUILDER_KIND,
+			mode: 'extend',
+			priority: 80,
+			dependsOn: [],
+			responsibility: 'grouped-api',
 		},
 		{
 			key: 'resource.object.build',
 			kind: RESOURCE_BUILDER_KIND,
 			mode: 'extend',
 			priority: 70,
-			dependsOn: ['resource.cacheKeys.build'],
+			dependsOn: ['resource.groupedApi.assemble'],
 			responsibility: 'builder',
 		},
 		{

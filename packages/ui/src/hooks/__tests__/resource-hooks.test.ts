@@ -129,17 +129,18 @@ describe('resource hooks (UI integration)', () => {
 	});
 
 	describe('useGet hook', () => {
-		it('throws when @wordpress/data is not available', () => {
+		it('throws when @wordpress/data is not available', async () => {
 			(global.window as Window & { wp?: any }).wp = undefined;
 
-			const resource = defineResourceWithHooks<MockThing, MockThingQuery>(
-				{
-					name: 'thing',
-					routes: {
-						get: { path: '/wpk/v1/things/:id', method: 'GET' },
-					},
-				}
-			);
+			const resource = await defineResourceWithHooks<
+				MockThing,
+				MockThingQuery
+			>({
+				name: 'thing',
+				routes: {
+					get: { path: '/wpk/v1/things/:id', method: 'GET' },
+				},
+			});
 
 			withConsoleErrorSuppressed(() => {
 				expect(() => renderUseGetHook(resource, 1)).toThrow(
@@ -148,7 +149,7 @@ describe('resource hooks (UI integration)', () => {
 			});
 		});
 
-		it('invokes useSelect with correct selector', () => {
+		it('invokes useSelect with correct selector', async () => {
 			const mockItem: MockThing = {
 				id: 1,
 				title: 'Thing One',
@@ -165,14 +166,15 @@ describe('resource hooks (UI integration)', () => {
 				return callback(() => mockSelect);
 			});
 
-			const resource = defineResourceWithHooks<MockThing, MockThingQuery>(
-				{
-					name: 'thing',
-					routes: {
-						get: { path: '/wpk/v1/things/:id', method: 'GET' },
-					},
-				}
-			);
+			const resource = await defineResourceWithHooks<
+				MockThing,
+				MockThingQuery
+			>({
+				name: 'thing',
+				routes: {
+					get: { path: '/wpk/v1/things/:id', method: 'GET' },
+				},
+			});
 
 			const { result } = renderUseGetHook(resource, 1);
 
@@ -184,7 +186,7 @@ describe('resource hooks (UI integration)', () => {
 			});
 		});
 
-		it('sets loading state when selector resolving', () => {
+		it('sets loading state when selector resolving', async () => {
 			mockWpData.useSelect.mockImplementation((callback: any) => {
 				const mockSelect = {
 					getItem: jest.fn().mockReturnValue(undefined),
@@ -195,14 +197,15 @@ describe('resource hooks (UI integration)', () => {
 				return callback(() => mockSelect);
 			});
 
-			const resource = defineResourceWithHooks<MockThing, MockThingQuery>(
-				{
-					name: 'thing',
-					routes: {
-						get: { path: '/wpk/v1/things/:id', method: 'GET' },
-					},
-				}
-			);
+			const resource = await defineResourceWithHooks<
+				MockThing,
+				MockThingQuery
+			>({
+				name: 'thing',
+				routes: {
+					get: { path: '/wpk/v1/things/:id', method: 'GET' },
+				},
+			});
 
 			const { result } = renderUseGetHook(resource, 1);
 
@@ -213,7 +216,7 @@ describe('resource hooks (UI integration)', () => {
 			});
 		});
 
-		it('exposes selector error message', () => {
+		it('exposes selector error message', async () => {
 			const mockError = 'Not found';
 			mockWpData.useSelect.mockImplementation((callback: any) => {
 				const mockSelect = {
@@ -226,14 +229,15 @@ describe('resource hooks (UI integration)', () => {
 				return callback(() => mockSelect);
 			});
 
-			const resource = defineResourceWithHooks<MockThing, MockThingQuery>(
-				{
-					name: 'thing',
-					routes: {
-						get: { path: '/wpk/v1/things/:id', method: 'GET' },
-					},
-				}
-			);
+			const resource = await defineResourceWithHooks<
+				MockThing,
+				MockThingQuery
+			>({
+				name: 'thing',
+				routes: {
+					get: { path: '/wpk/v1/things/:id', method: 'GET' },
+				},
+			});
 
 			const { result } = renderUseGetHook(resource, 1);
 
@@ -243,7 +247,7 @@ describe('resource hooks (UI integration)', () => {
 				error: 'Not found',
 			});
 		});
-		it('keeps items loading until resolution completes', () => {
+		it('keeps items loading until resolution completes', async () => {
 			mockWpData.useSelect.mockImplementation((callback: any) => {
 				const mockSelect = {
 					getItem: jest.fn().mockReturnValue({
@@ -259,14 +263,15 @@ describe('resource hooks (UI integration)', () => {
 				return callback(() => mockSelect);
 			});
 
-			const resource = defineResourceWithHooks<MockThing, MockThingQuery>(
-				{
-					name: 'thing',
-					routes: {
-						get: { path: '/wpk/v1/things/:id', method: 'GET' },
-					},
-				}
-			);
+			const resource = await defineResourceWithHooks<
+				MockThing,
+				MockThingQuery
+			>({
+				name: 'thing',
+				routes: {
+					get: { path: '/wpk/v1/things/:id', method: 'GET' },
+				},
+			});
 
 			const { result } = renderUseGetHook(resource, 5);
 
@@ -279,17 +284,18 @@ describe('resource hooks (UI integration)', () => {
 	});
 
 	describe('useList hook', () => {
-		it('throws when @wordpress/data is not available', () => {
+		it('throws when @wordpress/data is not available', async () => {
 			(global.window as Window & { wp?: any }).wp = undefined;
 
-			const resource = defineResourceWithHooks<MockThing, MockThingQuery>(
-				{
-					name: 'thing',
-					routes: {
-						list: { path: '/wpk/v1/things', method: 'GET' },
-					},
-				}
-			);
+			const resource = await defineResourceWithHooks<
+				MockThing,
+				MockThingQuery
+			>({
+				name: 'thing',
+				routes: {
+					list: { path: '/wpk/v1/things', method: 'GET' },
+				},
+			});
 
 			withConsoleErrorSuppressed(() => {
 				expect(() => renderUseListHook(resource)).toThrow(
@@ -298,7 +304,7 @@ describe('resource hooks (UI integration)', () => {
 			});
 		});
 
-		it('returns list data and loading state', () => {
+		it('returns list data and loading state', async () => {
 			const mockItems: MockThing[] = [
 				{ id: 1, title: 'Thing One', status: 'active' },
 				{ id: 2, title: 'Thing Two', status: 'inactive' },
@@ -322,14 +328,15 @@ describe('resource hooks (UI integration)', () => {
 
 				return callback(() => mockSelect);
 			});
-			const resource = defineResourceWithHooks<MockThing, MockThingQuery>(
-				{
-					name: 'thing',
-					routes: {
-						list: { path: '/wpk/v1/things', method: 'GET' },
-					},
-				}
-			);
+			const resource = await defineResourceWithHooks<
+				MockThing,
+				MockThingQuery
+			>({
+				name: 'thing',
+				routes: {
+					list: { path: '/wpk/v1/things', method: 'GET' },
+				},
+			});
 
 			const { result } = renderUseListHook(resource);
 
@@ -340,7 +347,7 @@ describe('resource hooks (UI integration)', () => {
 				error: undefined,
 			} as UseResourceListResult<MockThing>);
 		});
-		it('passes query parameter to selector', () => {
+		it('passes query parameter to selector', async () => {
 			const mockItems: MockThing[] = [
 				{ id: 1, title: 'Thing One', status: 'active' },
 			];
@@ -358,14 +365,15 @@ describe('resource hooks (UI integration)', () => {
 				return callback(() => mockSelect);
 			});
 
-			const resource = defineResourceWithHooks<MockThing, MockThingQuery>(
-				{
-					name: 'thing',
-					routes: {
-						list: { path: '/wpk/v1/things', method: 'GET' },
-					},
-				}
-			);
+			const resource = await defineResourceWithHooks<
+				MockThing,
+				MockThingQuery
+			>({
+				name: 'thing',
+				routes: {
+					list: { path: '/wpk/v1/things', method: 'GET' },
+				},
+			});
 
 			const { result } = renderUseListHook(resource, query);
 
@@ -373,7 +381,7 @@ describe('resource hooks (UI integration)', () => {
 			expect(result.current.data).toEqual(mockItems);
 		});
 
-		it('derives loading state from status', () => {
+		it('derives loading state from status', async () => {
 			mockWpData.useSelect.mockImplementation((callback: any) => {
 				const mockSelect = {
 					getList: jest.fn().mockReturnValue(undefined),
@@ -386,14 +394,15 @@ describe('resource hooks (UI integration)', () => {
 				return callback(() => mockSelect);
 			});
 
-			const resource = defineResourceWithHooks<MockThing, MockThingQuery>(
-				{
-					name: 'thing',
-					routes: {
-						list: { path: '/wpk/v1/things', method: 'GET' },
-					},
-				}
-			);
+			const resource = await defineResourceWithHooks<
+				MockThing,
+				MockThingQuery
+			>({
+				name: 'thing',
+				routes: {
+					list: { path: '/wpk/v1/things', method: 'GET' },
+				},
+			});
 
 			const { result } = renderUseListHook(resource);
 
@@ -404,7 +413,7 @@ describe('resource hooks (UI integration)', () => {
 			});
 		});
 
-		it('trusts success status over hasFinishedResolution (regression test)', () => {
+		it('trusts success status over hasFinishedResolution (regression test)', async () => {
 			const mockItems: MockThing[] = [
 				{ id: 1, title: 'Thing One', status: 'active' },
 			];
@@ -428,14 +437,15 @@ describe('resource hooks (UI integration)', () => {
 				return callback(() => mockSelect);
 			});
 
-			const resource = defineResourceWithHooks<MockThing, MockThingQuery>(
-				{
-					name: 'thing',
-					routes: {
-						list: { path: '/wpk/v1/things', method: 'GET' },
-					},
-				}
-			);
+			const resource = await defineResourceWithHooks<
+				MockThing,
+				MockThingQuery
+			>({
+				name: 'thing',
+				routes: {
+					list: { path: '/wpk/v1/things', method: 'GET' },
+				},
+			});
 
 			const { result } = renderUseListHook(resource);
 
@@ -448,7 +458,7 @@ describe('resource hooks (UI integration)', () => {
 			});
 		});
 
-		it('propagates selector errors', () => {
+		it('propagates selector errors', async () => {
 			const mockError = 'Server error';
 			mockWpData.useSelect.mockImplementation((callback: any) => {
 				const mockSelect = {
@@ -462,14 +472,15 @@ describe('resource hooks (UI integration)', () => {
 				return callback(() => mockSelect);
 			});
 
-			const resource = defineResourceWithHooks<MockThing, MockThingQuery>(
-				{
-					name: 'thing',
-					routes: {
-						list: { path: '/wpk/v1/things', method: 'GET' },
-					},
-				}
-			);
+			const resource = await defineResourceWithHooks<
+				MockThing,
+				MockThingQuery
+			>({
+				name: 'thing',
+				routes: {
+					list: { path: '/wpk/v1/things', method: 'GET' },
+				},
+			});
 
 			const { result } = renderUseListHook(resource);
 
@@ -480,7 +491,7 @@ describe('resource hooks (UI integration)', () => {
 			});
 		});
 
-		it('treats idle lists without resolution as loading', () => {
+		it('treats idle lists without resolution as loading', async () => {
 			mockWpData.useSelect.mockImplementation((callback: any) => {
 				const mockSelect = {
 					getList: jest.fn().mockReturnValue(undefined),
@@ -493,20 +504,21 @@ describe('resource hooks (UI integration)', () => {
 				return callback(() => mockSelect);
 			});
 
-			const resource = defineResourceWithHooks<MockThing, MockThingQuery>(
-				{
-					name: 'thing',
-					routes: {
-						list: { path: '/wpk/v1/things', method: 'GET' },
-					},
-				}
-			);
+			const resource = await defineResourceWithHooks<
+				MockThing,
+				MockThingQuery
+			>({
+				name: 'thing',
+				routes: {
+					list: { path: '/wpk/v1/things', method: 'GET' },
+				},
+			});
 
 			const { result } = renderUseListHook(resource);
 			expect(result.current.isLoading).toBe(true);
 		});
 
-		it('keeps success lists loading while resolver runs', () => {
+		it('keeps success lists loading while resolver runs', async () => {
 			mockWpData.useSelect.mockImplementation((callback: any) => {
 				const mockSelect = {
 					getList: jest
@@ -523,14 +535,15 @@ describe('resource hooks (UI integration)', () => {
 				return callback(() => mockSelect);
 			});
 
-			const resource = defineResourceWithHooks<MockThing, MockThingQuery>(
-				{
-					name: 'thing',
-					routes: {
-						list: { path: '/wpk/v1/things', method: 'GET' },
-					},
-				}
-			);
+			const resource = await defineResourceWithHooks<
+				MockThing,
+				MockThingQuery
+			>({
+				name: 'thing',
+				routes: {
+					list: { path: '/wpk/v1/things', method: 'GET' },
+				},
+			});
 
 			const { result } = renderUseListHook(resource);
 			expect(result.current.isLoading).toBe(true);
@@ -538,8 +551,8 @@ describe('resource hooks (UI integration)', () => {
 		});
 	});
 
-	it('exposes manual attach helper for existing resources', () => {
-		const resource = defineResource<MockThing, MockThingQuery>({
+	it('exposes manual attach helper for existing resources', async () => {
+		const resource = await defineResource<MockThing, MockThingQuery>({
 			name: 'thing',
 			routes: {
 				get: { path: '/wpk/v1/things/:id', method: 'GET' },
@@ -553,7 +566,7 @@ describe('resource hooks (UI integration)', () => {
 		expect(typeof resource.useGet).toBe('function');
 	});
 
-	it('handles SSR environment gracefully (window undefined)', () => {
+	it('handles SSR environment gracefully (window undefined)', async () => {
 		const descriptor = Object.getOwnPropertyDescriptor(
 			globalThis,
 			'window'
@@ -570,7 +583,10 @@ describe('resource hooks (UI integration)', () => {
 			value: undefined,
 		});
 
-		const resource = defineResourceWithHooks<MockThing, MockThingQuery>({
+		const resource = await defineResourceWithHooks<
+			MockThing,
+			MockThingQuery
+		>({
 			name: 'thing',
 			routes: {
 				get: { path: '/wpk/v1/things/:id', method: 'GET' },
@@ -649,7 +665,7 @@ describe('resource hooks (UI integration)', () => {
 		expect(resource.useList).toBeUndefined();
 	});
 
-	it('treats unknown list statuses as resolved', () => {
+	it('treats unknown list statuses as resolved', async () => {
 		mockWpData.useSelect.mockImplementation((callback: any) => {
 			const mockSelect = {
 				getList: jest.fn().mockReturnValue([]),
@@ -662,7 +678,10 @@ describe('resource hooks (UI integration)', () => {
 			return callback(() => mockSelect);
 		});
 
-		const resource = defineResourceWithHooks<MockThing, MockThingQuery>({
+		const resource = await defineResourceWithHooks<
+			MockThing,
+			MockThingQuery
+		>({
 			name: 'thing',
 			routes: {
 				list: { path: '/wpk/v1/things', method: 'GET' },
@@ -675,10 +694,10 @@ describe('resource hooks (UI integration)', () => {
 		expect(result.current.error).toBeUndefined();
 	});
 });
-function defineResourceWithHooks<T, Q>(
+async function defineResourceWithHooks<T, Q>(
 	config: Parameters<typeof defineResource<T, Q>>[0]
-) {
-	const resource = defineResource<T, Q>(config);
+): Promise<ResourceObject<T, Q>> {
+	const resource = await defineResource<T, Q>(config);
 	attachResourceHooks(resource);
 	return resource;
 }
