@@ -21,10 +21,6 @@ import { createActionMiddleware } from '../actions/middleware';
 import { wpkEventsPlugin } from './plugins/events';
 import { defineResource as baseDefineResource } from '../resource/define';
 import type { ResourceConfig, ResourceObject } from '../resource/types';
-import {
-	getCorePipelineConfig,
-	setCorePipelineConfig,
-} from '../configuration/flags';
 
 type CleanupTask = () => void;
 
@@ -77,7 +73,7 @@ function emitEvent(
 ): void {
 	if (!eventName || typeof eventName !== 'string') {
 		throw new WPKernelError('DeveloperError', {
-			message: 'kernel emit requires a non-empty string event name.',
+			message: 'WPKernel emit requires a non-empty string event name.',
 		});
 	}
 
@@ -100,18 +96,11 @@ export function configureWPKernel(
 	const namespace = resolveNamespace(options.namespace);
 	const reporter = resolveReporter(namespace, options.reporter);
 	const ui = normalizeUIConfig(options.ui);
-	const previousCorePipelineConfig = {
-		...getCorePipelineConfig(),
-	};
-	setCorePipelineConfig({ enabled: Boolean(options.corePipeline?.enabled) });
 
 	const events = getWPKernelEventBus();
 	setWPKernelEventBus(events);
 	setWPKernelReporter(reporter);
-	const cleanupTasks: CleanupTask[] = [
-		() => setCorePipelineConfig(previousCorePipelineConfig),
-		() => setWPKernelReporter(undefined),
-	];
+	const cleanupTasks: CleanupTask[] = [() => setWPKernelReporter(undefined)];
 	let uiRuntime: WPKernelUIRuntime | undefined;
 
 	if (
@@ -146,7 +135,7 @@ export function configureWPKernel(
 		});
 	}
 
-	const kernel: WPKInstance = {
+	const wpk: WPKInstance = {
 		getNamespace() {
 			return namespace;
 		},
@@ -175,7 +164,7 @@ export function configureWPKernel(
 				} catch (error) {
 					if (process.env.NODE_ENV === 'development') {
 						reporter.error(
-							'Kernel teardown failed',
+							'WPKernel teardown failed',
 							error instanceof Error
 								? error
 								: new Error(String(error))
@@ -194,7 +183,7 @@ export function configureWPKernel(
 			return uiRuntime;
 		},
 		attachUIBindings(attach: WPKernelUIAttach, attachOptions) {
-			uiRuntime = attach(kernel, attachOptions ?? ui.options);
+			uiRuntime = attach(wpk, attachOptions ?? ui.options);
 			return uiRuntime;
 		},
 		ui: {
@@ -212,21 +201,21 @@ export function configureWPKernel(
 				resourceConfig.reporter ??
 				reporter.child(`resource.${resourceName}`);
 
-			const shouldApplyKernelNamespace =
+			const shouldApplyWpkNamespace =
 				resourceConfig.namespace === undefined &&
 				!resourceConfig.name.includes(':');
 
 			return baseDefineResource<T, TQuery>({
 				...resourceConfig,
 				reporter: resourceReporter,
-				...(shouldApplyKernelNamespace ? { namespace } : {}),
+				...(shouldApplyWpkNamespace ? { namespace } : {}),
 			});
 		},
 	};
 
 	if (ui.attach && ui.enable) {
-		kernel.attachUIBindings(ui.attach, ui.options);
+		wpk.attachUIBindings(ui.attach, ui.options);
 	}
 
-	return kernel;
+	return wpk;
 }

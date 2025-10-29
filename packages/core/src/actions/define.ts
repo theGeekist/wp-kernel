@@ -9,12 +9,7 @@
  */
 
 import { WPKernelError } from '../error/WPKernelError';
-import {
-	createActionContext,
-	emitLifecycleEvent,
-	generateActionRequestId,
-	resolveOptions,
-} from './context';
+import { resolveOptions } from './context';
 import type {
 	ActionConfig,
 	DefinedAction,
@@ -22,9 +17,7 @@ import type {
 } from './types';
 import { getWPKernelEventBus, recordActionDefined } from '../events/bus';
 import { getNamespace } from '../namespace/detect';
-import { createActionLifecycleEvent, normalizeActionError } from './lifecycle';
 import { createActionPipeline } from '../pipeline/actions/createActionPipeline';
-import { isCorePipelineEnabled } from '../configuration/flags';
 
 /**
  * Define a WP Kernel action with lifecycle instrumentation and side-effect coordination.
@@ -259,22 +252,15 @@ export function defineAction<TArgs = void, TResult = void>(
 
 	const resolvedOptions = resolveOptions(options);
 
-	const legacyAction = createLegacyAction(config, resolvedOptions);
-	let pipelineBackedAction: DefinedAction<TArgs, TResult> | null = null;
-
+	const pipeline = createActionPipeline<TArgs, TResult>();
 	const action = async function executeAction(args: TArgs): Promise<TResult> {
-		if (!isCorePipelineEnabled()) {
-			return legacyAction(args);
-		}
+		const runResult = await pipeline.run({
+			config,
+			args,
+			resolvedOptions,
+		});
 
-		if (!pipelineBackedAction) {
-			pipelineBackedAction = createPipelineBackedAction(
-				config,
-				resolvedOptions
-			);
-		}
-
-		return pipelineBackedAction(args);
+		return runResult.artifact.result as TResult;
 	} as DefinedAction<TArgs, TResult>;
 
 	attachActionMetadata(action, name, resolvedOptions);
@@ -306,71 +292,4 @@ function attachActionMetadata<TArgs, TResult>(
 		enumerable: true,
 		writable: false,
 	});
-}
-
-function createLegacyAction<TArgs, TResult>(
-	config: ActionConfig<TArgs, TResult>,
-	resolvedOptions: ResolvedActionOptions
-): DefinedAction<TArgs, TResult> {
-	const { name, handler } = config;
-
-	return async function executeAction(args: TArgs): Promise<TResult> {
-		const requestId = generateActionRequestId();
-		const context = createActionContext(name, requestId, resolvedOptions);
-		const startEvent = createActionLifecycleEvent(
-			'start',
-			resolvedOptions,
-			name,
-			requestId,
-			context.namespace,
-			{ args }
-		);
-		emitLifecycleEvent(startEvent);
-		const startTime = performance.now();
-
-		try {
-			const result = await handler(context, args);
-			const duration = performance.now() - startTime;
-			const completeEvent = createActionLifecycleEvent(
-				'complete',
-				resolvedOptions,
-				name,
-				requestId,
-				context.namespace,
-				{ result, durationMs: duration }
-			);
-			emitLifecycleEvent(completeEvent);
-			return result;
-		} catch (error) {
-			const kernelError = normalizeActionError(error, name, requestId);
-			const duration = performance.now() - startTime;
-			const errorEvent = createActionLifecycleEvent(
-				'error',
-				resolvedOptions,
-				name,
-				requestId,
-				context.namespace,
-				{ error: kernelError, durationMs: duration }
-			);
-			emitLifecycleEvent(errorEvent);
-			throw kernelError;
-		}
-	} as DefinedAction<TArgs, TResult>;
-}
-
-function createPipelineBackedAction<TArgs, TResult>(
-	config: ActionConfig<TArgs, TResult>,
-	resolvedOptions: ResolvedActionOptions
-): DefinedAction<TArgs, TResult> {
-	const pipeline = createActionPipeline<TArgs, TResult>();
-
-	return async function executeAction(args: TArgs): Promise<TResult> {
-		const runResult = await pipeline.run({
-			config,
-			args,
-			resolvedOptions,
-		});
-
-		return runResult.artifact.result as TResult;
-	} as DefinedAction<TArgs, TResult>;
 }

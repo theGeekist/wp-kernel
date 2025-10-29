@@ -1,24 +1,16 @@
 import { createPipeline } from '../createPipeline';
-import type { PipelineDiagnostic } from '../types';
 import {
 	createActionContext,
 	generateActionRequestId,
 } from '../../actions/context';
-import type { Reporter } from '../../reporter/types';
 import { buildActionLifecycleFragment } from './helpers/buildActionLifecycleFragment';
 import { buildActionExecutionBuilder } from './helpers/buildActionExecutionBuilder';
 import type {
-	ActionBuilderHelper,
-	ActionBuilderInput,
-	ActionFragmentHelper,
-	ActionInvocationDraft,
-	ActionLifecycleFragmentInput,
-	ActionPipelineArtifact,
-	ActionPipelineBuildOptions,
-	ActionPipelineContext,
-	ActionPipelineRunOptions,
+	ActionPipeline,
+	ActionPipelineOptions,
 	ActionPipelineRunResult,
 } from './types';
+import { ACTION_BUILDER_KIND, ACTION_FRAGMENT_KIND } from './types';
 
 /**
  * Construct the action execution pipeline.
@@ -28,33 +20,38 @@ import type {
  * orchestration logic. Callers receive a pipeline instance that encapsulates
  * helper registration and exposes a `run` method mirroring the legacy action
  * flow.
+ *
+ * @example
+ * ```ts
+ * const pipeline = createActionPipeline<{ postId: number }, string>();
+ *
+ * pipeline.ir.use(createHelper({
+ *   key: 'action.audit',
+ *   kind: ACTION_FRAGMENT_KIND,
+ *   apply: ({ reporter, input }) => reporter.info('args', input.args),
+ * }));
+ *
+ * const result = await pipeline.run({
+ *   config: actionConfig,
+ *   args: { postId: 42 },
+ *   resolvedOptions: { scope: 'crossTab', bridged: true },
+ * });
+ *
+ * console.log(result.artifact.result);
+ * ```
  */
-export function createActionPipeline<TArgs, TResult>() {
-	const pipeline = createPipeline<
-		ActionPipelineRunOptions<TArgs, TResult>,
-		ActionPipelineBuildOptions<TArgs, TResult>,
-		ActionPipelineContext,
-		Reporter,
-		ActionInvocationDraft<TResult>,
-		ActionPipelineArtifact<TResult>,
-		PipelineDiagnostic,
-		ActionPipelineRunResult<TResult>,
-		ActionLifecycleFragmentInput<TArgs>,
-		ActionInvocationDraft<TResult>,
-		ActionBuilderInput<TArgs, TResult>,
-		ActionInvocationDraft<TResult>,
-		'core.action.fragment',
-		'core.action.builder',
-		ActionFragmentHelper<TArgs, TResult>,
-		ActionBuilderHelper<TArgs, TResult>
-	>({
-		fragmentKind: 'core.action.fragment',
-		builderKind: 'core.action.builder',
+export function createActionPipeline<TArgs, TResult>(): ActionPipeline<
+	TArgs,
+	TResult
+> {
+	const pipelineOptions = {
+		fragmentKind: ACTION_FRAGMENT_KIND,
+		builderKind: ACTION_BUILDER_KIND,
 		createBuildOptions(runOptions) {
 			return {
 				config: runOptions.config,
 				resolvedOptions: runOptions.resolvedOptions,
-			} satisfies ActionPipelineBuildOptions<TArgs, TResult>;
+			};
 		},
 		createContext(runOptions) {
 			const requestId = generateActionRequestId();
@@ -71,10 +68,10 @@ export function createActionPipeline<TArgs, TResult>() {
 				resolvedOptions: runOptions.resolvedOptions,
 				requestId,
 				actionContext,
-			} satisfies ActionPipelineContext;
+			};
 		},
 		createFragmentState() {
-			return {} as ActionInvocationDraft<TResult>;
+			return {};
 		},
 		createFragmentArgs({ options, context, draft }) {
 			return {
@@ -105,7 +102,10 @@ export function createActionPipeline<TArgs, TResult>() {
 				steps,
 			} satisfies ActionPipelineRunResult<TResult>;
 		},
-	});
+	} satisfies ActionPipelineOptions<TArgs, TResult>;
+
+	const pipeline: ActionPipeline<TArgs, TResult> =
+		createPipeline(pipelineOptions);
 
 	pipeline.ir.use(buildActionLifecycleFragment<TArgs, TResult>());
 	pipeline.builders.use(buildActionExecutionBuilder<TArgs, TResult>());

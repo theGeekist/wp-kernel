@@ -1,58 +1,52 @@
 import { createPipeline } from '../createPipeline';
-import type { PipelineDiagnostic } from '../types';
-import type { Reporter } from '../../reporter/types';
 import { buildResourceValidationFragment } from './helpers/buildResourceValidationFragment';
 import { buildResourceClientFragment } from './helpers/buildResourceClientFragment';
 import { buildResourceCacheKeysFragment } from './helpers/buildResourceCacheKeysFragment';
 import { buildResourceObjectBuilder } from './helpers/buildResourceObjectBuilder';
 import type {
-	ResourceBuilderHelper,
-	ResourceBuilderInput,
-	ResourceFragmentHelper,
-	ResourceFragmentInput,
-	ResourcePipelineArtifact,
-	ResourcePipelineBuildOptions,
-	ResourcePipelineContext,
-	ResourcePipelineDraft,
-	ResourcePipelineRunOptions,
+	ResourcePipeline,
+	ResourcePipelineOptions,
 	ResourcePipelineRunResult,
 } from './types';
+import { RESOURCE_BUILDER_KIND, RESOURCE_FRAGMENT_KIND } from './types';
 
-export function createResourcePipeline<T, TQuery>() {
-	const pipeline = createPipeline<
-		ResourcePipelineRunOptions<T, TQuery>,
-		ResourcePipelineBuildOptions<T, TQuery>,
-		ResourcePipelineContext<T, TQuery>,
-		Reporter,
-		ResourcePipelineDraft<T, TQuery>,
-		ResourcePipelineArtifact<T, TQuery>,
-		PipelineDiagnostic,
-		ResourcePipelineRunResult<T, TQuery>,
-		ResourceFragmentInput<T, TQuery>,
-		ResourcePipelineDraft<T, TQuery>,
-		ResourceBuilderInput<T, TQuery>,
-		ResourcePipelineArtifact<T, TQuery>,
-		'core.resource.fragment',
-		'core.resource.builder',
-		ResourceFragmentHelper<T, TQuery>,
-		ResourceBuilderHelper<T, TQuery>
-	>({
-		fragmentKind: 'core.resource.fragment',
-		builderKind: 'core.resource.builder',
+/**
+ * Construct the resource pipeline responsible for validating configuration,
+ * producing cache keys, creating clients, and building the final resource
+ * object.
+ *
+ * @example
+ * ```ts
+ * const pipeline = createResourcePipeline<Post, { id: number }>();
+ * const result = await pipeline.run({
+ *   config: resourceConfig,
+ *   normalizedConfig,
+ *   namespace: 'example/resources',
+ *   resourceName: 'Post',
+ *   reporter,
+ * });
+ *
+ * console.log(result.artifact.resource?.get.one({ id: 42 }));
+ * ```
+ */
+export function createResourcePipeline<T, TQuery>(): ResourcePipeline<
+	T,
+	TQuery
+> {
+	const pipelineOptions = {
+		fragmentKind: RESOURCE_FRAGMENT_KIND,
+		builderKind: RESOURCE_BUILDER_KIND,
 		createBuildOptions(runOptions) {
-			return { ...runOptions } satisfies ResourcePipelineBuildOptions<
-				T,
-				TQuery
-			>;
+			return { ...runOptions };
 		},
 		createContext(runOptions) {
 			return {
 				...runOptions,
 				storeKey: `${runOptions.namespace}/${runOptions.resourceName}`,
-			} satisfies ResourcePipelineContext<T, TQuery>;
+			};
 		},
 		createFragmentState() {
-			return {} as ResourcePipelineDraft<T, TQuery>;
+			return {};
 		},
 		createFragmentArgs({ options, context, draft }) {
 			return {
@@ -80,7 +74,10 @@ export function createResourcePipeline<T, TQuery>() {
 				steps,
 			} satisfies ResourcePipelineRunResult<T, TQuery>;
 		},
-	});
+	} satisfies ResourcePipelineOptions<T, TQuery>;
+
+	const pipeline: ResourcePipeline<T, TQuery> =
+		createPipeline(pipelineOptions);
 
 	pipeline.ir.use(buildResourceValidationFragment<T, TQuery>());
 	pipeline.ir.use(buildResourceClientFragment<T, TQuery>());

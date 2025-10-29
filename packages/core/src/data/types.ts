@@ -25,9 +25,6 @@ export interface ConfigureWPKernelOptions {
 	reporter?: Reporter;
 	middleware?: ReduxMiddleware[];
 	ui?: WPKUIConfig;
-	corePipeline?: {
-		enabled?: boolean;
-	};
 }
 
 export interface UIIntegrationOptions {
