@@ -34,7 +34,9 @@
 			"@wpkernel/scripts/*": ["./scripts/*"],
 			"@test-utils/*": ["./tests/test-utils/*"],
 			"@wpkernel/wp-json-ast": ["./packages/wp-json-ast/src/index.ts"],
-			"@wpkernel/wp-json-ast/*": ["./packages/wp-json-ast/src/*"]
+			"@wpkernel/wp-json-ast/*": ["./packages/wp-json-ast/src/*"],
+			"@wpkernel/create-wpk": ["./packages/create-wpk/src/index.ts"],
+			"@wpkernel/create-wpk/*": ["./packages/create-wpk/src/*"]
 		},
 
 		// Type Checking (Strict Mode)

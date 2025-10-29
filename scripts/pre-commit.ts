@@ -51,6 +51,12 @@ const TYPECHECK_TARGETS = {
 		packageName: '@wpkernel/cli',
 		directory: 'packages/cli/',
 	},
+	'create-wpk': {
+		label: 'Create bootstrap workspace',
+		filter: '@wpkernel/create-wpk',
+		packageName: '@wpkernel/create-wpk',
+		directory: 'packages/create-wpk/',
+	},
 	ui: {
 		label: 'UI workspace',
 		filter: '@wpkernel/ui',
