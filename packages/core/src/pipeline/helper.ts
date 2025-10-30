@@ -1,16 +1,16 @@
-import type { Reporter } from '../reporter/types';
 import type {
 	CreateHelperOptions,
 	Helper,
 	HelperKind,
 	MaybePromise,
+	PipelineReporter,
 } from './types';
 
 export function createHelper<
 	TContext,
 	TInput,
 	TOutput,
-	TReporter extends Reporter = Reporter,
+	TReporter extends PipelineReporter = PipelineReporter,
 	TKind extends HelperKind = HelperKind,
 >(
 	options: CreateHelperOptions<TContext, TInput, TOutput, TReporter, TKind>

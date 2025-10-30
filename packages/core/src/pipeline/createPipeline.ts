@@ -1,5 +1,4 @@
 import { WPKernelError } from '../error/index.js';
-import type { Reporter } from '../reporter/types';
 import type {
 	CreatePipelineOptions,
 	Helper,
@@ -9,6 +8,7 @@ import type {
 	MaybePromise,
 	Pipeline,
 	PipelineDiagnostic,
+	PipelineReporter,
 	PipelineExtension,
 	PipelineExtensionHook,
 	PipelineExtensionHookOptions,
@@ -469,7 +469,7 @@ function executeHelpers<
 	TContext,
 	TInput,
 	TOutput,
-	TReporter extends Reporter,
+	TReporter extends PipelineReporter,
 	TKind extends HelperKind,
 	THelper extends Helper<TContext, TInput, TOutput, TReporter, TKind>,
 	TArgs extends HelperApplyOptions<TContext, TInput, TOutput, TReporter>,
@@ -562,7 +562,7 @@ export function createPipeline<
 	TRunOptions,
 	TBuildOptions,
 	TContext extends { reporter: TReporter },
-	TReporter extends Reporter = Reporter,
+	TReporter extends PipelineReporter = PipelineReporter,
 	TDraft = unknown,
 	TArtifact = unknown,
 	TDiagnostic extends PipelineDiagnostic = PipelineDiagnostic,
@@ -1094,9 +1094,11 @@ export function createPipeline<
 				readonly errorMetadata: PipelineExtensionRollbackErrorMetadata;
 				readonly context: TContext;
 			}) => {
-				rollbackOptions.context.reporter.warn(
-					'Pipeline extension rollback failed.',
-					{
+				const { reporter } = rollbackOptions.context;
+				const warn = reporter.warn;
+
+				if (typeof warn === 'function') {
+					warn.call(reporter, 'Pipeline extension rollback failed.', {
 						error: rollbackOptions.error,
 						errorName: rollbackOptions.errorMetadata.name,
 						errorMessage: rollbackOptions.errorMetadata.message,
@@ -1104,8 +1106,8 @@ export function createPipeline<
 						errorCause: rollbackOptions.errorMetadata.cause,
 						extensions: rollbackOptions.extensionKeys,
 						hookKeys: rollbackOptions.hookSequence,
-					}
-				);
+					});
+				}
 			});
 
 		return {
