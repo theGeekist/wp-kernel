@@ -4,3 +4,4 @@ export * from './imports';
 export * from './route';
 export * from './types';
 export * from './module';
+export * from './pipeline';
