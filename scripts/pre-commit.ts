@@ -57,6 +57,18 @@ const TYPECHECK_TARGETS = {
 		packageName: '@wpkernel/create-wpk',
 		directory: 'packages/create-wpk/',
 	},
+	'intermediate-representation': {
+		label: 'Intermediate representation workspace',
+		filter: '@wpkernel/intermediate-representation',
+		packageName: '@wpkernel/intermediate-representation',
+		directory: 'packages/intermediate-representation/',
+	},
+	pipeline: {
+		label: 'Pipeline workspace',
+		filter: '@wpkernel/pipeline',
+		packageName: '@wpkernel/pipeline',
+		directory: 'packages/pipeline/',
+	},
 	ui: {
 		label: 'UI workspace',
 		filter: '@wpkernel/ui',

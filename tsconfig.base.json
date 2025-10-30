@@ -36,7 +36,15 @@
 			"@wpkernel/wp-json-ast": ["./packages/wp-json-ast/src/index.ts"],
 			"@wpkernel/wp-json-ast/*": ["./packages/wp-json-ast/src/*"],
 			"@wpkernel/create-wpk": ["./packages/create-wpk/src/index.ts"],
-			"@wpkernel/create-wpk/*": ["./packages/create-wpk/src/*"]
+			"@wpkernel/create-wpk/*": ["./packages/create-wpk/src/*"],
+			"@wpkernel/pipeline": ["./packages/pipeline/src/index.ts"],
+			"@wpkernel/pipeline/*": ["./packages/pipeline/src/*"],
+			"@wpkernel/intermediate-representation": [
+				"./packages/intermediate-representation/src/index.ts"
+			],
+			"@wpkernel/intermediate-representation/*": [
+				"./packages/intermediate-representation/src/*"
+			]
 		},
 
 		// Type Checking (Strict Mode)

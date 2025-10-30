@@ -50,6 +50,18 @@
 		},
 		{
 			"path": "./packages/create-wpk/tsconfig.tests.json"
+		},
+		{
+			"path": "./packages/pipeline"
+		},
+		{
+			"path": "./packages/pipeline/tsconfig.tests.json"
+		},
+		{
+			"path": "./packages/intermediate-representation"
+		},
+		{
+			"path": "./packages/intermediate-representation/tsconfig.tests.json"
 		}
 	]
 }
