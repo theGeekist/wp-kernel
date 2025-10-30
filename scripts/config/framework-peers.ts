@@ -37,6 +37,11 @@ export const FRAMEWORK_PEERS = {
 		peerRange: '>=4.32.0',
 		devRange: '^4.32.0',
 	},
+	'@wordpress/interactivity': {
+		kind: 'wordpress',
+		peerRange: '>=6.34.0',
+		devRange: '^6.34.0',
+	},
 	'@wordpress/i18n': {
 		kind: 'wordpress',
 		peerRange: '>=6.5.0',

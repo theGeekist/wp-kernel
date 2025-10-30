@@ -24,6 +24,7 @@ const REQUIRED_PEERS: Record<string, readonly string[]> = {
 		'@wordpress/data',
 		'@wordpress/element',
 		'@wordpress/hooks',
+		'@wordpress/interactivity',
 	],
 	'@wpkernel/e2e-utils': ['@wpkernel/core'],
 	'@wpkernel/php-driver': ['@wpkernel/core'],

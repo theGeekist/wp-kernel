@@ -1,5 +1,4 @@
 import { WPKernelError } from '../error/index.js';
-import type { Reporter } from '../reporter/types';
 import type {
 	CreatePipelineOptions,
 	Helper,
@@ -9,6 +8,7 @@ import type {
 	MaybePromise,
 	Pipeline,
 	PipelineDiagnostic,
+	PipelineReporter,
 	PipelineExtension,
 	PipelineExtensionHook,
 	PipelineExtensionHookOptions,
@@ -469,7 +469,7 @@ function executeHelpers<
 	TContext,
 	TInput,
 	TOutput,
-	TReporter extends Reporter,
+	TReporter extends PipelineReporter,
 	TKind extends HelperKind,
 	THelper extends Helper<TContext, TInput, TOutput, TReporter, TKind>,
 	TArgs extends HelperApplyOptions<TContext, TInput, TOutput, TReporter>,
@@ -562,7 +562,7 @@ export function createPipeline<
 	TRunOptions,
 	TBuildOptions,
 	TContext extends { reporter: TReporter },
-	TReporter extends Reporter = Reporter,
+	TReporter extends PipelineReporter = PipelineReporter,
 	TDraft = unknown,
 	TArtifact = unknown,
 	TDiagnostic extends PipelineDiagnostic = PipelineDiagnostic,
@@ -641,6 +641,8 @@ export function createPipeline<
 	const fragmentEntries: RegisteredHelper<TFragmentHelper>[] = [];
 	const builderEntries: RegisteredHelper<TBuilderHelper>[] = [];
 	const diagnostics: TDiagnostic[] = [];
+	const loggedDiagnosticsByReporter = new Map<TReporter, Set<TDiagnostic>>();
+	let diagnosticReporter: TReporter | undefined;
 	const extensionHooks: ExtensionHookEntry<
 		TContext,
 		TBuildOptions,
@@ -691,7 +693,7 @@ export function createPipeline<
 				kind,
 			} as unknown as TDiagnostic);
 
-		diagnostics.push(diagnostic);
+		emitDiagnostic(diagnostic);
 	}
 
 	function pushMissingDependencyDiagnosticFor(
@@ -715,7 +717,7 @@ export function createPipeline<
 				helper: helper.origin ?? helper.key,
 			} as unknown as TDiagnostic);
 
-		diagnostics.push(diagnostic);
+		emitDiagnostic(diagnostic);
 	}
 
 	function pushUnusedHelperDiagnosticFor(
@@ -739,7 +741,34 @@ export function createPipeline<
 				dependsOn,
 			} as unknown as TDiagnostic);
 
+		emitDiagnostic(diagnostic);
+	}
+
+	function logDiagnostic(diagnostic: TDiagnostic): void {
+		if (!diagnosticReporter || !options.onDiagnostic) {
+			return;
+		}
+
+		const loggedForReporter =
+			loggedDiagnosticsByReporter.get(diagnosticReporter);
+		if (loggedForReporter?.has(diagnostic)) {
+			return;
+		}
+
+		const trackingSet = loggedForReporter ?? new Set<TDiagnostic>();
+		options.onDiagnostic({
+			reporter: diagnosticReporter,
+			diagnostic,
+		});
+		trackingSet.add(diagnostic);
+		if (!loggedForReporter) {
+			loggedDiagnosticsByReporter.set(diagnosticReporter, trackingSet);
+		}
+	}
+
+	function emitDiagnostic(diagnostic: TDiagnostic): void {
 		diagnostics.push(diagnostic);
+		logDiagnostic(diagnostic);
 	}
 
 	function reportUnusedHelpers<THelper extends HelperDescriptor>(
@@ -949,6 +978,10 @@ export function createPipeline<
 	function createRunContext(runOptions: TRunOptions): PipelineRunContext {
 		const buildOptions = options.createBuildOptions(runOptions);
 		const context = options.createContext(runOptions);
+		diagnosticReporter = context.reporter;
+		for (const diagnostic of diagnostics) {
+			logDiagnostic(diagnostic);
+		}
 		const draft = options.createFragmentState({
 			options: runOptions,
 			context,
@@ -1061,9 +1094,11 @@ export function createPipeline<
 				readonly errorMetadata: PipelineExtensionRollbackErrorMetadata;
 				readonly context: TContext;
 			}) => {
-				rollbackOptions.context.reporter.warn(
-					'Pipeline extension rollback failed.',
-					{
+				const { reporter } = rollbackOptions.context;
+				const warn = reporter.warn;
+
+				if (typeof warn === 'function') {
+					warn.call(reporter, 'Pipeline extension rollback failed.', {
 						error: rollbackOptions.error,
 						errorName: rollbackOptions.errorMetadata.name,
 						errorMessage: rollbackOptions.errorMetadata.message,
@@ -1071,8 +1106,8 @@ export function createPipeline<
 						errorCause: rollbackOptions.errorMetadata.cause,
 						extensions: rollbackOptions.extensionKeys,
 						hookKeys: rollbackOptions.hookSequence,
-					}
-				);
+					});
+				}
 			});
 
 		return {
