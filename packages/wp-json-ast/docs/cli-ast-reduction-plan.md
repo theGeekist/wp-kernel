@@ -302,7 +302,47 @@ _Completion:_ ☑ Completed – exported `ResolvedNumberIdentity` / `ResolvedStr
 
 _Task 3.1: Refine CLI builders into pipelines._ Replace direct orchestration of AST fragments with declarative pipelines (for example `createWpRestControllerHelper` combined with helper components). Each task should focus on one builder, swapping its internal implementation for a pipeline that stitches together the factories established in Phase 2.
 
-_Completion:_ ☑ Completed – resource controller helper now reduces IR into `RestControllerResourcePlan` and delegates to `buildRestControllerModuleFromPlan`
+_Completion:_ ☐ Pending – controller helper landed, but remaining PHP helpers still need planner alignment, namespace parity, and coverage updates tracked below.
+
+**Subtask 3.1.a – Align base and index helpers with the shared planner.**
+
+- **Context:** `packages/cli/src/next/builders/php/baseController.ts` and `packages/cli/src/next/builders/php/indexFile.ts` still instantiate `createWpPhpFileBuilder` directly and bypass `buildProgramTargetPlanner`.
+- **Intent:** Route the base controller and index programs through the planner so file-path derivation, docblock prefixing, and queue diagnostics match the REST controller helper.
+- **Expected outcome:** Both helpers enqueue planner actions with the shared docblock prefix, emit consistent reporter messages, and have unit coverage under `packages/cli/src/next/builders/php/__tests__/` asserting the queued descriptors.
+
+_Completion:_ ☑ Completed – Routed the base controller and index helpers through `buildProgramTargetPlanner`, applied the shared docblock prefix, and extended tests to confirm the queued descriptors.
+
+**Subtask 3.1.b – Normalise planner metadata for capability and persistence helpers.**
+
+- **Context:** `packages/cli/src/next/builders/php/capability.ts` and `packages/cli/src/next/builders/php/persistenceRegistry.ts` call `buildProgramTargetPlanner` without supplying the shared docblock prefix, leaving reporter output inconsistent with other helpers.
+- **Intent:** Feed the planner the canonical docblock prefix (for example `DEFAULT_DOC_HEADER`) and align queued file diagnostics across helpers.
+- **Expected outcome:** Capability and persistence queues capture the prefixed docblocks, emit matching reporter messages, and tests spy on the planner to confirm the normalised metadata payloads.
+
+_Completion:_ ☐ Pending – update once planner options and tests are in place.
+
+**Subtask 3.1.c – Migrate block artefacts onto the planner surface.**
+
+- **Context:** `packages/cli/src/next/builders/php/blocks.ts` writes registrar, manifest, and render stub artefacts manually via workspace transactions instead of the shared planner.
+- **Intent:** Convert block module outputs into planner descriptors (including docblock prefixes) and stage non-PHP artefacts through a consistent queue so reporter behaviour matches other helpers.
+- **Expected outcome:** Block helpers queue planner actions for each generated file, move manual writes behind a shared pipeline primitive, and ship tests asserting planner usage and stub placement.
+
+_Completion:_ ☐ Pending – document completion when the block pipeline adopts the planner.
+
+**Subtask 3.1.d – Resolve capability namespace parity between helpers.**
+
+- **Context:** `packages/cli/src/next/builders/php/resourceController.ts` injects `${ir.php.namespace}\Capability\Capability` into the REST plan even though `createPhpCapabilityHelper` emits classes under `${ir.php.namespace}\Generated\Capability`.
+- **Intent:** Synchronise namespace derivation so generated controllers import the actual capability class produced by the capability helper.
+- **Expected outcome:** REST controllers referencing capabilities import the generated namespace, associated tests cover a capability-protected route, and reporter output confirms the expected permission callback wiring.
+
+_Completion:_ ☐ Pending – mark complete once namespace updates and tests merge.
+
+**Subtask 3.1.e – Add coverage for capability-protected routes.**
+
+- **Context:** Current fixtures and tests only validate routes without capability requirements, leaving permission callback plumbing unverified.
+- **Intent:** Introduce integration fixtures (for example under `packages/cli/src/next/builders/php/__tests__/fixtures/`) that exercise capability-secured routes and assert generated imports, metadata, and planner queue entries.
+- **Expected outcome:** Test suites fail without the namespace fix above, succeed once parity is restored, and future regressions surface through the dedicated capability-route coverage.
+
+_Completion:_ ☐ Pending – replace with PR link once the fixtures and assertions land.
 
 _Task 3.2: Expand composable helper library._ Build lightweight adapters that compose multiple factories (such as REST controllers plus capability helpers) so the CLI can generate complex files by chaining configuration objects. Document these adapters and ensure integration tests cover the composed output.
 
