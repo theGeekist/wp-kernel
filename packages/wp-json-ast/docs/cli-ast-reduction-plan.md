@@ -356,9 +356,10 @@ Document the remaining AST-heavy helpers and promote them into first-class facto
 
 - `packages/cli/src/next/builders/php/resourceController/routes/handleRouteKind.ts` (route fan-out, TODO stub statements) → `buildResourceControllerRouteSet`, wrapped by `createPhpResourceControllerHelper`.
 - `packages/cli/src/next/builders/php/resource/wpPost/**` (route fan-out plus mutation macros) → `buildWpPostRouteBundle`, wrapped by `createPhpWpPostRoutesHelper` feeding `createPhpResourceControllerHelper`.
-- `packages/cli/src/next/builders/php/resourceController/storage/wpOption.ts` → `buildWpOptionStorageArtifacts`, wrapped by `createPhpWpOptionStorageHelper`.
-- `packages/cli/src/next/builders/php/resourceController/storage/transient.ts` → `buildTransientStorageArtifacts`, wrapped by `createPhpTransientStorageHelper`.
-- `packages/cli/src/next/builders/php/resourceController/storage/taxonomy.ts` → `buildWpTaxonomyStorageArtifacts`, wrapped by `createPhpWpTaxonomyStorageHelper`.
+- `packages/cli/src/next/builders/php/resource/wpOption/**` (routes, helpers, shared metadata) → `buildWpOptionStorageArtifacts`, wrapped by `createPhpWpOptionStorageHelper`.
+- `packages/cli/src/next/builders/php/resource/transient/**` (routes, helpers, shared metadata) → `buildTransientStorageArtifacts`, wrapped by `createPhpTransientStorageHelper`.
+- `packages/cli/src/next/builders/php/resource/wpTaxonomy/helpers.ts` & `index.ts` → `buildWpTaxonomyHelperArtifacts`, wrapped by `createPhpWpTaxonomyStorageHelper`.
+- `packages/cli/src/next/builders/php/resource/wpTaxonomy/list.ts` & `get.ts` → `buildWpTaxonomyQueryRouteBundle`, wrapped by `createPhpWpTaxonomyStorageHelper` and route adapters.
 - `packages/cli/src/next/builders/php/baseController.ts` & `indexFile.ts` (post-factory module wrapping) → `buildGeneratedModuleProgram`, wrapped by `createPhpBaseControllerHelper` and `createPhpIndexFileHelper`.
 
 > Naming-rule audit: base and index helpers still append statements after calling `build*` exports. Migrating `compileModuleProgram` into `buildGeneratedModuleProgram` keeps the CLI on the `create*` side of the boundary.
@@ -368,6 +369,7 @@ Document the remaining AST-heavy helpers and promote them into first-class facto
 - **Context:** `packages/cli/src/next/builders/php/resourceController/routes/handleRouteKind.ts` fans out to storage-specific helpers that return raw `PhpStmt[]`, so `createPhpResourceControllerHelper` still assembles route statements.
 - **Intent:** Add `src/rest-controller/routes/buildResourceControllerRouteSet.ts` that accepts the existing `RestControllerRoutePlan` payload and emits route/fallback statements plus TODO stubs.
 - **Expected outcome:** The CLI imports `buildResourceControllerRouteSet`, deletes local `PhpStmt` assembly, and unit tests cover route permutations (storage, TODO stubs, capability fallbacks) inside `wp-json-ast`.
+- _Completion:_ ☑ Completed – introduced the shared route-set factory, migrated the CLI planner to consume it, and added unit tests covering default, option, and transient flows.
 
 **Subtask 3.2.b – Expose `buildWpPostRouteBundle`.**
 
@@ -375,13 +377,31 @@ Document the remaining AST-heavy helpers and promote them into first-class facto
 - **Intent:** Create `src/resource/wp-post/buildWpPostRouteBundle.ts` returning the route statements, helper methods, and metadata so the CLI can fetch them in one call.
 - **Expected outcome:** `createPhpWpPostRoutesHelper` (added in Phase 3.3) receives the bundle, the CLI drops `PhpStmt` imports across WP_Post modules, and tests in `packages/wp-json-ast/tests/resource/wp-post/` exercise each mutation contract.
 
-**Subtask 3.2.c – Publish storage-mode factories.**
+**Subtask 3.2.c – Publish `buildWpOptionStorageArtifacts`.**
 
-- **Context:** Option, transient, and taxonomy helpers construct helper methods and route statements directly in the CLI (`buildWpOption*`, `buildTransient*`, `buildTaxonomy*`).
-- **Intent:** Introduce `buildWpOptionStorageArtifacts`, `buildTransientStorageArtifacts`, and `buildWpTaxonomyStorageArtifacts` under `src/resource/storage/`, each returning helper method descriptors and metadata wiring.
-- **Expected outcome:** The CLI migrates to storage-specific `create*` adapters, unit tests validate per-mode helper emission, and resource controllers consume the artifacts without touching AST nodes.
+- **Context:** `packages/cli/src/next/builders/php/resource/wpOption/{helpers,routes,shared}.ts` assembles helper methods, cache metadata, and CRUD route statements as raw `PhpStmt[]` before handing them to the resource controller planner.
+- **Intent:** Add `src/resource/storage/wpOption/buildWpOptionStorageArtifacts.ts` that accepts the existing option storage IR (primary key, sanitizers, mutation contracts) and returns helper descriptors plus route fragments for create/read/update/delete flows.
+- **Expected outcome:** `createPhpWpOptionStorageHelper` becomes a thin adapter over the new factory, tests under `packages/wp-json-ast/tests/resource/storage/wpOption/` cover metadata wiring and WP_Error guards, and the CLI stops touching option-specific AST nodes.
 
-**Subtask 3.2.d – Move module wrapping into `buildGeneratedModuleProgram`.**
+**Subtask 3.2.d – Publish `buildTransientStorageArtifacts`.**
+
+- **Context:** `packages/cli/src/next/builders/php/resource/transient/{helpers,routes,shared}.ts` still crafts transient get/set/delete flows, expiration handling, and cache invalidation statements inline.
+- **Intent:** Introduce `src/resource/storage/transient/buildTransientStorageArtifacts.ts` that transforms the transient storage IR (keys, expiration config, cache segments) into helper methods and route statements with shared metadata annotations.
+- **Expected outcome:** `createPhpTransientStorageHelper` delegates entirely to the factory, transient-specific metadata lives in `wp-json-ast`, and tests under `packages/wp-json-ast/tests/resource/storage/transient/` assert expiration handling and reporter warnings.
+
+**Subtask 3.2.e – Extract taxonomy helper factories.**
+
+- **Context:** `packages/cli/src/next/builders/php/resource/wpTaxonomy/{helpers,index}.ts` emits helper methods for term resolution, mutation scaffolding, and shared metadata using raw `PhpStmt` builders.
+- **Intent:** Provide `src/resource/wp-taxonomy/buildWpTaxonomyHelperArtifacts.ts` that receives the taxonomy storage IR (term resolver config, mutation callbacks, shared metadata hosts) and returns helper method descriptors plus reusable metadata blocks.
+- **Expected outcome:** The CLI imports the new factory when constructing taxonomy routes, unit tests under `packages/wp-json-ast/tests/resource/wp-taxonomy/helpers/` verify term resolution guards and metadata annotations, and helper assembly moves out of the CLI.
+
+**Subtask 3.2.f – Bundle taxonomy list/get routes.**
+
+- **Context:** `packages/cli/src/next/builders/php/resource/wpTaxonomy/{list,get}.ts` orchestrates `WP_Term_Query`, pagination plumbing, and single-term lookups with bespoke AST assembly separate from the helper surface above.
+- **Intent:** Create `src/resource/wp-taxonomy/buildWpTaxonomyQueryRouteBundle.ts` that composes list and get route statements (including pagination, cache metadata, and WP_Error guards) from the taxonomy IR and the helper artifacts produced in Subtask 3.2.e.
+- **Expected outcome:** Taxonomy list/get planners in the CLI fetch the bundle instead of emitting statements directly, tests under `packages/wp-json-ast/tests/resource/wp-taxonomy/query/` cover success and error flows, and taxonomy query AST logic resides entirely in `wp-json-ast`.
+
+**Subtask 3.2.g – Move module wrapping into `buildGeneratedModuleProgram`.**
 
 - **Context:** `createPhpBaseControllerHelper` and `createPhpIndexFileHelper` call `compileModuleProgram` to prepend strict types, namespaces, and docblocks even after delegating to `build*` factories.
 - **Intent:** Export `buildGeneratedModuleProgram` (likely under `src/module/`) that accepts the module metadata and returns the fully wrapped `PhpProgram` so the CLI helpers only enqueue planner descriptors.
