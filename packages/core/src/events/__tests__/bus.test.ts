@@ -9,6 +9,7 @@ import {
 	recordResourceDefined,
 } from '../bus';
 import { createReporter } from '../../reporter';
+import { resetReporterResolution } from '../../reporter/resolve';
 
 jest.mock('../../reporter', () => {
 	const createMockReporter = () => {
@@ -25,6 +26,7 @@ jest.mock('../../reporter', () => {
 
 	return {
 		createReporter: jest.fn(() => createMockReporter()),
+		createNoopReporter: jest.fn(() => createMockReporter()),
 	};
 });
 
@@ -32,6 +34,7 @@ const mockCreateReporter = createReporter as jest.MockedFunction<
 	typeof createReporter
 >;
 const originalEnv = process.env.NODE_ENV;
+let originalSilentFlag: string | undefined;
 
 describe('WPKernelEventBus', () => {
 	beforeEach(() => {
@@ -39,6 +42,17 @@ describe('WPKernelEventBus', () => {
 		clearRegisteredActions();
 		mockCreateReporter.mockClear();
 		process.env.NODE_ENV = originalEnv;
+		originalSilentFlag = process.env.WPK_SILENT_REPORTERS;
+		delete process.env.WPK_SILENT_REPORTERS;
+		resetReporterResolution();
+	});
+
+	afterEach(() => {
+		if (typeof originalSilentFlag === 'undefined') {
+			delete process.env.WPK_SILENT_REPORTERS;
+		} else {
+			process.env.WPK_SILENT_REPORTERS = originalSilentFlag;
+		}
 	});
 
 	it('emits events to registered listeners', () => {

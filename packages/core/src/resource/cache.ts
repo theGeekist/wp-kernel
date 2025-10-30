@@ -1,9 +1,6 @@
-import {
-	createNoopReporter,
-	createReporter,
-	getWPKernelReporter,
-} from '../reporter';
+import { createReporter, getWPKernelReporter } from '../reporter';
 import type { Reporter } from '../reporter';
+import { resolveReporter } from '../reporter/resolve';
 import { WPK_EVENTS, WPK_SUBSYSTEM_NAMESPACES } from '../contracts/index.js';
 import { getWPKernelEventBus } from '../events/bus';
 import type { WPKernelRegistry } from '../data/types';
@@ -35,11 +32,7 @@ type DispatchWithInvalidate = {
  * Accepts a single pattern or an array of patterns.
  * @param patterns
  */
-const FALLBACK_CACHE_REPORTER = createReporter({
-	namespace: WPK_SUBSYSTEM_NAMESPACES.CACHE,
-	channel: 'console',
-	level: 'debug',
-});
+const CACHE_REPORTER_CACHE_KEY = `${WPK_SUBSYSTEM_NAMESPACES.CACHE}.cache`;
 
 const CACHE_LOG_MESSAGES = {
 	request: 'cache.invalidate.request',
@@ -53,20 +46,20 @@ const CACHE_LOG_MESSAGES = {
 } as const;
 
 function resolveCacheReporter(provided?: Reporter): Reporter {
-	if (provided) {
-		return provided;
-	}
-
 	const kernelReporter = getWPKernelReporter();
-	if (kernelReporter) {
-		return kernelReporter.child('cache');
-	}
 
-	if (process.env.WPK_SILENT_REPORTERS === '1') {
-		return createNoopReporter();
-	}
-
-	return FALLBACK_CACHE_REPORTER;
+	return resolveReporter({
+		override: provided,
+		runtime: kernelReporter?.child('cache'),
+		fallback: () =>
+			createReporter({
+				namespace: WPK_SUBSYSTEM_NAMESPACES.CACHE,
+				channel: 'console',
+				level: 'debug',
+			}),
+		cache: true,
+		cacheKey: CACHE_REPORTER_CACHE_KEY,
+	});
 }
 
 function toPatternsArray(

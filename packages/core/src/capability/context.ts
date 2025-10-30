@@ -17,6 +17,7 @@
 import { WPKernelError } from '../error/WPKernelError';
 import type { ActionRuntime } from '../actions/types';
 import { createReporter } from '../reporter';
+import { resolveReporter } from '../reporter/resolve';
 import { WPK_SUBSYSTEM_NAMESPACES } from '../contracts/index.js';
 import type { CapabilityHelpers } from './types';
 
@@ -31,11 +32,18 @@ export type CapabilityProxyOptions = {
 type CapabilityRequestContext = CapabilityProxyOptions;
 
 let currentContext: CapabilityRequestContext | undefined;
-const capabilityContextReporter = createReporter({
-	namespace: WPK_SUBSYSTEM_NAMESPACES.POLICY,
-	channel: 'console',
-	level: 'warn',
-});
+function getCapabilityContextReporter() {
+	return resolveReporter({
+		fallback: () =>
+			createReporter({
+				namespace: WPK_SUBSYSTEM_NAMESPACES.POLICY,
+				channel: 'console',
+				level: 'warn',
+			}),
+		cache: true,
+		cacheKey: `${WPK_SUBSYSTEM_NAMESPACES.POLICY}.context`,
+	});
+}
 
 export function getCapabilityRuntime(): ActionRuntime | undefined {
 	return globalThis.__WP_KERNEL_ACTION_RUNTIME__;
@@ -158,7 +166,7 @@ export function createCapabilityProxy(
 			const runtimeCapability = getCapabilityRuntime()?.capability;
 			if (!runtimeCapability?.can) {
 				if (!warned && process.env.NODE_ENV !== 'production') {
-					capabilityContextReporter.warn(
+					getCapabilityContextReporter().warn(
 						`Action "${options.actionName}" called capability.can('${key}') but no capability runtime is configured.`
 					);
 					warned = true;
