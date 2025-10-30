@@ -7,6 +7,7 @@ import type {
 import {
 	buildPersistenceRegistryModule,
 	buildProgramTargetPlanner,
+	DEFAULT_DOC_HEADER,
 	type PersistenceRegistryResourceConfig,
 } from '@wpkernel/wp-json-ast';
 import type { IRv1 } from '../../ir/publicTypes';
@@ -35,6 +36,7 @@ export function createPhpPersistenceRegistryHelper(): BuilderHelper {
 				workspace: options.context.workspace,
 				outputDir: ir.php.outputDir,
 				channel: getPhpBuilderChannel(options.context),
+				docblockPrefix: DEFAULT_DOC_HEADER,
 			});
 
 			planner.queueFiles({ files: module.files });
