@@ -70,7 +70,8 @@
 		"docs:build": "pnpm docs:api && pnpm docs:site",
 		"docs:build:fast": "pnpm docs:api && pnpm docs:site:fast",
 		"docs:preview": "vitepress preview docs",
-		"preinstall": "npx only-allow pnpm"
+		"preinstall": "npx only-allow pnpm",
+		"refresh": "pnpm i && pnpm build && pnpm docs:build && pnpm lint --fix && pnpm format && git add --all"
 	},
 	"devDependencies": {
 		"@braintree/sanitize-url": "^7.1.1",
