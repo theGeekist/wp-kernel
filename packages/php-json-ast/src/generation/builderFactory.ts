@@ -165,7 +165,7 @@ export function serialisePhpBuilderFactoryIntent(
 	return `${JSON.stringify(intent, null, 2)}\n`;
 }
 
-export function createPhpTypeFromString(
+export function derivePhpTypeFromString(
 	type: string | null | undefined
 ): PhpType | null {
 	if (!type) {
@@ -185,7 +185,7 @@ export function createPhpTypeFromString(
 	return buildIdentifier(type);
 }
 
-export function createPhpNameFromString(name: string): PhpName {
+export function derivePhpNameFromString(name: string): PhpName {
 	if (name.startsWith('\\')) {
 		const parts = name.replace(/^\\/u, '').split('\\');
 		return buildFullyQualifiedName(parts);
@@ -195,7 +195,7 @@ export function createPhpNameFromString(name: string): PhpName {
 	return buildName(parts);
 }
 
-export function createExpressionFromLiteral(
+export function convertLiteralToExpression(
 	literal: PhpBuilderFactoryLiteral
 ): PhpExpr {
 	switch (literal.kind) {
@@ -218,14 +218,14 @@ export function createExpressionFromLiteral(
 	}
 }
 
-export function createArgumentFromBuilderIntent(
+export function convertBuilderIntentToArgument(
 	argument: PhpBuilderFactoryArgument
 ): PhpArg {
 	switch (argument.kind) {
 		case 'parameter':
 			return buildArg(buildVariable(argument.name));
 		case 'literal':
-			return buildArg(createExpressionFromLiteral(argument.literal));
+			return buildArg(convertLiteralToExpression(argument.literal));
 		default: {
 			const exhaustiveCheck: never = argument;
 			throw new Error(
@@ -235,7 +235,7 @@ export function createArgumentFromBuilderIntent(
 	}
 }
 
-export function createMethodStepStatements(
+export function expandMethodStepToStatements(
 	step: PhpBuilderFactoryMethodStep
 ): readonly PhpStmt[] {
 	switch (step.kind) {
@@ -258,9 +258,9 @@ export function createMethodStepStatements(
 			return [buildReturn(propertyFetch)];
 		}
 		case 'returnNew': {
-			const target = createPhpNameFromString(step.className);
+			const target = derivePhpNameFromString(step.className);
 			const args = (step.arguments ?? []).map((argument) =>
-				createArgumentFromBuilderIntent(argument)
+				convertBuilderIntentToArgument(argument)
 			);
 			return [buildReturn(buildNew(target, args))];
 		}
@@ -280,10 +280,10 @@ export function flattenMethodSteps(
 		return [];
 	}
 
-	return steps.flatMap((step) => createMethodStepStatements(step));
+	return steps.flatMap((step) => expandMethodStepToStatements(step));
 }
 
-export function createPhpProgramFromBuilderFactory(
+export function assemblePhpProgramFromBuilderFactory(
 	statements: readonly PhpStmt[]
 ): PhpProgram {
 	return [...statements];
