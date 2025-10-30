@@ -29,3 +29,11 @@ readonly after: PhpProgram;
 ```ts
 readonly visitors: readonly PhpProgramCodemodVisitorSummary[];
 ```
+
+---
+
+### diagnostics?
+
+```ts
+readonly optional diagnostics: PhpProgramCodemodDiagnostics;
+```
