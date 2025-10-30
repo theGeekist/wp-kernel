@@ -112,11 +112,20 @@ writer call will also emit:
 - `<file>.codemod.after.ast.json` – the transformed AST (mirrors `<file>.ast.json`).
 - `<file>.codemod.summary.txt` – visitor metadata, SHA hashes for each AST, and
   a capped list of structural differences (`Change detected: yes/no`).
+- `<file>.codemod.before.dump.txt` – `NodeDumper` output for the pre-visitor tree
+  (emitted when diagnostics mode is enabled).
+- `<file>.codemod.after.dump.txt` – `NodeDumper` output for the transformed tree
+  (emitted when diagnostics mode is enabled).
 
 During review, diff the summary to see which visitors ran and what changed; the
 before/after AST snapshots provide deeper inspection when necessary. No extra
 flags are required-any CLI build that threads a codemod configuration through
 `createPhpProgramWriterHelper()` will receive the diagnostics bundle.
+
+To capture the NodeDumper dumps, enable diagnostics in your configuration with
+`"diagnostics": { "nodeDumps": true }` or pass `--diagnostics` when invoking
+`ingest-program.php`. The dumps mirror the streamed PHP diagnostics and surface
+flags, attributes, and replacements for the before/after programs.
 
 ## 5. Next steps
 

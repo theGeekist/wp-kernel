@@ -132,11 +132,11 @@ This roadmap captures how `@wpkernel/php-json-ast` can evolve now that `nikic/ph
 
 ##### Task 8 - Layer diagnostics and dumps
 
-> **Task status:** Pending – Document diagnostics mode behaviour and test anchors after delivery.
+> **Task status:** Complete – Diagnostics mode now persists NodeDumper dumps with cross-runtime toggles and regression coverage.
 
-- Introduce a diagnostics mode that pipes transformed nodes through `NodeDumper` and archives the output next to the existing JSON artefacts.
-- Surface toggles in both PHP and TypeScript so the mode can run in CI or local experiments without code edits.
-- Add smoke tests ensuring diagnostics capture flags, attributes, and replacements accurately.
+- `persistCodemodDiagnostics` writes `.codemod.before.dump.txt` and `.codemod.after.dump.txt` alongside the existing JSON snapshots, normalising trailing newlines so automation can diff the results consistently.
+- `php/ingest-program.php` accepts a `--diagnostics` flag and recognises `diagnostics.nodeDumps` in codemod configuration files. When enabled, codemod executions capture NodeDumper output (including flags, attributes, and replacements) for both the pre- and post-visitor trees.
+- TypeScript consumers can toggle diagnostics through `PhpCodemodConfiguration.diagnostics`, and integration tests assert the dumps surface modifier flags and attribute payloads while mirroring the streamed diagnostics in the emitted files.
   _Expectation: Debug builds surface rich context (flags, attributes, replacements) whenever a codemod modifies the tree._
 
 ##### Task 9 - Prototype generation helpers with `BuilderFactory`

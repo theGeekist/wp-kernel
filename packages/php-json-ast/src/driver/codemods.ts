@@ -12,6 +12,11 @@ export interface PhpCodemodStackConfiguration {
 
 export interface PhpCodemodConfiguration {
 	readonly stacks: ReadonlyArray<PhpCodemodStackConfiguration>;
+	readonly diagnostics?: PhpCodemodDiagnosticsConfiguration;
+}
+
+export interface PhpCodemodDiagnosticsConfiguration {
+	readonly nodeDumps?: boolean;
 }
 
 export const DEFAULT_CODEMOD_STACK_KEY = 'ingest.before-print';
