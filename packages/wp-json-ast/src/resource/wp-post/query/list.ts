@@ -1,6 +1,5 @@
 import {
 	buildArg,
-	buildArray,
 	buildAssign,
 	buildContinue,
 	buildExpressionStatement,
@@ -14,18 +13,17 @@ import {
 	type PhpStmt,
 	type PhpStmtForeach,
 } from '@wpkernel/php-json-ast';
+
 import {
 	buildArrayDimFetch,
+	buildArrayInitialiserStatement,
 	buildBooleanNot,
 	buildInstanceof,
 	buildPropertyFetch,
-	// buildArrayInitialiserStatement,
-} from '../utils';
+} from '../../common/utils';
 
 export function buildListItemsInitialiserStatement(): PhpStmt {
-	return buildExpressionStatement(
-		buildAssign(buildVariable('items'), buildArray([]))
-	);
+	return buildArrayInitialiserStatement({ variable: 'items' });
 }
 
 export interface ListForeachOptions {

@@ -222,19 +222,41 @@ These factories emit structured artifacts (`{ helper, metadata }`) so downstream
 3. Cover the exported surface with fixtures in `packages/wp-json-ast/tests/resource/`, snapshotting request plumbing and mutation payloads to ensure parity with the CLI implementations.
 4. Update the CLI resource controller and persistence registry helpers to consume `buildResourceAccessors`, deleting the inline AST assembly and keeping only the IR-to-config translation.
 
-#### Task 2.6 Follow-up subtasks - parity and reuse
+#### Task 2.6 Subtasks - staged resource extraction
 
-**Subtask 2.6.a - Centralise resource error envelopes.** Extract `errors.ts` and related helpers into `src/resource/errors/` so both controllers and persistence payloads rely on the same WP_Error composition primitives.
+Breaking Task 2.6 into storage-aware subtasks keeps each migration focused and aligns with the Phase 3.2 bundles. The goal is to land shared plumbing inside `@wpkernel/wp-json-ast` first so Phase 3.2 can compose declarative bundles without re-porting helpers.
 
-_Completion:_ ☑ Completed - moved WP_Error envelopes and expression helpers to `src/resource/errors.ts` and replaced CLI imports.
+**Subtask 2.6.a – Scaffold `buildResourceAccessors` registry.** Stand up `src/resource/accessors/` with the top-level `buildResourceAccessors` export and storage-specific registration hooks that surface request/query/mutation/cache descriptors. Add smoke tests in `tests/resource/accessors/` and update the CLI to call the new entry point while still consuming CLI-hosted helpers.
 
-**Subtask 2.6.b - Share scalar and enum normalisers.** Relocate the `phpValue` and request schema normalisation helpers into `src/resource/common/`, ensuring every factory consumes a single implementation for casting and enum validation.
+_Completion:_ ☑ Completed – Introduced accessor registry surface with smoke coverage and wired the CLI to consume it.
 
-_Completion:_ ☑ Completed - scalar/enum normalisers live under `src/resource/common/phpValue.ts` (and related utilities); CLI-specific variants removed.
+**Subtask 2.6.b – Port WP_Post query helpers.** Move list, meta query, and taxonomy query helpers from `packages/cli/src/next/builders/php/resource/wpPost/**` into `src/resource/wp-post/query/`, sharing normalisers from `resource/common/` and mirroring existing CLI fixtures.
 
-**Subtask 2.6.c - Unify cache invalidation wiring.** Provide a `buildCacheInvalidators` helper that returns the `$metadataHost` mutations the CLI currently duplicates across resources and persistence registries.
+_Completion:_ ☑ Completed – Migrated WP_Post list/meta/taxonomy query helpers into `@wpkernel/wp-json-ast` with unit coverage and rewired the CLI to consume the shared exports.
 
-_Completion:_ ☑ Completed - introduced `buildCacheInvalidators` and centralised `$metadataHost` cache mutations.
+**Subtask 2.6.c – Port WP_Post mutation helpers and macros.** Relocate helper methods (`syncWpPostMeta`, taxonomy synchronisers) and macro builders into `src/resource/wp-post/mutation/`, returning typed descriptors that Phase 3.2.b can compose. Cover macro output with focused fixtures.
+
+_Completion:_ ☐ Pending – Rehome mutation helpers/macros with full coverage.
+
+**Subtask 2.6.d – Port WP_Post mutation route primitives.** Translate create/update/delete route builders into `src/resource/wp-post/routes/mutation/`, wiring them through the accessor registry so the CLI receives ready-made descriptors instead of raw AST nodes.
+
+_Completion:_ ☐ Pending – Relocate mutation route primitives and snapshot outputs.
+
+**Subtask 2.6.e – Port WP_Option helper and route scaffolding.** Establish `src/resource/storage/wp-option/` with helper methods, autoload coercion, and CRUD route statements, exporting descriptors via the accessor registry.
+
+_Completion:_ ☐ Pending – Move WP_Option helpers/routes and add fixtures.
+
+**Subtask 2.6.f – Port transient helper and route scaffolding.** Create `src/resource/storage/transient/` that encapsulates key resolution, expiration handling, and cache invalidation for transient CRUD routes, plus unit tests for expiration behaviour.
+
+_Completion:_ ☐ Pending – Relocate transient helpers/routes with coverage.
+
+**Subtask 2.6.g – Port taxonomy helper methods.** Shift taxonomy identity and resolution helpers into `src/resource/wp-taxonomy/helpers/`, ensuring WP_Error flows reuse the shared accessor utilities.
+
+_Completion:_ ☐ Pending – Rehome taxonomy helper methods with tests.
+
+**Subtask 2.6.h – Port taxonomy list/get query primitives.** Move taxonomy list/get query builders into `src/resource/wp-taxonomy/query/`, snapshotting pagination, identity lookup, and error handling, then register them through `buildResourceAccessors`.
+
+_Completion:_ ☐ Pending – Migrate taxonomy query primitives and confirm parity.
 
 _Task 2.7: Move block registrar and render stubs._ Block registration still lives entirely in the CLI (`packages/cli/src/next/builders/php/blocks/**`), including manifest parsing, registrar composition, and server-side render stubs. Port this surface into `packages/wp-json-ast/src/blocks/` so block pipelines consume the same WordPress-aware factories as REST modules.
 
