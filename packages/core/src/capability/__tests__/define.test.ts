@@ -9,6 +9,7 @@ import type {
 } from '../types';
 import { WPKernelError } from '../../error/WPKernelError';
 import { CapabilityDeniedError } from '../../error/CapabilityDeniedError';
+import { resetReporterResolution } from '../../reporter/resolve';
 
 function createCapability<K extends Record<string, unknown>>(
 	map: CapabilityMap<K>,
@@ -18,6 +19,8 @@ function createCapability<K extends Record<string, unknown>>(
 }
 
 describe('capability module', () => {
+	let originalSilentFlag: string | undefined;
+
 	beforeAll(() => {
 		(
 			globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }
@@ -30,13 +33,22 @@ describe('capability module', () => {
 	});
 
 	beforeEach(() => {
+		originalSilentFlag = process.env.WPK_SILENT_REPORTERS;
+		delete process.env.WPK_SILENT_REPORTERS;
 		delete (globalThis as { __WP_KERNEL_ACTION_RUNTIME__?: unknown })
 			.__WP_KERNEL_ACTION_RUNTIME__;
+		resetReporterResolution();
 	});
 
 	afterEach(() => {
 		delete (globalThis as { __WP_KERNEL_ACTION_RUNTIME__?: unknown })
 			.__WP_KERNEL_ACTION_RUNTIME__;
+		if (typeof originalSilentFlag === 'undefined') {
+			delete process.env.WPK_SILENT_REPORTERS;
+		} else {
+			process.env.WPK_SILENT_REPORTERS = originalSilentFlag;
+		}
+		resetReporterResolution();
 	});
 
 	it('throws DeveloperError when config is missing', () => {
