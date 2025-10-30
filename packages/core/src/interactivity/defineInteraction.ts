@@ -1,3 +1,29 @@
+/**
+ * Interactivity helper — defineInteraction implementation.
+ *
+ * This module wires WP Kernel resources and actions into the WordPress
+ * interactivity runtime so UI bindings can hydrate server state and dispatch
+ * actions without coupling to transport concerns.
+ *
+ * ```typescript
+ * import { defineInteraction } from '@wpkernel/core/interactivity';
+ * import { post } from '@/resources/post';
+ * import { UpdatePost } from '@/actions/UpdatePost';
+ *
+ * export const PostPreview = defineInteraction({
+ *   resource: post,
+ *   feature: 'preview',
+ *   actions: {
+ *     update: UpdatePost,
+ *   },
+ * });
+ *
+ * PostPreview.store.actions.update({ id: 42, title: 'Updated' });
+ * ```
+ *
+ * @module @wpkernel/core/interactivity/defineInteraction
+ */
+
 import { invokeAction } from '../actions/middleware';
 import type { ActionEnvelope } from '../actions/middleware';
 import type { DefinedAction } from '../actions/types';
@@ -26,6 +52,9 @@ import type {
 
 let cachedInteractivityModule: InteractivityModule | undefined;
 
+/**
+ * Resolve the WordPress interactivity runtime from the global scope.
+ */
 function resolveInteractivityModule(): InteractivityModule {
 	if (cachedInteractivityModule) {
 		return cachedInteractivityModule;
@@ -327,7 +356,7 @@ function normalizeActionBinding<TArgs, TResult>(
 	return { action: input.action, meta: metaResolver };
 }
 
-function createBoundActions<TActions extends InteractionActionsRecord>(
+function bindInteractionActions<TActions extends InteractionActionsRecord>(
 	actions: TActions,
 	dispatcher: InvokeDispatch
 ): InteractionActionsRuntime<TActions> {
@@ -399,7 +428,7 @@ function assertActionsBindable<
 	});
 }
 
-function createCacheSynchronizer<TEntity, TQuery>(
+function buildCacheSynchronizer<TEntity, TQuery>(
 	resource: ResourceObject<TEntity, TQuery>,
 	registry: WPKernelRegistry | undefined
 ): ResourceCacheSync<TEntity> {
@@ -412,7 +441,7 @@ function createCacheSynchronizer<TEntity, TQuery>(
 	};
 }
 
-function createServerStateSynchronizer<TEntity, TQuery>(
+function buildServerStateSynchronizer<TEntity, TQuery>(
 	namespace: string,
 	resource: ResourceObject<TEntity, TQuery>,
 	registry: WPKernelRegistry | undefined,
@@ -447,6 +476,31 @@ function createServerStateSynchronizer<TEntity, TQuery>(
 	};
 }
 
+/**
+ * Define an interactivity store that bridges a resource and optional actions to
+ * the WordPress interactivity runtime.
+ *
+ * The helper automatically derives a namespaced store key, registers the
+ * provided store configuration with WordPress, and synchronizes the resource
+ * cache when server state is available.
+ *
+ * ```typescript
+ * import { defineInteraction } from '@wpkernel/core/interactivity';
+ * import { testimonial } from '@/resources/testimonial';
+ * import { ApproveTestimonial } from '@/actions/ApproveTestimonial';
+ *
+ * const TestimonialReview = defineInteraction({
+ *   resource: testimonial,
+ *   feature: 'review',
+ *   actions: {
+ *     approve: ApproveTestimonial,
+ *   },
+ * });
+ *
+ * await TestimonialReview.store.actions.approve({ id: 101 });
+ * ```
+ * @param options
+ */
 export function defineInteraction<
 	TEntity,
 	TQuery,
@@ -481,15 +535,15 @@ export function defineInteraction<
 
 	const boundActions =
 		actions && registry
-			? createBoundActions(actions, resolveActionDispatcher(registry))
+			? bindInteractionActions(actions, resolveActionDispatcher(registry))
 			: ({} as InteractionActionsRuntime<TActions>);
 
 	const storeDefinition = mergeStoreDefinition(store, boundActions);
 	const storeResult = interactivity.store(namespace, storeDefinition);
 
-	const syncCache = createCacheSynchronizer(resource, registry);
+	const syncCache = buildCacheSynchronizer(resource, registry);
 
-	const syncServerState = createServerStateSynchronizer(
+	const syncServerState = buildServerStateSynchronizer(
 		namespace,
 		resource,
 		registry,
