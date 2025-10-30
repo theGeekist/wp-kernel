@@ -7,6 +7,7 @@ import type {
 	CapabilityOptions,
 } from '../types';
 import { WPK_SUBSYSTEM_NAMESPACES } from '../../contracts';
+import { resetReporterResolution } from '../../reporter/resolve';
 
 type DefineCapability = <K extends Record<string, unknown>>(
 	map: CapabilityMap<K>,
@@ -24,16 +25,26 @@ async function loadDefineCapability(): Promise<DefineCapability> {
 
 describe('defineCapability behaviour', () => {
 	const originalBroadcastChannel = window.BroadcastChannel;
+	let originalSilentFlag: string | undefined;
 
 	beforeEach(() => {
+		originalSilentFlag = process.env.WPK_SILENT_REPORTERS;
+		delete process.env.WPK_SILENT_REPORTERS;
 		delete global.__WP_KERNEL_ACTION_RUNTIME__;
 		Object.defineProperty(window, 'BroadcastChannel', {
 			configurable: true,
 			value: originalBroadcastChannel,
 		});
+		resetReporterResolution();
 	});
 
 	afterEach(() => {
+		if (typeof originalSilentFlag === 'undefined') {
+			delete process.env.WPK_SILENT_REPORTERS;
+		} else {
+			process.env.WPK_SILENT_REPORTERS = originalSilentFlag;
+		}
+		resetReporterResolution();
 		jest.restoreAllMocks();
 	});
 

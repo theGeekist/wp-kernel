@@ -103,6 +103,42 @@ describe('capability environment edge cases', () => {
 		warnSpy.mockRestore();
 	});
 
+	it('suppresses capability diagnostics when silent reporters are enabled', () => {
+		const broadcastError = new Error('channel-unavailable');
+		const broadcastSpy = jest.fn(() => {
+			throw broadcastError;
+		});
+		const warnSpy = jest
+			.spyOn(console, 'warn')
+			.mockImplementation(() => undefined);
+
+		process.env.WPK_SILENT_REPORTERS = '1';
+
+		(
+			globalThis as { BroadcastChannel?: typeof BroadcastChannel }
+		).BroadcastChannel = broadcastSpy as unknown as typeof BroadcastChannel;
+
+		jest.isolateModules(() => {
+			deleteWindowProp('wp');
+			const { defineCapability } = loadCapabilityModule();
+
+			const capability = defineCapability<{ 'tasks.manage': void }>({
+				map: {
+					'tasks.manage': () => false,
+				},
+			});
+
+			expect(() => capability.assert('tasks.manage')).toThrow(
+				'Capability "tasks.manage" denied.'
+			);
+		});
+
+		expect(broadcastSpy).toHaveBeenCalled();
+		expect(warnSpy).not.toHaveBeenCalled();
+		expect(console as any).not.toHaveWarned();
+		warnSpy.mockRestore();
+	});
+
 	it('logs WordPress adapter failures when canUser throws', () => {
 		const warnSpy = jest
 			.spyOn(console, 'warn')
@@ -160,6 +196,62 @@ describe('capability environment edge cases', () => {
 			);
 			expect(console as any).toHaveWarned();
 		});
+		warnSpy.mockRestore();
+	});
+
+	it('suppresses debug adapter warnings when silent reporters are enabled', () => {
+		const warnSpy = jest
+			.spyOn(console, 'warn')
+			.mockImplementation(() => undefined);
+
+		process.env.WPK_SILENT_REPORTERS = '1';
+
+		jest.isolateModules(() => {
+			const failure = new Error('wp-failed');
+			const select = jest.fn(() => ({
+				canUser: jest.fn(() => {
+					throw failure;
+				}),
+			}));
+
+			setWindowProp('wp', {
+				data: {
+					select,
+				},
+			});
+
+			const { defineCapability } = loadCapabilityModule();
+
+			const capability = defineCapability<{ 'tasks.wp': void }>({
+				map: {
+					'tasks.wp': ({ adapters }: CapabilityContext) => {
+						const allowed = adapters.wp?.canUser?.('read', {
+							path: '/wp-json/acme',
+						});
+						expect(allowed).toBe(false);
+						return false;
+					},
+				},
+				options: {
+					namespace: 'acme',
+					debug: true,
+				},
+			});
+
+			expect(() => capability.assert('tasks.wp')).toThrow(
+				'Capability "tasks.wp" denied.'
+			);
+
+			const store = select.mock.results[0]?.value as
+				| { canUser?: jest.Mock }
+				| undefined;
+			expect(store?.canUser).toHaveBeenCalledWith('read', {
+				path: '/wp-json/acme',
+			});
+		});
+
+		expect(warnSpy).not.toHaveBeenCalled();
+		expect(console as any).not.toHaveWarned();
 		warnSpy.mockRestore();
 	});
 
