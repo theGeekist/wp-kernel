@@ -17,14 +17,15 @@ import {
 	buildVariable,
 	type PhpStmt,
 } from '@wpkernel/php-json-ast';
+
 import {
 	buildArrayDimFetch,
-	buildBinaryOperation,
-	buildScalarCast,
-	buildIfStatementNode,
 	buildArrayInitialiserStatement,
-} from '../utils';
-import { toSnakeCase } from '../../utils';
+	buildBinaryOperation,
+	buildIfStatementNode,
+	buildScalarCast,
+} from '../../common/utils';
+import { toSnakeCase } from './utils';
 
 export interface WpPostTaxonomyConfigEntry {
 	readonly taxonomy?: string | null;
