@@ -10,6 +10,12 @@ describe('codemod configuration helpers', () => {
 		const empty: PhpCodemodConfiguration = { stacks: [] };
 		expect(isPhpCodemodConfigurationEmpty(empty)).toBe(true);
 
+		const diagnosticsOnly: PhpCodemodConfiguration = {
+			stacks: [],
+			diagnostics: { nodeDumps: true },
+		};
+		expect(isPhpCodemodConfigurationEmpty(diagnosticsOnly)).toBe(true);
+
 		const withEmptyStack: PhpCodemodConfiguration = {
 			stacks: [
 				{
@@ -50,6 +56,16 @@ describe('codemod configuration helpers', () => {
 					],
 				},
 			],
+		};
+
+		const serialised = serialisePhpCodemodConfiguration(configuration);
+		expect(serialised).toBe(`${JSON.stringify(configuration, null, 2)}\n`);
+	});
+
+	it('serialises diagnostics configuration', () => {
+		const configuration: PhpCodemodConfiguration = {
+			stacks: [],
+			diagnostics: { nodeDumps: true },
 		};
 
 		const serialised = serialisePhpCodemodConfiguration(configuration);

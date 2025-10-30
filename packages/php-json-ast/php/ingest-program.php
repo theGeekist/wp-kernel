@@ -9,7 +9,7 @@ require_once __DIR__ . '/support/autoload.php';
 if ($argc < 3) {
     fwrite(
         STDERR,
-        "Usage: php ingest-program.php <workspace-root> [--config <path>] <file> [<file> ...]\n"
+        "Usage: php ingest-program.php <workspace-root> [--config <path>] [--diagnostics] <file> [<file> ...]\n"
     );
     exit(1);
 }
@@ -28,7 +28,7 @@ $files = $parsedArguments['files'];
 if (count($files) === 0) {
     fwrite(
         STDERR,
-        "Usage: php ingest-program.php <workspace-root> [--config <path>] <file> [<file> ...]\n"
+        "Usage: php ingest-program.php <workspace-root> [--config <path>] [--diagnostics] <file> [<file> ...]\n"
     );
     exit(1);
 }
@@ -36,7 +36,7 @@ if (count($files) === 0) {
 $configurationPath = $parsedArguments['configurationPath'];
 
 try {
-    $visitorDefinitions = loadCodemodVisitorDefinitions($configurationPath, $workspaceRoot);
+    $codemodConfiguration = loadCodemodConfiguration($configurationPath, $workspaceRoot);
 } catch (CodemodConfigurationException $exception) {
     fwrite(
         STDERR,
@@ -44,6 +44,12 @@ try {
     );
     exit(1);
 }
+
+$visitorDefinitions = $codemodConfiguration['definitions'];
+$configurationDiagnostics = $codemodConfiguration['diagnostics'];
+$cliDiagnostics = $parsedArguments['diagnostics'];
+$nodeDumpsEnabled =
+    ($configurationDiagnostics['nodeDumps'] ?? false) || ($cliDiagnostics['nodeDumps'] ?? false);
 
 $autoloadPath = resolveAutoloadPath($workspaceRoot, [
     buildAutoloadPathFromRoot(__DIR__ . '/..'),
@@ -58,6 +64,7 @@ use PhpParser\Error;
 use PhpParser\Lexer\Emulative;
 use PhpParser\ParserFactory;
 use PhpParser\NodeTraverser;
+use PhpParser\NodeDumper;
 use PhpParser\NodeVisitor;
 use PhpParser\NodeVisitor\NameResolver;
 use WPKernel\PhpJsonAst\Codemods\BaselineNameCanonicaliserVisitor;
@@ -89,6 +96,8 @@ $lexer = new Emulative(null, [
 $parser = (new ParserFactory())->createForNewestSupportedVersion($lexer);
 
 $encoderFlags = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES;
+
+$nodeDumper = $nodeDumpsEnabled ? createNodeDumper() : null;
 
 foreach ($files as $file) {
     $source = @file_get_contents($file);
@@ -124,7 +133,17 @@ foreach ($files as $file) {
             'codemod input'
         );
 
+        $beforeDump = null;
+        if ($nodeDumper instanceof NodeDumper) {
+            $beforeDump = dumpProgramStatements($nodeDumper, $statements);
+        }
+
         $statements = applyCodemodVisitors($statements, $visitors);
+
+        $afterDump = null;
+        if ($nodeDumper instanceof NodeDumper) {
+            $afterDump = dumpProgramStatements($nodeDumper, $statements);
+        }
 
         $program = normaliseProgramStatements(
             $statements,
@@ -138,6 +157,15 @@ foreach ($files as $file) {
             'after' => $program,
             'visitors' => summariseCodemodVisitors($visitorDefinitions, $visitors),
         ];
+
+        if ($beforeDump !== null && $afterDump !== null) {
+            $codemodSummary['diagnostics'] = [
+                'dumps' => [
+                    'before' => $beforeDump,
+                    'after' => $afterDump,
+                ],
+            ];
+        }
     } else {
         $program = normaliseProgramStatements($statements, $encoderFlags, $file, 'AST');
     }
@@ -163,12 +191,13 @@ foreach ($files as $file) {
 
 /**
  * @param list<string> $arguments
- * @return array{configurationPath: string|null, files: list<string>}
+ * @return array{configurationPath: string|null, files: list<string>, diagnostics: array{nodeDumps: bool}}
  */
 function parseIngestionArguments(array $arguments): array
 {
     $configurationPath = null;
     $files = [];
+    $diagnostics = ['nodeDumps' => false];
 
     $length = count($arguments);
     for ($index = 0; $index < $length; $index++) {
@@ -184,24 +213,33 @@ function parseIngestionArguments(array $arguments): array
             continue;
         }
 
+        if ($argument === '--diagnostics') {
+            $diagnostics['nodeDumps'] = true;
+            continue;
+        }
+
         $files[] = $argument;
     }
 
     return [
         'configurationPath' => $configurationPath,
         'files' => $files,
+        'diagnostics' => $diagnostics,
     ];
 }
 
 /**
  * @param string|null $configurationPath
  * @param string $workspaceRoot
- * @return list<CodemodVisitorDefinition>
+ * @return array{definitions: list<CodemodVisitorDefinition>, diagnostics: array{nodeDumps: bool}}
  */
-function loadCodemodVisitorDefinitions(?string $configurationPath, string $workspaceRoot): array
+function loadCodemodConfiguration(?string $configurationPath, string $workspaceRoot): array
 {
     if ($configurationPath === null) {
-        return [];
+        return [
+            'definitions' => [],
+            'diagnostics' => ['nodeDumps' => false],
+        ];
     }
 
     $resolvedPath = resolveCodemodConfigurationPath($configurationPath, $workspaceRoot);
@@ -219,7 +257,60 @@ function loadCodemodVisitorDefinitions(?string $configurationPath, string $works
         throw new CodemodConfigurationException('Codemod configuration must decode to a JSON object.');
     }
 
-    return normaliseCodemodVisitorDefinitions($decoded, $resolvedPath);
+    return normaliseCodemodConfiguration($decoded, $resolvedPath);
+}
+
+/**
+ * @param array<string, mixed> $configuration
+ * @return array{definitions: list<CodemodVisitorDefinition>, diagnostics: array{nodeDumps: bool}}
+ */
+function normaliseCodemodConfiguration(array $configuration, string $sourcePath): array
+{
+    $diagnostics = normaliseCodemodDiagnosticsConfiguration(
+        $configuration['diagnostics'] ?? null,
+        $sourcePath
+    );
+
+    $definitions = normaliseCodemodVisitorDefinitions($configuration, $sourcePath);
+
+    return [
+        'definitions' => $definitions,
+        'diagnostics' => $diagnostics,
+    ];
+}
+
+/**
+ * @param mixed $rawDiagnostics
+ * @return array{nodeDumps: bool}
+ */
+function normaliseCodemodDiagnosticsConfiguration($rawDiagnostics, string $sourcePath): array
+{
+    if ($rawDiagnostics === null) {
+        return ['nodeDumps' => false];
+    }
+
+    if (!is_array($rawDiagnostics)) {
+        throw new CodemodConfigurationException(
+            sprintf('Codemod diagnostics in %s must be declared as an object.', $sourcePath)
+        );
+    }
+
+    $nodeDumps = false;
+    if (array_key_exists('nodeDumps', $rawDiagnostics)) {
+        $value = $rawDiagnostics['nodeDumps'];
+        if (!is_bool($value)) {
+            throw new CodemodConfigurationException(
+                sprintf(
+                    'Codemod diagnostics option "nodeDumps" in %s must be a boolean.',
+                    $sourcePath
+                )
+            );
+        }
+
+        $nodeDumps = $value;
+    }
+
+    return ['nodeDumps' => $nodeDumps];
 }
 
 /**
@@ -292,6 +383,28 @@ function summariseCodemodVisitors(array $definitions, array $visitors): array
     }
 
     return $summaries;
+}
+
+function createNodeDumper(): NodeDumper
+{
+    return new NodeDumper([
+        'dumpAttributes' => true,
+        'dumpComments' => true,
+        'dumpPositions' => true,
+    ]);
+}
+
+/**
+ * @param array<int, mixed> $statements
+ */
+function dumpProgramStatements(NodeDumper $dumper, array $statements): string
+{
+    return ensureTrailingNewline($dumper->dump($statements));
+}
+
+function ensureTrailingNewline(string $value): string
+{
+    return str_ends_with($value, "\n") ? $value : $value . "\n";
 }
 
 /**

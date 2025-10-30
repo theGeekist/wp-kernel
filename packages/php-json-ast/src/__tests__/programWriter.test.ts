@@ -399,6 +399,12 @@ describe('createPhpProgramWriterHelper', () => {
 						class: 'Demo\\Visitor',
 					},
 				],
+				diagnostics: {
+					dumps: {
+						before: 'Before dump contents',
+						after: 'After dump contents',
+					},
+				},
 			},
 		});
 
@@ -416,12 +422,17 @@ describe('createPhpProgramWriterHelper', () => {
 		const beforePath = `${filePath}.codemod.before.ast.json`;
 		const afterPath = `${filePath}.codemod.after.ast.json`;
 		const summaryPath = `${filePath}.codemod.summary.txt`;
+		const beforeDumpPath = `${filePath}.codemod.before.dump.txt`;
+		const afterDumpPath = `${filePath}.codemod.after.dump.txt`;
 
-		const [beforeSnapshot, afterSnapshot, summary] = await Promise.all([
-			fs.readFile(beforePath, 'utf8'),
-			fs.readFile(afterPath, 'utf8'),
-			fs.readFile(summaryPath, 'utf8'),
-		]);
+		const [beforeSnapshot, afterSnapshot, summary, beforeDump, afterDump] =
+			await Promise.all([
+				fs.readFile(beforePath, 'utf8'),
+				fs.readFile(afterPath, 'utf8'),
+				fs.readFile(summaryPath, 'utf8'),
+				fs.readFile(beforeDumpPath, 'utf8'),
+				fs.readFile(afterDumpPath, 'utf8'),
+			]);
 
 		expect(beforeSnapshot).toBe(
 			`${JSON.stringify(beforeProgram, null, 2)}\n`
@@ -436,6 +447,9 @@ describe('createPhpProgramWriterHelper', () => {
 		expect(summary).toContain('Change detected: yes');
 		expect(summary).toContain('$[0].name.name');
 
+		expect(beforeDump).toBe('Before dump contents\n');
+		expect(afterDump).toBe('After dump contents\n');
+
 		expect(output.queueWrite).toHaveBeenCalledWith({
 			file: beforePath,
 			contents: `${JSON.stringify(beforeProgram, null, 2)}\n`,
@@ -447,6 +461,14 @@ describe('createPhpProgramWriterHelper', () => {
 		expect(output.queueWrite).toHaveBeenCalledWith({
 			file: summaryPath,
 			contents: summary,
+		});
+		expect(output.queueWrite).toHaveBeenCalledWith({
+			file: beforeDumpPath,
+			contents: 'Before dump contents\n',
+		});
+		expect(output.queueWrite).toHaveBeenCalledWith({
+			file: afterDumpPath,
+			contents: 'After dump contents\n',
 		});
 	});
 });

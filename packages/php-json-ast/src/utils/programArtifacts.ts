@@ -49,10 +49,14 @@ export async function persistCodemodDiagnostics(
 	const beforePath = `${basePath}.before.ast.json`;
 	const afterPath = `${basePath}.after.ast.json`;
 	const summaryPath = `${basePath}.summary.txt`;
+	const beforeDumpPath = `${basePath}.before.dump.txt`;
+	const afterDumpPath = `${basePath}.after.dump.txt`;
 
 	const beforeContents = serialiseAst(codemod.before);
 	const afterContents = serialiseAst(codemod.after);
 	const summaryContents = formatCodemodSummary(codemod);
+	const beforeDumpContents = codemod.diagnostics?.dumps?.before ?? null;
+	const afterDumpContents = codemod.diagnostics?.dumps?.after ?? null;
 
 	await context.workspace.write(beforePath, beforeContents, {
 		ensureDir: true,
@@ -75,6 +79,35 @@ export async function persistCodemodDiagnostics(
 	output.queueWrite({
 		file: summaryPath,
 		contents: summaryContents,
+	});
+
+	await writeCodemodDump(context, output, beforeDumpPath, beforeDumpContents);
+	await writeCodemodDump(context, output, afterDumpPath, afterDumpContents);
+}
+
+function ensureTrailingNewline(contents: string): string {
+	return contents.endsWith('\n') ? contents : `${contents}\n`;
+}
+
+async function writeCodemodDump(
+	context: PipelineContext,
+	output: BuilderOutput,
+	targetPath: string,
+	contents: string | null
+): Promise<void> {
+	if (contents === null) {
+		return;
+	}
+
+	const normalised = ensureTrailingNewline(contents);
+
+	await context.workspace.write(targetPath, normalised, {
+		ensureDir: true,
+	});
+
+	output.queueWrite({
+		file: targetPath,
+		contents: normalised,
 	});
 }
 

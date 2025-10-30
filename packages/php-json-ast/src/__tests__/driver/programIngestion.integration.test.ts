@@ -5,7 +5,10 @@ import type { ChildProcessWithoutNullStreams } from 'node:child_process';
 import { createPhpProgramWriterHelper } from '../../programWriter';
 import { consumePhpProgramIngestion } from '../../driver/programIngestion';
 import { createBaselineCodemodConfiguration } from '../../codemods/baselinePack';
-import { serialisePhpCodemodConfiguration } from '../../driver/codemods';
+import {
+	serialisePhpCodemodConfiguration,
+	type PhpCodemodConfiguration,
+} from '../../driver/codemods';
 import {
 	getPhpBuilderChannel,
 	resetPhpBuilderChannel,
@@ -62,6 +65,8 @@ type RoundTripResult = {
 	readonly codemodBefore: string | null;
 	readonly codemodAfter: string | null;
 	readonly codemodSummary: string | null;
+	readonly codemodBeforeDump: string | null;
+	readonly codemodAfterDump: string | null;
 };
 
 let cleanupTargets: string[] = [];
@@ -216,12 +221,16 @@ function createBuilderOutput(): BuilderOutput {
 async function runIngestionScript(
 	files: readonly string[],
 	workspaceRoot: string,
-	configurationPath?: string
+	options: RunRoundTripOptions
 ): Promise<readonly string[]> {
 	const args = [INGESTION_SCRIPT, workspaceRoot];
 
-	if (configurationPath !== undefined) {
-		args.push('--config', configurationPath);
+	if (options.configurationPath !== undefined) {
+		args.push('--config', options.configurationPath);
+	}
+
+	if (options.enableDiagnostics === true) {
+		args.push('--diagnostics');
 	}
 
 	args.push(...files);
@@ -287,10 +296,15 @@ function formatPrettyPrinterError(error: unknown): Error {
 	);
 }
 
+interface RunRoundTripOptions {
+	readonly configurationPath?: string;
+	readonly enableDiagnostics?: boolean;
+}
+
 async function runRoundTrip(
 	workspaceRoot: string,
 	fixturePaths: readonly string[],
-	configurationPath?: string
+	options: RunRoundTripOptions = {}
 ): Promise<RoundTripResult> {
 	const context = createPipelineContext(workspaceRoot);
 	const input = createBuilderInput();
@@ -301,7 +315,7 @@ async function runRoundTrip(
 	const lines = await runIngestionScript(
 		fixturePaths,
 		workspaceRoot,
-		configurationPath
+		options
 	);
 	const messages = createAsyncIterable(lines);
 
@@ -335,11 +349,21 @@ async function runRoundTrip(
 	const codemodBeforePath = `${filePath}.codemod.before.ast.json`;
 	const codemodAfterPath = `${filePath}.codemod.after.ast.json`;
 	const codemodSummaryPath = `${filePath}.codemod.summary.txt`;
+	const codemodBeforeDumpPath = `${filePath}.codemod.before.dump.txt`;
+	const codemodAfterDumpPath = `${filePath}.codemod.after.dump.txt`;
 
-	const [codemodBefore, codemodAfter, codemodSummary] = await Promise.all([
+	const [
+		codemodBefore,
+		codemodAfter,
+		codemodSummary,
+		codemodBeforeDump,
+		codemodAfterDump,
+	] = await Promise.all([
 		readOptionalFile(codemodBeforePath),
 		readOptionalFile(codemodAfterPath),
 		readOptionalFile(codemodSummaryPath),
+		readOptionalFile(codemodBeforeDumpPath),
+		readOptionalFile(codemodAfterDumpPath),
 	]);
 
 	return {
@@ -352,6 +376,8 @@ async function runRoundTrip(
 		codemodBefore,
 		codemodAfter,
 		codemodSummary,
+		codemodBeforeDump,
+		codemodAfterDump,
 	};
 }
 
@@ -423,7 +449,8 @@ describe('consumePhpProgramIngestion', () => {
 
 		const lines = await runIngestionScript(
 			[primaryFixture, duplicateFixture],
-			workspaceRoot
+			workspaceRoot,
+			{}
 		);
 		const messages = createAsyncIterable(lines);
 
@@ -472,11 +499,9 @@ describe('consumePhpProgramIngestion', () => {
 			serialisePhpCodemodConfiguration(configuration)
 		);
 
-		const result = await runRoundTrip(
-			workspaceRoot,
-			[fixturePath],
-			configurationPath
-		);
+		const result = await runRoundTrip(workspaceRoot, [fixturePath], {
+			configurationPath,
+		});
 
 		const [expectedPhp, expectedAst] = await Promise.all([
 			fs.readFile(BASELINE_CODEMOD_EXPECTED_PHP, 'utf8'),
@@ -510,6 +535,9 @@ describe('consumePhpProgramIngestion', () => {
 		expect(result.codemodSummary).toContain('Change detected: yes');
 		expect(result.codemodSummary).toContain('baseline');
 
+		expect(result.codemodBeforeDump).toBeNull();
+		expect(result.codemodAfterDump).toBeNull();
+
 		expect(codemod.after).toEqual(parsedExpectedAst);
 
 		expect(result.output.queueWrite).toHaveBeenCalledWith({
@@ -528,6 +556,57 @@ describe('consumePhpProgramIngestion', () => {
 		const astContents = astWriteCall?.[0].contents;
 		expect(typeof astContents).toBe('string');
 		expect(JSON.parse(astContents as string)).toEqual(parsedExpectedAst);
+	});
+
+	it('emits NodeDumper diagnostics when diagnostics mode is enabled', async () => {
+		const workspaceRoot = path.join(
+			PACKAGE_ROOT,
+			'.test-artifacts',
+			'baseline-pack-diagnostics'
+		);
+
+		await fs.rm(workspaceRoot, { recursive: true, force: true });
+		await fs.mkdir(workspaceRoot, { recursive: true });
+		registerCleanup(workspaceRoot);
+
+		await prepareWorkspaceRoot(workspaceRoot);
+		const fixturePath = await ensureCodemodFixture(
+			workspaceRoot,
+			'BaselinePack.before.php'
+		);
+
+		const configuration = {
+			...createBaselineCodemodConfiguration(),
+			diagnostics: { nodeDumps: true },
+		} satisfies PhpCodemodConfiguration;
+		const configurationPath = path.join(
+			resolveOutputRoot(workspaceRoot),
+			'baseline-pack-diagnostics.json'
+		);
+		await fs.writeFile(
+			configurationPath,
+			serialisePhpCodemodConfiguration(configuration)
+		);
+
+		const result = await runRoundTrip(workspaceRoot, [fixturePath], {
+			configurationPath,
+		});
+
+		const codemod = result.message.codemod!;
+		const dumps = codemod.diagnostics?.dumps;
+		expect(dumps).toBeDefined();
+		expect(dumps?.before).toContain('Stmt_Class');
+		expect(dumps?.after).toContain('Stmt_Class');
+		expect(dumps?.after).toContain('flags: FINAL');
+
+		const normalise = (value: string): string =>
+			value.endsWith('\n') ? value : `${value}\n`;
+
+		expect(result.codemodBeforeDump).toBe(normalise(dumps!.before));
+		expect(result.codemodAfterDump).toBe(normalise(dumps!.after));
+
+		expect(result.codemodBeforeDump).toContain('attrGroups');
+		expect(result.codemodAfterDump).toContain('attrGroups');
 	});
 
 	it('falls back to the package autoload when workspace dependencies are absent', async () => {
