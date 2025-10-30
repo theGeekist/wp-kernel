@@ -93,16 +93,29 @@ function ensureActionStoreRegistered(registry: WPKernelRegistry): void {
 		return;
 	}
 
+	const storeConfig = {
+		reducer: (state: Record<string, unknown> | undefined) => state ?? {},
+		actions: {
+			invoke: (...args: unknown[]) =>
+				args[0] as ActionEnvelope<unknown, unknown>,
+		},
+		selectors: {},
+	} satisfies {
+		reducer: (
+			state: Record<string, unknown> | undefined
+		) => Record<string, unknown>;
+		actions: {
+			invoke: (...args: unknown[]) => ActionEnvelope<unknown, unknown>;
+		};
+		selectors: Record<string, never>;
+	};
+
 	try {
-		registerWPKernelStore(ACTION_STORE_KEY, {
-			reducer: (state: Record<string, unknown> | undefined) =>
-				state ?? {},
-			actions: {
-				invoke: (...args: unknown[]) =>
-					args[0] as ActionEnvelope<unknown, unknown>,
-			},
-			selectors: {},
-		});
+		if (typeof typedRegistry.registerStore === 'function') {
+			typedRegistry.registerStore(ACTION_STORE_KEY, storeConfig);
+		} else {
+			registerWPKernelStore(ACTION_STORE_KEY, storeConfig);
+		}
 	} catch (error) {
 		const alreadyRegistered =
 			error instanceof Error &&

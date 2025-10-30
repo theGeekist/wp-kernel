@@ -168,6 +168,52 @@ describe('defineInteraction', () => {
 		);
 	});
 
+	it('registers the action store on the provided registry', () => {
+		const resource = createResource();
+		const registry = createRegistryMock();
+		const registerStore = jest.fn();
+		const invoke = jest.fn().mockResolvedValue(undefined);
+
+		registry.registerStore =
+			registerStore as unknown as WPKernelRegistry['registerStore'];
+		registry.dispatch = jest.fn((key: string) => {
+			if (key === 'wp-kernel/ui/actions') {
+				return { invoke };
+			}
+			if (key === resource.storeKey) {
+				return {};
+			}
+			return {};
+		}) as unknown as WPKernelRegistry['dispatch'];
+
+		const action = createStubAction<unknown, unknown>('Test.Action');
+
+		defineInteraction({
+			resource,
+			feature: 'store-test',
+			actions: { run: action },
+			registry,
+		});
+
+		defineInteraction({
+			resource,
+			feature: 'store-test-again',
+			actions: { run: action },
+			registry,
+		});
+
+		expect(registerStore).toHaveBeenCalledTimes(1);
+		expect(registerStore).toHaveBeenCalledWith(
+			'wp-kernel/ui/actions',
+			expect.objectContaining({
+				actions: expect.objectContaining({
+					invoke: expect.any(Function),
+				}),
+				selectors: {},
+			})
+		);
+	});
+
 	it('supports custom hydration callbacks', () => {
 		const resource = createResource();
 		const registry = createRegistryMock();
