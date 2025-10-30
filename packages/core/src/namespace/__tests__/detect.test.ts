@@ -17,10 +17,24 @@ import {
 	setProcessEnv,
 	clearNamespaceState,
 } from '@wpkernel/test-utils/wp';
+import { resetReporterResolution } from '../../reporter/resolve';
+
+let originalSilentReporterFlag: string | undefined;
 
 // Clear state before each test to prevent cache pollution
 beforeEach(() => {
+	originalSilentReporterFlag = process.env.WPK_SILENT_REPORTERS;
+	delete process.env.WPK_SILENT_REPORTERS;
+	resetReporterResolution();
 	clearNamespaceState();
+});
+
+afterEach(() => {
+	if (typeof originalSilentReporterFlag === 'undefined') {
+		delete process.env.WPK_SILENT_REPORTERS;
+	} else {
+		process.env.WPK_SILENT_REPORTERS = originalSilentReporterFlag;
+	}
 });
 
 describe('sanitizeNamespace', () => {

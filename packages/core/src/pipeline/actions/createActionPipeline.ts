@@ -1,5 +1,7 @@
 import { createPipeline } from '../createPipeline';
+import { reportPipelineDiagnostic } from '../reporting';
 import { generateActionRequestId } from '../../actions/context';
+import { resolveActionReporter } from '../../actions/resolveReporter';
 import { createActionLifecycleFragment } from './helpers/createActionLifecycleFragment';
 import { createActionExecutionBuilder } from './helpers/createActionExecutionBuilder';
 import { createActionOptionsResolver } from './helpers/createActionOptionsResolver';
@@ -13,8 +15,6 @@ import type {
 } from './types';
 import { ACTION_BUILDER_KIND, ACTION_FRAGMENT_KIND } from './types';
 import { getNamespace } from '../../namespace/detect';
-import { createReporter as createKernelReporter } from '../../reporter';
-import type { Reporter } from '../../reporter/types';
 
 /**
  * Construct the action execution pipeline.
@@ -62,7 +62,7 @@ export function createActionPipeline<TArgs, TResult>(): ActionPipeline<
 		createContext(runOptions): ActionPipelineContext<TArgs, TResult> {
 			const requestId = generateActionRequestId();
 			const namespace = getNamespace();
-			const reporter = resolveReporter(namespace);
+			const reporter = resolveActionReporter({ namespace });
 
 			return {
 				reporter,
@@ -107,6 +107,9 @@ export function createActionPipeline<TArgs, TResult>(): ActionPipeline<
 				steps,
 			} satisfies ActionPipelineRunResult<TResult>;
 		},
+		onDiagnostic({ reporter, diagnostic }) {
+			reportPipelineDiagnostic({ reporter, diagnostic });
+		},
 	} satisfies ActionPipelineOptions<TArgs, TResult>;
 
 	const pipeline: ActionPipeline<TArgs, TResult> =
@@ -119,20 +122,4 @@ export function createActionPipeline<TArgs, TResult>(): ActionPipeline<
 	pipeline.builders.use(createActionRegistryRecorder<TArgs, TResult>());
 
 	return pipeline;
-}
-
-function resolveReporter(namespace: string): Reporter {
-	const runtime = globalThis.__WP_KERNEL_ACTION_RUNTIME__ as
-		| { reporter?: Reporter }
-		| undefined;
-
-	if (runtime?.reporter) {
-		return runtime.reporter;
-	}
-
-	return createKernelReporter({
-		namespace,
-		channel: 'all',
-		level: 'debug',
-	});
 }
