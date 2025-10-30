@@ -191,12 +191,12 @@ cd packages/core && pnpm add new-runtime-dep
 Use the helper when you spin up a fresh package:
 
 ```bash
-pnpm workspace:register packages/awesome-tool
+pnpm monorepo:create packages/awesome-tool --deps=@wpkernel/core
 ```
 
-The script creates `tsconfig.json` / `tsconfig.tests.json` using the shared presets, appends the workspace to the root `tsconfig.json` references, keeps `tsconfig.base.json` aliases in sync, and backfills the `typecheck` / `typecheck:tests` scripts in the package manifest. From there you can focus on Vite/Jest specifics without worrying about missing the required repo wiring.
+The generator creates `package.json`, TypeScript configs, Jest/Vite configs, and smoke tests, then appends the workspace to the root `tsconfig.json` references and keeps `tsconfig.base.json` aliases in sync. From there you can focus on implementation details without worrying about missing the required repo wiring.
 
-Pass `--deps=@wpkernel/core,@wpkernel/ui` (comma separated) when the new workspace should depend on existing packages. The helper adds project references to both TypeScript configs, updates `peerDependencies` with `workspace:*`, and will warn if the requested dependency already points back to your package. Use `--remove-deps=` with the same syntax to prune relationships later.
+Pass `--deps=@wpkernel/core,@wpkernel/ui` (comma separated) when the new workspace should depend on existing packages. The helper adds project references to both TypeScript configs, updates `peerDependencies` with `workspace:*`, and will warn if the requested dependency already points back to your package. Use `pnpm monorepo:update packages/awesome-tool --remove-deps=@wpkernel/ui` to prune relationships later.
 
 ### **Peer Dependencies**
 

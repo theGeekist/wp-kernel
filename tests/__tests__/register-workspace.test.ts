@@ -2,7 +2,11 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-import { registerWorkspace } from '@wpkernel/scripts/register-workspace';
+import {
+	createWorkspace,
+	removeWorkspace,
+	updateWorkspace,
+} from '@wpkernel/scripts/register-workspace';
 
 type LoggerMock = {
 	readonly log: jest.Mock<void, [string]>;
@@ -30,6 +34,10 @@ function setupRepository(): { rootDir: string; cleanup: () => void } {
 		path.join(os.tmpdir(), 'wpk-register-workspace-')
 	);
 
+	writeJson(path.join(rootDir, 'package.json'), {
+		name: 'wpk-root-fixture',
+		version: '1.2.3',
+	});
 	writeJson(path.join(rootDir, 'pnpm-workspace.yaml'), {
 		packages: ['packages/*'],
 	});
@@ -66,6 +74,78 @@ function createPackage(rootDir: string, packageName: string): string {
 }
 
 describe('register-workspace', () => {
+	it('creates a new workspace with scaffolded files', () => {
+		const { rootDir, cleanup } = setupRepository();
+		const logger = createLogger();
+
+		try {
+			createWorkspace({
+				workspaceInput: 'packages/alpha',
+				cwd: rootDir,
+				logger,
+			});
+
+			const packageDir = path.join(rootDir, 'packages/alpha');
+			const manifest = JSON.parse(
+				fs.readFileSync(path.join(packageDir, 'package.json'), 'utf8')
+			) as { scripts?: Record<string, string>; version?: string };
+
+			expect(manifest.version).toBe('1.2.3');
+			expect(manifest.scripts).toMatchObject({
+				build: 'vite build && tsc --project tsconfig.json',
+				clean: 'rm -rf dist dist-tests *.tsbuildinfo',
+				lint: 'eslint src/',
+				'lint:fix': 'eslint src/ --fix',
+				test: 'wpk-run-jest',
+				'test:coverage': 'wpk-run-jest coverage',
+				'test:integration': 'wpk-run-jest integration',
+				'test:watch': 'wpk-run-jest --watch',
+				typecheck: 'tsc --project tsconfig.json --noEmit',
+				'typecheck:tests': 'wpk-run-typecheck-tests',
+			});
+
+			expect(fs.existsSync(path.join(packageDir, 'src/index.ts'))).toBe(
+				true
+			);
+			expect(
+				fs.existsSync(path.join(packageDir, 'tests/index.test.ts'))
+			).toBe(true);
+			expect(
+				fs.existsSync(
+					path.join(packageDir, 'tests/index.integration.test.ts')
+				)
+			).toBe(true);
+		} finally {
+			cleanup();
+		}
+	});
+
+	it('rejects workspace creation when the path escapes the repository', () => {
+		const { rootDir, cleanup } = setupRepository();
+		const logger = createLogger();
+		const outsideSuffix = `outside-target-${Date.now()}`;
+		const workspaceInput = `packages/../../${outsideSuffix}`;
+		const outsideDir = path.resolve(rootDir, workspaceInput);
+
+		expect(fs.existsSync(outsideDir)).toBe(false);
+
+		try {
+			expect(() =>
+				createWorkspace({
+					workspaceInput,
+					cwd: rootDir,
+					logger,
+				})
+			).toThrow(
+				/Workspace path must resolve within the repository's packages\/ or examples\/ directories\./
+			);
+			expect(fs.existsSync(outsideDir)).toBe(false);
+		} finally {
+			cleanup();
+			expect(fs.existsSync(outsideDir)).toBe(false);
+		}
+	});
+
 	it('ensures package manifests expose default scripts', () => {
 		const { rootDir, cleanup } = setupRepository();
 		const logger = createLogger();
@@ -73,7 +153,7 @@ describe('register-workspace', () => {
 		try {
 			const alphaDir = createPackage(rootDir, 'alpha');
 
-			registerWorkspace({
+			updateWorkspace({
 				workspaceInput: 'packages/alpha',
 				cwd: rootDir,
 				logger,
@@ -84,14 +164,16 @@ describe('register-workspace', () => {
 			) as { scripts?: Record<string, string> };
 
 			expect(manifest.scripts).toMatchObject({
-				build: 'vite build && tsc --noEmit',
+				build: 'vite build && tsc --project tsconfig.json',
+				clean: 'rm -rf dist dist-tests *.tsbuildinfo',
 				lint: 'eslint src/',
 				'lint:fix': 'eslint src/ --fix',
-				test: 'jest --passWithNoTests --watchman=false',
-				'test:coverage': 'jest --coverage --watchman=false',
-				'test:watch': 'jest --watch',
-				typecheck: 'tsc --noEmit',
-				'typecheck:tests': 'tsc --project tsconfig.tests.json --noEmit',
+				test: 'wpk-run-jest',
+				'test:coverage': 'wpk-run-jest coverage',
+				'test:integration': 'wpk-run-jest integration',
+				'test:watch': 'wpk-run-jest --watch',
+				typecheck: 'tsc --project tsconfig.json --noEmit',
+				'typecheck:tests': 'wpk-run-typecheck-tests',
 			});
 		} finally {
 			cleanup();
@@ -106,12 +188,12 @@ describe('register-workspace', () => {
 			createPackage(rootDir, 'alpha');
 			createPackage(rootDir, 'beta');
 
-			registerWorkspace({
+			updateWorkspace({
 				workspaceInput: 'packages/alpha',
 				cwd: rootDir,
 				logger,
 			});
-			registerWorkspace({
+			updateWorkspace({
 				workspaceInput: 'packages/beta',
 				cwd: rootDir,
 				logger,
@@ -119,7 +201,7 @@ describe('register-workspace', () => {
 
 			logger.log.mockClear();
 
-			registerWorkspace({
+			updateWorkspace({
 				workspaceInput: 'packages/alpha',
 				cwd: rootDir,
 				dependenciesToAdd: ['beta'],
@@ -174,25 +256,25 @@ describe('register-workspace', () => {
 			createPackage(rootDir, 'alpha');
 			createPackage(rootDir, 'beta');
 
-			registerWorkspace({
+			updateWorkspace({
 				workspaceInput: 'packages/alpha',
 				cwd: rootDir,
 				logger,
 			});
-			registerWorkspace({
+			updateWorkspace({
 				workspaceInput: 'packages/beta',
 				cwd: rootDir,
 				logger,
 			});
 
-			registerWorkspace({
+			updateWorkspace({
 				workspaceInput: 'packages/alpha',
 				cwd: rootDir,
 				dependenciesToAdd: ['beta'],
 				logger,
 			});
 
-			registerWorkspace({
+			updateWorkspace({
 				workspaceInput: 'packages/alpha',
 				cwd: rootDir,
 				dependenciesToRemove: ['beta'],
@@ -220,18 +302,18 @@ describe('register-workspace', () => {
 			const alphaDir = createPackage(rootDir, 'alpha');
 			createPackage(rootDir, 'beta');
 
-			registerWorkspace({
+			updateWorkspace({
 				workspaceInput: 'packages/alpha',
 				cwd: rootDir,
 				logger,
 			});
-			registerWorkspace({
+			updateWorkspace({
 				workspaceInput: 'packages/beta',
 				cwd: rootDir,
 				logger,
 			});
 
-			registerWorkspace({
+			updateWorkspace({
 				workspaceInput: 'packages/alpha',
 				cwd: rootDir,
 				dependenciesToAdd: ['beta'],
@@ -260,25 +342,25 @@ describe('register-workspace', () => {
 			const alphaDir = createPackage(rootDir, 'alpha');
 			createPackage(rootDir, 'beta');
 
-			registerWorkspace({
+			updateWorkspace({
 				workspaceInput: 'packages/alpha',
 				cwd: rootDir,
 				logger,
 			});
-			registerWorkspace({
+			updateWorkspace({
 				workspaceInput: 'packages/beta',
 				cwd: rootDir,
 				logger,
 			});
 
-			registerWorkspace({
+			updateWorkspace({
 				workspaceInput: 'packages/alpha',
 				cwd: rootDir,
 				dependenciesToAdd: ['beta'],
 				logger,
 			});
 
-			registerWorkspace({
+			updateWorkspace({
 				workspaceInput: 'packages/alpha',
 				cwd: rootDir,
 				dependenciesToRemove: ['beta'],
@@ -305,12 +387,12 @@ describe('register-workspace', () => {
 			createPackage(rootDir, 'alpha');
 			const betaDir = createPackage(rootDir, 'beta');
 
-			registerWorkspace({
+			updateWorkspace({
 				workspaceInput: 'packages/alpha',
 				cwd: rootDir,
 				logger,
 			});
-			registerWorkspace({
+			updateWorkspace({
 				workspaceInput: 'packages/beta',
 				cwd: rootDir,
 				logger,
@@ -324,7 +406,7 @@ describe('register-workspace', () => {
 
 			logger.warn.mockClear();
 
-			registerWorkspace({
+			updateWorkspace({
 				workspaceInput: 'packages/alpha',
 				cwd: rootDir,
 				dependenciesToAdd: ['beta'],
@@ -335,6 +417,67 @@ describe('register-workspace', () => {
 				expect.stringContaining('Potential cyclic dependency')
 			);
 		} finally {
+			cleanup();
+		}
+	});
+
+	it('removes workspace artifacts and references', () => {
+		const { rootDir, cleanup } = setupRepository();
+		const logger = createLogger();
+
+		try {
+			createWorkspace({
+				workspaceInput: 'packages/alpha',
+				cwd: rootDir,
+				logger,
+			});
+
+			const packageDir = path.join(rootDir, 'packages/alpha');
+			expect(fs.existsSync(packageDir)).toBe(true);
+
+			removeWorkspace({
+				workspaceInput: 'packages/alpha',
+				cwd: rootDir,
+				logger,
+			});
+
+			expect(fs.existsSync(packageDir)).toBe(false);
+
+			const rootTsconfig = JSON.parse(
+				fs.readFileSync(path.join(rootDir, 'tsconfig.json'), 'utf8')
+			) as { references?: Array<{ path: string }> };
+
+			expect(
+				rootTsconfig.references?.some((ref) =>
+					ref.path.includes('packages/alpha')
+				)
+			).toBe(false);
+		} finally {
+			cleanup();
+		}
+	});
+
+	it('fails when attempting to remove a path outside managed workspaces', () => {
+		const { rootDir, cleanup } = setupRepository();
+		const logger = createLogger();
+
+		const outsideDir = path.join(rootDir, '..', 'external-target');
+		fs.mkdirSync(outsideDir, { recursive: true });
+
+		try {
+			expect(() =>
+				removeWorkspace({
+					workspaceInput: path.relative(rootDir, outsideDir),
+					cwd: rootDir,
+					logger,
+				})
+			).toThrow(
+				/within the repository's packages\/? or examples\/? directories/i
+			);
+
+			expect(fs.existsSync(outsideDir)).toBe(true);
+		} finally {
+			fs.rmSync(outsideDir, { recursive: true, force: true });
 			cleanup();
 		}
 	});
