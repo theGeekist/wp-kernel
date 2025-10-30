@@ -56,19 +56,21 @@ let cachedInteractivityModule: InteractivityModule | undefined;
  * Resolve the WordPress interactivity runtime from the global scope.
  */
 function resolveInteractivityModule(): InteractivityModule {
-	if (cachedInteractivityModule) {
-		return cachedInteractivityModule;
-	}
-
 	const globalTarget = globalThis as InteractivityGlobal;
 
-	if (globalTarget.__WPKernelInteractivityStub) {
-		cachedInteractivityModule = globalTarget.__WPKernelInteractivityStub;
-		return cachedInteractivityModule;
+	const stub = globalTarget.__WPKernelInteractivityStub;
+	if (stub) {
+		cachedInteractivityModule = stub;
+		return stub;
 	}
 
-	if (globalTarget.wp?.interactivity) {
-		cachedInteractivityModule = globalTarget.wp.interactivity;
+	const runtime = globalTarget.wp?.interactivity;
+	if (runtime) {
+		cachedInteractivityModule = runtime;
+		return runtime;
+	}
+
+	if (cachedInteractivityModule) {
 		return cachedInteractivityModule;
 	}
 
