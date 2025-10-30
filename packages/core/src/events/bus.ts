@@ -9,10 +9,12 @@ import { createReporter } from '../reporter';
 import { resolveReporter } from '../reporter/resolve';
 import { WPK_SUBSYSTEM_NAMESPACES } from '../contracts/index.js';
 
-export type ResourceDefinedEvent = {
-	resource: ResourceObject<unknown, unknown>;
+export type ResourceDefinedEvent<T = unknown, TQuery = unknown> = {
+	resource: ResourceObject<T, TQuery>;
 	namespace: string;
 };
+
+type GenericResourceDefinedEvent = ResourceDefinedEvent<unknown, unknown>;
 
 export type ActionDefinedEvent = {
 	action: DefinedAction<unknown, unknown>;
@@ -36,7 +38,7 @@ export type CustomKernelEvent = {
 };
 
 export type WPKernelEventMap = {
-	'resource:defined': ResourceDefinedEvent;
+	'resource:defined': GenericResourceDefinedEvent;
 	'action:defined': ActionDefinedEvent;
 	'action:start': ActionLifecycleEvent;
 	'action:complete': ActionLifecycleEvent;
@@ -50,6 +52,14 @@ type KernelEventName = keyof WPKernelEventMap;
 
 type Listener<T> = (payload: T) => void;
 
+/**
+ * Typed event bus used across the kernel to broadcast lifecycle events and
+ * cache invalidation notices.
+ *
+ * The bus automatically resolves a reporter so listener failures can be logged
+ * during development while remaining silent in production or when reporters are
+ * muted.
+ */
 export class WPKernelEventBus {
 	private reporter: Reporter;
 
@@ -71,6 +81,12 @@ export class WPKernelEventBus {
 		Set<Listener<WPKernelEventMap[KernelEventName]>>
 	> = new Map();
 
+	/**
+	 * Register a listener that remains active until the returned teardown
+	 * function is called.
+	 * @param event
+	 * @param listener
+	 */
 	on<K extends KernelEventName>(
 		event: K,
 		listener: Listener<WPKernelEventMap[K]>
@@ -83,6 +99,12 @@ export class WPKernelEventBus {
 		};
 	}
 
+	/**
+	 * Register a listener that runs only once for the next occurrence of
+	 * the event and then tears itself down.
+	 * @param event
+	 * @param listener
+	 */
 	once<K extends KernelEventName>(
 		event: K,
 		listener: Listener<WPKernelEventMap[K]>
@@ -94,6 +116,12 @@ export class WPKernelEventBus {
 		return teardown;
 	}
 
+	/**
+	 * Remove a previously registered listener. Calling this method for a
+	 * listener that was never registered is a no-op.
+	 * @param event
+	 * @param listener
+	 */
 	off<K extends KernelEventName>(
 		event: K,
 		listener: Listener<WPKernelEventMap[K]>
@@ -108,6 +136,13 @@ export class WPKernelEventBus {
 		}
 	}
 
+	/**
+	 * Emit the specified event and execute every registered listener. Any
+	 * listener failures are reported via the resolved reporter when running
+	 * outside of production.
+	 * @param event
+	 * @param payload
+	 */
 	emit<K extends KernelEventName>(
 		event: K,
 		payload: WPKernelEventMap[K]
@@ -133,9 +168,12 @@ export class WPKernelEventBus {
 }
 
 let sharedEventBus: WPKernelEventBus | undefined;
-const definedResources: ResourceDefinedEvent[] = [];
+const definedResources: GenericResourceDefinedEvent[] = [];
 const definedActions: ActionDefinedEvent[] = [];
 
+/**
+ * Return the shared kernel event bus, creating it lazily on first access.
+ */
 export function getWPKernelEventBus(): WPKernelEventBus {
 	if (!sharedEventBus) {
 		sharedEventBus = new WPKernelEventBus();
@@ -143,30 +181,77 @@ export function getWPKernelEventBus(): WPKernelEventBus {
 	return sharedEventBus;
 }
 
+/**
+ * Replace the shared kernel event bus. Intended for test suites that need to
+ * inspect emitted events.
+ * @param bus
+ */
 export function setWPKernelEventBus(bus: WPKernelEventBus): void {
 	sharedEventBus = bus;
 }
 
-export function recordResourceDefined(event: ResourceDefinedEvent): void {
-	definedResources.push(event);
+/**
+ * Record a resource definition so tests and extensions can inspect which
+ * resources have been registered.
+ * @param event
+ */
+export function recordResourceDefined<T, TQuery>(
+	event: ResourceDefinedEvent<T, TQuery>
+): void {
+	definedResources.push(event as GenericResourceDefinedEvent);
+}
+
+/**
+ * Remove a previously recorded resource definition. Useful when rolling back a
+ * resource registration due to pipeline failures.
+ * @param event
+ */
+export function removeResourceDefined<T, TQuery>(
+	event: ResourceDefinedEvent<T, TQuery>
+): void {
+	const index = definedResources.findIndex(
+		(existing) =>
+			existing.namespace === event.namespace &&
+			existing.resource === event.resource
+	);
+
+	if (index === -1) {
+		return;
+	}
+
+	definedResources.splice(index, 1);
 }
 
 export function recordActionDefined(event: ActionDefinedEvent): void {
 	definedActions.push(event);
 }
 
-export function getRegisteredResources(): ResourceDefinedEvent[] {
+/**
+ * Retrieve a shallow copy of all recorded resource definitions.
+ */
+export function getRegisteredResources(): GenericResourceDefinedEvent[] {
 	return [...definedResources];
 }
 
+/**
+ * Retrieve a shallow copy of all recorded action definitions.
+ */
 export function getRegisteredActions(): ActionDefinedEvent[] {
 	return [...definedActions];
 }
 
+/**
+ * Clear the tracked resource definitions. Primarily used in test setup and
+ * teardown.
+ */
 export function clearRegisteredResources(): void {
 	definedResources.length = 0;
 }
 
+/**
+ * Clear the tracked action definitions. Primarily used in test setup and
+ * teardown.
+ */
 export function clearRegisteredActions(): void {
 	definedActions.length = 0;
 }

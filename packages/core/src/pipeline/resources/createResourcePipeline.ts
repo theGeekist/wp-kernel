@@ -4,6 +4,7 @@ import { createResourceValidationFragment } from './helpers/createResourceValida
 import { createResourceClientFragment } from './helpers/createResourceClientFragment';
 import { createResourceCacheKeysFragment } from './helpers/createResourceCacheKeysFragment';
 import { createResourceObjectBuilder } from './helpers/createResourceObjectBuilder';
+import { createFinalizeResourceDefinitionExtension } from './extensions/createFinalizeResourceDefinitionExtension';
 import type {
 	ResourcePipeline,
 	ResourcePipelineOptions,
@@ -87,6 +88,9 @@ export function createResourcePipeline<T, TQuery>(): ResourcePipeline<
 	pipeline.ir.use(createResourceClientFragment<T, TQuery>());
 	pipeline.ir.use(createResourceCacheKeysFragment<T, TQuery>());
 	pipeline.builders.use(createResourceObjectBuilder<T, TQuery>());
+	pipeline.extensions.use(
+		createFinalizeResourceDefinitionExtension<T, TQuery>()
+	);
 
 	return pipeline;
 }
