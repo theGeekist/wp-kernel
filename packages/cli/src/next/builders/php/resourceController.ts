@@ -7,22 +7,21 @@ import type {
 } from '../../runtime/types';
 import {
 	buildProgramTargetPlanner,
+	buildResourceControllerRouteSet,
 	buildRestControllerModuleFromPlan,
 	DEFAULT_DOC_HEADER,
 	type RestControllerResourcePlan,
 	type RestControllerRoutePlan,
-	type RestControllerRouteStatementsContext,
 } from '@wpkernel/wp-json-ast';
 import { getPhpBuilderChannel } from './channel';
 import type { PhpBuilderChannel } from './channel';
-import type { PhpStmt, PhpStmtClassMethod } from '@wpkernel/php-json-ast';
+import type { PhpStmtClassMethod } from '@wpkernel/php-json-ast';
 import { makeErrorCodeFactory, sanitizeJson, toPascalCase } from './utils';
 import type { IRResource, IRv1 } from '../../ir/publicTypes';
 import { resolveIdentityConfig, type ResolvedIdentity } from './identity';
 import { buildRestArgs } from './resourceController/restArgs';
 import { buildRouteMethodName } from './resourceController/routeNaming';
-import { buildNotImplementedStatements } from './resourceController/stubs';
-import { buildRouteKindStatements } from './resourceController/routes/handleRouteKind';
+import { buildRouteSetOptions } from './resourceController/routes/buildRouteSetOptions';
 import { buildWpTaxonomyHelperMethods } from './resource/wpTaxonomy';
 import { buildWpOptionHelperMethods } from './resource/wpOption';
 import { buildTransientHelperMethods } from './resource/transient';
@@ -57,7 +56,7 @@ export function createPhpResourceControllerHelper(): BuilderHelper {
 				origin: ir.meta.origin,
 				pluginNamespace: ir.php.namespace,
 				sanitizedNamespace: ir.meta.sanitizedNamespace,
-				capabilityClass: `${ir.php.namespace}\\Capability\\Capability`,
+				capabilityClass: `${ir.php.namespace}\\Generated\\Capability\\Capability`,
 				resources: buildResourcePlans(ir),
 				includeBaseController: false,
 			});
@@ -207,45 +206,23 @@ interface RoutePlanOptions extends ControllerBuildContext {
 function buildRoutePlan(options: RoutePlanOptions): RestControllerRoutePlan {
 	const { ir, route } = options;
 
-	return {
-		definition: {
-			method: route.method,
-			path: route.path,
-			capability: route.capability,
+	return buildResourceControllerRouteSet({
+		plan: {
+			definition: {
+				method: route.method,
+				path: route.path,
+				capability: route.capability,
+			},
+			methodName: buildRouteMethodName(route, ir),
 		},
-		methodName: buildRouteMethodName(route, ir),
-		buildStatements: (context) =>
-			buildRouteStatements({
-				...options,
-				context,
-			}),
-		buildFallbackStatements: () => buildNotImplementedStatements(route),
-	} satisfies RestControllerRoutePlan;
-}
-
-interface BuildRouteStatementsOptions extends RoutePlanOptions {
-	readonly context: RestControllerRouteStatementsContext;
-}
-
-function buildRouteStatements(
-	options: BuildRouteStatementsOptions
-): readonly PhpStmt[] | null {
-	const { context, resource, route } = options;
-
-	const handledStatements = buildRouteKindStatements({
-		resource,
-		route,
-		identity: options.identity,
-		pascalName: options.pascalName,
-		errorCodeFactory: options.errorCodeFactory,
-		metadataHost: context.metadataHost,
-		cacheSegments: context.metadata.cacheSegments ?? [],
-		routeKind: context.metadata.kind,
+		...buildRouteSetOptions({
+			resource: options.resource,
+			route: options.route,
+			identity: options.identity,
+			pascalName: options.pascalName,
+			errorCodeFactory: options.errorCodeFactory,
+		}),
 	});
-
-	return handledStatements && handledStatements.length > 0
-		? handledStatements
-		: null;
 }
 
 function buildStorageHelperMethods(

@@ -33,9 +33,12 @@ export async function stageRenderStubs({
 		}
 		const manifest = await workspace.commit(RENDER_TRANSACTION_LABEL);
 		await queueWorkspaceFiles(workspace, output, manifest.writes);
-		reporter.debug('createPhpBlocksHelper: render stubs emitted.', {
-			files: manifest.writes,
-		});
+		reporter.debug(
+			'createPhpBlocksHelper: staged SSR block render stubs.',
+			{
+				files: manifest.writes,
+			}
+		);
 	} catch (error) {
 		await workspace.rollback(RENDER_TRANSACTION_LABEL);
 		throw error;

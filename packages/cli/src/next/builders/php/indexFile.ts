@@ -2,19 +2,18 @@ import { createHelper } from '../../runtime';
 import type {
 	BuilderApplyOptions,
 	BuilderHelper,
-	BuilderInput,
 	BuilderNext,
-	BuilderOutput,
-	PipelineContext,
 } from '../../runtime/types';
 import {
-	appendGeneratedFileDocblock,
 	buildIndexProgram,
-	createWpPhpFileBuilder,
+	buildProgramTargetPlanner,
+	DEFAULT_DOC_HEADER,
 	type ModuleIndexEntry,
 } from '@wpkernel/wp-json-ast';
 import type { IRv1 } from '../../ir/publicTypes';
 import { toPascalCase } from './utils';
+import { getPhpBuilderChannel } from './channel';
+import { compileModuleProgram } from './moduleProgram';
 
 export function createPhpIndexFileHelper(): BuilderHelper {
 	return createHelper({
@@ -36,28 +35,31 @@ export function createPhpIndexFileHelper(): BuilderHelper {
 				entries: buildIndexEntries(ir),
 			});
 
-			const helper = createWpPhpFileBuilder<
-				PipelineContext,
-				BuilderInput,
-				BuilderOutput
-			>({
-				key: 'php-index',
-				filePath: options.context.workspace.resolve(
-					ir.php.outputDir,
-					'index.php'
-				),
-				namespace: program.namespace ?? moduleNamespace,
-				metadata: program.metadata,
-				build: (builder) => {
-					appendGeneratedFileDocblock(builder, program.docblock);
-
-					for (const statement of program.statements) {
-						builder.appendProgramStatement(statement);
-					}
-				},
+			const planner = buildProgramTargetPlanner({
+				workspace: options.context.workspace,
+				outputDir: ir.php.outputDir,
+				channel: getPhpBuilderChannel(options.context),
+				docblockPrefix: DEFAULT_DOC_HEADER,
 			});
 
-			await helper.apply(options);
+			const fileProgram = compileModuleProgram({
+				namespace: program.namespace ?? moduleNamespace,
+				docblock: program.docblock,
+				metadata: program.metadata,
+				statements: program.statements,
+			});
+
+			planner.queueFile({
+				fileName: 'index.php',
+				program: fileProgram,
+				metadata: program.metadata,
+				docblock: program.docblock,
+				uses: [],
+				statements: [],
+			});
+			options.reporter.debug(
+				'createPhpIndexFileHelper: queued PHP index file.'
+			);
 			await next?.();
 		},
 	});

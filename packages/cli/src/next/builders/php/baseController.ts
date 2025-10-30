@@ -2,19 +2,18 @@ import { createHelper } from '../../runtime';
 import type {
 	BuilderApplyOptions,
 	BuilderHelper,
-	BuilderInput,
 	BuilderNext,
-	BuilderOutput,
-	PipelineContext,
 } from '../../runtime/types';
 import {
-	appendGeneratedFileDocblock,
 	buildBaseControllerProgram,
-	createWpPhpFileBuilder,
-	moduleSegment,
+	buildProgramTargetPlanner,
+	DEFAULT_DOC_HEADER,
 	deriveModuleNamespace,
+	moduleSegment,
 	type ModuleNamespaceConfig,
 } from '@wpkernel/wp-json-ast';
+import { getPhpBuilderChannel } from './channel';
+import { compileModuleProgram } from './moduleProgram';
 
 export function createPhpBaseControllerHelper(): BuilderHelper {
 	return createHelper({
@@ -35,12 +34,6 @@ export function createPhpBaseControllerHelper(): BuilderHelper {
 					moduleSegment('Rest', ''),
 				],
 			};
-			const filePath = options.context.workspace.resolve(
-				ir.php.outputDir,
-				'Rest',
-				'BaseController.php'
-			);
-
 			const program = buildBaseControllerProgram({
 				origin: ir.meta.origin,
 				namespace: namespaceConfig,
@@ -48,26 +41,31 @@ export function createPhpBaseControllerHelper(): BuilderHelper {
 			const derivedNamespace =
 				program.namespace ??
 				deriveModuleNamespace(namespaceConfig).namespace;
-
-			const builderHelper = createWpPhpFileBuilder<
-				PipelineContext,
-				BuilderInput,
-				BuilderOutput
-			>({
-				key: 'base-controller',
-				filePath,
-				namespace: derivedNamespace,
-				metadata: program.metadata,
-				build: (builder) => {
-					appendGeneratedFileDocblock(builder, program.docblock);
-
-					for (const statement of program.statements) {
-						builder.appendProgramStatement(statement);
-					}
-				},
+			const planner = buildProgramTargetPlanner({
+				workspace: options.context.workspace,
+				outputDir: ir.php.outputDir,
+				channel: getPhpBuilderChannel(options.context),
+				docblockPrefix: DEFAULT_DOC_HEADER,
 			});
 
-			await builderHelper.apply(options);
+			const fileProgram = compileModuleProgram({
+				namespace: derivedNamespace,
+				docblock: program.docblock,
+				metadata: program.metadata,
+				statements: program.statements,
+			});
+
+			planner.queueFile({
+				fileName: 'Rest/BaseController.php',
+				program: fileProgram,
+				metadata: program.metadata,
+				docblock: program.docblock,
+				uses: [],
+				statements: [],
+			});
+			options.reporter.debug(
+				'createPhpBaseControllerHelper: queued Rest/BaseController.php.'
+			);
 			await next?.();
 		},
 	});
