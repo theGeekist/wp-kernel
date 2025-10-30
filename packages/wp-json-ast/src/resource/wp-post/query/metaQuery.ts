@@ -1,7 +1,7 @@
 import {
 	buildArg,
 	buildArray,
-	buildArrayCast as buildArrayCastNode,
+	buildArrayCast,
 	buildArrayItem,
 	buildAssign,
 	buildArrowFunction,
@@ -23,15 +23,16 @@ import {
 	type PhpStmtExpression,
 	type PhpStmtIf,
 } from '@wpkernel/php-json-ast';
+
 import {
 	buildArrayDimFetch,
+	buildArrayInitialiserStatement,
 	buildBinaryOperation,
 	buildBooleanNot,
-	buildScalarCast,
 	buildIfStatementNode,
-	buildArrayInitialiserStatement,
-} from '../utils';
-import { toSnakeCase } from '../../utils';
+	buildScalarCast,
+} from '../../common/utils';
+import { toSnakeCase } from './utils';
 
 export interface WpPostMetaConfigEntry {
 	readonly single?: boolean | null;
@@ -149,9 +150,7 @@ function buildMultiValueMetaStatements(
 		buildAssign(
 			buildVariable(options.variableName),
 			buildFuncCall(buildName(['array_values']), [
-				buildArg(
-					buildArrayCastNode(buildVariable(options.variableName))
-				),
+				buildArg(buildArrayCast(buildVariable(options.variableName))),
 			])
 		)
 	);

@@ -23,6 +23,7 @@ import {
 } from '@wpkernel/php-json-ast';
 import {
 	buildWpTermQueryInstantiation,
+	buildListItemsInitialiserStatement,
 	type ResourceMetadataHost,
 } from '@wpkernel/wp-json-ast';
 import { buildCacheInvalidators } from '../cache';
@@ -40,7 +41,6 @@ import {
 	buildScalarCast,
 } from '../utils';
 import { buildReturnIfWpError } from '../errors';
-import { buildListItemsInitialiserStatement } from '../wpPost/list';
 import type { IRResource } from '../../../../ir/publicTypes';
 import {
 	buildPrepareTaxonomyTermResponseCall,
@@ -51,6 +51,10 @@ type WpTaxonomyStorage = Extract<
 	NonNullable<IRResource['storage']>,
 	{ mode: 'wp-taxonomy' }
 >;
+
+interface BuildResultsForeachOptions {
+	readonly pascalName: string;
+}
 
 export interface BuildWpTaxonomyListRouteStatementsOptions {
 	readonly resource: IRResource;
@@ -178,11 +182,7 @@ export function buildWpTaxonomyListRouteStatements(
 
 	statements.push(buildListItemsInitialiserStatement());
 
-	statements.push(
-		buildResultsForeach({
-			pascalName: options.pascalName,
-		})
-	);
+	statements.push(buildResultsForeach({ pascalName: options.pascalName }));
 	statements.push(buildBlankStatement());
 
 	statements.push(
@@ -347,9 +347,9 @@ function buildExtraArgsMergeStatements(): PhpStmt[] {
 	return statements;
 }
 
-function buildResultsForeach(options: {
-	readonly pascalName: string;
-}): PhpStmtForeach {
+function buildResultsForeach(
+	options: BuildResultsForeachOptions
+): PhpStmtForeach {
 	const appendStatement = buildExpressionStatement(
 		buildAssign(
 			buildArrayDimFetch('items', null),

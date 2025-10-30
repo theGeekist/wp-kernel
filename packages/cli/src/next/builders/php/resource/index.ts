@@ -6,11 +6,17 @@ export type { RequestParamAssignmentOptions } from './request';
 export * from './query';
 export * from './errors';
 export * from './mutationContract';
-export * from './wpPost/list';
-export * from './wpPost/metaQuery';
-export * from './wpPost/taxonomyQuery';
 export * from './wpPost/identity';
 export * from './wpPost/mutations';
+export {
+	buildListForeachStatement,
+	buildListItemsInitialiserStatement,
+	buildMetaQueryStatements,
+	collectMetaQueryEntries,
+	buildTaxonomyQueryStatements,
+	collectTaxonomyQueryEntries,
+} from '@wpkernel/wp-json-ast';
 export * from './wpTaxonomy';
 export * from './wpOption';
 export * from './transient';
+export { resourceAccessors } from './accessors';
