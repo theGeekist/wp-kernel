@@ -1,5 +1,6 @@
 import { createPipeline } from '../createPipeline';
 import { createHelper } from '../helper';
+import { reportPipelineDiagnostic } from '../reporting';
 import type { Reporter } from '../../reporter/types';
 import type {
 	HelperApplyOptions,
@@ -122,6 +123,12 @@ describe('createPipeline.run', () => {
 			},
 			createRunResult({ artifact, diagnostics, steps }) {
 				return { artifact, diagnostics, steps } satisfies TestRunResult;
+			},
+			onDiagnostic({ reporter: activeReporter, diagnostic }) {
+				reportPipelineDiagnostic({
+					reporter: activeReporter,
+					diagnostic,
+				});
 			},
 		});
 

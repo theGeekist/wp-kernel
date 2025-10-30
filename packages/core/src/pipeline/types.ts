@@ -261,6 +261,16 @@ export interface CreatePipelineOptions<
 			TBuilderKind
 		>;
 	}) => TRunResult;
+	/**
+	 * Optional hook invoked whenever a diagnostic is emitted during a run.
+	 *
+	 * Consumers can stream diagnostics to logs or UI shells while the
+	 * pipeline executes instead of waiting for the final run result.
+	 */
+	readonly onDiagnostic?: (options: {
+		readonly reporter: TReporter;
+		readonly diagnostic: TDiagnostic;
+	}) => void;
 	readonly createExtensionHookOptions?: (options: {
 		readonly context: TContext;
 		readonly options: TRunOptions;

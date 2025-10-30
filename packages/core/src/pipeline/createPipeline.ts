@@ -1,6 +1,5 @@
 import { WPKernelError } from '../error/index.js';
 import type { Reporter } from '../reporter/types';
-import { reportPipelineDiagnostic } from './reporting.js';
 import type {
 	CreatePipelineOptions,
 	Helper,
@@ -642,9 +641,8 @@ export function createPipeline<
 	const fragmentEntries: RegisteredHelper<TFragmentHelper>[] = [];
 	const builderEntries: RegisteredHelper<TBuilderHelper>[] = [];
 	const diagnostics: TDiagnostic[] = [];
-	let loggedDiagnostics = new Set<TDiagnostic>();
-	let loggedDiagnosticsReporter: Reporter | undefined;
-	let diagnosticReporter: Reporter | undefined;
+	const loggedDiagnosticsByReporter = new Map<TReporter, Set<TDiagnostic>>();
+	let diagnosticReporter: TReporter | undefined;
 	const extensionHooks: ExtensionHookEntry<
 		TContext,
 		TBuildOptions,
@@ -747,25 +745,25 @@ export function createPipeline<
 	}
 
 	function logDiagnostic(diagnostic: TDiagnostic): void {
-		if (!diagnosticReporter) {
+		if (!diagnosticReporter || !options.onDiagnostic) {
 			return;
 		}
 
-		if (diagnosticReporter !== loggedDiagnosticsReporter) {
-			loggedDiagnostics = new Set();
-			loggedDiagnosticsReporter = diagnosticReporter;
-		}
-
-		if (loggedDiagnostics.has(diagnostic)) {
+		const loggedForReporter =
+			loggedDiagnosticsByReporter.get(diagnosticReporter);
+		if (loggedForReporter?.has(diagnostic)) {
 			return;
 		}
 
-		reportPipelineDiagnostic({
+		const trackingSet = loggedForReporter ?? new Set<TDiagnostic>();
+		options.onDiagnostic({
 			reporter: diagnosticReporter,
 			diagnostic,
 		});
-
-		loggedDiagnostics.add(diagnostic);
+		trackingSet.add(diagnostic);
+		if (!loggedForReporter) {
+			loggedDiagnosticsByReporter.set(diagnosticReporter, trackingSet);
+		}
 	}
 
 	function emitDiagnostic(diagnostic: TDiagnostic): void {

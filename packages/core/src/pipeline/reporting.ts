@@ -1,3 +1,13 @@
+/**
+ * Pipeline reporting adapters.
+ *
+ * These helpers convert strongly typed pipeline diagnostics into the structured
+ * context expected by the WP Kernel reporter so warnings remain consistent
+ * across CLI and runtime surfaces.
+ *
+ * @module @wpkernel/core/pipeline/reporting
+ */
+
 import type { Reporter } from '../reporter/types';
 import type { PipelineDiagnostic } from './types';
 
@@ -50,6 +60,12 @@ function buildDiagnosticContext(
 	}
 }
 
+/**
+ * Emit a single pipeline diagnostic as a reporter warning.
+ * @param root0
+ * @param root0.reporter
+ * @param root0.diagnostic
+ */
 export function reportPipelineDiagnostic({
 	reporter,
 	diagnostic,
@@ -59,6 +75,12 @@ export function reportPipelineDiagnostic({
 	});
 }
 
+/**
+ * Emit each pipeline diagnostic in sequence as reporter warnings.
+ * @param root0
+ * @param root0.reporter
+ * @param root0.diagnostics
+ */
 export function reportPipelineDiagnostics({
 	reporter,
 	diagnostics,
