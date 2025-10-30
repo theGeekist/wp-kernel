@@ -357,7 +357,7 @@ _Completion:_ ☑ Completed – Exported discriminated union identity types and 
 
 _Task 3.1: Refine CLI builders into pipelines._ Replace direct orchestration of AST fragments with declarative pipelines (for example `createWpRestController` combined with helper components). Each task should focus on one builder, swapping its internal implementation for a pipeline that stitches together the factories established in Phase 2.
 
-_Completion:_ ☐ Pending - replace this line with the PR link and a one-line summary when the task is complete.
+_Completion:_ ☑ Completed – Added rest-controller module plan factories in `@wpkernel/wp-json-ast` and updated the CLI resource controller helper to consume the new pipeline.
 
 _Task 3.2: Expand composable helper library._ Build lightweight adapters that compose multiple factories (such as REST controllers plus capability helpers) so the CLI can generate complex files by chaining configuration objects. Document these adapters and ensure integration tests cover the composed output.
 
