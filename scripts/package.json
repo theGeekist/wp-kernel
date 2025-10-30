@@ -9,5 +9,8 @@
 	"bin": {
 		"wpk-run-jest": "./test/run-jest.cjs",
 		"wpk-run-typecheck-tests": "./test/run-typecheck-tests.cjs"
+	},
+	"devDependencies": {
+		"jsonc-parser": "^3.3.1"
 	}
 }

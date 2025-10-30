@@ -6,7 +6,7 @@ Phase 7 closes the gaps that keep freshly scaffolded projects from activating im
 
 ## Scope at a glance
 
-- `wpk create` already honours `--name` inside [`packages/cli/src/commands/create.ts`](../src/commands/create.ts), but the monorepo does not publish a bootstrapper. We must ship `@wpkernel/create-wpk` using [`scripts/register-workspace.ts`](../../../scripts/register-workspace.ts) so `npm|pnpm create @wpkernel/wpk … -- --name` lands in the CLI.
+- `wpk create` already honours `--name` inside [`packages/cli/src/commands/create.ts`](../src/commands/create.ts), but the monorepo does not publish a bootstrapper. We must ship `@wpkernel/create-wpk` via `pnpm monorepo:create packages/create-wpk` (backed by [`scripts/register-workspace.ts`](../../../scripts/register-workspace.ts)) so `npm|pnpm create @wpkernel/wpk … -- --name` lands in the CLI.
 - `wpk init` currently reuses the scaffold descriptors in [`packages/cli/src/commands/init/scaffold.ts`](../src/commands/init/scaffold.ts); `assertNoCollisions()` fails as soon as an existing plugin provides `composer.json`, `wpk.config.ts`, or other template files. Passing `--force` overwrites those author-owned assets with [`packages/cli/templates/init`](../templates/init) defaults, so Phase 7 must add a detection path that seeds only the missing kernel files when running inside an established plugin.
 - The init template stops at an empty `inc/.gitkeep` in [`packages/cli/templates/init/inc`](../templates/init/inc/.gitkeep); the generator never writes a plugin header or loader. Phase 7 introduces an AST helper that emits the bootstrap file when missing and detects user-supplied loaders to avoid clobbering them.
 - Resource removals currently leave stale files because `wpk generate` only writes additions in [`packages/cli/src/commands/generate.ts`](../src/commands/generate.ts); the workspace removal helpers in [`packages/cli/src/next/workspace/filesystem.ts`](../src/next/workspace/filesystem.ts) are unused. We will surface deletions in the plan so `wpk apply` cleans them up.
@@ -18,7 +18,7 @@ Phase 7 closes the gaps that keep freshly scaffolded projects from activating im
 
 Stand up the `@wpkernel/create-wpk` workspace so the monorepo can publish a `npm create` entry point. This patch:
 
-1. Runs [`scripts/register-workspace.ts`](../../../scripts/register-workspace.ts) to scaffold the package, wire the TypeScript paths, and register the workspace in `pnpm-workspace.yaml` and root configs.
+1. Runs `pnpm monorepo:create packages/create-wpk` to scaffold the package, wire the TypeScript paths, and register the workspace in `pnpm-workspace.yaml` and root configs.
 2. Adds the package metadata (`package.json`, README, LICENSE) and a tiny Node entry that shells out to the CLI binary but leaves flag forwarding for the next patch.
 3. Sets up the release tooling (build scripts, `files` whitelist, bin map) without yet touching docs or integration coverage.
 

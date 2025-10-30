@@ -4,8 +4,8 @@ Bringing a new package online inside the wp-kernel monorepo, and then teaching i
 
 ## 1. Package manifest
 
-1. Create the package directory under `packages/` with at minimum a `package.json`, TypeScript configs, a Vite build config (for libraries), and a Jest config. The helper script `pnpm workspace:register packages/<name>` (or `pnpm exec tsx scripts/register-workspace.ts packages/<name>`) scaffolds both TS configs, keeps `tsconfig.base.json` aliases current, and adds the missing `typecheck` scripts when needed.
-    - Pass `--deps=@wpkernel/core,@wpkernel/ui` (comma separated) to pre-register internal dependencies. The script updates TypeScript references, adds `peerDependencies` with `workspace:*` versions, and surfaces a warning if you accidentally introduce a cycle (for example, if `ui` already points at your package). Use `--remove-deps=` with the same syntax to prune references and peer dependency entries.
+1. Run `pnpm monorepo:create packages/<name>` (or `pnpm exec tsx scripts/register-workspace.ts create packages/<name>`) to scaffold the workspace. The generator emits the minimal `package.json`, TypeScript configs, Jest config, Vite config, smoke unit and integration tests, and source entry points.
+    - Pass `--deps=@wpkernel/core,@wpkernel/ui` (comma separated) to pre-register internal dependencies. The script updates TypeScript references, adds `peerDependencies` with `workspace:*` versions, and surfaces a warning if you accidentally introduce a cycle (for example, if `ui` already points at your package). Use `pnpm monorepo:update packages/<name> --remove-deps=@wpkernel/ui` (or the `--remove-deps` flag during creation) to prune references and peer dependency entries.
 2. In `package.json`:
     - Point `main`, `module`, and `types` at the `dist/` outputs (`./dist/index.js` / `index.d.ts`).
     - Ensure the standard scripts exist (`build`, `typecheck`, `typecheck:tests`, `lint`, `test`). The registration script inserts the typecheck targets automatically.
@@ -30,7 +30,7 @@ Every package needs two `tsconfig` files and they should extend the shared prese
     - Exclude `dist/`, `dist-tests/`, and `node_modules/`.
     - Reference the source `tsconfig.json` **and** any sibling workspaces the tests rely on.
 
-Running `pnpm exec tsx scripts/register-workspace.ts packages/<name>` will create both files with the structure above and update the root `tsconfig.json` references. Use `--deps=` when you want the script to insert sibling references during scaffolding; edit the generated files afterwards if you need bespoke include paths or want to remove a relationship with `--remove-deps=`.
+Running `pnpm monorepo:update packages/<name>` keeps both files aligned after manual edits and updates the root `tsconfig.json` references. Use `--deps=` when you want the script to insert sibling references during scaffolding; edit the generated files afterwards if you need bespoke include paths or prune relationships with `--remove-deps=`.
 
 ## 3. Jest configuration
 
