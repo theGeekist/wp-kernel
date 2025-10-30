@@ -6,4 +6,11 @@ export type {
 	InteractionActionInput,
 	InteractionActionsRecord,
 	InteractionActionMetaResolver,
-} from './defineInteraction';
+	InteractionActionsRuntime,
+	InteractivityGlobal,
+	InteractivityModule,
+	InteractivityStoreResult,
+	InteractivityServerState,
+	InteractivityServerStateResolver,
+	HydrateServerStateInput,
+} from './types';

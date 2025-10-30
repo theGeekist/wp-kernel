@@ -5,7 +5,10 @@
  * and avoids object replacement patterns. Uses property-level mocking
  * with proper TypeScript integration.
  */
-import type * as WPInteractivity from '@wordpress/interactivity';
+import type {
+	InteractivityModule,
+	InteractivityServerStateResolver,
+} from '@wpkernel/core/interactivity';
 
 // Optional: Add custom matchers
 // import matchers from 'jest-extended';
@@ -77,8 +80,6 @@ const wpHooksStub = {
 	createHooks: jest.fn(),
 } as any; // Stub - 'as any' acceptable for test fixtures
 
-type WPInteractivityModule = typeof WPInteractivity;
-
 /**
  * Minimal interactivity stub so tests can run without script module hydration.
  * `@wordpress/interactivity` is a peer dependency for defineInteraction – keep
@@ -87,7 +88,7 @@ type WPInteractivityModule = typeof WPInteractivity;
 const storeMock = jest.fn(
 	(namespace?: string, definition?: Record<string, unknown>) => {
 		void namespace;
-		return (definition ?? {}) as ReturnType<WPInteractivityModule['store']>;
+		return (definition ?? {}) as ReturnType<InteractivityModule['store']>;
 	}
 );
 
@@ -95,19 +96,21 @@ const getServerStateMock = jest
 	.fn(() => ({}))
 	.mockName('wp.interactivity.getServerState');
 
-const wpInteractivityStubPartial: Partial<WPInteractivityModule> = {
-	store: storeMock as unknown as WPInteractivityModule['store'],
+const wpInteractivityStubPartial: Partial<InteractivityModule> = {
+	store: storeMock as unknown as InteractivityModule['store'],
 	getServerState:
-		getServerStateMock as unknown as WPInteractivityModule['getServerState'],
+		getServerStateMock as unknown as InteractivityModule['getServerState'],
 };
 
-wpInteractivityStubPartial.getServerState!.subscribe = 0;
+(wpInteractivityStubPartial.getServerState as
+	| InteractivityServerStateResolver
+	| undefined)!.subscribe = 0;
 
-const wpInteractivityStub = wpInteractivityStubPartial as WPInteractivityModule;
+const wpInteractivityStub = wpInteractivityStubPartial as InteractivityModule;
 
 (
 	globalThis as {
-		__WPKernelInteractivityStub?: WPInteractivityModule;
+		__WPKernelInteractivityStub?: InteractivityModule;
 	}
 ).__WPKernelInteractivityStub = wpInteractivityStub;
 
