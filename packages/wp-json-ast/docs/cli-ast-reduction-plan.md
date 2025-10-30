@@ -318,7 +318,7 @@ _Completion:_ ☑ Completed – Routed the base controller and index helpers thr
 - **Intent:** Feed the planner the canonical docblock prefix (for example `DEFAULT_DOC_HEADER`) and align queued file diagnostics across helpers.
 - **Expected outcome:** Capability and persistence queues capture the prefixed docblocks, emit matching reporter messages, and tests spy on the planner to confirm the normalised metadata payloads.
 
-_Completion:_ ☐ Pending – update once planner options and tests are in place.
+_Completion:_ ☑ Completed – queued capability and persistence planners with the shared docblock prefix and updated tests to assert the normalised metadata.
 
 **Subtask 3.1.c – Migrate block artefacts onto the planner surface.**
 
