@@ -120,6 +120,32 @@ describe('register-workspace', () => {
 		}
 	});
 
+	it('rejects workspace creation when the path escapes the repository', () => {
+		const { rootDir, cleanup } = setupRepository();
+		const logger = createLogger();
+		const outsideSuffix = `outside-target-${Date.now()}`;
+		const workspaceInput = `packages/../../${outsideSuffix}`;
+		const outsideDir = path.resolve(rootDir, workspaceInput);
+
+		expect(fs.existsSync(outsideDir)).toBe(false);
+
+		try {
+			expect(() =>
+				createWorkspace({
+					workspaceInput,
+					cwd: rootDir,
+					logger,
+				})
+			).toThrow(
+				/Workspace path must resolve within the repository's packages\/ or examples\/ directories\./
+			);
+			expect(fs.existsSync(outsideDir)).toBe(false);
+		} finally {
+			cleanup();
+			expect(fs.existsSync(outsideDir)).toBe(false);
+		}
+	});
+
 	it('ensures package manifests expose default scripts', () => {
 		const { rootDir, cleanup } = setupRepository();
 		const logger = createLogger();
