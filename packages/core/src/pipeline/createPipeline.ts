@@ -641,7 +641,10 @@ export function createPipeline<
 	const fragmentEntries: RegisteredHelper<TFragmentHelper>[] = [];
 	const builderEntries: RegisteredHelper<TBuilderHelper>[] = [];
 	const diagnostics: TDiagnostic[] = [];
-	const loggedDiagnosticsByReporter = new Map<TReporter, Set<TDiagnostic>>();
+	const loggedDiagnosticsByReporter = new WeakMap<
+		TReporter,
+		Set<TDiagnostic>
+	>();
 	let diagnosticReporter: TReporter | undefined;
 	const extensionHooks: ExtensionHookEntry<
 		TContext,

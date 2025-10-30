@@ -16,7 +16,6 @@ import { WPKernelError } from '../error/WPKernelError';
 import { invalidate as invalidateCache } from '../resource/cache';
 import { getNamespace } from '../namespace/detect';
 import { createCapabilityProxy } from '../capability/context';
-import { createReporter as createKernelReporter } from '../reporter';
 import { WPK_EVENTS, WPK_INFRASTRUCTURE } from '../contracts/index.js';
 import { getWPKernelEventBus } from '../events/bus';
 import type {
@@ -28,6 +27,7 @@ import type {
 	Reporter,
 	ResolvedActionOptions,
 } from './types';
+import { resolveActionReporter } from './resolveReporter';
 
 /**
  * Broadcast channel name for cross-tab action event coordination.
@@ -142,21 +142,6 @@ export function resolveOptions(
  */
 export function generateActionRequestId(): string {
 	return `act_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
-}
-
-function resolveReporter(
-	runtime: ActionRuntime | undefined,
-	namespace: string
-): Reporter {
-	if (runtime?.reporter) {
-		return runtime.reporter;
-	}
-
-	return createKernelReporter({
-		namespace,
-		channel: 'all',
-		level: 'debug',
-	});
 }
 
 /**
@@ -445,9 +430,10 @@ function emitDomainEvent(
  * This function assembles the context by wiring together runtime integrations
  * (reporter, jobs, capability) and binding them to the current action invocation.
  *
- * @param actionName - Name of the action being executed
- * @param requestId  - Unique identifier for this action invocation
- * @param options    - Resolved action options (scope, bridged)
+ * @param actionName       - Name of the action being executed
+ * @param requestId        - Unique identifier for this action invocation
+ * @param options          - Resolved action options (scope, bridged)
+ * @param reporterOverride
  * @return Complete ActionContext instance with all integration surfaces
  * @internal
  *
@@ -468,7 +454,8 @@ function emitDomainEvent(
 export function createActionContext(
 	actionName: string,
 	requestId: string,
-	options: ResolvedActionOptions
+	options: ResolvedActionOptions,
+	reporterOverride?: Reporter
 ): ActionContext {
 	const runtime = getRuntime();
 	const namespace = getNamespace();
@@ -481,7 +468,8 @@ export function createActionContext(
 		timestamp: Date.now(),
 	};
 
-	const reporter = resolveReporter(runtime, namespace);
+	const reporter =
+		reporterOverride ?? resolveActionReporter({ namespace, runtime });
 	const capability = createCapabilityProxy({
 		actionName,
 		requestId,

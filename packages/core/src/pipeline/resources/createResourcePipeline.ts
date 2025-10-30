@@ -1,4 +1,5 @@
 import { createPipeline } from '../createPipeline';
+import { reportPipelineDiagnostic } from '../reporting';
 import { createResourceValidationFragment } from './helpers/createResourceValidationFragment';
 import { createResourceClientFragment } from './helpers/createResourceClientFragment';
 import { createResourceCacheKeysFragment } from './helpers/createResourceCacheKeysFragment';
@@ -73,6 +74,9 @@ export function createResourcePipeline<T, TQuery>(): ResourcePipeline<
 				diagnostics,
 				steps,
 			} satisfies ResourcePipelineRunResult<T, TQuery>;
+		},
+		onDiagnostic({ reporter, diagnostic }) {
+			reportPipelineDiagnostic({ reporter, diagnostic });
 		},
 	} satisfies ResourcePipelineOptions<T, TQuery>;
 

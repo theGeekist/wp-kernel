@@ -4,7 +4,9 @@ import type {
 	DefinedAction,
 } from '../actions/types';
 import type { ResourceObject } from '../resource/types';
+import type { Reporter } from '../reporter';
 import { createReporter } from '../reporter';
+import { resolveReporter } from '../reporter/resolve';
 import { WPK_SUBSYSTEM_NAMESPACES } from '../contracts/index.js';
 
 export type ResourceDefinedEvent = {
@@ -49,11 +51,20 @@ type KernelEventName = keyof WPKernelEventMap;
 type Listener<T> = (payload: T) => void;
 
 export class WPKernelEventBus {
-	private reporter = createReporter({
-		namespace: WPK_SUBSYSTEM_NAMESPACES.EVENTS,
-		channel: 'console',
-		level: 'error',
-	});
+	private reporter: Reporter;
+
+	constructor() {
+		this.reporter = resolveReporter({
+			fallback: () =>
+				createReporter({
+					namespace: WPK_SUBSYSTEM_NAMESPACES.EVENTS,
+					channel: 'console',
+					level: 'error',
+				}),
+			cache: true,
+			cacheKey: `${WPK_SUBSYSTEM_NAMESPACES.EVENTS}.bus`,
+		});
+	}
 
 	private listeners: Map<
 		KernelEventName,
