@@ -1,0 +1,442 @@
+[
+	{
+		"nodeType": "Stmt_Declare",
+		"attributes": {},
+		"declares": [
+			{
+				"nodeType": "DeclareItem",
+				"attributes": {},
+				"key": {
+					"nodeType": "Identifier",
+					"attributes": {},
+					"name": "strict_types"
+				},
+				"value": {
+					"nodeType": "Scalar_Int",
+					"attributes": {},
+					"value": 1
+				}
+			}
+		],
+		"stmts": null
+	},
+	{
+		"nodeType": "Stmt_Namespace",
+		"attributes": {
+			"comments": [
+				{
+					"nodeType": "Comment_Doc",
+					"text": "/** Prototype generated via BuilderFactory. */"
+				}
+			]
+		},
+		"name": {
+			"nodeType": "Name",
+			"attributes": {},
+			"parts": ["Demo", "Generated"]
+		},
+		"stmts": [
+			{
+				"nodeType": "Stmt_Use",
+				"attributes": {},
+				"type": 1,
+				"uses": [
+					{
+						"nodeType": "UseItem",
+						"attributes": {},
+						"name": {
+							"nodeType": "Name",
+							"attributes": {},
+							"parts": ["DateTimeImmutable"]
+						},
+						"alias": null,
+						"type": 0
+					}
+				]
+			},
+			{
+				"nodeType": "Stmt_Class",
+				"attributes": {
+					"comments": [
+						{
+							"nodeType": "Comment_Doc",
+							"text": "/** Example document DTO. */"
+						}
+					]
+				},
+				"name": {
+					"nodeType": "Identifier",
+					"attributes": {},
+					"name": "GeneratedDocument"
+				},
+				"flags": 32,
+				"extends": null,
+				"implements": [],
+				"stmts": [
+					{
+						"nodeType": "Stmt_Property",
+						"attributes": {
+							"comments": [
+								{
+									"nodeType": "Comment_Doc",
+									"text": "/** @var string */"
+								}
+							]
+						},
+						"flags": 68,
+						"type": {
+							"nodeType": "Identifier",
+							"attributes": {},
+							"name": "string"
+						},
+						"props": [
+							{
+								"nodeType": "PropertyItem",
+								"attributes": {},
+								"name": {
+									"nodeType": "Identifier",
+									"attributes": {},
+									"name": "title"
+								},
+								"default": {
+									"nodeType": "Scalar_String",
+									"attributes": {},
+									"value": "Untitled"
+								}
+							}
+						],
+						"attrGroups": [],
+						"hooks": []
+					},
+					{
+						"nodeType": "Stmt_Property",
+						"attributes": {
+							"comments": [
+								{
+									"nodeType": "Comment_Doc",
+									"text": "/** @var DateTimeImmutable */"
+								}
+							]
+						},
+						"flags": 4,
+						"type": {
+							"nodeType": "Name_FullyQualified",
+							"attributes": {},
+							"parts": ["DateTimeImmutable"]
+						},
+						"props": [
+							{
+								"nodeType": "PropertyItem",
+								"attributes": {},
+								"name": {
+									"nodeType": "Identifier",
+									"attributes": {},
+									"name": "createdAt"
+								},
+								"default": null
+							}
+						],
+						"attrGroups": [],
+						"hooks": []
+					},
+					{
+						"nodeType": "Stmt_ClassMethod",
+						"attributes": {
+							"comments": [
+								{
+									"nodeType": "Comment_Doc",
+									"text": "/**\n * @param string $title\n * @param DateTimeImmutable $createdAt\n */"
+								}
+							]
+						},
+						"name": {
+							"nodeType": "Identifier",
+							"attributes": {},
+							"name": "__construct"
+						},
+						"byRef": false,
+						"flags": 1,
+						"params": [
+							{
+								"nodeType": "Param",
+								"attributes": {},
+								"type": {
+									"nodeType": "Identifier",
+									"attributes": {},
+									"name": "string"
+								},
+								"byRef": false,
+								"variadic": false,
+								"var": {
+									"nodeType": "Expr_Variable",
+									"attributes": {},
+									"name": "title"
+								},
+								"default": null,
+								"flags": 0,
+								"attrGroups": [],
+								"hooks": []
+							},
+							{
+								"nodeType": "Param",
+								"attributes": {},
+								"type": {
+									"nodeType": "Name_FullyQualified",
+									"attributes": {},
+									"parts": ["DateTimeImmutable"]
+								},
+								"byRef": false,
+								"variadic": false,
+								"var": {
+									"nodeType": "Expr_Variable",
+									"attributes": {},
+									"name": "createdAt"
+								},
+								"default": null,
+								"flags": 0,
+								"attrGroups": [],
+								"hooks": []
+							}
+						],
+						"returnType": null,
+						"stmts": [
+							{
+								"nodeType": "Stmt_Expression",
+								"attributes": {},
+								"expr": {
+									"nodeType": "Expr_Assign",
+									"attributes": {},
+									"var": {
+										"nodeType": "Expr_PropertyFetch",
+										"attributes": {},
+										"var": {
+											"nodeType": "Expr_Variable",
+											"attributes": {},
+											"name": "this"
+										},
+										"name": {
+											"nodeType": "Identifier",
+											"attributes": {},
+											"name": "title"
+										}
+									},
+									"expr": {
+										"nodeType": "Expr_Variable",
+										"attributes": {},
+										"name": "title"
+									}
+								}
+							},
+							{
+								"nodeType": "Stmt_Expression",
+								"attributes": {},
+								"expr": {
+									"nodeType": "Expr_Assign",
+									"attributes": {},
+									"var": {
+										"nodeType": "Expr_PropertyFetch",
+										"attributes": {},
+										"var": {
+											"nodeType": "Expr_Variable",
+											"attributes": {},
+											"name": "this"
+										},
+										"name": {
+											"nodeType": "Identifier",
+											"attributes": {},
+											"name": "createdAt"
+										}
+									},
+									"expr": {
+										"nodeType": "Expr_Variable",
+										"attributes": {},
+										"name": "createdAt"
+									}
+								}
+							}
+						],
+						"attrGroups": []
+					},
+					{
+						"nodeType": "Stmt_ClassMethod",
+						"attributes": {
+							"comments": [
+								{
+									"nodeType": "Comment_Doc",
+									"text": "/** @return string */"
+								}
+							]
+						},
+						"name": {
+							"nodeType": "Identifier",
+							"attributes": {},
+							"name": "getTitle"
+						},
+						"byRef": false,
+						"flags": 1,
+						"params": [],
+						"returnType": {
+							"nodeType": "Identifier",
+							"attributes": {},
+							"name": "string"
+						},
+						"stmts": [
+							{
+								"nodeType": "Stmt_Return",
+								"attributes": {},
+								"expr": {
+									"nodeType": "Expr_PropertyFetch",
+									"attributes": {},
+									"var": {
+										"nodeType": "Expr_Variable",
+										"attributes": {},
+										"name": "this"
+									},
+									"name": {
+										"nodeType": "Identifier",
+										"attributes": {},
+										"name": "title"
+									}
+								}
+							}
+						],
+						"attrGroups": []
+					},
+					{
+						"nodeType": "Stmt_ClassMethod",
+						"attributes": {
+							"comments": [
+								{
+									"nodeType": "Comment_Doc",
+									"text": "/** @return DateTimeImmutable */"
+								}
+							]
+						},
+						"name": {
+							"nodeType": "Identifier",
+							"attributes": {},
+							"name": "getCreatedAt"
+						},
+						"byRef": false,
+						"flags": 1,
+						"params": [],
+						"returnType": {
+							"nodeType": "Name_FullyQualified",
+							"attributes": {},
+							"parts": ["DateTimeImmutable"]
+						},
+						"stmts": [
+							{
+								"nodeType": "Stmt_Return",
+								"attributes": {},
+								"expr": {
+									"nodeType": "Expr_PropertyFetch",
+									"attributes": {},
+									"var": {
+										"nodeType": "Expr_Variable",
+										"attributes": {},
+										"name": "this"
+									},
+									"name": {
+										"nodeType": "Identifier",
+										"attributes": {},
+										"name": "createdAt"
+									}
+								}
+							}
+						],
+						"attrGroups": []
+					},
+					{
+						"nodeType": "Stmt_ClassMethod",
+						"attributes": {
+							"comments": [
+								{
+									"nodeType": "Comment_Doc",
+									"text": "/** @return self */"
+								}
+							]
+						},
+						"name": {
+							"nodeType": "Identifier",
+							"attributes": {},
+							"name": "createDraft"
+						},
+						"byRef": false,
+						"flags": 9,
+						"params": [
+							{
+								"nodeType": "Param",
+								"attributes": {},
+								"type": {
+									"nodeType": "Name_FullyQualified",
+									"attributes": {},
+									"parts": ["DateTimeImmutable"]
+								},
+								"byRef": false,
+								"variadic": false,
+								"var": {
+									"nodeType": "Expr_Variable",
+									"attributes": {},
+									"name": "clock"
+								},
+								"default": null,
+								"flags": 0,
+								"attrGroups": [],
+								"hooks": []
+							}
+						],
+						"returnType": {
+							"nodeType": "Name",
+							"attributes": {},
+							"parts": ["self"]
+						},
+						"stmts": [
+							{
+								"nodeType": "Stmt_Return",
+								"attributes": {},
+								"expr": {
+									"nodeType": "Expr_New",
+									"attributes": {},
+									"class": {
+										"nodeType": "Name",
+										"attributes": {},
+										"parts": ["self"]
+									},
+									"args": [
+										{
+											"nodeType": "Arg",
+											"attributes": {},
+											"value": {
+												"nodeType": "Scalar_String",
+												"attributes": {},
+												"value": "Draft"
+											},
+											"byRef": false,
+											"unpack": false,
+											"name": null
+										},
+										{
+											"nodeType": "Arg",
+											"attributes": {},
+											"value": {
+												"nodeType": "Expr_Variable",
+												"attributes": {},
+												"name": "clock"
+											},
+											"byRef": false,
+											"unpack": false,
+											"name": null
+										}
+									]
+								}
+							}
+						],
+						"attrGroups": []
+					}
+				],
+				"attrGroups": []
+			}
+		]
+	}
+]

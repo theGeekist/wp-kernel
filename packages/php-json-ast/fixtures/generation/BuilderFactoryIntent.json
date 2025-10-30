@@ -1,0 +1,111 @@
+{
+	"files": [
+		{
+			"file": "virtual-generated/GeneratedDocument.php",
+			"namespace": {
+				"name": "Demo\\Generated",
+				"docblock": ["Prototype generated via BuilderFactory."]
+			},
+			"uses": [{ "name": "DateTimeImmutable" }],
+			"class": {
+				"name": "GeneratedDocument",
+				"docblock": ["Example document DTO."],
+				"isFinal": true,
+				"extends": null,
+				"implements": [],
+				"properties": [
+					{
+						"name": "title",
+						"visibility": "private",
+						"type": "string",
+						"default": { "kind": "string", "value": "Untitled" },
+						"isReadonly": true,
+						"docblock": ["@var string"]
+					},
+					{
+						"name": "createdAt",
+						"visibility": "private",
+						"type": "\\DateTimeImmutable",
+						"docblock": ["@var DateTimeImmutable"]
+					}
+				],
+				"methods": [
+					{
+						"name": "__construct",
+						"visibility": "public",
+						"parameters": [
+							{ "name": "title", "type": "string" },
+							{
+								"name": "createdAt",
+								"type": "\\DateTimeImmutable"
+							}
+						],
+						"docblock": [
+							"@param string $title",
+							"@param DateTimeImmutable $createdAt"
+						],
+						"body": [
+							{
+								"kind": "assignPropertyFromParameter",
+								"property": "title",
+								"parameter": "title"
+							},
+							{
+								"kind": "assignPropertyFromParameter",
+								"property": "createdAt",
+								"parameter": "createdAt"
+							}
+						]
+					},
+					{
+						"name": "getTitle",
+						"visibility": "public",
+						"returnType": "string",
+						"docblock": ["@return string"],
+						"body": [
+							{ "kind": "returnProperty", "property": "title" }
+						]
+					},
+					{
+						"name": "getCreatedAt",
+						"visibility": "public",
+						"returnType": "\\DateTimeImmutable",
+						"docblock": ["@return DateTimeImmutable"],
+						"body": [
+							{
+								"kind": "returnProperty",
+								"property": "createdAt"
+							}
+						]
+					},
+					{
+						"name": "createDraft",
+						"visibility": "public",
+						"isStatic": true,
+						"returnType": "self",
+						"docblock": ["@return self"],
+						"parameters": [
+							{ "name": "clock", "type": "\\DateTimeImmutable" }
+						],
+						"body": [
+							{
+								"kind": "returnNew",
+								"className": "self",
+								"arguments": [
+									{
+										"kind": "literal",
+										"literal": {
+											"kind": "string",
+											"value": "Draft"
+										}
+									},
+									{ "kind": "parameter", "name": "clock" }
+								]
+							}
+						]
+					}
+				]
+			}
+		}
+	]
+}
