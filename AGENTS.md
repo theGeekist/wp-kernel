@@ -40,6 +40,7 @@ This document provides operational guidance for coding agents (Codex, etc.) work
     - Typecheck tests: `pnpm typecheck:tests`
     - Test all: `pnpm test` (do not use `--filter`)
     - Build: `pnpm build` (if needed)
+    - Workspace management: `pnpm monorepo:create|update|remove` (the only supported way to scaffold, modify, or delete packages/examples).
 - We have `types/globals.d.ts`, `tests/test-globals.d.ts`, and the shared `@wpkernel/test-utils/wp` entry point (legacy alias: `tests/test-utils/wp.test-support.ts` via `tests/test-utils/wp.ts`). Package harnesses extend this surface in:
     - `@wpkernel/test-utils/core`
     - `packages/cli/tests/rule-tester.test-support.ts`

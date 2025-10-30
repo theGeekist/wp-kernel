@@ -9,7 +9,7 @@ WP Kernel is approaching its first coordinated framework release without `releas
 ## Completion tracking
 
 - [x] **Task 1 – Consolidate TypeScript/Jest scaffolding and registration**  
-       Completed – shared presets (`tsconfig.lib.json`, `tsconfig.tests.json`, `tsconfig.tests.cli.json`) are in place, package configs extend them, Jest helpers live under `scripts/config/create-wpk-jest-config.ts`, the `scripts/register-workspace.ts` CLI wires new workspaces, and docs cover the workflow in `docs/guide/adding-workspace-dependencies.md` plus `DEVELOPMENT.md`.
+       Completed – shared presets (`tsconfig.lib.json`, `tsconfig.tests.json`, `tsconfig.tests.cli.json`) are in place, package configs extend them, Jest helpers live under `scripts/config/create-wpk-jest-config.ts`, the `pnpm monorepo:create|update|remove` helpers (backed by `scripts/register-workspace.ts`) wire new workspaces, and docs cover the workflow in `docs/guide/adding-workspace-dependencies.md` plus `DEVELOPMENT.md`.
 - [x] **Task 2 – Centralize framework peer dependency capability and validation**  
        Completed – `scripts/config/framework-peers.ts` defines the canonical versions, `scripts/check-framework-peers.ts` validates every package, `package.json` exposes `pnpm lint:peers`, `vite.config.base.ts` reads the map for Rollup externals, and package READMEs document the capability.
 - [x] **Task 3 – Document manual framework release workflow**
@@ -27,7 +27,7 @@ WP Kernel is approaching its first coordinated framework release without `releas
 2. Replace package-specific `tsconfig*.json` files with thin wrappers that extend the presets and declare only package-relative paths.
 3. Expose `createWPKJestConfig()` (TypeScript module under `scripts/config/`) that reads the root TS path aliases and emits the per-package Jest configuration.
 4. Update every package/app Jest config to use the helper and delete redundant alias/transform boilerplate.
-5. Add a `scripts/register-workspace.ts` CLI that accepts a package name, generates the minimal TS configs, and appends references to the root `tsconfig.json` plus `package.json` `typecheck`/`typecheck:tests` scripts when missing.
+5. Add a monorepo management CLI (`pnpm monorepo:create|update|remove`, implemented in `scripts/register-workspace.ts`) that accepts a package name, generates the minimal scaffolding, and appends references to the root `tsconfig.json` plus `package.json` `typecheck`/`typecheck:tests` scripts when missing.
 6. Document the workflow in `docs/guide/adding-workspace-dependencies.md` and reference the helper script in `DEVELOPMENT.md`.
 
 **Required tooling/tests:**
