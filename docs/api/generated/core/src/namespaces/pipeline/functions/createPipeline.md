@@ -61,7 +61,7 @@ function createPipeline<
 
 ### TReporter
 
-`TReporter` _extends_ [`Reporter`](../../../type-aliases/Reporter.md) = [`Reporter`](../../../type-aliases/Reporter.md)
+`TReporter` _extends_ `PipelineReporter` = `PipelineReporter`
 
 ### TDraft
 

@@ -26,7 +26,7 @@
 
 ### TReporter
 
-`TReporter` _extends_ [`Reporter`](../../../core/src/type-aliases/Reporter.md) = [`Reporter`](../../../core/src/type-aliases/Reporter.md)
+`TReporter` _extends_ `PipelineReporter` = `PipelineReporter`
 
 ### TKind
 

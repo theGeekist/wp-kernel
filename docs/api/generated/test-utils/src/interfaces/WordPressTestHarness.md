@@ -34,6 +34,12 @@ optional apiFetch: __module;
 optional hooks: __module;
 ```
 
+#### interactivity?
+
+```ts
+optional interactivity: __module;
+```
+
 ---
 
 ### data

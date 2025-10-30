@@ -22,7 +22,7 @@
 
 ### TReporter
 
-`TReporter` _extends_ [`Reporter`](../../../type-aliases/Reporter.md) = [`Reporter`](../../../type-aliases/Reporter.md)
+`TReporter` _extends_ `PipelineReporter` = `PipelineReporter`
 
 ### TDraft
 
@@ -303,6 +303,35 @@ readonly [`PipelineStep`](PipelineStep.md)\&lt;[`HelperKind`](../../../../../php
 #### Returns
 
 `TRunResult`
+
+---
+
+### onDiagnostic()?
+
+```ts
+readonly optional onDiagnostic: (options) => void;
+```
+
+Optional hook invoked whenever a diagnostic is emitted during a run.
+
+Consumers can stream diagnostics to logs or UI shells while the
+pipeline executes instead of waiting for the final run result.
+
+#### Parameters
+
+##### options
+
+###### reporter
+
+`TReporter`
+
+###### diagnostic
+
+`TDiagnostic`
+
+#### Returns
+
+`void`
 
 ---
 

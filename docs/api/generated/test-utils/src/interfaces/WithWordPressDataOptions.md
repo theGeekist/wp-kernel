@@ -16,6 +16,7 @@ optional wp:
   data?: __module;
   apiFetch?: __module;
   hooks?: __module;
+  interactivity?: __module;
 }
   | null;
 ```

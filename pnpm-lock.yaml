@@ -475,7 +475,11 @@ importers:
         specifier: workspace:*
         version: link:../../scripts
 
-  scripts: {}
+  scripts:
+    devDependencies:
+      jsonc-parser:
+        specifier: ^3.3.1
+        version: 3.3.1
 
 packages:
 

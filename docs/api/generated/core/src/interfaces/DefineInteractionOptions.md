@@ -1,0 +1,101 @@
+[**WP Kernel API v0.9.0**](../../../README.md)
+
+---
+
+[WP Kernel API](../../../README.md) / [core/src](../README.md) / DefineInteractionOptions
+
+# Interface: DefineInteractionOptions\&lt;TEntity, TQuery, TStore, TActions\&gt;
+
+Options accepted by `defineInteraction`.
+
+## Type Parameters
+
+### TEntity
+
+`TEntity`
+
+### TQuery
+
+`TQuery`
+
+### TStore
+
+`TStore` _extends_ `Record`\&lt;`string`, `unknown`\&gt;
+
+### TActions
+
+`TActions` _extends_ [`InteractionActionsRecord`](../type-aliases/InteractionActionsRecord.md)
+
+## Properties
+
+### resource
+
+```ts
+readonly resource: ResourceObject<TEntity, TQuery>;
+```
+
+---
+
+### feature
+
+```ts
+readonly feature: string;
+```
+
+---
+
+### store?
+
+```ts
+readonly optional store: TStore;
+```
+
+---
+
+### actions?
+
+```ts
+readonly optional actions: TActions;
+```
+
+---
+
+### registry?
+
+```ts
+readonly optional registry: WPKernelRegistry;
+```
+
+---
+
+### namespace?
+
+```ts
+readonly optional namespace: string;
+```
+
+---
+
+### autoHydrate?
+
+```ts
+readonly optional autoHydrate: boolean;
+```
+
+---
+
+### hydrateServerState()?
+
+```ts
+readonly optional hydrateServerState: (input) => void;
+```
+
+#### Parameters
+
+##### input
+
+[`HydrateServerStateInput`](HydrateServerStateInput.md)\&lt;`TEntity`, `TQuery`\&gt;
+
+#### Returns
+
+`void`

@@ -29,7 +29,7 @@ type HelperApplyFn<TContext, TInput, TOutput, TReporter> = (
 
 ### TReporter
 
-`TReporter` _extends_ [`Reporter`](../../../core/src/type-aliases/Reporter.md) = [`Reporter`](../../../core/src/type-aliases/Reporter.md)
+`TReporter` _extends_ `PipelineReporter` = `PipelineReporter`
 
 ## Parameters
 
