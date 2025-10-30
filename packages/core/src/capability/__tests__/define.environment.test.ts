@@ -5,6 +5,7 @@ import type * as WPHooks from '@wordpress/hooks';
 import type { CapabilityDeniedError } from '../../error/CapabilityDeniedError';
 import type { CapabilityContext } from '../types';
 import { WPK_SUBSYSTEM_NAMESPACES } from '../../contracts';
+import { resetReporterResolution } from '../../reporter/resolve';
 
 type CapabilityModuleType = typeof CapabilityModule;
 
@@ -24,12 +25,22 @@ function deleteWindowProp(key: string): void {
 describe('capability environment edge cases', () => {
 	const originalBroadcast = global.BroadcastChannel;
 	const originalWp = (window as typeof window & { wp?: unknown }).wp;
+	let originalSilentFlag: string | undefined;
 
 	beforeEach(() => {
 		jest.resetModules();
+		originalSilentFlag = process.env.WPK_SILENT_REPORTERS;
+		delete process.env.WPK_SILENT_REPORTERS;
+		resetReporterResolution();
 	});
 
 	afterEach(() => {
+		resetReporterResolution();
+		if (typeof originalSilentFlag === 'undefined') {
+			delete process.env.WPK_SILENT_REPORTERS;
+		} else {
+			process.env.WPK_SILENT_REPORTERS = originalSilentFlag;
+		}
 		if (originalBroadcast) {
 			global.BroadcastChannel = originalBroadcast;
 		} else {

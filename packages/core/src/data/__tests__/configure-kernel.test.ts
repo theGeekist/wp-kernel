@@ -20,6 +20,21 @@ import { createActionMiddleware } from '../../actions/middleware';
 import { wpkEventsPlugin } from '../plugins/events';
 import { getNamespace as detectNamespace } from '../../namespace/detect';
 import type { ResourceConfig } from '../../resource/types';
+import { resetReporterResolution } from '../../reporter/resolve';
+
+function createMockReporter(): jest.Mocked<Reporter> {
+	const reporter = {
+		info: jest.fn(),
+		warn: jest.fn(),
+		error: jest.fn(),
+		debug: jest.fn(),
+		child: jest.fn(),
+	} as unknown as jest.Mocked<Reporter>;
+
+	reporter.child.mockReturnValue(reporter);
+
+	return reporter;
+}
 
 jest.mock('../../actions/middleware', () => ({
 	createActionMiddleware: jest.fn(() =>
@@ -29,6 +44,7 @@ jest.mock('../../actions/middleware', () => ({
 
 jest.mock('../../reporter', () => ({
 	createReporter: jest.fn(),
+	createNoopReporter: jest.fn(createMockReporter),
 	setWPKernelReporter: jest.fn(),
 	getWPKernelReporter: jest.fn(() => undefined),
 	clearWPKReporter: jest.fn(),
@@ -54,22 +70,13 @@ describe('configureWPKernel', () => {
 		.mockImplementation((next) => (action: unknown) => next(action));
 	let mockReporter: jest.Mocked<Reporter>;
 	const eventMiddleware = { destroy: jest.fn() };
-
-	function createMockReporter(): jest.Mocked<Reporter> {
-		const child = jest.fn<Reporter, [string]>();
-		const reporter = {
-			info: jest.fn(),
-			warn: jest.fn(),
-			error: jest.fn(),
-			debug: jest.fn(),
-			child,
-		} as unknown as jest.Mocked<Reporter>;
-		child.mockReturnValue(reporter);
-		return reporter;
-	}
+	let originalSilentFlag: string | undefined;
 
 	beforeEach(() => {
 		jest.clearAllMocks();
+		resetReporterResolution();
+		originalSilentFlag = process.env.WPK_SILENT_REPORTERS;
+		delete process.env.WPK_SILENT_REPORTERS;
 		mockReporter = createMockReporter();
 		(createActionMiddleware as jest.Mock).mockReturnValue(actionMiddleware);
 		(createReporter as jest.Mock).mockReturnValue(mockReporter);
@@ -82,6 +89,11 @@ describe('configureWPKernel', () => {
 	afterEach(() => {
 		(actionMiddleware as jest.Mock).mockReset();
 		eventMiddleware.destroy.mockReset();
+		if (typeof originalSilentFlag === 'undefined') {
+			delete process.env.WPK_SILENT_REPORTERS;
+		} else {
+			process.env.WPK_SILENT_REPORTERS = originalSilentFlag;
+		}
 	});
 
 	it('installs middleware on the provided registry and cleans up on teardown', () => {
