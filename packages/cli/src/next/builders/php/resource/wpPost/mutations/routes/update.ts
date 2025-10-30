@@ -8,6 +8,7 @@ import {
 } from '@wpkernel/php-json-ast';
 import {
 	buildIdentityValidationStatements,
+	isNumericIdentity,
 	type IdentityValidationOptions,
 } from '../../identity';
 import {
@@ -57,7 +58,7 @@ export function buildUpdateRouteStatements(
 	);
 
 	const identityValidationOptions: IdentityValidationOptions =
-		options.identity.type === 'string'
+		isNumericIdentity(options.identity)
 			? {
 					identity: options.identity,
 					pascalName: options.pascalName,
