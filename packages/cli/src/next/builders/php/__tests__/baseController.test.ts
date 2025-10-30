@@ -1,6 +1,6 @@
 import { createPhpBaseControllerHelper } from '../baseController';
 import { getPhpBuilderChannel, resetPhpBuilderChannel } from '../channel';
-import { resetPhpAstChannel } from '@wpkernel/wp-json-ast';
+import { DEFAULT_DOC_HEADER, resetPhpAstChannel } from '@wpkernel/wp-json-ast';
 import {
 	createBuilderInput,
 	createBuilderOutput,
@@ -50,12 +50,15 @@ describe('createPhpBaseControllerHelper', () => {
 			},
 		});
 
+		const reporter = context.reporter;
+		jest.spyOn(reporter, 'debug');
+
 		await helper.apply(
 			{
 				context,
 				input: createBuilderInput({ ir }),
 				output: createBuilderOutput(),
-				reporter: context.reporter,
+				reporter,
 			},
 			undefined
 		);
@@ -66,10 +69,16 @@ describe('createPhpBaseControllerHelper', () => {
 		);
 
 		expect(entry).toBeDefined();
+		expect(entry?.docblock?.slice(0, DEFAULT_DOC_HEADER.length)).toEqual(
+			DEFAULT_DOC_HEADER
+		);
 		expect(entry?.docblock).toEqual(
 			expect.arrayContaining([
-				expect.stringContaining('namespace: demo-plugin)'),
+				'Source: wpk.config.ts → resources (namespace: demo-plugin)',
 			])
+		);
+		expect(reporter.debug).toHaveBeenCalledWith(
+			'createPhpBaseControllerHelper: queued Rest/BaseController.php.'
 		);
 	});
 });
