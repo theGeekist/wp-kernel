@@ -1,6 +1,6 @@
 import { createPhpIndexFileHelper } from '../indexFile';
 import { getPhpBuilderChannel, resetPhpBuilderChannel } from '../channel';
-import { resetPhpAstChannel } from '@wpkernel/wp-json-ast';
+import { DEFAULT_DOC_HEADER, resetPhpAstChannel } from '@wpkernel/wp-json-ast';
 import type { IRResource } from '../../../ir/publicTypes';
 import {
 	createBuilderInput,
@@ -52,12 +52,15 @@ describe('createPhpIndexFileHelper', () => {
 			},
 		});
 
+		const reporter = context.reporter;
+		jest.spyOn(reporter, 'debug');
+
 		await helper.apply(
 			{
 				context,
 				input: createBuilderInput({ ir }),
 				output: createBuilderOutput(),
-				reporter: context.reporter,
+				reporter,
 			},
 			undefined
 		);
@@ -68,6 +71,9 @@ describe('createPhpIndexFileHelper', () => {
 		);
 
 		expect(entry).toBeDefined();
+		expect(entry?.docblock?.slice(0, DEFAULT_DOC_HEADER.length)).toEqual(
+			DEFAULT_DOC_HEADER
+		);
 		const namespaceStmt = entry?.program.find(
 			(stmt: any) => stmt?.nodeType === 'Stmt_Namespace'
 		) as { stmts?: any[] } | undefined;
@@ -88,6 +94,9 @@ describe('createPhpIndexFileHelper', () => {
 					}),
 				}),
 			])
+		);
+		expect(reporter.debug).toHaveBeenCalledWith(
+			'createPhpIndexFileHelper: queued PHP index file.'
 		);
 	});
 });
