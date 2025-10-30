@@ -13,3 +13,4 @@ export * from './codemods/types';
 export * from './driver/programIngestionUtils';
 export * from './utils/programArtifacts';
 export * from './queries/nodeFinder';
+export * from './generation/builderFactory';

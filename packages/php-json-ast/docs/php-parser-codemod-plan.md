@@ -122,12 +122,11 @@ This roadmap captures how `@wpkernel/php-json-ast` can evolve now that `nikic/ph
 
 ##### Task 7 - Expose `NodeFinder` query endpoints
 
-> **Task status:** In Progress – Baseline query catalog defined; implementation work now underway.
+> **Task status:** Complete – Baseline queries now execute through PHP and surface structured results to TypeScript helpers.
 
-- Finalise the read-only query surface and document the initial catalog (readonly properties, promoted constructor params, `enum` case lookups) so downstream tooling knows what to expect.
-- Add read-only query commands that execute common `NodeFinder` searches and return structured JSON envelopes (visitor metadata + matched node excerpts).
-- Wire TypeScript helpers that call the queries before codemods to scope upcoming work and return typed results for CLI consumers.
-- Validate the responses against curated fixtures so schema drift is caught immediately and record verification steps here as they land.
+- `php/query-nodefinder.php` implements the read-only query command, wiring `PhpParser\NodeFinder` to the initial catalog (`class.readonly-properties`, `constructor.promoted-parameters`, `enum.case-lookups`) and emitting labelled JSON payloads per file.
+- The TypeScript helper in [`queries/nodeFinder.ts`](../src/queries/nodeFinder.ts) defines the configuration/result schema, offers serialization utilities, and exposes the curated query keys to downstream tooling.
+- End-to-end coverage in [`queries/nodeFinder.integration.test.ts`](../src/__tests__/queries/nodeFinder.integration.test.ts) boots the PHP script against [`fixtures/queries/NodeFinderTargets.php`](../fixtures/queries/NodeFinderTargets.php) to assert deterministic match counts and summaries for each baseline query.
   _Expectation: Teams can inventory AST hotspots programmatically before they schedule transformations._
 
 ##### Task 8 - Layer diagnostics and dumps
@@ -141,11 +140,11 @@ This roadmap captures how `@wpkernel/php-json-ast` can evolve now that `nikic/ph
 
 ##### Task 9 - Prototype generation helpers with `BuilderFactory`
 
-> **Task status:** Pending – Update with helper signatures, fixtures, and parity findings when the prototype lands.
+> **Task status:** Complete – Intent-driven generation flows now round-trip through PHP and TypeScript with fixture-backed parity.
 
-- Create PHP-side helpers that scaffold namespaces, classes, and methods via `BuilderFactory` based on TypeScript-provided intents.
-- Return the generated nodes as ready-made `PhpProgram` payloads so the TypeScript pipeline can persist them without extra wiring.
-- Cover the generation flows with fixtures that compare the emitted AST against our TypeScript factories for parity.
+- `php/generate-builderfactory.php` accepts intent manifests, feeds them through `BuilderFactory`, and emits ready-to-queue `PhpProgram` payloads (declare + namespace) without manual wiring.
+- TypeScript surfaces the shared schema in [`generation/builderFactory.ts`](../src/generation/builderFactory.ts), including literal/argument helpers so pipelines can author intents ergonomically.
+- Fixture coverage lives under [`fixtures/generation/`](../fixtures/generation) with [`builderFactory.integration.test.ts`](../src/__tests__/generation/builderFactory.integration.test.ts) asserting that PHP output matches the TypeScript factories and the stored AST snapshots.
   _Expectation: Structured generation tasks can stay inside PHP while still flowing through the shared writer helper._
 
 ### Upcoming phases
