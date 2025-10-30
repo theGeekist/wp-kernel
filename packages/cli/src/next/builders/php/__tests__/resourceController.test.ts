@@ -10,6 +10,11 @@ import type { BuilderOutput } from '../../../runtime/types';
 import type { Workspace } from '../../../workspace/types';
 import { makeWorkspaceMock } from '../../../../../tests/workspace.test-support';
 import * as phpDriver from '@wpkernel/php-driver';
+import type {
+	PhpProgram,
+	PhpStmtNamespace,
+	PhpStmtUse,
+} from '@wpkernel/php-json-ast';
 import {
 	makePhpIrFixture,
 	makeWpPostResource,
@@ -25,6 +30,7 @@ import {
 	createPhpProgramWriterHelper,
 	getPhpBuilderChannel,
 } from '../index';
+import { makeCapabilityProtectedResource } from '../test-support/capabilityProtectedResource.test-support';
 
 function buildReporter(): Reporter {
 	return {
@@ -43,6 +49,38 @@ function buildWorkspace(): Workspace {
 		cwd: () => root,
 		resolve: (...parts: string[]) => path.join(root, ...parts),
 	});
+}
+
+function findNamespace(program: PhpProgram): PhpStmtNamespace | undefined {
+	return program.find(
+		(statement): statement is PhpStmtNamespace =>
+			statement.nodeType === 'Stmt_Namespace'
+	);
+}
+
+function hasUseImport(
+	program: PhpProgram,
+	expectedParts: readonly string[]
+): boolean {
+	const namespaceNode = findNamespace(program);
+	if (!namespaceNode) {
+		return false;
+	}
+
+	return namespaceNode.stmts
+		.filter(
+			(statement): statement is PhpStmtUse =>
+				statement.nodeType === 'Stmt_Use'
+		)
+		.some((useStatement) =>
+			useStatement.uses.some(
+				(use) =>
+					use.name.parts.length === expectedParts.length &&
+					use.name.parts.every(
+						(part, index) => part === expectedParts[index]
+					)
+			)
+		);
 }
 
 describe('createPhpResourceControllerHelper', () => {
@@ -165,6 +203,83 @@ describe('createPhpResourceControllerHelper', () => {
 				],
 			])
 		);
+	});
+
+	it('imports the generated capability namespace for protected routes', async () => {
+		const reporter = buildReporter();
+		const workspace = buildWorkspace();
+		const context = {
+			workspace,
+			reporter,
+			phase: 'generate' as const,
+		};
+		const output: BuilderOutput = {
+			actions: [],
+			queueWrite: jest.fn(),
+		};
+
+		const ir = makePhpIrFixture({
+			resources: [makeCapabilityProtectedResource()],
+		});
+
+		const applyOptions = {
+			context,
+			input: {
+				phase: 'generate' as const,
+				options: {
+					config: ir.config,
+					namespace: ir.meta.namespace,
+					origin: ir.meta.origin,
+					sourcePath: ir.meta.sourcePath,
+				},
+				ir,
+			},
+			output,
+			reporter,
+		};
+
+		await createPhpChannelHelper().apply(applyOptions, undefined);
+		await createPhpResourceControllerHelper().apply(
+			applyOptions,
+			undefined
+		);
+
+		const channel = getPhpBuilderChannel(context);
+		const entry = channel
+			.pending()
+			.find(
+				(candidate) =>
+					candidate.metadata.kind === 'resource-controller' &&
+					candidate.metadata.name === 'books'
+			);
+
+		expect(entry).toBeDefined();
+		if (!entry || entry.metadata.kind !== 'resource-controller') {
+			throw new Error('Expected resource controller entry.');
+		}
+
+		const createRoute = entry.metadata.routes.find(
+			(route) =>
+				route.method === 'POST' && route.path === '/kernel/v1/books'
+		);
+
+		expect(createRoute).toMatchObject({
+			method: 'POST',
+			path: '/kernel/v1/books',
+			kind: 'create',
+			cacheSegments: ['books', 'create'],
+			tags: { 'resource.wpPost.mutation': 'create' },
+		});
+
+		expect(
+			hasUseImport(entry.program, [
+				'Demo',
+				'Plugin',
+				'Generated',
+				'Capability',
+				'Capability',
+			])
+		).toBe(true);
 	});
 
 	it('queues taxonomy controllers with pagination helpers and term shaping', async () => {
