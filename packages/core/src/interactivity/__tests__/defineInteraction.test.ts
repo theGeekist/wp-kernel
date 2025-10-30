@@ -3,14 +3,12 @@ import type { DefinedAction } from '../../actions/types';
 import { defineResource } from '../../resource/define';
 import type { ResourceObject } from '../../resource/types';
 import type { WPKernelRegistry } from '../../data/types';
-import type * as WPInteractivity from '@wordpress/interactivity';
+import type { InteractivityModule } from '../types';
 
-type WPInteractivityModule = typeof WPInteractivity;
-
-function getInteractivity(): jest.Mocked<WPInteractivityModule> {
+function getInteractivity(): jest.Mocked<InteractivityModule> {
 	const stub = (
 		globalThis as {
-			__WPKernelInteractivityStub?: WPInteractivityModule;
+			__WPKernelInteractivityStub?: InteractivityModule;
 		}
 	).__WPKernelInteractivityStub;
 
@@ -18,7 +16,9 @@ function getInteractivity(): jest.Mocked<WPInteractivityModule> {
 		throw new Error('Interactivity stub not initialised');
 	}
 
-	return jest.mocked(stub);
+	return jest.mocked(stub, {
+		shallow: true,
+	}) as jest.Mocked<InteractivityModule>;
 }
 
 function createRegistryMock(): WPKernelRegistry {

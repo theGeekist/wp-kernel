@@ -1,6 +1,3 @@
-import type * as WPInteractivity from '@wordpress/interactivity';
-import type { DeepReadonly } from '@wordpress/interactivity/build-types/utils';
-
 import { invokeAction } from '../actions/middleware';
 import type { ActionEnvelope } from '../actions/middleware';
 import type { DefinedAction } from '../actions/types';
@@ -8,21 +5,24 @@ import type { WPKernelRegistry } from '../data/types';
 import { registerWPKernelStore } from '../data/store';
 import { WPKernelError } from '../error/WPKernelError';
 import { WPK_NAMESPACE } from '../contracts/index';
+import type { ResourceObject, ResourceState } from '../resource/types';
 import type {
-	ResourceActions,
-	ResourceObject,
-	ResourceState,
-} from '../resource/types';
-
-type InteractivityModule = typeof WPInteractivity;
-type InteractivityStoreResult = ReturnType<InteractivityModule['store']>;
-
-type InteractivityGlobal = {
-	__WPKernelInteractivityStub?: InteractivityModule;
-	wp?: {
-		interactivity?: InteractivityModule;
-	};
-};
+	DefineInteractionOptions,
+	DefinedInteraction,
+	HydrateServerStateInput,
+	InteractionActionInput,
+	InteractionActionMetaResolver,
+	InteractionActionsRecord,
+	InteractionActionsRuntime,
+	InteractivityGlobal,
+	InteractivityModule,
+	InteractivityStoreResult,
+	InteractivityServerState,
+	InvokeDispatch,
+	ResourceCacheSync,
+	ResourceDispatcher,
+	ResourceSnapshotItems,
+} from './types';
 
 let cachedInteractivityModule: InteractivityModule | undefined;
 
@@ -66,10 +66,6 @@ function normalizeSegment(value: string, fallback: string): string {
 type ActionStoreRegistry = WPKernelRegistry & {
 	[ACTION_STORE_MARKER]?: boolean;
 };
-
-type InvokeDispatch = <TArgs, TResult>(
-	envelope: ActionEnvelope<TArgs, TResult>
-) => Promise<TResult>;
 
 function resolveRegistry(
 	provided?: WPKernelRegistry
@@ -191,7 +187,7 @@ function isResourceCacheSnapshot<TEntity>(
 }
 
 function extractResourceCacheSnapshot<TEntity>(
-	serverState: DeepReadonly<Record<string, unknown>>
+	serverState: InteractivityServerState
 ): Partial<ResourceState<TEntity>> | null {
 	if (!isRecord(serverState)) {
 		return null;
@@ -213,15 +209,6 @@ function extractResourceCacheSnapshot<TEntity>(
 
 	return null;
 }
-
-type ResourceDispatcher<TEntity> =
-	| Partial<ResourceActions<TEntity>>
-	| undefined;
-
-type ResourceSnapshotItems<TEntity> = Record<
-	string | number,
-	TEntity | undefined
->;
 
 function getResourceDispatcher<TEntity, TQuery>(
 	registry: WPKernelRegistry,
@@ -304,26 +291,6 @@ function hydrateResourceCache<TEntity, TQuery>(
 	forwardResourceErrors(dispatcher, snapshot.errors);
 }
 
-export type InteractionActionMetaResolver<TArgs> = (
-	args: TArgs
-) => Record<string, unknown> | undefined;
-
-export interface InteractionActionBinding<TArgs, TResult> {
-	readonly action: DefinedAction<TArgs, TResult>;
-	readonly meta?:
-		| Record<string, unknown>
-		| InteractionActionMetaResolver<TArgs>;
-}
-
-export type InteractionActionInput<TArgs, TResult> =
-	| InteractionActionBinding<TArgs, TResult>
-	| DefinedAction<TArgs, TResult>;
-
-export type InteractionActionsRecord = Record<
-	string,
-	InteractionActionInput<unknown, unknown>
->;
-
 type NormalizedActionBinding<TArgs, TResult> = {
 	readonly action: DefinedAction<TArgs, TResult>;
 	readonly meta?: InteractionActionMetaResolver<TArgs>;
@@ -346,15 +313,6 @@ function normalizeActionBinding<TArgs, TResult>(
 
 	return { action: input.action, meta: metaResolver };
 }
-
-type InteractionActionsRuntime<TActions extends InteractionActionsRecord> = {
-	[Key in keyof TActions]: TActions[Key] extends InteractionActionInput<
-		infer TArgs,
-		infer TResult
-	>
-		? (args: TArgs) => Promise<TResult>
-		: never;
-};
 
 function createBoundActions<TActions extends InteractionActionsRecord>(
 	actions: TActions,
@@ -411,10 +369,6 @@ function mergeStoreDefinition<
 	return definition;
 }
 
-type ResourceCacheSync<TEntity> = (
-	snapshot: Partial<ResourceState<TEntity>>
-) => void;
-
 function assertActionsBindable<
 	TActions extends InteractionActionsRecord | undefined,
 >(actions: TActions, registry: WPKernelRegistry | undefined): void {
@@ -452,12 +406,9 @@ function createServerStateSynchronizer<TEntity, TQuery>(
 	interactivity: InteractivityModule,
 	syncCache: ResourceCacheSync<TEntity>,
 	autoHydrate: boolean | undefined,
-	hydrateServerState?: (input: {
-		serverState: DeepReadonly<Record<string, unknown>>;
-		resource: ResourceObject<TEntity, TQuery>;
-		registry?: WPKernelRegistry;
-		syncCache: ResourceCacheSync<TEntity>;
-	}) => void
+	hydrateServerState?: (
+		input: HydrateServerStateInput<TEntity, TQuery>
+	) => void
 ): () => void {
 	return () => {
 		const serverState = interactivity.getServerState(namespace);
@@ -481,34 +432,6 @@ function createServerStateSynchronizer<TEntity, TQuery>(
 			syncCache(snapshot);
 		}
 	};
-}
-
-export interface DefineInteractionOptions<
-	TEntity,
-	TQuery,
-	TStore extends Record<string, unknown>,
-	TActions extends InteractionActionsRecord,
-> {
-	readonly resource: ResourceObject<TEntity, TQuery>;
-	readonly feature: string;
-	readonly store?: TStore;
-	readonly actions?: TActions;
-	readonly registry?: WPKernelRegistry;
-	readonly namespace?: string;
-	readonly autoHydrate?: boolean;
-	readonly hydrateServerState?: (input: {
-		serverState: DeepReadonly<Record<string, unknown>>;
-		resource: ResourceObject<TEntity, TQuery>;
-		registry?: WPKernelRegistry;
-		syncCache: (snapshot: Partial<ResourceState<TEntity>>) => void;
-	}) => void;
-}
-
-export interface DefinedInteraction<TStoreResult> {
-	readonly namespace: string;
-	readonly store: TStoreResult;
-	readonly syncServerState: () => void;
-	readonly getServerState: () => DeepReadonly<Record<string, unknown>>;
 }
 
 export function defineInteraction<

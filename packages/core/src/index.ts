@@ -209,7 +209,14 @@ export type {
 	InteractionActionInput,
 	InteractionActionsRecord,
 	InteractionActionMetaResolver,
-} from './interactivity/defineInteraction.js';
+	InteractionActionsRuntime,
+	InteractivityGlobal,
+	InteractivityModule,
+	InteractivityStoreResult,
+	InteractivityServerState,
+	InteractivityServerStateResolver,
+	HydrateServerStateInput,
+} from './interactivity/index.js';
 
 // Event bus
 export {

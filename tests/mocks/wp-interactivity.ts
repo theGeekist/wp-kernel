@@ -1,61 +1,56 @@
-import type * as WPInteractivity from '@wordpress/interactivity';
+import type {
+	InteractivityGlobal,
+	InteractivityModule,
+	InteractivityServerStateResolver,
+} from '@wpkernel/core/interactivity';
 
-type WPInteractivityModule = typeof WPInteractivity;
-
-type GlobalWithStub = {
-	__WPKernelInteractivityStub?: WPInteractivityModule;
-	wp?: {
-		interactivity?: WPInteractivityModule;
-	};
-};
-
-function createFallback(): WPInteractivityModule {
-	const fallback: Partial<WPInteractivityModule> = {
+function createFallback(): InteractivityModule {
+	const fallback: Partial<InteractivityModule> = {
 		store: ((namespace: string, definition?: Record<string, unknown>) => {
 			void namespace;
 			return (definition ?? {}) as ReturnType<
-				WPInteractivityModule['store']
+				InteractivityModule['store']
 			>;
-		}) as unknown as WPInteractivityModule['store'],
+		}) as unknown as InteractivityModule['store'],
 		getServerState: ((namespace?: string) => {
 			void namespace;
-			return {} as ReturnType<WPInteractivityModule['getServerState']>;
-		}) as unknown as WPInteractivityModule['getServerState'],
+			return {} as ReturnType<InteractivityModule['getServerState']>;
+		}) as unknown as InteractivityModule['getServerState'],
 		getConfig: ((namespace?: string) => {
 			void namespace;
 			return {};
-		}) as unknown as WPInteractivityModule['getConfig'],
+		}) as unknown as InteractivityModule['getConfig'],
 		getContext:
-			(() => ({})) as unknown as WPInteractivityModule['getContext'],
+			(() => ({})) as unknown as InteractivityModule['getContext'],
 		getServerContext:
-			(() => ({})) as unknown as WPInteractivityModule['getServerContext'],
+			(() => ({})) as unknown as InteractivityModule['getServerContext'],
 		getElement: (() =>
-			undefined) as unknown as WPInteractivityModule['getElement'],
+			undefined) as unknown as InteractivityModule['getElement'],
 		withScope: ((scope: string, callback: () => unknown) => {
 			void scope;
 			return callback();
-		}) as unknown as WPInteractivityModule['withScope'],
+		}) as unknown as InteractivityModule['withScope'],
 		useWatch: ((callback: () => void) =>
-			callback()) as unknown as WPInteractivityModule['useWatch'],
+			callback()) as unknown as InteractivityModule['useWatch'],
 		useInit: ((callback: () => void) =>
-			callback()) as unknown as WPInteractivityModule['useInit'],
+			callback()) as unknown as InteractivityModule['useInit'],
 		useEffect: ((effect: () => void | (() => void)) =>
-			effect()) as unknown as WPInteractivityModule['useEffect'],
+			effect()) as unknown as InteractivityModule['useEffect'],
 		useLayoutEffect: ((effect: () => void | (() => void)) =>
-			effect()) as unknown as WPInteractivityModule['useLayoutEffect'],
+			effect()) as unknown as InteractivityModule['useLayoutEffect'],
 		useCallback: ((callback: (...args: never[]) => unknown) =>
-			callback) as unknown as WPInteractivityModule['useCallback'],
+			callback) as unknown as InteractivityModule['useCallback'],
 		useMemo: ((factory: () => unknown) =>
-			factory()) as unknown as WPInteractivityModule['useMemo'],
+			factory()) as unknown as InteractivityModule['useMemo'],
 		splitTask: ((task: () => void) =>
-			task()) as unknown as WPInteractivityModule['splitTask'],
+			task()) as unknown as InteractivityModule['splitTask'],
 		withSyncEvent: ((
 			name: string,
 			handler: (...args: unknown[]) => unknown
 		) => {
 			void name;
 			return handler;
-		}) as unknown as WPInteractivityModule['withSyncEvent'],
+		}) as unknown as InteractivityModule['withSyncEvent'],
 		useState: ((initial?: unknown) => {
 			const value =
 				typeof initial === 'function'
@@ -63,21 +58,21 @@ function createFallback(): WPInteractivityModule {
 					: initial;
 			const setState = () => undefined;
 			return [value, setState];
-		}) as unknown as WPInteractivityModule['useState'],
+		}) as unknown as InteractivityModule['useState'],
 		useRef: ((initialValue?: unknown) => ({
 			current: initialValue,
-		})) as unknown as WPInteractivityModule['useRef'],
+		})) as unknown as InteractivityModule['useRef'],
 		privateApis:
-			(() => ({})) as unknown as WPInteractivityModule['privateApis'],
+			(() => ({})) as unknown as InteractivityModule['privateApis'],
 	};
 
-	const typed = fallback as WPInteractivityModule;
-	typed.getServerState.subscribe = 0;
+	const typed = fallback as InteractivityModule;
+	(typed.getServerState as InteractivityServerStateResolver).subscribe = 0;
 	return typed;
 }
 
-function resolveStub(): WPInteractivityModule {
-	const globalRef = globalThis as GlobalWithStub;
+function resolveStub(): InteractivityModule {
+	const globalRef = globalThis as InteractivityGlobal;
 	if (globalRef.__WPKernelInteractivityStub) {
 		return globalRef.__WPKernelInteractivityStub;
 	}
@@ -90,45 +85,45 @@ function resolveStub(): WPInteractivityModule {
 
 const stub = resolveStub();
 
-function passthrough<Key extends keyof WPInteractivityModule>(key: Key) {
+function passthrough<Key extends keyof InteractivityModule>(key: Key) {
 	const value = stub[key];
-	return value as WPInteractivityModule[Key];
+	return value as InteractivityModule[Key];
 }
 
-export const store: WPInteractivityModule['store'] = passthrough('store');
-export const getServerState: WPInteractivityModule['getServerState'] =
+export const store: InteractivityModule['store'] = passthrough('store');
+export const getServerState: InteractivityModule['getServerState'] =
 	passthrough('getServerState');
-export const getConfig: WPInteractivityModule['getConfig'] =
+export const getConfig: InteractivityModule['getConfig'] =
 	passthrough('getConfig');
-export const getContext: WPInteractivityModule['getContext'] =
+export const getContext: InteractivityModule['getContext'] =
 	passthrough('getContext');
-export const getServerContext: WPInteractivityModule['getServerContext'] =
+export const getServerContext: InteractivityModule['getServerContext'] =
 	passthrough('getServerContext');
-export const getElement: WPInteractivityModule['getElement'] =
+export const getElement: InteractivityModule['getElement'] =
 	passthrough('getElement');
-export const withScope: WPInteractivityModule['withScope'] =
+export const withScope: InteractivityModule['withScope'] =
 	passthrough('withScope');
-export const useWatch: WPInteractivityModule['useWatch'] =
+export const useWatch: InteractivityModule['useWatch'] =
 	passthrough('useWatch');
-export const useInit: WPInteractivityModule['useInit'] = passthrough('useInit');
-export const useEffect: WPInteractivityModule['useEffect'] =
+export const useInit: InteractivityModule['useInit'] = passthrough('useInit');
+export const useEffect: InteractivityModule['useEffect'] =
 	passthrough('useEffect');
-export const useLayoutEffect: WPInteractivityModule['useLayoutEffect'] =
+export const useLayoutEffect: InteractivityModule['useLayoutEffect'] =
 	passthrough('useLayoutEffect');
-export const useCallback: WPInteractivityModule['useCallback'] =
+export const useCallback: InteractivityModule['useCallback'] =
 	passthrough('useCallback');
-export const useMemo: WPInteractivityModule['useMemo'] = passthrough('useMemo');
-export const splitTask: WPInteractivityModule['splitTask'] =
+export const useMemo: InteractivityModule['useMemo'] = passthrough('useMemo');
+export const splitTask: InteractivityModule['splitTask'] =
 	passthrough('splitTask');
-export const withSyncEvent: WPInteractivityModule['withSyncEvent'] =
+export const withSyncEvent: InteractivityModule['withSyncEvent'] =
 	passthrough('withSyncEvent');
-export const useState: WPInteractivityModule['useState'] =
+export const useState: InteractivityModule['useState'] =
 	passthrough('useState');
-export const useRef: WPInteractivityModule['useRef'] = passthrough('useRef');
-export const privateApis: WPInteractivityModule['privateApis'] =
+export const useRef: InteractivityModule['useRef'] = passthrough('useRef');
+export const privateApis: InteractivityModule['privateApis'] =
 	passthrough('privateApis');
 
-const interactivityModule: WPInteractivityModule = {
+const interactivityModule: InteractivityModule = {
 	store,
 	getServerState,
 	getConfig,
