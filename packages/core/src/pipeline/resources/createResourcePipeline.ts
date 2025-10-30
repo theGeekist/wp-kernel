@@ -1,8 +1,10 @@
 import { createPipeline } from '../createPipeline';
+import { reportPipelineDiagnostic } from '../reporting';
 import { createResourceValidationFragment } from './helpers/createResourceValidationFragment';
 import { createResourceClientFragment } from './helpers/createResourceClientFragment';
 import { createResourceCacheKeysFragment } from './helpers/createResourceCacheKeysFragment';
 import { createResourceObjectBuilder } from './helpers/createResourceObjectBuilder';
+import { createFinalizeResourceDefinitionExtension } from './extensions/createFinalizeResourceDefinitionExtension';
 import type {
 	ResourcePipeline,
 	ResourcePipelineOptions,
@@ -74,6 +76,9 @@ export function createResourcePipeline<T, TQuery>(): ResourcePipeline<
 				steps,
 			} satisfies ResourcePipelineRunResult<T, TQuery>;
 		},
+		onDiagnostic({ reporter, diagnostic }) {
+			reportPipelineDiagnostic({ reporter, diagnostic });
+		},
 	} satisfies ResourcePipelineOptions<T, TQuery>;
 
 	const pipeline: ResourcePipeline<T, TQuery> =
@@ -83,6 +88,9 @@ export function createResourcePipeline<T, TQuery>(): ResourcePipeline<
 	pipeline.ir.use(createResourceClientFragment<T, TQuery>());
 	pipeline.ir.use(createResourceCacheKeysFragment<T, TQuery>());
 	pipeline.builders.use(createResourceObjectBuilder<T, TQuery>());
+	pipeline.extensions.use(
+		createFinalizeResourceDefinitionExtension<T, TQuery>()
+	);
 
 	return pipeline;
 }
