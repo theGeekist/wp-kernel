@@ -38,7 +38,8 @@ export function createActionContextAssembler<
 			const actionContext = createActionContext(
 				context.actionName,
 				context.requestId,
-				context.resolvedOptions
+				context.resolvedOptions,
+				context.reporter
 			);
 
 			context.actionContext = actionContext;

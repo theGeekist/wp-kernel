@@ -3,7 +3,7 @@ import type { DefinedAction } from '../../actions/types';
 import { defineResource } from '../../resource/define';
 import type { ResourceObject } from '../../resource/types';
 import type { WPKernelRegistry } from '../../data/types';
-import type { InteractivityModule } from '../types';
+import type { InteractivityGlobal, InteractivityModule } from '../types';
 
 function getInteractivity(): jest.Mocked<InteractivityModule> {
 	const stub = (
@@ -246,6 +246,53 @@ describe('defineInteraction', () => {
 				registry,
 				syncCache: expect.any(Function),
 			})
+		);
+	});
+
+	it('refreshes the cached interactivity module when the stub changes', () => {
+		const resource = createResource();
+		const registry = createRegistryMock();
+
+		registry.dispatch = jest.fn((key: string) => {
+			if (key === 'wp-kernel/ui/actions') {
+				return { invoke: jest.fn().mockResolvedValue(undefined) };
+			}
+			if (key === resource.storeKey) {
+				return {};
+			}
+			return {};
+		}) as unknown as WPKernelRegistry['dispatch'];
+
+		const originalStub = (globalThis as InteractivityGlobal)
+			.__WPKernelInteractivityStub;
+
+		const swappedStore = jest.fn().mockReturnValue({});
+		const swappedGetServerState = jest.fn().mockReturnValue({});
+		const swappedModule: InteractivityModule = {
+			store: swappedStore,
+			getServerState: swappedGetServerState,
+		} as InteractivityModule;
+
+		(globalThis as InteractivityGlobal).__WPKernelInteractivityStub =
+			swappedModule;
+
+		try {
+			defineInteraction({
+				resource,
+				feature: 'swap-stub',
+				registry,
+			});
+		} finally {
+			(globalThis as InteractivityGlobal).__WPKernelInteractivityStub =
+				originalStub;
+		}
+
+		expect(swappedStore).toHaveBeenCalledWith(
+			'wpk/test-item/swap-stub',
+			expect.any(Object)
+		);
+		expect(swappedGetServerState).toHaveBeenCalledWith(
+			'wpk/test-item/swap-stub'
 		);
 	});
 });

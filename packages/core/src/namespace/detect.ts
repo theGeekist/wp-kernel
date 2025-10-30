@@ -1,4 +1,6 @@
+import type { Reporter } from '../reporter';
 import { createReporter } from '../reporter';
+import { resolveReporter } from '../reporter/resolve';
 import { WPK_NAMESPACE, WPK_SUBSYSTEM_NAMESPACES } from './constants';
 
 /**
@@ -71,7 +73,6 @@ const RESERVED_NAMESPACES = [
  *
  * @internal
  */
-let namespaceReporter: ReturnType<typeof createReporter> | null = null;
 
 /**
  * Get or create the namespace reporter instance.
@@ -79,15 +80,17 @@ let namespaceReporter: ReturnType<typeof createReporter> | null = null;
  *
  * @internal
  */
-function getNamespaceReporter(): ReturnType<typeof createReporter> {
-	if (!namespaceReporter) {
-		namespaceReporter = createReporter({
-			namespace: WPK_SUBSYSTEM_NAMESPACES.NAMESPACE,
-			channel: 'all',
-			level: 'warn',
-		});
-	}
-	return namespaceReporter;
+function getNamespaceReporter(): Reporter {
+	return resolveReporter({
+		fallback: () =>
+			createReporter({
+				namespace: WPK_SUBSYSTEM_NAMESPACES.NAMESPACE,
+				channel: 'all',
+				level: 'warn',
+			}),
+		cache: true,
+		cacheKey: `${WPK_SUBSYSTEM_NAMESPACES.NAMESPACE}.detect`,
+	});
 }
 
 /**
