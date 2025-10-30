@@ -430,4 +430,29 @@ describe('register-workspace', () => {
 			cleanup();
 		}
 	});
+
+	it('fails when attempting to remove a path outside managed workspaces', () => {
+		const { rootDir, cleanup } = setupRepository();
+		const logger = createLogger();
+
+		const outsideDir = path.join(rootDir, '..', 'external-target');
+		fs.mkdirSync(outsideDir, { recursive: true });
+
+		try {
+			expect(() =>
+				removeWorkspace({
+					workspaceInput: path.relative(rootDir, outsideDir),
+					cwd: rootDir,
+					logger,
+				})
+			).toThrow(
+				/within the repository's packages\/? or examples\/? directories/i
+			);
+
+			expect(fs.existsSync(outsideDir)).toBe(true);
+		} finally {
+			fs.rmSync(outsideDir, { recursive: true, force: true });
+			cleanup();
+		}
+	});
 });
