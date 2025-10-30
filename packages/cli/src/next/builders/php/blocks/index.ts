@@ -11,8 +11,18 @@ import {
 } from '../../blocks/manifest';
 import { collatePhpBlockArtifacts } from './artifacts';
 import { stageRenderStubs } from './renderStubs';
-import { buildBlockModule } from '@wpkernel/wp-json-ast';
+import {
+	buildBlockModule,
+	buildProgramTargetPlanner,
+	DEFAULT_DOC_HEADER,
+	type ProgramTargetPlannerOptions,
+} from '@wpkernel/wp-json-ast';
 import { getPhpBuilderChannel } from '../channel';
+
+type BlockModuleQueuedFile = ReturnType<
+	typeof buildBlockModule
+>['files'][number];
+type PlannerWorkspace = ProgramTargetPlannerOptions['workspace'];
 
 export function createPhpBlocksHelper(): BuilderHelper {
 	return createHelper({
@@ -75,6 +85,21 @@ export function createPhpBlocksHelper(): BuilderHelper {
 				reporter,
 			});
 
+			const planner = buildProgramTargetPlanner({
+				workspace: context.workspace,
+				outputDir: ir.php.outputDir,
+				channel: getPhpBuilderChannel(context),
+				docblockPrefix: DEFAULT_DOC_HEADER,
+				strategy: {
+					resolveFilePath: ({ workspace, outputDir, file }) =>
+						resolveBlockFilePath({
+							workspace,
+							outputDir,
+							file: file as BlockModuleQueuedFile,
+						}),
+				},
+			});
+
 			await stageRenderStubs({
 				stubs: blockModule.renderStubs,
 				workspace: context.workspace,
@@ -82,22 +107,7 @@ export function createPhpBlocksHelper(): BuilderHelper {
 				reporter,
 			});
 
-			const channel = getPhpBuilderChannel(context);
-			for (const file of blockModule.files) {
-				const target = resolveBlockFilePath({
-					file,
-					ir,
-				});
-
-				channel.queue({
-					file: target,
-					program: file.program,
-					metadata: file.metadata,
-					docblock: file.docblock,
-					uses: [],
-					statements: [],
-				});
-			}
+			planner.queueFiles({ files: blockModule.files });
 
 			reporter.debug(
 				'createPhpBlocksHelper: queued SSR block manifest and registrar.'
@@ -109,18 +119,25 @@ export function createPhpBlocksHelper(): BuilderHelper {
 }
 
 function resolveBlockFilePath({
+	workspace,
+	outputDir,
 	file,
-	ir,
 }: {
-	readonly file: ReturnType<typeof buildBlockModule>['files'][number];
-	readonly ir: BuilderApplyOptions['input']['ir'];
+	readonly workspace: PlannerWorkspace;
+	readonly outputDir: string;
+	readonly file: BlockModuleQueuedFile;
 }): string {
+	const normalisedSegments = file.fileName
+		.replace(/\\/g, '/')
+		.split('/')
+		.filter(Boolean);
+
 	if (file.metadata.kind === 'block-manifest') {
-		const manifestDir = path.dirname(ir!.php.outputDir);
-		return path.join(manifestDir, file.fileName);
+		const manifestDir = path.dirname(outputDir);
+		return workspace.resolve(manifestDir, ...normalisedSegments);
 	}
 
-	return path.join(ir!.php.outputDir, file.fileName);
+	return workspace.resolve(outputDir, ...normalisedSegments);
 }
 
 function reportManifestValidationErrors({
