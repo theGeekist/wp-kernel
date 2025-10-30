@@ -100,6 +100,43 @@ function parseListOption(raw: string | undefined): string[] {
 		.filter((value) => value.length > 0);
 }
 
+function isWorkspacePathWithinRepo(
+	repoRoot: string,
+	targetDir: string
+): boolean {
+	const relative = ensurePosix(path.relative(repoRoot, targetDir));
+
+	if (!relative || relative === '.' || relative.startsWith('..')) {
+		return false;
+	}
+
+	const [topLevel, secondLevel] = relative.split('/');
+
+	if (
+		(topLevel === 'packages' || topLevel === 'examples') &&
+		typeof secondLevel === 'string' &&
+		secondLevel.length > 0
+	) {
+		return true;
+	}
+
+	return false;
+}
+
+function assertWorkspacePathWithinRepo(
+	repoRoot: string,
+	targetDir: string
+): void {
+	if (!isWorkspacePathWithinRepo(repoRoot, targetDir)) {
+		const relative = ensurePosix(path.relative(repoRoot, targetDir));
+		throw new Error(
+			`Workspace path must resolve within the repository's packages/ or examples/ directories. Received "${
+				relative || targetDir
+			}".`
+		);
+	}
+}
+
 function findRepoRoot(startDir: string): string {
 	let current = startDir;
 
@@ -182,6 +219,7 @@ function resolveExistingWorkspaceDir(
 ): string {
 	const cwdCandidate = path.resolve(cwd, input);
 	if (fs.existsSync(cwdCandidate)) {
+		assertWorkspacePathWithinRepo(repoRoot, cwdCandidate);
 		return cwdCandidate;
 	}
 
@@ -190,11 +228,13 @@ function resolveExistingWorkspaceDir(
 		: input;
 	const packagePath = path.join(repoRoot, 'packages', packageName);
 	if (fs.existsSync(packagePath)) {
+		assertWorkspacePathWithinRepo(repoRoot, packagePath);
 		return packagePath;
 	}
 
 	const examplePath = path.join(repoRoot, 'examples', packageName);
 	if (fs.existsSync(examplePath)) {
+		assertWorkspacePathWithinRepo(repoRoot, examplePath);
 		return examplePath;
 	}
 
@@ -1125,6 +1165,8 @@ export function removeWorkspace(options: RemoveWorkspaceOptions): void {
 		repoRoot,
 		cwd
 	);
+
+	assertWorkspacePathWithinRepo(repoRoot, packageDir);
 
 	const manifest = readJsonFile<PackageManifest>(
 		path.join(packageDir, 'package.json')
