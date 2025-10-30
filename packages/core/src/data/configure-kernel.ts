@@ -8,10 +8,11 @@ import type {
 } from './types';
 import { getNamespace as detectNamespace } from '../namespace/detect';
 import { createReporter, setWPKernelReporter } from '../reporter';
-import type { Reporter } from '../reporter';
+import { resolveReporter as resolveKernelReporter } from '../reporter/resolve';
 import { invalidate as invalidateCache } from '../resource/cache';
 import type { CacheKeyPattern, InvalidateOptions } from '../resource/cache';
 import { WPKernelError } from '../error/WPKernelError';
+import { WPK_SUBSYSTEM_NAMESPACES } from '../contracts/index.js';
 import {
 	getWPKernelEventBus,
 	type WPKernelEventBus,
@@ -40,18 +41,6 @@ function resolveRegistry(
 
 function resolveNamespace(explicit?: string): string {
 	return explicit ?? detectNamespace();
-}
-
-function resolveReporter(namespace: string, reporter?: Reporter): Reporter {
-	if (reporter) {
-		return reporter;
-	}
-
-	return createReporter({
-		namespace,
-		channel: 'all',
-		level: 'debug',
-	});
 }
 
 function normalizeUIConfig(config?: WPKUIConfig): {
@@ -94,7 +83,17 @@ export function configureWPKernel(
 ): WPKInstance {
 	const registry = resolveRegistry(options.registry);
 	const namespace = resolveNamespace(options.namespace);
-	const reporter = resolveReporter(namespace, options.reporter);
+	const reporter = resolveKernelReporter({
+		override: options.reporter,
+		fallback: () =>
+			createReporter({
+				namespace,
+				channel: 'all',
+				level: 'debug',
+			}),
+		cache: true,
+		cacheKey: `${WPK_SUBSYSTEM_NAMESPACES.ACTIONS}.configure.${namespace}`,
+	});
 	const ui = normalizeUIConfig(options.ui);
 
 	const events = getWPKernelEventBus();

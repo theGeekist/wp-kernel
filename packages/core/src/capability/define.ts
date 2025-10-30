@@ -26,6 +26,7 @@ import {
 	createReporter as createKernelReporter,
 	createNoopReporter,
 } from '../reporter';
+import { resolveReporter as resolveKernelReporter } from '../reporter/resolve';
 import { createCapabilityCache, createCapabilityCacheKey } from './cache';
 import {
 	getCapabilityRequestContext,
@@ -49,11 +50,20 @@ const POLICY_EVENT_CHANNEL = WPK_INFRASTRUCTURE.POLICY_EVENT_CHANNEL;
 const POLICY_DENIED_EVENT = 'capability.denied';
 const BRIDGE_POLICY_DENIED_EVENT = 'bridge.capability.denied';
 
-const capabilityModuleReporter = createKernelReporter({
-	namespace: WPK_SUBSYSTEM_NAMESPACES.POLICY,
-	channel: 'all',
-	level: 'warn',
-});
+const CAPABILITY_MODULE_CACHE_KEY = `${WPK_SUBSYSTEM_NAMESPACES.POLICY}.module`;
+
+function getCapabilityModuleReporter(): CapabilityReporter {
+	return resolveKernelReporter({
+		fallback: () =>
+			createKernelReporter({
+				namespace: WPK_SUBSYSTEM_NAMESPACES.POLICY,
+				channel: 'all',
+				level: 'warn',
+			}),
+		cache: true,
+		cacheKey: CAPABILITY_MODULE_CACHE_KEY,
+	});
+}
 
 type WordPressHooks = {
 	doAction: (eventName: string, payload: unknown) => void;
@@ -108,7 +118,7 @@ function getEventChannel(): BroadcastChannel | null {
 	try {
 		eventChannel = new window.BroadcastChannel(POLICY_EVENT_CHANNEL);
 	} catch (error) {
-		capabilityModuleReporter.warn(
+		getCapabilityModuleReporter().warn(
 			'Failed to create BroadcastChannel for capability events.',
 			{ error }
 		);
@@ -127,7 +137,7 @@ function getEventChannel(): BroadcastChannel | null {
  * @param debug     - Whether debug mode is enabled for the capability runtime
  * @param namespace - Namespace used for reporter context
  */
-function resolveReporter(
+function resolveCapabilityReporter(
 	debug: boolean | undefined,
 	namespace: string
 ): CapabilityReporter {
@@ -135,10 +145,15 @@ function resolveReporter(
 		return createNoopReporter();
 	}
 
-	return createKernelReporter({
-		namespace,
-		channel: 'all',
-		level: 'debug',
+	return resolveKernelReporter({
+		fallback: () =>
+			createKernelReporter({
+				namespace,
+				channel: 'all',
+				level: 'debug',
+			}),
+		cache: true,
+		cacheKey: `${WPK_SUBSYSTEM_NAMESPACES.POLICY}.definition:${namespace}`,
 	});
 }
 
@@ -688,7 +703,7 @@ export function defineCapability<K extends Record<string, unknown>>(
 	}
 
 	const namespace = options?.namespace ?? getNamespace();
-	const reporter = resolveReporter(options?.debug, namespace);
+	const reporter = resolveCapabilityReporter(options?.debug, namespace);
 	const cache = createCapabilityCache(options?.cache, namespace);
 	const adapters = resolveAdapters(options, reporter);
 
@@ -830,7 +845,7 @@ export function defineCapability<K extends Record<string, unknown>>(
 				}
 
 				if (rules.has(key) && process.env.NODE_ENV !== 'production') {
-					capabilityModuleReporter.warn(
+					getCapabilityModuleReporter().warn(
 						`Capability "${String(key)}" is being overridden via extend().`,
 						{ capabilityKey: String(key) }
 					);

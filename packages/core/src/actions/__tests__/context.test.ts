@@ -11,16 +11,40 @@ import {
 } from '../context';
 import { WPKernelError } from '../../error/WPKernelError';
 import type { Reporter } from '../../reporter';
+import * as reporterModule from '../../reporter';
+import { resetResolvedActionReporters } from '../resolveReporter';
+import { resetReporterResolution } from '../../reporter/resolve';
+
+jest.mock('../../reporter', () => {
+	const actual = jest.requireActual('../../reporter');
+
+	return {
+		...actual,
+		createReporter: jest.fn(actual.createReporter),
+	};
+});
 
 describe('Action Context', () => {
 	let originalRuntime: typeof global.__WP_KERNEL_ACTION_RUNTIME__;
+	let originalSilentFlag: string | undefined;
 
 	beforeEach(() => {
 		originalRuntime = global.__WP_KERNEL_ACTION_RUNTIME__;
+		originalSilentFlag = process.env.WPK_SILENT_REPORTERS;
+		delete process.env.WPK_SILENT_REPORTERS;
+		resetReporterResolution();
 	});
 
 	afterEach(() => {
 		global.__WP_KERNEL_ACTION_RUNTIME__ = originalRuntime;
+		resetResolvedActionReporters();
+		jest.clearAllMocks();
+		resetReporterResolution();
+		if (typeof originalSilentFlag === 'undefined') {
+			delete process.env.WPK_SILENT_REPORTERS;
+		} else {
+			process.env.WPK_SILENT_REPORTERS = originalSilentFlag;
+		}
 		// Note: window.wp is reset by setup-jest.ts afterEach, not here
 	});
 
@@ -86,78 +110,96 @@ describe('Action Context', () => {
 				});
 			});
 
-			it('falls back to console when no runtime reporter provided', () => {
+			it('falls back to the kernel reporter when no runtime reporter provided', () => {
 				global.__WP_KERNEL_ACTION_RUNTIME__ = undefined;
-				const consoleInfoSpy = jest
-					.spyOn(console, 'info')
-					.mockImplementation();
-				const consoleWarnSpy = jest
-					.spyOn(console, 'warn')
-					.mockImplementation();
-				const consoleErrorSpy = jest
-					.spyOn(console, 'error')
-					.mockImplementation();
-				const consoleDebugSpy = jest
-					.spyOn(console, 'debug')
-					.mockImplementation();
+
+				resetResolvedActionReporters();
+				global.__WP_KERNEL_ACTION_RUNTIME__ = undefined;
 
 				const ctx = createActionContext('Test.Action', 'req_123', {
 					scope: 'crossTab',
 					bridged: true,
 				});
 
-				ctx.reporter.info('info message', { data: 'test' });
-				ctx.reporter.warn('warn message', { data: 'test' });
-				ctx.reporter.error('error message', { data: 'test' });
-				ctx.reporter.debug!('debug message', { data: 'test' });
+				expect(typeof ctx.reporter.info).toBe('function');
+				expect(typeof ctx.reporter.warn).toBe('function');
+				expect(typeof ctx.reporter.error).toBe('function');
+				expect(typeof ctx.reporter.debug).toBe('function');
+				expect(typeof ctx.reporter.child).toBe('function');
+			});
 
-				expect(consoleInfoSpy).toHaveBeenCalledWith(
-					'[wpk]',
-					'info message',
-					{ data: 'test' }
-				);
-				expect(consoleWarnSpy).toHaveBeenCalledWith(
-					'[wpk]',
-					'warn message',
-					{ data: 'test' }
-				);
-				expect(consoleErrorSpy).toHaveBeenCalledWith(
-					'[wpk]',
-					'error message',
-					{ data: 'test' }
-				);
-				expect(consoleDebugSpy).toHaveBeenCalledWith(
-					'[wpk]',
-					'debug message',
-					{ data: 'test' }
-				);
+			it('returns a noop reporter when silent reporting is enabled', () => {
+				global.__WP_KERNEL_ACTION_RUNTIME__ = undefined;
+				process.env.WPK_SILENT_REPORTERS = '1';
 
-				expect(console as any).toHaveInformedWith(
-					'[wpk]',
-					'info message',
-					{
-						data: 'test',
-					}
-				);
-				expect(console as any).toHaveWarnedWith(
-					'[wpk]',
-					'warn message',
-					{
-						data: 'test',
-					}
-				);
-				expect(console as any).toHaveErroredWith(
-					'[wpk]',
-					'error message',
-					{
-						data: 'test',
-					}
-				);
+				resetResolvedActionReporters();
 
-				consoleInfoSpy.mockRestore();
+				const createReporterMock =
+					reporterModule.createReporter as jest.MockedFunction<
+						typeof reporterModule.createReporter
+					>;
+
+				createReporterMock.mockClear();
+				const consoleWarnSpy = jest
+					.spyOn(console, 'warn')
+					.mockImplementation();
+
+				const ctx = createActionContext('Test.Action', 'req_789', {
+					scope: 'crossTab',
+					bridged: true,
+				});
+
+				ctx.reporter.warn('should not log');
+
+				expect(createReporterMock).not.toHaveBeenCalled();
+				expect(consoleWarnSpy).not.toHaveBeenCalled();
 				consoleWarnSpy.mockRestore();
-				consoleErrorSpy.mockRestore();
-				consoleDebugSpy.mockRestore();
+			});
+
+			it('reuses the fallback reporter across invocations when runtime is absent', () => {
+				global.__WP_KERNEL_ACTION_RUNTIME__ = undefined;
+
+				const ctx1 = createActionContext('Test.Action', 'req_123', {
+					scope: 'crossTab',
+					bridged: true,
+				});
+
+				const ctx2 = createActionContext('Test.Action', 'req_456', {
+					scope: 'crossTab',
+					bridged: true,
+				});
+
+				expect(ctx1.reporter).toBe(ctx2.reporter);
+			});
+
+			it('reuses a provided reporter override', () => {
+				global.__WP_KERNEL_ACTION_RUNTIME__ = undefined;
+				const overrideReporter = {
+					info: jest.fn(),
+					warn: jest.fn(),
+					error: jest.fn(),
+					debug: jest.fn(),
+					child: jest.fn(() => overrideReporter),
+				} as unknown as Reporter;
+
+				const createContextWithOverride = createActionContext as (
+					actionName: string,
+					requestId: string,
+					options: Parameters<typeof createActionContext>[2],
+					reporter?: Reporter
+				) => ReturnType<typeof createActionContext>;
+
+				const ctx = createContextWithOverride(
+					'Test.Action',
+					'req_123',
+					{
+						scope: 'crossTab',
+						bridged: true,
+					},
+					overrideReporter
+				);
+
+				expect(ctx.reporter).toBe(overrideReporter);
 			});
 		});
 
