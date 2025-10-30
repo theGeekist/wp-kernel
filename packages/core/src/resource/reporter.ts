@@ -1,4 +1,5 @@
-import { createReporter, createNoopReporter } from '../reporter';
+import { createReporter } from '../reporter';
+import { resolveReporter as resolveKernelReporter } from '../reporter/resolve';
 import type { Reporter } from '../reporter';
 
 export interface ResolveResourceReporterOptions {
@@ -12,17 +13,13 @@ export function resolveResourceReporter({
 	resourceName,
 	override,
 }: ResolveResourceReporterOptions): Reporter {
-	if (override) {
-		return override;
-	}
-
-	if (process.env.WPK_SILENT_REPORTERS === '1') {
-		return createNoopReporter();
-	}
-
-	return createReporter({
-		namespace: `${namespace}.resource.${resourceName}`,
-		channel: 'all',
-		level: 'debug',
+	return resolveKernelReporter({
+		override,
+		fallback: () =>
+			createReporter({
+				namespace: `${namespace}.resource.${resourceName}`,
+				channel: 'all',
+				level: 'debug',
+			}),
 	});
 }

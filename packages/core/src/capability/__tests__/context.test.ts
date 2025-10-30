@@ -6,6 +6,7 @@ import {
 } from '../context';
 import { WPKernelError } from '../../error/WPKernelError';
 import type { ActionRuntime } from '../../actions/types';
+import { resetReporterResolution } from '../../reporter/resolve';
 
 describe('capability context', () => {
 	const baseOptions = {
@@ -16,15 +17,29 @@ describe('capability context', () => {
 		bridged: false,
 	};
 
+	let originalSilentFlag: string | undefined;
+
 	const createProxy = () =>
 		createCapabilityProxy(baseOptions) as {
 			assert: (key: string, value?: unknown) => void | Promise<void>;
 			can: (key: string, value?: unknown) => boolean | Promise<boolean>;
 		};
 
+	beforeEach(() => {
+		originalSilentFlag = process.env.WPK_SILENT_REPORTERS;
+		delete process.env.WPK_SILENT_REPORTERS;
+		resetReporterResolution();
+	});
+
 	afterEach(() => {
 		delete global.__WP_KERNEL_ACTION_RUNTIME__;
 		jest.restoreAllMocks();
+		resetReporterResolution();
+		if (typeof originalSilentFlag === 'undefined') {
+			delete process.env.WPK_SILENT_REPORTERS;
+		} else {
+			process.env.WPK_SILENT_REPORTERS = originalSilentFlag;
+		}
 	});
 
 	it('tracks request context across synchronous execution', () => {

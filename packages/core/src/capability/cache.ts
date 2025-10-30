@@ -16,6 +16,7 @@
 
 import { getNamespace } from '../namespace/detect';
 import { createReporter } from '../reporter';
+import { resolveReporter } from '../reporter/resolve';
 import {
 	WPK_INFRASTRUCTURE,
 	WPK_SUBSYSTEM_NAMESPACES,
@@ -26,11 +27,18 @@ const DEFAULT_TTL_MS = 60_000;
 const STORAGE_KEY_PREFIX = WPK_INFRASTRUCTURE.POLICY_CACHE_STORAGE;
 const BROADCAST_CHANNEL_NAME = WPK_INFRASTRUCTURE.POLICY_CACHE_CHANNEL;
 
-const capabilityCacheReporter = createReporter({
-	namespace: WPK_SUBSYSTEM_NAMESPACES.POLICY_CACHE,
-	channel: 'console',
-	level: 'warn',
-});
+function getCapabilityCacheReporter() {
+	return resolveReporter({
+		fallback: () =>
+			createReporter({
+				namespace: WPK_SUBSYSTEM_NAMESPACES.POLICY_CACHE,
+				channel: 'console',
+				level: 'warn',
+			}),
+		cache: true,
+		cacheKey: `${WPK_SUBSYSTEM_NAMESPACES.POLICY_CACHE}.cache`,
+	});
+}
 
 type Listener = () => void;
 
@@ -158,7 +166,7 @@ function getStorage(
 		try {
 			return window.sessionStorage;
 		} catch (error) {
-			capabilityCacheReporter.warn(
+			getCapabilityCacheReporter().warn(
 				'sessionStorage is not available for capability cache.',
 				error
 			);
@@ -202,7 +210,7 @@ function readPersisted(
 		}
 		return parsed;
 	} catch (error) {
-		capabilityCacheReporter.warn(
+		getCapabilityCacheReporter().warn(
 			'Failed to parse persisted capability cache.',
 			error
 		);
@@ -235,7 +243,7 @@ function persist(
 		const serialized = JSON.stringify(Object.fromEntries(store.entries()));
 		storage.setItem(`${STORAGE_KEY_PREFIX}.${namespace}`, serialized);
 	} catch (error) {
-		capabilityCacheReporter.warn(
+		getCapabilityCacheReporter().warn(
 			'Failed to persist capability cache.',
 			error
 		);
@@ -271,7 +279,7 @@ function createBroadcastChannel(
 	try {
 		return new window.BroadcastChannel(BROADCAST_CHANNEL_NAME);
 	} catch (error) {
-		capabilityCacheReporter.warn(
+		getCapabilityCacheReporter().warn(
 			'Failed to create BroadcastChannel for capability cache.',
 			error
 		);

@@ -1,5 +1,6 @@
 import { createCapabilityCache, createCapabilityCacheKey } from '../cache';
 import { WPK_SUBSYSTEM_NAMESPACES } from '../../contracts';
+import { resetReporterResolution } from '../../reporter/resolve';
 
 jest.mock('../../namespace/detect', () => ({
 	getNamespace: () => 'acme',
@@ -41,9 +42,13 @@ describe('createCapabilityCache', () => {
 	const storageKey = 'wpk.capability.cache.acme';
 	const originalBroadcastChannel = global.window.BroadcastChannel;
 	const originalSessionStorage = global.window.sessionStorage;
+	let originalSilentFlag: string | undefined;
 
 	beforeEach(() => {
 		jest.restoreAllMocks();
+		originalSilentFlag = process.env.WPK_SILENT_REPORTERS;
+		delete process.env.WPK_SILENT_REPORTERS;
+		resetReporterResolution();
 		MockBroadcastChannel.instances = [];
 		window.sessionStorage.clear();
 		Object.defineProperty(window, 'BroadcastChannel', {
@@ -53,6 +58,12 @@ describe('createCapabilityCache', () => {
 	});
 
 	afterEach(() => {
+		resetReporterResolution();
+		if (typeof originalSilentFlag === 'undefined') {
+			delete process.env.WPK_SILENT_REPORTERS;
+		} else {
+			process.env.WPK_SILENT_REPORTERS = originalSilentFlag;
+		}
 		Object.defineProperty(window, 'BroadcastChannel', {
 			configurable: true,
 			value: originalBroadcastChannel,

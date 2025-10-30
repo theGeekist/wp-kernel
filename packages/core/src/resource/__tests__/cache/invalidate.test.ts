@@ -7,6 +7,8 @@ import { invalidate, registerStoreKey } from '../../cache';
 import { setWPKernelEventBus, WPKernelEventBus } from '../../../events/bus';
 import { setWPKernelReporter, clearWPKReporter } from '../../../reporter';
 import type { Reporter } from '../../../reporter';
+import type { WPKernelRegistry } from '../../../data/types';
+import * as reporterResolution from '../../../reporter/resolve';
 import {
 	createResourceDataHarness,
 	withWordPressData,
@@ -39,6 +41,7 @@ describe('invalidate', () => {
 		registerStoreKey('wpk/thing');
 		registerStoreKey('wpk/job');
 		clearWPKReporter();
+		reporterResolution.resetReporterResolution();
 	});
 
 	afterEach(() => {
@@ -46,6 +49,7 @@ describe('invalidate', () => {
 		jest.clearAllMocks();
 		clearWPKReporter();
 		harnessSetup.harness.teardown();
+		reporterResolution.resetReporterResolution();
 	});
 
 	function createReporterSpy(): { reporter: Reporter; logs: LogEntry[] } {
@@ -322,6 +326,47 @@ describe('invalidate', () => {
 				])
 			);
 			expect(kernelSpy.logs).toEqual([]);
+		});
+
+		it('respects silent reporter flag when no override provided', () => {
+			const resolveSpy = jest.spyOn(
+				reporterResolution,
+				'resolveReporter'
+			);
+
+			const originalSilent = process.env.WPK_SILENT_REPORTERS;
+			process.env.WPK_SILENT_REPORTERS = '1';
+
+			const registry = {
+				dispatch: () => ({ invalidate: jest.fn() }),
+				select: () => ({
+					__getInternalState: jest.fn().mockReturnValue({
+						lists: {},
+						listMeta: {},
+						errors: {},
+					}),
+				}),
+			};
+
+			try {
+				invalidate(['thing', 'list'], {
+					storeKey: 'wpk/thing',
+					registry: registry as unknown as WPKernelRegistry,
+				});
+
+				expect(resolveSpy).toHaveBeenCalled();
+
+				const lastResult = resolveSpy.mock.results.at(-1)?.value;
+				expect(lastResult).toBe(reporterResolution.getSilentReporter());
+			} finally {
+				if (originalSilent) {
+					process.env.WPK_SILENT_REPORTERS = originalSilent;
+				} else {
+					delete process.env.WPK_SILENT_REPORTERS;
+				}
+
+				resolveSpy.mockRestore();
+			}
 		});
 	});
 

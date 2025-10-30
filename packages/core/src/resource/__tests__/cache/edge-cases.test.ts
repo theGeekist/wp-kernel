@@ -6,6 +6,7 @@
 import { invalidate, invalidateAll, normalizeCacheKey } from '../../cache';
 import { WPKernelEventBus, setWPKernelEventBus } from '../../../events/bus';
 import { setWPKernelReporter, clearWPKReporter } from '../../../reporter';
+import { resetReporterResolution } from '../../../reporter/resolve';
 import type { Reporter } from '../../../reporter';
 import {
 	createResourceDataHarness,
@@ -44,6 +45,8 @@ describe('invalidate edge cases', () => {
 		({ reporter, logs: reporterLogs } = createReporterSpy());
 		setWPKernelReporter(reporter);
 
+		resetReporterResolution();
+
 		// Create mocks
 		mockDispatch = jest.fn();
 		mockSelect = jest.fn();
@@ -72,6 +75,8 @@ describe('invalidate edge cases', () => {
 		setWPKernelEventBus(new WPKernelEventBus());
 		jest.clearAllMocks();
 		harnessSetup.harness.teardown();
+
+		resetReporterResolution();
 	});
 
 	type LogEntry = {

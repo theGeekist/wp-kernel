@@ -5,7 +5,18 @@
 import { defineResource } from '../define';
 import { WPKernelError } from '../../error';
 import { resetNamespaceCache } from '../../namespace';
-import type { ResourceStore, ResourceDataViewsUIConfig } from '../types';
+import {
+	clearRegisteredResources,
+	getRegisteredResources,
+	getWPKernelEventBus,
+	setWPKernelEventBus,
+	WPKernelEventBus,
+} from '../../events/bus';
+import type {
+	ResourceObject,
+	ResourceStore,
+	ResourceDataViewsUIConfig,
+} from '../types';
 import {
 	createApiFetchHarness,
 	withWordPressData,
@@ -25,6 +36,42 @@ interface ThingQuery {
 }
 
 describe('defineResource - integration', () => {
+	describe('resource definition finalization', () => {
+		let originalBus: WPKernelEventBus;
+
+		beforeEach(() => {
+			clearRegisteredResources();
+			originalBus = getWPKernelEventBus();
+		});
+
+		afterEach(() => {
+			clearRegisteredResources();
+			setWPKernelEventBus(originalBus);
+		});
+
+		it('records the resource definition during pipeline commit', () => {
+			const testBus = new WPKernelEventBus();
+			const onDefined = jest.fn();
+			testBus.on('resource:defined', onDefined);
+
+			setWPKernelEventBus(testBus);
+
+			const resource = defineResource<Thing>({
+				name: 'thing',
+				routes: {
+					list: { path: '/my-plugin/v1/things', method: 'GET' },
+				},
+			});
+
+			expect(onDefined).toHaveBeenCalledTimes(1);
+			const [definition] = getRegisteredResources();
+			expect(definition?.namespace).toBe('wpk');
+			expect(definition?.resource).toBe(
+				resource as unknown as ResourceObject<unknown, unknown>
+			);
+		});
+	});
+
 	describe('lazy store initialization', () => {
 		it('should have a store property', () => {
 			const resource = defineResource<Thing>({

@@ -8,7 +8,6 @@
  */
 import { WPKernelError } from '../error/WPKernelError';
 import type { ResourceConfig, ResourceObject } from './types';
-import { getWPKernelEventBus, recordResourceDefined } from '../events/bus';
 import type { Reporter } from '../reporter';
 import { createResourcePipeline } from '../pipeline/resources/createResourcePipeline';
 import type {
@@ -71,20 +70,6 @@ function buildResourceDefinitionOptions<T, TQuery>({
 	} satisfies ResourcePipelineRunOptions<T, TQuery>;
 }
 
-function finalizeResourceDefinition<T, TQuery>(
-	options: ResourcePipelineRunOptions<T, TQuery>,
-	resource: ResourceObject<T, TQuery>
-): ResourceObject<T, TQuery> {
-	const definition = {
-		resource: resource as ResourceObject<unknown, unknown>,
-		namespace: options.namespace,
-	};
-	recordResourceDefined(definition);
-	getWPKernelEventBus().emit('resource:defined', definition);
-
-	return resource;
-}
-
 /**
  * Define a resource with typed REST client
  *
@@ -141,8 +126,5 @@ export function defineResource<T = unknown, TQuery = unknown>(
 		});
 	}
 
-	return finalizeResourceDefinition(
-		runOptions,
-		runResult.artifact.resource as ResourceObject<T, TQuery>
-	);
+	return runResult.artifact.resource as ResourceObject<T, TQuery>;
 }
