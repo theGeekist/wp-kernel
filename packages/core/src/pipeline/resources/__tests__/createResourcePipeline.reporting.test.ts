@@ -7,6 +7,7 @@ import * as reportingModule from '../../reporting';
 type MockPipeline = {
 	ir: { use: jest.Mock };
 	builders: { use: jest.Mock };
+	extensions: { use: jest.Mock };
 	run: jest.Mock;
 };
 
@@ -18,6 +19,7 @@ describe('createResourcePipeline diagnostics reporting', () => {
 	const mockPipeline: MockPipeline = {
 		ir: { use: jest.fn() },
 		builders: { use: jest.fn() },
+		extensions: { use: jest.fn() },
 		run: jest.fn(),
 	};
 

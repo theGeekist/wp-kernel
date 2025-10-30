@@ -7,6 +7,7 @@ import {
 	getRegisteredResources,
 	recordActionDefined,
 	recordResourceDefined,
+	removeResourceDefined,
 } from '../bus';
 import { createReporter } from '../../reporter';
 import { resetReporterResolution } from '../../reporter/resolve';
@@ -77,13 +78,26 @@ describe('WPKernelEventBus', () => {
 			routes: {},
 		} as unknown as Parameters<typeof recordResourceDefined>[0]['resource'];
 
-		recordResourceDefined({ resource, namespace: 'tests' });
+		const event = { resource, namespace: 'tests' };
+		recordResourceDefined(event);
 
-		expect(getRegisteredResources()).toEqual([
-			{ resource, namespace: 'tests' },
-		]);
+		expect(getRegisteredResources()).toEqual([event]);
 
 		clearRegisteredResources();
+		expect(getRegisteredResources()).toHaveLength(0);
+	});
+
+	it('removes recorded resource definitions', () => {
+		const resource = {
+			name: 'demo',
+			routes: {},
+		} as unknown as Parameters<typeof recordResourceDefined>[0]['resource'];
+
+		const event = { resource, namespace: 'tests' };
+		recordResourceDefined(event);
+
+		removeResourceDefined(event);
+
 		expect(getRegisteredResources()).toHaveLength(0);
 	});
 
