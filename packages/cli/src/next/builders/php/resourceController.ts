@@ -57,7 +57,7 @@ export function createPhpResourceControllerHelper(): BuilderHelper {
 				origin: ir.meta.origin,
 				pluginNamespace: ir.php.namespace,
 				sanitizedNamespace: ir.meta.sanitizedNamespace,
-				capabilityClass: `${ir.php.namespace}\\Capability\\Capability`,
+				capabilityClass: `${ir.php.namespace}\\Generated\\Capability\\Capability`,
 				resources: buildResourcePlans(ir),
 				includeBaseController: false,
 			});

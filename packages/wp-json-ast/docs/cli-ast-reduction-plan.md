@@ -334,7 +334,7 @@ _Completion:_ ☑ Completed – staged block manifest, registrar, and render stu
 - **Intent:** Synchronise namespace derivation so generated controllers import the actual capability class produced by the capability helper.
 - **Expected outcome:** REST controllers referencing capabilities import the generated namespace, associated tests cover a capability-protected route, and reporter output confirms the expected permission callback wiring.
 
-_Completion:_ ☐ Pending – mark complete once namespace updates and tests merge.
+_Completion:_ ☑ Completed – REST controllers now import `Generated\\Capability\\Capability`, keeping the CLI and capability module namespaces in sync.
 
 **Subtask 3.1.e – Add coverage for capability-protected routes.**
 
@@ -342,11 +342,74 @@ _Completion:_ ☐ Pending – mark complete once namespace updates and tests mer
 - **Intent:** Introduce integration fixtures (for example under `packages/cli/src/next/builders/php/__tests__/fixtures/`) that exercise capability-secured routes and assert generated imports, metadata, and planner queue entries.
 - **Expected outcome:** Test suites fail without the namespace fix above, succeed once parity is restored, and future regressions surface through the dedicated capability-route coverage.
 
-_Completion:_ ☐ Pending – replace with PR link once the fixtures and assertions land.
+_Completion:_ ☑ Completed – added a capability-protected resource fixture and CLI integration test covering imports, metadata, and planner entries.
 
 _Task 3.2: Expand composable helper library._ Build lightweight adapters that compose multiple factories (such as REST controllers plus capability helpers) so the CLI can generate complex files by chaining configuration objects. Document these adapters and ensure integration tests cover the composed output.
 
-_Completion:_ ☐ Pending - replace this line with the PR link and a one-line summary when the task is complete.
+Phase 3.1 surfaced that the CLI still performs substantial AST assembly before delegating to `buildRestControllerModuleFromPlan`. `resourceController.ts` and its storage-specific helpers continue to emit `PhpStmt` nodes directly (`buildRouteKindStatements`, `buildTransient*`, `buildWpOption*`, the WP_Post mutation contracts), leaving WordPress semantics spread across CLI-only modules. To finish the reduction, Task 3.2 must pull these hotspots into `@wpkernel/wp-json-ast` so the CLI only prepares declarative plans.
+
+#### Task 3.2 Blueprint - Route and storage adapters migrate into factories
+
+Document the remaining AST-heavy helpers and promote them into first-class factories under `src/rest-controller/` and `src/resource/`. The CLI should supply configuration objects that describe storage modes, mutation contracts, and capability bindings while the factories return statement builders that wire cache metadata, WP_Error envelopes, and helper methods.
+
+##### Remaining CLI AST hotspots and required factories
+
+- `packages/cli/src/next/builders/php/resourceController/routes/handleRouteKind.ts` (route fan-out, TODO stub statements) → `buildResourceControllerRouteSet`, wrapped by `createPhpResourceControllerHelper`.
+- `packages/cli/src/next/builders/php/resource/wpPost/**` (route fan-out plus mutation macros) → `buildWpPostRouteBundle`, wrapped by `createPhpWpPostRoutesHelper` feeding `createPhpResourceControllerHelper`.
+- `packages/cli/src/next/builders/php/resourceController/storage/wpOption.ts` → `buildWpOptionStorageArtifacts`, wrapped by `createPhpWpOptionStorageHelper`.
+- `packages/cli/src/next/builders/php/resourceController/storage/transient.ts` → `buildTransientStorageArtifacts`, wrapped by `createPhpTransientStorageHelper`.
+- `packages/cli/src/next/builders/php/resourceController/storage/taxonomy.ts` → `buildWpTaxonomyStorageArtifacts`, wrapped by `createPhpWpTaxonomyStorageHelper`.
+- `packages/cli/src/next/builders/php/baseController.ts` & `indexFile.ts` (post-factory module wrapping) → `buildGeneratedModuleProgram`, wrapped by `createPhpBaseControllerHelper` and `createPhpIndexFileHelper`.
+
+> Naming-rule audit: base and index helpers still append statements after calling `build*` exports. Migrating `compileModuleProgram` into `buildGeneratedModuleProgram` keeps the CLI on the `create*` side of the boundary.
+
+**Subtask 3.2.a – Ship `buildResourceControllerRouteSet` for route fan-out.**
+
+- **Context:** `packages/cli/src/next/builders/php/resourceController/routes/handleRouteKind.ts` fans out to storage-specific helpers that return raw `PhpStmt[]`, so `createPhpResourceControllerHelper` still assembles route statements.
+- **Intent:** Add `src/rest-controller/routes/buildResourceControllerRouteSet.ts` that accepts the existing `RestControllerRoutePlan` payload and emits route/fallback statements plus TODO stubs.
+- **Expected outcome:** The CLI imports `buildResourceControllerRouteSet`, deletes local `PhpStmt` assembly, and unit tests cover route permutations (storage, TODO stubs, capability fallbacks) inside `wp-json-ast`.
+
+**Subtask 3.2.b – Expose `buildWpPostRouteBundle`.**
+
+- **Context:** WP_Post route helpers stitch together list/get/create/update/delete statements, capability guards, cache metadata, and mutation macros inside the CLI.
+- **Intent:** Create `src/resource/wp-post/buildWpPostRouteBundle.ts` returning the route statements, helper methods, and metadata so the CLI can fetch them in one call.
+- **Expected outcome:** `createPhpWpPostRoutesHelper` (added in Phase 3.3) receives the bundle, the CLI drops `PhpStmt` imports across WP_Post modules, and tests in `packages/wp-json-ast/tests/resource/wp-post/` exercise each mutation contract.
+
+**Subtask 3.2.c – Publish storage-mode factories.**
+
+- **Context:** Option, transient, and taxonomy helpers construct helper methods and route statements directly in the CLI (`buildWpOption*`, `buildTransient*`, `buildTaxonomy*`).
+- **Intent:** Introduce `buildWpOptionStorageArtifacts`, `buildTransientStorageArtifacts`, and `buildWpTaxonomyStorageArtifacts` under `src/resource/storage/`, each returning helper method descriptors and metadata wiring.
+- **Expected outcome:** The CLI migrates to storage-specific `create*` adapters, unit tests validate per-mode helper emission, and resource controllers consume the artifacts without touching AST nodes.
+
+**Subtask 3.2.d – Move module wrapping into `buildGeneratedModuleProgram`.**
+
+- **Context:** `createPhpBaseControllerHelper` and `createPhpIndexFileHelper` call `compileModuleProgram` to prepend strict types, namespaces, and docblocks even after delegating to `build*` factories.
+- **Intent:** Export `buildGeneratedModuleProgram` (likely under `src/module/`) that accepts the module metadata and returns the fully wrapped `PhpProgram` so the CLI helpers only enqueue planner descriptors.
+- **Expected outcome:** Base and index helpers become pure `create*` adapters, AST mutations live entirely inside `wp-json-ast`, and tests under `packages/wp-json-ast/tests/module/` assert namespace/docblock wrapping.
+
+_Completion:_ ☐ Pending - replace this line with the PR link and a one-line summary when the task is complete. Update each subtask with links as migrations land to document progress toward eliminating CLI-owned AST assembly.
+
+### Task 3.3 – Rewire CLI create-helpers to consume the new factories
+
+Once the factories above land, the CLI needs matching `create*` adapters so planners can invoke them through the existing pipeline surface.
+
+**Subtask 3.3.a – Update `createPhpResourceControllerHelper`.**
+
+- **Scope:** Swap inline AST assembly for calls to `createPhpWpPostRoutesHelper`, storage-specific `create*` helpers, and `buildResourceControllerRouteSet`. Ensure planner wiring remains unchanged while the helper becomes declarative.
+
+**Subtask 3.3.b – Introduce `createPhpWpPostRoutesHelper`.**
+
+- **Scope:** Provide a pipeline helper that translates WP_Post IR into the configuration expected by `buildWpPostRouteBundle`, returning the bundle to the resource controller helper.
+
+**Subtask 3.3.c – Add storage helpers to the pipeline surface.**
+
+- **Scope:** Create `createPhpWpOptionStorageHelper`, `createPhpTransientStorageHelper`, and `createPhpWpTaxonomyStorageHelper` adapters that marshal IR into the corresponding storage factories and return descriptors for `createPhpResourceControllerHelper`.
+
+**Subtask 3.3.d – Trim base and index helpers to planner orchestration.**
+
+- **Scope:** Replace direct `compileModuleProgram` calls with `buildGeneratedModuleProgram`, leaving the helpers responsible solely for enqueueing planner jobs.
+
+_Completion:_ ☐ Pending – mark complete with a PR link once the create-helper layer consumes only `build*` factories and planner descriptors.
 
 _Phase outcome:_ The CLI acts as a pipeline coordinator that feeds data into `wp-json-ast` factories, making future features additive and reducing the maintenance burden of low-level AST manipulation.
 
