@@ -1,9 +1,11 @@
-import type { Reporter } from '../reporter/types';
-
 export type MaybePromise<T> = T | Promise<T>;
 
 export type HelperKind = 'fragment' | 'builder' | (string & {});
 export type HelperMode = 'extend' | 'override' | 'merge';
+
+export interface PipelineReporter {
+	warn?: (message: string, context?: unknown) => void;
+}
 
 export interface HelperDescriptor<TKind extends HelperKind = HelperKind> {
 	readonly key: string;
@@ -18,7 +20,7 @@ export interface HelperApplyOptions<
 	TContext,
 	TInput,
 	TOutput,
-	TReporter extends Reporter = Reporter,
+	TReporter extends PipelineReporter = PipelineReporter,
 > {
 	readonly context: TContext;
 	readonly input: TInput;
@@ -30,7 +32,7 @@ export type HelperApplyFn<
 	TContext,
 	TInput,
 	TOutput,
-	TReporter extends Reporter = Reporter,
+	TReporter extends PipelineReporter = PipelineReporter,
 > = (
 	options: HelperApplyOptions<TContext, TInput, TOutput, TReporter>,
 	next?: () => MaybePromise<void>
@@ -40,7 +42,7 @@ export interface Helper<
 	TContext,
 	TInput,
 	TOutput,
-	TReporter extends Reporter = Reporter,
+	TReporter extends PipelineReporter = PipelineReporter,
 	TKind extends HelperKind = HelperKind,
 > extends HelperDescriptor<TKind> {
 	readonly apply: HelperApplyFn<TContext, TInput, TOutput, TReporter>;
@@ -50,7 +52,7 @@ export interface CreateHelperOptions<
 	TContext,
 	TInput,
 	TOutput,
-	TReporter extends Reporter = Reporter,
+	TReporter extends PipelineReporter = PipelineReporter,
 	TKind extends HelperKind = HelperKind,
 > {
 	readonly key: string;
@@ -171,7 +173,7 @@ export interface CreatePipelineOptions<
 	TRunOptions,
 	TBuildOptions,
 	TContext extends { reporter: TReporter },
-	TReporter extends Reporter = Reporter,
+	TReporter extends PipelineReporter = PipelineReporter,
 	TDraft = unknown,
 	TArtifact = unknown,
 	TDiagnostic extends PipelineDiagnostic = PipelineDiagnostic,
@@ -304,7 +306,7 @@ export interface Pipeline<
 	TRunOptions,
 	TRunResult,
 	TContext extends { reporter: TReporter },
-	TReporter extends Reporter = Reporter,
+	TReporter extends PipelineReporter = PipelineReporter,
 	TBuildOptions = unknown,
 	TArtifact = unknown,
 	TFragmentInput = unknown,
