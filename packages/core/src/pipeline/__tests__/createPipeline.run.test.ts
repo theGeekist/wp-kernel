@@ -1,5 +1,6 @@
 import { createPipeline } from '../createPipeline';
 import { createHelper } from '../helper';
+import { reportPipelineDiagnostic } from '../reporting';
 import type { Reporter } from '../../reporter/types';
 import type {
 	HelperApplyOptions,
@@ -55,8 +56,17 @@ describe('createPipeline.run', () => {
 		TestDiagnostic
 	>;
 
-	function createTestPipeline(): TestPipeline {
-		const reporter = createTestReporter();
+	function createTestPipeline({
+		getReporter,
+	}: {
+		getReporter?: () => Reporter;
+	} = {}): {
+		pipeline: TestPipeline;
+		reporter: Reporter;
+	} {
+		const fallbackReporter = createTestReporter();
+		const resolveReporter = () => getReporter?.() ?? fallbackReporter;
+		let reporter = resolveReporter();
 		const pipeline = createPipeline<
 			TestRunOptions,
 			TestBuildOptions,
@@ -75,7 +85,9 @@ describe('createPipeline.run', () => {
 				return {};
 			},
 			createContext() {
-				return { reporter };
+				const activeReporter = resolveReporter();
+				reporter = activeReporter;
+				return { reporter: activeReporter };
 			},
 			createFragmentState() {
 				return [] as TestDraft;
@@ -112,13 +124,19 @@ describe('createPipeline.run', () => {
 			createRunResult({ artifact, diagnostics, steps }) {
 				return { artifact, diagnostics, steps } satisfies TestRunResult;
 			},
+			onDiagnostic({ reporter: activeReporter, diagnostic }) {
+				reportPipelineDiagnostic({
+					reporter: activeReporter,
+					diagnostic,
+				});
+			},
 		});
 
-		return pipeline;
+		return { pipeline, reporter };
 	}
 
 	it('returns synchronously when helpers do not yield promises', () => {
-		const pipeline = createTestPipeline();
+		const { pipeline } = createTestPipeline();
 
 		pipeline.ir.use(
 			createHelper<
@@ -169,7 +187,7 @@ describe('createPipeline.run', () => {
 	});
 
 	it('returns a promise when helpers perform asynchronous work', async () => {
-		const pipeline = createTestPipeline();
+		const { pipeline } = createTestPipeline();
 
 		pipeline.ir.use(
 			createHelper<
@@ -214,7 +232,7 @@ describe('createPipeline.run', () => {
 	});
 
 	it('waits for asynchronous extension hooks before resolving', async () => {
-		const pipeline = createTestPipeline();
+		const { pipeline } = createTestPipeline();
 		const commitSpy = jest.fn();
 
 		pipeline.ir.use(
@@ -275,7 +293,7 @@ describe('createPipeline.run', () => {
 	});
 
 	it('rolls back extension results when builders fail', async () => {
-		const pipeline = createTestPipeline();
+		const { pipeline } = createTestPipeline();
 		const rollbackSpy = jest.fn();
 		const commitSpy = jest.fn();
 
@@ -335,5 +353,119 @@ describe('createPipeline.run', () => {
 		await expect(pipeline.run({})).rejects.toThrow('builder failure');
 		expect(commitSpy).not.toHaveBeenCalled();
 		expect(rollbackSpy).toHaveBeenCalledTimes(1);
+	});
+
+	it('reports pipeline diagnostics through the reporter', () => {
+		const { pipeline, reporter } = createTestPipeline();
+
+		pipeline.ir.use(
+			createHelper<
+				TestContext,
+				void,
+				string[],
+				Reporter,
+				typeof pipeline.fragmentKind
+			>({
+				key: 'fragment.audit',
+				kind: pipeline.fragmentKind,
+				dependsOn: ['fragment.missing'],
+				apply() {
+					// no-op
+				},
+			})
+		);
+
+		expect(() => pipeline.run({})).toThrow(
+			'depends on unknown helper "fragment.missing"'
+		);
+
+		expect(reporter.warn).toHaveBeenCalledWith(
+			'Pipeline diagnostic reported.',
+			expect.objectContaining({
+				type: 'missing-dependency',
+				key: 'fragment.audit',
+				dependency: 'fragment.missing',
+			})
+		);
+
+		expect(reporter.warn).toHaveBeenCalledWith(
+			'Pipeline diagnostic reported.',
+			expect.objectContaining({
+				type: 'unused-helper',
+				key: 'fragment.audit',
+			})
+		);
+	});
+
+	it('replays pipeline diagnostics for each reporter when reused', () => {
+		let currentReporter = createTestReporter();
+		const firstReporter = currentReporter;
+		const { pipeline } = createTestPipeline({
+			getReporter: () => currentReporter,
+		});
+
+		pipeline.ir.use(
+			createHelper<
+				TestContext,
+				void,
+				string[],
+				Reporter,
+				typeof pipeline.fragmentKind
+			>({
+				key: 'fragment.audit',
+				kind: pipeline.fragmentKind,
+				dependsOn: ['fragment.missing'],
+				apply() {
+					// no-op
+				},
+			})
+		);
+
+		expect(() => pipeline.run({})).toThrow(
+			'depends on unknown helper "fragment.missing"'
+		);
+
+		expect(firstReporter.warn).toHaveBeenCalledWith(
+			'Pipeline diagnostic reported.',
+			expect.objectContaining({
+				type: 'missing-dependency',
+				key: 'fragment.audit',
+				dependency: 'fragment.missing',
+			})
+		);
+
+		expect(firstReporter.warn).toHaveBeenCalledWith(
+			'Pipeline diagnostic reported.',
+			expect.objectContaining({
+				type: 'unused-helper',
+				key: 'fragment.audit',
+			})
+		);
+
+		const secondReporter = createTestReporter();
+		currentReporter = secondReporter;
+
+		expect(() => pipeline.run({})).toThrow(
+			'depends on unknown helper "fragment.missing"'
+		);
+
+		expect(firstReporter.warn).toHaveBeenCalledTimes(2);
+
+		expect(secondReporter.warn).toHaveBeenCalledWith(
+			'Pipeline diagnostic reported.',
+			expect.objectContaining({
+				type: 'missing-dependency',
+				key: 'fragment.audit',
+				dependency: 'fragment.missing',
+			})
+		);
+
+		expect(secondReporter.warn).toHaveBeenCalledWith(
+			'Pipeline diagnostic reported.',
+			expect.objectContaining({
+				type: 'unused-helper',
+				key: 'fragment.audit',
+			})
+		);
 	});
 });
