@@ -326,7 +326,7 @@ _Completion:_ ☑ Completed – queued capability and persistence planners with 
 - **Intent:** Convert block module outputs into planner descriptors (including docblock prefixes) and stage non-PHP artefacts through a consistent queue so reporter behaviour matches other helpers.
 - **Expected outcome:** Block helpers queue planner actions for each generated file, move manual writes behind a shared pipeline primitive, and ship tests asserting planner usage and stub placement.
 
-_Completion:_ ☐ Pending – document completion when the block pipeline adopts the planner.
+_Completion:_ ☑ Completed – staged block manifest, registrar, and render stub artefacts through the shared planner pipeline and updated tests to cover the queued descriptors.
 
 **Subtask 3.1.d – Resolve capability namespace parity between helpers.**
 

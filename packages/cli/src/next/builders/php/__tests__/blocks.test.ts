@@ -13,6 +13,7 @@ import {
 } from '@wpkernel/test-utils/next/builders/tests/ts.test-support';
 import { buildWorkspace } from '../../../workspace';
 import type { Workspace } from '../../../workspace';
+import { DEFAULT_DOC_HEADER } from '@wpkernel/wp-json-ast';
 import * as BlockModule from '@wpkernel/wp-json-ast';
 
 jest.mock('@wpkernel/wp-json-ast', () => {
@@ -89,9 +90,11 @@ describe('createPhpBlocksHelper', () => {
 			);
 
 			const pending = getPhpBuilderChannel(context).pending();
-			expect(
-				pending.map((action) => normalise(action.file)).sort()
-			).toEqual([
+			const queuedFiles = pending
+				.map((action) => normalise(path.relative(root, action.file)))
+				.sort();
+
+			expect(queuedFiles).toEqual([
 				'.generated/build/blocks-manifest.php',
 				'.generated/php/Blocks/Register.php',
 			]);
@@ -122,6 +125,17 @@ describe('createPhpBlocksHelper', () => {
 			expect(reporter.debug).toHaveBeenCalledWith(
 				'createPhpBlocksHelper: queued SSR block manifest and registrar.'
 			);
+			expect(reporter.debug).toHaveBeenCalledWith(
+				'createPhpBlocksHelper: staged SSR block render stubs.',
+				{ files: expect.any(Array) }
+			);
+
+			expect(
+				manifestAction?.docblock?.slice(0, DEFAULT_DOC_HEADER.length)
+			).toEqual(DEFAULT_DOC_HEADER);
+			expect(
+				registrarAction?.docblock?.slice(0, DEFAULT_DOC_HEADER.length)
+			).toEqual(DEFAULT_DOC_HEADER);
 
 			expect(
 				output.actions.map((action) => normalise(action.file)).sort()
