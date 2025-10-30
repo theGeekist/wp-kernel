@@ -1036,7 +1036,7 @@ describe('create${pascalName}Greeting integration', () => {
 }
 
 function resolveCreationTarget(
-	cwd: string,
+	repoRoot: string,
 	input: string
 ): {
 	readonly packageDir: string;
@@ -1054,7 +1054,8 @@ function resolveCreationTarget(
 		);
 	}
 
-	const targetDir = path.resolve(cwd, normalizedInput);
+	const targetDir = path.resolve(repoRoot, normalizedInput);
+	assertWorkspacePathWithinRepo(repoRoot, targetDir);
 	const kind: WorkspaceKind =
 		firstSegment === 'examples' ? 'example' : 'package';
 
@@ -1143,7 +1144,10 @@ export function createWorkspace(options: CreateWorkspaceOptions): void {
 	} = options;
 
 	const repoRoot = findRepoRoot(cwd);
-	const { packageDir, kind } = resolveCreationTarget(cwd, workspaceInput);
+	const { packageDir, kind } = resolveCreationTarget(
+		repoRoot,
+		workspaceInput
+	);
 
 	scaffoldPackage(repoRoot, packageDir, kind);
 
