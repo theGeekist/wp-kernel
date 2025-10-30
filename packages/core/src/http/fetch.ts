@@ -13,6 +13,7 @@
 import { WPKernelError } from '../error/WPKernelError';
 import { WPK_EVENTS } from '../contracts/index.js';
 import { createNoopReporter, getWPKernelReporter } from '../reporter';
+import { resolveReporter as resolveKernelReporter } from '../reporter/resolve';
 import type { Reporter } from '../reporter';
 import type {
 	TransportRequest,
@@ -37,23 +38,19 @@ const TRANSPORT_LOG_MESSAGES = {
 } as const;
 
 function resolveTransportReporter(meta?: TransportMeta): Reporter {
-	if (meta?.reporter) {
-		return meta.reporter.child('transport');
-	}
-
 	const kernelReporter = getWPKernelReporter();
-	if (kernelReporter) {
-		const resourceScope = meta?.resourceName
-			? `transport.${meta.resourceName}`
-			: 'transport';
-		return kernelReporter.child(resourceScope);
-	}
+	const override = meta?.reporter
+		? meta.reporter.child('transport')
+		: kernelReporter?.child(
+				meta?.resourceName
+					? `transport.${meta.resourceName}`
+					: 'transport'
+			);
 
-	if (process.env.WPK_SILENT_REPORTERS === '1') {
-		return createNoopReporter();
-	}
-
-	return createNoopReporter();
+	return resolveKernelReporter({
+		override,
+		fallback: () => createNoopReporter(),
+	});
 }
 
 /**

@@ -31,6 +31,8 @@ describe('createActionContextAssembler', () => {
 			},
 		};
 
+		const initialReporter = context.reporter;
+
 		await helper.apply({
 			context,
 			reporter: context.reporter,
@@ -41,7 +43,8 @@ describe('createActionContextAssembler', () => {
 		expect(createActionContext).toHaveBeenCalledWith(
 			'Test.Action',
 			'req',
-			context.resolvedOptions
+			context.resolvedOptions,
+			initialReporter
 		);
 		expect(context.actionContext).toBeDefined();
 		expect(context.reporter).toEqual({ channel: 'all' });
