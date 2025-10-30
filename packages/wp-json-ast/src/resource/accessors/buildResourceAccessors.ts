@@ -8,7 +8,7 @@ import {
 	type ResourceStorageRegistration,
 } from './types';
 
-function createBuckets(): ResourceAccessorMutableBuckets {
+function buildBuckets(): ResourceAccessorMutableBuckets {
 	return {
 		requests: [],
 		queries: [],
@@ -47,7 +47,7 @@ function freezeDescriptor<TValue>(
 	return Object.freeze({ ...descriptor });
 }
 
-function createRegistry(
+function buildRegistry(
 	buckets: ResourceAccessorMutableBuckets
 ): ResourceAccessorRegistry {
 	return {
@@ -85,8 +85,8 @@ export function buildResourceAccessors<TStorageKind extends string>(
 			);
 		}
 
-		const buckets = createBuckets();
-		const registry = createRegistry(buckets);
+		const buckets = buildBuckets();
+		const registry = buildRegistry(buckets);
 		registration.register(registry);
 
 		const storageAccessors = freezeStorageAccessors(registration, buckets);
