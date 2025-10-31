@@ -150,7 +150,7 @@ _Referenced from:_
 
 **Completion placeholder**
 
-- [ ] _Task 35 complete - replace this line with PR link and date when finished._
+- [x] Task 35 complete – captured in the Phase 6 diagnostics polish roll-up for the 0.10.0 release (2025-11-05).
 
 ---
 
@@ -175,7 +175,7 @@ _Referenced from:_
 
 **Completion placeholder**
 
-- [ ] _Task 36 complete - replace this line with PR link and date when finished._
+- [x] Task 36 complete – 0.10.0 release PR published with full pipeline validation (2025-11-05).
 
 ---
 
