@@ -11,6 +11,8 @@ import {
 	buildRestControllerModuleFromPlan,
 	buildWpOptionStorageArtifacts,
 	buildTransientStorageArtifacts,
+	buildWpPostRouteBundle,
+	type WpPostRouteBundle,
 	resolveTransientKey,
 	DEFAULT_DOC_HEADER,
 	type RestControllerResourcePlan,
@@ -29,7 +31,6 @@ import {
 	buildWpTaxonomyHelperMethods,
 	ensureWpTaxonomyStorage,
 } from './resource/wpTaxonomy';
-import { WP_POST_MUTATION_CONTRACT } from './resource/wpPost/mutations';
 import { renderPhpValue } from './resource/phpValue';
 import { ensureWpOptionStorage } from './resource/wpOption/shared';
 
@@ -158,6 +159,7 @@ interface ControllerBuildContext {
 	readonly transientArtifacts?: ReturnType<
 		typeof buildTransientStorageArtifacts
 	>;
+	readonly wpPostRouteBundle?: WpPostRouteBundle;
 }
 
 function buildResourcePlan(
@@ -185,6 +187,29 @@ function buildResourcePlan(
 				})
 			: undefined;
 
+	const wpPostRouteBundle =
+		resource.storage?.mode === 'wp-post'
+			? buildWpPostRouteBundle({
+					resource,
+					pascalName,
+					identity,
+					errorCodeFactory,
+				})
+			: undefined;
+
+	const helperMethods = buildStorageHelperMethods({
+		ir,
+		resource,
+		identity,
+		pascalName,
+		errorCodeFactory,
+		transientArtifacts,
+		wpPostRouteBundle,
+	});
+
+	const normalizedHelperMethods =
+		helperMethods.length > 0 ? helperMethods : undefined;
+
 	return {
 		name: resource.name,
 		className: `${pascalName}Controller`,
@@ -195,15 +220,8 @@ function buildResourcePlan(
 		),
 		identity,
 		cacheKeys: resource.cacheKeys,
-		mutationMetadata: resolveRouteMutationMetadata(resource),
-		helperMethods: buildStorageHelperMethods({
-			ir,
-			resource,
-			identity,
-			pascalName,
-			errorCodeFactory,
-			transientArtifacts,
-		}),
+		mutationMetadata: wpPostRouteBundle?.mutationMetadata,
+		helperMethods: normalizedHelperMethods,
 		routes: buildRoutePlans({
 			ir,
 			resource,
@@ -211,6 +229,7 @@ function buildResourcePlan(
 			pascalName,
 			errorCodeFactory,
 			transientArtifacts,
+			wpPostRouteBundle,
 		}),
 	} satisfies RestControllerResourcePlan;
 }
@@ -249,6 +268,7 @@ function buildRoutePlan(options: RoutePlanOptions): RestControllerRoutePlan {
 			pascalName: options.pascalName,
 			errorCodeFactory: options.errorCodeFactory,
 			transientArtifacts: options.transientArtifacts,
+			wpPostRouteBundle: options.wpPostRouteBundle,
 		}),
 	});
 }
@@ -256,50 +276,50 @@ function buildRoutePlan(options: RoutePlanOptions): RestControllerRoutePlan {
 function buildStorageHelperMethods(
 	options: ControllerBuildContext
 ): readonly PhpStmtClassMethod[] {
+	const methods: PhpStmtClassMethod[] = [];
 	const storageMode = options.resource.storage?.mode;
 
-	if (storageMode === 'wp-taxonomy') {
-		const storage = ensureWpTaxonomyStorage(options.resource.storage, {
-			resourceName: options.resource.name,
-		});
+	switch (storageMode) {
+		case 'wp-taxonomy': {
+			const storage = ensureWpTaxonomyStorage(options.resource.storage, {
+				resourceName: options.resource.name,
+			});
 
-		const taxonomyHelpers = buildWpTaxonomyHelperMethods({
-			pascalName: options.pascalName,
-			storage,
-			identity: options.identity,
-			errorCodeFactory: options.errorCodeFactory,
-		});
+			const taxonomyHelpers = buildWpTaxonomyHelperMethods({
+				pascalName: options.pascalName,
+				storage,
+				identity: options.identity,
+				errorCodeFactory: options.errorCodeFactory,
+			});
 
-		return taxonomyHelpers.map((method) => method.node);
+			methods.push(...taxonomyHelpers.map((method) => method.node));
+
+			break;
+		}
+		case 'transient': {
+			methods.push(...(options.transientArtifacts?.helperMethods ?? []));
+
+			break;
+		}
+		case 'wp-option': {
+			const storage = ensureWpOptionStorage(options.resource);
+
+			const artifacts = buildWpOptionStorageArtifacts({
+				pascalName: options.pascalName,
+				optionName: storage.option,
+				errorCodeFactory: options.errorCodeFactory,
+			});
+
+			methods.push(...artifacts.helperMethods);
+
+			break;
+		}
+		// No default
 	}
 
-	if (storageMode === 'transient') {
-		return options.transientArtifacts?.helperMethods ?? [];
+	if (options.wpPostRouteBundle) {
+		methods.push(...options.wpPostRouteBundle.helperMethods);
 	}
 
-	if (storageMode === 'wp-option') {
-		const storage = ensureWpOptionStorage(options.resource);
-
-		const artifacts = buildWpOptionStorageArtifacts({
-			pascalName: options.pascalName,
-			optionName: storage.option,
-			errorCodeFactory: options.errorCodeFactory,
-		});
-
-		return artifacts.helperMethods;
-	}
-
-	return [];
-}
-
-function resolveRouteMutationMetadata(
-	resource: IRResource
-): { readonly channelTag: string } | undefined {
-	if (resource.storage?.mode === 'wp-post') {
-		return {
-			channelTag: WP_POST_MUTATION_CONTRACT.metadataKeys.channelTag,
-		};
-	}
-
-	return undefined;
+	return methods;
 }
