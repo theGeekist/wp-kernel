@@ -1,4 +1,3 @@
-/* eslint-disable jsdoc/check-tag-names -- allow Typedoc @category tags */
 /**
  * Capability runtime — defineCapability implementation
  *
@@ -877,5 +876,3 @@ export function defineCapability<K extends Record<string, unknown>>(
 
 	return helpers;
 }
-
-/* eslint-enable jsdoc/check-tag-names */

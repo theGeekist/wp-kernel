@@ -1,4 +1,3 @@
-/* eslint-disable jsdoc/check-tag-names -- allow Typedoc @category tags */
 import type {
 	WPKernelRegistry,
 	ConfigureWPKernelOptions,
@@ -244,5 +243,3 @@ export function configureWPKernel(
 
 	return wpk;
 }
-
-/* eslint-enable jsdoc/check-tag-names */

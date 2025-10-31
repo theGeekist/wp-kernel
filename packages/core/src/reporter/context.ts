@@ -1,4 +1,3 @@
-/* eslint-disable jsdoc/check-tag-names -- allow Typedoc @category tags */
 import type { Reporter } from './types';
 
 let kernelReporter: Reporter | undefined;
@@ -31,5 +30,3 @@ export function getWPKernelReporter(): Reporter | undefined {
 export function clearWPKReporter(): void {
 	kernelReporter = undefined;
 }
-
-/* eslint-enable jsdoc/check-tag-names */

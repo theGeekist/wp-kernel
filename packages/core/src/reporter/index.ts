@@ -1,4 +1,3 @@
-/* eslint-disable jsdoc/check-tag-names -- allow Typedoc @category tags */
 import { LogLayer } from 'loglayer';
 import type { LogLevelType } from '@loglayer/shared';
 import { createTransports } from './transports';
@@ -133,8 +132,6 @@ export function createNoopReporter(): Reporter {
 		child: () => createNoopReporter(),
 	};
 }
-
-/* eslint-enable jsdoc/check-tag-names */
 
 export type { Reporter, ReporterOptions, ReporterLevel } from './types';
 export {

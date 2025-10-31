@@ -1,4 +1,3 @@
-/* eslint-disable jsdoc/check-tag-names -- allow Typedoc @category tags */
 /**
  * Redux-compatible middleware for executing WP Kernel actions through Redux stores.
  *
@@ -210,7 +209,5 @@ export function invokeAction<TArgs, TResult>(
 		__kernelAction: true,
 	};
 }
-
-/* eslint-enable jsdoc/check-tag-names */
 
 export { EXECUTE_ACTION_TYPE };

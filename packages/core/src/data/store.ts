@@ -1,4 +1,3 @@
-/* eslint-disable jsdoc/check-tag-names -- allow Typedoc @category tags */
 import { createReduxStore, register } from '@wordpress/data';
 
 /**
@@ -25,5 +24,3 @@ export function registerWPKernelStore<
 	register(store);
 	return store;
 }
-
-/* eslint-enable jsdoc/check-tag-names */

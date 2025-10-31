@@ -1,4 +1,3 @@
-/* eslint-disable jsdoc/check-tag-names -- allow Typedoc @category tags */
 import type { Reporter } from '../reporter';
 import { createReporter } from '../reporter';
 import { resolveReporter } from '../reporter/resolve';
@@ -815,5 +814,3 @@ export function getNamespace(explicit?: string): string {
 export function isValidNamespace(namespace: string): boolean {
 	return sanitizeNamespace(namespace) === namespace;
 }
-
-/* eslint-enable jsdoc/check-tag-names */

@@ -1,4 +1,3 @@
-/* eslint-disable jsdoc/check-tag-names -- allow Typedoc @category tags */
 /**
  * @file Store Factory
  * Creates @wordpress/data stores from resource definitions.
@@ -674,5 +673,3 @@ export function createStore<T, TQuery = unknown>(
 		},
 	};
 }
-
-/* eslint-enable jsdoc/check-tag-names */
