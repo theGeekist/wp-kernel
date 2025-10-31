@@ -421,6 +421,7 @@ Document the remaining AST-heavy helpers and promote them into first-class facto
 - **Context:** `packages/cli/src/next/builders/php/resource/wpTaxonomy/{helpers,index}.ts` emits helper methods for term resolution, mutation scaffolding, and shared metadata using raw `PhpStmt` builders.
 - **Intent:** Provide `src/resource/wp-taxonomy/buildWpTaxonomyHelperArtifacts.ts` that receives the taxonomy storage IR (term resolver config, mutation callbacks, shared metadata hosts) and returns helper method descriptors plus reusable metadata blocks.
 - **Expected outcome:** The CLI imports the new factory when constructing taxonomy routes, unit tests under `packages/wp-json-ast/tests/resource/wp-taxonomy/helpers/` verify term resolution guards and metadata annotations, and helper assembly moves out of the CLI.
+- _Completion:_ ☑ Completed – Centralised taxonomy helper artifacts in `wp-json-ast`, returning class methods and helper signatures that the controller planner now records in metadata while the CLI consumes the shared factory.
 
 **Subtask 3.2.f – Bundle taxonomy list/get routes.**
 
