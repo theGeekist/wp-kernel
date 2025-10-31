@@ -4,25 +4,33 @@ import {
 	buildVariable,
 	type PhpStmt,
 } from '@wpkernel/php-json-ast';
-import type { ResourceMetadataHost } from '@wpkernel/wp-json-ast';
+import type { ResourceStorageConfig } from '@wpkernel/core/resource';
+
 import {
 	appendResourceCacheEvent,
+	type ResourceMetadataHost,
+} from '../../cache';
+import {
+	appendStatementsWithSpacing,
 	buildBooleanNot,
-	buildIdentityValidationStatements,
 	buildIfStatementNode,
 	buildInstanceof,
-	buildWpErrorReturn,
 	buildMethodCallAssignmentStatement,
 	buildMethodCallExpression,
-	appendStatementsWithSpacing,
+} from '../../common/utils';
+import { buildWpErrorReturn } from '../../errors';
+import {
+	buildIdentityGuardStatements,
 	isNumericIdentity,
-} from '../../resource';
-import type { ResolvedIdentity } from '../../identity';
-import type { IdentityValidationOptions } from '../../resource/wpPost/identity';
-import type { IRResource } from '../../../../ir/publicTypes';
+	type IdentityGuardOptions,
+	type ResolvedIdentity,
+} from '../../../pipeline/identity';
+import type { MutationHelperResource } from '../mutation';
 
-export interface BuildGetRouteStatementsOptions {
-	readonly resource: IRResource;
+type WpPostStorage = Extract<ResourceStorageConfig, { mode: 'wp-post' }>;
+
+export interface BuildWpPostGetRouteStatementsOptions {
+	readonly resource: MutationHelperResource;
 	readonly identity: ResolvedIdentity;
 	readonly pascalName: string;
 	readonly errorCodeFactory: (suffix: string) => string;
@@ -30,15 +38,19 @@ export interface BuildGetRouteStatementsOptions {
 	readonly cacheSegments: readonly unknown[];
 }
 
-export function buildGetRouteStatements(
-	options: BuildGetRouteStatementsOptions
-): PhpStmt[] | null {
-	const storage = options.resource.storage;
-	if (!storage) {
-		return null;
-	}
+function isWpPostStorage(storage: unknown): storage is WpPostStorage {
+	return (
+		typeof storage === 'object' &&
+		storage !== null &&
+		'mode' in storage &&
+		storage.mode === 'wp-post'
+	);
+}
 
-	if (storage.mode !== 'wp-post') {
+export function buildWpPostGetRouteStatements(
+	options: BuildWpPostGetRouteStatementsOptions
+): PhpStmt[] | null {
+	if (!isWpPostStorage(options.resource.storage)) {
 		return null;
 	}
 
@@ -52,21 +64,21 @@ export function buildGetRouteStatements(
 
 	const statements: PhpStmt[] = [];
 
-	const identityValidationOptions: IdentityValidationOptions =
-		isNumericIdentity(options.identity)
-			? {
-					identity: options.identity,
-					pascalName: options.pascalName,
-					errorCodeFactory: options.errorCodeFactory,
-				}
-			: {
-					identity: options.identity,
-					pascalName: options.pascalName,
-					errorCodeFactory: options.errorCodeFactory,
-				};
-	const identityStatements = buildIdentityValidationStatements(
-		identityValidationOptions
-	);
+	const identityGuardOptions: IdentityGuardOptions = isNumericIdentity(
+		options.identity
+	)
+		? {
+				identity: options.identity,
+				pascalName: options.pascalName,
+				errorCodeFactory: options.errorCodeFactory,
+			}
+		: {
+				identity: options.identity,
+				pascalName: options.pascalName,
+				errorCodeFactory: options.errorCodeFactory,
+			};
+	const identityStatements =
+		buildIdentityGuardStatements(identityGuardOptions);
 
 	appendStatementsWithSpacing(statements, identityStatements);
 

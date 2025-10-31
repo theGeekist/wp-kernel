@@ -7,35 +7,41 @@ import {
 	buildVariable,
 	type PhpStmt,
 } from '@wpkernel/php-json-ast';
-import type { ResourceMetadataHost } from '@wpkernel/wp-json-ast';
-import { isNonEmptyString } from '../../utils';
+import type { ResourceMetadataHost } from '../../cache';
 import {
-	buildMetaQueryStatements,
-	buildTaxonomyQueryStatements,
-	collectMetaQueryEntries,
-	collectTaxonomyQueryEntries,
-	buildListForeachStatement,
-	buildListItemsInitialiserStatement,
+	appendStatementsWithSpacing,
+	buildMethodCallAssignmentStatement,
+	buildPropertyFetch,
+} from '../../common/utils';
+import {
 	buildPageExpression,
 	buildPaginationNormalisationStatements,
-	buildPropertyFetch,
 	buildQueryArgsAssignmentStatement,
 	buildWpQueryExecutionStatement,
-	buildMethodCallAssignmentStatement,
-	appendStatementsWithSpacing,
-	variable,
-} from '../../resource';
-import type { IRResource } from '../../../../ir/publicTypes';
+} from '../../query';
+import { variable } from '../../common/phpValue';
+import {
+	buildListForeachStatement,
+	buildListItemsInitialiserStatement,
+	collectMetaQueryEntries,
+	collectTaxonomyQueryEntries,
+	buildMetaQueryStatements,
+	buildTaxonomyQueryStatements,
+} from '../query';
+import type { MutationHelperResource } from '../mutation';
+// Helper function
+const isNonEmptyString = (value: unknown): value is string =>
+	typeof value === 'string' && value.trim().length > 0;
 
-export interface BuildListRouteStatementsOptions {
-	readonly resource: IRResource;
+export interface BuildWpPostListRouteStatementsOptions {
+	readonly resource: MutationHelperResource;
 	readonly pascalName: string;
 	readonly metadataHost: ResourceMetadataHost;
 	readonly cacheSegments: readonly unknown[];
 }
 
-export function buildListRouteStatements(
-	options: BuildListRouteStatementsOptions
+export function buildWpPostListRouteStatements(
+	options: BuildWpPostListRouteStatementsOptions
 ): PhpStmt[] | null {
 	const storage = options.resource.storage;
 	if (!storage) {
