@@ -157,6 +157,9 @@ Completes the layered apply experience with shims, safety rails, logging parity,
 
 Ran alongside the core runtime migration so CLI guidance matched the new pipeline orchestration. The phase closes with the pipeline-only runtime, diagnostics polish, the interactivity bridge, and a coordinated 0.10.0 release.
 
+<details>
+<summary>Phase 6 ledger</summary>
+
 | Slot   | Task                                     | Status    | Notes                                                                                           | Reference                                                                                                   |
 | ------ | ---------------------------------------- | --------- | ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
 | 0.9.1  | Task 32 – Core pipeline scaffolding      | ✓ shipped | Helper catalogue and shared harnesses published; CLI docs now reference the helper naming map.  | [Spec](../core/docs/phase-6-core-pipeline.md.md#patch-091---task-32-core-pipeline-scaffolding)              |
@@ -164,6 +167,8 @@ Ran alongside the core runtime migration so CLI guidance matched the new pipelin
 | 0.9.3  | Task 34 – Migrate `defineResource`       | ✓ shipped | Resource definitions share the pipeline helpers and updated reporter diagnostics.               | [Spec](../core/docs/phase-6-core-pipeline.md.md#patch-093---task-34-migrate-defineresource-to-the-pipeline) |
 | 0.9.4  | Task 35 – Buffer & extension diagnostics | ✓ shipped | Diagnostics, helper cleanup, and the interactivity bridge landed ahead of the release cut.      | [Spec](../core/docs/phase-6-core-pipeline.md.md#patch-094---task-35-buffer--extension-diagnostics)          |
 | 0.10.0 | Task 36 – Phase 6 minor release          | ✓ shipped | Coordinated 0.10.0 release completed with changelog roll-up and documentation sweep.            | [Spec](../core/docs/phase-6-core-pipeline.md.md#minor-0100---task-36-release-and-documentation-rollup)      |
+
+</details>
 
 ## Upcoming phases
 
