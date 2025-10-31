@@ -10,7 +10,7 @@ import {
 	buildNull,
 	type PhpStmt,
 } from '@wpkernel/php-json-ast';
-import type { IRResource } from '../../../../ir/publicTypes';
+
 import {
 	buildBinaryOperation,
 	buildFunctionCall,
@@ -20,13 +20,12 @@ import {
 	buildScalarCast,
 	buildVariableAssignment,
 	normaliseVariableReference,
-} from '../utils';
-import { buildWpErrorReturn } from '../errors';
-import { ensureWpOptionStorage } from './shared';
+} from '../../common/utils';
+import { buildWpErrorReturn } from '../../errors';
 
 export interface BuildWpOptionRouteBaseOptions {
-	readonly resource: IRResource;
 	readonly pascalName: string;
+	readonly optionName: string;
 }
 
 export interface BuildWpOptionUnsupportedRouteOptions
@@ -37,8 +36,6 @@ export interface BuildWpOptionUnsupportedRouteOptions
 export function buildWpOptionGetRouteStatements(
 	options: BuildWpOptionRouteBaseOptions
 ): PhpStmt[] {
-	ensureWpOptionStorage(options.resource);
-
 	const optionVar = normaliseVariableReference('option_name');
 	const valueVar = normaliseVariableReference('value');
 
@@ -81,8 +78,6 @@ export function buildWpOptionGetRouteStatements(
 export function buildWpOptionUpdateRouteStatements(
 	options: BuildWpOptionRouteBaseOptions
 ): PhpStmt[] {
-	ensureWpOptionStorage(options.resource);
-
 	const optionVar = normaliseVariableReference('option_name');
 	const previousVar = normaliseVariableReference('previous');
 	const valueVar = normaliseVariableReference('value');
@@ -203,8 +198,6 @@ export function buildWpOptionUpdateRouteStatements(
 export function buildWpOptionUnsupportedRouteStatements(
 	options: BuildWpOptionUnsupportedRouteOptions
 ): PhpStmt[] {
-	ensureWpOptionStorage(options.resource);
-
 	return [
 		buildWpErrorReturn({
 			code: options.errorCodeFactory('unsupported_operation'),

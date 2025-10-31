@@ -17,6 +17,4 @@ export {
 	collectTaxonomyQueryEntries,
 } from '@wpkernel/wp-json-ast';
 export * from './wpTaxonomy';
-export * from './wpOption';
-export * from './transient';
 export { resourceAccessors } from './accessors';
