@@ -380,11 +380,11 @@ Document the remaining AST-heavy helpers and promote them into first-class facto
 ##### Remaining CLI AST hotspots and required factories
 
 - `packages/cli/src/next/builders/php/resourceController/routes/handleRouteKind.ts` (route fan-out, TODO stub statements) → `buildResourceControllerRouteSet`, wrapped by `createPhpResourceControllerHelper`.
-- `packages/cli/src/next/builders/php/resource/wpPost/**` (route fan-out plus mutation macros) → `buildWpPostRouteBundle`, wrapped by `createPhpWpPostRoutesHelper` feeding `createPhpResourceControllerHelper`.
 - `packages/cli/src/next/builders/php/resource/wpOption/**` (routes, helpers, shared metadata) → `buildWpOptionStorageArtifacts`, wrapped by `createPhpWpOptionStorageHelper`.
 - `packages/cli/src/next/builders/php/resource/transient/**` (routes, helpers, shared metadata) → `buildTransientStorageArtifacts`, wrapped by `createPhpTransientStorageHelper`.
 - `packages/cli/src/next/builders/php/resource/wpTaxonomy/helpers.ts` & `index.ts` → `buildWpTaxonomyHelperArtifacts`, wrapped by `createPhpWpTaxonomyStorageHelper`.
 - `packages/cli/src/next/builders/php/resource/wpTaxonomy/list.ts` & `get.ts` → `buildWpTaxonomyQueryRouteBundle`, wrapped by `createPhpWpTaxonomyStorageHelper` and route adapters.
+- `packages/cli/src/next/builders/php/resource/wpPost/**` (route fan-out plus mutation macros) → compose existing `@wpkernel/wp-json-ast` wp-post exports (query, mutation, route primitives) directly in the CLI to keep Phase 2.6 parity. A future helper may surface as `createPhpWpPostRoutesHelper` in the CLI (Task 3.3) but there is no `buildWpPostRouteBundle` in `wp-json-ast` today.
 - `packages/cli/src/next/builders/php/baseController.ts` & `indexFile.ts` (post-factory module wrapping) → `buildGeneratedModuleProgram`, wrapped by `createPhpBaseControllerHelper` and `createPhpIndexFileHelper`.
 
 > Naming-rule audit: base and index helpers still append statements after calling `build*` exports. Migrating `compileModuleProgram` into `buildGeneratedModuleProgram` keeps the CLI on the `create*` side of the boundary.
@@ -396,10 +396,10 @@ Document the remaining AST-heavy helpers and promote them into first-class facto
 - **Expected outcome:** The CLI imports `buildResourceControllerRouteSet`, deletes local `PhpStmt` assembly, and unit tests cover route permutations (storage, TODO stubs, capability fallbacks) inside `wp-json-ast`.
 - _Completion:_ ☑ Completed – introduced the shared route-set factory, migrated the CLI planner to consume it, and added unit tests covering default, option, and transient flows.
 
-**Subtask 3.2.b – Expose `buildWpPostRouteBundle`.**
+**Subtask 3.2.b – (Deferred) `WP_Post` composite helper.**
 
-- **Context:** WP_Post route helpers stitch together list/get/create/update/delete statements, capability guards, cache metadata, and mutation macros inside the CLI.
-- **Intent:** Create `src/resource/wp-post/buildWpPostRouteBundle.ts` returning the route statements, helper methods, and metadata so the CLI can fetch them in one call.
+- **Context:** `WP_Post` route helpers used to live mostly in the CLI and now rely on the wp-post query/mutation/route primitives exported from `@wpkernel/wp-json-ast` (see Task 2.6.b–d). The CLI currently composes those primitives for wp-post controllers.
+- **Intent:** Add either (a) a CLI-side adapter `createPhpWpPostRoutesHelper` that pulls the existing wp-post primitives together or (b) a `wp-json-ast` helper that does the same.
 - **Expected outcome:** `createPhpWpPostRoutesHelper` (added in Phase 3.3) receives the bundle, the CLI drops `PhpStmt` imports across WP_Post modules, and tests in `packages/wp-json-ast/tests/resource/wp-post/` exercise each mutation contract.
 
 **Subtask 3.2.c – Publish `buildWpOptionStorageArtifacts`.**
@@ -444,7 +444,7 @@ Once the factories above land, the CLI needs matching `create*` adapters so plan
 
 **Subtask 3.3.b – Introduce `createPhpWpPostRoutesHelper`.**
 
-- **Scope:** Provide a pipeline helper that translates WP_Post IR into the configuration expected by `buildWpPostRouteBundle`, returning the bundle to the resource controller helper.
+- **Scope:** Provide a pipeline helper that translates WP_Post IR into the configuration expected by the shared wp-post primitives and returns the composed bundle to the resource controller helper.
 
 **Subtask 3.3.c – Add storage helpers to the pipeline surface.**
 
@@ -457,7 +457,3 @@ Once the factories above land, the CLI needs matching `create*` adapters so plan
 _Completion:_ ☐ Pending – mark complete with a PR link once the create-helper layer consumes only `build*` factories and planner descriptors.
 
 _Phase outcome:_ The CLI acts as a pipeline coordinator that feeds data into `wp-json-ast` factories, making future features additive and reducing the maintenance burden of low-level AST manipulation.
-
-## Next Steps
-
-This document anchors Phase 1 and tracks Phase 2-3 migrations. Future contributors should append findings, inventories, and decisions here so the roadmap evolves alongside the codebase while keeping the CLI stable throughout the migration.
