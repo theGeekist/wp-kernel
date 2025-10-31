@@ -14,13 +14,11 @@ This initial phase focuses on setting up the new documentation architecture, imp
     *   Add a new "Packages" section to the main navigation and sidebar in `docs/.vitepress/config.ts`.
     *   Create a placeholder page for each package under `docs/packages/`.
 
-3.  **Enhance Code Examples and API Docs:**
-    *   Implement tabbed code examples (TS/JS) in VitePress.
-    *   Develop a strategy to improve the organization and readability of generated Typedoc API documentation.
+3.  **Enhance API Docs:**
+    *   Develop and apply a strategy to improve the organization and readability of generated Typedoc API documentation (e.g., via categorization).
 
-4.  **Update Contributor Guidance:**
-    *   Update the root `AGENTS.md` to reference this roadmap.
-    *   Add notes to existing package-level planning documents (e.g., `mvp-plan.md`) to point developers to this central plan.
+4.  **Contributor Guidance Update (Scoped Task):**
+    *   As part of the content overhaul in subsequent phases, the root `AGENTS.md` and relevant package-level planning documents will be updated to reference this roadmap. This task is recorded here to ensure it is executed incrementally as each package is addressed.
 
 ## Phase 2: `@wpkernel/core` — Setting the Standard
 
@@ -28,7 +26,7 @@ This phase will focus on `@wpkernel/core` to create a "gold standard" template f
 
 1.  **Perform a Comprehensive JSDoc Sweep:**
     *   Review and update JSDoc comments for all exported APIs in `@wpkernel/core/src`.
-    *   Include detailed descriptions and `@example` blocks.
+    *   Include detailed descriptions, `@category` tags, and `@example` blocks.
 
 2.  **Create In-Depth Documentation Guides:**
     *   Write guides for both Plugin Developers (usage) and Framework Developers (extensibility) under `docs/packages/core/`.
@@ -41,7 +39,7 @@ This phase will focus on `@wpkernel/core` to create a "gold standard" template f
 
 ## Phase 3 and Beyond: Incremental Package Rollout
 
-Following the pattern established in Phase 2, we will update the documentation for the remaining packages in a structured order.
+Following the pattern established in Phase 2, we have updated the documentation for the remaining packages in a structured order.
 
 1.  **`@wpkernel/ui` and `@wpkernel/cli`**
 2.  **`@wpkernel/test-utils` and `@wpkernel/e2e-utils`**
