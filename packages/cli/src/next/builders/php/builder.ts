@@ -17,6 +17,7 @@ import {
 	createPhpTransientStorageHelper,
 	createPhpWpOptionStorageHelper,
 	createPhpWpTaxonomyStorageHelper,
+	createPhpWpPostRoutesHelper,
 	createPhpResourceControllerHelper,
 } from './printers';
 
@@ -49,6 +50,7 @@ export function createPhpBuilder(
 				createPhpTransientStorageHelper(),
 				createPhpWpOptionStorageHelper(),
 				createPhpWpTaxonomyStorageHelper(),
+				createPhpWpPostRoutesHelper(),
 				createPhpResourceControllerHelper(),
 				createPhpCapabilityHelper(),
 				createPhpPersistenceRegistryHelper(),

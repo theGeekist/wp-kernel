@@ -12,6 +12,7 @@ import {
 	buildResourceControllerRouteSet,
 	buildRestControllerModuleFromPlan,
 	collectCanonicalBasePaths,
+	type BuildResourceControllerRouteSetOptions,
 	type ResourceControllerRouteMetadata,
 	type RestControllerResourcePlan,
 	type RestControllerRouteHandlers,
@@ -31,7 +32,11 @@ import { buildRestArgs } from './resourceController/restArgs';
 import { buildRouteMethodName } from './resourceController/routeNaming';
 import { buildRouteSetOptions } from './resourceController/routes/buildRouteSetOptions';
 import { renderPhpValue } from '@wpkernel/wp-json-ast';
-import { resolveWpPostRouteBundle } from './resource/wpPost/routes';
+import {
+	getWpPostRouteHelperState,
+	readWpPostRouteBundle,
+	type WpPostRouteHelperState,
+} from './resource/wpPost/routes';
 import {
 	getResourceStorageHelperState,
 	type ResourceStorageHelperState,
@@ -45,6 +50,7 @@ export function createPhpResourceControllerHelper(): BuilderHelper {
 			'builder.generate.php.controller.resources.storage.transient',
 			'builder.generate.php.controller.resources.storage.wpOption',
 			'builder.generate.php.controller.resources.storage.wpTaxonomy',
+			'builder.generate.php.controller.resources.wpPostRoutes',
 		],
 		async apply(options: BuilderApplyOptions, next?: BuilderNext) {
 			const { input, reporter } = options;
@@ -67,6 +73,9 @@ export function createPhpResourceControllerHelper(): BuilderHelper {
 			}
 
 			const storageState = getResourceStorageHelperState(options.context);
+			const wpPostRoutesState = getWpPostRouteHelperState(
+				options.context
+			);
 
 			const moduleResult = buildRestControllerModuleFromPlan({
 				origin: ir.meta.origin,
@@ -76,6 +85,7 @@ export function createPhpResourceControllerHelper(): BuilderHelper {
 				resources: buildResourcePlans({
 					ir,
 					storageState,
+					wpPostRoutesState,
 					reporter,
 				}),
 				includeBaseController: false,
@@ -156,6 +166,7 @@ function queueResourceControllerFiles(
 interface BuildResourcePlansOptions {
 	readonly ir: IRv1;
 	readonly storageState: ResourceStorageHelperState;
+	readonly wpPostRoutesState: WpPostRouteHelperState;
 	readonly reporter: BuilderApplyOptions['reporter'];
 }
 
@@ -167,6 +178,7 @@ function buildResourcePlans(
 			ir: options.ir,
 			resource,
 			storageState: options.storageState,
+			wpPostRoutesState: options.wpPostRoutesState,
 			reporter: options.reporter,
 		})
 	);
@@ -178,6 +190,7 @@ interface ResourcePlanOptions {
 	readonly ir: IRv1;
 	readonly resource: IRResource;
 	readonly storageState: ResourceStorageHelperState;
+	readonly wpPostRoutesState: WpPostRouteHelperState;
 	readonly reporter: BuilderApplyOptions['reporter'];
 }
 
@@ -204,17 +217,15 @@ interface StorageArtifacts {
 function buildResourcePlan(
 	options: ResourcePlanOptions
 ): RestControllerResourcePlan {
-	const { ir, resource, storageState } = options;
+	const { ir, resource, storageState, wpPostRoutesState } = options;
 	const identity = resolveIdentityConfig(resource);
 	const pascalName = toPascalCase(resource.name);
 	const errorCodeFactory = makeErrorCodeFactory(resource.name);
 
-	const wpPostRouteBundle = resolveWpPostRouteBundle({
-		resource,
-		pascalName,
-		identity,
-		errorCodeFactory,
-	});
+	const wpPostRouteBundle = readWpPostRouteBundle(
+		wpPostRoutesState,
+		resource.name
+	);
 
 	const storageArtifacts = buildStorageArtifacts({
 		resource,
@@ -332,7 +343,7 @@ function buildRoutePlan(options: RoutePlanOptions): RestControllerRoutePlan {
 		}
 	}
 
-	return buildResourceControllerRouteSet({
+	const routeSetOptions: BuildResourceControllerRouteSetOptions = {
 		plan: {
 			definition: {
 				method: route.method,
@@ -358,7 +369,9 @@ function buildRoutePlan(options: RoutePlanOptions): RestControllerRoutePlan {
 			reason: fallbackAnalysis.reason,
 			hint: fallbackAnalysis.hint,
 		},
-	});
+	} as BuildResourceControllerRouteSetOptions;
+
+	return buildResourceControllerRouteSet(routeSetOptions);
 }
 
 interface BuildStorageArtifactsOptions {

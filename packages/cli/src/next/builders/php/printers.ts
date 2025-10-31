@@ -6,6 +6,7 @@ export {
 	createPhpWpOptionStorageHelper,
 	createPhpWpTaxonomyStorageHelper,
 } from './resource/storageHelpers';
+export { createPhpWpPostRoutesHelper } from './resource/wpPost/routes';
 export { createPhpCapabilityHelper } from './capability';
 export { createPhpPersistenceRegistryHelper } from './persistenceRegistry';
 export { createPhpIndexFileHelper } from './indexFile';

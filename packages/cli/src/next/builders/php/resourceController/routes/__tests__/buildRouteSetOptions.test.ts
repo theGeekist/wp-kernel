@@ -3,6 +3,7 @@ import {
 	buildTransientStorageArtifacts,
 	buildWpOptionStorageArtifacts,
 	buildWpTaxonomyQueryRouteBundle,
+	buildWpPostRouteBundle,
 	resolveTransientKey,
 	ensureWpTaxonomyStorage,
 	type ResourceMetadataHost,
@@ -10,7 +11,6 @@ import {
 } from '@wpkernel/wp-json-ast';
 import { ensureWpOptionStorage } from '../../../resource/wpOption/shared';
 import type { IRResource, IRRoute } from '../../../../../ir/publicTypes';
-import { resolveWpPostRouteBundle } from '../../../resource/wpPost/routes';
 import { buildRouteSetOptions } from '../buildRouteSetOptions';
 
 function buildMetadataHost(): ResourceMetadataHost {
@@ -75,12 +75,15 @@ function buildPlan({
 		errorCodeFactory,
 	});
 
-	const wpPostRouteBundle = resolveWpPostRouteBundle({
-		resource,
-		pascalName,
-		identity,
-		errorCodeFactory,
-	});
+	const wpPostRouteBundle =
+		resource.storage?.mode === 'wp-post'
+			? buildWpPostRouteBundle({
+					resource,
+					pascalName,
+					identity,
+					errorCodeFactory,
+				})
+			: undefined;
 
 	const options = buildRouteSetOptions({
 		resource,

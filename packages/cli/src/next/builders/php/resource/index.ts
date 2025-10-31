@@ -5,8 +5,11 @@ export * from './errors';
 export * from './wpPost/identity';
 export * from './wpPost/mutations';
 export * from './wpTaxonomy';
-export { resolveWpPostRouteBundle } from './wpPost/routes';
-export type { ResolveWpPostRouteBundleOptions } from './wpPost/routes';
+export {
+	createPhpWpPostRoutesHelper,
+	getWpPostRouteHelperState,
+	readWpPostRouteBundle,
+} from './wpPost/routes';
 export { resourceAccessors } from './accessors';
 export {
 	expression,
