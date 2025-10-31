@@ -4,11 +4,14 @@
 
 ### In progress
 
-- **Phase 6 – Core pipeline alignment** – Pending CLI/core updates may require
-  refreshed fixtures; track Tasks 32-36 in the MVP ledger to mirror any runtime
-  adjustments once they merge.
 - **Phase 7 – Plugin bootstrap flow** – Tasks 37-45 cover the create bootstrap, plugin loader, regeneration cleanup, and activation smoke before the 0.11.0 release; note any required Playwright harness updates once those patches land.
 - **Phase 8 placeholder** – Task 46 will collect incremental diagnostics (starting with the CLI LogLayer reporter) after the bootstrap flow ships.
+
+## 0.10.0 - 2025-11-05
+
+### Maintenance
+
+- Version bump to `0.10.0` to align with the Phase 6 core pipeline release; no E2E harness changes were required.
 
 ## 0.9.0 - 2025-10-27
 

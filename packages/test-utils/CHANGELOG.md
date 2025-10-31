@@ -4,10 +4,14 @@
 
 ### In progress
 
-- **Phase 6 – Core pipeline alignment** – Awaiting Tasks 32-36 to determine if
-  shared harness updates are required for the new pipeline orchestration.
 - **Phase 7 – Plugin bootstrap flow** – Tasks 37-45 will deliver the create bootstrap, plugin loader, regeneration cleanup, and activation smoke before 0.11.0 ships; reflect any harness updates required by that flow.
 - **Phase 8 placeholder** – Task 46 will collect incremental diagnostics (starting with the CLI LogLayer reporter) after the bootstrap flow ships.
+
+## 0.10.0 - 2025-11-05
+
+### Maintenance
+
+- Version bump to `0.10.0` to stay aligned with the Phase 6 core pipeline release; existing test harness helpers already cover the new pipeline execution path.
 
 ## 0.9.0 - 2025-10-27
 
