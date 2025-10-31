@@ -4,11 +4,14 @@
 
 ### In progress
 
-- **Phase 6 – Core pipeline alignment** – Monitoring Tasks 32-36 for any
-  WordPress-specific JSON AST adjustments required by the core orchestration
-  updates.
 - **Phase 7 – Plugin bootstrap flow** – Tasks 37-45 cover the create bootstrap, plugin loader, regeneration cleanup, and activation smoke on the path to 0.11.0; no JSON AST changes are expected unless the bootstrap work uncovers schema gaps.
 - **Phase 8 placeholder** – Task 46 will collect incremental diagnostics (starting with the CLI LogLayer reporter) after the bootstrap flow ships.
+
+## 0.10.0 - 2025-11-05
+
+### Maintenance
+
+- Version bump to `0.10.0` to align with the Phase 6 core pipeline release; WordPress JSON AST helpers remain unchanged.
 
 ## 0.9.0 - 2025-10-27
 

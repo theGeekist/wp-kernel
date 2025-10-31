@@ -4,11 +4,14 @@
 
 ### In progress
 
-- **Phase 6 – Core pipeline alignment** – No UI updates are required yet, but
-  Tasks 32-36 may prompt documentation or runtime alignment once the core
-  orchestration work merges.
 - **Phase 7 – Plugin bootstrap flow** – Tasks 37-45 will land the create bootstrap, plugin loader, regeneration cleanup, and activation smoke before 0.11.0 ships; track any UI adjustments that surface during that work.
 - **Phase 8 placeholder** – Task 46 will collect incremental diagnostics (starting with the CLI LogLayer reporter) after the bootstrap flow ships.
+
+## 0.10.0 - 2025-11-05
+
+### Maintenance
+
+- Version bump to `0.10.0` to stay aligned with the Phase 6 core pipeline release; no UI runtime changes were required for this cycle.
 
 ## 0.9.0 - 2025-10-27
 

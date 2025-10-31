@@ -2,7 +2,7 @@
 
 _See [Docs Index](./index.md) for navigation._
 
-> **Versioning reminder:** The CLI rides the unified **v0.9.x (pre-1.0)** track. Phase 5 patch slots (0.8.1-0.8.4) are closed; reserve the next open 0.9.x slot for Phase 6+ work, update the status when you land, and consolidate into the parent phase release once every patch in that band ships.
+> **Versioning reminder:** The CLI rides the unified **v0.10.x (pre-1.0)** track. Phase 6 patch slots (0.9.1-0.10.0) are closed; reserve the next open 0.10.x slot for Phase 7+ work, update the status when you land, and consolidate into the parent phase release once every patch in that band ships.
 
 ## Coordination & guardrails
 
@@ -34,18 +34,18 @@ See [Phase 7 – Plugin bootstrap flow](./phase-7-plugin-bootstrap.md) for the e
 
 ## Release ledger
 
-| Phase | Status         | Version band               | Summary                                                                                                                            | Ledger                                                 |
-| ----- | -------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
-| 0     | ✓ Complete     | 0.4.1 → 0.4.4              | Pipeline hardening (writer helper, builder audits, end-to-end coverage).                                                           | [Jump](#phase-0--foundations--complete)                |
-| 1     | ✓ Complete     | 0.4.5 → 0.5.0              | wp-option parity across builders, tests, docs, and release prep.                                                                   | [Jump](#phase-1--resource-parity--complete)            |
-| 2     | ✓ Complete     | 0.5.1 → 0.6.0              | Transient storage parity, cache hygiene, and documentation refresh.                                                                | [Jump](#phase-2--transient-storage-parity--complete)   |
-| 3     | ✓ Complete     | 0.6.1 → 0.7.0              | Block builder parity (SSR + JS-only) and printer retirement prerequisites.                                                         | [Jump](#phase-3--block-builder-parity--complete)       |
-| 4     | ✓ Complete     | 0.7.1 → 0.8.0              | Command migration factories and string-printer retirement.                                                                         | [Jump](#phase-4--command-migration--complete)          |
-| 5     | ✓ Complete     | 0.8.1 → 0.9.0              | Apply layering, shims, safety flags, and the 0.9.0 release.                                                                        | [Jump](#phase-5--apply-layering--complete)             |
-| 6     | 🚧 In progress | 0.9.1 → 0.10.0 (reserved)  | Core pipeline/doc alignment (Tasks 32-36). See [Phase 6 – Core Pipeline Orchestration](../core/docs/phase-6-core-pipeline.md.md).  | [Jump](#phase-6--core-pipeline-alignment--in-progress) |
-| 7     | ⬜ Planned     | 0.10.1 → 0.11.0 (reserved) | Plugin bootstrap flow (Tasks 37-45) closing the scaffolding gaps called out above.                                                 | [Jump](#phase-7--plugin-bootstrap-flow--planned)       |
-| 8     | ⬜ Planned     | 0.11.1 → 0.12.0 (reserved) | UI baseline experience (Tasks 46-52) tracked in [`packages/ui/docs/phase-8-ui-baseline.md`](../../ui/docs/phase-8-ui-baseline.md). | [Jump](#phase-8--ui-baseline-experience--planned)      |
-| 9     | ⬜ Planned     | 0.12.1 → 0.13.0 (reserved) | Post-MVP polish placeholder (Tasks 53-55) covering CLI LogLayer adoption and interactivity-aware generators once Phase 8 lands.    | [Jump](#phase-9--post-mvp-polish--planned)             |
+| Phase | Status     | Version band               | Summary                                                                                                                            | Ledger                                               |
+| ----- | ---------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| 0     | ✓ Complete | 0.4.1 → 0.4.4              | Pipeline hardening (writer helper, builder audits, end-to-end coverage).                                                           | [Jump](#phase-0--foundations--complete)              |
+| 1     | ✓ Complete | 0.4.5 → 0.5.0              | wp-option parity across builders, tests, docs, and release prep.                                                                   | [Jump](#phase-1--resource-parity--complete)          |
+| 2     | ✓ Complete | 0.5.1 → 0.6.0              | Transient storage parity, cache hygiene, and documentation refresh.                                                                | [Jump](#phase-2--transient-storage-parity--complete) |
+| 3     | ✓ Complete | 0.6.1 → 0.7.0              | Block builder parity (SSR + JS-only) and printer retirement prerequisites.                                                         | [Jump](#phase-3--block-builder-parity--complete)     |
+| 4     | ✓ Complete | 0.7.1 → 0.8.0              | Command migration factories and string-printer retirement.                                                                         | [Jump](#phase-4--command-migration--complete)        |
+| 5     | ✓ Complete | 0.8.1 → 0.9.0              | Apply layering, shims, safety flags, and the 0.9.0 release.                                                                        | [Jump](#phase-5--apply-layering--complete)           |
+| 6     | ✓ Complete | 0.9.1 → 0.10.0 (shipped)   | Core pipeline/doc alignment (Tasks 32-36). See [Phase 6 – Core Pipeline Orchestration](../core/docs/phase-6-core-pipeline.md.md).  | [Jump](#phase-6--core-pipeline-alignment--complete)  |
+| 7     | ⬜ Planned | 0.10.1 → 0.11.0 (reserved) | Plugin bootstrap flow (Tasks 37-45) closing the scaffolding gaps called out above.                                                 | [Jump](#phase-7--plugin-bootstrap-flow--planned)     |
+| 8     | ⬜ Planned | 0.11.1 → 0.12.0 (reserved) | UI baseline experience (Tasks 46-52) tracked in [`packages/ui/docs/phase-8-ui-baseline.md`](../../ui/docs/phase-8-ui-baseline.md). | [Jump](#phase-8--ui-baseline-experience--planned)    |
+| 9     | ⬜ Planned | 0.12.1 → 0.13.0 (reserved) | Post-MVP polish placeholder (Tasks 53-55) covering CLI LogLayer adoption and interactivity-aware generators once Phase 8 lands.    | [Jump](#phase-9--post-mvp-polish--planned)           |
 
 ## Completed phases
 
@@ -153,19 +153,19 @@ Completes the layered apply experience with shims, safety rails, logging parity,
 
 </details>
 
+### Phase 6 – Core pipeline alignment (✓ Complete)
+
+Ran alongside the core runtime migration so CLI guidance matched the new pipeline orchestration. The phase closes with the pipeline-only runtime, diagnostics polish, the interactivity bridge, and a coordinated 0.10.0 release.
+
+| Slot   | Task                                     | Status    | Notes                                                                                           | Reference                                                                                                   |
+| ------ | ---------------------------------------- | --------- | ----------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| 0.9.1  | Task 32 – Core pipeline scaffolding      | ✓ shipped | Helper catalogue and shared harnesses published; CLI docs now reference the helper naming map.  | [Spec](../core/docs/phase-6-core-pipeline.md.md#patch-091---task-32-core-pipeline-scaffolding)              |
+| 0.9.2  | Task 33 – Migrate `defineAction`         | ✓ shipped | `defineAction` now runs exclusively through `createActionPipeline`; parity coverage documented. | [Spec](../core/docs/phase-6-core-pipeline.md.md#patch-092---task-33-migrate-defineaction-to-the-pipeline)   |
+| 0.9.3  | Task 34 – Migrate `defineResource`       | ✓ shipped | Resource definitions share the pipeline helpers and updated reporter diagnostics.               | [Spec](../core/docs/phase-6-core-pipeline.md.md#patch-093---task-34-migrate-defineresource-to-the-pipeline) |
+| 0.9.4  | Task 35 – Buffer & extension diagnostics | ✓ shipped | Diagnostics, helper cleanup, and the interactivity bridge landed ahead of the release cut.      | [Spec](../core/docs/phase-6-core-pipeline.md.md#patch-094---task-35-buffer--extension-diagnostics)          |
+| 0.10.0 | Task 36 – Phase 6 minor release          | ✓ shipped | Coordinated 0.10.0 release completed with changelog roll-up and documentation sweep.            | [Spec](../core/docs/phase-6-core-pipeline.md.md#minor-0100---task-36-release-and-documentation-rollup)      |
+
 ## Upcoming phases
-
-### Phase 6 – Core pipeline alignment (🚧 In progress)
-
-Track active scope in [Phase 6 – Core Pipeline Orchestration](../core/docs/phase-6-core-pipeline.md.md). Mirror the status placeholders below and update them when each patch closes.
-
-| Slot   | Task                                     | Status        | Notes                                                                                      | Reference                                                                                                   |
-| ------ | ---------------------------------------- | ------------- | ------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------- |
-| 0.9.1  | Task 32 – Core pipeline scaffolding      | 🚧 PR pending | Helper catalogue + harness scaffolding staged for review in the core spec.                 | [Spec](../core/docs/phase-6-core-pipeline.md.md#patch-091---task-32-core-pipeline-scaffolding)              |
-| 0.9.2  | Task 33 – Migrate `defineAction`         | 🚧 PR pending | Awaiting merge while parity coverage settles; keep CLI docs synced once it lands.          | [Spec](../core/docs/phase-6-core-pipeline.md.md#patch-092---task-33-migrate-defineaction-to-the-pipeline)   |
-| 0.9.3  | Task 34 – Migrate `defineResource`       | 🚧 PR pending | Resource pipeline hooks under review; update CLI parity guides alongside the core rollout. | [Spec](../core/docs/phase-6-core-pipeline.md.md#patch-093---task-34-migrate-defineresource-to-the-pipeline) |
-| 0.9.4  | Task 35 – Buffer & extension diagnostics | ⬜ Planned    | Capture diagnostics polish + helper cleanup once Tasks 32-34 merge.                        | [Spec](../core/docs/phase-6-core-pipeline.md.md#patch-094---task-35-buffer--extension-diagnostics)          |
-| 0.10.0 | Task 36 – Phase 6 minor release          | ⬜ Planned    | Run the coordinated minor release after patch slots close and documentation is refreshed.  | [Spec](../core/docs/phase-6-core-pipeline.md.md#minor-0100---task-36-release-and-documentation-rollup)      |
 
 ### Phase 7 – Plugin bootstrap flow (⬜ Planned)
 
@@ -229,7 +229,7 @@ Before coding, the agent must review `AGENTS.md`, the referenced documentation, 
 | 3   | Blocks builder           | Implement SSR + JS-only block builders, unifying manifests, registrars, and render stubs via shared helpers.                                                       | 0.6.1-0.6.4 → 0.7.0 minor               | Baseline + `pnpm --filter @wpkernel/cli test:coverage`                        | [Blocks builder scope](./pipeline-integration-tasks.md#future-focus--add-blocks-builder-complexity-medium) |
 | 4   | Command migration        | Rebuild `apply`, `generate`, `init`, `create`, `start`, `doctor` on the helper-first pipeline and retire string printers.                                          | 0.7.1-0.7.6 → 0.8.0 minor               | Baseline + docs regeneration + regression run                                 | [Command migration plan](./command-migration-plan.md)                                                      |
 | 5   | Apply layering & flags   | Emit user extension shims, port `--yes/--backup/--force`, persist `.wpk-apply.log`, and cut the 0.9.0 release.                                                     | 0.8.1-0.8.4 → 0.9.0 minor               | Baseline + end-to-end `wpk apply` smoke run                                   | [Apply workflow phase](./apply-workflow-phases.md)                                                         |
-| 6   | Core pipeline alignment  | Tasks 32-36 align CLI docs with the core pipeline orchestration tracked in `packages/core/docs/phase-6-core-pipeline.md.md`.                                       | 0.9.1-0.10.0 (reserve before starting)  | Baseline + documentation linting                                              | [Phase 6 spec](../core/docs/phase-6-core-pipeline.md.md)                                                   |
+| 6   | Core pipeline alignment  | Tasks 32-36 align CLI docs with the core pipeline orchestration tracked in `packages/core/docs/phase-6-core-pipeline.md.md`.                                       | 0.9.1-0.10.0 (shipped)                  | Baseline + documentation linting                                              | [Phase 6 spec](../core/docs/phase-6-core-pipeline.md.md)                                                   |
 | 7   | Plugin bootstrap flow    | Tasks 37-45 publish the bootstrap workspace, loader generator, cleanup, docs, and cut the 0.11.0 release.                                                          | 0.10.1-0.11.0 (reserve before starting) | Baseline + activation smoke (`wpk create && wpk generate && wpk apply --yes`) | [Phase 7 spec](./phase-7-plugin-bootstrap.md)                                                              |
 | 8   | UI baseline experience   | Tasks 46-52 land DataViews schema helpers, async UX primitives, interactivity bridges, and observability hooks in `@wpkernel/ui`, culminating in the 0.12.0 minor. | 0.11.1-0.12.0 (reserve before starting) | Baseline + `pnpm --filter @wpkernel/ui test`/`typecheck` + docs sweep         | [`Phase 8 – UI baseline`](../../ui/docs/phase-8-ui-baseline.md)                                            |
 | 9   | Post-MVP polish          | Tasks 53-55 carry CLI diagnostics and interactivity-aware scaffolding after the UI baseline ships.                                                                 | 0.12.1-0.13.0 (reserve before starting) | Baseline + CLI reporter smoke + docs refresh                                  | [Phase 9 – Post-MVP polish](#phase-9--post-mvp-polish--planned)                                            |
