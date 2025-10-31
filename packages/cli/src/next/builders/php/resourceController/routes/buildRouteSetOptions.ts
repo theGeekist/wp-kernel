@@ -1,4 +1,8 @@
 import {
+	WP_POST_MUTATION_CONTRACT,
+	buildCreateRouteStatements,
+	buildDeleteRouteStatements as buildRemoveRouteStatements,
+	buildUpdateRouteStatements,
 	buildWpPostRouteBundle,
 	routeUsesIdentity,
 	type BuildResourceControllerRouteSetOptions,
@@ -36,35 +40,35 @@ export function buildRouteSetOptions(
 	context: BuildRouteSetOptionsContext
 ): Omit<BuildResourceControllerRouteSetOptions, 'plan'> {
 	const storageMode = context.resource.storage?.mode;
-
-	if (storageMode === 'wp-post') {
-		const bundle = buildWpPostRouteBundle({
-			resource: context.resource,
-			identity: context.identity,
-			pascalName: context.pascalName,
-			errorCodeFactory: context.errorCodeFactory,
-		});
-
-		return {
-			storageMode,
-			handlers: bundle.handlers,
-			optionHandlers: undefined,
-			transientHandlers: undefined,
-		} satisfies Omit<BuildResourceControllerRouteSetOptions, 'plan'>;
-	}
+	const wpPostBundle =
+		storageMode === 'wp-post'
+			? buildWpPostRouteBundle({
+					resource: context.resource,
+					identity: context.identity,
+					pascalName: context.pascalName,
+					errorCodeFactory: context.errorCodeFactory,
+				})
+			: undefined;
 
 	return {
 		storageMode,
-		handlers: buildDefaultHandlers(context),
+		handlers: buildDefaultHandlers({
+			...context,
+			wpPostHandlers: wpPostBundle?.handlers,
+		}),
 		optionHandlers: buildOptionHandlers(context),
 		transientHandlers: buildTransientHandlers(context),
 	} satisfies Omit<BuildResourceControllerRouteSetOptions, 'plan'>;
 }
 
+interface BuildDefaultHandlersOptions extends BuildRouteSetOptionsContext {
+	readonly wpPostHandlers?: RestControllerRouteHandlers;
+}
+
 function buildDefaultHandlers(
-	context: BuildRouteSetOptionsContext
+	context: BuildDefaultHandlersOptions
 ): RestControllerRouteHandlers {
-	const handlers: RestControllerRouteHandlers = {
+	const fallbackHandlers: RestControllerRouteHandlers = {
 		list: (routeContext) =>
 			buildListRouteStatements({
 				resource: context.resource,
@@ -81,8 +85,36 @@ function buildDefaultHandlers(
 				metadataHost: routeContext.metadataHost,
 				cacheSegments: routeContext.metadata.cacheSegments ?? [],
 			}),
+		create: () =>
+			buildCreateRouteStatements({
+				resource: context.resource,
+				pascalName: context.pascalName,
+				metadataKeys: WP_POST_MUTATION_CONTRACT.metadataKeys,
+			}),
+		update: () =>
+			buildUpdateRouteStatements({
+				resource: context.resource,
+				pascalName: context.pascalName,
+				metadataKeys: WP_POST_MUTATION_CONTRACT.metadataKeys,
+				identity: context.identity,
+			}),
+		remove: () =>
+			buildRemoveRouteStatements({
+				resource: context.resource,
+				pascalName: context.pascalName,
+				metadataKeys: WP_POST_MUTATION_CONTRACT.metadataKeys,
+				identity: context.identity,
+			}),
 	} satisfies RestControllerRouteHandlers;
-	return handlers;
+
+	if (!context.wpPostHandlers) {
+		return fallbackHandlers;
+	}
+
+	return {
+		...fallbackHandlers,
+		...context.wpPostHandlers,
+	} satisfies RestControllerRouteHandlers;
 }
 
 function buildOptionHandlers(
