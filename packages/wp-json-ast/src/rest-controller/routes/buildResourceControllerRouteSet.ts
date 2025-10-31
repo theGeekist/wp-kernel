@@ -45,12 +45,21 @@ export interface RestControllerRouteOptionHandlers {
 	readonly unsupported?: RestControllerRouteStatementsBuilder;
 }
 
+export type RestControllerRouteStorageMode =
+	| 'transient'
+	| 'wp-option'
+	| 'wp-taxonomy'
+	| 'wp-post'
+	| 'file'
+	| 'custom'
+	| (string & {});
+
 export interface BuildResourceControllerRouteSetOptions {
 	readonly plan: Pick<
 		RestControllerRoutePlan,
 		'definition' | 'methodName' | 'docblockSummary'
 	>;
-	readonly storageMode?: string;
+	readonly storageMode?: RestControllerRouteStorageMode;
 	readonly handlers?: RestControllerRouteHandlers;
 	readonly transientHandlers?: RestControllerRouteTransientHandlers;
 	readonly optionHandlers?: RestControllerRouteOptionHandlers;

@@ -10990,114 +10990,54 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
             "returnType": null,
             "stmts": [
               {
-                "attributes": {},
-                "expr": {
-                  "attributes": {},
-                  "expr": {
-                    "args": [],
-                    "attributes": {},
-                    "name": {
-                      "attributes": {},
-                      "name": "getJobCacheTransientKey",
-                      "nodeType": "Identifier",
+                "attributes": {
+                  "comments": [
+                    {
+                      "nodeType": "Comment",
+                      "text": "// TODO: Implement handler for [GET] /kernel/v1/job-cache.",
                     },
-                    "nodeType": "Expr_MethodCall",
-                    "var": {
-                      "attributes": {},
-                      "name": "this",
-                      "nodeType": "Expr_Variable",
-                    },
-                  },
-                  "nodeType": "Expr_Assign",
-                  "var": {
-                    "attributes": {},
-                    "name": "key",
-                    "nodeType": "Expr_Variable",
-                  },
+                  ],
                 },
-                "nodeType": "Stmt_Expression",
-              },
-              {
-                "attributes": {},
-                "expr": {
-                  "attributes": {},
-                  "expr": {
-                    "args": [
-                      {
-                        "attributes": {},
-                        "byRef": false,
-                        "name": null,
-                        "nodeType": "Arg",
-                        "unpack": false,
-                        "value": {
-                          "attributes": {},
-                          "name": "key",
-                          "nodeType": "Expr_Variable",
-                        },
-                      },
-                    ],
-                    "attributes": {},
-                    "name": {
-                      "attributes": {},
-                      "nodeType": "Name",
-                      "parts": [
-                        "get_transient",
-                      ],
-                    },
-                    "nodeType": "Expr_FuncCall",
-                  },
-                  "nodeType": "Expr_Assign",
-                  "var": {
-                    "attributes": {},
-                    "name": "value",
-                    "nodeType": "Expr_Variable",
-                  },
-                },
-                "nodeType": "Stmt_Expression",
-              },
-              {
-                "attributes": {},
                 "nodeType": "Stmt_Nop",
               },
               {
                 "attributes": {},
                 "expr": {
-                  "attributes": {},
-                  "items": [
+                  "args": [
                     {
                       "attributes": {},
                       "byRef": false,
-                      "key": {
-                        "attributes": {},
-                        "nodeType": "Scalar_String",
-                        "value": "key",
-                      },
-                      "nodeType": "ArrayItem",
+                      "name": null,
+                      "nodeType": "Arg",
                       "unpack": false,
                       "value": {
                         "attributes": {},
-                        "name": "key",
-                        "nodeType": "Expr_Variable",
+                        "nodeType": "Scalar_Int",
+                        "value": 501,
                       },
                     },
                     {
                       "attributes": {},
                       "byRef": false,
-                      "key": {
-                        "attributes": {},
-                        "nodeType": "Scalar_String",
-                        "value": "value",
-                      },
-                      "nodeType": "ArrayItem",
+                      "name": null,
+                      "nodeType": "Arg",
                       "unpack": false,
                       "value": {
                         "attributes": {},
-                        "name": "value",
-                        "nodeType": "Expr_Variable",
+                        "nodeType": "Scalar_String",
+                        "value": "Not Implemented",
                       },
                     },
                   ],
-                  "nodeType": "Expr_Array",
+                  "attributes": {},
+                  "class": {
+                    "attributes": {},
+                    "nodeType": "Name",
+                    "parts": [
+                      "WP_Error",
+                    ],
+                  },
+                  "nodeType": "Expr_New",
                 },
                 "nodeType": "Stmt_Return",
               },
@@ -11151,375 +11091,54 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
             "returnType": null,
             "stmts": [
               {
-                "attributes": {},
-                "expr": {
-                  "attributes": {},
-                  "expr": {
-                    "args": [],
-                    "attributes": {},
-                    "name": {
-                      "attributes": {},
-                      "name": "getJobCacheTransientKey",
-                      "nodeType": "Identifier",
+                "attributes": {
+                  "comments": [
+                    {
+                      "nodeType": "Comment",
+                      "text": "// TODO: Implement handler for [PUT] /kernel/v1/job-cache.",
                     },
-                    "nodeType": "Expr_MethodCall",
-                    "var": {
-                      "attributes": {},
-                      "name": "this",
-                      "nodeType": "Expr_Variable",
-                    },
-                  },
-                  "nodeType": "Expr_Assign",
-                  "var": {
-                    "attributes": {},
-                    "name": "key",
-                    "nodeType": "Expr_Variable",
-                  },
+                  ],
                 },
-                "nodeType": "Stmt_Expression",
-              },
-              {
-                "attributes": {},
-                "expr": {
-                  "attributes": {},
-                  "expr": {
-                    "args": [
-                      {
-                        "attributes": {},
-                        "byRef": false,
-                        "name": null,
-                        "nodeType": "Arg",
-                        "unpack": false,
-                        "value": {
-                          "attributes": {},
-                          "name": "key",
-                          "nodeType": "Expr_Variable",
-                        },
-                      },
-                    ],
-                    "attributes": {},
-                    "name": {
-                      "attributes": {},
-                      "nodeType": "Name",
-                      "parts": [
-                        "get_transient",
-                      ],
-                    },
-                    "nodeType": "Expr_FuncCall",
-                  },
-                  "nodeType": "Expr_Assign",
-                  "var": {
-                    "attributes": {},
-                    "name": "previous",
-                    "nodeType": "Expr_Variable",
-                  },
-                },
-                "nodeType": "Stmt_Expression",
-              },
-              {
-                "attributes": {},
-                "expr": {
-                  "attributes": {},
-                  "expr": {
-                    "args": [
-                      {
-                        "attributes": {},
-                        "byRef": false,
-                        "name": null,
-                        "nodeType": "Arg",
-                        "unpack": false,
-                        "value": {
-                          "attributes": {},
-                          "nodeType": "Scalar_String",
-                          "value": "value",
-                        },
-                      },
-                    ],
-                    "attributes": {},
-                    "name": {
-                      "attributes": {},
-                      "name": "get_param",
-                      "nodeType": "Identifier",
-                    },
-                    "nodeType": "Expr_MethodCall",
-                    "var": {
-                      "attributes": {},
-                      "name": "request",
-                      "nodeType": "Expr_Variable",
-                    },
-                  },
-                  "nodeType": "Expr_Assign",
-                  "var": {
-                    "attributes": {},
-                    "name": "value",
-                    "nodeType": "Expr_Variable",
-                  },
-                },
-                "nodeType": "Stmt_Expression",
-              },
-              {
-                "attributes": {},
-                "expr": {
-                  "attributes": {},
-                  "expr": {
-                    "args": [
-                      {
-                        "attributes": {},
-                        "byRef": false,
-                        "name": null,
-                        "nodeType": "Arg",
-                        "unpack": false,
-                        "value": {
-                          "args": [
-                            {
-                              "attributes": {},
-                              "byRef": false,
-                              "name": null,
-                              "nodeType": "Arg",
-                              "unpack": false,
-                              "value": {
-                                "attributes": {},
-                                "nodeType": "Scalar_String",
-                                "value": "expiration",
-                              },
-                            },
-                          ],
-                          "attributes": {},
-                          "name": {
-                            "attributes": {},
-                            "name": "get_param",
-                            "nodeType": "Identifier",
-                          },
-                          "nodeType": "Expr_MethodCall",
-                          "var": {
-                            "attributes": {},
-                            "name": "request",
-                            "nodeType": "Expr_Variable",
-                          },
-                        },
-                      },
-                    ],
-                    "attributes": {},
-                    "name": {
-                      "attributes": {},
-                      "name": "normaliseJobCacheExpiration",
-                      "nodeType": "Identifier",
-                    },
-                    "nodeType": "Expr_MethodCall",
-                    "var": {
-                      "attributes": {},
-                      "name": "this",
-                      "nodeType": "Expr_Variable",
-                    },
-                  },
-                  "nodeType": "Expr_Assign",
-                  "var": {
-                    "attributes": {},
-                    "name": "expiration",
-                    "nodeType": "Expr_Variable",
-                  },
-                },
-                "nodeType": "Stmt_Expression",
-              },
-              {
-                "attributes": {},
                 "nodeType": "Stmt_Nop",
               },
               {
                 "attributes": {},
                 "expr": {
-                  "attributes": {},
-                  "expr": {
-                    "args": [
-                      {
-                        "attributes": {},
-                        "byRef": false,
-                        "name": null,
-                        "nodeType": "Arg",
-                        "unpack": false,
-                        "value": {
-                          "attributes": {},
-                          "name": "key",
-                          "nodeType": "Expr_Variable",
-                        },
-                      },
-                      {
-                        "attributes": {},
-                        "byRef": false,
-                        "name": null,
-                        "nodeType": "Arg",
-                        "unpack": false,
-                        "value": {
-                          "attributes": {},
-                          "name": "value",
-                          "nodeType": "Expr_Variable",
-                        },
-                      },
-                      {
-                        "attributes": {},
-                        "byRef": false,
-                        "name": null,
-                        "nodeType": "Arg",
-                        "unpack": false,
-                        "value": {
-                          "attributes": {},
-                          "name": "expiration",
-                          "nodeType": "Expr_Variable",
-                        },
-                      },
-                    ],
-                    "attributes": {},
-                    "name": {
-                      "attributes": {},
-                      "nodeType": "Name",
-                      "parts": [
-                        "set_transient",
-                      ],
-                    },
-                    "nodeType": "Expr_FuncCall",
-                  },
-                  "nodeType": "Expr_Assign",
-                  "var": {
-                    "attributes": {},
-                    "name": "stored",
-                    "nodeType": "Expr_Variable",
-                  },
-                },
-                "nodeType": "Stmt_Expression",
-              },
-              {
-                "attributes": {},
-                "expr": {
-                  "attributes": {},
-                  "expr": {
-                    "args": [
-                      {
-                        "attributes": {},
-                        "byRef": false,
-                        "name": null,
-                        "nodeType": "Arg",
-                        "unpack": false,
-                        "value": {
-                          "attributes": {},
-                          "name": "key",
-                          "nodeType": "Expr_Variable",
-                        },
-                      },
-                    ],
-                    "attributes": {},
-                    "name": {
-                      "attributes": {},
-                      "nodeType": "Name",
-                      "parts": [
-                        "get_transient",
-                      ],
-                    },
-                    "nodeType": "Expr_FuncCall",
-                  },
-                  "nodeType": "Expr_Assign",
-                  "var": {
-                    "attributes": {},
-                    "name": "current",
-                    "nodeType": "Expr_Variable",
-                  },
-                },
-                "nodeType": "Stmt_Expression",
-              },
-              {
-                "attributes": {},
-                "nodeType": "Stmt_Nop",
-              },
-              {
-                "attributes": {},
-                "expr": {
-                  "attributes": {},
-                  "items": [
+                  "args": [
                     {
                       "attributes": {},
                       "byRef": false,
-                      "key": {
-                        "attributes": {},
-                        "nodeType": "Scalar_String",
-                        "value": "key",
-                      },
-                      "nodeType": "ArrayItem",
+                      "name": null,
+                      "nodeType": "Arg",
                       "unpack": false,
                       "value": {
                         "attributes": {},
-                        "name": "key",
-                        "nodeType": "Expr_Variable",
+                        "nodeType": "Scalar_Int",
+                        "value": 501,
                       },
                     },
                     {
                       "attributes": {},
                       "byRef": false,
-                      "key": {
-                        "attributes": {},
-                        "nodeType": "Scalar_String",
-                        "value": "stored",
-                      },
-                      "nodeType": "ArrayItem",
+                      "name": null,
+                      "nodeType": "Arg",
                       "unpack": false,
                       "value": {
                         "attributes": {},
-                        "expr": {
-                          "attributes": {},
-                          "name": "stored",
-                          "nodeType": "Expr_Variable",
-                        },
-                        "nodeType": "Expr_Cast_Bool",
-                      },
-                    },
-                    {
-                      "attributes": {},
-                      "byRef": false,
-                      "key": {
-                        "attributes": {},
                         "nodeType": "Scalar_String",
-                        "value": "value",
-                      },
-                      "nodeType": "ArrayItem",
-                      "unpack": false,
-                      "value": {
-                        "attributes": {},
-                        "name": "current",
-                        "nodeType": "Expr_Variable",
-                      },
-                    },
-                    {
-                      "attributes": {},
-                      "byRef": false,
-                      "key": {
-                        "attributes": {},
-                        "nodeType": "Scalar_String",
-                        "value": "previous",
-                      },
-                      "nodeType": "ArrayItem",
-                      "unpack": false,
-                      "value": {
-                        "attributes": {},
-                        "name": "previous",
-                        "nodeType": "Expr_Variable",
-                      },
-                    },
-                    {
-                      "attributes": {},
-                      "byRef": false,
-                      "key": {
-                        "attributes": {},
-                        "nodeType": "Scalar_String",
-                        "value": "expiration",
-                      },
-                      "nodeType": "ArrayItem",
-                      "unpack": false,
-                      "value": {
-                        "attributes": {},
-                        "name": "expiration",
-                        "nodeType": "Expr_Variable",
+                        "value": "Not Implemented",
                       },
                     },
                   ],
-                  "nodeType": "Expr_Array",
+                  "attributes": {},
+                  "class": {
+                    "attributes": {},
+                    "nodeType": "Name",
+                    "parts": [
+                      "WP_Error",
+                    ],
+                  },
+                  "nodeType": "Expr_New",
                 },
                 "nodeType": "Stmt_Return",
               },
@@ -11573,176 +11192,54 @@ exports[`createPhpResourceControllerHelper queues transient controllers with TTL
             "returnType": null,
             "stmts": [
               {
-                "attributes": {},
-                "expr": {
-                  "attributes": {},
-                  "expr": {
-                    "args": [],
-                    "attributes": {},
-                    "name": {
-                      "attributes": {},
-                      "name": "getJobCacheTransientKey",
-                      "nodeType": "Identifier",
+                "attributes": {
+                  "comments": [
+                    {
+                      "nodeType": "Comment",
+                      "text": "// TODO: Implement handler for [DELETE] /kernel/v1/job-cache.",
                     },
-                    "nodeType": "Expr_MethodCall",
-                    "var": {
-                      "attributes": {},
-                      "name": "this",
-                      "nodeType": "Expr_Variable",
-                    },
-                  },
-                  "nodeType": "Expr_Assign",
-                  "var": {
-                    "attributes": {},
-                    "name": "key",
-                    "nodeType": "Expr_Variable",
-                  },
+                  ],
                 },
-                "nodeType": "Stmt_Expression",
-              },
-              {
-                "attributes": {},
-                "expr": {
-                  "attributes": {},
-                  "expr": {
-                    "args": [
-                      {
-                        "attributes": {},
-                        "byRef": false,
-                        "name": null,
-                        "nodeType": "Arg",
-                        "unpack": false,
-                        "value": {
-                          "attributes": {},
-                          "name": "key",
-                          "nodeType": "Expr_Variable",
-                        },
-                      },
-                    ],
-                    "attributes": {},
-                    "name": {
-                      "attributes": {},
-                      "nodeType": "Name",
-                      "parts": [
-                        "get_transient",
-                      ],
-                    },
-                    "nodeType": "Expr_FuncCall",
-                  },
-                  "nodeType": "Expr_Assign",
-                  "var": {
-                    "attributes": {},
-                    "name": "previous",
-                    "nodeType": "Expr_Variable",
-                  },
-                },
-                "nodeType": "Stmt_Expression",
-              },
-              {
-                "attributes": {},
                 "nodeType": "Stmt_Nop",
               },
               {
                 "attributes": {},
                 "expr": {
-                  "attributes": {},
-                  "expr": {
-                    "args": [
-                      {
-                        "attributes": {},
-                        "byRef": false,
-                        "name": null,
-                        "nodeType": "Arg",
-                        "unpack": false,
-                        "value": {
-                          "attributes": {},
-                          "name": "key",
-                          "nodeType": "Expr_Variable",
-                        },
-                      },
-                    ],
-                    "attributes": {},
-                    "name": {
-                      "attributes": {},
-                      "nodeType": "Name",
-                      "parts": [
-                        "delete_transient",
-                      ],
-                    },
-                    "nodeType": "Expr_FuncCall",
-                  },
-                  "nodeType": "Expr_Assign",
-                  "var": {
-                    "attributes": {},
-                    "name": "deleted",
-                    "nodeType": "Expr_Variable",
-                  },
-                },
-                "nodeType": "Stmt_Expression",
-              },
-              {
-                "attributes": {},
-                "nodeType": "Stmt_Nop",
-              },
-              {
-                "attributes": {},
-                "expr": {
-                  "attributes": {},
-                  "items": [
+                  "args": [
                     {
                       "attributes": {},
                       "byRef": false,
-                      "key": {
-                        "attributes": {},
-                        "nodeType": "Scalar_String",
-                        "value": "key",
-                      },
-                      "nodeType": "ArrayItem",
+                      "name": null,
+                      "nodeType": "Arg",
                       "unpack": false,
                       "value": {
                         "attributes": {},
-                        "name": "key",
-                        "nodeType": "Expr_Variable",
+                        "nodeType": "Scalar_Int",
+                        "value": 501,
                       },
                     },
                     {
                       "attributes": {},
                       "byRef": false,
-                      "key": {
-                        "attributes": {},
-                        "nodeType": "Scalar_String",
-                        "value": "deleted",
-                      },
-                      "nodeType": "ArrayItem",
+                      "name": null,
+                      "nodeType": "Arg",
                       "unpack": false,
                       "value": {
                         "attributes": {},
-                        "expr": {
-                          "attributes": {},
-                          "name": "deleted",
-                          "nodeType": "Expr_Variable",
-                        },
-                        "nodeType": "Expr_Cast_Bool",
-                      },
-                    },
-                    {
-                      "attributes": {},
-                      "byRef": false,
-                      "key": {
-                        "attributes": {},
                         "nodeType": "Scalar_String",
-                        "value": "previous",
-                      },
-                      "nodeType": "ArrayItem",
-                      "unpack": false,
-                      "value": {
-                        "attributes": {},
-                        "name": "previous",
-                        "nodeType": "Expr_Variable",
+                        "value": "Not Implemented",
                       },
                     },
                   ],
-                  "nodeType": "Expr_Array",
+                  "attributes": {},
+                  "class": {
+                    "attributes": {},
+                    "nodeType": "Name",
+                    "parts": [
+                      "WP_Error",
+                    ],
+                  },
+                  "nodeType": "Expr_New",
                 },
                 "nodeType": "Stmt_Return",
               },

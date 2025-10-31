@@ -4,6 +4,7 @@ import type {
 	RestControllerRouteStatementsBuilder,
 	RestControllerRouteTransientHandlers,
 } from '../../../rest-controller/routes/buildResourceControllerRouteSet';
+import type { RestControllerRouteStatementsContext } from '../../../rest-controller/pipeline';
 import { routeUsesIdentity } from '../../../common/metadata/resourceController';
 import type { ResolvedIdentity } from '../../../pipeline/identity';
 import { buildTransientHelperMethods } from './helpers';
@@ -28,11 +29,15 @@ export interface TransientStorageArtifacts {
 	readonly routeHandlers: RestControllerRouteTransientHandlers;
 }
 
+type BuildTransientRouteStatements = (
+	options: BuildTransientRouteBaseOptions
+) => ReturnType<RestControllerRouteStatementsBuilder>;
+
 export function buildTransientStorageArtifacts(
 	options: BuildTransientStorageArtifactsOptions
 ): TransientStorageArtifacts {
 	const buildBaseOptions = (
-		context: Parameters<RestControllerRouteStatementsBuilder>[0]
+		context: RestControllerRouteStatementsContext
 	): BuildTransientRouteBaseOptions => ({
 		pascalName: options.pascalName,
 		metadataHost: context.metadataHost,
@@ -48,11 +53,9 @@ export function buildTransientStorageArtifacts(
 		}),
 	});
 
-	const wrap =
+	const createRouteHandler =
 		(
-			builder: (
-				context: BuildTransientRouteBaseOptions
-			) => ReturnType<RestControllerRouteStatementsBuilder>
+			builder: BuildTransientRouteStatements
 		): RestControllerRouteStatementsBuilder =>
 		(context) =>
 			builder(buildBaseOptions(context));
@@ -63,9 +66,9 @@ export function buildTransientStorageArtifacts(
 			key: options.key,
 		}),
 		routeHandlers: {
-			get: wrap(buildTransientGetRouteStatements),
-			set: wrap(buildTransientSetRouteStatements),
-			delete: wrap(buildTransientDeleteRouteStatements),
+			get: createRouteHandler(buildTransientGetRouteStatements),
+			set: createRouteHandler(buildTransientSetRouteStatements),
+			delete: createRouteHandler(buildTransientDeleteRouteStatements),
 			unsupported: (context) =>
 				buildTransientUnsupportedRouteStatements({
 					...buildBaseOptions(context),

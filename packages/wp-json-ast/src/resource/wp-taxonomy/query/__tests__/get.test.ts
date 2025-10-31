@@ -1,5 +1,5 @@
-import { buildWpTaxonomyGetRouteStatements } from '../get';
 import type { ResolvedIdentity } from '../../../../pipeline/identity';
+import { buildWpTaxonomyQueryRouteBundle } from '../buildWpTaxonomyQueryRouteBundle';
 import {
 	createMetadataHost,
 	expectMethodCall,
@@ -7,22 +7,35 @@ import {
 	isVariableAssignment,
 } from '../test-support';
 
-describe('buildWpTaxonomyGetRouteStatements', () => {
+describe('buildWpTaxonomyQueryRouteBundle get handler', () => {
 	const cacheSegments = ['genre', 'get'] as const;
 	const identity: ResolvedIdentity = { type: 'string', param: 'slug' };
 
 	it('builds taxonomy get statements, records cache metadata, and returns prepared response', () => {
 		const { metadata, host } = createMetadataHost();
 
-		const statements = buildWpTaxonomyGetRouteStatements({
+		const { routeHandlers } = buildWpTaxonomyQueryRouteBundle({
 			pascalName: 'Genre',
 			identity,
 			errorCodeFactory: (suffix) => `genre_${suffix}`,
-			metadataHost: host,
-			cacheSegments,
 			storage: { mode: 'wp-taxonomy', taxonomy: 'genre' },
 			resourceName: 'Genre',
 		});
+
+		const statements = routeHandlers.get?.({
+			metadata: {
+				method: 'GET',
+				path: '/genres/(?P<slug>[a-z-]+)',
+				kind: 'get',
+				cacheSegments,
+			},
+			metadataHost: host,
+		});
+
+		expect(statements).toBeDefined();
+		if (!statements) {
+			throw new Error('Expected statements');
+		}
 
 		expect(statements).toHaveLength(8);
 		expect(isVariableAssignment(statements[0], 'identity')).toBe(true);

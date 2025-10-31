@@ -2,6 +2,7 @@ import {
 	type BuildResourceControllerRouteSetOptions,
 	type RestControllerRouteHandlers,
 	type RestControllerRouteOptionHandlers,
+	type RestControllerRouteTransientHandlers,
 	type TransientStorageArtifacts,
 	type WpPostRouteBundle,
 	buildWpOptionStorageArtifacts,
@@ -19,6 +20,11 @@ interface BuildRouteSetOptionsContext {
 	readonly identity: ResolvedIdentity;
 	readonly pascalName: string;
 	readonly errorCodeFactory: (suffix: string) => string;
+	readonly storageArtifacts: {
+		readonly routeHandlers?: RestControllerRouteHandlers;
+		readonly optionHandlers?: RestControllerRouteOptionHandlers;
+		readonly transientHandlers?: RestControllerRouteTransientHandlers;
+	};
 	readonly transientArtifacts?: TransientStorageArtifacts;
 	readonly wpPostRouteBundle?: WpPostRouteBundle;
 }
@@ -30,11 +36,16 @@ export function buildRouteSetOptions(
 
 	return {
 		storageMode,
-		handlers: resolveRouteHandlers(context),
-		optionHandlers: buildOptionHandlers(context),
+		handlers:
+			context.storageArtifacts.routeHandlers ??
+			resolveRouteHandlers(context),
+		optionHandlers:
+			storageMode === 'wp-option'
+				? context.storageArtifacts.optionHandlers
+				: buildOptionHandlers(context),
 		transientHandlers:
 			storageMode === 'transient'
-				? context.transientArtifacts?.routeHandlers
+				? context.storageArtifacts.transientHandlers
 				: undefined,
 	} satisfies Omit<BuildResourceControllerRouteSetOptions, 'plan'>;
 }

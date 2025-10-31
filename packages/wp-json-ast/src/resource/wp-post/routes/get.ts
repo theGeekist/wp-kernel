@@ -38,6 +38,15 @@ export interface BuildWpPostGetRouteStatementsOptions {
 	readonly cacheSegments: readonly unknown[];
 }
 
+function isWpPostStorage(storage: unknown): storage is WpPostStorage {
+	return (
+		typeof storage === 'object' &&
+		storage !== null &&
+		'mode' in storage &&
+		storage.mode === 'wp-post'
+	);
+}
+
 export function buildWpPostGetRouteStatements(
 	options: BuildWpPostGetRouteStatementsOptions
 ): PhpStmt[] | null {
@@ -55,7 +64,7 @@ export function buildWpPostGetRouteStatements(
 
 	const statements: PhpStmt[] = [];
 
-	const identityOptions: IdentityGuardOptions = isNumericIdentity(
+	const identityGuardOptions: IdentityGuardOptions = isNumericIdentity(
 		options.identity
 	)
 		? {
@@ -68,11 +77,10 @@ export function buildWpPostGetRouteStatements(
 				pascalName: options.pascalName,
 				errorCodeFactory: options.errorCodeFactory,
 			};
+	const identityStatements =
+		buildIdentityGuardStatements(identityGuardOptions);
 
-	appendStatementsWithSpacing(
-		statements,
-		buildIdentityGuardStatements(identityOptions)
-	);
+	appendStatementsWithSpacing(statements, identityStatements);
 
 	const param = options.identity.param;
 	statements.push(
@@ -111,10 +119,4 @@ export function buildWpPostGetRouteStatements(
 	);
 
 	return statements;
-}
-
-function isWpPostStorage(
-	storage: MutationHelperResource['storage']
-): storage is WpPostStorage {
-	return Boolean(storage && storage.mode === 'wp-post');
 }

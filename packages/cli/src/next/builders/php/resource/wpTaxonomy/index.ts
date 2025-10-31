@@ -1,11 +1,8 @@
 export {
-	buildWpTaxonomyListRouteStatements,
-	type BuildWpTaxonomyListRouteStatementsOptions,
-} from './list';
-export {
-	buildWpTaxonomyGetRouteStatements,
-	type BuildWpTaxonomyGetRouteStatementsOptions,
-} from './get';
+	buildWpTaxonomyQueryRouteBundle,
+	type BuildWpTaxonomyQueryRouteBundleOptions,
+	type WpTaxonomyQueryRouteBundle,
+} from '@wpkernel/wp-json-ast';
 export {
 	buildWpTaxonomyHelperArtifacts,
 	buildWpTaxonomyHelperMethods,

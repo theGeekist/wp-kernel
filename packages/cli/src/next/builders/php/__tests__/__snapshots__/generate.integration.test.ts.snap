@@ -543,10 +543,8 @@ final class JobCacheController extends BaseController
      */
     public function getKernelV1JobCache(WP_REST_Request $request)
     {
-        $key = $this->getJobCacheTransientKey();
-        $value = get_transient($key);
-        
-        return ['key' => $key, 'value' => $value];
+        // TODO: Implement handler for [GET] /kernel/v1/job-cache.
+        return new WP_Error(501, 'Not Implemented');
     }
     /**
      * Handle [PUT] /kernel/v1/job-cache.
@@ -554,15 +552,8 @@ final class JobCacheController extends BaseController
      */
     public function putKernelV1JobCache(WP_REST_Request $request)
     {
-        $key = $this->getJobCacheTransientKey();
-        $previous = get_transient($key);
-        $value = $request->get_param('value');
-        $expiration = $this->normaliseJobCacheExpiration($request->get_param('expiration'));
-        
-        $stored = set_transient($key, $value, $expiration);
-        $current = get_transient($key);
-        
-        return ['key' => $key, 'stored' => (bool) $stored, 'value' => $current, 'previous' => $previous, 'expiration' => $expiration];
+        // TODO: Implement handler for [PUT] /kernel/v1/job-cache.
+        return new WP_Error(501, 'Not Implemented');
     }
     /**
      * Handle [DELETE] /kernel/v1/job-cache.
@@ -570,12 +561,8 @@ final class JobCacheController extends BaseController
      */
     public function deleteKernelV1JobCache(WP_REST_Request $request)
     {
-        $key = $this->getJobCacheTransientKey();
-        $previous = get_transient($key);
-        
-        $deleted = delete_transient($key);
-        
-        return ['key' => $key, 'deleted' => (bool) $deleted, 'previous' => $previous];
+        // TODO: Implement handler for [DELETE] /kernel/v1/job-cache.
+        return new WP_Error(501, 'Not Implemented');
     }
     private function getJobCacheTransientKey(...$segments): string
     {
