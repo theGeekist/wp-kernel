@@ -1,3 +1,3 @@
-# @wpkernel/ui
+# @wpkernel/test-utils
 
 Documentation coming soon.

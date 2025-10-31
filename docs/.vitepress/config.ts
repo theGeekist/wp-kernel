@@ -35,6 +35,8 @@ export default withMermaid(
 		lastUpdated: !FAST,
 		sitemap: { hostname: 'https://thegeekist.github.io' },
 
+		srcExclude: ['internal/*.md'],
+
 		// Keep wp-env localhost URLs valid (any port + path)
 		ignoreDeadLinks: [
 			/^https?:\/\/localhost(?::\d+)?(?:\/|$)/,
@@ -118,6 +120,7 @@ export default withMermaid(
 				{ text: 'Home', link: '/' },
 				{ text: 'Getting Started', link: '/getting-started/' },
 				{ text: 'Guide', link: '/guide/' },
+				{ text: 'Packages', link: '/packages/' },
 				{ text: 'Examples', link: '/examples/' },
 				{ text: 'Reference', link: '/reference/contracts' },
 				{ text: 'API', link: '/api/' },
@@ -151,6 +154,24 @@ export default withMermaid(
 								link: '/reference/decision-matrix',
 							},
 							{ text: 'Roadmap', link: '/contributing/roadmap' },
+						],
+					},
+				],
+				'/packages/': [
+					{
+						text: 'Packages',
+						collapsed: false,
+						items: [
+							{ text: 'Overview', link: '/packages/' },
+							{ text: '@wpkernel/cli', link: '/packages/cli' },
+							{ text: '@wpkernel/core', link: '/packages/core' },
+							{ text: '@wpkernel/create-wpk', link: '/packages/create-wpk' },
+							{ text: '@wpkernel/e2e-utils', link: '/packages/e2e-utils' },
+							{ text: '@wpkernel/php-driver', link: '/packages/php-driver' },
+							{ text: '@wpkernel/php-json-ast', link: '/packages/php-json-ast' },
+							{ text: '@wpkernel/test-utils', link: '/packages/test-utils' },
+							{ text: '@wpkernel/ui', link: '/packages/ui' },
+							{ text: '@wpkernel/wp-json-ast', link: '/packages/wp-json-ast' },
 						],
 					},
 				],
