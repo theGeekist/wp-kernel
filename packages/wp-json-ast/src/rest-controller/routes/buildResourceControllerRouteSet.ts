@@ -64,17 +64,29 @@ export interface BuildResourceControllerRouteSetOptions {
 	readonly transientHandlers?: RestControllerRouteTransientHandlers;
 	readonly optionHandlers?: RestControllerRouteOptionHandlers;
 	readonly buildFallbackStatements?: BuildRouteFallbackStatements;
+	readonly fallbackContext?: RestControllerRouteFallbackContext;
 }
 
 export type BuildRouteFallbackStatements = (
 	definition: RestControllerRouteDefinition
 ) => readonly PhpStmt[];
 
+export interface RestControllerRouteFallbackContext {
+	readonly resource?: string;
+	readonly transport?: string;
+	readonly kind?: ResourceControllerRouteMetadata['kind'];
+	readonly storageMode?: string;
+	readonly reason?: string;
+	readonly hint?: string;
+}
+
 export function buildResourceControllerRouteSet(
 	options: BuildResourceControllerRouteSetOptions
 ): RestControllerRoutePlan {
 	const fallbackBuilder =
-		options.buildFallbackStatements ?? buildNotImplementedStatements;
+		options.buildFallbackStatements ??
+		((definition: RestControllerRouteDefinition) =>
+			buildNotImplementedStatements(definition, options.fallbackContext));
 
 	return {
 		definition: options.plan.definition,
@@ -191,20 +203,77 @@ function normalizeMethod(
 }
 
 function buildNotImplementedStatements(
-	definition: RestControllerRouteDefinition
+	definition: RestControllerRouteDefinition,
+	context?: RestControllerRouteFallbackContext
 ): readonly PhpStmt[] {
+	const fallbackMetadata = buildFallbackMetadata(definition, context);
+	const comments = buildFallbackComments(definition, context);
+
 	const todo = buildStmtNop({
-		comments: [
-			buildComment(
-				`// TODO: Implement handler for [${definition.method}] ${definition.path}.`
-			),
-		],
+		comments,
+		'wpk:fallback': fallbackMetadata,
 	});
 
-	const errorExpr = buildNew(buildName(['WP_Error']), [
-		buildArg(buildScalarInt(501)),
-		buildArg(buildScalarString('Not Implemented')),
-	]);
+	const errorExpr = buildNew(
+		buildName(['WP_Error']),
+		[
+			buildArg(buildScalarInt(501)),
+			buildArg(buildScalarString('Not Implemented')),
+		],
+		{ 'wpk:fallback': fallbackMetadata }
+	);
 
-	return [todo, buildReturn(errorExpr)];
+	const returnStatement = buildReturn(errorExpr, {
+		'wpk:fallback': fallbackMetadata,
+	});
+
+	return [todo, returnStatement];
+}
+
+function buildFallbackComments(
+	definition: RestControllerRouteDefinition,
+	context?: RestControllerRouteFallbackContext
+) {
+	const commentLines = [
+		`// TODO: Implement handler for [${definition.method}] ${definition.path}.`,
+	];
+
+	if (context?.reason) {
+		commentLines.push(`// Reason: ${context.reason}`);
+	}
+
+	if (context?.hint) {
+		commentLines.push(`// Hint: ${context.hint}`);
+	}
+
+	return commentLines.map((line) => buildComment(line));
+}
+
+function buildFallbackMetadata(
+	definition: RestControllerRouteDefinition,
+	context?: RestControllerRouteFallbackContext
+): Record<string, unknown> {
+	const metadata: Record<string, unknown> = {
+		method: definition.method,
+		path: definition.path,
+	};
+
+	const optionalEntries: ReadonlyArray<
+		readonly [keyof RestControllerRouteFallbackContext, unknown]
+	> = [
+		['resource', context?.resource],
+		['transport', context?.transport],
+		['kind', context?.kind],
+		['storageMode', context?.storageMode],
+		['reason', context?.reason],
+		['hint', context?.hint],
+	];
+
+	for (const [key, value] of optionalEntries) {
+		if (value !== undefined) {
+			metadata[key] = value;
+		}
+	}
+
+	return metadata;
 }

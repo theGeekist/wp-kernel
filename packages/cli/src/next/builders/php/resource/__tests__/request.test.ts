@@ -1,4 +1,4 @@
-import { buildRequestParamAssignmentStatement } from '../request';
+import { buildRequestParamAssignmentStatement } from '../index';
 
 describe('request helpers', () => {
 	it('creates assignments without casts', () => {

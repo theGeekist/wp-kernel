@@ -1,5 +1,5 @@
 import { buildScalarInt } from '@wpkernel/php-json-ast';
-import { expression, renderPhpValue, variable } from '../phpValue';
+import { expression, renderPhpValue, variable } from '../index';
 import type { PhpExpr, PhpExprArray } from '@wpkernel/php-json-ast';
 
 function expectArrayExpression(expr: PhpExpr): PhpExprArray {

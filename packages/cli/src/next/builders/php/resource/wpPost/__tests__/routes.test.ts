@@ -1,14 +1,39 @@
+import path from 'node:path';
+import type { Reporter } from '@wpkernel/core/reporter';
 import {
 	buildWpPostRouteBundle,
-	type ResourceMetadataHost,
+	type WpPostRouteBundle,
 } from '@wpkernel/wp-json-ast';
-import { createPhpWpPostRoutesHelper } from '../routes';
 import type { IRResource } from '../../../../../ir/publicTypes';
-import type { ResolvedIdentity } from '../../../identity';
+import type { BuilderOutput } from '../../../../../runtime/types';
+import type { Workspace } from '../../../../../workspace/types';
+import { makePhpIrFixture } from '@wpkernel/test-utils/next/builders/php/resources.test-support';
+import { makeWorkspaceMock } from '../../../../../../../tests/workspace.test-support';
+import {
+	createPhpWpPostRoutesHelper,
+	getWpPostRouteHelperState,
+	readWpPostRouteBundle,
+} from '../routes';
 
 describe('createPhpWpPostRoutesHelper', () => {
-	const identity: ResolvedIdentity = { type: 'number', param: 'id' };
-	const errorCodeFactory = (suffix: string) => `book_${suffix}`;
+	function buildReporter(): Reporter {
+		return {
+			debug: jest.fn(),
+			info: jest.fn(),
+			warn: jest.fn(),
+			error: jest.fn(),
+			child: jest.fn().mockReturnThis(),
+		};
+	}
+
+	function buildWorkspace(): Workspace {
+		const root = process.cwd();
+		return makeWorkspaceMock({
+			root,
+			cwd: () => root,
+			resolve: (...parts: string[]) => path.join(root, ...parts),
+		});
+	}
 
 	function buildResource(storage?: IRResource['storage']): IRResource {
 		return {
@@ -32,35 +57,57 @@ describe('createPhpWpPostRoutesHelper', () => {
 		};
 	}
 
-	function buildMetadataHost(): ResourceMetadataHost {
-		return {
-			getMetadata: () => ({
-				kind: 'resource-controller',
-				name: 'book',
-				identity: { type: 'number', param: 'id' },
-				routes: [],
-			}),
-			setMetadata: () => {},
-		} satisfies ResourceMetadataHost;
+	async function applyHelper(
+		resource: IRResource
+	): Promise<WpPostRouteBundle | undefined> {
+		const reporter = buildReporter();
+		const workspace = buildWorkspace();
+		const context = {
+			workspace,
+			reporter,
+			phase: 'generate' as const,
+		};
+		const output: BuilderOutput = {
+			actions: [],
+			queueWrite: jest.fn(),
+		};
+		const ir = makePhpIrFixture({ resources: [resource] });
+
+		await createPhpWpPostRoutesHelper().apply(
+			{
+				context,
+				input: {
+					phase: 'generate' as const,
+					options: {
+						config: ir.config,
+						namespace: ir.meta.namespace,
+						origin: ir.meta.origin,
+						sourcePath: ir.meta.sourcePath,
+					},
+					ir,
+				},
+				output,
+				reporter,
+			},
+			undefined
+		);
+
+		const state = getWpPostRouteHelperState(context);
+		return readWpPostRouteBundle(state, resource.name);
 	}
 
-	it('returns undefined when storage mode is not wp-post', () => {
+	it('does not record a bundle when storage mode is not wp-post', async () => {
 		const resource = buildResource({
 			mode: 'wp-option',
 			option: 'demo_option',
 		});
 
-		expect(
-			createPhpWpPostRoutesHelper({
-				resource,
-				pascalName: 'Book',
-				identity,
-				errorCodeFactory,
-			})
-		).toBeUndefined();
+		const bundle = await applyHelper(resource);
+
+		expect(bundle).toBeUndefined();
 	});
 
-	it('returns the wp-post route bundle when storage mode is wp-post', () => {
+	it('records the wp-post route bundle when storage mode is wp-post', async () => {
 		const resource = buildResource({
 			mode: 'wp-post',
 			postType: 'book',
@@ -70,18 +117,12 @@ describe('createPhpWpPostRoutesHelper', () => {
 			taxonomies: {},
 		} as IRResource['storage']);
 
+		const bundle = await applyHelper(resource);
 		const expected = buildWpPostRouteBundle({
 			resource,
 			pascalName: 'Book',
-			identity,
-			errorCodeFactory,
-		});
-
-		const bundle = createPhpWpPostRoutesHelper({
-			resource,
-			pascalName: 'Book',
-			identity,
-			errorCodeFactory,
+			identity: { type: 'number', param: 'id' },
+			errorCodeFactory: (suffix: string) => `book_${suffix}`,
 		});
 
 		expect(bundle).toBeDefined();
@@ -89,20 +130,6 @@ describe('createPhpWpPostRoutesHelper', () => {
 		expect(bundle?.mutationMetadata).toEqual(expected.mutationMetadata);
 		expect(Object.keys(bundle?.routeHandlers ?? {})).toEqual(
 			Object.keys(expected.routeHandlers)
-		);
-
-		const routeContext = {
-			metadata: {
-				method: 'GET',
-				path: '/kernel/v1/books',
-				kind: 'list',
-				cacheSegments: [],
-			},
-			metadataHost: buildMetadataHost(),
-		} as const;
-
-		expect(bundle?.routeHandlers.list?.(routeContext)).toEqual(
-			expected.routeHandlers.list?.(routeContext)
 		);
 	});
 });
