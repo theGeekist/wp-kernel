@@ -11,7 +11,6 @@ import {
 	buildRestControllerModuleFromPlan,
 	buildWpOptionStorageArtifacts,
 	buildTransientStorageArtifacts,
-	buildWpPostRouteBundle,
 	type WpPostRouteBundle,
 	resolveTransientKey,
 	DEFAULT_DOC_HEADER,
@@ -33,6 +32,7 @@ import {
 } from './resource/wpTaxonomy';
 import { renderPhpValue } from './resource/phpValue';
 import { ensureWpOptionStorage } from './resource/wpOption/shared';
+import { createPhpWpPostRoutesHelper } from './resource';
 
 export function createPhpResourceControllerHelper(): BuilderHelper {
 	return createHelper({
@@ -192,16 +192,12 @@ function buildResourcePlan(
 				})
 			: undefined;
 
-	// Keep wp-post route bundle so CLI can still rely on the post-specific bundle surface.
-	const wpPostRouteBundle =
-		resource.storage?.mode === 'wp-post'
-			? buildWpPostRouteBundle({
-					resource,
-					pascalName,
-					identity,
-					errorCodeFactory,
-				})
-			: undefined;
+	const wpPostRouteBundle = createPhpWpPostRoutesHelper({
+		resource,
+		pascalName,
+		identity,
+		errorCodeFactory,
+	});
 
 	// Build helper artifacts (taxonomy / transient / option) and include any wp-post helpers.
 	const helperArtifacts = buildStorageHelperArtifacts({
@@ -306,7 +302,9 @@ function buildStorageHelperArtifacts(
 			break;
 		}
 		case 'transient': {
-			accumulatedMethods.push(...(options.transientArtifacts?.helperMethods ?? []));
+			accumulatedMethods.push(
+				...(options.transientArtifacts?.helperMethods ?? [])
+			);
 			// No signatures for transient artifacts currently
 			break;
 		}
