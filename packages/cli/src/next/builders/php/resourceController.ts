@@ -9,8 +9,8 @@ import {
 	buildProgramTargetPlanner,
 	buildResourceControllerRouteSet,
 	buildRestControllerModuleFromPlan,
-	buildWpOptionHelperMethods,
-	buildTransientHelperMethods,
+	buildWpOptionStorageArtifacts,
+	buildTransientStorageArtifacts,
 	resolveTransientKey,
 	DEFAULT_DOC_HEADER,
 	type RestControllerResourcePlan,
@@ -155,6 +155,9 @@ interface ControllerBuildContext {
 	readonly identity: ResolvedIdentity;
 	readonly pascalName: string;
 	readonly errorCodeFactory: ErrorCodeFactory;
+	readonly transientArtifacts?: ReturnType<
+		typeof buildTransientStorageArtifacts
+	>;
 }
 
 function buildResourcePlan(
@@ -164,6 +167,23 @@ function buildResourcePlan(
 	const identity = resolveIdentityConfig(resource);
 	const pascalName = toPascalCase(resource.name);
 	const errorCodeFactory = makeErrorCodeFactory(resource.name);
+
+	const transientArtifacts =
+		resource.storage?.mode === 'transient'
+			? buildTransientStorageArtifacts({
+					pascalName,
+					key: resolveTransientKey({
+						resourceName: resource.name,
+						namespace:
+							ir.meta.sanitizedNamespace ??
+							ir.meta.namespace ??
+							'',
+					}),
+					identity,
+					cacheSegments: resource.cacheKeys.get.segments,
+					errorCodeFactory,
+				})
+			: undefined;
 
 	return {
 		name: resource.name,
@@ -182,6 +202,7 @@ function buildResourcePlan(
 			identity,
 			pascalName,
 			errorCodeFactory,
+			transientArtifacts,
 		}),
 		routes: buildRoutePlans({
 			ir,
@@ -189,6 +210,7 @@ function buildResourcePlan(
 			identity,
 			pascalName,
 			errorCodeFactory,
+			transientArtifacts,
 		}),
 	} satisfies RestControllerResourcePlan;
 }
@@ -226,6 +248,7 @@ function buildRoutePlan(options: RoutePlanOptions): RestControllerRoutePlan {
 			identity: options.identity,
 			pascalName: options.pascalName,
 			errorCodeFactory: options.errorCodeFactory,
+			transientArtifacts: options.transientArtifacts,
 		}),
 	});
 }
@@ -251,29 +274,19 @@ function buildStorageHelperMethods(
 	}
 
 	if (storageMode === 'transient') {
-		const namespace =
-			options.ir.meta.sanitizedNamespace ??
-			options.ir.meta.namespace ??
-			'';
-
-		const key = resolveTransientKey({
-			resourceName: options.resource.name,
-			namespace,
-		});
-
-		return buildTransientHelperMethods({
-			pascalName: options.pascalName,
-			key,
-		});
+		return options.transientArtifacts?.helperMethods ?? [];
 	}
 
 	if (storageMode === 'wp-option') {
 		const storage = ensureWpOptionStorage(options.resource);
 
-		return buildWpOptionHelperMethods({
+		const artifacts = buildWpOptionStorageArtifacts({
 			pascalName: options.pascalName,
 			optionName: storage.option,
+			errorCodeFactory: options.errorCodeFactory,
 		});
+
+		return artifacts.helperMethods;
 	}
 
 	return [];

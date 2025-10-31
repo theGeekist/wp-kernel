@@ -15,11 +15,16 @@ import {
 	buildTransientSetRouteStatements,
 	buildTransientDeleteRouteStatements,
 	buildTransientUnsupportedRouteStatements,
+	buildTransientStorageArtifacts,
 	resolveTransientKey,
 } from '../index';
 import type { ResourceMetadataHost } from '../../../cache';
-import type { ResourceControllerMetadata } from '../../../../types';
+import type {
+	ResourceControllerMetadata,
+	ResourceControllerRouteMetadata,
+} from '../../../../types';
 import type { ResolvedIdentity } from '../../../../pipeline/identity';
+import type { RestControllerRouteStatementsContext } from '../../../../rest-controller/pipeline';
 
 function expectClassMethod(candidate: PhpStmt | undefined): PhpStmtClassMethod {
 	if (candidate && candidate.nodeType === 'Stmt_ClassMethod') {
@@ -89,6 +94,8 @@ function createMetadataHost(): {
 		},
 	};
 }
+
+const cacheSegments = ['jobCache', 'get'] as const;
 
 describe('resolveTransientKey', () => {
 	it('normalises namespace and resource names into snake case', () => {
@@ -162,7 +169,6 @@ describe('transient helper methods', () => {
 });
 
 describe('transient route statements', () => {
-	const cacheSegments = ['jobCache', 'get'] as const;
 	const identity: ResolvedIdentity = { type: 'number', param: 'id' };
 
 	it('builds get route statements and records cache metadata', () => {
@@ -308,6 +314,140 @@ describe('transient route statements', () => {
 		expect(identityArg?.value).toMatchObject({
 			nodeType: 'Expr_Variable',
 			name: 'slug',
+		});
+	});
+
+	describe('transient storage artifacts', () => {
+		const storageIdentity: ResolvedIdentity = {
+			type: 'number',
+			param: 'id',
+		};
+		const pascalName = 'JobCache';
+		const errorCodeFactory = (suffix: string) => `wpk_job_cache_${suffix}`;
+
+		function createRouteContext(
+			method: string,
+			kind: ResourceControllerRouteMetadata['kind'],
+			path: string
+		): {
+			readonly context: RestControllerRouteStatementsContext;
+			readonly metadata: ResourceControllerMetadata;
+		} {
+			const { metadata, host } = createMetadataHost();
+			const routeMetadata: ResourceControllerRouteMetadata = {
+				method,
+				kind,
+				path,
+			};
+
+			return {
+				metadata,
+				context: {
+					metadata: routeMetadata,
+					metadataHost: host,
+				},
+			};
+		}
+
+		it('aggregates helper methods and transient route handlers', () => {
+			const artifacts = buildTransientStorageArtifacts({
+				pascalName,
+				key: 'demo_plugin_job_cache',
+				identity: storageIdentity,
+				cacheSegments,
+				errorCodeFactory,
+			});
+
+			expect(artifacts.helperMethods).toHaveLength(2);
+
+			const aggregatedGetRoute = createRouteContext(
+				'GET',
+				'get',
+				'/job-cache'
+			);
+			const directGetRoute = createRouteContext(
+				'GET',
+				'get',
+				'/job-cache'
+			);
+
+			const aggregatedGet = artifacts.routeHandlers.get?.(
+				aggregatedGetRoute.context
+			);
+			const directGet = buildTransientGetRouteStatements({
+				pascalName,
+				metadataHost: directGetRoute.context.metadataHost,
+				cacheSegments,
+				identity: storageIdentity,
+				usesIdentity: true,
+			});
+
+			expect(aggregatedGet).toEqual(directGet);
+			expect(aggregatedGetRoute.metadata.cache?.events).toEqual(
+				directGetRoute.metadata.cache?.events
+			);
+
+			const aggregatedSetRoute = createRouteContext(
+				'POST',
+				'custom',
+				'/job-cache'
+			);
+			const directSetRoute = createRouteContext(
+				'POST',
+				'custom',
+				'/job-cache'
+			);
+
+			const aggregatedSet = artifacts.routeHandlers.set?.(
+				aggregatedSetRoute.context
+			);
+			const directSet = buildTransientSetRouteStatements({
+				pascalName,
+				metadataHost: directSetRoute.context.metadataHost,
+				cacheSegments,
+				identity: storageIdentity,
+				usesIdentity: false,
+			});
+
+			expect(aggregatedSet).toEqual(directSet);
+			expect(aggregatedSetRoute.metadata.cache?.events).toEqual(
+				directSetRoute.metadata.cache?.events
+			);
+		});
+
+		it('returns WP_Error statements for unsupported operations', () => {
+			const artifacts = buildTransientStorageArtifacts({
+				pascalName,
+				key: 'demo_plugin_job_cache',
+				identity: storageIdentity,
+				cacheSegments,
+				errorCodeFactory,
+			});
+
+			const unsupportedRoute = createRouteContext(
+				'HEAD',
+				'custom',
+				'/job-cache'
+			);
+
+			const [errorReturn] =
+				artifacts.routeHandlers.unsupported?.(
+					unsupportedRoute.context
+				) ?? [];
+
+			expect(errorReturn).toMatchObject({
+				nodeType: 'Stmt_Return',
+				expr: {
+					nodeType: 'Expr_New',
+					args: expect.arrayContaining([
+						expect.objectContaining({
+							value: expect.objectContaining({
+								value: 'wpk_job_cache_unsupported_operation',
+							}),
+						}),
+					]),
+				},
+			});
 		});
 	});
 
