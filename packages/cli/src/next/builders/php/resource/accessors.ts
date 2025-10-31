@@ -15,12 +15,12 @@ import {
 	buildTransientHelperMethods,
 	buildTransientSetRouteStatements,
 	buildTransientUnsupportedRouteStatements,
+	buildRequestParamAssignmentStatement,
 	type ResourceAccessorDescriptor,
 	type ResourceAccessorRegistry,
 } from '@wpkernel/wp-json-ast';
 
 import * as cacheHelpers from './cache';
-import * as requestHelpers from './request';
 import * as queryHelpers from './query';
 import * as errorHelpers from './errors';
 import * as wpPostIdentity from './wpPost/identity';
@@ -57,6 +57,10 @@ const transientHelpers = Object.freeze({
 	buildTransientSetRouteStatements,
 	buildTransientDeleteRouteStatements,
 	buildTransientUnsupportedRouteStatements,
+});
+
+const requestHelpers = Object.freeze({
+	buildRequestParamAssignmentStatement,
 });
 
 function buildDescriptor(
