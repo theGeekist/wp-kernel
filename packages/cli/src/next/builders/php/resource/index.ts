@@ -1,16 +1,18 @@
 export * from './utils';
-export * from './phpValue';
 export * from './cache';
-export { buildRequestParamAssignmentStatement } from './request';
-export type { RequestParamAssignmentOptions } from './request';
 export * from './query';
 export * from './errors';
-export * from './mutationContract';
 export * from './wpPost/identity';
 export * from './wpPost/mutations';
+export * from './wpTaxonomy';
 export { createPhpWpPostRoutesHelper } from './wpPost/routes';
 export type { CreatePhpWpPostRoutesHelperOptions } from './wpPost/routes';
+export { resourceAccessors } from './accessors';
 export {
+	expression,
+	renderPhpValue,
+	variable,
+	buildRequestParamAssignmentStatement,
 	buildListForeachStatement,
 	buildListItemsInitialiserStatement,
 	buildMetaQueryStatements,
@@ -18,5 +20,11 @@ export {
 	buildTaxonomyQueryStatements,
 	collectTaxonomyQueryEntries,
 } from '@wpkernel/wp-json-ast';
-export * from './wpTaxonomy';
-export { resourceAccessors } from './accessors';
+export type {
+	ExpressionValueDescriptor,
+	PhpValueDescriptor,
+	StructuredPhpValue,
+	VariableValueDescriptor,
+	RequestParamAssignmentOptions,
+	ScalarCastKind,
+} from '@wpkernel/wp-json-ast';

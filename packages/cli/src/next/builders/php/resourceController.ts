@@ -26,8 +26,8 @@ import { resolveIdentityConfig, type ResolvedIdentity } from './identity';
 import { buildRestArgs } from './resourceController/restArgs';
 import { buildRouteMethodName } from './resourceController/routeNaming';
 import { buildRouteSetOptions } from './resourceController/routes/buildRouteSetOptions';
-import { renderPhpValue } from './resource/phpValue';
-import { createPhpWpPostRoutesHelper } from './resource';
+import { renderPhpValue } from '@wpkernel/wp-json-ast';
+import { createPhpWpPostRoutesHelper } from './resource/wpPost/routes';
 import {
 	getResourceStorageHelperState,
 	type ResourceStorageHelperState,

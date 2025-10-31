@@ -29,7 +29,7 @@ function expectFuncCall(expr: PhpExpr): PhpExprFuncCall {
 	}
 	return expr as PhpExprFuncCall;
 }
-import { renderPhpValue, variable } from '../phpValue';
+import { renderPhpValue, variable } from '../index';
 
 describe('query helpers', () => {
 	it('creates query arg assignments', () => {

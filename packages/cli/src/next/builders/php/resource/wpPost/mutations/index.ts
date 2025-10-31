@@ -6,8 +6,19 @@
  * controller can compose everything without pulling in the legacy string
  * printers.
  */
-export { WP_POST_MUTATION_CONTRACT } from '../../mutationContract';
-export type { ResourceMutationContract } from '../../mutationContract';
+export {
+	WP_POST_MUTATION_CONTRACT,
+	buildCreateRouteStatements,
+	buildUpdateRouteStatements,
+	buildDeleteRouteStatements,
+} from '@wpkernel/wp-json-ast';
+export type {
+	ResourceMutationContract,
+	BuildCreateRouteStatementsOptions,
+	BuildDeleteRouteStatementsOptions,
+	BuildMutationRouteBaseOptions,
+	BuildUpdateRouteStatementsOptions,
+} from '@wpkernel/wp-json-ast';
 export {
 	buildStatusValidationStatements,
 	buildSyncMetaStatements,
@@ -19,17 +30,6 @@ export {
 	type MacroExpression,
 	type MutationMetadataKeys,
 } from './macros';
-export type {
-	BuildCreateRouteStatementsOptions,
-	BuildDeleteRouteStatementsOptions,
-	BuildMutationRouteBaseOptions,
-	BuildUpdateRouteStatementsOptions,
-} from './routes';
-export {
-	buildCreateRouteStatements,
-	buildUpdateRouteStatements,
-	buildDeleteRouteStatements,
-} from './routes';
 export {
 	syncWpPostMeta,
 	syncWpPostTaxonomies,
