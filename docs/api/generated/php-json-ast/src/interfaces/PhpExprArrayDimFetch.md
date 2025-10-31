@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -24,6 +24,14 @@ readonly attributes: PhpAttributes;
 
 ---
 
+### dim
+
+```ts
+readonly dim: PhpExpr | null;
+```
+
+---
+
 ### nodeType
 
 ```ts
@@ -40,12 +48,4 @@ readonly nodeType: "Expr_ArrayDimFetch";
 
 ```ts
 readonly var: PhpExpr;
-```
-
----
-
-### dim
-
-```ts
-readonly dim: PhpExpr | null;
 ```

@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -7,14 +7,6 @@
 # Interface: WorkspaceOptions
 
 ## Properties
-
-### prefix?
-
-```ts
-optional prefix: string;
-```
-
----
 
 ### chdir?
 
@@ -28,6 +20,14 @@ optional chdir: boolean;
 
 ```ts
 optional files: Record<string, string | Buffer<ArrayBufferLike>>;
+```
+
+---
+
+### prefix?
+
+```ts
+optional prefix: string;
 ```
 
 ---

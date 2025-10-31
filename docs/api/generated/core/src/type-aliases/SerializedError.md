@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -22,10 +22,10 @@ code: ErrorCode;
 
 ---
 
-### message
+### context?
 
 ```ts
-message: string;
+optional context: ErrorContext;
 ```
 
 ---
@@ -38,10 +38,10 @@ optional data: ErrorData;
 
 ---
 
-### context?
+### message
 
 ```ts
-optional context: ErrorContext;
+message: string;
 ```
 
 ---

@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../../../README.md)
+[**WP Kernel API v0.10.0**](../../../../../README.md)
 
 ---
 
@@ -70,43 +70,11 @@
 
 ## Properties
 
-### fragmentKind
-
-```ts
-readonly fragmentKind: TFragmentKind;
-```
-
----
-
 ### builderKind
 
 ```ts
 readonly builderKind: TBuilderKind;
 ```
-
----
-
-### ir
-
-```ts
-readonly ir: object;
-```
-
-#### use()
-
-```ts
-use: (helper) => void;
-```
-
-##### Parameters
-
-###### helper
-
-`TFragmentHelper`
-
-##### Returns
-
-`void`
 
 ---
 
@@ -158,19 +126,33 @@ use: (extension) => unknown;
 
 ---
 
-### use()
+### fragmentKind
+
+```ts
+readonly fragmentKind: TFragmentKind;
+```
+
+---
+
+### ir
+
+```ts
+readonly ir: object;
+```
+
+#### use()
 
 ```ts
 use: (helper) => void;
 ```
 
-#### Parameters
+##### Parameters
 
-##### helper
+###### helper
 
-`TFragmentHelper` | `TBuilderHelper`
+`TFragmentHelper`
 
-#### Returns
+##### Returns
 
 `void`
 
@@ -191,3 +173,21 @@ run: (options) => MaybePromise<TRunResult>;
 #### Returns
 
 `MaybePromise`\&lt;`TRunResult`\&gt;
+
+---
+
+### use()
+
+```ts
+use: (helper) => void;
+```
+
+#### Parameters
+
+##### helper
+
+`TFragmentHelper` | `TBuilderHelper`
+
+#### Returns
+
+`void`

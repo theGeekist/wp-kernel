@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -7,9 +7,11 @@
 # Function: getRegisteredResources()
 
 ```ts
-function getRegisteredResources(): ResourceDefinedEvent[];
+function getRegisteredResources(): GenericResourceDefinedEvent[];
 ```
+
+Retrieve a shallow copy of all recorded resource definitions.
 
 ## Returns
 
-[`ResourceDefinedEvent`](../type-aliases/ResourceDefinedEvent.md)[]
+`GenericResourceDefinedEvent`[]

@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -7,6 +7,14 @@
 # Interface: ConfigureWPKernelOptions
 
 ## Properties
+
+### middleware?
+
+```ts
+optional middleware: ReduxMiddleware[];
+```
+
+---
 
 ### namespace?
 
@@ -28,14 +36,6 @@ optional registry: WPKernelRegistry;
 
 ```ts
 optional reporter: Reporter;
-```
-
----
-
-### middleware?
-
-```ts
-optional middleware: ReduxMiddleware[];
 ```
 
 ---

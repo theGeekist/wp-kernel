@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -22,14 +22,14 @@ Event name: `wpk.action.start`
 
 ## Type Declaration
 
-### phase
-
-```ts
-phase: 'start';
-```
-
 ### args
 
 ```ts
 args: unknown;
+```
+
+### phase
+
+```ts
+phase: 'start';
 ```

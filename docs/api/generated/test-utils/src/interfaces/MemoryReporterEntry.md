@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -7,6 +7,14 @@
 # Interface: MemoryReporterEntry
 
 ## Properties
+
+### context?
+
+```ts
+readonly optional context: unknown;
+```
+
+---
 
 ### level
 
@@ -28,12 +36,4 @@ readonly message: string;
 
 ```ts
 readonly namespace: string;
-```
-
----
-
-### context?
-
-```ts
-readonly optional context: unknown;
 ```

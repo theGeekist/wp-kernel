@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -8,26 +8,10 @@
 
 ## Properties
 
-### file
+### codemod?
 
 ```ts
-readonly file: string;
-```
-
----
-
-### program
-
-```ts
-readonly program: PhpProgram;
-```
-
----
-
-### metadata?
-
-```ts
-readonly optional metadata: PhpFileMetadata;
+readonly optional codemod: PhpProgramCodemodResult;
 ```
 
 ---
@@ -40,10 +24,26 @@ readonly optional docblock: readonly string[];
 
 ---
 
-### uses?
+### file
 
 ```ts
-readonly optional uses: readonly string[];
+readonly file: string;
+```
+
+---
+
+### metadata?
+
+```ts
+readonly optional metadata: PhpFileMetadata;
+```
+
+---
+
+### program
+
+```ts
+readonly program: PhpProgram;
 ```
 
 ---
@@ -56,8 +56,8 @@ readonly optional statements: readonly string[];
 
 ---
 
-### codemod?
+### uses?
 
 ```ts
-readonly optional codemod: PhpProgramCodemodResult;
+readonly optional uses: readonly string[];
 ```

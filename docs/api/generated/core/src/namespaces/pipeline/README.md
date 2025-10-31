@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../../README.md)
+[**WP Kernel API v0.10.0**](../../../../README.md)
 
 ---
 
@@ -8,22 +8,22 @@
 
 ## Interfaces
 
-- [CorePipelineRegistryBridge](interfaces/CorePipelineRegistryBridge.md)
-- [CorePipelineContext](interfaces/CorePipelineContext.md)
-- [PipelineStep](interfaces/PipelineStep.md)
 - [ConflictDiagnostic](interfaces/ConflictDiagnostic.md)
-- [MissingDependencyDiagnostic](interfaces/MissingDependencyDiagnostic.md)
-- [UnusedHelperDiagnostic](interfaces/UnusedHelperDiagnostic.md)
-- [PipelineRunState](interfaces/PipelineRunState.md)
-- [HelperExecutionSnapshot](interfaces/HelperExecutionSnapshot.md)
+- [CorePipelineContext](interfaces/CorePipelineContext.md)
+- [CorePipelineRegistryBridge](interfaces/CorePipelineRegistryBridge.md)
+- [CreatePipelineOptions](interfaces/CreatePipelineOptions.md)
 - [FragmentFinalizationMetadata](interfaces/FragmentFinalizationMetadata.md)
+- [HelperExecutionSnapshot](interfaces/HelperExecutionSnapshot.md)
+- [MissingDependencyDiagnostic](interfaces/MissingDependencyDiagnostic.md)
+- [Pipeline](interfaces/Pipeline.md)
 - [PipelineExecutionMetadata](interfaces/PipelineExecutionMetadata.md)
+- [PipelineExtension](interfaces/PipelineExtension.md)
 - [PipelineExtensionHookOptions](interfaces/PipelineExtensionHookOptions.md)
 - [PipelineExtensionHookResult](interfaces/PipelineExtensionHookResult.md)
 - [PipelineExtensionRollbackErrorMetadata](interfaces/PipelineExtensionRollbackErrorMetadata.md)
-- [PipelineExtension](interfaces/PipelineExtension.md)
-- [CreatePipelineOptions](interfaces/CreatePipelineOptions.md)
-- [Pipeline](interfaces/Pipeline.md)
+- [PipelineRunState](interfaces/PipelineRunState.md)
+- [PipelineStep](interfaces/PipelineStep.md)
+- [UnusedHelperDiagnostic](interfaces/UnusedHelperDiagnostic.md)
 
 ## Type Aliases
 
@@ -41,6 +41,12 @@
 ### createHelper
 
 Re-exports [createHelper](../../../../php-json-ast/src/functions/createHelper.md)
+
+---
+
+### CreateHelperOptions
+
+Re-exports [CreateHelperOptions](../../../../php-json-ast/src/interfaces/CreateHelperOptions.md)
 
 ---
 
@@ -77,9 +83,3 @@ Re-exports [HelperKind](../../../../php-json-ast/src/type-aliases/HelperKind.md)
 ### HelperMode
 
 Re-exports [HelperMode](../../../../php-json-ast/src/type-aliases/HelperMode.md)
-
----
-
-### CreateHelperOptions
-
-Re-exports [CreateHelperOptions](../../../../php-json-ast/src/interfaces/CreateHelperOptions.md)

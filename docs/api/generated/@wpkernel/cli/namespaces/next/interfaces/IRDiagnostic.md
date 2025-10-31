@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../../../README.md)
+[**WP Kernel API v0.10.0**](../../../../../README.md)
 
 ---
 
@@ -7,6 +7,14 @@
 # Interface: IRDiagnostic
 
 ## Properties
+
+### context?
+
+```ts
+optional context: Record<string, unknown>;
+```
+
+---
 
 ### key
 
@@ -28,12 +36,4 @@ message: string;
 
 ```ts
 severity: IRDiagnosticSeverity;
-```
-
----
-
-### context?
-
-```ts
-optional context: Record<string, unknown>;
 ```

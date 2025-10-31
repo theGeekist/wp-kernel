@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -24,6 +24,14 @@ readonly attributes: PhpAttributes;
 
 ---
 
+### exprs
+
+```ts
+readonly exprs: PhpExpr[];
+```
+
+---
+
 ### nodeType
 
 ```ts
@@ -33,11 +41,3 @@ readonly nodeType: "Stmt_Echo";
 #### Overrides
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
-
----
-
-### exprs
-
-```ts
-readonly exprs: PhpExpr[];
-```

@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../../../README.md)
+[**WP Kernel API v0.10.0**](../../../../../README.md)
 
 ---
 
@@ -8,10 +8,10 @@
 
 ## Properties
 
-### workspace
+### directory?
 
 ```ts
-readonly workspace: Workspace;
+readonly optional directory: string;
 ```
 
 ---
@@ -24,16 +24,16 @@ readonly reporter: Reporter;
 
 ---
 
-### yes
+### workspace
 
 ```ts
-readonly yes: boolean;
+readonly workspace: Workspace;
 ```
 
 ---
 
-### directory?
+### yes
 
 ```ts
-readonly optional directory: string;
+readonly yes: boolean;
 ```

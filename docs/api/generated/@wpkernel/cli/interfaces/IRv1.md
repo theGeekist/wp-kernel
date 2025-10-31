@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -8,64 +8,10 @@
 
 ## Properties
 
-### meta
+### blocks
 
 ```ts
-meta: object;
-```
-
-#### version
-
-```ts
-version: 1;
-```
-
-#### namespace
-
-```ts
-namespace: string;
-```
-
-#### sourcePath
-
-```ts
-sourcePath: string;
-```
-
-#### origin
-
-```ts
-origin: string;
-```
-
-#### sanitizedNamespace
-
-```ts
-sanitizedNamespace: string;
-```
-
----
-
-### config
-
-```ts
-config: WPKernelConfigV1;
-```
-
----
-
-### schemas
-
-```ts
-schemas: IRSchema[];
-```
-
----
-
-### resources
-
-```ts
-resources: IRResource[];
+blocks: IRBlock[];
 ```
 
 ---
@@ -86,10 +32,56 @@ capabilityMap: IRCapabilityMap;
 
 ---
 
-### blocks
+### config
 
 ```ts
-blocks: IRBlock[];
+config: WPKernelConfigV1;
+```
+
+---
+
+### diagnostics?
+
+```ts
+optional diagnostics: IRDiagnostic[];
+```
+
+---
+
+### meta
+
+```ts
+meta: object;
+```
+
+#### namespace
+
+```ts
+namespace: string;
+```
+
+#### origin
+
+```ts
+origin: string;
+```
+
+#### sanitizedNamespace
+
+```ts
+sanitizedNamespace: string;
+```
+
+#### sourcePath
+
+```ts
+sourcePath: string;
+```
+
+#### version
+
+```ts
+version: 1;
 ```
 
 ---
@@ -102,8 +94,16 @@ php: IRPhpProject;
 
 ---
 
-### diagnostics?
+### resources
 
 ```ts
-optional diagnostics: IRDiagnostic[];
+resources: IRResource[];
+```
+
+---
+
+### schemas
+
+```ts
+schemas: IRSchema[];
 ```

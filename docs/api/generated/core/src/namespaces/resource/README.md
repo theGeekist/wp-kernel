@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../../README.md)
+[**WP Kernel API v0.10.0**](../../../../README.md)
 
 ---
 
@@ -11,6 +11,24 @@
 - [HttpMethod](type-aliases/HttpMethod.md)
 
 ## References
+
+### CacheKeyFn
+
+Re-exports [CacheKeyFn](../../type-aliases/CacheKeyFn.md)
+
+---
+
+### CacheKeyPattern
+
+Re-exports [CacheKeyPattern](../../type-aliases/CacheKeyPattern.md)
+
+---
+
+### CacheKeys
+
+Re-exports [CacheKeys](../../type-aliases/CacheKeys.md)
+
+---
 
 ### defineResource
 
@@ -30,21 +48,21 @@ Re-exports [invalidate](../../functions/invalidate.md)
 
 ---
 
-### normalizeCacheKey
-
-Re-exports [normalizeCacheKey](../../functions/normalizeCacheKey.md)
-
----
-
 ### InvalidateOptions
 
 Re-exports [InvalidateOptions](../../type-aliases/InvalidateOptions.md)
 
 ---
 
-### CacheKeyPattern
+### ListResponse
 
-Re-exports [CacheKeyPattern](../../type-aliases/CacheKeyPattern.md)
+Re-exports [ListResponse](../../type-aliases/ListResponse.md)
+
+---
+
+### normalizeCacheKey
+
+Re-exports [normalizeCacheKey](../../functions/normalizeCacheKey.md)
 
 ---
 
@@ -54,15 +72,39 @@ Re-exports [PathParams](../../type-aliases/PathParams.md)
 
 ---
 
-### ResourceRoute
+### ResourceAdminUIConfig
 
-Re-exports [ResourceRoute](../../type-aliases/ResourceRoute.md)
+Re-exports [ResourceAdminUIConfig](../../interfaces/ResourceAdminUIConfig.md)
 
 ---
 
-### ResourceRoutes
+### ResourceClient
 
-Re-exports [ResourceRoutes](../../type-aliases/ResourceRoutes.md)
+Re-exports [ResourceClient](../../type-aliases/ResourceClient.md)
+
+---
+
+### ResourceConfig
+
+Re-exports [ResourceConfig](../../type-aliases/ResourceConfig.md)
+
+---
+
+### ResourceDataViewsMenuConfig
+
+Re-exports [ResourceDataViewsMenuConfig](../../interfaces/ResourceDataViewsMenuConfig.md)
+
+---
+
+### ResourceDataViewsScreenConfig
+
+Re-exports [ResourceDataViewsScreenConfig](../../interfaces/ResourceDataViewsScreenConfig.md)
+
+---
+
+### ResourceDataViewsUIConfig
+
+Re-exports [ResourceDataViewsUIConfig](../../interfaces/ResourceDataViewsUIConfig.md)
 
 ---
 
@@ -72,33 +114,15 @@ Re-exports [ResourceIdentityConfig](../../type-aliases/ResourceIdentityConfig.md
 
 ---
 
+### ResourceObject
+
+Re-exports [ResourceObject](../../type-aliases/ResourceObject.md)
+
+---
+
 ### ResourcePostMetaDescriptor
 
 Re-exports [ResourcePostMetaDescriptor](../../type-aliases/ResourcePostMetaDescriptor.md)
-
----
-
-### ResourceStorageConfig
-
-Re-exports [ResourceStorageConfig](../../type-aliases/ResourceStorageConfig.md)
-
----
-
-### ResourceStoreOptions
-
-Re-exports [ResourceStoreOptions](../../type-aliases/ResourceStoreOptions.md)
-
----
-
-### CacheKeyFn
-
-Re-exports [CacheKeyFn](../../type-aliases/CacheKeyFn.md)
-
----
-
-### CacheKeys
-
-Re-exports [CacheKeys](../../type-aliases/CacheKeys.md)
 
 ---
 
@@ -114,54 +138,30 @@ Re-exports [ResourceQueryParams](../../type-aliases/ResourceQueryParams.md)
 
 ---
 
-### ResourceConfig
+### ResourceRoute
 
-Re-exports [ResourceConfig](../../type-aliases/ResourceConfig.md)
-
----
-
-### ListResponse
-
-Re-exports [ListResponse](../../type-aliases/ListResponse.md)
+Re-exports [ResourceRoute](../../type-aliases/ResourceRoute.md)
 
 ---
 
-### ResourceClient
+### ResourceRoutes
 
-Re-exports [ResourceClient](../../type-aliases/ResourceClient.md)
+Re-exports [ResourceRoutes](../../type-aliases/ResourceRoutes.md)
 
 ---
 
-### ResourceObject
+### ResourceStorageConfig
 
-Re-exports [ResourceObject](../../type-aliases/ResourceObject.md)
+Re-exports [ResourceStorageConfig](../../type-aliases/ResourceStorageConfig.md)
+
+---
+
+### ResourceStoreOptions
+
+Re-exports [ResourceStoreOptions](../../type-aliases/ResourceStoreOptions.md)
 
 ---
 
 ### ResourceUIConfig
 
 Re-exports [ResourceUIConfig](../../interfaces/ResourceUIConfig.md)
-
----
-
-### ResourceAdminUIConfig
-
-Re-exports [ResourceAdminUIConfig](../../interfaces/ResourceAdminUIConfig.md)
-
----
-
-### ResourceDataViewsUIConfig
-
-Re-exports [ResourceDataViewsUIConfig](../../interfaces/ResourceDataViewsUIConfig.md)
-
----
-
-### ResourceDataViewsScreenConfig
-
-Re-exports [ResourceDataViewsScreenConfig](../../interfaces/ResourceDataViewsScreenConfig.md)
-
----
-
-### ResourceDataViewsMenuConfig
-
-Re-exports [ResourceDataViewsMenuConfig](../../interfaces/ResourceDataViewsMenuConfig.md)

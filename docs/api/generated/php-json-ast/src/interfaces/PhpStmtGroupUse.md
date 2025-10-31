@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -36,18 +36,18 @@ readonly nodeType: "Stmt_GroupUse";
 
 ---
 
-### type
-
-```ts
-readonly type: number;
-```
-
----
-
 ### prefix
 
 ```ts
 readonly prefix: PhpName;
+```
+
+---
+
+### type
+
+```ts
+readonly type: number;
 ```
 
 ---

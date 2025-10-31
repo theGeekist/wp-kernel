@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -24,6 +24,14 @@ readonly attributes: PhpAttributes;
 
 ---
 
+### byRef
+
+```ts
+readonly byRef: boolean;
+```
+
+---
+
 ### nodeType
 
 ```ts
@@ -40,12 +48,4 @@ readonly nodeType: "ClosureUse" | "Expr_ClosureUse";
 
 ```ts
 readonly var: PhpExprVariable;
-```
-
----
-
-### byRef
-
-```ts
-readonly byRef: boolean;
 ```

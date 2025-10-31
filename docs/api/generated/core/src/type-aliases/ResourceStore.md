@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -28,26 +28,6 @@ The query parameter type for list operations
 
 ## Properties
 
-### storeKey
-
-```ts
-storeKey: string;
-```
-
-Store key for registration with @wordpress/data.
-
----
-
-### selectors
-
-```ts
-selectors: ResourceSelectors<T, TQuery>;
-```
-
-State selectors.
-
----
-
 ### actions
 
 ```ts
@@ -58,13 +38,23 @@ State actions.
 
 ---
 
-### resolvers
+### controls?
 
 ```ts
-resolvers: ResourceResolvers<T, TQuery>;
+optional controls: Record<string, (action) => unknown>;
 ```
 
-Resolvers for async data fetching.
+Controls for handling async operations in generators.
+
+---
+
+### initialState
+
+```ts
+initialState: ResourceState<T>;
+```
+
+Initial state.
 
 ---
 
@@ -92,20 +82,30 @@ Reducer function for state updates.
 
 ---
 
-### initialState
+### resolvers
 
 ```ts
-initialState: ResourceState<T>;
+resolvers: ResourceResolvers<T, TQuery>;
 ```
 
-Initial state.
+Resolvers for async data fetching.
 
 ---
 
-### controls?
+### selectors
 
 ```ts
-optional controls: Record<string, (action) => unknown>;
+selectors: ResourceSelectors<T, TQuery>;
 ```
 
-Controls for handling async operations in generators.
+State selectors.
+
+---
+
+### storeKey
+
+```ts
+storeKey: string;
+```
+
+Store key for registration with @wordpress/data.

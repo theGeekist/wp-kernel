@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../../../README.md)
+[**WP Kernel API v0.10.0**](../../../../../README.md)
 
 ---
 
@@ -14,34 +14,10 @@
 
 ## Properties
 
-### type
+### dependsOn?
 
 ```ts
-readonly type: "unused-helper";
-```
-
----
-
-### key
-
-```ts
-readonly key: string;
-```
-
----
-
-### message
-
-```ts
-readonly message: string;
-```
-
----
-
-### kind?
-
-```ts
-readonly optional kind: TKind;
+readonly optional dependsOn: readonly string[];
 ```
 
 ---
@@ -54,8 +30,32 @@ readonly optional helper: string;
 
 ---
 
-### dependsOn?
+### key
 
 ```ts
-readonly optional dependsOn: readonly string[];
+readonly key: string;
+```
+
+---
+
+### kind?
+
+```ts
+readonly optional kind: TKind;
+```
+
+---
+
+### message
+
+```ts
+readonly message: string;
+```
+
+---
+
+### type
+
+```ts
+readonly type: "unused-helper";
 ```

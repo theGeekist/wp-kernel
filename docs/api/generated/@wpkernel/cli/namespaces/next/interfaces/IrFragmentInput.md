@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../../../README.md)
+[**WP Kernel API v0.10.0**](../../../../../README.md)
 
 ---
 
@@ -8,16 +8,16 @@
 
 ## Properties
 
-### options
-
-```ts
-readonly options: BuildIrOptions;
-```
-
----
-
 ### draft
 
 ```ts
 readonly draft: MutableIr;
+```
+
+---
+
+### options
+
+```ts
+readonly options: BuildIrOptions;
 ```

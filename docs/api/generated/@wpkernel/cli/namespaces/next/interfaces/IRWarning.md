@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../../../README.md)
+[**WP Kernel API v0.10.0**](../../../../../README.md)
 
 ---
 
@@ -16,16 +16,16 @@ code: string;
 
 ---
 
-### message
-
-```ts
-message: string;
-```
-
----
-
 ### context?
 
 ```ts
 optional context: Record<string, unknown>;
+```
+
+---
+
+### message
+
+```ts
+message: string;
 ```

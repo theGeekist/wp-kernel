@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -24,15 +24,11 @@ readonly attributes: PhpAttributes;
 
 ---
 
-### nodeType
+### cases
 
 ```ts
-readonly nodeType: "Stmt_Switch";
+readonly cases: PhpStmtCase[];
 ```
-
-#### Overrides
-
-[`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
 ---
 
@@ -44,8 +40,12 @@ readonly cond: PhpExpr;
 
 ---
 
-### cases
+### nodeType
 
 ```ts
-readonly cases: PhpStmtCase[];
+readonly nodeType: "Stmt_Switch";
 ```
+
+#### Overrides
+
+[`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)

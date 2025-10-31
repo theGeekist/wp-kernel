@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -7,6 +7,14 @@
 # Interface: CommandContextOptions
 
 ## Properties
+
+### colorDepth?
+
+```ts
+optional colorDepth: number;
+```
+
+---
 
 ### cwd?
 
@@ -28,12 +36,4 @@ optional env: ProcessEnv;
 
 ```ts
 optional stdin: ReadStream;
-```
-
----
-
-### colorDepth?
-
-```ts
-optional colorDepth: number;
 ```

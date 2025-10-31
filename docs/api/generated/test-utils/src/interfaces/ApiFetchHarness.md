@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -8,14 +8,6 @@
 
 ## Properties
 
-### harness
-
-```ts
-harness: WordPressTestHarness;
-```
-
----
-
 ### apiFetch
 
 ```ts
@@ -24,16 +16,24 @@ apiFetch: Mock;
 
 ---
 
-### hooks
-
-```ts
-hooks: __module | undefined;
-```
-
----
-
 ### doAction
 
 ```ts
 doAction: Mock;
+```
+
+---
+
+### harness
+
+```ts
+harness: WordPressTestHarness;
+```
+
+---
+
+### hooks
+
+```ts
+hooks: __module | undefined;
 ```

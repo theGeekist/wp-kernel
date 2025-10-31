@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -24,6 +24,14 @@ readonly attributes: PhpAttributes;
 
 ---
 
+### expr
+
+```ts
+readonly expr: PhpExpr;
+```
+
+---
+
 ### nodeType
 
 ```ts
@@ -40,12 +48,4 @@ readonly nodeType: "Expr_Assign";
 
 ```ts
 readonly var: PhpExpr;
-```
-
----
-
-### expr
-
-```ts
-readonly expr: PhpExpr;
 ```

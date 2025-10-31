@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -24,6 +24,14 @@ readonly attributes: PhpAttributes;
 
 ---
 
+### cond
+
+```ts
+readonly cond: PhpExpr;
+```
+
+---
+
 ### nodeType
 
 ```ts
@@ -33,14 +41,6 @@ readonly nodeType: "Stmt_ElseIf";
 #### Overrides
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
-
----
-
-### cond
-
-```ts
-readonly cond: PhpExpr;
-```
 
 ---
 

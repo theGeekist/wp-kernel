@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../../../README.md)
+[**WP Kernel API v0.10.0**](../../../../../README.md)
 
 ---
 
@@ -11,14 +11,6 @@
 - `Omit`\&lt;`BasePipelineContext`, `"workspace"`\&gt;
 
 ## Properties
-
-### workspace
-
-```ts
-readonly workspace: Workspace;
-```
-
----
 
 ### phase
 
@@ -41,3 +33,11 @@ readonly reporter: Reporter;
 #### Inherited from
 
 [`PipelineContext`](../../../../../php-json-ast/src/interfaces/PipelineContext.md).[`reporter`](../../../../../php-json-ast/src/interfaces/PipelineContext.md#reporter)
+
+---
+
+### workspace
+
+```ts
+readonly workspace: Workspace;
+```

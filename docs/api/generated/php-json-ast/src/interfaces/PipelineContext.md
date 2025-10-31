@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -7,14 +7,6 @@
 # Interface: PipelineContext
 
 ## Properties
-
-### workspace
-
-```ts
-readonly workspace: Workspace;
-```
-
----
 
 ### phase
 
@@ -28,4 +20,12 @@ readonly phase: PipelinePhase;
 
 ```ts
 readonly reporter: Reporter;
+```
+
+---
+
+### workspace
+
+```ts
+readonly workspace: Workspace;
 ```

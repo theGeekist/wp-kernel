@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -28,18 +28,18 @@ createReduxStore: jest.Mock;
 
 ---
 
-### register
-
-```ts
-register: jest.Mock;
-```
-
----
-
 ### dispatch
 
 ```ts
 dispatch: jest.Mock;
+```
+
+---
+
+### register
+
+```ts
+register: jest.Mock;
 ```
 
 ---

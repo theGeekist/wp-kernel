@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -8,30 +8,6 @@
 
 ## Properties
 
-### name
-
-```ts
-readonly name: string;
-```
-
----
-
-### visibility?
-
-```ts
-readonly optional visibility: "public" | "protected" | "private";
-```
-
----
-
-### type?
-
-```ts
-readonly optional type: string | null;
-```
-
----
-
 ### default?
 
 ```ts
@@ -40,10 +16,10 @@ readonly optional default: PhpBuilderFactoryLiteral;
 
 ---
 
-### isStatic?
+### docblock?
 
 ```ts
-readonly optional isStatic: boolean;
+readonly optional docblock: readonly string[];
 ```
 
 ---
@@ -56,8 +32,32 @@ readonly optional isReadonly: boolean;
 
 ---
 
-### docblock?
+### isStatic?
 
 ```ts
-readonly optional docblock: readonly string[];
+readonly optional isStatic: boolean;
+```
+
+---
+
+### name
+
+```ts
+readonly name: string;
+```
+
+---
+
+### type?
+
+```ts
+readonly optional type: string | null;
+```
+
+---
+
+### visibility?
+
+```ts
+readonly optional visibility: "public" | "protected" | "private";
 ```

@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../../../README.md)
+[**WP Kernel API v0.10.0**](../../../../../README.md)
 
 ---
 
@@ -48,10 +48,10 @@ can: <Key>(key, ...params) => boolean;
 
 ---
 
-### keys
+### error?
 
 ```ts
-keys: keyof K[];
+optional error: Error;
 ```
 
 ---
@@ -64,8 +64,8 @@ isLoading: boolean;
 
 ---
 
-### error?
+### keys
 
 ```ts
-optional error: Error;
+keys: keyof K[];
 ```

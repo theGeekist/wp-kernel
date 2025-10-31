@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../README.md)
+[**WP Kernel API v0.10.0**](../../README.md)
 
 ---
 
@@ -18,32 +18,32 @@ kernel and UI packages.
 
 ## Interfaces
 
-- [CapabilityCapabilityDescriptor](interfaces/CapabilityCapabilityDescriptor.md)
-- [SchemaConfig](interfaces/SchemaConfig.md)
-- [AdaptersConfig](interfaces/AdaptersConfig.md)
-- [WPKernelConfigV1](interfaces/WPKernelConfigV1.md)
 - [AdapterContext](interfaces/AdapterContext.md)
-- [PhpAdapterConfig](interfaces/PhpAdapterConfig.md)
-- [AdapterExtensionContext](interfaces/AdapterExtensionContext.md)
 - [AdapterExtension](interfaces/AdapterExtension.md)
-- [LoadedWPKernelConfig](interfaces/LoadedWPKernelConfig.md)
-- [IRSchema](interfaces/IRSchema.md)
-- [IRRoute](interfaces/IRRoute.md)
-- [IRResource](interfaces/IRResource.md)
-- [IRCapabilityHint](interfaces/IRCapabilityHint.md)
-- [IRBlock](interfaces/IRBlock.md)
-- [IRPhpProject](interfaces/IRPhpProject.md)
-- [IRv1](interfaces/IRv1.md)
+- [AdapterExtensionContext](interfaces/AdapterExtensionContext.md)
+- [AdaptersConfig](interfaces/AdaptersConfig.md)
 - [BuildIrOptions](interfaces/BuildIrOptions.md)
+- [CapabilityCapabilityDescriptor](interfaces/CapabilityCapabilityDescriptor.md)
+- [IRBlock](interfaces/IRBlock.md)
+- [IRCapabilityHint](interfaces/IRCapabilityHint.md)
+- [IRPhpProject](interfaces/IRPhpProject.md)
+- [IRResource](interfaces/IRResource.md)
+- [IRRoute](interfaces/IRRoute.md)
+- [IRSchema](interfaces/IRSchema.md)
+- [IRv1](interfaces/IRv1.md)
+- [LoadedWPKernelConfig](interfaces/LoadedWPKernelConfig.md)
+- [PhpAdapterConfig](interfaces/PhpAdapterConfig.md)
+- [SchemaConfig](interfaces/SchemaConfig.md)
+- [WPKernelConfigV1](interfaces/WPKernelConfigV1.md)
 
 ## Type Aliases
 
-- [CapabilityMapScope](type-aliases/CapabilityMapScope.md)
-- [CapabilityMapEntry](type-aliases/CapabilityMapEntry.md)
+- [AdapterExtensionFactory](type-aliases/AdapterExtensionFactory.md)
 - [CapabilityMapDefinition](type-aliases/CapabilityMapDefinition.md)
+- [CapabilityMapEntry](type-aliases/CapabilityMapEntry.md)
+- [CapabilityMapScope](type-aliases/CapabilityMapScope.md)
 - [ConfigOrigin](type-aliases/ConfigOrigin.md)
 - [PhpAdapterFactory](type-aliases/PhpAdapterFactory.md)
-- [AdapterExtensionFactory](type-aliases/AdapterExtensionFactory.md)
 
 ## Variables
 
@@ -51,6 +51,6 @@ kernel and UI packages.
 
 ## Functions
 
+- [buildIr](functions/buildIr.md)
 - [defineCapabilityMap](functions/defineCapabilityMap.md)
 - [runCli](functions/runCli.md)
-- [buildIr](functions/buildIr.md)

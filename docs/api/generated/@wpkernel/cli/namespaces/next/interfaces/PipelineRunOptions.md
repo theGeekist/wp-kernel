@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../../../README.md)
+[**WP Kernel API v0.10.0**](../../../../../README.md)
 
 ---
 
@@ -7,14 +7,6 @@
 # Interface: PipelineRunOptions
 
 ## Properties
-
-### phase
-
-```ts
-readonly phase: PipelinePhase;
-```
-
----
 
 ### config
 
@@ -40,6 +32,22 @@ readonly origin: string;
 
 ---
 
+### phase
+
+```ts
+readonly phase: PipelinePhase;
+```
+
+---
+
+### reporter
+
+```ts
+readonly reporter: Reporter;
+```
+
+---
+
 ### sourcePath
 
 ```ts
@@ -52,12 +60,4 @@ readonly sourcePath: string;
 
 ```ts
 readonly workspace: Workspace;
-```
-
----
-
-### reporter
-
-```ts
-readonly reporter: Reporter;
 ```

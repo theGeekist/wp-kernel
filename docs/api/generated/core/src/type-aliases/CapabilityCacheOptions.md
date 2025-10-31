@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -14,10 +14,10 @@ Cache storage options for capability evaluations.
 
 ## Properties
 
-### ttlMs?
+### crossTab?
 
 ```ts
-optional ttlMs: number;
+optional crossTab: boolean;
 ```
 
 ---
@@ -30,8 +30,8 @@ optional storage: "memory" | "session";
 
 ---
 
-### crossTab?
+### ttlMs?
 
 ```ts
-optional crossTab: boolean;
+optional ttlMs: number;
 ```

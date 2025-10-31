@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../../../../README.md)
+[**WP Kernel API v0.10.0**](../../../../../../README.md)
 
 ---
 
@@ -8,34 +8,18 @@
 
 ## Properties
 
-### kernel?
+### capabilities?
 
 ```ts
-optional kernel: WPKInstance;
+optional capabilities: WPKUICapabilityRuntime;
 ```
 
 ---
 
-### namespace
+### dataviews?
 
 ```ts
-namespace: string;
-```
-
----
-
-### reporter
-
-```ts
-reporter: Reporter;
-```
-
----
-
-### registry?
-
-```ts
-optional registry: WPKernelRegistry;
+optional dataviews: KernelDataViewsRuntime;
 ```
 
 ---
@@ -44,14 +28,6 @@ optional registry: WPKernelRegistry;
 
 ```ts
 events: WPKernelEventBus;
-```
-
----
-
-### capabilities?
-
-```ts
-optional capabilities: WPKUICapabilityRuntime;
 ```
 
 ---
@@ -78,6 +54,22 @@ optional invalidate: (patterns, options?) => void;
 
 ---
 
+### kernel?
+
+```ts
+optional kernel: WPKInstance;
+```
+
+---
+
+### namespace
+
+```ts
+namespace: string;
+```
+
+---
+
 ### options?
 
 ```ts
@@ -86,8 +78,16 @@ optional options: UIIntegrationOptions;
 
 ---
 
-### dataviews?
+### registry?
 
 ```ts
-optional dataviews: KernelDataViewsRuntime;
+optional registry: WPKernelRegistry;
+```
+
+---
+
+### reporter
+
+```ts
+reporter: Reporter;
 ```

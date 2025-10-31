@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -22,13 +22,13 @@ function buildUseUse(name, alias, options): PhpStmtUseUse;
 
 ### options
 
-#### type?
-
-`number`
-
 #### attributes?
 
 `Readonly`\&lt;`Record`\&lt;`string`, `unknown`\&gt;\&gt;
+
+#### type?
+
+`number`
 
 ## Returns
 

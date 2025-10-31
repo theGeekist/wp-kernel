@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -24,15 +24,11 @@ readonly attributes: PhpAttributes;
 
 ---
 
-### nodeType
+### body
 
 ```ts
-readonly nodeType: "MatchArm";
+readonly body: PhpExpr;
 ```
-
-#### Overrides
-
-[`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
 
 ---
 
@@ -44,8 +40,12 @@ readonly conds: PhpExpr[] | null;
 
 ---
 
-### body
+### nodeType
 
 ```ts
-readonly body: PhpExpr;
+readonly nodeType: "MatchArm";
 ```
+
+#### Overrides
+
+[`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)

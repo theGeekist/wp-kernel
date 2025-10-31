@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -16,10 +16,10 @@ These filenames/keys are consumed by the CLI and runtime config loaders.
 
 ## Type Declaration
 
-### WPK_CONFIG_TS
+### PACKAGE_JSON_WPK
 
 ```ts
-readonly WPK_CONFIG_TS: "wpk.config.ts" = 'wpk.config.ts';
+readonly PACKAGE_JSON_WPK: "package.json#wpk" = 'package.json#wpk';
 ```
 
 ### WPK_CONFIG_JS
@@ -28,8 +28,8 @@ readonly WPK_CONFIG_TS: "wpk.config.ts" = 'wpk.config.ts';
 readonly WPK_CONFIG_JS: "wpk.config.js" = 'wpk.config.js';
 ```
 
-### PACKAGE_JSON_WPK
+### WPK_CONFIG_TS
 
 ```ts
-readonly PACKAGE_JSON_WPK: "package.json#wpk" = 'package.json#wpk';
+readonly WPK_CONFIG_TS: "wpk.config.ts" = 'wpk.config.ts';
 ```

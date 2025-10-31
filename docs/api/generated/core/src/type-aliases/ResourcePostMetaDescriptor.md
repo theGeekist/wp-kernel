@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -16,16 +16,16 @@ Included for forward compatibility with CLI-generated registration code.
 
 ## Properties
 
-### type
-
-```ts
-type: 'string' | 'integer' | 'number' | 'boolean' | 'array' | 'object';
-```
-
----
-
 ### single?
 
 ```ts
 optional single: boolean;
+```
+
+---
+
+### type
+
+```ts
+type: 'string' | 'integer' | 'number' | 'boolean' | 'array' | 'object';
 ```

@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -19,34 +19,6 @@ Runtime helpers exposed by `defineCapability()`.
 `K` _extends_ `Record`\&lt;`string`, `unknown`\&gt;
 
 ## Properties
-
-### can()
-
-```ts
-can: <Key>(key, ...params) => boolean | Promise<boolean>;
-```
-
-#### Type Parameters
-
-##### Key
-
-`Key` _extends_ keyof `K`
-
-#### Parameters
-
-##### key
-
-`Key`
-
-##### params
-
-...[`ParamsOf`](ParamsOf.md)\&lt;`K`, `Key`\&gt;
-
-#### Returns
-
-`boolean` \| `Promise`\&lt;`boolean`\&gt;
-
----
 
 ### assert()
 
@@ -76,15 +48,39 @@ assert: <Key>(key, ...params) => void | Promise<void>;
 
 ---
 
-### keys()
+### cache
 
 ```ts
-keys: () => keyof K[];
+readonly cache: CapabilityCache;
 ```
+
+---
+
+### can()
+
+```ts
+can: <Key>(key, ...params) => boolean | Promise<boolean>;
+```
+
+#### Type Parameters
+
+##### Key
+
+`Key` _extends_ keyof `K`
+
+#### Parameters
+
+##### key
+
+`Key`
+
+##### params
+
+...[`ParamsOf`](ParamsOf.md)\&lt;`K`, `Key`\&gt;
 
 #### Returns
 
-keyof `K`[]
+`boolean` \| `Promise`\&lt;`boolean`\&gt;
 
 ---
 
@@ -106,8 +102,12 @@ extend: (additionalMap) => void;
 
 ---
 
-### cache
+### keys()
 
 ```ts
-readonly cache: CapabilityCache;
+keys: () => keyof K[];
 ```
+
+#### Returns
+
+keyof `K`[]

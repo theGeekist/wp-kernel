@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -8,14 +8,6 @@
 
 ## Properties
 
-### namespaceParts
-
-```ts
-namespaceParts: string[];
-```
-
----
-
 ### docblockLines
 
 ```ts
@@ -24,26 +16,18 @@ readonly docblockLines: string[];
 
 ---
 
-### uses
+### namespaceParts
 
 ```ts
-readonly uses: Map<string, ProgramUse>;
+namespaceParts: string[];
 ```
 
 ---
 
-### statements
+### pendingStatementLines
 
 ```ts
-readonly statements: PhpStmt[];
-```
-
----
-
-### statementLines
-
-```ts
-readonly statementLines: string[];
+readonly pendingStatementLines: string[];
 ```
 
 ---
@@ -56,8 +40,24 @@ readonly statementEntries: PhpStatementEntry[];
 
 ---
 
-### pendingStatementLines
+### statementLines
 
 ```ts
-readonly pendingStatementLines: string[];
+readonly statementLines: string[];
+```
+
+---
+
+### statements
+
+```ts
+readonly statements: PhpStmt[];
+```
+
+---
+
+### uses
+
+```ts
+readonly uses: Map<string, ProgramUse>;
 ```

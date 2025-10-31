@@ -1,4 +1,7 @@
-import { buildWpTaxonomyHelperMethods } from '../helpers';
+import {
+	buildWpTaxonomyHelperMethods,
+	type WpTaxonomyStorageConfig,
+} from '../helpers';
 import type {
 	PhpStmt,
 	PhpExpr,
@@ -6,59 +9,24 @@ import type {
 	PhpExprConstFetch,
 	PhpExprFuncCall,
 } from '@wpkernel/php-json-ast';
-import type { IRResource } from '../../../../../ir/publicTypes';
 import type { ResolvedIdentity } from '../../../identity';
-import type { ResourceIdentityConfig } from '@wpkernel/core/resource';
-
-type TaxonomyStorage = Extract<
-	NonNullable<IRResource['storage']>,
-	{ mode: 'wp-taxonomy' }
->;
-
 type TaxonomyHelper = ReturnType<typeof buildWpTaxonomyHelperMethods>[number];
 
 describe('buildWpTaxonomyHelperMethods', () => {
-	const identityConfig: ResourceIdentityConfig = {
+	const identity: ResolvedIdentity = {
 		type: 'string',
 		param: 'slug',
 	};
-	const identity: ResolvedIdentity = {
-		type: 'string',
-		param: identityConfig.param ?? 'slug',
-	};
-	const storage: TaxonomyStorage = {
+	const storage: WpTaxonomyStorageConfig = {
 		mode: 'wp-taxonomy',
 		taxonomy: 'job_category',
 		hierarchical: true,
 	};
 
-	const resource: IRResource = {
-		name: 'jobCategories',
-		schemaKey: 'jobCategory',
-		schemaProvenance: 'manual',
-		routes: [],
-		cacheKeys: {
-			list: { segments: ['jobCategories', 'list'], source: 'default' },
-			get: { segments: ['jobCategories', 'get'], source: 'default' },
-			create: { segments: [], source: 'default' },
-			update: { segments: [], source: 'default' },
-			remove: { segments: [], source: 'default' },
-		},
-		identity: identityConfig,
-		storage,
-		queryParams: undefined,
-		ui: undefined,
-		hash: 'taxonomy-resource',
-		warnings: [],
-	};
-
-	function buildHelpers(overrides: Partial<TaxonomyStorage> = {}) {
+	function buildHelpers(overrides: Partial<WpTaxonomyStorageConfig> = {}) {
 		return buildWpTaxonomyHelperMethods({
-			resource: {
-				...resource,
-				storage: { ...storage, ...overrides },
-			},
 			pascalName: 'JobCategories',
+			storage: { ...storage, ...overrides },
 			identity,
 			errorCodeFactory: (suffix) => `taxonomy_${suffix}`,
 		});

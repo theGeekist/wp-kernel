@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -24,16 +24,6 @@ Action configuration for ResourceDataView.
 
 ## Properties
 
-### id
-
-```ts
-id: string;
-```
-
-Unique identifier, mirrored in events.
-
----
-
 ### action
 
 ```ts
@@ -44,43 +34,29 @@ Action implementation to invoke.
 
 ---
 
-### label
+### buildMeta()?
 
 ```ts
-label: string | (items) => string;
+optional buildMeta: (context) => Record<string, unknown> | undefined;
 ```
 
-Label shown in DataViews UI.
+Optional meta object included in action triggered events.
 
----
+#### Parameters
 
-### supportsBulk?
+##### context
 
-```ts
-optional supportsBulk: boolean;
-```
+###### items
 
-Whether bulk selection is supported.
+`TItem`[]
 
----
+###### selection
 
-### isDestructive?
+(`string` \| `number`)[]
 
-```ts
-optional isDestructive: boolean;
-```
+#### Returns
 
-Flag destructive styling.
-
----
-
-### isPrimary?
-
-```ts
-optional isPrimary: boolean;
-```
-
-Flag primary styling.
+`Record`\&lt;`string`, `unknown`\&gt; \| `undefined`
 
 ---
 
@@ -116,13 +92,13 @@ Build action input payload from the current selection and items.
 
 ##### context
 
-###### selection
-
-(`string` \| `number`)[]
-
 ###### items
 
 `TItem`[]
+
+###### selection
+
+(`string` \| `number`)[]
 
 #### Returns
 
@@ -130,29 +106,13 @@ Build action input payload from the current selection and items.
 
 ---
 
-### buildMeta()?
+### id
 
 ```ts
-optional buildMeta: (context) => Record<string, unknown> | undefined;
+id: string;
 ```
 
-Optional meta object included in action triggered events.
-
-#### Parameters
-
-##### context
-
-###### selection
-
-(`string` \| `number`)[]
-
-###### items
-
-`TItem`[]
-
-#### Returns
-
-`Record`\&lt;`string`, `unknown`\&gt; \| `undefined`
+Unique identifier, mirrored in events.
 
 ---
 
@@ -174,19 +134,59 @@ Optional invalidate hook overriding the default behaviour.
 
 ##### context
 
-###### selection
+###### input
 
-(`string` \| `number`)[]
+`TInput`
 
 ###### items
 
 `TItem`[]
 
-###### input
+###### selection
 
-`TInput`
+(`string` \| `number`)[]
 
 #### Returns
 
 \| `false`
 \| [`CacheKeyPattern`](../../../core/src/type-aliases/CacheKeyPattern.md)[]
+
+---
+
+### isDestructive?
+
+```ts
+optional isDestructive: boolean;
+```
+
+Flag destructive styling.
+
+---
+
+### isPrimary?
+
+```ts
+optional isPrimary: boolean;
+```
+
+Flag primary styling.
+
+---
+
+### label
+
+```ts
+label: string | (items) => string;
+```
+
+Label shown in DataViews UI.
+
+---
+
+### supportsBulk?
+
+```ts
+optional supportsBulk: boolean;
+```
+
+Whether bulk selection is supported.

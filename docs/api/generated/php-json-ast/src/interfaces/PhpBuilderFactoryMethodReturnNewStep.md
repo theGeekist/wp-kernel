@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -8,10 +8,10 @@
 
 ## Properties
 
-### kind
+### arguments?
 
 ```ts
-readonly kind: "returnNew";
+readonly optional arguments: readonly PhpBuilderFactoryArgument[];
 ```
 
 ---
@@ -24,8 +24,8 @@ readonly className: string;
 
 ---
 
-### arguments?
+### kind
 
 ```ts
-readonly optional arguments: readonly PhpBuilderFactoryArgument[];
+readonly kind: "returnNew";
 ```

@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -7,14 +7,6 @@
 # Interface: KernelUITestHarness
 
 ## Properties
-
-### wordpress
-
-```ts
-wordpress: WordPressTestHarness;
-```
-
----
 
 ### createRuntime()
 
@@ -80,6 +72,18 @@ resetActionStoreRegistration: () => void;
 
 ---
 
+### restoreConsoleError()
+
+```ts
+restoreConsoleError: () => void;
+```
+
+#### Returns
+
+`void`
+
+---
+
 ### suppressConsoleError()
 
 ```ts
@@ -98,18 +102,6 @@ suppressConsoleError: (predicate) => void;
 
 ---
 
-### restoreConsoleError()
-
-```ts
-restoreConsoleError: () => void;
-```
-
-#### Returns
-
-`void`
-
----
-
 ### teardown()
 
 ```ts
@@ -119,3 +111,11 @@ teardown: () => void;
 #### Returns
 
 `void`
+
+---
+
+### wordpress
+
+```ts
+wordpress: WordPressTestHarness;
+```

@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -8,14 +8,6 @@
 
 ## Properties
 
-### before
-
-```ts
-readonly before: PhpProgram;
-```
-
----
-
 ### after
 
 ```ts
@@ -24,10 +16,10 @@ readonly after: PhpProgram;
 
 ---
 
-### visitors
+### before
 
 ```ts
-readonly visitors: readonly PhpProgramCodemodVisitorSummary[];
+readonly before: PhpProgram;
 ```
 
 ---
@@ -36,4 +28,12 @@ readonly visitors: readonly PhpProgramCodemodVisitorSummary[];
 
 ```ts
 readonly optional diagnostics: PhpProgramCodemodDiagnostics;
+```
+
+---
+
+### visitors
+
+```ts
+readonly visitors: readonly PhpProgramCodemodVisitorSummary[];
 ```

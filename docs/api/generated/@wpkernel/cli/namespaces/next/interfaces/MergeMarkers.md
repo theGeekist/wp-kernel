@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../../../README.md)
+[**WP Kernel API v0.10.0**](../../../../../README.md)
 
 ---
 
@@ -8,10 +8,10 @@
 
 ## Properties
 
-### start
+### end
 
 ```ts
-readonly start: string;
+readonly end: string;
 ```
 
 ---
@@ -24,8 +24,8 @@ readonly mid: string;
 
 ---
 
-### end
+### start
 
 ```ts
-readonly end: string;
+readonly start: string;
 ```

@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -7,6 +7,22 @@
 # Interface: ProgramUse
 
 ## Properties
+
+### alias
+
+```ts
+readonly alias: string | null;
+```
+
+---
+
+### fullyQualified
+
+```ts
+readonly fullyQualified: boolean;
+```
+
+---
 
 ### key
 
@@ -24,24 +40,8 @@ readonly parts: readonly string[];
 
 ---
 
-### alias
-
-```ts
-readonly alias: string | null;
-```
-
----
-
 ### type
 
 ```ts
 readonly type: number;
-```
-
----
-
-### fullyQualified
-
-```ts
-readonly fullyQualified: boolean;
 ```

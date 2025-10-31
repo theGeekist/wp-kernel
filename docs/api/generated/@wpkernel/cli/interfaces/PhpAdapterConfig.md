@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -9,14 +9,6 @@
 Configuration returned by the PHP adapter factory.
 
 ## Properties
-
-### namespace?
-
-```ts
-optional namespace: string;
-```
-
----
 
 ### autoload?
 
@@ -45,3 +37,11 @@ optional customise: (builder, context) => void;
 #### Returns
 
 `void`
+
+---
+
+### namespace?
+
+```ts
+optional namespace: string;
+```

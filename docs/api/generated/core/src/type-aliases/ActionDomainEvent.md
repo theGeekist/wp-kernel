@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -20,16 +20,16 @@ eventName: string;
 
 ---
 
-### payload
-
-```ts
-payload: unknown;
-```
-
----
-
 ### metadata
 
 ```ts
 metadata: ActionLifecycleEventBase;
+```
+
+---
+
+### payload
+
+```ts
+payload: unknown;
 ```

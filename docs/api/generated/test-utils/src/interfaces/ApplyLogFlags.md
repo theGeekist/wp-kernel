@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -7,14 +7,6 @@
 # Interface: ApplyLogFlags
 
 ## Properties
-
-### yes
-
-```ts
-readonly yes: boolean;
-```
-
----
 
 ### backup
 
@@ -28,4 +20,12 @@ readonly backup: boolean;
 
 ```ts
 readonly force: boolean;
+```
+
+---
+
+### yes
+
+```ts
+readonly yes: boolean;
 ```

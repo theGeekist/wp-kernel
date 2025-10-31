@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -8,18 +8,18 @@
 
 ## Properties
 
-### enable?
-
-```ts
-optional enable: boolean;
-```
-
----
-
 ### attach?
 
 ```ts
 optional attach: WPKernelUIAttach;
+```
+
+---
+
+### enable?
+
+```ts
+optional enable: boolean;
 ```
 
 ---

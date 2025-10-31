@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -12,6 +12,14 @@
 
 ## Properties
 
+### attrGroups
+
+```ts
+readonly attrGroups: PhpAttrGroup[];
+```
+
+---
+
 ### attributes
 
 ```ts
@@ -24,15 +32,11 @@ readonly attributes: PhpAttributes;
 
 ---
 
-### nodeType
+### consts
 
 ```ts
-readonly nodeType: "Stmt_ClassConst";
+readonly consts: PhpConst[];
 ```
-
-#### Overrides
-
-[`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
 ---
 
@@ -44,19 +48,15 @@ readonly flags: number;
 
 ---
 
-### consts
+### nodeType
 
 ```ts
-readonly consts: PhpConst[];
+readonly nodeType: "Stmt_ClassConst";
 ```
 
----
+#### Overrides
 
-### attrGroups
-
-```ts
-readonly attrGroups: PhpAttrGroup[];
-```
+[`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
 ---
 

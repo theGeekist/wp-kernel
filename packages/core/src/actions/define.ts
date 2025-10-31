@@ -229,6 +229,7 @@ import { createActionRegistryBridge } from '../pipeline/actions/helpers/createAc
  * @see ActionContext interface for the full context API surface
  * @see middleware module for Redux integration
  * @public
+ * @category Actions
  */
 export function defineAction<TArgs = void, TResult = void>(
 	config: ActionConfig<TArgs, TResult>

@@ -4,10 +4,14 @@
 
 ### In progress
 
-- **Phase 6 – Core pipeline alignment** – Tracking Tasks 32-36 for any installer
-  or runtime updates required by the core orchestration work.
 - **Phase 7 – Plugin bootstrap flow** – Tasks 37-45 will deliver the create bootstrap, plugin loader, regeneration cleanup, and activation smoke; no driver updates are expected unless the bootstrap flow surfaces installer changes.
 - **Phase 8 placeholder** – Task 46 will collect incremental diagnostics (LogLayer reporter, transcript polish) after the bootstrap flow ships.
+
+## 0.10.0 - 2025-11-05
+
+### Maintenance
+
+- Version bump to `0.10.0` to stay aligned with the Phase 6 core pipeline release; driver code is unchanged this cycle.
 
 ## 0.9.0 - 2025-10-27
 

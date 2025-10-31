@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -46,14 +46,6 @@ const rule: CapabilityRule<number> = async (ctx, postId) => {
 
 ## Properties
 
-### namespace
-
-```ts
-namespace: string;
-```
-
----
-
 ### adapters
 
 ```ts
@@ -66,6 +58,14 @@ adapters: CapabilityAdapters;
 
 ```ts
 cache: CapabilityCache;
+```
+
+---
+
+### namespace
+
+```ts
+namespace: string;
 ```
 
 ---

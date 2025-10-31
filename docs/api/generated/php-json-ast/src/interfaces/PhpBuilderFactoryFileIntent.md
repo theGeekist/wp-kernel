@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -7,6 +7,14 @@
 # Interface: PhpBuilderFactoryFileIntent
 
 ## Properties
+
+### class
+
+```ts
+readonly class: PhpBuilderFactoryClassIntent;
+```
+
+---
 
 ### file
 
@@ -28,12 +36,4 @@ readonly namespace: PhpBuilderFactoryNamespaceIntent;
 
 ```ts
 readonly optional uses: readonly PhpBuilderFactoryUseIntent[];
-```
-
----
-
-### class
-
-```ts
-readonly class: PhpBuilderFactoryClassIntent;
 ```

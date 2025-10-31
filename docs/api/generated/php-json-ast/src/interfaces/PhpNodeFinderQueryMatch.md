@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -7,14 +7,6 @@
 # Interface: PhpNodeFinderQueryMatch
 
 ## Properties
-
-### summary
-
-```ts
-readonly summary: Readonly<Record<string, unknown>>;
-```
-
----
 
 ### attributes
 
@@ -28,4 +20,12 @@ readonly attributes: Readonly<Record<string, unknown>>;
 
 ```ts
 readonly excerpt: unknown;
+```
+
+---
+
+### summary
+
+```ts
+readonly summary: Readonly<Record<string, unknown>>;
 ```

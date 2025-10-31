@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -11,26 +11,6 @@
 - [`PhpNode`](PhpNode.md)
 
 ## Properties
-
-### nodeType
-
-```ts
-readonly nodeType: "Attribute";
-```
-
-#### Overrides
-
-[`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
-
----
-
-### name
-
-```ts
-readonly name: PhpIdentifier | PhpName;
-```
-
----
 
 ### args
 
@@ -49,3 +29,23 @@ readonly attributes: PhpAttributes;
 #### Inherited from
 
 [`PhpNode`](PhpNode.md).[`attributes`](PhpNode.md#attributes)
+
+---
+
+### name
+
+```ts
+readonly name: PhpIdentifier | PhpName;
+```
+
+---
+
+### nodeType
+
+```ts
+readonly nodeType: "Attribute";
+```
+
+#### Overrides
+
+[`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)

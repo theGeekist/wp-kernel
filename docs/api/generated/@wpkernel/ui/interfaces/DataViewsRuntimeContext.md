@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -14,10 +14,10 @@ Runtime shape exposed to UI consumers (kernel or standalone).
 
 ## Properties
 
-### namespace
+### capabilities?
 
 ```ts
-readonly namespace: string;
+readonly optional capabilities: WPKUICapabilityRuntime;
 ```
 
 ---
@@ -26,14 +26,6 @@ readonly namespace: string;
 
 ```ts
 readonly dataviews: DataViewsControllerRuntime;
-```
-
----
-
-### capabilities?
-
-```ts
-readonly optional capabilities: WPKUICapabilityRuntime;
 ```
 
 ---
@@ -60,6 +52,22 @@ readonly optional invalidate: (patterns, options?) => void;
 
 ---
 
+### kernel?
+
+```ts
+readonly optional kernel: unknown;
+```
+
+---
+
+### namespace
+
+```ts
+readonly namespace: string;
+```
+
+---
+
 ### registry?
 
 ```ts
@@ -72,12 +80,4 @@ readonly optional registry: unknown;
 
 ```ts
 readonly reporter: Reporter;
-```
-
----
-
-### kernel?
-
-```ts
-readonly optional kernel: unknown;
 ```

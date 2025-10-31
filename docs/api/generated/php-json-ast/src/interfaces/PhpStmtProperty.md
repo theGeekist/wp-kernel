@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -12,6 +12,14 @@
 
 ## Properties
 
+### attrGroups
+
+```ts
+readonly attrGroups: PhpAttrGroup[];
+```
+
+---
+
 ### attributes
 
 ```ts
@@ -21,6 +29,22 @@ readonly attributes: PhpAttributes;
 #### Inherited from
 
 [`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)
+
+---
+
+### flags
+
+```ts
+readonly flags: number;
+```
+
+---
+
+### hooks
+
+```ts
+readonly hooks: PhpPropertyHook[];
+```
 
 ---
 
@@ -36,22 +60,6 @@ readonly nodeType: "Stmt_Property";
 
 ---
 
-### flags
-
-```ts
-readonly flags: number;
-```
-
----
-
-### type
-
-```ts
-readonly type: PhpType | null;
-```
-
----
-
 ### props
 
 ```ts
@@ -60,16 +68,8 @@ readonly props: PhpStmtPropertyProperty[];
 
 ---
 
-### attrGroups
+### type
 
 ```ts
-readonly attrGroups: PhpAttrGroup[];
-```
-
----
-
-### hooks
-
-```ts
-readonly hooks: PhpPropertyHook[];
+readonly type: PhpType | null;
 ```

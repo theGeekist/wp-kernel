@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -24,6 +24,16 @@ readonly attributes: PhpAttributes;
 
 ---
 
+### name
+
+```ts
+readonly name:
+  | PhpExpr
+  | PhpIdentifier;
+```
+
+---
+
 ### nodeType
 
 ```ts
@@ -40,14 +50,4 @@ readonly nodeType: "Expr_NullsafePropertyFetch";
 
 ```ts
 readonly var: PhpExpr;
-```
-
----
-
-### name
-
-```ts
-readonly name:
-  | PhpExpr
-  | PhpIdentifier;
 ```

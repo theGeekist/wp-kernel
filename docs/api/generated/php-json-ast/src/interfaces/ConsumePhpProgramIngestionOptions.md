@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -16,10 +16,10 @@ readonly context: PipelineContext;
 
 ---
 
-### source
+### defaultMetadata?
 
 ```ts
-readonly source: PhpProgramIngestionSource;
+readonly optional defaultMetadata: PhpFileMetadata;
 ```
 
 ---
@@ -28,14 +28,6 @@ readonly source: PhpProgramIngestionSource;
 
 ```ts
 readonly optional reporter: Reporter;
-```
-
----
-
-### defaultMetadata?
-
-```ts
-readonly optional defaultMetadata: PhpFileMetadata;
 ```
 
 ---
@@ -55,3 +47,11 @@ readonly optional resolveFilePath: (message) => string;
 #### Returns
 
 `string`
+
+---
+
+### source
+
+```ts
+readonly source: PhpProgramIngestionSource;
+```

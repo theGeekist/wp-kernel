@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -12,18 +12,18 @@ type TransportMeta = object;
 
 ## Properties
 
-### reporter?
-
-```ts
-optional reporter: Reporter;
-```
-
----
-
 ### namespace?
 
 ```ts
 optional namespace: string;
+```
+
+---
+
+### reporter?
+
+```ts
+optional reporter: Reporter;
 ```
 
 ---

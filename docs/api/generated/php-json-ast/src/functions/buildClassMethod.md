@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -17,6 +17,10 @@ function buildClassMethod(name, options, attributes?): PhpStmtClassMethod;
 [`PhpIdentifier`](../interfaces/PhpIdentifier.md)
 
 ### options
+
+#### attrGroups?
+
+[`PhpAttrGroup`](../interfaces/PhpAttrGroup.md)[]
 
 #### byRef?
 
@@ -37,10 +41,6 @@ function buildClassMethod(name, options, attributes?): PhpStmtClassMethod;
 #### stmts?
 
 [`PhpStmt`](../type-aliases/PhpStmt.md)[] \| `null`
-
-#### attrGroups?
-
-[`PhpAttrGroup`](../interfaces/PhpAttrGroup.md)[]
 
 ### attributes?
 

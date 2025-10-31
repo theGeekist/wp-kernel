@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -22,14 +22,14 @@ Create a typed mock WordPress package object.
 
 `object`
 
-### version?
-
-```ts
-optional version: string;
-```
-
 ### name
 
 ```ts
 name: string = 'test-package';
+```
+
+### version?
+
+```ts
+optional version: string;
 ```

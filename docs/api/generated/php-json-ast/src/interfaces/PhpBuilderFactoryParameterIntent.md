@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -7,6 +7,14 @@
 # Interface: PhpBuilderFactoryParameterIntent
 
 ## Properties
+
+### default?
+
+```ts
+readonly optional default: PhpBuilderFactoryLiteral;
+```
+
+---
 
 ### name
 
@@ -20,12 +28,4 @@ readonly name: string;
 
 ```ts
 readonly optional type: string | null;
-```
-
----
-
-### default?
-
-```ts
-readonly optional default: PhpBuilderFactoryLiteral;
 ```

@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -7,22 +7,6 @@
 # Interface: ApplyLogRecord
 
 ## Properties
-
-### file
-
-```ts
-readonly file: string;
-```
-
----
-
-### status
-
-```ts
-readonly status: "applied" | "conflict" | "skipped";
-```
-
----
 
 ### description?
 
@@ -36,4 +20,20 @@ readonly optional description: string;
 
 ```ts
 readonly optional details: Record<string, unknown>;
+```
+
+---
+
+### file
+
+```ts
+readonly file: string;
+```
+
+---
+
+### status
+
+```ts
+readonly status: "applied" | "conflict" | "skipped";
 ```

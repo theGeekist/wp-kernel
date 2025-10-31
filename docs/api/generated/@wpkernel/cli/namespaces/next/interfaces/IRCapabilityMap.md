@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../../../README.md)
+[**WP Kernel API v0.10.0**](../../../../../README.md)
 
 ---
 
@@ -7,14 +7,6 @@
 # Interface: IRCapabilityMap
 
 ## Properties
-
-### sourcePath?
-
-```ts
-optional sourcePath: string;
-```
-
----
 
 ### definitions
 
@@ -30,16 +22,16 @@ definitions: IRCapabilityDefinition[];
 fallback: object;
 ```
 
-#### capability
-
-```ts
-capability: string;
-```
-
 #### appliesTo
 
 ```ts
 appliesTo: IRCapabilityScope;
+```
+
+#### capability
+
+```ts
+capability: string;
 ```
 
 ---
@@ -48,6 +40,14 @@ appliesTo: IRCapabilityScope;
 
 ```ts
 missing: string[];
+```
+
+---
+
+### sourcePath?
+
+```ts
+optional sourcePath: string;
 ```
 
 ---

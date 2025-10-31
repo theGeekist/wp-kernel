@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -9,14 +9,6 @@
 Adapter extension contract.
 
 ## Properties
-
-### name
-
-```ts
-name: string;
-```
-
----
 
 ### apply()
 
@@ -33,3 +25,11 @@ apply: (context) => void | Promise<void>;
 #### Returns
 
 `void` \| `Promise`\&lt;`void`\&gt;
+
+---
+
+### name
+
+```ts
+name: string;
+```

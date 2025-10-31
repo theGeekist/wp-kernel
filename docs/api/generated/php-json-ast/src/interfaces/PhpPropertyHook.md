@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -12,6 +12,14 @@
 
 ## Properties
 
+### attrGroups
+
+```ts
+readonly attrGroups: PhpAttrGroup[];
+```
+
+---
+
 ### attributes
 
 ```ts
@@ -21,6 +29,41 @@ readonly attributes: PhpAttributes;
 #### Inherited from
 
 [`PhpNode`](PhpNode.md).[`attributes`](PhpNode.md#attributes)
+
+---
+
+### body
+
+```ts
+readonly body:
+  | PhpExpr
+  | PhpStmt[]
+  | null;
+```
+
+---
+
+### byRef
+
+```ts
+readonly byRef: boolean;
+```
+
+---
+
+### flags
+
+```ts
+readonly flags: number;
+```
+
+---
+
+### name
+
+```ts
+readonly name: PhpIdentifier;
+```
 
 ---
 
@@ -36,51 +79,8 @@ readonly nodeType: "PropertyHook";
 
 ---
 
-### attrGroups
-
-```ts
-readonly attrGroups: PhpAttrGroup[];
-```
-
----
-
-### flags
-
-```ts
-readonly flags: number;
-```
-
----
-
-### byRef
-
-```ts
-readonly byRef: boolean;
-```
-
----
-
-### name
-
-```ts
-readonly name: PhpIdentifier;
-```
-
----
-
 ### params
 
 ```ts
 readonly params: PhpParam[];
-```
-
----
-
-### body
-
-```ts
-readonly body:
-  | PhpExpr
-  | PhpStmt[]
-  | null;
 ```

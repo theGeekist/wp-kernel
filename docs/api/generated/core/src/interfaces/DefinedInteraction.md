@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -15,6 +15,18 @@ Result returned by `defineInteraction`.
 `TStoreResult`
 
 ## Properties
+
+### getServerState()
+
+```ts
+readonly getServerState: () => object;
+```
+
+#### Returns
+
+`object`
+
+---
 
 ### namespace
 
@@ -41,15 +53,3 @@ readonly syncServerState: () => void;
 #### Returns
 
 `void`
-
----
-
-### getServerState()
-
-```ts
-readonly getServerState: () => object;
-```
-
-#### Returns
-
-`object`

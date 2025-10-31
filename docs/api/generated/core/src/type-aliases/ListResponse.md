@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -22,6 +22,16 @@ The resource entity type
 
 ## Properties
 
+### hasMore?
+
+```ts
+optional hasMore: boolean;
+```
+
+Whether there are more pages
+
+---
+
 ### items
 
 ```ts
@@ -29,16 +39,6 @@ items: T[];
 ```
 
 Array of resource entities
-
----
-
-### total?
-
-```ts
-optional total: number;
-```
-
-Total count of items (if available)
 
 ---
 
@@ -52,10 +52,10 @@ Pagination cursor for next page
 
 ---
 
-### hasMore?
+### total?
 
 ```ts
-optional hasMore: boolean;
+optional total: number;
 ```
 
-Whether there are more pages
+Total count of items (if available)

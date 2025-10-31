@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -30,18 +30,10 @@ optional context: Record<string, unknown>;
 
 ---
 
-### requestId?
+### messageKey?
 
 ```ts
-optional requestId: string;
-```
-
----
-
-### timestamp
-
-```ts
-timestamp: number;
+optional messageKey: string;
 ```
 
 ---
@@ -54,8 +46,16 @@ optional reason: string;
 
 ---
 
-### messageKey?
+### requestId?
 
 ```ts
-optional messageKey: string;
+optional requestId: string;
+```
+
+---
+
+### timestamp
+
+```ts
+timestamp: number;
 ```

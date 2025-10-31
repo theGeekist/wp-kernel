@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../../../README.md)
+[**WP Kernel API v0.10.0**](../../../../../README.md)
 
 ---
 
@@ -8,10 +8,10 @@
 
 ## Properties
 
-### name?
+### cause?
 
 ```ts
-readonly optional name: string;
+readonly optional cause: unknown;
 ```
 
 ---
@@ -24,16 +24,16 @@ readonly optional message: string;
 
 ---
 
-### stack?
+### name?
 
 ```ts
-readonly optional stack: string;
+readonly optional name: string;
 ```
 
 ---
 
-### cause?
+### stack?
 
 ```ts
-readonly optional cause: unknown;
+readonly optional stack: string;
 ```

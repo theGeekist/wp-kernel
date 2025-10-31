@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -27,6 +27,36 @@ The resource entity type
 The query parameter type for list operations
 
 ## Properties
+
+### getError()
+
+```ts
+getError: (state, cacheKey) => string | undefined;
+```
+
+Get error for a cache key.
+
+#### Parameters
+
+##### state
+
+[`ResourceState`](ResourceState.md)\&lt;`T`\&gt;
+
+Store state
+
+##### cacheKey
+
+`string`
+
+The cache key
+
+#### Returns
+
+`string` \| `undefined`
+
+Error message or undefined
+
+---
 
 ### getItem()
 
@@ -118,36 +148,6 @@ List response with items and metadata
 
 ---
 
-### getListStatus()
-
-```ts
-getListStatus: (state, query?) => ResourceListStatus;
-```
-
-Get the status for a list query.
-
-#### Parameters
-
-##### state
-
-[`ResourceState`](ResourceState.md)\&lt;`T`\&gt;
-
-Store state
-
-##### query?
-
-`TQuery`
-
-Query parameters
-
-#### Returns
-
-`ResourceListStatus`
-
-List status
-
----
-
 ### getListError()
 
 ```ts
@@ -178,16 +178,13 @@ Error message or undefined
 
 ---
 
-### isResolving()
+### getListStatus()
 
 ```ts
-isResolving: (state, selectorName, args?) => boolean;
+getListStatus: (state, query?) => ResourceListStatus;
 ```
 
-Check if a selector is currently resolving.
-
-Note: This is provided by @wordpress/data's resolution system.
-We include it here for type completeness.
+Get the status for a list query.
 
 #### Parameters
 
@@ -197,62 +194,17 @@ We include it here for type completeness.
 
 Store state
 
-##### selectorName
+##### query?
 
-`string`
+`TQuery`
 
-Name of the selector
-
-##### args?
-
-`unknown`[]
-
-Arguments passed to the selector
+Query parameters
 
 #### Returns
 
-`boolean`
+`ResourceListStatus`
 
-True if resolving
-
----
-
-### hasStartedResolution()
-
-```ts
-hasStartedResolution: (state, selectorName, args?) => boolean;
-```
-
-Check if a selector has started resolution.
-
-Note: This is provided by @wordpress/data's resolution system.
-We include it here for type completeness.
-
-#### Parameters
-
-##### state
-
-[`ResourceState`](ResourceState.md)\&lt;`T`\&gt;
-
-Store state
-
-##### selectorName
-
-`string`
-
-Name of the selector
-
-##### args?
-
-`unknown`[]
-
-Arguments passed to the selector
-
-#### Returns
-
-`boolean`
-
-True if resolution has started
+List status
 
 ---
 
@@ -295,13 +247,16 @@ True if resolution has finished
 
 ---
 
-### getError()
+### hasStartedResolution()
 
 ```ts
-getError: (state, cacheKey) => string | undefined;
+hasStartedResolution: (state, selectorName, args?) => boolean;
 ```
 
-Get error for a cache key.
+Check if a selector has started resolution.
+
+Note: This is provided by @wordpress/data's resolution system.
+We include it here for type completeness.
 
 #### Parameters
 
@@ -311,14 +266,59 @@ Get error for a cache key.
 
 Store state
 
-##### cacheKey
+##### selectorName
 
 `string`
 
-The cache key
+Name of the selector
+
+##### args?
+
+`unknown`[]
+
+Arguments passed to the selector
 
 #### Returns
 
-`string` \| `undefined`
+`boolean`
 
-Error message or undefined
+True if resolution has started
+
+---
+
+### isResolving()
+
+```ts
+isResolving: (state, selectorName, args?) => boolean;
+```
+
+Check if a selector is currently resolving.
+
+Note: This is provided by @wordpress/data's resolution system.
+We include it here for type completeness.
+
+#### Parameters
+
+##### state
+
+[`ResourceState`](ResourceState.md)\&lt;`T`\&gt;
+
+Store state
+
+##### selectorName
+
+`string`
+
+Name of the selector
+
+##### args?
+
+`unknown`[]
+
+Arguments passed to the selector
+
+#### Returns
+
+`boolean`
+
+True if resolving

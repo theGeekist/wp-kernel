@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../../../README.md)
+[**WP Kernel API v0.10.0**](../../../../../README.md)
 
 ---
 
@@ -7,14 +7,6 @@
 # Interface: FragmentOutput
 
 ## Properties
-
-### draft
-
-```ts
-readonly draft: MutableIr;
-```
-
----
 
 ### assign()
 
@@ -31,3 +23,11 @@ assign: (partial) => void;
 #### Returns
 
 `void`
+
+---
+
+### draft
+
+```ts
+readonly draft: MutableIr;
+```

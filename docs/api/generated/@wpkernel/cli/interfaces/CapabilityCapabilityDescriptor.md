@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -7,14 +7,6 @@
 # Interface: CapabilityCapabilityDescriptor
 
 ## Properties
-
-### capability
-
-```ts
-capability: string;
-```
-
----
 
 ### appliesTo?
 
@@ -32,3 +24,11 @@ optional binding: string;
 
 Optional request parameter name used when `appliesTo === 'object'`.
 Defaults to the resource identity parameter when omitted.
+
+---
+
+### capability
+
+```ts
+capability: string;
+```

@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -11,52 +11,6 @@
 - [`PhpAstBuilder`](PhpAstBuilder.md)
 
 ## Properties
-
-### context
-
-```ts
-readonly context: PhpAstContext;
-```
-
----
-
-### getNamespace()
-
-```ts
-getNamespace: () => string;
-```
-
-#### Returns
-
-`string`
-
-#### Inherited from
-
-[`PhpAstBuilder`](PhpAstBuilder.md).[`getNamespace`](PhpAstBuilder.md#getnamespace)
-
----
-
-### setNamespace()
-
-```ts
-setNamespace: (namespace) => void;
-```
-
-#### Parameters
-
-##### namespace
-
-`string`
-
-#### Returns
-
-`void`
-
-#### Inherited from
-
-[`PhpAstBuilder`](PhpAstBuilder.md).[`setNamespace`](PhpAstBuilder.md#setnamespace)
-
----
 
 ### addUse()
 
@@ -102,28 +56,6 @@ appendDocblock: (line) => void;
 
 ---
 
-### appendStatement()
-
-```ts
-appendStatement: (statement) => void;
-```
-
-#### Parameters
-
-##### statement
-
-`string`
-
-#### Returns
-
-`void`
-
-#### Inherited from
-
-[`PhpAstBuilder`](PhpAstBuilder.md).[`appendStatement`](PhpAstBuilder.md#appendstatement)
-
----
-
 ### appendProgramStatement()
 
 ```ts
@@ -146,19 +78,33 @@ appendProgramStatement: (statement) => void;
 
 ---
 
-### getStatements()
+### appendStatement()
 
 ```ts
-getStatements: () => readonly string[];
+appendStatement: (statement) => void;
 ```
+
+#### Parameters
+
+##### statement
+
+`string`
 
 #### Returns
 
-readonly `string`[]
+`void`
 
 #### Inherited from
 
-[`PhpAstBuilder`](PhpAstBuilder.md).[`getStatements`](PhpAstBuilder.md#getstatements)
+[`PhpAstBuilder`](PhpAstBuilder.md).[`appendStatement`](PhpAstBuilder.md#appendstatement)
+
+---
+
+### context
+
+```ts
+readonly context: PhpAstContext;
+```
 
 ---
 
@@ -175,6 +121,54 @@ getMetadata: () => PhpFileMetadata;
 #### Inherited from
 
 [`PhpAstBuilder`](PhpAstBuilder.md).[`getMetadata`](PhpAstBuilder.md#getmetadata)
+
+---
+
+### getNamespace()
+
+```ts
+getNamespace: () => string;
+```
+
+#### Returns
+
+`string`
+
+#### Inherited from
+
+[`PhpAstBuilder`](PhpAstBuilder.md).[`getNamespace`](PhpAstBuilder.md#getnamespace)
+
+---
+
+### getProgramAst()
+
+```ts
+getProgramAst: () => PhpProgram;
+```
+
+#### Returns
+
+[`PhpProgram`](../type-aliases/PhpProgram.md)
+
+#### Inherited from
+
+[`PhpAstBuilder`](PhpAstBuilder.md).[`getProgramAst`](PhpAstBuilder.md#getprogramast)
+
+---
+
+### getStatements()
+
+```ts
+getStatements: () => readonly string[];
+```
+
+#### Returns
+
+readonly `string`[]
+
+#### Inherited from
+
+[`PhpAstBuilder`](PhpAstBuilder.md).[`getStatements`](PhpAstBuilder.md#getstatements)
 
 ---
 
@@ -200,16 +194,22 @@ setMetadata: (metadata) => void;
 
 ---
 
-### getProgramAst()
+### setNamespace()
 
 ```ts
-getProgramAst: () => PhpProgram;
+setNamespace: (namespace) => void;
 ```
+
+#### Parameters
+
+##### namespace
+
+`string`
 
 #### Returns
 
-[`PhpProgram`](../type-aliases/PhpProgram.md)
+`void`
 
 #### Inherited from
 
-[`PhpAstBuilder`](PhpAstBuilder.md).[`getProgramAst`](PhpAstBuilder.md#getprogramast)
+[`PhpAstBuilder`](PhpAstBuilder.md).[`setNamespace`](PhpAstBuilder.md#setnamespace)

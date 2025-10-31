@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -24,18 +24,6 @@ readonly attributes: PhpAttributes;
 
 ---
 
-### nodeType
-
-```ts
-readonly nodeType: "Stmt_If";
-```
-
-#### Overrides
-
-[`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
-
----
-
 ### cond
 
 ```ts
@@ -44,10 +32,10 @@ readonly cond: PhpExpr;
 
 ---
 
-### stmts
+### else
 
 ```ts
-readonly stmts: PhpStmt[];
+readonly else: PhpStmtElse | null;
 ```
 
 ---
@@ -60,8 +48,20 @@ readonly elseifs: PhpStmtElseIf[];
 
 ---
 
-### else
+### nodeType
 
 ```ts
-readonly else: PhpStmtElse | null;
+readonly nodeType: "Stmt_If";
+```
+
+#### Overrides
+
+[`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
+
+---
+
+### stmts
+
+```ts
+readonly stmts: PhpStmt[];
 ```

@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -7,14 +7,6 @@
 # Interface: IRBlock
 
 ## Properties
-
-### key
-
-```ts
-key: string;
-```
-
----
 
 ### directory
 
@@ -28,6 +20,14 @@ directory: string;
 
 ```ts
 hasRender: boolean;
+```
+
+---
+
+### key
+
+```ts
+key: string;
 ```
 
 ---

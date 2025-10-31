@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -16,16 +16,16 @@ context: BaseContext;
 
 ---
 
-### stdout
-
-```ts
-stdout: MemoryStream;
-```
-
----
-
 ### stderr
 
 ```ts
 stderr: MemoryStream;
+```
+
+---
+
+### stdout
+
+```ts
+stdout: MemoryStream;
 ```

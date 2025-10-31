@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../../../README.md)
+[**WP Kernel API v0.10.0**](../../../../../README.md)
 
 ---
 
@@ -22,15 +22,9 @@ Re-exports [configureWPKernel](../../../functions/configureWPKernel.md)
 
 ---
 
-### registerWPKernelStore
+### ConfigureWPKernelOptions
 
-Re-exports [registerWPKernelStore](../../../functions/registerWPKernelStore.md)
-
----
-
-### wpkEventsPlugin
-
-Re-exports [wpkEventsPlugin](../../../functions/wpkEventsPlugin.md)
+Re-exports [ConfigureWPKernelOptions](../../../interfaces/ConfigureWPKernelOptions.md)
 
 ---
 
@@ -40,33 +34,9 @@ Re-exports [NoticeStatus](../../../type-aliases/NoticeStatus.md)
 
 ---
 
-### WPKernelRegistry
+### registerWPKernelStore
 
-Re-exports [WPKernelRegistry](../../../type-aliases/WPKernelRegistry.md)
-
----
-
-### ConfigureWPKernelOptions
-
-Re-exports [ConfigureWPKernelOptions](../../../interfaces/ConfigureWPKernelOptions.md)
-
----
-
-### WPKInstance
-
-Re-exports [WPKInstance](../../../interfaces/WPKInstance.md)
-
----
-
-### WPKUIConfig
-
-Re-exports [WPKUIConfig](../../../interfaces/WPKUIConfig.md)
-
----
-
-### WPKernelUIAttach
-
-Re-exports [WPKernelUIAttach](../../../type-aliases/WPKernelUIAttach.md)
+Re-exports [registerWPKernelStore](../../../functions/registerWPKernelStore.md)
 
 ---
 
@@ -76,6 +46,36 @@ Re-exports [UIIntegrationOptions](../../../interfaces/UIIntegrationOptions.md)
 
 ---
 
+### WPKernelRegistry
+
+Re-exports [WPKernelRegistry](../../../type-aliases/WPKernelRegistry.md)
+
+---
+
+### WPKernelUIAttach
+
+Re-exports [WPKernelUIAttach](../../../type-aliases/WPKernelUIAttach.md)
+
+---
+
+### wpkEventsPlugin
+
+Re-exports [wpkEventsPlugin](../../../functions/wpkEventsPlugin.md)
+
+---
+
+### WPKInstance
+
+Re-exports [WPKInstance](../../../interfaces/WPKInstance.md)
+
+---
+
 ### WPKUICapabilityRuntime
 
 Re-exports [WPKUICapabilityRuntime](../../../interfaces/WPKUICapabilityRuntime.md)
+
+---
+
+### WPKUIConfig
+
+Re-exports [WPKUIConfig](../../../interfaces/WPKUIConfig.md)

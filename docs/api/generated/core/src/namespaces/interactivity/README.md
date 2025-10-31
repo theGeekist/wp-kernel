@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../../README.md)
+[**WP Kernel API v0.10.0**](../../../../README.md)
 
 ---
 
@@ -7,6 +7,12 @@
 # interactivity
 
 ## References
+
+### DefinedInteraction
+
+Re-exports [DefinedInteraction](../../interfaces/DefinedInteraction.md)
+
+---
 
 ### defineInteraction
 
@@ -20,9 +26,9 @@ Re-exports [DefineInteractionOptions](../../interfaces/DefineInteractionOptions.
 
 ---
 
-### DefinedInteraction
+### HydrateServerStateInput
 
-Re-exports [DefinedInteraction](../../interfaces/DefinedInteraction.md)
+Re-exports [HydrateServerStateInput](../../interfaces/HydrateServerStateInput.md)
 
 ---
 
@@ -38,15 +44,15 @@ Re-exports [InteractionActionInput](../../type-aliases/InteractionActionInput.md
 
 ---
 
-### InteractionActionsRecord
-
-Re-exports [InteractionActionsRecord](../../type-aliases/InteractionActionsRecord.md)
-
----
-
 ### InteractionActionMetaResolver
 
 Re-exports [InteractionActionMetaResolver](../../type-aliases/InteractionActionMetaResolver.md)
+
+---
+
+### InteractionActionsRecord
+
+Re-exports [InteractionActionsRecord](../../type-aliases/InteractionActionsRecord.md)
 
 ---
 
@@ -68,12 +74,6 @@ Re-exports [InteractivityModule](../../interfaces/InteractivityModule.md)
 
 ---
 
-### InteractivityStoreResult
-
-Re-exports [InteractivityStoreResult](../../type-aliases/InteractivityStoreResult.md)
-
----
-
 ### InteractivityServerState
 
 Re-exports [InteractivityServerState](../../type-aliases/InteractivityServerState.md)
@@ -86,6 +86,6 @@ Re-exports [InteractivityServerStateResolver](../../type-aliases/InteractivitySe
 
 ---
 
-### HydrateServerStateInput
+### InteractivityStoreResult
 
-Re-exports [HydrateServerStateInput](../../interfaces/HydrateServerStateInput.md)
+Re-exports [InteractivityStoreResult](../../type-aliases/InteractivityStoreResult.md)

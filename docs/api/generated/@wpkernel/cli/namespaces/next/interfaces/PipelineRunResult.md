@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../../../README.md)
+[**WP Kernel API v0.10.0**](../../../../../README.md)
 
 ---
 
@@ -8,18 +8,18 @@
 
 ## Properties
 
-### ir
-
-```ts
-readonly ir: IRv1;
-```
-
----
-
 ### diagnostics
 
 ```ts
 readonly diagnostics: readonly ConflictDiagnostic[];
+```
+
+---
+
+### ir
+
+```ts
+readonly ir: IRv1;
 ```
 
 ---

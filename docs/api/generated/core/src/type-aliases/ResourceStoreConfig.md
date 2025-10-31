@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -14,14 +14,6 @@ Store configuration for a resource.
 
 ## Type Declaration
 
-### resource
-
-```ts
-resource: ResourceObject<T, TQuery>;
-```
-
-The resource object this store is for.
-
 ### reporter?
 
 ```ts
@@ -29,6 +21,14 @@ optional reporter: Reporter;
 ```
 
 Reporter instance used for store instrumentation.
+
+### resource
+
+```ts
+resource: ResourceObject<T, TQuery>;
+```
+
+The resource object this store is for.
 
 ## Type Parameters
 

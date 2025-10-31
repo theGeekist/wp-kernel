@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -26,17 +26,17 @@ function seedPlan(workspace, file, options): Promise<void>;
 
 `string`
 
-#### incoming?
+#### current?
 
-`string` \| `null`
+`string`
 
 #### description?
 
 `string`
 
-#### current?
+#### incoming?
 
-`string`
+`string` \| `null`
 
 ## Returns
 

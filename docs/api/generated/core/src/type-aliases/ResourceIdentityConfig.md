@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -9,12 +9,12 @@
 ```ts
 type ResourceIdentityConfig =
 	| {
-			type: 'number';
 			param?: 'id';
+			type: 'number';
 	  }
 	| {
-			type: 'string';
 			param?: 'id' | 'slug' | 'uuid';
+			type: 'string';
 	  };
 ```
 

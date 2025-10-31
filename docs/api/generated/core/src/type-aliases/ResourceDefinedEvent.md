@@ -1,27 +1,37 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
 [WP Kernel API](../../../README.md) / [core/src](../README.md) / ResourceDefinedEvent
 
-# Type Alias: ResourceDefinedEvent
+# Type Alias: ResourceDefinedEvent\&lt;T, TQuery\&gt;
 
 ```ts
-type ResourceDefinedEvent = object;
+type ResourceDefinedEvent<T, TQuery> = object;
 ```
+
+## Type Parameters
+
+### T
+
+`T` = `unknown`
+
+### TQuery
+
+`TQuery` = `unknown`
 
 ## Properties
-
-### resource
-
-```ts
-resource: ResourceObject<unknown, unknown>;
-```
-
----
 
 ### namespace
 
 ```ts
 namespace: string;
+```
+
+---
+
+### resource
+
+```ts
+resource: ResourceObject<T, TQuery>;
 ```

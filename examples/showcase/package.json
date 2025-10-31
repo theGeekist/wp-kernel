@@ -1,6 +1,6 @@
 {
 	"name": "wp-kernel-showcase",
-	"version": "0.9.0",
+	"version": "0.10.0",
 	"private": true,
 	"description": "Showcase plugin demonstrating WP Kernel framework features",
 	"type": "module",
@@ -14,7 +14,7 @@
 		"clean": "rm -rf build types",
 		"lint": "pnpm --workspace-root lint",
 		"lint:fix": "pnpm --workspace-root lint -- --fix",
-		"format": "pnpm --workspace-root format",
+		"format": "prettier --write '**/*.{js,ts,tsx,json,md,yml,yaml}'",
 		"format:check": "pnpm --workspace-root format:check",
 		"typecheck": "tsc --noEmit",
 		"typecheck:tests": "tsc --project tsconfig.tests.json --noEmit",

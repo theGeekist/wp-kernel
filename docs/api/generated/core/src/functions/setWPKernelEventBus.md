@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -9,6 +9,9 @@
 ```ts
 function setWPKernelEventBus(bus): void;
 ```
+
+Replace the shared kernel event bus. Intended for test suites that need to
+inspect emitted events.
 
 ## Parameters
 

@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -32,34 +32,6 @@ Original error if wrapping
 
 ---
 
-### validationErrors?
-
-```ts
-optional validationErrors: object[];
-```
-
-Validation errors
-
-#### field
-
-```ts
-field: string;
-```
-
-#### message
-
-```ts
-message: string;
-```
-
-#### code?
-
-```ts
-optional code: string;
-```
-
----
-
 ### serverCode?
 
 ```ts
@@ -67,6 +39,14 @@ optional serverCode: string;
 ```
 
 Server error details
+
+---
+
+### serverData?
+
+```ts
+optional serverData: unknown;
+```
 
 ---
 
@@ -78,8 +58,28 @@ optional serverMessage: string;
 
 ---
 
-### serverData?
+### validationErrors?
 
 ```ts
-optional serverData: unknown;
+optional validationErrors: object[];
+```
+
+Validation errors
+
+#### code?
+
+```ts
+optional code: string;
+```
+
+#### field
+
+```ts
+field: string;
+```
+
+#### message
+
+```ts
+message: string;
 ```

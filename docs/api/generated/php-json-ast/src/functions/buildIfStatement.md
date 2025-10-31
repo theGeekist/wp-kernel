@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -22,13 +22,13 @@ function buildIfStatement(cond, stmts, options, attributes?): PhpStmtIf;
 
 ### options
 
-#### elseifs?
-
-[`PhpStmtElseIf`](../interfaces/PhpStmtElseIf.md)[]
-
 #### elseBranch?
 
 [`PhpStmtElse`](../interfaces/PhpStmtElse.md) \| `null`
+
+#### elseifs?
+
+[`PhpStmtElseIf`](../interfaces/PhpStmtElseIf.md)[]
 
 ### attributes?
 

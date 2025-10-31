@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -9,6 +9,8 @@
 ```ts
 function getWPKernelEventBus(): WPKernelEventBus;
 ```
+
+Return the shared kernel event bus, creating it lazily on first access.
 
 ## Returns
 

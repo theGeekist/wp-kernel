@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -19,6 +19,20 @@ Ambient interface exposed by `@wordpress/interactivity`.
 ```
 
 ## Properties
+
+### getServerState
+
+```ts
+getServerState: InteractivityServerStateResolver;
+```
+
+#### Inherited from
+
+```ts
+InteractivityCore.getServerState;
+```
+
+---
 
 ### store()
 
@@ -44,18 +58,4 @@ store: (namespace, definition?) => InteractivityStoreResult;
 
 ```ts
 InteractivityCore.store;
-```
-
----
-
-### getServerState
-
-```ts
-getServerState: InteractivityServerStateResolver;
-```
-
-#### Inherited from
-
-```ts
-InteractivityCore.getServerState;
 ```

@@ -7,6 +7,7 @@ import type {
 import {
 	buildCapabilityModule,
 	buildProgramTargetPlanner,
+	DEFAULT_DOC_HEADER,
 } from '@wpkernel/wp-json-ast';
 import type { CapabilityModuleWarning } from '@wpkernel/wp-json-ast';
 import { getPhpBuilderChannel } from './channel';
@@ -39,6 +40,7 @@ export function createPhpCapabilityHelper(): BuilderHelper {
 				workspace: options.context.workspace,
 				outputDir: ir.php.outputDir,
 				channel: getPhpBuilderChannel(options.context),
+				docblockPrefix: DEFAULT_DOC_HEADER,
 			});
 
 			planner.queueFiles({ files: module.files });

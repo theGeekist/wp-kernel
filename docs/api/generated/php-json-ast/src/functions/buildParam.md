@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -18,15 +18,11 @@ function buildParam(variable, options, attributes?): PhpParam;
 
 ### options
 
-#### type?
+#### attrGroups?
 
-[`PhpType`](../type-aliases/PhpType.md) \| `null`
+[`PhpAttrGroup`](../interfaces/PhpAttrGroup.md)[]
 
 #### byRef?
-
-`boolean`
-
-#### variadic?
 
 `boolean`
 
@@ -38,13 +34,17 @@ function buildParam(variable, options, attributes?): PhpParam;
 
 `number`
 
-#### attrGroups?
-
-[`PhpAttrGroup`](../interfaces/PhpAttrGroup.md)[]
-
 #### hooks?
 
 [`PhpPropertyHook`](../interfaces/PhpPropertyHook.md)[]
+
+#### type?
+
+[`PhpType`](../type-aliases/PhpType.md) \| `null`
+
+#### variadic?
+
+`boolean`
 
 ### attributes?
 

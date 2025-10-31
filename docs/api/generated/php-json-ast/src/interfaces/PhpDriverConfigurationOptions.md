@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -16,16 +16,16 @@ readonly optional binary: string;
 
 ---
 
-### scriptPath?
-
-```ts
-readonly optional scriptPath: string;
-```
-
----
-
 ### importMetaUrl?
 
 ```ts
 readonly optional importMetaUrl: string;
+```
+
+---
+
+### scriptPath?
+
+```ts
+readonly optional scriptPath: string;
 ```

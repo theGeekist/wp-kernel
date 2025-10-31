@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -26,103 +26,11 @@ config: WPKernelConfigV1;
 
 ---
 
-### reporter
-
-```ts
-reporter: Reporter;
-```
-
-#### Inherited from
-
-[`AdapterContext`](AdapterContext.md).[`reporter`](AdapterContext.md#reporter)
-
----
-
-### namespace
-
-```ts
-namespace: string;
-```
-
-#### Inherited from
-
-[`AdapterContext`](AdapterContext.md).[`namespace`](AdapterContext.md#namespace)
-
----
-
-### ir
-
-```ts
-ir: IRv1;
-```
-
-#### Overrides
-
-[`AdapterContext`](AdapterContext.md).[`ir`](AdapterContext.md#ir)
-
----
-
-### outputDir
-
-```ts
-outputDir: string;
-```
-
----
-
 ### configDirectory?
 
 ```ts
 optional configDirectory: string;
 ```
-
----
-
-### tempDir
-
-```ts
-tempDir: string;
-```
-
----
-
-### queueFile()
-
-```ts
-queueFile: (filePath, contents) => Promise<void>;
-```
-
-#### Parameters
-
-##### filePath
-
-`string`
-
-##### contents
-
-`string`
-
-#### Returns
-
-`Promise`\&lt;`void`\&gt;
-
----
-
-### updateIr()
-
-```ts
-updateIr: (nextIr) => void;
-```
-
-#### Parameters
-
-##### nextIr
-
-[`IRv1`](IRv1.md)
-
-#### Returns
-
-`void`
 
 ---
 
@@ -167,3 +75,95 @@ formatTs: (filePath, contents) => Promise<string>;
 #### Returns
 
 `Promise`\&lt;`string`\&gt;
+
+---
+
+### ir
+
+```ts
+ir: IRv1;
+```
+
+#### Overrides
+
+[`AdapterContext`](AdapterContext.md).[`ir`](AdapterContext.md#ir)
+
+---
+
+### namespace
+
+```ts
+namespace: string;
+```
+
+#### Inherited from
+
+[`AdapterContext`](AdapterContext.md).[`namespace`](AdapterContext.md#namespace)
+
+---
+
+### outputDir
+
+```ts
+outputDir: string;
+```
+
+---
+
+### queueFile()
+
+```ts
+queueFile: (filePath, contents) => Promise<void>;
+```
+
+#### Parameters
+
+##### filePath
+
+`string`
+
+##### contents
+
+`string`
+
+#### Returns
+
+`Promise`\&lt;`void`\&gt;
+
+---
+
+### reporter
+
+```ts
+reporter: Reporter;
+```
+
+#### Inherited from
+
+[`AdapterContext`](AdapterContext.md).[`reporter`](AdapterContext.md#reporter)
+
+---
+
+### tempDir
+
+```ts
+tempDir: string;
+```
+
+---
+
+### updateIr()
+
+```ts
+updateIr: (nextIr) => void;
+```
+
+#### Parameters
+
+##### nextIr
+
+[`IRv1`](IRv1.md)
+
+#### Returns
+
+`void`

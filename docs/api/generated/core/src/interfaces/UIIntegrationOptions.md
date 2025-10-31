@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -14,30 +14,6 @@
 
 ## Properties
 
-### suspense?
-
-```ts
-optional suspense: boolean;
-```
-
----
-
-### notices?
-
-```ts
-optional notices: boolean;
-```
-
----
-
-### devtools?
-
-```ts
-optional devtools: boolean;
-```
-
----
-
 ### dataviews?
 
 ```ts
@@ -50,20 +26,44 @@ optional dataviews: object;
 [key: string]: unknown
 ```
 
-#### enable?
-
-```ts
-optional enable: boolean;
-```
-
 #### autoRegisterResources?
 
 ```ts
 optional autoRegisterResources: boolean;
 ```
 
+#### enable?
+
+```ts
+optional enable: boolean;
+```
+
 #### preferences?
 
 ```ts
 optional preferences: unknown;
+```
+
+---
+
+### devtools?
+
+```ts
+optional devtools: boolean;
+```
+
+---
+
+### notices?
+
+```ts
+optional notices: boolean;
+```
+
+---
+
+### suspense?
+
+```ts
+optional suspense: boolean;
 ```

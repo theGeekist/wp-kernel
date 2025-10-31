@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -28,16 +28,16 @@
 
 ## Properties
 
-### nodeType
-
-```ts
-readonly nodeType: string;
-```
-
----
-
 ### attributes
 
 ```ts
 readonly attributes: PhpAttributes;
+```
+
+---
+
+### nodeType
+
+```ts
+readonly nodeType: string;
 ```

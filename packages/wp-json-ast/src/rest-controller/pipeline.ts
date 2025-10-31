@@ -9,6 +9,7 @@ import type {
 	RouteMutationMetadataPlan,
 } from '../common/metadata/resourceController';
 import {
+	appendResourceControllerHelperSignatures,
 	buildResourceCacheKeysPlan,
 	buildResourceControllerMetadata,
 	routeUsesIdentity,
@@ -84,6 +85,7 @@ export interface RestControllerResourcePlan {
 	readonly cacheKeys: ResourceCacheKeysSource;
 	readonly mutationMetadata?: RouteMutationMetadataPlan;
 	readonly helperMethods?: readonly PhpStmtClassMethod[];
+	readonly helperSignatures?: readonly string[];
 	readonly routes: readonly RestControllerRoutePlan[];
 }
 
@@ -151,6 +153,13 @@ function buildControllerConfig(
 			mutationMetadata: options.resource.mutationMetadata,
 		})
 	);
+
+	if (options.resource.helperSignatures?.length) {
+		appendResourceControllerHelperSignatures(
+			metadataEnvironment.host,
+			options.resource.helperSignatures
+		);
+	}
 
 	const routes = options.resource.routes.map((plan, index) =>
 		buildRouteConfig({

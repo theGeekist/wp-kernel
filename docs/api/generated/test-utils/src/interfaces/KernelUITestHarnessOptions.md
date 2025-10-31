@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -7,14 +7,6 @@
 # Interface: KernelUITestHarnessOptions
 
 ## Properties
-
-### reporter?
-
-```ts
-optional reporter: Partial<Reporter>;
-```
-
----
 
 ### namespace?
 
@@ -28,4 +20,12 @@ optional namespace: string;
 
 ```ts
 optional provider: WPKernelUIProviderComponent;
+```
+
+---
+
+### reporter?
+
+```ts
+optional reporter: Partial<Reporter>;
 ```

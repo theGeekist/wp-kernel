@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -28,30 +28,6 @@ Options accepted by `defineInteraction`.
 
 ## Properties
 
-### resource
-
-```ts
-readonly resource: ResourceObject<TEntity, TQuery>;
-```
-
----
-
-### feature
-
-```ts
-readonly feature: string;
-```
-
----
-
-### store?
-
-```ts
-readonly optional store: TStore;
-```
-
----
-
 ### actions?
 
 ```ts
@@ -60,26 +36,18 @@ readonly optional actions: TActions;
 
 ---
 
-### registry?
-
-```ts
-readonly optional registry: WPKernelRegistry;
-```
-
----
-
-### namespace?
-
-```ts
-readonly optional namespace: string;
-```
-
----
-
 ### autoHydrate?
 
 ```ts
 readonly optional autoHydrate: boolean;
+```
+
+---
+
+### feature
+
+```ts
+readonly feature: string;
 ```
 
 ---
@@ -99,3 +67,35 @@ readonly optional hydrateServerState: (input) => void;
 #### Returns
 
 `void`
+
+---
+
+### namespace?
+
+```ts
+readonly optional namespace: string;
+```
+
+---
+
+### registry?
+
+```ts
+readonly optional registry: WPKernelRegistry;
+```
+
+---
+
+### resource
+
+```ts
+readonly resource: ResourceObject<TEntity, TQuery>;
+```
+
+---
+
+### store?
+
+```ts
+readonly optional store: TStore;
+```

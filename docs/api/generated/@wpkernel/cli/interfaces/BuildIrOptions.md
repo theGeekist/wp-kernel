@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -16,10 +16,10 @@ config: WPKernelConfigV1;
 
 ---
 
-### sourcePath
+### namespace
 
 ```ts
-sourcePath: string;
+namespace: string;
 ```
 
 ---
@@ -32,8 +32,8 @@ origin: string;
 
 ---
 
-### namespace
+### sourcePath
 
 ```ts
-namespace: string;
+sourcePath: string;
 ```

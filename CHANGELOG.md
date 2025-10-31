@@ -11,12 +11,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### In progress
 
-- **Phase 6 – Core pipeline alignment** – Tasks 32-36 are underway to mirror the
-  CLI MVP ledger with the core pipeline spec. Track status in
-  `packages/cli/docs/mvp-plan.md` and the linked core orchestration brief until
-  the 0.10.0 release closes.
 - **Phase 7 – Plugin bootstrap flow** – Tasks 37-45 will publish the bootstrap workspace, loader integration, cleanup passes, activation docs, and close with the 0.11.0 release once Phase 6 wraps.
 - **Phase 8 placeholder** – Task 46 will collect incremental diagnostics (starting with the CLI LogLayer reporter) after the plugin bootstrap flow ships.
+
+## [0.10.0] - 2025-11-05
+
+### Added
+
+- **Pipeline-only core orchestration** – Core now routes `defineAction`, `defineResource`, and interactivity helpers through the shared pipeline catalogue with new diagnostics and helper naming guarantees.
+- **Interactivity bridge** – Published `defineInteraction` under `@wpkernel/core/interactivity`, wiring store actions to the pipeline-aware runtime and documenting installation expectations.
+
+### Changed
+
+- **Diagnostics polish** – Reporter integrations surface missing helper warnings, helper modules honour the reserved `create*` prefix, and rollback hooks unwind side effects when helpers fail.
+
+### Documentation
+
+- **Phase 6 closure** – Updated the CLI MVP ledger, migration phases brief, and core pipeline spec to record Task 32‑36 completion and the 0.10.0 release.
+
+### Maintenance
+
+- **Monorepo release** – Bumped all packages, showcase fixtures, and version trackers to `0.10.0` ahead of the Phase 6 minor release.
 
 ## [0.9.0] - 2025-10-27
 

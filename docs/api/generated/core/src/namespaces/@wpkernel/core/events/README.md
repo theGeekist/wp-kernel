@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../../../../README.md)
+[**WP Kernel API v0.10.0**](../../../../../../README.md)
 
 ---
 
@@ -9,60 +9,6 @@
 Kernel event bus utilities and canonical event registry.
 
 ## References
-
-### WPKernelEventBus
-
-Re-exports [WPKernelEventBus](../../../../classes/WPKernelEventBus.md)
-
----
-
-### getWPKernelEventBus
-
-Re-exports [getWPKernelEventBus](../../../../functions/getWPKernelEventBus.md)
-
----
-
-### setWPKernelEventBus
-
-Re-exports [setWPKernelEventBus](../../../../functions/setWPKernelEventBus.md)
-
----
-
-### getRegisteredResources
-
-Re-exports [getRegisteredResources](../../../../functions/getRegisteredResources.md)
-
----
-
-### getRegisteredActions
-
-Re-exports [getRegisteredActions](../../../../functions/getRegisteredActions.md)
-
----
-
-### clearRegisteredResources
-
-Re-exports [clearRegisteredResources](../../../../functions/clearRegisteredResources.md)
-
----
-
-### clearRegisteredActions
-
-Re-exports [clearRegisteredActions](../../../../functions/clearRegisteredActions.md)
-
----
-
-### WPKernelEventMap
-
-Re-exports [WPKernelEventMap](../../../../type-aliases/WPKernelEventMap.md)
-
----
-
-### ResourceDefinedEvent
-
-Re-exports [ResourceDefinedEvent](../../../../type-aliases/ResourceDefinedEvent.md)
-
----
 
 ### ActionDefinedEvent
 
@@ -82,6 +28,60 @@ Re-exports [CacheInvalidatedEvent](../../../../type-aliases/CacheInvalidatedEven
 
 ---
 
+### clearRegisteredActions
+
+Re-exports [clearRegisteredActions](../../../../functions/clearRegisteredActions.md)
+
+---
+
+### clearRegisteredResources
+
+Re-exports [clearRegisteredResources](../../../../functions/clearRegisteredResources.md)
+
+---
+
 ### CustomKernelEvent
 
 Re-exports [CustomKernelEvent](../../../../type-aliases/CustomKernelEvent.md)
+
+---
+
+### getRegisteredActions
+
+Re-exports [getRegisteredActions](../../../../functions/getRegisteredActions.md)
+
+---
+
+### getRegisteredResources
+
+Re-exports [getRegisteredResources](../../../../functions/getRegisteredResources.md)
+
+---
+
+### getWPKernelEventBus
+
+Re-exports [getWPKernelEventBus](../../../../functions/getWPKernelEventBus.md)
+
+---
+
+### ResourceDefinedEvent
+
+Re-exports [ResourceDefinedEvent](../../../../type-aliases/ResourceDefinedEvent.md)
+
+---
+
+### setWPKernelEventBus
+
+Re-exports [setWPKernelEventBus](../../../../functions/setWPKernelEventBus.md)
+
+---
+
+### WPKernelEventBus
+
+Re-exports [WPKernelEventBus](../../../../classes/WPKernelEventBus.md)
+
+---
+
+### WPKernelEventMap
+
+Re-exports [WPKernelEventMap](../../../../type-aliases/WPKernelEventMap.md)

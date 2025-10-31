@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -12,14 +12,6 @@
 
 ```ts
 key: string;
-```
-
----
-
-### source
-
-```ts
-source: 'resource' | 'config';
 ```
 
 ---
@@ -46,4 +38,12 @@ route: string;
 
 ```ts
 transport: IRRouteTransport;
+```
+
+---
+
+### source
+
+```ts
+source: 'resource' | 'config';
 ```

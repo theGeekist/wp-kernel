@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -24,18 +24,6 @@ readonly attributes: PhpAttributes;
 
 ---
 
-### nodeType
-
-```ts
-readonly nodeType: "Expr_StaticPropertyFetch";
-```
-
-#### Overrides
-
-[`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
-
----
-
 ### class
 
 ```ts
@@ -51,3 +39,15 @@ readonly name:
   | PhpExpr
   | PhpIdentifier;
 ```
+
+---
+
+### nodeType
+
+```ts
+readonly nodeType: "Expr_StaticPropertyFetch";
+```
+
+#### Overrides
+
+[`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)

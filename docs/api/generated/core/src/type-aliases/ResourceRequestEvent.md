@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -13,16 +13,6 @@ type ResourceRequestEvent = object;
 Event payload for wpk.resource.request
 
 ## Properties
-
-### requestId
-
-```ts
-requestId: string;
-```
-
-Request ID for correlation
-
----
 
 ### method
 
@@ -51,6 +41,16 @@ optional query: Record<string, unknown>;
 ```
 
 Query parameters (if any)
+
+---
+
+### requestId
+
+```ts
+requestId: string;
+```
+
+Request ID for correlation
 
 ---
 

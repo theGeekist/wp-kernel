@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -30,16 +30,6 @@ The fetched list response with items and metadata, or undefined if not yet loade
 
 ---
 
-### isLoading
-
-```ts
-isLoading: boolean;
-```
-
-True if the data is currently being fetched or resolved
-
----
-
 ### error
 
 ```ts
@@ -47,3 +37,13 @@ error: string | undefined;
 ```
 
 Error message if the fetch failed, undefined otherwise
+
+---
+
+### isLoading
+
+```ts
+isLoading: boolean;
+```
+
+True if the data is currently being fetched or resolved

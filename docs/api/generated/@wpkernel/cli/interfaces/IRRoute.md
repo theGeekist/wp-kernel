@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -7,22 +7,6 @@
 # Interface: IRRoute
 
 ## Properties
-
-### method
-
-```ts
-method: string;
-```
-
----
-
-### path
-
-```ts
-path: string;
-```
-
----
 
 ### capability?
 
@@ -36,6 +20,22 @@ optional capability: string;
 
 ```ts
 hash: string;
+```
+
+---
+
+### method
+
+```ts
+method: string;
+```
+
+---
+
+### path
+
+```ts
+path: string;
 ```
 
 ---

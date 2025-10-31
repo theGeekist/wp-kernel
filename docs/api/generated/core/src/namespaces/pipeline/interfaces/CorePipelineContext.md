@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../../../README.md)
+[**WP Kernel API v0.10.0**](../../../../../README.md)
 
 ---
 
@@ -9,16 +9,6 @@
 Context contract shared across core pipeline helpers.
 
 ## Properties
-
-### reporter
-
-```ts
-reporter: Reporter;
-```
-
-Structured reporter instance used for diagnostics.
-
----
 
 ### namespace
 
@@ -37,3 +27,13 @@ readonly optional registry: CorePipelineRegistryBridge;
 ```
 
 Optional registry bridge helpers surfaced to pipeline extensions.
+
+---
+
+### reporter
+
+```ts
+reporter: Reporter;
+```
+
+Structured reporter instance used for diagnostics.

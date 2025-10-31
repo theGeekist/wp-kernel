@@ -8,6 +8,7 @@
  * - _fields query parameter support
  *
  * @see Product Specification § 4.1 Resources
+ * @category HTTP
  */
 
 import { WPKernelError } from '../error/WPKernelError';
@@ -25,7 +26,9 @@ import type {
 } from './types';
 
 /**
- * Generate a unique request ID for correlation
+ * Generate a unique request ID for transport correlation.
+ *
+ * @category HTTP
  */
 function generateRequestId(): string {
 	return `req_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
@@ -54,8 +57,11 @@ function resolveTransportReporter(meta?: TransportMeta): Reporter {
 }
 
 /**
- * Get WordPress hooks for event emission
- * Returns null if not in browser environment
+ * Resolve the WordPress hooks API used for transport event emission.
+ *
+ * Returns `null` outside the browser so SSR environments avoid wp.hooks.
+ *
+ * @category HTTP
  */
 function getHooks() {
 	if (typeof window === 'undefined') {
@@ -75,10 +81,12 @@ function getHooks() {
 }
 
 /**
- * Build full URL with query parameters
- * @param path
- * @param query
- * @param fields
+ * Build a REST request path with merged query parameters.
+ *
+ * @param    path   - REST API path or absolute URL
+ * @param    query  - Query parameters to append
+ * @param    fields - REST `_fields` whitelist
+ * @category HTTP
  */
 function buildUrl(
 	path: string,
@@ -106,11 +114,13 @@ function buildUrl(
 }
 
 /**
- * Normalize WordPress REST API error to WPKernelError
- * @param error
- * @param requestId
- * @param method
- * @param path
+ * Normalize WordPress REST API errors to `WPKernelError` instances.
+ *
+ * @param    error     - Thrown error from the transport layer
+ * @param    requestId - Generated request correlation identifier
+ * @param    method    - HTTP method used for the request
+ * @param    path      - Path or URL used for the request
+ * @category HTTP
  */
 function normalizeError(
 	error: unknown,
@@ -320,6 +330,8 @@ function emitErrorEvent(
  * console.log(response.data); // Thing object
  * console.log(response.requestId); // 'req_1234567890_abc123'
  * ```
+ *
+ * @category HTTP
  */
 export async function fetch<T = unknown>(
 	request: TransportRequest

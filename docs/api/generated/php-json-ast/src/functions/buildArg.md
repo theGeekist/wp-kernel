@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -22,13 +22,13 @@ function buildArg(value, options, attributes?): PhpArg;
 
 `boolean`
 
-#### unpack?
-
-`boolean`
-
 #### name?
 
 [`PhpIdentifier`](../interfaces/PhpIdentifier.md) \| `null`
+
+#### unpack?
+
+`boolean`
 
 ### attributes?
 

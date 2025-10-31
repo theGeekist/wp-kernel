@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -33,6 +33,26 @@
 `TKind` _extends_ [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
 
 ## Properties
+
+### apply
+
+```ts
+readonly apply: HelperApplyFn<TContext, TInput, TOutput, TReporter>;
+```
+
+---
+
+### dependsOn
+
+```ts
+readonly dependsOn: readonly string[];
+```
+
+#### Inherited from
+
+[`HelperDescriptor`](HelperDescriptor.md).[`dependsOn`](HelperDescriptor.md#dependson)
+
+---
 
 ### key
 
@@ -70,30 +90,6 @@ readonly mode: HelperMode;
 
 ---
 
-### priority
-
-```ts
-readonly priority: number;
-```
-
-#### Inherited from
-
-[`HelperDescriptor`](HelperDescriptor.md).[`priority`](HelperDescriptor.md#priority)
-
----
-
-### dependsOn
-
-```ts
-readonly dependsOn: readonly string[];
-```
-
-#### Inherited from
-
-[`HelperDescriptor`](HelperDescriptor.md).[`dependsOn`](HelperDescriptor.md#dependson)
-
----
-
 ### origin?
 
 ```ts
@@ -106,8 +102,12 @@ readonly optional origin: string;
 
 ---
 
-### apply
+### priority
 
 ```ts
-readonly apply: HelperApplyFn<TContext, TInput, TOutput, TReporter>;
+readonly priority: number;
 ```
+
+#### Inherited from
+
+[`HelperDescriptor`](HelperDescriptor.md).[`priority`](HelperDescriptor.md#priority)

@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -13,22 +13,6 @@
 ```
 
 ## Properties
-
-### slug
-
-```ts
-slug: string;
-```
-
----
-
-### title
-
-```ts
-title: string;
-```
-
----
 
 ### capability?
 
@@ -50,4 +34,20 @@ optional parent: string;
 
 ```ts
 optional position: number;
+```
+
+---
+
+### slug
+
+```ts
+slug: string;
+```
+
+---
+
+### title
+
+```ts
+title: string;
 ```

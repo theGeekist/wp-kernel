@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -14,16 +14,16 @@
 
 ## Properties
 
-### node
-
-```ts
-readonly node: TNode;
-```
-
----
-
 ### lines
 
 ```ts
 readonly lines: readonly string[];
+```
+
+---
+
+### node
+
+```ts
+readonly node: TNode;
 ```

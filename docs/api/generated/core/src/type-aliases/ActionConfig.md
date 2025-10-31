@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -24,16 +24,6 @@ Configuration object accepted by `defineAction()`.
 
 ## Properties
 
-### name
-
-```ts
-name: string;
-```
-
-Unique action identifier.
-
----
-
 ### handler
 
 ```ts
@@ -41,6 +31,16 @@ handler: ActionFn<TArgs, TResult>;
 ```
 
 Implementation invoked when the action is executed.
+
+---
+
+### name
+
+```ts
+name: string;
+```
+
+Unique action identifier.
 
 ---
 

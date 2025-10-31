@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../../../README.md)
+[**WP Kernel API v0.10.0**](../../../../../README.md)
 
 ---
 
@@ -17,6 +17,34 @@
 `TKind` _extends_ [`HelperKind`](../../../../../php-json-ast/src/type-aliases/HelperKind.md) = [`HelperKind`](../../../../../php-json-ast/src/type-aliases/HelperKind.md)
 
 ## Properties
+
+### dependsOn
+
+```ts
+readonly dependsOn: readonly string[];
+```
+
+#### Inherited from
+
+[`HelperDescriptor`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md).[`dependsOn`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md#dependson)
+
+---
+
+### id
+
+```ts
+readonly id: string;
+```
+
+---
+
+### index
+
+```ts
+readonly index: number;
+```
+
+---
 
 ### key
 
@@ -54,30 +82,6 @@ readonly mode: HelperMode;
 
 ---
 
-### priority
-
-```ts
-readonly priority: number;
-```
-
-#### Inherited from
-
-[`HelperDescriptor`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md).[`priority`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md#priority)
-
----
-
-### dependsOn
-
-```ts
-readonly dependsOn: readonly string[];
-```
-
-#### Inherited from
-
-[`HelperDescriptor`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md).[`dependsOn`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md#dependson)
-
----
-
 ### origin?
 
 ```ts
@@ -90,16 +94,12 @@ readonly optional origin: string;
 
 ---
 
-### id
+### priority
 
 ```ts
-readonly id: string;
+readonly priority: number;
 ```
 
----
+#### Inherited from
 
-### index
-
-```ts
-readonly index: number;
-```
+[`HelperDescriptor`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md).[`priority`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md#priority)

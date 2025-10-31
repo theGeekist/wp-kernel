@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -26,86 +26,6 @@
 
 ## Properties
 
-### mode?
-
-```ts
-readonly optional mode: HelperMode;
-```
-
-#### Inherited from
-
-[`CreateHelperOptions`](CreateHelperOptions.md).[`mode`](CreateHelperOptions.md#mode)
-
----
-
-### priority?
-
-```ts
-readonly optional priority: number;
-```
-
-#### Inherited from
-
-[`CreateHelperOptions`](CreateHelperOptions.md).[`priority`](CreateHelperOptions.md#priority)
-
----
-
-### dependsOn?
-
-```ts
-readonly optional dependsOn: readonly string[];
-```
-
-#### Inherited from
-
-[`CreateHelperOptions`](CreateHelperOptions.md).[`dependsOn`](CreateHelperOptions.md#dependson)
-
----
-
-### origin?
-
-```ts
-readonly optional origin: string;
-```
-
-#### Inherited from
-
-[`CreateHelperOptions`](CreateHelperOptions.md).[`origin`](CreateHelperOptions.md#origin)
-
----
-
-### key
-
-```ts
-readonly key: string;
-```
-
----
-
-### filePath
-
-```ts
-readonly filePath: string;
-```
-
----
-
-### namespace
-
-```ts
-readonly namespace: string;
-```
-
----
-
-### metadata
-
-```ts
-readonly metadata: PhpFileMetadata;
-```
-
----
-
 ### build()
 
 ```ts
@@ -125,3 +45,83 @@ readonly build: (builder, entry) => void | Promise<void>;
 #### Returns
 
 `void` \| `Promise`\&lt;`void`\&gt;
+
+---
+
+### dependsOn?
+
+```ts
+readonly optional dependsOn: readonly string[];
+```
+
+#### Inherited from
+
+[`CreateHelperOptions`](CreateHelperOptions.md).[`dependsOn`](CreateHelperOptions.md#dependson)
+
+---
+
+### filePath
+
+```ts
+readonly filePath: string;
+```
+
+---
+
+### key
+
+```ts
+readonly key: string;
+```
+
+---
+
+### metadata
+
+```ts
+readonly metadata: PhpFileMetadata;
+```
+
+---
+
+### mode?
+
+```ts
+readonly optional mode: HelperMode;
+```
+
+#### Inherited from
+
+[`CreateHelperOptions`](CreateHelperOptions.md).[`mode`](CreateHelperOptions.md#mode)
+
+---
+
+### namespace
+
+```ts
+readonly namespace: string;
+```
+
+---
+
+### origin?
+
+```ts
+readonly optional origin: string;
+```
+
+#### Inherited from
+
+[`CreateHelperOptions`](CreateHelperOptions.md).[`origin`](CreateHelperOptions.md#origin)
+
+---
+
+### priority?
+
+```ts
+readonly optional priority: number;
+```
+
+#### Inherited from
+
+[`CreateHelperOptions`](CreateHelperOptions.md).[`priority`](CreateHelperOptions.md#priority)

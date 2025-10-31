@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -24,10 +24,18 @@
 
 ## Properties
 
-### fields?
+### actions?
 
 ```ts
-optional fields: unknown[] | readonly unknown[];
+optional actions: unknown[];
+```
+
+---
+
+### defaultLayouts?
+
+```ts
+optional defaultLayouts: Record<string, unknown>;
 ```
 
 ---
@@ -40,44 +48,18 @@ optional defaultView: unknown;
 
 ---
 
-### actions?
+### empty?
 
 ```ts
-optional actions: unknown[];
+optional empty: unknown;
 ```
 
 ---
 
-### mapQuery()?
+### fields?
 
 ```ts
-optional mapQuery: (viewState) => TQuery;
-```
-
-#### Parameters
-
-##### viewState
-
-`Record`\&lt;`string`, `unknown`\&gt;
-
-#### Returns
-
-`TQuery`
-
----
-
-### search?
-
-```ts
-optional search: boolean;
-```
-
----
-
-### searchLabel?
-
-```ts
-optional searchLabel: string;
+optional fields: unknown[] | readonly unknown[];
 ```
 
 ---
@@ -100,11 +82,21 @@ optional getItemId: (item) => string;
 
 ---
 
-### empty?
+### mapQuery()?
 
 ```ts
-optional empty: unknown;
+optional mapQuery: (viewState) => TQuery;
 ```
+
+#### Parameters
+
+##### viewState
+
+`Record`\&lt;`string`, `unknown`\&gt;
+
+#### Returns
+
+`TQuery`
 
 ---
 
@@ -112,14 +104,6 @@ optional empty: unknown;
 
 ```ts
 optional perPageSizes: number[];
-```
-
----
-
-### defaultLayouts?
-
-```ts
-optional defaultLayouts: Record<string, unknown>;
 ```
 
 ---
@@ -136,4 +120,20 @@ optional preferencesKey: string;
 
 ```ts
 optional screen: ResourceDataViewsScreenConfig;
+```
+
+---
+
+### search?
+
+```ts
+optional search: boolean;
+```
+
+---
+
+### searchLabel?
+
+```ts
+optional searchLabel: string;
 ```

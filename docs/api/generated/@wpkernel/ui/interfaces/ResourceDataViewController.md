@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -18,18 +18,10 @@
 
 ## Properties
 
-### resource?
+### capabilities?
 
 ```ts
-readonly optional resource: ResourceObject<TItem, TQuery>;
-```
-
----
-
-### resourceName
-
-```ts
-readonly resourceName: string;
+readonly optional capabilities: WPKUICapabilityRuntime;
 ```
 
 ---
@@ -39,118 +31,6 @@ readonly resourceName: string;
 ```ts
 readonly config: ResourceDataViewConfig<TItem, TQuery>;
 ```
-
----
-
-### queryMapping
-
-```ts
-readonly queryMapping: QueryMapping<TQuery>;
-```
-
----
-
-### runtime
-
-```ts
-readonly runtime: DataViewsControllerRuntime;
-```
-
----
-
-### namespace
-
-```ts
-readonly namespace: string;
-```
-
----
-
-### preferencesKey
-
-```ts
-readonly preferencesKey: string;
-```
-
----
-
-### invalidate()?
-
-```ts
-readonly optional invalidate: (patterns) => void;
-```
-
-#### Parameters
-
-##### patterns
-
-[`CacheKeyPattern`](../../../core/src/type-aliases/CacheKeyPattern.md) | [`CacheKeyPattern`](../../../core/src/type-aliases/CacheKeyPattern.md)[]
-
-#### Returns
-
-`void`
-
----
-
-### capabilities?
-
-```ts
-readonly optional capabilities: WPKUICapabilityRuntime;
-```
-
----
-
-### fetchList()?
-
-```ts
-readonly optional fetchList: (query) => Promise<ListResponse<TItem>>;
-```
-
-#### Parameters
-
-##### query
-
-`TQuery`
-
-#### Returns
-
-`Promise`\&lt;[`ListResponse`](../../../core/src/type-aliases/ListResponse.md)\&lt;`TItem`\&gt;\&gt;
-
----
-
-### prefetchList()?
-
-```ts
-readonly optional prefetchList: (query) => Promise<void>;
-```
-
-#### Parameters
-
-##### query
-
-`TQuery`
-
-#### Returns
-
-`Promise`\&lt;`void`\&gt;
-
----
-
-### mapViewToQuery()
-
-```ts
-mapViewToQuery: (view) => TQuery;
-```
-
-#### Parameters
-
-##### view
-
-`View`
-
-#### Returns
-
-`TQuery`
 
 ---
 
@@ -176,30 +56,6 @@ deriveViewState: (view) => object;
 fields: string[];
 ```
 
-##### sort?
-
-```ts
-optional sort: object;
-```
-
-###### sort.field
-
-```ts
-field: string;
-```
-
-###### sort.direction
-
-```ts
-direction: 'asc' | 'desc';
-```
-
-##### search?
-
-```ts
-optional search: string;
-```
-
 ##### filters?
 
 ```ts
@@ -218,49 +74,61 @@ page: number;
 perPage: number;
 ```
 
----
-
-### loadStoredView()
+##### search?
 
 ```ts
-loadStoredView: () => Promise<View | undefined>;
+optional search: string;
 ```
 
-#### Returns
-
-`Promise`\&lt;`View` \| `undefined`\&gt;
-
----
-
-### saveView()
+##### sort?
 
 ```ts
-saveView: (view) => Promise<void>;
+optional sort: object;
 ```
 
-#### Parameters
+###### sort.direction
 
-##### view
+```ts
+direction: 'asc' | 'desc';
+```
 
-`View`
+###### sort.field
 
-#### Returns
-
-`Promise`\&lt;`void`\&gt;
+```ts
+field: string;
+```
 
 ---
 
-### emitViewChange()
+### emitAction()
 
 ```ts
-emitViewChange: (view) => void;
+emitAction: (payload) => void;
 ```
 
 #### Parameters
 
-##### view
+##### payload
 
-`View`
+###### actionId
+
+`string`
+
+###### meta?
+
+`Record`\&lt;`string`, `unknown`\&gt;
+
+###### permitted
+
+`boolean`
+
+###### reason?
+
+`string`
+
+###### selection
+
+(`string` \| `number`)[]
 
 #### Returns
 
@@ -304,39 +172,39 @@ emitUnregistered: (preferencesKey) => void;
 
 ---
 
-### emitAction()
+### emitViewChange()
 
 ```ts
-emitAction: (payload) => void;
+emitViewChange: (view) => void;
 ```
 
 #### Parameters
 
-##### payload
+##### view
 
-###### actionId
-
-`string`
-
-###### selection
-
-(`string` \| `number`)[]
-
-###### permitted
-
-`boolean`
-
-###### reason?
-
-`string`
-
-###### meta?
-
-`Record`\&lt;`string`, `unknown`\&gt;
+`View`
 
 #### Returns
 
 `void`
+
+---
+
+### fetchList()?
+
+```ts
+readonly optional fetchList: (query) => Promise<ListResponse<TItem>>;
+```
+
+#### Parameters
+
+##### query
+
+`TQuery`
+
+#### Returns
+
+`Promise`\&lt;[`ListResponse`](../../../core/src/type-aliases/ListResponse.md)\&lt;`TItem`\&gt;\&gt;
 
 ---
 
@@ -349,3 +217,135 @@ getReporter: () => Reporter;
 #### Returns
 
 [`Reporter`](../../../core/src/type-aliases/Reporter.md)
+
+---
+
+### invalidate()?
+
+```ts
+readonly optional invalidate: (patterns) => void;
+```
+
+#### Parameters
+
+##### patterns
+
+[`CacheKeyPattern`](../../../core/src/type-aliases/CacheKeyPattern.md) | [`CacheKeyPattern`](../../../core/src/type-aliases/CacheKeyPattern.md)[]
+
+#### Returns
+
+`void`
+
+---
+
+### loadStoredView()
+
+```ts
+loadStoredView: () => Promise<View | undefined>;
+```
+
+#### Returns
+
+`Promise`\&lt;`View` \| `undefined`\&gt;
+
+---
+
+### mapViewToQuery()
+
+```ts
+mapViewToQuery: (view) => TQuery;
+```
+
+#### Parameters
+
+##### view
+
+`View`
+
+#### Returns
+
+`TQuery`
+
+---
+
+### namespace
+
+```ts
+readonly namespace: string;
+```
+
+---
+
+### preferencesKey
+
+```ts
+readonly preferencesKey: string;
+```
+
+---
+
+### prefetchList()?
+
+```ts
+readonly optional prefetchList: (query) => Promise<void>;
+```
+
+#### Parameters
+
+##### query
+
+`TQuery`
+
+#### Returns
+
+`Promise`\&lt;`void`\&gt;
+
+---
+
+### queryMapping
+
+```ts
+readonly queryMapping: QueryMapping<TQuery>;
+```
+
+---
+
+### resource?
+
+```ts
+readonly optional resource: ResourceObject<TItem, TQuery>;
+```
+
+---
+
+### resourceName
+
+```ts
+readonly resourceName: string;
+```
+
+---
+
+### runtime
+
+```ts
+readonly runtime: DataViewsControllerRuntime;
+```
+
+---
+
+### saveView()
+
+```ts
+saveView: (view) => Promise<void>;
+```
+
+#### Parameters
+
+##### view
+
+`View`
+
+#### Returns
+
+`Promise`\&lt;`void`\&gt;

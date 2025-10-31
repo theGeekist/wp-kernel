@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../../../README.md)
+[**WP Kernel API v0.10.0**](../../../../../README.md)
 
 ---
 
@@ -7,22 +7,6 @@
 # Interface: IRCapabilityDefinition
 
 ## Properties
-
-### key
-
-```ts
-key: string;
-```
-
----
-
-### capability
-
-```ts
-capability: string;
-```
-
----
 
 ### appliesTo
 
@@ -36,6 +20,22 @@ appliesTo: IRCapabilityScope;
 
 ```ts
 optional binding: string;
+```
+
+---
+
+### capability
+
+```ts
+capability: string;
+```
+
+---
+
+### key
+
+```ts
+key: string;
 ```
 
 ---

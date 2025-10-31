@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -21,22 +21,6 @@ optional explicit: string;
 ```
 
 Explicit namespace override
-
----
-
-### validate?
-
-```ts
-optional validate: boolean;
-```
-
-Whether to validate the detected namespace
-
-#### Default
-
-```ts
-true;
-```
 
 ---
 
@@ -72,6 +56,16 @@ Detection mode - controls which methods are used
 
 ---
 
+### moduleId?
+
+```ts
+optional moduleId: string;
+```
+
+Module ID for Script Modules (e.g., 'wpk/my-plugin' → 'my-plugin')
+
+---
+
 ### runtime?
 
 ```ts
@@ -88,10 +82,16 @@ Runtime context - affects availability of detection methods
 
 ---
 
-### moduleId?
+### validate?
 
 ```ts
-optional moduleId: string;
+optional validate: boolean;
 ```
 
-Module ID for Script Modules (e.g., 'wpk/my-plugin' → 'my-plugin')
+Whether to validate the detected namespace
+
+#### Default
+
+```ts
+true;
+```

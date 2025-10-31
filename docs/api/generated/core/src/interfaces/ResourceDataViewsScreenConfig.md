@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -18,30 +18,6 @@
 
 ```ts
 optional component: string;
-```
-
----
-
-### route?
-
-```ts
-optional route: string;
-```
-
----
-
-### resourceImport?
-
-```ts
-optional resourceImport: string;
-```
-
----
-
-### resourceSymbol?
-
-```ts
-optional resourceSymbol: string;
 ```
 
 ---
@@ -66,4 +42,28 @@ optional kernelSymbol: string;
 
 ```ts
 optional menu: ResourceDataViewsMenuConfig;
+```
+
+---
+
+### resourceImport?
+
+```ts
+optional resourceImport: string;
+```
+
+---
+
+### resourceSymbol?
+
+```ts
+optional resourceSymbol: string;
+```
+
+---
+
+### route?
+
+```ts
+optional route: string;
 ```

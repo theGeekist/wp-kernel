@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../../../README.md)
+[**WP Kernel API v0.10.0**](../../../../../README.md)
 
 ---
 
@@ -7,24 +7,6 @@
 # Interface: BuildCreateCommandOptions
 
 ## Properties
-
-### buildWorkspace()?
-
-```ts
-readonly optional buildWorkspace: (root) => Workspace;
-```
-
-#### Parameters
-
-##### root
-
-`string` = `...`
-
-#### Returns
-
-[`Workspace`](Workspace.md)
-
----
 
 ### buildReporter()?
 
@@ -44,21 +26,21 @@ readonly optional buildReporter: (options) => Reporter;
 
 ---
 
-### runWorkflow()?
+### buildWorkspace()?
 
 ```ts
-readonly optional runWorkflow: (__namedParameters) => Promise<InitWorkflowResult>;
+readonly optional buildWorkspace: (root) => Workspace;
 ```
 
 #### Parameters
 
-##### \_\_namedParameters
+##### root
 
-`InitWorkflowOptions`
+`string` = `...`
 
 #### Returns
 
-`Promise`\&lt;`InitWorkflowResult`\&gt;
+[`Workspace`](Workspace.md)
 
 ---
 
@@ -84,6 +66,24 @@ readonly optional checkGitRepository: (cwd, __namedParameters) => Promise<boolea
 
 ---
 
+### ensureCleanDirectory()?
+
+```ts
+readonly optional ensureCleanDirectory: (__namedParameters) => Promise<void>;
+```
+
+#### Parameters
+
+##### \_\_namedParameters
+
+[`EnsureCleanDirectoryOptions`](EnsureCleanDirectoryOptions.md)
+
+#### Returns
+
+`Promise`\&lt;`void`\&gt;
+
+---
+
 ### initGitRepository()?
 
 ```ts
@@ -106,17 +106,21 @@ readonly optional initGitRepository: (cwd, __namedParameters) => Promise<void>;
 
 ---
 
-### ensureCleanDirectory()?
+### installComposerDependencies()?
 
 ```ts
-readonly optional ensureCleanDirectory: (__namedParameters) => Promise<void>;
+readonly optional installComposerDependencies: (cwd, __namedParameters) => Promise<void>;
 ```
 
 #### Parameters
 
+##### cwd
+
+`string`
+
 ##### \_\_namedParameters
 
-[`EnsureCleanDirectoryOptions`](EnsureCleanDirectoryOptions.md)
+`InstallerDependencies` = `{}`
 
 #### Returns
 
@@ -146,22 +150,18 @@ readonly optional installNodeDependencies: (cwd, __namedParameters) => Promise<v
 
 ---
 
-### installComposerDependencies()?
+### runWorkflow()?
 
 ```ts
-readonly optional installComposerDependencies: (cwd, __namedParameters) => Promise<void>;
+readonly optional runWorkflow: (__namedParameters) => Promise<InitWorkflowResult>;
 ```
 
 #### Parameters
 
-##### cwd
-
-`string`
-
 ##### \_\_namedParameters
 
-`InstallerDependencies` = `{}`
+`InitWorkflowOptions`
 
 #### Returns
 
-`Promise`\&lt;`void`\&gt;
+`Promise`\&lt;`InitWorkflowResult`\&gt;

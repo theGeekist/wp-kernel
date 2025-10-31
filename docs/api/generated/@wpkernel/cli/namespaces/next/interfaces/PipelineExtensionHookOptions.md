@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../../../README.md)
+[**WP Kernel API v0.10.0**](../../../../../README.md)
 
 ---
 
@@ -7,6 +7,14 @@
 # Interface: PipelineExtensionHookOptions
 
 ## Properties
+
+### artifact
+
+```ts
+readonly artifact: IRv1;
+```
+
+---
 
 ### context
 
@@ -20,12 +28,4 @@ readonly context: PipelineContext;
 
 ```ts
 readonly options: BuildIrOptions;
-```
-
----
-
-### artifact
-
-```ts
-readonly artifact: IRv1;
 ```

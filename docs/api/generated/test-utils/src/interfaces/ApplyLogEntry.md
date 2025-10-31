@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -8,26 +8,18 @@
 
 ## Properties
 
-### version
+### actions
 
 ```ts
-readonly version: number;
+readonly actions: readonly string[];
 ```
 
 ---
 
-### timestamp
+### error?
 
 ```ts
-readonly timestamp: string;
-```
-
----
-
-### status
-
-```ts
-readonly status: ApplyLogStatus;
+readonly optional error: unknown;
 ```
 
 ---
@@ -48,14 +40,6 @@ readonly flags: ApplyLogFlags;
 
 ---
 
-### summary
-
-```ts
-readonly summary: ApplyLogSummary | null;
-```
-
----
-
 ### records
 
 ```ts
@@ -64,16 +48,32 @@ readonly records: readonly ApplyLogRecord[];
 
 ---
 
-### actions
+### status
 
 ```ts
-readonly actions: readonly string[];
+readonly status: ApplyLogStatus;
 ```
 
 ---
 
-### error?
+### summary
 
 ```ts
-readonly optional error: unknown;
+readonly summary: ApplyLogSummary | null;
+```
+
+---
+
+### timestamp
+
+```ts
+readonly timestamp: string;
+```
+
+---
+
+### version
+
+```ts
+readonly version: number;
 ```

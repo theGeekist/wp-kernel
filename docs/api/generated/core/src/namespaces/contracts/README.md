@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../../README.md)
+[**WP Kernel API v0.10.0**](../../../../README.md)
 
 ---
 
@@ -46,15 +46,21 @@ Re-exports [SerializedError](../../type-aliases/SerializedError.md)
 
 ---
 
-### WPKConfigSource
+### WPK_CONFIG_SOURCES
 
-Re-exports [WPKConfigSource](../namespace/type-aliases/WPKConfigSource.md)
+Re-exports [WPK_CONFIG_SOURCES](../../variables/WPK_CONFIG_SOURCES.md)
 
 ---
 
-### WPKernelError
+### WPK_EVENTS
 
-Re-exports [WPKernelError](../../classes/WPKernelError.md)
+Re-exports [WPK_EVENTS](../../variables/WPK_EVENTS.md)
+
+---
+
+### WPK_INFRASTRUCTURE
+
+Re-exports [WPK_INFRASTRUCTURE](../../variables/WPK_INFRASTRUCTURE.md)
 
 ---
 
@@ -70,18 +76,12 @@ Re-exports [WPK_SUBSYSTEM_NAMESPACES](../../variables/WPK_SUBSYSTEM_NAMESPACES.m
 
 ---
 
-### WPK_INFRASTRUCTURE
+### WPKConfigSource
 
-Re-exports [WPK_INFRASTRUCTURE](../../variables/WPK_INFRASTRUCTURE.md)
-
----
-
-### WPK_EVENTS
-
-Re-exports [WPK_EVENTS](../../variables/WPK_EVENTS.md)
+Re-exports [WPKConfigSource](../namespace/type-aliases/WPKConfigSource.md)
 
 ---
 
-### WPK_CONFIG_SOURCES
+### WPKernelError
 
-Re-exports [WPK_CONFIG_SOURCES](../../variables/WPK_CONFIG_SOURCES.md)
+Re-exports [WPKernelError](../../classes/WPKernelError.md)

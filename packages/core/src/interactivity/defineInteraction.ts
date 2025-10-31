@@ -501,7 +501,8 @@ function buildServerStateSynchronizer<TEntity, TQuery>(
  *
  * await TestimonialReview.store.actions.approve({ id: 101 });
  * ```
- * @param options
+ * @param    options
+ * @category Interactivity
  */
 export function defineInteraction<
 	TEntity,

@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -19,6 +19,14 @@
 `TKind` _extends_ [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
 
 ## Properties
+
+### dependsOn
+
+```ts
+readonly dependsOn: readonly string[];
+```
+
+---
 
 ### key
 
@@ -44,24 +52,16 @@ readonly mode: HelperMode;
 
 ---
 
-### priority
-
-```ts
-readonly priority: number;
-```
-
----
-
-### dependsOn
-
-```ts
-readonly dependsOn: readonly string[];
-```
-
----
-
 ### origin?
 
 ```ts
 readonly optional origin: string;
+```
+
+---
+
+### priority
+
+```ts
+readonly priority: number;
 ```

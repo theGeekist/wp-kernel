@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -8,16 +8,16 @@
 
 ## Properties
 
-### mode?
-
-```ts
-readonly optional mode: number;
-```
-
----
-
 ### ensureDir?
 
 ```ts
 readonly optional ensureDir: boolean;
+```
+
+---
+
+### mode?
+
+```ts
+readonly optional mode: number;
 ```

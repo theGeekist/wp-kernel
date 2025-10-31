@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -26,27 +26,15 @@ type ResourceConfig<T, TQuery, _TTypes> = object;
 
 ## Properties
 
-### name
+### cacheKeys?
 
 ```ts
-name: string;
+optional cacheKeys: CacheKeys<TQuery>;
 ```
 
-Unique resource name (lowercase, singular recommended)
+Cache key generators
 
-Used for store keys, event names, and debugging
-
----
-
-### routes
-
-```ts
-routes: ResourceRoutes;
-```
-
-REST route definitions
-
-Define only the operations your resource supports
+Optional. If omitted, default cache keys based on resource name will be used
 
 ---
 
@@ -62,39 +50,15 @@ The runtime ignores this field; CLI tooling can derive store defaults and route 
 
 ---
 
-### storage?
+### name
 
 ```ts
-optional storage: ResourceStorageConfig;
+name: string;
 ```
 
-Optional persistence strategy metadata.
+Unique resource name (lowercase, singular recommended)
 
-The runtime ignores this field; CLI tooling can emit registration scaffolding.
-
----
-
-### store?
-
-```ts
-optional store: ResourceStoreOptions<T, TQuery>;
-```
-
-Optional overrides for store configuration.
-
-Provided for forward compatibility with CLI-generated descriptors.
-
----
-
-### cacheKeys?
-
-```ts
-optional cacheKeys: CacheKeys<TQuery>;
-```
-
-Cache key generators
-
-Optional. If omitted, default cache keys based on resource name will be used
+Used for store keys, event names, and debugging
 
 ---
 
@@ -119,24 +83,6 @@ name: 'my-plugin:job'; // Shorthand namespace:name format
 
 ---
 
-### schema?
-
-```ts
-optional schema: Promise<unknown> | unknown | string;
-```
-
-JSON Schema for runtime validation
-
-Optional. Provides runtime type safety and validation errors
-
-#### Example
-
-```ts
-schema: import('../../contracts/thing.schema.json');
-```
-
----
-
 ### queryParams?
 
 ```ts
@@ -157,6 +103,60 @@ Optional reporter override for resource instrumentation.
 
 When provided, the resource will emit debug/info/error logs through this
 reporter instead of creating a child reporter from the kernel instance.
+
+---
+
+### routes
+
+```ts
+routes: ResourceRoutes;
+```
+
+REST route definitions
+
+Define only the operations your resource supports
+
+---
+
+### schema?
+
+```ts
+optional schema: Promise<unknown> | unknown | string;
+```
+
+JSON Schema for runtime validation
+
+Optional. Provides runtime type safety and validation errors
+
+#### Example
+
+```ts
+schema: import('../../contracts/thing.schema.json');
+```
+
+---
+
+### storage?
+
+```ts
+optional storage: ResourceStorageConfig;
+```
+
+Optional persistence strategy metadata.
+
+The runtime ignores this field; CLI tooling can emit registration scaffolding.
+
+---
+
+### store?
+
+```ts
+optional store: ResourceStoreOptions<T, TQuery>;
+```
+
+Optional overrides for store configuration.
+
+Provided for forward compatibility with CLI-generated descriptors.
 
 ---
 

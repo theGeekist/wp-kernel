@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -22,10 +22,10 @@ config: WPKernelConfigV1;
 
 ---
 
-### reporter
+### ir?
 
 ```ts
-reporter: Reporter;
+optional ir: IRv1;
 ```
 
 ---
@@ -38,8 +38,8 @@ namespace: string;
 
 ---
 
-### ir?
+### reporter
 
 ```ts
-optional ir: IRv1;
+reporter: Reporter;
 ```

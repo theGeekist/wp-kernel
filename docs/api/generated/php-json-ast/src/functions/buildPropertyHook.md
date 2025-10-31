@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -26,13 +26,13 @@ function buildPropertyHook(name, body, options, attributes?): PhpPropertyHook;
 
 [`PhpAttrGroup`](../interfaces/PhpAttrGroup.md)[]
 
-#### flags?
-
-`number`
-
 #### byRef?
 
 `boolean`
+
+#### flags?
+
+`number`
 
 #### params?
 

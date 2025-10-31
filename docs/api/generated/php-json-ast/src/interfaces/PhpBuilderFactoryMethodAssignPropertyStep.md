@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -16,16 +16,16 @@ readonly kind: "assignPropertyFromParameter";
 
 ---
 
-### property
-
-```ts
-readonly property: string;
-```
-
----
-
 ### parameter
 
 ```ts
 readonly parameter: string;
+```
+
+---
+
+### property
+
+```ts
+readonly property: string;
 ```

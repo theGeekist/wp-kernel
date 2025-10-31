@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -24,15 +24,11 @@ readonly attributes: PhpAttributes;
 
 ---
 
-### nodeType
+### class
 
 ```ts
-readonly nodeType: "Expr_Instanceof";
+readonly class: PhpExpr | PhpName;
 ```
-
-#### Overrides
-
-[`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
 
 ---
 
@@ -44,8 +40,12 @@ readonly expr: PhpExpr;
 
 ---
 
-### class
+### nodeType
 
 ```ts
-readonly class: PhpExpr | PhpName;
+readonly nodeType: "Expr_Instanceof";
 ```
+
+#### Overrides
+
+[`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)

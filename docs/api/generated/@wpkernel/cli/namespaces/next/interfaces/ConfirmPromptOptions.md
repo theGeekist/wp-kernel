@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../../../README.md)
+[**WP Kernel API v0.10.0**](../../../../../README.md)
 
 ---
 
@@ -7,14 +7,6 @@
 # Interface: ConfirmPromptOptions
 
 ## Properties
-
-### message
-
-```ts
-readonly message: string;
-```
-
----
 
 ### defaultValue?
 
@@ -28,6 +20,14 @@ readonly optional defaultValue: boolean;
 
 ```ts
 readonly optional input: ReadableStream;
+```
+
+---
+
+### message
+
+```ts
+readonly message: string;
 ```
 
 ---

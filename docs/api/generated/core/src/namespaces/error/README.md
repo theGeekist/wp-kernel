@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../../README.md)
+[**WP Kernel API v0.10.0**](../../../../README.md)
 
 ---
 
@@ -19,24 +19,6 @@ Exports all error types and utilities for consistent error handling throughout t
 - [WordPressRESTError](type-aliases/WordPressRESTError.md)
 
 ## References
-
-### WPKernelError
-
-Re-exports [WPKernelError](../../classes/WPKernelError.md)
-
----
-
-### TransportError
-
-Re-exports [TransportError](../../classes/TransportError.md)
-
----
-
-### ServerError
-
-Re-exports [ServerError](../../classes/ServerError.md)
-
----
 
 ### ErrorCode
 
@@ -59,3 +41,21 @@ Re-exports [ErrorData](../../type-aliases/ErrorData.md)
 ### SerializedError
 
 Re-exports [SerializedError](../../type-aliases/SerializedError.md)
+
+---
+
+### ServerError
+
+Re-exports [ServerError](../../classes/ServerError.md)
+
+---
+
+### TransportError
+
+Re-exports [TransportError](../../classes/TransportError.md)
+
+---
+
+### WPKernelError
+
+Re-exports [WPKernelError](../../classes/WPKernelError.md)

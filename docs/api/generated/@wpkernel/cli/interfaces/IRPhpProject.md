@@ -1,4 +1,4 @@
-[**WP Kernel API v0.9.0**](../../../README.md)
+[**WP Kernel API v0.10.0**](../../../README.md)
 
 ---
 
@@ -8,18 +8,18 @@
 
 ## Properties
 
-### namespace
-
-```ts
-namespace: string;
-```
-
----
-
 ### autoload
 
 ```ts
 autoload: string;
+```
+
+---
+
+### namespace
+
+```ts
+namespace: string;
 ```
 
 ---
