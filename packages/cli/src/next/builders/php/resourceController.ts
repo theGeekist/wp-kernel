@@ -9,11 +9,7 @@ import {
 	buildProgramTargetPlanner,
 	buildResourceControllerRouteSet,
 	buildRestControllerModuleFromPlan,
-	buildWpOptionStorageArtifacts,
-	buildTransientStorageArtifacts,
-	buildWpTaxonomyQueryRouteBundle,
 	type WpPostRouteBundle,
-	resolveTransientKey,
 	DEFAULT_DOC_HEADER,
 	type RestControllerResourcePlan,
 	type RestControllerRoutePlan,
@@ -30,18 +26,22 @@ import { resolveIdentityConfig, type ResolvedIdentity } from './identity';
 import { buildRestArgs } from './resourceController/restArgs';
 import { buildRouteMethodName } from './resourceController/routeNaming';
 import { buildRouteSetOptions } from './resourceController/routes/buildRouteSetOptions';
-import {
-	buildWpTaxonomyHelperArtifacts,
-	ensureWpTaxonomyStorage,
-} from './resource/wpTaxonomy';
 import { renderPhpValue } from './resource/phpValue';
-import { ensureWpOptionStorage } from './resource/wpOption/shared';
 import { createPhpWpPostRoutesHelper } from './resource';
+import {
+	getResourceStorageHelperState,
+	type ResourceStorageHelperState,
+} from './resource/storageHelpers';
 
 export function createPhpResourceControllerHelper(): BuilderHelper {
 	return createHelper({
 		key: 'builder.generate.php.controller.resources',
 		kind: 'builder',
+		dependsOn: [
+			'builder.generate.php.controller.resources.storage.transient',
+			'builder.generate.php.controller.resources.storage.wpOption',
+			'builder.generate.php.controller.resources.storage.wpTaxonomy',
+		],
 		async apply(options: BuilderApplyOptions, next?: BuilderNext) {
 			const { input, reporter } = options;
 			if (input.phase !== 'generate' || !input.ir) {
@@ -62,12 +62,14 @@ export function createPhpResourceControllerHelper(): BuilderHelper {
 				warnOnMissingCapabilities({ reporter, resource });
 			}
 
+			const storageState = getResourceStorageHelperState(options.context);
+
 			const moduleResult = buildRestControllerModuleFromPlan({
 				origin: ir.meta.origin,
 				pluginNamespace: ir.php.namespace,
 				sanitizedNamespace: ir.meta.sanitizedNamespace,
 				capabilityClass: `${ir.php.namespace}\\Generated\\Capability\\Capability`,
-				resources: buildResourcePlans(ir),
+				resources: buildResourcePlans(ir, storageState),
 				includeBaseController: false,
 			});
 
@@ -143,8 +145,13 @@ function queueResourceControllerFiles(
 	});
 }
 
-function buildResourcePlans(ir: IRv1): readonly RestControllerResourcePlan[] {
-	return ir.resources.map((resource) => buildResourcePlan({ ir, resource }));
+function buildResourcePlans(
+	ir: IRv1,
+	storageState: ResourceStorageHelperState
+): readonly RestControllerResourcePlan[] {
+	return ir.resources.map((resource) =>
+		buildResourcePlan({ ir, resource, storageState })
+	);
 }
 
 type ErrorCodeFactory = (suffix: string) => string;
@@ -152,6 +159,7 @@ type ErrorCodeFactory = (suffix: string) => string;
 interface ResourcePlanOptions {
 	readonly ir: IRv1;
 	readonly resource: IRResource;
+	readonly storageState: ResourceStorageHelperState;
 }
 
 interface ControllerBuildContext {
@@ -160,9 +168,7 @@ interface ControllerBuildContext {
 	readonly identity: ResolvedIdentity;
 	readonly pascalName: string;
 	readonly errorCodeFactory: ErrorCodeFactory;
-	readonly transientArtifacts?: ReturnType<
-		typeof buildTransientStorageArtifacts
-	>;
+	readonly storageArtifacts: StorageArtifacts;
 	readonly wpPostRouteBundle?: WpPostRouteBundle;
 }
 
@@ -174,35 +180,13 @@ interface StorageArtifacts {
 	readonly transientHandlers?: RestControllerRouteTransientHandlers;
 }
 
-interface StorageHelperArtifacts {
-	readonly helperMethods: readonly PhpStmtClassMethod[];
-	readonly helperSignatures: readonly string[];
-}
-
 function buildResourcePlan(
 	options: ResourcePlanOptions
 ): RestControllerResourcePlan {
-	const { ir, resource } = options;
+	const { ir, resource, storageState } = options;
 	const identity = resolveIdentityConfig(resource);
 	const pascalName = toPascalCase(resource.name);
 	const errorCodeFactory = makeErrorCodeFactory(resource.name);
-
-	const transientArtifacts =
-		resource.storage?.mode === 'transient'
-			? buildTransientStorageArtifacts({
-					pascalName,
-					key: resolveTransientKey({
-						resourceName: resource.name,
-						namespace:
-							ir.meta.sanitizedNamespace ??
-							ir.meta.namespace ??
-							'',
-					}),
-					identity,
-					cacheSegments: resource.cacheKeys.get.segments,
-					errorCodeFactory,
-				})
-			: undefined;
 
 	const wpPostRouteBundle = createPhpWpPostRoutesHelper({
 		resource,
@@ -212,23 +196,15 @@ function buildResourcePlan(
 	});
 
 	const storageArtifacts = buildStorageArtifacts({
-		ir,
 		resource,
-		identity,
-		pascalName,
-		errorCodeFactory,
+		storageState,
 	});
 
-	// Build helper artifacts (taxonomy / transient / option) and include any wp-post helpers.
-	const helperArtifacts = buildStorageHelperArtifacts({
-		ir,
-		resource,
-		identity,
-		pascalName,
-		errorCodeFactory,
-		transientArtifacts,
-		wpPostRouteBundle,
-	});
+	const helperMethods = [
+		...storageArtifacts.helperMethods,
+		...(wpPostRouteBundle?.helperMethods ?? []),
+	];
+	const helperSignatures = storageArtifacts.helperSignatures;
 
 	return {
 		name: resource.name,
@@ -243,8 +219,8 @@ function buildResourcePlan(
 		mutationMetadata:
 			wpPostRouteBundle?.mutationMetadata ??
 			resolveRouteMutationMetadata(resource),
-		helperMethods: helperArtifacts.helperMethods,
-		helperSignatures: helperArtifacts.helperSignatures,
+		helperMethods,
+		helperSignatures,
 		routes: buildRoutePlans({
 			ir,
 			resource,
@@ -252,16 +228,13 @@ function buildResourcePlan(
 			pascalName,
 			errorCodeFactory,
 			storageArtifacts,
-			transientArtifacts,
 			wpPostRouteBundle,
 		}),
 	} satisfies RestControllerResourcePlan;
 }
 
 function buildRoutePlans(
-	options: ControllerBuildContext & {
-		readonly storageArtifacts: StorageArtifacts;
-	}
+	options: ControllerBuildContext
 ): readonly RestControllerRoutePlan[] {
 	return options.resource.routes.map((route) =>
 		buildRoutePlan({
@@ -271,9 +244,7 @@ function buildRoutePlans(
 	);
 }
 
-interface RoutePlanOptions
-	extends ControllerBuildContext,
-		Readonly<{ storageArtifacts: StorageArtifacts }> {
+interface RoutePlanOptions extends ControllerBuildContext {
 	readonly route: IRResource['routes'][number];
 }
 
@@ -296,133 +267,84 @@ function buildRoutePlan(options: RoutePlanOptions): RestControllerRoutePlan {
 			pascalName: options.pascalName,
 			errorCodeFactory: options.errorCodeFactory,
 			storageArtifacts: options.storageArtifacts,
-			transientArtifacts: options.transientArtifacts,
 			wpPostRouteBundle: options.wpPostRouteBundle,
 		}),
 	});
 }
 
+interface BuildStorageArtifactsOptions {
+	readonly resource: IRResource;
+	readonly storageState: ResourceStorageHelperState;
+}
+
 function buildStorageArtifacts(
-	options: ControllerBuildContext
+	options: BuildStorageArtifactsOptions
 ): StorageArtifacts {
 	const storageMode = options.resource.storage?.mode;
 
-	if (storageMode === 'wp-taxonomy') {
-		const storage = ensureWpTaxonomyStorage(options.resource.storage, {
-			resourceName: options.resource.name,
-		});
-
-		const taxonomyHelpers = buildWpTaxonomyHelperArtifacts({
-			pascalName: options.pascalName,
-			storage,
-			identity: options.identity,
-			errorCodeFactory: options.errorCodeFactory,
-		});
-
-		const bundle = buildWpTaxonomyQueryRouteBundle({
-			pascalName: options.pascalName,
-			resourceName: options.resource.name,
-			storage,
-			identity: options.identity,
-			errorCodeFactory: options.errorCodeFactory,
-		});
-
-		return {
-			helperMethods: taxonomyHelpers.helperMethods,
-			helperSignatures: taxonomyHelpers.helperSignatures,
-			routeHandlers: bundle.routeHandlers,
-		} satisfies StorageArtifacts;
+	switch (storageMode) {
+		case 'wp-taxonomy':
+			return buildTaxonomyStorageArtifactsFromState({
+				state: options.storageState,
+				resourceName: options.resource.name,
+			});
+		case 'transient':
+			return buildTransientStorageArtifactsFromState({
+				state: options.storageState,
+				resourceName: options.resource.name,
+			});
+		case 'wp-option':
+			return buildWpOptionStorageArtifactsFromState({
+				state: options.storageState,
+				resourceName: options.resource.name,
+			});
+		default:
+			return {
+				helperMethods: [],
+				helperSignatures: [],
+			} satisfies StorageArtifacts;
 	}
+}
 
-	if (storageMode === 'transient') {
-		return {
-			helperMethods: options.transientArtifacts?.helperMethods ?? [],
-			helperSignatures: [],
-			transientHandlers: options.transientArtifacts?.routeHandlers,
-		} satisfies StorageArtifacts;
-	}
+interface ReadStorageArtifactsOptions {
+	readonly state: ResourceStorageHelperState;
+	readonly resourceName: string;
+}
 
-	if (storageMode === 'wp-option') {
-		const storage = ensureWpOptionStorage(options.resource);
-
-		const artifacts = buildWpOptionStorageArtifacts({
-			pascalName: options.pascalName,
-			optionName: storage.option,
-			errorCodeFactory: options.errorCodeFactory,
-		});
-
-		return {
-			helperMethods: artifacts.helperMethods,
-			helperSignatures: [],
-			optionHandlers: artifacts.routeHandlers,
-		} satisfies StorageArtifacts;
-	}
+function buildTaxonomyStorageArtifactsFromState(
+	options: ReadStorageArtifactsOptions
+): StorageArtifacts {
+	const artifacts = options.state.wpTaxonomy.get(options.resourceName);
 
 	return {
-		helperMethods: [],
-		helperSignatures: [],
+		helperMethods: artifacts?.helperMethods ?? [],
+		helperSignatures: artifacts?.helperSignatures ?? [],
+		routeHandlers: artifacts?.routeHandlers,
 	} satisfies StorageArtifacts;
 }
 
-function buildStorageHelperArtifacts(
-	options: ControllerBuildContext
-): StorageHelperArtifacts {
-	const storageMode = options.resource.storage?.mode;
-
-	// Start with empty accumulators
-	const accumulatedMethods: PhpStmtClassMethod[] = [];
-	const accumulatedSignatures: string[] = [];
-
-	switch (storageMode) {
-		case 'wp-taxonomy': {
-			const storage = ensureWpTaxonomyStorage(options.resource.storage, {
-				resourceName: options.resource.name,
-			});
-
-			const taxonomyArtifacts = buildWpTaxonomyHelperArtifacts({
-				pascalName: options.pascalName,
-				storage,
-				identity: options.identity,
-				errorCodeFactory: options.errorCodeFactory,
-			});
-
-			accumulatedMethods.push(...taxonomyArtifacts.helperMethods);
-			accumulatedSignatures.push(...taxonomyArtifacts.helperSignatures);
-
-			break;
-		}
-		case 'transient': {
-			accumulatedMethods.push(
-				...(options.transientArtifacts?.helperMethods ?? [])
-			);
-			// No signatures for transient artifacts currently
-			break;
-		}
-		case 'wp-option': {
-			const storage = ensureWpOptionStorage(options.resource);
-
-			const artifacts = buildWpOptionStorageArtifacts({
-				pascalName: options.pascalName,
-				optionName: storage.option,
-				errorCodeFactory: options.errorCodeFactory,
-			});
-
-			accumulatedMethods.push(...artifacts.helperMethods);
-			// artifacts currently don't expose signatures; keep signatures empty for now
-			break;
-		}
-		// No default
-	}
-
-	// If the wp-post bundle exists, append its helper methods (no signatures expected from bundle).
-	if (options.wpPostRouteBundle) {
-		accumulatedMethods.push(...options.wpPostRouteBundle.helperMethods);
-	}
+function buildTransientStorageArtifactsFromState(
+	options: ReadStorageArtifactsOptions
+): StorageArtifacts {
+	const artifacts = options.state.transient.get(options.resourceName);
 
 	return {
-		helperMethods: accumulatedMethods,
-		helperSignatures: accumulatedSignatures,
-	} satisfies StorageHelperArtifacts;
+		helperMethods: artifacts?.helperMethods ?? [],
+		helperSignatures: [],
+		transientHandlers: artifacts?.routeHandlers,
+	} satisfies StorageArtifacts;
+}
+
+function buildWpOptionStorageArtifactsFromState(
+	options: ReadStorageArtifactsOptions
+): StorageArtifacts {
+	const artifacts = options.state.wpOption.get(options.resourceName);
+
+	return {
+		helperMethods: artifacts?.helperMethods ?? [],
+		helperSignatures: [],
+		optionHandlers: artifacts?.routeHandlers,
+	} satisfies StorageArtifacts;
 }
 
 function resolveRouteMutationMetadata(

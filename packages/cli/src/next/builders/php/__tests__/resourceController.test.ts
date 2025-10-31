@@ -26,6 +26,9 @@ import {
 import { WP_POST_MUTATION_CONTRACT } from '../resource/wpPost/mutations';
 import {
 	createPhpChannelHelper,
+	createPhpTransientStorageHelper,
+	createPhpWpOptionStorageHelper,
+	createPhpWpTaxonomyStorageHelper,
 	createPhpResourceControllerHelper,
 	createPhpProgramWriterHelper,
 	getPhpBuilderChannel,
@@ -49,6 +52,18 @@ function buildWorkspace(): Workspace {
 		cwd: () => root,
 		resolve: (...parts: string[]) => path.join(root, ...parts),
 	});
+}
+
+async function runResourceControllerPipeline(
+	applyOptions: Parameters<
+		ReturnType<typeof createPhpResourceControllerHelper>['apply']
+	>[0]
+): Promise<void> {
+	await createPhpChannelHelper().apply(applyOptions, undefined);
+	await createPhpTransientStorageHelper().apply(applyOptions, undefined);
+	await createPhpWpOptionStorageHelper().apply(applyOptions, undefined);
+	await createPhpWpTaxonomyStorageHelper().apply(applyOptions, undefined);
+	await createPhpResourceControllerHelper().apply(applyOptions, undefined);
 }
 
 function findNamespace(program: PhpProgram): PhpStmtNamespace | undefined {
@@ -115,11 +130,7 @@ describe('createPhpResourceControllerHelper', () => {
 			reporter,
 		};
 
-		await createPhpChannelHelper().apply(applyOptions, undefined);
-		await createPhpResourceControllerHelper().apply(
-			applyOptions,
-			undefined
-		);
+		await runResourceControllerPipeline(applyOptions);
 
 		const channel = getPhpBuilderChannel(context);
 		const entry = channel
@@ -238,11 +249,7 @@ describe('createPhpResourceControllerHelper', () => {
 			reporter,
 		};
 
-		await createPhpChannelHelper().apply(applyOptions, undefined);
-		await createPhpResourceControllerHelper().apply(
-			applyOptions,
-			undefined
-		);
+		await runResourceControllerPipeline(applyOptions);
 
 		const channel = getPhpBuilderChannel(context);
 		const entry = channel
@@ -313,11 +320,7 @@ describe('createPhpResourceControllerHelper', () => {
 			reporter,
 		};
 
-		await createPhpChannelHelper().apply(applyOptions, undefined);
-		await createPhpResourceControllerHelper().apply(
-			applyOptions,
-			undefined
-		);
+		await runResourceControllerPipeline(applyOptions);
 
 		const channel = getPhpBuilderChannel(context);
 		const taxonomyEntry = channel
@@ -387,11 +390,7 @@ describe('createPhpResourceControllerHelper', () => {
 			reporter,
 		};
 
-		await createPhpChannelHelper().apply(applyOptions, undefined);
-		await createPhpResourceControllerHelper().apply(
-			applyOptions,
-			undefined
-		);
+		await runResourceControllerPipeline(applyOptions);
 
 		const channel = getPhpBuilderChannel(context);
 		const optionEntry = channel
@@ -495,11 +494,7 @@ describe('createPhpResourceControllerHelper', () => {
 			reporter,
 		};
 
-		await createPhpChannelHelper().apply(applyOptions, undefined);
-		await createPhpResourceControllerHelper().apply(
-			applyOptions,
-			undefined
-		);
+		await runResourceControllerPipeline(applyOptions);
 
 		const channel = getPhpBuilderChannel(context);
 		const transientEntry = channel

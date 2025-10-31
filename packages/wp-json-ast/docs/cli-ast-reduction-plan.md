@@ -448,6 +448,8 @@ Once the factories above land, the CLI needs matching `create*` adapters so plan
 
 - **Scope:** Swap inline AST assembly for calls to `createPhpWpPostRoutesHelper`, storage-specific `create*` helpers, and `buildResourceControllerRouteSet`. Ensure planner wiring remains unchanged while the helper becomes declarative.
 
+_Completion:_ ☑ Completed – rewired the helper to depend on the storage pipeline adapters and the wp-post bundle so route plans now come entirely from shared factories.
+
 **Subtask 3.3.b – Introduce `createPhpWpPostRoutesHelper`.**
 
 - **Scope:** Provide a pipeline helper that translates WP_Post IR into the configuration expected by the shared wp-post primitives and returns the composed bundle to the resource controller helper.
@@ -458,10 +460,12 @@ _Completion:_ ☑ Completed – the CLI now exposes `createPhpWpPostRoutesHelper
 
 - **Scope:** Create `createPhpWpOptionStorageHelper`, `createPhpTransientStorageHelper`, and `createPhpWpTaxonomyStorageHelper` adapters that marshal IR into the corresponding storage factories and return descriptors for `createPhpResourceControllerHelper`.
 
+_Completion:_ ☑ Completed – added pipeline-backed storage helpers for option, transient, and taxonomy resources and updated `createPhpResourceControllerHelper` to consume the cached artifacts.
+
 **Subtask 3.3.d – Trim base and index helpers to planner orchestration.**
 
 - **Scope:** Replace direct `compileModuleProgram` calls with `buildGeneratedModuleProgram`, leaving the helpers responsible solely for enqueueing planner jobs.
 
-_Completion:_ ☐ Pending – mark complete with a PR link once the create-helper layer consumes only `build*` factories and planner descriptors.
+_Completion:_ ☑ Completed – base and index helpers now wrap generated modules via `buildGeneratedModuleProgram`, limiting their work to planner orchestration.
 
 _Phase outcome:_ The CLI acts as a pipeline coordinator that feeds data into `wp-json-ast` factories, making future features additive and reducing the maintenance burden of low-level AST manipulation.
