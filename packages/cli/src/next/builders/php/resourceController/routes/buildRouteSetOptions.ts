@@ -1,12 +1,8 @@
 import {
-	routeUsesIdentity,
 	type BuildResourceControllerRouteSetOptions,
-	type ResourceControllerRouteMetadata,
-	type ResourceMetadataHost,
 	type RestControllerRouteHandlers,
 	type RestControllerRouteOptionHandlers,
-	type RestControllerRouteStatementsBuilder,
-	type RestControllerRouteTransientHandlers,
+	type TransientStorageArtifacts,
 } from '@wpkernel/wp-json-ast';
 import type { IRResource, IRRoute } from '../../../../ir/publicTypes';
 import type { ResolvedIdentity } from '../../identity';
@@ -18,15 +14,7 @@ import {
 } from '../../resource/wpPost/mutations';
 import { buildListRouteStatements } from './list';
 import { buildGetRouteStatements } from './get';
-import {
-	buildWpOptionGetRouteStatements,
-	buildWpOptionUpdateRouteStatements,
-	buildWpOptionUnsupportedRouteStatements,
-	buildTransientDeleteRouteStatements,
-	buildTransientGetRouteStatements,
-	buildTransientSetRouteStatements,
-	buildTransientUnsupportedRouteStatements,
-} from '@wpkernel/wp-json-ast';
+import { buildWpOptionStorageArtifacts } from '@wpkernel/wp-json-ast';
 import { ensureWpOptionStorage } from '../../resource/wpOption/shared';
 
 interface BuildRouteSetOptionsContext {
@@ -35,6 +23,7 @@ interface BuildRouteSetOptionsContext {
 	readonly identity: ResolvedIdentity;
 	readonly pascalName: string;
 	readonly errorCodeFactory: (suffix: string) => string;
+	readonly transientArtifacts?: TransientStorageArtifacts;
 }
 
 export function buildRouteSetOptions(
@@ -46,7 +35,10 @@ export function buildRouteSetOptions(
 		storageMode,
 		handlers: buildDefaultHandlers(context),
 		optionHandlers: buildOptionHandlers(context),
-		transientHandlers: buildTransientHandlers(context),
+		transientHandlers:
+			storageMode === 'transient'
+				? context.transientArtifacts?.routeHandlers
+				: undefined,
 	} satisfies Omit<BuildResourceControllerRouteSetOptions, 'plan'>;
 }
 
@@ -102,76 +94,11 @@ function buildOptionHandlers(
 
 	const storage = ensureWpOptionStorage(context.resource);
 
-	return {
-		get: () =>
-			buildWpOptionGetRouteStatements({
-				pascalName: context.pascalName,
-				optionName: storage.option,
-			}),
-		update: () =>
-			buildWpOptionUpdateRouteStatements({
-				pascalName: context.pascalName,
-				optionName: storage.option,
-			}),
-		unsupported: () =>
-			buildWpOptionUnsupportedRouteStatements({
-				pascalName: context.pascalName,
-				optionName: storage.option,
-				errorCodeFactory: context.errorCodeFactory,
-			}),
-	} satisfies RestControllerRouteOptionHandlers;
-}
-
-function buildTransientHandlers(
-	context: BuildRouteSetOptionsContext
-): RestControllerRouteTransientHandlers | undefined {
-	if (context.resource.storage?.mode !== 'transient') {
-		return undefined;
-	}
-
-	const buildBaseOptions = (
-		host: ResourceMetadataHost,
-		metadataKind: ResourceControllerRouteMetadata['kind']
-	) => ({
+	const artifacts = buildWpOptionStorageArtifacts({
 		pascalName: context.pascalName,
-		metadataHost: host,
-		identity: context.identity,
-		cacheSegments: context.resource.cacheKeys.get.segments,
-		usesIdentity: routeUsesIdentity({
-			route: {
-				method: context.route.method,
-				path: context.route.path,
-			},
-			routeKind: metadataKind,
-			identity: { param: context.identity.param },
-		}),
+		optionName: storage.option,
+		errorCodeFactory: context.errorCodeFactory,
 	});
 
-	const wrap =
-		(
-			builder: (
-				options: ReturnType<typeof buildBaseOptions>
-			) => ReturnType<RestControllerRouteStatementsBuilder>
-		): RestControllerRouteStatementsBuilder =>
-		(routeContext) =>
-			builder(
-				buildBaseOptions(
-					routeContext.metadataHost,
-					routeContext.metadata.kind
-				)
-			);
-
-	return {
-		get: wrap(buildTransientGetRouteStatements),
-		set: wrap(buildTransientSetRouteStatements),
-		delete: wrap(buildTransientDeleteRouteStatements),
-		unsupported: (routeContext) =>
-			buildTransientUnsupportedRouteStatements({
-				...buildBaseOptions(
-					routeContext.metadataHost,
-					routeContext.metadata.kind
-				),
-				errorCodeFactory: context.errorCodeFactory,
-			}),
-	} satisfies RestControllerRouteTransientHandlers;
+	return artifacts.routeHandlers;
 }

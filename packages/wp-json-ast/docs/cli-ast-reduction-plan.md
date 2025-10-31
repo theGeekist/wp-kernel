@@ -407,12 +407,14 @@ Document the remaining AST-heavy helpers and promote them into first-class facto
 - **Context:** `packages/cli/src/next/builders/php/resource/wpOption/{helpers,routes,shared}.ts` assembles helper methods, cache metadata, and CRUD route statements as raw `PhpStmt[]` before handing them to the resource controller planner.
 - **Intent:** Add `src/resource/storage/wpOption/buildWpOptionStorageArtifacts.ts` that accepts the existing option storage IR (primary key, sanitizers, mutation contracts) and returns helper descriptors plus route fragments for create/read/update/delete flows.
 - **Expected outcome:** `createPhpWpOptionStorageHelper` becomes a thin adapter over the new factory, tests under `packages/wp-json-ast/tests/resource/storage/wpOption/` cover metadata wiring and WP_Error guards, and the CLI stops touching option-specific AST nodes.
+- _Completion:_ ☑ Completed – Added the shared `buildWpOptionStorageArtifacts` factory with helper and route handlers, updated CLI helpers to consume it, and extended wp-option storage tests to cover the aggregated surface.
 
 **Subtask 3.2.d – Publish `buildTransientStorageArtifacts`.**
 
 - **Context:** `packages/cli/src/next/builders/php/resource/transient/{helpers,routes,shared}.ts` still crafts transient get/set/delete flows, expiration handling, and cache invalidation statements inline.
 - **Intent:** Introduce `src/resource/storage/transient/buildTransientStorageArtifacts.ts` that transforms the transient storage IR (keys, expiration config, cache segments) into helper methods and route statements with shared metadata annotations.
 - **Expected outcome:** `createPhpTransientStorageHelper` delegates entirely to the factory, transient-specific metadata lives in `wp-json-ast`, and tests under `packages/wp-json-ast/tests/resource/storage/transient/` assert expiration handling and reporter warnings.
+- _Completion:_ ☑ Completed – Added `buildTransientStorageArtifacts`, migrated the CLI controller planner to consume the aggregated transient helpers, and expanded transient storage tests to cover the bundled route handlers.
 
 **Subtask 3.2.e – Extract taxonomy helper factories.**
 

@@ -12,3 +12,8 @@ export {
 	type BuildTransientRouteBaseOptions,
 	type BuildTransientUnsupportedRouteOptions,
 } from './routes';
+export {
+	buildTransientStorageArtifacts,
+	type BuildTransientStorageArtifactsOptions,
+	type TransientStorageArtifacts,
+} from './buildTransientStorageArtifacts';
