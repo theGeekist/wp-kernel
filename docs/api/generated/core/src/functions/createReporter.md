@@ -10,12 +10,21 @@
 function createReporter(options): Reporter;
 ```
 
+Create a kernel reporter backed by LogLayer transports.
+
+The reporter honors namespace, channel, and level options while providing a
+typed interface for child loggers used across subsystems.
+
 ## Parameters
 
 ### options
 
 [`ReporterOptions`](../type-aliases/ReporterOptions.md) = `{}`
 
+Reporter configuration
+
 ## Returns
 
 [`Reporter`](../type-aliases/Reporter.md)
+
+Reporter instance with child helpers

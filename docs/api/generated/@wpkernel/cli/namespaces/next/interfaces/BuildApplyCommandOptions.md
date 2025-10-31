@@ -8,125 +8,109 @@
 
 ## Properties
 
-### appendApplyLog()?
+### Other
+
+#### appendApplyLog()?
 
 ```ts
 readonly optional appendApplyLog: (workspace, entry) => Promise<void>;
 ```
 
-#### Parameters
+##### Parameters
 
-##### workspace
+###### workspace
 
 [`Workspace`](Workspace.md)
 
-##### entry
+###### entry
 
 `ApplyLogEntry`
 
-#### Returns
+##### Returns
 
 `Promise`\&lt;`void`\&gt;
 
 ---
 
-### buildBuilderOutput()?
+#### buildBuilderOutput()?
 
 ```ts
 readonly optional buildBuilderOutput: () => BuilderOutput;
 ```
 
-#### Returns
+##### Returns
 
 [`BuilderOutput`](../../../../../php-json-ast/src/interfaces/BuilderOutput.md)
 
 ---
 
-### buildReporter()?
-
-```ts
-readonly optional buildReporter: (options) => Reporter;
-```
-
-#### Parameters
-
-##### options
-
-[`ReporterOptions`](../../../../../core/src/type-aliases/ReporterOptions.md) = `{}`
-
-#### Returns
-
-[`Reporter`](../../../../../core/src/type-aliases/Reporter.md)
-
----
-
-### buildWorkspace()?
+#### buildWorkspace()?
 
 ```ts
 readonly optional buildWorkspace: (root) => Workspace;
 ```
 
-#### Parameters
+##### Parameters
 
-##### root
+###### root
 
 `string` = `...`
 
-#### Returns
+##### Returns
 
 [`Workspace`](Workspace.md)
 
 ---
 
-### createBackups()?
+#### createBackups()?
 
 ```ts
 readonly optional createBackups: (__namedParameters) => Promise<void>;
 ```
 
-#### Parameters
+##### Parameters
 
-##### \_\_namedParameters
+###### \_\_namedParameters
 
 `CreateBackupsOptions`
 
-#### Returns
+##### Returns
 
 `Promise`\&lt;`void`\&gt;
 
 ---
 
-### createPatcher()?
+#### createPatcher()?
 
 ```ts
 readonly optional createPatcher: () => BuilderHelper;
 ```
 
-#### Returns
+##### Returns
 
 [`BuilderHelper`](../type-aliases/BuilderHelper.md)
 
 ---
 
-### ensureGitRepository()?
+#### ensureGitRepository()?
 
 ```ts
 readonly optional ensureGitRepository: (workspace) => Promise<void>;
 ```
 
-#### Parameters
+##### Parameters
 
-##### workspace
+###### workspace
 
 [`Workspace`](Workspace.md)
 
-#### Returns
+##### Returns
 
 `Promise`\&lt;`void`\&gt;
 
 ---
 
-### loadWPKernelConfig()?
+#### loadWPKernelConfig()?
 
 ```ts
 readonly optional loadWPKernelConfig: () => Promise<LoadedWPKernelConfig>;
@@ -139,66 +123,93 @@ cosmiconfig loaders, validates the resulting structure and performs a
 Composer autoload sanity check to ensure PHP namespaces are mapped
 correctly.
 
-#### Returns
+##### Returns
 
 `Promise`\&lt;[`LoadedWPKernelConfig`](../../../interfaces/LoadedWPKernelConfig.md)\&gt;
 
 The validated kernel config and associated metadata.
 
-#### Throws
+##### Throws
 
 WPKernelError when discovery, parsing or validation fails.
 
 ---
 
-### promptConfirm()?
+#### promptConfirm()?
 
 ```ts
 readonly optional promptConfirm: (__namedParameters) => Promise<boolean>;
 ```
 
-#### Parameters
+##### Parameters
 
-##### \_\_namedParameters
+###### \_\_namedParameters
 
 [`ConfirmPromptOptions`](ConfirmPromptOptions.md)
 
-#### Returns
+##### Returns
 
 `Promise`\&lt;`boolean`\&gt;
 
 ---
 
-### readManifest()?
+#### readManifest()?
 
 ```ts
 readonly optional readManifest: (workspace) => Promise<PatchManifest | null>;
 ```
 
-#### Parameters
+##### Parameters
 
-##### workspace
+###### workspace
 
 [`Workspace`](Workspace.md)
 
-#### Returns
+##### Returns
 
 `Promise`\&lt;[`PatchManifest`](PatchManifest.md) \| `null`\&gt;
 
 ---
 
-### resolveWorkspaceRoot()?
+#### resolveWorkspaceRoot()?
 
 ```ts
 readonly optional resolveWorkspaceRoot: (loaded) => string;
 ```
 
-#### Parameters
+##### Parameters
 
-##### loaded
+###### loaded
 
 [`LoadedWPKernelConfig`](../../../interfaces/LoadedWPKernelConfig.md)
 
-#### Returns
+##### Returns
 
 `string`
+
+### Reporter
+
+#### buildReporter()?
+
+```ts
+readonly optional buildReporter: (options) => Reporter;
+```
+
+Create a kernel reporter backed by LogLayer transports.
+
+The reporter honors namespace, channel, and level options while providing a
+typed interface for child loggers used across subsystems.
+
+##### Parameters
+
+###### options
+
+[`ReporterOptions`](../../../../../core/src/type-aliases/ReporterOptions.md) = `{}`
+
+Reporter configuration
+
+##### Returns
+
+[`Reporter`](../../../../../core/src/type-aliases/Reporter.md)
+
+Reporter instance with child helpers

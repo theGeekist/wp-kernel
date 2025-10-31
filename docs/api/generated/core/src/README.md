@@ -167,36 +167,62 @@ import { fetch, defineResource, WPKernelError } from '@wpkernel/core';
 
 ## Functions
 
+### Actions
+
+- [createActionMiddleware](functions/createActionMiddleware.md)
+- [defineAction](functions/defineAction.md)
+- [invokeAction](functions/invokeAction.md)
+
+### Capability
+
+- [createCapabilityProxy](functions/createCapabilityProxy.md)
+- [defineCapability](functions/defineCapability.md)
+
+### Data
+
+- [configureWPKernel](functions/configureWPKernel.md)
+- [registerWPKernelStore](functions/registerWPKernelStore.md)
+- [wpkEventsPlugin](functions/wpkEventsPlugin.md)
+
+### Events
+
 - [clearRegisteredActions](functions/clearRegisteredActions.md)
 - [clearRegisteredResources](functions/clearRegisteredResources.md)
-- [clearWPKReporter](functions/clearWPKReporter.md)
-- [configureWPKernel](functions/configureWPKernel.md)
-- [createActionMiddleware](functions/createActionMiddleware.md)
-- [createCapabilityProxy](functions/createCapabilityProxy.md)
-- [createNoopReporter](functions/createNoopReporter.md)
-- [createReporter](functions/createReporter.md)
-- [createStore](functions/createStore.md)
-- [defineAction](functions/defineAction.md)
-- [defineCapability](functions/defineCapability.md)
-- [defineInteraction](functions/defineInteraction.md)
-- [defineResource](functions/defineResource.md)
-- [detectNamespace](functions/detectNamespace.md)
-- [fetch](functions/fetch.md)
-- [getNamespace](functions/getNamespace.md)
 - [getRegisteredActions](functions/getRegisteredActions.md)
 - [getRegisteredResources](functions/getRegisteredResources.md)
 - [getWPKernelEventBus](functions/getWPKernelEventBus.md)
+- [setWPKernelEventBus](functions/setWPKernelEventBus.md)
+
+### HTTP
+
+- [fetch](functions/fetch.md)
+
+### Interactivity
+
+- [defineInteraction](functions/defineInteraction.md)
+
+### Namespace
+
+- [detectNamespace](functions/detectNamespace.md)
+- [getNamespace](functions/getNamespace.md)
+- [isValidNamespace](functions/isValidNamespace.md)
+- [sanitizeNamespace](functions/sanitizeNamespace.md)
+
+### Reporter
+
+- [clearWPKReporter](functions/clearWPKReporter.md)
+- [createNoopReporter](functions/createNoopReporter.md)
+- [createReporter](functions/createReporter.md)
 - [getWPKernelReporter](functions/getWPKernelReporter.md)
+- [setWPKernelReporter](functions/setWPKernelReporter.md)
+
+### Resource
+
+- [createStore](functions/createStore.md)
+- [defineResource](functions/defineResource.md)
 - [interpolatePath](functions/interpolatePath.md)
 - [invalidate](functions/invalidate.md)
-- [invokeAction](functions/invokeAction.md)
-- [isValidNamespace](functions/isValidNamespace.md)
 - [normalizeCacheKey](functions/normalizeCacheKey.md)
-- [registerWPKernelStore](functions/registerWPKernelStore.md)
-- [sanitizeNamespace](functions/sanitizeNamespace.md)
-- [setWPKernelEventBus](functions/setWPKernelEventBus.md)
-- [setWPKernelReporter](functions/setWPKernelReporter.md)
-- [wpkEventsPlugin](functions/wpkEventsPlugin.md)
 
 ## References
 

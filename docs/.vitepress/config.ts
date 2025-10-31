@@ -41,12 +41,12 @@ export default withMermaid(
 		ignoreDeadLinks: [
 			/^https?:\/\/localhost(?::\d+)?(?:\/|$)/,
 			/^https?:\/\/127\.0\.0\.1(?::\d+)?(?:\/|$)/,
+			// Ignore links to internal documentation (excluded from processing)
+			/\.\.\/\.\.\/internal\//,
 		],
 
 		// Fast path for pre-commit; set to true for PROD if you can live without SPA nav
-		mpa: FAST, // <-- set to (FAST || PROD) if you want minimal JS in production too
-
-		// Big win: limit Shiki languages (reduces client+server bundle a lot)
+		mpa: FAST, // <-- set to (FAST || PROD) if you want minimal JS in production too		// Big win: limit Shiki languages (reduces client+server bundle a lot)
 		markdown: {
 			theme: { light: 'github-light', dark: 'github-dark' },
 		},

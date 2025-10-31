@@ -7,15 +7,25 @@
 # Function: wpkEventsPlugin()
 
 ```ts
-function wpkEventsPlugin(__namedParameters): KernelReduxMiddleware;
+function wpkEventsPlugin(options): KernelReduxMiddleware;
 ```
+
+Bridge kernel lifecycle events into WordPress middleware and notices.
+
+The plugin mirrors action lifecycle and cache invalidation events onto
+`wp.hooks` while optionally surfacing admin notices via the core notices
+store. It returns a Redux middleware compatible with `@wordpress/data`.
 
 ## Parameters
 
-### \_\_namedParameters
+### options
 
 [`WPKernelEventsPluginOptions`](../@wpkernel/core/data/type-aliases/WPKernelEventsPluginOptions.md)
+
+Kernel event wiring options
 
 ## Returns
 
 `KernelReduxMiddleware`
+
+Redux middleware with a `destroy()` teardown helper

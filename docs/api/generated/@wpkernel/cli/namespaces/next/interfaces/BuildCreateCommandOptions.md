@@ -8,160 +8,171 @@
 
 ## Properties
 
-### buildReporter()?
+### Other
 
-```ts
-readonly optional buildReporter: (options) => Reporter;
-```
-
-#### Parameters
-
-##### options
-
-[`ReporterOptions`](../../../../../core/src/type-aliases/ReporterOptions.md) = `{}`
-
-#### Returns
-
-[`Reporter`](../../../../../core/src/type-aliases/Reporter.md)
-
----
-
-### buildWorkspace()?
+#### buildWorkspace()?
 
 ```ts
 readonly optional buildWorkspace: (root) => Workspace;
 ```
 
-#### Parameters
+##### Parameters
 
-##### root
+###### root
 
 `string` = `...`
 
-#### Returns
+##### Returns
 
 [`Workspace`](Workspace.md)
 
 ---
 
-### checkGitRepository()?
+#### checkGitRepository()?
 
 ```ts
 readonly optional checkGitRepository: (cwd, __namedParameters) => Promise<boolean>;
 ```
 
-#### Parameters
+##### Parameters
 
-##### cwd
+###### cwd
 
 `string`
 
-##### \_\_namedParameters
+###### \_\_namedParameters
 
 `GitDependencies` = `{}`
 
-#### Returns
+##### Returns
 
 `Promise`\&lt;`boolean`\&gt;
 
 ---
 
-### ensureCleanDirectory()?
+#### ensureCleanDirectory()?
 
 ```ts
 readonly optional ensureCleanDirectory: (__namedParameters) => Promise<void>;
 ```
 
-#### Parameters
+##### Parameters
 
-##### \_\_namedParameters
+###### \_\_namedParameters
 
 [`EnsureCleanDirectoryOptions`](EnsureCleanDirectoryOptions.md)
 
-#### Returns
+##### Returns
 
 `Promise`\&lt;`void`\&gt;
 
 ---
 
-### initGitRepository()?
+#### initGitRepository()?
 
 ```ts
 readonly optional initGitRepository: (cwd, __namedParameters) => Promise<void>;
 ```
 
-#### Parameters
+##### Parameters
 
-##### cwd
+###### cwd
 
 `string`
 
-##### \_\_namedParameters
+###### \_\_namedParameters
 
 `GitDependencies` = `{}`
 
-#### Returns
+##### Returns
 
 `Promise`\&lt;`void`\&gt;
 
 ---
 
-### installComposerDependencies()?
+#### installComposerDependencies()?
 
 ```ts
 readonly optional installComposerDependencies: (cwd, __namedParameters) => Promise<void>;
 ```
 
-#### Parameters
+##### Parameters
 
-##### cwd
+###### cwd
 
 `string`
 
-##### \_\_namedParameters
+###### \_\_namedParameters
 
 `InstallerDependencies` = `{}`
 
-#### Returns
+##### Returns
 
 `Promise`\&lt;`void`\&gt;
 
 ---
 
-### installNodeDependencies()?
+#### installNodeDependencies()?
 
 ```ts
 readonly optional installNodeDependencies: (cwd, __namedParameters) => Promise<void>;
 ```
 
-#### Parameters
+##### Parameters
 
-##### cwd
+###### cwd
 
 `string`
 
-##### \_\_namedParameters
+###### \_\_namedParameters
 
 `InstallerDependencies` = `{}`
 
-#### Returns
+##### Returns
 
 `Promise`\&lt;`void`\&gt;
 
 ---
 
-### runWorkflow()?
+#### runWorkflow()?
 
 ```ts
 readonly optional runWorkflow: (__namedParameters) => Promise<InitWorkflowResult>;
 ```
 
-#### Parameters
+##### Parameters
 
-##### \_\_namedParameters
+###### \_\_namedParameters
 
 `InitWorkflowOptions`
 
-#### Returns
+##### Returns
 
 `Promise`\&lt;`InitWorkflowResult`\&gt;
+
+### Reporter
+
+#### buildReporter()?
+
+```ts
+readonly optional buildReporter: (options) => Reporter;
+```
+
+Create a kernel reporter backed by LogLayer transports.
+
+The reporter honors namespace, channel, and level options while providing a
+typed interface for child loggers used across subsystems.
+
+##### Parameters
+
+###### options
+
+[`ReporterOptions`](../../../../../core/src/type-aliases/ReporterOptions.md) = `{}`
+
+Reporter configuration
+
+##### Returns
+
+[`Reporter`](../../../../../core/src/type-aliases/Reporter.md)
+
+Reporter instance with child helpers
