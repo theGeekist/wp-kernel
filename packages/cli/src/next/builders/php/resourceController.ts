@@ -26,7 +26,7 @@ import { buildRestArgs } from './resourceController/restArgs';
 import { buildRouteMethodName } from './resourceController/routeNaming';
 import { buildRouteSetOptions } from './resourceController/routes/buildRouteSetOptions';
 import {
-	buildWpTaxonomyHelperMethods,
+	buildWpTaxonomyHelperArtifacts,
 	ensureWpTaxonomyStorage,
 } from './resource/wpTaxonomy';
 import { WP_POST_MUTATION_CONTRACT } from './resource/wpPost/mutations';
@@ -160,6 +160,11 @@ interface ControllerBuildContext {
 	>;
 }
 
+interface StorageHelperArtifacts {
+	readonly helperMethods: readonly PhpStmtClassMethod[];
+	readonly helperSignatures: readonly string[];
+}
+
 function buildResourcePlan(
 	options: ResourcePlanOptions
 ): RestControllerResourcePlan {
@@ -185,6 +190,15 @@ function buildResourcePlan(
 				})
 			: undefined;
 
+	const helperArtifacts = buildStorageHelperArtifacts({
+		ir,
+		resource,
+		identity,
+		pascalName,
+		errorCodeFactory,
+		transientArtifacts,
+	});
+
 	return {
 		name: resource.name,
 		className: `${pascalName}Controller`,
@@ -196,14 +210,8 @@ function buildResourcePlan(
 		identity,
 		cacheKeys: resource.cacheKeys,
 		mutationMetadata: resolveRouteMutationMetadata(resource),
-		helperMethods: buildStorageHelperMethods({
-			ir,
-			resource,
-			identity,
-			pascalName,
-			errorCodeFactory,
-			transientArtifacts,
-		}),
+		helperMethods: helperArtifacts.helperMethods,
+		helperSignatures: helperArtifacts.helperSignatures,
 		routes: buildRoutePlans({
 			ir,
 			resource,
@@ -253,9 +261,9 @@ function buildRoutePlan(options: RoutePlanOptions): RestControllerRoutePlan {
 	});
 }
 
-function buildStorageHelperMethods(
+function buildStorageHelperArtifacts(
 	options: ControllerBuildContext
-): readonly PhpStmtClassMethod[] {
+): StorageHelperArtifacts {
 	const storageMode = options.resource.storage?.mode;
 
 	if (storageMode === 'wp-taxonomy') {
@@ -263,18 +271,24 @@ function buildStorageHelperMethods(
 			resourceName: options.resource.name,
 		});
 
-		const taxonomyHelpers = buildWpTaxonomyHelperMethods({
+		const taxonomyHelpers = buildWpTaxonomyHelperArtifacts({
 			pascalName: options.pascalName,
 			storage,
 			identity: options.identity,
 			errorCodeFactory: options.errorCodeFactory,
 		});
 
-		return taxonomyHelpers.map((method) => method.node);
+		return {
+			helperMethods: taxonomyHelpers.helperMethods,
+			helperSignatures: taxonomyHelpers.helperSignatures,
+		} satisfies StorageHelperArtifacts;
 	}
 
 	if (storageMode === 'transient') {
-		return options.transientArtifacts?.helperMethods ?? [];
+		return {
+			helperMethods: options.transientArtifacts?.helperMethods ?? [],
+			helperSignatures: [],
+		} satisfies StorageHelperArtifacts;
 	}
 
 	if (storageMode === 'wp-option') {
@@ -286,10 +300,16 @@ function buildStorageHelperMethods(
 			errorCodeFactory: options.errorCodeFactory,
 		});
 
-		return artifacts.helperMethods;
+		return {
+			helperMethods: artifacts.helperMethods,
+			helperSignatures: [],
+		} satisfies StorageHelperArtifacts;
 	}
 
-	return [];
+	return {
+		helperMethods: [],
+		helperSignatures: [],
+	} satisfies StorageHelperArtifacts;
 }
 
 function resolveRouteMutationMetadata(
