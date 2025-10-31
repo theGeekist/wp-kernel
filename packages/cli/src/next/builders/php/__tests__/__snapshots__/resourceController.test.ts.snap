@@ -5929,6 +5929,10 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
               },
               {
                 "attributes": {},
+                "nodeType": "Stmt_Nop",
+              },
+              {
+                "attributes": {},
                 "expr": {
                   "attributes": {},
                   "expr": {
@@ -6520,6 +6524,10 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
               },
               {
                 "attributes": {},
+                "nodeType": "Stmt_Nop",
+              },
+              {
+                "attributes": {},
                 "expr": {
                   "attributes": {},
                   "expr": {
@@ -6622,6 +6630,10 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                   },
                 },
                 "nodeType": "Stmt_Expression",
+              },
+              {
+                "attributes": {},
+                "nodeType": "Stmt_Nop",
               },
               {
                 "attributes": {},
@@ -6732,6 +6744,10 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                   },
                 },
                 "nodeType": "Stmt_Expression",
+              },
+              {
+                "attributes": {},
+                "nodeType": "Stmt_Nop",
               },
               {
                 "attributes": {},
@@ -6864,6 +6880,10 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
               },
               {
                 "attributes": {},
+                "nodeType": "Stmt_Nop",
+              },
+              {
+                "attributes": {},
                 "expr": {
                   "attributes": {},
                   "expr": {
@@ -6906,6 +6926,10 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                   },
                 },
                 "nodeType": "Stmt_Expression",
+              },
+              {
+                "attributes": {},
+                "nodeType": "Stmt_Nop",
               },
               {
                 "attributes": {},
@@ -7296,6 +7320,10 @@ exports[`createPhpResourceControllerHelper queues taxonomy controllers with pagi
                   },
                 },
                 "nodeType": "Stmt_Expression",
+              },
+              {
+                "attributes": {},
+                "nodeType": "Stmt_Nop",
               },
               {
                 "attributes": {},

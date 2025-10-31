@@ -25,7 +25,10 @@ import { resolveIdentityConfig, type ResolvedIdentity } from './identity';
 import { buildRestArgs } from './resourceController/restArgs';
 import { buildRouteMethodName } from './resourceController/routeNaming';
 import { buildRouteSetOptions } from './resourceController/routes/buildRouteSetOptions';
-import { buildWpTaxonomyHelperMethods } from './resource/wpTaxonomy';
+import {
+	buildWpTaxonomyHelperMethods,
+	ensureWpTaxonomyStorage,
+} from './resource/wpTaxonomy';
 import { WP_POST_MUTATION_CONTRACT } from './resource/wpPost/mutations';
 import { renderPhpValue } from './resource/phpValue';
 import { ensureWpOptionStorage } from './resource/wpOption/shared';
@@ -233,9 +236,13 @@ function buildStorageHelperMethods(
 	const storageMode = options.resource.storage?.mode;
 
 	if (storageMode === 'wp-taxonomy') {
+		const storage = ensureWpTaxonomyStorage(options.resource.storage, {
+			resourceName: options.resource.name,
+		});
+
 		const taxonomyHelpers = buildWpTaxonomyHelperMethods({
-			resource: options.resource,
 			pascalName: options.pascalName,
+			storage,
 			identity: options.identity,
 			errorCodeFactory: options.errorCodeFactory,
 		});

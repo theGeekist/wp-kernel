@@ -5,7 +5,9 @@ export {
 	buildResolveTaxonomyTermCall,
 	buildPrepareTaxonomyTermResponseCall,
 	ensureWpTaxonomyStorage,
+	type BuildTaxonomyAssignmentStatementOptions,
 	type BuildWpTaxonomyHelperMethodsOptions,
-	type WpTaxonomyHelperMethod as TaxonomyHelperMethod,
+	type WpTaxonomyHelperMethod,
 	type WpTaxonomyStorageConfig,
-} from '@wpkernel/wp-json-ast';
+	type EnsureWpTaxonomyStorageOptions,
+} from './buildWpTaxonomyHelperMethods';
