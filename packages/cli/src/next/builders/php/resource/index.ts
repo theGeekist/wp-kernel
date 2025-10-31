@@ -8,6 +8,8 @@ export * from './errors';
 export * from './mutationContract';
 export * from './wpPost/identity';
 export * from './wpPost/mutations';
+export { createPhpWpPostRoutesHelper } from './wpPost/routes';
+export type { CreatePhpWpPostRoutesHelperOptions } from './wpPost/routes';
 export {
 	buildListForeachStatement,
 	buildListItemsInitialiserStatement,
