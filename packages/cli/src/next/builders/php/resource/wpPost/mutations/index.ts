@@ -17,6 +17,7 @@ export {
 	buildArrayDimExpression,
 	buildPropertyExpression,
 	type MacroExpression,
+	type MutationMetadataKeys,
 } from './macros';
 export type {
 	BuildCreateRouteStatementsOptions,
@@ -34,4 +35,5 @@ export {
 	syncWpPostTaxonomies,
 	prepareWpPostResponse,
 	type MutationHelperOptions,
+	type MutationIdentity,
 } from './helpers';

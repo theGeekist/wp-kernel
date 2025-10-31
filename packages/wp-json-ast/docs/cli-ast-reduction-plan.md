@@ -236,11 +236,11 @@ _Completion:_ ☑ Completed – Migrated WP_Post list/meta/taxonomy query helper
 
 **Subtask 2.6.c – Port WP_Post mutation helpers and macros.** Relocate helper methods (`syncWpPostMeta`, taxonomy synchronisers) and macro builders into `src/resource/wp-post/mutation/`, returning typed descriptors that Phase 3.2.b can compose. Cover macro output with focused fixtures.
 
-_Completion:_ ☐ Pending – Rehome mutation helpers/macros with full coverage.
+_Completion:_ ☑ Completed – Introduced `src/resource/wp-post/mutation/` with helper and macro factories, added unit snapshots, and rewired the CLI to consume the shared exports.
 
 **Subtask 2.6.d – Port WP_Post mutation route primitives.** Translate create/update/delete route builders into `src/resource/wp-post/routes/mutation/`, wiring them through the accessor registry so the CLI receives ready-made descriptors instead of raw AST nodes.
 
-_Completion:_ ☐ Pending – Relocate mutation route primitives and snapshot outputs.
+_Completion:_ ☑ Completed – Migrated mutation route builders into `@wpkernel/wp-json-ast`, refreshed snapshots, and rewired the CLI to re-export the shared surface.
 
 **Subtask 2.6.e – Port WP_Option helper and route scaffolding.** Establish `src/resource/storage/wp-option/` with helper methods, autoload coercion, and CRUD route statements, exporting descriptors via the accessor registry.
 

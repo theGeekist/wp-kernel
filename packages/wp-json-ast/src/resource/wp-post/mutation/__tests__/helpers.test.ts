@@ -1,4 +1,4 @@
-import { WPKernelError } from '@wpkernel/core/contracts';
+import { WPKernelError } from '@wpkernel/core';
 import type {
 	PhpExprAssign,
 	PhpExprArrayDimFetch,
@@ -7,50 +7,53 @@ import type {
 	PhpStmt,
 	PhpStmtExpression,
 } from '@wpkernel/php-json-ast';
-import type { ResolvedIdentity } from '../identity';
-import {
-	makeWpPostResource,
-	makeWpTaxonomyResource,
-} from '@wpkernel/test-utils/next/builders/php/resources.test-support';
+import type { ResourceStorageConfig } from '@wpkernel/core/resource';
+
 import {
 	prepareWpPostResponse,
 	syncWpPostMeta,
 	syncWpPostTaxonomies,
-} from '../resource/wpPost/mutations/helpers';
+	type MutationHelperOptions,
+	type MutationIdentity,
+} from '../helpers';
 
-const IDENTITY: ResolvedIdentity = { type: 'string', param: 'slug' };
+const IDENTITY: MutationIdentity = { type: 'string', param: 'slug' };
 
-type WpPostStorageOverrides = NonNullable<
-	Parameters<typeof makeWpPostResource>[0]
->['storage'];
+type WpPostStorage = Extract<ResourceStorageConfig, { mode: 'wp-post' }>;
 
-function buildResource(overrides: WpPostStorageOverrides = {}) {
-	return makeWpPostResource({
-		storage: {
-			statuses: ['draft', 'publish'],
-			supports: ['title', 'editor', 'excerpt'],
-			meta: {
-				rating: { type: 'integer', single: true },
-				popularity: { type: 'number', single: true },
-				featured: { type: 'boolean', single: true },
-				tags: { type: 'array', single: false },
-				author: { type: 'string', single: false },
-				metadata: { type: 'object', single: true },
-			},
-			taxonomies: {
-				genres: { taxonomy: 'book_genre' },
-			},
-			...overrides,
+function buildResource(
+	overrides: Partial<Omit<WpPostStorage, 'mode'>> = {}
+): MutationHelperOptions['resource'] {
+	const storage: WpPostStorage = {
+		mode: 'wp-post',
+		statuses: ['draft', 'publish'],
+		supports: ['title', 'editor', 'excerpt'],
+		meta: {
+			rating: { type: 'integer', single: true },
+			popularity: { type: 'number', single: true },
+			featured: { type: 'boolean', single: true },
+			tags: { type: 'array', single: false },
+			author: { type: 'string', single: false },
+			metadata: { type: 'object', single: true },
 		},
-	});
+		taxonomies: {
+			genres: { taxonomy: 'book_genre' },
+		},
+		...overrides,
+	};
+
+	return {
+		name: 'books',
+		storage,
+	};
 }
 
 describe('wp-post mutation helpers', () => {
 	it('throws a WPKernelError when the resource does not use wp-post storage', () => {
-		const resource = makeWpTaxonomyResource({
+		const resource: MutationHelperOptions['resource'] = {
 			name: 'books',
-			schemaKey: 'book',
-		});
+			storage: { mode: 'wp-taxonomy', taxonomy: 'genre' },
+		};
 
 		expect(() =>
 			syncWpPostMeta({
@@ -122,14 +125,15 @@ describe('wp-post mutation helpers', () => {
 	});
 
 	it('omits slug and support-specific fields when not configured', () => {
-		const resource = makeWpPostResource({
-			identity: { type: 'number', param: 'id' },
+		const resource: MutationHelperOptions['resource'] = {
+			name: 'books',
 			storage: {
+				mode: 'wp-post',
 				supports: [],
 				meta: {},
 				taxonomies: {},
 			},
-		});
+		};
 
 		const method = prepareWpPostResponse({
 			resource,
@@ -200,5 +204,5 @@ function isVariableExpression(
 function isScalarStringLiteral(
 	expression: PhpExprArrayDimFetch['dim']
 ): expression is PhpScalarString {
-	return expression?.nodeType === 'Scalar_String';
+	return Boolean(expression && expression.nodeType === 'Scalar_String');
 }
