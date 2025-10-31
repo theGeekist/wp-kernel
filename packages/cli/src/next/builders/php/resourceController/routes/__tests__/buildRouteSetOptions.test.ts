@@ -82,20 +82,6 @@ function buildPlan({
 		errorCodeFactory,
 	});
 
-	const transientArtifacts =
-		resource.storage?.mode === 'transient'
-			? buildTransientStorageArtifacts({
-					pascalName,
-					key: resolveTransientKey({
-						resourceName: resource.name,
-						namespace: '',
-					}),
-					identity,
-					cacheSegments: resource.cacheKeys.get.segments,
-					errorCodeFactory,
-				})
-			: undefined;
-
 	const options = buildRouteSetOptions({
 		resource,
 		route,
@@ -103,7 +89,6 @@ function buildPlan({
 		pascalName,
 		errorCodeFactory,
 		storageArtifacts,
-		transientArtifacts,
 		wpPostRouteBundle,
 	});
 
