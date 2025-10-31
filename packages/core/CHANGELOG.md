@@ -4,11 +4,26 @@
 
 ### In progress
 
-- **Phase 6 – Core pipeline alignment** – Tracking Tasks 32-36 from the CLI MVP
-  ledger to keep runtime documentation and contracts in sync ahead of the
-  reserved 0.10.0 minor release.
 - **Phase 7 – Plugin bootstrap flow** – Tasks 37-45 will ship the create bootstrap, plugin loader generator, regeneration cleanup, and activation smoke tests before the 0.11.0 release.
 - **Phase 8 placeholder** – Task 46 will collect incremental diagnostics (LogLayer reporter, transcript polish) after the bootstrap flow ships.
+
+## 0.10.0 - 2025-11-05
+
+### Added
+
+- Pipeline helpers now orchestrate `defineAction`, `defineResource`, and `defineInteraction` through the shared `create*` catalogue with reporter/rollback bindings.
+
+### Changed
+
+- Diagnostics warn on missing or unused helpers, helper modules honour the reserved `create*` prefix, and pipeline rollback hooks unwind side effects when orchestration fails.
+
+### Documentation
+
+- Recorded Phase 6 completion in the core pipeline spec and CLI docs, including guidance for the new interactivity bridge.
+
+### Maintenance
+
+- Version bump to `0.10.0` to align with the Phase 6 core pipeline release and update the exported `VERSION` constant.
 
 ## 0.9.0 - 2025-10-27
 
