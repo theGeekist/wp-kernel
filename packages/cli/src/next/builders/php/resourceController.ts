@@ -28,7 +28,7 @@ import { buildRestArgs } from './resourceController/restArgs';
 import { buildRouteMethodName } from './resourceController/routeNaming';
 import { buildRouteSetOptions } from './resourceController/routes/buildRouteSetOptions';
 import {
-	buildWpTaxonomyHelperMethods,
+	buildWpTaxonomyHelperArtifacts,
 	ensureWpTaxonomyStorage,
 } from './resource/wpTaxonomy';
 import { renderPhpValue } from './resource/phpValue';
@@ -162,6 +162,11 @@ interface ControllerBuildContext {
 	readonly wpPostRouteBundle?: WpPostRouteBundle;
 }
 
+interface StorageHelperArtifacts {
+	readonly helperMethods: readonly PhpStmtClassMethod[];
+	readonly helperSignatures: readonly string[];
+}
+
 function buildResourcePlan(
 	options: ResourcePlanOptions
 ): RestControllerResourcePlan {
@@ -187,6 +192,7 @@ function buildResourcePlan(
 				})
 			: undefined;
 
+	// Keep wp-post route bundle so CLI can still rely on the post-specific bundle surface.
 	const wpPostRouteBundle =
 		resource.storage?.mode === 'wp-post'
 			? buildWpPostRouteBundle({
@@ -197,7 +203,8 @@ function buildResourcePlan(
 				})
 			: undefined;
 
-	const helperMethods = buildStorageHelperMethods({
+	// Build helper artifacts (taxonomy / transient / option) and include any wp-post helpers.
+	const helperArtifacts = buildStorageHelperArtifacts({
 		ir,
 		resource,
 		identity,
@@ -206,9 +213,6 @@ function buildResourcePlan(
 		transientArtifacts,
 		wpPostRouteBundle,
 	});
-
-	const normalizedHelperMethods =
-		helperMethods.length > 0 ? helperMethods : undefined;
 
 	return {
 		name: resource.name,
@@ -221,7 +225,8 @@ function buildResourcePlan(
 		identity,
 		cacheKeys: resource.cacheKeys,
 		mutationMetadata: wpPostRouteBundle?.mutationMetadata,
-		helperMethods: normalizedHelperMethods,
+		helperMethods: helperArtifacts.helperMethods,
+		helperSignatures: helperArtifacts.helperSignatures,
 		routes: buildRoutePlans({
 			ir,
 			resource,
@@ -273,11 +278,14 @@ function buildRoutePlan(options: RoutePlanOptions): RestControllerRoutePlan {
 	});
 }
 
-function buildStorageHelperMethods(
+function buildStorageHelperArtifacts(
 	options: ControllerBuildContext
-): readonly PhpStmtClassMethod[] {
-	const methods: PhpStmtClassMethod[] = [];
+): StorageHelperArtifacts {
 	const storageMode = options.resource.storage?.mode;
+
+	// Start with empty accumulators
+	const accumulatedMethods: PhpStmtClassMethod[] = [];
+	const accumulatedSignatures: string[] = [];
 
 	switch (storageMode) {
 		case 'wp-taxonomy': {
@@ -285,20 +293,21 @@ function buildStorageHelperMethods(
 				resourceName: options.resource.name,
 			});
 
-			const taxonomyHelpers = buildWpTaxonomyHelperMethods({
+			const taxonomyArtifacts = buildWpTaxonomyHelperArtifacts({
 				pascalName: options.pascalName,
 				storage,
 				identity: options.identity,
 				errorCodeFactory: options.errorCodeFactory,
 			});
 
-			methods.push(...taxonomyHelpers.map((method) => method.node));
+			accumulatedMethods.push(...taxonomyArtifacts.helperMethods);
+			accumulatedSignatures.push(...taxonomyArtifacts.helperSignatures);
 
 			break;
 		}
 		case 'transient': {
-			methods.push(...(options.transientArtifacts?.helperMethods ?? []));
-
+			accumulatedMethods.push(...(options.transientArtifacts?.helperMethods ?? []));
+			// No signatures for transient artifacts currently
 			break;
 		}
 		case 'wp-option': {
@@ -310,16 +319,20 @@ function buildStorageHelperMethods(
 				errorCodeFactory: options.errorCodeFactory,
 			});
 
-			methods.push(...artifacts.helperMethods);
-
+			accumulatedMethods.push(...artifacts.helperMethods);
+			// artifacts currently don't expose signatures; keep signatures empty for now
 			break;
 		}
 		// No default
 	}
 
+	// If the wp-post bundle exists, append its helper methods (no signatures expected from bundle).
 	if (options.wpPostRouteBundle) {
-		methods.push(...options.wpPostRouteBundle.helperMethods);
+		accumulatedMethods.push(...options.wpPostRouteBundle.helperMethods);
 	}
 
-	return methods;
+	return {
+		helperMethods: accumulatedMethods,
+		helperSignatures: accumulatedSignatures,
+	} satisfies StorageHelperArtifacts;
 }
