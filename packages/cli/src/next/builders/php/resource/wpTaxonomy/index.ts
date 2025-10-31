@@ -1,11 +1,19 @@
-export { buildWpTaxonomyListRouteStatements } from './list';
-export { buildWpTaxonomyGetRouteStatements } from './get';
+export {
+	buildWpTaxonomyListRouteStatements,
+	type BuildWpTaxonomyListRouteStatementsOptions,
+} from './list';
+export {
+	buildWpTaxonomyGetRouteStatements,
+	type BuildWpTaxonomyGetRouteStatementsOptions,
+} from './get';
 export {
 	buildWpTaxonomyHelperMethods,
-	type TaxonomyHelperMethod,
-	type TaxonomyHelperOptions,
 	buildTaxonomyAssignmentStatement,
 	buildGetTaxonomyCall,
 	buildResolveTaxonomyTermCall,
 	buildPrepareTaxonomyTermResponseCall,
+	ensureWpTaxonomyStorage,
+	type TaxonomyHelperMethod,
+	type WpTaxonomyStorageConfig,
+	type BuildWpTaxonomyHelperMethodsOptions,
 } from './helpers';

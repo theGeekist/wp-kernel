@@ -253,11 +253,13 @@ with metadata-aware tests covering expiration coercion and cache invalidation fl
 
 **Subtask 2.6.g – Port taxonomy helper methods.** Shift taxonomy identity and resolution helpers into `src/resource/wp-taxonomy/helpers/`, ensuring WP_Error flows reuse the shared accessor utilities.
 
-_Completion:_ ☐ Pending – Rehome taxonomy helper methods with tests.
+_Completion:_ ☑ Completed – Migrated taxonomy helper methods into `src/resource/wp-taxonomy/helpers/`, added unit tests, and rewired the CLI to consume the shared storage guard and helper exports.
 
 **Subtask 2.6.h – Port taxonomy list/get query primitives.** Move taxonomy list/get query builders into `src/resource/wp-taxonomy/query/`, snapshotting pagination, identity lookup, and error handling, then register them through `buildResourceAccessors`.
 
-_Completion:_ ☐ Pending – Migrate taxonomy query primitives and confirm parity.
+_Completion:_ ☑ Completed – Centralised taxonomy list/get query builders under `src/resource/wp-taxonomy/query/`, backed them with unit coverage, and rewired the CLI accessor registry to consume the shared descriptors.
+
+_Follow-up cleanup:_ Normalised the snake-case slug helpers across resource query and storage modules to eliminate duplicate implementations ahead of closing Task 2.6.
 
 _Task 2.7: Move block registrar and render stubs._ Block registration still lives entirely in the CLI (`packages/cli/src/next/builders/php/blocks/**`), including manifest parsing, registrar composition, and server-side render stubs. Port this surface into `packages/wp-json-ast/src/blocks/` so block pipelines consume the same WordPress-aware factories as REST modules.
 

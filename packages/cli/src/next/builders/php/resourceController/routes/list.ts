@@ -45,8 +45,9 @@ export function buildListRouteStatements(
 
 	if (storage.mode === 'wp-taxonomy') {
 		return buildWpTaxonomyListRouteStatements({
-			resource: options.resource,
 			pascalName: options.pascalName,
+			storage,
+			resourceName: options.resource.name,
 			metadataHost: options.metadataHost,
 			cacheSegments: options.cacheSegments,
 		});
