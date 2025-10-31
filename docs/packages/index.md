@@ -1,10 +1,13 @@
 # Packages
 
-The package guides now live under the API reference.
+This section provides detailed documentation for each package in the WP Kernel monorepo.
 
-- [CLI package](/api/@wpkernel/cli/)
-- [Core package](/api/core/)
-- [UI package](/api/@wpkernel/ui/)
-- [E2E utilities](./e2e-utils.md)
-
-Use these links to jump directly into the generated Typedoc or the supporting guides.
+- [@wpkernel/cli](./cli.md)
+- [@wpkernel/core](./core.md)
+- [@wpkernel/create-wpk](./create-wpk.md)
+- [@wpkernel/e2e-utils](./e2e-utils.md)
+- [@wpkernel/php-driver](./php-driver.md)
+- [@wpkernel/php-json-ast](./php-json-ast.md)
+- [@wpkernel/test-utils](./test-utils.md)
+- [@wpkernel/ui](./ui.md)
+- [@wpkernel/wp-json-ast](./wp-json-ast.md)

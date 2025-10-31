@@ -1,3 +1,3 @@
-# @wpkernel/ui
+# @wpkernel/create-wpk
 
 Documentation coming soon.
