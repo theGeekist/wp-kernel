@@ -6,10 +6,17 @@ import {
 	buildVariableExpression,
 	buildArrayDimExpression,
 	buildPropertyExpression,
-	WP_POST_MUTATION_CONTRACT,
-} from '../resource/wpPost/mutations';
+	type MutationMetadataKeys,
+} from '../macros';
 
-const METADATA_KEYS = WP_POST_MUTATION_CONTRACT.metadataKeys;
+const METADATA_KEYS: MutationMetadataKeys = {
+	cacheSegment: 'cache:wp-post',
+	channelTag: 'resource.wpPost.mutation',
+	statusValidation: 'mutation:status',
+	syncMeta: 'mutation:meta',
+	syncTaxonomies: 'mutation:taxonomies',
+	cachePriming: 'mutation:cache',
+};
 
 describe('wp-post mutation macros', () => {
 	it('builds status validation statements with metadata comments', () => {
