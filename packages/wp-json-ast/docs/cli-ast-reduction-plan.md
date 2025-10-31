@@ -421,12 +421,14 @@ Document the remaining AST-heavy helpers and promote them into first-class facto
 - **Context:** `packages/cli/src/next/builders/php/resource/wpTaxonomy/{helpers,index}.ts` emits helper methods for term resolution, mutation scaffolding, and shared metadata using raw `PhpStmt` builders.
 - **Intent:** Provide `src/resource/wp-taxonomy/buildWpTaxonomyHelperArtifacts.ts` that receives the taxonomy storage IR (term resolver config, mutation callbacks, shared metadata hosts) and returns helper method descriptors plus reusable metadata blocks.
 - **Expected outcome:** The CLI imports the new factory when constructing taxonomy routes, unit tests under `packages/wp-json-ast/tests/resource/wp-taxonomy/helpers/` verify term resolution guards and metadata annotations, and helper assembly moves out of the CLI.
+- _Completion:_ ☑ Completed – Centralised taxonomy helper artifacts in `wp-json-ast`, returning class methods and helper signatures that the controller planner now records in metadata while the CLI consumes the shared factory.
 
 **Subtask 3.2.f – Bundle taxonomy list/get routes.**
 
 - **Context:** `packages/cli/src/next/builders/php/resource/wpTaxonomy/{list,get}.ts` orchestrates `WP_Term_Query`, pagination plumbing, and single-term lookups with bespoke AST assembly separate from the helper surface above.
 - **Intent:** Create `src/resource/wp-taxonomy/buildWpTaxonomyQueryRouteBundle.ts` that composes list and get route statements (including pagination, cache metadata, and WP_Error guards) from the taxonomy IR and the helper artifacts produced in Subtask 3.2.e.
 - **Expected outcome:** Taxonomy list/get planners in the CLI fetch the bundle instead of emitting statements directly, tests under `packages/wp-json-ast/tests/resource/wp-taxonomy/query/` cover success and error flows, and taxonomy query AST logic resides entirely in `wp-json-ast`.
+- _Completion:_ ☑ Completed – Added `buildWpTaxonomyQueryRouteBundle` to aggregate taxonomy list/get handlers in `wp-json-ast` and updated the CLI route planner to consume the shared bundle with focused tests.
 
 **Subtask 3.2.g – Move module wrapping into `buildGeneratedModuleProgram`.**
 
@@ -434,7 +436,7 @@ Document the remaining AST-heavy helpers and promote them into first-class facto
 - **Intent:** Export `buildGeneratedModuleProgram` (likely under `src/module/`) that accepts the module metadata and returns the fully wrapped `PhpProgram` so the CLI helpers only enqueue planner descriptors.
 - **Expected outcome:** Base and index helpers become pure `create*` adapters, AST mutations live entirely inside `wp-json-ast`, and tests under `packages/wp-json-ast/tests/module/` assert namespace/docblock wrapping.
 
-_Completion:_ ☐ Pending - replace this line with the PR link and a one-line summary when the task is complete. Update each subtask with links as migrations land to document progress toward eliminating CLI-owned AST assembly.
+_Completion:_ ☑ Completed – introduced `buildGeneratedModuleProgram` so module helpers rely on the shared wrapper and removed CLI-owned AST assembly.
 
 ### Task 3.3 – Rewire CLI create-helpers to consume the new factories
 

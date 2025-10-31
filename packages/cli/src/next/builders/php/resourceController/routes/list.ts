@@ -24,7 +24,6 @@ import {
 	buildMethodCallAssignmentStatement,
 	appendStatementsWithSpacing,
 	variable,
-	buildWpTaxonomyListRouteStatements,
 } from '../../resource';
 import type { IRResource } from '../../../../ir/publicTypes';
 
@@ -41,16 +40,6 @@ export function buildListRouteStatements(
 	const storage = options.resource.storage;
 	if (!storage) {
 		return null;
-	}
-
-	if (storage.mode === 'wp-taxonomy') {
-		return buildWpTaxonomyListRouteStatements({
-			pascalName: options.pascalName,
-			storage,
-			resourceName: options.resource.name,
-			metadataHost: options.metadataHost,
-			cacheSegments: options.cacheSegments,
-		});
 	}
 
 	if (storage.mode !== 'wp-post') {

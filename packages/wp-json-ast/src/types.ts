@@ -8,6 +8,10 @@ export interface ResourceControllerRouteMetadata {
 	readonly tags?: Readonly<Record<string, string>>;
 }
 
+export interface ResourceControllerHelperMetadata {
+	readonly methods: readonly string[];
+}
+
 export type ResourceControllerMetadata = BasePhpFileMetadata & {
 	readonly kind: 'resource-controller';
 	readonly name: string;
@@ -17,6 +21,7 @@ export type ResourceControllerMetadata = BasePhpFileMetadata & {
 	};
 	readonly routes: readonly ResourceControllerRouteMetadata[];
 	readonly cache?: ResourceControllerCacheMetadata;
+	readonly helpers?: ResourceControllerHelperMetadata;
 };
 
 export type ResourceControllerCacheScope =

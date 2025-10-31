@@ -12,7 +12,6 @@ import {
 	buildIfStatementNode,
 	buildInstanceof,
 	buildWpErrorReturn,
-	buildWpTaxonomyGetRouteStatements,
 	buildMethodCallAssignmentStatement,
 	buildMethodCallExpression,
 	appendStatementsWithSpacing,
@@ -37,18 +36,6 @@ export function buildGetRouteStatements(
 	const storage = options.resource.storage;
 	if (!storage) {
 		return null;
-	}
-
-	if (storage.mode === 'wp-taxonomy') {
-		return buildWpTaxonomyGetRouteStatements({
-			storage,
-			resourceName: options.resource.name,
-			identity: options.identity,
-			pascalName: options.pascalName,
-			errorCodeFactory: options.errorCodeFactory,
-			metadataHost: options.metadataHost,
-			cacheSegments: options.cacheSegments,
-		});
 	}
 
 	if (storage.mode !== 'wp-post') {
