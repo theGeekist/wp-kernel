@@ -1,4 +1,3 @@
-/* eslint-disable jsdoc/check-tag-names -- allow Typedoc @category tags */
 /**
  * Resource definition and client generation
  *
@@ -130,5 +129,3 @@ export function defineResource<T = unknown, TQuery = unknown>(
 
 	return runResult.artifact.resource as ResourceObject<T, TQuery>;
 }
-
-/* eslint-enable jsdoc/check-tag-names */

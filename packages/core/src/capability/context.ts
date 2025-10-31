@@ -1,4 +1,3 @@
-/* eslint-disable jsdoc/check-tag-names -- allow Typedoc @category tags */
 /**
  * Capability context management and action integration
  *
@@ -212,5 +211,3 @@ export function createCapabilityProxy(
 		},
 	};
 }
-
-/* eslint-enable jsdoc/check-tag-names */

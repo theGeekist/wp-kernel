@@ -1,4 +1,3 @@
-/* eslint-disable jsdoc/check-tag-names -- allow Typedoc @category tags */
 /**
  * Transport layer implementation
  *
@@ -408,5 +407,3 @@ export async function fetch<T = unknown>(
 		throw kernelError;
 	}
 }
-
-/* eslint-enable jsdoc/check-tag-names */

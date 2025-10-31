@@ -1,4 +1,3 @@
-/* eslint-disable jsdoc/check-tag-names -- allow Typedoc @category tags */
 import { WPKernelError } from '../../error/WPKernelError';
 import type {
 	ActionErrorEvent,
@@ -211,5 +210,3 @@ export function wpkEventsPlugin({
 
 	return middleware;
 }
-
-/* eslint-enable jsdoc/check-tag-names */

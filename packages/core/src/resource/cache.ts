@@ -1,4 +1,3 @@
-/* eslint-disable jsdoc/check-tag-names -- allow Typedoc @category tags */
 import { createReporter, getWPKernelReporter } from '../reporter';
 import type { Reporter } from '../reporter';
 import { resolveReporter } from '../reporter/resolve';
@@ -813,5 +812,3 @@ export function invalidateAll(
 		}
 	}
 }
-
-/* eslint-enable jsdoc/check-tag-names */

@@ -1,4 +1,3 @@
-/* eslint-disable jsdoc/check-tag-names -- allow Typedoc @category tags */
 import type {
 	ActionLifecycleEvent,
 	ActionLifecycleEventBase,
@@ -278,5 +277,3 @@ export function clearRegisteredResources(): void {
 export function clearRegisteredActions(): void {
 	definedActions.length = 0;
 }
-
-/* eslint-enable jsdoc/check-tag-names */

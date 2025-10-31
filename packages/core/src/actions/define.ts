@@ -1,4 +1,3 @@
-/* eslint-disable jsdoc/check-tag-names -- allow Typedoc @category tags */
 /**
  * Actions orchestration — defineAction implementation
  *
@@ -297,8 +296,6 @@ export function defineAction<TArgs = void, TResult = void>(
 
 	return action;
 }
-
-/* eslint-enable jsdoc/check-tag-names */
 
 function attachActionMetadata<TArgs, TResult>(
 	action: DefinedAction<TArgs, TResult>,

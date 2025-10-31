@@ -478,7 +478,6 @@ function buildServerStateSynchronizer<TEntity, TQuery>(
 	};
 }
 
-/* eslint-disable jsdoc/check-tag-names -- allow Typedoc @category tags */
 /**
  * Define an interactivity store that bridges a resource and optional actions to
  * the WordPress interactivity runtime.
@@ -568,5 +567,3 @@ export function defineInteraction<
 		getServerState: () => interactivity.getServerState(namespace),
 	};
 }
-
-/* eslint-enable jsdoc/check-tag-names */
