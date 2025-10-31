@@ -9,7 +9,10 @@ import {
 	buildWpOptionGetRouteStatements,
 	buildWpOptionUpdateRouteStatements,
 	buildWpOptionUnsupportedRouteStatements,
+	buildWpOptionStorageArtifacts,
 } from '../index';
+import type { RestControllerRouteStatementsContext } from '../../../../rest-controller/pipeline';
+import type { PhpFileMetadata } from '../../../../types';
 
 function expectClassMethod(
 	candidate: PhpStmtClassMethod | undefined
@@ -50,6 +53,55 @@ describe('wp-option storage helpers', () => {
 		const guard = firstGuard as PhpStmtIf | undefined;
 		expect(guard?.cond).toMatchObject({
 			nodeType: 'Expr_BinaryOp_Identical',
+		});
+	});
+
+	describe('wp-option storage artifacts', () => {
+		const sharedOptions = {
+			pascalName: 'Demo',
+			optionName: 'demo_option',
+			errorCodeFactory: (suffix: string) => `demo_${suffix}`,
+		} as const;
+
+		const routeOptions = {
+			pascalName: sharedOptions.pascalName,
+			optionName: sharedOptions.optionName,
+		} as const;
+
+		const stubContext = {
+			metadata: { method: 'GET', path: '/demo', kind: 'get' },
+			metadataHost: {
+				getMetadata: () =>
+					({ kind: 'resource-controller' }) as PhpFileMetadata,
+				setMetadata: () => undefined,
+			},
+		} as RestControllerRouteStatementsContext;
+
+		it('exposes helper methods and route handlers from a single factory', () => {
+			const artifacts = buildWpOptionStorageArtifacts(sharedOptions);
+
+			expect(artifacts.helperMethods).toHaveLength(2);
+			const [optionNameMethod, autoloadMethod] = artifacts.helperMethods;
+			const optionHelper = expectClassMethod(optionNameMethod);
+			const autoloadHelper = expectClassMethod(autoloadMethod);
+			expect(optionHelper.name?.name).toBe('getDemoOptionName');
+			expect(autoloadHelper.name?.name).toBe('normaliseDemoAutoload');
+
+			const getStatements =
+				artifacts.routeHandlers.get?.(stubContext) ?? [];
+			expect(getStatements).toEqual(
+				buildWpOptionGetRouteStatements(routeOptions)
+			);
+
+			const updateStatements =
+				artifacts.routeHandlers.update?.(stubContext) ?? [];
+			expect(updateStatements).toEqual(
+				buildWpOptionUpdateRouteStatements(routeOptions)
+			);
+
+			const [unsupported] =
+				artifacts.routeHandlers.unsupported?.(stubContext) ?? [];
+			expect(unsupported?.nodeType).toBe('Stmt_Return');
 		});
 	});
 });

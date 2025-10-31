@@ -1,5 +1,7 @@
 import {
 	buildResourceControllerRouteSet,
+	buildTransientStorageArtifacts,
+	resolveTransientKey,
 	type ResourceMetadataHost,
 	type ResolvedIdentity,
 } from '@wpkernel/wp-json-ast';
@@ -58,13 +60,30 @@ function buildPlan({
 	readonly route: IRRoute;
 }) {
 	const identity: ResolvedIdentity = { type: 'number', param: 'id' };
+	const pascalName = 'Book';
+	const errorCodeFactory = (suffix: string) => `book_${suffix}`;
+
+	const transientArtifacts =
+		resource.storage?.mode === 'transient'
+			? buildTransientStorageArtifacts({
+					pascalName,
+					key: resolveTransientKey({
+						resourceName: resource.name,
+						namespace: '',
+					}),
+					identity,
+					cacheSegments: resource.cacheKeys.get.segments,
+					errorCodeFactory,
+				})
+			: undefined;
 
 	const options = buildRouteSetOptions({
 		resource,
 		route,
 		identity,
-		pascalName: 'Book',
-		errorCodeFactory: (suffix: string) => `book_${suffix}`,
+		pascalName,
+		errorCodeFactory,
+		transientArtifacts,
 	});
 
 	return buildResourceControllerRouteSet({
