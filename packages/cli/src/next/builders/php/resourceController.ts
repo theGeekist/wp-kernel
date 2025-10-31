@@ -7,15 +7,19 @@ import type {
 } from '../../runtime/types';
 import {
 	buildProgramTargetPlanner,
+	buildResourceCacheKeysPlan,
+	buildResourceControllerRouteMetadata,
 	buildResourceControllerRouteSet,
 	buildRestControllerModuleFromPlan,
-	type WpPostRouteBundle,
-	DEFAULT_DOC_HEADER,
+	collectCanonicalBasePaths,
+	type ResourceControllerRouteMetadata,
 	type RestControllerResourcePlan,
-	type RestControllerRoutePlan,
 	type RestControllerRouteHandlers,
 	type RestControllerRouteOptionHandlers,
+	type RestControllerRoutePlan,
 	type RestControllerRouteTransientHandlers,
+	DEFAULT_DOC_HEADER,
+	type WpPostRouteBundle,
 } from '@wpkernel/wp-json-ast';
 import { getPhpBuilderChannel } from './channel';
 import type { PhpBuilderChannel } from './channel';
@@ -32,6 +36,7 @@ import {
 	getResourceStorageHelperState,
 	type ResourceStorageHelperState,
 } from './resource/storageHelpers';
+import { buildNotImplementedStatements as buildRouteFallbackStatements } from './resourceController/stubs';
 
 export function createPhpResourceControllerHelper(): BuilderHelper {
 	return createHelper({
@@ -69,7 +74,11 @@ export function createPhpResourceControllerHelper(): BuilderHelper {
 				pluginNamespace: ir.php.namespace,
 				sanitizedNamespace: ir.meta.sanitizedNamespace,
 				capabilityClass: `${ir.php.namespace}\\Generated\\Capability\\Capability`,
-				resources: buildResourcePlans(ir, storageState),
+				resources: buildResourcePlans({
+					ir,
+					storageState,
+					reporter,
+				}),
 				includeBaseController: false,
 			});
 
@@ -145,12 +154,22 @@ function queueResourceControllerFiles(
 	});
 }
 
+interface BuildResourcePlansOptions {
+	readonly ir: IRv1;
+	readonly storageState: ResourceStorageHelperState;
+	readonly reporter: BuilderApplyOptions['reporter'];
+}
+
 function buildResourcePlans(
-	ir: IRv1,
-	storageState: ResourceStorageHelperState
+	options: BuildResourcePlansOptions
 ): readonly RestControllerResourcePlan[] {
-	return ir.resources.map((resource) =>
-		buildResourcePlan({ ir, resource, storageState })
+	return options.ir.resources.map((resource) =>
+		buildResourcePlan({
+			ir: options.ir,
+			resource,
+			storageState: options.storageState,
+			reporter: options.reporter,
+		})
 	);
 }
 
@@ -160,6 +179,7 @@ interface ResourcePlanOptions {
 	readonly ir: IRv1;
 	readonly resource: IRResource;
 	readonly storageState: ResourceStorageHelperState;
+	readonly reporter: BuilderApplyOptions['reporter'];
 }
 
 interface ControllerBuildContext {
@@ -170,6 +190,8 @@ interface ControllerBuildContext {
 	readonly errorCodeFactory: ErrorCodeFactory;
 	readonly storageArtifacts: StorageArtifacts;
 	readonly wpPostRouteBundle?: WpPostRouteBundle;
+	readonly reporter: BuilderApplyOptions['reporter'];
+	readonly routeMetadataList: readonly ResourceControllerRouteMetadata[];
 }
 
 interface StorageArtifacts {
@@ -200,6 +222,25 @@ function buildResourcePlan(
 		storageState,
 	});
 
+	const routeDefinitions = resource.routes.map((route) => ({
+		method: route.method,
+		path: route.path,
+	}));
+	const canonicalBasePaths = collectCanonicalBasePaths(
+		routeDefinitions,
+		identity.param
+	);
+	const mutationMetadata =
+		wpPostRouteBundle?.mutationMetadata ??
+		resolveRouteMutationMetadata(resource);
+	const routeMetadataList = buildResourceControllerRouteMetadata({
+		routes: routeDefinitions,
+		identity: { param: identity.param },
+		canonicalBasePaths,
+		cacheKeys: buildCacheKeyPlan(resource),
+		mutationMetadata,
+	});
+
 	const helperMethods = [
 		...storageArtifacts.helperMethods,
 		...(wpPostRouteBundle?.helperMethods ?? []),
@@ -216,9 +257,7 @@ function buildResourcePlan(
 		),
 		identity,
 		cacheKeys: resource.cacheKeys,
-		mutationMetadata:
-			wpPostRouteBundle?.mutationMetadata ??
-			resolveRouteMutationMetadata(resource),
+		mutationMetadata,
 		helperMethods,
 		helperSignatures,
 		routes: buildRoutePlans({
@@ -229,6 +268,8 @@ function buildResourcePlan(
 			errorCodeFactory,
 			storageArtifacts,
 			wpPostRouteBundle,
+			reporter: options.reporter,
+			routeMetadataList,
 		}),
 	} satisfies RestControllerResourcePlan;
 }
@@ -236,20 +277,61 @@ function buildResourcePlan(
 function buildRoutePlans(
 	options: ControllerBuildContext
 ): readonly RestControllerRoutePlan[] {
-	return options.resource.routes.map((route) =>
-		buildRoutePlan({
+	return options.resource.routes.map((route, index) => {
+		const currentRouteMetadata = options.routeMetadataList[index];
+		if (!currentRouteMetadata) {
+			throw new Error(
+				'Expected route metadata to be defined for resource route.'
+			);
+		}
+
+		return buildRoutePlan({
 			...options,
 			route,
-		})
-	);
+			currentRouteMetadata,
+		});
+	});
 }
 
 interface RoutePlanOptions extends ControllerBuildContext {
 	readonly route: IRResource['routes'][number];
+	readonly currentRouteMetadata: ResourceControllerRouteMetadata;
 }
 
 function buildRoutePlan(options: RoutePlanOptions): RestControllerRoutePlan {
-	const { ir, route } = options;
+	const { ir, route, currentRouteMetadata } = options;
+
+	const fallbackAnalysis = analyseRouteSupport({
+		resourceName: options.resource.name,
+		storageMode: options.resource.storage?.mode,
+		route,
+		routeMetadata: currentRouteMetadata,
+		storageArtifacts: options.storageArtifacts,
+		wpPostRouteBundle: options.wpPostRouteBundle,
+	});
+
+	if (!fallbackAnalysis.supported) {
+		const context = buildFallbackLogContext({
+			resourceName: options.resource.name,
+			route,
+			routeMetadata: currentRouteMetadata,
+			storageMode: options.resource.storage?.mode,
+			reason: fallbackAnalysis.reason,
+			hint: fallbackAnalysis.hint,
+		});
+
+		if (route.transport === 'remote') {
+			options.reporter.info?.(
+				'Route emitted Not Implemented stub.',
+				context
+			);
+		} else {
+			options.reporter.warn(
+				'Route emitted Not Implemented stub.',
+				context
+			);
+		}
+	}
 
 	return buildResourceControllerRouteSet({
 		plan: {
@@ -269,6 +351,15 @@ function buildRoutePlan(options: RoutePlanOptions): RestControllerRoutePlan {
 			storageArtifacts: options.storageArtifacts,
 			wpPostRouteBundle: options.wpPostRouteBundle,
 		}),
+		buildFallbackStatements: () =>
+			buildRouteFallbackStatements({
+				route,
+				resourceName: options.resource.name,
+				routeKind: currentRouteMetadata.kind,
+				storageMode: options.resource.storage?.mode,
+				reason: fallbackAnalysis.reason,
+				hint: fallbackAnalysis.hint,
+			}),
 	});
 }
 
@@ -357,4 +448,289 @@ function resolveRouteMutationMetadata(
 	}
 
 	return undefined;
+}
+
+type ResourceStorageMode =
+	NonNullable<IRResource['storage']> extends {
+		mode: infer Mode;
+	}
+		? Mode
+		: never;
+
+function buildCacheKeyPlan(resource: Pick<IRResource, 'cacheKeys'>) {
+	const { cacheKeys } = resource;
+
+	return buildResourceCacheKeysPlan({
+		list: { segments: cacheKeys.list.segments },
+		get: { segments: cacheKeys.get.segments },
+		...(cacheKeys.create
+			? { create: { segments: cacheKeys.create.segments } }
+			: {}),
+		...(cacheKeys.update
+			? { update: { segments: cacheKeys.update.segments } }
+			: {}),
+		...(cacheKeys.remove
+			? { remove: { segments: cacheKeys.remove.segments } }
+			: {}),
+	});
+}
+
+interface RouteSupportAnalysisOptions {
+	readonly resourceName: string;
+	readonly storageMode: ResourceStorageMode | undefined;
+	readonly route: IRResource['routes'][number];
+	readonly routeMetadata: ResourceControllerRouteMetadata;
+	readonly storageArtifacts: StorageArtifacts;
+	readonly wpPostRouteBundle?: WpPostRouteBundle;
+}
+
+interface RouteSupportAnalysisResult {
+	readonly supported: boolean;
+	readonly reason?: string;
+	readonly hint?: string;
+}
+
+function analyseRouteSupport(
+	options: RouteSupportAnalysisOptions
+): RouteSupportAnalysisResult {
+	if (options.route.transport === 'remote') {
+		return {
+			supported: false,
+			reason: 'Route transport is remote. CLI only generates local handlers.',
+			hint: 'Implement the remote route manually or switch it to local transport with supported storage.',
+		} satisfies RouteSupportAnalysisResult;
+	}
+
+	const storageMode = options.storageMode;
+	if (!storageMode) {
+		return {
+			supported: false,
+			reason: 'Resource has no storage configuration.',
+			hint: `Add a storage mode to resources.${options.resourceName} or mark the route transport as "remote".`,
+		} satisfies RouteSupportAnalysisResult;
+	}
+
+	switch (storageMode) {
+		case 'wp-post':
+			return analyseWpPostSupport(options);
+		case 'wp-taxonomy':
+			return analyseWpTaxonomySupport(options);
+		case 'wp-option':
+			return analyseWpOptionSupport(options);
+		case 'transient':
+			return analyseTransientSupport(options);
+		default:
+			return {
+				supported: false,
+				reason: `Storage mode "${storageMode}" is not supported by the PHP generator.`,
+				hint: 'Use wp-post, wp-option, wp-taxonomy, or transient storage, or extend the pipeline with a custom helper.',
+			} satisfies RouteSupportAnalysisResult;
+	}
+}
+
+function analyseWpPostSupport(
+	options: RouteSupportAnalysisOptions
+): RouteSupportAnalysisResult {
+	const handlers = options.wpPostRouteBundle?.routeHandlers;
+	if (!handlers) {
+		return {
+			supported: false,
+			reason: 'WP_Post storage helpers were not generated for this resource.',
+			hint: 'Ensure the wp-post storage helper runs before the resource controller helper.',
+		} satisfies RouteSupportAnalysisResult;
+	}
+
+	if (!resolveHandlerForKind(handlers, options.routeMetadata.kind)) {
+		return {
+			supported: false,
+			reason: `wp-post storage does not implement "${options.routeMetadata.kind}" routes.`,
+			hint: 'Supported route kinds are list, get, create, update, and remove.',
+		} satisfies RouteSupportAnalysisResult;
+	}
+
+	return { supported: true } satisfies RouteSupportAnalysisResult;
+}
+
+function analyseWpTaxonomySupport(
+	options: RouteSupportAnalysisOptions
+): RouteSupportAnalysisResult {
+	const handlers = options.storageArtifacts.routeHandlers;
+	if (!handlers) {
+		return {
+			supported: false,
+			reason: 'Taxonomy storage helpers were not generated for this resource.',
+			hint: `Run the taxonomy storage helper before the controller helper and confirm resources.${options.resourceName} uses wp-taxonomy storage.`,
+		} satisfies RouteSupportAnalysisResult;
+	}
+
+	if (!resolveHandlerForKind(handlers, options.routeMetadata.kind)) {
+		return {
+			supported: false,
+			reason: `wp-taxonomy storage does not implement "${options.routeMetadata.kind}" routes.`,
+			hint: 'Taxonomy controllers support list and get operations. Remove unsupported routes or change storage modes.',
+		} satisfies RouteSupportAnalysisResult;
+	}
+
+	return { supported: true } satisfies RouteSupportAnalysisResult;
+}
+
+function analyseWpOptionSupport(
+	options: RouteSupportAnalysisOptions
+): RouteSupportAnalysisResult {
+	const handlers = options.storageArtifacts.optionHandlers;
+	if (!handlers) {
+		return {
+			supported: false,
+			reason: 'WP option storage helpers were not generated for this resource.',
+			hint: `Ensure resources.${options.resourceName}.storage.option is configured before running the controller helper.`,
+		} satisfies RouteSupportAnalysisResult;
+	}
+
+	if (!handlers.get && options.route.method.toUpperCase() === 'GET') {
+		return {
+			supported: false,
+			reason: 'wp-option storage helper is missing the GET handler.',
+			hint: 'Re-run the CLI with a valid option storage configuration.',
+		} satisfies RouteSupportAnalysisResult;
+	}
+
+	if (isWriteRoute(options.route.method)) {
+		if (!handlers.update) {
+			return {
+				supported: false,
+				reason: 'wp-option storage helper is missing the update handler.',
+				hint: 'Re-run the CLI with a valid option storage configuration.',
+			} satisfies RouteSupportAnalysisResult;
+		}
+
+		return { supported: true } satisfies RouteSupportAnalysisResult;
+	}
+
+	if (handlers.unsupported) {
+		return { supported: true } satisfies RouteSupportAnalysisResult;
+	}
+
+	return {
+		supported: false,
+		reason: `wp-option storage does not implement "${options.route.method.toUpperCase()}" operations.`,
+		hint: 'Option controllers only support GET and write (POST/PUT/PATCH) operations.',
+	} satisfies RouteSupportAnalysisResult;
+}
+
+function analyseTransientSupport(
+	options: RouteSupportAnalysisOptions
+): RouteSupportAnalysisResult {
+	const handlers = options.storageArtifacts.transientHandlers;
+	if (!handlers) {
+		return {
+			supported: false,
+			reason: 'Transient storage helpers were not generated for this resource.',
+			hint: `Ensure resources.${options.resourceName}.storage.mode is set to "transient" and rerun the CLI.`,
+		} satisfies RouteSupportAnalysisResult;
+	}
+
+	if (options.route.method.toUpperCase() === 'GET') {
+		if (!handlers.get) {
+			return {
+				supported: false,
+				reason: 'transient storage helper is missing the GET handler.',
+				hint: 'Re-run the CLI with a valid transient storage configuration.',
+			} satisfies RouteSupportAnalysisResult;
+		}
+
+		return { supported: true } satisfies RouteSupportAnalysisResult;
+	}
+
+	if (isWriteRoute(options.route.method)) {
+		if (!handlers.set) {
+			return {
+				supported: false,
+				reason: 'transient storage helper is missing the write handler.',
+				hint: 'Re-run the CLI with a valid transient storage configuration.',
+			} satisfies RouteSupportAnalysisResult;
+		}
+
+		return { supported: true } satisfies RouteSupportAnalysisResult;
+	}
+
+	if (options.route.method.toUpperCase() === 'DELETE') {
+		if (!handlers.delete) {
+			return {
+				supported: false,
+				reason: 'transient storage helper is missing the delete handler.',
+				hint: 'Re-run the CLI with a valid transient storage configuration.',
+			} satisfies RouteSupportAnalysisResult;
+		}
+
+		return { supported: true } satisfies RouteSupportAnalysisResult;
+	}
+
+	if (handlers.unsupported) {
+		return { supported: true } satisfies RouteSupportAnalysisResult;
+	}
+
+	return {
+		supported: false,
+		reason: `transient storage does not implement "${options.route.method.toUpperCase()}" operations.`,
+		hint: 'Transient controllers only support GET, write (POST/PUT/PATCH), and DELETE operations.',
+	} satisfies RouteSupportAnalysisResult;
+}
+
+const ROUTE_KIND_TO_HANDLER: Record<
+	ResourceControllerRouteMetadata['kind'],
+	keyof RestControllerRouteHandlers | undefined
+> = {
+	list: 'list',
+	get: 'get',
+	create: 'create',
+	update: 'update',
+	remove: 'remove',
+	custom: 'custom',
+};
+
+function resolveHandlerForKind(
+	handlers: RestControllerRouteHandlers | undefined,
+	kind: ResourceControllerRouteMetadata['kind']
+) {
+	if (!handlers) {
+		return undefined;
+	}
+
+	const key = ROUTE_KIND_TO_HANDLER[kind];
+	return key ? handlers[key] : undefined;
+}
+
+interface BuildFallbackLogContextOptions {
+	readonly resourceName: string;
+	readonly route: IRResource['routes'][number];
+	readonly routeMetadata: ResourceControllerRouteMetadata;
+	readonly storageMode: ResourceStorageMode | undefined;
+	readonly reason?: string;
+	readonly hint?: string;
+}
+
+function buildFallbackLogContext(
+	options: BuildFallbackLogContextOptions
+): Record<string, unknown> {
+	const context: Record<string, unknown> = {
+		resource: options.resourceName,
+		method: options.route.method,
+		path: options.route.path,
+		kind: options.routeMetadata.kind,
+		transport: options.route.transport,
+	};
+
+	if (options.storageMode) {
+		context.storageMode = options.storageMode;
+	}
+
+	if (options.reason) {
+		context.reason = options.reason;
+	}
+
+	if (options.hint) {
+		context.hint = options.hint;
+	}
+
+	return context;
 }
