@@ -49,11 +49,15 @@ function buildGuardedBlock(statements: readonly PhpStmt[]): PhpStmt[] {
 	];
 }
 
-function buildNamespaceStatement(options: {
+interface BuildNamespaceStatementOptions {
 	readonly namespace: string;
 	readonly docblock: readonly string[];
 	readonly statements: readonly PhpStmt[];
-}): PhpStmt {
+}
+
+function buildNamespaceStatement(
+	options: BuildNamespaceStatementOptions
+): PhpStmt {
 	const namespaceNode = buildNamespace(
 		buildName(splitNamespace(options.namespace)),
 		[...options.statements]

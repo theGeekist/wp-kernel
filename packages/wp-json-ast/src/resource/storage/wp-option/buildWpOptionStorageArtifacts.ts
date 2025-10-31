@@ -17,6 +17,15 @@ export interface BuildWpOptionStorageArtifactsOptions {
 	readonly errorCodeFactory: (suffix: string) => string;
 }
 
+interface WpOptionRouteBaseOptions {
+	readonly pascalName: string;
+	readonly optionName: string;
+}
+
+type WpOptionRouteStatementsBuilder = (
+	options: WpOptionRouteBaseOptions
+) => readonly PhpStmt[];
+
 export interface WpOptionStorageArtifacts {
 	readonly helperMethods: readonly PhpStmtClassMethod[];
 	readonly routeHandlers: RestControllerRouteOptionHandlers;
@@ -25,14 +34,14 @@ export interface WpOptionStorageArtifacts {
 export function buildWpOptionStorageArtifacts(
 	options: BuildWpOptionStorageArtifactsOptions
 ): WpOptionStorageArtifacts {
-	const baseRouteOptions = {
+	const baseRouteOptions: WpOptionRouteBaseOptions = {
 		pascalName: options.pascalName,
 		optionName: options.optionName,
-	} as const;
+	};
 
-	const buildRoute =
+	const createRouteHandler =
 		(
-			builder: (context: typeof baseRouteOptions) => readonly PhpStmt[]
+			builder: WpOptionRouteStatementsBuilder
 		): RestControllerRouteStatementsBuilder =>
 		() =>
 			builder(baseRouteOptions);
@@ -40,15 +49,15 @@ export function buildWpOptionStorageArtifacts(
 	return {
 		helperMethods: buildWpOptionHelperMethods(baseRouteOptions),
 		routeHandlers: {
-			get: buildRoute(() =>
-				buildWpOptionGetRouteStatements(baseRouteOptions)
+			get: createRouteHandler((context) =>
+				buildWpOptionGetRouteStatements(context)
 			),
-			update: buildRoute(() =>
-				buildWpOptionUpdateRouteStatements(baseRouteOptions)
+			update: createRouteHandler((context) =>
+				buildWpOptionUpdateRouteStatements(context)
 			),
-			unsupported: buildRoute(() =>
+			unsupported: createRouteHandler((context) =>
 				buildWpOptionUnsupportedRouteStatements({
-					...baseRouteOptions,
+					...context,
 					errorCodeFactory: options.errorCodeFactory,
 				})
 			),
