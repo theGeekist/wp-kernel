@@ -7,7 +7,7 @@ Phase 7 closes the gaps that keep freshly scaffolded projects from activating im
 ## Scope at a glance
 
 - `wpk create` already honours `--name` inside [`packages/cli/src/commands/create.ts`](../src/commands/create.ts), but the monorepo does not publish a bootstrapper. We must ship `@wpkernel/create-wpk` via `pnpm monorepo:create packages/create-wpk` (backed by [`scripts/register-workspace.ts`](../../../scripts/register-workspace.ts)) so `npm|pnpm create @wpkernel/wpk … -- --name` lands in the CLI.
-- `wpk init` currently reuses the scaffold descriptors in [`packages/cli/src/commands/init/scaffold.ts`](../src/commands/init/scaffold.ts); `assertNoCollisions()` fails as soon as an existing plugin provides `composer.json`, `wpk.config.ts`, or other template files. Passing `--force` overwrites those author-owned assets with [`packages/cli/templates/init`](../templates/init) defaults, so Phase 7 must add a detection path that seeds only the missing kernel files when running inside an established plugin.
+- `wpk init` currently reuses the scaffold descriptors in [`packages/cli/src/commands/init/scaffold.ts`](../src/commands/init/scaffold.ts); `assertNoCollisions()` fails as soon as an existing plugin provides `composer.json`, `wpk.config.ts`, or other template files. Passing `--force` overwrites those author-owned assets with [`packages/cli/templates/init`](../templates/init) defaults, so Phase 7 must add a detection path that seeds only the missing Wpkernel files when running inside an established plugin.
 - The init template stops at an empty `inc/.gitkeep` in [`packages/cli/templates/init/inc`](../templates/init/inc/.gitkeep); the generator never writes a plugin header or loader. Phase 7 introduces an AST helper that emits the bootstrap file when missing and detects user-supplied loaders to avoid clobbering them.
 - Resource removals currently leave stale files because `wpk generate` only writes additions in [`packages/cli/src/commands/generate.ts`](../src/commands/generate.ts); the workspace removal helpers in [`packages/cli/src/next/workspace/filesystem.ts`](../src/next/workspace/filesystem.ts) are unused. We will surface deletions in the plan so `wpk apply` cleans them up.
 - Templates and docs must explain the activation workflow so plugin authors understand where to add routes, UI, and WordPress-specific glue once the bootstrap lands.
@@ -43,7 +43,7 @@ Task 38 now logs bootstrap runs under the `wpk.cli.bootstrap` reporter namespace
 
 The current bootstrap entry simply shells out with `spawnSync(process.execPath, [cliBinPath, 'create'])`, so it never inspects `process.argv` or forwards the positional target and flags that `npm|pnpm|yarn create` pass before and after `--`.【F:packages/create-wpk/src/index.ts†L1-L20】 Supporting real invocations means rewriting the proxy to split `process.argv.slice(2)` on the `--` separator, preserve directory arguments (for example `npm create @wpkernel/wpk demo`) and forward every option (`--skip-install`, `--force`, etc.) to `wpk create` so the smoke test can avoid hitting installers.【F:packages/cli/src/commands/create.ts†L103-L245】 Using `spawnSync` with `stdio: 'inherit'` also prevents us from collecting stdout/stderr for telemetry, so the proxy likely needs to switch to `spawn`/streaming pipes that both echo to the terminal and buffer output for the reporter.
 
-Adding telemetry requires instantiating the kernel reporter inside the bootstrap package (likely via `createReporter` from `@wpkernel/core/reporter`) and deciding on canonical event names so the emitted logs align with the `wpk` namespace.【F:packages/cli/src/commands/create.ts†L1-L244】 The README still calls out telemetry and flag forwarding as future scope, so Task 38 must remove that limitation copy once the instrumentation lands.【F:packages/create-wpk/README.md†L1-L16】 The package manifest only depends on `@wpkernel/cli` today, so pulling in the reporter will introduce a new workspace dependency that needs TypeScript path wiring and changelog updates in tandem with the code.【F:packages/create-wpk/package.json†L1-L55】【F:packages/create-wpk/CHANGELOG.md†L1-L11】
+Adding telemetry requires instantiating the Wpkernel reporter inside the bootstrap package (likely via `createReporter` from `@wpkernel/core/reporter`) and deciding on canonical event names so the emitted logs align with the `wpk` namespace.【F:packages/cli/src/commands/create.ts†L1-L244】 The README still calls out telemetry and flag forwarding as future scope, so Task 38 must remove that limitation copy once the instrumentation lands.【F:packages/create-wpk/README.md†L1-L16】 The package manifest only depends on `@wpkernel/cli` today, so pulling in the reporter will introduce a new workspace dependency that needs TypeScript path wiring and changelog updates in tandem with the code.【F:packages/create-wpk/package.json†L1-L55】【F:packages/create-wpk/CHANGELOG.md†L1-L11】
 
 For the smoke test, we need to stand up a temporary workspace (via `withWorkspace`) and spawn the compiled bootstrap binary while injecting the same `NODE_OPTIONS` loader that the existing `wpk-bin` integration test uses to resolve the PHP JSON AST shim.【F:packages/cli/tests/**tests**/wpk-bin.integration.test.ts†L1-L96】 Because `wpk create` installs npm and Composer dependencies unless `--skip-install` is forwarded, the test must assert that the proxy passes that flag through to avoid hitting external tooling and keep the suite hermetic.【F:packages/cli/src/commands/create.ts†L196-L244】 We also need to decide whether the test runs against `packages/create-wpk/dist/index.js` (requiring the workspace to build the package before Jest executes) or uses `tsx` to execute `src/index.ts` directly; either approach should be documented so contributors know which prerequisite the smoke test expects.【F:packages/create-wpk/package.json†L30-L52】【F:packages/cli/docs/mvp-plan.md†L170-L177】
 
@@ -51,16 +51,16 @@ For the smoke test, we need to stand up a temporary workspace (via `withWorkspac
 
 Make `wpk init` safe to run inside an existing plugin. The patch should:
 
-1. Extend [`assertNoCollisions`](../src/commands/init/scaffold.ts) and [`runInitWorkflow`](../src/commands/init/workflow.ts) so the command skips files the author already owns while still writing missing kernel assets.
+1. Extend [`assertNoCollisions`](../src/commands/init/scaffold.ts) and [`runInitWorkflow`](../src/commands/init/workflow.ts) so the command skips files the author already owns while still writing missing Wpkernel assets.
 2. Detect existing plugin markers (e.g. a plugin header in `inc/*.php`, composer autoload entries) and surface a friendly summary instead of aborting.
 3. Add regression coverage for both clean directories and established plugin folders, ensuring `--force` continues to overwrite when explicitly requested.
-4. Update `packages/cli/templates/init` to separate kernel-managed files from author-owned scaffolding so later patches can reuse the metadata.
+4. Update `packages/cli/templates/init` to separate Wpkernel-managed files from author-owned scaffolding so later patches can reuse the metadata.
 
 ### Patch 0.10.4 – Task 40: Bootstrap generator foundation
 
 Introduce the AST helper that creates the plugin loader without wiring it into generation yet. This work:
 
-1. Adds a builder under `packages/cli/src/next/php` (or a dedicated helper module) that emits the plugin header, namespace, and kernel bootstrap call when no loader exists.
+1. Adds a builder under `packages/cli/src/next/php` (or a dedicated helper module) that emits the plugin header, namespace, and Wpkernel bootstrap call when no loader exists.
 2. Seeds a template in `packages/cli/templates/init/inc` that mirrors the helper output for `wpk init`.
 3. Documents the loader contract (expected filename, namespace, exported hooks) so future patches know when it is safe to skip regeneration.
 4. Provides unit tests that snapshot the generated AST and confirm the helper respects custom namespace inputs.
@@ -87,7 +87,7 @@ Teach the pipeline to remember previous generations so resource removals clean u
 
 Ensure the deletion path respects user code and surfaces diagnostics. Ship:
 
-1. Guardrails in the apply planner so shim removals only occur when the file still matches the previous kernel-generated stub (hash or marker comparison).
+1. Guardrails in the apply planner so shim removals only occur when the file still matches the previous Wpkernel-generated stub (hash or marker comparison).
 2. User-facing logs summarising deleted files and skipped removals when overrides are detected.
 3. Targeted cleanup commands or helpers (if needed) that let authors manually prune legacy artefacts when automation skips them.
 4. Additional integration coverage that captures mixed scenarios (one resource removed cleanly, another retained due to overrides).
