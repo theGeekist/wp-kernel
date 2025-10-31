@@ -41,7 +41,8 @@ export function buildGetRouteStatements(
 
 	if (storage.mode === 'wp-taxonomy') {
 		return buildWpTaxonomyGetRouteStatements({
-			resource: options.resource,
+			storage,
+			resourceName: options.resource.name,
 			identity: options.identity,
 			pascalName: options.pascalName,
 			errorCodeFactory: options.errorCodeFactory,

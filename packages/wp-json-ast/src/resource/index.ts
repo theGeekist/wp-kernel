@@ -1,5 +1,6 @@
 export * from './common/utils';
 export * from './common/phpValue';
+export * from './common/string';
 export * from './errors';
 export * from './cache';
 export * from './query';
@@ -8,4 +9,5 @@ export * from './wp-post/mutation';
 export * from './wp-post/routes';
 export * from './storage/wp-option';
 export * from './storage/transient';
+export * from './wp-taxonomy';
 export * from './accessors';
