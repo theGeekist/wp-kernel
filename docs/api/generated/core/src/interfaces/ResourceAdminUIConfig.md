@@ -24,16 +24,16 @@
 
 ## Properties
 
-### view?
-
-```ts
-optional view: string;
-```
-
----
-
 ### dataviews?
 
 ```ts
 optional dataviews: ResourceDataViewsUIConfig<TItem, TQuery>;
+```
+
+---
+
+### view?
+
+```ts
+optional view: string;
 ```

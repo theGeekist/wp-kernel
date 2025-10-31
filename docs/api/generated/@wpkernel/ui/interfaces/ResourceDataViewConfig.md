@@ -20,10 +20,18 @@ Resource DataView configuration.
 
 ## Properties
 
-### fields
+### actions?
 
 ```ts
-fields: Field < TItem > [];
+optional actions: ResourceDataViewActionConfig<TItem, unknown, unknown>[];
+```
+
+---
+
+### defaultLayouts?
+
+```ts
+optional defaultLayouts: Record<string, unknown>;
 ```
 
 ---
@@ -36,34 +44,18 @@ defaultView: View;
 
 ---
 
-### mapQuery
+### empty?
 
 ```ts
-mapQuery: QueryMapping<TQuery>;
+optional empty: ReactNode;
 ```
 
 ---
 
-### actions?
+### fields
 
 ```ts
-optional actions: ResourceDataViewActionConfig<TItem, unknown, unknown>[];
-```
-
----
-
-### search?
-
-```ts
-optional search: boolean;
-```
-
----
-
-### searchLabel?
-
-```ts
-optional searchLabel: string;
+fields: Field < TItem > [];
 ```
 
 ---
@@ -86,10 +78,10 @@ optional getItemId: (item) => string;
 
 ---
 
-### empty?
+### mapQuery
 
 ```ts
-optional empty: ReactNode;
+mapQuery: QueryMapping<TQuery>;
 ```
 
 ---
@@ -102,8 +94,16 @@ optional perPageSizes: number[];
 
 ---
 
-### defaultLayouts?
+### search?
 
 ```ts
-optional defaultLayouts: Record<string, unknown>;
+optional search: boolean;
+```
+
+---
+
+### searchLabel?
+
+```ts
+optional searchLabel: string;
 ```

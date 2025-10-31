@@ -8,14 +8,6 @@
 
 ## Properties
 
-### workspace
-
-```ts
-readonly workspace: Workspace;
-```
-
----
-
 ### phase
 
 ```ts
@@ -28,4 +20,12 @@ readonly phase: PipelinePhase;
 
 ```ts
 readonly reporter: Reporter;
+```
+
+---
+
+### workspace
+
+```ts
+readonly workspace: Workspace;
 ```

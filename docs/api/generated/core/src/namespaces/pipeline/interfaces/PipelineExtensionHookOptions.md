@@ -22,6 +22,14 @@
 
 ## Properties
 
+### artifact
+
+```ts
+readonly artifact: TArtifact;
+```
+
+---
+
 ### context
 
 ```ts
@@ -34,12 +42,4 @@ readonly context: TContext;
 
 ```ts
 readonly options: TOptions;
-```
-
----
-
-### artifact
-
-```ts
-readonly artifact: TArtifact;
 ```

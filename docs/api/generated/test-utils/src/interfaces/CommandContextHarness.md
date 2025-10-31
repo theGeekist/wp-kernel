@@ -16,16 +16,16 @@ context: BaseContext;
 
 ---
 
-### stdout
-
-```ts
-stdout: MemoryStream;
-```
-
----
-
 ### stderr
 
 ```ts
 stderr: MemoryStream;
+```
+
+---
+
+### stdout
+
+```ts
+stdout: MemoryStream;
 ```

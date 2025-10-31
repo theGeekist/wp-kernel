@@ -14,13 +14,17 @@ function buildArrowFunction(options, attributes?): PhpExprArrowFunction;
 
 ### options
 
-#### static?
+#### attrGroups?
 
-`boolean`
+[`PhpAttrGroup`](../interfaces/PhpAttrGroup.md)[]
 
 #### byRef?
 
 `boolean`
+
+#### expr
+
+[`PhpExpr`](../type-aliases/PhpExpr.md)
 
 #### params?
 
@@ -30,13 +34,9 @@ function buildArrowFunction(options, attributes?): PhpExprArrowFunction;
 
 [`PhpType`](../type-aliases/PhpType.md) \| `null`
 
-#### expr
+#### static?
 
-[`PhpExpr`](../type-aliases/PhpExpr.md)
-
-#### attrGroups?
-
-[`PhpAttrGroup`](../interfaces/PhpAttrGroup.md)[]
+`boolean`
 
 ### attributes?
 

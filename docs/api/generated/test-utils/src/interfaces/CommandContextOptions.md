@@ -8,6 +8,14 @@
 
 ## Properties
 
+### colorDepth?
+
+```ts
+optional colorDepth: number;
+```
+
+---
+
 ### cwd?
 
 ```ts
@@ -28,12 +36,4 @@ optional env: ProcessEnv;
 
 ```ts
 optional stdin: ReadStream;
-```
-
----
-
-### colorDepth?
-
-```ts
-optional colorDepth: number;
 ```

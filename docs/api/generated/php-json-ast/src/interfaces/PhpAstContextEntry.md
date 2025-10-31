@@ -8,10 +8,10 @@
 
 ## Properties
 
-### key
+### context
 
 ```ts
-readonly key: string;
+readonly context: PhpAstContext;
 ```
 
 ---
@@ -24,16 +24,16 @@ readonly filePath: string;
 
 ---
 
-### metadata
+### key
 
 ```ts
-metadata: PhpFileMetadata;
+readonly key: string;
 ```
 
 ---
 
-### context
+### metadata
 
 ```ts
-readonly context: PhpAstContext;
+metadata: PhpFileMetadata;
 ```

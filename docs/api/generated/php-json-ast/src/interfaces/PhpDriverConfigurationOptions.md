@@ -16,16 +16,16 @@ readonly optional binary: string;
 
 ---
 
-### scriptPath?
-
-```ts
-readonly optional scriptPath: string;
-```
-
----
-
 ### importMetaUrl?
 
 ```ts
 readonly optional importMetaUrl: string;
+```
+
+---
+
+### scriptPath?
+
+```ts
+readonly optional scriptPath: string;
 ```

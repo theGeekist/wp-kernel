@@ -14,14 +14,6 @@ Additional options accepted by `defineCapability()`.
 
 ## Properties
 
-### namespace?
-
-```ts
-optional namespace: string;
-```
-
----
-
 ### adapters?
 
 ```ts
@@ -42,4 +34,12 @@ optional cache: CapabilityCacheOptions;
 
 ```ts
 optional debug: boolean;
+```
+
+---
+
+### namespace?
+
+```ts
+optional namespace: string;
 ```

@@ -14,9 +14,9 @@ function buildClosure(options, attributes?): PhpExprClosure;
 
 ### options
 
-#### static?
+#### attrGroups?
 
-`boolean`
+[`PhpAttrGroup`](../interfaces/PhpAttrGroup.md)[]
 
 #### byRef?
 
@@ -26,21 +26,21 @@ function buildClosure(options, attributes?): PhpExprClosure;
 
 [`PhpParam`](../interfaces/PhpParam.md)[]
 
-#### uses?
-
-[`PhpClosureUse`](../interfaces/PhpClosureUse.md)[]
-
 #### returnType?
 
 [`PhpType`](../type-aliases/PhpType.md) \| `null`
+
+#### static?
+
+`boolean`
 
 #### stmts?
 
 [`PhpStmt`](../type-aliases/PhpStmt.md)[]
 
-#### attrGroups?
+#### uses?
 
-[`PhpAttrGroup`](../interfaces/PhpAttrGroup.md)[]
+[`PhpClosureUse`](../interfaces/PhpClosureUse.md)[]
 
 ### attributes?
 

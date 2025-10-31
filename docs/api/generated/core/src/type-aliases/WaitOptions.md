@@ -14,16 +14,16 @@ Options for waiting on a background job.
 
 ## Properties
 
-### timeoutMs?
-
-```ts
-optional timeoutMs: number;
-```
-
----
-
 ### pollIntervalMs?
 
 ```ts
 optional pollIntervalMs: number;
+```
+
+---
+
+### timeoutMs?
+
+```ts
+optional timeoutMs: number;
 ```

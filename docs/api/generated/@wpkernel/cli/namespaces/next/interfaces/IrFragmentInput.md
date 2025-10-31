@@ -8,16 +8,16 @@
 
 ## Properties
 
-### options
-
-```ts
-readonly options: BuildIrOptions;
-```
-
----
-
 ### draft
 
 ```ts
 readonly draft: MutableIr;
+```
+
+---
+
+### options
+
+```ts
+readonly options: BuildIrOptions;
 ```

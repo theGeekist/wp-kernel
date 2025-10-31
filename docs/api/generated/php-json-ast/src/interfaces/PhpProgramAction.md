@@ -8,26 +8,10 @@
 
 ## Properties
 
-### file
+### codemod?
 
 ```ts
-readonly file: string;
-```
-
----
-
-### program
-
-```ts
-readonly program: PhpProgram;
-```
-
----
-
-### metadata
-
-```ts
-readonly metadata: PhpFileMetadata;
+readonly optional codemod: PhpProgramCodemodResult;
 ```
 
 ---
@@ -40,10 +24,26 @@ readonly docblock: readonly string[];
 
 ---
 
-### uses
+### file
 
 ```ts
-readonly uses: readonly string[];
+readonly file: string;
+```
+
+---
+
+### metadata
+
+```ts
+readonly metadata: PhpFileMetadata;
+```
+
+---
+
+### program
+
+```ts
+readonly program: PhpProgram;
 ```
 
 ---
@@ -56,8 +56,8 @@ readonly statements: readonly string[];
 
 ---
 
-### codemod?
+### uses
 
 ```ts
-readonly optional codemod: PhpProgramCodemodResult;
+readonly uses: readonly string[];
 ```

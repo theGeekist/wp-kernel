@@ -8,6 +8,14 @@
 
 ## Properties
 
+### apiFetch?
+
+```ts
+optional apiFetch: any;
+```
+
+---
+
 ### data?
 
 ```ts
@@ -20,12 +28,4 @@ optional data: Partial<WordPressData>;
 
 ```ts
 optional hooks: Partial<__module | undefined>;
-```
-
----
-
-### apiFetch?
-
-```ts
-optional apiFetch: any;
 ```

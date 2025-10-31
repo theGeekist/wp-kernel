@@ -8,6 +8,14 @@
 
 ## Properties
 
+### artifact
+
+```ts
+readonly artifact: IRv1;
+```
+
+---
+
 ### context
 
 ```ts
@@ -20,12 +28,4 @@ readonly context: PipelineContext;
 
 ```ts
 readonly options: BuildIrOptions;
-```
-
----
-
-### artifact
-
-```ts
-readonly artifact: IRv1;
 ```

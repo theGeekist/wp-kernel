@@ -28,16 +28,16 @@
 
 ## Properties
 
-### nodeType
-
-```ts
-readonly nodeType: string;
-```
-
----
-
 ### attributes
 
 ```ts
 readonly attributes: PhpAttributes;
+```
+
+---
+
+### nodeType
+
+```ts
+readonly nodeType: string;
 ```

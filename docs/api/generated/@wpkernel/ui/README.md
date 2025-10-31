@@ -13,11 +13,11 @@ Reusable UI components for WP Kernel.
 ## Interfaces
 
 - [DataViewsRuntimeContext](interfaces/DataViewsRuntimeContext.md)
+- [DataViewsStandaloneRuntime](interfaces/DataViewsStandaloneRuntime.md)
 - [ResourceDataViewActionConfig](interfaces/ResourceDataViewActionConfig.md)
 - [ResourceDataViewConfig](interfaces/ResourceDataViewConfig.md)
-- [ResourceDataViewControllerOptions](interfaces/ResourceDataViewControllerOptions.md)
 - [ResourceDataViewController](interfaces/ResourceDataViewController.md)
-- [DataViewsStandaloneRuntime](interfaces/DataViewsStandaloneRuntime.md)
+- [ResourceDataViewControllerOptions](interfaces/ResourceDataViewControllerOptions.md)
 - [UseResourceItemResult](interfaces/UseResourceItemResult.md)
 - [UseResourceListResult](interfaces/UseResourceListResult.md)
 - [WPKernelUIProviderProps](interfaces/WPKernelUIProviderProps.md)
@@ -28,22 +28,22 @@ Reusable UI components for WP Kernel.
 
 ## Variables
 
-- [VERSION](variables/VERSION.md)
 - [attachUIBindings](variables/attachUIBindings.md)
+- [VERSION](variables/VERSION.md)
 
 ## Functions
 
-- [ResourceDataView](functions/ResourceDataView.md)
-- [createDataFormController](functions/createDataFormController.md)
-- [createResourceDataViewController](functions/createResourceDataViewController.md)
-- [createDataViewsRuntime](functions/createDataViewsRuntime.md)
-- [ensureControllerRuntime](functions/ensureControllerRuntime.md)
 - [attachResourceHooks](functions/attachResourceHooks.md)
+- [createDataFormController](functions/createDataFormController.md)
+- [createDataViewsRuntime](functions/createDataViewsRuntime.md)
+- [createResourceDataViewController](functions/createResourceDataViewController.md)
+- [ensureControllerRuntime](functions/ensureControllerRuntime.md)
+- [ResourceDataView](functions/ResourceDataView.md)
 - [useAction](functions/useAction.md)
 - [useCapability](functions/useCapability.md)
 - [useHoverPrefetch](functions/useHoverPrefetch.md)
 - [useNextPagePrefetch](functions/useNextPagePrefetch.md)
 - [usePrefetcher](functions/usePrefetcher.md)
 - [useVisiblePrefetch](functions/useVisiblePrefetch.md)
-- [WPKernelUIProvider](functions/WPKernelUIProvider.md)
 - [useWPKernelUI](functions/useWPKernelUI.md)
+- [WPKernelUIProvider](functions/WPKernelUIProvider.md)

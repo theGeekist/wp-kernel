@@ -24,6 +24,26 @@ The detected/resolved namespace
 
 ---
 
+### original?
+
+```ts
+optional original: string;
+```
+
+Original value before sanitization (if different)
+
+---
+
+### sanitized
+
+```ts
+sanitized: boolean;
+```
+
+Whether the namespace was sanitized
+
+---
+
 ### source
 
 ```ts
@@ -38,23 +58,3 @@ source:
 ```
 
 Source of the namespace
-
----
-
-### sanitized
-
-```ts
-sanitized: boolean;
-```
-
-Whether the namespace was sanitized
-
----
-
-### original?
-
-```ts
-optional original: string;
-```
-
-Original value before sanitization (if different)

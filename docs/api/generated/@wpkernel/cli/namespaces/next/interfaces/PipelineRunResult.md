@@ -8,18 +8,18 @@
 
 ## Properties
 
-### ir
-
-```ts
-readonly ir: IRv1;
-```
-
----
-
 ### diagnostics
 
 ```ts
 readonly diagnostics: readonly ConflictDiagnostic[];
+```
+
+---
+
+### ir
+
+```ts
+readonly ir: IRv1;
 ```
 
 ---

@@ -8,24 +8,6 @@
 
 ## Properties
 
-### buildWorkspace()?
-
-```ts
-readonly optional buildWorkspace: (root) => Workspace;
-```
-
-#### Parameters
-
-##### root
-
-`string` = `...`
-
-#### Returns
-
-[`Workspace`](Workspace.md)
-
----
-
 ### buildReporter()?
 
 ```ts
@@ -44,21 +26,21 @@ readonly optional buildReporter: (options) => Reporter;
 
 ---
 
-### runWorkflow()?
+### buildWorkspace()?
 
 ```ts
-readonly optional runWorkflow: (__namedParameters) => Promise<InitWorkflowResult>;
+readonly optional buildWorkspace: (root) => Workspace;
 ```
 
 #### Parameters
 
-##### \_\_namedParameters
+##### root
 
-`InitWorkflowOptions`
+`string` = `...`
 
 #### Returns
 
-`Promise`\&lt;`InitWorkflowResult`\&gt;
+[`Workspace`](Workspace.md)
 
 ---
 
@@ -81,3 +63,21 @@ readonly optional checkGitRepository: (cwd, __namedParameters) => Promise<boolea
 #### Returns
 
 `Promise`\&lt;`boolean`\&gt;
+
+---
+
+### runWorkflow()?
+
+```ts
+readonly optional runWorkflow: (__namedParameters) => Promise<InitWorkflowResult>;
+```
+
+#### Parameters
+
+##### \_\_namedParameters
+
+`InitWorkflowOptions`
+
+#### Returns
+
+`Promise`\&lt;`InitWorkflowResult`\&gt;

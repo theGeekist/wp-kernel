@@ -10,16 +10,16 @@ Optional adapters configured by a kernel project.
 
 ## Properties
 
-### php?
-
-```ts
-optional php: PhpAdapterFactory;
-```
-
----
-
 ### extensions?
 
 ```ts
 optional extensions: AdapterExtensionFactory[];
+```
+
+---
+
+### php?
+
+```ts
+optional php: PhpAdapterFactory;
 ```

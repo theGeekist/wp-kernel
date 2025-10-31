@@ -24,6 +24,14 @@ readonly attributes: PhpAttributes;
 
 ---
 
+### name
+
+```ts
+readonly name: PhpIdentifier;
+```
+
+---
+
 ### nodeType
 
 ```ts
@@ -33,14 +41,6 @@ readonly nodeType: "Const";
 #### Overrides
 
 [`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
-
----
-
-### name
-
-```ts
-readonly name: PhpIdentifier;
-```
 
 ---
 

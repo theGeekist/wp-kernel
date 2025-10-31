@@ -8,16 +8,16 @@
 
 ## Properties
 
-### mode?
-
-```ts
-readonly optional mode: number;
-```
-
----
-
 ### ensureDir?
 
 ```ts
 readonly optional ensureDir: boolean;
+```
+
+---
+
+### mode?
+
+```ts
+readonly optional mode: number;
 ```

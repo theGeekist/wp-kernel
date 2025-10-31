@@ -8,18 +8,22 @@
 
 ## Properties
 
-### key
+### generatedFrom?
 
 ```ts
-key: string;
+optional generatedFrom: object;
 ```
 
----
-
-### sourcePath
+#### resource
 
 ```ts
-sourcePath: string;
+resource: string;
+```
+
+#### type
+
+```ts
+type: 'storage';
 ```
 
 ---
@@ -32,10 +36,10 @@ hash: string;
 
 ---
 
-### schema
+### key
 
 ```ts
-schema: unknown;
+key: string;
 ```
 
 ---
@@ -48,20 +52,16 @@ provenance: SchemaProvenance;
 
 ---
 
-### generatedFrom?
+### schema
 
 ```ts
-optional generatedFrom: object;
+schema: unknown;
 ```
 
-#### type
+---
+
+### sourcePath
 
 ```ts
-type: 'storage';
-```
-
-#### resource
-
-```ts
-resource: string;
+sourcePath: string;
 ```

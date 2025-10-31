@@ -12,6 +12,14 @@
 
 ## Properties
 
+### adaptations
+
+```ts
+readonly adaptations: PhpNode[];
+```
+
+---
+
 ### attributes
 
 ```ts
@@ -40,12 +48,4 @@ readonly nodeType: "Stmt_TraitUse";
 
 ```ts
 readonly traits: PhpName[];
-```
-
----
-
-### adaptations
-
-```ts
-readonly adaptations: PhpNode[];
 ```

@@ -22,10 +22,26 @@
 
 ## Properties
 
+### composerCheck?
+
+```ts
+readonly optional composerCheck: TComposerCheck;
+```
+
+---
+
 ### config?
 
 ```ts
 readonly optional config: TConfig;
+```
+
+---
+
+### configOrigin?
+
+```ts
+readonly optional configOrigin: TOrigin;
 ```
 
 ---
@@ -42,20 +58,4 @@ readonly optional namespace: string;
 
 ```ts
 readonly optional sourcePath: string;
-```
-
----
-
-### configOrigin?
-
-```ts
-readonly optional configOrigin: TOrigin;
-```
-
----
-
-### composerCheck?
-
-```ts
-readonly optional composerCheck: TComposerCheck;
 ```

@@ -74,19 +74,47 @@
 
 ## Properties
 
-### fragmentKind?
-
-```ts
-readonly optional fragmentKind: TFragmentKind;
-```
-
----
-
 ### builderKind?
 
 ```ts
 readonly optional builderKind: TBuilderKind;
 ```
+
+---
+
+### createBuilderArgs()
+
+```ts
+readonly createBuilderArgs: (options) => HelperApplyOptions<TContext, TBuilderInput, TBuilderOutput, TReporter>;
+```
+
+#### Parameters
+
+##### options
+
+###### artifact
+
+`TArtifact`
+
+###### buildOptions
+
+`TBuildOptions`
+
+###### context
+
+`TContext`
+
+###### helper
+
+`TBuilderHelper`
+
+###### options
+
+`TRunOptions`
+
+#### Returns
+
+[`HelperApplyOptions`](../../../../../php-json-ast/src/interfaces/HelperApplyOptions.md)\&lt;`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`\&gt;
 
 ---
 
@@ -108,6 +136,34 @@ readonly createBuildOptions: (options) => TBuildOptions;
 
 ---
 
+### createConflictDiagnostic()?
+
+```ts
+readonly optional createConflictDiagnostic: (options) => TDiagnostic;
+```
+
+#### Parameters
+
+##### options
+
+###### existing
+
+`TFragmentHelper` \| `TBuilderHelper`
+
+###### helper
+
+`TFragmentHelper` \| `TBuilderHelper`
+
+###### message
+
+`string`
+
+#### Returns
+
+`TDiagnostic`
+
+---
+
 ### createContext()
 
 ```ts
@@ -126,31 +182,35 @@ readonly createContext: (options) => TContext;
 
 ---
 
-### createFragmentState()
+### createExtensionHookOptions()?
 
 ```ts
-readonly createFragmentState: (options) => TDraft;
+readonly optional createExtensionHookOptions: (options) => PipelineExtensionHookOptions<TContext, TBuildOptions, TArtifact>;
 ```
 
 #### Parameters
 
 ##### options
 
-###### options
+###### artifact
 
-`TRunOptions`
-
-###### context
-
-`TContext`
+`TArtifact`
 
 ###### buildOptions
 
 `TBuildOptions`
 
+###### context
+
+`TContext`
+
+###### options
+
+`TRunOptions`
+
 #### Returns
 
-`TDraft`
+[`PipelineExtensionHookOptions`](PipelineExtensionHookOptions.md)\&lt;`TContext`, `TBuildOptions`, `TArtifact`\&gt;
 
 ---
 
@@ -164,6 +224,18 @@ readonly createFragmentArgs: (options) => HelperApplyOptions<TContext, TFragment
 
 ##### options
 
+###### buildOptions
+
+`TBuildOptions`
+
+###### context
+
+`TContext`
+
+###### draft
+
+`TDraft`
+
 ###### helper
 
 `TFragmentHelper`
@@ -172,93 +244,65 @@ readonly createFragmentArgs: (options) => HelperApplyOptions<TContext, TFragment
 
 `TRunOptions`
 
-###### context
-
-`TContext`
-
-###### buildOptions
-
-`TBuildOptions`
-
-###### draft
-
-`TDraft`
-
 #### Returns
 
 [`HelperApplyOptions`](../../../../../php-json-ast/src/interfaces/HelperApplyOptions.md)\&lt;`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`\&gt;
 
 ---
 
-### finalizeFragmentState()
+### createFragmentState()
 
 ```ts
-readonly finalizeFragmentState: (options) => TArtifact;
+readonly createFragmentState: (options) => TDraft;
 ```
 
 #### Parameters
 
 ##### options
 
-###### draft
+###### buildOptions
+
+`TBuildOptions`
+
+###### context
+
+`TContext`
+
+###### options
+
+`TRunOptions`
+
+#### Returns
 
 `TDraft`
 
-###### options
-
-`TRunOptions`
-
-###### context
-
-`TContext`
-
-###### buildOptions
-
-`TBuildOptions`
-
-###### helpers
-
-[`FragmentFinalizationMetadata`](FragmentFinalizationMetadata.md)\&lt;`TFragmentKind`\&gt;
-
-#### Returns
-
-`TArtifact`
-
 ---
 
-### createBuilderArgs()
+### createMissingDependencyDiagnostic()?
 
 ```ts
-readonly createBuilderArgs: (options) => HelperApplyOptions<TContext, TBuilderInput, TBuilderOutput, TReporter>;
+readonly optional createMissingDependencyDiagnostic: (options) => TDiagnostic;
 ```
 
 #### Parameters
 
 ##### options
 
+###### dependency
+
+`string`
+
 ###### helper
 
-`TBuilderHelper`
+`TFragmentHelper` \| `TBuilderHelper`
 
-###### options
+###### message
 
-`TRunOptions`
-
-###### context
-
-`TContext`
-
-###### buildOptions
-
-`TBuildOptions`
-
-###### artifact
-
-`TArtifact`
+`string`
 
 #### Returns
 
-[`HelperApplyOptions`](../../../../../php-json-ast/src/interfaces/HelperApplyOptions.md)\&lt;`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`\&gt;
+`TDiagnostic`
 
 ---
 
@@ -276,186 +320,33 @@ readonly optional createRunResult: (options) => TRunResult;
 
 `TArtifact`
 
-###### diagnostics
+###### buildOptions
 
-readonly `TDiagnostic`[]
-
-###### steps
-
-readonly [`PipelineStep`](PipelineStep.md)\&lt;[`HelperKind`](../../../../../php-json-ast/src/type-aliases/HelperKind.md)\&gt;[]
+`TBuildOptions`
 
 ###### context
 
 `TContext`
 
-###### buildOptions
+###### diagnostics
 
-`TBuildOptions`
-
-###### options
-
-`TRunOptions`
+readonly `TDiagnostic`[]
 
 ###### helpers
 
 [`PipelineExecutionMetadata`](PipelineExecutionMetadata.md)\&lt;`TFragmentKind`, `TBuilderKind`\&gt;
 
-#### Returns
-
-`TRunResult`
-
----
-
-### onDiagnostic()?
-
-```ts
-readonly optional onDiagnostic: (options) => void;
-```
-
-Optional hook invoked whenever a diagnostic is emitted during a run.
-
-Consumers can stream diagnostics to logs or UI shells while the
-pipeline executes instead of waiting for the final run result.
-
-#### Parameters
-
-##### options
-
-###### reporter
-
-`TReporter`
-
-###### diagnostic
-
-`TDiagnostic`
-
-#### Returns
-
-`void`
-
----
-
-### createExtensionHookOptions()?
-
-```ts
-readonly optional createExtensionHookOptions: (options) => PipelineExtensionHookOptions<TContext, TBuildOptions, TArtifact>;
-```
-
-#### Parameters
-
-##### options
-
-###### context
-
-`TContext`
-
 ###### options
 
 `TRunOptions`
 
-###### buildOptions
+###### steps
 
-`TBuildOptions`
-
-###### artifact
-
-`TArtifact`
+readonly [`PipelineStep`](PipelineStep.md)\&lt;[`HelperKind`](../../../../../php-json-ast/src/type-aliases/HelperKind.md)\&gt;[]
 
 #### Returns
 
-[`PipelineExtensionHookOptions`](PipelineExtensionHookOptions.md)\&lt;`TContext`, `TBuildOptions`, `TArtifact`\&gt;
-
----
-
-### onExtensionRollbackError()?
-
-```ts
-readonly optional onExtensionRollbackError: (options) => void;
-```
-
-#### Parameters
-
-##### options
-
-###### error
-
-`unknown`
-
-###### extensionKeys
-
-readonly `string`[]
-
-###### hookSequence
-
-readonly `string`[]
-
-###### errorMetadata
-
-[`PipelineExtensionRollbackErrorMetadata`](PipelineExtensionRollbackErrorMetadata.md)
-
-###### context
-
-`TContext`
-
-#### Returns
-
-`void`
-
----
-
-### createConflictDiagnostic()?
-
-```ts
-readonly optional createConflictDiagnostic: (options) => TDiagnostic;
-```
-
-#### Parameters
-
-##### options
-
-###### helper
-
-`TFragmentHelper` \| `TBuilderHelper`
-
-###### existing
-
-`TFragmentHelper` \| `TBuilderHelper`
-
-###### message
-
-`string`
-
-#### Returns
-
-`TDiagnostic`
-
----
-
-### createMissingDependencyDiagnostic()?
-
-```ts
-readonly optional createMissingDependencyDiagnostic: (options) => TDiagnostic;
-```
-
-#### Parameters
-
-##### options
-
-###### helper
-
-`TFragmentHelper` \| `TBuilderHelper`
-
-###### dependency
-
-`string`
-
-###### message
-
-`string`
-
-#### Returns
-
-`TDiagnostic`
+`TRunResult`
 
 ---
 
@@ -480,3 +371,112 @@ readonly optional createUnusedHelperDiagnostic: (options) => TDiagnostic;
 #### Returns
 
 `TDiagnostic`
+
+---
+
+### finalizeFragmentState()
+
+```ts
+readonly finalizeFragmentState: (options) => TArtifact;
+```
+
+#### Parameters
+
+##### options
+
+###### buildOptions
+
+`TBuildOptions`
+
+###### context
+
+`TContext`
+
+###### draft
+
+`TDraft`
+
+###### helpers
+
+[`FragmentFinalizationMetadata`](FragmentFinalizationMetadata.md)\&lt;`TFragmentKind`\&gt;
+
+###### options
+
+`TRunOptions`
+
+#### Returns
+
+`TArtifact`
+
+---
+
+### fragmentKind?
+
+```ts
+readonly optional fragmentKind: TFragmentKind;
+```
+
+---
+
+### onDiagnostic()?
+
+```ts
+readonly optional onDiagnostic: (options) => void;
+```
+
+Optional hook invoked whenever a diagnostic is emitted during a run.
+
+Consumers can stream diagnostics to logs or UI shells while the
+pipeline executes instead of waiting for the final run result.
+
+#### Parameters
+
+##### options
+
+###### diagnostic
+
+`TDiagnostic`
+
+###### reporter
+
+`TReporter`
+
+#### Returns
+
+`void`
+
+---
+
+### onExtensionRollbackError()?
+
+```ts
+readonly optional onExtensionRollbackError: (options) => void;
+```
+
+#### Parameters
+
+##### options
+
+###### context
+
+`TContext`
+
+###### error
+
+`unknown`
+
+###### errorMetadata
+
+[`PipelineExtensionRollbackErrorMetadata`](PipelineExtensionRollbackErrorMetadata.md)
+
+###### extensionKeys
+
+readonly `string`[]
+
+###### hookSequence
+
+readonly `string`[]
+
+#### Returns
+
+`void`

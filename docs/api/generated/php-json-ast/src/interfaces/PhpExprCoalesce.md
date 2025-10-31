@@ -24,6 +24,14 @@ readonly attributes: PhpAttributes;
 
 ---
 
+### left
+
+```ts
+readonly left: PhpExpr;
+```
+
+---
+
 ### nodeType
 
 ```ts
@@ -33,14 +41,6 @@ readonly nodeType: "Expr_BinaryOp_Coalesce";
 #### Overrides
 
 [`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
-
----
-
-### left
-
-```ts
-readonly left: PhpExpr;
-```
 
 ---
 

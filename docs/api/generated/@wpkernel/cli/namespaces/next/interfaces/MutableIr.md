@@ -8,42 +8,10 @@
 
 ## Properties
 
-### meta
+### blocks
 
 ```ts
-meta:
-  | {
-  version: 1;
-  namespace: string;
-  sourcePath: string;
-  origin: string;
-  sanitizedNamespace: string;
-}
-  | null;
-```
-
----
-
-### config
-
-```ts
-readonly config: WPKernelConfigV1;
-```
-
----
-
-### schemas
-
-```ts
-schemas: IRSchema[];
-```
-
----
-
-### resources
-
-```ts
-resources: IRResource[];
+blocks: IRBlock[];
 ```
 
 ---
@@ -64,18 +32,10 @@ capabilityMap: IRCapabilityMap | null;
 
 ---
 
-### blocks
+### config
 
 ```ts
-blocks: IRBlock[];
-```
-
----
-
-### php
-
-```ts
-php: IRPhpProject | null;
+readonly config: WPKernelConfigV1;
 ```
 
 ---
@@ -92,4 +52,44 @@ diagnostics: IRDiagnostic[];
 
 ```ts
 extensions: Record<string, unknown>;
+```
+
+---
+
+### meta
+
+```ts
+meta:
+  | {
+  namespace: string;
+  origin: string;
+  sanitizedNamespace: string;
+  sourcePath: string;
+  version: 1;
+}
+  | null;
+```
+
+---
+
+### php
+
+```ts
+php: IRPhpProject | null;
+```
+
+---
+
+### resources
+
+```ts
+resources: IRResource[];
+```
+
+---
+
+### schemas
+
+```ts
+schemas: IRSchema[];
 ```

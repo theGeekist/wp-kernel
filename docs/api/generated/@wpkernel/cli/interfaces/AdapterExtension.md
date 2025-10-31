@@ -10,14 +10,6 @@ Adapter extension contract.
 
 ## Properties
 
-### name
-
-```ts
-name: string;
-```
-
----
-
 ### apply()
 
 ```ts
@@ -33,3 +25,11 @@ apply: (context) => void | Promise<void>;
 #### Returns
 
 `void` \| `Promise`\&lt;`void`\&gt;
+
+---
+
+### name
+
+```ts
+name: string;
+```

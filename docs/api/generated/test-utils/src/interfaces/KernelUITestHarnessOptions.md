@@ -8,14 +8,6 @@
 
 ## Properties
 
-### reporter?
-
-```ts
-optional reporter: Partial<Reporter>;
-```
-
----
-
 ### namespace?
 
 ```ts
@@ -28,4 +20,12 @@ optional namespace: string;
 
 ```ts
 optional provider: WPKernelUIProviderComponent;
+```
+
+---
+
+### reporter?
+
+```ts
+optional reporter: Partial<Reporter>;
 ```

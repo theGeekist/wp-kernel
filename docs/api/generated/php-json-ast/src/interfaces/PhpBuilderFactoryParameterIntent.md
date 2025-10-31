@@ -8,6 +8,14 @@
 
 ## Properties
 
+### default?
+
+```ts
+readonly optional default: PhpBuilderFactoryLiteral;
+```
+
+---
+
 ### name
 
 ```ts
@@ -20,12 +28,4 @@ readonly name: string;
 
 ```ts
 readonly optional type: string | null;
-```
-
----
-
-### default?
-
-```ts
-readonly optional default: PhpBuilderFactoryLiteral;
 ```

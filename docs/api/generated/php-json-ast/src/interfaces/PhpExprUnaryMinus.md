@@ -24,6 +24,14 @@ readonly attributes: PhpAttributes;
 
 ---
 
+### expr
+
+```ts
+readonly expr: PhpExpr;
+```
+
+---
+
 ### nodeType
 
 ```ts
@@ -33,11 +41,3 @@ readonly nodeType: "Expr_UnaryMinus";
 #### Overrides
 
 [`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
-
----
-
-### expr
-
-```ts
-readonly expr: PhpExpr;
-```

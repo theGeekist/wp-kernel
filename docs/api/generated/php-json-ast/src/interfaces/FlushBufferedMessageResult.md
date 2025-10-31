@@ -8,10 +8,10 @@
 
 ## Properties
 
-### remaining
+### error?
 
 ```ts
-readonly remaining: string;
+readonly optional error: unknown;
 ```
 
 ---
@@ -24,8 +24,8 @@ readonly optional message: PhpProgramIngestionMessage;
 
 ---
 
-### error?
+### remaining
 
 ```ts
-readonly optional error: unknown;
+readonly remaining: string;
 ```

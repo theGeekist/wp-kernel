@@ -18,72 +18,6 @@
 
 ## Properties
 
-### resource?
-
-```ts
-optional resource: ResourceObject<TItem, TQuery>;
-```
-
----
-
-### resourceName?
-
-```ts
-optional resourceName: string;
-```
-
----
-
-### config
-
-```ts
-config: ResourceDataViewConfig<TItem, TQuery>;
-```
-
----
-
-### queryMapping?
-
-```ts
-optional queryMapping: QueryMapping<TQuery>;
-```
-
----
-
-### runtime
-
-```ts
-runtime: DataViewsControllerRuntime;
-```
-
----
-
-### namespace
-
-```ts
-namespace: string;
-```
-
----
-
-### invalidate()?
-
-```ts
-optional invalidate: (patterns) => void;
-```
-
-#### Parameters
-
-##### patterns
-
-[`CacheKeyPattern`](../../../core/src/type-aliases/CacheKeyPattern.md) | [`CacheKeyPattern`](../../../core/src/type-aliases/CacheKeyPattern.md)[]
-
-#### Returns
-
-`void`
-
----
-
 ### capabilities?
 
 ```ts
@@ -92,10 +26,10 @@ optional capabilities: WPKUICapabilityRuntimeSource;
 
 ---
 
-### preferencesKey?
+### config
 
 ```ts
-optional preferencesKey: string;
+config: ResourceDataViewConfig<TItem, TQuery>;
 ```
 
 ---
@@ -118,6 +52,40 @@ optional fetchList: (query) => Promise<ListResponse<TItem>>;
 
 ---
 
+### invalidate()?
+
+```ts
+optional invalidate: (patterns) => void;
+```
+
+#### Parameters
+
+##### patterns
+
+[`CacheKeyPattern`](../../../core/src/type-aliases/CacheKeyPattern.md) | [`CacheKeyPattern`](../../../core/src/type-aliases/CacheKeyPattern.md)[]
+
+#### Returns
+
+`void`
+
+---
+
+### namespace
+
+```ts
+namespace: string;
+```
+
+---
+
+### preferencesKey?
+
+```ts
+optional preferencesKey: string;
+```
+
+---
+
 ### prefetchList()?
 
 ```ts
@@ -133,3 +101,35 @@ optional prefetchList: (query) => Promise<void>;
 #### Returns
 
 `Promise`\&lt;`void`\&gt;
+
+---
+
+### queryMapping?
+
+```ts
+optional queryMapping: QueryMapping<TQuery>;
+```
+
+---
+
+### resource?
+
+```ts
+optional resource: ResourceObject<TItem, TQuery>;
+```
+
+---
+
+### resourceName?
+
+```ts
+optional resourceName: string;
+```
+
+---
+
+### runtime
+
+```ts
+runtime: DataViewsControllerRuntime;
+```

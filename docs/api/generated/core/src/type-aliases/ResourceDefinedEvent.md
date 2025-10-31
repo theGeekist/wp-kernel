@@ -22,16 +22,16 @@ type ResourceDefinedEvent<T, TQuery> = object;
 
 ## Properties
 
-### resource
-
-```ts
-resource: ResourceObject<T, TQuery>;
-```
-
----
-
 ### namespace
 
 ```ts
 namespace: string;
+```
+
+---
+
+### resource
+
+```ts
+resource: ResourceObject<T, TQuery>;
 ```

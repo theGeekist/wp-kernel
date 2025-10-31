@@ -8,6 +8,22 @@
 
 ## Properties
 
+### alias
+
+```ts
+readonly alias: string | null;
+```
+
+---
+
+### fullyQualified
+
+```ts
+readonly fullyQualified: boolean;
+```
+
+---
+
 ### key
 
 ```ts
@@ -24,24 +40,8 @@ readonly parts: readonly string[];
 
 ---
 
-### alias
-
-```ts
-readonly alias: string | null;
-```
-
----
-
 ### type
 
 ```ts
 readonly type: number;
-```
-
----
-
-### fullyQualified
-
-```ts
-readonly fullyQualified: boolean;
 ```

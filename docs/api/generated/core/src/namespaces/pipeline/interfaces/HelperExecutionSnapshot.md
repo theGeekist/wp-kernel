@@ -14,22 +14,6 @@
 
 ## Properties
 
-### kind
-
-```ts
-readonly kind: TKind;
-```
-
----
-
-### registered
-
-```ts
-readonly registered: readonly string[];
-```
-
----
-
 ### executed
 
 ```ts
@@ -38,8 +22,24 @@ readonly executed: readonly string[];
 
 ---
 
+### kind
+
+```ts
+readonly kind: TKind;
+```
+
+---
+
 ### missing
 
 ```ts
 readonly missing: readonly string[];
+```
+
+---
+
+### registered
+
+```ts
+readonly registered: readonly string[];
 ```

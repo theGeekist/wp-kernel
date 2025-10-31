@@ -8,16 +8,16 @@
 
 ## Properties
 
-### runtime?
-
-```ts
-optional runtime: Partial<ActionRuntime>;
-```
-
----
-
 ### capability?
 
 ```ts
 optional capability: Partial<CapabilityHelpers<Record<string, unknown>>>;
+```
+
+---
+
+### runtime?
+
+```ts
+optional runtime: Partial<ActionRuntime>;
 ```

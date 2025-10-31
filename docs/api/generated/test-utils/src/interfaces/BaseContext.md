@@ -14,10 +14,30 @@
 
 ## Properties
 
-### stdout
+### colorDepth
 
 ```ts
-stdout: MemoryStream;
+colorDepth: number;
+```
+
+---
+
+### cwd()
+
+```ts
+cwd: () => string;
+```
+
+#### Returns
+
+`string`
+
+---
+
+### env
+
+```ts
+env: ProcessEnv;
 ```
 
 ---
@@ -38,28 +58,8 @@ stdin: ReadStream;
 
 ---
 
-### env
+### stdout
 
 ```ts
-env: ProcessEnv;
-```
-
----
-
-### cwd()
-
-```ts
-cwd: () => string;
-```
-
-#### Returns
-
-`string`
-
----
-
-### colorDepth
-
-```ts
-colorDepth: number;
+stdout: MemoryStream;
 ```

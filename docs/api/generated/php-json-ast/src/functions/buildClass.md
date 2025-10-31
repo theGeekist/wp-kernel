@@ -18,29 +18,29 @@ function buildClass(name, options, attributes?): PhpStmtClass;
 
 ### options
 
-#### flags?
+#### attrGroups?
 
-`number`
+[`PhpAttrGroup`](../interfaces/PhpAttrGroup.md)[]
 
 #### extends?
 
 [`PhpName`](../interfaces/PhpName.md) \| `null`
 
+#### flags?
+
+`number`
+
 #### implements?
 
 [`PhpName`](../interfaces/PhpName.md)[]
 
-#### stmts?
-
-[`PhpClassStmt`](../type-aliases/PhpClassStmt.md)[]
-
-#### attrGroups?
-
-[`PhpAttrGroup`](../interfaces/PhpAttrGroup.md)[]
-
 #### namespacedName?
 
 [`PhpName`](../interfaces/PhpName.md) \| `null`
+
+#### stmts?
+
+[`PhpClassStmt`](../type-aliases/PhpClassStmt.md)[]
 
 ### attributes?
 

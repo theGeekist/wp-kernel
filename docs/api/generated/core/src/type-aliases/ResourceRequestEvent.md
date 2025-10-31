@@ -14,16 +14,6 @@ Event payload for wpk.resource.request
 
 ## Properties
 
-### requestId
-
-```ts
-requestId: string;
-```
-
-Request ID for correlation
-
----
-
 ### method
 
 ```ts
@@ -51,6 +41,16 @@ optional query: Record<string, unknown>;
 ```
 
 Query parameters (if any)
+
+---
+
+### requestId
+
+```ts
+requestId: string;
+```
+
+Request ID for correlation
 
 ---
 

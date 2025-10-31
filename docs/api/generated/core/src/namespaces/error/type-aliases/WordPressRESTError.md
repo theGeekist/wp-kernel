@@ -26,16 +26,6 @@ Error code from WordPress (e.g., 'rest_forbidden', 'invalid_param')
 
 ---
 
-### message
-
-```ts
-message: string;
-```
-
-Human-readable error message
-
----
-
 ### data?
 
 ```ts
@@ -50,13 +40,13 @@ Additional error data
 [key: string]: unknown
 ```
 
-#### status?
+#### details?
 
 ```ts
-optional status: number;
+optional details: Record<string, unknown>;
 ```
 
-HTTP status code
+Detailed validation or error information
 
 #### params?
 
@@ -66,10 +56,20 @@ optional params: Record<string, string>;
 
 Invalid parameters that caused the error
 
-#### details?
+#### status?
 
 ```ts
-optional details: Record<string, unknown>;
+optional status: number;
 ```
 
-Detailed validation or error information
+HTTP status code
+
+---
+
+### message
+
+```ts
+message: string;
+```
+
+Human-readable error message

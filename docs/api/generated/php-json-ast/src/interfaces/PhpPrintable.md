@@ -14,16 +14,16 @@
 
 ## Properties
 
-### node
-
-```ts
-readonly node: TNode;
-```
-
----
-
 ### lines
 
 ```ts
 readonly lines: readonly string[];
+```
+
+---
+
+### node
+
+```ts
+readonly node: TNode;
 ```

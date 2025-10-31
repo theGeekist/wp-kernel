@@ -8,42 +8,10 @@
 
 ## Properties
 
-### name
+### body?
 
 ```ts
-readonly name: string;
-```
-
----
-
-### visibility?
-
-```ts
-readonly optional visibility: "public" | "protected" | "private";
-```
-
----
-
-### isStatic?
-
-```ts
-readonly optional isStatic: boolean;
-```
-
----
-
-### returnType?
-
-```ts
-readonly optional returnType: string | null;
-```
-
----
-
-### parameters?
-
-```ts
-readonly optional parameters: readonly PhpBuilderFactoryParameterIntent[];
+readonly optional body: readonly PhpBuilderFactoryMethodStep[];
 ```
 
 ---
@@ -56,8 +24,40 @@ readonly optional docblock: readonly string[];
 
 ---
 
-### body?
+### isStatic?
 
 ```ts
-readonly optional body: readonly PhpBuilderFactoryMethodStep[];
+readonly optional isStatic: boolean;
+```
+
+---
+
+### name
+
+```ts
+readonly name: string;
+```
+
+---
+
+### parameters?
+
+```ts
+readonly optional parameters: readonly PhpBuilderFactoryParameterIntent[];
+```
+
+---
+
+### returnType?
+
+```ts
+readonly optional returnType: string | null;
+```
+
+---
+
+### visibility?
+
+```ts
+readonly optional visibility: "public" | "protected" | "private";
 ```

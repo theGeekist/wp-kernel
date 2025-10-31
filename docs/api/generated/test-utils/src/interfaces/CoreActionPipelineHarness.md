@@ -18,6 +18,14 @@
 
 ## Properties
 
+### namespace
+
+```ts
+readonly namespace: string;
+```
+
+---
+
 ### pipeline
 
 ```ts
@@ -30,14 +38,6 @@ readonly pipeline: ActionPipeline<TArgs, TResult>;
 
 ```ts
 readonly reporter: MemoryReporter;
-```
-
----
-
-### namespace
-
-```ts
-readonly namespace: string;
 ```
 
 ---

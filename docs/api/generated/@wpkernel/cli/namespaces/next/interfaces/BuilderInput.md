@@ -12,18 +12,18 @@
 
 ## Properties
 
-### options
-
-```ts
-readonly options: BuildIrOptions;
-```
-
----
-
 ### ir
 
 ```ts
 readonly ir: IRv1 | null;
+```
+
+---
+
+### options
+
+```ts
+readonly options: BuildIrOptions;
 ```
 
 ---

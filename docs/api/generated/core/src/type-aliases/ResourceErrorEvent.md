@@ -14,13 +14,33 @@ Event payload for wpk.resource.error
 
 ## Properties
 
-### requestId
+### code
 
 ```ts
-requestId: string;
+code: string;
 ```
 
-Request ID for correlation
+Error code
+
+---
+
+### duration
+
+```ts
+duration: number;
+```
+
+Duration in milliseconds
+
+---
+
+### message
+
+```ts
+message: string;
+```
+
+Error message
 
 ---
 
@@ -44,23 +64,13 @@ Request path
 
 ---
 
-### code
+### requestId
 
 ```ts
-code: string;
+requestId: string;
 ```
 
-Error code
-
----
-
-### message
-
-```ts
-message: string;
-```
-
-Error message
+Request ID for correlation
 
 ---
 
@@ -71,16 +81,6 @@ optional status: number;
 ```
 
 HTTP status code (if available)
-
----
-
-### duration
-
-```ts
-duration: number;
-```
-
-Duration in milliseconds
 
 ---
 

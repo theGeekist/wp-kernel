@@ -22,14 +22,14 @@ Event name: `wpk.action.start`
 
 ## Type Declaration
 
-### phase
-
-```ts
-phase: 'start';
-```
-
 ### args
 
 ```ts
 args: unknown;
+```
+
+### phase
+
+```ts
+phase: 'start';
 ```

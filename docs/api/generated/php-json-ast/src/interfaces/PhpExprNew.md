@@ -12,6 +12,14 @@
 
 ## Properties
 
+### args
+
+```ts
+readonly args: PhpArg[];
+```
+
+---
+
 ### attributes
 
 ```ts
@@ -24,6 +32,14 @@ readonly attributes: PhpAttributes;
 
 ---
 
+### class
+
+```ts
+readonly class: PhpExpr | PhpName;
+```
+
+---
+
 ### nodeType
 
 ```ts
@@ -33,19 +49,3 @@ readonly nodeType: "Expr_New";
 #### Overrides
 
 [`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
-
----
-
-### class
-
-```ts
-readonly class: PhpExpr | PhpName;
-```
-
----
-
-### args
-
-```ts
-readonly args: PhpArg[];
-```

@@ -22,16 +22,6 @@ Additional arbitrary data
 
 ## Properties
 
-### resourceName?
-
-```ts
-optional resourceName: string;
-```
-
-Resource or action name
-
----
-
 ### actionName?
 
 ```ts
@@ -48,6 +38,14 @@ optional capabilityKey: string;
 
 ---
 
+### method?
+
+```ts
+optional method: string;
+```
+
+---
+
 ### path?
 
 ```ts
@@ -58,10 +56,30 @@ Request details
 
 ---
 
-### method?
+### requestId?
 
 ```ts
-optional method: string;
+optional requestId: string;
+```
+
+Correlation ID for tracing
+
+---
+
+### resourceName?
+
+```ts
+optional resourceName: string;
+```
+
+Resource or action name
+
+---
+
+### siteId?
+
+```ts
+optional siteId: number;
 ```
 
 ---
@@ -81,21 +99,3 @@ optional userId: number;
 ```
 
 User/environment context
-
----
-
-### siteId?
-
-```ts
-optional siteId: number;
-```
-
----
-
-### requestId?
-
-```ts
-optional requestId: string;
-```
-
-Correlation ID for tracing

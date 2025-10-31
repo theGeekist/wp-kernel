@@ -12,23 +12,15 @@
 
 ## Properties
 
-### nodeType
+### attributes
 
 ```ts
-readonly nodeType: "Arg";
+readonly attributes: PhpAttributes;
 ```
 
-#### Overrides
+#### Inherited from
 
-[`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
-
----
-
-### value
-
-```ts
-readonly value: PhpExpr;
-```
+[`PhpNode`](PhpNode.md).[`attributes`](PhpNode.md#attributes)
 
 ---
 
@@ -36,14 +28,6 @@ readonly value: PhpExpr;
 
 ```ts
 readonly byRef: boolean;
-```
-
----
-
-### unpack
-
-```ts
-readonly unpack: boolean;
 ```
 
 ---
@@ -56,12 +40,28 @@ readonly name: PhpIdentifier | null;
 
 ---
 
-### attributes
+### nodeType
 
 ```ts
-readonly attributes: PhpAttributes;
+readonly nodeType: "Arg";
 ```
 
-#### Inherited from
+#### Overrides
 
-[`PhpNode`](PhpNode.md).[`attributes`](PhpNode.md#attributes)
+[`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
+
+---
+
+### unpack
+
+```ts
+readonly unpack: boolean;
+```
+
+---
+
+### value
+
+```ts
+readonly value: PhpExpr;
+```

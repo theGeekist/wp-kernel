@@ -8,6 +8,14 @@
 
 ## Properties
 
+### context?
+
+```ts
+optional context: Record<string, unknown>;
+```
+
+---
+
 ### key
 
 ```ts
@@ -28,12 +36,4 @@ message: string;
 
 ```ts
 severity: IRDiagnosticSeverity;
-```
-
----
-
-### context?
-
-```ts
-optional context: Record<string, unknown>;
 ```

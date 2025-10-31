@@ -39,29 +39,17 @@ Create a new CapabilityDeniedError
 
 Capability denied error options
 
-###### namespace
-
-`string`
-
-Plugin namespace
-
 ###### capabilityKey
 
 `string`
 
 Capability key that was denied
 
-###### params?
+###### context?
 
-`unknown`
+[`ErrorContext`](../../../type-aliases/ErrorContext.md)
 
-Parameters passed to capability check
-
-###### message?
-
-`string`
-
-Optional custom error message
+Additional error context
 
 ###### data?
 
@@ -69,11 +57,23 @@ Optional custom error message
 
 Additional error data
 
-###### context?
+###### message?
 
-[`ErrorContext`](../../../type-aliases/ErrorContext.md)
+`string`
 
-Additional error context
+Optional custom error message
+
+###### namespace
+
+`string`
+
+Plugin namespace
+
+###### params?
+
+`unknown`
+
+Parameters passed to capability check
 
 #### Returns
 
@@ -85,17 +85,6 @@ Additional error context
 
 ## Properties
 
-### messageKey
-
-```ts
-readonly messageKey: string;
-```
-
-I18n message key for user-facing error messages
-Format: `capability.denied.{namespace}.{capabilityKey}`
-
----
-
 ### capabilityKey
 
 ```ts
@@ -103,16 +92,6 @@ readonly capabilityKey: string;
 ```
 
 Capability key that was denied
-
----
-
-### namespace
-
-```ts
-readonly namespace: string;
-```
-
-Plugin namespace
 
 ---
 
@@ -130,6 +109,20 @@ Error code - identifies the type of error
 
 ---
 
+### context?
+
+```ts
+readonly optional context: ErrorContext;
+```
+
+Context in which the error occurred
+
+#### Inherited from
+
+[`WPKernelError`](../../../classes/WPKernelError.md).[`context`](../../../classes/WPKernelError.md#context)
+
+---
+
 ### data?
 
 ```ts
@@ -144,39 +137,26 @@ Additional data about the error
 
 ---
 
-### context?
+### messageKey
 
 ```ts
-readonly optional context: ErrorContext;
+readonly messageKey: string;
 ```
 
-Context in which the error occurred
-
-#### Inherited from
-
-[`WPKernelError`](../../../classes/WPKernelError.md).[`context`](../../../classes/WPKernelError.md#context)
-
-## Methods
-
-### toJSON()
-
-```ts
-toJSON(): SerializedError;
-```
-
-Serialize error to JSON-safe format
-
-#### Returns
-
-[`SerializedError`](../../../type-aliases/SerializedError.md)
-
-Serialized error object
-
-#### Inherited from
-
-[`WPKernelError`](../../../classes/WPKernelError.md).[`toJSON`](../../../classes/WPKernelError.md#tojson)
+I18n message key for user-facing error messages
+Format: `capability.denied.{namespace}.{capabilityKey}`
 
 ---
+
+### namespace
+
+```ts
+readonly namespace: string;
+```
+
+Plugin namespace
+
+## Methods
 
 ### fromJSON()
 
@@ -231,6 +211,26 @@ True if error is a WPKernelError
 #### Inherited from
 
 [`WPKernelError`](../../../classes/WPKernelError.md).[`isWPKernelError`](../../../classes/WPKernelError.md#iswpkernelerror)
+
+---
+
+### toJSON()
+
+```ts
+toJSON(): SerializedError;
+```
+
+Serialize error to JSON-safe format
+
+#### Returns
+
+[`SerializedError`](../../../type-aliases/SerializedError.md)
+
+Serialized error object
+
+#### Inherited from
+
+[`WPKernelError`](../../../classes/WPKernelError.md).[`toJSON`](../../../classes/WPKernelError.md#tojson)
 
 ---
 

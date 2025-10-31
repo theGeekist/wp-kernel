@@ -30,16 +30,6 @@ Response data
 
 ---
 
-### status
-
-```ts
-status: number;
-```
-
-HTTP status code
-
----
-
 ### headers
 
 ```ts
@@ -57,3 +47,13 @@ requestId: string;
 ```
 
 Request ID used for this request (for correlation)
+
+---
+
+### status
+
+```ts
+status: number;
+```
+
+HTTP status code

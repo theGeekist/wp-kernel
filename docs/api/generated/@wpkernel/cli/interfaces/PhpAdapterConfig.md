@@ -10,14 +10,6 @@ Configuration returned by the PHP adapter factory.
 
 ## Properties
 
-### namespace?
-
-```ts
-optional namespace: string;
-```
-
----
-
 ### autoload?
 
 ```ts
@@ -45,3 +37,11 @@ optional customise: (builder, context) => void;
 #### Returns
 
 `void`
+
+---
+
+### namespace?
+
+```ts
+optional namespace: string;
+```

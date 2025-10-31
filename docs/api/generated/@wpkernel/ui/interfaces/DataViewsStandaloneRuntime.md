@@ -14,15 +14,27 @@ Runtime shape exposed to UI consumers (kernel or standalone).
 
 ## Properties
 
-### namespace
+### capabilities?
 
 ```ts
-readonly namespace: string;
+readonly optional capabilities: WPKUICapabilityRuntime;
 ```
 
-#### Inherited from
+#### Overrides
 
-[`DataViewsRuntimeContext`](DataViewsRuntimeContext.md).[`namespace`](DataViewsRuntimeContext.md#namespace)
+[`DataViewsRuntimeContext`](DataViewsRuntimeContext.md).[`capabilities`](DataViewsRuntimeContext.md#capabilities)
+
+---
+
+### dataviews
+
+```ts
+readonly dataviews: KernelDataViewsRuntime;
+```
+
+#### Overrides
+
+[`DataViewsRuntimeContext`](DataViewsRuntimeContext.md).[`dataviews`](DataViewsRuntimeContext.md#dataviews)
 
 ---
 
@@ -52,6 +64,30 @@ readonly optional invalidate: (patterns, options?) => void;
 
 ---
 
+### kernel?
+
+```ts
+readonly optional kernel: unknown;
+```
+
+#### Inherited from
+
+[`DataViewsRuntimeContext`](DataViewsRuntimeContext.md).[`kernel`](DataViewsRuntimeContext.md#kernel)
+
+---
+
+### namespace
+
+```ts
+readonly namespace: string;
+```
+
+#### Inherited from
+
+[`DataViewsRuntimeContext`](DataViewsRuntimeContext.md).[`namespace`](DataViewsRuntimeContext.md#namespace)
+
+---
+
 ### registry?
 
 ```ts
@@ -73,39 +109,3 @@ readonly reporter: Reporter;
 #### Inherited from
 
 [`DataViewsRuntimeContext`](DataViewsRuntimeContext.md).[`reporter`](DataViewsRuntimeContext.md#reporter)
-
----
-
-### kernel?
-
-```ts
-readonly optional kernel: unknown;
-```
-
-#### Inherited from
-
-[`DataViewsRuntimeContext`](DataViewsRuntimeContext.md).[`kernel`](DataViewsRuntimeContext.md#kernel)
-
----
-
-### dataviews
-
-```ts
-readonly dataviews: KernelDataViewsRuntime;
-```
-
-#### Overrides
-
-[`DataViewsRuntimeContext`](DataViewsRuntimeContext.md).[`dataviews`](DataViewsRuntimeContext.md#dataviews)
-
----
-
-### capabilities?
-
-```ts
-readonly optional capabilities: WPKUICapabilityRuntime;
-```
-
-#### Overrides
-
-[`DataViewsRuntimeContext`](DataViewsRuntimeContext.md).[`capabilities`](DataViewsRuntimeContext.md#capabilities)

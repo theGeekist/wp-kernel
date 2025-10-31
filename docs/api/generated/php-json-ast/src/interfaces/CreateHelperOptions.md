@@ -30,6 +30,22 @@
 
 ## Properties
 
+### apply
+
+```ts
+readonly apply: HelperApplyFn<TContext, TInput, TOutput, TReporter>;
+```
+
+---
+
+### dependsOn?
+
+```ts
+readonly optional dependsOn: readonly string[];
+```
+
+---
+
 ### key
 
 ```ts
@@ -54,22 +70,6 @@ readonly optional mode: HelperMode;
 
 ---
 
-### priority?
-
-```ts
-readonly optional priority: number;
-```
-
----
-
-### dependsOn?
-
-```ts
-readonly optional dependsOn: readonly string[];
-```
-
----
-
 ### origin?
 
 ```ts
@@ -78,8 +78,8 @@ readonly optional origin: string;
 
 ---
 
-### apply
+### priority?
 
 ```ts
-readonly apply: HelperApplyFn<TContext, TInput, TOutput, TReporter>;
+readonly optional priority: number;
 ```

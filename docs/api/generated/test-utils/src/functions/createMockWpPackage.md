@@ -22,14 +22,14 @@ Create a typed mock WordPress package object.
 
 `object`
 
-### version?
-
-```ts
-optional version: string;
-```
-
 ### name
 
 ```ts
 name: string = 'test-package';
+```
+
+### version?
+
+```ts
+optional version: string;
 ```

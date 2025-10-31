@@ -12,26 +12,6 @@
 
 ## Properties
 
-### nodeType
-
-```ts
-readonly nodeType: "Attribute";
-```
-
-#### Overrides
-
-[`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
-
----
-
-### name
-
-```ts
-readonly name: PhpIdentifier | PhpName;
-```
-
----
-
 ### args
 
 ```ts
@@ -49,3 +29,23 @@ readonly attributes: PhpAttributes;
 #### Inherited from
 
 [`PhpNode`](PhpNode.md).[`attributes`](PhpNode.md#attributes)
+
+---
+
+### name
+
+```ts
+readonly name: PhpIdentifier | PhpName;
+```
+
+---
+
+### nodeType
+
+```ts
+readonly nodeType: "Attribute";
+```
+
+#### Overrides
+
+[`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)

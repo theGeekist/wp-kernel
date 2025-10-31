@@ -20,6 +20,14 @@
 
 ## Properties
 
+### dependsOn
+
+```ts
+readonly dependsOn: readonly string[];
+```
+
+---
+
 ### key
 
 ```ts
@@ -44,24 +52,16 @@ readonly mode: HelperMode;
 
 ---
 
-### priority
-
-```ts
-readonly priority: number;
-```
-
----
-
-### dependsOn
-
-```ts
-readonly dependsOn: readonly string[];
-```
-
----
-
 ### origin?
 
 ```ts
 readonly optional origin: string;
+```
+
+---
+
+### priority
+
+```ts
+readonly priority: number;
 ```

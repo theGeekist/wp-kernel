@@ -8,14 +8,6 @@
 
 ## Properties
 
-### yes
-
-```ts
-readonly yes: boolean;
-```
-
----
-
 ### backup
 
 ```ts
@@ -28,4 +20,12 @@ readonly backup: boolean;
 
 ```ts
 readonly force: boolean;
+```
+
+---
+
+### yes
+
+```ts
+readonly yes: boolean;
 ```

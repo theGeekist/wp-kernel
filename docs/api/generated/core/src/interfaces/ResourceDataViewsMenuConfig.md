@@ -14,22 +14,6 @@
 
 ## Properties
 
-### slug
-
-```ts
-slug: string;
-```
-
----
-
-### title
-
-```ts
-title: string;
-```
-
----
-
 ### capability?
 
 ```ts
@@ -50,4 +34,20 @@ optional parent: string;
 
 ```ts
 optional position: number;
+```
+
+---
+
+### slug
+
+```ts
+slug: string;
+```
+
+---
+
+### title
+
+```ts
+title: string;
 ```

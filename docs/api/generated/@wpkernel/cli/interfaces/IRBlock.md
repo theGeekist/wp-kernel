@@ -8,14 +8,6 @@
 
 ## Properties
 
-### key
-
-```ts
-key: string;
-```
-
----
-
 ### directory
 
 ```ts
@@ -28,6 +20,14 @@ directory: string;
 
 ```ts
 hasRender: boolean;
+```
+
+---
+
+### key
+
+```ts
+key: string;
 ```
 
 ---

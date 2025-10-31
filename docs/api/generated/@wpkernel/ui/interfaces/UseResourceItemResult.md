@@ -28,16 +28,6 @@ The fetched entity, or undefined if not yet loaded
 
 ---
 
-### isLoading
-
-```ts
-isLoading: boolean;
-```
-
-True if the data is currently being fetched or resolved
-
----
-
 ### error
 
 ```ts
@@ -45,3 +35,13 @@ error: string | undefined;
 ```
 
 Error message if the fetch failed, undefined otherwise
+
+---
+
+### isLoading
+
+```ts
+isLoading: boolean;
+```
+
+True if the data is currently being fetched or resolved

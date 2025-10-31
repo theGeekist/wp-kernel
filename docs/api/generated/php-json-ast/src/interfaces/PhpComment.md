@@ -12,39 +12,15 @@
 
 ## Properties
 
-### line?
+### endFilePos?
 
 ```ts
-readonly optional line: number;
+readonly optional endFilePos: number;
 ```
 
 #### Inherited from
 
-[`PhpCommentLocation`](PhpCommentLocation.md).[`line`](PhpCommentLocation.md#line)
-
----
-
-### filePos?
-
-```ts
-readonly optional filePos: number;
-```
-
-#### Inherited from
-
-[`PhpCommentLocation`](PhpCommentLocation.md).[`filePos`](PhpCommentLocation.md#filepos)
-
----
-
-### tokenPos?
-
-```ts
-readonly optional tokenPos: number;
-```
-
-#### Inherited from
-
-[`PhpCommentLocation`](PhpCommentLocation.md).[`tokenPos`](PhpCommentLocation.md#tokenpos)
+[`PhpCommentLocation`](PhpCommentLocation.md).[`endFilePos`](PhpCommentLocation.md#endfilepos)
 
 ---
 
@@ -60,18 +36,6 @@ readonly optional endLine: number;
 
 ---
 
-### endFilePos?
-
-```ts
-readonly optional endFilePos: number;
-```
-
-#### Inherited from
-
-[`PhpCommentLocation`](PhpCommentLocation.md).[`endFilePos`](PhpCommentLocation.md#endfilepos)
-
----
-
 ### endTokenPos?
 
 ```ts
@@ -81,6 +45,30 @@ readonly optional endTokenPos: number;
 #### Inherited from
 
 [`PhpCommentLocation`](PhpCommentLocation.md).[`endTokenPos`](PhpCommentLocation.md#endtokenpos)
+
+---
+
+### filePos?
+
+```ts
+readonly optional filePos: number;
+```
+
+#### Inherited from
+
+[`PhpCommentLocation`](PhpCommentLocation.md).[`filePos`](PhpCommentLocation.md#filepos)
+
+---
+
+### line?
+
+```ts
+readonly optional line: number;
+```
+
+#### Inherited from
+
+[`PhpCommentLocation`](PhpCommentLocation.md).[`line`](PhpCommentLocation.md#line)
 
 ---
 
@@ -97,3 +85,15 @@ readonly nodeType: "Comment" | `Comment_${string}`;
 ```ts
 readonly text: string;
 ```
+
+---
+
+### tokenPos?
+
+```ts
+readonly optional tokenPos: number;
+```
+
+#### Inherited from
+
+[`PhpCommentLocation`](PhpCommentLocation.md).[`tokenPos`](PhpCommentLocation.md#tokenpos)

@@ -12,10 +12,16 @@
 
 ## Properties
 
-### pretty?
+### ensureDir?
 
 ```ts
-readonly optional pretty: boolean;
+readonly optional ensureDir: boolean;
+```
+
+#### Inherited from
+
+```ts
+WriteOptions.ensureDir;
 ```
 
 ---
@@ -34,14 +40,8 @@ WriteOptions.mode;
 
 ---
 
-### ensureDir?
+### pretty?
 
 ```ts
-readonly optional ensureDir: boolean;
-```
-
-#### Inherited from
-
-```ts
-WriteOptions.ensureDir;
+readonly optional pretty: boolean;
 ```

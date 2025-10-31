@@ -14,10 +14,10 @@
 
 ## Properties
 
-### type
+### helpers
 
 ```ts
-readonly type: "conflict";
+readonly helpers: readonly string[];
 ```
 
 ---
@@ -30,18 +30,10 @@ readonly key: string;
 
 ---
 
-### mode
+### kind?
 
 ```ts
-readonly mode: HelperMode;
-```
-
----
-
-### helpers
-
-```ts
-readonly helpers: readonly string[];
+readonly optional kind: TKind;
 ```
 
 ---
@@ -54,8 +46,16 @@ readonly message: string;
 
 ---
 
-### kind?
+### mode
 
 ```ts
-readonly optional kind: TKind;
+readonly mode: HelperMode;
+```
+
+---
+
+### type
+
+```ts
+readonly type: "conflict";
 ```

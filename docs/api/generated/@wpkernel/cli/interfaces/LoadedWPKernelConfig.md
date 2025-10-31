@@ -10,18 +10,18 @@ Result returned when loading and validating a kernel config file.
 
 ## Properties
 
-### config
+### composerCheck
 
 ```ts
-config: WPKernelConfigV1;
+composerCheck: 'ok' | 'mismatch';
 ```
 
 ---
 
-### sourcePath
+### config
 
 ```ts
-sourcePath: string;
+config: WPKernelConfigV1;
 ```
 
 ---
@@ -34,16 +34,16 @@ configOrigin: WPKConfigSource;
 
 ---
 
-### composerCheck
-
-```ts
-composerCheck: 'ok' | 'mismatch';
-```
-
----
-
 ### namespace
 
 ```ts
 namespace: string;
+```
+
+---
+
+### sourcePath
+
+```ts
+sourcePath: string;
 ```

@@ -24,15 +24,11 @@ readonly attributes: PhpAttributes;
 
 ---
 
-### nodeType
+### byRef
 
 ```ts
-readonly nodeType: "Stmt_Foreach";
+readonly byRef: boolean;
 ```
-
-#### Overrides
-
-[`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
 ---
 
@@ -40,14 +36,6 @@ readonly nodeType: "Stmt_Foreach";
 
 ```ts
 readonly expr: PhpExpr;
-```
-
----
-
-### valueVar
-
-```ts
-readonly valueVar: PhpExpr;
 ```
 
 ---
@@ -60,11 +48,15 @@ readonly keyVar: PhpExpr | null;
 
 ---
 
-### byRef
+### nodeType
 
 ```ts
-readonly byRef: boolean;
+readonly nodeType: "Stmt_Foreach";
 ```
+
+#### Overrides
+
+[`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
 ---
 
@@ -72,4 +64,12 @@ readonly byRef: boolean;
 
 ```ts
 readonly stmts: PhpStmt[];
+```
+
+---
+
+### valueVar
+
+```ts
+readonly valueVar: PhpExpr;
 ```

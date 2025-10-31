@@ -20,6 +20,20 @@ Ambient interface exposed by `@wordpress/interactivity`.
 
 ## Properties
 
+### getServerState
+
+```ts
+getServerState: InteractivityServerStateResolver;
+```
+
+#### Inherited from
+
+```ts
+InteractivityCore.getServerState;
+```
+
+---
+
 ### store()
 
 ```ts
@@ -44,18 +58,4 @@ store: (namespace, definition?) => InteractivityStoreResult;
 
 ```ts
 InteractivityCore.store;
-```
-
----
-
-### getServerState
-
-```ts
-getServerState: InteractivityServerStateResolver;
-```
-
-#### Inherited from
-
-```ts
-InteractivityCore.getServerState;
 ```

@@ -12,24 +12,24 @@ type ResourceStorageConfig =
 			mode: 'transient';
 	  }
 	| {
+			meta?: Record<string, ResourcePostMetaDescriptor>;
 			mode: 'wp-post';
 			postType?: string;
 			statuses?: string[];
 			supports?: ('title' | 'editor' | 'excerpt' | 'custom-fields')[];
-			meta?: Record<string, ResourcePostMetaDescriptor>;
 			taxonomies?: Record<
 				string,
 				{
-					taxonomy: string;
 					hierarchical?: boolean;
 					register?: boolean;
+					taxonomy: string;
 				}
 			>;
 	  }
 	| {
+			hierarchical?: boolean;
 			mode: 'wp-taxonomy';
 			taxonomy: string;
-			hierarchical?: boolean;
 	  }
 	| {
 			mode: 'wp-option';

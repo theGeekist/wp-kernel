@@ -8,18 +8,18 @@
 
 ## Properties
 
-### key
+### class
 
 ```ts
-readonly key: string;
+readonly class: string;
 ```
 
 ---
 
-### stackKey
+### key
 
 ```ts
-readonly stackKey: string;
+readonly key: string;
 ```
 
 ---
@@ -32,16 +32,16 @@ readonly stackIndex: number;
 
 ---
 
-### visitorIndex
+### stackKey
 
 ```ts
-readonly visitorIndex: number;
+readonly stackKey: string;
 ```
 
 ---
 
-### class
+### visitorIndex
 
 ```ts
-readonly class: string;
+readonly visitorIndex: number;
 ```

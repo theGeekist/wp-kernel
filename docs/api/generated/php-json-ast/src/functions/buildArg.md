@@ -22,13 +22,13 @@ function buildArg(value, options, attributes?): PhpArg;
 
 `boolean`
 
-#### unpack?
-
-`boolean`
-
 #### name?
 
 [`PhpIdentifier`](../interfaces/PhpIdentifier.md) \| `null`
+
+#### unpack?
+
+`boolean`
 
 ### attributes?
 

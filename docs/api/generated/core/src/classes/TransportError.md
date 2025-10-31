@@ -39,11 +39,15 @@ Create a new TransportError
 
 Transport error options
 
-###### status
+###### context?
 
-`number`
+[`ErrorContext`](../type-aliases/ErrorContext.md)
 
-###### path
+###### data?
+
+[`ErrorData`](../type-aliases/ErrorData.md)
+
+###### message?
 
 `string`
 
@@ -51,17 +55,13 @@ Transport error options
 
 `string`
 
-###### message?
+###### path
 
 `string`
 
-###### data?
+###### status
 
-[`ErrorData`](../type-aliases/ErrorData.md)
-
-###### context?
-
-[`ErrorContext`](../type-aliases/ErrorContext.md)
+`number`
 
 #### Returns
 
@@ -72,36 +72,6 @@ Transport error options
 [`WPKernelError`](WPKernelError.md).[`constructor`](WPKernelError.md#constructor)
 
 ## Properties
-
-### status
-
-```ts
-readonly status: number;
-```
-
-HTTP status code
-
----
-
-### path
-
-```ts
-readonly path: string;
-```
-
-Request path
-
----
-
-### method
-
-```ts
-readonly method: string;
-```
-
-HTTP method
-
----
 
 ### code
 
@@ -114,6 +84,20 @@ Error code - identifies the type of error
 #### Inherited from
 
 [`WPKernelError`](WPKernelError.md).[`code`](WPKernelError.md#code)
+
+---
+
+### context?
+
+```ts
+readonly optional context: ErrorContext;
+```
+
+Context in which the error occurred
+
+#### Inherited from
+
+[`WPKernelError`](WPKernelError.md).[`context`](WPKernelError.md#context)
 
 ---
 
@@ -131,103 +115,35 @@ Additional data about the error
 
 ---
 
-### context?
+### method
 
 ```ts
-readonly optional context: ErrorContext;
+readonly method: string;
 ```
 
-Context in which the error occurred
+HTTP method
 
-#### Inherited from
+---
 
-[`WPKernelError`](WPKernelError.md).[`context`](WPKernelError.md#context)
+### path
+
+```ts
+readonly path: string;
+```
+
+Request path
+
+---
+
+### status
+
+```ts
+readonly status: number;
+```
+
+HTTP status code
 
 ## Methods
-
-### isTimeout()
-
-```ts
-isTimeout(): boolean;
-```
-
-Check if error is a network timeout
-
-#### Returns
-
-`boolean`
-
-True if this is a timeout error
-
----
-
-### isRetryable()
-
-```ts
-isRetryable(): boolean;
-```
-
-Check if error is retryable
-
-#### Returns
-
-`boolean`
-
-True if request should be retried
-
----
-
-### isClientError()
-
-```ts
-isClientError(): boolean;
-```
-
-Check if error is a client error (4xx)
-
-#### Returns
-
-`boolean`
-
-True if this is a client error
-
----
-
-### isServerError()
-
-```ts
-isServerError(): boolean;
-```
-
-Check if error is a server error (5xx)
-
-#### Returns
-
-`boolean`
-
-True if this is a server error
-
----
-
-### toJSON()
-
-```ts
-toJSON(): SerializedError;
-```
-
-Serialize error to JSON-safe format
-
-#### Returns
-
-[`SerializedError`](../type-aliases/SerializedError.md)
-
-Serialized error object
-
-#### Inherited from
-
-[`WPKernelError`](WPKernelError.md).[`toJSON`](WPKernelError.md#tojson)
-
----
 
 ### fromJSON()
 
@@ -257,6 +173,70 @@ New WPKernelError instance
 
 ---
 
+### isClientError()
+
+```ts
+isClientError(): boolean;
+```
+
+Check if error is a client error (4xx)
+
+#### Returns
+
+`boolean`
+
+True if this is a client error
+
+---
+
+### isRetryable()
+
+```ts
+isRetryable(): boolean;
+```
+
+Check if error is retryable
+
+#### Returns
+
+`boolean`
+
+True if request should be retried
+
+---
+
+### isServerError()
+
+```ts
+isServerError(): boolean;
+```
+
+Check if error is a server error (5xx)
+
+#### Returns
+
+`boolean`
+
+True if this is a server error
+
+---
+
+### isTimeout()
+
+```ts
+isTimeout(): boolean;
+```
+
+Check if error is a network timeout
+
+#### Returns
+
+`boolean`
+
+True if this is a timeout error
+
+---
+
 ### isWPKernelError()
 
 ```ts
@@ -282,6 +262,26 @@ True if error is a WPKernelError
 #### Inherited from
 
 [`WPKernelError`](WPKernelError.md).[`isWPKernelError`](WPKernelError.md#iswpkernelerror)
+
+---
+
+### toJSON()
+
+```ts
+toJSON(): SerializedError;
+```
+
+Serialize error to JSON-safe format
+
+#### Returns
+
+[`SerializedError`](../type-aliases/SerializedError.md)
+
+Serialized error object
+
+#### Inherited from
+
+[`WPKernelError`](WPKernelError.md).[`toJSON`](WPKernelError.md#tojson)
 
 ---
 

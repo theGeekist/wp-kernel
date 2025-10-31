@@ -12,6 +12,14 @@
 
 ## Properties
 
+### attrGroups
+
+```ts
+readonly attrGroups: PhpAttrGroup[];
+```
+
+---
+
 ### attributes
 
 ```ts
@@ -24,6 +32,22 @@ readonly attributes: PhpAttributes;
 
 ---
 
+### byRef
+
+```ts
+readonly byRef: boolean;
+```
+
+---
+
+### expr
+
+```ts
+readonly expr: PhpExpr;
+```
+
+---
+
 ### nodeType
 
 ```ts
@@ -33,22 +57,6 @@ readonly nodeType: "Expr_ArrowFunction";
 #### Overrides
 
 [`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
-
----
-
-### static
-
-```ts
-readonly static: boolean;
-```
-
----
-
-### byRef
-
-```ts
-readonly byRef: boolean;
-```
 
 ---
 
@@ -68,16 +76,8 @@ readonly returnType: PhpType | null;
 
 ---
 
-### expr
+### static
 
 ```ts
-readonly expr: PhpExpr;
-```
-
----
-
-### attrGroups
-
-```ts
-readonly attrGroups: PhpAttrGroup[];
+readonly static: boolean;
 ```

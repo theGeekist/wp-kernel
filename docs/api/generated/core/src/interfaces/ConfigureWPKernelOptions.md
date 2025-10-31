@@ -8,6 +8,14 @@
 
 ## Properties
 
+### middleware?
+
+```ts
+optional middleware: ReduxMiddleware[];
+```
+
+---
+
 ### namespace?
 
 ```ts
@@ -28,14 +36,6 @@ optional registry: WPKernelRegistry;
 
 ```ts
 optional reporter: Reporter;
-```
-
----
-
-### middleware?
-
-```ts
-optional middleware: ReduxMiddleware[];
 ```
 
 ---

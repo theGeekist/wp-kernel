@@ -12,6 +12,18 @@
 
 ## Properties
 
+### dependsOn
+
+```ts
+readonly dependsOn: readonly string[];
+```
+
+#### Inherited from
+
+[`HelperDescriptor`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md).[`dependsOn`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md#dependson)
+
+---
+
 ### id
 
 ```ts
@@ -64,30 +76,6 @@ readonly mode: HelperMode;
 
 ---
 
-### priority
-
-```ts
-readonly priority: number;
-```
-
-#### Inherited from
-
-[`HelperDescriptor`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md).[`priority`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md#priority)
-
----
-
-### dependsOn
-
-```ts
-readonly dependsOn: readonly string[];
-```
-
-#### Inherited from
-
-[`HelperDescriptor`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md).[`dependsOn`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md#dependson)
-
----
-
 ### origin?
 
 ```ts
@@ -97,3 +85,15 @@ readonly optional origin: string;
 #### Inherited from
 
 [`HelperDescriptor`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md).[`origin`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md#origin)
+
+---
+
+### priority
+
+```ts
+readonly priority: number;
+```
+
+#### Inherited from
+
+[`HelperDescriptor`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md).[`priority`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md#priority)

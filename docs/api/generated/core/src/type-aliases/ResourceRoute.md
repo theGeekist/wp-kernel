@@ -20,13 +20,13 @@ Route definition for a single REST operation
 
 ## Properties
 
-### path
+### capability?
 
 ```ts
-path: string;
+optional capability: string;
 ```
 
-REST API path (may include :id, :slug patterns)
+Optional capability identifier used by tooling to map to capability checks
 
 ---
 
@@ -40,10 +40,10 @@ HTTP method
 
 ---
 
-### capability?
+### path
 
 ```ts
-optional capability: string;
+path: string;
 ```
 
-Optional capability identifier used by tooling to map to capability checks
+REST API path (may include :id, :slug patterns)

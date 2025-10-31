@@ -8,10 +8,10 @@
 
 ## Properties
 
-### summary
+### actions
 
 ```ts
-readonly summary: PatchManifestSummary;
+readonly actions: readonly string[];
 ```
 
 ---
@@ -24,8 +24,8 @@ readonly records: PatchRecord[];
 
 ---
 
-### actions
+### summary
 
 ```ts
-readonly actions: readonly string[];
+readonly summary: PatchManifestSummary;
 ```

@@ -24,6 +24,14 @@ readonly attributes: PhpAttributes;
 
 ---
 
+### expr
+
+```ts
+readonly expr: PhpExpr;
+```
+
+---
+
 ### nodeType
 
 ```ts
@@ -40,12 +48,4 @@ readonly nodeType: "Expr_Assign";
 
 ```ts
 readonly var: PhpExpr;
-```
-
----
-
-### expr
-
-```ts
-readonly expr: PhpExpr;
 ```

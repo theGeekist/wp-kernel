@@ -12,6 +12,14 @@
 
 ## Properties
 
+### args
+
+```ts
+readonly args: PhpArg[];
+```
+
+---
+
 ### attributes
 
 ```ts
@@ -21,6 +29,16 @@ readonly attributes: PhpAttributes;
 #### Inherited from
 
 [`PhpExprBase`](PhpExprBase.md).[`attributes`](PhpExprBase.md#attributes)
+
+---
+
+### name
+
+```ts
+readonly name:
+  | PhpExpr
+  | PhpIdentifier;
+```
 
 ---
 
@@ -40,22 +58,4 @@ readonly nodeType: "Expr_NullsafeMethodCall";
 
 ```ts
 readonly var: PhpExpr;
-```
-
----
-
-### name
-
-```ts
-readonly name:
-  | PhpExpr
-  | PhpIdentifier;
-```
-
----
-
-### args
-
-```ts
-readonly args: PhpArg[];
 ```

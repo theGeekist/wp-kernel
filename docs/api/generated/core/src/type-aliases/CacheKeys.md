@@ -29,13 +29,13 @@ Cache key generators for all CRUD operations
 
 ## Properties
 
-### list?
+### create?
 
 ```ts
-optional list: CacheKeyFn<TListParams>;
+optional create: CacheKeyFn<unknown>;
 ```
 
-Cache key for list operations
+Cache key for create operations (typically not cached)
 
 ---
 
@@ -49,23 +49,13 @@ Cache key for single-item fetch
 
 ---
 
-### create?
+### list?
 
 ```ts
-optional create: CacheKeyFn<unknown>;
+optional list: CacheKeyFn<TListParams>;
 ```
 
-Cache key for create operations (typically not cached)
-
----
-
-### update?
-
-```ts
-optional update: CacheKeyFn<string | number>;
-```
-
-Cache key for update operations
+Cache key for list operations
 
 ---
 
@@ -76,3 +66,13 @@ optional remove: CacheKeyFn<string | number>;
 ```
 
 Cache key for delete operations
+
+---
+
+### update?
+
+```ts
+optional update: CacheKeyFn<string | number>;
+```
+
+Cache key for update operations

@@ -17,21 +17,13 @@ These provide better diagnostic context than the root namespace alone.
 
 ## Type Declaration
 
-### POLICY
+### ACTIONS
 
 ```ts
-readonly POLICY: "wpk.capability";
+readonly ACTIONS: "wpk.actions";
 ```
 
-Capability subsystem
-
-### POLICY_CACHE
-
-```ts
-readonly POLICY_CACHE: "wpk.capability.cache";
-```
-
-Capability cache subsystem
+Action subsystem
 
 ### CACHE
 
@@ -40,14 +32,6 @@ readonly CACHE: "wpk.cache";
 ```
 
 Resource cache subsystem
-
-### ACTIONS
-
-```ts
-readonly ACTIONS: "wpk.actions";
-```
-
-Action subsystem
 
 ### EVENTS
 
@@ -64,6 +48,22 @@ readonly NAMESPACE: "wpk.namespace";
 ```
 
 Namespace detection subsystem
+
+### POLICY
+
+```ts
+readonly POLICY: "wpk.capability";
+```
+
+Capability subsystem
+
+### POLICY_CACHE
+
+```ts
+readonly POLICY_CACHE: "wpk.capability.cache";
+```
+
+Capability cache subsystem
 
 ### REPORTER
 

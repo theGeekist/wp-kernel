@@ -36,18 +36,18 @@ readonly nodeType: "Stmt_GroupUse";
 
 ---
 
-### type
-
-```ts
-readonly type: number;
-```
-
----
-
 ### prefix
 
 ```ts
 readonly prefix: PhpName;
+```
+
+---
+
+### type
+
+```ts
+readonly type: number;
 ```
 
 ---

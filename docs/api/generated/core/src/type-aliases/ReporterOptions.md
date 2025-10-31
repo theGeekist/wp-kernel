@@ -12,26 +12,10 @@ type ReporterOptions = object;
 
 ## Properties
 
-### namespace?
-
-```ts
-optional namespace: string;
-```
-
----
-
 ### channel?
 
 ```ts
 optional channel: ReporterChannel;
-```
-
----
-
-### level?
-
-```ts
-optional level: ReporterLevel;
 ```
 
 ---
@@ -44,3 +28,19 @@ optional enabled: boolean;
 
 Enables or disables the reporter instance without changing transport configuration.
 Primarily used for conditional debug reporters.
+
+---
+
+### level?
+
+```ts
+optional level: ReporterLevel;
+```
+
+---
+
+### namespace?
+
+```ts
+optional namespace: string;
+```

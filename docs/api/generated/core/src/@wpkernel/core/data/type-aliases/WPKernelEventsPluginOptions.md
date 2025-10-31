@@ -12,10 +12,10 @@ type WPKernelEventsPluginOptions = object;
 
 ## Properties
 
-### reporter?
+### events
 
 ```ts
-optional reporter: Reporter;
+events: WPKernelEventBus;
 ```
 
 ---
@@ -28,8 +28,8 @@ optional registry: WPKernelRegistry;
 
 ---
 
-### events
+### reporter?
 
 ```ts
-events: WPKernelEventBus;
+optional reporter: Reporter;
 ```

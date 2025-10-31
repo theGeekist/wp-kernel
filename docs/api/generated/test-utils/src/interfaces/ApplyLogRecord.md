@@ -8,22 +8,6 @@
 
 ## Properties
 
-### file
-
-```ts
-readonly file: string;
-```
-
----
-
-### status
-
-```ts
-readonly status: "applied" | "conflict" | "skipped";
-```
-
----
-
 ### description?
 
 ```ts
@@ -36,4 +20,20 @@ readonly optional description: string;
 
 ```ts
 readonly optional details: Record<string, unknown>;
+```
+
+---
+
+### file
+
+```ts
+readonly file: string;
+```
+
+---
+
+### status
+
+```ts
+readonly status: "applied" | "conflict" | "skipped";
 ```

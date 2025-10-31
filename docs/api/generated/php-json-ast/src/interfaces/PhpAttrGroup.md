@@ -12,15 +12,15 @@
 
 ## Properties
 
-### nodeType
+### attributes
 
 ```ts
-readonly nodeType: "AttributeGroup";
+readonly attributes: PhpAttributes;
 ```
 
-#### Overrides
+#### Inherited from
 
-[`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
+[`PhpNode`](PhpNode.md).[`attributes`](PhpNode.md#attributes)
 
 ---
 
@@ -32,12 +32,12 @@ readonly attrs: PhpAttribute[];
 
 ---
 
-### attributes
+### nodeType
 
 ```ts
-readonly attributes: PhpAttributes;
+readonly nodeType: "AttributeGroup";
 ```
 
-#### Inherited from
+#### Overrides
 
-[`PhpNode`](PhpNode.md).[`attributes`](PhpNode.md#attributes)
+[`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)

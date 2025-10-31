@@ -16,18 +16,10 @@ Used by tooling to generate REST argument metadata.
 
 ## Properties
 
-### type
+### description?
 
 ```ts
-type: 'string' | 'enum';
-```
-
----
-
-### optional?
-
-```ts
-optional optional: boolean;
+optional description: string;
 ```
 
 ---
@@ -40,8 +32,16 @@ optional enum: readonly string[];
 
 ---
 
-### description?
+### optional?
 
 ```ts
-optional description: string;
+optional optional: boolean;
+```
+
+---
+
+### type
+
+```ts
+type: 'string' | 'enum';
 ```

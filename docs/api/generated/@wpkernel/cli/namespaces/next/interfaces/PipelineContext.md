@@ -12,14 +12,6 @@
 
 ## Properties
 
-### workspace
-
-```ts
-readonly workspace: Workspace;
-```
-
----
-
 ### phase
 
 ```ts
@@ -41,3 +33,11 @@ readonly reporter: Reporter;
 #### Inherited from
 
 [`PipelineContext`](../../../../../php-json-ast/src/interfaces/PipelineContext.md).[`reporter`](../../../../../php-json-ast/src/interfaces/PipelineContext.md#reporter)
+
+---
+
+### workspace
+
+```ts
+readonly workspace: Workspace;
+```

@@ -14,10 +14,18 @@
 
 ## Properties
 
-### type
+### dependency
 
 ```ts
-readonly type: "missing-dependency";
+readonly dependency: string;
+```
+
+---
+
+### helper?
+
+```ts
+readonly optional helper: string;
 ```
 
 ---
@@ -30,10 +38,10 @@ readonly key: string;
 
 ---
 
-### dependency
+### kind?
 
 ```ts
-readonly dependency: string;
+readonly optional kind: TKind;
 ```
 
 ---
@@ -46,16 +54,8 @@ readonly message: string;
 
 ---
 
-### kind?
+### type
 
 ```ts
-readonly optional kind: TKind;
-```
-
----
-
-### helper?
-
-```ts
-readonly optional helper: string;
+readonly type: "missing-dependency";
 ```

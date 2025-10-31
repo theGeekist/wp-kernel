@@ -8,6 +8,14 @@
 
 ## Properties
 
+### description
+
+```ts
+readonly description: string;
+```
+
+---
+
 ### key
 
 ```ts
@@ -24,10 +32,10 @@ readonly label: string;
 
 ---
 
-### description
+### matchCount
 
 ```ts
-readonly description: string;
+readonly matchCount: number;
 ```
 
 ---
@@ -36,12 +44,4 @@ readonly description: string;
 
 ```ts
 readonly matches: readonly PhpNodeFinderQueryMatch[];
-```
-
----
-
-### matchCount
-
-```ts
-readonly matchCount: number;
 ```

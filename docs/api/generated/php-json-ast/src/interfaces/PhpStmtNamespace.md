@@ -24,6 +24,14 @@ readonly attributes: PhpAttributes;
 
 ---
 
+### name
+
+```ts
+readonly name: PhpName | null;
+```
+
+---
+
 ### nodeType
 
 ```ts
@@ -33,14 +41,6 @@ readonly nodeType: "Stmt_Namespace";
 #### Overrides
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
-
----
-
-### name
-
-```ts
-readonly name: PhpName | null;
-```
 
 ---
 

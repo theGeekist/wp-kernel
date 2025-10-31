@@ -24,6 +24,14 @@ readonly attributes: PhpAttributes;
 
 ---
 
+### expr
+
+```ts
+readonly expr: PhpExpr | null;
+```
+
+---
+
 ### nodeType
 
 ```ts
@@ -33,11 +41,3 @@ readonly nodeType: "Stmt_Return";
 #### Overrides
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
-
----
-
-### expr
-
-```ts
-readonly expr: PhpExpr | null;
-```

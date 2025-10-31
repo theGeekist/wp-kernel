@@ -8,14 +8,6 @@
 
 ## Properties
 
-### wordpress
-
-```ts
-wordpress: WordPressTestHarness;
-```
-
----
-
 ### createRuntime()
 
 ```ts
@@ -80,6 +72,18 @@ resetActionStoreRegistration: () => void;
 
 ---
 
+### restoreConsoleError()
+
+```ts
+restoreConsoleError: () => void;
+```
+
+#### Returns
+
+`void`
+
+---
+
 ### suppressConsoleError()
 
 ```ts
@@ -98,18 +102,6 @@ suppressConsoleError: (predicate) => void;
 
 ---
 
-### restoreConsoleError()
-
-```ts
-restoreConsoleError: () => void;
-```
-
-#### Returns
-
-`void`
-
----
-
 ### teardown()
 
 ```ts
@@ -119,3 +111,11 @@ teardown: () => void;
 #### Returns
 
 `void`
+
+---
+
+### wordpress
+
+```ts
+wordpress: WordPressTestHarness;
+```

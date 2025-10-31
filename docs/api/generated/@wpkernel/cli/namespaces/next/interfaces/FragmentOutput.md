@@ -8,14 +8,6 @@
 
 ## Properties
 
-### draft
-
-```ts
-readonly draft: MutableIr;
-```
-
----
-
 ### assign()
 
 ```ts
@@ -31,3 +23,11 @@ assign: (partial) => void;
 #### Returns
 
 `void`
+
+---
+
+### draft
+
+```ts
+readonly draft: MutableIr;
+```

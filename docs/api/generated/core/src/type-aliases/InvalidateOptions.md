@@ -14,17 +14,6 @@ Options for invalidate function
 
 ## Properties
 
-### storeKey?
-
-```ts
-optional storeKey: string;
-```
-
-Store key to target (e.g., 'my-plugin/thing')
-If not provided, invalidates across all registered stores
-
----
-
 ### emitEvent?
 
 ```ts
@@ -38,6 +27,16 @@ Whether to emit the cache.invalidated event
 ```ts
 true;
 ```
+
+---
+
+### namespace?
+
+```ts
+optional namespace: string;
+```
+
+Optional namespace for logging context.
 
 ---
 
@@ -61,16 +60,6 @@ Reporter override for cache instrumentation.
 
 ---
 
-### namespace?
-
-```ts
-optional namespace: string;
-```
-
-Optional namespace for logging context.
-
----
-
 ### resourceName?
 
 ```ts
@@ -78,3 +67,14 @@ optional resourceName: string;
 ```
 
 Optional resource name for logging context.
+
+---
+
+### storeKey?
+
+```ts
+optional storeKey: string;
+```
+
+Store key to target (e.g., 'my-plugin/thing')
+If not provided, invalidates across all registered stores

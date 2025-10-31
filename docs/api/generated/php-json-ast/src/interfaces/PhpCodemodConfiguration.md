@@ -8,16 +8,16 @@
 
 ## Properties
 
-### stacks
-
-```ts
-readonly stacks: readonly PhpCodemodStackConfiguration[];
-```
-
----
-
 ### diagnostics?
 
 ```ts
 readonly optional diagnostics: PhpCodemodDiagnosticsConfiguration;
+```
+
+---
+
+### stacks
+
+```ts
+readonly stacks: readonly PhpCodemodStackConfiguration[];
 ```

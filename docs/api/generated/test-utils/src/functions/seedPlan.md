@@ -26,17 +26,17 @@ function seedPlan(workspace, file, options): Promise<void>;
 
 `string`
 
-#### incoming?
+#### current?
 
-`string` \| `null`
+`string`
 
 #### description?
 
 `string`
 
-#### current?
+#### incoming?
 
-`string`
+`string` \| `null`
 
 ## Returns
 

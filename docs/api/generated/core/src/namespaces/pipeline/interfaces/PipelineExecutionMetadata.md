@@ -22,6 +22,14 @@
 
 ## Properties
 
+### builders
+
+```ts
+readonly builders: HelperExecutionSnapshot<TBuilderKind>;
+```
+
+---
+
 ### fragments
 
 ```ts
@@ -31,11 +39,3 @@ readonly fragments: HelperExecutionSnapshot<TFragmentKind>;
 #### Inherited from
 
 [`FragmentFinalizationMetadata`](FragmentFinalizationMetadata.md).[`fragments`](FragmentFinalizationMetadata.md#fragments)
-
----
-
-### builders
-
-```ts
-readonly builders: HelperExecutionSnapshot<TBuilderKind>;
-```

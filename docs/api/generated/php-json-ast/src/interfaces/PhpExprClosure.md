@@ -12,6 +12,14 @@
 
 ## Properties
 
+### attrGroups
+
+```ts
+readonly attrGroups: PhpAttrGroup[];
+```
+
+---
+
 ### attributes
 
 ```ts
@@ -21,6 +29,14 @@ readonly attributes: PhpAttributes;
 #### Inherited from
 
 [`PhpExprBase`](PhpExprBase.md).[`attributes`](PhpExprBase.md#attributes)
+
+---
+
+### byRef
+
+```ts
+readonly byRef: boolean;
+```
 
 ---
 
@@ -36,34 +52,10 @@ readonly nodeType: "Expr_Closure";
 
 ---
 
-### static
-
-```ts
-readonly static: boolean;
-```
-
----
-
-### byRef
-
-```ts
-readonly byRef: boolean;
-```
-
----
-
 ### params
 
 ```ts
 readonly params: PhpParam[];
-```
-
----
-
-### uses
-
-```ts
-readonly uses: PhpClosureUse[];
 ```
 
 ---
@@ -76,6 +68,14 @@ readonly returnType: PhpType | null;
 
 ---
 
+### static
+
+```ts
+readonly static: boolean;
+```
+
+---
+
 ### stmts
 
 ```ts
@@ -84,8 +84,8 @@ readonly stmts: PhpStmt[];
 
 ---
 
-### attrGroups
+### uses
 
 ```ts
-readonly attrGroups: PhpAttrGroup[];
+readonly uses: PhpClosureUse[];
 ```

@@ -8,14 +8,6 @@
 
 ## Properties
 
-### message
-
-```ts
-readonly message: string;
-```
-
----
-
 ### defaultValue?
 
 ```ts
@@ -28,6 +20,14 @@ readonly optional defaultValue: boolean;
 
 ```ts
 readonly optional input: ReadableStream;
+```
+
+---
+
+### message
+
+```ts
+readonly message: string;
 ```
 
 ---

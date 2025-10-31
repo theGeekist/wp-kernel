@@ -16,14 +16,6 @@ key: string;
 
 ---
 
-### source
-
-```ts
-source: 'resource' | 'config';
-```
-
----
-
 ### references
 
 ```ts
@@ -46,4 +38,12 @@ route: string;
 
 ```ts
 transport: IRRouteTransport;
+```
+
+---
+
+### source
+
+```ts
+source: 'resource' | 'config';
 ```

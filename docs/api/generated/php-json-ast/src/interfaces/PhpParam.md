@@ -12,6 +12,14 @@
 
 ## Properties
 
+### attrGroups
+
+```ts
+readonly attrGroups: PhpAttrGroup[];
+```
+
+---
+
 ### attributes
 
 ```ts
@@ -21,6 +29,38 @@ readonly attributes: PhpAttributes;
 #### Inherited from
 
 [`PhpNode`](PhpNode.md).[`attributes`](PhpNode.md#attributes)
+
+---
+
+### byRef
+
+```ts
+readonly byRef: boolean;
+```
+
+---
+
+### default
+
+```ts
+readonly default: PhpExpr | null;
+```
+
+---
+
+### flags
+
+```ts
+readonly flags: number;
+```
+
+---
+
+### hooks
+
+```ts
+readonly hooks: PhpPropertyHook[];
+```
 
 ---
 
@@ -44,22 +84,6 @@ readonly type: PhpType | null;
 
 ---
 
-### byRef
-
-```ts
-readonly byRef: boolean;
-```
-
----
-
-### variadic
-
-```ts
-readonly variadic: boolean;
-```
-
----
-
 ### var
 
 ```ts
@@ -68,32 +92,8 @@ readonly var: PhpExpr;
 
 ---
 
-### default
+### variadic
 
 ```ts
-readonly default: PhpExpr | null;
-```
-
----
-
-### flags
-
-```ts
-readonly flags: number;
-```
-
----
-
-### attrGroups
-
-```ts
-readonly attrGroups: PhpAttrGroup[];
-```
-
----
-
-### hooks
-
-```ts
-readonly hooks: PhpPropertyHook[];
+readonly variadic: boolean;
 ```

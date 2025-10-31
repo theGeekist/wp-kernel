@@ -18,21 +18,21 @@ function buildForeach(expr, options, attributes?): PhpStmtForeach;
 
 ### options
 
-#### valueVar
+#### byRef?
 
-[`PhpExpr`](../type-aliases/PhpExpr.md)
+`boolean`
 
 #### keyVar?
 
 [`PhpExpr`](../type-aliases/PhpExpr.md) \| `null`
 
-#### byRef?
-
-`boolean`
-
 #### stmts?
 
 [`PhpStmt`](../type-aliases/PhpStmt.md)[]
+
+#### valueVar
+
+[`PhpExpr`](../type-aliases/PhpExpr.md)
 
 ### attributes?
 

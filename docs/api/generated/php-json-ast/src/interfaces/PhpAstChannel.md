@@ -8,35 +8,15 @@
 
 ## Properties
 
-### open()
+### entries()
 
 ```ts
-open: (options) => PhpAstContextEntry;
+entries: () => readonly PhpAstContextEntry[];
 ```
-
-#### Parameters
-
-##### options
-
-###### key
-
-`string`
-
-###### filePath
-
-`string`
-
-###### namespace
-
-`string`
-
-###### metadata
-
-[`PhpFileMetadata`](../type-aliases/PhpFileMetadata.md)
 
 #### Returns
 
-[`PhpAstContextEntry`](PhpAstContextEntry.md)
+readonly [`PhpAstContextEntry`](PhpAstContextEntry.md)[]
 
 ---
 
@@ -58,15 +38,35 @@ get: (key) => PhpAstContextEntry | undefined;
 
 ---
 
-### entries()
+### open()
 
 ```ts
-entries: () => readonly PhpAstContextEntry[];
+open: (options) => PhpAstContextEntry;
 ```
+
+#### Parameters
+
+##### options
+
+###### filePath
+
+`string`
+
+###### key
+
+`string`
+
+###### metadata
+
+[`PhpFileMetadata`](../type-aliases/PhpFileMetadata.md)
+
+###### namespace
+
+`string`
 
 #### Returns
 
-readonly [`PhpAstContextEntry`](PhpAstContextEntry.md)[]
+[`PhpAstContextEntry`](PhpAstContextEntry.md)
 
 ---
 

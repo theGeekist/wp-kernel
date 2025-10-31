@@ -46,14 +46,6 @@ const rule: CapabilityRule<number> = async (ctx, postId) => {
 
 ## Properties
 
-### namespace
-
-```ts
-namespace: string;
-```
-
----
-
 ### adapters
 
 ```ts
@@ -66,6 +58,14 @@ adapters: CapabilityAdapters;
 
 ```ts
 cache: CapabilityCache;
+```
+
+---
+
+### namespace
+
+```ts
+namespace: string;
 ```
 
 ---

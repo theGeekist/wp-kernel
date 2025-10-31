@@ -49,17 +49,17 @@ Error code identifying the error type
 
 Error options
 
-###### message?
+###### context?
 
-`string`
+[`ErrorContext`](../type-aliases/ErrorContext.md)
 
 ###### data?
 
 [`ErrorData`](../type-aliases/ErrorData.md)
 
-###### context?
+###### message?
 
-[`ErrorContext`](../type-aliases/ErrorContext.md)
+`string`
 
 #### Returns
 
@@ -83,16 +83,6 @@ Error code - identifies the type of error
 
 ---
 
-### data?
-
-```ts
-readonly optional data: ErrorData;
-```
-
-Additional data about the error
-
----
-
 ### context?
 
 ```ts
@@ -101,23 +91,17 @@ readonly optional context: ErrorContext;
 
 Context in which the error occurred
 
-## Methods
+---
 
-### toJSON()
+### data?
 
 ```ts
-toJSON(): SerializedError;
+readonly optional data: ErrorData;
 ```
 
-Serialize error to JSON-safe format
+Additional data about the error
 
-#### Returns
-
-[`SerializedError`](../type-aliases/SerializedError.md)
-
-Serialized error object
-
----
+## Methods
 
 ### fromJSON()
 
@@ -164,6 +148,22 @@ Error to check
 `error is WPKernelError`
 
 True if error is a WPKernelError
+
+---
+
+### toJSON()
+
+```ts
+toJSON(): SerializedError;
+```
+
+Serialize error to JSON-safe format
+
+#### Returns
+
+[`SerializedError`](../type-aliases/SerializedError.md)
+
+Serialized error object
 
 ---
 

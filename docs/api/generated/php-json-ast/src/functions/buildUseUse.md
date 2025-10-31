@@ -22,13 +22,13 @@ function buildUseUse(name, alias, options): PhpStmtUseUse;
 
 ### options
 
-#### type?
-
-`number`
-
 #### attributes?
 
 `Readonly`\&lt;`Record`\&lt;`string`, `unknown`\&gt;\&gt;
+
+#### type?
+
+`number`
 
 ## Returns
 

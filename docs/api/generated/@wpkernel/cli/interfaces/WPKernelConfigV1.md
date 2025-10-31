@@ -10,10 +10,10 @@ Shape of a v1 kernel configuration object.
 
 ## Properties
 
-### version
+### adapters?
 
 ```ts
-version: 1;
+optional adapters: AdaptersConfig;
 ```
 
 ---
@@ -26,14 +26,6 @@ namespace: string;
 
 ---
 
-### schemas
-
-```ts
-schemas: SchemaRegistry;
-```
-
----
-
 ### resources
 
 ```ts
@@ -42,8 +34,16 @@ resources: ResourceRegistry;
 
 ---
 
-### adapters?
+### schemas
 
 ```ts
-optional adapters: AdaptersConfig;
+schemas: SchemaRegistry;
+```
+
+---
+
+### version
+
+```ts
+version: 1;
 ```

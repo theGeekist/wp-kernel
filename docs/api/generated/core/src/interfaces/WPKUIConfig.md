@@ -8,18 +8,18 @@
 
 ## Properties
 
-### enable?
-
-```ts
-optional enable: boolean;
-```
-
----
-
 ### attach?
 
 ```ts
 optional attach: WPKernelUIAttach;
+```
+
+---
+
+### enable?
+
+```ts
+optional enable: boolean;
 ```
 
 ---

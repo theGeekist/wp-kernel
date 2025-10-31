@@ -8,16 +8,16 @@
 
 ## Properties
 
-### before
-
-```ts
-readonly before: string;
-```
-
----
-
 ### after
 
 ```ts
 readonly after: string;
+```
+
+---
+
+### before
+
+```ts
+readonly before: string;
 ```

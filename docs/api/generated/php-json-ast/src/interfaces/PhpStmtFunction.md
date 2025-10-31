@@ -12,6 +12,14 @@
 
 ## Properties
 
+### attrGroups
+
+```ts
+readonly attrGroups: PhpAttrGroup[];
+```
+
+---
+
 ### attributes
 
 ```ts
@@ -21,18 +29,6 @@ readonly attributes: PhpAttributes;
 #### Inherited from
 
 [`PhpStmtBase`](PhpStmtBase.md).[`attributes`](PhpStmtBase.md#attributes)
-
----
-
-### nodeType
-
-```ts
-readonly nodeType: "Stmt_Function";
-```
-
-#### Overrides
-
-[`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
 ---
 
@@ -49,6 +45,26 @@ readonly byRef: boolean;
 ```ts
 readonly name: PhpIdentifier;
 ```
+
+---
+
+### namespacedName
+
+```ts
+readonly namespacedName: PhpName | null;
+```
+
+---
+
+### nodeType
+
+```ts
+readonly nodeType: "Stmt_Function";
+```
+
+#### Overrides
+
+[`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
 ---
 
@@ -72,20 +88,4 @@ readonly returnType: PhpType | null;
 
 ```ts
 readonly stmts: PhpStmt[];
-```
-
----
-
-### attrGroups
-
-```ts
-readonly attrGroups: PhpAttrGroup[];
-```
-
----
-
-### namespacedName
-
-```ts
-readonly namespacedName: PhpName | null;
 ```

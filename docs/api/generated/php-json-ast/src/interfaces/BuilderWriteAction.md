@@ -8,16 +8,16 @@
 
 ## Properties
 
-### file
-
-```ts
-readonly file: string;
-```
-
----
-
 ### contents
 
 ```ts
 readonly contents: string | Buffer<ArrayBufferLike>;
+```
+
+---
+
+### file
+
+```ts
+readonly file: string;
 ```

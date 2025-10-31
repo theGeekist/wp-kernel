@@ -8,10 +8,10 @@
 
 ## Properties
 
-### workspace
+### create?
 
 ```ts
-readonly workspace: Workspace;
+readonly optional create: boolean;
 ```
 
 ---
@@ -32,16 +32,16 @@ readonly optional force: boolean;
 
 ---
 
-### create?
-
-```ts
-readonly optional create: boolean;
-```
-
----
-
 ### reporter?
 
 ```ts
 readonly optional reporter: Reporter;
+```
+
+---
+
+### workspace
+
+```ts
+readonly workspace: Workspace;
 ```

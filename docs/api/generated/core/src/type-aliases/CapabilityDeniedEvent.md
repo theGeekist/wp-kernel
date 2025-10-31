@@ -30,18 +30,10 @@ optional context: Record<string, unknown>;
 
 ---
 
-### requestId?
+### messageKey?
 
 ```ts
-optional requestId: string;
-```
-
----
-
-### timestamp
-
-```ts
-timestamp: number;
+optional messageKey: string;
 ```
 
 ---
@@ -54,8 +46,16 @@ optional reason: string;
 
 ---
 
-### messageKey?
+### requestId?
 
 ```ts
-optional messageKey: string;
+optional requestId: string;
+```
+
+---
+
+### timestamp
+
+```ts
+timestamp: number;
 ```

@@ -14,26 +14,6 @@ Request options for transport.fetch()
 
 ## Properties
 
-### path
-
-```ts
-path: string;
-```
-
-REST API path (e.g., '/my-plugin/v1/things' or '/my-plugin/v1/things/123')
-
----
-
-### method
-
-```ts
-method: HttpMethod;
-```
-
-HTTP method
-
----
-
 ### data?
 
 ```ts
@@ -41,16 +21,6 @@ optional data: unknown;
 ```
 
 Request body (for POST/PUT/PATCH)
-
----
-
-### query?
-
-```ts
-optional query: Record<string, unknown>;
-```
-
-Query parameters (automatically appended to path)
 
 ---
 
@@ -65,16 +35,6 @@ If provided, will be added as ?\_fields=field1,field2
 
 ---
 
-### requestId?
-
-```ts
-optional requestId: string;
-```
-
-Custom request ID for correlation (generated if not provided)
-
----
-
 ### meta?
 
 ```ts
@@ -82,3 +42,43 @@ optional meta: TransportMeta;
 ```
 
 Metadata used for reporter instrumentation.
+
+---
+
+### method
+
+```ts
+method: HttpMethod;
+```
+
+HTTP method
+
+---
+
+### path
+
+```ts
+path: string;
+```
+
+REST API path (e.g., '/my-plugin/v1/things' or '/my-plugin/v1/things/123')
+
+---
+
+### query?
+
+```ts
+optional query: Record<string, unknown>;
+```
+
+Query parameters (automatically appended to path)
+
+---
+
+### requestId?
+
+```ts
+optional requestId: string;
+```
+
+Custom request ID for correlation (generated if not provided)

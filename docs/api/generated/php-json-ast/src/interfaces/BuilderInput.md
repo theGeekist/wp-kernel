@@ -8,10 +8,10 @@
 
 ## Properties
 
-### phase
+### ir
 
 ```ts
-readonly phase: PipelinePhase;
+readonly ir: unknown;
 ```
 
 ---
@@ -24,8 +24,8 @@ readonly options: unknown;
 
 ---
 
-### ir
+### phase
 
 ```ts
-readonly ir: unknown;
+readonly phase: PipelinePhase;
 ```

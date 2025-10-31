@@ -12,6 +12,42 @@
 
 ## Properties
 
+### begin()
+
+```ts
+begin: (label?) => void;
+```
+
+#### Parameters
+
+##### label?
+
+`string`
+
+#### Returns
+
+`void`
+
+---
+
+### commit()
+
+```ts
+commit: (label?) => Promise<FileManifest>;
+```
+
+#### Parameters
+
+##### label?
+
+`string`
+
+#### Returns
+
+`Promise`\&lt;[`FileManifest`](FileManifest.md)\&gt;
+
+---
+
 ### cwd()
 
 ```ts
@@ -21,6 +57,79 @@ cwd: () => string;
 #### Returns
 
 `string`
+
+---
+
+### dryRun()
+
+```ts
+dryRun: <T>(fn) =>
+	Promise<{
+		manifest: FileManifest;
+		result: T;
+	}>;
+```
+
+#### Type Parameters
+
+##### T
+
+`T`
+
+#### Parameters
+
+##### fn
+
+() =&gt; `Promise`\&lt;`T`\&gt;
+
+#### Returns
+
+`Promise`\&lt;\{
+`manifest`: [`FileManifest`](FileManifest.md);
+`result`: `T`;
+\}\&gt;
+
+---
+
+### exists()
+
+```ts
+exists: (target) => Promise<boolean>;
+```
+
+#### Parameters
+
+##### target
+
+`string`
+
+#### Returns
+
+`Promise`\&lt;`boolean`\&gt;
+
+#### Inherited from
+
+```ts
+WorkspaceLike.exists;
+```
+
+---
+
+### glob()
+
+```ts
+glob: (pattern) => Promise<string[]>;
+```
+
+#### Parameters
+
+##### pattern
+
+`string` | readonly `string`[]
+
+#### Returns
+
+`Promise`\&lt;`string`[]\&gt;
 
 ---
 
@@ -57,6 +166,137 @@ readText: (file) => Promise<string | null>;
 #### Returns
 
 `Promise`\&lt;`string` \| `null`\&gt;
+
+---
+
+### resolve()
+
+```ts
+resolve: (...parts) => string;
+```
+
+#### Parameters
+
+##### parts
+
+...`string`[]
+
+#### Returns
+
+`string`
+
+#### Inherited from
+
+```ts
+WorkspaceLike.resolve;
+```
+
+---
+
+### rm()
+
+```ts
+rm: (target, options?) => Promise<void>;
+```
+
+#### Parameters
+
+##### target
+
+`string`
+
+##### options?
+
+[`RemoveOptions`](RemoveOptions.md)
+
+#### Returns
+
+`Promise`\&lt;`void`\&gt;
+
+---
+
+### rollback()
+
+```ts
+rollback: (label?) => Promise<FileManifest>;
+```
+
+#### Parameters
+
+##### label?
+
+`string`
+
+#### Returns
+
+`Promise`\&lt;[`FileManifest`](FileManifest.md)\&gt;
+
+---
+
+### root
+
+```ts
+readonly root: string;
+```
+
+#### Inherited from
+
+```ts
+WorkspaceLike.root;
+```
+
+---
+
+### threeWayMerge()
+
+```ts
+threeWayMerge: (file, base, current, incoming, options?) =>
+	Promise<'conflict' | 'clean'>;
+```
+
+#### Parameters
+
+##### file
+
+`string`
+
+##### base
+
+`string`
+
+##### current
+
+`string`
+
+##### incoming
+
+`string`
+
+##### options?
+
+[`MergeOptions`](MergeOptions.md)
+
+#### Returns
+
+`Promise`\&lt;`"conflict"` \| `"clean"`\&gt;
+
+---
+
+### tmpDir()
+
+```ts
+tmpDir: (prefix?) => Promise<string>;
+```
+
+#### Parameters
+
+##### prefix?
+
+`string`
+
+#### Returns
+
+`Promise`\&lt;`string`\&gt;
 
 ---
 
@@ -115,243 +355,3 @@ writeJson: <T>(file, value, options?) => Promise<void>;
 #### Returns
 
 `Promise`\&lt;`void`\&gt;
-
----
-
-### rm()
-
-```ts
-rm: (target, options?) => Promise<void>;
-```
-
-#### Parameters
-
-##### target
-
-`string`
-
-##### options?
-
-[`RemoveOptions`](RemoveOptions.md)
-
-#### Returns
-
-`Promise`\&lt;`void`\&gt;
-
----
-
-### glob()
-
-```ts
-glob: (pattern) => Promise<string[]>;
-```
-
-#### Parameters
-
-##### pattern
-
-`string` | readonly `string`[]
-
-#### Returns
-
-`Promise`\&lt;`string`[]\&gt;
-
----
-
-### threeWayMerge()
-
-```ts
-threeWayMerge: (file, base, current, incoming, options?) =>
-	Promise<'conflict' | 'clean'>;
-```
-
-#### Parameters
-
-##### file
-
-`string`
-
-##### base
-
-`string`
-
-##### current
-
-`string`
-
-##### incoming
-
-`string`
-
-##### options?
-
-[`MergeOptions`](MergeOptions.md)
-
-#### Returns
-
-`Promise`\&lt;`"conflict"` \| `"clean"`\&gt;
-
----
-
-### begin()
-
-```ts
-begin: (label?) => void;
-```
-
-#### Parameters
-
-##### label?
-
-`string`
-
-#### Returns
-
-`void`
-
----
-
-### commit()
-
-```ts
-commit: (label?) => Promise<FileManifest>;
-```
-
-#### Parameters
-
-##### label?
-
-`string`
-
-#### Returns
-
-`Promise`\&lt;[`FileManifest`](FileManifest.md)\&gt;
-
----
-
-### rollback()
-
-```ts
-rollback: (label?) => Promise<FileManifest>;
-```
-
-#### Parameters
-
-##### label?
-
-`string`
-
-#### Returns
-
-`Promise`\&lt;[`FileManifest`](FileManifest.md)\&gt;
-
----
-
-### dryRun()
-
-```ts
-dryRun: <T>(fn) =>
-	Promise<{
-		result: T;
-		manifest: FileManifest;
-	}>;
-```
-
-#### Type Parameters
-
-##### T
-
-`T`
-
-#### Parameters
-
-##### fn
-
-() =&gt; `Promise`\&lt;`T`\&gt;
-
-#### Returns
-
-`Promise`\&lt;\{
-`result`: `T`;
-`manifest`: [`FileManifest`](FileManifest.md);
-\}\&gt;
-
----
-
-### tmpDir()
-
-```ts
-tmpDir: (prefix?) => Promise<string>;
-```
-
-#### Parameters
-
-##### prefix?
-
-`string`
-
-#### Returns
-
-`Promise`\&lt;`string`\&gt;
-
----
-
-### root
-
-```ts
-readonly root: string;
-```
-
-#### Inherited from
-
-```ts
-WorkspaceLike.root;
-```
-
----
-
-### resolve()
-
-```ts
-resolve: (...parts) => string;
-```
-
-#### Parameters
-
-##### parts
-
-...`string`[]
-
-#### Returns
-
-`string`
-
-#### Inherited from
-
-```ts
-WorkspaceLike.resolve;
-```
-
----
-
-### exists()
-
-```ts
-exists: (target) => Promise<boolean>;
-```
-
-#### Parameters
-
-##### target
-
-`string`
-
-#### Returns
-
-`Promise`\&lt;`boolean`\&gt;
-
-#### Inherited from
-
-```ts
-WorkspaceLike.exists;
-```

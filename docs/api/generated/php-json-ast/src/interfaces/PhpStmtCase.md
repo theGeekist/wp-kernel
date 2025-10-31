@@ -24,6 +24,14 @@ readonly attributes: PhpAttributes;
 
 ---
 
+### cond
+
+```ts
+readonly cond: PhpExpr | null;
+```
+
+---
+
 ### nodeType
 
 ```ts
@@ -33,14 +41,6 @@ readonly nodeType: "Stmt_Case";
 #### Overrides
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
-
----
-
-### cond
-
-```ts
-readonly cond: PhpExpr | null;
-```
 
 ---
 

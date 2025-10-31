@@ -8,10 +8,80 @@
 
 ## Properties
 
+### cacheKeys
+
+```ts
+cacheKeys: object;
+```
+
+#### create?
+
+```ts
+optional create: IRResourceCacheKey;
+```
+
+#### get
+
+```ts
+get: IRResourceCacheKey;
+```
+
+#### list
+
+```ts
+list: IRResourceCacheKey;
+```
+
+#### remove?
+
+```ts
+optional remove: IRResourceCacheKey;
+```
+
+#### update?
+
+```ts
+optional update: IRResourceCacheKey;
+```
+
+---
+
+### hash
+
+```ts
+hash: string;
+```
+
+---
+
+### identity?
+
+```ts
+optional identity: ResourceIdentityConfig;
+```
+
+---
+
 ### name
 
 ```ts
 name: string;
+```
+
+---
+
+### queryParams?
+
+```ts
+optional queryParams: ResourceQueryParams;
+```
+
+---
+
+### routes
+
+```ts
+routes: IRRoute[];
 ```
 
 ---
@@ -32,60 +102,6 @@ schemaProvenance: SchemaProvenance;
 
 ---
 
-### routes
-
-```ts
-routes: IRRoute[];
-```
-
----
-
-### cacheKeys
-
-```ts
-cacheKeys: object;
-```
-
-#### list
-
-```ts
-list: IRResourceCacheKey;
-```
-
-#### get
-
-```ts
-get: IRResourceCacheKey;
-```
-
-#### create?
-
-```ts
-optional create: IRResourceCacheKey;
-```
-
-#### update?
-
-```ts
-optional update: IRResourceCacheKey;
-```
-
-#### remove?
-
-```ts
-optional remove: IRResourceCacheKey;
-```
-
----
-
-### identity?
-
-```ts
-optional identity: ResourceIdentityConfig;
-```
-
----
-
 ### storage?
 
 ```ts
@@ -94,26 +110,10 @@ optional storage: ResourceStorageConfig;
 
 ---
 
-### queryParams?
-
-```ts
-optional queryParams: ResourceQueryParams;
-```
-
----
-
 ### ui?
 
 ```ts
 optional ui: ResourceUIConfig<unknown, unknown>;
-```
-
----
-
-### hash
-
-```ts
-hash: string;
 ```
 
 ---

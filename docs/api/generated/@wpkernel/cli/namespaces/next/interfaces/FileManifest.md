@@ -8,16 +8,16 @@
 
 ## Properties
 
-### writes
-
-```ts
-readonly writes: readonly string[];
-```
-
----
-
 ### deletes
 
 ```ts
 readonly deletes: readonly string[];
+```
+
+---
+
+### writes
+
+```ts
+readonly writes: readonly string[];
 ```

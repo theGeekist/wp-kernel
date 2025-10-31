@@ -12,18 +12,18 @@ type TransportMeta = object;
 
 ## Properties
 
-### reporter?
-
-```ts
-optional reporter: Reporter;
-```
-
----
-
 ### namespace?
 
 ```ts
 optional namespace: string;
+```
+
+---
+
+### reporter?
+
+```ts
+optional reporter: Reporter;
 ```
 
 ---

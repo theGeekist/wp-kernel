@@ -8,17 +8,10 @@
 
 ## Properties
 
-### wp?
+### apiFetch?
 
 ```ts
-optional wp:
-  | {
-  data?: __module;
-  apiFetch?: __module;
-  hooks?: __module;
-  interactivity?: __module;
-}
-  | null;
+optional apiFetch: any;
 ```
 
 ---
@@ -39,8 +32,15 @@ optional hooks: Partial<__module | undefined> | null;
 
 ---
 
-### apiFetch?
+### wp?
 
 ```ts
-optional apiFetch: any;
+optional wp:
+  | {
+  apiFetch?: __module;
+  data?: __module;
+  hooks?: __module;
+  interactivity?: __module;
+}
+  | null;
 ```

@@ -26,13 +26,13 @@ function buildPropertyHook(name, body, options, attributes?): PhpPropertyHook;
 
 [`PhpAttrGroup`](../interfaces/PhpAttrGroup.md)[]
 
-#### flags?
-
-`number`
-
 #### byRef?
 
 `boolean`
+
+#### flags?
+
+`number`
 
 #### params?
 

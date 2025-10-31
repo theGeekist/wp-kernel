@@ -24,6 +24,14 @@ readonly attributes: PhpAttributes;
 
 ---
 
+### declares
+
+```ts
+readonly declares: PhpDeclareItem[];
+```
+
+---
+
 ### nodeType
 
 ```ts
@@ -33,14 +41,6 @@ readonly nodeType: "Stmt_Declare";
 #### Overrides
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
-
----
-
-### declares
-
-```ts
-readonly declares: PhpDeclareItem[];
-```
 
 ---
 

@@ -8,14 +8,6 @@
 
 ## Properties
 
-### summary
-
-```ts
-readonly summary: Readonly<Record<string, unknown>>;
-```
-
----
-
 ### attributes
 
 ```ts
@@ -28,4 +20,12 @@ readonly attributes: Readonly<Record<string, unknown>>;
 
 ```ts
 readonly excerpt: unknown;
+```
+
+---
+
+### summary
+
+```ts
+readonly summary: Readonly<Record<string, unknown>>;
 ```

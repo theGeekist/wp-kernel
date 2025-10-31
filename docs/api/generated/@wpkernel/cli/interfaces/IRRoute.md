@@ -8,22 +8,6 @@
 
 ## Properties
 
-### method
-
-```ts
-method: string;
-```
-
----
-
-### path
-
-```ts
-path: string;
-```
-
----
-
 ### capability?
 
 ```ts
@@ -36,6 +20,22 @@ optional capability: string;
 
 ```ts
 hash: string;
+```
+
+---
+
+### method
+
+```ts
+method: string;
+```
+
+---
+
+### path
+
+```ts
+path: string;
 ```
 
 ---

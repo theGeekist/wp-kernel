@@ -40,9 +40,25 @@ Create a new ServerError
 
 Server error options
 
+###### context?
+
+[`ErrorContext`](../type-aliases/ErrorContext.md)
+
+###### method
+
+`string`
+
+###### path
+
+`string`
+
 ###### serverCode
 
 `string`
+
+###### serverData?
+
+`Record`\&lt;`string`, `unknown`\&gt;
 
 ###### serverMessage
 
@@ -51,22 +67,6 @@ Server error options
 ###### status
 
 `number`
-
-###### path
-
-`string`
-
-###### method
-
-`string`
-
-###### serverData?
-
-`Record`\&lt;`string`, `unknown`\&gt;
-
-###### context?
-
-[`ErrorContext`](../type-aliases/ErrorContext.md)
 
 #### Returns
 
@@ -78,6 +78,68 @@ Server error options
 
 ## Properties
 
+### code
+
+```ts
+readonly code: ErrorCode;
+```
+
+Error code - identifies the type of error
+
+#### Inherited from
+
+[`WPKernelError`](WPKernelError.md).[`code`](WPKernelError.md#code)
+
+---
+
+### context?
+
+```ts
+readonly optional context: ErrorContext;
+```
+
+Context in which the error occurred
+
+#### Inherited from
+
+[`WPKernelError`](WPKernelError.md).[`context`](WPKernelError.md#context)
+
+---
+
+### data?
+
+```ts
+readonly optional data: ErrorData;
+```
+
+Additional data about the error
+
+#### Inherited from
+
+[`WPKernelError`](WPKernelError.md).[`data`](WPKernelError.md#data)
+
+---
+
+### method
+
+```ts
+readonly method: string;
+```
+
+HTTP method
+
+---
+
+### path
+
+```ts
+readonly path: string;
+```
+
+Request path
+
+---
+
 ### serverCode
 
 ```ts
@@ -85,6 +147,16 @@ readonly serverCode: string;
 ```
 
 WordPress error code (e.g., 'rest_forbidden', 'rest_invalid_param')
+
+---
+
+### serverData?
+
+```ts
+readonly optional serverData: Record<string, unknown>;
+```
+
+Additional server data
 
 ---
 
@@ -106,79 +178,35 @@ readonly status: number;
 
 HTTP status code
 
----
-
-### path
-
-```ts
-readonly path: string;
-```
-
-Request path
-
----
-
-### method
-
-```ts
-readonly method: string;
-```
-
-HTTP method
-
----
-
-### serverData?
-
-```ts
-readonly optional serverData: Record<string, unknown>;
-```
-
-Additional server data
-
----
-
-### code
-
-```ts
-readonly code: ErrorCode;
-```
-
-Error code - identifies the type of error
-
-#### Inherited from
-
-[`WPKernelError`](WPKernelError.md).[`code`](WPKernelError.md#code)
-
----
-
-### data?
-
-```ts
-readonly optional data: ErrorData;
-```
-
-Additional data about the error
-
-#### Inherited from
-
-[`WPKernelError`](WPKernelError.md).[`data`](WPKernelError.md#data)
-
----
-
-### context?
-
-```ts
-readonly optional context: ErrorContext;
-```
-
-Context in which the error occurred
-
-#### Inherited from
-
-[`WPKernelError`](WPKernelError.md).[`context`](WPKernelError.md#context)
-
 ## Methods
+
+### fromJSON()
+
+```ts
+static fromJSON(serialized): WPKernelError;
+```
+
+Create WPKernelError from serialized format
+
+#### Parameters
+
+##### serialized
+
+[`SerializedError`](../type-aliases/SerializedError.md)
+
+Serialized error object
+
+#### Returns
+
+[`WPKernelError`](WPKernelError.md)
+
+New WPKernelError instance
+
+#### Inherited from
+
+[`WPKernelError`](WPKernelError.md).[`fromJSON`](WPKernelError.md#fromjson)
+
+---
 
 ### fromWordPressResponse()
 
@@ -226,6 +254,38 @@ New ServerError instance
 
 ---
 
+### getValidationErrors()
+
+```ts
+getValidationErrors(): object[];
+```
+
+Extract validation errors from server response
+
+#### Returns
+
+`object`[]
+
+Array of validation errors if available
+
+---
+
+### isNotFoundError()
+
+```ts
+isNotFoundError(): boolean;
+```
+
+Check if this is a "not found" error
+
+#### Returns
+
+`boolean`
+
+True if resource was not found
+
+---
+
 ### isPermissionError()
 
 ```ts
@@ -258,86 +318,6 @@ True if this is a validation error
 
 ---
 
-### isNotFoundError()
-
-```ts
-isNotFoundError(): boolean;
-```
-
-Check if this is a "not found" error
-
-#### Returns
-
-`boolean`
-
-True if resource was not found
-
----
-
-### getValidationErrors()
-
-```ts
-getValidationErrors(): object[];
-```
-
-Extract validation errors from server response
-
-#### Returns
-
-`object`[]
-
-Array of validation errors if available
-
----
-
-### toJSON()
-
-```ts
-toJSON(): SerializedError;
-```
-
-Serialize error to JSON-safe format
-
-#### Returns
-
-[`SerializedError`](../type-aliases/SerializedError.md)
-
-Serialized error object
-
-#### Inherited from
-
-[`WPKernelError`](WPKernelError.md).[`toJSON`](WPKernelError.md#tojson)
-
----
-
-### fromJSON()
-
-```ts
-static fromJSON(serialized): WPKernelError;
-```
-
-Create WPKernelError from serialized format
-
-#### Parameters
-
-##### serialized
-
-[`SerializedError`](../type-aliases/SerializedError.md)
-
-Serialized error object
-
-#### Returns
-
-[`WPKernelError`](WPKernelError.md)
-
-New WPKernelError instance
-
-#### Inherited from
-
-[`WPKernelError`](WPKernelError.md).[`fromJSON`](WPKernelError.md#fromjson)
-
----
-
 ### isWPKernelError()
 
 ```ts
@@ -363,6 +343,26 @@ True if error is a WPKernelError
 #### Inherited from
 
 [`WPKernelError`](WPKernelError.md).[`isWPKernelError`](WPKernelError.md#iswpkernelerror)
+
+---
+
+### toJSON()
+
+```ts
+toJSON(): SerializedError;
+```
+
+Serialize error to JSON-safe format
+
+#### Returns
+
+[`SerializedError`](../type-aliases/SerializedError.md)
+
+Serialized error object
+
+#### Inherited from
+
+[`WPKernelError`](WPKernelError.md).[`toJSON`](WPKernelError.md#tojson)
 
 ---
 

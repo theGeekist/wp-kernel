@@ -16,6 +16,18 @@ Result returned by `defineInteraction`.
 
 ## Properties
 
+### getServerState()
+
+```ts
+readonly getServerState: () => object;
+```
+
+#### Returns
+
+`object`
+
+---
+
 ### namespace
 
 ```ts
@@ -41,15 +53,3 @@ readonly syncServerState: () => void;
 #### Returns
 
 `void`
-
----
-
-### getServerState()
-
-```ts
-readonly getServerState: () => object;
-```
-
-#### Returns
-
-`object`

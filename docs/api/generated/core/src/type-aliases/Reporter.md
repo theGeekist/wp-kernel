@@ -12,6 +12,68 @@ type Reporter = object;
 
 ## Properties
 
+### child()
+
+```ts
+child: (namespace) => Reporter;
+```
+
+#### Parameters
+
+##### namespace
+
+`string`
+
+#### Returns
+
+`Reporter`
+
+---
+
+### debug()
+
+```ts
+debug: (message, context?) => void;
+```
+
+#### Parameters
+
+##### message
+
+`string`
+
+##### context?
+
+`unknown`
+
+#### Returns
+
+`void`
+
+---
+
+### error()
+
+```ts
+error: (message, context?) => void;
+```
+
+#### Parameters
+
+##### message
+
+`string`
+
+##### context?
+
+`unknown`
+
+#### Returns
+
+`void`
+
+---
+
 ### info()
 
 ```ts
@@ -53,65 +115,3 @@ warn: (message, context?) => void;
 #### Returns
 
 `void`
-
----
-
-### error()
-
-```ts
-error: (message, context?) => void;
-```
-
-#### Parameters
-
-##### message
-
-`string`
-
-##### context?
-
-`unknown`
-
-#### Returns
-
-`void`
-
----
-
-### debug()
-
-```ts
-debug: (message, context?) => void;
-```
-
-#### Parameters
-
-##### message
-
-`string`
-
-##### context?
-
-`unknown`
-
-#### Returns
-
-`void`
-
----
-
-### child()
-
-```ts
-child: (namespace) => Reporter;
-```
-
-#### Parameters
-
-##### namespace
-
-`string`
-
-#### Returns
-
-`Reporter`

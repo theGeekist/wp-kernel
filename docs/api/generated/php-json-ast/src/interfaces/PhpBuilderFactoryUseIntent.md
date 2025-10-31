@@ -8,14 +8,6 @@
 
 ## Properties
 
-### name
-
-```ts
-readonly name: string;
-```
-
----
-
 ### alias?
 
 ```ts
@@ -28,4 +20,12 @@ readonly optional alias: string | null;
 
 ```ts
 readonly optional kind: PhpBuilderFactoryUseKind;
+```
+
+---
+
+### name
+
+```ts
+readonly name: string;
 ```

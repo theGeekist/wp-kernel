@@ -20,16 +20,10 @@ Input shape forwarded to custom hydration callbacks.
 
 ## Properties
 
-### serverState
+### registry?
 
 ```ts
-readonly serverState: object;
-```
-
-#### Index Signature
-
-```ts
-[key: string]: unknown
+readonly optional registry: WPKernelRegistry;
 ```
 
 ---
@@ -42,10 +36,16 @@ readonly resource: ResourceObject<TEntity, TQuery>;
 
 ---
 
-### registry?
+### serverState
 
 ```ts
-readonly optional registry: WPKernelRegistry;
+readonly serverState: object;
+```
+
+#### Index Signature
+
+```ts
+[key: string]: unknown
 ```
 
 ---

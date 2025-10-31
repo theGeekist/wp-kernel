@@ -12,6 +12,14 @@
 
 ## Properties
 
+### alias
+
+```ts
+readonly alias: PhpIdentifier | null;
+```
+
+---
+
 ### attributes
 
 ```ts
@@ -24,6 +32,14 @@ readonly attributes: PhpAttributes;
 
 ---
 
+### name
+
+```ts
+readonly name: PhpName;
+```
+
+---
+
 ### nodeType
 
 ```ts
@@ -33,22 +49,6 @@ readonly nodeType: "UseItem";
 #### Overrides
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
-
----
-
-### name
-
-```ts
-readonly name: PhpName;
-```
-
----
-
-### alias
-
-```ts
-readonly alias: PhpIdentifier | null;
-```
 
 ---
 

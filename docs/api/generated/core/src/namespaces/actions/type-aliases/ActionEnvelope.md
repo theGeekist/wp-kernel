@@ -35,10 +35,18 @@ Return type from the action
 
 ## Properties
 
-### type
+### \_\_kernelAction
 
 ```ts
-type: typeof EXECUTE_ACTION_TYPE;
+__kernelAction: true;
+```
+
+---
+
+### meta?
+
+```ts
+optional meta: Record<string, unknown>;
 ```
 
 ---
@@ -63,16 +71,8 @@ args: TArgs;
 
 ---
 
-### meta?
+### type
 
 ```ts
-optional meta: Record<string, unknown>;
-```
-
----
-
-### \_\_kernelAction
-
-```ts
-__kernelAction: true;
+type: typeof EXECUTE_ACTION_TYPE;
 ```

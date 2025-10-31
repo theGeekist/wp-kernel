@@ -12,6 +12,14 @@
 
 ## Properties
 
+### args
+
+```ts
+readonly args: PhpArg[];
+```
+
+---
+
 ### attributes
 
 ```ts
@@ -21,18 +29,6 @@ readonly attributes: PhpAttributes;
 #### Inherited from
 
 [`PhpExprBase`](PhpExprBase.md).[`attributes`](PhpExprBase.md#attributes)
-
----
-
-### nodeType
-
-```ts
-readonly nodeType: "Expr_StaticCall";
-```
-
-#### Overrides
-
-[`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
 
 ---
 
@@ -54,8 +50,12 @@ readonly name:
 
 ---
 
-### args
+### nodeType
 
 ```ts
-readonly args: PhpArg[];
+readonly nodeType: "Expr_StaticCall";
 ```
+
+#### Overrides
+
+[`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)

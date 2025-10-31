@@ -8,16 +8,16 @@
 
 ## Properties
 
-### name
-
-```ts
-readonly name: string;
-```
-
----
-
 ### docblock?
 
 ```ts
 readonly optional docblock: readonly string[];
+```
+
+---
+
+### name
+
+```ts
+readonly name: string;
 ```

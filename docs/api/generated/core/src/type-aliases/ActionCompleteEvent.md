@@ -22,6 +22,12 @@ Event name: `wpk.action.complete`
 
 ## Type Declaration
 
+### durationMs
+
+```ts
+durationMs: number;
+```
+
 ### phase
 
 ```ts
@@ -32,10 +38,4 @@ phase: 'complete';
 
 ```ts
 result: unknown;
-```
-
-### durationMs
-
-```ts
-durationMs: number;
 ```

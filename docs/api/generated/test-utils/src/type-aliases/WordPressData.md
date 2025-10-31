@@ -28,18 +28,18 @@ createReduxStore: jest.Mock;
 
 ---
 
-### register
-
-```ts
-register: jest.Mock;
-```
-
----
-
 ### dispatch
 
 ```ts
 dispatch: jest.Mock;
+```
+
+---
+
+### register
+
+```ts
+register: jest.Mock;
 ```
 
 ---

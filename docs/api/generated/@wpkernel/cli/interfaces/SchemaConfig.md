@@ -10,10 +10,10 @@ Configuration for a registered schema file.
 
 ## Properties
 
-### path
+### description?
 
 ```ts
-path: string;
+optional description: string;
 ```
 
 ---
@@ -32,8 +32,8 @@ types: string;
 
 ---
 
-### description?
+### path
 
 ```ts
-optional description: string;
+path: string;
 ```

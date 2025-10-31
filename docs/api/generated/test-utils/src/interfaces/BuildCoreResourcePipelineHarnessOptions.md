@@ -26,14 +26,6 @@ readonly optional namespace: string;
 
 ---
 
-### resourceName?
-
-```ts
-readonly optional resourceName: string;
-```
-
----
-
 ### pipelineFactory()?
 
 ```ts
@@ -43,3 +35,11 @@ readonly optional pipelineFactory: () => ResourcePipeline<T, TQuery>;
 #### Returns
 
 `ResourcePipeline`\&lt;`T`, `TQuery`\&gt;
+
+---
+
+### resourceName?
+
+```ts
+readonly optional resourceName: string;
+```

@@ -8,18 +8,18 @@
 
 ## Properties
 
-### namespace
-
-```ts
-namespace: string;
-```
-
----
-
 ### autoload
 
 ```ts
 autoload: string;
+```
+
+---
+
+### namespace
+
+```ts
+namespace: string;
 ```
 
 ---

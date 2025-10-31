@@ -20,16 +20,16 @@ eventName: string;
 
 ---
 
-### payload
-
-```ts
-payload: unknown;
-```
-
----
-
 ### metadata
 
 ```ts
 metadata: ActionLifecycleEventBase;
+```
+
+---
+
+### payload
+
+```ts
+payload: unknown;
 ```

@@ -24,6 +24,14 @@ readonly attributes: PhpAttributes;
 
 ---
 
+### items
+
+```ts
+readonly items: PhpExprArrayItem[];
+```
+
+---
+
 ### nodeType
 
 ```ts
@@ -33,11 +41,3 @@ readonly nodeType: "Expr_Array";
 #### Overrides
 
 [`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
-
----
-
-### items
-
-```ts
-readonly items: PhpExprArrayItem[];
-```

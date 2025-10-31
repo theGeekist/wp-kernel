@@ -22,30 +22,6 @@ optional component: string;
 
 ---
 
-### route?
-
-```ts
-optional route: string;
-```
-
----
-
-### resourceImport?
-
-```ts
-optional resourceImport: string;
-```
-
----
-
-### resourceSymbol?
-
-```ts
-optional resourceSymbol: string;
-```
-
----
-
 ### kernelImport?
 
 ```ts
@@ -66,4 +42,28 @@ optional kernelSymbol: string;
 
 ```ts
 optional menu: ResourceDataViewsMenuConfig;
+```
+
+---
+
+### resourceImport?
+
+```ts
+optional resourceImport: string;
+```
+
+---
+
+### resourceSymbol?
+
+```ts
+optional resourceSymbol: string;
+```
+
+---
+
+### route?
+
+```ts
+optional route: string;
 ```

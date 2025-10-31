@@ -8,16 +8,16 @@
 
 ## Properties
 
-### runtime
-
-```ts
-runtime: WPKernelUIRuntime;
-```
-
----
-
 ### children
 
 ```ts
 children: ReactNode;
+```
+
+---
+
+### runtime
+
+```ts
+runtime: WPKernelUIRuntime;
 ```

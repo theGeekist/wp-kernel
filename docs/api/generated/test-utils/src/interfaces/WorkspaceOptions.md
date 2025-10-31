@@ -8,14 +8,6 @@
 
 ## Properties
 
-### prefix?
-
-```ts
-optional prefix: string;
-```
-
----
-
 ### chdir?
 
 ```ts
@@ -28,6 +20,14 @@ optional chdir: boolean;
 
 ```ts
 optional files: Record<string, string | Buffer<ArrayBufferLike>>;
+```
+
+---
+
+### prefix?
+
+```ts
+optional prefix: string;
 ```
 
 ---

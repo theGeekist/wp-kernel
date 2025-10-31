@@ -24,6 +24,16 @@ readonly attributes: PhpAttributes;
 
 ---
 
+### name
+
+```ts
+readonly name:
+  | PhpExpr
+  | PhpIdentifier;
+```
+
+---
+
 ### nodeType
 
 ```ts
@@ -40,14 +50,4 @@ readonly nodeType: "Expr_PropertyFetch";
 
 ```ts
 readonly var: PhpExpr;
-```
-
----
-
-### name
-
-```ts
-readonly name:
-  | PhpExpr
-  | PhpIdentifier;
 ```

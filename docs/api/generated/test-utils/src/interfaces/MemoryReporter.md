@@ -8,10 +8,22 @@
 
 ## Properties
 
-### reporter
+### clear()
 
 ```ts
-readonly reporter: Reporter;
+clear: () => void;
+```
+
+#### Returns
+
+`void`
+
+---
+
+### entries
+
+```ts
+readonly entries: MemoryReporterEntry[];
 ```
 
 ---
@@ -24,20 +36,8 @@ readonly namespace: string;
 
 ---
 
-### entries
+### reporter
 
 ```ts
-readonly entries: MemoryReporterEntry[];
+readonly reporter: Reporter;
 ```
-
----
-
-### clear()
-
-```ts
-clear: () => void;
-```
-
-#### Returns
-
-`void`

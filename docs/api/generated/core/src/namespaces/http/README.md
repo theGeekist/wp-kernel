@@ -29,21 +29,9 @@ Re-exports [HttpMethod](../../type-aliases/HttpMethod.md)
 
 ---
 
-### TransportRequest
+### ResourceErrorEvent
 
-Re-exports [TransportRequest](../../type-aliases/TransportRequest.md)
-
----
-
-### TransportResponse
-
-Re-exports [TransportResponse](../../type-aliases/TransportResponse.md)
-
----
-
-### TransportMeta
-
-Re-exports [TransportMeta](../../type-aliases/TransportMeta.md)
+Re-exports [ResourceErrorEvent](../../type-aliases/ResourceErrorEvent.md)
 
 ---
 
@@ -59,6 +47,18 @@ Re-exports [ResourceResponseEvent](../../type-aliases/ResourceResponseEvent.md)
 
 ---
 
-### ResourceErrorEvent
+### TransportMeta
 
-Re-exports [ResourceErrorEvent](../../type-aliases/ResourceErrorEvent.md)
+Re-exports [TransportMeta](../../type-aliases/TransportMeta.md)
+
+---
+
+### TransportRequest
+
+Re-exports [TransportRequest](../../type-aliases/TransportRequest.md)
+
+---
+
+### TransportResponse
+
+Re-exports [TransportResponse](../../type-aliases/TransportResponse.md)

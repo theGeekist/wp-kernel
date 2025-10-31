@@ -8,14 +8,6 @@
 
 ## Properties
 
-### harness
-
-```ts
-harness: WordPressTestHarness;
-```
-
----
-
 ### apiFetch
 
 ```ts
@@ -24,16 +16,24 @@ apiFetch: Mock;
 
 ---
 
-### hooks
-
-```ts
-hooks: __module | undefined;
-```
-
----
-
 ### doAction
 
 ```ts
 doAction: Mock;
+```
+
+---
+
+### harness
+
+```ts
+harness: WordPressTestHarness;
+```
+
+---
+
+### hooks
+
+```ts
+hooks: __module | undefined;
 ```

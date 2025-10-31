@@ -24,15 +24,11 @@ readonly attributes: PhpAttributes;
 
 ---
 
-### nodeType
+### default
 
 ```ts
-readonly nodeType: "PropertyItem";
+readonly default: PhpExpr | null;
 ```
-
-#### Overrides
-
-[`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
 ---
 
@@ -44,8 +40,12 @@ readonly name: PhpIdentifier;
 
 ---
 
-### default
+### nodeType
 
 ```ts
-readonly default: PhpExpr | null;
+readonly nodeType: "PropertyItem";
 ```
+
+#### Overrides
+
+[`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)

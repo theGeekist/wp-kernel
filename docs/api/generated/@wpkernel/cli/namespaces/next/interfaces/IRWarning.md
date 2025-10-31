@@ -16,16 +16,16 @@ code: string;
 
 ---
 
-### message
-
-```ts
-message: string;
-```
-
----
-
 ### context?
 
 ```ts
 optional context: Record<string, unknown>;
+```
+
+---
+
+### message
+
+```ts
+message: string;
 ```

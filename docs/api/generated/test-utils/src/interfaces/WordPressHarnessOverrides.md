@@ -8,18 +8,18 @@
 
 ## Properties
 
-### data?
-
-```ts
-optional data: Partial<WordPressData>;
-```
-
----
-
 ### apiFetch?
 
 ```ts
 optional apiFetch: any;
+```
+
+---
+
+### data?
+
+```ts
+optional data: Partial<WordPressData>;
 ```
 
 ---

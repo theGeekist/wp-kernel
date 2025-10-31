@@ -24,6 +24,14 @@ readonly attributes: PhpAttributes;
 
 ---
 
+### name
+
+```ts
+readonly name: string | PhpExpr;
+```
+
+---
+
 ### nodeType
 
 ```ts
@@ -33,11 +41,3 @@ readonly nodeType: "Expr_Variable";
 #### Overrides
 
 [`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
-
----
-
-### name
-
-```ts
-readonly name: string | PhpExpr;
-```

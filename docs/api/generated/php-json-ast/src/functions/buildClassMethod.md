@@ -18,6 +18,10 @@ function buildClassMethod(name, options, attributes?): PhpStmtClassMethod;
 
 ### options
 
+#### attrGroups?
+
+[`PhpAttrGroup`](../interfaces/PhpAttrGroup.md)[]
+
 #### byRef?
 
 `boolean`
@@ -37,10 +41,6 @@ function buildClassMethod(name, options, attributes?): PhpStmtClassMethod;
 #### stmts?
 
 [`PhpStmt`](../type-aliases/PhpStmt.md)[] \| `null`
-
-#### attrGroups?
-
-[`PhpAttrGroup`](../interfaces/PhpAttrGroup.md)[]
 
 ### attributes?
 

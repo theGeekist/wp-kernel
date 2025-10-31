@@ -8,14 +8,6 @@
 
 ## Properties
 
-### sourcePath?
-
-```ts
-optional sourcePath: string;
-```
-
----
-
 ### definitions
 
 ```ts
@@ -30,16 +22,16 @@ definitions: IRCapabilityDefinition[];
 fallback: object;
 ```
 
-#### capability
-
-```ts
-capability: string;
-```
-
 #### appliesTo
 
 ```ts
 appliesTo: IRCapabilityScope;
+```
+
+#### capability
+
+```ts
+capability: string;
 ```
 
 ---
@@ -48,6 +40,14 @@ appliesTo: IRCapabilityScope;
 
 ```ts
 missing: string[];
+```
+
+---
+
+### sourcePath?
+
+```ts
+optional sourcePath: string;
 ```
 
 ---

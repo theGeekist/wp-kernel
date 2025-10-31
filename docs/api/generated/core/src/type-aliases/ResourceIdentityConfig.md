@@ -9,12 +9,12 @@
 ```ts
 type ResourceIdentityConfig =
 	| {
-			type: 'number';
 			param?: 'id';
+			type: 'number';
 	  }
 	| {
-			type: 'string';
 			param?: 'id' | 'slug' | 'uuid';
+			type: 'string';
 	  };
 ```
 

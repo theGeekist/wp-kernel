@@ -12,10 +12,10 @@ type ReporterMock = Reporter & object;
 
 ## Type Declaration
 
-### info
+### child
 
 ```ts
-info: jest.Mock<void, [string, unknown?]>;
+child: jest.Mock<ReporterMock, [string]>;
 ```
 
 ### debug
@@ -24,20 +24,20 @@ info: jest.Mock<void, [string, unknown?]>;
 debug: jest.Mock<void, [string, unknown?]>;
 ```
 
-### warn
-
-```ts
-warn: jest.Mock<void, [string, unknown?]>;
-```
-
 ### error
 
 ```ts
 error: jest.Mock<void, [string, unknown?]>;
 ```
 
-### child
+### info
 
 ```ts
-child: jest.Mock<ReporterMock, [string]>;
+info: jest.Mock<void, [string, unknown?]>;
+```
+
+### warn
+
+```ts
+warn: jest.Mock<void, [string, unknown?]>;
 ```

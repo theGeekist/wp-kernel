@@ -16,16 +16,16 @@ readonly kind: "assignPropertyFromParameter";
 
 ---
 
-### property
-
-```ts
-readonly property: string;
-```
-
----
-
 ### parameter
 
 ```ts
 readonly parameter: string;
+```
+
+---
+
+### property
+
+```ts
+readonly property: string;
 ```

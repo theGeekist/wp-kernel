@@ -18,13 +18,13 @@ function buildArrayItem(value, options, attributes?): PhpExprArrayItem;
 
 ### options
 
-#### key?
-
-[`PhpExpr`](../type-aliases/PhpExpr.md) \| `null`
-
 #### byRef?
 
 `boolean`
+
+#### key?
+
+[`PhpExpr`](../type-aliases/PhpExpr.md) \| `null`
 
 #### unpack?
 

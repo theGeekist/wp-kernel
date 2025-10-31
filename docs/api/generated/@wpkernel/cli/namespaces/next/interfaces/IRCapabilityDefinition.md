@@ -8,22 +8,6 @@
 
 ## Properties
 
-### key
-
-```ts
-key: string;
-```
-
----
-
-### capability
-
-```ts
-capability: string;
-```
-
----
-
 ### appliesTo
 
 ```ts
@@ -36,6 +20,22 @@ appliesTo: IRCapabilityScope;
 
 ```ts
 optional binding: string;
+```
+
+---
+
+### capability
+
+```ts
+capability: string;
+```
+
+---
+
+### key
+
+```ts
+key: string;
 ```
 
 ---

@@ -8,16 +8,16 @@
 
 ## Properties
 
-### remaining
-
-```ts
-readonly remaining: string;
-```
-
----
-
 ### lines
 
 ```ts
 readonly lines: string[];
+```
+
+---
+
+### remaining
+
+```ts
+readonly remaining: string;
 ```

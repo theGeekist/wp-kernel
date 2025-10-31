@@ -8,6 +8,14 @@
 
 ## Properties
 
+### context?
+
+```ts
+readonly optional context: unknown;
+```
+
+---
+
 ### level
 
 ```ts
@@ -28,12 +36,4 @@ readonly message: string;
 
 ```ts
 readonly namespace: string;
-```
-
----
-
-### context?
-
-```ts
-readonly optional context: unknown;
 ```

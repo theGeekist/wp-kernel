@@ -8,6 +8,14 @@
 
 ## Properties
 
+### class
+
+```ts
+readonly class: PhpBuilderFactoryClassIntent;
+```
+
+---
+
 ### file
 
 ```ts
@@ -28,12 +36,4 @@ readonly namespace: PhpBuilderFactoryNamespaceIntent;
 
 ```ts
 readonly optional uses: readonly PhpBuilderFactoryUseIntent[];
-```
-
----
-
-### class
-
-```ts
-readonly class: PhpBuilderFactoryClassIntent;
 ```

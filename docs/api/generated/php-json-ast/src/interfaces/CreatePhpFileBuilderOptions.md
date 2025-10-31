@@ -26,110 +26,6 @@
 
 ## Properties
 
-### mode?
-
-```ts
-readonly optional mode: HelperMode;
-```
-
-#### Inherited from
-
-[`CreateHelperOptions`](CreateHelperOptions.md).[`mode`](CreateHelperOptions.md#mode)
-
----
-
-### priority?
-
-```ts
-readonly optional priority: number;
-```
-
-#### Inherited from
-
-[`CreateHelperOptions`](CreateHelperOptions.md).[`priority`](CreateHelperOptions.md#priority)
-
----
-
-### dependsOn?
-
-```ts
-readonly optional dependsOn: readonly string[];
-```
-
-#### Inherited from
-
-[`CreateHelperOptions`](CreateHelperOptions.md).[`dependsOn`](CreateHelperOptions.md#dependson)
-
----
-
-### origin?
-
-```ts
-readonly optional origin: string;
-```
-
-#### Inherited from
-
-[`CreateHelperOptions`](CreateHelperOptions.md).[`origin`](CreateHelperOptions.md#origin)
-
----
-
-### key
-
-```ts
-readonly key: string;
-```
-
-#### Inherited from
-
-```ts
-Omit.key;
-```
-
----
-
-### filePath
-
-```ts
-readonly filePath: string;
-```
-
-#### Inherited from
-
-```ts
-Omit.filePath;
-```
-
----
-
-### namespace
-
-```ts
-readonly namespace: string;
-```
-
-#### Inherited from
-
-```ts
-Omit.namespace;
-```
-
----
-
-### metadata
-
-```ts
-readonly metadata: PhpFileMetadata;
-```
-
-#### Inherited from
-
-```ts
-Omit.metadata;
-```
-
----
-
 ### build()
 
 ```ts
@@ -149,3 +45,107 @@ readonly build: (builder, entry) => void | Promise<void>;
 #### Returns
 
 `void` \| `Promise`\&lt;`void`\&gt;
+
+---
+
+### dependsOn?
+
+```ts
+readonly optional dependsOn: readonly string[];
+```
+
+#### Inherited from
+
+[`CreateHelperOptions`](CreateHelperOptions.md).[`dependsOn`](CreateHelperOptions.md#dependson)
+
+---
+
+### filePath
+
+```ts
+readonly filePath: string;
+```
+
+#### Inherited from
+
+```ts
+Omit.filePath;
+```
+
+---
+
+### key
+
+```ts
+readonly key: string;
+```
+
+#### Inherited from
+
+```ts
+Omit.key;
+```
+
+---
+
+### metadata
+
+```ts
+readonly metadata: PhpFileMetadata;
+```
+
+#### Inherited from
+
+```ts
+Omit.metadata;
+```
+
+---
+
+### mode?
+
+```ts
+readonly optional mode: HelperMode;
+```
+
+#### Inherited from
+
+[`CreateHelperOptions`](CreateHelperOptions.md).[`mode`](CreateHelperOptions.md#mode)
+
+---
+
+### namespace
+
+```ts
+readonly namespace: string;
+```
+
+#### Inherited from
+
+```ts
+Omit.namespace;
+```
+
+---
+
+### origin?
+
+```ts
+readonly optional origin: string;
+```
+
+#### Inherited from
+
+[`CreateHelperOptions`](CreateHelperOptions.md).[`origin`](CreateHelperOptions.md#origin)
+
+---
+
+### priority?
+
+```ts
+readonly optional priority: number;
+```
+
+#### Inherited from
+
+[`CreateHelperOptions`](CreateHelperOptions.md).[`priority`](CreateHelperOptions.md#priority)
