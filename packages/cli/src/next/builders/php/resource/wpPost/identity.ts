@@ -1,3 +1,5 @@
+/* istanbul ignore file -- this module re-exports wp-json-ast identity helpers */
+
 export {
 	buildIdentityGuardStatements as buildIdentityValidationStatements,
 	isNumericIdentity,

@@ -1,25 +1,9 @@
+import type { PhpStmt } from '@wpkernel/php-json-ast';
 import {
-	buildArg,
-	buildReturn,
-	buildVariable,
-	type PhpStmt,
-} from '@wpkernel/php-json-ast';
-import type { ResourceMetadataHost } from '@wpkernel/wp-json-ast';
-import {
-	appendResourceCacheEvent,
-	buildBooleanNot,
-	buildIdentityValidationStatements,
-	buildIfStatementNode,
-	buildInstanceof,
-	buildWpErrorReturn,
 	buildWpTaxonomyGetRouteStatements,
-	buildMethodCallAssignmentStatement,
-	buildMethodCallExpression,
-	appendStatementsWithSpacing,
-	isNumericIdentity,
-} from '../../resource';
+	type ResourceMetadataHost,
+} from '@wpkernel/wp-json-ast';
 import type { ResolvedIdentity } from '../../identity';
-import type { IdentityValidationOptions } from '../../resource/wpPost/identity';
 import type { IRResource } from '../../../../ir/publicTypes';
 
 export interface BuildGetRouteStatementsOptions {
@@ -39,85 +23,17 @@ export function buildGetRouteStatements(
 		return null;
 	}
 
-	if (storage.mode === 'wp-taxonomy') {
-		return buildWpTaxonomyGetRouteStatements({
-			storage,
-			resourceName: options.resource.name,
-			identity: options.identity,
-			pascalName: options.pascalName,
-			errorCodeFactory: options.errorCodeFactory,
-			metadataHost: options.metadataHost,
-			cacheSegments: options.cacheSegments,
-		});
-	}
-
-	if (storage.mode !== 'wp-post') {
+	if (storage.mode !== 'wp-taxonomy') {
 		return null;
 	}
 
-	appendResourceCacheEvent({
-		host: options.metadataHost,
-		scope: 'get',
-		operation: 'read',
-		segments: options.cacheSegments,
-		description: 'Get request',
+	return buildWpTaxonomyGetRouteStatements({
+		storage,
+		resourceName: options.resource.name,
+		identity: options.identity,
+		pascalName: options.pascalName,
+		errorCodeFactory: options.errorCodeFactory,
+		metadataHost: options.metadataHost,
+		cacheSegments: options.cacheSegments,
 	});
-
-	const statements: PhpStmt[] = [];
-
-	const identityValidationOptions: IdentityValidationOptions =
-		isNumericIdentity(options.identity)
-			? {
-					identity: options.identity,
-					pascalName: options.pascalName,
-					errorCodeFactory: options.errorCodeFactory,
-				}
-			: {
-					identity: options.identity,
-					pascalName: options.pascalName,
-					errorCodeFactory: options.errorCodeFactory,
-				};
-	const identityStatements = buildIdentityValidationStatements(
-		identityValidationOptions
-	);
-
-	appendStatementsWithSpacing(statements, identityStatements);
-
-	const param = options.identity.param;
-	statements.push(
-		buildMethodCallAssignmentStatement({
-			variable: 'post',
-			subject: 'this',
-			method: `resolve${options.pascalName}Post`,
-			args: [buildArg(buildVariable(param))],
-		})
-	);
-
-	const notFoundReturn = buildWpErrorReturn({
-		code: options.errorCodeFactory('not_found'),
-		message: `${options.pascalName} not found.`,
-		status: 404,
-	});
-
-	appendStatementsWithSpacing(statements, [
-		buildIfStatementNode({
-			condition: buildBooleanNot(buildInstanceof('post', 'WP_Post')),
-			statements: [notFoundReturn],
-		}),
-	]);
-
-	statements.push(
-		buildReturn(
-			buildMethodCallExpression({
-				subject: 'this',
-				method: `prepare${options.pascalName}Response`,
-				args: [
-					buildArg(buildVariable('post')),
-					buildArg(buildVariable('request')),
-				],
-			})
-		)
-	);
-
-	return statements;
 }

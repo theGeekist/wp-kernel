@@ -1,3 +1,5 @@
+/* istanbul ignore file -- module solely consolidates wp-json-ast re-exports */
+
 /**
  * wp-post mutation surface for the AST pipeline.
  *

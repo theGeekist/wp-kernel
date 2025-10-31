@@ -1,3 +1,5 @@
+/* istanbul ignore file -- macros module re-exports wp-json-ast factories */
+
 export {
 	buildArrayDimExpression,
 	buildCachePrimingStatements,

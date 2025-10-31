@@ -1,4 +1,5 @@
 import {
+	buildWpPostRouteHandlers,
 	routeUsesIdentity,
 	type BuildResourceControllerRouteSetOptions,
 	type ResourceControllerRouteMetadata,
@@ -10,12 +11,7 @@ import {
 } from '@wpkernel/wp-json-ast';
 import type { IRResource, IRRoute } from '../../../../ir/publicTypes';
 import type { ResolvedIdentity } from '../../identity';
-import {
-	WP_POST_MUTATION_CONTRACT,
-	buildCreateRouteStatements,
-	buildUpdateRouteStatements,
-	buildDeleteRouteStatements as buildRemoveRouteStatements,
-} from '../../resource/wpPost/mutations';
+import { WP_POST_MUTATION_CONTRACT } from '../../resource/wpPost/mutations';
 import { buildListRouteStatements } from './list';
 import { buildGetRouteStatements } from './get';
 import {
@@ -53,6 +49,16 @@ export function buildRouteSetOptions(
 function buildDefaultHandlers(
 	context: BuildRouteSetOptionsContext
 ): RestControllerRouteHandlers {
+	if (context.resource.storage?.mode === 'wp-post') {
+		return buildWpPostRouteHandlers({
+			resource: context.resource,
+			pascalName: context.pascalName,
+			identity: context.identity,
+			metadataKeys: WP_POST_MUTATION_CONTRACT.metadataKeys,
+			errorCodeFactory: context.errorCodeFactory,
+		});
+	}
+
 	return {
 		list: (routeContext) =>
 			buildListRouteStatements({
@@ -69,26 +75,6 @@ function buildDefaultHandlers(
 				errorCodeFactory: context.errorCodeFactory,
 				metadataHost: routeContext.metadataHost,
 				cacheSegments: routeContext.metadata.cacheSegments ?? [],
-			}),
-		create: () =>
-			buildCreateRouteStatements({
-				resource: context.resource,
-				pascalName: context.pascalName,
-				metadataKeys: WP_POST_MUTATION_CONTRACT.metadataKeys,
-			}),
-		update: () =>
-			buildUpdateRouteStatements({
-				resource: context.resource,
-				pascalName: context.pascalName,
-				metadataKeys: WP_POST_MUTATION_CONTRACT.metadataKeys,
-				identity: context.identity,
-			}),
-		remove: () =>
-			buildRemoveRouteStatements({
-				resource: context.resource,
-				pascalName: context.pascalName,
-				metadataKeys: WP_POST_MUTATION_CONTRACT.metadataKeys,
-				identity: context.identity,
 			}),
 	} satisfies RestControllerRouteHandlers;
 }

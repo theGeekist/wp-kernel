@@ -1,3 +1,5 @@
+/* istanbul ignore file -- module forwards route builders from wp-json-ast */
+
 export type {
 	BuildCreateRouteStatementsOptions,
 	BuildDeleteRouteStatementsOptions,

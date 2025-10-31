@@ -396,11 +396,12 @@ Document the remaining AST-heavy helpers and promote them into first-class facto
 - **Expected outcome:** The CLI imports `buildResourceControllerRouteSet`, deletes local `PhpStmt` assembly, and unit tests cover route permutations (storage, TODO stubs, capability fallbacks) inside `wp-json-ast`.
 - _Completion:_ ☑ Completed – introduced the shared route-set factory, migrated the CLI planner to consume it, and added unit tests covering default, option, and transient flows.
 
-**Subtask 3.2.b – (Deferred) `WP_Post` composite helper.**
+**Subtask 3.2.b – `WP_Post` composite helper.**
 
 - **Context:** `WP_Post` route helpers used to live mostly in the CLI and now rely on the wp-post query/mutation/route primitives exported from `@wpkernel/wp-json-ast` (see Task 2.6.b–d). The CLI currently composes those primitives for wp-post controllers.
 - **Intent:** Add either (a) a CLI-side adapter `createPhpWpPostRoutesHelper` that pulls the existing wp-post primitives together or (b) a `wp-json-ast` helper that does the same.
 - **Expected outcome:** `createPhpWpPostRoutesHelper` (added in Phase 3.3) receives the bundle, the CLI drops `PhpStmt` imports across WP_Post modules, and tests in `packages/wp-json-ast/tests/resource/wp-post/` exercise each mutation contract.
+- _Completion:_ ☑ Completed – Added `buildWpPostRouteHandlers` to `@wpkernel/wp-json-ast`, covered the helper with route snapshots, and rewired the CLI route planner to consume the shared bundle while removing WP_Post-specific statement assembly from the CLI.
 
 **Subtask 3.2.c – Publish `buildWpOptionStorageArtifacts`.**
 

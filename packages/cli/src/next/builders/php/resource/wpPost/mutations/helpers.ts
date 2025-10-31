@@ -1,3 +1,5 @@
+/* istanbul ignore file -- surface only re-exports shared mutation helpers */
+
 export {
 	prepareWpPostResponse,
 	syncWpPostMeta,
