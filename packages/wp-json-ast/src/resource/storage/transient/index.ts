@@ -1,6 +1,8 @@
 export {
 	buildTransientHelperMethods,
+	resolveTransientKey,
 	type BuildTransientHelperMethodsOptions,
+	type ResolveTransientKeyOptions,
 } from './helpers';
 export {
 	buildTransientGetRouteStatements,
@@ -10,4 +12,3 @@ export {
 	type BuildTransientRouteBaseOptions,
 	type BuildTransientUnsupportedRouteOptions,
 } from './routes';
-export { ensureTransientStorage, resolveTransientKey } from './shared';
