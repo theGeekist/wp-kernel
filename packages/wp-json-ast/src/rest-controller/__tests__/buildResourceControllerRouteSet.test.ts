@@ -5,6 +5,7 @@ import type { ResourceControllerRouteMetadata } from '../../types';
 import {
 	buildResourceControllerRouteSet,
 	type BuildResourceControllerRouteSetOptions,
+	type RestControllerRouteFallbackContext,
 	type RestControllerRouteHandlers,
 	type RestControllerRouteOptionHandlers,
 	type RestControllerRouteTransientHandlers,
@@ -37,6 +38,7 @@ function createMetadata(
 function createPlan(
 	options: Omit<BuildResourceControllerRouteSetOptions, 'plan'> & {
 		readonly metadata: ResourceControllerRouteMetadata;
+		readonly fallbackContext?: RestControllerRouteFallbackContext;
 	}
 ) {
 	const plan = buildResourceControllerRouteSet({
@@ -49,6 +51,7 @@ function createPlan(
 			docblockSummary: 'Handle request.',
 		},
 		...options,
+		fallbackContext: options.fallbackContext,
 	});
 
 	return {
@@ -167,6 +170,10 @@ describe('buildResourceControllerRouteSet', () => {
 		expect(extractComment(fallback[0])).toBe(
 			'// TODO: Implement handler for [GET] /jobs.'
 		);
+		expect(fallback[0]?.attributes?.['wpk:fallback']).toEqual({
+			method: 'GET',
+			path: '/jobs',
+		});
 		expect(fallback[1]).toMatchObject({
 			nodeType: 'Stmt_Return',
 			expr: expect.objectContaining({
@@ -175,7 +182,48 @@ describe('buildResourceControllerRouteSet', () => {
 					parts: ['WP_Error'],
 				}),
 			}),
+			attributes: expect.objectContaining({
+				'wpk:fallback': { method: 'GET', path: '/jobs' },
+			}),
 		});
+	});
+
+	it('embeds fallback metadata when context is provided', () => {
+		const reason = 'Storage helper missing route handler.';
+		const hint = 'Run storage helper prior to the controller helper.';
+		const plan = createPlan({
+			metadata: createMetadata({
+				method: 'POST',
+				path: '/jobs',
+				kind: 'create',
+			}),
+			handlers: {},
+			fallbackContext: {
+				resource: 'jobs',
+				transport: 'local',
+				kind: 'create',
+				storageMode: 'wp-post',
+				reason,
+				hint,
+			},
+		});
+
+		const [nop, ret] = plan.buildFallback();
+
+		expect(nop?.attributes?.comments).toHaveLength(3);
+		expect(nop?.attributes?.['wpk:fallback']).toEqual({
+			method: 'POST',
+			path: '/jobs',
+			resource: 'jobs',
+			transport: 'local',
+			kind: 'create',
+			storageMode: 'wp-post',
+			reason,
+			hint,
+		});
+		expect(ret?.attributes?.['wpk:fallback']).toEqual(
+			nop?.attributes?.['wpk:fallback']
+		);
 	});
 
 	it('supports overriding fallback builders', () => {
