@@ -78,6 +78,31 @@ function extractResourceName(name: string): string {
 	return resourceName || name;
 }
 
+/**
+ * Configure and bootstrap the WP Kernel runtime for the current namespace.
+ *
+ * The helper wires middleware, reporters, the shared event bus, and optional UI
+ * bindings. It returns a `WPKInstance` that exposes integration hooks for
+ * invalidation, telemetry, and teardown.
+ *
+ * @param    options - Runtime configuration including registry, middleware, and UI hooks
+ * @return Configured kernel instance with lifecycle helpers
+ *
+ * @example
+ * ```ts
+ * import { configureWPKernel } from '@wpkernel/core/data';
+ * import { registerWPKernelStore } from '@wpkernel/core/data';
+ *
+ * const wpk = configureWPKernel({
+ *   namespace: 'acme',
+ *   registry: registerWPKernelStore('acme/store', storeConfig),
+ * });
+ *
+ * wpk.invalidate(['post', 'list']);
+ * wpk.emit('acme.post.published', { id: 101 });
+ * ```
+ * @category Data
+ */
 export function configureWPKernel(
 	options: ConfigureWPKernelOptions = {}
 ): WPKInstance {

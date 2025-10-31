@@ -101,6 +101,20 @@ function resolveErrorMessage(error: unknown): string {
 	return 'An unexpected error occurred';
 }
 
+/**
+ * Bridge kernel lifecycle events into WordPress middleware and notices.
+ *
+ * The plugin mirrors action lifecycle and cache invalidation events onto
+ * `wp.hooks` while optionally surfacing admin notices via the core notices
+ * store. It returns a Redux middleware compatible with `@wordpress/data`.
+ *
+ * @param    options          - Kernel event wiring options
+ * @param    options.reporter - Reporter used for diagnostics when notices fire
+ * @param    options.registry - Optional WordPress registry for dispatching notices
+ * @param    options.events   - Shared kernel event bus instance
+ * @return Redux middleware with a `destroy()` teardown helper
+ * @category Data
+ */
 export function wpkEventsPlugin({
 	reporter,
 	registry,
