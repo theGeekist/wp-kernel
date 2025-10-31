@@ -22,13 +22,12 @@ import {
 	buildWpOptionGetRouteStatements,
 	buildWpOptionUpdateRouteStatements,
 	buildWpOptionUnsupportedRouteStatements,
-} from '../../resource/wpOption';
-import {
+	buildTransientDeleteRouteStatements,
 	buildTransientGetRouteStatements,
 	buildTransientSetRouteStatements,
-	buildTransientDeleteRouteStatements,
 	buildTransientUnsupportedRouteStatements,
-} from '../../resource/transient';
+} from '@wpkernel/wp-json-ast';
+import { ensureWpOptionStorage } from '../../resource/wpOption/shared';
 
 interface BuildRouteSetOptionsContext {
 	readonly resource: IRResource;
@@ -101,21 +100,23 @@ function buildOptionHandlers(
 		return undefined;
 	}
 
+	const storage = ensureWpOptionStorage(context.resource);
+
 	return {
 		get: () =>
 			buildWpOptionGetRouteStatements({
-				resource: context.resource,
 				pascalName: context.pascalName,
+				optionName: storage.option,
 			}),
 		update: () =>
 			buildWpOptionUpdateRouteStatements({
-				resource: context.resource,
 				pascalName: context.pascalName,
+				optionName: storage.option,
 			}),
 		unsupported: () =>
 			buildWpOptionUnsupportedRouteStatements({
-				resource: context.resource,
 				pascalName: context.pascalName,
+				optionName: storage.option,
 				errorCodeFactory: context.errorCodeFactory,
 			}),
 	} satisfies RestControllerRouteOptionHandlers;
@@ -132,11 +133,10 @@ function buildTransientHandlers(
 		host: ResourceMetadataHost,
 		metadataKind: ResourceControllerRouteMetadata['kind']
 	) => ({
-		resource: context.resource,
 		pascalName: context.pascalName,
 		metadataHost: host,
 		identity: context.identity,
-		route: context.route,
+		cacheSegments: context.resource.cacheKeys.get.segments,
 		usesIdentity: routeUsesIdentity({
 			route: {
 				method: context.route.method,
