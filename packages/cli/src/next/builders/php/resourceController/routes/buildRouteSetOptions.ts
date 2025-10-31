@@ -1,4 +1,5 @@
 import {
+	buildWpPostRouteBundle,
 	routeUsesIdentity,
 	type BuildResourceControllerRouteSetOptions,
 	type ResourceControllerRouteMetadata,
@@ -10,12 +11,6 @@ import {
 } from '@wpkernel/wp-json-ast';
 import type { IRResource, IRRoute } from '../../../../ir/publicTypes';
 import type { ResolvedIdentity } from '../../identity';
-import {
-	WP_POST_MUTATION_CONTRACT,
-	buildCreateRouteStatements,
-	buildUpdateRouteStatements,
-	buildDeleteRouteStatements as buildRemoveRouteStatements,
-} from '../../resource/wpPost/mutations';
 import { buildListRouteStatements } from './list';
 import { buildGetRouteStatements } from './get';
 import {
@@ -41,6 +36,22 @@ export function buildRouteSetOptions(
 	context: BuildRouteSetOptionsContext
 ): Omit<BuildResourceControllerRouteSetOptions, 'plan'> {
 	const storageMode = context.resource.storage?.mode;
+
+	if (storageMode === 'wp-post') {
+		const bundle = buildWpPostRouteBundle({
+			resource: context.resource,
+			identity: context.identity,
+			pascalName: context.pascalName,
+			errorCodeFactory: context.errorCodeFactory,
+		});
+
+		return {
+			storageMode,
+			handlers: bundle.handlers,
+			optionHandlers: undefined,
+			transientHandlers: undefined,
+		} satisfies Omit<BuildResourceControllerRouteSetOptions, 'plan'>;
+	}
 
 	return {
 		storageMode,
@@ -69,26 +80,6 @@ function buildDefaultHandlers(
 				errorCodeFactory: context.errorCodeFactory,
 				metadataHost: routeContext.metadataHost,
 				cacheSegments: routeContext.metadata.cacheSegments ?? [],
-			}),
-		create: () =>
-			buildCreateRouteStatements({
-				resource: context.resource,
-				pascalName: context.pascalName,
-				metadataKeys: WP_POST_MUTATION_CONTRACT.metadataKeys,
-			}),
-		update: () =>
-			buildUpdateRouteStatements({
-				resource: context.resource,
-				pascalName: context.pascalName,
-				metadataKeys: WP_POST_MUTATION_CONTRACT.metadataKeys,
-				identity: context.identity,
-			}),
-		remove: () =>
-			buildRemoveRouteStatements({
-				resource: context.resource,
-				pascalName: context.pascalName,
-				metadataKeys: WP_POST_MUTATION_CONTRACT.metadataKeys,
-				identity: context.identity,
 			}),
 	} satisfies RestControllerRouteHandlers;
 }

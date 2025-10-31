@@ -11,6 +11,7 @@ import {
 	buildRestControllerModuleFromPlan,
 	buildWpOptionHelperMethods,
 	buildTransientHelperMethods,
+	buildWpPostRouteBundle,
 	resolveTransientKey,
 	DEFAULT_DOC_HEADER,
 	type RestControllerResourcePlan,
@@ -231,6 +232,17 @@ function buildStorageHelperMethods(
 	options: ControllerBuildContext
 ): readonly PhpStmtClassMethod[] {
 	const storageMode = options.resource.storage?.mode;
+
+	if (storageMode === 'wp-post') {
+		const bundle = buildWpPostRouteBundle({
+			resource: options.resource,
+			identity: options.identity,
+			pascalName: options.pascalName,
+			errorCodeFactory: options.errorCodeFactory,
+		});
+
+		return bundle.helperMethods;
+	}
 
 	if (storageMode === 'wp-taxonomy') {
 		const taxonomyHelpers = buildWpTaxonomyHelperMethods({
