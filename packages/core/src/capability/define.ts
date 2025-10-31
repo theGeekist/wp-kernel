@@ -683,6 +683,8 @@ function createDeniedError(
  *   }
  * });
  * ```
+ *
+ * @category Capability
  */
 export function defineCapability<K extends Record<string, unknown>>(
 	config: CapabilityDefinitionConfig<K>

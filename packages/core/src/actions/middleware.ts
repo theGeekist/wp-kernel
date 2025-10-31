@@ -43,6 +43,7 @@ import type { DefinedAction, ReduxDispatch, ReduxMiddleware } from './types';
  * Redux actions. The `@@` prefix follows Redux's convention for internal actions.
  *
  * @internal
+ * @category Actions
  */
 const EXECUTE_ACTION_TYPE = '@@wp-kernel/EXECUTE_ACTION';
 
@@ -108,6 +109,7 @@ function isActionEnvelope<TArgs, TResult>(
  *
  * @template TState - Redux store state type
  * @return Redux middleware function
+ * @category Actions
  *
  * @example
  * ```typescript
@@ -172,6 +174,7 @@ export function createActionMiddleware<
  * @param    args   - Arguments to pass to the action function
  * @param    meta   - Optional metadata for middleware coordination
  * @return Action envelope ready for Redux dispatch
+ * @category Actions
  *
  * @example
  * ```typescript

@@ -75,6 +75,8 @@ function defaultGetQueryKey<TQuery>(query?: TQuery): string {
  *   getId: (item) => item.id,
  * });
  * ```
+ *
+ * @category Resource
  */
 export function createStore<T, TQuery = unknown>(
 	config: ResourceStoreConfig<T, TQuery>

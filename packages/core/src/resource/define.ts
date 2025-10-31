@@ -86,6 +86,7 @@ function buildResourceDefinitionOptions<T, TQuery>({
  * @param    config - Resource configuration
  * @return Resource object with client methods and metadata
  * @throws DeveloperError if configuration is invalid
+ * @category Resource
  */
 export function defineResource<T = unknown, TQuery = unknown>(
 	config: ResourceConfig<T, TQuery>
