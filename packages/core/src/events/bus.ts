@@ -1,3 +1,4 @@
+/* eslint-disable jsdoc/check-tag-names -- allow Typedoc @category tags */
 import type {
 	ActionLifecycleEvent,
 	ActionLifecycleEventBase,
@@ -173,6 +174,8 @@ const definedActions: ActionDefinedEvent[] = [];
 
 /**
  * Return the shared kernel event bus, creating it lazily on first access.
+ *
+ * @category Events
  */
 export function getWPKernelEventBus(): WPKernelEventBus {
 	if (!sharedEventBus) {
@@ -184,7 +187,9 @@ export function getWPKernelEventBus(): WPKernelEventBus {
 /**
  * Replace the shared kernel event bus. Intended for test suites that need to
  * inspect emitted events.
- * @param bus
+ *
+ * @param    bus - Custom event bus instance
+ * @category Events
  */
 export function setWPKernelEventBus(bus: WPKernelEventBus): void {
 	sharedEventBus = bus;
@@ -193,7 +198,9 @@ export function setWPKernelEventBus(bus: WPKernelEventBus): void {
 /**
  * Record a resource definition so tests and extensions can inspect which
  * resources have been registered.
- * @param event
+ *
+ * @param    event - Resource definition event payload
+ * @category Events
  */
 export function recordResourceDefined<T, TQuery>(
 	event: ResourceDefinedEvent<T, TQuery>
@@ -204,7 +211,9 @@ export function recordResourceDefined<T, TQuery>(
 /**
  * Remove a previously recorded resource definition. Useful when rolling back a
  * resource registration due to pipeline failures.
- * @param event
+ *
+ * @param    event - Resource definition event payload
+ * @category Events
  */
 export function removeResourceDefined<T, TQuery>(
 	event: ResourceDefinedEvent<T, TQuery>
@@ -222,12 +231,20 @@ export function removeResourceDefined<T, TQuery>(
 	definedResources.splice(index, 1);
 }
 
+/**
+ * Record an action definition for inspection in tests and tooling.
+ *
+ * @param    event - Action definition metadata emitted by the pipeline
+ * @category Events
+ */
 export function recordActionDefined(event: ActionDefinedEvent): void {
 	definedActions.push(event);
 }
 
 /**
  * Retrieve a shallow copy of all recorded resource definitions.
+ *
+ * @category Events
  */
 export function getRegisteredResources(): GenericResourceDefinedEvent[] {
 	return [...definedResources];
@@ -235,6 +252,8 @@ export function getRegisteredResources(): GenericResourceDefinedEvent[] {
 
 /**
  * Retrieve a shallow copy of all recorded action definitions.
+ *
+ * @category Events
  */
 export function getRegisteredActions(): ActionDefinedEvent[] {
 	return [...definedActions];
@@ -243,6 +262,8 @@ export function getRegisteredActions(): ActionDefinedEvent[] {
 /**
  * Clear the tracked resource definitions. Primarily used in test setup and
  * teardown.
+ *
+ * @category Events
  */
 export function clearRegisteredResources(): void {
 	definedResources.length = 0;
@@ -251,7 +272,11 @@ export function clearRegisteredResources(): void {
 /**
  * Clear the tracked action definitions. Primarily used in test setup and
  * teardown.
+ *
+ * @category Events
  */
 export function clearRegisteredActions(): void {
 	definedActions.length = 0;
 }
+
+/* eslint-enable jsdoc/check-tag-names */

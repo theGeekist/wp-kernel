@@ -478,6 +478,7 @@ function buildServerStateSynchronizer<TEntity, TQuery>(
 	};
 }
 
+/* eslint-disable jsdoc/check-tag-names -- allow Typedoc @category tags */
 /**
  * Define an interactivity store that bridges a resource and optional actions to
  * the WordPress interactivity runtime.
@@ -501,7 +502,8 @@ function buildServerStateSynchronizer<TEntity, TQuery>(
  *
  * await TestimonialReview.store.actions.approve({ id: 101 });
  * ```
- * @param options
+ * @param    options
+ * @category Interactivity
  */
 export function defineInteraction<
 	TEntity,
@@ -566,3 +568,5 @@ export function defineInteraction<
 		getServerState: () => interactivity.getServerState(namespace),
 	};
 }
+
+/* eslint-enable jsdoc/check-tag-names */

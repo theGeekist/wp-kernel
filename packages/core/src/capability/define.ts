@@ -1,3 +1,4 @@
+/* eslint-disable jsdoc/check-tag-names -- allow Typedoc @category tags */
 /**
  * Capability runtime — defineCapability implementation
  *
@@ -683,6 +684,8 @@ function createDeniedError(
  *   }
  * });
  * ```
+ *
+ * @category Capability
  */
 export function defineCapability<K extends Record<string, unknown>>(
 	config: CapabilityDefinitionConfig<K>
@@ -874,3 +877,5 @@ export function defineCapability<K extends Record<string, unknown>>(
 
 	return helpers;
 }
+
+/* eslint-enable jsdoc/check-tag-names */

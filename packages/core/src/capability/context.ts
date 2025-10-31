@@ -1,3 +1,4 @@
+/* eslint-disable jsdoc/check-tag-names -- allow Typedoc @category tags */
 /**
  * Capability context management and action integration
  *
@@ -76,6 +77,32 @@ export function withCapabilityRequestContext<T>(
 	}
 }
 
+/**
+ * Create an action-scoped capability proxy for `ctx.capability`.
+ *
+ * The proxy forwards `assert()` and `can()` calls to the configured capability
+ * runtime while enriching denial events with the current action context.
+ * It falls back gracefully when the runtime is not initialised, surfacing a
+ * `DeveloperError` so actions can fail fast during setup.
+ *
+ * @param    options - Action metadata captured during middleware execution
+ * @return Capability helpers restricted to `assert` and `can`
+ *
+ * @example
+ * ```ts
+ * const proxy = createCapabilityProxy({
+ *   actionName: 'Post.Publish',
+ *   requestId: 'req-123',
+ *   namespace: 'acme',
+ *   scope: 'crossTab',
+ *   bridged: false,
+ * });
+ *
+ * await proxy.assert('posts.publish');
+ * const allowed = await proxy.can('posts.edit');
+ * ```
+ * @category Capability
+ */
 export function createCapabilityProxy(
 	options: CapabilityProxyOptions
 ): Pick<CapabilityHelpers<Record<string, unknown>>, 'assert' | 'can'> {
@@ -185,3 +212,5 @@ export function createCapabilityProxy(
 		},
 	};
 }
+
+/* eslint-enable jsdoc/check-tag-names */
