@@ -3,15 +3,16 @@ import {
 	buildCreateRouteStatements,
 	buildDeleteRouteStatements as buildRemoveRouteStatements,
 	buildUpdateRouteStatements,
-	buildWpPostRouteBundle,
 	routeUsesIdentity,
 	type BuildResourceControllerRouteSetOptions,
 	type ResourceControllerRouteMetadata,
 	type ResourceMetadataHost,
+	type ResourceMutationContract,
 	type RestControllerRouteHandlers,
 	type RestControllerRouteOptionHandlers,
 	type RestControllerRouteStatementsBuilder,
 	type RestControllerRouteTransientHandlers,
+	type WpPostRouteBundle,
 } from '@wpkernel/wp-json-ast';
 import type { IRResource, IRRoute } from '../../../../ir/publicTypes';
 import type { ResolvedIdentity } from '../../identity';
@@ -34,27 +35,23 @@ interface BuildRouteSetOptionsContext {
 	readonly identity: ResolvedIdentity;
 	readonly pascalName: string;
 	readonly errorCodeFactory: (suffix: string) => string;
+	readonly wpPostBundle?: WpPostRouteBundle;
 }
 
 export function buildRouteSetOptions(
 	context: BuildRouteSetOptionsContext
 ): Omit<BuildResourceControllerRouteSetOptions, 'plan'> {
 	const storageMode = context.resource.storage?.mode;
-	const wpPostBundle =
-		storageMode === 'wp-post'
-			? buildWpPostRouteBundle({
-					resource: context.resource,
-					identity: context.identity,
-					pascalName: context.pascalName,
-					errorCodeFactory: context.errorCodeFactory,
-				})
-			: undefined;
+	const mutationContract =
+		context.wpPostBundle?.metadata.mutationContract ??
+		WP_POST_MUTATION_CONTRACT;
 
 	return {
 		storageMode,
 		handlers: buildDefaultHandlers({
 			...context,
-			wpPostHandlers: wpPostBundle?.handlers,
+			wpPostHandlers: context.wpPostBundle?.handlers,
+			mutationContract,
 		}),
 		optionHandlers: buildOptionHandlers(context),
 		transientHandlers: buildTransientHandlers(context),
@@ -63,6 +60,7 @@ export function buildRouteSetOptions(
 
 interface BuildDefaultHandlersOptions extends BuildRouteSetOptionsContext {
 	readonly wpPostHandlers?: RestControllerRouteHandlers;
+	readonly mutationContract: ResourceMutationContract;
 }
 
 function buildDefaultHandlers(
@@ -89,20 +87,20 @@ function buildDefaultHandlers(
 			buildCreateRouteStatements({
 				resource: context.resource,
 				pascalName: context.pascalName,
-				metadataKeys: WP_POST_MUTATION_CONTRACT.metadataKeys,
+				metadataKeys: context.mutationContract.metadataKeys,
 			}),
 		update: () =>
 			buildUpdateRouteStatements({
 				resource: context.resource,
 				pascalName: context.pascalName,
-				metadataKeys: WP_POST_MUTATION_CONTRACT.metadataKeys,
+				metadataKeys: context.mutationContract.metadataKeys,
 				identity: context.identity,
 			}),
 		remove: () =>
 			buildRemoveRouteStatements({
 				resource: context.resource,
 				pascalName: context.pascalName,
-				metadataKeys: WP_POST_MUTATION_CONTRACT.metadataKeys,
+				metadataKeys: context.mutationContract.metadataKeys,
 				identity: context.identity,
 			}),
 	} satisfies RestControllerRouteHandlers;

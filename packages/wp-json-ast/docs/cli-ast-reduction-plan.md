@@ -402,7 +402,7 @@ Phase 2.6 laid the groundwork by centralising resource-specific query, mutation,
 - **Intent:** Ensure `src/resource/wp-post/` exports the route statements, helper methods, and metadata primitives so the CLI can compose them without rebuilding AST fragments.
 - **Expected outcome:** `createPhpWpPostRoutesHelper` (added in Phase 3.3) consumes the primitives from `@wpkernel/wp-json-ast`, the CLI drops `PhpStmt` imports across WP_Post modules, and tests in `packages/wp-json-ast/tests/resource/wp-post/` exercise each mutation contract.
 
-_Completion:_ ☑ Completed – Exposed the WP_Post query, mutation, and route primitives from `@wpkernel/wp-json-ast`, and rewired the CLI to compose the shared surface directly with unit snapshots covering list/get routes.
+_Completion:_ ☑ Completed – Exposed the WP_Post query, mutation, and route primitives from `@wpkernel/wp-json-ast`, and rewired the CLI to compose controllers by calling `buildWpPostRouteBundle` for handlers, helper methods, and mutation metadata instead of rebuilding AST fragments.
 
 **Subtask 3.2.c – Publish `buildWpOptionStorageArtifacts`.**
 

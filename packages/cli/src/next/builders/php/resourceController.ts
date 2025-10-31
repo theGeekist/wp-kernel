@@ -11,13 +11,12 @@ import {
 	buildRestControllerModuleFromPlan,
 	buildWpOptionHelperMethods,
 	buildTransientHelperMethods,
-	prepareWpPostResponse,
+	buildWpPostRouteBundle,
 	resolveTransientKey,
-	syncWpPostMeta,
-	syncWpPostTaxonomies,
 	DEFAULT_DOC_HEADER,
 	type RestControllerResourcePlan,
 	type RestControllerRoutePlan,
+	type WpPostRouteBundle,
 } from '@wpkernel/wp-json-ast';
 import { getPhpBuilderChannel } from './channel';
 import type { PhpBuilderChannel } from './channel';
@@ -29,7 +28,6 @@ import { buildRestArgs } from './resourceController/restArgs';
 import { buildRouteMethodName } from './resourceController/routeNaming';
 import { buildRouteSetOptions } from './resourceController/routes/buildRouteSetOptions';
 import { buildWpTaxonomyHelperMethods } from './resource/wpTaxonomy';
-import { WP_POST_MUTATION_CONTRACT } from './resource/wpPost/mutations';
 import { renderPhpValue } from './resource/phpValue';
 import { ensureWpOptionStorage } from './resource/wpOption/shared';
 
@@ -155,6 +153,7 @@ interface ControllerBuildContext {
 	readonly identity: ResolvedIdentity;
 	readonly pascalName: string;
 	readonly errorCodeFactory: ErrorCodeFactory;
+	readonly wpPostBundle?: WpPostRouteBundle;
 }
 
 function buildResourcePlan(
@@ -164,6 +163,16 @@ function buildResourcePlan(
 	const identity = resolveIdentityConfig(resource);
 	const pascalName = toPascalCase(resource.name);
 	const errorCodeFactory = makeErrorCodeFactory(resource.name);
+
+	const wpPostBundle =
+		resource.storage?.mode === 'wp-post'
+			? buildWpPostRouteBundle({
+					resource,
+					identity,
+					pascalName,
+					errorCodeFactory,
+				})
+			: undefined;
 
 	return {
 		name: resource.name,
@@ -175,13 +184,17 @@ function buildResourcePlan(
 		),
 		identity,
 		cacheKeys: resource.cacheKeys,
-		mutationMetadata: resolveRouteMutationMetadata(resource),
+		mutationMetadata: resolveRouteMutationMetadata({
+			resource,
+			wpPostBundle,
+		}),
 		helperMethods: buildStorageHelperMethods({
 			ir,
 			resource,
 			identity,
 			pascalName,
 			errorCodeFactory,
+			wpPostBundle,
 		}),
 		routes: buildRoutePlans({
 			ir,
@@ -189,6 +202,7 @@ function buildResourcePlan(
 			identity,
 			pascalName,
 			errorCodeFactory,
+			wpPostBundle,
 		}),
 	} satisfies RestControllerResourcePlan;
 }
@@ -226,6 +240,7 @@ function buildRoutePlan(options: RoutePlanOptions): RestControllerRoutePlan {
 			identity: options.identity,
 			pascalName: options.pascalName,
 			errorCodeFactory: options.errorCodeFactory,
+			wpPostBundle: options.wpPostBundle,
 		}),
 	});
 }
@@ -236,20 +251,7 @@ function buildStorageHelperMethods(
 	const storageMode = options.resource.storage?.mode;
 
 	if (storageMode === 'wp-post') {
-		const helperOptions = {
-			resource: {
-				name: options.resource.name,
-				storage: options.resource.storage,
-			},
-			pascalName: options.pascalName,
-			identity: options.identity,
-		} satisfies Parameters<typeof syncWpPostMeta>[0];
-
-		return [
-			syncWpPostMeta(helperOptions),
-			syncWpPostTaxonomies(helperOptions),
-			prepareWpPostResponse(helperOptions),
-		];
+		return options.wpPostBundle?.helperMethods ?? [];
 	}
 
 	if (storageMode === 'wp-taxonomy') {
@@ -293,11 +295,16 @@ function buildStorageHelperMethods(
 }
 
 function resolveRouteMutationMetadata(
-	resource: IRResource
+	options: Pick<ControllerBuildContext, 'resource' | 'wpPostBundle'>
 ): { readonly channelTag: string } | undefined {
-	if (resource.storage?.mode === 'wp-post') {
+	if (options.resource.storage?.mode === 'wp-post') {
+		const contract = options.wpPostBundle?.metadata.mutationContract;
+		if (!contract) {
+			return undefined;
+		}
+
 		return {
-			channelTag: WP_POST_MUTATION_CONTRACT.metadataKeys.channelTag,
+			channelTag: contract.metadataKeys.channelTag,
 		};
 	}
 
