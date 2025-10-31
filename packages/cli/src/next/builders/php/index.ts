@@ -10,6 +10,7 @@ export {
 	createPhpTransientStorageHelper,
 	createPhpWpOptionStorageHelper,
 	createPhpWpTaxonomyStorageHelper,
+	createPhpWpPostRoutesHelper,
 	createPhpCapabilityHelper,
 	createPhpPersistenceRegistryHelper,
 	createPhpIndexFileHelper,

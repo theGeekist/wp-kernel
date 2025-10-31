@@ -29,6 +29,7 @@ import {
 	createPhpTransientStorageHelper,
 	createPhpWpOptionStorageHelper,
 	createPhpWpTaxonomyStorageHelper,
+	createPhpWpPostRoutesHelper,
 	createPhpResourceControllerHelper,
 	createPhpProgramWriterHelper,
 	getPhpBuilderChannel,
@@ -63,6 +64,7 @@ async function runResourceControllerPipeline(
 	await createPhpTransientStorageHelper().apply(applyOptions, undefined);
 	await createPhpWpOptionStorageHelper().apply(applyOptions, undefined);
 	await createPhpWpTaxonomyStorageHelper().apply(applyOptions, undefined);
+	await createPhpWpPostRoutesHelper().apply(applyOptions, undefined);
 	await createPhpResourceControllerHelper().apply(applyOptions, undefined);
 }
 
