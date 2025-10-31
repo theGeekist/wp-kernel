@@ -11,6 +11,8 @@ import {
 	buildRestControllerModuleFromPlan,
 	buildWpOptionStorageArtifacts,
 	buildTransientStorageArtifacts,
+	buildWpPostRouteBundle,
+	type WpPostRouteBundle,
 	resolveTransientKey,
 	DEFAULT_DOC_HEADER,
 	type RestControllerResourcePlan,
@@ -29,7 +31,6 @@ import {
 	buildWpTaxonomyHelperArtifacts,
 	ensureWpTaxonomyStorage,
 } from './resource/wpTaxonomy';
-import { WP_POST_MUTATION_CONTRACT } from './resource/wpPost/mutations';
 import { renderPhpValue } from './resource/phpValue';
 import { ensureWpOptionStorage } from './resource/wpOption/shared';
 
@@ -158,6 +159,7 @@ interface ControllerBuildContext {
 	readonly transientArtifacts?: ReturnType<
 		typeof buildTransientStorageArtifacts
 	>;
+	readonly wpPostRouteBundle?: WpPostRouteBundle;
 }
 
 interface StorageHelperArtifacts {
@@ -190,6 +192,18 @@ function buildResourcePlan(
 				})
 			: undefined;
 
+	// Keep wp-post route bundle so CLI can still rely on the post-specific bundle surface.
+	const wpPostRouteBundle =
+		resource.storage?.mode === 'wp-post'
+			? buildWpPostRouteBundle({
+					resource,
+					pascalName,
+					identity,
+					errorCodeFactory,
+				})
+			: undefined;
+
+	// Build helper artifacts (taxonomy / transient / option) and include any wp-post helpers.
 	const helperArtifacts = buildStorageHelperArtifacts({
 		ir,
 		resource,
@@ -197,6 +211,7 @@ function buildResourcePlan(
 		pascalName,
 		errorCodeFactory,
 		transientArtifacts,
+		wpPostRouteBundle,
 	});
 
 	return {
@@ -209,7 +224,7 @@ function buildResourcePlan(
 		),
 		identity,
 		cacheKeys: resource.cacheKeys,
-		mutationMetadata: resolveRouteMutationMetadata(resource),
+		mutationMetadata: wpPostRouteBundle?.mutationMetadata,
 		helperMethods: helperArtifacts.helperMethods,
 		helperSignatures: helperArtifacts.helperSignatures,
 		routes: buildRoutePlans({
@@ -219,6 +234,7 @@ function buildResourcePlan(
 			pascalName,
 			errorCodeFactory,
 			transientArtifacts,
+			wpPostRouteBundle,
 		}),
 	} satisfies RestControllerResourcePlan;
 }
@@ -257,6 +273,7 @@ function buildRoutePlan(options: RoutePlanOptions): RestControllerRoutePlan {
 			pascalName: options.pascalName,
 			errorCodeFactory: options.errorCodeFactory,
 			transientArtifacts: options.transientArtifacts,
+			wpPostRouteBundle: options.wpPostRouteBundle,
 		}),
 	});
 }
@@ -266,60 +283,56 @@ function buildStorageHelperArtifacts(
 ): StorageHelperArtifacts {
 	const storageMode = options.resource.storage?.mode;
 
-	if (storageMode === 'wp-taxonomy') {
-		const storage = ensureWpTaxonomyStorage(options.resource.storage, {
-			resourceName: options.resource.name,
-		});
+	// Start with empty accumulators
+	const accumulatedMethods: PhpStmtClassMethod[] = [];
+	const accumulatedSignatures: string[] = [];
 
-		const taxonomyHelpers = buildWpTaxonomyHelperArtifacts({
-			pascalName: options.pascalName,
-			storage,
-			identity: options.identity,
-			errorCodeFactory: options.errorCodeFactory,
-		});
+	switch (storageMode) {
+		case 'wp-taxonomy': {
+			const storage = ensureWpTaxonomyStorage(options.resource.storage, {
+				resourceName: options.resource.name,
+			});
 
-		return {
-			helperMethods: taxonomyHelpers.helperMethods,
-			helperSignatures: taxonomyHelpers.helperSignatures,
-		} satisfies StorageHelperArtifacts;
+			const taxonomyArtifacts = buildWpTaxonomyHelperArtifacts({
+				pascalName: options.pascalName,
+				storage,
+				identity: options.identity,
+				errorCodeFactory: options.errorCodeFactory,
+			});
+
+			accumulatedMethods.push(...taxonomyArtifacts.helperMethods);
+			accumulatedSignatures.push(...taxonomyArtifacts.helperSignatures);
+
+			break;
+		}
+		case 'transient': {
+			accumulatedMethods.push(...(options.transientArtifacts?.helperMethods ?? []));
+			// No signatures for transient artifacts currently
+			break;
+		}
+		case 'wp-option': {
+			const storage = ensureWpOptionStorage(options.resource);
+
+			const artifacts = buildWpOptionStorageArtifacts({
+				pascalName: options.pascalName,
+				optionName: storage.option,
+				errorCodeFactory: options.errorCodeFactory,
+			});
+
+			accumulatedMethods.push(...artifacts.helperMethods);
+			// artifacts currently don't expose signatures; keep signatures empty for now
+			break;
+		}
+		// No default
 	}
 
-	if (storageMode === 'transient') {
-		return {
-			helperMethods: options.transientArtifacts?.helperMethods ?? [],
-			helperSignatures: [],
-		} satisfies StorageHelperArtifacts;
-	}
-
-	if (storageMode === 'wp-option') {
-		const storage = ensureWpOptionStorage(options.resource);
-
-		const artifacts = buildWpOptionStorageArtifacts({
-			pascalName: options.pascalName,
-			optionName: storage.option,
-			errorCodeFactory: options.errorCodeFactory,
-		});
-
-		return {
-			helperMethods: artifacts.helperMethods,
-			helperSignatures: [],
-		} satisfies StorageHelperArtifacts;
+	// If the wp-post bundle exists, append its helper methods (no signatures expected from bundle).
+	if (options.wpPostRouteBundle) {
+		accumulatedMethods.push(...options.wpPostRouteBundle.helperMethods);
 	}
 
 	return {
-		helperMethods: [],
-		helperSignatures: [],
+		helperMethods: accumulatedMethods,
+		helperSignatures: accumulatedSignatures,
 	} satisfies StorageHelperArtifacts;
-}
-
-function resolveRouteMutationMetadata(
-	resource: IRResource
-): { readonly channelTag: string } | undefined {
-	if (resource.storage?.mode === 'wp-post') {
-		return {
-			channelTag: WP_POST_MUTATION_CONTRACT.metadataKeys.channelTag,
-		};
-	}
-
-	return undefined;
 }

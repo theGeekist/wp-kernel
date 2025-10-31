@@ -3,19 +3,15 @@ import {
 	type RestControllerRouteHandlers,
 	type RestControllerRouteOptionHandlers,
 	type TransientStorageArtifacts,
+	type WpPostRouteBundle,
+	buildWpOptionStorageArtifacts,
+	buildWpTaxonomyGetRouteStatements,
+	buildWpTaxonomyListRouteStatements,
 } from '@wpkernel/wp-json-ast';
 import type { IRResource, IRRoute } from '../../../../ir/publicTypes';
 import type { ResolvedIdentity } from '../../identity';
-import {
-	WP_POST_MUTATION_CONTRACT,
-	buildCreateRouteStatements,
-	buildUpdateRouteStatements,
-	buildDeleteRouteStatements as buildRemoveRouteStatements,
-} from '../../resource/wpPost/mutations';
-import { buildListRouteStatements } from './list';
-import { buildGetRouteStatements } from './get';
-import { buildWpOptionStorageArtifacts } from '@wpkernel/wp-json-ast';
 import { ensureWpOptionStorage } from '../../resource/wpOption/shared';
+import { ensureWpTaxonomyStorage } from '../../resource/wpTaxonomy';
 
 interface BuildRouteSetOptionsContext {
 	readonly resource: IRResource;
@@ -24,6 +20,7 @@ interface BuildRouteSetOptionsContext {
 	readonly pascalName: string;
 	readonly errorCodeFactory: (suffix: string) => string;
 	readonly transientArtifacts?: TransientStorageArtifacts;
+	readonly wpPostRouteBundle?: WpPostRouteBundle;
 }
 
 export function buildRouteSetOptions(
@@ -33,7 +30,7 @@ export function buildRouteSetOptions(
 
 	return {
 		storageMode,
-		handlers: buildDefaultHandlers(context),
+		handlers: resolveRouteHandlers(context),
 		optionHandlers: buildOptionHandlers(context),
 		transientHandlers:
 			storageMode === 'transient'
@@ -42,45 +39,45 @@ export function buildRouteSetOptions(
 	} satisfies Omit<BuildResourceControllerRouteSetOptions, 'plan'>;
 }
 
-function buildDefaultHandlers(
+function resolveRouteHandlers(
 	context: BuildRouteSetOptionsContext
-): RestControllerRouteHandlers {
+): RestControllerRouteHandlers | undefined {
+	if (context.resource.storage?.mode === 'wp-post') {
+		return context.wpPostRouteBundle?.routeHandlers;
+	}
+
+	return buildFallbackHandlers(context);
+}
+
+function buildFallbackHandlers(
+	context: BuildRouteSetOptionsContext
+): RestControllerRouteHandlers | undefined {
+	if (context.resource.storage?.mode !== 'wp-taxonomy') {
+		return undefined;
+	}
+
 	return {
 		list: (routeContext) =>
-			buildListRouteStatements({
-				resource: context.resource,
+			buildWpTaxonomyListRouteStatements({
+				storage: ensureWpTaxonomyStorage(context.resource.storage, {
+					resourceName: context.resource.name,
+				}),
+				resourceName: context.resource.name,
 				pascalName: context.pascalName,
 				metadataHost: routeContext.metadataHost,
 				cacheSegments: routeContext.metadata.cacheSegments ?? [],
 			}),
 		get: (routeContext) =>
-			buildGetRouteStatements({
-				resource: context.resource,
+			buildWpTaxonomyGetRouteStatements({
+				storage: ensureWpTaxonomyStorage(context.resource.storage, {
+					resourceName: context.resource.name,
+				}),
+				resourceName: context.resource.name,
 				identity: context.identity,
 				pascalName: context.pascalName,
 				errorCodeFactory: context.errorCodeFactory,
 				metadataHost: routeContext.metadataHost,
 				cacheSegments: routeContext.metadata.cacheSegments ?? [],
-			}),
-		create: () =>
-			buildCreateRouteStatements({
-				resource: context.resource,
-				pascalName: context.pascalName,
-				metadataKeys: WP_POST_MUTATION_CONTRACT.metadataKeys,
-			}),
-		update: () =>
-			buildUpdateRouteStatements({
-				resource: context.resource,
-				pascalName: context.pascalName,
-				metadataKeys: WP_POST_MUTATION_CONTRACT.metadataKeys,
-				identity: context.identity,
-			}),
-		remove: () =>
-			buildRemoveRouteStatements({
-				resource: context.resource,
-				pascalName: context.pascalName,
-				metadataKeys: WP_POST_MUTATION_CONTRACT.metadataKeys,
-				identity: context.identity,
 			}),
 	} satisfies RestControllerRouteHandlers;
 }

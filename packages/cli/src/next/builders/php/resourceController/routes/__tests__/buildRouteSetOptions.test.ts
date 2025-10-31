@@ -1,6 +1,7 @@
 import {
 	buildResourceControllerRouteSet,
 	buildTransientStorageArtifacts,
+	buildWpPostRouteBundle,
 	resolveTransientKey,
 	type ResourceMetadataHost,
 	type ResolvedIdentity,
@@ -77,6 +78,16 @@ function buildPlan({
 				})
 			: undefined;
 
+	const wpPostRouteBundle =
+		resource.storage?.mode === 'wp-post'
+			? buildWpPostRouteBundle({
+					resource,
+					pascalName,
+					identity,
+					errorCodeFactory,
+				})
+			: undefined;
+
 	const options = buildRouteSetOptions({
 		resource,
 		route,
@@ -84,6 +95,7 @@ function buildPlan({
 		pascalName,
 		errorCodeFactory,
 		transientArtifacts,
+		wpPostRouteBundle,
 	});
 
 	return buildResourceControllerRouteSet({
