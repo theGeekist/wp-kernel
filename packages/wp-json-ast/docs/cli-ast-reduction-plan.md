@@ -452,6 +452,8 @@ Once the factories above land, the CLI needs matching `create*` adapters so plan
 
 - **Scope:** Provide a pipeline helper that translates WP_Post IR into the configuration expected by the shared wp-post primitives and returns the composed bundle to the resource controller helper.
 
+_Completion:_ ☑ Completed – the CLI now exposes `createPhpWpPostRoutesHelper`, delegating wp-post resources to `buildWpPostRouteBundle` so route planners consume the shared bundle without touching raw AST nodes.
+
 **Subtask 3.3.c – Add storage helpers to the pipeline surface.**
 
 - **Scope:** Create `createPhpWpOptionStorageHelper`, `createPhpTransientStorageHelper`, and `createPhpWpTaxonomyStorageHelper` adapters that marshal IR into the corresponding storage factories and return descriptors for `createPhpResourceControllerHelper`.

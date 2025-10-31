@@ -10,6 +10,8 @@
 function clearWPKReporter(): void;
 ```
 
+Clear the shared reporter reference.
+
 ## Returns
 
 `void`

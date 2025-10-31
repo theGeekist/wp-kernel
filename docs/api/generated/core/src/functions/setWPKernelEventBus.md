@@ -19,6 +19,8 @@ inspect emitted events.
 
 [`WPKernelEventBus`](../classes/WPKernelEventBus.md)
 
+Custom event bus instance
+
 ## Returns
 
 `void`

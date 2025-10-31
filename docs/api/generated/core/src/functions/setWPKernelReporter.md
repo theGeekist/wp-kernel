@@ -10,9 +10,13 @@
 function setWPKernelReporter(reporter): void;
 ```
 
+Register the shared kernel reporter instance.
+
 ## Parameters
 
 ### reporter
+
+Reporter to use for subsequent logging
 
 [`Reporter`](../type-aliases/Reporter.md) | `undefined`
 

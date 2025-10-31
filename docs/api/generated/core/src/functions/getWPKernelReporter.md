@@ -10,6 +10,10 @@
 function getWPKernelReporter(): Reporter | undefined;
 ```
 
+Retrieve the shared kernel reporter, if configured.
+
 ## Returns
 
 [`Reporter`](../type-aliases/Reporter.md) \| `undefined`
+
+Reporter instance or undefined when not initialised

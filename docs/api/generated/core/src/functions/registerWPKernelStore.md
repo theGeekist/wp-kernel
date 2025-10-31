@@ -13,6 +13,11 @@ function registerWPKernelStore<Key, State, Actions, Selectors>(
 ): StoreDescriptor<ReduxStoreConfig<State, Actions, Selectors>>;
 ```
 
+Register a WordPress data store using WP Kernel defaults.
+
+The helper wraps `@wordpress/data` store registration so packages can rely on
+consistent middleware ordering and return the created store for further wiring.
+
 ## Type Parameters
 
 ### Key
@@ -37,10 +42,16 @@ function registerWPKernelStore<Key, State, Actions, Selectors>(
 
 `Key`
 
+Store key used for registration
+
 ### config
 
 `ReduxStoreConfig`\&lt;`State`, `Actions`, `Selectors`\&gt;
 
+Store configuration passed to `createReduxStore`
+
 ## Returns
 
 `StoreDescriptor`\&lt;`ReduxStoreConfig`\&lt;`State`, `Actions`, `Selectors`\&gt;\&gt;
+
+Registered WordPress data store
