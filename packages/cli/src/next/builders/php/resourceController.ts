@@ -9,6 +9,9 @@ import {
 	buildProgramTargetPlanner,
 	buildResourceControllerRouteSet,
 	buildRestControllerModuleFromPlan,
+	buildWpOptionHelperMethods,
+	buildTransientHelperMethods,
+	resolveTransientKey,
 	DEFAULT_DOC_HEADER,
 	type RestControllerResourcePlan,
 	type RestControllerRoutePlan,
@@ -23,10 +26,9 @@ import { buildRestArgs } from './resourceController/restArgs';
 import { buildRouteMethodName } from './resourceController/routeNaming';
 import { buildRouteSetOptions } from './resourceController/routes/buildRouteSetOptions';
 import { buildWpTaxonomyHelperMethods } from './resource/wpTaxonomy';
-import { buildWpOptionHelperMethods } from './resource/wpOption';
-import { buildTransientHelperMethods } from './resource/transient';
 import { WP_POST_MUTATION_CONTRACT } from './resource/wpPost/mutations';
 import { renderPhpValue } from './resource/phpValue';
+import { ensureWpOptionStorage } from './resource/wpOption/shared';
 
 export function createPhpResourceControllerHelper(): BuilderHelper {
 	return createHelper({
@@ -247,17 +249,23 @@ function buildStorageHelperMethods(
 			options.ir.meta.namespace ??
 			'';
 
-		return buildTransientHelperMethods({
-			resource: options.resource,
-			pascalName: options.pascalName,
+		const key = resolveTransientKey({
+			resourceName: options.resource.name,
 			namespace,
+		});
+
+		return buildTransientHelperMethods({
+			pascalName: options.pascalName,
+			key,
 		});
 	}
 
 	if (storageMode === 'wp-option') {
+		const storage = ensureWpOptionStorage(options.resource);
+
 		return buildWpOptionHelperMethods({
-			resource: options.resource,
 			pascalName: options.pascalName,
+			optionName: storage.option,
 		});
 	}
 

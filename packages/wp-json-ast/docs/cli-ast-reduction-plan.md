@@ -244,11 +244,12 @@ _Completion:_ ☐ Pending – Relocate mutation route primitives and snapshot ou
 
 **Subtask 2.6.e – Port WP_Option helper and route scaffolding.** Establish `src/resource/storage/wp-option/` with helper methods, autoload coercion, and CRUD route statements, exporting descriptors via the accessor registry.
 
-_Completion:_ ☐ Pending – Move WP_Option helpers/routes and add fixtures.
+_Completion:_ ☑ Completed – Hoisted option helpers and CRUD route builders into `src/resource/storage/wp-option/**`, added focussed tests, and rewired the CLI accessor registry to consume the shared exports so Phase 3.2 can compose storage bundles without re-importing AST glue.
 
 **Subtask 2.6.f – Port transient helper and route scaffolding.** Create `src/resource/storage/transient/` that encapsulates key resolution, expiration handling, and cache invalidation for transient CRUD routes, plus unit tests for expiration behaviour.
 
-_Completion:_ ☐ Pending – Relocate transient helpers/routes with coverage.
+_Completion:_ ☑ Completed – Centralised transient key, helper, and CRUD route builders under `src/resource/storage/transient`
+with metadata-aware tests covering expiration coercion and cache invalidation flows.
 
 **Subtask 2.6.g – Port taxonomy helper methods.** Shift taxonomy identity and resolution helpers into `src/resource/wp-taxonomy/helpers/`, ensuring WP_Error flows reuse the shared accessor utilities.
 

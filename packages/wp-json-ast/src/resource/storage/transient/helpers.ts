@@ -16,38 +16,51 @@ import {
 	type PhpStmt,
 	type PhpStmtClassMethod,
 } from '@wpkernel/php-json-ast';
-import type { IRResource } from '../../../../ir/publicTypes';
+
 import {
 	buildBinaryOperation,
 	buildBooleanNot,
 	buildArrayDimFetch,
 	buildFunctionCall,
+	buildForeachStatement,
 	buildIfStatementNode,
 	buildScalarCast,
-	buildForeachStatement,
 	buildVariableAssignment,
 	normaliseVariableReference,
-} from '../utils';
-import { ensureTransientStorage, resolveTransientKey } from './shared';
+} from '../../common/utils';
+
+export interface ResolveTransientKeyOptions {
+	readonly resourceName: string;
+	readonly namespace?: string | null;
+}
+
+export function resolveTransientKey(
+	options: ResolveTransientKeyOptions
+): string {
+	const namespace = options.namespace ?? '';
+	const namespaceSlug = toSnakeCase(namespace.replace(/\\\\/g, '_'));
+	const resourceSlug = toSnakeCase(options.resourceName) || 'resource';
+	const keyParts = [namespaceSlug, resourceSlug].filter(Boolean);
+
+	if (keyParts.length === 0) {
+		return resourceSlug;
+	}
+
+	return keyParts.join('_');
+}
 
 export interface BuildTransientHelperMethodsOptions {
-	readonly resource: IRResource;
 	readonly pascalName: string;
-	readonly namespace?: string | null;
+	readonly key: string;
 }
 
 export function buildTransientHelperMethods(
 	options: BuildTransientHelperMethodsOptions
 ): PhpStmtClassMethod[] {
-	ensureTransientStorage(options.resource);
-
 	return [
 		buildTransientKeyHelper({
 			pascalName: options.pascalName,
-			key: resolveTransientKey({
-				resource: options.resource,
-				namespace: options.namespace,
-			}),
+			key: options.key,
 		}),
 		buildTransientExpirationHelper({
 			pascalName: options.pascalName,
@@ -291,4 +304,13 @@ function buildTransientExpirationStatements(
 	statements.push(buildReturn(buildScalarInt(0)));
 
 	return statements;
+}
+
+function toSnakeCase(value: string): string {
+	return value
+		.replace(/[^a-zA-Z0-9]+/g, '_')
+		.replace(/([a-z0-9])([A-Z])/g, '$1_$2')
+		.toLowerCase()
+		.replace(/^_+|_+$/g, '')
+		.replace(/_+/g, '_');
 }

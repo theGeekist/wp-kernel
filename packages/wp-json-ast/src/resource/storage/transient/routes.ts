@@ -8,8 +8,7 @@ import {
 	buildVariable,
 	type PhpStmt,
 } from '@wpkernel/php-json-ast';
-import type { ResourceMetadataHost } from '@wpkernel/wp-json-ast';
-import type { IRResource, IRRoute } from '../../../../ir/publicTypes';
+
 import {
 	buildFunctionCall,
 	buildFunctionCallAssignmentStatement,
@@ -18,18 +17,16 @@ import {
 	buildScalarCast,
 	buildVariableAssignment,
 	normaliseVariableReference,
-} from '../utils';
-import { buildCacheInvalidators } from '../cache';
-import { buildWpErrorReturn } from '../errors';
-import { ensureTransientStorage } from './shared';
-import type { ResolvedIdentity } from '../../identity';
+} from '../../common/utils';
+import { buildCacheInvalidators, type ResourceMetadataHost } from '../../cache';
+import { buildWpErrorReturn } from '../../errors';
+import type { ResolvedIdentity } from '../../../pipeline/identity';
 
 export interface BuildTransientRouteBaseOptions {
-	readonly resource: IRResource;
 	readonly pascalName: string;
 	readonly metadataHost: ResourceMetadataHost;
-	readonly identity: ResolvedIdentity;
-	readonly route: IRRoute;
+	readonly cacheSegments: readonly unknown[];
+	readonly identity?: ResolvedIdentity;
 	readonly usesIdentity: boolean;
 }
 
@@ -41,15 +38,13 @@ export interface BuildTransientUnsupportedRouteOptions
 export function buildTransientGetRouteStatements(
 	options: BuildTransientRouteBaseOptions
 ): PhpStmt[] {
-	ensureTransientStorage(options.resource);
-
 	buildCacheInvalidators({
 		host: options.metadataHost,
 		events: [
 			{
 				scope: 'get',
 				operation: 'read',
-				segments: options.resource.cacheKeys.get.segments,
+				segments: options.cacheSegments,
 				description: 'Read transient value',
 			},
 		],
@@ -60,9 +55,10 @@ export function buildTransientGetRouteStatements(
 
 	const statements: PhpStmt[] = [];
 
-	const keyArgs = options.usesIdentity
-		? [buildArg(buildVariable(options.identity.param))]
-		: [];
+	const keyArgs =
+		options.usesIdentity && options.identity
+			? [buildArg(buildVariable(options.identity.param))]
+			: [];
 
 	statements.push(
 		buildMethodCallAssignmentStatement({
@@ -102,15 +98,13 @@ export function buildTransientGetRouteStatements(
 export function buildTransientSetRouteStatements(
 	options: BuildTransientRouteBaseOptions
 ): PhpStmt[] {
-	ensureTransientStorage(options.resource);
-
 	buildCacheInvalidators({
 		host: options.metadataHost,
 		events: [
 			{
 				scope: 'get',
 				operation: 'invalidate',
-				segments: options.resource.cacheKeys.get.segments,
+				segments: options.cacheSegments,
 				description: 'Invalidate transient value',
 			},
 		],
@@ -125,9 +119,10 @@ export function buildTransientSetRouteStatements(
 
 	const statements: PhpStmt[] = [];
 
-	const keyArgs = options.usesIdentity
-		? [buildArg(buildVariable(options.identity.param))]
-		: [];
+	const keyArgs =
+		options.usesIdentity && options.identity
+			? [buildArg(buildVariable(options.identity.param))]
+			: [];
 
 	statements.push(
 		buildMethodCallAssignmentStatement({
@@ -228,15 +223,13 @@ export function buildTransientSetRouteStatements(
 export function buildTransientDeleteRouteStatements(
 	options: BuildTransientRouteBaseOptions
 ): PhpStmt[] {
-	ensureTransientStorage(options.resource);
-
 	buildCacheInvalidators({
 		host: options.metadataHost,
 		events: [
 			{
 				scope: 'get',
 				operation: 'invalidate',
-				segments: options.resource.cacheKeys.get.segments,
+				segments: options.cacheSegments,
 				description: 'Delete transient value',
 			},
 		],
@@ -248,9 +241,10 @@ export function buildTransientDeleteRouteStatements(
 
 	const statements: PhpStmt[] = [];
 
-	const keyArgs = options.usesIdentity
-		? [buildArg(buildVariable(options.identity.param))]
-		: [];
+	const keyArgs =
+		options.usesIdentity && options.identity
+			? [buildArg(buildVariable(options.identity.param))]
+			: [];
 
 	statements.push(
 		buildMethodCallAssignmentStatement({
@@ -305,8 +299,6 @@ export function buildTransientDeleteRouteStatements(
 export function buildTransientUnsupportedRouteStatements(
 	options: BuildTransientUnsupportedRouteOptions
 ): PhpStmt[] {
-	ensureTransientStorage(options.resource);
-
 	return [
 		buildWpErrorReturn({
 			code: options.errorCodeFactory('unsupported_operation'),
