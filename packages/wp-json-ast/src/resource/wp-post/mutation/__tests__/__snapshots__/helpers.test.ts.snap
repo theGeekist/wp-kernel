@@ -977,104 +977,50 @@ exports[`wp-post mutation helpers prepares mutation responses with supports, met
     },
     {
       "attributes": {},
-      "cond": {
-        "attributes": {},
-        "expr": {
-          "args": [
-            {
-              "attributes": {},
-              "byRef": false,
-              "name": null,
-              "nodeType": "Arg",
-              "unpack": false,
-              "value": {
-                "attributes": {},
-                "name": "authorMeta",
-                "nodeType": "Expr_Variable",
-              },
-            },
-          ],
-          "attributes": {},
-          "name": {
-            "attributes": {},
-            "nodeType": "Name",
-            "parts": [
-              "is_array",
-            ],
-          },
-          "nodeType": "Expr_FuncCall",
-        },
-        "nodeType": "Expr_BooleanNot",
-      },
-      "else": null,
-      "elseifs": [],
-      "nodeType": "Stmt_If",
-      "stmts": [
-        {
-          "attributes": {},
-          "expr": {
-            "attributes": {},
-            "expr": {
-              "attributes": {},
-              "items": [
-                {
-                  "attributes": {},
-                  "byRef": false,
-                  "key": null,
-                  "nodeType": "ArrayItem",
-                  "unpack": false,
-                  "value": {
-                    "attributes": {},
-                    "name": "authorMeta",
-                    "nodeType": "Expr_Variable",
-                  },
-                },
-              ],
-              "nodeType": "Expr_Array",
-            },
-            "nodeType": "Expr_Assign",
-            "var": {
-              "attributes": {},
-              "name": "authorMeta",
-              "nodeType": "Expr_Variable",
-            },
-          },
-          "nodeType": "Stmt_Expression",
-        },
-      ],
-    },
-    {
-      "attributes": {},
       "expr": {
         "attributes": {},
         "expr": {
-          "args": [
-            {
-              "attributes": {},
-              "byRef": false,
-              "name": null,
-              "nodeType": "Arg",
-              "unpack": false,
-              "value": {
+          "attributes": {},
+          "cond": {
+            "args": [
+              {
                 "attributes": {},
-                "expr": {
+                "byRef": false,
+                "name": null,
+                "nodeType": "Arg",
+                "unpack": false,
+                "value": {
                   "attributes": {},
                   "name": "authorMeta",
                   "nodeType": "Expr_Variable",
                 },
-                "nodeType": "Expr_Cast_Array",
               },
-            },
-          ],
-          "attributes": {},
-          "name": {
-            "attributes": {},
-            "nodeType": "Name",
-            "parts": [
-              "array_values",
             ],
+            "attributes": {},
+            "name": {
+              "attributes": {},
+              "nodeType": "Name",
+              "parts": [
+                "is_string",
+              ],
+            },
+            "nodeType": "Expr_FuncCall",
           },
-          "nodeType": "Expr_FuncCall",
+          "else": {
+            "attributes": {},
+            "expr": {
+              "attributes": {},
+              "name": "authorMeta",
+              "nodeType": "Expr_Variable",
+            },
+            "nodeType": "Expr_Cast_String",
+          },
+          "if": {
+            "attributes": {},
+            "name": "authorMeta",
+            "nodeType": "Expr_Variable",
+          },
+          "nodeType": "Expr_Ternary",
         },
         "nodeType": "Expr_Assign",
         "var": {
@@ -1084,115 +1030,6 @@ exports[`wp-post mutation helpers prepares mutation responses with supports, met
         },
       },
       "nodeType": "Stmt_Expression",
-    },
-    {
-      "attributes": {},
-      "byRef": false,
-      "expr": {
-        "attributes": {},
-        "expr": {
-          "attributes": {},
-          "name": "authorMeta",
-          "nodeType": "Expr_Variable",
-        },
-        "nodeType": "Expr_Cast_Array",
-      },
-      "keyVar": {
-        "attributes": {},
-        "name": "meta_index",
-        "nodeType": "Expr_Variable",
-      },
-      "nodeType": "Stmt_Foreach",
-      "stmts": [
-        {
-          "attributes": {},
-          "expr": {
-            "attributes": {},
-            "expr": {
-              "attributes": {},
-              "cond": {
-                "args": [
-                  {
-                    "attributes": {},
-                    "byRef": false,
-                    "name": null,
-                    "nodeType": "Arg",
-                    "unpack": false,
-                    "value": {
-                      "attributes": {},
-                      "name": "meta_value",
-                      "nodeType": "Expr_Variable",
-                    },
-                  },
-                ],
-                "attributes": {},
-                "name": {
-                  "attributes": {},
-                  "nodeType": "Name",
-                  "parts": [
-                    "is_string",
-                  ],
-                },
-                "nodeType": "Expr_FuncCall",
-              },
-              "else": {
-                "attributes": {},
-                "expr": {
-                  "attributes": {},
-                  "name": "meta_value",
-                  "nodeType": "Expr_Variable",
-                },
-                "nodeType": "Expr_Cast_String",
-              },
-              "if": {
-                "attributes": {},
-                "name": "meta_value",
-                "nodeType": "Expr_Variable",
-              },
-              "nodeType": "Expr_Ternary",
-            },
-            "nodeType": "Expr_Assign",
-            "var": {
-              "attributes": {},
-              "name": "meta_value",
-              "nodeType": "Expr_Variable",
-            },
-          },
-          "nodeType": "Stmt_Expression",
-        },
-        {
-          "attributes": {},
-          "expr": {
-            "attributes": {},
-            "expr": {
-              "attributes": {},
-              "name": "meta_value",
-              "nodeType": "Expr_Variable",
-            },
-            "nodeType": "Expr_Assign",
-            "var": {
-              "attributes": {},
-              "dim": {
-                "attributes": {},
-                "name": "meta_index",
-                "nodeType": "Expr_Variable",
-              },
-              "nodeType": "Expr_ArrayDimFetch",
-              "var": {
-                "attributes": {},
-                "name": "authorMeta",
-                "nodeType": "Expr_Variable",
-              },
-            },
-          },
-          "nodeType": "Stmt_Expression",
-        },
-      ],
-      "valueVar": {
-        "attributes": {},
-        "name": "meta_value",
-        "nodeType": "Expr_Variable",
-      },
     },
     {
       "attributes": {},
@@ -2714,104 +2551,50 @@ exports[`wp-post mutation helpers sanitises meta payloads for all supported desc
       "stmts": [
         {
           "attributes": {},
-          "cond": {
-            "attributes": {},
-            "expr": {
-              "args": [
-                {
-                  "attributes": {},
-                  "byRef": false,
-                  "name": null,
-                  "nodeType": "Arg",
-                  "unpack": false,
-                  "value": {
-                    "attributes": {},
-                    "name": "authorMeta",
-                    "nodeType": "Expr_Variable",
-                  },
-                },
-              ],
-              "attributes": {},
-              "name": {
-                "attributes": {},
-                "nodeType": "Name",
-                "parts": [
-                  "is_array",
-                ],
-              },
-              "nodeType": "Expr_FuncCall",
-            },
-            "nodeType": "Expr_BooleanNot",
-          },
-          "else": null,
-          "elseifs": [],
-          "nodeType": "Stmt_If",
-          "stmts": [
-            {
-              "attributes": {},
-              "expr": {
-                "attributes": {},
-                "expr": {
-                  "attributes": {},
-                  "items": [
-                    {
-                      "attributes": {},
-                      "byRef": false,
-                      "key": null,
-                      "nodeType": "ArrayItem",
-                      "unpack": false,
-                      "value": {
-                        "attributes": {},
-                        "name": "authorMeta",
-                        "nodeType": "Expr_Variable",
-                      },
-                    },
-                  ],
-                  "nodeType": "Expr_Array",
-                },
-                "nodeType": "Expr_Assign",
-                "var": {
-                  "attributes": {},
-                  "name": "authorMeta",
-                  "nodeType": "Expr_Variable",
-                },
-              },
-              "nodeType": "Stmt_Expression",
-            },
-          ],
-        },
-        {
-          "attributes": {},
           "expr": {
             "attributes": {},
             "expr": {
-              "args": [
-                {
-                  "attributes": {},
-                  "byRef": false,
-                  "name": null,
-                  "nodeType": "Arg",
-                  "unpack": false,
-                  "value": {
+              "attributes": {},
+              "cond": {
+                "args": [
+                  {
                     "attributes": {},
-                    "expr": {
+                    "byRef": false,
+                    "name": null,
+                    "nodeType": "Arg",
+                    "unpack": false,
+                    "value": {
                       "attributes": {},
                       "name": "authorMeta",
                       "nodeType": "Expr_Variable",
                     },
-                    "nodeType": "Expr_Cast_Array",
                   },
-                },
-              ],
-              "attributes": {},
-              "name": {
-                "attributes": {},
-                "nodeType": "Name",
-                "parts": [
-                  "array_values",
                 ],
+                "attributes": {},
+                "name": {
+                  "attributes": {},
+                  "nodeType": "Name",
+                  "parts": [
+                    "is_string",
+                  ],
+                },
+                "nodeType": "Expr_FuncCall",
               },
-              "nodeType": "Expr_FuncCall",
+              "else": {
+                "attributes": {},
+                "expr": {
+                  "attributes": {},
+                  "name": "authorMeta",
+                  "nodeType": "Expr_Variable",
+                },
+                "nodeType": "Expr_Cast_String",
+              },
+              "if": {
+                "attributes": {},
+                "name": "authorMeta",
+                "nodeType": "Expr_Variable",
+              },
+              "nodeType": "Expr_Ternary",
             },
             "nodeType": "Expr_Assign",
             "var": {
@@ -2821,115 +2604,6 @@ exports[`wp-post mutation helpers sanitises meta payloads for all supported desc
             },
           },
           "nodeType": "Stmt_Expression",
-        },
-        {
-          "attributes": {},
-          "byRef": false,
-          "expr": {
-            "attributes": {},
-            "expr": {
-              "attributes": {},
-              "name": "authorMeta",
-              "nodeType": "Expr_Variable",
-            },
-            "nodeType": "Expr_Cast_Array",
-          },
-          "keyVar": {
-            "attributes": {},
-            "name": "meta_index",
-            "nodeType": "Expr_Variable",
-          },
-          "nodeType": "Stmt_Foreach",
-          "stmts": [
-            {
-              "attributes": {},
-              "expr": {
-                "attributes": {},
-                "expr": {
-                  "attributes": {},
-                  "cond": {
-                    "args": [
-                      {
-                        "attributes": {},
-                        "byRef": false,
-                        "name": null,
-                        "nodeType": "Arg",
-                        "unpack": false,
-                        "value": {
-                          "attributes": {},
-                          "name": "meta_value",
-                          "nodeType": "Expr_Variable",
-                        },
-                      },
-                    ],
-                    "attributes": {},
-                    "name": {
-                      "attributes": {},
-                      "nodeType": "Name",
-                      "parts": [
-                        "is_string",
-                      ],
-                    },
-                    "nodeType": "Expr_FuncCall",
-                  },
-                  "else": {
-                    "attributes": {},
-                    "expr": {
-                      "attributes": {},
-                      "name": "meta_value",
-                      "nodeType": "Expr_Variable",
-                    },
-                    "nodeType": "Expr_Cast_String",
-                  },
-                  "if": {
-                    "attributes": {},
-                    "name": "meta_value",
-                    "nodeType": "Expr_Variable",
-                  },
-                  "nodeType": "Expr_Ternary",
-                },
-                "nodeType": "Expr_Assign",
-                "var": {
-                  "attributes": {},
-                  "name": "meta_value",
-                  "nodeType": "Expr_Variable",
-                },
-              },
-              "nodeType": "Stmt_Expression",
-            },
-            {
-              "attributes": {},
-              "expr": {
-                "attributes": {},
-                "expr": {
-                  "attributes": {},
-                  "name": "meta_value",
-                  "nodeType": "Expr_Variable",
-                },
-                "nodeType": "Expr_Assign",
-                "var": {
-                  "attributes": {},
-                  "dim": {
-                    "attributes": {},
-                    "name": "meta_index",
-                    "nodeType": "Expr_Variable",
-                  },
-                  "nodeType": "Expr_ArrayDimFetch",
-                  "var": {
-                    "attributes": {},
-                    "name": "authorMeta",
-                    "nodeType": "Expr_Variable",
-                  },
-                },
-              },
-              "nodeType": "Stmt_Expression",
-            },
-          ],
-          "valueVar": {
-            "attributes": {},
-            "name": "meta_value",
-            "nodeType": "Expr_Variable",
-          },
         },
         {
           "attributes": {},
