@@ -165,13 +165,31 @@ export default withMermaid(
 							{ text: 'Overview', link: '/packages/' },
 							{ text: '@wpkernel/cli', link: '/packages/cli' },
 							{ text: '@wpkernel/core', link: '/packages/core' },
-							{ text: '@wpkernel/create-wpk', link: '/packages/create-wpk' },
-							{ text: '@wpkernel/e2e-utils', link: '/packages/e2e-utils' },
-							{ text: '@wpkernel/php-driver', link: '/packages/php-driver' },
-							{ text: '@wpkernel/php-json-ast', link: '/packages/php-json-ast' },
-							{ text: '@wpkernel/test-utils', link: '/packages/test-utils' },
+							{
+								text: '@wpkernel/create-wpk',
+								link: '/packages/create-wpk',
+							},
+							{
+								text: '@wpkernel/e2e-utils',
+								link: '/packages/e2e-utils',
+							},
+							{
+								text: '@wpkernel/php-driver',
+								link: '/packages/php-driver',
+							},
+							{
+								text: '@wpkernel/php-json-ast',
+								link: '/packages/php-json-ast',
+							},
+							{
+								text: '@wpkernel/test-utils',
+								link: '/packages/test-utils',
+							},
 							{ text: '@wpkernel/ui', link: '/packages/ui' },
-							{ text: '@wpkernel/wp-json-ast', link: '/packages/wp-json-ast' },
+							{
+								text: '@wpkernel/wp-json-ast',
+								link: '/packages/wp-json-ast',
+							},
 						],
 					},
 				],
