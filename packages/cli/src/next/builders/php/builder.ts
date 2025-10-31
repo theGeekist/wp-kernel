@@ -14,6 +14,10 @@ import {
 	createPhpPersistenceRegistryHelper,
 	createPhpCapabilityHelper,
 	createPhpProgramWriterHelper,
+	createPhpTransientStorageHelper,
+	createPhpWpOptionStorageHelper,
+	createPhpWpTaxonomyStorageHelper,
+	createPhpWpPostRoutesHelper,
 	createPhpResourceControllerHelper,
 } from './printers';
 
@@ -43,6 +47,10 @@ export function createPhpBuilder(
 			const helperPipeline = [
 				createPhpChannelHelper(),
 				createPhpBaseControllerHelper(),
+				createPhpTransientStorageHelper(),
+				createPhpWpOptionStorageHelper(),
+				createPhpWpTaxonomyStorageHelper(),
+				createPhpWpPostRoutesHelper(),
 				createPhpResourceControllerHelper(),
 				createPhpCapabilityHelper(),
 				createPhpPersistenceRegistryHelper(),
