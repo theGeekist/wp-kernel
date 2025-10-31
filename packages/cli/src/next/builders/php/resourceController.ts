@@ -11,10 +11,14 @@ import {
 	buildRestControllerModuleFromPlan,
 	buildWpOptionStorageArtifacts,
 	buildTransientStorageArtifacts,
+	buildWpTaxonomyQueryRouteBundle,
 	resolveTransientKey,
 	DEFAULT_DOC_HEADER,
 	type RestControllerResourcePlan,
 	type RestControllerRoutePlan,
+	type RestControllerRouteHandlers,
+	type RestControllerRouteOptionHandlers,
+	type RestControllerRouteTransientHandlers,
 } from '@wpkernel/wp-json-ast';
 import { getPhpBuilderChannel } from './channel';
 import type { PhpBuilderChannel } from './channel';
@@ -155,14 +159,14 @@ interface ControllerBuildContext {
 	readonly identity: ResolvedIdentity;
 	readonly pascalName: string;
 	readonly errorCodeFactory: ErrorCodeFactory;
-	readonly transientArtifacts?: ReturnType<
-		typeof buildTransientStorageArtifacts
-	>;
 }
 
-interface StorageHelperArtifacts {
+interface StorageArtifacts {
 	readonly helperMethods: readonly PhpStmtClassMethod[];
 	readonly helperSignatures: readonly string[];
+	readonly routeHandlers?: RestControllerRouteHandlers;
+	readonly optionHandlers?: RestControllerRouteOptionHandlers;
+	readonly transientHandlers?: RestControllerRouteTransientHandlers;
 }
 
 function buildResourcePlan(
@@ -173,30 +177,12 @@ function buildResourcePlan(
 	const pascalName = toPascalCase(resource.name);
 	const errorCodeFactory = makeErrorCodeFactory(resource.name);
 
-	const transientArtifacts =
-		resource.storage?.mode === 'transient'
-			? buildTransientStorageArtifacts({
-					pascalName,
-					key: resolveTransientKey({
-						resourceName: resource.name,
-						namespace:
-							ir.meta.sanitizedNamespace ??
-							ir.meta.namespace ??
-							'',
-					}),
-					identity,
-					cacheSegments: resource.cacheKeys.get.segments,
-					errorCodeFactory,
-				})
-			: undefined;
-
-	const helperArtifacts = buildStorageHelperArtifacts({
+	const storageArtifacts = buildStorageArtifacts({
 		ir,
 		resource,
 		identity,
 		pascalName,
 		errorCodeFactory,
-		transientArtifacts,
 	});
 
 	return {
@@ -210,21 +196,23 @@ function buildResourcePlan(
 		identity,
 		cacheKeys: resource.cacheKeys,
 		mutationMetadata: resolveRouteMutationMetadata(resource),
-		helperMethods: helperArtifacts.helperMethods,
-		helperSignatures: helperArtifacts.helperSignatures,
+		helperMethods: storageArtifacts.helperMethods,
+		helperSignatures: storageArtifacts.helperSignatures,
 		routes: buildRoutePlans({
 			ir,
 			resource,
 			identity,
 			pascalName,
 			errorCodeFactory,
-			transientArtifacts,
+			storageArtifacts,
 		}),
 	} satisfies RestControllerResourcePlan;
 }
 
 function buildRoutePlans(
-	options: ControllerBuildContext
+	options: ControllerBuildContext & {
+		readonly storageArtifacts: StorageArtifacts;
+	}
 ): readonly RestControllerRoutePlan[] {
 	return options.resource.routes.map((route) =>
 		buildRoutePlan({
@@ -234,7 +222,9 @@ function buildRoutePlans(
 	);
 }
 
-interface RoutePlanOptions extends ControllerBuildContext {
+interface RoutePlanOptions
+	extends ControllerBuildContext,
+		Readonly<{ storageArtifacts: StorageArtifacts }> {
 	readonly route: IRResource['routes'][number];
 }
 
@@ -256,14 +246,14 @@ function buildRoutePlan(options: RoutePlanOptions): RestControllerRoutePlan {
 			identity: options.identity,
 			pascalName: options.pascalName,
 			errorCodeFactory: options.errorCodeFactory,
-			transientArtifacts: options.transientArtifacts,
+			storageArtifacts: options.storageArtifacts,
 		}),
 	});
 }
 
-function buildStorageHelperArtifacts(
+function buildStorageArtifacts(
 	options: ControllerBuildContext
-): StorageHelperArtifacts {
+): StorageArtifacts {
 	const storageMode = options.resource.storage?.mode;
 
 	if (storageMode === 'wp-taxonomy') {
@@ -278,17 +268,42 @@ function buildStorageHelperArtifacts(
 			errorCodeFactory: options.errorCodeFactory,
 		});
 
+		const bundle = buildWpTaxonomyQueryRouteBundle({
+			pascalName: options.pascalName,
+			resourceName: options.resource.name,
+			storage,
+			identity: options.identity,
+			errorCodeFactory: options.errorCodeFactory,
+		});
+
 		return {
 			helperMethods: taxonomyHelpers.helperMethods,
 			helperSignatures: taxonomyHelpers.helperSignatures,
-		} satisfies StorageHelperArtifacts;
+			routeHandlers: bundle.routeHandlers,
+		} satisfies StorageArtifacts;
 	}
 
 	if (storageMode === 'transient') {
+		const namespace =
+			options.ir.meta.sanitizedNamespace ??
+			options.ir.meta.namespace ??
+			'';
+		const artifacts = buildTransientStorageArtifacts({
+			pascalName: options.pascalName,
+			key: resolveTransientKey({
+				resourceName: options.resource.name,
+				namespace,
+			}),
+			identity: options.identity,
+			cacheSegments: options.resource.cacheKeys.get.segments,
+			errorCodeFactory: options.errorCodeFactory,
+		});
+
 		return {
-			helperMethods: options.transientArtifacts?.helperMethods ?? [],
+			helperMethods: artifacts.helperMethods,
 			helperSignatures: [],
-		} satisfies StorageHelperArtifacts;
+			transientHandlers: artifacts.routeHandlers,
+		} satisfies StorageArtifacts;
 	}
 
 	if (storageMode === 'wp-option') {
@@ -303,13 +318,14 @@ function buildStorageHelperArtifacts(
 		return {
 			helperMethods: artifacts.helperMethods,
 			helperSignatures: [],
-		} satisfies StorageHelperArtifacts;
+			optionHandlers: artifacts.routeHandlers,
+		} satisfies StorageArtifacts;
 	}
 
 	return {
 		helperMethods: [],
 		helperSignatures: [],
-	} satisfies StorageHelperArtifacts;
+	} satisfies StorageArtifacts;
 }
 
 function resolveRouteMutationMetadata(
