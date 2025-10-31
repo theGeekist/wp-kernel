@@ -6,6 +6,7 @@ import type {
 } from '../../runtime/types';
 import {
 	buildBaseControllerProgram,
+	buildGeneratedModuleProgram,
 	buildProgramTargetPlanner,
 	DEFAULT_DOC_HEADER,
 	deriveModuleNamespace,
@@ -13,7 +14,6 @@ import {
 	type ModuleNamespaceConfig,
 } from '@wpkernel/wp-json-ast';
 import { getPhpBuilderChannel } from './channel';
-import { compileModuleProgram } from './moduleProgram';
 
 export function createPhpBaseControllerHelper(): BuilderHelper {
 	return createHelper({
@@ -48,7 +48,7 @@ export function createPhpBaseControllerHelper(): BuilderHelper {
 				docblockPrefix: DEFAULT_DOC_HEADER,
 			});
 
-			const fileProgram = compileModuleProgram({
+			const fileProgram = buildGeneratedModuleProgram({
 				namespace: derivedNamespace,
 				docblock: program.docblock,
 				metadata: program.metadata,

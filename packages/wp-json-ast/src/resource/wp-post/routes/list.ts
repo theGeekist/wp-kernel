@@ -7,8 +7,6 @@ import {
 	buildVariable,
 	type PhpStmt,
 } from '@wpkernel/php-json-ast';
-import type { ResourceStorageConfig } from '@wpkernel/core/resource';
-
 import type { ResourceMetadataHost } from '../../cache';
 import {
 	appendStatementsWithSpacing,
@@ -31,8 +29,9 @@ import {
 	buildTaxonomyQueryStatements,
 } from '../query';
 import type { MutationHelperResource } from '../mutation';
-
-type WpPostStorage = Extract<ResourceStorageConfig, { mode: 'wp-post' }>;
+// Helper function
+const isNonEmptyString = (value: unknown): value is string =>
+	typeof value === 'string' && value.trim().length > 0;
 
 export interface BuildWpPostListRouteStatementsOptions {
 	readonly resource: MutationHelperResource;
@@ -44,8 +43,12 @@ export interface BuildWpPostListRouteStatementsOptions {
 export function buildWpPostListRouteStatements(
 	options: BuildWpPostListRouteStatementsOptions
 ): PhpStmt[] | null {
-	const storage = ensureWpPostStorage(options.resource.storage);
+	const storage = options.resource.storage;
 	if (!storage) {
+		return null;
+	}
+
+	if (storage.mode !== 'wp-post') {
 		return null;
 	}
 
@@ -71,7 +74,9 @@ export function buildWpPostListRouteStatements(
 		clampMaximum,
 	]);
 
-	const statuses = filterStatuses(storage);
+	const statuses = Array.isArray(storage.statuses)
+		? storage.statuses.filter(isNonEmptyString)
+		: [];
 
 	if (statuses.length > 0) {
 		appendStatementsWithSpacing(statements, [
@@ -100,12 +105,11 @@ export function buildWpPostListRouteStatements(
 		{ key: 'posts_per_page', value: variable('per_page') },
 	];
 
-	appendStatementsWithSpacing(statements, [
-		buildQueryArgsAssignmentStatement({
-			targetVariable: 'query_args',
-			entries: queryEntries,
-		}),
-	]);
+	const queryArgsAssignment = buildQueryArgsAssignmentStatement({
+		targetVariable: 'query_args',
+		entries: queryEntries,
+	});
+	appendStatementsWithSpacing(statements, [queryArgsAssignment]);
 
 	appendStatementsWithSpacing(
 		statements,
@@ -138,51 +142,30 @@ export function buildWpPostListRouteStatements(
 		buildListForeachStatement({ pascalName: options.pascalName }),
 	]);
 
+	const totalFetch = buildScalarCast(
+		'int',
+		buildPropertyFetch('query', 'found_posts')
+	);
+	const pagesFetch = buildScalarCast(
+		'int',
+		buildPropertyFetch('query', 'max_num_pages')
+	);
+
 	statements.push(
 		buildReturn(
 			buildArray([
 				buildArrayItem(buildVariable('items'), {
 					key: buildScalarString('items'),
 				}),
-				buildArrayItem(
-					buildScalarCast(
-						'int',
-						buildPropertyFetch('query', 'found_posts')
-					),
-					{ key: buildScalarString('total') }
-				),
-				buildArrayItem(
-					buildScalarCast(
-						'int',
-						buildPropertyFetch('query', 'max_num_pages')
-					),
-					{ key: buildScalarString('pages') }
-				),
+				buildArrayItem(totalFetch, {
+					key: buildScalarString('total'),
+				}),
+				buildArrayItem(pagesFetch, {
+					key: buildScalarString('pages'),
+				}),
 			])
 		)
 	);
 
 	return statements;
-}
-
-function ensureWpPostStorage(
-	storage: MutationHelperResource['storage']
-): WpPostStorage | null {
-	if (!storage || storage.mode !== 'wp-post') {
-		return null;
-	}
-
-	return storage;
-}
-
-function filterStatuses(storage: WpPostStorage): string[] {
-	const statuses = Array.isArray(storage.statuses)
-		? storage.statuses.filter(isNonEmptyString)
-		: [];
-
-	return statuses;
-}
-
-function isNonEmptyString(value: unknown): value is string {
-	return typeof value === 'string' && value.length > 0;
 }

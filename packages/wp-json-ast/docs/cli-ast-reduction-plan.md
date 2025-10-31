@@ -428,6 +428,7 @@ Document the remaining AST-heavy helpers and promote them into first-class facto
 - **Context:** `packages/cli/src/next/builders/php/resource/wpTaxonomy/{list,get}.ts` orchestrates `WP_Term_Query`, pagination plumbing, and single-term lookups with bespoke AST assembly separate from the helper surface above.
 - **Intent:** Create `src/resource/wp-taxonomy/buildWpTaxonomyQueryRouteBundle.ts` that composes list and get route statements (including pagination, cache metadata, and WP_Error guards) from the taxonomy IR and the helper artifacts produced in Subtask 3.2.e.
 - **Expected outcome:** Taxonomy list/get planners in the CLI fetch the bundle instead of emitting statements directly, tests under `packages/wp-json-ast/tests/resource/wp-taxonomy/query/` cover success and error flows, and taxonomy query AST logic resides entirely in `wp-json-ast`.
+- _Completion:_ ☑ Completed – Added `buildWpTaxonomyQueryRouteBundle` to aggregate taxonomy list/get handlers in `wp-json-ast` and updated the CLI route planner to consume the shared bundle with focused tests.
 
 **Subtask 3.2.g – Move module wrapping into `buildGeneratedModuleProgram`.**
 
@@ -435,7 +436,9 @@ Document the remaining AST-heavy helpers and promote them into first-class facto
 - **Intent:** Export `buildGeneratedModuleProgram` (likely under `src/module/`) that accepts the module metadata and returns the fully wrapped `PhpProgram` so the CLI helpers only enqueue planner descriptors.
 - **Expected outcome:** Base and index helpers become pure `create*` adapters, AST mutations live entirely inside `wp-json-ast`, and tests under `packages/wp-json-ast/tests/module/` assert namespace/docblock wrapping.
 
-_Completion:_ ☐ Pending - replace this line with the PR link and a one-line summary when the task is complete. Update each subtask with links as migrations land to document progress toward eliminating CLI-owned AST assembly.
+_Completion:_ ☑ Completed – introduced `buildGeneratedModuleProgram` so module helpers rely on the shared wrapper and removed CLI-owned AST assembly.
+
+_Follow-up hardening:_ ☑ Completed – deduplicated storage helper routing so the CLI now reuses the shared option, transient, and taxonomy bundles when constructing controller plans, ensuring helper signatures and route handlers originate from a single factory. A follow-on sweep inlined shared route metadata types, tightened storage mode unions, and removed ad-hoc inline type literals so audits no longer flag duplicated AST scaffolding.
 
 ### Task 3.3 – Rewire CLI create-helpers to consume the new factories
 

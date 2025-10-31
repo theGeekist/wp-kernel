@@ -5,6 +5,7 @@ import type {
 	BuilderNext,
 } from '../../runtime/types';
 import {
+	buildGeneratedModuleProgram,
 	buildIndexProgram,
 	buildProgramTargetPlanner,
 	DEFAULT_DOC_HEADER,
@@ -13,7 +14,6 @@ import {
 import type { IRv1 } from '../../ir/publicTypes';
 import { toPascalCase } from './utils';
 import { getPhpBuilderChannel } from './channel';
-import { compileModuleProgram } from './moduleProgram';
 
 export function createPhpIndexFileHelper(): BuilderHelper {
 	return createHelper({
@@ -42,7 +42,7 @@ export function createPhpIndexFileHelper(): BuilderHelper {
 				docblockPrefix: DEFAULT_DOC_HEADER,
 			});
 
-			const fileProgram = compileModuleProgram({
+			const fileProgram = buildGeneratedModuleProgram({
 				namespace: program.namespace ?? moduleNamespace,
 				docblock: program.docblock,
 				metadata: program.metadata,
