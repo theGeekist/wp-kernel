@@ -16,7 +16,7 @@ import {
 	type PhpStmt,
 	type PhpStmtClassMethod,
 } from '@wpkernel/php-json-ast';
-import type { IRResource } from '../../../../ir/publicTypes';
+
 import {
 	buildBinaryOperation,
 	buildBooleanNot,
@@ -25,23 +25,20 @@ import {
 	buildScalarCast,
 	buildVariableAssignment,
 	normaliseVariableReference,
-} from '../utils';
-import { ensureWpOptionStorage } from './shared';
+} from '../../common/utils';
 
 export interface BuildWpOptionHelperMethodsOptions {
-	readonly resource: IRResource;
 	readonly pascalName: string;
+	readonly optionName: string;
 }
 
 export function buildWpOptionHelperMethods(
 	options: BuildWpOptionHelperMethodsOptions
 ): PhpStmtClassMethod[] {
-	const storage = ensureWpOptionStorage(options.resource);
-
 	return [
 		buildGetOptionNameHelper({
 			pascalName: options.pascalName,
-			optionName: storage.option,
+			optionName: options.optionName,
 		}),
 		buildNormaliseAutoloadHelper({
 			pascalName: options.pascalName,

@@ -6,6 +6,15 @@ import {
 	collectMetaQueryEntries,
 	buildTaxonomyQueryStatements,
 	collectTaxonomyQueryEntries,
+	buildWpOptionGetRouteStatements,
+	buildWpOptionHelperMethods,
+	buildWpOptionUnsupportedRouteStatements,
+	buildWpOptionUpdateRouteStatements,
+	buildTransientDeleteRouteStatements,
+	buildTransientGetRouteStatements,
+	buildTransientHelperMethods,
+	buildTransientSetRouteStatements,
+	buildTransientUnsupportedRouteStatements,
 	type ResourceAccessorDescriptor,
 	type ResourceAccessorRegistry,
 } from '@wpkernel/wp-json-ast';
@@ -16,8 +25,6 @@ import * as queryHelpers from './query';
 import * as errorHelpers from './errors';
 import * as wpPostIdentity from './wpPost/identity';
 import * as wpPostMutations from './wpPost/mutations';
-import * as wpOptionHelpers from './wpOption';
-import * as transientHelpers from './transient';
 import * as wpTaxonomyHelpers from './wpTaxonomy/helpers';
 import * as wpTaxonomyList from './wpTaxonomy/list';
 import * as wpTaxonomyGet from './wpTaxonomy/get';
@@ -35,6 +42,21 @@ const wpPostMetaQueryHelpers = Object.freeze({
 const wpPostTaxonomyQueryHelpers = Object.freeze({
 	buildTaxonomyQueryStatements,
 	collectTaxonomyQueryEntries,
+});
+
+const wpOptionHelpers = Object.freeze({
+	buildWpOptionHelperMethods,
+	buildWpOptionGetRouteStatements,
+	buildWpOptionUpdateRouteStatements,
+	buildWpOptionUnsupportedRouteStatements,
+});
+
+const transientHelpers = Object.freeze({
+	buildTransientHelperMethods,
+	buildTransientGetRouteStatements,
+	buildTransientSetRouteStatements,
+	buildTransientDeleteRouteStatements,
+	buildTransientUnsupportedRouteStatements,
 });
 
 function buildDescriptor(
