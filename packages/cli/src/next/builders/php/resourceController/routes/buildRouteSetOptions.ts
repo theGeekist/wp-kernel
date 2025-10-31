@@ -1,5 +1,5 @@
 import {
-	buildWpPostRouteHandlers,
+	buildWpPostStorageArtifacts,
 	routeUsesIdentity,
 	type BuildResourceControllerRouteSetOptions,
 	type ResourceControllerRouteMetadata,
@@ -50,13 +50,13 @@ function buildDefaultHandlers(
 	context: BuildRouteSetOptionsContext
 ): RestControllerRouteHandlers {
 	if (context.resource.storage?.mode === 'wp-post') {
-		return buildWpPostRouteHandlers({
+		return buildWpPostStorageArtifacts({
 			resource: context.resource,
 			pascalName: context.pascalName,
 			identity: context.identity,
 			metadataKeys: WP_POST_MUTATION_CONTRACT.metadataKeys,
 			errorCodeFactory: context.errorCodeFactory,
-		});
+		}).routeHandlers;
 	}
 
 	return {

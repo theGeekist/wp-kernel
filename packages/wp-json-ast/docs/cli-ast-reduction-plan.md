@@ -401,7 +401,7 @@ Document the remaining AST-heavy helpers and promote them into first-class facto
 - **Context:** `WP_Post` route helpers used to live mostly in the CLI and now rely on the wp-post query/mutation/route primitives exported from `@wpkernel/wp-json-ast` (see Task 2.6.b–d). The CLI currently composes those primitives for wp-post controllers.
 - **Intent:** Add either (a) a CLI-side adapter `createPhpWpPostRoutesHelper` that pulls the existing wp-post primitives together or (b) a `wp-json-ast` helper that does the same.
 - **Expected outcome:** `createPhpWpPostRoutesHelper` (added in Phase 3.3) receives the bundle, the CLI drops `PhpStmt` imports across WP_Post modules, and tests in `packages/wp-json-ast/tests/resource/wp-post/` exercise each mutation contract.
-- _Completion:_ ☑ Completed – Added `buildWpPostRouteHandlers` to `@wpkernel/wp-json-ast`, covered the helper with route snapshots, and rewired the CLI route planner to consume the shared bundle while removing WP_Post-specific statement assembly from the CLI.
+- _Completion:_ ☑ Completed – Introduced `buildWpPostStorageArtifacts` to centralise WP_Post list/get/mutation route handlers inside `@wpkernel/wp-json-ast`, added focused coverage for the bundle, and updated the CLI planner to consume the shared artifacts.
 
 **Subtask 3.2.c – Publish `buildWpOptionStorageArtifacts`.**
 
