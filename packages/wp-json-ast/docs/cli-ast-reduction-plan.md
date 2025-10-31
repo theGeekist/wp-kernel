@@ -438,7 +438,7 @@ Document the remaining AST-heavy helpers and promote them into first-class facto
 
 _Completion:_ ☑ Completed – introduced `buildGeneratedModuleProgram` so module helpers rely on the shared wrapper and removed CLI-owned AST assembly.
 
-_Follow-up hardening:_ ☑ Completed – deduplicated storage helper routing so the CLI now reuses the shared option, transient, and taxonomy bundles when constructing controller plans, ensuring helper signatures and route handlers originate from a single factory.
+_Follow-up hardening:_ ☑ Completed – deduplicated storage helper routing so the CLI now reuses the shared option, transient, and taxonomy bundles when constructing controller plans, ensuring helper signatures and route handlers originate from a single factory. A follow-on sweep inlined shared route metadata types, tightened storage mode unions, and removed ad-hoc inline type literals so audits no longer flag duplicated AST scaffolding.
 
 ### Task 3.3 – Rewire CLI create-helpers to consume the new factories
 
