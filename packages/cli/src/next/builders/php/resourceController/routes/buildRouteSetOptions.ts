@@ -64,7 +64,7 @@ export function buildRouteSetOptions(
 function buildDefaultHandlers(
 	context: BuildRouteSetOptionsContext
 ): RestControllerRouteHandlers {
-	return {
+	const handlers: RestControllerRouteHandlers = {
 		list: (routeContext) =>
 			buildListRouteStatements({
 				resource: context.resource,
@@ -82,6 +82,7 @@ function buildDefaultHandlers(
 				cacheSegments: routeContext.metadata.cacheSegments ?? [],
 			}),
 	} satisfies RestControllerRouteHandlers;
+	return handlers;
 }
 
 function buildOptionHandlers(

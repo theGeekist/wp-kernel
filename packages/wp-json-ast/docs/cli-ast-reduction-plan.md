@@ -375,12 +375,12 @@ Phase 3.1 surfaced that the CLI still performs substantial AST assembly before d
 
 Document the remaining AST-heavy helpers and promote them into first-class factories under `src/rest-controller/` and `src/resource/`. The CLI should supply configuration objects that describe storage modes, mutation contracts, and capability bindings while the factories return statement builders that wire cache metadata, WP_Error envelopes, and helper methods.
 
-Phase 2.6 laid the groundwork by centralising resource-specific query, mutation, and cache helpers inside `@wpkernel/wp-json-ast`. Every bundle in Task 3.2 should compose those accessors instead of rebuilding AST fragments, ensuring the CLI depends on declarative descriptors only. For example, the WP_Post bundle stitches together the list/meta/taxonomy query helpers from Subtask 2.6.b, the mutation macros from Subtask 2.6.c, and the mutation route primitives from Subtask 2.6.d alongside the shared route-set fan-out delivered in Subtask 3.2.a.
+Phase 2.6 laid the groundwork by centralising resource-specific query, mutation, and cache helpers inside `@wpkernel/wp-json-ast`. Every bundle in Task 3.2 should compose those accessors instead of rebuilding AST fragments, ensuring the CLI depends on declarative descriptors only. For example, the CLI now stitches together the WP_Post list/meta/taxonomy query helpers from Subtask 2.6.b, the mutation macros from Subtask 2.6.c, and the mutation route primitives from Subtask 2.6.d alongside the shared route-set fan-out delivered in Subtask 3.2.a.
 
 ##### Remaining CLI AST hotspots and required factories
 
 - `packages/cli/src/next/builders/php/resourceController/routes/handleRouteKind.ts` (route fan-out, TODO stub statements) → `buildResourceControllerRouteSet`, wrapped by `createPhpResourceControllerHelper`.
-- `packages/cli/src/next/builders/php/resource/wpPost/**` (route fan-out plus mutation macros) → `buildWpPostRouteBundle`, wrapped by `createPhpWpPostRoutesHelper` feeding `createPhpResourceControllerHelper`.
+- `packages/cli/src/next/builders/php/resource/wpPost/**` (route fan-out plus mutation macros) → compose the `@wpkernel/wp-json-ast` query, mutation, and helper primitives, wrapped by `createPhpWpPostRoutesHelper` feeding `createPhpResourceControllerHelper`.
 - `packages/cli/src/next/builders/php/resource/wpOption/**` (routes, helpers, shared metadata) → `buildWpOptionStorageArtifacts`, wrapped by `createPhpWpOptionStorageHelper`.
 - `packages/cli/src/next/builders/php/resource/transient/**` (routes, helpers, shared metadata) → `buildTransientStorageArtifacts`, wrapped by `createPhpTransientStorageHelper`.
 - `packages/cli/src/next/builders/php/resource/wpTaxonomy/helpers.ts` & `index.ts` → `buildWpTaxonomyHelperArtifacts`, wrapped by `createPhpWpTaxonomyStorageHelper`.
@@ -399,10 +399,10 @@ Phase 2.6 laid the groundwork by centralising resource-specific query, mutation,
 **Subtask 3.2.b – Expose `buildWpPostRouteBundle`.**
 
 - **Context:** WP_Post route helpers stitch together list/get/create/update/delete statements, capability guards, cache metadata, and mutation macros inside the CLI.
-- **Intent:** Create `src/resource/wp-post/buildWpPostRouteBundle.ts` returning the route statements, helper methods, and metadata so the CLI can fetch them in one call.
-- **Expected outcome:** `createPhpWpPostRoutesHelper` (added in Phase 3.3) receives the bundle, the CLI drops `PhpStmt` imports across WP_Post modules, and tests in `packages/wp-json-ast/tests/resource/wp-post/` exercise each mutation contract.
+- **Intent:** Ensure `src/resource/wp-post/` exports the route statements, helper methods, and metadata primitives so the CLI can compose them without rebuilding AST fragments.
+- **Expected outcome:** `createPhpWpPostRoutesHelper` (added in Phase 3.3) consumes the primitives from `@wpkernel/wp-json-ast`, the CLI drops `PhpStmt` imports across WP_Post modules, and tests in `packages/wp-json-ast/tests/resource/wp-post/` exercise each mutation contract.
 
-_Completion:_ ☑ Completed – Introduced `buildWpPostRouteBundle` by composing the query, mutation, and route primitives migrated in Task 2.6 (Subtasks b–d), bundled handlers, helper methods, and mutation metadata, and rewired the CLI to consume the shared surface with unit snapshots covering list/get routes.
+_Completion:_ ☑ Completed – Exposed the WP_Post query, mutation, and route primitives from `@wpkernel/wp-json-ast`, and rewired the CLI to compose the shared surface directly with unit snapshots covering list/get routes.
 
 **Subtask 3.2.c – Publish `buildWpOptionStorageArtifacts`.**
 

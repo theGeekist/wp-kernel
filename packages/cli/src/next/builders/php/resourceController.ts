@@ -11,8 +11,10 @@ import {
 	buildRestControllerModuleFromPlan,
 	buildWpOptionHelperMethods,
 	buildTransientHelperMethods,
-	buildWpPostRouteBundle,
+	prepareWpPostResponse,
 	resolveTransientKey,
+	syncWpPostMeta,
+	syncWpPostTaxonomies,
 	DEFAULT_DOC_HEADER,
 	type RestControllerResourcePlan,
 	type RestControllerRoutePlan,
@@ -234,14 +236,20 @@ function buildStorageHelperMethods(
 	const storageMode = options.resource.storage?.mode;
 
 	if (storageMode === 'wp-post') {
-		const bundle = buildWpPostRouteBundle({
-			resource: options.resource,
-			identity: options.identity,
+		const helperOptions = {
+			resource: {
+				name: options.resource.name,
+				storage: options.resource.storage,
+			},
 			pascalName: options.pascalName,
-			errorCodeFactory: options.errorCodeFactory,
-		});
+			identity: options.identity,
+		} satisfies Parameters<typeof syncWpPostMeta>[0];
 
-		return bundle.helperMethods;
+		return [
+			syncWpPostMeta(helperOptions),
+			syncWpPostTaxonomies(helperOptions),
+			prepareWpPostResponse(helperOptions),
+		];
 	}
 
 	if (storageMode === 'wp-taxonomy') {
