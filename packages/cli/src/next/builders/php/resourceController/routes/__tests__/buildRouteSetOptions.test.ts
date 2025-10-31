@@ -1,12 +1,12 @@
 import {
 	buildResourceControllerRouteSet,
 	buildTransientStorageArtifacts,
-	buildWpPostRouteBundle,
 	resolveTransientKey,
 	type ResourceMetadataHost,
 	type ResolvedIdentity,
 } from '@wpkernel/wp-json-ast';
 import type { IRResource, IRRoute } from '../../../../../ir/publicTypes';
+import { createPhpWpPostRoutesHelper } from '../../../resource/wpPost/routes';
 import { buildRouteSetOptions } from '../buildRouteSetOptions';
 
 function buildMetadataHost(): ResourceMetadataHost {
@@ -78,15 +78,12 @@ function buildPlan({
 				})
 			: undefined;
 
-	const wpPostRouteBundle =
-		resource.storage?.mode === 'wp-post'
-			? buildWpPostRouteBundle({
-					resource,
-					pascalName,
-					identity,
-					errorCodeFactory,
-				})
-			: undefined;
+	const wpPostRouteBundle = createPhpWpPostRoutesHelper({
+		resource,
+		pascalName,
+		identity,
+		errorCodeFactory,
+	});
 
 	const options = buildRouteSetOptions({
 		resource,
