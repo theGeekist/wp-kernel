@@ -7,53 +7,45 @@ import {
 	buildVariable,
 	type PhpStmt,
 } from '@wpkernel/php-json-ast';
-import type { ResourceMetadataHost } from '@wpkernel/wp-json-ast';
-import { isNonEmptyString } from '../../utils';
+import type { ResourceStorageConfig } from '@wpkernel/core/resource';
+
+import type { ResourceMetadataHost } from '../../cache';
 import {
-	buildMetaQueryStatements,
-	buildTaxonomyQueryStatements,
-	collectMetaQueryEntries,
-	collectTaxonomyQueryEntries,
-	buildListForeachStatement,
-	buildListItemsInitialiserStatement,
+	appendStatementsWithSpacing,
+	buildMethodCallAssignmentStatement,
+	buildPropertyFetch,
+} from '../../common/utils';
+import {
 	buildPageExpression,
 	buildPaginationNormalisationStatements,
-	buildPropertyFetch,
 	buildQueryArgsAssignmentStatement,
 	buildWpQueryExecutionStatement,
-	buildMethodCallAssignmentStatement,
-	appendStatementsWithSpacing,
-	variable,
-	buildWpTaxonomyListRouteStatements,
-} from '../../resource';
-import type { IRResource } from '../../../../ir/publicTypes';
+} from '../../query';
+import { variable } from '../../common/phpValue';
+import {
+	buildListForeachStatement,
+	buildListItemsInitialiserStatement,
+	collectMetaQueryEntries,
+	collectTaxonomyQueryEntries,
+	buildMetaQueryStatements,
+	buildTaxonomyQueryStatements,
+} from '../query';
+import type { MutationHelperResource } from '../mutation';
 
-export interface BuildListRouteStatementsOptions {
-	readonly resource: IRResource;
+type WpPostStorage = Extract<ResourceStorageConfig, { mode: 'wp-post' }>;
+
+export interface BuildWpPostListRouteStatementsOptions {
+	readonly resource: MutationHelperResource;
 	readonly pascalName: string;
 	readonly metadataHost: ResourceMetadataHost;
 	readonly cacheSegments: readonly unknown[];
 }
 
-export function buildListRouteStatements(
-	options: BuildListRouteStatementsOptions
+export function buildWpPostListRouteStatements(
+	options: BuildWpPostListRouteStatementsOptions
 ): PhpStmt[] | null {
-	const storage = options.resource.storage;
+	const storage = ensureWpPostStorage(options.resource.storage);
 	if (!storage) {
-		return null;
-	}
-
-	if (storage.mode === 'wp-taxonomy') {
-		return buildWpTaxonomyListRouteStatements({
-			pascalName: options.pascalName,
-			storage,
-			resourceName: options.resource.name,
-			metadataHost: options.metadataHost,
-			cacheSegments: options.cacheSegments,
-		});
-	}
-
-	if (storage.mode !== 'wp-post') {
 		return null;
 	}
 
@@ -79,9 +71,7 @@ export function buildListRouteStatements(
 		clampMaximum,
 	]);
 
-	const statuses = Array.isArray(storage.statuses)
-		? storage.statuses.filter(isNonEmptyString)
-		: [];
+	const statuses = filterStatuses(storage);
 
 	if (statuses.length > 0) {
 		appendStatementsWithSpacing(statements, [
@@ -110,11 +100,12 @@ export function buildListRouteStatements(
 		{ key: 'posts_per_page', value: variable('per_page') },
 	];
 
-	const queryArgsAssignment = buildQueryArgsAssignmentStatement({
-		targetVariable: 'query_args',
-		entries: queryEntries,
-	});
-	appendStatementsWithSpacing(statements, [queryArgsAssignment]);
+	appendStatementsWithSpacing(statements, [
+		buildQueryArgsAssignmentStatement({
+			targetVariable: 'query_args',
+			entries: queryEntries,
+		}),
+	]);
 
 	appendStatementsWithSpacing(
 		statements,
@@ -147,30 +138,51 @@ export function buildListRouteStatements(
 		buildListForeachStatement({ pascalName: options.pascalName }),
 	]);
 
-	const totalFetch = buildScalarCast(
-		'int',
-		buildPropertyFetch('query', 'found_posts')
-	);
-	const pagesFetch = buildScalarCast(
-		'int',
-		buildPropertyFetch('query', 'max_num_pages')
-	);
-
 	statements.push(
 		buildReturn(
 			buildArray([
 				buildArrayItem(buildVariable('items'), {
 					key: buildScalarString('items'),
 				}),
-				buildArrayItem(totalFetch, {
-					key: buildScalarString('total'),
-				}),
-				buildArrayItem(pagesFetch, {
-					key: buildScalarString('pages'),
-				}),
+				buildArrayItem(
+					buildScalarCast(
+						'int',
+						buildPropertyFetch('query', 'found_posts')
+					),
+					{ key: buildScalarString('total') }
+				),
+				buildArrayItem(
+					buildScalarCast(
+						'int',
+						buildPropertyFetch('query', 'max_num_pages')
+					),
+					{ key: buildScalarString('pages') }
+				),
 			])
 		)
 	);
 
 	return statements;
+}
+
+function ensureWpPostStorage(
+	storage: MutationHelperResource['storage']
+): WpPostStorage | null {
+	if (!storage || storage.mode !== 'wp-post') {
+		return null;
+	}
+
+	return storage;
+}
+
+function filterStatuses(storage: WpPostStorage): string[] {
+	const statuses = Array.isArray(storage.statuses)
+		? storage.statuses.filter(isNonEmptyString)
+		: [];
+
+	return statuses;
+}
+
+function isNonEmptyString(value: unknown): value is string {
+	return typeof value === 'string' && value.length > 0;
 }
