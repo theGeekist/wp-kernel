@@ -4,6 +4,8 @@ export * from './errors';
 export * from './cache';
 export * from './query';
 export * from './wp-post/query';
+export * from './wp-post/mutation';
+export * from './wp-post/routes';
 export * from './storage/wp-option';
 export * from './storage/transient';
 export * from './accessors';
