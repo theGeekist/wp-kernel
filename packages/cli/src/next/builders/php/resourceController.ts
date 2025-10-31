@@ -31,12 +31,11 @@ import { buildRestArgs } from './resourceController/restArgs';
 import { buildRouteMethodName } from './resourceController/routeNaming';
 import { buildRouteSetOptions } from './resourceController/routes/buildRouteSetOptions';
 import { renderPhpValue } from '@wpkernel/wp-json-ast';
-import { createPhpWpPostRoutesHelper } from './resource/wpPost/routes';
+import { resolveWpPostRouteBundle } from './resource/wpPost/routes';
 import {
 	getResourceStorageHelperState,
 	type ResourceStorageHelperState,
 } from './resource/storageHelpers';
-import { buildNotImplementedStatements as buildRouteFallbackStatements } from './resourceController/stubs';
 
 export function createPhpResourceControllerHelper(): BuilderHelper {
 	return createHelper({
@@ -210,7 +209,7 @@ function buildResourcePlan(
 	const pascalName = toPascalCase(resource.name);
 	const errorCodeFactory = makeErrorCodeFactory(resource.name);
 
-	const wpPostRouteBundle = createPhpWpPostRoutesHelper({
+	const wpPostRouteBundle = resolveWpPostRouteBundle({
 		resource,
 		pascalName,
 		identity,
@@ -351,15 +350,14 @@ function buildRoutePlan(options: RoutePlanOptions): RestControllerRoutePlan {
 			storageArtifacts: options.storageArtifacts,
 			wpPostRouteBundle: options.wpPostRouteBundle,
 		}),
-		buildFallbackStatements: () =>
-			buildRouteFallbackStatements({
-				route,
-				resourceName: options.resource.name,
-				routeKind: currentRouteMetadata.kind,
-				storageMode: options.resource.storage?.mode,
-				reason: fallbackAnalysis.reason,
-				hint: fallbackAnalysis.hint,
-			}),
+		fallbackContext: {
+			resource: options.resource.name,
+			transport: route.transport,
+			kind: currentRouteMetadata.kind,
+			storageMode: options.resource.storage?.mode,
+			reason: fallbackAnalysis.reason,
+			hint: fallbackAnalysis.hint,
+		},
 	});
 }
 

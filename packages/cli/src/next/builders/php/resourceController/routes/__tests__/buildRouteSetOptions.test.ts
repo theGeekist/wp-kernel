@@ -10,7 +10,7 @@ import {
 } from '@wpkernel/wp-json-ast';
 import { ensureWpOptionStorage } from '../../../resource/wpOption/shared';
 import type { IRResource, IRRoute } from '../../../../../ir/publicTypes';
-import { createPhpWpPostRoutesHelper } from '../../../resource/wpPost/routes';
+import { resolveWpPostRouteBundle } from '../../../resource/wpPost/routes';
 import { buildRouteSetOptions } from '../buildRouteSetOptions';
 
 function buildMetadataHost(): ResourceMetadataHost {
@@ -75,7 +75,7 @@ function buildPlan({
 		errorCodeFactory,
 	});
 
-	const wpPostRouteBundle = createPhpWpPostRoutesHelper({
+	const wpPostRouteBundle = resolveWpPostRouteBundle({
 		resource,
 		pascalName,
 		identity,

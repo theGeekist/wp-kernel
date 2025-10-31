@@ -2,11 +2,11 @@ import {
 	buildWpPostRouteBundle,
 	type ResourceMetadataHost,
 } from '@wpkernel/wp-json-ast';
-import { createPhpWpPostRoutesHelper } from '../routes';
+import { resolveWpPostRouteBundle } from '../routes';
 import type { IRResource } from '../../../../../ir/publicTypes';
 import type { ResolvedIdentity } from '../../../identity';
 
-describe('createPhpWpPostRoutesHelper', () => {
+describe('resolveWpPostRouteBundle', () => {
 	const identity: ResolvedIdentity = { type: 'number', param: 'id' };
 	const errorCodeFactory = (suffix: string) => `book_${suffix}`;
 
@@ -51,7 +51,7 @@ describe('createPhpWpPostRoutesHelper', () => {
 		});
 
 		expect(
-			createPhpWpPostRoutesHelper({
+			resolveWpPostRouteBundle({
 				resource,
 				pascalName: 'Book',
 				identity,
@@ -77,7 +77,7 @@ describe('createPhpWpPostRoutesHelper', () => {
 			errorCodeFactory,
 		});
 
-		const bundle = createPhpWpPostRoutesHelper({
+		const bundle = resolveWpPostRouteBundle({
 			resource,
 			pascalName: 'Book',
 			identity,

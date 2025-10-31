@@ -5,15 +5,15 @@ import {
 import type { IRResource } from '../../../../ir/publicTypes';
 import type { ResolvedIdentity } from '../../identity';
 
-export interface CreatePhpWpPostRoutesHelperOptions {
+export interface ResolveWpPostRouteBundleOptions {
 	readonly resource: IRResource;
 	readonly pascalName: string;
 	readonly identity: ResolvedIdentity;
 	readonly errorCodeFactory: (suffix: string) => string;
 }
 
-export function createPhpWpPostRoutesHelper(
-	options: CreatePhpWpPostRoutesHelperOptions
+export function resolveWpPostRouteBundle(
+	options: ResolveWpPostRouteBundleOptions
 ): WpPostRouteBundle | undefined {
 	if (options.resource.storage?.mode !== 'wp-post') {
 		return undefined;
