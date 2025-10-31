@@ -1,4 +1,5 @@
-import { buildWpTaxonomyListRouteStatements } from '../list';
+import type { ResolvedIdentity } from '../../../../pipeline/identity';
+import { buildWpTaxonomyQueryRouteBundle } from '../buildWpTaxonomyQueryRouteBundle';
 import {
 	createMetadataHost,
 	expectReturnStatement,
@@ -6,19 +7,35 @@ import {
 	isVariableAssignment,
 } from '../test-support';
 
-describe('buildWpTaxonomyListRouteStatements', () => {
+describe('buildWpTaxonomyQueryRouteBundle list handler', () => {
 	const cacheSegments = ['genre', 'list'] as const;
+	const identity: ResolvedIdentity = { type: 'string', param: 'slug' };
 
 	it('builds taxonomy list statements, records cache metadata, and returns items payload', () => {
 		const { metadata, host } = createMetadataHost();
 
-		const statements = buildWpTaxonomyListRouteStatements({
+		const { routeHandlers } = buildWpTaxonomyQueryRouteBundle({
 			pascalName: 'Genre',
 			storage: { mode: 'wp-taxonomy', taxonomy: 'genre' },
 			resourceName: 'Genre',
-			metadataHost: host,
-			cacheSegments,
+			identity,
+			errorCodeFactory: (suffix) => `genre_${suffix}`,
 		});
+
+		const statements = routeHandlers.list?.({
+			metadata: {
+				method: 'GET',
+				path: '/genres',
+				kind: 'list',
+				cacheSegments,
+			},
+			metadataHost: host,
+		});
+
+		expect(statements).toBeDefined();
+		if (!statements) {
+			throw new Error('Expected statements');
+		}
 
 		expect(statements.length).toBeGreaterThan(10);
 		expect(isVariableAssignment(statements[0], 'taxonomy')).toBe(true);

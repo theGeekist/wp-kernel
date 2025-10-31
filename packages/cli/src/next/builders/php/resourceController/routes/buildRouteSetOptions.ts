@@ -3,6 +3,8 @@ import {
 	type RestControllerRouteHandlers,
 	type RestControllerRouteOptionHandlers,
 	type TransientStorageArtifacts,
+	buildWpTaxonomyQueryRouteBundle,
+	ensureWpTaxonomyStorage,
 } from '@wpkernel/wp-json-ast';
 import type { IRResource, IRRoute } from '../../../../ir/publicTypes';
 import type { ResolvedIdentity } from '../../identity';
@@ -30,10 +32,11 @@ export function buildRouteSetOptions(
 	context: BuildRouteSetOptionsContext
 ): Omit<BuildResourceControllerRouteSetOptions, 'plan'> {
 	const storageMode = context.resource.storage?.mode;
+	const taxonomyHandlers = buildTaxonomyRouteHandlers(context);
 
 	return {
 		storageMode,
-		handlers: buildDefaultHandlers(context),
+		handlers: taxonomyHandlers ?? buildDefaultHandlers(context),
 		optionHandlers: buildOptionHandlers(context),
 		transientHandlers:
 			storageMode === 'transient'
@@ -83,6 +86,28 @@ function buildDefaultHandlers(
 				identity: context.identity,
 			}),
 	} satisfies RestControllerRouteHandlers;
+}
+
+function buildTaxonomyRouteHandlers(
+	context: BuildRouteSetOptionsContext
+): RestControllerRouteHandlers | undefined {
+	if (context.resource.storage?.mode !== 'wp-taxonomy') {
+		return undefined;
+	}
+
+	const storage = ensureWpTaxonomyStorage(context.resource.storage, {
+		resourceName: context.resource.name,
+	});
+
+	const bundle = buildWpTaxonomyQueryRouteBundle({
+		pascalName: context.pascalName,
+		resourceName: context.resource.name,
+		storage,
+		identity: context.identity,
+		errorCodeFactory: context.errorCodeFactory,
+	});
+
+	return bundle.routeHandlers;
 }
 
 function buildOptionHandlers(

@@ -176,6 +176,60 @@ describe('buildRestControllerModuleFromPlan', () => {
 
 		expect(mutatedRoute.tags).toEqual({ mutated: 'yes' });
 	});
+
+	it('records helper method signatures on controller metadata', () => {
+		const plan: RestControllerResourcePlan = {
+			name: 'taxonomy',
+			className: 'TaxonomyController',
+			schemaKey: 'taxonomy',
+			schemaProvenance: 'manual',
+			restArgsExpression: buildScalarString('args'),
+			identity: { type: 'string', param: 'slug' },
+			cacheKeys: {
+				list: { segments: ['taxonomy'] },
+				get: { segments: ['taxonomy', ':slug'] },
+			},
+			helperMethods: [],
+			helperSignatures: [
+				'private function getTaxonomy(): string',
+				'private function resolveTaxonomy( $value ): ?WP_Term',
+			],
+			routes: [
+				{
+					definition: {
+						method: 'GET',
+						path: '/demo/v1/taxonomy',
+					},
+					methodName: 'get_items',
+					buildStatements: () => [
+						buildReturn(buildScalarString('ok')),
+					],
+				},
+			],
+		} satisfies RestControllerResourcePlan;
+
+		const result = buildRestControllerModuleFromPlan({
+			origin: 'wpk.config.ts',
+			pluginNamespace: 'Demo\\Plugin',
+			sanitizedNamespace: 'demo-plugin',
+			capabilityClass: 'Demo\\Plugin\\Capability\\Capability',
+			resources: [plan],
+			includeBaseController: false,
+		});
+
+		const controllerFile = result.files.find(
+			(file) => file.fileName === 'Rest/TaxonomyController.php'
+		);
+		expectDefined(controllerFile, 'Expected controller file.');
+
+		const metadata = controllerFile.metadata as ResourceControllerMetadata;
+		expect(metadata.helpers).toEqual({
+			methods: [
+				'private function getTaxonomy(): string',
+				'private function resolveTaxonomy( $value ): ?WP_Term',
+			],
+		});
+	});
 });
 
 function expectDefined<T>(

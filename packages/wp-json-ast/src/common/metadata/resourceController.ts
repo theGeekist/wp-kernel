@@ -1,7 +1,9 @@
 import type {
+	ResourceControllerHelperMetadata,
 	ResourceControllerMetadata,
 	ResourceControllerRouteMetadata,
 } from '../../types';
+import type { ResourceMetadataHost } from './cache';
 
 export type ResourceRouteKind = 'list' | 'get' | 'create' | 'update' | 'remove';
 
@@ -198,6 +200,35 @@ export function buildResourceControllerRouteMetadata(
 	options: BuildResourceControllerRouteMetadataOptions
 ): ResourceControllerRouteMetadata[] {
 	return options.routes.map((route) => buildRouteMetadata(route, options));
+}
+
+export function appendResourceControllerHelperSignatures(
+	host: ResourceMetadataHost,
+	signatures: readonly string[]
+): void {
+	if (signatures.length === 0) {
+		return;
+	}
+
+	const metadata = host.getMetadata();
+	if (metadata.kind !== 'resource-controller') {
+		return;
+	}
+
+	const current = metadata.helpers ?? { methods: [] };
+	const nextMethods = new Set<string>(current.methods);
+	for (const signature of signatures) {
+		nextMethods.add(signature);
+	}
+
+	const helpers: ResourceControllerHelperMetadata = {
+		methods: Array.from(nextMethods),
+	};
+
+	host.setMetadata({
+		...metadata,
+		helpers,
+	});
 }
 
 function buildRouteMetadata(
