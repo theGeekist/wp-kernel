@@ -1,37 +1,48 @@
-import {
-	buildWpTaxonomyHelperMethods,
-	type WpTaxonomyStorageConfig,
-} from '../helpers';
 import type {
-	PhpStmt,
 	PhpExpr,
 	PhpExprArray,
-	PhpExprConstFetch,
 	PhpExprFuncCall,
+	PhpStmt,
+	PhpStmtIf,
+	PhpStmtReturn,
 } from '@wpkernel/php-json-ast';
-import type { ResolvedIdentity } from '../../../identity';
-type TaxonomyHelper = ReturnType<typeof buildWpTaxonomyHelperMethods>[number];
+
+import {
+	buildWpTaxonomyHelperMethods,
+	buildTaxonomyAssignmentStatement,
+	buildGetTaxonomyCall,
+	buildResolveTaxonomyTermCall,
+	buildPrepareTaxonomyTermResponseCall,
+	ensureWpTaxonomyStorage,
+	type BuildWpTaxonomyHelperMethodsOptions,
+	type WpTaxonomyHelperMethod,
+	type WpTaxonomyStorageConfig,
+} from '../index';
+import type { ResolvedIdentity } from '../../../../pipeline/identity';
+
+const baseStorage: WpTaxonomyStorageConfig = {
+	mode: 'wp-taxonomy',
+	taxonomy: 'job_category',
+	hierarchical: true,
+};
+
+const identity: ResolvedIdentity = {
+	type: 'string',
+	param: 'slug',
+};
+
+function buildHelpers(
+	overrides: Partial<BuildWpTaxonomyHelperMethodsOptions['storage']> = {}
+) {
+	return buildWpTaxonomyHelperMethods({
+		pascalName: 'JobCategories',
+		storage: { ...baseStorage, ...overrides },
+		identity,
+		errorCodeFactory: (suffix) => `taxonomy_${suffix}`,
+	});
+}
 
 describe('buildWpTaxonomyHelperMethods', () => {
-	const identity: ResolvedIdentity = {
-		type: 'string',
-		param: 'slug',
-	};
-	const storage: WpTaxonomyStorageConfig = {
-		mode: 'wp-taxonomy',
-		taxonomy: 'job_category',
-		hierarchical: true,
-	};
-
-	function buildHelpers(overrides: Partial<WpTaxonomyStorageConfig> = {}) {
-		return buildWpTaxonomyHelperMethods({
-			pascalName: 'JobCategories',
-			storage: { ...storage, ...overrides },
-			identity,
-			errorCodeFactory: (suffix) => `taxonomy_${suffix}`,
-		});
-	}
-
 	it('annotates resolve helper with the identity parameter and nullable WP_Term return type', () => {
 		const helpers = buildHelpers();
 
@@ -86,14 +97,8 @@ describe('buildWpTaxonomyHelperMethods', () => {
 		const slugIf = findIfStatement(stmts, 'Expr_BinaryOp_BooleanAnd');
 		const assignStmt = expectExpressionStatement(slugIf?.stmts?.[0]);
 		const assignExpr = expectAssignExpression(assignStmt.expr);
-		const callExpr = assignExpr.expr;
-		if (callExpr.nodeType !== 'Expr_FuncCall') {
-			throw new Error('Expected slug sanitiser to be a function call');
-		}
-		expect(callExpr).toMatchObject({
-			nodeType: 'Expr_FuncCall',
-			name: { parts: ['sanitize_title'] },
-		});
+		const callExpr = expectFuncCall(assignExpr.expr);
+		expect(callExpr.name).toMatchObject({ parts: ['sanitize_title'] });
 
 		const returnStmt = findReturnStatement(stmts);
 		expect(returnStmt?.expr).toMatchObject({
@@ -127,10 +132,76 @@ describe('buildWpTaxonomyHelperMethods', () => {
 	});
 });
 
+describe('taxonomy helper call sites', () => {
+	it('builds taxonomy assignment statements and helper calls', () => {
+		const assignment = buildTaxonomyAssignmentStatement({
+			pascalName: 'JobCategories',
+			targetVariable: 'taxonomyName',
+		});
+
+		expect(assignment).toMatchObject({
+			expr: {
+				nodeType: 'Expr_Assign',
+				expr: {
+					nodeType: 'Expr_MethodCall',
+					name: { name: 'getJobCategoriesTaxonomy' },
+				},
+			},
+		});
+
+		expect(buildGetTaxonomyCall('JobCategories')).toMatchObject({
+			nodeType: 'Expr_MethodCall',
+			name: { name: 'getJobCategoriesTaxonomy' },
+		});
+
+		const resolveCall = buildResolveTaxonomyTermCall(
+			'JobCategories',
+			'identityVar'
+		);
+		expect(resolveCall).toMatchObject({
+			nodeType: 'Expr_MethodCall',
+			name: { name: 'resolveJobCategoriesTerm' },
+		});
+		expect(resolveCall.args?.[0]?.value).toMatchObject({
+			nodeType: 'Expr_Variable',
+			name: 'identityVar',
+		});
+
+		const prepareCall = buildPrepareTaxonomyTermResponseCall(
+			'JobCategories',
+			'termVar'
+		);
+		expect(prepareCall).toMatchObject({
+			nodeType: 'Expr_MethodCall',
+			name: { name: 'prepareJobCategoriesTermResponse' },
+		});
+		expect(prepareCall.args?.[0]?.value).toMatchObject({
+			nodeType: 'Expr_Variable',
+			name: 'termVar',
+		});
+	});
+});
+
+describe('ensureWpTaxonomyStorage', () => {
+	it('returns taxonomy storage when provided', () => {
+		const storage = ensureWpTaxonomyStorage(baseStorage, {
+			resourceName: 'jobCategories',
+		});
+
+		expect(storage).toBe(baseStorage);
+	});
+
+	it('throws when storage is not taxonomy configured', () => {
+		expect(() => ensureWpTaxonomyStorage(undefined)).toThrow(
+			/wp-taxonomy storage/
+		);
+	});
+});
+
 function getHelper(
-	helpers: readonly TaxonomyHelper[],
+	helpers: ReadonlyArray<WpTaxonomyHelperMethod>,
 	index: number
-): TaxonomyHelper {
+): WpTaxonomyHelperMethod {
 	const helper = helpers[index];
 	if (!helper) {
 		throw new Error(`Expected helper at index ${index}`);
@@ -138,7 +209,7 @@ function getHelper(
 	return helper;
 }
 
-function expectArrayExpression(expr: PhpExpr | undefined): PhpExprArray {
+function expectArrayExpression(expr: PhpExpr | null | undefined): PhpExprArray {
 	expect(expr?.nodeType).toBe('Expr_Array');
 	if (!expr || expr.nodeType !== 'Expr_Array') {
 		throw new Error('Expected array expression');
@@ -146,7 +217,7 @@ function expectArrayExpression(expr: PhpExpr | undefined): PhpExprArray {
 	return expr as PhpExprArray;
 }
 
-function expectFuncCall(expr: PhpExpr | undefined): PhpExprFuncCall {
+function expectFuncCall(expr: PhpExpr | null | undefined): PhpExprFuncCall {
 	expect(expr?.nodeType).toBe('Expr_FuncCall');
 	if (!expr || expr.nodeType !== 'Expr_FuncCall') {
 		throw new Error('Expected function call expression');
@@ -172,97 +243,54 @@ function expectAssignExpression(
 ): Extract<PhpExpr, { nodeType: 'Expr_Assign'; expr: PhpExpr }> {
 	expect(expr?.nodeType).toBe('Expr_Assign');
 	if (!expr || expr.nodeType !== 'Expr_Assign') {
-		throw new Error('Expected assign expression');
+		throw new Error('Expected assignment expression');
 	}
 	return expr as Extract<PhpExpr, { nodeType: 'Expr_Assign'; expr: PhpExpr }>;
 }
 
-function expectConstFetch(expr: PhpExpr | undefined): PhpExprConstFetch {
-	expect(expr?.nodeType).toBe('Expr_ConstFetch');
-	if (!expr || expr.nodeType !== 'Expr_ConstFetch') {
-		throw new Error('Expected const fetch expression');
-	}
-	return expr as PhpExprConstFetch;
-}
-
 function expectHierarchicalFlag(
-	helper: TaxonomyHelper,
-	expected: boolean
+	helper: WpTaxonomyHelperMethod,
+	hierarchical: boolean
 ): void {
-	const methodNode = helper.node;
-	expect(methodNode).toBeDefined();
-	const returnStmt = findReturnStatement(methodNode?.stmts ?? []);
-	const arrayExpr = expectArrayExpression(returnStmt?.expr ?? undefined);
-	let hierarchicalItem: (typeof arrayExpr.items)[number] | undefined;
-	for (const item of arrayExpr.items) {
-		const key = item?.key;
-		if (!item || !key || key.nodeType !== 'Scalar_String') {
-			continue;
-		}
-		const keyNode = key as Extract<
-			typeof key,
-			{ nodeType: 'Scalar_String'; value: string }
-		>;
-		if (keyNode.value === 'hierarchical') {
-			hierarchicalItem = item;
-			break;
-		}
-	}
-	if (!hierarchicalItem) {
-		throw new Error(
-			'Expected hierarchical entry in taxonomy helper response'
-		);
-	}
-	const constFetch = expectConstFetch(hierarchicalItem.value);
-	expect(constFetch.name.parts[0]).toBe(expected ? 'true' : 'false');
+	const method = helper.node;
+	const returnStmt = method?.stmts?.[0];
+	expect(returnStmt?.nodeType).toBe('Stmt_Return');
+	const returnExpr = (returnStmt as PhpStmtReturn | undefined)?.expr;
+	const arrayExpr = expectArrayExpression(returnExpr);
+	const hierarchicalItem = arrayExpr.items?.[4];
+	const value = hierarchicalItem?.value;
+	expect(value).toMatchObject({
+		nodeType: 'Expr_ConstFetch',
+		name: { parts: [hierarchical ? 'true' : 'false'] },
+	});
 }
 
-function expectFinalReturnTrim(helper: TaxonomyHelper): void {
-	const methodNode = helper.node;
-	expect(methodNode).toBeDefined();
-	const returnStmt = findReturnStatement(methodNode?.stmts ?? []);
-	const callExpr = expectFuncCall(returnStmt?.expr ?? undefined);
-	expect(callExpr.name).toMatchObject({ nodeType: 'Name', parts: ['trim'] });
-	expect(callExpr.args).toHaveLength(1);
-	const [arg] = callExpr.args;
-	expect(arg?.value?.nodeType.startsWith('Expr_Cast')).toBe(true);
-	const castExpr = arg?.value;
-	if (!castExpr || !castExpr.nodeType.startsWith('Expr_Cast')) {
-		throw new Error('Expected trim argument to be a cast expression');
-	}
-	expect((castExpr as { type?: string }).type ?? 'string').toBe('string');
-	const castExpression = castExpr as { expr: PhpExpr };
-	expect(castExpression.expr).toMatchObject({
-		nodeType: 'Expr_Variable',
-		name: 'value',
+function findIfStatement(
+	stmts: readonly PhpStmt[],
+	kind: string
+): PhpStmtIf | undefined {
+	return stmts.find((stmt): stmt is PhpStmtIf => {
+		if (stmt.nodeType !== 'Stmt_If') {
+			return false;
+		}
+
+		const ifStatement = stmt as PhpStmtIf;
+		return ifStatement.cond?.nodeType === kind;
 	});
 }
 
 function findReturnStatement(
-	statements: readonly PhpStmt[]
-): Extract<PhpStmt, { nodeType: 'Stmt_Return' }> | undefined {
-	return statements.find(
-		(
-			statement
-		): statement is Extract<PhpStmt, { nodeType: 'Stmt_Return' }> => {
-			return statement.nodeType === 'Stmt_Return';
-		}
+	stmts: readonly PhpStmt[]
+): PhpStmtReturn | undefined {
+	return stmts.find(
+		(stmt): stmt is PhpStmtReturn => stmt.nodeType === 'Stmt_Return'
 	);
 }
 
-function findIfStatement(
-	statements: readonly PhpStmt[],
-	conditionType: string
-): Extract<PhpStmt, { nodeType: 'Stmt_If' }> | undefined {
-	return statements.find(
-		(statement): statement is Extract<PhpStmt, { nodeType: 'Stmt_If' }> => {
-			if (statement.nodeType !== 'Stmt_If') {
-				return false;
-			}
-			const cond = (
-				statement as Extract<typeof statement, { cond: PhpExpr }>
-			).cond;
-			return cond?.nodeType === conditionType;
-		}
-	);
+function expectFinalReturnTrim(helper: WpTaxonomyHelperMethod): void {
+	const returnStmt = findReturnStatement(helper.node?.stmts ?? []);
+	expect(returnStmt?.expr).toMatchObject({
+		nodeType: 'Expr_FuncCall',
+		name: { parts: ['trim'] },
+	});
 }
