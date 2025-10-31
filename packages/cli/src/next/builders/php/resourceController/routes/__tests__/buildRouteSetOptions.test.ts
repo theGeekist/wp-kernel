@@ -1,10 +1,14 @@
 import {
 	buildResourceControllerRouteSet,
 	buildTransientStorageArtifacts,
+	buildWpOptionStorageArtifacts,
+	buildWpTaxonomyQueryRouteBundle,
 	resolveTransientKey,
+	ensureWpTaxonomyStorage,
 	type ResourceMetadataHost,
 	type ResolvedIdentity,
 } from '@wpkernel/wp-json-ast';
+import { ensureWpOptionStorage } from '../../../resource/wpOption/shared';
 import type { IRResource, IRRoute } from '../../../../../ir/publicTypes';
 import { buildRouteSetOptions } from '../buildRouteSetOptions';
 
@@ -63,19 +67,12 @@ function buildPlan({
 	const pascalName = 'Book';
 	const errorCodeFactory = (suffix: string) => `book_${suffix}`;
 
-	const transientArtifacts =
-		resource.storage?.mode === 'transient'
-			? buildTransientStorageArtifacts({
-					pascalName,
-					key: resolveTransientKey({
-						resourceName: resource.name,
-						namespace: '',
-					}),
-					identity,
-					cacheSegments: resource.cacheKeys.get.segments,
-					errorCodeFactory,
-				})
-			: undefined;
+	const storageArtifacts = buildStorageArtifacts({
+		resource,
+		identity,
+		pascalName,
+		errorCodeFactory,
+	});
 
 	const options = buildRouteSetOptions({
 		resource,
@@ -83,7 +80,7 @@ function buildPlan({
 		identity,
 		pascalName,
 		errorCodeFactory,
-		transientArtifacts,
+		storageArtifacts,
 	});
 
 	return buildResourceControllerRouteSet({
@@ -97,6 +94,76 @@ function buildPlan({
 		},
 		...options,
 	});
+}
+
+function buildStorageArtifacts({
+	resource,
+	identity,
+	pascalName,
+	errorCodeFactory,
+}: {
+	readonly resource: IRResource;
+	readonly identity: ResolvedIdentity;
+	readonly pascalName: string;
+	readonly errorCodeFactory: (suffix: string) => string;
+}): {
+	readonly routeHandlers?: ReturnType<
+		typeof buildWpTaxonomyQueryRouteBundle
+	>['routeHandlers'];
+	readonly optionHandlers?: ReturnType<
+		typeof buildWpOptionStorageArtifacts
+	>['routeHandlers'];
+	readonly transientHandlers?: ReturnType<
+		typeof buildTransientStorageArtifacts
+	>['routeHandlers'];
+} {
+	switch (resource.storage?.mode) {
+		case 'wp-taxonomy': {
+			const storage = ensureWpTaxonomyStorage(resource.storage, {
+				resourceName: resource.name,
+			});
+
+			return {
+				routeHandlers: buildWpTaxonomyQueryRouteBundle({
+					pascalName,
+					resourceName: resource.name,
+					storage,
+					identity,
+					errorCodeFactory,
+				}).routeHandlers,
+			};
+		}
+		case 'transient': {
+			const artifacts = buildTransientStorageArtifacts({
+				pascalName,
+				key: resolveTransientKey({
+					resourceName: resource.name,
+					namespace: '',
+				}),
+				identity,
+				cacheSegments: resource.cacheKeys.get.segments,
+				errorCodeFactory,
+			});
+
+			return {
+				transientHandlers: artifacts.routeHandlers,
+			};
+		}
+		case 'wp-option': {
+			const storage = ensureWpOptionStorage(resource);
+			const artifacts = buildWpOptionStorageArtifacts({
+				pascalName,
+				optionName: storage.option,
+				errorCodeFactory,
+			});
+
+			return {
+				optionHandlers: artifacts.routeHandlers,
+			};
+		}
+		default:
+			return {};
+	}
 }
 
 describe('buildRouteSetOptions', () => {
@@ -162,5 +229,28 @@ describe('buildRouteSetOptions', () => {
 		});
 
 		expect(statements).not.toBeNull();
+	});
+
+	it('prefers storage-provided route handlers when available', () => {
+		const resource = buildResource(undefined);
+		const route = buildRoute('GET');
+		const routeHandlers = {
+			list: jest.fn(),
+		} as const;
+
+		const options = buildRouteSetOptions({
+			resource,
+			route,
+			identity: { type: 'number', param: 'id' },
+			pascalName: 'Book',
+			errorCodeFactory: (suffix) => `book_${suffix}`,
+			storageArtifacts: {
+				routeHandlers,
+				optionHandlers: undefined,
+				transientHandlers: undefined,
+			},
+		});
+
+		expect(options.handlers).toBe(routeHandlers);
 	});
 });
