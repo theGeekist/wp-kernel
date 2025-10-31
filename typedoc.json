@@ -22,7 +22,7 @@
 	"name": "WP Kernel API",
 	"includeVersion": true,
 	"disableSources": true,
-	"sort": ["source-order"],
+	"sort": ["kind", "alphabetical"],
 	"kindSortOrder": [
 		"Function",
 		"Class",
@@ -31,7 +31,7 @@
 		"Variable",
 		"Enum"
 	],
-	"categorizeByGroup": false,
+	"categorizeByGroup": true,
 	"validation": {
 		"notExported": true,
 		"invalidLink": true,
