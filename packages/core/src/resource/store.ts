@@ -1,3 +1,4 @@
+/* eslint-disable jsdoc/check-tag-names -- allow Typedoc @category tags */
 /**
  * @file Store Factory
  * Creates @wordpress/data stores from resource definitions.
@@ -75,6 +76,8 @@ function defaultGetQueryKey<TQuery>(query?: TQuery): string {
  *   getId: (item) => item.id,
  * });
  * ```
+ *
+ * @category Resource
  */
 export function createStore<T, TQuery = unknown>(
 	config: ResourceStoreConfig<T, TQuery>
@@ -671,3 +674,5 @@ export function createStore<T, TQuery = unknown>(
 		},
 	};
 }
+
+/* eslint-enable jsdoc/check-tag-names */

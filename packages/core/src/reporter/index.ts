@@ -1,3 +1,4 @@
+/* eslint-disable jsdoc/check-tag-names -- allow Typedoc @category tags */
 import { LogLayer } from 'loglayer';
 import type { LogLevelType } from '@loglayer/shared';
 import { createTransports } from './transports';
@@ -50,6 +51,16 @@ function logWithLevel(
 	}
 }
 
+/**
+ * Create a kernel reporter backed by LogLayer transports.
+ *
+ * The reporter honors namespace, channel, and level options while providing a
+ * typed interface for child loggers used across subsystems.
+ *
+ * @param    options - Reporter configuration
+ * @return Reporter instance with child helpers
+ * @category Reporter
+ */
 export function createReporter(options: ReporterOptions = {}): Reporter {
 	const namespace = options.namespace ?? DEFAULT_NAMESPACE;
 	const level = options.level ?? DEFAULT_LEVEL;
@@ -104,6 +115,15 @@ export function createReporter(options: ReporterOptions = {}): Reporter {
 	return reporter;
 }
 
+/**
+ * Create a reporter that silently ignores every log call.
+ *
+ * Useful in production or tests where logging should be disabled without
+ * altering calling code.
+ *
+ * @return Reporter that performs no logging
+ * @category Reporter
+ */
 export function createNoopReporter(): Reporter {
 	return {
 		info: () => undefined,
@@ -113,6 +133,8 @@ export function createNoopReporter(): Reporter {
 		child: () => createNoopReporter(),
 	};
 }
+
+/* eslint-enable jsdoc/check-tag-names */
 
 export type { Reporter, ReporterOptions, ReporterLevel } from './types';
 export {

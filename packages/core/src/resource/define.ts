@@ -1,3 +1,4 @@
+/* eslint-disable jsdoc/check-tag-names -- allow Typedoc @category tags */
 /**
  * Resource definition and client generation
  *
@@ -86,6 +87,7 @@ function buildResourceDefinitionOptions<T, TQuery>({
  * @param    config - Resource configuration
  * @return Resource object with client methods and metadata
  * @throws DeveloperError if configuration is invalid
+ * @category Resource
  */
 export function defineResource<T = unknown, TQuery = unknown>(
 	config: ResourceConfig<T, TQuery>
@@ -128,3 +130,5 @@ export function defineResource<T = unknown, TQuery = unknown>(
 
 	return runResult.artifact.resource as ResourceObject<T, TQuery>;
 }
+
+/* eslint-enable jsdoc/check-tag-names */

@@ -1,3 +1,4 @@
+/* eslint-disable jsdoc/check-tag-names -- allow Typedoc @category tags */
 import { createReporter, getWPKernelReporter } from '../reporter';
 import type { Reporter } from '../reporter';
 import { resolveReporter } from '../reporter/resolve';
@@ -335,8 +336,9 @@ export type CacheKeyPattern = (string | number | boolean | null | undefined)[];
  * Normalize a cache key pattern to a string representation.
  * Filters out null/undefined values and joins with colons.
  *
- * @param pattern - Cache key pattern array
+ * @param    pattern - Cache key pattern array
  * @return Normalized string key
+ * @category Resource
  *
  * @example
  * ```ts
@@ -358,10 +360,11 @@ export function normalizeCacheKey(pattern: CacheKeyPattern): string {
  * Used internally by invalidate logic.
  *
  * @internal
- * @param key      - The cache key to test (already normalized string)
- * @param pattern  - The pattern to match against
- * @param reporter - Optional reporter used for logging match evaluations
+ * @param    key      - The cache key to test (already normalized string)
+ * @param    pattern  - The pattern to match against
+ * @param    reporter - Optional reporter used for logging match evaluations
  * @return True if the key matches the pattern
+ * @category Resource
  *
  * @example
  * ```ts
@@ -407,10 +410,11 @@ export function matchesCacheKey(
  * Used internally by invalidate logic.
  *
  * @internal
- * @param keys     - Collection of cache keys (typically from store state)
- * @param pattern  - Pattern to match against
- * @param reporter - Optional reporter used for logging matches
+ * @param    keys     - Collection of cache keys (typically from store state)
+ * @param    pattern  - Pattern to match against
+ * @param    reporter - Optional reporter used for logging matches
  * @return Array of matching cache keys
+ * @category Resource
  *
  * @example
  * ```ts
@@ -433,10 +437,11 @@ export function findMatchingKeys(
  * Used internally by invalidate logic.
  *
  * @internal
- * @param keys     - Collection of cache keys
- * @param patterns - Array of patterns to match against
- * @param reporter - Optional reporter used for logging matches
+ * @param    keys     - Collection of cache keys
+ * @param    patterns - Array of patterns to match against
+ * @param    reporter - Optional reporter used for logging matches
  * @return Array of matching cache keys (deduplicated)
+ * @category Resource
  *
  * @example
  * ```ts
@@ -486,10 +491,11 @@ export type PathParams = Record<string, string | number | boolean>;
  * Replaces `:paramName` patterns with values from the params object.
  * Throws DeveloperError if required params are missing.
  *
- * @param path   - REST path with :param placeholders
- * @param params - Parameter values to interpolate
+ * @param    path   - REST path with :param placeholders
+ * @param    params - Parameter values to interpolate
  * @return Interpolated path
  * @throws DeveloperError if required params are missing
+ * @category Resource
  *
  * @example
  * ```ts
@@ -549,8 +555,9 @@ export function interpolatePath(path: string, params: PathParams = {}): string {
  * Used internally by the resource system for path handling.
  *
  * @internal
- * @param path - REST path with :param placeholders
+ * @param    path - REST path with :param placeholders
  * @return Array of parameter names
+ * @category Resource
  *
  * @example
  * ```ts
@@ -626,7 +633,8 @@ const registeredStoreKeys = new Set<string>();
  * Called internally by defineResource
  *
  * @internal
- * @param storeKey - The store key to register (e.g., 'my-plugin/thing')
+ * @param    storeKey - The store key to register (e.g., 'my-plugin/thing')
+ * @category Resource
  */
 export function registerStoreKey(storeKey: string): void {
 	registeredStoreKeys.add(storeKey);
@@ -653,8 +661,9 @@ function getMatchingStoreKeys(prefix: string = ''): string[] {
  * This is the primary cache invalidation API used by Actions to ensure
  * UI reflects updated data after write operations.
  *
- * @param patterns - Cache key patterns to invalidate
- * @param options  - Invalidation options
+ * @param    patterns - Cache key patterns to invalidate
+ * @param    options  - Invalidation options
+ * @category Resource
  *
  * @example
  * ```ts
@@ -752,9 +761,10 @@ function emitCacheInvalidatedEvent(keys: string[]): void {
  * Use `invalidate()` with patterns instead for targeted cache invalidation.
  *
  * @internal
- * @param storeKey         - The store key to invalidate (e.g., 'my-plugin/thing')
- * @param registry
- * @param reporterOverride
+ * @param    storeKey         - The store key to invalidate (e.g., 'my-plugin/thing')
+ * @param    registry
+ * @param    reporterOverride
+ * @category Resource
  *
  * @example
  * ```ts
@@ -803,3 +813,5 @@ export function invalidateAll(
 		}
 	}
 }
+
+/* eslint-enable jsdoc/check-tag-names */

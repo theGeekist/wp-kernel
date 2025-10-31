@@ -1,3 +1,4 @@
+/* eslint-disable jsdoc/check-tag-names -- allow Typedoc @category tags */
 /**
  * Actions orchestration — defineAction implementation
  *
@@ -229,6 +230,7 @@ import { createActionRegistryBridge } from '../pipeline/actions/helpers/createAc
  * @see ActionContext interface for the full context API surface
  * @see middleware module for Redux integration
  * @public
+ * @category Actions
  */
 export function defineAction<TArgs = void, TResult = void>(
 	config: ActionConfig<TArgs, TResult>
@@ -295,6 +297,8 @@ export function defineAction<TArgs = void, TResult = void>(
 
 	return action;
 }
+
+/* eslint-enable jsdoc/check-tag-names */
 
 function attachActionMetadata<TArgs, TResult>(
 	action: DefinedAction<TArgs, TResult>,
