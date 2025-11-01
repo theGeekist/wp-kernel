@@ -145,9 +145,9 @@ function normalizeDeclareSpacing(string $value): string
 function resolveAutoloadPath(string $workspaceRoot, array $additionalCandidates = []): string
 {
     $candidates = array_merge(
+        [buildAutoloadPathFromRoot($workspaceRoot)],
         buildAutoloadCandidatesFromEnv(),
         $additionalCandidates,
-        [buildAutoloadPathFromRoot($workspaceRoot)]
     );
 
     $candidates = array_values(
