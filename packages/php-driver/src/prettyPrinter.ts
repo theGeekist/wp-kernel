@@ -2,6 +2,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { spawn } from 'node:child_process';
 import { WPKernelError } from '@wpkernel/core/error';
+import { WPK_NAMESPACE } from '@wpkernel/core/contracts';
 import type {
 	DriverWorkspace,
 	PhpPrettyPrintPayload,
@@ -168,6 +169,7 @@ export function buildPhpPrettyPrinter(
 		});
 
 		if (exitCode !== 0) {
+			logBridgeFailure(stdout, stderr);
 			throw new WPKernelError('DeveloperError', {
 				message: 'Failed to pretty print PHP artifacts.',
 				data: {
@@ -298,6 +300,22 @@ function collectStderrSummary(stderr: string): string[] {
 		.map((line) => line.trim())
 		.filter(Boolean)
 		.slice(0, 3);
+}
+
+function logBridgeFailure(stdout: string, stderr: string): void {
+	if (stderr.length > 0) {
+		process.stderr.write(
+			`[${WPK_NAMESPACE}.php-driver][stderr] ${JSON.stringify(stderr)}\n`
+		);
+	}
+	if (stdout.length > 0) {
+		process.stderr.write(
+			`[${WPK_NAMESPACE}.php-driver][stdout] ${JSON.stringify(stdout)}\n`
+		);
+	}
+	if (stderr.length === 0 && stdout.length === 0) {
+		process.stderr.write(`[${WPK_NAMESPACE}.php-driver][stderr] ""\n`);
+	}
 }
 
 function parseBridgeOutput(
