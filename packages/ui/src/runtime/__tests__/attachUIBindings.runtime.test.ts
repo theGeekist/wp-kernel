@@ -1,17 +1,12 @@
-import type {
-	WPKInstance,
-	WPKernelRegistry,
-	WPKernelUIRuntime,
-	UIIntegrationOptions,
-} from '@wpkernel/core/data';
+import type { WPKernelUIRuntime } from '@wpkernel/core/data';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { ResourceObject } from '@wpkernel/core/resource';
-import type { View } from '@wordpress/dataviews';
 import {
 	WPKernelEventBus,
 	type ResourceDefinedEvent,
 	getRegisteredResources,
 } from '@wpkernel/core/events';
+
 import { attachUIBindings } from '../attachUIBindings';
 import { attachResourceHooks } from '../../hooks/resource-hooks';
 import type { DataViewPreferencesAdapter } from '../dataviews/preferences';
@@ -20,9 +15,17 @@ import {
 	DATA_VIEWS_EVENT_ACTION_TRIGGERED,
 	DATA_VIEWS_EVENT_UNREGISTERED,
 	DATA_VIEWS_EVENT_VIEW_CHANGED,
-	DATA_VIEWS_EVENT_REGISTERED,
 } from '../dataviews/events';
 import { DataViewsConfigurationError } from '../dataviews/errors';
+import {
+	createKernel,
+	createPreferencesRegistry,
+	createReporter,
+	createReporterWithThrowingChild,
+	createReporterWithUndefinedChild,
+	type PreferencesRegistry,
+	setPreferenceValue,
+} from '../test-support/attachUIBindings.test-support';
 
 jest.mock('../../hooks/resource-hooks', () => ({
 	attachResourceHooks: jest.fn((resource) => resource),
@@ -44,164 +47,7 @@ const mockGetRegisteredResources =
 		typeof getRegisteredResources
 	>;
 
-type PreferencesRegistry = WPKernelRegistry & {
-	__store: Map<string, Map<string, unknown>>;
-};
-
-function createPreferencesRegistry(): PreferencesRegistry {
-	const store = new Map<string, Map<string, unknown>>();
-
-	const registry = {
-		select(storeName: string) {
-			if (storeName !== 'core/preferences') {
-				return {};
-			}
-
-			return {
-				get(scope: string, key: string) {
-					return store.get(scope)?.get(key);
-				},
-			};
-		},
-		dispatch(storeName: string) {
-			if (storeName !== 'core/preferences') {
-				return {};
-			}
-
-			return {
-				set(scope: string, key: string, value: unknown) {
-					const scopeMap =
-						store.get(scope) ?? new Map<string, unknown>();
-					if (typeof value === 'undefined') {
-						scopeMap.delete(key);
-					} else {
-						scopeMap.set(key, value);
-					}
-					store.set(scope, scopeMap);
-				},
-			};
-		},
-		__store: store,
-	};
-
-	return registry as unknown as PreferencesRegistry;
-}
-
-function setPreferenceValue(
-	registry: PreferencesRegistry,
-	scope: string,
-	key: string,
-	value: unknown
-): void {
-	const actions = registry.dispatch('core/preferences') as {
-		set: (scope: string, key: string, value: unknown) => void;
-	};
-	actions.set(scope, key, value);
-}
-
-function createReporter(): Reporter {
-	const child = jest.fn();
-	const reporter = {
-		info: jest.fn(),
-		warn: jest.fn(),
-		error: jest.fn(),
-		debug: jest.fn(),
-		child,
-	} as unknown as jest.Mocked<Reporter>;
-	child.mockReturnValue(reporter);
-	return reporter;
-}
-
-function createReporterWithThrowingChild(): Reporter {
-	const child = jest.fn(() => {
-		throw new Error('child failure');
-	});
-	return {
-		info: jest.fn(),
-		warn: jest.fn(),
-		error: jest.fn(),
-		debug: jest.fn(),
-		child,
-	} as unknown as jest.Mocked<Reporter>;
-}
-
-function createReporterWithUndefinedChild(): Reporter {
-	const child = jest.fn(() => undefined);
-	return {
-		info: jest.fn(),
-		warn: jest.fn(),
-		error: jest.fn(),
-		debug: jest.fn(),
-		child,
-	} as unknown as jest.Mocked<Reporter>;
-}
-
-function createResourceWithDataView(): ResourceObject<
-	unknown,
-	{ search?: string }
-> {
-	const reporter = createReporter();
-	const resource = {
-		name: 'jobs',
-		routes: { list: { path: '/jobs', method: 'GET' } },
-		cacheKeys: {
-			list: jest.fn(),
-			get: jest.fn(),
-			create: jest.fn(),
-			update: jest.fn(),
-			remove: jest.fn(),
-		},
-		reporter,
-		fetchList: jest.fn(),
-		prefetchList: jest.fn(),
-	} as unknown as ResourceObject<unknown, { search?: string }>;
-
-	(resource as unknown as { ui?: { admin?: { dataviews?: unknown } } }).ui = {
-		admin: {
-			dataviews: {
-				fields: [{ id: 'title', label: 'Title' }],
-				defaultView: { type: 'table', fields: ['title'] } as View,
-				mapQuery: jest.fn(() => ({ search: undefined })),
-			},
-		},
-	};
-
-	return resource;
-}
-
-function createKernel(
-	events: WPKernelEventBus,
-	options?: UIIntegrationOptions,
-	registry?: WPKernelRegistry,
-	reporter?: Reporter
-): WPKInstance {
-	const reporterInstance = reporter ?? createReporter();
-
-	const kernel: WPKInstance = {
-		getNamespace: () => 'tests',
-		getReporter: () => reporterInstance,
-		invalidate: jest.fn(),
-		emit: jest.fn(),
-		teardown: jest.fn(),
-		getRegistry: () => registry,
-		hasUIRuntime: () => false,
-		getUIRuntime: () => undefined,
-		attachUIBindings: jest.fn(),
-		ui: {
-			isEnabled: () => false,
-			options,
-		},
-		events: Object.assign(events, {
-			on: jest.spyOn(events, 'on'),
-			emit: jest.spyOn(events, 'emit'),
-		}),
-		defineResource: jest.fn(),
-	};
-
-	return kernel;
-}
-
-describe('attachUIBindings', () => {
+describe('attachUIBindings runtime behaviour', () => {
 	beforeEach(() => {
 		jest.resetAllMocks();
 		mockGetRegisteredResources.mockReturnValue([]);
@@ -246,16 +92,17 @@ describe('attachUIBindings', () => {
 			namespace: 'tests',
 		});
 
-		expect(mockAttachResourceHooks).toHaveBeenCalledWith(
+		expect(mockAttachResourceHooks).toHaveBeenLastCalledWith(
 			resourceB,
 			runtime
 		);
 	});
 
-	it('provides runtime helpers that proxy to the kernel', () => {
+	it('proxies runtime helpers to the kernel', () => {
 		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
 		const kernel = createKernel(events, { suspense: true }, registry);
+
 		const runtime = attachUIBindings(kernel, { notices: true });
 
 		expect(runtime.options).toEqual({ notices: true });
@@ -308,9 +155,10 @@ describe('attachUIBindings', () => {
 		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
 		const reporter = createReporter();
-		const originalWp = (globalThis as { wp?: { data?: WPKernelRegistry } })
-			.wp;
-		(globalThis as { wp?: { data?: WPKernelRegistry } }).wp = {
+		const originalWp = (
+			globalThis as { wp?: { data?: PreferencesRegistry } }
+		).wp;
+		(globalThis as { wp?: { data?: PreferencesRegistry } }).wp = {
 			data: registry,
 		};
 
@@ -329,7 +177,7 @@ describe('attachUIBindings', () => {
 				'Resolved preferences registry from global wp.data'
 			);
 		} finally {
-			(globalThis as { wp?: { data?: WPKernelRegistry } }).wp =
+			(globalThis as { wp?: { data?: PreferencesRegistry } }).wp =
 				originalWp;
 		}
 	});
@@ -339,7 +187,7 @@ describe('attachUIBindings', () => {
 		const registry = {
 			select: () => ({}),
 			dispatch: () => ({ set: jest.fn() }),
-		} as unknown as WPKernelRegistry;
+		} as unknown as PreferencesRegistry;
 		const kernel = createKernel(events, undefined, registry);
 
 		const runtime = attachUIBindings(kernel);
@@ -358,7 +206,7 @@ describe('attachUIBindings', () => {
 				get: jest.fn().mockReturnValue(undefined),
 			}),
 			dispatch: () => ({}),
-		} as unknown as WPKernelRegistry;
+		} as unknown as PreferencesRegistry;
 		const kernel = createKernel(events, undefined, registry);
 
 		const runtime = attachUIBindings(kernel);
@@ -371,14 +219,12 @@ describe('attachUIBindings', () => {
 		).rejects.toThrow(DataViewsConfigurationError);
 	});
 
-	it('initializes dataviews runtime with default preferences adapter', async () => {
+	it('initializes DataViews runtime with default preferences adapter', async () => {
 		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
 		const kernel = createKernel(events, undefined, registry);
 
 		const runtime = attachUIBindings(kernel);
-		expect(runtime.dataviews).toBeDefined();
-
 		const dataviews = runtime.dataviews!;
 		const key = defaultPreferencesKey('tests', 'jobs');
 
@@ -395,126 +241,6 @@ describe('attachUIBindings', () => {
 		expect(registry.__store.get('tests/dataviews/user')?.get(key)).toEqual(
 			preferenceValue
 		);
-
-		dataviews.events.registered({
-			resource: 'jobs',
-			preferencesKey: key,
-		});
-
-		expect(kernel.emit).toHaveBeenCalledWith(DATA_VIEWS_EVENT_REGISTERED, {
-			resource: 'jobs',
-			preferencesKey: key,
-		});
-	});
-
-	it('auto-registers DataViews controllers for existing resources', () => {
-		const events = new WPKernelEventBus();
-		const registry = createPreferencesRegistry();
-		const kernel = createKernel(events, undefined, registry);
-		const resource = createResourceWithDataView();
-
-		mockGetRegisteredResources.mockReturnValueOnce([
-			{ resource, namespace: 'tests' } as ResourceDefinedEvent,
-		]);
-
-		const runtime = attachUIBindings(kernel);
-		const dataviews = runtime.dataviews!;
-		const controller = dataviews.controllers.get('jobs') as
-			| { resourceName: string; preferencesKey: string }
-			| undefined;
-
-		expect(controller).toBeDefined();
-		expect(controller?.resourceName).toBe('jobs');
-		expect(dataviews.registry.get('jobs')).toEqual(
-			expect.objectContaining({
-				resource: 'jobs',
-				preferencesKey: controller?.preferencesKey,
-			})
-		);
-
-		expect(kernel.emit).toHaveBeenCalledWith(
-			DATA_VIEWS_EVENT_REGISTERED,
-			expect.objectContaining({
-				resource: 'jobs',
-				preferencesKey: controller?.preferencesKey,
-			})
-		);
-	});
-
-	it('updates auto-registered controllers when capability runtime becomes available', () => {
-		const events = new WPKernelEventBus();
-		const registry = createPreferencesRegistry();
-		const kernel = createKernel(events, undefined, registry);
-		const resource = createResourceWithDataView();
-
-		mockGetRegisteredResources.mockReturnValueOnce([
-			{ resource, namespace: 'tests' } as ResourceDefinedEvent,
-		]);
-
-		const runtime = attachUIBindings(kernel);
-		const dataviews = runtime.dataviews!;
-		const controller = dataviews.controllers.get('jobs') as {
-			capabilities?: WPKernelUIRuntime['capabilities'];
-		};
-
-		expect(controller).toBeDefined();
-		expect(controller?.capabilities).toBeUndefined();
-
-		const capability = { can: jest.fn() };
-		(
-			globalThis as {
-				__WP_KERNEL_ACTION_RUNTIME__?: { capability?: unknown };
-			}
-		).__WP_KERNEL_ACTION_RUNTIME__ = { capability };
-
-		expect(controller?.capabilities).toEqual({ capability });
-	});
-
-	it('auto-registers DataViews controllers for future resources', () => {
-		const events = new WPKernelEventBus();
-		const registry = createPreferencesRegistry();
-		const kernel = createKernel(events, undefined, registry);
-		const runtime = attachUIBindings(kernel);
-		const resource = createResourceWithDataView();
-
-		events.emit('resource:defined', {
-			resource: resource as ResourceObject<unknown, unknown>,
-			namespace: 'tests',
-		});
-
-		const controller = runtime.dataviews?.controllers.get('jobs') as
-			| { preferencesKey: string }
-			| undefined;
-
-		expect(controller).toBeDefined();
-		expect(kernel.emit).toHaveBeenCalledWith(
-			DATA_VIEWS_EVENT_REGISTERED,
-			expect.objectContaining({
-				resource: 'jobs',
-				preferencesKey: controller?.preferencesKey,
-			})
-		);
-	});
-
-	it('skips auto-registration when disabled via options', () => {
-		const events = new WPKernelEventBus();
-		const registry = createPreferencesRegistry();
-		const kernel = createKernel(
-			events,
-			{ dataviews: { enable: true, autoRegisterResources: false } },
-			registry
-		);
-		const resource = createResourceWithDataView();
-
-		mockGetRegisteredResources.mockReturnValueOnce([
-			{ resource, namespace: 'tests' } as ResourceDefinedEvent,
-		]);
-
-		const runtime = attachUIBindings(kernel, {
-			dataviews: { enable: true, autoRegisterResources: false },
-		});
-
-		expect(runtime.dataviews?.controllers.has('jobs')).toBe(false);
 	});
 
 	it('resolves preferences using scope precedence', async () => {
