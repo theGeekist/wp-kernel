@@ -61,9 +61,18 @@ Make `wpk init` safe to run inside an existing plugin. The patch should:
 Introduce the AST helper that creates the plugin loader without wiring it into generation yet. This work:
 
 1. Adds a builder under `packages/cli/src/next/php` (or a dedicated helper module) that emits the plugin header, namespace, and kernel bootstrap call when no loader exists.
-2. Seeds a template in `packages/cli/templates/init/inc` that mirrors the helper output for `wpk init`.
+2. Seeds a template in `packages/cli/templates/init/plugin.php` that mirrors the helper output for `wpk init`.
 3. Documents the loader contract (expected filename, namespace, exported hooks) so future patches know when it is safe to skip regeneration.
 4. Provides unit tests that snapshot the generated AST and confirm the helper respects custom namespace inputs.
+
+#### Task 40 delivery summary
+
+Task 40 introduces `buildPluginLoaderProgram` in `@wpkernel/wp-json-ast`, generating a guarded `plugin.php` loader at the plugin root that ships the WordPress header, the `ABSPATH` access gate, and helper functions (`get_kernel_controllers`, `register_kernel_routes`, `bootstrap_kernel`) that wire generated controllers into `rest_api_init`. The CLI now exposes `createPhpPluginLoaderHelper`, which queues the loader for the project root (without yet registering it in the generate pipeline) and snapshots its AST in `pluginLoader.test.ts` to cover namespace variations. The init scaffold gained `packages/cli/templates/init/plugin.php`, giving new workspaces the same loader structure the helper produces, and the loader contract is documented here so the Task 41 integration work can detect overrides safely.
+
+- **Expected location:** `plugin.php` sits at the plugin root alongside the Composer autoload directory so WordPress can detect the loader automatically.
+- **Namespace & package:** the helper derives the PSR-4 namespace from the project slug and strips trailing separators so `namespace Demo\Plugin;` matches the autoload mapping (`DemoPlugin\\` in `composer.json`).
+- **Generated hooks:** `get_kernel_controllers()` returns controller instances, `register_kernel_routes()` attaches them when they expose `register_routes()`, and `bootstrap_kernel()` wires the registration into `rest_api_init` before immediately invoking it.
+- **Safety markers:** the loader retains the `WPK:BEGIN AUTO` guard so later tasks can detect author overrides and only rewrite the generated section when untouched.
 
 ### Patch 0.10.5 – Task 41: Generate/apply integration for the loader
 
