@@ -61,7 +61,7 @@ export interface WPKernelUIRuntime {
 }
 
 export type WPKernelUIAttach = (
-	kernel: WPKInstance,
+	wpKernel: WPKInstance,
 	options?: UIIntegrationOptions
 ) => WPKernelUIRuntime;
 
