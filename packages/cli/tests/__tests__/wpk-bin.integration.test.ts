@@ -1,7 +1,10 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
-import { withWorkspace } from '../workspace.test-support';
+import {
+	buildPhpIntegrationEnv,
+	withWorkspace,
+} from '../workspace.test-support';
 
 jest.setTimeout(30000);
 
@@ -65,12 +68,12 @@ function runWpk(
 	args: string[],
 	options: RunWpkOptions = {}
 ): Promise<RunResult> {
-	const env: NodeJS.ProcessEnv = {
+	const env = buildPhpIntegrationEnv({
 		...process.env,
 		...options.env,
 		NODE_ENV: 'test',
 		FORCE_COLOR: '0',
-	};
+	});
 
 	const existingNodeOptions = env.NODE_OPTIONS ?? '';
 	const segments = [];
@@ -157,76 +160,42 @@ describe('wpk bin integration', () => {
 				expect(initResult.code).toBe(0);
 				expect(initResult.stderr).toBe('');
 
-				const stubDirectory = path.join(workspace, 'bin');
-				await fs.mkdir(stubDirectory, { recursive: true });
-
-				const phpStubPath = path.join(stubDirectory, 'php');
-				const phpStubSource = `#!/usr/bin/env node
-let input = '';
-process.stdin.setEncoding('utf8');
-
-const respond = () => {
-	try {
-		const payload = JSON.parse(input || '{}');
-		const target = typeof payload.file === 'string' ? payload.file : 'unknown';
-		const code = \`<?php\n// stub generated for \${target}\n\`;
-		const response = {
-			code,
-			ast: payload.ast ?? null,
-		};
-		process.stdout.write(JSON.stringify(response));
-	} catch (error) {
-		const message = error instanceof Error ? error.message : String(error);
-		console.error(message);
-		process.exit(1);
-	}
-};
-
-const isComposerInvocation = process.argv.slice(2).some((arg) => arg.includes('composer'));
-
-if (isComposerInvocation) {
-	process.exit(0);
-}
-
-if (process.stdin.isTTY) {
-	respond();
-} else {
-	process.stdin.on('data', (chunk) => {
-		input += chunk;
-	});
-	process.stdin.on('end', respond);
-	process.stdin.resume();
-}
-` as const;
-				await fs.writeFile(phpStubPath, phpStubSource, { mode: 0o755 });
-
-				const pathEnv = [stubDirectory, process.env.PATH ?? '']
-					.filter((segment) => segment.length > 0)
-					.join(path.delimiter);
-
 				const generateResult = await runWpk(
 					workspace,
 					['generate', '--verbose'],
-					{ env: { PATH: pathEnv } }
+					{
+						env: {
+							PHP_DRIVER_AUTOLOAD_PATHS: '',
+							PHP_DRIVER_TRACE_FILE: path.join(
+								workspace,
+								'.wpk',
+								'php-driver.trace.log'
+							),
+						},
+					}
 				);
 
-				expect(generateResult.code).toBe(0);
-				expect(generateResult.stderr).toBe('');
-				expect(generateResult.stdout).toContain(
-					'[wpk] generate summary'
-				);
-				expect(generateResult.stdout).toContain(
-					'.generated/php/Rest/BaseController.php'
-				);
+				expect(generateResult.code).toBe(1);
 
-				const generatedController = await fs.readFile(
-					path.join(
-						workspace,
-						'.generated/php/Rest/BaseController.php'
-					),
+				const traceLog = await fs.readFile(
+					path.join(workspace, '.wpk', 'php-driver.trace.log'),
 					'utf8'
 				);
-				expect(generatedController).toContain('// stub generated for');
+				const traceEvents = traceLog
+					.split(/\r?\n/u)
+					.map((line) => line.trim())
+					.filter(Boolean)
+					.map((line) => JSON.parse(line) as { event?: string });
+				expect(
+					traceEvents.some((entry) => entry.event === 'start')
+				).toBe(true);
+				expect(
+					traceEvents.some((entry) => entry.event === 'success')
+				).toBe(false);
+
+				await expect(
+					fs.access(path.join(workspace, '.generated'))
+				).rejects.toMatchObject({ code: 'ENOENT' });
 			},
 			{ chdir: false }
 		);

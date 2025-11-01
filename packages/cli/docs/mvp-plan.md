@@ -212,7 +212,7 @@ We consider the CLI ready for the MVP launch when the following are true:
 1. Builders emit AST-driven artefacts for every supported storage mode (wp-post, wp-taxonomy, wp-option, transient) and blocks.
 2. Block generation runs through the next pipeline (manifests/registrars/render templates) with no reliance on string-based printers.
 3. `wpk apply` updates user shims that extend generated classes, honours all safety flags, and logs actions.
-4. Pipeline helpers expose configuration hooks (e.g., PHP driver options) without deep imports, and integration tests cover end-to-end `generate` + `apply` flows.
+4. Pipeline helpers expose configuration hooks (e.g., PHP driver options) without deep imports, and integration tests cover end-to-end `generate` + `apply` flows using the real PHP driver (no stubs) so the pretty-printer path is exercised during audits.
 5. All documentation (`cli-migration-phases.md`, `php-ast-migration-tasks.md`, `apply-workflow-phases.md`, `adapter-dx.md`, `pipeline-integration-tasks.md`, `core/docs/**`) reflects the current architecture.
 
 ## Task evaluation workflow
