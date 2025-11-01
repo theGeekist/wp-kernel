@@ -9,6 +9,7 @@ import {
 	createDataViewsTestController,
 	type DefaultActionInput,
 } from '../test-support/ResourceDataView.test-support';
+import { createNoticeRegistry } from '../test-support/ResourceDataView.test-support';
 import { act } from 'react';
 import { WPKernelError } from '@wpkernel/core/error';
 import type { CacheKeyPattern } from '@wpkernel/core/resource';
@@ -50,6 +51,10 @@ describe('ResourceDataView actions', () => {
 				actionId: 'delete',
 				permitted: true,
 			})
+		);
+		expect(runtime.dataviews.reporter.info).toHaveBeenCalledWith(
+			'DataViews action completed',
+			expect.objectContaining({ actionId: 'delete' })
 		);
 	});
 
@@ -353,6 +358,110 @@ describe('ResourceDataView actions', () => {
 			expect.objectContaining({ actionId: 'delete' })
 		);
 		expect(actionImpl).not.toHaveBeenCalled();
+	});
+
+	it('emits notices on successful actions', async () => {
+		const { registry, createNotice } = createNoticeRegistry();
+		const runtime = createKernelRuntime({ registry });
+		const actionImpl = jest.fn().mockResolvedValue({ ok: true });
+
+		const { getActionEntries } = renderActionScenario({
+			runtime,
+			action: {
+				action: createAction(actionImpl, {
+					scope: 'crossTab',
+					bridged: true,
+				}),
+			},
+		});
+
+		const [actionEntry] = getActionEntries();
+		await act(async () => {
+			await actionEntry!.callback([{ id: 1 }], {
+				onActionPerformed: jest.fn(),
+			});
+		});
+
+		expect(createNotice).toHaveBeenCalledWith(
+			'success',
+			'“Delete” — completed successfully.',
+			expect.objectContaining({
+				context: 'wpkernel/dataviews',
+				id: 'wp-kernel/dataviews/jobs/delete/success',
+			})
+		);
+	});
+
+	it('aggregates bulk selection notices into a single success message', async () => {
+		const { registry, createNotice } = createNoticeRegistry();
+		const runtime = createKernelRuntime({ registry });
+		const actionImpl = jest.fn().mockResolvedValue({ ok: true });
+
+		const { getActionEntries } = renderActionScenario({
+			runtime,
+			action: {
+				action: createAction(actionImpl, {
+					scope: 'crossTab',
+					bridged: true,
+				}),
+			},
+		});
+
+		const [actionEntry] = getActionEntries();
+		await act(async () => {
+			await actionEntry!.callback([{ id: 1 }, { id: 2 }, { id: 3 }], {
+				onActionPerformed: jest.fn(),
+			});
+		});
+
+		expect(createNotice).toHaveBeenCalledWith(
+			'success',
+			'“Delete” — completed for 3 items.',
+			expect.objectContaining({
+				context: 'wpkernel/dataviews',
+				id: 'wp-kernel/dataviews/jobs/delete/success',
+			})
+		);
+	});
+
+	it('emits notices on failing actions', async () => {
+		const { registry, createNotice } = createNoticeRegistry();
+		const runtime = createKernelRuntime({ registry });
+		const error = new WPKernelError('ServerError', {
+			message: 'Request failed',
+		});
+		const actionImpl = jest.fn().mockRejectedValue(error);
+
+		const { getActionEntries } = renderActionScenario({
+			runtime,
+			action: {
+				action: createAction(actionImpl, {
+					scope: 'crossTab',
+					bridged: true,
+				}),
+			},
+		});
+
+		const [actionEntry] = getActionEntries();
+
+		await expect(
+			actionEntry!.callback([{ id: 1 }], {
+				onActionPerformed: jest.fn(),
+			})
+		).rejects.toMatchObject({ message: 'Request failed' });
+
+		expect(createNotice).toHaveBeenCalledWith(
+			'error',
+			'“Delete” — failed: Request failed',
+			expect.objectContaining({
+				context: 'wpkernel/dataviews',
+				id: 'wp-kernel/dataviews/jobs/delete/failure',
+			})
+		);
+		expect(runtime.dataviews.reporter.error).toHaveBeenCalledWith(
+			'DataViews action failed',
+			expect.objectContaining({ actionId: 'delete' })
+		);
 	});
 
 	it('emits an empty-selection action event', async () => {

@@ -2,10 +2,13 @@
 
 ## Unreleased
 
-### In progress
+### Patch 0.11.1 - Task 46: DataViews schema expansion
 
-- **Phase 7 – Plugin bootstrap flow** – Tasks 37-45 will land the create bootstrap, plugin loader, regeneration cleanup, and activation smoke before 0.11.0 ships; track any UI adjustments that surface during that work.
-- **Phase 8 placeholder** – Task 46 will collect incremental diagnostics (starting with the CLI LogLayer reporter) after the bootstrap flow ships.
+- Auto-register saved views, default layouts, and menu metadata inside `attachUIBindings()` so kernel resources hydrate `ResourceDataView` controllers without bespoke wiring. Runtime tests cover the expanded schema and the README now documents the new `screen.menu` capabilities.
+
+### Patch 0.11.2 - Task 47: Async boundaries & notices
+
+- `ResourceDataView` renders shared loading, empty, error, and permission-denied boundaries using the controller reporter and capability runtime, while `useDataViewActions()` dispatches success/error notices through the WordPress registry and logs outcomes via the controller reporter.
 
 ## 0.10.0 - 2025-11-05
 
