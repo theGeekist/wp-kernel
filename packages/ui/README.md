@@ -82,6 +82,45 @@ export const job = defineResource<Job, JobQuery>({
 					page,
 					perPage,
 				}),
+				defaultLayouts: {
+					table: { density: 'compact' },
+				},
+				views: [
+					{
+						id: 'all',
+						label: 'All jobs',
+						isDefault: true,
+						view: {
+							type: 'table',
+							fields: ['title', 'status', 'department'],
+						},
+					},
+					{
+						id: 'published',
+						label: 'Published jobs',
+						view: {
+							type: 'table',
+							filters: [
+								{
+									field: 'status',
+									operator: 'is',
+									value: 'published',
+								},
+							],
+							fields: ['title', 'department'],
+						},
+					},
+				],
+				screen: {
+					component: 'JobsAdminScreen',
+					route: '/admin/jobs',
+					menu: {
+						slug: 'jobs-admin',
+						title: 'Jobs',
+						capability: 'manage_jobs',
+						position: 25,
+					},
+				},
 				actions: [
 					{
 						id: 'jobs.edit',
@@ -139,6 +178,18 @@ export function JobsAdminScreen() {
 ```
 
 `ResourceDataView` emits `data-wpk-dataview-*` attributes so Playwright helpers can target search, filters, bulk actions, and counters reliably.
+
+### Metadata reference
+
+`resource.ui.admin.dataviews` accepts the fields surfaced in the example above:
+
+- `fields` – Column descriptors forwarded to `@wordpress/dataviews`.
+- `defaultView` – The server-declared view used when no preference is stored.
+- `mapQuery` – Required mapper translating DataViews state into the resource query shape.
+- `defaultLayouts` – Optional per-layout overrides (table/grid/list) merged with stored views.
+- `views` – Saved views exposed to the UI before preferences are hydrated. Each entry includes an `id`, `label`, and `view` payload, with optional `description`/`isDefault` hints.
+- `screen` – Optional metadata for generated screens. When `menu` is present the CLI emits PHP shims under `.generated/php/Admin/**` so WordPress can register the admin menu automatically.
+- `actions`, `search`, `searchLabel`, `perPageSizes`, and `getItemId` continue to behave as they did prior to the schema expansion.
 
 ## CLI & Showcase integration
 

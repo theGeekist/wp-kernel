@@ -43,4 +43,43 @@ export const jobDataViewConfig: ResourceDataViewConfig<JobItem, JobQuery> = {
 	search: true,
 	searchLabel: 'Search jobs',
 	perPageSizes: [10, 20, 50],
+	defaultLayouts: {
+		table: { density: 'compact' },
+	},
+	views: [
+		{
+			id: 'all-jobs',
+			label: 'All jobs',
+			description: 'Shows every job regardless of status.',
+			isDefault: true,
+			view: {
+				type: 'table',
+				fields: ['title', 'status', 'department'],
+				sort: { field: 'title', direction: 'asc' },
+			} as View,
+		},
+		{
+			id: 'published',
+			label: 'Published jobs',
+			description: 'Filters to roles that are currently published.',
+			view: {
+				type: 'table',
+				fields: ['title', 'department'],
+				filters: [
+					{ field: 'status', value: 'published', operator: 'is' },
+				],
+				sort: { field: 'title', direction: 'asc' },
+			} as View,
+		},
+	],
+	screen: {
+		component: 'JobsAdminScreen',
+		route: '/admin/jobs',
+		menu: {
+			slug: 'jobs-admin',
+			title: 'Jobs',
+			capability: 'manage_jobs',
+			position: 25,
+		},
+	},
 };

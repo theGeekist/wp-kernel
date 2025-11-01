@@ -6,6 +6,8 @@ import type {
 	InvalidateOptions,
 	ResourceObject,
 	ListResponse,
+	ResourceDataViewsScreenConfig,
+	ResourceDataViewsMenuConfig,
 } from '@wpkernel/core/resource';
 import type { WPKUICapabilityRuntime } from '@wpkernel/core/data';
 import type { Reporter } from '@wpkernel/core/reporter';
@@ -109,6 +111,19 @@ export interface ResourceDataViewActionConfig<
 	) => CacheKeyPattern[] | false;
 }
 
+export interface ResourceDataViewSavedView {
+	id: string;
+	label: string;
+	view: View;
+	description?: string;
+	isDefault?: boolean;
+	[key: string]: unknown;
+}
+
+export type ResourceDataViewMenuConfig = ResourceDataViewsMenuConfig;
+
+export type ResourceDataViewScreenConfig = ResourceDataViewsScreenConfig;
+
 /**
  * Resource DataView configuration.
  */
@@ -123,6 +138,8 @@ export interface ResourceDataViewConfig<TItem, TQuery> {
 	empty?: ReactNode;
 	perPageSizes?: number[];
 	defaultLayouts?: Record<string, unknown>;
+	views?: ResourceDataViewSavedView[];
+	screen?: ResourceDataViewScreenConfig;
 }
 
 export type WPKUICapabilityRuntimeSource =

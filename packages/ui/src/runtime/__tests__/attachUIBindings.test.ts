@@ -6,7 +6,7 @@ import type {
 } from '@wpkernel/core/data';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { ResourceObject } from '@wpkernel/core/resource';
-import type { View } from '@wordpress/dataviews';
+import type { Field, View } from '@wordpress/dataviews';
 import {
 	WPKernelEventBus,
 	type ResourceDefinedEvent,
@@ -23,6 +23,12 @@ import {
 	DATA_VIEWS_EVENT_REGISTERED,
 } from '../dataviews/events';
 import { DataViewsConfigurationError } from '../dataviews/errors';
+import { DATA_VIEWS_METADATA_INVALID } from '../dataviews/metadata';
+import type {
+	ResourceDataViewConfig,
+	ResourceDataViewSavedView,
+	ResourceDataViewMenuConfig,
+} from '../../dataviews/types';
 
 jest.mock('../../hooks/resource-hooks', () => ({
 	attachResourceHooks: jest.fn((resource) => resource),
@@ -136,10 +142,14 @@ function createReporterWithUndefinedChild(): Reporter {
 	} as unknown as jest.Mocked<Reporter>;
 }
 
-function createResourceWithDataView(): ResourceObject<
-	unknown,
-	{ search?: string }
-> {
+function createResourceWithDataView(
+	overrides: {
+		dataviews?: Partial<
+			ResourceDataViewConfig<unknown, { search?: string }>
+		> &
+			Record<string, unknown>;
+	} = {}
+): ResourceObject<unknown, { search?: string }> {
 	const reporter = createReporter();
 	const resource = {
 		name: 'jobs',
@@ -156,13 +166,53 @@ function createResourceWithDataView(): ResourceObject<
 		prefetchList: jest.fn(),
 	} as unknown as ResourceObject<unknown, { search?: string }>;
 
+	const baseView: View = {
+		type: 'table',
+		fields: ['title'],
+		page: 1,
+		perPage: 20,
+	} as View;
+
+	const dataviewConfig: ResourceDataViewConfig<unknown, { search?: string }> =
+		{
+			fields: [
+				{ id: 'title', label: 'Title' } as Field<unknown>,
+				{ id: 'status', label: 'Status' } as Field<unknown>,
+			],
+			defaultView: baseView,
+			mapQuery: jest.fn(() => ({ search: undefined })),
+			search: true,
+			searchLabel: 'Search jobs',
+			perPageSizes: [10, 20, 50],
+			defaultLayouts: { table: { density: 'compact' } },
+			views: [
+				{
+					id: 'all',
+					label: 'All jobs',
+					isDefault: true,
+					view: { ...baseView },
+				},
+			],
+			screen: {
+				component: 'JobsAdminScreen',
+				route: '/admin/jobs',
+				menu: {
+					slug: 'jobs-admin',
+					title: 'Jobs',
+					capability: 'manage_jobs',
+				},
+			},
+		};
+
+	const dataviewOverrides = overrides.dataviews ?? {};
+	const dataviews = {
+		...dataviewConfig,
+		...dataviewOverrides,
+	} as ResourceDataViewConfig<unknown, { search?: string }>;
+
 	(resource as unknown as { ui?: { admin?: { dataviews?: unknown } } }).ui = {
 		admin: {
-			dataviews: {
-				fields: [{ id: 'title', label: 'Title' }],
-				defaultView: { type: 'table', fields: ['title'] } as View,
-				mapQuery: jest.fn(() => ({ search: undefined })),
-			},
+			dataviews,
 		},
 	};
 
@@ -441,6 +491,50 @@ describe('attachUIBindings', () => {
 		);
 	});
 
+	it('persists expanded metadata for saved views and screen configuration', () => {
+		const events = new WPKernelEventBus();
+		const registry = createPreferencesRegistry();
+		const kernel = createKernel(events, undefined, registry);
+		const resource = createResourceWithDataView();
+
+		mockGetRegisteredResources.mockReturnValueOnce([
+			{ resource, namespace: 'tests' } as ResourceDefinedEvent,
+		]);
+
+		const runtime = attachUIBindings(kernel);
+		const dataviews = runtime.dataviews!;
+		const registryEntry = dataviews.registry.get('jobs') as
+			| { metadata?: Record<string, unknown> }
+			| undefined;
+
+		expect(registryEntry?.metadata).toBeDefined();
+		const metadata = registryEntry?.metadata as Record<string, unknown>;
+
+		expect(metadata?.views).toEqual([
+			expect.objectContaining({
+				id: 'all',
+				label: 'All jobs',
+				isDefault: true,
+				view: expect.objectContaining({ type: 'table' }),
+			}),
+		]);
+		expect(metadata?.defaultLayouts).toEqual({
+			table: { density: 'compact' },
+		});
+		expect(metadata?.perPageSizes).toEqual([10, 20, 50]);
+		expect(metadata?.screen).toEqual(
+			expect.objectContaining({
+				component: 'JobsAdminScreen',
+				route: '/admin/jobs',
+				menu: expect.objectContaining({
+					slug: 'jobs-admin',
+					title: 'Jobs',
+					capability: 'manage_jobs',
+				}),
+			})
+		);
+	});
+
 	it('updates auto-registered controllers when capability runtime becomes available', () => {
 		const events = new WPKernelEventBus();
 		const registry = createPreferencesRegistry();
@@ -492,6 +586,106 @@ describe('attachUIBindings', () => {
 			expect.objectContaining({
 				resource: 'jobs',
 				preferencesKey: controller?.preferencesKey,
+			})
+		);
+	});
+
+	it('skips auto-registration when saved views metadata is malformed', () => {
+		const events = new WPKernelEventBus();
+		const registry = createPreferencesRegistry();
+		const kernel = createKernel(events, undefined, registry);
+		const reporter = kernel.getReporter() as jest.Mocked<Reporter>;
+		const resource = createResourceWithDataView({
+			dataviews: {
+				views: [
+					{
+						id: 'all',
+						label: 'All jobs',
+						view: { type: 'table', fields: ['title'] } as View,
+					},
+					{
+						id: 123,
+						label: 'Broken',
+						view: { type: 'table', fields: ['title'] } as View,
+					} as unknown as ResourceDataViewSavedView,
+				],
+			},
+		});
+
+		mockGetRegisteredResources.mockReturnValueOnce([
+			{ resource, namespace: 'tests' } as ResourceDefinedEvent,
+		]);
+
+		const runtime = attachUIBindings(kernel);
+
+		expect(runtime.dataviews?.controllers.has('jobs')).toBe(false);
+		expect(runtime.dataviews?.registry.has('jobs')).toBe(false);
+		expect(reporter.error).toHaveBeenCalledWith(
+			'Invalid DataViews metadata',
+			expect.objectContaining({
+				code: DATA_VIEWS_METADATA_INVALID,
+				resource: 'jobs',
+				issues: expect.arrayContaining([
+					expect.objectContaining({
+						code: DATA_VIEWS_METADATA_INVALID,
+						path: expect.arrayContaining([
+							'ui',
+							'admin',
+							'dataviews',
+							'views',
+							1,
+							'id',
+						]),
+					}),
+				]),
+			})
+		);
+	});
+
+	it('skips auto-registration when menu metadata is invalid', () => {
+		const events = new WPKernelEventBus();
+		const registry = createPreferencesRegistry();
+		const kernel = createKernel(events, undefined, registry);
+		const reporter = kernel.getReporter() as jest.Mocked<Reporter>;
+		const resource = createResourceWithDataView({
+			dataviews: {
+				screen: {
+					component: 'JobsAdminScreen',
+					route: '/admin/jobs',
+					menu: {
+						slug: 123,
+						title: 'Jobs',
+					} as unknown as ResourceDataViewMenuConfig,
+				},
+			},
+		});
+
+		mockGetRegisteredResources.mockReturnValueOnce([
+			{ resource, namespace: 'tests' } as ResourceDefinedEvent,
+		]);
+
+		const runtime = attachUIBindings(kernel);
+
+		expect(runtime.dataviews?.controllers.has('jobs')).toBe(false);
+		expect(runtime.dataviews?.registry.has('jobs')).toBe(false);
+		expect(reporter.error).toHaveBeenCalledWith(
+			'Invalid DataViews metadata',
+			expect.objectContaining({
+				code: DATA_VIEWS_METADATA_INVALID,
+				resource: 'jobs',
+				issues: expect.arrayContaining([
+					expect.objectContaining({
+						code: DATA_VIEWS_METADATA_INVALID,
+						path: expect.arrayContaining([
+							'ui',
+							'admin',
+							'dataviews',
+							'screen',
+							'menu',
+							'slug',
+						]),
+					}),
+				]),
 			})
 		);
 	});
