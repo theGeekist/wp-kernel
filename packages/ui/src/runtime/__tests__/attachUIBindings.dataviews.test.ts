@@ -1,0 +1,257 @@
+import type { Reporter } from '@wpkernel/core/reporter';
+import type { ResourceObject } from '@wpkernel/core/resource';
+import {
+	WPKernelEventBus,
+	type ResourceDefinedEvent,
+	getRegisteredResources,
+} from '@wpkernel/core/events';
+import type {
+	ResourceDataViewMenuConfig,
+	ResourceDataViewSavedView,
+} from '../../dataviews/types';
+import type { View } from '@wordpress/dataviews';
+
+import { attachUIBindings } from '../attachUIBindings';
+import { DATA_VIEWS_EVENT_REGISTERED } from '../dataviews/events';
+import { DATA_VIEWS_METADATA_INVALID } from '../dataviews/metadata';
+import {
+	createKernel,
+	createPreferencesRegistry,
+	createResourceWithDataView,
+} from '../test-support/attachUIBindings.test-support';
+
+jest.mock('../../hooks/resource-hooks', () => ({
+	attachResourceHooks: jest.fn((resource) => resource),
+}));
+
+jest.mock('@wpkernel/core/events', () => {
+	const actual = jest.requireActual('@wpkernel/core/events');
+	return {
+		...actual,
+		getRegisteredResources: jest.fn(),
+	};
+});
+
+const mockGetRegisteredResources =
+	getRegisteredResources as jest.MockedFunction<
+		typeof getRegisteredResources
+	>;
+
+describe('attachUIBindings DataViews auto-registration', () => {
+	beforeEach(() => {
+		jest.resetAllMocks();
+		mockGetRegisteredResources.mockReturnValue([]);
+	});
+
+	it('auto-registers DataViews controllers for existing resources and persists metadata', () => {
+		const events = new WPKernelEventBus();
+		const registry = createPreferencesRegistry();
+		const kernel = createKernel(events, undefined, registry);
+		const resource = createResourceWithDataView();
+
+		mockGetRegisteredResources.mockReturnValueOnce([
+			{ resource, namespace: 'tests' } as ResourceDefinedEvent,
+		]);
+
+		const runtime = attachUIBindings(kernel);
+		const dataviews = runtime.dataviews!;
+		const controller = dataviews.controllers.get('jobs') as
+			| { resourceName: string; preferencesKey: string }
+			| undefined;
+
+		expect(controller).toBeDefined();
+		expect(controller?.resourceName).toBe('jobs');
+		expect(dataviews.registry.get('jobs')).toEqual(
+			expect.objectContaining({
+				resource: 'jobs',
+				preferencesKey: controller?.preferencesKey,
+				metadata: expect.objectContaining({
+					views: expect.any(Array),
+					screen: expect.any(Object),
+				}),
+			})
+		);
+
+		expect(kernel.emit).toHaveBeenCalledWith(
+			DATA_VIEWS_EVENT_REGISTERED,
+			expect.objectContaining({
+				resource: 'jobs',
+				preferencesKey: controller?.preferencesKey,
+			})
+		);
+	});
+
+	it('updates auto-registered controllers when capability runtime becomes available', () => {
+		const events = new WPKernelEventBus();
+		const registry = createPreferencesRegistry();
+		const kernel = createKernel(events, undefined, registry);
+		const resource = createResourceWithDataView();
+
+		mockGetRegisteredResources.mockReturnValueOnce([
+			{ resource, namespace: 'tests' } as ResourceDefinedEvent,
+		]);
+
+		const runtime = attachUIBindings(kernel);
+		const dataviews = runtime.dataviews!;
+		const controller = dataviews.controllers.get('jobs') as {
+			capabilities?: unknown;
+		};
+
+		expect(controller).toBeDefined();
+		expect(controller?.capabilities).toBeUndefined();
+
+		const capability = { can: jest.fn() };
+		(
+			globalThis as {
+				__WP_KERNEL_ACTION_RUNTIME__?: { capability?: unknown };
+			}
+		).__WP_KERNEL_ACTION_RUNTIME__ = { capability };
+
+		expect(controller?.capabilities).toEqual({ capability });
+	});
+
+	it('auto-registers DataViews controllers for future resources', () => {
+		const events = new WPKernelEventBus();
+		const registry = createPreferencesRegistry();
+		const kernel = createKernel(events, undefined, registry);
+		const runtime = attachUIBindings(kernel);
+		const resource = createResourceWithDataView();
+
+		events.emit('resource:defined', {
+			resource: resource as ResourceObject<unknown, unknown>,
+			namespace: 'tests',
+		});
+
+		const controller = runtime.dataviews?.controllers.get('jobs') as
+			| { preferencesKey: string }
+			| undefined;
+
+		expect(controller).toBeDefined();
+		expect(kernel.emit).toHaveBeenCalledWith(
+			DATA_VIEWS_EVENT_REGISTERED,
+			expect.objectContaining({
+				resource: 'jobs',
+				preferencesKey: controller?.preferencesKey,
+			})
+		);
+	});
+
+	it('skips auto-registration when saved views metadata is malformed', () => {
+		const events = new WPKernelEventBus();
+		const registry = createPreferencesRegistry();
+		const kernel = createKernel(events, undefined, registry);
+		const reporter = kernel.getReporter() as jest.Mocked<Reporter>;
+		const resource = createResourceWithDataView({
+			dataviews: {
+				views: [
+					{
+						id: 'all',
+						label: 'All jobs',
+						view: { type: 'table', fields: ['title'] } as View,
+					},
+					{
+						id: 123,
+						label: 'Broken',
+						view: { type: 'table', fields: ['title'] } as View,
+					} as unknown as ResourceDataViewSavedView,
+				],
+			},
+		});
+
+		mockGetRegisteredResources.mockReturnValueOnce([
+			{ resource, namespace: 'tests' } as ResourceDefinedEvent,
+		]);
+
+		const runtime = attachUIBindings(kernel);
+
+		expect(runtime.dataviews?.controllers.has('jobs')).toBe(false);
+		expect(runtime.dataviews?.registry.has('jobs')).toBe(false);
+		expect(reporter.error).toHaveBeenCalledWith(
+			'Invalid DataViews metadata',
+			expect.objectContaining({
+				code: DATA_VIEWS_METADATA_INVALID,
+				resource: 'jobs',
+				issues: expect.arrayContaining([
+					expect.objectContaining({
+						path: expect.arrayContaining([
+							'ui',
+							'admin',
+							'dataviews',
+							'views',
+							1,
+							'id',
+						]),
+					}),
+				]),
+			})
+		);
+	});
+
+	it('skips auto-registration when menu metadata is invalid', () => {
+		const events = new WPKernelEventBus();
+		const registry = createPreferencesRegistry();
+		const kernel = createKernel(events, undefined, registry);
+		const reporter = kernel.getReporter() as jest.Mocked<Reporter>;
+		const resource = createResourceWithDataView({
+			dataviews: {
+				screen: {
+					component: 'JobsAdminScreen',
+					route: '/admin/jobs',
+					menu: {
+						slug: 123,
+						title: 'Jobs',
+					} as unknown as ResourceDataViewMenuConfig,
+				},
+			},
+		});
+
+		mockGetRegisteredResources.mockReturnValueOnce([
+			{ resource, namespace: 'tests' } as ResourceDefinedEvent,
+		]);
+
+		const runtime = attachUIBindings(kernel);
+
+		expect(runtime.dataviews?.controllers.has('jobs')).toBe(false);
+		expect(runtime.dataviews?.registry.has('jobs')).toBe(false);
+		expect(reporter.error).toHaveBeenCalledWith(
+			'Invalid DataViews metadata',
+			expect.objectContaining({
+				code: DATA_VIEWS_METADATA_INVALID,
+				resource: 'jobs',
+				issues: expect.arrayContaining([
+					expect.objectContaining({
+						path: expect.arrayContaining([
+							'ui',
+							'admin',
+							'dataviews',
+							'screen',
+							'menu',
+							'slug',
+						]),
+					}),
+				]),
+			})
+		);
+	});
+
+	it('skips auto-registration when disabled via options', () => {
+		const events = new WPKernelEventBus();
+		const registry = createPreferencesRegistry();
+		const kernel = createKernel(
+			events,
+			{ dataviews: { enable: true, autoRegisterResources: false } },
+			registry
+		);
+		const resource = createResourceWithDataView();
+
+		mockGetRegisteredResources.mockReturnValueOnce([
+			{ resource, namespace: 'tests' } as ResourceDefinedEvent,
+		]);
+
+		const runtime = attachUIBindings(kernel, {
+			dataviews: { enable: true, autoRegisterResources: false },
+		});
+
+		expect(runtime.dataviews?.controllers.has('jobs')).toBe(false);
+	});
+});
