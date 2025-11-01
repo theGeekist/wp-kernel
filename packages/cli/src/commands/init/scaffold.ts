@@ -54,7 +54,7 @@ export function buildScaffoldDescriptors(
 				__WPK_PLUGIN_TITLE__: buildPluginTitle(namespace),
 				__WPK_PLUGIN_TEXT_DOMAIN__: namespace,
 				__WPK_PHP_NAMESPACE__: buildPhpNamespace(namespace).replace(
-					/\\\\$/u,
+					/\\$/u,
 					''
 				),
 				__WPK_PLUGIN_PACKAGE__: buildPluginPackage(namespace),
@@ -101,7 +101,7 @@ function buildPluginTitle(namespace: string): string {
 }
 
 function buildPluginPackage(namespace: string): string {
-	const phpNamespace = buildPhpNamespace(namespace).replace(/\\\\$/u, '');
+	const phpNamespace = buildPhpNamespace(namespace).replace(/\\$/u, '');
 	return phpNamespace.replace(/\\/g, '');
 }
 
