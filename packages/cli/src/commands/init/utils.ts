@@ -5,11 +5,13 @@ import { getCliPackageRoot } from './module-url';
 
 const INIT_TEMPLATE_ROOT = path.join(getCliPackageRoot(), 'templates', 'init');
 
-export type ScaffoldStatus = 'created' | 'updated';
+export type ScaffoldStatus = 'created' | 'updated' | 'skipped';
 
 export interface ScaffoldFileDescriptor {
 	readonly relativePath: string;
 	readonly templatePath: string;
+	readonly category: 'kernel' | 'author';
+	readonly skipWhenPluginDetected?: boolean;
 	readonly replacements?: Record<string, string>;
 }
 
