@@ -5,6 +5,7 @@ import type {
 	BuilderNext,
 } from '../../runtime/types';
 import {
+	AUTO_GUARD_BEGIN,
 	buildPluginLoaderProgram,
 	buildProgramTargetPlanner,
 } from '@wpkernel/wp-json-ast';
@@ -28,6 +29,24 @@ export function createPhpPluginLoaderHelper(): BuilderHelper {
 				const pascal = toPascalCase(resource.name);
 				return `${ir.php.namespace}\\Generated\\Rest\\${pascal}Controller`;
 			});
+
+			// If a plugin.php exists and lacks the WPK guard, assume user-owned and skip generation.
+			try {
+				const existingPlugin =
+					await context.workspace.readText('plugin.php');
+				if (
+					existingPlugin &&
+					!new RegExp(AUTO_GUARD_BEGIN, 'u').test(existingPlugin)
+				) {
+					reporter.info(
+						'createPhpPluginLoaderHelper: skipping generation because plugin.php exists and appears user-owned.'
+					);
+					await next?.();
+					return;
+				}
+			} catch {
+				// ignore - file does not exist or cannot be read
+			}
 
 			const program = buildPluginLoaderProgram({
 				origin: ir.meta.origin,
