@@ -170,8 +170,77 @@ describe('pretty printer ESM integration', () => {
 				.split(/\r?\n/u)
 				.map((line) => line.trim())
 				.filter(Boolean)
-				.map((line) => JSON.parse(line) as { autoloadPath?: string });
-			expect(traceEntries[0]?.autoloadPath).toBe(workspaceAutoloadPath);
+				.map(
+					(line) =>
+						JSON.parse(line) as {
+							autoloadPath?: string;
+							event?: string;
+						}
+				);
+			const bootEvent = traceEntries.find(
+				(entry) => entry.event === 'boot'
+			);
+			expect(bootEvent?.autoloadPath).toBe(workspaceAutoloadPath);
+		} finally {
+			fs.rmSync(temporaryDirectory, { recursive: true, force: true });
+		}
+	});
+
+	it('uses env fallback when workspace autoload is missing', () => {
+		const temporaryDirectory = fs.mkdtempSync(
+			path.join(os.tmpdir(), 'wpk-php-driver-fallback-')
+		);
+		const workspaceRoot = path.join(temporaryDirectory, 'workspace');
+		fs.mkdirSync(workspaceRoot, { recursive: true });
+
+		const fallbackRoot = path.join(temporaryDirectory, 'fallback');
+		const fallbackVendor = path.join(fallbackRoot, 'vendor');
+		fs.mkdirSync(fallbackVendor, { recursive: true });
+		const fallbackAutoloadPath = path.join(fallbackVendor, 'autoload.php');
+		fs.writeFileSync(fallbackAutoloadPath, '<?php\n', 'utf8');
+
+		const traceFile = path.join(temporaryDirectory, 'trace.log');
+		const scriptPath = path.resolve(
+			__dirname,
+			'..',
+			'..',
+			'php',
+			'pretty-print.php'
+		);
+
+		const result = spawnSync(
+			'php',
+			[scriptPath, workspaceRoot, 'index.php'],
+			{
+				input: '',
+				encoding: 'utf8',
+				env: {
+					...process.env,
+					PHP_DRIVER_AUTOLOAD_PATHS: fallbackAutoloadPath,
+					PHP_DRIVER_TRACE_FILE: traceFile,
+				},
+			}
+		);
+
+		try {
+			expect(result.error).toBeUndefined();
+			expect(result.status).not.toBeNull();
+			const traceLog = fs.readFileSync(traceFile, 'utf8');
+			const traceEntries = traceLog
+				.split(/\r?\n/u)
+				.map((line) => line.trim())
+				.filter(Boolean)
+				.map(
+					(line) =>
+						JSON.parse(line) as {
+							autoloadPath?: string;
+							event?: string;
+						}
+				);
+			const bootEvent = traceEntries.find(
+				(entry) => entry.event === 'boot'
+			);
+			expect(bootEvent?.autoloadPath).toBe(fallbackAutoloadPath);
 		} finally {
 			fs.rmSync(temporaryDirectory, { recursive: true, force: true });
 		}

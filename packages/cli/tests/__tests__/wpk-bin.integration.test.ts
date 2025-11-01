@@ -185,9 +185,17 @@ describe('wpk bin integration', () => {
 					.split(/\r?\n/u)
 					.map((line) => line.trim())
 					.filter(Boolean)
-					.map((line) => JSON.parse(line) as { event?: string });
+					.map(
+						(line) =>
+							JSON.parse(line) as {
+								event?: string;
+							}
+					);
 				expect(
-					traceEvents.some((entry) => entry.event === 'start')
+					traceEvents.some((entry) => entry.event === 'boot')
+				).toBe(true);
+				expect(
+					traceEvents.some((entry) => entry.event === 'failure')
 				).toBe(true);
 				expect(
 					traceEvents.some((entry) => entry.event === 'success')
