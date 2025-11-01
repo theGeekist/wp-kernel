@@ -1,5 +1,6 @@
 import { defineConfig, type UserConfig } from 'vite';
 import { v4wp } from '@kucrut/vite-for-wp';
+
 import packageJson from './package.json';
 
 const peerDependencies = Object.keys(packageJson.peerDependencies ?? {});
