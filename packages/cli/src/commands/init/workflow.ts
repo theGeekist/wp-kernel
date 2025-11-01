@@ -1,7 +1,8 @@
+import type { Dirent } from 'node:fs';
+import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { Workspace, FileManifest } from '../../next/workspace';
-import { toWorkspaceRelative } from '../../next/workspace';
 import { resolveDependencyVersions } from './dependency-versions';
 import type { DependencyResolution } from './dependency-versions';
 import { appendPackageSummary, writePackageJson } from './package-json';
@@ -409,21 +410,25 @@ function hasAutoloadEntries(entry: unknown): boolean {
 }
 
 async function findPluginHeaderFiles(workspace: Workspace): Promise<string[]> {
-	const matches = await workspace.glob([
-		'*.php',
-		'inc/*.php',
-		'inc/**/*.php',
-	]);
-	if (matches.length === 0) {
-		return [];
+	const headerPattern = /Plugin\s+Name\s*:/i;
+	const candidates = new Set<string>();
+
+	const rootPhpFiles = await listPhpFiles(workspace, '', {
+		recursive: false,
+	});
+	for (const relative of rootPhpFiles) {
+		candidates.add(relative);
 	}
 
-	const headerPattern = /Plugin\s+Name\s*:/i;
-	const unique = new Set(matches);
-	const results: string[] = [];
+	const incPhpFiles = await listPhpFiles(workspace, 'inc', {
+		recursive: true,
+	});
+	for (const relative of incPhpFiles) {
+		candidates.add(relative);
+	}
 
-	for (const absolute of unique) {
-		const relative = toWorkspaceRelative(workspace, absolute);
+	const results: string[] = [];
+	for (const relative of candidates) {
 		const contents = await workspace.readText(relative);
 		if (contents && headerPattern.test(contents)) {
 			results.push(relative);
@@ -431,4 +436,120 @@ async function findPluginHeaderFiles(workspace: Workspace): Promise<string[]> {
 	}
 
 	return results.sort();
+}
+
+async function listPhpFiles(
+	workspace: Workspace,
+	relativeDirectory: string,
+	options: { recursive?: boolean } = {}
+): Promise<string[]> {
+	const { recursive = false } = options;
+	const normalised = normaliseRelativeDirectory(relativeDirectory);
+	const entries = await readDirectoryEntries(workspace, normalised);
+	if (!entries) {
+		return [];
+	}
+
+	const results = collectPhpFilesFromEntries(entries, normalised);
+	if (!recursive) {
+		return results;
+	}
+
+	const nested = await collectNestedPhpFiles(workspace, entries, normalised);
+	return results.concat(nested);
+}
+
+function normaliseRelativeDirectory(relativeDirectory: string): string {
+	if (
+		relativeDirectory === '' ||
+		relativeDirectory === '.' ||
+		relativeDirectory === './'
+	) {
+		return '';
+	}
+
+	const trimmed = relativeDirectory
+		.replace(/^[./\\]+/, '')
+		.replace(/[\\/]+$/, '');
+	if (trimmed === '') {
+		return '';
+	}
+
+	return trimmed.split(path.sep).join('/');
+}
+
+function joinRelativePath(base: string, segment: string): string {
+	const normalisedSegment = segment.split(path.sep).join('/');
+	if (base === '') {
+		return normalisedSegment;
+	}
+
+	return `${base}/${normalisedSegment}`;
+}
+
+function isPhpFilename(name: string): boolean {
+	return name.toLowerCase().endsWith('.php');
+}
+
+async function readDirectoryEntries(
+	workspace: Workspace,
+	normalised: string
+): Promise<Dirent[] | null> {
+	const absoluteDirectory =
+		normalised === ''
+			? workspace.cwd()
+			: workspace.resolve(...normalised.split('/'));
+
+	try {
+		return await fs.readdir(absoluteDirectory, { withFileTypes: true });
+	} catch (error) {
+		if ((error as NodeJS.ErrnoException).code === 'ENOENT') {
+			return null;
+		}
+
+		throw error;
+	}
+}
+
+function collectPhpFilesFromEntries(
+	entries: readonly Dirent[],
+	base: string
+): string[] {
+	const results: string[] = [];
+
+	for (const entry of entries) {
+		if (!entry.isFile()) {
+			continue;
+		}
+
+		if (!isPhpFilename(entry.name)) {
+			continue;
+		}
+
+		results.push(joinRelativePath(base, entry.name));
+	}
+
+	return results;
+}
+
+async function collectNestedPhpFiles(
+	workspace: Workspace,
+	entries: readonly Dirent[],
+	base: string
+): Promise<string[]> {
+	const results: string[] = [];
+
+	for (const entry of entries) {
+		if (!entry.isDirectory()) {
+			continue;
+		}
+
+		const nestedRelative = joinRelativePath(base, entry.name);
+		const nested = await listPhpFiles(workspace, nestedRelative, {
+			recursive: true,
+		});
+		results.push(...nested);
+	}
+
+	return results;
 }
