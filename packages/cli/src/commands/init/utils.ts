@@ -10,7 +10,7 @@ export type ScaffoldStatus = 'created' | 'updated' | 'skipped';
 export interface ScaffoldFileDescriptor {
 	readonly relativePath: string;
 	readonly templatePath: string;
-	readonly category: 'kernel' | 'author';
+	readonly category: 'wpk' | 'author';
 	readonly skipWhenPluginDetected?: boolean;
 	readonly replacements?: Record<string, string>;
 }
@@ -61,16 +61,26 @@ export function slugify(value: string): string {
 		.replace(/[^a-z0-9]+/g, '-')
 		.replace(/^-+|-+$/g, '');
 
-	return normalised.length > 0 ? normalised : 'wp-kernel-project';
+	return normalised.length > 0 ? normalised : 'wpkernel-project';
 }
 
 export function buildPhpNamespace(namespace: string): string {
 	const segments = slugify(namespace)
 		.split('-')
 		.filter((segment) => segment.length > 0)
-		.map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1));
+		.map((segment) => {
+			if (segment === 'wpkernel') {
+				return 'WPKernel';
+			}
 
-	const base = segments.length > 0 ? segments.join('') : 'WpKernelProject';
+			if (segment === 'wpk') {
+				return 'WPK';
+			}
+
+			return segment.charAt(0).toUpperCase() + segment.slice(1);
+		});
+
+	const base = segments.length > 0 ? segments.join('') : 'WPKernelProject';
 	return `${base}\\\\`;
 }
 

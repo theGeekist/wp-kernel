@@ -6,7 +6,7 @@ import { buildWorkspace } from '../../src/next/workspace';
 import { runInitWorkflow } from '../../src/commands/init/workflow';
 
 describe('runInitWorkflow integration', () => {
-	it('seeds kernel assets in a clean workspace', async () => {
+	it('seeds WPK-managed assets in a clean workspace', async () => {
 		await withWorkspace(
 			async (workspaceRoot) => {
 				const workspace = buildWorkspace(workspaceRoot);

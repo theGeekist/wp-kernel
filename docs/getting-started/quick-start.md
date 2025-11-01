@@ -13,8 +13,8 @@ cd my-plugin
 `wpk init` scaffolds:
 
 - `wpk.config.ts` with the v1 config shape (empty `resources` and `schemas`).
-- `src/index.ts` that calls `configureWPKernel` and exports the kernel instance.
-- WordPress plugin wiring (`composer.json`, `inc/bootstrap.php`) and TypeScript build config.【F:packages/cli/templates/init/wpk.config.ts†L1-L15】【F:packages/cli/templates/init/src/index.ts†L1-L14】
+- `src/index.ts` that calls `configureWPKernel` and exports the WPKernel instance.
+- WordPress plugin wiring (`composer.json`, `inc/bootstrap.php`) and TypeScript build config.【F:packages/cli/templates/init/wpk/wpk.config.ts†L1-L15】【F:packages/cli/templates/init/author/src/index.ts†L1-L14】
 
 ## 2. Define a resource
 
