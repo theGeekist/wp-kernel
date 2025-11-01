@@ -1,94 +1,9 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
-import { spawn } from 'node:child_process';
-import {
-	buildPhpIntegrationEnv,
-	withWorkspace,
-} from '../workspace.test-support';
+import { runWpk } from '../test-support/runWpk';
+import { withWorkspace } from '../workspace.test-support';
 
 jest.setTimeout(30000);
-
-const CLI_BIN = path.resolve(__dirname, '../../bin/wpk.js');
-const CLI_LOADER = path.resolve(
-	__dirname,
-	'../test-support/wpk-cli-loader.mjs'
-);
-
-type RunResult = {
-	code: number;
-	stdout: string;
-	stderr: string;
-};
-
-type RunOptions = {
-	cwd: string;
-	env?: NodeJS.ProcessEnv;
-};
-
-function runProcess(
-	command: string,
-	args: string[],
-	options: RunOptions
-): Promise<RunResult> {
-	return new Promise((resolve, reject) => {
-		const child = spawn(command, args, {
-			cwd: options.cwd,
-			env: options.env,
-			stdio: ['ignore', 'pipe', 'pipe'],
-		});
-
-		let stdout = '';
-		let stderr = '';
-
-		child.stdout?.on('data', (chunk) => {
-			stdout += chunk.toString();
-		});
-
-		child.stderr?.on('data', (chunk) => {
-			stderr += chunk.toString();
-		});
-
-		child.once('error', reject);
-		child.once('close', (code) => {
-			resolve({
-				code: code ?? 0,
-				stdout,
-				stderr,
-			});
-		});
-	});
-}
-
-type RunWpkOptions = {
-	env?: NodeJS.ProcessEnv;
-};
-
-function runWpk(
-	workspace: string,
-	args: string[],
-	options: RunWpkOptions = {}
-): Promise<RunResult> {
-	const env = buildPhpIntegrationEnv({
-		...process.env,
-		...options.env,
-		NODE_ENV: 'test',
-		FORCE_COLOR: '0',
-	});
-
-	const existingNodeOptions = env.NODE_OPTIONS ?? '';
-	const segments = [];
-	if (existingNodeOptions.length > 0) {
-		segments.push(existingNodeOptions);
-	}
-	segments.push('--no-warnings');
-	segments.push(`--loader ${CLI_LOADER}`);
-	env.NODE_OPTIONS = segments.join(' ');
-
-	return runProcess(process.execPath, [CLI_BIN, ...args], {
-		cwd: workspace,
-		env,
-	});
-}
 
 describe('wpk bin integration', () => {
 	it('scaffolds a plugin workspace via init', async () => {
