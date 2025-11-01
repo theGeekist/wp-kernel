@@ -60,7 +60,7 @@ describe('NextInitCommand', () => {
 			);
 			expect(wpkConfig).toContain("namespace: 'jobs-plugin'");
 			expect(wpkConfig).toContain(
-				'Kernel configuration for your project.'
+				'WP Kernel configuration for your project.'
 			);
 
 			const indexFile = await fs.readFile(

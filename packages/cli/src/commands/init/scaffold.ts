@@ -31,6 +31,7 @@ export function buildScaffoldDescriptors(
 		{
 			relativePath: WPK_CONFIG_FILENAME,
 			templatePath: WPK_CONFIG_FILENAME,
+			category: 'wpk',
 			replacements: {
 				__WPK_NAMESPACE__: namespace,
 			},
@@ -38,6 +39,7 @@ export function buildScaffoldDescriptors(
 		{
 			relativePath: COMPOSER_JSON_FILENAME,
 			templatePath: COMPOSER_JSON_FILENAME,
+			category: 'author',
 			replacements: {
 				__WPK_NAMESPACE__: namespace,
 				__WPK_COMPOSER_PACKAGE_NAME__:
@@ -48,26 +50,33 @@ export function buildScaffoldDescriptors(
 		{
 			relativePath: INC_GITKEEP,
 			templatePath: INC_GITKEEP,
+			category: 'wpk',
+			skipWhenPluginDetected: true,
 		},
 		{
 			relativePath: SRC_INDEX_PATH,
-			templatePath: 'src/index.ts',
+			templatePath: path.join('src', 'index.ts'),
+			category: 'author',
 		},
 		{
 			relativePath: TSCONFIG_FILENAME,
-			templatePath: 'tsconfig.json',
+			templatePath: TSCONFIG_FILENAME,
+			category: 'wpk',
 		},
 		{
 			relativePath: JSCONFIG_FILENAME,
-			templatePath: 'jsconfig.json',
+			templatePath: JSCONFIG_FILENAME,
+			category: 'wpk',
 		},
 		{
 			relativePath: ESLINT_CONFIG_FILENAME,
-			templatePath: 'eslint.config.js',
+			templatePath: ESLINT_CONFIG_FILENAME,
+			category: 'wpk',
 		},
 		{
 			relativePath: VITE_CONFIG_FILENAME,
 			templatePath: VITE_CONFIG_FILENAME,
+			category: 'wpk',
 		},
 	];
 }
@@ -94,39 +103,80 @@ export async function buildPathsReplacement(
 	return formatPathsForTemplate(entries);
 }
 
+export interface CollisionCheckResult {
+	readonly skipped: readonly string[];
+}
+
 export async function assertNoCollisions({
 	workspace,
 	files,
 	force,
+	skippableTargets,
 }: {
 	readonly workspace: Workspace;
 	readonly files: readonly ScaffoldFileDescriptor[];
 	readonly force: boolean;
-}): Promise<void> {
+	readonly skippableTargets?: Iterable<string>;
+}): Promise<CollisionCheckResult> {
 	const collisions = await detectCollisions(workspace, files);
 	if (collisions.length === 0 || force) {
-		return;
+		return { skipped: [] };
 	}
 
-	throw new WPKernelError('ValidationError', {
-		message:
-			'Refusing to overwrite existing files. Re-run with --force to replace them.',
-		data: { collisions },
-	});
+	const descriptors = new Map(
+		files.map((descriptor) => [descriptor.relativePath, descriptor])
+	);
+
+	const skipped: string[] = [];
+	const fatal: string[] = [];
+	const optional = new Set(skippableTargets ?? []);
+
+	for (const relativePath of collisions) {
+		const descriptor = descriptors.get(relativePath);
+		if (descriptor?.category === 'author' || optional.has(relativePath)) {
+			skipped.push(relativePath);
+			continue;
+		}
+
+		fatal.push(relativePath);
+	}
+
+	if (fatal.length > 0) {
+		throw new WPKernelError('ValidationError', {
+			message:
+				'Refusing to overwrite existing files. Re-run with --force to replace them.',
+			data: { collisions: fatal },
+		});
+	}
+
+	return { skipped };
 }
 
 export async function writeScaffoldFiles({
 	workspace,
 	files,
 	replacements,
+	force,
+	skip,
 }: {
 	readonly workspace: Workspace;
 	readonly files: readonly ScaffoldFileDescriptor[];
 	readonly replacements: Map<string, Record<string, string>>;
+	readonly force: boolean;
+	readonly skip?: ReadonlySet<string>;
 }): Promise<Array<{ path: string; status: ScaffoldStatus }>> {
 	const summaries: Array<{ path: string; status: ScaffoldStatus }> = [];
+	const skipSet = !force && skip ? new Set(skip) : new Set<string>();
 
 	for (const descriptor of files) {
+		if (!force && skipSet.has(descriptor.relativePath)) {
+			summaries.push({
+				path: descriptor.relativePath,
+				status: 'skipped',
+			});
+			continue;
+		}
+
 		const templateContents = await loadTemplate(descriptor.templatePath);
 		const replaced = applyReplacements(
 			templateContents,
