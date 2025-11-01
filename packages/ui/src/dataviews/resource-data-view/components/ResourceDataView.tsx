@@ -1,6 +1,7 @@
 /* @jsxImportSource react */
 import { DataViews } from '@wordpress/dataviews';
-import type { ComponentProps } from 'react';
+import { useMemo, type ComponentProps } from 'react';
+import { createNoopReporter } from '@wpkernel/core/reporter';
 import { useResolvedController } from '../use-resolved-controller';
 import { useDataViewActions } from '../use-data-view-actions';
 import type { ResourceDataViewProps } from '../types/props';
@@ -40,10 +41,18 @@ export function ResourceDataView<TItem, TQuery>({
 	});
 
 	const getItemId = useItemIdGetter(controller.config);
+	const reporter = useMemo(() => {
+		const fromController =
+			typeof controller.getReporter === 'function'
+				? controller.getReporter()
+				: undefined;
+
+		return fromController ?? context.reporter ?? createNoopReporter();
+	}, [controller, context.reporter]);
 	const actions = useDataViewActions(controller, getItemId, context);
 	const { selection, handleSelectionChange } = useSelection();
 	const paginationInfo = usePaginationInfo(totalItems, viewState.perPage);
-	const permission = usePermissionState(controller, controller.getReporter());
+	const permission = usePermissionState(controller, reporter);
 
 	const dataViewsProps = useDataViewsProps<TItem, TQuery>({
 		controller,

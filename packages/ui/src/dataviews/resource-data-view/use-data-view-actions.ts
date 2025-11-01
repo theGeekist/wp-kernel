@@ -6,12 +6,14 @@ import type {
 import { __ } from '@wordpress/i18n';
 import type { CacheKeyPattern } from '@wpkernel/core/resource';
 import type { Reporter } from '@wpkernel/core/reporter';
+import { createNoopReporter } from '@wpkernel/core/reporter';
 import { normalizeActionError } from '../error-utils';
 import type {
 	ResourceDataViewActionConfig,
 	ResourceDataViewController,
 	DataViewsRuntimeContext,
 } from '../types';
+import { formatActionSuccessMessage } from './i18n';
 
 type ActionDecision = {
 	allowed: boolean;
@@ -27,9 +29,13 @@ type DataViewsActionCallback<TItem> = (
 	context: DataViewsActionContext<TItem>
 ) => Promise<void>;
 
+type NoticeOptions = {
+	readonly id?: string;
+};
+
 type NoticeHandlers = {
-	success: (message: string) => void;
-	error: (message: string) => void;
+	success: (message: string, options?: NoticeOptions) => void;
+	error: (message: string, options?: NoticeOptions) => void;
 };
 
 const noopNotice = () => {
@@ -65,18 +71,20 @@ function resolveNoticeHandlers(
 		const createNotice = dispatcher.createNotice;
 
 		return {
-			success: (message: string) => {
+			success: (message: string, options?: NoticeOptions) => {
 				createNotice('success', message, {
 					speak: true,
 					isDismissible: true,
 					context: 'wpkernel/dataviews',
+					...options,
 				});
 			},
-			error: (message: string) => {
+			error: (message: string, options?: NoticeOptions) => {
 				createNotice('error', message, {
 					speak: true,
 					isDismissible: true,
 					context: 'wpkernel/dataviews',
+					...options,
 				});
 			},
 		} satisfies NoticeHandlers;
@@ -116,7 +124,8 @@ function buildInitialDecisions(
 }
 
 function useActionDecisions(
-	controller: ResourceDataViewController<unknown, unknown>
+	controller: ResourceDataViewController<unknown, unknown>,
+	reporter: Reporter
 ): Map<string, ActionDecision> {
 	const [decisions, setDecisions] = useState<Map<string, ActionDecision>>(
 		() => buildInitialDecisions(controller)
@@ -125,7 +134,6 @@ function useActionDecisions(
 	useEffect(() => {
 		let cancelled = false;
 		const actions = controller.config.actions ?? [];
-		const reporter = controller.getReporter();
 		const capabilityRuntime = controller.capabilities?.capability;
 		const can = capabilityRuntime?.can as
 			| ((key: string, ...args: unknown[]) => boolean | Promise<boolean>)
@@ -212,7 +220,12 @@ function useActionDecisions(
 		return () => {
 			cancelled = true;
 		};
-	}, [controller, controller.config.actions, controller.capabilities]);
+	}, [
+		controller,
+		controller.config.actions,
+		controller.capabilities,
+		reporter,
+	]);
 
 	return decisions;
 }
@@ -367,11 +380,14 @@ function createActionCallback<TItem, TQuery>(
 				selection: selectionIds,
 			});
 			context.onActionPerformed?.(selectedItems);
-			const successMessage = `“${actionLabel}” — ${__(
-				'completed successfully.',
-				'wpkernel'
-			)}`;
-			notices.success(successMessage);
+			const successMessage = formatActionSuccessMessage(
+				actionLabel,
+				selectionIds.length
+			);
+			const successNoticeId = `wp-kernel/dataviews/${controller.resourceName}/${actionConfig.id}/success`;
+			notices.success(successMessage, {
+				id: successNoticeId,
+			});
 		} catch (error) {
 			const normalized = normalizeActionError(
 				error,
@@ -392,7 +408,10 @@ function createActionCallback<TItem, TQuery>(
 				'failed:',
 				'wpkernel'
 			)} ${normalized.message}`;
-			notices.error(failureMessage);
+			const failureNoticeId = `wp-kernel/dataviews/${controller.resourceName}/${actionConfig.id}/failure`;
+			notices.error(failureMessage, {
+				id: failureNoticeId,
+			});
 			throw normalized;
 		}
 	};
@@ -403,10 +422,18 @@ export function useDataViewActions<TItem, TQuery>(
 	getItemId: (item: TItem) => string,
 	runtime: DataViewsRuntimeContext
 ): DataViewAction<TItem>[] {
+	const reporter = useMemo(() => {
+		const fromController =
+			typeof controller.getReporter === 'function'
+				? controller.getReporter()
+				: undefined;
+
+		return fromController ?? runtime.reporter ?? createNoopReporter();
+	}, [controller, runtime.reporter]);
 	const decisions = useActionDecisions(
-		controller as ResourceDataViewController<unknown, unknown>
+		controller as ResourceDataViewController<unknown, unknown>,
+		reporter
 	);
-	const reporter = controller.getReporter();
 	const notices = useMemo(
 		() => resolveNoticeHandlers(runtime.registry, reporter),
 		[runtime.registry, reporter]
