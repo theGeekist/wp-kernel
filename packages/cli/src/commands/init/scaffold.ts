@@ -111,10 +111,12 @@ export async function assertNoCollisions({
 	workspace,
 	files,
 	force,
+	skippableTargets,
 }: {
 	readonly workspace: Workspace;
 	readonly files: readonly ScaffoldFileDescriptor[];
 	readonly force: boolean;
+	readonly skippableTargets?: Iterable<string>;
 }): Promise<CollisionCheckResult> {
 	const collisions = await detectCollisions(workspace, files);
 	if (collisions.length === 0 || force) {
@@ -125,13 +127,14 @@ export async function assertNoCollisions({
 		files.map((descriptor) => [descriptor.relativePath, descriptor])
 	);
 
-	const skippable: string[] = [];
+	const skipped: string[] = [];
 	const fatal: string[] = [];
+	const optional = new Set(skippableTargets ?? []);
 
 	for (const relativePath of collisions) {
 		const descriptor = descriptors.get(relativePath);
-		if (descriptor?.category === 'author') {
-			skippable.push(relativePath);
+		if (descriptor?.category === 'author' || optional.has(relativePath)) {
+			skipped.push(relativePath);
 			continue;
 		}
 
@@ -146,7 +149,7 @@ export async function assertNoCollisions({
 		});
 	}
 
-	return { skipped: skippable };
+	return { skipped };
 }
 
 export async function writeScaffoldFiles({
