@@ -46,11 +46,11 @@ const CACHE_LOG_MESSAGES = {
 } as const;
 
 function resolveCacheReporter(provided?: Reporter): Reporter {
-	const kernelReporter = getWPKernelReporter();
+	const wpKernelReporter = getWPKernelReporter();
 
 	return resolveReporter({
 		override: provided,
-		runtime: kernelReporter?.child('cache'),
+		runtime: wpKernelReporter?.child('cache'),
 		fallback: () =>
 			createReporter({
 				namespace: WPK_SUBSYSTEM_NAMESPACES.CACHE,

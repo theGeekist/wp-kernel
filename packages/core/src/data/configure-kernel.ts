@@ -86,7 +86,7 @@ function extractResourceName(name: string): string {
  * invalidation, telemetry, and teardown.
  *
  * @param    options - Runtime configuration including registry, middleware, and UI hooks
- * @return Configured kernel instance with lifecycle helpers
+ * @return Configured WP Kernel instance with lifecycle helpers
  *
  * @example
  * ```ts
