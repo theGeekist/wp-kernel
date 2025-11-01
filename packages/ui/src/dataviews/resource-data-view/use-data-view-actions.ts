@@ -3,11 +3,14 @@ import type {
 	Action as DataViewAction,
 	ActionButton,
 } from '@wordpress/dataviews';
+import { __ } from '@wordpress/i18n';
 import type { CacheKeyPattern } from '@wpkernel/core/resource';
+import type { Reporter } from '@wpkernel/core/reporter';
 import { normalizeActionError } from '../error-utils';
 import type {
 	ResourceDataViewActionConfig,
 	ResourceDataViewController,
+	DataViewsRuntimeContext,
 } from '../types';
 
 type ActionDecision = {
@@ -23,6 +26,79 @@ type DataViewsActionCallback<TItem> = (
 	items: TItem[],
 	context: DataViewsActionContext<TItem>
 ) => Promise<void>;
+
+type NoticeHandlers = {
+	success: (message: string) => void;
+	error: (message: string) => void;
+};
+
+const noopNotice = () => {
+	// Intentionally empty
+};
+
+function resolveNoticeHandlers(
+	registry: DataViewsRuntimeContext['registry'],
+	reporter: Reporter
+): NoticeHandlers {
+	if (!registry) {
+		return { success: noopNotice, error: noopNotice };
+	}
+
+	const candidate = registry as { dispatch?: (store: string) => unknown };
+	if (typeof candidate.dispatch !== 'function') {
+		return { success: noopNotice, error: noopNotice };
+	}
+
+	try {
+		const dispatcher = candidate.dispatch('core/notices') as {
+			createNotice?: (
+				type: 'success' | 'error',
+				message: string,
+				options?: Record<string, unknown>
+			) => void;
+		};
+
+		if (typeof dispatcher?.createNotice !== 'function') {
+			return { success: noopNotice, error: noopNotice };
+		}
+
+		const createNotice = dispatcher.createNotice;
+
+		return {
+			success: (message: string) => {
+				createNotice('success', message, {
+					speak: true,
+					isDismissible: true,
+					context: 'wpkernel/dataviews',
+				});
+			},
+			error: (message: string) => {
+				createNotice('error', message, {
+					speak: true,
+					isDismissible: true,
+					context: 'wpkernel/dataviews',
+				});
+			},
+		} satisfies NoticeHandlers;
+	} catch (error) {
+		reporter.warn?.(
+			'Failed to resolve core/notices dispatcher for DataViews actions',
+			{
+				error,
+			}
+		);
+		return { success: noopNotice, error: noopNotice };
+	}
+}
+
+function resolveActionLabel<TItem>(
+	actionConfig: ResourceDataViewActionConfig<TItem, unknown, unknown>
+): string {
+	if (typeof actionConfig.label === 'string') {
+		return actionConfig.label;
+	}
+	return actionConfig.id;
+}
 
 function buildInitialDecisions(
 	controller: ResourceDataViewController<unknown, unknown>
@@ -208,15 +284,16 @@ function createActionCallback<TItem, TQuery>(
 	controller: ResourceDataViewController<TItem, TQuery>,
 	actionConfig: ResourceDataViewActionConfig<TItem, unknown, unknown>,
 	getItemId: (item: TItem) => string,
-	decision: ActionDecision
+	decision: ActionDecision,
+	reporter: Reporter,
+	notices: NoticeHandlers
 ): DataViewsActionCallback<TItem> {
-	const reporter = controller.getReporter();
-
 	return async (
 		selectedItems: TItem[],
 		context: DataViewsActionContext<TItem>
 	) => {
 		const selectionIds = getSelectionIdentifiers(selectedItems, getItemId);
+		const actionLabel = resolveActionLabel(actionConfig);
 
 		if (decision.loading) {
 			controller.emitAction({
@@ -284,7 +361,17 @@ function createActionCallback<TItem, TQuery>(
 					items: selectedItems,
 				}),
 			});
+			reporter.info?.('DataViews action completed', {
+				actionId: actionConfig.id,
+				resource: controller.resourceName,
+				selection: selectionIds,
+			});
 			context.onActionPerformed?.(selectedItems);
+			const successMessage = `“${actionLabel}” — ${__(
+				'completed successfully.',
+				'wpkernel'
+			)}`;
+			notices.success(successMessage);
 		} catch (error) {
 			const normalized = normalizeActionError(
 				error,
@@ -295,6 +382,17 @@ function createActionCallback<TItem, TQuery>(
 				},
 				reporter
 			);
+			reporter.error?.('DataViews action failed', {
+				actionId: actionConfig.id,
+				resource: controller.resourceName,
+				selection: selectionIds,
+				error: normalized,
+			});
+			const failureMessage = `“${actionLabel}” — ${__(
+				'failed:',
+				'wpkernel'
+			)} ${normalized.message}`;
+			notices.error(failureMessage);
 			throw normalized;
 		}
 	};
@@ -302,10 +400,16 @@ function createActionCallback<TItem, TQuery>(
 
 export function useDataViewActions<TItem, TQuery>(
 	controller: ResourceDataViewController<TItem, TQuery>,
-	getItemId: (item: TItem) => string
+	getItemId: (item: TItem) => string,
+	runtime: DataViewsRuntimeContext
 ): DataViewAction<TItem>[] {
 	const decisions = useActionDecisions(
 		controller as ResourceDataViewController<unknown, unknown>
+	);
+	const reporter = controller.getReporter();
+	const notices = useMemo(
+		() => resolveNoticeHandlers(runtime.registry, reporter),
+		[runtime.registry, reporter]
 	);
 
 	return useMemo(() => {
@@ -328,7 +432,9 @@ export function useDataViewActions<TItem, TQuery>(
 				controller,
 				actionConfig,
 				getItemId,
-				decision
+				decision,
+				reporter,
+				notices
 			);
 
 			acc.push({
@@ -348,5 +454,5 @@ export function useDataViewActions<TItem, TQuery>(
 
 			return acc;
 		}, []);
-	}, [controller, decisions, getItemId]);
+	}, [controller, decisions, getItemId, notices, reporter]);
 }

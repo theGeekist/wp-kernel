@@ -9,6 +9,7 @@ import {
 	type ResourceDataViewTestProps,
 	type RuntimeWithDataViews,
 } from '../test-support/ResourceDataView.test-support';
+import { WPKernelError } from '@wpkernel/core/error';
 import type {
 	ResourceDataViewConfig,
 	ResourceDataViewController,
@@ -118,19 +119,20 @@ describe('ResourceDataView fetch integration', () => {
 	});
 
 	it('logs fetch errors when fetchList rejects', async () => {
-		const { runtime, getDataViewProps } = renderStandaloneFetchScenario({
+		const { runtime, renderResult } = renderStandaloneFetchScenario({
 			fetchList: jest.fn().mockRejectedValue(new Error('Network')),
 		});
 
 		await flushDataViews(2);
 
-		const props = getDataViewProps();
-		expect(props.isLoading).toBe(false);
-		expect(props.data).toEqual([]);
 		expect(runtime.dataviews.reporter.error).toHaveBeenCalledWith(
-			'Standalone DataViews fetch failed',
+			'DataViews list fetch failed',
 			expect.objectContaining({ query: expect.any(Object) })
 		);
+		expect(renderResult.getByRole('alert').textContent).toContain(
+			'Network'
+		);
+		expect(DataViewsMock).not.toHaveBeenCalled();
 	});
 
 	it('renders fetchList results when resource has no list hook', async () => {
@@ -149,17 +151,20 @@ describe('ResourceDataView fetch integration', () => {
 	});
 
 	it('handles fetch rejections with non-error values', async () => {
-		const { runtime, getDataViewProps } = renderStandaloneFetchScenario({
+		const { runtime, renderResult } = renderStandaloneFetchScenario({
 			fetchList: jest.fn().mockRejectedValue('nope'),
 		});
 
 		await flushDataViews(2);
 
-		const props = getDataViewProps();
-		expect(props.isLoading).toBe(false);
 		expect(runtime.dataviews.reporter.error).toHaveBeenCalledWith(
-			'Standalone DataViews fetch failed',
-			expect.objectContaining({ error: 'nope' })
+			'DataViews list fetch failed',
+			expect.objectContaining({
+				error: expect.any(WPKernelError),
+			})
+		);
+		expect(renderResult.getByRole('alert').textContent).toContain(
+			'Failed to load resource list data'
 		);
 	});
 
