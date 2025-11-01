@@ -81,8 +81,8 @@ describe('runInitWorkflow', () => {
 		buildScaffoldDescriptorsMock.mockReturnValue([
 			{
 				relativePath: 'wpk.config.ts',
-				templatePath: 'kernel/wpk.config.ts',
-				category: 'kernel',
+				templatePath: 'wpk/wpk.config.ts',
+				category: 'wpk',
 			},
 		]);
 		writeScaffoldFilesMock.mockResolvedValue([

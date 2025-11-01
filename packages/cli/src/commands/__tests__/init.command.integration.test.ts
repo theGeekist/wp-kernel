@@ -13,7 +13,7 @@ const withWorkspace = createWorkspaceRunner({ prefix: TMP_PREFIX });
 
 async function createCommand(workspace: string) {
 	const moduleUrl = pathToFileURL(
-		path.join(__dirname, '../../../templates/init/wpk.config.ts')
+		path.join(__dirname, '../../../templates/init/wpk/wpk.config.ts')
 	).href;
 	(globalThis as { __WPK_CLI_MODULE_URL__?: string }).__WPK_CLI_MODULE_URL__ =
 		moduleUrl;
@@ -60,7 +60,7 @@ describe('NextInitCommand', () => {
 			);
 			expect(wpkConfig).toContain("namespace: 'jobs-plugin'");
 			expect(wpkConfig).toContain(
-				'Kernel configuration for your project.'
+				'WP Kernel configuration for your project.'
 			);
 
 			const indexFile = await fs.readFile(
