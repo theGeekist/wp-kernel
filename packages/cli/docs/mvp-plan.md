@@ -33,18 +33,18 @@ See [Phase 7 – Plugin bootstrap flow](./phase-7-plugin-bootstrap.md) for the e
 
 ## Release ledger
 
-| Phase | Status     | Version band               | Summary                                                                                                                            | Ledger                                               |
-| ----- | ---------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
-| 0     | ✓ Complete | 0.4.1 → 0.4.4              | Pipeline hardening (writer helper, builder audits, end-to-end coverage).                                                           | [Jump](#phase-0--foundations--complete)              |
-| 1     | ✓ Complete | 0.4.5 → 0.5.0              | wp-option parity across builders, tests, docs, and release prep.                                                                   | [Jump](#phase-1--resource-parity--complete)          |
-| 2     | ✓ Complete | 0.5.1 → 0.6.0              | Transient storage parity, cache hygiene, and documentation refresh.                                                                | [Jump](#phase-2--transient-storage-parity--complete) |
-| 3     | ✓ Complete | 0.6.1 → 0.7.0              | Block builder parity (SSR + JS-only) and printer retirement prerequisites.                                                         | [Jump](#phase-3--block-builder-parity--complete)     |
-| 4     | ✓ Complete | 0.7.1 → 0.8.0              | Command migration factories and string-printer retirement.                                                                         | [Jump](#phase-4--command-migration--complete)        |
-| 5     | ✓ Complete | 0.8.1 → 0.9.0              | Apply layering, shims, safety flags, and the 0.9.0 release.                                                                        | [Jump](#phase-5--apply-layering--complete)           |
-| 6     | ✓ Complete | 0.9.1 → 0.10.0 (shipped)   | Core pipeline/doc alignment (Tasks 32-36). See [Phase 6 – Core Pipeline Orchestration](../core/docs/phase-6-core-pipeline.md.md).  | [Jump](#phase-6--core-pipeline-alignment--complete)  |
-| 7     | ⬜ Planned | 0.10.1 → 0.11.0 (reserved) | Plugin bootstrap flow (Tasks 37-45) closing the scaffolding gaps called out above.                                                 | [Jump](#phase-7--plugin-bootstrap-flow--planned)     |
-| 8     | ⬜ Planned | 0.11.1 → 0.12.0 (reserved) | UI baseline experience (Tasks 46-52) tracked in [`packages/ui/docs/phase-8-ui-baseline.md`](../../ui/docs/phase-8-ui-baseline.md). | [Jump](#phase-8--ui-baseline-experience--planned)    |
-| 9     | ⬜ Planned | 0.12.1 → 0.13.0 (reserved) | Post-MVP polish placeholder (Tasks 53-55) covering CLI LogLayer adoption and interactivity-aware generators once Phase 8 lands.    | [Jump](#phase-9--post-mvp-polish--planned)           |
+| Phase | Status         | Version band               | Summary                                                                                                                            | Ledger                                               |
+| ----- | -------------- | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| 0     | ✓ Complete     | 0.4.1 → 0.4.4              | Pipeline hardening (writer helper, builder audits, end-to-end coverage).                                                           | [Jump](#phase-0--foundations--complete)              |
+| 1     | ✓ Complete     | 0.4.5 → 0.5.0              | wp-option parity across builders, tests, docs, and release prep.                                                                   | [Jump](#phase-1--resource-parity--complete)          |
+| 2     | ✓ Complete     | 0.5.1 → 0.6.0              | Transient storage parity, cache hygiene, and documentation refresh.                                                                | [Jump](#phase-2--transient-storage-parity--complete) |
+| 3     | ✓ Complete     | 0.6.1 → 0.7.0              | Block builder parity (SSR + JS-only) and printer retirement prerequisites.                                                         | [Jump](#phase-3--block-builder-parity--complete)     |
+| 4     | ✓ Complete     | 0.7.1 → 0.8.0              | Command migration factories and string-printer retirement.                                                                         | [Jump](#phase-4--command-migration--complete)        |
+| 5     | ✓ Complete     | 0.8.1 → 0.9.0              | Apply layering, shims, safety flags, and the 0.9.0 release.                                                                        | [Jump](#phase-5--apply-layering--complete)           |
+| 6     | ✓ Complete     | 0.9.1 → 0.10.0 (shipped)   | Core pipeline/doc alignment (Tasks 32-36). See [Phase 6 – Core Pipeline Orchestration](../core/docs/phase-6-core-pipeline.md.md).  | [Jump](#phase-6--core-pipeline-alignment--complete)  |
+| 7     | 🚧 In Progress | 0.10.1 → 0.11.0 (reserved) | Plugin bootstrap flow (Tasks 37-45) closing the scaffolding gaps called out above.                                                 | [Jump](#phase-7--plugin-bootstrap-flow--planned)     |
+| 8     | ⬜ Planned     | 0.11.1 → 0.12.0 (reserved) | UI baseline experience (Tasks 46-52) tracked in [`packages/ui/docs/phase-8-ui-baseline.md`](../../ui/docs/phase-8-ui-baseline.md). | [Jump](#phase-8--ui-baseline-experience--planned)    |
+| 9     | ⬜ Planned     | 0.12.1 → 0.13.0 (reserved) | Post-MVP polish placeholder (Tasks 53-55) covering CLI LogLayer adoption and interactivity-aware generators once Phase 8 lands.    | [Jump](#phase-9--post-mvp-polish--planned)           |
 
 ## Completed phases
 
@@ -171,7 +171,7 @@ Ran alongside the core runtime migration so CLI guidance matched the new pipelin
 
 ## Upcoming phases
 
-### Phase 7 – Plugin bootstrap flow (⬜ Planned)
+### Phase 7 – Plugin bootstrap flow (🚧 In Progress)
 
 Close the scaffolding gaps identified above so `create → generate → apply` results in an immediately activatable plugin. Track the detailed scope in [Phase 7 – Plugin bootstrap flow](./phase-7-plugin-bootstrap.md) and update the ledger as each patch lands.
 
