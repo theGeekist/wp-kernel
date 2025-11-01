@@ -25,13 +25,25 @@ if ($argc < 3) {
 
 $workspaceRoot = $argv[1];
 $targetFile = $argv[2];
+$traceFile = resolveTraceFilePath();
 $autoloadPath = resolveAutoloadPath($workspaceRoot, [
+    buildAutoloadPathFromRoot(
+        dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'cli'
+    ),
+    buildAutoloadPathFromRoot(
+        dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'php-json-ast'
+    ),
     buildAutoloadPathFromRoot(__DIR__ . '/..'),
     buildAutoloadPathFromRoot(dirname(__DIR__, 2)),
-    buildAutoloadPathFromRoot(dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'php-json-ast'),
 ]);
 
 require $autoloadPath;
+
+recordTrace($traceFile, [
+    'event' => 'start',
+    'targetFile' => $targetFile,
+    'autoloadPath' => $autoloadPath,
+]);
 
 use PhpParser\Error;
 use PhpParser\JsonDecoder;
@@ -109,6 +121,11 @@ if ($resultJson === false) {
     exit(1);
 }
 
+recordTrace($traceFile, [
+    'event' => 'success',
+    'targetFile' => $targetFile,
+]);
+
 echo $resultJson . "\n";
 
 function ensureTrailingNewline(string $value): string
@@ -128,9 +145,9 @@ function normalizeDeclareSpacing(string $value): string
 function resolveAutoloadPath(string $workspaceRoot, array $additionalCandidates = []): string
 {
     $candidates = array_merge(
-        [buildAutoloadPathFromRoot($workspaceRoot)],
+        buildAutoloadCandidatesFromEnv(),
         $additionalCandidates,
-        buildAutoloadCandidatesFromEnv()
+        [buildAutoloadPathFromRoot($workspaceRoot)]
     );
 
     $candidates = array_values(
@@ -185,4 +202,34 @@ function buildAutoloadCandidatesFromEnv(): array
     }
 
     return $candidates;
+}
+
+/**
+ * @return string|null
+ */
+function resolveTraceFilePath(): ?string
+{
+    $value = getenv('PHP_DRIVER_TRACE_FILE');
+    if (!is_string($value) || $value === '') {
+        return null;
+    }
+
+    return $value;
+}
+
+/**
+ * @param array<string, mixed> $payload
+ */
+function recordTrace(?string $traceFile, array $payload): void
+{
+    if ($traceFile === null) {
+        return;
+    }
+
+    $encoded = json_encode($payload, JSON_UNESCAPED_SLASHES);
+    if ($encoded === false) {
+        return;
+    }
+
+    file_put_contents($traceFile, $encoded . PHP_EOL, FILE_APPEND);
 }

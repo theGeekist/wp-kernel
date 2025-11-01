@@ -60,6 +60,7 @@ describe('pretty printer ESM integration', () => {
 				type: 'module',
 				exports: {
 					'./error': './error.js',
+					'./contracts': './contracts.js',
 				},
 			}),
 			'utf8'
@@ -67,6 +68,11 @@ describe('pretty printer ESM integration', () => {
 		fs.writeFileSync(
 			path.join(stubModuleRoot, 'error.js'),
 			'export class WPKernelError extends Error {}',
+			'utf8'
+		);
+		fs.writeFileSync(
+			path.join(stubModuleRoot, 'contracts.js'),
+			'export const WPK_NAMESPACE = "wpk";',
 			'utf8'
 		);
 
