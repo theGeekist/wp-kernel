@@ -3,6 +3,7 @@ import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
 import { runInitWorkflow } from '../init/workflow';
 import type { InitWorkflowOptions } from '../init/workflow';
 import {
+	assertNoCollisions,
 	buildPathsReplacement,
 	buildReplacementMap,
 	buildScaffoldDescriptors,
@@ -45,6 +46,9 @@ const resolveDependencyVersionsMock =
 	resolveDependencyVersions as jest.MockedFunction<Resolver>;
 const writeScaffoldFilesMock =
 	writeScaffoldFiles as jest.MockedFunction<WriteScaffoldFiles>;
+const assertNoCollisionsMock = assertNoCollisions as jest.MockedFunction<
+	typeof assertNoCollisions
+>;
 const buildScaffoldDescriptorsMock =
 	buildScaffoldDescriptors as jest.MockedFunction<BuildScaffoldDescriptors>;
 const buildReplacementMapMock =
@@ -75,11 +79,16 @@ describe('runInitWorkflow', () => {
 		jest.clearAllMocks();
 
 		buildScaffoldDescriptorsMock.mockReturnValue([
-			{ relativePath: 'wpk.config.ts', templatePath: 'wpk.config.ts' },
+			{
+				relativePath: 'wpk.config.ts',
+				templatePath: 'wpk/wpk.config.ts',
+				category: 'wpk',
+			},
 		]);
 		writeScaffoldFilesMock.mockResolvedValue([
 			{ path: 'wpk.config.ts', status: 'created' },
 		]);
+		assertNoCollisionsMock.mockResolvedValue({ skipped: [] });
 		buildPathsReplacementMock.mockResolvedValue('"{}"');
 		buildReplacementMapMock.mockReturnValue(new Map());
 		writePackageJsonMock.mockResolvedValue('updated');
@@ -109,6 +118,9 @@ describe('runInitWorkflow', () => {
 			expect.objectContaining({
 				preferRegistryVersions: true,
 			})
+		);
+		expect(writeScaffoldFilesMock).toHaveBeenCalledWith(
+			expect.objectContaining({ force: false, skip: undefined })
 		);
 		expect(reporter.info).toHaveBeenCalledWith(
 			'init dependency versions resolved from registry'

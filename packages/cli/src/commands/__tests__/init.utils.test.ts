@@ -23,7 +23,7 @@ describe('init utils', () => {
 
 	it('slugifies values and falls back when input is empty', () => {
 		expect(slugify('Demo Project')).toBe('demo-project');
-		expect(slugify('   ')).toBe('wp-kernel-project');
+		expect(slugify('   ')).toBe('wpkernel-project');
 	});
 
 	it('builds composer package name using slugified namespace', () => {
@@ -34,7 +34,7 @@ describe('init utils', () => {
 
 	it('builds php namespaces with trailing separators', () => {
 		expect(buildPhpNamespace('Acme Example')).toBe('AcmeExample\\\\');
-		expect(buildPhpNamespace('   ')).toBe('WpKernelProject\\\\');
+		expect(buildPhpNamespace('   ')).toBe('WPKernelProject\\\\');
 	});
 
 	it('ensures output always contains a trailing newline', () => {
