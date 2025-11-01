@@ -19,3 +19,4 @@ export * from './blocks/render';
 export * from './blocks/utils';
 export * from './blocks/types';
 export * from './pipeline';
+export * from './plugin';

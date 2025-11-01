@@ -52,6 +52,7 @@ describe('NextInitCommand', () => {
 			expect(summary).toContain('created vite.config.ts');
 			expect(summary).toContain('created package.json');
 			expect(summary).toContain('created composer.json');
+			expect(summary).toContain('created plugin.php');
 			expect(summary).toContain('created inc/.gitkeep');
 
 			const wpkConfig = await fs.readFile(
@@ -114,6 +115,13 @@ describe('NextInitCommand', () => {
 					},
 				},
 			});
+
+			const pluginLoader = await fs.readFile(
+				path.join(workspace, 'plugin.php'),
+				'utf8'
+			);
+			expect(pluginLoader).toContain('Plugin Name: Jobs Plugin');
+			expect(pluginLoader).toContain('function bootstrap_kernel(): void');
 		});
 	});
 
