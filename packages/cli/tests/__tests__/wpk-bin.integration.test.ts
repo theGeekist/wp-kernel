@@ -165,7 +165,11 @@ describe('wpk bin integration', () => {
 					['generate', '--verbose'],
 					{
 						env: {
-							PHP_DRIVER_AUTOLOAD_PATHS: '',
+							WPK_PHP_AUTOLOAD: path.join(
+								workspace,
+								'missing-autoload.php'
+							),
+							WPK_PHP_AUTOLOAD_PATHS: '',
 							PHP_DRIVER_TRACE_FILE: path.join(
 								workspace,
 								'.wpk',

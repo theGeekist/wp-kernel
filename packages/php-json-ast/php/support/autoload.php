@@ -53,7 +53,11 @@ function buildAutoloadPathFromRoot(string $root): string
  */
 function buildAutoloadCandidatesFromEnv(): array
 {
-    $paths = getenv('PHP_DRIVER_AUTOLOAD_PATHS');
+    $paths = getenv('WPK_PHP_AUTOLOAD_PATHS');
+    if (!is_string($paths) || $paths === '') {
+        $paths = getenv('PHP_DRIVER_AUTOLOAD_PATHS');
+    }
+
     if (!is_string($paths) || $paths === '') {
         return [];
     }
