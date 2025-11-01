@@ -51,14 +51,20 @@ type RuntimeWithDataViews = WPKernelUIRuntime & {
 
 export type { RuntimeWithDataViews };
 
-export function createKernelRuntime(): RuntimeWithDataViews {
+interface CreateKernelRuntimeOptions {
+	registry?: unknown;
+}
+
+export function createKernelRuntime(
+	options: CreateKernelRuntimeOptions = {}
+): RuntimeWithDataViews {
 	const reporter = createReporter();
 	const preferences = new Map<string, unknown>();
 	const runtime: RuntimeWithDataViews = {
 		kernel: undefined,
 		namespace: 'tests',
 		reporter,
-		registry: undefined,
+		registry: options.registry,
 		events: {} as never,
 		capabilities: undefined,
 		invalidate: jest.fn(),
@@ -91,6 +97,28 @@ export function createKernelRuntime(): RuntimeWithDataViews {
 		},
 	} as unknown as RuntimeWithDataViews;
 	return runtime;
+}
+
+export function createNoticeRegistry() {
+	const createNotice = jest.fn();
+	const registry = {
+		dispatch: jest.fn((key: string) => {
+			if (key === 'core/notices') {
+				return { createNotice };
+			}
+			return {};
+		}),
+		select: jest.fn(),
+		subscribe: jest.fn(),
+		registerStore: jest.fn(),
+		unregisterStore: jest.fn(),
+		use: jest.fn(),
+	} as {
+		dispatch: jest.Mock;
+		[key: string]: unknown;
+	};
+
+	return { registry, createNotice };
 }
 
 export function renderWithProvider(

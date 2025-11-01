@@ -435,6 +435,8 @@ describe('useListResult', () => {
 		expect(onChange.mock.calls.at(-1)?.[0]).toEqual({
 			data: { items: [{ id: 1 }], total: 1 },
 			isLoading: false,
+			status: 'success',
+			error: undefined,
 		});
 	});
 
@@ -459,6 +461,8 @@ describe('useListResult', () => {
 		expect(onChange.mock.calls.at(-1)?.[0]).toEqual({
 			data: undefined,
 			isLoading: false,
+			status: 'idle',
+			error: undefined,
 		});
 	});
 });

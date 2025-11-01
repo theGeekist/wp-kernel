@@ -14,3 +14,4 @@ export type {
 	DataViewsStandaloneRuntime,
 	QueryMapping,
 } from './types';
+export type { ResourceDataViewProps } from './resource-data-view/types/props';

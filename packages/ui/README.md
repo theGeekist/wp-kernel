@@ -177,6 +177,17 @@ export function JobsAdminScreen() {
 }
 ```
 
+### Async boundaries & notices
+
+`ResourceDataView` wraps WordPress DataViews with shared async boundaries so every screen inherits the same UX without bespoke components. The component inspects the list status from `useListResult()` and the optional `screen.menu.capability` requirement to decide whether to render:
+
+- **Loading** – Displayed while the first page is pending or a capability check is still resolving.
+- **Empty** – Uses the `emptyState` prop when the list resolves with zero items (falls back to a translated default message when the prop is omitted).
+- **Error** – Presents a warning notice when either the resource hook or a standalone `fetchList` rejects; failures are logged through the controller reporter.
+- **Permission denied** – Shows a capability warning whenever `config.screen.menu.capability` evaluates to `false` or throws.
+
+Action handlers created by `useDataViewActions()` emit notices via `core/notices` whenever an action succeeds or fails, alongside the existing cache invalidation and reporter logging. Provide a WordPress data registry in the runtime (`configureWPKernel({ registry: window.wp.data })`) so the helpers can dispatch the notices.
+
 `ResourceDataView` emits `data-wpk-dataview-*` attributes so Playwright helpers can target search, filters, bulk actions, and counters reliably.
 
 ### Metadata reference
