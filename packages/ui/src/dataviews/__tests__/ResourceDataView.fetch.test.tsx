@@ -10,6 +10,7 @@ import {
 	type RuntimeWithDataViews,
 } from '../test-support/ResourceDataView.test-support';
 import { WPKernelError } from '@wpkernel/core/error';
+import { listLoadFailedMessage } from '../resource-data-view/i18n';
 import type {
 	ResourceDataViewConfig,
 	ResourceDataViewController,
@@ -164,7 +165,7 @@ describe('ResourceDataView fetch integration', () => {
 			})
 		);
 		expect(renderResult.getByRole('alert').textContent).toContain(
-			'Failed to load resource list data'
+			listLoadFailedMessage
 		);
 	});
 

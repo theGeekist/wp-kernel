@@ -69,7 +69,7 @@ describe('resource-data-view runtime resolution', () => {
 
 	it('throws when no runtime is available', () => {
 		expect(() => resolveRuntime(undefined, null)).toThrow(
-			/Kernel UI runtime unavailable/
+			/WP Kernel UI runtime unavailable/
 		);
 	});
 

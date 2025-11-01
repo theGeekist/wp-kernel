@@ -6,6 +6,7 @@ import {
 	flushDataViews,
 	createConfig,
 } from '../test-support/ResourceDataView.test-support';
+import { listLoadFailedMessage } from '../resource-data-view/i18n';
 
 describe('ResourceDataView boundaries', () => {
 	beforeEach(() => {
@@ -70,11 +71,8 @@ describe('ResourceDataView boundaries', () => {
 
 		await flushDataViews();
 
-		expect(
-			renderResult.getByText('Failed to load resource list data', {
-				selector: 'p',
-			})
-		).toBeTruthy();
+		const alert = renderResult.getByRole('alert');
+		expect(alert.textContent).toContain(listLoadFailedMessage);
 		expect(runtime.dataviews.reporter.error).toHaveBeenCalledWith(
 			'DataViews list fetch failed',
 			expect.objectContaining({ resource: 'jobs' })

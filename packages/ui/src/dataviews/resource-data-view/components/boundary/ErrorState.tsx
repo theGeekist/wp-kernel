@@ -1,7 +1,7 @@
 /* @jsxImportSource react */
 import { Notice } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
 import type { WPKernelError } from '@wpkernel/core/error';
+import { listLoadFailedMessage } from '../../i18n';
 import { BoundaryFrame } from './BoundaryFrame';
 
 interface ErrorStateProps {
@@ -10,16 +10,10 @@ interface ErrorStateProps {
 
 function getMessage(error?: WPKernelError): string {
 	if (!error) {
-		return __(
-			'We were unable to load this list. Please try again.',
-			'wpkernel'
-		);
+		return listLoadFailedMessage;
 	}
 
-	return (
-		error.message ||
-		__('We were unable to load this list. Please try again.', 'wpkernel')
-	);
+	return error.message || listLoadFailedMessage;
 }
 
 export function ErrorState({ error }: ErrorStateProps) {

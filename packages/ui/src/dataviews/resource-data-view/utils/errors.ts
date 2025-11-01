@@ -1,6 +1,7 @@
 import { WPKernelError } from '@wpkernel/core/error';
 import type { ErrorCode } from '@wpkernel/core/error';
 import type { Reporter } from '@wpkernel/core/reporter';
+import { listLoadFailedMessage } from '../i18n';
 
 interface ListErrorContext {
 	resource: string;
@@ -46,7 +47,7 @@ export function normalizeListError(
 	const normalized = wrapUnknown(
 		value,
 		'TransportError',
-		'Failed to load resource list data',
+		listLoadFailedMessage,
 		{
 			resourceName: context.resource,
 		}

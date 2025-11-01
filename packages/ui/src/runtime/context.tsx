@@ -26,7 +26,7 @@ export function useWPKernelUI(): WPKernelUIRuntime {
 	if (!runtime) {
 		throw new WPKernelError('DeveloperError', {
 			message:
-				'Kernel UI runtime unavailable. Attach UI bindings via configureWPKernel({ ui: { attach } }) and wrap your React tree with <WPKernelUIProvider />.',
+				'WP Kernel UI runtime unavailable. Attach UI bindings via configureWPKernel({ ui: { attach } }) and wrap your React tree with <WPKernelUIProvider />.',
 		});
 	}
 	return runtime;
