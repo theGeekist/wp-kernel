@@ -246,7 +246,7 @@ describe('invalidate', () => {
 	});
 
 	describe('reporter instrumentation', () => {
-		it('uses kernel reporter when no override provided', () => {
+		it('uses WP Kernel reporter when no override provided', () => {
 			const { reporter, logs } = createReporterSpy();
 			setWPKernelReporter(reporter);
 
@@ -290,9 +290,9 @@ describe('invalidate', () => {
 		});
 
 		it('prefers explicit reporter override', () => {
-			const kernelSpy = createReporterSpy();
+			const wpKernelSpy = createReporterSpy();
 			const overrideSpy = createReporterSpy();
-			setWPKernelReporter(kernelSpy.reporter);
+			setWPKernelReporter(wpKernelSpy.reporter);
 
 			const mockState = {
 				lists: {
@@ -325,7 +325,7 @@ describe('invalidate', () => {
 					}),
 				])
 			);
-			expect(kernelSpy.logs).toEqual([]);
+			expect(wpKernelSpy.logs).toEqual([]);
 		});
 
 		it('respects silent reporter flag when no override provided', () => {

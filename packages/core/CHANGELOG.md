@@ -72,7 +72,7 @@
 
 ### Breaking Changes
 
-- Removed the `withKernel()` export. Registry middleware is now wired directly
+- Removed the `withWPKernel()` export. Registry middleware is now wired directly
   through `configureWPKernel()`, and teardown happens via the returned instance.
 - `defineAction()` and `defineCapability()` now accept configuration objects
   (`{ name, handler, options }` / `{ map, options }`) rather than positional
@@ -80,27 +80,27 @@
 
 ### Minor Changes
 
-- Introduced `kernel.attachUIBindings()`, `kernel.getUIRuntime()`, and
-  `kernel.hasUIRuntime()` to manage UI adapters without global mutation.
+- Introduced `wpk.attachUIBindings()`, `wpk.getUIRuntime()`, and
+  `wpk.hasUIRuntime()` to manage UI adapters without global mutation.
 - `defineResource()` now registers resources with the runtime via
   `trackUIResource()` instead of relying on queued globals.
-- Added `WPKernelEventBus` with `kernel.events` so lifecycle events surface through
+- Added `WPKernelEventBus` with `wpk.events` so lifecycle events surface through
   a typed subscription interface while continuing to bridge into `wp.hooks`.
   Action and cache events now emit through the bus, enabling UI runtimes and
   adapters to subscribe without global shims.
 - Published a dedicated `@wpkernel/core/events` barrel export so consumers
   can rely on the event bus without importing from the package root.
-- Resource reporters inherit from the kernel instance. Client methods and store
+- Resource reporters inherit from the WP Kernel instance. Client methods and store
   resolvers emit structured `debug`/`info`/`error` logs and every resource now
   exposes a `reporter` property for custom instrumentation.
 - **DataViews Phase 3**: `configureWPKernel` preserves resource UI metadata,
   forwards DataViews options to UI attachments, and emits `ui:dataviews:*`
   events end-to-end with new integration coverage.
 - **DataViews Phase 4**: `ResourceConfig`/`ResourceObject` expose typed
-  `ui.admin.dataviews` metadata (screen + menu), keeping CLI/kernel parity for
+  `ui.admin.dataviews` metadata (screen + menu), keeping CLI/WP Kernel parity for
   declarative DataViews scaffolding.
 - Cache invalidation helpers and the transport layer accept reporter metadata,
-  emitting `cache.invalidate.*` and `transport.*` events with kernel-scoped
+  emitting `cache.invalidate.*` and `transport.*` events with WP Kernel-scoped
   defaults so cache/REST lifecycles share correlation IDs.
 
 ### Technical Details
@@ -132,7 +132,7 @@
     This is the initial release establishing the complete development environment and tooling infrastructure for the WP Kernel framework.
 
     **Monorepo Structure**:
-    - pnpm workspaces with 4 packages (kernel, ui, cli, e2e-utils)
+    - pnpm workspaces with 4 packages (wp-kernel, ui, cli, e2e-utils)
     - TypeScript 5.9.2 strict mode with composite builds
     - Path aliases configured (@wpkernel/\*)
 
@@ -185,7 +185,7 @@
     Complete development environment, tooling, and CI/CD pipeline for WP Kernel framework.
 
     ## Infrastructure ✓
-    - **Monorepo**: pnpm workspaces with 5 packages (kernel, ui, cli, e2e-utils, showcase-plugin)
+    - **Monorepo**: pnpm workspaces with 5 packages (wp-kernel, ui, cli, e2e-utils, showcase-plugin)
     - **TypeScript**: Strict mode, project references, path aliases
     - **Build**: Webpack + @wordpress/scripts, watch mode
     - **Lint**: ESLint 9 flat config, Prettier, deep-import rules

@@ -53,7 +53,7 @@ export const WPK_EXIT_CODES = {
 } as const;
 
 /**
- * Union of supported kernel exit code values.
+ * Union of supported WP Kernel exit code values.
  */
 export type WPKExitCode = (typeof WPK_EXIT_CODES)[keyof typeof WPK_EXIT_CODES];
 

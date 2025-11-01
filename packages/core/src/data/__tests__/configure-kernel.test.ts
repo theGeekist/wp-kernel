@@ -110,7 +110,7 @@ describe('configureWPKernel', () => {
 			__experimentalUseMiddleware: jest.Mock;
 		};
 
-		const kernel = configureWPKernel({
+		const wpk = configureWPKernel({
 			namespace: 'acme',
 			registry,
 			middleware: [customMiddleware],
@@ -131,7 +131,7 @@ describe('configureWPKernel', () => {
 		const [installedEvents] = eventsFactory();
 		expect(installedEvents).toBe(eventMiddleware);
 
-		kernel.teardown();
+		wpk.teardown();
 		expect(detachActions).toHaveBeenCalled();
 		expect(detachEvents).toHaveBeenCalled();
 		expect(eventMiddleware.destroy).toHaveBeenCalled();
@@ -142,14 +142,14 @@ describe('configureWPKernel', () => {
 			dispatch: jest.fn(),
 		} as unknown as WPKernelRegistry;
 
-		const kernel = configureWPKernel({ namespace: 'acme', registry });
+		const wpk = configureWPKernel({ namespace: 'acme', registry });
 
 		expect(
 			(registry as { __experimentalUseMiddleware?: unknown })
 				.__experimentalUseMiddleware
 		).toBeUndefined();
 
-		expect(() => kernel.teardown()).not.toThrow();
+		expect(() => wpk.teardown()).not.toThrow();
 	});
 
 	it('falls back to global registry when not provided', () => {
@@ -171,9 +171,9 @@ describe('configureWPKernel', () => {
 	it('handles missing global registry helpers gracefully', () => {
 		delete (globalThis as { getWPData?: unknown }).getWPData;
 
-		const kernel = configureWPKernel({ namespace: 'acme' });
+		const wpk = configureWPKernel({ namespace: 'acme' });
 
-		expect(kernel.getRegistry()).toBeUndefined();
+		expect(wpk.getRegistry()).toBeUndefined();
 	});
 
 	it('delegates invalidate calls to resource cache with registry context', () => {
@@ -184,10 +184,10 @@ describe('configureWPKernel', () => {
 			dispatch: jest.fn(),
 		} as unknown as WPKernelRegistry;
 
-		const kernel = configureWPKernel({ namespace: 'acme', registry });
+		const wpk = configureWPKernel({ namespace: 'acme', registry });
 		const patterns = ['post', 'list'];
 
-		kernel.invalidate(patterns);
+		wpk.invalidate(patterns);
 		expect(invalidateCache).toHaveBeenCalledWith(
 			patterns,
 			expect.objectContaining({
@@ -199,7 +199,7 @@ describe('configureWPKernel', () => {
 			})
 		);
 
-		kernel.invalidate(patterns, { emitEvent: false });
+		wpk.invalidate(patterns, { emitEvent: false });
 		expect(invalidateCache).toHaveBeenCalledWith(
 			patterns,
 			expect.objectContaining({
@@ -214,12 +214,12 @@ describe('configureWPKernel', () => {
 	});
 
 	it('emits custom events through the event bus', () => {
-		const kernel = configureWPKernel({ namespace: 'acme' });
+		const wpk = configureWPKernel({ namespace: 'acme' });
 		const payload = { foo: 'bar' };
 		const bus = getWPKernelEventBus();
 		const emitSpy = jest.spyOn(bus, 'emit');
 
-		kernel.emit('wpk.event', payload);
+		wpk.emit('wpk.event', payload);
 
 		expect(emitSpy).toHaveBeenCalledWith('custom:event', {
 			eventName: 'wpk.event',
@@ -228,15 +228,15 @@ describe('configureWPKernel', () => {
 	});
 
 	it('throws WPKernelError when emit is called with invalid event name', () => {
-		const kernel = configureWPKernel({ namespace: 'acme' });
+		const wpk = configureWPKernel({ namespace: 'acme' });
 
-		expect(() => kernel.emit('', {})).toThrow(WPKernelError);
+		expect(() => wpk.emit('', {})).toThrow(WPKernelError);
 	});
 
 	it('reports UI disabled state by default', () => {
-		const kernel = configureWPKernel({ namespace: 'acme' });
+		const wpk = configureWPKernel({ namespace: 'acme' });
 
-		expect(kernel.ui.isEnabled()).toBe(false);
+		expect(wpk.ui.isEnabled()).toBe(false);
 	});
 
 	it('attaches UI runtime when adapter is provided', () => {
@@ -250,15 +250,15 @@ describe('configureWPKernel', () => {
 		};
 		const attach = jest.fn(() => runtime);
 
-		const kernel = configureWPKernel({
+		const wpk = configureWPKernel({
 			namespace: 'acme',
 			ui: { attach },
 		});
 
-		expect(attach).toHaveBeenCalledWith(kernel, undefined);
-		expect(kernel.hasUIRuntime()).toBe(true);
-		expect(kernel.getUIRuntime()).toBe(runtime);
-		expect(kernel.ui.isEnabled()).toBe(true);
+		expect(attach).toHaveBeenCalledWith(wpk, undefined);
+		expect(wpk.hasUIRuntime()).toBe(true);
+		expect(wpk.getUIRuntime()).toBe(runtime);
+		expect(wpk.ui.isEnabled()).toBe(true);
 	});
 
 	it('allows manual UI runtime attachment', () => {
@@ -272,23 +272,23 @@ describe('configureWPKernel', () => {
 		};
 		const attach = jest.fn(() => runtime);
 
-		const kernel = configureWPKernel({ namespace: 'acme' });
+		const wpk = configureWPKernel({ namespace: 'acme' });
 
-		expect(kernel.hasUIRuntime()).toBe(false);
+		expect(wpk.hasUIRuntime()).toBe(false);
 
-		const attached = kernel.attachUIBindings(attach);
+		const attached = wpk.attachUIBindings(attach);
 
-		expect(attach).toHaveBeenCalledWith(kernel, undefined);
+		expect(attach).toHaveBeenCalledWith(wpk, undefined);
 		expect(attached).toBe(runtime);
-		expect(kernel.getUIRuntime()).toBe(runtime);
-		expect(kernel.ui.isEnabled()).toBe(true);
+		expect(wpk.getUIRuntime()).toBe(runtime);
+		expect(wpk.ui.isEnabled()).toBe(true);
 	});
 
-	it('exposes the shared event bus on the kernel instance', () => {
-		const kernel = configureWPKernel({ namespace: 'acme' });
+	it('exposes the shared event bus on the WP Kernel instance', () => {
+		const wpk = configureWPKernel({ namespace: 'acme' });
 		const bus = getWPKernelEventBus();
 
-		expect(kernel.events).toBe(bus);
+		expect(wpk.events).toBe(bus);
 	});
 
 	it('exposes namespace, reporter, and registry accessors', () => {
@@ -299,15 +299,15 @@ describe('configureWPKernel', () => {
 			dispatch: jest.fn(),
 		} as unknown as WPKernelRegistry;
 
-		const kernel = configureWPKernel({
+		const wpk = configureWPKernel({
 			namespace: 'acme',
 			registry,
 			reporter: mockReporter,
 		});
 
-		expect(kernel.getNamespace()).toBe('acme');
-		expect(kernel.getReporter()).toBe(mockReporter);
-		expect(kernel.getRegistry()).toBe(registry);
+		expect(wpk.getNamespace()).toBe('acme');
+		expect(wpk.getReporter()).toBe(mockReporter);
+		expect(wpk.getRegistry()).toBe(registry);
 	});
 
 	it('falls back to detected namespace when none is provided', () => {
@@ -316,10 +316,10 @@ describe('configureWPKernel', () => {
 		>;
 		detectNamespaceMock.mockReturnValueOnce('fallback.namespace');
 
-		const kernel = configureWPKernel();
+		const wpk = configureWPKernel();
 
 		expect(detectNamespaceMock).toHaveBeenCalled();
-		expect(kernel.getNamespace()).toBe('fallback.namespace');
+		expect(wpk.getNamespace()).toBe('fallback.namespace');
 	});
 
 	it('handles middleware hooks that do not return teardown callbacks', () => {
@@ -333,9 +333,9 @@ describe('configureWPKernel', () => {
 
 		(wpkEventsPlugin as jest.Mock).mockReturnValueOnce({});
 
-		const kernel = configureWPKernel({ namespace: 'acme', registry });
+		const wpk = configureWPKernel({ namespace: 'acme', registry });
 
-		expect(() => kernel.teardown()).not.toThrow();
+		expect(() => wpk.teardown()).not.toThrow();
 	});
 
 	it('normalizes teardown errors that are not Error instances', () => {
@@ -356,9 +356,9 @@ describe('configureWPKernel', () => {
 		process.env.NODE_ENV = 'development';
 
 		try {
-			const kernel = configureWPKernel({ namespace: 'acme', registry });
+			const wpk = configureWPKernel({ namespace: 'acme', registry });
 
-			kernel.teardown();
+			wpk.teardown();
 
 			expect(mockReporter.error).toHaveBeenCalledWith(
 				'WPKernel teardown failed',
@@ -391,13 +391,13 @@ describe('configureWPKernel', () => {
 		process.env.NODE_ENV = 'development';
 
 		try {
-			const kernel = configureWPKernel({
+			const wpk = configureWPKernel({
 				namespace: 'acme',
 				registry,
 				reporter: mockReporter,
 			});
 
-			kernel.teardown();
+			wpk.teardown();
 
 			expect(mockReporter.error).toHaveBeenCalledWith(
 				'WPKernel teardown failed',
@@ -408,16 +408,16 @@ describe('configureWPKernel', () => {
 		}
 	});
 
-	it('defines resources using kernel reporter namespace', () => {
+	it('defines resources using WP Kernel reporter namespace', () => {
 		const childReporter = createMockReporter();
 		mockReporter.child.mockReturnValue(childReporter);
 
-		const kernel = configureWPKernel({
+		const wpk = configureWPKernel({
 			namespace: 'acme',
 			reporter: mockReporter,
 		});
 
-		const resource = kernel.defineResource<{ id: number }>({
+		const resource = wpk.defineResource<{ id: number }>({
 			name: 'thing',
 			routes: {
 				get: { path: '/acme/v1/things/:id', method: 'GET' },
@@ -430,10 +430,10 @@ describe('configureWPKernel', () => {
 	});
 
 	it('respects custom resource reporters when provided', () => {
-		const kernel = configureWPKernel({ namespace: 'acme' });
+		const wpk = configureWPKernel({ namespace: 'acme' });
 		const customReporter = createMockReporter();
 
-		const resource = kernel.defineResource<{ id: number }>({
+		const resource = wpk.defineResource<{ id: number }>({
 			name: 'thing',
 			reporter: customReporter,
 			routes: {
@@ -446,9 +446,9 @@ describe('configureWPKernel', () => {
 	});
 
 	it('preserves explicit resource namespaces supplied in config', () => {
-		const kernel = configureWPKernel({ namespace: 'acme' });
+		const wpk = configureWPKernel({ namespace: 'acme' });
 
-		const resource = kernel.defineResource<{ id: number }>({
+		const resource = wpk.defineResource<{ id: number }>({
 			name: 'thing',
 			namespace: 'custom',
 			routes: {
@@ -465,14 +465,14 @@ describe('configureWPKernel', () => {
 		const registryEntries = new Map<string, unknown>();
 		const customEvents: CustomKernelEvent[] = [];
 		const attach = jest.fn(
-			(kernel: WPKInstance, options?: UIIntegrationOptions) => {
+			(wpk: WPKInstance, options?: UIIntegrationOptions) => {
 				const runtime: WPKernelUIRuntime = {
-					kernel,
-					namespace: kernel.getNamespace(),
-					reporter: kernel.getReporter(),
-					events: kernel.events,
+					kernel: wpk,
+					namespace: wpk.getNamespace(),
+					reporter: wpk.getReporter(),
+					events: wpk.events,
 					options,
-					invalidate: kernel.invalidate.bind(kernel),
+					invalidate: wpk.invalidate.bind(wpk),
 					dataviews: {
 						registry: registryEntries,
 						controllers,
@@ -489,33 +489,27 @@ describe('configureWPKernel', () => {
 						},
 						events: {
 							registered: (payload: unknown) =>
-								kernel.emit('ui:dataviews:registered', payload),
+								wpk.emit('ui:dataviews:registered', payload),
 							unregistered: (payload: unknown) =>
-								kernel.emit(
-									'ui:dataviews:unregistered',
-									payload
-								),
+								wpk.emit('ui:dataviews:unregistered', payload),
 							viewChanged: (payload: unknown) =>
-								kernel.emit(
-									'ui:dataviews:view-changed',
-									payload
-								),
+								wpk.emit('ui:dataviews:view-changed', payload),
 							actionTriggered: (payload: unknown) =>
-								kernel.emit(
+								wpk.emit(
 									'ui:dataviews:action-triggered',
 									payload
 								),
 						},
-						reporter: kernel.getReporter(),
+						reporter: wpk.getReporter(),
 						options: {
 							enable: true,
 							autoRegisterResources: true,
 						},
-						getResourceReporter: () => kernel.getReporter(),
+						getResourceReporter: () => wpk.getReporter(),
 					},
 				} as unknown as WPKernelUIRuntime;
 
-				kernel.events.on('resource:defined', ({ resource }) => {
+				wpk.events.on('resource:defined', ({ resource }) => {
 					const metadata = (
 						resource as {
 							ui?: {
@@ -531,22 +525,19 @@ describe('configureWPKernel', () => {
 					controllers.set(resource.name, metadata);
 					registryEntries.set(resource.name, {
 						resource: resource.name,
-						preferencesKey: `${kernel.getNamespace()}/dataviews/${resource.name}`,
+						preferencesKey: `${wpk.getNamespace()}/dataviews/${resource.name}`,
 					});
 				});
 
-				kernel.events.on(
-					'custom:event',
-					(payload: CustomKernelEvent) => {
-						customEvents.push(payload);
-					}
-				);
+				wpk.events.on('custom:event', (payload: CustomKernelEvent) => {
+					customEvents.push(payload);
+				});
 
 				return runtime;
 			}
 		);
 
-		const kernel = configureWPKernel({
+		const wpk = configureWPKernel({
 			namespace: 'acme',
 			ui: {
 				enable: true,
@@ -561,7 +552,7 @@ describe('configureWPKernel', () => {
 		});
 
 		expect(attach).toHaveBeenCalledWith(
-			kernel,
+			wpk,
 			expect.objectContaining({
 				dataviews: expect.objectContaining({ enable: true }),
 			})
@@ -581,7 +572,7 @@ describe('configureWPKernel', () => {
 			},
 		};
 
-		const resource = kernel.defineResource(
+		const resource = wpk.defineResource(
 			resourceDefinition as unknown as ResourceConfig<
 				unknown,
 				{ search?: string }
@@ -625,9 +616,9 @@ describe('configureWPKernel', () => {
 	});
 
 	it('respects namespace embedded within resource name shorthand', () => {
-		const kernel = configureWPKernel({ namespace: 'acme' });
+		const wpk = configureWPKernel({ namespace: 'acme' });
 
-		const resource = kernel.defineResource<{ id: number }>({
+		const resource = wpk.defineResource<{ id: number }>({
 			name: 'custom:thing',
 			routes: {
 				get: { path: '/custom/v1/things/:id', method: 'GET' },
@@ -639,9 +630,9 @@ describe('configureWPKernel', () => {
 	});
 
 	it('prefers explicit namespace when provided alongside shorthand name syntax', () => {
-		const kernel = configureWPKernel({ namespace: 'acme' });
+		const wpk = configureWPKernel({ namespace: 'acme' });
 
-		const resource = kernel.defineResource<{ id: number }>({
+		const resource = wpk.defineResource<{ id: number }>({
 			name: 'custom:thing',
 			namespace: 'custom-explicit',
 			routes: {
