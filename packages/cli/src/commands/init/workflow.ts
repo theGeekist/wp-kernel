@@ -60,18 +60,19 @@ export async function runInitWorkflow({
 	const templateName = template ?? 'plugin';
 	const scaffoldFiles = buildScaffoldDescriptors(namespace);
 
-	const { skipped: collisionSkips } = await assertNoCollisions({
-		workspace,
-		files: scaffoldFiles,
-		force,
-	});
-
 	const pluginDetection = force
 		? createEmptyPluginDetection()
 		: await detectExistingPlugin({
 				workspace,
 				descriptors: scaffoldFiles,
 			});
+
+	const { skipped: collisionSkips } = await assertNoCollisions({
+		workspace,
+		files: scaffoldFiles,
+		force,
+		skippableTargets: pluginDetection.skipTargets,
+	});
 
 	const skipSet = buildSkipSet({
 		force,

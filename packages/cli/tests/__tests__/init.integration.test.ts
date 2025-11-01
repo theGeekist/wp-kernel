@@ -64,6 +64,14 @@ describe('runInitWorkflow integration', () => {
 					"console.log('existing front-end');\n",
 					'utf8'
 				);
+				await fs.mkdir(path.join(workspaceRoot, 'inc'), {
+					recursive: true,
+				});
+				await fs.writeFile(
+					path.join(workspaceRoot, 'inc', '.gitkeep'),
+					'',
+					'utf8'
+				);
 				await fs.writeFile(
 					path.join(workspaceRoot, 'existing-plugin.php'),
 					`<?php\n/*\nPlugin Name: Existing Plugin\n*/\n`,
