@@ -183,7 +183,7 @@ exports[`buildPluginLoaderProgram emits plugin loader with controller registrati
                     "attributes": {},
                     "class": {
                       "attributes": {},
-                      "nodeType": "Name",
+                      "nodeType": "Name_FullyQualified",
                       "parts": [
                         "Demo",
                         "Plugin",
@@ -206,7 +206,7 @@ exports[`buildPluginLoaderProgram emits plugin loader with controller registrati
                     "attributes": {},
                     "class": {
                       "attributes": {},
-                      "nodeType": "Name",
+                      "nodeType": "Name_FullyQualified",
                       "parts": [
                         "Demo",
                         "Plugin",

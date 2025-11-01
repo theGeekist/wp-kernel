@@ -183,7 +183,7 @@ exports[`createPhpPluginLoaderHelper queues a plugin loader program with generat
                     "attributes": {},
                     "class": {
                       "attributes": {},
-                      "nodeType": "Name",
+                      "nodeType": "Name_FullyQualified",
                       "parts": [
                         "Demo",
                         "Plugin",
@@ -206,7 +206,7 @@ exports[`createPhpPluginLoaderHelper queues a plugin loader program with generat
                     "attributes": {},
                     "class": {
                       "attributes": {},
-                      "nodeType": "Name",
+                      "nodeType": "Name_FullyQualified",
                       "parts": [
                         "Demo",
                         "Plugin",
@@ -667,7 +667,7 @@ exports[`createPhpPluginLoaderHelper respects custom namespace structures: plugi
                     "attributes": {},
                     "class": {
                       "attributes": {},
-                      "nodeType": "Name",
+                      "nodeType": "Name_FullyQualified",
                       "parts": [
                         "Acme",
                         "Demo",
