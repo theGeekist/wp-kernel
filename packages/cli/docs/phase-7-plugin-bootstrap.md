@@ -8,7 +8,7 @@ Phase 7 closes the gaps that keep freshly scaffolded projects from activating im
 
 - `wpk create` already honours `--name` inside [`packages/cli/src/commands/create.ts`](../src/commands/create.ts), but the monorepo does not publish a bootstrapper. We must ship `@wpkernel/create-wpk` via `pnpm monorepo:create packages/create-wpk` (backed by [`scripts/register-workspace.ts`](../../../scripts/register-workspace.ts)) so `npm|pnpm create @wpkernel/wpk … -- --name` lands in the CLI.
 - `wpk init` currently reuses the scaffold descriptors in [`packages/cli/src/commands/init/scaffold.ts`](../src/commands/init/scaffold.ts); `assertNoCollisions()` fails as soon as an existing plugin provides `composer.json`, `wpk.config.ts`, or other template files. Passing `--force` overwrites those author-owned assets with [`packages/cli/templates/init`](../templates/init) defaults, so Phase 7 must add a detection path that seeds only the missing WPK-managed files when running inside an established plugin.
-- The init template stops at an empty `inc/.gitkeep` in [`packages/cli/templates/init/wpk/inc`](../templates/init/wpk/inc/.gitkeep); the generator never writes a plugin header or loader. Phase 7 introduces an AST helper that emits the bootstrap file when missing and detects user-supplied loaders to avoid clobbering them.
+- The init template stops at an empty `inc/.gitkeep` in [`packages/cli/templates/init/inc`](../templates/init/inc/.gitkeep); the generator never writes a plugin header or loader. Phase 7 introduces an AST helper that emits the bootstrap file when missing and detects user-supplied loaders to avoid clobbering them.
 - Resource removals currently leave stale files because `wpk generate` only writes additions in [`packages/cli/src/commands/generate.ts`](../src/commands/generate.ts); the workspace removal helpers in [`packages/cli/src/next/workspace/filesystem.ts`](../src/next/workspace/filesystem.ts) are unused. We will surface deletions in the plan so `wpk apply` cleans them up.
 - Templates and docs must explain the activation workflow so plugin authors understand where to add routes, UI, and WordPress-specific glue once the bootstrap lands.
 
@@ -54,18 +54,18 @@ Make `wpk init` safe to run inside an existing plugin. The patch should:
 1. Extend [`assertNoCollisions`](../src/commands/init/scaffold.ts) and [`runInitWorkflow`](../src/commands/init/workflow.ts) so the command skips files the author already owns while still writing missing WPK-managed assets.
 2. Detect existing plugin markers (e.g. a plugin header in `inc/*.php`, composer autoload entries) and surface a friendly summary instead of aborting.
 3. Add regression coverage for both clean directories and established plugin folders, ensuring `--force` continues to overwrite when explicitly requested.
-4. Update `packages/cli/templates/init` to separate WPK-managed files from author-owned scaffolding so later patches can reuse the metadata.
+4. Update the init scaffold descriptors so WPK-managed files remain distinguishable from author-owned scaffolding for later patches.
 
 #### Task 39 delivery summary
 
-Task 39 splits the init templates into `wpk/` and `author/` buckets, teaches `assertNoCollisions()` to treat only WPK collisions as fatal, and updates `runInitWorkflow()` to detect composer autoload metadata and root-level plugin headers before deciding which files to skip. When guardrails trigger, the command now logs a consolidated summary of the detected assets and the skipped templates instead of aborting. Integration coverage exercises both a clean workspace and an existing plugin directory (with and without `--force`) so the new planner behaviour stays locked in as Phase 7 continues.
+Task 39 tags each init template as WPK-managed or author-owned inside the scaffold descriptors, teaches `assertNoCollisions()` to treat only WPK collisions as fatal, and updates `runInitWorkflow()` to detect composer autoload metadata and root-level plugin headers before deciding which files to skip. When guardrails trigger, the command now logs a consolidated summary of the detected assets and the skipped templates instead of aborting. Integration coverage exercises both a clean workspace and an existing plugin directory (with and without `--force`) so the new planner behaviour stays locked in as Phase 7 continues.
 
 ### Patch 0.10.4 – Task 40: Bootstrap generator foundation
 
 Introduce the AST helper that creates the plugin loader without wiring it into generation yet. This work:
 
 1. Adds a builder under `packages/cli/src/next/php` (or a dedicated helper module) that emits the plugin header, namespace, and WPK bootstrap call when no loader exists.
-2. Seeds a template in `packages/cli/templates/init/wpk/inc` that mirrors the helper output for `wpk init`.
+2. Seeds a template in `packages/cli/templates/init/inc` that mirrors the helper output for `wpk init`.
 3. Documents the loader contract (expected filename, namespace, exported hooks) so future patches know when it is safe to skip regeneration.
 4. Provides unit tests that snapshot the generated AST and confirm the helper respects custom namespace inputs.
 

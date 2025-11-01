@@ -13,7 +13,7 @@ const withWorkspace = createWorkspaceRunner({ prefix: TMP_PREFIX });
 
 async function createCommand(workspace: string) {
 	const moduleUrl = pathToFileURL(
-		path.join(__dirname, '../../../templates/init/wpk/wpk.config.ts')
+		path.join(__dirname, '../../../templates/init/wpk.config.ts')
 	).href;
 	(globalThis as { __WPK_CLI_MODULE_URL__?: string }).__WPK_CLI_MODULE_URL__ =
 		moduleUrl;

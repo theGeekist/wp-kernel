@@ -30,7 +30,7 @@ export function buildScaffoldDescriptors(
 	return [
 		{
 			relativePath: WPK_CONFIG_FILENAME,
-			templatePath: path.join('wpk', WPK_CONFIG_FILENAME),
+			templatePath: WPK_CONFIG_FILENAME,
 			category: 'wpk',
 			replacements: {
 				__WPK_NAMESPACE__: namespace,
@@ -38,7 +38,7 @@ export function buildScaffoldDescriptors(
 		},
 		{
 			relativePath: COMPOSER_JSON_FILENAME,
-			templatePath: path.join('author', COMPOSER_JSON_FILENAME),
+			templatePath: COMPOSER_JSON_FILENAME,
 			category: 'author',
 			replacements: {
 				__WPK_NAMESPACE__: namespace,
@@ -49,33 +49,33 @@ export function buildScaffoldDescriptors(
 		},
 		{
 			relativePath: INC_GITKEEP,
-			templatePath: path.join('wpk', INC_GITKEEP),
+			templatePath: INC_GITKEEP,
 			category: 'wpk',
 			skipWhenPluginDetected: true,
 		},
 		{
 			relativePath: SRC_INDEX_PATH,
-			templatePath: path.join('author', 'src/index.ts'),
+			templatePath: path.join('src', 'index.ts'),
 			category: 'author',
 		},
 		{
 			relativePath: TSCONFIG_FILENAME,
-			templatePath: path.join('wpk', 'tsconfig.json'),
+			templatePath: TSCONFIG_FILENAME,
 			category: 'wpk',
 		},
 		{
 			relativePath: JSCONFIG_FILENAME,
-			templatePath: path.join('wpk', 'jsconfig.json'),
+			templatePath: JSCONFIG_FILENAME,
 			category: 'wpk',
 		},
 		{
 			relativePath: ESLINT_CONFIG_FILENAME,
-			templatePath: path.join('wpk', 'eslint.config.js'),
+			templatePath: ESLINT_CONFIG_FILENAME,
 			category: 'wpk',
 		},
 		{
 			relativePath: VITE_CONFIG_FILENAME,
-			templatePath: path.join('wpk', VITE_CONFIG_FILENAME),
+			templatePath: VITE_CONFIG_FILENAME,
 			category: 'wpk',
 		},
 	];
