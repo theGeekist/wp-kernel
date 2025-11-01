@@ -14,3 +14,4 @@ export type {
 	BuildCreateCommandOptions,
 	CreateCommandConstructor,
 } from './create';
+export type { BuildGenerateCommandOptions } from './generate';
