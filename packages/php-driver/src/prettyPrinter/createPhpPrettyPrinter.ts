@@ -2,6 +2,7 @@ import { spawn } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { WPKernelError } from '@wpkernel/core/error';
+import { WPK_NAMESPACE } from '@wpkernel/core/contracts';
 import type { WorkspaceLike } from '../workspace';
 
 export interface PhpAstNode {
@@ -204,6 +205,7 @@ export function buildPhpPrettyPrinter(
 		});
 
 		if (exitCode !== 0) {
+			logBridgeFailure(stdout, stderr);
 			throw new WPKernelError('DeveloperError', {
 				message: 'Failed to pretty print PHP artifacts.',
 				data: {
@@ -371,5 +373,21 @@ function parseBridgeOutput(
 						: undefined,
 			},
 		});
+	}
+}
+
+function logBridgeFailure(stdout: string, stderr: string): void {
+	if (stderr.length > 0) {
+		process.stderr.write(
+			`[${WPK_NAMESPACE}.php-driver][stderr] ${JSON.stringify(stderr)}\n`
+		);
+	}
+	if (stdout.length > 0) {
+		process.stderr.write(
+			`[${WPK_NAMESPACE}.php-driver][stdout] ${JSON.stringify(stdout)}\n`
+		);
+	}
+	if (stderr.length === 0 && stdout.length === 0) {
+		process.stderr.write(`[${WPK_NAMESPACE}.php-driver][stderr] ""\n`);
 	}
 }

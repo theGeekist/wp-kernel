@@ -60,6 +60,7 @@ describe('pretty printer ESM integration', () => {
 				type: 'module',
 				exports: {
 					'./error': './error.js',
+					'./contracts': './contracts.js',
 				},
 			}),
 			'utf8'
@@ -67,6 +68,11 @@ describe('pretty printer ESM integration', () => {
 		fs.writeFileSync(
 			path.join(stubModuleRoot, 'error.js'),
 			'export class WPKernelError extends Error {}',
+			'utf8'
+		);
+		fs.writeFileSync(
+			path.join(stubModuleRoot, 'contracts.js'),
+			'export const WPK_NAMESPACE = "wpk";',
 			'utf8'
 		);
 
@@ -109,6 +115,132 @@ describe('pretty printer ESM integration', () => {
 			expect(normalisePath(resolvedPath)).toBe(
 				normalisePath(expectedPath)
 			);
+		} finally {
+			fs.rmSync(temporaryDirectory, { recursive: true, force: true });
+		}
+	});
+
+	it('prefers the workspace autoload over fallbacks', () => {
+		const temporaryDirectory = fs.mkdtempSync(
+			path.join(os.tmpdir(), 'wpk-php-driver-autoload-')
+		);
+		const workspaceRoot = path.join(temporaryDirectory, 'workspace');
+		const workspaceVendor = path.join(workspaceRoot, 'vendor');
+		fs.mkdirSync(workspaceVendor, { recursive: true });
+		const workspaceAutoloadPath = path.join(
+			workspaceVendor,
+			'autoload.php'
+		);
+		fs.writeFileSync(workspaceAutoloadPath, '<?php\n', 'utf8');
+
+		const fallbackRoot = path.join(temporaryDirectory, 'fallback');
+		const fallbackVendor = path.join(fallbackRoot, 'vendor');
+		fs.mkdirSync(fallbackVendor, { recursive: true });
+		const fallbackAutoloadPath = path.join(fallbackVendor, 'autoload.php');
+		fs.writeFileSync(fallbackAutoloadPath, '<?php\n', 'utf8');
+
+		const traceFile = path.join(temporaryDirectory, 'trace.log');
+		const scriptPath = path.resolve(
+			__dirname,
+			'..',
+			'..',
+			'php',
+			'pretty-print.php'
+		);
+
+		const result = spawnSync(
+			'php',
+			[scriptPath, workspaceRoot, 'index.php'],
+			{
+				input: '',
+				encoding: 'utf8',
+				env: {
+					...process.env,
+					WPK_PHP_AUTOLOAD_PATHS: fallbackAutoloadPath,
+					PHP_DRIVER_TRACE_FILE: traceFile,
+				},
+			}
+		);
+
+		try {
+			expect(result.error).toBeUndefined();
+			expect(result.status).not.toBeNull();
+			const traceLog = fs.readFileSync(traceFile, 'utf8');
+			const traceEntries = traceLog
+				.split(/\r?\n/u)
+				.map((line) => line.trim())
+				.filter(Boolean)
+				.map(
+					(line) =>
+						JSON.parse(line) as {
+							autoloadPath?: string;
+							event?: string;
+						}
+				);
+			const bootEvent = traceEntries.find(
+				(entry) => entry.event === 'boot'
+			);
+			expect(bootEvent?.autoloadPath).toBe(workspaceAutoloadPath);
+		} finally {
+			fs.rmSync(temporaryDirectory, { recursive: true, force: true });
+		}
+	});
+
+	it('uses env fallback when workspace autoload is missing', () => {
+		const temporaryDirectory = fs.mkdtempSync(
+			path.join(os.tmpdir(), 'wpk-php-driver-fallback-')
+		);
+		const workspaceRoot = path.join(temporaryDirectory, 'workspace');
+		fs.mkdirSync(workspaceRoot, { recursive: true });
+
+		const fallbackRoot = path.join(temporaryDirectory, 'fallback');
+		const fallbackVendor = path.join(fallbackRoot, 'vendor');
+		fs.mkdirSync(fallbackVendor, { recursive: true });
+		const fallbackAutoloadPath = path.join(fallbackVendor, 'autoload.php');
+		fs.writeFileSync(fallbackAutoloadPath, '<?php\n', 'utf8');
+
+		const traceFile = path.join(temporaryDirectory, 'trace.log');
+		const scriptPath = path.resolve(
+			__dirname,
+			'..',
+			'..',
+			'php',
+			'pretty-print.php'
+		);
+
+		const result = spawnSync(
+			'php',
+			[scriptPath, workspaceRoot, 'index.php'],
+			{
+				input: '',
+				encoding: 'utf8',
+				env: {
+					...process.env,
+					WPK_PHP_AUTOLOAD_PATHS: fallbackAutoloadPath,
+					PHP_DRIVER_TRACE_FILE: traceFile,
+				},
+			}
+		);
+
+		try {
+			expect(result.error).toBeUndefined();
+			expect(result.status).not.toBeNull();
+			const traceLog = fs.readFileSync(traceFile, 'utf8');
+			const traceEntries = traceLog
+				.split(/\r?\n/u)
+				.map((line) => line.trim())
+				.filter(Boolean)
+				.map(
+					(line) =>
+						JSON.parse(line) as {
+							autoloadPath?: string;
+							event?: string;
+						}
+				);
+			const bootEvent = traceEntries.find(
+				(entry) => entry.event === 'boot'
+			);
+			expect(bootEvent?.autoloadPath).toBe(fallbackAutoloadPath);
 		} finally {
 			fs.rmSync(temporaryDirectory, { recursive: true, force: true });
 		}

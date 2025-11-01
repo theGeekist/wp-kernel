@@ -25,13 +25,46 @@ if ($argc < 3) {
 
 $workspaceRoot = $argv[1];
 $targetFile = $argv[2];
+$traceFile = resolveTraceFilePath();
+$autoloadOverride = resolveAutoloadOverride();
 $autoloadPath = resolveAutoloadPath($workspaceRoot, [
+    buildAutoloadPathFromRoot(
+        dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'cli'
+    ),
+    buildAutoloadPathFromRoot(
+        dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'php-json-ast'
+    ),
     buildAutoloadPathFromRoot(__DIR__ . '/..'),
     buildAutoloadPathFromRoot(dirname(__DIR__, 2)),
-    buildAutoloadPathFromRoot(dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'php-json-ast'),
+], $autoloadOverride);
+
+recordTrace($traceFile, [
+    'event' => 'boot',
+    'targetFile' => $targetFile,
+    'autoloadPath' => $autoloadPath,
 ]);
 
 require $autoloadPath;
+
+if (!class_exists(\PhpParser\JsonDecoder::class, true)) {
+    fwrite(
+        STDERR,
+        "nikic/php-parser not found via autoload at {$autoloadPath}. " .
+        'Run `composer install` in your plugin, or set WPK_PHP_AUTOLOAD.' . "\n"
+    );
+    recordTrace($traceFile, [
+        'event' => 'failure',
+        'reason' => 'missing php-parser',
+        'autoloadPath' => $autoloadPath,
+    ]);
+    exit(1);
+}
+
+recordTrace($traceFile, [
+    'event' => 'start',
+    'targetFile' => $targetFile,
+    'autoloadPath' => $autoloadPath,
+]);
 
 use PhpParser\Error;
 use PhpParser\JsonDecoder;
@@ -109,6 +142,11 @@ if ($resultJson === false) {
     exit(1);
 }
 
+recordTrace($traceFile, [
+    'event' => 'success',
+    'targetFile' => $targetFile,
+]);
+
 echo $resultJson . "\n";
 
 function ensureTrailingNewline(string $value): string
@@ -125,12 +163,17 @@ function normalizeDeclareSpacing(string $value): string
 /**
  * @param list<string> $additionalCandidates
  */
-function resolveAutoloadPath(string $workspaceRoot, array $additionalCandidates = []): string
+function resolveAutoloadPath(
+    string $workspaceRoot,
+    array $additionalCandidates = [],
+    ?string $override = null
+): string
 {
     $candidates = array_merge(
+        $override !== null ? [$override] : [],
         [buildAutoloadPathFromRoot($workspaceRoot)],
+        buildAutoloadCandidatesFromEnv(),
         $additionalCandidates,
-        buildAutoloadCandidatesFromEnv()
     );
 
     $candidates = array_values(
@@ -156,6 +199,21 @@ function resolveAutoloadPath(string $workspaceRoot, array $additionalCandidates 
     exit(1);
 }
 
+function resolveAutoloadOverride(): ?string
+{
+    $value = getenv('WPK_PHP_AUTOLOAD');
+    if (!is_string($value)) {
+        return null;
+    }
+
+    $trimmed = trim($value);
+    if ($trimmed === '') {
+        return null;
+    }
+
+    return $trimmed;
+}
+
 function buildAutoloadPathFromRoot(string $root): string
 {
     $normalizedRoot = rtrim($root, DIRECTORY_SEPARATOR);
@@ -171,7 +229,11 @@ function buildAutoloadPathFromRoot(string $root): string
  */
 function buildAutoloadCandidatesFromEnv(): array
 {
-    $paths = getenv('PHP_DRIVER_AUTOLOAD_PATHS');
+    $paths = getenv('WPK_PHP_AUTOLOAD_PATHS');
+    if (!is_string($paths) || $paths === '') {
+        $paths = getenv('PHP_DRIVER_AUTOLOAD_PATHS');
+    }
+
     if (!is_string($paths) || $paths === '') {
         return [];
     }
@@ -185,4 +247,39 @@ function buildAutoloadCandidatesFromEnv(): array
     }
 
     return $candidates;
+}
+
+/**
+ * @return string|null
+ */
+function resolveTraceFilePath(): ?string
+{
+    $value = getenv('PHP_DRIVER_TRACE_FILE');
+    if (!is_string($value) || $value === '') {
+        return null;
+    }
+
+    return $value;
+}
+
+/**
+ * @param array<string, mixed> $payload
+ */
+function recordTrace(?string $traceFile, array $payload): void
+{
+    if ($traceFile === null) {
+        return;
+    }
+
+    $dir = dirname($traceFile);
+    if (!is_dir($dir)) {
+        @mkdir($dir, 0777, true);
+    }
+
+    $encoded = json_encode($payload, JSON_UNESCAPED_SLASHES);
+    if ($encoded === false) {
+        return;
+    }
+
+    @file_put_contents($traceFile, $encoded . PHP_EOL, FILE_APPEND);
 }
