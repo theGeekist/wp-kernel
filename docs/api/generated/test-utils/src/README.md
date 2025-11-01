@@ -58,6 +58,7 @@
 - [buildCoreActionPipelineHarness](functions/buildCoreActionPipelineHarness.md)
 - [buildCoreResourcePipelineHarness](functions/buildCoreResourcePipelineHarness.md)
 - [buildLoadedConfig](functions/buildLoadedConfig.md)
+- [buildPhpIntegrationEnv](functions/buildPhpIntegrationEnv.md)
 - [clearNamespaceState](functions/clearNamespaceState.md)
 - [createApiFetchHarness](functions/createApiFetchHarness.md)
 - [createCommandContext](functions/createCommandContext.md)

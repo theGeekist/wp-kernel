@@ -70,4 +70,4 @@ BroadcastChannel name for capability events
 readonly WP_HOOKS_NAMESPACE_PREFIX: "wpk/notices";
 ```
 
-WordPress hooks namespace prefix for kernel events plugin
+WordPress hooks namespace prefix for WP Kernel events plugin

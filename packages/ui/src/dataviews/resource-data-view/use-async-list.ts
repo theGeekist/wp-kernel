@@ -70,6 +70,7 @@ export function useAsyncList<TItem, TQuery>(
 		return () => {
 			active = false;
 		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [fetchList, query, reporter]);
 
 	return state;

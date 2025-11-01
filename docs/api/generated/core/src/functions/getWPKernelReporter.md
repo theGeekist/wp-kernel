@@ -10,7 +10,7 @@
 function getWPKernelReporter(): Reporter | undefined;
 ```
 
-Retrieve the shared kernel reporter, if configured.
+Retrieve the shared WP Kernel reporter, if configured.
 
 ## Returns
 

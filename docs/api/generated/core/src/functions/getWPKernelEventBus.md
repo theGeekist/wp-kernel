@@ -10,7 +10,7 @@
 function getWPKernelEventBus(): WPKernelEventBus;
 ```
 
-Return the shared kernel event bus, creating it lazily on first access.
+Return the shared WP Kernel event bus, creating it lazily on first access.
 
 ## Returns
 

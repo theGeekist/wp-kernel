@@ -10,4 +10,4 @@
 type WPKExitCode = (typeof WPK_EXIT_CODES)[keyof typeof WPK_EXIT_CODES];
 ```
 
-Union of supported kernel exit code values.
+Union of supported WP Kernel exit code values.

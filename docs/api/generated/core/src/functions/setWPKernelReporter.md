@@ -10,7 +10,7 @@
 function setWPKernelReporter(reporter): void;
 ```
 
-Register the shared kernel reporter instance.
+Register the shared WP Kernel reporter instance.
 
 ## Parameters
 

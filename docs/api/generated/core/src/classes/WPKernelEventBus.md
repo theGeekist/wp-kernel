@@ -6,7 +6,7 @@
 
 # Class: WPKernelEventBus
 
-Typed event bus used across the kernel to broadcast lifecycle events and
+Typed event bus used across WP Kernel to broadcast lifecycle events and
 cache invalidation notices.
 
 The bus automatically resolves a reporter so listener failures can be logged

@@ -94,6 +94,14 @@ optional perPageSizes: number[];
 
 ---
 
+### screen?
+
+```ts
+optional screen: ResourceDataViewsScreenConfig;
+```
+
+---
+
 ### search?
 
 ```ts
@@ -106,4 +114,12 @@ optional search: boolean;
 
 ```ts
 optional searchLabel: string;
+```
+
+---
+
+### views?
+
+```ts
+optional views: ResourceDataViewSavedView[];
 ```

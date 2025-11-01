@@ -18,6 +18,8 @@ Reusable UI components for WP Kernel.
 - [ResourceDataViewConfig](interfaces/ResourceDataViewConfig.md)
 - [ResourceDataViewController](interfaces/ResourceDataViewController.md)
 - [ResourceDataViewControllerOptions](interfaces/ResourceDataViewControllerOptions.md)
+- [ResourceDataViewProps](interfaces/ResourceDataViewProps.md)
+- [ResourceDataViewSavedView](interfaces/ResourceDataViewSavedView.md)
 - [UseResourceItemResult](interfaces/UseResourceItemResult.md)
 - [UseResourceListResult](interfaces/UseResourceListResult.md)
 - [WPKernelUIProviderProps](interfaces/WPKernelUIProviderProps.md)
@@ -25,6 +27,8 @@ Reusable UI components for WP Kernel.
 ## Type Aliases
 
 - [QueryMapping](type-aliases/QueryMapping.md)
+- [ResourceDataViewMenuConfig](type-aliases/ResourceDataViewMenuConfig.md)
+- [ResourceDataViewScreenConfig](type-aliases/ResourceDataViewScreenConfig.md)
 
 ## Variables
 

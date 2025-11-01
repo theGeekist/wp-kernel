@@ -10,7 +10,7 @@
 function setWPKernelEventBus(bus): void;
 ```
 
-Replace the shared kernel event bus. Intended for test suites that need to
+Replace the shared WP Kernel event bus. Intended for test suites that need to
 inspect emitted events.
 
 ## Parameters

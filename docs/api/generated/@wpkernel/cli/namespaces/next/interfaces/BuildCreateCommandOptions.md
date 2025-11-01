@@ -158,7 +158,7 @@ readonly optional runWorkflow: (__namedParameters) => Promise<InitWorkflowResult
 readonly optional buildReporter: (options) => Reporter;
 ```
 
-Create a kernel reporter backed by LogLayer transports.
+Create a WP Kernel reporter backed by LogLayer transports.
 
 The reporter honors namespace, channel, and level options while providing a
 typed interface for child loggers used across subsystems.

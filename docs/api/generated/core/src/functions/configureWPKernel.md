@@ -28,7 +28,7 @@ Runtime configuration including registry, middleware, and UI hooks
 
 [`WPKInstance`](../interfaces/WPKInstance.md)
 
-Configured kernel instance with lifecycle helpers
+Configured WP Kernel instance with lifecycle helpers
 
 ## Example
 

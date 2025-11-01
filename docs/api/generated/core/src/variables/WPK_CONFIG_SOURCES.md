@@ -10,7 +10,7 @@
 const WPK_CONFIG_SOURCES: object;
 ```
 
-Configuration sources recognised by kernel tooling.
+Configuration sources recognised by WP Kernel tooling.
 
 These filenames/keys are consumed by the CLI and runtime config loaders.
 

@@ -7,12 +7,12 @@
 # Type Alias: WPKernelUIAttach()
 
 ```ts
-type WPKernelUIAttach = (kernel, options?) => WPKernelUIRuntime;
+type WPKernelUIAttach = (wpKernel, options?) => WPKernelUIRuntime;
 ```
 
 ## Parameters
 
-### kernel
+### wpKernel
 
 [`WPKInstance`](../interfaces/WPKInstance.md)
 

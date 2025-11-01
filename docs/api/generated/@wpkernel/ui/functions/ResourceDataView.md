@@ -24,7 +24,7 @@ function ResourceDataView<TItem, TQuery>(__namedParameters): Element;
 
 ### \_\_namedParameters
 
-`ResourceDataViewProps`\&lt;`TItem`, `TQuery`\&gt;
+[`ResourceDataViewProps`](../interfaces/ResourceDataViewProps.md)\&lt;`TItem`, `TQuery`\&gt;
 
 ## Returns
 

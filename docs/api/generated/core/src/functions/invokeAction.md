@@ -14,9 +14,9 @@ function invokeAction<TArgs, TResult>(
 ): ActionEnvelope<TArgs, TResult>;
 ```
 
-Create an action envelope for dispatching a kernel action through Redux.
+Create an action envelope for dispatching a WP Kernel action through Redux.
 
-This function wraps a kernel action and its arguments in a Redux-compatible format
+This function wraps a WP Kernel action and its arguments in a Redux-compatible format
 that the action middleware can intercept and execute. The resulting envelope can be
 passed to `store.dispatch()` just like any standard Redux action.
 
@@ -47,7 +47,7 @@ Return type from the action
 
 [`DefinedAction`](../type-aliases/DefinedAction.md)\&lt;`TArgs`, `TResult`\&gt;
 
-The defined kernel action to execute
+The defined WP Kernel action to execute
 
 ### args
 
