@@ -229,7 +229,11 @@ function buildAutoloadPathFromRoot(string $root): string
  */
 function buildAutoloadCandidatesFromEnv(): array
 {
-    $paths = getenv('PHP_DRIVER_AUTOLOAD_PATHS');
+    $paths = getenv('WPK_PHP_AUTOLOAD_PATHS');
+    if (!is_string($paths) || $paths === '') {
+        $paths = getenv('PHP_DRIVER_AUTOLOAD_PATHS');
+    }
+
     if (!is_string($paths) || $paths === '') {
         return [];
     }
@@ -267,10 +271,15 @@ function recordTrace(?string $traceFile, array $payload): void
         return;
     }
 
+    $dir = dirname($traceFile);
+    if (!is_dir($dir)) {
+        @mkdir($dir, 0777, true);
+    }
+
     $encoded = json_encode($payload, JSON_UNESCAPED_SLASHES);
     if ($encoded === false) {
         return;
     }
 
-    file_put_contents($traceFile, $encoded . PHP_EOL, FILE_APPEND);
+    @file_put_contents($traceFile, $encoded . PHP_EOL, FILE_APPEND);
 }

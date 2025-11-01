@@ -58,17 +58,34 @@ export function buildPhpIntegrationEnv(
 	baseEnv: NodeJS.ProcessEnv = process.env
 ): NodeJS.ProcessEnv {
 	const env: NodeJS.ProcessEnv = { ...baseEnv };
-	const hasExplicitAutoload =
+	let explicitAutoloadPaths: string | undefined;
+
+	if (
+		Object.prototype.hasOwnProperty.call(baseEnv, 'WPK_PHP_AUTOLOAD_PATHS')
+	) {
+		explicitAutoloadPaths = baseEnv.WPK_PHP_AUTOLOAD_PATHS;
+	} else if (
 		Object.prototype.hasOwnProperty.call(
 			baseEnv,
 			'PHP_DRIVER_AUTOLOAD_PATHS'
-		) && baseEnv.PHP_DRIVER_AUTOLOAD_PATHS !== undefined;
+		)
+	) {
+		explicitAutoloadPaths = baseEnv.PHP_DRIVER_AUTOLOAD_PATHS;
+	}
 
-	if (!hasExplicitAutoload) {
-		env.PHP_DRIVER_AUTOLOAD_PATHS = mergeDelimitedValues(
-			env.PHP_DRIVER_AUTOLOAD_PATHS,
+	if (explicitAutoloadPaths === undefined) {
+		env.WPK_PHP_AUTOLOAD_PATHS = mergeDelimitedValues(
+			env.WPK_PHP_AUTOLOAD_PATHS,
 			filterExisting(AUTOLOAD_CANDIDATES)
 		);
+	} else {
+		env.WPK_PHP_AUTOLOAD_PATHS = explicitAutoloadPaths;
+	}
+
+	if (
+		Object.prototype.hasOwnProperty.call(env, 'PHP_DRIVER_AUTOLOAD_PATHS')
+	) {
+		delete env.PHP_DRIVER_AUTOLOAD_PATHS;
 	}
 
 	const existingNodePath = env.NODE_PATH;

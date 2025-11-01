@@ -156,7 +156,7 @@ describe('pretty printer ESM integration', () => {
 				encoding: 'utf8',
 				env: {
 					...process.env,
-					PHP_DRIVER_AUTOLOAD_PATHS: fallbackAutoloadPath,
+					WPK_PHP_AUTOLOAD_PATHS: fallbackAutoloadPath,
 					PHP_DRIVER_TRACE_FILE: traceFile,
 				},
 			}
@@ -216,7 +216,7 @@ describe('pretty printer ESM integration', () => {
 				encoding: 'utf8',
 				env: {
 					...process.env,
-					PHP_DRIVER_AUTOLOAD_PATHS: fallbackAutoloadPath,
+					WPK_PHP_AUTOLOAD_PATHS: fallbackAutoloadPath,
 					PHP_DRIVER_TRACE_FILE: traceFile,
 				},
 			}
