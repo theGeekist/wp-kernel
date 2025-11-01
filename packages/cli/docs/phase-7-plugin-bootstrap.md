@@ -56,6 +56,10 @@ Make `wpk init` safe to run inside an existing plugin. The patch should:
 3. Add regression coverage for both clean directories and established plugin folders, ensuring `--force` continues to overwrite when explicitly requested.
 4. Update `packages/cli/templates/init` to separate kernel-managed files from author-owned scaffolding so later patches can reuse the metadata.
 
+#### Task 39 delivery summary
+
+Task 39 splits the init templates into `kernel/` and `author/` buckets, teaches `assertNoCollisions()` to treat only kernel collisions as fatal, and updates `runInitWorkflow()` to detect composer autoload metadata and root-level plugin headers before deciding which files to skip. When guardrails trigger, the command now logs a consolidated summary of the detected assets and the skipped templates instead of aborting. Integration coverage exercises both a clean workspace and an existing plugin directory (with and without `--force`) so the new planner behaviour stays locked in as Phase 7 continues.
+
 ### Patch 0.10.4 – Task 40: Bootstrap generator foundation
 
 Introduce the AST helper that creates the plugin loader without wiring it into generation yet. This work:
