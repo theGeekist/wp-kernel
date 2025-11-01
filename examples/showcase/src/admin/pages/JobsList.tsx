@@ -56,7 +56,7 @@ function useDataViewsRuntimeContext(): DataViewsRuntimeContext {
 	if (!runtime?.dataviews) {
 		throw new WPKernelError('DeveloperError', {
 			message:
-				'Kernel UI runtime is missing DataViews support. Ensure attachUIBindings configured DataViews.',
+				'WP Kernel UI runtime is missing DataViews support. Ensure attachUIBindings configured DataViews.',
 		});
 	}
 

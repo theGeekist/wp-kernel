@@ -51,14 +51,20 @@ type RuntimeWithDataViews = WPKernelUIRuntime & {
 
 export type { RuntimeWithDataViews };
 
-export function createKernelRuntime(): RuntimeWithDataViews {
+interface CreateKernelRuntimeOptions {
+	registry?: unknown;
+}
+
+export function createKernelRuntime(
+	options: CreateKernelRuntimeOptions = {}
+): RuntimeWithDataViews {
 	const reporter = createReporter();
 	const preferences = new Map<string, unknown>();
 	const runtime: RuntimeWithDataViews = {
 		kernel: undefined,
 		namespace: 'tests',
 		reporter,
-		registry: undefined,
+		registry: options.registry,
 		events: {} as never,
 		capabilities: undefined,
 		invalidate: jest.fn(),
@@ -93,14 +99,44 @@ export function createKernelRuntime(): RuntimeWithDataViews {
 	return runtime;
 }
 
+export function createNoticeRegistry() {
+	const createNotice = jest.fn();
+	const registry = {
+		dispatch: jest.fn((key: string) => {
+			if (key === 'core/notices') {
+				return { createNotice };
+			}
+			return {};
+		}),
+		select: jest.fn(),
+		subscribe: jest.fn(),
+		registerStore: jest.fn(),
+		unregisterStore: jest.fn(),
+		use: jest.fn(),
+	} as {
+		dispatch: jest.Mock;
+		[key: string]: unknown;
+	};
+
+	return { registry, createNotice };
+}
+
 export function renderWithProvider(
 	ui: React.ReactElement,
 	runtime: WPKernelUIRuntime
-): RenderResult & { rerenderWithProvider: (next: React.ReactElement) => void } {
+): RenderResult & {
+	rerenderWithProvider: (
+		next: React.ReactElement,
+		nextRuntime?: WPKernelUIRuntime
+	) => void;
+} {
 	let result: RenderResult | undefined;
+	let providerRuntime = runtime;
 	act(() => {
 		result = render(
-			<WPKernelUIProvider runtime={runtime}>{ui}</WPKernelUIProvider>
+			<WPKernelUIProvider runtime={providerRuntime}>
+				{ui}
+			</WPKernelUIProvider>
 		);
 	});
 
@@ -110,10 +146,16 @@ export function renderWithProvider(
 		});
 	}
 
-	const rerenderWithProvider = (next: React.ReactElement) => {
+	const rerenderWithProvider = (
+		next: React.ReactElement,
+		nextRuntime?: WPKernelUIRuntime
+	) => {
+		if (nextRuntime) {
+			providerRuntime = nextRuntime;
+		}
 		act(() => {
 			result!.rerender(
-				<WPKernelUIProvider runtime={runtime}>
+				<WPKernelUIProvider runtime={providerRuntime}>
 					{next}
 				</WPKernelUIProvider>
 			);
@@ -256,7 +298,8 @@ export type RenderResourceDataViewResult<TItem, TQuery> = {
 	config: ResourceDataViewConfig<TItem, TQuery>;
 	props: ResourceDataViewTestProps<TItem, TQuery>;
 	rerender: (
-		nextProps?: Partial<ResourceDataViewTestProps<TItem, TQuery>>
+		nextProps?: Partial<ResourceDataViewTestProps<TItem, TQuery>>,
+		options?: { runtime?: RuntimeWithDataViews }
 	) => void;
 	renderResult: ReturnType<typeof renderWithProvider>;
 	getDataViewProps: () => ComponentProps<typeof DataViews>;
@@ -273,7 +316,7 @@ export async function flushDataViews(iterations = 1) {
 export function renderResourceDataView<TItem, TQuery>(
 	options: RenderResourceDataViewOptions<TItem, TQuery> = {}
 ): RenderResourceDataViewResult<TItem, TQuery> {
-	const runtime = options.runtime ?? createKernelRuntime();
+	let runtime = options.runtime ?? createKernelRuntime();
 	const resource = (options.resource ??
 		createResource<TItem, TQuery>({})) as ResourceObject<TItem, TQuery>;
 	const config = (options.config ??
@@ -295,24 +338,35 @@ export function renderResourceDataView<TItem, TQuery>(
 		runtime
 	);
 
-	const rerender = (
-		nextProps?: Partial<ResourceDataViewTestProps<TItem, TQuery>>
-	) => {
-		if (nextProps) {
-			Object.assign(baseProps, nextProps);
-		}
-		renderResult.rerenderWithProvider(<ResourceDataView {...baseProps} />);
-	};
-
-	return {
+	const viewResult: RenderResourceDataViewResult<TItem, TQuery> = {
 		runtime,
 		resource,
 		config,
 		props: baseProps,
-		rerender,
+		rerender: () => undefined,
 		renderResult,
 		getDataViewProps: () => getLastDataViewsProps(),
 	};
+
+	viewResult.rerender = (
+		nextProps?: Partial<ResourceDataViewTestProps<TItem, TQuery>>,
+		rerenderOptions?: { runtime?: RuntimeWithDataViews }
+	) => {
+		if (nextProps) {
+			Object.assign(baseProps, nextProps);
+		}
+		const nextRuntime = rerenderOptions?.runtime ?? runtime;
+		if (rerenderOptions?.runtime) {
+			runtime = rerenderOptions.runtime;
+		}
+		renderResult.rerenderWithProvider(
+			<ResourceDataView {...baseProps} />,
+			nextRuntime
+		);
+		viewResult.runtime = runtime;
+	};
+
+	return viewResult;
 }
 
 export type RenderActionScenarioOptions<

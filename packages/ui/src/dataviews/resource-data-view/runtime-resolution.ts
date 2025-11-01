@@ -25,7 +25,7 @@ export function resolveRuntime(
 		if (isKernelRuntime(runtimeProp)) {
 			if (!runtimeProp.dataviews) {
 				throw new DataViewsControllerError(
-					'Kernel UI runtime is missing DataViews support. Ensure Phase 1 runtime is attached.'
+					'WP Kernel UI runtime is missing DataViews support. Ensure Phase 1 runtime is attached.'
 				);
 			}
 			return {
@@ -45,13 +45,13 @@ export function resolveRuntime(
 
 	if (!hookRuntime) {
 		throw new DataViewsControllerError(
-			'Kernel UI runtime unavailable. Provide a runtime prop or wrap with <WPKernelUIProvider />.'
+			'WP Kernel UI runtime unavailable. Provide a runtime prop or wrap with <WPKernelUIProvider />.'
 		);
 	}
 
 	if (!hookRuntime.dataviews) {
 		throw new DataViewsControllerError(
-			'Kernel UI runtime is missing DataViews support. Ensure attachUIBindings() was executed with DataViews enabled.'
+			'WP Kernel UI runtime is missing DataViews support. Ensure attachUIBindings() was executed with DataViews enabled.'
 		);
 	}
 

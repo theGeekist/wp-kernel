@@ -194,6 +194,7 @@ Close the scaffolding gaps identified above so `create → generate → apply` r
 Phase 8 shifts to the UI package so authors can describe a resource once and immediately see an upgraded admin surface. Track the full scope-including DataViews schema gaps, async UX primitives, interactivity bridges, and observability hooks-in [`packages/ui/docs/phase-8-ui-baseline.md`](../../ui/docs/phase-8-ui-baseline.md). The ledger there defines Tasks 46‑52 across the 0.11.1 → 0.12.0 release band and lists the CLI touch-points that close the loop once the UI work ships.
 
 - ✓ Task 46 – DataViews schema expansion: UI runtime now ingests saved views, menu metadata, and richer column definitions automatically during `attachUIBindings()` setup so the CLI can follow with generator updates.
+- ✓ Task 47 – Async boundaries & notices: Resource screens share loading/empty/error/permission boundaries and emit success/failure notices through `core/notices`, keeping reporter diagnostics aligned with the runtime.
 
 ### Phase 9 – Post-MVP polish (⬜ Planned)
 
