@@ -36,6 +36,8 @@ export function usePermissionState<TItem, TQuery>(
 	reporter: Reporter
 ): PermissionState {
 	const capability = controller.config.screen?.menu?.capability;
+	const capabilityRuntime = controller.capabilities?.capability;
+	const capabilityResolver = capabilityRuntime?.can;
 	const [state, setState] = useState<PermissionState>(() =>
 		buildInitialState(capability)
 	);
@@ -104,7 +106,13 @@ export function usePermissionState<TItem, TQuery>(
 		return () => {
 			cancelled = true;
 		};
-	}, [capability, controller, reporter]);
+	}, [
+		capability,
+		controller,
+		reporter,
+		capabilityRuntime,
+		capabilityResolver,
+	]);
 
 	return state;
 }

@@ -117,4 +117,52 @@ describe('ResourceDataView boundaries', () => {
 		).toBeTruthy();
 		expect(DataViewsMock).not.toHaveBeenCalled();
 	});
+
+	it('recomputes permission checks when the capability runtime appears later', async () => {
+		const runtime = createKernelRuntime();
+		runtime.capabilities = undefined;
+
+		const { renderResult, rerender } = renderResourceDataView({
+			runtime,
+			config: createConfig({
+				screen: {
+					menu: {
+						slug: 'jobs-admin',
+						title: 'Jobs',
+						label: 'Jobs',
+						capability: 'jobs.view',
+					},
+				},
+			}),
+		});
+
+		await flushDataViews();
+
+		expect(
+			renderResult.queryByText(
+				'You do not have permission to view this screen.',
+				{ selector: 'p' }
+			)
+		).toBeNull();
+
+		const can = jest.fn().mockResolvedValue(false);
+		const nextRuntime = {
+			...runtime,
+			capabilities: {
+				capability: { can },
+			},
+		} as typeof runtime;
+
+		rerender(undefined, { runtime: nextRuntime });
+
+		await flushDataViews(2);
+
+		expect(can).toHaveBeenCalledWith('jobs.view');
+		expect(
+			renderResult.getByText(
+				'You do not have permission to view this screen.',
+				{ selector: 'p' }
+			)
+		).toBeTruthy();
+	});
 });
