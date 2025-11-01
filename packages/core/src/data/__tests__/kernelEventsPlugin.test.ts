@@ -358,11 +358,11 @@ describe('wpkEventsPlugin', () => {
 			type: 'INIT',
 		});
 
-		const kernelError = new WPKernelError('ServerError', {
+		const wpKernelError = new WPKernelError('ServerError', {
 			message: 'Internal failure',
 		});
 		const event = createActionErrorEvent({
-			error: kernelError,
+			error: wpKernelError,
 			requestId: 'server-failure',
 		});
 

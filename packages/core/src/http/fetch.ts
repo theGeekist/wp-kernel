@@ -41,10 +41,10 @@ const TRANSPORT_LOG_MESSAGES = {
 } as const;
 
 function resolveTransportReporter(meta?: TransportMeta): Reporter {
-	const kernelReporter = getWPKernelReporter();
+	const wpKernelReporter = getWPKernelReporter();
 	const override = meta?.reporter
 		? meta.reporter.child('transport')
-		: kernelReporter?.child(
+		: wpKernelReporter?.child(
 				meta?.resourceName
 					? `transport.${meta.resourceName}`
 					: 'transport'
@@ -387,14 +387,14 @@ export async function fetch<T = unknown>(
 		return response;
 	} catch (error) {
 		const duration = performance.now() - startTime;
-		const kernelError = normalizeError(
+		const wpKernelError = normalizeError(
 			error,
 			requestId,
 			request.method,
 			fullPath
 		);
 
-		emitErrorEvent(hooks, request, kernelError, duration);
+		emitErrorEvent(hooks, request, wpKernelError, duration);
 		reporter.error(TRANSPORT_LOG_MESSAGES.error, {
 			requestId,
 			method: request.method,
@@ -402,8 +402,8 @@ export async function fetch<T = unknown>(
 			duration,
 			namespace: request.meta?.namespace,
 			resourceName: request.meta?.resourceName,
-			error: kernelError.message,
+			error: wpKernelError.message,
 		});
-		throw kernelError;
+		throw wpKernelError;
 	}
 }

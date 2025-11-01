@@ -56,7 +56,7 @@ export const WPK_INFRASTRUCTURE = {
 	POLICY_EVENT_CHANNEL: `${WPK_NAMESPACE}.capability.events`,
 	/** BroadcastChannel name for action lifecycle events */
 	ACTIONS_CHANNEL: `${WPK_NAMESPACE}.actions`,
-	/** WordPress hooks namespace prefix for kernel events plugin */
+	/** WordPress hooks namespace prefix for WP Kernel events plugin */
 	WP_HOOKS_NAMESPACE_PREFIX: `${WPK_NAMESPACE}/notices`,
 	/** BroadcastChannel message type for action lifecycle events */
 	ACTIONS_MESSAGE_TYPE_LIFECYCLE: `${WPK_NAMESPACE}.action.lifecycle`,
@@ -103,7 +103,7 @@ export type WPKInfrastructureConstant =
 export type WPKEvent = (typeof WPK_EVENTS)[keyof typeof WPK_EVENTS];
 
 /**
- * Configuration sources recognised by kernel tooling.
+ * Configuration sources recognised by WP Kernel tooling.
  *
  * These filenames/keys are consumed by the CLI and runtime config loaders.
  */

@@ -44,7 +44,7 @@ export function normalizeActionError(
 }
 
 /**
- * Create a structured lifecycle event payload for broadcast via the kernel
+ * Create a structured lifecycle event payload for broadcast via the WP Kernel
  * event bus.
  *
  * @param phase      - Lifecycle phase being emitted (start/complete/error).

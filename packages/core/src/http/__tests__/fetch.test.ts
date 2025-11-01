@@ -504,9 +504,9 @@ describe('transport/fetch', () => {
 			);
 		});
 
-		it('uses kernel reporter when metadata is not provided', async () => {
-			const kernelSpy = createReporterSpy();
-			setWPKernelReporter(kernelSpy.reporter);
+		it('uses WP Kernel reporter when metadata is not provided', async () => {
+			const wpKernelSpy = createReporterSpy();
+			setWPKernelReporter(wpKernelSpy.reporter);
 			mockApiFetch.mockResolvedValue({ id: 7 });
 
 			await fetch({
@@ -514,7 +514,7 @@ describe('transport/fetch', () => {
 				method: 'GET',
 			});
 
-			expect(kernelSpy.logs).toEqual(
+			expect(wpKernelSpy.logs).toEqual(
 				expect.arrayContaining([
 					expect.objectContaining({
 						level: 'debug',
