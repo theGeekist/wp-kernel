@@ -22,6 +22,7 @@ import {
 	buildIfStatement,
 	buildMethodCall,
 	buildName,
+	buildFullyQualifiedName,
 	buildNamespace,
 	buildNew,
 	buildReturn,
@@ -129,7 +130,9 @@ function buildGetControllersFunction(
 ): PhpStmtFunction {
 	const returnArray = buildArray(
 		config.resourceClassNames.map((className) =>
-			buildArrayItem(buildNew(buildName(splitNamespace(className))))
+			buildArrayItem(
+				buildNew(buildFullyQualifiedName(splitNamespace(className)))
+			)
 		)
 	);
 
