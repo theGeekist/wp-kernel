@@ -11,6 +11,7 @@ import {
 	loadTemplate,
 	resolvePathAliasEntries,
 	formatPathsForTemplate,
+	slugify,
 	type ScaffoldFileDescriptor,
 	type ScaffoldStatus,
 } from './utils';
@@ -22,6 +23,7 @@ const TSCONFIG_FILENAME = 'tsconfig.json';
 const JSCONFIG_FILENAME = 'jsconfig.json';
 const COMPOSER_JSON_FILENAME = 'composer.json';
 const INC_GITKEEP = path.join('inc', '.gitkeep');
+const PLUGIN_LOADER = 'plugin.php';
 const VITE_CONFIG_FILENAME = 'vite.config.ts';
 
 export function buildScaffoldDescriptors(
@@ -43,6 +45,19 @@ export function buildScaffoldDescriptors(
 				__WPK_COMPOSER_PACKAGE_NAME__:
 					buildComposerPackageName(namespace),
 				__WPK_PHP_NAMESPACE__: buildPhpNamespace(namespace),
+			},
+		},
+		{
+			relativePath: PLUGIN_LOADER,
+			templatePath: PLUGIN_LOADER,
+			replacements: {
+				__WPK_PLUGIN_TITLE__: buildPluginTitle(namespace),
+				__WPK_PLUGIN_TEXT_DOMAIN__: namespace,
+				__WPK_PHP_NAMESPACE__: buildPhpNamespace(namespace).replace(
+					/\\\\$/u,
+					''
+				),
+				__WPK_PLUGIN_PACKAGE__: buildPluginPackage(namespace),
 			},
 		},
 		{
@@ -70,6 +85,24 @@ export function buildScaffoldDescriptors(
 			templatePath: VITE_CONFIG_FILENAME,
 		},
 	];
+}
+
+function buildPluginTitle(namespace: string): string {
+	const slug = slugify(namespace);
+	if (!slug) {
+		return 'WP Kernel Plugin';
+	}
+
+	return slug
+		.split('-')
+		.filter(Boolean)
+		.map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+		.join(' ');
+}
+
+function buildPluginPackage(namespace: string): string {
+	const phpNamespace = buildPhpNamespace(namespace).replace(/\\\\$/u, '');
+	return phpNamespace.replace(/\\/g, '');
 }
 
 export function buildReplacementMap(

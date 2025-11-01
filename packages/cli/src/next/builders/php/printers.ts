@@ -10,6 +10,7 @@ export { createPhpWpPostRoutesHelper } from './resource/wpPost/routes';
 export { createPhpCapabilityHelper } from './capability';
 export { createPhpPersistenceRegistryHelper } from './persistenceRegistry';
 export { createPhpIndexFileHelper } from './indexFile';
+export { createPhpPluginLoaderHelper } from './pluginLoader';
 export { createPhpBlocksHelper } from './blocks';
 export { createPhpProgramWriterHelper } from './writer';
 export type { CreatePhpProgramWriterHelperOptions } from './writer';
