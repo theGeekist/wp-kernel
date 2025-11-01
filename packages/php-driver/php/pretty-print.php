@@ -26,6 +26,7 @@ if ($argc < 3) {
 $workspaceRoot = $argv[1];
 $targetFile = $argv[2];
 $traceFile = resolveTraceFilePath();
+$autoloadOverride = resolveAutoloadOverride();
 $autoloadPath = resolveAutoloadPath($workspaceRoot, [
     buildAutoloadPathFromRoot(
         dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'cli'
@@ -35,9 +36,29 @@ $autoloadPath = resolveAutoloadPath($workspaceRoot, [
     ),
     buildAutoloadPathFromRoot(__DIR__ . '/..'),
     buildAutoloadPathFromRoot(dirname(__DIR__, 2)),
+], $autoloadOverride);
+
+recordTrace($traceFile, [
+    'event' => 'boot',
+    'targetFile' => $targetFile,
+    'autoloadPath' => $autoloadPath,
 ]);
 
 require $autoloadPath;
+
+if (!class_exists(\PhpParser\JsonDecoder::class, true)) {
+    fwrite(
+        STDERR,
+        "nikic/php-parser not found via autoload at {$autoloadPath}. " .
+        'Run `composer install` in your plugin, or set WPK_PHP_AUTOLOAD.' . "\n"
+    );
+    recordTrace($traceFile, [
+        'event' => 'failure',
+        'reason' => 'missing php-parser',
+        'autoloadPath' => $autoloadPath,
+    ]);
+    exit(1);
+}
 
 recordTrace($traceFile, [
     'event' => 'start',
@@ -142,9 +163,14 @@ function normalizeDeclareSpacing(string $value): string
 /**
  * @param list<string> $additionalCandidates
  */
-function resolveAutoloadPath(string $workspaceRoot, array $additionalCandidates = []): string
+function resolveAutoloadPath(
+    string $workspaceRoot,
+    array $additionalCandidates = [],
+    ?string $override = null
+): string
 {
     $candidates = array_merge(
+        $override !== null ? [$override] : [],
         [buildAutoloadPathFromRoot($workspaceRoot)],
         buildAutoloadCandidatesFromEnv(),
         $additionalCandidates,
@@ -171,6 +197,21 @@ function resolveAutoloadPath(string $workspaceRoot, array $additionalCandidates 
     }
 
     exit(1);
+}
+
+function resolveAutoloadOverride(): ?string
+{
+    $value = getenv('WPK_PHP_AUTOLOAD');
+    if (!is_string($value)) {
+        return null;
+    }
+
+    $trimmed = trim($value);
+    if ($trimmed === '') {
+        return null;
+    }
+
+    return $trimmed;
 }
 
 function buildAutoloadPathFromRoot(string $root): string
