@@ -68,9 +68,20 @@ $factory = new BuilderFactory();
 foreach ($intent['files'] as $fileIntent) {
     $program = buildProgramFromIntent($factory, $fileIntent);
 
+    try {
+        /** @var list<array<string, mixed>> $normalisedProgram */
+        $normalisedProgram = normalizeValue($program);
+    } catch (RuntimeException $exception) {
+        fwrite(
+            STDERR,
+            'Failed to normalise builder factory output: ' . $exception->getMessage() . "\n"
+        );
+        exit(1);
+    }
+
     $result = [
         'file' => $fileIntent['file'],
-        'program' => $program,
+        'program' => $normalisedProgram,
     ];
 
     $encoded = json_encode($result, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
@@ -203,6 +214,92 @@ function buildProgramFromIntent(BuilderFactory $factory, array $fileIntent): arr
     $program[] = buildNamespaceFromIntent($factory, $namespaceIntent, $useIntents, $classIntent);
 
     return $program;
+}
+
+/**
+ * @param mixed $value
+ * @return mixed
+ */
+function normalizeValue(mixed $value): mixed
+{
+    if (is_array($value)) {
+        if (array_is_list($value)) {
+            return array_map('normalizeValue', $value);
+        }
+
+        $normalized = [];
+        foreach ($value as $key => $child) {
+            $normalized[$key] = normalizeValue($child);
+        }
+
+        if (isset($normalized['nodeType']) && is_string($normalized['nodeType'])) {
+            $normalized = normalizeNodeShape($normalized);
+        }
+
+        return $normalized;
+    }
+
+    return $value;
+}
+
+/**
+ * @param array<string, mixed> $node
+ * @return array<string, mixed>
+ */
+function normalizeNodeShape(array $node): array
+{
+    if (!isset($node['nodeType']) || !is_string($node['nodeType'])) {
+        return $node;
+    }
+
+    switch ($node['nodeType']) {
+        case 'Name':
+        case 'Name_FullyQualified':
+        case 'Name_Relative':
+            return normalizeNameNode($node);
+    }
+
+    return $node;
+}
+
+/**
+ * @param array<string, mixed> $node
+ * @return array<string, mixed>
+ */
+function normalizeNameNode(array $node): array
+{
+    if (isset($node['parts'])) {
+        if (!is_array($node['parts']) || !array_is_list($node['parts'])) {
+            throw new RuntimeException('Name nodes must declare parts as an ordered list.');
+        }
+
+        $parts = [];
+        foreach ($node['parts'] as $index => $part) {
+            if (!is_string($part) || $part === '') {
+                throw new RuntimeException(
+                    sprintf('Name parts must be non-empty strings (index %d).', $index)
+                );
+            }
+
+            $parts[] = $part;
+        }
+
+        $node['parts'] = $parts;
+    } elseif (isset($node['name']) && is_string($node['name'])) {
+        $node['parts'] = explode('\\', $node['name']);
+    } else {
+        throw new RuntimeException('Name nodes must provide a parts array.');
+    }
+
+    if (array_key_exists('name', $node)) {
+        if (isset($node['name']) && !is_string($node['name'])) {
+            throw new RuntimeException('Name nodes must not expose non-string name properties.');
+        }
+
+        unset($node['name']);
+    }
+
+    return $node;
 }
 
 /**

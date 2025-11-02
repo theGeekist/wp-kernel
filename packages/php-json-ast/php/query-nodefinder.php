@@ -666,7 +666,12 @@ function normaliseNodeToArray(Node $node, int $encoderFlags): array
         throw new RuntimeException('Encoded node payload did not decode to an array.');
     }
 
-    $normalised = normalizeValue($decoded);
+    try {
+        $normalised = normalizeValue($decoded);
+    } catch (RuntimeException $exception) {
+        throw new RuntimeException('Failed to normalise node payload: ' . $exception->getMessage());
+    }
+
     if (!is_array($normalised)) {
         throw new RuntimeException('Normalised node payload was not an array.');
     }
@@ -715,10 +720,47 @@ function normalizeNodeShape(array $node): array
         case 'Name':
         case 'Name_FullyQualified':
         case 'Name_Relative':
-            if (isset($node['name']) && is_string($node['name'])) {
-                $node['parts'] = explode('\\', $node['name']);
+            return normalizeNameNode($node);
+    }
+
+    return $node;
+}
+
+/**
+ * @param array<string, mixed> $node
+ * @return array<string, mixed>
+ */
+function normalizeNameNode(array $node): array
+{
+    if (isset($node['parts'])) {
+        if (!is_array($node['parts']) || !array_is_list($node['parts'])) {
+            throw new RuntimeException('Name nodes must declare parts as an ordered list.');
+        }
+
+        $parts = [];
+        foreach ($node['parts'] as $index => $part) {
+            if (!is_string($part) || $part === '') {
+                throw new RuntimeException(
+                    sprintf('Name parts must be non-empty strings (index %d).', $index)
+                );
             }
-            break;
+
+            $parts[] = $part;
+        }
+
+        $node['parts'] = $parts;
+    } elseif (isset($node['name']) && is_string($node['name'])) {
+        $node['parts'] = explode('\\', $node['name']);
+    } else {
+        throw new RuntimeException('Name nodes must provide a parts array.');
+    }
+
+    if (array_key_exists('name', $node)) {
+        if (isset($node['name']) && !is_string($node['name'])) {
+            throw new RuntimeException('Name nodes must not expose non-string name properties.');
+        }
+
+        unset($node['name']);
     }
 
     return $node;
