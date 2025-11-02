@@ -7,6 +7,7 @@ import {
 	buildFuncCall,
 	buildName,
 	buildReturn,
+	buildScalarInt,
 	buildScalarString,
 	type PhpExpr,
 	type PhpStmt,
@@ -46,6 +47,7 @@ function buildPluginLoaderRequireStatement(): PhpStmt {
 		'Concat',
 		buildFuncCall(buildName(['dirname']), [
 			buildArg(buildDirectoryConstFetch()),
+			buildArg(buildScalarInt(2)),
 		]),
 		buildScalarString('/plugin.php')
 	);
