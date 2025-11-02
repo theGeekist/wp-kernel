@@ -92,7 +92,29 @@ if (!is_string($astPayload) && !is_array($astPayload)) {
     exit(1);
 }
 
-$astJson = is_string($astPayload) ? $astPayload : json_encode($astPayload);
+$astEncoderFlags = JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES;
+
+if (is_string($astPayload)) {
+    $decodedAst = json_decode($astPayload, true);
+    if (!is_array($decodedAst)) {
+        fwrite(STDERR, "Failed to decode AST payload for {$targetFile}.\n");
+        exit(1);
+    }
+} else {
+    $decodedAst = $astPayload;
+}
+
+try {
+    $normalisedAst = normaliseInputValue($decodedAst);
+} catch (RuntimeException $exception) {
+    fwrite(
+        STDERR,
+        'Invalid AST payload for ' . $targetFile . ': ' . $exception->getMessage() . "\n"
+    );
+    exit(1);
+}
+
+$astJson = json_encode($normalisedAst, $astEncoderFlags);
 if ($astJson === false) {
     fwrite(STDERR, "Failed to encode AST payload for {$targetFile}.\n");
     exit(1);
@@ -130,6 +152,16 @@ if (!is_array($astPayload)) {
     exit(1);
 }
 
+try {
+    $astPayload = normaliseOutputValue($astPayload);
+} catch (RuntimeException $exception) {
+    fwrite(
+        STDERR,
+        'Failed to normalise printer output for ' . $targetFile . ': ' . $exception->getMessage() . "\n"
+    );
+    exit(1);
+}
+
 $result = [
     'code' => ensureTrailingNewline($output),
     'ast' => $astPayload,
@@ -148,6 +180,159 @@ recordTrace($traceFile, [
 ]);
 
 echo $resultJson . "\n";
+
+/**
+ * @param mixed $value
+ * @return mixed
+ */
+function normaliseInputValue(mixed $value): mixed
+{
+    if (is_array($value)) {
+        if (array_is_list($value)) {
+            return array_map('normaliseInputValue', $value);
+        }
+
+        $normalised = [];
+        foreach ($value as $key => $child) {
+            $normalised[$key] = normaliseInputValue($child);
+        }
+
+        if (isset($normalised['nodeType']) && is_string($normalised['nodeType'])) {
+            $normalised = normaliseInputNode($normalised);
+        }
+
+        return $normalised;
+    }
+
+    return $value;
+}
+
+/**
+ * @param array<string, mixed> $node
+ * @return array<string, mixed>
+ */
+function normaliseInputNode(array $node): array
+{
+    switch ($node['nodeType']) {
+        case 'Name':
+        case 'Name_FullyQualified':
+        case 'Name_Relative':
+            return convertNamePartsToString($node);
+    }
+
+    return $node;
+}
+
+/**
+ * @param array<string, mixed> $node
+ * @return array<string, mixed>
+ */
+function convertNamePartsToString(array $node): array
+{
+    if (!isset($node['parts'])) {
+        throw new RuntimeException('Name nodes must declare parts.');
+    }
+
+    if (!is_array($node['parts']) || !array_is_list($node['parts'])) {
+        throw new RuntimeException('Name node parts must be provided as an ordered list.');
+    }
+
+    $parts = [];
+    foreach ($node['parts'] as $index => $part) {
+        if (!is_string($part) || $part === '') {
+            throw new RuntimeException(
+                sprintf('Name parts must be non-empty strings (index %d).', $index)
+            );
+        }
+
+        $parts[] = $part;
+    }
+
+    $node['name'] = implode('\\', $parts);
+    unset($node['parts']);
+
+    return $node;
+}
+
+/**
+ * @param mixed $value
+ * @return mixed
+ */
+function normaliseOutputValue(mixed $value): mixed
+{
+    if (is_array($value)) {
+        if (array_is_list($value)) {
+            return array_map('normaliseOutputValue', $value);
+        }
+
+        $normalised = [];
+        foreach ($value as $key => $child) {
+            $normalised[$key] = normaliseOutputValue($child);
+        }
+
+        if (isset($normalised['nodeType']) && is_string($normalised['nodeType'])) {
+            $normalised = normaliseOutputNode($normalised);
+        }
+
+        return $normalised;
+    }
+
+    return $value;
+}
+
+/**
+ * @param array<string, mixed> $node
+ * @return array<string, mixed>
+ */
+function normaliseOutputNode(array $node): array
+{
+    switch ($node['nodeType']) {
+        case 'Name':
+        case 'Name_FullyQualified':
+        case 'Name_Relative':
+            return ensureNameParts($node);
+    }
+
+    return $node;
+}
+
+/**
+ * @param array<string, mixed> $node
+ * @return array<string, mixed>
+ */
+function ensureNameParts(array $node): array
+{
+    if (isset($node['name']) && is_string($node['name'])) {
+        $node['parts'] = explode('\\', $node['name']);
+    }
+
+    if (!isset($node['parts']) || !is_array($node['parts']) || !array_is_list($node['parts'])) {
+        throw new RuntimeException('Name nodes must provide a parts array.');
+    }
+
+    $parts = [];
+    foreach ($node['parts'] as $index => $part) {
+        if (!is_string($part) || $part === '') {
+            throw new RuntimeException(
+                sprintf('Name parts must be non-empty strings (index %d).', $index)
+            );
+        }
+
+        $parts[] = $part;
+    }
+
+    $node['parts'] = $parts;
+
+    if (array_key_exists('name', $node)) {
+        if (isset($node['name']) && !is_string($node['name'])) {
+            throw new RuntimeException('Name nodes must not expose non-string name properties.');
+        }
+
+        unset($node['name']);
+    }
+
+    return $node;
+}
 
 function ensureTrailingNewline(string $value): string
 {

@@ -42,23 +42,10 @@ describe('generate + apply integration', () => {
 						},
 					}
 				);
-
-				expect(generateResult.code).toBe(1);
+				expect(generateResult.code).toBe(2);
 				expect(generateResult.stdout).toBe('');
 				expect(generateResult.stderr).toContain(
-					'[wpk.php-driver][stderr]'
-				);
-				expect(generateResult.stderr).toContain(
-					'[wpk.php-driver][stdout]'
-				);
-				expect(generateResult.stderr).toContain(
-					'Deprecated: Creation of dynamic property PhpParser'
-				);
-				expect(generateResult.stderr).toContain(
-					'Fatal error: Uncaught Error: Typed property PhpParser'
-				);
-				expect(generateResult.stderr).toContain(
-					'[wpk.cli][fatal] Failed to pretty print PHP artifacts.'
+					'Failed to locate apply manifest after generation.'
 				);
 
 				const traceContents = await fs.readFile(traceFile, 'utf8');
@@ -75,7 +62,7 @@ describe('generate + apply integration', () => {
 				const eventNames = traceEvents.map((entry) => entry.event);
 				expect(eventNames).toContain('boot');
 				expect(eventNames).toContain('start');
-				expect(eventNames).not.toContain('success');
+				expect(eventNames).toContain('success');
 				expect(eventNames).not.toContain('failure');
 
 				await expect(
