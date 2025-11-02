@@ -13,6 +13,7 @@ import {
 	createPhpIndexFileHelper,
 	createPhpPersistenceRegistryHelper,
 	createPhpCapabilityHelper,
+	createPhpPluginLoaderHelper,
 	createPhpProgramWriterHelper,
 	createPhpTransientStorageHelper,
 	createPhpWpOptionStorageHelper,
@@ -54,6 +55,7 @@ export function createPhpBuilder(
 				createPhpResourceControllerHelper(),
 				createPhpCapabilityHelper(),
 				createPhpPersistenceRegistryHelper(),
+				createPhpPluginLoaderHelper(),
 				createPhpIndexFileHelper(),
 				createPhpBlocksHelper(),
 				createPhpProgramWriterHelper({
