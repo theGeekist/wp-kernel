@@ -71,7 +71,6 @@
 				"endTokenPos": 12,
 				"endFilePos": 57
 			},
-			"name": "Fixtures\\Codemod",
 			"parts": ["Fixtures", "Codemod"]
 		},
 		"stmts": [
@@ -108,7 +107,6 @@
 								"endTokenPos": 17,
 								"endFilePos": 73
 							},
-							"name": "Attribute",
 							"parts": ["Attribute"]
 						},
 						"alias": null
@@ -242,7 +240,6 @@
 										"endTokenPos": 21,
 										"endFilePos": 86
 									},
-									"name": "Attribute",
 									"parts": ["Attribute"]
 								},
 								"args": [
@@ -277,7 +274,6 @@
 													"endTokenPos": 23,
 													"endFilePos": 96
 												},
-												"name": "Attribute",
 												"parts": ["Attribute"]
 											},
 											"name": {
@@ -433,7 +429,6 @@
 												"endTokenPos": 76,
 												"endFilePos": 341
 											},
-											"name": "PropertyHook",
 											"parts": ["PropertyHook"]
 										},
 										"args": [
@@ -557,7 +552,6 @@
 										"endTokenPos": 59,
 										"endFilePos": 233
 									},
-									"name": "PropertyHook",
 									"parts": ["PropertyHook"]
 								},
 								"args": [
