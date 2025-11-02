@@ -25,6 +25,7 @@ import {
 	createTsBuilder,
 } from '../builders';
 import { buildAdapterExtensionsExtension } from '../runtime/adapterExtensions';
+import { buildEmptyGenerationState } from '../apply/manifest';
 
 export interface CreateIrEnvironment {
 	readonly workspace?: Workspace;
@@ -78,6 +79,7 @@ export async function createIr(
 		sourcePath: options.sourcePath,
 		workspace,
 		reporter,
+		generationState: buildEmptyGenerationState(),
 	});
 
 	return ir;

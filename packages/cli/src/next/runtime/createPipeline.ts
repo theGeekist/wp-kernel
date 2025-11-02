@@ -67,6 +67,7 @@ export function createPipeline(): Pipeline {
 				workspace: runOptions.workspace,
 				reporter: runOptions.reporter,
 				phase: runOptions.phase,
+				generationState: runOptions.generationState,
 			} satisfies PipelineContext;
 		},
 		createFragmentState({ buildOptions }) {

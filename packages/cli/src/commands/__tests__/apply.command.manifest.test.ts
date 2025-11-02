@@ -15,7 +15,15 @@ describe('NextApplyCommand manifest handling', () => {
 			const loadConfig = jest
 				.fn()
 				.mockResolvedValue(buildLoadedConfig(workspace));
-			const readText = jest.fn().mockResolvedValue('invalid-json');
+			const readText = jest
+				.fn()
+				.mockImplementation(async (file: string) => {
+					if (file === '.wpk/apply/state.json') {
+						return '';
+					}
+
+					return 'invalid-json';
+				});
 			const dryRun = jest.fn(async (fn) => {
 				try {
 					const result = await fn();

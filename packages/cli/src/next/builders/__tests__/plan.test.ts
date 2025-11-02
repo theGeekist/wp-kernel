@@ -4,6 +4,8 @@ import fs from 'node:fs/promises';
 import { buildWorkspace } from '../../workspace';
 import { createApplyPlanBuilder } from '../plan';
 import type { BuilderOutput } from '../../runtime/types';
+import { buildEmptyGenerationState } from '../../apply/manifest';
+import type { GenerationManifest } from '../../apply/manifest';
 import {
 	makePhpIrFixture,
 	makeWpPostResource,
@@ -88,6 +90,7 @@ describe('createApplyPlanBuilder', () => {
 						workspace,
 						reporter,
 						phase: 'generate' as const,
+						generationState: buildEmptyGenerationState(),
 					},
 					input: {
 						phase: 'generate' as const,
@@ -114,8 +117,9 @@ describe('createApplyPlanBuilder', () => {
 			const plan = JSON.parse(planRaw ?? '{}') as {
 				instructions?: Array<{
 					file: string;
-					base: string;
-					incoming: string;
+					base?: string;
+					incoming?: string;
+					action?: string;
 				}>;
 			};
 			expect(plan.instructions).toBeDefined();
@@ -125,6 +129,7 @@ describe('createApplyPlanBuilder', () => {
 				(entry) => entry.file === 'plugin.php'
 			);
 			expect(pluginInstruction).toMatchObject({
+				action: 'write',
 				base: '.wpk/apply/base/plugin.php',
 				incoming: '.wpk/apply/incoming/plugin.php',
 			});
@@ -133,6 +138,7 @@ describe('createApplyPlanBuilder', () => {
 				(entry) => entry.file === 'inc/Rest/JobsController.php'
 			);
 			expect(shimInstruction).toMatchObject({
+				action: 'write',
 				base: '.wpk/apply/base/inc/Rest/JobsController.php',
 				incoming: '.wpk/apply/incoming/inc/Rest/JobsController.php',
 			});
@@ -331,6 +337,7 @@ describe('createApplyPlanBuilder', () => {
 						workspace,
 						reporter,
 						phase: 'generate' as const,
+						generationState: buildEmptyGenerationState(),
 					},
 					input: {
 						phase: 'generate' as const,
@@ -485,6 +492,7 @@ describe('createApplyPlanBuilder', () => {
 						workspace,
 						reporter,
 						phase: 'generate' as const,
+						generationState: buildEmptyGenerationState(),
 					},
 					input: {
 						phase: 'generate' as const,
@@ -539,6 +547,121 @@ describe('createApplyPlanBuilder', () => {
 			expect(capturedPrograms).toHaveLength(1);
 
 			prettyPrinterSpy.mockRestore();
+		});
+	});
+
+	it('emits deletion instructions for removed shims', async () => {
+		await withWorkspace(async (workspaceRoot) => {
+			const workspace = buildWorkspace(workspaceRoot);
+			const reporter = buildReporter();
+			const output = buildOutput();
+
+			const ir = makePhpIrFixture({ resources: [] });
+			const helper = createApplyPlanBuilder();
+			const previous: GenerationManifest = {
+				version: 1,
+				resources: {
+					jobs: {
+						hash: 'legacy',
+						artifacts: {
+							generated: [
+								'.generated/php/Rest/JobsController.php',
+							],
+							shims: ['inc/Rest/JobsController.php'],
+						},
+					},
+				},
+			};
+
+			await helper.apply({
+				context: {
+					workspace,
+					reporter,
+					phase: 'generate',
+					generationState: previous,
+				},
+				input: {
+					phase: 'generate',
+					options: {
+						config: ir.config,
+						namespace: ir.meta.namespace,
+						origin: ir.meta.origin,
+						sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
+					},
+					ir,
+				},
+				output,
+				reporter,
+			});
+
+			const planPath = path.posix.join('.wpk', 'apply', 'plan.json');
+			const planRaw = await workspace.readText(planPath);
+			expect(planRaw).toBeTruthy();
+			const plan = JSON.parse(planRaw ?? '{}') as {
+				instructions?: Array<{ file: string; action?: string }>;
+			};
+
+			const deletion = plan.instructions?.find(
+				(entry) =>
+					entry.file === 'inc/Rest/JobsController.php' &&
+					entry.action === 'delete'
+			);
+
+			expect(deletion).toBeDefined();
+		});
+	});
+
+	it('skips plugin loader emission when the IR artifact is missing', async () => {
+		await withWorkspace(async (workspaceRoot) => {
+			const workspace = buildWorkspace(workspaceRoot);
+			const reporter = buildReporter();
+			const output = buildOutput();
+
+			const helper = createApplyPlanBuilder();
+			await helper.apply(
+				{
+					context: {
+						workspace,
+						reporter,
+						phase: 'generate',
+						generationState: buildEmptyGenerationState(),
+					},
+					input: {
+						phase: 'generate',
+						options: {
+							config: {
+								version: 1,
+								namespace: 'Demo',
+								resources: {},
+								schemas: {},
+							},
+							namespace: 'Demo',
+							origin: 'typescript',
+							sourcePath: path.join(
+								workspaceRoot,
+								'wpk.config.ts'
+							),
+						},
+						ir: null,
+					},
+					output,
+					reporter,
+				},
+				undefined
+			);
+
+			expect(reporter.warn).toHaveBeenCalledWith(
+				'createApplyPlanBuilder: IR artifact missing, skipping plugin loader emission.'
+			);
+
+			const planRaw = await workspace.readText(
+				path.posix.join('.wpk', 'apply', 'plan.json')
+			);
+			expect(planRaw).toBeTruthy();
+			const plan = JSON.parse(planRaw ?? '{}') as {
+				instructions?: unknown;
+			};
+			expect(plan.instructions).toEqual([]);
 		});
 	});
 });
