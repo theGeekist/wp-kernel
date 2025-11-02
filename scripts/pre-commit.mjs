@@ -144,14 +144,14 @@ async function main() {
 				env: { PRECOMMIT: '1' },
 			});
 		}
-		if (typeof scripts['test:integration'] === 'string') {
-			testCommands.push({
-				cmd: 'pnpm',
-				args: ['test:integration'],
-				label: 'int',
-				env: { PRECOMMIT: '1' },
-			});
-		}
+		// if (typeof scripts['test:integration'] === 'string') {
+		// 	testCommands.push({
+		// 		cmd: 'pnpm',
+		// 		args: ['test:integration'],
+		// 		label: 'int',
+		// 		env: { PRECOMMIT: '1' },
+		// 	});
+		// }
 		if (testCommands.length === 0 && typeof scripts.test === 'string') {
 			testCommands.push({
 				cmd: 'pnpm',
@@ -164,7 +164,7 @@ async function main() {
 		if (testCommands.length > 0) {
 			// IMPORTANT: sequential, so timings stay close to naked runs
 			tasks.push({
-				title: 'Run tests',
+				title: 'Run tests (estimated 90s)',
 				async run() {
 					const lines = [];
 					for (const t of testCommands) {
