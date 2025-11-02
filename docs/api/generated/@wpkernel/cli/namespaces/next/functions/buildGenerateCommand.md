@@ -7,21 +7,15 @@
 # Function: buildGenerateCommand()
 
 ```ts
-function buildGenerateCommand(options): () => Command<BaseContext> & object;
+function buildGenerateCommand(options): CommandConstructor;
 ```
 
 ## Parameters
 
 ### options
 
-`BuildGenerateCommandOptions` = `{}`
+[`BuildGenerateCommandOptions`](../interfaces/BuildGenerateCommandOptions.md) = `{}`
 
 ## Returns
 
-```ts
-new buildGenerateCommand(): Command<BaseContext> & object;
-```
-
-### Returns
-
-`Command`\&lt;`BaseContext`\&gt; & `object`
+`CommandConstructor`

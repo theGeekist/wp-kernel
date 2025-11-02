@@ -127,7 +127,7 @@ async function main() {
 	}
 
 	/* ---------------------------------------------------------------------- */
-	/* 4) tests – ALWAYS root-level, no graph, no 18 jobs                      */
+	/* 4) tests                      */
 	/* ---------------------------------------------------------------------- */
 	if (hasNonDocChanges) {
 		const rootPkg = await readRootPackageJson();
@@ -187,7 +187,7 @@ async function main() {
 		tasks.push({
 			title: 'Run tests',
 			enabled: false,
-			skipMessage: 'Docs-only changes – skipping tests.',
+			skipMessage: 'Docs-only changes, skipping tests.',
 			async run() { },
 		});
 	}

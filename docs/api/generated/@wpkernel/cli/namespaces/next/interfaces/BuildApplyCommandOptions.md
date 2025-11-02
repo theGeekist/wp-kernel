@@ -54,7 +54,7 @@ readonly optional buildWorkspace: (root) => Workspace;
 
 ###### root
 
-`string` = `...`
+`string`
 
 ##### Returns
 
@@ -65,12 +65,12 @@ readonly optional buildWorkspace: (root) => Workspace;
 #### createBackups()?
 
 ```ts
-readonly optional createBackups: (__namedParameters) => Promise<void>;
+readonly optional createBackups: (options) => Promise<void>;
 ```
 
 ##### Parameters
 
-###### \_\_namedParameters
+###### options
 
 `CreateBackupsOptions`
 
@@ -116,36 +116,37 @@ readonly optional ensureGitRepository: (workspace) => Promise<void>;
 readonly optional loadWPKernelConfig: () => Promise<LoadedWPKernelConfig>;
 ```
 
-Locate and load the project's kernel configuration.
-
-The function searches for supported config files, executes them via
-cosmiconfig loaders, validates the resulting structure and performs a
-Composer autoload sanity check to ensure PHP namespaces are mapped
-correctly.
-
 ##### Returns
 
 `Promise`\&lt;[`LoadedWPKernelConfig`](../../../interfaces/LoadedWPKernelConfig.md)\&gt;
-
-The validated kernel config and associated metadata.
-
-##### Throws
-
-WPKernelError when discovery, parsing or validation fails.
 
 ---
 
 #### promptConfirm()?
 
 ```ts
-readonly optional promptConfirm: (__namedParameters) => Promise<boolean>;
+readonly optional promptConfirm: (options) => Promise<boolean>;
 ```
 
 ##### Parameters
 
-###### \_\_namedParameters
+###### options
 
-[`ConfirmPromptOptions`](ConfirmPromptOptions.md)
+###### defaultValue
+
+`boolean`
+
+###### input
+
+`ReadableStream`
+
+###### message
+
+`string`
+
+###### output
+
+`WritableStream`
 
 ##### Returns
 

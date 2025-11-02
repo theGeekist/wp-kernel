@@ -16,6 +16,14 @@ readonly config: WPKernelConfigV1;
 
 ---
 
+### generationState
+
+```ts
+readonly generationState: GenerationManifest;
+```
+
+---
+
 ### namespace
 
 ```ts

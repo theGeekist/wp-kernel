@@ -12,6 +12,14 @@
 
 ## Properties
 
+### generationState
+
+```ts
+readonly generationState: GenerationManifest;
+```
+
+---
+
 ### phase
 
 ```ts

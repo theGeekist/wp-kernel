@@ -11,6 +11,7 @@
 - [BuildApplyCommandOptions](interfaces/BuildApplyCommandOptions.md)
 - [BuildCreateCommandOptions](interfaces/BuildCreateCommandOptions.md)
 - [BuilderInput](interfaces/BuilderInput.md)
+- [BuildGenerateCommandOptions](interfaces/BuildGenerateCommandOptions.md)
 - [BuildInitCommandOptions](interfaces/BuildInitCommandOptions.md)
 - [ConfirmPromptOptions](interfaces/ConfirmPromptOptions.md)
 - [CreatePhpBuilderOptions](interfaces/CreatePhpBuilderOptions.md)

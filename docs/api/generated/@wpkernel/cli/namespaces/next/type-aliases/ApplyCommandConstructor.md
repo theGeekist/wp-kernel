@@ -7,9 +7,9 @@
 # Type Alias: ApplyCommandConstructor()
 
 ```ts
-type ApplyCommandConstructor = () => Command & object;
+type ApplyCommandConstructor = () => ApplyCommandInstance;
 ```
 
 ## Returns
 
-`Command` & `object`
+`ApplyCommandInstance`
