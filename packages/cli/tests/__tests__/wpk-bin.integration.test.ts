@@ -351,4 +351,162 @@ describe('wpk bin integration', () => {
 			{ chdir: false }
 		);
 	}, 300_000);
+
+	it('removes generated artifacts and queues shim deletions when resources are removed', async () => {
+		await withWorkspace(
+			async (workspace) => {
+				const initResult = await runWpk(workspace, [
+					'init',
+					'--name',
+					'resource-plugin',
+				]);
+
+				expect(initResult.code).toBe(0);
+				expect(initResult.stderr).toBe('');
+
+				const configPath = path.join(workspace, 'wpk.config.ts');
+				const configWithResource = `import type { ResourceConfig, ResourceIdentityConfig, ResourceRoutes, ResourceStorageConfig } from '@wpkernel/core/resource';
+
+type Book = { id: number; title: string };
+type BookQuery = { search?: string };
+
+const identity: ResourceIdentityConfig = {
+        type: 'number',
+        param: 'id',
+};
+
+const storage: ResourceStorageConfig = {
+        mode: 'transient',
+};
+
+const routes: ResourceRoutes = {
+        list: { path: '/example/v1/books', method: 'GET' },
+        get: { path: '/example/v1/books/:id', method: 'GET' },
+};
+
+const books: ResourceConfig<Book, BookQuery> = {
+        name: 'books',
+        identity,
+        storage,
+        routes,
+        schema: 'auto',
+};
+
+export const wpkConfig = {
+        version: 1,
+        namespace: 'resource-plugin',
+        schemas: {},
+        resources: {
+                books,
+        },
+};
+`;
+
+				await fs.writeFile(configPath, configWithResource, 'utf8');
+
+				const manifestPath = path.join(
+					workspace,
+					'.wpk',
+					'apply',
+					'manifest.json'
+				);
+				await fs.mkdir(path.dirname(manifestPath), { recursive: true });
+				await fs.writeFile(manifestPath, '{}', 'utf8');
+
+				const env = {
+					WPK_PHP_AUTOLOAD: PHP_JSON_AST_AUTOLOAD,
+				} satisfies NodeJS.ProcessEnv;
+
+				const firstGenerate = await runWpk(workspace, ['generate'], {
+					env,
+				});
+
+				expect(firstGenerate.stderr).toBe('');
+				expect(firstGenerate.code).toBe(0);
+
+				const generatedControllerPath = path.join(
+					workspace,
+					'.generated',
+					'php',
+					'Rest',
+					'BooksController.php'
+				);
+				const generatedControllerAstPath = `${generatedControllerPath}.ast.json`;
+
+				await expect(
+					fs.access(generatedControllerPath)
+				).resolves.toBeUndefined();
+				await expect(
+					fs.access(generatedControllerAstPath)
+				).resolves.toBeUndefined();
+
+				const statePath = path.join(
+					workspace,
+					'.wpk',
+					'apply',
+					'state.json'
+				);
+				const initialState = JSON.parse(
+					await fs.readFile(statePath, 'utf8')
+				) as { resources?: Record<string, unknown> };
+				expect(initialState.resources).toHaveProperty('books');
+
+				const configWithoutResource = `export const wpkConfig = {
+        version: 1,
+        namespace: 'resource-plugin',
+        schemas: {},
+        resources: {},
+};
+`;
+
+				await fs.writeFile(configPath, configWithoutResource, 'utf8');
+
+				const secondGenerate = await runWpk(workspace, ['generate'], {
+					env,
+				});
+
+				expect(secondGenerate.stderr).toBe('');
+				expect(secondGenerate.code).toBe(0);
+
+				await expect(
+					fs.access(generatedControllerPath)
+				).rejects.toMatchObject({
+					code: 'ENOENT',
+				});
+				await expect(
+					fs.access(generatedControllerAstPath)
+				).rejects.toMatchObject({
+					code: 'ENOENT',
+				});
+
+				const nextState = JSON.parse(
+					await fs.readFile(statePath, 'utf8')
+				) as { resources?: Record<string, unknown> };
+				expect(nextState.resources).toEqual({});
+
+				const planPath = path.join(
+					workspace,
+					'.wpk',
+					'apply',
+					'plan.json'
+				);
+				const plan = JSON.parse(
+					await fs.readFile(planPath, 'utf8')
+				) as {
+					instructions?: Array<{
+						action?: string;
+						file?: string;
+					}>;
+				};
+				const deletionInstruction = plan.instructions?.find(
+					(instruction) =>
+						instruction?.action === 'delete' &&
+						instruction.file === 'inc/Rest/BooksController.php'
+				);
+
+				expect(deletionInstruction).toBeDefined();
+			},
+			{ chdir: false }
+		);
+	}, 300_000);
 });
