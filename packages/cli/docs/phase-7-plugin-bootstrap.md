@@ -100,6 +100,10 @@ Teach the pipeline to remember previous generations so resource removals clean u
 3. Extends the manifest writer in [`packages/cli/src/next/apply/manifest.ts`](../src/next/apply/manifest.ts) to emit deletion actions alongside additions.
 4. Covers the behaviour with integration tests that drop a resource from `wpk.config.ts` and assert the old files disappear while untouched author code remains.
 
+#### Task 42 delivery summary
+
+Task 42 now snapshots generation state to `.wpk/apply/state.json`, diffs each resource’s generated and shim artefacts, and removes any paths that vanish between runs-including cases where developers redirect `php.outputDir` or `php.autoload`. `wpk generate` prunes stale `.generated/php/**` files before committing, the apply plan surfaces `{ action: 'delete' }` records for obsolete shims, and the patcher records those removals so `wpk apply` deletes outdated loaders reliably. Integration coverage exercises both resource removal and path-mutation scenarios to guarantee future regressions surface immediately.
+
 ### Patch 0.10.7 – Task 43: Apply cleanup & override safety
 
 Ensure the deletion path respects user code and surfaces diagnostics. Ship:

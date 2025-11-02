@@ -9,6 +9,7 @@ import type { IRv1 } from '../../src/next/ir/publicTypes';
 import type { WPKernelConfigV1 } from '../../src/config/types';
 import { makeWorkspaceMock } from '../workspace.test-support';
 import type { Workspace } from '../../src/next/workspace/types';
+import { buildEmptyGenerationState } from '../../src/next/apply/manifest';
 
 const DEFAULT_CONFIG_SOURCE = 'tests.config.ts';
 
@@ -33,6 +34,7 @@ export function createPipelineContext(
 		workspace,
 		reporter: createReporter(),
 		phase: 'generate',
+		generationState: buildEmptyGenerationState(),
 	};
 
 	return {
@@ -41,6 +43,7 @@ export function createPipelineContext(
 		workspace: overrides?.workspace ?? base.workspace,
 		reporter: overrides?.reporter ?? base.reporter,
 		phase: overrides?.phase ?? base.phase,
+		generationState: overrides?.generationState ?? base.generationState,
 	};
 }
 

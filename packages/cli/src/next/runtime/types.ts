@@ -15,6 +15,7 @@ import type {
 import type { BuildIrOptions, IRv1 } from '../ir/publicTypes';
 import type { MutableIr } from '../ir/types';
 import type { Workspace } from '../workspace/types';
+import type { GenerationManifest } from '../apply/manifest';
 
 type BasePipelineContext = PhpPipelineContext;
 
@@ -23,6 +24,7 @@ export type { PipelinePhase };
 export interface PipelineContext
 	extends Omit<BasePipelineContext, 'workspace'> {
 	readonly workspace: Workspace;
+	readonly generationState: GenerationManifest;
 }
 
 export interface PipelineRunOptions {
@@ -33,6 +35,7 @@ export interface PipelineRunOptions {
 	readonly sourcePath: string;
 	readonly workspace: Workspace;
 	readonly reporter: Reporter;
+	readonly generationState: GenerationManifest;
 }
 
 export interface PipelineStep extends HelperDescriptor {

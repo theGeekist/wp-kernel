@@ -7,6 +7,10 @@
 - **Phase 7 – Plugin bootstrap flow** – Tasks 37-45 will publish the create bootstrap, emit the plugin loader, clean stale artefacts, run activation smoke, and close with the 0.11.0 release once Phase 6 wraps.
 - **Phase 8 placeholder** – Task 46 will collect incremental diagnostics (starting with the CLI LogLayer reporter) after the plugin bootstrap flow ships.
 
+### Fixed
+
+- **Generation manifest persistence** – `wpk generate` stores `.wpk/apply/state.json`, removes stale `.generated/**` files when resources or PHP paths disappear, and records shim deletions in `.wpk/apply/plan.json` so `wpk apply` prunes obsolete loaders.
+
 ## 0.10.0 - 2025-11-05
 
 ### Documentation

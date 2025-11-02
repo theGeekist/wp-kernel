@@ -27,12 +27,19 @@ function normaliseRelativePath(file: string): string {
 	return normalised.replace(/^\.\//, '').replace(/^\/+/, '');
 }
 
-interface PatchInstruction {
-	readonly file: string;
-	readonly base: string;
-	readonly incoming: string;
-	readonly description?: string;
-}
+type PatchInstruction =
+	| {
+			readonly action?: 'write';
+			readonly file: string;
+			readonly base: string;
+			readonly incoming: string;
+			readonly description?: string;
+	  }
+	| {
+			readonly action: 'delete';
+			readonly file: string;
+			readonly description?: string;
+	  };
 
 interface PatchPlan {
 	readonly instructions: readonly PatchInstruction[];
@@ -63,6 +70,7 @@ interface ProcessInstructionOptions {
 	readonly manifest: PatchManifest;
 	readonly output: BuilderOutput;
 	readonly reporter: BuilderApplyOptions['reporter'];
+	readonly deletedFiles: string[];
 }
 
 async function readPlan(workspace: Workspace): Promise<PatchPlan | null> {
@@ -77,11 +85,12 @@ async function readPlan(workspace: Workspace): Promise<PatchPlan | null> {
 			? data.instructions
 			: [];
 
+		const normalised = instructions
+			.map((entry) => normaliseInstruction(entry))
+			.filter((entry): entry is PatchInstruction => entry !== null);
+
 		return {
-			instructions: instructions.filter(
-				(entry): entry is PatchInstruction =>
-					Boolean(entry?.file && entry?.incoming && entry?.base)
-			),
+			instructions: normalised,
 		} satisfies PatchPlan;
 	} catch (error) {
 		throw new WPKernelError('DeveloperError', {
@@ -92,6 +101,37 @@ async function readPlan(workspace: Workspace): Promise<PatchPlan | null> {
 			},
 		});
 	}
+}
+
+function normaliseInstruction(value: unknown): PatchInstruction | null {
+	if (!isRecord(value) || typeof value.file !== 'string') {
+		return null;
+	}
+
+	const action = value.action === 'delete' ? 'delete' : 'write';
+	const file = value.file;
+	const description =
+		typeof value.description === 'string' ? value.description : undefined;
+
+	if (action === 'delete') {
+		return { action, file, description };
+	}
+
+	if (typeof value.base !== 'string' || typeof value.incoming !== 'string') {
+		return null;
+	}
+
+	return {
+		action,
+		file,
+		base: value.base,
+		incoming: value.incoming,
+		description,
+	};
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+	return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 }
 
 async function writeTempFile(
@@ -244,6 +284,8 @@ export function createPatcher(): BuilderHelper {
 
 			const manifest = buildEmptyManifest();
 
+			const deletedFiles: string[] = [];
+
 			for (const instruction of plan.instructions) {
 				await processInstruction({
 					workspace: context.workspace,
@@ -251,11 +293,13 @@ export function createPatcher(): BuilderHelper {
 					manifest,
 					output,
 					reporter,
+					deletedFiles,
 				});
 			}
 
 			const actionFiles = [
 				...output.actions.map((action) => action.file),
+				...deletedFiles,
 				PATCH_MANIFEST_PATH,
 			];
 			manifest.actions = Array.from(new Set(actionFiles));
@@ -282,7 +326,19 @@ async function processInstruction({
 	manifest,
 	output,
 	reporter,
+	deletedFiles,
 }: ProcessInstructionOptions): Promise<void> {
+	if (instruction.action === 'delete') {
+		await processDeleteInstruction({
+			workspace,
+			instruction,
+			manifest,
+			reporter,
+			deletedFiles,
+		});
+		return;
+	}
+
 	const file = normaliseRelativePath(instruction.file);
 	const basePath = normaliseRelativePath(instruction.base);
 	const incomingPath = normaliseRelativePath(instruction.incoming);
@@ -368,4 +424,62 @@ async function processInstruction({
 	}
 
 	reporter.debug('createPatcher: patch applied.', { file });
+}
+
+interface ProcessDeleteInstructionOptions {
+	readonly workspace: Workspace;
+	readonly instruction: Extract<PatchInstruction, { action: 'delete' }>;
+	readonly manifest: PatchManifest;
+	readonly reporter: BuilderApplyOptions['reporter'];
+	readonly deletedFiles: string[];
+}
+
+async function processDeleteInstruction({
+	workspace,
+	instruction,
+	manifest,
+	reporter,
+	deletedFiles,
+}: ProcessDeleteInstructionOptions): Promise<void> {
+	const file = normaliseRelativePath(instruction.file);
+	const description = instruction.description;
+
+	if (!file) {
+		reporter.warn(
+			'createPatcher: skipping deletion with empty file target.'
+		);
+		recordResult(manifest, {
+			file,
+			status: 'skipped',
+			description,
+			details: { reason: 'empty-target', action: 'delete' },
+		});
+		return;
+	}
+
+	const exists = await workspace.exists(file);
+	if (!exists) {
+		reporter.debug('createPatcher: deletion target already absent.', {
+			file,
+		});
+		recordResult(manifest, {
+			file,
+			status: 'skipped',
+			description,
+			details: { reason: 'missing-target', action: 'delete' },
+		});
+		return;
+	}
+
+	await workspace.rm(file);
+	deletedFiles.push(file);
+	recordResult(manifest, {
+		file,
+		status: 'applied',
+		description,
+		details: { action: 'delete' },
+	});
+	reporter.debug('createPatcher: removed file via deletion instruction.', {
+		file,
+	});
 }

@@ -10,11 +10,47 @@ import {
 	type BuildGenerateCommandOptions,
 } from '../generate';
 import { PATCH_MANIFEST_PATH } from '../apply/constants';
+import { GENERATION_STATE_PATH } from '../../next/apply/manifest';
 import type {
 	Pipeline,
 	PipelineRunOptions,
 	PipelineRunResult,
 } from '../../next/runtime';
+
+function buildIrArtifact(workspaceRoot: string): PipelineRunResult['ir'] {
+	return {
+		meta: {
+			version: 1,
+			namespace: 'Demo',
+			sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
+			origin: 'typescript',
+			sanitizedNamespace: 'Demo',
+		},
+		config: {
+			version: 1,
+			namespace: 'Demo',
+			resources: {},
+			schemas: {},
+		},
+		schemas: [],
+		resources: [],
+		capabilities: [],
+		capabilityMap: {
+			definitions: [],
+			fallback: { capability: 'manage_options', appliesTo: 'resource' },
+			missing: [],
+			unused: [],
+			warnings: [],
+		},
+		blocks: [],
+		php: {
+			namespace: 'Demo',
+			autoload: 'inc',
+			outputDir: '.generated/php',
+		},
+		diagnostics: [],
+	} satisfies PipelineRunResult['ir'];
+}
 
 function createWorkspaceStub() {
 	const root = path.join(process.cwd(), 'workspace');
@@ -84,9 +120,7 @@ function createPipelineStub(
 		await options.workspace.write(PATCH_MANIFEST_PATH, '{}');
 
 		return {
-			ir: {
-				meta: { sanitizedNamespace: 'Demo' },
-			} as PipelineRunResult['ir'],
+			ir: buildIrArtifact(options.workspace.root),
 			diagnostics: [],
 			steps: [],
 		} satisfies PipelineRunResult;
@@ -246,9 +280,7 @@ describe('NextGenerateCommand', () => {
 				'file contents\n'
 			);
 			return {
-				ir: {
-					meta: { sanitizedNamespace: 'Demo' },
-				} as PipelineRunResult['ir'],
+				ir: buildIrArtifact(options.workspace.root),
 				diagnostics: [
 					{
 						type: 'conflict',
@@ -399,5 +431,123 @@ describe('NextGenerateCommand', () => {
 			})
 		);
 		expect(validateGeneratedImports).not.toHaveBeenCalled();
+	});
+
+	it('removes stale generated artifacts when generated paths change', async () => {
+		const workspace = createWorkspaceStub();
+		await workspace.writeJson(GENERATION_STATE_PATH, {
+			version: 1,
+			resources: {
+				books: {
+					hash: 'legacy',
+					artifacts: {
+						generated: [
+							'.generated/php/Rest/BooksController.php',
+							'.generated/php/Rest/BooksController.php.ast.json',
+						],
+						shims: ['inc/Rest/BooksController.php'],
+					},
+				},
+			},
+		});
+
+		const { pipeline, runMock } = createPipelineStub(
+			workspace,
+			async (options) => {
+				await options.workspace.write(
+					path.join('.generated', 'index.ts'),
+					"console.log('hello world');\n"
+				);
+				await options.workspace.write(PATCH_MANIFEST_PATH, '{}');
+
+				const ir = buildIrArtifact(options.workspace.root);
+				const resource = {
+					name: 'books',
+					schemaKey: 'books',
+					schemaProvenance: 'manual' as const,
+					routes: [],
+					cacheKeys: {
+						list: { segments: [], source: 'default' as const },
+						get: { segments: [], source: 'default' as const },
+					},
+					hash: 'next',
+					warnings: [],
+				};
+
+				return {
+					ir: {
+						...ir,
+						resources: [resource],
+						php: {
+							...ir.php,
+							outputDir: '.generated/server',
+						},
+					},
+					diagnostics: [],
+					steps: [],
+				} satisfies PipelineRunResult;
+			}
+		);
+
+		const reporter = createReporterMock();
+
+		const loadWPKernelConfig = jest.fn().mockResolvedValue({
+			config: { version: 1 },
+			sourcePath: path.join(workspace.root, 'wpk.config.ts'),
+			configOrigin: 'wpk.config.ts',
+			namespace: 'Demo',
+		});
+
+		const renderSummary = jest.fn().mockReturnValue('summary output\n');
+		const validateGeneratedImports = jest.fn().mockResolvedValue(undefined);
+
+		const GenerateCommand = buildGenerateCommand({
+			loadWPKernelConfig,
+			buildWorkspace: jest.fn().mockReturnValue(workspace),
+			createPipeline: jest.fn().mockReturnValue(pipeline),
+			registerFragments: jest.fn(),
+			registerBuilders: jest.fn(),
+			buildAdapterExtensionsExtension: jest
+				.fn()
+				.mockReturnValue({ key: 'adapter', register: jest.fn() }),
+			buildReporter: jest.fn().mockReturnValue(reporter),
+			renderSummary,
+			validateGeneratedImports,
+		} as BuildGenerateCommandOptions);
+
+		const command = new GenerateCommand();
+		assignCommandContext(command, { cwd: workspace.root });
+
+		command.dryRun = false;
+		command.verbose = false;
+
+		const exitCode = await command.execute();
+
+		expect(exitCode).toBe(WPK_EXIT_CODES.SUCCESS);
+		expect(runMock).toHaveBeenCalled();
+		expect(workspace.rm).toHaveBeenCalledWith(
+			'.generated/php/Rest/BooksController.php',
+			undefined
+		);
+		expect(workspace.rm).toHaveBeenCalledWith(
+			'.generated/php/Rest/BooksController.php.ast.json',
+			undefined
+		);
+		expect(workspace.writeJson).toHaveBeenCalledWith(
+			GENERATION_STATE_PATH,
+			expect.objectContaining({
+				resources: {
+					books: expect.objectContaining({
+						artifacts: expect.objectContaining({
+							generated: expect.arrayContaining([
+								'.generated/server/Rest/BooksController.php',
+							]),
+						}),
+					}),
+				},
+			}),
+			expect.any(Object)
+		);
+		expect(validateGeneratedImports).toHaveBeenCalled();
 	});
 });

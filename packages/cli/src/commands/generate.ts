@@ -19,6 +19,13 @@ import type {
 import { PATCH_MANIFEST_PATH } from './apply/constants';
 import { emitFatalError } from './fatal';
 import type { Workspace } from '../next/workspace';
+import {
+	buildGenerationManifestFromIr,
+	type GenerationManifestDiff,
+	diffGenerationState,
+	readGenerationState,
+	writeGenerationState,
+} from '../next/apply/manifest';
 
 type CommandConstructor = new () => Command & {
 	summary: GenerationSummary | null;
@@ -63,6 +70,30 @@ async function finalizeWorkspaceTransaction(
 	return buildFailure(WPK_EXIT_CODES.UNEXPECTED_ERROR);
 }
 
+async function removeStaleGeneratedArtifacts({
+	diff,
+	workspace,
+	reporter,
+}: {
+	readonly diff: GenerationManifestDiff;
+	readonly workspace: Workspace;
+	readonly reporter: Reporter;
+}): Promise<void> {
+	for (const removed of diff.removed) {
+		const uniqueFiles = new Set(
+			removed.generated.filter((file): file is string => Boolean(file))
+		);
+
+		for (const file of uniqueFiles) {
+			await workspace.rm(file);
+			reporter.debug('Removed stale generated artifact.', {
+				file,
+				resource: removed.resource,
+			});
+		}
+	}
+}
+
 async function runGenerateWorkflow(
 	options: GenerateExecutionOptions
 ): Promise<GenerateResult> {
@@ -79,6 +110,10 @@ async function runGenerateWorkflow(
 		dependencies.registerBuilders(pipeline);
 		pipeline.extensions.use(dependencies.buildAdapterExtensionsExtension());
 
+		const previousGenerationState = await readGenerationState(
+			tracked.workspace
+		);
+
 		tracked.workspace.begin(TRANSACTION_LABEL);
 
 		try {
@@ -90,9 +125,26 @@ async function runGenerateWorkflow(
 				sourcePath: loaded.sourcePath,
 				workspace: tracked.workspace,
 				reporter,
+				generationState: previousGenerationState,
 			});
 
 			logDiagnostics(reporter, result.diagnostics);
+
+			const nextGenerationState = buildGenerationManifestFromIr(
+				result.ir
+			);
+			const diff = diffGenerationState(
+				previousGenerationState,
+				nextGenerationState
+			);
+
+			await removeStaleGeneratedArtifacts({
+				diff,
+				workspace: tracked.workspace,
+				reporter,
+			});
+
+			await writeGenerationState(tracked.workspace, nextGenerationState);
 
 			const writerSummary = tracked.summary.buildSummary();
 			const generationSummary: GenerationSummary = {

@@ -33,17 +33,29 @@ import type {
 } from '../runtime/types';
 import type { IRResource, IRv1 } from '../ir/publicTypes';
 import { toPascalCase } from './php/utils';
+import {
+	buildGenerationManifestFromIr,
+	type GenerationManifestDiff,
+	diffGenerationState,
+} from '../apply/manifest';
 
 const PLAN_PATH = path.posix.join('.wpk', 'apply', 'plan.json');
 const PLAN_BASE_ROOT = path.posix.join('.wpk', 'apply', 'base');
 const PLAN_INCOMING_ROOT = path.posix.join('.wpk', 'apply', 'incoming');
 
-interface PlanInstruction {
-	readonly file: string;
-	readonly base: string;
-	readonly incoming: string;
-	readonly description: string;
-}
+type PlanInstruction =
+	| {
+			readonly action: 'write';
+			readonly file: string;
+			readonly base: string;
+			readonly incoming: string;
+			readonly description: string;
+	  }
+	| {
+			readonly action: 'delete';
+			readonly file: string;
+			readonly description: string;
+	  };
 
 interface BuildShimOptions {
 	readonly ir: IRv1;
@@ -59,7 +71,7 @@ export function createApplyPlanBuilder(): BuilderHelper {
 		kind: 'builder',
 		async apply(options: BuilderApplyOptions, next?: BuilderNext) {
 			const { input, reporter } = options;
-			if (input.phase !== 'generate' || !input.ir) {
+			if (input.phase !== 'generate') {
 				await next?.();
 				return;
 			}
@@ -68,30 +80,10 @@ export function createApplyPlanBuilder(): BuilderHelper {
 				workspace: options.context.workspace,
 			});
 
-			const instructions: PlanInstruction[] = [];
-			const loaderInstruction = await emitPluginLoader({
+			const instructions = await collectPlanInstructions({
 				options,
 				prettyPrinter,
 			});
-			if (loaderInstruction) {
-				instructions.push(loaderInstruction);
-			}
-
-			if (input.ir.resources.length === 0) {
-				reporter.debug(
-					'createApplyPlanBuilder: no resources to generate shims for.'
-				);
-			}
-			for (const resource of input.ir.resources) {
-				const instruction = await emitShim({
-					options,
-					prettyPrinter,
-					resource,
-				});
-				if (instruction) {
-					instructions.push(instruction);
-				}
-			}
 
 			await writePlan(options, instructions);
 			if (instructions.length === 0) {
@@ -112,6 +104,105 @@ export function createApplyPlanBuilder(): BuilderHelper {
 			await next?.();
 		},
 	});
+}
+
+async function collectPlanInstructions({
+	options,
+	prettyPrinter,
+}: {
+	readonly options: BuilderApplyOptions;
+	readonly prettyPrinter: ReturnType<typeof buildPhpPrettyPrinter>;
+}): Promise<PlanInstruction[]> {
+	const { input, reporter } = options;
+	const instructions: PlanInstruction[] = [];
+
+	await addPluginLoaderInstruction({ options, prettyPrinter, instructions });
+
+	if ((input.ir?.resources?.length ?? 0) === 0) {
+		reporter.debug(
+			'createApplyPlanBuilder: no resources to generate shims for.'
+		);
+	}
+
+	const resourceInstructions = await collectResourceInstructions({
+		options,
+		prettyPrinter,
+	});
+	instructions.push(...resourceInstructions);
+
+	const nextManifest = buildGenerationManifestFromIr(input.ir ?? null);
+	const diff = diffGenerationState(
+		options.context.generationState,
+		nextManifest
+	);
+
+	const deletionInstructions = collectDeletionInstructions(diff);
+	instructions.push(...deletionInstructions);
+
+	return instructions;
+}
+
+async function addPluginLoaderInstruction({
+	options,
+	prettyPrinter,
+	instructions,
+}: {
+	readonly options: BuilderApplyOptions;
+	readonly prettyPrinter: ReturnType<typeof buildPhpPrettyPrinter>;
+	readonly instructions: PlanInstruction[];
+}): Promise<void> {
+	const loaderInstruction = await emitPluginLoader({
+		options,
+		prettyPrinter,
+	});
+	if (loaderInstruction) {
+		instructions.push(loaderInstruction);
+	}
+}
+
+async function collectResourceInstructions({
+	options,
+	prettyPrinter,
+}: {
+	readonly options: BuilderApplyOptions;
+	readonly prettyPrinter: ReturnType<typeof buildPhpPrettyPrinter>;
+}): Promise<PlanInstruction[]> {
+	const resourceInstructions: PlanInstruction[] = [];
+
+	for (const resource of options.input.ir?.resources ?? []) {
+		const instruction = await emitShim({
+			options,
+			prettyPrinter,
+			resource,
+		});
+		if (instruction) {
+			resourceInstructions.push(instruction);
+		}
+	}
+
+	return resourceInstructions;
+}
+
+function collectDeletionInstructions(
+	diff: GenerationManifestDiff
+): PlanInstruction[] {
+	const instructions: PlanInstruction[] = [];
+
+	for (const removed of diff.removed) {
+		const uniqueShims = new Set(
+			removed.shims.filter((shim): shim is string => Boolean(shim))
+		);
+
+		for (const shim of uniqueShims) {
+			instructions.push({
+				action: 'delete',
+				file: shim,
+				description: `Remove ${removed.resource} controller shim`,
+			});
+		}
+	}
+
+	return instructions;
 }
 
 async function emitPluginLoader({
@@ -183,6 +274,7 @@ async function emitPluginLoader({
 	reporter.debug('createApplyPlanBuilder: queued plugin loader instruction.');
 
 	return {
+		action: 'write',
 		file: 'plugin.php',
 		base: basePath,
 		incoming: incomingPath,
@@ -256,6 +348,7 @@ async function emitShim({
 	});
 
 	return {
+		action: 'write',
 		file: targetFile,
 		base: basePath,
 		incoming: incomingPath,
