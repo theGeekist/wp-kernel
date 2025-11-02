@@ -62,12 +62,18 @@ describe('createApplyPlanBuilder', () => {
 				],
 			});
 
-			const capturedPrograms: PhpProgram[] = [];
+			const capturedPrograms: Array<{
+				program: PhpProgram;
+				filePath: string;
+			}> = [];
 			const prettyPrinterSpy = jest
 				.spyOn(phpDriver, 'buildPhpPrettyPrinter')
 				.mockImplementation(() => ({
 					async prettyPrint(payload) {
-						capturedPrograms.push(payload.program);
+						capturedPrograms.push({
+							program: payload.program,
+							filePath: payload.filePath,
+						});
 						return {
 							code: '<?php // shim\n',
 							ast: payload.program,
@@ -113,11 +119,20 @@ describe('createApplyPlanBuilder', () => {
 				}>;
 			};
 			expect(plan.instructions).toBeDefined();
-			expect(plan.instructions).toHaveLength(1);
+			expect(plan.instructions).toHaveLength(2);
 
-			const [instruction] = plan.instructions ?? [];
-			expect(instruction).toMatchObject({
-				file: 'inc/Rest/JobsController.php',
+			const pluginInstruction = plan.instructions?.find(
+				(entry) => entry.file === 'plugin.php'
+			);
+			expect(pluginInstruction).toMatchObject({
+				base: '.wpk/apply/base/plugin.php',
+				incoming: '.wpk/apply/incoming/plugin.php',
+			});
+
+			const shimInstruction = plan.instructions?.find(
+				(entry) => entry.file === 'inc/Rest/JobsController.php'
+			);
+			expect(shimInstruction).toMatchObject({
 				base: '.wpk/apply/base/inc/Rest/JobsController.php',
 				incoming: '.wpk/apply/incoming/inc/Rest/JobsController.php',
 			});
@@ -143,12 +158,62 @@ describe('createApplyPlanBuilder', () => {
 			const base = await workspace.readText(basePath);
 			expect(base).toBe(incoming);
 
+			const loaderIncomingPath = path.posix.join(
+				'.wpk',
+				'apply',
+				'incoming',
+				'plugin.php'
+			);
+			const loaderIncoming = await workspace.readText(loaderIncomingPath);
+			const loaderBasePath = path.posix.join(
+				'.wpk',
+				'apply',
+				'base',
+				'plugin.php'
+			);
+			const loaderBase = await workspace.readText(loaderBasePath);
+			expect(loaderBase).toBe(loaderIncoming);
+
 			expect(output.actions.map((action) => action.file)).toEqual(
-				expect.arrayContaining([planPath, incomingPath, basePath])
+				expect.arrayContaining([
+					planPath,
+					incomingPath,
+					basePath,
+					loaderIncomingPath,
+					loaderBasePath,
+				])
 			);
 
-			expect(capturedPrograms).toHaveLength(1);
-			const [program] = capturedPrograms;
+			expect(capturedPrograms).toHaveLength(2);
+
+			const toRelative = (absolute: string): string =>
+				path
+					.relative(workspaceRoot, absolute)
+					.split(path.sep)
+					.join('/');
+
+			const loaderProgramEntry = capturedPrograms.find(
+				(entry) =>
+					toRelative(entry.filePath) ===
+					'.wpk/apply/incoming/plugin.php'
+			);
+			expect(loaderProgramEntry).toBeDefined();
+			const loaderProgram = loaderProgramEntry?.program ?? [];
+			const loaderNamespace = expectNodeOfType(
+				loaderProgram.find(
+					(stmt) => stmt.nodeType === 'Stmt_Namespace'
+				),
+				'Stmt_Namespace'
+			);
+			expect(loaderNamespace.name?.parts).toEqual(['Demo', 'Plugin']);
+
+			const programEntry = capturedPrograms.find(
+				(entry) =>
+					toRelative(entry.filePath) ===
+					'.wpk/apply/incoming/inc/Rest/JobsController.php'
+			);
+			expect(programEntry).toBeDefined();
+			const program = programEntry?.program ?? [];
 			const namespaceStmt = expectNodeOfType(
 				program.find((stmt) => stmt.nodeType === 'Stmt_Namespace'),
 				'Stmt_Namespace'
@@ -240,12 +305,18 @@ describe('createApplyPlanBuilder', () => {
 			});
 			ir.php.autoload = '';
 
-			const capturedPrograms: PhpProgram[] = [];
+			const capturedPrograms: Array<{
+				program: PhpProgram;
+				filePath: string;
+			}> = [];
 			const prettyPrinterSpy = jest
 				.spyOn(phpDriver, 'buildPhpPrettyPrinter')
 				.mockImplementation(() => ({
 					async prettyPrint(payload) {
-						capturedPrograms.push(payload.program);
+						capturedPrograms.push({
+							program: payload.program,
+							filePath: payload.filePath,
+						});
 						return {
 							code: '<?php // shim\n',
 							ast: payload.program,
@@ -291,15 +362,55 @@ describe('createApplyPlanBuilder', () => {
 				}>;
 			};
 
-			const [instruction] = plan.instructions ?? [];
-			expect(instruction).toMatchObject({
-				file: 'Rest/JobsController.php',
+			expect(plan.instructions).toBeDefined();
+			expect(plan.instructions).toHaveLength(2);
+
+			const pluginInstruction = plan.instructions?.find(
+				(entry) => entry.file === 'plugin.php'
+			);
+			expect(pluginInstruction).toMatchObject({
+				base: '.wpk/apply/base/plugin.php',
+				incoming: '.wpk/apply/incoming/plugin.php',
+			});
+
+			const shimInstruction = plan.instructions?.find(
+				(entry) => entry.file === 'Rest/JobsController.php'
+			);
+			expect(shimInstruction).toMatchObject({
 				base: '.wpk/apply/base/Rest/JobsController.php',
 				incoming: '.wpk/apply/incoming/Rest/JobsController.php',
 			});
 
-			expect(capturedPrograms).toHaveLength(1);
-			const [program] = capturedPrograms;
+			expect(capturedPrograms).toHaveLength(2);
+
+			const toRelative = (absolute: string): string =>
+				path
+					.relative(workspaceRoot, absolute)
+					.split(path.sep)
+					.join('/');
+
+			const loaderProgramEntry = capturedPrograms.find(
+				(entry) =>
+					toRelative(entry.filePath) ===
+					'.wpk/apply/incoming/plugin.php'
+			);
+			expect(loaderProgramEntry).toBeDefined();
+			const loaderProgram = loaderProgramEntry?.program ?? [];
+			const loaderNamespace = expectNodeOfType(
+				loaderProgram.find(
+					(stmt) => stmt.nodeType === 'Stmt_Namespace'
+				),
+				'Stmt_Namespace'
+			);
+			expect(loaderNamespace.name?.parts).toEqual(['Demo', 'Plugin']);
+
+			const programEntry = capturedPrograms.find(
+				(entry) =>
+					toRelative(entry.filePath) ===
+					'.wpk/apply/incoming/Rest/JobsController.php'
+			);
+			expect(programEntry).toBeDefined();
+			const program = programEntry?.program ?? [];
 			const namespaceStmt = expectNodeOfType(
 				program.find((stmt) => stmt.nodeType === 'Stmt_Namespace'),
 				'Stmt_Namespace'
@@ -327,6 +438,105 @@ describe('createApplyPlanBuilder', () => {
 			expect(requireSuffix.value).toBe(
 				'/../.generated/php/Rest/JobsController.php'
 			);
+
+			prettyPrinterSpy.mockRestore();
+		});
+	});
+
+	it('skips plugin loader instructions when an author-owned loader is detected', async () => {
+		await withWorkspace(async (workspaceRoot) => {
+			const workspace = buildWorkspace(workspaceRoot);
+			const reporter = buildReporter();
+			const output = buildOutput();
+
+			const ir = makePhpIrFixture({
+				resources: [
+					makeWpPostResource({ name: 'jobs', schemaKey: 'job' }),
+				],
+			});
+
+			await workspace.write('plugin.php', '<?php\n// custom loader\n', {
+				ensureDir: true,
+			});
+
+			const capturedPrograms: Array<{
+				program: PhpProgram;
+				filePath: string;
+			}> = [];
+			const prettyPrinterSpy = jest
+				.spyOn(phpDriver, 'buildPhpPrettyPrinter')
+				.mockImplementation(() => ({
+					async prettyPrint(payload) {
+						capturedPrograms.push({
+							program: payload.program,
+							filePath: payload.filePath,
+						});
+						return {
+							code: '<?php // shim\n',
+							ast: payload.program,
+						};
+					},
+				}));
+
+			const helper = createApplyPlanBuilder();
+			await helper.apply(
+				{
+					context: {
+						workspace,
+						reporter,
+						phase: 'generate' as const,
+					},
+					input: {
+						phase: 'generate' as const,
+						options: {
+							config: ir.config,
+							namespace: ir.meta.namespace,
+							origin: ir.meta.origin,
+							sourcePath: path.join(
+								workspaceRoot,
+								'wpk.config.ts'
+							),
+						},
+						ir,
+					},
+					output,
+					reporter,
+				},
+				undefined
+			);
+
+			const planPath = path.posix.join('.wpk', 'apply', 'plan.json');
+			const planRaw = await workspace.readText(planPath);
+			expect(planRaw).toBeTruthy();
+			const plan = JSON.parse(planRaw ?? '{}') as {
+				instructions?: Array<{
+					file: string;
+					base: string;
+					incoming: string;
+				}>;
+			};
+
+			expect(plan.instructions).toBeDefined();
+			expect(plan.instructions).toHaveLength(1);
+			expect(plan.instructions?.[0]).toMatchObject({
+				file: 'inc/Rest/JobsController.php',
+			});
+			expect(
+				plan.instructions?.some(
+					(entry) => entry.file === 'plugin.php'
+				) ?? false
+			).toBe(false);
+
+			const loaderIncomingPath = path.posix.join(
+				'.wpk',
+				'apply',
+				'incoming',
+				'plugin.php'
+			);
+			const loaderIncoming = await workspace.readText(loaderIncomingPath);
+			expect(loaderIncoming).toBeNull();
+
+			expect(capturedPrograms).toHaveLength(1);
 
 			prettyPrinterSpy.mockRestore();
 		});

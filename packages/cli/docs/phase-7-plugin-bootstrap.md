@@ -87,6 +87,10 @@ Wire the helper into the pipeline so `wpk generate` and `wpk apply` manage the l
 3. Updated `.generated/php/index.php` to require the loader so activation works without manual wiring.
 4. Integration coverage proving `generate → apply` produces an activatable plugin in a clean workspace while respecting author overrides.
 
+#### Task 41 delivery summary
+
+Task 41 now wires `createPhpPluginLoaderHelper()` into the PHP builder so `wpk generate` emits `plugin.php` alongside other AST artefacts and `.generated/php/index.php` automatically requires it. The apply planner stages loader updates in `.wpk/apply/plan.json`, cloning existing guard checks so author-owned loaders are skipped, while new patcher tests cover clean merges and conflict preservation. CLI integration coverage exercises a full `generate → apply` run and demonstrates that overriding the loader removes it from the plan without clobbering author edits.
+
 ### Patch 0.10.6 – Task 42: Manifest persistence & deletion tracking
 
 Teach the pipeline to remember previous generations so resource removals clean up after themselves. This patch:
