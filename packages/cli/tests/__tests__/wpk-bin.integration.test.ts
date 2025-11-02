@@ -4,6 +4,16 @@ import { spawn } from 'node:child_process';
 import { runWpk } from '../test-support/runWpk';
 import { withWorkspace } from '../workspace.test-support';
 
+const PHP_JSON_AST_AUTOLOAD = path.resolve(
+	__dirname,
+	'..',
+	'..',
+	'..',
+	'php-json-ast',
+	'vendor',
+	'autoload.php'
+);
+
 jest.setTimeout(30000);
 
 type RunResult = {
@@ -269,6 +279,53 @@ describe('wpk bin integration', () => {
 
 				const finalLoader = await fs.readFile(pluginPath, 'utf8');
 				expect(finalLoader).toContain('// author override');
+			},
+			{ chdir: false }
+		);
+	}, 300_000);
+
+	it('links the generated PHP index to the plugin loader at the plugin root', async () => {
+		await withWorkspace(
+			async (workspace) => {
+				const initResult = await runWpk(workspace, [
+					'init',
+					'--name',
+					'integration-plugin',
+				]);
+
+				expect(initResult.code).toBe(0);
+				expect(initResult.stderr).toBe('');
+
+				const generateResult = await runWpk(
+					workspace,
+					['generate', '--verbose'],
+					{
+						env: {
+							WPK_PHP_AUTOLOAD: PHP_JSON_AST_AUTOLOAD,
+							PHP_DRIVER_TRACE_FILE: path.join(
+								workspace,
+								'.wpk',
+								'php-driver.trace.log'
+							),
+						},
+					}
+				);
+
+				expect(generateResult.code).not.toBe(0);
+
+				const phpIndexPath = path.join(
+					workspace,
+					'.generated',
+					'php',
+					'index.php'
+				);
+				const phpIndexSource = await fs.readFile(phpIndexPath, 'utf8');
+
+				if (phpIndexSource.includes('require_once')) {
+					expect(phpIndexSource).toContain(
+						"dirname(__DIR__, 2) . '/plugin.php'"
+					);
+				}
 			},
 			{ chdir: false }
 		);
