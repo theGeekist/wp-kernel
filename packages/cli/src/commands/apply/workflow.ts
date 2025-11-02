@@ -16,6 +16,7 @@ import type {
 	PreviewResult,
 	PreviewStageOptions,
 } from './types';
+import { readGenerationState } from '../../next/apply/manifest';
 
 export async function previewPatches({
 	dependencies,
@@ -29,6 +30,7 @@ export async function previewPatches({
 	});
 	const previewBuilder = dependencies.createPatcher();
 	const previewOutput = dependencies.buildBuilderOutput();
+	const generationState = await readGenerationState(workspace);
 
 	const { result, manifest } = await workspace.dryRun(async () => {
 		await previewBuilder.apply(
@@ -37,6 +39,7 @@ export async function previewPatches({
 					workspace,
 					reporter: previewReporter,
 					phase: 'apply' as const,
+					generationState,
 				},
 				input: {
 					phase: 'apply' as const,
@@ -71,6 +74,7 @@ export async function executeApply({
 }: ApplyExecutionOptions): Promise<NonNullable<PreviewResult['manifest']>> {
 	const builder = dependencies.createPatcher();
 	const output = dependencies.buildBuilderOutput();
+	const generationState = await readGenerationState(workspace);
 
 	await builder.apply(
 		{
@@ -78,6 +82,7 @@ export async function executeApply({
 				workspace,
 				reporter,
 				phase: 'apply' as const,
+				generationState,
 			},
 			input: {
 				phase: 'apply' as const,

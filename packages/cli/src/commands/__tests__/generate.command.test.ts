@@ -16,6 +16,41 @@ import type {
 	PipelineRunResult,
 } from '../../next/runtime';
 
+function buildIrArtifact(workspaceRoot: string): PipelineRunResult['ir'] {
+	return {
+		meta: {
+			version: 1,
+			namespace: 'Demo',
+			sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
+			origin: 'typescript',
+			sanitizedNamespace: 'Demo',
+		},
+		config: {
+			version: 1,
+			namespace: 'Demo',
+			resources: {},
+			schemas: {},
+		},
+		schemas: [],
+		resources: [],
+		capabilities: [],
+		capabilityMap: {
+			definitions: [],
+			fallback: { capability: 'manage_options', appliesTo: 'resource' },
+			missing: [],
+			unused: [],
+			warnings: [],
+		},
+		blocks: [],
+		php: {
+			namespace: 'Demo',
+			autoload: 'inc',
+			outputDir: '.generated/php',
+		},
+		diagnostics: [],
+	} satisfies PipelineRunResult['ir'];
+}
+
 function createWorkspaceStub() {
 	const root = path.join(process.cwd(), 'workspace');
 	const files = new Map<string, Buffer>();
@@ -84,9 +119,7 @@ function createPipelineStub(
 		await options.workspace.write(PATCH_MANIFEST_PATH, '{}');
 
 		return {
-			ir: {
-				meta: { sanitizedNamespace: 'Demo' },
-			} as PipelineRunResult['ir'],
+			ir: buildIrArtifact(options.workspace.root),
 			diagnostics: [],
 			steps: [],
 		} satisfies PipelineRunResult;
@@ -246,9 +279,7 @@ describe('NextGenerateCommand', () => {
 				'file contents\n'
 			);
 			return {
-				ir: {
-					meta: { sanitizedNamespace: 'Demo' },
-				} as PipelineRunResult['ir'],
+				ir: buildIrArtifact(options.workspace.root),
 				diagnostics: [
 					{
 						type: 'conflict',
