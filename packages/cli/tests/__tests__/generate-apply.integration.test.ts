@@ -57,6 +57,9 @@ describe('generate + apply integration', () => {
 				expect(generateResult.stderr).toContain(
 					'Fatal error: Uncaught Error: Typed property PhpParser'
 				);
+				expect(generateResult.stderr).toContain(
+					'[wpk.cli][fatal] Failed to pretty print PHP artifacts.'
+				);
 
 				const traceContents = await fs.readFile(traceFile, 'utf8');
 				const traceEvents = traceContents
@@ -92,10 +95,13 @@ describe('generate + apply integration', () => {
 				);
 
 				expect(applyResult.code).toBe(1);
-				// Known bug: the reporter never surfaces apply failures when
-				// the manifest is missing, so both streams remain empty.
 				expect(applyResult.stdout).toBe('');
-				expect(applyResult.stderr).toBe('');
+				expect(applyResult.stderr).toContain(
+					'[wpk.cli][fatal] Failed to apply workspace patches.'
+				);
+				expect(applyResult.stderr).toContain(
+					'Apply requires a git repository.'
+				);
 			},
 			{ chdir: false }
 		);
