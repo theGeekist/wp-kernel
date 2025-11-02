@@ -21,6 +21,10 @@ import {
 	type PhpStmt,
 } from '@wpkernel/php-json-ast';
 import { buildNode } from '@wpkernel/php-json-ast/nodes/base';
+import {
+	AUTO_GUARD_BEGIN,
+	buildPluginLoaderProgram,
+} from '@wpkernel/wp-json-ast';
 import { createHelper } from '../runtime';
 import type {
 	BuilderApplyOptions,
@@ -60,20 +64,24 @@ export function createApplyPlanBuilder(): BuilderHelper {
 				return;
 			}
 
-			if (input.ir.resources.length === 0) {
-				reporter.debug(
-					'createApplyPlanBuilder: no resources to generate shims for.'
-				);
-				await writePlan(options, []);
-				await next?.();
-				return;
-			}
-
 			const prettyPrinter = buildPhpPrettyPrinter({
 				workspace: options.context.workspace,
 			});
 
 			const instructions: PlanInstruction[] = [];
+			const loaderInstruction = await emitPluginLoader({
+				options,
+				prettyPrinter,
+			});
+			if (loaderInstruction) {
+				instructions.push(loaderInstruction);
+			}
+
+			if (input.ir.resources.length === 0) {
+				reporter.debug(
+					'createApplyPlanBuilder: no resources to generate shims for.'
+				);
+			}
 			for (const resource of input.ir.resources) {
 				const instruction = await emitShim({
 					options,
@@ -86,16 +94,100 @@ export function createApplyPlanBuilder(): BuilderHelper {
 			}
 
 			await writePlan(options, instructions);
-			reporter.info(
-				'createApplyPlanBuilder: emitted apply plan instructions.',
-				{
-					files: instructions.map((instruction) => instruction.file),
-				}
-			);
+			if (instructions.length === 0) {
+				reporter.info(
+					'createApplyPlanBuilder: no apply plan instructions emitted.'
+				);
+			} else {
+				reporter.info(
+					'createApplyPlanBuilder: emitted apply plan instructions.',
+					{
+						files: instructions.map(
+							(instruction) => instruction.file
+						),
+					}
+				);
+			}
 
 			await next?.();
 		},
 	});
+}
+
+async function emitPluginLoader({
+	options,
+	prettyPrinter,
+}: {
+	readonly options: BuilderApplyOptions;
+	readonly prettyPrinter: ReturnType<typeof buildPhpPrettyPrinter>;
+}): Promise<PlanInstruction | null> {
+	const { input, context, output, reporter } = options;
+	const { ir } = input;
+
+	if (!ir) {
+		reporter.warn(
+			'createApplyPlanBuilder: IR artifact missing, skipping plugin loader emission.'
+		);
+		return null;
+	}
+
+	let existingPlugin: string | null = null;
+	try {
+		existingPlugin = await context.workspace.readText('plugin.php');
+	} catch {
+		existingPlugin = null;
+	}
+
+	if (
+		existingPlugin &&
+		!new RegExp(AUTO_GUARD_BEGIN, 'u').test(existingPlugin)
+	) {
+		reporter.info(
+			'createApplyPlanBuilder: skipping plugin loader instruction because plugin.php appears user-owned.'
+		);
+		return null;
+	}
+
+	const resourceClassNames = ir.resources.map((resource) => {
+		const pascal = toPascalCase(resource.name);
+		return `${ir.php.namespace}\\Generated\\Rest\\${pascal}Controller`;
+	});
+
+	const program = buildPluginLoaderProgram({
+		origin: ir.meta.origin,
+		namespace: ir.php.namespace,
+		sanitizedNamespace: ir.meta.sanitizedNamespace,
+		resourceClassNames,
+	});
+
+	const incomingPath = path.posix.join(PLAN_INCOMING_ROOT, 'plugin.php');
+	const basePath = path.posix.join(PLAN_BASE_ROOT, 'plugin.php');
+
+	const { code } = await prettyPrinter.prettyPrint({
+		filePath: context.workspace.resolve(incomingPath),
+		program,
+	});
+
+	await context.workspace.write(incomingPath, code, { ensureDir: true });
+	output.queueWrite({ file: incomingPath, contents: code });
+
+	const existingBase = await context.workspace.readText(basePath);
+	if (existingBase === null) {
+		const baseSnapshot = existingPlugin ?? code;
+		await context.workspace.write(basePath, baseSnapshot, {
+			ensureDir: true,
+		});
+		output.queueWrite({ file: basePath, contents: baseSnapshot });
+	}
+
+	reporter.debug('createApplyPlanBuilder: queued plugin loader instruction.');
+
+	return {
+		file: 'plugin.php',
+		base: basePath,
+		incoming: incomingPath,
+		description: 'Update plugin loader',
+	} satisfies PlanInstruction;
 }
 
 async function emitShim({

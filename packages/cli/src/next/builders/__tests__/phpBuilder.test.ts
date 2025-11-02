@@ -379,7 +379,7 @@ describe('createPhpBuilder', () => {
 			'BaseController.php'
 		);
 
-		expect(prettyPrint).toHaveBeenCalledTimes(4);
+		expect(prettyPrint).toHaveBeenCalledTimes(5);
 		const baseControllerCall = prettyPrint.mock.calls.find(
 			([payload]) => payload.filePath === baseControllerPath
 		);
@@ -387,6 +387,12 @@ describe('createPhpBuilder', () => {
 		expect(baseControllerCall?.[0].program).toMatchSnapshot(
 			'base-controller-ast'
 		);
+
+		const pluginLoaderPath = workspace.resolve('.', 'plugin.php');
+		const pluginLoaderCall = prettyPrint.mock.calls.find(
+			([payload]) => payload.filePath === pluginLoaderPath
+		);
+		expect(pluginLoaderCall).toBeDefined();
 
 		expect(workspace.write).toHaveBeenCalledWith(
 			baseControllerPath,

@@ -133,6 +133,8 @@ describe('createPhpBuilder integration', () => {
 								[
 									'-d',
 									'memory_limit=1024M',
+									'-d',
+									'error_reporting=E_ALL & ~E_DEPRECATED',
 									scriptPath,
 									options.workspace.root,
 									payload.filePath,
@@ -278,6 +280,7 @@ describe('createPhpBuilder integration', () => {
 						'PersistenceRegistry.php'
 					);
 					await captureArtefact(ir.php.outputDir, 'index.php');
+					await captureArtefact('plugin.php');
 				});
 			} finally {
 				prettyPrinterSpy.mockRestore();
@@ -310,6 +313,8 @@ describe('createPhpBuilder integration', () => {
 				'.generated/php/Rest/DemoOptionController.php.ast.json',
 				'.generated/php/index.php',
 				'.generated/php/index.php.ast.json',
+				'plugin.php',
+				'plugin.php.ast.json',
 			].sort();
 
 			const actualFiles = Array.from(artefacts.keys()).sort();
