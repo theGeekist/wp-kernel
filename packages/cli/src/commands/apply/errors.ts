@@ -6,6 +6,7 @@ import {
 	type SerializedError,
 } from '@wpkernel/core/contracts';
 import type { Reporter } from '@wpkernel/core/reporter';
+import { emitFatalError } from '../fatal';
 
 export function determineExitCode(error: unknown): WPKExitCode {
 	if (WPKernelError.isWPKernelError(error)) {
@@ -25,7 +26,9 @@ export function reportFailure(
 	message: string,
 	error: unknown
 ): void {
-	reporter.error(message, serialiseError(error));
+	const payload = serialiseError(error);
+	emitFatalError(message, payload);
+	reporter.error(message, payload);
 }
 
 export function serialiseError(error: unknown): SerializedError {
