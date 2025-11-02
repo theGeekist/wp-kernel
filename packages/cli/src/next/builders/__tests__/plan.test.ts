@@ -611,6 +611,79 @@ describe('createApplyPlanBuilder', () => {
 		});
 	});
 
+	it('emits deletion instructions when shim paths change between runs', async () => {
+		await withWorkspace(async (workspaceRoot) => {
+			const workspace = buildWorkspace(workspaceRoot);
+			const reporter = buildReporter();
+			const output = buildOutput();
+
+			const baseIr = makePhpIrFixture({
+				resources: [
+					makeWpPostResource({ name: 'jobs', schemaKey: 'job' }),
+				],
+			});
+			const ir = {
+				...baseIr,
+				php: {
+					...baseIr.php,
+					autoload: 'includes/',
+				},
+			};
+
+			const helper = createApplyPlanBuilder();
+			const previous: GenerationManifest = {
+				version: 1,
+				resources: {
+					jobs: {
+						hash: 'legacy',
+						artifacts: {
+							generated: [
+								'.generated/php/Rest/JobsController.php',
+							],
+							shims: ['inc/Rest/JobsController.php'],
+						},
+					},
+				},
+			};
+
+			await helper.apply({
+				context: {
+					workspace,
+					reporter,
+					phase: 'generate',
+					generationState: previous,
+				},
+				input: {
+					phase: 'generate',
+					options: {
+						config: ir.config,
+						namespace: ir.meta.namespace,
+						origin: ir.meta.origin,
+						sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
+					},
+					ir,
+				},
+				output,
+				reporter,
+			});
+
+			const planPath = path.posix.join('.wpk', 'apply', 'plan.json');
+			const planRaw = await workspace.readText(planPath);
+			expect(planRaw).toBeTruthy();
+			const plan = JSON.parse(planRaw ?? '{}') as {
+				instructions?: Array<{ file: string; action?: string }>;
+			};
+
+			const deletion = plan.instructions?.find(
+				(entry) =>
+					entry.file === 'inc/Rest/JobsController.php' &&
+					entry.action === 'delete'
+			);
+
+			expect(deletion).toBeDefined();
+		});
+	});
+
 	it('skips plugin loader emission when the IR artifact is missing', async () => {
 		await withWorkspace(async (workspaceRoot) => {
 			const workspace = buildWorkspace(workspaceRoot);
