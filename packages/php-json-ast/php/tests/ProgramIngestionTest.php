@@ -87,6 +87,7 @@ final class ProgramIngestionTest extends TestCase
         $namespace = $this->findFirstNodeByType($program, 'Stmt_Namespace');
         $this->assertIsArray($namespace, 'Namespace node should exist.');
         $this->assertSame(['Fixtures', 'Codemod'], $namespace['name']['parts'] ?? []);
+        $this->assertArrayNotHasKey('name', $namespace['name']);
 
         $classNode = $this->findClassByName($namespace['stmts'] ?? [], 'CodifiedController');
         $this->assertIsArray($classNode, 'Class node should exist within namespace.');
@@ -95,6 +96,7 @@ final class ProgramIngestionTest extends TestCase
         $attrGroups = $classNode['attrGroups'] ?? [];
         $this->assertNotEmpty($attrGroups, 'Class attribute groups should be preserved.');
         $this->assertSame(['PropertyHook'], $attrGroups[0]['attrs'][0]['name']['parts'] ?? []);
+        $this->assertArrayNotHasKey('name', $attrGroups[0]['attrs'][0]['name']);
         $this->assertSame(
             'controller',
             $attrGroups[0]['attrs'][0]['args'][0]['value']['value'] ?? null,
