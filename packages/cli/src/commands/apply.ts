@@ -422,6 +422,7 @@ async function handleCompletion({
 		reporter.warn('Apply completed with conflicts.', {
 			summary: manifest.summary,
 			flags,
+			records: manifest.records,
 		});
 
 		const exitCode = flags.force
@@ -431,6 +432,7 @@ async function handleCompletion({
 		if (flags.force) {
 			reporter.info('Conflicts detected but continuing due to --force.', {
 				summary: manifest.summary,
+				records: manifest.records,
 			});
 		}
 
@@ -446,6 +448,7 @@ async function handleCompletion({
 	reporter.info('Apply completed.', {
 		summary: manifest.summary,
 		flags,
+		records: manifest.records,
 	});
 
 	await dependencies.appendApplyLog(workspace, {

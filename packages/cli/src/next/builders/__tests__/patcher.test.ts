@@ -5,6 +5,7 @@ import { buildWorkspace } from '../../workspace';
 import { createPatcher } from '../patcher';
 import type { BuilderOutput } from '../../runtime/types';
 import type { IRv1 } from '../../ir/publicTypes';
+import { AUTO_GUARD_BEGIN, AUTO_GUARD_END } from '@wpkernel/wp-json-ast';
 
 async function withWorkspace<T>(run: (root: string) => Promise<T>): Promise<T> {
 	const root = await fs.mkdtemp(path.join(os.tmpdir(), 'patcher-builder-'));
@@ -215,6 +216,237 @@ describe('createPatcher', () => {
 			expect(reporter.info).toHaveBeenCalledWith(
 				'createPatcher: completed patch application.',
 				expect.objectContaining({ summary: expect.any(Object) })
+			);
+		});
+	});
+
+	it('applies plugin loader updates when the guard is intact', async () => {
+		await withWorkspace(async (workspaceRoot) => {
+			const workspace = buildWorkspace(workspaceRoot);
+			const reporter = buildReporter();
+			const output = buildOutput();
+
+			const baseLoader = [
+				'<?php',
+				`// ${AUTO_GUARD_BEGIN}`,
+				"require_once __DIR__ . '/generated.php';",
+				`// ${AUTO_GUARD_END}`,
+				'',
+			].join('\n');
+			const incomingLoader = [
+				'<?php',
+				`// ${AUTO_GUARD_BEGIN}`,
+				"require_once __DIR__ . '/generated.php';",
+				'bootstrap_kernel();',
+				`// ${AUTO_GUARD_END}`,
+				'',
+			].join('\n');
+
+			await workspace.write(
+				path.posix.join('.wpk', 'apply', 'plan.json'),
+				JSON.stringify(
+					{
+						instructions: [
+							{
+								file: 'plugin.php',
+								base: '.wpk/apply/base/plugin.php',
+								incoming: '.wpk/apply/incoming/plugin.php',
+								description: 'Update plugin loader',
+							},
+						],
+					},
+					null,
+					2
+				)
+			);
+
+			await workspace.write(
+				path.posix.join('.wpk', 'apply', 'base', 'plugin.php'),
+				baseLoader,
+				{ ensureDir: true }
+			);
+			await workspace.write(
+				path.posix.join('.wpk', 'apply', 'incoming', 'plugin.php'),
+				incomingLoader,
+				{ ensureDir: true }
+			);
+			await workspace.write('plugin.php', baseLoader, {
+				ensureDir: true,
+			});
+
+			const ir = buildIr('Demo');
+			const input = {
+				phase: 'apply' as const,
+				options: {
+					config: ir.config,
+					namespace: ir.meta.namespace,
+					origin: ir.meta.origin,
+					sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
+				},
+				ir,
+			};
+
+			const builder = createPatcher();
+			await builder.apply(
+				{
+					context: {
+						workspace,
+						reporter,
+						phase: 'apply' as const,
+					},
+					input,
+					output,
+					reporter,
+				},
+				undefined
+			);
+
+			const updated = await workspace.readText('plugin.php');
+			expect(updated).toBe(incomingLoader);
+
+			const baseSnapshot = await workspace.readText(
+				path.posix.join('.wpk', 'apply', 'base', 'plugin.php')
+			);
+			expect(baseSnapshot).toBe(incomingLoader);
+
+			const manifestPath = path.posix.join(
+				'.wpk',
+				'apply',
+				'manifest.json'
+			);
+			const manifestRaw = await workspace.readText(manifestPath);
+			const manifest = JSON.parse(manifestRaw ?? '{}');
+			expect(manifest.summary).toEqual({
+				applied: 1,
+				conflicts: 0,
+				skipped: 0,
+			});
+			expect(manifest.records).toEqual(
+				expect.arrayContaining([
+					expect.objectContaining({
+						file: 'plugin.php',
+						status: 'applied',
+					}),
+				])
+			);
+		});
+	});
+
+	it('preserves custom loaders when the guard is missing', async () => {
+		await withWorkspace(async (workspaceRoot) => {
+			const workspace = buildWorkspace(workspaceRoot);
+			const reporter = buildReporter();
+			const output = buildOutput();
+
+			const baseLoader = [
+				'<?php',
+				`// ${AUTO_GUARD_BEGIN}`,
+				"require_once __DIR__ . '/generated.php';",
+				`// ${AUTO_GUARD_END}`,
+				'',
+			].join('\n');
+			const incomingLoader = [
+				'<?php',
+				`// ${AUTO_GUARD_BEGIN}`,
+				"require_once __DIR__ . '/generated.php';",
+				'bootstrap_kernel();',
+				`// ${AUTO_GUARD_END}`,
+				'',
+			].join('\n');
+			const customLoader = [
+				'<?php',
+				'// custom bootstrap',
+				'do_custom_bootstrap();',
+				'',
+			].join('\n');
+
+			await workspace.write(
+				path.posix.join('.wpk', 'apply', 'plan.json'),
+				JSON.stringify(
+					{
+						instructions: [
+							{
+								file: 'plugin.php',
+								base: '.wpk/apply/base/plugin.php',
+								incoming: '.wpk/apply/incoming/plugin.php',
+								description: 'Update plugin loader',
+							},
+						],
+					},
+					null,
+					2
+				)
+			);
+
+			await workspace.write(
+				path.posix.join('.wpk', 'apply', 'base', 'plugin.php'),
+				baseLoader,
+				{ ensureDir: true }
+			);
+			await workspace.write(
+				path.posix.join('.wpk', 'apply', 'incoming', 'plugin.php'),
+				incomingLoader,
+				{ ensureDir: true }
+			);
+			await workspace.write('plugin.php', customLoader, {
+				ensureDir: true,
+			});
+
+			const ir = buildIr('Demo');
+			const input = {
+				phase: 'apply' as const,
+				options: {
+					config: ir.config,
+					namespace: ir.meta.namespace,
+					origin: ir.meta.origin,
+					sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
+				},
+				ir,
+			};
+
+			const builder = createPatcher();
+			await builder.apply(
+				{
+					context: {
+						workspace,
+						reporter,
+						phase: 'apply' as const,
+					},
+					input,
+					output,
+					reporter,
+				},
+				undefined
+			);
+
+			const merged = await workspace.readText('plugin.php');
+			expect(merged).toContain('custom bootstrap');
+			expect(merged).toContain('<<<<<<<');
+
+			const baseSnapshot = await workspace.readText(
+				path.posix.join('.wpk', 'apply', 'base', 'plugin.php')
+			);
+			expect(baseSnapshot).toBe(baseLoader);
+
+			const manifestPath = path.posix.join(
+				'.wpk',
+				'apply',
+				'manifest.json'
+			);
+			const manifestRaw = await workspace.readText(manifestPath);
+			const manifest = JSON.parse(manifestRaw ?? '{}');
+			expect(manifest.summary).toEqual({
+				applied: 0,
+				conflicts: 1,
+				skipped: 0,
+			});
+			expect(manifest.records).toEqual(
+				expect.arrayContaining([
+					expect.objectContaining({
+						file: 'plugin.php',
+						status: 'conflict',
+					}),
+				])
 			);
 		});
 	});
