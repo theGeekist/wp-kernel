@@ -151,6 +151,12 @@ describe('wpk bin integration', () => {
 				);
 
 				expect(generateResult.code).toBe(1);
+				expect(generateResult.stderr).toContain(
+					'nikic/php-parser not found via autoload'
+				);
+				expect(generateResult.stderr).toContain(
+					'Run `composer install` in your plugin, or set WPK_PHP_AUTOLOAD.'
+				);
 
 				expect(generateResult.stderr).toContain(
 					'Composer autoload not found'
@@ -279,6 +285,53 @@ describe('wpk bin integration', () => {
 
 				const finalLoader = await fs.readFile(pluginPath, 'utf8');
 				expect(finalLoader).toContain('// author override');
+			},
+			{ chdir: false }
+		);
+	}, 300_000);
+
+	it('links the generated PHP index to the plugin loader at the plugin root', async () => {
+		await withWorkspace(
+			async (workspace) => {
+				const initResult = await runWpk(workspace, [
+					'init',
+					'--name',
+					'integration-plugin',
+				]);
+
+				expect(initResult.code).toBe(0);
+				expect(initResult.stderr).toBe('');
+
+				const generateResult = await runWpk(
+					workspace,
+					['generate', '--verbose'],
+					{
+						env: {
+							WPK_PHP_AUTOLOAD: PHP_JSON_AST_AUTOLOAD,
+							PHP_DRIVER_TRACE_FILE: path.join(
+								workspace,
+								'.wpk',
+								'php-driver.trace.log'
+							),
+						},
+					}
+				);
+
+				expect(generateResult.code).not.toBe(0);
+
+				const phpIndexPath = path.join(
+					workspace,
+					'.generated',
+					'php',
+					'index.php'
+				);
+				const phpIndexSource = await fs.readFile(phpIndexPath, 'utf8');
+
+				if (phpIndexSource.includes('require_once')) {
+					expect(phpIndexSource).toContain(
+						"dirname(__DIR__, 2) . '/plugin.php'"
+					);
+				}
 			},
 			{ chdir: false }
 		);
