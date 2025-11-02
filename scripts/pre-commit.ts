@@ -1,6 +1,7 @@
 #!/usr/bin/env tsx
 
 import { spawn } from 'node:child_process';
+import type { ChildProcessWithoutNullStreams } from 'node:child_process';
 import { once } from 'node:events';
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
@@ -211,6 +212,8 @@ interface Spinner {
 	update: (suffix?: string) => void;
 	succeed: (message: string) => void;
 	fail: (message: string) => void;
+	pause: () => void;
+	resume: () => void;
 }
 
 function createSpinner(label: string): Spinner {
@@ -228,21 +231,26 @@ function createSpinner(label: string): Spinner {
 			fail: (message: string) => {
 				console.error(`${colors.red('✖')} ${message}`);
 			},
+			pause: () => {},
+			resume: () => {},
 		};
 	}
 
 	let suffixText = '';
 	let frameIndex = 0;
 	let active = true;
+	let paused = false;
 
 	const tick = () => {
 		if (!active) {
 			return;
 		}
-		const frame = spinnerFrames[frameIndex];
-		frameIndex = (frameIndex + 1) % spinnerFrames.length;
-		const message = `${frame} ${label}${suffixText ? colors.dim(` · ${suffixText}`) : ''}`;
-		process.stdout.write(`\r${message}`);
+		if (!paused) {
+			const frame = spinnerFrames[frameIndex];
+			frameIndex = (frameIndex + 1) % spinnerFrames.length;
+			const message = `${frame} ${label}${suffixText ? colors.dim(` · ${suffixText}`) : ''}`;
+			process.stdout.write(`\r${message}`);
+		}
 	};
 
 	const interval = setInterval(tick, 80);
@@ -268,6 +276,21 @@ function createSpinner(label: string): Spinner {
 			clearInterval(interval);
 			clearLine();
 			console.error(`${colors.red('✖')} ${message}`);
+		},
+		pause: () => {
+			if (!paused) {
+				paused = true;
+				clearLine();
+			}
+		},
+		resume: () => {
+			if (!active) {
+				return;
+			}
+			if (paused) {
+				paused = false;
+				tick();
+			}
 		},
 	};
 }
@@ -313,6 +336,217 @@ async function runCommand(
 	return { stdout, stderr, code, signal, durationMs };
 }
 
+interface ConcurrentCommand {
+	label: string;
+	cmd: string;
+	args: string[];
+}
+
+interface ConcurrentCommandResult {
+	command: ConcurrentCommand;
+	result: CommandResult;
+}
+
+interface ConcurrentProcess {
+	command: ConcurrentCommand;
+	commandString: string;
+	child: ChildProcessWithoutNullStreams;
+	result: Promise<CommandResult>;
+}
+
+function createStreamLogger(label: string, channel: 'stdout' | 'stderr') {
+	let pending = '';
+	const prefix = colors.dim(`[${label}:${channel}]`);
+	const log = channel === 'stderr' ? console.error : console.log;
+
+	return {
+		handle(chunk: string) {
+			pending += chunk;
+
+			while (true) {
+				const newlineIndex = pending.indexOf('\n');
+				if (newlineIndex === -1) {
+					break;
+				}
+
+				const line = pending.slice(0, newlineIndex).replace(/\r$/, '');
+				log(`${prefix} ${line}`);
+				pending = pending.slice(newlineIndex + 1);
+			}
+		},
+		flush() {
+			if (pending.length === 0) {
+				return;
+			}
+
+			const line = pending.replace(/\r$/, '');
+			log(`${prefix} ${line}`);
+			pending = '';
+		},
+	};
+}
+
+function spawnConcurrentProcess(command: ConcurrentCommand): ConcurrentProcess {
+	const child = spawn(command.cmd, command.args, {
+		cwd: process.cwd(),
+		env: process.env,
+		stdio: 'pipe',
+	}) as ChildProcessWithoutNullStreams;
+
+	const startedAt = performance.now();
+	const stdoutChunks: string[] = [];
+	const stderrChunks: string[] = [];
+
+	const stdoutLogger = createStreamLogger(command.label, 'stdout');
+	child.stdout.setEncoding('utf8');
+	child.stdout.on('data', (chunk: string) => {
+		stdoutChunks.push(chunk);
+		stdoutLogger.handle(chunk);
+	});
+	child.stdout.on('end', () => {
+		stdoutLogger.flush();
+	});
+
+	const stderrLogger = createStreamLogger(command.label, 'stderr');
+	child.stderr.setEncoding('utf8');
+	child.stderr.on('data', (chunk: string) => {
+		stderrChunks.push(chunk);
+		stderrLogger.handle(chunk);
+	});
+	child.stderr.on('end', () => {
+		stderrLogger.flush();
+	});
+
+	const commandString = [command.cmd, ...command.args].join(' ').trim();
+
+	const result = new Promise<CommandResult>((resolve) => {
+		let settled = false;
+
+		const finalize = (
+			code: number | null,
+			signal: NodeJS.Signals | null
+		) => {
+			if (settled) {
+				return;
+			}
+
+			settled = true;
+			stdoutLogger.flush();
+			stderrLogger.flush();
+			const durationMs = performance.now() - startedAt;
+			resolve({
+				stdout: stdoutChunks.join(''),
+				stderr: stderrChunks.join(''),
+				code: code ?? 0,
+				signal,
+				durationMs,
+			});
+		};
+
+		child.once('close', (code, signal) => {
+			finalize(code, signal);
+		});
+
+		child.once('error', (error: unknown) => {
+			if (settled) {
+				return;
+			}
+
+			const message =
+				error instanceof Error
+					? (error.stack ?? error.message)
+					: String(error);
+			stderrChunks.push(`${message}\n`);
+			finalize(1, null);
+		});
+	});
+
+	return { command, child, result, commandString };
+}
+
+function terminateProcess(child: ChildProcessWithoutNullStreams): void {
+	if (child.exitCode !== null || child.signalCode !== null) {
+		return;
+	}
+
+	child.kill('SIGINT');
+
+	const forceKillTimer = setTimeout(() => {
+		if (child.exitCode === null && child.signalCode === null) {
+			child.kill('SIGKILL');
+		}
+	}, 5000);
+	forceKillTimer.unref();
+}
+
+async function runConcurrentCommands(
+	commands: ConcurrentCommand[],
+	ctx: TaskContext
+): Promise<ConcurrentCommandResult[]> {
+	ctx.pauseSpinner();
+
+	const processes = commands.map((command) => {
+		console.log(
+			`${colors.cyan('▶')} [${command.label}] ${command.cmd} ${command.args.join(' ')}`
+		);
+		return spawnConcurrentProcess(command);
+	});
+
+	const results: ConcurrentCommandResult[] = new Array(processes.length);
+	let firstFailure: CommandError | null = null;
+
+	try {
+		await Promise.all(
+			processes.map(async (process, index) => {
+				const result = await process.result;
+				results[index] = { command: process.command, result };
+
+				if (!firstFailure && (result.code !== 0 || result.signal)) {
+					firstFailure = new CommandError(
+						process.commandString,
+						result
+					);
+
+					for (const sibling of processes) {
+						if (sibling !== process) {
+							terminateProcess(sibling.child);
+						}
+					}
+				}
+			})
+		);
+	} finally {
+		ctx.resumeSpinner();
+	}
+
+	if (firstFailure) {
+		throw firstFailure;
+	}
+
+	return results;
+}
+
+async function runIntegrationAndCoverageSuites(
+	ctx: TaskContext
+): Promise<TaskResult> {
+	const results = await runConcurrentCommands(
+		[
+			{ label: 'integration', cmd: 'pnpm', args: ['test:integration'] },
+			{ label: 'coverage', cmd: 'pnpm', args: ['test:coverage'] },
+		],
+		ctx
+	);
+
+	const coverageResult = results.find(
+		(item) => item.command.label === 'coverage'
+	);
+	const summaryLines = coverageResult
+		? extractCoverageSummary(coverageResult.result.stdout)
+		: [];
+
+	return { summaryLines } satisfies TaskResult;
+}
+
 function formatDuration(durationMs: number): string {
 	if (durationMs < 1000) {
 		return `${durationMs.toFixed(0)}ms`;
@@ -333,6 +567,8 @@ function formatDuration(durationMs: number): string {
 
 interface TaskContext {
 	update: (suffix?: string) => void;
+	pauseSpinner: () => void;
+	resumeSpinner: () => void;
 }
 
 interface TaskResult {
@@ -744,6 +980,8 @@ async function executeTask(
 	try {
 		result = (await task.run({
 			update: (suffix?: string) => spinner.update(suffix),
+			pauseSpinner: () => spinner.pause(),
+			resumeSpinner: () => spinner.resume(),
 		})) as TaskResult | void;
 	} catch (error) {
 		spinner.fail(`${label} (${formatDuration(performance.now() - start)})`);
@@ -864,28 +1102,10 @@ async function main() {
 		tasks.push(...(await buildTypecheckTasks(nonDocumentationFiles)));
 
 		tasks.push({
-			title: 'Run tests with coverage',
+			title: 'Run integration and coverage test suites',
 			async run(ctx) {
-				ctx.update('jest --coverage');
-				const result = await runCommand('pnpm', ['test:coverage']);
-				if (result.code !== 0) {
-					throw new CommandError('pnpm test:coverage', result);
-				}
-
-				return {
-					summaryLines: extractCoverageSummary(result.stdout),
-				} satisfies TaskResult;
-			},
-		});
-
-		tasks.push({
-			title: 'Run integration test suites',
-			async run(ctx) {
-				ctx.update('jest integration');
-				const result = await runCommand('pnpm', ['test:integration']);
-				if (result.code !== 0) {
-					throw new CommandError('pnpm test:integration', result);
-				}
+				ctx.update('pnpm test:integration & pnpm test:coverage');
+				return runIntegrationAndCoverageSuites(ctx);
 			},
 		});
 	} else {
@@ -898,18 +1118,10 @@ async function main() {
 		});
 
 		tasks.push({
-			title: 'Run tests with coverage',
+			title: 'Run integration and coverage test suites',
 			enabled: false,
 			skipMessage:
-				'Documentation-only changes detected – skipping coverage tests.',
-			async run() {},
-		});
-
-		tasks.push({
-			title: 'Run integration test suites',
-			enabled: false,
-			skipMessage:
-				'Documentation-only changes detected – skipping integration tests.',
+				'Documentation-only changes detected – skipping integration and coverage tests.',
 			async run() {},
 		});
 	}

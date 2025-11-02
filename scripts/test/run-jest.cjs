@@ -99,6 +99,17 @@ jestArgs = normaliseRunTestsByPathArgs(jestArgs);
 
 const env = { ...process.env };
 
+const jestCacheDir = path.join(workspaceRoot, 'node_modules', '.cache', 'jest');
+try {
+        fs.mkdirSync(jestCacheDir, { recursive: true });
+} catch (error) {
+        // best-effort cache directory creation; ignore failures and let Jest decide.
+}
+
+if (!env.JEST_CACHE_DIR) {
+        env.JEST_CACHE_DIR = jestCacheDir;
+}
+
 switch (mode) {
         case 'coverage':
                 env.JEST_SKIP_INTEGRATION = '1';
