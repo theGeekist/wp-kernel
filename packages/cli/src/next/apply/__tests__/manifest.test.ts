@@ -309,4 +309,87 @@ describe('generation manifest helpers', () => {
 		const diff = diffGenerationState(previous, next);
 		expect(diff.removed).toEqual([]);
 	});
+
+	it('diffs manifests when generated artifact paths change', () => {
+		const previous = {
+			version: 1 as const,
+			resources: {
+				books: {
+					hash: 'abc123',
+					artifacts: {
+						generated: [
+							'.generated/php/Rest/BooksController.php',
+							'.generated/php/Rest/BooksController.php.ast.json',
+						],
+						shims: ['inc/Rest/BooksController.php'],
+					},
+				},
+			},
+		} satisfies GenerationManifest;
+
+		const next = {
+			version: 1 as const,
+			resources: {
+				books: {
+					hash: 'def456',
+					artifacts: {
+						generated: [
+							'.generated/server/Rest/BooksController.php',
+							'.generated/server/Rest/BooksController.php.ast.json',
+						],
+						shims: ['inc/Rest/BooksController.php'],
+					},
+				},
+			},
+		} satisfies GenerationManifest;
+
+		const diff = diffGenerationState(previous, next);
+		expect(diff.removed).toEqual([
+			{
+				resource: 'books',
+				generated: [
+					'.generated/php/Rest/BooksController.php',
+					'.generated/php/Rest/BooksController.php.ast.json',
+				],
+				shims: [],
+			},
+		]);
+	});
+
+	it('diffs manifests when shim paths change', () => {
+		const previous = {
+			version: 1 as const,
+			resources: {
+				books: {
+					hash: 'abc123',
+					artifacts: {
+						generated: ['.generated/php/Rest/BooksController.php'],
+						shims: ['inc/Rest/BooksController.php'],
+					},
+				},
+			},
+		} satisfies GenerationManifest;
+
+		const next = {
+			version: 1 as const,
+			resources: {
+				books: {
+					hash: 'def456',
+					artifacts: {
+						generated: ['.generated/php/Rest/BooksController.php'],
+						shims: ['includes/Rest/BooksController.php'],
+					},
+				},
+			},
+		} satisfies GenerationManifest;
+
+		const diff = diffGenerationState(previous, next);
+		expect(diff.removed).toEqual([
+			{
+				resource: 'books',
+				generated: [],
+				shims: ['inc/Rest/BooksController.php'],
+			},
+		]);
+	});
 });

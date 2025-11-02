@@ -109,14 +109,35 @@ export function diffGenerationState(
 	const removed: RemovedResourceEntry[] = [];
 
 	for (const [resource, entry] of Object.entries(previous.resources)) {
-		if (resource in next.resources) {
+		const nextEntry = next.resources[resource];
+
+		if (!nextEntry) {
+			removed.push({
+				resource,
+				generated: [...entry.artifacts.generated],
+				shims: [...entry.artifacts.shims],
+			});
+			continue;
+		}
+
+		const nextGenerated = new Set(nextEntry.artifacts.generated);
+		const nextShims = new Set(nextEntry.artifacts.shims);
+
+		const removedGenerated = entry.artifacts.generated.filter(
+			(file) => !nextGenerated.has(file)
+		);
+		const removedShims = entry.artifacts.shims.filter(
+			(file) => !nextShims.has(file)
+		);
+
+		if (removedGenerated.length === 0 && removedShims.length === 0) {
 			continue;
 		}
 
 		removed.push({
 			resource,
-			generated: entry.artifacts.generated,
-			shims: entry.artifacts.shims,
+			generated: removedGenerated,
+			shims: removedShims,
 		});
 	}
 
