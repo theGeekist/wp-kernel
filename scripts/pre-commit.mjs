@@ -136,7 +136,6 @@ async function main() {
 		/** @type {Array<{cmd: string, args: string[], label?: string, env?: NodeJS.ProcessEnv}>} */
 		const testCommands = [];
 
-		// your last instruction: “it should always just be a concurrent test:coverage and test:integration”
 		if (typeof scripts['test:coverage'] === 'string') {
 			testCommands.push({
 				cmd: 'pnpm',
@@ -153,7 +152,6 @@ async function main() {
 				env: { PRECOMMIT: '1' },
 			});
 		}
-		// fallback to plain test if neither exists
 		if (testCommands.length === 0 && typeof scripts.test === 'string') {
 			testCommands.push({
 				cmd: 'pnpm',
@@ -164,17 +162,25 @@ async function main() {
 		}
 
 		if (testCommands.length > 0) {
-			tasks.push(
-				createConcurrentTask({
-					title: 'Run tests',
-					commands: testCommands,
-					summaryLines: (results) =>
-						results.map((r) => {
-							const secs = Math.round(r.result.durationMs / 1000);
-							return `${r.command.label ?? r.command.cmd} – ${secs}s`;
-						}),
-				}),
-			);
+			// IMPORTANT: sequential, so timings stay close to naked runs
+			tasks.push({
+				title: 'Run tests',
+				async run() {
+					const lines = [];
+					for (const t of testCommands) {
+						const res = await runCommand(t.cmd, t.args, { env: t.env });
+						if (res.code !== 0) {
+							throw new CommandError(
+								`${t.cmd} ${t.args.join(' ')}`,
+								res,
+							);
+						}
+						const secs = Math.round(res.durationMs / 1000);
+						lines.push(`${t.label ?? t.cmd} – ${secs}s`);
+					}
+					return { summaryLines: lines };
+				},
+			});
 		} else {
 			tasks.push({
 				title: 'Run tests',
@@ -187,7 +193,7 @@ async function main() {
 		tasks.push({
 			title: 'Run tests',
 			enabled: false,
-			skipMessage: 'Docs-only changes, skipping tests.',
+			skipMessage: 'Docs-only changes – skipping tests.',
 			async run() { },
 		});
 	}
