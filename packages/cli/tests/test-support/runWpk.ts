@@ -42,6 +42,10 @@ function sanitizePhpAutoloadEnv(
 		}
 	}
 
+	if (!('WPK_CLI_FORCE_SOURCE' in sanitized)) {
+		sanitized.WPK_CLI_FORCE_SOURCE = '1';
+	}
+
 	return sanitized;
 }
 

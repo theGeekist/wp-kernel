@@ -2,6 +2,7 @@ import { Command, Option } from 'clipanion';
 import { WPK_EXIT_CODES, type WPKExitCode } from '@wpkernel/core/contracts';
 import type { GenerationSummary } from './run-generate/types';
 import { handleFailure } from './run-generate/errors';
+import type { Reporter } from '@wpkernel/core/reporter';
 import {
 	buildGenerateDependencies,
 	buildReporterNamespace,
@@ -15,6 +16,9 @@ import type {
 	GenerateResult,
 	GenerateExecutionOptions,
 } from './generate/types';
+import { PATCH_MANIFEST_PATH } from './apply/constants';
+import { emitFatalError } from './fatal';
+import type { Workspace } from '../next/workspace';
 
 type CommandConstructor = new () => Command & {
 	summary: GenerationSummary | null;
@@ -28,6 +32,35 @@ function buildFailure(exitCode: WPKExitCode): GenerateResult {
 		summary: null,
 		output: null,
 	};
+}
+
+async function finalizeWorkspaceTransaction(
+	workspace: Workspace,
+	reporter: Reporter,
+	dryRun: boolean
+): Promise<GenerateResult | null> {
+	if (dryRun) {
+		await workspace.rollback(TRANSACTION_LABEL);
+		return null;
+	}
+
+	await workspace.commit(TRANSACTION_LABEL);
+
+	const manifestExists = await workspace.exists(PATCH_MANIFEST_PATH);
+	if (manifestExists) {
+		return null;
+	}
+
+	const context = {
+		manifestPath: PATCH_MANIFEST_PATH,
+		workspace: workspace.root,
+	} as const;
+	const message = 'Failed to locate apply manifest after generation.';
+
+	emitFatalError(message, context);
+	reporter.error(message, context);
+
+	return buildFailure(WPK_EXIT_CODES.UNEXPECTED_ERROR);
 }
 
 async function runGenerateWorkflow(
@@ -67,10 +100,14 @@ async function runGenerateWorkflow(
 				dryRun,
 			};
 
-			if (dryRun) {
-				await tracked.workspace.rollback(TRANSACTION_LABEL);
-			} else {
-				await tracked.workspace.commit(TRANSACTION_LABEL);
+			const manifestFailure = await finalizeWorkspaceTransaction(
+				tracked.workspace,
+				reporter,
+				dryRun
+			);
+
+			if (manifestFailure) {
+				return manifestFailure;
 			}
 
 			reporter.info('Generation completed.', {
