@@ -34,8 +34,17 @@ function readPackageNameFrom(dir) {
 }
 
 function detectTs6307(output) {
+	// File '...' is not listed within the file list of project '...tsconfig.tests.json'
 	const re =
 		/^.+?:\(\d+,\d+\): error TS6307: File '.+?' is not listed within the file list of project '.+?tsconfig\.tests\.json'./;
+	return output.split(/\r?\n/).some((line) => re.test(line));
+}
+
+function detectTs6305(output) {
+	// error TS6305: Output file '...d.ts' has not been built from source file '...ts'
+	// wording is fairly stable, match on "Output file" + "has not been built from source file"
+	const re =
+		/^.+?:\(\d+,\d+\): error TS6305: Output file '.+?' has not been built from source file '.+?'./;
 	return output.split(/\r?\n/).some((line) => re.test(line));
 }
 
@@ -120,10 +129,11 @@ function resolveReferencePath(baseDir, referencePath) {
 }
 
 /* -------------------------------------------------------------------------- */
-/* build-if-needed                                                             */
+/* build-if-needed                                                            */
 /* -------------------------------------------------------------------------- */
 
 function ensurePackageBuiltForConfig(configPath) {
+	// only for actual package configs
 	if (path.basename(configPath) !== 'tsconfig.json') {
 		return;
 	}
@@ -145,9 +155,14 @@ function ensurePackageBuiltForConfig(configPath) {
 
 	const packageName =
 		typeof packageJson.name === 'string' ? packageJson.name : null;
-	const buildScript =
+	const hasBuildScript =
 		packageJson.scripts && typeof packageJson.scripts.build === 'string';
-	if (!packageName || !buildScript) {
+	if (!packageName || !hasBuildScript) {
+		return;
+	}
+
+	// don’t build root
+	if (path.relative(repoRoot, configDir) === '') {
 		return;
 	}
 
@@ -155,11 +170,8 @@ function ensurePackageBuiltForConfig(configPath) {
 		return;
 	}
 
-	if (path.relative(repoRoot, configDir) === '') {
-		return;
-	}
-
 	let needsBuild = true;
+
 	if (typeof packageJson.types === 'string') {
 		const typesPath = path.resolve(configDir, packageJson.types);
 		if (fs.existsSync(typesPath)) {
@@ -191,7 +203,7 @@ function ensurePackageBuiltForConfig(configPath) {
 }
 
 /* -------------------------------------------------------------------------- */
-/* prepare                                                                     */
+/* prepare                                                                    */
 /* -------------------------------------------------------------------------- */
 
 function prepareProject(configPath) {
@@ -222,7 +234,7 @@ function prepareProject(configPath) {
 }
 
 /* -------------------------------------------------------------------------- */
-/* run tsc                                                                     */
+/* run tsc                                                                    */
 /* -------------------------------------------------------------------------- */
 
 function runTypecheck(configPath) {
@@ -254,29 +266,43 @@ function runTypecheck(configPath) {
 
 	if (result.status !== 0) {
 		const is6307 = detectTs6307(output);
+		const is6305 = detectTs6305(output);
 
-		if (IS_PRECOMMIT && is6307) {
-			console.error(
-				'\n✖ TypeScript reported TS6307 (file not in tsconfig.tests.json).',
-			);
-			if (pkgName) {
+		if (IS_PRECOMMIT && (is6307 || is6305)) {
+			if (is6307) {
 				console.error(
-					`→ This is a config/surface issue, not a build issue. Update tsconfig.tests.json or widen "include" for ${pkgName}.`,
+					'\n✖ TypeScript reported TS6307 (file not in tsconfig.tests.json).',
 				);
-			} else {
+				if (pkgName) {
+					console.error(
+						`→ Update ${pkgName}/tsconfig.tests.json or widen "include" so the generated/test file is listed.`,
+					);
+				} else {
+					console.error(
+						'→ Update tsconfig.tests.json or widen "include" so the generated/test file is listed.',
+					);
+				}
 				console.error(
-					'→ This is a config/surface issue, not a build issue. Update tsconfig.tests.json or widen "include".',
+					'→ If this was generator output, make sure the generator also updates the tests tsconfig.',
 				);
 			}
-			console.error(
-				'→ If this was generated code, make sure the generator also updates the tests tsconfig.',
-			);
-			// show only a bit of the TS output
+
+			if (is6305) {
+				console.error(
+					'\n✖ TypeScript reported TS6305 (d.ts was expected but the package was not built).',
+				);
+				const name = pkgName || '<this-package>';
+				console.error(`→ Run: pnpm --filter ${name} build`);
+				console.error(
+					'→ This happens when tests import from dist/ (or emitted .d.ts) that does not exist yet.',
+				);
+			}
+
 			printTruncated(output, MAX_LINES_PRECOMMIT);
 			process.exit(1);
 		}
 
-		// normal, non-precommit path → show everything
+		// non-precommit or other TS errors → show full
 		printTruncated(output, 0);
 		process.exit(result.status ?? 1);
 	}
@@ -285,7 +311,7 @@ function runTypecheck(configPath) {
 }
 
 /* -------------------------------------------------------------------------- */
-/* main                                                                        */
+/* main                                                                       */
 /* -------------------------------------------------------------------------- */
 
 function main() {

@@ -1,204 +1,201 @@
 #!/usr/bin/env node
+import fs from 'node:fs/promises';
 import path from 'node:path';
 import {
 	getStagedFiles,
 	isDocumentationFile,
-	runTasks,
-	createCommandTask,
-	runCommand,
-	CommandError,
-	colors,
+	isRepoWideChange,
 	loadWorkspaceGraph,
 	resolveAffectedFromFiles,
+	buildFilterArgs,
+	runTasks,
+	runCommand,
 	createConcurrentTask,
+	CommandError,
+	colors,
 } from './precommit-utils.mjs';
 
-const CLI_PKG = '@wpkernel/cli';
-
-const REPO_WIDE_PATTERNS = [
-	/^pnpm-workspace\.yaml$/,
-	/^package\.json$/,
-	/^tsconfig\./,
-	/^scripts\/workspace-graph\.json$/,
-	/^scripts\/.*\.m?js$/,
-	/^\.github\//,
-];
-
-const TS_TEST_DENY = new Set([
-	'@wpkernel/test-utils',
-	'@wpkernel/e2e-utils',
-]);
-
-function isRepoWide(files) {
-	return files.some((f) => REPO_WIDE_PATTERNS.some((re) => re.test(f)));
-}
-
-function filterOutDenied(workspaces) {
-	return workspaces.filter((ws) => !TS_TEST_DENY.has(ws.name));
+async function readRootPackageJson() {
+	const abs = path.resolve(process.cwd(), 'package.json');
+	const raw = await fs.readFile(abs, 'utf8');
+	return JSON.parse(raw);
 }
 
 async function main() {
 	const stagedFiles = await getStagedFiles();
-	const hasStagedFiles = stagedFiles.length > 0;
+	const hasStaged = stagedFiles.length > 0;
 
-	const nonDocs = stagedFiles.filter((file) => !isDocumentationFile(file));
+	// 1) doc vs non-doc
+	const nonDocs = stagedFiles.filter((f) => !isDocumentationFile(f));
 	const hasNonDocChanges = nonDocs.length > 0;
-	const docsOnly = hasStagedFiles && !hasNonDocChanges;
-	const repoWide = hasNonDocChanges && isRepoWide(nonDocs);
+
+	// 2) repo-wide (tsconfig.*, root package.json, scripts/, etc.)
+	const repoWide = stagedFiles.some((f) => isRepoWideChange(f));
 
 	/** @type {import('./precommit-utils.mjs').Task[]} */
 	const tasks = [];
 
-	// 1. lint-staged
+	/* ---------------------------------------------------------------------- */
+	/* 1) lint-staged                                                          */
+	/* ---------------------------------------------------------------------- */
 	tasks.push({
 		title: 'Lint staged files',
-		enabled: hasStagedFiles && !docsOnly,
-		skipMessage: hasStagedFiles
-			? 'Documentation-only changes detected – skipping lint-staged.'
-			: 'No staged files detected – skipping lint-staged.',
+		enabled: hasStaged && hasNonDocChanges,
+		skipMessage: hasStaged
+			? 'Docs-only changes – skipping lint-staged.'
+			: 'No staged files – skipping lint-staged.',
 		async run(ctx) {
 			ctx.update('pnpm lint-staged');
-			const result = await runCommand('pnpm', ['lint-staged']);
-			if (result.code !== 0) {
-				throw new CommandError('pnpm lint-staged', result);
+			const res = await runCommand('pnpm', ['lint-staged']);
+			if (res.code !== 0) {
+				throw new CommandError('pnpm lint-staged', res);
 			}
-			const lines = [];
-			const trimmed = result.stdout.trim();
-			if (trimmed) {
-				lines.push(...trimmed.split('\n').slice(-5));
-			}
-			return { summaryLines: lines };
+			// drop the useless “could not find...” line
+			const cleaned = res.stdout
+				.split('\n')
+				.filter(
+					(line) =>
+						!line.includes(
+							'lint-staged could not find any staged files matching configured tasks.',
+						),
+				)
+				.map((line) => line.trim())
+				.filter(Boolean);
+			return { summaryLines: cleaned.slice(-5) };
 		},
 	});
 
+	/* ---------------------------------------------------------------------- */
+	/* 2) figure out affected workspaces (for TYPECHECK ONLY)                  */
+	/* ---------------------------------------------------------------------- */
+	let filters = [];
 	if (hasNonDocChanges) {
+		const graph = await loadWorkspaceGraph();
+
 		if (repoWide) {
-			// 🔴 THIS is the change: run BOTH in parallel so we fail fast
-			tasks.push(
-				createConcurrentTask({
-					title: 'Typechecks (repo-wide)',
-					commands: [
-						{ cmd: 'pnpm', args: ['typecheck'], label: 'pnpm typecheck' },
-						{ cmd: 'pnpm', args: ['typecheck:tests'], label: 'pnpm typecheck:tests' },
-					],
-					summaryLines: [
-						'• repo-wide change detected → running pnpm typecheck + pnpm typecheck:tests together',
-					],
-				}),
-			);
+			// rule 3: repo-wide → everybody
+			filters = graph.workspaces.map((ws) => ws.name);
 		} else {
-			// smart/affected path
-			const graph = await loadWorkspaceGraph();
-			const { affected } = resolveAffectedFromFiles(nonDocs, graph);
-			const targets = filterOutDenied(affected.length > 0 ? affected : []);
-
-			if (targets.length > 0) {
-				// run BOTH per-target in one concurrent task – still fail fast
-				tasks.push(
-					createConcurrentTask({
-						title: 'Typechecks (affected)',
-						commands: targets.flatMap((ws) => [
-							{
-								cmd: 'pnpm',
-								args: ['--filter', ws.name, 'run', 'typecheck'],
-								label: `${ws.name}`,
-								cwd: process.cwd(),
-							},
-							{
-								cmd: 'pnpm',
-								args: ['--filter', ws.name, 'run', 'typecheck:tests'],
-								label: `${ws.name} (tests)`,
-								cwd: process.cwd(),
-							},
-						]),
-						summaryLines: targets.flatMap((ws) =>
-							ws.reasons.map((r) => `• ${ws.name}: ${r}`),
-						),
-					}),
-				);
-			} else {
-				// nothing matched → root fallback, also parallel
-				tasks.push(
-					createConcurrentTask({
-						title: 'Typechecks (fallback)',
-						commands: [
-							{ cmd: 'pnpm', args: ['typecheck'], label: 'pnpm typecheck' },
-							{ cmd: 'pnpm', args: ['typecheck:tests'], label: 'pnpm typecheck:tests' },
-						],
-						summaryLines: ['• No affected packages detected – ran root typechecks'],
-					}),
-				);
-			}
+			// rule 1: use the graph to know what to typecheck
+			const { filters: f } = resolveAffectedFromFiles(nonDocs, graph);
+			filters = f;
 		}
+	}
 
-		// CLI runtime tests stay as-is
+	/* ---------------------------------------------------------------------- */
+	/* 3) typechecks (src + tests) together, fail fast                         */
+	/* ---------------------------------------------------------------------- */
+	if (hasNonDocChanges) {
+		const srcArgs = repoWide
+			? ['typecheck']
+			: buildFilterArgs(filters, 'typecheck');
+		const testsArgs = repoWide
+			? ['typecheck:tests']
+			: buildFilterArgs(filters, 'typecheck:tests');
+
 		tasks.push(
 			createConcurrentTask({
-				title: 'Run CLI tests (coverage + integration)',
+				title: repoWide ? 'Typecheck (repo-wide)' : 'Typecheck (affected)',
 				commands: [
 					{
 						cmd: 'pnpm',
-						args: ['--filter', CLI_PKG, 'test:coverage'],
-						label: 'cli: coverage',
-						cwd: process.cwd(),
+						args: srcArgs,
+						label: 'ts',
+						env: { PRECOMMIT: '1' },
 					},
 					{
 						cmd: 'pnpm',
-						args: ['--filter', CLI_PKG, 'test:integration'],
-						label: 'cli: integration',
-						cwd: process.cwd(),
+						args: testsArgs,
+						label: 'ts:tests',
+						env: { PRECOMMIT: '1' },
 					},
 				],
-				summaryLines: [
-					`• runtime tests restricted to ${CLI_PKG}`,
-				],
+				summaryLines: (results) =>
+					results.map((r) => {
+						const secs = Math.round(r.result.durationMs / 1000);
+						return `${r.command.label ?? r.command.cmd} – ${secs}s`;
+					}),
 			}),
 		);
 	} else {
-		// docs-only
 		tasks.push({
 			title: 'Typecheck',
 			enabled: false,
-			skipMessage:
-				'Documentation-only changes detected – skipping typechecks.',
-			async run() { },
-		});
-		tasks.push({
-			title: 'Run tests',
-			enabled: false,
-			skipMessage:
-				'Documentation-only changes detected – skipping tests.',
+			skipMessage: 'Docs-only changes – skipping typechecks.',
 			async run() { },
 		});
 	}
 
-	// format
-	tasks.push(
-		createCommandTask({
-			title: 'Format workspace',
-			commands: [{ cmd: 'pnpm', args: ['format'], label: 'pnpm format' }],
-		}),
-	);
+	/* ---------------------------------------------------------------------- */
+	/* 4) tests – ALWAYS root-level, no graph, no 18 jobs                      */
+	/* ---------------------------------------------------------------------- */
+	if (hasNonDocChanges) {
+		const rootPkg = await readRootPackageJson();
+		const scripts = rootPkg.scripts ?? {};
 
-	// restage
-	tasks.push({
-		title: 'Finalize staged changes',
-		async run(ctx) {
-			ctx.update('git add --update');
-			const result = await runCommand('git', ['add', '--update']);
-			if (result.code !== 0) {
-				throw new CommandError('git add --update', result);
-			}
-		},
-	});
+		/** @type {Array<{cmd: string, args: string[], label?: string, env?: NodeJS.ProcessEnv}>} */
+		const testCommands = [];
+
+		// your last instruction: “it should always just be a concurrent test:coverage and test:integration”
+		if (typeof scripts['test:coverage'] === 'string') {
+			testCommands.push({
+				cmd: 'pnpm',
+				args: ['test:coverage'],
+				label: 'cov',
+				env: { PRECOMMIT: '1' },
+			});
+		}
+		if (typeof scripts['test:integration'] === 'string') {
+			testCommands.push({
+				cmd: 'pnpm',
+				args: ['test:integration'],
+				label: 'int',
+				env: { PRECOMMIT: '1' },
+			});
+		}
+		// fallback to plain test if neither exists
+		if (testCommands.length === 0 && typeof scripts.test === 'string') {
+			testCommands.push({
+				cmd: 'pnpm',
+				args: ['test'],
+				label: 'test',
+				env: { PRECOMMIT: '1' },
+			});
+		}
+
+		if (testCommands.length > 0) {
+			tasks.push(
+				createConcurrentTask({
+					title: 'Run tests',
+					commands: testCommands,
+					summaryLines: (results) =>
+						results.map((r) => {
+							const secs = Math.round(r.result.durationMs / 1000);
+							return `${r.command.label ?? r.command.cmd} – ${secs}s`;
+						}),
+				}),
+			);
+		} else {
+			tasks.push({
+				title: 'Run tests',
+				enabled: false,
+				skipMessage: 'Root package.json has no test scripts.',
+				async run() { },
+			});
+		}
+	} else {
+		tasks.push({
+			title: 'Run tests',
+			enabled: false,
+			skipMessage: 'Docs-only changes – skipping tests.',
+			async run() { },
+		});
+	}
 
 	await runTasks(tasks);
 }
 
 main().catch((err) => {
-	console.error(colors.red('pre-commit failed'));
-	if (err && err.stack) {
-		console.error(err.stack);
-	}
-	process.exitCode = 1;
+	console.error(colors.red(err?.message ?? String(err)));
+	process.exit(1);
 });
