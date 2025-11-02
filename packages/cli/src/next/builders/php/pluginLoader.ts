@@ -27,7 +27,7 @@ export function createPhpPluginLoaderHelper(): BuilderHelper {
 
 			const resourceClassNames = ir.resources.map((resource) => {
 				const pascal = toPascalCase(resource.name);
-				return `${ir.php.namespace}\\Generated\\Rest\\${pascal}Controller`;
+				return `${ir.php.namespace}\\Rest\\${pascal}Controller`;
 			});
 
 			// If a plugin.php exists and lacks the WPK guard, assume user-owned and skip generation.
