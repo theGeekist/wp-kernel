@@ -70,7 +70,7 @@ describe('buildIndexProgram', () => {
 			requireArgExpr.nodeType !== 'Expr_BinaryOp_Concat'
 		) {
 			throw new Error(
-				'Expected require_once argument to concatenate dirname(__DIR__) with /plugin.php.'
+				'Expected require_once argument to concatenate dirname(__DIR__, 2) with /plugin.php.'
 			);
 		}
 		const concatExpr = requireArgExpr;
@@ -82,7 +82,9 @@ describe('buildIndexProgram', () => {
 			  }
 			| undefined;
 		if (!requireLeft || requireLeft.nodeType !== 'Expr_FuncCall') {
-			throw new Error('Expected dirname(__DIR__) in require_once call.');
+			throw new Error(
+				'Expected dirname(__DIR__, 2) in require_once call.'
+			);
 		}
 		const dirnameCall = requireLeft;
 		if (dirnameCall.name.nodeType !== 'Name' || !dirnameCall.name.parts) {
@@ -100,6 +102,17 @@ describe('buildIndexProgram', () => {
 			throw new Error('Expected __DIR__ passed to dirname().');
 		}
 		expect(dirnameArg.name.parts).toEqual(['__DIR__']);
+		const dirnameDepthArg = dirnameCall.args[1]?.value as
+			| { nodeType: 'Scalar_Int'; value: number }
+			| undefined;
+		if (
+			!dirnameDepthArg ||
+			dirnameDepthArg.nodeType !== 'Scalar_Int' ||
+			typeof dirnameDepthArg.value !== 'number'
+		) {
+			throw new Error('Expected dirname() to receive depth argument.');
+		}
+		expect(dirnameDepthArg.value).toBe(2);
 		const requireRight = concatExpr.right as
 			| { nodeType?: string; value?: string }
 			| undefined;
