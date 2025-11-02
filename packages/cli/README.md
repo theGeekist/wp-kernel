@@ -38,13 +38,16 @@ This scaffolds a Vite-ready plugin with kernel config, TypeScript/ESLint setup, 
 
     The pipeline executes in this order:
     1. Type definitions (`.generated/types/**`)
-    2. PHP controllers and registries (`.generated/php/**`)
-    3. UI bootstrap files (`.generated/ui/**`)
-    4. Block artefacts (`.generated/blocks/**`, `.generated/build/**`)
+
+3. PHP controllers and registries (`.generated/php/**`)
+4. UI bootstrap files (`.generated/ui/**`)
+5. Block artefacts (`.generated/blocks/**`, `.generated/build/**`)
 
     Block printers derive manifests for SSR blocks, generate auto-registration stubs for JS-only blocks, and emit PSR-4 block registrars alongside resource controllers.
 
-3. **Apply** once the `.generated/` snapshot looks correct:
+    Successive runs persist a generation manifest at `.wpk/apply/state.json`, so `wpk generate` prunes stale `.generated/**` files when resources are removed or PHP output/autoload paths change and stages `{ action: 'delete' }` shim entries in `.wpk/apply/plan.json` for `wpk apply` to process.
+
+6. **Apply** once the `.generated/` snapshot looks correct:
     ```bash
     wpk apply --yes              # skip clean checks
     wpk apply --backup           # keep .bak copies of overwritten files

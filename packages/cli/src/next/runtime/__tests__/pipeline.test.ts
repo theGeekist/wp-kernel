@@ -7,6 +7,7 @@ import type { WPKernelConfigV1 } from '../../../config/types';
 import { FIXTURE_CONFIG_PATH } from '../../ir/shared/test-helpers';
 import { buildWorkspace } from '../../workspace';
 import { withWorkspace } from '../../../../tests/workspace.test-support';
+import { buildEmptyGenerationState } from '../../apply/manifest';
 import type {
 	BuilderApplyOptions,
 	BuilderHelper,
@@ -131,6 +132,7 @@ describe('createPipeline', () => {
 				sourcePath: FIXTURE_CONFIG_PATH,
 				workspace,
 				reporter,
+				generationState: buildEmptyGenerationState(),
 			});
 
 			expect(ir.meta.namespace).toBe('test-namespace');
@@ -239,6 +241,7 @@ describe('createPipeline', () => {
 					sourcePath: FIXTURE_CONFIG_PATH,
 					workspace,
 					reporter,
+					generationState: buildEmptyGenerationState(),
 				});
 
 				if (
@@ -329,6 +332,7 @@ describe('createPipeline', () => {
 				sourcePath: FIXTURE_CONFIG_PATH,
 				workspace,
 				reporter,
+				generationState: buildEmptyGenerationState(),
 			});
 
 			expect(executionOrder.slice(0, 2)).toEqual(['meta', 'capability']);
@@ -435,6 +439,7 @@ describe('createPipeline', () => {
 				sourcePath: FIXTURE_CONFIG_PATH,
 				workspace,
 				reporter,
+				generationState: buildEmptyGenerationState(),
 			});
 
 			expect(hookSpy).toHaveBeenCalledWith('async');
@@ -543,6 +548,7 @@ describe('createPipeline', () => {
 				sourcePath: FIXTURE_CONFIG_PATH,
 				workspace,
 				reporter,
+				generationState: buildEmptyGenerationState(),
 			});
 
 			expect(result.ir.meta.namespace).toBe('updated');
@@ -700,6 +706,7 @@ describe('createPipeline', () => {
 				sourcePath: FIXTURE_CONFIG_PATH,
 				workspace,
 				reporter,
+				generationState: buildEmptyGenerationState(),
 			});
 
 			expect(builderOrder).toEqual([
@@ -810,6 +817,7 @@ describe('createPipeline', () => {
 				sourcePath: FIXTURE_CONFIG_PATH,
 				workspace,
 				reporter,
+				generationState: buildEmptyGenerationState(),
 			});
 
 			expect(commit).toHaveBeenCalledTimes(1);
@@ -904,6 +912,7 @@ describe('createPipeline', () => {
 					sourcePath: FIXTURE_CONFIG_PATH,
 					workspace,
 					reporter,
+					generationState: buildEmptyGenerationState(),
 				})
 			).rejects.toThrow('extension failure');
 
@@ -1001,6 +1010,7 @@ describe('createPipeline', () => {
 					sourcePath: FIXTURE_CONFIG_PATH,
 					workspace,
 					reporter,
+					generationState: buildEmptyGenerationState(),
 				})
 			).rejects.toThrow('builder failure');
 
@@ -1096,6 +1106,7 @@ describe('createPipeline', () => {
 					sourcePath: FIXTURE_CONFIG_PATH,
 					workspace,
 					reporter,
+					generationState: buildEmptyGenerationState(),
 				})
 			).rejects.toThrow('builder failure');
 
@@ -1193,6 +1204,7 @@ describe('createPipeline', () => {
 					sourcePath: FIXTURE_CONFIG_PATH,
 					workspace,
 					reporter,
+					generationState: buildEmptyGenerationState(),
 				})
 			).rejects.toThrow('builder failure');
 

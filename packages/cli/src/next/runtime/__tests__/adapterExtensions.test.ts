@@ -13,6 +13,7 @@ import { mkdir } from 'node:fs/promises';
 import { buildTsFormatter } from '../../builders/ts';
 import { makeWorkspaceMock } from '../../../../tests/workspace.test-support';
 import type { Workspace } from '../../workspace';
+import { buildEmptyGenerationState } from '../../apply/manifest';
 
 jest.mock('../../../adapters', () => ({
 	runAdapterExtensions: jest.fn(),
@@ -84,6 +85,7 @@ function buildOptions(
 			phase: 'generate',
 			workspace,
 			reporter,
+			generationState: buildEmptyGenerationState(),
 		},
 		options: {
 			config,

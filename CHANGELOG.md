@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Phase 7 – Plugin bootstrap flow** – Tasks 37-45 will publish the bootstrap workspace, loader integration, cleanup passes, activation docs, and close with the 0.11.0 release once Phase 6 wraps.
 - **Phase 8 placeholder** – Task 46 will collect incremental diagnostics (starting with the CLI LogLayer reporter) after the plugin bootstrap flow ships.
 
+### Fixed
+
+- **Generation state diffs** – `wpk generate` now persists `.wpk/apply/state.json`, compares per-resource artefact paths between runs, prunes stale `.generated/**` files when PHP output or autoload roots change, and queues shim deletions in the apply plan so `wpk apply` removes obsolete loaders.
+
 ## [0.10.0] - 2025-11-05
 
 ### Added

@@ -5,6 +5,7 @@ import { buildWorkspace } from '../../workspace';
 import { createPatcher } from '../patcher';
 import type { BuilderOutput } from '../../runtime/types';
 import type { IRv1 } from '../../ir/publicTypes';
+import { buildEmptyGenerationState } from '../../apply/manifest';
 import { AUTO_GUARD_BEGIN, AUTO_GUARD_END } from '@wpkernel/wp-json-ast';
 
 async function withWorkspace<T>(run: (root: string) => Promise<T>): Promise<T> {
@@ -102,6 +103,7 @@ describe('createPatcher', () => {
 					{
 						instructions: [
 							{
+								action: 'write',
 								file: 'php/JobController.php',
 								base: '.wpk/apply/base/php/JobController.php',
 								incoming:
@@ -158,6 +160,7 @@ describe('createPatcher', () => {
 						workspace,
 						reporter,
 						phase: 'apply' as const,
+						generationState: buildEmptyGenerationState(),
 					},
 					input,
 					output,
@@ -248,6 +251,7 @@ describe('createPatcher', () => {
 					{
 						instructions: [
 							{
+								action: 'write',
 								file: 'plugin.php',
 								base: '.wpk/apply/base/plugin.php',
 								incoming: '.wpk/apply/incoming/plugin.php',
@@ -293,6 +297,7 @@ describe('createPatcher', () => {
 						workspace,
 						reporter,
 						phase: 'apply' as const,
+						generationState: buildEmptyGenerationState(),
 					},
 					input,
 					output,
@@ -366,6 +371,7 @@ describe('createPatcher', () => {
 					{
 						instructions: [
 							{
+								action: 'write',
 								file: 'plugin.php',
 								base: '.wpk/apply/base/plugin.php',
 								incoming: '.wpk/apply/incoming/plugin.php',
@@ -411,6 +417,7 @@ describe('createPatcher', () => {
 						workspace,
 						reporter,
 						phase: 'apply' as const,
+						generationState: buildEmptyGenerationState(),
 					},
 					input,
 					output,
@@ -492,6 +499,7 @@ describe('createPatcher', () => {
 					{
 						instructions: [
 							{
+								action: 'write',
 								file: 'php/JobController.php',
 								base: '.wpk/apply/base/php/JobController.php',
 								incoming:
@@ -548,6 +556,7 @@ describe('createPatcher', () => {
 						workspace,
 						reporter,
 						phase: 'apply' as const,
+						generationState: buildEmptyGenerationState(),
 					},
 					input,
 					output,
@@ -590,6 +599,7 @@ describe('createPatcher', () => {
 					{
 						instructions: [
 							{
+								action: 'write',
 								file: 'php/Conflict.php',
 								base: '.wpk/apply/base/php/Conflict.php',
 								incoming:
@@ -639,6 +649,7 @@ describe('createPatcher', () => {
 						workspace,
 						reporter,
 						phase: 'apply' as const,
+						generationState: buildEmptyGenerationState(),
 					},
 					input,
 					output,
@@ -702,6 +713,7 @@ describe('createPatcher', () => {
 						workspace,
 						reporter,
 						phase: 'apply' as const,
+						generationState: buildEmptyGenerationState(),
 					},
 					input,
 					output,
@@ -729,12 +741,14 @@ describe('createPatcher', () => {
 					{
 						instructions: [
 							{
+								action: 'write',
 								file: './',
 								base: '.wpk/apply/base/placeholder.txt',
 								incoming: '.wpk/apply/incoming/missing.txt',
 								description: 'missing incoming',
 							},
 							{
+								action: 'write',
 								file: 'php/Skip.php',
 								base: '.wpk/apply/base/php/Skip.php',
 								incoming: '.wpk/apply/incoming/php/Skip.php',
@@ -771,6 +785,7 @@ describe('createPatcher', () => {
 						workspace,
 						reporter,
 						phase: 'apply' as const,
+						generationState: buildEmptyGenerationState(),
 					},
 					input,
 					output,
@@ -827,6 +842,7 @@ describe('createPatcher', () => {
 					{
 						instructions: [
 							{
+								action: 'write',
 								file: 'php/Noop.php',
 								base: '.wpk/apply/base/php/Noop.php',
 								incoming: '.wpk/apply/incoming/php/Noop.php',
@@ -870,6 +886,7 @@ describe('createPatcher', () => {
 						workspace,
 						reporter,
 						phase: 'apply' as const,
+						generationState: buildEmptyGenerationState(),
 					},
 					input,
 					output,
@@ -896,6 +913,94 @@ describe('createPatcher', () => {
 				details: { reason: 'no-op' },
 			});
 			expect(manifest.actions).toEqual([manifestPath]);
+			expect(output.actions.map((action) => action.file)).toEqual([
+				manifestPath,
+			]);
+		});
+	});
+
+	it('applies deletion instructions for stale shims', async () => {
+		await withWorkspace(async (workspaceRoot) => {
+			const workspace = buildWorkspace(workspaceRoot);
+			const reporter = buildReporter();
+			const output = buildOutput();
+
+			await workspace.write(
+				path.posix.join('.wpk', 'apply', 'plan.json'),
+				JSON.stringify(
+					{
+						instructions: [
+							{
+								action: 'delete',
+								file: 'php/Stale.php',
+								description: 'Remove stale shim',
+							},
+						],
+					},
+					null,
+					2
+				)
+			);
+
+			await workspace.write('php/Stale.php', '<?php', {
+				ensureDir: true,
+			});
+
+			const ir = buildIr('Demo');
+			const input = {
+				phase: 'apply' as const,
+				options: {
+					config: ir.config,
+					namespace: ir.meta.namespace,
+					origin: ir.meta.origin,
+					sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
+				},
+				ir,
+			};
+
+			const builder = createPatcher();
+			await builder.apply(
+				{
+					context: {
+						workspace,
+						reporter,
+						phase: 'apply' as const,
+						generationState: buildEmptyGenerationState(),
+					},
+					input,
+					output,
+					reporter,
+				},
+				undefined
+			);
+
+			const exists = await workspace.exists('php/Stale.php');
+			expect(exists).toBe(false);
+
+			const manifestPath = path.posix.join(
+				'.wpk',
+				'apply',
+				'manifest.json'
+			);
+			const manifestRaw = await workspace.readText(manifestPath);
+			const manifest = JSON.parse(manifestRaw ?? '{}');
+			expect(manifest.summary).toEqual({
+				applied: 1,
+				conflicts: 0,
+				skipped: 0,
+			});
+			expect(manifest.records).toEqual(
+				expect.arrayContaining([
+					expect.objectContaining({
+						file: 'php/Stale.php',
+						status: 'applied',
+						details: { action: 'delete' },
+					}),
+				])
+			);
+			expect(manifest.actions).toEqual(
+				expect.arrayContaining([manifestPath, 'php/Stale.php'])
+			);
 			expect(output.actions.map((action) => action.file)).toEqual([
 				manifestPath,
 			]);
@@ -933,6 +1038,7 @@ describe('createPatcher', () => {
 							workspace,
 							reporter,
 							phase: 'apply' as const,
+							generationState: buildEmptyGenerationState(),
 						},
 						input,
 						output,
