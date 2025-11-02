@@ -1,22 +1,10 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { spawn } from 'node:child_process';
-import {
-	buildPhpIntegrationEnv,
-	withWorkspace,
-} from '../workspace.test-support';
+import { runWpk } from '../test-support/runWpk';
+import { withWorkspace } from '../workspace.test-support';
 
 jest.setTimeout(30000);
-
-const CLI_BIN = path.resolve(__dirname, '../../bin/wpk.js');
-const CLI_VENDOR_AUTOLOAD = path.resolve(
-	__dirname,
-	'../../vendor/autoload.php'
-);
-const CLI_LOADER = path.resolve(
-	__dirname,
-	'../test-support/wpk-cli-loader.mjs'
-);
 
 type RunResult = {
 	code: number;
@@ -60,44 +48,6 @@ function runProcess(
 				stderr,
 			});
 		});
-	});
-}
-
-type RunWpkOptions = {
-	env?: NodeJS.ProcessEnv;
-};
-
-function runWpk(
-	workspace: string,
-	args: string[],
-	options: RunWpkOptions = {}
-): Promise<RunResult> {
-	const envOverrides: NodeJS.ProcessEnv = {
-		...options.env,
-	};
-	if (!envOverrides.WPK_PHP_AUTOLOAD) {
-		envOverrides.WPK_PHP_AUTOLOAD = CLI_VENDOR_AUTOLOAD;
-	}
-
-	const env = buildPhpIntegrationEnv({
-		...process.env,
-		...envOverrides,
-		NODE_ENV: 'test',
-		FORCE_COLOR: '0',
-	});
-
-	const existingNodeOptions = env.NODE_OPTIONS ?? '';
-	const segments = [];
-	if (existingNodeOptions.length > 0) {
-		segments.push(existingNodeOptions);
-	}
-	segments.push('--no-warnings');
-	segments.push(`--loader ${CLI_LOADER}`);
-	env.NODE_OPTIONS = segments.join(' ');
-
-	return runProcess(process.execPath, [CLI_BIN, ...args], {
-		cwd: workspace,
-		env,
 	});
 }
 

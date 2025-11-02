@@ -9,6 +9,7 @@ import {
 	buildGenerateCommand,
 	type BuildGenerateCommandOptions,
 } from '../generate';
+import { PATCH_MANIFEST_PATH } from '../apply/constants';
 import type {
 	Pipeline,
 	PipelineRunOptions,
@@ -80,6 +81,7 @@ function createPipelineStub(
 			path.join('.generated', 'index.ts'),
 			"console.log('hello world');\n"
 		);
+		await options.workspace.write(PATCH_MANIFEST_PATH, '{}');
 
 		return {
 			ir: {
@@ -338,5 +340,64 @@ describe('NextGenerateCommand', () => {
 		expect(workspace.rollback).toHaveBeenCalledWith('generate');
 		expect(reporter.error).toHaveBeenCalled();
 		expect(command.summary).toBeNull();
+	});
+
+	it('fails when the apply manifest is missing after generation', async () => {
+		const workspace = createWorkspaceStub();
+		workspace.exists = jest.fn(async () => false);
+
+		const { pipeline } = createPipelineStub(workspace);
+		const reporter = createReporterMock();
+
+		const loadWPKernelConfig = jest.fn().mockResolvedValue({
+			config: { version: 1 },
+			sourcePath: path.join(workspace.root, 'wpk.config.ts'),
+			configOrigin: 'wpk.config.ts',
+			namespace: 'Demo',
+		});
+
+		const renderSummary = jest.fn().mockReturnValue('summary output\n');
+		const validateGeneratedImports = jest.fn().mockResolvedValue(undefined);
+
+		const GenerateCommand = buildGenerateCommand({
+			loadWPKernelConfig,
+			buildWorkspace: jest.fn().mockReturnValue(workspace),
+			createPipeline: jest.fn().mockReturnValue(pipeline),
+			registerFragments: jest.fn(),
+			registerBuilders: jest.fn(),
+			buildAdapterExtensionsExtension: jest
+				.fn()
+				.mockReturnValue({ key: 'adapter', register: jest.fn() }),
+			buildReporter: jest.fn().mockReturnValue(reporter),
+			renderSummary,
+			validateGeneratedImports,
+		} as BuildGenerateCommandOptions);
+
+		const command = new GenerateCommand();
+		const { stdout } = assignCommandContext(command, {
+			cwd: workspace.root,
+		});
+
+		command.dryRun = false;
+		command.verbose = false;
+
+		const stderrSpy = jest
+			.spyOn(process.stderr, 'write')
+			.mockImplementation(() => true as unknown as number);
+
+		const exitCode = await command.execute();
+
+		stderrSpy.mockRestore();
+
+		expect(exitCode).toBe(WPK_EXIT_CODES.UNEXPECTED_ERROR);
+		expect(stdout.toString()).toBe('');
+		expect(reporter.error).toHaveBeenCalledWith(
+			'Failed to locate apply manifest after generation.',
+			expect.objectContaining({
+				manifestPath: PATCH_MANIFEST_PATH,
+				workspace: workspace.root,
+			})
+		);
+		expect(validateGeneratedImports).not.toHaveBeenCalled();
 	});
 });

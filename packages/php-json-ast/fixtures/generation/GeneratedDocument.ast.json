@@ -1,19 +1,19 @@
 [
 	{
 		"nodeType": "Stmt_Declare",
-		"attributes": {},
+		"attributes": [],
 		"declares": [
 			{
 				"nodeType": "DeclareItem",
-				"attributes": {},
+				"attributes": [],
 				"key": {
 					"nodeType": "Identifier",
-					"attributes": {},
+					"attributes": [],
 					"name": "strict_types"
 				},
 				"value": {
 					"nodeType": "Scalar_Int",
-					"attributes": {},
+					"attributes": [],
 					"value": 1
 				}
 			}
@@ -26,31 +26,37 @@
 			"comments": [
 				{
 					"nodeType": "Comment_Doc",
-					"text": "/** Prototype generated via BuilderFactory. */"
+					"text": "/** Prototype generated via BuilderFactory. */",
+					"line": -1,
+					"filePos": -1,
+					"tokenPos": -1,
+					"endLine": -1,
+					"endFilePos": -1,
+					"endTokenPos": -1
 				}
 			]
 		},
 		"name": {
 			"nodeType": "Name",
-			"attributes": {},
-			"parts": ["Demo", "Generated"]
+			"attributes": [],
+			"name": "Demo\\Generated"
 		},
 		"stmts": [
 			{
 				"nodeType": "Stmt_Use",
-				"attributes": {},
+				"attributes": [],
 				"type": 1,
 				"uses": [
 					{
 						"nodeType": "UseItem",
-						"attributes": {},
+						"attributes": [],
+						"type": 0,
 						"name": {
 							"nodeType": "Name",
-							"attributes": {},
-							"parts": ["DateTimeImmutable"]
+							"attributes": [],
+							"name": "DateTimeImmutable"
 						},
-						"alias": null,
-						"type": 0
+						"alias": null
 					}
 				]
 			},
@@ -60,18 +66,21 @@
 					"comments": [
 						{
 							"nodeType": "Comment_Doc",
-							"text": "/** Example document DTO. */"
+							"text": "/** Example document DTO. */",
+							"line": -1,
+							"filePos": -1,
+							"tokenPos": -1,
+							"endLine": -1,
+							"endFilePos": -1,
+							"endTokenPos": -1
 						}
 					]
 				},
 				"name": {
 					"nodeType": "Identifier",
-					"attributes": {},
+					"attributes": [],
 					"name": "GeneratedDocument"
 				},
-				"flags": 32,
-				"extends": null,
-				"implements": [],
 				"stmts": [
 					{
 						"nodeType": "Stmt_Property",
@@ -79,32 +88,38 @@
 							"comments": [
 								{
 									"nodeType": "Comment_Doc",
-									"text": "/** @var string */"
+									"text": "/** @var string */",
+									"line": -1,
+									"filePos": -1,
+									"tokenPos": -1,
+									"endLine": -1,
+									"endFilePos": -1,
+									"endTokenPos": -1
 								}
 							]
 						},
 						"flags": 68,
-						"type": {
-							"nodeType": "Identifier",
-							"attributes": {},
-							"name": "string"
-						},
 						"props": [
 							{
 								"nodeType": "PropertyItem",
-								"attributes": {},
+								"attributes": [],
 								"name": {
-									"nodeType": "Identifier",
-									"attributes": {},
+									"nodeType": "VarLikeIdentifier",
+									"attributes": [],
 									"name": "title"
 								},
 								"default": {
 									"nodeType": "Scalar_String",
-									"attributes": {},
+									"attributes": [],
 									"value": "Untitled"
 								}
 							}
 						],
+						"type": {
+							"nodeType": "Identifier",
+							"attributes": [],
+							"name": "string"
+						},
 						"attrGroups": [],
 						"hooks": []
 					},
@@ -114,28 +129,34 @@
 							"comments": [
 								{
 									"nodeType": "Comment_Doc",
-									"text": "/** @var DateTimeImmutable */"
+									"text": "/** @var DateTimeImmutable */",
+									"line": -1,
+									"filePos": -1,
+									"tokenPos": -1,
+									"endLine": -1,
+									"endFilePos": -1,
+									"endTokenPos": -1
 								}
 							]
 						},
 						"flags": 4,
-						"type": {
-							"nodeType": "Name_FullyQualified",
-							"attributes": {},
-							"parts": ["DateTimeImmutable"]
-						},
 						"props": [
 							{
 								"nodeType": "PropertyItem",
-								"attributes": {},
+								"attributes": [],
 								"name": {
-									"nodeType": "Identifier",
-									"attributes": {},
+									"nodeType": "VarLikeIdentifier",
+									"attributes": [],
 									"name": "createdAt"
 								},
 								"default": null
 							}
 						],
+						"type": {
+							"nodeType": "Name_FullyQualified",
+							"attributes": [],
+							"name": "DateTimeImmutable"
+						},
 						"attrGroups": [],
 						"hooks": []
 					},
@@ -145,31 +166,37 @@
 							"comments": [
 								{
 									"nodeType": "Comment_Doc",
-									"text": "/**\n * @param string $title\n * @param DateTimeImmutable $createdAt\n */"
+									"text": "/**\n * @param string $title\n * @param DateTimeImmutable $createdAt\n */",
+									"line": -1,
+									"filePos": -1,
+									"tokenPos": -1,
+									"endLine": -1,
+									"endFilePos": -1,
+									"endTokenPos": -1
 								}
 							]
 						},
+						"flags": 1,
+						"byRef": false,
 						"name": {
 							"nodeType": "Identifier",
-							"attributes": {},
+							"attributes": [],
 							"name": "__construct"
 						},
-						"byRef": false,
-						"flags": 1,
 						"params": [
 							{
 								"nodeType": "Param",
-								"attributes": {},
+								"attributes": [],
 								"type": {
 									"nodeType": "Identifier",
-									"attributes": {},
+									"attributes": [],
 									"name": "string"
 								},
 								"byRef": false,
 								"variadic": false,
 								"var": {
 									"nodeType": "Expr_Variable",
-									"attributes": {},
+									"attributes": [],
 									"name": "title"
 								},
 								"default": null,
@@ -179,17 +206,17 @@
 							},
 							{
 								"nodeType": "Param",
-								"attributes": {},
+								"attributes": [],
 								"type": {
 									"nodeType": "Name_FullyQualified",
-									"attributes": {},
-									"parts": ["DateTimeImmutable"]
+									"attributes": [],
+									"name": "DateTimeImmutable"
 								},
 								"byRef": false,
 								"variadic": false,
 								"var": {
 									"nodeType": "Expr_Variable",
-									"attributes": {},
+									"attributes": [],
 									"name": "createdAt"
 								},
 								"default": null,
@@ -202,54 +229,54 @@
 						"stmts": [
 							{
 								"nodeType": "Stmt_Expression",
-								"attributes": {},
+								"attributes": [],
 								"expr": {
 									"nodeType": "Expr_Assign",
-									"attributes": {},
+									"attributes": [],
 									"var": {
 										"nodeType": "Expr_PropertyFetch",
-										"attributes": {},
+										"attributes": [],
 										"var": {
 											"nodeType": "Expr_Variable",
-											"attributes": {},
+											"attributes": [],
 											"name": "this"
 										},
 										"name": {
 											"nodeType": "Identifier",
-											"attributes": {},
+											"attributes": [],
 											"name": "title"
 										}
 									},
 									"expr": {
 										"nodeType": "Expr_Variable",
-										"attributes": {},
+										"attributes": [],
 										"name": "title"
 									}
 								}
 							},
 							{
 								"nodeType": "Stmt_Expression",
-								"attributes": {},
+								"attributes": [],
 								"expr": {
 									"nodeType": "Expr_Assign",
-									"attributes": {},
+									"attributes": [],
 									"var": {
 										"nodeType": "Expr_PropertyFetch",
-										"attributes": {},
+										"attributes": [],
 										"var": {
 											"nodeType": "Expr_Variable",
-											"attributes": {},
+											"attributes": [],
 											"name": "this"
 										},
 										"name": {
 											"nodeType": "Identifier",
-											"attributes": {},
+											"attributes": [],
 											"name": "createdAt"
 										}
 									},
 									"expr": {
 										"nodeType": "Expr_Variable",
-										"attributes": {},
+										"attributes": [],
 										"name": "createdAt"
 									}
 								}
@@ -263,38 +290,44 @@
 							"comments": [
 								{
 									"nodeType": "Comment_Doc",
-									"text": "/** @return string */"
+									"text": "/** @return string */",
+									"line": -1,
+									"filePos": -1,
+									"tokenPos": -1,
+									"endLine": -1,
+									"endFilePos": -1,
+									"endTokenPos": -1
 								}
 							]
 						},
+						"flags": 1,
+						"byRef": false,
 						"name": {
 							"nodeType": "Identifier",
-							"attributes": {},
+							"attributes": [],
 							"name": "getTitle"
 						},
-						"byRef": false,
-						"flags": 1,
 						"params": [],
 						"returnType": {
 							"nodeType": "Identifier",
-							"attributes": {},
+							"attributes": [],
 							"name": "string"
 						},
 						"stmts": [
 							{
 								"nodeType": "Stmt_Return",
-								"attributes": {},
+								"attributes": [],
 								"expr": {
 									"nodeType": "Expr_PropertyFetch",
-									"attributes": {},
+									"attributes": [],
 									"var": {
 										"nodeType": "Expr_Variable",
-										"attributes": {},
+										"attributes": [],
 										"name": "this"
 									},
 									"name": {
 										"nodeType": "Identifier",
-										"attributes": {},
+										"attributes": [],
 										"name": "title"
 									}
 								}
@@ -308,38 +341,44 @@
 							"comments": [
 								{
 									"nodeType": "Comment_Doc",
-									"text": "/** @return DateTimeImmutable */"
+									"text": "/** @return DateTimeImmutable */",
+									"line": -1,
+									"filePos": -1,
+									"tokenPos": -1,
+									"endLine": -1,
+									"endFilePos": -1,
+									"endTokenPos": -1
 								}
 							]
 						},
+						"flags": 1,
+						"byRef": false,
 						"name": {
 							"nodeType": "Identifier",
-							"attributes": {},
+							"attributes": [],
 							"name": "getCreatedAt"
 						},
-						"byRef": false,
-						"flags": 1,
 						"params": [],
 						"returnType": {
 							"nodeType": "Name_FullyQualified",
-							"attributes": {},
-							"parts": ["DateTimeImmutable"]
+							"attributes": [],
+							"name": "DateTimeImmutable"
 						},
 						"stmts": [
 							{
 								"nodeType": "Stmt_Return",
-								"attributes": {},
+								"attributes": [],
 								"expr": {
 									"nodeType": "Expr_PropertyFetch",
-									"attributes": {},
+									"attributes": [],
 									"var": {
 										"nodeType": "Expr_Variable",
-										"attributes": {},
+										"attributes": [],
 										"name": "this"
 									},
 									"name": {
 										"nodeType": "Identifier",
-										"attributes": {},
+										"attributes": [],
 										"name": "createdAt"
 									}
 								}
@@ -353,31 +392,37 @@
 							"comments": [
 								{
 									"nodeType": "Comment_Doc",
-									"text": "/** @return self */"
+									"text": "/** @return self */",
+									"line": -1,
+									"filePos": -1,
+									"tokenPos": -1,
+									"endLine": -1,
+									"endFilePos": -1,
+									"endTokenPos": -1
 								}
 							]
 						},
+						"flags": 9,
+						"byRef": false,
 						"name": {
 							"nodeType": "Identifier",
-							"attributes": {},
+							"attributes": [],
 							"name": "createDraft"
 						},
-						"byRef": false,
-						"flags": 9,
 						"params": [
 							{
 								"nodeType": "Param",
-								"attributes": {},
+								"attributes": [],
 								"type": {
 									"nodeType": "Name_FullyQualified",
-									"attributes": {},
-									"parts": ["DateTimeImmutable"]
+									"attributes": [],
+									"name": "DateTimeImmutable"
 								},
 								"byRef": false,
 								"variadic": false,
 								"var": {
 									"nodeType": "Expr_Variable",
-									"attributes": {},
+									"attributes": [],
 									"name": "clock"
 								},
 								"default": null,
@@ -388,45 +433,45 @@
 						],
 						"returnType": {
 							"nodeType": "Name",
-							"attributes": {},
-							"parts": ["self"]
+							"attributes": [],
+							"name": "self"
 						},
 						"stmts": [
 							{
 								"nodeType": "Stmt_Return",
-								"attributes": {},
+								"attributes": [],
 								"expr": {
 									"nodeType": "Expr_New",
-									"attributes": {},
+									"attributes": [],
 									"class": {
 										"nodeType": "Name",
-										"attributes": {},
-										"parts": ["self"]
+										"attributes": [],
+										"name": "self"
 									},
 									"args": [
 										{
 											"nodeType": "Arg",
-											"attributes": {},
+											"attributes": [],
+											"name": null,
 											"value": {
 												"nodeType": "Scalar_String",
-												"attributes": {},
+												"attributes": [],
 												"value": "Draft"
 											},
 											"byRef": false,
-											"unpack": false,
-											"name": null
+											"unpack": false
 										},
 										{
 											"nodeType": "Arg",
-											"attributes": {},
+											"attributes": [],
+											"name": null,
 											"value": {
 												"nodeType": "Expr_Variable",
-												"attributes": {},
+												"attributes": [],
 												"name": "clock"
 											},
 											"byRef": false,
-											"unpack": false,
-											"name": null
+											"unpack": false
 										}
 									]
 								}
@@ -435,7 +480,10 @@
 						"attrGroups": []
 					}
 				],
-				"attrGroups": []
+				"attrGroups": [],
+				"flags": 32,
+				"extends": null,
+				"implements": []
 			}
 		]
 	}
