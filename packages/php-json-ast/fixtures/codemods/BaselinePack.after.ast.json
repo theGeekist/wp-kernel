@@ -71,7 +71,6 @@
 				"endTokenPos": 12,
 				"endFilePos": 58
 			},
-			"name": "Fixtures\\Codemod",
 			"parts": ["Fixtures", "Codemod"]
 		},
 		"stmts": [
@@ -108,7 +107,6 @@
 								"endTokenPos": 22,
 								"endFilePos": 128
 							},
-							"name": "Project\\Contracts\\FooInterface",
 							"parts": ["Project", "Contracts", "FooInterface"]
 						},
 						"alias": null
@@ -148,7 +146,6 @@
 								"endTokenPos": 17,
 								"endFilePos": 92
 							},
-							"name": "Project\\Helpers\\ArrayHelper",
 							"parts": ["Project", "Helpers", "ArrayHelper"]
 						},
 						"alias": null
@@ -188,7 +185,6 @@
 								"endTokenPos": 41,
 								"endFilePos": 239
 							},
-							"name": "Project\\Helpers\\bbb",
 							"parts": ["Project", "Helpers", "bbb"]
 						},
 						"alias": null
@@ -216,7 +212,6 @@
 						"endTokenPos": 46,
 						"endFilePos": 266
 					},
-					"name": "Project\\Helpers\\Group",
 					"parts": ["Project", "Helpers", "Group"]
 				},
 				"uses": [
@@ -241,7 +236,6 @@
 								"endTokenPos": 57,
 								"endFilePos": 293
 							},
-							"name": "Alpha",
 							"parts": ["Alpha"]
 						},
 						"alias": null
@@ -267,7 +261,6 @@
 								"endTokenPos": 50,
 								"endFilePos": 273
 							},
-							"name": "Beta",
 							"parts": ["Beta"]
 						},
 						"alias": {
@@ -318,7 +311,6 @@
 								"endTokenPos": 66,
 								"endFilePos": 338
 							},
-							"name": "Project\\Helpers\\build_helper",
 							"parts": ["Project", "Helpers", "build_helper"]
 						},
 						"alias": null
@@ -358,7 +350,6 @@
 								"endTokenPos": 36,
 								"endFilePos": 214
 							},
-							"name": "Project\\Helpers\\render_view",
 							"parts": ["Project", "Helpers", "render_view"]
 						},
 						"alias": null
@@ -398,7 +389,6 @@
 								"endTokenPos": 73,
 								"endFilePos": 383
 							},
-							"name": "Project\\Constants\\AnotherConstant",
 							"parts": ["Project", "Constants", "AnotherConstant"]
 						},
 						"alias": null
@@ -438,7 +428,6 @@
 								"endTokenPos": 29,
 								"endFilePos": 172
 							},
-							"name": "Project\\Constants\\GlobalConstant",
 							"parts": ["Project", "Constants", "GlobalConstant"]
 						},
 						"alias": null
@@ -545,7 +534,6 @@
 													"endTokenPos": 97,
 													"endFilePos": 477
 												},
-												"name": "Project\\Helpers\\render_view",
 												"parts": [
 													"Project",
 													"Helpers",
@@ -553,7 +541,6 @@
 												]
 											}
 										},
-										"name": "render_view",
 										"parts": ["render_view"]
 									},
 									"args": [
@@ -627,7 +614,6 @@
 													"endTokenPos": 103,
 													"endFilePos": 510
 												},
-												"name": "Project\\Helpers\\build_helper",
 												"parts": [
 													"Project",
 													"Helpers",
@@ -635,7 +621,6 @@
 												]
 											}
 										},
-										"name": "build_helper",
 										"parts": ["build_helper"]
 									},
 									"args": []
@@ -702,7 +687,6 @@
 														"endTokenPos": 112,
 														"endFilePos": 546
 													},
-													"name": "Project\\Constants\\GlobalConstant",
 													"parts": [
 														"Project",
 														"Constants",
@@ -710,7 +694,6 @@
 													]
 												}
 											},
-											"name": "GlobalConstant",
 											"parts": ["GlobalConstant"]
 										}
 									}
@@ -777,7 +760,6 @@
 														"endTokenPos": 121,
 														"endFilePos": 581
 													},
-													"name": "Project\\Helpers\\ArrayHelper",
 													"parts": [
 														"Project",
 														"Helpers",
@@ -785,7 +767,6 @@
 													]
 												}
 											},
-											"name": "ArrayHelper",
 											"parts": ["ArrayHelper"]
 										},
 										"args": []
@@ -877,7 +858,6 @@
 																"endTokenPos": 130,
 																"endFilePos": 621
 															},
-															"name": "Project\\Contracts\\FooInterface",
 															"parts": [
 																"Project",
 																"Contracts",
@@ -885,7 +865,6 @@
 															]
 														}
 													},
-													"name": "FooInterface",
 													"parts": ["FooInterface"]
 												},
 												"name": {
@@ -992,7 +971,6 @@
 																"endTokenPos": 142,
 																"endFilePos": 665
 															},
-															"name": "Project\\Helpers\\bbb",
 															"parts": [
 																"Project",
 																"Helpers",
@@ -1000,7 +978,6 @@
 															]
 														}
 													},
-													"name": "bbb",
 													"parts": ["bbb"]
 												},
 												"args": []
@@ -1096,7 +1073,6 @@
 																"endTokenPos": 152,
 																"endFilePos": 702
 															},
-															"name": "Project\\Helpers\\Group\\Beta",
 															"parts": [
 																"Project",
 																"Helpers",
@@ -1105,7 +1081,6 @@
 															]
 														}
 													},
-													"name": "BetaAlias",
 													"parts": ["BetaAlias"]
 												},
 												"name": {
@@ -1164,7 +1139,6 @@
 																"endTokenPos": 157,
 																"endFilePos": 716
 															},
-															"name": "Project\\Helpers\\Group\\Alpha",
 															"parts": [
 																"Project",
 																"Helpers",
@@ -1173,7 +1147,6 @@
 															]
 														}
 													},
-													"name": "Alpha",
 													"parts": ["Alpha"]
 												},
 												"name": {
@@ -1232,7 +1205,6 @@
 																"endTokenPos": 162,
 																"endFilePos": 740
 															},
-															"name": "Project\\Constants\\AnotherConstant",
 															"parts": [
 																"Project",
 																"Constants",
@@ -1240,7 +1212,6 @@
 															]
 														}
 													},
-													"name": "AnotherConstant",
 													"parts": ["AnotherConstant"]
 												}
 											},
@@ -1283,7 +1254,6 @@
 				"namespacedName": {
 					"nodeType": "Name",
 					"attributes": [],
-					"name": "Fixtures\\Codemod\\BaselinePackExample",
 					"parts": ["Fixtures", "Codemod", "BaselinePackExample"]
 				},
 				"flags": 32,
