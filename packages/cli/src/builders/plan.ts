@@ -1,5 +1,8 @@
 import path from 'node:path';
-import { buildPhpPrettyPrinter } from '@wpkernel/php-driver';
+import {
+	buildPhpPrettyPrinter,
+	resolvePrettyPrintScriptPath,
+} from '@wpkernel/php-driver';
 import {
 	buildArg,
 	buildBinaryOperation,
@@ -42,6 +45,8 @@ import {
 const PLAN_PATH = path.posix.join('.wpk', 'apply', 'plan.json');
 const PLAN_BASE_ROOT = path.posix.join('.wpk', 'apply', 'base');
 const PLAN_INCOMING_ROOT = path.posix.join('.wpk', 'apply', 'incoming');
+
+const PLAN_PRETTY_PRINT_SCRIPT_PATH = resolvePrettyPrintScriptPath();
 
 type PlanInstruction =
 	| {
@@ -89,6 +94,7 @@ export function createApplyPlanBuilder(): BuilderHelper {
 
 			const prettyPrinter = buildPhpPrettyPrinter({
 				workspace: options.context.workspace,
+				scriptPath: PLAN_PRETTY_PRINT_SCRIPT_PATH,
 			});
 
 			const plan = await collectPlanInstructions({
