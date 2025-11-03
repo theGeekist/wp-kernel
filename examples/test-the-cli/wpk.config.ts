@@ -42,7 +42,7 @@ const exampleResource: ResourceConfig<ExampleItem, ExampleQuery> = {
 	schema: 'auto',
 };
 
-// For CLI config guidance see https://github.com/theGeekist/wp-kernel/blob/main/packages/cli/docs/cli-migration-phases.md#authoring-safety-lint-rules
+/** @see https://github.com/theGeekist/wp-kernel/blob/main/docs/internal/cli-migration-phases.md#authoring-safety-lint-rules */
 export const wpkConfig = {
 	version: 1,
 	namespace: 'wp-kernel-cli-sample',
