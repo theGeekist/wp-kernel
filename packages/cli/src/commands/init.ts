@@ -7,8 +7,8 @@ import {
 	type WPKExitCode,
 } from '@wpkernel/core/contracts';
 import type { Reporter } from '@wpkernel/core/reporter';
-import type { Workspace, FileManifest } from '../next/workspace';
-import { buildWorkspace } from '../next/workspace';
+import type { Workspace, FileManifest } from '../workspace';
+import { buildWorkspace } from '../workspace';
 import { runInitWorkflow } from './init/workflow';
 import { isGitRepository } from './init/git';
 import {
@@ -64,7 +64,7 @@ export function buildInitCommand(
 ): InitCommandConstructor {
 	const dependencies = mergeDependencies(options);
 
-	class NextInitCommand extends Command {
+	class InitCommand extends Command {
 		static override paths = [['init']];
 
 		static override usage = Command.Usage({
@@ -189,5 +189,5 @@ export function buildInitCommand(
 		}
 	}
 
-	return NextInitCommand as InitCommandConstructor;
+	return InitCommand as InitCommandConstructor;
 }

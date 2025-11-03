@@ -1,4 +1,4 @@
-export { NextApplyCommand, buildApplyCommand } from './apply';
+export { ApplyCommand, buildApplyCommand } from './apply';
 export { buildInitCommand } from './init';
 export { buildCreateCommand } from './create';
 export { buildGenerateCommand } from './generate';

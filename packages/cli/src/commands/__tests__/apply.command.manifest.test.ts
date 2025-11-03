@@ -9,7 +9,7 @@ import {
 
 const withWorkspace = buildWorkspaceRunner({ prefix: TMP_PREFIX });
 
-describe('NextApplyCommand manifest handling', () => {
+describe('ApplyCommand manifest handling', () => {
 	it('reports failure when manifest parsing fails', async () => {
 		await withWorkspace(async (workspace) => {
 			const loadConfig = jest

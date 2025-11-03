@@ -1,0 +1,11 @@
+[**WP Kernel API v0.10.0**](../../../README.md)
+
+---
+
+[WP Kernel API](../../../README.md) / [@wpkernel/cli](../README.md) / IRRouteTransport
+
+# Type Alias: IRRouteTransport
+
+```ts
+type IRRouteTransport = 'local' | 'remote';
+```

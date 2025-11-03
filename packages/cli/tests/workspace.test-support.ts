@@ -4,5 +4,5 @@ export {
 	createWorkspaceRunner,
 	buildPhpIntegrationEnv,
 } from '@wpkernel/test-utils/integration';
-export type { WorkspaceMockOptions } from '@wpkernel/test-utils/next/workspace.test-support';
-export { makeWorkspaceMock } from '@wpkernel/test-utils/next/workspace.test-support';
+export type { WorkspaceMockOptions } from '@wpkernel/test-utils/workspace.test-support';
+export { makeWorkspaceMock } from '@wpkernel/test-utils/workspace.test-support';

@@ -1,6 +1,6 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import type { Workspace } from '../../next/workspace';
+import type { Workspace } from '../../workspace';
 import { getCliPackageRoot } from './module-url';
 
 const INIT_TEMPLATE_ROOT = path.join(getCliPackageRoot(), 'templates', 'init');

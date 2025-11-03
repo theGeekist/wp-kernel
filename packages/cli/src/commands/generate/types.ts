@@ -16,13 +16,13 @@ import type {
 	WriteOptions,
 	WriteJsonOptions,
 	RemoveOptions,
-} from '../../next/workspace';
-import type { createPipeline, PipelineDiagnostic } from '../../next/runtime';
+} from '../../workspace';
+import type { createPipeline, PipelineDiagnostic } from '../../runtime';
 import type {
 	registerCoreBuilders,
 	registerCoreFragments,
-} from '../../next/ir/createIr';
-import type { buildAdapterExtensionsExtension } from '../../next/runtime/adapterExtensions';
+} from '../../ir/createIr';
+import type { buildAdapterExtensionsExtension } from '../../runtime/adapterExtensions';
 
 export interface BuildGenerateCommandOptions {
 	readonly loadWPKernelConfig?: typeof loadWPKernelConfig;

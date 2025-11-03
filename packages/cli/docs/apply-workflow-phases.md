@@ -2,9 +2,9 @@
 
 _See [Docs Index](./index.md) for navigation._
 
-**Audience:** contributors extending or refactoring the next-generation CLI apply flow (`packages/cli/src/next/**`).
+**Audience:** contributors extending or refactoring the CLI apply flow (`packages/cli/src/**`).
 
-**Goal:** keep `apply` deterministic and safe while we transition from in-place controller merges to a model where generated artefacts live in `.generated/**` and user code merely extends or decorates them. The command itself will be produced via a `buildApplyCommand` factory so it can plug into the same dependency-injection seams that other next-gen commands already expose.
+**Goal:** keep `apply` deterministic and safe while we transition from in-place controller merges to a model where generated artefacts live in `.generated/**` and user code merely extends or decorates them. The command itself will be produced via a `buildApplyCommand` factory so it can plug into the same dependency-injection seams that other commands already expose.
 
 > **MVP Plan reference:** Phase 5 - Apply layering & flags (Phase table entry #4)
 
@@ -14,11 +14,11 @@ _See [Docs Index](./index.md) for navigation._
 
 ---
 
-## 1. Current state (next/\*)
+## 1. Current state
 
 ### 1.1 Patch generation
 
-- The next pipeline builds apply plans under `.wpk/apply/plan.json` and manifests under `.wpk/apply/manifest.json` via `createPatcher` (`packages/cli/src/next/builders/patcher.ts:1-210`). Each instruction describes a three-way merge between:
+- The next pipeline builds apply plans under `.wpk/apply/plan.json` and manifests under `.wpk/apply/manifest.json` via `createPatcher` (`packages/cli/src/builders/patcher.ts:1-210`). Each instruction describes a three-way merge between:
     - the _base_ snapshot that shipped with the plan,
     - the _current_ workspace file,
     - the _incoming_ file emitted by the generators.
@@ -26,14 +26,14 @@ _See [Docs Index](./index.md) for navigation._
 
 ### 1.2 CLI surface
 
-- `buildApplyCommand` (`packages/cli/src/commands/apply.ts`) produces the default `NextApplyCommand`, loads the plan, emits shims, writes `.wpk-apply.log`, and exits with `WPK_EXIT_CODES.VALIDATION_ERROR` when conflicts remain.
-- The factory wrapper (`buildApplyCommand`) exposes the dependency-injection seam used by `buildGenerateCommand` and `buildInitCommand`, returning `NextApplyCommand` so tests can inject reporters, manifest readers, or patcher helpers.
+- `buildApplyCommand` (`packages/cli/src/commands/apply.ts`) produces the default `ApplyCommand`, loads the plan, emits shims, writes `.wpk-apply.log`, and exits with `WPK_EXIT_CODES.VALIDATION_ERROR` when conflicts remain.
+- The factory wrapper (`buildApplyCommand`) exposes the dependency-injection seam used by `buildGenerateCommand` and `buildInitCommand`, returning `ApplyCommand` so tests can inject reporters, manifest readers, or patcher helpers.
 - Flags `--yes`, `--backup`, and `--force` now match the legacy behaviour alongside composer fallback detection and git enforcement.
 
 ### 1.3 Legacy reference point
 
 - The pre-0.8.0 command handled every side effect: copying generated PHP into `inc/`, syncing block artefacts, respecting `--yes/--backup/--force`, keeping an append-only `.wpk-apply.log`, and emitting summaries for PHP and blocks. Those responsibilities now migrate onto the next pipeline (`packages/cli/src/commands/apply.ts`).
-- Guard rails rely on git: the new helper shells out to `git status --porcelain -- .generated/php` and warns instead of failing when the directory is not tracked (`packages/cli/src/next/workspace/utilities.ts:60-120`). This behaviour needs to tighten when we require a repository for apply.
+- Guard rails rely on git: the new helper shells out to `git status --porcelain -- .generated/php` and warns instead of failing when the directory is not tracked (`packages/cli/src/workspace/utilities.ts:60-120`). This behaviour needs to tighten when we require a repository for apply.
 
 ### 1.4 Ongoing polish
 
@@ -42,7 +42,7 @@ _See [Docs Index](./index.md) for navigation._
 
 ### 1.5 Safety guarantees
 
-- Merges occur in a sandbox; `queueWrite` only records filesystem actions after the helper commits (`packages/cli/src/next/builders/patcher.ts:226-318`).
+- Merges occur in a sandbox; `queueWrite` only records filesystem actions after the helper commits (`packages/cli/src/builders/patcher.ts:226-318`).
 - Exit codes map to the core contract (`@wpkernel/core/contracts`), so commands remain scriptable (`packages/cli/src/commands/apply.ts:145-212`).
 
 ---
@@ -84,8 +84,8 @@ What changes is _what_ we merge. Instead of large controller bodies, the merge i
     - Keep `buildApplyCommand` in the next command surface so tests and the orchestrator can construct the command with injected reporters, workspace handles, or builders.
     - Mirror the dependency injection options already offered by `buildGenerateCommand` and expose overrides for the patcher helper and manifest reader.
 2. **Ensure generated classes are consumable as bases**
-    - Confirm every generated controller/helper exposes a stable namespace and class name that user code can extend (`packages/cli/src/next/builders/php/resourceController.ts:1-870`, `indexFile.ts:1-74`, `capability.ts:21-110`).
-    - Guarantee `.generated/**` remains the single source of truth (already true for PHP/AST output, see `packages/cli/src/next/builders/php/writer.ts:30-68`).
+    - Confirm every generated controller/helper exposes a stable namespace and class name that user code can extend (`packages/cli/src/builders/php/resourceController.ts:1-870`, `indexFile.ts:1-74`, `capability.ts:21-110`).
+    - Guarantee `.generated/**` remains the single source of truth (already true for PHP/AST output, see `packages/cli/src/builders/php/writer.ts:30-68`).
 3. **Introduce extension shims**
     - ✓ Task 27 updated the apply plan builder to emit require + subclass shims that wrap generated classes.
     - ✓ Task 27 treats those shims as templates we own; users keep overrides inside the class body.
@@ -93,10 +93,10 @@ What changes is _what_ we merge. Instead of large controller bodies, the merge i
     - ✓ Task 27 warns during generation when namespaces cannot be normalised to PSR-1 so projects can adjust `wpk.config.ts`.
 4. **Port safety rails**
     - Carry across flag handling (`--yes`, `--backup`, `--force`) and `.wpk-apply.log` once the new layering is in place. ✓ Task 28 implemented these safety rails in `packages/cli/src/commands/apply.ts`.
-    - Enforce git hygiene: fail early when `.git` is missing or dirty instead of skipping checks (`packages/cli/src/next/workspace/utilities.ts:60-150`).
+    - Enforce git hygiene: fail early when `.git` is missing or dirty instead of skipping checks (`packages/cli/src/workspace/utilities.ts:60-150`).
     - Mirror the prior logging contract by appending structured entries to `.wpk-apply.log` on success and failure (compare v0.7.x history for the original layout).
 5. **Update tests**
-    - Extend `packages/cli/src/next/builders/__tests__/patcher.test.ts` (or add new suites) to assert the shim model.
+    - Extend `packages/cli/src/builders/__tests__/patcher.test.ts` (or add new suites) to assert the shim model.
     - Add integration tests that regenerate `.generated/**`, run `apply`, and confirm user shims update without touching custom overrides.
     - ✓ Task 29 delivered coverage for shim regeneration merges, composer fallback `require_once` guards, and apply log status variants across builder + command suites.
 
@@ -112,10 +112,10 @@ What changes is _what_ we merge. Instead of large controller bodies, the merge i
 
 ## 5. References
 
-- Next patcher helper: `packages/cli/src/next/builders/patcher.ts`
+- Next patcher helper: `packages/cli/src/builders/patcher.ts`
 - Next apply command: `packages/cli/src/commands/apply.ts`
 - Legacy apply command (reference only): see v0.7.x history for `packages/cli/src/commands/apply/command.ts`
-- Next PHP writer (AST + pretty printer): `packages/cli/src/next/builders/php/writer.ts`
-- Generate pipeline entrypoint: `packages/cli/src/next/ir/createIr.ts`
+- Next PHP writer (AST + pretty printer): `packages/cli/src/builders/php/writer.ts`
+- Generate pipeline entrypoint: `packages/cli/src/ir/createIr.ts`
 
 Use this document as the single source of truth for Apply Phase 05 status. Update it whenever new milestones land so contributors work from current guidance only.

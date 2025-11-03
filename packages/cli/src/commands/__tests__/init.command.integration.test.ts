@@ -27,7 +27,7 @@ async function createCommand(workspace: string) {
 	return { command, stdout, stderr, context };
 }
 
-describe('NextInitCommand', () => {
+describe('InitCommand', () => {
 	afterEach(() => {
 		delete (globalThis as { __WPK_CLI_MODULE_URL__?: string })
 			.__WPK_CLI_MODULE_URL__;

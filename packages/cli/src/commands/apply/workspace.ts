@@ -3,7 +3,7 @@ import path from 'node:path';
 import { WPKernelError } from '@wpkernel/core/contracts';
 import { serialiseError } from './errors';
 import type { LoadedWPKernelConfig } from '../../config/types';
-import type { Workspace } from '../../next/workspace';
+import type { Workspace } from '../../workspace';
 import type { WorkspaceSetupOptions, WorkspaceSetupResult } from './types';
 
 export async function ensureGitRepository(workspace: Workspace): Promise<void> {

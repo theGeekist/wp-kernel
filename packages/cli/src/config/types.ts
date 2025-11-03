@@ -1,7 +1,7 @@
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { ResourceConfig } from '@wpkernel/core/resource';
 import type { WPKConfigSource } from '@wpkernel/core/contracts';
-import type { IRv1 } from '../next/ir/publicTypes';
+import type { IRv1 } from '../ir/publicTypes';
 import type { PhpAstBuilder } from '@wpkernel/php-json-ast';
 
 /**
@@ -96,7 +96,7 @@ export interface AdapterExtensionContext extends AdapterContext {
 	configDirectory?: string;
 	tempDir: string;
 	queueFile: (filePath: string, contents: string) => Promise<void>;
-	updateIr: (nextIr: IRv1) => void;
+	updateIr: (ir: IRv1) => void;
 	formatPhp: (filePath: string, contents: string) => Promise<string>;
 	formatTs: (filePath: string, contents: string) => Promise<string>;
 }

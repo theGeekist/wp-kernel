@@ -9,7 +9,7 @@ Phase 7 closes the gaps that keep freshly scaffolded projects from activating im
 - `wpk create` already honours `--name` inside [`packages/cli/src/commands/create.ts`](../src/commands/create.ts), but the monorepo does not publish a bootstrapper. We must ship `@wpkernel/create-wpk` via `pnpm monorepo:create packages/create-wpk` (backed by [`scripts/register-workspace.ts`](../../../scripts/register-workspace.ts)) so `npm|pnpm create @wpkernel/wpk … -- --name` lands in the CLI.
 - `wpk init` currently reuses the scaffold descriptors in [`packages/cli/src/commands/init/scaffold.ts`](../src/commands/init/scaffold.ts); `assertNoCollisions()` fails as soon as an existing plugin provides `composer.json`, `wpk.config.ts`, or other template files. Passing `--force` overwrites those author-owned assets with [`packages/cli/templates/init`](../templates/init) defaults, so Phase 7 must add a detection path that seeds only the missing WPK-managed files when running inside an established plugin.
 - The init template stops at an empty `inc/.gitkeep` in [`packages/cli/templates/init/inc`](../templates/init/inc/.gitkeep); the generator never writes a plugin header or loader. Phase 7 introduces an AST helper that emits the bootstrap file when missing and detects user-supplied loaders to avoid clobbering them.
-- Resource removals currently leave stale files because `wpk generate` only writes additions in [`packages/cli/src/commands/generate.ts`](../src/commands/generate.ts); the workspace removal helpers in [`packages/cli/src/next/workspace/filesystem.ts`](../src/next/workspace/filesystem.ts) are unused. We will surface deletions in the plan so `wpk apply` cleans them up.
+- Resource removals currently leave stale files because `wpk generate` only writes additions in [`packages/cli/src/commands/generate.ts`](../src/commands/generate.ts); the workspace removal helpers in [`packages/cli/src/workspace/filesystem.ts`](../src/workspace/filesystem.ts) are unused. We will surface deletions in the plan so `wpk apply` cleans them up.
 - Templates and docs must explain the activation workflow so plugin authors understand where to add routes, UI, and WordPress-specific glue once the bootstrap lands.
 
 ## Patch breakdown
@@ -64,7 +64,7 @@ Task 39 tags each init template as WPK-managed or author-owned inside the scaffo
 
 Introduce the AST helper that creates the plugin loader without wiring it into generation yet. This work:
 
-1. Adds a builder under `packages/cli/src/next/php` (or a dedicated helper module) that emits the plugin header, namespace, and WPK bootstrap call when no loader exists.
+1. Adds a builder under `packages/cli/src/php` (or a dedicated helper module) that emits the plugin header, namespace, and WPK bootstrap call when no loader exists.
 2. Seeds a template in `packages/cli/templates/init/inc` that mirrors the helper output for `wpk init`.
 3. Documents the loader contract (expected filename, namespace, exported hooks) so future patches know when it is safe to skip regeneration.
 4. Provides unit tests that snapshot the generated AST and confirm the helper respects custom namespace inputs.
@@ -96,8 +96,8 @@ Task 41 now wires `createPhpPluginLoaderHelper()` into the PHP builder so `wpk g
 Teach the pipeline to remember previous generations so resource removals clean up after themselves. This patch:
 
 1. Persists the prior manifest (likely under `.wpk/apply/manifest.json` or a new cache) and compares it to the new plan to detect removed resources.
-2. Uses `workspace.rm` from [`packages/cli/src/next/workspace/filesystem.ts`](../src/next/workspace/filesystem.ts) to delete stale `.generated` artefacts and stage shim removals for `apply`.
-3. Extends the manifest writer in [`packages/cli/src/next/apply/manifest.ts`](../src/next/apply/manifest.ts) to emit deletion actions alongside additions.
+2. Uses `workspace.rm` from [`packages/cli/src/workspace/filesystem.ts`](../src/workspace/filesystem.ts) to delete stale `.generated` artefacts and stage shim removals for `apply`.
+3. Extends the manifest writer in [`packages/cli/src/apply/manifest.ts`](../src/apply/manifest.ts) to emit deletion actions alongside additions.
 4. Covers the behaviour with integration tests that drop a resource from `wpk.config.ts` and assert the old files disappear while untouched author code remains.
 
 #### Task 42 delivery summary

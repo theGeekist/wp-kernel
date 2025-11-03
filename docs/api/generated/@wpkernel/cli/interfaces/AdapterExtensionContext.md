@@ -155,12 +155,12 @@ tempDir: string;
 ### updateIr()
 
 ```ts
-updateIr: (nextIr) => void;
+updateIr: (ir) => void;
 ```
 
 #### Parameters
 
-##### nextIr
+##### ir
 
 [`IRv1`](IRv1.md)
 

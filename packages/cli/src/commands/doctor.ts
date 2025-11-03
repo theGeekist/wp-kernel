@@ -8,8 +8,8 @@ import { WPK_NAMESPACE, WPK_EXIT_CODES } from '@wpkernel/core/contracts';
 import { serialiseError } from './internal/serialiseError';
 import { loadWPKernelConfig } from '../config';
 import type { LoadedWPKernelConfig } from '../config/types';
-import { buildWorkspace, ensureGeneratedPhpClean } from '../next/workspace';
-import type { Workspace } from '../next/workspace';
+import { buildWorkspace, ensureGeneratedPhpClean } from '../workspace';
+import type { Workspace } from '../workspace';
 
 const execFile = promisify(execFileCallback);
 

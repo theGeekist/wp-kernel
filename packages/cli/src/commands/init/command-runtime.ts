@@ -5,7 +5,7 @@ import type {
 } from '@wpkernel/core/reporter';
 import { type WPKernelError } from '@wpkernel/core/error';
 import type { Command } from 'clipanion';
-import type { Workspace } from '../../next/workspace';
+import type { Workspace } from '../../workspace';
 import type { InitWorkflowOptions, InitWorkflowResult } from './workflow';
 import { parseStringOption } from './utils';
 

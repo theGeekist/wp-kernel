@@ -8,13 +8,13 @@
 
 ## Extends
 
-- [`HelperDescriptor`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md)\&lt;`TKind`\&gt;
+- [`HelperDescriptor`](../../../../../@wpkernel/cli/interfaces/HelperDescriptor.md)\&lt;`TKind`\&gt;
 
 ## Type Parameters
 
 ### TKind
 
-`TKind` _extends_ [`HelperKind`](../../../../../php-json-ast/src/type-aliases/HelperKind.md) = [`HelperKind`](../../../../../php-json-ast/src/type-aliases/HelperKind.md)
+`TKind` _extends_ [`HelperKind`](../../../../../@wpkernel/cli/type-aliases/HelperKind.md) = [`HelperKind`](../../../../../@wpkernel/cli/type-aliases/HelperKind.md)
 
 ## Properties
 
@@ -26,7 +26,7 @@ readonly dependsOn: readonly string[];
 
 #### Inherited from
 
-[`HelperDescriptor`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md).[`dependsOn`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md#dependson)
+[`HelperDescriptor`](../../../../../@wpkernel/cli/interfaces/HelperDescriptor.md).[`dependsOn`](../../../../../@wpkernel/cli/interfaces/HelperDescriptor.md#dependson)
 
 ---
 
@@ -54,7 +54,7 @@ readonly key: string;
 
 #### Inherited from
 
-[`HelperDescriptor`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md).[`key`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md#key)
+[`HelperDescriptor`](../../../../../@wpkernel/cli/interfaces/HelperDescriptor.md).[`key`](../../../../../@wpkernel/cli/interfaces/HelperDescriptor.md#key)
 
 ---
 
@@ -66,7 +66,7 @@ readonly kind: TKind;
 
 #### Inherited from
 
-[`HelperDescriptor`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md).[`kind`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md#kind)
+[`HelperDescriptor`](../../../../../@wpkernel/cli/interfaces/HelperDescriptor.md).[`kind`](../../../../../@wpkernel/cli/interfaces/HelperDescriptor.md#kind)
 
 ---
 
@@ -78,7 +78,7 @@ readonly mode: HelperMode;
 
 #### Inherited from
 
-[`HelperDescriptor`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md).[`mode`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md#mode)
+[`HelperDescriptor`](../../../../../@wpkernel/cli/interfaces/HelperDescriptor.md).[`mode`](../../../../../@wpkernel/cli/interfaces/HelperDescriptor.md#mode)
 
 ---
 
@@ -90,7 +90,7 @@ readonly optional origin: string;
 
 #### Inherited from
 
-[`HelperDescriptor`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md).[`origin`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md#origin)
+[`HelperDescriptor`](../../../../../@wpkernel/cli/interfaces/HelperDescriptor.md).[`origin`](../../../../../@wpkernel/cli/interfaces/HelperDescriptor.md#origin)
 
 ---
 
@@ -102,4 +102,4 @@ readonly priority: number;
 
 #### Inherited from
 
-[`HelperDescriptor`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md).[`priority`](../../../../../php-json-ast/src/interfaces/HelperDescriptor.md#priority)
+[`HelperDescriptor`](../../../../../@wpkernel/cli/interfaces/HelperDescriptor.md).[`priority`](../../../../../@wpkernel/cli/interfaces/HelperDescriptor.md#priority)

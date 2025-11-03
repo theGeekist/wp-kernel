@@ -157,7 +157,7 @@ This roadmap captures how `@wpkernel/php-json-ast` can evolve now that `nikic/ph
 
 > **Task status:** Pending – Capture CLI integration notes and regression coverage when this work is complete.
 
-- Teach the next-generation CLI builders to invoke the codemod driver when feature flags or project config requests it.
+- Teach the CLI builders to invoke the codemod driver when feature flags or project config requests it.
 - Ensure pipeline options (PHP binary overrides, diagnostics toggles) thread cleanly from CLI configuration to the driver.
 - Guard the new path with integration tests that verify non-codemod builds remain unchanged.
   _Expectation: CLI builds can opt into codemods without regressing existing projects._

@@ -1,7 +1,7 @@
 I'm checking for docs in packages/cli/ to find AGENTS or related instructions.
 
 ````shell
-root@9d20af90c396:/workspace/wp-kernel# sed -n '1,160p' packages/cli/docs/next-cli.v2.md
+root@9d20af90c396:/workspace/wp-kernel# sed -n '1,160p' packages/cli/docs-cli.v2.md
 # Next CLI - SPRINT NEXT-CORRECT
 
 ## Executive Intent
@@ -16,35 +16,35 @@ ilder`) and the pipeline exposes the same public ergonomics with dramatically si
 
 ### PHP builder surface
 
-- `packages/cli/src/next/builders/php/builder.ts` wraps the entire legacy flow inside a single helper. It still hydrates a `Prin
+- `packages/cli/src/builders/php/builder.ts` wraps the entire legacy flow inside a single helper. It still hydrates a `Prin
 terContext`, recreates the adapter bridge via `ensureAdapterContext`, and never calls `next`, so downstream helpers cannot obser
 ve or enrich the generation.
-- `packages/cli/src/next/builders/php/domains/context.ts` keeps the adapter customisation shim alive (`context.phpAdapter?.custo
-mise`), leaking legacy extension points into the supposedly next-gen branch.
-- `packages/cli/src/next/builders/php/domains/index-file.ts` emits raw PHP strings. It cannot be composed or introspected via AS
+- `packages/cli/src/builders/php/domains/context.ts` keeps the adapter customisation shim alive (`context.phpAdapter?.custo
+mise`), leaking legacy extension points into the branch.
+- `packages/cli/src/builders/php/domains/index-file.ts` emits raw PHP strings. It cannot be composed or introspected via AS
 T and blocks helper-level overrides.
 
 ### Writer + bridge
 
-- `packages/cli/src/next/builders/php/domains/writer.ts` still serialises manifests the same way the printer facade did, mutatin
+- `packages/cli/src/builders/php/domains/writer.ts` still serialises manifests the same way the printer facade did, mutatin
 g a legacy `PrinterContext` instead of composing helper actions.
-- `packages/cli/src/next/builders/php/bridge.ts` now enforces AST payloads, but every caller assembles the payload manually inst
+- `packages/cli/src/builders/php/bridge.ts` now enforces AST payloads, but every caller assembles the payload manually inst
 ead of consuming helper-generated manifests.
-- `packages/cli/src/next/runtime/adapterExtensions.ts` carries `formatPhp`/`formatTs` as escape hatches for legacy emitters beca
+- `packages/cli/src/runtime/adapterExtensions.ts` carries `formatPhp`/`formatTs` as escape hatches for legacy emitters beca
 use the PHP builder cannot yet offer helper-friendly hooks.
 
 ### Downstream call sites
 
-- `packages/cli/src/next/ir/createIr.ts` still registers `createPhpBuilder()` as a monolithic helper - it cannot be reordered wi
+- `packages/cli/src/ir/createIr.ts` still registers `createPhpBuilder()` as a monolithic helper - it cannot be reordered wi
 th future enrichers (e.g., audit logging).
 - `packages/cli/src/printers/blocks/**` exports the legacy blocks pipeline. The next branch cannot adopt it until a `createPhpHe
 lper` equivalent exists.
 
 ### Tests + fixtures
 
-- `packages/cli/src/next/builders/php/domains/__tests__/program-builder.test.ts` enforces `toAst()` parity, anchoring the legacy
+- `packages/cli/src/builders/php/domains/__tests__/program-builder.test.ts` enforces `toAst()` parity, anchoring the legacy
  string API in the new helpers.
-- `packages/cli/src/next/builders/__tests__/phpBuilder.test.ts` and `.unit.test.ts` mock legacy manifest behaviour, proving the
+- `packages/cli/src/builders/__tests__/phpBuilder.test.ts` and `.unit.test.ts` mock legacy manifest behaviour, proving the
 helper continues to honour old side effects instead of producing a queue of AST actions.
 
 ## Root Cause Retrospective
@@ -69,7 +69,7 @@ uching internal functions.
 ### Helper pipeline pseudo code
 
 ```ts
-// packages/cli/src/next/builders/php/controller.ts
+// packages/cli/src/builders/php/controller.ts
 export function createPhpControllerHelper(definition: ControllerDefinition) {
         return createHelper({
                 key: `builder.php.controller.${definition.name}`,
@@ -84,7 +84,7 @@ export function createPhpControllerHelper(definition: ControllerDefinition) {
         });
 }
 
-// packages/cli/src/next/builders/php/index.ts
+// packages/cli/src/builders/php/index.ts
 export function createPhpBuilder() {
         return createHelper({
                 key: 'builder.generate.php',
@@ -118,19 +118,19 @@ OKAY.
 
 **Files to change**
 
-- `packages/cli/src/next/builders/php/builder.ts` - delete `PrinterContext` usage, remove `ensureAdapterContext`, and replace th
+- `packages/cli/src/builders/php/builder.ts` - delete `PrinterContext` usage, remove `ensureAdapterContext`, and replace th
   e monolithic helper with a lightweight orchestrator that registers phase-specific helpers and invokes `next` immediately.
-- `packages/cli/src/next/builders/php/domains/context.ts` - delete the adapter customisation bridge. Any reporting utilities we
+- `packages/cli/src/builders/php/domains/context.ts` - delete the adapter customisation bridge. Any reporting utilities we
   need move into a new `reporting.ts` helper that only exposes pure logging helpers.
-- `packages/cli/src/next/builders/php/domains/index-file.ts` - replace string emitters with AST factories (declare/namespace/use
+- `packages/cli/src/builders/php/domains/index-file.ts` - replace string emitters with AST factories (declare/namespace/use
   ). The module should export a helper factory instead of `createPhpIndexFile`.
-- `packages/cli/src/next/builders/php/domains/writer.ts` - collapse into a `createPhpProgramWriter` helper that consumes queued
+- `packages/cli/src/builders/php/domains/writer.ts` - collapse into a `createPhpProgramWriter` helper that consumes queued
   actions (`PhpProgramAction[]`) and performs IO. Remove `PrinterContext` parameters.
-- `packages/cli/src/next/builders/php/program/*` - strip `toAst()` and any legacy-friendly shapes. Only expose builders that ret
+- `packages/cli/src/builders/php/program/*` - strip `toAst()` and any legacy-friendly shapes. Only expose builders that ret
   urn `PhpProgram` arrays.
-- `packages/cli/src/next/builders/__tests__/phpBuilder*.test.ts` - update to call `pipeline.use(createPhpBuilder())`, assert hel
+- `packages/cli/src/builders/__tests__/phpBuilder*.test.ts` - update to call `pipeline.use(createPhpBuilder())`, assert hel
   per composition via spies on `next`, and drop expectations for legacy manifest writes.
-- `packages/cli/src/next/builders/php/domains/__tests__/program-builder.test.ts` - remove string assertions, replace with AST no
+- `packages/cli/src/builders/php/domains/__tests__/program-builder.test.ts` - remove string assertions, replace with AST no
   de snapshots.
 
 **Why:** Without this reset later phases cannot compose helpers. The files listed are the only remaining code paths that instant
@@ -138,7 +138,7 @@ iate legacy contexts or string emitters.
 
 **Dependencies & tests**
 
-- Update `packages/cli/src/next/builders/index.ts` to re-export the new helper factories.
+- Update `packages/cli/src/builders/index.ts` to re-export the new helper factories.
 - Regenerate API docs (`docs/api/generated/@wpkernel/cli/**`) after the helper signature changes.
 - Run `pnpm --filter @wpkernel/cli lint --fix`, `typecheck`, `typecheck:tests`, and `test:coverage`.
 
@@ -152,11 +152,11 @@ osition.
 
 **Files to change**
 
-- Introduce `PhpDomainContext` (via `toPhpDomainContext` in `packages/cli/src/next/builders/php/domains/types.ts`) and update ev
-  ery domain module under `packages/cli/src/next/builders/php/domains/**/*.ts` to depend on it instead of `PrinterContext`.
+- Introduce `PhpDomainContext` (via `toPhpDomainContext` in `packages/cli/src/builders/php/domains/types.ts`) and update ev
+  ery domain module under `packages/cli/src/builders/php/domains/**/*.ts` to depend on it instead of `PrinterContext`.
 - Ensure domains expose `build*Program` factories (e.g., `buildResourceControllerProgram`) that return `PhpProgram` objects, rep
   lacing string emitters and `appendMethodTemplates` helpers.
-- Update `packages/cli/src/next/builders/php/index.ts` (and related barrels) to export the new builders alongside type re-export
+- Update `packages/cli/src/builders/php/index.ts` (and related barrels) to export the new builders alongside type re-export
   s.
 - Remove leftover PrinterContext-only utilities from domains; where context data is required, pull it from `PhpDomainContext`.
 
@@ -165,7 +165,7 @@ ain.
 
 **Tests**
 
-- Refresh domain test suites in `packages/cli/src/next/builders/php/domains/__tests__` to assert on AST structure (namespace sta
+- Refresh domain test suites in `packages/cli/src/builders/php/domains/__tests__` to assert on AST structure (namespace sta
   tements, docblocks, method signatures) rather than string equality.
 - Run `pnpm --filter @wpkernel/cli test` to validate the new expectations.
 
@@ -178,14 +178,14 @@ ns; runtime helper wiring remains unchanged.
 
 **Files to change**
 
-- Create `packages/cli/src/next/builders/php/helpers/controller.ts` exporting `createPhpControllerHelper(definition)` that queue
+- Create `packages/cli/src/builders/php/helpers/controller.ts` exporting `createPhpControllerHelper(definition)` that queue
   s controller programs.
 - Create `.../helpers/capability.ts`, `.../helpers/persistenceRegistry.ts`, and `.../helpers/indexFile.ts` mirroring the existing do
   mains but returning helpers.
-- Update domain modules (`packages/cli/src/next/builders/php/domains/*.ts`) to export pure AST factories (e.g., `buildResourceCo
+- Update domain modules (`packages/cli/src/builders/php/domains/*.ts`) to export pure AST factories (e.g., `buildResourceCo
 ntrollerProgram(definition)`), removing IO and helper creation.
-- Modify `packages/cli/src/next/builders/php/index.ts` to provide convenient barrels (`export * from './helpers';`).
-- Adjust IR factories (`packages/cli/src/next/ir/createIr.ts`) to instantiate these helpers with the relevant IR slices instead
+- Modify `packages/cli/src/builders/php/index.ts` to provide convenient barrels (`export * from './helpers';`).
+- Adjust IR factories (`packages/cli/src/ir/createIr.ts`) to instantiate these helpers with the relevant IR slices instead
   of expecting global context.
 
 **Why:** This phase enforces createHelper composability. Each artifact becomes a reusable helper and domain modules stop mixing
@@ -193,8 +193,8 @@ orchestration with data building.
 
 **Tests**
 
-- Add unit coverage under `packages/cli/src/next/builders/php/helpers/__tests__/*.test.ts` verifying queued actions.
-- Update integration coverage in `packages/cli/src/next/builders/__tests__/phpBuilder.test.ts` to inspect queued helper actions
+- Add unit coverage under `packages/cli/src/builders/php/helpers/__tests__/*.test.ts` verifying queued actions.
+- Update integration coverage in `packages/cli/src/builders/__tests__/phpBuilder.test.ts` to inspect queued helper actions
   (e.g., via `output.drainChannel('php')`).
 
 **Expected outcome:** Helpers exist for controllers, capabilities, persistence registries, and index files; `createPhpBuilder` regis
@@ -220,75 +220,75 @@ root@9d20af90c396:/workspace/wp-kernel# export CI=1
 I'll check the domain files to get a better understanding of the types.
 
 ```shell
-root@9d20af90c396:/workspace/wp-kernel# ls packages/cli/src/next/builders/php
+root@9d20af90c396:/workspace/wp-kernel# ls packages/cli/src/builders/php
 bridge.ts  builder.ts  domains  driver.ts  index.ts  program
 ```
 
 I need to take a look at the domains now.
 
 ```shell
-root@9d20af90c396:/workspace/wp-kernel# find packages/cli/src/next/builders/php/domains -maxdepth 2 -type f -print
-packages/cli/src/next/builders/php/domains/identity.ts
-packages/cli/src/next/builders/php/domains/base-controller.ts
-packages/cli/src/next/builders/php/domains/routes.ts
-packages/cli/src/next/builders/php/domains/types.ts
-packages/cli/src/next/builders/php/domains/wp-post/handlers.ts
-packages/cli/src/next/builders/php/domains/wp-post/get.ts
-packages/cli/src/next/builders/php/domains/wp-post/identity.ts
-packages/cli/src/next/builders/php/domains/wp-post/routes.ts
-packages/cli/src/next/builders/php/domains/wp-post/types.ts
-packages/cli/src/next/builders/php/domains/wp-post/taxonomies.ts
-packages/cli/src/next/builders/php/domains/wp-post/index.ts
-packages/cli/src/next/builders/php/domains/wp-post/stub.ts
-packages/cli/src/next/builders/php/domains/wp-post/update.ts
-packages/cli/src/next/builders/php/domains/wp-post/helpers.ts
-packages/cli/src/next/builders/php/domains/wp-post/create.ts
-packages/cli/src/next/builders/php/domains/wp-post/meta.ts
-packages/cli/src/next/builders/php/domains/wp-post/list.ts
-packages/cli/src/next/builders/php/domains/wp-post/context.ts
-packages/cli/src/next/builders/php/domains/wp-post/supports.ts
-packages/cli/src/next/builders/php/domains/wp-post/delete.ts
-packages/cli/src/next/builders/php/domains/wp-option.ts
-packages/cli/src/next/builders/php/domains/printer.ts
-packages/cli/src/next/builders/php/domains/index-file.ts
-packages/cli/src/next/builders/php/domains/transient.ts
-packages/cli/src/next/builders/php/domains/resource-controller.ts
-packages/cli/src/next/builders/php/domains/wp-taxonomy/handlers.ts
-packages/cli/src/next/builders/php/domains/wp-taxonomy/routes.ts
-packages/cli/src/next/builders/php/domains/wp-taxonomy/types.ts
-packages/cli/src/next/builders/php/domains/wp-taxonomy/index.ts
-packages/cli/src/next/builders/php/domains/wp-taxonomy/helpers.ts
-packages/cli/src/next/builders/php/domains/wp-taxonomy/context.ts
-packages/cli/src/next/builders/php/domains/__tests__/persistence-registry.test.ts
-packages/cli/src/next/builders/php/domains/__tests__/base-controller.test.ts
-packages/cli/src/next/builders/php/domains/__tests__/writer.test.ts
-packages/cli/src/next/builders/php/domains/__tests__/docblock.test.ts
-packages/cli/src/next/builders/php/domains/__tests__/value-renderer.test.ts
-packages/cli/src/next/builders/php/domains/__tests__/routes.test.ts
-packages/cli/src/next/builders/php/domains/__tests__/rest-args.test.ts
-packages/cli/src/next/builders/php/domains/__tests__/wp-taxonomy-controller.test.ts
-packages/cli/src/next/builders/php/domains/__tests__/transient-controller.test.ts
-packages/cli/src/next/builders/php/domains/__tests__/ast-helpers.test.ts
-packages/cli/src/next/builders/php/domains/__tests__/wp-option-controller.test.ts
-packages/cli/src/next/builders/php/domains/__tests__/template.test.ts
-packages/cli/src/next/builders/php/domains/__tests__/resource-controller.test.ts
-packages/cli/src/next/builders/php/domains/__tests__/index-file.test.ts
-packages/cli/src/next/builders/php/domains/__tests__/program-builder.test.ts
-packages/cli/src/next/builders/php/domains/__tests__/ast-schema.test.ts
-packages/cli/src/next/builders/php/domains/test-utils/wp-post.ts
-packages/cli/src/next/builders/php/domains/rest-args.ts
-packages/cli/src/next/builders/php/domains/render.ts
-packages/cli/src/next/builders/php/domains/persistence-registry.ts
-packages/cli/src/next/builders/php/domains/capability-helper.ts
-packages/cli/src/next/builders/php/domains/context.ts
-packages/cli/src/next/builders/php/domains/__fixtures__/sample-function-ast.ts
-packages/cli/src/next/builders/php/domains/writer.ts
+root@9d20af90c396:/workspace/wp-kernel# find packages/cli/src/builders/php/domains -maxdepth 2 -type f -print
+packages/cli/src/builders/php/domains/identity.ts
+packages/cli/src/builders/php/domains/base-controller.ts
+packages/cli/src/builders/php/domains/routes.ts
+packages/cli/src/builders/php/domains/types.ts
+packages/cli/src/builders/php/domains/wp-post/handlers.ts
+packages/cli/src/builders/php/domains/wp-post/get.ts
+packages/cli/src/builders/php/domains/wp-post/identity.ts
+packages/cli/src/builders/php/domains/wp-post/routes.ts
+packages/cli/src/builders/php/domains/wp-post/types.ts
+packages/cli/src/builders/php/domains/wp-post/taxonomies.ts
+packages/cli/src/builders/php/domains/wp-post/index.ts
+packages/cli/src/builders/php/domains/wp-post/stub.ts
+packages/cli/src/builders/php/domains/wp-post/update.ts
+packages/cli/src/builders/php/domains/wp-post/helpers.ts
+packages/cli/src/builders/php/domains/wp-post/create.ts
+packages/cli/src/builders/php/domains/wp-post/meta.ts
+packages/cli/src/builders/php/domains/wp-post/list.ts
+packages/cli/src/builders/php/domains/wp-post/context.ts
+packages/cli/src/builders/php/domains/wp-post/supports.ts
+packages/cli/src/builders/php/domains/wp-post/delete.ts
+packages/cli/src/builders/php/domains/wp-option.ts
+packages/cli/src/builders/php/domains/printer.ts
+packages/cli/src/builders/php/domains/index-file.ts
+packages/cli/src/builders/php/domains/transient.ts
+packages/cli/src/builders/php/domains/resource-controller.ts
+packages/cli/src/builders/php/domains/wp-taxonomy/handlers.ts
+packages/cli/src/builders/php/domains/wp-taxonomy/routes.ts
+packages/cli/src/builders/php/domains/wp-taxonomy/types.ts
+packages/cli/src/builders/php/domains/wp-taxonomy/index.ts
+packages/cli/src/builders/php/domains/wp-taxonomy/helpers.ts
+packages/cli/src/builders/php/domains/wp-taxonomy/context.ts
+packages/cli/src/builders/php/domains/__tests__/persistence-registry.test.ts
+packages/cli/src/builders/php/domains/__tests__/base-controller.test.ts
+packages/cli/src/builders/php/domains/__tests__/writer.test.ts
+packages/cli/src/builders/php/domains/__tests__/docblock.test.ts
+packages/cli/src/builders/php/domains/__tests__/value-renderer.test.ts
+packages/cli/src/builders/php/domains/__tests__/routes.test.ts
+packages/cli/src/builders/php/domains/__tests__/rest-args.test.ts
+packages/cli/src/builders/php/domains/__tests__/wp-taxonomy-controller.test.ts
+packages/cli/src/builders/php/domains/__tests__/transient-controller.test.ts
+packages/cli/src/builders/php/domains/__tests__/ast-helpers.test.ts
+packages/cli/src/builders/php/domains/__tests__/wp-option-controller.test.ts
+packages/cli/src/builders/php/domains/__tests__/template.test.ts
+packages/cli/src/builders/php/domains/__tests__/resource-controller.test.ts
+packages/cli/src/builders/php/domains/__tests__/index-file.test.ts
+packages/cli/src/builders/php/domains/__tests__/program-builder.test.ts
+packages/cli/src/builders/php/domains/__tests__/ast-schema.test.ts
+packages/cli/src/builders/php/domains/test-utils/wp-post.ts
+packages/cli/src/builders/php/domains/rest-args.ts
+packages/cli/src/builders/php/domains/render.ts
+packages/cli/src/builders/php/domains/persistence-registry.ts
+packages/cli/src/builders/php/domains/capability-helper.ts
+packages/cli/src/builders/php/domains/context.ts
+packages/cli/src/builders/php/domains/__fixtures__/sample-function-ast.ts
+packages/cli/src/builders/php/domains/writer.ts
 ```
 
 I need instructions for the affected files, like tests. I'll update to PhpDomainContext and check types.ts.
 
 ```shell
-root@9d20af90c396:/workspace/wp-kernel# sed -n '1,160p' packages/cli/src/next/builders/php/domains/types.ts
+root@9d20af90c396:/workspace/wp-kernel# sed -n '1,160p' packages/cli/src/builders/php/domains/types.ts
 import type {
         AdapterContext,
         PhpAdapterConfig,
@@ -303,7 +303,7 @@ export type {
         PhpJsonNode,
         PhpProgram,
         PhpStmt,
-} from '@wpkernel/cli/next/builders/php';
+} from '@wpkernel/cli/builders/php';
 
 export interface PrinterContext {
         ir: IRv1;
@@ -348,95 +348,95 @@ export function toPhpDomainContext(context: PrinterContext): PhpDomainContext {
 I see the new context isn't used in many domains-I'll need to update that.
 
 ```shell
-root@9d20af90c396:/workspace/wp-kernel# rg "PrinterContext" packages/cli/src/next/builders/php/domains
-packages/cli/src/next/builders/php/domains/writer.ts
+root@9d20af90c396:/workspace/wp-kernel# rg "PrinterContext" packages/cli/src/builders/php/domains
+packages/cli/src/builders/php/domains/writer.ts
 6:import type { PrinterContext } from './types';
 13:     context: PrinterContext
 
-packages/cli/src/next/builders/php/domains/context.ts
+packages/cli/src/builders/php/domains/context.ts
 4:import type { PrinterContext } from './types';
 7:      context: PrinterContext
 8:): AdapterContext & { ir: PrinterContext['ir'] } {
 11:                     ir: PrinterContext['ir'];
 30:             ir: PrinterContext['ir'];
 
-packages/cli/src/next/builders/php/domains/transient.ts
+packages/cli/src/builders/php/domains/transient.ts
 2:import type { PrinterContext } from './types';
 31:     context: PrinterContext;
 45:     context: PrinterContext;
 
-packages/cli/src/next/builders/php/domains/capability-helper.ts
+packages/cli/src/builders/php/domains/capability-helper.ts
 1:import type { PrinterContext } from './types';
 15:     context: PrinterContext
 80:function buildCapabilityMap(context: PrinterContext): Record<string, unknown> {
 
-packages/cli/src/next/builders/php/domains/index-file.ts
+packages/cli/src/builders/php/domains/index-file.ts
 2:import type { PrinterContext } from './types';
 15:     context: PrinterContext;
 
-packages/cli/src/next/builders/php/domains/persistence-registry.ts
+packages/cli/src/builders/php/domains/persistence-registry.ts
 11:import type { PrinterContext } from './types';
 15:     context: PrinterContext
 48:     context: PrinterContext
 
-packages/cli/src/next/builders/php/domains/printer.ts
+packages/cli/src/builders/php/domains/printer.ts
 2:import type { PrinterContext } from './types';
 12:export async function emitPhpArtifacts(context: PrinterContext): Promise<void> {
 
-packages/cli/src/next/builders/php/domains/wp-option.ts
+packages/cli/src/builders/php/domains/wp-option.ts
 2:import type { PrinterContext } from './types';
 34:     context: PrinterContext;
 
-packages/cli/src/next/builders/php/domains/test-utils/wp-post.ts
+packages/cli/src/builders/php/domains/test-utils/wp-post.ts
 1:import type { PrinterContext } from '../types';
 15:export function createPrinterContext(): PrinterContext {
 34:     } as unknown as PrinterContext;
 39:     context: PrinterContext
 50:function inferMethodName(route: IRRoute, context: PrinterContext): string {
 
-packages/cli/src/next/builders/php/domains/__tests__/index-file.test.ts
+packages/cli/src/builders/php/domains/__tests__/index-file.test.ts
 2:import type { PrinterContext } from '../../types';
 46:                     context: createPrinterContext(),
 67:function createPrinterContext(): PrinterContext {
 91:     } as unknown as PrinterContext;
 
-packages/cli/src/next/builders/php/domains/__tests__/resource-controller.test.ts
+packages/cli/src/builders/php/domains/__tests__/resource-controller.test.ts
 2:import type { PrinterContext } from '../../types';
 9:              const context = createPrinterContext();
 36:function createPrinterContext(): PrinterContext {
 69:     } as unknown as PrinterContext;
 
-packages/cli/src/next/builders/php/domains/__tests__/wp-option-controller.test.ts
+packages/cli/src/builders/php/domains/__tests__/wp-option-controller.test.ts
 4:import type { PrinterContext } from '../../types';
 50:             const context = createPrinterContext();
 77:function createPrinterContext(): PrinterContext {
 96:     } as unknown as PrinterContext;
 
-packages/cli/src/next/builders/php/domains/__tests__/transient-controller.test.ts
+packages/cli/src/builders/php/domains/__tests__/transient-controller.test.ts
 4:import type { PrinterContext } from '../../types';
 47:             const context = createPrinterContext();
 74:function createPrinterContext(): PrinterContext {
 93:     } as unknown as PrinterContext;
 
-packages/cli/src/next/builders/php/domains/__tests__/wp-taxonomy-controller.test.ts
+packages/cli/src/builders/php/domains/__tests__/wp-taxonomy-controller.test.ts
 4:import type { PrinterContext } from '../../types';
 64:             const context = createPrinterContext();
 98:function createPrinterContext(): PrinterContext {
 117:    } as unknown as PrinterContext;
 
-packages/cli/src/next/builders/php/domains/__tests__/routes.test.ts
+packages/cli/src/builders/php/domains/__tests__/routes.test.ts
 2:import type { PrinterContext } from '../../types';
 7:      const context = createPrinterContext();
 63:function createPrinterContext(): PrinterContext {
 87:     } as unknown as PrinterContext;
 
-packages/cli/src/next/builders/php/domains/__tests__/wp-post/identity-behaviour.test.ts
+packages/cli/src/builders/php/domains/__tests__/wp-post/identity-behaviour.test.ts
 5:      createPrinterContext,
 59:             const context = createPrinterContext();
 132:            const context = createPrinterContext();
 199:            const context = createPrinterContext();
 
-packages/cli/src/next/builders/php/domains/__tests__/wp-post/stub-handlers.test.ts
+packages/cli/src/builders/php/domains/__tests__/wp-post/stub-handlers.test.ts
 5:      createPrinterContext,
 37:             const context = createPrinterContext();
 108:            const context = createPrinterContext();
@@ -444,20 +444,20 @@ packages/cli/src/next/builders/php/domains/__tests__/wp-post/stub-handlers.test.
 231:            const context = createPrinterContext();
 270:            const context = createPrinterContext();
 
-packages/cli/src/next/builders/php/domains/__tests__/wp-post/route-classification.test.ts
+packages/cli/src/builders/php/domains/__tests__/wp-post/route-classification.test.ts
 5:      createPrinterContext,
 50:             const context = createPrinterContext();
 
-packages/cli/src/next/builders/php/domains/__tests__/wp-post/meta-handling.test.ts
+packages/cli/src/builders/php/domains/__tests__/wp-post/meta-handling.test.ts
 5:      createPrinterContext,
 69:             const context = createPrinterContext();
 
-packages/cli/src/next/builders/php/domains/__tests__/wp-post/basic-controller.test.ts
+packages/cli/src/builders/php/domains/__tests__/wp-post/basic-controller.test.ts
 5:      createPrinterContext,
 77:             const context = createPrinterContext();
 132:            const context = createPrinterContext();
 
-packages/cli/src/next/builders/php/domains/__tests__/writer.test.ts
+packages/cli/src/builders/php/domains/__tests__/writer.test.ts
 8:import type { PrinterContext } from '../../types';
 18:                                             NonNullable<PrinterContext['phpDriver']>
 97:                     NonNullable<PrinterContext['phpDriver']>
@@ -466,51 +466,51 @@ packages/cli/src/next/builders/php/domains/__tests__/writer.test.ts
 120:            } as unknown as PrinterContext['ir'],
 130:    } as unknown as PrinterContext;
 
-packages/cli/src/next/builders/php/domains/__tests__/base-controller.test.ts
+packages/cli/src/builders/php/domains/__tests__/base-controller.test.ts
 2:import type { PrinterContext } from '../../types';
 12:             const context = createPrinterContext();
 48:function createPrinterContext(): PrinterContext {
 72:     } as unknown as PrinterContext;
 
-packages/cli/src/next/builders/php/domains/__tests__/persistence-registry.test.ts
+packages/cli/src/builders/php/domains/__tests__/persistence-registry.test.ts
 2:import type { PrinterContext } from '../../types';
 9:              const context = createPrinterContext();
 24:function createPrinterContext(): PrinterContext {
 64:     } as unknown as PrinterContext;
 
-packages/cli/src/next/builders/php/domains/wp-taxonomy/context.ts
+packages/cli/src/builders/php/domains/wp-taxonomy/context.ts
 1:import type { PrinterContext } from '../types';
 17:     context: PrinterContext;
 
-packages/cli/src/next/builders/php/domains/wp-taxonomy/index.ts
+packages/cli/src/builders/php/domains/wp-taxonomy/index.ts
 2:import type { PrinterContext } from '../types';
 12:     context: PrinterContext;
 
-packages/cli/src/next/builders/php/domains/resource-controller.ts
+packages/cli/src/builders/php/domains/resource-controller.ts
 12:import type { PrinterContext } from './types';
 26:     context: PrinterContext
 
-packages/cli/src/next/builders/php/domains/base-controller.ts
+packages/cli/src/builders/php/domains/base-controller.ts
 14:import type { PrinterContext } from './types';
 18:     context: PrinterContext
 
-packages/cli/src/next/builders/php/domains/routes.ts
+packages/cli/src/builders/php/domains/routes.ts
 3:import type { PrinterContext } from './types';
 18:     context: PrinterContext;
 74:     context: PrinterContext
 105:    context: PrinterContext;
 184:    context: PrinterContext
 
-packages/cli/src/next/builders/php/domains/types.ts
+packages/cli/src/builders/php/domains/types.ts
 17:export interface PrinterContext {
 49:export function toPhpDomainContext(context: PrinterContext): PhpDomainContext {
 
-packages/cli/src/next/builders/php/domains/wp-post/context.ts
+packages/cli/src/builders/php/domains/wp-post/context.ts
 1:import type { PrinterContext } from '../types';
 21:     context: PrinterContext;
 38:     context: PrinterContext;
 
-packages/cli/src/next/builders/php/domains/wp-post/index.ts
+packages/cli/src/builders/php/domains/wp-post/index.ts
 2:import type { PrinterContext } from '../types';
 12:     context: PrinterContext;
 ```
@@ -518,7 +518,7 @@ packages/cli/src/next/builders/php/domains/wp-post/index.ts
 I’ll refactor to PhpDomainContext and update tests to match. I’ll inspect modules and functions.
 
 ```shell
-root@9d20af90c396:/workspace/wp-kernel# sed -n '1,200p' packages/cli/src/next/builders/php/domains/resource-controller.ts
+root@9d20af90c396:/workspace/wp-kernel# sed -n '1,200p' packages/cli/src/builders/php/domains/resource-controller.ts
 import {
         createPhpFileBuilder,
         type PhpFileBuilder,
@@ -529,7 +529,7 @@ import {
         toPascalCase,
         escapeSingleQuotes,
         renderPhpReturn,
-} from '@wpkernel/cli/next/builders/php';
+} from '@wpkernel/cli/builders/php';
 import type { PrinterContext } from './types';
 import type { IRResource, IRRoute } from '../../../../ir';
 import { buildRestArgsPayload } from './rest-args';
@@ -619,10 +619,10 @@ export function createResourceControllerArtifact(
 }
 ```
 
-I need to inspect `@wpkernel/cli/next/builders/php` to understand how to convert to AST.
+I need to inspect `@wpkernel/cli/builders/php` to understand how to convert to AST.
 
 ```shell
-root@9d20af90c396:/workspace/wp-kernel# sed -n '1,200p' packages/cli/src/next/builders/php/index.ts
+root@9d20af90c396:/workspace/wp-kernel# sed -n '1,200p' packages/cli/src/builders/php/index.ts
 export { createPhpBuilder } from './builder';
 export { createPhpPrettyPrinter } from './bridge';
 export { createPhpDriverInstaller } from './driver';
@@ -633,7 +633,7 @@ export * from './program';
 I need to export the new domain builder types after inspecting program types.
 
 ```shell
-root@9d20af90c396:/workspace/wp-kernel# sed -n '1,200p' packages/cli/src/next/builders/php/program/types.ts
+root@9d20af90c396:/workspace/wp-kernel# sed -n '1,200p' packages/cli/src/builders/php/program/types.ts
 import type { PhpNode, PhpProgram, PhpStmt } from './nodes';
 
 export interface PhpFileMetadata {
@@ -667,7 +667,7 @@ export type PhpJsonAst = PhpProgram;
 I'm checking out the nodes to see what's going on with them.
 
 ```shell
-root@9d20af90c396:/workspace/wp-kernel# sed -n '1,200p' packages/cli/src/next/builders/php/program/nodes.ts
+root@9d20af90c396:/workspace/wp-kernel# sed -n '1,200p' packages/cli/src/builders/php/program/nodes.ts
 /**
  * Canonical PHP AST types for JSON serialisation.
  *
@@ -873,7 +873,7 @@ export interface PhpStmtClassMethod extends PhpStmtBase {
 I’ll look into builder create functions and check `render.ts` for AST helpers.
 
 ```shell
-root@9d20af90c396:/workspace/wp-kernel# sed -n '1,200p' packages/cli/src/next/builders/php/domains/base-controller.ts
+root@9d20af90c396:/workspace/wp-kernel# sed -n '1,200p' packages/cli/src/builders/php/domains/base-controller.ts
 import {
         createPhpFileBuilder,
         type PhpFileBuilder,
@@ -886,7 +886,7 @@ import {
         createPhpReturn,
         PHP_CLASS_MODIFIER_ABSTRACT,
         PHP_METHOD_MODIFIER_PUBLIC,
-} from '@wpkernel/cli/next/builders/php';
+} from '@wpkernel/cli/builders/php';
 import type { PrinterContext } from './types';
 
 export function createBaseControllerBuilder(
@@ -933,18 +933,18 @@ export function createBaseControllerBuilder(
 I need to look at `createPhpFileBuilder` and understand how it converts to AST.
 
 ```shell
-root@9d20af90c396:/workspace/wp-kernel# sed -n '1,200p' packages/cli/src/next/builders/php/program/builder.ts
-sed: can't read packages/cli/src/next/builders/php/program/builder.ts: No such file or directory
+root@9d20af90c396:/workspace/wp-kernel# sed -n '1,200p' packages/cli/src/builders/php/program/builder.ts
+sed: can't read packages/cli/src/builders/php/program/builder.ts: No such file or directory
 ```
 
 I need to check the directories now to see what's inside.
 
 ```shell
-root@9d20af90c396:/workspace/wp-kernel# ls packages/cli/src/next/builders/php/program
+root@9d20af90c396:/workspace/wp-kernel# ls packages/cli/src/builders/php/program
 append.ts     docblocks.ts  modifiers.ts  printables.ts      templates.ts  utils.ts
 constants.ts  index.ts      nodes.ts      programBuilder.ts  types.ts      valueRenderers.ts
 
-root@9d20af90c396:/workspace/wp-kernel# sed -n '1,200p' packages/cli/src/next/builders/php/program/programBuilder.ts
+root@9d20af90c396:/workspace/wp-kernel# sed -n '1,200p' packages/cli/src/builders/php/program/programBuilder.ts
 import {
         createComment,
         createDeclare,
@@ -1150,74 +1150,74 @@ export class PhpProgramBuilder {
 I need to confirm that domain modules are correctly returning PhpProgram ASTs, not builders.
 
 ```shell
-root@9d20af90c396:/workspace/wp-kernel# rg "createPhpFileBuilder" -n packages/cli/src/next/builders/php -g"*.ts"
-packages/cli/src/next/builders/php/domains/capability-helper.ts
+root@9d20af90c396:/workspace/wp-kernel# rg "createPhpFileBuilder" -n packages/cli/src/builders/php -g"*.ts"
+packages/cli/src/builders/php/domains/capability-helper.ts
 3:      createPhpFileBuilder,
 17:     const builder = createPhpFileBuilder(`${namespaceRoot}\\Capability`, {
 
-packages/cli/src/next/builders/php/domains/persistence-registry.ts
+packages/cli/src/builders/php/domains/persistence-registry.ts
 2:      createPhpFileBuilder,
 17:     const builder = createPhpFileBuilder(`${namespaceRoot}\\Registration`, {
 
-packages/cli/src/next/builders/php/domains/__tests__/program-builder.test.ts
+packages/cli/src/builders/php/domains/__tests__/program-builder.test.ts
 2:      createPhpFileBuilder,
 116:            const builder = createPhpFileBuilder('Demo\\Plugin\\Rest', {
 
-packages/cli/src/next/builders/php/domains/__tests__/wp-option-controller.test.ts
-1:import { createPhpFileBuilder } from '@wpkernel/cli/next/builders/php';
+packages/cli/src/builders/php/domains/__tests__/wp-option-controller.test.ts
+1:import { createPhpFileBuilder } from '@wpkernel/cli/builders/php';
 8:              const builder = createPhpFileBuilder('Demo\\Namespace\\Rest', {
 
-packages/cli/src/next/builders/php/domains/__tests__/transient-controller.test.ts
-1:import { createPhpFileBuilder } from '@wpkernel/cli/next/builders/php';
+packages/cli/src/builders/php/domains/__tests__/transient-controller.test.ts
+1:import { createPhpFileBuilder } from '@wpkernel/cli/builders/php';
 8:              const builder = createPhpFileBuilder('Demo\\Namespace\\Rest', {
 
-packages/cli/src/next/builders/php/domains/__tests__/wp-taxonomy-controller.test.ts
-1:import { createPhpFileBuilder } from '@wpkernel/cli/next/builders/php';
+packages/cli/src/builders/php/domains/__tests__/wp-taxonomy-controller.test.ts
+1:import { createPhpFileBuilder } from '@wpkernel/cli/builders/php';
 8:              const builder = createPhpFileBuilder('Demo\\Namespace\\Rest', {
 
-packages/cli/src/next/builders/php/domains/__tests__/routes.test.ts
-1:import { createPhpFileBuilder } from '@wpkernel/cli/next/builders/php';
+packages/cli/src/builders/php/domains/__tests__/routes.test.ts
+1:import { createPhpFileBuilder } from '@wpkernel/cli/builders/php';
 10:             const builder = createPhpFileBuilder('Demo\\Namespace\\Rest', {
 
-packages/cli/src/next/builders/php/domains/__tests__/wp-post/identity-behaviour.test.ts
-1:import { createPhpFileBuilder } from '@wpkernel/cli/next/builders/php';
+packages/cli/src/builders/php/domains/__tests__/wp-post/identity-behaviour.test.ts
+1:import { createPhpFileBuilder } from '@wpkernel/cli/builders/php';
 12:             const builder = createPhpFileBuilder('Demo\\Namespace\\Rest', {
 81:             const builder = createPhpFileBuilder('Demo\\Namespace\\Rest', {
 153:            const builder = createPhpFileBuilder('Demo\\Namespace\\Rest', {
 
-packages/cli/src/next/builders/php/domains/base-controller.ts
+packages/cli/src/builders/php/domains/base-controller.ts
 2:      createPhpFileBuilder,
 20:     const builder = createPhpFileBuilder(`${namespaceRoot}\\Rest`, {
 
-packages/cli/src/next/builders/php/domains/__tests__/wp-post/stub-handlers.test.ts
-1:import { createPhpFileBuilder } from '@wpkernel/cli/next/builders/php';
+packages/cli/src/builders/php/domains/__tests__/wp-post/stub-handlers.test.ts
+1:import { createPhpFileBuilder } from '@wpkernel/cli/builders/php';
 12:             const builder = createPhpFileBuilder('Demo\\Namespace\\Rest', {
 65:             const builder = createPhpFileBuilder('Demo\\Namespace\\Rest', {
 130:            const builder = createPhpFileBuilder('Demo\\Namespace\\Rest', {
 209:            const builder = createPhpFileBuilder('Demo\\Namespace\\Rest', {
 246:            const builder = createPhpFileBuilder('Demo\\Namespace\\Rest', {
 
-packages/cli/src/next/builders/php/domains/__tests__/wp-post/route-classification.test.ts
-1:import { createPhpFileBuilder } from '@wpkernel/cli/next/builders/php';
+packages/cli/src/builders/php/domains/__tests__/wp-post/route-classification.test.ts
+1:import { createPhpFileBuilder } from '@wpkernel/cli/builders/php';
 12:             const builder = createPhpFileBuilder('Demo\\Namespace\\Rest', {
 
-packages/cli/src/next/builders/php/domains/__tests__/wp-post/meta-handling.test.ts
-1:import { createPhpFileBuilder } from '@wpkernel/cli/next/builders/php';
+packages/cli/src/builders/php/domains/__tests__/wp-post/meta-handling.test.ts
+1:import { createPhpFileBuilder } from '@wpkernel/cli/builders/php';
 12:             const builder = createPhpFileBuilder('Demo\\Namespace\\Rest', {
 
-packages/cli/src/next/builders/php/domains/__tests__/wp-post/basic-controller.test.ts
-1:import { createPhpFileBuilder } from '@wpkernel/cli/next/builders/php';
+packages/cli/src/builders/php/domains/__tests__/wp-post/basic-controller.test.ts
+1:import { createPhpFileBuilder } from '@wpkernel/cli/builders/php';
 12:             const builder = createPhpFileBuilder('Demo\\Namespace\\Rest', {
 121:            const builder = createPhpFileBuilder('Demo\\Namespace\\Rest', {
 
-packages/cli/src/next/builders/php/domains/__tests__/writer.test.ts
+packages/cli/src/builders/php/domains/__tests__/writer.test.ts
 4:      createPhpFileBuilder,
 81:     const builder = createPhpFileBuilder('Demo\\Rest', {
 
-packages/cli/src/next/builders/php/program/programBuilder.ts
+packages/cli/src/builders/php/program/programBuilder.ts
 348:export function createPhpFileBuilder(
 
-packages/cli/src/next/builders/php/domains/resource-controller.ts
+packages/cli/src/builders/php/domains/resource-controller.ts
 2:      createPhpFileBuilder,
 28:     const builder = createPhpFileBuilder(`${namespaceRoot}\\Rest`, {
 ```
@@ -1225,11 +1225,11 @@ packages/cli/src/next/builders/php/domains/resource-controller.ts
 I need to inspect the `createPhpFileBuilder` function in `programBuilder.ts`.
 
 ```shell
-root@9d20af90c396:/workspace/wp-kernel# rg "export function createPhpFileBuilder" -n packages/cli/src/next/builders/php/program/
+root@9d20af90c396:/workspace/wp-kernel# rg "export function createPhpFileBuilder" -n packages/cli/src/builders/php/program/
 programBuilder.ts
 348:export function createPhpFileBuilder(
 
-root@9d20af90c396:/workspace/wp-kernel# sed -n '340,520p' packages/cli/src/next/builders/php/program/programBuilder.ts
+root@9d20af90c396:/workspace/wp-kernel# sed -n '340,520p' packages/cli/src/builders/php/program/programBuilder.ts
                         namespace: this.program.getNamespace(),
                         docblock: [...this.program.getDocblock()],
                         uses: [...this.program.getUses()],
@@ -1249,11 +1249,11 @@ export function createPhpFileBuilder(
 I'll check out the `PhpFileBuilder` class earlier in this file. Let's look for it.
 
 ```shell
-root@9d20af90c396:/workspace/wp-kernel# rg "class PhpFileBuilder" -n packages/cli/src/next/builders/php/program/programBuilder.t
+root@9d20af90c396:/workspace/wp-kernel# rg "class PhpFileBuilder" -n packages/cli/src/builders/php/program/programBuilder.t
 s
 290:export class PhpFileBuilder implements PhpAstBuilder {
 
-root@9d20af90c396:/workspace/wp-kernel# sed -n '240,340p' packages/cli/src/next/builders/php/program/programBuilder.ts
+root@9d20af90c396:/workspace/wp-kernel# sed -n '240,340p' packages/cli/src/builders/php/program/programBuilder.ts
                 }
 
                 const beginGuard = createStmtNop({
@@ -1361,28 +1361,28 @@ I need to shift from string builders to `PhpProgram`. I'll update context usage 
 I'll review other modules to check if any return a program for reference.
 
 ```shell
-root@9d20af90c396:/workspace/wp-kernel# rg "build.*Program" packages/cli/src/next/builders/php/domains -g"*.ts"
-packages/cli/src/next/builders/php/domains/writer.ts
+root@9d20af90c396:/workspace/wp-kernel# rg "build.*Program" packages/cli/src/builders/php/domains -g"*.ts"
+packages/cli/src/builders/php/domains/writer.ts
 21:     const program = builder.getProgramAst();
 
-packages/cli/src/next/builders/php/domains/__tests__/program-builder.test.ts
+packages/cli/src/builders/php/domains/__tests__/program-builder.test.ts
 13:             const builder = createPhpProgramBuilder('Demo\\Plugin\\Rest');
 25:             const program = builder.toProgram();
 133:            const program = builder.getProgramAst();
 
-packages/cli/src/next/builders/php/domains/__tests__/writer.test.ts
+packages/cli/src/builders/php/domains/__tests__/writer.test.ts
 22:                             expect(payload.ast).toEqual(builder.getProgramAst());
 41:                     ast: builder.getProgramAst(),
 87:     builder.appendProgramStatement(
 
-packages/cli/src/next/builders/php/domains/__tests__/base-controller.test.ts
+packages/cli/src/builders/php/domains/__tests__/base-controller.test.ts
 15:             const program = builder.getProgramAst();
 ```
 
 I need to modify the tests to use `PhpProgramBuilder` for AST generation, inspecting related methods.
 
 ```shell
-root@9d20af90c396:/workspace/wp-kernel# sed -n '1,200p' packages/cli/src/next/builders/php/program/templates.ts
+root@9d20af90c396:/workspace/wp-kernel# sed -n '1,200p' packages/cli/src/builders/php/program/templates.ts
 import {
         createClass,
         createClassMethod,
@@ -1588,7 +1588,7 @@ function mergeAttributes(
 The method template has an AST node property. I'll check what `appendMethodTemplates` does.
 
 ```shell
-root@9d20af90c396:/workspace/wp-kernel# sed -n '1,200p' packages/cli/src/next/builders/php/program/append.ts
+root@9d20af90c396:/workspace/wp-kernel# sed -n '1,200p' packages/cli/src/builders/php/program/append.ts
 import type { PhpStmt } from './nodes';
 import type { PhpFileBuilder } from './programBuilder';
 import type { PhpPrintable } from './printables';
@@ -1636,8 +1636,8 @@ I'm reconsidering how to handle builders; shifting from strings to AST is likely
 I’ll explore creating a new helper to convert method templates directly into class AST.
 
 ```shell
-root@9d20af90c396:/workspace/wp-kernel# rg "appendClassTemplate" -n packages/cli/src/next/builders/php/domains
-packages/cli/src/next/builders/php/domains/base-controller.ts
+root@9d20af90c396:/workspace/wp-kernel# rg "appendClassTemplate" -n packages/cli/src/builders/php/domains
+packages/cli/src/builders/php/domains/base-controller.ts
 4:      appendClassTemplate,
 51:     appendClassTemplate(builder, classTemplate);
 ```
@@ -1645,8 +1645,8 @@ packages/cli/src/next/builders/php/domains/base-controller.ts
 I'm wondering if `appendClassTemplate` should be removed. The instructions mention string emitters, so maybe restructuring to use AST creation functions like `createPhpProgramBuilder` would be better. I'll check out `render.ts` and other domain modules to see if there are AST helpers for this.
 
 ```shell
-root@9d20af90c396:/workspace/wp-kernel# sed -n '1,200p' packages/cli/src/next/builders/php/domains/render.ts
-import type { PhpFileAst } from '@wpkernel/cli/next/builders/php';
+root@9d20af90c396:/workspace/wp-kernel# sed -n '1,200p' packages/cli/src/builders/php/domains/render.ts
+import type { PhpFileAst } from '@wpkernel/cli/builders/php';
 
 export function renderPhpFile(ast: PhpFileAst): string {
         const lines: string[] = ['<?php', 'declare(strict_types=1);', ''];
@@ -1686,7 +1686,7 @@ function ensureTrailingNewline(value: string): string {
 Looks like Phase1 may move away from `renderPhpFile`. I need to check Phase0 expectations.
 
 ```shell
-root@9d20af90c396:/workspace/wp-kernel# sed -n '1,200p' packages/cli/src/next/builders/php/domains/context.ts
+root@9d20af90c396:/workspace/wp-kernel# sed -n '1,200p' packages/cli/src/builders/php/domains/context.ts
 import { createNoopReporter } from '@wpkernel/core/reporter';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { AdapterContext } from '../../../../config/types';
@@ -1748,7 +1748,7 @@ function isReporter(value: unknown): value is Reporter {
 It seems Phase1 suggests removing `PrinterContext` in favor of `PhpDomainContext`. I'll examine domain modules and begin updating them accordingly.
 
 ```shell
-root@9d20af90c396:/workspace/wp-kernel# sed -n '1,200p' packages/cli/src/next/builders/php/domains/wp-post/context.ts
+root@9d20af90c396:/workspace/wp-kernel# sed -n '1,200p' packages/cli/src/builders/php/domains/wp-post/context.ts
 import type { PrinterContext } from '../types';
 import type { IRResource } from '../../../../../ir';
 import {
@@ -1756,7 +1756,7 @@ import {
         createErrorCodeFactory,
         isNonEmptyString,
         toPascalCase,
-} from '@wpkernel/cli/next/builders/php';
+} from '@wpkernel/cli/builders/php';
 import { resolveIdentityConfig } from '../identity';
 import {
         type IdentityConfig,
@@ -1848,19 +1848,19 @@ Phase1 requires converting domain modules to ASTs while still using the builder.
 I’ll create a new helper to convert method templates directly to AST nodes, using existing functions.
 
 ```shell
-root@9d20af90c396:/workspace/wp-kernel# rg "PhpClassTemplate" packages/cli/src/next/builders/php/program -n
-packages/cli/src/next/builders/php/program/templates.ts
+root@9d20af90c396:/workspace/wp-kernel# rg "PhpClassTemplate" packages/cli/src/builders/php/program -n
+packages/cli/src/builders/php/program/templates.ts
 212:export interface PhpClassTemplateOptions {
 223:export type PhpClassTemplate = PhpPrintable<PhpStmtClass>;
 226:    options: PhpClassTemplateOptions
 227:): PhpClassTemplate {
 290:    value: PhpClassTemplateOptions['extends']
 
-packages/cli/src/next/builders/php/program/append.ts
+packages/cli/src/builders/php/program/append.ts
 4:import type { PhpClassTemplate, PhpMethodTemplate } from './templates';
 27:     template: PhpClassTemplate
 
-root@9d20af90c396:/workspace/wp-kernel# sed -n '212,320p' packages/cli/src/next/builders/php/program/templates.ts
+root@9d20af90c396:/workspace/wp-kernel# sed -n '212,320p' packages/cli/src/builders/php/program/templates.ts
 export interface PhpClassTemplateOptions {
         readonly name: string;
         readonly flags?: number;
@@ -1975,7 +1975,7 @@ function formatExtendsClause(name: PhpName | null): string {
 I’m thinking of using `createPhpProgramBuilder` to build the program without relying on strings.
 
 ```shell
-root@9d20af90c396:/workspace/wp-kernel# sed -n '1,160p' packages/cli/src/next/builders/php/program/index.ts
+root@9d20af90c396:/workspace/wp-kernel# sed -n '1,160p' packages/cli/src/builders/php/program/index.ts
 export * from './append';
 export * from './constants';
 export * from './docblocks';
@@ -1992,7 +1992,7 @@ export * from './valueRenderers';
 I'm updating domain modules to use `PhpDomainContext` instead of `PrinterContext` for AST building.
 
 ```shell
-root@9d20af90c396:/workspace/wp-kernel# rg "appendStatement" packages/cli/src/next/builders/php/program/programBuilder.ts -n
+root@9d20af90c396:/workspace/wp-kernel# rg "appendStatement" packages/cli/src/builders/php/program/programBuilder.ts -n
 203:    public appendStatement(node: PhpStmt): void {
 318:    public appendStatement(statement: string): void {
 323:            this.program.appendStatement(statement);
@@ -2001,7 +2001,7 @@ root@9d20af90c396:/workspace/wp-kernel# rg "appendStatement" packages/cli/src/ne
 I'll take a look at the method around line 203.
 
 ```shell
-root@9d20af90c396:/workspace/wp-kernel# sed -n '180,240p' packages/cli/src/next/builders/php/program/programBuilder.ts
+root@9d20af90c396:/workspace/wp-kernel# sed -n '180,240p' packages/cli/src/builders/php/program/programBuilder.ts
                 this.docblockLines.push(line);
         }
 
@@ -2069,11 +2069,11 @@ I'll ensure docblocks and uses are added while using AST nodes. Functions will w
 I'll modify `builder.appendStatement` for class extensions and ensure docblocks are handled correctly.
 
 ```shell
-root@9d20af90c396:/workspace/wp-kernel# rg "appendGeneratedFileDocblock" -n packages/cli/src/next/builders/php/program
-packages/cli/src/next/builders/php/program/docblocks.ts
+root@9d20af90c396:/workspace/wp-kernel# rg "appendGeneratedFileDocblock" -n packages/cli/src/builders/php/program
+packages/cli/src/builders/php/program/docblocks.ts
 5:export function appendGeneratedFileDocblock(
 
-root@9d20af90c396:/workspace/wp-kernel# sed -n '1,120p' packages/cli/src/next/builders/php/program/docblocks.ts
+root@9d20af90c396:/workspace/wp-kernel# sed -n '1,120p' packages/cli/src/builders/php/program/docblocks.ts
 import { DEFAULT_DOC_HEADER } from './constants';
 import { createDocComment, type PhpDocComment } from './nodes';
 import type { PhpFileBuilder } from './programBuilder';
@@ -2102,7 +2102,7 @@ export function createGeneratedFileDocComment(
 I’m considering creating a doc comment function for `PhpProgramBuilder` and using `DEFAULT_DOC_HEADER`. Since the builder can call `appendDocblock`, I might just append lines directly. I also need to inspect `routes.ts` and related modules, like controllers and helpers.
 
 ```shell
-root@9d20af90c396:/workspace/wp-kernel# sed -n '1,200p' packages/cli/src/next/builders/php/domains/routes.ts
+root@9d20af90c396:/workspace/wp-kernel# sed -n '1,200p' packages/cli/src/builders/php/domains/routes.ts
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { IRResource, IRRoute } from '../../../../ir';
 import type { PrinterContext } from './types';
@@ -2112,7 +2112,7 @@ import {
         PHP_INDENT,
         escapeSingleQuotes,
         toPascalCase,
-} from '@wpkernel/cli/next/builders/php';
+} from '@wpkernel/cli/builders/php';
 import { createWpPostHandlers } from './wp-post';
 import { createWpTaxonomyHandlers } from './wp-taxonomy';
 import { createWpOptionHandlers } from './wp-option';
@@ -2308,8 +2308,8 @@ function deriveRouteSegments(
 I need to replace `PrinterContext` dependencies with `PhpDomainContext` across domain modules. I'll check how `routes.ts` uses `context.ir` and all other `PrinterContext` references for adjustments.
 
 ```shell
-root@9d20af90c396:/workspace/wp-kernel# rg "context\." packages/cli/src/next/builders/php/domains -g"*.ts"
-packages/cli/src/next/builders/php/domains/writer.ts
+root@9d20af90c396:/workspace/wp-kernel# rg "context\." packages/cli/src/builders/php/domains -g"*.ts"
+packages/cli/src/builders/php/domains/writer.ts
 17:     if (context.phpAdapter?.customise) {
 18:             context.phpAdapter.customise(builder, adapterContext);
 22:     const driver = context.phpDriver;
@@ -2317,11 +2317,11 @@ packages/cli/src/next/builders/php/domains/writer.ts
 42:     await context.writeFile(filePath, code);
 43:     await context.writeFile(astOutputPath, serialiseAst(ast));
 
-packages/cli/src/next/builders/php/domains/base-controller.ts
+packages/cli/src/builders/php/domains/base-controller.ts
 25:             `Source: ${context.ir.meta.origin} → resources (namespace: ${context.ir.meta.sanitizedNamespace})`,
 39:                                     createPhpReturn(context.ir.meta.sanitizedNamespace, 2)
 
-packages/cli/src/next/builders/php/domains/context.ts
+packages/cli/src/builders/php/domains/context.ts
 9:      if (context.adapterContext) {
 13:                     ...context.adapterContext,
 14:                     config: context.adapterContext.config ?? context.ir.config,
@@ -2336,17 +2336,17 @@ packages/cli/src/next/builders/php/domains/context.ts
 35:             ir: context.ir,
 38:     context.adapterContext = adapterContext;
 
-packages/cli/src/next/builders/php/domains/resource-controller.ts
+packages/cli/src/builders/php/domains/resource-controller.ts
 34:             `Source: ${context.ir.meta.origin} → resources.${resource.name}`,
 45:     const schema = context.ir.schemas.find(
 
-packages/cli/src/next/builders/php/domains/capability-helper.ts
+packages/cli/src/builders/php/domains/capability-helper.ts
 21:     const source = context.ir.capabilityMap.sourcePath ?? '[fallback]';
 24:             `Source: ${context.ir.meta.origin} → capability-map (${source})`,
 39:             sanitizeJson(context.ir.capabilityMap.fallback)
 82:     for (const definition of context.ir.capabilityMap.definitions) {
 
-packages/cli/src/next/builders/php/domains/transient.ts
+packages/cli/src/builders/php/domains/transient.ts
 55:             options.context.ir.meta.sanitizedNamespace ??
 56:             options.context.ir.meta.namespace ??
 124:                    body.line(`$key = $this->get${context.pascalName}TransientKey();`);
@@ -2359,14 +2359,14 @@ eration not supported for ${context.titleCaseName()} transient.`)}', array( 'sta
 197:                                    `return '${escapeSingleQuotes(context.transientKey)}';`
 205:                    signature: `private function normalise${context.pascalName}Expiration( $value ): int`,
 
-packages/cli/src/next/builders/php/domains/persistence-registry.ts
+packages/cli/src/builders/php/domains/persistence-registry.ts
 22:             `Source: ${context.ir.meta.origin} → resources (storage + identity metadata)`,
 52:     for (const resource of context.ir.resources) {
 
-packages/cli/src/next/builders/php/domains/index-file.ts
+packages/cli/src/builders/php/domains/index-file.ts
 40:     lines.push(` * Source: ${options.context.ir.meta.origin} → php/index`);
 
-packages/cli/src/next/builders/php/domains/printer.ts
+packages/cli/src/builders/php/domains/printer.ts
 13:     const phpRoot = path.resolve(context.outputDir, 'php');
 14:     await context.ensureDirectory(phpRoot);
 16:     const namespaceRoot = context.ir.php.namespace;
@@ -2375,10 +2375,10 @@ packages/cli/src/next/builders/php/domains/printer.ts
 90:     await context.ensureDirectory(path.dirname(indexPath));
 91:     await context.writeFile(indexPath, formattedIndex);
 
-packages/cli/src/next/builders/php/domains/test-utils/wp-post.ts
+packages/cli/src/builders/php/domains/test-utils/wp-post.ts
 59:                     const sanitizedNamespace = context.ir.meta.sanitizedNamespace;
 
-packages/cli/src/next/builders/php/domains/wp-option.ts
+packages/cli/src/builders/php/domains/wp-option.ts
 121:                            `$option_name = $this->get${context.pascalName}OptionName();`
 146:                            `$option_name = $this->get${context.pascalName}OptionName();`
 151:                            `$autoload = $this->normalise${context.pascalName}Autoload( $request->get_param( 'autoload' ) );
@@ -2389,7 +2389,7 @@ eration not supported for ${context.titleCaseName()} option.`)}', array( 'status
 203:                                    `return '${escapeSingleQuotes(context.optionName)}';`
 211:                    signature: `private function normalise${context.pascalName}Autoload( $value ): ?string`,
 
-packages/cli/src/next/builders/php/domains/wp-post/delete.ts
+packages/cli/src/builders/php/domains/wp-post/delete.ts
 29:     const identityVar = `$${context.identity.param}`;
 31:             `${identityVar} = $request->get_param( '${context.identity.param}' );`
 36:             `$post = $this->resolve${context.pascalName}Post( ${identityVar} );`
@@ -2399,12 +2399,12 @@ y( 'status' => 404 ) );`
 50:             `        return new WP_Error( '${context.errorCode('delete_failed')}', 'Unable to delete ${context.titleCaseName
 ()}.', array( 'status' => 500 ) );`
 
-packages/cli/src/next/builders/php/domains/wp-post/supports.ts
+packages/cli/src/builders/php/domains/wp-post/supports.ts
 22:     if (context.supports.has('title')) {
 29:     if (context.supports.has('editor')) {
 36:     if (context.supports.has('excerpt')) {
 
-packages/cli/src/next/builders/php/domains/wp-post/list.ts
+packages/cli/src/builders/php/domains/wp-post/list.ts
 30:     body.line(`$post_type = $this->get${context.pascalName}PostType();`);
 40:     if (context.statuses.length > 0) {
 41:             body.line(`$statuses = $this->get${context.pascalName}Statuses();`);
@@ -2413,10 +2413,10 @@ packages/cli/src/next/builders/php/domains/wp-post/list.ts
 63:     if (context.taxonomyEntries.length > 0) {
 77:             `        $items[] = $this->prepare${context.pascalName}Response( $post, $request );`
 
-packages/cli/src/next/builders/php/domains/wp-post/meta.ts
+packages/cli/src/builders/php/domains/wp-post/meta.ts
 12:     for (const [key, descriptor] of context.metaEntries) {
 
-packages/cli/src/next/builders/php/domains/wp-post/create.ts
+packages/cli/src/builders/php/domains/wp-post/create.ts
 30:     body.line(`$post_type = $this->get${context.pascalName}PostType();`);
 34:             `$post_status = $this->normalise${context.pascalName}Status( $status );`
 50:     body.line(`$this->sync${context.pascalName}Meta( $post_id, $request );`);
@@ -2425,7 +2425,7 @@ packages/cli/src/next/builders/php/domains/wp-post/create.ts
 Name()}.', array( 'status' => 500 ) );`
 66:             `return $this->prepare${context.pascalName}Response( $post, $request );`
 
-packages/cli/src/next/builders/php/domains/wp-taxonomy/helpers.ts
+packages/cli/src/builders/php/domains/wp-taxonomy/helpers.ts
 13:                     signature: `private function get${context.pascalName}Taxonomy(): string`,
 17:                             body.line(`return '${escapeSingleQuotes(context.taxonomy)}';`);
 24:                     signature: `private function prepare${context.pascalName}TermResponse( WP_Term $term ): array`,
@@ -2448,11 +2448,11 @@ id`,
 298:                            if (context.taxonomyEntries.length === 0) {
 305:                            for (const [key, descriptor] of context.taxonomyEntries) {
 
-packages/cli/src/next/builders/php/domains/wp-taxonomy/methods/list.ts
+packages/cli/src/builders/php/domains/wp-taxonomy/methods/list.ts
 19:                     body.line(`$taxonomy = $this->get${context.pascalName}Taxonomy();`);
 61:                             `                $items[] = $this->prepare${context.pascalName}TermResponse( $term );`
 
-packages/cli/src/next/builders/php/domains/wp-post/update.ts
+packages/cli/src/builders/php/domains/wp-post/update.ts
 30:     const identityVar = `$${context.identity.param}`;
 32:             `${identityVar} = $request->get_param( '${context.identity.param}' );`
 37:             `$post = $this->resolve${context.pascalName}Post( ${identityVar} );`
@@ -2466,14 +2466,14 @@ y( 'status' => 404 ) );`
 Name()}.', array( 'status' => 500 ) );`
 83:             `return $this->prepare${context.pascalName}Response( $updated, $request );`
 
-packages/cli/src/next/builders/php/domains/wp-post/stub.ts
+packages/cli/src/builders/php/domains/wp-post/stub.ts
 20:                     if (definition.route.path.includes(`:${context.identity.param}`)) {
 22:                                     `$${context.identity.param} = $request->get_param( '${context.identity.param}' );`
 
-packages/cli/src/next/builders/php/domains/wp-post/taxonomies.ts
+packages/cli/src/builders/php/domains/wp-post/taxonomies.ts
 11:     for (const [key, descriptor] of context.taxonomyEntries) {
 
-packages/cli/src/next/builders/php/domains/wp-post/identity.ts
+packages/cli/src/builders/php/domains/wp-post/identity.ts
 9:      if (context.identity.type === 'number') {
 12:                     `        return new WP_Error( '${context.errorCode('missing_identifier')}', 'Missing identifier for ${co
 ntext.titleCaseName()}.', array( 'status' => 400 ) );`
@@ -2484,7 +2484,7 @@ tleCaseName()}.', array( 'status' => 400 ) );`
 38:     if (context.identity.param !== 'slug') {
 52:     if (context.identity.param !== 'slug') {
 
-packages/cli/src/next/builders/php/domains/wp-post/get.ts
+packages/cli/src/builders/php/domains/wp-post/get.ts
 29:     const identityVar = `$${context.identity.param}`;
 31:             `${identityVar} = $request->get_param( '${context.identity.param}' );`
 36:             `$post = $this->resolve${context.pascalName}Post( ${identityVar} );`
@@ -2492,21 +2492,21 @@ packages/cli/src/next/builders/php/domains/wp-post/get.ts
 y( 'status' => 404 ) );`
 45:             `return $this->prepare${context.pascalName}Response( $post, $request );`
 
-packages/cli/src/next/builders/php/domains/wp-post/handlers.ts
+packages/cli/src/builders/php/domains/wp-post/handlers.ts
 21:                     context.identity.param,
 22:                     context.canonicalBasePaths
 
-packages/cli/src/next/builders/php/domains/types.ts
+packages/cli/src/builders/php/domains/types.ts
 51:             ir: context.ir,
 52:             namespaceRoot: context.ir.php.namespace,
 
-packages/cli/src/next/builders/php/domains/routes.ts
+packages/cli/src/builders/php/domains/routes.ts
 198:                    context.ir.meta.namespace,
 199:                    context.ir.meta.namespace.replace(/\\/g, '/'),
 200:                    context.ir.meta.sanitizedNamespace,
 201:                    context.ir.meta.sanitizedNamespace.replace(/\\/g, '/'),
 
-packages/cli/src/next/builders/php/domains/wp-taxonomy/methods/get.ts
+packages/cli/src/builders/php/domains/wp-taxonomy/methods/get.ts
 11:     const identityParam = context.identity.param;
 21:                             `$identity = $this->validate${context.pascalName}Identity( $request->get_param( '${identityParam
 }' ) );`
@@ -2515,10 +2515,10 @@ packages/cli/src/next/builders/php/domains/wp-taxonomy/methods/get.ts
 itleCaseName()} term.', array( 'status' => 404 ) );`
 37:                             `return $this->prepare${context.pascalName}TermResponse( $term );`
 
-packages/cli/src/next/builders/php/domains/wp-taxonomy/handlers.ts
+packages/cli/src/builders/php/domains/wp-taxonomy/handlers.ts
 20:                     context.identity.param
 
-packages/cli/src/next/builders/php/domains/wp-taxonomy/methods/update.ts
+packages/cli/src/builders/php/domains/wp-taxonomy/methods/update.ts
 12:     const identityParam = context.identity.param;
 21:                     body.line(`$taxonomy = $this->get${context.pascalName}Taxonomy();`);
 23:                             `$identity = $this->validate${context.pascalName}Identity( $request->get_param( '${identityParam
@@ -2531,11 +2531,11 @@ gleQuotes(context.titleCaseName())} term.', array( 'status' => 404 ) );`
 64:                             `        return $this->prepare${context.pascalName}TermResponse( $updated );`
 69:                             `return $this->prepare${context.pascalName}TermResponse( $term );`
 
-packages/cli/src/next/builders/php/domains/wp-taxonomy/methods/unsupported.ts
+packages/cli/src/builders/php/domains/wp-taxonomy/methods/unsupported.ts
 21:                             `return new WP_Error( '${context.errorCode('unsupported_operation')}', '${escapeSingleQuotes(`Op
 eration not supported for ${context.titleCaseName()} taxonomy.`)}', array( 'status' => 501 ) );`
 
-packages/cli/src/next/builders/php/domains/wp-taxonomy/methods/remove.ts
+packages/cli/src/builders/php/domains/wp-taxonomy/methods/remove.ts
 12:     const identityParam = context.identity.param;
 21:                     body.line(`$taxonomy = $this->get${context.pascalName}Taxonomy();`);
 23:                             `$identity = $this->validate${context.pascalName}Identity( $request->get_param( '${identityParam
@@ -2547,7 +2547,7 @@ gleQuotes(context.titleCaseName())} term.', array( 'status' => 404 ) );`
 eSingleQuotes(context.titleCaseName())} term.', array( 'status' => 500 ) );`
 53:                             `        'previous' => $this->prepare${context.pascalName}TermResponse( $term ),`
 
-packages/cli/src/next/builders/php/domains/wp-taxonomy/methods/create.ts
+packages/cli/src/builders/php/domains/wp-taxonomy/methods/create.ts
 20:                     body.line(`$taxonomy = $this->get${context.pascalName}Taxonomy();`);
 24:                             `        return new WP_Error( '${context.errorCode('missing_name')}', 'Missing name for ${escape
 SingleQuotes(context.titleCaseName())} term.', array( 'status' => 400 ) );`
@@ -2563,7 +2563,7 @@ This change is large and complex. Focus may need to prioritize top-level domain 
 Main modules should produce `PhpProgram`, submodules likely return method templates. I'll inspect further.
 
 ```shell
-root@9d20af90c396:/workspace/wp-kernel# sed -n '1,160p' packages/cli/src/next/builders/php/domains/wp-option.ts
+root@9d20af90c396:/workspace/wp-kernel# sed -n '1,160p' packages/cli/src/builders/php/domains/wp-option.ts
 import type { IRResource, IRRoute } from '../../../../ir';
 import type { PrinterContext } from './types';
 import {
@@ -2573,7 +2573,7 @@ import {
         createErrorCodeFactory,
         escapeSingleQuotes,
         toPascalCase,
-} from '@wpkernel/cli/next/builders/php';
+} from '@wpkernel/cli/builders/php';
 
 type WpOptionStorage = Extract<
         NonNullable<IRResource['storage']>,
@@ -2731,93 +2731,93 @@ The spec wants methods to output `PhpProgram` ASTs. I'll focus on converting to 
 I'll introduce `PhpDomainContext`, but may keep `PrinterContext` for non-domain modules.
 
 ```shell
-root@9d20af90c396:/workspace/wp-kernel# rg "PrinterContext" -g"*.ts" packages/cli/src/next/builders -n
-packages/cli/src/next/builders/php/domains/writer.ts
+root@9d20af90c396:/workspace/wp-kernel# rg "PrinterContext" -g"*.ts" packages/cli/src/builders -n
+packages/cli/src/builders/php/domains/writer.ts
 6:import type { PrinterContext } from './types';
 13:     context: PrinterContext
 
-packages/cli/src/next/builders/php/domains/types.ts
+packages/cli/src/builders/php/domains/types.ts
 17:export interface PrinterContext {
 49:export function toPhpDomainContext(context: PrinterContext): PhpDomainContext {
 
-packages/cli/src/next/builders/php/domains/context.ts
+packages/cli/src/builders/php/domains/context.ts
 4:import type { PrinterContext } from './types';
 7:      context: PrinterContext
 8:): AdapterContext & { ir: PrinterContext['ir'] } {
 11:                     ir: PrinterContext['ir'];
 30:             ir: PrinterContext['ir'];
 
-packages/cli/src/next/builders/php/domains/capability-helper.ts
+packages/cli/src/builders/php/domains/capability-helper.ts
 1:import type { PrinterContext } from './types';
 15:     context: PrinterContext
 80:function buildCapabilityMap(context: PrinterContext): Record<string, unknown> {
 
-packages/cli/src/next/builders/php/domains/persistence-registry.ts
+packages/cli/src/builders/php/domains/persistence-registry.ts
 11:import type { PrinterContext } from './types';
 15:     context: PrinterContext
 48:     context: PrinterContext
 
-packages/cli/src/next/builders/php/domains/routes.ts
+packages/cli/src/builders/php/domains/routes.ts
 3:import type { PrinterContext } from './types';
 18:     context: PrinterContext;
 74:     context: PrinterContext
 105:    context: PrinterContext;
 184:    context: PrinterContext
 
-packages/cli/src/next/builders/php/domains/base-controller.ts
+packages/cli/src/builders/php/domains/base-controller.ts
 14:import type { PrinterContext } from './types';
 18:     context: PrinterContext
 
-packages/cli/src/next/builders/php/domains/test-utils/wp-post.ts
+packages/cli/src/builders/php/domains/test-utils/wp-post.ts
 1:import type { PrinterContext } from '../types';
 15:export function createPrinterContext(): PrinterContext {
 34:     } as unknown as PrinterContext;
 39:     context: PrinterContext
 50:function inferMethodName(route: IRRoute, context: PrinterContext): string {
 
-packages/cli/src/next/builders/php/domains/__tests__/index-file.test.ts
+packages/cli/src/builders/php/domains/__tests__/index-file.test.ts
 2:import type { PrinterContext } from '../../types';
 46:                     context: createPrinterContext(),
 67:function createPrinterContext(): PrinterContext {
 91:     } as unknown as PrinterContext;
 
-packages/cli/src/next/builders/php/domains/__tests__/resource-controller.test.ts
+packages/cli/src/builders/php/domains/__tests__/resource-controller.test.ts
 2:import type { PrinterContext } from '../../types';
 9:              const context = createPrinterContext();
 36:function createPrinterContext(): PrinterContext {
 69:     } as unknown as PrinterContext;
 
-packages/cli/src/next/builders/php/domains/__tests__/wp-option-controller.test.ts
+packages/cli/src/builders/php/domains/__tests__/wp-option-controller.test.ts
 4:import type { PrinterContext } from '../../types';
 50:             const context = createPrinterContext();
 77:function createPrinterContext(): PrinterContext {
 96:     } as unknown as PrinterContext;
 
-packages/cli/src/next/builders/php/domains/__tests__/transient-controller.test.ts
+packages/cli/src/builders/php/domains/__tests__/transient-controller.test.ts
 4:import type { PrinterContext } from '../../types';
 47:             const context = createPrinterContext();
 74:function createPrinterContext(): PrinterContext {
 93:     } as unknown as PrinterContext;
 
-packages/cli/src/next/builders/php/domains/__tests__/wp-taxonomy-controller.test.ts
+packages/cli/src/builders/php/domains/__tests__/wp-taxonomy-controller.test.ts
 4:import type { PrinterContext } from '../../types';
 64:             const context = createPrinterContext();
 98:function createPrinterContext(): PrinterContext {
 117:    } as unknown as PrinterContext;
 
-packages/cli/src/next/builders/php/domains/__tests__/routes.test.ts
+packages/cli/src/builders/php/domains/__tests__/routes.test.ts
 2:import type { PrinterContext } from '../../types';
 7:      const context = createPrinterContext();
 63:function createPrinterContext(): PrinterContext {
 87:     } as unknown as PrinterContext;
 
-packages/cli/src/next/builders/php/domains/__tests__/wp-post/identity-behaviour.test.ts
+packages/cli/src/builders/php/domains/__tests__/wp-post/identity-behaviour.test.ts
 5:      createPrinterContext,
 59:             const context = createPrinterContext();
 132:            const context = createPrinterContext();
 199:            const context = createPrinterContext();
 
-packages/cli/src/next/builders/php/domains/__tests__/wp-post/stub-handlers.test.ts
+packages/cli/src/builders/php/domains/__tests__/wp-post/stub-handlers.test.ts
 5:      createPrinterContext,
 37:             const context = createPrinterContext();
 108:            const context = createPrinterContext();
@@ -2825,20 +2825,20 @@ packages/cli/src/next/builders/php/domains/__tests__/wp-post/stub-handlers.test.
 231:            const context = createPrinterContext();
 270:            const context = createPrinterContext();
 
-packages/cli/src/next/builders/php/domains/__tests__/wp-post/route-classification.test.ts
+packages/cli/src/builders/php/domains/__tests__/wp-post/route-classification.test.ts
 5:      createPrinterContext,
 50:             const context = createPrinterContext();
 
-packages/cli/src/next/builders/php/domains/__tests__/wp-post/meta-handling.test.ts
+packages/cli/src/builders/php/domains/__tests__/wp-post/meta-handling.test.ts
 5:      createPrinterContext,
 69:             const context = createPrinterContext();
 
-packages/cli/src/next/builders/php/domains/__tests__/wp-post/basic-controller.test.ts
+packages/cli/src/builders/php/domains/__tests__/wp-post/basic-controller.test.ts
 5:      createPrinterContext,
 77:             const context = createPrinterContext();
 132:            const context = createPrinterContext();
 
-packages/cli/src/next/builders/php/domains/__tests__/writer.test.ts
+packages/cli/src/builders/php/domains/__tests__/writer.test.ts
 8:import type { PrinterContext } from '../../types';
 18:                                             NonNullable<PrinterContext['phpDriver']>
 97:                     NonNullable<PrinterContext['phpDriver']>
@@ -2847,53 +2847,53 @@ packages/cli/src/next/builders/php/domains/__tests__/writer.test.ts
 120:            } as unknown as PrinterContext['ir'],
 130:    } as unknown as PrinterContext;
 
-packages/cli/src/next/builders/php/domains/__tests__/base-controller.test.ts
+packages/cli/src/builders/php/domains/__tests__/base-controller.test.ts
 2:import type { PrinterContext } from '../../types';
 12:             const context = createPrinterContext();
 48:function createPrinterContext(): PrinterContext {
 72:     } as unknown as PrinterContext;
 
-packages/cli/src/next/builders/php/domains/__tests__/persistence-registry.test.ts
+packages/cli/src/builders/php/domains/__tests__/persistence-registry.test.ts
 2:import type { PrinterContext } from '../../types';
 9:              const context = createPrinterContext();
 24:function createPrinterContext(): PrinterContext {
 64:     } as unknown as PrinterContext;
 
-packages/cli/src/next/builders/php/domains/wp-taxonomy/context.ts
+packages/cli/src/builders/php/domains/wp-taxonomy/context.ts
 1:import type { PrinterContext } from '../types';
 17:     context: PrinterContext;
 
-packages/cli/src/next/builders/php/domains/wp-taxonomy/index.ts
+packages/cli/src/builders/php/domains/wp-taxonomy/index.ts
 2:import type { PrinterContext } from '../types';
 12:     context: PrinterContext;
 
-packages/cli/src/next/builders/php/domains/resource-controller.ts
+packages/cli/src/builders/php/domains/resource-controller.ts
 12:import type { PrinterContext } from './types';
 26:     context: PrinterContext
 
-packages/cli/src/next/builders/php/domains/transient.ts
+packages/cli/src/builders/php/domains/transient.ts
 2:import type { PrinterContext } from './types';
 31:     context: PrinterContext;
 45:     context: PrinterContext;
 
-packages/cli/src/next/builders/php/domains/index-file.ts
+packages/cli/src/builders/php/domains/index-file.ts
 2:import type { PrinterContext } from './types';
 15:     context: PrinterContext;
 
-packages/cli/src/next/builders/php/domains/printer.ts
+packages/cli/src/builders/php/domains/printer.ts
 2:import type { PrinterContext } from './types';
 12:export async function emitPhpArtifacts(context: PrinterContext): Promise<void> {
 
-packages/cli/src/next/builders/php/domains/wp-option.ts
+packages/cli/src/builders/php/domains/wp-option.ts
 2:import type { PrinterContext } from './types';
 34:     context: PrinterContext;
 
-packages/cli/src/next/builders/php/domains/wp-post/context.ts
+packages/cli/src/builders/php/domains/wp-post/context.ts
 1:import type { PrinterContext } from '../types';
 21:     context: PrinterContext;
 38:     context: PrinterContext;
 
-packages/cli/src/next/builders/php/domains/wp-post/index.ts
+packages/cli/src/builders/php/domains/wp-post/index.ts
 2:import type { PrinterContext } from '../types';
 12:     context: PrinterContext;
 ```
@@ -2903,10 +2903,10 @@ I'll try an incremental plan: introduce `PhpDomainContext` and update domain mod
 I should check Phase1 instructions again to confirm which modules should expose PHP code factories.
 
 ```shell
-root@9d20af90c396:/workspace/wp-kernel# sed -n '1,160p' packages/cli/src/next/builders/php/domains/wp-post/index.ts
+root@9d20af90c396:/workspace/wp-kernel# sed -n '1,160p' packages/cli/src/builders/php/domains/wp-post/index.ts
 import type { IRResource } from '../../../../../ir';
 import type { PrinterContext } from '../types';
-import type { PhpFileBuilder } from '@wpkernel/cli/next/builders/php';
+import type { PhpFileBuilder } from '@wpkernel/cli/builders/php';
 import { createWpPostContext } from './context';
 import { buildWpPostMethods } from './handlers';
 import type { WpPostRouteDefinition } from './types';

@@ -18,7 +18,7 @@ const withWorkspace = buildWorkspaceRunner({
 	},
 });
 
-describe('NextApplyCommand error handling', () => {
+describe('ApplyCommand error handling', () => {
 	it('maps validation kernel errors to validation exit code', async () => {
 		await withWorkspace(async (workspace) => {
 			const applyMock = jest.fn(async () => {

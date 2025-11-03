@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createReporterMock } from '@wpkernel/test-utils/cli';
 import { withWorkspace } from '../workspace.test-support';
-import { buildWorkspace } from '../../src/next/workspace';
+import { buildWorkspace } from '../../src/workspace';
 import { runInitWorkflow } from '../../src/commands/init/workflow';
 
 describe('runInitWorkflow integration', () => {

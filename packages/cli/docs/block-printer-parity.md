@@ -84,7 +84,7 @@ documented here remains a parity checklist for the AST-first builders.
   to call the context’s `writeFile` to keep summaries accurate.
 - Until v0.8.0 removed the delegation layer, `packages/cli/src/commands/generate.ts`
   loaded the legacy command at runtime and proxied CLI options. Builders in
-  `src/next/**` therefore had to remain API-compatible with the legacy printers
+  `src/**` therefore had to remain API-compatible with the legacy printers
   until the removal landed.
 
 ## Behavioural guardrails to preserve

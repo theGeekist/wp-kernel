@@ -58,19 +58,19 @@
 
 ### TFragmentKind
 
-`TFragmentKind` _extends_ [`HelperKind`](../../../../../php-json-ast/src/type-aliases/HelperKind.md) = `"fragment"`
+`TFragmentKind` _extends_ [`HelperKind`](../../../../../@wpkernel/cli/type-aliases/HelperKind.md) = `"fragment"`
 
 ### TBuilderKind
 
-`TBuilderKind` _extends_ [`HelperKind`](../../../../../php-json-ast/src/type-aliases/HelperKind.md) = `"builder"`
+`TBuilderKind` _extends_ [`HelperKind`](../../../../../@wpkernel/cli/type-aliases/HelperKind.md) = `"builder"`
 
 ### TFragmentHelper
 
-`TFragmentHelper` _extends_ [`Helper`](../../../../../php-json-ast/src/interfaces/Helper.md)\&lt;`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`, `TFragmentKind`\&gt; = [`Helper`](../../../../../php-json-ast/src/interfaces/Helper.md)\&lt;`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`, `TFragmentKind`\&gt;
+`TFragmentHelper` _extends_ [`Helper`](../../../../../@wpkernel/cli/interfaces/Helper.md)\&lt;`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`, `TFragmentKind`\&gt; = [`Helper`](../../../../../@wpkernel/cli/interfaces/Helper.md)\&lt;`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`, `TFragmentKind`\&gt;
 
 ### TBuilderHelper
 
-`TBuilderHelper` _extends_ [`Helper`](../../../../../php-json-ast/src/interfaces/Helper.md)\&lt;`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`, `TBuilderKind`\&gt; = [`Helper`](../../../../../php-json-ast/src/interfaces/Helper.md)\&lt;`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`, `TBuilderKind`\&gt;
+`TBuilderHelper` _extends_ [`Helper`](../../../../../@wpkernel/cli/interfaces/Helper.md)\&lt;`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`, `TBuilderKind`\&gt; = [`Helper`](../../../../../@wpkernel/cli/interfaces/Helper.md)\&lt;`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`, `TBuilderKind`\&gt;
 
 ## Properties
 
@@ -114,7 +114,7 @@ readonly createBuilderArgs: (options) => HelperApplyOptions<TContext, TBuilderIn
 
 #### Returns
 
-[`HelperApplyOptions`](../../../../../php-json-ast/src/interfaces/HelperApplyOptions.md)\&lt;`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`\&gt;
+[`HelperApplyOptions`](../../../../../@wpkernel/cli/interfaces/HelperApplyOptions.md)\&lt;`TContext`, `TBuilderInput`, `TBuilderOutput`, `TReporter`\&gt;
 
 ---
 
@@ -246,7 +246,7 @@ readonly createFragmentArgs: (options) => HelperApplyOptions<TContext, TFragment
 
 #### Returns
 
-[`HelperApplyOptions`](../../../../../php-json-ast/src/interfaces/HelperApplyOptions.md)\&lt;`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`\&gt;
+[`HelperApplyOptions`](../../../../../@wpkernel/cli/interfaces/HelperApplyOptions.md)\&lt;`TContext`, `TFragmentInput`, `TFragmentOutput`, `TReporter`\&gt;
 
 ---
 
@@ -342,7 +342,7 @@ readonly `TDiagnostic`[]
 
 ###### steps
 
-readonly [`PipelineStep`](PipelineStep.md)\&lt;[`HelperKind`](../../../../../php-json-ast/src/type-aliases/HelperKind.md)\&gt;[]
+readonly [`PipelineStep`](PipelineStep.md)\&lt;[`HelperKind`](../../../../../@wpkernel/cli/type-aliases/HelperKind.md)\&gt;[]
 
 #### Returns
 

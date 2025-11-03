@@ -2,7 +2,7 @@
 
 _See [Docs Index](./index.md) for navigation._
 
-**Scope:** This guide documents the adapter surfaces that exist **today** inside the next-generation CLI pipeline (`packages/cli/src/next/**`). String-based printers from the old CLI are referenced only when they help explain future work; adapters should target the AST-first pipeline exclusively.
+**Scope:** This guide documents the adapter surfaces that exist **today** inside the CLI pipeline (`packages/cli/src/**`). String-based printers from the old CLI are referenced only when they help explain future work; adapters should target the AST-first pipeline exclusively.
 
 Adapters currently plug into the next pipeline in two ways:
 
@@ -36,7 +36,7 @@ export const wpkConfig: WPKernelConfigV1 = {
 
 - Each factory receives an `AdapterContext` with the loaded config, reporter, and sanitised namespace (`packages/cli/src/config/types.ts:90-110`).
 - The factory returns one extension, multiple extensions, or nothing (to opt out in a given environment).
-- Invalid extensions raise a `WPKernelError('DeveloperError', …)` and abort the run before any files are written (`packages/cli/src/next/runtime/adapterExtensions.ts:100-134`).
+- Invalid extensions raise a `WPKernelError('DeveloperError', …)` and abort the run before any files are written (`packages/cli/src/runtime/adapterExtensions.ts:100-134`).
 
 > **Illustrative note:** the old CLI exposed `adapters.php` for string printers. The next pipeline prints PHP from AST programs, so adapters should integrate via the AST APIs described below.
 
@@ -44,12 +44,12 @@ export const wpkConfig: WPKernelConfigV1 = {
 
 ## 2. Extension lifecycle
 
-The next pipeline wires adapter extensions automatically when `createIr` executes (`packages/cli/src/next/ir/createIr.ts:33-52`):
+The next pipeline wires adapter extensions automatically when `createIr` executes (`packages/cli/src/ir/createIr.ts:33-52`):
 
 1. IR fragments run first (meta, schemas, resources, capabilities, diagnostics).
-2. During the `generate` phase the pipeline invokes the adapter extension hook (`packages/cli/src/next/runtime/adapterExtensions.ts:134-170`).
+2. During the `generate` phase the pipeline invokes the adapter extension hook (`packages/cli/src/runtime/adapterExtensions.ts:134-170`).
 3. Extensions execute serially. Each receives a **cloned** IR snapshot plus a sandbox directory. They may:
-    - patch the clone and call `updateIr(nextIr)` so downstream extensions and builders see the change;
+    - patch the clone and call `updateIr(ir)` so downstream extensions and builders see the change;
     - queue files with `queueFile(filePath, contents)`; files remain in the sandbox until the pipeline succeeds (`packages/cli/src/adapters/extensions.ts:64-120`);
     - write scratch data inside `tempDir` without touching the workspace.
 4. When every extension finishes the pipeline either:
@@ -72,7 +72,7 @@ export interface AdapterExtension {
 `AdapterExtensionContext` (`packages/cli/src/config/types.ts:90-116`) exposes:
 
 - `ir` - a mutable clone of the IR (`IRv1`).
-- `updateIr(nextIr)` - replace the clone that subsequent extensions (and the builders) will consume.
+- `updateIr(ir)` - replace the clone that subsequent extensions (and the builders) will consume.
 - `outputDir` - absolute path to `.generated/` inside the active workspace.
 - `configDirectory` - directory that contains the active `wpk.config.*` file.
 - `tempDir` - a sandbox folder dedicated to this extension.
@@ -112,7 +112,7 @@ export const enforceCapabilityFallback: AdapterExtension = {
 };
 ```
 
-`createPhpBuilder` reads the modified capability map and emits the updated helper automatically (`packages/cli/src/next/builders/php/capability.ts:21-110`).
+`createPhpBuilder` reads the modified capability map and emits the updated helper automatically (`packages/cli/src/builders/php/capability.ts:21-110`).
 
 ### 4.2 Queue supplemental files
 
@@ -168,24 +168,24 @@ export const generateStubController: AdapterExtension = {
 };
 ```
 
-This pattern mirrors what the core writer does (`packages/cli/src/next/builders/php/writer.ts:30-68`). Whenever possible, prefer IR rewrites so the built-in helpers continue to guarantee parity.
+This pattern mirrors what the core writer does (`packages/cli/src/builders/php/writer.ts:30-68`). Whenever possible, prefer IR rewrites so the built-in helpers continue to guarantee parity.
 
 ---
 
 ## 5. Logging, testing, and failure handling
 
-- Extensions inherit a child reporter namespaced as `adapter` (`packages/cli/src/next/runtime/adapterExtensions.ts:128-166`); use it for structured logs.
+- Extensions inherit a child reporter namespaced as `adapter` (`packages/cli/src/runtime/adapterExtensions.ts:128-166`); use it for structured logs.
 - Unit tests can drive `runAdapterExtensions` directly to validate commit/rollback behaviour (`packages/cli/src/adapters/__tests__/extensions.test.ts:12-213`).
-- When an extension throws, the pipeline reports the normalised error and refuses to write any staged files (`packages/cli/src/next/runtime/adapterExtensions.ts:113-166`).
+- When an extension throws, the pipeline reports the normalised error and refuses to write any staged files (`packages/cli/src/runtime/adapterExtensions.ts:113-166`).
 
 ---
 
-## 6. Roadmap (aligned with next/\* workstreams)
+## 6. Roadmap (aligned with workstreams)
 
 The current surface deliberately favours IR rewrites. To deliver the richer DX hinted at in earlier drafts we still need:
 
 1. **Recipe builders on top of `@wpkernel/php-json-ast`.** With wp-option and transient parity now landing (`packages/cli/docs/php-ast-migration-tasks.md`), expose high-level helpers (permission macros, REST args merges, namespace helpers) that manipulate queued `PhpProgram` payloads.
-2. **Formatter plumbing.** `formatPhp`/`formatTs` in the extension context should call the wpk formatter helpers rather than acting as pass-throughs (`packages/cli/src/next/runtime/adapterExtensions.ts:140-152`).
+2. **Formatter plumbing.** `formatPhp`/`formatTs` in the extension context should call the wpk formatter helpers rather than acting as pass-throughs (`packages/cli/src/runtime/adapterExtensions.ts:140-152`).
 3. **Scaffolding and test tooling.** Future commands like `wpk adapter scaffold`/`test` should target the AST-first builders (no string templates).
 4. **Slot documentation.** After the recipe layer lands, auto-generate slot references from the AST helpers to keep documentation accurate.
 
@@ -198,10 +198,10 @@ Until these milestones land, adapters should continue to lean on IR rewrites and
 | Concern              | What exists today                                           | Location                                                                                          |
 | -------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | Registering adapters | `config.adapters.extensions` (on `WPKernelConfigV1`)        | `packages/cli/src/config/types.ts:113-118`                                                        |
-| Extension execution  | Runs during `generate`, serial order, sandboxed writes      | `packages/cli/src/next/runtime/adapterExtensions.ts:100-170`                                      |
+| Extension execution  | Runs during `generate`, serial order, sandboxed writes      | `packages/cli/src/runtime/adapterExtensions.ts:100-170`                                           |
 | Updating the IR      | Call `updateIr` inside `apply`                              | `packages/cli/src/adapters/extensions.ts:64-120`                                                  |
 | Staging files        | `queueFile` + sandbox commit                                | `packages/cli/src/adapters/__tests__/extensions.test.ts`                                          |
-| Emitting PHP         | Build `PhpProgram`, pretty-print via `@wpkernel/php-driver` | `packages/cli/src/next/builders/php/writer.ts:30-68`                                              |
+| Emitting PHP         | Build `PhpProgram`, pretty-print via `@wpkernel/php-driver` | `packages/cli/src/builders/php/writer.ts:30-68`                                                   |
 | Future recipe API    | Pending block printer parity + formatter plumbing           | `packages/cli/docs/php-ast-migration-tasks.md`, `packages/cli/docs/pipeline-integration-tasks.md` |
 
 Use this table as a checklist when introducing new adapters or evaluating future work. Each item links directly to the implementation that enforces the behaviour today.

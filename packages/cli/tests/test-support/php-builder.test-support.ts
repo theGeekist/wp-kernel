@@ -4,12 +4,12 @@ import type {
 	BuilderInput,
 	BuilderOutput,
 	PipelineContext,
-} from '../../src/next/runtime/types';
-import type { IRv1 } from '../../src/next/ir/publicTypes';
+} from '../../src/runtime/types';
+import type { IRv1 } from '../../src/ir/publicTypes';
 import type { WPKernelConfigV1 } from '../../src/config/types';
 import { makeWorkspaceMock } from '../workspace.test-support';
-import type { Workspace } from '../../src/next/workspace/types';
-import { buildEmptyGenerationState } from '../../src/next/apply/manifest';
+import type { Workspace } from '../../src/workspace/types';
+import { buildEmptyGenerationState } from '../../src/apply/manifest';
 
 const DEFAULT_CONFIG_SOURCE = 'tests.config.ts';
 

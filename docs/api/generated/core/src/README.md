@@ -167,22 +167,19 @@ import { fetch, defineResource, WPKernelError } from '@wpkernel/core';
 
 ## Functions
 
+### Resource
+
+- [createStore](functions/createStore.md)
+- [defineResource](functions/defineResource.md)
+- [interpolatePath](functions/interpolatePath.md)
+- [invalidate](functions/invalidate.md)
+- [normalizeCacheKey](functions/normalizeCacheKey.md)
+
 ### Actions
 
 - [createActionMiddleware](functions/createActionMiddleware.md)
 - [defineAction](functions/defineAction.md)
 - [invokeAction](functions/invokeAction.md)
-
-### Capability
-
-- [createCapabilityProxy](functions/createCapabilityProxy.md)
-- [defineCapability](functions/defineCapability.md)
-
-### Data
-
-- [configureWPKernel](functions/configureWPKernel.md)
-- [registerWPKernelStore](functions/registerWPKernelStore.md)
-- [wpkEventsPlugin](functions/wpkEventsPlugin.md)
 
 ### Events
 
@@ -193,20 +190,24 @@ import { fetch, defineResource, WPKernelError } from '@wpkernel/core';
 - [getWPKernelEventBus](functions/getWPKernelEventBus.md)
 - [setWPKernelEventBus](functions/setWPKernelEventBus.md)
 
+### Data
+
+- [configureWPKernel](functions/configureWPKernel.md)
+- [registerWPKernelStore](functions/registerWPKernelStore.md)
+- [wpkEventsPlugin](functions/wpkEventsPlugin.md)
+
 ### HTTP
 
 - [fetch](functions/fetch.md)
 
+### Capability
+
+- [createCapabilityProxy](functions/createCapabilityProxy.md)
+- [defineCapability](functions/defineCapability.md)
+
 ### Interactivity
 
 - [defineInteraction](functions/defineInteraction.md)
-
-### Namespace
-
-- [detectNamespace](functions/detectNamespace.md)
-- [getNamespace](functions/getNamespace.md)
-- [isValidNamespace](functions/isValidNamespace.md)
-- [sanitizeNamespace](functions/sanitizeNamespace.md)
 
 ### Reporter
 
@@ -216,13 +217,12 @@ import { fetch, defineResource, WPKernelError } from '@wpkernel/core';
 - [getWPKernelReporter](functions/getWPKernelReporter.md)
 - [setWPKernelReporter](functions/setWPKernelReporter.md)
 
-### Resource
+### Namespace
 
-- [createStore](functions/createStore.md)
-- [defineResource](functions/defineResource.md)
-- [interpolatePath](functions/interpolatePath.md)
-- [invalidate](functions/invalidate.md)
-- [normalizeCacheKey](functions/normalizeCacheKey.md)
+- [detectNamespace](functions/detectNamespace.md)
+- [getNamespace](functions/getNamespace.md)
+- [isValidNamespace](functions/isValidNamespace.md)
+- [sanitizeNamespace](functions/sanitizeNamespace.md)
 
 ## References
 

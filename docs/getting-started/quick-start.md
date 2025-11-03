@@ -54,10 +54,10 @@ pnpm wpk generate
 pnpm wpk apply
 ```
 
-- `wpk generate` writes `.generated/types/*.d.ts`, `.generated/php/**`, optional `.generated/ui/**`, and block registration files based on the config.【F:packages/cli/src/next/builders/ts.ts†L1-L200】【F:packages/cli/src/next/builders/php/builder.ts†L1-L80】 The command summary lists how many files were written, skipped, or removed.
+- `wpk generate` writes `.generated/types/*.d.ts`, `.generated/php/**`, optional `.generated/ui/**`, and block registration files based on the config.【F:packages/cli/src/builders/ts.ts†L1-L200】【F:packages/cli/src/builders/php/builder.ts†L1-L80】 The command summary lists how many files were written, skipped, or removed.
 - `wpk apply` copies `.generated/php/**` into `inc/` and `.generated/build/**` into `build/`, respecting `--yes`, `--backup`, and `--force` flags.【F:packages/cli/src/commands/apply.ts†L1-L260】
 
-Inspect `.generated/php/Rest/JobController.php` and `inc/` after the apply step to see the generated bridge. The PHP controllers include capability guards based on `capability` hints and expose `get_rest_args()` data derived from your schema.【F:packages/cli/src/next/builders/php/resourceController.ts†L1-L220】
+Inspect `.generated/php/Rest/JobController.php` and `inc/` after the apply step to see the generated bridge. The PHP controllers include capability guards based on `capability` hints and expose `get_rest_args()` data derived from your schema.【F:packages/cli/src/builders/php/resourceController.ts†L1-L220】
 
 ## 4. Attach the UI runtime
 
@@ -72,7 +72,7 @@ const kernel = configureWPKernel({ namespace: wpkConfig.namespace });
 export const ui = attachUIBindings(kernel);
 ```
 
-Once attached, components call `job.useList()` or render `<ResourceDataView>` when `ui.admin.dataviews` metadata exists in the config.【F:packages/ui/src/hooks/resource-hooks.ts†L1-L120】【F:packages/cli/src/next/builders/ts.ts†L1-L200】
+Once attached, components call `job.useList()` or render `<ResourceDataView>` when `ui.admin.dataviews` metadata exists in the config.【F:packages/ui/src/hooks/resource-hooks.ts†L1-L120】【F:packages/cli/src/builders/ts.ts†L1-L200】
 
 ## 5. Iterate in watch mode
 

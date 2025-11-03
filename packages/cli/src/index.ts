@@ -41,6 +41,19 @@ export type {
 	IRBlock,
 	IRPhpProject,
 	BuildIrOptions,
-} from './next/ir/publicTypes';
-export { buildIr } from './next/ir/buildIr';
-export * as next from './next';
+} from './ir/publicTypes';
+export { buildIr } from './ir/buildIr';
+export type {
+	Helper,
+	HelperApplyFn,
+	HelperApplyOptions,
+	HelperDescriptor,
+	HelperKind,
+	HelperMode,
+	CreateHelperOptions,
+} from '@wpkernel/core/pipeline';
+export * from './runtime';
+export * from './ir';
+export * from './builders';
+export * from './workspace';
+export * from './commands';

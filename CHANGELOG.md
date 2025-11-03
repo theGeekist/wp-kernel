@@ -55,7 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
-- **Legacy CLI shims** – Deleted the string-based printers and Clipanion command classes, wiring the CLI entrypoint directly to the next-generation command factories.
+- **Legacy CLI shims** – Deleted the string-based printers and Clipanion command classes, wiring the CLI entrypoint directly to the command factories.
 
 ### Changed
 
@@ -73,7 +73,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Block builder parity** – The next-generation pipeline now stages block manifests, registrars, and render stubs through shared helpers for both SSR and JS-only variants, matching the legacy printers without string-based generation.
+- **Block builder parity** – The pipeline now stages block manifests, registrars, and render stubs through shared helpers for both SSR and JS-only variants, matching the legacy printers without string-based generation.
 
 ### Fixed
 
@@ -109,7 +109,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **wp-option AST parity** – The next-generation CLI pipeline now emits wp-option controllers, helpers, and routes as `PhpProgram` artefacts alongside existing post and taxonomy resources, replacing the legacy string-based printer.
+- **wp-option AST parity** – The CLI pipeline now emits wp-option controllers, helpers, and routes as `PhpProgram` artefacts alongside existing post and taxonomy resources, replacing the legacy string-based printer.
 
 ### Changed
 

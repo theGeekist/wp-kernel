@@ -1,6 +1,7 @@
 // docs/.vitepress/config.ts
 import { defineConfig } from 'vitepress';
 import { withMermaid } from 'vitepress-plugin-mermaid';
+import tabsMarkdownPlugin from '@red-asuka/vitepress-plugin-tabs';
 
 // Fast mode for pre-commit hooks (MPA mode + no minification)
 // Defaults to enabled locally unless DOCS_FAST=0/false.
@@ -49,6 +50,9 @@ export default withMermaid(
 		mpa: FAST, // <-- set to (FAST || PROD) if you want minimal JS in production too		// Big win: limit Shiki languages (reduces client+server bundle a lot)
 		markdown: {
 			theme: { light: 'github-light', dark: 'github-dark' },
+			config(md) {
+				md.use(tabsMarkdownPlugin);
+			},
 		},
 
 		// Exclude heavy generated API pages from local search index (keeps render, shrinks search)

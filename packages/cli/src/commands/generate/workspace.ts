@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { createHash as buildHash } from 'node:crypto';
-import { toWorkspaceRelative } from '../../next/workspace';
+import { toWorkspaceRelative } from '../../workspace';
 import type { FileWriterSummary } from '../../utils';
 import type {
 	SummaryBuilderOptions,
@@ -16,7 +16,7 @@ import type {
 	WorkspaceRemoveOptions,
 	WorkspaceFileManifest,
 } from './types';
-import type { Workspace } from '../../next/workspace';
+import type { Workspace } from '../../workspace';
 
 class SummaryBuilder implements SummaryBuilderContract {
 	readonly #workspace: Workspace;

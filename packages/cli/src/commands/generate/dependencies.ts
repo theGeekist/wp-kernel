@@ -2,13 +2,10 @@ import path from 'node:path';
 import { WPK_NAMESPACE } from '@wpkernel/core/contracts';
 import { createReporter as buildReporter } from '@wpkernel/core/reporter';
 import { loadWPKernelConfig } from '../../config';
-import { buildWorkspace } from '../../next/workspace';
-import { createPipeline } from '../../next/runtime';
-import {
-	registerCoreBuilders,
-	registerCoreFragments,
-} from '../../next/ir/createIr';
-import { buildAdapterExtensionsExtension } from '../../next/runtime/adapterExtensions';
+import { buildWorkspace } from '../../workspace';
+import { createPipeline } from '../../runtime';
+import { registerCoreBuilders, registerCoreFragments } from '../../ir/createIr';
+import { buildAdapterExtensionsExtension } from '../../runtime/adapterExtensions';
 import { renderSummary } from '../run-generate/summary';
 import { validateGeneratedImports } from '../run-generate/validation';
 import type {

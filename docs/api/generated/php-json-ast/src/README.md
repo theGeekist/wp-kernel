@@ -13,15 +13,11 @@
 - [BuilderOutput](interfaces/BuilderOutput.md)
 - [BuilderWriteAction](interfaces/BuilderWriteAction.md)
 - [ConsumePhpProgramIngestionOptions](interfaces/ConsumePhpProgramIngestionOptions.md)
-- [CreateHelperOptions](interfaces/CreateHelperOptions.md)
 - [CreatePhpFileBuilderOptions](interfaces/CreatePhpFileBuilderOptions.md)
 - [CreatePhpProgramBuilderOptions](interfaces/CreatePhpProgramBuilderOptions.md)
 - [CreatePhpProgramWriterHelperOptions](interfaces/CreatePhpProgramWriterHelperOptions.md)
 - [DelimitedLinesResult](interfaces/DelimitedLinesResult.md)
 - [FlushBufferedMessageResult](interfaces/FlushBufferedMessageResult.md)
-- [Helper](interfaces/Helper.md)
-- [HelperApplyOptions](interfaces/HelperApplyOptions.md)
-- [HelperDescriptor](interfaces/HelperDescriptor.md)
 - [PhpArg](interfaces/PhpArg.md)
 - [PhpAstBuilder](interfaces/PhpAstBuilder.md)
 - [PhpAstBuilderAdapter](interfaces/PhpAstBuilderAdapter.md)
@@ -154,9 +150,6 @@
 ## Type Aliases
 
 - [BuilderHelper](type-aliases/BuilderHelper.md)
-- [HelperApplyFn](type-aliases/HelperApplyFn.md)
-- [HelperKind](type-aliases/HelperKind.md)
-- [HelperMode](type-aliases/HelperMode.md)
 - [PhpAttributes](type-aliases/PhpAttributes.md)
 - [PhpBinaryOperator](type-aliases/PhpBinaryOperator.md)
 - [PhpBuilderFactoryArgument](type-aliases/PhpBuilderFactoryArgument.md)
@@ -194,6 +187,8 @@
 - [PHP_METHOD_MODIFIER_STATIC](variables/PHP_METHOD_MODIFIER_STATIC.md)
 
 ## Functions
+
+### Other
 
 - [addUseEntry](functions/addUseEntry.md)
 - [appendDocblockLine](functions/appendDocblockLine.md)
@@ -262,7 +257,6 @@
 - [convertBuilderIntentToArgument](functions/convertBuilderIntentToArgument.md)
 - [convertLiteralToExpression](functions/convertLiteralToExpression.md)
 - [createBaselineCodemodConfiguration](functions/createBaselineCodemodConfiguration.md)
-- [createHelper](functions/createHelper.md)
 - [createPhpFileBuilder](functions/createPhpFileBuilder.md)
 - [createPhpProgramBuilder](functions/createPhpProgramBuilder.md)
 - [createPhpProgramWriterHelper](functions/createPhpProgramWriterHelper.md)
@@ -297,3 +291,49 @@
 - [serialisePhpNodeFinderQueryConfiguration](functions/serialisePhpNodeFinderQueryConfiguration.md)
 - [setNamespaceParts](functions/setNamespaceParts.md)
 - [toAsyncIterable](functions/toAsyncIterable.md)
+
+### Pipeline
+
+- [createHelper](functions/createHelper.md)
+
+## References
+
+### CreateHelperOptions
+
+Re-exports [CreateHelperOptions](../../@wpkernel/cli/interfaces/CreateHelperOptions.md)
+
+---
+
+### Helper
+
+Re-exports [Helper](../../@wpkernel/cli/interfaces/Helper.md)
+
+---
+
+### HelperApplyFn
+
+Re-exports [HelperApplyFn](../../@wpkernel/cli/type-aliases/HelperApplyFn.md)
+
+---
+
+### HelperApplyOptions
+
+Re-exports [HelperApplyOptions](../../@wpkernel/cli/interfaces/HelperApplyOptions.md)
+
+---
+
+### HelperDescriptor
+
+Re-exports [HelperDescriptor](../../@wpkernel/cli/interfaces/HelperDescriptor.md)
+
+---
+
+### HelperKind
+
+Re-exports [HelperKind](../../@wpkernel/cli/type-aliases/HelperKind.md)
+
+---
+
+### HelperMode
+
+Re-exports [HelperMode](../../@wpkernel/cli/type-aliases/HelperMode.md)

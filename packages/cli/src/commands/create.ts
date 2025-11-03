@@ -8,8 +8,8 @@ import {
 	type WPKExitCode,
 } from '@wpkernel/core/contracts';
 import type { Reporter } from '@wpkernel/core/reporter';
-import type { Workspace, FileManifest } from '../next/workspace';
-import { buildWorkspace, ensureCleanDirectory } from '../next/workspace';
+import type { Workspace, FileManifest } from '../workspace';
+import { buildWorkspace, ensureCleanDirectory } from '../workspace';
 import { runInitWorkflow } from './init/workflow';
 import { initialiseGitRepository, isGitRepository } from './init/git';
 import {
@@ -91,7 +91,7 @@ export function buildCreateCommand(
 ): CreateCommandConstructor {
 	const dependencies = mergeDependencies(options);
 
-	class NextCreateCommand extends Command {
+	class CreateCommand extends Command {
 		static override paths = [['create']];
 
 		static override usage = Command.Usage({
@@ -241,5 +241,5 @@ export function buildCreateCommand(
 		}
 	}
 
-	return NextCreateCommand as CreateCommandConstructor;
+	return CreateCommand as CreateCommandConstructor;
 }

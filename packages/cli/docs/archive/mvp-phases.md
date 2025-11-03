@@ -191,7 +191,7 @@ All modes properly return 501 for unsupported operations and leverage shared inf
 
 - `packages/cli/src/printers/php/wp-taxonomy/*` (modular term CRUD)
 - `packages/cli/src/printers/php/wp-option.ts` (option storage)
-- `packages/cli/src/next/builders/php/resource/transient/**` (transient storage, legacy printer archived at `packages/cli/src/printers/php/transient.ts`)
+- `packages/cli/src/builders/php/resource/transient/**` (transient storage, legacy printer archived at `packages/cli/src/printers/php/transient.ts`)
 - Tests: `packages/cli/src/printers/php/__tests__/wp-taxonomy-controller.test.ts`, `wp-option-controller.test.ts`, `transient-controller.test.ts`
 
 ---

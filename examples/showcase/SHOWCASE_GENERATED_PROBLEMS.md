@@ -24,10 +24,10 @@
 
 ## Testing Strategy Gaps
 
-- **Existing coverage** - The next builders ship focused unit suites (`packages/cli/src/next/builders/php/__tests__/**`) and end-to-end snapshots in `packages/cli/src/next/builders/php/__tests__/generate.integration.test.ts`. CLI command suites (`packages/cli/src/commands/__tests__/…`) exercise the factories without relying on the removed `runGenerate` shim.
+- **Existing coverage** - The next builders ship focused unit suites (`packages/cli/src/builders/php/__tests__/**`) and end-to-end snapshots in `packages/cli/src/builders/php/__tests__/generate.integration.test.ts`. CLI command suites (`packages/cli/src/commands/__tests__/…`) exercise the factories without relying on the removed `runGenerate` shim.
 - **What slipped through**
     - Printer tests assert string equality only; none shell out to `php -l`, so syntax errors like the illegal `continue;` and `${variable}` placeholder survive.
     - Generated TS/TSX artefacts are snapshot-checked but never compiled, so missing imports in `.generated/ui/app/job/admin/JobsAdminScreen.tsx` went unnoticed.
     - Scaffolded workspace configs aren’t validated end-to-end; no test runs `wpk init` and then executes the generated `pnpm run typecheck`/`build`, so alias drift and missing dependencies slip past.
 
-This problem log feeds into the next-generation CLI architecture captured in `packages/cli/docs/cli-migration-phases.md`, which tackles the systemic issues highlighted above.
+This problem log feeds into the CLI architecture captured in `packages/cli/docs/cli-migration-phases.md`, which tackles the systemic issues highlighted above.

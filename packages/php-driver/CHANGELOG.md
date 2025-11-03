@@ -52,4 +52,4 @@
 ### Added
 
 - Initial driver release with PHP bridge installer and execution helpers for the
-  next-generation CLI pipeline.
+  CLI pipeline.

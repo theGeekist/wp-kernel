@@ -4,8 +4,8 @@ _See [Docs Index](./index.md) for navigation._
 
 Status: **Phases 0-6 shipped (pipeline alignment complete)**
 Version train: **v0.10.x (pre-1.0)**
-Scope: `packages/cli/src/next/**`  
-Audience: maintainers and contributors working on the wpk helper-first pipeline (`packages/cli/src/next/**`).
+Scope: `packages/cli/src/**`  
+Audience: maintainers and contributors working on the wpk helper-first pipeline (`packages/cli/src/**`).
 
 This document replaces earlier drafts (`next-cli.md.audit-backup`, `next-cli.md.orig`). All relevant context from those files now lives here.
 
@@ -76,9 +76,9 @@ Core builders exist:
 
 ### Testing
 
-- Shared fixtures for next helpers live in `packages/test-utils/src/next/**` (workspace mocks, PHP AST builders, pipeline fixtures).
-- Jest suites cover runtime, builders, and commands (see `packages/cli/src/next/**/__tests__`).
-- The PHP pipeline now ships an end-to-end integration test (`packages/cli/src/next/builders/php/__tests__/generate.integration.test.ts`) that snapshots generated controllers/capability output to confirm the AST builders write the expected artefacts. Re-run it with `pnpm --filter @wpkernel/cli test -- --runTestsByPath packages/cli/src/next/builders/php/__tests__/generate.integration.test.ts` when updating fixtures.
+- Shared fixtures for next helpers live in `packages/test-utils/src/**` (workspace mocks, PHP AST builders, pipeline fixtures).
+- Jest suites cover runtime, builders, and commands (see `packages/cli/src/**/__tests__`).
+- The PHP pipeline now ships an end-to-end integration test (`packages/cli/src/builders/php/__tests__/generate.integration.test.ts`) that snapshots generated controllers/capability output to confirm the AST builders write the expected artefacts. Re-run it with `pnpm --filter @wpkernel/cli test -- --runTestsByPath packages/cli/src/builders/php/__tests__/generate.integration.test.ts` when updating fixtures.
 
 ---
 
@@ -109,7 +109,7 @@ Keep these rules updated whenever the config contract evolves.
 All reusable helpers use the same shape:
 
 ```ts
-import { createHelper } from '@wpkernel/cli/next/runtime';
+import { createHelper } from '@wpkernel/cli/runtime';
 
 export const createExampleHelper = () =>
 	createHelper({
@@ -128,7 +128,7 @@ export const createExampleHelper = () =>
 - `input` - fragment helpers receive `{ draft, options }`; builder helpers receive `{ ir, options, phase }`.
 - `output` - fragments expose `assign/merge` operations; builders expose `queueWrite`.
 - Helpers must remain pure: no hidden global state; all filesystem writes go through the provided workspace.
-- Tests should instantiate helpers with mocks from `packages/test-utils/src/next/**`.
+- Tests should instantiate helpers with mocks from `packages/test-utils/src/**`.
 
 ---
 
@@ -169,7 +169,7 @@ We reach “next CLI parity” when:
 
 1. Commands (`apply`, `generate`, `start`, `init`, `doctor`) run natively on the new pipeline with feature parity (flags, logging, prompts).
 2. Builders emit artefacts on par with or intentionally improved over the previous string-based implementation (PHP, blocks, TS, bundler) and golden tests capture expected differences.
-3. Remaining string-based printers and command shims are retired; only the `packages/cli/src/next/**` pipeline remains.
+3. Remaining string-based printers and command shims are retired; only the `packages/cli/src/**` pipeline remains.
 4. Adapter/extension surfaces are documented, stable, and covered by unit tests (`createHelper`, adapter extensions, command factories).
 5. Coverage (unit/integration/E2E) meets or exceeds the historical baseline, and lint/typecheck/test tasks run cleanly.
 6. Documentation (this brief, AST parity plan, adapter spec, apply workflow) reflects the current architecture and migration status.

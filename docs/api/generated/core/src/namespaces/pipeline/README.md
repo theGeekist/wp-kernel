@@ -32,9 +32,14 @@
 
 ## Functions
 
-- [createPipeline](functions/createPipeline.md)
+### Other
+
 - [createPipelineCommit](functions/createPipelineCommit.md)
 - [createPipelineRollback](functions/createPipelineRollback.md)
+
+### Pipeline
+
+- [createPipeline](functions/createPipeline.md)
 
 ## References
 
@@ -46,40 +51,40 @@ Re-exports [createHelper](../../../../php-json-ast/src/functions/createHelper.md
 
 ### CreateHelperOptions
 
-Re-exports [CreateHelperOptions](../../../../php-json-ast/src/interfaces/CreateHelperOptions.md)
+Re-exports [CreateHelperOptions](../../../../@wpkernel/cli/interfaces/CreateHelperOptions.md)
 
 ---
 
 ### Helper
 
-Re-exports [Helper](../../../../php-json-ast/src/interfaces/Helper.md)
+Re-exports [Helper](../../../../@wpkernel/cli/interfaces/Helper.md)
 
 ---
 
 ### HelperApplyFn
 
-Re-exports [HelperApplyFn](../../../../php-json-ast/src/type-aliases/HelperApplyFn.md)
+Re-exports [HelperApplyFn](../../../../@wpkernel/cli/type-aliases/HelperApplyFn.md)
 
 ---
 
 ### HelperApplyOptions
 
-Re-exports [HelperApplyOptions](../../../../php-json-ast/src/interfaces/HelperApplyOptions.md)
+Re-exports [HelperApplyOptions](../../../../@wpkernel/cli/interfaces/HelperApplyOptions.md)
 
 ---
 
 ### HelperDescriptor
 
-Re-exports [HelperDescriptor](../../../../php-json-ast/src/interfaces/HelperDescriptor.md)
+Re-exports [HelperDescriptor](../../../../@wpkernel/cli/interfaces/HelperDescriptor.md)
 
 ---
 
 ### HelperKind
 
-Re-exports [HelperKind](../../../../php-json-ast/src/type-aliases/HelperKind.md)
+Re-exports [HelperKind](../../../../@wpkernel/cli/type-aliases/HelperKind.md)
 
 ---
 
 ### HelperMode
 
-Re-exports [HelperMode](../../../../php-json-ast/src/type-aliases/HelperMode.md)
+Re-exports [HelperMode](../../../../@wpkernel/cli/type-aliases/HelperMode.md)

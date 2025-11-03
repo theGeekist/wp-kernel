@@ -1,7 +1,7 @@
 import { createReporter } from '@wpkernel/core/reporter';
 import { loadWPKernelConfig } from '../../config';
-import { buildWorkspace, promptConfirm } from '../../next/workspace';
-import { createPatcher } from '../../next/builders';
+import { buildWorkspace, promptConfirm } from '../../workspace';
+import { createPatcher } from '../../builders';
 import { appendApplyLog } from './logging';
 import { createBackups } from './backups';
 import { buildBuilderOutput, readManifest } from './io';

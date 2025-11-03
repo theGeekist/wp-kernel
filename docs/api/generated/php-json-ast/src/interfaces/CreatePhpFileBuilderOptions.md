@@ -56,7 +56,7 @@ readonly optional dependsOn: readonly string[];
 
 #### Inherited from
 
-[`CreateHelperOptions`](CreateHelperOptions.md).[`dependsOn`](CreateHelperOptions.md#dependson)
+[`CreateHelperOptions`](../../../@wpkernel/cli/interfaces/CreateHelperOptions.md).[`dependsOn`](../../../@wpkernel/cli/interfaces/CreateHelperOptions.md#dependson)
 
 ---
 
@@ -110,7 +110,7 @@ readonly optional mode: HelperMode;
 
 #### Inherited from
 
-[`CreateHelperOptions`](CreateHelperOptions.md).[`mode`](CreateHelperOptions.md#mode)
+[`CreateHelperOptions`](../../../@wpkernel/cli/interfaces/CreateHelperOptions.md).[`mode`](../../../@wpkernel/cli/interfaces/CreateHelperOptions.md#mode)
 
 ---
 
@@ -136,7 +136,7 @@ readonly optional origin: string;
 
 #### Inherited from
 
-[`CreateHelperOptions`](CreateHelperOptions.md).[`origin`](CreateHelperOptions.md#origin)
+[`CreateHelperOptions`](../../../@wpkernel/cli/interfaces/CreateHelperOptions.md).[`origin`](../../../@wpkernel/cli/interfaces/CreateHelperOptions.md#origin)
 
 ---
 
@@ -148,4 +148,4 @@ readonly optional priority: number;
 
 #### Inherited from
 
-[`CreateHelperOptions`](CreateHelperOptions.md).[`priority`](CreateHelperOptions.md#priority)
+[`CreateHelperOptions`](../../../@wpkernel/cli/interfaces/CreateHelperOptions.md).[`priority`](../../../@wpkernel/cli/interfaces/CreateHelperOptions.md#priority)

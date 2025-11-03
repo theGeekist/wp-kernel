@@ -5,7 +5,7 @@ import { WPK_CONFIG_SOURCES } from '@wpkernel/core/contracts';
 import type {
 	KernelConfigV1Like,
 	LoadedKernelConfigLike,
-} from '../../next/types.js';
+} from '../../types.js';
 
 export const TMP_PREFIX = path.join(os.tmpdir(), 'cli-apply-command-');
 

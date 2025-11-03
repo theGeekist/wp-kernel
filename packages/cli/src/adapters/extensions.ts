@@ -8,7 +8,7 @@ import type {
 	AdapterExtension,
 	AdapterExtensionContext,
 } from '../config/types';
-import type { IRv1 } from '../next/ir/publicTypes';
+import type { IRv1 } from '../ir/publicTypes';
 
 /**
  * Result returned by the `runAdapterExtensions` helper.
@@ -130,7 +130,7 @@ export async function runAdapterExtensions(
 
 		const clonedIr = cloneIr(effectiveIr);
 		let hasUpdatedIr = false;
-		let nextIr: IRv1 | undefined;
+		let updatedIr: IRv1 | undefined;
 
 		const context: AdapterExtensionContext = {
 			...adapterContext,
@@ -153,7 +153,7 @@ export async function runAdapterExtensions(
 			},
 			updateIr(candidate: IRv1) {
 				hasUpdatedIr = true;
-				nextIr = cloneIr(candidate);
+				updatedIr = cloneIr(candidate);
 			},
 		};
 
@@ -168,7 +168,7 @@ export async function runAdapterExtensions(
 			throw normaliseError(error);
 		}
 
-		effectiveIr = hasUpdatedIr && nextIr ? nextIr : clonedIr;
+		effectiveIr = hasUpdatedIr && updatedIr ? updatedIr : clonedIr;
 	}
 
 	return {
