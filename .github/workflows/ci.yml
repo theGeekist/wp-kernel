@@ -90,9 +90,10 @@ jobs:
                       packages/*/*.tsbuildinfo
                       examples/*/build
                       examples/*/dist
-                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**', 'examples/*/src/**', 'tsconfig*.json', 'pnpm-lock.yaml') }}
+                      packages/php-json-ast/php/vendor
+                      packages/php-driver/php/vendor
+                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**','examples/*/src/**','tsconfig*.json','pnpm-lock.yaml','packages/php-json-ast/php/composer.lock','packages/php-driver/php/composer.lock') }}
                   fail-on-cache-miss: true
-
             - name: Run ESLint
               run: pnpm lint
 
@@ -148,7 +149,9 @@ jobs:
                       packages/*/*.tsbuildinfo
                       examples/*/build
                       examples/*/dist
-                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**', 'examples/*/src/**', 'tsconfig*.json', 'pnpm-lock.yaml') }}
+                      packages/php-json-ast/php/vendor
+                      packages/php-driver/php/vendor
+                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**','examples/*/src/**','tsconfig*.json','pnpm-lock.yaml','packages/php-json-ast/php/composer.lock','packages/php-driver/php/composer.lock') }}
                   restore-keys: |
                       build-${{ runner.os }}-
 
@@ -210,7 +213,9 @@ jobs:
                       packages/*/*.tsbuildinfo
                       examples/*/build
                       examples/*/dist
-                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**', 'examples/*/src/**', 'tsconfig*.json', 'pnpm-lock.yaml') }}
+                      packages/php-json-ast/php/vendor
+                      packages/php-driver/php/vendor
+                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**','examples/*/src/**','tsconfig*.json','pnpm-lock.yaml','packages/php-json-ast/php/composer.lock','packages/php-driver/php/composer.lock') }}
                   fail-on-cache-miss: true
 
             - name: Run unit tests with coverage
