@@ -2,10 +2,6 @@ import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 
-/* eslint-disable no-eval -- tests need to exercise eval-based import.meta shims */
-
-const ORIGINAL_EVAL = globalThis.eval;
-
 async function withWorkspace<T>(run: (root: string) => Promise<T>): Promise<T> {
 	const root = await fs.mkdtemp(path.join(os.tmpdir(), 'plan-import-meta-'));
 	try {
@@ -35,25 +31,14 @@ function buildOutput() {
 	};
 }
 
-describe('createApplyPlanBuilder import meta resolution', () => {
+describe('createApplyPlanBuilder pretty printer wiring', () => {
 	afterEach(() => {
-		globalThis.eval = ORIGINAL_EVAL;
 		jest.resetModules();
 		jest.restoreAllMocks();
 	});
 
-	it('passes the import.meta url to the PHP driver when available', async () => {
+	it('passes the resolved bridge script path to the PHP driver', async () => {
 		jest.resetModules();
-
-		const metaUrl = 'file:///mocked-plan-import-meta';
-		const evalMock = jest.fn((expression: string) => {
-			if (expression === 'import.meta') {
-				return { url: metaUrl } satisfies ImportMeta;
-			}
-
-			return ORIGINAL_EVAL(expression);
-		}) as typeof globalThis.eval;
-		globalThis.eval = evalMock;
 
 		const prettyPrinterFactory = jest.fn(() => ({
 			prettyPrint: jest.fn(async () => ({ code: '<?php\n', ast: [] })),
@@ -114,7 +99,7 @@ describe('createApplyPlanBuilder import meta resolution', () => {
 		expect(prettyPrinterFactory).toHaveBeenCalledWith(
 			expect.objectContaining({
 				workspace: expect.any(Object),
-				importMetaUrl: metaUrl,
+				scriptPath: expect.stringContaining('/php/pretty-print.php'),
 			})
 		);
 	});
