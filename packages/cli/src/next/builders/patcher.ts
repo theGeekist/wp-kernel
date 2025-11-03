@@ -15,6 +15,7 @@ const execFileAsync = promisify(execFile);
 
 const PATCH_PLAN_PATH = path.posix.join('.wpk', 'apply', 'plan.json');
 const PATCH_MANIFEST_PATH = path.posix.join('.wpk', 'apply', 'manifest.json');
+const PATCH_BASE_ROOT = path.posix.join('.wpk', 'apply', 'base');
 
 function normaliseRelativePath(file: string): string {
 	const replaced = file.replace(/\\/g, '/');
@@ -43,6 +44,7 @@ type PatchInstruction =
 
 interface PatchPlan {
 	readonly instructions: readonly PatchInstruction[];
+	readonly skippedDeletions: readonly PatchPlanDeletionSkip[];
 }
 
 type PatchStatus = 'applied' | 'conflict' | 'skipped';
@@ -71,6 +73,7 @@ interface ProcessInstructionOptions {
 	readonly output: BuilderOutput;
 	readonly reporter: BuilderApplyOptions['reporter'];
 	readonly deletedFiles: string[];
+	readonly skippedDeletions: PatchDeletionResult[];
 }
 
 async function readPlan(workspace: Workspace): Promise<PatchPlan | null> {
@@ -91,6 +94,9 @@ async function readPlan(workspace: Workspace): Promise<PatchPlan | null> {
 
 		return {
 			instructions: normalised,
+			skippedDeletions: normaliseSkippedDeletions(
+				(data as { skippedDeletions?: unknown }).skippedDeletions
+			),
 		} satisfies PatchPlan;
 	} catch (error) {
 		throw new WPKernelError('DeveloperError', {
@@ -132,6 +138,52 @@ function normaliseInstruction(value: unknown): PatchInstruction | null {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
 	return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
+}
+
+interface PatchPlanDeletionSkip {
+	readonly file: string;
+	readonly description?: string;
+	readonly reason?: string;
+}
+
+interface PatchDeletionResult {
+	readonly file: string;
+	readonly reason: string;
+}
+
+function normaliseSkippedDeletions(
+	value: unknown
+): readonly PatchPlanDeletionSkip[] {
+	if (!Array.isArray(value)) {
+		return [];
+	}
+
+	const entries: PatchPlanDeletionSkip[] = [];
+	for (const entry of value) {
+		if (!isRecord(entry)) {
+			continue;
+		}
+
+		const file = typeof entry.file === 'string' ? entry.file : '';
+		if (!file) {
+			continue;
+		}
+
+		const description =
+			typeof entry.description === 'string'
+				? entry.description
+				: undefined;
+		const reason =
+			typeof entry.reason === 'string' ? entry.reason : undefined;
+
+		entries.push({
+			file: normaliseRelativePath(file),
+			description,
+			reason,
+		});
+	}
+
+	return entries;
 }
 
 async function writeTempFile(
@@ -277,25 +329,26 @@ export function createPatcher(): BuilderHelper {
 
 			const plan = await readPlan(context.workspace);
 
-			if (!plan || plan.instructions.length === 0) {
+			if (!hasPlanInstructions(plan)) {
 				reporter.debug('createPatcher: no patch instructions found.');
 				return;
 			}
 
 			const manifest = buildEmptyManifest();
-
 			const deletedFiles: string[] = [];
+			const skippedDeletions: PatchDeletionResult[] = [];
 
-			for (const instruction of plan.instructions) {
-				await processInstruction({
-					workspace: context.workspace,
-					instruction,
-					manifest,
-					output,
-					reporter,
-					deletedFiles,
-				});
-			}
+			recordPlanSkippedDeletions({ manifest, plan, reporter });
+
+			await processPlanInstructions({
+				plan,
+				workspace: context.workspace,
+				manifest,
+				output,
+				reporter,
+				deletedFiles,
+				skippedDeletions,
+			});
 
 			const actionFiles = [
 				...output.actions.map((action) => action.file),
@@ -313,11 +366,130 @@ export function createPatcher(): BuilderHelper {
 				PATCH_MANIFEST_PATH
 			);
 
+			reportDeletionSummary({
+				plan,
+				reporter,
+				deletedFiles,
+				skippedDeletions,
+			});
+
 			reporter.info('createPatcher: completed patch application.', {
 				summary: manifest.summary,
 			});
 		},
 	});
+}
+
+function hasPlanInstructions(plan: PatchPlan | null): plan is PatchPlan {
+	return Boolean(
+		plan &&
+			(plan.instructions.length > 0 || plan.skippedDeletions.length > 0)
+	);
+}
+
+interface RecordPlanSkippedDeletionsOptions {
+	readonly manifest: PatchManifest;
+	readonly plan: PatchPlan;
+	readonly reporter: BuilderApplyOptions['reporter'];
+}
+
+function recordPlanSkippedDeletions({
+	manifest,
+	plan,
+	reporter,
+}: RecordPlanSkippedDeletionsOptions): void {
+	if (plan.skippedDeletions.length === 0) {
+		return;
+	}
+
+	for (const skipped of plan.skippedDeletions) {
+		recordResult(manifest, {
+			file: normaliseRelativePath(skipped.file),
+			status: 'skipped',
+			description: skipped.description,
+			details: {
+				action: 'delete',
+				reason: skipped.reason ?? 'guarded-by-plan',
+			},
+		});
+	}
+
+	reporter.info(
+		'createPatcher: guarded shim deletions were recorded during planning.',
+		{
+			files: plan.skippedDeletions.map((entry) =>
+				normaliseRelativePath(entry.file)
+			),
+		}
+	);
+}
+
+interface ProcessPlanInstructionsOptions {
+	readonly plan: PatchPlan;
+	readonly workspace: Workspace;
+	readonly manifest: PatchManifest;
+	readonly output: BuilderOutput;
+	readonly reporter: BuilderApplyOptions['reporter'];
+	readonly deletedFiles: string[];
+	readonly skippedDeletions: PatchDeletionResult[];
+}
+
+async function processPlanInstructions({
+	plan,
+	workspace,
+	manifest,
+	output,
+	reporter,
+	deletedFiles,
+	skippedDeletions,
+}: ProcessPlanInstructionsOptions): Promise<void> {
+	for (const instruction of plan.instructions) {
+		await processInstruction({
+			workspace,
+			instruction,
+			manifest,
+			output,
+			reporter,
+			deletedFiles,
+			skippedDeletions,
+		});
+	}
+}
+
+interface ReportDeletionSummaryOptions {
+	readonly plan: PatchPlan;
+	readonly reporter: BuilderApplyOptions['reporter'];
+	readonly deletedFiles: readonly string[];
+	readonly skippedDeletions: readonly PatchDeletionResult[];
+}
+
+function reportDeletionSummary({
+	plan,
+	reporter,
+	deletedFiles,
+	skippedDeletions,
+}: ReportDeletionSummaryOptions): void {
+	if (deletedFiles.length > 0) {
+		reporter.info('createPatcher: removed shim files.', {
+			files: deletedFiles,
+		});
+	}
+
+	const applySkipped = skippedDeletions.filter(
+		(entry) =>
+			!plan.skippedDeletions.some(
+				(planned) => normaliseRelativePath(planned.file) === entry.file
+			)
+	);
+
+	if (applySkipped.length > 0) {
+		reporter.info(
+			'createPatcher: skipped shim removals due to local modifications.',
+			{
+				files: applySkipped.map((entry) => entry.file),
+			}
+		);
+	}
 }
 
 async function processInstruction({
@@ -327,6 +499,7 @@ async function processInstruction({
 	output,
 	reporter,
 	deletedFiles,
+	skippedDeletions,
 }: ProcessInstructionOptions): Promise<void> {
 	if (instruction.action === 'delete') {
 		await processDeleteInstruction({
@@ -335,6 +508,7 @@ async function processInstruction({
 			manifest,
 			reporter,
 			deletedFiles,
+			skippedDeletions,
 		});
 		return;
 	}
@@ -432,6 +606,7 @@ interface ProcessDeleteInstructionOptions {
 	readonly manifest: PatchManifest;
 	readonly reporter: BuilderApplyOptions['reporter'];
 	readonly deletedFiles: string[];
+	readonly skippedDeletions: PatchDeletionResult[];
 }
 
 async function processDeleteInstruction({
@@ -440,6 +615,7 @@ async function processDeleteInstruction({
 	manifest,
 	reporter,
 	deletedFiles,
+	skippedDeletions,
 }: ProcessDeleteInstructionOptions): Promise<void> {
 	const file = normaliseRelativePath(instruction.file);
 	const description = instruction.description;
@@ -454,11 +630,39 @@ async function processDeleteInstruction({
 			description,
 			details: { reason: 'empty-target', action: 'delete' },
 		});
+		skippedDeletions.push({ file, reason: 'empty-target' });
 		return;
 	}
 
-	const exists = await workspace.exists(file);
-	if (!exists) {
+	const basePath = path.posix.join(PATCH_BASE_ROOT, file);
+	const [baseContents, currentContents] = await Promise.all([
+		workspace.readText(basePath),
+		workspace.readText(file),
+	]);
+
+	if (!baseContents) {
+		reporter.debug(
+			'createPatcher: base snapshot missing, skipping deletion.',
+			{
+				file,
+				base: basePath,
+			}
+		);
+		recordResult(manifest, {
+			file,
+			status: 'skipped',
+			description,
+			details: {
+				reason: 'missing-base',
+				action: 'delete',
+				base: basePath,
+			},
+		});
+		skippedDeletions.push({ file, reason: 'missing-base' });
+		return;
+	}
+
+	if (currentContents === null) {
 		reporter.debug('createPatcher: deletion target already absent.', {
 			file,
 		});
@@ -468,6 +672,22 @@ async function processDeleteInstruction({
 			description,
 			details: { reason: 'missing-target', action: 'delete' },
 		});
+		skippedDeletions.push({ file, reason: 'missing-target' });
+		return;
+	}
+
+	if (currentContents !== baseContents) {
+		reporter.info(
+			'createPatcher: detected manual changes, skipping shim deletion.',
+			{ file }
+		);
+		recordResult(manifest, {
+			file,
+			status: 'skipped',
+			description,
+			details: { reason: 'modified-target', action: 'delete' },
+		});
+		skippedDeletions.push({ file, reason: 'modified-target' });
 		return;
 	}
 

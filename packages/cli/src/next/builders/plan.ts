@@ -57,6 +57,17 @@ type PlanInstruction =
 			readonly description: string;
 	  };
 
+interface PlanDeletionSkip {
+	readonly file: string;
+	readonly description: string;
+	readonly reason: 'missing-base' | 'missing-target' | 'modified-target';
+}
+
+interface PlanFile {
+	readonly instructions: readonly PlanInstruction[];
+	readonly skippedDeletions: readonly PlanDeletionSkip[];
+}
+
 interface BuildShimOptions {
 	readonly ir: IRv1;
 	readonly resource: IRResource;
@@ -80,13 +91,16 @@ export function createApplyPlanBuilder(): BuilderHelper {
 				workspace: options.context.workspace,
 			});
 
-			const instructions = await collectPlanInstructions({
+			const plan = await collectPlanInstructions({
 				options,
 				prettyPrinter,
 			});
 
-			await writePlan(options, instructions);
-			if (instructions.length === 0) {
+			await writePlan(options, plan);
+			if (
+				plan.instructions.length === 0 &&
+				plan.skippedDeletions.length === 0
+			) {
 				reporter.info(
 					'createApplyPlanBuilder: no apply plan instructions emitted.'
 				);
@@ -94,9 +108,18 @@ export function createApplyPlanBuilder(): BuilderHelper {
 				reporter.info(
 					'createApplyPlanBuilder: emitted apply plan instructions.',
 					{
-						files: instructions.map(
+						files: plan.instructions.map(
 							(instruction) => instruction.file
 						),
+					}
+				);
+			}
+
+			if (plan.skippedDeletions.length > 0) {
+				reporter.info(
+					'createApplyPlanBuilder: guarded shim deletions due to local changes.',
+					{
+						files: plan.skippedDeletions.map((entry) => entry.file),
 					}
 				);
 			}
@@ -112,7 +135,7 @@ async function collectPlanInstructions({
 }: {
 	readonly options: BuilderApplyOptions;
 	readonly prettyPrinter: ReturnType<typeof buildPhpPrettyPrinter>;
-}): Promise<PlanInstruction[]> {
+}): Promise<PlanFile> {
 	const { input, reporter } = options;
 	const instructions: PlanInstruction[] = [];
 
@@ -136,10 +159,15 @@ async function collectPlanInstructions({
 		nextManifest
 	);
 
-	const deletionInstructions = collectDeletionInstructions(diff);
+	const { instructions: deletionInstructions, skippedDeletions } =
+		await collectDeletionInstructions({
+			diff,
+			workspace: options.context.workspace,
+			reporter,
+		});
 	instructions.push(...deletionInstructions);
 
-	return instructions;
+	return { instructions, skippedDeletions } satisfies PlanFile;
 }
 
 async function addPluginLoaderInstruction({
@@ -183,10 +211,20 @@ async function collectResourceInstructions({
 	return resourceInstructions;
 }
 
-function collectDeletionInstructions(
-	diff: GenerationManifestDiff
-): PlanInstruction[] {
+async function collectDeletionInstructions({
+	diff,
+	workspace,
+	reporter,
+}: {
+	readonly diff: GenerationManifestDiff;
+	readonly workspace: BuilderApplyOptions['context']['workspace'];
+	readonly reporter: BuilderApplyOptions['reporter'];
+}): Promise<{
+	instructions: PlanInstruction[];
+	skippedDeletions: PlanDeletionSkip[];
+}> {
 	const instructions: PlanInstruction[] = [];
+	const skippedDeletions: PlanDeletionSkip[] = [];
 
 	for (const removed of diff.removed) {
 		const uniqueShims = new Set(
@@ -194,6 +232,58 @@ function collectDeletionInstructions(
 		);
 
 		for (const shim of uniqueShims) {
+			const basePath = path.posix.join(PLAN_BASE_ROOT, shim);
+			const [baseContents, currentContents] = await Promise.all([
+				workspace.readText(basePath),
+				workspace.readText(shim),
+			]);
+
+			if (!baseContents) {
+				skippedDeletions.push({
+					file: shim,
+					description: `Remove ${removed.resource} controller shim`,
+					reason: 'missing-base',
+				});
+				reporter.debug(
+					'createApplyPlanBuilder: skipping deletion without base snapshot.',
+					{
+						file: shim,
+						basePath,
+					}
+				);
+				continue;
+			}
+
+			if (currentContents === null) {
+				skippedDeletions.push({
+					file: shim,
+					description: `Remove ${removed.resource} controller shim`,
+					reason: 'missing-target',
+				});
+				reporter.debug(
+					'createApplyPlanBuilder: skipping deletion for missing target.',
+					{
+						file: shim,
+					}
+				);
+				continue;
+			}
+
+			if (currentContents !== baseContents) {
+				skippedDeletions.push({
+					file: shim,
+					description: `Remove ${removed.resource} controller shim`,
+					reason: 'modified-target',
+				});
+				reporter.debug(
+					'createApplyPlanBuilder: skipping deletion for modified target.',
+					{
+						file: shim,
+					}
+				);
+				continue;
+			}
+
 			instructions.push({
 				action: 'delete',
 				file: shim,
@@ -202,7 +292,7 @@ function collectDeletionInstructions(
 		}
 	}
 
-	return instructions;
+	return { instructions, skippedDeletions };
 }
 
 async function emitPluginLoader({
@@ -358,9 +448,9 @@ async function emitShim({
 
 async function writePlan(
 	options: BuilderApplyOptions,
-	instructions: readonly PlanInstruction[]
+	plan: PlanFile
 ): Promise<void> {
-	const planContent = `${JSON.stringify({ instructions }, null, 2)}\n`;
+	const planContent = `${JSON.stringify(plan, null, 2)}\n`;
 	await options.context.workspace.write(PLAN_PATH, planContent, {
 		ensureDir: true,
 	});

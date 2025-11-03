@@ -208,7 +208,12 @@ describe('NextApplyCommand integration', () => {
 			expect(entries.at(-1)).toEqual(
 				expect.objectContaining({
 					status: 'success',
-					flags: { yes: true, backup: false, force: false },
+					flags: {
+						yes: true,
+						backup: false,
+						force: false,
+						cleanup: [],
+					},
 					summary: { applied: 1, conflicts: 0, skipped: 0 },
 				})
 			);
@@ -342,7 +347,12 @@ describe('NextApplyCommand integration', () => {
 				expect.objectContaining({
 					status: 'conflict',
 					exitCode: WPK_EXIT_CODES.SUCCESS,
-					flags: { yes: true, backup: false, force: true },
+					flags: {
+						yes: true,
+						backup: false,
+						force: true,
+						cleanup: [],
+					},
 				})
 			);
 		});
