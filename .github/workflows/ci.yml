@@ -90,9 +90,8 @@ jobs:
                       packages/*/*.tsbuildinfo
                       examples/*/build
                       examples/*/dist
-                      packages/php-json-ast/php/vendor
-                      packages/php-driver/php/vendor
-                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**','examples/*/src/**','tsconfig*.json','pnpm-lock.yaml','packages/php-json-ast/php/composer.lock','packages/php-driver/php/composer.lock') }}
+                      packages/php-json-ast/vendor
+                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**','examples/*/src/**','tsconfig*.json','pnpm-lock.yaml','packages/php-json-ast/composer.lock','packages/php-json-ast/composer.json') }}
                   fail-on-cache-miss: true
             - name: Run ESLint
               run: pnpm lint
@@ -149,9 +148,8 @@ jobs:
                       packages/*/*.tsbuildinfo
                       examples/*/build
                       examples/*/dist
-                      packages/php-json-ast/php/vendor
-                      packages/php-driver/php/vendor
-                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**','examples/*/src/**','tsconfig*.json','pnpm-lock.yaml','packages/php-json-ast/php/composer.lock','packages/php-driver/php/composer.lock') }}
+                      packages/php-json-ast/vendor
+                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**','examples/*/src/**','tsconfig*.json','pnpm-lock.yaml','packages/php-json-ast/composer.lock','packages/php-json-ast/composer.json') }}
                   restore-keys: |
                       build-${{ runner.os }}-
 
@@ -213,9 +211,8 @@ jobs:
                       packages/*/*.tsbuildinfo
                       examples/*/build
                       examples/*/dist
-                      packages/php-json-ast/php/vendor
-                      packages/php-driver/php/vendor
-                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**','examples/*/src/**','tsconfig*.json','pnpm-lock.yaml','packages/php-json-ast/php/composer.lock','packages/php-driver/php/composer.lock') }}
+                      packages/php-json-ast/vendor
+                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**','examples/*/src/**','tsconfig*.json','pnpm-lock.yaml','packages/php-json-ast/composer.lock','packages/php-json-ast/composer.json') }}
                   fail-on-cache-miss: true
 
             - name: Run unit tests with coverage
