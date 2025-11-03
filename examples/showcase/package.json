@@ -1,6 +1,6 @@
 {
 	"name": "wp-kernel-showcase",
-	"version": "0.4.0",
+	"version": "0.10.0",
 	"private": true,
 	"description": "Showcase plugin demonstrating WP Kernel framework features",
 	"type": "module",
@@ -8,14 +8,14 @@
 	"scripts": {
 		"start": "node ../../packages/cli/bin/wpk.js start",
 		"dev": "pnpm start",
-		"build": "node ../../packages/cli/bin/wpk.js build",
+		"build": "vite build && tsc --noEmit",
 		"generate": "node ../../packages/cli/bin/wpk.js generate",
 		"apply": "node ../../packages/cli/bin/wpk.js apply",
 		"clean": "rm -rf build types",
-		"lint": "eslint src/",
-		"lint:fix": "eslint src/ --fix",
-		"format": "prettier --write 'src/**/*.{js,ts,tsx,json,md,php}'",
-		"format:check": "prettier --check 'src/**/*.{js,ts,tsx,json,md,php}'",
+		"lint": "pnpm --workspace-root lint",
+		"lint:fix": "pnpm --workspace-root lint -- --fix",
+		"format": "prettier --write '**/*.{js,ts,tsx,json,md,yml,yaml}'",
+		"format:check": "pnpm --workspace-root format:check",
 		"typecheck": "tsc --noEmit",
 		"typecheck:tests": "tsc --project tsconfig.tests.json --noEmit",
 		"test": "jest --passWithNoTests",
@@ -35,7 +35,8 @@
 		"@wpkernel/ui": "workspace:*"
 	},
 	"devDependencies": {
-		"@wpkernel/e2e-utils": "workspace:*"
+		"@wpkernel/e2e-utils": "workspace:*",
+		"@wpkernel/scripts": "workspace:*"
 	},
 	"peerDependencies": {
 		"@wordpress/dataviews": ">=9.1.0",

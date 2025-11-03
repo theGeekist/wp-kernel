@@ -7,7 +7,7 @@ import {
 	prepareStorage,
 	inferPostType,
 	sortWarnings,
-} from '../resource-builder';
+} from '../shared/resource-builder';
 import type { IRResource } from '../types';
 
 describe('resource builder helpers', () => {
@@ -74,7 +74,7 @@ describe('resource builder helpers', () => {
 			{
 				path: '/things/:id',
 				method: 'GET',
-				policy: undefined,
+				capability: undefined,
 				transport: 'local',
 			},
 		] as unknown as IRResource['routes'];
@@ -93,7 +93,7 @@ describe('resource builder helpers', () => {
 				{
 					path: '/things/:custom',
 					method: 'GET',
-					policy: undefined,
+					capability: undefined,
 					transport: 'local',
 				},
 			] as unknown as IRResource['routes'],
@@ -124,13 +124,13 @@ describe('resource builder helpers', () => {
 			{
 				path: '/one/:slug',
 				method: 'GET',
-				policy: undefined,
+				capability: undefined,
 				transport: 'local',
 			},
 			{
 				path: '/two/:uuid',
 				method: 'GET',
-				policy: undefined,
+				capability: undefined,
 				transport: 'local',
 			},
 		] as unknown as IRResource['routes'];
@@ -140,7 +140,7 @@ describe('resource builder helpers', () => {
 			{
 				path: '/fallback/:custom',
 				method: 'GET',
-				policy: undefined,
+				capability: undefined,
 				transport: 'local',
 			},
 		] as unknown as IRResource['routes']);
@@ -150,7 +150,7 @@ describe('resource builder helpers', () => {
 			{
 				path: '/items/:uuid',
 				method: 'GET',
-				policy: undefined,
+				capability: undefined,
 				transport: 'local',
 			},
 		] as unknown as IRResource['routes']);

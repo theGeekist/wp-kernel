@@ -49,9 +49,9 @@ The diagram mirrors the way WordPress ships features today. Views render blocks 
 
 A resource turns a REST contract into a typed client, data store, and cache keys from a single definition. Reach for one whenever the UI needs to read or write data. Because the schema drives both TypeScript and PHP validation, the documentation you write here stays true across the stack. [Read the full guide →](/guide/resources)
 
-### Policies
+### Capabilities
 
-Policies define capability gates that sit between resources and Actions. They provide synchronous hints to the UI while Actions enforce them at runtime, emit denial events, and keep cache state in sync across tabs. [Read the full guide →](/guide/policy)
+Capabilities define capability gates that sit between resources and Actions. They provide synchronous hints to the UI while Actions enforce them at runtime, emit denial events, and keep cache state in sync across tabs. [Read the full guide →](/guide/capability)
 
 ### Actions
 
@@ -79,7 +79,7 @@ The Interactivity API adds behaviour without shipping custom JavaScript bundles 
 
 ### DataViews
 
-DataViews provide WordPress 6.7+ admin surfaces powered by kernel controllers. Define metadata on your resources, let `configureKernel()` auto-register the controllers, and render `ResourceDataView` so policies, actions, and preferences stay consistent. [Read the full guide →](/guide/dataviews)
+DataViews provide WordPress 6.7+ admin surfaces powered by kernel controllers. Define metadata on your resources, let `configureWPKernel()` auto-register the controllers, and render `ResourceDataView` so capabilities, actions, and preferences stay consistent. [Read the full guide →](/guide/dataviews)
 
 ### Prefetching
 
@@ -89,7 +89,7 @@ pitfalls to avoid. [Read the full guide →](/guide/prefetching)
 
 ### Jobs
 
-Jobs handle long-running work-imports, exports, background synchronisation-while providing polling hooks back to the UI. They live alongside Actions so retry policies and status updates stay coherent. [Read the full guide →](/guide/jobs)
+Jobs handle long-running work-imports, exports, background synchronisation-while providing polling hooks back to the UI. They live alongside Actions so retry capabilities and status updates stay coherent. [Read the full guide →](/guide/jobs)
 
 ## Golden rules
 
@@ -150,7 +150,7 @@ Because each step has a dedicated place in the architecture, you can add logging
 
 ## Error handling and resilience
 
-All surfaced errors extend `KernelError`, giving you predictable properties for UX messaging, logging, and telemetry. Transports retry with exponential backoff on recoverable failures (timeouts, 5xx, 429). Background jobs follow the same policy and expose polling hooks so the UI can communicate progress without guesswork.
+All surfaced errors extend `WPKernelError`, giving you predictable properties for UX messaging, logging, and telemetry. Transports retry with exponential backoff on recoverable failures (timeouts, 5xx, 429). Background jobs follow the same capability and expose polling hooks so the UI can communicate progress without guesswork.
 
 ## Performance expectations
 

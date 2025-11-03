@@ -1,7 +1,7 @@
 import type {
-	KernelInstance,
-	KernelUIRuntime,
-	KernelUIAttach,
+	WPKInstance,
+	WPKernelUIRuntime,
+	WPKernelUIAttach,
 	UIIntegrationOptions,
 } from '@wpkernel/core/data';
 import {
@@ -15,68 +15,31 @@ import {
 	normalizeDataViewsOptions,
 } from './dataviews/runtime';
 import { createResourceDataViewController } from '../dataviews/resource-controller';
-import type { ResourceDataViewConfig } from '../dataviews/types';
+import {
+	normalizeResourceDataViewMetadata,
+	DATA_VIEWS_METADATA_INVALID,
+} from './dataviews/metadata';
 
-type RuntimePolicy = NonNullable<KernelUIRuntime['policies']>['policy'];
+type RuntimeCapability = NonNullable<
+	WPKernelUIRuntime['capabilities']
+>['capability'];
 
-type ResourceDataViewMetadata<TItem, TQuery> = {
-	config: ResourceDataViewConfig<TItem, TQuery>;
-	preferencesKey?: string;
-};
-
-function resolvePolicyRuntime(): KernelUIRuntime['policies'] {
+function resolveCapabilityRuntime(): WPKernelUIRuntime['capabilities'] {
 	const runtime = (
 		globalThis as {
-			__WP_KERNEL_ACTION_RUNTIME__?: { policy?: RuntimePolicy };
+			__WP_KERNEL_ACTION_RUNTIME__?: { capability?: RuntimeCapability };
 		}
 	).__WP_KERNEL_ACTION_RUNTIME__;
 
-	if (!runtime?.policy) {
+	if (!runtime?.capability) {
 		return undefined;
 	}
 
-	return { policy: runtime.policy };
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-	return Boolean(value) && typeof value === 'object' && !Array.isArray(value);
-}
-
-function extractResourceDataViewMetadata<TItem, TQuery>(
-	resource: ResourceObject<TItem, TQuery>
-): ResourceDataViewMetadata<TItem, TQuery> | undefined {
-	const candidate = (
-		resource as ResourceObject<TItem, TQuery> & {
-			ui?: {
-				admin?: {
-					dataviews?: ResourceDataViewConfig<TItem, TQuery> & {
-						preferencesKey?: string;
-					};
-				};
-			};
-		}
-	).ui?.admin?.dataviews;
-
-	if (!candidate || !isRecord(candidate)) {
-		return undefined;
-	}
-
-	const { preferencesKey, ...rest } = candidate as ResourceDataViewConfig<
-		TItem,
-		TQuery
-	> & { preferencesKey?: string };
-
-	const config = { ...rest } as ResourceDataViewConfig<TItem, TQuery>;
-
-	if (typeof config.mapQuery !== 'function') {
-		return undefined;
-	}
-
-	return { config, preferencesKey };
+	return { capability: runtime.capability };
 }
 
 function registerResourceDataView<TItem, TQuery>(
-	runtime: KernelUIRuntime,
+	runtime: WPKernelUIRuntime,
 	resource: ResourceObject<TItem, TQuery>
 ): void {
 	const dataviews = runtime.dataviews;
@@ -85,7 +48,18 @@ function registerResourceDataView<TItem, TQuery>(
 		return;
 	}
 
-	const metadata = extractResourceDataViewMetadata(resource);
+	const { metadata, issues } = normalizeResourceDataViewMetadata(resource);
+
+	if (issues.length > 0) {
+		dataviews
+			.getResourceReporter(resource.name)
+			.error?.('Invalid DataViews metadata', {
+				code: DATA_VIEWS_METADATA_INVALID,
+				resource: resource.name,
+				issues,
+			});
+		return;
+	}
 
 	if (!metadata) {
 		return;
@@ -98,7 +72,7 @@ function registerResourceDataView<TItem, TQuery>(
 			runtime: dataviews,
 			namespace: runtime.namespace,
 			invalidate: runtime.invalidate,
-			policies: () => runtime.policies,
+			capabilities: () => runtime.capabilities,
 			preferencesKey: metadata.preferencesKey,
 			fetchList: resource.fetchList,
 			prefetchList: resource.prefetchList,
@@ -132,7 +106,7 @@ function registerResourceDataView<TItem, TQuery>(
 }
 
 function attachExistingResources(
-	runtime: KernelUIRuntime,
+	runtime: WPKernelUIRuntime,
 	resources: ResourceDefinedEvent[]
 ): void {
 	resources.forEach((event) => {
@@ -142,20 +116,20 @@ function attachExistingResources(
 	});
 }
 
-export const attachUIBindings: KernelUIAttach = (
-	kernel: KernelInstance,
+export const attachUIBindings: WPKernelUIAttach = (
+	kernel: WPKInstance,
 	options?: UIIntegrationOptions
-): KernelUIRuntime => {
-	const runtime: KernelUIRuntime = {
+): WPKernelUIRuntime => {
+	const runtime: WPKernelUIRuntime = {
 		kernel,
 		namespace: kernel.getNamespace(),
 		reporter: kernel.getReporter(),
 		registry: kernel.getRegistry(),
 		events: kernel.events,
-		// Use a getter to resolve policy runtime dynamically, allowing late registrations
-		// via definePolicy() after attachUIBindings() has been called (e.g., lazy-loaded plugins)
-		get policies() {
-			return resolvePolicyRuntime();
+		// Use a getter to resolve capability runtime dynamically, allowing late registrations
+		// via defineCapability() after attachUIBindings() has been called (e.g., lazy-loaded plugins)
+		get capabilities() {
+			return resolveCapabilityRuntime();
 		},
 		invalidate: (patterns, invalidateOptions) =>
 			kernel.invalidate(patterns, invalidateOptions),

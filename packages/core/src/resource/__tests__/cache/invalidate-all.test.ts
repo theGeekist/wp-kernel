@@ -4,7 +4,7 @@
  */
 
 import { invalidateAll } from '../../cache';
-import { KernelEventBus, setKernelEventBus } from '../../../events/bus';
+import { WPKernelEventBus, setWPKernelEventBus } from '../../../events/bus';
 import {
 	createResourceDataHarness,
 	withWordPressData,
@@ -15,7 +15,7 @@ describe('invalidateAll', () => {
 	let mockDispatch: jest.Mock;
 	let mockSelect: jest.Mock;
 	let harnessSetup: ResourceHarnessSetup;
-	let bus: KernelEventBus;
+	let bus: WPKernelEventBus;
 	let cacheListener: jest.Mock;
 
 	beforeEach(() => {
@@ -28,14 +28,14 @@ describe('invalidateAll', () => {
 			},
 		});
 
-		bus = new KernelEventBus();
-		setKernelEventBus(bus);
+		bus = new WPKernelEventBus();
+		setWPKernelEventBus(bus);
 		cacheListener = jest.fn();
 		bus.on('cache:invalidated', cacheListener);
 	});
 
 	afterEach(() => {
-		setKernelEventBus(new KernelEventBus());
+		setWPKernelEventBus(new WPKernelEventBus());
 		jest.clearAllMocks();
 		harnessSetup.harness.teardown();
 	});

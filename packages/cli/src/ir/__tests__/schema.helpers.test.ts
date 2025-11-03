@@ -1,7 +1,7 @@
 import path from 'node:path';
 import os from 'node:os';
 import fs from 'node:fs/promises';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import type { ResourceConfig } from '@wpkernel/core/resource';
 import {
 	inferSchemaSetting,
@@ -14,7 +14,7 @@ import {
 	toTitleCase,
 	resolveResourceSchema,
 	createSchemaAccumulator,
-} from '../schema';
+} from '../shared/schema';
 
 describe('schema helpers', () => {
 	it('infers schema setting from resource configuration', () => {
@@ -38,7 +38,7 @@ describe('schema helpers', () => {
 		const workspaceRoot = await fs.mkdtemp(
 			path.join(os.tmpdir(), 'wpk-schema-')
 		);
-		const configPath = path.join(workspaceRoot, 'kernel.config.ts');
+		const configPath = path.join(workspaceRoot, 'wpk.config.ts');
 		await fs.writeFile(configPath, '// config', 'utf8');
 		const absoluteSchema = path.join(workspaceRoot, 'abs.schema.json');
 		await fs.writeFile(absoluteSchema, '{}', 'utf8');
@@ -73,7 +73,7 @@ describe('schema helpers', () => {
 
 		await expect(
 			resolveSchemaPath('missing.json', configPath)
-		).rejects.toBeInstanceOf(KernelError);
+		).rejects.toBeInstanceOf(WPKernelError);
 	});
 
 	it('validates file existence and propagates unexpected errors', async () => {
@@ -86,7 +86,7 @@ describe('schema helpers', () => {
 		await expect(ensureFileExists(filePath)).resolves.toBeUndefined();
 		await expect(
 			ensureFileExists(path.join(tmp, 'missing.json'))
-		).rejects.toBeInstanceOf(KernelError);
+		).rejects.toBeInstanceOf(WPKernelError);
 
 		const error = Object.assign(new Error('boom'), { code: 'EACCES' });
 		const statSpy = jest
@@ -112,7 +112,7 @@ describe('schema helpers', () => {
 			await fs.writeFile(schemaPath, '{ invalid', 'utf8');
 			await expect(
 				loadJsonSchema(schemaPath, 'ok')
-			).rejects.toBeInstanceOf(KernelError);
+			).rejects.toBeInstanceOf(WPKernelError);
 		} finally {
 			await fs.rm(tmp, { recursive: true, force: true });
 		}
@@ -173,7 +173,7 @@ describe('schema helpers', () => {
 				accumulator,
 				'example'
 			)
-		).rejects.toBeInstanceOf(KernelError);
+		).rejects.toBeInstanceOf(WPKernelError);
 	});
 
 	it('creates schema fragments from post meta descriptors', () => {

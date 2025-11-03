@@ -1,7 +1,7 @@
 import { defineAction } from '../define';
 import type { ActionConfig, ActionOptions } from '../types';
 import * as cache from '../../resource/cache';
-import { KernelError } from '../../error/KernelError';
+import { WPKernelError } from '../../error/WPKernelError';
 
 function createAction<TArgs = void, TResult = void>(
 	name: string,
@@ -39,7 +39,7 @@ describe('defineAction', () => {
 				debug: jest.fn(),
 				child: jest.fn(),
 			},
-			policy: {
+			capability: {
 				assert: jest.fn(),
 				can: jest.fn().mockReturnValue(true),
 			},
@@ -65,8 +65,10 @@ describe('defineAction', () => {
 				expect(args).toEqual({ title: 'Example' });
 				expect(ctx.requestId).toMatch(/^act_/);
 				expect(ctx.namespace).toBe('wpk');
-				expect(ctx.policy.can('things.manage', undefined)).toBe(true);
-				ctx.policy.assert('things.manage', undefined);
+				expect(ctx.capability.can('things.manage', undefined)).toBe(
+					true
+				);
+				ctx.capability.assert('things.manage', undefined);
 				await ctx.jobs.enqueue('IndexThing', { id: 1 });
 				await ctx.jobs.wait('IndexThing', { id: 1 });
 				ctx.reporter.info('creating thing');
@@ -103,7 +105,7 @@ describe('defineAction', () => {
 		expect(runtime.jobs?.wait).toHaveBeenCalledWith('IndexThing', {
 			id: 1,
 		});
-		expect(runtime.policy?.assert).toHaveBeenCalledWith(
+		expect(runtime.capability?.assert).toHaveBeenCalledWith(
 			'things.manage',
 			undefined
 		);
@@ -117,14 +119,14 @@ describe('defineAction', () => {
 		});
 
 		await expect(action(undefined as never)).rejects.toBeInstanceOf(
-			KernelError
+			WPKernelError
 		);
 
 		expect(doAction).toHaveBeenCalledWith(
 			'wpk.action.error',
 			expect.objectContaining({
 				actionName: 'Thing.Fail',
-				error: expect.any(KernelError),
+				error: expect.any(WPKernelError),
 			})
 		);
 	});

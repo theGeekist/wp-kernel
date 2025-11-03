@@ -4,15 +4,17 @@
  * Wraps @wordpress/api-fetch with:
  * - Request ID generation for correlation
  * - Event emission (wpk.resource.request/response/error)
- * - Error normalization to KernelError
+ * - Error normalization to WPKernelError
  * - _fields query parameter support
  *
  * @see Product Specification § 4.1 Resources
+ * @category HTTP
  */
 
-import { KernelError } from '../error/KernelError';
+import { WPKernelError } from '../error/WPKernelError';
 import { WPK_EVENTS } from '../contracts/index.js';
-import { createNoopReporter, getKernelReporter } from '../reporter';
+import { createNoopReporter, getWPKernelReporter } from '../reporter';
+import { resolveReporter as resolveKernelReporter } from '../reporter/resolve';
 import type { Reporter } from '../reporter';
 import type {
 	TransportRequest,
@@ -24,7 +26,9 @@ import type {
 } from './types';
 
 /**
- * Generate a unique request ID for correlation
+ * Generate a unique request ID for transport correlation.
+ *
+ * @category HTTP
  */
 function generateRequestId(): string {
 	return `req_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
@@ -37,28 +41,27 @@ const TRANSPORT_LOG_MESSAGES = {
 } as const;
 
 function resolveTransportReporter(meta?: TransportMeta): Reporter {
-	if (meta?.reporter) {
-		return meta.reporter.child('transport');
-	}
+	const wpKernelReporter = getWPKernelReporter();
+	const override = meta?.reporter
+		? meta.reporter.child('transport')
+		: wpKernelReporter?.child(
+				meta?.resourceName
+					? `transport.${meta.resourceName}`
+					: 'transport'
+			);
 
-	const kernelReporter = getKernelReporter();
-	if (kernelReporter) {
-		const resourceScope = meta?.resourceName
-			? `transport.${meta.resourceName}`
-			: 'transport';
-		return kernelReporter.child(resourceScope);
-	}
-
-	if (process.env.WPK_SILENT_REPORTERS === '1') {
-		return createNoopReporter();
-	}
-
-	return createNoopReporter();
+	return resolveKernelReporter({
+		override,
+		fallback: () => createNoopReporter(),
+	});
 }
 
 /**
- * Get WordPress hooks for event emission
- * Returns null if not in browser environment
+ * Resolve the WordPress hooks API used for transport event emission.
+ *
+ * Returns `null` outside the browser so SSR environments avoid wp.hooks.
+ *
+ * @category HTTP
  */
 function getHooks() {
 	if (typeof window === 'undefined') {
@@ -78,10 +81,12 @@ function getHooks() {
 }
 
 /**
- * Build full URL with query parameters
- * @param path
- * @param query
- * @param fields
+ * Build a REST request path with merged query parameters.
+ *
+ * @param    path   - REST API path or absolute URL
+ * @param    query  - Query parameters to append
+ * @param    fields - REST `_fields` whitelist
+ * @category HTTP
  */
 function buildUrl(
 	path: string,
@@ -109,20 +114,22 @@ function buildUrl(
 }
 
 /**
- * Normalize WordPress REST API error to KernelError
- * @param error
- * @param requestId
- * @param method
- * @param path
+ * Normalize WordPress REST API errors to `WPKernelError` instances.
+ *
+ * @param    error     - Thrown error from the transport layer
+ * @param    requestId - Generated request correlation identifier
+ * @param    method    - HTTP method used for the request
+ * @param    path      - Path or URL used for the request
+ * @category HTTP
  */
 function normalizeError(
 	error: unknown,
 	requestId: string,
 	method: string,
 	path: string
-): KernelError {
-	// Already a KernelError
-	if (error instanceof KernelError) {
+): WPKernelError {
+	// Already a WPKernelError
+	if (error instanceof WPKernelError) {
 		return error;
 	}
 
@@ -139,7 +146,7 @@ function normalizeError(
 			data?: { status?: number };
 		};
 
-		return new KernelError('ServerError', {
+		return new WPKernelError('ServerError', {
 			message: wpError.message,
 			data: {
 				code: wpError.code,
@@ -155,7 +162,7 @@ function normalizeError(
 
 	// Network/transport error
 	if (error instanceof Error) {
-		return new KernelError('TransportError', {
+		return new WPKernelError('TransportError', {
 			message: error.message,
 			context: {
 				requestId,
@@ -167,7 +174,7 @@ function normalizeError(
 	}
 
 	// Unknown error
-	return new KernelError('TransportError', {
+	return new WPKernelError('TransportError', {
 		message: 'Unknown transport error',
 		context: {
 			requestId,
@@ -194,7 +201,7 @@ function resolveApiFetch(
 	fullPath: string
 ): ApiFetchFn {
 	if (typeof window === 'undefined') {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: 'Cannot execute fetch during server-side rendering (SSR).',
 			context: { requestId, method, path: fullPath },
 		});
@@ -211,7 +218,7 @@ function resolveApiFetch(
 	const apiFetch = globalWp?.apiFetch;
 
 	if (!apiFetch) {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message:
 				'@wordpress/api-fetch is not available. Ensure it is loaded as a dependency.',
 			context: { requestId, method, path: fullPath },
@@ -274,7 +281,7 @@ function emitResponseEvent<T>(
 function emitErrorEvent(
 	hooks: ReturnType<typeof getHooks>,
 	request: TransportRequest,
-	error: KernelError,
+	error: WPKernelError,
 	duration: number
 ): void {
 	if (!hooks?.doAction) {
@@ -309,7 +316,7 @@ function emitErrorEvent(
  * @template T - Expected response data type
  * @param    request - Request configuration
  * @return Promise resolving to response with data and metadata
- * @throws KernelError on request failure
+ * @throws WPKernelError on request failure
  *
  * @example
  * ```typescript
@@ -323,6 +330,8 @@ function emitErrorEvent(
  * console.log(response.data); // Thing object
  * console.log(response.requestId); // 'req_1234567890_abc123'
  * ```
+ *
+ * @category HTTP
  */
 export async function fetch<T = unknown>(
 	request: TransportRequest
@@ -378,14 +387,14 @@ export async function fetch<T = unknown>(
 		return response;
 	} catch (error) {
 		const duration = performance.now() - startTime;
-		const kernelError = normalizeError(
+		const wpKernelError = normalizeError(
 			error,
 			requestId,
 			request.method,
 			fullPath
 		);
 
-		emitErrorEvent(hooks, request, kernelError, duration);
+		emitErrorEvent(hooks, request, wpKernelError, duration);
 		reporter.error(TRANSPORT_LOG_MESSAGES.error, {
 			requestId,
 			method: request.method,
@@ -393,8 +402,8 @@ export async function fetch<T = unknown>(
 			duration,
 			namespace: request.meta?.namespace,
 			resourceName: request.meta?.resourceName,
-			error: kernelError.message,
+			error: wpKernelError.message,
 		});
-		throw kernelError;
+		throw wpKernelError;
 	}
 }

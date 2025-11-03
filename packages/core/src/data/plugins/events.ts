@@ -1,20 +1,20 @@
-import { KernelError } from '../../error/KernelError';
+import { WPKernelError } from '../../error/WPKernelError';
 import type {
 	ActionErrorEvent,
 	ReduxMiddleware,
 	ActionLifecycleEvent,
 } from '../../actions/types';
 import type { Reporter } from '../../reporter';
-import type { KernelRegistry } from '../types';
+import type { WPKernelRegistry } from '../types';
 import { WPK_EVENTS } from '../../contracts/index.js';
-import type { KernelEventBus, KernelEventMap } from '../../events/bus';
+import type { WPKernelEventBus, WPKernelEventMap } from '../../events/bus';
 
 export type NoticeStatus = 'success' | 'info' | 'warning' | 'error';
 
-export type KernelEventsPluginOptions = {
+export type WPKernelEventsPluginOptions = {
 	reporter?: Reporter;
-	registry?: KernelRegistry;
-	events: KernelEventBus;
+	registry?: WPKernelRegistry;
+	events: WPKernelEventBus;
 };
 
 type NoticesDispatch = {
@@ -50,7 +50,7 @@ function getHooks(): WordPressHooks | null {
 }
 
 function getNoticesDispatch(
-	registry: KernelRegistry | undefined
+	registry: WPKernelRegistry | undefined
 ): NoticesDispatch | null {
 	if (!registry || typeof registry.dispatch !== 'function') {
 		return null;
@@ -71,9 +71,9 @@ function getNoticesDispatch(
 }
 
 function mapErrorToStatus(error: unknown): NoticeStatus {
-	if (KernelError.isKernelError(error)) {
+	if (WPKernelError.isWPKernelError(error)) {
 		switch (error.code) {
-			case 'PolicyDenied':
+			case 'CapabilityDenied':
 				return 'warning';
 			case 'ValidationError':
 				return 'info';
@@ -86,7 +86,7 @@ function mapErrorToStatus(error: unknown): NoticeStatus {
 }
 
 function resolveErrorMessage(error: unknown): string {
-	if (KernelError.isKernelError(error)) {
+	if (WPKernelError.isWPKernelError(error)) {
 		return error.message;
 	}
 
@@ -101,26 +101,40 @@ function resolveErrorMessage(error: unknown): string {
 	return 'An unexpected error occurred';
 }
 
-export function kernelEventsPlugin({
+/**
+ * Bridge WP Kernel lifecycle events into WordPress middleware and notices.
+ *
+ * The plugin mirrors action lifecycle and cache invalidation events onto
+ * `wp.hooks` while optionally surfacing admin notices via the core notices
+ * store. It returns a Redux middleware compatible with `@wordpress/data`.
+ *
+ * @param    options          - Kernel event wiring options
+ * @param    options.reporter - Reporter used for diagnostics when notices fire
+ * @param    options.registry - Optional WordPress registry for dispatching notices
+ * @param    options.events   - Shared WP Kernel event bus instance
+ * @return Redux middleware with a `destroy()` teardown helper
+ * @category Data
+ */
+export function wpkEventsPlugin({
 	reporter,
 	registry,
 	events,
-}: KernelEventsPluginOptions): KernelReduxMiddleware {
+}: WPKernelEventsPluginOptions): KernelReduxMiddleware {
 	const hooks = getHooks();
 
 	const detachListeners: Array<() => void> = [];
 
 	const middleware: KernelReduxMiddleware = () => {
-		const hookMap: Partial<Record<keyof KernelEventMap, string>> = {
+		const hookMap: Partial<Record<keyof WPKernelEventMap, string>> = {
 			'action:start': WPK_EVENTS.ACTION_START,
 			'action:complete': WPK_EVENTS.ACTION_COMPLETE,
 			'action:error': WPK_EVENTS.ACTION_ERROR,
 			'cache:invalidated': WPK_EVENTS.CACHE_INVALIDATED,
 		};
 
-		const emitToHooks = <K extends keyof KernelEventMap>(
+		const emitToHooks = <K extends keyof WPKernelEventMap>(
 			event: K,
-			payload: KernelEventMap[K]
+			payload: WPKernelEventMap[K]
 		) => {
 			if (event === 'action:domain' || event === 'custom:event') {
 				const domainPayload = payload as {
@@ -140,9 +154,9 @@ export function kernelEventsPlugin({
 			}
 		};
 
-		const register = <K extends keyof KernelEventMap>(
+		const register = <K extends keyof WPKernelEventMap>(
 			eventName: K,
-			handler: (payload: KernelEventMap[K]) => void
+			handler: (payload: WPKernelEventMap[K]) => void
 		) => {
 			detachListeners.push(events.on(eventName, handler));
 		};

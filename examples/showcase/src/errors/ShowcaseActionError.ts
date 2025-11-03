@@ -1,4 +1,4 @@
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import type { ErrorCode, ErrorContext, ErrorData } from '@wpkernel/core/error';
 
 type ShowcaseActionErrorOptions = {
@@ -10,7 +10,7 @@ type ShowcaseActionErrorOptions = {
 /**
  * ShowcaseActionError standardizes failures raised from showcase actions.
  */
-export class ShowcaseActionError extends KernelError {
+export class ShowcaseActionError extends WPKernelError {
 	constructor(code: ErrorCode, options: ShowcaseActionErrorOptions = {}) {
 		super(code, options);
 		this.name = 'ShowcaseActionError';
@@ -32,7 +32,7 @@ export class ShowcaseActionError extends KernelError {
 			return error;
 		}
 
-		if (error instanceof KernelError) {
+		if (error instanceof WPKernelError) {
 			return new ShowcaseActionError(error.code, {
 				message: error.message,
 				data: error.data,

@@ -1,5 +1,5 @@
 import type { ResourceObject } from '@wpkernel/core/resource';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import { __TESTING__ as resourceHookUtils } from '../resource-hooks';
 
 describe('resource hook utilities', () => {
@@ -62,7 +62,9 @@ describe('resource hook utilities', () => {
 			routes: {},
 		} as ResourceObject<unknown, unknown>;
 		delete (window as unknown as { wp?: unknown }).wp;
-		expect(() => ensureUseSelect(resource, 'useGet')).toThrow(KernelError);
+		expect(() => ensureUseSelect(resource, 'useGet')).toThrow(
+			WPKernelError
+		);
 	});
 
 	it('computes item loading state via resolving helpers', () => {

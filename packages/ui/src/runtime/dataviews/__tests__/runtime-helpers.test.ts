@@ -1,4 +1,4 @@
-import type { KernelInstance, KernelUIRuntime } from '@wpkernel/core/data';
+import type { WPKInstance, WPKernelUIRuntime } from '@wpkernel/core/data';
 import type { Reporter } from '@wpkernel/core/reporter';
 import {
 	__TESTING__ as runtimeTestUtils,
@@ -83,9 +83,9 @@ describe('kernel dataviews runtime helpers', () => {
 	});
 
 	it('creates kernel runtime with default adapter when missing', () => {
-		const kernel = { emit: jest.fn() } as unknown as KernelInstance;
+		const kernel = { emit: jest.fn() } as unknown as WPKInstance;
 		const reporter = createReporter();
-		const runtime = { reporter } as unknown as KernelUIRuntime;
+		const runtime = { reporter } as unknown as WPKernelUIRuntime;
 		const options = normalizeDataViewsOptions({ enable: true });
 
 		const dataviewsRuntime = createKernelDataViewsRuntime(

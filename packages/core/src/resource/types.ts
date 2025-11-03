@@ -28,8 +28,8 @@ export type ResourceRoute = {
 	path: string;
 	/** HTTP method */
 	method: HttpMethod;
-	/** Optional policy identifier used by tooling to map to capability checks */
-	policy?: string;
+	/** Optional capability identifier used by tooling to map to capability checks */
+	capability?: string;
 };
 
 /**
@@ -302,7 +302,7 @@ export type ResourceConfig<
 	 * Optional reporter override for resource instrumentation.
 	 *
 	 * When provided, the resource will emit debug/info/error logs through this
-	 * reporter instead of creating a child reporter from the kernel instance.
+	 * reporter instead of creating a child reporter from the WP Kernel instance.
 	 */
 	reporter?: Reporter;
 

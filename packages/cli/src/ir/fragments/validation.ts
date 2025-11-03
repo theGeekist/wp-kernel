@@ -1,0 +1,38 @@
+import { WPKernelError } from '@wpkernel/core/error';
+import { createHelper } from '../../runtime';
+import type { IrFragment, IrFragmentApplyOptions } from '../types';
+
+export function createValidationFragment(): IrFragment {
+	return createHelper({
+		key: 'ir.validation.core',
+		kind: 'fragment',
+		dependsOn: [
+			'ir.meta.core',
+			'ir.resources.core',
+			'ir.capability-map.core',
+		],
+		async apply({ input }: IrFragmentApplyOptions) {
+			if (!input.draft.meta) {
+				throw new WPKernelError('ValidationError', {
+					message: 'IR meta was not initialised before validation.',
+				});
+			}
+
+			if (!input.draft.capabilityMap) {
+				throw new WPKernelError('ValidationError', {
+					message:
+						'IR capability map was not resolved before validation.',
+				});
+			}
+
+			for (const resource of input.draft.resources) {
+				if (!resource.schemaKey) {
+					throw new WPKernelError('ValidationError', {
+						message: `Resource "${resource.name}" is missing a schema association after resource fragment execution.`,
+						context: { resource: resource.name },
+					});
+				}
+			}
+		},
+	});
+}

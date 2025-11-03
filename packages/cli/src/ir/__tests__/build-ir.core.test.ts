@@ -1,15 +1,15 @@
 import path from 'node:path';
-import { KernelError } from '@wpkernel/core/error';
-import type { KernelConfigV1 } from '../../config/types';
-import { buildIr } from '../build-ir';
+import { WPKernelError } from '@wpkernel/core/error';
+import type { WPKernelConfigV1 } from '../../config/types';
+import { buildIr } from '../buildIr';
 import {
 	FIXTURE_CONFIG_PATH,
 	FIXTURE_ROOT,
 	canonicalHash,
 	createBaseConfig,
-} from '../test-helpers';
+} from '../shared/test-helpers';
 
-describe('buildIr – core behaviours', () => {
+describe('buildIr - core behaviours', () => {
 	it('constructs a deterministic IR for manual schemas', async () => {
 		const schemaPath = path.join(FIXTURE_ROOT, 'schemas/todo.schema.json');
 		const config = createBaseConfig();
@@ -18,7 +18,7 @@ describe('buildIr – core behaviours', () => {
 				path: './schemas/todo.schema.json',
 				generated: { types: 'types/todo.d.ts' },
 			},
-		} as KernelConfigV1['schemas'];
+		} as WPKernelConfigV1['schemas'];
 
 		config.resources = {
 			todo: {
@@ -28,7 +28,7 @@ describe('buildIr – core behaviours', () => {
 					list: {
 						path: '/test-namespace/v1/todos',
 						method: 'GET',
-						policy: 'todos.list',
+						capability: 'todos.list',
 					},
 					get: {
 						path: '/test-namespace/v1/todos/:id',
@@ -37,7 +37,7 @@ describe('buildIr – core behaviours', () => {
 					create: {
 						path: '/test-namespace/v1/todos',
 						method: 'POST',
-						policy: 'todos.create',
+						capability: 'todos.create',
 					},
 				},
 				cacheKeys: {
@@ -47,12 +47,12 @@ describe('buildIr – core behaviours', () => {
 				identity: { type: 'number', param: 'id' },
 				storage: { mode: 'wp-post', postType: 'todo' },
 			},
-		} as unknown as KernelConfigV1['resources'];
+		} as unknown as WPKernelConfigV1['resources'];
 
 		const ir = await buildIr({
 			config,
 			sourcePath: FIXTURE_CONFIG_PATH,
-			origin: 'kernel.config.ts',
+			origin: 'wpk.config.ts',
 			namespace: config.namespace,
 		});
 
@@ -60,7 +60,7 @@ describe('buildIr – core behaviours', () => {
 			version: 1,
 			namespace: 'test-namespace',
 			sourcePath: path.relative(process.cwd(), FIXTURE_CONFIG_PATH),
-			origin: 'kernel.config.ts',
+			origin: 'wpk.config.ts',
 			sanitizedNamespace: 'test-namespace',
 		});
 
@@ -91,7 +91,7 @@ describe('buildIr – core behaviours', () => {
 		expect(resource.storage).toEqual({ mode: 'wp-post', postType: 'todo' });
 		expect(resource.warnings).toEqual([]);
 
-		expect(ir.policies).toEqual([
+		expect(ir.capabilities).toEqual([
 			{
 				key: 'todos.create',
 				source: 'resource',
@@ -119,7 +119,7 @@ describe('buildIr – core behaviours', () => {
 		const secondRun = await buildIr({
 			config,
 			sourcePath: FIXTURE_CONFIG_PATH,
-			origin: 'kernel.config.ts',
+			origin: 'wpk.config.ts',
 			namespace: config.namespace,
 		});
 
@@ -146,12 +146,12 @@ describe('buildIr – core behaviours', () => {
 					},
 				},
 			},
-		} as unknown as KernelConfigV1['resources'];
+		} as unknown as WPKernelConfigV1['resources'];
 
 		const ir = await buildIr({
 			config,
 			sourcePath: FIXTURE_CONFIG_PATH,
-			origin: 'kernel.config.ts',
+			origin: 'wpk.config.ts',
 			namespace: config.namespace,
 		});
 
@@ -183,10 +183,10 @@ describe('buildIr – core behaviours', () => {
 			buildIr({
 				config,
 				sourcePath: FIXTURE_CONFIG_PATH,
-				origin: 'kernel.config.ts',
+				origin: 'wpk.config.ts',
 				namespace: '123plugin',
 			})
-		).rejects.toBeInstanceOf(KernelError);
+		).rejects.toBeInstanceOf(WPKernelError);
 	});
 
 	it('loads schemas from absolute paths', async () => {
@@ -200,7 +200,7 @@ describe('buildIr – core behaviours', () => {
 				path: absoluteSchema,
 				generated: { types: 'types/todo.d.ts' },
 			},
-		} as KernelConfigV1['schemas'];
+		} as WPKernelConfigV1['schemas'];
 		config.resources = {
 			todo: {
 				name: 'todo',
@@ -212,12 +212,12 @@ describe('buildIr – core behaviours', () => {
 					},
 				},
 			},
-		} as unknown as KernelConfigV1['resources'];
+		} as unknown as WPKernelConfigV1['resources'];
 
 		const ir = await buildIr({
 			config,
 			sourcePath: FIXTURE_CONFIG_PATH,
-			origin: 'kernel.config.ts',
+			origin: 'wpk.config.ts',
 			namespace: config.namespace,
 		});
 

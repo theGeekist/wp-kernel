@@ -1,8 +1,12 @@
 import type { ActionRuntime } from '@wpkernel/core/actions/types.js';
 
+declare global {
+	var __WP_KERNEL_ACTION_RUNTIME__: ActionRuntime | undefined;
+}
+
 export interface ActionRuntimeOverrides {
 	runtime?: Partial<ActionRuntime>;
-	policy?: ActionRuntime['policy'];
+	capability?: ActionRuntime['capability'];
 }
 
 export type RuntimeCleanup = () => void;
@@ -16,14 +20,14 @@ function assignRuntime(
 		...(overrides.runtime ?? {}),
 	} as ActionRuntime;
 
-	if ('policy' in overrides) {
-		merged.policy = overrides.policy;
+	if ('capability' in overrides) {
+		merged.capability = overrides.capability;
 	}
 
-	if (!merged.policy) {
-		merged.policy = {
+	if (!merged.capability) {
+		merged.capability = {
 			can: jest.fn().mockResolvedValue(true),
-		} as ActionRuntime['policy'];
+		} as ActionRuntime['capability'];
 	}
 
 	return merged;

@@ -7,7 +7,7 @@
  * @module
  */
 
-import type { KernelRegistry, KernelUIRuntime } from '@wpkernel/core/data';
+import type { WPKernelRegistry, WPKernelUIRuntime } from '@wpkernel/core/data';
 import type { Reporter } from '@wpkernel/core/reporter';
 import { DataViewsConfigurationError } from './errors';
 
@@ -135,7 +135,7 @@ const DATAVIEWS_SCOPE_SEGMENT = 'dataviews';
  *
  * @internal
  */
-type RegistryLike = Pick<KernelRegistry, 'select' | 'dispatch'>;
+type RegistryLike = Pick<WPKernelRegistry, 'select' | 'dispatch'>;
 
 /**
  * core/preferences selectors interface
@@ -209,7 +209,7 @@ function isRegistryLike(candidate: unknown): candidate is RegistryLike {
  * @throws DataViewsConfigurationError If no valid registry is found
  */
 function resolveRegistry(
-	runtime: KernelUIRuntime,
+	runtime: WPKernelUIRuntime,
 	reporter: Reporter
 ): RegistryLike {
 	if (isRegistryLike(runtime.registry)) {
@@ -218,7 +218,7 @@ function resolveRegistry(
 
 	const wpData = (
 		globalThis as {
-			wp?: { data?: KernelRegistry };
+			wp?: { data?: WPKernelRegistry };
 		}
 	).wp?.data;
 
@@ -383,7 +383,7 @@ export function createPreferencesRuntime(
  * ```
  */
 export function createDefaultDataViewPreferencesAdapter(
-	runtime: KernelUIRuntime,
+	runtime: WPKernelUIRuntime,
 	reporter: Reporter
 ): DataViewPreferencesAdapter {
 	const scopeOrder = [...DEFAULT_SCOPE_ORDER];

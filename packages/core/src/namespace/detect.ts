@@ -1,4 +1,6 @@
+import type { Reporter } from '../reporter';
 import { createReporter } from '../reporter';
+import { resolveReporter } from '../reporter/resolve';
 import { WPK_NAMESPACE, WPK_SUBSYSTEM_NAMESPACES } from './constants';
 
 /**
@@ -71,7 +73,6 @@ const RESERVED_NAMESPACES = [
  *
  * @internal
  */
-let namespaceReporter: ReturnType<typeof createReporter> | null = null;
 
 /**
  * Get or create the namespace reporter instance.
@@ -79,15 +80,17 @@ let namespaceReporter: ReturnType<typeof createReporter> | null = null;
  *
  * @internal
  */
-function getNamespaceReporter(): ReturnType<typeof createReporter> {
-	if (!namespaceReporter) {
-		namespaceReporter = createReporter({
-			namespace: WPK_SUBSYSTEM_NAMESPACES.NAMESPACE,
-			channel: 'all',
-			level: 'warn',
-		});
-	}
-	return namespaceReporter;
+function getNamespaceReporter(): Reporter {
+	return resolveReporter({
+		fallback: () =>
+			createReporter({
+				namespace: WPK_SUBSYSTEM_NAMESPACES.NAMESPACE,
+				channel: 'all',
+				level: 'warn',
+			}),
+		cache: true,
+		cacheKey: `${WPK_SUBSYSTEM_NAMESPACES.NAMESPACE}.detect`,
+	});
 }
 
 /**
@@ -145,6 +148,7 @@ const _namespaceCache = new Map<string, NamespaceDetectionResult>();
  * Useful for testing or when context changes
  *
  * @internal
+ * @category Namespace
  */
 export function resetNamespaceCache(): void {
 	_namespaceCache.clear();
@@ -538,8 +542,9 @@ function extractFromPackageJson(): string | null {
  * Converts to lowercase, kebab-case, removes invalid characters,
  * and checks against reserved words.
  *
- * @param namespace - Raw namespace string
+ * @param    namespace - Raw namespace string
  * @return Sanitized namespace or null if invalid
+ * @category Namespace
  */
 export function sanitizeNamespace(namespace: string): string | null {
 	if (!namespace || typeof namespace !== 'string') {
@@ -593,8 +598,9 @@ export function sanitizeNamespace(namespace: string): string | null {
  * 5. package.json 'name' field
  * 6. Fallback to default
  *
- * @param options - Detection options
+ * @param    options - Detection options
  * @return Detection result with namespace and metadata
+ * @category Namespace
  */
 export function detectNamespace(
 	options: NamespaceDetectionOptions = {}
@@ -790,8 +796,9 @@ function evaluateCandidates(
 /**
  * Simple namespace detection for common use cases
  *
- * @param explicit - Optional explicit namespace
+ * @param    explicit - Optional explicit namespace
  * @return Detected namespace string
+ * @category Namespace
  */
 export function getNamespace(explicit?: string): string {
 	return detectNamespace({ explicit }).namespace;
@@ -800,8 +807,9 @@ export function getNamespace(explicit?: string): string {
 /**
  * Check if a namespace is valid
  *
- * @param namespace - Namespace to validate
+ * @param    namespace - Namespace to validate
  * @return True if valid
+ * @category Namespace
  */
 export function isValidNamespace(namespace: string): boolean {
 	return sanitizeNamespace(namespace) === namespace;

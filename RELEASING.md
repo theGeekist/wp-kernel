@@ -1,18 +1,20 @@
 # Release Model & Workflow
 
-> **WP Kernel uses manual semantic versioning with fixed versioning across all public packages.**
+> **WP Kernel uses manual semantic versioning with fixed versioning across all public packages.** The retired `release-please` automation remains disabled until we finish the follow-up automation tasks.
 
-**Model**: Sprint-driven releases with manual version management.
+**Model**: Sprint-driven releases with manual version management backed by the [Framework Release Playbook](docs/releases/framework-release-playbook.md).
 
 ---
 
 ## Quick Reference
 
-| Action            | Process                                 |
-| ----------------- | --------------------------------------- |
-| **New Sprint PR** | Update CHANGELOG.md with sprint changes |
-| **Version Bump**  | Update package.json versions manually   |
-| **Release**       | Tag and publish to npm manually         |
+| Action            | Process                                                                |
+| ----------------- | ---------------------------------------------------------------------- |
+| **New Sprint PR** | Update CHANGELOG.md with sprint changes                                |
+| **Version Bump**  | Update package.json versions manually                                  |
+| **Release**       | Follow the framework playbook, run `pnpm release:verify`, tag, publish |
+
+**Current train**: unified **v0.10.x (pre-1.0)** across every publishable package.
 
 ---
 
@@ -83,29 +85,18 @@ Every Sprint PR must link to:
 
 ### Preparing a Release
 
-1. **Update versions** in all package.json files (fixed versioning)
-2. **Update CHANGELOG.md** - Change `[Unreleased]` to version and date
-3. **Commit and tag**:
-    ```bash
-    git add .
-    git commit -m "chore(release): v0.x.0"
-    git tag v0.x.0
-    git push origin main --tags
-    ```
-4. **Build and publish**:
-    ```bash
-    pnpm build
-    npm publish --workspace packages/core
-    npm publish --workspace packages/ui
-    npm publish --workspace packages/cli
-    npm publish --workspace packages/e2e-utils
-    ```
+Walk through the [Framework Release Playbook](docs/releases/framework-release-playbook.md) for the authoritative checklist. At a minimum:
+
+1. **Run the verification suite** – `pnpm lint --fix`, `pnpm typecheck`, `pnpm typecheck:tests`, `pnpm test`, `pnpm build`, and finally `pnpm release:verify` to confirm every publishable workspace declares the required scripts and shares the root version.
+2. **Update versions** in all `package.json` files (fixed versioning across every published workspace) and refresh the root/package changelog entries.
+3. **Commit and tag** using annotated tags only after every package publishes successfully.
+4. **Publish packages** individually (core, ui, cli, e2e-utils, php-driver, php-json-ast, test-utils) so any failure is obvious and easy to retry.
 
 ---
 
 ## 4️⃣ Direct Commits to Main
 
-**Policy**: Main commits should be for monorepo hygiene only, not consumer-facing changes, and never trigger publishing.
+**Capability**: Main commits should be for monorepo hygiene only, not consumer-facing changes, and never trigger publishing.
 
 ### When to commit directly:
 
@@ -129,11 +120,11 @@ Every Sprint PR must link to:
 
 ### Standard Sprint (minor)
 
-Update CHANGELOG.md with sprint changes, bump versions from `0.3.0` → `0.4.0`
+Update CHANGELOG.md with sprint changes, bump versions from `0.5.x` → `0.6.0`
 
 ### Alignment Sprint (patch)
 
-Update CHANGELOG.md with fixes, bump versions from `0.3.0` → `0.4.1`
+Update CHANGELOG.md with fixes, bump versions from `0.4.x` → `0.4.(x+1)`
 
 ### Breaking Change (major)
 
@@ -151,9 +142,9 @@ Label PR with `no-release`:
 
 ## 6️⃣ Beta/Pre-release Workflow
 
-For Beta testing phases (e.g., Sprint 5 → 0.5.0-beta.1):
+For Beta testing phases (e.g., Sprint 5 → 0.6.0-beta.1):
 
-1. Update versions to beta (e.g., `0.5.0-beta.1`)
+1. Update versions to beta (e.g., `0.6.0-beta.1`)
 2. Build and publish with `--tag beta`:
     ```bash
     pnpm build
@@ -162,8 +153,8 @@ For Beta testing phases (e.g., Sprint 5 → 0.5.0-beta.1):
     npm publish --workspace packages/cli --tag beta
     npm publish --workspace packages/e2e-utils --tag beta
     ```
-3. Iterate with additional beta versions (0.5.0-beta.2, etc.)
-4. When ready for stable, update to `0.5.0` and publish normally
+3. Iterate with additional beta versions (0.6.0-beta.2, etc.)
+4. When ready for stable, update to `0.6.0` and publish normally
 
 **Install beta versions:**
 
@@ -251,7 +242,7 @@ If PR: add label `no-release`. No CHANGELOG entry needed.
 
 ## Related Documentation
 
-- **[VERSIONING.md](./VERSIONING.md)** - Semver policy, deprecations, back-compat
+- **[VERSIONING.md](./VERSIONING.md)** - Semver capability, deprecations, back-compat
 - **[CHANGELOG.md](./CHANGELOG.md)** - Historical releases and changes
 - **[PR Template](./.github/PULL_REQUEST_TEMPLATE.md)** - Required PR format
 - **[Contributing Guide](./docs/contributing/)** - Full contributor workflow

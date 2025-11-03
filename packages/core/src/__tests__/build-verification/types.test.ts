@@ -49,7 +49,7 @@ describe('Build: TypeScript declarations', () => {
 		[
 			'error internals',
 			[
-				'error/KernelError.d.ts',
+				'error/WPKernelError.d.ts',
 				'error/TransportError.d.ts',
 				'error/ServerError.d.ts',
 			],

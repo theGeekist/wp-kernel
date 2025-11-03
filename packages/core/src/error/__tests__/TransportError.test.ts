@@ -3,7 +3,7 @@
  */
 
 import { TransportError } from '../TransportError';
-import { KernelError } from '../KernelError';
+import { WPKernelError } from '../WPKernelError';
 
 describe('TransportError', () => {
 	describe('constructor', () => {
@@ -15,7 +15,7 @@ describe('TransportError', () => {
 			});
 
 			expect(error).toBeInstanceOf(TransportError);
-			expect(error).toBeInstanceOf(KernelError);
+			expect(error).toBeInstanceOf(WPKernelError);
 			expect(error.code).toBe('TransportError');
 			expect(error.name).toBe('TransportError');
 			expect(error.status).toBe(404);

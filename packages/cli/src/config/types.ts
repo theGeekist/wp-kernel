@@ -1,8 +1,8 @@
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { ResourceConfig } from '@wpkernel/core/resource';
 import type { WPKConfigSource } from '@wpkernel/core/contracts';
-import type { IRv1 } from '../ir/types';
-import type { PhpAstBuilder } from '../printers/php/types';
+import type { IRv1 } from '../ir/publicTypes';
+import type { PhpAstBuilder } from '@wpkernel/php-json-ast';
 
 /**
  * Source identifier describing where a kernel config was loaded from.
@@ -12,7 +12,7 @@ export type ConfigOrigin = WPKConfigSource;
 /**
  * Currently supported kernel config schema version.
  */
-export type KernelConfigVersion = 1;
+export type WPKernelConfigVersion = 1;
 
 /**
  * Configuration for a registered schema file.
@@ -50,8 +50,8 @@ export interface AdaptersConfig {
 /**
  * Shape of a v1 kernel configuration object.
  */
-export interface KernelConfigV1 {
-	version: KernelConfigVersion;
+export interface WPKernelConfigV1 {
+	version: WPKernelConfigVersion;
 	namespace: string;
 	schemas: SchemaRegistry;
 	resources: ResourceRegistry;
@@ -62,7 +62,7 @@ export interface KernelConfigV1 {
  * Context shared with adapter factories while generating artifacts.
  */
 export interface AdapterContext {
-	config: KernelConfigV1;
+	config: WPKernelConfigV1;
 	reporter: Reporter;
 	namespace: string;
 	ir?: IRv1;
@@ -96,7 +96,7 @@ export interface AdapterExtensionContext extends AdapterContext {
 	configDirectory?: string;
 	tempDir: string;
 	queueFile: (filePath: string, contents: string) => Promise<void>;
-	updateIr: (nextIr: IRv1) => void;
+	updateIr: (ir: IRv1) => void;
 	formatPhp: (filePath: string, contents: string) => Promise<string>;
 	formatTs: (filePath: string, contents: string) => Promise<string>;
 }
@@ -119,8 +119,8 @@ export type AdapterExtensionFactory = (
 /**
  * Result returned when loading and validating a kernel config file.
  */
-export interface LoadedKernelConfig {
-	config: KernelConfigV1;
+export interface LoadedWPKernelConfig {
+	config: WPKernelConfigV1;
 	sourcePath: string;
 	configOrigin: ConfigOrigin;
 	composerCheck: 'ok' | 'mismatch';

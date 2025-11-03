@@ -1,4 +1,4 @@
-import type { KernelInstance } from '@wpkernel/core/data';
+import type { WPKInstance } from '@wpkernel/core/data';
 import type { Reporter } from '@wpkernel/core/reporter';
 import {
 	__TESTING__ as eventsTestUtils,
@@ -13,7 +13,7 @@ import {
 describe('dataviews event emitter', () => {
 	it('emits events via kernel and logs debug info', () => {
 		const emit = jest.fn();
-		const kernel = { emit } as unknown as KernelInstance;
+		const kernel = { emit } as unknown as WPKInstance;
 		const reporter: Reporter = {
 			debug: jest.fn(),
 			error: jest.fn(),
@@ -47,7 +47,7 @@ describe('dataviews event emitter', () => {
 			emit: jest.fn(() => {
 				throw error;
 			}),
-		} as unknown as KernelInstance;
+		} as unknown as WPKInstance;
 		const reporter: Reporter = {
 			debug: jest.fn(),
 			error: jest.fn(),
@@ -79,7 +79,7 @@ describe('dataviews event emitter', () => {
 			emit: jest.fn(() => {
 				throw new Error('fail');
 			}),
-		} as unknown as KernelInstance;
+		} as unknown as WPKInstance;
 		const reporter: Reporter = {
 			debug: jest.fn(),
 			error: jest.fn(),
@@ -100,7 +100,7 @@ describe('dataviews event emitter', () => {
 	it('omits resource metadata when payload does not include it', () => {
 		const { emitEvent } = eventsTestUtils;
 		const emit = jest.fn();
-		const kernel = { emit } as unknown as KernelInstance;
+		const kernel = { emit } as unknown as WPKInstance;
 		const reporter: Reporter = {
 			debug: jest.fn(),
 			error: jest.fn(),

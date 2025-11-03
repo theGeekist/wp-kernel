@@ -5,6 +5,10 @@
  * and avoids object replacement patterns. Uses property-level mocking
  * with proper TypeScript integration.
  */
+import type {
+	InteractivityModule,
+	InteractivityServerStateResolver,
+} from '@wpkernel/core/interactivity';
 
 // Optional: Add custom matchers
 // import matchers from 'jest-extended';
@@ -77,6 +81,40 @@ const wpHooksStub = {
 } as any; // Stub - 'as any' acceptable for test fixtures
 
 /**
+ * Minimal interactivity stub so tests can run without script module hydration.
+ * `@wordpress/interactivity` is a peer dependency for defineInteraction – keep
+ * this stub aligned with upstream exports when updating the helper.
+ */
+const storeMock = jest.fn(
+	(namespace?: string, definition?: Record<string, unknown>) => {
+		void namespace;
+		return (definition ?? {}) as ReturnType<InteractivityModule['store']>;
+	}
+);
+
+const getServerStateMock = jest
+	.fn(() => ({}))
+	.mockName('wp.interactivity.getServerState');
+
+const wpInteractivityStubPartial: Partial<InteractivityModule> = {
+	store: storeMock as unknown as InteractivityModule['store'],
+	getServerState:
+		getServerStateMock as unknown as InteractivityModule['getServerState'],
+};
+
+(wpInteractivityStubPartial.getServerState as
+	| InteractivityServerStateResolver
+	| undefined)!.subscribe = 0;
+
+const wpInteractivityStub = wpInteractivityStubPartial as InteractivityModule;
+
+(
+	globalThis as {
+		__WPKernelInteractivityStub?: InteractivityModule;
+	}
+).__WPKernelInteractivityStub = wpInteractivityStub;
+
+/**
  * Global test environment setup
  * Runs before each test to ensure clean, predictable state
  */
@@ -95,6 +133,7 @@ beforeEach(() => {
 	window.wp = {
 		data: wpDataStub,
 		hooks: wpHooksStub,
+		interactivity: wpInteractivityStub,
 	};
 
 	// Mock BroadcastChannel since jsdom doesn't provide it
@@ -219,6 +258,7 @@ afterEach(() => {
 	window.wp = {
 		data: wpDataStub,
 		hooks: wpHooksStub,
+		interactivity: wpInteractivityStub,
 	};
 
 	// Reset to real timers if any tests used fake timers

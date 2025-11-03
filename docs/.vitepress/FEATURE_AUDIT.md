@@ -2,13 +2,13 @@
 
 ## Executive Summary
 
-WP Kernel's core runtime, UI adapter, and CLI pipeline are feature-complete for generating and running a resource-driven WordPress plugin. The runtime wires registry middleware, cache invalidation, event emission, and optional UI bindings behind a single `configureKernel` entry point.【F:packages/core/src/data/configure-kernel.ts†L92-L220】 Generated resources raise typed events through a shared bus so both JavaScript and PHP surfaces stay synchronised.【F:packages/core/src/events/bus.ts†L36-L160】 The CLI currently generates TypeScript definitions, PHP controllers, UI bindings, and block builds in one pass, then applies artefacts with guarded merges and block deployment tracking.【F:packages/cli/src/printers/index.ts†L1-L17】【F:packages/cli/src/printers/php/printer.ts†L1-L92】【F:packages/cli/src/commands/apply/command.ts†L21-L156】 Extensive unit coverage exercises the registry bootstrap, cache integration, and apply workflow, keeping day-to-day development stable.【F:packages/core/src/data/**tests**/configure-kernel.test.ts†L51-L216】【F:packages/cli/src/commands/**tests**/apply-command.test.ts†L51-L200】
+WP Kernel's core runtime, UI adapter, and CLI pipeline are feature-complete for generating and running a resource-driven WordPress plugin. The runtime wires registry middleware, cache invalidation, event emission, and optional UI bindings behind a single `configureWPKernel` entry point.【F:packages/core/src/data/configure-kernel.ts†L92-L220】 Generated resources raise typed events through a shared bus so both JavaScript and PHP surfaces stay synchronised.【F:packages/core/src/events/bus.ts†L36-L160】 The CLI currently generates TypeScript definitions, PHP controllers, UI bindings, and block builds in one pass, then applies artefacts with guarded merges and block deployment tracking.【F:packages/cli/src/printers/index.ts†L1-L17】【F:packages/cli/src/printers/php/printer.ts†L1-L92】【F:packages/cli/src/commands/apply/command.ts†L21-L156】 Extensive unit coverage exercises the registry bootstrap, cache integration, and apply workflow, keeping day-to-day development stable.【F:packages/core/src/data/**tests**/configure-kernel.test.ts†L51-L216】【F:packages/cli/src/commands/**tests**/apply-command.test.ts†L51-L200】
 
 ## Current Implementation Snapshot
 
 ### Core Runtime
 
-- `configureKernel` centralises namespace detection, reporter wiring, middleware installation, cache invalidation, event emission, UI attach, and teardown safety guards, enabling a one-call bootstrap for plugins.【F:packages/core/src/data/configure-kernel.ts†L92-L220】
+- `configureWPKernel` centralises namespace detection, reporter wiring, middleware installation, cache invalidation, event emission, UI attach, and teardown safety guards, enabling a one-call bootstrap for plugins.【F:packages/core/src/data/configure-kernel.ts†L92-L220】
 - Resources defined with `defineResource` automatically receive grouped APIs, namespace-aware reporters, cache keys, and event registration, reinforcing the "JS is source of truth" contract.【F:packages/core/src/resource/define.ts†L1-L120】【F:packages/core/src/events/bus.ts†L139-L160】
 - Actions expose policy checks, cache invalidation, job orchestration, and canonical events inside a consistent context, so UI layers never issue transport calls directly.【F:packages/core/src/actions/define.ts†L160-L320】
 
@@ -27,7 +27,7 @@ WP Kernel's core runtime, UI adapter, and CLI pipeline are feature-complete for 
 ### Reference Implementations
 
 - The showcase plugin demonstrates the full stack—kernel config, resource clients, UI DataViews, actions, and generated PHP controllers—proving the workflow in a real WordPress project.【F:docs/examples/showcase.md†L1-L33】【F:examples/showcase/src/actions/jobs/CreateJob.ts†L14-L63】
-- The "Test the CLI" example keeps a minimal transient-backed resource for smoke-testing generation and apply routines without unrelated noise.【F:docs/examples/test-the-cli.md†L1-L27】【F:examples/test-the-cli/kernel.config.ts†L1-L48】
+- The "Test the CLI" example keeps a minimal transient-backed resource for smoke-testing generation and apply routines without unrelated noise.【F:docs/examples/test-the-cli.md†L1-L27】【F:examples/test-the-cli/wpk.config.ts†L1-L48】
 
 ## Planned & In-Flight Work
 

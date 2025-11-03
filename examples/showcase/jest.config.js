@@ -1,58 +1,18 @@
-/**
- * Jest configuration for Showcase app
- * Extends base config from monorepo root
- */
+import { createWPKJestConfig } from '@wpkernel/scripts/config/create-wpk-jest-config.js';
 
-import path from 'path';
-import { fileURLToPath } from 'url';
-import baseConfig from '../../jest.config.base.js';
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const monorepoRoot = path.resolve(__dirname, '../..');
-
-export default {
-	...baseConfig,
-
-	// Set display name for this project
+const config = createWPKJestConfig({
 	displayName: 'wp-kernel-showcase',
-
-	// Root directory for this package
-	rootDir: monorepoRoot,
-
-	// Only test files in this app
+	packageDir: import.meta.url,
 	testMatch: [
 		'<rootDir>/examples/showcase/**/__tests__/**/*.test.ts',
 		'<rootDir>/examples/showcase/**/__tests__/**/*.test.tsx',
-		// Explicitly exclude spec files (these are E2E tests for Playwright)
-		'!**/__tests__/**/*.spec.ts',
-		'!**/__tests__/**/*.spec.tsx',
 	],
+});
 
-	// Additional ignore patterns specific to showcase
-	testPathIgnorePatterns: [
-		...baseConfig.testPathIgnorePatterns,
-		'/__tests__/e2e/', // Exclude entire E2E directory
-		'/e2e/', // Exclude any top-level E2E directory
-	],
+config.testPathIgnorePatterns = [
+	...(config.testPathIgnorePatterns ?? []),
+	'/__tests__/e2e/',
+	'/e2e/',
+];
 
-	// Module resolution for showcase app
-	moduleNameMapper: {
-		...baseConfig.moduleNameMapper,
-		'^@test-utils/(.*)\\.js$': '<rootDir>/tests/test-utils/$1',
-		'^@test-utils/(.*)$': '<rootDir>/tests/test-utils/$1',
-		// Map relative imports within showcase
-		'^@/(.*)$': '<rootDir>/examples/showcase/src/$1',
-		// Ensure kernel packages resolve correctly from showcase context
-		'^@wpkernel/core$': '<rootDir>/packages/core/src',
-		'^@wpkernel/core/(.*)$': '<rootDir>/packages/core/src/$1',
-		'^@wpkernel/ui$': '<rootDir>/packages/ui/src',
-		'^@wpkernel/ui/(.*)$': '<rootDir>/packages/ui/src/$1',
-		'^@wpkernel/cli$': '<rootDir>/packages/cli/src',
-		'^@wpkernel/cli/(.*)$': '<rootDir>/packages/cli/src/$1',
-		'^@wpkernel/e2e-utils$': '<rootDir>/packages/e2e-utils/src',
-		'^@wpkernel/e2e-utils/(.*)$': '<rootDir>/packages/e2e-utils/src/$1',
-	},
-
-	// Setup files
-	setupFilesAfterEnv: ['<rootDir>/tests/setup-jest.ts'],
-};
+export default config;

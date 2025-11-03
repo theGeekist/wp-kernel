@@ -1,15 +1,12 @@
 {
 	"$schema": "https://json.schemastore.org/tsconfig",
-	"extends": "../../tsconfig.base.json",
+	"extends": "../../tsconfig.tests.json",
 	"compilerOptions": {
 		"baseUrl": "../../",
 		"rootDir": "../../",
 		"outDir": "./dist-tests",
-		"composite": true,
-		"noEmit": true,
 		"jsx": "react-jsx",
 		"jsxImportSource": "react",
-		"types": ["jest", "node"],
 		"resolveJsonModule": true,
 		"skipLibCheck": true,
 		"strict": false
@@ -18,12 +15,14 @@
 		"**/*",
 		"package.json",
 		"../../tests/**/*",
+		"../../scripts/register-workspace.ts",
 		"../../packages/test-utils/src/**/*"
 	],
 	"exclude": ["node_modules", "dist", "dist-tests", "build"],
 	"references": [
 		{ "path": "../../packages/core" },
 		{ "path": "../../packages/ui" },
+		{ "path": "../../packages/cli/tsconfig.json" },
 		{ "path": "../../packages/e2e-utils" }
 	]
 }

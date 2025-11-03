@@ -1,6 +1,6 @@
 import type {
-	KernelInstance,
-	KernelUIRuntime,
+	WPKInstance,
+	WPKernelUIRuntime,
 	UIIntegrationOptions,
 } from '@wpkernel/core/data';
 import type { Reporter } from '@wpkernel/core/reporter';
@@ -107,8 +107,8 @@ export const __TESTING__ = {
 };
 
 export function createKernelDataViewsRuntime(
-	kernel: KernelInstance,
-	runtime: KernelUIRuntime,
+	kernel: WPKInstance,
+	runtime: WPKernelUIRuntime,
 	options: NormalizedDataViewsRuntimeOptions
 ): KernelDataViewsRuntime {
 	const reporter = childReporter(runtime.reporter, 'ui.dataviews');
@@ -135,7 +135,7 @@ export function createKernelDataViewsRuntime(
 }
 
 declare module '@wpkernel/core/data' {
-	interface KernelUIRuntime {
+	interface WPKernelUIRuntime {
 		dataviews?: KernelDataViewsRuntime;
 	}
 }

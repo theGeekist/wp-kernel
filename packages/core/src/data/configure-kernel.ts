@@ -1,38 +1,39 @@
 import type {
-	KernelRegistry,
-	ConfigureKernelOptions,
-	KernelInstance,
-	KernelUIConfig,
-	KernelUIAttach,
-	KernelUIRuntime,
+	WPKernelRegistry,
+	ConfigureWPKernelOptions,
+	WPKInstance,
+	WPKUIConfig,
+	WPKernelUIAttach,
+	WPKernelUIRuntime,
 } from './types';
 import { getNamespace as detectNamespace } from '../namespace/detect';
-import { createReporter, setKernelReporter } from '../reporter';
-import type { Reporter } from '../reporter';
+import { createReporter, setWPKernelReporter } from '../reporter';
+import { resolveReporter as resolveKernelReporter } from '../reporter/resolve';
 import { invalidate as invalidateCache } from '../resource/cache';
 import type { CacheKeyPattern, InvalidateOptions } from '../resource/cache';
-import { KernelError } from '../error/KernelError';
+import { WPKernelError } from '../error/WPKernelError';
+import { WPK_SUBSYSTEM_NAMESPACES } from '../contracts/index.js';
 import {
-	getKernelEventBus,
-	type KernelEventBus,
-	setKernelEventBus,
+	getWPKernelEventBus,
+	type WPKernelEventBus,
+	setWPKernelEventBus,
 } from '../events/bus';
 import { createActionMiddleware } from '../actions/middleware';
-import { kernelEventsPlugin } from './plugins/events';
+import { wpkEventsPlugin } from './plugins/events';
 import { defineResource as baseDefineResource } from '../resource/define';
 import type { ResourceConfig, ResourceObject } from '../resource/types';
 
 type CleanupTask = () => void;
 
 function resolveRegistry(
-	registry?: KernelRegistry
-): KernelRegistry | undefined {
+	registry?: WPKernelRegistry
+): WPKernelRegistry | undefined {
 	if (registry) {
 		return registry;
 	}
 
 	if (typeof getWPData === 'function') {
-		return getWPData() as unknown as KernelRegistry | undefined;
+		return getWPData() as unknown as WPKernelRegistry | undefined;
 	}
 
 	return undefined;
@@ -42,22 +43,10 @@ function resolveNamespace(explicit?: string): string {
 	return explicit ?? detectNamespace();
 }
 
-function resolveReporter(namespace: string, reporter?: Reporter): Reporter {
-	if (reporter) {
-		return reporter;
-	}
-
-	return createReporter({
-		namespace,
-		channel: 'all',
-		level: 'debug',
-	});
-}
-
-function normalizeUIConfig(config?: KernelUIConfig): {
+function normalizeUIConfig(config?: WPKUIConfig): {
 	enable: boolean;
-	options?: KernelUIConfig['options'];
-	attach?: KernelUIAttach;
+	options?: WPKUIConfig['options'];
+	attach?: WPKernelUIAttach;
 } {
 	return {
 		enable: Boolean(config?.enable ?? config?.attach),
@@ -67,13 +56,13 @@ function normalizeUIConfig(config?: KernelUIConfig): {
 }
 
 function emitEvent(
-	bus: KernelEventBus,
+	bus: WPKernelEventBus,
 	eventName: string,
 	payload: unknown
 ): void {
 	if (!eventName || typeof eventName !== 'string') {
-		throw new KernelError('DeveloperError', {
-			message: 'kernel emit requires a non-empty string event name.',
+		throw new WPKernelError('DeveloperError', {
+			message: 'WPKernel emit requires a non-empty string event name.',
 		});
 	}
 
@@ -89,19 +78,54 @@ function extractResourceName(name: string): string {
 	return resourceName || name;
 }
 
-export function configureKernel(
-	options: ConfigureKernelOptions = {}
-): KernelInstance {
+/**
+ * Configure and bootstrap the WP Kernel runtime for the current namespace.
+ *
+ * The helper wires middleware, reporters, the shared event bus, and optional UI
+ * bindings. It returns a `WPKInstance` that exposes integration hooks for
+ * invalidation, telemetry, and teardown.
+ *
+ * @param    options - Runtime configuration including registry, middleware, and UI hooks
+ * @return Configured WP Kernel instance with lifecycle helpers
+ *
+ * @example
+ * ```ts
+ * import { configureWPKernel } from '@wpkernel/core/data';
+ * import { registerWPKernelStore } from '@wpkernel/core/data';
+ *
+ * const wpk = configureWPKernel({
+ *   namespace: 'acme',
+ *   registry: registerWPKernelStore('acme/store', storeConfig),
+ * });
+ *
+ * wpk.invalidate(['post', 'list']);
+ * wpk.emit('acme.post.published', { id: 101 });
+ * ```
+ * @category Data
+ */
+export function configureWPKernel(
+	options: ConfigureWPKernelOptions = {}
+): WPKInstance {
 	const registry = resolveRegistry(options.registry);
 	const namespace = resolveNamespace(options.namespace);
-	const reporter = resolveReporter(namespace, options.reporter);
+	const reporter = resolveKernelReporter({
+		override: options.reporter,
+		fallback: () =>
+			createReporter({
+				namespace,
+				channel: 'all',
+				level: 'debug',
+			}),
+		cache: true,
+		cacheKey: `${WPK_SUBSYSTEM_NAMESPACES.ACTIONS}.configure.${namespace}`,
+	});
 	const ui = normalizeUIConfig(options.ui);
 
-	const events = getKernelEventBus();
-	setKernelEventBus(events);
-	setKernelReporter(reporter);
-	const cleanupTasks: CleanupTask[] = [() => setKernelReporter(undefined)];
-	let uiRuntime: KernelUIRuntime | undefined;
+	const events = getWPKernelEventBus();
+	setWPKernelEventBus(events);
+	setWPKernelReporter(reporter);
+	const cleanupTasks: CleanupTask[] = [() => setWPKernelReporter(undefined)];
+	let uiRuntime: WPKernelUIRuntime | undefined;
 
 	if (
 		registry &&
@@ -117,7 +141,7 @@ export function configureKernel(
 			cleanupTasks.push(detachActions);
 		}
 
-		const eventsMiddleware = kernelEventsPlugin({
+		const eventsMiddleware = wpkEventsPlugin({
 			reporter,
 			registry,
 			events,
@@ -135,7 +159,7 @@ export function configureKernel(
 		});
 	}
 
-	const kernel: KernelInstance = {
+	const wpk: WPKInstance = {
 		getNamespace() {
 			return namespace;
 		},
@@ -164,7 +188,7 @@ export function configureKernel(
 				} catch (error) {
 					if (process.env.NODE_ENV === 'development') {
 						reporter.error(
-							'Kernel teardown failed',
+							'WPKernel teardown failed',
 							error instanceof Error
 								? error
 								: new Error(String(error))
@@ -182,8 +206,8 @@ export function configureKernel(
 		getUIRuntime() {
 			return uiRuntime;
 		},
-		attachUIBindings(attach: KernelUIAttach, attachOptions) {
-			uiRuntime = attach(kernel, attachOptions ?? ui.options);
+		attachUIBindings(attach: WPKernelUIAttach, attachOptions) {
+			uiRuntime = attach(wpk, attachOptions ?? ui.options);
 			return uiRuntime;
 		},
 		ui: {
@@ -201,21 +225,21 @@ export function configureKernel(
 				resourceConfig.reporter ??
 				reporter.child(`resource.${resourceName}`);
 
-			const shouldApplyKernelNamespace =
+			const shouldApplyWpkNamespace =
 				resourceConfig.namespace === undefined &&
 				!resourceConfig.name.includes(':');
 
 			return baseDefineResource<T, TQuery>({
 				...resourceConfig,
 				reporter: resourceReporter,
-				...(shouldApplyKernelNamespace ? { namespace } : {}),
+				...(shouldApplyWpkNamespace ? { namespace } : {}),
 			});
 		},
 	};
 
 	if (ui.attach && ui.enable) {
-		kernel.attachUIBindings(ui.attach, ui.options);
+		wpk.attachUIBindings(ui.attach, ui.options);
 	}
 
-	return kernel;
+	return wpk;
 }

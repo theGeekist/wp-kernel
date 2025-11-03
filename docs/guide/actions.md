@@ -169,21 +169,21 @@ export const CreatePost = defineAction({
 ```typescript
 import { defineAction } from '@wpkernel/core/actions';
 import { post } from '@/resources/post';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 
 export const CreatePost = defineAction({
 	name: 'Post.Create',
 	handler: async (ctx, { title, content, notifySubscribers = false }) => {
 		// Validation
 		if (!title?.trim()) {
-			throw new KernelError('ValidationError', {
+			throw new WPKernelError('ValidationError', {
 				message: 'Post title is required',
 				field: 'title',
 			});
 		}
 
-		// Permission check via policy surface
-		ctx.policy.assert('publish_posts');
+		// Permission check via capability surface
+		ctx.capability.assert('publish_posts');
 
 		try {
 			const created = await post.create({ title, content });
@@ -214,8 +214,8 @@ export const CreatePost = defineAction({
 ### Reporting and notices
 
 `ctx.reporter` forwards structured telemetry to the reporter module. With `channel: 'all'` the message prints in development
-consoles and emits `showcase.reporter.error` via `wp.hooks`. Once [`configureKernel()`](/guide/data) runs the
-`kernelEventsPlugin()` listens for `wpk.action.error` and raises `core/notices` alerts automatically. The same lifecycle appears on `kernel.events`
+consoles and emits `showcase.reporter.error` via `wp.hooks`. Once [`configureWPKernel()`](/guide/data) runs the
+`wpkEventsPlugin()` listens for `wpk.action.error` and raises `core/notices` alerts automatically. The same lifecycle appears on `kernel.events`
 so JavaScript consumers can subscribe with full typing:
 
 ```ts
@@ -249,7 +249,7 @@ function PostForm() {
         content: form.get('content') as string,
       });
     } catch {
-      // error already normalised to KernelError and exposed via `error`
+      // error already normalised to WPKernelError and exposed via `error`
     }
   };
 
@@ -265,8 +265,8 @@ function PostForm() {
 }
 ```
 
-> ℹ️ Wrap your application with `KernelUIProvider` after calling
-> `configureKernel({ ui: { attach: attachUIBindings } })` so that `useAction()`
+> ℹ️ Wrap your application with `WPKernelUIProvider` after calling
+> `configureWPKernel({ ui: { attach: attachUIBindings } })` so that `useAction()`
 > can resolve the action dispatcher from the runtime.
 
 `useAction` exposes the request lifecycle (`status`, `error`, `result`) and

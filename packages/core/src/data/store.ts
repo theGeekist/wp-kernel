@@ -1,6 +1,17 @@
 import { createReduxStore, register } from '@wordpress/data';
 
-export function registerKernelStore<
+/**
+ * Register a WordPress data store using WP Kernel defaults.
+ *
+ * The helper wraps `@wordpress/data` store registration so packages can rely on
+ * consistent middleware ordering and return the created store for further wiring.
+ *
+ * @param    key    - Store key used for registration
+ * @param    config - Store configuration passed to `createReduxStore`
+ * @return Registered WordPress data store
+ * @category Data
+ */
+export function registerWPKernelStore<
 	Key extends string,
 	State,
 	Actions extends Record<string, (...args: unknown[]) => unknown>,

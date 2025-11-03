@@ -1,13 +1,25 @@
 # wp-kernel-showcase
 
-## 0.4.0 [Unreleased]
+## 0.6.0 - 2025-10-26
+
+### Maintenance
+
+- Version bump to `0.6.0` to match the Phase 2 release; the showcase plugin now reflects the transient cache fixes with regenerated artefacts.
+
+## 0.5.0 - 2025-10-26
+
+### Maintenance
+
+- Version bump to `0.5.0` to match the framework release; the showcase plugin pulls in the updated CLI artefacts without additional feature changes this cycle.
+
+## 0.4.0
 
 ### Minor Changes
 
 - **DataViews Phase 5**: JobsList page migrated to DataViews integration
     - Replaced custom table implementation with `ResourceDataView` component
     - Demonstrates real-world DataViews usage with kernel resources
-    - Showcases policy-gated actions, filters, sorting, and pagination
+    - Showcases capability-gated actions, filters, sorting, and pagination
     - Enhanced kernel config with DataViews metadata for Job resource
 
 ## 0.3.0
@@ -106,7 +118,7 @@
     - ✓ Excellent developer experience
 
     ### What's Next
-    - Sprint 2: Policies & Permissions
+    - Sprint 2: Capabilities & Permissions
     - Phase 2 (Optional): Vitest migration
     - Phase 5 (Future): Actions-First enforcement
 

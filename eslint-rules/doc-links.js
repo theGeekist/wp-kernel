@@ -3,13 +3,13 @@ import path from 'path';
 /* eslint-disable import/no-default-export */
 
 const DOC_URL =
-	'https://github.com/theGeekist/wp-kernel/blob/main/packages/cli/mvp-cli-spec.md#6-blocks-of-authoring-safety';
+	'https://github.com/theGeekist/wp-kernel/blob/main/packages/cli/docs/cli-migration-phases.md#authoring-safety-lint-rules';
 
-function isKernelConfigFile(filename) {
-	return filename && path.basename(filename) === 'kernel.config.ts';
+function isWPKernelConfigFile(filename) {
+	return filename && path.basename(filename) === 'wpk.config.ts';
 }
 
-function findKernelConfigStatement(program) {
+function findWPKernelConfigStatement(program) {
 	for (const statement of program.body) {
 		if (
 			statement.type === 'ExportNamedDeclaration' &&
@@ -38,7 +38,7 @@ function findInDeclaration(declaration) {
 	return declaration.declarations.find(
 		(declarator) =>
 			declarator.id.type === 'Identifier' &&
-			declarator.id.name === 'kernelConfig'
+			declarator.id.name === 'wpkConfig'
 	);
 }
 
@@ -54,10 +54,10 @@ export default {
 		hasSuggestions: true,
 		messages: {
 			missingDocComment:
-				'kernel.config.ts is missing a documentation reference comment. ' +
-				'This file defines the contract between your application and the framework—resources, routes, storage, and policies. ' +
+				'wpk.config.ts is missing a documentation reference comment. ' +
+				'This file defines the contract between your application and the framework—resources, routes, storage, and capabilities. ' +
 				"A @see link helps your team understand the framework's expectations and quickly reference the spec during code reviews. " +
-				'Fix: Add /** @see {{docUrl}} */ above the kernelConfig export. ' +
+				'Fix: Add /** @see {{docUrl}} */ above the wpkConfig export. ' +
 				'The CLI generators preserve these comments in scaffolded code.',
 			addDocComment: 'Insert CLI docs link comment.',
 		},
@@ -65,13 +65,13 @@ export default {
 	},
 	create(context) {
 		const filename = context.getFilename();
-		if (!isKernelConfigFile(filename)) {
+		if (!isWPKernelConfigFile(filename)) {
 			return {};
 		}
 
 		return {
 			Program(node) {
-				const statement = findKernelConfigStatement(node);
+				const statement = findWPKernelConfigStatement(node);
 				if (!statement) {
 					return;
 				}
@@ -86,8 +86,8 @@ export default {
 					return;
 				}
 
-				// Framework best practice: kernel.config.ts should link to framework documentation.
-				// This file is the central contract defining resources, routes, storage, and policies.
+				// Framework best practice: wpk.config.ts should link to framework documentation.
+				// This file is the central contract defining resources, routes, storage, and capabilities.
 				// A @see comment helps developers understand the framework's expectations during code
 				// reviews and makes it easier to onboard new team members. CLI generators preserve these.
 				context.report({

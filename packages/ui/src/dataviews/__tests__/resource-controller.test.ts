@@ -1,5 +1,5 @@
 import type { View } from '@wordpress/dataviews';
-import type { KernelUIPolicyRuntime } from '@wpkernel/core/data';
+import type { WPKUICapabilityRuntime } from '@wpkernel/core/data';
 import type { Reporter } from '@wpkernel/core/reporter';
 import { createResourceDataViewController } from '../resource-controller';
 import { DataViewsControllerError } from '../../runtime/dataviews/errors';
@@ -146,25 +146,25 @@ describe('createResourceDataViewController', () => {
 		});
 	});
 
-	it('resolves policies using accessor function', () => {
+	it('resolves capabilities using accessor function', () => {
 		const runtime = createRuntime();
-		const policyRuntime: { current?: KernelUIPolicyRuntime } = {};
+		const capabilityRuntime: { current?: WPKUICapabilityRuntime } = {};
 
 		const controller = createResourceDataViewController({
 			resourceName: 'jobs',
 			config,
 			runtime,
 			namespace: 'tests',
-			policies: () => policyRuntime.current,
+			capabilities: () => capabilityRuntime.current,
 		});
 
-		expect(controller.policies).toBeUndefined();
+		expect(controller.capabilities).toBeUndefined();
 
-		const policies = {
-			policy: { can: jest.fn() },
-		} as unknown as KernelUIPolicyRuntime;
-		policyRuntime.current = policies;
+		const capabilities = {
+			capability: { can: jest.fn() },
+		} as unknown as WPKUICapabilityRuntime;
+		capabilityRuntime.current = capabilities;
 
-		expect(controller.policies).toBe(policies);
+		expect(controller.capabilities).toBe(capabilities);
 	});
 });

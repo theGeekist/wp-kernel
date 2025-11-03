@@ -7,6 +7,7 @@
 import type * as WPData from '@wordpress/data';
 import type * as WPApiFetch from '@wordpress/api-fetch';
 import type * as WPHooks from '@wordpress/hooks';
+import type * as WPInteractivity from '@wordpress/interactivity';
 import type { ResourceObject } from '@wpkernel/core/resource';
 
 export {};
@@ -22,6 +23,7 @@ declare global {
 			data?: typeof WPData;
 			apiFetch?: typeof WPApiFetch;
 			hooks?: typeof WPHooks;
+			interactivity?: typeof WPInteractivity;
 		};
 	};
 

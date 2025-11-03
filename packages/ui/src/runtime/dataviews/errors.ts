@@ -1,7 +1,7 @@
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import type { ErrorCode, ErrorContext } from '@wpkernel/core/error';
 
-abstract class BaseDataViewsError extends KernelError {
+abstract class BaseDataViewsError extends WPKernelError {
 	protected constructor(
 		name: string,
 		code: ErrorCode,

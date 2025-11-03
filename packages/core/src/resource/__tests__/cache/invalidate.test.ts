@@ -4,9 +4,11 @@
  */
 
 import { invalidate, registerStoreKey } from '../../cache';
-import { setKernelEventBus, KernelEventBus } from '../../../events/bus';
-import { setKernelReporter, clearKernelReporter } from '../../../reporter';
+import { setWPKernelEventBus, WPKernelEventBus } from '../../../events/bus';
+import { setWPKernelReporter, clearWPKReporter } from '../../../reporter';
 import type { Reporter } from '../../../reporter';
+import type { WPKernelRegistry } from '../../../data/types';
+import * as reporterResolution from '../../../reporter/resolve';
 import {
 	createResourceDataHarness,
 	withWordPressData,
@@ -17,7 +19,7 @@ describe('invalidate', () => {
 	let mockDispatch: jest.Mock;
 	let mockSelect: jest.Mock;
 	let harnessSetup: ResourceHarnessSetup;
-	let bus: KernelEventBus;
+	let bus: WPKernelEventBus;
 	let cacheListener: jest.Mock;
 
 	beforeEach(() => {
@@ -30,22 +32,24 @@ describe('invalidate', () => {
 			},
 		});
 
-		bus = new KernelEventBus();
-		setKernelEventBus(bus);
+		bus = new WPKernelEventBus();
+		setWPKernelEventBus(bus);
 		cacheListener = jest.fn();
 		bus.on('cache:invalidated', cacheListener);
 
 		// Register test store keys
 		registerStoreKey('wpk/thing');
 		registerStoreKey('wpk/job');
-		clearKernelReporter();
+		clearWPKReporter();
+		reporterResolution.resetReporterResolution();
 	});
 
 	afterEach(() => {
-		setKernelEventBus(new KernelEventBus());
+		setWPKernelEventBus(new WPKernelEventBus());
 		jest.clearAllMocks();
-		clearKernelReporter();
+		clearWPKReporter();
 		harnessSetup.harness.teardown();
+		reporterResolution.resetReporterResolution();
 	});
 
 	function createReporterSpy(): { reporter: Reporter; logs: LogEntry[] } {
@@ -242,9 +246,9 @@ describe('invalidate', () => {
 	});
 
 	describe('reporter instrumentation', () => {
-		it('uses kernel reporter when no override provided', () => {
+		it('uses WP Kernel reporter when no override provided', () => {
 			const { reporter, logs } = createReporterSpy();
-			setKernelReporter(reporter);
+			setWPKernelReporter(reporter);
 
 			const mockState = {
 				lists: {
@@ -286,9 +290,9 @@ describe('invalidate', () => {
 		});
 
 		it('prefers explicit reporter override', () => {
-			const kernelSpy = createReporterSpy();
+			const wpKernelSpy = createReporterSpy();
 			const overrideSpy = createReporterSpy();
-			setKernelReporter(kernelSpy.reporter);
+			setWPKernelReporter(wpKernelSpy.reporter);
 
 			const mockState = {
 				lists: {
@@ -321,7 +325,48 @@ describe('invalidate', () => {
 					}),
 				])
 			);
-			expect(kernelSpy.logs).toEqual([]);
+			expect(wpKernelSpy.logs).toEqual([]);
+		});
+
+		it('respects silent reporter flag when no override provided', () => {
+			const resolveSpy = jest.spyOn(
+				reporterResolution,
+				'resolveReporter'
+			);
+
+			const originalSilent = process.env.WPK_SILENT_REPORTERS;
+			process.env.WPK_SILENT_REPORTERS = '1';
+
+			const registry = {
+				dispatch: () => ({ invalidate: jest.fn() }),
+				select: () => ({
+					__getInternalState: jest.fn().mockReturnValue({
+						lists: {},
+						listMeta: {},
+						errors: {},
+					}),
+				}),
+			};
+
+			try {
+				invalidate(['thing', 'list'], {
+					storeKey: 'wpk/thing',
+					registry: registry as unknown as WPKernelRegistry,
+				});
+
+				expect(resolveSpy).toHaveBeenCalled();
+
+				const lastResult = resolveSpy.mock.results.at(-1)?.value;
+				expect(lastResult).toBe(reporterResolution.getSilentReporter());
+			} finally {
+				if (originalSilent) {
+					process.env.WPK_SILENT_REPORTERS = originalSilent;
+				} else {
+					delete process.env.WPK_SILENT_REPORTERS;
+				}
+
+				resolveSpy.mockRestore();
+			}
 		});
 	});
 
@@ -714,7 +759,7 @@ describe('invalidate', () => {
 			process.env.NODE_ENV = 'development';
 
 			const { reporter, logs } = createReporterSpy();
-			setKernelReporter(reporter);
+			setWPKernelReporter(reporter);
 
 			mockDispatch.mockImplementation(() => {
 				throw new Error('Store explosion!');
@@ -741,7 +786,7 @@ describe('invalidate', () => {
 			process.env.NODE_ENV = 'production';
 
 			const { reporter, logs } = createReporterSpy();
-			setKernelReporter(reporter);
+			setWPKernelReporter(reporter);
 
 			mockDispatch.mockImplementation(() => {
 				throw new Error('Store explosion!');

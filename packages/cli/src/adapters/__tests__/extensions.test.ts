@@ -2,13 +2,13 @@ import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { runAdapterExtensions } from '..';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import type {
 	AdapterContext,
 	AdapterExtension,
-	KernelConfigV1,
+	WPKernelConfigV1,
 } from '../../config/types';
-import type { IRv1 } from '../../ir';
+import type { IRCapabilityScope, IRv1 } from '../../ir/publicTypes';
 import { FileWriter } from '../../utils/file-writer';
 import type { Reporter } from '@wpkernel/core/reporter';
 import { createReporterMock } from '@wpkernel/test-utils/cli';
@@ -16,7 +16,7 @@ import { createReporterMock } from '@wpkernel/test-utils/cli';
 const TMP_OUTPUT = path.join(os.tmpdir(), 'wpk-extension-output-');
 
 describe('runAdapterExtensions', () => {
-	it('queues files in a sandbox and commits them after printers succeed', async () => {
+	it('queues files in a sandbox and commits them after builders succeed', async () => {
 		const outputDir = await fs.mkdtemp(TMP_OUTPUT);
 		const writer = new FileWriter();
 		const reporter = createReporterMock();
@@ -67,7 +67,7 @@ describe('runAdapterExtensions', () => {
 		}
 	});
 
-	it('rolls back sandbox files when printers fail', async () => {
+	it('rolls back sandbox files when builders fail', async () => {
 		const outputDir = await fs.mkdtemp(TMP_OUTPUT);
 		const reporter = createReporterMock();
 
@@ -370,7 +370,7 @@ describe('runAdapterExtensions', () => {
 		}
 	});
 
-	it('normalises KernelError instances thrown by extensions', async () => {
+	it('normalises WPKernelError instances thrown by extensions', async () => {
 		const outputDir = await fs.mkdtemp(TMP_OUTPUT);
 		const reporter = createReporterMock();
 
@@ -380,7 +380,7 @@ describe('runAdapterExtensions', () => {
 			const extension: AdapterExtension = {
 				name: 'fails-kernel-error',
 				async apply() {
-					throw new KernelError('DeveloperError', {
+					throw new WPKernelError('DeveloperError', {
 						message: 'bad extension',
 					});
 				},
@@ -402,7 +402,7 @@ describe('runAdapterExtensions', () => {
 					formatPhp: async (_filePath, contents) => contents,
 					formatTs: async (_filePath, contents) => contents,
 				})
-			).rejects.toBeInstanceOf(KernelError);
+			).rejects.toBeInstanceOf(WPKernelError);
 		} finally {
 			await fs.rm(outputDir, { recursive: true, force: true });
 		}
@@ -513,14 +513,25 @@ function createIr(): IRv1 {
 		meta: {
 			version: 1,
 			namespace: 'Demo\\Namespace',
-			sourcePath: '/workspace/kernel.config.ts',
+			sourcePath: '/workspace/wpk.config.ts',
 			origin: 'file',
 			sanitizedNamespace: 'Demo\\Namespace',
 		},
 		config,
 		schemas: [],
 		resources: [],
-		policies: [],
+		capabilities: [],
+		capabilityMap: {
+			sourcePath: undefined,
+			definitions: [],
+			fallback: {
+				capability: 'manage_options',
+				appliesTo: 'resource' as IRCapabilityScope,
+			},
+			missing: [],
+			unused: [],
+			warnings: [],
+		},
 		blocks: [],
 		php: {
 			namespace: 'Demo\\Namespace',
@@ -539,7 +550,7 @@ function createAdapterContext(reporter: Reporter, ir: IRv1): AdapterContext {
 	};
 }
 
-function createConfig(): KernelConfigV1 {
+function createConfig(): WPKernelConfigV1 {
 	return {
 		version: 1,
 		namespace: 'demo',

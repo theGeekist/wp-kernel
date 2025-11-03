@@ -1,5 +1,9 @@
-import { promises as fs } from 'node:fs';
+import { createReadStream, createWriteStream, promises as fs } from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
+import { createInterface } from 'node:readline';
+import { finished } from 'node:stream/promises';
+import { randomUUID } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { glob } from 'glob';
 
@@ -9,52 +13,146 @@ const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
 const generatedDir = path.join(rootDir, 'docs', 'api', 'generated');
 
+function transformLine(line, inCodeFence) {
+        const trimmed = line.trimStart();
+        if (trimmed.startsWith('```')) {
+                return { text: line, inCodeFence: !inCodeFence };
+        }
+
+        if (inCodeFence || (!line.includes('<') && !line.includes('>'))) {
+                return { text: line, inCodeFence };
+        }
+
+        const segments = line.split(/(`+[^`]*`+)/g);
+        const text = segments
+                .map((segment) => {
+                        if (segment.startsWith('`')) {
+                                return segment;
+                        }
+
+                        return segment.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                })
+                .join('');
+
+        return { text, inCodeFence };
+}
+
+async function hasTrailingNewline(filePath) {
+        const handle = await fs.open(filePath, 'r');
+        try {
+                const stats = await handle.stat();
+                if (stats.size === 0) {
+                        return false;
+                }
+
+                const buffer = Buffer.alloc(1);
+                const { bytesRead } = await handle.read(buffer, 0, 1, stats.size - 1);
+                if (bytesRead === 0) {
+                        return false;
+                }
+
+                return buffer[0] === 0x0a;
+        } finally {
+                await handle.close();
+        }
+}
+
+async function removeIfExists(filePath) {
+        try {
+                await fs.rm(filePath);
+        } catch (error) {
+                if (!(error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT')) {
+                        throw error;
+                }
+        }
+}
+
+async function processFile(filePath) {
+        const trailingNewline = await hasTrailingNewline(filePath);
+        const tempFile = `${filePath}.${randomUUID()}.tmp`;
+        const readStream = createReadStream(filePath, { encoding: 'utf8' });
+        const rl = createInterface({ input: readStream, crlfDelay: Infinity });
+        const writeStream = createWriteStream(tempFile, { encoding: 'utf8' });
+
+        let inCodeFence = false;
+        let changed = false;
+        let firstLine = true;
+
+        try {
+                for await (const line of rl) {
+                        const { text, inCodeFence: nextState } = transformLine(line, inCodeFence);
+                        inCodeFence = nextState;
+
+                        if (!firstLine) {
+                                writeStream.write('\n');
+                        } else {
+                                firstLine = false;
+                        }
+
+                        if (!changed && text !== line) {
+                                changed = true;
+                        }
+
+                        writeStream.write(text);
+                }
+
+                if (trailingNewline) {
+                        writeStream.write('\n');
+                }
+
+                writeStream.end();
+                await Promise.all([finished(writeStream), finished(readStream)]);
+        } catch (error) {
+                writeStream.destroy();
+                readStream.destroy();
+                await removeIfExists(tempFile);
+                throw error;
+        }
+
+        if (!changed) {
+                await removeIfExists(tempFile);
+                return;
+        }
+
+        await fs.rename(tempFile, filePath);
+}
+
+function resolveConcurrencyLimit() {
+        const parallelism =
+                typeof os.availableParallelism === 'function'
+                        ? os.availableParallelism()
+                        : Array.isArray(os.cpus()) && os.cpus().length > 0
+                                ? os.cpus().length
+                                : 4;
+
+        return Math.min(8, Math.max(1, parallelism));
+}
+
+async function runWithConcurrency(items, limit, worker) {
+        if (items.length === 0) {
+                return;
+        }
+
+        let index = 0;
+
+        const runners = Array.from({ length: Math.min(limit, items.length) }, async () => {
+                while (true) {
+                        const currentIndex = index;
+                        if (currentIndex >= items.length) {
+                                break;
+                        }
+                        index += 1;
+                        await worker(items[currentIndex]);
+                }
+        });
+
+        await Promise.all(runners);
+}
+
 const files = await glob('**/*.md', {
         cwd: generatedDir,
         nodir: true,
-        absolute: true
+        absolute: true,
 });
 
-await Promise.all(
-        files.map(async (file) => {
-                const original = await fs.readFile(file, 'utf8');
-                const lines = original.split(/\r?\n/);
-                let inCodeFence = false;
-
-                const transformed = lines
-                        .map((line) => {
-                                const trimmed = line.trimStart();
-                                if (trimmed.startsWith('```')) {
-                                        inCodeFence = !inCodeFence;
-                                        return line;
-                                }
-
-                                if (inCodeFence) {
-                                        return line;
-                                }
-
-                                if (!line.includes('<') && !line.includes('>')) {
-                                        return line;
-                                }
-
-                                const segments = line.split(/(`+[^`]*`+)/g);
-
-                                return segments
-                                        .map((segment) => {
-                                                if (segment.startsWith('`')) {
-                                                        return segment;
-                                                }
-
-                                                return segment
-                                                        .replace(/</g, '&lt;')
-                                                        .replace(/>/g, '&gt;');
-                                        })
-                                        .join('');
-                        })
-                        .join('\n');
-
-                if (transformed !== original) {
-                        await fs.writeFile(file, transformed, 'utf8');
-                }
-        })
-);
+await runWithConcurrency(files, resolveConcurrencyLimit(), processFile);

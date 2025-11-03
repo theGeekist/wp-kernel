@@ -30,7 +30,7 @@ describe('createActionMiddleware', () => {
 		expect(next).not.toHaveBeenCalled();
 	});
 
-	it('forwards non-kernel actions to next middleware', () => {
+	it('forwards non-WP Kernel actions to next middleware', () => {
 		const middleware = createActionMiddleware();
 		const api = { dispatch: jest.fn(), getState: jest.fn() };
 		const next = jest.fn();

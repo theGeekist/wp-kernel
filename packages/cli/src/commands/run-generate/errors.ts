@@ -1,9 +1,14 @@
-import { KernelError, serializeKernelError } from '@wpkernel/core/contracts';
+import {
+	WPKernelError,
+	WPK_EXIT_CODES,
+	type WPKExitCode,
+	serializeWPKernelError,
+} from '@wpkernel/core/contracts';
 import type { Reporter } from '@wpkernel/core/reporter';
 import { serialiseError } from './reporting';
-import { EXIT_CODES, type ExitCode } from './types';
+import { emitFatalError } from '../fatal';
 
-const VALIDATION_EXIT_CODES = new Set<KernelError['code']>([
+const VALIDATION_EXIT_CODES = new Set<WPKernelError['code']>([
 	'ValidationError',
 	'DeveloperError',
 ]);
@@ -11,21 +16,23 @@ const VALIDATION_EXIT_CODES = new Set<KernelError['code']>([
 export function handleFailure(
 	error: unknown,
 	reporter: Reporter,
-	defaultExitCode: ExitCode
-): ExitCode {
-	if (KernelError.isKernelError(error)) {
-		reporter.error(error.message, serializeKernelError(error));
+	defaultExitCode: WPKExitCode
+): WPKExitCode {
+	if (WPKernelError.isWPKernelError(error)) {
+		const payload = serializeWPKernelError(error);
+		emitFatalError(error.message, payload);
+		reporter.error(error.message, payload);
 
 		if (VALIDATION_EXIT_CODES.has(error.code)) {
-			return EXIT_CODES.VALIDATION_ERROR;
+			return WPK_EXIT_CODES.VALIDATION_ERROR;
 		}
 
 		return defaultExitCode;
 	}
 
-	reporter.error('Unexpected error while running generate command.', {
-		error: serialiseError(error),
-	});
+	const payload = { error: serialiseError(error) };
+	emitFatalError('Unexpected error while running generate command.', payload);
+	reporter.error('Unexpected error while running generate command.', payload);
 
 	return defaultExitCode;
 }

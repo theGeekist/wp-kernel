@@ -3,7 +3,7 @@
  */
 
 import { ServerError } from '../ServerError';
-import { KernelError } from '../KernelError';
+import { WPKernelError } from '../WPKernelError';
 
 describe('ServerError', () => {
 	describe('constructor', () => {
@@ -17,7 +17,7 @@ describe('ServerError', () => {
 			});
 
 			expect(error).toBeInstanceOf(ServerError);
-			expect(error).toBeInstanceOf(KernelError);
+			expect(error).toBeInstanceOf(WPKernelError);
 			expect(error.code).toBe('ServerError');
 			expect(error.name).toBe('ServerError');
 			expect(error.serverCode).toBe('rest_forbidden');

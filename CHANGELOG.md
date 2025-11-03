@@ -7,7 +7,123 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.3.0] - Unreleased
+## [Unreleased]
+
+### In progress
+
+- **Phase 7 – Plugin bootstrap flow** – Tasks 37-45 will publish the bootstrap workspace, loader integration, cleanup passes, activation docs, and close with the 0.11.0 release once Phase 6 wraps.
+- **Phase 8 placeholder** – Task 46 will collect incremental diagnostics (starting with the CLI LogLayer reporter) after the plugin bootstrap flow ships.
+
+### Fixed
+
+- **Generation state diffs** – `wpk generate` now persists `.wpk/apply/state.json`, compares per-resource artefact paths between runs, prunes stale `.generated/**` files when PHP output or autoload roots change, and queues shim deletions in the apply plan so `wpk apply` removes obsolete loaders.
+
+## [0.10.0] - 2025-11-05
+
+### Added
+
+- **Pipeline-only core orchestration** – Core now routes `defineAction`, `defineResource`, and interactivity helpers through the shared pipeline catalogue with new diagnostics and helper naming guarantees.
+- **Interactivity bridge** – Published `defineInteraction` under `@wpkernel/core/interactivity`, wiring store actions to the pipeline-aware runtime and documenting installation expectations.
+
+### Changed
+
+- **Diagnostics polish** – Reporter integrations surface missing helper warnings, helper modules honour the reserved `create*` prefix, and rollback hooks unwind side effects when helpers fail.
+
+### Documentation
+
+- **Phase 6 closure** – Updated the CLI MVP ledger, migration phases brief, and core pipeline spec to record Task 32‑36 completion and the 0.10.0 release.
+
+### Maintenance
+
+- **Monorepo release** – Bumped all packages, showcase fixtures, and version trackers to `0.10.0` ahead of the Phase 6 minor release.
+
+## [0.9.0] - 2025-10-27
+
+### Added
+
+- **Apply workflow release** – Cut the v0.9.0 release after validating the layered `wpk generate && wpk apply --yes --dry-run` flow and finishing the Task 31 checklist.
+
+### Documentation
+
+- **Task 31 closure** – Updated the CLI MVP ledger to mark the Phase 5 minor release as shipped and captured the apply workflow migration notes.
+
+### Maintenance
+
+- **Monorepo release** – Bumped all packages, showcase fixtures, and generated API docs to `0.9.0` via the release automation script.
+
+## [0.8.0] - 2025-10-26
+
+### Removed
+
+- **Legacy CLI shims** – Deleted the string-based printers and Clipanion command classes, wiring the CLI entrypoint directly to the command factories.
+
+### Changed
+
+- **Command registration** – `wpk` now registers `generate`, `init`, `create`, `start`, `doctor`, and `apply` via the next pipeline builders only; the deprecated `build` command has been removed.
+
+### Documentation
+
+- **Phase 4 release** – Updated the CLI roadmap, quick start, resource guide, and showcase docs to reference the builder-based pipeline and mark Task 26 (0.8.0) as shipped.
+
+### Maintenance
+
+- **Monorepo release** – Bumped all packages, templates, and showcase fixtures to `0.8.0` and regenerated API/docs content after retiring the legacy printers.
+
+## [0.7.0] - 2025-10-26
+
+### Added
+
+- **Block builder parity** – The pipeline now stages block manifests, registrars, and render stubs through shared helpers for both SSR and JS-only variants, matching the legacy printers without string-based generation.
+
+### Fixed
+
+- **Block manifest cache invalidation** – Workspace-aware file signatures refresh manifest and render metadata when source files change so builders no longer reuse stale cache entries.
+
+### Documentation
+
+- **Phase 3 completion** – CLI migration docs mark Tasks 16-19 as shipped, describe the shared `ts-morph` primitives, and call out the 0.7.0 release cadence.
+
+### Maintenance
+
+- **Monorepo release** – Bumped all packages, templates, and showcase fixtures to `0.7.0` and regenerated API docs for the release tag.
+
+## [0.6.0] - 2025-10-26
+
+### Added
+
+- **Transient parity pipeline** – Completed the transient AST builders, routed DELETE handlers, and refreshed generated fixtures so transient resources now ship with cache metadata and TTL helpers.
+
+### Fixed
+
+- **Transient DELETE handlers** – DELETE routes now call `delete_transient()`, return cache invalidation payloads, and emit shared cache events instead of responding with `501` errors.
+
+### Documentation
+
+- **Phase 2 wrap-up** – CLI docs record Task 14 as shipped, log the 0.6.0 release, and open the Phase 3 patch band for block builders.
+
+### Maintenance
+
+- **Monorepo release** – Bumped all packages, showcase fixtures, and version trackers to `0.6.0` following the Phase 2 minor release checklist.
+
+## [0.5.0] - 2025-10-26
+
+### Added
+
+- **wp-option AST parity** – The CLI pipeline now emits wp-option controllers, helpers, and routes as `PhpProgram` artefacts alongside existing post and taxonomy resources, replacing the legacy string-based printer.
+
+### Changed
+
+- **Integration coverage** – The shared PHP IR fixture, generate integration suite, and controller snapshots now capture DemoOption artefacts so regression tests exercise the option controller end to end.
+
+### Documentation
+
+- **Phase 1 tracking updates** – CLI migration docs mark Tasks 8 and 9 as shipped, note the unused hotfix buffer, and advance the roadmap to the 0.5.x train ahead of the Phase 1 minor release.
+
+### Maintenance
+
+- **Release prep** – No hotfixes were required during the buffer slot; all publishable packages and showcase examples now carry version `0.5.0` in preparation for the Phase 1 release.
+
+## [0.4.0]
 
 ### Added - Sprint 5: React Hooks Integration
 
@@ -27,8 +143,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`useGet()` & `useList()`** - Resource data fetching hooks
     - Lazy attachment mechanism for resources defined before UI loads
     - WordPress data store integration
-- **`usePolicy()`** - Capability checks in UI (migrated from kernel package)
-    - Reactive policy cache with `can()` helper
+- **`useCapability()`** - Capability checks in UI (migrated from kernel package)
+    - Reactive capability cache with `can()` helper
     - Loading and error states
 - **Prefetching Hooks**:
     - `usePrefetcher()` - Generic prefetching orchestrator with debouncing
@@ -75,7 +191,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🎉 Sprints 0-4.5 Complete: Production-Ready Core Framework
 
-This release marks the completion of the foundation, resources, E2E utilities, policies, actions, WordPress data integration, and unified reporting systems. The framework is now production-ready for early adopters.
+This release marks the completion of the foundation, resources, E2E utilities, capabilities, actions, WordPress data integration, and unified reporting systems. The framework is now production-ready for early adopters.
 
 **Completed Sprints:**
 
@@ -83,7 +199,7 @@ This release marks the completion of the foundation, resources, E2E utilities, p
 - ✓ Sprint 1: Resources & Stores (V1)
 - ✓ Sprint 1.5: Build Tooling & Resources Refactor
 - ✓ Sprint 2: E2E Utils (Kernel-Aware Test Harness)
-- ✓ Sprint 3: Policies (Complete Implementation)
+- ✓ Sprint 3: Capabilities (Complete Implementation)
 - ✓ Sprint 4: Actions & WordPress Data Integration
 - ✓ Sprint 4.5: Unified Reporting & Data Consolidation
 
@@ -99,7 +215,7 @@ This release marks the completion of the foundation, resources, E2E utilities, p
 - **Consolidated logging** - Single reporter interface used across all packages
 - **Request/response tracking** - Automatic correlation IDs for debugging
 - **Reporter context** - Per-request metadata and tags
-- **Policy integration** - Policy events flow through reporter
+- **Capability integration** - Capability events flow through reporter
 - **Noop reporter** - Zero-overhead production mode
 - **Development transport** - Console logging with grouping and color coding
 - **Type safety** - Full TypeScript definitions for reporters and transports
@@ -109,7 +225,7 @@ This release marks the completion of the foundation, resources, E2E utilities, p
 - All packages now use unified reporter for logging
 - HTTP transport includes request/response/error tracking
 - Actions emit lifecycle events through reporter
-- Policy system reports denied/granted checks
+- Capability system reports denied/granted checks
 - Resource operations tracked with correlation IDs
 
 ---
@@ -131,8 +247,8 @@ This release marks the completion of the foundation, resources, E2E utilities, p
 #### WordPress Data Integration (`@wpkernel/core/data`)
 
 - **`withKernel(registry)`** - Registry plugin with kernel middleware (renamed from useKernel)
-- **`registerKernelStore()`** - Store wrapper with actions DSL
-- **`kernelEventsPlugin()`** - Automatic error → WordPress notices bridge
+- **`registerWPKernelStore()`** - Store wrapper with actions DSL
+- **`wpkEventsPlugin()`** - Automatic error → WordPress notices bridge
 - **Full @wordpress/data parity** - Actions work in block editor environments
 - **Middleware chain** - Integrates with existing Redux middleware
 - **Type safety** - Full TypeScript support for kernel-enhanced stores
@@ -146,26 +262,26 @@ This release marks the completion of the foundation, resources, E2E utilities, p
 
 ---
 
-### Added - Sprint 3: Policies (Complete Implementation)
+### Added - Sprint 3: Capabilities (Complete Implementation)
 
-#### Policy System (`@wpkernel/core/policy`)
+#### Capability System (`@wpkernel/core/capability`)
 
-- **`definePolicy()`** - Capability checking with WordPress integration
-- **`can()` / `assert()`** - Helper functions for policy checks
-- **`usePolicy()`** - React hook for component-level capability gates
-- **PolicyContext** - Runtime context management for policy evaluation
-- **PolicyCache** - Caching layer for policy results
-- **Automatic UI gating** - Components hide/disable based on policies
-- **`wpk.policy.denied` events** - Emitted when capability checks fail
-- **Policy reporter integration** - All policy checks logged
+- **`defineCapability()`** - Capability checking with WordPress integration
+- **`can()` / `assert()`** - Helper functions for capability checks
+- **`useCapability()`** - React hook for component-level capability gates
+- **CapabilityContext** - Runtime context management for capability evaluation
+- **CapabilityCache** - Caching layer for capability results
+- **Automatic UI gating** - Components hide/disable based on capabilities
+- **`wpk.capability.denied` events** - Emitted when capability checks fail
+- **Capability reporter integration** - All capability checks logged
 - **WordPress capability provider** - Integration with WP's cap system
-- **24 policy files** - Complete implementation with 6 test suites
+- **24 capability files** - Complete implementation with 6 test suites
 
 #### Type Safety
 
-- Full TypeScript definitions for all policy APIs
-- Type-safe policy keys and context
-- Compile-time checking for policy usage
+- Full TypeScript definitions for all capability APIs
+- Type-safe capability keys and context
+- Compile-time checking for capability usage
 
 ---
 
@@ -237,14 +353,14 @@ This release marks the completion of the foundation, resources, E2E utilities, p
 - **@wordpress/api-fetch integration** - WordPress nonce and rootURL middleware
 - **Correlation IDs** - Request tracking with `requestId`
 - **Retry logic** - Automatic exponential backoff for transient failures
-- **Error standardization** - All errors extend `KernelError`
+- **Error standardization** - All errors extend `WPKernelError`
 
 #### Error System (`@wpkernel/core/error`)
 
-- **`KernelError` base class** - Structured errors with serialization
+- **`WPKernelError` base class** - Structured errors with serialization
 - **`TransportError`** - Network/fetch failures
 - **`ServerError`** - WordPress WP_Error responses
-- **`PolicyDeniedError`** - Capability check failures
+- **`CapabilityDeniedError`** - Capability check failures
 - **`ValidationError`** - Schema validation errors
 - **Type safety** - Full TypeScript definitions for all error types
 
@@ -268,7 +384,7 @@ See [0.1.0] release notes for complete Sprint 0 details including:
 ### Documentation
 
 - **[NEW] API Contracts Reference** - One-page reference for events, errors, cache keys
-- **[NEW] VERSIONING.md** - Semver policy, deprecation process, back-compat guarantees
+- **[NEW] VERSIONING.md** - Semver capability, deprecation process, back-compat guarantees
 - **[NEW] Compatibility Matrix** - WordPress, Node, PHP, browser requirements
 - **Updated ROADMAP.md** - Reflects Sprint 0-4.5 completion
 - **Updated Product Specification** - Marked implemented features
@@ -514,7 +630,7 @@ Result: **Zero deprecated subdependencies, zero peer warnings**
 
 - **Section 4.6: Event Taxonomy** - Complete registry with 20+ system events, TypeScript definitions, PHP bridge mapping
 - **Section 4.4.1.1: Server Binding Sources** - Attribute-level SSR for SEO, performance budgets, clear limitations
-- **Section 5.1: Transport Strategy** - Retry policies, timeout hierarchy, circuit breaker pattern
+- **Section 5.1: Transport Strategy** - Retry capabilities, timeout hierarchy, circuit breaker pattern
 
 #### New Documentation Created
 

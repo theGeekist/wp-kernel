@@ -1,13 +1,13 @@
-import { configureKernel } from '@wpkernel/core/data';
-import type { KernelInstance } from '@wpkernel/core/data';
-import { kernelConfig } from '../kernel.config';
+import { configureWPKernel } from '@wpkernel/core/data';
+import type { WPKInstance } from '@wpkernel/core/data';
+import { wpkConfig } from '../wpk.config';
 
 /**
  * Bootstrap the WP Kernel runtime for this project.
  */
-export function bootstrapKernel(): KernelInstance {
-	return configureKernel({
-		namespace: kernelConfig.namespace,
+export function bootstrapKernel(): WPKInstance {
+	return configureWPKernel({
+		namespace: wpkConfig.namespace,
 	});
 }
 

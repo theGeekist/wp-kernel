@@ -69,7 +69,7 @@ describe('resource-data-view runtime resolution', () => {
 
 	it('throws when no runtime is available', () => {
 		expect(() => resolveRuntime(undefined, null)).toThrow(
-			/Kernel UI runtime unavailable/
+			/WP Kernel UI runtime unavailable/
 		);
 	});
 
@@ -130,7 +130,7 @@ describe('useResolvedController', () => {
 			namespace: context.namespace,
 			preferencesKey: 'jobs::tests',
 			invalidate: jest.fn(),
-			policies: undefined,
+			capabilities: undefined,
 			fetchList: undefined,
 			prefetchList: undefined,
 			mapViewToQuery: jest.fn(),
@@ -237,7 +237,7 @@ describe('useStableView', () => {
 			namespace: 'tests',
 			preferencesKey: 'tests::jobs',
 			invalidate: jest.fn(),
-			policies: undefined,
+			capabilities: undefined,
 			fetchList: undefined,
 			prefetchList: undefined,
 			mapViewToQuery: jest.fn(),
@@ -435,6 +435,8 @@ describe('useListResult', () => {
 		expect(onChange.mock.calls.at(-1)?.[0]).toEqual({
 			data: { items: [{ id: 1 }], total: 1 },
 			isLoading: false,
+			status: 'success',
+			error: undefined,
 		});
 	});
 
@@ -459,6 +461,8 @@ describe('useListResult', () => {
 		expect(onChange.mock.calls.at(-1)?.[0]).toEqual({
 			data: undefined,
 			isLoading: false,
+			status: 'idle',
+			error: undefined,
 		});
 	});
 });

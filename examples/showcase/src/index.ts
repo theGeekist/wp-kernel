@@ -4,7 +4,7 @@
  * Initializes the Kernel runtime and mounts admin UI.
  */
 
-import type { KernelRegistry } from '@wpkernel/core/data';
+import type { WPKernelRegistry } from '@wpkernel/core/data';
 import { mountAdmin } from './admin';
 import { job } from './resources';
 import { ShowcaseActionError } from './errors/ShowcaseActionError';
@@ -29,7 +29,7 @@ export function init(): void {
 	}
 
 	// Initialize WP Kernel runtime (middleware + events plugin)
-	bootstrapKernel(globalWindow.wp.data as KernelRegistry);
+	bootstrapKernel(globalWindow.wp.data as WPKernelRegistry);
 
 	try {
 		// Trigger lazy store registration and warm initial data.

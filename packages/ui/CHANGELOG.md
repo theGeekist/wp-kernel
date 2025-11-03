@@ -1,18 +1,66 @@
 # @wpkernel/ui
 
-## 0.4.0 [Unreleased]
+## Unreleased
+
+### Patch 0.11.1 - Task 46: DataViews schema expansion
+
+- Auto-register saved views, default layouts, and menu metadata inside `attachUIBindings()` so kernel resources hydrate `ResourceDataView` controllers without bespoke wiring. Runtime tests cover the expanded schema and the README now documents the new `screen.menu` capabilities.
+
+### Patch 0.11.2 - Task 47: Async boundaries & notices
+
+- `ResourceDataView` renders shared loading, empty, error, and permission-denied boundaries using the controller reporter and capability runtime, while `useDataViewActions()` dispatches success/error notices through the WordPress registry and logs outcomes via the controller reporter.
+
+## 0.10.0 - 2025-11-05
+
+### Maintenance
+
+- Version bump to `0.10.0` to stay aligned with the Phase 6 core pipeline release; no UI runtime changes were required for this cycle.
+
+## 0.9.0 - 2025-10-27
+
+### Maintenance
+
+- Version bump to `0.9.0` to remain aligned with the Phase 5 release; UI exports
+  continue to mirror the runtime without further adjustments.
+
+## 0.8.0 - 2025-10-26
+
+### Maintenance
+
+- Version bump to `0.8.0` alongside the command migration release; UI APIs are
+  unchanged apart from the `VERSION` constant update.
+
+## 0.7.0 - 2025-10-26
+
+### Maintenance
+
+- Version bump to `0.7.0` to align with the Phase 3 block builder release; UI exports are unchanged aside from the `VERSION` constant update.
+
+## 0.6.0 - 2025-10-26
+
+### Maintenance
+
+- Version bump to `0.6.0` to match the Phase 2 release; no additional UI changes shipped in this cycle.
+
+## 0.5.0 - 2025-10-26
+
+### Maintenance
+
+- Version bump to `0.5.0` to match the Phase 1 release; UI packages pick up the new version without functional changes in this cycle.
+
+## 0.4.0
 
 ### Major Changes
 
-- Introduced `attachUIBindings`, `KernelUIProvider`, and runtime context so hooks
+- Introduced `attachUIBindings`, `WPKernelUIProvider`, and runtime context so hooks
   consume configuration explicitly instead of relying on global side effects.
 - **DataViews Phase 2**: Added `ResourceDataView` component with resource/action controllers
     - `createResourceDataViewController` for DataViews state → resource query mapping
     - `createDataFormController` for DataForm → kernel action integration with cache invalidation
     - `ResourceDataView` React component bridging kernel resources/actions with WordPress DataViews UI
-    - Policy-gated actions with error normalization
+    - Capability-gated actions with error normalization
     - Comprehensive test fixtures for DataViews integration (`packages/ui/fixtures/dataviews/`)
-- **DataViews Phase 3**: `configureKernel` auto-registers resource DataViews configs, wiring runtime events and integration
+- **DataViews Phase 3**: `configureWPKernel` auto-registers resource DataViews configs, wiring runtime events and integration
   tests across kernel/UI packages.
 - **DataViews Phase 5**: Complete documentation, showcase integration, and E2E utilities
     - Comprehensive DataViews guide (`docs/guide/dataviews.md`) with setup, usage patterns, and migration notes
@@ -29,20 +77,20 @@
   and replays the kernel registry instead of mutating globals, so UI bundles can
   subscribe deterministically regardless of load order.
 - Hooks such as `useAction`, `useResourceList`, and prefetch helpers now throw a
-  `KernelError` if a `KernelUIRuntime` is not available.
+  `WPKernelError` if a `WPKernelUIRuntime` is not available.
 
 ### Bug Fixes
 
-- Fixed policy runtime freezing at UI attachment time. `runtime.policies` is now
-  a getter that dynamically resolves from the global policy runtime, allowing
-  policies registered via `definePolicy()` after `attachUIBindings()` to be
+- Fixed capability runtime freezing at UI attachment time. `runtime.capabilities` is now
+  a getter that dynamically resolves from the global capability runtime, allowing
+  capabilities registered via `defineCapability()` after `attachUIBindings()` to be
   observed (e.g., lazy-loaded plugins). Components won't auto-rerender on late
-  registration but will observe new policies on their next render triggered by
+  registration but will observe new capabilities on their next render triggered by
   other state changes.
-- Auto-registered `ResourceDataView` controllers now re-resolve policy runtime
-  accessors so that actions gated by policies unlock once `definePolicy()`
+- Auto-registered `ResourceDataView` controllers now re-resolve capability runtime
+  accessors so that actions gated by capabilities unlock once `defineCapability()`
   registers the runtime, avoiding the need for a full refresh when the UI
-  attached before policies were available.
+  attached before capabilities were available.
 - Migrated all kernel imports to the new `@wpkernel/core/events` and
   `@wpkernel/core/resource/*` barrels so UI bundles no longer rely on the
   package root.
@@ -50,10 +98,10 @@
 ### Migration Guide
 
 ```tsx
-import { configureKernel } from '@wpkernel/core';
-import { attachUIBindings, KernelUIProvider } from '@wpkernel/ui';
+import { configureWPKernel } from '@wpkernel/core';
+import { attachUIBindings, WPKernelUIProvider } from '@wpkernel/ui';
 
-const kernel = configureKernel({
+const kernel = configureWPKernel({
 	namespace: 'my-plugin',
 	registry: window.wp.data,
 	ui: { attach: attachUIBindings },
@@ -62,9 +110,9 @@ const kernel = configureKernel({
 const runtime = kernel.getUIRuntime();
 
 createRoot(node).render(
-	<KernelUIProvider runtime={runtime}>
+	<WPKernelUIProvider runtime={runtime}>
 		<App />
-	</KernelUIProvider>
+	</WPKernelUIProvider>
 );
 ```
 
@@ -82,7 +130,7 @@ createRoot(node).render(
 ### Documentation
 
 - Recorded the adapter-only runtime baseline across the documentation site,
-  highlighting `KernelUIProvider`, runtime attachment, and the absence of legacy
+  highlighting `WPKernelUIProvider`, runtime attachment, and the absence of legacy
   globals so integrators follow the final architecture.
 
 ## 0.2.0
@@ -120,7 +168,7 @@ createRoot(node).render(
     - 30+ validated pnpm scripts
     - Comprehensive documentation (SCRIPTS.md, SCRIPTS_AUDIT.md)
 
-    **WordPress Integration**: - Error tests (KernelError, ServerError, TransportError)
+    **WordPress Integration**: - Error tests (WPKernelError, ServerError, TransportError)
     - Resources with cache invalidation + auto-retry
     - wp-env configuration (WordPress 6.8 + PHP 8.3)
     - Changesets for version management

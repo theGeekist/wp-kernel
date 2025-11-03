@@ -3,16 +3,16 @@ import { createDeferred, renderHook } from '../testing/test-utils';
 import { useAction } from '../useAction';
 import type { UseActionOptions, UseActionResult } from '../useAction';
 import type { ActionEnvelope, DefinedAction } from '@wpkernel/core/actions';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import * as kernelData from '@wpkernel/core/data';
-import { KernelEventBus } from '@wpkernel/core/events';
+import { WPKernelEventBus } from '@wpkernel/core/events';
 import type {
-	KernelUIRuntime,
-	KernelRegistry,
-	KernelInstance,
+	WPKernelUIRuntime,
+	WPKernelRegistry,
+	WPKInstance,
 } from '@wpkernel/core/data';
 import type { Reporter } from '@wpkernel/core/reporter';
-import { KernelUIProvider } from '@wpkernel/ui';
+import { WPKernelUIProvider } from '@wpkernel/ui';
 import {
 	createKernelUITestHarness,
 	type KernelUITestHarness,
@@ -23,7 +23,7 @@ const ACTION_STORE_KEY = 'wp-kernel/ui/actions';
 function renderUseActionHook<TInput, TResult>(
 	action: DefinedAction<TInput, TResult>,
 	options?: UseActionOptions<TInput, TResult>,
-	runtimeOverrides?: Partial<KernelUIRuntime>
+	runtimeOverrides?: Partial<WPKernelUIRuntime>
 ) {
 	if (!harness) {
 		throw new Error('Kernel UI harness not initialised');
@@ -108,7 +108,7 @@ interface StateMatrixCase {
 	arrange: () => {
 		action: DefinedAction<any, any>;
 		options?: UseActionOptions<any, any>;
-		runtimeOverrides?: Partial<KernelUIRuntime>;
+		runtimeOverrides?: Partial<WPKernelUIRuntime>;
 		execute: (result: { current: GenericUseActionResult }) => Promise<void>;
 		assert: (state: GenericUseActionResult) => void;
 	};
@@ -117,7 +117,7 @@ interface StateMatrixCase {
 describe('useAction', () => {
 	beforeAll(() => {
 		harness = createKernelUITestHarness({
-			provider: KernelUIProvider,
+			provider: WPKernelUIProvider,
 		});
 		harness.suppressConsoleError((args) => {
 			try {
@@ -176,9 +176,9 @@ describe('useAction', () => {
 			},
 		},
 		{
-			label: 'error state when action rejects with KernelError',
+			label: 'error state when action rejects with WPKernelError',
 			arrange: () => {
-				const kernelError = new KernelError('ValidationError', {
+				const kernelError = new WPKernelError('ValidationError', {
 					message: 'Invalid',
 				});
 				prepareWpData((envelope) =>
@@ -522,7 +522,7 @@ describe('useAction', () => {
 		}
 	});
 
-	it('throws a KernelError when run during SSR', () => {
+	it('throws a WPKernelError when run during SSR', () => {
 		const descriptor = Object.getOwnPropertyDescriptor(
 			globalThis,
 			'window'
@@ -546,7 +546,7 @@ describe('useAction', () => {
 			result.current.run({} as never);
 		}).toThrow(
 			expect.objectContaining({
-				name: 'KernelError',
+				name: 'WPKernelError',
 				code: 'DeveloperError',
 				message: expect.stringContaining(
 					'useAction cannot run during SSR'
@@ -564,7 +564,7 @@ describe('useAction', () => {
 		const registry = {
 			...harness!.wordpress.data,
 			dispatch: jest.fn(() => ({})),
-		} as unknown as KernelRegistry;
+		} as unknown as WPKernelRegistry;
 
 		const { result } = renderUseActionHook(action, undefined, {
 			registry,
@@ -572,7 +572,7 @@ describe('useAction', () => {
 
 		expect(() => result.current.run({} as never)).toThrow(
 			expect.objectContaining({
-				name: 'KernelError',
+				name: 'WPKernelError',
 				code: 'DeveloperError',
 				message: expect.stringContaining(
 					'Failed to resolve kernel action dispatcher'
@@ -584,7 +584,7 @@ describe('useAction', () => {
 	it('ignores duplicate store registration errors', async () => {
 		harness?.resetActionStoreRegistration();
 		const registerSpy = jest
-			.spyOn(kernelData, 'registerKernelStore')
+			.spyOn(kernelData, 'registerWPKernelStore')
 			.mockImplementation(() => {
 				throw new Error('Store already registered');
 			});
@@ -612,7 +612,7 @@ describe('useAction', () => {
 	it('propagates unexpected store registration errors', async () => {
 		harness?.resetActionStoreRegistration();
 		const registerSpy = jest
-			.spyOn(kernelData, 'registerKernelStore')
+			.spyOn(kernelData, 'registerWPKernelStore')
 			.mockImplementation(() => {
 				throw new Error('Unexpected failure');
 			});
@@ -631,7 +631,7 @@ describe('useAction', () => {
 		registerSpy.mockRestore();
 	});
 
-	it('normalises non-error dispatch failures into KernelError instances', async () => {
+	it('normalises non-error dispatch failures into WPKernelError instances', async () => {
 		prepareWpData(() => {
 			throw 'primitive failure';
 		});
@@ -647,8 +647,8 @@ describe('useAction', () => {
 			}
 		});
 
-		expect(capturedError as KernelError).toMatchObject({
-			name: 'KernelError',
+		expect(capturedError as WPKernelError).toMatchObject({
+			name: 'WPKernelError',
 			code: 'UnknownError',
 			message: 'Dispatching action failed with non-error value',
 		});
@@ -657,7 +657,7 @@ describe('useAction', () => {
 	it('does not invalidate cache when autoInvalidate returns falsey values', async () => {
 		harness?.resetActionStoreRegistration();
 		const registerSpy = jest
-			.spyOn(kernelData, 'registerKernelStore')
+			.spyOn(kernelData, 'registerWPKernelStore')
 			.mockReturnValue({
 				name: ACTION_STORE_KEY,
 				instantiate: () => ({}) as any,
@@ -743,12 +743,12 @@ describe('useAction', () => {
 
 		// Ensure secondRun and thirdRun reject with cancellation error
 		await expect(secondRun).rejects.toMatchObject({
-			name: 'KernelError',
+			name: 'WPKernelError',
 			code: 'DeveloperError',
 			message: expect.stringContaining('cancelled'),
 		});
 		await expect(thirdRun).rejects.toMatchObject({
-			name: 'KernelError',
+			name: 'WPKernelError',
 			code: 'DeveloperError',
 			message: expect.stringContaining('cancelled'),
 		});
@@ -763,7 +763,7 @@ describe('useAction', () => {
 
 		expect(() => result.current.run({} as never)).toThrow(
 			expect.objectContaining({
-				name: 'KernelError',
+				name: 'WPKernelError',
 				code: 'DeveloperError',
 				message: expect.stringContaining(
 					'useAction requires the WordPress data registry'
@@ -772,7 +772,7 @@ describe('useAction', () => {
 		);
 	});
 
-	it('handles Error instances in normaliseToKernelError', async () => {
+	it('handles Error instances in normaliseToWPKernelError', async () => {
 		const consoleErrorSpy = jest
 			.spyOn(console, 'error')
 			.mockImplementation(() => {});
@@ -790,7 +790,7 @@ describe('useAction', () => {
 				await result.current.run({} as never);
 			} catch (error) {
 				expect(error).toMatchObject({
-					name: 'KernelError',
+					name: 'WPKernelError',
 					message: expect.stringContaining('Regular error message'),
 				});
 			}
@@ -813,13 +813,13 @@ describe('useAction', () => {
 			emit: jest.fn(),
 			teardown: jest.fn(),
 			getRegistry: () =>
-				globalThis.window?.wp?.data as KernelRegistry | undefined,
+				globalThis.window?.wp?.data as WPKernelRegistry | undefined,
 			hasUIRuntime: () => true,
 			getUIRuntime: () => undefined,
 			attachUIBindings: jest.fn(),
 			ui: { isEnabled: () => true, options: undefined },
-			events: new KernelEventBus(),
-		} as unknown as KernelInstance;
+			events: new WPKernelEventBus(),
+		} as unknown as WPKInstance;
 
 		const { result } = renderUseActionHook(
 			action,
@@ -842,7 +842,7 @@ describe('useAction', () => {
 			| ((envelope: ActionEnvelope<any, any>) => ActionEnvelope<any, any>)
 			| null = null;
 		const registerSpy = jest
-			.spyOn(kernelData, 'registerKernelStore')
+			.spyOn(kernelData, 'registerWPKernelStore')
 			.mockImplementation((name, definition) => {
 				registeredInvoke = (
 					definition.actions as {
@@ -944,20 +944,20 @@ describe('useAction', () => {
 		);
 
 		const action = makeDefinedAction(async () => ({ id: 1 }));
-		const kernelInstance = {
-			invalidate: invalidate as KernelInstance['invalidate'],
-		} as KernelInstance;
+		const wpkernelInstance = {
+			invalidate: invalidate as WPKInstance['invalidate'],
+		} as WPKInstance;
 
 		const { result, runtime } = renderUseActionHook(
 			action,
 			{
 				autoInvalidate: () => [['resource']],
 			},
-			{ kernel: kernelInstance }
+			{ kernel: wpkernelInstance }
 		);
 
 		runtime.invalidate = undefined as unknown as typeof runtime.invalidate;
-		runtime.kernel = kernelInstance;
+		runtime.kernel = wpkernelInstance;
 
 		await act(async () => {
 			await result.current.run({} as never);

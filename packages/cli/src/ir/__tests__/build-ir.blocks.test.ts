@@ -1,10 +1,10 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import type { KernelConfigV1 } from '../../config/types';
-import { buildIr } from '../build-ir';
-import { createBaseConfig, withTempWorkspace } from '../test-helpers';
+import type { WPKernelConfigV1 } from '../../config/types';
+import { buildIr } from '../buildIr';
+import { createBaseConfig, withTempWorkspace } from '../shared/test-helpers';
 
-describe('buildIr – block discovery', () => {
+describe('buildIr - block discovery', () => {
 	it('discovers JS-only and SSR blocks while respecting ignore rules', async () => {
 		await withTempWorkspace(
 			async (root) => {
@@ -65,12 +65,12 @@ describe('buildIr – block discovery', () => {
 								},
 							},
 						},
-					} as unknown as KernelConfigV1['resources'];
+					} as unknown as WPKernelConfigV1['resources'];
 
 					const ir = await buildIr({
 						config,
-						sourcePath: path.join(root, 'kernel.config.ts'),
-						origin: 'kernel.config.ts',
+						sourcePath: path.join(root, 'wpk.config.ts'),
+						origin: 'wpk.config.ts',
 						namespace: config.namespace,
 					});
 
@@ -121,13 +121,13 @@ describe('buildIr – block discovery', () => {
 				try {
 					const config = createBaseConfig();
 					config.resources =
-						{} as unknown as KernelConfigV1['resources'];
+						{} as unknown as WPKernelConfigV1['resources'];
 
 					await expect(
 						buildIr({
 							config,
-							sourcePath: path.join(root, 'kernel.config.ts'),
-							origin: 'kernel.config.ts',
+							sourcePath: path.join(root, 'wpk.config.ts'),
+							origin: 'wpk.config.ts',
 							namespace: config.namespace,
 						})
 					).rejects.toThrow();
@@ -159,13 +159,13 @@ describe('buildIr – block discovery', () => {
 				try {
 					const config = createBaseConfig();
 					config.resources =
-						{} as unknown as KernelConfigV1['resources'];
+						{} as unknown as WPKernelConfigV1['resources'];
 
 					await expect(
 						buildIr({
 							config,
-							sourcePath: path.join(root, 'kernel.config.ts'),
-							origin: 'kernel.config.ts',
+							sourcePath: path.join(root, 'wpk.config.ts'),
+							origin: 'wpk.config.ts',
 							namespace: config.namespace,
 						})
 					).rejects.toThrow();
@@ -192,13 +192,13 @@ describe('buildIr – block discovery', () => {
 				try {
 					const config = createBaseConfig();
 					config.resources =
-						{} as unknown as KernelConfigV1['resources'];
+						{} as unknown as WPKernelConfigV1['resources'];
 
 					await expect(
 						buildIr({
 							config,
-							sourcePath: path.join(root, 'kernel.config.ts'),
-							origin: 'kernel.config.ts',
+							sourcePath: path.join(root, 'wpk.config.ts'),
+							origin: 'wpk.config.ts',
 							namespace: config.namespace,
 						})
 					).rejects.toThrow();
@@ -225,13 +225,13 @@ describe('buildIr – block discovery', () => {
 				try {
 					const config = createBaseConfig();
 					config.resources =
-						{} as unknown as KernelConfigV1['resources'];
+						{} as unknown as WPKernelConfigV1['resources'];
 
 					await expect(
 						buildIr({
 							config,
-							sourcePath: path.join(root, 'kernel.config.ts'),
-							origin: 'kernel.config.ts',
+							sourcePath: path.join(root, 'wpk.config.ts'),
+							origin: 'wpk.config.ts',
 							namespace: config.namespace,
 						})
 					).rejects.toThrow();

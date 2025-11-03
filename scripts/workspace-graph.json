@@ -1,0 +1,200 @@
+{
+	"generatedAt": "2025-11-02T17:03:23.183Z",
+	"root": "/Users/jasonnathan/Repos/wp-kernel",
+	"workspaces": [
+		{
+			"name": "@wpkernel/cli",
+			"dir": "packages/cli/",
+			"packageJsonPath": "/Users/jasonnathan/Repos/wp-kernel/packages/cli/package.json",
+			"packageJsonMtimeMs": 1761871796721.994,
+			"localDeps": [
+				"@wpkernel/php-driver",
+				"@wpkernel/php-json-ast",
+				"@wpkernel/test-utils",
+				"@wpkernel/wp-json-ast",
+				"@wpkernel/core"
+			],
+			"localDependents": ["@wpkernel/create-wpk"]
+		},
+		{
+			"name": "@wpkernel/core",
+			"dir": "packages/core/",
+			"packageJsonPath": "/Users/jasonnathan/Repos/wp-kernel/packages/core/package.json",
+			"packageJsonMtimeMs": 1761871796723.2522,
+			"localDeps": [],
+			"localDependents": [
+				"@wpkernel/cli",
+				"@wpkernel/create-wpk",
+				"@wpkernel/e2e-utils",
+				"@wpkernel/php-driver",
+				"@wpkernel/php-json-ast",
+				"@wpkernel/test-utils",
+				"@wpkernel/ui",
+				"@wpkernel/wp-json-ast",
+				"wp-kernel-showcase"
+			]
+		},
+		{
+			"name": "@wpkernel/create-wpk",
+			"dir": "packages/create-wpk/",
+			"packageJsonPath": "/Users/jasonnathan/Repos/wp-kernel/packages/create-wpk/package.json",
+			"packageJsonMtimeMs": 1761871796724.146,
+			"localDeps": ["@wpkernel/cli", "@wpkernel/core"],
+			"localDependents": []
+		},
+		{
+			"name": "@wpkernel/e2e-utils",
+			"dir": "packages/e2e-utils/",
+			"packageJsonPath": "/Users/jasonnathan/Repos/wp-kernel/packages/e2e-utils/package.json",
+			"packageJsonMtimeMs": 1761871796724.82,
+			"localDeps": ["@wpkernel/test-utils", "@wpkernel/core"],
+			"localDependents": ["wp-kernel-showcase"]
+		},
+		{
+			"name": "@wpkernel/php-driver",
+			"dir": "packages/php-driver/",
+			"packageJsonPath": "/Users/jasonnathan/Repos/wp-kernel/packages/php-driver/package.json",
+			"packageJsonMtimeMs": 1761871796725.5098,
+			"localDeps": ["@wpkernel/core"],
+			"localDependents": ["@wpkernel/cli", "@wpkernel/php-json-ast"]
+		},
+		{
+			"name": "@wpkernel/php-json-ast",
+			"dir": "packages/php-json-ast/",
+			"packageJsonPath": "/Users/jasonnathan/Repos/wp-kernel/packages/php-json-ast/package.json",
+			"packageJsonMtimeMs": 1761871796726.2917,
+			"localDeps": [
+				"@wpkernel/php-driver",
+				"@wpkernel/core",
+				"@wpkernel/test-utils"
+			],
+			"localDependents": ["@wpkernel/cli", "@wpkernel/wp-json-ast"]
+		},
+		{
+			"name": "@wpkernel/test-utils",
+			"dir": "packages/test-utils/",
+			"packageJsonPath": "/Users/jasonnathan/Repos/wp-kernel/packages/test-utils/package.json",
+			"packageJsonMtimeMs": 1761871796726.8564,
+			"localDeps": ["@wpkernel/core", "@wpkernel/ui"],
+			"localDependents": [
+				"@wpkernel/cli",
+				"@wpkernel/e2e-utils",
+				"@wpkernel/php-json-ast"
+			]
+		},
+		{
+			"name": "@wpkernel/ui",
+			"dir": "packages/ui/",
+			"packageJsonPath": "/Users/jasonnathan/Repos/wp-kernel/packages/ui/package.json",
+			"packageJsonMtimeMs": 1761871796727.4888,
+			"localDeps": ["@wpkernel/core"],
+			"localDependents": ["@wpkernel/test-utils", "wp-kernel-showcase"]
+		},
+		{
+			"name": "@wpkernel/wp-json-ast",
+			"dir": "packages/wp-json-ast/",
+			"packageJsonPath": "/Users/jasonnathan/Repos/wp-kernel/packages/wp-json-ast/package.json",
+			"packageJsonMtimeMs": 1761871796728.2942,
+			"localDeps": ["@wpkernel/php-json-ast", "@wpkernel/core"],
+			"localDependents": ["@wpkernel/cli"]
+		},
+		{
+			"name": "wp-kernel-showcase",
+			"dir": "examples/showcase/",
+			"packageJsonPath": "/Users/jasonnathan/Repos/wp-kernel/examples/showcase/package.json",
+			"packageJsonMtimeMs": 1761881450610.2437,
+			"localDeps": [
+				"@wpkernel/core",
+				"@wpkernel/ui",
+				"@wpkernel/e2e-utils"
+			],
+			"localDependents": []
+		}
+	],
+	"edges": [
+		{
+			"from": "@wpkernel/cli",
+			"to": "@wpkernel/php-driver"
+		},
+		{
+			"from": "@wpkernel/cli",
+			"to": "@wpkernel/php-json-ast"
+		},
+		{
+			"from": "@wpkernel/cli",
+			"to": "@wpkernel/test-utils"
+		},
+		{
+			"from": "@wpkernel/cli",
+			"to": "@wpkernel/wp-json-ast"
+		},
+		{
+			"from": "@wpkernel/cli",
+			"to": "@wpkernel/core"
+		},
+		{
+			"from": "@wpkernel/create-wpk",
+			"to": "@wpkernel/cli"
+		},
+		{
+			"from": "@wpkernel/create-wpk",
+			"to": "@wpkernel/core"
+		},
+		{
+			"from": "@wpkernel/e2e-utils",
+			"to": "@wpkernel/test-utils"
+		},
+		{
+			"from": "@wpkernel/e2e-utils",
+			"to": "@wpkernel/core"
+		},
+		{
+			"from": "@wpkernel/php-driver",
+			"to": "@wpkernel/core"
+		},
+		{
+			"from": "@wpkernel/php-json-ast",
+			"to": "@wpkernel/php-driver"
+		},
+		{
+			"from": "@wpkernel/php-json-ast",
+			"to": "@wpkernel/core"
+		},
+		{
+			"from": "@wpkernel/php-json-ast",
+			"to": "@wpkernel/test-utils"
+		},
+		{
+			"from": "@wpkernel/test-utils",
+			"to": "@wpkernel/core"
+		},
+		{
+			"from": "@wpkernel/test-utils",
+			"to": "@wpkernel/ui"
+		},
+		{
+			"from": "@wpkernel/ui",
+			"to": "@wpkernel/core"
+		},
+		{
+			"from": "@wpkernel/wp-json-ast",
+			"to": "@wpkernel/php-json-ast"
+		},
+		{
+			"from": "@wpkernel/wp-json-ast",
+			"to": "@wpkernel/core"
+		},
+		{
+			"from": "wp-kernel-showcase",
+			"to": "@wpkernel/core"
+		},
+		{
+			"from": "wp-kernel-showcase",
+			"to": "@wpkernel/ui"
+		},
+		{
+			"from": "wp-kernel-showcase",
+			"to": "@wpkernel/e2e-utils"
+		}
+	]
+}

@@ -1,6 +1,110 @@
 # @wpkernel/cli
 
-## 0.4.0 [Unreleased]
+## Unreleased
+
+### In progress
+
+- **Phase 7 – Plugin bootstrap flow** – Tasks 37-45 will publish the create bootstrap, emit the plugin loader, clean stale artefacts, run activation smoke, and close with the 0.11.0 release once Phase 6 wraps.
+- **Phase 8 placeholder** – Task 46 will collect incremental diagnostics (starting with the CLI LogLayer reporter) after the plugin bootstrap flow ships.
+
+### Fixed
+
+- **Generation manifest persistence** – `wpk generate` stores `.wpk/apply/state.json`, removes stale `.generated/**` files when resources or PHP paths disappear, and records shim deletions in `.wpk/apply/plan.json` so `wpk apply` prunes obsolete loaders.
+
+## 0.10.0 - 2025-11-05
+
+### Documentation
+
+- Recorded the completion of Tasks 32‑36 across the MVP ledger, migration phases brief, and supporting specs so the CLI narrative matches the core pipeline release.
+
+### Maintenance
+
+- Version bump to `0.10.0` to align with the Phase 6 core pipeline release; no runtime changes beyond documentation updates.
+
+## 0.9.0 - 2025-10-27
+
+### Added
+
+- **Layered apply workflow release** – Verified the Task 31 checklist (`wpk generate && wpk apply --yes --dry-run`) and finalized the Phase 5 minor release.
+
+### Documentation
+
+- **MVP ledger update** – Marked the Phase 5 release slot as shipped and captured the migration guidance in the CLI docs.
+
+### Maintenance
+
+- **Version bump** – Propagated the package version to `0.9.0` and regenerated API references via the release automation.
+
+## 0.8.0 - 2025-10-26
+
+### Removed
+
+- **Legacy printers** – Removed the string-based PHP/TypeScript/blocks printers and the `runGenerate` shim in favour of the next pipeline builders.
+- **Deprecated commands** – Dropped the Clipanion `GenerateCommand`, `StartCommand`, `DoctorCommand`, `InitCommand`, `BuildCommand`, and `ApplyCommand` classes; the CLI now registers the factory-built commands directly (and omits the deprecated `build` command).
+
+### Changed
+
+- **CLI entrypoint** – `cli/run.ts` instantiates the `generate`, `init`, `create`, `start`, `doctor`, and `apply` commands before registration, eliminating the legacy command layer.
+
+### Documentation
+
+- **Task 26 release notes** – Migration plan, MVP ledger, quick start, and resource/block guides now describe the builder pipeline and mark the 0.8.0 release as shipped.
+
+## 0.7.0 - 2025-10-26
+
+### Added
+
+- **Block builder pipeline** – SSR and JS-only block generation now runs through shared manifest, registrar, and render helpers in the next pipeline, replacing the legacy string printers while preserving parity.
+
+### Fixed
+
+- **Manifest cache invalidation** – File signature tracking refreshes block manifests and render templates when source files change so builders rerun instead of serving stale artefacts.
+
+### Documentation
+
+- **Phase 3 closure** – MVP plan, migration phases, and AST tracker record Tasks 16-19 as shipped and document the shared `ts-morph` primitives powering the new builders.
+
+### Maintenance
+
+- **Release prep** – Version bumped to `0.7.0` alongside regenerated API docs and showcase fixtures after closing the Phase 3 buffer slot.
+
+## 0.6.0 - 2025-10-26
+
+### Added
+
+- **Transient fixtures** – The generate command golden captures transient storage metadata, TTL helper output, and cache invalidation context beside existing resources.
+
+### Fixed
+
+- **Transient DELETE handlers** – DELETE routes now call `delete_transient()`, emit cache invalidation events, and return previous payloads rather than replying with `501` errors.
+
+### Documentation
+
+- **Phase 2 wrap-up** – Migration plan, AST tracker, and adapter brief mark Task 14 as shipped, highlight identity-aware cache keys, and log the 0.6.0 release.
+
+### Maintenance
+
+- **Monorepo release** – Bumped `@wpkernel/cli` to `0.6.0` alongside the rest of the workspace after completing the Phase 2 checklist.
+
+## 0.5.0 - 2025-10-26
+
+### Added
+
+- **wp-option controllers (AST)** – `packages/cli/src/builders/php/resource/wpOption/**` now emit wp-option controllers through the pipeline, replacing the legacy string printer while preserving helper-first behaviour.
+
+### Changed
+
+- **Integration coverage** – The generate integration suite and controller snapshots include DemoOption fixtures so resource routing, method dispatch, and writer output stay covered end to end.
+
+### Documentation
+
+- **Phase 1 closure** – MVP plan, migration phases, and parity trackers mark Tasks 8 and 9 as shipped, document the unused buffer hotfix slot, and advance the CLI roadmap to the v0.5.x release track.
+
+### Maintenance
+
+- **Release prep** – No buffer hotfixes were required; the package version is bumped to `0.5.0` alongside the rest of the monorepo.
+
+## 0.4.0
 
 ### Added
 
@@ -15,10 +119,11 @@
     - Main orchestrator reduced from 775 lines to 83 lines
     - Saves ~1,750 lines across Phase 2C by reusing infrastructure (~36% reduction)
     - Established pattern for future storage mode additions
-- **ESLint Plugin**: 4 kernel config validation rules (`@kernel/config-consistency`, `@kernel/cache-keys-valid`, `@kernel/policy-hints`, `@kernel/doc-links`)
+- **ESLint Plugin**: 4 kernel config validation rules (`@kernel/config-consistency`, `@kernel/cache-keys-valid`, `@kernel/capability-hints`, `@kernel/doc-links`)
     - Educational error messages explaining framework contracts, runtime behavior, and concrete fixes
     - Inline documentation above each rule enforcement explaining the "why" behind constraints
     - JSDoc with @typedef for complex parameter objects and exported utilities
+- `createPhpBuilder` now exposes driver overrides (PHP binary, bridge path, or `import.meta.url`) and `createPhpProgramWriterHelper` forwards them to `@wpkernel/php-driver`, with documentation covering the new configuration surface.
 - IR inference for route transport classification (`local` vs `remote`)
 - Identity field inference from route placeholders (`:id`, `:slug`, `:uuid`)
 - Schema default to `'auto'` when storage exists but schema undefined
@@ -28,6 +133,7 @@
 
 ### Changed
 
+- CLI build now runs the PHP driver installer during Vite bundling so `nikic/php-parser` is available for integration tests and runtime tooling
 - **Major PHP Printer Refactor**: Transformed monolithic architecture into composable generators
     - `wp-post.ts` (1,236 lines) → modular `wp-post/` directory (17 focused modules)
     - Main printer orchestrator reduced from 775 lines to 83 lines
@@ -35,7 +141,7 @@
     - Enables clean addition of new storage modes without code duplication
     - Comprehensive test suite reorganized into focused spec files (basic, identity, meta, routes, stubs)
 - Enhanced ESLint rule messages to explain: (1) what we inferred, (2) why the framework cares, (3) runtime consequences, (4) how to fix with examples
-- Refactored monolithic `build-ir.ts` into focused modules (schema, routes, resource-builder, block-discovery, cache-keys, policies, php, ordering, canonical)
+- Refactored monolithic `build-ir.ts` into focused modules (schema, routes, resource-builder, block-discovery, cache-keys, capabilities, php, ordering, canonical)
 - Split IR test suite into focused spec files (core, defaults, validation, blocks, php)
 - Externalised runtime-only dependencies (`chokidar`, `clipanion`, `cosmiconfig`,
   `typanion`) from the Vite build and lazy-loaded filesystem watching so the CLI

@@ -26,10 +26,10 @@ export const WPK_NAMESPACE = 'wpk';
  * These provide better diagnostic context than the root namespace alone.
  */
 export const WPK_SUBSYSTEM_NAMESPACES = {
-	/** Policy subsystem */
-	POLICY: `${WPK_NAMESPACE}.policy`,
-	/** Policy cache subsystem */
-	POLICY_CACHE: `${WPK_NAMESPACE}.policy.cache`,
+	/** Capability subsystem */
+	POLICY: `${WPK_NAMESPACE}.capability`,
+	/** Capability cache subsystem */
+	POLICY_CACHE: `${WPK_NAMESPACE}.capability.cache`,
 	/** Resource cache subsystem */
 	CACHE: `${WPK_NAMESPACE}.cache`,
 	/** Action subsystem */
@@ -48,15 +48,15 @@ export const WPK_SUBSYSTEM_NAMESPACES = {
  * Keys used for browser APIs (storage, channels), WordPress hooks, and public event names.
  */
 export const WPK_INFRASTRUCTURE = {
-	/** Storage key prefix for policy cache */
-	POLICY_CACHE_STORAGE: `${WPK_NAMESPACE}.policy.cache`,
-	/** BroadcastChannel name for policy cache sync */
-	POLICY_CACHE_CHANNEL: `${WPK_NAMESPACE}.policy.cache`,
-	/** BroadcastChannel name for policy events */
-	POLICY_EVENT_CHANNEL: `${WPK_NAMESPACE}.policy.events`,
+	/** Storage key prefix for capability cache */
+	POLICY_CACHE_STORAGE: `${WPK_NAMESPACE}.capability.cache`,
+	/** BroadcastChannel name for capability cache sync */
+	POLICY_CACHE_CHANNEL: `${WPK_NAMESPACE}.capability.cache`,
+	/** BroadcastChannel name for capability events */
+	POLICY_EVENT_CHANNEL: `${WPK_NAMESPACE}.capability.events`,
 	/** BroadcastChannel name for action lifecycle events */
 	ACTIONS_CHANNEL: `${WPK_NAMESPACE}.actions`,
-	/** WordPress hooks namespace prefix for kernel events plugin */
+	/** WordPress hooks namespace prefix for WP Kernel events plugin */
 	WP_HOOKS_NAMESPACE_PREFIX: `${WPK_NAMESPACE}/notices`,
 	/** BroadcastChannel message type for action lifecycle events */
 	ACTIONS_MESSAGE_TYPE_LIFECYCLE: `${WPK_NAMESPACE}.action.lifecycle`,
@@ -103,13 +103,13 @@ export type WPKInfrastructureConstant =
 export type WPKEvent = (typeof WPK_EVENTS)[keyof typeof WPK_EVENTS];
 
 /**
- * Configuration sources recognised by kernel tooling.
+ * Configuration sources recognised by WP Kernel tooling.
  *
  * These filenames/keys are consumed by the CLI and runtime config loaders.
  */
 export const WPK_CONFIG_SOURCES = {
-	WPK_CONFIG_TS: 'kernel.config.ts',
-	WPK_CONFIG_JS: 'kernel.config.js',
+	WPK_CONFIG_TS: 'wpk.config.ts',
+	WPK_CONFIG_JS: 'wpk.config.js',
 	PACKAGE_JSON_WPK: 'package.json#wpk',
 } as const;
 

@@ -8,7 +8,7 @@ Scaffolds a new plugin with a kernel config, TypeScript build tooling, and Compo
 
 ## `wpk generate`
 
-Reads `kernel.config.ts`, normalises the IR, and writes generated artifacts under `.generated/**`:
+Reads `wpk.config.ts`, normalises the IR, and writes generated artifacts under `.generated/**`:
 
 - TypeScript declarations
 - PHP controllers and registrars
@@ -44,10 +44,10 @@ Validates the kernel config, checks Composer autoloading, and verifies WordPress
 
 ```mermaid
 graph LR
-    A[wpk init] --> B[Edit kernel.config.ts]
+    A[wpk init] --> B[Edit wpk.config.ts]
     B --> C[wpk generate]
     C --> D[wpk apply]
     D --> E[wpk start]
 ```
 
-Follow the arrows each time you add a resource, block, or policy hint. `wpk build` mirrors `wpk start` without the watcher, and `wpk doctor` can be invoked at any point in the flow.
+Follow the arrows each time you add a resource, block, or capability hint. `wpk build` mirrors `wpk start` without the watcher, and `wpk doctor` can be invoked at any point in the flow.

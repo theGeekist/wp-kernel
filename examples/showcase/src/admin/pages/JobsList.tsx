@@ -11,9 +11,9 @@ import {
 } from '@wordpress/components';
 import { DataForm } from '@wordpress/dataviews';
 import { __ } from '@wordpress/i18n';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import type { DefinedAction } from '@wpkernel/core/actions';
-import { useKernelUI } from '@wpkernel/ui';
+import { useWPKernelUI } from '@wpkernel/ui';
 import {
 	ResourceDataView,
 	createDataFormController,
@@ -23,13 +23,13 @@ import {
 import type { ResourceObject } from '@wpkernel/core/resource';
 import { job } from '../../resources';
 import {
-	kernelConfig,
+	wpkConfig,
 	jobCreationFields,
 	jobCreationForm,
 	jobDataViewsConfig,
 	type Job,
 	type JobListParams,
-} from '../../kernel.config';
+} from '../../wpk.config';
 import { CreateJob, type CreateJobInput } from '../../actions/jobs/CreateJob';
 
 type CreateFeedback = { type: 'success' | 'error'; message: string } | null;
@@ -52,18 +52,18 @@ const normalizeStatus = (value: unknown): CreateJobInput['status'] => {
 };
 
 function useDataViewsRuntimeContext(): DataViewsRuntimeContext {
-	const runtime = useKernelUI();
+	const runtime = useWPKernelUI();
 	if (!runtime?.dataviews) {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message:
-				'Kernel UI runtime is missing DataViews support. Ensure attachUIBindings configured DataViews.',
+				'WP Kernel UI runtime is missing DataViews support. Ensure attachUIBindings configured DataViews.',
 		});
 	}
 
 	return {
 		namespace: runtime.namespace,
 		dataviews: ensureControllerRuntime(runtime.dataviews),
-		policies: runtime.policies,
+		capabilities: runtime.capabilities,
 		invalidate: runtime.invalidate,
 		registry: runtime.registry,
 		reporter: runtime.reporter,
@@ -105,7 +105,7 @@ export function JobsList(): JSX.Element {
 
 	const controller = controllerFactory();
 	const hasConfiguredDataViews = Boolean(
-		kernelConfig.resources.job.ui?.admin?.dataviews
+		wpkConfig.resources.job.ui?.admin?.dataviews
 	);
 
 	const handleFormChange = useCallback((updates: Record<string, unknown>) => {
@@ -158,7 +158,7 @@ export function JobsList(): JSX.Element {
 				setFormState(createDefaultFormState());
 				controller.reset();
 			} catch (error) {
-				const message = KernelError.isKernelError(error)
+				const message = WPKernelError.isWPKernelError(error)
 					? error.message
 					: ERROR_FALLBACK;
 				setFeedback({ type: 'error', message });
@@ -186,7 +186,7 @@ export function JobsList(): JSX.Element {
 			<div className="jobs-admin" data-testid="jobs-admin-root">
 				<Notice status="warning" isDismissible={false}>
 					{__(
-						'Jobs resource is missing DataViews configuration. Check kernel.config.ts.',
+						'Jobs resource is missing DataViews configuration. Check wpk.config.ts.',
 						'wp-kernel-showcase'
 					)}
 				</Notice>

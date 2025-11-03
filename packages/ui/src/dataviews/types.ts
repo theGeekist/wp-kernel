@@ -6,8 +6,10 @@ import type {
 	InvalidateOptions,
 	ResourceObject,
 	ListResponse,
+	ResourceDataViewsScreenConfig,
+	ResourceDataViewsMenuConfig,
 } from '@wpkernel/core/resource';
-import type { KernelUIPolicyRuntime } from '@wpkernel/core/data';
+import type { WPKUICapabilityRuntime } from '@wpkernel/core/data';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type {
 	DataViewChangedPayload,
@@ -48,7 +50,7 @@ export interface DataViewsControllerRuntime {
 export interface DataViewsRuntimeContext {
 	readonly namespace: string;
 	readonly dataviews: DataViewsControllerRuntime;
-	readonly policies?: KernelUIPolicyRuntime;
+	readonly capabilities?: WPKUICapabilityRuntime;
 	readonly invalidate?: (
 		patterns: CacheKeyPattern | CacheKeyPattern[],
 		options?: InvalidateOptions
@@ -78,9 +80,9 @@ export interface ResourceDataViewActionConfig<
 	isDestructive?: boolean;
 	/** Flag primary styling. */
 	isPrimary?: boolean;
-	/** Policy key to gate rendering and execution. */
-	policy?: string;
-	/** When true, render disabled instead of hiding on policy denial. */
+	/** Capability key to gate rendering and execution. */
+	capability?: string;
+	/** When true, render disabled instead of hiding on capability denial. */
 	disabledWhenDenied?: boolean;
 	/**
 	 * Build action input payload from the current selection and items.
@@ -109,6 +111,19 @@ export interface ResourceDataViewActionConfig<
 	) => CacheKeyPattern[] | false;
 }
 
+export interface ResourceDataViewSavedView {
+	id: string;
+	label: string;
+	view: View;
+	description?: string;
+	isDefault?: boolean;
+	[key: string]: unknown;
+}
+
+export type ResourceDataViewMenuConfig = ResourceDataViewsMenuConfig;
+
+export type ResourceDataViewScreenConfig = ResourceDataViewsScreenConfig;
+
 /**
  * Resource DataView configuration.
  */
@@ -123,11 +138,13 @@ export interface ResourceDataViewConfig<TItem, TQuery> {
 	empty?: ReactNode;
 	perPageSizes?: number[];
 	defaultLayouts?: Record<string, unknown>;
+	views?: ResourceDataViewSavedView[];
+	screen?: ResourceDataViewScreenConfig;
 }
 
-export type KernelUIPolicyRuntimeSource =
-	| KernelUIPolicyRuntime
-	| (() => KernelUIPolicyRuntime | undefined);
+export type WPKUICapabilityRuntimeSource =
+	| WPKUICapabilityRuntime
+	| (() => WPKUICapabilityRuntime | undefined);
 
 export interface ResourceDataViewControllerOptions<TItem, TQuery> {
 	resource?: ResourceObject<TItem, TQuery>;
@@ -137,7 +154,7 @@ export interface ResourceDataViewControllerOptions<TItem, TQuery> {
 	runtime: DataViewsControllerRuntime;
 	namespace: string;
 	invalidate?: (patterns: CacheKeyPattern | CacheKeyPattern[]) => void;
-	policies?: KernelUIPolicyRuntimeSource;
+	capabilities?: WPKUICapabilityRuntimeSource;
 	preferencesKey?: string;
 	fetchList?: (query: TQuery) => Promise<ListResponse<TItem>>;
 	prefetchList?: (query: TQuery) => Promise<void>;
@@ -154,7 +171,7 @@ export interface ResourceDataViewController<TItem, TQuery> {
 	readonly invalidate?: (
 		patterns: CacheKeyPattern | CacheKeyPattern[]
 	) => void;
-	readonly policies?: KernelUIPolicyRuntime;
+	readonly capabilities?: WPKUICapabilityRuntime;
 	readonly fetchList?: (query: TQuery) => Promise<ListResponse<TItem>>;
 	readonly prefetchList?: (query: TQuery) => Promise<void>;
 	mapViewToQuery: (view: View) => TQuery;
@@ -178,12 +195,12 @@ export interface DataViewsRuntimeOptions {
 	namespace: string;
 	reporter: Reporter;
 	preferences: DataViewPreferencesRuntime | DataViewPreferencesAdapter;
-	policies?: KernelUIPolicyRuntime;
+	capabilities?: WPKUICapabilityRuntime;
 	invalidate?: (patterns: CacheKeyPattern | CacheKeyPattern[]) => void;
 	emit?: (eventName: string, payload: unknown) => void;
 }
 
 export interface DataViewsStandaloneRuntime extends DataViewsRuntimeContext {
 	readonly dataviews: KernelDataViewsRuntime;
-	readonly policies?: KernelUIPolicyRuntime;
+	readonly capabilities?: WPKUICapabilityRuntime;
 }

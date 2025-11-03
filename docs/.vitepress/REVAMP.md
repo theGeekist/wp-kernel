@@ -32,7 +32,7 @@ docs/
 │  ├─ reporting.md
 │  └─ modes.md                      # Thin client vs rich server
 ├─ reference/
-│  ├─ kernel-config.md              # The root config (commented, canonical)
+│  ├─ wpk-config.md              # The root config (commented, canonical)
 │  ├─ contracts.md                  # JSON Schema patterns & 'auto' rules
 │  ├─ decision-matrix.md            # What gets generated when (concise table)
 │  └─ cli-commands.md               # generate/apply/init/start/build/doctor
@@ -92,7 +92,7 @@ contributing/*
 
 - **Reference**:
     - Keep `reference/contracts.md`.
-    - Add `reference/kernel-config.md` (canonical, commented, source of truth).
+    - Add `reference/wpk-config.md` (canonical, commented, source of truth).
     - Add `reference/decision-matrix.md` (your “what gets generated” table).
     - Add `reference/cli-commands.md` (truth for flags/flows).
 
@@ -156,7 +156,7 @@ export default defineConfig({
 				// Generated list or hand-maintained
 			],
 			'/reference/': [
-				{ text: 'Kernel Config', link: '/reference/kernel-config' },
+				{ text: 'Kernel Config', link: '/reference/wpk-config' },
 				{ text: 'Contracts & Schemas', link: '/reference/contracts' },
 				{ text: 'Decision Matrix', link: '/reference/decision-matrix' },
 				{ text: 'CLI Commands', link: '/reference/cli-commands' },
@@ -210,10 +210,10 @@ export default defineConfig({
         pnpm wpk start
         ```
 
-    - Show the single `src/index.ts` using `configureKernel`.
+    - Show the single `src/index.ts` using `configureWPKernel`.
     - Link to **Decision Matrix** for “what got generated”.
 
-3. **Kernel Config (`/reference/kernel-config`)**
+3. **Kernel Config (`/reference/wpk-config`)**
     - The **commented** canonical template (the one we discussed).
     - Use collapsible sections for advanced fields.
     - Link “see Decision Matrix” near each field that affects generation.
@@ -226,7 +226,7 @@ export default defineConfig({
 - Embed where it matters:
     - `/` landing (90 sec end-to-end)
     - `/getting-started/quick-start` (30 sec)
-    - `/guide/blocks` (30–45 sec on SSR vs JS-only)
+    - `/guide/blocks` (30-45 sec on SSR vs JS-only)
     - `/guide/dataviews` (30 sec configuring a table)
 
 - Keep them **short** and contextual. A wall of videos kills scanning.
@@ -242,19 +242,19 @@ export default defineConfig({
 
 **Three pillars**
 
-- **Generate, don’t glue** – `wpk generate` produces PHP/TS/manifest files from a single `kernel.config.ts`.
-- **Interop by default** – kernel plugins share the same runtime graph; resources and actions “just work” across plugins.
-- **Modern WP, batteries included** – Script Modules, SSR blocks via `render.php`, DataViews integration, policy keys → caps.
+- **Generate, don’t glue** - `wpk generate` produces PHP/TS/manifest files from a single `wpk.config.ts`.
+- **Interop by default** - kernel plugins share the same runtime graph; resources and actions “just work” across plugins.
+- **Modern WP, batteries included** - Script Modules, SSR blocks via `render.php`, DataViews integration, policy keys → caps.
 
 **Code card**
 
 ```ts
 // src/index.ts
-import { configureKernel } from '@wpk/core';
-import { kernelConfig } from '@kernel-config';
+import { configureWPKernel } from '@wpk/core';
+import { wpkConfig } from '@kernel-config';
 
-configureKernel({
-	namespace: kernelConfig.namespace,
+configureWPKernel({
+	namespace: wpkConfig.namespace,
 	registry: window.wp?.data,
 });
 ```
@@ -312,7 +312,7 @@ Each with tiny examples and a flow diagram: _init → edit config → generate �
 ## 10) Checklist
 
 - Move typedoc output to `docs/api/*`.
-- Create `/examples/index.md` + 2–3 example pages.
+- Create `/examples/index.md` + 2-3 example pages.
 - Draft landing page + quick start + kernel config.
 - Create `reference/decision-matrix.md` and `reference/cli-commands.md`.
 - Reorganize Guides (blocks, dataviews, resources merge).

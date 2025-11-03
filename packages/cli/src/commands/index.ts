@@ -1,13 +1,17 @@
-/**
- * CLI commands re-exports
- *
- * The individual command modules contain richer documentation. These
- * re-exports are intended for top-level importers and for the CLI
- * registration performed in `cli/run.ts`.
- */
-export { GenerateCommand } from './generate';
-export { InitCommand } from './init';
-export { DoctorCommand } from './doctor';
-export { StartCommand } from './start';
-export { BuildCommand } from './build';
-export { ApplyCommand } from './apply';
+export { ApplyCommand, buildApplyCommand } from './apply';
+export { buildInitCommand } from './init';
+export { buildCreateCommand } from './create';
+export { buildGenerateCommand } from './generate';
+export { buildStartCommand } from './start';
+export { buildDoctorCommand } from './doctor';
+export type { PatchManifest, PatchRecord, PatchStatus } from './apply';
+export type {
+	BuildApplyCommandOptions,
+	ApplyCommandConstructor,
+} from './apply';
+export type { BuildInitCommandOptions, InitCommandConstructor } from './init';
+export type {
+	BuildCreateCommandOptions,
+	CreateCommandConstructor,
+} from './create';
+export type { BuildGenerateCommandOptions } from './generate';

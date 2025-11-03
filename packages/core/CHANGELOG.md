@@ -1,38 +1,106 @@
 # @wpkernel/core
 
-## 0.4.0 [Unreleased]
+## Unreleased
+
+### In progress
+
+- **Phase 7 – Plugin bootstrap flow** – Tasks 37-45 will ship the create bootstrap, plugin loader generator, regeneration cleanup, and activation smoke tests before the 0.11.0 release.
+- **Phase 8 placeholder** – Task 46 will collect incremental diagnostics (LogLayer reporter, transcript polish) after the bootstrap flow ships.
+
+## 0.10.0 - 2025-11-05
+
+### Added
+
+- Pipeline helpers now orchestrate `defineAction`, `defineResource`, and `defineInteraction` through the shared `create*` catalogue with reporter/rollback bindings.
+
+### Changed
+
+- Diagnostics warn on missing or unused helpers, helper modules honour the reserved `create*` prefix, and pipeline rollback hooks unwind side effects when orchestration fails.
+
+### Documentation
+
+- Recorded Phase 6 completion in the core pipeline spec and CLI docs, including guidance for the new interactivity bridge.
+
+### Maintenance
+
+- Version bump to `0.10.0` to align with the Phase 6 core pipeline release and update the exported `VERSION` constant.
+
+## 0.9.0 - 2025-10-27
+
+### Maintenance
+
+- Version bump to `0.9.0` to align with the Phase 5 apply workflow release; the
+  runtime surface is unchanged beyond the exported `VERSION` constant update.
+
+### Documentation
+
+- Mirrored the CLI MVP ledger by marking Task 31 as shipped and confirming the
+  apply layering notes in the shared specs remain accurate for the runtime.
+
+## 0.8.0 - 2025-10-26
+
+### Maintenance
+
+- Version bump to `0.8.0` so the core package stays aligned with the command
+  migration release; runtime APIs remain unchanged aside from the `VERSION`
+  constant.
+
+### Documentation
+
+- Confirmed the command migration documentation references the current core
+  contracts and removed legacy command mentions from the runtime guides.
+
+## 0.7.0 - 2025-10-26
+
+### Maintenance
+
+- Version bump to `0.7.0` to align with the Phase 3 block builder release; runtime code remains unchanged aside from the exported `VERSION` constant.
+
+## 0.6.0 - 2025-10-26
+
+### Maintenance
+
+- Version bump to `0.6.0` to align with the Phase 2 release; runtime code remains unchanged aside from the exported `VERSION` constant.
+
+## 0.5.0 - 2025-10-26
+
+### Maintenance
+
+- Version bump to `0.5.0` to align with the Phase 1 release; runtime code is unchanged aside from the exported `VERSION` constant.
+
+## 0.4.0
 
 ### Breaking Changes
 
-- Removed the `withKernel()` export. Registry middleware is now wired directly
-  through `configureKernel()`, and teardown happens via the returned instance.
-- `defineAction()` and `definePolicy()` now accept configuration objects
+- Removed the `withWPKernel()` export. Registry middleware is now wired directly
+  through `configureWPKernel()`, and teardown happens via the returned instance.
+- `defineAction()` and `defineCapability()` now accept configuration objects
   (`{ name, handler, options }` / `{ map, options }`) rather than positional
   parameters. Update call sites to pass the new shape.
 
 ### Minor Changes
 
-- Introduced `kernel.attachUIBindings()`, `kernel.getUIRuntime()`, and
-  `kernel.hasUIRuntime()` to manage UI adapters without global mutation.
+- Introduced `wpk.attachUIBindings()`, `wpk.getUIRuntime()`, and
+  `wpk.hasUIRuntime()` to manage UI adapters without global mutation.
 - `defineResource()` now registers resources with the runtime via
   `trackUIResource()` instead of relying on queued globals.
-- Added `KernelEventBus` with `kernel.events` so lifecycle events surface through
+- Added `WPKernelEventBus` with `wpk.events` so lifecycle events surface through
   a typed subscription interface while continuing to bridge into `wp.hooks`.
   Action and cache events now emit through the bus, enabling UI runtimes and
   adapters to subscribe without global shims.
 - Published a dedicated `@wpkernel/core/events` barrel export so consumers
   can rely on the event bus without importing from the package root.
-- Resource reporters inherit from the kernel instance. Client methods and store
+- Resource reporters inherit from the WP Kernel instance. Client methods and store
   resolvers emit structured `debug`/`info`/`error` logs and every resource now
   exposes a `reporter` property for custom instrumentation.
-- **DataViews Phase 3**: `configureKernel` preserves resource UI metadata,
+- **DataViews Phase 3**: `configureWPKernel` preserves resource UI metadata,
   forwards DataViews options to UI attachments, and emits `ui:dataviews:*`
   events end-to-end with new integration coverage.
 - **DataViews Phase 4**: `ResourceConfig`/`ResourceObject` expose typed
-  `ui.admin.dataviews` metadata (screen + menu), keeping CLI/kernel parity for
+  `ui.admin.dataviews` metadata (screen + menu), keeping CLI/WP Kernel parity for
   declarative DataViews scaffolding.
 - Cache invalidation helpers and the transport layer accept reporter metadata,
-  emitting `cache.invalidate.*` and `transport.*` events with kernel-scoped
+  emitting `cache.invalidate.*` and `transport.*` events with WP Kernel-scoped
   defaults so cache/REST lifecycles share correlation IDs.
 
 ### Technical Details
@@ -46,8 +114,8 @@
 
 - Finalized Phase 7 by aligning the root specifications, README, roadmap, and
   `/docs` guides with the adapter-driven runtime, typed event bus, and
-  configuration-object APIs. Examples now showcase `configureKernel()`,
-  `KernelUIProvider`, and cache/event orchestration through action context.
+  configuration-object APIs. Examples now showcase `configureWPKernel()`,
+  `WPKernelUIProvider`, and cache/event orchestration through action context.
 
 ## 0.3.0
 
@@ -64,7 +132,7 @@
     This is the initial release establishing the complete development environment and tooling infrastructure for the WP Kernel framework.
 
     **Monorepo Structure**:
-    - pnpm workspaces with 4 packages (kernel, ui, cli, e2e-utils)
+    - pnpm workspaces with 4 packages (wp-kernel, ui, cli, e2e-utils)
     - TypeScript 5.9.2 strict mode with composite builds
     - Path aliases configured (@wpkernel/\*)
 
@@ -83,7 +151,7 @@
     - Comprehensive documentation (SCRIPTS.md, SCRIPTS_AUDIT.md)
 
     **WordPress Integration**:
-    - Error tests (KernelError, ServerError, TransportError)
+    - Error tests (WPKernelError, ServerError, TransportError)
     - Resources with cache invalidation + auto-retry
     - wp-env configuration (WordPress 6.8 + PHP 8.3)
     - Changesets for version management
@@ -117,7 +185,7 @@
     Complete development environment, tooling, and CI/CD pipeline for WP Kernel framework.
 
     ## Infrastructure ✓
-    - **Monorepo**: pnpm workspaces with 5 packages (kernel, ui, cli, e2e-utils, showcase-plugin)
+    - **Monorepo**: pnpm workspaces with 5 packages (wp-kernel, ui, cli, e2e-utils, showcase-plugin)
     - **TypeScript**: Strict mode, project references, path aliases
     - **Build**: Webpack + @wordpress/scripts, watch mode
     - **Lint**: ESLint 9 flat config, Prettier, deep-import rules

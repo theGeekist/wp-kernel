@@ -1,4 +1,4 @@
-import { createKernelLibConfig } from '../../vite.config.base';
+import { createWPKLibConfig } from '../../vite.config.base';
 import pkg from './package.json';
 
 const external = [
@@ -12,7 +12,7 @@ const external = [
 	'@loglayer/transport',
 ];
 
-export default createKernelLibConfig(
+export default createWPKLibConfig(
 	'@wpkernel/core',
 	{
 		index: 'src/index.ts',
@@ -21,9 +21,10 @@ export default createKernelLibConfig(
 		error: 'src/error/index.ts',
 		actions: 'src/actions/index.ts',
 		data: 'src/data/index.ts',
-		policy: 'src/policy/index.ts',
+		capability: 'src/capability/index.ts',
 		reporter: 'src/reporter/index.ts',
 		contracts: 'src/contracts/index.ts',
+		pipeline: 'src/pipeline/index.ts',
 	},
 	{
 		external,

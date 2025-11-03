@@ -1,14 +1,16 @@
 import type { Reporter } from '../../reporter';
 import {
-	KernelEventBus,
+	WPKernelEventBus,
 	clearRegisteredActions,
 	clearRegisteredResources,
 	getRegisteredActions,
 	getRegisteredResources,
 	recordActionDefined,
 	recordResourceDefined,
+	removeResourceDefined,
 } from '../bus';
 import { createReporter } from '../../reporter';
+import { resetReporterResolution } from '../../reporter/resolve';
 
 jest.mock('../../reporter', () => {
 	const createMockReporter = () => {
@@ -25,6 +27,7 @@ jest.mock('../../reporter', () => {
 
 	return {
 		createReporter: jest.fn(() => createMockReporter()),
+		createNoopReporter: jest.fn(() => createMockReporter()),
 	};
 });
 
@@ -32,17 +35,29 @@ const mockCreateReporter = createReporter as jest.MockedFunction<
 	typeof createReporter
 >;
 const originalEnv = process.env.NODE_ENV;
+let originalSilentFlag: string | undefined;
 
-describe('KernelEventBus', () => {
+describe('WPKernelEventBus', () => {
 	beforeEach(() => {
 		clearRegisteredResources();
 		clearRegisteredActions();
 		mockCreateReporter.mockClear();
 		process.env.NODE_ENV = originalEnv;
+		originalSilentFlag = process.env.WPK_SILENT_REPORTERS;
+		delete process.env.WPK_SILENT_REPORTERS;
+		resetReporterResolution();
+	});
+
+	afterEach(() => {
+		if (typeof originalSilentFlag === 'undefined') {
+			delete process.env.WPK_SILENT_REPORTERS;
+		} else {
+			process.env.WPK_SILENT_REPORTERS = originalSilentFlag;
+		}
 	});
 
 	it('emits events to registered listeners', () => {
-		const bus = new KernelEventBus();
+		const bus = new WPKernelEventBus();
 		const listener = jest.fn();
 
 		bus.on('custom:event', listener);
@@ -63,13 +78,26 @@ describe('KernelEventBus', () => {
 			routes: {},
 		} as unknown as Parameters<typeof recordResourceDefined>[0]['resource'];
 
-		recordResourceDefined({ resource, namespace: 'tests' });
+		const event = { resource, namespace: 'tests' };
+		recordResourceDefined(event);
 
-		expect(getRegisteredResources()).toEqual([
-			{ resource, namespace: 'tests' },
-		]);
+		expect(getRegisteredResources()).toEqual([event]);
 
 		clearRegisteredResources();
+		expect(getRegisteredResources()).toHaveLength(0);
+	});
+
+	it('removes recorded resource definitions', () => {
+		const resource = {
+			name: 'demo',
+			routes: {},
+		} as unknown as Parameters<typeof recordResourceDefined>[0]['resource'];
+
+		const event = { resource, namespace: 'tests' };
+		recordResourceDefined(event);
+
+		removeResourceDefined(event);
+
 		expect(getRegisteredResources()).toHaveLength(0);
 	});
 
@@ -89,7 +117,7 @@ describe('KernelEventBus', () => {
 	});
 
 	it('short-circuits when emitting with no listeners', () => {
-		const bus = new KernelEventBus();
+		const bus = new WPKernelEventBus();
 
 		expect(() =>
 			bus.emit('custom:event', {
@@ -105,7 +133,7 @@ describe('KernelEventBus', () => {
 
 	it('reports listener failures outside production environments', () => {
 		process.env.NODE_ENV = 'development';
-		const bus = new KernelEventBus();
+		const bus = new WPKernelEventBus();
 		const reporter = mockCreateReporter.mock.results[0]
 			?.value as jest.Mocked<Reporter>;
 
@@ -126,14 +154,14 @@ describe('KernelEventBus', () => {
 
 		expect(succeedingListener).toHaveBeenCalled();
 		expect(reporter?.error).toHaveBeenCalledWith(
-			'KernelEventBus listener failed',
+			'WPKernelEventBus listener failed',
 			expect.objectContaining({ event: 'custom:event' })
 		);
 	});
 
 	it('suppresses listener errors in production', () => {
 		process.env.NODE_ENV = 'production';
-		const bus = new KernelEventBus();
+		const bus = new WPKernelEventBus();
 		const reporter = mockCreateReporter.mock.results[0]
 			?.value as jest.Mocked<Reporter>;
 
@@ -152,7 +180,7 @@ describe('KernelEventBus', () => {
 	});
 
 	it('supports once listeners that tear themselves down', () => {
-		const bus = new KernelEventBus();
+		const bus = new WPKernelEventBus();
 		const listener = jest.fn();
 
 		bus.once('custom:event', listener);
@@ -165,7 +193,7 @@ describe('KernelEventBus', () => {
 	});
 
 	it('allows removing listeners before registration', () => {
-		const bus = new KernelEventBus();
+		const bus = new WPKernelEventBus();
 		const listener = jest.fn();
 
 		expect(() => bus.off('custom:event', listener)).not.toThrow();

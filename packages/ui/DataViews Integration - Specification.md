@@ -1,13 +1,13 @@
-# DataViews Integration – Specification
+# DataViews Integration - Specification
 
 **Version:** 0.1  
 **Status:** Proposed  
 **Date:** 2025-03-17  
-**Sprint:** Sprint 6 – DataViews & Admin UX
+**Sprint:** Sprint 6 - DataViews & Admin UX
 
 **Phased delivery:** See [`packages/ui/PHASES.dataviews.md`](packages/ui/PHASES.dataviews.md) for the implementation breakdown.  
 **Core docs:** Snapshot of WordPress developer guide lives at [`packages/ui/wp-dataviews.md`](packages/ui/wp-dataviews.md).  
-**Version policy:** UI package declares `peerDependencies` of the form `"@wordpress/dataviews": "^N.M.0"` matching the supported WordPress minor. CI verifies against WordPress stable−1, stable, and Gutenberg nightly; the runtime logs a reporter warning when `@wordpress/dataviews` falls outside the pinned range. Example stanza:
+**Version capability:** UI package declares `peerDependencies` of the form `"@wordpress/dataviews": "^N.M.0"` matching the supported WordPress minor. CI verifies against WordPress stable−1, stable, and Gutenberg nightly; the runtime logs a reporter warning when `@wordpress/dataviews` falls outside the pinned range. Example stanza:
 
 ```json
 {
@@ -21,17 +21,17 @@
 
 ## 1. Purpose
 
-Elevate `@wordpress/dataviews` to a first-class surface within WP Kernel so modern admin tables, grids, and pickers inherit kernel capabilities (resources, actions, policies, events) with zero bespoke glue. The integration must stay aligned with WordPress core implementations, plug into `configureKernel()` via the existing `ui` configuration, and remain consumable without the kernel bundle.
+Elevate `@wordpress/dataviews` to a first-class surface within WP Kernel so modern admin tables, grids, and pickers inherit kernel capabilities (resources, actions, capabilities, events) with zero bespoke glue. The integration must stay aligned with WordPress core implementations, plug into `configureWPKernel()` via the existing `ui` configuration, and remain consumable without the kernel bundle.
 
 ---
 
 ## 2. Goals & Non-Goals
 
 - Adopt `@wordpress/dataviews` as the default admin view surface for kernel resources while tracking core updates without forks or hard forks.
-- Provide an opt-in path during `configureKernel({ ui })` that wires DataViews to the kernel runtime (registry, reporter, policies, cache) for end-to-end support.
+- Provide an opt-in path during `configureWPKernel({ ui })` that wires DataViews to the kernel runtime (registry, reporter, capabilities, cache) for end-to-end support.
 - Allow standalone usage: consumers can render the same components with their own data/adapters when the kernel runtime is unavailable.
-- Let kernel configuration (`kernel.config.ts` / CLI) declare DataViews metadata so resources can advertise default admin views.
-- Enforce existing invariants: UI never calls transport directly, writes flow through actions, errors are typed `KernelError` subclasses, and canonical events are used.
+- Let kernel configuration (`wpk.config.ts` / CLI) declare DataViews metadata so resources can advertise default admin views.
+- Enforce existing invariants: UI never calls transport directly, writes flow through actions, errors are typed `WPKernelError` subclasses, and canonical events are used.
 
 Non-goals:
 
@@ -44,7 +44,7 @@ Non-goals:
 ## 3. Current State
 
 - Resources expose hooks (`useList`, `useGet`) once `attachUIBindings` runs, but there is no higher-level controller or component for DataViews.
-- `configureKernel({ ui })` only attaches resource hooks; it lacks awareness of UI components or registry-backed view metadata.
+- `configureWPKernel({ ui })` only attaches resource hooks; it lacks awareness of UI components or registry-backed view metadata.
 - CLI kernel config has no way to describe UI defaults, leaving admin screens bespoke.
 - Tests and documentation describe DataViews usage manually, duplicating data plumbing and risking divergence from kernel conventions.
 
@@ -54,7 +54,7 @@ Non-goals:
 
 ### 4.1 Kernel UI Runtime Extensions
 
-- Extend `KernelUIRuntime` with a `dataviews` namespace:
+- Extend `WPKernelUIRuntime` with a `dataviews` namespace:
     - `registry`: keyed by resource name, storing DataViews definitions resolved at runtime.
     - `controllers`: factory functions that translate DataViews state into kernel resource queries.
     - `preferences`: adapter interface for persisting user view settings (default uses `@wordpress/preferences`; consumers can override).
@@ -63,7 +63,7 @@ Non-goals:
     - `ui:dataviews:registered` / `ui:dataviews:unregistered`
     - `ui:dataviews:view-changed`
     - `ui:dataviews:action-triggered`
-      Each payload is typed and uses `KernelError` subclasses for failure cases (e.g., `DataViewsControllerError`).
+      Each payload is typed and uses `WPKernelError` subclasses for failure cases (e.g., `DataViewsControllerError`).
 
 ```ts
 // packages/ui/src/runtime/dataviews-events.ts
@@ -126,15 +126,15 @@ export type DataViewActionTriggeredPayload = {
     };
     ```
 - Update CLI schema validation to accept the new `ui` block, ensuring TypeScript types stay in sync.
-- `loadKernelConfig()` normalises the metadata and surfaces it on `ResourceObject.ui`.
+- `loadWPKernelConfig()` normalises the metadata and surfaces it on `ResourceObject.ui`.
 - CLI generators (`wpk generate admin-page`) consume the metadata to scaffold React entries that import the new DataViews primitives instead of ad-hoc tables.
 - Generator contract for `wpk generate admin-page`:
     - **Inputs:** resource with `ui.admin.dataviews` metadata, optional `--route` and `--screen` flags.
     - **Outputs:**
-        - `.generated/ui/app/<resource>/admin/<Screen>.tsx` rendering `<ResourceDataView resource={resource} config={resource.ui?.admin?.dataviews} runtime={useKernelUI()} />` with imports derived from `screen.resourceImport`/`screen.kernelImport` metadata.
+        - `.generated/ui/app/<resource>/admin/<Screen>.tsx` rendering `<ResourceDataView resource={resource} config={resource.ui?.admin?.dataviews} runtime={useWPKernelUI()} />` with imports derived from `screen.resourceImport`/`screen.kernelImport` metadata.
         - Optional menu registration (when `screen.menu` is provided) emitted to `.generated/php/Admin/Menu_<Screen>.php`.
         - Fixture under `.generated/ui/fixtures/dataviews/<resource>.ts` serialising the declarative metadata for Storybook/tests.
-- Validation note: reiterate route ↔ identity alignment-if `identity.param` is declared the corresponding route MUST include `:${param}`; generator errors should reuse existing `KernelError('ValidationError')` messaging.
+- Validation note: reiterate route ↔ identity alignment-if `identity.param` is declared the corresponding route MUST include `:${param}`; generator errors should reuse existing `WPKernelError('ValidationError')` messaging.
 
 ### 4.3 Query & Data Orchestration
 
@@ -147,7 +147,7 @@ export type DataViewActionTriggeredPayload = {
     <ResourceDataView
     	resource={job}
     	config={job.ui?.admin?.dataviews}
-    	runtime={runtime} // defaults to useKernelUI()
+    	runtime={runtime} // defaults to useWPKernelUI()
     />
     ```
     Internally it composes `DataViews` with the controller output while preserving escape hatches (custom renderers, manual data injection).
@@ -168,7 +168,7 @@ export type QueryMapping<TQuery> = (
 ) => TQuery;
 ```
 
-### 4.4 Actions, Policies, and Editing
+### 4.4 Actions, Capabilities, and Editing
 
 - Bulk actions configuration references kernel actions by identifier:
     ```ts
@@ -176,14 +176,14 @@ export type QueryMapping<TQuery> = (
     	action: DefinedActionSignature;
     	label: string;
     	supportsBulk?: boolean;
-    	policy?: string; // checked via policy runtime before rendering
+    	capability?: string; // checked via capability runtime before rendering
     };
     ```
 - Provide hooks for `DataViews.DataForm` integration:
     - `createDataFormController({ resource, action })` ensures mutations dispatch the configured action and trigger cache invalidation.
-    - Errors are wrapped in `KernelError` subclasses for consistent notice handling.
-- Policy precedence:
-    - Render: `runtime.policies.policy?.can(policy)` must resolve `true` for an action to render. When `supportsBulk` and the policy fails, default behaviour is to hide the action unless `disabledWhenDenied: true` is set, in which case the action renders in a disabled state.
+    - Errors are wrapped in `WPKernelError` subclasses for consistent notice handling.
+- Capability precedence:
+    - Render: `runtime.capabilities.capability?.can(capability)` must resolve `true` for an action to render. When `supportsBulk` and the capability fails, default behaviour is to hide the action unless `disabledWhenDenied: true` is set, in which case the action renders in a disabled state.
     - Invoke: regardless of render state, controllers re-check `can()` on execution. Failure emits `ui:dataviews:action-triggered` with `permitted=false` and displays a warning notice summarising `reason`.
 
 Error normalization matrix:
@@ -191,17 +191,17 @@ Error normalization matrix:
 | Condition                               | Kernel error class         | UI notice level |
 | --------------------------------------- | -------------------------- | --------------- |
 | REST validation / 4xx domain failure    | `DataViewsActionError`     | `danger`        |
-| Permission denied (policy/403)          | `DataViewsActionError`     | `warning`       |
+| Permission denied (capability/403)      | `DataViewsActionError`     | `warning`       |
 | Transport/network error (500+/fetch)    | `TransportError` (wrapped) | `danger`        |
 | Controller/configuration mapping issues | `DataViewsControllerError` | `danger`        |
 
-### 4.5 configureKernel Integration
+### 4.5 configureWPKernel Integration
 
-- Extend `ConfigureKernelOptions['ui']` to accept:
+- Extend `ConfigureWPKernelOptions['ui']` to accept:
     ```ts
-    type KernelUIConfig = {
+    type WPKUIConfig = {
     	enable?: boolean;
-    	attach?: KernelUIAttach;
+    	attach?: WPKernelUIAttach;
     	options?: UIIntegrationOptions & {
     		dataviews?: {
     			enable?: boolean;
@@ -218,7 +218,7 @@ Error normalization matrix:
 
 - Ship `createDataViewsRuntime(adapter)` that mirrors the kernel-attached runtime shape but accepts explicit adapters:
     - `fetchList(query)`, `prefetchList`, `invalidate` supplied by the host.
-    - `reporter`, `preferences`, and optional `policy` stubs.
+    - `reporter`, `preferences`, and optional `capability` stubs.
 - `ResourceDataView` accepts a `runtime` prop so non-kernel environments can pass the standalone runtime while reusing identical components.
 - Document standalone setup in `docs/packages/ui.md` with emphasis on action dispatch substitution and cache responsibilities.
 
@@ -247,8 +247,8 @@ export function defaultPreferencesKey(
 ### 4.8 Instrumentation & Telemetry
 
 - Reporter child namespace: `namespace.ui.dataviews.${resource}` for consistency.
-- Events emitted on the kernel bus also bridge to `wp.hooks` through the existing `kernelEventsPlugin`, enabling extensions to listen for DataViews lifecycle without touching internals.
-- Controllers log structured debug information (e.g., query transforms, policy gating decisions) via the reporter.
+- Events emitted on the kernel bus also bridge to `wp.hooks` through the existing `wpkEventsPlugin`, enabling extensions to listen for DataViews lifecycle without touching internals.
+- Controllers log structured debug information (e.g., query transforms, capability gating decisions) via the reporter.
 
 ---
 
@@ -260,9 +260,9 @@ export function defaultPreferencesKey(
     - `ResourceDataView`, `createResourceDataViewController`, `createDataFormController`
     - `DataViewPreferencesAdapter`, `createDataViewsRuntime`
     - Type helpers (`DataViewFieldConfig`, `DataViewViewState`, `DataViewActionConfig`)
-- `ConfigureKernelOptions.ui.options.dataviews` for automatic runtime attachment.
+- `ConfigureWPKernelOptions.ui.options.dataviews` for automatic runtime attachment.
 - Kernel events: `ui:dataviews:*`.
-- `KernelError` subclasses: `DataViewsConfigurationError`, `DataViewsControllerError`, `DataViewsActionError`.
+- `WPKernelError` subclasses: `DataViewsConfigurationError`, `DataViewsControllerError`, `DataViewsActionError`.
 
 ---
 
@@ -272,10 +272,10 @@ export function defaultPreferencesKey(
 
 ```ts
 // app/bootstrap/kernel.ts
-import { configureKernel } from '@wpkernel/core';
+import { configureWPKernel } from '@wpkernel/core';
 import { attachUIBindings } from '@wpkernel/ui';
 
-export const kernel = configureKernel({
+export const kernel = configureWPKernel({
 	namespace: 'my-plugin',
 	ui: {
 		attach: attachUIBindings,
@@ -295,8 +295,8 @@ export const kernel = configureKernel({
 ### Kernel Config Declaring DataViews Defaults
 
 ```ts
-// kernel.config.ts
-import type { KernelConfigV1 } from '@wpkernel/cli/config';
+// wpk.config.ts
+import type { WPKernelConfigV1 } from '@wpkernel/cli/config';
 
 export default {
 	version: 1,
@@ -333,7 +333,7 @@ export default {
 								action: 'job.delete',
 								label: 'Delete',
 								supportsBulk: true,
-								policy: 'deleteJob',
+								capability: 'deleteJob',
 							},
 						],
 					},
@@ -341,20 +341,20 @@ export default {
 			},
 		},
 	},
-} satisfies KernelConfigV1;
+} satisfies WPKernelConfigV1;
 ```
 
 ### Rendering a Resource DataView in React
 
 ```tsx
 // app/screens/jobs/AdminJobs.tsx
-import { KernelUIProvider, useKernelUI } from '@wpkernel/ui';
+import { WPKernelUIProvider, useWPKernelUI } from '@wpkernel/ui';
 import { ResourceDataView } from '@wpkernel/ui/dataviews';
 import { job } from '@/resources/job';
 import { kernel } from '@/bootstrap/kernel';
 
 function JobsAdminContent() {
-	const runtime = useKernelUI();
+	const runtime = useWPKernelUI();
 
 	return (
 		<ResourceDataView
@@ -372,9 +372,9 @@ export function JobsAdminScreen() {
 	}
 
 	return (
-		<KernelUIProvider runtime={runtime}>
+		<WPKernelUIProvider runtime={runtime}>
 			<JobsAdminContent />
-		</KernelUIProvider>
+		</WPKernelUIProvider>
 	);
 }
 ```
@@ -443,7 +443,7 @@ export function StandaloneDataView() {
 ## 6. Implementation Plan
 
 1. **Runtime groundwork**
-    - Extend `KernelUIRuntime` types, update `attachUIBindings`, and wire event emissions.
+    - Extend `WPKernelUIRuntime` types, update `attachUIBindings`, and wire event emissions.
     - Implement `DataViewPreferencesAdapter` default (core/preferences) and plumbing.
     - Provide `packages/ui/scripts/update-dataviews-snapshot.ts` that syncs the vendor snapshot, runs `pnpm --filter @wpkernel/ui typecheck`, and logs `SUCCESS: snapshot synchronized to <git sha>`; abort when the synced version falls outside the declared peer range.
 2. **Controllers and components**
@@ -459,14 +459,14 @@ export function StandaloneDataView() {
     - Provide example resource + admin screen in `examples/showcase`.
 5. **Testing**
     - Unit tests for controller transformation logic (filters, sorting, pagination mapping).
-    - Integration tests exercising configureKernel auto-registration.
+    - Integration tests exercising configureWPKernel auto-registration.
     - Playwright scenario covering a generated admin screen (list, filter, bulk action, DataForm edit).
 
 ---
 
 ## 7. Testing & QA Strategy
 
-- **Unit**: jest tests in `packages/ui` for controller state transitions, preferences persistence, and error handling (`KernelError` expectations).
+- **Unit**: jest tests in `packages/ui` for controller state transitions, preferences persistence, and error handling (`WPKernelError` expectations).
 - **Integration**: configure kernel in tests to ensure events fire, controllers register, and `kernel.attachUIBindings` respects options toggles.
 - **E2E**: Playwright suite using the showcase app to validate listing, sorting, filtering, bulk actions, and DataForm submissions.
 - **Type & lint**: ensure new types pass `pnpm typecheck` for both runtime and tests; add contract tests for CLI schema validation.
@@ -478,7 +478,7 @@ export function StandaloneDataView() {
 
 - **Core drift**: DataViews API changes upstream could break our wrappers. Mitigation: rely on upstream types via direct imports and add compatibility guards; surface version checks in reporter logs.
 - **Bundle size**: pulling the full DataViews package into the UI bundle may increase size. Mitigation: expose entry-points that tree-shake when DataViews is unused; document opt-out via `dataviews.enable = false`.
-- **Policy lag**: policies loaded after UI attachment may cause gating issues. Mitigation: controllers resolve policy runtime lazily (using getters) matching existing UI runtime behaviour.
+- **Capability lag**: capabilities loaded after UI attachment may cause gating issues. Mitigation: controllers resolve capability runtime lazily (using getters) matching existing UI runtime behaviour.
 - **Preference storage availability**: WordPress environments without `core/preferences` could throw. Mitigation: fall back to in-memory adapter and warn via reporter.
 - **Version drift**: DataViews peer dependency may move faster than kernel releases. Mitigation: pin peer range to the WordPress minor we target, exercise CI against WP stable−1, stable, and Gutenberg nightly, and surface reporter warnings when detected versions fall outside that matrix (warning tooling tracked separately).
 
@@ -501,7 +501,7 @@ Before closing the MVP, ensure all items below are satisfied:
 - [ ] Preferences adapter interface + `defaultPreferencesKey` shipped and referenced.
 - [ ] `@wordpress/dataviews` peer range and CI matrix documented and enforced with runtime warning.
 - [ ] `wpk generate admin-page` contract implemented (React screen, optional PHP menu, fixture).
-- [ ] Policy precedence rules enforced (render + invoke semantics) with notice emission.
+- [ ] Capability precedence rules enforced (render + invoke semantics) with notice emission.
 - [ ] Error normalization table reflected in controller implementations/tests.
 - [ ] Snapshot update script emits success signal and validates peer range compatibility.
 - [ ] Showcase admin screen renders `ResourceDataView` end-to-end with kernel boot.

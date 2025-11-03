@@ -1,4 +1,4 @@
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import type { Reporter } from '@wpkernel/core/reporter';
 import { DataViewsActionError } from '../runtime/dataviews/errors';
 
@@ -9,9 +9,9 @@ interface ErrorContext {
 }
 
 function createValidationError(
-	error: KernelError,
+	error: WPKernelError,
 	context: ErrorContext
-): KernelError {
+): WPKernelError {
 	return new DataViewsActionError(error.message, {
 		actionId: context.actionId,
 		resource: context.resource,
@@ -20,37 +20,37 @@ function createValidationError(
 	});
 }
 
-function createPolicyDeniedError(
-	error: KernelError,
+function createCapabilityDeniedError(
+	error: WPKernelError,
 	context: ErrorContext
-): KernelError {
+): WPKernelError {
 	return new DataViewsActionError(error.message || 'Action not permitted', {
 		actionId: context.actionId,
 		resource: context.resource,
 		selection: context.selection,
-		policyKey: error.context?.policyKey,
+		capabilityKey: error.context?.capabilityKey,
 	});
 }
 
 function wrapTransportError(
-	error: KernelError,
+	error: WPKernelError,
 	context: ErrorContext
-): KernelError {
-	return KernelError.wrap(error, 'TransportError', {
+): WPKernelError {
+	return WPKernelError.wrap(error, 'TransportError', {
 		actionId: context.actionId,
 		resourceName: context.resource,
 	});
 }
 
-function handleKernelError(
-	error: KernelError,
+function handleWPKernelError(
+	error: WPKernelError,
 	context: ErrorContext
-): KernelError {
+): WPKernelError {
 	switch (error.code) {
 		case 'ValidationError':
 			return createValidationError(error, context);
-		case 'PolicyDenied':
-			return createPolicyDeniedError(error, context);
+		case 'CapabilityDenied':
+			return createCapabilityDeniedError(error, context);
 		case 'TransportError':
 		case 'ServerError':
 			return wrapTransportError(error, context);
@@ -63,9 +63,9 @@ function wrapUnknownError(
 	value: unknown,
 	context: ErrorContext,
 	reporter?: Reporter
-): KernelError {
+): WPKernelError {
 	if (value instanceof Error) {
-		const wrapped = KernelError.wrap(value, 'UnknownError', {
+		const wrapped = WPKernelError.wrap(value, 'UnknownError', {
 			actionId: context.actionId,
 			resourceName: context.resource,
 		});
@@ -76,7 +76,7 @@ function wrapUnknownError(
 		return wrapped;
 	}
 
-	const unknown = new KernelError('UnknownError', {
+	const unknown = new WPKernelError('UnknownError', {
 		message: 'Action failed with unknown error type',
 		data: { value },
 		context: {
@@ -95,9 +95,9 @@ export function normalizeActionError(
 	error: unknown,
 	context: ErrorContext,
 	reporter?: Reporter
-): KernelError {
-	if (KernelError.isKernelError(error)) {
-		return handleKernelError(error, context);
+): WPKernelError {
+	if (WPKernelError.isWPKernelError(error)) {
+		return handleWPKernelError(error, context);
 	}
 	return wrapUnknownError(error, context, reporter);
 }

@@ -1,6 +1,6 @@
 import path from 'node:path';
 import type * as tsModule from 'typescript';
-import { KernelError } from '@wpkernel/core/contracts';
+import { WPKernelError } from '@wpkernel/core/contracts';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { GenerationSummary } from './types';
 
@@ -109,9 +109,9 @@ export async function validateGeneratedImports({
 		}
 	);
 
-	throw new KernelError('ValidationError', {
+	throw new WPKernelError('ValidationError', {
 		message:
-			'Generated artifacts reference modules or exports that do not exist. Ensure project dependencies are installed and printers are up to date.',
+			'Generated artifacts reference modules or exports that do not exist. Ensure project dependencies are installed and builders are up to date.',
 		context: {
 			diagnostics: relevantDiagnostics.map((diagnostic) => ({
 				code: diagnostic.code,
@@ -146,7 +146,7 @@ async function loadTypeScript(
 			return null;
 		}
 
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message:
 				'TypeScript is required to validate generated imports. Install it as a development dependency.',
 			data:
@@ -182,7 +182,7 @@ async function loadCompilerOptions(
 			}
 		);
 
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: `Unable to read ${path.basename(configPath)} for validation.`,
 			data: { diagnostics: formatted },
 		});
@@ -205,7 +205,7 @@ async function loadCompilerOptions(
 			}
 		);
 
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: `${path.basename(configPath)} contains errors that block validation.`,
 			data: { diagnostics: formatted },
 		});

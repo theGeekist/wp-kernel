@@ -1,6 +1,6 @@
 {
 	"name": "@wpkernel/cli",
-	"version": "0.4.0",
+	"version": "0.10.0",
 	"description": "CLI for scaffolding and managing WP Kernel projects",
 	"license": "EUPL-1.2",
 	"type": "module",
@@ -33,11 +33,6 @@
 			"import": "./dist/index.js",
 			"default": "./dist/index.js"
 		},
-		"./commands": {
-			"types": "./dist/commands/index.d.ts",
-			"import": "./dist/commands/index.js",
-			"default": "./dist/commands/index.js"
-		},
 		"./config": {
 			"types": "./dist/config/index.d.ts",
 			"import": "./dist/config/index.js",
@@ -48,15 +43,10 @@
 			"import": "./dist/ir/index.js",
 			"default": "./dist/ir/index.js"
 		},
-		"./printers": {
-			"types": "./dist/printers/index.d.ts",
-			"import": "./dist/printers/index.js",
-			"default": "./dist/printers/index.js"
-		},
-		"./policy-map": {
-			"types": "./dist/policy-map.d.ts",
-			"import": "./dist/policy-map.js",
-			"default": "./dist/policy-map.js"
+		"./capability-map": {
+			"types": "./dist/capability-map.d.ts",
+			"import": "./dist/capability-map.js",
+			"default": "./dist/capability-map.js"
 		},
 		"./version": {
 			"types": "./dist/version.d.ts",
@@ -81,20 +71,28 @@
 		"format": "prettier --write 'src/**/*.{js,ts,tsx,json,md}'",
 		"format:check": "prettier --check 'src/**/*.{js,ts,tsx,json,md}'",
 		"typecheck": "tsc --noEmit",
-		"typecheck:tests": "tsc --project tsconfig.tests.json --noEmit && tsc --project tests/tsconfig.json --noEmit",
-		"test": "jest --passWithNoTests",
-		"test:watch": "jest --watch",
-		"test:coverage": "jest --passWithNoTests --coverage"
+		"typecheck:tests": "wpk-run-typecheck-tests tsconfig.tests.typecheck.json tests/tsconfig.json",
+		"test": "wpk-run-jest",
+		"test:watch": "wpk-run-jest --watch",
+		"test:coverage": "wpk-run-jest coverage",
+		"test:integration": "wpk-run-jest integration"
 	},
 	"peerDependencies": {
 		"@prettier/plugin-php": ">=0.24.0",
 		"@wpkernel/core": "workspace:*",
+		"@wpkernel/php-json-ast": "workspace:*",
+		"@wpkernel/test-utils": "workspace:*",
+		"@wpkernel/wp-json-ast": "workspace:*",
 		"json-schema-to-typescript": ">=15.0.4",
 		"prettier": ">=3.6.0",
 		"tsx": ">=4.20.6",
 		"typescript": ">=5.0.0"
 	},
 	"dependencies": {
+		"@wpkernel/php-driver": "workspace:*",
+		"@wpkernel/php-json-ast": "workspace:*",
+		"@wpkernel/test-utils": "workspace:*",
+		"@wpkernel/wp-json-ast": "workspace:*",
 		"chokidar": "^4.0.3",
 		"clipanion": "4.0.0-rc.4",
 		"cosmiconfig": "^9.0.0",
@@ -105,6 +103,7 @@
 		"access": "public"
 	},
 	"devDependencies": {
+		"@wpkernel/scripts": "workspace:*",
 		"lodash": "^4.17.21"
 	}
 }

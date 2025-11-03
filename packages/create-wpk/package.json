@@ -1,0 +1,66 @@
+{
+	"name": "@wpkernel/create-wpk",
+	"version": "0.10.0",
+	"description": "Bootstrap installer for the wpk CLI",
+	"license": "EUPL-1.2",
+	"type": "module",
+	"sideEffects": false,
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/theGeekist/wp-kernel.git",
+		"directory": "packages/create-wpk"
+	},
+	"homepage": "https://github.com/theGeekist/wp-kernel#readme",
+	"bugs": {
+		"url": "https://github.com/theGeekist/wp-kernel/issues"
+	},
+	"keywords": [
+		"wordpress",
+		"cli",
+		"scaffold",
+		"bootstrap",
+		"wp-kernel"
+	],
+	"main": "./dist/index.js",
+	"module": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js",
+			"default": "./dist/index.js"
+		},
+		"./package.json": "./package.json"
+	},
+	"bin": {
+		"create-wpk": "./dist/index.js"
+	},
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE"
+	],
+	"scripts": {
+		"build": "tsc -p tsconfig.json",
+		"clean": "rm -rf dist dist-tests *.tsbuildinfo",
+		"lint": "eslint src/",
+		"lint:fix": "eslint src/ --fix",
+		"format": "prettier --write 'src/**/*.{js,ts,tsx,json,md}'",
+		"format:check": "prettier --check 'src/**/*.{js,ts,tsx,json,md}'",
+		"typecheck": "tsc --noEmit",
+		"typecheck:tests": "wpk-run-typecheck-tests tsconfig.tests.typecheck.json tsconfig.tests.json",
+		"test": "wpk-run-jest",
+		"test:watch": "wpk-run-jest --watch",
+		"test:coverage": "wpk-run-jest coverage"
+	},
+	"dependencies": {
+		"@wpkernel/cli": "workspace:*",
+		"@wpkernel/core": "workspace:*"
+	},
+	"devDependencies": {
+		"@wpkernel/scripts": "workspace:*"
+	},
+	"publishConfig": {
+		"access": "public"
+	}
+}

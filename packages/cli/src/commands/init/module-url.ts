@@ -1,7 +1,8 @@
 import path from 'node:path';
 import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 
 declare global {
 	var __WPK_CLI_MODULE_URL__: string | undefined;
@@ -26,7 +27,7 @@ export function getModuleUrl(): string {
 		return pathToFileURL(moduleFilename).href;
 	}
 
-	throw new KernelError('DeveloperError', {
+	throw new WPKernelError('DeveloperError', {
 		message: 'Unable to resolve CLI module URL for init command.',
 	});
 }
@@ -90,9 +91,24 @@ export function getCliPackageRoot(): string {
 		current = parent;
 	}
 
-	throw new KernelError('DeveloperError', {
+	const resolved = resolvePackageRootViaRequire();
+	if (resolved) {
+		return resolved;
+	}
+
+	throw new WPKernelError('DeveloperError', {
 		message: 'Unable to locate CLI package root.',
 	});
+}
+
+function resolvePackageRootViaRequire(): string | undefined {
+	try {
+		const require = createRequire(getModuleUrl());
+		const pkgPath = require.resolve('@wpkernel/cli/package.json');
+		return path.dirname(pkgPath);
+	} catch (_error) {
+		return undefined;
+	}
 }
 
 function isNoEntryError(error: unknown): error is { code?: string } {

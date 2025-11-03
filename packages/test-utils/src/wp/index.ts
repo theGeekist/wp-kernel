@@ -9,7 +9,7 @@
  */
 
 import { resetNamespaceCache } from '@wpkernel/core/namespace';
-import { KernelError } from '@wpkernel/core/contracts';
+import { WPKernelError } from '@wpkernel/core/contracts';
 
 /**
  * Shape returned by ensureWpData().
@@ -24,21 +24,21 @@ export type WordPressData = {
 };
 
 /**
- * Ensure `window.wp.data` exists and return it. Throws a KernelError
+ * Ensure `window.wp.data` exists and return it. Throws a WPKernelError
  * with actionable guidance if the Jest environment failed to initialise the
  * WordPress globals. This keeps individual suites from silently passing with an
  * `any`-typed fallback.
  */
 export function ensureWpData(): WordPressData {
 	if (!window.wp) {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message:
 				'window.wp not initialized. Ensure tests/setup-jest.ts is loaded via setupFilesAfterEnv',
 		});
 	}
 
 	if (!window.wp.data) {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message:
 				'window.wp.data not initialized. Ensure tests/setup-jest.ts is loaded via setupFilesAfterEnv',
 		});
