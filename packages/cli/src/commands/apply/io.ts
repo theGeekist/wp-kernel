@@ -77,7 +77,17 @@ export function formatManifest(manifest: PatchManifest): string {
 			const description = record.description
 				? ` — ${record.description}`
 				: '';
-			lines.push(`- [${record.status}] ${record.file}${description}`);
+			const reason =
+				record.details &&
+				typeof (record.details as { reason?: unknown }).reason ===
+					'string'
+					? ` (reason: ${
+							(record.details as { reason: string }).reason
+						})`
+					: '';
+			lines.push(
+				`- [${record.status}] ${record.file}${description}${reason}`
+			);
 		}
 	} else {
 		lines.push('', 'No files were patched.');

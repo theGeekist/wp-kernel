@@ -53,6 +53,7 @@ export interface ApplyFlags {
 	readonly yes: boolean;
 	readonly backup: boolean;
 	readonly force: boolean;
+	readonly cleanup: readonly string[];
 }
 
 export type ApplyCommandInstance = Command & {
