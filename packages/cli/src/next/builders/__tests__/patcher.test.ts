@@ -942,6 +942,11 @@ describe('createPatcher', () => {
 				)
 			);
 
+			await workspace.write(
+				path.posix.join('.wpk', 'apply', 'base', 'php', 'Stale.php'),
+				'<?php',
+				{ ensureDir: true }
+			);
 			await workspace.write('php/Stale.php', '<?php', {
 				ensureDir: true,
 			});
@@ -1001,6 +1006,177 @@ describe('createPatcher', () => {
 			expect(manifest.actions).toEqual(
 				expect.arrayContaining([manifestPath, 'php/Stale.php'])
 			);
+			expect(output.actions.map((action) => action.file)).toEqual([
+				manifestPath,
+			]);
+		});
+	});
+
+	it('skips shim deletion when the target differs from the base snapshot', async () => {
+		await withWorkspace(async (workspaceRoot) => {
+			const workspace = buildWorkspace(workspaceRoot);
+			const reporter = buildReporter();
+			const output = buildOutput();
+
+			await workspace.write(
+				path.posix.join('.wpk', 'apply', 'plan.json'),
+				JSON.stringify(
+					{
+						instructions: [
+							{
+								action: 'delete',
+								file: 'php/Edited.php',
+								description: 'Remove edited shim',
+							},
+						],
+					},
+					null,
+					2
+				)
+			);
+
+			const baseContents = '<?php // base shim\n';
+			const editedContents = [
+				'<?php // base shim',
+				'// author edit',
+			].join('\n');
+			await workspace.write(
+				path.posix.join('.wpk', 'apply', 'base', 'php', 'Edited.php'),
+				baseContents,
+				{ ensureDir: true }
+			);
+			await workspace.write('php/Edited.php', editedContents, {
+				ensureDir: true,
+			});
+
+			const ir = buildIr('Demo');
+			const input = {
+				phase: 'apply' as const,
+				options: {
+					config: ir.config,
+					namespace: ir.meta.namespace,
+					origin: ir.meta.origin,
+					sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
+				},
+				ir,
+			};
+
+			const builder = createPatcher();
+			await builder.apply(
+				{
+					context: {
+						workspace,
+						reporter,
+						phase: 'apply' as const,
+						generationState: buildEmptyGenerationState(),
+					},
+					input,
+					output,
+					reporter,
+				},
+				undefined
+			);
+
+			const manifestPath = path.posix.join(
+				'.wpk',
+				'apply',
+				'manifest.json'
+			);
+			const manifestRaw = await workspace.readText(manifestPath);
+			const manifest = JSON.parse(manifestRaw ?? '{}');
+			expect(manifest.summary).toEqual({
+				applied: 0,
+				conflicts: 0,
+				skipped: 1,
+			});
+			expect(manifest.records).toEqual([
+				expect.objectContaining({
+					file: 'php/Edited.php',
+					status: 'skipped',
+					details: { reason: 'modified-target', action: 'delete' },
+				}),
+			]);
+
+			const exists = await workspace.readText('php/Edited.php');
+			expect(exists).toBe(editedContents);
+		});
+	});
+
+	it('records planned deletion skips in the manifest', async () => {
+		await withWorkspace(async (workspaceRoot) => {
+			const workspace = buildWorkspace(workspaceRoot);
+			const reporter = buildReporter();
+			const output = buildOutput();
+
+			await workspace.write(
+				path.posix.join('.wpk', 'apply', 'plan.json'),
+				JSON.stringify(
+					{
+						instructions: [],
+						skippedDeletions: [
+							{
+								file: 'php/Legacy.php',
+								description: 'Remove legacy shim',
+								reason: 'modified-target',
+							},
+						],
+					},
+					null,
+					2
+				)
+			);
+
+			const ir = buildIr('Demo');
+			const input = {
+				phase: 'apply' as const,
+				options: {
+					config: ir.config,
+					namespace: ir.meta.namespace,
+					origin: ir.meta.origin,
+					sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
+				},
+				ir,
+			};
+
+			const builder = createPatcher();
+			await builder.apply(
+				{
+					context: {
+						workspace,
+						reporter,
+						phase: 'apply' as const,
+						generationState: buildEmptyGenerationState(),
+					},
+					input,
+					output,
+					reporter,
+				},
+				undefined
+			);
+
+			const manifestPath = path.posix.join(
+				'.wpk',
+				'apply',
+				'manifest.json'
+			);
+			const manifestRaw = await workspace.readText(manifestPath);
+			const manifest = JSON.parse(manifestRaw ?? '{}');
+			expect(manifest.summary).toEqual({
+				applied: 0,
+				conflicts: 0,
+				skipped: 1,
+			});
+			expect(manifest.records).toEqual([
+				expect.objectContaining({
+					file: 'php/Legacy.php',
+					status: 'skipped',
+					description: 'Remove legacy shim',
+					details: {
+						action: 'delete',
+						reason: 'modified-target',
+					},
+				}),
+			]);
 			expect(output.actions.map((action) => action.file)).toEqual([
 				manifestPath,
 			]);

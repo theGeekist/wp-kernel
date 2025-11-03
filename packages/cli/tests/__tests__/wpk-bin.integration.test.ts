@@ -451,6 +451,28 @@ export const wpkConfig = {
 				) as { resources?: Record<string, unknown> };
 				expect(initialState.resources).toHaveProperty('books');
 
+				const baseShimPath = path.join(
+					workspace,
+					'.wpk',
+					'apply',
+					'base',
+					'inc',
+					'Rest',
+					'BooksController.php'
+				);
+				const shimPath = path.join(
+					workspace,
+					'inc',
+					'Rest',
+					'BooksController.php'
+				);
+				await fs.mkdir(path.dirname(shimPath), { recursive: true });
+				await fs.writeFile(
+					shimPath,
+					await fs.readFile(baseShimPath, 'utf8'),
+					'utf8'
+				);
+
 				const configWithoutResource = `export const wpkConfig = {
         version: 1,
         namespace: 'resource-plugin',
@@ -505,6 +527,288 @@ export const wpkConfig = {
 				);
 
 				expect(deletionInstruction).toBeDefined();
+			},
+			{ chdir: false }
+		);
+	}, 300_000);
+
+	it('applies mixed shim deletion outcomes when overrides exist', async () => {
+		await withWorkspace(
+			async (workspace) => {
+				const initResult = await runWpk(workspace, [
+					'init',
+					'--name',
+					'mixed-plugin',
+				]);
+
+				expect(initResult.code).toBe(0);
+				expect(initResult.stderr).toBe('');
+
+				const gitInitResult = await runProcess('git', ['init'], {
+					cwd: workspace,
+				});
+				expect(gitInitResult.code).toBe(0);
+
+				const configPath = path.join(workspace, 'wpk.config.ts');
+				const configWithResources = `import type {
+        ResourceConfig,
+        ResourceIdentityConfig,
+        ResourceRoutes,
+        ResourceStorageConfig,
+} from '@wpkernel/core/resource';
+
+type Book = { id: number; title: string };
+type BookQuery = { search?: string };
+
+type Author = { id: number; name: string };
+type AuthorQuery = { search?: string };
+
+const bookIdentity: ResourceIdentityConfig = {
+        type: 'number',
+        param: 'id',
+};
+
+const authorIdentity: ResourceIdentityConfig = {
+        type: 'number',
+        param: 'id',
+};
+
+const storage: ResourceStorageConfig = {
+        mode: 'transient',
+};
+
+const bookRoutes: ResourceRoutes = {
+        list: { path: '/example/v1/books', method: 'GET' },
+        get: { path: '/example/v1/books/:id', method: 'GET' },
+};
+
+const authorRoutes: ResourceRoutes = {
+        list: { path: '/example/v1/authors', method: 'GET' },
+        get: { path: '/example/v1/authors/:id', method: 'GET' },
+};
+
+const books: ResourceConfig<Book, BookQuery> = {
+        name: 'books',
+        identity: bookIdentity,
+        storage,
+        routes: bookRoutes,
+        schema: 'auto',
+};
+
+const authors: ResourceConfig<Author, AuthorQuery> = {
+        name: 'authors',
+        identity: authorIdentity,
+        storage,
+        routes: authorRoutes,
+        schema: 'auto',
+};
+
+export const wpkConfig = {
+        version: 1,
+        namespace: 'mixed-plugin',
+        schemas: {},
+        resources: {
+                books,
+                authors,
+        },
+};
+`;
+
+				await fs.writeFile(configPath, configWithResources, 'utf8');
+
+				const manifestPath = path.join(
+					workspace,
+					'.wpk',
+					'apply',
+					'manifest.json'
+				);
+				await fs.mkdir(path.dirname(manifestPath), { recursive: true });
+				await fs.writeFile(
+					manifestPath,
+					JSON.stringify(
+						{
+							summary: {
+								applied: 0,
+								conflicts: 0,
+								skipped: 0,
+							},
+							records: [],
+							actions: [],
+						},
+						null,
+						2
+					),
+					'utf8'
+				);
+
+				const env = {
+					WPK_PHP_AUTOLOAD: PHP_JSON_AST_AUTOLOAD,
+				} satisfies NodeJS.ProcessEnv;
+
+				const firstGenerate = await runWpk(workspace, ['generate'], {
+					env,
+				});
+
+				expect(firstGenerate.code).toBe(0);
+				expect(firstGenerate.stderr).toBe('');
+
+				const booksShimPath = path.join(
+					workspace,
+					'inc',
+					'Rest',
+					'BooksController.php'
+				);
+				const baseBooksShimPath = path.join(
+					workspace,
+					'.wpk',
+					'apply',
+					'base',
+					'inc',
+					'Rest',
+					'BooksController.php'
+				);
+				const originalBooksShim = await fs.readFile(
+					baseBooksShimPath,
+					'utf8'
+				);
+				await fs.mkdir(path.dirname(booksShimPath), {
+					recursive: true,
+				});
+				await fs.writeFile(booksShimPath, originalBooksShim, 'utf8');
+				await fs.writeFile(
+					booksShimPath,
+					`${originalBooksShim}\n// developer override\n`,
+					'utf8'
+				);
+
+				const authorsShimTargetPath = path.join(
+					workspace,
+					'inc',
+					'Rest',
+					'AuthorsController.php'
+				);
+				const baseAuthorsShimPath = path.join(
+					workspace,
+					'.wpk',
+					'apply',
+					'base',
+					'inc',
+					'Rest',
+					'AuthorsController.php'
+				);
+				const originalAuthorsShim = await fs.readFile(
+					baseAuthorsShimPath,
+					'utf8'
+				);
+				await fs.writeFile(
+					authorsShimTargetPath,
+					originalAuthorsShim,
+					'utf8'
+				);
+
+				const configWithoutResources = `export const wpkConfig = {
+        version: 1,
+        namespace: 'mixed-plugin',
+        schemas: {},
+        resources: {},
+};
+`;
+
+				await fs.writeFile(configPath, configWithoutResources, 'utf8');
+
+				const secondGenerate = await runWpk(workspace, ['generate'], {
+					env,
+				});
+
+				expect(secondGenerate.code).toBe(0);
+				expect(secondGenerate.stderr).toBe('');
+
+				const planPath = path.join(
+					workspace,
+					'.wpk',
+					'apply',
+					'plan.json'
+				);
+				const plan = JSON.parse(
+					await fs.readFile(planPath, 'utf8')
+				) as {
+					instructions?: Array<{ action?: string; file?: string }>;
+					skippedDeletions?: Array<{
+						file?: string;
+						reason?: string;
+					}>;
+				};
+
+				expect(
+					plan.instructions?.some(
+						(instruction) =>
+							instruction?.action === 'delete' &&
+							instruction.file ===
+								'inc/Rest/AuthorsController.php'
+					)
+				).toBe(true);
+				expect(
+					plan.instructions?.some(
+						(instruction) =>
+							instruction?.action === 'delete' &&
+							instruction.file === 'inc/Rest/BooksController.php'
+					)
+				).toBe(false);
+				expect(plan.skippedDeletions).toEqual(
+					expect.arrayContaining([
+						expect.objectContaining({
+							file: 'inc/Rest/BooksController.php',
+							reason: 'modified-target',
+						}),
+					])
+				);
+
+				const applyResult = await runWpk(workspace, ['apply', '--yes']);
+
+				expect(applyResult.code).toBe(0);
+				expect(applyResult.stderr).toBe('');
+
+				const authorsShimPath = path.join(
+					workspace,
+					'inc',
+					'Rest',
+					'AuthorsController.php'
+				);
+				await expect(fs.access(authorsShimPath)).rejects.toMatchObject({
+					code: 'ENOENT',
+				});
+
+				const booksShimContents = await fs.readFile(
+					booksShimPath,
+					'utf8'
+				);
+				expect(booksShimContents).toContain('// developer override');
+
+				const manifest = JSON.parse(
+					await fs.readFile(manifestPath, 'utf8')
+				) as {
+					records?: Array<{
+						file?: string;
+						status?: string;
+						details?: unknown;
+					}>;
+				};
+
+				expect(manifest.records).toEqual(
+					expect.arrayContaining([
+						expect.objectContaining({
+							file: 'inc/Rest/AuthorsController.php',
+							status: 'applied',
+						}),
+						expect.objectContaining({
+							file: 'inc/Rest/BooksController.php',
+							status: 'skipped',
+							details: expect.objectContaining({
+								reason: 'modified-target',
+							}),
+						}),
+					])
+				);
 			},
 			{ chdir: false }
 		);
@@ -646,12 +950,6 @@ export const wpkConfig = {
 					await fs.writeFile(absoluteLegacy, '<?php\n');
 				}
 
-				const absoluteLegacyShim = path.join(workspace, legacyShimPath);
-				await fs.mkdir(path.dirname(absoluteLegacyShim), {
-					recursive: true,
-				});
-				await fs.writeFile(absoluteLegacyShim, '<?php\n');
-
 				const initialGenerated = [
 					...(resourceArtifacts.generated ?? []),
 					...legacyGeneratedPaths,
@@ -668,6 +966,52 @@ export const wpkConfig = {
 					`${JSON.stringify(initialState, null, 2)}\n`,
 					'utf8'
 				);
+
+				const ensureShimMatchesBase = async (
+					relativePath: string,
+					fallbackContents?: string
+				) => {
+					const fallback = fallbackContents ?? '<?php\n';
+					const baseShimPath = path.join(
+						workspace,
+						'.wpk',
+						'apply',
+						'base',
+						relativePath
+					);
+					const targetShimPath = path.join(workspace, relativePath);
+					let contents: string | null = null;
+
+					try {
+						contents = await fs.readFile(baseShimPath, 'utf8');
+					} catch (error) {
+						if (
+							(error as NodeJS.ErrnoException).code !== 'ENOENT'
+						) {
+							throw error;
+						}
+					}
+
+					if (contents === null) {
+						contents = fallback;
+						await fs.mkdir(path.dirname(baseShimPath), {
+							recursive: true,
+						});
+						await fs.writeFile(baseShimPath, contents, 'utf8');
+					}
+
+					await fs.mkdir(path.dirname(targetShimPath), {
+						recursive: true,
+					});
+					await fs.writeFile(targetShimPath, contents, 'utf8');
+				};
+
+				const uniqueInitialShims = Array.from(new Set(initialShims));
+				for (const shimPath of uniqueInitialShims) {
+					const fallback =
+						shimPath === legacyShimPath ? '<?php\n' : undefined;
+					await ensureShimMatchesBase(shimPath, fallback);
+				}
 
 				const configWithNewPaths = `import type {
         ResourceConfig,

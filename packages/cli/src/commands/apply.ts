@@ -22,12 +22,14 @@ import type {
 	PatchRecord,
 } from './apply/types';
 import type { Workspace } from '../next/workspace';
+import { cleanupWorkspaceTargets } from './apply/cleanup';
 
 export { APPLY_LOG_PATH, PATCH_MANIFEST_PATH } from './apply/constants';
 export { createBackups } from './apply/backups';
 export { appendApplyLog } from './apply/logging';
 export { buildBuilderOutput, readManifest, formatManifest } from './apply/io';
 export { ensureGitRepository, resolveWorkspaceRoot } from './apply/workspace';
+export { cleanupWorkspaceTargets } from './apply/cleanup';
 export type {
 	ApplyCommandConstructor,
 	ApplyCommandInstance,
@@ -76,6 +78,9 @@ export function buildApplyCommand(
 		yes = Option.Boolean('--yes', false);
 		backup = Option.Boolean('--backup', false);
 		force = Option.Boolean('--force', false);
+		cleanup = Option.Array('--cleanup <path>', {
+			description: 'Remove leftover shim paths before applying patches.',
+		});
 
 		public summary: PatchManifestSummary | null = null;
 		public records: PatchRecord[] = [];
@@ -100,6 +105,14 @@ export function buildApplyCommand(
 					workspace: activeWorkspace,
 					loaded,
 				});
+
+				if (flags.cleanup.length > 0) {
+					await cleanupWorkspaceTargets({
+						workspace: activeWorkspace,
+						reporter,
+						targets: flags.cleanup,
+					});
+				}
 
 				const previewExit = await processPreviewStage({
 					command: this,
