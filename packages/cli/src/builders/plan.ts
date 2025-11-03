@@ -43,6 +43,20 @@ const PLAN_PATH = path.posix.join('.wpk', 'apply', 'plan.json');
 const PLAN_BASE_ROOT = path.posix.join('.wpk', 'apply', 'base');
 const PLAN_INCOMING_ROOT = path.posix.join('.wpk', 'apply', 'incoming');
 
+function resolvePlanImportMetaUrl(): string | undefined {
+	try {
+		// eslint-disable-next-line no-eval -- access import.meta in both CJS and ESM contexts
+		const meta = (0, eval)('import.meta') as ImportMeta;
+		if (meta && typeof meta.url === 'string' && meta.url.length > 0) {
+			return meta.url;
+		}
+	} catch {
+		// Swallow errors and fall back to default script resolution.
+	}
+
+	return undefined;
+}
+
 type PlanInstruction =
 	| {
 			readonly action: 'write';
@@ -89,6 +103,7 @@ export function createApplyPlanBuilder(): BuilderHelper {
 
 			const prettyPrinter = buildPhpPrettyPrinter({
 				workspace: options.context.workspace,
+				importMetaUrl: resolvePlanImportMetaUrl(),
 			});
 
 			const plan = await collectPlanInstructions({
