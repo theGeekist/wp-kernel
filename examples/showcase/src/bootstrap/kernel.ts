@@ -1,32 +1,32 @@
 import {
-	configureKernel,
-	type KernelInstance,
-	type KernelRegistry,
+	configureWPKernel,
+	type WPKInstance,
+	type WPKernelRegistry,
 } from '@wpkernel/core/data';
 import { attachUIBindings } from '@wpkernel/ui';
-import { kernelConfig } from '../kernel.config';
+import { wpkConfig } from '../wpk.config';
 
-let kernelInstance: KernelInstance | undefined;
+let wpkernelInstance: WPKInstance | undefined;
 
-export function bootstrapKernel(registry?: KernelRegistry): KernelInstance {
-	kernelInstance = configureKernel({
-		namespace: kernelConfig.namespace,
+export function bootstrapKernel(registry?: WPKernelRegistry): WPKInstance {
+	wpkernelInstance = configureWPKernel({
+		namespace: wpkConfig.namespace,
 		registry,
 		ui: { attach: attachUIBindings },
 	});
 
-	return kernelInstance;
+	return wpkernelInstance;
 }
 
-export function getKernel(): KernelInstance {
-	if (!kernelInstance) {
-		kernelInstance = bootstrapKernel();
+export function getKernel(): WPKInstance {
+	if (!wpkernelInstance) {
+		wpkernelInstance = bootstrapKernel();
 	}
 
-	return kernelInstance;
+	return wpkernelInstance;
 }
 
-export const kernel = new Proxy({} as KernelInstance, {
+export const kernel = new Proxy({} as WPKInstance, {
 	get(_target, property: PropertyKey) {
 		const instance = getKernel();
 		const value = (instance as unknown as Record<PropertyKey, unknown>)[

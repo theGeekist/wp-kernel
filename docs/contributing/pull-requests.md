@@ -2,7 +2,7 @@
 
 Guide to submitting pull requests to WP Kernel.
 
-> **📖 For release workflow and versioning**, see `RELEASING.md` in project root (canonical source).
+> **📖 For release workflow and versioning**, see `RELEASING.md` in project root and the [Framework Release Playbook](../releases/framework-release-playbook.md).
 
 ## Before You Start
 
@@ -128,11 +128,11 @@ Then open a PR on GitHub **using the PR template** (`.github/PULL_REQUEST_TEMPLA
 
 ### Required Sections
 
-1. **Upcoming work** – describe the focus (feature/alignment/norms)
-2. **Scope** – Brief description of changes
-3. **Context** – Links to roadmap, sprint doc, and related PRs/issues
-4. **Testing** – How to test the changes
-5. **Release** – Bump type and CHANGELOG confirmation
+1. **Upcoming work** - describe the focus (feature/alignment/norms)
+2. **Scope** - Brief description of changes
+3. **Context** - Links to roadmap, sprint doc, and related PRs/issues
+4. **Testing** - How to test the changes
+5. **Release** - Bump type and CHANGELOG confirmation
 
 See `RELEASING.md` in project root for the canonical sprint PR workflow.
 
@@ -140,24 +140,24 @@ See `RELEASING.md` in project root for the canonical sprint PR workflow.
 
 ### Must Have
 
-- [ ] **All tests pass** – Unit and E2E tests must be green.
-- [ ] **Lint passes** – Zero ESLint errors.
-- [ ] **CHANGELOG.md updated** – Unless docs-only change.
-- [ ] **Conventional commits** – Proper commit message format.
-- [ ] **Description** – Clear what/why/how.
+- [ ] **All tests pass** - Unit and E2E tests must be green.
+- [ ] **Lint passes** - Zero ESLint errors.
+- [ ] **CHANGELOG.md updated** - Unless docs-only change.
+- [ ] **Conventional commits** - Proper commit message format.
+- [ ] **Description** - Clear what/why/how.
 
 ### Should Have
 
-- [ ] **Tests for new code** – Unit tests for new functionality.
-- [ ] **E2E tests** – For user-facing features.
-- [ ] **Documentation** – Update docs for API changes.
-- [ ] **Examples** – Update examples if relevant.
+- [ ] **Tests for new code** - Unit tests for new functionality.
+- [ ] **E2E tests** - For user-facing features.
+- [ ] **Documentation** - Update docs for API changes.
+- [ ] **Examples** - Update examples if relevant.
 
 ### Nice to Have
 
-- [ ] **Performance tests** – For performance-critical code.
-- [ ] **Screenshots** – For UI changes.
-- [ ] **Migration guide** – For breaking changes.
+- [ ] **Performance tests** - For performance-critical code.
+- [ ] **Screenshots** - For UI changes.
+- [ ] **Migration guide** - For breaking changes.
 
 ## Review Process
 
@@ -173,16 +173,16 @@ All PRs must pass CI:
 
 ### Code Review
 
-1. **Automated review** – CI checks run automatically.
-2. **Maintainer review** – One approval required.
-3. **Changes requested** – Address feedback and push updates.
-4. **Approved** – PR is ready to merge.
+1. **Automated review** - CI checks run automatically.
+2. **Maintainer review** - One approval required.
+3. **Changes requested** - Address feedback and push updates.
+4. **Approved** - PR is ready to merge.
 
 ### Merge Strategy
 
-- **Squash merge** – All PRs are squashed into one commit.
-- **Commit message** – Should follow Conventional Commits.
-- **Branch deletion** – Feature branch is deleted after merge.
+- **Squash merge** - All PRs are squashed into one commit.
+- **Commit message** - Should follow Conventional Commits.
+- **Branch deletion** - Feature branch is deleted after merge.
 
 ## Common Scenarios
 

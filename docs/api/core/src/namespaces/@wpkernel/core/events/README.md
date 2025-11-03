@@ -1,4 +1,4 @@
-[**WP Kernel API v0.3.0**](../../../../../../README.md)
+[**WP Kernel API v0.6.0**](../../../../../../README.md)
 
 ---
 
@@ -10,21 +10,21 @@ Kernel event bus utilities and canonical event registry.
 
 ## References
 
-### KernelEventBus
+### WPKernelEventBus
 
-Re-exports [KernelEventBus](../../../../classes/KernelEventBus.md)
-
----
-
-### getKernelEventBus
-
-Re-exports [getKernelEventBus](../../../../functions/getKernelEventBus.md)
+Re-exports [WPKernelEventBus](../../../../classes/WPKernelEventBus.md)
 
 ---
 
-### setKernelEventBus
+### getWPKernelEventBus
 
-Re-exports [setKernelEventBus](../../../../functions/setKernelEventBus.md)
+Re-exports [getWPKernelEventBus](../../../../functions/getWPKernelEventBus.md)
+
+---
+
+### setWPKernelEventBus
+
+Re-exports [setWPKernelEventBus](../../../../functions/setWPKernelEventBus.md)
 
 ---
 
@@ -52,9 +52,9 @@ Re-exports [clearRegisteredActions](../../../../functions/clearRegisteredActions
 
 ---
 
-### KernelEventMap
+### WPKernelEventMap
 
-Re-exports [KernelEventMap](../../../../type-aliases/KernelEventMap.md)
+Re-exports [WPKernelEventMap](../../../../type-aliases/WPKernelEventMap.md)
 
 ---
 

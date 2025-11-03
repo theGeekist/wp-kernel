@@ -1,12 +1,12 @@
-import { fabricateKernelConfig } from '../integration/config-fabricators.js';
+import { fabricateWPKernelConfig } from '../integration/config-fabricators.js';
 
-describe('fabricateKernelConfig', () => {
+describe('fabricateWPKernelConfig', () => {
 	it('builds config variants with optional components', () => {
-		const fabrication = fabricateKernelConfig({
+		const fabrication = fabricateWPKernelConfig({
 			namespace: 'custom-namespace',
 			storage: 'wp-post',
 			includeRemoteRoutes: true,
-			includePolicies: true,
+			includeCapabilities: true,
 			includeSSRBlock: true,
 			includeJsBlock: true,
 		});
@@ -24,9 +24,9 @@ describe('fabricateKernelConfig', () => {
 	});
 
 	it('supports alternate storage modes', () => {
-		const option = fabricateKernelConfig({ storage: 'wp-option' });
-		const taxonomy = fabricateKernelConfig({ storage: 'wp-taxonomy' });
-		const transient = fabricateKernelConfig({ storage: 'transient' });
+		const option = fabricateWPKernelConfig({ storage: 'wp-option' });
+		const taxonomy = fabricateWPKernelConfig({ storage: 'wp-taxonomy' });
+		const transient = fabricateWPKernelConfig({ storage: 'transient' });
 
 		expect((option.config as any).resources.item.storage).toEqual({
 			mode: 'wp-option',

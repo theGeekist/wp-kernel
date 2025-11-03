@@ -1,4 +1,4 @@
-[**WP Kernel API v0.3.0**](../../../../README.md)
+[**WP Kernel API v0.6.0**](../../../../README.md)
 
 ---
 
@@ -12,7 +12,7 @@ Provides HTTP transport layer wrapping @wordpress/api-fetch with:
 
 - Request correlation via unique IDs
 - Event emission for observability
-- Error normalization to KernelError
+- Error normalization to WPKernelError
 - Query parameter and field filtering support
 
 ## References

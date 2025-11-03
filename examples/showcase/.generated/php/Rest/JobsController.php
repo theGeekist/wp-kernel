@@ -2,7 +2,7 @@
 /**
  * AUTO-GENERATED FILE. DO NOT EDIT BY HAND.
  *
- * Source: kernelConfig.resources.job (src/kernel.config.ts)
+ * Source: wpkConfig.resources.job (src/wpk.config.ts)
  * Target: inc/Rest/JobsController.php
  *
  * Handles REST API endpoints for Job Postings in the WP Kernel Showcase.
@@ -19,7 +19,7 @@ use WP_REST_Server;
 use WPKernel\Showcase\Rest\Controller;
 
 /**
- * Jobs REST controller generated from the `kernelConfig.resources.job` definition.
+ * Jobs REST controller generated from the `wpkConfig.resources.job` definition.
  *
  * Provides endpoints for listing, retrieving, and managing job postings.
  */

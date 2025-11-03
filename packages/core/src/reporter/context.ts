@@ -1,15 +1,32 @@
 import type { Reporter } from './types';
 
-let kernelReporter: Reporter | undefined;
+let wpKernelReporter: Reporter | undefined;
 
-export function setKernelReporter(reporter: Reporter | undefined): void {
-	kernelReporter = reporter;
+/**
+ * Register the shared WP Kernel reporter instance.
+ *
+ * @param    reporter - Reporter to use for subsequent logging
+ * @category Reporter
+ */
+export function setWPKernelReporter(reporter: Reporter | undefined): void {
+	wpKernelReporter = reporter;
 }
 
-export function getKernelReporter(): Reporter | undefined {
-	return kernelReporter;
+/**
+ * Retrieve the shared WP Kernel reporter, if configured.
+ *
+ * @return Reporter instance or undefined when not initialised
+ * @category Reporter
+ */
+export function getWPKernelReporter(): Reporter | undefined {
+	return wpKernelReporter;
 }
 
-export function clearKernelReporter(): void {
-	kernelReporter = undefined;
+/**
+ * Clear the shared reporter reference.
+ *
+ * @category Reporter
+ */
+export function clearWPKReporter(): void {
+	wpKernelReporter = undefined;
 }

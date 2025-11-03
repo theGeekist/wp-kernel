@@ -1,4 +1,4 @@
-[**WP Kernel API v0.3.0**](../../../README.md)
+[**WP Kernel API v0.6.0**](../../../README.md)
 
 ---
 
@@ -24,10 +24,10 @@ path: string;
 
 ---
 
-### policy?
+### capability?
 
 ```ts
-optional policy: string;
+optional capability: string;
 ```
 
 ---

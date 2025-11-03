@@ -8,7 +8,7 @@
  * ```ts
  * import { fetch } from '@wpkernel/core/http';
  * import { defineResource } from '@wpkernel/core/resource';
- * import { KernelError } from '@wpkernel/core/error';
+ * import { WPKernelError } from '@wpkernel/core/error';
  * ```
  *
  * @example Namespace imports (organized)
@@ -16,12 +16,12 @@
  * import { http, resource, error } from '@wpkernel/core';
  * await http.fetch({ path: '/my-plugin/v1/things' });
  * resource.defineResource({ name: 'thing', routes: {...} });
- * throw new error.KernelError('ValidationError', {...});
+ * throw new error.WPKernelError('ValidationError', {...});
  * ```
  *
  * @example Flat imports (convenience)
  * ```ts
- * import { fetch, defineResource, KernelError } from '@wpkernel/core';
+ * import { fetch, defineResource, WPKernelError } from '@wpkernel/core';
  * ```
  *
  * @module
@@ -42,7 +42,7 @@
 	return (window as WPGlobal).wp?.data;
 };
 
-export const VERSION = '0.1.1';
+export const VERSION = '0.10.0';
 
 // ============================================================================
 // Namespace Exports (Organized by module)
@@ -53,10 +53,12 @@ export * as resource from './resource/index.js';
 export * as error from './error/index.js';
 export * as namespace from './namespace/index.js';
 export * as actions from './actions/index.js';
-export * as policy from './policy/index.js';
+export * as capability from './capability/index.js';
 export * as data from './data/index.js';
 export * as events from './events/index.js';
 export * as contracts from './contracts/index.js';
+export * as pipeline from './pipeline/index.js';
+export * as interactivity from './interactivity/index.js';
 
 // ============================================================================
 // Flat Exports (Convenience aliases)
@@ -71,12 +73,12 @@ export {
 	WPK_INFRASTRUCTURE,
 	WPK_NAMESPACE,
 	WPK_SUBSYSTEM_NAMESPACES,
-	serializeKernelError,
+	serializeWPKernelError,
 } from './contracts/index.js';
 export type { ActionLifecyclePhase, WPKExitCode } from './contracts/index.js';
 
 // Error classes
-export { KernelError, TransportError, ServerError } from './error/index.js';
+export { WPKernelError, TransportError, ServerError } from './error/index.js';
 export type {
 	ErrorCode,
 	ErrorContext,
@@ -167,49 +169,67 @@ export type {
 	WaitOptions,
 } from './actions/types';
 
-// Policy system
-export { definePolicy, createPolicyProxy } from './policy/index.js';
+// Capability system
+export { defineCapability, createCapabilityProxy } from './capability/index.js';
 export type {
-	PolicyRule,
-	PolicyMap,
-	PolicyHelpers,
-	PolicyOptions,
-	PolicyDefinitionConfig,
-	PolicyContext,
-	PolicyCache,
-	PolicyCacheOptions,
-	PolicyDeniedEvent,
-	PolicyReporter,
+	CapabilityRule,
+	CapabilityMap,
+	CapabilityHelpers,
+	CapabilityOptions,
+	CapabilityDefinitionConfig,
+	CapabilityContext,
+	CapabilityCache,
+	CapabilityCacheOptions,
+	CapabilityDeniedEvent,
+	CapabilityReporter,
 	ParamsOf,
-} from './policy/index.js';
+} from './capability/index.js';
 
 // Data integration
-export { configureKernel, registerKernelStore } from './data/index.js';
-export { kernelEventsPlugin } from './data/plugins/events';
+export { configureWPKernel, registerWPKernelStore } from './data/index.js';
+export { wpkEventsPlugin } from './data/plugins/events';
 export type {
-	KernelRegistry,
-	ConfigureKernelOptions,
-	KernelInstance,
-	KernelUIConfig,
-	KernelUIRuntime,
-	KernelUIAttach,
+	WPKernelRegistry,
+	ConfigureWPKernelOptions,
+	WPKInstance,
+	WPKUIConfig,
+	WPKernelUIRuntime,
+	WPKernelUIAttach,
 	UIIntegrationOptions,
-	KernelUIPolicyRuntime,
+	WPKUICapabilityRuntime,
 	NoticeStatus,
 } from './data/index.js';
 
+// Interactivity
+export { defineInteraction } from './interactivity/defineInteraction.js';
+export type {
+	DefineInteractionOptions,
+	DefinedInteraction,
+	InteractionActionBinding,
+	InteractionActionInput,
+	InteractionActionsRecord,
+	InteractionActionMetaResolver,
+	InteractionActionsRuntime,
+	InteractivityGlobal,
+	InteractivityModule,
+	InteractivityStoreResult,
+	InteractivityServerState,
+	InteractivityServerStateResolver,
+	HydrateServerStateInput,
+} from './interactivity/index.js';
+
 // Event bus
 export {
-	KernelEventBus,
-	getKernelEventBus,
-	setKernelEventBus,
+	WPKernelEventBus,
+	getWPKernelEventBus,
+	setWPKernelEventBus,
 	getRegisteredResources,
 	getRegisteredActions,
 	clearRegisteredResources,
 	clearRegisteredActions,
 } from './events/index.js';
 export type {
-	KernelEventMap,
+	WPKernelEventMap,
 	ResourceDefinedEvent,
 	ActionDefinedEvent,
 	ActionDomainEvent,
@@ -221,9 +241,9 @@ export type {
 export {
 	createReporter,
 	createNoopReporter,
-	getKernelReporter,
-	setKernelReporter,
-	clearKernelReporter,
+	getWPKernelReporter,
+	setWPKernelReporter,
+	clearWPKReporter,
 } from './reporter/index.js';
 export type {
 	Reporter,

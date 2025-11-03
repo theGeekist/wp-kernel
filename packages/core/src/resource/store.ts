@@ -16,7 +16,7 @@ import type {
 	ListResponse,
 	ResourceListStatus,
 } from './types';
-import { KernelError } from '../error/index';
+import { WPKernelError } from '../error/index';
 import { createNoopReporter } from '../reporter';
 
 const STORE_LOG_MESSAGES = {
@@ -75,6 +75,8 @@ function defaultGetQueryKey<TQuery>(query?: TQuery): string {
  *   getId: (item) => item.id,
  * });
  * ```
+ *
+ * @category Resource
  */
 export function createStore<T, TQuery = unknown>(
 	config: ResourceStoreConfig<T, TQuery>
@@ -450,7 +452,7 @@ export function createStore<T, TQuery = unknown>(
 					operation: 'getItem',
 					itemId: id,
 				});
-				throw new KernelError('NotImplementedError', {
+				throw new WPKernelError('NotImplementedError', {
 					message:
 						`Resource "${resource.name}" does not have a "fetch" method. ` +
 						'Define a "get" route to enable the fetch method in your resource configuration.',
@@ -514,7 +516,7 @@ export function createStore<T, TQuery = unknown>(
 						query,
 					}
 				);
-				throw new KernelError('NotImplementedError', {
+				throw new WPKernelError('NotImplementedError', {
 					message:
 						`Resource "${resource.name}" does not have a "fetchList" method. ` +
 						'Define a "list" route to enable the fetchList method in your resource configuration.',
@@ -590,7 +592,7 @@ export function createStore<T, TQuery = unknown>(
 					operation: 'getList',
 					query,
 				});
-				throw new KernelError('NotImplementedError', {
+				throw new WPKernelError('NotImplementedError', {
 					message:
 						`Resource "${resource.name}" does not have a "fetchList" method. ` +
 						'Define a "list" route to enable the fetchList method in your resource configuration.',

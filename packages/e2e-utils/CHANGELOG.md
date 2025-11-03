@@ -1,6 +1,58 @@
 # @wpkernel/e2e-utils
 
-## 0.4.0 [Unreleased]
+## Unreleased
+
+### In progress
+
+- **Phase 7 – Plugin bootstrap flow** – Tasks 37-45 cover the create bootstrap, plugin loader, regeneration cleanup, and activation smoke before the 0.11.0 release; note any required Playwright harness updates once those patches land.
+- **Phase 8 placeholder** – Task 46 will collect incremental diagnostics (starting with the CLI LogLayer reporter) after the bootstrap flow ships.
+
+## 0.10.0 - 2025-11-05
+
+### Maintenance
+
+- Version bump to `0.10.0` to align with the Phase 6 core pipeline release; no E2E harness changes were required.
+
+## 0.9.0 - 2025-10-27
+
+### Maintenance
+
+- Version bump to `0.9.0` to align with the Phase 5 release; existing Playwright
+  fixtures continue to exercise the layered apply workflow without additional
+  changes.
+
+### Documentation
+
+- Updated release notes to confirm the E2E suite validates the Task 31 apply
+  checklist alongside the CLI release.
+
+## 0.8.0 - 2025-10-26
+
+### Maintenance
+
+- Version bump to `0.8.0` to stay in lockstep with the command migration
+  release; fixture APIs are unchanged and continue to proxy CLI behaviour for the
+  new command factories.
+
+## 0.7.0 - 2025-10-26
+
+### Maintenance
+
+- Version bump to `0.7.0` to stay aligned with the Phase 3 release; no additional E2E utility changes shipped in this cycle.
+
+## 0.6.0 - 2025-10-26
+
+### Maintenance
+
+- Version bump to `0.6.0` to stay aligned with the Phase 2 release; no additional E2E utility changes shipped in this cycle.
+
+## 0.5.0 - 2025-10-26
+
+### Maintenance
+
+- Version bump to `0.5.0` to stay aligned with the Phase 1 release; no additional E2E utility changes shipped in this cycle.
+
+## 0.4.0
 
 ### Changes
 

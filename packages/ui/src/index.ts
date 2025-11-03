@@ -9,13 +9,13 @@
 /**
  * Current version of WP Kernel UI
  */
-export const VERSION = '0.3.0';
+export const VERSION = '0.7.0';
 
-export { attachUIBindings, KernelUIProvider, useKernelUI } from './runtime';
-export type { KernelUIProviderProps } from './runtime';
+export { attachUIBindings, WPKernelUIProvider, useWPKernelUI } from './runtime';
+export type { WPKernelUIProviderProps } from './runtime';
 
 // Hooks migrated from kernel
-export { usePolicy } from './hooks/usePolicy';
+export { useCapability } from './hooks/useCapability';
 export {
 	attachResourceHooks,
 	type UseResourceItemResult,

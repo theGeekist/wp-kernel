@@ -34,7 +34,7 @@ export type {
 /**
  * Current version of WP Kernel E2E Utils
  */
-export const VERSION = '1.0.0';
+export const VERSION = '0.7.0';
 
 export {
 	withIsolatedWorkspace,

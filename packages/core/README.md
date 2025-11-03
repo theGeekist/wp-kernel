@@ -46,6 +46,19 @@ import { ActionButton } from '@wpkernel/ui';
 <ActionButton action={CreatePost}>Create Post</ActionButton>
 ```
 
+## Peer dependencies
+
+Install the WordPress runtime packages alongside `@wpkernel/core` so builds
+never inline them. The framework currently targets:
+
+- `@wordpress/api-fetch` `>=7.32.0`
+- `@wordpress/data` `>=10.32.0`
+- `@wordpress/element` `>=6.32.0`
+- `@wordpress/hooks` `>=4.32.0`
+
+Run `pnpm lint:peers` before committing to confirm every workspace is aligned
+with the shared capability from `scripts/check-framework-peers.ts`.
+
 ## Testing Helpers
 
 - `@wpkernel/test-utils/core` exposes the WordPress harness family
@@ -258,22 +271,22 @@ await CreatePost({ data });
 - **`@wpkernel/core/resource`** - defineResource, resource client
 - **`@wpkernel/core/actions`** - defineAction, action orchestration
 - **`@wpkernel/core/events`** - Event registry, canonical names
-- **`@wpkernel/core/policies`** - definePolicy, capability checks
+- **`@wpkernel/core/capabilities`** - defineCapability, capability checks
 - **`@wpkernel/core/jobs`** - defineJob, background work
 - **`@wpkernel/core/bindings`** - Block binding sources
 - **`@wpkernel/core/interactivity`** - defineInteraction, front-end actions
-- **`@wpkernel/core/error`** - KernelError, error taxonomy
+- **`@wpkernel/core/error`** - WPKernelError, error taxonomy
 
 ### Error Handling
 
 ```typescript
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 
 try {
 	await CreatePost({ data });
 } catch (error) {
-	if (error instanceof KernelError) {
-		console.log(error.code); // 'PolicyDenied', 'ValidationError', etc.
+	if (error instanceof WPKernelError) {
+		console.log(error.code); // 'CapabilityDenied', 'ValidationError', etc.
 		console.log(error.context);
 	}
 }

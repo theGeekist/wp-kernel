@@ -13,7 +13,7 @@
  *
  * @see Product Specification § 4.1 Resources (Phase 2.2)
  */
-import { KernelError } from '../error/index';
+import { WPKernelError } from '../error/index';
 import { invalidate as globalInvalidate } from './cache';
 import type { ResourceConfig, ResourceObject, CacheKeys } from './types';
 import { detectNamespace, WPK_NAMESPACE } from '../namespace/index';
@@ -164,14 +164,14 @@ export function createCacheGetter<T, TQuery>(
 				item:
 					this.prefetchGet ||
 					(async () => {
-						throw new KernelError('NotImplementedError', {
+						throw new WPKernelError('NotImplementedError', {
 							message: `Resource "${config.name}" does not have a "get" route`,
 						});
 					}),
 				list:
 					this.prefetchList ||
 					(async () => {
-						throw new KernelError('NotImplementedError', {
+						throw new WPKernelError('NotImplementedError', {
 							message: `Resource "${config.name}" does not have a "list" route`,
 						});
 					}),

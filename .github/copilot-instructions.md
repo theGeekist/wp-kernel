@@ -117,7 +117,7 @@ Use canonical events from registry. Never create ad-hoc event names.
 
 ### 4. Error Handling
 
-All errors are typed `KernelError` subclasses (never plain `Error`).
+All errors are typed `WPKernelError` subclasses (never plain `Error`).
 
 ## Folder Conventions
 

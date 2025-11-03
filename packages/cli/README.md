@@ -4,12 +4,16 @@
 
 ## Overview
 
-The CLI turns a single `kernel.config.ts` into everything a WP Kernel plugin needs:
+The CLI turns a single `wpk.config.ts` into everything a WP Kernel plugin needs:
 
 - **Project scaffolding** via `wpk init`
 - **Deterministic generation** of TypeScript contracts, UI entrypoints, PHP bridges, and block registrars
 - **Safe apply** workflows that merge generated PHP back into `inc/` and copy build artefacts for blocks
 - **Adapter extensions** that participate in the pipeline without mutating project sources directly
+
+### Storage coverage
+
+`wpk generate` now emits controllers for every storage mode used in the framework: `wp-post`, `wp-taxonomy`, `wp-option`, and transient. Transient controllers compute sanitised cache keys and normalise TTL inputs via generated helpers so cache invalidation stays consistent across options and transients.
 
 ## Quick start
 
@@ -24,7 +28,7 @@ This scaffolds a Vite-ready plugin with kernel config, TypeScript/ESLint setup, 
 ## Core workflow: init → generate → apply
 
 1. **Initialise** a project once with `wpk init`.
-2. **Generate** artefacts whenever `kernel.config.ts` changes:
+2. **Generate** artefacts whenever `wpk.config.ts` changes:
 
     ```bash
     wpk generate           # writes to .generated/**
@@ -34,13 +38,16 @@ This scaffolds a Vite-ready plugin with kernel config, TypeScript/ESLint setup, 
 
     The pipeline executes in this order:
     1. Type definitions (`.generated/types/**`)
-    2. PHP controllers and registries (`.generated/php/**`)
-    3. UI bootstrap files (`.generated/ui/**`)
-    4. Block artefacts (`.generated/blocks/**`, `.generated/build/**`)
+
+3. PHP controllers and registries (`.generated/php/**`)
+4. UI bootstrap files (`.generated/ui/**`)
+5. Block artefacts (`.generated/blocks/**`, `.generated/build/**`)
 
     Block printers derive manifests for SSR blocks, generate auto-registration stubs for JS-only blocks, and emit PSR-4 block registrars alongside resource controllers.
 
-3. **Apply** once the `.generated/` snapshot looks correct:
+    Successive runs persist a generation manifest at `.wpk/apply/state.json`, so `wpk generate` prunes stale `.generated/**` files when resources are removed or PHP output/autoload paths change and stages `{ action: 'delete' }` shim entries in `.wpk/apply/plan.json` for `wpk apply` to process.
+
+6. **Apply** once the `.generated/` snapshot looks correct:
     ```bash
     wpk apply --yes              # skip clean checks
     wpk apply --backup           # keep .bak copies of overwritten files
@@ -55,8 +62,8 @@ This scaffolds a Vite-ready plugin with kernel config, TypeScript/ESLint setup, 
 
 ## Documentation
 
-- **[MVP CLI Spec](./mvp-cli-spec.md)** – authoritative reference for the pipeline
-- **[Kernel docs](https://thegeekist.github.io/wp-kernel/)** – framework guides and configuration reference
+- **[CLI Migration Phases](./docs/cli-migration-phases.md)** - authoritative reference for the next pipeline
+- **[Kernel docs](https://thegeekist.github.io/wp-kernel/)** - framework guides and configuration reference
 
 ## Testing Helpers
 
@@ -64,11 +71,9 @@ This scaffolds a Vite-ready plugin with kernel config, TypeScript/ESLint setup, 
   builders that keep ESLint rule suites aligned with the TypeScript parser and
   canonical config snippets.
 - `@wpkernel/test-utils/cli` exposes `createCommandContext()`,
-  `assignCommandContext()`, `createReporterMock()`, and `createMemoryStream()`
-  so suites can share Clipanion wiring without re-implementing mocks or
-  streams.
-- `tests/async.test-support.ts` ships `flushAsync()` for draining queued tasks
-  and timers during async command assertions.
+  `assignCommandContext()`, `createReporterMock()`, `createMemoryStream()`,
+  and `flushAsync()` so suites can share Clipanion wiring without
+  re-implementing mocks, streams, or async drains.
 - `@wpkernel/test-utils/integration` includes `withWorkspace()` for disposable
   filesystem scaffolds and `createWorkspaceRunner()` to preconfigure prefixes or
   default file layouts per suite (the local `tests/workspace.test-support.ts`
@@ -81,13 +86,22 @@ This scaffolds a Vite-ready plugin with kernel config, TypeScript/ESLint setup, 
 - Node.js 20+
 - pnpm 9+ (recommended)
 
+## Peer dependencies
+
+Install the workspace builds for `@wpkernel/core`, `@wpkernel/php-json-ast`,
+and `@wpkernel/test-utils` alongside the CLI (`workspace:*` ranges). These
+packages stay external in the published build so generators can share runtime
+contracts with the framework. Run `pnpm lint:peers` (or
+`pnpm exec tsx scripts/check-framework-peers.ts`) to verify the versions before
+shipping changes.
+
 ## Adapter extensions
 
 Adapters can register extension factories to participate in the generation pipeline without mutating `.generated/` directly. Each extension runs inside an isolated sandbox; queued files are only written after the core printers succeed.
 
 ```ts
 module.exports = {
-	// ...kernel.config.js contents
+	// ...wpk.config.js contents
 	adapters: {
 		extensions: [
 			({ namespace, reporter }) => ({
@@ -106,7 +120,7 @@ module.exports = {
 };
 ```
 
-Extensions can also call `updateIr(nextIr)` to feed changes back into the printers while keeping the configuration as the single source of truth.
+Extensions can also call `updateIr(ir)` to feed changes back into the printers while keeping the configuration as the single source of truth.
 
 ## Contributing
 

@@ -1,6 +1,6 @@
 {
 	"name": "@wpkernel/core",
-	"version": "0.4.0",
+	"version": "0.10.0",
 	"description": "Rails-like framework for building modern WordPress products",
 	"license": "EUPL-1.2",
 	"type": "module",
@@ -63,10 +63,15 @@
 			"import": "./dist/events/index.js",
 			"default": "./dist/events/index.js"
 		},
-		"./policy": {
-			"types": "./dist/policy/index.d.ts",
-			"import": "./dist/policy.js",
-			"default": "./dist/policy.js"
+		"./capability": {
+			"types": "./dist/capability/index.d.ts",
+			"import": "./dist/capability.js",
+			"default": "./dist/capability.js"
+		},
+		"./pipeline": {
+			"types": "./dist/pipeline/index.d.ts",
+			"import": "./dist/pipeline.js",
+			"default": "./dist/pipeline.js"
 		},
 		"./reporter": {
 			"types": "./dist/reporter/index.d.ts",
@@ -104,16 +109,21 @@
 		"format": "prettier --write 'src/**/*.{js,ts,tsx,json,md}'",
 		"format:check": "prettier --check 'src/**/*.{js,ts,tsx,json,md}'",
 		"typecheck": "tsc --noEmit",
-		"typecheck:tests": "tsc --project tsconfig.tests.json --noEmit",
-		"test": "jest --passWithNoTests",
-		"test:watch": "jest --watch",
-		"test:coverage": "jest --coverage"
+		"typecheck:tests": "wpk-run-typecheck-tests",
+		"test": "wpk-run-jest",
+		"test:watch": "wpk-run-jest --watch",
+		"test:coverage": "wpk-run-jest coverage",
+		"test:integration": "wpk-run-jest integration"
+	},
+	"devDependencies": {
+		"@wpkernel/scripts": "workspace:*"
 	},
 	"peerDependencies": {
-		"@wordpress/api-fetch": ">=7.0.0",
-		"@wordpress/data": ">=10.0.0",
-		"@wordpress/element": ">=6.0.0",
-		"@wordpress/hooks": ">=4.0.0",
+		"@wordpress/api-fetch": ">=7.32.0",
+		"@wordpress/data": ">=10.32.0",
+		"@wordpress/element": ">=6.32.0",
+		"@wordpress/hooks": ">=4.32.0",
+		"@wordpress/interactivity": ">=6.34.0",
 		"loglayer": ">=6.7.2",
 		"@loglayer/shared": ">=2.4.0",
 		"@loglayer/transport": ">=2.3.0"

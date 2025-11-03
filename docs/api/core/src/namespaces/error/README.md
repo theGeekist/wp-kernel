@@ -1,4 +1,4 @@
-[**WP Kernel API v0.3.0**](../../../../README.md)
+[**WP Kernel API v0.6.0**](../../../../README.md)
 
 ---
 
@@ -12,7 +12,7 @@ Exports all error types and utilities for consistent error handling throughout t
 
 ## Classes
 
-- [PolicyDeniedError](classes/PolicyDeniedError.md)
+- [CapabilityDeniedError](classes/CapabilityDeniedError.md)
 
 ## Type Aliases
 
@@ -20,9 +20,9 @@ Exports all error types and utilities for consistent error handling throughout t
 
 ## References
 
-### KernelError
+### WPKernelError
 
-Re-exports [KernelError](../../classes/KernelError.md)
+Re-exports [WPKernelError](../../classes/WPKernelError.md)
 
 ---
 

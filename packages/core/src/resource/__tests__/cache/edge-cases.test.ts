@@ -4,8 +4,9 @@
  */
 
 import { invalidate, invalidateAll, normalizeCacheKey } from '../../cache';
-import { KernelEventBus, setKernelEventBus } from '../../../events/bus';
-import { setKernelReporter, clearKernelReporter } from '../../../reporter';
+import { WPKernelEventBus, setWPKernelEventBus } from '../../../events/bus';
+import { setWPKernelReporter, clearWPKReporter } from '../../../reporter';
+import { resetReporterResolution } from '../../../reporter/resolve';
 import type { Reporter } from '../../../reporter';
 import {
 	createResourceDataHarness,
@@ -31,7 +32,7 @@ describe('invalidate edge cases', () => {
 	let mockDispatch: jest.Mock;
 	let mockSelect: jest.Mock;
 	let harnessSetup: ResourceHarnessSetup;
-	let bus: KernelEventBus;
+	let bus: WPKernelEventBus;
 	let cacheListener: jest.Mock;
 	let originalNodeEnv: string | undefined;
 	let reporterLogs: LogEntry[];
@@ -42,13 +43,15 @@ describe('invalidate edge cases', () => {
 		originalNodeEnv = process.env.NODE_ENV;
 
 		({ reporter, logs: reporterLogs } = createReporterSpy());
-		setKernelReporter(reporter);
+		setWPKernelReporter(reporter);
+
+		resetReporterResolution();
 
 		// Create mocks
 		mockDispatch = jest.fn();
 		mockSelect = jest.fn();
-		bus = new KernelEventBus();
-		setKernelEventBus(bus);
+		bus = new WPKernelEventBus();
+		setWPKernelEventBus(bus);
 		cacheListener = jest.fn();
 		bus.on('cache:invalidated', cacheListener);
 
@@ -68,10 +71,12 @@ describe('invalidate edge cases', () => {
 			delete process.env.NODE_ENV;
 		}
 
-		clearKernelReporter();
-		setKernelEventBus(new KernelEventBus());
+		clearWPKReporter();
+		setWPKernelEventBus(new WPKernelEventBus());
 		jest.clearAllMocks();
 		harnessSetup.harness.teardown();
+
+		resetReporterResolution();
 	});
 
 	type LogEntry = {
@@ -203,7 +208,7 @@ describe('invalidate edge cases', () => {
 			};
 
 			const override = createReporterSpy();
-			setKernelReporter(override.reporter);
+			setWPKernelReporter(override.reporter);
 
 			mockDispatch.mockReturnValue(mockStoreDispatch);
 

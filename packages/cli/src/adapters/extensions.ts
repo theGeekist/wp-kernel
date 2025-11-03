@@ -2,13 +2,13 @@ import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import type { Stats } from 'node:fs';
-import { KernelError } from '@wpkernel/core/contracts';
+import { WPKernelError } from '@wpkernel/core/contracts';
 import type {
 	AdapterContext,
 	AdapterExtension,
 	AdapterExtensionContext,
 } from '../config/types';
-import type { IRv1 } from '../ir/types';
+import type { IRv1 } from '../ir/publicTypes';
 
 /**
  * Result returned by the `runAdapterExtensions` helper.
@@ -130,7 +130,7 @@ export async function runAdapterExtensions(
 
 		const clonedIr = cloneIr(effectiveIr);
 		let hasUpdatedIr = false;
-		let nextIr: IRv1 | undefined;
+		let updatedIr: IRv1 | undefined;
 
 		const context: AdapterExtensionContext = {
 			...adapterContext,
@@ -153,7 +153,7 @@ export async function runAdapterExtensions(
 			},
 			updateIr(candidate: IRv1) {
 				hasUpdatedIr = true;
-				nextIr = cloneIr(candidate);
+				updatedIr = cloneIr(candidate);
 			},
 		};
 
@@ -168,7 +168,7 @@ export async function runAdapterExtensions(
 			throw normaliseError(error);
 		}
 
-		effectiveIr = hasUpdatedIr && nextIr ? nextIr : clonedIr;
+		effectiveIr = hasUpdatedIr && updatedIr ? updatedIr : clonedIr;
 	}
 
 	return {
@@ -218,7 +218,7 @@ async function scheduleFile(
 	const relativeTarget = path.relative(outputDir, targetPath);
 
 	if (relativeTarget.startsWith('..') || path.isAbsolute(relativeTarget)) {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: `Adapter extensions must write inside ${outputDir}. Received: ${filePath}`,
 			context: { outputDir, filePath },
 		});
@@ -349,7 +349,7 @@ export async function assertWithinOutput(
 		return;
 	}
 
-	throw new KernelError('DeveloperError', {
+	throw new WPKernelError('DeveloperError', {
 		message: `Adapter extensions must not escape ${root}. Received: ${resolvedPath}`,
 		context: { resolvedPath, root },
 	});
@@ -456,7 +456,7 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
  * @return Normalised error metadata for logging.
  */
 export function serialiseError(error: unknown): Record<string, unknown> {
-	if (KernelError.isKernelError(error)) {
+	if (WPKernelError.isWPKernelError(error)) {
 		return {
 			code: error.code,
 			message: error.message,
@@ -482,7 +482,7 @@ export function serialiseError(error: unknown): Record<string, unknown> {
  * @return An error instance suitable for propagation to callers.
  */
 export function normaliseError(error: unknown): Error {
-	if (KernelError.isKernelError(error)) {
+	if (WPKernelError.isWPKernelError(error)) {
 		return error;
 	}
 
@@ -490,7 +490,7 @@ export function normaliseError(error: unknown): Error {
 		return error;
 	}
 
-	return new KernelError('UnknownError', { message: String(error) });
+	return new WPKernelError('UnknownError', { message: String(error) });
 }
 
 /**
@@ -503,19 +503,19 @@ export function assertValidExtension(
 	extension: AdapterExtension | undefined | null
 ): asserts extension is AdapterExtension {
 	if (!extension) {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: 'Invalid adapter extension returned from factory.',
 		});
 	}
 
 	if (typeof extension.name !== 'string' || extension.name.trim() === '') {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: 'Adapter extensions must provide a non-empty name.',
 		});
 	}
 
 	if (typeof extension.apply !== 'function') {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: 'Adapter extensions must define an apply() function.',
 		});
 	}

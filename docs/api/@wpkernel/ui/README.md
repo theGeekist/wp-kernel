@@ -1,4 +1,4 @@
-[**WP Kernel API v0.3.0**](../../README.md)
+[**WP Kernel API v0.6.0**](../../README.md)
 
 ---
 
@@ -20,7 +20,7 @@ Reusable UI components for WP Kernel.
 - [DataViewsStandaloneRuntime](interfaces/DataViewsStandaloneRuntime.md)
 - [UseResourceItemResult](interfaces/UseResourceItemResult.md)
 - [UseResourceListResult](interfaces/UseResourceListResult.md)
-- [KernelUIProviderProps](interfaces/KernelUIProviderProps.md)
+- [WPKernelUIProviderProps](interfaces/WPKernelUIProviderProps.md)
 
 ## Type Aliases
 
@@ -42,8 +42,8 @@ Reusable UI components for WP Kernel.
 - [useAction](functions/useAction.md)
 - [useHoverPrefetch](functions/useHoverPrefetch.md)
 - [useNextPagePrefetch](functions/useNextPagePrefetch.md)
-- [usePolicy](functions/usePolicy.md)
+- [useCapability](functions/useCapability.md)
 - [usePrefetcher](functions/usePrefetcher.md)
 - [useVisiblePrefetch](functions/useVisiblePrefetch.md)
-- [KernelUIProvider](functions/KernelUIProvider.md)
-- [useKernelUI](functions/useKernelUI.md)
+- [WPKernelUIProvider](functions/WPKernelUIProvider.md)
+- [useWPKernelUI](functions/useWPKernelUI.md)

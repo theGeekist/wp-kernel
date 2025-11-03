@@ -1,6 +1,6 @@
 {
 	"name": "@wpkernel/e2e-utils",
-	"version": "0.4.0",
+	"version": "0.10.0",
 	"description": "E2E testing utilities for WP Kernel projects",
 	"license": "EUPL-1.2",
 	"type": "module",
@@ -70,10 +70,14 @@
 		"format": "prettier --write 'src/**/*.{js,ts,tsx,json,md}'",
 		"format:check": "prettier --check 'src/**/*.{js,ts,tsx,json,md}'",
 		"typecheck": "tsc --noEmit",
-		"typecheck:tests": "tsc --project tsconfig.tests.json --noEmit",
-		"test": "jest --passWithNoTests",
-		"test:watch": "jest --watch",
-		"test:coverage": "jest --coverage"
+		"typecheck:tests": "wpk-run-typecheck-tests",
+		"test": "wpk-run-jest",
+		"test:watch": "wpk-run-jest --watch",
+		"test:coverage": "wpk-run-jest coverage",
+		"test:integration": "wpk-run-jest integration"
+	},
+	"devDependencies": {
+		"@wpkernel/scripts": "workspace:*"
 	},
 	"dependencies": {
 		"@wpkernel/test-utils": "workspace:*"

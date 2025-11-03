@@ -1,0 +1,55 @@
+import { createHelper } from '../../runtime';
+import type {
+	BuilderApplyOptions,
+	BuilderHelper,
+	BuilderNext,
+} from '../../runtime/types';
+import {
+	buildPersistenceRegistryModule,
+	buildProgramTargetPlanner,
+	DEFAULT_DOC_HEADER,
+	type PersistenceRegistryResourceConfig,
+} from '@wpkernel/wp-json-ast';
+import type { IRv1 } from '../../ir/publicTypes';
+import { getPhpBuilderChannel } from './channel';
+
+export function createPhpPersistenceRegistryHelper(): BuilderHelper {
+	return createHelper({
+		key: 'builder.generate.php.registration.persistence',
+		kind: 'builder',
+		async apply(options: BuilderApplyOptions, next?: BuilderNext) {
+			const { input } = options;
+			if (input.phase !== 'generate' || !input.ir) {
+				await next?.();
+				return;
+			}
+
+			const { ir } = input;
+			const namespace = `${ir.php.namespace}\\Generated\\Registration`;
+			const module = buildPersistenceRegistryModule({
+				origin: ir.meta.origin,
+				namespace,
+				resources: mapResources(ir),
+			});
+
+			const planner = buildProgramTargetPlanner({
+				workspace: options.context.workspace,
+				outputDir: ir.php.outputDir,
+				channel: getPhpBuilderChannel(options.context),
+				docblockPrefix: DEFAULT_DOC_HEADER,
+			});
+
+			planner.queueFiles({ files: module.files });
+
+			await next?.();
+		},
+	});
+}
+
+function mapResources(ir: IRv1): readonly PersistenceRegistryResourceConfig[] {
+	return ir.resources.map((resource) => ({
+		name: resource.name,
+		storage: resource.storage ?? null,
+		identity: resource.identity ?? null,
+	}));
+}

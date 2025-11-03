@@ -1,6 +1,6 @@
 {
 	"name": "@wpkernel/test-utils",
-	"version": "0.1.0",
+	"version": "0.10.0",
 	"description": "Shared testing utilities for WP Kernel packages",
 	"license": "EUPL-1.2",
 	"type": "module",
@@ -65,6 +65,11 @@
 			"import": "./dist/cli/memory-stream.js",
 			"default": "./dist/cli/memory-stream.js"
 		},
+		"./cli/flush": {
+			"types": "./dist/cli/flush.d.ts",
+			"import": "./dist/cli/flush.js",
+			"default": "./dist/cli/flush.js"
+		},
 		"./core": {
 			"types": "./dist/core/index.d.ts",
 			"import": "./dist/core/index.js",
@@ -99,17 +104,21 @@
 	],
 	"scripts": {
 		"dev": "tsc --project tsconfig.json --watch",
-		"build": "tsc --project tsconfig.json",
+		"build": "vite build && tsc --project tsconfig.json",
 		"clean": "rm -rf dist *.tsbuildinfo",
 		"lint": "eslint src/",
 		"lint:fix": "eslint src/ --fix",
 		"format": "prettier --write 'src/**/*.{ts,tsx}'",
 		"format:check": "prettier --check 'src/**/*.{ts,tsx}'",
 		"typecheck": "tsc --project tsconfig.json --noEmit",
-		"typecheck:tests": "tsc --project tsconfig.tests.json --noEmit",
-		"test": "jest --passWithNoTests",
-		"test:watch": "jest --watch",
-		"test:coverage": "jest --passWithNoTests --coverage"
+		"typecheck:tests": "wpk-run-typecheck-tests",
+		"test": "wpk-run-jest",
+		"test:watch": "wpk-run-jest --watch",
+		"test:coverage": "wpk-run-jest coverage",
+		"test:integration": "wpk-run-jest integration"
+	},
+	"devDependencies": {
+		"@wpkernel/scripts": "workspace:*"
 	},
 	"peerDependencies": {
 		"@wpkernel/core": "workspace:*",

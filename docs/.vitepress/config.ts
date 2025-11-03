@@ -1,10 +1,31 @@
 // docs/.vitepress/config.ts
 import { defineConfig } from 'vitepress';
 import { withMermaid } from 'vitepress-plugin-mermaid';
+import tabsMarkdownPlugin from '@red-asuka/vitepress-plugin-tabs';
 
 // Fast mode for pre-commit hooks (MPA mode + no minification)
-const FAST = process.env.DOCS_FAST === '1';
-const PROD = process.env.NODE_ENV === 'production';
+// Defaults to enabled locally unless DOCS_FAST=0/false.
+const rawCI = process.env.CI;
+const CI = Boolean(rawCI && !['0', 'false'].includes(rawCI.toLowerCase()));
+const rawFast = process.env.DOCS_FAST?.toLowerCase();
+const FAST =
+	rawFast === '1' ||
+	rawFast === 'true' ||
+	(!CI && rawFast !== '0' && rawFast !== 'false');
+
+const searchConfig = FAST
+	? undefined
+	: {
+			provider: 'local' as const,
+		};
+
+const baseBuildOptions = {
+	target: 'esnext' as const,
+	cssTarget: 'esnext' as const,
+	modulePreload: {
+		polyfill: false as const,
+	},
+};
 
 export default withMermaid(
 	defineConfig({
@@ -12,21 +33,26 @@ export default withMermaid(
 		description:
 			'A Rails-like, opinionated framework for building modern WordPress products',
 		base: '/wp-kernel/',
-		lastUpdated: true,
+		lastUpdated: !FAST,
 		sitemap: { hostname: 'https://thegeekist.github.io' },
+
+		srcExclude: ['internal/*.md'],
 
 		// Keep wp-env localhost URLs valid (any port + path)
 		ignoreDeadLinks: [
 			/^https?:\/\/localhost(?::\d+)?(?:\/|$)/,
 			/^https?:\/\/127\.0\.0\.1(?::\d+)?(?:\/|$)/,
+			// Ignore links to internal documentation (excluded from processing)
+			/\.\.\/\.\.\/internal\//,
 		],
 
 		// Fast path for pre-commit; set to true for PROD if you can live without SPA nav
-		mpa: FAST, // <-- set to (FAST || PROD) if you want minimal JS in production too
-
-		// Big win: limit Shiki languages (reduces client+server bundle a lot)
+		mpa: FAST, // <-- set to (FAST || PROD) if you want minimal JS in production too		// Big win: limit Shiki languages (reduces client+server bundle a lot)
 		markdown: {
 			theme: { light: 'github-light', dark: 'github-dark' },
+			config(md) {
+				md.use(tabsMarkdownPlugin);
+			},
 		},
 
 		// Exclude heavy generated API pages from local search index (keeps render, shrinks search)
@@ -45,12 +71,14 @@ export default withMermaid(
 
 			build: FAST
 				? {
+						...baseBuildOptions,
 						minify: false,
 						cssMinify: false,
 						reportCompressedSize: false,
 						sourcemap: false,
 					}
 				: {
+						...baseBuildOptions,
 						reportCompressedSize: false,
 						// split the usual suspects so main stays slim
 						rollupOptions: {
@@ -96,6 +124,7 @@ export default withMermaid(
 				{ text: 'Home', link: '/' },
 				{ text: 'Getting Started', link: '/getting-started/' },
 				{ text: 'Guide', link: '/guide/' },
+				{ text: 'Packages', link: '/packages/' },
 				{ text: 'Examples', link: '/examples/' },
 				{ text: 'Reference', link: '/reference/contracts' },
 				{ text: 'API', link: '/api/' },
@@ -129,6 +158,42 @@ export default withMermaid(
 								link: '/reference/decision-matrix',
 							},
 							{ text: 'Roadmap', link: '/contributing/roadmap' },
+						],
+					},
+				],
+				'/packages/': [
+					{
+						text: 'Packages',
+						collapsed: false,
+						items: [
+							{ text: 'Overview', link: '/packages/' },
+							{ text: '@wpkernel/cli', link: '/packages/cli' },
+							{ text: '@wpkernel/core', link: '/packages/core' },
+							{
+								text: '@wpkernel/create-wpk',
+								link: '/packages/create-wpk',
+							},
+							{
+								text: '@wpkernel/e2e-utils',
+								link: '/packages/e2e-utils',
+							},
+							{
+								text: '@wpkernel/php-driver',
+								link: '/packages/php-driver',
+							},
+							{
+								text: '@wpkernel/php-json-ast',
+								link: '/packages/php-json-ast',
+							},
+							{
+								text: '@wpkernel/test-utils',
+								link: '/packages/test-utils',
+							},
+							{ text: '@wpkernel/ui', link: '/packages/ui' },
+							{
+								text: '@wpkernel/wp-json-ast',
+								link: '/packages/wp-json-ast',
+							},
 						],
 					},
 				],
@@ -187,8 +252,8 @@ export default withMermaid(
 						items: [
 							{ text: 'Contracts', link: '/reference/contracts' },
 							{
-								text: 'Kernel Config',
-								link: '/reference/kernel-config',
+								text: 'WPK Config',
+								link: '/reference/wpk-config',
 							},
 							{
 								text: 'Decision Matrix',
@@ -267,7 +332,7 @@ export default withMermaid(
 					link: 'https://github.com/theGeekist/wp-kernel',
 				},
 			],
-			search: { provider: 'local' },
+			...(searchConfig ? { search: searchConfig } : {}),
 			footer: {
 				message: 'Released under the EUPL-1.2 License.',
 				copyright:

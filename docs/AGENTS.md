@@ -10,8 +10,18 @@ When referencing lifecycle phases, namespaces, or exit codes, link to `@wpkernel
 
 ### Navigation and linking
 
-Whenever you add or rename a page, update the navigation indices that reference it (for example `docs/index.md`, `docs/packages/index.md`, or guide landing pages). Prefer relative links (`../guide/actions.md`) so the site builds cleanly in all environments. If you surface a new concept in `/docs`, cross-reference the canonical source (such as `configureKernel - Specification.md`) so readers know where to dive deeper.
+Whenever you add or rename a page, update the navigation indices that reference it (for example `docs/index.md`, `docs/packages/index.md`, or guide landing pages). Prefer relative links (`../guide/actions.md`) so the site builds cleanly in all environments. If you surface a new concept in `/docs`, cross-reference the canonical source (such as `configureWPKernel - Specification.md`) so readers know where to dive deeper.
 
 ### Coordination
 
-Large documentation updates should mention the affected pages in `docs/guide/repository-handbook.md` and call out the coverage in the pull request description. When edits touch both code and docs, run the full documentation suite (`pnpm lint -- --fix` if applicable, plus `pnpm typecheck:tests` when code snippets are executable) before shipping. This keeps the public narrative, root specifications, and test suite aligned.
+Large documentation updates should mention the affected pages in `docs/guide/repository-handbook.md` and call out the coverage in the pull request description. When edits touch both code and docs, run the full documentation suite (`pnpm lint --fix` if applicable, plus `pnpm typecheck:tests` when code snippets are executable) before shipping. This keeps the public narrative, root specifications, and test suite aligned.
+
+### Versioning & Releases
+
+- Docs describe the pre-1.0 train: **current version is v0.10.x** across all publishable packages.
+- When a task in `packages/cli/docs/mvp-plan.md` lands, mirror the patch/minor bump and update every relevant changelog/migration page in the same PR.
+- Remove or revise stale references to prior release numbers while keeping historical context sectioned under their respective changelog entries.
+
+### Cross-package dependencies
+
+If documentation work intersects with cross-package wiring (for example, guides about TypeScript paths or dependency setup), verify the steps against `docs/guide/adding-workspace-dependencies.md` so that the published guidance matches the repository practice.

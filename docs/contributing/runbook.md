@@ -512,7 +512,7 @@ gh run view <run-id> --log
 
 ```bash
 # Run specific test
-pnpm test -- --testNamePattern="should create thing"
+pnpm test --testNamePattern="should create thing"
 
 # Debug in VS Code
 # Add breakpoint, then F5
@@ -630,7 +630,7 @@ add_action('rest_api_init', function () {
 
 ### Static Export (CDN)
 
-> **🚧 Requires**: `defineKernelConfig()` API, build guards • upcoming initiative
+> **🚧 Requires**: `defineWPKernelConfig()` API, build guards • upcoming initiative
 
 Pre-rendered HTML for CDN deployment.
 
@@ -638,7 +638,7 @@ Pre-rendered HTML for CDN deployment.
 
 ```typescript
 // wpk.config.ts
-export default defineKernelConfig({
+export default defineWPKernelConfig({
 	project: {
 		supports: {
 			wp: true,

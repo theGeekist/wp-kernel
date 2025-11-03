@@ -33,7 +33,7 @@ Provides **proof of concept** for new kernel features as they are developed.
 - [ ] **Seeds updated** if new data requirements arise.
 - [ ] **No hidden kernel logic**-do not let framework fixes live only in showcase.
 
-## Generated Artifacts Policy
+## Generated Artifacts Capability
 
 - All files emitted by `wpk init`, `wpk generate`, and `wpk apply` **must be committed** in this repository.
 - Regenerate and re-apply after dependency bumps (e.g. `@wpkernel/core`, `@wpkernel/ui`) to surface drift. Commit the resulting diffs so CI can spot printer/scaffold regressions.
@@ -61,6 +61,10 @@ Provides **proof of concept** for new kernel features as they are developed.
 - ✗ Commit symlinked docs (they live outside the repo; only symlinks).
 - ✗ Rely on showcase for unit tests-kernel coverage belongs in `packages/core`.
 
-## Agent Policy
+## Agent Capability
 
 Use showcase to **prove and pressure-test** kernel features. When gaps are discovered, fix them upstream. Showcase is the **integration battlefield**, not a side-channel fork of the framework.
+
+## Cross-package dependencies
+
+When regenerating showcase assets that depend on workspace packages, verify configuration changes against `docs/guide/adding-workspace-dependencies.md` so the demo continues to reflect the canonical wiring.

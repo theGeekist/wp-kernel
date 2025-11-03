@@ -11,7 +11,7 @@ export { VERSION } from './version';
 export { runCli } from './cli/run';
 
 export type {
-	KernelConfigV1,
+	WPKernelConfigV1,
 	SchemaConfig,
 	AdaptersConfig,
 	PhpAdapterConfig,
@@ -21,37 +21,39 @@ export type {
 	AdapterExtensionContext,
 	AdapterExtensionFactory,
 	ConfigOrigin,
-	LoadedKernelConfig,
+	LoadedWPKernelConfig,
 } from './config';
 
 export {
-	definePolicyMap,
-	type PolicyCapabilityDescriptor,
-	type PolicyMapDefinition,
-	type PolicyMapEntry,
-	type PolicyMapScope,
-} from './policy-map';
+	defineCapabilityMap,
+	type CapabilityCapabilityDescriptor,
+	type CapabilityMapDefinition,
+	type CapabilityMapEntry,
+	type CapabilityMapScope,
+} from './capability-map';
 
 export type {
 	IRv1,
 	IRSchema,
 	IRResource,
 	IRRoute,
-	IRPolicyHint,
+	IRCapabilityHint,
 	IRBlock,
 	IRPhpProject,
 	BuildIrOptions,
-} from './ir';
-export type { PrinterContext } from './printers/types';
-export type { PhpAstBuilder } from './printers/php/types';
-
-export {
-	GenerateCommand,
-	InitCommand,
-	DoctorCommand,
-	StartCommand,
-	BuildCommand,
-	ApplyCommand,
-} from './commands';
-
-export * as next from './next';
+} from './ir/publicTypes';
+export { buildIr } from './ir/buildIr';
+export type {
+	Helper,
+	HelperApplyFn,
+	HelperApplyOptions,
+	HelperDescriptor,
+	HelperKind,
+	HelperMode,
+	CreateHelperOptions,
+} from '@wpkernel/core/pipeline';
+export * from './runtime';
+export * from './ir';
+export * from './builders';
+export * from './workspace';
+export * from './commands';

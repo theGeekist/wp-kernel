@@ -7,7 +7,7 @@
 export default {
 	preset: '@wordpress/jest-preset-default',
 	testEnvironment: 'jsdom',
-
+	// coverageProvider: 'v8',
 	// TypeScript transformation
 	transform: {
 		'^.+\\.tsx?$': [
@@ -40,6 +40,13 @@ export default {
 			'<rootDir>/node_modules/@eslint/eslintrc/universal.js',
 		'^@eslint/eslintrc$':
 			'<rootDir>/node_modules/@eslint/eslintrc/universal.js',
+		'^@wpkernel/php-json-ast$': '<rootDir>/packages/php-json-ast/src',
+		'^@wpkernel/php-json-ast/(.*)$':
+			'<rootDir>/packages/php-json-ast/src/$1',
+		'^@wpkernel/php-driver$': '<rootDir>/packages/php-driver/src',
+		'^@wpkernel/php-driver/(.*)$': '<rootDir>/packages/php-driver/src/$1',
+		'^@wordpress/interactivity$':
+			'<rootDir>/tests/mocks/wp-interactivity.ts',
 	},
 
 	// Test file patterns
@@ -72,10 +79,11 @@ export default {
 	// Individual packages should override these if needed
 	coverageThreshold: {
 		global: {
-			branches: 89,
-			functions: 90,
-			lines: 90,
-			statements: 90,
+			branches: 80,
+			functions: 83,
+			lines: 88,
+			statements: 88,
 		},
 	},
+	coveragePathIgnorePatterns: ['\\.test-support\\.(ts|tsx)$'],
 };

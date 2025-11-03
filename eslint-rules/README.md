@@ -8,7 +8,7 @@ This document outlines the custom ESLint rules designed to enforce best practice
 
 ### Purpose
 
-Prevents namespace drift by enforcing the use of **centralised constants** instead of hardcoded namespace strings such as `'wpk'`, `'wpk.action.start'`, or `'kernel.policy'`.
+Prevents namespace drift by enforcing the use of **centralised constants** instead of hardcoded namespace strings such as `'wpk'`, `'wpk.action.start'`, or `'kernel.capability'`.
 
 ### Why It Matters
 
@@ -37,7 +37,7 @@ hooks.doAction(WPK_EVENTS.ACTION_START, event);
 
 ```ts
 // ✗ BAD
-createReporter({ namespace: 'kernel.policy' });
+createReporter({ namespace: 'kernel.capability' });
 
 // ✓ GOOD
 import { WPK_SUBSYSTEM_NAMESPACES } from '../contracts';
@@ -100,13 +100,13 @@ Use WPK_EVENTS.ACTION_START from contracts/index.ts instead.
 
 ### Purpose
 
-Ensures structural consistency across resource configuration objects in `kernel.config.ts`.
+Ensures structural consistency across resource configuration objects in `wpk.config.ts`.
 
 ### What It Checks
 
-1. **Identity Parameter Matching** – `identity.param` must match route parameters.
-2. **Duplicate Route Detection** – Prevents duplicate `method` + `path` combos.
-3. **Post Type Validation** – `wp-post` mode must declare a `postType`.
+1. **Identity Parameter Matching** - `identity.param` must match route parameters.
+2. **Duplicate Route Detection** - Prevents duplicate `method` + `path` combos.
+3. **Post Type Validation** - `wp-post` mode must declare a `postType`.
 
 ### Example
 
@@ -143,10 +143,10 @@ Ensures cache key functions are valid, serialisable, and predictable.
 
 ### What It Checks
 
-1. **Return Type** – Must return an **array**.
-2. **Array Elements** – Must be **primitive values**.
-3. **Query Param References** – Must match declared `queryParams`.
-4. **Allowed Function Calls** – Only safe coercion helpers (`normalizeKeyValue`, `String`, `Number`, `Boolean`).
+1. **Return Type** - Must return an **array**.
+2. **Array Elements** - Must be **primitive values**.
+3. **Query Param References** - Must match declared `queryParams`.
+4. **Allowed Function Calls** - Only safe coercion helpers (`normalizeKeyValue`, `String`, `Number`, `Boolean`).
 
 ### Examples
 
@@ -177,15 +177,15 @@ Cache key references unknown query param 'serch' (did you mean 'search'?)
 
 ---
 
-## `@kernel/policy-hints`
+## `@kernel/capability-hints`
 
 ### Purpose
 
-Encourages **explicit policy declarations** for all write operations.
+Encourages **explicit capability declarations** for all write operations.
 
 ### What It Checks
 
-- Flags write routes (`POST`, `PUT`, `PATCH`, `DELETE`) missing a `policy` field.
+- Flags write routes (`POST`, `PUT`, `PATCH`, `DELETE`) missing a `capability` field.
 - Read (`GET`) routes are exempt but encouraged.
 
 ### Example
@@ -195,13 +195,13 @@ Encourages **explicit policy declarations** for all write operations.
 routes: { create: { method: 'POST' } };
 
 // ✓ GOOD
-routes: { create: { method: 'POST', policy: 'things.create' } };
+routes: { create: { method: 'POST', capability: 'things.create' } };
 ```
 
 **Diagnostic**
 
 ```
-Write route 'create' should declare a policy identifier
+Write route 'create' should declare a capability identifier
 ```
 
 ---
@@ -210,28 +210,28 @@ Write route 'create' should declare a policy identifier
 
 ### Purpose
 
-Encourages self-documenting `kernel.config.ts` files by linking to official CLI spec documentation.
+Encourages self-documenting `wpk.config.ts` files by linking to official CLI spec documentation.
 
 ### What It Checks
 
-- Detects missing documentation link comments before `kernelConfig` exports.
+- Detects missing documentation link comments before `wpkConfig` exports.
 - Offers auto-fix insertion.
 
 ### Example
 
 ```ts
 // ✗ WARN
-export const kernelConfig = { version: 1, namespace: 'demo' };
+export const wpkConfig = { version: 1, namespace: 'demo' };
 
 // ✓ GOOD
 // For CLI config guidance see https://github.com/theGeekist/wp-kernel/blob/main/packages/cli/mvp-cli-spec.md#6-blocks-of-authoring-safety
-export const kernelConfig = { version: 1, namespace: 'demo' };
+export const wpkConfig = { version: 1, namespace: 'demo' };
 ```
 
 **Diagnostic**
 
 ```
-Add a documentation reference comment for kernelConfig. Developers resolving lint diagnostics should review <doc-url>.
+Add a documentation reference comment for wpkConfig. Developers resolving lint diagnostics should review <doc-url>.
 ```
 
 ---
@@ -244,7 +244,7 @@ Add a documentation reference comment for kernelConfig. Developers resolving lin
 import noHardcodedNamespaceStrings from './eslint-rules/no-hardcoded-namespace-strings.js';
 import configConsistency from './eslint-rules/config-consistency.js';
 import cacheKeysValid from './eslint-rules/cache-keys-valid.js';
-import policyHints from './eslint-rules/policy-hints.js';
+import capabilityHints from './eslint-rules/capability-hints.js';
 import docLinks from './eslint-rules/doc-links.js';
 
 const kernelPlugin = {
@@ -252,7 +252,7 @@ const kernelPlugin = {
 		'no-hardcoded-namespace-strings': noHardcodedNamespaceStrings,
 		'config-consistency': configConsistency,
 		'cache-keys-valid': cacheKeysValid,
-		'policy-hints': policyHints,
+		'capability-hints': capabilityHints,
 		'doc-links': docLinks,
 	},
 };
@@ -264,7 +264,7 @@ export default [
 			'@kernel/no-hardcoded-namespace-strings': 'error',
 			'@kernel/config-consistency': 'error',
 			'@kernel/cache-keys-valid': 'error',
-			'@kernel/policy-hints': 'error',
+			'@kernel/capability-hints': 'error',
 			'@kernel/doc-links': 'warn', // auto-fixable
 		},
 	},
@@ -289,5 +289,5 @@ Tests use ESLint’s `RuleTester` with `@typescript-eslint/parser`, covering val
 
 - **Constants**: `packages/core/src/contracts/index.ts`
 - **Evaluator Utils**: `eslint-rules/utils/kernel-config-evaluator.js`
-- **CLI Spec**: [MVP CLI Spec §6 - Authoring Safety](../packages/cli/mvp-cli-spec.md#6-blocks-of-authoring-safety)
-- **PR**: [#112 – ESLint Plugin Extensions](https://github.com/theGeekist/wp-kernel/pull/112)
+- **CLI Spec**: [CLI Migration Phases - Authoring Safety](../packages/cli/docs/cli-migration-phases.md#authoring-safety-lint-rules)
+- **PR**: [#112 - ESLint Plugin Extensions](https://github.com/theGeekist/wp-kernel/pull/112)

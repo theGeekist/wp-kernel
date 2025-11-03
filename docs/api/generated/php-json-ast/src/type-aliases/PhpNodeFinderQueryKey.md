@@ -1,0 +1,14 @@
+[**WP Kernel API v0.10.0**](../../../README.md)
+
+---
+
+[WP Kernel API](../../../README.md) / [php-json-ast/src](../README.md) / PhpNodeFinderQueryKey
+
+# Type Alias: PhpNodeFinderQueryKey
+
+```ts
+type PhpNodeFinderQueryKey =
+	| 'class.readonly-properties'
+	| 'constructor.promoted-parameters'
+	| 'enum.case-lookups';
+```

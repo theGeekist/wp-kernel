@@ -1,0 +1,26 @@
+{
+	"$schema": "https://json.schemastore.org/tsconfig",
+	"extends": "../../tsconfig.tests.cli.json",
+	"compilerOptions": {
+		"rootDir": "../..",
+		"skipLibCheck": false,
+		"composite": false
+	},
+	"include": [
+		"src/**/*.test.ts",
+		"src/**/*.test.tsx",
+		"src/**/*.spec.ts",
+		"src/**/*.spec.tsx",
+		"vite.config.ts",
+		"./package.json"
+	],
+	"references": [
+		{ "path": "./tsconfig.json" },
+		{ "path": "../core/tsconfig.json" },
+		{ "path": "../php-json-ast/tsconfig.json" },
+		{ "path": "../php-driver/tsconfig.json" },
+		{ "path": "../test-utils/tsconfig.json" },
+		{ "path": "../ui/tsconfig.json" },
+		{ "path": "../e2e-utils/tsconfig.json" }
+	]
+}

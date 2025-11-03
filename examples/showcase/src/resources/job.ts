@@ -1,10 +1,6 @@
 import { defineResource } from '@wpkernel/core/resource';
-import {
-	kernelConfig,
-	type Job,
-	type JobListParams,
-} from '../../kernel.config';
+import { wpkConfig, type Job, type JobListParams } from '../../wpk.config';
 
-const jobResourceConfig = kernelConfig.resources.job;
+const jobResourceConfig = wpkConfig.resources.job;
 
 export const job = defineResource<Job, JobListParams>(jobResourceConfig);

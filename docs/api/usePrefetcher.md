@@ -22,7 +22,7 @@ function usePrefetcher<TRecord>(resource: ResourceObject<TRecord>): {
 } {}
 ```
 
-- **`resource`** – the `ResourceObject` returned by `defineResource`.
+- **`resource`** - the `ResourceObject` returned by `defineResource`.
 - Returns stable `prefetchGet` and `prefetchList` callbacks. They mirror
   `resource.prefetchGet` and `resource.prefetchList`, are safe to pass to refs,
   and swallow the returned promise because prefetching is advisory.
@@ -81,7 +81,7 @@ useHoverPrefetch(
 ```
 
 Adds a `mouseenter` handler that runs the provided callback after the configured
-delay (150 ms by default). Moving the pointer out of the element cancels the
+delay (150 ms by default). Moving the pointer out of the element cancels the
 timer. Set `once: false` if you want to re-run the callback for every hover.
 
 ## `useVisiblePrefetch(ref, fn, options?)`
@@ -133,7 +133,7 @@ useNextPagePrefetch(job, currentQuery, {
 
 - These helpers rely on the store registration performed by
   `defineResource`-they do not talk to the transport directly.
-- The kernel throws a `KernelError('DeveloperError')` if `@wordpress/data`
+- The kernel throws a `WPKernelError('DeveloperError')` if `@wordpress/data`
   is not present. This mirrors the imperative `prefetch*` functions.
 - Prefetching is **advisory**. Use it to reduce wait time, not to enforce data
   loading. Render hooks (`resource.useList`, `resource.useGet`) remain the
@@ -141,5 +141,5 @@ useNextPagePrefetch(job, currentQuery, {
 
 ## References
 
-- Resource runtime – [`packages/core/src/resource/define.ts`](../packages/core/src/resource/define.ts)
-- Cache helpers – [`packages/core/src/resource/cache.ts`](../packages/core/src/resource/cache.ts)
+- Resource runtime - [`packages/core/src/resource/define.ts`](../packages/core/src/resource/define.ts)
+- Cache helpers - [`packages/core/src/resource/cache.ts`](../packages/core/src/resource/cache.ts)

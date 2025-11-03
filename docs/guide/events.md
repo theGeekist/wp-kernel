@@ -1,12 +1,12 @@
 # Events
 
-> **Status**: ✓ **Fully Implemented** – JavaScript event system now flows through
-> `KernelEventBus` with a WordPress hooks bridge.
+> **Status**: ✓ **Fully Implemented** - JavaScript event system now flows through
+> `WPKernelEventBus` with a WordPress hooks bridge.
 >
 > **PHP Bridge**: 🚧 Planned for a future release (legacy plugin integrations).
 
 Stable, versioned event registry with predictable names. All events come from a
-central registry-no ad-hoc strings. `KernelEventBus` is the authoritative
+central registry-no ad-hoc strings. `WPKernelEventBus` is the authoritative
 publisher: every lifecycle notification runs through the bus first, then the
 kernel events plugin forwards canonical events into `wp.hooks` for backwards
 compatibility. JavaScript remains the source of truth, but consumers can choose
@@ -14,9 +14,9 @@ between the bus (typed subscriptions) or WordPress hooks (legacy interoperabilit
 without losing coverage.
 
 ```ts
-import { configureKernel } from '@wpkernel/core';
+import { configureWPKernel } from '@wpkernel/core';
 
-const kernel = configureKernel({ namespace: 'acme' });
+const kernel = configureWPKernel({ namespace: 'acme' });
 
 const unsubscribe = kernel.events.on('action:complete', (event) => {
 	kernel.getReporter().info('Action completed', {
@@ -62,7 +62,7 @@ Automatically emitted by the HTTP transport layer (framework events use `wpk.*` 
 // On transport/server error
 'wpk.resource.error': {
   resourceName: string;
-  error: KernelError;
+  error: WPKernelError;
   requestId: string;
 }
 
@@ -71,7 +71,7 @@ Automatically emitted by the HTTP transport layer (framework events use `wpk.*` 
   resourceName: string;
   attempt: number;
   nextDelay: number;
-  error: KernelError;
+  error: WPKernelError;
   requestId: string;
 }
 ```
@@ -150,19 +150,19 @@ console.log(customPost.events.created); // 'enterprise.post.created' ✓
 // Action failed
 'wpk.action.error': {
   actionName: string;
-  error: KernelError;
+  error: WPKernelError;
   requestId: string;
 }
 ```
 
-### Policy Events
+### Capability Events
 
-✓ **Available Now**: Emitted during policy checks.
+✓ **Available Now**: Emitted during capability checks.
 
 ```typescript
-// Client policy check failed
-'wpk.policy.denied': {
-  policyKey: string;
+// Client capability check failed
+'wpk.capability.denied': {
+  capabilityKey: string;
   context?: Record<string, unknown>;
 }
 ```
@@ -190,7 +190,7 @@ console.log(customPost.events.created); // 'enterprise.post.created' ✓
 'wpk.job.failed': {
   jobName: string;
   jobId: string;
-  error: KernelError;
+  error: WPKernelError;
 }
 ```
 

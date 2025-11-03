@@ -5,10 +5,10 @@ WP Kernel is an opinionated framework for WordPress plugins. JavaScript stays in
 ## What ships out of the box
 
 - **Resources** provide typed REST clients, cache helpers, grouped APIs, and React hooks as soon as you call `defineResource` in your project.【F:packages/core/src/resource/define.ts†L115-L390】
-- **Actions** wrap every write. They surface reporters, cache invalidation, job helpers, and policy assertions through the action context so UIs never call transports directly.【F:packages/core/src/actions/define.ts†L160-L322】
-- **CLI printers** live under `.generated/`. `wpk generate` emits TypeScript declarations for schemas, PHP controllers for local routes, optional DataViews scaffolding, and block registration code based on the manifests it discovers.【F:packages/cli/src/printers/index.ts†L1-L16】
+- **Actions** wrap every write. They surface reporters, cache invalidation, job helpers, and capability assertions through the action context so UIs never call transports directly.【F:packages/core/src/actions/define.ts†L160-L322】
+- **CLI builders** live under `.generated/`. `wpk generate` emits TypeScript declarations for schemas, PHP controllers for local routes, optional DataViews scaffolding, and block registration code based on the manifests it discovers.【F:packages/cli/src/builders/ts.ts†L1-L200】【F:packages/cli/src/builders/php/builder.ts†L1-L80】
 
-When you configure adapters, the CLI can extend generation-for example the default PHP adapter writes controllers into `.generated/php` and produces a policy helper for capability checks.【F:packages/cli/src/printers/php/printer.ts†L1-L73】
+When you configure adapters, the CLI can extend generation-for example the default PHP adapter writes controllers into `.generated/php` and produces a capability helper for capability checks.【F:packages/cli/src/builders/php/builder.ts†L1-L80】
 
 ## Orientation map
 
@@ -51,14 +51,14 @@ export const CreateJob = defineAction({
 
 ## UI integration
 
-Call `configureKernel` once during bootstrap, then hand the instance to `attachUIBindings` from `@wpkernel/ui`. That attaches resource hooks, optional DataViews runtime support, and policy bridges to the kernel instance.【F:packages/ui/src/runtime/attachUIBindings.ts†L1-L120】
+Call `configureWPKernel` once during bootstrap, then hand the instance to `attachUIBindings` from `@wpkernel/ui`. That attaches resource hooks, optional DataViews runtime support, and capability bridges to the kernel instance.【F:packages/ui/src/runtime/attachUIBindings.ts†L1-L120】
 
 ```ts
-import { configureKernel } from '@wpkernel/core/data';
+import { configureWPKernel } from '@wpkernel/core/data';
 import { attachUIBindings } from '@wpkernel/ui';
-import { kernelConfig } from '../kernel.config';
+import { wpkConfig } from '../wpk.config';
 
-export const kernel = configureKernel({ namespace: kernelConfig.namespace });
+export const kernel = configureWPKernel({ namespace: wpkConfig.namespace });
 export const ui = attachUIBindings(kernel);
 ```
 
@@ -66,4 +66,4 @@ Once attached, React components can call `job.useList()` or render `<ResourceDat
 
 ## Next steps
 
-Start with the [installation guide](/getting-started/installation) to prepare your environment, then follow the [Quick Start](/getting-started/quick-start) for the end-to-end workflow. The [Guide section](/guide/) breaks down each subsystem-resources, actions, jobs, policies, reporting-so you can dig deeper once the basics are clear.
+Start with the [installation guide](/getting-started/installation) to prepare your environment, then follow the [Quick Start](/getting-started/quick-start) for the end-to-end workflow. The [Guide section](/guide/) breaks down each subsystem-resources, actions, jobs, capabilities, reporting-so you can dig deeper once the basics are clear.

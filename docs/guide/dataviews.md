@@ -1,15 +1,15 @@
 # DataViews Integration
 
-Modern admin tables in WP Kernel build on the upstream `@wordpress/dataviews` component. This guide shows how to configure a resource-driven DataView that honours kernel policies, emits events, persists preferences, and plugs into generators, tests, and accessibility follow-ups.
+Modern admin tables in WP Kernel build on the upstream `@wordpress/dataviews` component. This guide shows how to configure a resource-driven DataView that honours kernel capabilities, emits events, persists preferences, and plugs into generators, tests, and accessibility follow-ups.
 
-> 📖 Background: read the [DataViews Integration – Specification](https://github.com/theGeekist/wp-kernel/blob/main/packages/ui/DataViews%20Integration%20-%20Specification.md) for architecture decisions and the [UI package reference](../packages/ui.md) for API summaries.
+> 📖 Background: read the [DataViews Integration - Specification](https://github.com/theGeekist/wp-kernel/blob/main/packages/ui/DataViews%20Integration%20-%20Specification.md) for architecture decisions and the [UI package reference](../packages/ui.md) for API summaries.
 
 ## Prerequisites
 
 - WordPress 6.7+ (DataViews + Script Modules).
-- `@wpkernel/core` configured with `configureKernel()`.
+- `@wpkernel/core` configured with `configureWPKernel()`.
 - `@wpkernel/ui` attached via `attachUIBindings()`.
-- Resources that describe their REST contract and optional policies/actions.
+- Resources that describe their REST contract and optional capabilities/actions.
 
 ## 1. Describe the admin view in your resource
 
@@ -77,13 +77,13 @@ export const job = defineResource<Job, JobQuery>({
 
 ## 2. Bootstrap the UI runtime
 
-Opt in to DataViews when calling `configureKernel()` and share the runtime with React.
+Opt in to DataViews when calling `configureWPKernel()` and share the runtime with React.
 
 ```ts
-import { configureKernel } from '@wpkernel/core';
-import { attachUIBindings, KernelUIProvider } from '@wpkernel/ui';
+import { configureWPKernel } from '@wpkernel/core';
+import { attachUIBindings, WPKernelUIProvider } from '@wpkernel/ui';
 
-export const kernel = configureKernel({
+export const kernel = configureWPKernel({
 	namespace: 'demo',
 	registry: window.wp.data,
 	ui: {
@@ -101,9 +101,9 @@ const runtime = kernel.getUIRuntime();
 ```tsx
 export function AdminApp() {
 	return (
-		<KernelUIProvider runtime={runtime}>
+		<WPKernelUIProvider runtime={runtime}>
 			<JobsAdminScreen />
-		</KernelUIProvider>
+		</WPKernelUIProvider>
 	);
 }
 ```
@@ -148,7 +148,7 @@ export function JobsAdminScreen() {
 
 `ResourceDataView` wraps the upstream component, providing:
 
-- Policy-gated bulk and row actions.
+- Capability-gated bulk and row actions.
 - Preference persistence through the adapter chain (user → role → site).
 - Event emission for `ui:dataviews:*` hooks.
 - `data-wpk-dataview-*` attributes for automated tests.
@@ -199,7 +199,7 @@ Outputs include:
 
 ## Testing the experience
 
-Unit tests: see `packages/ui/src/dataviews/__tests__/` for patterns covering query mapping, preference persistence, and policy gating.
+Unit tests: see `packages/ui/src/dataviews/__tests__/` for patterns covering query mapping, preference persistence, and capability gating.
 
 Playwright helpers: `@wpkernel/e2e-utils` exposes a `kernel.dataview()` factory.
 
@@ -217,9 +217,9 @@ Helpers rely on the DOM attributes emitted by `ResourceDataView`. Keep those sel
 
 ## Migration guidance
 
-- **Snapshot reference** – `packages/ui/vendor/dataviews-snapshot/` contains a checked-in copy of the Gutenberg sources for offline inspection. Refresh it with `pnpm --filter @wpkernel/ui update:dataviews-snapshot -- --source <path>`.
-- **Compat provider** – For WordPress versions prior to 6.7 wrap your screens with the compatibility helpers in `packages/ui/src/compat/dataviews.ts` to fall back to legacy tables.
-- **Generated code** – CLI fixtures emit function bodies verbatim. Review generated files before committing to keep long-term maintenance manageable.
+- **Snapshot reference** - `packages/ui/vendor/dataviews-snapshot/` contains a checked-in copy of the Gutenberg sources for offline inspection. Refresh it with `pnpm --filter @wpkernel/ui update:dataviews-snapshot --source <path>`.
+- **Compat provider** - For WordPress versions prior to 6.7 wrap your screens with the compatibility helpers in `packages/ui/src/compat/dataviews.ts` to fall back to legacy tables.
+- **Generated code** - CLI fixtures emit function bodies verbatim. Review generated files before committing to keep long-term maintenance manageable.
 
 ## Accessibility follow-ups
 
@@ -229,5 +229,5 @@ Accessibility hardening (ARIA reconciliation, focus choreography, high-contrast 
 
 - [UI package reference](../packages/ui.md)
 - [CLI package reference](../packages/cli.md)
-- [Showcase walkthrough](./showcase.md)
+- [Showcase walkthrough](/examples/showcase)
 - [E2E helpers](../packages/e2e-utils.md)

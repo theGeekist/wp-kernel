@@ -28,14 +28,14 @@ These values come directly from `defineResource` and match the namespace detecti
 
 ## Error taxonomy
 
-All framework errors extend `KernelError` and share the same serialization shape.【F:packages/core/src/error/KernelError.ts†L1-L160】
+All framework errors extend `WPKernelError` and share the same serialization shape.【F:packages/core/src/error/WPKernelError.ts†L1-L160】
 
-| Error class         | Description                              | Notable fields                           |
-| ------------------- | ---------------------------------------- | ---------------------------------------- |
-| `KernelError`       | Base class for typed errors.             | `code`, `message`, `data`, `context`.    |
-| `TransportError`    | Network or fetch failure in the browser. | `status`, `path`, `method`, `requestId`. |
-| `ServerError`       | WordPress REST returned a `WP_Error`.    | `status`, `path`, `data`, `requestId`.   |
-| `PolicyDeniedError` | A policy assertion failed.               | `policyKey`, `context`, `userId?`.       |
+| Error class             | Description                              | Notable fields                           |
+| ----------------------- | ---------------------------------------- | ---------------------------------------- |
+| `WPKernelError`         | Base class for typed errors.             | `code`, `message`, `data`, `context`.    |
+| `TransportError`        | Network or fetch failure in the browser. | `status`, `path`, `method`, `requestId`. |
+| `ServerError`           | WordPress REST returned a `WP_Error`.    | `status`, `path`, `data`, `requestId`.   |
+| `CapabilityDeniedError` | A capability assertion failed.           | `capabilityKey`, `context`, `userId?`.   |
 
 Every error implements `toJSON()` so you can send it over the wire or store it in logs without losing type information.【F:packages/core/src/error/types.ts†L1-L120】
 
@@ -45,12 +45,12 @@ Cache keys follow WordPress data store conventions: `[storeName, operation, ...p
 
 Examples:
 
-- `['job', 'list']` – unfiltered list cache key.
-- `['job', 'list', 'open']` – filtered list cache key.
-- `['job', 'get', 123]` – single item cache key.
+- `['job', 'list']` - unfiltered list cache key.
+- `['job', 'list', 'open']` - filtered list cache key.
+- `['job', 'get', 123]` - single item cache key.
 
 Use `resource.cache.key()`, `resource.cache.invalidate.*`, and `matchesCacheKey()` to work with these patterns safely.【F:packages/core/src/resource/types.ts†L459-L620】【F:packages/core/src/resource/cache.ts†L400-L760】
 
 ## Namespaces and infrastructure
 
-`@wpkernel/core/namespace/constants` exports additional constants used internally (policy cache channels, hooks namespaces, etc.). They are stable but generally only required when integrating deeply with the runtime.【F:packages/core/src/namespace/constants.ts†L1-L120】 When you need to listen for framework events in PHP, use `WPK_INFRASTRUCTURE.WP_HOOKS_NAMESPACE_PREFIX` to compose hook names instead of hardcoding strings.【F:packages/core/src/namespace/constants.ts†L25-L70】
+`@wpkernel/core/namespace/constants` exports additional constants used internally (capability cache channels, hooks namespaces, etc.). They are stable but generally only required when integrating deeply with the runtime.【F:packages/core/src/namespace/constants.ts†L1-L120】 When you need to listen for framework events in PHP, use `WPK_INFRASTRUCTURE.WP_HOOKS_NAMESPACE_PREFIX` to compose hook names instead of hardcoding strings.【F:packages/core/src/namespace/constants.ts†L25-L70】

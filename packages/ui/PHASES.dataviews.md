@@ -1,4 +1,4 @@
-# DataViews Integration – Phased Delivery
+# DataViews Integration - Phased Delivery
 
 > Roadmap aligned with [`DataViews Integration - Specification.md`](./DataViews%20Integration%20-%20Specification.md). Each phase references relevant sections to keep implementation contextual and auditable for the cloud agent. Phase deliverables assume the Gutenberg snapshot lives under [`packages/ui/vendor/dataviews-snapshot/`](vendor/dataviews-snapshot/README.md), while runtime imports continue to use the published `@wordpress/dataviews` package (`node_modules`). For feature reference, see [`packages/ui/wp-dataviews.md`](wp-dataviews.md).
 
@@ -18,10 +18,10 @@
 
 ---
 
-## Phase 1 – Kernel UI Runtime Foundations
+## Phase 1 - Kernel UI Runtime Foundations
 
 **Spec references:** §4.1 Kernel UI Runtime Extensions, §4.7 View Persistence  
-**Goal:** Extend `KernelUIRuntime` and `attachUIBindings` to host DataViews controllers, events, and preference adapters.
+**Goal:** Extend `WPKernelUIRuntime` and `attachUIBindings` to host DataViews controllers, events, and preference adapters.
 
 - **Scope:**
     - Extend runtime types with `dataviews` namespace (registry, controllers, preferences).
@@ -41,20 +41,20 @@
 
 ---
 
-## Phase 2 – Resource DataView Controller & Components
+## Phase 2 - Resource DataView Controller & Components
 
-**Spec references:** §4.3 Query & Data Orchestration, §4.4 Actions, Policies, and Editing  
+**Spec references:** §4.3 Query & Data Orchestration, §4.4 Actions, Capabilities, and Editing  
 **Goal:** Deliver the controller utilities and React component wrappers that marry kernel resources/actions with the DataViews UI.
 
 - **Scope:**
     - Implement `createResourceDataViewController` translating DataViews state → resource queries via the `QueryMapping` contract and exposing data/loading/errors via hooks.
     - Implement `createDataFormController` bridging `DataForm` with kernel actions and cache invalidation.
-    - Create `ResourceDataView` React component composing controller outputs with the snapshot DataViews component, including policy-gated actions and error normalization rules.
+    - Create `ResourceDataView` React component composing controller outputs with the snapshot DataViews component, including capability-gated actions and error normalization rules.
     - Provide storybook-ready fixtures under `packages/ui/fixtures/dataviews` using the snapshot types.
 
 - **Deliverables:** controller utilities (`packages/ui/src/dataviews/`), React component, fixtures, unit tests (React Testing Library) validating sort/search/pagination mapping and action dispatch.
 
-- **DoD:** All UI tests (unit + integration) pass; coverage updated; component documented in README; Status Log notes policy gating coverage.
+- **DoD:** All UI tests (unit + integration) pass; coverage updated; component documented in README; Status Log notes capability gating coverage.
 
 - **Testing:** Jest with React Testing Library; integration test verifying controller + mock resource interplay.
 
@@ -62,14 +62,14 @@
 
 ---
 
-## Phase 3 – configureKernel Integration & Registry Wiring
+## Phase 3 - configureWPKernel Integration & Registry Wiring
 
-**Spec references:** §4.5 configureKernel Integration, §5 API Surface Summary  
+**Spec references:** §4.5 configureWPKernel Integration, §5 API Surface Summary  
 **Goal:** Auto-register DataViews runtime pieces during kernel bootstrapping and ensure events/hooks fire end-to-end.
 
 - **Scope:**
-    - Extend `ConfigureKernelOptions.ui.options` to accept DataViews flags/adapters.
-    - Update `configureKernel` to initialise DataViews runtime when enabled and to honour `autoRegisterResources`.
+    - Extend `ConfigureWPKernelOptions.ui.options` to accept DataViews flags/adapters.
+    - Update `configureWPKernel` to initialise DataViews runtime when enabled and to honour `autoRegisterResources`.
     - Listen to `resource:defined` events to register controllers derived from `resource.ui?.admin?.dataviews`.
     - Add integration tests under `packages/core/src/data/__tests__/` mocking UI attach to confirm controllers register and emit events.
 
@@ -77,13 +77,13 @@
 
 - **DoD:** `pnpm --filter @wpkernel/core typecheck` and unit/integration tests pass; UI package tests still green; Status Log records integration scenarios executed.
 
-- **Testing:** Jest integration tests covering configureKernel + runtime interplay (including teardown) plus snapshot tests for emitted events.
+- **Testing:** Jest integration tests covering configureWPKernel + runtime interplay (including teardown) plus snapshot tests for emitted events.
 
 - **Status Log:** _TBD_
 
 ---
 
-## Phase 4 – Resource Metadata & CLI Bridge
+## Phase 4 - Resource Metadata & CLI Bridge
 
 **Spec references:** §4.2 Resource Metadata & CLI Config, §5 API Surface Summary  
 **Goal:** Surface DataViews configuration on resources and ensure CLI tooling propagates metadata for generators.
@@ -105,7 +105,7 @@
 
 ---
 
-## Phase 5 – Documentation, E2E, & Accessibility Planning
+## Phase 5 - Documentation, E2E, & Accessibility Planning
 
 **Spec references:** §6 Implementation Plan (Docs & Testing), §9 Deferred Items & Follow-Ups  
 **Goal:** Final polish for MVP: documentation, example screens, and Playwright regression coverage; log accessibility follow-up tasks for the dedicated sprint.
@@ -133,6 +133,6 @@
 | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | P1    | Kernel UI runtime exposes DataViews namespace with preferences adapter, events, errors, and snapshot updater script.                                               | None                                                                                | Snapshot script depends on local Gutenberg checkout; ensure `GUTENBERG_PATH` is set in environments without the repo. |
 | P2    | Resource DataView controller, DataForm controller, React wrapper, and fixtures implemented with unit coverage for query mapping, persistence, and action dispatch. | Document standalone runtime usage guidance and extend integration tests in Phase 3. | DataViews snapshot remains reference-only; ensure runtime imports continue to resolve from `node_modules`.            |
-| P3    | configureKernel auto-wires DataViews runtime options, registering controllers on `resource:defined` and bridging `ui:dataviews:*` events.                          | None                                                                                | Kernel + UI integration tests cover resource replay, live registration, and event emission.                           |
+| P3    | configureWPKernel auto-wires DataViews runtime options, registering controllers on `resource:defined` and bridging `ui:dataviews:*` events.                        | None                                                                                | Kernel + UI integration tests cover resource replay, live registration, and event emission.                           |
 | P4    | Resource metadata typed for DataViews; CLI validation/IR propagate it and generators emit `.generated/ui` screens, fixtures, and optional PHP menus.               | None                                                                                | CLI outputs require declarative metadata (functions are rejected during serialisation).                               |
 | P5    | -                                                                                                                                                                  | -                                                                                   | -                                                                                                                     |

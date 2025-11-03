@@ -1,4 +1,4 @@
-[**WP Kernel API v0.3.0**](../../../README.md)
+[**WP Kernel API v0.6.0**](../../../README.md)
 
 ---
 
@@ -17,7 +17,7 @@ Context shared with adapter factories while generating artifacts.
 ### config
 
 ```ts
-config: KernelConfigV1;
+config: WPKernelConfigV1;
 ```
 
 ---

@@ -1,0 +1,21 @@
+[**WP Kernel API v0.10.0**](../../../README.md)
+
+---
+
+[WP Kernel API](../../../README.md) / [php-json-ast/src](../README.md) / derivePhpNameFromString
+
+# Function: derivePhpNameFromString()
+
+```ts
+function derivePhpNameFromString(name): PhpName;
+```
+
+## Parameters
+
+### name
+
+`string`
+
+## Returns
+
+[`PhpName`](../interfaces/PhpName.md)

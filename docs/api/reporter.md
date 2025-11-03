@@ -18,7 +18,7 @@ Creates a reporter instance scoped to a namespace. Reporters expose levelled met
 const reporter = createReporter({ namespace: 'kernel', channel: 'all' });
 
 reporter.info('Action started', { requestId: 'act_123' });
-reporter.error('Policy denied', { rule: 'posts.delete' });
+reporter.error('Capability denied', { rule: 'posts.delete' });
 ```
 
 ### Options
@@ -46,8 +46,8 @@ Context objects are passed through LogLayer metadata. They remain structured whe
 
 The unified reporter ships with two transports:
 
-- **Console** – writes `[namespace] message` to the developer console (skipped in production builds).
-- **Hooks** – emits `doAction('{namespace}.reporter.{level}', { message, context, timestamp })`.
+- **Console** - writes `[namespace] message` to the developer console (skipped in production builds).
+- **Hooks** - emits `doAction('{namespace}.reporter.{level}', { message, context, timestamp })`.
 
 The bridge transport is reserved for the PHP integration in a later sprint. Requesting it throws to highlight the missing
 implementation.
@@ -61,17 +61,17 @@ const kernelReporter = createReporter({
 	namespace: 'showcase',
 	channel: 'all',
 });
-const policyReporter = kernelReporter.child('policy');
+const capabilityReporter = kernelReporter.child('capability');
 
-policyReporter.warn('Rule denied', { rule: 'posts.delete' });
-// Hook: showcase.policy.reporter.warn
+capabilityReporter.warn('Rule denied', { rule: 'posts.delete' });
+// Hook: showcase.capability.reporter.warn
 ```
 
 ## Integration
 
-- **Actions** – the kernel automatically creates a reporter per namespace when actions execute.
-- **Policies** – `definePolicy()` uses a reporter when `debug: true` is provided.
-- **Registry** – `configureKernel()` (from `@wpkernel/core`) accepts a reporter override when wiring `@wordpress/data`.
+- **Actions** - the kernel automatically creates a reporter per namespace when actions execute.
+- **Capabilities** - `defineCapability()` uses a reporter when `debug: true` is provided.
+- **Registry** - `configureWPKernel()` (from `@wpkernel/core`) accepts a reporter override when wiring `@wordpress/data`.
 
 Every console call inside `packages/core/src` now routes through this module. The custom ESLint rule
-`@kernel/no-console-in-kernel` enforces the policy.
+`@kernel/no-console-in-kernel` enforces the capability.

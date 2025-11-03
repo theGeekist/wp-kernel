@@ -1,7 +1,7 @@
 # Actions API
 
 Actions orchestrate every write in WP Kernel. They wrap resource mutations with
-policy checks, cache invalidation, lifecycle events, and background job hooks.
+capability checks, cache invalidation, lifecycle events, and background job hooks.
 
 ## `defineAction`
 
@@ -41,7 +41,7 @@ export const CreateTestimonial = defineAction<
 	{ data: Testimonial },
 	Testimonial
 >('Testimonial.Create', async (ctx, { data }) => {
-	ctx.policy.assert('testimonials.create');
+	ctx.capability.assert('testimonials.create');
 
 	const created = await testimonial.create!(data);
 
@@ -68,7 +68,7 @@ The `ActionContext` provided to the implementation exposes:
 - `invalidate(patterns, options?)` - invalidate resource caches.
 - `jobs.enqueue(name, payload)` / `jobs.wait(name, payload, options?)` -
   background job integration.
-- `policy.assert(capability)` / `policy.can(capability)` - capability checks.
+- `capability.assert(capability)` / `capability.can(capability)` - capability checks.
 - `reporter` - structured logging hooks (`info`, `warn`, `error`, `debug`).
 
 ### Lifecycle events
@@ -77,7 +77,7 @@ Each invocation automatically emits lifecycle hooks via `@wordpress/hooks`:
 
 - `wpk.action.start` - before execution, payload includes args and metadata.
 - `wpk.action.complete` - after success, payload includes result and duration.
-- `wpk.action.error` - on failure, payload includes normalized `KernelError`.
+- `wpk.action.error` - on failure, payload includes normalized `WPKernelError`.
 
 Events are broadcast cross-tab by default. Set `scope: 'tabLocal'` to keep events
 within the current tab; tab-local actions never bridge to PHP even when
@@ -107,7 +107,7 @@ middleware ignores unrelated actions and forwards them to the next handler.
 ## Runtime configuration
 
 Host applications can supply a runtime adapter via
-`global.__WP_KERNEL_ACTION_RUNTIME__` to plug in custom reporters, policy
+`global.__WP_KERNEL_ACTION_RUNTIME__` to plug in custom reporters, capability
 systems, background job runners, or event bridges. Without configuration the
 context falls back to console reporting and throws `NotImplementedError` when
 job helpers are invoked.

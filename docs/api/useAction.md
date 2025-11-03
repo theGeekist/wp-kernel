@@ -1,16 +1,16 @@
 # `useAction`
 
 React hook that wraps kernel actions with predictable state, concurrency
-policies, and cache invalidation helpers. It dispatches Actions through the
+capabilities, and cache invalidation helpers. It dispatches Actions through the
 kernel middleware (`packages/core/src/actions/middleware.ts`), so you keep all
 the lifecycle instrumentation provided by `defineAction`
 (`packages/core/src/actions/define.ts`) while gaining a first-class React
 interface.
 
-The hook lives in `@wpkernel/ui` and expects a `KernelUIRuntime` to be
-available via `KernelUIProvider`. Attach the runtime during
-`configureKernel({ ui: { attach: attachUIBindings } })` and wrap your React tree
-with `KernelUIProvider` so hooks can resolve the registry and action dispatcher.
+The hook lives in `@wpkernel/ui` and expects a `WPKernelUIRuntime` to be
+available via `WPKernelUIProvider`. Attach the runtime during
+`configureWPKernel({ ui: { attach: attachUIBindings } })` and wrap your React tree
+with `WPKernelUIProvider` so hooks can resolve the registry and action dispatcher.
 `useAction()` does **not** reimplement actions-everything still flows through
 `invokeAction` and the runtime declared in
 `packages/core/src/actions/types.ts`.
@@ -38,7 +38,7 @@ function useAction<TInput, TResult>(
 	reset(): void;
 	status: 'idle' | 'running' | 'success' | 'error';
 	result?: TResult;
-	error?: KernelError;
+	error?: WPKernelError;
 	inFlight: number;
 };
 ```
@@ -53,10 +53,10 @@ function useAction<TInput, TResult>(
 
 ### Concurrency modes
 
-- **`parallel`** – every call runs immediately. `inFlight` tracks the count.
-- **`switch`** – cancel local tracking for previous calls and focus on the latest.
-- **`queue`** – run calls serially in FIFO order.
-- **`drop`** – ignore new calls while an invocation is active (return the
+- **`parallel`** - every call runs immediately. `inFlight` tracks the count.
+- **`switch`** - cancel local tracking for previous calls and focus on the latest.
+- **`queue`** - run calls serially in FIFO order.
+- **`drop`** - ignore new calls while an invocation is active (return the
   current promise).
 
 ## Example: basic form submission
@@ -144,8 +144,8 @@ export function SearchBox() {
 
 - Always dispatches through `invokeAction`, so middleware, lifecycle hooks, and
   reporter instrumentation still fire.
-- Wraps every error in `KernelError`. If the Action runtime throws something
-  else, the hook normalises it to `KernelError('UnknownError')`.
+- Wraps every error in `WPKernelError`. If the Action runtime throws something
+  else, the hook normalises it to `WPKernelError('UnknownError')`.
 - `cancel()` only affects local state. The underlying Action continues to run,
   matching the current kernel capabilities (no AbortSignal support yet).
 - `reset()` clears `result` and `error` without cancelling active requests.
@@ -156,13 +156,13 @@ export function SearchBox() {
 
 The module can be imported in server contexts. Calling `run()` requires
 `window.wp.data` **and** an attached UI runtime (the hook throws a
-`KernelError('DeveloperError')` otherwise). This mirrors the behaviour of the
+`WPKernelError('DeveloperError')` otherwise). This mirrors the behaviour of the
 kernel runtime and prevents hooks from running before the browser environment is
 available.
 
 ## References
 
-- Action definition – [`packages/core/src/actions/define.ts`](../packages/core/src/actions/define.ts)
-- Middleware/dispatch – [`packages/core/src/actions/middleware.ts`](../packages/core/src/actions/middleware.ts)
-- Action context types – [`packages/core/src/actions/types.ts`](../packages/core/src/actions/types.ts)
-- Cache helpers used by `autoInvalidate` – [`packages/core/src/resource/cache.ts`](../packages/core/src/resource/cache.ts)
+- Action definition - [`packages/core/src/actions/define.ts`](../packages/core/src/actions/define.ts)
+- Middleware/dispatch - [`packages/core/src/actions/middleware.ts`](../packages/core/src/actions/middleware.ts)
+- Action context types - [`packages/core/src/actions/types.ts`](../packages/core/src/actions/types.ts)
+- Cache helpers used by `autoInvalidate` - [`packages/core/src/resource/cache.ts`](../packages/core/src/resource/cache.ts)

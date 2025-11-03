@@ -87,7 +87,7 @@ addAction('wpk.resource.error', 'my-plugin', (event) => {
 ```typescript
 {
 	resourceName: string;
-	error: KernelError;
+	error: WPKernelError;
 	requestId: string;
 }
 ```
@@ -109,7 +109,7 @@ addAction('wpk.resource.retry', 'my-plugin', (event) => {
 	resourceName: string;
 	attempt: number;
 	nextDelay: number;
-	error: KernelError;
+	error: WPKernelError;
 	requestId: string;
 }
 ```
@@ -175,11 +175,11 @@ addAction('acme-blog.testimonial.created', 'my-plugin', (payload) => {
 - `wpk.action.complete` - Action completes successfully
 - `wpk.action.error` - Action fails
 
-### Policy Events
+### Capability Events
 
-**Status**: ✓ Available now, emitted during policy checks.
+**Status**: ✓ Available now, emitted during capability checks.
 
-- `wpk.policy.denied` - Policy check fails
+- `wpk.capability.denied` - Capability check fails
 
 ### Job Events
 

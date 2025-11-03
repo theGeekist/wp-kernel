@@ -1,7 +1,7 @@
 # WP Kernel Roadmap
 
-**Status**: Active development toward v1.0  
-**Latest Release**: v0.4.0 (December 2025)
+**Status**: Active development toward v1.0
+**Latest Release**: v0.10.0 (November 2025)
 
 ---
 
@@ -19,9 +19,9 @@ Monorepo infrastructure, TypeScript strict mode, Vite 7 builds, testing harness 
 
 `@wpkernel/e2e-utils` package with namespaced API, Playwright fixture, test helpers (auth, rest, store, events, db, project), utility unit tests separated from domain E2E tests. Full fixture integration.
 
-### Policies (Sprint 3)
+### Capabilities (Sprint 3)
 
-`definePolicy()` with full capability checking, `can()`/`assert()` helpers, `usePolicy()` React hook, policy context management, caching layer, automatic UI control gating, `wpk.policy.denied` events, policy reporter integration, WordPress capability provider.
+`defineCapability()` with full capability checking, `can()`/`assert()` helpers, `useCapability()` React hook, capability context management, caching layer, automatic UI control gating, `wpk.capability.denied` events, capability reporter integration, WordPress capability provider.
 
 ### Actions (Sprint 4)
 
@@ -29,25 +29,25 @@ Write-path orchestration with `defineAction()`, middleware layer, lifecycle even
 
 ### WordPress Data Integration (Sprint 4)
 
-`configureKernel()` provides two integration layers: 1) Registry integration (`kernelEventsPlugin` bridges errors → `core/notices`, connects lifecycle events to `wp.hooks` for ecosystem extensibility, reporter integration) - recommended for production, and 2) Redux middleware (`createActionMiddleware` enables action dispatch via envelopes) - only needed when using `useAction()` React hook. Resources auto-register stores without the bootstrap.
+`configureWPKernel()` provides two integration layers: 1) Registry integration (`wpkEventsPlugin` bridges errors → `core/notices`, connects lifecycle events to `wp.hooks` for ecosystem extensibility, reporter integration) - recommended for production, and 2) Redux middleware (`createActionMiddleware` enables action dispatch via envelopes) - only needed when using `useAction()` React hook. Resources auto-register stores without the bootstrap.
 
 ### Unified Reporting (Sprint 4.5)
 
 `createReporter()` with pluggable transports (console, hooks, "all" channel), consolidated logging across all packages, request correlation IDs, reporter context management, noop reporter for production.
 
-### React Hooks Integration (Sprint 5 - Completed, v0.3.0)
+### React Hooks Integration (Sprint 5 - Completed, v0.4.0)
 
 - ✓ `useAction()` - Complete action dispatch system with 4 concurrency modes
 - ✓ `useGet()` & `useList()` - Resource data fetching hooks
-- ✓ `usePolicy()` - Capability checks in UI
+- ✓ `useCapability()` - Capability checks in UI
 - ✓ Prefetching hooks: `usePrefetcher()`, `useVisiblePrefetch()`, `useHoverPrefetch()`, `useNextPagePrefetch()`
 - ✓ Lazy attachment mechanism for resources defined before UI loads
 
 ### Architecture Implementation Sprint 5.5 (Phases 1-9), Completed v0.4.0
 
-Completed the bootstrap transition to `configureKernel()`, replaced global UI shims with the adapter-driven runtime, introduced the typed event bus, unified action/policy/job signatures around configuration objects, threaded resource reporters through client/store/cache/transport for full observability, and refreshed the documentation stack so every guide, reference, and showcase page matches the final architecture.
+Completed the bootstrap transition to `configureWPKernel()`, replaced global UI shims with the adapter-driven runtime, introduced the typed event bus, unified action/capability/job signatures around configuration objects, threaded resource reporters through client/store/cache/transport for full observability, and refreshed the documentation stack so every guide, reference, and showcase page matches the final architecture.
 
-**Phase 8 - Resource Reporter Wiring**: Propagated kernel reporters through resource definitions, clients, store resolvers, and grouped APIs with comprehensive 615-line test suite. Resources now emit structured telemetry aligned with actions/policies.
+**Phase 8 - Resource Reporter Wiring**: Propagated kernel reporters through resource definitions, clients, store resolvers, and grouped APIs with comprehensive 615-line test suite. Resources now emit structured telemetry aligned with actions/capabilities.
 
 **Phase 9 - Cache & Transport Telemetry**: Extended reporter hierarchy to cache invalidation and transport layer. Request lifecycles now share correlation IDs and structured logs from resource → client → transport → cache. Fully backwards compatible.
 
@@ -78,15 +78,15 @@ Deepen the learning surface with refreshed block binding walkthroughs, Interacti
 
 ## Timeline
 
-| Phase           | Target  | Status     |
-| --------------- | ------- | ---------- |
-| Alpha (v0.1.x)  | Q4 2024 | ✓ Complete |
-| Beta (v0.4.x)   | Q4 2025 | ✓ Complete |
-| **RC** (v0.9.x) | Q1 2026 | Planned    |
-| **v1.0**        | Q2 2026 | Planned    |
+| Phase            | Target  | Status     |
+| ---------------- | ------- | ---------- |
+| Alpha (v0.1.x)   | Q4 2024 | ✓ Complete |
+| Beta (v0.4.x)    | Q4 2025 | ✓ Complete |
+| **RC** (v0.10.x) | Q1 2026 | Planned    |
+| **v1.0**         | Q2 2026 | Planned    |
 
 ---
 
 **Get Involved**: [GitHub](https://github.com/theGeekist/wp-kernel) · [Issues](https://github.com/theGeekist/wp-kernel/issues) · [Contributing](https://theGeekist.github.io/wp-kernel/contributing/)
 
-_Last updated: October 9, 2025_
+_Last updated: November 5, 2025_

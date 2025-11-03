@@ -1,13 +1,13 @@
 import path from 'path';
 
-const WPK_CONFIG_FILENAME = 'kernel.config.ts';
+const WPK_CONFIG_FILENAME = 'wpk.config.ts';
 
 /**
- * Checks if a file path represents kernel.config.ts.
+ * Checks if a file path represents wpk.config.ts.
  * @param {string} filename - File path to check
- * @return {boolean} True if the file is kernel.config.ts
+ * @return {boolean} True if the file is wpk.config.ts
  */
-function isKernelConfigFile(filename) {
+function isWPKernelConfigFile(filename) {
 	if (!filename) {
 		return false;
 	}
@@ -95,21 +95,21 @@ function unwrapToExpression(node) {
 }
 
 /**
- * Creates a kernel config evaluator that can statically analyze kernel.config.ts.
+ * Creates a kernel config evaluator that can statically analyze wpk.config.ts.
  * The evaluator performs partial evaluation of the AST to extract resource definitions,
  * routes, storage configuration, and other kernel metadata without executing code.
  *
  * @param {import('eslint').Rule.RuleContext} context - ESLint rule context
- * @return {{isKernelConfig: boolean, getKernelConfig?: Function}} Evaluator object
+ * @return {{isWPKernelConfig: boolean, getWPKernelConfig?: Function}} Evaluator object
  */
-export function createKernelConfigEvaluator(context) {
+export function createWPKernelConfigEvaluator(context) {
 	const sourceCode = context.getSourceCode();
 	const program = sourceCode.ast;
 	const filename = context.getFilename();
 
-	if (!isKernelConfigFile(filename)) {
+	if (!isWPKernelConfigFile(filename)) {
 		return {
-			isKernelConfig: false,
+			isWPKernelConfig: false,
 		};
 	}
 
@@ -328,19 +328,19 @@ export function createKernelConfigEvaluator(context) {
 		};
 	}
 
-	function getKernelConfig() {
-		const kernelConfig = evaluateIdentifier('kernelConfig');
-		if (!isObjectLike(kernelConfig)) {
+	function getWPKernelConfig() {
+		const wpkConfig = evaluateIdentifier('wpkConfig');
+		if (!isObjectLike(wpkConfig)) {
 			return null;
 		}
 
-		return kernelConfig;
+		return wpkConfig;
 	}
 
 	return {
-		isKernelConfig: true,
+		isWPKernelConfig: true,
 		evaluateNode,
-		getKernelConfig,
+		getWPKernelConfig,
 		evaluateIdentifier,
 	};
 }
@@ -373,11 +373,11 @@ export function getStringValue(evaluatedValue) {
  * Extracts all resource definitions from an evaluated kernel config.
  * Each resource includes its name, property metadata, and evaluated value.
  *
- * @param {*} kernelConfig - Evaluated kernel config object
+ * @param {*} wpkConfig - Evaluated kernel config object
  * @return {Array<{name: string, property: Object, value: any}>} Array of resource definitions
  */
-export function getResourcesFromConfig(kernelConfig) {
-	const resourcesProperty = getObjectProperty(kernelConfig, 'resources');
+export function getResourcesFromConfig(wpkConfig) {
+	const resourcesProperty = getObjectProperty(wpkConfig, 'resources');
 	if (!resourcesProperty || !isObjectLike(resourcesProperty.value)) {
 		return [];
 	}

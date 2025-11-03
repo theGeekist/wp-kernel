@@ -55,7 +55,7 @@ describe('Job Schema Validation', () => {
 			expect(properties).toContain('location');
 			expect(properties).toContain('seniority');
 			expect(properties).toContain('job_type');
-			expect(properties).toContain('remote_policy');
+			expect(properties).toContain('remote_capability');
 			expect(properties).toContain('salary_min');
 			expect(properties).toContain('salary_max');
 			expect(properties).toContain('apply_deadline');
@@ -91,8 +91,8 @@ describe('Job Schema Validation', () => {
 			]);
 		});
 
-		it('should have correct enum values for remote_policy', () => {
-			expect(schema.properties.remote_policy.enum).toEqual([
+		it('should have correct enum values for remote_capability', () => {
+			expect(schema.properties.remote_capability.enum).toEqual([
 				'on-site',
 				'remote',
 				'hybrid',
@@ -135,7 +135,7 @@ describe('Job Schema Validation', () => {
 				location: 'San Francisco, CA',
 				seniority: 'Senior',
 				job_type: 'Full-time',
-				remote_policy: 'hybrid',
+				remote_capability: 'hybrid',
 				salary_min: 12000000,
 				salary_max: 18000000,
 				apply_deadline: '2025-12-31T23:59:59Z',
@@ -262,7 +262,7 @@ describe('Job Schema Validation', () => {
 		});
 
 		it('should document status enum on the public Job type alias', () => {
-			const configPath = resolve(__dirname, '../kernel.config.ts');
+			const configPath = resolve(__dirname, '../wpk.config.ts');
 			const configContent = readFileSync(configPath, 'utf-8');
 
 			expect(configContent).toContain(
@@ -271,7 +271,7 @@ describe('Job Schema Validation', () => {
 		});
 
 		it('should document seniority enum on the public Job type alias', () => {
-			const configPath = resolve(__dirname, '../kernel.config.ts');
+			const configPath = resolve(__dirname, '../wpk.config.ts');
 			const configContent = readFileSync(configPath, 'utf-8');
 
 			expect(configContent).toContain(

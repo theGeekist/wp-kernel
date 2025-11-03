@@ -1,4 +1,4 @@
-[**WP Kernel API v0.3.0**](../../README.md)
+[**WP Kernel API v0.6.0**](../../README.md)
 
 ---
 
@@ -16,18 +16,18 @@ JavaScript is the source of truth and PHP is a thin contract.
 ```ts
 import { fetch } from '@wpkernel/core/http';
 import { defineResource } from '@wpkernel/core/resource';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 ```
 
 ```ts
 import { http, resource, error } from '@wpkernel/core';
 await http.fetch({ path: '/my-plugin/v1/things' });
 resource.defineResource({ name: 'thing', routes: {...} });
-throw new error.KernelError('ValidationError', {...});
+throw new error.WPKernelError('ValidationError', {...});
 ```
 
 ```ts
-import { fetch, defineResource, KernelError } from '@wpkernel/core';
+import { fetch, defineResource, WPKernelError } from '@wpkernel/core';
 ```
 
 ## Modules
@@ -41,23 +41,23 @@ import { fetch, defineResource, KernelError } from '@wpkernel/core';
 - [@wpkernel/core/events](namespaces/@wpkernel/core/events/README.md)
 - [http](namespaces/http/README.md)
 - [namespace](namespaces/namespace/README.md)
-- [policy](namespaces/policy/README.md)
+- [capability](namespaces/capability/README.md)
 - [resource](namespaces/resource/README.md)
 
 ## Classes
 
-- [KernelError](classes/KernelError.md)
+- [WPKernelError](classes/WPKernelError.md)
 - [ServerError](classes/ServerError.md)
 - [TransportError](classes/TransportError.md)
-- [KernelEventBus](classes/KernelEventBus.md)
+- [WPKernelEventBus](classes/WPKernelEventBus.md)
 
 ## Interfaces
 
-- [KernelUIConfig](interfaces/KernelUIConfig.md)
-- [ConfigureKernelOptions](interfaces/ConfigureKernelOptions.md)
+- [WPKUIConfig](interfaces/WPKUIConfig.md)
+- [ConfigureWPKernelOptions](interfaces/ConfigureWPKernelOptions.md)
 - [UIIntegrationOptions](interfaces/UIIntegrationOptions.md)
-- [KernelUIPolicyRuntime](interfaces/KernelUIPolicyRuntime.md)
-- [KernelInstance](interfaces/KernelInstance.md)
+- [WPKUICapabilityRuntime](interfaces/WPKUICapabilityRuntime.md)
+- [WPKInstance](interfaces/WPKInstance.md)
 - [ResourceDataViewsMenuConfig](interfaces/ResourceDataViewsMenuConfig.md)
 - [ResourceDataViewsScreenConfig](interfaces/ResourceDataViewsScreenConfig.md)
 - [ResourceDataViewsUIConfig](interfaces/ResourceDataViewsUIConfig.md)
@@ -78,8 +78,8 @@ import { fetch, defineResource, KernelError } from '@wpkernel/core';
 - [ActionConfig](type-aliases/ActionConfig.md)
 - [DefinedAction](type-aliases/DefinedAction.md)
 - [NoticeStatus](type-aliases/NoticeStatus.md)
-- [KernelRegistry](type-aliases/KernelRegistry.md)
-- [KernelUIAttach](type-aliases/KernelUIAttach.md)
+- [WPKernelRegistry](type-aliases/WPKernelRegistry.md)
+- [WPKernelUIAttach](type-aliases/WPKernelUIAttach.md)
 - [ErrorCode](type-aliases/ErrorCode.md)
 - [ErrorContext](type-aliases/ErrorContext.md)
 - [ErrorData](type-aliases/ErrorData.md)
@@ -89,7 +89,7 @@ import { fetch, defineResource, KernelError } from '@wpkernel/core';
 - [ActionDomainEvent](type-aliases/ActionDomainEvent.md)
 - [CacheInvalidatedEvent](type-aliases/CacheInvalidatedEvent.md)
 - [CustomKernelEvent](type-aliases/CustomKernelEvent.md)
-- [KernelEventMap](type-aliases/KernelEventMap.md)
+- [WPKernelEventMap](type-aliases/WPKernelEventMap.md)
 - [HttpMethod](type-aliases/HttpMethod.md)
 - [TransportMeta](type-aliases/TransportMeta.md)
 - [TransportRequest](type-aliases/TransportRequest.md)
@@ -101,17 +101,17 @@ import { fetch, defineResource, KernelError } from '@wpkernel/core';
 - [NamespaceRuntimeContext](type-aliases/NamespaceRuntimeContext.md)
 - [NamespaceDetectionOptions](type-aliases/NamespaceDetectionOptions.md)
 - [NamespaceDetectionResult](type-aliases/NamespaceDetectionResult.md)
-- [PolicyReporter](type-aliases/PolicyReporter.md)
-- [PolicyRule](type-aliases/PolicyRule.md)
-- [PolicyMap](type-aliases/PolicyMap.md)
+- [CapabilityReporter](type-aliases/CapabilityReporter.md)
+- [CapabilityRule](type-aliases/CapabilityRule.md)
+- [CapabilityMap](type-aliases/CapabilityMap.md)
 - [ParamsOf](type-aliases/ParamsOf.md)
-- [PolicyCacheOptions](type-aliases/PolicyCacheOptions.md)
-- [PolicyCache](type-aliases/PolicyCache.md)
-- [PolicyContext](type-aliases/PolicyContext.md)
-- [PolicyOptions](type-aliases/PolicyOptions.md)
-- [PolicyDefinitionConfig](type-aliases/PolicyDefinitionConfig.md)
-- [PolicyHelpers](type-aliases/PolicyHelpers.md)
-- [PolicyDeniedEvent](type-aliases/PolicyDeniedEvent.md)
+- [CapabilityCacheOptions](type-aliases/CapabilityCacheOptions.md)
+- [CapabilityCache](type-aliases/CapabilityCache.md)
+- [CapabilityContext](type-aliases/CapabilityContext.md)
+- [CapabilityOptions](type-aliases/CapabilityOptions.md)
+- [CapabilityDefinitionConfig](type-aliases/CapabilityDefinitionConfig.md)
+- [CapabilityHelpers](type-aliases/CapabilityHelpers.md)
+- [CapabilityDeniedEvent](type-aliases/CapabilityDeniedEvent.md)
 - [ReporterLevel](type-aliases/ReporterLevel.md)
 - [ReporterOptions](type-aliases/ReporterOptions.md)
 - [Reporter](type-aliases/Reporter.md)
@@ -149,11 +149,11 @@ import { fetch, defineResource, KernelError } from '@wpkernel/core';
 - [defineAction](functions/defineAction.md)
 - [createActionMiddleware](functions/createActionMiddleware.md)
 - [invokeAction](functions/invokeAction.md)
-- [configureKernel](functions/configureKernel.md)
-- [kernelEventsPlugin](functions/kernelEventsPlugin.md)
-- [registerKernelStore](functions/registerKernelStore.md)
-- [getKernelEventBus](functions/getKernelEventBus.md)
-- [setKernelEventBus](functions/setKernelEventBus.md)
+- [configureWPKernel](functions/configureWPKernel.md)
+- [wpkEventsPlugin](functions/wpkEventsPlugin.md)
+- [registerWPKernelStore](functions/registerWPKernelStore.md)
+- [getWPKernelEventBus](functions/getWPKernelEventBus.md)
+- [setWPKernelEventBus](functions/setWPKernelEventBus.md)
 - [getRegisteredResources](functions/getRegisteredResources.md)
 - [getRegisteredActions](functions/getRegisteredActions.md)
 - [clearRegisteredResources](functions/clearRegisteredResources.md)
@@ -163,11 +163,11 @@ import { fetch, defineResource, KernelError } from '@wpkernel/core';
 - [detectNamespace](functions/detectNamespace.md)
 - [getNamespace](functions/getNamespace.md)
 - [isValidNamespace](functions/isValidNamespace.md)
-- [createPolicyProxy](functions/createPolicyProxy.md)
-- [definePolicy](functions/definePolicy.md)
-- [setKernelReporter](functions/setKernelReporter.md)
-- [getKernelReporter](functions/getKernelReporter.md)
-- [clearKernelReporter](functions/clearKernelReporter.md)
+- [createCapabilityProxy](functions/createCapabilityProxy.md)
+- [defineCapability](functions/defineCapability.md)
+- [setWPKernelReporter](functions/setWPKernelReporter.md)
+- [getWPKernelReporter](functions/getWPKernelReporter.md)
+- [clearWPKReporter](functions/clearWPKReporter.md)
 - [createReporter](functions/createReporter.md)
 - [createNoopReporter](functions/createNoopReporter.md)
 - [normalizeCacheKey](functions/normalizeCacheKey.md)
@@ -178,6 +178,6 @@ import { fetch, defineResource, KernelError } from '@wpkernel/core';
 
 ## References
 
-### KernelUIRuntime
+### WPKernelUIRuntime
 
-Re-exports [KernelUIRuntime](@wpkernel/core/data/interfaces/KernelUIRuntime.md)
+Re-exports [WPKernelUIRuntime](@wpkernel/core/data/interfaces/WPKernelUIRuntime.md)

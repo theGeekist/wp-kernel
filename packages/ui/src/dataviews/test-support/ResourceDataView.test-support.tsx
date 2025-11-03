@@ -1,8 +1,8 @@
 import { act, type ComponentProps, type ReactNode } from 'react';
 import { render, type RenderResult } from '@testing-library/react';
 import { DataViews } from '@wordpress/dataviews';
-import { KernelUIProvider } from '../../runtime/context';
-import type { KernelUIRuntime } from '@wpkernel/core/data';
+import { WPKernelUIProvider } from '../../runtime/context';
+import type { WPKernelUIRuntime } from '@wpkernel/core/data';
 import type { DefinedAction } from '@wpkernel/core/actions';
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { ListResponse, ResourceObject } from '@wpkernel/core/resource';
@@ -12,7 +12,7 @@ import type {
 	ResourceDataViewController,
 	ResourceDataViewActionConfig,
 } from '../types';
-import { KernelError } from '@wpkernel/core/contracts';
+import { WPKernelError } from '@wpkernel/core/contracts';
 import { ResourceDataView } from '../ResourceDataView';
 
 jest.mock('@wordpress/dataviews', () => {
@@ -45,22 +45,28 @@ export function createReporter(): Reporter {
 	return reporter;
 }
 
-type RuntimeWithDataViews = KernelUIRuntime & {
-	dataviews: NonNullable<KernelUIRuntime['dataviews']>;
+type RuntimeWithDataViews = WPKernelUIRuntime & {
+	dataviews: NonNullable<WPKernelUIRuntime['dataviews']>;
 };
 
 export type { RuntimeWithDataViews };
 
-export function createKernelRuntime(): RuntimeWithDataViews {
+interface CreateKernelRuntimeOptions {
+	registry?: unknown;
+}
+
+export function createKernelRuntime(
+	options: CreateKernelRuntimeOptions = {}
+): RuntimeWithDataViews {
 	const reporter = createReporter();
 	const preferences = new Map<string, unknown>();
 	const runtime: RuntimeWithDataViews = {
 		kernel: undefined,
 		namespace: 'tests',
 		reporter,
-		registry: undefined,
+		registry: options.registry,
 		events: {} as never,
-		policies: undefined,
+		capabilities: undefined,
 		invalidate: jest.fn(),
 		options: {},
 		dataviews: {
@@ -93,27 +99,65 @@ export function createKernelRuntime(): RuntimeWithDataViews {
 	return runtime;
 }
 
+export function createNoticeRegistry() {
+	const createNotice = jest.fn();
+	const registry = {
+		dispatch: jest.fn((key: string) => {
+			if (key === 'core/notices') {
+				return { createNotice };
+			}
+			return {};
+		}),
+		select: jest.fn(),
+		subscribe: jest.fn(),
+		registerStore: jest.fn(),
+		unregisterStore: jest.fn(),
+		use: jest.fn(),
+	} as {
+		dispatch: jest.Mock;
+		[key: string]: unknown;
+	};
+
+	return { registry, createNotice };
+}
+
 export function renderWithProvider(
 	ui: React.ReactElement,
-	runtime: KernelUIRuntime
-): RenderResult & { rerenderWithProvider: (next: React.ReactElement) => void } {
+	runtime: WPKernelUIRuntime
+): RenderResult & {
+	rerenderWithProvider: (
+		next: React.ReactElement,
+		nextRuntime?: WPKernelUIRuntime
+	) => void;
+} {
 	let result: RenderResult | undefined;
+	let providerRuntime = runtime;
 	act(() => {
 		result = render(
-			<KernelUIProvider runtime={runtime}>{ui}</KernelUIProvider>
+			<WPKernelUIProvider runtime={providerRuntime}>
+				{ui}
+			</WPKernelUIProvider>
 		);
 	});
 
 	if (!result) {
-		throw new KernelError('DeveloperError', {
-			message: 'Failed to render with KernelUIProvider',
+		throw new WPKernelError('DeveloperError', {
+			message: 'Failed to render with WPKernelUIProvider',
 		});
 	}
 
-	const rerenderWithProvider = (next: React.ReactElement) => {
+	const rerenderWithProvider = (
+		next: React.ReactElement,
+		nextRuntime?: WPKernelUIRuntime
+	) => {
+		if (nextRuntime) {
+			providerRuntime = nextRuntime;
+		}
 		act(() => {
 			result!.rerender(
-				<KernelUIProvider runtime={runtime}>{next}</KernelUIProvider>
+				<WPKernelUIProvider runtime={providerRuntime}>
+					{next}
+				</WPKernelUIProvider>
 			);
 		});
 	};
@@ -225,7 +269,7 @@ export function createConfig<TItem, TQuery>(
 export function getLastDataViewsProps(): ComponentProps<typeof DataViews> {
 	const lastCall = DataViewsMock.mock.calls.at(-1);
 	if (!lastCall) {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: 'DataViews was not rendered',
 		});
 	}
@@ -236,7 +280,7 @@ export type ResourceDataViewTestProps<TItem, TQuery> = {
 	resource?: ResourceObject<TItem, TQuery>;
 	config?: ResourceDataViewConfig<TItem, TQuery>;
 	controller?: ResourceDataViewController<TItem, TQuery>;
-	runtime?: KernelUIRuntime | DataViewsRuntimeContext;
+	runtime?: WPKernelUIRuntime | DataViewsRuntimeContext;
 	fetchList?: (query: TQuery) => Promise<ListResponse<TItem>>;
 	emptyState?: ReactNode;
 };
@@ -254,7 +298,8 @@ export type RenderResourceDataViewResult<TItem, TQuery> = {
 	config: ResourceDataViewConfig<TItem, TQuery>;
 	props: ResourceDataViewTestProps<TItem, TQuery>;
 	rerender: (
-		nextProps?: Partial<ResourceDataViewTestProps<TItem, TQuery>>
+		nextProps?: Partial<ResourceDataViewTestProps<TItem, TQuery>>,
+		options?: { runtime?: RuntimeWithDataViews }
 	) => void;
 	renderResult: ReturnType<typeof renderWithProvider>;
 	getDataViewProps: () => ComponentProps<typeof DataViews>;
@@ -271,7 +316,7 @@ export async function flushDataViews(iterations = 1) {
 export function renderResourceDataView<TItem, TQuery>(
 	options: RenderResourceDataViewOptions<TItem, TQuery> = {}
 ): RenderResourceDataViewResult<TItem, TQuery> {
-	const runtime = options.runtime ?? createKernelRuntime();
+	let runtime = options.runtime ?? createKernelRuntime();
 	const resource = (options.resource ??
 		createResource<TItem, TQuery>({})) as ResourceObject<TItem, TQuery>;
 	const config = (options.config ??
@@ -293,24 +338,35 @@ export function renderResourceDataView<TItem, TQuery>(
 		runtime
 	);
 
-	const rerender = (
-		nextProps?: Partial<ResourceDataViewTestProps<TItem, TQuery>>
-	) => {
-		if (nextProps) {
-			Object.assign(baseProps, nextProps);
-		}
-		renderResult.rerenderWithProvider(<ResourceDataView {...baseProps} />);
-	};
-
-	return {
+	const viewResult: RenderResourceDataViewResult<TItem, TQuery> = {
 		runtime,
 		resource,
 		config,
 		props: baseProps,
-		rerender,
+		rerender: () => undefined,
 		renderResult,
 		getDataViewProps: () => getLastDataViewsProps(),
 	};
+
+	viewResult.rerender = (
+		nextProps?: Partial<ResourceDataViewTestProps<TItem, TQuery>>,
+		rerenderOptions?: { runtime?: RuntimeWithDataViews }
+	) => {
+		if (nextProps) {
+			Object.assign(baseProps, nextProps);
+		}
+		const nextRuntime = rerenderOptions?.runtime ?? runtime;
+		if (rerenderOptions?.runtime) {
+			runtime = rerenderOptions.runtime;
+		}
+		renderResult.rerenderWithProvider(
+			<ResourceDataView {...baseProps} />,
+			nextRuntime
+		);
+		viewResult.runtime = runtime;
+	};
+
+	return viewResult;
 }
 
 export type RenderActionScenarioOptions<
@@ -420,7 +476,7 @@ export type DataViewsTestController<TItem> = {
 
 function ensureHandler<T>(handler: T | undefined, name: string): T {
 	if (!handler) {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: `Expected ${name} to be provided by DataViews mock`,
 		});
 	}

@@ -1,20 +1,18 @@
 import { useEffect, useState } from 'react';
 import type { ListResponse } from '@wpkernel/core/resource';
 import type { DataViewsRuntimeContext } from '../types';
-
-type AsyncListState<TItem> = {
-	data?: ListResponse<TItem>;
-	isLoading: boolean;
-	error?: string;
-};
+import type { ListResultState } from './types/state';
+import { normalizeListError } from './utils/errors';
 
 export function useAsyncList<TItem, TQuery>(
 	fetchList: ((query: TQuery) => Promise<ListResponse<TItem>>) | undefined,
 	query: TQuery,
-	reporter: DataViewsRuntimeContext['reporter']
-): AsyncListState<TItem> {
-	const [state, setState] = useState<AsyncListState<TItem>>({
+	reporter: DataViewsRuntimeContext['reporter'],
+	resourceName: string
+): ListResultState<TItem> {
+	const [state, setState] = useState<ListResultState<TItem>>({
 		data: undefined,
+		status: fetchList ? 'loading' : 'idle',
 		isLoading: Boolean(fetchList),
 		error: undefined,
 	});
@@ -23,43 +21,56 @@ export function useAsyncList<TItem, TQuery>(
 		let active = true;
 
 		if (!fetchList) {
-			setState({ data: undefined, isLoading: false, error: undefined });
+			setState({
+				data: undefined,
+				status: 'idle',
+				isLoading: false,
+				error: undefined,
+			});
 			return () => {
 				active = false;
 			};
 		}
 
-		setState((prev) => ({ ...prev, isLoading: true }));
+		setState((prev) => ({
+			...prev,
+			status: 'loading',
+			isLoading: true,
+			error: undefined,
+		}));
 
 		fetchList(query)
 			.then((data) => {
 				if (!active) {
 					return;
 				}
-				setState({ data, isLoading: false, error: undefined });
+				setState({
+					data,
+					status: 'success',
+					isLoading: false,
+					error: undefined,
+				});
 			})
 			.catch((error: unknown) => {
 				if (!active) {
 					return;
 				}
-				const message =
-					error instanceof Error
-						? error.message
-						: 'Failed to fetch list data';
-				reporter.error?.('Standalone DataViews fetch failed', {
-					error,
+				const normalized = normalizeListError(error, reporter, {
+					resource: resourceName,
 					query,
 				});
 				setState({
 					data: undefined,
+					status: 'error',
 					isLoading: false,
-					error: message,
+					error: normalized,
 				});
 			});
 
 		return () => {
 			active = false;
 		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [fetchList, query, reporter]);
 
 	return state;

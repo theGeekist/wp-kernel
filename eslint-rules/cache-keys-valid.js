@@ -1,5 +1,5 @@
 import {
-	createKernelConfigEvaluator,
+	createWPKernelConfigEvaluator,
 	getObjectProperty,
 	getResourcesFromConfig,
 } from './utils/kernel-config-evaluator.js';
@@ -7,7 +7,7 @@ import {
 /* eslint-disable import/no-default-export */
 
 const DOC_URL =
-	'https://github.com/theGeekist/wp-kernel/blob/main/packages/cli/mvp-cli-spec.md#6-blocks-of-authoring-safety';
+	'https://github.com/theGeekist/wp-kernel/blob/main/packages/cli/docs/cli-migration-phases.md#authoring-safety-lint-rules';
 
 /**
  * Functions permitted in cache key expressions.
@@ -184,8 +184,8 @@ function analyzeReturnStatements(statements, fallbackNode) {
 	};
 }
 
-function getSourceText(context, node) {
-	return node ? context.getSourceCode().getText(node) : '';
+function getSourceText(sourceCode, node) {
+	return node ? sourceCode.getText(node) : '';
 }
 
 const expressionAnalyzers = {
@@ -334,6 +334,7 @@ function validateCacheKeyFunction({
 	operation,
 	fnNode,
 	queryParamNames,
+	sourceCode,
 }) {
 	const { aliases } = gatherParamAliases(fnNode);
 	const { arrays, nonArrayReturn, offendingNode } = findReturnArray(fnNode);
@@ -360,6 +361,7 @@ function validateCacheKeyFunction({
 			resourceName,
 			queryParamNames,
 			unknownParams,
+			sourceCode,
 		});
 	}
 
@@ -401,13 +403,15 @@ function analyzeArrayElements({
 	resourceName,
 	queryParamNames,
 	unknownParams,
+	sourceCode,
 }) {
+	const accesses = [];
 	for (const element of arrayNode.elements) {
 		if (!element) {
 			continue;
 		}
 
-		const accesses = [];
+		accesses.length = 0;
 		const ok = analyzeExpression(element, aliases, accesses);
 		if (!ok) {
 			// Framework constraint: Cache key array elements must be primitives or safe coercions.
@@ -420,7 +424,7 @@ function analyzeArrayElements({
 				data: {
 					resource: resourceName,
 					operation,
-					expression: getSourceText(context, element),
+					expression: getSourceText(sourceCode, element),
 					docUrl: DOC_URL,
 				},
 			});
@@ -452,6 +456,10 @@ function reportUnknownParams({
 	operation,
 	unknownParams,
 }) {
+	if (unknownParams.size === 0) {
+		return;
+	}
+
 	for (const [param, node] of unknownParams.entries()) {
 		// Framework constraint: All query parameters used in cache keys must be declared in queryParams.
 		// The framework generates TypeScript types, validation, and REST endpoint bindings from queryParams.
@@ -521,19 +529,21 @@ export default {
 		schema: [],
 	},
 	create(context) {
-		const evaluator = createKernelConfigEvaluator(context);
-		if (!evaluator.isKernelConfig) {
+		const evaluator = createWPKernelConfigEvaluator(context);
+		if (!evaluator.isWPKernelConfig) {
 			return {};
 		}
 
+		const sourceCode = context.getSourceCode();
+
 		return {
 			Program() {
-				const kernelConfig = evaluator.getKernelConfig();
-				if (!kernelConfig) {
+				const wpkConfig = evaluator.getWPKernelConfig();
+				if (!wpkConfig) {
 					return;
 				}
 
-				const resources = getResourcesFromConfig(kernelConfig);
+				const resources = getResourcesFromConfig(wpkConfig);
 				for (const resource of resources) {
 					if (!resource.value || resource.value.kind !== 'object') {
 						continue;
@@ -560,6 +570,7 @@ export default {
 							operation: entry.key,
 							fnNode: entry.property.value.node,
 							queryParamNames,
+							sourceCode,
 						});
 					}
 				}

@@ -17,7 +17,7 @@ describe('ResourceDataView runtime integration', () => {
 
 	it('maps view changes through query mapping', () => {
 		const useList = jest.fn(() => ({
-			data: { items: [], total: 0 },
+			data: { items: [{ id: 1 }], total: 1 },
 			isLoading: false,
 			error: undefined,
 		}));
@@ -64,7 +64,7 @@ describe('ResourceDataView runtime integration', () => {
 		});
 
 		const useList = jest.fn(() => ({
-			data: { items: [], total: 0 },
+			data: { items: [{ id: 1 }], total: 1 },
 			isLoading: false,
 			error: undefined,
 		}));

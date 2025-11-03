@@ -1,14 +1,14 @@
 import type {
-	KernelConfigFabrication,
-	KernelConfigFabricatorOptions,
+	WPKernelConfigFabrication,
+	WPKernelConfigFabricatorOptions,
 	CapabilityDescriptor,
 	CapabilityMap,
 } from './types.js';
 import type { ResourceConfig } from '@wpkernel/core/resource';
 
-export function fabricateKernelConfig(
-	options: KernelConfigFabricatorOptions = {}
-): KernelConfigFabrication {
+export function fabricateWPKernelConfig(
+	options: WPKernelConfigFabricatorOptions = {}
+): WPKernelConfigFabrication {
 	const namespace = options.namespace ?? `wpk-e2e-${Date.now()}`;
 	const storageMode = options.storage ?? 'transient';
 
@@ -32,7 +32,7 @@ export function fabricateKernelConfig(
 		},
 	};
 
-	const capabilities = options.includePolicies
+	const capabilities = options.includeCapabilities
 		? buildCapabilityMap(resource.name)
 		: {};
 
@@ -78,7 +78,7 @@ function createRoutes(
 }
 
 function createStorage(
-	storage: KernelConfigFabricatorOptions['storage']
+	storage: WPKernelConfigFabricatorOptions['storage']
 ): ResourceConfig<unknown, unknown>['storage'] {
 	switch (storage) {
 		case 'wp-post':

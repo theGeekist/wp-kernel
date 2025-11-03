@@ -1,17 +1,15 @@
 {
 	"$schema": "https://json.schemastore.org/tsconfig",
-	"extends": "../../tsconfig.base.json",
+	"extends": "../../tsconfig.tests.json",
 	"compilerOptions": {
-		"baseUrl": "../../",
 		"rootDir": "../../",
-		"outDir": "./dist-tests",
-		"composite": true,
-		"types": ["jest", "node"]
+		"outDir": "./dist-tests"
 	},
 	"include": [
 		"src/**/*",
 		"tests/**/*",
 		"../../tests/**/*",
+		"../../scripts/register-workspace.ts",
 		"../../packages/test-utils/src/**/*"
 	],
 	"exclude": [
@@ -20,5 +18,6 @@
 		"dist-tests",
 		"**/dist",
 		"**/*.test-support.d.ts"
-	]
+	],
+	"references": [{ "path": "../cli/tsconfig.json" }]
 }

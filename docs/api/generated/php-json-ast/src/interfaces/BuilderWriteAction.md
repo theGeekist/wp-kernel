@@ -1,0 +1,23 @@
+[**WP Kernel API v0.10.0**](../../../README.md)
+
+---
+
+[WP Kernel API](../../../README.md) / [php-json-ast/src](../README.md) / BuilderWriteAction
+
+# Interface: BuilderWriteAction
+
+## Properties
+
+### contents
+
+```ts
+readonly contents: string | Buffer<ArrayBufferLike>;
+```
+
+---
+
+### file
+
+```ts
+readonly file: string;
+```

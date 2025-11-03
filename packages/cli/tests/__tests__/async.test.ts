@@ -1,8 +1,8 @@
+import { flushAsync } from '@wpkernel/test-utils/cli';
+
 describe('flushAsync', () => {
 	it('awaits the requested number of microtask turns', async () => {
 		const order: number[] = [];
-
-		const { flushAsync } = await import('../async.test-support');
 
 		const run = async () => {
 			order.push(1);
@@ -17,7 +17,6 @@ describe('flushAsync', () => {
 
 	it('supports custom iteration counts', async () => {
 		const order: number[] = [];
-		const { flushAsync } = await import('../async.test-support');
 
 		const promise = (async () => {
 			order.push(1);
@@ -33,7 +32,6 @@ describe('flushAsync', () => {
 	it('optionally advances jest timers', async () => {
 		jest.useFakeTimers();
 
-		const { flushAsync } = await import('../async.test-support');
 		let fired = false;
 
 		setTimeout(() => {

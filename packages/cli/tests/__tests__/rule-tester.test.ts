@@ -1,6 +1,6 @@
 import {
 	createRuleTester,
-	buildKernelConfigFixture,
+	buildWPKernelConfigFixture,
 	buildDocComment,
 } from '../rule-tester.test-support.js';
 
@@ -11,9 +11,9 @@ describe('@wpkernel/cli rule tester helpers', () => {
 	});
 
 	it('builds config fixtures with default header and footer', () => {
-		const fixture = buildKernelConfigFixture('const resource = {};\n');
+		const fixture = buildWPKernelConfigFixture('const resource = {};\n');
 		expect(fixture).toContain('normalizeKeyValue');
-		expect(fixture).toContain('export const kernelConfig');
+		expect(fixture).toContain('export const wpkConfig');
 	});
 
 	it('produces documentation comments pointing to canonical guidance', () => {

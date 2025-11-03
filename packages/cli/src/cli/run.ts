@@ -8,12 +8,12 @@
 import { Cli, Command } from 'clipanion';
 import { WPK_NAMESPACE } from '@wpkernel/core/contracts';
 import {
-	GenerateCommand,
-	InitCommand,
-	DoctorCommand,
-	StartCommand,
-	BuildCommand,
-	ApplyCommand,
+	buildApplyCommand,
+	buildCreateCommand,
+	buildDoctorCommand,
+	buildGenerateCommand,
+	buildInitCommand,
+	buildStartCommand,
 } from '../commands';
 import { VERSION } from '../version';
 
@@ -21,8 +21,7 @@ class RootCommand extends Command {
 	static override paths = [Command.Default];
 
 	static override usage = Command.Usage({
-		description:
-			'WP Kernel CLI entry point (placeholder commands registered).',
+		description: 'WP Kernel CLI entry point.',
 	});
 
 	override async execute(): Promise<number | void> {
@@ -39,12 +38,19 @@ const cli = new Cli({
 	binaryVersion: VERSION,
 });
 
+const GenerateCommand = buildGenerateCommand();
+const InitCommand = buildInitCommand();
+const CreateCommand = buildCreateCommand();
+const DoctorCommand = buildDoctorCommand();
+const StartCommand = buildStartCommand();
+const ApplyCommand = buildApplyCommand();
+
 cli.register(RootCommand);
 cli.register(GenerateCommand);
 cli.register(InitCommand);
+cli.register(CreateCommand);
 cli.register(DoctorCommand);
 cli.register(StartCommand);
-cli.register(BuildCommand);
 cli.register(ApplyCommand);
 
 /**

@@ -1,4 +1,4 @@
-[**WP Kernel API v0.3.0**](../../../README.md)
+[**WP Kernel API v0.6.0**](../../../README.md)
 
 ---
 
@@ -43,7 +43,7 @@ Promise resolving to response with data and metadata
 
 ## Throws
 
-KernelError on request failure
+WPKernelError on request failure
 
 ## Example
 

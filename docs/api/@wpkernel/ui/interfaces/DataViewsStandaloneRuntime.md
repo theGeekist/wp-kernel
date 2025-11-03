@@ -1,4 +1,4 @@
-[**WP Kernel API v0.3.0**](../../../README.md)
+[**WP Kernel API v0.6.0**](../../../README.md)
 
 ---
 
@@ -100,12 +100,12 @@ readonly dataviews: KernelDataViewsRuntime;
 
 ---
 
-### policies?
+### capabilities?
 
 ```ts
-readonly optional policies: KernelUIPolicyRuntime;
+readonly optional capabilities: WPKUICapabilityRuntime;
 ```
 
 #### Overrides
 
-[`DataViewsRuntimeContext`](DataViewsRuntimeContext.md).[`policies`](DataViewsRuntimeContext.md#policies)
+[`DataViewsRuntimeContext`](DataViewsRuntimeContext.md).[`capabilities`](DataViewsRuntimeContext.md#capabilities)

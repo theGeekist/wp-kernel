@@ -1,12 +1,12 @@
 export const jobsadminscreenRoute = '/admin.php?page=wpk-jobs';
 
-import { KernelUIProvider, useKernelUI } from '@wpkernel/ui';
+import { WPKernelUIProvider, useWPKernelUI } from '@wpkernel/ui';
 import { ResourceDataView } from '@wpkernel/ui/dataviews';
 import { kernel } from '@/bootstrap/kernel';
 import { job } from '@/resources/job';
 
 function JobsAdminScreenContent() {
-	const runtime = useKernelUI();
+	const runtime = useWPKernelUI();
 	return (
 		<ResourceDataView
 			resource={job}
@@ -19,15 +19,15 @@ function JobsAdminScreenContent() {
 export function JobsAdminScreen() {
 	const runtime = kernel.getUIRuntime?.();
 	if (!runtime) {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: 'UI runtime not attached.',
 			context: { resourceName },
 		});
 	}
 
 	return (
-		<KernelUIProvider runtime={runtime}>
+		<WPKernelUIProvider runtime={runtime}>
 			<JobsAdminScreenContent />
-		</KernelUIProvider>
+		</WPKernelUIProvider>
 	);
 }

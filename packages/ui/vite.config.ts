@@ -1,4 +1,4 @@
-import { createKernelLibConfig } from '../../vite.config.base';
+import { createWPKLibConfig } from '../../vite.config.base';
 import pkg from './package.json';
 
 const external = [
@@ -9,7 +9,7 @@ const external = [
 	'@wordpress/element',
 ];
 
-export default createKernelLibConfig(
+export default createWPKLibConfig(
 	'@wpkernel/ui',
 	{
 		index: 'src/index.ts',

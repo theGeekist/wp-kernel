@@ -145,7 +145,7 @@ export function createDataViewsRuntime(
 		namespace: options.namespace,
 		reporter: baseReporter,
 		dataviews: dataviewsRuntime,
-		policies: options.policies,
+		capabilities: options.capabilities,
 		invalidate: options.invalidate,
 	} as DataViewsStandaloneRuntime;
 

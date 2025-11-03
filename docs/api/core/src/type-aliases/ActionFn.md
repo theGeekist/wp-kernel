@@ -1,4 +1,4 @@
-[**WP Kernel API v0.3.0**](../../../README.md)
+[**WP Kernel API v0.6.0**](../../../README.md)
 
 ---
 
@@ -14,7 +14,7 @@ Function signature for action implementations.
 
 Actions are async functions that receive:
 
-1. **Context** (`ctx`) - Integration surfaces (emit, invalidate, jobs, policy, reporter)
+1. **Context** (`ctx`) - Integration surfaces (emit, invalidate, jobs, capability, reporter)
 2. **Arguments** (`args`) - Input data provided by the caller
 
 And return a Promise resolving to the action's result.

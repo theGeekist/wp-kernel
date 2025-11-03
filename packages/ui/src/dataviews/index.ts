@@ -7,7 +7,11 @@ export type {
 	ResourceDataViewControllerOptions,
 	ResourceDataViewConfig,
 	ResourceDataViewActionConfig,
+	ResourceDataViewSavedView,
+	ResourceDataViewMenuConfig,
+	ResourceDataViewScreenConfig,
 	DataViewsRuntimeContext,
 	DataViewsStandaloneRuntime,
 	QueryMapping,
 } from './types';
+export type { ResourceDataViewProps } from './resource-data-view/types/props';

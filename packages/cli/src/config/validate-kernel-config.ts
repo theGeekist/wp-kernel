@@ -1,47 +1,50 @@
 /**
  * Kernel Config Validator
  *
- * Validates `kernel.config.ts` structure and enforces framework contracts
+ * Validates `wpk.config.ts` structure and enforces framework contracts
  * before code generation. This is the first line of defense against invalid
  * configurations, catching issues at load time rather than runtime.
  *
  * **Validation Layers:**
- * 1. **Type Structure** - Typanion validators ensure config matches KernelConfigV1 shape
+ * 1. **Type Structure** - Typanion validators ensure config matches WPKernelConfigV1 shape
  * 2. **Namespace Sanitization** - Ensures namespace is valid and WordPress-safe
  * 3. **Resource Integrity** - Validates routes, identity params, storage modes
- * 4. **Security Checks** - Warns about missing policies on write operations
+ * 4. **Security Checks** - Warns about missing capabilities on write operations
  *
  * **Framework Contracts Enforced:**
  * - Each resource must have at least one route operation
  * - Identity parameters must appear in route paths
  * - Routes must have unique method+path combinations
  * - wp-post storage should specify postType
- * - Write methods (POST/PUT/PATCH/DELETE) should have policies
+ * - Write methods (POST/PUT/PATCH/DELETE) should have capabilities
  *
  * @module config/validate-kernel-config
- * @see {@link https://github.com/theGeekist/wp-kernel/blob/main/packages/cli/mvp-cli-spec.md#2-loader--validation-expectations}
+ * @see {@link https://github.com/theGeekist/wp-kernel/blob/main/packages/cli/docs/cli-migration-phases.md#runtime}
  */
 
 import type { Reporter } from '@wpkernel/core/reporter';
 import type { ResourceConfig } from '@wpkernel/core/resource';
 import { sanitizeNamespace } from '@wpkernel/core/namespace';
-import { KernelError } from '@wpkernel/core/error';
+import { WPKernelError } from '@wpkernel/core/error';
 import * as t from 'typanion';
-import type { KernelConfigV1, KernelConfigVersion } from './types';
+import type { WPKernelConfigV1, WPKernelConfigVersion } from './types';
 
-interface ValidateKernelConfigOptions {
+interface ValidateWPKernelConfigOptions {
 	reporter: Reporter;
 	sourcePath: string;
 	origin: string;
 }
 
-interface ValidateKernelConfigResult {
-	config: KernelConfigV1;
+interface ValidateWPKernelConfigResult {
+	config: WPKernelConfigV1;
 	namespace: string;
 }
 
-type KernelConfigCandidate = Omit<KernelConfigV1, 'version' | 'namespace'> & {
-	version?: KernelConfigVersion;
+type WPKernelConfigCandidate = Omit<
+	WPKernelConfigV1,
+	'version' | 'namespace'
+> & {
+	version?: WPKernelConfigVersion;
 	namespace: string;
 };
 
@@ -65,7 +68,7 @@ const resourceRouteValidator = t.isObject(
 	{
 		path: t.isString(),
 		method: httpMethodValidator,
-		policy: t.isOptional(t.isString()),
+		capability: t.isOptional(t.isString()),
 	},
 	{ extra: t.isRecord(t.isUnknown()) }
 );
@@ -295,7 +298,7 @@ const resourceConfigValidator = t.isObject(
 	{ extra: t.isRecord(t.isUnknown()) }
 );
 
-const kernelConfigValidator = t.isObject(
+const wpkConfigValidator = t.isObject(
 	{
 		version: t.isOptional(t.isLiteral(1)),
 		namespace: t.isString(),
@@ -317,13 +320,13 @@ const kernelConfigValidator = t.isObject(
  * 1. Type structure validation (Typanion schemas)
  * 2. Namespace sanitization and validation
  * 3. Version normalization (defaults to 1 if missing)
- * 4. Per-resource integrity checks (routes, identity, storage, policies)
+ * 4. Per-resource integrity checks (routes, identity, storage, capabilities)
  *
  * Error Handling:
  * - Structural errors throw immediately with formatted error messages
  * - Invalid namespaces throw (must be lowercase kebab-case)
  * - Resource contract violations throw with context
- * - Missing policies warn (security hint, not blocking)
+ * - Missing capabilities warn (security hint, not blocking)
  * - Missing postType warns (will be auto-generated)
  *
  * @param rawConfig - Unvalidated config object from loader
@@ -332,20 +335,20 @@ const kernelConfigValidator = t.isObject(
  * @throws When validation fails or namespace is invalid
  * @example
  * ```ts
- * const { config, namespace } = validateKernelConfig(rawConfig, {
+ * const { config, namespace } = validateWPKernelConfig(rawConfig, {
  *   reporter: createReporter({ namespace: 'cli' }),
- *   sourcePath: '/app/kernel.config.ts',
- *   origin: 'kernel.config.ts'
+ *   sourcePath: '/app/wpk.config.ts',
+ *   origin: 'wpk.config.ts'
  * });
  * ```
  */
-export function validateKernelConfig(
+export function validateWPKernelConfig(
 	rawConfig: unknown,
-	options: ValidateKernelConfigOptions
-): ValidateKernelConfigResult {
+	options: ValidateWPKernelConfigOptions
+): ValidateWPKernelConfigResult {
 	const validationReporter = options.reporter.child('validation');
 
-	const validation = t.as(rawConfig, kernelConfigValidator, { errors: true });
+	const validation = t.as(rawConfig, wpkConfigValidator, { errors: true });
 	if (validation.errors) {
 		const validationErrorList = Array.isArray(validation.errors)
 			? validation.errors
@@ -360,7 +363,7 @@ export function validateKernelConfig(
 			sourcePath: options.sourcePath,
 			origin: options.origin,
 		});
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message,
 			context: {
 				sourcePath: options.sourcePath,
@@ -369,7 +372,7 @@ export function validateKernelConfig(
 		});
 	}
 
-	const candidate = validation.value as KernelConfigCandidate;
+	const candidate = validation.value as WPKernelConfigCandidate;
 	const version = normalizeVersion(
 		candidate.version,
 		validationReporter,
@@ -383,7 +386,7 @@ export function validateKernelConfig(
 			namespace: candidate.namespace,
 			sourcePath: options.sourcePath,
 		});
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message,
 			context: {
 				sourcePath: options.sourcePath,
@@ -412,11 +415,11 @@ export function validateKernelConfig(
 		);
 	}
 
-	const config: KernelConfigV1 = {
+	const config: WPKernelConfigV1 = {
 		...candidate,
 		version,
 		namespace: sanitizedNamespace,
-	} as KernelConfigV1;
+	} as WPKernelConfigV1;
 
 	return {
 		config,
@@ -425,10 +428,10 @@ export function validateKernelConfig(
 }
 
 export function normalizeVersion(
-	version: KernelConfigVersion | undefined,
+	version: WPKernelConfigVersion | undefined,
 	reporter: Reporter,
 	sourcePath: string
-): KernelConfigVersion {
+): WPKernelConfigVersion {
 	if (typeof version === 'undefined') {
 		reporter.warn(
 			`Kernel config at ${sourcePath} is missing "version". Defaulting to 1. Add \`version: 1\` to opt into CLI tooling guarantees.`,
@@ -440,7 +443,7 @@ export function normalizeVersion(
 	if (version !== 1) {
 		const message = `Unsupported kernel config version ${String(version)} in ${sourcePath}. Only version 1 is supported.`;
 		reporter.error(message, { sourcePath, version });
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message,
 			context: {
 				sourcePath,
@@ -458,7 +461,7 @@ export function normalizeVersion(
  * Enforces framework contracts on individual resources:
  * - Identity parameters must appear in route paths
  * - Routes must have unique method+path combinations
- * - Write routes should have policies (warns if missing)
+ * - Write routes should have capabilities (warns if missing)
  * - wp-post storage should specify postType (warns if missing)
  *
  * @param resourceName - Resource identifier for error messages
@@ -482,7 +485,7 @@ export function runResourceChecks(
 		reporter
 	);
 	validateUniqueRoutes(resourceName, routes, reporter);
-	validateWritePolicies(resourceName, routes, reporter);
+	validateWriteCapabilities(resourceName, routes, reporter);
 	validateStorageMode(resourceName, resource.storage, reporter);
 }
 
@@ -493,7 +496,7 @@ function validateIdentityParameter(
 		key: string;
 		path: string;
 		method: string;
-		policy?: string;
+		capability?: string;
 	}>,
 	reporter: Reporter
 ): void {
@@ -521,7 +524,7 @@ function validateIdentityParameter(
 			identity,
 			routes,
 		});
-		throw new KernelError('ValidationError', {
+		throw new WPKernelError('ValidationError', {
 			message,
 			context: {
 				resourceName,
@@ -537,7 +540,7 @@ function validateUniqueRoutes(
 		key: string;
 		path: string;
 		method: string;
-		policy?: string;
+		capability?: string;
 	}>,
 	reporter: Reporter
 ): void {
@@ -554,7 +557,7 @@ function validateUniqueRoutes(
 				method: route.method,
 				path: route.path,
 			});
-			throw new KernelError('ValidationError', {
+			throw new WPKernelError('ValidationError', {
 				message,
 				context: {
 					resourceName,
@@ -567,13 +570,13 @@ function validateUniqueRoutes(
 	}
 }
 
-function validateWritePolicies(
+function validateWriteCapabilities(
 	resourceName: string,
 	routes: Array<{
 		key: string;
 		path: string;
 		method: string;
-		policy?: string;
+		capability?: string;
 	}>,
 	reporter: Reporter
 ): void {
@@ -582,10 +585,10 @@ function validateWritePolicies(
 	for (const route of routes) {
 		if (
 			WRITE_METHODS.includes(route.method.toUpperCase()) &&
-			!route.policy
+			!route.capability
 		) {
 			reporter.warn(
-				`Resource "${resourceName}" route ${route.key} (${route.method} ${route.path}) uses a write method but has no policy defined. This endpoint will be publicly accessible.`,
+				`Resource "${resourceName}" route ${route.key} (${route.method} ${route.path}) uses a write method but has no capability defined. This endpoint will be publicly accessible.`,
 				{
 					resourceName,
 					routeKey: route.key,

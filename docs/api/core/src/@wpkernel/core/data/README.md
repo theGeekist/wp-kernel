@@ -1,4 +1,4 @@
-[**WP Kernel API v0.3.0**](../../../../../README.md)
+[**WP Kernel API v0.6.0**](../../../../../README.md)
 
 ---
 
@@ -8,29 +8,29 @@
 
 ## Interfaces
 
-- [KernelUIRuntime](interfaces/KernelUIRuntime.md)
+- [WPKernelUIRuntime](interfaces/WPKernelUIRuntime.md)
 
 ## Type Aliases
 
-- [KernelEventsPluginOptions](type-aliases/KernelEventsPluginOptions.md)
+- [WPKernelEventsPluginOptions](type-aliases/WPKernelEventsPluginOptions.md)
 
 ## References
 
-### configureKernel
+### configureWPKernel
 
-Re-exports [configureKernel](../../../functions/configureKernel.md)
-
----
-
-### registerKernelStore
-
-Re-exports [registerKernelStore](../../../functions/registerKernelStore.md)
+Re-exports [configureWPKernel](../../../functions/configureWPKernel.md)
 
 ---
 
-### kernelEventsPlugin
+### registerWPKernelStore
 
-Re-exports [kernelEventsPlugin](../../../functions/kernelEventsPlugin.md)
+Re-exports [registerWPKernelStore](../../../functions/registerWPKernelStore.md)
+
+---
+
+### wpkEventsPlugin
+
+Re-exports [wpkEventsPlugin](../../../functions/wpkEventsPlugin.md)
 
 ---
 
@@ -40,33 +40,33 @@ Re-exports [NoticeStatus](../../../type-aliases/NoticeStatus.md)
 
 ---
 
-### KernelRegistry
+### WPKernelRegistry
 
-Re-exports [KernelRegistry](../../../type-aliases/KernelRegistry.md)
-
----
-
-### ConfigureKernelOptions
-
-Re-exports [ConfigureKernelOptions](../../../interfaces/ConfigureKernelOptions.md)
+Re-exports [WPKernelRegistry](../../../type-aliases/WPKernelRegistry.md)
 
 ---
 
-### KernelInstance
+### ConfigureWPKernelOptions
 
-Re-exports [KernelInstance](../../../interfaces/KernelInstance.md)
-
----
-
-### KernelUIConfig
-
-Re-exports [KernelUIConfig](../../../interfaces/KernelUIConfig.md)
+Re-exports [ConfigureWPKernelOptions](../../../interfaces/ConfigureWPKernelOptions.md)
 
 ---
 
-### KernelUIAttach
+### WPKInstance
 
-Re-exports [KernelUIAttach](../../../type-aliases/KernelUIAttach.md)
+Re-exports [WPKInstance](../../../interfaces/WPKInstance.md)
+
+---
+
+### WPKUIConfig
+
+Re-exports [WPKUIConfig](../../../interfaces/WPKUIConfig.md)
+
+---
+
+### WPKernelUIAttach
+
+Re-exports [WPKernelUIAttach](../../../type-aliases/WPKernelUIAttach.md)
 
 ---
 
@@ -76,6 +76,6 @@ Re-exports [UIIntegrationOptions](../../../interfaces/UIIntegrationOptions.md)
 
 ---
 
-### KernelUIPolicyRuntime
+### WPKUICapabilityRuntime
 
-Re-exports [KernelUIPolicyRuntime](../../../interfaces/KernelUIPolicyRuntime.md)
+Re-exports [WPKUICapabilityRuntime](../../../interfaces/WPKUICapabilityRuntime.md)

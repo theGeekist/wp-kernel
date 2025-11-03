@@ -1,61 +1,278 @@
 import { Command, Option } from 'clipanion';
-import { createReporter } from '@wpkernel/core/reporter';
-import { WPK_NAMESPACE } from '@wpkernel/core/contracts';
+import { WPK_EXIT_CODES, type WPKExitCode } from '@wpkernel/core/contracts';
+import type { GenerationSummary } from './run-generate/types';
+import { handleFailure } from './run-generate/errors';
+import type { Reporter } from '@wpkernel/core/reporter';
 import {
-	runGenerate,
-	type ExitCode,
-	type GenerationSummary,
-} from './run-generate';
+	buildGenerateDependencies,
+	buildReporterNamespace,
+	resolveWorkspaceRoot,
+} from './generate/dependencies';
+import { logDiagnostics } from './generate/logging';
+import { createTrackedWorkspace, safeRollback } from './generate/workspace';
+import type {
+	BuildGenerateCommandOptions,
+	GenerateDependencies,
+	GenerateResult,
+	GenerateExecutionOptions,
+} from './generate/types';
+import { PATCH_MANIFEST_PATH } from './apply/constants';
+import { emitFatalError } from './fatal';
+import type { Workspace } from '../workspace';
+import {
+	buildGenerationManifestFromIr,
+	type GenerationManifestDiff,
+	diffGenerationState,
+	readGenerationState,
+	writeGenerationState,
+} from '../apply/manifest';
 
-/**
- * Clipanion command for generating kernel artifacts.
- *
- * The command powers `wpk generate`, running printers and emitting summary
- * metadata back to the invoking context for inspection in tests or higher level
- * tooling.
- */
-export class GenerateCommand extends Command {
-	static override paths = [['generate']];
+type CommandConstructor = new () => Command & {
+	summary: GenerationSummary | null;
+};
 
-	static override usage = Command.Usage({
-		description: 'Generate WP Kernel artifacts from kernel.config.*.',
-		examples: [
-			['Generate artifacts into .generated/', 'wpk generate'],
-			['Preview changes without writing files', 'wpk generate --dry-run'],
-			[
-				'Verbose logging including per-file status',
-				'wpk generate --verbose',
-			],
-		],
-	});
+const TRANSACTION_LABEL = 'generate';
 
-	dryRun = Option.Boolean('--dry-run', false);
-	verbose = Option.Boolean('--verbose', false);
+function buildFailure(exitCode: WPKExitCode): GenerateResult {
+	return {
+		exitCode,
+		summary: null,
+		output: null,
+	};
+}
 
-	/**
-	 * Summary of the last generation run, populated after `execute` completes.
-	 */
-	public summary?: GenerationSummary;
+async function finalizeWorkspaceTransaction(
+	workspace: Workspace,
+	reporter: Reporter,
+	dryRun: boolean
+): Promise<GenerateResult | null> {
+	if (dryRun) {
+		await workspace.rollback(TRANSACTION_LABEL);
+		return null;
+	}
 
-	override async execute(): Promise<ExitCode> {
-		const reporter = createReporter({
-			namespace: `${WPK_NAMESPACE}.cli.generate`,
-			level: this.verbose ? 'debug' : 'info',
-			enabled: process.env.NODE_ENV !== 'test',
-		});
+	await workspace.commit(TRANSACTION_LABEL);
 
-		const result = await runGenerate({
-			dryRun: this.dryRun,
-			verbose: this.verbose,
-			reporter,
-		});
+	const manifestExists = await workspace.exists(PATCH_MANIFEST_PATH);
+	if (manifestExists) {
+		return null;
+	}
 
-		this.summary = result.summary;
+	const context = {
+		manifestPath: PATCH_MANIFEST_PATH,
+		workspace: workspace.root,
+	} as const;
+	const message = 'Failed to locate apply manifest after generation.';
 
-		if (result.output) {
-			this.context.stdout.write(result.output);
+	emitFatalError(message, context);
+	reporter.error(message, context);
+
+	return buildFailure(WPK_EXIT_CODES.UNEXPECTED_ERROR);
+}
+
+async function removeStaleGeneratedArtifacts({
+	diff,
+	workspace,
+	reporter,
+}: {
+	readonly diff: GenerationManifestDiff;
+	readonly workspace: Workspace;
+	readonly reporter: Reporter;
+}): Promise<void> {
+	for (const removed of diff.removed) {
+		const uniqueFiles = new Set(
+			removed.generated.filter((file): file is string => Boolean(file))
+		);
+
+		for (const file of uniqueFiles) {
+			await workspace.rm(file);
+			reporter.debug('Removed stale generated artifact.', {
+				file,
+				resource: removed.resource,
+			});
 		}
-
-		return result.exitCode;
 	}
 }
+
+async function runGenerateWorkflow(
+	options: GenerateExecutionOptions
+): Promise<GenerateResult> {
+	const { dependencies, reporter, dryRun, verbose } = options;
+
+	try {
+		const loaded = await dependencies.loadWPKernelConfig();
+		const workspaceRoot = resolveWorkspaceRoot(loaded);
+		const baseWorkspace = dependencies.buildWorkspace(workspaceRoot);
+		const tracked = createTrackedWorkspace(baseWorkspace, { dryRun });
+		const pipeline = dependencies.createPipeline();
+
+		dependencies.registerFragments(pipeline);
+		dependencies.registerBuilders(pipeline);
+		pipeline.extensions.use(dependencies.buildAdapterExtensionsExtension());
+
+		const previousGenerationState = await readGenerationState(
+			tracked.workspace
+		);
+
+		tracked.workspace.begin(TRANSACTION_LABEL);
+
+		try {
+			const result = await pipeline.run({
+				phase: 'generate',
+				config: loaded.config,
+				namespace: loaded.namespace,
+				origin: loaded.configOrigin,
+				sourcePath: loaded.sourcePath,
+				workspace: tracked.workspace,
+				reporter,
+				generationState: previousGenerationState,
+			});
+
+			logDiagnostics(reporter, result.diagnostics);
+
+			const nextGenerationState = buildGenerationManifestFromIr(
+				result.ir
+			);
+			const diff = diffGenerationState(
+				previousGenerationState,
+				nextGenerationState
+			);
+
+			await removeStaleGeneratedArtifacts({
+				diff,
+				workspace: tracked.workspace,
+				reporter,
+			});
+
+			await writeGenerationState(tracked.workspace, nextGenerationState);
+
+			const writerSummary = tracked.summary.buildSummary();
+			const generationSummary: GenerationSummary = {
+				...writerSummary,
+				dryRun,
+			};
+
+			const manifestFailure = await finalizeWorkspaceTransaction(
+				tracked.workspace,
+				reporter,
+				dryRun
+			);
+
+			if (manifestFailure) {
+				return manifestFailure;
+			}
+
+			reporter.info('Generation completed.', {
+				dryRun,
+				counts: writerSummary.counts,
+			});
+			reporter.debug('Generated files.', {
+				files: writerSummary.entries,
+			});
+
+			try {
+				await dependencies.validateGeneratedImports({
+					projectRoot: tracked.workspace.root,
+					summary: generationSummary,
+					reporter,
+				});
+			} catch (error) {
+				const exitCode = handleFailure(
+					error,
+					reporter,
+					WPK_EXIT_CODES.UNEXPECTED_ERROR
+				);
+				return buildFailure(exitCode);
+			}
+
+			const output = dependencies.renderSummary(
+				writerSummary,
+				dryRun,
+				verbose
+			);
+
+			return {
+				exitCode: WPK_EXIT_CODES.SUCCESS,
+				summary: generationSummary,
+				output,
+			} satisfies GenerateResult;
+		} catch (error) {
+			await safeRollback(tracked.workspace, TRANSACTION_LABEL);
+			const exitCode = handleFailure(
+				error,
+				reporter,
+				WPK_EXIT_CODES.UNEXPECTED_ERROR
+			);
+			return buildFailure(exitCode);
+		}
+	} catch (error) {
+		const exitCode = handleFailure(
+			error,
+			reporter,
+			WPK_EXIT_CODES.UNEXPECTED_ERROR
+		);
+		return buildFailure(exitCode);
+	}
+}
+
+function buildCommandConstructor(
+	dependencies: GenerateDependencies
+): CommandConstructor {
+	return class GenerateCommand extends Command {
+		static override paths = [['generate']];
+
+		static override usage = Command.Usage({
+			description: 'Generate WP Kernel artifacts from wpk.config.*.',
+			examples: [
+				['Generate artifacts into .generated/', 'wpk generate'],
+				[
+					'Preview changes without writing files',
+					'wpk generate --dry-run',
+				],
+				[
+					'Verbose logging including per-file status',
+					'wpk generate --verbose',
+				],
+			],
+		});
+
+		dryRun = Option.Boolean('--dry-run', false);
+		verbose = Option.Boolean('--verbose', false);
+
+		public summary: GenerationSummary | null = null;
+
+		override async execute(): Promise<WPKExitCode> {
+			const reporter = dependencies.buildReporter({
+				namespace: buildReporterNamespace(),
+				level: this.verbose ? 'debug' : 'info',
+				enabled: process.env.NODE_ENV !== 'test',
+			});
+
+			this.summary = null;
+
+			const result = await runGenerateWorkflow({
+				dependencies,
+				reporter,
+				dryRun: this.dryRun,
+				verbose: this.verbose,
+			});
+
+			if (result.output) {
+				this.context.stdout.write(result.output);
+			}
+
+			this.summary = result.summary;
+
+			return result.exitCode;
+		}
+	};
+}
+
+export function buildGenerateCommand(
+	options: BuildGenerateCommandOptions = {}
+): CommandConstructor {
+	const dependencies = buildGenerateDependencies(options);
+	return buildCommandConstructor(dependencies);
+}
+
+export type { BuildGenerateCommandOptions };

@@ -1,131 +1,197 @@
+import { WPKernelError } from '@wpkernel/core/error';
+import type { Reporter } from '@wpkernel/core/reporter';
 import type {
-	ResourceIdentityConfig,
-	ResourceQueryParams,
-	ResourceStorageConfig,
-	ResourceUIConfig,
-} from '@wpkernel/core/resource';
-import type { KernelConfigV1 } from '../config/types';
+	BuildIrOptions,
+	IRBlock,
+	IRDiagnostic,
+	IRCapabilityHint,
+	IRCapabilityMap,
+	IRPhpProject,
+	IRResource,
+	IRSchema,
+	IRv1,
+} from './publicTypes';
+import type {
+	FragmentFinalizationMetadata,
+	Helper,
+	HelperApplyOptions,
+} from '@wpkernel/core/pipeline';
+import type { PipelineContext } from '../runtime/types';
 
-export type SchemaProvenance = 'manual' | 'auto';
-
-export interface IRSchema {
-	key: string;
-	sourcePath: string;
-	hash: string;
-	schema: unknown;
-	provenance: SchemaProvenance;
-	generatedFrom?: {
-		type: 'storage';
-		resource: string;
-	};
-}
-
-export type IRRouteTransport = 'local' | 'remote';
-
-export interface IRRoute {
-	method: string;
-	path: string;
-	policy?: string;
-	hash: string;
-	transport: IRRouteTransport;
-}
-
-export interface IRResourceCacheKey {
-	segments: readonly unknown[];
-	source: 'default' | 'config';
-}
-
-export interface IRWarning {
-	code: string;
-	message: string;
-	context?: Record<string, unknown>;
-}
-
-export interface IRResource {
-	name: string;
-	schemaKey: string;
-	schemaProvenance: SchemaProvenance;
-	routes: IRRoute[];
-	cacheKeys: {
-		list: IRResourceCacheKey;
-		get: IRResourceCacheKey;
-		create?: IRResourceCacheKey;
-		update?: IRResourceCacheKey;
-		remove?: IRResourceCacheKey;
-	};
-	identity?: ResourceIdentityConfig;
-	storage?: ResourceStorageConfig;
-	queryParams?: ResourceQueryParams;
-	ui?: ResourceUIConfig;
-	hash: string;
-	warnings: IRWarning[];
-}
-
-export interface IRPolicyHint {
-	key: string;
-	source: 'resource' | 'config';
-	references: Array<{
-		resource: string;
-		route: string;
-		transport: IRRouteTransport;
-	}>;
-}
-
-export type IRPolicyScope = 'resource' | 'object';
-
-export interface IRPolicyDefinition {
-	key: string;
-	capability: string;
-	appliesTo: IRPolicyScope;
-	binding?: string;
-	source: 'map' | 'fallback';
-}
-
-export interface IRPolicyMap {
-	sourcePath?: string;
-	definitions: IRPolicyDefinition[];
-	fallback: {
-		capability: string;
-		appliesTo: IRPolicyScope;
-	};
-	missing: string[];
-	unused: string[];
-	warnings: IRWarning[];
-}
-
-export interface IRBlock {
-	key: string;
-	directory: string;
-	hasRender: boolean;
-	manifestSource: string;
-}
-
-export interface IRPhpProject {
-	namespace: string;
-	autoload: string;
-	outputDir: string;
-}
-
-export interface IRv1 {
-	meta: {
-		version: 1;
-		namespace: string;
-		sourcePath: string;
-		origin: string;
-		sanitizedNamespace: string;
-	};
-	config: KernelConfigV1;
+export interface MutableIr {
+	meta: IRv1['meta'] | null;
+	readonly config: IRv1['config'];
 	schemas: IRSchema[];
 	resources: IRResource[];
-	policies: IRPolicyHint[];
-	policyMap: IRPolicyMap;
+	capabilities: IRCapabilityHint[];
+	capabilityMap: IRCapabilityMap | null;
 	blocks: IRBlock[];
-	php: IRPhpProject;
+	php: IRPhpProject | null;
+	diagnostics: IRDiagnostic[];
+	extensions: Record<string, unknown>;
 }
 
-export interface BuildIrOptions {
-	config: KernelConfigV1;
-	sourcePath: string;
-	origin: string;
-	namespace: string;
+export function buildIrDraft(options: BuildIrOptions): MutableIr {
+	return {
+		meta: null,
+		config: options.config,
+		schemas: [],
+		resources: [],
+		capabilities: [],
+		capabilityMap: null,
+		blocks: [],
+		php: null,
+		diagnostics: [],
+		extensions: Object.create(null),
+	};
 }
+
+const CORE_FRAGMENT_PREFIXES = [
+	'ir.meta.',
+	'ir.schemas.',
+	'ir.resources.',
+	'ir.capabilities.',
+	'ir.capability-map.',
+	'ir.diagnostics.',
+	'ir.blocks.',
+	'ir.ordering.',
+	'ir.validation.',
+] as const;
+
+function assertCoreFragmentsExecuted(
+	helpers: FragmentFinalizationMetadata<'fragment'>
+): void {
+	const missing = new Set(helpers.fragments.missing);
+
+	for (const prefix of CORE_FRAGMENT_PREFIXES) {
+		const registered = helpers.fragments.registered.some((key) =>
+			key.startsWith(prefix)
+		);
+
+		if (!registered) {
+			continue;
+		}
+
+		const executed = helpers.fragments.executed.some((key) =>
+			key.startsWith(prefix)
+		);
+
+		if (!executed) {
+			missing.add(`${prefix}*`);
+		}
+	}
+
+	if (missing.size > 0) {
+		const missingList = Array.from(missing).sort().join(', ');
+		throw new WPKernelError('ValidationError', {
+			message: `IR finalisation aborted because the following fragments did not execute: ${missingList}.`,
+		});
+	}
+}
+
+export function finalizeIrDraft(
+	draft: MutableIr,
+	helpers: FragmentFinalizationMetadata<'fragment'>
+): IRv1 {
+	assertCoreFragmentsExecuted(helpers);
+
+	if (!draft.meta) {
+		throw new WPKernelError('ValidationError', {
+			message:
+				'IR meta fragment did not set metadata before pipeline completion.',
+		});
+	}
+
+	if (!draft.capabilityMap) {
+		throw new WPKernelError('ValidationError', {
+			message:
+				'IR capability map fragment did not resolve capability map before pipeline completion.',
+		});
+	}
+
+	if (!draft.php) {
+		throw new WPKernelError('ValidationError', {
+			message:
+				'IR PHP fragment did not configure PHP project before pipeline completion.',
+		});
+	}
+
+	const diagnostics =
+		draft.diagnostics.length > 0 ? draft.diagnostics.slice() : undefined;
+
+	return {
+		meta: draft.meta,
+		config: draft.config,
+		schemas: draft.schemas,
+		resources: draft.resources,
+		capabilities: draft.capabilities,
+		capabilityMap: draft.capabilityMap,
+		blocks: draft.blocks,
+		php: draft.php,
+		diagnostics,
+	};
+}
+
+export interface IrFragmentInput {
+	readonly options: BuildIrOptions;
+	readonly draft: MutableIr;
+}
+
+export interface IrFragmentOutput {
+	readonly draft: MutableIr;
+	assign: (partial: Partial<MutableIr>) => void;
+}
+
+export function buildIrFragmentOutput(draft: MutableIr): IrFragmentOutput {
+	return {
+		draft,
+		assign(partial) {
+			if (partial.meta) {
+				draft.meta = partial.meta;
+			}
+			if (partial.schemas) {
+				draft.schemas = partial.schemas;
+			}
+			if (partial.resources) {
+				draft.resources = partial.resources;
+			}
+			if (partial.capabilities) {
+				draft.capabilities = partial.capabilities;
+			}
+			if (partial.capabilityMap) {
+				draft.capabilityMap = partial.capabilityMap;
+			}
+			if (partial.blocks) {
+				draft.blocks = partial.blocks;
+			}
+			if (partial.php) {
+				draft.php = partial.php;
+			}
+			if (partial.diagnostics) {
+				draft.diagnostics = partial.diagnostics;
+			}
+			if (partial.extensions) {
+				draft.extensions = partial.extensions;
+			}
+		},
+	};
+}
+
+export type IrFragment = Helper<
+	PipelineContext,
+	IrFragmentInput,
+	IrFragmentOutput,
+	PipelineContext['reporter'],
+	'fragment'
+>;
+
+export type IrFragmentApplyOptions = HelperApplyOptions<
+	PipelineContext,
+	IrFragmentInput,
+	IrFragmentOutput,
+	PipelineContext['reporter']
+> & {
+	reporter: Reporter;
+};
+
+export type { IRDiagnostic, IRDiagnosticSeverity } from './publicTypes';

@@ -17,14 +17,14 @@ These commands surface lint, type, or coverage regressions early and mirror the 
 
 Use the canonical helpers instead of inventing package-local mocks:
 
-- `@wpkernel/test-utils/wp` – WordPress globals, namespace resetters, and environment shims (still re-exported via `tests/test-utils/wp.test-support.ts` for backwards compatibility).
-- `tests/TEST_PATTERNS.md` – Reference playbook covering setup, teardown, naming, and when to extend the shared helpers.
-- `@wpkernel/test-utils/core` – `createWordPressTestHarness()` plus scoped overrides like `applyActionRuntimeOverrides()` for reliable `window.wp` bootstrapping.
-- `packages/cli/tests/rule-tester.test-support.ts` – ESLint `RuleTester` factory plus config fixture builders.
-- `@wpkernel/test-utils/ui` – Kernel UI provider + runtime harness, console guards, and registry reset helpers (pass `KernelUIProvider`).
-- `packages/ui/tests/dom-observer.test-support.ts` – `IntersectionObserver`/`requestAnimationFrame` mocks with shared teardown.
-- `@wpkernel/test-utils/integration` – Workspace lifecycle helpers (`withWorkspace`, `createWorkspaceRunner`) shared across CLI and integration suites.
-- `packages/e2e-utils/src/test-support/cli-runner.test-support.ts` – `runNodeSnippet()` for capturing CLI transcripts in tests.
+- `@wpkernel/test-utils/wp` - WordPress globals, namespace resetters, and environment shims (still re-exported via `tests/test-utils/wp.test-support.ts` for backwards compatibility).
+- `tests/TEST_PATTERNS.md` - Reference playbook covering setup, teardown, naming, and when to extend the shared helpers.
+- `@wpkernel/test-utils/core` - `createWordPressTestHarness()` plus scoped overrides like `applyActionRuntimeOverrides()` for reliable `window.wp` bootstrapping.
+- `packages/cli/tests/rule-tester.test-support.ts` - ESLint `RuleTester` factory plus config fixture builders.
+- `@wpkernel/test-utils/ui` - Kernel UI provider + runtime harness, console guards, and registry reset helpers (pass `WPKernelUIProvider`).
+- `packages/ui/tests/dom-observer.test-support.ts` - `IntersectionObserver`/`requestAnimationFrame` mocks with shared teardown.
+- `@wpkernel/test-utils/integration` - Workspace lifecycle helpers (`withWorkspace`, `createWorkspaceRunner`) shared across CLI and integration suites.
+- `packages/e2e-utils/src/test-support/cli-runner.test-support.ts` - `runNodeSnippet()` for capturing CLI transcripts in tests.
 
 Each helper ships with colocated unit tests so adopting them improves, not dilutes, coverage.
 
@@ -49,6 +49,6 @@ This flow keeps the catalogue discoverable and avoids duplicate effort across te
 
 ## Additional resources
 
-- `tests/TEST_PATTERNS.md` – canonical examples and escalation paths.
-- Package READMEs – quick reminder of helper entry points per package.
-- `/docs/packages/*` – lightweight overviews linking to helper docs and API reference pages.
+- `tests/TEST_PATTERNS.md` - canonical examples and escalation paths.
+- Package READMEs - quick reminder of helper entry points per package.
+- `/docs/packages/*` - lightweight overviews linking to helper docs and API reference pages.

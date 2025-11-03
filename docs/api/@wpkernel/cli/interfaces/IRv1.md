@@ -1,4 +1,4 @@
-[**WP Kernel API v0.3.0**](../../../README.md)
+[**WP Kernel API v0.6.0**](../../../README.md)
 
 ---
 
@@ -49,7 +49,7 @@ sanitizedNamespace: string;
 ### config
 
 ```ts
-config: KernelConfigV1;
+config: WPKernelConfigV1;
 ```
 
 ---
@@ -70,18 +70,18 @@ resources: IRResource[];
 
 ---
 
-### policies
+### capabilities
 
 ```ts
-policies: IRPolicyHint[];
+capabilities: IRCapabilityHint[];
 ```
 
 ---
 
-### policyMap
+### capabilityMap
 
 ```ts
-policyMap: IRPolicyMap;
+capabilityMap: IRCapabilityMap;
 ```
 
 ---

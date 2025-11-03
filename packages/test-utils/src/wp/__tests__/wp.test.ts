@@ -1,4 +1,4 @@
-import { KernelError } from '@wpkernel/core/contracts';
+import { WPKernelError } from '@wpkernel/core/contracts';
 import {
 	clearNamespaceState,
 	createMockWpPackage,
@@ -7,7 +7,7 @@ import {
 	setProcessEnv,
 	setWpPluginData,
 	type WordPressData,
-} from '../index.js';
+} from '../index';
 
 describe('test-utils/wp.test-support', () => {
 	const originalEnv = { ...process.env };
@@ -35,18 +35,18 @@ describe('test-utils/wp.test-support', () => {
 			>['apiFetch'],
 			hooks: {
 				doAction: jest.fn(),
-			} as unknown,
+			},
 			...overrides,
-		} as unknown as NonNullable<Window['wp']>;
+		} as NonNullable<Window['wp']>;
 
 		window.wp = wpGlobal;
 
 		return window.wp;
 	}
 
-	it('throws a KernelError when wp is not initialised', () => {
+	it('throws a WPKernelError when wp is not initialised', () => {
 		delete (window as { wp?: unknown }).wp;
-		expect(() => ensureWpData()).toThrow(KernelError);
+		expect(() => ensureWpData()).toThrow(WPKernelError);
 	});
 
 	it('returns the data package when wp is initialised', () => {
@@ -79,11 +79,11 @@ describe('test-utils/wp.test-support', () => {
 
 	it('maps plugin data for namespace detection', () => {
 		installWp();
-		setWpPluginData({ name: 'kernel', slug: 'wp-kernel' });
+		setWpPluginData({ name: 'kernel', slug: 'wpkernel' });
 
 		expect(window.wpKernelData).toEqual({
 			textDomain: 'kernel',
-			slug: 'wp-kernel',
+			slug: 'wpkernel',
 		});
 	});
 

@@ -6,7 +6,7 @@
  * @module
  */
 
-import { KernelError } from './KernelError';
+import { WPKernelError } from './WPKernelError';
 import type { ErrorContext, ErrorData } from './types';
 
 /**
@@ -22,7 +22,7 @@ import type { ErrorContext, ErrorData } from './types';
  * });
  * ```
  */
-export class TransportError extends KernelError {
+export class TransportError extends WPKernelError {
 	/**
 	 * HTTP status code
 	 */

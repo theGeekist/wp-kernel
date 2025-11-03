@@ -7,7 +7,7 @@
  * @module
  */
 
-import { KernelError } from './KernelError';
+import { WPKernelError } from './WPKernelError';
 import type { ErrorContext } from './types';
 
 /**
@@ -48,7 +48,7 @@ export type WordPressRESTError = {
  * });
  * ```
  */
-export class ServerError extends KernelError {
+export class ServerError extends WPKernelError {
 	/**
 	 * WordPress error code (e.g., 'rest_forbidden', 'rest_invalid_param')
 	 */

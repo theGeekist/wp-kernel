@@ -1,4 +1,4 @@
-[**WP Kernel API v0.3.0**](../../../README.md)
+[**WP Kernel API v0.6.0**](../../../README.md)
 
 ---
 
@@ -17,7 +17,7 @@ Execution context provided to adapter extensions.
 ### config
 
 ```ts
-config: KernelConfigV1;
+config: WPKernelConfigV1;
 ```
 
 #### Inherited from
@@ -111,12 +111,12 @@ queueFile: (filePath, contents) => Promise<void>;
 ### updateIr()
 
 ```ts
-updateIr: (nextIr) => void;
+updateIr: (ir) => void;
 ```
 
 #### Parameters
 
-##### nextIr
+##### ir
 
 [`IRv1`](IRv1.md)
 

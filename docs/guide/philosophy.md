@@ -57,7 +57,7 @@ graph LR
 5. **Jobs** process background work
 6. **PHP Bridge** provides REST endpoints and capabilities
 
-`configureKernel()` wires the registry middleware that powers this flow, exposes the typed event bus, and hands React a runtime through `KernelUIProvider`. With that adapter in place the UI listens to events instead of globals, actions receive a consistent context surface, and the event catalogue stays in lockstep with the documentation you are reading now.
+`configureWPKernel()` wires the registry middleware that powers this flow, exposes the typed event bus, and hands React a runtime through `WPKernelUIProvider`. With that adapter in place the UI listens to events instead of globals, actions receive a consistent context surface, and the event catalogue stays in lockstep with the documentation you are reading now.
 
 ## Core Principles
 

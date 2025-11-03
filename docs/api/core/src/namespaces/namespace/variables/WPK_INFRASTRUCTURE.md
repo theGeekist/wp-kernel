@@ -1,4 +1,4 @@
-[**WP Kernel API v0.3.0**](../../../../../README.md)
+[**WP Kernel API v0.6.0**](../../../../../README.md)
 
 ---
 
@@ -19,26 +19,26 @@ Keys used for browser APIs (storage, channels), WordPress hooks, and public even
 ### POLICY_CACHE_STORAGE
 
 ```ts
-readonly POLICY_CACHE_STORAGE: "wpk.policy.cache";
+readonly POLICY_CACHE_STORAGE: "wpk.capability.cache";
 ```
 
-Storage key prefix for policy cache
+Storage key prefix for capability cache
 
 ### POLICY_CACHE_CHANNEL
 
 ```ts
-readonly POLICY_CACHE_CHANNEL: "wpk.policy.cache";
+readonly POLICY_CACHE_CHANNEL: "wpk.capability.cache";
 ```
 
-BroadcastChannel name for policy cache sync
+BroadcastChannel name for capability cache sync
 
 ### POLICY_EVENT_CHANNEL
 
 ```ts
-readonly POLICY_EVENT_CHANNEL: "wpk.policy.events";
+readonly POLICY_EVENT_CHANNEL: "wpk.capability.events";
 ```
 
-BroadcastChannel name for policy events
+BroadcastChannel name for capability events
 
 ### ACTIONS_CHANNEL
 

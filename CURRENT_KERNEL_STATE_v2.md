@@ -1,8 +1,8 @@
 # WP Kernel - Current State (v2)
 
-**Last Updated:** 10 October 2025  
-**Version:** 0.3.0 (monorepo snapshot)  
-**Status:** Core runtime stable; CLI Phases 0–6 complete (5C/7/7a/8 in progress)
+**Last Updated:** 27 October 2025
+**Version:** 0.7.0 (monorepo snapshot)
+**Status:** Core runtime stable; CLI Phases 0-3 complete (Phase 4 underway)
 
 ---
 
@@ -12,10 +12,10 @@ WP Kernel is a Rails-like framework for WordPress where JavaScript is the source
 
 ### Package Roles
 
-- **`@wpkernel/core`** - Core framework: actions, resources, data integration, policy, reporter, namespace detection, HTTP transport, error types, event bus
+- **`@wpkernel/core`** - Core framework: actions, resources, data integration, capability, reporter, namespace detection, HTTP transport, error types, event bus
 - **`@wpkernel/ui`** - React integration: hooks, runtime adapter, context provider for UI primitives
 - **`@wpkernel/e2e-utils`** - End-to-end test helpers and fixtures for Playwright/Jest
-- **`@wpkernel/cli`** - Authoring workflow: `loadKernelConfig`, deterministic IR builder, printers for TypeScript/PHP, adapter extension runner, commands (`generate`, `apply`, `dev`, placeholder `init`/`doctor`)
+- **`@wpkernel/cli`** - Authoring workflow: `loadWPKernelConfig`, deterministic IR builder, printers for TypeScript/PHP, adapter extension runner, commands (`generate`, `apply`, `dev`, placeholder `init`/`doctor`)
 - **`examples/showcase`** - Example plugin demonstrating real-world usage (jobs & applications system)
 
 ---
@@ -33,7 +33,7 @@ import {
 	error,
 	namespace,
 	actions,
-	policy,
+	capability,
 	data,
 	reporter,
 } from '@wpkernel/core';
@@ -41,11 +41,11 @@ import {
 
 - **`http`** - REST API transport (`fetch`)
 - **`resource`** - Resource system (`defineResource`, cache helpers, store factory)
-- **`error`** - Error classes (`KernelError`, `TransportError`, `ServerError`)
+- **`error`** - Error classes (`WPKernelError`, `TransportError`, `ServerError`)
 - **`namespace`** - Namespace detection and helpers
 - **`actions`** - Action system (`defineAction`, middleware, invokeAction)
-- **`policy`** - Policy runtime (`definePolicy`, proxy, cache)
-- **`data`** - WordPress Data integration (`configureKernel`, `registerKernelStore`, `kernelEventsPlugin`)
+- **`capability`** - Capability runtime (`defineCapability`, proxy, cache)
+- **`data`** - WordPress Data integration (`configureWPKernel`, `registerWPKernelStore`, `wpkEventsPlugin`)
 - **`reporter`** - Logging infrastructure (`createReporter`, `createNoopReporter`)
 
 ### Flat Convenience Exports
@@ -56,7 +56,7 @@ For quick imports without namespace nesting:
 
 - `defineResource<T, TQuery>(config: ResourceConfig<T, TQuery>): ResourceObject<T, TQuery>` - Define a resource with routes, cache keys, and store
 - `defineAction<TArgs, TResult>(config: ActionConfig<TArgs, TResult>): DefinedAction<TArgs, TResult>` - Define an action with config object `{ name, handler, options }`
-- `definePolicy<K>(config: PolicyDefinitionConfig<K>): PolicyHelpers<K>` - Define policy rules with config object `{ map, options }`
+- `defineCapability<K>(config: CapabilityDefinitionConfig<K>): CapabilityHelpers<K>` - Define capability rules with config object `{ map, options }`
 
 **HTTP Transport:**
 
@@ -78,7 +78,7 @@ For quick imports without namespace nesting:
 
 **Error Classes:**
 
-- `KernelError` - Base error with typed codes and structured context
+- `WPKernelError` - Base error with typed codes and structured context
 - `TransportError` - HTTP/network errors with request/response data
 - `ServerError` - Server-side errors (4xx/5xx) with WordPress error payload
 
@@ -97,9 +97,9 @@ For quick imports without namespace nesting:
 
 **Event Bus:**
 
-- `KernelEventBus` - Class for typed event subscription/emission
-- `getKernelEventBus(): KernelEventBus` - Get singleton event bus
-- `setKernelEventBus(bus: KernelEventBus): void` - Override event bus (testing)
+- `WPKernelEventBus` - Class for typed event subscription/emission
+- `getWPKernelEventBus(): WPKernelEventBus` - Get singleton event bus
+- `setWPKernelEventBus(bus: WPKernelEventBus): void` - Override event bus (testing)
 - `getRegisteredResources(): ResourceDefinedEvent[]` - Replay registered resources
 - `getRegisteredActions(): ActionDefinedEvent[]` - Replay registered actions
 - `clearRegisteredResources()`, `clearRegisteredActions()` - Testing helpers
@@ -110,44 +110,44 @@ For quick imports without namespace nesting:
 
 ---
 
-### `configureKernel()` - Unified Bootstrap API
+### `configureWPKernel()` - Unified Bootstrap API
 
 The canonical entry point for framework configuration. Call once at application bootstrap to wire registry middleware, event bridging, and optional UI integration.
 
 **Signature:**
 
 ```typescript
-configureKernel(config: ConfigureKernelOptions): KernelInstance
+configureWPKernel(config: ConfigureWPKernelOptions): WPKInstance
 ```
 
 **Configuration Options:**
 
 ```typescript
-interface KernelUIConfig {
+interface WPKUIConfig {
 	enable?: boolean; // Explicitly enable UI bindings (defaults to truthy attach)
-	attach?: KernelUIAttach; // Adapter function (e.g., attachUIBindings)
+	attach?: WPKernelUIAttach; // Adapter function (e.g., attachUIBindings)
 	options?: UIIntegrationOptions; // Adapter-specific options
 }
 
-interface ConfigureKernelOptions {
+interface ConfigureWPKernelOptions {
 	namespace?: string; // Plugin namespace (auto-detected if omitted)
-	registry?: KernelRegistry; // WordPress Data registry (defaults to window.wp.data)
+	registry?: WPKernelRegistry; // WordPress Data registry (defaults to window.wp.data)
 	reporter?: Reporter; // Custom reporter (defaults to createReporter)
 	middleware?: ReduxMiddleware[]; // Additional Redux middleware
-	ui?: KernelUIConfig; // Optional UI runtime integration
+	ui?: WPKUIConfig; // Optional UI runtime integration
 }
 ```
 
-**Returns: `KernelInstance`**
+**Returns: `WPKInstance`**
 
 A configured kernel instance exposing:
 
 ```typescript
-interface KernelInstance {
+interface WPKInstance {
 	// Configuration accessors
 	getNamespace(): string;
 	getReporter(): Reporter;
-	getRegistry(): KernelRegistry | undefined;
+	getRegistry(): WPKernelRegistry | undefined;
 
 	// Cache management
 	invalidate(
@@ -163,11 +163,11 @@ interface KernelInstance {
 
 	// UI runtime integration
 	hasUIRuntime(): boolean;
-	getUIRuntime(): KernelUIRuntime | undefined;
+	getUIRuntime(): WPKernelUIRuntime | undefined;
 	attachUIBindings(
-		attach: KernelUIAttach,
+		attach: WPKernelUIAttach,
 		options?: UIIntegrationOptions
-	): KernelUIRuntime;
+	): WPKernelUIRuntime;
 
 	// UI configuration (compat)
 	ui: {
@@ -176,7 +176,7 @@ interface KernelInstance {
 	};
 
 	// Event bus
-	events: KernelEventBus;
+	events: WPKernelEventBus;
 
 	// Resource helper (optional convenience)
 	defineResource<T, TQuery>(
@@ -189,12 +189,12 @@ interface KernelInstance {
 
 1. **Registry Integration** (when `registry` provided):
     - Installs `createActionMiddleware()` for action dispatch envelopes
-    - Installs `kernelEventsPlugin` for error → notices bridge and `wp.hooks` forwarding
+    - Installs `wpkEventsPlugin` for error → notices bridge and `wp.hooks` forwarding
     - Appends any custom middleware passed via `middleware` option
 
 2. **Event Bus Setup:**
-    - Initializes/reuses the singleton `KernelEventBus`
-    - Subscribes `kernelEventsPlugin` to lifecycle events
+    - Initializes/reuses the singleton `WPKernelEventBus`
+    - Subscribes `wpkEventsPlugin` to lifecycle events
 
 3. **UI Runtime** (when `ui.attach` provided):
     - Calls the adapter function with the kernel instance
@@ -207,9 +207,9 @@ interface KernelInstance {
 **Basic Usage:**
 
 ```typescript
-import { configureKernel } from '@wpkernel/core';
+import { configureWPKernel } from '@wpkernel/core';
 
-const kernel = configureKernel({
+const kernel = configureWPKernel({
 	namespace: 'my-plugin',
 	registry: window.wp.data,
 });
@@ -231,14 +231,14 @@ kernel.teardown();
 
 ---
 
-### `KernelEventBus` - Typed Event System
+### `WPKernelEventBus` - Typed Event System
 
 The framework emits lifecycle events through a typed event bus exposed as `kernel.events`. All events continue to bridge to `wp.hooks` for ecosystem compatibility while providing a typed JavaScript subscription surface.
 
 **Event Types:**
 
 ```typescript
-type KernelEventMap = {
+type WPKernelEventMap = {
 	'resource:defined': { resource: ResourceObject; namespace: string };
 	'action:defined': { action: DefinedAction; namespace: string };
 	'action:start': ActionLifecycleEvent; // Before action execution
@@ -291,8 +291,8 @@ kernel.events.emit('custom:event', {
 **Event Flow:**
 
 1. **Internal emissions** - Resources, actions, and cache helpers emit lifecycle events
-2. **Event bus propagation** - Events flow through `KernelEventBus` to all subscribers
-3. **WordPress hooks bridge** - `kernelEventsPlugin` forwards events to `wp.hooks` (e.g., `wpk.action.complete`)
+2. **Event bus propagation** - Events flow through `WPKernelEventBus` to all subscribers
+3. **WordPress hooks bridge** - `wpkEventsPlugin` forwards events to `wp.hooks` (e.g., `wpk.action.complete`)
 4. **BroadcastChannel** - Cross-tab events (when `scope: 'crossTab'`) propagate via BroadcastChannel API
 
 **Common Patterns:**
@@ -323,7 +323,7 @@ System events use the `wpk.*` prefix:
 - `wpk.resource.created`, `wpk.resource.updated`, `wpk.resource.removed`, `wpk.resource.defined`
 - `wpk.action.start`, `wpk.action.complete`, `wpk.action.error`, `wpk.action.defined`
 - `wpk.cache.invalidated`
-- `wpk.job.*` (planned), `wpk.policy.denied` (planned)
+- `wpk.job.*` (planned), `wpk.capability.denied` (planned)
 
 Domain events follow the pattern `{namespace}.{resource}.{verb}`:
 
@@ -337,15 +337,15 @@ Domain events follow the pattern `{namespace}.{resource}.{verb}`:
 
 **Runtime Integration:**
 
-- `attachUIBindings: KernelUIAttach` - Adapter function for kernel integration
-- `KernelUIProvider: React.FC<KernelUIProviderProps>` - Context provider for runtime
-- `useKernelUI(): KernelUIRuntime` - Hook to access the UI runtime
+- `attachUIBindings: WPKernelUIAttach` - Adapter function for kernel integration
+- `WPKernelUIProvider: React.FC<WPKernelUIProviderProps>` - Context provider for runtime
+- `useWPKernelUI(): WPKernelUIRuntime` - Hook to access the UI runtime
 
 **React Hooks:**
 
 - `useAction<TInput, TResult>(action: DefinedAction<TInput, TResult>, options?: UseActionOptions): UseActionResult` - Action dispatcher with concurrency control
-- `usePolicy<K>(): UsePolicyResult<K>` - Policy runtime access for capability checks
-- `attachResourceHooks<T, TQuery>(resource: ResourceObject<T, TQuery>, runtime: KernelUIRuntime): void` - Attach `useGet`/`useList` to resources
+- `useCapability<K>(): UseCapabilityResult<K>` - Capability runtime access for capability checks
+- `attachResourceHooks<T, TQuery>(resource: ResourceObject<T, TQuery>, runtime: WPKernelUIRuntime): void` - Attach `useGet`/`useList` to resources
 
 **Prefetch Utilities:**
 
@@ -356,15 +356,15 @@ Domain events follow the pattern `{namespace}.{resource}.{verb}`:
 
 ### Runtime Integration Pattern
 
-The UI package uses an **adapter-driven architecture**. Instead of side-effect imports, you explicitly attach UI bindings through `configureKernel()`:
+The UI package uses an **adapter-driven architecture**. Instead of side-effect imports, you explicitly attach UI bindings through `configureWPKernel()`:
 
 ```typescript
 // 1. Import adapter from UI package
-import { attachUIBindings, KernelUIProvider } from '@wpkernel/ui';
-import { configureKernel } from '@wpkernel/core';
+import { attachUIBindings, WPKernelUIProvider } from '@wpkernel/ui';
+import { configureWPKernel } from '@wpkernel/core';
 
 // 2. Configure kernel with UI adapter
-const kernel = configureKernel({
+const kernel = configureWPKernel({
   registry: window.wp.data,
   namespace: 'my-plugin',
   ui: {
@@ -380,16 +380,16 @@ const runtime = kernel.getUIRuntime();
 import { createRoot } from '@wordpress/element';
 
 createRoot(document.getElementById('root')).render(
-  <KernelUIProvider runtime={runtime}>
+  <WPKernelUIProvider runtime={runtime}>
     <App />
-  </KernelUIProvider>
+  </WPKernelUIProvider>
 );
 ```
 
 **Or attach manually after configuration:**
 
 ```typescript
-const kernel = configureKernel({
+const kernel = configureWPKernel({
 	registry: window.wp.data,
 	namespace: 'my-plugin',
 });
@@ -401,23 +401,23 @@ const runtime = kernel.attachUIBindings(attachUIBindings);
 
 ### What the Adapter Does
 
-`attachUIBindings()` creates a `KernelUIRuntime` that:
+`attachUIBindings()` creates a `WPKernelUIRuntime` that:
 
 1. **Subscribes to `resource:defined` events** - Attaches `useGet`/`useList` hooks to resources as they're defined
 2. **Replays existing resources** - Processes resources defined before UI loaded via `getRegisteredResources()`
 3. **Provides shared services** - Reporter, namespace, registry, event bus, invalidation helper
-4. **Resolves policy runtime** - Reads `globalThis.__WP_KERNEL_ACTION_RUNTIME__.policy` for capability checks
+4. **Resolves capability runtime** - Reads `globalThis.__WP_KERNEL_ACTION_RUNTIME__.capability` for capability checks
 
 **Result:**
 
 ```typescript
-interface KernelUIRuntime {
-	kernel?: KernelInstance;
+interface WPKernelUIRuntime {
+	kernel?: WPKInstance;
 	namespace: string;
 	reporter: Reporter;
-	registry?: KernelRegistry;
-	events: KernelEventBus;
-	policies?: { policy: PolicyHelpers };
+	registry?: WPKernelRegistry;
+	events: WPKernelEventBus;
+	capabilities?: { capability: CapabilityHelpers };
 	invalidate?: (patterns, options) => void;
 	options?: UIIntegrationOptions;
 }
@@ -486,10 +486,10 @@ function NewPostForm() {
 }
 ```
 
-**Policy Hook:**
+**Capability Hook:**
 
 ```typescript
-const policies = definePolicy({
+const capabilities = defineCapability({
   map: {
     'posts.create': () => wp.data.select('core').canUser('create', 'posts'),
     'posts.delete': (postId) => wp.data.select('core').canUser('delete', 'posts', postId)
@@ -497,8 +497,8 @@ const policies = definePolicy({
 });
 
 function PostActions({ postId }) {
-  const policy = usePolicy();
-  const canDelete = policy.can('posts.delete', postId);
+  const capability = useCapability();
+  const canDelete = capability.can('posts.delete', postId);
 
   if (!canDelete) return null;
   return <button onClick={handleDelete}>Delete</button>;
@@ -507,9 +507,9 @@ function PostActions({ postId }) {
 
 ### Requirements
 
-- ✓ Call `configureKernel({ ui: { attach: attachUIBindings } })` at bootstrap
-- ✓ Wrap React tree with `<KernelUIProvider runtime={kernel.getUIRuntime()} />`
-- ✓ Hooks will throw `KernelError` if runtime is unavailable
+- ✓ Call `configureWPKernel({ ui: { attach: attachUIBindings } })` at bootstrap
+- ✓ Wrap React tree with `<WPKernelUIProvider runtime={kernel.getUIRuntime()} />`
+- ✓ Hooks will throw `WPKernelError` if runtime is unavailable
 
 ---
 
@@ -525,25 +525,25 @@ E2E testing utilities for Playwright/Jest integration:
 
 ### `@wpkernel/cli`
 
-Authoring workflow that turns `kernel.config.*` into generated TypeScript/PHP artifacts and keeps `inc/` in sync.
+Authoring workflow that turns `wpk.config.*` into generated TypeScript/PHP artifacts and keeps `inc/` in sync.
 
-- **Config Loader (`loadKernelConfig`)** – cosmiconfig + TSX resolve TS/JS/JSON/`package.json#wpk`, enforce Typanion schema parity, composer autoload guard, surface typed `KernelError` diagnostics.
-- **IR Builder (`buildIr`)** – deterministic `IRv1` carrying sanitised namespace, schema hashes, identity/storage metadata, policy hints, and printer directives.
-- **Printers** – emit `.generated/types/**` and `.generated/php/**` with adapter `customise` hooks before Prettier formatting.
-- **Adapter Extensions** – sandboxed pipeline (`adapter.extensions`) that can mutate IR and queue writes committed atomically after printers.
+- **Config Loader (`loadWPKernelConfig`)** - cosmiconfig + TSX resolve TS/JS/JSON/`package.json#wpk`, enforce Typanion schema parity, composer autoload guard, surface typed `WPKernelError` diagnostics.
+- **IR Builder (`buildIr`)** - deterministic `IRv1` carrying sanitised namespace, schema hashes, identity/storage metadata, capability hints, and printer directives.
+- **Printers** - emit `.generated/types/**` and `.generated/php/**` with adapter `customise` hooks before Prettier formatting.
+- **Adapter Extensions** - sandboxed pipeline (`adapter.extensions`) that can mutate IR and queue writes committed atomically after printers.
 - **Commands**
-    - `wpk generate [--dry-run] [--verbose]` – runs loader → IR → printers, summarises hash-based writes, exits 0/1/2/3 for success/validation/printer/adapter errors.
-    - `wpk apply [--yes] [--backup] [--force]` – enforces clean `.generated/php`, merges `WPK:BEGIN/END AUTO` blocks, writes `.wpk-apply.log` audit entries with flags and per-file metadata.
-    - `wpk start [--verbose] [--auto-apply-php]` – chokidar watch with fast/slow debounce tiers, queued triggers, optional best-effort PHP copy, and an embedded Vite dev server without implicit apply.
-    - `wpk build [--no-apply] [--verbose]` – orchestrates `generate` → `pnpm exec vite build` → `apply --yes`, with `--no-apply` for inspection workflows.
-    - `wpk init`, `wpk doctor` – placeholders slated for adapter/diagnostic work once Phase 7a/8 land.
+    - `wpk generate [--dry-run] [--verbose]` - runs loader → IR → printers, summarises hash-based writes, exits 0/1/2/3 for success/validation/printer/adapter errors.
+    - `wpk apply [--yes] [--backup] [--force]` - enforces clean `.generated/php`, merges `WPK:BEGIN/END AUTO` blocks, writes `.wpk-apply.log` audit entries with flags and per-file metadata.
+    - `wpk start [--verbose] [--auto-apply-php]` - chokidar watch with fast/slow debounce tiers, queued triggers, optional best-effort PHP copy, and an embedded Vite dev server without implicit apply.
+    - `wpk build [--no-apply] [--verbose]` - orchestrates `generate` → `pnpm exec vite build` → `apply --yes`, with `--no-apply` for inspection workflows.
+    - `wpk init`, `wpk doctor` - placeholders slated for adapter/diagnostic work once Phase 7a/8 land.
 
-### Kernel Config (`kernel.config.ts`)
+### Kernel Config (`wpk.config.ts`)
 
-The CLI treats `KernelConfigV1` as the single authoring surface:
+The CLI treats `WPKernelConfigV1` as the single authoring surface:
 
 ```ts
-interface KernelConfigV1 {
+interface WPKernelConfigV1 {
 	version: 1;
 	namespace: string;
 	schemas: Record<string, SchemaConfig>;
@@ -558,13 +558,13 @@ interface KernelConfigV1 {
 - `SchemaConfig` declares filesystem path and generated type target.
 - `ResourceConfig` is the same structure consumed by `defineResource`, ensuring runtime parity.
 - Adapter factories receive `AdapterContext { config, namespace, reporter, ir }`.
-- `AdapterExtensionContext` exposes `queueFile`, `updateIr`, `formatPhp`, and `formatTs` helpers – all writes must stay under `.generated/**`.
+- `AdapterExtensionContext` exposes `queueFile`, `updateIr`, `formatPhp`, and `formatTs` helpers - all writes must stay under `.generated/**`.
 
 ---
 
 ## Developer Workflows
 
-### Minimal Standalone Usage (No `configureKernel`)
+### Minimal Standalone Usage (No `configureWPKernel`)
 
 The core primitives work without any bootstrap:
 
@@ -592,7 +592,7 @@ await CreatePost({ data: { title: 'Hello', content: '...' } });
 
 // In React (resource hooks work)
 function PostList() {
-  const { data } = Posts.useList();  // ✓ Works without configureKernel
+  const { data } = Posts.useList();  // ✓ Works without configureWPKernel
   return data?.items.map(post => <PostCard key={post.id} post={post} />);
 }
 ```
@@ -606,17 +606,17 @@ function PostList() {
 
 ---
 
-### Recommended: Full Integration with `configureKernel`
+### Recommended: Full Integration with `configureWPKernel`
 
-Call `configureKernel()` at bootstrap for production-ready integration:
+Call `configureWPKernel()` at bootstrap for production-ready integration:
 
 ```typescript
-import { configureKernel, defineResource, defineAction } from '@wpkernel/core';
-import { attachUIBindings, KernelUIProvider, useAction } from '@wpkernel/ui';
+import { configureWPKernel, defineResource, defineAction } from '@wpkernel/core';
+import { attachUIBindings, WPKernelUIProvider, useAction } from '@wpkernel/ui';
 import { createRoot } from '@wordpress/element';
 
 // 1. Configure kernel with UI adapter
-const kernel = configureKernel({
+const kernel = configureWPKernel({
   registry: window.wp.data,
   namespace: 'my-plugin',
   reporter: createReporter({ level: 'debug' }),
@@ -638,8 +638,8 @@ const Posts = defineResource<Post, PostQuery>({
 const CreatePost = defineAction({
   name: 'Post.Create',
   handler: async (ctx, { data }) => {
-    // Policy check
-    ctx.policy.assert('posts.create');
+    // Capability check
+    ctx.capability.assert('posts.create');
 
     // Resource call
     const post = await Posts.create!(data);
@@ -662,9 +662,9 @@ const CreatePost = defineAction({
 const runtime = kernel.getUIRuntime();
 
 createRoot(document.getElementById('app')).render(
-  <KernelUIProvider runtime={runtime}>
+  <WPKernelUIProvider runtime={runtime}>
     <App />
-  </KernelUIProvider>
+  </WPKernelUIProvider>
 );
 
 // 5. Use hooks in components
@@ -672,7 +672,7 @@ function NewPostForm() {
   const { run, status, error } = useAction(CreatePost, {
     concurrency: 'switch',
     onSuccess: (post) => {
-      // Automatic error → notices via kernelEventsPlugin
+      // Automatic error → notices via wpkEventsPlugin
       // No manual error handling needed
       console.log('Created:', post.id);
     }
@@ -709,18 +709,18 @@ function PostList() {
 - ✓ Centralized logging via reporter
 - ✓ `useAction()` hook with concurrency control and state management
 - ✓ Resource hooks with type-safe selectors
-- ✓ Policy-aware UI with `usePolicy()` hook
+- ✓ Capability-aware UI with `useCapability()` hook
 
 ---
 
 ### CLI-Driven Authoring Workflow
 
-1. **Edit** `kernel.config.ts`, resource definitions, or JSON Schemas.
+1. **Edit** `wpk.config.ts`, resource definitions, or JSON Schemas.
 2. **Generate**: `wpk generate [--dry-run]` runs loader → IR → printers. Inspect the SHA-256-based summary before committing.
 3. **Commit** `.generated/**` to capture the canonical codegen state (required before apply).
 4. **Apply**: `wpk apply [--backup][--force][--yes]` merges guarded PHP into `inc/**`, writes `.wpk-apply.log`, and enforces clean `.generated/php`.
 5. **Watch** (optional): `wpk start [--auto-apply-php]` for chokidar-based regeneration during development.
-6. **Tests**: Follow the repo policy - `pnpm lint --fix && pnpm typecheck && pnpm typecheck:tests && pnpm test`.
+6. **Tests**: Follow the repo capability - `pnpm lint --fix && pnpm typecheck && pnpm typecheck:tests && pnpm test`.
 7. **Showcase parity**: Running generate/apply inside `examples/showcase` keeps the reference plugin aligned.
 8. **Extensions**: Adapter factories can queue additional generated files or mutate IR; they run inside temp sandboxes and commit atomically after printers.
 
@@ -736,21 +736,21 @@ function PostList() {
 interface ActionRuntime {
 	reporter?: Reporter;
 	jobs?: JobsRuntime;
-	policy?: PolicyHelpers;
+	capability?: CapabilityHelpers;
 	bridge?: PHPBridge;
 }
 ```
 
 **Current Usage:**
 
-- **Policy runtime** (`packages/core/src/policy/context.ts`) - Reads `policy` from this global
-- **UI runtime** (`attachUIBindings`) - Reads `policy` to provide `usePolicy()` hook
+- **Capability runtime** (`packages/core/src/capability/context.ts`) - Reads `capability` from this global
+- **UI runtime** (`attachUIBindings`) - Reads `capability` to provide `useCapability()` hook
 - **Not used by actions** - Actions receive reporter/namespace via their execution context
 
 **When to use:**
 
-- Testing - inject mock policy/reporter/jobs
-- Custom policy adapters - provide alternative capability checking
+- Testing - inject mock capability/reporter/jobs
+- Custom capability adapters - provide alternative capability checking
 - Advanced integrations - replace default runtime services
 
 **Example:**
@@ -758,7 +758,7 @@ interface ActionRuntime {
 ```typescript
 globalThis.__WP_KERNEL_ACTION_RUNTIME__ = {
 	reporter: createReporter({ channel: 'custom', level: 'debug' }),
-	policy: definePolicy({ map: customPolicyRules }),
+	capability: defineCapability({ map: customCapabilityRules }),
 	jobs: customJobsImplementation,
 };
 ```
@@ -787,7 +787,7 @@ globalThis.__WP_KERNEL_ACTION_RUNTIME__ = {
 **Middleware Ordering:**
 
 - Kernel action middleware runs first (intercepts action envelopes)
-- Custom middleware (from `configureKernel({ middleware })`) runs after
+- Custom middleware (from `configureWPKernel({ middleware })`) runs after
 - This ensures envelopes are handled before custom logic
 
 **Action Dispatch Modes:**
@@ -809,26 +809,26 @@ globalThis.__WP_KERNEL_ACTION_RUNTIME__ = {
 **Override:**
 
 ```typescript
-const kernel = configureKernel({
+const kernel = configureWPKernel({
 	namespace: 'my-custom-namespace', // Explicit override
 });
 ```
 
 ### Error Normalization
 
-All errors become `KernelError` instances with:
+All errors become `WPKernelError` instances with:
 
 - Typed error codes (`ValidationError`, `TransportError`, `ServerError`, etc.)
 - Structured context (action name, request ID, resource, etc.)
 - Preserved stack traces
-- WordPress error payload mapping (PHP `WP_Error` → `KernelError`)
+- WordPress error payload mapping (PHP `WP_Error` → `WPKernelError`)
 
 **Error Flow:**
 
 1. Action throws error (any type)
-2. Action runtime wraps in `KernelError` with context
+2. Action runtime wraps in `WPKernelError` with context
 3. `action:error` event emitted
-4. `kernelEventsPlugin` forwards to `core/notices.createNotice()`
+4. `wpkEventsPlugin` forwards to `core/notices.createNotice()`
 5. User sees structured error notice
 
 ### Cache Invalidation Scope
@@ -845,7 +845,7 @@ All errors become `KernelError` instances with:
 1. Calls all cleanup tasks in LIFO order
 2. Detaches Redux middleware
 3. Removes event listeners from registry
-4. Calls `kernelEventsPlugin.destroy()`
+4. Calls `wpkEventsPlugin.destroy()`
 5. Errors are logged but don't throw (graceful failure)
 
 **Use for:**
@@ -862,7 +862,7 @@ All errors become `KernelError` instances with:
 
 - ✗ `withKernel()` was separate bootstrap (positional params)
 - ✗ `defineAction(name, fn, options)` used positional parameters
-- ✗ `definePolicy(map, options)` used positional parameters
+- ✗ `defineCapability(map, options)` used positional parameters
 - ✗ UI hooks relied on `__WP_KERNEL_UI_ATTACH_RESOURCE_HOOKS__` global
 - ✗ Pending resource queue for late UI loading
 - ✗ Cached action dispatcher in global scope
@@ -870,14 +870,14 @@ All errors become `KernelError` instances with:
 
 ### After (Current):
 
-- ✓ `configureKernel()` is unified bootstrap (config object)
+- ✓ `configureWPKernel()` is unified bootstrap (config object)
 - ✓ All definition APIs use config objects: `{ name, handler, options }`
 - ✓ UI integration via adapter: `{ ui: { attach: attachUIBindings } }`
 - ✓ Event-driven hook attachment via `kernel.events`
 - ✓ No globals except `__WP_KERNEL_ACTION_RUNTIME__` (escape hatch)
 - ✓ Typed event bus with canonical events
-- ✓ `KernelInstance` exposes all runtime services
-- ✓ React context via `<KernelUIProvider />`
+- ✓ `WPKInstance` exposes all runtime services
+- ✓ React context via `<WPKernelUIProvider />`
 
 ---
 
@@ -901,8 +901,8 @@ const CreatePost = defineAction<CreateArgs, Post>({
 	options: { scope: 'crossTab', bridged: true },
 });
 
-// Policies
-const policies = definePolicy<PolicyMap>({
+// Capabilities
+const capabilities = defineCapability<CapabilityMap>({
 	map: {
 		'posts.create': () => wp.data.select('core').canUser('create', 'posts'),
 	},
@@ -913,10 +913,10 @@ const policies = definePolicy<PolicyMap>({
 ### Bootstrap
 
 ```typescript
-import { configureKernel } from '@wpkernel/core';
-import { attachUIBindings, KernelUIProvider } from '@wpkernel/ui';
+import { configureWPKernel } from '@wpkernel/core';
+import { attachUIBindings, WPKernelUIProvider } from '@wpkernel/ui';
 
-const kernel = configureKernel({
+const kernel = configureWPKernel({
   namespace: 'my-plugin',
   registry: window.wp.data,
   reporter: createReporter({ level: 'debug' }),
@@ -925,9 +925,9 @@ const kernel = configureKernel({
 });
 
 // React integration
-<KernelUIProvider runtime={kernel.getUIRuntime()}>
+<WPKernelUIProvider runtime={kernel.getUIRuntime()}>
   <App />
-</KernelUIProvider>
+</WPKernelUIProvider>
 ```
 
 ### React Hooks
@@ -948,9 +948,9 @@ const { run, status, result, error, reset } = useAction(CreatePost, {
 	},
 });
 
-// Policy hook
-const policy = usePolicy();
-const canCreate = policy.can('posts.create');
+// Capability hook
+const capability = useCapability();
+const canCreate = capability.can('posts.create');
 
 // Prefetch hooks
 const prefetcher = usePrefetcher(Posts);
@@ -994,9 +994,9 @@ defineAction({
 		ctx.invalidate(['resource', 'list']);
 		ctx.invalidate([/^resource\//]);
 
-		// Policy
-		ctx.policy.assert('capability');
-		const allowed = ctx.policy.can('capability', ...params);
+		// Capability
+		ctx.capability.assert('capability');
+		const allowed = ctx.capability.can('capability', ...params);
 
 		// Jobs (if implemented)
 		await ctx.jobs.enqueue('JobName', { data });
@@ -1021,10 +1021,10 @@ defineAction({
 
 WP Kernel provides a cohesive, type-safe framework for WordPress product development with:
 
-- **Unified Bootstrap** - `configureKernel()` as single configuration point
-- **Event-Driven Architecture** - Typed `KernelEventBus` with canonical events
+- **Unified Bootstrap** - `configureWPKernel()` as single configuration point
+- **Event-Driven Architecture** - Typed `WPKernelEventBus` with canonical events
 - **Adapter-Driven UI** - Explicit runtime integration via `attachUIBindings`
-- **Config-Object APIs** - Consistent definition patterns across actions, resources, policies
+- **Config-Object APIs** - Consistent definition patterns across actions, resources, capabilities
 - **Zero Globals** - Clean integration without side-effect imports
 - **Full Type Safety** - TypeScript throughout with proper type inference
 - **WordPress Integration** - Native `@wordpress/data` support with middleware and store registration
@@ -1034,5 +1034,5 @@ The framework is production-ready after completing Phases 1-7 of the architectur
 ---
 
 **Document Version:** 2.0  
-**Framework Version:** 0.4.0 (unreleased)  
+**Framework Version:** 0.7.0 (released)
 **Generated:** 9 October 2025

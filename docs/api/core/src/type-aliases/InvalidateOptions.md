@@ -1,4 +1,4 @@
-[**WP Kernel API v0.3.0**](../../../README.md)
+[**WP Kernel API v0.6.0**](../../../README.md)
 
 ---
 
@@ -44,7 +44,7 @@ true;
 ### registry?
 
 ```ts
-optional registry: KernelRegistry;
+optional registry: WPKernelRegistry;
 ```
 
 Registry to operate against instead of relying on global getWPData().

@@ -1,4 +1,4 @@
-# Versioning & Back-Compatibility Policy
+# Versioning & Back-Compatibility Capability
 
 This document defines WP Kernel's approach to versioning, breaking changes, and deprecations.
 
@@ -25,7 +25,7 @@ During the `0.x` release series:
 - **`0.x.y` (Patch bump)**: Bug fixes, performance improvements, documentation updates
 - **Breaking changes are documented** in CHANGELOG with migration guides
 
-**Current Status**: v0.2.0 (Sprints 0-4.5 complete)
+**Current Status**: v0.10.0 (Phase 6 core pipeline release)
 
 ### Post-1.0 Interpretation (Future)
 
@@ -49,7 +49,7 @@ After reaching `1.0.0`:
 
 ✓ **Error Codes**
 
-- `PolicyDenied`, `Transport`, `Server`, `Validation`, `Timeout`, `Developer`
+- `CapabilityDenied`, `Transport`, `Server`, `Validation`, `Timeout`, `Developer`
 - Codes are stable identifiers across all 0.x and 1.x releases
 
 ✓ **Cache Key Patterns**
@@ -61,15 +61,15 @@ After reaching `1.0.0`:
 
 - `defineResource(config)` → Resource
 - `defineAction(name, handler, options?)` → Action
-- `definePolicy(policies)` → PolicyMap
+- `defineCapability(capabilities)` → CapabilityMap
 - `createReporter(options)` → Reporter
 - `useKernel(registry)` → Plugin
-- `registerKernelStore(name, options)` → Store
+- `registerWPKernelStore(name, options)` → Store
 
 ✓ **TypeScript Types (Public)**
 
 - Exported types from package roots won't change without major bump
-- Example: `KernelError`, `ResourceConfig`, `ActionContext`
+- Example: `WPKernelError`, `ResourceConfig`, `ActionContext`
 
 ### What May Change (Non-Breaking)
 
@@ -146,7 +146,7 @@ WP Kernel uses WordPress' own deprecation system:
 import deprecated from '@wordpress/deprecated';
 
 deprecated('thing.fetch()', {
-	since: '0.6.0',
+	since: '0.7.0',
 	version: '1.0.0',
 	alternative: 'thing.client.fetch()',
 	hint: 'See https://theGeekist.github.io/wp-kernel/migration/0.6-to-1.0',
@@ -187,7 +187,7 @@ See: [Migration Guides](https://theGeekist.github.io/wp-kernel/migration/)
 
 ### What to Expect
 
-- ✓ **Core primitives are stable**: Resources, Actions, Policies, Events
+- ✓ **Core primitives are stable**: Resources, Actions, Capabilities, Events
 - ✓ **Event names and error codes won't change**
 - ⚠️ **API ergonomics may improve**: We're refining DX based on feedback
 - ⚠️ **Edge case behavior may change**: We're hardening error handling and validation
@@ -234,12 +234,15 @@ Once we reach v1.0.0:
 
 WP Kernel is a monorepo with multiple packages. They share version numbers:
 
-| Package               | Current Version | Sync'd with |
-| --------------------- | --------------- | ----------- |
-| `@wpkernel/core`      | 0.3.0           | Monorepo    |
-| `@wpkernel/ui`        | 0.3.0           | Monorepo    |
-| `@wpkernel/cli`       | 0.3.0           | Monorepo    |
-| `@wpkernel/e2e-utils` | 0.3.0           | Monorepo    |
+| Package                  | Current Version | Sync'd with |
+| ------------------------ | --------------- | ----------- |
+| `@wpkernel/core`         | 0.7.0           | Monorepo    |
+| `@wpkernel/ui`           | 0.7.0           | Monorepo    |
+| `@wpkernel/cli`          | 0.7.0           | Monorepo    |
+| `@wpkernel/e2e-utils`    | 0.7.0           | Monorepo    |
+| `@wpkernel/php-driver`   | 0.1.0           | Monorepo    |
+| `@wpkernel/php-json-ast` | 0.1.0           | Monorepo    |
+| `@wpkernel/test-utils`   | 0.1.0           | Monorepo    |
 
 **Why synchronized versions?**
 

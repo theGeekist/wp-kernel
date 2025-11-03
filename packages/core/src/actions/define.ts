@@ -3,135 +3,26 @@
  *
  * Actions are the conductors of your WordPress application. They orchestrate
  * write operations with consistent side effects: event emission, cache invalidation,
- * job scheduling, and policy enforcement.
+ * job scheduling, and capability enforcement.
  *
  * @module @wpkernel/core/actions/define
  */
 
-import { KernelError } from '../error/KernelError';
-import {
-	createActionContext,
-	emitLifecycleEvent,
-	generateActionRequestId,
-	resolveOptions,
-} from './context';
+import { WPKernelError } from '../error/WPKernelError';
 import type {
 	ActionConfig,
-	ActionLifecycleEvent,
 	DefinedAction,
 	ResolvedActionOptions,
 } from './types';
-import { getKernelEventBus, recordActionDefined } from '../events/bus';
+import {
+	getWPKernelEventBus,
+	recordActionDefined,
+	type ActionDefinedEvent,
+} from '../events/bus';
 import { getNamespace } from '../namespace/detect';
-
-/**
- * Normalize unknown errors into structured KernelError instances.
- *
- * Ensures all errors thrown from actions follow a consistent shape for logging,
- * debugging, and error handling. Preserves stack traces and merges action context.
- *
- * @param error      - Unknown error value caught during action execution
- * @param actionName - Name of the action that threw the error
- * @param requestId  - Correlation ID for tracking this action invocation
- * @return Normalized KernelError with action context attached
- * @internal
- */
-function normalizeError(
-	error: unknown,
-	actionName: string,
-	requestId: string
-): KernelError {
-	if (KernelError.isKernelError(error)) {
-		const context = {
-			...(error.context || {}),
-			actionName: error.context?.actionName ?? actionName,
-			requestId: error.context?.requestId ?? requestId,
-		};
-		const wrapped = new KernelError(error.code, {
-			message: error.message,
-			data: error.data,
-			context,
-		});
-		wrapped.stack = error.stack;
-		return wrapped;
-	}
-
-	if (error instanceof Error) {
-		return KernelError.wrap(error, 'UnknownError', {
-			actionName,
-			requestId,
-		});
-	}
-
-	return new KernelError('UnknownError', {
-		message: `Action \"${actionName}\" failed with non-error value`,
-		data: { value: error },
-		context: { actionName, requestId },
-	});
-}
-
-/**
- * Build lifecycle event payload for emission.
- *
- * Creates structured event objects for action start, completion, and error phases.
- * These events power the observability layer and enable debugging, monitoring,
- * and cross-component coordination.
- *
- * @param phase      - Lifecycle phase: 'start', 'complete', or 'error'
- * @param options    - Resolved action options (scope, bridged)
- * @param actionName - Name of the action being executed
- * @param requestId  - Correlation ID for this invocation
- * @param namespace  - Resolved namespace for event naming
- * @param extra      - Phase-specific payload (args, result, error, duration)
- * @return Structured lifecycle event ready for emission
- * @internal
- */
-function createLifecycleEvent(
-	phase: ActionLifecycleEvent['phase'],
-	options: ResolvedActionOptions,
-	actionName: string,
-	requestId: string,
-	namespace: string,
-	extra: Partial<{
-		args: unknown;
-		result: unknown;
-		durationMs: number;
-		error: unknown;
-	}>
-): ActionLifecycleEvent {
-	const base = {
-		actionName,
-		requestId,
-		namespace,
-		scope: options.scope,
-		bridged: options.bridged,
-		timestamp: Date.now(),
-	} as const;
-
-	if (phase === 'start') {
-		return {
-			phase,
-			...base,
-			args: extra.args ?? null,
-		};
-	}
-
-	if (phase === 'complete') {
-		return {
-			phase,
-			...base,
-			result: extra.result,
-			durationMs: extra.durationMs ?? 0,
-		};
-	}
-
-	return {
-		phase: 'error',
-		...base,
-		error: extra.error,
-		durationMs: extra.durationMs ?? 0,
-	};
-}
+import { createActionPipeline } from '../pipeline/actions/createActionPipeline';
+import { resolveActionDefinitionOptions } from '../pipeline/actions/helpers/createActionOptionsResolver';
+import { createActionRegistryBridge } from '../pipeline/actions/helpers/createActionRegistryBridge';
 
 /**
  * Define a WP Kernel action with lifecycle instrumentation and side-effect coordination.
@@ -148,8 +39,8 @@ function createLifecycleEvent(
  * - **Event emission** — Broadcast lifecycle events via `@wordpress/hooks` and BroadcastChannel
  * - **Cache invalidation** — Keep UI fresh without manual work
  * - **Job scheduling** — Queue background tasks without blocking users
- * - **Policy enforcement** — Check capabilities before writes
- * - **Error normalization** — Convert any error into structured `KernelError`
+ * - **Capability enforcement** — Check capabilities before writes
+ * - **Error normalization** — Convert any error into structured `WPKernelError`
  * - **Observability** — Emit start/complete/error events for monitoring
  *
  * ## Basic Usage
@@ -162,8 +53,8 @@ function createLifecycleEvent(
  *   { data: Testimonial },
  *   Testimonial
  * >('Testimonial.Create', async (ctx, { data }) => {
- *   // 1. Policy check
- *   ctx.policy.assert('testimonials.create');
+ *   // 1. Capability check
+ *   ctx.capability.assert('testimonials.create');
  *
  *   // 2. Resource call (the actual write)
  *   const created = await testimonial.create!(data);
@@ -190,7 +81,7 @@ function createLifecycleEvent(
  *
  * - **`wpk.action.start`** — Before execution, includes args and metadata
  * - **`wpk.action.complete`** — After success, includes result and duration
- * - **`wpk.action.error`** — On failure, includes normalized `KernelError` and duration
+ * - **`wpk.action.error`** — On failure, includes normalized `WPKernelError` and duration
  *
  * These events enable:
  * - Debugging (see exactly what actions ran and when)
@@ -238,13 +129,13 @@ function createLifecycleEvent(
  * - **`ctx.invalidate(patterns, options?)`** — Invalidate resource caches
  * - **`ctx.jobs.enqueue(name, payload)`** — Queue background jobs
  * - **`ctx.jobs.wait(name, payload, opts?)`** — Wait for job completion
- * - **`ctx.policy.assert(capability)`** — Throw if capability missing
- * - **`ctx.policy.can(capability)`** — Check capability (returns boolean)
+ * - **`ctx.capability.assert(capability)`** — Throw if capability missing
+ * - **`ctx.capability.can(capability)`** — Check capability (returns boolean)
  * - **`ctx.reporter.info/warn/error/debug(msg, ctx?)`** — Structured logging
  *
  * ## Error Handling
  *
- * All errors are automatically normalized to `KernelError` instances with:
+ * All errors are automatically normalized to `WPKernelError` instances with:
  * - Consistent error codes
  * - Action name and request ID in context
  * - Preserved stack traces
@@ -252,7 +143,7 @@ function createLifecycleEvent(
  *
  * ```typescript
  * defineAction('TestAction', async (ctx, args) => {
- *   throw new KernelError('DeveloperError', { message: 'Something broke' });
+ *   throw new WPKernelError('DeveloperError', { message: 'Something broke' });
  * });
  * ```
  *
@@ -278,7 +169,7 @@ function createLifecycleEvent(
  * global.__WP_KERNEL_ACTION_RUNTIME__ = {
  *   reporter: customLogger,
  *   jobs: customJobRunner,
- *   policy: customPolicyEngine,
+ *   capability: customCapabilityEngine,
  *   bridge: customPHPBridge,
  * };
  * ```
@@ -313,7 +204,7 @@ function createLifecycleEvent(
  * export const PublishPost = defineAction(
  *   'Post.Publish',
  *   async (ctx, { id }) => {
- *     ctx.policy.assert('posts.publish');
+ *     ctx.capability.assert('posts.publish');
  *     const post = await postResource.update!({ id, status: 'publish' });
  *     ctx.emit(postResource.events.updated, { id, data: post });
  *     ctx.invalidate(['post', 'list'], { storeKey: 'my-plugin/post' });
@@ -338,12 +229,13 @@ function createLifecycleEvent(
  * @see ActionContext interface for the full context API surface
  * @see middleware module for Redux integration
  * @public
+ * @category Actions
  */
 export function defineAction<TArgs = void, TResult = void>(
 	config: ActionConfig<TArgs, TResult>
 ): DefinedAction<TArgs, TResult> {
 	if (!config || typeof config !== 'object') {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message:
 				'defineAction requires a configuration object with "name" and "handler".',
 		});
@@ -352,63 +244,64 @@ export function defineAction<TArgs = void, TResult = void>(
 	const { name, handler, options = {} } = config;
 
 	if (!name || typeof name !== 'string') {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message:
 				'defineAction requires a non-empty string "name" property.',
 		});
 	}
 
 	if (typeof handler !== 'function') {
-		throw new KernelError('DeveloperError', {
-			message: `defineAction(\"${name}\") expects a function for the "handler" property.`,
+		throw new WPKernelError('DeveloperError', {
+			message: `defineAction("${name}") expects a function for the "handler" property.`,
 		});
 	}
 
-	const resolvedOptions = resolveOptions(options);
+	const resolvedOptions = resolveActionDefinitionOptions(options);
+
+	const pipeline = createActionPipeline<TArgs, TResult>();
+	let definition: ActionDefinedEvent | null = null;
+	const eventBus = getWPKernelEventBus();
+	const registryBridge = createActionRegistryBridge((event) => {
+		recordActionDefined(event);
+		eventBus.emit('action:defined', event);
+	});
 
 	const action = async function executeAction(args: TArgs): Promise<TResult> {
-		const requestId = generateActionRequestId();
-		const context = createActionContext(name, requestId, resolvedOptions);
-		const startEvent = createLifecycleEvent(
-			'start',
-			resolvedOptions,
-			name,
-			requestId,
-			context.namespace,
-			{ args }
-		);
-		emitLifecycleEvent(startEvent);
-		const startTime = performance.now();
-
-		try {
-			const result = await handler(context, args);
-			const duration = performance.now() - startTime;
-			const completeEvent = createLifecycleEvent(
-				'complete',
-				resolvedOptions,
-				name,
-				requestId,
-				context.namespace,
-				{ result, durationMs: duration }
-			);
-			emitLifecycleEvent(completeEvent);
-			return result;
-		} catch (error) {
-			const kernelError = normalizeError(error, name, requestId);
-			const duration = performance.now() - startTime;
-			const errorEvent = createLifecycleEvent(
-				'error',
-				resolvedOptions,
-				name,
-				requestId,
-				context.namespace,
-				{ error: kernelError, durationMs: duration }
-			);
-			emitLifecycleEvent(errorEvent);
-			throw kernelError;
+		if (!definition) {
+			throw new WPKernelError('DeveloperError', {
+				message:
+					'defineAction attempted to execute before initialising pipeline metadata.',
+			});
 		}
+
+		const runResult = await pipeline.run({
+			config,
+			args,
+			definition,
+			registry: registryBridge,
+		});
+
+		return runResult.artifact.result as TResult;
 	} as DefinedAction<TArgs, TResult>;
 
+	attachActionMetadata(action, name, resolvedOptions);
+
+	const namespace = getNamespace();
+	const definitionEvent: ActionDefinedEvent = {
+		action: action as DefinedAction<unknown, unknown>,
+		namespace,
+	};
+	definition = definitionEvent;
+	registryBridge.recordActionDefined?.(definitionEvent);
+
+	return action;
+}
+
+function attachActionMetadata<TArgs, TResult>(
+	action: DefinedAction<TArgs, TResult>,
+	name: string,
+	resolvedOptions: ResolvedActionOptions
+): void {
 	Object.defineProperty(action, 'actionName', {
 		value: name,
 		enumerable: true,
@@ -420,14 +313,4 @@ export function defineAction<TArgs = void, TResult = void>(
 		enumerable: true,
 		writable: false,
 	});
-
-	const namespace = getNamespace();
-	const definition = {
-		action: action as DefinedAction<unknown, unknown>,
-		namespace,
-	};
-	recordActionDefined(definition);
-	getKernelEventBus().emit('action:defined', definition);
-
-	return action;
 }

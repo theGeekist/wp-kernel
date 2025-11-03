@@ -1,4 +1,4 @@
-[**WP Kernel API v0.3.0**](../../../README.md)
+[**WP Kernel API v0.6.0**](../../../README.md)
 
 ---
 
@@ -84,10 +84,10 @@ optional invalidate: (patterns) => void;
 
 ---
 
-### policies?
+### capabilities?
 
 ```ts
-optional policies: KernelUIPolicyRuntimeSource;
+optional capabilities: WPKUICapabilityRuntimeSource;
 ```
 
 ---

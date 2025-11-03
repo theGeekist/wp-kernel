@@ -27,7 +27,7 @@ When running `pnpm playground` in CI/Docker environments with restricted network
 2. **Plugin/theme files** from `downloads.wordpress.org` (if referenced in blueprints)
 3. **Translations** from `api.wordpress.org` and `downloads.wordpress.org`
 
-Even with domain whitelisting, these fetches can fail due to proxy configurations, firewall rules, or CORS policies.
+Even with domain whitelisting, these fetches can fail due to proxy configurations, firewall rules, or CORS capabilities.
 
 ## Solution: Pre-Download & Mount Strategy
 

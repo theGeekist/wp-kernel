@@ -35,7 +35,7 @@ sprint-1/a1-errors
 sprint-1/a2-define-resource
 sprint-1/b2-rest-stub
 sprint-1/c3-e2e-tests
-sprint-2/policies-client-hints
+sprint-2/capabilities-client-hints
 ```
 
 ### Hotfix Branches (Future)
@@ -69,10 +69,10 @@ git branch --show-current
 
 ```bash
 # Stage changes
-git add packages/core/src/errors/KernelError.ts
+git add packages/core/src/errors/WPKernelError.ts
 
 # Commit with conventional commit format
-git commit -m "feat(errors): add KernelError base class"
+git commit -m "feat(errors): add WPKernelError base class"
 
 # Continue working...
 git add packages/core/src/errors/TransportError.ts
@@ -101,7 +101,7 @@ Using GitHub CLI:
 gh pr create \
   --title "A1: Result Types & Errors" \
   --body "## Summary
-Implements KernelError base class with TransportError and ServerError subclasses.
+Implements WPKernelError base class with TransportError and ServerError subclasses.
 
 ## Changes
 - ✓ Base error class with code, message, data, context

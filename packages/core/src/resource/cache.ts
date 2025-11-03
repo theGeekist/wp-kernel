@@ -1,14 +1,11 @@
-import {
-	createNoopReporter,
-	createReporter,
-	getKernelReporter,
-} from '../reporter';
+import { createReporter, getWPKernelReporter } from '../reporter';
 import type { Reporter } from '../reporter';
+import { resolveReporter } from '../reporter/resolve';
 import { WPK_EVENTS, WPK_SUBSYSTEM_NAMESPACES } from '../contracts/index.js';
-import { getKernelEventBus } from '../events/bus';
-import type { KernelRegistry } from '../data/types';
+import { getWPKernelEventBus } from '../events/bus';
+import type { WPKernelRegistry } from '../data/types';
 import { getHooks as getActionHooks } from '../actions/context';
-import { KernelError } from '../error/index';
+import { WPKernelError } from '../error/index';
 
 /**
  * Internal state shape exposed by the __getInternalState selector.
@@ -35,11 +32,7 @@ type DispatchWithInvalidate = {
  * Accepts a single pattern or an array of patterns.
  * @param patterns
  */
-const FALLBACK_CACHE_REPORTER = createReporter({
-	namespace: WPK_SUBSYSTEM_NAMESPACES.CACHE,
-	channel: 'console',
-	level: 'debug',
-});
+const CACHE_REPORTER_CACHE_KEY = `${WPK_SUBSYSTEM_NAMESPACES.CACHE}.cache`;
 
 const CACHE_LOG_MESSAGES = {
 	request: 'cache.invalidate.request',
@@ -53,20 +46,20 @@ const CACHE_LOG_MESSAGES = {
 } as const;
 
 function resolveCacheReporter(provided?: Reporter): Reporter {
-	if (provided) {
-		return provided;
-	}
+	const wpKernelReporter = getWPKernelReporter();
 
-	const kernelReporter = getKernelReporter();
-	if (kernelReporter) {
-		return kernelReporter.child('cache');
-	}
-
-	if (process.env.WPK_SILENT_REPORTERS === '1') {
-		return createNoopReporter();
-	}
-
-	return FALLBACK_CACHE_REPORTER;
+	return resolveReporter({
+		override: provided,
+		runtime: wpKernelReporter?.child('cache'),
+		fallback: () =>
+			createReporter({
+				namespace: WPK_SUBSYSTEM_NAMESPACES.CACHE,
+				channel: 'console',
+				level: 'debug',
+			}),
+		cache: true,
+		cacheKey: CACHE_REPORTER_CACHE_KEY,
+	});
 }
 
 function toPatternsArray(
@@ -93,7 +86,7 @@ function toPatternsArray(
  * @param reporter
  */
 function getInternalStateSelector(
-	dataRegistry: KernelRegistry,
+	dataRegistry: WPKernelRegistry,
 	storeKey: string,
 	reporter: Reporter
 ): (() => InternalState) | undefined {
@@ -226,7 +219,7 @@ function invalidateStoreMatches(
  * @param reporter
  */
 function processStoreInvalidation(
-	dataRegistry: KernelRegistry,
+	dataRegistry: WPKernelRegistry,
 	storeKey: string,
 	patternsArray: CacheKeyPattern[],
 	invalidatedKeysSet: Set<string>,
@@ -291,7 +284,7 @@ function processStoreInvalidation(
 }
 
 function invalidateStores(
-	dataRegistry: KernelRegistry,
+	dataRegistry: WPKernelRegistry,
 	storeKeys: string[],
 	patternsArray: CacheKeyPattern[],
 	invalidatedKeysSet: Set<string>,
@@ -342,8 +335,9 @@ export type CacheKeyPattern = (string | number | boolean | null | undefined)[];
  * Normalize a cache key pattern to a string representation.
  * Filters out null/undefined values and joins with colons.
  *
- * @param pattern - Cache key pattern array
+ * @param    pattern - Cache key pattern array
  * @return Normalized string key
+ * @category Resource
  *
  * @example
  * ```ts
@@ -365,10 +359,11 @@ export function normalizeCacheKey(pattern: CacheKeyPattern): string {
  * Used internally by invalidate logic.
  *
  * @internal
- * @param key      - The cache key to test (already normalized string)
- * @param pattern  - The pattern to match against
- * @param reporter - Optional reporter used for logging match evaluations
+ * @param    key      - The cache key to test (already normalized string)
+ * @param    pattern  - The pattern to match against
+ * @param    reporter - Optional reporter used for logging match evaluations
  * @return True if the key matches the pattern
+ * @category Resource
  *
  * @example
  * ```ts
@@ -414,10 +409,11 @@ export function matchesCacheKey(
  * Used internally by invalidate logic.
  *
  * @internal
- * @param keys     - Collection of cache keys (typically from store state)
- * @param pattern  - Pattern to match against
- * @param reporter - Optional reporter used for logging matches
+ * @param    keys     - Collection of cache keys (typically from store state)
+ * @param    pattern  - Pattern to match against
+ * @param    reporter - Optional reporter used for logging matches
  * @return Array of matching cache keys
+ * @category Resource
  *
  * @example
  * ```ts
@@ -440,10 +436,11 @@ export function findMatchingKeys(
  * Used internally by invalidate logic.
  *
  * @internal
- * @param keys     - Collection of cache keys
- * @param patterns - Array of patterns to match against
- * @param reporter - Optional reporter used for logging matches
+ * @param    keys     - Collection of cache keys
+ * @param    patterns - Array of patterns to match against
+ * @param    reporter - Optional reporter used for logging matches
  * @return Array of matching cache keys (deduplicated)
+ * @category Resource
  *
  * @example
  * ```ts
@@ -493,10 +490,11 @@ export type PathParams = Record<string, string | number | boolean>;
  * Replaces `:paramName` patterns with values from the params object.
  * Throws DeveloperError if required params are missing.
  *
- * @param path   - REST path with :param placeholders
- * @param params - Parameter values to interpolate
+ * @param    path   - REST path with :param placeholders
+ * @param    params - Parameter values to interpolate
  * @return Interpolated path
  * @throws DeveloperError if required params are missing
+ * @category Resource
  *
  * @example
  * ```ts
@@ -523,7 +521,7 @@ export function interpolatePath(path: string, params: PathParams = {}): string {
 	);
 
 	if (missingParams.length > 0) {
-		throw new KernelError('DeveloperError', {
+		throw new WPKernelError('DeveloperError', {
 			message: `Missing required path parameters: ${missingParams.join(', ')}`,
 			data: {
 				validationErrors: [],
@@ -556,8 +554,9 @@ export function interpolatePath(path: string, params: PathParams = {}): string {
  * Used internally by the resource system for path handling.
  *
  * @internal
- * @param path - REST path with :param placeholders
+ * @param    path - REST path with :param placeholders
  * @return Array of parameter names
+ * @category Resource
  *
  * @example
  * ```ts
@@ -604,7 +603,7 @@ export type InvalidateOptions = {
 	/**
 	 * Registry to operate against instead of relying on global getWPData().
 	 */
-	registry?: KernelRegistry;
+	registry?: WPKernelRegistry;
 
 	/**
 	 * Reporter override for cache instrumentation.
@@ -633,7 +632,8 @@ const registeredStoreKeys = new Set<string>();
  * Called internally by defineResource
  *
  * @internal
- * @param storeKey - The store key to register (e.g., 'my-plugin/thing')
+ * @param    storeKey - The store key to register (e.g., 'my-plugin/thing')
+ * @category Resource
  */
 export function registerStoreKey(storeKey: string): void {
 	registeredStoreKeys.add(storeKey);
@@ -660,8 +660,9 @@ function getMatchingStoreKeys(prefix: string = ''): string[] {
  * This is the primary cache invalidation API used by Actions to ensure
  * UI reflects updated data after write operations.
  *
- * @param patterns - Cache key patterns to invalidate
- * @param options  - Invalidation options
+ * @param    patterns - Cache key patterns to invalidate
+ * @param    options  - Invalidation options
+ * @category Resource
  *
  * @example
  * ```ts
@@ -701,7 +702,7 @@ export function invalidate(
 
 	// Resolve data registry (noop in tests / node)
 	const dataRegistry =
-		overrideRegistry ?? (getWPData() as KernelRegistry | undefined);
+		overrideRegistry ?? (getWPData() as WPKernelRegistry | undefined);
 	if (!dataRegistry) {
 		return;
 	}
@@ -745,7 +746,7 @@ export function invalidate(
  * @param keys - The cache keys that were invalidated
  */
 function emitCacheInvalidatedEvent(keys: string[]): void {
-	getKernelEventBus().emit('cache:invalidated', {
+	getWPKernelEventBus().emit('cache:invalidated', {
 		keys,
 	});
 	const hooks = getActionHooks();
@@ -759,9 +760,10 @@ function emitCacheInvalidatedEvent(keys: string[]): void {
  * Use `invalidate()` with patterns instead for targeted cache invalidation.
  *
  * @internal
- * @param storeKey         - The store key to invalidate (e.g., 'my-plugin/thing')
- * @param registry
- * @param reporterOverride
+ * @param    storeKey         - The store key to invalidate (e.g., 'my-plugin/thing')
+ * @param    registry
+ * @param    reporterOverride
+ * @category Resource
  *
  * @example
  * ```ts
@@ -771,11 +773,11 @@ function emitCacheInvalidatedEvent(keys: string[]): void {
  */
 export function invalidateAll(
 	storeKey: string,
-	registry?: KernelRegistry,
+	registry?: WPKernelRegistry,
 	reporterOverride?: Reporter
 ): void {
 	const dataRegistry =
-		registry ?? (getWPData() as KernelRegistry | undefined);
+		registry ?? (getWPData() as WPKernelRegistry | undefined);
 	if (!dataRegistry) {
 		return;
 	}

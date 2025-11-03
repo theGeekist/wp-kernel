@@ -13,7 +13,7 @@ This plugin demonstrates how to build a modern WordPress product using WP Kernel
 - **Block Bindings**: Data display in editor and front-end
 - **Interactivity**: Front-end form handling and filtering
 - **Jobs (Background)**: Async resume parsing and email sending
-- **Policies**: Permission-based UI gating
+- **Capabilities**: Permission-based UI gating
 - **Events**: Canonical event taxonomy with PHP bridge support
 
 ## Project Structure
@@ -43,16 +43,16 @@ examples/showcase/
 
 ## Kernel Config & Generated Artifacts
 
-`kernel.config.ts` is the single source of truth for showcase resources. Running `pnpm generate` (an alias for `wpk generate`) reads that config, synthesises schemas, and writes artefacts into `.generated/`:
+`wpk.config.ts` is the single source of truth for showcase resources. Running `pnpm generate` (an alias for `wpk generate`) reads that config, synthesises schemas, and writes artefacts into `.generated/`:
 
-- `types/` – TypeScript declarations inferred from the resource definition (`schema: 'auto'`).
-- `php/`, `rest-args/`, `validators/`, `helpers/` – Working copies that `pnpm apply` promotes into `inc/`.
+- `types/` - TypeScript declarations inferred from the resource definition (`schema: 'auto'`).
+- `php/`, `rest-args/`, `validators/`, `helpers/` - Working copies that `pnpm apply` promotes into `inc/`.
 
 The legacy JSON schema in `contracts/job.schema.json` remains for documentation and tests, but day-to-day development relies on the CLI’s auto-generated output.
 
 ### PHP Bridge Scaffolding
 
-REST controllers and other PHP bridge files under `inc/` adhere to PSR-4 (`WPKernel\Showcase\*`) and mirror the auto-generated templates in `.generated/php/**`. The generator derives these templates from `src/kernel.config.ts`, so developers can regenerate confidently and still customise the working copies.
+REST controllers and other PHP bridge files under `inc/` adhere to PSR-4 (`WPKernel\Showcase\*`) and mirror the auto-generated templates in `.generated/php/**`. The generator derives these templates from `src/wpk.config.ts`, so developers can regenerate confidently and still customise the working copies.
 
 ### Schema Validation
 
@@ -168,7 +168,7 @@ The Job entity schema (`contracts/job.schema.json`) defines:
 - `location` (string) - Geographic location
 - `seniority` (enum) - Junior, Mid, Senior, Lead, Principal
 - `job_type` (enum) - Full-time, Part-time, Contract, Internship, Temporary
-- `remote_policy` (enum) - on-site, remote, hybrid
+- `remote_capability` (enum) - on-site, remote, hybrid
 - `salary_min`, `salary_max` (integer) - Salary range in cents
 - `apply_deadline` (date-time) - Application deadline
 - `updated_at` (date-time) - Last update timestamp
@@ -178,7 +178,7 @@ The Job entity schema (`contracts/job.schema.json`) defines:
 Once types are generated, import and use them in your code:
 
 ```typescript
-import type { Job } from '../kernel.config';
+import type { Job } from '../wpk.config';
 
 // Fully typed Job entity
 const job: Job = {

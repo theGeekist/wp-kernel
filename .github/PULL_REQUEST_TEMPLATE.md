@@ -1,12 +1,8 @@
 ## Summary
 
-Concise headline. Example: “Sprint 5: Bindings & Interactivity — Block Bindings, Interactivity API, Providers”.
+Concise headline mapped to the MVP task(s). Example: “Task 5: Block Builder AST implementation — manifests, registrar, render templates”.
 
-<!-- Delete this comment block after reading:
-PR Title should match sprint headline (e.g., "Sprint 5: React Hooks Integration")
--->
-
-**Sprint:** 5 (React Hooks Integration) / 6 (Admin Mount) / Norms (check docs/contributing/roadmap.md for guidance)
+**Task IDs:** <!-- e.g., 5, 6; see packages/cli/docs/mvp-plan.md -->
 **Scope:** actions · policy · resource · data · reporter · ui · cli · e2e
 
 ## Links
@@ -61,6 +57,9 @@ Tick any public packages this PR changes functionally.
 - [ ] `@wpkernel/ui`
 - [ ] `@wpkernel/cli`
 - [ ] `@wpkernel/e2e-utils`
+- [ ] `@wpkernel/php-driver`
+- [ ] `@wpkernel/php-json-ast`
+- [ ] `@wpkernel/test-utils`
 
 ## Release
 
@@ -76,9 +75,11 @@ Choose one and document in CHANGELOG.md files.
 
 ## Checklist
 
+- [ ] No string-based generator was introduced or wrapped (PHP/blocks emitters remain AST-first).
 - [ ] Tests pass (`pnpm test`, where relevant: `pnpm e2e`)
 - [ ] Lint passes (`pnpm lint`)
 - [ ] Types pass (`pnpm typecheck`, `pnpm typecheck:tests`)
 - [ ] CHANGELOG.md updated in affected packages (or PR labelled `no-release`)
 - [ ] Docs updated (site/README)
 - [ ] Examples updated (if API changed)
+- [ ] Documentation under `packages/cli/docs/` (index, migration phases, tasks) updated if behaviour changed.
