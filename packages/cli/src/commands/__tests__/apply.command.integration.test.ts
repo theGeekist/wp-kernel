@@ -19,7 +19,7 @@ const withWorkspace = buildWorkspaceRunner({
 	},
 });
 
-describe('NextApplyCommand integration', () => {
+describe('ApplyCommand integration', () => {
 	it('applies git patches and reports summary', async () => {
 		await withWorkspace(async (workspace) => {
 			const target = path.posix.join('php', 'JobController.php');

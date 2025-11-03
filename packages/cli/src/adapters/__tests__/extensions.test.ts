@@ -8,7 +8,7 @@ import type {
 	AdapterExtension,
 	WPKernelConfigV1,
 } from '../../config/types';
-import type { IRCapabilityScope, IRv1 } from '../../next/ir/publicTypes';
+import type { IRCapabilityScope, IRv1 } from '../../ir/publicTypes';
 import { FileWriter } from '../../utils/file-writer';
 import type { Reporter } from '@wpkernel/core/reporter';
 import { createReporterMock } from '@wpkernel/test-utils/cli';

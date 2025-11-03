@@ -18,14 +18,14 @@ import type {
 } from './generate/types';
 import { PATCH_MANIFEST_PATH } from './apply/constants';
 import { emitFatalError } from './fatal';
-import type { Workspace } from '../next/workspace';
+import type { Workspace } from '../workspace';
 import {
 	buildGenerationManifestFromIr,
 	type GenerationManifestDiff,
 	diffGenerationState,
 	readGenerationState,
 	writeGenerationState,
-} from '../next/apply/manifest';
+} from '../apply/manifest';
 
 type CommandConstructor = new () => Command & {
 	summary: GenerationSummary | null;
@@ -218,7 +218,7 @@ async function runGenerateWorkflow(
 function buildCommandConstructor(
 	dependencies: GenerateDependencies
 ): CommandConstructor {
-	return class NextGenerateCommand extends Command {
+	return class GenerateCommand extends Command {
 		static override paths = [['generate']];
 
 		static override usage = Command.Usage({

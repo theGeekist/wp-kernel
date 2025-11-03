@@ -51,4 +51,4 @@
 ### Added
 
 - Initial WordPress-specific JSON AST bridge built on top of `@wpkernel/php-json-ast`
-  for the next-generation CLI pipeline.
+  for the CLI pipeline.

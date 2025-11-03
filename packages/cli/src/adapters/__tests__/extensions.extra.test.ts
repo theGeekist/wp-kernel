@@ -16,7 +16,7 @@ import {
 } from '../extensions';
 import { WPKernelError } from '@wpkernel/core/error';
 import type { AdapterContext } from '../../config/types';
-import type { IRv1 } from '../../next/ir/publicTypes';
+import type { IRv1 } from '../../ir/publicTypes';
 import type { Reporter } from '@wpkernel/core/reporter';
 import { createReporterMock } from '@wpkernel/test-utils/cli';
 

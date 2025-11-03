@@ -12,7 +12,7 @@ import {
 import { writePackageJson } from '../init/package-json';
 import { resolveDependencyVersions } from '../init/dependency-versions';
 import type { DependencyResolution } from '../init/dependency-versions';
-import type { Workspace } from '../../next/workspace';
+import type { Workspace } from '../../workspace';
 
 type WriteScaffoldFiles = typeof writeScaffoldFiles;
 type BuildScaffoldDescriptors = typeof buildScaffoldDescriptors;

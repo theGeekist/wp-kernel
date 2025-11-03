@@ -6,9 +6,9 @@ WP Kernel is an opinionated framework for WordPress plugins. JavaScript stays in
 
 - **Resources** provide typed REST clients, cache helpers, grouped APIs, and React hooks as soon as you call `defineResource` in your project.【F:packages/core/src/resource/define.ts†L115-L390】
 - **Actions** wrap every write. They surface reporters, cache invalidation, job helpers, and capability assertions through the action context so UIs never call transports directly.【F:packages/core/src/actions/define.ts†L160-L322】
-- **CLI builders** live under `.generated/`. `wpk generate` emits TypeScript declarations for schemas, PHP controllers for local routes, optional DataViews scaffolding, and block registration code based on the manifests it discovers.【F:packages/cli/src/next/builders/ts.ts†L1-L200】【F:packages/cli/src/next/builders/php/builder.ts†L1-L80】
+- **CLI builders** live under `.generated/`. `wpk generate` emits TypeScript declarations for schemas, PHP controllers for local routes, optional DataViews scaffolding, and block registration code based on the manifests it discovers.【F:packages/cli/src/builders/ts.ts†L1-L200】【F:packages/cli/src/builders/php/builder.ts†L1-L80】
 
-When you configure adapters, the CLI can extend generation-for example the default PHP adapter writes controllers into `.generated/php` and produces a capability helper for capability checks.【F:packages/cli/src/next/builders/php/builder.ts†L1-L80】
+When you configure adapters, the CLI can extend generation-for example the default PHP adapter writes controllers into `.generated/php` and produces a capability helper for capability checks.【F:packages/cli/src/builders/php/builder.ts†L1-L80】
 
 ## Orientation map
 

@@ -1,5 +1,5 @@
 import { WPKernelError } from '@wpkernel/core/error';
-import type { Workspace } from '../../next/workspace';
+import type { Workspace } from '../../workspace';
 import { ensureTrailingNewline } from './utils';
 import type { DependencyResolution } from './dependency-versions';
 import type { ScaffoldStatus } from './utils';

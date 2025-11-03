@@ -21,7 +21,7 @@ import type {
 	PatchManifestSummary,
 	PatchRecord,
 } from './apply/types';
-import type { Workspace } from '../next/workspace';
+import type { Workspace } from '../workspace';
 import { cleanupWorkspaceTargets } from './apply/cleanup';
 
 export { APPLY_LOG_PATH, PATCH_MANIFEST_PATH } from './apply/constants';
@@ -66,7 +66,7 @@ export function buildApplyCommand(
 ): ApplyCommandConstructor {
 	const dependencies = mergeDependencies(options);
 
-	class NextApplyCommand extends Command {
+	class ApplyCommand extends Command {
 		static override paths = [['apply']];
 
 		static override usage = Command.Usage({
@@ -176,7 +176,7 @@ export function buildApplyCommand(
 		}
 	}
 
-	return NextApplyCommand as ApplyCommandConstructor;
+	return ApplyCommand as ApplyCommandConstructor;
 }
 
-export const NextApplyCommand = buildApplyCommand();
+export const ApplyCommand = buildApplyCommand();

@@ -1,4 +1,4 @@
-import type { FileManifest } from '../../next/workspace';
+import type { FileManifest } from '../../workspace';
 import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
 
 function buildCommandContext() {
@@ -30,14 +30,14 @@ describe('command factories', () => {
 			const buildReporterMock = jest.fn().mockReturnValue(reporter);
 
 			const { buildInitCommand } = await import('../init');
-			const NextInit = buildInitCommand({
+			const Init = buildInitCommand({
 				buildWorkspace: buildWorkspaceMock,
 				buildReporter: buildReporterMock,
 				runWorkflow: workflow,
 				checkGitRepository: checkGit,
 			});
 
-			const command = new NextInit();
+			const command = new Init();
 			command.cli = {} as never;
 			command.context = buildCommandContext() as never;
 			command.name = 'demo';

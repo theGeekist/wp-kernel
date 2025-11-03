@@ -10,12 +10,12 @@ import {
 	type BuildGenerateCommandOptions,
 } from '../generate';
 import { PATCH_MANIFEST_PATH } from '../apply/constants';
-import { GENERATION_STATE_PATH } from '../../next/apply/manifest';
+import { GENERATION_STATE_PATH } from '../../apply/manifest';
 import type {
 	Pipeline,
 	PipelineRunOptions,
 	PipelineRunResult,
-} from '../../next/runtime';
+} from '../../runtime';
 
 function buildIrArtifact(workspaceRoot: string): PipelineRunResult['ir'] {
 	return {
@@ -139,7 +139,7 @@ function createPipelineStub(
 	return { pipeline, runMock: executor };
 }
 
-describe('NextGenerateCommand', () => {
+describe('GenerateCommand', () => {
 	it('runs the pipeline and writes the summary output', async () => {
 		const workspace = createWorkspaceStub();
 		const { pipeline, runMock } = createPipelineStub(workspace);

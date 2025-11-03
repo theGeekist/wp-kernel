@@ -16,7 +16,7 @@ import type {
 	PreviewResult,
 	PreviewStageOptions,
 } from './types';
-import { readGenerationState } from '../../next/apply/manifest';
+import { readGenerationState } from '../../apply/manifest';
 
 export async function previewPatches({
 	dependencies,

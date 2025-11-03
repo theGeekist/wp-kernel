@@ -32,6 +32,20 @@
 		"Enum"
 	],
 	"categorizeByGroup": true,
+	"categoryOrder": [
+		"Resource",
+		"Actions",
+		"Events",
+		"Data",
+		"HTTP",
+		"Capability",
+		"Interactivity",
+		"Jobs",
+		"Policy",
+		"Reporter",
+		"Error",
+		"*"
+	],
 	"validation": {
 		"notExported": true,
 		"invalidLink": true,

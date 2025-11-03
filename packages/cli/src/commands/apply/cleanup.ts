@@ -1,5 +1,5 @@
 import path from 'node:path';
-import type { Workspace } from '../../next/workspace';
+import type { Workspace } from '../../workspace';
 import type { ReporterInstance } from './types';
 
 interface CleanupOptions {

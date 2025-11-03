@@ -1,10 +1,10 @@
 import type { Command } from 'clipanion';
 import type { createReporter } from '@wpkernel/core/reporter';
 import type { SerializedError, WPKExitCode } from '@wpkernel/core/contracts';
-import type { BuilderOutput } from '../../next/runtime/types';
+import type { BuilderOutput } from '../../runtime/types';
 import type { LoadedWPKernelConfig } from '../../config/types';
-import type { FileManifest, Workspace } from '../../next/workspace';
-import type { createPatcher } from '../../next/builders';
+import type { FileManifest, Workspace } from '../../workspace';
+import type { createPatcher } from '../../builders';
 
 export interface PatchManifestSummary {
 	readonly applied: number;
@@ -57,6 +57,10 @@ export interface ApplyFlags {
 }
 
 export type ApplyCommandInstance = Command & {
+	yes: boolean;
+	backup: boolean;
+	force: boolean;
+	cleanup?: string[];
 	summary: PatchManifestSummary | null;
 	records: PatchRecord[];
 	manifest: PatchManifest | null;

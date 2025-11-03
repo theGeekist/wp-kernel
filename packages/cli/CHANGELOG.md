@@ -44,7 +44,7 @@
 
 ### Changed
 
-- **CLI entrypoint** – `cli/run.ts` instantiates the next-generation `generate`, `init`, `create`, `start`, `doctor`, and `apply` commands before registration, eliminating the legacy command layer.
+- **CLI entrypoint** – `cli/run.ts` instantiates the `generate`, `init`, `create`, `start`, `doctor`, and `apply` commands before registration, eliminating the legacy command layer.
 
 ### Documentation
 
@@ -90,7 +90,7 @@
 
 ### Added
 
-- **wp-option controllers (AST)** – `packages/cli/src/next/builders/php/resource/wpOption/**` now emit wp-option controllers through the next-generation pipeline, replacing the legacy string printer while preserving helper-first behaviour.
+- **wp-option controllers (AST)** – `packages/cli/src/builders/php/resource/wpOption/**` now emit wp-option controllers through the pipeline, replacing the legacy string printer while preserving helper-first behaviour.
 
 ### Changed
 

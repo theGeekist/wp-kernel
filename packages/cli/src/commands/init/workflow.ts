@@ -2,7 +2,7 @@ import type { Dirent } from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import type { Reporter } from '@wpkernel/core/reporter';
-import type { Workspace, FileManifest } from '../../next/workspace';
+import type { Workspace, FileManifest } from '../../workspace';
 import { resolveDependencyVersions } from './dependency-versions';
 import type { DependencyResolution } from './dependency-versions';
 import { appendPackageSummary, writePackageJson } from './package-json';

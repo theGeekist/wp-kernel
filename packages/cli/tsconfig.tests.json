@@ -8,8 +8,8 @@
 	"include": [
 		"src/**/*.test.ts",
 		"src/**/*.test.tsx",
-		"src/next/**/*.test.ts",
-		"src/next/**/*.test.tsx",
+		"src/**/*.test.ts",
+		"src/**/*.test.tsx",
 		"vite.config.ts"
 	],
 	"exclude": ["dist", "dist-tests", "node_modules"],

@@ -120,7 +120,7 @@ module.exports = {
 };
 ```
 
-Extensions can also call `updateIr(nextIr)` to feed changes back into the printers while keeping the configuration as the single source of truth.
+Extensions can also call `updateIr(ir)` to feed changes back into the printers while keeping the configuration as the single source of truth.
 
 ## Contributing
 

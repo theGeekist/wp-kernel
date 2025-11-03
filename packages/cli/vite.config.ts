@@ -2,7 +2,7 @@ import { resolve as resolvePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { PluginOption } from 'vite';
 import type { Reporter } from '@wpkernel/core/reporter';
-import { buildWorkspace } from './src/next/workspace';
+import { buildWorkspace } from './src/workspace';
 import { createWPKLibConfig } from '../../vite.config.base';
 import pkg from './package.json';
 

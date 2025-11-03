@@ -8,7 +8,7 @@
 		"noEmit": true
 	},
 	"files": [
-		"../../test-utils/src/next/workspace.test-support.ts",
+		"../../test-utils/src/workspace.test-support.ts",
 		"../package.json"
 	],
 	"include": ["./**/*.ts"],

@@ -5,8 +5,9 @@ import {
 } from '@wpkernel/test-utils/cli';
 import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
 import { buildInitCommand } from '../init';
+import type { buildWorkspace } from '../../workspace/filesystem';
 
-describe('NextInitCommand (unit)', () => {
+describe('InitCommand (unit)', () => {
 	it('warns when git repository is missing before running workflow', async () => {
 		const workspace = makeWorkspaceMock({ root: '/tmp/demo-project' });
 		const reporter = createReporterMock();
@@ -20,7 +21,7 @@ describe('NextInitCommand (unit)', () => {
 		});
 
 		const InitCommand = buildInitCommand({
-			buildWorkspace: () => workspace,
+			buildWorkspace: (() => workspace) as typeof buildWorkspace,
 			buildReporter: () => reporter,
 			runWorkflow,
 			checkGitRepository: jest.fn().mockResolvedValue(false),
@@ -47,7 +48,7 @@ describe('NextInitCommand (unit)', () => {
 		const runWorkflow = jest.fn();
 
 		const InitCommand = buildInitCommand({
-			buildWorkspace: () => workspace,
+			buildWorkspace: (() => workspace) as typeof buildWorkspace,
 			buildReporter: () => reporter,
 			runWorkflow,
 			checkGitRepository: jest

@@ -1,6 +1,6 @@
 import { WPKernelError } from '@wpkernel/core/contracts';
-import type { BuilderOutput } from '../../next/runtime/types';
-import type { Workspace } from '../../next/workspace';
+import type { BuilderOutput } from '../../runtime/types';
+import type { Workspace } from '../../workspace';
 import { PATCH_MANIFEST_PATH } from './constants';
 import type { PatchManifest, PatchStatus } from './types';
 

@@ -3,8 +3,9 @@ import { WPK_EXIT_CODES } from '@wpkernel/core/contracts';
 import { assignCommandContext } from '@wpkernel/test-utils/cli';
 import { makeWorkspaceMock } from '../../../tests/workspace.test-support';
 import { buildCreateCommand } from '../create';
+import type { buildWorkspace } from '../../workspace/filesystem';
 
-describe('NextCreateCommand', () => {
+describe('CreateCommand', () => {
 	it('runs init workflow, initialises git, and installs dependencies', async () => {
 		const workflow = jest.fn().mockResolvedValue({
 			manifest: { writes: [], deletes: [] },
@@ -24,7 +25,7 @@ describe('NextCreateCommand', () => {
 		const workspace = makeWorkspaceMock({ root: workspaceRoot });
 
 		const CreateCommand = buildCreateCommand({
-			buildWorkspace: () => workspace,
+			buildWorkspace: (() => workspace) as typeof buildWorkspace,
 			runWorkflow: workflow,
 			checkGitRepository: checkGit,
 			initGitRepository: initGit,
@@ -80,7 +81,7 @@ describe('NextCreateCommand', () => {
 		const workspace = makeWorkspaceMock({ root: process.cwd() });
 
 		const CreateCommand = buildCreateCommand({
-			buildWorkspace: () => workspace,
+			buildWorkspace: (() => workspace) as typeof buildWorkspace,
 			runWorkflow: workflow,
 			checkGitRepository: checkGit,
 			initGitRepository: initGit,
