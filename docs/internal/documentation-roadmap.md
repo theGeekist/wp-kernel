@@ -169,7 +169,7 @@ This phase applies the Phase 2 documentation playbook to `@wpkernel/cli`, coveri
 #### Docs Task 15 – Refresh `packages/cli/README.md` (⬜ Planned)
 
 - [ ] Reorganize the README into overview, quick start (init workflow), and command reference sections.
-- [ ] Link to existing migration specs (`docs/cli-migration-phases.md`, `packages/cli/docs/mvp-plan.md`) for deep dives on architecture decisions.
+- [ ] Link to existing migration specs (`docs/cli-migration-phases.md`, `cli-mvp-plan.md`) for deep dives on architecture decisions.
 - [ ] Validate that installation instructions, storage mode coverage, and version compatibility notes are current.
 
 #### Docs Task 16 – Apply the API doc strategy to CLI (⬜ Planned)

@@ -1,6 +1,6 @@
 # Phase 05 - Apply Workflow (Next Pipeline)
 
-_See [Docs Index](./index.md) for navigation._
+_See [Docs Index](cli-index.md) for navigation._
 
 **Audience:** contributors extending or refactoring the CLI apply flow (`packages/cli/src/**`).
 

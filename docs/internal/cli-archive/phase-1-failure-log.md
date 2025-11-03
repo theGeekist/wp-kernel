@@ -672,7 +672,7 @@ root@9d20af90c396:/workspace/wp-kernel# sed -n '1,200p' packages/cli/src/builder
  * Canonical PHP AST types for JSON serialisation.
  *
  * This mirrors the structure emitted by `nikic/PHP-Parser` when hydrated via
- * `JsonSerializable`. Refer to packages/cli/docs/php-json-schema.md for the
+ * `JsonSerializable`. Refer to cli-php-json-schema.md for the
  * authoritative schema. Generated definitions can be cross-checked against the
  * upstream PHP implementation at
  * `packages/cli/vendor/nikic/php-parser/lib/PhpParser`.

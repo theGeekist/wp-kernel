@@ -2,7 +2,7 @@
 
 ## Scope & Precedence
 
-This document provides operational guidance for coding agents (Codex, etc.) working on the wpk CLI. Follow the commands and constraints below. Complete tasks only when checks are green and diffs are minimal. For task-specific context, always consult `packages/cli/docs/index.md` (Docs Index) and the [MVP Plan](packages/cli/docs/mvp-plan.md) before coding.
+This document provides operational guidance for coding agents (Codex, etc.) working on the wpk CLI. Follow the commands and constraints below. Complete tasks only when checks are green and diffs are minimal. For task-specific context, always consult `docs/internal/cli-index.md` (Docs Index) and the [MVP Plan](docs/internal/cli-mvp-plan.md) before coding.
 
 ## Project Architecture & Invariants
 
@@ -21,7 +21,7 @@ This document provides operational guidance for coding agents (Codex, etc.) work
 - Modules have clear separation of concerns and minimal cross-package dependencies.
 - Avoid deep imports across packages (e.g., no direct imports from `packages/*/src/**`).
 - Use explicit exports and imports to maintain encapsulation and module boundaries.
-- When updating CLI docs or planning work, keep `packages/cli/docs/index.md` and `packages/cli/docs/mvp-plan.md` in sync.
+- When updating CLI docs or planning work, keep `docs/internal/cli-index.md` and `docs/internal/cli-mvp-plan.md` in sync.
 
 ## Environment & Tooling
 
@@ -113,7 +113,7 @@ pnpm playground:offline:stop    # Stops server in background (zero network)
 
 ## Docs & Spec Coordination
 
-- Always update `/docs`, `CHANGELOG.md`, `README.md` and if needed `MIGRATION.md`. Keep `packages/cli/docs/index.md`, `packages/cli/docs/cli-migration-phases.md`, `packages/cli/docs/mvp-plan.md`, and related task docs in sync with code changes.
+- Always update `/docs`, `CHANGELOG.md`, `README.md` and if needed `MIGRATION.md`. Keep `docs/internal/cli-index.md`, `docs/internal/cli-migration-phases.md`, `docs/internal/cli-mvp-plan.md`, and related task docs in sync with code changes.
 - For documentation-only work, see `docs/AGENTS.md`; mention affected pages in PR descriptions to avoid drift.
 
 ## What NOT to do
@@ -130,10 +130,10 @@ pnpm playground:offline:stop    # Stops server in background (zero network)
 ## Versioning
 
 - Current release train: **v0.10.x (pre-1.0)**. All publishable packages share the same semantic version sourced from the root `package.json`.
-- When you complete any scoped task in `packages/cli/docs/mvp-plan.md`, plan the work so the unified version bumps by either a patch (fix-level) or minor (feature-level) increment. Do the code/tests first, then-once approvals land and you rebased-apply the version/CHANGELOG updates in a final commit before merge.
+- When you complete any scoped task in `docs/internal/cli-mvp-plan.md`, plan the work so the unified version bumps by either a patch (fix-level) or minor (feature-level) increment. Do the code/tests first, then-once approvals land and you rebased-apply the version/CHANGELOG updates in a final commit before merge.
 - Document migrations and changelog entries as pre-1.0 guidance; do not reference 1.x semantics until the roadmap flips to RC.
 - If you introduce a new public surface, call out the required version bump in the PR template and confirm the release checklist in `RELEASING.md` is satisfied.
-- Respect the reserved version ledger in `packages/cli/docs/mvp-plan.md`; claim your slot before you start and update it (with PR link) once merged so parallel agents do not reuse patch numbers.
+- Respect the reserved version ledger in `docs/internal/cli-mvp-plan.md`; claim your slot before you start and update it (with PR link) once merged so parallel agents do not reuse patch numbers.
 
 ## Cross-package dependencies
 

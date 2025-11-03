@@ -1,6 +1,6 @@
 # PHP JSON Schema Reference
 
-_See [Docs Index](./index.md) for navigation._
+_See [Docs Index](cli-index.md) for navigation._
 
 Nodes (and comments) implement the `JsonSerializable` interface. As such, it is possible to JSON
 encode the AST directly using `json_encode()`:

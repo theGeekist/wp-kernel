@@ -1,6 +1,6 @@
 # Pipeline Integration Tasks
 
-_See [Docs Index](./index.md) for navigation._
+_See [Docs Index](cli-index.md) for navigation._
 
 > **Non-negotiables:** These tasks live on the next pipeline. Do not introduce or wrap string-based PHP printers, and reserve the `create*` prefix for helpers built with `createHelper`.
 
@@ -57,7 +57,7 @@ Item 2 replaces every `buildNode('Expr_*')` usage in the PHP builders with dedic
 
 > **MVP Plan reference:** Task 4 (Phase 0)
 > Item 4 - Surface Driver Configuration & Documentation (Complexity: Medium)
-> Threading configurable PHP driver hooks requires plumbing options through the next builder exports (`packages/cli/src/builders/php/index.ts:1-7`) and runtime glue without regressing existing consumers. Once the surface exists, documentation must be refreshed across `packages/cli/docs/cli-migration-phases.md`, `packages/cli/docs/php-ast-migration-tasks.md`, and `packages/cli/CHANGELOG.md` to describe the AST→PHP flow and the new configuration knobs. The code changes are moderate and the documentation pass is deliberate but bounded, keeping the task in the medium band while still suitable for a single cloud run.
+> Threading configurable PHP driver hooks requires plumbing options through the next builder exports (`packages/cli/src/builders/php/index.ts:1-7`) and runtime glue without regressing existing consumers. Once the surface exists, documentation must be refreshed across `cli-migration-phases.md`, `cli-php-ast-migration.md`, and `packages/cli/CHANGELOG.md` to describe the AST→PHP flow and the new configuration knobs. The code changes are moderate and the documentation pass is deliberate but bounded, keeping the task in the medium band while still suitable for a single cloud run.
 
 **Audit findings**
 

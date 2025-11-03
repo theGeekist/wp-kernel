@@ -1,6 +1,6 @@
 # Legacy Block Printer Parity
 
-_See [Docs Index](./index.md) for navigation._
+_See [Docs Index](cli-index.md) for navigation._
 
 This note captures the observable behaviour of the legacy block printers that
 lived under `packages/cli/src/printers/blocks/**` until the v0.8.0 release. We

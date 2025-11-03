@@ -1,6 +1,6 @@
 # php-json-ast Planning Docs
 
-_See the [CLI docs index](../../cli/docs/index.md) for the monorepo navigation spine._
+_See the [CLI docs index](cli-index.md) for the monorepo navigation spine._
 
 ## Documents
 

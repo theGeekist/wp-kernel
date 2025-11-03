@@ -1,12 +1,12 @@
 # Command Migration & Parity Plan
 
-_See [Docs Index](./index.md) for navigation._
+_See [Docs Index](cli-index.md) for navigation._
 
 **Audience:** maintainers migrating CLI commands to the next pipeline (`packages/cli/src/**`).
 
 **Goal:** retire the legacy command shims by rebuilding every entry point on top of the helper-first pipeline and the shared `@wpkernel/core/pipeline` orchestration helpers.
 
-This plan supplements the focused workflow guides (for example [Apply Workflow Phases](./apply-workflow-phases.md)). Use it to understand how each command behaves today, the expected improvements, and how the work maps onto the [MVP Plan](./mvp-plan.md).
+This plan supplements the focused workflow guides (for example [Apply Workflow Phases](cli-apply-workflow.md)). Use it to understand how each command behaves today, the expected improvements, and how the work maps onto the [MVP Plan](cli-mvp-plan.md).
 
 ---
 
@@ -43,7 +43,7 @@ Embedding the commands in factories keeps the orchestration consistent with the 
 - **Current state:** The default `ApplyCommand` produced by `buildApplyCommand` loads the kernel config, executes `createPatcher`, honours `--yes/--backup/--force`, enforces git hygiene, and appends structured entries to `.wpk-apply.log` while printing the manifest summary.
 - **Legacy reference:** The pre-0.8.0 command shim handled three-way merges, composer autoload detection, shim creation, git checks, backups, and logging; refer to the v0.7.x history for implementation details.
 - **Ongoing focus:**
-    - Keep shim templates and composer fallbacks aligned with adapter/runtime changes (see [Apply Workflow Phases](./apply-workflow-phases.md)).
+    - Keep shim templates and composer fallbacks aligned with adapter/runtime changes (see [Apply Workflow Phases](cli-apply-workflow.md)).
     - Expand diagnostics/log output as Phase 8 Task 46 introduces new reporting requirements.
 - **MVP Plan mapping:** Phase 4 Task 20 delivered the factory and Phase 5 closed layering + safety rails. Any additional polish now rolls into Phase 7 Tasks 37-45 (bootstrap flow) with diagnostics routed to Phase 8 Task 46.
 
@@ -98,8 +98,8 @@ Embedding the commands in factories keeps the orchestration consistent with the 
 ## 4. Dependencies & sequencing
 
 1. **Phase 4 (Command migration & string-printer retirement):** Shipped in **0.8.0** with the factories (`buildApplyCommand`, native `init/create`, `generate`, `start`, `doctor`) and the removal of legacy shims. Treat it as the baseline when adding new commands.
-2. **Phase 5 (Apply layering & flags):** Closed in **0.9.0** after layering shims, git enforcement, and logging onto `apply`. See the dedicated [apply workflow](./apply-workflow-phases.md) for historical guardrails.
-3. **Phase 6 (Core pipeline alignment):** Tracks Tasks 32-36 in `packages/core/docs/phase-6-core-pipeline.md.md`. Coordinate with core as the spec evolves and route CLI bootstrap follow-ups into Phase 7 Tasks 37-45.
+2. **Phase 5 (Apply layering & flags):** Closed in **0.9.0** after layering shims, git enforcement, and logging onto `apply`. See the dedicated [apply workflow](cli-apply-workflow.md) for historical guardrails.
+3. **Phase 6 (Core pipeline alignment):** Tracks Tasks 32-36 in `core-phase-6-pipeline.md`. Coordinate with core as the spec evolves and route CLI bootstrap follow-ups into Phase 7 Tasks 37-45.
 4. **Pipeline reliance:** Every command runs atop `createPipeline` and workspace transactions. Coordinate with `@wpkernel/core` to expose any missing orchestration helpers before landing new features.
 
-Keep this plan synchronised with the [CLI Migration Phases](./cli-migration-phases.md) and update entries whenever new tasks ship.
+Keep this plan synchronised with the [CLI Migration Phases](cli-migration-phases.md) and update entries whenever new tasks ship.

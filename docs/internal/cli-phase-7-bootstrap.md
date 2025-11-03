@@ -1,6 +1,6 @@
 # Phase 7 – Plugin bootstrap flow
 
-_Phase reference: packages/cli/docs/mvp-plan.md_
+_Phase reference: cli-mvp-plan.md_
 
 Phase 7 closes the gaps that keep freshly scaffolded projects from activating immediately inside WordPress. The work stretches from the bootstrap installers that invoke `wpk create` to the generators that merge `.generated` artefacts into a plugin-aware codebase.
 
@@ -31,7 +31,7 @@ Finish the bootstrapper by teaching it to invoke the CLI and verifying the flow 
 1. A proxy that forwards arguments after `--` (e.g. `--name`) into `packages/cli/bin/wpk.js`, capturing stdout/stderr for diagnostics.
 2. Optional analytics/reporting hooks so bootstrap usage can be logged alongside other CLI events.
 3. A smoke test inside `packages/cli/tests/__tests__/create-wpk.integration.test.ts` that exercises `npm create @wpkernel/wpk -- --name demo` via the new package to prove the invocation lands in `wpk create`.
-4. Documentation updates in `packages/cli/docs/index.md` and the README that announce the new bootstrap command.
+4. Documentation updates in `cli-index.md` and the README that announce the new bootstrap command.
 
 Each deliverable touches the same entry point, so shipping them together keeps the proxy, telemetry stub, docs, and integration smoke aligned without needing an additional task split.
 
@@ -45,7 +45,7 @@ The current bootstrap entry simply shells out with `spawnSync(process.execPath, 
 
 Adding telemetry requires instantiating the WPKernel reporter inside the bootstrap package (likely via `createReporter` from `@wpkernel/core/reporter`) and deciding on canonical event names so the emitted logs align with the `wpk` namespace.【F:packages/cli/src/commands/create.ts†L1-L244】 The README still calls out telemetry and flag forwarding as future scope, so Task 38 must remove that limitation copy once the instrumentation lands.【F:packages/create-wpk/README.md†L1-L16】 The package manifest only depends on `@wpkernel/cli` today, so pulling in the reporter will introduce a new workspace dependency that needs TypeScript path wiring and changelog updates in tandem with the code.【F:packages/create-wpk/package.json†L1-L55】【F:packages/create-wpk/CHANGELOG.md†L1-L11】
 
-For the smoke test, we need to stand up a temporary workspace (via `withWorkspace`) and spawn the compiled bootstrap binary while injecting the same `NODE_OPTIONS` loader that the existing `wpk-bin` integration test uses to resolve the PHP JSON AST shim.【F:packages/cli/tests/**tests**/wpk-bin.integration.test.ts†L1-L96】 Because `wpk create` installs npm and Composer dependencies unless `--skip-install` is forwarded, the test must assert that the proxy passes that flag through to avoid hitting external tooling and keep the suite hermetic.【F:packages/cli/src/commands/create.ts†L196-L244】 We also need to decide whether the test runs against `packages/create-wpk/dist/index.js` (requiring the workspace to build the package before Jest executes) or uses `tsx` to execute `src/index.ts` directly; either approach should be documented so contributors know which prerequisite the smoke test expects.【F:packages/create-wpk/package.json†L30-L52】【F:packages/cli/docs/mvp-plan.md†L170-L177】
+For the smoke test, we need to stand up a temporary workspace (via `withWorkspace`) and spawn the compiled bootstrap binary while injecting the same `NODE_OPTIONS` loader that the existing `wpk-bin` integration test uses to resolve the PHP JSON AST shim.【F:packages/cli/tests/**tests**/wpk-bin.integration.test.ts†L1-L96】 Because `wpk create` installs npm and Composer dependencies unless `--skip-install` is forwarded, the test must assert that the proxy passes that flag through to avoid hitting external tooling and keep the suite hermetic.【F:packages/cli/src/commands/create.ts†L196-L244】 We also need to decide whether the test runs against `packages/create-wpk/dist/index.js` (requiring the workspace to build the package before Jest executes) or uses `tsx` to execute `src/index.ts` directly; either approach should be documented so contributors know which prerequisite the smoke test expects.【F:packages/create-wpk/package.json†L30-L52】【F:cli-mvp-plan.md†L170-L177】
 
 ### Patch 0.10.3 – Task 39: Init adoption guardrails
 
@@ -127,5 +127,5 @@ Polish the author experience and documentation once the generator is stable. Del
 After patches 37-44 land, run the unified release checklist:
 
 1. Roll the 0.11.0 minor across the monorepo and update every changelog.
-2. Capture the bootstrap flow in `packages/cli/docs/mvp-plan.md` and supporting guides.
+2. Capture the bootstrap flow in `cli-mvp-plan.md` and supporting guides.
 3. Tag the release once tests and documentation updates merge.

@@ -2,7 +2,9 @@
 
 Concise headline mapped to the MVP task(s). Example: “Task 5: Block Builder AST implementation — manifests, registrar, render templates”.
 
-**Task IDs:** <!-- e.g., 5, 6; see packages/cli/docs/mvp-plan.md -->
+## Scope
+
+**Task IDs:** <!-- e.g., 5, 6; see docs/internal/cli-mvp-plan.md -->
 **Scope:** actions · policy · resource · data · reporter · ui · cli · e2e
 
 ## Links
@@ -82,4 +84,7 @@ Choose one and document in CHANGELOG.md files.
 - [ ] CHANGELOG.md updated in affected packages (or PR labelled `no-release`)
 - [ ] Docs updated (site/README)
 - [ ] Examples updated (if API changed)
-- [ ] Documentation under `packages/cli/docs/` (index, migration phases, tasks) updated if behaviour changed.
+- [ ] Tests are green (unit, integration, E2E if applicable).
+- [ ] Coverage maintained or improved (≥95% statements/lines, ≥98% functions).
+- [ ] Documentation under `docs/internal/` (index, migration phases, tasks) updated if behaviour changed.
+- [ ] Roadmap/spec updated if scope changed.

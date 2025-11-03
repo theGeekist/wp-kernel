@@ -1,6 +1,6 @@
 # Next-Gen CLI - Contributor Brief
 
-_See [Docs Index](./index.md) for navigation._
+_See [Docs Index](cli-index.md) for navigation._
 
 Status: **Phases 0-6 shipped (pipeline alignment complete)**
 Version train: **v0.10.x (pre-1.0)**
@@ -21,15 +21,15 @@ This document replaces earlier drafts (`next-cli.md.audit-backup`, `next-cli.md.
 | Phase 3 - block builders (completed)          | SSR + JS-only builders (Tasks 16-19 shipped)                                                                                                                 | **0.7.0**     | 0.6.1 → 0.6.4             | CLI/ui + block integration smoke                                              |
 | Phase 4 - command migration (completed)       | Remove legacy writers/commands (Tasks 20-26 shipped)                                                                                                         | **0.8.0**     | 0.7.1 → 0.7.6             | CLI + docs regeneration + regression run                                      |
 | Phase 5 - apply layering (completed)          | Shims + flags + logging (Tasks 27-31)                                                                                                                        | **0.9.0**     | 0.8.1 → 0.8.4             | `wpk generate`/`wpk apply` acceptance run                                     |
-| Phase 6 - core pipeline alignment (completed) | Align CLI docs with `packages/core/docs/phase-6-core-pipeline.md.md` (Tasks 32-36 shipped).                                                                  | **0.10.0**    | 0.9.1 → 0.10.0 (shipped)  | Baseline + documentation linting                                              |
+| Phase 6 - core pipeline alignment (completed) | Align CLI docs with `core-phase-6-pipeline.md` (Tasks 32-36 shipped).                                                                                        | **0.10.0**    | 0.9.1 → 0.10.0 (shipped)  | Baseline + documentation linting                                              |
 | Phase 7 - plugin bootstrap flow (planned)     | Close the scaffolding gaps (Tasks 37-45): publish the create bootstrap, emit the plugin loader, clean stale artefacts, run activation smoke, and cut 0.11.0. | **0.11.0**    | 0.10.1 → 0.11.0 (reserve) | Baseline + activation smoke (`wpk create && wpk generate && wpk apply --yes`) |
 | Phase 8 - post-MVP polish (planned)           | Task 46 placeholder for diagnostics/LogLayer polish once the plugin bootstrap flow ships.                                                                    | TBD           | TBD                       | TBD                                                                           |
 
-- **Patch bands:** Each phase reserves patch numbers in batches of three (implementation, tests, fixtures/docs) plus a buffer slot. Consume them sequentially; update [MVP Plan](./mvp-plan.md) as you go so parallel agents never target the same release.
+- **Patch bands:** Each phase reserves patch numbers in batches of three (implementation, tests, fixtures/docs) plus a buffer slot. Consume them sequentially; update [MVP Plan](cli-mvp-plan.md) as you go so parallel agents never target the same release.
 - **Non-negotiables:** Every helper touched here must remain AST-first. Do not revive string-based printers, and reserve the `create*` prefix for helpers produced via `createHelper` (alias third-party `create*` functions locally if needed).
 - **Phase consolidation:** The agent cutting a minor release runs the full checks for all impacted packages (`@wpkernel/cli`, `@wpkernel/core`, `@wpkernel/php-driver`, `@wpkernel/ui`) and documents the results in the release PR.
 
-Phase 3 covered Tasks 16-19: port the legacy block printers (`packages/cli/src/printers/blocks/js-only.ts` and `packages/cli/src/printers/blocks/ssr.ts`) into the AST-first pipeline, ship the shared `ts-morph` primitives, lock parity through tests, refresh fixtures/docs, and hold the buffer slot before cutting 0.7.0. Those checkpoints are now complete; expect medium-complexity runs here-each task replaces end-to-end generation of manifests, registrars, and per-block `render.php` stubs. See [PHP AST Migration Tasks](./php-ast-migration-tasks.md#phase-3---block-printers-ssr--js-only-) for the detailed scope.
+Phase 3 covered Tasks 16-19: port the legacy block printers (`packages/cli/src/printers/blocks/js-only.ts` and `packages/cli/src/printers/blocks/ssr.ts`) into the AST-first pipeline, ship the shared `ts-morph` primitives, lock parity through tests, refresh fixtures/docs, and hold the buffer slot before cutting 0.7.0. Those checkpoints are now complete; expect medium-complexity runs here-each task replaces end-to-end generation of manifests, registrars, and per-block `render.php` stubs. See [PHP AST Migration Tasks](cli-php-ast-migration.md#phase-3---block-printers-ssr--js-only-) for the detailed scope.
 
 Phase 4 closed with Task 26: after controller safety warnings (Task 25) landed, the 0.8.0 release removed the legacy string printers and command shims so the CLI now runs exclusively through the next pipeline factories.
 
@@ -134,7 +134,7 @@ export const createExampleHelper = () =>
 
 ## Current command surface
 
-See [Command Migration & Parity Plan](./command-migration-plan.md) for the authoritative command-by-command scope, legacy parity gaps, and MVP Plan mapping. Highlights:
+See [Command Migration & Parity Plan](cli-command-migration.md) for the authoritative command-by-command scope, legacy parity gaps, and MVP Plan mapping. Highlights:
 
 - `apply` runs natively through `buildApplyCommand`, emits shims, enforces git, and persists `.wpk-apply.log` entries.
 - `generate`, `init`, `create`, `start`, and `doctor` all run natively via `build*Command` factories with shared reporter/DI seams.
@@ -146,7 +146,7 @@ See [Command Migration & Parity Plan](./command-migration-plan.md) for the autho
 
 These align with `docs/pipeline-integration-tasks.md` and related planning docs.
 
-1. **Apply layering & flag parity** – Completed in Phase 5; use [Apply Workflow Phases](./apply-workflow-phases.md) for historical guardrails and track new diagnostics under Phase 8 Task 46 (starting with the CLI LogLayer reporter alignment).
+1. **Apply layering & flag parity** – Completed in Phase 5; use [Apply Workflow Phases](cli-apply-workflow.md) for historical guardrails and track new diagnostics under Phase 8 Task 46 (starting with the CLI LogLayer reporter alignment).
 2. **PHP AST parity** – Completed across Phases 1-3; `docs/php-ast-migration-tasks.md` now serves as an archive of the shipped parity work.
 3. **Block & UI builders** – Phase 3 delivered SSR and JS-only builders plus ts-morph registrars; future UI polish will be scoped separately.
 4. **Bundler workflow** – Still on the roadmap: grow `createBundler` into a reusable Vite/Rollup helper (hashed assets, manifest verification). No CLI `build` command is planned.

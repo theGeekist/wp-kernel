@@ -4,8 +4,8 @@ We will reserve the **0.9.1 → 0.9.4 patch band** for implementation, tests, do
 
 _Referenced from:_
 
-- [`packages/cli/docs/cli-migration-phases.md` §14-27](../../cli/docs/cli-migration-phases.md#L14-L27)
-- [`packages/cli/docs/mvp-plan.md` §5-13](../../cli/docs/mvp-plan.md#L5-L13)
+- [`cli-migration-phases.md` §14-27](cli-migration-phases.md#L14-L27)
+- [`cli-mvp-plan.md` §5-13](cli-mvp-plan.md#L5-L13)
 
 ---
 
@@ -146,7 +146,7 @@ _Referenced from:_
 3. **Interactivity bridge** – Ship a concrete `defineInteraction` helper under `@wpkernel/core/interactivity` that wraps `@wordpress/interactivity`. Reserve namespaces under the `wpk/<resource>/<feature>` pattern, bind store actions to the pipeline-aware `invokeAction`, and synchronise `getServerState()` payloads with resource caches. Capture installation notes for `@wordpress/interactivity` (or equivalent mocks) inside the test harness so the helper can be exercised in unit suites before wiring it into documentation.
 4. **Rollback validation** – Simulate helper failures to exercise commit/rollback hooks. Confirm pipelines unwind side effects cleanly and update tests to guard against regressions.
 5. **Configuration cleanup** – Sweep configuration objects, helpers, and documentation for stale guard references. Confirm the runtime no longer accepts a pipeline toggle and that public configuration types reflect the simplified surface.
-6. **Documentation sweep** – Refresh `packages/cli/docs/index.md`, `packages/cli/docs/cli-migration-phases.md`, this phase document, and affected READMEs with guidance on extending pipelines, the reserved `create*` prefix, and the WPK naming cadence. Include references to the new `defineInteraction` helper, how it composes with generated actions/resources, and the expectation that Phase 8 adds CLI scaffolding hooks.
+6. **Documentation sweep** – Refresh `cli-index.md`, `cli-migration-phases.md`, this phase document, and affected READMEs with guidance on extending pipelines, the reserved `create*` prefix, and the WPK naming cadence. Include references to the new `defineInteraction` helper, how it composes with generated actions/resources, and the expectation that Phase 8 adds CLI scaffolding hooks.
 
 **Completion placeholder**
 
@@ -160,7 +160,7 @@ Once patches ship, flip the pipeline on by default, remove legacy paths, and cut
 
 _Referenced from:_
 
-- [`packages/cli/docs/mvp-plan.md` §67-75](../../cli/docs/mvp-plan.md#L67-L75)
+- [`cli-mvp-plan.md` §67-75](cli-mvp-plan.md#L67-L75)
 
 ### 🧩 Task 36: Cut Phase 6 Minor Release
 

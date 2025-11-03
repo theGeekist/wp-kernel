@@ -1,6 +1,6 @@
 # Adapter Integration (Next Pipeline)
 
-_See [Docs Index](./index.md) for navigation._
+_See [Docs Index](cli-index.md) for navigation._
 
 **Scope:** This guide documents the adapter surfaces that exist **today** inside the CLI pipeline (`packages/cli/src/**`). String-based printers from the old CLI are referenced only when they help explain future work; adapters should target the AST-first pipeline exclusively.
 
@@ -184,7 +184,7 @@ This pattern mirrors what the core writer does (`packages/cli/src/builders/php/w
 
 The current surface deliberately favours IR rewrites. To deliver the richer DX hinted at in earlier drafts we still need:
 
-1. **Recipe builders on top of `@wpkernel/php-json-ast`.** With wp-option and transient parity now landing (`packages/cli/docs/php-ast-migration-tasks.md`), expose high-level helpers (permission macros, REST args merges, namespace helpers) that manipulate queued `PhpProgram` payloads.
+1. **Recipe builders on top of `@wpkernel/php-json-ast`.** With wp-option and transient parity now landing (`cli-php-ast-migration.md`), expose high-level helpers (permission macros, REST args merges, namespace helpers) that manipulate queued `PhpProgram` payloads.
 2. **Formatter plumbing.** `formatPhp`/`formatTs` in the extension context should call the wpk formatter helpers rather than acting as pass-throughs (`packages/cli/src/runtime/adapterExtensions.ts:140-152`).
 3. **Scaffolding and test tooling.** Future commands like `wpk adapter scaffold`/`test` should target the AST-first builders (no string templates).
 4. **Slot documentation.** After the recipe layer lands, auto-generate slot references from the AST helpers to keep documentation accurate.
@@ -195,13 +195,13 @@ Until these milestones land, adapters should continue to lean on IR rewrites and
 
 ## 7. Quick reference
 
-| Concern              | What exists today                                           | Location                                                                                          |
-| -------------------- | ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| Registering adapters | `config.adapters.extensions` (on `WPKernelConfigV1`)        | `packages/cli/src/config/types.ts:113-118`                                                        |
-| Extension execution  | Runs during `generate`, serial order, sandboxed writes      | `packages/cli/src/runtime/adapterExtensions.ts:100-170`                                           |
-| Updating the IR      | Call `updateIr` inside `apply`                              | `packages/cli/src/adapters/extensions.ts:64-120`                                                  |
-| Staging files        | `queueFile` + sandbox commit                                | `packages/cli/src/adapters/__tests__/extensions.test.ts`                                          |
-| Emitting PHP         | Build `PhpProgram`, pretty-print via `@wpkernel/php-driver` | `packages/cli/src/builders/php/writer.ts:30-68`                                                   |
-| Future recipe API    | Pending block printer parity + formatter plumbing           | `packages/cli/docs/php-ast-migration-tasks.md`, `packages/cli/docs/pipeline-integration-tasks.md` |
+| Concern              | What exists today                                           | Location                                                  |
+| -------------------- | ----------------------------------------------------------- | --------------------------------------------------------- |
+| Registering adapters | `config.adapters.extensions` (on `WPKernelConfigV1`)        | `packages/cli/src/config/types.ts:113-118`                |
+| Extension execution  | Runs during `generate`, serial order, sandboxed writes      | `packages/cli/src/runtime/adapterExtensions.ts:100-170`   |
+| Updating the IR      | Call `updateIr` inside `apply`                              | `packages/cli/src/adapters/extensions.ts:64-120`          |
+| Staging files        | `queueFile` + sandbox commit                                | `packages/cli/src/adapters/__tests__/extensions.test.ts`  |
+| Emitting PHP         | Build `PhpProgram`, pretty-print via `@wpkernel/php-driver` | `packages/cli/src/builders/php/writer.ts:30-68`           |
+| Future recipe API    | Pending block printer parity + formatter plumbing           | `cli-php-ast-migration.md`, `cli-pipeline-integration.md` |
 
 Use this table as a checklist when introducing new adapters or evaluating future work. Each item links directly to the implementation that enforces the behaviour today.

@@ -1,6 +1,6 @@
 # Phase 8 – UI baseline experience
 
-_Phase reference: [packages/cli/docs/mvp-plan.md](../../cli/docs/mvp-plan.md)_
+_Phase reference: [cli-mvp-plan.md](cli-mvp-plan.md)_
 
 Phase 8 turns the IRV1 resource contract into a tangible admin experience. The work lands new DataViews defaults, shared async UX, and an interactivity bridge so authors can describe a resource once and immediately see a polished screen. The CLI wraps up the phase by wiring generators to the richer UI metadata after the runtime stabilises.
 
@@ -44,7 +44,7 @@ Surface observability primitives so plugin authors can subscribe to DataView lif
 
 ### Patch 0.11.5 - Task 50: CLI DataView alignment (⬜ Planned)
 
-After the UI schema lands, update the CLI pipeline to emit the richer metadata. Extend `wpk generate` so the config writer persists DataView defaults, saved layouts, and menu metadata, and ensure `attachUIBindings` auto-registration continues to work when files regenerate. Refresh workspace manifests (`.wpk/apply/plan.json`) so deletions respect the new metadata files and update tests to snapshot the expanded output.【F:packages/cli/src/commands/generate.ts†L1-L200】【F:packages/cli/src/workspace/filesystem.ts†L1-L200】 Coordinate docs updates in `packages/cli/docs/index.md` to point readers at the new UI capabilities.
+After the UI schema lands, update the CLI pipeline to emit the richer metadata. Extend `wpk generate` so the config writer persists DataView defaults, saved layouts, and menu metadata, and ensure `attachUIBindings` auto-registration continues to work when files regenerate. Refresh workspace manifests (`.wpk/apply/plan.json`) so deletions respect the new metadata files and update tests to snapshot the expanded output.【F:packages/cli/src/commands/generate.ts†L1-L200】【F:packages/cli/src/workspace/filesystem.ts†L1-L200】 Coordinate docs updates in `cli-index.md` to point readers at the new UI capabilities.
 
 ### Patch 0.11.6 - Task 51: CLI interactivity scaffolds (⬜ Planned)
 

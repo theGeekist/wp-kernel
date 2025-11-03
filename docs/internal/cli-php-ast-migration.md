@@ -1,7 +1,7 @@
 # Next PHP AST Parity
 
 **COMPLETED**
-_See [Docs Index](./index.md) for navigation._
+_See [Docs Index](cli-index.md) for navigation._
 
 ## Overview
 
@@ -40,7 +40,7 @@ The goal remains: every storage mode plugs into a helper-first API, the channel 
 
 | Cycle | Patch slots               | Purpose                              | Notes                                                                                                                                                        |
 | ----- | ------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 0.4.x | 0.4.1-0.4.4               | Pipeline hardening (Tasks 1‑4)       | See [Pipeline Integration Tasks](./pipeline-integration-tasks.md).                                                                                           |
+| 0.4.x | 0.4.1-0.4.4               | Pipeline hardening (Tasks 1‑4)       | See [Pipeline Integration Tasks](cli-pipeline-integration.md).                                                                                               |
 | 0.4.x | 0.4.5 - implementation    | Phase 1 - wp-option builders         | Implement controllers/helpers (no string printers).                                                                                                          |
 | 0.4.x | 0.4.6 - tests             | Phase 1 - wp-option tests            | Snapshot queued `PhpProgram` payloads.                                                                                                                       |
 | 0.4.x | 0.4.7 - fixtures/docs     | Phase 1 - wp-option fixtures/docs    | Refresh fixtures + docs to match AST output.                                                                                                                 |
@@ -217,7 +217,7 @@ Status: ✓ Completed – The next controller helper now emits missing-capabilit
 
 ## Canonical schema & tooling
 
-- PHP node factories live in `@wpkernel/php-json-ast`; the schema mirrors `nikic/PHP-Parser` and is documented in `packages/cli/docs/php-json-schema.md`.
+- PHP node factories live in `@wpkernel/php-json-ast`; the schema mirrors `nikic/PHP-Parser` and is documented in `cli-php-json-schema.md`.
 - `@wpkernel/php-driver` resolves the pretty-print bridge and supports both CommonJS and ESM environments via native module URL detection with integration coverage guarding the ESM fallback (`packages/php-driver/src/prettyPrinter.ts`, `packages/php-driver/src/__tests__/prettyPrinter.integration.test.ts`).
 - Tests should compose `PhpProgram` payloads using helpers in `packages/test-utils/src/builders/php/resources.test-support.ts`.
 - Driver overrides are threaded through `CreatePhpBuilderOptions`/`CreatePhpProgramWriterHelperOptions`, allowing pipelines to set the PHP binary, script path, or `import.meta.url` for the pretty-print bridge when the default resolution is not available, and native module URL detection covers ESM builds that cannot supply `__dirname`.
