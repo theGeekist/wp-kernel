@@ -6,7 +6,7 @@ import capabilityHintsRule from '../../../../eslint-rules/capability-hints.js';
 import docLinksRule from '../../../../eslint-rules/doc-links.js';
 
 const DOC_URL =
-	'https://github.com/theGeekist/wp-kernel/blob/main/packages/cli/docs/cli-migration-phases.md#authoring-safety-lint-rules';
+	'https://github.com/theGeekist/wp-kernel/blob/main/docs/internal/cli-migration-phases.md#authoring-safety-lint-rules';
 
 if (typeof global.structuredClone !== 'function') {
 	global.structuredClone = (value) => JSON.parse(JSON.stringify(value));
