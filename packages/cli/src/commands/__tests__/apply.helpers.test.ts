@@ -1,10 +1,12 @@
 import {
 	PATCH_MANIFEST_PATH,
 	buildBuilderOutput,
+	cleanupWorkspaceTargets,
 	formatManifest,
 	readManifest,
 	resolveWorkspaceRoot,
 } from '../apply';
+import { resolveFlags } from '../apply/flags';
 import type {
 	WPKernelConfigV1,
 	LoadedWPKernelConfig,
@@ -135,6 +137,24 @@ describe('apply command helpers', () => {
 		expect(text).toContain('- [applied] php/file.php — Updated file');
 	});
 
+	it('formats manifest records with skip reasons', () => {
+		const text = formatManifest({
+			summary: { applied: 0, conflicts: 0, skipped: 1 },
+			records: [
+				{
+					file: 'inc/Rest/JobsController.php',
+					status: 'skipped',
+					description: 'Remove jobs shim',
+					details: { reason: 'modified-target', action: 'delete' },
+				},
+			],
+		});
+
+		expect(text).toContain(
+			'- [skipped] inc/Rest/JobsController.php — Remove jobs shim (reason: modified-target)'
+		);
+	});
+
 	it('formats manifest summaries when no records exist', () => {
 		const text = formatManifest({
 			summary: { applied: 0, conflicts: 0, skipped: 0 },
@@ -142,6 +162,79 @@ describe('apply command helpers', () => {
 		});
 
 		expect(text).toContain('No files were patched.');
+	});
+
+	it('cleans up workspace targets and reports outcomes', async () => {
+		const removedTargets = new Map<string, boolean>([
+			['inc/Rest/JobsController.php', true],
+			['inc/Rest/BooksController.php', false],
+		]);
+
+		const workspace = makeWorkspaceMock({
+			exists: jest
+				.fn()
+				.mockImplementation(
+					async (file: string) => removedTargets.get(file) ?? false
+				),
+			rm: jest.fn(async (file: string) => {
+				removedTargets.set(file, false);
+			}),
+		});
+
+		const reporter = {
+			info: jest.fn(),
+			warn: jest.fn(),
+			debug: jest.fn(),
+			error: jest.fn(),
+			child: jest.fn().mockReturnThis(),
+		};
+
+		const result = await cleanupWorkspaceTargets({
+			workspace,
+			reporter,
+			targets: [
+				'inc/Rest/JobsController.php',
+				'./inc/Rest/JobsController.php',
+				'inc/Rest/BooksController.php',
+				'../outside.php',
+			],
+		});
+
+		expect(workspace.rm).toHaveBeenCalledTimes(1);
+		expect(workspace.rm).toHaveBeenCalledWith(
+			'inc/Rest/JobsController.php'
+		);
+		expect(result.removed).toEqual(['inc/Rest/JobsController.php']);
+		expect(result.missing).toEqual(['inc/Rest/BooksController.php']);
+		expect(result.rejected).toEqual(['../outside.php']);
+		expect(reporter.info).toHaveBeenCalledWith(
+			'wpk apply cleanup: removed leftover targets.',
+			{ files: ['inc/Rest/JobsController.php'] }
+		);
+		expect(reporter.info).toHaveBeenCalledWith(
+			'wpk apply cleanup: targets already absent.',
+			{ files: ['inc/Rest/BooksController.php'] }
+		);
+		expect(reporter.warn).toHaveBeenCalledWith(
+			'wpk apply cleanup: rejected unsafe cleanup targets.',
+			{ files: ['../outside.php'] }
+		);
+	});
+
+	it('resolves flags including cleanup entries', () => {
+		const flags = resolveFlags({
+			yes: true,
+			backup: false,
+			force: true,
+			cleanup: ['inc/Rest/JobsController.php', 123 as unknown as string],
+		});
+
+		expect(flags).toEqual({
+			yes: true,
+			backup: false,
+			force: true,
+			cleanup: ['inc/Rest/JobsController.php'],
+		});
 	});
 
 	it('resolves workspace root using the loaded config source path', () => {

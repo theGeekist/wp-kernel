@@ -573,6 +573,25 @@ describe('createApplyPlanBuilder', () => {
 				},
 			};
 
+			const shimContents = '<?php // legacy shim\n';
+			await workspace.write(
+				path.posix.join(
+					'.wpk',
+					'apply',
+					'base',
+					'inc',
+					'Rest',
+					'JobsController.php'
+				),
+				shimContents,
+				{ ensureDir: true }
+			);
+			await workspace.write(
+				path.posix.join('inc', 'Rest', 'JobsController.php'),
+				shimContents,
+				{ ensureDir: true }
+			);
+
 			await helper.apply({
 				context: {
 					workspace,
@@ -599,6 +618,7 @@ describe('createApplyPlanBuilder', () => {
 			expect(planRaw).toBeTruthy();
 			const plan = JSON.parse(planRaw ?? '{}') as {
 				instructions?: Array<{ file: string; action?: string }>;
+				skippedDeletions?: Array<{ file: string; reason?: string }>;
 			};
 
 			const deletion = plan.instructions?.find(
@@ -608,6 +628,7 @@ describe('createApplyPlanBuilder', () => {
 			);
 
 			expect(deletion).toBeDefined();
+			expect(plan.skippedDeletions).toEqual([]);
 		});
 	});
 
@@ -646,6 +667,25 @@ describe('createApplyPlanBuilder', () => {
 				},
 			};
 
+			const shimContents = '<?php // legacy shim\n';
+			await workspace.write(
+				path.posix.join(
+					'.wpk',
+					'apply',
+					'base',
+					'inc',
+					'Rest',
+					'JobsController.php'
+				),
+				shimContents,
+				{ ensureDir: true }
+			);
+			await workspace.write(
+				path.posix.join('inc', 'Rest', 'JobsController.php'),
+				shimContents,
+				{ ensureDir: true }
+			);
+
 			await helper.apply({
 				context: {
 					workspace,
@@ -672,6 +712,7 @@ describe('createApplyPlanBuilder', () => {
 			expect(planRaw).toBeTruthy();
 			const plan = JSON.parse(planRaw ?? '{}') as {
 				instructions?: Array<{ file: string; action?: string }>;
+				skippedDeletions?: Array<{ file: string; reason?: string }>;
 			};
 
 			const deletion = plan.instructions?.find(
@@ -681,6 +722,94 @@ describe('createApplyPlanBuilder', () => {
 			);
 
 			expect(deletion).toBeDefined();
+			expect(plan.skippedDeletions).toEqual([]);
+		});
+	});
+
+	it('skips deletion instructions when shims diverge from the base snapshot', async () => {
+		await withWorkspace(async (workspaceRoot) => {
+			const workspace = buildWorkspace(workspaceRoot);
+			const reporter = buildReporter();
+			const output = buildOutput();
+
+			const ir = makePhpIrFixture({ resources: [] });
+
+			const helper = createApplyPlanBuilder();
+			const previous: GenerationManifest = {
+				version: 1,
+				resources: {
+					jobs: {
+						hash: 'legacy',
+						artifacts: {
+							generated: [
+								'.generated/php/Rest/JobsController.php',
+							],
+							shims: ['inc/Rest/JobsController.php'],
+						},
+					},
+				},
+			};
+
+			await workspace.write(
+				path.posix.join(
+					'.wpk',
+					'apply',
+					'base',
+					'inc',
+					'Rest',
+					'JobsController.php'
+				),
+				'<?php // legacy shim\n',
+				{ ensureDir: true }
+			);
+			await workspace.write(
+				path.posix.join('inc', 'Rest', 'JobsController.php'),
+				['<?php // legacy shim', '// author modification'].join('\n'),
+				{ ensureDir: true }
+			);
+
+			await helper.apply({
+				context: {
+					workspace,
+					reporter,
+					phase: 'generate',
+					generationState: previous,
+				},
+				input: {
+					phase: 'generate',
+					options: {
+						config: ir.config,
+						namespace: ir.meta.namespace,
+						origin: ir.meta.origin,
+						sourcePath: path.join(workspaceRoot, 'wpk.config.ts'),
+					},
+					ir,
+				},
+				output,
+				reporter,
+			});
+
+			const planPath = path.posix.join('.wpk', 'apply', 'plan.json');
+			const planRaw = await workspace.readText(planPath);
+			expect(planRaw).toBeTruthy();
+			const plan = JSON.parse(planRaw ?? '{}') as {
+				instructions?: Array<{ file: string; action?: string }>;
+				skippedDeletions?: Array<{ file: string; reason?: string }>;
+			};
+
+			const deletion = plan.instructions?.find(
+				(entry) =>
+					entry.file === 'inc/Rest/JobsController.php' &&
+					entry.action === 'delete'
+			);
+
+			expect(deletion).toBeUndefined();
+			expect(plan.skippedDeletions).toEqual([
+				expect.objectContaining({
+					file: 'inc/Rest/JobsController.php',
+					reason: 'modified-target',
+				}),
+			]);
 		});
 	});
 
