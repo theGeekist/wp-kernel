@@ -36,7 +36,7 @@ export default withMermaid(
 		lastUpdated: !FAST,
 		sitemap: { hostname: 'https://thegeekist.github.io' },
 
-		srcExclude: ['internal/*.md'],
+		srcExclude: ['internal/**'],
 
 		// Keep wp-env localhost URLs valid (any port + path)
 		ignoreDeadLinks: [
