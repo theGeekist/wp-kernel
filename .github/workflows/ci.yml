@@ -1,381 +1,299 @@
 name: CI
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
 
 # Cancel in-progress runs for the same branch
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
 
 # Environment variables for caching
 env:
-  NODE_VERSION: '22.20.0'
-  PNPM_VERSION: '10.19.0'
+    NODE_VERSION: '22.20.0'
+    PNPM_VERSION: '10.19.0'
 
 jobs:
-  # Setup: Install dependencies once and cache for all jobs
-  setup:
-    name: Setup & Install Dependencies
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+    # Setup: Install dependencies once and cache for all jobs
+    setup:
+        name: Setup & Install Dependencies
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: ${{ env.PNPM_VERSION }}
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  cache: 'pnpm'
 
-      - name: Cache node_modules
-        id: cache-node-modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            packages/*/node_modules
-            examples/*/node_modules
-          key: node-modules-${{ runner.os }}-node${{ env.NODE_VERSION }}-pnpm${{ env.PNPM_VERSION }}-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: |
-            node-modules-${{ runner.os }}-node${{ env.NODE_VERSION }}-pnpm${{ env.PNPM_VERSION }}-
-            node-modules-${{ runner.os }}-
+            - name: Cache node_modules
+              id: cache-node-modules
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      node_modules
+                      packages/*/node_modules
+                      examples/*/node_modules
+                  key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+                  restore-keys: |
+                      node-modules-${{ runner.os }}-
 
-      - name: Install dependencies
-        if: steps.cache-node-modules.outputs.cache-hit != 'true'
-        run: pnpm install --frozen-lockfile
+            - name: Install dependencies
+              if: steps.cache-node-modules.outputs.cache-hit != 'true'
+              run: pnpm install --frozen-lockfile
 
-  # Build: Ensure all packages build successfully
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    needs: setup
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+    # Lint: Check code quality
+    lint:
+        name: Lint
+        runs-on: ubuntu-latest
+        needs: [setup, build]
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: ${{ env.PNPM_VERSION }}
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+                  cache: 'pnpm'
 
-      - name: Restore node_modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            packages/*/node_modules
-            examples/*/node_modules
-          key: node-modules-${{ runner.os }}-node${{ env.NODE_VERSION }}-pnpm${{ env.PNPM_VERSION }}-${{ hashFiles('pnpm-lock.yaml') }}
-          fail-on-cache-miss: true
+            - name: Restore node_modules
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      node_modules
+                      packages/*/node_modules
+                      examples/*/node_modules
+                  key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+                  fail-on-cache-miss: true
 
-      # Build filelist (paths-only) so renames/moves invalidate cache
-      - name: Compute build file list (paths)
-        shell: bash
-        run: |
-          mkdir -p .gha
-          git ls-files -z \
-            'packages' \
-            'examples' \
-            'tsconfig*.json' \
-            'pnpm-workspace.yaml' \
-            'package.json' \
-          | tr '\0' '\n' \
-          | grep -E '\.(ts|tsx|mts|cts|js|jsx|d\.ts|json)$|tsconfig.*\.json$' \
-          | grep -vE '(^|/)(dist|build|node_modules|\.generated)/' \
-          | sort > .gha/build-filelist.txt
-          echo "File count: $(wc -l < .gha/build-filelist.txt)"
+            - name: Restore build outputs
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      packages/*/dist
+                      packages/*/*.tsbuildinfo
+                      examples/*/build
+                      examples/*/dist
+                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**', 'examples/*/src/**', 'tsconfig*.json', 'pnpm-lock.yaml') }}
+                  fail-on-cache-miss: true
 
-      - name: Cache build outputs
-        id: cache-build
-        uses: actions/cache@v4
-        with:
-          path: |
-            packages/*/dist
-            packages/*/*.tsbuildinfo
-            examples/*/build
-            examples/*/dist
-          key: >
-            build-${{ runner.os }}-node${{ env.NODE_VERSION }}-pnpm${{ env.PNPM_VERSION }}-paths${{ hashFiles('.gha/build-filelist.txt') }}-src${{ hashFiles('packages/**/src/**','packages/**/types/**','examples/**/src/**','tsconfig*.json','packages/**/tsconfig*.json','examples/**/tsconfig*.json','packages/**/package.json','examples/**/package.json','pnpm-workspace.yaml','pnpm-lock.yaml') }}
-          restore-keys: |
-            build-${{ runner.os }}-node${{ env.NODE_VERSION }}-pnpm${{ env.PNPM_VERSION }}-
-            build-${{ runner.os }}-
+            - name: Run ESLint
+              run: pnpm lint
 
-      - name: Build packages
-        if: steps.cache-build.outputs.cache-hit != 'true'
-        run: pnpm build
+            - name: Check Prettier formatting
+              run: pnpm format:check
 
-      - name: Upload build artifacts (fallback)
-        if: steps.cache-build.outputs.cache-hit != 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist
-          path: |
-            packages/*/dist
-            examples/*/build
-          retention-days: 1
+            - name: TypeScript type check
+              run: pnpm typecheck
 
-  # Lint: Check code quality
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    needs: [setup, build]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+    # Build: Ensure all packages build successfully
+    build:
+        name: Build
+        runs-on: ubuntu-latest
+        needs: setup
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: ${{ env.PNPM_VERSION }}
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'pnpm'
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
 
-      - name: Restore node_modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            packages/*/node_modules
-            examples/*/node_modules
-          key: node-modules-${{ runner.os }}-node${{ env.NODE_VERSION }}-pnpm${{ env.PNPM_VERSION }}-${{ hashFiles('pnpm-lock.yaml') }}
-          fail-on-cache-miss: true
+            # Moved PHP setup here so build artefacts reflect the PHP toolchain
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '8.2'
+                  tools: composer
+                  coverage: none
 
-      - name: Compute build file list (paths)
-        shell: bash
-        run: |
-          mkdir -p .gha
-          git ls-files -z \
-            'packages' \
-            'examples' \
-            'tsconfig*.json' \
-            'pnpm-workspace.yaml' \
-            'package.json' \
-          | tr '\0' '\n' \
-          | grep -E '\.(ts|tsx|mts|cts|js|jsx|d\.ts|json)$|tsconfig.*\.json$' \
-          | grep -vE '(^|/)(dist|build|node_modules|\.generated)/' \
-          | sort > .gha/build-filelist.txt
+            - name: Restore node_modules
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      node_modules
+                      packages/*/node_modules
+                      examples/*/node_modules
+                  key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+                  fail-on-cache-miss: true
 
-      - name: Restore build outputs
-        uses: actions/cache@v4
-        with:
-          path: |
-            packages/*/dist
-            packages/*/*.tsbuildinfo
-            examples/*/build
-            examples/*/dist
-          key: >
-            build-${{ runner.os }}-node${{ env.NODE_VERSION }}-pnpm${{ env.PNPM_VERSION }}-paths${{ hashFiles('.gha/build-filelist.txt') }}-src${{ hashFiles('packages/**/src/**','packages/**/types/**','examples/**/src/**','tsconfig*.json','packages/**/tsconfig*.json','examples/**/tsconfig*.json','packages/**/package.json','examples/**/package.json','pnpm-workspace.yaml','pnpm-lock.yaml') }}
-          fail-on-cache-miss: true
+            - name: Cache build outputs
+              id: cache-build
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      packages/*/dist
+                      packages/*/*.tsbuildinfo
+                      examples/*/build
+                      examples/*/dist
+                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**', 'examples/*/src/**', 'tsconfig*.json', 'pnpm-lock.yaml') }}
+                  restore-keys: |
+                      build-${{ runner.os }}-
 
-      - name: Run ESLint
-        run: pnpm lint
+            - name: Build packages
+              if: steps.cache-build.outputs.cache-hit != 'true'
+              run: pnpm build
 
-      - name: Check Prettier formatting
-        run: pnpm format:check
+            - name: Upload build artifacts (fallback)
+              if: steps.cache-build.outputs.cache-hit != 'true'
+              uses: actions/upload-artifact@v4
+              with:
+                  name: dist
+                  path: |
+                      packages/*/dist
+                      examples/*/build
+                  retention-days: 1
 
-      - name: TypeScript type check
-        run: pnpm typecheck
+    # Unit Tests: Run Jest tests
+    unit-test:
+        name: Unit Tests
+        runs-on: ubuntu-latest
+        needs: [setup, build]
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
 
-  # Unit Tests: Run Jest tests
-  unit-test:
-    name: Unit Tests
-    runs-on: ubuntu-latest
-    needs: [setup, build]
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+            - name: Setup pnpm
+              uses: pnpm/action-setup@v4
+              with:
+                  version: ${{ env.PNPM_VERSION }}
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: ${{ env.PNPM_VERSION }}
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: '8.2'
+                  tools: composer
+                  coverage: none
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2'
-          tools: composer
-          coverage: none
+            - name: Restore node_modules
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      node_modules
+                      packages/*/node_modules
+                      examples/*/node_modules
+                  key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+                  fail-on-cache-miss: true
 
-      - name: Restore node_modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            packages/*/node_modules
-            examples/*/node_modules
-          key: node-modules-${{ runner.os }}-node${{ env.NODE_VERSION }}-pnpm${{ env.PNPM_VERSION }}-${{ hashFiles('pnpm-lock.yaml') }}
-          fail-on-cache-miss: true
+            - name: Restore build outputs
+              uses: actions/cache@v4
+              with:
+                  path: |
+                      packages/*/dist
+                      packages/*/*.tsbuildinfo
+                      examples/*/build
+                      examples/*/dist
+                  key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**', 'examples/*/src/**', 'tsconfig*.json', 'pnpm-lock.yaml') }}
+                  fail-on-cache-miss: true
 
-      - name: Compute build file list (paths)
-        shell: bash
-        run: |
-          mkdir -p .gha
-          git ls-files -z \
-            'packages' \
-            'examples' \
-            'tsconfig*.json' \
-            'pnpm-workspace.yaml' \
-            'package.json' \
-          | tr '\0' '\n' \
-          | grep -E '\.(ts|tsx|mts|cts|js|jsx|d\.ts|json)$|tsconfig.*\.json$' \
-          | grep -vE '(^|/)(dist|build|node_modules|\.generated)/' \
-          | sort > .gha/build-filelist.txt
+            - name: Run unit tests with coverage
+              run: pnpm test:coverage
 
-      - name: Restore build outputs
-        uses: actions/cache@v4
-        with:
-          path: |
-            packages/*/dist
-            packages/*/*.tsbuildinfo
-            examples/*/build
-            examples/*/dist
-          key: >
-            build-${{ runner.os }}-node${{ env.NODE_VERSION }}-pnpm${{ env.PNPM_VERSION }}-paths${{ hashFiles('.gha/build-filelist.txt') }}-src${{ hashFiles('packages/**/src/**','packages/**/types/**','examples/**/src/**','tsconfig*.json','packages/**/tsconfig*.json','examples/**/tsconfig*.json','packages/**/package.json','examples/**/package.json','pnpm-workspace.yaml','pnpm-lock.yaml') }}
-          fail-on-cache-miss: true
+            - name: Upload coverage to Codecov
+              uses: codecov/codecov-action@v4
+              with:
+                  files: ./coverage/lcov.info
+                  flags: unittests
+                  name: unit-tests
+                  fail_ci_if_error: false
 
-      - name: Run unit tests with coverage
-        run: pnpm test:coverage
+    # E2E Tests (disabled)
+    # e2e-test:
+    #   name: E2E Tests
+    #   runs-on: ubuntu-latest
+    #   needs: [setup, build]
+    #   steps:
+    #     - name: Checkout
+    #       uses: actions/checkout@v4
+    #     - name: Setup pnpm
+    #       uses: pnpm/action-setup@v4
+    #       with:
+    #         version: ${{ env.PNPM_VERSION }}
+    #     - name: Setup Node.js
+    #       uses: actions/setup-node@v4
+    #       with:
+    #         node-version: ${{ env.NODE_VERSION }}
+    #     - name: Restore node_modules
+    #       uses: actions/cache@v4
+    #       with:
+    #         path: |
+    #           node_modules
+    #           packages/*/node_modules
+    #           examples/*/node_modules
+    #         key: node-modules-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+    #         fail-on-cache-miss: true
+    #     - name: Restore build outputs
+    #       uses: actions/cache@v4
+    #       with:
+    #         path: |
+    #           packages/*/dist
+    #           packages/*/*.tsbuildinfo
+    #           examples/*/build
+    #           examples/*/dist
+    #         key: build-${{ runner.os }}-${{ hashFiles('packages/*/src/**', 'examples/*/src/**', 'tsconfig*.json', 'pnpm-lock.yaml') }}
+    #         fail-on-cache-miss: true
+    #     - name: Start WordPress (wp-env)
+    #       run: pnpm wp:start
+    #     - name: Seed test data
+    #       run: pnpm wp:seed
+    #     - name: Run E2E tests
+    #       run: pnpm e2e --project=chromium --workers=1
+    #     - name: Upload Playwright report
+    #       if: failure()
+    #       uses: actions/upload-artifact@v4
+    #       with:
+    #         name: playwright-report
+    #         path: playwright-report/
+    #         retention-days: 7
+    #     - name: Upload test results
+    #       if: failure()
+    #       uses: actions/upload-artifact@v4
+    #       with:
+    #         name: test-results
+    #         path: test-results/
+    #         retention-days: 7
+    #         if-no-files-found: ignore
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          files: ./coverage/lcov.info
-          flags: unittests
-          name: unit-tests
-          fail_ci_if_error: false
-
-  # E2E Tests
-  # e2e-test:
-  #   name: E2E Tests
-  #   runs-on: ubuntu-latest
-  #   needs: [setup, build]
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v4
-  #     - name: Setup pnpm
-  #       uses: pnpm/action-setup@v4
-  #       with:
-  #         version: ${{ env.PNPM_VERSION }}
-  #     - name: Setup Node.js
-  #       uses: actions/setup-node@v4
-  #       with:
-  #         node-version: ${{ env.NODE_VERSION }}
-  #     - name: Restore node_modules
-  #       uses: actions/cache@v4
-  #       with:
-  #         path: |
-  #           node_modules
-  #           packages/*/node_modules
-  #           examples/*/node_modules
-  #         key: node-modules-${{ runner.os }}-node${{ env.NODE_VERSION }}-pnpm${{ env.PNPM_VERSION }}-${{ hashFiles('pnpm-lock.yaml') }}
-  #         fail-on-cache-miss: true
-  #     # Get Playwright version for cache key (more accurate than lockfile hash)
-  #     - name: Get Playwright version
-  #       id: playwright-version
-  #       run: echo "version=$(pnpm list @playwright/test --depth=0 --json | jq -r '.[0].devDependencies[\"@playwright/test\"].version')" >> $GITHUB_OUTPUT
-  #     # Cache Playwright browsers (~267MB, saves ~30s download time)
-  #     # Cache key based on OS + Playwright version (invalidates when Playwright updates)
-  #     - name: Cache Playwright browsers
-  #       id: playwright-cache
-  #       uses: actions/cache@v4
-  #       with:
-  #         path: ~/.cache/ms-playwright
-  #         key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
-  #         restore-keys: |
-  #           playwright-${{ runner.os }}-
-  #     # On cache miss: Download browsers + install system dependencies (~40s)
-  #     - name: Install Playwright browsers and dependencies
-  #       if: steps.playwright-cache.outputs.cache-hit != 'true'
-  #       run: pnpm exec playwright install --with-deps chromium
-  #     # On cache hit: Only install system dependencies (fonts, libs, etc.) (~15s)
-  #     - name: Install Playwright system dependencies only
-  #       if: steps.playwright-cache.outputs.cache-hit == 'true'
-  #       run: pnpm exec playwright install-deps chromium
-  #     # Restore build outputs from cache (same as lint/unit jobs)
-  #     - name: Compute build file list (paths)
-  #       shell: bash
-  #       run: |
-  #         mkdir -p .gha
-  #         git ls-files -z \
-  #           'packages' \
-  #           'examples' \
-  #           'tsconfig*.json' \
-  #           'pnpm-workspace.yaml' \
-  #           'package.json' \
-  #         | tr '\0' '\n' \
-  #         | grep -E '\.(ts|tsx|mts|cts|js|jsx|d\.ts|json)$|tsconfig.*\.json$' \
-  #         | grep -vE '(^|/)(dist|build|node_modules|\.generated)/' \
-  #         | sort > .gha/build-filelist.txt
-  #     - name: Restore build outputs
-  #       uses: actions/cache@v4
-  #       with:
-  #         path: |
-  #           packages/*/dist
-  #           packages/*/*.tsbuildinfo
-  #           examples/*/build
-  #           examples/*/dist
-  #         key: >
-  #           build-${{ runner.os }}-node${{ env.NODE_VERSION }}-pnpm${{ env.PNPM_VERSION }}-paths${{ hashFiles('.gha/build-filelist.txt') }}-src${{ hashFiles('packages/**/src/**','packages/**/types/**','examples/**/src/**','tsconfig*.json','packages/**/tsconfig*.json','examples/**/tsconfig*.json','packages/**/package.json','examples/**/package.json','pnpm-workspace.yaml','pnpm-lock.yaml') }}
-  #       fail-on-cache-miss: true
-  #     - name: Start WordPress (wp-env)
-  #       run: pnpm wp:start
-  #     - name: Seed test data
-  #       run: pnpm wp:seed
-  #     - name: Run E2E tests
-  #       run: pnpm e2e --project=chromium --workers=1
-  #     - name: Upload Playwright report
-  #       if: failure()
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: playwright-report
-  #         path: playwright-report/
-  #         retention-days: 7
-  #     - name: Upload test results
-  #       if: failure()
-  #       uses: actions/upload-artifact@v4
-  #       with:
-  #         name: test-results
-  #         path: test-results/
-  #         retention-days: 7
-  #         if-no-files-found: ignore
-
-  # All checks passed
-  all-checks:
-    name: All Checks Passed
-    runs-on: ubuntu-latest
-    needs: [lint, build, unit-test]
-    if: always()
-    steps:
-      - name: Check status
-        run: |
-          if [[ "${{ needs.lint.result }}" != "success" ]] || \
-             [[ "${{ needs.build.result }}" != "success" ]] || \
-             [[ "${{ needs.unit-test.result }}" != "success" ]]; then
-            echo "❌ One or more checks failed"
-            exit 1
-          fi
-          echo "✅ All checks passed!"
+    # All checks passed
+    all-checks:
+        name: All Checks Passed
+        runs-on: ubuntu-latest
+        needs: [lint, build, unit-test]
+        if: always()
+        steps:
+            - name: Check status
+              run: |
+                  if [[ "${{ needs.lint.result }}" != "success" ]] || \
+                     [[ "${{ needs.build.result }}" != "success" ]] || \
+                     [[ "${{ needs.unit-test.result }}" != "success" ]]; then
+                    echo "❌ One or more checks failed"
+                    exit 1
+                  fi
+                  echo "✅ All checks passed!"
