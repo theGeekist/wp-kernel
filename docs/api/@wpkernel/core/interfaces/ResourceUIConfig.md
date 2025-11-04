@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ResourceUIConfig
+[@wpkernel/core](../README.md) / ResourceUIConfig
 
 # Interface: ResourceUIConfig\&lt;TItem, TQuery\&gt;
 

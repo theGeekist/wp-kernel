@@ -1,17 +1,13 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / buildIfStatement
+[@wpkernel/php-json-ast](../README.md) / buildIfStatement
 
 # Function: buildIfStatement()
 
 ```ts
-function buildIfStatement(
-   cond, 
-   stmts, 
-   options, 
-   attributes?): PhpStmtIf;
+function buildIfStatement(cond, stmts, options, attributes?): PhpStmtIf;
 ```
 
 Builds a PHP `if` statement node.

@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpExprTernary
+[@wpkernel/php-json-ast](../README.md) / PhpExprTernary
 
 # Interface: PhpExprTernary
 
@@ -24,7 +24,7 @@ readonly nodeType: "Expr_Ternary";
 
 [`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
 
-***
+---
 
 ### cond
 
@@ -32,7 +32,7 @@ readonly nodeType: "Expr_Ternary";
 readonly cond: PhpExpr;
 ```
 
-***
+---
 
 ### if
 
@@ -40,7 +40,7 @@ readonly cond: PhpExpr;
 readonly if: PhpExpr | null;
 ```
 
-***
+---
 
 ### else
 
@@ -48,7 +48,7 @@ readonly if: PhpExpr | null;
 readonly else: PhpExpr;
 ```
 
-***
+---
 
 ### attributes
 

@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / BuildCreateCommandOptions
+[@wpkernel/cli](../README.md) / BuildCreateCommandOptions
 
 # Interface: BuildCreateCommandOptions
 
@@ -59,7 +59,7 @@ Optional: Custom workspace builder function.
 
 [`Workspace`](Workspace.md)
 
-***
+---
 
 #### runWorkflow()?
 
@@ -79,7 +79,7 @@ Optional: Custom workflow runner function.
 
 `Promise`\&lt;[`InitWorkflowResult`](InitWorkflowResult.md)\&gt;
 
-***
+---
 
 #### checkGitRepository()?
 
@@ -103,7 +103,7 @@ Optional: Custom git repository checker function.
 
 `Promise`\&lt;`boolean`\&gt;
 
-***
+---
 
 #### initGitRepository()?
 
@@ -127,7 +127,7 @@ Optional: Custom git repository initializer function.
 
 `Promise`\&lt;`void`\&gt;
 
-***
+---
 
 #### installNodeDependencies()?
 
@@ -151,7 +151,7 @@ Optional: Custom Node.js dependency installer function.
 
 `Promise`\&lt;`void`\&gt;
 
-***
+---
 
 #### installComposerDependencies()?
 

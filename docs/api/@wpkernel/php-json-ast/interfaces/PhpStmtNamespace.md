@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpStmtNamespace
+[@wpkernel/php-json-ast](../README.md) / PhpStmtNamespace
 
 # Interface: PhpStmtNamespace
 
@@ -24,7 +24,7 @@ readonly nodeType: "Stmt_Namespace";
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
-***
+---
 
 ### name
 
@@ -32,7 +32,7 @@ readonly nodeType: "Stmt_Namespace";
 readonly name: PhpName | null;
 ```
 
-***
+---
 
 ### stmts
 
@@ -40,7 +40,7 @@ readonly name: PhpName | null;
 readonly stmts: PhpStmt[];
 ```
 
-***
+---
 
 ### attributes
 

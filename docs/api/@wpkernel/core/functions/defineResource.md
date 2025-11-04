@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / defineResource
+[@wpkernel/core](../README.md) / defineResource
 
 # Function: defineResource()
 
@@ -13,12 +13,13 @@ function defineResource&lt;T, TQuery&gt;(config): ResourceObject&lt;T, TQuery&gt
 Define a resource with typed REST client
 
 Creates a resource object with:
+
 - Typed client methods (fetchList, fetch, create, update, remove)
 - Store key for @wordpress/data registration
 - Cache key generators for invalidation
 - Route definitions
 - Thin-flat API (useGet, useList, prefetchGet, prefetchList, invalidate, key)
-- Grouped API (select.*, use.*, get.*, mutate.*, cache.*, storeApi.*, events.*)
+- Grouped API (select._, use._, get._, mutate._, cache._, storeApi._, events.\*)
 
 ## Type Parameters
 

@@ -1,16 +1,13 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / buildMatch
+[@wpkernel/php-json-ast](../README.md) / buildMatch
 
 # Function: buildMatch()
 
 ```ts
-function buildMatch(
-   cond, 
-   arms, 
-   attributes?): PhpExprMatch;
+function buildMatch(cond, arms, attributes?): PhpExprMatch;
 ```
 
 Builds a PHP `match` expression node.

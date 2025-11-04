@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/ui v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / WPKernelDataViewsRuntime
+[@wpkernel/ui](../README.md) / WPKernelDataViewsRuntime
 
 # Interface: WPKernelDataViewsRuntime
 
@@ -13,18 +13,20 @@ The runtime for DataViews.
 ### registry
 
 ```ts
-registry: Map&lt;string, DataViewRegistryEntry&gt;;
+registry: Map & lt;
+(string, DataViewRegistryEntry & gt);
 ```
 
-***
+---
 
 ### controllers
 
 ```ts
-controllers: Map&lt;string, unknown&gt;;
+controllers: Map & lt;
+(string, unknown & gt);
 ```
 
-***
+---
 
 ### preferences
 
@@ -32,7 +34,7 @@ controllers: Map&lt;string, unknown&gt;;
 preferences: DataViewPreferencesRuntime;
 ```
 
-***
+---
 
 ### events
 
@@ -40,7 +42,7 @@ preferences: DataViewPreferencesRuntime;
 events: DataViewsEventEmitter;
 ```
 
-***
+---
 
 ### reporter
 
@@ -48,7 +50,7 @@ events: DataViewsEventEmitter;
 reporter: Reporter;
 ```
 
-***
+---
 
 ### options
 
@@ -56,7 +58,7 @@ reporter: Reporter;
 options: NormalizedDataViewsRuntimeOptions;
 ```
 
-***
+---
 
 ### getResourceReporter()
 

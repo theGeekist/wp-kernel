@@ -14,41 +14,41 @@ This roadmap coordinates the multi-phase uplift of the WP Kernel documentation s
 
 | Docs Phase                                            | Status         | Summary                                                                                           | Ledger                                                                  |
 | ----------------------------------------------------- | -------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------- |
-| Docs Phase 1 – Foundational Restructuring and Tooling | ✓ Complete     | Locked the planning surface, restructured navigation, and adopted the baseline API doc strategy.  | [Jump](#docs-phase-1--foundational-restructuring-and-tooling--complete) |
-| Docs Phase 2 – `@wpkernel/core` Gold Standard         | 🚧 In Progress | Establishes the reference quality bar across core guides, README, and API docs.                   | [Jump](#docs-phase-2--wpkernelcore-gold-standard--planned)              |
-| Docs Phase 3 – `@wpkernel/ui` Documentation           | ⬜ Planned     | Documents ResourceDataView, ActionButton, WPKernelUIProvider and WordPress-native UI primitives.  | [Jump](#docs-phase-3--wpkernelui-documentation--planned)                |
-| Docs Phase 4 – `@wpkernel/cli` Documentation          | ✓ Complete     | Documents CLI generators (init/generate/apply), AST builders, storage modes, and adapters.        | [Jump](#docs-phase-4--wpkernelcli-documentation--planned)               |
-| Docs Phase 5 – `@wpkernel/test-utils` Documentation   | ⬜ Planned     | Documents testing harnesses: WordPress globals, kernel runtime, UI, CLI, and integration helpers. | [Jump](#docs-phase-5--wpkerneltest-utils-documentation--planned)        |
-| Docs Phase 6 – `@wpkernel/e2e-utils` Documentation    | ⬜ Planned     | Documents Playwright fixture extensions with kernel-aware resource, store, and event helpers.     | [Jump](#docs-phase-6--wpkernele2e-utils-documentation--planned)         |
-| Docs Phase 7 – PHP Transport Packages Documentation   | ⬜ Planned     | Documents PHP bridge orchestration, AST utilities, and WordPress-specific PHP extensions.         | [Jump](#docs-phase-7--php-transport-packages-documentation--planned)    |
-| Docs Phase 8 – `@wpkernel/create-wpk` Documentation   | ⬜ Planned     | Documents CLI bootstrap wrapper for npm/pnpm/yarn create conventions with telemetry.              | [Jump](#docs-phase-8--wpkernelcreate-wpk-documentation--planned)        |
-| Docs Phase 9 – Cross-Package Integration & Polish     | ⬜ Planned     | Cross-package examples, integration patterns, and documentation quality sweep.                    | [Jump](#docs-phase-9--cross-package-integration--polish--planned)       |
+| Docs Phase 1 - Foundational Restructuring and Tooling | ✓ Complete     | Locked the planning surface, restructured navigation, and adopted the baseline API doc strategy.  | [Jump](#docs-phase-1--foundational-restructuring-and-tooling--complete) |
+| Docs Phase 2 - `@wpkernel/core` Gold Standard         | 🚧 In Progress | Establishes the reference quality bar across core guides, README, and API docs.                   | [Jump](#docs-phase-2--wpkernelcore-gold-standard--planned)              |
+| Docs Phase 3 - `@wpkernel/ui` Documentation           | ⬜ Planned     | Documents ResourceDataView, ActionButton, WPKernelUIProvider and WordPress-native UI primitives.  | [Jump](#docs-phase-3--wpkernelui-documentation--planned)                |
+| Docs Phase 4 - `@wpkernel/cli` Documentation          | ✓ Complete     | Documents CLI generators (init/generate/apply), AST builders, storage modes, and adapters.        | [Jump](#docs-phase-4--wpkernelcli-documentation--planned)               |
+| Docs Phase 5 - `@wpkernel/test-utils` Documentation   | ⬜ Planned     | Documents testing harnesses: WordPress globals, kernel runtime, UI, CLI, and integration helpers. | [Jump](#docs-phase-5--wpkerneltest-utils-documentation--planned)        |
+| Docs Phase 6 - `@wpkernel/e2e-utils` Documentation    | ⬜ Planned     | Documents Playwright fixture extensions with kernel-aware resource, store, and event helpers.     | [Jump](#docs-phase-6--wpkernele2e-utils-documentation--planned)         |
+| Docs Phase 7 - PHP Transport Packages Documentation   | ⬜ Planned     | Documents PHP bridge orchestration, AST utilities, and WordPress-specific PHP extensions.         | [Jump](#docs-phase-7--php-transport-packages-documentation--planned)    |
+| Docs Phase 8 - `@wpkernel/create-wpk` Documentation   | ⬜ Planned     | Documents CLI bootstrap wrapper for npm/pnpm/yarn create conventions with telemetry.              | [Jump](#docs-phase-8--wpkernelcreate-wpk-documentation--planned)        |
+| Docs Phase 9 - Cross-Package Integration & Polish     | ⬜ Planned     | Cross-package examples, integration patterns, and documentation quality sweep.                    | [Jump](#docs-phase-9--cross-package-integration--polish--planned)       |
 
 ---
 
-### Docs Phase 1 – Foundational Restructuring and Tooling (✓ Complete)
+### Docs Phase 1 - Foundational Restructuring and Tooling (✓ Complete)
 
 The foundational phase created the scaffolding required to scale the documentation push. All Docs Tasks under this phase have shipped and the resulting assets are live in `main`.
 
-#### Docs Task 1 – Establish the roadmap (✓ Complete)
+#### Docs Task 1 - Establish the roadmap (✓ Complete)
 
 - [x] Draft the initial roadmap that sequences documentation work across packages (`docs/internal/documentation-roadmap.md`).
 - [x] Confirm the internal planning directory is excluded from the public build via `srcExclude: ['internal/*.md']` in `docs/.vitepress/config.ts`.
 - [x] Circulate the roadmap by linking it from relevant planning surfaces (e.g., referenced in root `AGENTS.md`).
 
-#### Docs Task 2 – Restructure navigation for packages (✓ Complete)
+#### Docs Task 2 - Restructure navigation for packages (✓ Complete)
 
 - [x] Add a dedicated “Packages” item to the global navigation and sidebar inside `docs/.vitepress/config.ts`.
 - [x] Seed package landing pages in `docs/packages/*.md`, including `docs/packages/index.md` for the overview and per-package stubs.
 - [x] Ensure navigation breadcrumbs point to the package hub from guides and examples that mention specific workspaces.
 
-#### Docs Task 3 – Baseline API documentation strategy (✓ Complete)
+#### Docs Task 3 - Baseline API documentation strategy (✓ Complete)
 
 - [x] Audit the Typedoc build output and adopt grouping-friendly defaults in `typedoc.json` (`categorizeByGroup`, `kindSortOrder`, `sort`).
 - [x] Disable noisy metadata and private surfaces in the Typedoc configuration (`excludePrivate`, `excludeInternal`, `disableSources`) so the generated Markdown mirrors the public API.
 - [x] Document the expectation that maintainers provide `@category` tags and focused examples alongside exported symbols so future phases can lean on meaningful grouping.
 
-#### Docs Task 4 – Contributor guidance touchpoints (✓ Complete)
+#### Docs Task 4 - Contributor guidance touchpoints (✓ Complete)
 
 - [x] Update the root planning docs to reference this roadmap (`AGENTS.md`, CLI MVP plan cross-links) so contributors discover it before picking up doc-adjacent work.
 - [x] Note the dependency in package-level planning documents where relevant (for example, CLI migration specs now call out documentation coordination).
@@ -56,17 +56,17 @@ The foundational phase created the scaffolding required to scale the documentati
 
 ---
 
-### Docs Phase 2 – `@wpkernel/core` Gold Standard (🚧 In Progress)
+### Docs Phase 2 - `@wpkernel/core` Gold Standard (🚧 In Progress)
 
 The second phase applies the documentation playbook to `@wpkernel/core`, producing a reference package that illustrates the desired quality bar.
 
-| Docs Task 5 – JSDoc audit for exported core APIs (✓ Complete)
+| Docs Task 5 - JSDoc audit for exported core APIs (✓ Complete)
 
 - [x] Inventory all exports from `packages/core/src/index.ts` and supporting modules to create a tracking checklist.
 - [x] Update or add JSDoc blocks with precise descriptions, parameter/return annotations, and `@category` tags for every export.
 - [x] Add runnable `@example` snippets where practical and verify them through the core test suite or embedded playground harnesses.
 
-##### Docs Task 5 artifact – Core export checklist
+##### Docs Task 5 artifact - Core export checklist
 
 | Category      | Symbols                                                                                                                                                                                                                                           | Notes                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -84,19 +84,19 @@ The second phase applies the documentation playbook to `@wpkernel/core`, produci
 | Contracts     | `ACTION_LIFECYCLE_PHASES`, `WPK_EXIT_CODES`, `serializeWPKernelError`                                                                                                                                                                             | Centralises shared framework contracts. All exports in `packages/core/src/contracts/index.ts` have JSDoc.                                                                                                                                                                                                                                                                                                                                                                                                                       |
 | Errors        | `WPKernelError`, `TransportError`, `ServerError`, `CapabilityDeniedError`                                                                                                                                                                         | Exports all error types and utilities for consistent error handling. All exports in `packages/core/src/error/index.ts` have JSDoc.                                                                                                                                                                                                                                                                                                                                                                                              |
 
-#### Docs Task 6 – Author segmented guides for core (✓ Complete)
+#### Docs Task 6 - Author segmented guides for core (✓ Complete)
 
 - [x] Draft a plugin developer guide covering installation, configuration, and integration touchpoints under `docs/packages/core/plugin-developers.md` (new).
 - [x] Draft a framework contributor guide that explains extension points, lifecycle hooks, and diagnostics under `docs/packages/core/framework-contributors.md` (new).
 - [x] Update `docs/packages/index.md` and any guide landing pages to surface both guides with clear audience labeling.
 
-#### Docs Task 7 – Refresh `packages/core/README.md` (⬜ Planned)
+#### Docs Task 7 - Refresh `packages/core/README.md` (⬜ Planned)
 
 - [ ] Reorganize the README into overview, quick links, and contribution guidance sections, pointing to the new guides and API reference.
 - [ ] Replace legacy implementation details with references to the pipeline specs to avoid duplication.
 - [ ] Validate that badges, build instructions, and package metadata (e.g., npm scope) are current.
 
-#### Docs Task 8 – Apply the API doc strategy to core (⬜ Planned)
+#### Docs Task 8 - Apply the API doc strategy to core (⬜ Planned)
 
 - [ ] Tag all relevant exports with `@category` values that map cleanly to end-user concepts before regenerating Typedoc output.
 - [ ] Configure Typedoc category ordering (via `typedoc.json` `categorizeByGroup` / frontmatter) so core symbols render in a predictable order.
@@ -104,17 +104,17 @@ The second phase applies the documentation playbook to `@wpkernel/core`, produci
 
 ---
 
-### Docs Phase 3 – `@wpkernel/ui` Documentation (⬜ Planned)
+### Docs Phase 3 - `@wpkernel/ui` Documentation (⬜ Planned)
 
 This phase applies the Phase 2 documentation playbook to `@wpkernel/ui`, which provides WordPress-native UI primitives aligned with kernel resources, actions, and events.
 
-| Docs Task 9 – JSDoc audit for exported UI APIs (✓ Complete)
+| Docs Task 9 - JSDoc audit for exported UI APIs (✓ Complete)
 
 - [ ] Inventory all exports from `packages/ui/src/index.ts` and supporting modules to create a tracking checklist.
 - [ ] Update or add JSDoc blocks with precise descriptions, parameter/return annotations, and `@category` tags for every export.
 - [ ] Add runnable `@example` snippets for component usage patterns, especially ResourceDataView integration and action bindings.
 
-##### Docs Task 9 artifact – UI export checklist
+##### Docs Task 9 artifact - UI export checklist
 
 | Category              | Symbols                                                                                           | Notes                                                                                                                                                                                                                                                                                                             |
 | --------------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -123,19 +123,19 @@ This phase applies the Phase 2 documentation playbook to `@wpkernel/ui`, which p
 | Provider              | `WPKernelUIProvider`, `attachUIBindings`                                                          | Bootstrap and share kernel runtime with React components. All exports in `packages/ui/src/runtime/index.ts` and its sub-modules have JSDoc.                                                                                                                                                                       |
 | Utilities             | `useCapability`, `usePrefetcher`, `useHoverPrefetch`, `useVisiblePrefetch`, `useNextPagePrefetch` | Helper hooks and utilities for UI state management. All exports in `packages/ui/src/hooks/useCapability.ts`, `packages/ui/src/hooks/usePrefetcher.ts`, `packages/ui/src/hooks/useHoverPrefetch.ts`, `packages/ui/src/hooks/useVisiblePrefetch.ts`, and `packages/ui/src/hooks/useNextPagePrefetch.ts` have JSDoc. |
 
-#### Docs Task 10 – Author segmented guides for UI (✓ Complete)
+#### Docs Task 10 - Author segmented guides for UI (✓ Complete)
 
 - [ ] Draft a plugin developer guide covering ResourceDataView setup, action buttons, and admin integration patterns under `docs/packages/ui/plugin-developers.md` (new).
 - [ ] Draft a framework contributor guide explaining component architecture, binding contracts, and extension points under `docs/packages/ui/framework-contributors.md` (new).
 - [ ] Update `docs/packages/index.md` and relevant guide landing pages to surface both guides with clear audience labeling.
 
-#### Docs Task 11 – Refresh `packages/ui/README.md` (⬜ Planned)
+#### Docs Task 11 - Refresh `packages/ui/README.md` (⬜ Planned)
 
 - [ ] Reorganize the README into overview, quick links, and contribution guidance sections, pointing to the new guides and API reference.
 - [ ] Emphasize peer dependency requirements (`@wordpress/components`, `@wordpress/dataviews`, React) and reference `pnpm lint:peers`.
 - [ ] Validate that badges, build instructions, and package metadata are current.
 
-#### Docs Task 12 – Apply the API doc strategy to UI (⬜ Planned)
+#### Docs Task 12 - Apply the API doc strategy to UI (⬜ Planned)
 
 - [ ] Tag all relevant exports with `@category` values (DataViews Integration, Action Bindings, Provider, Utilities).
 - [ ] Configure Typedoc category ordering for UI symbols to prioritize ResourceDataView and action patterns.
@@ -143,17 +143,17 @@ This phase applies the Phase 2 documentation playbook to `@wpkernel/ui`, which p
 
 ---
 
-### Docs Phase 4 – `@wpkernel/cli` Documentation (⬜ Planned)
+### Docs Phase 4 - `@wpkernel/cli` Documentation (⬜ Planned)
 
 This phase applies the Phase 2 documentation playbook to `@wpkernel/cli`, covering Rails-like generators, code generation pipelines, and developer tooling.
 
-| Docs Task 13 – JSDoc audit for exported CLI APIs (✓ Complete)
+| Docs Task 13 - JSDoc audit for exported CLI APIs (✓ Complete)
 
 - [x] Inventory all exports from `packages/cli/src/index.ts` and `packages/cli/src/**` (AST builders) to create a tracking checklist.
 - [ ] Update or add JSDoc blocks with precise descriptions, parameter/return annotations, and `@category` tags for every export.
 - [ ] Add runnable `@example` snippets for command workflows (`init`, `generate`, `apply`) and adapter extension patterns.
 
-##### Docs Task 13 artifact – CLI export checklist
+##### Docs Task 13 artifact - CLI export checklist
 
 | Category     | Symbols                                                                                                                 | Notes                                                                                                                                               |
 | ------------ | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -167,19 +167,19 @@ This phase applies the Phase 2 documentation playbook to `@wpkernel/cli`, coveri
 | Runtime      | All exports from `./runtime`                                                                                            | Re-exports from the runtime module. All exports in `packages/cli/src/runtime/index.ts` and its sub-modules have JSDoc.                              |
 | Builders     | All exports from `./builders`                                                                                           | Re-exports from the builders module. All exports in `packages/cli/src/builders/index.ts` and its sub-modules have JSDoc.                            |
 
-#### Docs Task 14 – Author segmented guides for CLI (⬜ Planned)
+#### Docs Task 14 - Author segmented guides for CLI (⬜ Planned)
 
 - [ ] Draft a plugin developer guide covering the init → generate → apply workflow, storage modes, and common patterns under `docs/packages/cli/plugin-developers.md` (new).
 - [ ] Draft a framework contributor guide explaining pipeline architecture, AST generation, adapter extensions, and apply state management under `docs/packages/cli/framework-contributors.md` (new).
 - [ ] Update `docs/packages/index.md` and CLI reference pages to surface both guides with clear audience labeling.
 
-#### Docs Task 15 – Refresh `packages/cli/README.md` (⬜ Planned)
+#### Docs Task 15 - Refresh `packages/cli/README.md` (⬜ Planned)
 
 - [ ] Reorganize the README into overview, quick start (init workflow), and command reference sections.
 - [ ] Link to existing migration specs (`docs/cli-migration-phases.md`, `cli-mvp-plan.md`) for deep dives on architecture decisions.
 - [ ] Validate that installation instructions, storage mode coverage, and version compatibility notes are current.
 
-#### Docs Task 16 – Apply the API doc strategy to CLI (⬜ Planned)
+#### Docs Task 16 - Apply the API doc strategy to CLI (⬜ Planned)
 
 - [ ] Tag all relevant exports with `@category` values (Commands, Config, AST, Adapters).
 - [ ] Configure Typedoc category ordering for CLI symbols to prioritize command workflows and config types.
@@ -187,17 +187,17 @@ This phase applies the Phase 2 documentation playbook to `@wpkernel/cli`, coveri
 
 ---
 
-### Docs Phase 5 – `@wpkernel/test-utils` Documentation (⬜ Planned)
+### Docs Phase 5 - `@wpkernel/test-utils` Documentation (⬜ Planned)
 
 This phase applies the Phase 2 documentation playbook to `@wpkernel/test-utils`, which provides shared testing utilities and domain-specific harnesses for the WP Kernel monorepo.
 
-| Docs Task 17 – JSDoc audit for exported test-utils APIs (✓ Complete)
+| Docs Task 17 - JSDoc audit for exported test-utils APIs (✓ Complete)
 
 - [ ] Inventory all exports from `packages/test-utils/src/index.ts` and submodules (`core/`, `ui/`, `cli/`, `wp/`, `integration/`) to create a tracking checklist.
 - [ ] Update or add JSDoc blocks with precise descriptions, parameter/return annotations, and `@category` tags for every export.
 - [ ] Add runnable `@example` snippets demonstrating harness setup patterns for WordPress globals, kernel runtime, and UI testing.
 
-##### Docs Task 17 artifact – test-utils export checklist
+##### Docs Task 17 artifact - test-utils export checklist
 
 | Category          | Symbols                                                                    | Notes                                                                                                                                                                                                                                                                  |
 | ----------------- | -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -207,19 +207,19 @@ This phase applies the Phase 2 documentation playbook to `@wpkernel/test-utils`,
 | CLI Helpers       | `MemoryStream`, command context utilities, reporter mocks                  | Testing utilities for CLI command integration tests. All exports in `packages/test-utils/src/cli/memory-stream.ts`, `packages/test-utils/src/cli/command-context.ts`, `packages/test-utils/src/cli/reporter.ts` and `packages/test-utils/src/cli/flush.ts` have JSDoc. |
 | Integration       | `withWorkspace`, `createWorkspaceRunner`                                   | Workspace lifecycle management for integration tests. All exports in `packages/test-utils/src/integration/workspace.ts` and `packages/test-utils/src/integration/php.ts` have JSDoc.                                                                                   |
 
-#### Docs Task 18 – Author segmented guides for test-utils (⬜ Planned)
+#### Docs Task 18 - Author segmented guides for test-utils (⬜ Planned)
 
 - [ ] Draft a testing cookbook covering WordPress harness patterns, kernel runtime setup, and UI component testing under `docs/packages/test-utils/testing-cookbook.md` (new).
 - [ ] Draft a framework contributor guide explaining harness architecture, extension patterns, and test-support conventions under `docs/packages/test-utils/framework-contributors.md` (new).
 - [ ] Update `docs/packages/index.md` and testing guides to surface both documents with clear use-case labeling.
 
-#### Docs Task 19 – Refresh `packages/test-utils/README.md` (⬜ Planned)
+#### Docs Task 19 - Refresh `packages/test-utils/README.md` (⬜ Planned)
 
 - [ ] Reorganize the README into overview, installation, and quick start sections covering each harness family.
 - [ ] Link to the testing cookbook and root `tests/TEST_PATTERNS.md` for comprehensive patterns.
 - [ ] Validate that Jest configuration examples and harness contracts are current.
 
-#### Docs Task 20 – Apply the API doc strategy to test-utils (⬜ Planned)
+#### Docs Task 20 - Apply the API doc strategy to test-utils (⬜ Planned)
 
 - [ ] Tag all relevant exports with `@category` values (WordPress Harness, Action Runtime, UI Harness, CLI Helpers, Integration).
 - [ ] Configure Typedoc category ordering to prioritize commonly-used harnesses (WordPress, UI, Integration).
@@ -227,17 +227,17 @@ This phase applies the Phase 2 documentation playbook to `@wpkernel/test-utils`,
 
 ---
 
-### Docs Phase 6 – `@wpkernel/e2e-utils` Documentation (⬜ Planned)
+### Docs Phase 6 - `@wpkernel/e2e-utils` Documentation (⬜ Planned)
 
 This phase applies the Phase 2 documentation playbook to `@wpkernel/e2e-utils`, which extends WordPress Playwright fixtures with kernel-aware E2E testing helpers.
 
-| Docs Task 21 – JSDoc audit for exported e2e-utils APIs (🚧 In Progress)
+| Docs Task 21 - JSDoc audit for exported e2e-utils APIs (🚧 In Progress)
 
 - [x] Inventory all exports from `packages/e2e-utils/src/index.ts` and test-support modules to create a tracking checklist.
 - [ ] Update or add JSDoc blocks with precise descriptions, parameter/return annotations, and `@category` tags for every export.
 - [ ] Add runnable `@example` snippets demonstrating Playwright fixture usage, resource seeding, and event capture patterns.
 
-##### Docs Task 21 artifact – e2e-utils export checklist
+##### Docs Task 21 artifact - e2e-utils export checklist
 
 | Category         | Symbols                                                           | Notes                                                                                                                             |
 | ---------------- | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
@@ -248,19 +248,19 @@ This phase applies the Phase 2 documentation playbook to `@wpkernel/e2e-utils`, 
 | DataView Helpers | `createDataViewHelper`                                            | Playwright helpers for ResourceDataView screens.                                                                                  |
 | Test Support     | `withIsolatedWorkspace`, `collectManifestState`, `runNodeSnippet` | Workspace lifecycle, filesystem diffing, and CLI transcript helpers. All exports in `packages/e2e-utils/src/index.ts` have JSDoc. |
 
-#### Docs Task 22 – Author segmented guides for e2e-utils (⬜ Planned)
+#### Docs Task 22 - Author segmented guides for e2e-utils (⬜ Planned)
 
 - [ ] Draft an E2E testing guide covering Playwright + WordPress fixtures, kernel utilities factory, and showcase app patterns under `docs/packages/e2e-utils/e2e-testing-guide.md` (new).
 - [ ] Draft a framework contributor guide explaining fixture extension architecture and validation strategy (real-world testing via showcase) under `docs/packages/e2e-utils/framework-contributors.md` (new).
 - [ ] Update `docs/packages/index.md` and E2E testing docs to surface both guides with clear workflow labeling.
 
-#### Docs Task 23 – Refresh `packages/e2e-utils/README.md` (⬜ Planned)
+#### Docs Task 23 - Refresh `packages/e2e-utils/README.md` (⬜ Planned)
 
 - [ ] Reorganize the README into overview, installation, and quick start sections emphasizing the optional nature of the package.
 - [ ] Highlight import patterns (scoped, namespaced, flat) and the `test`/`expect` entry point.
 - [ ] Validate that Playwright configuration, WordPress fixture integration, and validation strategy notes are current.
 
-#### Docs Task 24 – Apply the API doc strategy to e2e-utils (⬜ Planned)
+#### Docs Task 24 - Apply the API doc strategy to e2e-utils (⬜ Planned)
 
 - [ ] Tag all relevant exports with `@category` values (Test Fixtures, Resource Helpers, Store Utilities, Event Utilities, DataView Helpers, Test Support).
 - [ ] Configure Typedoc category ordering to prioritize the test fixture and resource helpers.
@@ -268,17 +268,17 @@ This phase applies the Phase 2 documentation playbook to `@wpkernel/e2e-utils`, 
 
 ---
 
-### Docs Phase 7 – PHP Transport Packages Documentation (⬜ Planned)
+### Docs Phase 7 - PHP Transport Packages Documentation (⬜ Planned)
 
 This phase documents the PHP-side packages (`php-driver`, `php-json-ast`, `wp-json-ast`) with PHP docblocks, interoperability guides, and README updates.
 
-| Docs Task 25 – PHP docblock audit for transport packages (✓ Complete)
+| Docs Task 25 - PHP docblock audit for transport packages (✓ Complete)
 
 - [x] Inventory all public PHP classes, functions, and interfaces across `php-driver`, `php-json-ast`, and `wp-json-ast`.
 - [x] Add or update PHP docblocks with descriptions, parameter types, return types, and `@category` annotations where applicable.
 - [ ] Document TypeScript-PHP interoperability contracts, pretty printer bridge, and autoload resolution patterns.
 
-##### Docs Task 25 artifact – PHP package checklist
+##### Docs Task 25 artifact - PHP package checklist
 
 | Package      | Components                                                                      | Notes                                                                                                                                                                                                |
 | ------------ | ------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -286,19 +286,19 @@ This phase documents the PHP-side packages (`php-driver`, `php-json-ast`, `wp-js
 | php-json-ast | PHP AST JSON utilities, type guards (`isPhpJsonNode`, `normalisePhpAttributes`) | Pure PHP AST transport layer (WordPress-agnostic). Experimental builder implementation. All exports in `packages/php-json-ast/src/modifiers.ts` and `packages/php-json-ast/src/nodes/**` have JSDoc. |
 | wp-json-ast  | WordPress-specific AST helpers                                                  | WordPress-specific extensions layered on top of `php-json-ast`. JSDoc is not yet complete.                                                                                                           |
 
-#### Docs Task 26 – Author interoperability guides for PHP packages (⬜ Planned)
+#### Docs Task 26 - Author interoperability guides for PHP packages (⬜ Planned)
 
 - [ ] Draft a TypeScript-PHP interop guide covering PhpParser bridge, JSON AST serialization, and autoload resolution under `docs/packages/php-interop.md` (new).
 - [ ] Document each package's role in the code generation pipeline under `docs/packages/php-driver.md`, `docs/packages/php-json-ast.md`, and `docs/packages/wp-json-ast.md`.
 - [ ] Update `docs/packages/index.md` to include PHP package overview with Composer requirements and environment variables (`WPK_PHP_AUTOLOAD`).
 
-#### Docs Task 27 – Refresh PHP package READMEs (⬜ Planned)
+#### Docs Task 27 - Refresh PHP package READMEs (⬜ Planned)
 
 - [ ] Reorganize each package README with installation, autoload resolution guidance, and contribution sections.
 - [ ] Link to the interop guide and CLI architecture docs for context on the PHP bridge strategy.
 - [ ] Validate that Composer requirements (`nikic/php-parser`), WordPress version compatibility, and PHP version constraints are current.
 
-#### Docs Task 28 – Document PHP API surfaces (⬜ Planned)
+#### Docs Task 28 - Document PHP API surfaces (⬜ Planned)
 
 - [ ] Generate PHP API documentation using phpDocumentor or maintain hand-written API references for public surfaces.
 - [ ] Publish PHP API docs under `docs/api/php-driver/`, `docs/api/php-json-ast/`, and `docs/api/wp-json-ast/`.
@@ -306,17 +306,17 @@ This phase documents the PHP-side packages (`php-driver`, `php-json-ast`, `wp-js
 
 ---
 
-### Docs Phase 8 – `@wpkernel/create-wpk` Documentation (⬜ Planned)
+### Docs Phase 8 - `@wpkernel/create-wpk` Documentation (⬜ Planned)
 
 This phase applies the Phase 2 documentation playbook to `@wpkernel/create-wpk`, which provides the bootstrap entry point for the wpk CLI without requiring global installation.
 
-| Docs Task 29 – JSDoc audit for exported create-wpk APIs (✓ Complete)
+| Docs Task 29 - JSDoc audit for exported create-wpk APIs (✓ Complete)
 
 - [x] Inventory all exports from `packages/create-wpk/src/index.ts` to create a tracking checklist.
 - [x] Update or add JSDoc blocks with precise descriptions, parameter/return annotations, and `@category` tags for every export.
 - [ ] Add runnable `@example` snippets demonstrating the create convention workflow and flag forwarding patterns.
 
-##### Docs Task 29 artifact – create-wpk export checklist
+##### Docs Task 29 artifact - create-wpk export checklist
 
 | Category    | Symbols                               | Notes                                                                                                                                                                                  |
 | ----------- | ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -324,19 +324,19 @@ This phase applies the Phase 2 documentation playbook to `@wpkernel/create-wpk`,
 | Telemetry   | Bootstrap reporter integration        | Usage telemetry under `wpk.cli.bootstrap` namespace aligned with kernel reporter.                                                                                                      |
 | Diagnostics | Stdout/stderr capture, error handling | Streams CLI output while capturing buffers for diagnostics.                                                                                                                            |
 
-#### Docs Task 30 – Author segmented guides for create-wpk (⬜ Planned)
+#### Docs Task 30 - Author segmented guides for create-wpk (⬜ Planned)
 
 - [ ] Draft a quick-start guide covering package manager conventions (`npm create`, `pnpm create`, `yarn create`) and flag forwarding under `docs/packages/create-wpk/quick-start.md` (new).
 - [ ] Draft a framework contributor guide explaining the bootstrap binary, CLI integration, and telemetry contracts under `docs/packages/create-wpk/framework-contributors.md` (new).
 - [ ] Update `docs/packages/index.md` and getting-started guides to surface create-wpk as the preferred project initialization method.
 
-#### Docs Task 31 – Refresh `packages/create-wpk/README.md` (⬜ Planned)
+#### Docs Task 31 - Refresh `packages/create-wpk/README.md` (⬜ Planned)
 
 - [ ] Reorganize the README with installation alternatives (npm/pnpm/yarn), usage patterns, and feature highlights.
 - [ ] Link to the quick-start guide and CLI init docs for complete workflow context.
 - [ ] Validate that package manager examples, flag forwarding documentation, and diagnostics notes are current.
 
-#### Docs Task 32 – Apply the API doc strategy to create-wpk (⬜ Planned)
+#### Docs Task 32 - Apply the API doc strategy to create-wpk (⬜ Planned)
 
 - [ ] Tag all relevant exports with `@category` values (Bootstrap, Telemetry, Diagnostics).
 - [ ] Configure Typedoc category ordering to prioritize bootstrap entry point and CLI integration.
@@ -344,23 +344,23 @@ This phase applies the Phase 2 documentation playbook to `@wpkernel/create-wpk`,
 
 ---
 
-### Docs Phase 9 – Cross-Package Integration & Polish (⬜ Planned)
+### Docs Phase 9 - Cross-Package Integration & Polish (⬜ Planned)
 
 This final phase focuses on cross-package integration examples, documentation quality sweeps, and maintenance patterns established during package rollout.
 
-#### Docs Task 33 – Cross-package integration examples (⬜ Planned)
+#### Docs Task 33 - Cross-package integration examples (⬜ Planned)
 
 - [ ] Author integration examples showing complete workflows: core + UI + CLI (Resource → DataView → CLI generation) under `docs/examples/integration/` (new).
 - [ ] Document testing patterns across packages: test-utils harnesses + e2e-utils fixtures + showcase app validation.
 - [ ] Update `docs/examples/index.md` to showcase integration patterns with links to relevant package guides.
 
-#### Docs Task 34 – Documentation quality sweep (⬜ Planned)
+#### Docs Task 34 - Documentation quality sweep (⬜ Planned)
 
 - [ ] Audit all package READMEs, guides, and API docs for consistency, broken links, and outdated examples.
 - [ ] Run link checkers and validate that internal cross-references remain accurate across packages.
 - [ ] Ensure all `@example` snippets are tested or covered by existing test suites (unit, integration, E2E).
 
-#### Docs Task 35 – Establish maintenance patterns (⬜ Planned)
+#### Docs Task 35 - Establish maintenance patterns (⬜ Planned)
 
 - [ ] Document the documentation update workflow in `docs/contributing/documentation.md` (new), covering JSDoc standards, guide structure, `@category` conventions, and API doc regeneration.
 - [ ] Create a checklist for package maintainers to follow when adding new exports or changing public APIs (coordinate with `docs/AGENTS.md`).

@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ResourcePostMetaDescriptor
+[@wpkernel/core](../README.md) / ResourcePostMetaDescriptor
 
 # Type Alias: ResourcePostMetaDescriptor
 
@@ -19,10 +19,10 @@ Included for forward compatibility with CLI-generated registration code.
 ### type
 
 ```ts
-type: "string" | "integer" | "number" | "boolean" | "array" | "object";
+type: 'string' | 'integer' | 'number' | 'boolean' | 'array' | 'object';
 ```
 
-***
+---
 
 ### single?
 

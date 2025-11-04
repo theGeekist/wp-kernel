@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / CapabilityCache
+[@wpkernel/core](../README.md) / CapabilityCache
 
 # Type Alias: CapabilityCache
 
@@ -30,7 +30,7 @@ get: (key) =&gt; boolean | undefined;
 
 `boolean` \| `undefined`
 
-***
+---
 
 ### set()
 
@@ -66,7 +66,7 @@ set: (key, value, options?) =&gt; void;
 
 `void`
 
-***
+---
 
 ### invalidate()
 
@@ -84,7 +84,7 @@ invalidate: (capabilityKey?) =&gt; void;
 
 `void`
 
-***
+---
 
 ### clear()
 
@@ -96,7 +96,7 @@ clear: () =&gt; void;
 
 `void`
 
-***
+---
 
 ### keys()
 
@@ -108,7 +108,7 @@ keys: () =&gt; string[];
 
 `string`[]
 
-***
+---
 
 ### subscribe()
 
@@ -132,7 +132,7 @@ subscribe: (listener) =&gt; () =&gt; void;
 
 `void`
 
-***
+---
 
 ### getSnapshot()
 

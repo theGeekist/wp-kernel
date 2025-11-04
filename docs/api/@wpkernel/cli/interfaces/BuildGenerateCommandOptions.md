@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / BuildGenerateCommandOptions
+[@wpkernel/cli](../README.md) / BuildGenerateCommandOptions
 
 # Interface: BuildGenerateCommandOptions
 
@@ -80,7 +80,7 @@ The pipeline instance to register fragments with.
 
 `void`
 
-***
+---
 
 #### registerBuilders()?
 
@@ -130,7 +130,7 @@ The validated kernel config and associated metadata.
 
 WPKernelError when discovery, parsing or validation fails.
 
-***
+---
 
 #### buildWorkspace()?
 
@@ -148,7 +148,7 @@ readonly optional buildWorkspace: (root) =&gt; Workspace;
 
 [`Workspace`](Workspace.md)
 
-***
+---
 
 #### buildAdapterExtensionsExtension()?
 
@@ -160,7 +160,7 @@ readonly optional buildAdapterExtensionsExtension: () =&gt; PipelineExtension;
 
 [`PipelineExtension`](PipelineExtension.md)
 
-***
+---
 
 #### renderSummary()?
 
@@ -186,7 +186,7 @@ readonly optional renderSummary: (summary, dryRun, verbose) =&gt; string;
 
 `string`
 
-***
+---
 
 #### validateGeneratedImports()?
 

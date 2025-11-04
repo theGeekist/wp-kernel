@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / GenerationManifestResourceArtifacts
+[@wpkernel/cli](../README.md) / GenerationManifestResourceArtifacts
 
 # Interface: GenerationManifestResourceArtifacts
 
@@ -14,7 +14,7 @@
 readonly generated: readonly string[];
 ```
 
-***
+---
 
 ### shims
 

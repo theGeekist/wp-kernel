@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/test-utils v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / WPKConfigV1Like
+[@wpkernel/test-utils](../README.md) / WPKConfigV1Like
 
 # Interface: WPKConfigV1Like\&lt;TSchemas, TResources, TAdapters\&gt;
 
@@ -10,11 +10,11 @@
 
 ### TSchemas
 
-`TSchemas` *extends* `Record`\&lt;`string`, `unknown`\&gt; = `Record`\&lt;`string`, `unknown`\&gt;
+`TSchemas` _extends_ `Record`\&lt;`string`, `unknown`\&gt; = `Record`\&lt;`string`, `unknown`\&gt;
 
 ### TResources
 
-`TResources` *extends* `Record`\&lt;`string`, `unknown`\&gt; = `Record`\&lt;`string`, `unknown`\&gt;
+`TResources` _extends_ `Record`\&lt;`string`, `unknown`\&gt; = `Record`\&lt;`string`, `unknown`\&gt;
 
 ### TAdapters
 
@@ -28,7 +28,7 @@
 readonly version: number;
 ```
 
-***
+---
 
 ### namespace
 
@@ -36,7 +36,7 @@ readonly version: number;
 readonly namespace: string;
 ```
 
-***
+---
 
 ### schemas
 
@@ -44,7 +44,7 @@ readonly namespace: string;
 readonly schemas: TSchemas;
 ```
 
-***
+---
 
 ### resources
 
@@ -52,7 +52,7 @@ readonly schemas: TSchemas;
 readonly resources: TResources;
 ```
 
-***
+---
 
 ### adapters?
 

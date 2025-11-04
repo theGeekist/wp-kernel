@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/ui v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / WPKernelUIProviderProps
+[@wpkernel/ui](../README.md) / WPKernelUIProviderProps
 
 # Interface: WPKernelUIProviderProps
 
@@ -18,7 +18,7 @@ runtime: WPKernelUIRuntime;
 
 The WP Kernel UI runtime instance.
 
-***
+---
 
 ### children
 

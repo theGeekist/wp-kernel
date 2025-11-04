@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpScalarBase
+[@wpkernel/php-json-ast](../README.md) / PhpScalarBase
 
 # Interface: PhpScalarBase
 
@@ -31,7 +31,7 @@ readonly nodeType: `Scalar_${string}`;
 
 [`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
 
-***
+---
 
 ### attributes
 

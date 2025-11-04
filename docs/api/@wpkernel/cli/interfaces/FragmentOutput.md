@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / FragmentOutput
+[@wpkernel/cli](../README.md) / FragmentOutput
 
 # Interface: FragmentOutput
 
@@ -18,7 +18,7 @@ readonly draft: MutableIr;
 
 The mutable Intermediate Representation draft.
 
-***
+---
 
 ### assign()
 

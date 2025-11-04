@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ResourceDataViewsScreenConfig
+[@wpkernel/core](../README.md) / ResourceDataViewsScreenConfig
 
 # Interface: ResourceDataViewsScreenConfig
 
@@ -20,7 +20,7 @@
 optional component: string;
 ```
 
-***
+---
 
 ### route?
 
@@ -28,7 +28,7 @@ optional component: string;
 optional route: string;
 ```
 
-***
+---
 
 ### resourceImport?
 
@@ -36,7 +36,7 @@ optional route: string;
 optional resourceImport: string;
 ```
 
-***
+---
 
 ### resourceSymbol?
 
@@ -44,7 +44,7 @@ optional resourceImport: string;
 optional resourceSymbol: string;
 ```
 
-***
+---
 
 ### kernelImport?
 
@@ -52,7 +52,7 @@ optional resourceSymbol: string;
 optional kernelImport: string;
 ```
 
-***
+---
 
 ### kernelSymbol?
 
@@ -60,7 +60,7 @@ optional kernelImport: string;
 optional kernelSymbol: string;
 ```
 
-***
+---
 
 ### menu?
 

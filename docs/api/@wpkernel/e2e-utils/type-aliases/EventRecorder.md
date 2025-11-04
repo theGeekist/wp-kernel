@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/e2e-utils v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / EventRecorder
+[@wpkernel/e2e-utils](../README.md) / EventRecorder
 
 # Type Alias: EventRecorder\&lt;P\&gt;
 
@@ -32,7 +32,7 @@ Get all captured events
 
 `Promise`\&lt;[`CapturedEvent`](CapturedEvent.md)\&lt;`P`\&gt;[]\&gt;
 
-***
+---
 
 ### find()
 
@@ -56,7 +56,7 @@ Event type to search for
 
 First matching event or undefined
 
-***
+---
 
 ### findAll()
 
@@ -80,7 +80,7 @@ Event type to search for
 
 Array of matching events
 
-***
+---
 
 ### clear()
 
@@ -94,7 +94,7 @@ Clear all captured events
 
 `Promise`\&lt;`void`\&gt;
 
-***
+---
 
 ### stop()
 

@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/ui v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ResourceDataViewController
+[@wpkernel/ui](../README.md) / ResourceDataViewController
 
 # Interface: ResourceDataViewController\&lt;TItem, TQuery\&gt;
 
@@ -28,7 +28,7 @@ readonly resourceName: string;
 
 The name of the resource.
 
-***
+---
 
 ### config
 
@@ -38,7 +38,7 @@ readonly config: ResourceDataViewConfig&lt;TItem, TQuery&gt;;
 
 The configuration for the DataView.
 
-***
+---
 
 ### queryMapping
 
@@ -48,7 +48,7 @@ readonly queryMapping: QueryMapping&lt;TQuery&gt;;
 
 A function to map the view state to a query.
 
-***
+---
 
 ### runtime
 
@@ -58,7 +58,7 @@ readonly runtime: DataViewsControllerRuntime;
 
 The runtime for the DataView controller.
 
-***
+---
 
 ### namespace
 
@@ -68,7 +68,7 @@ readonly namespace: string;
 
 The namespace of the project.
 
-***
+---
 
 ### preferencesKey
 
@@ -78,7 +78,7 @@ readonly preferencesKey: string;
 
 The key for storing preferences.
 
-***
+---
 
 ### mapViewToQuery()
 
@@ -98,7 +98,7 @@ Maps the view state to a query.
 
 `TQuery`
 
-***
+---
 
 ### deriveViewState()
 
@@ -151,7 +151,7 @@ field: string;
 ###### sort.direction
 
 ```ts
-direction: "asc" | "desc";
+direction: 'asc' | 'desc';
 ```
 
 ##### search?
@@ -166,7 +166,7 @@ optional search: string;
 optional filters: Record&lt;string, unknown&gt;;
 ```
 
-***
+---
 
 ### loadStoredView()
 
@@ -180,7 +180,7 @@ Loads the stored view from preferences.
 
 `Promise`\&lt;`View` \| `undefined`\&gt;
 
-***
+---
 
 ### saveView()
 
@@ -200,7 +200,7 @@ Saves the view to preferences.
 
 `Promise`\&lt;`void`\&gt;
 
-***
+---
 
 ### emitViewChange()
 
@@ -220,7 +220,7 @@ Emits a view change event.
 
 `void`
 
-***
+---
 
 ### emitRegistered()
 
@@ -240,7 +240,7 @@ Emits a registered event.
 
 `void`
 
-***
+---
 
 ### emitUnregistered()
 
@@ -260,7 +260,7 @@ Emits an unregistered event.
 
 `void`
 
-***
+---
 
 ### emitAction()
 
@@ -298,7 +298,7 @@ Emits an action event.
 
 `void`
 
-***
+---
 
 ### getReporter()
 
@@ -312,7 +312,7 @@ Gets the reporter for the controller.
 
 `Reporter`
 
-***
+---
 
 ### resource?
 
@@ -322,7 +322,7 @@ readonly optional resource: ResourceObject&lt;TItem, TQuery&gt;;
 
 The resource object.
 
-***
+---
 
 ### invalidate()?
 
@@ -342,7 +342,7 @@ A function to invalidate cache entries.
 
 `void`
 
-***
+---
 
 ### capabilities?
 
@@ -352,7 +352,7 @@ readonly optional capabilities: WPKUICapabilityRuntime;
 
 The capability runtime.
 
-***
+---
 
 ### fetchList()?
 
@@ -372,7 +372,7 @@ A function to fetch a list of items.
 
 `Promise`\&lt;`ListResponse`\&lt;`TItem`\&gt;\&gt;
 
-***
+---
 
 ### prefetchList()?
 

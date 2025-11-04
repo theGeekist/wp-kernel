@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / WPKernelRegistry
+[@wpkernel/core](../README.md) / WPKernelRegistry
 
 # Type Alias: WPKernelRegistry
 
@@ -38,7 +38,7 @@ optional __experimentalUseMiddleware: (middleware) =&gt; () =&gt; void | void;
 
 ##### middleware
 
-() =&gt; [`ReduxMiddleware`](../WP-Kernel-API/namespaces/actions/type-aliases/ReduxMiddleware.md)[]
+() =&gt; [`ReduxMiddleware`](ReduxMiddleware.md)[]
 
 #### Returns
 

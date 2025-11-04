@@ -1,17 +1,13 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / buildPropertyHook
+[@wpkernel/php-json-ast](../README.md) / buildPropertyHook
 
 # Function: buildPropertyHook()
 
 ```ts
-function buildPropertyHook(
-   name, 
-   body, 
-   options, 
-   attributes?): PhpPropertyHook;
+function buildPropertyHook(name, body, options, attributes?): PhpPropertyHook;
 ```
 
 Builds a PHP property hook node.

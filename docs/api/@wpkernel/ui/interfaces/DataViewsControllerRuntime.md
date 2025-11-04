@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/ui v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / DataViewsControllerRuntime
+[@wpkernel/ui](../README.md) / DataViewsControllerRuntime
 
 # Interface: DataViewsControllerRuntime
 
@@ -16,7 +16,7 @@ Context passed to DataViews controllers for logging and event emission.
 readonly registry: Map&lt;string, unknown&gt;;
 ```
 
-***
+---
 
 ### controllers
 
@@ -24,7 +24,7 @@ readonly registry: Map&lt;string, unknown&gt;;
 readonly controllers: Map&lt;string, unknown&gt;;
 ```
 
-***
+---
 
 ### preferences
 
@@ -32,7 +32,7 @@ readonly controllers: Map&lt;string, unknown&gt;;
 readonly preferences: DataViewPreferencesRuntime;
 ```
 
-***
+---
 
 ### events
 
@@ -40,7 +40,7 @@ readonly preferences: DataViewPreferencesRuntime;
 readonly events: DataViewsEventEmitter;
 ```
 
-***
+---
 
 ### reporter
 
@@ -48,7 +48,7 @@ readonly events: DataViewsEventEmitter;
 readonly reporter: Reporter;
 ```
 
-***
+---
 
 ### options
 
@@ -56,7 +56,7 @@ readonly reporter: Reporter;
 readonly options: NormalizedDataViewsRuntimeOptions;
 ```
 
-***
+---
 
 ### getResourceReporter()
 

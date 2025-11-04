@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / CapabilityContext
+[@wpkernel/core](../README.md) / CapabilityContext
 
 # Type Alias: CapabilityContext
 
@@ -51,7 +51,7 @@ const rule: CapabilityRule&lt;number&gt; = async (ctx, postId) =&gt; {
 namespace: string;
 ```
 
-***
+---
 
 ### adapters
 
@@ -59,7 +59,7 @@ namespace: string;
 adapters: CapabilityAdapters;
 ```
 
-***
+---
 
 ### cache
 
@@ -67,7 +67,7 @@ adapters: CapabilityAdapters;
 cache: CapabilityCache;
 ```
 
-***
+---
 
 ### reporter?
 

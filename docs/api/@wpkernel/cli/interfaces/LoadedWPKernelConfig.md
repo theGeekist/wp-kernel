@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / LoadedWPKernelConfig
+[@wpkernel/cli](../README.md) / LoadedWPKernelConfig
 
 # Interface: LoadedWPKernelConfig
 
@@ -16,7 +16,7 @@ Result returned when loading and validating a kernel config file.
 config: WPKernelConfigV1;
 ```
 
-***
+---
 
 ### sourcePath
 
@@ -24,7 +24,7 @@ config: WPKernelConfigV1;
 sourcePath: string;
 ```
 
-***
+---
 
 ### configOrigin
 
@@ -32,15 +32,15 @@ sourcePath: string;
 configOrigin: WPKConfigSource;
 ```
 
-***
+---
 
 ### composerCheck
 
 ```ts
-composerCheck: "ok" | "mismatch";
+composerCheck: 'ok' | 'mismatch';
 ```
 
-***
+---
 
 ### namespace
 

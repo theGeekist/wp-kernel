@@ -1,16 +1,13 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / buildDeclareItem
+[@wpkernel/php-json-ast](../README.md) / buildDeclareItem
 
 # Function: buildDeclareItem()
 
 ```ts
-function buildDeclareItem(
-   key, 
-   value, 
-   attributes?): PhpDeclareItem;
+function buildDeclareItem(key, value, attributes?): PhpDeclareItem;
 ```
 
 Builds a PHP declare item node.

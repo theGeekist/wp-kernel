@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / InteractivityGlobal
+[@wpkernel/core](../README.md) / InteractivityGlobal
 
 # Interface: InteractivityGlobal
 
@@ -16,7 +16,7 @@ Shape of the global object when running inside Jest or a browser.
 optional __WPKernelInteractivityStub: InteractivityModule;
 ```
 
-***
+---
 
 ### wp?
 

@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / normalizeCacheKey
+[@wpkernel/core](../README.md) / normalizeCacheKey
 
 # Function: normalizeCacheKey()
 
@@ -30,7 +30,7 @@ Normalized string key
 ## Example
 
 ```ts
-normalizeCacheKey(['thing', 'list'])           // → 'thing:list'
-normalizeCacheKey(['thing', 'list', null, 1])  // → 'thing:list:1'
-normalizeCacheKey(['thing', 'get', 123])       // → 'thing:get:123'
+normalizeCacheKey(['thing', 'list']); // → 'thing:list'
+normalizeCacheKey(['thing', 'list', null, 1]); // → 'thing:list:1'
+normalizeCacheKey(['thing', 'get', 123]); // → 'thing:get:123'
 ```

@@ -1,16 +1,13 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / buildInstanceof
+[@wpkernel/php-json-ast](../README.md) / buildInstanceof
 
 # Function: buildInstanceof()
 
 ```ts
-function buildInstanceof(
-   expr, 
-   className, 
-   attributes?): PhpExprInstanceof;
+function buildInstanceof(expr, className, attributes?): PhpExprInstanceof;
 ```
 
 Builds a PHP `instanceof` expression node.

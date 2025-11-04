@@ -1,10 +1,10 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / WPK\_SUBSYSTEM\_NAMESPACES
+[@wpkernel/core](../README.md) / WPK_SUBSYSTEM_NAMESPACES
 
-# Variable: WPK\_SUBSYSTEM\_NAMESPACES
+# Variable: WPK_SUBSYSTEM_NAMESPACES
 
 ```ts
 const WPK_SUBSYSTEM_NAMESPACES: object;
@@ -25,7 +25,7 @@ readonly POLICY: "wpk.capability";
 
 Capability subsystem
 
-### POLICY\_CACHE
+### POLICY_CACHE
 
 ```ts
 readonly POLICY_CACHE: "wpk.capability.cache";

@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PipelineExtensionHook
+[@wpkernel/cli](../README.md) / PipelineExtensionHook
 
 # Type Alias: PipelineExtensionHook()
 
@@ -23,5 +23,5 @@ Represents a pipeline extension hook function.
 ## Returns
 
 `Promise`\&lt;
-  \| [`PipelineExtensionHookResult`](../interfaces/PipelineExtensionHookResult.md)
-  \| `void`\&gt;
+\| [`PipelineExtensionHookResult`](../interfaces/PipelineExtensionHookResult.md)
+\| `void`\&gt;

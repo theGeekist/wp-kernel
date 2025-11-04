@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/e2e-utils v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / WorkspaceTools
+[@wpkernel/e2e-utils](../README.md) / WorkspaceTools
 
 # Interface: WorkspaceTools
 
@@ -14,7 +14,7 @@
 readonly node: string;
 ```
 
-***
+---
 
 ### pnpm
 

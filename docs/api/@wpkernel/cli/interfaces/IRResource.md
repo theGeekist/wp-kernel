@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / IRResource
+[@wpkernel/cli](../README.md) / IRResource
 
 # Interface: IRResource
 
@@ -18,7 +18,7 @@ name: string;
 
 The name of the resource.
 
-***
+---
 
 ### schemaKey
 
@@ -28,7 +28,7 @@ schemaKey: string;
 
 The key of the schema associated with this resource.
 
-***
+---
 
 ### schemaProvenance
 
@@ -38,7 +38,7 @@ schemaProvenance: SchemaProvenance;
 
 The provenance of the schema.
 
-***
+---
 
 ### routes
 
@@ -48,7 +48,7 @@ routes: IRRoute[];
 
 An array of routes defined for this resource.
 
-***
+---
 
 ### cacheKeys
 
@@ -88,7 +88,7 @@ optional update: IRResourceCacheKey;
 optional remove: IRResourceCacheKey;
 ```
 
-***
+---
 
 ### hash
 
@@ -98,7 +98,7 @@ hash: string;
 
 A hash of the resource definition for change detection.
 
-***
+---
 
 ### warnings
 
@@ -108,7 +108,7 @@ warnings: IRWarning[];
 
 An array of warnings associated with this resource.
 
-***
+---
 
 ### identity?
 
@@ -118,7 +118,7 @@ optional identity: ResourceIdentityConfig;
 
 Optional: Identity configuration for the resource.
 
-***
+---
 
 ### storage?
 
@@ -128,7 +128,7 @@ optional storage: ResourceStorageConfig;
 
 Optional: Storage configuration for the resource.
 
-***
+---
 
 ### queryParams?
 
@@ -138,7 +138,7 @@ optional queryParams: ResourceQueryParams;
 
 Optional: Query parameters configuration for the resource.
 
-***
+---
 
 ### ui?
 

@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PipelineContext
+[@wpkernel/php-json-ast](../README.md) / PipelineContext
 
 # Interface: PipelineContext
 
@@ -14,7 +14,7 @@
 readonly workspace: Workspace;
 ```
 
-***
+---
 
 ### phase
 
@@ -22,7 +22,7 @@ readonly workspace: Workspace;
 readonly phase: PipelinePhase;
 ```
 
-***
+---
 
 ### reporter
 

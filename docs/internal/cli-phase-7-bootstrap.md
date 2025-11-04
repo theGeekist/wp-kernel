@@ -1,4 +1,4 @@
-# Phase 7 – Plugin bootstrap flow
+# Phase 7 - Plugin bootstrap flow
 
 _Phase reference: cli-mvp-plan.md_
 
@@ -14,7 +14,7 @@ Phase 7 closes the gaps that keep freshly scaffolded projects from activating im
 
 ## Patch breakdown
 
-### Patch 0.10.1 – Task 37: Register the bootstrap workspace (✓ Complete)
+### Patch 0.10.1 - Task 37: Register the bootstrap workspace (✓ Complete)
 
 Stand up the `@wpkernel/create-wpk` workspace so the monorepo can publish a `npm create` entry point. This patch:
 
@@ -24,7 +24,7 @@ Stand up the `@wpkernel/create-wpk` workspace so the monorepo can publish a `npm
 
 Any functionality beyond the scaffold-argument forwarding, telemetry hooks, documentation polish, or smoke coverage-lives in Task 38 so the workspace can publish independently before the proxy is wired up.
 
-### Patch 0.10.2 – Task 38: Wire the bootstrap proxy & smoke coverage (✓ Complete)
+### Patch 0.10.2 - Task 38: Wire the bootstrap proxy & smoke coverage (✓ Complete)
 
 Finish the bootstrapper by teaching it to invoke the CLI and verifying the flow end-to-end. Ship:
 
@@ -47,7 +47,7 @@ Adding telemetry requires instantiating the WPKernel reporter inside the bootstr
 
 For the smoke test, we need to stand up a temporary workspace (via `withWorkspace`) and spawn the compiled bootstrap binary while injecting the same `NODE_OPTIONS` loader that the existing `wpk-bin` integration test uses to resolve the PHP JSON AST shim.【F:packages/cli/tests/**tests**/wpk-bin.integration.test.ts†L1-L96】 Because `wpk create` installs npm and Composer dependencies unless `--skip-install` is forwarded, the test must assert that the proxy passes that flag through to avoid hitting external tooling and keep the suite hermetic.【F:packages/cli/src/commands/create.ts†L196-L244】 We also need to decide whether the test runs against `packages/create-wpk/dist/index.js` (requiring the workspace to build the package before Jest executes) or uses `tsx` to execute `src/index.ts` directly; either approach should be documented so contributors know which prerequisite the smoke test expects.【F:packages/create-wpk/package.json†L30-L52】【F:cli-mvp-plan.md†L170-L177】
 
-### Patch 0.10.3 – Task 39: Init adoption guardrails (✓ Complete)
+### Patch 0.10.3 - Task 39: Init adoption guardrails (✓ Complete)
 
 Make `wpk init` safe to run inside an existing plugin. The patch should:
 
@@ -60,7 +60,7 @@ Make `wpk init` safe to run inside an existing plugin. The patch should:
 
 Task 39 tags each init template as WPK-managed or author-owned inside the scaffold descriptors, teaches `assertNoCollisions()` to treat only WPK collisions as fatal, and updates `runInitWorkflow()` to detect composer autoload metadata and root-level plugin headers before deciding which files to skip. When guardrails trigger, the command now logs a consolidated summary of the detected assets and the skipped templates instead of aborting. Integration coverage exercises both a clean workspace and an existing plugin directory (with and without `--force`) so the new planner behaviour stays locked in as Phase 7 continues.
 
-### Patch 0.10.4 – Task 40: Bootstrap generator foundation (✓ Complete)
+### Patch 0.10.4 - Task 40: Bootstrap generator foundation (✓ Complete)
 
 Introduce the AST helper that creates the plugin loader without wiring it into generation yet. This work:
 
@@ -78,7 +78,7 @@ Task 40 introduces `buildPluginLoaderProgram` in `@wpkernel/wp-json-ast`, genera
 - **Generated hooks:** `get_kernel_controllers()` returns controller instances, `register_kernel_routes()` attaches them when they expose `register_routes()`, and `bootstrap_kernel()` wires the registration into `rest_api_init` before immediately invoking it.
 - **Safety markers:** the loader retains the `WPK:BEGIN AUTO` guard so later tasks can detect author overrides and only rewrite the generated section when untouched.
 
-### Patch 0.10.5 – Task 41: Generate/apply integration for the loader (✓ Complete)
+### Patch 0.10.5 - Task 41: Generate/apply integration for the loader (✓ Complete)
 
 Wire the helper into the pipeline so `wpk generate` and `wpk apply` manage the loader automatically. Deliver:
 
@@ -91,7 +91,7 @@ Wire the helper into the pipeline so `wpk generate` and `wpk apply` manage the l
 
 Task 41 now wires `createPhpPluginLoaderHelper()` into the PHP builder so `wpk generate` emits `plugin.php` alongside other AST artefacts and `.generated/php/index.php` automatically requires it. The apply planner stages loader updates in `.wpk/apply/plan.json`, cloning existing guard checks so author-owned loaders are skipped, while new patcher tests cover clean merges and conflict preservation. CLI integration coverage exercises a full `generate → apply` run and demonstrates that overriding the loader removes it from the plan without clobbering author edits.
 
-### Patch 0.10.6 – Task 42: Manifest persistence & deletion tracking (✓ Complete)
+### Patch 0.10.6 - Task 42: Manifest persistence & deletion tracking (✓ Complete)
 
 Teach the pipeline to remember previous generations so resource removals clean up after themselves. This patch:
 
@@ -104,7 +104,7 @@ Teach the pipeline to remember previous generations so resource removals clean u
 
 Task 42 now snapshots generation state to `.wpk/apply/state.json`, diffs each resource’s generated and shim artefacts, and removes any paths that vanish between runs-including cases where developers redirect `php.outputDir` or `php.autoload`. `wpk generate` prunes stale `.generated/php/**` files before committing, the apply plan surfaces `{ action: 'delete' }` records for obsolete shims, and the patcher records those removals so `wpk apply` deletes outdated loaders reliably. Integration coverage exercises both resource removal and path-mutation scenarios to guarantee future regressions surface immediately.
 
-### Patch 0.10.7 – Task 43: Apply cleanup & override safety (✓ Complete)
+### Patch 0.10.7 - Task 43: Apply cleanup & override safety (✓ Complete)
 
 Ensure the deletion path respects user code and surfaces diagnostics. Ship:
 
@@ -113,7 +113,7 @@ Ensure the deletion path respects user code and surfaces diagnostics. Ship:
 3. Targeted cleanup commands or helpers (if needed) that let authors manually prune legacy artefacts when automation skips them.
 4. Additional integration coverage that captures mixed scenarios (one resource removed cleanly, another retained due to overrides).
 
-### Patch 0.10.8 – Task 44: Activation smoke & docs alignment (✓ Complete)
+### Patch 0.10.8 - Task 44: Activation smoke & docs alignment (✓ Complete)
 
 Polish the author experience and documentation once the generator is stable. Deliver:
 
@@ -122,7 +122,7 @@ Polish the author experience and documentation once the generator is stable. Del
 3. Documentation updates across `packages/cli/docs` (index, MVP plan, migration briefs) and the README to reflect the turnkey workflow and the `npm create` entry point.
 4. Optional DX niceties (e.g. post-create tips) so authors know the next steps after activation.
 
-## Minor 0.11.0 – Task 45 (✓ Complete)
+## Minor 0.11.0 - Task 45 (✓ Complete)
 
 After patches 37-44 land, run the unified release checklist:
 

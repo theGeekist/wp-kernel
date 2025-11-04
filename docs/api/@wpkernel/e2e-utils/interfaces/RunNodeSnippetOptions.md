@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/e2e-utils v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / RunNodeSnippetOptions
+[@wpkernel/e2e-utils](../README.md) / RunNodeSnippetOptions
 
 # Interface: RunNodeSnippetOptions
 
@@ -18,7 +18,7 @@
 script: string;
 ```
 
-***
+---
 
 ### args?
 
@@ -26,7 +26,7 @@ script: string;
 optional args: string[];
 ```
 
-***
+---
 
 ### cwd?
 
@@ -37,10 +37,10 @@ optional cwd: string;
 #### Inherited from
 
 ```ts
-CliCommandOptions.cwd
+CliCommandOptions.cwd;
 ```
 
-***
+---
 
 ### env?
 
@@ -51,10 +51,10 @@ optional env: ProcessEnv;
 #### Inherited from
 
 ```ts
-CliCommandOptions.env
+CliCommandOptions.env;
 ```
 
-***
+---
 
 ### timeoutMs?
 
@@ -65,10 +65,10 @@ optional timeoutMs: number;
 #### Inherited from
 
 ```ts
-CliCommandOptions.timeoutMs
+CliCommandOptions.timeoutMs;
 ```
 
-***
+---
 
 ### stdin?
 
@@ -79,5 +79,5 @@ optional stdin: string;
 #### Inherited from
 
 ```ts
-CliCommandOptions.stdin
+CliCommandOptions.stdin;
 ```

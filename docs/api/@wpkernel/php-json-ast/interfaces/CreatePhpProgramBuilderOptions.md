@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / CreatePhpProgramBuilderOptions
+[@wpkernel/php-json-ast](../README.md) / CreatePhpProgramBuilderOptions
 
 # Interface: CreatePhpProgramBuilderOptions\&lt;TContext, TInput, TOutput\&gt;
 
@@ -14,15 +14,15 @@
 
 ### TContext
 
-`TContext` *extends* [`PipelineContext`](PipelineContext.md) = [`PipelineContext`](PipelineContext.md)
+`TContext` _extends_ [`PipelineContext`](PipelineContext.md) = [`PipelineContext`](PipelineContext.md)
 
 ### TInput
 
-`TInput` *extends* [`BuilderInput`](BuilderInput.md) = [`BuilderInput`](BuilderInput.md)
+`TInput` _extends_ [`BuilderInput`](BuilderInput.md) = [`BuilderInput`](BuilderInput.md)
 
 ### TOutput
 
-`TOutput` *extends* [`BuilderOutput`](BuilderOutput.md) = [`BuilderOutput`](BuilderOutput.md)
+`TOutput` _extends_ [`BuilderOutput`](BuilderOutput.md) = [`BuilderOutput`](BuilderOutput.md)
 
 ## Properties
 
@@ -32,7 +32,7 @@
 readonly key: string;
 ```
 
-***
+---
 
 ### filePath
 
@@ -40,7 +40,7 @@ readonly key: string;
 readonly filePath: string;
 ```
 
-***
+---
 
 ### namespace
 
@@ -48,7 +48,7 @@ readonly filePath: string;
 readonly namespace: string;
 ```
 
-***
+---
 
 ### metadata
 
@@ -56,7 +56,7 @@ readonly namespace: string;
 readonly metadata: PhpFileMetadata;
 ```
 
-***
+---
 
 ### build()
 
@@ -78,7 +78,7 @@ readonly build: (builder, entry) =&gt; void | Promise&lt;void&gt;;
 
 `void` \| `Promise`\&lt;`void`\&gt;
 
-***
+---
 
 ### dependsOn?
 
@@ -90,7 +90,7 @@ readonly optional dependsOn: readonly string[];
 
 [`CreateHelperOptions`](CreateHelperOptions.md).[`dependsOn`](CreateHelperOptions.md#dependson)
 
-***
+---
 
 ### mode?
 
@@ -102,7 +102,7 @@ readonly optional mode: HelperMode;
 
 [`CreateHelperOptions`](CreateHelperOptions.md).[`mode`](CreateHelperOptions.md#mode)
 
-***
+---
 
 ### priority?
 
@@ -114,7 +114,7 @@ readonly optional priority: number;
 
 [`CreateHelperOptions`](CreateHelperOptions.md).[`priority`](CreateHelperOptions.md#priority)
 
-***
+---
 
 ### origin?
 

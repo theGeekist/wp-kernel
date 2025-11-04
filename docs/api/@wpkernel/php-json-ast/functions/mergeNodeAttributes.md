@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / mergeNodeAttributes
+[@wpkernel/php-json-ast](../README.md) / mergeNodeAttributes
 
 # Function: mergeNodeAttributes()
 
@@ -19,7 +19,7 @@ otherwise, it returns the original node to ensure immutability where possible.
 
 ### T
 
-`T` *extends* [`PhpNode`](../interfaces/PhpNode.md)
+`T` _extends_ [`PhpNode`](../interfaces/PhpNode.md)
 
 ## Parameters
 

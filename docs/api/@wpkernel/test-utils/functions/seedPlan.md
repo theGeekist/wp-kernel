@@ -1,15 +1,15 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/test-utils v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / seedPlan
+[@wpkernel/test-utils](../README.md) / seedPlan
 
 # Function: seedPlan()
 
 ```ts
 function seedPlan(
-   workspace, 
-   file, 
+   workspace,
+   file,
 options): Promise&lt;void&gt;;
 ```
 

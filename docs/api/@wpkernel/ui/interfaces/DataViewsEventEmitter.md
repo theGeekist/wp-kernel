@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/ui v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / DataViewsEventEmitter
+[@wpkernel/ui](../README.md) / DataViewsEventEmitter
 
 # Interface: DataViewsEventEmitter
 
@@ -24,7 +24,7 @@ registered: (payload) =&gt; void;
 
 `void`
 
-***
+---
 
 ### unregistered()
 
@@ -42,7 +42,7 @@ unregistered: (payload) =&gt; void;
 
 `void`
 
-***
+---
 
 ### viewChanged()
 
@@ -60,7 +60,7 @@ viewChanged: (payload) =&gt; void;
 
 `void`
 
-***
+---
 
 ### actionTriggered()
 

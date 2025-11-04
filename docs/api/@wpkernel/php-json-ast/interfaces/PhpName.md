@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpName
+[@wpkernel/php-json-ast](../README.md) / PhpName
 
 # Interface: PhpName
 
@@ -24,7 +24,7 @@ readonly nodeType: "Name" | "Name_FullyQualified" | "Name_Relative";
 
 [`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
 
-***
+---
 
 ### parts
 
@@ -32,7 +32,7 @@ readonly nodeType: "Name" | "Name_FullyQualified" | "Name_Relative";
 readonly parts: string[];
 ```
 
-***
+---
 
 ### attributes
 

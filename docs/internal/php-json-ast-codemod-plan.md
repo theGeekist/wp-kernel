@@ -55,7 +55,7 @@ This roadmap captures how `@wpkernel/php-json-ast` can evolve now that `nikic/ph
 
 ##### Task 4 - Register codemod stacks through the driver
 
-> **Task status:** Complete – Codemod stacks now flow from TypeScript helpers into the PHP ingestion driver with validation and tests.
+> **Task status:** Complete - Codemod stacks now flow from TypeScript helpers into the PHP ingestion driver with validation and tests.
 
 - The new [`driver/codemods.ts`](../src/driver/codemods.ts) module defines the `PhpCodemodConfiguration` contract, a default stack key, and helpers to serialise configuration payloads for the PHP bridge. The helper suite is covered in [`driver/codemods.test.ts`](../src/__tests__/driver/codemods.test.ts).
 - [`php/ingest-program.php`](../php/ingest-program.php) now accepts an optional `--config <path>` argument. When provided, it resolves and validates the declared stacks, instantiates supported visitors (starting with the upstream `NameResolver`), and runs them through a single `NodeTraverser` pass before emitting AST payloads.
@@ -64,7 +64,7 @@ This roadmap captures how `@wpkernel/php-json-ast` can evolve now that `nikic/ph
 
 ##### Task 5 - Ship a baseline codemod pack
 
-> **Task status:** Complete – Baseline visitors for name canonicalisation and `use` grouping now ship with fixtures and end-to-end coverage.
+> **Task status:** Complete - Baseline visitors for name canonicalisation and `use` grouping now ship with fixtures and end-to-end coverage.
 
 - `php/Codemods/BaselineNameCanonicaliserVisitor.php` wraps PhpParser's `NameResolver` with sane defaults, while `SortUseStatementsVisitor.php` reorders class, function, and constant imports (including grouped declarations) deterministically.
 - The new [`createBaselineCodemodConfiguration`](../src/codemods/baselinePack.ts) helper emits stack definitions targeting the baseline visitors, and `ProgramIngestionTest` plus the ingestion integration suite assert both AST and pretty-printed output against [`fixtures/codemods/BaselinePack.*`](../fixtures/codemods).
@@ -73,7 +73,7 @@ This roadmap captures how `@wpkernel/php-json-ast` can evolve now that `nikic/ph
 
 ##### Task 6 - Snapshot codemod outcomes for observability
 
-> **Task status:** Complete – Codemod executions now emit before/after snapshots with reviewer-facing summaries.
+> **Task status:** Complete - Codemod executions now emit before/after snapshots with reviewer-facing summaries.
 
 - The PHP ingestion bridge records codemod diagnostics (pre/post programs plus visitor stack metadata) whenever the driver applies a stack from `serialisePhpCodemodConfiguration`.
 - `createPhpProgramWriterHelper` persists `.codemod.before.ast.json`, `.codemod.after.ast.json`, and `.codemod.summary.txt` alongside the standard `.ast.json` file. The summary includes visitor identifiers, SHA hashes for each AST, and the first twenty structural differences so reviewers can triage changes without re-running the driver.
@@ -89,7 +89,7 @@ This roadmap captures how `@wpkernel/php-json-ast` can evolve now that `nikic/ph
 
 ##### Task 1 - Establish the parser ingestion bridge
 
-> **Task status:** Complete – Delivered by [`php/ingest-program.php`](../php/ingest-program.php) with fixtures covered in [`php/tests/ProgramIngestionTest.php`](../php/tests/ProgramIngestionTest.php).
+> **Task status:** Complete - Delivered by [`php/ingest-program.php`](../php/ingest-program.php) with fixtures covered in [`php/tests/ProgramIngestionTest.php`](../php/tests/ProgramIngestionTest.php).
 
 - Expose a PHP entry point that accepts file paths, routes them through `ParserFactory`, and streams each decoded node as JSON that already matches our `PhpProgram` surface.
 - Keep the script co-located with the existing driver helpers so the CLI can reuse bootstrap logic (autoloading, binary overrides, temporary output paths) without branching.
@@ -98,7 +98,7 @@ This roadmap captures how `@wpkernel/php-json-ast` can evolve now that `nikic/ph
 
 ##### Task 2 - Land the TypeScript ingestion helper
 
-> **Task status:** Complete – The helper and its end-to-end coverage are green.
+> **Task status:** Complete - The helper and its end-to-end coverage are green.
 
 - Add a consumer under `src/driver/**` that accepts the streamed JSON, hydrates `PhpProgram` builders, and forwards them to `createPhpProgramWriterHelper` with zero manual mapping.
 - Provide Jest coverage that feeds representative payloads through the helper and asserts the writer flushes identical `.php` and `.ast.json` artefacts.
@@ -108,7 +108,7 @@ This roadmap captures how `@wpkernel/php-json-ast` can evolve now that `nikic/ph
 
 ##### Task 3 - Capture ingestion fixtures and snapshots
 
-> **Task status:** Complete – Shared fixtures anchor cross-runtime snapshots and round-trip validation.
+> **Task status:** Complete - Shared fixtures anchor cross-runtime snapshots and round-trip validation.
 
 - Introduce fixtures covering namespaces, class modifiers, doc comments, and attributes inside `fixtures/ingestion/**`.
 - Snapshot the fixture round-trip in both PHPUnit and Jest to confirm attribute fidelity across the PHP ↔ TypeScript boundary.
@@ -122,7 +122,7 @@ This roadmap captures how `@wpkernel/php-json-ast` can evolve now that `nikic/ph
 
 ##### Task 7 - Expose `NodeFinder` query endpoints
 
-> **Task status:** Complete – Baseline queries now execute through PHP and surface structured results to TypeScript helpers.
+> **Task status:** Complete - Baseline queries now execute through PHP and surface structured results to TypeScript helpers.
 
 - `php/query-nodefinder.php` implements the read-only query command, wiring `PhpParser\NodeFinder` to the initial catalog (`class.readonly-properties`, `constructor.promoted-parameters`, `enum.case-lookups`) and emitting labelled JSON payloads per file.
 - The TypeScript helper in [`queries/nodeFinder.ts`](../src/queries/nodeFinder.ts) defines the configuration/result schema, offers serialization utilities, and exposes the curated query keys to downstream tooling.
@@ -131,7 +131,7 @@ This roadmap captures how `@wpkernel/php-json-ast` can evolve now that `nikic/ph
 
 ##### Task 8 - Layer diagnostics and dumps
 
-> **Task status:** Complete – Diagnostics mode now persists NodeDumper dumps with cross-runtime toggles and regression coverage.
+> **Task status:** Complete - Diagnostics mode now persists NodeDumper dumps with cross-runtime toggles and regression coverage.
 
 - `persistCodemodDiagnostics` writes `.codemod.before.dump.txt` and `.codemod.after.dump.txt` alongside the existing JSON snapshots, normalising trailing newlines so automation can diff the results consistently.
 - `php/ingest-program.php` accepts a `--diagnostics` flag and recognises `diagnostics.nodeDumps` in codemod configuration files. When enabled, codemod executions capture NodeDumper output (including flags, attributes, and replacements) for both the pre- and post-visitor trees.
@@ -140,7 +140,7 @@ This roadmap captures how `@wpkernel/php-json-ast` can evolve now that `nikic/ph
 
 ##### Task 9 - Prototype generation helpers with `BuilderFactory`
 
-> **Task status:** Complete – Intent-driven generation flows now round-trip through PHP and TypeScript with fixture-backed parity.
+> **Task status:** Complete - Intent-driven generation flows now round-trip through PHP and TypeScript with fixture-backed parity.
 
 - `php/generate-builderfactory.php` accepts intent manifests, feeds them through `BuilderFactory`, and emits ready-to-queue `PhpProgram` payloads (declare + namespace) without manual wiring.
 - TypeScript surfaces the shared schema in [`generation/builderFactory.ts`](../src/generation/builderFactory.ts), including literal/argument helpers so pipelines can author intents ergonomically.
@@ -155,7 +155,7 @@ This roadmap captures how `@wpkernel/php-json-ast` can evolve now that `nikic/ph
 
 ##### Task 10 - Wire codemods into the CLI build pipeline
 
-> **Task status:** Pending – Capture CLI integration notes and regression coverage when this work is complete.
+> **Task status:** Pending - Capture CLI integration notes and regression coverage when this work is complete.
 
 - Teach the CLI builders to invoke the codemod driver when feature flags or project config requests it.
 - Ensure pipeline options (PHP binary overrides, diagnostics toggles) thread cleanly from CLI configuration to the driver.
@@ -164,7 +164,7 @@ This roadmap captures how `@wpkernel/php-json-ast` can evolve now that `nikic/ph
 
 ##### Task 11 - Add end-to-end codemod regression coverage
 
-> **Task status:** Pending – Record regression suite scope, fixtures, and failure-path handling post-delivery.
+> **Task status:** Pending - Record regression suite scope, fixtures, and failure-path handling post-delivery.
 
 - Author integration tests that queue a migration, execute the codemod, and snapshot the resulting PHP + AST outputs.
 - Include failure-path coverage (visitor throwing, diagnostics enabled) to ensure the CLI reports actionable errors.
@@ -173,7 +173,7 @@ This roadmap captures how `@wpkernel/php-json-ast` can evolve now that `nikic/ph
 
 ##### Task 12 - Document rollout and contributor workflows
 
-> **Task status:** Pending – Summarise documentation updates, migration notes, and contributor guidance once published.
+> **Task status:** Pending - Summarise documentation updates, migration notes, and contributor guidance once published.
 
 - Update CLI docs, READMEs, and this plan with instructions for enabling codemods, selecting visitor packs, and reading diagnostics.
 - Add troubleshooting guidance covering PHP version targeting, binary overrides, and snapshot diffs.

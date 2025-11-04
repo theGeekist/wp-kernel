@@ -1,16 +1,16 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / CapabilityMapEntry
+[@wpkernel/cli](../README.md) / CapabilityMapEntry
 
 # Type Alias: CapabilityMapEntry
 
 ```ts
-type CapabilityMapEntry = 
-  | string
-  | CapabilityCapabilityDescriptor
-  | CapabilityMapFunction;
+type CapabilityMapEntry =
+	| string
+	| CapabilityCapabilityDescriptor
+	| CapabilityMapFunction;
 ```
 
 Represents a single entry in the capability map.

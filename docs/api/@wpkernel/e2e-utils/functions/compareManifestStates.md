@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/e2e-utils v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / compareManifestStates
+[@wpkernel/e2e-utils](../README.md) / compareManifestStates
 
 # Function: compareManifestStates()
 
@@ -32,7 +32,7 @@ which can then be compared against a previous state to detect changes.
 ## Returns
 
 `Promise`\&lt;\{
-  `before`: [`FileManifest`](../interfaces/FileManifest.md);
-  `after`: [`FileManifest`](../interfaces/FileManifest.md);
-  `diff`: [`FileManifestDiff`](../interfaces/FileManifestDiff.md);
+`before`: [`FileManifest`](../interfaces/FileManifest.md);
+`after`: [`FileManifest`](../interfaces/FileManifest.md);
+`diff`: [`FileManifestDiff`](../interfaces/FileManifestDiff.md);
 \}\&gt;

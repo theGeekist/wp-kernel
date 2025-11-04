@@ -25,9 +25,9 @@ _Referenced from:_
 
 **Deliverables**
 
-1. **Lifecycle mapping** – Document each lifecycle responsibility (config validation, reporter wiring, context assembly, lifecycle emission, registry bookkeeping) and represent them as helper descriptors under `packages/core/src/pipeline/helpers/**`. All helper factories or extensions that integrate with the pipeline must use the `create*` prefix; reserve other verbs such as `build` or `make` for non-pipeline utilities.
-2. **Typed bridge utilities** – Extend or wrap `packages/core/src/pipeline/createPipeline.ts` only where absolutely required so helpers can forward diagnostics, invoke commit/rollback hooks, and stay under the 500 SLOC/module threshold. Prefer additional exported helpers over nested logic to preserve low complexity and early returns.
-3. **Test scaffolding** – Add new `*.test-support.ts` builders in `packages/test-utils/core` that can instantiate the action and resource pipelines with reporter/workspace doubles. Export these helpers for direct unit coverage, and keep each helper/test module ≤500 SLOC.
+1. **Lifecycle mapping** - Document each lifecycle responsibility (config validation, reporter wiring, context assembly, lifecycle emission, registry bookkeeping) and represent them as helper descriptors under `packages/core/src/pipeline/helpers/**`. All helper factories or extensions that integrate with the pipeline must use the `create*` prefix; reserve other verbs such as `build` or `make` for non-pipeline utilities.
+2. **Typed bridge utilities** - Extend or wrap `packages/core/src/pipeline/createPipeline.ts` only where absolutely required so helpers can forward diagnostics, invoke commit/rollback hooks, and stay under the 500 SLOC/module threshold. Prefer additional exported helpers over nested logic to preserve low complexity and early returns.
+3. **Test scaffolding** - Add new `*.test-support.ts` builders in `packages/test-utils/core` that can instantiate the action and resource pipelines with reporter/workspace doubles. Export these helpers for direct unit coverage, and keep each helper/test module ≤500 SLOC.
 
 **Implementation guidance**
 
@@ -41,7 +41,7 @@ When the scaffolding lands, update `packages/core/src/actions/__tests__/defineAc
 
 **Completion placeholder**
 
-- [x] Task 32 complete – PR pending (2024-05-09)
+- [x] Task 32 complete - PR pending (2024-05-09)
 
 ---
 
@@ -59,10 +59,10 @@ _Referenced from:_
 
 **Deliverables**
 
-1. **Helper implementation** – ✓ Added verb-driven helpers for every action responsibility: `createActionOptionsResolver`, `createActionContextAssembler`, `createActionLifecycleFragment`, `createActionExecutionBuilder`, `createActionRegistryRecorder`, plus the focused `createActionErrorNormaliser`/`createActionRegistryBridge` utilities. Each helper is exported, capped below the 500 SLOC guideline, and covered by unit tests.
-2. **Pipeline orchestration** – ✓ `createActionPipeline` now registers the full helper catalogue and threads namespace, registry bridges, and definition metadata through a typed `ActionPipelineContext`. `defineAction` invokes the pipeline within the returned callable and delegates registry/event bus recording to the new bridge helper.
-3. **Parity coverage** – ✓ Expanded the pipeline integration suite to assert registry bookkeeping, lifecycle emission, and error normalisation while retaining the legacy behaviour checks. Helper-specific tests validate ordering, error paths, and reporter wiring.
-4. **Coverage instrumentation** – ✓ Updated `@wpkernel/test-utils/core` harnesses and action tests to exercise helper sequencing, and added targeted unit suites so new helpers remain under direct scrutiny without introducing `create*` misuses.
+1. **Helper implementation** - ✓ Added verb-driven helpers for every action responsibility: `createActionOptionsResolver`, `createActionContextAssembler`, `createActionLifecycleFragment`, `createActionExecutionBuilder`, `createActionRegistryRecorder`, plus the focused `createActionErrorNormaliser`/`createActionRegistryBridge` utilities. Each helper is exported, capped below the 500 SLOC guideline, and covered by unit tests.
+2. **Pipeline orchestration** - ✓ `createActionPipeline` now registers the full helper catalogue and threads namespace, registry bridges, and definition metadata through a typed `ActionPipelineContext`. `defineAction` invokes the pipeline within the returned callable and delegates registry/event bus recording to the new bridge helper.
+3. **Parity coverage** - ✓ Expanded the pipeline integration suite to assert registry bookkeeping, lifecycle emission, and error normalisation while retaining the legacy behaviour checks. Helper-specific tests validate ordering, error paths, and reporter wiring.
+4. **Coverage instrumentation** - ✓ Updated `@wpkernel/test-utils/core` harnesses and action tests to exercise helper sequencing, and added targeted unit suites so new helpers remain under direct scrutiny without introducing `create*` misuses.
 
 **Implementation guidance**
 
@@ -97,7 +97,7 @@ Retain the legacy parity tests until the pipeline path proves stable across the 
 
 **Completion placeholder**
 
-- [x] Task 33 complete – PR pending (2024-05-10)
+- [x] Task 33 complete - PR pending (2024-05-10)
 
 ---
 
@@ -115,15 +115,15 @@ _Referenced from:_
 
 **Deliverables**
 
-1. **Helper catalogue** – Build fragments for namespace parsing, reporter resolution, config validation, client fabrication, cache key derivation, and grouped API assembly. Adhere to the naming constraint that pipeline helpers use the `create*` prefix, export each helper, and keep individual modules ≤500 SLOC with early-return control flow.
-2. **Side-effect orchestration** – Introduce builders that manage lazy store registration and BroadcastChannel event emission so side effects run deterministically via pipeline commit hooks. Cover rollback scenarios to guarantee clean failure handling.
-3. **`defineResource` integration** – Update the public entry point to execute the pipeline while preserving TypeScript typings and runtime behaviour. Provide a clear migration path from the feature flag introduced in Task 32.
-4. **Regression coverage** – Extend tests to validate reporter messages, cache key generation, grouped API getters, and store registration across Node and browser mocks. Where necessary, refactor oversized fixtures to honour the ≤500 SLOC guideline.
-5. **Dual-mode execution** – Allow `run` to resolve synchronously when helpers and extensions stay synchronous, while automatically returning a promise once asynchronous work appears so resource definitions can complete during module evaluation without a separate entry point.
+1. **Helper catalogue** - Build fragments for namespace parsing, reporter resolution, config validation, client fabrication, cache key derivation, and grouped API assembly. Adhere to the naming constraint that pipeline helpers use the `create*` prefix, export each helper, and keep individual modules ≤500 SLOC with early-return control flow.
+2. **Side-effect orchestration** - Introduce builders that manage lazy store registration and BroadcastChannel event emission so side effects run deterministically via pipeline commit hooks. Cover rollback scenarios to guarantee clean failure handling.
+3. **`defineResource` integration** - Update the public entry point to execute the pipeline while preserving TypeScript typings and runtime behaviour. Provide a clear migration path from the feature flag introduced in Task 32.
+4. **Regression coverage** - Extend tests to validate reporter messages, cache key generation, grouped API getters, and store registration across Node and browser mocks. Where necessary, refactor oversized fixtures to honour the ≤500 SLOC guideline.
+5. **Dual-mode execution** - Allow `run` to resolve synchronously when helpers and extensions stay synchronous, while automatically returning a promise once asynchronous work appears so resource definitions can complete during module evaluation without a separate entry point.
 
 **Completion placeholder**
 
-- [x] Task 34 complete – PR pending (2024-05-05)
+- [x] Task 34 complete - PR pending (2024-05-05)
 
 ---
 
@@ -141,16 +141,16 @@ _Referenced from:_
 
 **Deliverables**
 
-1. **Legacy retirement** – Delete the remaining legacy orchestration shims and their parity tests so `defineAction`/`defineResource` only execute through the pipeline. Verify that helper entry points comply with the reserved `create*` cadence for pipeline helpers and rename any stragglers before closing the task.
-2. **Reporter integration** – Wire pipeline diagnostics into the core reporter so missing or unused helpers surface actionable warnings. Keep reporter adapters ≤500 SLOC and expose helper functions for direct testing.
-3. **Interactivity bridge** – Ship a concrete `defineInteraction` helper under `@wpkernel/core/interactivity` that wraps `@wordpress/interactivity`. Reserve namespaces under the `wpk/<resource>/<feature>` pattern, bind store actions to the pipeline-aware `invokeAction`, and synchronise `getServerState()` payloads with resource caches. Capture installation notes for `@wordpress/interactivity` (or equivalent mocks) inside the test harness so the helper can be exercised in unit suites before wiring it into documentation.
-4. **Rollback validation** – Simulate helper failures to exercise commit/rollback hooks. Confirm pipelines unwind side effects cleanly and update tests to guard against regressions.
-5. **Configuration cleanup** – Sweep configuration objects, helpers, and documentation for stale guard references. Confirm the runtime no longer accepts a pipeline toggle and that public configuration types reflect the simplified surface.
-6. **Documentation sweep** – Refresh `cli-index.md`, `cli-migration-phases.md`, this phase document, and affected READMEs with guidance on extending pipelines, the reserved `create*` prefix, and the WPK naming cadence. Include references to the new `defineInteraction` helper, how it composes with generated actions/resources, and the expectation that Phase 8 adds CLI scaffolding hooks.
+1. **Legacy retirement** - Delete the remaining legacy orchestration shims and their parity tests so `defineAction`/`defineResource` only execute through the pipeline. Verify that helper entry points comply with the reserved `create*` cadence for pipeline helpers and rename any stragglers before closing the task.
+2. **Reporter integration** - Wire pipeline diagnostics into the core reporter so missing or unused helpers surface actionable warnings. Keep reporter adapters ≤500 SLOC and expose helper functions for direct testing.
+3. **Interactivity bridge** - Ship a concrete `defineInteraction` helper under `@wpkernel/core/interactivity` that wraps `@wordpress/interactivity`. Reserve namespaces under the `wpk/<resource>/<feature>` pattern, bind store actions to the pipeline-aware `invokeAction`, and synchronise `getServerState()` payloads with resource caches. Capture installation notes for `@wordpress/interactivity` (or equivalent mocks) inside the test harness so the helper can be exercised in unit suites before wiring it into documentation.
+4. **Rollback validation** - Simulate helper failures to exercise commit/rollback hooks. Confirm pipelines unwind side effects cleanly and update tests to guard against regressions.
+5. **Configuration cleanup** - Sweep configuration objects, helpers, and documentation for stale guard references. Confirm the runtime no longer accepts a pipeline toggle and that public configuration types reflect the simplified surface.
+6. **Documentation sweep** - Refresh `cli-index.md`, `cli-migration-phases.md`, this phase document, and affected READMEs with guidance on extending pipelines, the reserved `create*` prefix, and the WPK naming cadence. Include references to the new `defineInteraction` helper, how it composes with generated actions/resources, and the expectation that Phase 8 adds CLI scaffolding hooks.
 
 **Completion placeholder**
 
-- [x] Task 35 complete – captured in the Phase 6 diagnostics polish roll-up for the 0.10.0 release (2025-11-05).
+- [x] Task 35 complete - captured in the Phase 6 diagnostics polish roll-up for the 0.10.0 release (2025-11-05).
 
 ---
 
@@ -168,14 +168,14 @@ _Referenced from:_
 
 **Deliverables**
 
-1. **Release readiness** – Confirm the pipeline-only orchestration remains stable, helper modules honour the reserved `create*` naming cadence, the new `defineInteraction` helper composes correctly with generated actions/resources, and module/test files stay within the ≤500 SLOC target.
-2. **Full validation** – Run monorepo checks (`pnpm lint --fix`, `pnpm typecheck`, `pnpm typecheck:tests`, `pnpm test`, plus targeted core/cli suites) and capture artefacts for release notes. Address any helper naming violations discovered during the sweep.
-3. **Changelog rollup** – Update root and package changelogs with the phase summary, referencing updated CLI documentation and this spec. Call out the pipeline naming convention, diagnostics improvements, and the WPK-first vocabulary for future contributors.
-4. **Release PR** – Publish the release PR via the established template, highlighting parity validation, diagnostics improvements, and the enforcement of low-complexity helper design.
+1. **Release readiness** - Confirm the pipeline-only orchestration remains stable, helper modules honour the reserved `create*` naming cadence, the new `defineInteraction` helper composes correctly with generated actions/resources, and module/test files stay within the ≤500 SLOC target.
+2. **Full validation** - Run monorepo checks (`pnpm lint --fix`, `pnpm typecheck`, `pnpm typecheck:tests`, `pnpm test`, plus targeted core/cli suites) and capture artefacts for release notes. Address any helper naming violations discovered during the sweep.
+3. **Changelog rollup** - Update root and package changelogs with the phase summary, referencing updated CLI documentation and this spec. Call out the pipeline naming convention, diagnostics improvements, and the WPK-first vocabulary for future contributors.
+4. **Release PR** - Publish the release PR via the established template, highlighting parity validation, diagnostics improvements, and the enforcement of low-complexity helper design.
 
 **Completion placeholder**
 
-- [x] Task 36 complete – 0.10.0 release PR published with full pipeline validation (2025-11-05).
+- [x] Task 36 complete - 0.10.0 release PR published with full pipeline validation (2025-11-05).
 
 ---
 

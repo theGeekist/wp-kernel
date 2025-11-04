@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/ui v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / QueryMapping
+[@wpkernel/ui](../README.md) / QueryMapping
 
 # Type Alias: QueryMapping()\&lt;TQuery\&gt;
 

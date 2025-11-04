@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ResourceQueryParamDescriptor
+[@wpkernel/core](../README.md) / ResourceQueryParamDescriptor
 
 # Type Alias: ResourceQueryParamDescriptor
 
@@ -19,10 +19,10 @@ Used by tooling to generate REST argument metadata.
 ### type
 
 ```ts
-type: "string" | "enum";
+type: 'string' | 'enum';
 ```
 
-***
+---
 
 ### optional?
 
@@ -30,7 +30,7 @@ type: "string" | "enum";
 optional optional: boolean;
 ```
 
-***
+---
 
 ### enum?
 
@@ -38,7 +38,7 @@ optional optional: boolean;
 optional enum: readonly string[];
 ```
 
-***
+---
 
 ### description?
 

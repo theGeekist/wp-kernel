@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpExprInstanceof
+[@wpkernel/php-json-ast](../README.md) / PhpExprInstanceof
 
 # Interface: PhpExprInstanceof
 
@@ -24,7 +24,7 @@ readonly nodeType: "Expr_Instanceof";
 
 [`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
 
-***
+---
 
 ### expr
 
@@ -32,7 +32,7 @@ readonly nodeType: "Expr_Instanceof";
 readonly expr: PhpExpr;
 ```
 
-***
+---
 
 ### class
 
@@ -40,7 +40,7 @@ readonly expr: PhpExpr;
 readonly class: PhpExpr | PhpName;
 ```
 
-***
+---
 
 ### attributes
 

@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / DelimitedLinesResult
+[@wpkernel/php-json-ast](../README.md) / DelimitedLinesResult
 
 # Interface: DelimitedLinesResult
 
@@ -14,7 +14,7 @@
 readonly remaining: string;
 ```
 
-***
+---
 
 ### lines
 

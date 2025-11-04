@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / CheckPhpEnvironmentOptions
+[@wpkernel/cli](../README.md) / CheckPhpEnvironmentOptions
 
 # Interface: CheckPhpEnvironmentOptions
 
@@ -16,7 +16,7 @@ Options for checking PHP environment.
 readonly reporter: Reporter;
 ```
 
-***
+---
 
 ### workspaceRoot?
 

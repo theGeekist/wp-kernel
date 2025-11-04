@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpMatchArm
+[@wpkernel/php-json-ast](../README.md) / PhpMatchArm
 
 # Interface: PhpMatchArm
 
@@ -24,7 +24,7 @@ readonly nodeType: "MatchArm";
 
 [`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
 
-***
+---
 
 ### conds
 
@@ -32,7 +32,7 @@ readonly nodeType: "MatchArm";
 readonly conds: PhpExpr[] | null;
 ```
 
-***
+---
 
 ### body
 
@@ -40,7 +40,7 @@ readonly conds: PhpExpr[] | null;
 readonly body: PhpExpr;
 ```
 
-***
+---
 
 ### attributes
 

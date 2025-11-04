@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / HelperDescriptor
+[@wpkernel/php-json-ast](../README.md) / HelperDescriptor
 
 # Interface: HelperDescriptor\&lt;TKind\&gt;
 
@@ -14,7 +14,7 @@
 
 ### TKind
 
-`TKind` *extends* [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
+`TKind` _extends_ [`HelperKind`](../type-aliases/HelperKind.md) = [`HelperKind`](../type-aliases/HelperKind.md)
 
 ## Properties
 
@@ -24,7 +24,7 @@
 readonly key: string;
 ```
 
-***
+---
 
 ### kind
 
@@ -32,7 +32,7 @@ readonly key: string;
 readonly kind: TKind;
 ```
 
-***
+---
 
 ### mode
 
@@ -40,7 +40,7 @@ readonly kind: TKind;
 readonly mode: HelperMode;
 ```
 
-***
+---
 
 ### priority
 
@@ -48,7 +48,7 @@ readonly mode: HelperMode;
 readonly priority: number;
 ```
 
-***
+---
 
 ### dependsOn
 
@@ -56,7 +56,7 @@ readonly priority: number;
 readonly dependsOn: readonly string[];
 ```
 
-***
+---
 
 ### origin?
 

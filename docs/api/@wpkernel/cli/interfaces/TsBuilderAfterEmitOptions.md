@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / TsBuilderAfterEmitOptions
+[@wpkernel/cli](../README.md) / TsBuilderAfterEmitOptions
 
 # Interface: TsBuilderAfterEmitOptions
 
@@ -18,7 +18,7 @@ readonly emitted: readonly string[];
 
 A list of file paths that were emitted.
 
-***
+---
 
 ### workspace
 
@@ -28,7 +28,7 @@ readonly workspace: Workspace;
 
 The workspace instance.
 
-***
+---
 
 ### reporter
 

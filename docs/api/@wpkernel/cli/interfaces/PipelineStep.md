@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PipelineStep
+[@wpkernel/cli](../README.md) / PipelineStep
 
 # Interface: PipelineStep
 
@@ -22,7 +22,7 @@ readonly id: string;
 
 A unique identifier for the step.
 
-***
+---
 
 ### index
 
@@ -32,7 +32,7 @@ readonly index: number;
 
 The execution order of the step.
 
-***
+---
 
 ### key
 
@@ -44,7 +44,7 @@ readonly key: string;
 
 [`HelperDescriptor`](HelperDescriptor.md).[`key`](HelperDescriptor.md#key)
 
-***
+---
 
 ### kind
 
@@ -56,7 +56,7 @@ readonly kind: HelperKind;
 
 [`HelperDescriptor`](HelperDescriptor.md).[`kind`](HelperDescriptor.md#kind)
 
-***
+---
 
 ### mode
 
@@ -68,7 +68,7 @@ readonly mode: HelperMode;
 
 [`HelperDescriptor`](HelperDescriptor.md).[`mode`](HelperDescriptor.md#mode)
 
-***
+---
 
 ### priority
 
@@ -80,7 +80,7 @@ readonly priority: number;
 
 [`HelperDescriptor`](HelperDescriptor.md).[`priority`](HelperDescriptor.md#priority)
 
-***
+---
 
 ### dependsOn
 
@@ -92,7 +92,7 @@ readonly dependsOn: readonly string[];
 
 [`HelperDescriptor`](HelperDescriptor.md).[`dependsOn`](HelperDescriptor.md#dependson)
 
-***
+---
 
 ### origin?
 

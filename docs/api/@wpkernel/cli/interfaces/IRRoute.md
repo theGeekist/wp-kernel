@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / IRRoute
+[@wpkernel/cli](../README.md) / IRRoute
 
 # Interface: IRRoute
 
@@ -18,7 +18,7 @@ method: string;
 
 The HTTP method of the route (e.g., 'GET', 'POST').
 
-***
+---
 
 ### path
 
@@ -28,7 +28,7 @@ path: string;
 
 The URL path of the route.
 
-***
+---
 
 ### hash
 
@@ -38,7 +38,7 @@ hash: string;
 
 A hash of the route definition for change detection.
 
-***
+---
 
 ### transport
 
@@ -48,7 +48,7 @@ transport: IRRouteTransport;
 
 The transport mechanism for the route (local or remote).
 
-***
+---
 
 ### capability?
 

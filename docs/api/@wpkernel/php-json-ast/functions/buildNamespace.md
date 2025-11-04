@@ -1,16 +1,13 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / buildNamespace
+[@wpkernel/php-json-ast](../README.md) / buildNamespace
 
 # Function: buildNamespace()
 
 ```ts
-function buildNamespace(
-   name, 
-   stmts, 
-   attributes?): PhpStmtNamespace;
+function buildNamespace(name, stmts, attributes?): PhpStmtNamespace;
 ```
 
 Builds a PHP namespace statement node.

@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/test-utils v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / assignCommandContext
+[@wpkernel/test-utils](../README.md) / assignCommandContext
 
 # Function: assignCommandContext()
 
@@ -16,7 +16,7 @@ Assigns a newly created command context to an existing command object.
 
 ### T
 
-`T` *extends* `object`
+`T` _extends_ `object`
 
 ## Parameters
 

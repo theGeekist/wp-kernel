@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / AdaptersConfig
+[@wpkernel/cli](../README.md) / AdaptersConfig
 
 # Interface: AdaptersConfig
 
@@ -16,7 +16,7 @@ Optional adapters configured by a kernel project.
 optional php: PhpAdapterFactory;
 ```
 
-***
+---
 
 ### extensions?
 

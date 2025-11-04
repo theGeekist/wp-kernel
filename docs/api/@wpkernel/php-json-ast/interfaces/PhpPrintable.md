@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpPrintable
+[@wpkernel/php-json-ast](../README.md) / PhpPrintable
 
 # Interface: PhpPrintable\&lt;TNode\&gt;
 
@@ -20,7 +20,7 @@
 readonly node: TNode;
 ```
 
-***
+---
 
 ### lines
 

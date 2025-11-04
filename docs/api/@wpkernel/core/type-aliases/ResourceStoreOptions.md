@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ResourceStoreOptions
+[@wpkernel/core](../README.md) / ResourceStoreOptions
 
 # Type Alias: ResourceStoreOptions\&lt;T, TQuery\&gt;
 
@@ -64,7 +64,7 @@ Defaults to (item) =&gt; item.id
 
 `string` \| `number`
 
-***
+---
 
 ### getQueryKey()?
 
@@ -85,7 +85,7 @@ Defaults to JSON.stringify
 
 `string`
 
-***
+---
 
 ### initialState?
 

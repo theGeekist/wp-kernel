@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/ui v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / NormalizedDataViewsRuntimeOptions
+[@wpkernel/ui](../README.md) / NormalizedDataViewsRuntimeOptions
 
 # Interface: NormalizedDataViewsRuntimeOptions
 
@@ -14,7 +14,7 @@
 enable: boolean;
 ```
 
-***
+---
 
 ### autoRegisterResources
 
@@ -22,7 +22,7 @@ enable: boolean;
 autoRegisterResources: boolean;
 ```
 
-***
+---
 
 ### preferences?
 

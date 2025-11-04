@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / InitWorkflowResult
+[@wpkernel/cli](../README.md) / InitWorkflowResult
 
 # Interface: InitWorkflowResult
 
@@ -14,7 +14,7 @@
 readonly manifest: FileManifest;
 ```
 
-***
+---
 
 ### summaryText
 
@@ -22,7 +22,7 @@ readonly manifest: FileManifest;
 readonly summaryText: string;
 ```
 
-***
+---
 
 ### summaries
 
@@ -42,7 +42,7 @@ path: string;
 status: ScaffoldStatus;
 ```
 
-***
+---
 
 ### dependencySource
 
@@ -50,7 +50,7 @@ status: ScaffoldStatus;
 readonly dependencySource: string;
 ```
 
-***
+---
 
 ### namespace
 
@@ -58,7 +58,7 @@ readonly dependencySource: string;
 readonly namespace: string;
 ```
 
-***
+---
 
 ### templateName
 

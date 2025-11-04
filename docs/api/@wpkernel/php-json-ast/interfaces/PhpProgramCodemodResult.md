@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpProgramCodemodResult
+[@wpkernel/php-json-ast](../README.md) / PhpProgramCodemodResult
 
 # Interface: PhpProgramCodemodResult
 
@@ -14,7 +14,7 @@
 readonly before: PhpProgram;
 ```
 
-***
+---
 
 ### after
 
@@ -22,7 +22,7 @@ readonly before: PhpProgram;
 readonly after: PhpProgram;
 ```
 
-***
+---
 
 ### visitors
 
@@ -30,7 +30,7 @@ readonly after: PhpProgram;
 readonly visitors: readonly PhpProgramCodemodVisitorSummary[];
 ```
 
-***
+---
 
 ### diagnostics?
 

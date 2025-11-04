@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ActionStartEvent
+[@wpkernel/core](../README.md) / ActionStartEvent
 
 # Type Alias: ActionStartEvent
 
@@ -13,6 +13,7 @@ type ActionStartEvent = object & ActionLifecycleEventBase;
 Lifecycle event emitted when an action starts execution.
 
 Emitted immediately before the action function is invoked, enabling:
+
 - Pre-execution hooks for logging or analytics
 - Loading states in UI components
 - Request correlation across distributed systems
@@ -24,7 +25,7 @@ Event name: `wpk.action.start`
 ### phase
 
 ```ts
-phase: "start";
+phase: 'start';
 ```
 
 ### args

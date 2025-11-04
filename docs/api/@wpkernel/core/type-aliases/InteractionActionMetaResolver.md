@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / InteractionActionMetaResolver
+[@wpkernel/core](../README.md) / InteractionActionMetaResolver
 
 # Type Alias: InteractionActionMetaResolver()\&lt;TArgs\&gt;
 

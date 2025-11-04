@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/ui v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PrefetchList
+[@wpkernel/ui](../README.md) / PrefetchList
 
 # Type Alias: PrefetchList()\&lt;TQuery\&gt;
 

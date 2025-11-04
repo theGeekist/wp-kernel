@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ActionConfig
+[@wpkernel/core](../README.md) / ActionConfig
 
 # Type Alias: ActionConfig\&lt;TArgs, TResult\&gt;
 
@@ -32,17 +32,18 @@ name: string;
 
 Unique action identifier.
 
-***
+---
 
 ### handler
 
 ```ts
-handler: ActionFn&lt;TArgs, TResult&gt;;
+handler: ActionFn & lt;
+(TArgs, TResult & gt);
 ```
 
 Implementation invoked when the action is executed.
 
-***
+---
 
 ### options?
 

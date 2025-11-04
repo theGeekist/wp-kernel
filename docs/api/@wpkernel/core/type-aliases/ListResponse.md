@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ListResponse
+[@wpkernel/core](../README.md) / ListResponse
 
 # Type Alias: ListResponse\&lt;T\&gt;
 
@@ -30,7 +30,7 @@ items: T[];
 
 Array of resource entities
 
-***
+---
 
 ### total?
 
@@ -40,7 +40,7 @@ optional total: number;
 
 Total count of items (if available)
 
-***
+---
 
 ### nextCursor?
 
@@ -50,7 +50,7 @@ optional nextCursor: string;
 
 Pagination cursor for next page
 
-***
+---
 
 ### hasMore?
 

@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / IRSchema
+[@wpkernel/cli](../README.md) / IRSchema
 
 # Interface: IRSchema
 
@@ -18,7 +18,7 @@ key: string;
 
 A unique key for the schema.
 
-***
+---
 
 ### sourcePath
 
@@ -28,7 +28,7 @@ sourcePath: string;
 
 The source path of the schema definition.
 
-***
+---
 
 ### hash
 
@@ -38,7 +38,7 @@ hash: string;
 
 A hash of the schema content for change detection.
 
-***
+---
 
 ### schema
 
@@ -48,7 +48,7 @@ schema: unknown;
 
 The actual schema definition.
 
-***
+---
 
 ### provenance
 
@@ -58,7 +58,7 @@ provenance: SchemaProvenance;
 
 The provenance of the schema (manual or auto-generated).
 
-***
+---
 
 ### generatedFrom?
 
@@ -71,7 +71,7 @@ Optional: Information about what the schema was generated from.
 #### type
 
 ```ts
-type: "storage";
+type: 'storage';
 ```
 
 #### resource

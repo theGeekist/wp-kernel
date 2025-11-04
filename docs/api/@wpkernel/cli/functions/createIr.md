@@ -1,13 +1,14 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / createIr
+[@wpkernel/cli](../README.md) / createIr
 
 # Function: createIr()
 
 ```ts
-function createIr(options, environment): Promise&lt;IRv1&gt;;
+function createIr(options, environment): Promise & lt;
+IRv1 & gt;
 ```
 
 Creates an Intermediate Representation (IR) from the given build options.

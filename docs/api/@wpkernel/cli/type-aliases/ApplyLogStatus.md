@@ -1,11 +1,16 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ApplyLogStatus
+[@wpkernel/cli](../README.md) / ApplyLogStatus
 
 # Type Alias: ApplyLogStatus
 
 ```ts
-type ApplyLogStatus = "success" | "conflict" | "skipped" | "cancelled" | "failed";
+type ApplyLogStatus =
+	| 'success'
+	| 'conflict'
+	| 'skipped'
+	| 'cancelled'
+	| 'failed';
 ```

@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpExprMatch
+[@wpkernel/php-json-ast](../README.md) / PhpExprMatch
 
 # Interface: PhpExprMatch
 
@@ -24,7 +24,7 @@ readonly nodeType: "Expr_Match";
 
 [`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
 
-***
+---
 
 ### cond
 
@@ -32,7 +32,7 @@ readonly nodeType: "Expr_Match";
 readonly cond: PhpExpr;
 ```
 
-***
+---
 
 ### arms
 
@@ -40,7 +40,7 @@ readonly cond: PhpExpr;
 readonly arms: PhpMatchArm[];
 ```
 
-***
+---
 
 ### attributes
 

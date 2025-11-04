@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PipelineExtension
+[@wpkernel/cli](../README.md) / PipelineExtension
 
 # Interface: PipelineExtension
 
@@ -13,7 +13,7 @@ Represents a pipeline extension.
 ### register()
 
 ```ts
-register: (pipeline) =&gt; 
+register: (pipeline) =&gt;
   | void
   | PipelineExtensionHook
   | Promise&lt;
@@ -34,15 +34,15 @@ The pipeline instance to register with.
 
 #### Returns
 
-  \| `void`
-  \| [`PipelineExtensionHook`](../type-aliases/PipelineExtensionHook.md)
-  \| `Promise`\&lt;
-  \| `void`
-  \| [`PipelineExtensionHook`](../type-aliases/PipelineExtensionHook.md)\&gt;
+\| `void`
+\| [`PipelineExtensionHook`](../type-aliases/PipelineExtensionHook.md)
+\| `Promise`\&lt;
+\| `void`
+\| [`PipelineExtensionHook`](../type-aliases/PipelineExtensionHook.md)\&gt;
 
 An optional `PipelineExtensionHook` or a promise resolving to one.
 
-***
+---
 
 ### key?
 

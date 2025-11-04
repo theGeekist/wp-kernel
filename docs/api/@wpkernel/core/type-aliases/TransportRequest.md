@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / TransportRequest
+[@wpkernel/core](../README.md) / TransportRequest
 
 # Type Alias: TransportRequest
 
@@ -22,7 +22,7 @@ path: string;
 
 REST API path (e.g., '/my-plugin/v1/things' or '/my-plugin/v1/things/123')
 
-***
+---
 
 ### method
 
@@ -32,7 +32,7 @@ method: HttpMethod;
 
 HTTP method
 
-***
+---
 
 ### data?
 
@@ -42,7 +42,7 @@ optional data: unknown;
 
 Request body (for POST/PUT/PATCH)
 
-***
+---
 
 ### query?
 
@@ -52,7 +52,7 @@ optional query: Record&lt;string, unknown&gt;;
 
 Query parameters (automatically appended to path)
 
-***
+---
 
 ### fields?
 
@@ -60,10 +60,10 @@ Query parameters (automatically appended to path)
 optional fields: string[];
 ```
 
-Fields to request (_fields query parameter)
-If provided, will be added as ?_fields=field1,field2
+Fields to request (\_fields query parameter)
+If provided, will be added as ?\_fields=field1,field2
 
-***
+---
 
 ### requestId?
 
@@ -73,7 +73,7 @@ optional requestId: string;
 
 Custom request ID for correlation (generated if not provided)
 
-***
+---
 
 ### meta?
 

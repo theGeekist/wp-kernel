@@ -1,16 +1,13 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / buildClosureUse
+[@wpkernel/php-json-ast](../README.md) / buildClosureUse
 
 # Function: buildClosureUse()
 
 ```ts
-function buildClosureUse(
-   variable, 
-   options, 
-   attributes?): PhpClosureUse;
+function buildClosureUse(variable, options, attributes?): PhpClosureUse;
 ```
 
 Builds a PHP closure use node.

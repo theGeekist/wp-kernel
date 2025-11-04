@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/e2e-utils v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / CapturedEvent
+[@wpkernel/e2e-utils](../README.md) / CapturedEvent
 
 # Type Alias: CapturedEvent\&lt;P\&gt;
 
@@ -26,7 +26,7 @@ Captured event structure
 type: string;
 ```
 
-***
+---
 
 ### timestamp
 
@@ -34,7 +34,7 @@ type: string;
 timestamp: number;
 ```
 
-***
+---
 
 ### payload?
 

@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / resetPhpAstChannel
+[@wpkernel/php-json-ast](../README.md) / resetPhpAstChannel
 
 # Function: resetPhpAstChannel()
 
@@ -14,7 +14,7 @@ function resetPhpAstChannel&lt;TContext&gt;(context): void;
 
 ### TContext
 
-`TContext` *extends* [`PipelineContext`](../interfaces/PipelineContext.md)
+`TContext` _extends_ [`PipelineContext`](../interfaces/PipelineContext.md)
 
 ## Parameters
 

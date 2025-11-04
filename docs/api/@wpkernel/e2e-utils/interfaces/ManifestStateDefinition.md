@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/e2e-utils v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ManifestStateDefinition
+[@wpkernel/e2e-utils](../README.md) / ManifestStateDefinition
 
 # Interface: ManifestStateDefinition
 
@@ -11,10 +11,11 @@
 ### files
 
 ```ts
-files: Record&lt;string, ManifestFileDefinition&gt;;
+files: Record & lt;
+(string, ManifestFileDefinition & gt);
 ```
 
-***
+---
 
 ### ignore?
 

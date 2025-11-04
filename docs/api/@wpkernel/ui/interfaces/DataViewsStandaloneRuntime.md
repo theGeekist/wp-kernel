@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/ui v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / DataViewsStandaloneRuntime
+[@wpkernel/ui](../README.md) / DataViewsStandaloneRuntime
 
 # Interface: DataViewsStandaloneRuntime
 
@@ -26,7 +26,7 @@ The DataViews runtime.
 
 [`DataViewsRuntimeContext`](DataViewsRuntimeContext.md).[`dataviews`](DataViewsRuntimeContext.md#dataviews)
 
-***
+---
 
 ### namespace
 
@@ -38,7 +38,7 @@ readonly namespace: string;
 
 [`DataViewsRuntimeContext`](DataViewsRuntimeContext.md).[`namespace`](DataViewsRuntimeContext.md#namespace)
 
-***
+---
 
 ### reporter
 
@@ -50,7 +50,7 @@ readonly reporter: Reporter;
 
 [`DataViewsRuntimeContext`](DataViewsRuntimeContext.md).[`reporter`](DataViewsRuntimeContext.md#reporter)
 
-***
+---
 
 ### capabilities?
 
@@ -64,7 +64,7 @@ The capability runtime.
 
 [`DataViewsRuntimeContext`](DataViewsRuntimeContext.md).[`capabilities`](DataViewsRuntimeContext.md#capabilities)
 
-***
+---
 
 ### invalidate()?
 
@@ -90,7 +90,7 @@ readonly optional invalidate: (patterns, options?) =&gt; void;
 
 [`DataViewsRuntimeContext`](DataViewsRuntimeContext.md).[`invalidate`](DataViewsRuntimeContext.md#invalidate)
 
-***
+---
 
 ### registry?
 
@@ -102,7 +102,7 @@ readonly optional registry: unknown;
 
 [`DataViewsRuntimeContext`](DataViewsRuntimeContext.md).[`registry`](DataViewsRuntimeContext.md#registry)
 
-***
+---
 
 ### kernel?
 

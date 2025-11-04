@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ServerError
+[@wpkernel/core](../README.md) / ServerError
 
 # Class: ServerError
 
@@ -12,11 +12,11 @@ Error thrown when WordPress REST API returns an error
 
 ```typescript
 throw new ServerError({
-  serverCode: 'rest_forbidden',
-  serverMessage: 'Sorry, you are not allowed to do that.',
-  status: 403,
-  path: '/wpk/v1/things',
-  method: 'POST'
+	serverCode: 'rest_forbidden',
+	serverMessage: 'Sorry, you are not allowed to do that.',
+	status: 403,
+	path: '/wpk/v1/things',
+	method: 'POST',
 });
 ```
 
@@ -86,7 +86,7 @@ readonly serverCode: string;
 
 WordPress error code (e.g., 'rest_forbidden', 'rest_invalid_param')
 
-***
+---
 
 ### serverMessage
 
@@ -96,7 +96,7 @@ readonly serverMessage: string;
 
 WordPress error message
 
-***
+---
 
 ### status
 
@@ -106,7 +106,7 @@ readonly status: number;
 
 HTTP status code
 
-***
+---
 
 ### path
 
@@ -116,7 +116,7 @@ readonly path: string;
 
 Request path
 
-***
+---
 
 ### method
 
@@ -126,7 +126,7 @@ readonly method: string;
 
 HTTP method
 
-***
+---
 
 ### code
 
@@ -140,7 +140,7 @@ Error code - identifies the type of error
 
 [`WPKernelError`](WPKernelError.md).[`code`](WPKernelError.md#code)
 
-***
+---
 
 ### serverData?
 
@@ -150,7 +150,7 @@ readonly optional serverData: Record&lt;string, unknown&gt;;
 
 Additional server data
 
-***
+---
 
 ### data?
 
@@ -164,7 +164,7 @@ Additional data about the error
 
 [`WPKernelError`](WPKernelError.md).[`data`](WPKernelError.md#data)
 
-***
+---
 
 ### context?
 
@@ -184,9 +184,9 @@ Context in which the error occurred
 
 ```ts
 static fromWordPressResponse(
-   response, 
-   path, 
-   method, 
+   response,
+   path,
+   method,
    context?): ServerError;
 ```
 
@@ -196,7 +196,7 @@ Parse WordPress REST API error response into ServerError
 
 ##### response
 
-[`WordPressRESTError`](../WP-Kernel-API/namespaces/error/type-aliases/WordPressRESTError.md)
+[`WordPressRESTError`](../type-aliases/WordPressRESTError.md)
 
 WordPress REST error response
 
@@ -224,7 +224,7 @@ Additional context
 
 New ServerError instance
 
-***
+---
 
 ### fromJSON()
 
@@ -252,7 +252,7 @@ New WPKernelError instance
 
 [`WPKernelError`](WPKernelError.md).[`fromJSON`](WPKernelError.md#fromjson)
 
-***
+---
 
 ### isWPKernelError()
 
@@ -280,14 +280,14 @@ True if error is a WPKernelError
 
 [`WPKernelError`](WPKernelError.md).[`isWPKernelError`](WPKernelError.md#iswpkernelerror)
 
-***
+---
 
 ### wrap()
 
 ```ts
 static wrap(
-   error, 
-   code, 
+   error,
+   code,
    context?): WPKernelError;
 ```
 
@@ -323,7 +323,7 @@ New WPKernelError wrapping the original
 
 [`WPKernelError`](WPKernelError.md).[`wrap`](WPKernelError.md#wrap)
 
-***
+---
 
 ### isPermissionError()
 
@@ -339,7 +339,7 @@ Check if this is a permission/capability error
 
 True if this is a permission error
 
-***
+---
 
 ### isValidationError()
 
@@ -355,7 +355,7 @@ Check if this is a validation error
 
 True if this is a validation error
 
-***
+---
 
 ### isNotFoundError()
 
@@ -371,7 +371,7 @@ Check if this is a "not found" error
 
 True if resource was not found
 
-***
+---
 
 ### getValidationErrors()
 
@@ -387,7 +387,7 @@ Extract validation errors from server response
 
 Array of validation errors if available
 
-***
+---
 
 ### toJSON()
 

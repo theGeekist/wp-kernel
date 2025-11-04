@@ -1,8 +1,8 @@
-**WP Kernel API v0.11.0**
+**@wpkernel/cli v0.11.0**
 
-***
+---
 
-# WP Kernel API v0.11.0
+# @wpkernel/cli v0.11.0
 
 Top-level exports for the `@wpkernel/cli` package.
 
@@ -200,8 +200,8 @@ kernel and UI packages.
 
 ### IR Fragments
 
-- [META\_EXTENSION\_KEY](variables/META_EXTENSION_KEY.md)
-- [SCHEMA\_EXTENSION\_KEY](variables/SCHEMA_EXTENSION_KEY.md)
+- [META_EXTENSION_KEY](variables/META_EXTENSION_KEY.md)
+- [SCHEMA_EXTENSION_KEY](variables/SCHEMA_EXTENSION_KEY.md)
 
 ### Other
 

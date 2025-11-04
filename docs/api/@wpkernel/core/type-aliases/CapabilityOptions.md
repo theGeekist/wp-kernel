@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / CapabilityOptions
+[@wpkernel/core](../README.md) / CapabilityOptions
 
 # Type Alias: CapabilityOptions
 
@@ -20,7 +20,7 @@ Additional options accepted by `defineCapability()`.
 optional namespace: string;
 ```
 
-***
+---
 
 ### adapters?
 
@@ -28,7 +28,7 @@ optional namespace: string;
 optional adapters: CapabilityAdapters;
 ```
 
-***
+---
 
 ### cache?
 
@@ -36,7 +36,7 @@ optional adapters: CapabilityAdapters;
 optional cache: CapabilityCacheOptions;
 ```
 
-***
+---
 
 ### debug?
 

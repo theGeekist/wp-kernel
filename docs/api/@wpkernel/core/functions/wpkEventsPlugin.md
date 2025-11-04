@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / wpkEventsPlugin
+[@wpkernel/core](../README.md) / wpkEventsPlugin
 
 # Function: wpkEventsPlugin()
 
@@ -20,7 +20,7 @@ store. It returns a Redux middleware compatible with `@wordpress/data`.
 
 ### options
 
-[`WPKernelEventsPluginOptions`](../@wpkernel/core/data/type-aliases/WPKernelEventsPluginOptions.md)
+[`WPKernelEventsPluginOptions`](../type-aliases/WPKernelEventsPluginOptions.md)
 
 Kernel event wiring options
 

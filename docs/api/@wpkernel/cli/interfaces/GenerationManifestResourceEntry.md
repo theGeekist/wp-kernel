@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / GenerationManifestResourceEntry
+[@wpkernel/cli](../README.md) / GenerationManifestResourceEntry
 
 # Interface: GenerationManifestResourceEntry
 
@@ -14,7 +14,7 @@
 readonly hash: string;
 ```
 
-***
+---
 
 ### artifacts
 

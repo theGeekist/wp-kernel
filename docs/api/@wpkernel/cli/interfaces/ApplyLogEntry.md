@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ApplyLogEntry
+[@wpkernel/cli](../README.md) / ApplyLogEntry
 
 # Interface: ApplyLogEntry
 
@@ -16,7 +16,7 @@ Represents an entry in the apply log.
 readonly version: 1;
 ```
 
-***
+---
 
 ### timestamp
 
@@ -24,7 +24,7 @@ readonly version: 1;
 readonly timestamp: string;
 ```
 
-***
+---
 
 ### status
 
@@ -32,7 +32,7 @@ readonly timestamp: string;
 readonly status: ApplyLogStatus;
 ```
 
-***
+---
 
 ### exitCode
 
@@ -40,7 +40,7 @@ readonly status: ApplyLogStatus;
 readonly exitCode: WPKExitCode;
 ```
 
-***
+---
 
 ### flags
 
@@ -48,7 +48,7 @@ readonly exitCode: WPKExitCode;
 readonly flags: ApplyFlags;
 ```
 
-***
+---
 
 ### summary
 
@@ -56,7 +56,7 @@ readonly flags: ApplyFlags;
 readonly summary: PatchManifestSummary | null;
 ```
 
-***
+---
 
 ### records
 
@@ -64,7 +64,7 @@ readonly summary: PatchManifestSummary | null;
 readonly records: readonly PatchRecord[];
 ```
 
-***
+---
 
 ### actions
 
@@ -72,7 +72,7 @@ readonly records: readonly PatchRecord[];
 readonly actions: readonly string[];
 ```
 
-***
+---
 
 ### error?
 

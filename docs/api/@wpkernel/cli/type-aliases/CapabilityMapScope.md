@@ -1,13 +1,13 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / CapabilityMapScope
+[@wpkernel/cli](../README.md) / CapabilityMapScope
 
 # Type Alias: CapabilityMapScope
 
 ```ts
-type CapabilityMapScope = "resource" | "object";
+type CapabilityMapScope = 'resource' | 'object';
 ```
 
 Capability map contract used by the CLI when generating PHP permission helpers.

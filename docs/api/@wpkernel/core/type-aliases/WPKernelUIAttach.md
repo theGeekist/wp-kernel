@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / WPKernelUIAttach
+[@wpkernel/core](../README.md) / WPKernelUIAttach
 
 # Type Alias: WPKernelUIAttach()
 
@@ -22,4 +22,4 @@ type WPKernelUIAttach = (wpKernel, options?) =&gt; WPKernelUIRuntime;
 
 ## Returns
 
-[`WPKernelUIRuntime`](../@wpkernel/core/data/interfaces/WPKernelUIRuntime.md)
+[`WPKernelUIRuntime`](../interfaces/WPKernelUIRuntime.md)

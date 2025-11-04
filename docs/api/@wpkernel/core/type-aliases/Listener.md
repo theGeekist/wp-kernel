@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / Listener
+[@wpkernel/core](../README.md) / Listener
 
 # Type Alias: Listener()\&lt;T\&gt;
 

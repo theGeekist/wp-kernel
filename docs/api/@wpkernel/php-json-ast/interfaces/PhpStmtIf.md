@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpStmtIf
+[@wpkernel/php-json-ast](../README.md) / PhpStmtIf
 
 # Interface: PhpStmtIf
 
@@ -24,7 +24,7 @@ readonly nodeType: "Stmt_If";
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
-***
+---
 
 ### cond
 
@@ -32,7 +32,7 @@ readonly nodeType: "Stmt_If";
 readonly cond: PhpExpr;
 ```
 
-***
+---
 
 ### stmts
 
@@ -40,7 +40,7 @@ readonly cond: PhpExpr;
 readonly stmts: PhpStmt[];
 ```
 
-***
+---
 
 ### elseifs
 
@@ -48,7 +48,7 @@ readonly stmts: PhpStmt[];
 readonly elseifs: PhpStmtElseIf[];
 ```
 
-***
+---
 
 ### else
 
@@ -56,7 +56,7 @@ readonly elseifs: PhpStmtElseIf[];
 readonly else: PhpStmtElse | null;
 ```
 
-***
+---
 
 ### attributes
 

@@ -1,16 +1,13 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / buildConst
+[@wpkernel/php-json-ast](../README.md) / buildConst
 
 # Function: buildConst()
 
 ```ts
-function buildConst(
-   name, 
-   value, 
-   attributes?): PhpConst;
+function buildConst(name, value, attributes?): PhpConst;
 ```
 
 Builds a PHP constant node.

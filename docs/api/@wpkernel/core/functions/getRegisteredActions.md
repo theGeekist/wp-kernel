@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / getRegisteredActions
+[@wpkernel/core](../README.md) / getRegisteredActions
 
 # Function: getRegisteredActions()
 

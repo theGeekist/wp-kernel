@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ActionDefinedEvent
+[@wpkernel/core](../README.md) / ActionDefinedEvent
 
 # Type Alias: ActionDefinedEvent
 
@@ -15,10 +15,11 @@ type ActionDefinedEvent = object;
 ### action
 
 ```ts
-action: DefinedAction&lt;unknown, unknown&gt;;
+action: DefinedAction & lt;
+(unknown, unknown & gt);
 ```
 
-***
+---
 
 ### namespace
 

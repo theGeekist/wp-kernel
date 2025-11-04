@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpStmtReturn
+[@wpkernel/php-json-ast](../README.md) / PhpStmtReturn
 
 # Interface: PhpStmtReturn
 
@@ -24,7 +24,7 @@ readonly nodeType: "Stmt_Return";
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
-***
+---
 
 ### expr
 
@@ -32,7 +32,7 @@ readonly nodeType: "Stmt_Return";
 readonly expr: PhpExpr | null;
 ```
 
-***
+---
 
 ### attributes
 

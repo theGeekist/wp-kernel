@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpStmtEcho
+[@wpkernel/php-json-ast](../README.md) / PhpStmtEcho
 
 # Interface: PhpStmtEcho
 
@@ -24,7 +24,7 @@ readonly nodeType: "Stmt_Echo";
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
-***
+---
 
 ### exprs
 
@@ -32,7 +32,7 @@ readonly nodeType: "Stmt_Echo";
 readonly exprs: PhpExpr[];
 ```
 
-***
+---
 
 ### attributes
 

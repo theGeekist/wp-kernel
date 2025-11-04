@@ -1,15 +1,15 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / invokeAction
+[@wpkernel/core](../README.md) / invokeAction
 
 # Function: invokeAction()
 
 ```ts
 function invokeAction&lt;TArgs, TResult&gt;(
-   action, 
-   args, 
+   action,
+   args,
 meta): ActionEnvelope&lt;TArgs, TResult&gt;;
 ```
 
@@ -62,7 +62,7 @@ Optional metadata for middleware coordination
 
 ## Returns
 
-[`ActionEnvelope`](../WP-Kernel-API/namespaces/actions/type-aliases/ActionEnvelope.md)\&lt;`TArgs`, `TResult`\&gt;
+[`ActionEnvelope`](../type-aliases/ActionEnvelope.md)\&lt;`TArgs`, `TResult`\&gt;
 
 Action envelope ready for Redux dispatch
 
@@ -74,16 +74,16 @@ import { CreatePost } from './actions/CreatePost';
 
 // Basic usage
 const envelope = invokeAction(CreatePost, {
-  title: 'My First Post',
-  content: 'Hello world!'
+	title: 'My First Post',
+	content: 'Hello world!',
 });
 const post = await store.dispatch(envelope);
 
 // With metadata
 const envelope = invokeAction(
-  CreatePost,
-  { title: 'Post', content: '...' },
-  { correlationId: 'req-123', source: 'editor-ui' }
+	CreatePost,
+	{ title: 'Post', content: '...' },
+	{ correlationId: 'req-123', source: 'editor-ui' }
 );
 const post = await store.dispatch(envelope);
 ```

@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpStmtWhile
+[@wpkernel/php-json-ast](../README.md) / PhpStmtWhile
 
 # Interface: PhpStmtWhile
 
@@ -24,7 +24,7 @@ readonly nodeType: "Stmt_While";
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
-***
+---
 
 ### cond
 
@@ -32,7 +32,7 @@ readonly nodeType: "Stmt_While";
 readonly cond: PhpExpr;
 ```
 
-***
+---
 
 ### stmts
 
@@ -40,7 +40,7 @@ readonly cond: PhpExpr;
 readonly stmts: PhpStmt[];
 ```
 
-***
+---
 
 ### attributes
 

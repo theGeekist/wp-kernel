@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / CreateBackupsOptions
+[@wpkernel/cli](../README.md) / CreateBackupsOptions
 
 # Interface: CreateBackupsOptions
 
@@ -16,7 +16,7 @@ Options for creating backups.
 readonly workspace: Workspace;
 ```
 
-***
+---
 
 ### manifest
 
@@ -24,7 +24,7 @@ readonly workspace: Workspace;
 readonly manifest: FileManifest;
 ```
 
-***
+---
 
 ### reporter
 

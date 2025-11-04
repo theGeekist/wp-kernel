@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ResourceClient
+[@wpkernel/core](../README.md) / ResourceClient
 
 # Type Alias: ResourceClient\&lt;T, TQuery\&gt;
 
@@ -61,7 +61,7 @@ TransportError on network failure
 
 ServerError on REST API error
 
-***
+---
 
 ### fetch()?
 
@@ -93,7 +93,7 @@ TransportError on network failure
 
 ServerError on REST API error (including 404)
 
-***
+---
 
 ### create()?
 
@@ -125,7 +125,7 @@ TransportError on network failure
 
 ServerError on REST API error (including validation errors)
 
-***
+---
 
 ### update()?
 
@@ -163,7 +163,7 @@ TransportError on network failure
 
 ServerError on REST API error (including 404, validation errors)
 
-***
+---
 
 ### remove()?
 
@@ -195,7 +195,7 @@ TransportError on network failure
 
 ServerError on REST API error (including 404)
 
-***
+---
 
 ### ui?
 

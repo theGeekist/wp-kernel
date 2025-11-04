@@ -1,11 +1,11 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PipelinePhase
+[@wpkernel/php-json-ast](../README.md) / PipelinePhase
 
 # Type Alias: PipelinePhase
 
 ```ts
-type PipelinePhase = "init" | "generate" | "apply" | `custom:${string}`;
+type PipelinePhase = 'init' | 'generate' | 'apply' | `custom:${string}`;
 ```

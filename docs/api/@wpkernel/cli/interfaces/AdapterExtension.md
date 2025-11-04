@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / AdapterExtension
+[@wpkernel/cli](../README.md) / AdapterExtension
 
 # Interface: AdapterExtension
 
@@ -16,7 +16,7 @@ Adapter extension contract.
 name: string;
 ```
 
-***
+---
 
 ### apply()
 

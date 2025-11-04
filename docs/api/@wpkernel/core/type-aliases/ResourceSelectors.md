@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ResourceSelectors
+[@wpkernel/core](../README.md) / ResourceSelectors
 
 # Type Alias: ResourceSelectors\&lt;T, TQuery\&gt;
 
@@ -56,7 +56,7 @@ Item ID
 
 The item or undefined if not found
 
-***
+---
 
 ### getItems()
 
@@ -86,7 +86,7 @@ Query parameters
 
 Array of items
 
-***
+---
 
 ### getList()
 
@@ -116,7 +116,7 @@ Query parameters
 
 List response with items and metadata
 
-***
+---
 
 ### getListStatus()
 
@@ -142,11 +142,11 @@ Query parameters
 
 #### Returns
 
-[`ResourceListStatus`](../WP-Kernel-API/namespaces/resource/type-aliases/ResourceListStatus.md)
+[`ResourceListStatus`](ResourceListStatus.md)
 
 List status
 
-***
+---
 
 ### getListError()
 
@@ -176,7 +176,7 @@ Query parameters
 
 Error message or undefined
 
-***
+---
 
 ### isResolving()
 
@@ -215,7 +215,7 @@ Arguments passed to the selector
 
 True if resolving
 
-***
+---
 
 ### hasStartedResolution()
 
@@ -254,7 +254,7 @@ Arguments passed to the selector
 
 True if resolution has started
 
-***
+---
 
 ### hasFinishedResolution()
 
@@ -293,7 +293,7 @@ Arguments passed to the selector
 
 True if resolution has finished
 
-***
+---
 
 ### getError()
 

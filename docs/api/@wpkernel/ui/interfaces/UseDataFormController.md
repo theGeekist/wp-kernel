@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/ui v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / UseDataFormController
+[@wpkernel/ui](../README.md) / UseDataFormController
 
 # Interface: UseDataFormController\&lt;TResult\&gt;
 
@@ -40,7 +40,7 @@ The input data for the form.
 
 A promise that resolves with the action's result.
 
-***
+---
 
 ### reset()
 
@@ -54,7 +54,7 @@ Resets the form's state.
 
 `void`
 
-***
+---
 
 ### cancel()
 
@@ -68,12 +68,13 @@ Cancels any in-flight form submissions.
 
 `void`
 
-***
+---
 
 ### state
 
 ```ts
-state: DataFormControllerState&lt;TResult&gt;;
+state: DataFormControllerState & lt;
+TResult & gt;
 ```
 
 The current state of the form.

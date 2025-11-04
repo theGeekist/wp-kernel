@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/e2e-utils v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / WithWorkspaceCallback
+[@wpkernel/e2e-utils](../README.md) / WithWorkspaceCallback
 
 # Type Alias: WithWorkspaceCallback()\&lt;TResult\&gt;
 

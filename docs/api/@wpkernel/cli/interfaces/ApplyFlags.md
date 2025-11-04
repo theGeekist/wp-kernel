@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ApplyFlags
+[@wpkernel/cli](../README.md) / ApplyFlags
 
 # Interface: ApplyFlags
 
@@ -14,7 +14,7 @@
 readonly yes: boolean;
 ```
 
-***
+---
 
 ### backup
 
@@ -22,7 +22,7 @@ readonly yes: boolean;
 readonly backup: boolean;
 ```
 
-***
+---
 
 ### force
 
@@ -30,7 +30,7 @@ readonly backup: boolean;
 readonly force: boolean;
 ```
 
-***
+---
 
 ### cleanup
 

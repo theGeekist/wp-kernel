@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / IRCapabilityHint
+[@wpkernel/cli](../README.md) / IRCapabilityHint
 
 # Interface: IRCapabilityHint
 
@@ -18,17 +18,17 @@ key: string;
 
 The key of the capability.
 
-***
+---
 
 ### source
 
 ```ts
-source: "resource" | "config";
+source: 'resource' | 'config';
 ```
 
 The source of the capability hint (resource or config).
 
-***
+---
 
 ### references
 

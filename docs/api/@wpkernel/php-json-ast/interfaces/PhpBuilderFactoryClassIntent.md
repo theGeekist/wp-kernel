@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpBuilderFactoryClassIntent
+[@wpkernel/php-json-ast](../README.md) / PhpBuilderFactoryClassIntent
 
 # Interface: PhpBuilderFactoryClassIntent
 
@@ -14,7 +14,7 @@
 readonly name: string;
 ```
 
-***
+---
 
 ### docblock?
 
@@ -22,7 +22,7 @@ readonly name: string;
 readonly optional docblock: readonly string[];
 ```
 
-***
+---
 
 ### isFinal?
 
@@ -30,7 +30,7 @@ readonly optional docblock: readonly string[];
 readonly optional isFinal: boolean;
 ```
 
-***
+---
 
 ### isAbstract?
 
@@ -38,7 +38,7 @@ readonly optional isFinal: boolean;
 readonly optional isAbstract: boolean;
 ```
 
-***
+---
 
 ### extends?
 
@@ -46,7 +46,7 @@ readonly optional isAbstract: boolean;
 readonly optional extends: string | null;
 ```
 
-***
+---
 
 ### implements?
 
@@ -54,7 +54,7 @@ readonly optional extends: string | null;
 readonly optional implements: readonly string[];
 ```
 
-***
+---
 
 ### properties?
 
@@ -62,7 +62,7 @@ readonly optional implements: readonly string[];
 readonly optional properties: readonly PhpBuilderFactoryPropertyIntent[];
 ```
 
-***
+---
 
 ### methods?
 

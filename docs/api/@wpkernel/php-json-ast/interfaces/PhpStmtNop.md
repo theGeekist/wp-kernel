@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpStmtNop
+[@wpkernel/php-json-ast](../README.md) / PhpStmtNop
 
 # Interface: PhpStmtNop
 
@@ -24,7 +24,7 @@ readonly nodeType: "Stmt_Nop";
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
-***
+---
 
 ### attributes
 

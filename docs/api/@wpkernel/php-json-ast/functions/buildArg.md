@@ -1,16 +1,13 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / buildArg
+[@wpkernel/php-json-ast](../README.md) / buildArg
 
 # Function: buildArg()
 
 ```ts
-function buildArg(
-   value, 
-   options, 
-   attributes?): PhpArg;
+function buildArg(value, options, attributes?): PhpArg;
 ```
 
 Builds a PHP argument node.

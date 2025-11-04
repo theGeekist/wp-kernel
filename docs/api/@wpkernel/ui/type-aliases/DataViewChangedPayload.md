@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/ui v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / DataViewChangedPayload
+[@wpkernel/ui](../README.md) / DataViewChangedPayload
 
 # Type Alias: DataViewChangedPayload
 
@@ -20,7 +20,7 @@ Payload for the `viewChanged` event.
 resource: string;
 ```
 
-***
+---
 
 ### viewState
 
@@ -61,7 +61,7 @@ field: string;
 ##### sort.direction
 
 ```ts
-direction: "asc" | "desc";
+direction: 'asc' | 'desc';
 ```
 
 #### search?

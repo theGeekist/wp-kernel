@@ -146,12 +146,12 @@ See [Command Migration & Parity Plan](cli-command-migration.md) for the authorit
 
 These align with `docs/pipeline-integration-tasks.md` and related planning docs.
 
-1. **Apply layering & flag parity** – Completed in Phase 5; use [Apply Workflow Phases](cli-apply-workflow.md) for historical guardrails and track new diagnostics under Phase 8 Task 46 (starting with the CLI LogLayer reporter alignment).
-2. **PHP AST parity** – Completed across Phases 1-3; `docs/php-ast-migration-tasks.md` now serves as an archive of the shipped parity work.
-3. **Block & UI builders** – Phase 3 delivered SSR and JS-only builders plus ts-morph registrars; future UI polish will be scoped separately.
-4. **Bundler workflow** – Still on the roadmap: grow `createBundler` into a reusable Vite/Rollup helper (hashed assets, manifest verification). No CLI `build` command is planned.
-5. **Command migration** – Completed in Phase 4; route bootstrap/install polish into Phase 7 Tasks 37-45 and handle the CLI LogLayer reporter swap under Phase 8 Task 46 while core pipeline alignment progresses.
-6. **Documentation & DX** – Ongoing. Keep this brief, the adapter spec, and AST parity plan in sync with `core/docs/**`, and export helper typings via `runtime/index.ts` for third parties.
+1. **Apply layering & flag parity** - Completed in Phase 5; use [Apply Workflow Phases](cli-apply-workflow.md) for historical guardrails and track new diagnostics under Phase 8 Task 46 (starting with the CLI LogLayer reporter alignment).
+2. **PHP AST parity** - Completed across Phases 1-3; `docs/php-ast-migration-tasks.md` now serves as an archive of the shipped parity work.
+3. **Block & UI builders** - Phase 3 delivered SSR and JS-only builders plus ts-morph registrars; future UI polish will be scoped separately.
+4. **Bundler workflow** - Still on the roadmap: grow `createBundler` into a reusable Vite/Rollup helper (hashed assets, manifest verification). No CLI `build` command is planned.
+5. **Command migration** - Completed in Phase 4; route bootstrap/install polish into Phase 7 Tasks 37-45 and handle the CLI LogLayer reporter swap under Phase 8 Task 46 while core pipeline alignment progresses.
+6. **Documentation & DX** - Ongoing. Keep this brief, the adapter spec, and AST parity plan in sync with `core/docs/**`, and export helper typings via `runtime/index.ts` for third parties.
 
 ---
 

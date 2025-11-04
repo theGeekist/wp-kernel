@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpBuilderFactoryParameterIntent
+[@wpkernel/php-json-ast](../README.md) / PhpBuilderFactoryParameterIntent
 
 # Interface: PhpBuilderFactoryParameterIntent
 
@@ -14,7 +14,7 @@
 readonly name: string;
 ```
 
-***
+---
 
 ### type?
 
@@ -22,7 +22,7 @@ readonly name: string;
 readonly optional type: string | null;
 ```
 
-***
+---
 
 ### default?
 

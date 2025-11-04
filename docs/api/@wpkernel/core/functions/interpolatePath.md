@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / interpolatePath
+[@wpkernel/core](../README.md) / interpolatePath
 
 # Function: interpolatePath()
 
@@ -42,8 +42,8 @@ DeveloperError if required params are missing
 ## Example
 
 ```ts
-interpolatePath('/my-plugin/v1/things/:id', { id: 123 })
+interpolatePath('/my-plugin/v1/things/:id', { id: 123 });
 // =&gt; '/my-plugin/v1/things/123'
 
-interpolatePath('/my-plugin/v1/things/:id', {}) // throws DeveloperError
+interpolatePath('/my-plugin/v1/things/:id', {}); // throws DeveloperError
 ```

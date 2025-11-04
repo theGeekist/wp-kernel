@@ -1,13 +1,13 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / NamespaceRuntimeContext
+[@wpkernel/core](../README.md) / NamespaceRuntimeContext
 
 # Type Alias: NamespaceRuntimeContext
 
 ```ts
-type NamespaceRuntimeContext = "admin" | "frontend" | "headless" | "static";
+type NamespaceRuntimeContext = 'admin' | 'frontend' | 'headless' | 'static';
 ```
 
 Runtime context for namespace detection

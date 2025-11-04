@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / HelperApplyOptions
+[@wpkernel/cli](../README.md) / HelperApplyOptions
 
 # Interface: HelperApplyOptions\&lt;TContext, TInput, TOutput, TReporter\&gt;
 
@@ -22,7 +22,7 @@
 
 ### TReporter
 
-`TReporter` *extends* `PipelineReporter` = `PipelineReporter`
+`TReporter` _extends_ `PipelineReporter` = `PipelineReporter`
 
 ## Properties
 
@@ -32,7 +32,7 @@
 readonly context: TContext;
 ```
 
-***
+---
 
 ### input
 
@@ -40,7 +40,7 @@ readonly context: TContext;
 readonly input: TInput;
 ```
 
-***
+---
 
 ### output
 
@@ -48,7 +48,7 @@ readonly input: TInput;
 readonly output: TOutput;
 ```
 
-***
+---
 
 ### reporter
 

@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpBuilderFactoryLiteralInt
+[@wpkernel/php-json-ast](../README.md) / PhpBuilderFactoryLiteralInt
 
 # Interface: PhpBuilderFactoryLiteralInt
 
@@ -14,7 +14,7 @@
 readonly kind: "int";
 ```
 
-***
+---
 
 ### value
 

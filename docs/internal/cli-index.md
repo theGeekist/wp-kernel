@@ -9,8 +9,8 @@ Keep this page updated-edit or prune entries as soon as a referenced document ch
 - **[Block Printer Parity](cli-block-printer-parity.md)** - legacy JS-only/SSR printer behaviour that Phase 3 builders must mirror.
 - **[Apply Workflow Phases](cli-apply-workflow.md)** - record of the layered apply rollout (shims, flags, logging) and the 0.9.0 release checklist.
 - **[Command Migration & Parity Plan](cli-command-migration.md)** - canonical summary of the fully migrated command surface (`apply`, `generate`, `init`, `create`, `start`, `doctor`) and the remaining polish checkpoints.
-- **[Phase 6 – Core Pipeline Orchestration](core-phase-6-pipeline.md)** - active core spec for Tasks 32-36; update CLI docs when statuses change in the MVP ledger.
-- **[Phase 7 – Plugin bootstrap flow](cli-phase-7-bootstrap.md)** - spec for Tasks 37-45 covering the bootstrap workspace, loader generator, regeneration cleanup, activation docs, and release checkpoints.
+- **[Phase 6 - Core Pipeline Orchestration](core-phase-6-pipeline.md)** - active core spec for Tasks 32-36; update CLI docs when statuses change in the MVP ledger.
+- **[Phase 7 - Plugin bootstrap flow](cli-phase-7-bootstrap.md)** - spec for Tasks 37-45 covering the bootstrap workspace, loader generator, regeneration cleanup, activation docs, and release checkpoints.
 - **[@wpkernel/create-wpk README](../create-wpk/README.md)** - bootstrap entry point for `npm|pnpm|yarn create @wpkernel/wpk`, including telemetry notes and the integration coverage expectations from Task 38.
 - **[Adapter DX](cli-adapter-dx.md)** - current adapter/extension surface (IR-first hooks, sandboxed writes, future recipe roadmap; includes lint rule intent).
 - **[Pipeline Integration Tasks](cli-pipeline-integration.md)** - scoped tasks for hardening the next pipeline (writer coverage, pretty-printer fixes, integration tests, driver configuration). Contains the CLI smoke-test commands (`pnpm --filter @wpkernel/core build`, `pnpm --filter @wpkernel/cli build`, then run `wpk generate --dry-run`/`wpk generate`).

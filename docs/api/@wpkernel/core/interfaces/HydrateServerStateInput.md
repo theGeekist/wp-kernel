@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / HydrateServerStateInput
+[@wpkernel/core](../README.md) / HydrateServerStateInput
 
 # Interface: HydrateServerStateInput\&lt;TEntity, TQuery\&gt;
 
@@ -32,7 +32,7 @@ readonly serverState: object;
 [key: string]: unknown
 ```
 
-***
+---
 
 ### resource
 
@@ -40,7 +40,7 @@ readonly serverState: object;
 readonly resource: ResourceObject&lt;TEntity, TQuery&gt;;
 ```
 
-***
+---
 
 ### syncCache
 
@@ -48,7 +48,7 @@ readonly resource: ResourceObject&lt;TEntity, TQuery&gt;;
 readonly syncCache: ResourceCacheSync&lt;TEntity&gt;;
 ```
 
-***
+---
 
 ### registry?
 

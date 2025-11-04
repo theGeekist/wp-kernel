@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / WPKUIConfig
+[@wpkernel/core](../README.md) / WPKUIConfig
 
 # Interface: WPKUIConfig
 
@@ -14,7 +14,7 @@
 optional enable: boolean;
 ```
 
-***
+---
 
 ### attach?
 
@@ -22,7 +22,7 @@ optional enable: boolean;
 optional attach: WPKernelUIAttach;
 ```
 
-***
+---
 
 ### options?
 

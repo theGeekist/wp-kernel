@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PipelineRunOptions
+[@wpkernel/cli](../README.md) / PipelineRunOptions
 
 # Interface: PipelineRunOptions
 
@@ -18,7 +18,7 @@ readonly phase: PipelinePhase;
 
 The current phase of the pipeline execution.
 
-***
+---
 
 ### config
 
@@ -28,7 +28,7 @@ readonly config: WPKernelConfigV1;
 
 The configuration object for the WP Kernel project.
 
-***
+---
 
 ### namespace
 
@@ -38,7 +38,7 @@ readonly namespace: string;
 
 The namespace of the project.
 
-***
+---
 
 ### origin
 
@@ -48,7 +48,7 @@ readonly origin: string;
 
 The origin of the configuration (e.g., 'project', 'workspace').
 
-***
+---
 
 ### sourcePath
 
@@ -58,7 +58,7 @@ readonly sourcePath: string;
 
 The source path of the configuration file.
 
-***
+---
 
 ### workspace
 
@@ -68,7 +68,7 @@ readonly workspace: Workspace;
 
 The current workspace information.
 
-***
+---
 
 ### reporter
 
@@ -78,7 +78,7 @@ readonly reporter: Reporter;
 
 The reporter instance for logging.
 
-***
+---
 
 ### generationState
 

@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / buildIdentifier
+[@wpkernel/php-json-ast](../README.md) / buildIdentifier
 
 # Function: buildIdentifier()
 

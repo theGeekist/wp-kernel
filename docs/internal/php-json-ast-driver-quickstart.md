@@ -56,8 +56,8 @@ php packages/php-driver/php/pretty-print.php packages/php-json-ast demo.php \
 
 The command prints a JSON object with two keys:
 
-- `code` – the formatted PHP source with a trailing newline
-- `ast` – the PHP-native AST encoded back to JSON, preserving any visitor edits
+- `code` - the formatted PHP source with a trailing newline
+- `ast` - the PHP-native AST encoded back to JSON, preserving any visitor edits
 
 For the sample above the `code` payload renders `return 'Hello world';`. You can
 pipe the JSON into `jq` or save it alongside the generated PHP to inspect the
@@ -108,13 +108,13 @@ When you pass a codemod configuration to `ingest-program.php` (serialised with
 `serialisePhpCodemodConfiguration` and forwarded with `--config`), the same
 writer call will also emit:
 
-- `<file>.codemod.before.ast.json` – the ingested AST before any visitors ran.
-- `<file>.codemod.after.ast.json` – the transformed AST (mirrors `<file>.ast.json`).
-- `<file>.codemod.summary.txt` – visitor metadata, SHA hashes for each AST, and
+- `<file>.codemod.before.ast.json` - the ingested AST before any visitors ran.
+- `<file>.codemod.after.ast.json` - the transformed AST (mirrors `<file>.ast.json`).
+- `<file>.codemod.summary.txt` - visitor metadata, SHA hashes for each AST, and
   a capped list of structural differences (`Change detected: yes/no`).
-- `<file>.codemod.before.dump.txt` – `NodeDumper` output for the pre-visitor tree
+- `<file>.codemod.before.dump.txt` - `NodeDumper` output for the pre-visitor tree
   (emitted when diagnostics mode is enabled).
-- `<file>.codemod.after.dump.txt` – `NodeDumper` output for the transformed tree
+- `<file>.codemod.after.dump.txt` - `NodeDumper` output for the transformed tree
   (emitted when diagnostics mode is enabled).
 
 During review, diff the summary to see which visitors ran and what changed; the

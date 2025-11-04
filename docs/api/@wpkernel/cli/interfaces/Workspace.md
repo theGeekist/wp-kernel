@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / Workspace
+[@wpkernel/cli](../README.md) / Workspace
 
 # Interface: Workspace
 
@@ -22,7 +22,7 @@ cwd: () =&gt; string;
 
 `string`
 
-***
+---
 
 ### read()
 
@@ -40,7 +40,7 @@ read: (file) =&gt; Promise&lt;Buffer&lt;ArrayBufferLike&gt; | null&gt;;
 
 `Promise`\&lt;`Buffer`\&lt;`ArrayBufferLike`\&gt; \| `null`\&gt;
 
-***
+---
 
 ### readText()
 
@@ -58,7 +58,7 @@ readText: (file) =&gt; Promise&lt;string | null&gt;;
 
 `Promise`\&lt;`string` \| `null`\&gt;
 
-***
+---
 
 ### write()
 
@@ -84,7 +84,7 @@ write: (file, data, options?) =&gt; Promise&lt;void&gt;;
 
 `Promise`\&lt;`void`\&gt;
 
-***
+---
 
 ### writeJson()
 
@@ -116,7 +116,7 @@ writeJson: &lt;T&gt;(file, value, options?) =&gt; Promise&lt;void&gt;;
 
 `Promise`\&lt;`void`\&gt;
 
-***
+---
 
 ### rm()
 
@@ -138,7 +138,7 @@ rm: (target, options?) =&gt; Promise&lt;void&gt;;
 
 `Promise`\&lt;`void`\&gt;
 
-***
+---
 
 ### glob()
 
@@ -156,7 +156,7 @@ glob: (pattern) =&gt; Promise&lt;string[]&gt;;
 
 `Promise`\&lt;`string`[]\&gt;
 
-***
+---
 
 ### threeWayMerge()
 
@@ -190,7 +190,7 @@ threeWayMerge: (file, base, current, incoming, options?) =&gt; Promise&lt;"confl
 
 `Promise`\&lt;`"conflict"` \| `"clean"`\&gt;
 
-***
+---
 
 ### begin()
 
@@ -208,7 +208,7 @@ begin: (label?) =&gt; void;
 
 `void`
 
-***
+---
 
 ### commit()
 
@@ -226,7 +226,7 @@ commit: (label?) =&gt; Promise&lt;FileManifest&gt;;
 
 `Promise`\&lt;[`FileManifest`](FileManifest.md)\&gt;
 
-***
+---
 
 ### rollback()
 
@@ -244,7 +244,7 @@ rollback: (label?) =&gt; Promise&lt;FileManifest&gt;;
 
 `Promise`\&lt;[`FileManifest`](FileManifest.md)\&gt;
 
-***
+---
 
 ### dryRun()
 
@@ -270,11 +270,11 @@ dryRun: &lt;T&gt;(fn) =&gt; Promise&lt;{
 #### Returns
 
 `Promise`\&lt;\{
-  `result`: `T`;
-  `manifest`: [`FileManifest`](FileManifest.md);
+`result`: `T`;
+`manifest`: [`FileManifest`](FileManifest.md);
 \}\&gt;
 
-***
+---
 
 ### tmpDir()
 
@@ -292,7 +292,7 @@ tmpDir: (prefix?) =&gt; Promise&lt;string&gt;;
 
 `Promise`\&lt;`string`\&gt;
 
-***
+---
 
 ### root
 
@@ -303,10 +303,10 @@ readonly root: string;
 #### Inherited from
 
 ```ts
-WorkspaceLike.root
+WorkspaceLike.root;
 ```
 
-***
+---
 
 ### resolve()
 
@@ -327,10 +327,10 @@ resolve: (...parts) =&gt; string;
 #### Inherited from
 
 ```ts
-WorkspaceLike.resolve
+WorkspaceLike.resolve;
 ```
 
-***
+---
 
 ### exists()
 
@@ -351,5 +351,5 @@ exists: (target) =&gt; Promise&lt;boolean&gt;;
 #### Inherited from
 
 ```ts
-WorkspaceLike.exists
+WorkspaceLike.exists;
 ```

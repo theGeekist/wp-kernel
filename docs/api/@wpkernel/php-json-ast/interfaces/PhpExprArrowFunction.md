@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpExprArrowFunction
+[@wpkernel/php-json-ast](../README.md) / PhpExprArrowFunction
 
 # Interface: PhpExprArrowFunction
 
@@ -24,7 +24,7 @@ readonly nodeType: "Expr_ArrowFunction";
 
 [`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
 
-***
+---
 
 ### static
 
@@ -32,7 +32,7 @@ readonly nodeType: "Expr_ArrowFunction";
 readonly static: boolean;
 ```
 
-***
+---
 
 ### byRef
 
@@ -40,7 +40,7 @@ readonly static: boolean;
 readonly byRef: boolean;
 ```
 
-***
+---
 
 ### params
 
@@ -48,7 +48,7 @@ readonly byRef: boolean;
 readonly params: PhpParam[];
 ```
 
-***
+---
 
 ### returnType
 
@@ -56,7 +56,7 @@ readonly params: PhpParam[];
 readonly returnType: PhpType | null;
 ```
 
-***
+---
 
 ### expr
 
@@ -64,7 +64,7 @@ readonly returnType: PhpType | null;
 readonly expr: PhpExpr;
 ```
 
-***
+---
 
 ### attrGroups
 
@@ -72,7 +72,7 @@ readonly expr: PhpExpr;
 readonly attrGroups: PhpAttrGroup[];
 ```
 
-***
+---
 
 ### attributes
 

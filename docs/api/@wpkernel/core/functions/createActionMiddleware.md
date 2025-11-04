@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / createActionMiddleware
+[@wpkernel/core](../README.md) / createActionMiddleware
 
 # Function: createActionMiddleware()
 
@@ -14,6 +14,7 @@ Create a Redux-compatible middleware that intercepts and executes WP Kernel acti
 
 This middleware enables actions to be dispatched through Redux/`@wordpress/data` stores.
 When an action envelope is dispatched, the middleware:
+
 1. Intercepts the envelope before it reaches reducers
 2. Extracts the action function and arguments
 3. Executes the action (triggering lifecycle events, cache invalidation, etc.)
@@ -32,7 +33,7 @@ Redux store state type
 
 ## Returns
 
-[`ReduxMiddleware`](../WP-Kernel-API/namespaces/actions/type-aliases/ReduxMiddleware.md)\&lt;`TState`\&gt;
+[`ReduxMiddleware`](../type-aliases/ReduxMiddleware.md)\&lt;`TState`\&gt;
 
 Redux middleware function
 

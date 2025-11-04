@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / WPKUICapabilityRuntime
+[@wpkernel/core](../README.md) / WPKUICapabilityRuntime
 
 # Interface: WPKUICapabilityRuntime
 

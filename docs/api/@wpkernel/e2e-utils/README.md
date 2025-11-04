@@ -1,8 +1,8 @@
-**WP Kernel API v0.11.0**
+**@wpkernel/e2e-utils v0.11.0**
 
-***
+---
 
-# WP Kernel API v0.11.0
+# @wpkernel/e2e-utils v0.11.0
 
 ## Interfaces
 

@@ -46,7 +46,7 @@ thing.reporter.debug('Fetched Thing list from settings panel');
 
 ## Full API Reference
 
-For complete type signatures and all exported functions, see the [auto-generated API documentation](/api/@wpkernel/core/WP-Kernel-API/namespaces/resource/README).
+For complete type signatures and all exported functions, see the [auto-generated API documentation](/api/@wpkernel/core/README#resource).
 
 ## Learn More
 

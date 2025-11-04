@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / EnsureCleanDirectoryOptions
+[@wpkernel/cli](../README.md) / EnsureCleanDirectoryOptions
 
 # Interface: EnsureCleanDirectoryOptions
 
@@ -18,7 +18,7 @@ readonly workspace: Workspace;
 
 The workspace instance.
 
-***
+---
 
 ### directory
 
@@ -28,7 +28,7 @@ readonly directory: string;
 
 The directory to ensure is clean.
 
-***
+---
 
 ### force?
 
@@ -38,7 +38,7 @@ readonly optional force: boolean;
 
 Whether to force the cleanup, even if the directory is not empty.
 
-***
+---
 
 ### create?
 
@@ -48,7 +48,7 @@ readonly optional create: boolean;
 
 Whether to create the directory if it doesn't exist.
 
-***
+---
 
 ### reporter?
 

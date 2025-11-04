@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ActionDomainEvent
+[@wpkernel/core](../README.md) / ActionDomainEvent
 
 # Type Alias: ActionDomainEvent
 
@@ -18,7 +18,7 @@ type ActionDomainEvent = object;
 eventName: string;
 ```
 
-***
+---
 
 ### payload
 
@@ -26,7 +26,7 @@ eventName: string;
 payload: unknown;
 ```
 
-***
+---
 
 ### metadata
 

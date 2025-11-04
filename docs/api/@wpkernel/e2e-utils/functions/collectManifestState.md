@@ -1,13 +1,14 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/e2e-utils v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / collectManifestState
+[@wpkernel/e2e-utils](../README.md) / collectManifestState
 
 # Function: collectManifestState()
 
 ```ts
-function collectManifestState(workspace, definition): Promise&lt;FileManifest&gt;;
+function collectManifestState(workspace, definition): Promise & lt;
+FileManifest & gt;
 ```
 
 Collects the file system manifest state for comparison.

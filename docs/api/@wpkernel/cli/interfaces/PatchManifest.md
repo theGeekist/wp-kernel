@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PatchManifest
+[@wpkernel/cli](../README.md) / PatchManifest
 
 # Interface: PatchManifest
 
@@ -14,7 +14,7 @@
 readonly summary: PatchManifestSummary;
 ```
 
-***
+---
 
 ### records
 
@@ -22,7 +22,7 @@ readonly summary: PatchManifestSummary;
 readonly records: PatchRecord[];
 ```
 
-***
+---
 
 ### actions
 

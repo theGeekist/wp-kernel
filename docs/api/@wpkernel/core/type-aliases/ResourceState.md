@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ResourceState
+[@wpkernel/core](../README.md) / ResourceState
 
 # Type Alias: ResourceState\&lt;T\&gt;
 
@@ -21,12 +21,13 @@ type ResourceState&lt;T&gt; = object;
 ### items
 
 ```ts
-items: Record&lt;string | number, T&gt;;
+items: Record & lt;
+(string | number, T & gt);
 ```
 
 Map of items by ID.
 
-***
+---
 
 ### lists
 
@@ -37,7 +38,7 @@ lists: Record&lt;string, (string | number)[]&gt;;
 List queries and their results.
 Key is stringified query params, value is array of IDs.
 
-***
+---
 
 ### listMeta
 
@@ -52,12 +53,13 @@ listMeta: Record&lt;string, {
 
 List metadata (total count, pagination, etc).
 
-***
+---
 
 ### errors
 
 ```ts
-errors: Record&lt;string, string&gt;;
+errors: Record & lt;
+(string, string & gt);
 ```
 
 Error messages by cache key.

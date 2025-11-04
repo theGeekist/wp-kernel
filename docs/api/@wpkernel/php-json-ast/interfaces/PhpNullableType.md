@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpNullableType
+[@wpkernel/php-json-ast](../README.md) / PhpNullableType
 
 # Interface: PhpNullableType
 
@@ -24,7 +24,7 @@ readonly nodeType: "NullableType";
 
 [`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
 
-***
+---
 
 ### type
 
@@ -32,7 +32,7 @@ readonly nodeType: "NullableType";
 readonly type: PhpType;
 ```
 
-***
+---
 
 ### attributes
 

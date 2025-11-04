@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpStmtFor
+[@wpkernel/php-json-ast](../README.md) / PhpStmtFor
 
 # Interface: PhpStmtFor
 
@@ -24,7 +24,7 @@ readonly nodeType: "Stmt_For";
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
-***
+---
 
 ### init
 
@@ -32,7 +32,7 @@ readonly nodeType: "Stmt_For";
 readonly init: PhpExpr[];
 ```
 
-***
+---
 
 ### cond
 
@@ -40,7 +40,7 @@ readonly init: PhpExpr[];
 readonly cond: PhpExpr[];
 ```
 
-***
+---
 
 ### loop
 
@@ -48,7 +48,7 @@ readonly cond: PhpExpr[];
 readonly loop: PhpExpr[];
 ```
 
-***
+---
 
 ### stmts
 
@@ -56,7 +56,7 @@ readonly loop: PhpExpr[];
 readonly stmts: PhpStmt[];
 ```
 
-***
+---
 
 ### attributes
 

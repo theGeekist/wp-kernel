@@ -1,17 +1,13 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / buildGroupUse
+[@wpkernel/php-json-ast](../README.md) / buildGroupUse
 
 # Function: buildGroupUse()
 
 ```ts
-function buildGroupUse(
-   type, 
-   prefix, 
-   uses, 
-   attributes?): PhpStmtGroupUse;
+function buildGroupUse(type, prefix, uses, attributes?): PhpStmtGroupUse;
 ```
 
 Builds a PHP group `use` statement node.

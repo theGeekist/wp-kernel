@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ReporterOptions
+[@wpkernel/core](../README.md) / ReporterOptions
 
 # Type Alias: ReporterOptions
 
@@ -18,7 +18,7 @@ type ReporterOptions = object;
 optional namespace: string;
 ```
 
-***
+---
 
 ### channel?
 
@@ -26,7 +26,7 @@ optional namespace: string;
 optional channel: ReporterChannel;
 ```
 
-***
+---
 
 ### level?
 
@@ -34,7 +34,7 @@ optional channel: ReporterChannel;
 optional level: ReporterLevel;
 ```
 
-***
+---
 
 ### enabled?
 

@@ -1,13 +1,18 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/test-utils v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ApplyLogStatus
+[@wpkernel/test-utils](../README.md) / ApplyLogStatus
 
 # Type Alias: ApplyLogStatus
 
 ```ts
-type ApplyLogStatus = "success" | "conflict" | "skipped" | "cancelled" | "failed";
+type ApplyLogStatus =
+	| 'success'
+	| 'conflict'
+	| 'skipped'
+	| 'cancelled'
+	| 'failed';
 ```
 
 Represents the status of an apply operation in the log.

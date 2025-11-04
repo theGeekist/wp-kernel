@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpAdapterConfig
+[@wpkernel/cli](../README.md) / PhpAdapterConfig
 
 # Interface: PhpAdapterConfig
 
@@ -16,7 +16,7 @@ Configuration returned by the PHP adapter factory.
 optional namespace: string;
 ```
 
-***
+---
 
 ### autoload?
 
@@ -24,7 +24,7 @@ optional namespace: string;
 optional autoload: string;
 ```
 
-***
+---
 
 ### customise()?
 

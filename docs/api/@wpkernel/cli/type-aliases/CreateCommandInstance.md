@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / CreateCommandInstance
+[@wpkernel/cli](../README.md) / CreateCommandInstance
 
 # Type Alias: CreateCommandInstance
 

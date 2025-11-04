@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ConfigureWPKernelOptions
+[@wpkernel/core](../README.md) / ConfigureWPKernelOptions
 
 # Interface: ConfigureWPKernelOptions
 
@@ -14,7 +14,7 @@
 optional namespace: string;
 ```
 
-***
+---
 
 ### registry?
 
@@ -22,7 +22,7 @@ optional namespace: string;
 optional registry: WPKernelRegistry;
 ```
 
-***
+---
 
 ### reporter?
 
@@ -30,7 +30,7 @@ optional registry: WPKernelRegistry;
 optional reporter: Reporter;
 ```
 
-***
+---
 
 ### middleware?
 
@@ -38,7 +38,7 @@ optional reporter: Reporter;
 optional middleware: ReduxMiddleware[];
 ```
 
-***
+---
 
 ### ui?
 

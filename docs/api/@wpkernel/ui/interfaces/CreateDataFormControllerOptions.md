@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/ui v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / CreateDataFormControllerOptions
+[@wpkernel/ui](../README.md) / CreateDataFormControllerOptions
 
 # Interface: CreateDataFormControllerOptions\&lt;TInput, TResult, TQuery\&gt;
 
@@ -27,10 +27,11 @@ Options for creating a `DataFormController`.
 ### action
 
 ```ts
-action: DefinedAction&lt;TInput, TResult&gt;;
+action: DefinedAction & lt;
+(TInput, TResult & gt);
 ```
 
-***
+---
 
 ### runtime
 
@@ -38,7 +39,7 @@ action: DefinedAction&lt;TInput, TResult&gt;;
 runtime: DataViewsRuntimeContext;
 ```
 
-***
+---
 
 ### resourceName
 
@@ -46,7 +47,7 @@ runtime: DataViewsRuntimeContext;
 resourceName: string;
 ```
 
-***
+---
 
 ### resource?
 
@@ -54,7 +55,7 @@ resourceName: string;
 optional resource: ResourceObject&lt;unknown, TQuery&gt;;
 ```
 
-***
+---
 
 ### invalidate()?
 
@@ -76,7 +77,7 @@ optional invalidate: (result, input) =&gt; false | CacheKeyPattern[];
 
 `false` \| `CacheKeyPattern`[]
 
-***
+---
 
 ### onSuccess()?
 
@@ -94,7 +95,7 @@ optional onSuccess: (result) =&gt; void;
 
 `void`
 
-***
+---
 
 ### onError()?
 

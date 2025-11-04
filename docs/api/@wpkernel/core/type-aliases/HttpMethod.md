@@ -1,13 +1,13 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / HttpMethod
+[@wpkernel/core](../README.md) / HttpMethod
 
 # Type Alias: HttpMethod
 
 ```ts
-type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 ```
 
 HTTP methods supported by the transport layer

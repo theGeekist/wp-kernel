@@ -1,8 +1,8 @@
-**WP Kernel API v0.11.0**
+**@wpkernel/test-utils v0.11.0**
 
-***
+---
 
-# WP Kernel API v0.11.0
+# @wpkernel/test-utils v0.11.0
 
 ## Classes
 
@@ -92,7 +92,7 @@
 
 ### CLI Helpers
 
-- [TMP\_PREFIX](variables/TMP_PREFIX.md)
+- [TMP_PREFIX](variables/TMP_PREFIX.md)
 
 ## Functions
 

@@ -1,11 +1,11 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ReporterChannel
+[@wpkernel/core](../README.md) / ReporterChannel
 
 # Type Alias: ReporterChannel
 
 ```ts
-type ReporterChannel = "console" | "hooks" | "bridge" | "all";
+type ReporterChannel = 'console' | 'hooks' | 'bridge' | 'all';
 ```

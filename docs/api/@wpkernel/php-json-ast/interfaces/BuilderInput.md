@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / BuilderInput
+[@wpkernel/php-json-ast](../README.md) / BuilderInput
 
 # Interface: BuilderInput
 
@@ -14,7 +14,7 @@
 readonly phase: PipelinePhase;
 ```
 
-***
+---
 
 ### options
 
@@ -22,7 +22,7 @@ readonly phase: PipelinePhase;
 readonly options: unknown;
 ```
 
-***
+---
 
 ### ir
 

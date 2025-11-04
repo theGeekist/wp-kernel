@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpStmtBase
+[@wpkernel/php-json-ast](../README.md) / PhpStmtBase
 
 # Interface: PhpStmtBase
 
@@ -54,7 +54,7 @@ readonly nodeType: `Stmt_${string}` | "UseItem" | "PropertyItem";
 
 [`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
 
-***
+---
 
 ### attributes
 

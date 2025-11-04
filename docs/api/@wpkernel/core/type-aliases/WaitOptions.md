@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / WaitOptions
+[@wpkernel/core](../README.md) / WaitOptions
 
 # Type Alias: WaitOptions
 
@@ -20,7 +20,7 @@ Options for waiting on a background job.
 optional timeoutMs: number;
 ```
 
-***
+---
 
 ### pollIntervalMs?
 

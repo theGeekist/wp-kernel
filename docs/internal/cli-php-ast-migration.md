@@ -79,12 +79,12 @@ The goal remains: every storage mode plugs into a helper-first API, the channel 
 > **MVP Plan reference:** Tasks 5-9 (Phase 1 patch band)
 
 - **Deliverables**
-    - **Task 5 - Implementation (0.4.5):** ✓ Completed – AST builders for wp-option controllers/helpers now live under `packages/cli/src/builders/php/resource/wpOption/**`, replacing the legacy printer while staying fully AST-first.
-    - **Task 6 - Tests (0.4.6):** ✓ Completed – Resource controller coverage snapshots queued `PhpProgram` payloads and verifies the writer emits matching PHP/AST pairs for wp-option controllers.
-    - **Task 7 - Fixtures & docs (0.4.7):** ✓ Completed – Integration fixtures queue wp-option controllers and documentation now walks the updated flows.
+    - **Task 5 - Implementation (0.4.5):** ✓ Completed - AST builders for wp-option controllers/helpers now live under `packages/cli/src/builders/php/resource/wpOption/**`, replacing the legacy printer while staying fully AST-first.
+    - **Task 6 - Tests (0.4.6):** ✓ Completed - Resource controller coverage snapshots queued `PhpProgram` payloads and verifies the writer emits matching PHP/AST pairs for wp-option controllers.
+    - **Task 7 - Fixtures & docs (0.4.7):** ✓ Completed - Integration fixtures queue wp-option controllers and documentation now walks the updated flows.
 - **Additional slots**
-    - **Task 8 - Buffer (0.4.8):** ✓ Completed – No regressions surfaced after review, so the buffer slot closes without a follow-up patch.
-    - **Task 9 - Release prep (0.4.9):** ✓ Completed – Changelog rollup and the monorepo version bump are staged for the 0.5.0 release cut.
+    - **Task 8 - Buffer (0.4.8):** ✓ Completed - No regressions surfaced after review, so the buffer slot closes without a follow-up patch.
+    - **Task 9 - Release prep (0.4.9):** ✓ Completed - Changelog rollup and the monorepo version bump are staged for the 0.5.0 release cut.
 
 ### Phase 2 - Transient storage parity ⏳
 
@@ -120,16 +120,16 @@ The goal remains: every storage mode plugs into a helper-first API, the channel 
 - Announce the transient parity milestone in `CHANGELOG.md` and ensure adapters know where to hook into the new helpers.
 - Refresh docs (`mvp-plan.md`, `cli-migration-phases.md`, adapter brief) to mark Phase 2 as complete and open the Phase 3 patch band.
 
-- **Task 11 - Implementation (0.5.1):** ✓ Completed – Transient controllers/helpers now live under `packages/cli/src/builders/php/resource/transient/**`, emitting sanitised keys and TTL normalisers through the AST pipeline.
-- **Task 12 - Tests (0.5.2):** ✓ Completed – Builder and controller suites assert transient cache metadata, TTL sanitisation, and WP_Error handling while snapshotting queued `PhpProgram` artefacts.
-- **Task 13 - Fixtures & docs (0.5.3):** ✓ Completed – CLI goldens and contributor docs now surface transient helpers, storage bindings, and cache invalidation guidance for plugin authors.
-- **Task 14 - Buffer (0.5.4):** ✓ Completed – DELETE routes now call `delete_transient()` and record cache invalidation metadata so callers can invalidate per-entity caches.
-- **Task 15 - Release (0.6.0):** ✓ Completed – Version 0.6.0 shipped with unified changelog entries and version bumps across the monorepo.
+- **Task 11 - Implementation (0.5.1):** ✓ Completed - Transient controllers/helpers now live under `packages/cli/src/builders/php/resource/transient/**`, emitting sanitised keys and TTL normalisers through the AST pipeline.
+- **Task 12 - Tests (0.5.2):** ✓ Completed - Builder and controller suites assert transient cache metadata, TTL sanitisation, and WP_Error handling while snapshotting queued `PhpProgram` artefacts.
+- **Task 13 - Fixtures & docs (0.5.3):** ✓ Completed - CLI goldens and contributor docs now surface transient helpers, storage bindings, and cache invalidation guidance for plugin authors.
+- **Task 14 - Buffer (0.5.4):** ✓ Completed - DELETE routes now call `delete_transient()` and record cache invalidation metadata so callers can invalidate per-entity caches.
+- **Task 15 - Release (0.6.0):** ✓ Completed - Version 0.6.0 shipped with unified changelog entries and version bumps across the monorepo.
 
-- **Task 11 - Implementation (0.5.1):** ✓ Completed – Transient controllers/helpers now live under `packages/cli/src/builders/php/resource/transient/**`, emitting sanitised keys and TTL normalisers through the AST pipeline.
-- **Task 12 - Tests (0.5.2):** ✓ Completed – Builder and controller suites assert transient cache metadata, TTL sanitisation, and WP_Error handling while snapshotting queued `PhpProgram` artefacts.
-- **Task 13 - Fixtures & docs (0.5.3):** ✓ Completed – CLI goldens and contributor docs now surface transient helpers, storage bindings, and cache invalidation guidance for plugin authors.
-- **Task 14 - Buffer (0.5.4):** ✓ Completed – DELETE route fixes closed the transient buffer slot ahead of the 0.6.0 release.
+- **Task 11 - Implementation (0.5.1):** ✓ Completed - Transient controllers/helpers now live under `packages/cli/src/builders/php/resource/transient/**`, emitting sanitised keys and TTL normalisers through the AST pipeline.
+- **Task 12 - Tests (0.5.2):** ✓ Completed - Builder and controller suites assert transient cache metadata, TTL sanitisation, and WP_Error handling while snapshotting queued `PhpProgram` artefacts.
+- **Task 13 - Fixtures & docs (0.5.3):** ✓ Completed - CLI goldens and contributor docs now surface transient helpers, storage bindings, and cache invalidation guidance for plugin authors.
+- **Task 14 - Buffer (0.5.4):** ✓ Completed - DELETE route fixes closed the transient buffer slot ahead of the 0.6.0 release.
 
 ### Phase 3 - Block printers (SSR & JS-only) ✓ Completed
 
@@ -139,7 +139,7 @@ The goal remains: every storage mode plugs into a helper-first API, the channel 
 
 #### Task 16 - Block builder implementation (0.6.1)
 
-Status: ✓ Completed – Block manifests, registrar assembly, and render stubs now stage through the next pipeline helpers with shared `ts-morph` primitives.
+Status: ✓ Completed - Block manifests, registrar assembly, and render stubs now stage through the next pipeline helpers with shared `ts-morph` primitives.
 
 - Port block generation into the next pipeline by replacing `packages/cli/src/printers/blocks/**` with helpers under `packages/cli/src/builders/blocks/**`.
 - Introduce shared `ts-morph` primitives (module/file factories, metadata helpers) that both the block builders and `createTsBuilder` can consume when emitting TypeScript entry points.
@@ -151,7 +151,7 @@ Status: ✓ Completed – Block manifests, registrar assembly, and render stubs 
 
 #### Task 17 - Block parity tests (0.6.2)
 
-Status: ✓ Completed – Unit and integration coverage assert ts-morph registrars, SSR render programs, manifest caching, and cache invalidation warnings across block permutations.
+Status: ✓ Completed - Unit and integration coverage assert ts-morph registrars, SSR render programs, manifest caching, and cache invalidation warnings across block permutations.
 
 - Extend the block builder unit suite to assert `ts-morph` output, SSR AST programs, and manifest metadata across SSR, JS-only, and hybrid scenarios.
 - Add integration coverage to the generate command harness so goldens capture registrar modules, editor scripts, style handles, and rendered PHP templates produced by the new helpers.
@@ -163,7 +163,7 @@ Status: ✓ Completed – Unit and integration coverage assert ts-morph registra
 
 #### Task 18 - Block fixtures & documentation (0.6.3)
 
-Status: ✓ Completed – Fixtures and contributor docs describe the AST-first block builders and retired string printers, keeping showcase outputs aligned.
+Status: ✓ Completed - Fixtures and contributor docs describe the AST-first block builders and retired string printers, keeping showcase outputs aligned.
 
 - Refresh CLI fixtures, generated artefacts, and documentation (`docs/index.md`, this file, `cli-migration-phases.md`, adapter guides) to describe the new block pipeline and the shared `ts-morph` primitives.
 - Document migration guidance for plugin authors, including how SSR templates coexist with JS-only bundles and where to hook adapter extensions.
@@ -175,7 +175,7 @@ Status: ✓ Completed – Fixtures and contributor docs describe the AST-first b
 
 #### Task 19 - Phase 3 buffer slot (0.6.4)
 
-Status: ✓ Completed – Manifest cache invalidation bugfix closed the buffer so template and manifest edits trigger fresh processing ahead of the 0.7.0 release.
+Status: ✓ Completed - Manifest cache invalidation bugfix closed the buffer so template and manifest edits trigger fresh processing ahead of the 0.7.0 release.
 
 - Reserve capacity for polish or regression fixes discovered while landing Tasks 16-18 (for example, `ts-morph` emit ordering or SSR template edge cases).
 - Close the slot with a bugfix if required, or document the validation path if no additional work is needed before cutting 0.7.0.
@@ -193,25 +193,25 @@ Status: ✓ Completed – Manifest cache invalidation bugfix closed the buffer s
 
 #### Task 24 - Capability helper parity (0.7.5)
 
-Status: ✓ Completed – AST helper now mirrors the legacy enforcement flow, emits structured errors, and reports fallback capabilities through the next pipeline reporter.
+Status: ✓ Completed - AST helper now mirrors the legacy enforcement flow, emits structured errors, and reports fallback capabilities through the next pipeline reporter.
 
 - Ported capability checks (`current_user_can` wiring), object binding resolution, and closure scaffolds into the AST helper (`packages/cli/src/builders/php/capability.ts`).
 - Restored structured `WP_Error` responses for denied capabilities and missing bindings so controller outputs stay aligned with historical behaviour.
 - Threaded capability map warnings back to the reporter so unsecured routes falling back to the default capability surface during generation.
 - Updated unit and integration coverage to exercise the new helper methods and refresh the generated `Capability.php` snapshot.
-- Complexity: high – touched shared helpers, reporter wiring, and integration tests.
+- Complexity: high - touched shared helpers, reporter wiring, and integration tests.
 
 <a id="task-25---controller-safety--block-derivation"></a>
 
 #### Task 25 - Controller safety & block derivation (0.7.6)
 
-Status: ✓ Completed – The next controller helper now emits missing-capability warnings and resource-driven block derivation flows through the manifest collector.
+Status: ✓ Completed - The next controller helper now emits missing-capability warnings and resource-driven block derivation flows through the manifest collector.
 
 - Restored `warnOnMissingCapabilities` semantics via the PHP controller helper so generation logs match the legacy CLI for write routes without capabilities.
 - Implemented resource-driven block derivation in the next pipeline, emitting JS-only manifests and staging auto-register stubs when blocks are absent.
 - Threaded derived manifests through the shared collector so TypeScript/PHP registrars consume a deterministic block map.
 - Added unit and integration coverage to snapshot controller warnings and generated manifests/stubs, guarding the transition away from string printers.
-- Complexity: medium-high – coordinated controller metadata, manifest collection, and JS block builders.
+- Complexity: medium-high - coordinated controller metadata, manifest collection, and JS block builders.
 
 ---
 

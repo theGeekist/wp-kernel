@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / BaselineCodemodPackOptions
+[@wpkernel/php-json-ast](../README.md) / BaselineCodemodPackOptions
 
 # Interface: BaselineCodemodPackOptions
 
@@ -14,7 +14,7 @@
 readonly optional canonicaliseNames: boolean;
 ```
 
-***
+---
 
 ### preserveOriginalNames?
 
@@ -22,7 +22,7 @@ readonly optional canonicaliseNames: boolean;
 readonly optional preserveOriginalNames: boolean;
 ```
 
-***
+---
 
 ### replaceResolvedNames?
 
@@ -30,7 +30,7 @@ readonly optional preserveOriginalNames: boolean;
 readonly optional replaceResolvedNames: boolean;
 ```
 
-***
+---
 
 ### groupUseStatements?
 
@@ -38,7 +38,7 @@ readonly optional replaceResolvedNames: boolean;
 readonly optional groupUseStatements: boolean;
 ```
 
-***
+---
 
 ### caseSensitiveSort?
 

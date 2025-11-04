@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / defineCapability
+[@wpkernel/core](../README.md) / defineCapability
 
 # Function: defineCapability()
 
@@ -23,6 +23,7 @@ knowing implementation details. Rules can leverage WordPress native capabilities
 ## What Capabilities Do
 
 Every capability runtime provides:
+
 - **`can(key, params?)`** - Check capability (returns boolean, never throws)
 - **`assert(key, params?)`** - Enforce capability (throws `CapabilityDenied` if false)
 - **Cache management** - Automatic result caching with TTL and cross-tab sync
@@ -89,6 +90,7 @@ function PostActions({ postId }: { postId: number }) {
 ## Caching & Performance
 
 Results are **automatically cached** with:
+
 - **Memory cache** - Instant lookups for repeated checks
 - **Cross-tab sync** - BroadcastChannel keeps all tabs in sync
 - **Session storage** - Optional persistence (set `cache.storage: 'session'`)
@@ -96,11 +98,11 @@ Results are **automatically cached** with:
 
 ```typescript
 const capability = defineCapability(rules, {
-  cache: {
-    ttlMs: 30_000,        // 30 second cache
-    storage: 'session',   // Persist in sessionStorage
-    crossTab: true        // Sync across browser tabs
-  }
+	cache: {
+		ttlMs: 30_000, // 30 second cache
+		storage: 'session', // Persist in sessionStorage
+		crossTab: true, // Sync across browser tabs
+	},
 });
 ```
 
@@ -149,6 +151,7 @@ const capability = defineCapability(rules, {
 ## Event Emission
 
 When capabilities are denied, events are emitted to:
+
 - **`@wordpress/hooks`** - `{namespace}.capability.denied` with full context
 - **BroadcastChannel** - Cross-tab notification for UI synchronization
 - **PHP bridge** - Optional server-side logging (when `bridged: true` in actions)
@@ -181,10 +184,10 @@ For custom runtime configuration:
 
 ```typescript
 globalThis.__WP_KERNEL_ACTION_RUNTIME__ = {
-  capability: defineCapability(rules),
-  jobs: defineJobQueue(),
-  bridge: createPHPBridge(),
-  reporter: createReporter()
+	capability: defineCapability(rules),
+	jobs: defineJobQueue(),
+	bridge: createPHPBridge(),
+	reporter: createReporter(),
 };
 ```
 
@@ -219,10 +222,10 @@ type MyCapabilities = {
 
 const capability = defineCapability&lt;MyCapabilities&gt;({ ... });
 
-capability.can('posts.view');           // ✅ OK
-capability.can('posts.edit', 123);      // ✅ OK
-capability.can('posts.edit');           // ❌ Type error: missing param
-capability.can('posts.unknown');        // ❌ Type error: unknown key
+capability.can('posts.view');           // ✓ OK
+capability.can('posts.edit', 123);      // ✓ OK
+capability.can('posts.edit');           // ✗ Type error: missing param
+capability.can('posts.unknown');        // ✗ Type error: unknown key
 ```
 
 ## Async vs Sync Rules
@@ -248,7 +251,7 @@ In React components, async rules return `false` during evaluation and update whe
 
 ### K
 
-`K` *extends* `Record`\&lt;`string`, `unknown`\&gt;
+`K` _extends_ `Record`\&lt;`string`, `unknown`\&gt;
 
 Capability map type defining capability keys and their parameter types
 

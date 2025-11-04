@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / AdapterExtensionContext
+[@wpkernel/cli](../README.md) / AdapterExtensionContext
 
 # Interface: AdapterExtensionContext
 
@@ -24,7 +24,7 @@ ir: IRv1;
 
 [`AdapterContext`](AdapterContext.md).[`ir`](AdapterContext.md#ir)
 
-***
+---
 
 ### outputDir
 
@@ -32,7 +32,7 @@ ir: IRv1;
 outputDir: string;
 ```
 
-***
+---
 
 ### tempDir
 
@@ -40,7 +40,7 @@ outputDir: string;
 tempDir: string;
 ```
 
-***
+---
 
 ### queueFile()
 
@@ -62,7 +62,7 @@ queueFile: (filePath, contents) =&gt; Promise&lt;void&gt;;
 
 `Promise`\&lt;`void`\&gt;
 
-***
+---
 
 ### updateIr()
 
@@ -80,7 +80,7 @@ updateIr: (ir) =&gt; void;
 
 `void`
 
-***
+---
 
 ### formatPhp()
 
@@ -102,7 +102,7 @@ formatPhp: (filePath, contents) =&gt; Promise&lt;string&gt;;
 
 `Promise`\&lt;`string`\&gt;
 
-***
+---
 
 ### formatTs()
 
@@ -124,7 +124,7 @@ formatTs: (filePath, contents) =&gt; Promise&lt;string&gt;;
 
 `Promise`\&lt;`string`\&gt;
 
-***
+---
 
 ### config
 
@@ -136,7 +136,7 @@ config: WPKernelConfigV1;
 
 [`AdapterContext`](AdapterContext.md).[`config`](AdapterContext.md#config)
 
-***
+---
 
 ### reporter
 
@@ -148,7 +148,7 @@ reporter: Reporter;
 
 [`AdapterContext`](AdapterContext.md).[`reporter`](AdapterContext.md#reporter)
 
-***
+---
 
 ### namespace
 
@@ -160,7 +160,7 @@ namespace: string;
 
 [`AdapterContext`](AdapterContext.md).[`namespace`](AdapterContext.md#namespace)
 
-***
+---
 
 ### configDirectory?
 

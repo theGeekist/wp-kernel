@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpExprAssign
+[@wpkernel/php-json-ast](../README.md) / PhpExprAssign
 
 # Interface: PhpExprAssign
 
@@ -24,7 +24,7 @@ readonly nodeType: "Expr_Assign";
 
 [`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
 
-***
+---
 
 ### var
 
@@ -32,7 +32,7 @@ readonly nodeType: "Expr_Assign";
 readonly var: PhpExpr;
 ```
 
-***
+---
 
 ### expr
 
@@ -40,7 +40,7 @@ readonly var: PhpExpr;
 readonly expr: PhpExpr;
 ```
 
-***
+---
 
 ### attributes
 

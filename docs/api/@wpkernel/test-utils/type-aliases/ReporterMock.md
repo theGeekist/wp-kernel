@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/test-utils v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ReporterMock
+[@wpkernel/test-utils](../README.md) / ReporterMock
 
 # Type Alias: ReporterMock
 
@@ -41,5 +41,6 @@ error: jest.Mock&lt;void, [string, unknown?]&gt;;
 ### child
 
 ```ts
-child: jest.Mock&lt;ReporterMock, [string]&gt;;
+child: jest.Mock & lt;
+(ReporterMock, [string] & gt);
 ```

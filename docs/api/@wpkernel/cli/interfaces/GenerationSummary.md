@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / GenerationSummary
+[@wpkernel/cli](../README.md) / GenerationSummary
 
 # Interface: GenerationSummary
 
@@ -20,19 +20,20 @@ Aggregated summary returned by the `FileWriter.summarise` helper.
 dryRun: boolean;
 ```
 
-***
+---
 
 ### counts
 
 ```ts
-counts: Record&lt;FileWriteStatus, number&gt;;
+counts: Record & lt;
+(FileWriteStatus, number & gt);
 ```
 
 #### Inherited from
 
 [`FileWriterSummary`](FileWriterSummary.md).[`counts`](FileWriterSummary.md#counts)
 
-***
+---
 
 ### entries
 

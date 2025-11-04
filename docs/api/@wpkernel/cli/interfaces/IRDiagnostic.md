@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / IRDiagnostic
+[@wpkernel/cli](../README.md) / IRDiagnostic
 
 # Interface: IRDiagnostic
 
@@ -18,7 +18,7 @@ key: string;
 
 A unique key for the diagnostic.
 
-***
+---
 
 ### message
 
@@ -28,7 +28,7 @@ message: string;
 
 The diagnostic message.
 
-***
+---
 
 ### severity
 
@@ -38,7 +38,7 @@ severity: IRDiagnosticSeverity;
 
 The severity of the diagnostic.
 
-***
+---
 
 ### context?
 

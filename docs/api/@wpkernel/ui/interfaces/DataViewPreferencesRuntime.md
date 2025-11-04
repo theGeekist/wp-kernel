@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/ui v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / DataViewPreferencesRuntime
+[@wpkernel/ui](../README.md) / DataViewPreferencesRuntime
 
 # Interface: DataViewPreferencesRuntime
 
@@ -21,7 +21,7 @@ adapter: DataViewPreferencesAdapter;
 
 The underlying preferences adapter
 
-***
+---
 
 ### get()
 
@@ -45,7 +45,7 @@ Preference key
 
 Preference value or undefined
 
-***
+---
 
 ### set()
 
@@ -73,7 +73,7 @@ Preference value
 
 `Promise`\&lt;`void`\&gt;
 
-***
+---
 
 ### getScopeOrder()
 

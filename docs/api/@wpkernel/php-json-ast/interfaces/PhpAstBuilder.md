@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpAstBuilder
+[@wpkernel/php-json-ast](../README.md) / PhpAstBuilder
 
 # Interface: PhpAstBuilder
 
@@ -22,7 +22,7 @@ getNamespace: () =&gt; string;
 
 `string`
 
-***
+---
 
 ### setNamespace()
 
@@ -40,7 +40,7 @@ setNamespace: (namespace) =&gt; void;
 
 `void`
 
-***
+---
 
 ### addUse()
 
@@ -58,7 +58,7 @@ addUse: (statement) =&gt; void;
 
 `void`
 
-***
+---
 
 ### appendDocblock()
 
@@ -76,7 +76,7 @@ appendDocblock: (line) =&gt; void;
 
 `void`
 
-***
+---
 
 ### appendStatement()
 
@@ -94,7 +94,7 @@ appendStatement: (statement) =&gt; void;
 
 `void`
 
-***
+---
 
 ### appendProgramStatement()
 
@@ -112,7 +112,7 @@ appendProgramStatement: (statement) =&gt; void;
 
 `void`
 
-***
+---
 
 ### getStatements()
 
@@ -124,7 +124,7 @@ getStatements: () =&gt; readonly string[];
 
 readonly `string`[]
 
-***
+---
 
 ### getMetadata()
 
@@ -136,7 +136,7 @@ getMetadata: () =&gt; PhpFileMetadata;
 
 [`PhpFileMetadata`](../type-aliases/PhpFileMetadata.md)
 
-***
+---
 
 ### setMetadata()
 
@@ -154,7 +154,7 @@ setMetadata: (metadata) =&gt; void;
 
 `void`
 
-***
+---
 
 ### getProgramAst()
 

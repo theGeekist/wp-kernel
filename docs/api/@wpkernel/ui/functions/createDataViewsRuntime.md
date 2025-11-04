@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/ui v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / createDataViewsRuntime
+[@wpkernel/ui](../README.md) / createDataViewsRuntime
 
 # Function: createDataViewsRuntime()
 

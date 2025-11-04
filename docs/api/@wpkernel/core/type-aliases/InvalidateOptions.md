@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / InvalidateOptions
+[@wpkernel/core](../README.md) / InvalidateOptions
 
 # Type Alias: InvalidateOptions
 
@@ -23,7 +23,7 @@ optional storeKey: string;
 Store key to target (e.g., 'my-plugin/thing')
 If not provided, invalidates across all registered stores
 
-***
+---
 
 ### emitEvent?
 
@@ -36,10 +36,10 @@ Whether to emit the cache.invalidated event
 #### Default
 
 ```ts
-true
+true;
 ```
 
-***
+---
 
 ### registry?
 
@@ -49,7 +49,7 @@ optional registry: WPKernelRegistry;
 
 Registry to operate against instead of relying on global getWPData().
 
-***
+---
 
 ### reporter?
 
@@ -59,7 +59,7 @@ optional reporter: Reporter;
 
 Reporter override for cache instrumentation.
 
-***
+---
 
 ### namespace?
 
@@ -69,7 +69,7 @@ optional namespace: string;
 
 Optional namespace for logging context.
 
-***
+---
 
 ### resourceName?
 

@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/ui v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ResourceDataViewProps
+[@wpkernel/ui](../README.md) / ResourceDataViewProps
 
 # Interface: ResourceDataViewProps\&lt;TItem, TQuery\&gt;
 
@@ -32,7 +32,7 @@ optional resource: ResourceObject&lt;TItem, TQuery&gt;;
 
 The resource object to display.
 
-***
+---
 
 ### config?
 
@@ -42,7 +42,7 @@ optional config: ResourceDataViewConfig&lt;TItem, TQuery&gt;;
 
 The configuration for the DataView.
 
-***
+---
 
 ### controller?
 
@@ -52,19 +52,19 @@ optional controller: ResourceDataViewController&lt;TItem, TQuery&gt;;
 
 An optional pre-configured controller for the DataView.
 
-***
+---
 
 ### runtime?
 
 ```ts
-optional runtime: 
+optional runtime:
   | WPKernelUIRuntime
   | DataViewsRuntimeContext;
 ```
 
 The runtime context for the DataView.
 
-***
+---
 
 ### fetchList()?
 
@@ -84,7 +84,7 @@ An optional function to fetch a list of items, overriding the resource's fetchLi
 
 `Promise`\&lt;`ListResponse`\&lt;`TItem`\&gt;\&gt;
 
-***
+---
 
 ### emptyState?
 

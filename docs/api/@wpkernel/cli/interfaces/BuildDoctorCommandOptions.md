@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / BuildDoctorCommandOptions
+[@wpkernel/cli](../README.md) / BuildDoctorCommandOptions
 
 # Interface: BuildDoctorCommandOptions
 
@@ -66,7 +66,7 @@ The validated kernel config and associated metadata.
 
 WPKernelError when discovery, parsing or validation fails.
 
-***
+---
 
 #### buildWorkspace()?
 
@@ -86,7 +86,7 @@ Optional: Custom workspace builder function.
 
 [`Workspace`](Workspace.md)
 
-***
+---
 
 #### checkPhpEnvironment()?
 

@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/ui v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / UseResourceItemResult
+[@wpkernel/ui](../README.md) / UseResourceItemResult
 
 # Interface: UseResourceItemResult\&lt;T\&gt;
 
@@ -26,7 +26,7 @@ data: T | undefined;
 
 The fetched entity, or undefined if not yet loaded
 
-***
+---
 
 ### isLoading
 
@@ -36,7 +36,7 @@ isLoading: boolean;
 
 True if the data is currently being fetched or resolved
 
-***
+---
 
 ### error
 

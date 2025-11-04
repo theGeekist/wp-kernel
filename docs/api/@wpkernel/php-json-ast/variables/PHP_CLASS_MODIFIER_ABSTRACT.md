@@ -1,10 +1,10 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PHP\_CLASS\_MODIFIER\_ABSTRACT
+[@wpkernel/php-json-ast](../README.md) / PHP_CLASS_MODIFIER_ABSTRACT
 
-# Variable: PHP\_CLASS\_MODIFIER\_ABSTRACT
+# Variable: PHP_CLASS_MODIFIER_ABSTRACT
 
 ```ts
 const PHP_CLASS_MODIFIER_ABSTRACT: 16 = 16;

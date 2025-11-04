@@ -1,16 +1,13 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / buildUse
+[@wpkernel/php-json-ast](../README.md) / buildUse
 
 # Function: buildUse()
 
 ```ts
-function buildUse(
-   type, 
-   uses, 
-   attributes?): PhpStmtUse;
+function buildUse(type, uses, attributes?): PhpStmtUse;
 ```
 
 Builds a PHP `use` statement node.

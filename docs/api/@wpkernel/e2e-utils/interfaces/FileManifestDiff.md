@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/e2e-utils v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / FileManifestDiff
+[@wpkernel/e2e-utils](../README.md) / FileManifestDiff
 
 # Interface: FileManifestDiff
 
@@ -14,7 +14,7 @@
 added: string[];
 ```
 
-***
+---
 
 ### removed
 
@@ -22,7 +22,7 @@ added: string[];
 removed: string[];
 ```
 
-***
+---
 
 ### changed
 

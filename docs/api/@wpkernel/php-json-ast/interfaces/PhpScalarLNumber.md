@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpScalarLNumber
+[@wpkernel/php-json-ast](../README.md) / PhpScalarLNumber
 
 # Interface: PhpScalarLNumber
 
@@ -24,7 +24,7 @@ readonly nodeType: "Scalar_Int";
 
 [`PhpScalarBase`](PhpScalarBase.md).[`nodeType`](PhpScalarBase.md#nodetype)
 
-***
+---
 
 ### value
 
@@ -32,7 +32,7 @@ readonly nodeType: "Scalar_Int";
 readonly value: number;
 ```
 
-***
+---
 
 ### attributes
 

@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ResourceErrorEvent
+[@wpkernel/core](../README.md) / ResourceErrorEvent
 
 # Type Alias: ResourceErrorEvent
 
@@ -22,7 +22,7 @@ requestId: string;
 
 Request ID for correlation
 
-***
+---
 
 ### method
 
@@ -32,7 +32,7 @@ method: HttpMethod;
 
 HTTP method
 
-***
+---
 
 ### path
 
@@ -42,7 +42,7 @@ path: string;
 
 Request path
 
-***
+---
 
 ### code
 
@@ -52,7 +52,7 @@ code: string;
 
 Error code
 
-***
+---
 
 ### message
 
@@ -62,7 +62,7 @@ message: string;
 
 Error message
 
-***
+---
 
 ### duration
 
@@ -72,7 +72,7 @@ duration: number;
 
 Duration in milliseconds
 
-***
+---
 
 ### timestamp
 
@@ -82,7 +82,7 @@ timestamp: number;
 
 Timestamp when error occurred
 
-***
+---
 
 ### status?
 

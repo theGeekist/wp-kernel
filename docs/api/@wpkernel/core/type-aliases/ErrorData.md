@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ErrorData
+[@wpkernel/core](../README.md) / ErrorData
 
 # Type Alias: ErrorData
 
@@ -30,7 +30,7 @@ optional originalError: Error;
 
 Original error if wrapping
 
-***
+---
 
 ### validationErrors?
 
@@ -58,7 +58,7 @@ message: string;
 optional code: string;
 ```
 
-***
+---
 
 ### serverCode?
 
@@ -68,7 +68,7 @@ optional serverCode: string;
 
 Server error details
 
-***
+---
 
 ### serverMessage?
 
@@ -76,7 +76,7 @@ Server error details
 optional serverMessage: string;
 ```
 
-***
+---
 
 ### serverData?
 

@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/ui v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / DataViewRegisteredPayload
+[@wpkernel/ui](../README.md) / DataViewRegisteredPayload
 
 # Type Alias: DataViewRegisteredPayload
 
@@ -18,7 +18,7 @@ type DataViewRegisteredPayload = object;
 resource: string;
 ```
 
-***
+---
 
 ### preferencesKey
 

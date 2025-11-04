@@ -1,14 +1,14 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpNodeFinderQueryKey
+[@wpkernel/php-json-ast](../README.md) / PhpNodeFinderQueryKey
 
 # Type Alias: PhpNodeFinderQueryKey
 
 ```ts
-type PhpNodeFinderQueryKey = 
-  | "class.readonly-properties"
-  | "constructor.promoted-parameters"
-  | "enum.case-lookups";
+type PhpNodeFinderQueryKey =
+	| 'class.readonly-properties'
+	| 'constructor.promoted-parameters'
+	| 'enum.case-lookups';
 ```

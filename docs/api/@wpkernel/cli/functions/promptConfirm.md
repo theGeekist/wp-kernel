@@ -1,13 +1,14 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / promptConfirm
+[@wpkernel/cli](../README.md) / promptConfirm
 
 # Function: promptConfirm()
 
 ```ts
-function promptConfirm(options): Promise&lt;boolean&gt;;
+function promptConfirm(options): Promise & lt;
+boolean & gt;
 ```
 
 Prompts the user for a yes/no confirmation.

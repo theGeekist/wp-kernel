@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpExprCastArray
+[@wpkernel/php-json-ast](../README.md) / PhpExprCastArray
 
 # Interface: PhpExprCastArray
 
@@ -24,7 +24,7 @@ readonly nodeType: "Expr_Cast_Array";
 
 [`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
 
-***
+---
 
 ### expr
 
@@ -32,7 +32,7 @@ readonly nodeType: "Expr_Cast_Array";
 readonly expr: PhpExpr;
 ```
 
-***
+---
 
 ### attributes
 

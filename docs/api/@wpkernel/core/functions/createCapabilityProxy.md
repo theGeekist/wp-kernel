@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / createCapabilityProxy
+[@wpkernel/core](../README.md) / createCapabilityProxy
 
 # Function: createCapabilityProxy()
 
@@ -21,7 +21,7 @@ It falls back gracefully when the runtime is not initialised, surfacing a
 
 ### options
 
-[`CapabilityProxyOptions`](../WP-Kernel-API/namespaces/capability/type-aliases/CapabilityProxyOptions.md)
+[`CapabilityProxyOptions`](../type-aliases/CapabilityProxyOptions.md)
 
 Action metadata captured during middleware execution
 
@@ -35,11 +35,11 @@ Capability helpers restricted to `assert` and `can`
 
 ```ts
 const proxy = createCapabilityProxy({
-  actionName: 'Post.Publish',
-  requestId: 'req-123',
-  namespace: 'acme',
-  scope: 'crossTab',
-  bridged: false,
+	actionName: 'Post.Publish',
+	requestId: 'req-123',
+	namespace: 'acme',
+	scope: 'crossTab',
+	bridged: false,
 });
 
 await proxy.assert('posts.publish');

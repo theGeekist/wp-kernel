@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpAttribute
+[@wpkernel/php-json-ast](../README.md) / PhpAttribute
 
 # Interface: PhpAttribute
 
@@ -24,7 +24,7 @@ readonly nodeType: "Attribute";
 
 [`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
 
-***
+---
 
 ### name
 
@@ -32,7 +32,7 @@ readonly nodeType: "Attribute";
 readonly name: PhpIdentifier | PhpName;
 ```
 
-***
+---
 
 ### args
 
@@ -40,7 +40,7 @@ readonly name: PhpIdentifier | PhpName;
 readonly args: PhpArg[];
 ```
 
-***
+---
 
 ### attributes
 

@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PipelineContext
+[@wpkernel/cli](../README.md) / PipelineContext
 
 # Interface: PipelineContext
 
@@ -22,7 +22,7 @@ readonly workspace: Workspace;
 
 The current workspace information.
 
-***
+---
 
 ### generationState
 
@@ -32,7 +32,7 @@ readonly generationState: GenerationManifest;
 
 The state of the code generation process.
 
-***
+---
 
 ### reporter
 
@@ -43,10 +43,10 @@ readonly reporter: Reporter;
 #### Inherited from
 
 ```ts
-Omit.reporter
+Omit.reporter;
 ```
 
-***
+---
 
 ### phase
 
@@ -57,5 +57,5 @@ readonly phase: PipelinePhase;
 #### Inherited from
 
 ```ts
-Omit.phase
+Omit.phase;
 ```

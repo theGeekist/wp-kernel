@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / EnsureGeneratedPhpCleanOptions
+[@wpkernel/cli](../README.md) / EnsureGeneratedPhpCleanOptions
 
 # Interface: EnsureGeneratedPhpCleanOptions
 
@@ -18,7 +18,7 @@ readonly workspace: Workspace;
 
 The workspace instance.
 
-***
+---
 
 ### reporter
 
@@ -28,7 +28,7 @@ readonly reporter: Reporter;
 
 The reporter instance for logging.
 
-***
+---
 
 ### yes
 
@@ -38,7 +38,7 @@ readonly yes: boolean;
 
 Whether to skip the cleanliness check (e.g., when `--yes` is provided).
 
-***
+---
 
 ### directory?
 

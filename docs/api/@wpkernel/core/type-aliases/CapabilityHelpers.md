@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / CapabilityHelpers
+[@wpkernel/core](../README.md) / CapabilityHelpers
 
 # Type Alias: CapabilityHelpers\&lt;K\&gt;
 
@@ -16,7 +16,7 @@ Runtime helpers exposed by `defineCapability()`.
 
 ### K
 
-`K` *extends* `Record`\&lt;`string`, `unknown`\&gt;
+`K` _extends_ `Record`\&lt;`string`, `unknown`\&gt;
 
 ## Properties
 
@@ -30,7 +30,7 @@ can: &lt;Key&gt;(key, ...params) =&gt; boolean | Promise&lt;boolean&gt;;
 
 ##### Key
 
-`Key` *extends* keyof `K`
+`Key` _extends_ keyof `K`
 
 #### Parameters
 
@@ -46,7 +46,7 @@ can: &lt;Key&gt;(key, ...params) =&gt; boolean | Promise&lt;boolean&gt;;
 
 `boolean` \| `Promise`\&lt;`boolean`\&gt;
 
-***
+---
 
 ### assert()
 
@@ -58,7 +58,7 @@ assert: &lt;Key&gt;(key, ...params) =&gt; void | Promise&lt;void&gt;;
 
 ##### Key
 
-`Key` *extends* keyof `K`
+`Key` _extends_ keyof `K`
 
 #### Parameters
 
@@ -74,7 +74,7 @@ assert: &lt;Key&gt;(key, ...params) =&gt; void | Promise&lt;void&gt;;
 
 `void` \| `Promise`\&lt;`void`\&gt;
 
-***
+---
 
 ### keys()
 
@@ -86,7 +86,7 @@ keys: () =&gt; keyof K[];
 
 keyof `K`[]
 
-***
+---
 
 ### extend()
 
@@ -104,7 +104,7 @@ extend: (additionalMap) =&gt; void;
 
 `void`
 
-***
+---
 
 ### cache
 

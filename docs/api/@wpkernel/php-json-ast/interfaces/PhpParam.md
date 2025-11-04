@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpParam
+[@wpkernel/php-json-ast](../README.md) / PhpParam
 
 # Interface: PhpParam
 
@@ -24,7 +24,7 @@ readonly nodeType: "Param";
 
 [`PhpNode`](PhpNode.md).[`nodeType`](PhpNode.md#nodetype)
 
-***
+---
 
 ### type
 
@@ -32,7 +32,7 @@ readonly nodeType: "Param";
 readonly type: PhpType | null;
 ```
 
-***
+---
 
 ### byRef
 
@@ -40,7 +40,7 @@ readonly type: PhpType | null;
 readonly byRef: boolean;
 ```
 
-***
+---
 
 ### variadic
 
@@ -48,7 +48,7 @@ readonly byRef: boolean;
 readonly variadic: boolean;
 ```
 
-***
+---
 
 ### var
 
@@ -56,7 +56,7 @@ readonly variadic: boolean;
 readonly var: PhpExpr;
 ```
 
-***
+---
 
 ### default
 
@@ -64,7 +64,7 @@ readonly var: PhpExpr;
 readonly default: PhpExpr | null;
 ```
 
-***
+---
 
 ### flags
 
@@ -72,7 +72,7 @@ readonly default: PhpExpr | null;
 readonly flags: number;
 ```
 
-***
+---
 
 ### attrGroups
 
@@ -80,7 +80,7 @@ readonly flags: number;
 readonly attrGroups: PhpAttrGroup[];
 ```
 
-***
+---
 
 ### hooks
 
@@ -88,7 +88,7 @@ readonly attrGroups: PhpAttrGroup[];
 readonly hooks: PhpPropertyHook[];
 ```
 
-***
+---
 
 ### attributes
 

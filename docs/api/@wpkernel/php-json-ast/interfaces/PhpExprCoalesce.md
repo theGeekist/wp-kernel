@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpExprCoalesce
+[@wpkernel/php-json-ast](../README.md) / PhpExprCoalesce
 
 # Interface: PhpExprCoalesce
 
@@ -24,7 +24,7 @@ readonly nodeType: "Expr_BinaryOp_Coalesce";
 
 [`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
 
-***
+---
 
 ### left
 
@@ -32,7 +32,7 @@ readonly nodeType: "Expr_BinaryOp_Coalesce";
 readonly left: PhpExpr;
 ```
 
-***
+---
 
 ### right
 
@@ -40,7 +40,7 @@ readonly left: PhpExpr;
 readonly right: PhpExpr;
 ```
 
-***
+---
 
 ### attributes
 

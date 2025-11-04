@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / GenerationManifestFilePair
+[@wpkernel/cli](../README.md) / GenerationManifestFilePair
 
 # Interface: GenerationManifestFilePair
 
@@ -14,7 +14,7 @@
 readonly file: string;
 ```
 
-***
+---
 
 ### ast
 

@@ -8,7 +8,7 @@
 		"packages/e2e-utils/src/index.ts",
 		"packages/create-wpk/src/index.ts"
 	],
-	"entryPointStrategy": "resolve",
+	"entryPointStrategy": "expand",
 	"tsconfig": "tsconfig.docs.json",
 	"plugin": ["typedoc-plugin-markdown"],
 	"readme": "none",
@@ -19,7 +19,6 @@
 	"excludeExternals": true,
 	"hideGenerator": true,
 	"gitRevision": "main",
-	"name": "WP Kernel API",
 	"includeVersion": true,
 	"disableSources": true,
 	"sort": ["visibility", "required-first", "kind"],

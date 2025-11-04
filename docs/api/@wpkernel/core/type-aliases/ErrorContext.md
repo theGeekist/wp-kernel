@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ErrorContext
+[@wpkernel/core](../README.md) / ErrorContext
 
 # Type Alias: ErrorContext
 
@@ -30,7 +30,7 @@ optional resourceName: string;
 
 Resource or action name
 
-***
+---
 
 ### actionName?
 
@@ -38,7 +38,7 @@ Resource or action name
 optional actionName: string;
 ```
 
-***
+---
 
 ### capabilityKey?
 
@@ -46,7 +46,7 @@ optional actionName: string;
 optional capabilityKey: string;
 ```
 
-***
+---
 
 ### path?
 
@@ -56,7 +56,7 @@ optional path: string;
 
 Request details
 
-***
+---
 
 ### method?
 
@@ -64,7 +64,7 @@ Request details
 optional method: string;
 ```
 
-***
+---
 
 ### status?
 
@@ -72,7 +72,7 @@ optional method: string;
 optional status: number;
 ```
 
-***
+---
 
 ### userId?
 
@@ -82,7 +82,7 @@ optional userId: number;
 
 User/environment context
 
-***
+---
 
 ### siteId?
 
@@ -90,7 +90,7 @@ User/environment context
 optional siteId: number;
 ```
 
-***
+---
 
 ### requestId?
 

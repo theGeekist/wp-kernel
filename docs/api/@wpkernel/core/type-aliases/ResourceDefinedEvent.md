@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ResourceDefinedEvent
+[@wpkernel/core](../README.md) / ResourceDefinedEvent
 
 # Type Alias: ResourceDefinedEvent\&lt;T, TQuery\&gt;
 
@@ -25,10 +25,11 @@ type ResourceDefinedEvent&lt;T, TQuery&gt; = object;
 ### resource
 
 ```ts
-resource: ResourceObject&lt;T, TQuery&gt;;
+resource: ResourceObject & lt;
+(T, TQuery & gt);
 ```
 
-***
+---
 
 ### namespace
 

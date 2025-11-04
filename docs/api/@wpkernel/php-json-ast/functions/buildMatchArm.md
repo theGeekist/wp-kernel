@@ -1,16 +1,13 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / buildMatchArm
+[@wpkernel/php-json-ast](../README.md) / buildMatchArm
 
 # Function: buildMatchArm()
 
 ```ts
-function buildMatchArm(
-   conds, 
-   body, 
-   attributes?): PhpMatchArm;
+function buildMatchArm(conds, body, attributes?): PhpMatchArm;
 ```
 
 Builds a PHP match arm node.

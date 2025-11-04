@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / CacheInvalidatedEvent
+[@wpkernel/core](../README.md) / CacheInvalidatedEvent
 
 # Type Alias: CacheInvalidatedEvent
 
@@ -18,7 +18,7 @@ type CacheInvalidatedEvent = object;
 keys: string[];
 ```
 
-***
+---
 
 ### storeKey?
 

@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / BuildApplyCommandOptions
+[@wpkernel/cli](../README.md) / BuildApplyCommandOptions
 
 # Interface: BuildApplyCommandOptions
 
@@ -47,7 +47,7 @@ readonly optional loadWPKernelConfig: () =&gt; Promise&lt;LoadedWPKernelConfig&g
 
 `Promise`\&lt;[`LoadedWPKernelConfig`](LoadedWPKernelConfig.md)\&gt;
 
-***
+---
 
 #### buildWorkspace()?
 
@@ -65,7 +65,7 @@ readonly optional buildWorkspace: (root) =&gt; Workspace;
 
 [`Workspace`](Workspace.md)
 
-***
+---
 
 #### buildBuilderOutput()?
 
@@ -77,7 +77,7 @@ readonly optional buildBuilderOutput: () =&gt; BuilderOutput;
 
 `BuilderOutput`
 
-***
+---
 
 #### readManifest()?
 
@@ -95,7 +95,7 @@ readonly optional readManifest: (workspace) =&gt; Promise&lt;PatchManifest | nul
 
 `Promise`\&lt;[`PatchManifest`](PatchManifest.md) \| `null`\&gt;
 
-***
+---
 
 #### resolveWorkspaceRoot()?
 
@@ -113,7 +113,7 @@ readonly optional resolveWorkspaceRoot: (loaded) =&gt; string;
 
 `string`
 
-***
+---
 
 #### promptConfirm()?
 
@@ -145,7 +145,7 @@ readonly optional promptConfirm: (options) =&gt; Promise&lt;boolean&gt;;
 
 `Promise`\&lt;`boolean`\&gt;
 
-***
+---
 
 #### ensureGitRepository()?
 
@@ -163,7 +163,7 @@ readonly optional ensureGitRepository: (workspace) =&gt; Promise&lt;void&gt;;
 
 `Promise`\&lt;`void`\&gt;
 
-***
+---
 
 #### createBackups()?
 
@@ -181,7 +181,7 @@ readonly optional createBackups: (options) =&gt; Promise&lt;void&gt;;
 
 `Promise`\&lt;`void`\&gt;
 
-***
+---
 
 #### appendApplyLog()?
 

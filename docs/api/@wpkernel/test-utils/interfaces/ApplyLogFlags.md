@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/test-utils v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ApplyLogFlags
+[@wpkernel/test-utils](../README.md) / ApplyLogFlags
 
 # Interface: ApplyLogFlags
 
@@ -16,7 +16,7 @@ Represents the flags used during an apply operation.
 readonly yes: boolean;
 ```
 
-***
+---
 
 ### backup
 
@@ -24,7 +24,7 @@ readonly yes: boolean;
 readonly backup: boolean;
 ```
 
-***
+---
 
 ### force
 

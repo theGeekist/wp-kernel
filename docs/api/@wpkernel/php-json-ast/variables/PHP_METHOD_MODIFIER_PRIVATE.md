@@ -1,10 +1,10 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PHP\_METHOD\_MODIFIER\_PRIVATE
+[@wpkernel/php-json-ast](../README.md) / PHP_METHOD_MODIFIER_PRIVATE
 
-# Variable: PHP\_METHOD\_MODIFIER\_PRIVATE
+# Variable: PHP_METHOD_MODIFIER_PRIVATE
 
 ```ts
 const PHP_METHOD_MODIFIER_PRIVATE: 4 = 4;

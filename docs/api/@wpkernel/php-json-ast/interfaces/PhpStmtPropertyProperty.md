@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpStmtPropertyProperty
+[@wpkernel/php-json-ast](../README.md) / PhpStmtPropertyProperty
 
 # Interface: PhpStmtPropertyProperty
 
@@ -24,7 +24,7 @@ readonly nodeType: "PropertyItem";
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
-***
+---
 
 ### name
 
@@ -32,7 +32,7 @@ readonly nodeType: "PropertyItem";
 readonly name: PhpIdentifier;
 ```
 
-***
+---
 
 ### default
 
@@ -40,7 +40,7 @@ readonly name: PhpIdentifier;
 readonly default: PhpExpr | null;
 ```
 
-***
+---
 
 ### attributes
 

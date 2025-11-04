@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / VERSION
+[@wpkernel/cli](../README.md) / VERSION
 
 # Variable: VERSION
 

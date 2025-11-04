@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/test-utils v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ReporterMockOptions
+[@wpkernel/test-utils](../README.md) / ReporterMockOptions
 
 # Interface: ReporterMockOptions
 
@@ -28,7 +28,7 @@ A factory function to create child reporter mocks.
 
 [`ReporterMock`](../type-aliases/ReporterMock.md)
 
-***
+---
 
 ### overrides?
 

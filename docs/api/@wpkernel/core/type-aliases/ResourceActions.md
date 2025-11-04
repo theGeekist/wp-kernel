@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ResourceActions
+[@wpkernel/core](../README.md) / ResourceActions
 
 # Type Alias: ResourceActions\&lt;T\&gt;
 
@@ -74,7 +74,7 @@ List metadata (total, hasMore, nextCursor)
 
 ###### status?
 
-[`ResourceListStatus`](../WP-Kernel-API/namespaces/resource/type-aliases/ResourceListStatus.md)
+[`ResourceListStatus`](ResourceListStatus.md)
 
 #### Returns
 
@@ -156,7 +156,7 @@ Stringified query parameters
 
 ##### status
 
-[`ResourceListStatus`](../WP-Kernel-API/namespaces/resource/type-aliases/ResourceListStatus.md)
+[`ResourceListStatus`](ResourceListStatus.md)
 
 Loading status
 

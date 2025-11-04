@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/ui v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PrefetchGet
+[@wpkernel/ui](../README.md) / PrefetchGet
 
 # Type Alias: PrefetchGet()
 

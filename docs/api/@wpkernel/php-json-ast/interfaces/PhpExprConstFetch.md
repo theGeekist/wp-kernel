@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpExprConstFetch
+[@wpkernel/php-json-ast](../README.md) / PhpExprConstFetch
 
 # Interface: PhpExprConstFetch
 
@@ -24,7 +24,7 @@ readonly nodeType: "Expr_ConstFetch";
 
 [`PhpExprBase`](PhpExprBase.md).[`nodeType`](PhpExprBase.md#nodetype)
 
-***
+---
 
 ### name
 
@@ -32,7 +32,7 @@ readonly nodeType: "Expr_ConstFetch";
 readonly name: PhpName;
 ```
 
-***
+---
 
 ### attributes
 

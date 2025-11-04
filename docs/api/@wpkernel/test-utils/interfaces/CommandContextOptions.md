@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/test-utils v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / CommandContextOptions
+[@wpkernel/test-utils](../README.md) / CommandContextOptions
 
 # Interface: CommandContextOptions
 
@@ -18,7 +18,7 @@ optional cwd: string | () =&gt; string;
 
 The current working directory for the command. Can be a string or a function returning a string.
 
-***
+---
 
 ### env?
 
@@ -28,7 +28,7 @@ optional env: ProcessEnv;
 
 The environment variables for the command.
 
-***
+---
 
 ### stdin?
 
@@ -38,7 +38,7 @@ optional stdin: ReadStream;
 
 The standard input stream for the command.
 
-***
+---
 
 ### colorDepth?
 

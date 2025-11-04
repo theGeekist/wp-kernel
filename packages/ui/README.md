@@ -181,10 +181,10 @@ export function JobsAdminScreen() {
 
 `ResourceDataView` wraps WordPress DataViews with shared async boundaries so every screen inherits the same UX without bespoke components. The component inspects the list status from `useListResult()` and the optional `screen.menu.capability` requirement to decide whether to render:
 
-- **Loading** – Displayed while the first page is pending or a capability check is still resolving.
-- **Empty** – Uses the `emptyState` prop when the list resolves with zero items (falls back to a translated default message when the prop is omitted).
-- **Error** – Presents a warning notice when either the resource hook or a standalone `fetchList` rejects; failures are logged through the controller reporter.
-- **Permission denied** – Shows a capability warning whenever `config.screen.menu.capability` evaluates to `false` or throws.
+- **Loading** - Displayed while the first page is pending or a capability check is still resolving.
+- **Empty** - Uses the `emptyState` prop when the list resolves with zero items (falls back to a translated default message when the prop is omitted).
+- **Error** - Presents a warning notice when either the resource hook or a standalone `fetchList` rejects; failures are logged through the controller reporter.
+- **Permission denied** - Shows a capability warning whenever `config.screen.menu.capability` evaluates to `false` or throws.
 
 Action handlers created by `useDataViewActions()` emit notices via `core/notices` whenever an action succeeds or fails, alongside the existing cache invalidation and reporter logging. Provide a WordPress data registry in the runtime (`configureWPKernel({ registry: window.wp.data })`) so the helpers can dispatch the notices.
 
@@ -194,12 +194,12 @@ Action handlers created by `useDataViewActions()` emit notices via `core/notices
 
 `resource.ui.admin.dataviews` accepts the fields surfaced in the example above:
 
-- `fields` – Column descriptors forwarded to `@wordpress/dataviews`.
-- `defaultView` – The server-declared view used when no preference is stored.
-- `mapQuery` – Required mapper translating DataViews state into the resource query shape.
-- `defaultLayouts` – Optional per-layout overrides (table/grid/list) merged with stored views.
-- `views` – Saved views exposed to the UI before preferences are hydrated. Each entry includes an `id`, `label`, and `view` payload, with optional `description`/`isDefault` hints.
-- `screen` – Optional metadata for generated screens. When `menu` is present the CLI emits PHP shims under `.generated/php/Admin/**` so WordPress can register the admin menu automatically.
+- `fields` - Column descriptors forwarded to `@wordpress/dataviews`.
+- `defaultView` - The server-declared view used when no preference is stored.
+- `mapQuery` - Required mapper translating DataViews state into the resource query shape.
+- `defaultLayouts` - Optional per-layout overrides (table/grid/list) merged with stored views.
+- `views` - Saved views exposed to the UI before preferences are hydrated. Each entry includes an `id`, `label`, and `view` payload, with optional `description`/`isDefault` hints.
+- `screen` - Optional metadata for generated screens. When `menu` is present the CLI emits PHP shims under `.generated/php/Admin/**` so WordPress can register the admin menu automatically.
 - `actions`, `search`, `searchLabel`, `perPageSizes`, and `getItemId` continue to behave as they did prior to the schema expansion.
 
 ## CLI & Showcase integration

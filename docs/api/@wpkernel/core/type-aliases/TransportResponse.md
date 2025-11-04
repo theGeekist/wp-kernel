@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / TransportResponse
+[@wpkernel/core](../README.md) / TransportResponse
 
 # Type Alias: TransportResponse\&lt;T\&gt;
 
@@ -28,7 +28,7 @@ data: T;
 
 Response data
 
-***
+---
 
 ### status
 
@@ -38,17 +38,18 @@ status: number;
 
 HTTP status code
 
-***
+---
 
 ### headers
 
 ```ts
-headers: Record&lt;string, string&gt;;
+headers: Record & lt;
+(string, string & gt);
 ```
 
 Response headers
 
-***
+---
 
 ### requestId
 

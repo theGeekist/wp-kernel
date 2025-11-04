@@ -1,13 +1,13 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / CliReporter
+[@wpkernel/cli](../README.md) / CliReporter
 
 # Type Alias: CliReporter
 
 ```ts
-type CliReporter = PipelineContext["reporter"];
+type CliReporter = PipelineContext['reporter'];
 ```
 
 Type alias for the CLI pipeline reporter.

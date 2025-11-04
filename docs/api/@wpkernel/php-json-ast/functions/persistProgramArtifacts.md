@@ -1,17 +1,17 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / persistProgramArtifacts
+[@wpkernel/php-json-ast](../README.md) / persistProgramArtifacts
 
 # Function: persistProgramArtifacts()
 
 ```ts
 function persistProgramArtifacts(
-   context, 
-   output, 
-   filePath, 
-   code, 
+   context,
+   output,
+   filePath,
+   code,
 ast): Promise&lt;void&gt;;
 ```
 

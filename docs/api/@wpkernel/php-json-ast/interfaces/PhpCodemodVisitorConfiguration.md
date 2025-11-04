@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpCodemodVisitorConfiguration
+[@wpkernel/php-json-ast](../README.md) / PhpCodemodVisitorConfiguration
 
 # Interface: PhpCodemodVisitorConfiguration\&lt;TOptions\&gt;
 
@@ -10,7 +10,7 @@
 
 ### TOptions
 
-`TOptions` *extends* `Record`\&lt;`string`, `unknown`\&gt; = `Record`\&lt;`string`, `unknown`\&gt;
+`TOptions` _extends_ `Record`\&lt;`string`, `unknown`\&gt; = `Record`\&lt;`string`, `unknown`\&gt;
 
 ## Properties
 
@@ -20,7 +20,7 @@
 readonly key: string;
 ```
 
-***
+---
 
 ### options?
 

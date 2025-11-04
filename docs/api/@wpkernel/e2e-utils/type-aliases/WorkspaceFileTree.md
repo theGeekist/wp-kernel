@@ -1,11 +1,12 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/e2e-utils v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / WorkspaceFileTree
+[@wpkernel/e2e-utils](../README.md) / WorkspaceFileTree
 
 # Type Alias: WorkspaceFileTree
 
 ```ts
-type WorkspaceFileTree = Record&lt;string, string&gt;;
+type WorkspaceFileTree = Record & lt;
+(string, string & gt);
 ```

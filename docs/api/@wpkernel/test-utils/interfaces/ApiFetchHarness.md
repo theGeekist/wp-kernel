@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/test-utils v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ApiFetchHarness
+[@wpkernel/test-utils](../README.md) / ApiFetchHarness
 
 # Interface: ApiFetchHarness
 
@@ -18,7 +18,7 @@ harness: WordPressTestHarness;
 
 The underlying WordPress test harness.
 
-***
+---
 
 ### apiFetch
 
@@ -28,7 +28,7 @@ apiFetch: Mock;
 
 The mock `apiFetch` function.
 
-***
+---
 
 ### hooks
 
@@ -38,7 +38,7 @@ hooks: any;
 
 The mock WordPress hooks object.
 
-***
+---
 
 ### doAction
 

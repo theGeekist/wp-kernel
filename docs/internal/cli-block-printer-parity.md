@@ -9,52 +9,52 @@ documented here remains a parity checklist for the AST-first builders.
 
 ## JS-only printer (`generateJSOnlyBlocks`)
 
-- **Inputs** – consumes the `JSOnlyBlockOptions` shape (IR blocks, project root,
+- **Inputs** - consumes the `JSOnlyBlockOptions` shape (IR blocks, project root,
   output directory, optional source string) and immediately filters for blocks
   without `hasRender` before sorting by key.
-- **Output file** – always targets `blocks/auto-register.ts` under the provided
+- **Output file** - always targets `blocks/auto-register.ts` under the provided
   output directory and emits a banner that records the source of truth.
-- **Manifest validation** – loads each `block.json`, reporting read/parse
+- **Manifest validation** - loads each `block.json`, reporting read/parse
   failures and forwarding structural warnings from
   `validateBlockManifest(manifest, block)`.
-- **Stub generation** – when a manifest references `file:` editor or view
+- **Stub generation** - when a manifest references `file:` editor or view
   modules (`index.tsx`, `view.ts`) that do not exist, stubs are written alongside
   the manifest.
-- **Registration logic** – blocks that still rely on `registerBlockType` calls
+- **Registration logic** - blocks that still rely on `registerBlockType` calls
   (i.e. no file module handles registration) produce an `import` of their
   manifest JSON and a call to
   `registerBlockType(<metadata>, createGeneratedBlockSettings(<metadata>))`; the
   helper is emitted exactly once when at least one block needs it. Blocks that
   register through file modules skip the import/registration path entirely.
-- **Warnings** – all warnings (file I/O failures, validation issues, missing
+- **Warnings** - all warnings (file I/O failures, validation issues, missing
   stubs) are aggregated so `reportWarnings` can surface them to the reporter
   pipeline.
 
 ## SSR printer (`generateSSRBlocks`)
 
-- **Inputs** – consumes `SSRBlockOptions`, filters for `hasRender` blocks, and
+- **Inputs** - consumes `SSRBlockOptions`, filters for `hasRender` blocks, and
   sorts by key.
-- **Per-block processing** – reads each manifest, validates it, resolves the
+- **Per-block processing** - reads each manifest, validates it, resolves the
   declared render file or infers a `render.php` fallback, and emits stub content
   when the referenced PHP template is missing.
-- **Manifest entries** – stores a POSIX-encoded manifest describing the block
+- **Manifest entries** - stores a POSIX-encoded manifest describing the block
   directory, manifest path, and optional render path. Render paths only appear
   when the callback is file-based; callback strings short-circuit stub creation
   (`render` pointing to a PHP function leaves the manifest entry without a
   render file).
-- **Generated files** – writes two shared artefacts when at least one block was
+- **Generated files** - writes two shared artefacts when at least one block was
   processed:
     - `build/blocks-manifest.php` exporting the manifest dictionary through a PHP
       `return` statement.
     - `php/Blocks/Register.php` defining a `Register` class inside the project’s
       `Blocks` namespace with helper methods for resolving manifest directories,
       render paths, and stubbing missing templates.
-- **Registrar behaviour** – `register()` loads the manifest, iterates entries,
+- **Registrar behaviour** - `register()` loads the manifest, iterates entries,
   normalises relative paths, and calls `register_block_type_from_metadata` with
   optional render arguments produced by `build_render_arguments()`. The helper
   renders templates via output buffering and gracefully returns existing block
   content if the PHP template went missing.
-- **Warnings** – bubbled for unreadable manifests, invalid JSON, validation
+- **Warnings** - bubbled for unreadable manifests, invalid JSON, validation
   failures, missing render templates, and stub creation so the CLI reporters can
   surface them.
 

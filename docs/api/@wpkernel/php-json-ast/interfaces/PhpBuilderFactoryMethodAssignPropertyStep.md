@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpBuilderFactoryMethodAssignPropertyStep
+[@wpkernel/php-json-ast](../README.md) / PhpBuilderFactoryMethodAssignPropertyStep
 
 # Interface: PhpBuilderFactoryMethodAssignPropertyStep
 
@@ -14,7 +14,7 @@
 readonly kind: "assignPropertyFromParameter";
 ```
 
-***
+---
 
 ### property
 
@@ -22,7 +22,7 @@ readonly kind: "assignPropertyFromParameter";
 readonly property: string;
 ```
 
-***
+---
 
 ### parameter
 

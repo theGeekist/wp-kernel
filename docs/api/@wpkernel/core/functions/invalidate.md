@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / invalidate
+[@wpkernel/core](../README.md) / invalidate
 
 # Function: invalidate()
 
@@ -45,8 +45,8 @@ invalidate(['thing', 'list', 'active']);
 
 // Invalidate across multiple resources
 invalidate([
-  ['thing', 'list'],
-  ['job', 'list']
+	['thing', 'list'],
+	['job', 'list'],
 ]);
 
 // Target specific store

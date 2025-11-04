@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/e2e-utils v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / CliTranscript
+[@wpkernel/e2e-utils](../README.md) / CliTranscript
 
 # Interface: CliTranscript
 
@@ -14,7 +14,7 @@
 command: string;
 ```
 
-***
+---
 
 ### args
 
@@ -22,7 +22,7 @@ command: string;
 args: string[];
 ```
 
-***
+---
 
 ### cwd
 
@@ -30,7 +30,7 @@ args: string[];
 cwd: string;
 ```
 
-***
+---
 
 ### startedAt
 
@@ -38,7 +38,7 @@ cwd: string;
 startedAt: string;
 ```
 
-***
+---
 
 ### completedAt
 
@@ -46,7 +46,7 @@ startedAt: string;
 completedAt: string;
 ```
 
-***
+---
 
 ### durationMs
 
@@ -54,7 +54,7 @@ completedAt: string;
 durationMs: number;
 ```
 
-***
+---
 
 ### exitCode
 
@@ -62,7 +62,7 @@ durationMs: number;
 exitCode: number;
 ```
 
-***
+---
 
 ### stdout
 
@@ -70,7 +70,7 @@ exitCode: number;
 stdout: string;
 ```
 
-***
+---
 
 ### stderr
 
@@ -78,10 +78,11 @@ stdout: string;
 stderr: string;
 ```
 
-***
+---
 
 ### env
 
 ```ts
-env: Record&lt;string, string | undefined&gt;;
+env: Record & lt;
+(string, string | (undefined & gt));
 ```

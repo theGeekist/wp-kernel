@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpStmtClassConst
+[@wpkernel/php-json-ast](../README.md) / PhpStmtClassConst
 
 # Interface: PhpStmtClassConst
 
@@ -24,7 +24,7 @@ readonly nodeType: "Stmt_ClassConst";
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
-***
+---
 
 ### flags
 
@@ -32,7 +32,7 @@ readonly nodeType: "Stmt_ClassConst";
 readonly flags: number;
 ```
 
-***
+---
 
 ### consts
 
@@ -40,7 +40,7 @@ readonly flags: number;
 readonly consts: PhpConst[];
 ```
 
-***
+---
 
 ### attrGroups
 
@@ -48,7 +48,7 @@ readonly consts: PhpConst[];
 readonly attrGroups: PhpAttrGroup[];
 ```
 
-***
+---
 
 ### type
 
@@ -56,7 +56,7 @@ readonly attrGroups: PhpAttrGroup[];
 readonly type: PhpType | null;
 ```
 
-***
+---
 
 ### attributes
 

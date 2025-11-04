@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpNodeFinderQueryMatch
+[@wpkernel/php-json-ast](../README.md) / PhpNodeFinderQueryMatch
 
 # Interface: PhpNodeFinderQueryMatch
 
@@ -14,7 +14,7 @@
 readonly summary: Readonly&lt;Record&lt;string, unknown&gt;&gt;;
 ```
 
-***
+---
 
 ### attributes
 
@@ -22,7 +22,7 @@ readonly summary: Readonly&lt;Record&lt;string, unknown&gt;&gt;;
 readonly attributes: Readonly&lt;Record&lt;string, unknown&gt;&gt;;
 ```
 
-***
+---
 
 ### excerpt
 

@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/ui v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / DataFormControllerState
+[@wpkernel/ui](../README.md) / DataFormControllerState
 
 # Interface: DataFormControllerState\&lt;TResult\&gt;
 
@@ -21,12 +21,12 @@ The type of the result returned by the form submission action.
 ### status
 
 ```ts
-status: "idle" | "running" | "success" | "error";
+status: 'idle' | 'running' | 'success' | 'error';
 ```
 
 The current status of the form submission.
 
-***
+---
 
 ### inFlight
 
@@ -36,7 +36,7 @@ inFlight: number;
 
 The number of in-flight submissions.
 
-***
+---
 
 ### error?
 
@@ -46,7 +46,7 @@ optional error: WPKernelError;
 
 Any error that occurred during submission.
 
-***
+---
 
 ### result?
 

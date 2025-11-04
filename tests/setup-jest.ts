@@ -82,7 +82,7 @@ const wpHooksStub = {
 
 /**
  * Minimal interactivity stub so tests can run without script module hydration.
- * `@wordpress/interactivity` is a peer dependency for defineInteraction – keep
+ * `@wordpress/interactivity` is a peer dependency for defineInteraction - keep
  * this stub aligned with upstream exports when updating the helper.
  */
 const storeMock = jest.fn(

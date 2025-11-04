@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / CapabilityCapabilityDescriptor
+[@wpkernel/cli](../README.md) / CapabilityCapabilityDescriptor
 
 # Interface: CapabilityCapabilityDescriptor
 
@@ -14,7 +14,7 @@
 capability: string;
 ```
 
-***
+---
 
 ### appliesTo?
 
@@ -22,7 +22,7 @@ capability: string;
 optional appliesTo: CapabilityMapScope;
 ```
 
-***
+---
 
 ### binding?
 

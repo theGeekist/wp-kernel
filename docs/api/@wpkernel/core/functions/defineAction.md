@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / defineAction
+[@wpkernel/core](../README.md) / defineAction
 
 # Function: defineAction()
 
@@ -20,6 +20,7 @@ they always route through actions.
 ## What Actions Do
 
 Every action execution automatically handles:
+
 - **Resource calls** - Perform the actual write operation via REST API
 - **Event emission** - Broadcast lifecycle events via `@wordpress/hooks` and BroadcastChannel
 - **Cache invalidation** - Keep UI fresh without manual work
@@ -69,6 +70,7 @@ Each invocation automatically emits three lifecycle hooks via `@wordpress/hooks`
 - **`wpk.action.error`** - On failure, includes normalized `WPKernelError` and duration
 
 These events enable:
+
 - Debugging (see exactly what actions ran and when)
 - Analytics (track action performance)
 - Cross-component coordination (react to writes elsewhere)
@@ -121,6 +123,7 @@ The `ActionContext` (first parameter `ctx`) provides:
 ## Error Handling
 
 All errors are automatically normalized to `WPKernelError` instances with:
+
 - Consistent error codes
 - Action name and request ID in context
 - Preserved stack traces
@@ -152,10 +155,10 @@ Host applications can customize behavior via `global.__WP_KERNEL_ACTION_RUNTIME_
 
 ```typescript
 global.__WP_KERNEL_ACTION_RUNTIME__ = {
-  reporter: customLogger,
-  jobs: customJobRunner,
-  capability: customCapabilityEngine,
-  bridge: customPHPBridge,
+	reporter: customLogger,
+	jobs: customJobRunner,
+	capability: customCapabilityEngine,
+	bridge: customPHPBridge,
 };
 ```
 
@@ -239,5 +242,5 @@ export const ToggleSidebar = defineAction({
 
 ## See
 
- - ActionContext interface for the full context API surface
- - middleware module for Redux integration
+- ActionContext interface for the full context API surface
+- middleware module for Redux integration

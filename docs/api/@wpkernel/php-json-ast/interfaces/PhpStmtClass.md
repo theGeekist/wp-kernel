@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpStmtClass
+[@wpkernel/php-json-ast](../README.md) / PhpStmtClass
 
 # Interface: PhpStmtClass
 
@@ -24,7 +24,7 @@ readonly nodeType: "Stmt_Class";
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
-***
+---
 
 ### name
 
@@ -32,7 +32,7 @@ readonly nodeType: "Stmt_Class";
 readonly name: PhpIdentifier | null;
 ```
 
-***
+---
 
 ### flags
 
@@ -40,7 +40,7 @@ readonly name: PhpIdentifier | null;
 readonly flags: number;
 ```
 
-***
+---
 
 ### extends
 
@@ -48,7 +48,7 @@ readonly flags: number;
 readonly extends: PhpName | null;
 ```
 
-***
+---
 
 ### implements
 
@@ -56,7 +56,7 @@ readonly extends: PhpName | null;
 readonly implements: PhpName[];
 ```
 
-***
+---
 
 ### stmts
 
@@ -64,7 +64,7 @@ readonly implements: PhpName[];
 readonly stmts: PhpClassStmt[];
 ```
 
-***
+---
 
 ### attrGroups
 
@@ -72,7 +72,7 @@ readonly stmts: PhpClassStmt[];
 readonly attrGroups: PhpAttrGroup[];
 ```
 
-***
+---
 
 ### namespacedName
 
@@ -80,7 +80,7 @@ readonly attrGroups: PhpAttrGroup[];
 readonly namespacedName: PhpName | null;
 ```
 
-***
+---
 
 ### attributes
 

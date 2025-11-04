@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / IRv1
+[@wpkernel/cli](../README.md) / IRv1
 
 # Interface: IRv1
 
@@ -52,7 +52,7 @@ origin: string;
 sanitizedNamespace: string;
 ```
 
-***
+---
 
 ### config
 
@@ -62,7 +62,7 @@ config: WPKernelConfigV1;
 
 The original WP Kernel configuration.
 
-***
+---
 
 ### schemas
 
@@ -72,7 +72,7 @@ schemas: IRSchema[];
 
 An array of schema IRs.
 
-***
+---
 
 ### resources
 
@@ -82,7 +82,7 @@ resources: IRResource[];
 
 An array of resource IRs.
 
-***
+---
 
 ### capabilities
 
@@ -92,7 +92,7 @@ capabilities: IRCapabilityHint[];
 
 An array of capability hints.
 
-***
+---
 
 ### capabilityMap
 
@@ -102,7 +102,7 @@ capabilityMap: IRCapabilityMap;
 
 The capability map IR.
 
-***
+---
 
 ### blocks
 
@@ -112,7 +112,7 @@ blocks: IRBlock[];
 
 An array of block IRs.
 
-***
+---
 
 ### php
 
@@ -122,7 +122,7 @@ php: IRPhpProject;
 
 The PHP project IR.
 
-***
+---
 
 ### diagnostics?
 

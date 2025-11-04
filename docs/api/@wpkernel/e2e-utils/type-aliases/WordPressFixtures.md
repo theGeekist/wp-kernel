@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/e2e-utils v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / WordPressFixtures
+[@wpkernel/e2e-utils](../README.md) / WordPressFixtures
 
 # Type Alias: WordPressFixtures
 
@@ -20,7 +20,7 @@ WordPress E2E fixture context passed to the factory
 page: Page;
 ```
 
-***
+---
 
 ### requestUtils
 
@@ -28,7 +28,7 @@ page: Page;
 requestUtils: RequestUtils;
 ```
 
-***
+---
 
 ### admin
 
@@ -36,7 +36,7 @@ requestUtils: RequestUtils;
 admin: Admin;
 ```
 
-***
+---
 
 ### editor
 
@@ -44,7 +44,7 @@ admin: Admin;
 editor: Editor;
 ```
 
-***
+---
 
 ### pageUtils
 

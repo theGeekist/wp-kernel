@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/test-utils v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / WorkspaceOptions
+[@wpkernel/test-utils](../README.md) / WorkspaceOptions
 
 # Interface: WorkspaceOptions
 
@@ -18,7 +18,7 @@ optional prefix: string;
 
 A prefix for the temporary directory name.
 
-***
+---
 
 ### chdir?
 
@@ -28,7 +28,7 @@ optional chdir: boolean;
 
 Whether to change the current working directory to the workspace.
 
-***
+---
 
 ### files?
 
@@ -38,7 +38,7 @@ optional files: Record&lt;string, string | Buffer&lt;ArrayBufferLike&gt;&gt;;
 
 A map of relative file paths to their content (string or Buffer).
 
-***
+---
 
 ### setup()?
 
@@ -58,7 +58,7 @@ A setup function to run before the test.
 
 `void` \| `Promise`\&lt;`void`\&gt;
 
-***
+---
 
 ### teardown()?
 

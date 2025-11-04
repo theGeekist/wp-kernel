@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / InitWorkflowOptions
+[@wpkernel/cli](../README.md) / InitWorkflowOptions
 
 # Interface: InitWorkflowOptions
 
@@ -14,7 +14,7 @@
 readonly workspace: Workspace;
 ```
 
-***
+---
 
 ### reporter
 
@@ -22,7 +22,7 @@ readonly workspace: Workspace;
 readonly reporter: Reporter;
 ```
 
-***
+---
 
 ### projectName?
 
@@ -30,7 +30,7 @@ readonly reporter: Reporter;
 readonly optional projectName: string;
 ```
 
-***
+---
 
 ### template?
 
@@ -38,7 +38,7 @@ readonly optional projectName: string;
 readonly optional template: string;
 ```
 
-***
+---
 
 ### force?
 
@@ -46,7 +46,7 @@ readonly optional template: string;
 readonly optional force: boolean;
 ```
 
-***
+---
 
 ### verbose?
 
@@ -54,7 +54,7 @@ readonly optional force: boolean;
 readonly optional verbose: boolean;
 ```
 
-***
+---
 
 ### preferRegistryVersionsFlag?
 
@@ -62,7 +62,7 @@ readonly optional verbose: boolean;
 readonly optional preferRegistryVersionsFlag: boolean;
 ```
 
-***
+---
 
 ### env?
 
@@ -70,13 +70,13 @@ readonly optional preferRegistryVersionsFlag: boolean;
 readonly optional env: object;
 ```
 
-#### WPK\_PREFER\_REGISTRY\_VERSIONS?
+#### WPK_PREFER_REGISTRY_VERSIONS?
 
 ```ts
 readonly optional WPK_PREFER_REGISTRY_VERSIONS: string;
 ```
 
-#### REGISTRY\_URL?
+#### REGISTRY_URL?
 
 ```ts
 readonly optional REGISTRY_URL: string;

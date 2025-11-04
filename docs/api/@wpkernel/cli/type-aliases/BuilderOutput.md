@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / BuilderOutput
+[@wpkernel/cli](../README.md) / BuilderOutput
 
 # Type Alias: BuilderOutput
 

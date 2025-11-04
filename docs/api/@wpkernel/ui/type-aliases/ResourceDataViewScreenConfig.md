@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/ui v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ResourceDataViewScreenConfig
+[@wpkernel/ui](../README.md) / ResourceDataViewScreenConfig
 
 # Type Alias: ResourceDataViewScreenConfig
 

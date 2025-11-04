@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpProgramCodemodVisitorSummary
+[@wpkernel/php-json-ast](../README.md) / PhpProgramCodemodVisitorSummary
 
 # Interface: PhpProgramCodemodVisitorSummary
 
@@ -14,7 +14,7 @@
 readonly key: string;
 ```
 
-***
+---
 
 ### stackKey
 
@@ -22,7 +22,7 @@ readonly key: string;
 readonly stackKey: string;
 ```
 
-***
+---
 
 ### stackIndex
 
@@ -30,7 +30,7 @@ readonly stackKey: string;
 readonly stackIndex: number;
 ```
 
-***
+---
 
 ### visitorIndex
 
@@ -38,7 +38,7 @@ readonly stackIndex: number;
 readonly visitorIndex: number;
 ```
 
-***
+---
 
 ### class
 

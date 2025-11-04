@@ -1,16 +1,13 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / buildForeach
+[@wpkernel/php-json-ast](../README.md) / buildForeach
 
 # Function: buildForeach()
 
 ```ts
-function buildForeach(
-   expr, 
-   options, 
-   attributes?): PhpStmtForeach;
+function buildForeach(expr, options, attributes?): PhpStmtForeach;
 ```
 
 Builds a PHP `foreach` loop statement node.

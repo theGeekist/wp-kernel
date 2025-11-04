@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/test-utils v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / createApiFetchHarness
+[@wpkernel/test-utils](../README.md) / createApiFetchHarness
 
 # Function: createApiFetchHarness()
 

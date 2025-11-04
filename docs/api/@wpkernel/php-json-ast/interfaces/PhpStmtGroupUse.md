@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PhpStmtGroupUse
+[@wpkernel/php-json-ast](../README.md) / PhpStmtGroupUse
 
 # Interface: PhpStmtGroupUse
 
@@ -24,7 +24,7 @@ readonly nodeType: "Stmt_GroupUse";
 
 [`PhpStmtBase`](PhpStmtBase.md).[`nodeType`](PhpStmtBase.md#nodetype)
 
-***
+---
 
 ### type
 
@@ -32,7 +32,7 @@ readonly nodeType: "Stmt_GroupUse";
 readonly type: number;
 ```
 
-***
+---
 
 ### prefix
 
@@ -40,7 +40,7 @@ readonly type: number;
 readonly prefix: PhpName;
 ```
 
-***
+---
 
 ### uses
 
@@ -48,7 +48,7 @@ readonly prefix: PhpName;
 readonly uses: PhpStmtUseUse[];
 ```
 
-***
+---
 
 ### attributes
 

@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/ui v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / Prefetcher
+[@wpkernel/ui](../README.md) / Prefetcher
 
 # Interface: Prefetcher\&lt;TQuery\&gt;
 
@@ -24,12 +24,13 @@ prefetchGet: PrefetchGet;
 
 Prefetches a single item from the resource.
 
-***
+---
 
 ### prefetchList
 
 ```ts
-prefetchList: PrefetchList&lt;TQuery&gt;;
+prefetchList: PrefetchList & lt;
+TQuery & gt;
 ```
 
 Prefetches a list of items from the resource.

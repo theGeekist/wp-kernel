@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / InstallerDependencies
+[@wpkernel/cli](../README.md) / InstallerDependencies
 
 # Interface: InstallerDependencies
 
@@ -97,8 +97,8 @@ readonly `string`[] | `null` | `undefined`
 
 ```ts
 (
-   file, 
-   args, 
+   file,
+   args,
    options): PromiseWithChild&lt;{
 }&gt;;
 ```
@@ -148,8 +148,8 @@ readonly `string`[] | `null` | `undefined`
 
 ```ts
 (
-   file, 
-   args, 
+   file,
+   args,
    options): PromiseWithChild&lt;{
 }&gt;;
 ```
@@ -199,8 +199,8 @@ readonly `string`[] | `null` | `undefined`
 
 ```ts
 (
-   file, 
-   args, 
+   file,
+   args,
    options): PromiseWithChild&lt;{
 }&gt;;
 ```

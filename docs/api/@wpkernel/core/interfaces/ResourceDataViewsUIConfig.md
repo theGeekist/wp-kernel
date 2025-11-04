@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ResourceDataViewsUIConfig
+[@wpkernel/core](../README.md) / ResourceDataViewsUIConfig
 
 # Interface: ResourceDataViewsUIConfig\&lt;TItem, TQuery\&gt;
 
@@ -30,7 +30,7 @@
 optional fields: unknown[] | readonly unknown[];
 ```
 
-***
+---
 
 ### defaultView?
 
@@ -38,7 +38,7 @@ optional fields: unknown[] | readonly unknown[];
 optional defaultView: unknown;
 ```
 
-***
+---
 
 ### actions?
 
@@ -46,7 +46,7 @@ optional defaultView: unknown;
 optional actions: unknown[];
 ```
 
-***
+---
 
 ### mapQuery()?
 
@@ -64,7 +64,7 @@ optional mapQuery: (viewState) =&gt; TQuery;
 
 `TQuery`
 
-***
+---
 
 ### search?
 
@@ -72,7 +72,7 @@ optional mapQuery: (viewState) =&gt; TQuery;
 optional search: boolean;
 ```
 
-***
+---
 
 ### searchLabel?
 
@@ -80,7 +80,7 @@ optional search: boolean;
 optional searchLabel: string;
 ```
 
-***
+---
 
 ### getItemId()?
 
@@ -98,7 +98,7 @@ optional getItemId: (item) =&gt; string;
 
 `string`
 
-***
+---
 
 ### empty?
 
@@ -106,7 +106,7 @@ optional getItemId: (item) =&gt; string;
 optional empty: unknown;
 ```
 
-***
+---
 
 ### perPageSizes?
 
@@ -114,7 +114,7 @@ optional empty: unknown;
 optional perPageSizes: number[];
 ```
 
-***
+---
 
 ### defaultLayouts?
 
@@ -122,7 +122,7 @@ optional perPageSizes: number[];
 optional defaultLayouts: Record&lt;string, unknown&gt;;
 ```
 
-***
+---
 
 ### preferencesKey?
 
@@ -130,7 +130,7 @@ optional defaultLayouts: Record&lt;string, unknown&gt;;
 optional preferencesKey: string;
 ```
 
-***
+---
 
 ### screen?
 

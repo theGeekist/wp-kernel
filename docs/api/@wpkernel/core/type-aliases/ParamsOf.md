@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ParamsOf
+[@wpkernel/core](../README.md) / ParamsOf
 
 # Type Alias: ParamsOf\&lt;K, Key\&gt;
 
@@ -21,4 +21,4 @@ Ensures that void params are optional while others remain required.
 
 ### Key
 
-`Key` *extends* keyof `K`
+`Key` _extends_ keyof `K`

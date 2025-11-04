@@ -1,10 +1,10 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/test-utils v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / TMP\_PREFIX
+[@wpkernel/test-utils](../README.md) / TMP_PREFIX
 
-# Variable: TMP\_PREFIX
+# Variable: TMP_PREFIX
 
 ```ts
 const TMP_PREFIX: string;

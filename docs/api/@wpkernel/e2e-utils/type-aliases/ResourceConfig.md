@@ -1,10 +1,10 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/e2e-utils v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / ResourceConfig
+[@wpkernel/e2e-utils](../README.md) / ResourceConfig
 
-# Type Alias: ResourceConfig\&lt;T, TQuery, _TTypes\&gt;
+# Type Alias: ResourceConfig\&lt;T, TQuery, \_TTypes\&gt;
 
 ```ts
 type ResourceConfig&lt;T, TQuery, _TTypes&gt; = object;
@@ -20,7 +20,7 @@ type ResourceConfig&lt;T, TQuery, _TTypes&gt; = object;
 
 `TQuery` = `unknown`
 
-### _TTypes
+### \_TTypes
 
 `_TTypes` = \[`T`, `TQuery`\]
 
@@ -36,7 +36,7 @@ Unique resource name (lowercase, singular recommended)
 
 Used for store keys, event names, and debugging
 
-***
+---
 
 ### routes
 
@@ -48,7 +48,7 @@ REST route definitions
 
 Define only the operations your resource supports
 
-***
+---
 
 ### identity?
 
@@ -60,7 +60,7 @@ Optional identifier hints used by tooling.
 
 The runtime ignores this field; CLI tooling can derive store defaults and route helpers.
 
-***
+---
 
 ### storage?
 
@@ -72,7 +72,7 @@ Optional persistence strategy metadata.
 
 The runtime ignores this field; CLI tooling can emit registration scaffolding.
 
-***
+---
 
 ### store?
 
@@ -84,7 +84,7 @@ Optional overrides for store configuration.
 
 Provided for forward compatibility with CLI-generated descriptors.
 
-***
+---
 
 ### cacheKeys?
 
@@ -96,7 +96,7 @@ Cache key generators
 
 Optional. If omitted, default cache keys based on resource name will be used
 
-***
+---
 
 ### namespace?
 
@@ -112,12 +112,12 @@ For explicit control, provide a namespace string.
 #### Example
 
 ```ts
-namespace: 'my-plugin'  // Explicit namespace
+namespace: 'my-plugin'; // Explicit namespace
 // OR
-name: 'my-plugin:job'   // Shorthand namespace:name format
+name: 'my-plugin:job'; // Shorthand namespace:name format
 ```
 
-***
+---
 
 ### schema?
 
@@ -132,10 +132,10 @@ Optional. Provides runtime type safety and validation errors
 #### Example
 
 ```ts
-schema: import('../../contracts/thing.schema.json')
+schema: import('../../contracts/thing.schema.json');
 ```
 
-***
+---
 
 ### queryParams?
 
@@ -145,7 +145,7 @@ optional queryParams: ResourceQueryParams;
 
 Optional query parameter descriptors for tooling.
 
-***
+---
 
 ### reporter?
 
@@ -158,7 +158,7 @@ Optional reporter override for resource instrumentation.
 When provided, the resource will emit debug/info/error logs through this
 reporter instead of creating a child reporter from the WP Kernel instance.
 
-***
+---
 
 ### ui?
 

@@ -1,10 +1,10 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/php-json-ast v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / PHP\_METHOD\_MODIFIER\_PUBLIC
+[@wpkernel/php-json-ast](../README.md) / PHP_METHOD_MODIFIER_PUBLIC
 
-# Variable: PHP\_METHOD\_MODIFIER\_PUBLIC
+# Variable: PHP_METHOD_MODIFIER_PUBLIC
 
 ```ts
 const PHP_METHOD_MODIFIER_PUBLIC: 1 = 1;

@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / CreateIrEnvironment
+[@wpkernel/cli](../README.md) / CreateIrEnvironment
 
 # Interface: CreateIrEnvironment
 
@@ -18,7 +18,7 @@ readonly optional workspace: Workspace;
 
 Optional: The workspace instance to use.
 
-***
+---
 
 ### reporter?
 
@@ -28,7 +28,7 @@ readonly optional reporter: Reporter;
 
 Optional: The reporter instance for logging.
 
-***
+---
 
 ### phase?
 
@@ -38,7 +38,7 @@ readonly optional phase: PipelinePhase;
 
 Optional: The pipeline phase to execute.
 
-***
+---
 
 ### pipeline?
 

@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/test-utils v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / MemoryStream
+[@wpkernel/test-utils](../README.md) / MemoryStream
 
 # Class: MemoryStream
 
@@ -33,7 +33,7 @@ new MemoryStream(opts?): MemoryStream;
 #### Inherited from
 
 ```ts
-Writable.constructor
+Writable.constructor;
 ```
 
 ## Methods
@@ -42,8 +42,8 @@ Writable.constructor
 
 ```ts
 _write(
-   chunk, 
-   _encoding, 
+   chunk,
+   _encoding,
    callback): void;
 ```
 
@@ -68,10 +68,10 @@ _write(
 #### Overrides
 
 ```ts
-Writable._write
+Writable._write;
 ```
 
-***
+---
 
 ### toString()
 
@@ -85,7 +85,7 @@ Returns a string representation of an object.
 
 `string`
 
-***
+---
 
 ### clear()
 

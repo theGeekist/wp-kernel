@@ -1,16 +1,17 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/core v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / NamespaceDetectionMode
+[@wpkernel/core](../README.md) / NamespaceDetectionMode
 
 # Type Alias: NamespaceDetectionMode
 
 ```ts
-type NamespaceDetectionMode = "wp" | "auto" | "heuristic" | "explicit";
+type NamespaceDetectionMode = 'wp' | 'auto' | 'heuristic' | 'explicit';
 ```
 
 Detection mode for namespace resolution
+
 - 'wp': WordPress-native only (wpKernelData, build defines)
 - 'auto': WordPress-native + safe heuristics
 - 'heuristic': All detection methods including DOM parsing

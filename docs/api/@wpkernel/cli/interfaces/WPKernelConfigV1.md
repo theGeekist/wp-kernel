@@ -1,8 +1,8 @@
-[**WP Kernel API v0.11.0**](../README.md)
+[**@wpkernel/cli v0.11.0**](../README.md)
 
-***
+---
 
-[WP Kernel API](../README.md) / WPKernelConfigV1
+[@wpkernel/cli](../README.md) / WPKernelConfigV1
 
 # Interface: WPKernelConfigV1
 
@@ -16,7 +16,7 @@ Shape of a v1 kernel configuration object.
 version: 1;
 ```
 
-***
+---
 
 ### namespace
 
@@ -24,7 +24,7 @@ version: 1;
 namespace: string;
 ```
 
-***
+---
 
 ### schemas
 
@@ -32,7 +32,7 @@ namespace: string;
 schemas: SchemaRegistry;
 ```
 
-***
+---
 
 ### resources
 
@@ -40,7 +40,7 @@ schemas: SchemaRegistry;
 resources: ResourceRegistry;
 ```
 
-***
+---
 
 ### adapters?
 
