@@ -2,9 +2,17 @@
 
 ## Unreleased
 
+### Fixed
+
+- **Build configuration** - Added missing `namespace` and `events` entry points to Vite config, ensuring submodule imports (`@wpkernel/core/namespace`, `@wpkernel/core/events`) resolve correctly at runtime. Fixed package.json export paths to point to actual build artifacts (`dist/namespace.js` instead of `dist/namespace/index.js`).
+
+### Documentation
+
+- **Import patterns** - Removed outdated namespace import examples (`import { resource } from '@wpkernel/core'`). Package README now documents two supported patterns: submodule imports (recommended) and flat imports (convenient).
+
 ### In progress
 
-- **Phase 8 placeholder** – Task 46 will collect incremental diagnostics (LogLayer reporter, transcript polish) after the bootstrap flow ships.
+- **Phase 8 placeholder** - Task 46 will collect incremental diagnostics (LogLayer reporter, transcript polish) after the bootstrap flow ships.
 
 ## 0.11.0 - 2025-11-04
 

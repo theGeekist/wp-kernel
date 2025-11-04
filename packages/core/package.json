@@ -60,8 +60,8 @@
 		},
 		"./events": {
 			"types": "./dist/events/index.d.ts",
-			"import": "./dist/events/index.js",
-			"default": "./dist/events/index.js"
+			"import": "./dist/events.js",
+			"default": "./dist/events.js"
 		},
 		"./capability": {
 			"types": "./dist/capability/index.d.ts",
@@ -80,8 +80,8 @@
 		},
 		"./namespace": {
 			"types": "./dist/namespace/index.d.ts",
-			"import": "./dist/namespace/index.js",
-			"default": "./dist/namespace/index.js"
+			"import": "./dist/namespace.js",
+			"default": "./dist/namespace.js"
 		},
 		"./namespace/constants": {
 			"types": "./dist/namespace/constants.d.ts",

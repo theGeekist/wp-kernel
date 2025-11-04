@@ -187,27 +187,15 @@ import { defineResource, invalidate } from '@wpkernel/core/resource';
 import { WPKernelError } from '@wpkernel/core/error';
 ```
 
-### 2. Namespace Imports
+### 2. Flat Imports
 
-Organized by module. Good for mid-sized projects.
-
-```typescript
-import { http, resource, error } from '@wpkernel/core';
-
-await http.fetch({ path: '/wpk/v1/things' });
-const thing = resource.defineResource({ name: 'thing', routes: {...} });
-throw new error.WPKernelError('ValidationError', {...});
-```
-
-### 3. Flat Imports
-
-Quick and simple. Good for prototyping.
+Quick and convenient. Good for prototyping or when you need multiple exports.
 
 ```typescript
 import { fetch, defineResource, WPKernelError } from '@wpkernel/core';
 ```
 
-All patterns work identically - pick what you prefer. The framework doesn't care.
+Both patterns work identically - pick what you prefer. Submodule imports provide better tree-shaking, while flat imports offer convenience.
 
 ---
 

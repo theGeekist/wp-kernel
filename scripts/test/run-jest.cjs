@@ -39,7 +39,7 @@ const workspaceRoot = (() => {
 		current = path.dirname(current);
 	}
 
-	// fallback – run where we are
+	// fallback - run where we are
 	return process.cwd();
 })();
 
@@ -210,7 +210,7 @@ switch (mode) {
 // ---------------------------------------------------------------------------
 const jestBin = require.resolve('jest/bin/jest');
 
-// keep these – they make sense for CI + pre-commit
+// keep these - they make sense for CI + pre-commit
 const defaultArgs = ['--passWithNoTests', '--watchman=false'];
 const finalArgs = [jestBin, ...defaultArgs];
 

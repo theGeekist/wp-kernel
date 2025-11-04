@@ -251,13 +251,13 @@ async function main() {
 
 		if (cache?.signature === signature) {
 			console.log(
-				'docs:api – cached output is up to date; skipping TypeDoc.'
+				'docs:api - cached output is up to date; skipping TypeDoc.'
 			);
 			return;
 		}
 	}
 
-	console.log('docs:api – changes detected, regenerating TypeDoc output...');
+	console.log('docs:api - changes detected, regenerating TypeDoc output...');
 	for (const pkg of packages) {
 		const entryPoint = path.join(
 			rootDir,

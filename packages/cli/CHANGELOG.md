@@ -4,17 +4,17 @@
 
 ### In progress
 
-- **Phase 8 placeholder** – Task 46 will collect incremental diagnostics (starting with the CLI LogLayer reporter) after the plugin bootstrap flow ships.
+- **Phase 8 placeholder** - Task 46 will collect incremental diagnostics (starting with the CLI LogLayer reporter) after the plugin bootstrap flow ships.
 
 ## 0.11.0 - 2025-11-04
 
 ### Added
 
-- **Plugin bootstrap flow** – `npm create @wpkernel/wpk` now scaffolds a new plugin with a complete, activatable bootstrap loader, and `wpk init` safely adopts existing plugins without overwriting author-owned files.
+- **Plugin bootstrap flow** - `npm create @wpkernel/wpk` now scaffolds a new plugin with a complete, activatable bootstrap loader, and `wpk init` safely adopts existing plugins without overwriting author-owned files.
 
 ### Fixed
 
-- **Generation manifest persistence** – `wpk generate` stores `.wpk/apply/state.json`, removes stale `.generated/**` files when resources or PHP paths disappear, and records shim deletions in `.wpk/apply/plan.json` so `wpk apply` prunes obsolete loaders.
+- **Generation manifest persistence** - `wpk generate` stores `.wpk/apply/state.json`, removes stale `.generated/**` files when resources or PHP paths disappear, and records shim deletions in `.wpk/apply/plan.json` so `wpk apply` prunes obsolete loaders.
 
 ## 0.10.0 - 2025-11-05
 
@@ -30,84 +30,84 @@
 
 ### Added
 
-- **Layered apply workflow release** – Verified the Task 31 checklist (`wpk generate && wpk apply --yes --dry-run`) and finalized the Phase 5 minor release.
+- **Layered apply workflow release** - Verified the Task 31 checklist (`wpk generate && wpk apply --yes --dry-run`) and finalized the Phase 5 minor release.
 
 ### Documentation
 
-- **MVP ledger update** – Marked the Phase 5 release slot as shipped and captured the migration guidance in the CLI docs.
+- **MVP ledger update** - Marked the Phase 5 release slot as shipped and captured the migration guidance in the CLI docs.
 
 ### Maintenance
 
-- **Version bump** – Propagated the package version to `0.9.0` and regenerated API references via the release automation.
+- **Version bump** - Propagated the package version to `0.9.0` and regenerated API references via the release automation.
 
 ## 0.8.0 - 2025-10-26
 
 ### Removed
 
-- **Legacy printers** – Removed the string-based PHP/TypeScript/blocks printers and the `runGenerate` shim in favour of the next pipeline builders.
-- **Deprecated commands** – Dropped the Clipanion `GenerateCommand`, `StartCommand`, `DoctorCommand`, `InitCommand`, `BuildCommand`, and `ApplyCommand` classes; the CLI now registers the factory-built commands directly (and omits the deprecated `build` command).
+- **Legacy printers** - Removed the string-based PHP/TypeScript/blocks printers and the `runGenerate` shim in favour of the next pipeline builders.
+- **Deprecated commands** - Dropped the Clipanion `GenerateCommand`, `StartCommand`, `DoctorCommand`, `InitCommand`, `BuildCommand`, and `ApplyCommand` classes; the CLI now registers the factory-built commands directly (and omits the deprecated `build` command).
 
 ### Changed
 
-- **CLI entrypoint** – `cli/run.ts` instantiates the `generate`, `init`, `create`, `start`, `doctor`, and `apply` commands before registration, eliminating the legacy command layer.
+- **CLI entrypoint** - `cli/run.ts` instantiates the `generate`, `init`, `create`, `start`, `doctor`, and `apply` commands before registration, eliminating the legacy command layer.
 
 ### Documentation
 
-- **Task 26 release notes** – Migration plan, MVP ledger, quick start, and resource/block guides now describe the builder pipeline and mark the 0.8.0 release as shipped.
+- **Task 26 release notes** - Migration plan, MVP ledger, quick start, and resource/block guides now describe the builder pipeline and mark the 0.8.0 release as shipped.
 
 ## 0.7.0 - 2025-10-26
 
 ### Added
 
-- **Block builder pipeline** – SSR and JS-only block generation now runs through shared manifest, registrar, and render helpers in the next pipeline, replacing the legacy string printers while preserving parity.
+- **Block builder pipeline** - SSR and JS-only block generation now runs through shared manifest, registrar, and render helpers in the next pipeline, replacing the legacy string printers while preserving parity.
 
 ### Fixed
 
-- **Manifest cache invalidation** – File signature tracking refreshes block manifests and render templates when source files change so builders rerun instead of serving stale artefacts.
+- **Manifest cache invalidation** - File signature tracking refreshes block manifests and render templates when source files change so builders rerun instead of serving stale artefacts.
 
 ### Documentation
 
-- **Phase 3 closure** – MVP plan, migration phases, and AST tracker record Tasks 16-19 as shipped and document the shared `ts-morph` primitives powering the new builders.
+- **Phase 3 closure** - MVP plan, migration phases, and AST tracker record Tasks 16-19 as shipped and document the shared `ts-morph` primitives powering the new builders.
 
 ### Maintenance
 
-- **Release prep** – Version bumped to `0.7.0` alongside regenerated API docs and showcase fixtures after closing the Phase 3 buffer slot.
+- **Release prep** - Version bumped to `0.7.0` alongside regenerated API docs and showcase fixtures after closing the Phase 3 buffer slot.
 
 ## 0.6.0 - 2025-10-26
 
 ### Added
 
-- **Transient fixtures** – The generate command golden captures transient storage metadata, TTL helper output, and cache invalidation context beside existing resources.
+- **Transient fixtures** - The generate command golden captures transient storage metadata, TTL helper output, and cache invalidation context beside existing resources.
 
 ### Fixed
 
-- **Transient DELETE handlers** – DELETE routes now call `delete_transient()`, emit cache invalidation events, and return previous payloads rather than replying with `501` errors.
+- **Transient DELETE handlers** - DELETE routes now call `delete_transient()`, emit cache invalidation events, and return previous payloads rather than replying with `501` errors.
 
 ### Documentation
 
-- **Phase 2 wrap-up** – Migration plan, AST tracker, and adapter brief mark Task 14 as shipped, highlight identity-aware cache keys, and log the 0.6.0 release.
+- **Phase 2 wrap-up** - Migration plan, AST tracker, and adapter brief mark Task 14 as shipped, highlight identity-aware cache keys, and log the 0.6.0 release.
 
 ### Maintenance
 
-- **Monorepo release** – Bumped `@wpkernel/cli` to `0.6.0` alongside the rest of the workspace after completing the Phase 2 checklist.
+- **Monorepo release** - Bumped `@wpkernel/cli` to `0.6.0` alongside the rest of the workspace after completing the Phase 2 checklist.
 
 ## 0.5.0 - 2025-10-26
 
 ### Added
 
-- **wp-option controllers (AST)** – `packages/cli/src/builders/php/resource/wpOption/**` now emit wp-option controllers through the pipeline, replacing the legacy string printer while preserving helper-first behaviour.
+- **wp-option controllers (AST)** - `packages/cli/src/builders/php/resource/wpOption/**` now emit wp-option controllers through the pipeline, replacing the legacy string printer while preserving helper-first behaviour.
 
 ### Changed
 
-- **Integration coverage** – The generate integration suite and controller snapshots include DemoOption fixtures so resource routing, method dispatch, and writer output stay covered end to end.
+- **Integration coverage** - The generate integration suite and controller snapshots include DemoOption fixtures so resource routing, method dispatch, and writer output stay covered end to end.
 
 ### Documentation
 
-- **Phase 1 closure** – MVP plan, migration phases, and parity trackers mark Tasks 8 and 9 as shipped, document the unused buffer hotfix slot, and advance the CLI roadmap to the v0.5.x release track.
+- **Phase 1 closure** - MVP plan, migration phases, and parity trackers mark Tasks 8 and 9 as shipped, document the unused buffer hotfix slot, and advance the CLI roadmap to the v0.5.x release track.
 
 ### Maintenance
 
-- **Release prep** – No buffer hotfixes were required; the package version is bumped to `0.5.0` alongside the rest of the monorepo.
+- **Release prep** - No buffer hotfixes were required; the package version is bumped to `0.5.0` alongside the rest of the monorepo.
 
 ## 0.4.0
 

@@ -9,124 +9,132 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **Core package exports** - Fixed missing Vite build entry points for `namespace` and `events` submodules, ensuring `@wpkernel/core/namespace` and `@wpkernel/core/events` imports work correctly at runtime. Updated package.json export paths to match actual build output structure.
+
+### Documentation
+
+- **Import patterns** - Removed outdated namespace import pattern (`import { http } from '@wpkernel/core'`) from README and package documentation. Framework now documents two patterns: submodule imports (recommended for tree-shaking) and flat imports (convenient).
+
 ### In progress
 
-- **Phase 8 placeholder** – Task 46 will collect incremental diagnostics (starting with the CLI LogLayer reporter) after the plugin bootstrap flow ships.
+- **Phase 8 placeholder** - Task 46 will collect incremental diagnostics (starting with the CLI LogLayer reporter) after the plugin bootstrap flow ships.
 
 ## [0.11.0] - 2025-11-04
 
 ### Added
 
-- **Plugin bootstrap flow** – `npm create @wpkernel/wpk` now scaffolds a new plugin with a complete, activatable bootstrap loader, and `wpk init` safely adopts existing plugins without overwriting author-owned files.
+- **Plugin bootstrap flow** - `npm create @wpkernel/wpk` now scaffolds a new plugin with a complete, activatable bootstrap loader, and `wpk init` safely adopts existing plugins without overwriting author-owned files.
 
 ### Fixed
 
-- **Generation state diffs** – `wpk generate` now persists `.wpk/apply/state.json`, compares per-resource artefact paths between runs, prunes stale `.generated/**` files when PHP output or autoload roots change, and queues shim deletions in the apply plan so `wpk apply` removes obsolete loaders.
+- **Generation state diffs** - `wpk generate` now persists `.wpk/apply/state.json`, compares per-resource artefact paths between runs, prunes stale `.generated/**` files when PHP output or autoload roots change, and queues shim deletions in the apply plan so `wpk apply` removes obsolete loaders.
 
 ## [0.10.0] - 2025-11-05
 
 ### Added
 
-- **Pipeline-only core orchestration** – Core now routes `defineAction`, `defineResource`, and interactivity helpers through the shared pipeline catalogue with new diagnostics and helper naming guarantees.
-- **Interactivity bridge** – Published `defineInteraction` under `@wpkernel/core/interactivity`, wiring store actions to the pipeline-aware runtime and documenting installation expectations.
+- **Pipeline-only core orchestration** - Core now routes `defineAction`, `defineResource`, and interactivity helpers through the shared pipeline catalogue with new diagnostics and helper naming guarantees.
+- **Interactivity bridge** - Published `defineInteraction` under `@wpkernel/core/interactivity`, wiring store actions to the pipeline-aware runtime and documenting installation expectations.
 
 ### Changed
 
-- **Diagnostics polish** – Reporter integrations surface missing helper warnings, helper modules honour the reserved `create*` prefix, and rollback hooks unwind side effects when helpers fail.
+- **Diagnostics polish** - Reporter integrations surface missing helper warnings, helper modules honour the reserved `create*` prefix, and rollback hooks unwind side effects when helpers fail.
 
 ### Documentation
 
-- **Phase 6 closure** – Updated the CLI MVP ledger, migration phases brief, and core pipeline spec to record Task 32‑36 completion and the 0.10.0 release.
+- **Phase 6 closure** - Updated the CLI MVP ledger, migration phases brief, and core pipeline spec to record Task 32‑36 completion and the 0.10.0 release.
 
 ### Maintenance
 
-- **Monorepo release** – Bumped all packages, showcase fixtures, and version trackers to `0.10.0` ahead of the Phase 6 minor release.
+- **Monorepo release** - Bumped all packages, showcase fixtures, and version trackers to `0.10.0` ahead of the Phase 6 minor release.
 
 ## [0.9.0] - 2025-10-27
 
 ### Added
 
-- **Apply workflow release** – Cut the v0.9.0 release after validating the layered `wpk generate && wpk apply --yes --dry-run` flow and finishing the Task 31 checklist.
+- **Apply workflow release** - Cut the v0.9.0 release after validating the layered `wpk generate && wpk apply --yes --dry-run` flow and finishing the Task 31 checklist.
 
 ### Documentation
 
-- **Task 31 closure** – Updated the CLI MVP ledger to mark the Phase 5 minor release as shipped and captured the apply workflow migration notes.
+- **Task 31 closure** - Updated the CLI MVP ledger to mark the Phase 5 minor release as shipped and captured the apply workflow migration notes.
 
 ### Maintenance
 
-- **Monorepo release** – Bumped all packages, showcase fixtures, and generated API docs to `0.9.0` via the release automation script.
+- **Monorepo release** - Bumped all packages, showcase fixtures, and generated API docs to `0.9.0` via the release automation script.
 
 ## [0.8.0] - 2025-10-26
 
 ### Removed
 
-- **Legacy CLI shims** – Deleted the string-based printers and Clipanion command classes, wiring the CLI entrypoint directly to the command factories.
+- **Legacy CLI shims** - Deleted the string-based printers and Clipanion command classes, wiring the CLI entrypoint directly to the command factories.
 
 ### Changed
 
-- **Command registration** – `wpk` now registers `generate`, `init`, `create`, `start`, `doctor`, and `apply` via the next pipeline builders only; the deprecated `build` command has been removed.
+- **Command registration** - `wpk` now registers `generate`, `init`, `create`, `start`, `doctor`, and `apply` via the next pipeline builders only; the deprecated `build` command has been removed.
 
 ### Documentation
 
-- **Phase 4 release** – Updated the CLI roadmap, quick start, resource guide, and showcase docs to reference the builder-based pipeline and mark Task 26 (0.8.0) as shipped.
+- **Phase 4 release** - Updated the CLI roadmap, quick start, resource guide, and showcase docs to reference the builder-based pipeline and mark Task 26 (0.8.0) as shipped.
 
 ### Maintenance
 
-- **Monorepo release** – Bumped all packages, templates, and showcase fixtures to `0.8.0` and regenerated API/docs content after retiring the legacy printers.
+- **Monorepo release** - Bumped all packages, templates, and showcase fixtures to `0.8.0` and regenerated API/docs content after retiring the legacy printers.
 
 ## [0.7.0] - 2025-10-26
 
 ### Added
 
-- **Block builder parity** – The pipeline now stages block manifests, registrars, and render stubs through shared helpers for both SSR and JS-only variants, matching the legacy printers without string-based generation.
+- **Block builder parity** - The pipeline now stages block manifests, registrars, and render stubs through shared helpers for both SSR and JS-only variants, matching the legacy printers without string-based generation.
 
 ### Fixed
 
-- **Block manifest cache invalidation** – Workspace-aware file signatures refresh manifest and render metadata when source files change so builders no longer reuse stale cache entries.
+- **Block manifest cache invalidation** - Workspace-aware file signatures refresh manifest and render metadata when source files change so builders no longer reuse stale cache entries.
 
 ### Documentation
 
-- **Phase 3 completion** – CLI migration docs mark Tasks 16-19 as shipped, describe the shared `ts-morph` primitives, and call out the 0.7.0 release cadence.
+- **Phase 3 completion** - CLI migration docs mark Tasks 16-19 as shipped, describe the shared `ts-morph` primitives, and call out the 0.7.0 release cadence.
 
 ### Maintenance
 
-- **Monorepo release** – Bumped all packages, templates, and showcase fixtures to `0.7.0` and regenerated API docs for the release tag.
+- **Monorepo release** - Bumped all packages, templates, and showcase fixtures to `0.7.0` and regenerated API docs for the release tag.
 
 ## [0.6.0] - 2025-10-26
 
 ### Added
 
-- **Transient parity pipeline** – Completed the transient AST builders, routed DELETE handlers, and refreshed generated fixtures so transient resources now ship with cache metadata and TTL helpers.
+- **Transient parity pipeline** - Completed the transient AST builders, routed DELETE handlers, and refreshed generated fixtures so transient resources now ship with cache metadata and TTL helpers.
 
 ### Fixed
 
-- **Transient DELETE handlers** – DELETE routes now call `delete_transient()`, return cache invalidation payloads, and emit shared cache events instead of responding with `501` errors.
+- **Transient DELETE handlers** - DELETE routes now call `delete_transient()`, return cache invalidation payloads, and emit shared cache events instead of responding with `501` errors.
 
 ### Documentation
 
-- **Phase 2 wrap-up** – CLI docs record Task 14 as shipped, log the 0.6.0 release, and open the Phase 3 patch band for block builders.
+- **Phase 2 wrap-up** - CLI docs record Task 14 as shipped, log the 0.6.0 release, and open the Phase 3 patch band for block builders.
 
 ### Maintenance
 
-- **Monorepo release** – Bumped all packages, showcase fixtures, and version trackers to `0.6.0` following the Phase 2 minor release checklist.
+- **Monorepo release** - Bumped all packages, showcase fixtures, and version trackers to `0.6.0` following the Phase 2 minor release checklist.
 
 ## [0.5.0] - 2025-10-26
 
 ### Added
 
-- **wp-option AST parity** – The CLI pipeline now emits wp-option controllers, helpers, and routes as `PhpProgram` artefacts alongside existing post and taxonomy resources, replacing the legacy string-based printer.
+- **wp-option AST parity** - The CLI pipeline now emits wp-option controllers, helpers, and routes as `PhpProgram` artefacts alongside existing post and taxonomy resources, replacing the legacy string-based printer.
 
 ### Changed
 
-- **Integration coverage** – The shared PHP IR fixture, generate integration suite, and controller snapshots now capture DemoOption artefacts so regression tests exercise the option controller end to end.
+- **Integration coverage** - The shared PHP IR fixture, generate integration suite, and controller snapshots now capture DemoOption artefacts so regression tests exercise the option controller end to end.
 
 ### Documentation
 
-- **Phase 1 tracking updates** – CLI migration docs mark Tasks 8 and 9 as shipped, note the unused hotfix buffer, and advance the roadmap to the 0.5.x train ahead of the Phase 1 minor release.
+- **Phase 1 tracking updates** - CLI migration docs mark Tasks 8 and 9 as shipped, note the unused hotfix buffer, and advance the roadmap to the 0.5.x train ahead of the Phase 1 minor release.
 
 ### Maintenance
 
-- **Release prep** – No hotfixes were required during the buffer slot; all publishable packages and showcase examples now carry version `0.5.0` in preparation for the Phase 1 release.
+- **Release prep** - No hotfixes were required during the buffer slot; all publishable packages and showcase examples now carry version `0.5.0` in preparation for the Phase 1 release.
 
 ## [0.4.0]
 

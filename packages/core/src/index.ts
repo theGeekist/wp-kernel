@@ -4,22 +4,14 @@
  * Rails-like framework for building modern WordPress products where
  * JavaScript is the source of truth and PHP is a thin contract.
  *
- * @example Scoped imports (recommended)
+ * @example Submodule imports (recommended - best for tree-shaking)
  * ```ts
  * import { fetch } from '@wpkernel/core/http';
  * import { defineResource } from '@wpkernel/core/resource';
  * import { WPKernelError } from '@wpkernel/core/error';
  * ```
  *
- * @example Namespace imports (organized)
- * ```ts
- * import { http, resource, error } from '@wpkernel/core';
- * await http.fetch({ path: '/my-plugin/v1/things' });
- * resource.defineResource({ name: 'thing', routes: {...} });
- * throw new error.WPKernelError('ValidationError', {...});
- * ```
- *
- * @example Flat imports (convenience)
+ * @example Flat imports from main index (convenience)
  * ```ts
  * import { fetch, defineResource, WPKernelError } from '@wpkernel/core';
  * ```
@@ -45,22 +37,6 @@
 export const VERSION = '0.11.0';
 
 // ============================================================================
-// Namespace Exports (Organized by module)
-// ============================================================================
-
-export * as http from './http/index.js';
-export * as resource from './resource/index.js';
-export * as error from './error/index.js';
-export * as namespace from './namespace/index.js';
-export * as actions from './actions/index.js';
-export * as capability from './capability/index.js';
-export * as data from './data/index.js';
-export * as events from './events/index.js';
-export * as contracts from './contracts/index.js';
-export * as pipeline from './pipeline/index.js';
-export * as interactivity from './interactivity/index.js';
-
-// ============================================================================
 // Flat Exports (Convenience aliases)
 // ============================================================================
 
@@ -84,6 +60,7 @@ export type {
 	ErrorContext,
 	ErrorData,
 	SerializedError,
+	WordPressRESTError,
 } from './error/index.js';
 
 // HTTP transport
@@ -115,6 +92,7 @@ export { createStore } from './resource/store.js';
 // Global functions (re-export for convenience)
 export const getWPData = globalThis.getWPData;
 export type {
+	AnyFn,
 	ResourceRoute,
 	ResourceRoutes,
 	ResourceIdentityConfig,
@@ -140,6 +118,7 @@ export type {
 	ResourceResolvers,
 	ResourceStoreConfig,
 	ResourceStore,
+	ResourceListStatus,
 } from './resource/types';
 export type {
 	PathParams,
@@ -154,12 +133,14 @@ export {
 	invokeAction,
 	EXECUTE_ACTION_TYPE,
 } from './actions/middleware.js';
+export type { ActionEnvelope } from './actions/middleware.js';
 export type {
 	ActionConfig,
 	ActionContext,
 	ActionFn,
 	ActionOptions,
 	ActionLifecycleEvent,
+	ActionLifecycleEventBase,
 	ActionStartEvent,
 	ActionCompleteEvent,
 	ActionErrorEvent,
@@ -167,6 +148,9 @@ export type {
 	ResolvedActionOptions,
 	ActionJobs,
 	WaitOptions,
+	ReduxMiddleware,
+	ReduxMiddlewareAPI,
+	ReduxDispatch,
 } from './actions/types';
 
 // Capability system
@@ -182,12 +166,15 @@ export type {
 	CapabilityCacheOptions,
 	CapabilityDeniedEvent,
 	CapabilityReporter,
+	CapabilityAdapters,
+	CapabilityProxyOptions,
 	ParamsOf,
 } from './capability/index.js';
 
 // Data integration
 export { configureWPKernel, registerWPKernelStore } from './data/index.js';
 export { wpkEventsPlugin } from './data/plugins/events';
+export type { WPKernelEventsPluginOptions } from './data/plugins/events';
 export type {
 	WPKernelRegistry,
 	ConfigureWPKernelOptions,
@@ -217,6 +204,8 @@ export type {
 	InteractivityServerState,
 	InteractivityServerStateResolver,
 	HydrateServerStateInput,
+	DeepReadonly,
+	ResourceCacheSync,
 } from './interactivity/index.js';
 
 // Event bus

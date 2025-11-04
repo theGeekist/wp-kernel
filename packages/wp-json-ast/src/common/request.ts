@@ -1,4 +1,4 @@
-import { WPKernelError } from '@wpkernel/core';
+import { WPKernelError } from '@wpkernel/core/error';
 import {
 	buildArg,
 	buildAssign,

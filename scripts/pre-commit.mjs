@@ -42,8 +42,8 @@ async function main() {
 		title: 'Lint staged files',
 		enabled: hasStaged && hasNonDocChanges,
 		skipMessage: hasStaged
-			? 'Docs-only changes – skipping lint-staged.'
-			: 'No staged files – skipping lint-staged.',
+			? 'Docs-only changes - skipping lint-staged.'
+			: 'No staged files - skipping lint-staged.',
 		async run(ctx) {
 			ctx.update('pnpm lint-staged');
 			const res = await runCommand('pnpm', ['lint-staged']);
@@ -113,7 +113,7 @@ async function main() {
 				summaryLines: (results) =>
 					results.map((r) => {
 						const secs = Math.round(r.result.durationMs / 1000);
-						return `${r.command.label ?? r.command.cmd} – ${secs}s`;
+						return `${r.command.label ?? r.command.cmd} - ${secs}s`;
 					}),
 			}),
 		);
@@ -121,7 +121,7 @@ async function main() {
 		tasks.push({
 			title: 'Typecheck',
 			enabled: false,
-			skipMessage: 'Docs-only changes – skipping typechecks.',
+			skipMessage: 'Docs-only changes - skipping typechecks.',
 			async run() { },
 		});
 	}
@@ -176,7 +176,7 @@ async function main() {
 							);
 						}
 						const secs = Math.round(res.durationMs / 1000);
-						lines.push(`${t.label ?? t.cmd} – ${secs}s`);
+						lines.push(`${t.label ?? t.cmd} - ${secs}s`);
 					}
 					return { summaryLines: lines };
 				},
@@ -193,7 +193,7 @@ async function main() {
 		tasks.push({
 			title: 'Run tests',
 			enabled: false,
-			skipMessage: 'Docs-only changes – skipping tests.',
+			skipMessage: 'Docs-only changes - skipping tests.',
 			async run() { },
 		});
 	}

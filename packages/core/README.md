@@ -158,15 +158,16 @@ const SendWelcomeEmail = defineJob({
 Choose what fits your project:
 
 ```typescript
-// Scoped (recommended)
+// Submodule imports (recommended - best tree-shaking)
 import { defineResource } from '@wpkernel/core/resource';
+import { fetch } from '@wpkernel/core/http';
+import { WPKernelError } from '@wpkernel/core/error';
 
-// Namespace
-import { resource } from '@wpkernel/core';
-
-// Flat
-import { defineResource } from '@wpkernel/core';
+// Flat imports (convenience)
+import { defineResource, fetch, WPKernelError } from '@wpkernel/core';
 ```
+
+Both patterns work identically. Submodule imports provide better tree-shaking.
 
 ## Documentation
 

@@ -9,11 +9,7 @@
  */
 import type { CacheKeyPattern } from './cache';
 import type { Reporter } from '../reporter';
-
-/**
- * HTTP methods supported for REST operations
- */
-export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+import type { HttpMethod } from '../http/types';
 
 /**
  * Route definition for a single REST operation

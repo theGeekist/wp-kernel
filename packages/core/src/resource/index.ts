@@ -87,7 +87,6 @@ export {
 export type { InvalidateOptions, CacheKeyPattern, PathParams } from './cache';
 export type {
 	AnyFn,
-	HttpMethod,
 	ResourceRoute,
 	ResourceRoutes,
 	ResourceIdentityConfig,

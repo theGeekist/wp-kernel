@@ -633,7 +633,7 @@ async function buildTypecheckTasks(stagedFiles: string[]): Promise<Task[]> {
 				title: 'Typecheck',
 				enabled: false,
 				skipMessage:
-					'No package changes detected – skipping typechecks.',
+					'No package changes detected - skipping typechecks.',
 				run: async () => {},
 			},
 		];
@@ -841,8 +841,8 @@ async function main() {
 		title: 'Lint staged files',
 		enabled: hasStagedFiles && !documentationOnlyChanges,
 		skipMessage: hasStagedFiles
-			? 'Documentation-only changes detected – skipping lint-staged.'
-			: 'No staged files detected – skipping lint-staged.',
+			? 'Documentation-only changes detected - skipping lint-staged.'
+			: 'No staged files detected - skipping lint-staged.',
 		async run(ctx) {
 			ctx.update('lint-staged');
 			const result = await runCommand('pnpm', ['lint-staged']);
@@ -893,7 +893,7 @@ async function main() {
 			title: 'Typecheck',
 			enabled: false,
 			skipMessage:
-				'Documentation-only changes detected – skipping typechecks.',
+				'Documentation-only changes detected - skipping typechecks.',
 			async run() {},
 		});
 
@@ -901,7 +901,7 @@ async function main() {
 			title: 'Run tests with coverage',
 			enabled: false,
 			skipMessage:
-				'Documentation-only changes detected – skipping coverage tests.',
+				'Documentation-only changes detected - skipping coverage tests.',
 			async run() {},
 		});
 
@@ -909,7 +909,7 @@ async function main() {
 			title: 'Run integration test suites',
 			enabled: false,
 			skipMessage:
-				'Documentation-only changes detected – skipping integration tests.',
+				'Documentation-only changes detected - skipping integration tests.',
 			async run() {},
 		});
 	}

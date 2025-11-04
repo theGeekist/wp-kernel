@@ -6,7 +6,7 @@ All notable changes to `@wpkernel/php-json-ast` will be documented in this file.
 
 ### In progress
 
-- **Phase 8 placeholder** – Task 46 will collect incremental diagnostics (starting with the CLI LogLayer reporter) after the bootstrap flow ships.
+- **Phase 8 placeholder** - Task 46 will collect incremental diagnostics (starting with the CLI LogLayer reporter) after the bootstrap flow ships.
 
 ## 0.11.0 - 2025-11-04
 
